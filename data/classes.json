@@ -1,22 +1,33 @@
 {
+	"protagonista": "anonimo",
 	"classi": [
+		{
+			"id": "anonimo",
+			"nome": "Anonimo",
+			"hp": 22,
+			"abilita": ["anonimato"],
+			"ritratto": "res://art/personaggi/anonimo.png"
+		},
 		{
 			"id": "insonne",
 			"nome": "Insonne",
 			"hp": 20,
-			"abilita": ["veglia", "sesto_senso"]
+			"abilita": ["veglia", "sesto_senso"],
+			"ritratto": "res://art/personaggi/insonne.png"
 		},
 		{
 			"id": "meteora",
 			"nome": "Meteora",
 			"hp": 16,
-			"abilita": ["volo", "impatto"]
+			"abilita": ["volo", "impatto"],
+			"ritratto": "res://art/personaggi/meteora.png"
 		},
 		{
 			"id": "guastatore",
 			"nome": "Guastatore",
 			"hp": 18,
-			"abilita": ["scasso", "trappole"]
+			"abilita": ["scasso", "trappole"],
+			"ritratto": "res://art/personaggi/guastatore.png"
 		}
 	]
 }

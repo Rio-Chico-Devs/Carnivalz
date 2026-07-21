@@ -1,0 +1,74 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/Selezione.gd" id="1_selezione"]
+
+[node name="Selezione" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_selezione")
+
+[node name="Sfondo" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.04, 0.1, 1)
+
+[node name="Margini" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 32
+
+[node name="Colonna" type="VBoxContainer" parent="Margini"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Titolo" type="Label" parent="Margini/Colonna"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 28
+text = "Chi viene con te?"
+
+[node name="SpazioSopra" type="Control" parent="Margini/Colonna"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Centro" type="CenterContainer" parent="Margini/Colonna"]
+layout_mode = 2
+
+[node name="Lista" type="HBoxContainer" parent="Margini/Colonna/Centro"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="SpazioSotto" type="Control" parent="Margini/Colonna"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Bottoni" type="HBoxContainer" parent="Margini/Colonna"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="BottoneMappa" type="Button" parent="Margini/Colonna/Bottoni"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Torna alla mappa"
+
+[node name="BottoneInizia" type="Button" parent="Margini/Colonna/Bottoni"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Inizia il Carnivalz"

@@ -1,9 +1,9 @@
 extends Control
 
 # Mappa stellare: legge data/mappa.json e mostra un "!" dove un Carnivalz
-# sta avendo luogo. Click sul marker -> si entra nel motore eventi.
+# sta avendo luogo. Click sul marker -> selezione del party -> eventi.
 
-const SCENA_EVENTI := "res://scenes/Main.tscn"
+const SCENA_SELEZIONE := "res://scenes/Selezione.tscn"
 # Seed solo cosmetico (stelle placeholder): il caso di gioco sta in GameState.rng
 const SEED_STELLE := 20260721
 
@@ -40,7 +40,7 @@ func _su_punto(punto: Dictionary) -> void:
 	if file_eventi.is_empty():
 		return
 	if GameState.avvia_carnivalz(punto.get("id", ""), file_eventi):
-		get_tree().change_scene_to_file(SCENA_EVENTI)
+		get_tree().change_scene_to_file(SCENA_SELEZIONE)
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.05, 0.04, 0.1))

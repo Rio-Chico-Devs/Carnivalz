@@ -10,6 +10,7 @@
 		},
 		"bosco": {
 			"testo": "Tra i rami, una figura osserva il cielo a occhi spalancati: è Meteora. \"Anche tu senti la musica sbagliata?\"",
+			"destra": "meteora",
 			"scelte": [
 				{ "testo": "Chiedile di unirsi a te", "vai": "tendone", "recluta": "meteora" },
 				{ "testo": "Prosegui da solo", "vai": "tendone" }
@@ -36,13 +37,15 @@
 			]
 		},
 		"boss": {
-			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. Il Carnivalz trattiene il fiato.",
+			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" Il Carnivalz trattiene il fiato.",
+			"centro": "imbonitore",
 			"scelte": [
 				{ "testo": "Affrontalo", "vai": "vittoria" }
 			]
 		},
 		"vittoria": {
-			"testo": "L'Imbonitore si inchina e si disfa in coriandoli neri. Questo Carnivalz è concluso... per ora.",
+			"testo": "L'Imbonitore si inchina. \"Alla prossima, allora.\" E si disfa in coriandoli neri. Questo Carnivalz è concluso... per ora.",
+			"destra": "imbonitore",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]

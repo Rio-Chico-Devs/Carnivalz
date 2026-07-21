@@ -1,12 +1,20 @@
 extends Control
 
 # Motore eventi: mostra il nodo corrente, filtra le scelte per requisiti
-# e applica gli effetti (recluta / oggetto / reset). I contenuti vivono
-# solo nei JSON.
+# e applica gli effetti (recluta / oggetto / lascia / reset). I contenuti
+# vivono solo nei JSON.
+#
+# Palco dialoghi sopra il box: a sinistra sempre il protagonista (o un
+# alternativo indicato dal nodo), a destra l'interlocutore della
+# discussione. Se il nodo indica "centro", parla un solo personaggio al
+# centro e i due spazi laterali spariscono.
 
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
 
+@onready var slot_sinistra = %SlotSinistra
+@onready var slot_centro = %SlotCentro
+@onready var slot_destra = %SlotDestra
 @onready var narratore: RichTextLabel = %Narratore
 @onready var contenitore_scelte: VBoxContainer = %Scelte
 @onready var stato: Label = %Stato
@@ -24,6 +32,7 @@ func mostra_nodo(id_nodo: String) -> void:
 		return
 	GameState.nodo_corrente = id_nodo
 	narratore.text = nodo.get("testo", "")
+	aggiorna_palco(nodo)
 	aggiorna_stato()
 	for figlio in contenitore_scelte.get_children():
 		figlio.queue_free()
@@ -35,11 +44,27 @@ func mostra_nodo(id_nodo: String) -> void:
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
 
+func aggiorna_palco(nodo: Dictionary) -> void:
+	if nodo.has("centro"):
+		slot_sinistra.visible = false
+		slot_destra.visible = false
+		slot_centro.visible = true
+		slot_centro.mostra(nodo["centro"])
+		return
+	slot_centro.visible = false
+	slot_sinistra.visible = true
+	slot_sinistra.mostra(nodo.get("sinistra", GameState.id_protagonista))
+	slot_destra.visible = nodo.has("destra")
+	if nodo.has("destra"):
+		slot_destra.mostra(nodo["destra"])
+
 func _su_scelta(scelta: Dictionary) -> void:
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
 	if scelta.has("oggetto"):
 		GameState.aggiungi_oggetto(scelta["oggetto"])
+	if scelta.has("lascia"):
+		GameState.rimuovi_classe(scelta["lascia"])
 	if scelta.get("reset", false):
 		GameState.reset_campagna()
 		get_tree().change_scene_to_file(SCENA_MAPPA)

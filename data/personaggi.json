@@ -1,0 +1,9 @@
+{
+	"personaggi": [
+		{
+			"id": "imbonitore",
+			"nome": "L'Imbonitore",
+			"ritratto": "res://art/personaggi/imbonitore.png"
+		}
+	]
+}
