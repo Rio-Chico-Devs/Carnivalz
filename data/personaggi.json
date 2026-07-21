@@ -1,6 +1,24 @@
 {
 	"personaggi": [
 		{
+			"id": "maschera_vuota",
+			"nome": "Maschera Vuota",
+			"hp": 3,
+			"velocita": 1,
+			"xp": 8,
+			"ritratto": "res://art/personaggi/maschera_vuota.png"
+		},
+		{
+			"id": "giocoliere",
+			"nome": "Il Giocoliere",
+			"hp": 4,
+			"velocita": 4,
+			"psiche": "rabbia",
+			"fattore_base": 10,
+			"xp": 15,
+			"ritratto": "res://art/personaggi/giocoliere.png"
+		},
+		{
 			"id": "imbonitore",
 			"nome": "L'Imbonitore",
 			"hp": 5,

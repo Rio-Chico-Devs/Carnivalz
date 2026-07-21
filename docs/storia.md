@@ -16,8 +16,16 @@ più forti in tutto, a scapito di sé. C'è chi muore e c'è chi sopravvive.
 ## L'Organizzazione
 I mondi si sono adattati. Un'organizzazione facoltosa ha deciso di investire
 tutte le sue risorse nella **prevenzione delle fusioni tra realtà**.
+Si chiama semplicemente così: **l'Organizzazione**. Non ha altro nome.
 È lei a mandare il party dove un Carnivalz sta avendo luogo (i "!" sulla
 mappa stellare).
+
+## I personaggi giocabili
+Sono toccati dal confine che ce l'hanno fatta: grazie alla loro **forza di
+volontà e peculiarità** sono riusciti a trasformare lo stress in **resilienza
+ed energia** — o lo **convertono per natura**, o **se ne nutrono**.
+Ma il confine non smette di premere: **anche un personaggio può diventare
+una fonte.**
 
 ## Le fonti
 Quando un intero pianeta viene divorato dal fattore Carnivalz, **la fonte va
@@ -40,8 +48,9 @@ gioco avrà successo.
   tra loro è ciò che li tiene ancorati (e apre gli eventi rari).
 
 ## Punti aperti (decide Bru)
-- Nome proprio dell'Organizzazione (per ora: "l'Organizzazione")
 - Natura dell'ombra che prende dati (materiale per Carnivalz 2)
 - La causa ignota del collasso (resta ignota? si scopre nel 2?)
-- Lo stress altissimo prolungato può trasformare un personaggio in fonte?
-  (la lore lo suggerisce; da decidere se diventa meccanica)
+- Quando "un personaggio diventa fonte" diventa meccanica: soglia di stress
+  prolungato? evento narrativo? (il canone c'è, manca la regola)
+- Le tre nature del rapporto con lo stress (resiliente / convertitore /
+  divoratore): legarle alle classi o alle psichi come tratto nei dati?

@@ -12,41 +12,92 @@
 			"testo": "Tra i rami, una figura osserva il cielo a occhi spalancati: è Meteora. \"Anche tu senti la musica sbagliata?\"",
 			"destra": "meteora",
 			"scelte": [
-				{ "testo": "Chiedile di unirsi a te", "vai": "tendone", "recluta": "meteora", "legame": 10 },
-				{ "testo": "Prosegui da solo", "vai": "tendone" }
+				{ "testo": "Chiedile di unirsi a te", "vai": "radura", "recluta": "meteora", "legame": 10 },
+				{ "testo": "Prosegui da solo", "vai": "radura" }
 			]
 		},
 		"fiume": {
 			"testo": "Sulla riva, mezza sepolta nel fango, una lanterna spenta che pulsa come un cuore.",
 			"scelte": [
-				{ "testo": "Raccogli la lanterna", "vai": "tendone", "oggetto": "lanterna_che_pulsa" },
-				{ "testo": "Lasciala dov'è", "vai": "tendone" }
+				{ "testo": "Raccogli la lanterna", "vai": "riva", "oggetto": "lanterna_che_pulsa" },
+				{ "testo": "Lasciala dov'è", "vai": "riva" }
 			]
 		},
-		"tendone": {
-			"testo": "Il tendone si apre davanti a te come una bocca. In alto, tra le funi, luccica qualcosa che nessuno dovrebbe aver lasciato lì.",
+		"riva": {
+			"testo": "Più avanti, seduta su un tronco, una donna fissa la corrente senza battere ciglio. È l'Insonne: non dorme da giorni, e ha visto tutto quello che passa di qui.",
+			"destra": "insonne",
 			"scelte": [
-				{ "testo": "Vola fin lassù, tra le funi", "vai": "segreto", "richiede": "volo" },
-				{ "testo": "Accendi un falò prima di entrare", "vai": "falo" },
-				{ "testo": "Entra dal varco principale", "vai": "boss" }
+				{ "testo": "Offrile di venire con te", "vai": "radura", "recluta": "insonne", "legame": 10 },
+				{ "testo": "Lasciala ai suoi pensieri", "vai": "radura" }
+			]
+		},
+		"radura": {
+			"testo": "La radura si apre e il Carnivalz è lì: tendoni storti, luci che respirano. Sul sentiero, immobile, una maschera bianca senza nessuno dietro. Ti sta aspettando.",
+			"scelte": [
+				{ "testo": "Affrontala", "combatti": ["maschera_vuota"], "se_vinci": "campo_giostre", "se_perdi": "sconfitta" },
+				{ "testo": "Aggirala nel buio, seguendo l'istinto", "vai": "campo_giostre", "richiede": "sesto_senso" }
+			]
+		},
+		"campo_giostre": {
+			"testo": "Il campo delle giostre. A sinistra, il tunnel dell'amore con i binari divelti. A destra, il padiglione degli specchi, ancora acceso.",
+			"scelte": [
+				{ "testo": "Entra nel tunnel dell'amore", "vai": "tunnel" },
+				{ "testo": "Entra nel padiglione degli specchi", "vai": "specchi" }
+			]
+		},
+		"tunnel": {
+			"testo": "Nel tunnel, un uomo sta smontando i binari pezzo per pezzo, fischiettando la musica sbagliata al contrario. Il Guastatore alza lo sguardo: \"Se la smonti, non li divora.\"",
+			"destra": "guastatore",
+			"scelte": [
+				{ "testo": "Proponigli di smontare il Carnivalz insieme", "vai": "proscenio", "recluta": "guastatore", "legame": 10 },
+				{ "testo": "Lascialo al suo lavoro", "vai": "proscenio" }
+			]
+		},
+		"specchi": {
+			"testo": "Gli specchi non riflettono te: riflettono i mondi che non ci sono più. In uno di essi, qualcosa luccica a portata di mano. Guardare fa male.",
+			"scelte": [
+				{ "testo": "Reggi lo sguardo e afferra la scheggia", "vai": "proscenio", "oggetto": "scheggia_di_specchio", "stress": 20 },
+				{ "testo": "Distogli lo sguardo e attraversa in fretta", "vai": "proscenio" }
+			]
+		},
+		"proscenio": {
+			"testo": "Davanti al proscenio del tendone grande c'è uno spiazzo riparato dal vento. La fonte è vicina: si sente. C'è tempo per un ultimo respiro.",
+			"scelte": [
+				{ "testo": "Accendi un falò", "vai": "falo" },
+				{ "testo": "Avanti, senza fermarsi", "vai": "palco" }
 			]
 		},
 		"falo": {
 			"testo": "Il fuoco prende in fretta. La musica del tendone sembra più lontana, qui. C'è tempo per respirare.",
 			"scelte": [
 				{ "testo": "Mangiate qualcosa e parlate fino a tardi", "vai": "falo_notte", "stress": -30, "legame": 15 },
-				{ "testo": "Meglio non perdere tempo", "vai": "boss" }
+				{ "testo": "Meglio non perdere tempo", "vai": "palco" }
 			]
 		},
 		"falo_notte": {
 			"testo": "Le braci calano. Qualcuno dovrebbe dire qualcosa, ma il silenzio va bene lo stesso.",
 			"scelte": [
-				{ "testo": "Meteora ti affida la sua stella caduta", "vai": "boss", "richiede_legame": 40, "oggetto": "stella_caduta", "legame": 10 },
-				{ "testo": "Verso la pista", "vai": "boss" }
+				{ "testo": "Qualcuno ti mette in mano qualcosa di caldo: una stella caduta", "vai": "palco", "richiede_legame": 40, "oggetto": "stella_caduta", "legame": 10 },
+				{ "testo": "Verso il palco", "vai": "palco" }
+			]
+		},
+		"palco": {
+			"testo": "Sul palco, il Giocoliere fa girare tre coltelli che non ricadono mai. \"La fonte non riceve nessuno,\" dice, senza guardarti. \"Prima si passa da me.\"",
+			"centro": "giocoliere",
+			"scelte": [
+				{ "testo": "Passa da lui", "combatti": ["giocoliere"], "se_vinci": "backstage", "se_perdi": "sconfitta" },
+				{ "testo": "Scardina la botola e passa sotto il palco", "vai": "backstage", "richiede": "scasso" }
+			]
+		},
+		"backstage": {
+			"testo": "Il backstage è un bosco di funi e sipari. In alto, tra le travi, luccica qualcosa che nessuno dovrebbe aver lasciato lì.",
+			"scelte": [
+				{ "testo": "Vola fin lassù, tra le funi", "vai": "segreto", "richiede": "volo" },
+				{ "testo": "Scosta l'ultimo sipario", "vai": "boss" }
 			]
 		},
 		"segreto": {
-			"testo": "Tra le funi trovi una medaglia del vecchio circo, incisa con un nome che non riesci a leggere. Nessuno la vedeva da anni.",
+			"testo": "Tra le travi trovi una medaglia del vecchio circo, incisa con un nome che non riesci a leggere. Nessuno la vedeva da anni.",
 			"scelte": [
 				{ "testo": "Prendila e scendi verso la pista", "vai": "boss", "oggetto": "medaglia_del_vecchio_circo" }
 			]
@@ -55,7 +106,7 @@
 			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" È lui la fonte. Il Carnivalz trattiene il fiato.",
 			"centro": "imbonitore",
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
+				{ "testo": "Estingui la fonte", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
 			]
 		},
 		"sconfitta": {

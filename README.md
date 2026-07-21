@@ -122,5 +122,7 @@ campagna, torna alla mappa; roster, zaino, livelli, stress e legame restano).
 3. ✅ Selezione party adattiva + palco dialoghi con ritratti
 4. ✅ Combattimento a turni base (velocità, rabbia, livelli)
 5. ✅ Psiche, stress, fattore Carnivalz, XP fino al 130, legame
-6. ⬜ Salvataggio (serializzare GameState)
-7. ⬜ Le 10 classi vere (varianti M/F)
+6. ✅ Primo dungeon completo: il Carnivalz del Bosco (17 nodi, 3 scontri,
+   3 reclutabili su strade alternative, falò, segreti, fonte)
+7. ⬜ Salvataggio (serializzare GameState)
+8. ⬜ Le 10 classi vere (varianti M/F)
