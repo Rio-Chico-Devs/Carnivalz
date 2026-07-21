@@ -40,7 +40,13 @@
 			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" Il Carnivalz trattiene il fiato.",
 			"centro": "imbonitore",
 			"scelte": [
-				{ "testo": "Affrontalo", "vai": "vittoria" }
+				{ "testo": "Affrontalo", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
+			]
+		},
+		"sconfitta": {
+			"testo": "Ti risvegli fuori dal tendone, la testa che rimbomba come un tamburo. Il Carnivalz ti ha risputato fuori. Per stavolta.",
+			"scelte": [
+				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]
 		},
 		"vittoria": {

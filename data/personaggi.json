@@ -3,6 +3,8 @@
 		{
 			"id": "imbonitore",
 			"nome": "L'Imbonitore",
+			"hp": 5,
+			"velocita": 2,
 			"ritratto": "res://art/personaggi/imbonitore.png"
 		}
 	]

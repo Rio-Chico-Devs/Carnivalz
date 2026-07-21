@@ -10,6 +10,7 @@ extends Control
 # centro e i due spazi laterali spariscono.
 
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
+const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
 
 @onready var slot_sinistra = %SlotSinistra
@@ -65,6 +66,11 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.aggiungi_oggetto(scelta["oggetto"])
 	if scelta.has("lascia"):
 		GameState.rimuovi_classe(scelta["lascia"])
+	if scelta.has("combatti"):
+		GameState.prepara_combattimento(scelta["combatti"],
+				scelta.get("se_vinci", ""), scelta.get("se_perdi", ""))
+		get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
+		return
 	if scelta.get("reset", false):
 		GameState.reset_campagna()
 		get_tree().change_scene_to_file(SCENA_MAPPA)

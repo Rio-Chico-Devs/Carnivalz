@@ -7,10 +7,10 @@ extends VBoxContainer
 @onready var iniziale: Label = %Iniziale
 @onready var etichetta_nome: Label = %Nome
 
-func mostra(id_personaggio: String) -> void:
+func mostra(id_personaggio: String, livello: int = 0) -> void:
 	var personaggio: Dictionary = GameState.personaggi.get(id_personaggio, {})
 	var nome: String = personaggio.get("nome", id_personaggio)
-	etichetta_nome.text = nome
+	etichetta_nome.text = nome if livello <= 0 else "%s · Lv %d" % [nome, livello]
 	var percorso: String = personaggio.get("ritratto", "")
 	if percorso != "" and ResourceLoader.exists(percorso):
 		immagine.texture = load(percorso)

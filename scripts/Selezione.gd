@@ -20,7 +20,7 @@ func _ready() -> void:
 	for id_classe in GameState.classi_sbloccate:
 		var carta := SCENA_RITRATTO.instantiate()
 		lista.add_child(carta)
-		carta.mostra(id_classe)
+		carta.mostra(id_classe, GameState.livello_di(id_classe))
 		carta.mouse_filter = Control.MOUSE_FILTER_STOP
 		carta.gui_input.connect(_su_carta.bind(id_classe))
 		carte[id_classe] = carta

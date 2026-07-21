@@ -4,28 +4,32 @@
 		{
 			"id": "anonimo",
 			"nome": "Anonimo",
-			"hp": 22,
+			"hp": 5,
+			"velocita": 3,
 			"abilita": ["anonimato"],
 			"ritratto": "res://art/personaggi/anonimo.png"
 		},
 		{
 			"id": "insonne",
 			"nome": "Insonne",
-			"hp": 20,
+			"hp": 5,
+			"velocita": 4,
 			"abilita": ["veglia", "sesto_senso"],
 			"ritratto": "res://art/personaggi/insonne.png"
 		},
 		{
 			"id": "meteora",
 			"nome": "Meteora",
-			"hp": 16,
+			"hp": 5,
+			"velocita": 5,
 			"abilita": ["volo", "impatto"],
 			"ritratto": "res://art/personaggi/meteora.png"
 		},
 		{
 			"id": "guastatore",
 			"nome": "Guastatore",
-			"hp": 18,
+			"hp": 5,
+			"velocita": 2,
 			"abilita": ["scasso", "trappole"],
 			"ritratto": "res://art/personaggi/guastatore.png"
 		}

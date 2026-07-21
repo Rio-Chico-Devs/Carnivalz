@@ -14,10 +14,12 @@ Aprire `project.godot` con Godot 4.7+ (versione standard). Flusso:
 - `scenes/Selezione.tscn` + `scripts/Selezione.gd` — menu del party: mostra solo le classi
   sbloccate e si riadatta man mano che i personaggi entrano o escono dai disponibili
 - `scenes/Main.tscn` + `scripts/Main.gd` — motore eventi + palco dialoghi
+- `scenes/Combattimento.tscn` + `scripts/Combattimento.gd` — combattimento a turni
 - `scenes/Ritratto.tscn` + `scripts/Ritratto.gd` — ritratto riusabile (immagine o placeholder)
-- `scripts/GameState.gd` — autoload: roster, party, inventario, RNG seedato, caricamento JSON
-- `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, abilita, ritratto)
-- `data/personaggi.json` — personaggi non giocabili (per i ritratti nei dialoghi)
+- `scripts/GameState.gd` — autoload: roster, party, inventario, livelli, RNG seedato, JSON
+- `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
+- `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + stat se combattono)
+- `data/regole.json` — numeri di bilanciamento (hp base, danno, riduzioni, rabbia)
 - `data/events.json` — campagna di prova
 - `data/mappa.json` — sfondo e punti della mappa stellare
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
@@ -29,6 +31,19 @@ protagonista** (o un alternativo, chiave `sinistra` nel nodo), a **destra l'inte
 (chiave `destra`). I dialoghi sono discussioni tra almeno due persone, quindi gli spazi sono
 solo due. Se il nodo ha la chiave `centro`, quel personaggio parla da solo al centro e gli
 spazi laterali spariscono.
+
+## Combattimento
+Il più semplice possibile, per divertire senza mille numeri da tenere d'occhio:
+- **5 HP** a testa (`hp_base`, sovrascrivibile per classe/nemico nei dati), **1 danno** ad attacco
+- Party e nemici in un'unica fila d'iniziativa ordinata per **velocità**: il più veloce di
+  tutti agisce per primo, 1 attacco a testa per giro
+- Il danno **subìto dal party cala in proporzione al livello**: probabilità di assorbire il
+  colpo = (livello − 1) × 10%, tetto 50% (a danno 1, la riduzione percentuale diventa
+  naturalmente "ogni tanto il colpo non passa")
+- Status **rabbia**: in rari casi (35%) concede un attacco extra nello stesso turno; scatta
+  nei sopravvissuti quando un alleato va a terra
+- Vittoria: +1 livello a tutto il party. Sconfitta: nodo `se_perdi` o ritorno alla mappa
+- Tutti i numeri stanno in `data/regole.json`; l'RNG è quello seedato di GameState
 
 ## Formato dati
 
@@ -55,7 +70,8 @@ con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, z
       "destra": "meteora",
       "centro": "imbonitore",
       "scelte": [
-        { "testo": "...", "vai": "altro_nodo", "richiede": "volo", "recluta": "meteora", "oggetto": "lanterna", "lascia": "meteora", "reset": true }
+        { "testo": "...", "vai": "altro_nodo", "richiede": "volo", "recluta": "meteora", "oggetto": "lanterna", "lascia": "meteora", "reset": true },
+        { "testo": "Affrontalo", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
       ]
     }
   }
@@ -64,8 +80,9 @@ con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, z
 Chiavi nodo (opzionali): `sinistra` (default: protagonista), `destra`, `centro` (esclude i lati).
 Chiavi effetto sulle scelte (tutte opzionali): `vai`, `richiede` (la scelta non appare se il
 party non ha l'abilità), `recluta` (sblocca la classe e la mette nel party), `oggetto`
-(nell'inventario), `lascia` (la classe esce dai disponibili), `reset` (fine campagna, torna
-alla mappa; roster e zaino restano).
+(nell'inventario), `lascia` (la classe esce dai disponibili), `combatti` (lista di id nemici;
+`se_vinci`/`se_perdi` sono i nodi di destinazione), `reset` (fine campagna, torna alla mappa;
+roster, zaino e livelli restano).
 
 ## Convenzioni
 - Codice e chiavi JSON in italiano
@@ -77,6 +94,6 @@ alla mappa; roster e zaino restano).
 1. ✅ Vertical slice: motore eventi + gating per abilità
 2. ✅ Mappa stellare con marker "!" data-driven
 3. ✅ Selezione party adattiva + palco dialoghi con ritratti
-4. ⬜ Combattimento a turni base
+4. ✅ Combattimento a turni base (velocità, rabbia, livelli)
 5. ⬜ Salvataggio (serializzare GameState)
 6. ⬜ Le 10 classi vere (varianti M/F)
