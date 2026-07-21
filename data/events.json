@@ -2,7 +2,7 @@
 	"nodo_iniziale": "inizio",
 	"nodi": {
 		"inizio": {
-			"testo": "Le luci del Carnivalz tremano oltre gli alberi. La musica arriva a folate, sbagliata di mezzo tono. Due strade portano al tendone.",
+			"testo": "L'incarico dell'Organizzazione è chiaro: trovare la fonte ed estinguerla, prima che questo mondo venga divorato. Le luci del Carnivalz tremano oltre gli alberi. La musica arriva a folate, sbagliata di mezzo tono. Due strade portano al tendone.",
 			"scelte": [
 				{ "testo": "Taglia per il bosco", "vai": "bosco" },
 				{ "testo": "Costeggia il fiume", "vai": "fiume" }
@@ -52,7 +52,7 @@
 			]
 		},
 		"boss": {
-			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" Il Carnivalz trattiene il fiato.",
+			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" È lui la fonte. Il Carnivalz trattiene il fiato.",
 			"centro": "imbonitore",
 			"scelte": [
 				{ "testo": "Affrontalo", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
@@ -65,7 +65,7 @@
 			]
 		},
 		"vittoria": {
-			"testo": "L'Imbonitore si inchina. \"Alla prossima, allora.\" E si disfa in coriandoli neri. Questo Carnivalz è concluso... per ora.",
+			"testo": "L'Imbonitore si inchina. \"Alla prossima, allora.\" E si disfa in coriandoli neri. La fonte è estinta: questo mondo, per stavolta, resta suo. L'Organizzazione sarà avvisata.",
 			"destra": "imbonitore",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
