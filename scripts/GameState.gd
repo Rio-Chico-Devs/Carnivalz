@@ -1,11 +1,12 @@
 extends Node
 
 # Autoload: stato di gioco e regole. Niente contenuti hardcodati:
-# classi, personaggi, eventi, mappa e numeri di bilanciamento vivono
-# nei JSON sotto data/.
+# classi, personaggi, psichi, eventi, mappa e numeri di bilanciamento
+# vivono nei JSON sotto data/.
 
 const PERCORSO_CLASSI := "res://data/classes.json"
 const PERCORSO_PERSONAGGI := "res://data/personaggi.json"
+const PERCORSO_PSICHE := "res://data/psiche.json"
 const PERCORSO_MAPPA := "res://data/mappa.json"
 const PERCORSO_REGOLE := "res://data/regole.json"
 
@@ -16,6 +17,7 @@ var seed_partita: int = 0
 
 var classi: Dictionary = {}
 var personaggi: Dictionary = {}      # classi + NPC (ritratti, dialoghi, stat)
+var psichi: Dictionary = {}          # id psiche -> nome, effetto, descrizione
 var regole: Dictionary = {}
 var id_protagonista: String = ""
 
@@ -23,6 +25,9 @@ var classi_sbloccate: Array[String] = []  # roster: persiste tra le campagne
 var party: Array[String] = []             # scelto a inizio campagna
 var inventario: Array[String] = []
 var livelli: Dictionary = {}              # id classe -> livello (default 1)
+var xp: Dictionary = {}                   # id classe -> xp verso il prossimo livello
+var stress: Dictionary = {}               # id classe -> 0..100
+var legame: int = 0                       # 0..100, respira di continuo
 
 var eventi: Dictionary = {}
 var nodo_corrente: String = ""
@@ -36,6 +41,7 @@ func _ready() -> void:
 	imposta_seed(int(Time.get_unix_time_from_system()))
 	carica_classi()
 	carica_personaggi()
+	carica_psichi()
 	carica_regole()
 	nuova_partita()
 
@@ -70,6 +76,10 @@ func carica_personaggi() -> void:
 		for personaggio in dati.get("personaggi", []):
 			personaggi[personaggio["id"]] = personaggio
 
+func carica_psichi() -> void:
+	var dati: Variant = carica_json(PERCORSO_PSICHE)
+	psichi = dati.get("psichi", {}) if dati is Dictionary else {}
+
 func carica_regole() -> void:
 	var dati: Variant = carica_json(PERCORSO_REGOLE)
 	regole = dati if dati is Dictionary else {}
@@ -83,6 +93,9 @@ func nuova_partita() -> void:
 	party.clear()
 	inventario.clear()
 	livelli.clear()
+	xp.clear()
+	stress.clear()
+	legame = int(regole.get("legame_iniziale", 20))
 	if id_protagonista != "":
 		classi_sbloccate.append(id_protagonista)
 		party.append(id_protagonista)
@@ -109,6 +122,34 @@ func party_ha_abilita(abilita: String) -> bool:
 func livello_di(id_classe: String) -> int:
 	return int(livelli.get(id_classe, 1))
 
+func stress_di(id_classe: String) -> int:
+	return int(stress.get(id_classe, 0))
+
+func modifica_stress(id_classe: String, quantita: int) -> void:
+	stress[id_classe] = clampi(stress_di(id_classe) + quantita, 0, 100)
+
+func modifica_legame(quantita: int) -> void:
+	legame = clampi(legame + quantita, 0, 100)
+
+func fabbisogno_xp(livello: int) -> int:
+	var richiesta := ceili(float(regole.get("xp_base", 10))
+			* pow(livello, float(regole.get("xp_esponente", 1.5))))
+	if livello >= int(regole.get("livello_ostico", 100)):
+		richiesta *= int(regole.get("moltiplicatore_ostico", 5))
+	return richiesta
+
+func aggiungi_xp(id_classe: String, quantita: int) -> void:
+	if not classi.has(id_classe):
+		return
+	xp[id_classe] = int(xp.get(id_classe, 0)) + quantita
+	var massimo := int(regole.get("livello_massimo", 130))
+	while livello_di(id_classe) < massimo:
+		var necessario := fabbisogno_xp(livello_di(id_classe))
+		if xp[id_classe] < necessario:
+			break
+		xp[id_classe] -= necessario
+		livelli[id_classe] = livello_di(id_classe) + 1
+
 func sblocca_classe(id_classe: String) -> void:
 	if classi.has(id_classe) and id_classe not in classi_sbloccate:
 		classi_sbloccate.append(id_classe)
@@ -134,9 +175,9 @@ func prepara_combattimento(nemici: Array, se_vinci: String, se_perdi: String) ->
 	nodo_se_vinci = se_vinci
 	nodo_se_perdi = se_perdi
 
-func premia_vittoria() -> void:
+func premia_vittoria(xp_totale: int) -> void:
 	for id_classe in party:
-		livelli[id_classe] = livello_di(id_classe) + 1
+		aggiungi_xp(id_classe, xp_totale)
 	annulla_combattimento()
 
 func annulla_combattimento() -> void:
@@ -145,7 +186,8 @@ func annulla_combattimento() -> void:
 	nodo_se_perdi = ""
 
 func reset_campagna() -> void:
-	# fine campagna: roster, zaino e livelli restano, il party si scioglie
+	# fine campagna: roster, zaino, livelli, stress e legame restano;
+	# il party si scioglie
 	party.clear()
 	if id_protagonista != "":
 		party.append(id_protagonista)

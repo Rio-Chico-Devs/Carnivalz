@@ -1,0 +1,19 @@
+{
+	"psichi": {
+		"rabbia": {
+			"nome": "Rabbia",
+			"effetto": "attacco_extra",
+			"descrizione": "Se un compagno va a terra si arrabbia: può attaccare di nuovo nello stesso turno."
+		},
+		"depressione": {
+			"nome": "Depressione",
+			"effetto": "difesa_giu",
+			"descrizione": "Se un compagno va a terra si deprime: la sua difesa cala e subisce più danno."
+		},
+		"concentrazione": {
+			"nome": "Concentrazione",
+			"effetto": "fattore_su",
+			"descrizione": "Se un compagno va a terra si concentra: il fattore Carnivalz sale."
+		}
+	}
+}

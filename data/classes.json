@@ -6,6 +6,8 @@
 			"nome": "Anonimo",
 			"hp": 5,
 			"velocita": 3,
+			"psiche": "concentrazione",
+			"fattore_base": 15,
 			"abilita": ["anonimato"],
 			"ritratto": "res://art/personaggi/anonimo.png"
 		},
@@ -14,6 +16,8 @@
 			"nome": "Insonne",
 			"hp": 5,
 			"velocita": 4,
+			"psiche": "depressione",
+			"fattore_base": 10,
 			"abilita": ["veglia", "sesto_senso"],
 			"ritratto": "res://art/personaggi/insonne.png"
 		},
@@ -22,6 +26,8 @@
 			"nome": "Meteora",
 			"hp": 5,
 			"velocita": 5,
+			"psiche": "rabbia",
+			"fattore_base": 20,
 			"abilita": ["volo", "impatto"],
 			"ritratto": "res://art/personaggi/meteora.png"
 		},
@@ -30,6 +36,8 @@
 			"nome": "Guastatore",
 			"hp": 5,
 			"velocita": 2,
+			"psiche": "rabbia",
+			"fattore_base": 10,
 			"abilita": ["scasso", "trappole"],
 			"ritratto": "res://art/personaggi/guastatore.png"
 		}

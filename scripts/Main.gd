@@ -40,6 +40,8 @@ func mostra_nodo(id_nodo: String) -> void:
 	for scelta in nodo.get("scelte", []):
 		if scelta.has("richiede") and not GameState.party_ha_abilita(scelta["richiede"]):
 			continue  # requisito non soddisfatto: la scelta non appare proprio
+		if scelta.has("richiede_legame") and GameState.legame < int(scelta["richiede_legame"]):
+			continue  # evento raro: serve un legame abbastanza coltivato
 		var bottone := Button.new()
 		bottone.text = scelta.get("testo", "…")
 		bottone.pressed.connect(_su_scelta.bind(scelta))
@@ -60,12 +62,18 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 		slot_destra.mostra(nodo["destra"])
 
 func _su_scelta(scelta: Dictionary) -> void:
+	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
 	if scelta.has("oggetto"):
 		GameState.aggiungi_oggetto(scelta["oggetto"])
 	if scelta.has("lascia"):
 		GameState.rimuovi_classe(scelta["lascia"])
+	if scelta.has("stress"):
+		for id_classe in GameState.party:
+			GameState.modifica_stress(id_classe, int(scelta["stress"]))
+	if scelta.has("legame"):
+		GameState.modifica_legame(int(scelta["legame"]))
 	if scelta.has("combatti"):
 		GameState.prepara_combattimento(scelta["combatti"],
 				scelta.get("se_vinci", ""), scelta.get("se_perdi", ""))
@@ -84,4 +92,4 @@ func aggiorna_stato() -> void:
 		nomi.append(String(GameState.classi.get(id_classe, {}).get("nome", id_classe)))
 	var testo_party := ", ".join(nomi) if not nomi.is_empty() else "solo tu"
 	var testo_zaino := ", ".join(GameState.inventario) if not GameState.inventario.is_empty() else "vuoto"
-	stato.text = "Party: %s   •   Zaino: %s" % [testo_party, testo_zaino]
+	stato.text = "Party: %s   •   Zaino: %s   •   Legame %d" % [testo_party, testo_zaino, GameState.legame]

@@ -12,7 +12,7 @@
 			"testo": "Tra i rami, una figura osserva il cielo a occhi spalancati: è Meteora. \"Anche tu senti la musica sbagliata?\"",
 			"destra": "meteora",
 			"scelte": [
-				{ "testo": "Chiedile di unirsi a te", "vai": "tendone", "recluta": "meteora" },
+				{ "testo": "Chiedile di unirsi a te", "vai": "tendone", "recluta": "meteora", "legame": 10 },
 				{ "testo": "Prosegui da solo", "vai": "tendone" }
 			]
 		},
@@ -27,7 +27,22 @@
 			"testo": "Il tendone si apre davanti a te come una bocca. In alto, tra le funi, luccica qualcosa che nessuno dovrebbe aver lasciato lì.",
 			"scelte": [
 				{ "testo": "Vola fin lassù, tra le funi", "vai": "segreto", "richiede": "volo" },
+				{ "testo": "Accendi un falò prima di entrare", "vai": "falo" },
 				{ "testo": "Entra dal varco principale", "vai": "boss" }
+			]
+		},
+		"falo": {
+			"testo": "Il fuoco prende in fretta. La musica del tendone sembra più lontana, qui. C'è tempo per respirare.",
+			"scelte": [
+				{ "testo": "Mangiate qualcosa e parlate fino a tardi", "vai": "falo_notte", "stress": -30, "legame": 15 },
+				{ "testo": "Meglio non perdere tempo", "vai": "boss" }
+			]
+		},
+		"falo_notte": {
+			"testo": "Le braci calano. Qualcuno dovrebbe dire qualcosa, ma il silenzio va bene lo stesso.",
+			"scelte": [
+				{ "testo": "Meteora ti affida la sua stella caduta", "vai": "boss", "richiede_legame": 40, "oggetto": "stella_caduta", "legame": 10 },
+				{ "testo": "Verso la pista", "vai": "boss" }
 			]
 		},
 		"segreto": {

@@ -21,6 +21,9 @@ func _ready() -> void:
 		var carta := SCENA_RITRATTO.instantiate()
 		lista.add_child(carta)
 		carta.mostra(id_classe, GameState.livello_di(id_classe))
+		var psiche: String = GameState.classi.get(id_classe, {}).get("psiche", "")
+		var nome_psiche: String = GameState.psichi.get(psiche, {}).get("nome", "")
+		carta.imposta_extra("Stress %d · %s" % [GameState.stress_di(id_classe), nome_psiche])
 		carta.mouse_filter = Control.MOUSE_FILTER_STOP
 		carta.gui_input.connect(_su_carta.bind(id_classe))
 		carte[id_classe] = carta

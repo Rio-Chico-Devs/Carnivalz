@@ -2,10 +2,12 @@ extends Control
 
 # Combattimento a turni. Party e nemici in un'unica fila d'iniziativa
 # ordinata per velocità: il più veloce di tutti agisce per primo, 1 attacco
-# a testa per giro. Lo status "rabbia" può concedere (raramente) un attacco
-# extra nello stesso turno. Vita volutamente minima: pochi numeri, tutti in
-# data/regole.json. Il danno subìto dal party cala in proporzione al
-# livello, come probabilità di assorbire il colpo.
+# a testa per giro. Quando un compagno va a terra ogni sopravvissuto
+# reagisce secondo la propria psiche (rabbia / depressione /
+# concentrazione, definite in data/psiche.json). Il fattore Carnivalz
+# potenzia attacco e difesa ma fa salire lo stress; oltre la soglia il
+# personaggio è sopraffatto e il fattore si spegne. Numeri in
+# data/regole.json, casualità solo dall'RNG seedato di GameState.
 
 signal azione_scelta(bersaglio: Dictionary)
 
@@ -40,6 +42,11 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var vita := Label.new()
 	vita.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	scheda.add_child(vita)
+	var extra := Label.new()
+	extra.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	extra.add_theme_font_size_override("font_size", 12)
+	extra.modulate = Color(1, 1, 1, 0.7)
+	scheda.add_child(extra)
 	if giocatore:
 		fila_party.add_child(scheda)
 		ritratto.mostra(id_personaggio, GameState.livello_di(id_personaggio))
@@ -53,10 +60,15 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"hp": hp_max,
 		"hp_max": hp_max,
 		"velocita": int(dati.get("velocita", 3)),
+		"psiche": String(dati.get("psiche", "")),
+		"fattore": int(dati.get("fattore_base", 0)),
+		"stress": GameState.stress_di(id_personaggio) if giocatore else 0,
+		"xp": int(dati.get("xp", 10)),
 		"giocatore": giocatore,
 		"stati": [],
 		"scheda": scheda,
 		"etichetta_vita": vita,
+		"etichetta_extra": extra,
 	}
 	combattenti.append(combattente)
 	aggiorna_scheda(combattente)
@@ -70,7 +82,8 @@ func esegui_scontro() -> void:
 				continue
 			await esegui_turno(combattente)
 			var prob_extra := float(GameState.regole.get("probabilita_attacco_extra_rabbia", 0.35))
-			if in_corso and combattente.hp > 0 and "rabbia" in combattente.stati \
+			if in_corso and combattente.hp > 0 \
+					and ha_stato_con_effetto(combattente, "attacco_extra") \
 					and GameState.rng.randf() < prob_extra:
 				scrivi("%s è in preda alla rabbia e attacca di nuovo!" % combattente.nome)
 				await esegui_turno(combattente)
@@ -88,6 +101,12 @@ func esegui_turno(attaccante: Dictionary) -> void:
 		var possibili := vivi(true)
 		bersaglio = possibili[GameState.rng.randi_range(0, possibili.size() - 1)]
 	attacca(attaccante, bersaglio)
+	# tenere acceso il fattore costa: lo stress sale a ogni azione
+	var passo := int(GameState.regole.get("stress_per_fattore", 25))
+	var costo := floori(attaccante.fattore / float(maxi(passo, 1)))
+	if costo > 0:
+		attaccante.stress = clampi(attaccante.stress + costo, 0, 100)
+		aggiorna_scheda(attaccante)
 
 func mostra_azioni() -> void:
 	for figlio in azioni.get_children():
@@ -105,12 +124,19 @@ func _scegli(bersaglio: Dictionary) -> void:
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary) -> void:
 	var danno := int(GameState.regole.get("danno_attacco", 1))
+	if fattore_attivo(attaccante) and GameState.rng.randf() < attaccante.fattore / 100.0:
+		danno += 1
+		scrivi("Il fattore Carnivalz arde in %s!" % attaccante.nome)
+	if ha_stato_con_effetto(bersaglio, "difesa_giu"):
+		danno += int(GameState.regole.get("malus_danno_depressione", 1))
 	if bersaglio.giocatore:
-		# il danno subìto cala in proporzione al livello
+		# il danno subìto cala in proporzione al livello (e col fattore acceso)
 		var riduzione := minf(
 			(GameState.livello_di(bersaglio.id) - 1)
 				* float(GameState.regole.get("riduzione_danno_per_livello", 0.1)),
 			float(GameState.regole.get("riduzione_danno_massima", 0.5)))
+		if fattore_attivo(bersaglio):
+			riduzione += bersaglio.fattore / 200.0
 		if GameState.rng.randf() < riduzione:
 			danno = 0
 	if danno <= 0:
@@ -124,11 +150,8 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary) -> void:
 
 func _su_ko(caduto: Dictionary) -> void:
 	scrivi("[i]%s è a terra![/i]" % caduto.nome)
-	if GameState.regole.get("rabbia_su_ko_alleato", false):
-		for alleato in vivi(caduto.giocatore):
-			if "rabbia" not in alleato.stati:
-				alleato.stati.append("rabbia")
-				scrivi("%s ribolle di rabbia!" % alleato.nome)
+	for alleato in vivi(caduto.giocatore):
+		reagisci(alleato)
 	if vivi(false).is_empty():
 		giocatore_ha_vinto = true
 		in_corso = false
@@ -136,6 +159,32 @@ func _su_ko(caduto: Dictionary) -> void:
 	elif vivi(true).is_empty():
 		in_corso = false
 		scrivi("[b]Il party è a terra. Il Carnivalz ha vinto.[/b]")
+
+func reagisci(alleato: Dictionary) -> void:
+	# ognuno accusa il colpo secondo la propria psiche
+	var effetto: String = GameState.psichi.get(alleato.psiche, {}).get("effetto", "")
+	if effetto == "" or alleato.psiche in alleato.stati:
+		return
+	alleato.stati.append(alleato.psiche)
+	match effetto:
+		"attacco_extra":
+			scrivi("%s ribolle di rabbia!" % alleato.nome)
+		"difesa_giu":
+			scrivi("%s si chiude in sé: la sua difesa cala." % alleato.nome)
+		"fattore_su":
+			var bonus := int(GameState.regole.get("fattore_bonus_concentrazione", 25))
+			alleato.fattore = clampi(alleato.fattore + bonus, 0, 100)
+			scrivi("%s si concentra: il fattore Carnivalz sale." % alleato.nome)
+	aggiorna_scheda(alleato)
+
+func ha_stato_con_effetto(combattente: Dictionary, effetto: String) -> bool:
+	if combattente.psiche not in combattente.stati:
+		return false
+	return GameState.psichi.get(combattente.psiche, {}).get("effetto", "") == effetto
+
+func fattore_attivo(combattente: Dictionary) -> bool:
+	var soglia := int(GameState.regole.get("soglia_stress_sopraffatto", 80))
+	return combattente.fattore > 0 and combattente.stress < soglia
 
 func vivi(giocatore: bool) -> Array[Dictionary]:
 	var risultato: Array[Dictionary] = []
@@ -157,13 +206,28 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 		combattente.scheda.modulate = Color(0.5, 0.4, 0.4, 0.5)
 	else:
 		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
+	var dettagli := "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]
+	if combattente.stress >= int(GameState.regole.get("soglia_stress_sopraffatto", 80)):
+		dettagli += " · sopraffatto"
+	if combattente.psiche in combattente.stati:
+		dettagli += " · " + String(GameState.psichi.get(combattente.psiche, {}).get("nome", combattente.psiche))
+	combattente.etichetta_extra.text = dettagli
 
 func scrivi(riga: String) -> void:
 	diario.append_text(riga + "\n")
 
 func _esci() -> void:
+	# lo stress accumulato resta addosso ai personaggi
+	for combattente in combattenti:
+		if combattente.giocatore:
+			GameState.modifica_stress(combattente.id,
+					combattente.stress - GameState.stress_di(combattente.id))
 	if giocatore_ha_vinto:
-		GameState.premia_vittoria()
+		var xp_totale := 0
+		for combattente in combattenti:
+			if not combattente.giocatore:
+				xp_totale += combattente.xp
+		GameState.premia_vittoria(xp_totale)
 		GameState.nodo_corrente = GameState.nodo_se_vinci
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	elif GameState.nodo_se_perdi != "":

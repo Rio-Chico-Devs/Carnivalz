@@ -18,8 +18,9 @@ Aprire `project.godot` con Godot 4.7+ (versione standard). Flusso:
 - `scenes/Ritratto.tscn` + `scripts/Ritratto.gd` — ritratto riusabile (immagine o placeholder)
 - `scripts/GameState.gd` — autoload: roster, party, inventario, livelli, RNG seedato, JSON
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
-- `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + stat se combattono)
-- `data/regole.json` — numeri di bilanciamento (hp base, danno, riduzioni, rabbia)
+- `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + stat/xp se combattono)
+- `data/psiche.json` — le psichi e i loro effetti (reazione al KO di un compagno)
+- `data/regole.json` — numeri di bilanciamento (hp, danno, stress, fattore, xp, legame)
 - `data/events.json` — campagna di prova
 - `data/mappa.json` — sfondo e punti della mappa stellare
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
@@ -40,10 +41,31 @@ Il più semplice possibile, per divertire senza mille numeri da tenere d'occhio:
 - Il danno **subìto dal party cala in proporzione al livello**: probabilità di assorbire il
   colpo = (livello − 1) × 10%, tetto 50% (a danno 1, la riduzione percentuale diventa
   naturalmente "ogni tanto il colpo non passa")
-- Status **rabbia**: in rari casi (35%) concede un attacco extra nello stesso turno; scatta
-  nei sopravvissuti quando un alleato va a terra
-- Vittoria: +1 livello a tutto il party. Sconfitta: nodo `se_perdi` o ritorno alla mappa
+- Vittoria: XP a tutto il party (somma dell'`xp` dei nemici). Sconfitta: nodo `se_perdi`
+  o ritorno alla mappa
 - Tutti i numeri stanno in `data/regole.json`; l'RNG è quello seedato di GameState
+
+## Psiche, stress, fattore Carnivalz
+Ogni personaggio ha una **psiche** (`psiche` nella classe, definizioni in `data/psiche.json`):
+quando un compagno va a terra, ognuno accusa il colpo a modo suo —
+- **Rabbia** (`attacco_extra`): in rari casi (35%) attacca di nuovo nello stesso turno
+- **Depressione** (`difesa_giu`): la difesa cala, subisce +1 danno
+- **Concentrazione** (`fattore_su`): il fattore Carnivalz sale (+25)
+
+Il **fattore Carnivalz** (0–100, base per classe in `fattore_base`) è volontà + talento:
+dà probabilità pari al fattore di fare +1 danno e metà fattore di assorbire un colpo —
+ma tenerlo acceso costa **stress** a ogni azione (+1 ogni 25 di fattore). Lo **stress**
+(0–100) resta addosso anche fuori dal combattimento; a 80+ il personaggio è *sopraffatto*
+e il fattore si spegne. Si scarica parlando, mangiando, con gli oggetti: chiave `stress`
+negativa sulle scelte degli eventi (es. il falò: `"stress": -30`).
+
+## Esperienza e legame
+- **XP**: la vittoria dà XP a tutto il party; livello massimo **130**, fabbisogno
+  `xp_base × livello^1.5`, e i 30 livelli dopo il 100 sono ostici (fabbisogno ×5)
+- **Legame** (0–100): si coltiva interagendo e prendendosi cura dei compagni (chiave
+  `legame` sulle scelte) e **cala di continuo** (−1 a ogni scelta). Un legame alto fa
+  apparire gli eventi rari: chiave `richiede_legame` sulle scelte (es. la stella caduta
+  di Meteora al falò richiede legame ≥ 40)
 
 ## Formato dati
 
@@ -79,10 +101,11 @@ con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, z
 ```
 Chiavi nodo (opzionali): `sinistra` (default: protagonista), `destra`, `centro` (esclude i lati).
 Chiavi effetto sulle scelte (tutte opzionali): `vai`, `richiede` (la scelta non appare se il
-party non ha l'abilità), `recluta` (sblocca la classe e la mette nel party), `oggetto`
-(nell'inventario), `lascia` (la classe esce dai disponibili), `combatti` (lista di id nemici;
-`se_vinci`/`se_perdi` sono i nodi di destinazione), `reset` (fine campagna, torna alla mappa;
-roster, zaino e livelli restano).
+party non ha l'abilità), `richiede_legame` (appare solo con legame ≥ soglia), `recluta`
+(sblocca la classe e la mette nel party), `oggetto` (nell'inventario), `lascia` (la classe
+esce dai disponibili), `stress` (± a tutto il party), `legame` (± al legame), `combatti`
+(lista di id nemici; `se_vinci`/`se_perdi` sono i nodi di destinazione), `reset` (fine
+campagna, torna alla mappa; roster, zaino, livelli, stress e legame restano).
 
 ## Convenzioni
 - Codice e chiavi JSON in italiano
@@ -95,5 +118,6 @@ roster, zaino e livelli restano).
 2. ✅ Mappa stellare con marker "!" data-driven
 3. ✅ Selezione party adattiva + palco dialoghi con ritratti
 4. ✅ Combattimento a turni base (velocità, rabbia, livelli)
-5. ⬜ Salvataggio (serializzare GameState)
-6. ⬜ Le 10 classi vere (varianti M/F)
+5. ✅ Psiche, stress, fattore Carnivalz, XP fino al 130, legame
+6. ⬜ Salvataggio (serializzare GameState)
+7. ⬜ Le 10 classi vere (varianti M/F)

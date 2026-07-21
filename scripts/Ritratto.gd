@@ -6,6 +6,7 @@ extends VBoxContainer
 @onready var immagine: TextureRect = %Immagine
 @onready var iniziale: Label = %Iniziale
 @onready var etichetta_nome: Label = %Nome
+@onready var etichetta_extra: Label = %Extra
 
 func mostra(id_personaggio: String, livello: int = 0) -> void:
 	var personaggio: Dictionary = GameState.personaggi.get(id_personaggio, {})
@@ -19,3 +20,7 @@ func mostra(id_personaggio: String, livello: int = 0) -> void:
 		immagine.texture = null
 		iniziale.text = nome.left(1).to_upper()
 		iniziale.visible = true
+
+func imposta_extra(testo: String) -> void:
+	etichetta_extra.text = testo
+	etichetta_extra.visible = testo != ""

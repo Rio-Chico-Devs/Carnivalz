@@ -4,5 +4,14 @@
 	"riduzione_danno_per_livello": 0.1,
 	"riduzione_danno_massima": 0.5,
 	"probabilita_attacco_extra_rabbia": 0.35,
-	"rabbia_su_ko_alleato": true
+	"malus_danno_depressione": 1,
+	"fattore_bonus_concentrazione": 25,
+	"soglia_stress_sopraffatto": 80,
+	"stress_per_fattore": 25,
+	"legame_iniziale": 20,
+	"xp_base": 10,
+	"xp_esponente": 1.5,
+	"livello_massimo": 130,
+	"livello_ostico": 100,
+	"moltiplicatore_ostico": 5
 }
