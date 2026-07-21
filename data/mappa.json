@@ -1,0 +1,19 @@
+{
+	"sfondo": "res://art/mappa.png",
+	"punti": [
+		{
+			"id": "carnivalz_del_bosco",
+			"nome": "Il Carnivalz del Bosco",
+			"pos": [400, 300],
+			"attivo": true,
+			"file_eventi": "res://data/events.json"
+		},
+		{
+			"id": "carnivalz_del_porto",
+			"nome": "Il Carnivalz del Porto",
+			"pos": [860, 430],
+			"attivo": false,
+			"file_eventi": ""
+		}
+	]
+}

@@ -1,0 +1,51 @@
+{
+	"nodo_iniziale": "inizio",
+	"nodi": {
+		"inizio": {
+			"testo": "Le luci del Carnivalz tremano oltre gli alberi. La musica arriva a folate, sbagliata di mezzo tono. Due strade portano al tendone.",
+			"scelte": [
+				{ "testo": "Taglia per il bosco", "vai": "bosco" },
+				{ "testo": "Costeggia il fiume", "vai": "fiume" }
+			]
+		},
+		"bosco": {
+			"testo": "Tra i rami, una figura osserva il cielo a occhi spalancati: è Meteora. \"Anche tu senti la musica sbagliata?\"",
+			"scelte": [
+				{ "testo": "Chiedile di unirsi a te", "vai": "tendone", "recluta": "meteora" },
+				{ "testo": "Prosegui da solo", "vai": "tendone" }
+			]
+		},
+		"fiume": {
+			"testo": "Sulla riva, mezza sepolta nel fango, una lanterna spenta che pulsa come un cuore.",
+			"scelte": [
+				{ "testo": "Raccogli la lanterna", "vai": "tendone", "oggetto": "lanterna_che_pulsa" },
+				{ "testo": "Lasciala dov'è", "vai": "tendone" }
+			]
+		},
+		"tendone": {
+			"testo": "Il tendone si apre davanti a te come una bocca. In alto, tra le funi, luccica qualcosa che nessuno dovrebbe aver lasciato lì.",
+			"scelte": [
+				{ "testo": "Vola fin lassù, tra le funi", "vai": "segreto", "richiede": "volo" },
+				{ "testo": "Entra dal varco principale", "vai": "boss" }
+			]
+		},
+		"segreto": {
+			"testo": "Tra le funi trovi una medaglia del vecchio circo, incisa con un nome che non riesci a leggere. Nessuno la vedeva da anni.",
+			"scelte": [
+				{ "testo": "Prendila e scendi verso la pista", "vai": "boss", "oggetto": "medaglia_del_vecchio_circo" }
+			]
+		},
+		"boss": {
+			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. Il Carnivalz trattiene il fiato.",
+			"scelte": [
+				{ "testo": "Affrontalo", "vai": "vittoria" }
+			]
+		},
+		"vittoria": {
+			"testo": "L'Imbonitore si inchina e si disfa in coriandoli neri. Questo Carnivalz è concluso... per ora.",
+			"scelte": [
+				{ "testo": "Torna alla mappa stellare", "reset": true }
+			]
+		}
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"classi": [
+		{
+			"id": "insonne",
+			"nome": "Insonne",
+			"hp": 20,
+			"abilita": ["veglia", "sesto_senso"]
+		},
+		{
+			"id": "meteora",
+			"nome": "Meteora",
+			"hp": 16,
+			"abilita": ["volo", "impatto"]
+		},
+		{
+			"id": "guastatore",
+			"nome": "Guastatore",
+			"hp": 18,
+			"abilita": ["scasso", "trappole"]
+		}
+	]
+}
