@@ -328,6 +328,19 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 		"attacco_tutti":
 			for bersaglio in vivi(true):
 				attacca(nemico, bersaglio, int(mossa.get("valore", 1)))
+			if mossa.has("stress"):
+				for bersaglio in vivi(true):
+					bersaglio.stress = clampi(bersaglio.stress + int(mossa.stress), 0, 100)
+					aggiorna_scheda(bersaglio)
+		"autolesione":
+			# si ferisce da sola: il dolore riverbera sullo stress della squadra
+			nemico.hp = maxi(nemico.hp - int(mossa.get("valore", 1)), 0)
+			aggiorna_scheda(nemico)
+			for bersaglio in vivi(true):
+				bersaglio.stress = clampi(bersaglio.stress + int(mossa.get("stress", 10)), 0, 100)
+				aggiorna_scheda(bersaglio)
+			if nemico.hp <= 0:
+				_su_ko(nemico)
 		"buff_difesa":
 			nemico.buffs.append({
 				"stat": "difesa",

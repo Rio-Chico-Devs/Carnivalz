@@ -46,6 +46,9 @@ var nodo_corrente: String = ""
 var carnivalz_corrente: String = ""
 var ospiti: Array[String] = []       # personaggi temporanei della campagna
 var studiati: Array[String] = []     # chi hai studiato (per la sezione studio futura)
+var flags: Array[String] = []        # scoperte permanenti (loot una tantum, segreti)
+var stanze_ripulite: Array[String] = []  # agguati gia' tirati in questa visita
+var punto_mappa_corrente: Dictionary = {}  # il sistema/Vuoto che stai guardando
 
 var nemici_combattimento: Array = []
 var nodo_se_vinci: String = ""
@@ -139,6 +142,9 @@ func nuova_partita() -> void:
 		classi_sbloccate.append(id_protagonista)
 		party.append(id_protagonista)
 	ospiti.clear()
+	flags.clear()
+	stanze_ripulite.clear()
+	punto_mappa_corrente = {}
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
@@ -263,6 +269,18 @@ func aggiungi_ospite(id_personaggio: String) -> void:
 func segna_studiato(id_personaggio: String) -> void:
 	if id_personaggio not in studiati:
 		studiati.append(id_personaggio)
+
+func imposta_flag(nome_flag: String) -> void:
+	if nome_flag not in flags:
+		flags.append(nome_flag)
+
+func ha_flag(nome_flag: String) -> bool:
+	return nome_flag in flags
+
+func entra_squarcio(id_squarcio: String, file_eventi: String) -> bool:
+	# a ogni rientro gli agguati si ritirano: i nemici del Vuoto rispuntano
+	stanze_ripulite.clear()
+	return avvia_carnivalz(id_squarcio, file_eventi)
 
 func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String) -> void:
 	nemici_combattimento = nemici.duplicate()

@@ -10,6 +10,7 @@ extends Control
 # centro e i due spazi laterali spariscono.
 
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
+const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
 
@@ -32,6 +33,20 @@ func mostra_nodo(id_nodo: String) -> void:
 		push_error("Nodo evento mancante: " + id_nodo)
 		return
 	GameState.nodo_corrente = id_nodo
+	if nodo.has("flag"):
+		GameState.imposta_flag(nodo["flag"])
+	# agguato: ogni tanto, dalle macerie, qualcosa si fa avanti (una volta
+	# per stanza a visita; vinto lo scontro si torna qui e si perlustra)
+	if nodo.has("agguato") and id_nodo not in GameState.stanze_ripulite:
+		GameState.stanze_ripulite.append(id_nodo)
+		var agguato: Dictionary = nodo["agguato"]
+		if GameState.rng.randf() < float(agguato.get("probabilita", 0.3)):
+			var gruppi: Array = agguato.get("gruppi", [])
+			if not gruppi.is_empty():
+				var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
+				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""))
+				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
+				return
 	narratore.text = nodo.get("testo", "")
 	aggiorna_palco(nodo)
 	aggiorna_stato()
@@ -44,6 +59,12 @@ func mostra_nodo(id_nodo: String) -> void:
 			continue  # evento raro: serve un legame abbastanza coltivato
 		if scelta.has("richiede_ospite") and scelta["richiede_ospite"] not in GameState.ospiti:
 			continue
+		if scelta.has("richiede_flag") and not GameState.ha_flag(scelta["richiede_flag"]):
+			continue
+		if scelta.has("richiede_non_flag") and GameState.ha_flag(scelta["richiede_non_flag"]):
+			continue
+		if scelta.has("una_tantum") and GameState.ha_flag(scelta["una_tantum"]):
+			continue  # gia' raccolto/fatto: la scelta non torna
 		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
 			continue  # non puoi pagare cio' che non hai
 		var bottone := Button.new()
@@ -67,6 +88,10 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 
 func _su_scelta(scelta: Dictionary) -> void:
 	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi
+	if scelta.has("flag"):
+		GameState.imposta_flag(scelta["flag"])
+	if scelta.has("una_tantum"):
+		GameState.imposta_flag(scelta["una_tantum"])
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
 	if scelta.has("oggetto"):
@@ -88,6 +113,10 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.prepara_combattimento(scelta["combatti"], scelta.get("se_vinci", ""),
 				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""))
 		get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
+		return
+	if scelta.get("torna_vuoto", false):
+		# uscita da uno squarcio: lo stato resta, si torna al sistema
+		get_tree().change_scene_to_file(SCENA_VUOTO)
 		return
 	if scelta.get("reset", false):
 		GameState.reset_campagna()

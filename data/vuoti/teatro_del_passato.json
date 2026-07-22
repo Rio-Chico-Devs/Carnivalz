@@ -1,0 +1,53 @@
+{
+	"nodo_iniziale": "foyer",
+	"nodi": {
+		"foyer": {
+			"testo": "Questo squarcio dà sul passato: un teatro nel suo giorno migliore. Il foyer profuma di velluto e cera. Da dentro arriva un applauso — no: il rumore di un solo paio di mani.",
+			"scelte": [
+				{ "testo": "Pesca nella fontanella dei desideri", "vai": "foyer", "una_tantum": "tea_tazo_1", "tazo": 12 },
+				{ "testo": "Entra in platea", "vai": "platea" },
+				{ "testo": "Passa dal botteghino", "vai": "botteghino" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"platea": {
+			"testo": "In platea non c'è nessuno. Sul palco, un ragazzo si esibisce in acrobazie folli: salti che nessun corpo dovrebbe reggere, eppure atterra sempre. Si allena come se il mondo intero lo stesse guardando. Non lo guarda nessuno.",
+			"scelte": [
+				{ "testo": "Resta a guardare le acrobazie", "vai": "platea", "stress": -5 },
+				{ "testo": "Controlla sotto la poltrona numero 7", "vai": "platea", "una_tantum": "tea_tazo_2", "tazo": 25 },
+				{ "testo": "Sali sul palcoscenico", "vai": "palcoscenico" },
+				{ "testo": "Sali in galleria", "vai": "galleria" },
+				{ "testo": "Torna nel foyer", "vai": "foyer" }
+			]
+		},
+		"palcoscenico": {
+			"testo": "Da vicino il ragazzo è solo un ragazzo: fiato corto, mani fasciate, occhi che bruciano. Ti attraversa con lo sguardo — sei nel passato, per lui non esisti. Riparte da capo. Ancora. Ancora.",
+			"scelte": [
+				{ "testo": "Apri il baule di scena", "vai": "palcoscenico", "una_tantum": "tea_tazo_3", "tazo": 31 },
+				{ "testo": "Vai dietro le quinte", "vai": "quinte" },
+				{ "testo": "Scendi in platea", "vai": "platea" }
+			]
+		},
+		"quinte": {
+			"testo": "Dietro le quinte: corde, sacchi di sabbia, uno specchio con le lampadine. Infilata nella cornice dello specchio c'è una copia di uno strano biglietto.",
+			"scelte": [
+				{ "testo": "Prendi la copia del biglietto", "vai": "quinte", "una_tantum": "tea_biglietto", "oggetto": "biglietto_strano" },
+				{ "testo": "Torna sul palcoscenico", "vai": "palcoscenico" }
+			]
+		},
+		"galleria": {
+			"testo": "Dalla galleria il palco sembra piccolo e il ragazzo un punto che vola. Il lampadario di cristallo trattiene la luce come fosse fiato.",
+			"scelte": [
+				{ "testo": "Allunga la mano nella balaustra scollata", "vai": "galleria", "una_tantum": "tea_tazo_4", "tazo": 45 },
+				{ "testo": "Scendi in platea", "vai": "platea" }
+			]
+		},
+		"botteghino": {
+			"testo": "Il botteghino è ordinato, pronto per una fila che deve ancora arrivare. Il registro segna un solo biglietto venduto, prima fila.",
+			"scelte": [
+				{ "testo": "Apri il doppio fondo del cassetto", "vai": "botteghino", "una_tantum": "tea_tazo_5", "tazo": 25 },
+				{ "testo": "Torna nel foyer", "vai": "foyer" }
+			]
+		}
+	}
+}

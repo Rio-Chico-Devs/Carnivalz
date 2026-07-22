@@ -33,6 +33,96 @@
 			]
 		},
 		{
+			"id": "comparsa_di_ruggine",
+			"nome": "Comparsa di Ruggine",
+			"hp": 4,
+			"attacco": 1,
+			"difesa": 1,
+			"velocita": 2,
+			"xp": 10,
+			"tazo": 8,
+			"ritratto": "res://art/personaggi/comparsa_di_ruggine.png",
+			"studio": [
+				{ "domanda": "Eri una persona?", "risposta": "Ero... in scena. Sono ancora... in scena?" },
+				{ "domanda": "Che posto è questo?", "risposta": "Il retro. Del retro. Del retro..." }
+			]
+		},
+		{
+			"id": "voce_registrata",
+			"nome": "Voce Registrata",
+			"hp": 3,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 4,
+			"xp": 9,
+			"tazo": 7,
+			"ritratto": "res://art/personaggi/voce_registrata.png",
+			"studio": [
+				{ "domanda": "Chi ti ha registrata?", "risposta": "APPLAUSI. RISATE. APPLAUSI. RISATE. APPLA—" },
+				{ "domanda": "Puoi fermarti?", "risposta": "...riavvolgimi." }
+			]
+		},
+		{
+			"id": "marionetta",
+			"nome": "Marionetta",
+			"hp": 2,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 3,
+			"xp": 4,
+			"tazo": 3,
+			"ritratto": "res://art/personaggi/marionetta.png"
+		},
+		{
+			"id": "tenero_ricordo",
+			"nome": "Un tenero ricordo",
+			"nome_breve": "la bambola",
+			"hp": 10,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 2,
+			"xp": 25,
+			"tazo": 80,
+			"peso_attacco_normale": 3,
+			"ritratto": "res://art/personaggi/tenero_ricordo.png",
+			"mosse": [
+				{
+					"id": "spilli",
+					"tipo": "attacco_forte",
+					"valore": 2,
+					"peso": 2,
+					"testo": "La bambola spalanca le cuciture e lancia una manciata di spilli."
+				},
+				{
+					"id": "lamento",
+					"tipo": "attacco_tutti",
+					"valore": 1,
+					"stress": 10,
+					"peso": 2,
+					"testo": "Un lamento terribile riempie la stanza. I cuori di tutti sobbalzano."
+				},
+				{
+					"id": "autolesione",
+					"tipo": "autolesione",
+					"valore": 1,
+					"stress": 10,
+					"peso": 2,
+					"testo": "La bambola si strappa una cucitura da sola, piano. Fa più male a voi che a lei."
+				},
+				{
+					"id": "richiamo_marionette",
+					"tipo": "evoca",
+					"valore": "marionetta",
+					"peso": 2,
+					"testo": "Dei fili scendono dal soffitto: una marionetta si alza da terra."
+				}
+			],
+			"studio": [
+				{ "domanda": "Chi ti ha cucita?", "risposta": "mani... piccole..." },
+				{ "domanda": "Perché ti fai del male?", "risposta": "così... lei... non sente..." }
+			]
+		},
+		{
 			"id": "vecchio_clown",
 			"nome": "Il Vecchio Clown",
 			"ritratto": "res://art/personaggi/vecchio_clown.png",
@@ -96,6 +186,12 @@
 					"id": "medaglia_del_vecchio_circo",
 					"speranza": 25,
 					"testo": "La medaglia del vecchio circo ti scivola dalla tasca e rotola fino al centro della pista. Jerah smette di sorridere."
+				},
+				{
+					"tipo": "oggetto",
+					"id": "biglietto_strano",
+					"speranza": 20,
+					"testo": "Il biglietto ti scivola tra le dita e plana ai piedi di Jerah. Lui lo raccoglie come si raccoglie una cosa viva. Non dice perché."
 				},
 				{
 					"tipo": "ospite",

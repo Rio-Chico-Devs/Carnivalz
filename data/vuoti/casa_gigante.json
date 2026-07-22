@@ -1,0 +1,99 @@
+{
+	"nodo_iniziale": "soglia",
+	"nodi": {
+		"soglia": {
+			"testo": "Una casa gigantesca, o forse sei tu a essere piccolo: i gradini arrivano al ginocchio di un gigante, la maniglia è una nave. Dalla serratura filtra una ninna nanna stonata.",
+			"scelte": [
+				{ "testo": "Infilati sotto la porta", "vai": "salone" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"salone": {
+			"testo": "Un salone enorme, mobili come colline. Dal divano sventrato spunta un filo rosso, teso, che sparisce su per le scale.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{ "testo": "Tira il filo rosso", "vai": "salone", "una_tantum": "casa_filo" },
+				{ "testo": "Vai in cucina", "vai": "cucina" },
+				{ "testo": "Sali le scale", "vai": "scala" },
+				{ "testo": "Torna alla soglia", "vai": "soglia" }
+			]
+		},
+		"cucina": {
+			"testo": "Pentole come campane, un tavolo come un altopiano. Nel lavello, piatti per tre: due grandi, uno piccolo. Nessuno lava i piatti da molto tempo.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{ "testo": "Torna nel salone", "vai": "salone" }
+			]
+		},
+		"scala": {
+			"testo": "La scala sale nel buio, ogni gradino un piccolo trasloco. Il filo rosso — se l'hai tirato — corre lungo il corrimano verso una porticina che prima non c'era.",
+			"scelte": [
+				{ "testo": "Segui il filo fino alla stanza del cucito", "vai": "stanza_cucito", "richiede_flag": "casa_filo" },
+				{ "testo": "Entra nella camera dei bambini", "vai": "camera_bambini" },
+				{ "testo": "Sali fino alla soffitta", "vai": "soffitta" },
+				{ "testo": "Scendi nel salone", "vai": "salone" }
+			]
+		},
+		"camera_bambini": {
+			"testo": "Giocattoli in fila contro il muro, come spettatori. Un letto enorme, rifatto con cura. Qualcosa, sotto, trattiene il fiato.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{ "testo": "Guarda sotto il letto", "vai": "camera_bambini", "una_tantum": "casa_letto" },
+				{ "testo": "Infilati nella nicchia dietro la testiera", "vai": "nicchia", "richiede_flag": "casa_letto" },
+				{ "testo": "Torna alla scala", "vai": "scala" }
+			]
+		},
+		"nicchia": {
+			"testo": "Una nicchia scavata nel muro, tappezzata di disegni a matita: una famiglia, una casa, un sole con troppe punte. Qualcuno ci si nascondeva, qui. Qualcuno di piccolo.",
+			"scelte": [
+				{ "testo": "Prendi la fiala nascosta nella scatola dei colori", "vai": "nicchia", "una_tantum": "casa_fiala", "oggetto": "fiala_hp" },
+				{ "testo": "Torna nella camera", "vai": "camera_bambini" }
+			]
+		},
+		"soffitta": {
+			"testo": "La soffitta è un cimitero di scatoloni. Su ognuno, la stessa calligrafia adulta: GIOCATTOLI DI L. — DA BUTTARE. Nessuno scatolone è mai stato buttato.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["marionetta"]],
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{ "testo": "Torna alla scala", "vai": "scala" }
+			]
+		},
+		"stanza_cucito": {
+			"testo": "La stanza del cucito. Al centro, su una seggiolina, una bambola fatta a mano si conficca spilli nelle braccia, piano, uno alla volta. Trasuda odio da ogni cucitura. Il filo rosso finisce nel suo petto.",
+			"scelte": [
+				{ "testo": "Avvicinati alla bambola", "richiede_non_flag": "casa_ricordo_spento", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_spento", "se_perdi": "cacciata" },
+				{ "testo": "La seggiolina è vuota. Solo stoffa, spilli e polvere.", "richiede_flag": "casa_ricordo_spento", "vai": "scala" },
+				{ "testo": "Indietreggia in silenzio", "vai": "scala" }
+			]
+		},
+		"ricordo_spento": {
+			"testo": "La bambola si affloscia tra i suoi spilli. Le cuciture si allentano una a una, come un respiro che finisce. Poi, da nessuna bocca: ...volevo, giocare... ancora... un pò...",
+			"flag": "casa_ricordo_spento",
+			"scelte": [
+				{ "testo": "Raccogli ciò che resta", "vai": "stanza_cucito", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore" },
+				{ "testo": "Lasciala riposare", "vai": "stanza_cucito" }
+			]
+		},
+		"cacciata": {
+			"testo": "L'odio ti solleva di peso e la casa ti scaraventa fuori, giù dalla soglia, oltre lo squarcio. La ninna nanna riprende, stonata come prima.",
+			"scelte": [
+				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+			]
+		}
+	}
+}

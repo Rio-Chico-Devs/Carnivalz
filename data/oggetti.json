@@ -57,6 +57,50 @@
 			"effetto": { "danno": 3 }
 		},
 		{
+			"id": "fiala_hp",
+			"nome": "Fiala HP",
+			"tipo": "consumabile",
+			"descrizione": "Liquido rosso in vetro industriale. L'etichetta è sbiadita, l'effetto no.",
+			"effetto": { "hp": 4 }
+		},
+		{
+			"id": "molotov",
+			"nome": "Molotov",
+			"tipo": "consumabile",
+			"descrizione": "Assemblata da qualcuno che non è sopravvissuto per lanciarla.",
+			"effetto": { "danno": 4 }
+		},
+		{
+			"id": "benzina",
+			"nome": "Benzina",
+			"tipo": "collezionabile",
+			"descrizione": "Una tanica mezza piena. L'odore copre perfino la ruggine."
+		},
+		{
+			"id": "componente_elettronico",
+			"nome": "Misterioso componente elettronico",
+			"tipo": "collezionabile",
+			"descrizione": "Emette un segnale debole, a intervalli regolari, verso il cielo."
+		},
+		{
+			"id": "viti_e_bulloni",
+			"nome": "Viti e bulloni",
+			"tipo": "collezionabile",
+			"descrizione": "Un pugno di minuteria. All'Artigiano potrebbe interessare."
+		},
+		{
+			"id": "biglietto_strano",
+			"nome": "Copia di uno strano biglietto",
+			"tipo": "chiave",
+			"descrizione": "Un biglietto di ottima fattura per uno spettacolo di alta classe, non ci sono molte informazioni..."
+		},
+		{
+			"id": "prova_di_un_forte_amore",
+			"nome": "Prova di un forte amore",
+			"tipo": "chiave",
+			"descrizione": "Un pezzo di stoffa con una firma sopra \"Lyloh\" e alcuni cuoricini disegnati, sembrerebbe che un bambino abbia scritto questo."
+		},
+		{
 			"id": "lanterna_che_pulsa",
 			"nome": "Lanterna che pulsa",
 			"tipo": "chiave",

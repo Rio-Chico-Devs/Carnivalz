@@ -3,17 +3,47 @@
 	"punti": [
 		{
 			"id": "carnivalz_del_bosco",
-			"nome": "Il Carnivalz del Bosco",
+			"nome": "L'ultimo spettacolo di Jerah",
+			"tema": "fama e spettacolo",
 			"pos": [400, 300],
 			"attivo": true,
-			"file_eventi": "res://data/events.json"
+			"file_eventi": "res://data/events.json",
+			"vuoti": [
+				{
+					"id": "squarcio_industriale",
+					"nome": "Lo Squarcio Industriale",
+					"pos": [250, 190],
+					"file_eventi": "res://data/vuoti/squarcio_industriale.json"
+				},
+				{
+					"id": "teatro_del_passato",
+					"nome": "Il Teatro del Passato",
+					"pos": [660, 150],
+					"file_eventi": "res://data/vuoti/teatro_del_passato.json"
+				},
+				{
+					"id": "casa_gigante",
+					"nome": "La Casa Gigante",
+					"pos": [900, 400],
+					"file_eventi": "res://data/vuoti/casa_gigante.json"
+				},
+				{
+					"id": "stella_caduta",
+					"nome": "Un segnale nel cielo",
+					"pos": [480, 560],
+					"nascosto": true,
+					"richiede_oggetti": ["componente_elettronico"],
+					"file_eventi": "res://data/vuoti/stella_caduta.json"
+				}
+			]
 		},
 		{
 			"id": "carnivalz_del_porto",
 			"nome": "Il Carnivalz del Porto",
 			"pos": [860, 430],
 			"attivo": false,
-			"file_eventi": ""
+			"file_eventi": "",
+			"vuoti": []
 		}
 	]
 }

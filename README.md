@@ -111,6 +111,22 @@ fonte convinta → nodo `se_vinci_eroe` (pangea, reincarnazione), altrimenti `se
   apparire gli eventi rari: chiave `richiede_legame` sulle scelte (es. la stella caduta
   di Meteora al falò richiede legame ≥ 40)
 
+## Il Vuoto
+Ogni punto "!" apre il suo **sistema deformato** (scena Vuoto): il pianeta al centro
+(→ selezione party → campagna) e gli **squarci** intorno, definiti in `mappa.json`
+(`vuoti` del punto: id, nome, pos, file_eventi, `nascosto` + `richiede_oggetti`/
+`richiede_flag` per farli apparire). Gli squarci usano il motore eventi con stanze
+collegate nei due sensi (perlustrazione libera):
+- **`agguato`** su un nodo: `{probabilita, gruppi: [[ids]...], se_perdi}` — tirato una
+  volta per stanza a visita (seedato); vinto lo scontro si torna nella stanza; a ogni
+  rientro nello squarcio gli agguati si resettano (i nemici rispuntano)
+- **`una_tantum`** su una scelta: appare solo se il flag non è mai stato preso, e lo
+  imposta scegliendola (loot permanente: Tazo, oggetti). `flag` (su scelta o nodo) +
+  `richiede_flag`/`richiede_non_flag` per stanze segrete e boss che non rispawnano
+- **`torna_vuoto`** su una scelta: esce dallo squarcio senza toccare lo stato
+- Mosse boss extra: `autolesione` (si ferisce, stress a tutta la squadra) e
+  `attacco_tutti` con campo `stress` (il lamento della bambola)
+
 ## Formato dati
 
 ### mappa.json
@@ -171,5 +187,9 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
 9. ✅ Dungeon 1 in solitaria e più lungo; menu azioni; stats estese e mosse
    boss; sacca/collezionabili/chiavi/carte; Tazo; negozi (Organizzazione
    attivo, Nyu e Artigiano pronti nei dati)
-10. ⬜ Salvataggio (serializzare GameState)
-11. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+10. ✅ Il Vuoto: squarci esplorabili e rivisitabili (industriale, teatro del
+    passato, casa gigante + zona nascosta di Meteora), agguati random,
+    loot una tantum, stanze segrete, miniboss Un tenero ricordo
+11. ⬜ Gli altri 5 vuoti principali e 2 speciali nascosti (contenuti di Bru)
+12. ⬜ Salvataggio (serializzare GameState)
+13. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

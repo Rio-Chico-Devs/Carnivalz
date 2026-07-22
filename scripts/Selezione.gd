@@ -5,7 +5,7 @@ extends Control
 # disponibili. Il protagonista fa sempre parte del party.
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
-const SCENA_MAPPA := "res://scenes/Mappa.tscn"
+const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 
 @onready var lista: HBoxContainer = %Lista
@@ -51,4 +51,4 @@ func _su_inizia() -> void:
 
 func _su_mappa() -> void:
 	GameState.reset_campagna()
-	get_tree().change_scene_to_file(SCENA_MAPPA)
+	get_tree().change_scene_to_file(SCENA_VUOTO)

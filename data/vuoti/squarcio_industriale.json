@@ -1,0 +1,88 @@
+{
+	"nodo_iniziale": "varco",
+	"nodi": {
+		"varco": {
+			"testo": "Lo squarcio si richiude alle tue spalle con un sospiro di vapore. Davanti: un complesso industriale gigantesco, macchine alte come palazzi, ruggine e sudore. Fa un caldo pazzesco. In lontananza, voci registrate parlano a nessuno.",
+			"scelte": [
+				{ "testo": "Avanza nel corridoio dei tubi", "vai": "corridoio_tubi" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"corridoio_tubi": {
+			"testo": "Tubi e valvole in ogni direzione, alcuni ancora caldi. Da qualche parte un programma si accende, borbotta qualcosa, si rispegne. Sembra tutto morto. Sembra.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [["comparsa_di_ruggine"], ["voce_registrata"], ["comparsa_di_ruggine", "voce_registrata"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Verso la sala delle valvole", "vai": "sala_valvole" },
+				{ "testo": "Entra nel deposito", "vai": "deposito" },
+				{ "testo": "Torna al varco", "vai": "varco" }
+			]
+		},
+		"deposito": {
+			"testo": "Scaffali piegati dal caldo, casse sventrate. Qualcuno ha vissuto qui, tra un turno e l'altro, per molto tempo.",
+			"scelte": [
+				{ "testo": "Fruga nella cassa marchiata con una croce", "vai": "deposito", "una_tantum": "ind_fiala_1", "oggetto": "fiala_hp" },
+				{ "testo": "Svuota il barattolo di minuteria", "vai": "deposito", "una_tantum": "ind_viti", "oggetto": "viti_e_bulloni" },
+				{ "testo": "Solleva la mattonella smossa", "vai": "deposito", "una_tantum": "ind_tazo_1", "tazo": 30 },
+				{ "testo": "Torna nel corridoio", "vai": "corridoio_tubi" }
+			]
+		},
+		"sala_valvole": {
+			"testo": "Una sala di valvole grandi come ruote di carro. Il metallo geme. Ogni tanto, dalle macerie, qualcosa si muove.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [["comparsa_di_ruggine"], ["comparsa_di_ruggine", "comparsa_di_ruggine"], ["voce_registrata", "voce_registrata"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Sali verso le schede madri giganti", "vai": "sala_schede" },
+				{ "testo": "Segui il nastro trasportatore", "vai": "nastro" },
+				{ "testo": "Torna nel corridoio", "vai": "corridoio_tubi" }
+			]
+		},
+		"sala_schede": {
+			"testo": "Schede madri grandi come pareti, piste di rame come strade viste dall'alto. Una voce registrata ripete un annuncio di cui non esiste più il pubblico.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["voce_registrata"], ["comparsa_di_ruggine"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Stacca il componente che lampeggia verso l'alto", "vai": "sala_schede", "una_tantum": "ind_componente", "oggetto": "componente_elettronico" },
+				{ "testo": "Recupera la fiala incastrata tra i condensatori", "vai": "sala_schede", "una_tantum": "ind_fiala_2", "oggetto": "fiala_hp" },
+				{ "testo": "Torna alle valvole", "vai": "sala_valvole" }
+			]
+		},
+		"nastro": {
+			"testo": "Il nastro trasportatore corre ancora, a vuoto, trasportando niente da nessuna parte. Il caldo qui toglie il respiro.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["comparsa_di_ruggine"], ["voce_registrata"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Prendi la tanica di benzina sotto il rullo", "vai": "nastro", "una_tantum": "ind_benzina", "oggetto": "benzina" },
+				{ "testo": "Raccogli la bottiglia con lo straccio nel collo", "vai": "nastro", "una_tantum": "ind_molotov", "oggetto": "molotov" },
+				{ "testo": "Segui il nastro fino al cuore del complesso", "vai": "cuore" },
+				{ "testo": "Torna alle valvole", "vai": "sala_valvole" }
+			]
+		},
+		"cuore": {
+			"testo": "Il cuore del complesso: una turbina ferma, grande come una piazza. Sulle pale, qualcuno ha inciso dei nomi. La voce registrata qui è più chiara: sta contando i biglietti venduti.",
+			"scelte": [
+				{ "testo": "Apri la cassetta degli incassi", "vai": "cuore", "una_tantum": "ind_tazo_2", "tazo": 40 },
+				{ "testo": "Cerca tra le pale della turbina", "vai": "cuore", "una_tantum": "ind_fiala_3", "oggetto": "fiala_hp" },
+				{ "testo": "Torna al nastro", "vai": "nastro" }
+			]
+		},
+		"espulso": {
+			"testo": "Le macerie ti si chiudono addosso e lo squarcio ti sputa fuori, nel Vuoto. Il complesso continua a scaldare il nulla.",
+			"scelte": [
+				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+			]
+		}
+	}
+}

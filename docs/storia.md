@@ -59,6 +59,40 @@ della popolazione: il Carnivalz è **una festa per chi ha subito ingiustizie**
 e ha maturato fattore Carnivalz. Va fermato — ma la realtà è triste: non è
 colpa loro, è il mondo a essere ingiusto. Non c'è cura: va distrutto.
 
+## Il Vuoto
+Quando un Carnivalz nasce, **deforma la realtà intorno al pianeta** creando
+una sorta di sistema solare: il Vuoto. Vi appaiono piccoli carnivalz —
+**squarci spazio-tempo** su mondi attratti dal Carnivalz maggiore: mondi che
+cominciano a essere infettati, mondi **già distrutti** da carnivalz
+precedenti, o **futuri ipotetici** se questo non si risolve. Possono stare
+nel passato o nel futuro. Si esplorano, si scoprono cose, oggetti unici.
+Certi oggetti o certe azioni **fanno apparire nuove zone** nel Vuoto.
+Prima versione del gioco: **8 vuoti principali e 3 vuoti speciali nascosti**
+(in uno di questi si recluta Meteora). I vuoti sono selezionabili e
+**rivisitabili**: i nemici sono random e rispuntano, tranne quelli
+particolari (decisi da Bru). Il tema di ogni Vuoto segue il boss del suo
+Carnivalz: per Jerah, **fama e spettacolo** — circo, teatro, cinema,
+videogiochi; creature dark e depresse, atmosfera alla Darkest Dungeon /
+Fear and Hunger.
+
+### Il Vuoto di Jerah (implementato)
+- **Lo Squarcio Industriale** — complesso gigantesco, ruggine e sudore,
+  caldo pazzesco; voci registrate, programmi che si accendono e spengono;
+  ogni tanto dalle macerie qualcosa si fa avanti.
+- **Il Teatro del Passato** — il passato: un ragazzo si esibisce in
+  acrobazie folli. Solo esplorazione, 138 Tazo in 5 nascondigli, e la
+  copia di uno strano biglietto (il suo significato non va MAI detto:
+  il giocatore deve ipotizzarlo).
+- **La Casa Gigante** — stanze segrete via interazioni; miniboss
+  **Un tenero ricordo**: bambola fatta a mano posseduta, si infligge
+  dolore alzando lo stress della squadra, lancia spilli, evoca marionette,
+  lamento ad area. Una volta sconfitta: "...volevo, giocare... ancora...
+  un pò..." Ricompensa: 80 Tazo + *Prova di un forte amore* (Lyloh).
+  Non rispawna.
+- **Un segnale nel cielo** (nascosto) — appare col misterioso componente
+  elettronico: qui si recluta Meteora. [Condizione placeholder: Bru può
+  cambiarla nel JSON.]
+
 ## Le fonti e i due esiti
 Quando un intero pianeta viene divorato dal fattore Carnivalz, **la fonte va
 estinta**. La fonte è il boss di ogni fine livello. Quando viene rasa al
