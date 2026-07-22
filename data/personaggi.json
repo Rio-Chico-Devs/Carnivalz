@@ -10,6 +10,11 @@
 			"xp": 8,
 			"tazo": 5,
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
+			"descrizione": "Una maschera di scena senza volto dietro. Cammina perché il Carnivalz glielo ordina, non perché ricordi come si fa.",
+			"carta": { "id": "carta_maschera_vuota", "nome": "Maschera Vuota", "rarita": "non_comune", "chance": 0.05, "testo": "Chi la indossava ha smesso di esistere prima di lei." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.3 }
+			],
 			"studio": [
 				{ "domanda": "C'è qualcuno, lì dentro?", "risposta": "..." },
 				{ "domanda": "Chi eri?", "risposta": "..." }
@@ -27,6 +32,8 @@
 			"xp": 15,
 			"tazo": 15,
 			"ritratto": "res://art/personaggi/giocoliere.png",
+			"descrizione": "Un artista che ha barattato il nome per un posto sotto il tendone. Tiene in aria tre coltelli e nessuna speranza.",
+			"carta": { "id": "carta_giocoliere", "nome": "Il Giocoliere", "rarita": "rara", "testo": "Non ha mai lasciato cadere un coltello. Solo tutto il resto." },
 			"studio": [
 				{ "domanda": "Perché difendi la fonte?", "risposta": "Quando tutto bruciava, lui mi ha dato un posto nello spettacolo. I coltelli non fanno domande." },
 				{ "domanda": "Sai come finisce, vero?", "risposta": "Ogni spettacolo finisce. L'importante è non sbagliare l'ultimo numero." }
@@ -42,6 +49,12 @@
 			"xp": 10,
 			"tazo": 8,
 			"ritratto": "res://art/personaggi/comparsa_di_ruggine.png",
+			"descrizione": "Chi lavorava nel complesso non se n'è mai andato. La ruggine ha preso il posto della pelle, e il turno non finisce mai.",
+			"carta": { "id": "carta_comparsa_di_ruggine", "nome": "Comparsa di Ruggine", "rarita": "non_comune", "chance": 0.04, "testo": "Timbrava il cartellino anche il giorno in cui il mondo è finito." },
+			"bottino_comune": [
+				{ "oggetto": "viti_e_bulloni", "chance": 0.3 },
+				{ "oggetto": "fiala_hp", "chance": 0.25 }
+			],
 			"studio": [
 				{ "domanda": "Eri una persona?", "risposta": "Ero... in scena. Sono ancora... in scena?" },
 				{ "domanda": "Che posto è questo?", "risposta": "Il retro. Del retro. Del retro..." }
@@ -57,6 +70,11 @@
 			"xp": 9,
 			"tazo": 7,
 			"ritratto": "res://art/personaggi/voce_registrata.png",
+			"descrizione": "Un annuncio che si ripete da solo, in cerca di un pubblico che non tornerà. Fa più male a sentirla che a vederla.",
+			"carta": { "id": "carta_voce_registrata", "nome": "Voce Registrata", "rarita": "non_comune", "chance": 0.04, "testo": "\"Grazie per essere venuti.\" Non era vero già la prima volta." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.3 }
+			],
 			"studio": [
 				{ "domanda": "Chi ti ha registrata?", "risposta": "APPLAUSI. RISATE. APPLAUSI. RISATE. APPLA—" },
 				{ "domanda": "Puoi fermarti?", "risposta": "...riavvolgimi." }
@@ -71,7 +89,12 @@
 			"velocita": 3,
 			"xp": 4,
 			"tazo": 3,
-			"ritratto": "res://art/personaggi/marionetta.png"
+			"ritratto": "res://art/personaggi/marionetta.png",
+			"descrizione": "Legno, fili e un po' di rancore. Qualcuno la muoveva con affetto, una volta.",
+			"carta": { "id": "carta_marionetta", "nome": "Marionetta", "rarita": "comune", "chance": 0.03, "testo": "I fili non li tiene più nessuno. Eppure si muove." },
+			"bottino_comune": [
+				{ "oggetto": "merendine_scadute", "chance": 0.3 }
+			]
 		},
 		{
 			"id": "lettere_altare",
@@ -91,6 +114,12 @@
 			"tazo": 80,
 			"peso_attacco_normale": 3,
 			"ritratto": "res://art/personaggi/tenero_ricordo.png",
+			"descrizione": "Una bambola cucita a mano, gonfia di un amore diventato dolore. Non attacca per odio: attacca per non restare sola.",
+			"descrizione_extra": {
+				"richiede_oggetto": "prova_di_un_forte_amore",
+				"testo": "Non era lei a chiamarsi Lyloh: era la bambina. La bambola era solo la cosa che l'ha amata più a lungo di chiunque altro."
+			},
+			"carta": { "id": "carta_tenero_ricordo", "nome": "Un tenero ricordo", "rarita": "epica", "testo": "\"...volevo, giocare... ancora... un pò...\"" },
 			"mosse": [
 				{
 					"id": "spilli",
@@ -161,6 +190,12 @@
 			"xp": 30,
 			"tazo": 50,
 			"ritratto": "res://art/personaggi/jerah.png",
+			"descrizione": "La fonte di questo Carnivalz. Un tempo un nome su ogni cartellone; ora un mondo intero deformato a sua immagine.",
+			"descrizione_extra": {
+				"richiede_oggetto": "biglietto_strano",
+				"testo": "Il biglietto è del suo primissimo spettacolo: platea vuota, un solo posto occupato. Non ha mai scoperto da chi. Ha passato tutta la carriera a cercare di riempire quella sala."
+			},
+			"carta": { "id": "carta_jerah", "nome": "L'ultimo spettacolo di Jerah", "rarita": "leggendaria", "testo": "Il pubblico se n'era andato molto prima che finisse lo spettacolo." },
 			"fonte": true,
 			"convincibile": true,
 			"speranza_soglia": 60,

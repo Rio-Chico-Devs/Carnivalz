@@ -5,6 +5,7 @@ extends Control
 
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_NEGOZIO := "res://scenes/Negozio.tscn"
+const SCENA_MENU := "res://scenes/Menu.tscn"
 # Seed solo cosmetico (stelle placeholder): il caso di gioco sta in GameState.rng
 const SEED_STELLE := 20260721
 
@@ -12,12 +13,15 @@ const SEED_STELLE := 20260721
 @onready var strato_punti: Control = %Punti
 @onready var etichetta_tazo: Label = %Tazo
 @onready var bottone_negozio: Button = %BottoneNegozio
+@onready var bottone_menu: Button = %BottoneMenu
 
 func _ready() -> void:
 	resized.connect(queue_redraw)
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_negozio.pressed.connect(func() -> void:
 		get_tree().change_scene_to_file(SCENA_NEGOZIO))
+	bottone_menu.pressed.connect(func() -> void:
+		get_tree().change_scene_to_file(SCENA_MENU))
 	var mappa: Dictionary = GameState.carica_mappa()
 	var percorso_sfondo: String = mappa.get("sfondo", "")
 	if percorso_sfondo != "" and ResourceLoader.exists(percorso_sfondo):

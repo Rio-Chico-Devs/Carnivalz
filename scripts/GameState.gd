@@ -38,7 +38,7 @@ var legame: int = 0                       # 0..100, respira di continuo
 var sacca: Array[String] = []             # consumabili, max regole.sacca_massima
 var collezionabili: Array[String] = []
 var chiavi: Array[String] = []
-var carte: Array[String] = []
+var carte: Array[String] = []             # carte dei nemici (album): id carta ottenute
 var tazo: int = 0
 var fonti_estinte: int = 0
 var negozi_sbloccati: Array[String] = []
@@ -49,6 +49,11 @@ var carnivalz_corrente: String = ""
 var ospiti: Array[String] = []       # personaggi temporanei della campagna
 var studiati: Array[String] = []     # chi hai studiato (per la sezione studio futura)
 var flags: Array[String] = []        # scoperte permanenti (loot una tantum, segreti)
+
+# Collezioni (meta-progressione): si popolano da sole e sopravvivono alle
+# campagne. Album delle carte, bestiario, compendio degli oggetti.
+var bestiario: Array[String] = []        # id nemici incontrati (voce al 1o incontro)
+var oggetti_catalogo: Array[String] = [] # id oggetti ottenuti almeno una volta
 var stanze_ripulite: Array[String] = []  # agguati gia' tirati in questa visita
 var punto_mappa_corrente: Dictionary = {}  # il sistema/Vuoto che stai guardando
 
@@ -139,7 +144,7 @@ func nuova_partita() -> void:
 	sacca.clear()
 	collezionabili.clear()
 	chiavi.clear()
-	carte.clear()
+	# carte, bestiario e oggetti_catalogo sono collezioni meta: non si azzerano
 	tazo = int(regole.get("tazo_iniziale", 30))
 	fonti_estinte = 0
 	negozi_sbloccati.clear()
@@ -191,18 +196,34 @@ func dati_oggetto(id_oggetto: String) -> Dictionary:
 	return oggetti.get(id_oggetto, {})
 
 func aggiungi_oggetto(id_oggetto: String) -> bool:
+	cataloga_oggetto(id_oggetto)  # la voce nel compendio appare al primo possesso
 	match dati_oggetto(id_oggetto).get("tipo", "consumabile"):
 		"collezionabile":
 			collezionabili.append(id_oggetto)
 		"chiave":
 			if id_oggetto not in chiavi:
 				chiavi.append(id_oggetto)
-		"carta":
-			carte.append(id_oggetto)
 		_:
 			if sacca.size() >= int(regole.get("sacca_massima", 20)):
 				return false  # sacca piena
 			sacca.append(id_oggetto)
+	return true
+
+# --- collezioni (album carte, bestiario, compendio oggetti) ---
+
+func cataloga_oggetto(id_oggetto: String) -> void:
+	if oggetti.has(id_oggetto) and id_oggetto not in oggetti_catalogo:
+		oggetti_catalogo.append(id_oggetto)
+
+func registra_bestiario(id_nemico: String) -> void:
+	if personaggi.has(id_nemico) and id_nemico not in bestiario:
+		bestiario.append(id_nemico)
+
+func ottieni_carta(id_carta: String) -> bool:
+	# ritorna true solo se la carta e' nuova (drop non sprecato sui doppioni)
+	if id_carta == "" or id_carta in carte:
+		return false
+	carte.append(id_carta)
 	return true
 
 func possiede_oggetto(id_oggetto: String) -> bool:

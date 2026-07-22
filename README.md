@@ -120,6 +120,26 @@ sola e possono impostare un `flag` — usato per sbloccare scelte altrimenti nas
 botola sotto i cuscini nella Casa Gigante: nessuno la nota, da soli). Dopo la battuta le
 scelte si ricostruiscono, così l'eventuale sblocco appare subito.
 
+## Drop, carte e collezioni
+Alla vittoria, ogni nemico sconfitto può lasciare:
+- **Bottino comune** (`bottino_comune` nei dati: lista `{oggetto, chance}`) — consumabili tipo
+  fiala HP, va nella sacca
+- **Carta** (`carta`: `{id, nome, rarita, testo, chance?}`) — se manca `chance` è **garantita**
+  (nemici unici: miniboss e boss); con `chance` è un drop **raro** (comuni: 3–5%). Rarità:
+  comune · non_comune · rara · epica · leggendaria
+
+Tre **collezioni** meta (menu principale), che si popolano da sole e non si perdono a fine
+campagna (in `GameState`: `carte`, `bestiario`, `oggetti_catalogo`):
+- **Album delle carte** — una carta per nemico; slot "???" finché non la ottieni
+- **Bestiario** — voce al **primo incontro** (registrata in combattimento). Alcuni nemici hanno
+  una `descrizione_extra` con gate `richiede_oggetto`/`richiede_flag`: si svela quando possiedi
+  l'oggetto o hai il flag (Jerah col biglietto, la bambola con la Prova di un forte amore)
+- **Oggetti** (compendio) — voce quando ottieni un oggetto almeno una volta (qualsiasi via:
+  drop, evento, negozio, baratto — tutto passa da `aggiungi_oggetto`)
+
+Schermate: `Menu.tscn` (scena d'avvio) → Album/Bestiario/Compendio, che estendono la base
+`Collezione.gd`. Si raggiunge il menu anche dalla mappa (bottone "Menu").
+
 ## Il Vuoto
 Ogni punto "!" apre il suo **sistema deformato** (scena Vuoto): il pianeta al centro
 (→ selezione party → campagna) e gli **squarci** intorno, definiti in `mappa.json`
@@ -209,6 +229,8 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
 10. ✅ Il Vuoto: squarci esplorabili e rivisitabili (industriale, teatro del
     passato, casa gigante + zona nascosta di Meteora), agguati random,
     loot una tantum, stanze segrete, miniboss Un tenero ricordo
-11. ⬜ Gli altri 5 vuoti principali e 2 speciali nascosti (contenuti di Bru)
-12. ⬜ Salvataggio (serializzare GameState)
-13. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+11. ✅ Menu principale + collezioni: album carte, bestiario, compendio
+    oggetti; drop comuni e carte (rare/garantite) dai nemici
+12. ⬜ Gli altri 5 vuoti principali e 2 speciali nascosti (contenuti di Bru)
+13. ⬜ Salvataggio (serializzare GameState — ora anche le collezioni)
+14. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

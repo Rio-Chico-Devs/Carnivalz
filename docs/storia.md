@@ -35,6 +35,15 @@ ma era **il più talentuoso**, tanto da essere mandato **da solo**.
 I compagni si incontrano più avanti, in altri luoghi. E intanto i Carnivalz
 diventano sempre più preoccupanti: **qualcosa sta peggiorando...**
 
+## Le carte
+Ogni nemico ha una **carta** che lo rappresenta. Sconfiggendolo puoi ottenerla,
+ma le probabilità sono **molto scarse**: gli unici a lasciarla di sicuro sono
+quelli che si incontrano una volta sola — **miniboss e boss**. Le carte si
+raccolgono nell'**Album**, nel menu principale. Il **Bestiario** cataloga ogni
+nemico dal primo incontro (con voci nascoste che si svelano trovando un
+oggetto, innescando un evento o completando una quest), e il **compendio degli
+Oggetti** elenca tutto ciò che si è ottenuto almeno una volta.
+
 ## Il Tazo
 La **moneta universale**: coniata da un materiale malleabile e riutilizzabile
 per la scienza. Fuso o rimodellato è sempre utile ed equivalente al suo

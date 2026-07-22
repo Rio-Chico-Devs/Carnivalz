@@ -82,6 +82,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	else:
 		fila_nemici.add_child(scheda)
 		ritratto.mostra(id_personaggio)
+		if dati.has("xp"):
+			# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
+			GameState.registra_bestiario(id_personaggio)
 	var combattente := {
 		"indice": combattenti.size(),
 		"id": id_personaggio,
@@ -96,6 +99,8 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"stress": GameState.stress_di(id_personaggio) if giocatore else 0,
 		"xp": int(dati.get("xp", 10)),
 		"tazo": int(dati.get("tazo", 0)),
+		"carta": dati.get("carta", {}),
+		"bottino_comune": dati.get("bottino_comune", []),
 		"mosse": dati.get("mosse", []),
 		"peso_attacco_normale": int(dati.get("peso_attacco_normale", 4)),
 		"giocatore": giocatore,
@@ -524,13 +529,34 @@ func _su_ko(caduto: Dictionary) -> void:
 		giocatore_ha_vinto = true
 		in_corso = false
 		for combattente in combattenti:
-			if not combattente.giocatore:
+			if not combattente.giocatore and not combattente.get("oggetto_scena", false):
 				xp_bottino += combattente.xp
 				tazo_bottino += combattente.tazo
 		scrivi("[b]Vittoria![/b] Bottino: %d esperienza, %d Tazo." % [xp_bottino, tazo_bottino])
+		risolvi_drop()
 	elif vivi(true).is_empty():
 		in_corso = false
 		scrivi("[b]Il party è a terra. Il Carnivalz ha vinto.[/b]")
+
+func risolvi_drop() -> void:
+	# drop dei nemici sconfitti: carta (rara, garantita solo per unici/boss)
+	# e bottino comune (consumabili). Tutto dall'RNG seedato.
+	var righe: Array[String] = []
+	for c in combattenti:
+		if c.giocatore or c.get("oggetto_scena", false):
+			continue
+		var carta: Dictionary = c.carta
+		if not carta.is_empty():
+			var chance := float(carta.get("chance", 1.0))
+			if GameState.rng.randf() < chance and GameState.ottieni_carta(String(carta.get("id", ""))):
+				righe.append("carta \"%s\" [%s]" % [carta.get("nome", ""), carta.get("rarita", "")])
+		for voce in c.bottino_comune:
+			if GameState.rng.randf() < float(voce.get("chance", 0.0)):
+				var id_oggetto := String(voce.get("oggetto", ""))
+				if GameState.aggiungi_oggetto(id_oggetto):
+					righe.append(String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)))
+	if not righe.is_empty():
+		scrivi("[b]Ottieni:[/b] %s." % ", ".join(righe))
 
 func reagisci(alleato: Dictionary) -> void:
 	# ognuno accusa il colpo secondo la propria psiche
