@@ -19,6 +19,7 @@ const SEED_STELLE := 20260722
 func _ready() -> void:
 	resized.connect(queue_redraw)
 	var punto: Dictionary = GameState.punto_mappa_corrente
+	AudioManager.musica(String(punto.get("musica", "")))
 	titolo.text = "IL VUOTO — %s" % punto.get("nome", "?")
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_mappa.pressed.connect(func() -> void:
@@ -63,10 +64,12 @@ func vuoto_visibile(vuoto: Dictionary) -> bool:
 func _su_pianeta() -> void:
 	var punto: Dictionary = GameState.punto_mappa_corrente
 	if GameState.avvia_carnivalz(punto.get("id", ""), punto.get("file_eventi", "")):
+		GameState.musica_ambiente = String(punto.get("musica_campagna", ""))
 		get_tree().change_scene_to_file(SCENA_SELEZIONE)
 
 func _su_squarcio(vuoto: Dictionary) -> void:
 	if GameState.entra_squarcio(vuoto.get("id", ""), vuoto.get("file_eventi", "")):
+		GameState.musica_ambiente = String(vuoto.get("musica", ""))
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 
 func _draw() -> void:

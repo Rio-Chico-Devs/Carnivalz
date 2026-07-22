@@ -8,23 +8,28 @@
 			"pos": [400, 300],
 			"attivo": true,
 			"file_eventi": "res://data/events.json",
+			"musica": "res://audio/musica/vuoto_jerah.ogg",
+			"musica_campagna": "res://audio/musica/campagna_jerah.ogg",
 			"vuoti": [
 				{
 					"id": "squarcio_industriale",
 					"nome": "Lo Squarcio Industriale",
 					"pos": [250, 190],
+					"musica": "res://audio/musica/frattura_industriale.ogg",
 					"file_eventi": "res://data/vuoti/squarcio_industriale.json"
 				},
 				{
 					"id": "teatro_del_passato",
 					"nome": "Il Teatro del Passato",
 					"pos": [660, 150],
+					"musica": "res://audio/musica/frattura_teatro.ogg",
 					"file_eventi": "res://data/vuoti/teatro_del_passato.json"
 				},
 				{
 					"id": "casa_gigante",
 					"nome": "La Casa Gigante",
 					"pos": [900, 400],
+					"musica": "res://audio/musica/frattura_casa.ogg",
 					"file_eventi": "res://data/vuoti/casa_gigante.json"
 				},
 				{
@@ -33,6 +38,7 @@
 					"pos": [180, 420],
 					"nascosto": true,
 					"richiede_flags": ["quest_industriale", "quest_teatro", "casa_ricordo_sconfitto"],
+					"musica": "res://audio/musica/frattura_kizako.ogg",
 					"file_eventi": "res://data/vuoti/kizako_ala.json"
 				},
 				{
@@ -41,6 +47,7 @@
 					"pos": [520, 560],
 					"nascosto": true,
 					"richiede_flags": ["quest_industriale", "quest_teatro", "casa_ricordo_sconfitto"],
+					"musica": "res://audio/musica/frattura_fontana.ogg",
 					"file_eventi": "res://data/vuoti/fontana.json"
 				},
 				{
@@ -49,6 +56,7 @@
 					"pos": [740, 540],
 					"nascosto": true,
 					"richiede_flags": ["vuoto5_completo"],
+					"musica": "",
 					"file_eventi": ""
 				}
 			]
@@ -59,6 +67,7 @@
 			"pos": [860, 430],
 			"attivo": false,
 			"file_eventi": "",
+			"musica": "",
 			"vuoti": []
 		}
 	]

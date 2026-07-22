@@ -23,6 +23,7 @@
 		{
 			"id": "giocoliere",
 			"nome": "El Malabarista",
+			"categoria": "particolare",
 			"hp": 7,
 			"attacco": 2,
 			"difesa": 0,
@@ -104,6 +105,7 @@
 		{
 			"id": "ferraglia_urlante",
 			"nome": "Ferraglia Urlante",
+			"categoria": "particolare",
 			"hp": 8,
 			"attacco": 2,
 			"difesa": 2,

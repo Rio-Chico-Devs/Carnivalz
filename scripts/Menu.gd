@@ -9,6 +9,7 @@ const SCENA_BESTIARIO := "res://scenes/Bestiario.tscn"
 const SCENA_COMPENDIO := "res://scenes/Compendio.tscn"
 
 func _ready() -> void:
+	AudioManager.musica_chiave("menu")
 	var sfondo := ColorRect.new()
 	sfondo.color = Color(0.04, 0.03, 0.08)
 	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

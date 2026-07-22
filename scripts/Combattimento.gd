@@ -56,11 +56,36 @@ func _ready() -> void:
 		if portatore_frenesia.is_empty() and dati.has("frenesia"):
 			portatore_frenesia = dati
 	scrivi("[b]Il Carnivalz fa spazio: si combatte.[/b]")
+	avvia_musica_e_voce()
 	if fonte.get("convincibile", false):
 		etichetta_speranza.visible = true
 		aggiorna_speranza(0)
 	applica_leve()
 	esegui_scontro()
+
+func categoria_di(dati: Dictionary) -> String:
+	if dati.get("fonte", false):
+		return "boss"
+	if dati.has("frenesia"):
+		return "miniboss"
+	return String(dati.get("categoria", "comune"))
+
+func avvia_musica_e_voce() -> void:
+	# musica per la categoria più "alta" tra i nemici; voce d'ingresso per boss/miniboss
+	var ordine := ["boss", "miniboss", "particolare", "comune"]
+	var migliore := ordine.size() - 1
+	var categoria := "comune"
+	var principale: Dictionary = {}
+	for id_nemico in GameState.nemici_combattimento:
+		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
+		var idx := ordine.find(categoria_di(dati))
+		if idx >= 0 and idx < migliore:
+			migliore = idx
+			categoria = ordine[idx]
+			principale = dati
+	AudioManager.musica_chiave("combattimento_" + categoria)
+	if (categoria == "boss" or categoria == "miniboss") and not principale.is_empty():
+		AudioManager.voce_boss(String(principale.get("id", "")), principale, "inizio")
 
 func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
@@ -85,6 +110,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		if dati.has("xp"):
 			# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
 			GameState.registra_bestiario(id_personaggio)
+			AudioManager.verso(id_personaggio, dati, "comparsa")
 	var combattente := {
 		"indice": combattenti.size(),
 		"id": id_personaggio,
@@ -136,6 +162,7 @@ func aggiorna_speranza(quantita: int) -> void:
 	if not convinto and speranza >= int(fonte.get("speranza_soglia", 100)):
 		convinto = true
 		scrivi("[b]%s[/b]" % fonte.get("testo_cedimento", "Qualcosa, nella fonte, ha ceduto."))
+		AudioManager.voce_boss(String(fonte.get("id", "")), fonte, "cedimento")
 
 func esegui_scontro() -> void:
 	while in_corso:
@@ -531,6 +558,12 @@ func _su_ko(caduto: Dictionary) -> void:
 			turni_afflitto = portatore_frenesia.get("frenesia", {}).get("testo_fermata", []).size()
 	else:
 		scrivi("[i]%s è a terra![/i]" % caduto.nome)
+		if not caduto.giocatore:
+			# la fonte ha una voce di sconfitta; gli altri il verso di morte
+			if caduto.id == fonte.get("id", ""):
+				AudioManager.voce_boss(caduto.id, fonte, "sconfitta")
+			else:
+				AudioManager.verso(caduto.id, GameState.personaggi.get(caduto.id, {}), "morte")
 	for alleato in vivi(caduto.giocatore):
 		reagisci(alleato)
 	if vivi(false).is_empty():

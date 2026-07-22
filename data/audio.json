@@ -1,0 +1,11 @@
+{
+	"musica": {
+		"menu": "res://audio/musica/menu.ogg",
+		"mappa": "res://audio/musica/mappa.ogg",
+		"combattimento_comune": "res://audio/musica/battle_comune.ogg",
+		"combattimento_particolare": "res://audio/musica/battle_particolare.ogg",
+		"combattimento_miniboss": "res://audio/musica/battle_miniboss.ogg",
+		"combattimento_boss": "res://audio/musica/battle_boss.ogg"
+	},
+	"nota": "I file non esistono ancora: finché mancano, l'audio resta silenzioso senza errori. Convenzioni: versi nemici in res://audio/versi/<id>.wav (comparsa) e <id>_morte.wav (morte, opzionale); voci boss in res://audio/voci/<id>_<evento>.wav (inizio, cedimento, sconfitta). Musica in .ogg (loop), versi/voci in .wav."
+}

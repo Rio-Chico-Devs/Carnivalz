@@ -16,6 +16,7 @@ const SEED_STELLE := 20260721
 @onready var bottone_menu: Button = %BottoneMenu
 
 func _ready() -> void:
+	AudioManager.musica_chiave("mappa")
 	resized.connect(queue_redraw)
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_negozio.pressed.connect(func() -> void:

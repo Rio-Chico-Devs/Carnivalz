@@ -27,6 +27,7 @@ func _ready() -> void:
 	if GameState.eventi.is_empty():
 		# scena avviata direttamente dall'editor: carica la campagna di prova
 		GameState.avvia_carnivalz("debug", EVENTI_DEBUG)
+	AudioManager.musica(GameState.musica_ambiente)
 	bottone_dialoga.pressed.connect(_su_dialoga)
 	mostra_nodo(GameState.nodo_corrente)
 
