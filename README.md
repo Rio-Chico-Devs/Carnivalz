@@ -62,6 +62,19 @@ ma tenerlo acceso costa **stress** a ogni azione (+1 ogni 25 di fattore). Lo **s
 e il fattore si spegne. Si scarica parlando, mangiando, con gli oggetti: chiave `stress`
 negativa sulle scelte degli eventi (es. il falò: `"stress": -30`).
 
+## Speranza e i due esiti
+I Carnivalz sono mondi distorti da una fonte che ha subito ingiustizie (canone in
+`docs/storia.md`). Se il nemico ha `"fonte": true`, in combattimento compare la **Speranza**:
+- **Leve** (lista `leve` nei dati della fonte): oggetti nell'inventario, ospiti temporanei
+  (`tipo: ospite`, raccolti negli eventi con la chiave `ospite`) o compagni nel party che
+  fanno cedere la fonte — applicate all'inizio dello scontro, con il loro testo
+- Azione **Parla**: al posto di attaccare, +10 speranza e una battuta (`dialoghi_speranza`)
+- **Sopportare i colpi**: +3 quando un personaggio subisce o assorbe un attacco e resta in piedi
+- **Prolungare lo scontro**: +2 a ogni giro completo
+
+Alla vittoria: speranza ≥ `speranza_soglia` → nodo `se_vinci_eroe` (**esito eroe**: il nucleo
+si riassorbe, pangea, reincarnazione), altrimenti `se_vinci` (il pianeta viene distrutto).
+
 ## Esperienza e legame
 - **XP**: la vittoria dà XP a tutto il party; livello massimo **130**, fabbisogno
   `xp_base × livello^1.5`, e i 30 livelli dopo il 100 sono ostici (fabbisogno ×5)
@@ -106,9 +119,10 @@ Chiavi nodo (opzionali): `sinistra` (default: protagonista), `destra`, `centro` 
 Chiavi effetto sulle scelte (tutte opzionali): `vai`, `richiede` (la scelta non appare se il
 party non ha l'abilità), `richiede_legame` (appare solo con legame ≥ soglia), `recluta`
 (sblocca la classe e la mette nel party), `oggetto` (nell'inventario), `lascia` (la classe
-esce dai disponibili), `stress` (± a tutto il party), `legame` (± al legame), `combatti`
-(lista di id nemici; `se_vinci`/`se_perdi` sono i nodi di destinazione), `reset` (fine
-campagna, torna alla mappa; roster, zaino, livelli, stress e legame restano).
+esce dai disponibili), `ospite` (personaggio temporaneo che segue il party per la campagna),
+`stress` (± a tutto il party), `legame` (± al legame), `combatti` (lista di id nemici;
+`se_vinci`/`se_vinci_eroe`/`se_perdi` sono i nodi di destinazione), `reset` (fine campagna,
+torna alla mappa; roster, zaino, livelli, stress e legame restano, gli ospiti no).
 
 ## Convenzioni
 - Codice e chiavi JSON in italiano
@@ -122,7 +136,8 @@ campagna, torna alla mappa; roster, zaino, livelli, stress e legame restano).
 3. ✅ Selezione party adattiva + palco dialoghi con ritratti
 4. ✅ Combattimento a turni base (velocità, rabbia, livelli)
 5. ✅ Psiche, stress, fattore Carnivalz, XP fino al 130, legame
-6. ✅ Primo dungeon completo: il Carnivalz del Bosco (17 nodi, 3 scontri,
+6. ✅ Primo dungeon completo: il Carnivalz del Bosco (bivi, 3 scontri,
    3 reclutabili su strade alternative, falò, segreti, fonte)
-7. ⬜ Salvataggio (serializzare GameState)
-8. ⬜ Le 10 classi vere (varianti M/F)
+7. ✅ Speranza ed esito eroe: leve, Parla, ospiti temporanei, due finali
+8. ⬜ Salvataggio (serializzare GameState)
+9. ⬜ Le 10 classi vere (varianti M/F)

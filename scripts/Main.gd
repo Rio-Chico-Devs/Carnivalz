@@ -69,14 +69,16 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.aggiungi_oggetto(scelta["oggetto"])
 	if scelta.has("lascia"):
 		GameState.rimuovi_classe(scelta["lascia"])
+	if scelta.has("ospite"):
+		GameState.aggiungi_ospite(scelta["ospite"])
 	if scelta.has("stress"):
 		for id_classe in GameState.party:
 			GameState.modifica_stress(id_classe, int(scelta["stress"]))
 	if scelta.has("legame"):
 		GameState.modifica_legame(int(scelta["legame"]))
 	if scelta.has("combatti"):
-		GameState.prepara_combattimento(scelta["combatti"],
-				scelta.get("se_vinci", ""), scelta.get("se_perdi", ""))
+		GameState.prepara_combattimento(scelta["combatti"], scelta.get("se_vinci", ""),
+				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""))
 		get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 		return
 	if scelta.get("reset", false):

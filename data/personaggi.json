@@ -19,6 +19,11 @@
 			"ritratto": "res://art/personaggi/giocoliere.png"
 		},
 		{
+			"id": "vecchio_clown",
+			"nome": "Il Vecchio Clown",
+			"ritratto": "res://art/personaggi/vecchio_clown.png"
+		},
+		{
 			"id": "imbonitore",
 			"nome": "L'Imbonitore",
 			"hp": 5,
@@ -26,7 +31,29 @@
 			"psiche": "concentrazione",
 			"fattore_base": 25,
 			"xp": 25,
-			"ritratto": "res://art/personaggi/imbonitore.png"
+			"ritratto": "res://art/personaggi/imbonitore.png",
+			"fonte": true,
+			"speranza_soglia": 60,
+			"leve": [
+				{
+					"tipo": "oggetto",
+					"id": "medaglia_del_vecchio_circo",
+					"speranza": 25,
+					"testo": "La medaglia del vecchio circo ti scivola dalla tasca e rotola fino al centro della pista. L'Imbonitore smette di sorridere."
+				},
+				{
+					"tipo": "ospite",
+					"id": "vecchio_clown",
+					"speranza": 30,
+					"testo": "Il Vecchio Clown scosta il sipario ed entra in pista, zoppicando. \"Sono ancora qui, vecchio mio. Io non me ne sono mai andato.\""
+				}
+			],
+			"dialoghi_speranza": [
+				"Ti ricordi gli applausi veri? Ce n'è stato almeno uno, prima della fama.",
+				"Non è colpa tua. È il mondo a essere ingiusto. Ma tu non sei il mondo.",
+				"La fame, il gelo, gli sguardi: li hai già battuti una volta. Puoi farlo ancora.",
+				"Questa festa può finire senza che muoia nessun altro."
+			]
 		}
 	]
 }

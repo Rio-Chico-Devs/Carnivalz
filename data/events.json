@@ -42,7 +42,8 @@
 			"testo": "Il campo delle giostre. A sinistra, il tunnel dell'amore con i binari divelti. A destra, il padiglione degli specchi, ancora acceso.",
 			"scelte": [
 				{ "testo": "Entra nel tunnel dell'amore", "vai": "tunnel" },
-				{ "testo": "Entra nel padiglione degli specchi", "vai": "specchi" }
+				{ "testo": "Entra nel padiglione degli specchi", "vai": "specchi" },
+				{ "testo": "Raggiungi la carovana rimasta accesa, in fondo al campo", "vai": "carovana" }
 			]
 		},
 		"tunnel": {
@@ -58,6 +59,14 @@
 			"scelte": [
 				{ "testo": "Reggi lo sguardo e afferra la scheggia", "vai": "proscenio", "oggetto": "scheggia_di_specchio", "stress": 20 },
 				{ "testo": "Distogli lo sguardo e attraversa in fretta", "vai": "proscenio" }
+			]
+		},
+		"carovana": {
+			"testo": "Dentro la carovana, un vecchio clown rammenda un costume che nessuno indosserà più. È il migliore amico della fonte: l'unico che i mostri hanno risparmiato. \"Lo conoscevo prima del talento,\" dice. \"Portami da lui.\"",
+			"destra": "vecchio_clown",
+			"scelte": [
+				{ "testo": "Portalo con te fino alla pista", "vai": "proscenio", "ospite": "vecchio_clown", "legame": 5 },
+				{ "testo": "È troppo pericoloso: lascialo alla sua veglia", "vai": "proscenio" }
 			]
 		},
 		"proscenio": {
@@ -106,7 +115,7 @@
 			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" È lui la fonte. Il Carnivalz trattiene il fiato.",
 			"centro": "imbonitore",
 			"scelte": [
-				{ "testo": "Estingui la fonte", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
+				{ "testo": "Estingui la fonte", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_vinci_eroe": "vittoria_eroe", "se_perdi": "sconfitta" }
 			]
 		},
 		"sconfitta": {
@@ -116,8 +125,15 @@
 			]
 		},
 		"vittoria": {
-			"testo": "L'Imbonitore si inchina. \"Alla prossima, allora.\" E si disfa in coriandoli neri. La fonte è estinta: questo mondo, per stavolta, resta suo. L'Organizzazione sarà avvisata.",
+			"testo": "La fonte si spegne senza una parola. Non c'era più niente da salvare: il nucleo cede, e l'Organizzazione segna il pianeta come perduto. Nessuna rinascita, stavolta. Solo silenzio dove c'era la musica sbagliata.",
 			"destra": "imbonitore",
+			"scelte": [
+				{ "testo": "Torna alla mappa stellare", "reset": true }
+			]
+		},
+		"vittoria_eroe": {
+			"testo": "Qualcosa cede — non il corpo: la maschera. L'Imbonitore guarda la pista vuota e, per la prima volta, la lascia andare. Il nucleo si imbeve di fattore Carnivalz e si riassorbe: una pangea nuova, vita nuova, e tutte le anime in fila per rinascere. L'Organizzazione lo chiamerà esito eroe. Tu lo chiami com'era: una festa, finita bene.",
+			"centro": "imbonitore",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]

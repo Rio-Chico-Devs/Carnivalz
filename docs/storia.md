@@ -27,9 +27,36 @@ ed energia** — o lo **convertono per natura**, o **se ne nutrono**.
 Ma il confine non smette di premere: **anche un personaggio può diventare
 una fonte.**
 
-## Le fonti
+## I Carnivalz
+Non sono veri tendoni: sono **mondi in fiamme, realtà distorte da una
+fonte**. Tutto si deforma a seconda del trauma e dei sogni della fonte.
+Chi soffre sopravvive trasformato in mostro, e i mostri sterminano il resto
+della popolazione: il Carnivalz è **una festa per chi ha subito ingiustizie**
+e ha maturato fattore Carnivalz. Va fermato — ma la realtà è triste: non è
+colpa loro, è il mondo a essere ingiusto. Non c'è cura: va distrutto.
+
+## Le fonti e i due esiti
 Quando un intero pianeta viene divorato dal fattore Carnivalz, **la fonte va
-estinta**. La fonte è il boss di ogni fine livello.
+estinta**. La fonte è il boss di ogni fine livello. Quando viene rasa al
+suolo, a seconda dell'esito dello scontro:
+- **Distruzione**: il pianeta viene distrutto.
+- **Esito eroe**: il nucleo si imbeve di fattore Carnivalz e si riassorbe,
+  ricreando una **pangea** e donando nuova vita: tutte le anime tornano a
+  reincarnarsi nella nuova vita del pianeta.
+
+Per l'esito eroe bisogna **convincere la fonte che c'è speranza**: con i
+dialoghi, prolungando il combattimento, essendo abbastanza forti da
+sopportare i suoi attacchi, o portando davanti a lei ciò che può farla
+cedere — personaggi temporanei (una madre, un migliore amico), un compagno,
+un oggetto (il suo primo giocattolo...).
+
+## La prima fonte: l'Imbonitore (canone del dungeon 1)
+Dopo anni di carriera e fama, un virus gli ha rovinato la carriera. Tutti lo
+hanno abbandonato: ha capito che la gente stava con lui solo per il talento.
+Era nato povero e maltrattato, conosceva già il male — la fame, gli sguardi
+che schifano. I traumi sono riaffiorati piano piano, finché nel gelo di una
+notte è quasi morto: in quel momento il suo fattore Carnivalz ha raggiunto
+la **soglia critica** e ha deformato il mondo intero a tema circo.
 
 ## Il finale — gancio per Carnivalz 2 (SPOILER)
 L'ultimo boss, prima di cadere, comunica di aver visto qualcosa di veramente
@@ -44,6 +71,9 @@ gioco avrà successo.
 - **Mappa stellare** = i "!" sono fusioni di realtà in corso; entrare in un
   punto è un incarico dell'Organizzazione.
 - **Boss di fine campagna** = la fonte di quel Carnivalz, da estinguere.
+- **Speranza** = la meccanica dell'esito eroe: sale parlando, resistendo,
+  prolungando lo scontro e con le "leve" (oggetti/ospiti/compagni definiti
+  nei dati della fonte). Sopra la soglia, la vittoria diventa rinascita.
 - **Il party** = sopravvissuti che hanno toccato il confine; il **legame**
   tra loro è ciò che li tiene ancorati (e apre gli eventi rari).
 

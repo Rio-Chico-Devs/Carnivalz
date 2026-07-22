@@ -9,7 +9,7 @@ extends Control
 # personaggio è sopraffatto e il fattore si spegne. Numeri in
 # data/regole.json, casualità solo dall'RNG seedato di GameState.
 
-signal azione_scelta(bersaglio: Dictionary)
+signal azione_scelta(azione: Dictionary)
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
@@ -17,6 +17,7 @@ const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 
 @onready var fila_party: HBoxContainer = %Party
 @onready var fila_nemici: HBoxContainer = %Nemici
+@onready var etichetta_speranza: Label = %Speranza
 @onready var diario: RichTextLabel = %Diario
 @onready var azioni: HBoxContainer = %Azioni
 
@@ -24,14 +25,49 @@ var combattenti: Array[Dictionary] = []
 var in_corso := true
 var giocatore_ha_vinto := false
 
+# Esito eroe: se tra i nemici c'è una fonte, la speranza può convincerla.
+# Sale con le leve (oggetti/ospiti/compagni nei dati della fonte), parlando,
+# sopportando i colpi e prolungando lo scontro.
+var fonte: Dictionary = {}
+var speranza := 0
+var indice_dialogo := 0
+
 func _ready() -> void:
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
 	for id_nemico in GameState.nemici_combattimento:
 		aggiungi_combattente(id_nemico, false)
+		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
+		if fonte.is_empty() and dati.get("fonte", false):
+			fonte = dati
 	combattenti.sort_custom(func(a, b): return a.velocita > b.velocita)
 	scrivi("[b]Il Carnivalz fa spazio: si combatte.[/b]")
+	if not fonte.is_empty():
+		etichetta_speranza.visible = true
+		applica_leve()
+		aggiorna_speranza(0)
 	esegui_scontro()
+
+func applica_leve() -> void:
+	for leva in fonte.get("leve", []):
+		var id_leva: String = leva.get("id", "")
+		var presente := false
+		match leva.get("tipo", ""):
+			"oggetto":
+				presente = id_leva in GameState.inventario
+			"ospite":
+				presente = id_leva in GameState.ospiti
+			"compagno":
+				presente = id_leva in GameState.party
+		if presente:
+			speranza += int(leva.get("speranza", 0))
+			scrivi("[i]%s[/i]" % leva.get("testo", ""))
+
+func aggiorna_speranza(quantita: int) -> void:
+	if fonte.is_empty():
+		return
+	speranza = clampi(speranza + quantita, 0, 100)
+	etichetta_speranza.text = "Speranza %d / %d" % [speranza, int(fonte.get("speranza_soglia", 100))]
 
 func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
@@ -87,20 +123,25 @@ func esegui_scontro() -> void:
 					and GameState.rng.randf() < prob_extra:
 				scrivi("%s è in preda alla rabbia e attacca di nuovo!" % combattente.nome)
 				await esegui_turno(combattente)
+		if in_corso:
+			# prolungare lo scontro fa breccia nella fonte
+			aggiorna_speranza(int(GameState.regole.get("speranza_per_giro", 2)))
 	await get_tree().create_timer(1.4).timeout
 	_esci()
 
 func esegui_turno(attaccante: Dictionary) -> void:
 	evidenzia(attaccante)
-	var bersaglio: Dictionary
 	if attaccante.giocatore:
 		mostra_azioni()
-		bersaglio = await azione_scelta
+		var azione: Dictionary = await azione_scelta
+		if azione.get("parla", false):
+			parla(attaccante)
+		else:
+			attacca(attaccante, azione.bersaglio)
 	else:
 		await get_tree().create_timer(0.8).timeout
 		var possibili := vivi(true)
-		bersaglio = possibili[GameState.rng.randi_range(0, possibili.size() - 1)]
-	attacca(attaccante, bersaglio)
+		attacca(attaccante, possibili[GameState.rng.randi_range(0, possibili.size() - 1)])
 	# tenere acceso il fattore costa: lo stress sale a ogni azione
 	var passo := int(GameState.regole.get("stress_per_fattore", 25))
 	var costo := floori(attaccante.fattore / float(maxi(passo, 1)))
@@ -114,13 +155,27 @@ func mostra_azioni() -> void:
 	for nemico in vivi(false):
 		var bottone := Button.new()
 		bottone.text = "Attacca %s" % nemico.nome
-		bottone.pressed.connect(_scegli.bind(nemico))
+		bottone.pressed.connect(_scegli.bind({"bersaglio": nemico}))
 		azioni.add_child(bottone)
+	if not fonte.is_empty():
+		var bottone_parla := Button.new()
+		bottone_parla.text = "Parla"
+		bottone_parla.pressed.connect(_scegli.bind({"parla": true}))
+		azioni.add_child(bottone_parla)
 
-func _scegli(bersaglio: Dictionary) -> void:
+func _scegli(azione: Dictionary) -> void:
 	for figlio in azioni.get_children():
 		figlio.queue_free()
-	azione_scelta.emit(bersaglio)
+	azione_scelta.emit(azione)
+
+func parla(chi: Dictionary) -> void:
+	aggiorna_speranza(int(GameState.regole.get("speranza_parla", 10)))
+	var battute: Array = fonte.get("dialoghi_speranza", [])
+	if battute.is_empty():
+		scrivi("%s cerca le parole giuste." % chi.nome)
+		return
+	scrivi("%s: \"%s\"" % [chi.nome, battute[indice_dialogo % battute.size()]])
+	indice_dialogo += 1
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary) -> void:
 	var danno := int(GameState.regole.get("danno_attacco", 1))
@@ -141,12 +196,17 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary) -> void:
 			danno = 0
 	if danno <= 0:
 		scrivi("%s attacca %s, che assorbe il colpo!" % [attaccante.nome, bersaglio.nome])
+		if bersaglio.giocatore:
+			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 		return
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
 	scrivi("%s attacca %s: %d danno." % [attaccante.nome, bersaglio.nome, danno])
 	aggiorna_scheda(bersaglio)
 	if bersaglio.hp <= 0:
 		_su_ko(bersaglio)
+	elif bersaglio.giocatore:
+		# reggere in piedi sotto i colpi dimostra alla fonte che si può
+		aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 
 func _su_ko(caduto: Dictionary) -> void:
 	scrivi("[i]%s è a terra![/i]" % caduto.nome)
@@ -222,17 +282,23 @@ func _esci() -> void:
 		if combattente.giocatore:
 			GameState.modifica_stress(combattente.id,
 					combattente.stress - GameState.stress_di(combattente.id))
+	# le destinazioni vanno lette PRIMA di premia/annulla, che le azzerano
+	var dopo_vittoria := GameState.nodo_se_vinci
+	var dopo_vittoria_eroe := GameState.nodo_se_vinci_eroe
+	var dopo_sconfitta := GameState.nodo_se_perdi
 	if giocatore_ha_vinto:
 		var xp_totale := 0
 		for combattente in combattenti:
 			if not combattente.giocatore:
 				xp_totale += combattente.xp
 		GameState.premia_vittoria(xp_totale)
-		GameState.nodo_corrente = GameState.nodo_se_vinci
+		var eroe := not fonte.is_empty() and dopo_vittoria_eroe != "" \
+				and speranza >= int(fonte.get("speranza_soglia", 100))
+		GameState.nodo_corrente = dopo_vittoria_eroe if eroe else dopo_vittoria
 		get_tree().change_scene_to_file(SCENA_EVENTI)
-	elif GameState.nodo_se_perdi != "":
-		GameState.nodo_corrente = GameState.nodo_se_perdi
+	elif dopo_sconfitta != "":
 		GameState.annulla_combattimento()
+		GameState.nodo_corrente = dopo_sconfitta
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	else:
 		GameState.reset_campagna()

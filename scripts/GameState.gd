@@ -32,9 +32,11 @@ var legame: int = 0                       # 0..100, respira di continuo
 var eventi: Dictionary = {}
 var nodo_corrente: String = ""
 var carnivalz_corrente: String = ""
+var ospiti: Array[String] = []       # personaggi temporanei della campagna
 
 var nemici_combattimento: Array = []
 var nodo_se_vinci: String = ""
+var nodo_se_vinci_eroe: String = ""
 var nodo_se_perdi: String = ""
 
 func _ready() -> void:
@@ -99,6 +101,7 @@ func nuova_partita() -> void:
 	if id_protagonista != "":
 		classi_sbloccate.append(id_protagonista)
 		party.append(id_protagonista)
+	ospiti.clear()
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
@@ -170,9 +173,14 @@ func aggiungi_oggetto(id_oggetto: String) -> void:
 	if id_oggetto not in inventario:
 		inventario.append(id_oggetto)
 
-func prepara_combattimento(nemici: Array, se_vinci: String, se_perdi: String) -> void:
+func aggiungi_ospite(id_personaggio: String) -> void:
+	if personaggi.has(id_personaggio) and id_personaggio not in ospiti:
+		ospiti.append(id_personaggio)
+
+func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String) -> void:
 	nemici_combattimento = nemici.duplicate()
 	nodo_se_vinci = se_vinci
+	nodo_se_vinci_eroe = se_vinci_eroe
 	nodo_se_perdi = se_perdi
 
 func premia_vittoria(xp_totale: int) -> void:
@@ -183,14 +191,16 @@ func premia_vittoria(xp_totale: int) -> void:
 func annulla_combattimento() -> void:
 	nemici_combattimento = []
 	nodo_se_vinci = ""
+	nodo_se_vinci_eroe = ""
 	nodo_se_perdi = ""
 
 func reset_campagna() -> void:
 	# fine campagna: roster, zaino, livelli, stress e legame restano;
-	# il party si scioglie
+	# il party si scioglie e gli ospiti tornano al loro mondo
 	party.clear()
 	if id_protagonista != "":
 		party.append(id_protagonista)
+	ospiti.clear()
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
