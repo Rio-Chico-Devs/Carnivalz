@@ -111,6 +111,15 @@ fonte convinta → nodo `se_vinci_eroe` (pangea, reincarnazione), altrimenti `se
   apparire gli eventi rari: chiave `richiede_legame` sulle scelte (es. la stella caduta
   di Meteora al falò richiede legame ≥ 40)
 
+## Dialogare con i compagni
+Nella schermata eventi (campagna o squarcio) compare "Parla con la squadra" quando il party
+ha almeno un compagno oltre al protagonista. Clic → scegli un compagno → se `data/dialoghi.json`
+ha una voce per il nodo corrente (`luoghi.<id_nodo>`) la mostra (con `%s` sostituito dal nome
+di chi parla), altrimenti un fallback generico. Le voci con `una_tantum` si dicono una volta
+sola e possono impostare un `flag` — usato per sbloccare scelte altrimenti nascoste (es. la
+botola sotto i cuscini nella Casa Gigante: nessuno la nota, da soli). Dopo la battuta le
+scelte si ricostruiscono, così l'eventuale sblocco appare subito.
+
 ## Il Vuoto
 Ogni punto "!" apre il suo **sistema deformato** (scena Vuoto): il pianeta al centro
 (→ selezione party → campagna) e gli **squarci** intorno, definiti in `mappa.json`
@@ -126,6 +135,16 @@ collegate nei due sensi (perlustrazione libera):
 - **`torna_vuoto`** su una scelta: esce dallo squarcio senza toccare lo stato
 - Mosse boss extra: `autolesione` (si ferisce, stress a tutta la squadra) e
   `attacco_tutti` con campo `stress` (il lamento della bambola)
+
+### Frenesia (miniboss con conto alla rovescia)
+Un nemico può avere nei dati una chiave `frenesia` (non serve essere una fonte): a una
+`soglia_hp` innesca un conto alla rovescia (`conteggio` turni). Se arriva a zero: maleficio,
+KO totale del party. Si ferma **Studiando** il nemico durante la frenesia — rivela un
+**bersaglio extra** (`bersaglio_extra`, un oggetto di scena come "le lettere sull'altare",
+con la sua `bersaglio_extra_hp`) attaccabile come un nemico normale; distruggendolo il conto
+si ferma e il nemico, invece di attaccare, recita `testo_fermata` (una riga a turno) prima
+di tornare al comportamento normale. Usato dal miniboss "Un tenero ricordo" nella Casa
+Gigante.
 
 ## Formato dati
 

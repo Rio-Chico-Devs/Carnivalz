@@ -11,6 +11,7 @@ const PERCORSO_OGGETTI := "res://data/oggetti.json"
 const PERCORSO_NEGOZI := "res://data/negozi.json"
 const PERCORSO_MAPPA := "res://data/mappa.json"
 const PERCORSO_REGOLE := "res://data/regole.json"
+const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 
 # Unica fonte di casualità del gioco: sempre seedata, per determinismo
 # e sync multiplayer futuro.
@@ -23,6 +24,7 @@ var psichi: Dictionary = {}
 var oggetti: Dictionary = {}         # id oggetto -> definizione
 var negozi: Dictionary = {}          # id negozio -> definizione
 var regole: Dictionary = {}
+var dialoghi: Dictionary = {}        # id nodo -> battuta di un compagno (lore, sblocchi)
 var id_protagonista: String = ""
 
 var classi_sbloccate: Array[String] = []  # roster: persiste tra le campagne
@@ -63,6 +65,7 @@ func _ready() -> void:
 	carica_oggetti()
 	carica_negozi()
 	carica_regole()
+	carica_dialoghi()
 	nuova_partita()
 
 func imposta_seed(nuovo_seed: int) -> void:
@@ -117,6 +120,10 @@ func carica_negozi() -> void:
 func carica_regole() -> void:
 	var dati: Variant = carica_json(PERCORSO_REGOLE)
 	regole = dati if dati is Dictionary else {}
+
+func carica_dialoghi() -> void:
+	var dati: Variant = carica_json(PERCORSO_DIALOGHI)
+	dialoghi = dati.get("luoghi", {}) if dati is Dictionary else {}
 
 func carica_mappa() -> Dictionary:
 	var dati: Variant = carica_json(PERCORSO_MAPPA)

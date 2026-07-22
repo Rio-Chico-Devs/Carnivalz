@@ -101,6 +101,26 @@
 			"descrizione": "Un pezzo di stoffa con una firma sopra \"Lyloh\" e alcuni cuoricini disegnati, sembrerebbe che un bambino abbia scritto questo."
 		},
 		{
+			"id": "merendine_scadute",
+			"nome": "Pacco di merendine scadute",
+			"tipo": "consumabile",
+			"descrizione": "La data è illeggibile da anni. Curano lo stesso, in un certo senso.",
+			"effetto": { "hp": 2, "stress": 5 }
+		},
+		{
+			"id": "vino_di_ottima_qualita",
+			"nome": "Vino di ottima qualità",
+			"tipo": "consumabile",
+			"descrizione": "Un'annata che qualcuno teneva per un'occasione speciale, mai arrivata.",
+			"effetto": { "stress": -20 }
+		},
+		{
+			"id": "collana_particolare",
+			"nome": "Collana particolare",
+			"tipo": "chiave",
+			"descrizione": "Pesante, di una foggia che non si vede più. Non sembra fatta per essere indossata da una bambina."
+		},
+		{
 			"id": "lanterna_che_pulsa",
 			"nome": "Lanterna che pulsa",
 			"tipo": "chiave",

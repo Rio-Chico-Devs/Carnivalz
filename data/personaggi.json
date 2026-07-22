@@ -74,6 +74,12 @@
 			"ritratto": "res://art/personaggi/marionetta.png"
 		},
 		{
+			"id": "lettere_altare",
+			"nome": "Le lettere sull'altare",
+			"nome_breve": "le lettere",
+			"ritratto": "res://art/personaggi/lettere_altare.png"
+		},
+		{
 			"id": "tenero_ricordo",
 			"nome": "Un tenero ricordo",
 			"nome_breve": "la bambola",
@@ -118,9 +124,20 @@
 				}
 			],
 			"studio": [
-				{ "domanda": "Chi ti ha cucita?", "risposta": "mani... piccole..." },
-				{ "domanda": "Perché ti fai del male?", "risposta": "così... lei... non sente..." }
-			]
+				{ "osservazione": "Ti avvicini e la studi: è coperta di polvere, le cuciture consumate. Trasuda un'energia oscura indescrivibile." },
+				{ "osservazione": "Provi ad ascoltare, sotto il ronzio del Carnivalz: sembra quasi di sentire un pianto leggero." }
+			],
+			"frenesia": {
+				"soglia_hp": 0.5,
+				"conteggio": 3,
+				"testo_inizio": "All'improvviso la bambola smette di muoversi. Poi comincia a contare, piano, qualcosa che solo lei può sentire.",
+				"testo_conteggio": "Il conto alla rovescia scende: %d...",
+				"testo_maleficio": "Il conto arriva a zero. La bambola si trafigge il petto con uno spillo, un colpo secco e definitivo. Il maleficio vi si abbatte addosso, tutti insieme.",
+				"bersaglio_extra": "lettere_altare",
+				"bersaglio_extra_hp": 2,
+				"testo_sblocco_bersaglio": "Non è vero... bugiardi... a voi non è dispiaciuto davvero...",
+				"testo_fermata": ["Siate dannati... La mia Lyloh...", "Grazie..."]
+			}
 		},
 		{
 			"id": "vecchio_clown",

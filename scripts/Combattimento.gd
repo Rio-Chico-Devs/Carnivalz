@@ -34,6 +34,17 @@ var indice_studio := 0
 var alleati_usati: Array[String] = []
 var attaccante_corrente: Dictionary = {}
 
+# Frenesia: un nemico (non necessariamente una fonte) puo' avere nei dati
+# una chiave "frenesia" - a una soglia di hp innesca un conto alla rovescia:
+# se non fermato, maleficio e KO totale. Si ferma studiando il nemico
+# (rivela un bersaglio extra, es. un oggetto di scena) e distruggendolo.
+var portatore_frenesia: Dictionary = {}
+var frenesia_attiva := false
+var frenesia_gia_innescata := false
+var conteggio_frenesia := 0
+var turni_afflitto := 0
+var bersaglio_extra_sbloccato := false
+
 func _ready() -> void:
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
@@ -42,6 +53,8 @@ func _ready() -> void:
 		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
 		if fonte.is_empty() and dati.get("fonte", false):
 			fonte = dati
+		if portatore_frenesia.is_empty() and dati.has("frenesia"):
+			portatore_frenesia = dati
 	scrivi("[b]Il Carnivalz fa spazio: si combatte.[/b]")
 	if fonte.get("convincibile", false):
 		etichetta_speranza.visible = true
@@ -127,8 +140,8 @@ func esegui_scontro() -> void:
 		for combattente in combattenti.duplicate():
 			if not in_corso:
 				break
-			if combattente.hp <= 0:
-				continue
+			if combattente.hp <= 0 or combattente.get("oggetto_scena", false):
+				continue  # gli oggetti di scena (es. le lettere) non agiscono mai
 			await esegui_turno(combattente)
 			var prob_extra := float(GameState.regole.get("probabilita_attacco_extra_rabbia", 0.35))
 			if in_corso and combattente.hp > 0 \
@@ -274,6 +287,14 @@ func studia(chi: Dictionary) -> void:
 	var bersaglio := primo_nemico()
 	if bersaglio.is_empty():
 		return
+	if not portatore_frenesia.is_empty() and bersaglio.id == portatore_frenesia.id \
+			and frenesia_attiva and not bersaglio_extra_sbloccato:
+		bersaglio_extra_sbloccato = true
+		var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
+		scrivi("%s: \"%s\"" % [bersaglio.nome, dati_frenesia.get("testo_sblocco_bersaglio", "")])
+		attiva_bersaglio_extra()
+		GameState.segna_studiato(bersaglio.id)
+		return
 	var dati: Dictionary = GameState.personaggi.get(bersaglio.id, {})
 	var scambi: Array = dati.get("studio", [])
 	if convinto and bersaglio.id == fonte.get("id", "") and dati.has("studio_cedimento"):
@@ -283,11 +304,31 @@ func studia(chi: Dictionary) -> void:
 	else:
 		var scambio: Dictionary = scambi[indice_studio % scambi.size()]
 		indice_studio += 1
-		scrivi("%s: \"%s\"" % [chi.nome, scambio.get("domanda", "")])
-		scrivi("%s: \"%s\"" % [bersaglio.nome, scambio.get("risposta", "")])
+		if scambio.has("osservazione"):
+			scrivi("[i]%s[/i]" % scambio["osservazione"])
+		else:
+			scrivi("%s: \"%s\"" % [chi.nome, scambio.get("domanda", "")])
+			scrivi("%s: \"%s\"" % [bersaglio.nome, scambio.get("risposta", "")])
 	GameState.segna_studiato(bersaglio.id)
 	if bersaglio.id == fonte.get("id", ""):
 		aggiorna_speranza(int(GameState.regole.get("speranza_studio", 10)))
+
+func attiva_bersaglio_extra() -> void:
+	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
+	var id_bersaglio: String = dati_frenesia.get("bersaglio_extra", "")
+	if id_bersaglio == "":
+		return
+	aggiungi_combattente(id_bersaglio, false)
+	var oggetto: Dictionary = combattenti.back()
+	oggetto.oggetto_scena = true
+	oggetto.hp = int(dati_frenesia.get("bersaglio_extra_hp", 2))
+	oggetto.hp_max = oggetto.hp
+	oggetto.attacco = 0
+	oggetto.difesa = 0
+	oggetto.velocita = 0
+	oggetto.xp = 0
+	oggetto.tazo = 0
+	aggiorna_scheda(oggetto)
 
 func primo_nemico() -> Dictionary:
 	# la fonte ha la precedenza, altrimenti il primo nemico vivo
@@ -300,6 +341,46 @@ func primo_nemico() -> Dictionary:
 # --- turno nemico e mosse ---
 
 func turno_nemico(nemico: Dictionary) -> void:
+	if not portatore_frenesia.is_empty() and nemico.id == portatore_frenesia.id:
+		gestisci_turno_frenesia(nemico)
+		return
+	turno_nemico_normale(nemico)
+
+func gestisci_turno_frenesia(nemico: Dictionary) -> void:
+	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
+	if turni_afflitto > 0:
+		var linee: Array = dati_frenesia.get("testo_fermata", [])
+		var indice: int = linee.size() - turni_afflitto
+		if indice >= 0 and indice < linee.size():
+			scrivi("%s: \"%s\"" % [nemico.nome, linee[indice]])
+		turni_afflitto -= 1
+		return
+	if not frenesia_attiva:
+		turno_nemico_normale(nemico)
+		return
+	conteggio_frenesia -= 1
+	if conteggio_frenesia <= 0:
+		scrivi("[b]%s[/b]" % dati_frenesia.get("testo_maleficio", "Il maleficio si abbatte su di voi."))
+		for personaggio in vivi(true):
+			personaggio.hp = 0
+			aggiorna_scheda(personaggio)
+		in_corso = false
+		return
+	scrivi(String(dati_frenesia.get("testo_conteggio", "%d...")) % conteggio_frenesia)
+
+func verifica_innesco_frenesia(bersaglio: Dictionary) -> void:
+	if portatore_frenesia.is_empty() or bersaglio.id != portatore_frenesia.id \
+			or frenesia_gia_innescata or bersaglio.hp <= 0:
+		return
+	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
+	var soglia := float(dati_frenesia.get("soglia_hp", 0.5))
+	if float(bersaglio.hp) / float(bersaglio.hp_max) <= soglia:
+		frenesia_attiva = true
+		frenesia_gia_innescata = true
+		conteggio_frenesia = int(dati_frenesia.get("conteggio", 3))
+		scrivi("[b]%s[/b]" % dati_frenesia.get("testo_inizio", "Qualcosa cambia."))
+
+func turno_nemico_normale(nemico: Dictionary) -> void:
 	if convinto and nemico.id == fonte.get("id", "") \
 			and GameState.rng.randf() < float(GameState.regole.get("probabilita_cedimento", 0.5)):
 		cedimento(nemico)
@@ -413,6 +494,8 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
 	scrivi("%s attacca %s: %d danno." % [attaccante.nome, bersaglio.nome, danno])
 	aggiorna_scheda(bersaglio)
+	if not bersaglio.giocatore:
+		verifica_innesco_frenesia(bersaglio)
 	if bersaglio.hp <= 0:
 		_su_ko(bersaglio)
 	elif bersaglio.giocatore:
@@ -427,7 +510,14 @@ func colpisci_diretto(bersaglio: Dictionary, danno: int) -> void:
 		_su_ko(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:
-	scrivi("[i]%s è a terra![/i]" % caduto.nome)
+	if caduto.get("oggetto_scena", false):
+		scrivi("[i]%s vengono distrutte.[/i]" % caduto.nome)
+		if not portatore_frenesia.is_empty() \
+				and caduto.id == portatore_frenesia.get("frenesia", {}).get("bersaglio_extra", ""):
+			frenesia_attiva = false
+			turni_afflitto = portatore_frenesia.get("frenesia", {}).get("testo_fermata", []).size()
+	else:
+		scrivi("[i]%s è a terra![/i]" % caduto.nome)
 	for alleato in vivi(caduto.giocatore):
 		reagisci(alleato)
 	if vivi(false).is_empty():

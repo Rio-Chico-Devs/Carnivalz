@@ -1,0 +1,9 @@
+{
+	"luoghi": {
+		"stanza_giochi": {
+			"una_tantum": "dialogo_casa_botola",
+			"flag": "casa_botola",
+			"testo": "%s si ferma davanti ai cuscini ammucchiati contro il muro. \"Aspetta,\" dice, \"senti? Sotto è vuoto.\" Con un calcio scosta i cuscini: c'è una botola."
+		}
+	}
+}

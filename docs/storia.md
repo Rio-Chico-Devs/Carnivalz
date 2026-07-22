@@ -83,12 +83,22 @@ Fear and Hunger.
   acrobazie folli. Solo esplorazione, 138 Tazo in 5 nascondigli, e la
   copia di uno strano biglietto (il suo significato non va MAI detto:
   il giocatore deve ipotizzarlo).
-- **La Casa Gigante** — stanze segrete via interazioni; miniboss
-  **Un tenero ricordo**: bambola fatta a mano posseduta, si infligge
-  dolore alzando lo stress della squadra, lancia spilli, evoca marionette,
-  lamento ad area. Una volta sconfitta: "...volevo, giocare... ancora...
-  un pò..." Ricompensa: 80 Tazo + *Prova di un forte amore* (Lyloh).
-  Non rispawna.
+- **La Casa Gigante** — non gigante nelle proporzioni: gigante nel numero
+  di stanze, spaziose e numerose. Fotografie e quadri raccontano la storia
+  senza dirla mai apertamente (una ragazzina, la sua bambola fatta a mano,
+  una cartella clinica su depressione e fattore Carnivalz alto). Serve
+  **parlare con un compagno** nella stanza dei giochi per notare la botola
+  sotto i cuscini — da soli non si trova. Sotto: la stanza degli studi,
+  un tunnel, un altare con lettere di rimorso dei genitori ("se solo non
+  avessimo preteso così tanto da te") e la bambola sporca ai piedi
+  dell'altare. Miniboss **Un tenero ricordo**: si infligge dolore da sola
+  (stress alla squadra), lancia spilli, evoca marionette, lamento ad area.
+  A metà vita entra in **frenesia**: conto alla rovescia, se non fermato
+  è maleficio e KO totale. Si ferma **studiandola** (rivela le lettere
+  come bersaglio) e distruggendole; allora, invece di attaccare:
+  "Siate dannati... La mia Lyloh..." poi "Grazie...". Sconfitta:
+  "...volevo, giocare... ancora... un pò..." Ricompensa: 80 Tazo +
+  *Prova di un forte amore* (firmata Lyloh). Non rispawna.
 - **Un segnale nel cielo** (nascosto) — appare col misterioso componente
   elettronico: qui si recluta Meteora. [Condizione placeholder: Bru può
   cambiarla nel JSON.]

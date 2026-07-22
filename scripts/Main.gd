@@ -19,12 +19,15 @@ const EVENTI_DEBUG := "res://data/events.json"
 @onready var slot_destra = %SlotDestra
 @onready var narratore: RichTextLabel = %Narratore
 @onready var contenitore_scelte: VBoxContainer = %Scelte
+@onready var bottone_dialoga: Button = %BottoneDialoga
+@onready var menu_compagni: HBoxContainer = %MenuCompagni
 @onready var stato: Label = %Stato
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
 		# scena avviata direttamente dall'editor: carica la campagna di prova
 		GameState.avvia_carnivalz("debug", EVENTI_DEBUG)
+	bottone_dialoga.pressed.connect(_su_dialoga)
 	mostra_nodo(GameState.nodo_corrente)
 
 func mostra_nodo(id_nodo: String) -> void:
@@ -50,6 +53,10 @@ func mostra_nodo(id_nodo: String) -> void:
 	narratore.text = nodo.get("testo", "")
 	aggiorna_palco(nodo)
 	aggiorna_stato()
+	ricostruisci_scelte(nodo)
+	aggiorna_dialoga()
+
+func ricostruisci_scelte(nodo: Dictionary) -> void:
 	for figlio in contenitore_scelte.get_children():
 		figlio.queue_free()
 	for scelta in nodo.get("scelte", []):
@@ -124,6 +131,40 @@ func _su_scelta(scelta: Dictionary) -> void:
 		return
 	if scelta.has("vai"):
 		mostra_nodo(scelta["vai"])
+
+func aggiorna_dialoga() -> void:
+	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce
+	bottone_dialoga.visible = GameState.party.size() > 1
+	for figlio in menu_compagni.get_children():
+		figlio.queue_free()
+
+func _su_dialoga() -> void:
+	for figlio in menu_compagni.get_children():
+		figlio.queue_free()
+	for id_classe in GameState.party:
+		if id_classe == GameState.id_protagonista:
+			continue
+		var bottone := Button.new()
+		bottone.text = String(GameState.classi.get(id_classe, {}).get("nome", id_classe))
+		bottone.pressed.connect(_su_compagno.bind(id_classe))
+		menu_compagni.add_child(bottone)
+
+func _su_compagno(id_classe: String) -> void:
+	for figlio in menu_compagni.get_children():
+		figlio.queue_free()
+	var nome: String = String(GameState.classi.get(id_classe, {}).get("nome", id_classe))
+	var voce: Dictionary = GameState.dialoghi.get(GameState.nodo_corrente, {})
+	var gia_detta: bool = voce.has("una_tantum") and GameState.ha_flag(voce["una_tantum"])
+	if voce.is_empty() or gia_detta:
+		narratore.append_text("\n\n[i]%s non ha altro da dirti, qui.[/i]" % nome)
+		return
+	narratore.append_text("\n\n" + (String(voce.get("testo", "")) % nome))
+	if voce.has("flag"):
+		GameState.imposta_flag(voce["flag"])
+	if voce.has("una_tantum"):
+		GameState.imposta_flag(voce["una_tantum"])
+	# la battuta puo' aver sbloccato una scelta gated da richiede_flag
+	ricostruisci_scelte(GameState.eventi.get(GameState.nodo_corrente, {}))
 
 func aggiorna_stato() -> void:
 	var nomi: Array[String] = []

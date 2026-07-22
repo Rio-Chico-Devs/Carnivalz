@@ -73,6 +73,20 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
+[node name="RigaDialoga" type="HBoxContainer" parent="Margini/Colonna"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BottoneDialoga" type="Button" parent="Margini/Colonna/RigaDialoga"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Parla con la squadra"
+
+[node name="MenuCompagni" type="HBoxContainer" parent="Margini/Colonna/RigaDialoga"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
 [node name="Stato" type="Label" parent="Margini/Colonna"]
 unique_name_in_owner = true
 layout_mode = 2

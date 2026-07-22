@@ -2,95 +2,155 @@
 	"nodo_iniziale": "soglia",
 	"nodi": {
 		"soglia": {
-			"testo": "Una casa gigantesca, o forse sei tu a essere piccolo: i gradini arrivano al ginocchio di un gigante, la maniglia è una nave. Dalla serratura filtra una ninna nanna stonata.",
+			"testo": "Questo squarcio è una casa gigantesca: non nelle proporzioni, ma nel numero delle stanze, spaziose una via l'altra, come se non finisse mai. Dalla porta socchiusa filtra una ninna nanna stonata.",
 			"scelte": [
-				{ "testo": "Infilati sotto la porta", "vai": "salone" },
+				{ "testo": "Entra", "vai": "salone" },
 				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
 			]
 		},
 		"salone": {
-			"testo": "Un salone enorme, mobili come colline. Dal divano sventrato spunta un filo rosso, teso, che sparisce su per le scale.",
+			"testo": "Un salone enorme, arredato con cura anche dove nessuno guarda più. Due quadri alle pareti, un divano sventrato, e da qualche parte quel filo rosso che spunta appena, teso, verso le scale.",
 			"agguato": {
 				"probabilita": 0.3,
 				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
-				{ "testo": "Tira il filo rosso", "vai": "salone", "una_tantum": "casa_filo" },
+				{ "testo": "Osserva il quadro dell'uomo", "vai": "quadro_uomo" },
+				{ "testo": "Osserva il quadro della donna", "vai": "quadro_donna" },
+				{ "testo": "Fruga sotto i cuscini del divano", "vai": "salone", "una_tantum": "casa_tazo_1", "tazo": 18 },
+				{ "testo": "Tira il filo rosso", "vai": "salone", "una_tantum": "casa_filo", "flag": "casa_filo" },
 				{ "testo": "Vai in cucina", "vai": "cucina" },
 				{ "testo": "Sali le scale", "vai": "scala" },
 				{ "testo": "Torna alla soglia", "vai": "soglia" }
 			]
 		},
-		"cucina": {
-			"testo": "Pentole come campane, un tavolo come un altopiano. Nel lavello, piatti per tre: due grandi, uno piccolo. Nessuno lava i piatti da molto tempo.",
-			"agguato": {
-				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
-				"se_perdi": "cacciata"
-			},
+		"quadro_uomo": {
+			"testo": "Sembra un uomo molto severo... le rughe sul suo volto fanno trasparire un'estrema tristezza e una rabbia sempre tenuta a bada.",
 			"scelte": [
 				{ "testo": "Torna nel salone", "vai": "salone" }
 			]
 		},
-		"scala": {
-			"testo": "La scala sale nel buio, ogni gradino un piccolo trasloco. Il filo rosso — se l'hai tirato — corre lungo il corrimano verso una porticina che prima non c'era.",
+		"quadro_donna": {
+			"testo": "Una donna di una certa età... cos'ha in mano? Il suo sguardo non ti fa sentire al sicuro.",
 			"scelte": [
-				{ "testo": "Segui il filo fino alla stanza del cucito", "vai": "stanza_cucito", "richiede_flag": "casa_filo" },
-				{ "testo": "Entra nella camera dei bambini", "vai": "camera_bambini" },
-				{ "testo": "Sali fino alla soffitta", "vai": "soffitta" },
-				{ "testo": "Scendi nel salone", "vai": "salone" }
+				{ "testo": "Torna nel salone", "vai": "salone" }
 			]
 		},
-		"camera_bambini": {
-			"testo": "Giocattoli in fila contro il muro, come spettatori. Un letto enorme, rifatto con cura. Qualcosa, sotto, trattiene il fiato.",
+		"cucina": {
+			"testo": "Pentole in fila, un tavolo apparecchiato per tre da molto tempo, senza che nessuno l'abbia mai sparecchiato. In una credenza, bottiglie impolverate; in un'altra, qualcosa di dolce.",
 			"agguato": {
 				"probabilita": 0.3,
 				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
-				{ "testo": "Guarda sotto il letto", "vai": "camera_bambini", "una_tantum": "casa_letto" },
-				{ "testo": "Infilati nella nicchia dietro la testiera", "vai": "nicchia", "richiede_flag": "casa_letto" },
+				{ "testo": "Stappa una bottiglia di vino di ottima qualità", "vai": "cucina", "una_tantum": "casa_vino_1", "oggetto": "vino_di_ottima_qualita" },
+				{ "testo": "Fruga nella credenza dei dolci", "vai": "cucina", "una_tantum": "casa_merendine", "oggetto": "merendine_scadute" },
+				{ "testo": "Torna nel salone", "vai": "salone" }
+			]
+		},
+		"scala": {
+			"testo": "La scala sale attraverso piani che sembrano più numerosi di quanti dovrebbero essere. Il filo rosso, se l'hai tirato, corre lungo il corrimano fino a sparire oltre il pianerottolo.",
+			"scelte": [
+				{ "testo": "Entra nella stanza dei giochi", "vai": "stanza_giochi" },
+				{ "testo": "Sali fino alla soffitta", "vai": "soffitta" },
+				{ "testo": "Scendi nel salone", "vai": "salone" }
+			]
+		},
+		"stanza_giochi": {
+			"testo": "La stanza dei giochi: scaffali di giocattoli allineati come spettatori, un baule, e un mucchio di cuscini contro il muro. Tre fotografie, in cornici diverse, osservano la stanza da un comò.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{ "testo": "Osserva la prima fotografia", "vai": "foto_1", "una_tantum": "casa_foto_1" },
+				{ "testo": "Osserva la seconda fotografia", "vai": "foto_2", "una_tantum": "casa_foto_2" },
+				{ "testo": "Osserva la terza fotografia", "vai": "foto_3", "una_tantum": "casa_foto_3" },
+				{ "testo": "Apri il baule dei giocattoli", "vai": "stanza_giochi", "una_tantum": "casa_fiala", "oggetto": "fiala_hp" },
+				{ "testo": "Scendi nella botola", "vai": "stanza_studi", "richiede_flag": "casa_botola" },
 				{ "testo": "Torna alla scala", "vai": "scala" }
 			]
 		},
-		"nicchia": {
-			"testo": "Una nicchia scavata nel muro, tappezzata di disegni a matita: una famiglia, una casa, un sole con troppe punte. Qualcuno ci si nascondeva, qui. Qualcuno di piccolo.",
+		"foto_1": {
+			"testo": "Una fotografia ingiallita: una ragazzina, forse sei o sette anni, gioca seduta per terra con una bambola fatta a mano. Sta ridendo.",
 			"scelte": [
-				{ "testo": "Prendi la fiala nascosta nella scatola dei colori", "vai": "nicchia", "una_tantum": "casa_fiala", "oggetto": "fiala_hp" },
-				{ "testo": "Torna nella camera", "vai": "camera_bambini" }
+				{ "testo": "Torna alla stanza dei giochi", "vai": "stanza_giochi" }
+			]
+		},
+		"foto_2": {
+			"testo": "La stessa ragazzina, cresciuta: un vestito più elegante, una posa più composta. Tiene ancora la bambola, stretta contro il fianco, come se qualcuno potesse portargliela via da un momento all'altro.",
+			"scelte": [
+				{ "testo": "Torna alla stanza dei giochi", "vai": "stanza_giochi" }
+			]
+		},
+		"foto_3": {
+			"testo": "Una festa di compleanno: candeline, un tavolo pieno di regali che sembrano tutti uguali e tutti sbagliati. La ragazzina è al centro, la bambola in grembo. Non sorride, in questa.",
+			"scelte": [
+				{ "testo": "Torna alla stanza dei giochi", "vai": "stanza_giochi" }
 			]
 		},
 		"soffitta": {
-			"testo": "La soffitta è un cimitero di scatoloni. Su ognuno, la stessa calligrafia adulta: GIOCATTOLI DI L. — DA BUTTARE. Nessuno scatolone è mai stato buttato.",
+			"testo": "La soffitta è un cimitero di scatoloni, tutti con la stessa scritta a mano: GIOCATTOLI DI L. — DA BUTTARE. Nessuno scatolone è mai stato buttato.",
 			"agguato": {
 				"probabilita": 0.3,
 				"gruppi": [["marionetta"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
+				{ "testo": "Rovista tra gli scatoloni", "vai": "soffitta", "una_tantum": "casa_collana", "oggetto": "collana_particolare" },
+				{ "testo": "Controlla dentro un vecchio baule chiuso a chiave", "vai": "soffitta", "una_tantum": "casa_tazo_2", "tazo": 22 },
 				{ "testo": "Torna alla scala", "vai": "scala" }
 			]
 		},
-		"stanza_cucito": {
-			"testo": "La stanza del cucito. Al centro, su una seggiolina, una bambola fatta a mano si conficca spilli nelle braccia, piano, uno alla volta. Trasuda odio da ogni cucitura. Il filo rosso finisce nel suo petto.",
+		"stanza_studi": {
+			"testo": "Sotto i cuscini, la botola dà su una stanza degli studi: scrivania, diplomi alle pareti, e un fascicolo lasciato aperto come se qualcuno l'avesse richiuso in fretta, tanti anni fa.",
 			"scelte": [
-				{ "testo": "Avvicinati alla bambola", "richiede_non_flag": "casa_ricordo_spento", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_spento", "se_perdi": "cacciata" },
-				{ "testo": "La seggiolina è vuota. Solo stoffa, spilli e polvere.", "richiede_flag": "casa_ricordo_spento", "vai": "scala" },
-				{ "testo": "Indietreggia in silenzio", "vai": "scala" }
+				{ "testo": "Leggi la cartella clinica", "vai": "cartella_clinica" },
+				{ "testo": "Prosegui nel tunnel", "vai": "tunnel" },
+				{ "testo": "Risali dalla botola", "vai": "stanza_giochi" }
 			]
 		},
-		"ricordo_spento": {
-			"testo": "La bambola si affloscia tra i suoi spilli. Le cuciture si allentano una a una, come un respiro che finisce. Poi, da nessuna bocca: ...volevo, giocare... ancora... un pò...",
-			"flag": "casa_ricordo_spento",
+		"cartella_clinica": {
+			"testo": "\"...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di fattore Carnivalz anomali per l'età. Salute generale carente.\" La firma in fondo è illeggibile quanto il resto.",
 			"scelte": [
-				{ "testo": "Raccogli ciò che resta", "vai": "stanza_cucito", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore" },
-				{ "testo": "Lasciala riposare", "vai": "stanza_cucito" }
+				{ "testo": "Richiudi il fascicolo", "vai": "stanza_studi" }
+			]
+		},
+		"tunnel": {
+			"testo": "Un tunnel scavato a mano, stretto, che scende oltre le fondamenta della casa. L'aria si fa più fredda a ogni passo.",
+			"scelte": [
+				{ "testo": "Avanza verso la luce in fondo", "vai": "altare" },
+				{ "testo": "Torna alla stanza degli studi", "vai": "stanza_studi" }
+			]
+		},
+		"altare": {
+			"testo": "Un altare tributario, costruito con le mani: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra.",
+			"scelte": [
+				{ "testo": "Leggi le lettere", "vai": "lettere_lettura" },
+				{ "testo": "Stappa l'ultima bottiglia di vino di ottima qualità", "vai": "altare", "una_tantum": "casa_vino_2", "oggetto": "vino_di_ottima_qualita" },
+				{ "testo": "Osserva da vicino la foto sull'altare", "richiede_non_flag": "casa_ricordo_sconfitto", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_concluso", "se_perdi": "cacciata" },
+				{ "testo": "L'altare è silenzioso, ora.", "richiede_flag": "casa_ricordo_sconfitto", "vai": "tunnel" },
+				{ "testo": "Torna al tunnel", "vai": "tunnel" }
+			]
+		},
+		"lettere_lettura": {
+			"testo": "Sono lettere mai spedite, scritte dai genitori: parlano di rimorso, di quanto avrebbero voluto tornare indietro. \"Se solo non avessimo preteso così tanto da te,\" dice una. Un'altra si interrompe a metà frase.",
+			"scelte": [
+				{ "testo": "Richiudi le lettere", "vai": "altare" }
+			]
+		},
+		"ricordo_concluso": {
+			"testo": "La bambola si accascia tra le lettere bruciate e le sue stesse cuciture allentate. Poi, da nessuna bocca: \"...volevo, giocare... ancora... un pò...\" Il silenzio che segue è peggio di qualunque lamento.",
+			"flag": "casa_ricordo_sconfitto",
+			"scelte": [
+				{ "testo": "Raccogli ciò che resta", "vai": "altare", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80 }
 			]
 		},
 		"cacciata": {
-			"testo": "L'odio ti solleva di peso e la casa ti scaraventa fuori, giù dalla soglia, oltre lo squarcio. La ninna nanna riprende, stonata come prima.",
+			"testo": "Qualcosa ti solleva di peso e la casa ti scaraventa fuori, oltre lo squarcio. La ninna nanna riprende, stonata come prima.",
 			"scelte": [
 				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
 			]
