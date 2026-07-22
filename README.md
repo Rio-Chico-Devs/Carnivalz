@@ -29,7 +29,21 @@ Aprire `project.godot` con Godot 4.7+ (versione standard). Flusso:
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
   (ritratti). Finché mancano: placeholder generati (cielo stellato / iniziale del nome)
 
-## Palco dialoghi
+## Salvataggio
+Autosalvataggio nei **punti sicuri** (mappa stellare e Vuoto, mai in combattimento):
+`GameState.salva()` scrive `user://salvataggio.json` con lo stato meta (livelli, xp, stress,
+legame, Tazo, sacca/collezionabili/chiavi/carte, bestiario, compendio oggetti, negozi, flag,
+classi sbloccate). Dal menu, **Continua** ricarica e riporta alla mappa; **Nuova partita**
+azzera il progresso di storia (le collezioni album/bestiario/oggetti restano, sono meta).
+Non si salva a metà campagna/squarcio: si riparte dallo stato "overworld".
+
+## Palco dialoghi (con espressioni)
+Ogni personaggio ha 16 **espressioni** per i dialoghi in `art/personaggi/<id>/<espr>.png`
+(neutra, arrabbiata, felice, carina, infastidita, disgusto, speciale, dialogo, delusa,
+petrificata, annoiata, pensiero, sorpresa, sforzo, cool, decisa). Fallback: espressione →
+`neutra.png` → vecchio file singolo → iniziale. Nei nodi, i lati indicano l'espressione con
+`{ "id": "jerah", "espr": "arrabbiata" }` o con `espr_sinistra`/`espr_destra`/`espr_centro`.
+Dettagli in `art/personaggi/README.md`.
 Sopra il box del narratore ci sono due spazi per i disegni: a **sinistra sempre il
 protagonista** (o un alternativo, chiave `sinistra` nel nodo), a **destra l'interlocutore**
 (chiave `destra`). I dialoghi sono discussioni tra almeno due persone, quindi gli spazi sono
@@ -243,6 +257,8 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
 12. ✅ Rework mondo di Jerah (corrida/fiamme), rebalance (danno scala col
     livello, Jerah 35 HP, bambola 66 HP), alleata temporanea Yhvina,
     fratture gated da quest (Ala Kizako, Fontana coi 4 pezzi)
-13. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
-14. ⬜ Salvataggio (serializzare GameState — ora anche le collezioni)
-15. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+13. ✅ Impianto audio (musica per contesto, versi nemici, voci boss)
+14. ✅ Ritratti a espressioni (16 pose per i dialoghi) + salvataggio
+    (autosave su mappa/Vuoto, "Continua" dal menu)
+15. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
+16. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

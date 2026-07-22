@@ -17,6 +17,7 @@ const SEED_STELLE := 20260721
 
 func _ready() -> void:
 	AudioManager.musica_chiave("mappa")
+	GameState.salva()  # autosalvataggio: la mappa stellare è un punto sicuro
 	resized.connect(queue_redraw)
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_negozio.pressed.connect(func() -> void:

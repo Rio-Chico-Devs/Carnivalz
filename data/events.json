@@ -68,6 +68,7 @@
 		"carovana": {
 			"testo": "Dentro il carro, un vecchio torero rammenda una muleta che nessuno agiterà più. È il vecchio maestro della fonte: l'unico che i mostri hanno risparmiato. \"Lo conoscevo prima della gloria,\" dice. \"Portami da lui.\"",
 			"destra": "vecchio_clown",
+			"espr_destra": "pensiero",
 			"scelte": [
 				{ "testo": "Portalo con te fino al ruedo", "vai": "giostra_cavalli", "ospite": "vecchio_clown", "legame": 5 },
 				{ "testo": "È troppo pericoloso: lascialo alla sua veglia", "vai": "giostra_cavalli" }
@@ -117,6 +118,7 @@
 		"palco": {
 			"testo": "Sul tablao, El Malabarista fa girare tre lame roventi che non ricadono mai. \"La fonte non riceve nessuno,\" ride, senza guardarti. \"Prima si passa da me. ¡Ándale!\"",
 			"centro": "giocoliere",
+			"espr_centro": "cool",
 			"scelte": [
 				{ "testo": "Passa da lui", "combatti": ["giocoliere"], "se_vinci": "backstage", "se_perdi": "sconfitta" },
 				{ "testo": "Scardina la botola e passa sotto il tablao", "vai": "backstage", "richiede": "scasso" }
@@ -139,6 +141,7 @@
 		"boss": {
 			"testo": "Al centro del ruedo, sotto una scritta di fuoco che sanguina luce — EL ÚLTIMO ESPECTÁCULO DE JERAH — la fonte ti aspetta, la muleta di ferro nero in pugno. \"Benvenuto, Anonimo. Ti aspettavamo.\" Il deserto trattiene il fiato.",
 			"centro": "jerah",
+			"espr_centro": "decisa",
 			"scelte": [
 				{ "testo": "Estingui la fonte", "combatti": ["jerah"], "se_vinci": "vittoria", "se_vinci_eroe": "vittoria_eroe", "se_perdi": "sconfitta" }
 			]
@@ -152,6 +155,7 @@
 		"vittoria": {
 			"testo": "Jerah si spegne senza una parola, gli occhi ancora sulle gradinate vuote. Non c'era più niente da salvare: il nucleo cede, e l'Organizzazione segna il pianeta come perduto. Nessuna rinascita, stavolta. Solo cenere dove c'era il fuoco.",
 			"destra": "jerah",
+			"espr_destra": "delusa",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]
@@ -159,6 +163,7 @@
 		"vittoria_eroe": {
 			"testo": "L'ultimo spettacolo di Jerah finisce così: un inchino vero, il primo da anni, la muleta abbassata nella sabbia. Il nucleo si imbeve di fattore Carnivalz e si riassorbe: una pangea nuova, vita nuova, tutte le anime in fila per rinascere — anche la sua. L'Organizzazione lo chiamerà esito eroe. Tu lo chiami com'era: uno spettacolo, finito bene.",
 			"centro": "jerah",
+			"espr_centro": "speciale",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]

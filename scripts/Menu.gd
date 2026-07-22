@@ -37,16 +37,27 @@ func _ready() -> void:
 	colonna.add_child(sottotitolo)
 
 	colonna.add_child(_spazio(20))
-	_voce(colonna, "Gioca", SCENA_MAPPA)
+	if GameState.ha_salvataggio():
+		var continua := Button.new()
+		continua.text = "Continua"
+		continua.custom_minimum_size = Vector2(0, 44)
+		continua.pressed.connect(func() -> void:
+			GameState.carica()
+			get_tree().change_scene_to_file(SCENA_MAPPA))
+		colonna.add_child(continua)
+	_voce(colonna, "Nuova partita" if GameState.ha_salvataggio() else "Gioca", SCENA_MAPPA, true)
 	_voce(colonna, "Album delle carte", SCENA_ALBUM)
 	_voce(colonna, "Bestiario", SCENA_BESTIARIO)
 	_voce(colonna, "Oggetti", SCENA_COMPENDIO)
 
-func _voce(colonna: VBoxContainer, testo: String, scena: String) -> void:
+func _voce(colonna: VBoxContainer, testo: String, scena: String, nuova: bool = false) -> void:
 	var bottone := Button.new()
 	bottone.text = testo
 	bottone.custom_minimum_size = Vector2(0, 44)
-	bottone.pressed.connect(func() -> void: get_tree().change_scene_to_file(scena))
+	bottone.pressed.connect(func() -> void:
+		if nuova:
+			GameState.nuova_partita()  # ricomincia da zero (l'autosave sulla mappa aggiorna il file)
+		get_tree().change_scene_to_file(scena))
 	colonna.add_child(bottone)
 
 func _spazio(altezza: int) -> Control:

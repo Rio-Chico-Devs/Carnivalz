@@ -13,6 +13,7 @@ const PERCORSO_MAPPA := "res://data/mappa.json"
 const PERCORSO_REGOLE := "res://data/regole.json"
 const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 const PERCORSO_AUDIO := "res://data/audio.json"
+const PERCORSO_SALVATAGGIO := "user://salvataggio.json"
 
 # Unica fonte di casualità del gioco: sempre seedata, per determinismo
 # e sync multiplayer futuro.
@@ -373,6 +374,89 @@ func annulla_combattimento() -> void:
 	nodo_se_vinci = ""
 	nodo_se_vinci_eroe = ""
 	nodo_se_perdi = ""
+
+# --- salvataggio (stato meta persistente; si salva nei punti sicuri: mappa e Vuoto) ---
+
+func ha_salvataggio() -> bool:
+	return FileAccess.file_exists(PERCORSO_SALVATAGGIO)
+
+func salva() -> void:
+	var dati := {
+		"versione": 1,
+		"seed": seed_partita,
+		"tazo": tazo,
+		"fonti_estinte": fonti_estinte,
+		"legame": legame,
+		"classi_sbloccate": classi_sbloccate,
+		"livelli": livelli,
+		"xp": xp,
+		"stress": stress,
+		"sacca": sacca,
+		"collezionabili": collezionabili,
+		"chiavi": chiavi,
+		"carte": carte,
+		"oggetti_catalogo": oggetti_catalogo,
+		"bestiario": bestiario,
+		"studiati": studiati,
+		"negozi_sbloccati": negozi_sbloccati,
+		"flags": flags,
+	}
+	var f := FileAccess.open(PERCORSO_SALVATAGGIO, FileAccess.WRITE)
+	if f == null:
+		push_error("Salvataggio non riuscito: " + str(FileAccess.get_open_error()))
+		return
+	f.store_string(JSON.stringify(dati, "\t"))
+	f.close()
+
+func carica() -> bool:
+	if not ha_salvataggio():
+		return false
+	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(PERCORSO_SALVATAGGIO))
+	if not d is Dictionary:
+		push_error("Salvataggio corrotto")
+		return false
+	imposta_seed(int(d.get("seed", seed_partita)))
+	tazo = int(d.get("tazo", 0))
+	fonti_estinte = int(d.get("fonti_estinte", 0))
+	legame = int(d.get("legame", int(regole.get("legame_iniziale", 20))))
+	classi_sbloccate = _lista_str(d.get("classi_sbloccate", []))
+	livelli = d.get("livelli", {})
+	xp = d.get("xp", {})
+	stress = d.get("stress", {})
+	sacca = _lista_str(d.get("sacca", []))
+	collezionabili = _lista_str(d.get("collezionabili", []))
+	chiavi = _lista_str(d.get("chiavi", []))
+	carte = _lista_str(d.get("carte", []))
+	oggetti_catalogo = _lista_str(d.get("oggetti_catalogo", []))
+	bestiario = _lista_str(d.get("bestiario", []))
+	studiati = _lista_str(d.get("studiati", []))
+	negozi_sbloccati = _lista_str(d.get("negozi_sbloccati", []))
+	flags = _lista_str(d.get("flags", []))
+	# si riparte da uno stato "overworld" pulito: fuori da campagne e squarci
+	party.clear()
+	if id_protagonista != "":
+		if id_protagonista not in classi_sbloccate:
+			classi_sbloccate.append(id_protagonista)
+		party.append(id_protagonista)
+	if negozi_sbloccati.is_empty():
+		negozi_sbloccati.append("organizzazione")
+	ospiti.clear()
+	alleati_temporanei.clear()
+	stanze_ripulite.clear()
+	eventi.clear()
+	nodo_corrente = ""
+	carnivalz_corrente = ""
+	punto_mappa_corrente = {}
+	musica_ambiente = ""
+	annulla_combattimento()
+	return true
+
+func _lista_str(v: Variant) -> Array[String]:
+	var a: Array[String] = []
+	if v is Array:
+		for x in v:
+			a.append(str(x))
+	return a
 
 func reset_campagna() -> void:
 	# fine campagna: roster, inventario, Tazo, livelli, stress e legame

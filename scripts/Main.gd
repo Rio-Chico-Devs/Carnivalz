@@ -89,14 +89,28 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 		slot_sinistra.visible = false
 		slot_destra.visible = false
 		slot_centro.visible = true
-		slot_centro.mostra(nodo["centro"])
+		mostra_slot(slot_centro, nodo["centro"], nodo.get("espr_centro", ""))
 		return
 	slot_centro.visible = false
 	slot_sinistra.visible = true
-	slot_sinistra.mostra(nodo.get("sinistra", GameState.id_protagonista))
+	mostra_slot(slot_sinistra, nodo.get("sinistra", GameState.id_protagonista), nodo.get("espr_sinistra", ""))
 	slot_destra.visible = nodo.has("destra")
 	if nodo.has("destra"):
-		slot_destra.mostra(nodo["destra"])
+		mostra_slot(slot_destra, nodo["destra"], nodo.get("espr_destra", ""))
+
+func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
+	# valore: id stringa, oppure {id, espr}. L'espressione può anche venire
+	# dalla chiave espr_<lato> del nodo.
+	var id_personaggio := ""
+	var espressione := "neutra"
+	if valore is Dictionary:
+		id_personaggio = String(valore.get("id", ""))
+		espressione = String(valore.get("espr", "neutra"))
+	else:
+		id_personaggio = String(valore)
+	if espr_nodo != "":
+		espressione = espr_nodo
+	slot.mostra(id_personaggio, 0, espressione)
 
 func _su_scelta(scelta: Dictionary) -> void:
 	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi

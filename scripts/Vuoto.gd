@@ -20,6 +20,7 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 	var punto: Dictionary = GameState.punto_mappa_corrente
 	AudioManager.musica(String(punto.get("musica", "")))
+	GameState.salva()  # autosalvataggio: il Vuoto è un punto sicuro tra gli squarci
 	titolo.text = "IL VUOTO — %s" % punto.get("nome", "?")
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_mappa.pressed.connect(func() -> void:

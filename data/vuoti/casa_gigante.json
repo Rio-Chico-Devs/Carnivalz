@@ -116,6 +116,7 @@
 		"camera_da_letto": {
 			"testo": "Una camera da letto rimasta ferma agli anni buoni. Seduta sul bordo del letto, sveglia da chissà quanto, una donna dagli occhi cerchiati ti fissa senza sorpresa. \"Yhvina,\" dice, prima che tu chieda. \"L'Insonne. So perché sei qui: quella cosa, giù. Da solo non ce la fai.\"",
 			"destra": "insonne",
+			"espr_destra": "annoiata",
 			"scelte": [
 				{ "testo": "Chiedile di combattere al tuo fianco", "vai": "yhvina_si", "richiede_non_flag": "casa_yhvina", "recluta_temporaneo": "insonne", "livello_alleato": 6, "flag": "casa_yhvina" },
 				{ "testo": "\"Ce la faccio da solo.\"", "vai": "attico" }
@@ -124,6 +125,7 @@
 		"yhvina_si": {
 			"testo": "Yhvina si alza, lenta, e controlla una lama corta che teneva sotto il cuscino. \"Solo per stavolta. Non fraintendere: siete troppo scarsi perché io mi leghi a voi. Ma quella bambola non merita di restare sola un altro giorno.\" Ti squadra. \"Ci rivedremo, quando varrete la pena.\"",
 			"destra": "insonne",
+			"espr_destra": "decisa",
 			"scelte": [
 				{ "testo": "Scendete insieme verso i cuscini", "vai": "stanza_giochi" }
 			]
