@@ -4,14 +4,20 @@ extends Control
 # sta avendo luogo. Click sul marker -> selezione del party -> eventi.
 
 const SCENA_SELEZIONE := "res://scenes/Selezione.tscn"
+const SCENA_NEGOZIO := "res://scenes/Negozio.tscn"
 # Seed solo cosmetico (stelle placeholder): il caso di gioco sta in GameState.rng
 const SEED_STELLE := 20260721
 
 @onready var sfondo: TextureRect = %Sfondo
 @onready var strato_punti: Control = %Punti
+@onready var etichetta_tazo: Label = %Tazo
+@onready var bottone_negozio: Button = %BottoneNegozio
 
 func _ready() -> void:
 	resized.connect(queue_redraw)
+	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
+	bottone_negozio.pressed.connect(func() -> void:
+		get_tree().change_scene_to_file(SCENA_NEGOZIO))
 	var mappa: Dictionary = GameState.carica_mappa()
 	var percorso_sfondo: String = mappa.get("sfondo", "")
 	if percorso_sfondo != "" and ResourceLoader.exists(percorso_sfondo):

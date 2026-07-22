@@ -42,6 +42,10 @@ func mostra_nodo(id_nodo: String) -> void:
 			continue  # requisito non soddisfatto: la scelta non appare proprio
 		if scelta.has("richiede_legame") and GameState.legame < int(scelta["richiede_legame"]):
 			continue  # evento raro: serve un legame abbastanza coltivato
+		if scelta.has("richiede_ospite") and scelta["richiede_ospite"] not in GameState.ospiti:
+			continue
+		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
+			continue  # non puoi pagare cio' che non hai
 		var bottone := Button.new()
 		bottone.text = scelta.get("testo", "…")
 		bottone.pressed.connect(_su_scelta.bind(scelta))
@@ -71,6 +75,10 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.rimuovi_classe(scelta["lascia"])
 	if scelta.has("ospite"):
 		GameState.aggiungi_ospite(scelta["ospite"])
+	if scelta.has("tazo"):
+		GameState.modifica_tazo(int(scelta["tazo"]))
+	if scelta.has("sblocca_negozio"):
+		GameState.sblocca_negozio(scelta["sblocca_negozio"])
 	if scelta.has("stress"):
 		for id_classe in GameState.party:
 			GameState.modifica_stress(id_classe, int(scelta["stress"]))
@@ -93,5 +101,7 @@ func aggiorna_stato() -> void:
 	for id_classe in GameState.party:
 		nomi.append(String(GameState.classi.get(id_classe, {}).get("nome", id_classe)))
 	var testo_party := ", ".join(nomi) if not nomi.is_empty() else "solo tu"
-	var testo_zaino := ", ".join(GameState.inventario) if not GameState.inventario.is_empty() else "vuoto"
-	stato.text = "Party: %s   •   Zaino: %s   •   Legame %d" % [testo_party, testo_zaino, GameState.legame]
+	stato.text = "Party: %s   •   Sacca %d/%d   •   Tazo %d   •   Legame %d" % [
+		testo_party, GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20)),
+		GameState.tazo, GameState.legame,
+	]

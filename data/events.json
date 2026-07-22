@@ -2,18 +2,17 @@
 	"nodo_iniziale": "inizio",
 	"nodi": {
 		"inizio": {
-			"testo": "L'incarico dell'Organizzazione è chiaro: trovare la fonte ed estinguerla, prima che questo mondo venga divorato. Le luci del Carnivalz tremano oltre gli alberi. La musica arriva a folate, sbagliata di mezzo tono. Due strade portano al tendone.",
+			"testo": "Di norma l'Organizzazione manda professionisti, o interi team. A te hanno dato un tesserino, una sacca e una rotta: sei un neofita, ma nessuno ha mai gestito il proprio fattore come te. Per questo sei solo. Le luci del Carnivalz tremano oltre gli alberi, e la musica arriva a folate, sbagliata di mezzo tono. Due strade portano al tendone.",
 			"scelte": [
 				{ "testo": "Taglia per il bosco", "vai": "bosco" },
 				{ "testo": "Costeggia il fiume", "vai": "fiume" }
 			]
 		},
 		"bosco": {
-			"testo": "Tra i rami, una figura osserva il cielo a occhi spalancati: è Meteora. \"Anche tu senti la musica sbagliata?\"",
-			"destra": "meteora",
+			"testo": "Tra gli alberi spunta la vecchia biglietteria, rovesciata come un giocattolo. Dentro, monete sparse e una razione ancora sigillata.",
 			"scelte": [
-				{ "testo": "Chiedile di unirsi a te", "vai": "radura", "recluta": "meteora", "legame": 10 },
-				{ "testo": "Prosegui da solo", "vai": "radura" }
+				{ "testo": "Fruga tra i resti", "vai": "sentiero_lanterne", "oggetto": "razione_del_circo", "tazo": 10 },
+				{ "testo": "Non toccare niente", "vai": "sentiero_lanterne" }
 			]
 		},
 		"fiume": {
@@ -24,11 +23,17 @@
 			]
 		},
 		"riva": {
-			"testo": "Più avanti, seduta su un tronco, una donna fissa la corrente senza battere ciglio. È l'Insonne: non dorme da giorni, e ha visto tutto quello che passa di qui.",
-			"destra": "insonne",
+			"testo": "Una chiatta arenata, il carico sparso. Qualcuno è partito in fretta, o non è partito affatto.",
 			"scelte": [
-				{ "testo": "Offrile di venire con te", "vai": "radura", "recluta": "insonne", "legame": 10 },
-				{ "testo": "Lasciala ai suoi pensieri", "vai": "radura" }
+				{ "testo": "Ispeziona il carico", "vai": "sentiero_lanterne", "oggetto": "tonico_calmante", "tazo": 15 },
+				{ "testo": "Prosegui lungo l'argine", "vai": "sentiero_lanterne" }
+			]
+		},
+		"sentiero_lanterne": {
+			"testo": "Un sentiero di lanterne di carta si accende al tuo passaggio, una alla volta, come se qualcuno contasse i tuoi passi.",
+			"scelte": [
+				{ "testo": "Seguile: che contino pure", "vai": "radura" },
+				{ "testo": "Spegnile una a una, e respira", "vai": "radura", "stress": -10 }
 			]
 		},
 		"radura": {
@@ -39,34 +44,53 @@
 			]
 		},
 		"campo_giostre": {
-			"testo": "Il campo delle giostre. A sinistra, il tunnel dell'amore con i binari divelti. A destra, il padiglione degli specchi, ancora acceso.",
+			"testo": "Il campo delle giostre. Il tunnel dell'amore coi binari divelti, il padiglione degli specchi ancora acceso, e in fondo una carovana con una lampada alla finestra.",
 			"scelte": [
 				{ "testo": "Entra nel tunnel dell'amore", "vai": "tunnel" },
 				{ "testo": "Entra nel padiglione degli specchi", "vai": "specchi" },
-				{ "testo": "Raggiungi la carovana rimasta accesa, in fondo al campo", "vai": "carovana" }
+				{ "testo": "Bussa alla carovana illuminata", "vai": "carovana" }
 			]
 		},
 		"tunnel": {
-			"testo": "Nel tunnel, un uomo sta smontando i binari pezzo per pezzo, fischiettando la musica sbagliata al contrario. Il Guastatore alza lo sguardo: \"Se la smonti, non li divora.\"",
-			"destra": "guastatore",
+			"testo": "Nel tunnel qualcuno ha smontato i binari pezzo per pezzo, e ha lasciato la cassa degli attrezzi. In fondo, un petardo del vecchio spettacolo pirotecnico.",
 			"scelte": [
-				{ "testo": "Proponigli di smontare il Carnivalz insieme", "vai": "proscenio", "recluta": "guastatore", "legame": 10 },
-				{ "testo": "Lascialo al suo lavoro", "vai": "proscenio" }
+				{ "testo": "Prendi quello che serve", "vai": "giostra_cavalli", "oggetto": "petardo", "tazo": 10 },
+				{ "testo": "Attraversa e basta", "vai": "giostra_cavalli" }
 			]
 		},
 		"specchi": {
-			"testo": "Gli specchi non riflettono te: riflettono i mondi che non ci sono più. In uno di essi, qualcosa luccica a portata di mano. Guardare fa male.",
+			"testo": "Gli specchi non riflettono te: riflettono i mondi che non ci sono più. In uno di essi, una scheggia luccica a portata di mano. Guardare fa male.",
 			"scelte": [
-				{ "testo": "Reggi lo sguardo e afferra la scheggia", "vai": "proscenio", "oggetto": "scheggia_di_specchio", "stress": 20 },
-				{ "testo": "Distogli lo sguardo e attraversa in fretta", "vai": "proscenio" }
+				{ "testo": "Reggi lo sguardo e afferra la scheggia", "vai": "giostra_cavalli", "oggetto": "scheggia_di_specchio", "stress": 20 },
+				{ "testo": "Distogli lo sguardo e attraversa in fretta", "vai": "giostra_cavalli" }
 			]
 		},
 		"carovana": {
 			"testo": "Dentro la carovana, un vecchio clown rammenda un costume che nessuno indosserà più. È il migliore amico della fonte: l'unico che i mostri hanno risparmiato. \"Lo conoscevo prima del talento,\" dice. \"Portami da lui.\"",
 			"destra": "vecchio_clown",
 			"scelte": [
-				{ "testo": "Portalo con te fino alla pista", "vai": "proscenio", "ospite": "vecchio_clown", "legame": 5 },
-				{ "testo": "È troppo pericoloso: lascialo alla sua veglia", "vai": "proscenio" }
+				{ "testo": "Portalo con te fino alla pista", "vai": "giostra_cavalli", "ospite": "vecchio_clown", "legame": 5 },
+				{ "testo": "È troppo pericoloso: lascialo alla sua veglia", "vai": "giostra_cavalli" }
+			]
+		},
+		"giostra_cavalli": {
+			"testo": "La giostra dei cavalli gira da sola, a luci spente. I cavalli di legno hanno tutti la testa voltata verso di te.",
+			"scelte": [
+				{ "testo": "Ferma il meccanismo e recupera i Tazo incastrati", "vai": "baraccone_premi", "tazo": 20, "stress": 10 },
+				{ "testo": "Passa oltre, senza guardarli negli occhi", "vai": "baraccone_premi" }
+			]
+		},
+		"baraccone_premi": {
+			"testo": "Il tiro a segno è ancora in funzione: tre lattine, un fucile a tappi incatenato al banco, e premi che nessuno ha mai vinto.",
+			"scelte": [
+				{ "testo": "Gioca una partita (10 Tazo)", "vai": "premio", "tazo": -10 },
+				{ "testo": "I giochi truccati non ti fregano", "vai": "proscenio" }
+			]
+		},
+		"premio": {
+			"testo": "Tre colpi, tre lattine. Nel silenzio, il baraccone ti porge un pupazzo di pezza con un occhio solo. Sembra sinceramente stupito che qualcuno abbia vinto.",
+			"scelte": [
+				{ "testo": "Prendi il premio e vai verso il proscenio", "vai": "proscenio", "oggetto": "premio_di_pezza" }
 			]
 		},
 		"proscenio": {
@@ -79,14 +103,14 @@
 		"falo": {
 			"testo": "Il fuoco prende in fretta. La musica del tendone sembra più lontana, qui. C'è tempo per respirare.",
 			"scelte": [
-				{ "testo": "Mangiate qualcosa e parlate fino a tardi", "vai": "falo_notte", "stress": -30, "legame": 15 },
+				{ "testo": "Mangia qualcosa e lascia che il fuoco parli", "vai": "falo_notte", "stress": -30, "legame": 15 },
 				{ "testo": "Meglio non perdere tempo", "vai": "palco" }
 			]
 		},
 		"falo_notte": {
 			"testo": "Le braci calano. Qualcuno dovrebbe dire qualcosa, ma il silenzio va bene lo stesso.",
 			"scelte": [
-				{ "testo": "Qualcuno ti mette in mano qualcosa di caldo: una stella caduta", "vai": "palco", "richiede_legame": 40, "oggetto": "stella_caduta", "legame": 10 },
+				{ "testo": "Il Vecchio Clown apre la mano: un bottone dorato, del primo costume di Jerah", "vai": "palco", "richiede_ospite": "vecchio_clown", "oggetto": "bottone_dorato", "stress": -10 },
 				{ "testo": "Verso il palco", "vai": "palco" }
 			]
 		},
@@ -102,6 +126,7 @@
 			"testo": "Il backstage è un bosco di funi e sipari. In alto, tra le travi, luccica qualcosa che nessuno dovrebbe aver lasciato lì.",
 			"scelte": [
 				{ "testo": "Vola fin lassù, tra le funi", "vai": "segreto", "richiede": "volo" },
+				{ "testo": "Arrampicati a mani nude, fune dopo fune", "vai": "segreto", "stress": 15 },
 				{ "testo": "Scosta l'ultimo sipario", "vai": "boss" }
 			]
 		},

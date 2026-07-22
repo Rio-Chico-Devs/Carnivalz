@@ -1,0 +1,84 @@
+{
+	"oggetti": [
+		{
+			"id": "razione_del_circo",
+			"nome": "Razione del circo",
+			"tipo": "consumabile",
+			"descrizione": "Popcorn stantio e zucchero filato compresso. Rimette in piedi.",
+			"effetto": { "hp": 3 }
+		},
+		{
+			"id": "tonico_calmante",
+			"nome": "Tonico calmante",
+			"tipo": "consumabile",
+			"descrizione": "Distillato dall'Organizzazione. Allontana il confine per un po'.",
+			"effetto": { "stress": -25 }
+		},
+		{
+			"id": "petardo",
+			"nome": "Petardo",
+			"tipo": "consumabile",
+			"descrizione": "Del vecchio spettacolo pirotecnico. Ignora le difese.",
+			"effetto": { "danno": 2 }
+		},
+		{
+			"id": "premio_di_pezza",
+			"nome": "Premio di pezza",
+			"tipo": "consumabile",
+			"descrizione": "Vinto al tiro a segno. Abbracciarlo guarisce più del previsto.",
+			"effetto": { "hp": 5 }
+		},
+		{
+			"id": "lente_di_nyu",
+			"nome": "Lente di Nyu",
+			"tipo": "consumabile",
+			"descrizione": "Mostra alla fonte quello che non vuole vedere: una via d'uscita.",
+			"effetto": { "speranza": 15 }
+		},
+		{
+			"id": "caramella_di_nyu",
+			"nome": "Caramella di Nyu",
+			"tipo": "consumabile",
+			"descrizione": "Sa di un ricordo bello. Di chi, non si sa.",
+			"effetto": { "stress": -50 }
+		},
+		{
+			"id": "cuore_di_latta",
+			"nome": "Cuore di latta",
+			"tipo": "consumabile",
+			"descrizione": "Battuto a mano dall'Artigiano. Batte davvero, se serve.",
+			"effetto": { "hp": 10 }
+		},
+		{
+			"id": "specchio_tascabile",
+			"nome": "Specchio tascabile",
+			"tipo": "consumabile",
+			"descrizione": "Forgiato dalle schegge del padiglione. Riflette il male al mittente.",
+			"effetto": { "danno": 3 }
+		},
+		{
+			"id": "lanterna_che_pulsa",
+			"nome": "Lanterna che pulsa",
+			"tipo": "chiave",
+			"descrizione": "Spenta, eppure pulsa come un cuore. Vuole tornare da qualcuno."
+		},
+		{
+			"id": "medaglia_del_vecchio_circo",
+			"nome": "Medaglia del vecchio circo",
+			"tipo": "chiave",
+			"descrizione": "Incisa con un nome che non riesci a leggere. Jerah sì."
+		},
+		{
+			"id": "scheggia_di_specchio",
+			"nome": "Scheggia di specchio",
+			"tipo": "collezionabile",
+			"descrizione": "Dentro c'è ancora il riflesso di un mondo che non esiste più."
+		},
+		{
+			"id": "bottone_dorato",
+			"nome": "Bottone dorato",
+			"tipo": "collezionabile",
+			"descrizione": "Del primo costume di Jerah. Il Vecchio Clown lo custodiva da sempre."
+		}
+	]
+}

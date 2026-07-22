@@ -27,6 +27,30 @@ ed energia** — o lo **convertono per natura**, o **se ne nutrono**.
 Ma il confine non smette di premere: **anche un personaggio può diventare
 una fonte.**
 
+## Il protagonista
+Di norma l'Organizzazione manda **professionisti, o team di professionisti**,
+a estinguere i pianeti dove hanno luogo i Carnivalz. L'Anonimo è un
+**neofita** che ha da poco imparato a gestire il proprio fattore Carnivalz —
+ma era **il più talentuoso**, tanto da essere mandato **da solo**.
+I compagni si incontrano più avanti, in altri luoghi. E intanto i Carnivalz
+diventano sempre più preoccupanti: **qualcosa sta peggiorando...**
+
+## Il Tazo
+La **moneta universale**: coniata da un materiale malleabile e riutilizzabile
+per la scienza. Fuso o rimodellato è sempre utile ed equivalente al suo
+valore — ecco perché vale, ed ecco perché è la moneta di tutti i mondi.
+Si guadagna sconfiggendo nemici, facendo quest ed esplorando di più.
+
+## I negozi
+Evolvono man mano che si va avanti. I tre principali:
+- **L'Emporio dell'Organizzazione** — l'unico disponibile all'inizio.
+- **Il negozio di Nyu** — si sblocca quando incontri **Sally**, che ti
+  presenta sua sorella **Nyu**: vende cose più particolari.
+- **La bottega dell'Artigiano** — uno dei negozi finali. Odia i prodotti
+  non artigianali, si lamenta delle industrie e dei prodotti senza anima.
+  **Crafta oggetti dalle cose che raccogli**, e vende pezzi particolari.
+Altri negozi si troveranno in giro, ma questi sono i tre pilastri.
+
 ## I Carnivalz
 Non sono veri tendoni: sono **mondi in fiamme, realtà distorte da una
 fonte**. Tutto si deforma a seconda del trauma e dei sogni della fonte.
@@ -97,6 +121,8 @@ gioco avrà successo.
   tra loro è ciò che li tiene ancorati (e apre gli eventi rari).
 
 ## Punti aperti (decide Bru)
+- Chi è Sally, dove la si incontra, e il carattere di Nyu e dell'Artigiano
+- Dove e come si incontrano Meteora, Insonne e Guastatore (mondi futuri)
 - Natura dell'ombra che prende dati (materiale per Carnivalz 2)
 - La causa ignota del collasso (resta ignota? si scopre nel 2?)
 - Quando "un personaggio diventa fonte" diventa meccanica: soglia di stress

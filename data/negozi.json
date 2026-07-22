@@ -1,0 +1,35 @@
+{
+	"negozi": [
+		{
+			"id": "organizzazione",
+			"nome": "Emporio dell'Organizzazione",
+			"descrizione": "Equipaggiamento standard per operativi. Prezzi calmierati, anima zero.",
+			"stock": [
+				{ "oggetto": "razione_del_circo", "prezzo": 10, "da_fonti": 0 },
+				{ "oggetto": "tonico_calmante", "prezzo": 15, "da_fonti": 0 },
+				{ "oggetto": "petardo", "prezzo": 12, "da_fonti": 0 },
+				{ "oggetto": "cuore_di_latta", "prezzo": 80, "da_fonti": 1 }
+			]
+		},
+		{
+			"id": "nyu",
+			"nome": "Il negozio di Nyu",
+			"descrizione": "La sorella di Sally vende cose che non dovrebbero esistere. Sorride sempre.",
+			"stock": [
+				{ "oggetto": "lente_di_nyu", "prezzo": 40, "da_fonti": 0 },
+				{ "oggetto": "caramella_di_nyu", "prezzo": 35, "da_fonti": 0 }
+			]
+		},
+		{
+			"id": "artigiano",
+			"nome": "La bottega dell'Artigiano",
+			"descrizione": "\"Roba industriale. Roba morta.\" Lui lavora solo ciò che ha una storia.",
+			"stock": [
+				{ "oggetto": "cuore_di_latta", "prezzo": 60, "da_fonti": 0 }
+			],
+			"baratti": [
+				{ "richiede": ["scheggia_di_specchio", "scheggia_di_specchio"], "produce": "specchio_tascabile" }
+			]
+		}
+	]
+}

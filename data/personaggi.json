@@ -4,8 +4,11 @@
 			"id": "maschera_vuota",
 			"nome": "Maschera Vuota",
 			"hp": 3,
+			"attacco": 1,
+			"difesa": 0,
 			"velocita": 1,
 			"xp": 8,
+			"tazo": 5,
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
 			"studio": [
 				{ "domanda": "C'è qualcuno, lì dentro?", "risposta": "..." },
@@ -15,11 +18,14 @@
 		{
 			"id": "giocoliere",
 			"nome": "Il Giocoliere",
-			"hp": 4,
+			"hp": 6,
+			"attacco": 1,
+			"difesa": 0,
 			"velocita": 4,
 			"psiche": "rabbia",
 			"fattore_base": 10,
 			"xp": 15,
+			"tazo": 15,
 			"ritratto": "res://art/personaggi/giocoliere.png",
 			"studio": [
 				{ "domanda": "Perché difendi la fonte?", "risposta": "Quando tutto bruciava, lui mi ha dato un posto nello spettacolo. I coltelli non fanno domande." },
@@ -29,21 +35,60 @@
 		{
 			"id": "vecchio_clown",
 			"nome": "Il Vecchio Clown",
-			"ritratto": "res://art/personaggi/vecchio_clown.png"
+			"ritratto": "res://art/personaggi/vecchio_clown.png",
+			"assist": {
+				"testo": "Il Vecchio Clown inciampa nel riflettore: la luce taglia la pista in due. Jerah esita, la mano a mezz'aria.",
+				"effetto": { "speranza": 15 }
+			}
 		},
 		{
 			"id": "jerah",
 			"nome": "L'ultimo spettacolo di Jerah",
 			"nome_breve": "Jerah",
-			"hp": 5,
-			"velocita": 2,
+			"hp": 14,
+			"attacco": 2,
+			"difesa": 0,
+			"velocita": 3,
 			"psiche": "concentrazione",
-			"fattore_base": 25,
-			"xp": 25,
+			"fattore_base": 30,
+			"xp": 30,
+			"tazo": 50,
 			"ritratto": "res://art/personaggi/jerah.png",
 			"fonte": true,
 			"convincibile": true,
 			"speranza_soglia": 60,
+			"peso_attacco_normale": 4,
+			"mosse": [
+				{
+					"id": "gran_finale",
+					"tipo": "attacco_tutti",
+					"valore": 1,
+					"peso": 2,
+					"testo": "Jerah apre le braccia: GRAN FINALE! Coltelli di luce piovono su tutta la pista."
+				},
+				{
+					"id": "bis",
+					"tipo": "attacco_forte",
+					"valore": 3,
+					"peso": 2,
+					"testo": "\"BIS!\" grida Jerah. Il numero si ripete, due volte più forte."
+				},
+				{
+					"id": "sipario",
+					"tipo": "buff_difesa",
+					"valore": 2,
+					"turni": 2,
+					"peso": 1,
+					"testo": "Jerah si avvolge nel sipario: la scena stessa lo protegge."
+				},
+				{
+					"id": "richiamo",
+					"tipo": "evoca",
+					"valore": "maschera_vuota",
+					"peso": 1,
+					"testo": "Jerah batte le mani: qualcosa di bianco sale sul palco."
+				}
+			],
 			"testo_cedimento": "Jerah vacilla. \"Che spettacolo, voi,\" mormora. Il tendone intero trema con lui. Ma non smette di attaccare: una fonte non può.",
 			"leve": [
 				{

@@ -37,16 +37,33 @@ solo due. Se il nodo ha la chiave `centro`, quel personaggio parla da solo al ce
 spazi laterali spariscono.
 
 ## Combattimento
-Il più semplice possibile, per divertire senza mille numeri da tenere d'occhio:
-- **5 HP** a testa (`hp_base`, sovrascrivibile per classe/nemico nei dati), **1 danno** ad attacco
-- Party e nemici in un'unica fila d'iniziativa ordinata per **velocità**: il più veloce di
-  tutti agisce per primo, 1 attacco a testa per giro
-- Il danno **subìto dal party cala in proporzione al livello**: probabilità di assorbire il
-  colpo = (livello − 1) × 10%, tetto 50% (a danno 1, la riduzione percentuale diventa
-  naturalmente "ogni tanto il colpo non passa")
-- Vittoria: XP a tutto il party (somma dell'`xp` dei nemici). Sconfitta: nodo `se_perdi`
-  o ritorno alla mappa
+Numeri piccoli e leggibili, ma con scelte vere:
+- Stats per combattente (nei dati): **hp, attacco, difesa, velocità, fattore**. Danno =
+  attacco (+1 se il fattore arde) − difesa del bersaglio, minimo 0
+- Party e nemici in un'unica fila d'iniziativa per **velocità**, ricalcolata a ogni giro
+- **Menu azioni**: Attacca · Difenditi (difesa +2 fino al prossimo turno) · Abilità
+  (**Studia** sempre disponibile) · Oggetti (consumabili dalla sacca) · Alleati (gli ospiti
+  come il Vecchio Clown: un assist a combattimento, non sono veri combattenti)
+- I **boss hanno mosse pesate** nei dati (`mosse`: attacco_forte, attacco_tutti,
+  buff_difesa, buff_fattore, evoca + `peso_attacco_normale`): ogni scontro è unico
+- Il danno **subìto dal party cala in proporzione al livello** (probabilità di assorbire:
+  (livello − 1) × 10%, tetto 50%, + fattore/200)
+- Vittoria: XP e **Tazo** a tutto il party (somma di `xp` e `tazo` dei nemici). Sconfitta:
+  nodo `se_perdi` o ritorno alla mappa
 - Tutti i numeri stanno in `data/regole.json`; l'RNG è quello seedato di GameState
+
+## Inventario, Tazo e negozi
+- **Sacca**: massimo 20 oggetti **utilizzabili** (consumabili). Slot separati per
+  **collezionabili** (materiali per l'Artigiano), **oggetti chiave** e **carte da gioco**.
+  Il tipo sta in `data/oggetti.json`; effetti: `hp`, `stress`, `speranza`, `danno`
+- **Tazo**: la valuta universale (canone in docs/storia.md). Si guadagna da nemici
+  (`tazo` nei loro dati), esplorazione e quest (chiave evento `tazo`, anche negativa
+  per pagare); si parte con 30
+- **Negozi** (`data/negozi.json`, scena Negozio dalla mappa): all'inizio solo l'Emporio
+  dell'Organizzazione; il negozio di **Nyu** si sblocca incontrando Sally (chiave evento
+  `sblocca_negozio`), la bottega dell'**Artigiano** più avanti — lui **baratta** materiali
+  collezionati (`baratti`: richiede → produce). Lo stock evolve con le fonti estinte
+  (campo `da_fonti`)
 
 ## Psiche, stress, fattore Carnivalz
 Ogni personaggio ha una **psiche** (`psiche` nella classe, definizioni in `data/psiche.json`):
@@ -127,13 +144,13 @@ con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, z
 }
 ```
 Chiavi nodo (opzionali): `sinistra` (default: protagonista), `destra`, `centro` (esclude i lati).
-Chiavi effetto sulle scelte (tutte opzionali): `vai`, `richiede` (la scelta non appare se il
-party non ha l'abilità), `richiede_legame` (appare solo con legame ≥ soglia), `recluta`
-(sblocca la classe e la mette nel party), `oggetto` (nell'inventario), `lascia` (la classe
-esce dai disponibili), `ospite` (personaggio temporaneo che segue il party per la campagna),
-`stress` (± a tutto il party), `legame` (± al legame), `combatti` (lista di id nemici;
-`se_vinci`/`se_vinci_eroe`/`se_perdi` sono i nodi di destinazione), `reset` (fine campagna,
-torna alla mappa; roster, zaino, livelli, stress e legame restano, gli ospiti no).
+Chiavi effetto sulle scelte (tutte opzionali): `vai`, `richiede` (abilità nel party),
+`richiede_legame` (legame ≥ soglia), `richiede_ospite` (quell'ospite con te), `recluta`,
+`oggetto` (va nello slot giusto in base al tipo), `lascia`, `ospite` (personaggio temporaneo
+per la campagna), `tazo` (±; se negativa e non puoi pagare, la scelta non appare), `stress`
+(± a tutto il party), `legame` (±), `sblocca_negozio`, `combatti` (lista di id nemici;
+`se_vinci`/`se_vinci_eroe`/`se_perdi` destinazioni), `reset` (fine campagna: inventario,
+Tazo, roster, livelli, stress e legame restano, gli ospiti no).
 
 ## Convenzioni
 - Codice e chiavi JSON in italiano
@@ -151,5 +168,8 @@ torna alla mappa; roster, zaino, livelli, stress e legame restano, gli ospiti no
    3 reclutabili su strade alternative, falò, segreti, fonte)
 7. ✅ Speranza ed esito eroe: leve, ospiti temporanei, due finali
 8. ✅ Studio (dialoghi con risposta), convincibilità, cedimento del boss
-9. ⬜ Salvataggio (serializzare GameState)
-10. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+9. ✅ Dungeon 1 in solitaria e più lungo; menu azioni; stats estese e mosse
+   boss; sacca/collezionabili/chiavi/carte; Tazo; negozi (Organizzazione
+   attivo, Nyu e Artigiano pronti nei dati)
+10. ⬜ Salvataggio (serializzare GameState)
+11. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

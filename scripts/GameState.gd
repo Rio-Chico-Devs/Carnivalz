@@ -1,12 +1,14 @@
 extends Node
 
 # Autoload: stato di gioco e regole. Niente contenuti hardcodati:
-# classi, personaggi, psichi, eventi, mappa e numeri di bilanciamento
-# vivono nei JSON sotto data/.
+# classi, personaggi, psichi, oggetti, negozi, eventi, mappa e numeri
+# di bilanciamento vivono nei JSON sotto data/.
 
 const PERCORSO_CLASSI := "res://data/classes.json"
 const PERCORSO_PERSONAGGI := "res://data/personaggi.json"
 const PERCORSO_PSICHE := "res://data/psiche.json"
+const PERCORSO_OGGETTI := "res://data/oggetti.json"
+const PERCORSO_NEGOZI := "res://data/negozi.json"
 const PERCORSO_MAPPA := "res://data/mappa.json"
 const PERCORSO_REGOLE := "res://data/regole.json"
 
@@ -17,17 +19,27 @@ var seed_partita: int = 0
 
 var classi: Dictionary = {}
 var personaggi: Dictionary = {}      # classi + NPC (ritratti, dialoghi, stat)
-var psichi: Dictionary = {}          # id psiche -> nome, effetto, descrizione
+var psichi: Dictionary = {}
+var oggetti: Dictionary = {}         # id oggetto -> definizione
+var negozi: Dictionary = {}          # id negozio -> definizione
 var regole: Dictionary = {}
 var id_protagonista: String = ""
 
 var classi_sbloccate: Array[String] = []  # roster: persiste tra le campagne
 var party: Array[String] = []             # scelto a inizio campagna
-var inventario: Array[String] = []
 var livelli: Dictionary = {}              # id classe -> livello (default 1)
 var xp: Dictionary = {}                   # id classe -> xp verso il prossimo livello
 var stress: Dictionary = {}               # id classe -> 0..100
 var legame: int = 0                       # 0..100, respira di continuo
+
+# Inventario a slot: solo la sacca ha un limite ed è spendibile in combattimento
+var sacca: Array[String] = []             # consumabili, max regole.sacca_massima
+var collezionabili: Array[String] = []
+var chiavi: Array[String] = []
+var carte: Array[String] = []
+var tazo: int = 0
+var fonti_estinte: int = 0
+var negozi_sbloccati: Array[String] = []
 
 var eventi: Dictionary = {}
 var nodo_corrente: String = ""
@@ -45,6 +57,8 @@ func _ready() -> void:
 	carica_classi()
 	carica_personaggi()
 	carica_psichi()
+	carica_oggetti()
+	carica_negozi()
 	carica_regole()
 	nuova_partita()
 
@@ -83,6 +97,20 @@ func carica_psichi() -> void:
 	var dati: Variant = carica_json(PERCORSO_PSICHE)
 	psichi = dati.get("psichi", {}) if dati is Dictionary else {}
 
+func carica_oggetti() -> void:
+	oggetti.clear()
+	var dati: Variant = carica_json(PERCORSO_OGGETTI)
+	if dati is Dictionary:
+		for oggetto in dati.get("oggetti", []):
+			oggetti[oggetto["id"]] = oggetto
+
+func carica_negozi() -> void:
+	negozi.clear()
+	var dati: Variant = carica_json(PERCORSO_NEGOZI)
+	if dati is Dictionary:
+		for negozio in dati.get("negozi", []):
+			negozi[negozio["id"]] = negozio
+
 func carica_regole() -> void:
 	var dati: Variant = carica_json(PERCORSO_REGOLE)
 	regole = dati if dati is Dictionary else {}
@@ -94,11 +122,18 @@ func carica_mappa() -> Dictionary:
 func nuova_partita() -> void:
 	classi_sbloccate.clear()
 	party.clear()
-	inventario.clear()
 	livelli.clear()
 	xp.clear()
 	stress.clear()
 	studiati.clear()
+	sacca.clear()
+	collezionabili.clear()
+	chiavi.clear()
+	carte.clear()
+	tazo = int(regole.get("tazo_iniziale", 30))
+	fonti_estinte = 0
+	negozi_sbloccati.clear()
+	negozi_sbloccati.append("organizzazione")
 	legame = int(regole.get("legame_iniziale", 20))
 	if id_protagonista != "":
 		classi_sbloccate.append(id_protagonista)
@@ -136,6 +171,56 @@ func modifica_stress(id_classe: String, quantita: int) -> void:
 func modifica_legame(quantita: int) -> void:
 	legame = clampi(legame + quantita, 0, 100)
 
+func modifica_tazo(quantita: int) -> void:
+	tazo = maxi(tazo + quantita, 0)
+
+func dati_oggetto(id_oggetto: String) -> Dictionary:
+	return oggetti.get(id_oggetto, {})
+
+func aggiungi_oggetto(id_oggetto: String) -> bool:
+	match dati_oggetto(id_oggetto).get("tipo", "consumabile"):
+		"collezionabile":
+			collezionabili.append(id_oggetto)
+		"chiave":
+			if id_oggetto not in chiavi:
+				chiavi.append(id_oggetto)
+		"carta":
+			carte.append(id_oggetto)
+		_:
+			if sacca.size() >= int(regole.get("sacca_massima", 20)):
+				return false  # sacca piena
+			sacca.append(id_oggetto)
+	return true
+
+func possiede_oggetto(id_oggetto: String) -> bool:
+	return id_oggetto in sacca or id_oggetto in chiavi \
+			or id_oggetto in collezionabili or id_oggetto in carte
+
+func compra(id_oggetto: String, prezzo: int) -> bool:
+	if tazo < prezzo:
+		return false
+	if not aggiungi_oggetto(id_oggetto):
+		return false
+	tazo -= prezzo
+	return true
+
+func baratta(richiesti: Array, prodotto: String) -> bool:
+	# l'Artigiano lavora solo cio' che gli porti: materiali dai collezionabili
+	var restanti := collezionabili.duplicate()
+	for materiale in richiesti:
+		var indice := restanti.find(materiale)
+		if indice < 0:
+			return false
+		restanti.remove_at(indice)
+	if not aggiungi_oggetto(prodotto):
+		return false
+	collezionabili = restanti
+	return true
+
+func sblocca_negozio(id_negozio: String) -> void:
+	if negozi.has(id_negozio) and id_negozio not in negozi_sbloccati:
+		negozi_sbloccati.append(id_negozio)
+
 func fabbisogno_xp(livello: int) -> int:
 	var richiesta := ceili(float(regole.get("xp_base", 10))
 			* pow(livello, float(regole.get("xp_esponente", 1.5))))
@@ -171,10 +256,6 @@ func rimuovi_classe(id_classe: String) -> void:
 	party.erase(id_classe)
 	classi_sbloccate.erase(id_classe)
 
-func aggiungi_oggetto(id_oggetto: String) -> void:
-	if id_oggetto not in inventario:
-		inventario.append(id_oggetto)
-
 func aggiungi_ospite(id_personaggio: String) -> void:
 	if personaggi.has(id_personaggio) and id_personaggio not in ospiti:
 		ospiti.append(id_personaggio)
@@ -189,9 +270,12 @@ func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: Strin
 	nodo_se_vinci_eroe = se_vinci_eroe
 	nodo_se_perdi = se_perdi
 
-func premia_vittoria(xp_totale: int) -> void:
+func premia_vittoria(xp_totale: int, tazo_totale: int, fonte_estinta: bool) -> void:
 	for id_classe in party:
 		aggiungi_xp(id_classe, xp_totale)
+	modifica_tazo(tazo_totale)
+	if fonte_estinta:
+		fonti_estinte += 1
 	annulla_combattimento()
 
 func annulla_combattimento() -> void:
@@ -201,8 +285,8 @@ func annulla_combattimento() -> void:
 	nodo_se_perdi = ""
 
 func reset_campagna() -> void:
-	# fine campagna: roster, zaino, livelli, stress e legame restano;
-	# il party si scioglie e gli ospiti tornano al loro mondo
+	# fine campagna: roster, inventario, Tazo, livelli, stress e legame
+	# restano; il party si scioglie e gli ospiti tornano al loro mondo
 	party.clear()
 	if id_protagonista != "":
 		party.append(id_protagonista)
