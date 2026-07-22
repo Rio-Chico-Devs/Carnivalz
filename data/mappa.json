@@ -4,7 +4,7 @@
 		{
 			"id": "carnivalz_del_bosco",
 			"nome": "L'ultimo spettacolo di Jerah",
-			"tema": "fama e spettacolo",
+			"tema": "fama e spettacolo — passione, corrida, fiamme",
 			"pos": [400, 300],
 			"attivo": true,
 			"file_eventi": "res://data/events.json",
@@ -28,12 +28,28 @@
 					"file_eventi": "res://data/vuoti/casa_gigante.json"
 				},
 				{
-					"id": "stella_caduta",
-					"nome": "Un segnale nel cielo",
-					"pos": [480, 560],
+					"id": "kizako_ala",
+					"nome": "Kizako Industries — Ala Dimenticata",
+					"pos": [180, 420],
 					"nascosto": true,
-					"richiede_oggetti": ["componente_elettronico"],
-					"file_eventi": "res://data/vuoti/stella_caduta.json"
+					"richiede_flags": ["quest_industriale", "quest_teatro", "casa_ricordo_sconfitto"],
+					"file_eventi": "res://data/vuoti/kizako_ala.json"
+				},
+				{
+					"id": "fontana",
+					"nome": "La Fontana",
+					"pos": [520, 560],
+					"nascosto": true,
+					"richiede_flags": ["quest_industriale", "quest_teatro", "casa_ricordo_sconfitto"],
+					"file_eventi": "res://data/vuoti/fontana.json"
+				},
+				{
+					"id": "frattura_post_v5",
+					"nome": "Una crepa che pulsa",
+					"pos": [740, 540],
+					"nascosto": true,
+					"richiede_flags": ["vuoto5_completo"],
+					"file_eventi": ""
 				}
 			]
 		},

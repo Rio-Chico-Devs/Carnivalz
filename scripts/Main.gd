@@ -38,6 +38,8 @@ func mostra_nodo(id_nodo: String) -> void:
 	GameState.nodo_corrente = id_nodo
 	if nodo.has("flag"):
 		GameState.imposta_flag(nodo["flag"])
+	if nodo.has("congeda"):
+		GameState.congeda(nodo["congeda"])
 	# agguato: ogni tanto, dalle macerie, qualcosa si fa avanti (una volta
 	# per stanza a visita; vinto lo scontro si torna qui e si perlustra)
 	if nodo.has("agguato") and id_nodo not in GameState.stanze_ripulite:
@@ -70,6 +72,8 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 			continue
 		if scelta.has("richiede_non_flag") and GameState.ha_flag(scelta["richiede_non_flag"]):
 			continue
+		if scelta.has("richiede_oggetti") and not GameState.possiede_tutti(scelta["richiede_oggetti"]):
+			continue  # servono tutti i pezzi (es. la Fontana)
 		if scelta.has("una_tantum") and GameState.ha_flag(scelta["una_tantum"]):
 			continue  # gia' raccolto/fatto: la scelta non torna
 		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
@@ -107,6 +111,10 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.rimuovi_classe(scelta["lascia"])
 	if scelta.has("ospite"):
 		GameState.aggiungi_ospite(scelta["ospite"])
+	if scelta.has("recluta_temporaneo"):
+		GameState.recluta_temporaneo(scelta["recluta_temporaneo"], int(scelta.get("livello_alleato", 1)))
+	if scelta.has("congeda"):
+		GameState.congeda(scelta["congeda"])
 	if scelta.has("tazo"):
 		GameState.modifica_tazo(int(scelta["tazo"]))
 	if scelta.has("sblocca_negozio"):
@@ -122,7 +130,9 @@ func _su_scelta(scelta: Dictionary) -> void:
 		get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 		return
 	if scelta.get("torna_vuoto", false):
-		# uscita da uno squarcio: lo stato resta, si torna al sistema
+		# uscita da uno squarcio: lo stato resta, ma gli alleati temporanei
+		# non ti seguono fuori
+		GameState.congeda_tutti_temporanei()
 		get_tree().change_scene_to_file(SCENA_VUOTO)
 		return
 	if scelta.get("reset", false):

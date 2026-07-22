@@ -76,41 +76,60 @@ cominciano a essere infettati, mondi **già distrutti** da carnivalz
 precedenti, o **futuri ipotetici** se questo non si risolve. Possono stare
 nel passato o nel futuro. Si esplorano, si scoprono cose, oggetti unici.
 Certi oggetti o certe azioni **fanno apparire nuove zone** nel Vuoto.
-Prima versione del gioco: **8 vuoti principali e 3 vuoti speciali nascosti**
-(in uno di questi si recluta Meteora). I vuoti sono selezionabili e
-**rivisitabili**: i nemici sono random e rispuntano, tranne quelli
-particolari (decisi da Bru). Il tema di ogni Vuoto segue il boss del suo
-Carnivalz: per Jerah, **fama e spettacolo** — circo, teatro, cinema,
-videogiochi; creature dark e depresse, atmosfera alla Darkest Dungeon /
-Fear and Hunger.
+Prima versione del gioco: **8 vuoti principali e 3 vuoti speciali nascosti**.
+I vuoti sono selezionabili e **rivisitabili**: i nemici sono random e
+rispuntano, tranne quelli particolari (decisi da Bru). Il tema di ogni Vuoto
+segue il boss del suo Carnivalz. Molto dark, alla Darkest Dungeon / Fear and
+Hunger.
+
+### Il mondo di Jerah — passione in fiamme
+Non circo né tendone. Il mondo di Jerah è un **deserto in fiamme, fiamme di
+passione**: plaza de toros, corrida, flamenco, danza e acrobazie latine,
+ferro nero e spuntoni, sombreros, cactus. I mostri sono **fomentati e
+spavaldi** ("¡Ándale! ¡Olé! ¡Toros!"), toros umani, sadici come nel rosso-nero
+di Magic. Musiche latine. Jerah ne è il maestro e la fonte.
 
 ### Il Vuoto di Jerah (implementato)
-- **Lo Squarcio Industriale** — complesso gigantesco, ruggine e sudore,
-  caldo pazzesco; voci registrate, programmi che si accendono e spengono;
-  ogni tanto dalle macerie qualcosa si fa avanti.
-- **Il Teatro del Passato** — il passato: un ragazzo si esibisce in
-  acrobazie folli. Solo esplorazione, 138 Tazo in 5 nascondigli, e la
-  copia di uno strano biglietto (il suo significato non va MAI detto:
-  il giocatore deve ipotizzarlo).
-- **La Casa Gigante** — non gigante nelle proporzioni: gigante nel numero
-  di stanze, spaziose e numerose. Fotografie e quadri raccontano la storia
-  senza dirla mai apertamente (una ragazzina, la sua bambola fatta a mano,
-  una cartella clinica su depressione e fattore Carnivalz alto). Serve
-  **parlare con un compagno** nella stanza dei giochi per notare la botola
-  sotto i cuscini — da soli non si trova. Sotto: la stanza degli studi,
-  un tunnel, un altare con lettere di rimorso dei genitori ("se solo non
-  avessimo preteso così tanto da te") e la bambola sporca ai piedi
-  dell'altare. Miniboss **Un tenero ricordo**: si infligge dolore da sola
-  (stress alla squadra), lancia spilli, evoca marionette, lamento ad area.
-  A metà vita entra in **frenesia**: conto alla rovescia, se non fermato
-  è maleficio e KO totale. Si ferma **studiandola** (rivela le lettere
-  come bersaglio) e distruggendole; allora, invece di attaccare:
-  "Siate dannati... La mia Lyloh..." poi "Grazie...". Sconfitta:
-  "...volevo, giocare... ancora... un pò..." Ricompensa: 80 Tazo +
-  *Prova di un forte amore* (firmata Lyloh). Non rispawna.
-- **Un segnale nel cielo** (nascosto) — appare col misterioso componente
-  elettronico: qui si recluta Meteora. [Condizione placeholder: Bru può
-  cambiarla nel JSON.]
+- **Lo Squarcio Industriale** — complesso Kizako in rovina, ruggine e calore;
+  sirene e luci di cantiere, operai posseduti dai propri turni infiniti.
+- **Il Teatro del Passato** — un ragazzo si allena in acrobazie folli per una
+  platea vuota. Solo esplorazione, 138 Tazo, la copia di uno strano biglietto
+  (significato mai detto: il giocatore lo ipotizza).
+- **La Casa Gigante** — gigante nel numero di stanze, non nelle proporzioni.
+  Foto e quadri raccontano senza dire. Nell'**attico, una camera da letto**:
+  qui c'è **l'Insonne Yhvina** (liv. 6), che si unisce **solo per il miniboss**
+  poi se ne va (ci reputa troppo scarsi; torna nel Vuoto 3). Serve **parlare
+  con un compagno** per trovare la botola: da soli è invisibile. Sotto: studi,
+  tunnel, altare con lettere di rimorso, e il miniboss **Un tenero ricordo**
+  (frenesia col conto alla rovescia, si ferma studiandola e distruggendo le
+  lettere; drop 80 Tazo + *Prova di un forte amore*, Lyloh; non rispawna).
+
+### Fratture nascoste del Vuoto di Jerah
+Si aprono **completando fino in fondo le tre quest originali** (industriale +
+teatro + casa):
+- **Kizako Industries — Ala Dimenticata**: un'altra sezione della stessa
+  fabbrica. La ferraglia è posseduta dagli spiriti dei lavoratori; con
+  **Studia** se ne ascoltano gli ultimi ricordi. Serve a capire la lore del
+  luogo (vedi sotto).
+- **La Fontana**: un luogo etereo. Il suo segreto richiede **quattro pezzi**
+  raccolti nel gioco — *un'anima inquieta, dei ricordi felici, la volontà di
+  un fabbro, un cuore di Carnivalz*. Completata, **sblocca un personaggio
+  aggiuntivo** (da gestire più avanti). La *volontà di un fabbro* si trova
+  nell'Ala Kizako; gli altri tre pezzi arrivano da Vuoti futuri.
+- **Una crepa che pulsa**: si apre **dopo il Vuoto 5** (segnaposto, dopo).
+
+### Kizako Industries (storia nella storia)
+Lo scienziato **Kizako** ha costruito un impero con le sue invenzioni belliche.
+La sua fabbrica fu abbandonata quando i lavoratori, vinti dallo stress, uscirono
+di senno. Sue fabbriche compaiono in **più Vuoti**: una trama che attraversa il
+gioco. Kizako non è mai presente di persona nelle sue fabbriche — ma le sue
+fabbriche sono ovunque.
+
+### Meteora e i compagni
+Meteora **non** è il primo compagno: è un personaggio speciale, si incontra
+**dal Vuoto 4 in poi**. Yhvina (l'Insonne) è temporanea nel Vuoto 1 e torna nel
+Vuoto 3. La regola generale: i compagni si incontrano più avanti, in altri
+luoghi, non nel primo Carnivalz.
 
 ## Le fonti e i due esiti
 Quando un intero pianeta viene divorato dal fattore Carnivalz, **la fonte va
@@ -149,7 +168,8 @@ hanno abbandonato: ha capito che la gente stava con lui solo per il talento.
 Era nato povero e maltrattato, conosceva già il male — la fame, gli sguardi
 che schifano. I traumi sono riaffiorati piano piano, finché nel gelo di una
 notte è quasi morto: in quel momento il suo fattore Carnivalz ha raggiunto
-la **soglia critica** e ha deformato il mondo intero a tema circo.
+la **soglia critica** e ha deformato il mondo intero nella sua ultima,
+sconfinata corrida in fiamme.
 
 ## Il finale — gancio per Carnivalz 2 (SPOILER)
 L'ultimo boss, prima di cadere, comunica di aver visto qualcosa di veramente

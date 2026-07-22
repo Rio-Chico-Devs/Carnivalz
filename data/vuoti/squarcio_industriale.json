@@ -71,7 +71,8 @@
 			]
 		},
 		"cuore": {
-			"testo": "Il cuore del complesso: una turbina ferma, grande come una piazza. Sulle pale, qualcuno ha inciso dei nomi. La voce registrata qui è più chiara: sta contando i biglietti venduti.",
+			"testo": "Il cuore del complesso: una turbina ferma, grande come una piazza. Sulle pale, qualcuno ha inciso dei nomi. Un'insegna sbiadita, ancora leggibile: KIZAKO INDUSTRIES. La voce registrata qui è più chiara: sta contando i pezzi prodotti, all'infinito.",
+			"flag": "quest_industriale",
 			"scelte": [
 				{ "testo": "Apri la cassetta degli incassi", "vai": "cuore", "una_tantum": "ind_tazo_2", "tazo": 40 },
 				{ "testo": "Cerca tra le pale della turbina", "vai": "cuore", "una_tantum": "ind_fiala_3", "oggetto": "fiala_hp" },

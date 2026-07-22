@@ -30,6 +30,7 @@
 		},
 		"quinte": {
 			"testo": "Dietro le quinte: corde, sacchi di sabbia, uno specchio con le lampadine. Infilata nella cornice dello specchio c'è una copia di uno strano biglietto.",
+			"flag": "quest_teatro",
 			"scelte": [
 				{ "testo": "Prendi la copia del biglietto", "vai": "quinte", "una_tantum": "tea_biglietto", "oggetto": "biglietto_strano" },
 				{ "testo": "Torna sul palcoscenico", "vai": "palcoscenico" }

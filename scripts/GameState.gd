@@ -47,6 +47,7 @@ var eventi: Dictionary = {}
 var nodo_corrente: String = ""
 var carnivalz_corrente: String = ""
 var ospiti: Array[String] = []       # personaggi temporanei della campagna
+var alleati_temporanei: Array[String] = []  # compagni che combattono per un solo squarcio
 var studiati: Array[String] = []     # chi hai studiato (per la sezione studio futura)
 var flags: Array[String] = []        # scoperte permanenti (loot una tantum, segreti)
 
@@ -154,6 +155,7 @@ func nuova_partita() -> void:
 		classi_sbloccate.append(id_protagonista)
 		party.append(id_protagonista)
 	ospiti.clear()
+	alleati_temporanei.clear()
 	flags.clear()
 	stanze_ripulite.clear()
 	punto_mappa_corrente = {}
@@ -283,6 +285,38 @@ func recluta(id_classe: String) -> void:
 	if classi.has(id_classe) and id_classe not in party:
 		party.append(id_classe)
 
+func recluta_temporaneo(id_classe: String, livello: int) -> void:
+	# alleato che combatte con te ma non entra nel roster: dura uno squarcio
+	if not classi.has(id_classe):
+		return
+	if id_classe not in party:
+		party.append(id_classe)
+	if id_classe not in alleati_temporanei:
+		alleati_temporanei.append(id_classe)
+	if livello > 0:
+		livelli[id_classe] = livello
+
+func congeda(id_classe: String) -> void:
+	party.erase(id_classe)
+	alleati_temporanei.erase(id_classe)
+
+func congeda_tutti_temporanei() -> void:
+	for id_classe in alleati_temporanei:
+		party.erase(id_classe)
+	alleati_temporanei.clear()
+
+func possiede_tutti(lista: Array) -> bool:
+	for id_oggetto in lista:
+		if not possiede_oggetto(id_oggetto):
+			return false
+	return true
+
+func ha_tutti_flag(lista: Array) -> bool:
+	for nome_flag in lista:
+		if not ha_flag(nome_flag):
+			return false
+	return true
+
 func rimuovi_classe(id_classe: String) -> void:
 	# un personaggio esce dai disponibili; il protagonista mai
 	if id_classe == id_protagonista:
@@ -306,8 +340,10 @@ func ha_flag(nome_flag: String) -> bool:
 	return nome_flag in flags
 
 func entra_squarcio(id_squarcio: String, file_eventi: String) -> bool:
-	# a ogni rientro gli agguati si ritirano: i nemici del Vuoto rispuntano
+	# a ogni rientro gli agguati si ritirano: i nemici del Vuoto rispuntano;
+	# gli alleati temporanei di un altro squarcio restano fuori
 	stanze_ripulite.clear()
+	congeda_tutti_temporanei()
 	return avvia_carnivalz(id_squarcio, file_eventi)
 
 func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String) -> void:
@@ -337,6 +373,7 @@ func reset_campagna() -> void:
 	if id_protagonista != "":
 		party.append(id_protagonista)
 	ospiti.clear()
+	alleati_temporanei.clear()
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""

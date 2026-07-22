@@ -15,15 +15,16 @@
 		},
 		{
 			"id": "insonne",
-			"nome": "Insonne",
-			"hp": 5,
-			"attacco": 1,
+			"nome": "Yhvina",
+			"classe": "Insonne",
+			"hp": 6,
+			"attacco": 2,
 			"difesa": 0,
 			"velocita": 4,
 			"psiche": "depressione",
-			"fattore_base": 10,
+			"fattore_base": 15,
 			"abilita": ["veglia", "sesto_senso"],
-			"ritratto": "res://art/personaggi/insonne.png"
+			"ritratto": "res://art/personaggi/yhvina.png"
 		},
 		{
 			"id": "meteora",

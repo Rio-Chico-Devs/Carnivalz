@@ -473,7 +473,15 @@ func scadenza_buff(combattente: Dictionary) -> void:
 	aggiorna_scheda(combattente)
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1) -> void:
-	var danno: int = attaccante.attacco if valore_attacco < 0 else valore_attacco
+	var danno: int
+	if valore_attacco >= 0:
+		danno = valore_attacco  # mossa a valore fisso (es. faena, gran finale)
+	else:
+		danno = attaccante.attacco
+		if attaccante.giocatore:
+			# il danno del party scala col livello: farmare ed equipaggiarsi conta
+			danno += floori((GameState.livello_di(attaccante.id) - 1)
+					* float(GameState.regole.get("bonus_attacco_per_livello", 0.5)))
 	if fattore_attivo(attaccante) and GameState.rng.randf() < attaccante.fattore / 100.0:
 		danno += 1
 		scrivi("Il fattore Carnivalz arde in %s!" % attaccante.nome)

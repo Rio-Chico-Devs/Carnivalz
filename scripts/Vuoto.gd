@@ -54,7 +54,8 @@ func vuoto_visibile(vuoto: Dictionary) -> bool:
 	for id_oggetto in vuoto.get("richiede_oggetti", []):
 		if not GameState.possiede_oggetto(id_oggetto):
 			return false
-	for nome_flag in vuoto.get("richiede_flag", []):
+	# richiede_flags: tutte le quest indicate devono essere completate
+	for nome_flag in vuoto.get("richiede_flags", []):
 		if not GameState.ha_flag(nome_flag):
 			return false
 	return true

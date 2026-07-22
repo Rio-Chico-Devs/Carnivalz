@@ -2,9 +2,9 @@
 	"oggetti": [
 		{
 			"id": "razione_del_circo",
-			"nome": "Razione del circo",
+			"nome": "Razione da viaggio",
 			"tipo": "consumabile",
-			"descrizione": "Popcorn stantio e zucchero filato compresso. Rimette in piedi.",
+			"descrizione": "Carne secca e datteri pressati, roba da traversata nel deserto. Rimette in piedi.",
 			"effetto": { "hp": 3 }
 		},
 		{
@@ -121,6 +121,30 @@
 			"descrizione": "Pesante, di una foggia che non si vede più. Non sembra fatta per essere indossata da una bambina."
 		},
 		{
+			"id": "anima_inquieta",
+			"nome": "Un'anima inquieta",
+			"tipo": "chiave",
+			"descrizione": "Non trova pace e non sa perché. Vibra piano, come se cercasse una direzione. Uno dei pezzi della Fontana."
+		},
+		{
+			"id": "ricordi_felici",
+			"nome": "Dei ricordi felici",
+			"tipo": "chiave",
+			"descrizione": "Piccoli, caldi, quasi imbarazzanti da quanto sono semplici. Uno dei pezzi della Fontana."
+		},
+		{
+			"id": "volonta_di_un_fabbro",
+			"nome": "La volontà di un fabbro",
+			"tipo": "chiave",
+			"descrizione": "Chi la portava batteva il ferro finché non diceva la verità. Uno dei pezzi della Fontana."
+		},
+		{
+			"id": "cuore_di_carnivalz",
+			"nome": "Un cuore di Carnivalz",
+			"tipo": "chiave",
+			"descrizione": "Batte ancora, di quel battito sbagliato che deforma i mondi. Uno dei pezzi della Fontana."
+		},
+		{
 			"id": "lanterna_che_pulsa",
 			"nome": "Lanterna che pulsa",
 			"tipo": "chiave",
@@ -128,9 +152,9 @@
 		},
 		{
 			"id": "medaglia_del_vecchio_circo",
-			"nome": "Medaglia del vecchio circo",
+			"nome": "Medaglia della vecchia plaza",
 			"tipo": "chiave",
-			"descrizione": "Incisa con un nome che non riesci a leggere. Jerah sì."
+			"descrizione": "Il premio della sua prima corrida, quando ancora ballava per fame. Incisa con un nome che non riesci a leggere. Jerah sì."
 		},
 		{
 			"id": "scheggia_di_specchio",

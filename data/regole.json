@@ -1,6 +1,7 @@
 {
 	"hp_base": 5,
 	"danno_attacco": 1,
+	"bonus_attacco_per_livello": 0.5,
 	"riduzione_danno_per_livello": 0.1,
 	"riduzione_danno_massima": 0.5,
 	"probabilita_attacco_extra_rabbia": 0.35,

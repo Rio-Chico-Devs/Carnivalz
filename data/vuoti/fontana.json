@@ -1,0 +1,25 @@
+{
+	"nodo_iniziale": "fontana",
+	"nodi": {
+		"fontana": {
+			"testo": "Nessun deserto, nessuna fabbrica: qui c'è solo una luce chiara e sospesa, e al centro una fontana di pietra bianca, asciutta da sempre. Sul bordo, quattro incavi vuoti, ognuno della forma di qualcosa che non hai ancora. Chi la riempie, dice l'incisione, riporta indietro qualcuno.",
+			"scelte": [
+				{ "testo": "Deponi ciò che hai raccolto e completa la Fontana", "vai": "fontana_completa", "richiede_oggetti": ["anima_inquieta", "ricordi_felici", "volonta_di_un_fabbro", "cuore_di_carnivalz"], "flag": "fontana_completa" },
+				{ "testo": "Osserva gli incavi vuoti", "vai": "incavi" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"incavi": {
+			"testo": "Quattro incavi, quattro forme: un'anima inquieta, dei ricordi felici, la volontà di un fabbro, un cuore di Carnivalz. Sono cose che non si trovano in un posto solo: si raccolgono lungo tutta la strada. Finché mancano, la fontana resta asciutta.",
+			"scelte": [
+				{ "testo": "Torna alla fontana", "vai": "fontana" }
+			]
+		},
+		"fontana_completa": {
+			"testo": "I quattro pezzi trovano il loro posto. L'acqua sgorga dal nulla, limpida, e sale oltre il bordo senza traboccare. Dentro il riflesso prende forma qualcuno che il Carnivalz aveva rubato al mondo. Si volta verso di te. [Un nuovo personaggio si unirà: lo gestiremo più avanti.]",
+			"scelte": [
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		}
+	}
+}

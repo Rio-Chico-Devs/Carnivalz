@@ -102,7 +102,30 @@
 			"scelte": [
 				{ "testo": "Rovista tra gli scatoloni", "vai": "soffitta", "una_tantum": "casa_collana", "oggetto": "collana_particolare" },
 				{ "testo": "Controlla dentro un vecchio baule chiuso a chiave", "vai": "soffitta", "una_tantum": "casa_tazo_2", "tazo": 22 },
+				{ "testo": "Un altro sottoscala porta più su, verso l'attico", "vai": "attico" },
 				{ "testo": "Torna alla scala", "vai": "scala" }
+			]
+		},
+		"attico": {
+			"testo": "L'attico è basso e lungo, travi a vista e polvere sospesa. In fondo, sotto uno spiovente, una porta chiusa da cui filtra una luce fioca e costante: qualcuno, là dentro, non dorme.",
+			"scelte": [
+				{ "testo": "Apri la porta della camera da letto", "vai": "camera_da_letto" },
+				{ "testo": "Torna alla soffitta", "vai": "soffitta" }
+			]
+		},
+		"camera_da_letto": {
+			"testo": "Una camera da letto rimasta ferma agli anni buoni. Seduta sul bordo del letto, sveglia da chissà quanto, una donna dagli occhi cerchiati ti fissa senza sorpresa. \"Yhvina,\" dice, prima che tu chieda. \"L'Insonne. So perché sei qui: quella cosa, giù. Da solo non ce la fai.\"",
+			"destra": "insonne",
+			"scelte": [
+				{ "testo": "Chiedile di combattere al tuo fianco", "vai": "yhvina_si", "richiede_non_flag": "casa_yhvina", "recluta_temporaneo": "insonne", "livello_alleato": 6, "flag": "casa_yhvina" },
+				{ "testo": "\"Ce la faccio da solo.\"", "vai": "attico" }
+			]
+		},
+		"yhvina_si": {
+			"testo": "Yhvina si alza, lenta, e controlla una lama corta che teneva sotto il cuscino. \"Solo per stavolta. Non fraintendere: siete troppo scarsi perché io mi leghi a voi. Ma quella bambola non merita di restare sola un altro giorno.\" Ti squadra. \"Ci rivedremo, quando varrete la pena.\"",
+			"destra": "insonne",
+			"scelte": [
+				{ "testo": "Scendete insieme verso i cuscini", "vai": "stanza_giochi" }
 			]
 		},
 		"stanza_studi": {
@@ -146,7 +169,15 @@
 			"testo": "La bambola si accascia tra le lettere bruciate e le sue stesse cuciture allentate. Poi, da nessuna bocca: \"...volevo, giocare... ancora... un pò...\" Il silenzio che segue è peggio di qualunque lamento.",
 			"flag": "casa_ricordo_sconfitto",
 			"scelte": [
-				{ "testo": "Raccogli ciò che resta", "vai": "altare", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80 }
+				{ "testo": "Raccogli ciò che resta", "vai": "congedo_yhvina", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80 }
+			]
+		},
+		"congedo_yhvina": {
+			"testo": "Yhvina rinfodera la lama e ti dà le spalle senza cerimonie. \"Non male, per essere degli scarti. Ma non basta.\" Si ferma sulla soglia. \"La prossima volta che ci incontriamo, cerca di non deludermi.\" E se ne va, sveglia come sempre.",
+			"destra": "insonne",
+			"congeda": "insonne",
+			"scelte": [
+				{ "testo": "Torna verso l'altare", "vai": "altare" }
 			]
 		},
 		"cacciata": {

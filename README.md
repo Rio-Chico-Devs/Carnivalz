@@ -44,8 +44,14 @@ Numeri piccoli e leggibili, ma con scelte vere:
 - **Menu azioni**: Attacca · Difenditi (difesa +2 fino al prossimo turno) · Abilità
   (**Studia** sempre disponibile) · Oggetti (consumabili dalla sacca) · Alleati (gli ospiti
   come il Vecchio Clown: un assist a combattimento, non sono veri combattenti)
+- **Danno del party scala col livello**: `danno = attacco + ⌊(liv−1) × 0.5⌋` (+ fattore, + oggetti).
+  HP del party restano 5 (semplici); i boss hanno grandi riserve (Jerah 35, la bambola 66) →
+  la difficoltà sta nel non morire durante scontri lunghi. `bonus_attacco_per_livello` in regole
 - I **boss hanno mosse pesate** nei dati (`mosse`: attacco_forte, attacco_tutti,
   buff_difesa, buff_fattore, evoca + `peso_attacco_normale`): ogni scontro è unico
+- **Alleato temporaneo**: `recluta_temporaneo` (+`livello_alleato`) mette un compagno in squadra
+  solo per lo squarcio corrente; `congeda` (o l'uscita dallo squarcio) lo rimanda via. Yhvina
+  nella Casa Gigante
 - Il danno **subìto dal party cala in proporzione al livello** (probabilità di assorbire:
   (livello − 1) × 10%, tetto 50%, + fattore/200)
 - Vittoria: XP e **Tazo** a tutto il party (somma di `xp` e `tazo` dei nemici). Sconfitta:
@@ -152,7 +158,10 @@ collegate nei due sensi (perlustrazione libera):
 - **`una_tantum`** su una scelta: appare solo se il flag non è mai stato preso, e lo
   imposta scegliendola (loot permanente: Tazo, oggetti). `flag` (su scelta o nodo) +
   `richiede_flag`/`richiede_non_flag` per stanze segrete e boss che non rispawnano
-- **`torna_vuoto`** su una scelta: esce dallo squarcio senza toccare lo stato
+- **`torna_vuoto`** su una scelta: esce dallo squarcio (gli alleati temporanei restano fuori)
+- **Fratture nascoste**: nel `mappa.json`, un vuoto con `nascosto: true` appare solo se soddisfa
+  `richiede_oggetti` (possiedi quegli oggetti) o `richiede_flags` (tutte quelle quest completate).
+  Sulle scelte, `richiede_oggetti` gate una scelta finché non hai tutti i pezzi (la Fontana)
 - Mosse boss extra: `autolesione` (si ferisce, stress a tutta la squadra) e
   `attacco_tutti` con campo `stress` (il lamento della bambola)
 
@@ -231,6 +240,9 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
     loot una tantum, stanze segrete, miniboss Un tenero ricordo
 11. ✅ Menu principale + collezioni: album carte, bestiario, compendio
     oggetti; drop comuni e carte (rare/garantite) dai nemici
-12. ⬜ Gli altri 5 vuoti principali e 2 speciali nascosti (contenuti di Bru)
-13. ⬜ Salvataggio (serializzare GameState — ora anche le collezioni)
-14. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+12. ✅ Rework mondo di Jerah (corrida/fiamme), rebalance (danno scala col
+    livello, Jerah 35 HP, bambola 66 HP), alleata temporanea Yhvina,
+    fratture gated da quest (Ala Kizako, Fontana coi 4 pezzi)
+13. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
+14. ⬜ Salvataggio (serializzare GameState — ora anche le collezioni)
+15. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

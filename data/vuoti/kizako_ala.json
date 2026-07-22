@@ -1,0 +1,81 @@
+{
+	"nodo_iniziale": "portone",
+	"nodi": {
+		"portone": {
+			"testo": "Lo squarcio si apre su un'altra ala dello stesso complesso: più grande, più antica, sigillata da un portone che qualcuno ha divelto dall'interno. Sopra l'architrave, in lettere di metallo mezze cadute: KIZAKO INDUSTRIES. Sirene lontane suonano a intervalli, senza motivo. Le luci di cantiere si accendono e si spengono da sole.",
+			"scelte": [
+				{ "testo": "Entra nel reparto montaggio", "vai": "reparto" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"reparto": {
+			"testo": "Il reparto montaggio si perde nel buio. Nastri fermi, bracci meccanici piegati come schiene stanche. Ogni tanto qualcosa si muove tra i rottami: non macchine, non del tutto. Fa' Studia in combattimento, e sentirai chi erano.",
+			"agguato": {
+				"probabilita": 0.4,
+				"gruppi": [["operaio_posseduto"], ["operaio_posseduto", "comparsa_di_ruggine"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Raggiungi la sala mensa", "vai": "mensa" },
+				{ "testo": "Sali alla passerella dei capisquadra", "vai": "passerella" },
+				{ "testo": "Torna al portone", "vai": "portone" }
+			]
+		},
+		"mensa": {
+			"testo": "Una mensa aziendale immensa, tavoli in fila fino a perdersi. Su un muro, un orologio marcatempo fermo alle 19:47. Sotto, migliaia di cartellini timbrati e mai ritirati. Su una parete, un manifesto: 'IL RIPOSO È UN LUSSO CHE LA STORIA NON SI CONCEDE. — K.'",
+			"agguato": {
+				"probabilita": 0.4,
+				"gruppi": [["operaio_posseduto"], ["comparsa_di_ruggine", "comparsa_di_ruggine"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Fruga tra i cartellini", "vai": "mensa", "una_tantum": "kiz_tazo_1", "tazo": 30 },
+				{ "testo": "Recupera il tesserino di un caposquadra", "vai": "mensa", "una_tantum": "kiz_componente", "oggetto": "componente_elettronico" },
+				{ "testo": "Scendi negli archivi", "vai": "archivi" },
+				{ "testo": "Torna al reparto", "vai": "reparto" }
+			]
+		},
+		"passerella": {
+			"testo": "Dalla passerella si domina tutto il reparto. Da qui i capisquadra guardavano gli operai come si guarda un formicaio. Una di quelle sagome di ferro è ancora qui, incastrata nella ringhiera, e urla con la voce di troppa gente.",
+			"agguato": {
+				"probabilita": 0.5,
+				"gruppi": [["ferraglia_urlante"], ["operaio_posseduto", "operaio_posseduto"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Forza la cassaforte del capannone", "vai": "passerella", "una_tantum": "kiz_tazo_2", "tazo": 45 },
+				{ "testo": "Recupera la tanica lasciata sul ballatoio", "vai": "passerella", "una_tantum": "kiz_benzina", "oggetto": "benzina" },
+				{ "testo": "Scendi negli archivi per la scala di servizio", "vai": "archivi" },
+				{ "testo": "Torna al reparto", "vai": "reparto" }
+			]
+		},
+		"archivi": {
+			"testo": "Gli archivi della Kizako Industries. Faldoni di brevetti d'arma, bilanci gonfi, e una parete intera di fototessere di dipendenti, ognuna con una data di assunzione e nessuna data di uscita. In fondo, uno studio privato con una targa: DIR. KIZAKO.",
+			"flag": "quest_kizako_ala",
+			"scelte": [
+				{ "testo": "Leggi un fascicolo a caso", "vai": "fascicolo" },
+				{ "testo": "Entra nello studio di Kizako", "vai": "studio_kizako" },
+				{ "testo": "Torna alla mensa", "vai": "mensa" }
+			]
+		},
+		"fascicolo": {
+			"testo": "\"Progetto di ottimizzazione del rendimento umano. Turni prolungati oltre soglia di crollo. Perdite accettabili. Nota a margine, altra grafia: 'Signore, alcuni non tornano a casa da settimane. Rispondono solo alle sirene.' Risposta, inchiostro rosso: 'Ottimo. Meno distrazioni.'\"",
+			"scelte": [
+				{ "testo": "Richiudi il fascicolo", "vai": "archivi" }
+			]
+		},
+		"studio_kizako": {
+			"testo": "Lo studio è vuoto, pulito, gelido: l'unica stanza intatta di tutto il complesso. Nessun ritratto del padrone, da nessuna parte. Solo una lavagna piena di formule e, in un angolo, la sagoma di dove doveva esserci qualcosa di prezioso, ora sparito. Kizako non c'è. Kizako non c'è mai, nelle sue fabbriche. Ma le sue fabbriche sono ovunque.",
+			"scelte": [
+				{ "testo": "Preleva la volontà lasciata sull'incudine dell'officina", "vai": "studio_kizako", "una_tantum": "kiz_volonta", "oggetto": "volonta_di_un_fabbro" },
+				{ "testo": "Esci dagli archivi", "vai": "archivi" }
+			]
+		},
+		"espulso": {
+			"testo": "Le sirene esplodono tutte insieme e le luci di cantiere ti accecano. Quando torni a vedere, sei fuori dallo squarcio. La fabbrica continua a produrre niente, per nessuno.",
+			"scelte": [
+				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+			]
+		}
+	}
+}

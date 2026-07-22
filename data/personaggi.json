@@ -2,88 +2,130 @@
 	"personaggi": [
 		{
 			"id": "maschera_vuota",
-			"nome": "Maschera Vuota",
-			"hp": 3,
+			"nome": "Comparsa Fomentada",
+			"hp": 4,
 			"attacco": 1,
 			"difesa": 0,
-			"velocita": 1,
+			"velocita": 2,
 			"xp": 8,
 			"tazo": 5,
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
-			"descrizione": "Una maschera di scena senza volto dietro. Cammina perché il Carnivalz glielo ordina, non perché ricordi come si fa.",
-			"carta": { "id": "carta_maschera_vuota", "nome": "Maschera Vuota", "rarita": "non_comune", "chance": 0.05, "testo": "Chi la indossava ha smesso di esistere prima di lei." },
+			"descrizione": "Un toro umano che balla e sbuffa, spavaldo, dietro una maschera di ferro nero. Sotto la maschera non c'è più nessuno: solo la posa, e la voglia di applausi.",
+			"carta": { "id": "carta_maschera_vuota", "nome": "Comparsa Fomentada", "rarita": "non_comune", "chance": 0.05, "testo": "¡Olé! grida a un pubblico che non c'è. Poi carica." },
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.3 }
 			],
 			"studio": [
-				{ "domanda": "C'è qualcuno, lì dentro?", "risposta": "..." },
-				{ "domanda": "Chi eri?", "risposta": "..." }
+				{ "domanda": "Chi balla, sotto la maschera?", "risposta": "¡Ándale! ...ándale... (non risponde: recita)" },
+				{ "domanda": "Per chi è questo spettacolo?", "risposta": "¡Para todos! ...para nadie." }
 			]
 		},
 		{
 			"id": "giocoliere",
-			"nome": "Il Giocoliere",
-			"hp": 6,
-			"attacco": 1,
+			"nome": "El Malabarista",
+			"hp": 7,
+			"attacco": 2,
 			"difesa": 0,
-			"velocita": 4,
+			"velocita": 5,
 			"psiche": "rabbia",
-			"fattore_base": 10,
-			"xp": 15,
+			"fattore_base": 15,
+			"xp": 18,
 			"tazo": 15,
 			"ritratto": "res://art/personaggi/giocoliere.png",
-			"descrizione": "Un artista che ha barattato il nome per un posto sotto il tendone. Tiene in aria tre coltelli e nessuna speranza.",
-			"carta": { "id": "carta_giocoliere", "nome": "Il Giocoliere", "rarita": "rara", "testo": "Non ha mai lasciato cadere un coltello. Solo tutto il resto." },
+			"descrizione": "Fa girare in aria tre lame roventi, ridendo, il petto in fuori. Acrobacias e sadismo: gli piace vedere se sudi.",
+			"carta": { "id": "carta_giocoliere", "nome": "El Malabarista", "rarita": "rara", "testo": "Non ha mai lasciato cadere una lama. Solo tutto il resto." },
 			"studio": [
-				{ "domanda": "Perché difendi la fonte?", "risposta": "Quando tutto bruciava, lui mi ha dato un posto nello spettacolo. I coltelli non fanno domande." },
-				{ "domanda": "Sai come finisce, vero?", "risposta": "Ogni spettacolo finisce. L'importante è non sbagliare l'ultimo numero." }
+				{ "domanda": "Perché servi la fonte?", "risposta": "¡Porque arde, hombre! Fuori di qui ero nessuno. Qui almeno brucio." },
+				{ "domanda": "Sai come finisce?", "risposta": "Con un olé. Sempre con un olé. Il resto non conta." }
 			]
 		},
 		{
 			"id": "comparsa_di_ruggine",
-			"nome": "Comparsa di Ruggine",
-			"hp": 4,
-			"attacco": 1,
+			"nome": "Operaio di Ruggine",
+			"hp": 5,
+			"attacco": 2,
 			"difesa": 1,
 			"velocita": 2,
 			"xp": 10,
 			"tazo": 8,
 			"ritratto": "res://art/personaggi/comparsa_di_ruggine.png",
 			"descrizione": "Chi lavorava nel complesso non se n'è mai andato. La ruggine ha preso il posto della pelle, e il turno non finisce mai.",
-			"carta": { "id": "carta_comparsa_di_ruggine", "nome": "Comparsa di Ruggine", "rarita": "non_comune", "chance": 0.04, "testo": "Timbrava il cartellino anche il giorno in cui il mondo è finito." },
+			"carta": { "id": "carta_comparsa_di_ruggine", "nome": "Operaio di Ruggine", "rarita": "non_comune", "chance": 0.04, "testo": "Timbrava il cartellino anche il giorno in cui il mondo è finito." },
 			"bottino_comune": [
 				{ "oggetto": "viti_e_bulloni", "chance": 0.3 },
 				{ "oggetto": "fiala_hp", "chance": 0.25 }
 			],
 			"studio": [
-				{ "domanda": "Eri una persona?", "risposta": "Ero... in scena. Sono ancora... in scena?" },
-				{ "domanda": "Che posto è questo?", "risposta": "Il retro. Del retro. Del retro..." }
+				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "Taglia, separa, ricomincia... taglia, separa, ricomincia..." },
+				{ "domanda": "(ascolti ancora)", "risposta": "Qualcuno spenga le macchine! Non le sopporto più!" }
 			]
 		},
 		{
 			"id": "voce_registrata",
-			"nome": "Voce Registrata",
-			"hp": 3,
-			"attacco": 1,
+			"nome": "Sirena di Fabbrica",
+			"hp": 4,
+			"attacco": 2,
 			"difesa": 0,
 			"velocita": 4,
 			"xp": 9,
 			"tazo": 7,
 			"ritratto": "res://art/personaggi/voce_registrata.png",
-			"descrizione": "Un annuncio che si ripete da solo, in cerca di un pubblico che non tornerà. Fa più male a sentirla che a vederla.",
-			"carta": { "id": "carta_voce_registrata", "nome": "Voce Registrata", "rarita": "non_comune", "chance": 0.04, "testo": "\"Grazie per essere venuti.\" Non era vero già la prima volta." },
+			"descrizione": "Un allarme che non smette, con luci rosse ancora accese sul dorso di ferro. Chiama un turno che non tornerà.",
+			"carta": { "id": "carta_voce_registrata", "nome": "Sirena di Fabbrica", "rarita": "non_comune", "chance": 0.04, "testo": "Suona per operai che sono cenere da anni." },
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.3 }
 			],
 			"studio": [
-				{ "domanda": "Chi ti ha registrata?", "risposta": "APPLAUSI. RISATE. APPLAUSI. RISATE. APPLA—" },
-				{ "domanda": "Puoi fermarti?", "risposta": "...riavvolgimi." }
+				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "Non ce la faccio più! Voglio guardare la tivù!" },
+				{ "domanda": "(ascolti ancora)", "risposta": "I miei bambini... devo tornare a casa..." }
+			]
+		},
+		{
+			"id": "operaio_posseduto",
+			"nome": "Operaio Posseduto",
+			"hp": 6,
+			"attacco": 2,
+			"difesa": 1,
+			"velocita": 3,
+			"xp": 12,
+			"tazo": 10,
+			"ritratto": "res://art/personaggi/operaio_posseduto.png",
+			"descrizione": "Ferraglia tenuta insieme dallo spirito di un lavoratore che non ha mai staccato. Sirene sul collo, luci di cantiere negli occhi. Studialo, e sentirai il suo ultimo pensiero.",
+			"carta": { "id": "carta_operaio_posseduto", "nome": "Operaio Posseduto", "rarita": "rara", "chance": 0.05, "testo": "Kizako Industries — dipendente n° illeggibile. Anzianità: eterna." },
+			"bottino_comune": [
+				{ "oggetto": "viti_e_bulloni", "chance": 0.35 },
+				{ "oggetto": "fiala_hp", "chance": 0.25 }
+			],
+			"studio": [
+				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "signor... Kiz..a.. urgh... basta..." },
+				{ "domanda": "(ascolti ancora)", "risposta": "I miei bambini... devo tornare a casa..." }
+			]
+		},
+		{
+			"id": "ferraglia_urlante",
+			"nome": "Ferraglia Urlante",
+			"hp": 8,
+			"attacco": 2,
+			"difesa": 2,
+			"velocita": 1,
+			"xp": 16,
+			"tazo": 14,
+			"ritratto": "res://art/personaggi/ferraglia_urlante.png",
+			"descrizione": "Una montagna di rottami saldati dal dolore di molti turni. Urla con la voce di tutti quelli che ci sono rimasti dentro.",
+			"carta": { "id": "carta_ferraglia_urlante", "nome": "Ferraglia Urlante", "rarita": "epica", "chance": 0.06, "testo": "Non un operaio: un intero reparto, compresso in una cosa sola." },
+			"bottino_comune": [
+				{ "oggetto": "viti_e_bulloni", "chance": 0.4 },
+				{ "oggetto": "componente_elettronico", "chance": 0.1 }
+			],
+			"studio": [
+				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "Non ce la faccio più! Voglio guardare la tivù!" },
+				{ "domanda": "(ascolti ancora)", "risposta": "Qualcuno spenga le macchine! Non le sopporto più!" }
 			]
 		},
 		{
 			"id": "marionetta",
 			"nome": "Marionetta",
-			"hp": 2,
+			"hp": 3,
 			"attacco": 1,
 			"difesa": 0,
 			"velocita": 3,
@@ -106,12 +148,12 @@
 			"id": "tenero_ricordo",
 			"nome": "Un tenero ricordo",
 			"nome_breve": "la bambola",
-			"hp": 10,
+			"hp": 66,
 			"attacco": 1,
 			"difesa": 0,
 			"velocita": 2,
-			"xp": 25,
-			"tazo": 80,
+			"xp": 40,
+			"tazo": 90,
 			"peso_attacco_normale": 3,
 			"ritratto": "res://art/personaggi/tenero_ricordo.png",
 			"descrizione": "Una bambola cucita a mano, gonfia di un amore diventato dolore. Non attacca per odio: attacca per non restare sola.",
@@ -124,14 +166,14 @@
 				{
 					"id": "spilli",
 					"tipo": "attacco_forte",
-					"valore": 2,
+					"valore": 3,
 					"peso": 2,
 					"testo": "La bambola spalanca le cuciture e lancia una manciata di spilli."
 				},
 				{
 					"id": "lamento",
 					"tipo": "attacco_tutti",
-					"valore": 1,
+					"valore": 2,
 					"stress": 10,
 					"peso": 2,
 					"testo": "Un lamento terribile riempie la stanza. I cuori di tutti sobbalzano."
@@ -140,7 +182,7 @@
 					"id": "autolesione",
 					"tipo": "autolesione",
 					"valore": 1,
-					"stress": 10,
+					"stress": 12,
 					"peso": 2,
 					"testo": "La bambola si strappa una cucitura da sola, piano. Fa più male a voi che a lei."
 				},
@@ -163,17 +205,17 @@
 				"testo_conteggio": "Il conto alla rovescia scende: %d...",
 				"testo_maleficio": "Il conto arriva a zero. La bambola si trafigge il petto con uno spillo, un colpo secco e definitivo. Il maleficio vi si abbatte addosso, tutti insieme.",
 				"bersaglio_extra": "lettere_altare",
-				"bersaglio_extra_hp": 2,
+				"bersaglio_extra_hp": 3,
 				"testo_sblocco_bersaglio": "Non è vero... bugiardi... a voi non è dispiaciuto davvero...",
 				"testo_fermata": ["Siate dannati... La mia Lyloh...", "Grazie..."]
 			}
 		},
 		{
 			"id": "vecchio_clown",
-			"nome": "Il Vecchio Clown",
+			"nome": "Il Vecchio Torero",
 			"ritratto": "res://art/personaggi/vecchio_clown.png",
 			"assist": {
-				"testo": "Il Vecchio Clown inciampa nel riflettore: la luce taglia la pista in due. Jerah esita, la mano a mezz'aria.",
+				"testo": "Il Vecchio Torero entra nell'arena a mani nude, la schiena curva ma i piedi fermi. \"Ancora in piedi, muchacho. E anche tu.\" Jerah, per un istante, non sa più recitare.",
 				"effetto": { "speranza": 15 }
 			}
 		},
@@ -181,21 +223,21 @@
 			"id": "jerah",
 			"nome": "L'ultimo spettacolo di Jerah",
 			"nome_breve": "Jerah",
-			"hp": 14,
+			"hp": 35,
 			"attacco": 2,
 			"difesa": 0,
 			"velocita": 3,
 			"psiche": "concentrazione",
-			"fattore_base": 30,
-			"xp": 30,
-			"tazo": 50,
+			"fattore_base": 35,
+			"xp": 45,
+			"tazo": 60,
 			"ritratto": "res://art/personaggi/jerah.png",
-			"descrizione": "La fonte di questo Carnivalz. Un tempo un nome su ogni cartellone; ora un mondo intero deformato a sua immagine.",
+			"descrizione": "La fonte di questo Carnivalz: il più grande spettacolo che il deserto abbia mai visto, e il suo unico maestro. Un mondo intero in fiamme, deformato dalla sua passione.",
 			"descrizione_extra": {
 				"richiede_oggetto": "biglietto_strano",
-				"testo": "Il biglietto è del suo primissimo spettacolo: platea vuota, un solo posto occupato. Non ha mai scoperto da chi. Ha passato tutta la carriera a cercare di riempire quella sala."
+				"testo": "Il biglietto è del suo primissimo spettacolo: arena vuota, un solo posto occupato. Non ha mai scoperto da chi. Ha passato tutta la carriera a cercare di riempire quelle gradinate."
 			},
-			"carta": { "id": "carta_jerah", "nome": "L'ultimo spettacolo di Jerah", "rarita": "leggendaria", "testo": "Il pubblico se n'era andato molto prima che finisse lo spettacolo." },
+			"carta": { "id": "carta_jerah", "nome": "L'ultimo spettacolo di Jerah", "rarita": "leggendaria", "testo": "Il pubblico se n'era andato molto prima che calasse il sipario di fuoco." },
 			"fonte": true,
 			"convincibile": true,
 			"speranza_soglia": 60,
@@ -204,40 +246,40 @@
 				{
 					"id": "gran_finale",
 					"tipo": "attacco_tutti",
-					"valore": 1,
-					"peso": 2,
-					"testo": "Jerah apre le braccia: GRAN FINALE! Coltelli di luce piovono su tutta la pista."
-				},
-				{
-					"id": "bis",
-					"tipo": "attacco_forte",
-					"valore": 3,
-					"peso": 2,
-					"testo": "\"BIS!\" grida Jerah. Il numero si ripete, due volte più forte."
-				},
-				{
-					"id": "sipario",
-					"tipo": "buff_difesa",
 					"valore": 2,
+					"peso": 2,
+					"testo": "Jerah spalanca le braccia: ¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena."
+				},
+				{
+					"id": "faena",
+					"tipo": "attacco_forte",
+					"valore": 4,
+					"peso": 2,
+					"testo": "\"¡Olé!\" Jerah esegue una faena perfetta: la lama passa dove un attimo prima c'eri tu."
+				},
+				{
+					"id": "capote",
+					"tipo": "buff_difesa",
+					"valore": 3,
 					"turni": 2,
 					"peso": 1,
-					"testo": "Jerah si avvolge nel sipario: la scena stessa lo protegge."
+					"testo": "Jerah fa roteare la capote di ferro nero: nessun colpo trova il bersaglio."
 				},
 				{
-					"id": "richiamo",
+					"id": "llamada",
 					"tipo": "evoca",
 					"valore": "maschera_vuota",
 					"peso": 1,
-					"testo": "Jerah batte le mani: qualcosa di bianco sale sul palco."
+					"testo": "Jerah batte il tacco tre volte: dal fumo sale una Comparsa Fomentada."
 				}
 			],
-			"testo_cedimento": "Jerah vacilla. \"Che spettacolo, voi,\" mormora. Il tendone intero trema con lui. Ma non smette di attaccare: una fonte non può.",
+			"testo_cedimento": "Jerah barcolla. \"Qué espectáculo... voi due,\" mormora. L'arena intera trema con lui. Ma non smette di attaccare: una fonte non può.",
 			"leve": [
 				{
 					"tipo": "oggetto",
 					"id": "medaglia_del_vecchio_circo",
 					"speranza": 25,
-					"testo": "La medaglia del vecchio circo ti scivola dalla tasca e rotola fino al centro della pista. Jerah smette di sorridere."
+					"testo": "La medaglia della vecchia plaza ti scivola di tasca e rotola nella sabbia dell'arena. Jerah smette di sorridere."
 				},
 				{
 					"tipo": "oggetto",
@@ -249,18 +291,18 @@
 					"tipo": "ospite",
 					"id": "vecchio_clown",
 					"speranza": 30,
-					"testo": "Il Vecchio Clown scosta il sipario ed entra in pista, zoppicando. \"Sono ancora qui, vecchio mio. Io non me ne sono mai andato.\""
+					"testo": "Il Vecchio Torero scavalca la barriera ed entra nel ruedo, zoppicando. \"Sono ancora qui, muchacho. Non me ne sono mai andato.\""
 				}
 			],
 			"studio": [
-				{ "domanda": "Chi eri, prima del tendone?", "risposta": "Un nome su un cartellone. E prima ancora, un bambino che nessuno guardava." },
-				{ "domanda": "Ti ricordi gli applausi veri?", "risposta": "Ricordo il silenzio, dopo. È l'unico pubblico che non mi ha mai tradito." },
+				{ "domanda": "Chi eri, prima dell'arena?", "risposta": "Un nome gridato dalle gradinate. E prima ancora, un bambino affamato che nessuno guardava." },
+				{ "domanda": "Ti ricordi gli olé veri?", "risposta": "Ricordo il silenzio, dopo. È l'unico pubblico che non mi ha mai tradito." },
 				{ "domanda": "Non è colpa tua. È il mondo a essere ingiusto.", "risposta": "E allora perché sono io, quello in fiamme?" },
-				{ "domanda": "Questa festa può finire senza che muoia nessun altro.", "risposta": "La festa È i morti, ragazzo. Ma continua a parlare." }
+				{ "domanda": "Questo spettacolo può finire senza che muoia nessun altro.", "risposta": "Lo spettacolo SONO i morti, muchacho. Ma continua a parlare." }
 			],
 			"studio_cedimento": [
-				{ "domanda": "Puoi ancora fermarti.", "risposta": "No. Ma posso scegliere il finale." },
-				{ "domanda": "Il tuo amico è rimasto. Tutti questi anni.", "risposta": "Lo so. Ditegli che il costume... era perfetto." }
+				{ "domanda": "Puoi ancora fermarti.", "risposta": "No. Ma posso scegliere l'ultima posa." },
+				{ "domanda": "Il vecchio è rimasto. Tutti questi anni.", "risposta": "Lo so. Digli che... la muleta era perfetta." }
 			]
 		}
 	]
