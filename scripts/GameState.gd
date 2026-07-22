@@ -33,6 +33,7 @@ var eventi: Dictionary = {}
 var nodo_corrente: String = ""
 var carnivalz_corrente: String = ""
 var ospiti: Array[String] = []       # personaggi temporanei della campagna
+var studiati: Array[String] = []     # chi hai studiato (per la sezione studio futura)
 
 var nemici_combattimento: Array = []
 var nodo_se_vinci: String = ""
@@ -97,6 +98,7 @@ func nuova_partita() -> void:
 	livelli.clear()
 	xp.clear()
 	stress.clear()
+	studiati.clear()
 	legame = int(regole.get("legame_iniziale", 20))
 	if id_protagonista != "":
 		classi_sbloccate.append(id_protagonista)
@@ -176,6 +178,10 @@ func aggiungi_oggetto(id_oggetto: String) -> void:
 func aggiungi_ospite(id_personaggio: String) -> void:
 	if personaggi.has(id_personaggio) and id_personaggio not in ospiti:
 		ospiti.append(id_personaggio)
+
+func segna_studiato(id_personaggio: String) -> void:
+	if id_personaggio not in studiati:
+		studiati.append(id_personaggio)
 
 func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String) -> void:
 	nemici_combattimento = nemici.duplicate()

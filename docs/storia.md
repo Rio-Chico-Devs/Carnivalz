@@ -45,12 +45,28 @@ suolo, a seconda dell'esito dello scontro:
   reincarnarsi nella nuova vita del pianeta.
 
 Per l'esito eroe bisogna **convincere la fonte che c'è speranza**: con i
-dialoghi, prolungando il combattimento, essendo abbastanza forti da
-sopportare i suoi attacchi, o portando davanti a lei ciò che può farla
-cedere — personaggi temporanei (una madre, un migliore amico), un compagno,
-un oggetto (il suo primo giocattolo...).
+dialoghi (l'abilità **studio**), prolungando il combattimento, essendo
+abbastanza forti da sopportare i suoi attacchi, o portando davanti a lei ciò
+che può farla cedere — personaggi temporanei (una madre, un migliore amico),
+un compagno, un oggetto (il suo primo giocattolo...).
 
-## La prima fonte: l'Imbonitore (canone del dungeon 1)
+**Non esiste una conclusione 100% felice.** Anche facendo rinsavire la
+fonte, l'unica cosa che cambia è *come muore*: con speranza o senza.
+Continuerà ad attaccare — ma ogni tanto le sue statistiche si abbassano,
+fino alla sconfitta. I dialoghi e la morte cambiano a seconda del tipo di
+sconfitta.
+
+## I boss: nomi poetici, e non tutti sono vittime
+I boss sono **incarnazioni della tragicità dell'evento**: per questo
+portano nomi poetici («L'ultimo spettacolo di Jerah»), non nomi da mostro.
+I boss **possono o non possono essere convinti** a seconda della gravità
+del loro trauma. E attenzione: a volte un boss diventa tale spinto da
+**pura malvagità** — non vittime, ma persone che hanno imparato a
+manipolare in modo estremo il loro fattore Carnivalz. La maggior parte del
+gioco, però, si concentra su chi viene trasformato.
+
+## La prima fonte: «L'ultimo spettacolo di Jerah» (canone del dungeon 1)
+Il suo nome era **Jerah**.
 Dopo anni di carriera e fama, un virus gli ha rovinato la carriera. Tutti lo
 hanno abbandonato: ha capito che la gente stava con lui solo per il talento.
 Era nato povero e maltrattato, conosceva già il male — la fame, gli sguardi
@@ -71,9 +87,12 @@ gioco avrà successo.
 - **Mappa stellare** = i "!" sono fusioni di realtà in corso; entrare in un
   punto è un incarico dell'Organizzazione.
 - **Boss di fine campagna** = la fonte di quel Carnivalz, da estinguere.
-- **Speranza** = la meccanica dell'esito eroe: sale parlando, resistendo,
+- **Studio** = l'abilità che al posto dell'attacco intavola dialoghi e fa
+  rispondere boss e nemici. Sui boss convincibili costruisce speranza.
+- **Speranza** = la meccanica dell'esito eroe: sale studiando, resistendo,
   prolungando lo scontro e con le "leve" (oggetti/ospiti/compagni definiti
-  nei dati della fonte). Sopra la soglia, la vittoria diventa rinascita.
+  nei dati della fonte). Alla soglia il boss cede — ma continua ad
+  attaccare, perdendo statistiche fino alla fine. Cambia solo come muore.
 - **Il party** = sopravvissuti che hanno toccato il confine; il **legame**
   tra loro è ciò che li tiene ancorati (e apre gli eventi rari).
 

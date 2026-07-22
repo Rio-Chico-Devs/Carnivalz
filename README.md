@@ -62,18 +62,29 @@ ma tenerlo acceso costa **stress** a ogni azione (+1 ogni 25 di fattore). Lo **s
 e il fattore si spegne. Si scarica parlando, mangiando, con gli oggetti: chiave `stress`
 negativa sulle scelte degli eventi (es. il falò: `"stress": -30`).
 
-## Speranza e i due esiti
+## Studio, speranza e i due esiti
 I Carnivalz sono mondi distorti da una fonte che ha subito ingiustizie (canone in
-`docs/storia.md`). Se il nemico ha `"fonte": true`, in combattimento compare la **Speranza**:
-- **Leve** (lista `leve` nei dati della fonte): oggetti nell'inventario, ospiti temporanei
-  (`tipo: ospite`, raccolti negli eventi con la chiave `ospite`) o compagni nel party che
-  fanno cedere la fonte — applicate all'inizio dello scontro, con il loro testo
-- Azione **Parla**: al posto di attaccare, +10 speranza e una battuta (`dialoghi_speranza`)
-- **Sopportare i colpi**: +3 quando un personaggio subisce o assorbe un attacco e resta in piedi
+`docs/storia.md`). **Studio** è un'abilità di classe (`"studio"` in `abilita`, ce l'ha
+l'Anonimo): al posto di attaccare intavola un dialogo e **il nemico risponde** — coppie
+domanda/risposta nella lista `studio` di ogni personaggio (anche i nemici comuni). Chi viene
+studiato finisce nel registro `studiati` (base per la futura sezione studio/codex).
+
+I boss **possono o non possono essere convinti** (`convincibile` nei dati della fonte: i
+malvagi, che manipolano il fattore, hanno `false` e la speranza non esiste per loro).
+Se la fonte è convincibile compare la **Speranza**:
+- **Leve** (lista `leve`): oggetti nell'inventario, ospiti temporanei (chiave evento
+  `ospite`) o compagni nel party — applicate all'inizio dello scontro, con il loro testo
+- **Studia** sulla fonte: +10 speranza a scambio
+- **Sopportare i colpi**: +3 quando un personaggio subisce o assorbe e resta in piedi
 - **Prolungare lo scontro**: +2 a ogni giro completo
 
-Alla vittoria: speranza ≥ `speranza_soglia` → nodo `se_vinci_eroe` (**esito eroe**: il nucleo
-si riassorbe, pangea, reincarnazione), altrimenti `se_vinci` (il pianeta viene distrutto).
+Alla soglia (`speranza_soglia`) la fonte **cede** (`testo_cedimento`) ma **continua ad
+attaccare**: a ogni suo turno, con probabilità 50%, perde statistiche (fattore −10,
+velocità −1, 1 danno a se stessa) fino alla sconfitta; gli scambi di studio passano a
+`studio_cedimento`. Non esiste una conclusione 100% felice: cambia solo come muore —
+fonte convinta → nodo `se_vinci_eroe` (pangea, reincarnazione), altrimenti `se_vinci`
+(il pianeta viene distrutto). I nomi dei boss sono poetici (`nome` per il ritratto,
+`nome_breve` per log e bottoni): il primo è **«L'ultimo spettacolo di Jerah»**.
 
 ## Esperienza e legame
 - **XP**: la vittoria dà XP a tutto il party; livello massimo **130**, fabbisogno
@@ -138,6 +149,7 @@ torna alla mappa; roster, zaino, livelli, stress e legame restano, gli ospiti no
 5. ✅ Psiche, stress, fattore Carnivalz, XP fino al 130, legame
 6. ✅ Primo dungeon completo: il Carnivalz del Bosco (bivi, 3 scontri,
    3 reclutabili su strade alternative, falò, segreti, fonte)
-7. ✅ Speranza ed esito eroe: leve, Parla, ospiti temporanei, due finali
-8. ⬜ Salvataggio (serializzare GameState)
-9. ⬜ Le 10 classi vere (varianti M/F)
+7. ✅ Speranza ed esito eroe: leve, ospiti temporanei, due finali
+8. ✅ Studio (dialoghi con risposta), convincibilità, cedimento del boss
+9. ⬜ Salvataggio (serializzare GameState)
+10. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

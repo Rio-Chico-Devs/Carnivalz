@@ -6,7 +6,11 @@
 			"hp": 3,
 			"velocita": 1,
 			"xp": 8,
-			"ritratto": "res://art/personaggi/maschera_vuota.png"
+			"ritratto": "res://art/personaggi/maschera_vuota.png",
+			"studio": [
+				{ "domanda": "C'è qualcuno, lì dentro?", "risposta": "..." },
+				{ "domanda": "Chi eri?", "risposta": "..." }
+			]
 		},
 		{
 			"id": "giocoliere",
@@ -16,7 +20,11 @@
 			"psiche": "rabbia",
 			"fattore_base": 10,
 			"xp": 15,
-			"ritratto": "res://art/personaggi/giocoliere.png"
+			"ritratto": "res://art/personaggi/giocoliere.png",
+			"studio": [
+				{ "domanda": "Perché difendi la fonte?", "risposta": "Quando tutto bruciava, lui mi ha dato un posto nello spettacolo. I coltelli non fanno domande." },
+				{ "domanda": "Sai come finisce, vero?", "risposta": "Ogni spettacolo finisce. L'importante è non sbagliare l'ultimo numero." }
+			]
 		},
 		{
 			"id": "vecchio_clown",
@@ -24,22 +32,25 @@
 			"ritratto": "res://art/personaggi/vecchio_clown.png"
 		},
 		{
-			"id": "imbonitore",
-			"nome": "L'Imbonitore",
+			"id": "jerah",
+			"nome": "L'ultimo spettacolo di Jerah",
+			"nome_breve": "Jerah",
 			"hp": 5,
 			"velocita": 2,
 			"psiche": "concentrazione",
 			"fattore_base": 25,
 			"xp": 25,
-			"ritratto": "res://art/personaggi/imbonitore.png",
+			"ritratto": "res://art/personaggi/jerah.png",
 			"fonte": true,
+			"convincibile": true,
 			"speranza_soglia": 60,
+			"testo_cedimento": "Jerah vacilla. \"Che spettacolo, voi,\" mormora. Il tendone intero trema con lui. Ma non smette di attaccare: una fonte non può.",
 			"leve": [
 				{
 					"tipo": "oggetto",
 					"id": "medaglia_del_vecchio_circo",
 					"speranza": 25,
-					"testo": "La medaglia del vecchio circo ti scivola dalla tasca e rotola fino al centro della pista. L'Imbonitore smette di sorridere."
+					"testo": "La medaglia del vecchio circo ti scivola dalla tasca e rotola fino al centro della pista. Jerah smette di sorridere."
 				},
 				{
 					"tipo": "ospite",
@@ -48,11 +59,15 @@
 					"testo": "Il Vecchio Clown scosta il sipario ed entra in pista, zoppicando. \"Sono ancora qui, vecchio mio. Io non me ne sono mai andato.\""
 				}
 			],
-			"dialoghi_speranza": [
-				"Ti ricordi gli applausi veri? Ce n'è stato almeno uno, prima della fama.",
-				"Non è colpa tua. È il mondo a essere ingiusto. Ma tu non sei il mondo.",
-				"La fame, il gelo, gli sguardi: li hai già battuti una volta. Puoi farlo ancora.",
-				"Questa festa può finire senza che muoia nessun altro."
+			"studio": [
+				{ "domanda": "Chi eri, prima del tendone?", "risposta": "Un nome su un cartellone. E prima ancora, un bambino che nessuno guardava." },
+				{ "domanda": "Ti ricordi gli applausi veri?", "risposta": "Ricordo il silenzio, dopo. È l'unico pubblico che non mi ha mai tradito." },
+				{ "domanda": "Non è colpa tua. È il mondo a essere ingiusto.", "risposta": "E allora perché sono io, quello in fiamme?" },
+				{ "domanda": "Questa festa può finire senza che muoia nessun altro.", "risposta": "La festa È i morti, ragazzo. Ma continua a parlare." }
+			],
+			"studio_cedimento": [
+				{ "domanda": "Puoi ancora fermarti.", "risposta": "No. Ma posso scegliere il finale." },
+				{ "domanda": "Il tuo amico è rimasto. Tutti questi anni.", "risposta": "Lo so. Ditegli che il costume... era perfetto." }
 			]
 		}
 	]

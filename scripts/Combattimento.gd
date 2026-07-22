@@ -25,12 +25,16 @@ var combattenti: Array[Dictionary] = []
 var in_corso := true
 var giocatore_ha_vinto := false
 
-# Esito eroe: se tra i nemici c'è una fonte, la speranza può convincerla.
-# Sale con le leve (oggetti/ospiti/compagni nei dati della fonte), parlando,
-# sopportando i colpi e prolungando lo scontro.
+# Esito eroe: se tra i nemici c'è una fonte convincibile, la speranza può
+# farla cedere. Sale con le leve (oggetti/ospiti/compagni nei dati della
+# fonte), con l'abilità "studio" (dialoghi con risposta), sopportando i
+# colpi e prolungando lo scontro. Una fonte convinta NON smette di
+# attaccare: le sue statistiche cedono a poco a poco, fino alla sconfitta.
+# Cambia solo come muore. I boss malvagi hanno convincibile: false.
 var fonte: Dictionary = {}
 var speranza := 0
-var indice_dialogo := 0
+var convinto := false
+var indice_studio := 0
 
 func _ready() -> void:
 	for id_classe in GameState.party:
@@ -40,12 +44,11 @@ func _ready() -> void:
 		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
 		if fonte.is_empty() and dati.get("fonte", false):
 			fonte = dati
-	combattenti.sort_custom(func(a, b): return a.velocita > b.velocita)
 	scrivi("[b]Il Carnivalz fa spazio: si combatte.[/b]")
-	if not fonte.is_empty():
+	if fonte.get("convincibile", false):
 		etichetta_speranza.visible = true
-		applica_leve()
 		aggiorna_speranza(0)
+	applica_leve()
 	esegui_scontro()
 
 func applica_leve() -> void:
@@ -60,14 +63,17 @@ func applica_leve() -> void:
 			"compagno":
 				presente = id_leva in GameState.party
 		if presente:
-			speranza += int(leva.get("speranza", 0))
 			scrivi("[i]%s[/i]" % leva.get("testo", ""))
+			aggiorna_speranza(int(leva.get("speranza", 0)))
 
 func aggiorna_speranza(quantita: int) -> void:
-	if fonte.is_empty():
+	if not fonte.get("convincibile", false):
 		return
 	speranza = clampi(speranza + quantita, 0, 100)
 	etichetta_speranza.text = "Speranza %d / %d" % [speranza, int(fonte.get("speranza_soglia", 100))]
+	if not convinto and speranza >= int(fonte.get("speranza_soglia", 100)):
+		convinto = true
+		scrivi("[b]%s[/b]" % fonte.get("testo_cedimento", "Qualcosa, nella fonte, ha ceduto."))
 
 func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
@@ -92,7 +98,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var combattente := {
 		"indice": combattenti.size(),
 		"id": id_personaggio,
-		"nome": dati.get("nome", id_personaggio),
+		"nome": dati.get("nome_breve", dati.get("nome", id_personaggio)),
 		"hp": hp_max,
 		"hp_max": hp_max,
 		"velocita": int(dati.get("velocita", 3)),
@@ -111,6 +117,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 
 func esegui_scontro() -> void:
 	while in_corso:
+		# il cedimento puo' cambiare le velocita': l'iniziativa si ricalcola
+		combattenti.sort_custom(func(a, b):
+			return a.indice < b.indice if a.velocita == b.velocita else a.velocita > b.velocita)
 		for combattente in combattenti:
 			if not in_corso:
 				break
@@ -132,16 +141,20 @@ func esegui_scontro() -> void:
 func esegui_turno(attaccante: Dictionary) -> void:
 	evidenzia(attaccante)
 	if attaccante.giocatore:
-		mostra_azioni()
+		mostra_azioni(attaccante)
 		var azione: Dictionary = await azione_scelta
-		if azione.get("parla", false):
-			parla(attaccante)
+		if azione.get("studia", false):
+			studia(attaccante)
 		else:
 			attacca(attaccante, azione.bersaglio)
 	else:
 		await get_tree().create_timer(0.8).timeout
-		var possibili := vivi(true)
-		attacca(attaccante, possibili[GameState.rng.randi_range(0, possibili.size() - 1)])
+		if convinto and attaccante.id == fonte.get("id", "") \
+				and GameState.rng.randf() < float(GameState.regole.get("probabilita_cedimento", 0.5)):
+			cedimento(attaccante)
+		else:
+			var possibili := vivi(true)
+			attacca(attaccante, possibili[GameState.rng.randi_range(0, possibili.size() - 1)])
 	# tenere acceso il fattore costa: lo stress sale a ogni azione
 	var passo := int(GameState.regole.get("stress_per_fattore", 25))
 	var costo := floori(attaccante.fattore / float(maxi(passo, 1)))
@@ -149,7 +162,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 		attaccante.stress = clampi(attaccante.stress + costo, 0, 100)
 		aggiorna_scheda(attaccante)
 
-func mostra_azioni() -> void:
+func mostra_azioni(attaccante: Dictionary) -> void:
 	for figlio in azioni.get_children():
 		figlio.queue_free()
 	for nemico in vivi(false):
@@ -157,25 +170,53 @@ func mostra_azioni() -> void:
 		bottone.text = "Attacca %s" % nemico.nome
 		bottone.pressed.connect(_scegli.bind({"bersaglio": nemico}))
 		azioni.add_child(bottone)
-	if not fonte.is_empty():
-		var bottone_parla := Button.new()
-		bottone_parla.text = "Parla"
-		bottone_parla.pressed.connect(_scegli.bind({"parla": true}))
-		azioni.add_child(bottone_parla)
+	if "studio" in GameState.classi.get(attaccante.id, {}).get("abilita", []):
+		var bottone_studia := Button.new()
+		bottone_studia.text = "Studia"
+		bottone_studia.pressed.connect(_scegli.bind({"studia": true}))
+		azioni.add_child(bottone_studia)
 
 func _scegli(azione: Dictionary) -> void:
 	for figlio in azioni.get_children():
 		figlio.queue_free()
 	azione_scelta.emit(azione)
 
-func parla(chi: Dictionary) -> void:
-	aggiorna_speranza(int(GameState.regole.get("speranza_parla", 10)))
-	var battute: Array = fonte.get("dialoghi_speranza", [])
-	if battute.is_empty():
-		scrivi("%s cerca le parole giuste." % chi.nome)
+func studia(chi: Dictionary) -> void:
+	var bersaglio := bersaglio_studio()
+	if bersaglio.is_empty():
 		return
-	scrivi("%s: \"%s\"" % [chi.nome, battute[indice_dialogo % battute.size()]])
-	indice_dialogo += 1
+	var dati: Dictionary = GameState.personaggi.get(bersaglio.id, {})
+	var scambi: Array = dati.get("studio", [])
+	if convinto and bersaglio.id == fonte.get("id", "") and dati.has("studio_cedimento"):
+		scambi = dati["studio_cedimento"]
+	if scambi.is_empty():
+		scrivi("%s studia %s: nessuna risposta, solo la musica sbagliata." % [chi.nome, bersaglio.nome])
+	else:
+		var scambio: Dictionary = scambi[indice_studio % scambi.size()]
+		indice_studio += 1
+		scrivi("%s: \"%s\"" % [chi.nome, scambio.get("domanda", "")])
+		scrivi("%s: \"%s\"" % [bersaglio.nome, scambio.get("risposta", "")])
+	GameState.segna_studiato(bersaglio.id)
+	if bersaglio.id == fonte.get("id", ""):
+		aggiorna_speranza(int(GameState.regole.get("speranza_studio", 10)))
+
+func bersaglio_studio() -> Dictionary:
+	# si studia prima di tutto la fonte, altrimenti il primo nemico vivo
+	for combattente in vivi(false):
+		if combattente.id == fonte.get("id", ""):
+			return combattente
+	var nemici := vivi(false)
+	return nemici[0] if not nemici.is_empty() else {}
+
+func cedimento(combattente: Dictionary) -> void:
+	# la fonte convinta perde pezzi di spettacolo: statistiche giu', fino alla fine
+	combattente.fattore = maxi(combattente.fattore - int(GameState.regole.get("cedimento_fattore", 10)), 0)
+	combattente.velocita = maxi(combattente.velocita - int(GameState.regole.get("cedimento_velocita", 1)), 1)
+	combattente.hp = maxi(combattente.hp - int(GameState.regole.get("cedimento_hp", 1)), 0)
+	scrivi("[i]Lo spettacolo di %s si spegne un po' di più.[/i]" % combattente.nome)
+	aggiorna_scheda(combattente)
+	if combattente.hp <= 0:
+		_su_ko(combattente)
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary) -> void:
 	var danno := int(GameState.regole.get("danno_attacco", 1))
@@ -292,8 +333,7 @@ func _esci() -> void:
 			if not combattente.giocatore:
 				xp_totale += combattente.xp
 		GameState.premia_vittoria(xp_totale)
-		var eroe := not fonte.is_empty() and dopo_vittoria_eroe != "" \
-				and speranza >= int(fonte.get("speranza_soglia", 100))
+		var eroe := convinto and dopo_vittoria_eroe != ""
 		GameState.nodo_corrente = dopo_vittoria_eroe if eroe else dopo_vittoria
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	elif dopo_sconfitta != "":

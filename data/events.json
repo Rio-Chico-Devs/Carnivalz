@@ -112,10 +112,10 @@
 			]
 		},
 		"boss": {
-			"testo": "Al centro della pista, l'Imbonitore ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" È lui la fonte. Il Carnivalz trattiene il fiato.",
-			"centro": "imbonitore",
+			"testo": "Al centro della pista, sotto una scritta che sanguina luce — L'ULTIMO SPETTACOLO DI JERAH — la fonte ti aspetta a braccia aperte. \"Benvenuto, Anonimo. Ti aspettavamo.\" Il Carnivalz trattiene il fiato.",
+			"centro": "jerah",
 			"scelte": [
-				{ "testo": "Estingui la fonte", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_vinci_eroe": "vittoria_eroe", "se_perdi": "sconfitta" }
+				{ "testo": "Estingui la fonte", "combatti": ["jerah"], "se_vinci": "vittoria", "se_vinci_eroe": "vittoria_eroe", "se_perdi": "sconfitta" }
 			]
 		},
 		"sconfitta": {
@@ -125,15 +125,15 @@
 			]
 		},
 		"vittoria": {
-			"testo": "La fonte si spegne senza una parola. Non c'era più niente da salvare: il nucleo cede, e l'Organizzazione segna il pianeta come perduto. Nessuna rinascita, stavolta. Solo silenzio dove c'era la musica sbagliata.",
-			"destra": "imbonitore",
+			"testo": "Jerah si spegne senza una parola, gli occhi ancora sul pubblico che non c'è. Non c'era più niente da salvare: il nucleo cede, e l'Organizzazione segna il pianeta come perduto. Nessuna rinascita, stavolta. Solo silenzio dove c'era la musica sbagliata.",
+			"destra": "jerah",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]
 		},
 		"vittoria_eroe": {
-			"testo": "Qualcosa cede — non il corpo: la maschera. L'Imbonitore guarda la pista vuota e, per la prima volta, la lascia andare. Il nucleo si imbeve di fattore Carnivalz e si riassorbe: una pangea nuova, vita nuova, e tutte le anime in fila per rinascere. L'Organizzazione lo chiamerà esito eroe. Tu lo chiami com'era: una festa, finita bene.",
-			"centro": "imbonitore",
+			"testo": "L'ultimo spettacolo di Jerah finisce così: un inchino vero, il primo da anni, e la pista che si scioglie in luce. Il nucleo si imbeve di fattore Carnivalz e si riassorbe: una pangea nuova, vita nuova, e tutte le anime in fila per rinascere — anche la sua. L'Organizzazione lo chiamerà esito eroe. Tu lo chiami com'era: una festa, finita bene.",
+			"centro": "jerah",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]
