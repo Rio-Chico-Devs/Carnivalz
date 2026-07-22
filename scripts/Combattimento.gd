@@ -306,7 +306,7 @@ func turno_nemico(nemico: Dictionary) -> void:
 		return
 	var mosse: Array = nemico.mosse
 	if not mosse.is_empty():
-		var totale := nemico.peso_attacco_normale
+		var totale: int = int(nemico.peso_attacco_normale)
 		for mossa in mosse:
 			totale += int(mossa.get("peso", 1))
 		var estratto := GameState.rng.randi_range(1, maxi(totale, 1))
