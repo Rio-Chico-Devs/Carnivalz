@@ -1,0 +1,107 @@
+{
+	"nodo_iniziale": "varco",
+	"nodi": {
+		"varco": {
+			"testo": "Lo squarcio si apre su un buio diverso dagli altri: pareti di ossidiana levigata, nera e lucida come vetro spezzato, che riflettono una luce che non viene da nessuna parte. L'aria sa di terra smossa e di qualcosa che non dovrebbe muoversi più. Da qualche corridoio, un raschiare basso, ininterrotto.",
+			"scelte": [
+				{ "testo": "Scendi nel corridoio di ossidiana", "vai": "corridoio_ossidiana" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"corridoio_ossidiana": {
+			"testo": "Il corridoio scende, tagliato nella roccia nera. Ai lati, nicchie scavate a mano, ognuna con un teschio incastonato come un ex voto. Il raschiare si fa più vicino: qualcosa, nel buio, sta ancora strisciando verso qualcosa.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [["ghoul"], ["teschio_errante"], ["ghoul", "teschio_errante"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Scendi nella fossa dei teschi", "vai": "fossa_dei_teschi" },
+				{ "testo": "Entra nella sala del raccolto", "vai": "sala_del_raccolto" },
+				{ "testo": "Torna al varco", "vai": "varco" }
+			]
+		},
+		"fossa_dei_teschi": {
+			"testo": "Una fossa a cielo aperto, piena fino all'orlo di teschi ammucchiati come ghiaia. Camminarci sopra produce un suono che preferiresti non aver sentito. In alto, incastrato tra due sporgenze di ossidiana, qualcosa luccica ancora.",
+			"agguato": {
+				"probabilita": 0.3,
+				"gruppi": [["teschio_errante"], ["teschio_errante", "teschio_errante"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Fruga tra i teschi più vicini", "vai": "fossa_dei_teschi", "una_tantum": "oss_tazo_1", "tazo": 20 },
+				{ "testo": "Vola fino allo sperone di ossidiana", "vai": "sperone_ossidiana", "richiede": "volo" },
+				{ "testo": "Arrampicati a mani nude fino allo sperone", "vai": "sperone_ossidiana", "stress": 15 },
+				{ "testo": "Torna al corridoio", "vai": "corridoio_ossidiana" }
+			]
+		},
+		"sperone_ossidiana": {
+			"testo": "Lo sperone regge un piccolo tesoro incastrato tra le schegge: qualcuno, prima di te, si era arrampicato fin qui per lo stesso motivo, e non ce l'aveva fatta a scendere.",
+			"scelte": [
+				{ "testo": "Recupera ciò che trovi", "vai": "fossa_dei_teschi", "una_tantum": "oss_sperone", "tazo": 40, "oggetto": "fiala_hp" },
+				{ "testo": "Torna alla fossa", "vai": "fossa_dei_teschi" }
+			]
+		},
+		"sala_del_raccolto": {
+			"testo": "Una sala enorme, un tempo un granaio: sacchi marci ammucchiati fino al soffitto, semi che non germoglieranno mai. Su un muro, inciso a mano, più e più volte, come se ripeterlo lo rendesse più vero: IL RACCOLTO RICHIEDE SEMPRE IL SUO PREZZO.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [["ghoul"], ["ghoul", "ghoul"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Fruga tra i sacchi marci", "vai": "sala_del_raccolto", "una_tantum": "oss_tazo_2", "tazo": 25 },
+				{ "testo": "Recupera una fiala intatta tra le macerie", "vai": "sala_del_raccolto", "una_tantum": "oss_fiala_1", "oggetto": "fiala_hp" },
+				{ "testo": "Scendi verso la cripta", "vai": "cripta" },
+				{ "testo": "Torna al corridoio", "vai": "corridoio_ossidiana" }
+			]
+		},
+		"cripta": {
+			"testo": "La cripta si restringe, le pareti sudano un liquido nero. Al centro, immobile finché non ti avvicini, una massa di corpi fusi insieme si solleva a fatica, come se avesse aspettato solo te.",
+			"scelte": [
+				{ "testo": "Affrontala", "richiede_non_flag": "oss_cripta_superata", "combatti": ["abominio_marcio"], "se_vinci": "altare_dei_sacrifici", "se_perdi": "espulso" },
+				{ "testo": "Intuisci il momento giusto e scivola oltre, nell'ombra", "richiede": "sesto_senso", "vai": "altare_dei_sacrifici" },
+				{ "testo": "Scendi verso l'altare", "richiede_flag": "oss_cripta_superata", "vai": "altare_dei_sacrifici" },
+				{ "testo": "Torna alla sala del raccolto", "vai": "sala_del_raccolto" }
+			]
+		},
+		"altare_dei_sacrifici": {
+			"testo": "Un altare di ossidiana nera, macchiato da secoli di uso. Ai suoi piedi, un libro enorme rilegato in pelle scura. Oltre l'altare, una scalinata scende verso una luce rossastra e un trono marcio.",
+			"flag": "oss_cripta_superata",
+			"scelte": [
+				{ "testo": "Leggi l'elenco dei sacrificati", "vai": "altare_dei_sacrifici", "una_tantum": "oss_elenco", "oggetto": "elenco_dei_sacrificati" },
+				{ "testo": "Scendi verso il trono", "vai": "trono_marcio" },
+				{ "testo": "Torna alla cripta", "vai": "cripta" }
+			]
+		},
+		"trono_marcio": {
+			"testo": "Sul trono di ossidiana e ossa, Jongo Dongo si alza senza fretta: la pelle è marcia, gli occhi ancora lucidissimi. \"Un piccolo sacrificio,\" dice, come un saluto, \"per un grande risultato.\" Non sembra spaventato. Non lo è mai stato, in vita sua, e nemmeno adesso che non lo è più del tutto.",
+			"centro": "jongo_dongo",
+			"espr_centro": "decisa",
+			"scelte": [
+				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+			]
+		},
+		"vittoria": {
+			"testo": "Jongo Dongo cade in ginocchio, poi si sfalda: la maledizione che lo teneva in piedi si scioglie insieme a lui. Non chiede perdono. Non lo farebbe nemmeno ora. L'ossidiana intorno smette di sudare, ma resta nera: alcune cose, anche finite, non guariscono. Il raccolto, per una volta, non ha avuto il suo prezzo.",
+			"centro": "jongo_dongo",
+			"espr_centro": "petrificata",
+			"flag": "quest_ossidiana",
+			"scelte": [
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"sconfitta_boss": {
+			"testo": "Jongo Dongo non ti uccide: si volta, semplicemente, come se non valessi il sacrificio. \"Non sei ancora un raccolto,\" dice, e la Rocca ti risputa fuori, nel Vuoto, umiliato più che ferito.",
+			"scelte": [
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"espulso": {
+			"testo": "Il buio ti si richiude sopra come una fossa che si rinchiude. Quando riprendi fiato, sei di nuovo nel Vuoto. La Rocca di Ossidiana resta lì, marcia e paziente.",
+			"scelte": [
+				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+			]
+		}
+	}
+}

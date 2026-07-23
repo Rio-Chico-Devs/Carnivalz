@@ -18,10 +18,11 @@ Basta metterli qui col nome giusto e suonano automaticamente. Nessun codice da t
 | `frattura_casa.ogg` | Casa Gigante |
 | `frattura_kizako.ogg` | Ala Kizako |
 | `frattura_fontana.ogg` | La Fontana |
+| `frattura_ossidiana.ogg` | La Rocca di Ossidiana |
 | `battle_comune.ogg` | Combattimento vs nemici comuni |
-| `battle_particolare.ogg` | Combattimento vs nemici particolari (El Malabarista, Ferraglia Urlante) |
+| `battle_particolare.ogg` | Combattimento vs nemici particolari (El Malabarista, Ferraglia Urlante, Divoratore, Abominio Marcio) |
 | `battle_miniboss.ogg` | Combattimento vs miniboss (la bambola) |
-| `battle_boss.ogg` | Combattimento vs boss/fonte (Jerah) |
+| `battle_boss.ogg` | Combattimento vs boss/fonte (Jerah, Jongo Dongo) |
 
 La musica di combattimento si sceglie dalla categoria più "alta" tra i nemici presenti
 (boss > miniboss > particolare > comune). Nuove tracce per fratture/Vuoti futuri: basta
@@ -33,8 +34,9 @@ Un verso alla **comparsa** e uno alla **morte** di ogni nemico.
 - `<id>_morte.wav` → verso di morte (opzionale)
 
 Id nemici attuali: `maschera_vuota`, `giocoliere`, `comparsa_di_ruggine`, `voce_registrata`,
-`operaio_posseduto`, `ferraglia_urlante`, `marionetta`, `tenero_ricordo`, `jerah`.
-(es. `jerah.wav`, `jerah_morte.wav`, `marionetta.wav`, ...)
+`operaio_posseduto`, `ferraglia_urlante`, `divoratore`, `marionetta`, `ghoul`,
+`teschio_errante`, `abominio_marcio`, `tenero_ricordo`, `jerah`, `jongo_dongo`.
+(es. `jerah.wav`, `jerah_morte.wav`, `ghoul.wav`, ...)
 
 ## Voci registrate dei boss — `audio/voci/`
 Frasi registrate per boss e miniboss, per evento:
@@ -42,7 +44,8 @@ Frasi registrate per boss e miniboss, per evento:
 - `<id>_cedimento.wav` → quando la fonte cede alla speranza (solo boss convincibili)
 - `<id>_sconfitta.wav` → alla sconfitta della fonte
 
-Boss/miniboss attuali: `jerah` (inizio/cedimento/sconfitta), `tenero_ricordo` (inizio/sconfitta).
+Boss/miniboss attuali: `jerah` (inizio/cedimento/sconfitta), `tenero_ricordo` (inizio/sconfitta),
+`jongo_dongo` (inizio/sconfitta — non è convincibile: nessun cedimento).
 
 ## Override nei dati (opzionale)
 Ogni percorso di default può essere sovrascritto nei JSON:

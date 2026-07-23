@@ -33,6 +33,13 @@
 					"file_eventi": "res://data/vuoti/casa_gigante.json"
 				},
 				{
+					"id": "rocca_ossidiana",
+					"nome": "La Rocca di Ossidiana",
+					"pos": [1000, 220],
+					"musica": "res://audio/musica/frattura_ossidiana.ogg",
+					"file_eventi": "res://data/vuoti/rocca_ossidiana.json"
+				},
+				{
 					"id": "kizako_ala",
 					"nome": "Kizako Industries — Ala Dimenticata",
 					"pos": [180, 420],

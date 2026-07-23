@@ -146,6 +146,30 @@ prima che la si sconfigga lei stessa blocca il passaggio; dopo, la porta resta
 comunque sigillata, in attesa di un **meccanismo** che esisterà solo in una
 frattura futura del gioco. Due promesse lasciate aperte di proposito.
 
+### La Rocca di Ossidiana e Jongo Dongo
+Una frattura più grande delle altre, con un boss proprio — di entità minore
+rispetto a Jerah, e interamente **opzionale**. Dungeon oscuro di ossidiana
+nera, a tema Doom: ghoul, teschi erranti, abomini marci fusi da più corpi,
+un mondo marcio dentro e fuori.
+
+**Jongo Dongo** fu il signore di queste terre: sacrificò raccolti e famiglie
+intere per la propria fortuna, e non si è mai pentito. L'ira di molte
+famiglie in lutto lo ha maledetto e lo ha fatto marcire vivo — ma imperterrito
+ha continuato. Il suo motto: *"Un piccolo sacrificio per un grande
+risultato."* A differenza di Jerah, **non è una vittima**: è uno di quei boss
+spinti da pura malvagità che manipolano il fattore Carnivalz di proposito
+(`fonte: true`, ma `convincibile: false` — niente Speranza, niente esito
+eroe: non si tirerà mai indietro, un'unica conclusione possibile).
+
+In combattimento **evoca ghoul** e infligge danno che scuote psicologicamente
+il party (stress). La sua mossa più personale: **si sacrifica i propri ghoul**
+per potenziarsi — incarna meccanicamente il proprio motto, un piccolo
+sacrificio (il ghoul) per un grande risultato (il suo fattore Carnivalz che
+sale). Studiarlo non serve a convincerlo: serve solo a misurare quanto sia
+convinto di ciò che fa — mai in dubbio, mai pentito. L'elenco dei sacrificati,
+trovato nella Rocca, rivela che gli ultimi nomi condivisi col suo cognome
+erano la sua stessa famiglia: non ha esitato nemmeno allora.
+
 ### Meteora e i compagni
 Meteora **non** è il primo compagno: è un personaggio speciale, si incontra
 **dal Vuoto 4 in poi**. Yhvina (l'Insonne) è temporanea nel Vuoto 1 e torna nel

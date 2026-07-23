@@ -470,6 +470,22 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				aggiungi_combattente(String(mossa.get("valore", "")), false)
 			else:
 				scrivi("[i]...ma nessuno risponde al richiamo.[/i]")
+		"sacrificio":
+			# "un piccolo sacrificio per un grande risultato": si potenzia
+			# uccidendo un suo stesso alleato evocato, se ce n'è uno vivo
+			var alleati := vivi_alleati_di(nemico)
+			if alleati.is_empty():
+				scrivi("[i]Non ha nessuno da sacrificare, per ora. Colpisce lui stesso.[/i]")
+				var possibili := vivi(true)
+				attacca(nemico, possibili[GameState.rng.randi_range(0, possibili.size() - 1)])
+			else:
+				var vittima: Dictionary = alleati[GameState.rng.randi_range(0, alleati.size() - 1)]
+				scrivi("[i]%s lo colpisce lui stesso, senza esitare.[/i]" % nemico.nome)
+				vittima.hp = 0
+				aggiorna_scheda(vittima)
+				nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 15)), 0, 100)
+				aggiorna_scheda(nemico)
+				_su_ko(vittima)
 
 func cedimento(combattente: Dictionary) -> void:
 	# la fonte convinta perde pezzi di spettacolo: statistiche giu', fino alla fine
@@ -647,6 +663,14 @@ func vivi(giocatore: bool) -> Array[Dictionary]:
 	var risultato: Array[Dictionary] = []
 	for combattente in combattenti:
 		if combattente.giocatore == giocatore and combattente.hp > 0:
+			risultato.append(combattente)
+	return risultato
+
+func vivi_alleati_di(nemico: Dictionary) -> Array[Dictionary]:
+	# altri nemici vivi (es. evocazioni), escluso il nemico stesso
+	var risultato: Array[Dictionary] = []
+	for combattente in vivi(false):
+		if combattente.indice != nemico.indice:
 			risultato.append(combattente)
 	return risultato
 

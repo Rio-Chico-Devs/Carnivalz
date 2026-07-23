@@ -153,6 +153,119 @@
 			]
 		},
 		{
+			"id": "ghoul",
+			"nome": "Ghoul",
+			"hp": 4,
+			"attacco": 2,
+			"difesa": 0,
+			"velocita": 3,
+			"xp": 9,
+			"tazo": 6,
+			"ritratto": "res://art/personaggi/ghoul.png",
+			"descrizione": "Carne marcia tenuta insieme dalla fame e da poco altro. Uno dei tanti che la Rocca di Ossidiana non ha mai lasciato andare.",
+			"carta": { "id": "carta_ghoul", "nome": "Ghoul", "rarita": "comune", "chance": 0.03, "testo": "Non ricorda il proprio nome. Ricorda solo la fame." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "domanda": "Chi eri?", "risposta": "Uno dei sacrificati. O forse uno dei loro figli. Non fa differenza, ormai." }
+			]
+		},
+		{
+			"id": "teschio_errante",
+			"nome": "Teschio Errante",
+			"hp": 3,
+			"attacco": 2,
+			"difesa": 0,
+			"velocita": 5,
+			"xp": 8,
+			"tazo": 5,
+			"ritratto": "res://art/personaggi/teschio_errante.png",
+			"descrizione": "Un teschio che galleggia basso sull'ossidiana, a scatti, come se cercasse ancora il corpo perduto.",
+			"carta": { "id": "carta_teschio_errante", "nome": "Teschio Errante", "rarita": "comune", "chance": 0.03, "testo": "Vaga da anni. Non ha mai smesso di cercare." },
+			"studio": [
+				{ "domanda": "Cosa cerchi?", "risposta": "(sbatte contro una parete, poi contro un'altra, in silenzio)" }
+			]
+		},
+		{
+			"id": "abominio_marcio",
+			"nome": "Abominio Marcio",
+			"categoria": "particolare",
+			"hp": 10,
+			"attacco": 3,
+			"difesa": 2,
+			"velocita": 2,
+			"xp": 16,
+			"tazo": 14,
+			"ritratto": "res://art/personaggi/abominio_marcio.png",
+			"descrizione": "Più corpi fusi insieme dal marciume, tenuti in piedi da qualcosa che non è più vita. Una delle tante forme che prende la maledizione della Rocca.",
+			"carta": { "id": "carta_abominio_marcio", "nome": "Abominio Marcio", "rarita": "non_comune", "chance": 0.05, "testo": "Non è un solo mostro: sono tutti quelli che nessuno è venuto a seppellire." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.25 }
+			],
+			"studio": [
+				{ "domanda": "Quanti siete, là dentro?", "risposta": "(un coro basso, indistinto, risponde in una lingua che non esiste più)" }
+			]
+		},
+		{
+			"id": "jongo_dongo",
+			"nome": "Jongo Dongo",
+			"hp": 22,
+			"attacco": 3,
+			"difesa": 1,
+			"velocita": 3,
+			"fattore_base": 20,
+			"xp": 35,
+			"tazo": 50,
+			"peso_attacco_normale": 3,
+			"ritratto": "res://art/personaggi/jongo_dongo.png",
+			"descrizione": "Un tempo signore di queste terre. Sacrificò raccolti e famiglie intere per la propria fortuna, e non si è mai pentito: la maledizione delle famiglie in lutto lo ha fatto marcire vivo, ma non lo ha fermato.",
+			"descrizione_extra": {
+				"richiede_oggetto": "elenco_dei_sacrificati",
+				"testo": "Le ultime righe dell'elenco sono scritte con una grafia più tremante, come se la mano che scriveva stesse ancora decidendo. Gli ultimi nomi sulla lista condividono il suo: erano la sua famiglia. Non ha esitato nemmeno allora."
+			},
+			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
+			"fonte": true,
+			"convincibile": false,
+			"mosse": [
+				{
+					"id": "colpo_marcio",
+					"tipo": "attacco_forte",
+					"valore": 4,
+					"peso": 2,
+					"testo": "Jongo Dongo affonda un artiglio marcio, senza fretta: sa già che colpirà."
+				},
+				{
+					"id": "grido_del_raccolto",
+					"tipo": "attacco_tutti",
+					"valore": 1,
+					"stress": 15,
+					"peso": 2,
+					"testo": "\"IL RACCOLTO RICHIEDE SEMPRE IL SUO PREZZO!\" Il grido vi si conficca dentro più delle unghie."
+				},
+				{
+					"id": "sacrificio",
+					"tipo": "sacrificio",
+					"valore": 15,
+					"peso": 3,
+					"testo": "Jongo Dongo si volta verso uno dei suoi ghoul, con la stessa calma di sempre: \"Un piccolo sacrificio... per un grande risultato.\""
+				},
+				{
+					"id": "raccolto_di_carne",
+					"tipo": "evoca",
+					"valore": "ghoul",
+					"peso": 2,
+					"testo": "Jongo Dongo batte il palmo marcio sull'ossidiana: la terra stessa gli restituisce un altro ghoul."
+				}
+			],
+			"studio": [
+				{ "domanda": "Perché tutto questo sacrificio?", "risposta": "Perché funziona. Il raccolto non mente mai." },
+				{ "domanda": "Ti penti di qualcosa?", "risposta": "Il pentimento è un lusso che i vivi non possono permettersi. Io, ormai, lo sono ancora meno di loro." },
+				{ "domanda": "Le famiglie che hai maledetto ti hanno fatto marcire.", "risposta": "Mi hanno dato la loro rabbia. L'ho presa anche quella. Guarda cosa sono diventato: funziona lo stesso." },
+				{ "domanda": "Ti fermerai, prima o poi?", "risposta": "Un piccolo sacrificio per un grande risultato. Sempre. Anche questo, qui, con te." }
+			]
+		},
+		{
 			"id": "marionetta",
 			"nome": "Marionetta",
 			"hp": 3,

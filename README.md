@@ -183,8 +183,10 @@ collegate nei due sensi (perlustrazione libera):
   Sulle scelte, `richiede_oggetti` gate una scelta finché non hai tutti i pezzi (la Fontana;
   la porta enorme nella Casa Gigante, sigillata finché non esisterà il `meccanismo_del_varco`
   — pezzo di una frattura futura, per ora irraggiungibile di proposito)
-- Mosse boss extra: `autolesione` (si ferisce, stress a tutta la squadra) e
-  `attacco_tutti` con campo `stress` (il lamento della bambola)
+- Mosse boss extra: `autolesione` (si ferisce, stress a tutta la squadra),
+  `attacco_tutti` con campo `stress` (il lamento della bambola), e `sacrificio`
+  (uccide un suo alleato evocato per aumentare il proprio fattore — se non ha
+  nessuno da sacrificare, attacca lui stesso; usata da Jongo Dongo)
 
 ### Frenesia (miniboss con conto alla rovescia)
 Un nemico può avere nei dati una chiave `frenesia` (non serve essere una fonte): a una
@@ -272,5 +274,8 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
     porta enorme nella Casa Gigante (bloccata dalla bambola, poi sigillata
     fino a una frattura futura); drop raro e arma "Il mondo è il mio
     Tesoro"
-16. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
-17. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+16. ✅ La Rocca di Ossidiana: macro-frattura opzionale con boss proprio,
+    Jongo Dongo (non convincibile, si sacrifica i propri ghoul per
+    potenziarsi — nuova mossa "sacrificio")
+17. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
+18. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
