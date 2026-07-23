@@ -127,6 +127,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"tazo": int(dati.get("tazo", 0)),
 		"carta": dati.get("carta", {}),
 		"bottino_comune": dati.get("bottino_comune", []),
+		"drop_raro": dati.get("drop_raro", {}),
 		"mosse": dati.get("mosse", []),
 		"peso_attacco_normale": int(dati.get("peso_attacco_normale", 4)),
 		"giocatore": giocatore,
@@ -580,22 +581,39 @@ func _su_ko(caduto: Dictionary) -> void:
 		scrivi("[b]Il party è a terra. Il Carnivalz ha vinto.[/b]")
 
 func risolvi_drop() -> void:
-	# drop dei nemici sconfitti: carta (rara, garantita solo per unici/boss)
-	# e bottino comune (consumabili). Tutto dall'RNG seedato.
+	# drop dei nemici sconfitti: carta (rara, garantita solo per unici/boss),
+	# bottino comune (consumabili/materiali) e drop_raro (grosso Tazo o un
+	# oggetto speciale, a scelta pesata). "Il mondo è il mio Tesoro" raddoppia
+	# tutte le chance rare. Tutto dall'RNG seedato.
+	var moltiplicatore := 2.0 if GameState.possiede_oggetto("il_mondo_e_il_mio_tesoro") else 1.0
 	var righe: Array[String] = []
 	for c in combattenti:
 		if c.giocatore or c.get("oggetto_scena", false):
 			continue
 		var carta: Dictionary = c.carta
 		if not carta.is_empty():
-			var chance := float(carta.get("chance", 1.0))
-			if GameState.rng.randf() < chance and GameState.ottieni_carta(String(carta.get("id", ""))):
+			var chance_carta := minf(float(carta.get("chance", 1.0)) * moltiplicatore, 1.0)
+			if GameState.rng.randf() < chance_carta and GameState.ottieni_carta(String(carta.get("id", ""))):
 				righe.append("carta \"%s\" [%s]" % [carta.get("nome", ""), carta.get("rarita", "")])
 		for voce in c.bottino_comune:
 			if GameState.rng.randf() < float(voce.get("chance", 0.0)):
 				var id_oggetto := String(voce.get("oggetto", ""))
 				if GameState.aggiungi_oggetto(id_oggetto):
 					righe.append(String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)))
+		var raro: Dictionary = c.drop_raro
+		if not raro.is_empty():
+			var chance_rara := minf(float(raro.get("chance", 0.0)) * moltiplicatore, 1.0)
+			if GameState.rng.randf() < chance_rara:
+				var peso_tazo := int(raro.get("peso_tazo", 1))
+				var peso_oggetto := int(raro.get("peso_oggetto", 1))
+				if GameState.rng.randi_range(1, maxi(peso_tazo + peso_oggetto, 1)) <= peso_tazo:
+					var bonus := int(raro.get("tazo", 0))
+					tazo_bottino += bonus
+					righe.append("%d Tazo extra" % bonus)
+				else:
+					var id_oggetto := String(raro.get("oggetto", ""))
+					if GameState.aggiungi_oggetto(id_oggetto):
+						righe.append(String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)))
 	if not righe.is_empty():
 		scrivi("[b]Ottieni:[/b] %s." % ", ".join(righe))
 

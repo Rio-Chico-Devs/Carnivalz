@@ -142,11 +142,16 @@ scelte si ricostruiscono, così l'eventuale sblocco appare subito.
 
 ## Drop, carte e collezioni
 Alla vittoria, ogni nemico sconfitto può lasciare:
-- **Bottino comune** (`bottino_comune` nei dati: lista `{oggetto, chance}`) — consumabili tipo
-  fiala HP, va nella sacca
+- **Bottino comune** (`bottino_comune` nei dati: lista `{oggetto, chance}`) — consumabili/materiali
+  tipo fiala HP o rottame di metallo, va nella sacca o tra i collezionabili
 - **Carta** (`carta`: `{id, nome, rarita, testo, chance?}`) — se manca `chance` è **garantita**
-  (nemici unici: miniboss e boss); con `chance` è un drop **raro** (comuni: 3–5%). Rarità:
-  comune · non_comune · rara · epica · leggendaria
+  (nemici unici: miniboss e boss); con `chance` è un drop **raro** (comuni 3–5%, "particolari" fino
+  al 6%). Rarità: comune · non_comune · rara · epica · leggendaria
+- **Drop raro** (`drop_raro`: `{chance, tazo, oggetto, peso_tazo, peso_oggetto}`) — usato dai
+  nemici rari come il Divoratore: con probabilità `chance` scatta un premio unico, scelto a peso
+  tra un grosso bonus Tazo o un oggetto speciale (es. il Convertitore)
+- **"Il mondo è il mio Tesoro"** (arma forgiata dall'Artigiano con Convertitore + rottami):
+  finché la possiedi, **raddoppia** la chance di carta e di drop raro su ogni vittoria
 
 Tre **collezioni** meta (menu principale), che si popolano da sole e non si perdono a fine
 campagna (in `GameState`: `carte`, `bestiario`, `oggetti_catalogo`):
@@ -175,7 +180,9 @@ collegate nei due sensi (perlustrazione libera):
 - **`torna_vuoto`** su una scelta: esce dallo squarcio (gli alleati temporanei restano fuori)
 - **Fratture nascoste**: nel `mappa.json`, un vuoto con `nascosto: true` appare solo se soddisfa
   `richiede_oggetti` (possiedi quegli oggetti) o `richiede_flags` (tutte quelle quest completate).
-  Sulle scelte, `richiede_oggetti` gate una scelta finché non hai tutti i pezzi (la Fontana)
+  Sulle scelte, `richiede_oggetti` gate una scelta finché non hai tutti i pezzi (la Fontana;
+  la porta enorme nella Casa Gigante, sigillata finché non esisterà il `meccanismo_del_varco`
+  — pezzo di una frattura futura, per ora irraggiungibile di proposito)
 - Mosse boss extra: `autolesione` (si ferisce, stress a tutta la squadra) e
   `attacco_tutti` con campo `stress` (il lamento della bambola)
 
@@ -260,5 +267,10 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
 13. ✅ Impianto audio (musica per contesto, versi nemici, voci boss)
 14. ✅ Ritratti a espressioni (16 pose per i dialoghi) + salvataggio
     (autosave su mappa/Vuoto, "Continua" dal menu)
-15. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
-16. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+15. ✅ Squarcio Industriale allungato (Discarica col Divoratore, Vecchio
+    Centro di Controllo con diari di Kizako, Padiglione E sigillato);
+    porta enorme nella Casa Gigante (bloccata dalla bambola, poi sigillata
+    fino a una frattura futura); drop raro e arma "Il mondo è il mio
+    Tesoro"
+16. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
+17. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

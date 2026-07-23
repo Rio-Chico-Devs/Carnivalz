@@ -28,7 +28,8 @@
 				{ "oggetto": "cuore_di_latta", "prezzo": 60, "da_fonti": 0 }
 			],
 			"baratti": [
-				{ "richiede": ["scheggia_di_specchio", "scheggia_di_specchio"], "produce": "specchio_tascabile" }
+				{ "richiede": ["scheggia_di_specchio", "scheggia_di_specchio"], "produce": "specchio_tascabile" },
+				{ "richiede": ["convertitore", "rottame_di_metallo", "rottame_di_metallo"], "produce": "il_mondo_e_il_mio_tesoro" }
 			]
 		}
 	]

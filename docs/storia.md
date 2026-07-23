@@ -123,7 +123,28 @@ Lo scienziato **Kizako** ha costruito un impero con le sue invenzioni belliche.
 La sua fabbrica fu abbandonata quando i lavoratori, vinti dallo stress, uscirono
 di senno. Sue fabbriche compaiono in **più Vuoti**: una trama che attraversa il
 gioco. Kizako non è mai presente di persona nelle sue fabbriche — ma le sue
-fabbriche sono ovunque.
+fabbriche sono ovunque. Nel Vecchio Centro di Controllo dello Squarcio
+Industriale, tre diari di suo pugno raccontano il crollo: dall'ordine di
+"efficienza, non lamentele" al reparto montaggio che smette di rispondere al
+citofono, fino alla decisione di spostare altrove la produzione — "questo
+posto, ormai, può tenersi quello che si è preso".
+
+### Il Divoratore e "Il mondo è il mio Tesoro"
+Nella **Discarica** (Squarcio Industriale) si aggira, raramente, **il
+Divoratore**: non un operaio come gli altri, ma qualcosa nato dalla discarica
+stessa, che mastica rottami e macerie per restare in piedi. Sconfitto, può
+lasciare un **Convertitore** — un nucleo che "trasforma tutto ciò che tocca in
+qualcos'altro". Con due rottami di metallo, l'Artigiano lo forgia in **Il
+mondo è il mio Tesoro**: un'arma che raddoppia bottino e chance di drop rari
+su ogni vittoria, finché la porti con te.
+
+### Il Padiglione E e la porta enorme
+Nella Discarica, il **Padiglione E**: una struttura tonda enorme, un portello
+sigillato verso una sezione sotterranea. Non si apre — non ancora. Nella
+**Casa Gigante**, oltre l'altare della bambola, un'altra porta enorme:
+prima che la si sconfigga lei stessa blocca il passaggio; dopo, la porta resta
+comunque sigillata, in attesa di un **meccanismo** che esisterà solo in una
+frattura futura del gioco. Due promesse lasciate aperte di proposito.
 
 ### Meteora e i compagni
 Meteora **non** è il primo compagno: è un personaggio speciale, si incontra

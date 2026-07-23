@@ -167,6 +167,30 @@
 			"nome": "Bottone dorato",
 			"tipo": "collezionabile",
 			"descrizione": "Del primo costume di Jerah. Il Vecchio Clown lo custodiva da sempre."
+		},
+		{
+			"id": "rottame_di_metallo",
+			"nome": "Rottame di metallo",
+			"tipo": "collezionabile",
+			"descrizione": "Un pezzo contorto, strappato via da qualcosa di più grande. Ha i bordi ancora caldi, come se fosse stato masticato."
+		},
+		{
+			"id": "convertitore",
+			"nome": "Convertitore",
+			"tipo": "collezionabile",
+			"descrizione": "Un nucleo metallico che il Divoratore teneva al posto di un cuore. Trasforma tutto ciò che tocca in qualcos'altro."
+		},
+		{
+			"id": "il_mondo_e_il_mio_tesoro",
+			"nome": "Il mondo è il mio Tesoro",
+			"tipo": "chiave",
+			"descrizione": "Un'arma forgiata dall'Artigiano su un nucleo che divora e restituisce doppio. Finché la porti con te, ogni nemico sconfitto rende di più: più bottino, più chance di drop rari."
+		},
+		{
+			"id": "meccanismo_del_varco",
+			"nome": "Meccanismo del varco",
+			"tipo": "chiave",
+			"descrizione": "Ingranaggi antichi, delle stesse dimensioni esatte della serratura sulla porta enorme nella Casa Gigante. Non l'hai ancora trovato: si dice che esista solo molto più avanti, nel tuo viaggio."
 		}
 	]
 }

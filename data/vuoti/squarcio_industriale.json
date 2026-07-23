@@ -16,6 +16,7 @@
 				"se_perdi": "espulso"
 			},
 			"scelte": [
+				{ "testo": "Fruga in un armadietto arrugginito", "vai": "corridoio_tubi", "una_tantum": "ind_armadietto", "oggetto": "viti_e_bulloni", "tazo": 12 },
 				{ "testo": "Verso la sala delle valvole", "vai": "sala_valvole" },
 				{ "testo": "Entra nel deposito", "vai": "deposito" },
 				{ "testo": "Torna al varco", "vai": "varco" }
@@ -27,6 +28,7 @@
 				{ "testo": "Fruga nella cassa marchiata con una croce", "vai": "deposito", "una_tantum": "ind_fiala_1", "oggetto": "fiala_hp" },
 				{ "testo": "Svuota il barattolo di minuteria", "vai": "deposito", "una_tantum": "ind_viti", "oggetto": "viti_e_bulloni" },
 				{ "testo": "Solleva la mattonella smossa", "vai": "deposito", "una_tantum": "ind_tazo_1", "tazo": 30 },
+				{ "testo": "Svita una piastra di rivestimento", "vai": "deposito", "una_tantum": "ind_viti_2", "oggetto": "viti_e_bulloni" },
 				{ "testo": "Torna nel corridoio", "vai": "corridoio_tubi" }
 			]
 		},
@@ -38,6 +40,7 @@
 				"se_perdi": "espulso"
 			},
 			"scelte": [
+				{ "testo": "Recupera i bulloni caduti da una valvola", "vai": "sala_valvole", "una_tantum": "ind_bulloni_valvola", "oggetto": "viti_e_bulloni", "tazo": 8 },
 				{ "testo": "Sali verso le schede madri giganti", "vai": "sala_schede" },
 				{ "testo": "Segui il nastro trasportatore", "vai": "nastro" },
 				{ "testo": "Torna nel corridoio", "vai": "corridoio_tubi" }
@@ -53,7 +56,36 @@
 			"scelte": [
 				{ "testo": "Stacca il componente che lampeggia verso l'alto", "vai": "sala_schede", "una_tantum": "ind_componente", "oggetto": "componente_elettronico" },
 				{ "testo": "Recupera la fiala incastrata tra i condensatori", "vai": "sala_schede", "una_tantum": "ind_fiala_2", "oggetto": "fiala_hp" },
+				{ "testo": "Scendi al vecchio centro di controllo", "vai": "centro_controllo" },
 				{ "testo": "Torna alle valvole", "vai": "sala_valvole" }
+			]
+		},
+		"centro_controllo": {
+			"testo": "Il vecchio centro di controllo: una fila di monitor spenti rivolti verso un'unica poltrona, ancora al centro della stanza. Sulla scrivania, diari rilegati a mano, pieni della stessa calligrafia nervosa.",
+			"scelte": [
+				{ "testo": "Leggi il primo diario", "vai": "diario_1" },
+				{ "testo": "Leggi il secondo diario", "vai": "diario_2" },
+				{ "testo": "Leggi il terzo diario", "vai": "diario_3" },
+				{ "testo": "Apri il cassetto della scrivania", "vai": "centro_controllo", "una_tantum": "ind_tazo_controllo", "tazo": 25 },
+				{ "testo": "Torna alle schede madri", "vai": "sala_schede" }
+			]
+		},
+		"diario_1": {
+			"testo": "\"Giorno 1. Il complesso è operativo. Ho detto ai capisquadra che voglio efficienza, non lamentele. Kizako.\"",
+			"scelte": [
+				{ "testo": "Richiudi il diario", "vai": "centro_controllo" }
+			]
+		},
+		"diario_2": {
+			"testo": "\"Giorno 340 circa (ho perso il conto). Tre operai non si sono presentati oggi. Il caporeparto dice che 'vedono cose'. Ho ordinato di aumentare i turni ai restanti, per compensare. Non possiamo permetterci ritardi sulle consegne belliche. Kizako.\"",
+			"scelte": [
+				{ "testo": "Richiudi il diario", "vai": "centro_controllo" }
+			]
+		},
+		"diario_3": {
+			"testo": "\"Ultimo giorno che scrivo qui. Il reparto montaggio non risponde più al citofono. Ho mandato una squadra a controllare: non è tornata nessuno. Non chiuderò l'impianto. Sposterò la produzione altrove. Questo posto, ormai, può tenersi quello che si è preso. Kizako.\"",
+			"scelte": [
+				{ "testo": "Richiudi il diario", "vai": "centro_controllo" }
 			]
 		},
 		"nastro": {
@@ -76,7 +108,36 @@
 			"scelte": [
 				{ "testo": "Apri la cassetta degli incassi", "vai": "cuore", "una_tantum": "ind_tazo_2", "tazo": 40 },
 				{ "testo": "Cerca tra le pale della turbina", "vai": "cuore", "una_tantum": "ind_fiala_3", "oggetto": "fiala_hp" },
+				{ "testo": "Esci nel piazzale della discarica", "vai": "discarica" },
 				{ "testo": "Torna al nastro", "vai": "nastro" }
+			]
+		},
+		"discarica": {
+			"testo": "Un piazzale a cielo aperto, montagne di rottami più alte di una casa. Il sole rosso ci batte sopra senza pietà. Sotto le macerie, ogni tanto, qualcosa si sposta da sola.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [["comparsa_di_ruggine"], ["operaio_posseduto"], ["comparsa_di_ruggine", "operaio_posseduto"], ["divoratore"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Rovista tra i rottami più vicini", "vai": "discarica", "una_tantum": "ind_rottame_1", "oggetto": "rottame_di_metallo" },
+				{ "testo": "Scava sotto una montagna di lamiere", "vai": "discarica", "una_tantum": "ind_rottame_2", "oggetto": "rottame_di_metallo", "tazo": 15 },
+				{ "testo": "Controlla un container ribaltato", "vai": "discarica", "una_tantum": "ind_tazo_discarica", "tazo": 35 },
+				{ "testo": "Va' verso la struttura tonda in fondo al piazzale", "vai": "padiglione_e" },
+				{ "testo": "Torna al cuore del complesso", "vai": "cuore" }
+			]
+		},
+		"padiglione_e": {
+			"testo": "Il Padiglione E: una struttura tonda enorme, come un silo rovesciato, molto più grande di tutto il resto del complesso. Un unico portello sul fondo, sigillato, con una scritta ormai illeggibile sopra. Da sotto, un rombo bassissimo, quasi impercettibile, che non si ferma mai.",
+			"scelte": [
+				{ "testo": "Prova a forzare il portello", "vai": "padiglione_e_chiuso" },
+				{ "testo": "Torna alla discarica", "vai": "discarica" }
+			]
+		},
+		"padiglione_e_chiuso": {
+			"testo": "Non si muove di un millimetro: qualunque cosa lo tenga chiuso, non è fatta per cedere a mani nude. Qualunque cosa ci sia sotto, dovrà aspettare.",
+			"scelte": [
+				{ "testo": "Torna al Padiglione E", "vai": "padiglione_e" }
 			]
 		},
 		"espulso": {

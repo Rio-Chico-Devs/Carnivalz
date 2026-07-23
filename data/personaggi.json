@@ -125,6 +125,34 @@
 			]
 		},
 		{
+			"id": "divoratore",
+			"nome": "Il Divoratore",
+			"categoria": "particolare",
+			"hp": 12,
+			"attacco": 3,
+			"difesa": 2,
+			"velocita": 2,
+			"xp": 20,
+			"tazo": 25,
+			"ritratto": "res://art/personaggi/divoratore.png",
+			"descrizione": "Non è mai stato un operaio: è nato dalla discarica stessa, un ammasso che mastica rottami e macerie per restare in piedi. Raro, e affamato.",
+			"bottino_comune": [
+				{ "oggetto": "rottame_di_metallo", "chance": 0.4 }
+			],
+			"drop_raro": {
+				"chance": 0.2,
+				"tazo": 60,
+				"oggetto": "convertitore",
+				"peso_tazo": 2,
+				"peso_oggetto": 1
+			},
+			"carta": { "id": "carta_divoratore", "nome": "Il Divoratore", "rarita": "rara", "chance": 0.06, "testo": "Mangia ferro, cemento, e ogni tanto un ricordo di troppo." },
+			"studio": [
+				{ "domanda": "Cosa mangi?", "risposta": "Tutto quello che il complesso ha smesso di volere." },
+				{ "domanda": "Hai fame ancora?", "risposta": "Sempre. Non è mai stata questione di fame." }
+			]
+		},
+		{
 			"id": "marionetta",
 			"nome": "Marionetta",
 			"hp": 3,

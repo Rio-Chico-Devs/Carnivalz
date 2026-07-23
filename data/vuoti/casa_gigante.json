@@ -152,13 +152,28 @@
 			]
 		},
 		"altare": {
-			"testo": "Un altare tributario, costruito con le mani: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra.",
+			"testo": "Un altare tributario, costruito con le mani: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra. Oltre le candele, nel buio, si intuisce qualcosa di enorme incassato nella parete di fondo.",
 			"scelte": [
 				{ "testo": "Leggi le lettere", "vai": "lettere_lettura" },
 				{ "testo": "Stappa l'ultima bottiglia di vino di ottima qualità", "vai": "altare", "una_tantum": "casa_vino_2", "oggetto": "vino_di_ottima_qualita" },
 				{ "testo": "Osserva da vicino la foto sull'altare", "richiede_non_flag": "casa_ricordo_sconfitto", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_concluso", "se_perdi": "cacciata" },
+				{ "testo": "Guarda oltre l'altare, nel buio", "richiede_non_flag": "casa_ricordo_sconfitto", "vai": "porta_bloccata" },
 				{ "testo": "L'altare è silenzioso, ora.", "richiede_flag": "casa_ricordo_sconfitto", "vai": "tunnel" },
+				{ "testo": "Guarda oltre l'altare, nel buio", "richiede_flag": "casa_ricordo_sconfitto", "vai": "porta_enorme" },
 				{ "testo": "Torna al tunnel", "vai": "tunnel" }
+			]
+		},
+		"porta_bloccata": {
+			"testo": "Fai un passo oltre le candele, e la bambola si volta di scatto verso di te — non ti aveva mai guardato prima. Non si muove, non parla: si limita a restare tra te e il buio, e in qualche modo è più che sufficiente. Meglio non insistere. Non ancora.",
+			"scelte": [
+				{ "testo": "Torna all'altare", "vai": "altare" }
+			]
+		},
+		"porta_enorme": {
+			"testo": "Con la bambola non più a guardia, il passo oltre l'altare è libero: una porta enorme, sproporzionata perfino per questa casa, incassata nella roccia oltre le candele consumate. Nessuna maniglia, solo un meccanismo circolare al centro, coperto di polvere e fermo da chissà quanto.",
+			"scelte": [
+				{ "testo": "Prova ad aprirla", "richiede_oggetti": ["meccanismo_del_varco"], "vai": "tunnel" },
+				{ "testo": "Non si muove di un millimetro. Non è ancora il momento.", "vai": "altare" }
 			]
 		},
 		"lettere_lettura": {
