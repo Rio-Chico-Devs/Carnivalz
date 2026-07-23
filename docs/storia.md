@@ -170,6 +170,28 @@ convinto di ciò che fa — mai in dubbio, mai pentito. L'elenco dei sacrificati
 trovato nella Rocca, rivela che gli ultimi nomi condivisi col suo cognome
 erano la sua stessa famiglia: non ha esitato nemmeno allora.
 
+### Meridia: un mondo già perduto
+Una frattura del tutto diversa dalle altre: non un pezzo del mondo di Jerah,
+ma un frammento di un **altro mondo, già consumato da un proprio Carnivalz,
+molto prima di questo** — attratto nel Vuoto come tutti i mondi già
+distrutti (canone del Vuoto, sopra). **Meridia** era una città come tante;
+ora è vuota, lenta, piena di chi non ce l'ha fatta a scappare. Non ha boss né
+segreti da risolvere: è terreno di **farming** — nemici comuni, pochissimo
+Tazo, armi comuni trovate per strada (bastone, spranga di ferro, mazzafrusto,
+sparachiodi arrugginito, motosega). Tre pagine di giornale, lette
+nell'edicola, raccontano il crollo in tre tappe (comportamenti anomali →
+coprifuoco e ospedali al collasso → l'ultima edizione, mai finita di
+comporre). **Meridia tornerà**: altre fratture di questo stesso mondo
+perduto compariranno altrove nel gioco.
+
+### Qualcosa preme
+Una frattura minima, per ora: un varco che non si apre su un luogo ma su una
+**pressione enorme e senza forma** — qualcosa, dall'altra parte, si accorge
+di te, e il Vuoto stesso ti rigetta indietro prima che tu possa fare un
+passo. Nessuna esplorazione, nessun combattimento: solo l'espulsione
+automatica (`espulsione_automatica` nei dati). Cosa sia, lo scopriremo più
+avanti — per ora è un segnale, lasciato apposta senza risposta.
+
 ### Meteora e i compagni
 Meteora **non** è il primo compagno: è un personaggio speciale, si incontra
 **dal Vuoto 4 in poi**. Yhvina (l'Insonne) è temporanea nel Vuoto 1 e torna nel

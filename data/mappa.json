@@ -40,6 +40,20 @@
 					"file_eventi": "res://data/vuoti/rocca_ossidiana.json"
 				},
 				{
+					"id": "meridia",
+					"nome": "Meridia",
+					"pos": [80, 260],
+					"musica": "res://audio/musica/frattura_meridia.ogg",
+					"file_eventi": "res://data/vuoti/meridia.json"
+				},
+				{
+					"id": "qualcosa_preme",
+					"nome": "Qualcosa preme",
+					"pos": [640, 640],
+					"musica": "",
+					"file_eventi": "res://data/vuoti/qualcosa_preme.json"
+				},
+				{
 					"id": "kizako_ala",
 					"nome": "Kizako Industries — Ala Dimenticata",
 					"pos": [180, 420],

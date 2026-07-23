@@ -266,6 +266,38 @@
 			]
 		},
 		{
+			"id": "zombie_cittadino",
+			"nome": "Zombie Cittadino",
+			"hp": 3,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 1,
+			"xp": 6,
+			"tazo": 3,
+			"ritratto": "res://art/personaggi/zombie_cittadino.png",
+			"descrizione": "Era qualcuno, a Meridia, prima del coprifuoco. Ora cammina piano, verso niente in particolare, con tutti gli altri.",
+			"carta": { "id": "carta_zombie_cittadino", "nome": "Zombie Cittadino", "rarita": "comune", "chance": 0.02, "testo": "Meridia ne ha fatti a migliaia, tutti uguali." },
+			"bottino_comune": [
+				{ "oggetto": "bastone", "chance": 0.25 }
+			]
+		},
+		{
+			"id": "infetto_rapido",
+			"nome": "Infetto Rapido",
+			"hp": 3,
+			"attacco": 2,
+			"difesa": 0,
+			"velocita": 5,
+			"xp": 7,
+			"tazo": 4,
+			"ritratto": "res://art/personaggi/infetto_rapido.png",
+			"descrizione": "Non tutti a Meridia sono diventati lenti. Questi corrono ancora, come se stessero ancora scappando da qualcosa.",
+			"carta": { "id": "carta_infetto_rapido", "nome": "Infetto Rapido", "rarita": "comune", "chance": 0.02, "testo": "Corre da anni. Non si è mai fermato a chiedersi perché." },
+			"bottino_comune": [
+				{ "oggetto": "spranga_di_ferro", "chance": 0.15 }
+			]
+		},
+		{
 			"id": "marionetta",
 			"nome": "Marionetta",
 			"hp": 3,

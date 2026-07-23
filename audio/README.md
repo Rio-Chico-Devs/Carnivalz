@@ -19,6 +19,7 @@ Basta metterli qui col nome giusto e suonano automaticamente. Nessun codice da t
 | `frattura_kizako.ogg` | Ala Kizako |
 | `frattura_fontana.ogg` | La Fontana |
 | `frattura_ossidiana.ogg` | La Rocca di Ossidiana |
+| `frattura_meridia.ogg` | Meridia (città zombie) |
 | `battle_comune.ogg` | Combattimento vs nemici comuni |
 | `battle_particolare.ogg` | Combattimento vs nemici particolari (El Malabarista, Ferraglia Urlante, Divoratore, Abominio Marcio) |
 | `battle_miniboss.ogg` | Combattimento vs miniboss (la bambola) |
@@ -35,7 +36,8 @@ Un verso alla **comparsa** e uno alla **morte** di ogni nemico.
 
 Id nemici attuali: `maschera_vuota`, `giocoliere`, `comparsa_di_ruggine`, `voce_registrata`,
 `operaio_posseduto`, `ferraglia_urlante`, `divoratore`, `marionetta`, `ghoul`,
-`teschio_errante`, `abominio_marcio`, `tenero_ricordo`, `jerah`, `jongo_dongo`.
+`teschio_errante`, `abominio_marcio`, `zombie_cittadino`, `infetto_rapido`,
+`tenero_ricordo`, `jerah`, `jongo_dongo`.
 (es. `jerah.wav`, `jerah_morte.wav`, `ghoul.wav`, ...)
 
 ## Voci registrate dei boss — `audio/voci/`

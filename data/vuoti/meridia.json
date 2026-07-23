@@ -1,0 +1,81 @@
+{
+	"nodo_iniziale": "varco",
+	"nodi": {
+		"varco": {
+			"testo": "Lo squarcio si apre su una città che non è la tua: insegne spente, auto abbandonate in mezzo alla strada, portiere aperte come se chi guidava fosse sceso di corsa e non fosse più tornato. Un cartello arrugginito dice ancora, a metà: MERIDIA — BENVEN... Il resto è caduto.",
+			"scelte": [
+				{ "testo": "Avanza per la strada principale", "vai": "strada_principale" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+			]
+		},
+		"strada_principale": {
+			"testo": "La strada principale di Meridia è un cimitero di vetrine rotte. Ogni tanto, tra le macerie, qualcosa si muove piano — o troppo in fretta.",
+			"agguato": {
+				"probabilita": 0.5,
+				"gruppi": [["zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino"], ["infetto_rapido"], ["zombie_cittadino", "infetto_rapido"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Entra nel supermercato saccheggiato", "vai": "supermercato" },
+				{ "testo": "Entra nell'officina abbandonata", "vai": "officina" },
+				{ "testo": "Vai verso l'edicola", "vai": "edicola" },
+				{ "testo": "Torna al varco", "vai": "varco" }
+			]
+		},
+		"supermercato": {
+			"testo": "Scaffali rovesciati, carrelli abbandonati a metà corsia. Qualcuno ha fatto scorte, prima della fine. Non è bastato.",
+			"agguato": {
+				"probabilita": 0.5,
+				"gruppi": [["zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Fruga tra gli scaffali caduti", "vai": "supermercato", "una_tantum": "mer_bastone", "oggetto": "bastone", "tazo": 6 },
+				{ "testo": "Svuota una cassa ancora chiusa", "vai": "supermercato", "una_tantum": "mer_tazo_1", "tazo": 8 },
+				{ "testo": "Torna alla strada", "vai": "strada_principale" }
+			]
+		},
+		"officina": {
+			"testo": "Un'officina meccanica, attrezzi sparsi ovunque. Un furgone è ancora sollevato sul ponte, come se il lavoro dovesse riprendere da un momento all'altro.",
+			"agguato": {
+				"probabilita": 0.5,
+				"gruppi": [["infetto_rapido"], ["zombie_cittadino", "infetto_rapido"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Recupera la spranga di ferro sul banco", "vai": "officina", "una_tantum": "mer_spranga", "oggetto": "spranga_di_ferro", "tazo": 5 },
+				{ "testo": "Forza l'armadietto degli attrezzi", "vai": "officina", "richiede": "scasso", "una_tantum": "mer_motosega", "oggetto": "motosega" },
+				{ "testo": "Torna alla strada", "vai": "strada_principale" }
+			]
+		},
+		"edicola": {
+			"testo": "Un'edicola con la saracinesca a metà. Dentro, pile di giornali ingialliti, l'ultima consegna mai ritirata da nessuno.",
+			"scelte": [
+				{ "testo": "Leggi la prima pagina rimasta", "vai": "edicola", "una_tantum": "mer_giornale_1", "oggetto": "pagina_di_giornale_1" },
+				{ "testo": "Leggi la seconda pagina rimasta", "vai": "edicola", "una_tantum": "mer_giornale_2", "oggetto": "pagina_di_giornale_2" },
+				{ "testo": "Leggi l'ultima edizione mai stampata", "vai": "edicola", "una_tantum": "mer_giornale_3", "oggetto": "pagina_di_giornale_3" },
+				{ "testo": "Vai verso il vicolo sul retro", "vai": "vicolo" },
+				{ "testo": "Torna alla strada", "vai": "strada_principale" }
+			]
+		},
+		"vicolo": {
+			"testo": "Un vicolo stretto dietro l'edicola, cassonetti rovesciati, una scala antincendio che sale verso il nulla. L'aria qui è ancora più ferma.",
+			"agguato": {
+				"probabilita": 0.5,
+				"gruppi": [["zombie_cittadino"], ["infetto_rapido"], ["zombie_cittadino", "zombie_cittadino"]],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Raccogli il mazzafrusto improvvisato", "vai": "vicolo", "una_tantum": "mer_mazzafrusto", "oggetto": "mazzafrusto", "tazo": 6 },
+				{ "testo": "Recupera lo sparachiodi caduto tra i cassonetti", "vai": "vicolo", "una_tantum": "mer_sparachiodi", "oggetto": "sparachiodi_arrugginito", "tazo": 5 },
+				{ "testo": "Torna all'edicola", "vai": "edicola" }
+			]
+		},
+		"espulso": {
+			"testo": "Le mani marce ti si chiudono attorno per un istante, poi lo squarcio ti strappa via, di nuovo nel Vuoto. Meridia resta lì, silenziosa e piena.",
+			"scelte": [
+				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+			]
+		}
+	}
+}

@@ -56,6 +56,15 @@ func mostra_nodo(id_nodo: String) -> void:
 	narratore.text = nodo.get("testo", "")
 	aggiorna_palco(nodo)
 	aggiorna_stato()
+	if nodo.get("espulsione_automatica", false):
+		# non c'e' niente da scegliere: il posto stesso ti rigetta fuori
+		for figlio in contenitore_scelte.get_children():
+			figlio.queue_free()
+		aggiorna_dialoga()
+		await get_tree().create_timer(1.8).timeout
+		GameState.congeda_tutti_temporanei()
+		get_tree().change_scene_to_file(SCENA_VUOTO)
+		return
 	ricostruisci_scelte(nodo)
 	aggiorna_dialoga()
 

@@ -193,6 +193,59 @@
 			"descrizione": "Nomi su nomi, per anni, nella stessa grafia. Verso la fine, la grafia trema. Gli ultimi nomi non li hai ancora letti con attenzione."
 		},
 		{
+			"id": "bastone",
+			"nome": "Bastone",
+			"tipo": "consumabile",
+			"descrizione": "Un pezzo di legno qualsiasi, tenuto per anni vicino alla porta per un motivo che ora sembra ovvio.",
+			"effetto": { "danno": 1 }
+		},
+		{
+			"id": "spranga_di_ferro",
+			"nome": "Spranga di ferro",
+			"tipo": "consumabile",
+			"descrizione": "Pesante, fredda, coperta di una ruggine che non viene via. Ignora le difese.",
+			"effetto": { "danno": 2 }
+		},
+		{
+			"id": "mazzafrusto",
+			"nome": "Mazzafrusto",
+			"tipo": "consumabile",
+			"descrizione": "Improvvisato con catena e un lucchetto. Chi l'ha costruito non aveva molto tempo, e si vede.",
+			"effetto": { "danno": 2 }
+		},
+		{
+			"id": "sparachiodi_arrugginito",
+			"nome": "Sparachiodi arrugginito",
+			"tipo": "consumabile",
+			"descrizione": "Da cantiere, non da difesa personale. Funziona lo stesso, se lo tieni ben saldo.",
+			"effetto": { "danno": 3 }
+		},
+		{
+			"id": "motosega",
+			"nome": "Motosega",
+			"tipo": "consumabile",
+			"descrizione": "Il serbatoio ha ancora qualche strappo di vita. Rumorosa, definitiva, difficile da trovare intatta.",
+			"effetto": { "danno": 5 }
+		},
+		{
+			"id": "pagina_di_giornale_1",
+			"nome": "Pagina di giornale (prima)",
+			"tipo": "chiave",
+			"descrizione": "Cronaca locale di Meridia, data illeggibile. In fondo alla pagina, un trafiletto: 'Comportamenti anomali in aumento, dicono le autorità: nulla di cui preoccuparsi.'"
+		},
+		{
+			"id": "pagina_di_giornale_2",
+			"nome": "Pagina di giornale (seconda)",
+			"tipo": "chiave",
+			"descrizione": "Titolo a caratteri cubitali: 'COPRIFUOCO OBBLIGATORIO. OSPEDALI AL COLLASSO.' Un articolo più piccolo parla di 'episodi di aggressività di massa, causa sconosciuta'."
+		},
+		{
+			"id": "pagina_di_giornale_3",
+			"nome": "Pagina di giornale (ultima)",
+			"tipo": "chiave",
+			"descrizione": "L'ultima edizione mai stampata di Meridia. Metà pagina è vuota: chi la componeva non ha fatto in tempo a finirla. Le parole rimaste dicono solo: 'evacuare subito, non fer'."
+		},
+		{
 			"id": "meccanismo_del_varco",
 			"nome": "Meccanismo del varco",
 			"tipo": "chiave",

@@ -178,6 +178,8 @@ collegate nei due sensi (perlustrazione libera):
   imposta scegliendola (loot permanente: Tazo, oggetti). `flag` (su scelta o nodo) +
   `richiede_flag`/`richiede_non_flag` per stanze segrete e boss che non rispawnano
 - **`torna_vuoto`** su una scelta: esce dallo squarcio (gli alleati temporanei restano fuori)
+- **`espulsione_automatica`** su un nodo: nessuna scelta reale, dopo una breve pausa si torna
+  da soli al Vuoto (usato per fratture-segnale come "Qualcosa preme")
 - **Fratture nascoste**: nel `mappa.json`, un vuoto con `nascosto: true` appare solo se soddisfa
   `richiede_oggetti` (possiedi quegli oggetti) o `richiede_flags` (tutte quelle quest completate).
   Sulle scelte, `richiede_oggetti` gate una scelta finché non hai tutti i pezzi (la Fontana;
@@ -277,5 +279,9 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
 16. ✅ La Rocca di Ossidiana: macro-frattura opzionale con boss proprio,
     Jongo Dongo (non convincibile, si sacrifica i propri ghoul per
     potenziarsi — nuova mossa "sacrificio")
-17. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
-18. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+17. ✅ Meridia (città zombie, terreno di farming, mondo perduto ricorrente
+    con lore a pagine di giornale) e "Qualcosa preme" (frattura-segnale,
+    espulsione automatica) — **il primo Vuoto è completo nella sua forma
+    base**: 6 fratture attorno al pianeta di Jerah
+18. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
+19. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata

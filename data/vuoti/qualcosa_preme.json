@@ -1,0 +1,12 @@
+{
+	"nodo_iniziale": "soglia",
+	"nodi": {
+		"soglia": {
+			"testo": "Lo squarcio non si apre su un luogo. Si apre su una pressione — enorme, senza forma, che ti schiaccia il petto prima ancora che tu abbia fatto un passo. Non c'è niente da vedere. C'è solo qualcosa, dall'altra parte, che si accorge di te. Il Vuoto stesso sembra volerti indietro.",
+			"espulsione_automatica": true,
+			"scelte": [
+				{ "testo": "...", "torna_vuoto": true }
+			]
+		}
+	}
+}
