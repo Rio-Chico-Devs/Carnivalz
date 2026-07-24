@@ -58,6 +58,15 @@ protagonista** (o un alternativo, chiave `sinistra` nel nodo), a **destra l'inte
 solo due. Se il nodo ha la chiave `centro`, quel personaggio parla da solo al centro e gli
 spazi laterali spariscono.
 
+**Stile cinematografico** (stile Undertale, su indicazione di Bru): i ritratti riempiono
+quasi tutto lo schermo (`Ritratto.imposta_grande(true)`, chiamato su tutti e tre gli slot in
+`Main._ready()`), il box del narratore è una striscia sottile e fissa in basso (bordo bianco,
+sfondo nero) e ogni riga di testo è prefissata con `"* "`. Stessa identica trattazione in
+combattimento: il nemico al centro (`%NemicoCentro`) è sempre grande, il Diario è la striscia
+in basso. **Mancano ancora**: un font monospace "pixel" per il testo (per ora resta il font
+di sistema — se Bru fornisce un `.ttf` lo si aggiunge come tema) e gli sfondi di scena a piena
+pagina (per ora resta il `ColorRect` a tinta unita).
+
 ## Combattimento
 Numeri piccoli e leggibili, ma con scelte vere:
 - Stats per combattente (nei dati): **hp, attacco, difesa, velocità, fattore**. Danno =

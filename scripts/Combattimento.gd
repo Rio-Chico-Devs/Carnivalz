@@ -122,6 +122,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	else:
 		if not nemico_centrale_occupato:
 			nemico_centrale_occupato = true
+			scheda.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			scheda.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			ritratto.imposta_grande(true)  # il nemico principale e' sempre grande, in mezzo
 			nemico_centro.add_child(scheda)
 		elif prossimo_lato_nemico == "destra":
 			nemici_destra.add_child(scheda)
@@ -1069,7 +1072,7 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 	combattente.etichetta_extra.text = dettagli
 
 func scrivi(riga: String) -> void:
-	diario.append_text(riga + "\n")
+	diario.append_text("* " + riga + "\n")
 
 func _esci() -> void:
 	# lo stress accumulato resta addosso ai personaggi

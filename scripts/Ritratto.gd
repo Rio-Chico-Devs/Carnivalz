@@ -49,3 +49,20 @@ func percorso_immagine(id_personaggio: String, personaggio: Dictionary, espressi
 func imposta_extra(testo: String) -> void:
 	etichetta_extra.text = testo
 	etichetta_extra.visible = testo != ""
+
+func imposta_grande(grande: bool) -> void:
+	# ritratto "cinematografico": riempie lo spazio disponibile invece
+	# della cornice fissa 180x220 (schermo dialoghi, nemico centrale in combattimento)
+	var cornice: Control = get_node("Cornice")
+	if grande:
+		cornice.custom_minimum_size = Vector2(0, 0)
+		cornice.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		cornice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		immagine.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		immagine.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	else:
+		cornice.custom_minimum_size = Vector2(180, 220)
+		cornice.size_flags_vertical = 0
+		cornice.size_flags_horizontal = 0
+		immagine.size_flags_vertical = 0
+		immagine.size_flags_horizontal = 0

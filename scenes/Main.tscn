@@ -1,7 +1,15 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/Ritratto.tscn" id="2_ritratto"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_narratore"]
+bg_color = Color(0, 0, 0, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -39,10 +47,13 @@ theme_override_constants/separation = 16
 
 [node name="Palco" type="HBoxContainer" parent="Margini/Colonna"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="SlotSinistra" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="SpazioA" type="Control" parent="Margini/Colonna/Palco"]
 layout_mode = 2
@@ -51,6 +62,8 @@ size_flags_horizontal = 3
 [node name="SlotCentro" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 visible = false
 
 [node name="SpazioB" type="Control" parent="Margini/Colonna/Palco"]
@@ -60,13 +73,23 @@ size_flags_horizontal = 3
 [node name="SlotDestra" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 visible = false
 
 [node name="Narratore" type="RichTextLabel" parent="Margini/Colonna"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 150)
+size_flags_vertical = 0
 bbcode_enabled = true
+theme_override_colors/default_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/normal_font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_narratore")
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
 
 [node name="Scelte" type="VBoxContainer" parent="Margini/Colonna"]
 unique_name_in_owner = true

@@ -28,6 +28,8 @@ func _ready() -> void:
 		# scena avviata direttamente dall'editor: carica la campagna di prova
 		GameState.avvia_carnivalz("debug", EVENTI_DEBUG)
 	AudioManager.musica(GameState.musica_ambiente)
+	for slot in [slot_sinistra, slot_centro, slot_destra]:
+		slot.imposta_grande(true)  # ritratto cinematografico, riempie lo schermo sopra il box
 	bottone_dialoga.pressed.connect(_su_dialoga)
 	mostra_nodo(GameState.nodo_corrente)
 
@@ -55,7 +57,7 @@ func mostra_nodo(id_nodo: String) -> void:
 				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
 				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 				return
-	narratore.text = nodo.get("testo", "")
+	narratore.text = "* " + nodo.get("testo", "")
 	aggiorna_palco(nodo)
 	aggiorna_stato()
 	if nodo.get("espulsione_automatica", false):
@@ -102,7 +104,7 @@ func pickup(id_oggetto: String) -> String:
 	var dati := GameState.dati_oggetto(id_oggetto)
 	var nome: String = String(dati.get("nome", id_oggetto))
 	if not GameState.aggiungi_oggetto(id_oggetto):
-		return "\n\n[i]%s: la sacca è piena, non c'è posto per lui.[/i]" % nome
+		return "\n\n* [i]%s: la sacca è piena, non c'è posto per lui.[/i]" % nome
 	var tipo := String(dati.get("tipo", "consumabile"))
 	var luogo := "nella sacca"
 	match tipo:
@@ -110,9 +112,9 @@ func pickup(id_oggetto: String) -> String:
 			luogo = "tra i collezionabili"
 		"chiave":
 			luogo = "tra gli oggetti chiave"
-	var messaggio := "\n\n[i]Hai ottenuto: %s (%s).[/i]" % [nome, luogo]
+	var messaggio := "\n\n* [i]Hai ottenuto: %s (%s).[/i]" % [nome, luogo]
 	if tipo == "chiave":
-		messaggio += "\n[i]%s[/i]" % String(dati.get("descrizione", ""))
+		messaggio += "\n* [i]%s[/i]" % String(dati.get("descrizione", ""))
 	return messaggio
 
 func aggiorna_palco(nodo: Dictionary) -> void:
@@ -221,9 +223,9 @@ func _su_compagno(id_classe: String) -> void:
 	var voce: Dictionary = GameState.dialoghi.get(GameState.nodo_corrente, {})
 	var gia_detta: bool = voce.has("una_tantum") and GameState.ha_flag(voce["una_tantum"])
 	if voce.is_empty() or gia_detta:
-		narratore.append_text("\n\n[i]%s non ha altro da dirti, qui.[/i]" % nome)
+		narratore.append_text("\n\n* [i]%s non ha altro da dirti, qui.[/i]" % nome)
 		return
-	narratore.append_text("\n\n" + (String(voce.get("testo", "")) % nome))
+	narratore.append_text("\n\n* " + (String(voce.get("testo", "")) % nome))
 	if voce.has("flag"):
 		GameState.imposta_flag(voce["flag"])
 	if voce.has("una_tantum"):
