@@ -2,14 +2,14 @@
 	"nodo_iniziale": "inizio",
 	"nodi": {
 		"inizio": {
-			"testo": "Il varco ti deposita a pochi passi dalla fonte, come sempre: capita solo nei mondi già in rovina, o quando la fonte si nasconde bene, che la distanza sia maggiore. Qui no. Intorno a te, terra rossa, felci enormi, il cielo basso di un pianeta che sembra essersi fermato molto prima di imparare a stare in piedi.",
+			"testo": "Sono a pochi passi dalla fonte, come sempre — capita solo nei mondi già in rovina, o quando la fonte si nasconde bene, che la distanza sia maggiore. Qui no. Intorno a me solo terra rossa, felci enormi, il cielo basso di un pianeta che sembra essersi fermato molto prima di imparare a stare in piedi.",
 			"espr_sinistra": "pensiero",
 			"scelte": [
 				{ "testo": "\"Dunque è questo il pianeta primitivo dove devo estinguere la fonte della follia?\"", "vai": "primo_incontro" }
 			]
 		},
 		"primo_incontro": {
-			"testo": "\"Vediamo di finire presto, non ho tempo da perdere...\" Tra le felci, qualcosa di verde e spelacchiato ti nota e si fa avanti, brandendo un bastone raccolto da terra.",
+			"testo": "Tra le felci, qualcosa di verde e spelacchiato mi nota e si fa avanti, brandendo un bastone raccolto da terra. Vediamo di finire presto: non ho tempo da perdere.",
 			"espr_sinistra": "decisa",
 			"scelte": [
 				{ "testo": "Affrontalo", "combatti": ["goblin_tipico"], "se_vinci": "dopo_primo_goblin", "se_perdi": "sconfitta" }
@@ -23,7 +23,7 @@
 			]
 		},
 		"masso": {
-			"testo": "Il sentiero costeggia un masso coperto di muschio, accanto a un ruscello poco profondo. \"Sembra esserci qualcosa nel ruscello...\"",
+			"testo": "Il sentiero costeggia un masso coperto di muschio, accanto a un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.",
 			"espr_sinistra": "sorpresa",
 			"scelte": [
 				{ "testo": "Ispeziona sotto il masso", "vai": "due_nemici", "una_tantum": "tut_masso", "oggetto": "fiala_hp" },
@@ -31,7 +31,7 @@
 			]
 		},
 		"due_nemici": {
-			"testo": "Il sentiero si allarga in una radura fangosa. Un altro goblin ti aspetta, non da solo stavolta: una massa gelatinosa gli si accalca di fianco, quasi per farsi coraggio.",
+			"testo": "Il sentiero si allarga in una radura fangosa. Un altro goblin mi aspetta, non da solo stavolta: una massa gelatinosa gli si accalca di fianco, quasi per farsi coraggio.",
 			"scelte": [
 				{ "testo": "Affrontali", "combatti": ["goblin_tipico", "slime_infimo"], "se_vinci": "bivio", "se_perdi": "sconfitta" }
 			]
@@ -64,7 +64,7 @@
 			]
 		},
 		"boss": {
-			"testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato ti aspetta, i pugni già stretti. Non ha nulla del carisma di una fonte: solo rabbia, tanta, per motivi che nessuno gli ha mai chiesto.",
+			"testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato mi aspetta, i pugni già stretti. Non ha nulla del carisma di una fonte: solo rabbia, tanta, per motivi che nessuno gli ha mai chiesto.",
 			"centro": "goblin_arrabbiato",
 			"espr_centro": "decisa",
 			"scelte": [
@@ -72,7 +72,7 @@
 			]
 		},
 		"vittoria": {
-			"testo": "Il goblin cade e non si rialza. L'aria intorno a te si calma: il fattore Carnivalz di questa zona non è più pericoloso. \"Così, facile,\" pensi. Non tutte le fonti nascondono una tragedia: a volte i mostri sono semplicemente malvagi per natura, senza aver mai davvero subito la trasformazione di un vero boss. Ma questo, immagini, è stato solo l'inizio.",
+			"testo": "Il goblin cade e non si rialza. L'aria intorno a me si calma: il fattore Carnivalz di questa zona non è più pericoloso. Così facile. Non tutte le fonti nascondono una tragedia: a volte i mostri sono semplicemente malvagi per natura, senza aver mai davvero subito la trasformazione di un vero boss. Immagino che questo sia stato solo l'inizio.",
 			"espr_sinistra": "pensiero",
 			"flag": "tutorial_completato",
 			"scelte": [
@@ -80,7 +80,7 @@
 			]
 		},
 		"sconfitta": {
-			"testo": "Ti risvegli fuori dalla spaccatura, la testa pesante. Anche un pianeta primitivo, a quanto pare, sa essere sorprendente.",
+			"testo": "Mi risveglio fuori dalla spaccatura, la testa pesante. Anche un pianeta primitivo, a quanto pare, sa essere sorprendente.",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]

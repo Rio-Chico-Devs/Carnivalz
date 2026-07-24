@@ -61,11 +61,21 @@ spazi laterali spariscono.
 **Stile cinematografico** (stile Undertale, su indicazione di Bru): i ritratti riempiono
 quasi tutto lo schermo (`Ritratto.imposta_grande(true)`, chiamato su tutti e tre gli slot in
 `Main._ready()`), il box del narratore è una striscia sottile e fissa in basso (bordo bianco,
-sfondo nero) e ogni riga di testo è prefissata con `"* "`. Stessa identica trattazione in
-combattimento: il nemico al centro (`%NemicoCentro`) è sempre grande, il Diario è la striscia
-in basso. **Mancano ancora**: un font monospace "pixel" per il testo (per ora resta il font
-di sistema — se Bru fornisce un `.ttf` lo si aggiunge come tema) e gli sfondi di scena a piena
-pagina (per ora resta il `ColorRect` a tinta unita).
+sfondo nero). Sopra il box, l'etichetta **`%NomeParlante`** mostra sempre chi sta "parlando":
+di default il **protagonista** (la narrazione è il suo dialogo interiore — non serve un
+narratore esterno), il personaggio in `centro` quando parla da solo, il compagno scelto con
+"Parla con la squadra". Stessa trattazione in combattimento: il nemico al centro
+(`%NemicoCentro`) è sempre grande, il Diario è la striscia in basso. **Mancano ancora**: un
+font monospace "pixel" per il testo (per ora resta il font di sistema — se Bru fornisce un
+`.ttf` lo si aggiunge come tema) e gli sfondi di scena a piena pagina (per ora resta il
+`ColorRect` a tinta unita).
+
+**Notifiche di raccolta oggetti**: `Main.pickup()` non scrive più nel box del narratore (si
+perdeva nel cambio nodo, ed era comunque fuori posto). Mostra invece un **toast** indipendente
+(`mostra_toast()`): un piccolo pannello in alto che appare in fade, resta a schermo un paio di
+secondi e sparisce da solo. Per gli oggetti chiave (di solito indizi/lore, come le pagine di
+giornale di Meridia) il toast include anche la descrizione e resta a schermo più a lungo (5s
+invece di 2.2s).
 
 ## Combattimento
 Numeri piccoli e leggibili, ma con scelte vere:

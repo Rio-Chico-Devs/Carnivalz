@@ -636,9 +636,18 @@
 			"velocita": 1,
 			"xp": 15,
 			"tazo": 5,
+			"peso_attacco_normale": 0,
 			"ritratto": "res://art/personaggi/tartaruga_innocente.png",
 			"descrizione": "Un guscio enorme e un aspetto che mette paura. Non ha mai fatto del male a nessuno.",
 			"carta": { "id": "carta_tartaruga_innocente", "nome": "Tartaruga Innocente", "rarita": "non_comune", "chance": 0.05, "testo": "Vecchia, lenta, spaventosa da guardare. Nient'altro." },
+			"mosse": [
+				{
+					"id": "si_ritira_nel_guscio",
+					"tipo": "difendi",
+					"peso": 1,
+					"testo": "La tartaruga si ritira nel guscio."
+				}
+			],
 			"studio": [
 				{ "osservazione": "È solo una vecchia tartaruga, che ha avuto la sfortuna di avere un aspetto spaventoso." }
 			],
@@ -669,7 +678,7 @@
 			"id": "goblin_arrabbiato",
 			"nome": "Un goblin terribilmente arrabbiato",
 			"nome_breve": "Goblin Arrabbiato",
-			"hp": 16,
+			"hp": 5,
 			"attacco": 3,
 			"difesa": 1,
 			"velocita": 3,

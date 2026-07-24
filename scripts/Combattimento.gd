@@ -561,6 +561,8 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
 	match mossa.get("tipo", ""):
+		"difendi":
+			difendi(nemico)
 		"attacco_forte":
 			attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)))
 		"incendia":

@@ -98,14 +98,17 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
 
-func pickup(id_oggetto: String) -> String:
-	# messaggio "hai ottenuto X, va in Y": per gli oggetti chiave (di solito
-	# indizi/lore, come le pagine di giornale di Meridia) si mostra anche
-	# la descrizione, non solo il nome
+func pickup(id_oggetto: String) -> void:
+	# notifica come toast indipendente dal narratore: non si perde nel cambio
+	# nodo (il narratore viene riscritto subito dopo, se la scelta ha "vai").
+	# Per gli oggetti chiave (di solito indizi/lore, come le pagine di
+	# giornale di Meridia) il toast resta a schermo più a lungo e mostra
+	# anche la descrizione, non solo il nome.
 	var dati := GameState.dati_oggetto(id_oggetto)
 	var nome: String = String(dati.get("nome", id_oggetto))
 	if not GameState.aggiungi_oggetto(id_oggetto):
-		return "\n\n[i]%s: la sacca è piena, non c'è posto per lui.[/i]" % nome
+		mostra_toast("%s: la sacca è piena, non c'è posto per lui." % nome, 2.5)
+		return
 	var tipo := String(dati.get("tipo", "consumabile"))
 	var luogo := "nella sacca"
 	match tipo:
@@ -113,10 +116,43 @@ func pickup(id_oggetto: String) -> String:
 			luogo = "tra i collezionabili"
 		"chiave":
 			luogo = "tra gli oggetti chiave"
-	var messaggio := "\n\n[i]Hai ottenuto: %s (%s).[/i]" % [nome, luogo]
+	var testo_toast := "Hai ottenuto: %s (%s)" % [nome, luogo]
+	var durata := 2.2
 	if tipo == "chiave":
-		messaggio += "\n[i]%s[/i]" % String(dati.get("descrizione", ""))
-	return messaggio
+		testo_toast += "\n%s" % String(dati.get("descrizione", ""))
+		durata = 5.0
+	mostra_toast(testo_toast, durata)
+
+func mostra_toast(testo: String, durata := 2.2) -> void:
+	var pannello := PanelContainer.new()
+	var stile := StyleBoxFlat.new()
+	stile.bg_color = Color(0, 0, 0, 0.9)
+	stile.border_width_left = 2
+	stile.border_width_top = 2
+	stile.border_width_right = 2
+	stile.border_width_bottom = 2
+	stile.border_color = Color(1, 1, 1, 1)
+	stile.content_margin_left = 18
+	stile.content_margin_right = 18
+	stile.content_margin_top = 10
+	stile.content_margin_bottom = 10
+	pannello.add_theme_stylebox_override("panel", stile)
+	pannello.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pannello.modulate = Color(1, 1, 1, 0)
+	pannello.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	pannello.position.y = 24
+	add_child(pannello)
+	var etichetta := Label.new()
+	etichetta.text = testo
+	etichetta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	etichetta.custom_minimum_size = Vector2(420, 0)
+	etichetta.autowrap_mode = TextServer.AUTOWRAP_WORD
+	pannello.add_child(etichetta)
+	var tween := create_tween()
+	tween.tween_property(pannello, "modulate:a", 1.0, 0.2)
+	tween.tween_interval(durata)
+	tween.tween_property(pannello, "modulate:a", 0.0, 0.4)
+	tween.tween_callback(pannello.queue_free)
 
 func aggiorna_palco(nodo: Dictionary) -> void:
 	if nodo.has("centro"):
@@ -165,11 +201,8 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.imposta_flag(scelta["una_tantum"])
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
-	# il messaggio va accodato DOPO aver mostrato il nodo successivo, altrimenti
-	# mostra_nodo() sovrascrive narratore.text e lo cancella subito
-	var messaggio_pickup := ""
 	if scelta.has("oggetto"):
-		messaggio_pickup = pickup(scelta["oggetto"])
+		pickup(scelta["oggetto"])
 	if scelta.has("lascia"):
 		GameState.rimuovi_classe(scelta["lascia"])
 	if scelta.has("ospite"):
@@ -204,8 +237,6 @@ func _su_scelta(scelta: Dictionary) -> void:
 		return
 	if scelta.has("vai"):
 		mostra_nodo(scelta["vai"])
-	if messaggio_pickup != "":
-		narratore.append_text(messaggio_pickup)
 
 func aggiorna_dialoga() -> void:
 	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce
