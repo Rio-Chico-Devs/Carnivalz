@@ -115,7 +115,10 @@
 			]
 		},
 		"camera_da_letto": {
-			"testo": "Una camera da letto rimasta ferma agli anni buoni. Seduta sul bordo del letto, sveglia da chissà quanto, una donna dagli occhi cerchiati ti fissa senza sorpresa. \"Yhvina,\" dice, prima che tu chieda. \"L'Insonne. So perché sei qui: quella cosa, giù. Da solo non ce la fai.\"",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Una camera da letto rimasta ferma agli anni buoni. Seduta sul bordo del letto, sveglia da chissà quanto, una donna dagli occhi cerchiati ti fissa senza sorpresa." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Yhvina. L'Insonne. So perché sei qui: quella cosa, giù. Da solo non ce la fai." }
+			],
 			"destra": "insonne",
 			"espr_destra": "annoiata",
 			"scelte": [
@@ -124,7 +127,12 @@
 			]
 		},
 		"yhvina_si": {
-			"testo": "Yhvina si alza, lenta, e controlla una lama corta che teneva sotto il cuscino. \"Solo per stavolta. Non fraintendere: siete troppo scarsi perché io mi leghi a voi. Ma quella bambola non merita di restare sola un altro giorno.\" Ti squadra. \"Ci rivedremo, quando varrete la pena.\"",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Yhvina si alza, lenta, e controlla una lama corta che teneva sotto il cuscino." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Solo per stavolta. Non fraintendere: siete troppo scarsi perché io mi leghi a voi. Ma quella bambola non merita di restare sola un altro giorno." },
+				{ "tipo": "narrazione", "testo": "Ti squadra." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Ci rivedremo, quando varrete la pena." }
+			],
 			"destra": "insonne",
 			"espr_destra": "decisa",
 			"scelte": [
@@ -184,14 +192,24 @@
 			]
 		},
 		"ricordo_concluso": {
-			"testo": "La bambola si accascia tra le lettere bruciate e le sue stesse cuciture allentate. Poi, da nessuna bocca: \"...volevo, giocare... ancora... un pò...\" Il silenzio che segue è peggio di qualunque lamento.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "La bambola si accascia tra le lettere bruciate e le sue stesse cuciture allentate. Poi, da nessuna bocca..." },
+				{ "tipo": "dialogo", "chi": "tenero_ricordo", "testo": "...volevo, giocare... ancora... un pò..." },
+				{ "tipo": "narrazione", "testo": "Il silenzio che segue è peggio di qualunque lamento." }
+			],
 			"flag": "casa_ricordo_sconfitto",
 			"scelte": [
 				{ "testo": "Raccogli ciò che resta", "vai": "congedo_yhvina", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80 }
 			]
 		},
 		"congedo_yhvina": {
-			"testo": "Yhvina rinfodera la lama e ti dà le spalle senza cerimonie. \"Non male, per essere degli scarti. Ma non basta.\" Si ferma sulla soglia. \"La prossima volta che ci incontriamo, cerca di non deludermi.\" E se ne va, sveglia come sempre.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Yhvina rinfodera la lama e ti dà le spalle senza cerimonie." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Non male, per essere degli scarti. Ma non basta." },
+				{ "tipo": "narrazione", "testo": "Si ferma sulla soglia." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "La prossima volta che ci incontriamo, cerca di non deludermi." },
+				{ "tipo": "narrazione", "testo": "E se ne va, sveglia come sempre." }
+			],
 			"destra": "insonne",
 			"congeda": "insonne",
 			"scelte": [

@@ -75,7 +75,11 @@
 			]
 		},
 		"trono_marcio": {
-			"testo": "Sul trono di ossidiana e ossa, Jongo Dongo si alza senza fretta: la pelle è marcia, gli occhi ancora lucidissimi. \"Un piccolo sacrificio,\" dice, come un saluto, \"per un grande risultato.\" Non sembra spaventato. Non lo è mai stato, in vita sua, e nemmeno adesso che non lo è più del tutto.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Sul trono di ossidiana e ossa, Jongo Dongo si alza senza fretta: la pelle è marcia, gli occhi ancora lucidissimi." },
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Un piccolo sacrificio, per un grande risultato." },
+				{ "tipo": "narrazione", "testo": "Non sembra spaventato. Non lo è mai stato, in vita sua, e nemmeno adesso che non lo è più del tutto." }
+			],
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"scelte": [
@@ -92,7 +96,11 @@
 			]
 		},
 		"sconfitta_boss": {
-			"testo": "Jongo Dongo non ti uccide: si volta, semplicemente, come se non valessi il sacrificio. \"Non sei ancora un raccolto,\" dice, e la Rocca ti risputa fuori, nel Vuoto, umiliato più che ferito.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Jongo Dongo non ti uccide: si volta, semplicemente, come se non valessi il sacrificio." },
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Non sei ancora un raccolto." },
+				{ "tipo": "narrazione", "testo": "La Rocca ti risputa fuori, nel Vuoto, umiliato più che ferito." }
+			],
 			"scelte": [
 				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
 			]

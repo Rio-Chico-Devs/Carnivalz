@@ -66,7 +66,10 @@
 			]
 		},
 		"carovana": {
-			"testo": "Dentro il carro, il vecchio proprietario del teatro dove si esibiva rammenda una muleta che nessuno agiterà più. È l'unico che i mostri hanno risparmiato. \"Lo conoscevo prima della gloria,\" dice. \"Portami da lui.\"",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Dentro il carro, il vecchio proprietario del teatro dove si esibiva rammenda una muleta che nessuno agiterà più. È l'unico che i mostri hanno risparmiato." },
+				{ "tipo": "dialogo", "chi": "vecchio_clown", "testo": "Lo conoscevo prima della gloria. Portami da lui." }
+			],
 			"destra": "vecchio_clown",
 			"espr_destra": "pensiero",
 			"scelte": [
@@ -116,7 +119,10 @@
 			]
 		},
 		"palco": {
-			"testo": "Sul tablao, El Muy Bonito fa girare tre lame roventi che non ricadono mai. \"La fonte non riceve nessuno,\" ride, senza guardarti. \"Prima si passa da me. ¡Ándale!\"",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Sul tablao, El Muy Bonito fa girare tre lame roventi che non ricadono mai." },
+				{ "tipo": "dialogo", "chi": "giocoliere", "testo": "La fonte non riceve nessuno. Prima si passa da me. ¡Ándale!" }
+			],
 			"centro": "giocoliere",
 			"espr_centro": "cool",
 			"scelte": [
@@ -139,7 +145,11 @@
 			]
 		},
 		"boss": {
-			"testo": "Al centro del ruedo, sotto una scritta di fuoco che sanguina luce — EL ÚLTIMO ESPECTÁCULO DE JERAH — la fonte ti aspetta, la muleta di ferro nero in pugno. \"Benvenuto, Anonimo. Ti aspettavamo.\" Il deserto trattiene il fiato.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Al centro del ruedo, sotto una scritta di fuoco che sanguina luce — EL ÚLTIMO ESPECTÁCULO DE JERAH — la fonte ti aspetta, la muleta di ferro nero in pugno." },
+				{ "tipo": "dialogo", "chi": "jerah", "testo": "Benvenuto, Anonimo. Ti aspettavamo." },
+				{ "tipo": "narrazione", "testo": "Il deserto trattiene il fiato." }
+			],
 			"centro": "jerah",
 			"espr_centro": "decisa",
 			"scelte": [

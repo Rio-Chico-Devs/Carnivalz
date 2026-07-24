@@ -287,9 +287,16 @@ func _su_compagno(id_classe: String) -> void:
 	if voce.is_empty() or gia_detta:
 		coda_messaggi = [{"tipo": "narrazione", "testo": "%s non ha altro da dirti, qui." % nome}]
 	else:
-		# le voci di dialoghi.json sono scritte in terza persona (narrazione
-		# dell'azione del compagno, col suo nome da sostituire nel "%s")
-		coda_messaggi = [{"tipo": "narrazione", "testo": String(voce.get("testo", "")) % nome}]
+		# le narrazioni sono scritte in terza persona col nome del compagno da
+		# sostituire nel "%s"; i "dialogo" senza "chi" sono la battuta del
+		# compagno con cui stai parlando in quel momento (dinamico, non fisso)
+		coda_messaggi = []
+		for msg in sequenza_di(voce):
+			var testo_msg := String(msg.get("testo", ""))
+			if String(msg.get("tipo", "narrazione")) == "dialogo":
+				coda_messaggi.append({"tipo": "dialogo", "chi": msg.get("chi", id_classe), "testo": testo_msg})
+			else:
+				coda_messaggi.append({"tipo": "narrazione", "testo": testo_msg % nome if testo_msg.find("%s") != -1 else testo_msg})
 		if voce.has("flag"):
 			GameState.imposta_flag(voce["flag"])
 		if voce.has("una_tantum"):
