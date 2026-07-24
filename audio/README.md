@@ -21,7 +21,7 @@ Basta metterli qui col nome giusto e suonano automaticamente. Nessun codice da t
 | `frattura_ossidiana.ogg` | La Rocca di Ossidiana |
 | `frattura_meridia.ogg` | Meridia (città zombie) |
 | `battle_comune.ogg` | Combattimento vs nemici comuni |
-| `battle_particolare.ogg` | Combattimento vs nemici particolari (El Malabarista, Ferraglia Urlante, Divoratore, Abominio Marcio) |
+| `battle_particolare.ogg` | Combattimento vs nemici particolari (El Muy Bonito, Ferraglia Urlante, Divoratore, Abominio Marcio) |
 | `battle_miniboss.ogg` | Combattimento vs miniboss (la bambola) |
 | `battle_boss.ogg` | Combattimento vs boss/fonte (Jerah, Jongo Dongo) |
 

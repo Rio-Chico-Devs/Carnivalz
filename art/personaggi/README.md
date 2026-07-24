@@ -22,7 +22,7 @@ mostra un segnaposto con l'iniziale. Quindi puoi disegnarle a poco a poco senza 
 ## Chi compare nei dialoghi (dungeon 1)
 - `anonimo` — il protagonista, sempre a sinistra
 - `jerah` — la fonte
-- `giocoliere` — El Malabarista (sub-boss)
+- `giocoliere` — El Muy Bonito (sub-boss)
 - `vecchio_clown` — il Vecchio Torero
 - `insonne` — Yhvina
 (gli altri sono soprattutto nemici da combattimento: basta la loro immagine di ritratto)

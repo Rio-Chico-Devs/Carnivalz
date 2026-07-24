@@ -22,7 +22,7 @@
 		},
 		{
 			"id": "giocoliere",
-			"nome": "El Malabarista",
+			"nome": "El Muy Bonito",
 			"categoria": "particolare",
 			"hp": 7,
 			"attacco": 2,
@@ -33,11 +33,11 @@
 			"xp": 18,
 			"tazo": 15,
 			"ritratto": "res://art/personaggi/giocoliere.png",
-			"descrizione": "Fa girare in aria tre lame roventi, ridendo, il petto in fuori. Acrobacias e sadismo: gli piace vedere se sudi.",
-			"carta": { "id": "carta_giocoliere", "nome": "El Malabarista", "rarita": "rara", "testo": "Non ha mai lasciato cadere una lama. Solo tutto il resto." },
+			"descrizione": "Una rara bellezza, un campione nella recita, ma il talento a volte può farti uscire fuori di testa.",
+			"carta": { "id": "carta_giocoliere", "nome": "El Muy Bonito", "rarita": "rara", "testo": "Ho sempre voluto un suo autografo! - Fan." },
 			"studio": [
-				{ "domanda": "Perché servi la fonte?", "risposta": "¡Porque arde, hombre! Fuori di qui ero nessuno. Qui almeno brucio." },
-				{ "domanda": "Sai come finisce?", "risposta": "Con un olé. Sempre con un olé. Il resto non conta." }
+				{ "domanda": "Rivelami i tuoi desideri", "risposta": "¡No me digas lo que tengo que hacer, hombre! Soccombi dinnanzi a me, e brucia come io brucio nel cielo!" },
+				{ "domanda": "Ti ascolto.", "risposta": "Guardatemi! GUARDATEMI!!!" }
 			]
 		},
 		{
