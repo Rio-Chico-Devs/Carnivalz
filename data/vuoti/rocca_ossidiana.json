@@ -12,7 +12,7 @@
 			"testo": "Il corridoio scende, tagliato nella roccia nera. Ai lati, nicchie scavate a mano, ognuna con un teschio incastonato come un ex voto. Il raschiare si fa più vicino: qualcosa, nel buio, sta ancora strisciando verso qualcosa.",
 			"agguato": {
 				"probabilita": 0.35,
-				"gruppi": [["ghoul"], ["teschio_errante"], ["ghoul", "teschio_errante"]],
+				"gruppi": [["ghoul"], ["teschio_errante"], ["ghoul", "teschio_errante"], ["stigma"], ["diabolo"], ["ghoul", "stigma"]],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
@@ -25,7 +25,7 @@
 			"testo": "Una fossa a cielo aperto, piena fino all'orlo di teschi ammucchiati come ghiaia. Camminarci sopra produce un suono che preferiresti non aver sentito. In alto, incastrato tra due sporgenze di ossidiana, qualcosa luccica ancora.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["teschio_errante"], ["teschio_errante", "teschio_errante"]],
+				"gruppi": [["teschio_errante"], ["teschio_errante", "teschio_errante"], ["sadico"], ["teschio_errante", "sadico"]],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
@@ -46,7 +46,7 @@
 			"testo": "Una sala enorme, un tempo un granaio: sacchi marci ammucchiati fino al soffitto, semi che non germoglieranno mai. Su un muro, inciso a mano, più e più volte, come se ripeterlo lo rendesse più vero: IL RACCOLTO RICHIEDE SEMPRE IL SUO PREZZO.",
 			"agguato": {
 				"probabilita": 0.35,
-				"gruppi": [["ghoul"], ["ghoul", "ghoul"]],
+				"gruppi": [["ghoul"], ["ghoul", "ghoul"], ["madre_in_lacrime"], ["ghoul", "madre_in_lacrime"]],
 				"se_perdi": "espulso"
 			},
 			"scelte": [

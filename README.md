@@ -57,7 +57,7 @@ Numeri piccoli e leggibili, ma con scelte vere:
 - Party e nemici in un'unica fila d'iniziativa per **velocità**, ricalcolata a ogni giro
 - **Menu azioni**: Attacca · Difenditi (difesa +2 fino al prossimo turno) · Abilità
   (**Studia** sempre disponibile) · Oggetti (consumabili dalla sacca) · Alleati (gli ospiti
-  come il Vecchio Clown: un assist a combattimento, non sono veri combattenti)
+  come il Vecchio Proprietario del teatro: un assist a combattimento, non sono veri combattenti)
 - **Danno del party scala col livello**: `danno = attacco + ⌊(liv−1) × 0.5⌋` (+ fattore, + oggetti).
   HP del party restano 5 (semplici); i boss hanno grandi riserve (Jerah 35, la bambola 66) →
   la difficoltà sta nel non morire durante scontri lunghi. `bonus_attacco_per_livello` in regole
@@ -103,7 +103,11 @@ negativa sulle scelte degli eventi (es. il falò: `"stress": -30`).
 I Carnivalz sono mondi distorti da una fonte che ha subito ingiustizie (canone in
 `docs/storia.md`). **Studio** è un'abilità di classe (`"studio"` in `abilita`, ce l'ha
 l'Anonimo): al posto di attaccare intavola un dialogo e **il nemico risponde** — coppie
-domanda/risposta nella lista `studio` di ogni personaggio (anche i nemici comuni). Chi viene
+domanda/risposta nella lista `studio` di ogni personaggio (anche i nemici comuni), oppure
+una singola `osservazione` (corsivo, senza scambio) per chi non può davvero rispondere.
+**Studio è sempre disponibile**, anche su nemici muti (robot, zombie, creature che non
+parlano): se un nemico non ha proprio uno `studio` nei dati, esce comunque una riga scritta
+("non sembra rispondere ad alcun quesito") invece di non succedere nulla. Chi viene
 studiato finisce nel registro `studiati` (base per la futura sezione studio/codex).
 
 I boss **possono o non possono essere convinti** (`convincibile` nei dati della fonte: i
@@ -186,9 +190,13 @@ collegate nei due sensi (perlustrazione libera):
   la porta enorme nella Casa Gigante, sigillata finché non esisterà il `meccanismo_del_varco`
   — pezzo di una frattura futura, per ora irraggiungibile di proposito)
 - Mosse boss extra: `autolesione` (si ferisce, stress a tutta la squadra),
-  `attacco_tutti` con campo `stress` (il lamento della bambola), e `sacrificio`
+  `attacco_tutti` con campo `stress` (il lamento della bambola), `sacrificio`
   (uccide un suo alleato evocato per aumentare il proprio fattore — se non ha
-  nessuno da sacrificare, attacca lui stesso; usata da Jongo Dongo)
+  nessuno da sacrificare, attacca lui stesso; usata da Jongo Dongo), e `incendia`
+  (appicca il fuoco a un membro del party a caso, vedi Combustione sotto).
+  `attacco_tutti` e `autolesione` accettano anche i campi `legame` (modifica il
+  legame di squadra, un solo valore globale) e `maledizione` (accumula il
+  contatore su tutto il party vivo)
 
 ### Combustione (nemici che bruciano)
 Un nemico può avere `combustione` nei dati: a ogni suo turno subisce `danno_per_turno`
@@ -196,7 +204,17 @@ e, se presente, il suo `attacco` sale di `bonus_attacco` — entrambi si accumul
 dopo turno finché resta "in fiamme". Senza `attiva_da_studio` è attiva già dal primo turno
 (Fomentado, che brucia di suo per natura); con `attiva_da_studio: N` si innesca dopo essere
 stato **studiato N volte** (El Muy Bonito: il suo stesso talento, messo sotto esame, lo
-manda a fuoco — e più brucia più diventa pericoloso, finché non lo consuma).
+manda a fuoco — e più brucia più diventa pericoloso, finché non lo consuma). La stessa
+logica di combustione è generica: la mossa boss `incendia` (es. Jerah) la assegna a **un
+membro del party a caso** invece che al nemico stesso, con `valore` come `danno_per_turno`.
+
+### Maledizione
+Contatore per personaggio del party, si accumula `+1` per volta (`GameState.maledizione`,
+stesso pattern di `stress`: persiste tra un combattimento e l'altro, si azzera a nuova
+partita). Alcune mosse la infliggono via campo `"maledizione": N` (attualmente su
+`attacco_tutti` e `autolesione`, es. il lamento e l'autolesione della bambola). Per ora è
+solo **tracciata e mostrata** in combattimento: non ha ancora un effetto meccanico definito
+(vedi Punti aperti in `docs/storia.md`).
 
 ### Studio sui nemici comuni: domande generiche
 Per i nemici comuni non serve scrivere una domanda su misura: se uno scambio in `studio`

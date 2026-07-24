@@ -66,7 +66,7 @@
 			]
 		},
 		"carovana": {
-			"testo": "Dentro il carro, un vecchio torero rammenda una muleta che nessuno agiterà più. È il vecchio maestro della fonte: l'unico che i mostri hanno risparmiato. \"Lo conoscevo prima della gloria,\" dice. \"Portami da lui.\"",
+			"testo": "Dentro il carro, il vecchio proprietario del teatro dove si esibiva rammenda una muleta che nessuno agiterà più. È l'unico che i mostri hanno risparmiato. \"Lo conoscevo prima della gloria,\" dice. \"Portami da lui.\"",
 			"destra": "vecchio_clown",
 			"espr_destra": "pensiero",
 			"scelte": [
@@ -111,7 +111,7 @@
 		"falo_notte": {
 			"testo": "Le braci calano. Qualcuno dovrebbe dire qualcosa, ma il silenzio va bene lo stesso.",
 			"scelte": [
-				{ "testo": "Il Vecchio Torero apre la mano: un bottone dorato, del primo abito di luci di Jerah", "vai": "palco", "richiede_ospite": "vecchio_clown", "una_tantum": "cor_bottone", "oggetto": "bottone_dorato", "stress": -10 },
+				{ "testo": "Il Vecchio Proprietario del teatro apre la mano: un bottone dorato, del primo abito di luci di Jerah", "vai": "palco", "richiede_ospite": "vecchio_clown", "una_tantum": "cor_bottone", "oggetto": "bottone_dorato", "stress": -10 },
 				{ "testo": "Verso il ruedo", "vai": "palco" }
 			]
 		},

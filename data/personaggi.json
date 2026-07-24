@@ -53,7 +53,7 @@
 		},
 		{
 			"id": "comparsa_di_ruggine",
-			"nome": "Operaio di Ruggine",
+			"nome": "Oppresso",
 			"hp": 5,
 			"attacco": 2,
 			"difesa": 1,
@@ -61,20 +61,20 @@
 			"xp": 10,
 			"tazo": 8,
 			"ritratto": "res://art/personaggi/comparsa_di_ruggine.png",
-			"descrizione": "Chi lavorava nel complesso non se n'è mai andato. La ruggine ha preso il posto della pelle, e il turno non finisce mai.",
-			"carta": { "id": "carta_comparsa_di_ruggine", "nome": "Operaio di Ruggine", "rarita": "non_comune", "chance": 0.04, "testo": "Timbrava il cartellino anche il giorno in cui il mondo è finito." },
+			"descrizione": "La ruggine ha preso il posto della pelle, sta ancora aspettando che il suo turno finisca...",
+			"carta": { "id": "carta_comparsa_di_ruggine", "nome": "Oppresso", "rarita": "non_comune", "chance": 0.04, "testo": "Timbrava il cartellino anche il giorno in cui il mondo è finito." },
 			"bottino_comune": [
 				{ "oggetto": "viti_e_bulloni", "chance": 0.3 },
 				{ "oggetto": "fiala_hp", "chance": 0.25 }
 			],
 			"studio": [
 				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "Taglia, separa, ricomincia... taglia, separa, ricomincia..." },
-				{ "domanda": "(ascolti ancora)", "risposta": "Qualcuno spenga le macchine! Non le sopporto più!" }
+				{ "domanda": "(ascolti ancora)", "risposta": "Acqua, ho bisogno di acqua..." }
 			]
 		},
 		{
 			"id": "voce_registrata",
-			"nome": "Sirena di Fabbrica",
+			"nome": "Capocantiere",
 			"hp": 4,
 			"attacco": 2,
 			"difesa": 0,
@@ -82,19 +82,19 @@
 			"xp": 9,
 			"tazo": 7,
 			"ritratto": "res://art/personaggi/voce_registrata.png",
-			"descrizione": "Un allarme che non smette, con luci rosse ancora accese sul dorso di ferro. Chiama un turno che non tornerà.",
-			"carta": { "id": "carta_voce_registrata", "nome": "Sirena di Fabbrica", "rarita": "non_comune", "chance": 0.04, "testo": "Suona per operai che sono cenere da anni." },
+			"descrizione": "Gestire dieci... cento... no... mille operai insoddisfatti, non dà gratificazione alcuna.",
+			"carta": { "id": "carta_voce_registrata", "nome": "Capocantiere", "rarita": "non_comune", "chance": 0.04, "testo": "Urlava ordini anche quando non restava più nessuno ad ascoltarli." },
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.3 }
 			],
 			"studio": [
-				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "Non ce la faccio più! Voglio guardare la tivù!" },
-				{ "domanda": "(ascolti ancora)", "risposta": "I miei bambini... devo tornare a casa..." }
+				{ "risposta": "Hey, tu! Torna subito al lavoro!" },
+				{ "risposta": "Lavorate! Lavorate!" }
 			]
 		},
 		{
 			"id": "operaio_posseduto",
-			"nome": "Operaio Posseduto",
+			"nome": "Emblema dell'oppressione",
 			"hp": 6,
 			"attacco": 2,
 			"difesa": 1,
@@ -102,8 +102,8 @@
 			"xp": 12,
 			"tazo": 10,
 			"ritratto": "res://art/personaggi/operaio_posseduto.png",
-			"descrizione": "Ferraglia tenuta insieme dallo spirito di un lavoratore che non ha mai staccato. Sirene sul collo, luci di cantiere negli occhi. Studialo, e sentirai il suo ultimo pensiero.",
-			"carta": { "id": "carta_operaio_posseduto", "nome": "Operaio Posseduto", "rarita": "rara", "chance": 0.05, "testo": "Kizako Industries — dipendente n° illeggibile. Anzianità: eterna." },
+			"descrizione": "Ferraglia tenuta insieme dallo spirito di un lavoratore che non è mai tornato a casa.",
+			"carta": { "id": "carta_operaio_posseduto", "nome": "Emblema dell'oppressione", "rarita": "rara", "chance": 0.05, "testo": "Kizako Industries — dipendente n° illeggibile. Anzianità: eterna." },
 			"bottino_comune": [
 				{ "oggetto": "viti_e_bulloni", "chance": 0.35 },
 				{ "oggetto": "fiala_hp", "chance": 0.25 }
@@ -124,7 +124,7 @@
 			"xp": 16,
 			"tazo": 14,
 			"ritratto": "res://art/personaggi/ferraglia_urlante.png",
-			"descrizione": "Una montagna di rottami saldati dal dolore di molti turni. Urla con la voce di tutti quelli che ci sono rimasti dentro.",
+			"descrizione": "Una montagna di rottami saldati dal dolore. Sembra di sentire le urla di una protesta.",
 			"carta": { "id": "carta_ferraglia_urlante", "nome": "Ferraglia Urlante", "rarita": "epica", "chance": 0.06, "testo": "Non un operaio: un intero reparto, compresso in una cosa sola." },
 			"bottino_comune": [
 				{ "oggetto": "viti_e_bulloni", "chance": 0.4 },
@@ -146,7 +146,7 @@
 			"xp": 20,
 			"tazo": 25,
 			"ritratto": "res://art/personaggi/divoratore.png",
-			"descrizione": "Non è mai stato un operaio: è nato dalla discarica stessa, un ammasso che mastica rottami e macerie per restare in piedi. Raro, e affamato.",
+			"descrizione": "Una macchina che sembra uscita dai sogni di un pazzo, sembra divorare ogni cosa nel suo raggio d'azione, che sia viva o morta...",
 			"bottino_comune": [
 				{ "oggetto": "rottame_di_metallo", "chance": 0.4 }
 			],
@@ -157,10 +157,10 @@
 				"peso_tazo": 2,
 				"peso_oggetto": 1
 			},
-			"carta": { "id": "carta_divoratore", "nome": "Il Divoratore", "rarita": "rara", "chance": 0.06, "testo": "Mangia ferro, cemento, e ogni tanto un ricordo di troppo." },
+			"carta": { "id": "carta_divoratore", "nome": "Il Divoratore", "rarita": "rara", "chance": 0.06, "testo": "Questa macchina ci fornirà nuova energia dai rifiuti! Sono un genio! - Dr. Kizako, Genio Indiscusso" },
 			"studio": [
-				{ "domanda": "Cosa mangi?", "risposta": "Tutto quello che il complesso ha smesso di volere." },
-				{ "domanda": "Hai fame ancora?", "risposta": "Sempre. Non è mai stata questione di fame." }
+				{ "domanda": "Fa veramente paura...", "risposta": "RRRR RRRR" },
+				{ "domanda": "Non c'è nulla da osservare", "risposta": "*Rattle*" }
 			]
 		},
 		{
@@ -179,7 +179,7 @@
 				{ "oggetto": "fiala_hp", "chance": 0.2 }
 			],
 			"studio": [
-				{ "domanda": "Chi eri?", "risposta": "Uno dei sacrificati. O forse uno dei loro figli. Non fa differenza, ormai." }
+				{ "risposta": "Non sembra comprendere ragioni o avere una volontà." }
 			]
 		},
 		{
@@ -195,7 +195,7 @@
 			"descrizione": "Un teschio che galleggia basso sull'ossidiana, a scatti, come se cercasse ancora il corpo perduto.",
 			"carta": { "id": "carta_teschio_errante", "nome": "Teschio Errante", "rarita": "comune", "chance": 0.03, "testo": "Vaga da anni. Non ha mai smesso di cercare." },
 			"studio": [
-				{ "domanda": "Cosa cerchi?", "risposta": "(sbatte contro una parete, poi contro un'altra, in silenzio)" }
+				{ "risposta": "una cosa molto Metal." }
 			]
 		},
 		{
@@ -215,7 +215,83 @@
 				{ "oggetto": "fiala_hp", "chance": 0.25 }
 			],
 			"studio": [
-				{ "domanda": "Quanti siete, là dentro?", "risposta": "(un coro basso, indistinto, risponde in una lingua che non esiste più)" }
+				{ "osservazione": "... Cosa è successo in questo posto?" }
+			]
+		},
+		{
+			"id": "madre_in_lacrime",
+			"nome": "Madre in Lacrime",
+			"hp": 5,
+			"attacco": 2,
+			"difesa": 1,
+			"velocita": 2,
+			"xp": 9,
+			"tazo": 6,
+			"ritratto": "res://art/personaggi/madre_in_lacrime.png",
+			"descrizione": "Piange lacrime di ossidiana per figli che non tornano, e non lascia avvicinare nessuno a quel dolore.",
+			"carta": { "id": "carta_madre_in_lacrime", "nome": "Madre in Lacrime", "rarita": "comune", "chance": 0.03, "testo": "Nessuno ricorda più i nomi dei suoi figli. Lei sì." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "risposta": "Lasciate stare i miei figli!" }
+			]
+		},
+		{
+			"id": "stigma",
+			"nome": "Stigma",
+			"hp": 4,
+			"attacco": 3,
+			"difesa": 0,
+			"velocita": 4,
+			"xp": 9,
+			"tazo": 6,
+			"ritratto": "res://art/personaggi/stigma.png",
+			"descrizione": "Porta incisi sulla pelle i peccati di qualcun altro, marchiato da una colpa che non è la sua.",
+			"carta": { "id": "carta_stigma", "nome": "Stigma", "rarita": "comune", "chance": 0.03, "testo": "Il marchio non si cancella. Nemmeno con la morte." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "risposta": "Quel che non sai, quel che credi!" }
+			]
+		},
+		{
+			"id": "diabolo",
+			"nome": "Diabolo",
+			"hp": 4,
+			"attacco": 2,
+			"difesa": 1,
+			"velocita": 4,
+			"xp": 8,
+			"tazo": 6,
+			"ritratto": "res://art/personaggi/diabolo.png",
+			"descrizione": "Un piccolo demone da baraccone, cresciuto storto tra le fiamme della Rocca.",
+			"carta": { "id": "carta_diabolo", "nome": "Diabolo", "rarita": "comune", "chance": 0.03, "testo": "Rideva anche mentre bruciava. Forse rideva soprattutto per quello." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "risposta": "E' l'ora del male!" }
+			]
+		},
+		{
+			"id": "sadico",
+			"nome": "Sadico",
+			"hp": 5,
+			"attacco": 3,
+			"difesa": 0,
+			"velocita": 3,
+			"xp": 10,
+			"tazo": 7,
+			"ritratto": "res://art/personaggi/sadico.png",
+			"descrizione": "Trova piacere nel dolore altrui, l'unico linguaggio che la Rocca gli ha insegnato.",
+			"carta": { "id": "carta_sadico", "nome": "Sadico", "rarita": "comune", "chance": 0.03, "testo": "Alla Rocca ha imparato una sola cosa: far male fa stare meglio." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.25 }
+			],
+			"studio": [
+				{ "risposta": "Viooolenza!" }
 			]
 		},
 		{
@@ -233,7 +309,7 @@
 			"descrizione": "Un tempo signore di queste terre. Sacrificò raccolti e famiglie intere per la propria fortuna, e non si è mai pentito: la maledizione delle famiglie in lutto lo ha fatto marcire vivo, ma non lo ha fermato.",
 			"descrizione_extra": {
 				"richiede_oggetto": "elenco_dei_sacrificati",
-				"testo": "Le ultime righe dell'elenco sono scritte con una grafia più tremante, come se la mano che scriveva stesse ancora decidendo. Gli ultimi nomi sulla lista condividono il suo: erano la sua famiglia. Non ha esitato nemmeno allora."
+				"testo": "Le ultime righe dell'elenco sono scritte con una grafia più tremante, come se la mano che scriveva stesse ancora decidendo. Gli ultimi nomi sulla lista condividono il suo: erano la sua famiglia. Non ha esitato nemmeno allora. Fino a dove ci si può spingere in cerca del potere..."
 			},
 			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
 			"fonte": true,
@@ -244,7 +320,7 @@
 					"tipo": "attacco_forte",
 					"valore": 4,
 					"peso": 2,
-					"testo": "Jongo Dongo affonda un artiglio marcio, senza fretta: sa già che colpirà."
+					"testo": "Jongo Dongo affonda un artiglio marcio, senza fretta."
 				},
 				{
 					"id": "grido_del_raccolto",
@@ -252,7 +328,7 @@
 					"valore": 1,
 					"stress": 15,
 					"peso": 2,
-					"testo": "\"IL RACCOLTO RICHIEDE SEMPRE IL SUO PREZZO!\" Il grido vi si conficca dentro più delle unghie."
+					"testo": "\"IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!\" Il grido vi si conficca dentro più delle unghie."
 				},
 				{
 					"id": "sacrificio",
@@ -270,10 +346,10 @@
 				}
 			],
 			"studio": [
-				{ "domanda": "Perché tutto questo sacrificio?", "risposta": "Perché funziona. Il raccolto non mente mai." },
-				{ "domanda": "Ti penti di qualcosa?", "risposta": "Il pentimento è un lusso che i vivi non possono permettersi. Io, ormai, lo sono ancora meno di loro." },
-				{ "domanda": "Le famiglie che hai maledetto ti hanno fatto marcire.", "risposta": "Mi hanno dato la loro rabbia. L'ho presa anche quella. Guarda cosa sono diventato: funziona lo stesso." },
-				{ "domanda": "Ti fermerai, prima o poi?", "risposta": "Un piccolo sacrificio per un grande risultato. Sempre. Anche questo, qui, con te." }
+				{ "domanda": "Che cosa hai fatto...", "risposta": "Chi siete... voi... siete venuti a rubare nella nostra terra?!" },
+				{ "domanda": "Cosa è successo alla gente di queste terre?", "risposta": "Non devo dare spiegazioni e chi vuole farci del male!" },
+				{ "domanda": "Non hai idea delle forze con cui stai giocando...", "risposta": "Sono stato benedetto dalla verità del lungo viaggio!" },
+				{ "domanda": "Del lungo viaggio?", "risposta": "Un piccolo sacrificio per un grande risultato. Voi... non potete capire..." }
 			]
 		},
 		{
@@ -325,6 +401,25 @@
 			]
 		},
 		{
+			"id": "ombra_del_passato",
+			"nome": "Ombra del passato",
+			"hp": 4,
+			"attacco": 2,
+			"difesa": 0,
+			"velocita": 3,
+			"xp": 6,
+			"tazo": 5,
+			"ritratto": "res://art/personaggi/ombra_del_passato.png",
+			"descrizione": "Un'ombra del passato, vive grazie ai sentimenti repressi di qualcuno che ricorda la persona da cui prende forma con sentimenti negativi.",
+			"carta": { "id": "carta_ombra_del_passato", "nome": "Ombra del passato", "rarita": "non_comune", "chance": 0.04, "testo": "Le ombre del passato assumono la forma di persone ricordate con odio, parlano di fatti che hanno lasciato dei segni irremovibili nell'anima di qualcuno e sono forti quanto l'odio provato nei confronti di quelle persone." },
+			"studio": [
+				{ "osservazione": "\"Signorina, si sente bene?\"" },
+				{ "osservazione": "\"Ormai è cresciuta, non può più giocare con le bambole.\"" },
+				{ "osservazione": "\"Oggi passerai il resto della giornata nella tua camera per colpa della tua disubbidienza.\"" },
+				{ "osservazione": "\"Sei come tuo padre, troppo sensibile per gestire gli affari di famiglia.\"" }
+			]
+		},
+		{
 			"id": "lettere_altare",
 			"nome": "Le lettere sull'altare",
 			"nome_breve": "le lettere",
@@ -342,12 +437,12 @@
 			"tazo": 90,
 			"peso_attacco_normale": 3,
 			"ritratto": "res://art/personaggi/tenero_ricordo.png",
-			"descrizione": "Una bambola cucita a mano, gonfia di un amore diventato dolore. Non attacca per odio: attacca per non restare sola.",
+			"descrizione": "Una bambola cucita a mano, Non ha un bel aspetto ma sembra essere stata amata. Qualcosa di oscuro si annida tra le cuciture.",
 			"descrizione_extra": {
 				"richiede_oggetto": "prova_di_un_forte_amore",
-				"testo": "Non era lei a chiamarsi Lyloh: era la bambina. La bambola era solo la cosa che l'ha amata più a lungo di chiunque altro."
+				"testo": "A volte un oggetto può amarti più di quanto chi dovrebbe farlo abbia mai fatto..."
 			},
-			"carta": { "id": "carta_tenero_ricordo", "nome": "Un tenero ricordo", "rarita": "epica", "testo": "\"...volevo, giocare... ancora... un pò...\"" },
+			"carta": { "id": "carta_tenero_ricordo", "nome": "Un tenero ricordo", "rarita": "epica", "testo": "Una Bambola che ha preso vita dai sentimenti puri di un bambino, a volte l'amore può trasformarsi in qualcosa di pauroso." },
 			"mosse": [
 				{
 					"id": "spilli",
@@ -361,6 +456,8 @@
 					"tipo": "attacco_tutti",
 					"valore": 2,
 					"stress": 10,
+					"legame": -5,
+					"maledizione": 1,
 					"peso": 2,
 					"testo": "Un lamento terribile riempie la stanza. I cuori di tutti sobbalzano."
 				},
@@ -369,6 +466,7 @@
 					"tipo": "autolesione",
 					"valore": 1,
 					"stress": 12,
+					"maledizione": 1,
 					"peso": 2,
 					"testo": "La bambola si strappa una cucitura da sola, piano. Fa più male a voi che a lei."
 				},
@@ -381,8 +479,8 @@
 				}
 			],
 			"studio": [
-				{ "osservazione": "Ti avvicini e la studi: è coperta di polvere, le cuciture consumate. Trasuda un'energia oscura indescrivibile." },
-				{ "osservazione": "Provi ad ascoltare, sotto il ronzio del Carnivalz: sembra quasi di sentire un pianto leggero." }
+				{ "osservazione": "È coperta di polvere, le cuciture sono tutte consumate. Trasuda un'energia oscura indescrivibile." },
+				{ "osservazione": "Sembra quasi di sentire un pianto provenire dalle cuciture." }
 			],
 			"frenesia": {
 				"soglia_hp": 0.5,
@@ -398,10 +496,10 @@
 		},
 		{
 			"id": "vecchio_clown",
-			"nome": "Il Vecchio Torero",
+			"nome": "Il Vecchio Proprietario del teatro",
 			"ritratto": "res://art/personaggi/vecchio_clown.png",
 			"assist": {
-				"testo": "Il Vecchio Torero entra nell'arena a mani nude, la schiena curva ma i piedi fermi. \"Ancora in piedi, muchacho. E anche tu.\" Jerah, per un istante, non sa più recitare.",
+				"testo": "Il Vecchio Proprietario del teatro entra nell'arena con fatica, la schiena curva ma i piedi fermi. \"Ancora in piedi, muchacho. Vedo che ti sei ripreso alla grande.\" Jerah, per un istante, non ha più uno sguardo malvagio.",
 				"effetto": { "speranza": 15 }
 			}
 		},
@@ -418,12 +516,12 @@
 			"xp": 45,
 			"tazo": 60,
 			"ritratto": "res://art/personaggi/jerah.png",
-			"descrizione": "La fonte di questo Carnivalz: il più grande spettacolo che il deserto abbia mai visto, e il suo unico maestro. Un mondo intero in fiamme, deformato dalla sua passione.",
+			"descrizione": "Un talento unico, forse 1 su 10milioni: il più grande spettacolo che il mondo abbia mai visto, una passione ardente, pericolosamente spenta... Il mondo intero arde, arde teatro del suo ultimo show.",
 			"descrizione_extra": {
 				"richiede_oggetto": "biglietto_strano",
-				"testo": "Il biglietto è del suo primissimo spettacolo: arena vuota, un solo posto occupato. Non ha mai scoperto da chi. Ha passato tutta la carriera a cercare di riempire quelle gradinate."
+				"testo": "Sembrerebbe che il suo egoismo vacillasse di fronte all'unica prova di affetto sincero che abbia mai ricevuto. Anche una sola persona può cambiare il destino di un intero mondo grazie a un gesto di affetto."
 			},
-			"carta": { "id": "carta_jerah", "nome": "L'ultimo spettacolo di Jerah", "rarita": "leggendaria", "testo": "Il pubblico se n'era andato molto prima che calasse il sipario di fuoco." },
+			"carta": { "id": "carta_jerah", "nome": "L'ultimo spettacolo di Jerah", "rarita": "leggendaria", "testo": "Era un giovane promettente, abbandonato da tutti, non mi sono mai pentito di avergli dato una possibilità. - Raphael Genio del Teatro" },
 			"fonte": true,
 			"convincibile": true,
 			"speranza_soglia": 60,
@@ -434,14 +532,14 @@
 					"tipo": "attacco_tutti",
 					"valore": 2,
 					"peso": 2,
-					"testo": "Jerah spalanca le braccia: ¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena."
+					"testo": "¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena."
 				},
 				{
-					"id": "faena",
-					"tipo": "attacco_forte",
-					"valore": 4,
+					"id": "incendia",
+					"tipo": "incendia",
+					"valore": 2,
 					"peso": 2,
-					"testo": "\"¡Olé!\" Jerah esegue una faena perfetta: la lama passa dove un attimo prima c'eri tu."
+					"testo": "¡Vamos! ... Una folata di vento ardente ti infligge lo status in fiamme."
 				},
 				{
 					"id": "capote",
@@ -449,7 +547,7 @@
 					"valore": 3,
 					"turni": 2,
 					"peso": 1,
-					"testo": "Jerah fa roteare la capote di ferro nero: nessun colpo trova il bersaglio."
+					"testo": "Jerah schiva elegantemente tutti i tuoi colpi."
 				},
 				{
 					"id": "llamada",
@@ -459,7 +557,7 @@
 					"testo": "Jerah batte il tacco tre volte: dal fumo sale un Fomentado."
 				}
 			],
-			"testo_cedimento": "Jerah barcolla. \"Qué espectáculo... voi due,\" mormora. L'arena intera trema con lui. Ma non smette di attaccare: una fonte non può.",
+			"testo_cedimento": "Jerah barcolla. \"Qué espectáculo... voi due,\" mormora. L'arena intera trema con lui. Ma non smette di attaccare: \"Non posso perdere!\"",
 			"leve": [
 				{
 					"tipo": "oggetto",
@@ -477,18 +575,18 @@
 					"tipo": "ospite",
 					"id": "vecchio_clown",
 					"speranza": 30,
-					"testo": "Il Vecchio Torero scavalca la barriera ed entra nel ruedo, zoppicando. \"Sono ancora qui, muchacho. Non me ne sono mai andato.\""
+					"testo": "Il Vecchio Proprietario del teatro scavalca la barriera ed entra nel ruedo, zoppicando. \"Sono ancora qui, muchacho. Non me ne sono mai andato.\""
 				}
 			],
 			"studio": [
-				{ "domanda": "Chi eri, prima dell'arena?", "risposta": "Un nome gridato dalle gradinate. E prima ancora, un bambino affamato che nessuno guardava." },
-				{ "domanda": "Ti ricordi gli olé veri?", "risposta": "Ricordo il silenzio, dopo. È l'unico pubblico che non mi ha mai tradito." },
-				{ "domanda": "Non è colpa tua. È il mondo a essere ingiusto.", "risposta": "E allora perché sono io, quello in fiamme?" },
-				{ "domanda": "Questo spettacolo può finire senza che muoia nessun altro.", "risposta": "Lo spettacolo SONO i morti, muchacho. Ma continua a parlare." }
+				{ "domanda": "Rivelami chi sei... Perché fai tutto questo?", "risposta": "Cosa ne puoi sapere tu, di me, un pobre hombre che ha sacrificato tutto per dimostrare cosa valeva!" },
+				{ "domanda": "Abbiamo più cose in comune di quanto pensi, tu potresti aiutare a capirmi.", "risposta": "¡Pobre hombre! ¡Muere!" },
+				{ "domanda": "Non ti do la colpa di tutto questo, voglio solo capire la tua storia...", "risposta": "La mia storia è proprio quello che ha causato tutto questo, questo mondo non merita di essere salvato." },
+				{ "domanda": "Forse questo mondo no, ma tu sì.", "risposta": "..." }
 			],
 			"studio_cedimento": [
-				{ "domanda": "Puoi ancora fermarti.", "risposta": "No. Ma posso scegliere l'ultima posa." },
-				{ "domanda": "Il vecchio è rimasto. Tutti questi anni.", "risposta": "Lo so. Digli che... la muleta era perfetta." }
+				{ "domanda": "Vedo che hai capito quale è stato il nostro errore... Vale la pena... di ricominciare...", "risposta": "No. Per me è tardi... Ma cercherò di dare un bel finale a questa storia!" },
+				{ "domanda": "Vecchio Proprietario del teatro: È stato bello... lavorare con te, sai?...", "risposta": "Grazie. Osservami, mentre cala il sipario per l'ultima volta, vecchio amico..." }
 			]
 		}
 	]

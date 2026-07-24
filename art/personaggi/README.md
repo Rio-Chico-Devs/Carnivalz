@@ -23,7 +23,7 @@ mostra un segnaposto con l'iniziale. Quindi puoi disegnarle a poco a poco senza 
 - `anonimo` — il protagonista, sempre a sinistra
 - `jerah` — la fonte
 - `giocoliere` — El Muy Bonito (sub-boss)
-- `vecchio_clown` — il Vecchio Torero
+- `vecchio_clown` — il Vecchio Proprietario del teatro (Raphael, Genio del Teatro)
 - `insonne` — Yhvina
 (gli altri sono soprattutto nemici da combattimento: basta la loro immagine di ritratto)
 

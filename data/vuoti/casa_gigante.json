@@ -12,7 +12,7 @@
 			"testo": "Un salone enorme, arredato con cura anche dove nessuno guarda più. Due quadri alle pareti, un divano sventrato, e da qualche parte quel filo rosso che spunta appena, teso, verso le scale.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
+				"gruppi": [["marionetta"], ["marionetta", "marionetta"], ["ombra_del_passato"], ["marionetta", "ombra_del_passato"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
@@ -41,7 +41,7 @@
 			"testo": "Pentole in fila, un tavolo apparecchiato per tre da molto tempo, senza che nessuno l'abbia mai sparecchiato. In una credenza, bottiglie impolverate; in un'altra, qualcosa di dolce.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
+				"gruppi": [["marionetta"], ["marionetta", "marionetta"], ["ombra_del_passato"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
@@ -62,7 +62,7 @@
 			"testo": "La stanza dei giochi: scaffali di giocattoli allineati come spettatori, un baule, e un mucchio di cuscini contro il muro. Tre fotografie, in cornici diverse, osservano la stanza da un comò.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["marionetta", "marionetta"]],
+				"gruppi": [["marionetta"], ["marionetta", "marionetta"], ["ombra_del_passato"], ["marionetta", "ombra_del_passato"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
@@ -96,7 +96,7 @@
 			"testo": "La soffitta è un cimitero di scatoloni, tutti con la stessa scritta a mano: GIOCATTOLI DI L. — DA BUTTARE. Nessuno scatolone è mai stato buttato.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"]],
+				"gruppi": [["marionetta"], ["ombra_del_passato"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [

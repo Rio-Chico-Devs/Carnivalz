@@ -124,6 +124,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"psiche": String(dati.get("psiche", "")),
 		"fattore": int(dati.get("fattore_base", 0)),
 		"stress": GameState.stress_di(id_personaggio) if giocatore else 0,
+		"maledizione": GameState.maledizione_di(id_personaggio) if giocatore else 0,
 		"xp": int(dati.get("xp", 10)),
 		"tazo": int(dati.get("tazo", 0)),
 		"carta": dati.get("carta", {}),
@@ -342,7 +343,7 @@ func studia(chi: Dictionary) -> void:
 	if convinto and bersaglio.id == fonte.get("id", "") and dati.has("studio_cedimento"):
 		scambi = dati["studio_cedimento"]
 	if scambi.is_empty():
-		scrivi("%s studia %s: nessuna risposta, solo la musica sbagliata." % [chi.nome, bersaglio.nome])
+		scrivi("[i]%s non sembra rispondere ad alcun quesito.[/i]" % bersaglio.nome)
 	else:
 		var scambio: Dictionary = scambi[indice_studio % scambi.size()]
 		indice_studio += 1
@@ -455,12 +456,30 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			var possibili := vivi(true)
 			attacca(nemico, possibili[GameState.rng.randi_range(0, possibili.size() - 1)],
 					int(mossa.get("valore", nemico.attacco)))
+		"incendia":
+			# appicca il fuoco a un membro del party a caso: da qui in poi
+			# brucia a ogni suo turno, come la combustione dei nemici
+			var possibili_bersagli := vivi(true)
+			if not possibili_bersagli.is_empty():
+				var bersaglio: Dictionary = possibili_bersagli[GameState.rng.randi_range(0, possibili_bersagli.size() - 1)]
+				bersaglio.combustione = {
+					"danno_per_turno": int(mossa.get("valore", 1)),
+					"testo_turno": String(mossa.get("testo_combustione", "Le fiamme ti divorano un altro po'.")),
+				}
+				bersaglio.in_fiamme = true
+				aggiorna_scheda(bersaglio)
 		"attacco_tutti":
 			for bersaglio in vivi(true):
 				attacca(nemico, bersaglio, int(mossa.get("valore", 1)))
 			if mossa.has("stress"):
 				for bersaglio in vivi(true):
 					bersaglio.stress = clampi(bersaglio.stress + int(mossa.stress), 0, 100)
+					aggiorna_scheda(bersaglio)
+			if mossa.has("legame"):
+				GameState.modifica_legame(int(mossa.legame))
+			if mossa.has("maledizione"):
+				for bersaglio in vivi(true):
+					bersaglio.maledizione = maxi(int(bersaglio.maledizione) + int(mossa.maledizione), 0)
 					aggiorna_scheda(bersaglio)
 		"autolesione":
 			# si ferisce da sola: il dolore riverbera sullo stress della squadra
@@ -469,6 +488,12 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			for bersaglio in vivi(true):
 				bersaglio.stress = clampi(bersaglio.stress + int(mossa.get("stress", 10)), 0, 100)
 				aggiorna_scheda(bersaglio)
+			if mossa.has("legame"):
+				GameState.modifica_legame(int(mossa.legame))
+			if mossa.has("maledizione"):
+				for bersaglio in vivi(true):
+					bersaglio.maledizione = maxi(int(bersaglio.maledizione) + int(mossa.maledizione), 0)
+					aggiorna_scheda(bersaglio)
 			if nemico.hp <= 0:
 				_su_ko(nemico)
 		"buff_difesa":
@@ -735,6 +760,8 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 		dettagli += " · sopraffatto"
 	if combattente.get("in_fiamme", false):
 		dettagli += " · in fiamme"
+	if int(combattente.get("maledizione", 0)) > 0:
+		dettagli += " · Maledizione %d" % int(combattente.maledizione)
 	if combattente.psiche in combattente.stati:
 		dettagli += " · " + String(GameState.psichi.get(combattente.psiche, {}).get("nome", combattente.psiche))
 	combattente.etichetta_extra.text = dettagli
@@ -748,6 +775,8 @@ func _esci() -> void:
 		if combattente.giocatore:
 			GameState.modifica_stress(combattente.id,
 					combattente.stress - GameState.stress_di(combattente.id))
+			GameState.modifica_maledizione(combattente.id,
+					int(combattente.maledizione) - GameState.maledizione_di(combattente.id))
 	# le destinazioni vanno lette PRIMA di premia/annulla, che le azzerano
 	var dopo_vittoria := GameState.nodo_se_vinci
 	var dopo_vittoria_eroe := GameState.nodo_se_vinci_eroe

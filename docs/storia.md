@@ -120,6 +120,8 @@ teatro + casa):
 
 ### Kizako Industries (storia nella storia)
 Lo scienziato **Kizako** ha costruito un impero con le sue invenzioni belliche.
+(Attenzione alla grafia nei nuovi testi: è sempre **Kizako**, mai "Kizaku" —
+refuso corretto nella carta del Divoratore.)
 La sua fabbrica fu abbandonata quando i lavoratori, vinti dallo stress, uscirono
 di senno. Sue fabbriche compaiono in **più Vuoti**: una trama che attraversa il
 gioco. Kizako non è mai presente di persona nelle sue fabbriche — ma le sue
@@ -169,6 +171,12 @@ sale). Studiarlo non serve a convincerlo: serve solo a misurare quanto sia
 convinto di ciò che fa — mai in dubbio, mai pentito. L'elenco dei sacrificati,
 trovato nella Rocca, rivela che gli ultimi nomi condivisi col suo cognome
 erano la sua stessa famiglia: non ha esitato nemmeno allora.
+
+Nello studio si scopre di più sulla sua ossessione: parla di un misterioso
+**"lungo viaggio"** da cui dice di essere stato "benedetto dalla verità" —
+la giustificazione con cui si è convinto che il proprio "piccolo sacrificio"
+fosse necessario. Considera chi entra nella Rocca un ladro venuto a
+rubare nella sua terra, mai un'ingiustizia da riparare.
 
 ### Meridia: un mondo già perduto
 Una frattura del tutto diversa dalle altre: non un pezzo del mondo di Jerah,
@@ -238,6 +246,13 @@ notte è quasi morto: in quel momento il suo fattore Carnivalz ha raggiunto
 la **soglia critica** e ha deformato il mondo intero nella sua ultima,
 sconfinata corrida in fiamme.
 
+**Il Vecchio Proprietario del teatro** — **Raphael, Genio del Teatro** —
+fu l'unico a dargli una possibilità quando era solo un giovane promettente
+abbandonato da tutti, e l'unico che il Carnivalz ha risparmiato: lo si trova
+ospite nella carovana, e se portato con sé fino all'arena può presentarsi a
+Jerah come **leva** verso l'esito eroe. Nel cedimento, è lui a chiudere lo
+spettacolo al fianco di Jerah — "è stato bello lavorare con te".
+
 ## Il finale — gancio per Carnivalz 2 (SPOILER)
 L'ultimo boss, prima di cadere, comunica di aver visto qualcosa di veramente
 strano prima della sua trasformazione: **come un'ombra che osservava la sua
@@ -259,8 +274,19 @@ gioco avrà successo.
   attaccare, perdendo statistiche fino alla fine. Cambia solo come muore.
 - **Il party** = sopravvissuti che hanno toccato il confine; il **legame**
   tra loro è ciò che li tiene ancorati (e apre gli eventi rari).
+- **Combustione** = alcuni nemici (e ora anche Jerah, sul party) bruciano a
+  ogni turno di chi è in fiamme: danno fisso, a volte con bonus attacco che
+  cresce. Può essere attiva da subito, innescarsi studiando un tot di volte,
+  oppure — mossa `incendia` — essere inflitta a un membro del party a caso
+  da un attacco nemico.
+- **Maledizione** = contatore che si accumula (+1 per volta) su chi viene
+  colpito da certe mosse (es. il lamento e l'autolesione della bambola).
+  Per ora è solo tracciata e mostrata in combattimento: **l'effetto
+  meccanico non è ancora stato deciso** (vedi Punti aperti).
 
 ## Punti aperti (decide Bru)
+- Cosa deve fare meccanicamente la **maledizione** quando si accumula (più
+  danno subito? difesa giù? un effetto a soglie, come lo stress?)
 - Chi è Sally, dove la si incontra, e il carattere di Nyu e dell'Artigiano
 - Dove e come si incontrano Meteora, Insonne e Guastatore (mondi futuri)
 - Natura dell'ombra che prende dati (materiale per Carnivalz 2)
