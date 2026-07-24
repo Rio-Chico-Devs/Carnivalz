@@ -49,6 +49,20 @@
 			"fattore_base": 10,
 			"abilita": ["scasso", "trappole"],
 			"ritratto": "res://art/personaggi/guastatore.png"
+		},
+		{
+			"id": "fanatico",
+			"nome": "Fanatico",
+			"hp": 9,
+			"attacco": 1,
+			"difesa": 3,
+			"velocita": 2,
+			"psiche": "concentrazione",
+			"fattore_base": 10,
+			"personalita": "inamovibile",
+			"resistenze": { "stress": "immune", "psico": "ipersensibile" },
+			"abilita": ["provocazione"],
+			"ritratto": "res://art/personaggi/fanatico.png"
 		}
 	]
 }

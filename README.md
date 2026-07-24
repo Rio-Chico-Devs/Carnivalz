@@ -195,8 +195,8 @@ collegate nei due sensi (perlustrazione libera):
   nessuno da sacrificare, attacca lui stesso; usata da Jongo Dongo), e `incendia`
   (appicca il fuoco a un membro del party a caso, vedi Combustione sotto).
   `attacco_tutti` e `autolesione` accettano anche i campi `legame` (modifica il
-  legame di squadra, un solo valore globale) e `maledizione` (accumula il
-  contatore su tutto il party vivo)
+  legame di squadra, un solo valore globale) e `maledizione` (infligge lo stato
+  Maledizione, vedi sotto, a tutto il party vivo)
 
 ### Combustione (nemici che bruciano)
 Un nemico può avere `combustione` nei dati: a ogni suo turno subisce `danno_per_turno`
@@ -208,13 +208,51 @@ manda a fuoco — e più brucia più diventa pericoloso, finché non lo consuma)
 logica di combustione è generica: la mossa boss `incendia` (es. Jerah) la assegna a **un
 membro del party a caso** invece che al nemico stesso, con `valore` come `danno_per_turno`.
 
-### Maledizione
-Contatore per personaggio del party, si accumula `+1` per volta (`GameState.maledizione`,
-stesso pattern di `stress`: persiste tra un combattimento e l'altro, si azzera a nuova
-partita). Alcune mosse la infliggono via campo `"maledizione": N` (attualmente su
-`attacco_tutti` e `autolesione`, es. il lamento e l'autolesione della bambola). Per ora è
-solo **tracciata e mostrata** in combattimento: non ha ancora un effetto meccanico definito
-(vedi Punti aperti in `docs/storia.md`).
+### Stati generici e resistenze per personaggio (`data/stati.json`)
+Oltre alla combustione (che resta un caso a parte, sopra), esiste un motore generico per
+gli altri stati, definiti in `data/stati.json` per **tipo** meccanico (riutilizzabile da più
+stati con nomi diversi):
+- `salta_turno` — congelamento, sonno, egocentrismo: il bersaglio salta un numero
+  casuale di turni (`salta_turno_durata_massima` in `regole.json`)
+- `salta_turno` + `"contagiosa": true` — demotivazione: come sopra, ma si propaga
+  subito a tutto il resto della squadra del bersaglio
+- `forza_attacco` — Berserk: per `forza_azione_durata` turni il personaggio può solo attaccare
+  (menu azioni bypassato, bersaglio nemico scelto a caso)
+- `colpisci_a_caso` — Confusione: mentre attiva, metà delle volte che scegli "Attacca"
+  il colpo va a un bersaglio a caso, alleati compresi
+- `dot_crescente` — Veleno: danno a ogni turno che cresce di 1 ad ogni tick
+- `dot_condizionale` — Decomposizione: danno a ogni turno, ma **solo se** quel turno hai
+  scelto un'azione offensiva; Difenditi/Studia lo evitano
+- `velocita` — Rapidità/Lentezza: modificano la velocità effettiva (`velocita_effettiva()`,
+  usata per l'ordine di iniziativa) finché lo stato resta attivo
+- `countdown` — Maledizione: al primo colpo parte un conto alla rovescia di
+  `maledizione_countdown_iniziale` turni (default 9); ogni applicazione successiva lo
+  accorcia di `maledizione_accelerazione_per_stack` (default 1); a zero il personaggio muore
+
+Ogni personaggio (in `personaggi.json`/`classes.json`) può dichiarare una chiave
+**`resistenze`**: `{ "stress": "invertito", "oscuro": "ipersensibile", "psico": "immune" }`.
+Tre valori possibili: **normale** (default, nessuna voce necessaria), **immune** (lo stato/
+elemento non lo tocca per nulla) e, a seconda del contesto, **invertito** (solo per `stress`
+e legame/morale: l'effetto si capovolge, es. più stress lo rende più forte anziché più
+vulnerabile) oppure **ipersensibile** (per stati/elementi: l'effetto è amplificato — countdown
+più veloce, stato più lungo, danno raddoppiato).
+
+### Critico e Slaughter
+Ogni colpo può critare: chance base `critico_chance_base` + un bonus proporzionale allo
+**stress del bersaglio** (`critico_bonus_per_stress`) — più è stressato, più è vulnerabile ai
+critici, a meno che non abbia una `resistenze.stress` invertita (allora funziona al contrario,
+es. un personaggio "motivato dallo stress") o immune (nessun effetto). Il critico moltiplica
+il danno (`critico_moltiplicatore`) e riduce la difesa effettiva del bersaglio
+(`critico_riduzione_difesa`). Separato dal critico: **Slaughter**, una probabilità bassissima
+(`slaughter_probabilita_base`) di KO istantaneo anche su un attacco normale, con un overlay a
+schermo intero in fade (`art/fx/slaughter.png`, ancora da disegnare — senza l'immagine
+l'effetto scatta comunque, solo senza illustrazione). Chi è immune o invertito sullo stress
+non può subire uno Slaughter.
+
+### Provocazione
+Nuova abilità di classe (gate: `"provocazione"` in `abilita`, per ora solo il Fanatico):
+per `forza_azione_durata` turni, i nemici sono forzati a colpire chi ha provocato invece di
+scegliere a caso — utile per proteggere i compagni più fragili dietro un tank.
 
 ### Studio sui nemici comuni: domande generiche
 Per i nemici comuni non serve scrivere una domanda su misura: se uno scambio in `studio`

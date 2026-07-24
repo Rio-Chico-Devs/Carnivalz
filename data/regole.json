@@ -25,5 +25,14 @@
 	"xp_esponente": 1.5,
 	"livello_massimo": 130,
 	"livello_ostico": 100,
-	"moltiplicatore_ostico": 5
+	"moltiplicatore_ostico": 5,
+	"critico_chance_base": 0.05,
+	"critico_bonus_per_stress": 0.15,
+	"critico_moltiplicatore": 1.5,
+	"critico_riduzione_difesa": 0.5,
+	"slaughter_probabilita_base": 0.01,
+	"maledizione_countdown_iniziale": 9,
+	"maledizione_accelerazione_per_stack": 1,
+	"salta_turno_durata_massima": 3,
+	"forza_azione_durata": 2
 }

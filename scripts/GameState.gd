@@ -14,6 +14,7 @@ const PERCORSO_REGOLE := "res://data/regole.json"
 const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
+const PERCORSO_STATI := "res://data/stati.json"
 const PERCORSO_SALVATAGGIO := "user://salvataggio.json"
 
 # Unica fonte di casualità del gioco: sempre seedata, per determinismo
@@ -30,6 +31,7 @@ var regole: Dictionary = {}
 var dialoghi: Dictionary = {}        # id nodo -> battuta di un compagno (lore, sblocchi)
 var audio: Dictionary = {}           # config musica (chiavi -> percorsi)
 var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemici comuni
+var stati: Dictionary = {}                # id stato -> definizione generica (tipo, contagiosa, ...)
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
 var id_protagonista: String = ""
 
@@ -38,7 +40,6 @@ var party: Array[String] = []             # scelto a inizio campagna
 var livelli: Dictionary = {}              # id classe -> livello (default 1)
 var xp: Dictionary = {}                   # id classe -> xp verso il prossimo livello
 var stress: Dictionary = {}               # id classe -> 0..100
-var maledizione: Dictionary = {}          # id classe -> contatore, si accumula +1 per volta
 var legame: int = 0                       # 0..100, respira di continuo
 
 # Inventario a slot: solo la sacca ha un limite ed è spendibile in combattimento
@@ -81,6 +82,7 @@ func _ready() -> void:
 	carica_dialoghi()
 	carica_audio()
 	carica_studio()
+	carica_stati()
 	nuova_partita()
 
 func imposta_seed(nuovo_seed: int) -> void:
@@ -148,6 +150,10 @@ func carica_studio() -> void:
 	var dati: Variant = carica_json(PERCORSO_STUDIO)
 	domande_studio_generiche = dati.get("domande_generiche", []) if dati is Dictionary else []
 
+func carica_stati() -> void:
+	var dati: Variant = carica_json(PERCORSO_STATI)
+	stati = dati.get("stati", {}) if dati is Dictionary else {}
+
 func domanda_studio_casuale() -> String:
 	# per i nemici comuni: la domanda del giocatore e' pescata a caso da un
 	# pool condiviso. Le risposte restano scritte per ogni personaggio;
@@ -166,7 +172,6 @@ func nuova_partita() -> void:
 	livelli.clear()
 	xp.clear()
 	stress.clear()
-	maledizione.clear()
 	studiati.clear()
 	sacca.clear()
 	collezionabili.clear()
@@ -213,12 +218,6 @@ func stress_di(id_classe: String) -> int:
 
 func modifica_stress(id_classe: String, quantita: int) -> void:
 	stress[id_classe] = clampi(stress_di(id_classe) + quantita, 0, 100)
-
-func maledizione_di(id_classe: String) -> int:
-	return int(maledizione.get(id_classe, 0))
-
-func modifica_maledizione(id_classe: String, quantita: int) -> void:
-	maledizione[id_classe] = maxi(maledizione_di(id_classe) + quantita, 0)
 
 func modifica_legame(quantita: int) -> void:
 	legame = clampi(legame + quantita, 0, 100)
@@ -414,7 +413,6 @@ func salva() -> void:
 		"livelli": livelli,
 		"xp": xp,
 		"stress": stress,
-		"maledizione": maledizione,
 		"sacca": sacca,
 		"collezionabili": collezionabili,
 		"chiavi": chiavi,
@@ -447,7 +445,6 @@ func carica() -> bool:
 	livelli = d.get("livelli", {})
 	xp = d.get("xp", {})
 	stress = d.get("stress", {})
-	maledizione = d.get("maledizione", {})
 	sacca = _lista_str(d.get("sacca", []))
 	collezionabili = _lista_str(d.get("collezionabili", []))
 	chiavi = _lista_str(d.get("chiavi", []))

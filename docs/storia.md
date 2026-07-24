@@ -279,14 +279,50 @@ gioco avrà successo.
   cresce. Può essere attiva da subito, innescarsi studiando un tot di volte,
   oppure — mossa `incendia` — essere inflitta a un membro del party a caso
   da un attacco nemico.
-- **Maledizione** = contatore che si accumula (+1 per volta) su chi viene
-  colpito da certe mosse (es. il lamento e l'autolesione della bambola).
-  Per ora è solo tracciata e mostrata in combattimento: **l'effetto
-  meccanico non è ancora stato deciso** (vedi Punti aperti).
+- **Maledizione** = non più un contatore neutro: al primo colpo parte un
+  conto alla rovescia di 9 turni, e ogni applicazione successiva lo
+  accorcia di 1. A zero, si muore. Colpisce chi viene raggiunto da certe
+  mosse (es. il lamento e l'autolesione della bambola).
+- **Stati e resistenze** = oltre alla combustione esiste un motore generico
+  di stati (veleno, congelamento, sonno, egocentrismo, demotivazione
+  contagiosa, Berserk, Confusione, rapidità/lentezza, maledizione — vedi
+  README). Ogni personaggio può dichiarare `resistenze` per stato/elemento:
+  **immune** (nessun effetto), **ipersensibile** (effetto amplificato) o,
+  solo per stress e morale, **invertito** (l'effetto si capovolge: più
+  stress lo rafforza invece di indebolirlo).
+- **Critico e Slaughter** = lo stress di un personaggio alza la probabilità
+  di subire un colpo critico; Slaughter è una probabilità bassissima di KO
+  istantaneo anche su un attacco qualunque, con una scena dedicata (asset
+  ancora da disegnare).
+- **Provocazione** = un compagno (per ora solo il Fanatico) forza i nemici
+  a colpire lui per un paio di turni, proteggendo chi è più fragile.
+
+## Personaggi annunciati, ancora senza scheda completa
+- **Vega**: personificazione del bene e di ciò che la gente ama. Fragile a
+  maledizione, stress ed elemento oscuro (resistenze ipersensibili);
+  iper-sensibile anche al morale di squadra, ma in positivo — legame e
+  morale alti la rendono fortissima. Mancano ancora stat, mosse, ritratto
+  e dove si incontra.
+- **Sally**: classe "troublemaker" — resistenza allo stress invertita (più
+  è stressata, più è motivata: lo stress la potenzia invece di indebolirla).
+  Già citata come chi presenta Nyu (vedi sotto), non ancora statuata.
+- **Fanatico** (aggiunto in `classes.json`, stat da confermare): falso eroe
+  che ci crede davvero. Tank: HP e difesa alti, attacca poco (passa i turni
+  a provocare/difendere), ottima resistenza allo stress (per ora
+  implementata come immunità), ma ipersensibile all'elemento "psico" (i
+  manipolatori: seduzione, intimidazione, pietà — abbassano la difesa e
+  paralizzano scuotendo emotivamente).
+
+## Personalità ed Elementi
+Due assi per le resistenze dei personaggi, usati **a override per
+personaggio** (non una matrice completa 10×13 — ogni personaggio dichiara
+solo le proprie eccezioni esplicite, tutto il resto resta neutro):
+- **Personalità**: manipolatore, egocentrico, neutro, altruista, fragile,
+  inamovibile, sadico, pazzo, analitico, passionale
+- **Elementi**: fuoco, oscuro, sacro, cielo, elettricità, gelo, minerale,
+  molecolare, energia, natura, sogno, acqua, speciale, psico (14)
 
 ## Punti aperti (decide Bru)
-- Cosa deve fare meccanicamente la **maledizione** quando si accumula (più
-  danno subito? difesa giù? un effetto a soglie, come lo stress?)
 - Chi è Sally, dove la si incontra, e il carattere di Nyu e dell'Artigiano
 - Dove e come si incontrano Meteora, Insonne e Guastatore (mondi futuri)
 - Natura dell'ombra che prende dati (materiale per Carnivalz 2)
