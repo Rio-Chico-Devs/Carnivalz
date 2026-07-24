@@ -133,7 +133,7 @@ fonte convinta → nodo `se_vinci_eroe` (pangea, reincarnazione), altrimenti `se
 - **Legame** (0–100): si coltiva interagendo e prendendosi cura dei compagni (chiave
   `legame` sulle scelte) e **cala di continuo** (−1 a ogni scelta). Un legame alto fa
   apparire gli eventi rari: chiave `richiede_legame` sulle scelte (es. la stella caduta
-  di Meteora al falò richiede legame ≥ 40)
+  di Niru al falò richiede legame ≥ 40)
 
 ## Dialogare con i compagni
 Nella schermata eventi (campagna o squarcio) compare "Parla con la squadra" quando il party
@@ -250,9 +250,9 @@ l'effetto scatta comunque, solo senza illustrazione). Chi è immune o invertito 
 non può subire uno Slaughter.
 
 ### Provocazione
-Nuova abilità di classe (gate: `"provocazione"` in `abilita`, per ora solo il Fanatico):
-per `forza_azione_durata` turni, i nemici sono forzati a colpire chi ha provocato invece di
-scegliere a caso — utile per proteggere i compagni più fragili dietro un tank.
+Nuova abilità di classe (gate: `"provocazione"` in `abilita`, per ora solo Mockingbear,
+classe Fanatico): per `forza_azione_durata` turni, i nemici sono forzati a colpire chi ha
+provocato invece di scegliere a caso — utile per proteggere i compagni più fragili dietro un tank.
 
 ### Studio sui nemici comuni: domande generiche
 Per i nemici comuni non serve scrivere una domanda su misura: se uno scambio in `studio`
@@ -292,10 +292,10 @@ con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, z
     "id_nodo": {
       "testo": "narratore...",
       "sinistra": "anonimo",
-      "destra": "meteora",
+      "destra": "niru",
       "centro": "imbonitore",
       "scelte": [
-        { "testo": "...", "vai": "altro_nodo", "richiede": "volo", "recluta": "meteora", "oggetto": "lanterna", "lascia": "meteora", "reset": true },
+        { "testo": "...", "vai": "altro_nodo", "richiede": "volo", "recluta": "niru", "oggetto": "lanterna", "lascia": "niru", "reset": true },
         { "testo": "Affrontalo", "combatti": ["imbonitore"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
       ]
     }
@@ -331,7 +331,7 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
    boss; sacca/collezionabili/chiavi/carte; Tazo; negozi (Organizzazione
    attivo, Nyu e Artigiano pronti nei dati)
 10. ✅ Il Vuoto: squarci esplorabili e rivisitabili (industriale, teatro del
-    passato, casa gigante + zona nascosta di Meteora), agguati random,
+    passato, casa gigante + zona nascosta di Niru), agguati random,
     loot una tantum, stanze segrete, miniboss Un tenero ricordo
 11. ✅ Menu principale + collezioni: album carte, bestiario, compendio
     oggetti; drop comuni e carte (rare/garantite) dai nemici
@@ -354,4 +354,8 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
     espulsione automatica) — **il primo Vuoto è completo nella sua forma
     base**: 6 fratture attorno al pianeta di Jerah
 18. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
-19. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata
+19. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata —
+    roster e nomi/classe fissati in `classes.json` (Sally-Troublemaker,
+    Vega-Hope, Niru-Meteora, Fio-Sognatrice, Yhvina-Insonne, Rio-Collezionista,
+    Bero-Mecha, Mockingbear-Fanatico, Mr. Eto-Mente), stat ancora segnaposto
+    per i nuovi; mancano ancora abilità/mosse/ritratti per ognuno

@@ -4,6 +4,7 @@
 		{
 			"id": "anonimo",
 			"nome": "Anonimo",
+			"classe": "Protagonista",
 			"hp": 5,
 			"attacco": 1,
 			"difesa": 0,
@@ -27,8 +28,37 @@
 			"ritratto": "res://art/personaggi/yhvina.png"
 		},
 		{
-			"id": "meteora",
-			"nome": "Meteora",
+			"id": "sally",
+			"nome": "Sally",
+			"classe": "Troublemaker",
+			"hp": 5,
+			"attacco": 1,
+			"difesa": 1,
+			"velocita": 2,
+			"psiche": "rabbia",
+			"fattore_base": 10,
+			"resistenze": { "stress": "invertito" },
+			"abilita": ["scasso", "trappole"],
+			"ritratto": "res://art/personaggi/sally.png"
+		},
+		{
+			"id": "vega",
+			"nome": "Vega",
+			"classe": "Hope",
+			"hp": 5,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 3,
+			"psiche": "concentrazione",
+			"fattore_base": 20,
+			"resistenze": { "stress": "ipersensibile", "maledizione": "ipersensibile", "oscuro": "ipersensibile" },
+			"abilita": [],
+			"ritratto": "res://art/personaggi/vega.png"
+		},
+		{
+			"id": "niru",
+			"nome": "Niru",
+			"classe": "Meteora",
 			"hp": 5,
 			"attacco": 2,
 			"difesa": 0,
@@ -36,23 +66,52 @@
 			"psiche": "rabbia",
 			"fattore_base": 20,
 			"abilita": ["volo", "impatto"],
-			"ritratto": "res://art/personaggi/meteora.png"
+			"ritratto": "res://art/personaggi/niru.png"
 		},
 		{
-			"id": "guastatore",
-			"nome": "Guastatore",
+			"id": "fio",
+			"nome": "Fio",
+			"classe": "Sognatrice",
+			"hp": 5,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 3,
+			"psiche": "depressione",
+			"fattore_base": 15,
+			"abilita": [],
+			"ritratto": "res://art/personaggi/fio.png"
+		},
+		{
+			"id": "rio",
+			"nome": "Rio",
+			"classe": "Collezionista",
 			"hp": 5,
 			"attacco": 1,
 			"difesa": 1,
+			"velocita": 3,
+			"psiche": "concentrazione",
+			"fattore_base": 15,
+			"abilita": [],
+			"ritratto": "res://art/personaggi/rio.png"
+		},
+		{
+			"id": "bero",
+			"nome": "Bero",
+			"classe": "Mecha",
+			"hp": 7,
+			"attacco": 2,
+			"difesa": 2,
 			"velocita": 2,
 			"psiche": "rabbia",
 			"fattore_base": 10,
-			"abilita": ["scasso", "trappole"],
-			"ritratto": "res://art/personaggi/guastatore.png"
+			"resistenze": { "stress": "immune" },
+			"abilita": [],
+			"ritratto": "res://art/personaggi/bero.png"
 		},
 		{
-			"id": "fanatico",
-			"nome": "Fanatico",
+			"id": "mockingbear",
+			"nome": "Mockingbear",
+			"classe": "Fanatico",
 			"hp": 9,
 			"attacco": 1,
 			"difesa": 3,
@@ -62,7 +121,21 @@
 			"personalita": "inamovibile",
 			"resistenze": { "stress": "immune", "psico": "ipersensibile" },
 			"abilita": ["provocazione"],
-			"ritratto": "res://art/personaggi/fanatico.png"
+			"ritratto": "res://art/personaggi/mockingbear.png"
+		},
+		{
+			"id": "mr_eto",
+			"nome": "Mr. Eto",
+			"classe": "Mente",
+			"hp": 5,
+			"attacco": 2,
+			"difesa": 0,
+			"velocita": 3,
+			"psiche": "concentrazione",
+			"fattore_base": 20,
+			"personalita": "manipolatore",
+			"abilita": [],
+			"ritratto": "res://art/personaggi/mr_eto.png"
 		}
 	]
 }

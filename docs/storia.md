@@ -200,11 +200,12 @@ passo. Nessuna esplorazione, nessun combattimento: solo l'espulsione
 automatica (`espulsione_automatica` nei dati). Cosa sia, lo scopriremo più
 avanti — per ora è un segnale, lasciato apposta senza risposta.
 
-### Meteora e i compagni
-Meteora **non** è il primo compagno: è un personaggio speciale, si incontra
-**dal Vuoto 4 in poi**. Yhvina (l'Insonne) è temporanea nel Vuoto 1 e torna nel
-Vuoto 3. La regola generale: i compagni si incontrano più avanti, in altri
-luoghi, non nel primo Carnivalz.
+### Niru e i compagni
+Niru (classe Meteora) **non** è il primo compagno: è un personaggio speciale, si
+incontra **dal Vuoto 4 in poi**, ed è **opzionale** (uno dei due, con Fio, dei
+10 compagni). Yhvina (l'Insonne) è temporanea nel Vuoto 1 e torna nel Vuoto 3.
+La regola generale: i compagni si incontrano più avanti, in altri luoghi, non
+nel primo Carnivalz.
 
 ## Le fonti e i due esiti
 Quando un intero pianeta viene divorato dal fattore Carnivalz, **la fonte va
@@ -297,21 +298,33 @@ gioco avrà successo.
 - **Provocazione** = un compagno (per ora solo il Fanatico) forza i nemici
   a colpire lui per un paio di turni, proteggendo chi è più fragile.
 
-## Personaggi annunciati, ancora senza scheda completa
-- **Vega**: personificazione del bene e di ciò che la gente ama. Fragile a
-  maledizione, stress ed elemento oscuro (resistenze ipersensibili);
-  iper-sensibile anche al morale di squadra, ma in positivo — legame e
-  morale alti la rendono fortissima. Mancano ancora stat, mosse, ritratto
-  e dove si incontra.
-- **Sally**: classe "troublemaker" — resistenza allo stress invertita (più
-  è stressata, più è motivata: lo stress la potenzia invece di indebolirla).
-  Già citata come chi presenta Nyu (vedi sotto), non ancora statuata.
-- **Fanatico** (aggiunto in `classes.json`, stat da confermare): falso eroe
-  che ci crede davvero. Tank: HP e difesa alti, attacca poco (passa i turni
-  a provocare/difendere), ottima resistenza allo stress (per ora
-  implementata come immunità), ma ipersensibile all'elemento "psico" (i
-  manipolatori: seduzione, intimidazione, pietà — abbassano la difesa e
-  paralizzano scuotendo emotivamente).
+## Il roster: 10 compagni + il protagonista
+Il protagonista (Anonimo) è scelto con **genere a scelta, maschio o
+femmina**. Gli altri 10 personaggi che si uniranno al party, con la coppia
+nome-classe fissata da Bru (in `classes.json`; stat quasi tutte ancora
+segnaposto, da correggere):
+- **Yhvina** — Insonne
+- **Sally** — Troublemaker (era "Guastatore": stessa scheda, scasso/trappole,
+  ma resistenza allo stress invertita — più è stressata più è motivata)
+- **Vega** — Hope: personificazione del bene e di ciò che la gente ama.
+  Fragile a maledizione, stress ed elemento oscuro (resistenze
+  ipersensibili); iper-sensibile anche al morale di squadra, ma in
+  positivo — legame e morale alti la rendono fortissima (l'amplificazione
+  da morale alto non è ancora meccanicamente implementata)
+- **Niru** — Meteora (vedi sopra: opzionale, dal Vuoto 4)
+- **Fio** — Sognatrice (**opzionale**, l'altro dei due non garantiti)
+- **Rio** — Collezionista
+- **Bero** — Mecha (resistenza allo stress impostata come immunità: una
+  macchina non ha psicologia da scuotere)
+- **Mockingbear** — Fanatico: falso eroe che ci crede davvero. Tank, HP e
+  difesa alti, attacca poco (passa i turni a provocare/difendere), ottima
+  resistenza allo stress (immunità), ma ipersensibile all'elemento "psico"
+  (i manipolatori: seduzione, intimidazione, pietà — abbassano la difesa e
+  paralizzano scuotendo emotivamente)
+- **Mr. Eto** — Mente
+
+Di questi, solo Yhvina e Niru hanno oggi mosse/abilità/ritratto reali; gli
+altri hanno solo nome, classe e stat segnaposto in attesa del resto.
 
 ## Personalità ed Elementi
 Due assi per le resistenze dei personaggi, usati **a override per
@@ -323,8 +336,13 @@ solo le proprie eccezioni esplicite, tutto il resto resta neutro):
   molecolare, energia, natura, sogno, acqua, speciale, psico (14)
 
 ## Punti aperti (decide Bru)
-- Chi è Sally, dove la si incontra, e il carattere di Nyu e dell'Artigiano
-- Dove e come si incontrano Meteora, Insonne e Guastatore (mondi futuri)
+- Dove e come si incontrano i restanti 8 compagni (Sally, Vega, Fio, Rio,
+  Bero, Mockingbear, Mr. Eto — Yhvina e Niru già hanno un punto d'incontro),
+  e il carattere di Nyu e dell'Artigiano
+- Conferma ortografia "Mockingbear" (nel messaggio precedente era scritto
+  "Mockingbird" — nome diverso, non solo un refuso)
+- L'amplificazione di Vega da morale/legame alto: come si implementa
+  meccanicamente (soglia? scala continua?)
 - Natura dell'ombra che prende dati (materiale per Carnivalz 2)
 - La causa ignota del collasso (resta ignota? si scopre nel 2?)
 - Quando "un personaggio diventa fonte" diventa meccanica: soglia di stress
