@@ -4,10 +4,21 @@ extends Control
 # e applica gli effetti (recluta / oggetto / lascia / reset). I contenuti
 # vivono solo nei JSON.
 #
+# Il box in basso mostra UN messaggio alla volta, in coda (coda_messaggi),
+# avanzata cliccando "Continua"; solo a coda vuota compaiono le scelte vere.
+# Tre tipi di messaggio:
+#   - "narrazione": descrizione di quel che accade, sempre in corsivo, senza nome
+#   - "dialogo": un personaggio parla, il suo nome compare centrato sul box
+#   - "notifica": oggetti/Tazo raccolti, centrato, una voce alla volta
+# Un nodo può avere "sequenza" (lista di messaggi) oppure, in alternativa,
+# il vecchio campo "testo" (diventa un'unica narrazione, per compatibilità
+# con i contenuti non ancora convertiti).
+#
 # Palco dialoghi sopra il box: a sinistra sempre il protagonista (o un
 # alternativo indicato dal nodo), a destra l'interlocutore della
 # discussione. Se il nodo indica "centro", parla un solo personaggio al
-# centro e i due spazi laterali spariscono.
+# centro e i due spazi laterali spariscono. Questo riguarda solo i ritratti
+# visibili, non il nome sul box (quello segue il messaggio corrente).
 
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
@@ -24,6 +35,9 @@ const EVENTI_DEBUG := "res://data/events.json"
 @onready var menu_compagni: HBoxContainer = %MenuCompagni
 @onready var stato: Label = %Stato
 
+var nodo_in_corso: Dictionary = {}
+var coda_messaggi: Array[Dictionary] = []
+
 func _ready() -> void:
 	if GameState.eventi.is_empty():
 		# scena avviata direttamente dall'editor: carica la campagna di prova
@@ -34,7 +48,7 @@ func _ready() -> void:
 	bottone_dialoga.pressed.connect(_su_dialoga)
 	mostra_nodo(GameState.nodo_corrente)
 
-func mostra_nodo(id_nodo: String) -> void:
+func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) -> void:
 	var nodo: Dictionary = GameState.eventi.get(id_nodo, {})
 	if nodo.is_empty():
 		push_error("Nodo evento mancante: " + id_nodo)
@@ -58,11 +72,12 @@ func mostra_nodo(id_nodo: String) -> void:
 				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
 				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 				return
-	narratore.text = nodo.get("testo", "")
 	aggiorna_palco(nodo)
 	aggiorna_stato()
 	if nodo.get("espulsione_automatica", false):
 		# non c'e' niente da scegliere: il posto stesso ti rigetta fuori
+		var seq := sequenza_di(nodo)
+		mostra_messaggio(seq[0] if not seq.is_empty() else {"tipo": "narrazione", "testo": ""})
 		for figlio in contenitore_scelte.get_children():
 			figlio.queue_free()
 		aggiorna_dialoga()
@@ -70,8 +85,47 @@ func mostra_nodo(id_nodo: String) -> void:
 		GameState.congeda_tutti_temporanei()
 		get_tree().change_scene_to_file(SCENA_VUOTO)
 		return
-	ricostruisci_scelte(nodo)
+	nodo_in_corso = nodo
+	coda_messaggi = notifiche_precedenti + sequenza_di(nodo)
+	avanza_messaggio()
+
+func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
+	if nodo.has("sequenza"):
+		var seq: Array[Dictionary] = []
+		for msg in nodo["sequenza"]:
+			seq.append(msg)
+		return seq
+	return [{"tipo": "narrazione", "testo": nodo.get("testo", "")}]
+
+func avanza_messaggio() -> void:
+	if not coda_messaggi.is_empty():
+		var msg: Dictionary = coda_messaggi.pop_front()
+		mostra_messaggio(msg)
+		mostra_continua()
+		return
+	ricostruisci_scelte(nodo_in_corso)
 	aggiorna_dialoga()
+
+func mostra_messaggio(msg: Dictionary) -> void:
+	match String(msg.get("tipo", "narrazione")):
+		"dialogo":
+			nome_parlante.visible = true
+			aggiorna_nome_parlante(String(msg.get("chi", GameState.id_protagonista)))
+			narratore.text = String(msg.get("testo", ""))
+		"notifica":
+			nome_parlante.visible = false
+			narratore.text = "[center][b]%s[/b][/center]" % String(msg.get("testo", ""))
+		_:
+			nome_parlante.visible = false
+			narratore.text = "[i]%s[/i]" % String(msg.get("testo", ""))
+
+func mostra_continua() -> void:
+	for figlio in contenitore_scelte.get_children():
+		figlio.queue_free()
+	var bottone := Button.new()
+	bottone.text = "▸ Continua"
+	bottone.pressed.connect(avanza_messaggio)
+	contenitore_scelte.add_child(bottone)
 
 func ricostruisci_scelte(nodo: Dictionary) -> void:
 	for figlio in contenitore_scelte.get_children():
@@ -98,17 +152,15 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
 
-func pickup(id_oggetto: String) -> void:
-	# notifica come toast indipendente dal narratore: non si perde nel cambio
-	# nodo (il narratore viene riscritto subito dopo, se la scelta ha "vai").
+func pickup(id_oggetto: String) -> Array[Dictionary]:
+	# notifiche sequenziali: "hai raccolto X" e' un messaggio a se',
+	# ordinato insieme agli altri, non un testo mescolato o un elemento minore.
 	# Per gli oggetti chiave (di solito indizi/lore, come le pagine di
-	# giornale di Meridia) il toast resta a schermo più a lungo e mostra
-	# anche la descrizione, non solo il nome.
+	# giornale di Meridia) la descrizione diventa una seconda pagina.
 	var dati := GameState.dati_oggetto(id_oggetto)
 	var nome: String = String(dati.get("nome", id_oggetto))
 	if not GameState.aggiungi_oggetto(id_oggetto):
-		mostra_toast("%s: la sacca è piena, non c'è posto per lui." % nome, 2.5)
-		return
+		return [{"tipo": "notifica", "testo": "%s: la sacca è piena, non c'è posto per lui." % nome}]
 	var tipo := String(dati.get("tipo", "consumabile"))
 	var luogo := "nella sacca"
 	match tipo:
@@ -116,43 +168,10 @@ func pickup(id_oggetto: String) -> void:
 			luogo = "tra i collezionabili"
 		"chiave":
 			luogo = "tra gli oggetti chiave"
-	var testo_toast := "Hai ottenuto: %s (%s)" % [nome, luogo]
-	var durata := 2.2
+	var risultato: Array[Dictionary] = [{"tipo": "notifica", "testo": "Hai raccolto: %s (%s)." % [nome, luogo]}]
 	if tipo == "chiave":
-		testo_toast += "\n%s" % String(dati.get("descrizione", ""))
-		durata = 5.0
-	mostra_toast(testo_toast, durata)
-
-func mostra_toast(testo: String, durata := 2.2) -> void:
-	var pannello := PanelContainer.new()
-	var stile := StyleBoxFlat.new()
-	stile.bg_color = Color(0, 0, 0, 0.9)
-	stile.border_width_left = 2
-	stile.border_width_top = 2
-	stile.border_width_right = 2
-	stile.border_width_bottom = 2
-	stile.border_color = Color(1, 1, 1, 1)
-	stile.content_margin_left = 18
-	stile.content_margin_right = 18
-	stile.content_margin_top = 10
-	stile.content_margin_bottom = 10
-	pannello.add_theme_stylebox_override("panel", stile)
-	pannello.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	pannello.modulate = Color(1, 1, 1, 0)
-	pannello.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	pannello.position.y = 24
-	add_child(pannello)
-	var etichetta := Label.new()
-	etichetta.text = testo
-	etichetta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	etichetta.custom_minimum_size = Vector2(420, 0)
-	etichetta.autowrap_mode = TextServer.AUTOWRAP_WORD
-	pannello.add_child(etichetta)
-	var tween := create_tween()
-	tween.tween_property(pannello, "modulate:a", 1.0, 0.2)
-	tween.tween_interval(durata)
-	tween.tween_property(pannello, "modulate:a", 0.0, 0.4)
-	tween.tween_callback(pannello.queue_free)
+		risultato.append({"tipo": "narrazione", "testo": String(dati.get("descrizione", ""))})
+	return risultato
 
 func aggiorna_palco(nodo: Dictionary) -> void:
 	if nodo.has("centro"):
@@ -160,7 +179,6 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 		slot_destra.visible = false
 		slot_centro.visible = true
 		mostra_slot(slot_centro, nodo["centro"], nodo.get("espr_centro", ""))
-		aggiorna_nome_parlante(id_da_valore(nodo["centro"]))
 		return
 	slot_centro.visible = false
 	slot_sinistra.visible = true
@@ -168,13 +186,6 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 	slot_destra.visible = nodo.has("destra")
 	if nodo.has("destra"):
 		mostra_slot(slot_destra, nodo["destra"], nodo.get("espr_destra", ""))
-	# la narrazione e' sempre vissuta come il dialogo interiore del protagonista
-	aggiorna_nome_parlante(GameState.id_protagonista)
-
-func id_da_valore(valore: Variant) -> String:
-	if valore is Dictionary:
-		return String(valore.get("id", ""))
-	return String(valore)
 
 func aggiorna_nome_parlante(id_personaggio: String) -> void:
 	nome_parlante.text = String(GameState.personaggi.get(id_personaggio, {}).get("nome", id_personaggio))
@@ -201,8 +212,9 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.imposta_flag(scelta["una_tantum"])
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
+	var notifiche: Array[Dictionary] = []
 	if scelta.has("oggetto"):
-		pickup(scelta["oggetto"])
+		notifiche.append_array(pickup(scelta["oggetto"]))
 	if scelta.has("lascia"):
 		GameState.rimuovi_classe(scelta["lascia"])
 	if scelta.has("ospite"):
@@ -212,7 +224,10 @@ func _su_scelta(scelta: Dictionary) -> void:
 	if scelta.has("congeda"):
 		GameState.congeda(scelta["congeda"])
 	if scelta.has("tazo"):
-		GameState.modifica_tazo(int(scelta["tazo"]))
+		var quantita := int(scelta["tazo"])
+		GameState.modifica_tazo(quantita)
+		if quantita > 0:
+			notifiche.append({"tipo": "notifica", "testo": "Hai ottenuto %d Tazo." % quantita})
 	if scelta.has("sblocca_negozio"):
 		GameState.sblocca_negozio(scelta["sblocca_negozio"])
 	if scelta.has("stress"):
@@ -236,7 +251,11 @@ func _su_scelta(scelta: Dictionary) -> void:
 		get_tree().change_scene_to_file(SCENA_MAPPA)
 		return
 	if scelta.has("vai"):
-		mostra_nodo(scelta["vai"])
+		mostra_nodo(scelta["vai"], notifiche)
+	elif not notifiche.is_empty():
+		# si resta sullo stesso nodo: si mostrano solo le notifiche in coda
+		coda_messaggi = notifiche
+		avanza_messaggio()
 
 func aggiorna_dialoga() -> void:
 	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce
@@ -258,24 +277,26 @@ func _su_dialoga() -> void:
 func _su_compagno(id_classe: String) -> void:
 	for figlio in menu_compagni.get_children():
 		figlio.queue_free()
-	var nome: String = String(GameState.classi.get(id_classe, {}).get("nome", id_classe))
 	slot_sinistra.visible = false
 	slot_destra.visible = false
 	slot_centro.visible = true
 	mostra_slot(slot_centro, id_classe, "")
-	aggiorna_nome_parlante(id_classe)
+	var nome: String = String(GameState.classi.get(id_classe, {}).get("nome", id_classe))
 	var voce: Dictionary = GameState.dialoghi.get(GameState.nodo_corrente, {})
 	var gia_detta: bool = voce.has("una_tantum") and GameState.ha_flag(voce["una_tantum"])
 	if voce.is_empty() or gia_detta:
-		narratore.append_text("\n\n[i]%s non ha altro da dirti, qui.[/i]" % nome)
-		return
-	narratore.append_text("\n\n" + (String(voce.get("testo", "")) % nome))
-	if voce.has("flag"):
-		GameState.imposta_flag(voce["flag"])
-	if voce.has("una_tantum"):
-		GameState.imposta_flag(voce["una_tantum"])
-	# la battuta puo' aver sbloccato una scelta gated da richiede_flag
-	ricostruisci_scelte(GameState.eventi.get(GameState.nodo_corrente, {}))
+		coda_messaggi = [{"tipo": "narrazione", "testo": "%s non ha altro da dirti, qui." % nome}]
+	else:
+		# le voci di dialoghi.json sono scritte in terza persona (narrazione
+		# dell'azione del compagno, col suo nome da sostituire nel "%s")
+		coda_messaggi = [{"tipo": "narrazione", "testo": String(voce.get("testo", "")) % nome}]
+		if voce.has("flag"):
+			GameState.imposta_flag(voce["flag"])
+		if voce.has("una_tantum"):
+			GameState.imposta_flag(voce["una_tantum"])
+	avanza_messaggio()
+	# la battuta puo' aver sbloccato una scelta gated da richiede_flag: la
+	# prossima volta che la coda si svuota, ricostruisci_scelte() la rilegge
 
 func aggiorna_stato() -> void:
 	var nomi: Array[String] = []

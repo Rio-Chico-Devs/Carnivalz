@@ -2,24 +2,33 @@
 	"nodo_iniziale": "inizio",
 	"nodi": {
 		"inizio": {
-			"testo": "Sono a pochi passi dalla fonte, come sempre — capita solo nei mondi già in rovina, o quando la fonte si nasconde bene, che la distanza sia maggiore. Qui no. Intorno a me solo terra rossa, felci enormi, il cielo basso di un pianeta che sembra essersi fermato molto prima di imparare a stare in piedi.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Sono a pochi passi dalla fonte, come sempre — capita solo nei mondi già in rovina, o quando la fonte si nasconde bene, che la distanza sia maggiore. Qui no. Intorno a me solo terra rossa, felci enormi, il cielo basso di un pianeta che sembra essersi fermato molto prima di imparare a stare in piedi." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Dunque è questo il pianeta primitivo dove devo estinguere la fonte della follia?" }
+			],
 			"espr_sinistra": "pensiero",
 			"scelte": [
-				{ "testo": "\"Dunque è questo il pianeta primitivo dove devo estinguere la fonte della follia?\"", "vai": "primo_incontro" }
+				{ "testo": "Avanza", "vai": "primo_incontro" }
 			]
 		},
 		"primo_incontro": {
-			"testo": "Tra le felci, qualcosa di verde e spelacchiato mi nota e si fa avanti, brandendo un bastone raccolto da terra. Vediamo di finire presto: non ho tempo da perdere.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Tra le felci, qualcosa di verde e spelacchiato mi nota e si fa avanti, brandendo un bastone raccolto da terra." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Vediamo di finire presto: non ho tempo da perdere." }
+			],
 			"espr_sinistra": "decisa",
 			"scelte": [
 				{ "testo": "Affrontalo", "combatti": ["goblin_tipico"], "se_vinci": "dopo_primo_goblin", "se_perdi": "sconfitta" }
 			]
 		},
 		"dopo_primo_goblin": {
-			"testo": "Un solo colpo, ed è già finita.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Un solo colpo, ed è già finita." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Le creature qui sembrano molto deboli... la fonte non deve essere molto intelligente..." }
+			],
 			"espr_sinistra": "pensiero",
 			"scelte": [
-				{ "testo": "\"Le creature qui sembrano molto deboli... la fonte non deve essere molto intelligente...\"", "vai": "masso" }
+				{ "testo": "Avanza", "vai": "masso" }
 			]
 		},
 		"masso": {
@@ -72,7 +81,11 @@
 			]
 		},
 		"vittoria": {
-			"testo": "Il goblin cade e non si rialza. L'aria intorno a me si calma: il fattore Carnivalz di questa zona non è più pericoloso. Così facile. Non tutte le fonti nascondono una tragedia: a volte i mostri sono semplicemente malvagi per natura, senza aver mai davvero subito la trasformazione di un vero boss. Immagino che questo sia stato solo l'inizio.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Il goblin cade e non si rialza. L'aria intorno a me si calma: il fattore Carnivalz di questa zona non è più pericoloso." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Così facile." },
+				{ "tipo": "narrazione", "testo": "Non tutte le fonti nascondono una tragedia: a volte i mostri sono semplicemente malvagi per natura, senza aver mai davvero subito la trasformazione di un vero boss. Immagino che questo sia stato solo l'inizio." }
+			],
 			"espr_sinistra": "pensiero",
 			"flag": "tutorial_completato",
 			"scelte": [
