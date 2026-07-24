@@ -2,7 +2,7 @@
 	"personaggi": [
 		{
 			"id": "maschera_vuota",
-			"nome": "Comparsa Fomentada",
+			"nome": "Fomentado",
 			"hp": 4,
 			"attacco": 1,
 			"difesa": 0,
@@ -10,14 +10,14 @@
 			"xp": 8,
 			"tazo": 5,
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
-			"descrizione": "Un toro umano che balla e sbuffa, spavaldo, dietro una maschera di ferro nero. Sotto la maschera non c'è più nessuno: solo la posa, e la voglia di applausi.",
-			"carta": { "id": "carta_maschera_vuota", "nome": "Comparsa Fomentada", "rarita": "non_comune", "chance": 0.05, "testo": "¡Olé! grida a un pubblico che non c'è. Poi carica." },
+			"descrizione": "Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.",
+			"carta": { "id": "carta_maschera_vuota", "nome": "Fomentado", "rarita": "non_comune", "chance": 0.05, "testo": "Un folle talentuoso che non ha mai rinunciato ai suoi sogni, un esempio di vita... forse." },
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.3 }
 			],
 			"studio": [
-				{ "domanda": "Chi balla, sotto la maschera?", "risposta": "¡Ándale! ...ándale... (non risponde: recita)" },
-				{ "domanda": "Per chi è questo spettacolo?", "risposta": "¡Para todos! ...para nadie." }
+				{ "domanda": "Rispondi.", "risposta": "¡Ándale! ...ándale... Non c'è tempo per fermarsi, lo spettacolo continua!" },
+				{ "domanda": "Fammi capire cosa succede...", "risposta": "¡Soy para todos! ...o para nadie. Pero nunca pararé!" }
 			]
 		},
 		{
@@ -445,7 +445,7 @@
 					"tipo": "evoca",
 					"valore": "maschera_vuota",
 					"peso": 1,
-					"testo": "Jerah batte il tacco tre volte: dal fumo sale una Comparsa Fomentada."
+					"testo": "Jerah batte il tacco tre volte: dal fumo sale un Fomentado."
 				}
 			],
 			"testo_cedimento": "Jerah barcolla. \"Qué espectáculo... voi due,\" mormora. L'arena intera trema con lui. Ma non smette di attaccare: una fonte non può.",

@@ -37,7 +37,7 @@
 			]
 		},
 		"radura": {
-			"testo": "Il piazzale davanti alla plaza. Cactus alti come uomini, sombreros bruciati appesi ai pali. Sulla sabbia, immobile e spavalda, una Comparsa Fomentada in maschera di toro ti aspetta a braccia aperte.",
+			"testo": "Il piazzale davanti alla plaza. Cactus alti come uomini, sombreros bruciati appesi ai pali. Sulla sabbia, immobile e spavaldo, un Fomentado in maschera di toro ti aspetta a braccia aperte.",
 			"scelte": [
 				{ "testo": "Affrontala", "combatti": ["maschera_vuota"], "se_vinci": "campo_giostre", "se_perdi": "sconfitta" },
 				{ "testo": "Aggirala nell'ombra, seguendo l'istinto", "vai": "campo_giostre", "richiede": "sesto_senso" }
