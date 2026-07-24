@@ -111,6 +111,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 			# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
 			GameState.registra_bestiario(id_personaggio)
 			AudioManager.verso(id_personaggio, dati, "comparsa")
+	var combustione: Dictionary = dati.get("combustione", {})
 	var combattente := {
 		"indice": combattenti.size(),
 		"id": id_personaggio,
@@ -133,6 +134,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"giocatore": giocatore,
 		"stati": [],
 		"buffs": [],
+		"volte_studiato": 0,
+		"combustione": combustione,
+		"in_fiamme": not combustione.is_empty() and not combustione.has("attiva_da_studio"),
 		"scheda": scheda,
 		"etichetta_vita": vita,
 		"etichetta_extra": extra,
@@ -190,6 +194,10 @@ func esegui_scontro() -> void:
 func esegui_turno(attaccante: Dictionary) -> void:
 	scadenza_buff(attaccante)
 	evidenzia(attaccante)
+	if attaccante.in_fiamme:
+		applica_combustione(attaccante)
+		if attaccante.hp <= 0:
+			return  # bruciato prima di poter agire
 	if attaccante.giocatore:
 		attaccante_corrente = attaccante
 		mostra_azioni()
@@ -328,6 +336,7 @@ func studia(chi: Dictionary) -> void:
 		attiva_bersaglio_extra()
 		GameState.segna_studiato(bersaglio.id)
 		return
+	bersaglio.volte_studiato += 1
 	var dati: Dictionary = GameState.personaggi.get(bersaglio.id, {})
 	var scambi: Array = dati.get("studio", [])
 	if convinto and bersaglio.id == fonte.get("id", "") and dati.has("studio_cedimento"):
@@ -340,11 +349,18 @@ func studia(chi: Dictionary) -> void:
 		if scambio.has("osservazione"):
 			scrivi("[i]%s[/i]" % scambio["osservazione"])
 		else:
-			scrivi("%s: \"%s\"" % [chi.nome, scambio.get("domanda", "")])
+			# le domande dei nemici generici sono pescate a caso da un pool
+			# condiviso; solo boss e creature particolari hanno una domanda
+			# scritta apposta
+			var domanda: String = scambio.get("domanda", "")
+			if domanda == "":
+				domanda = GameState.domanda_studio_casuale()
+			scrivi("%s: \"%s\"" % [chi.nome, domanda])
 			scrivi("%s: \"%s\"" % [bersaglio.nome, scambio.get("risposta", "")])
 	GameState.segna_studiato(bersaglio.id)
 	if bersaglio.id == fonte.get("id", ""):
 		aggiorna_speranza(int(GameState.regole.get("speranza_studio", 10)))
+	verifica_innesco_combustione(bersaglio)
 
 func attiva_bersaglio_extra() -> void:
 	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
@@ -494,6 +510,30 @@ func cedimento(combattente: Dictionary) -> void:
 	combattente.attacco = maxi(combattente.attacco - int(GameState.regole.get("cedimento_attacco", 1)), 0)
 	combattente.hp = maxi(combattente.hp - int(GameState.regole.get("cedimento_hp", 1)), 0)
 	scrivi("[i]Lo spettacolo di %s si spegne un po' di più.[/i]" % combattente.nome)
+	aggiorna_scheda(combattente)
+	if combattente.hp <= 0:
+		_su_ko(combattente)
+
+# --- combustione: alcuni nemici bruciano a ogni loro turno (danno, a volte
+# anche un bonus attacco che cresce turno dopo turno). Puo' essere attiva
+# fin dall'inizio (nessun "attiva_da_studio" nei dati) o innescarsi dopo
+# essere stato studiato un certo numero di volte.
+
+func verifica_innesco_combustione(bersaglio: Dictionary) -> void:
+	var comb: Dictionary = bersaglio.combustione
+	if comb.is_empty() or bersaglio.in_fiamme or not comb.has("attiva_da_studio"):
+		return
+	if bersaglio.volte_studiato >= int(comb["attiva_da_studio"]):
+		bersaglio.in_fiamme = true
+		scrivi("[b]%s[/b]" % comb.get("testo_innesco", "Qualcosa in lui prende fuoco."))
+
+func applica_combustione(combattente: Dictionary) -> void:
+	var comb: Dictionary = combattente.combustione
+	var danno := int(comb.get("danno_per_turno", 1))
+	combattente.hp = maxi(combattente.hp - danno, 0)
+	scrivi("[i]%s[/i]" % String(comb.get("testo_turno", "Brucia ancora un po'.")))
+	if comb.has("bonus_attacco"):
+		combattente.attacco += int(comb["bonus_attacco"])
 	aggiorna_scheda(combattente)
 	if combattente.hp <= 0:
 		_su_ko(combattente)
@@ -693,6 +733,8 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 		dettagli += " · Dif %d" % scudo
 	if combattente.stress >= int(GameState.regole.get("soglia_stress_sopraffatto", 80)):
 		dettagli += " · sopraffatto"
+	if combattente.get("in_fiamme", false):
+		dettagli += " · in fiamme"
 	if combattente.psiche in combattente.stati:
 		dettagli += " · " + String(GameState.psichi.get(combattente.psiche, {}).get("nome", combattente.psiche))
 	combattente.etichetta_extra.text = dettagli

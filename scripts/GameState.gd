@@ -13,6 +13,7 @@ const PERCORSO_MAPPA := "res://data/mappa.json"
 const PERCORSO_REGOLE := "res://data/regole.json"
 const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 const PERCORSO_AUDIO := "res://data/audio.json"
+const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_SALVATAGGIO := "user://salvataggio.json"
 
 # Unica fonte di casualità del gioco: sempre seedata, per determinismo
@@ -28,6 +29,7 @@ var negozi: Dictionary = {}          # id negozio -> definizione
 var regole: Dictionary = {}
 var dialoghi: Dictionary = {}        # id nodo -> battuta di un compagno (lore, sblocchi)
 var audio: Dictionary = {}           # config musica (chiavi -> percorsi)
+var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemici comuni
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
 var id_protagonista: String = ""
 
@@ -77,6 +79,7 @@ func _ready() -> void:
 	carica_regole()
 	carica_dialoghi()
 	carica_audio()
+	carica_studio()
 	nuova_partita()
 
 func imposta_seed(nuovo_seed: int) -> void:
@@ -139,6 +142,18 @@ func carica_dialoghi() -> void:
 func carica_audio() -> void:
 	var dati: Variant = carica_json(PERCORSO_AUDIO)
 	audio = dati if dati is Dictionary else {}
+
+func carica_studio() -> void:
+	var dati: Variant = carica_json(PERCORSO_STUDIO)
+	domande_studio_generiche = dati.get("domande_generiche", []) if dati is Dictionary else []
+
+func domanda_studio_casuale() -> String:
+	# per i nemici comuni: la domanda del giocatore e' pescata a caso da un
+	# pool condiviso. Le risposte restano scritte per ogni personaggio;
+	# solo boss e creature particolari hanno anche la domanda su misura.
+	if domande_studio_generiche.is_empty():
+		return ""
+	return String(domande_studio_generiche[rng.randi_range(0, domande_studio_generiche.size() - 1)])
 
 func carica_mappa() -> Dictionary:
 	var dati: Variant = carica_json(PERCORSO_MAPPA)

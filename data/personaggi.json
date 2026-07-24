@@ -12,6 +12,10 @@
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
 			"descrizione": "Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.",
 			"carta": { "id": "carta_maschera_vuota", "nome": "Fomentado", "rarita": "non_comune", "chance": 0.05, "testo": "Un folle talentuoso che non ha mai rinunciato ai suoi sogni, un esempio di vita... forse." },
+			"combustione": {
+				"danno_per_turno": 1,
+				"testo_turno": "Il fuoco che porta dentro non si spegne mai: un altro pezzo di lui si consuma."
+			},
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.3 }
 			],
@@ -35,6 +39,13 @@
 			"ritratto": "res://art/personaggi/giocoliere.png",
 			"descrizione": "Una rara bellezza, un campione nella recita, ma il talento a volte può farti uscire fuori di testa.",
 			"carta": { "id": "carta_giocoliere", "nome": "El Muy Bonito", "rarita": "rara", "testo": "Ho sempre voluto un suo autografo! - Fan." },
+			"combustione": {
+				"attiva_da_studio": 2,
+				"danno_per_turno": 1,
+				"bonus_attacco": 1,
+				"testo_innesco": "Qualcosa in lui si spezza sotto lo sguardo attento: il talento che lo ha reso grande ora lo divora dall'interno. Comincia a bruciare — e più brucia, più diventa pericoloso.",
+				"testo_turno": "Le fiamme lo consumano un altro po'. Lui ne trae ancora più forza."
+			},
 			"studio": [
 				{ "domanda": "Rivelami i tuoi desideri", "risposta": "¡No me digas lo que tengo que hacer, hombre! Soccombi dinnanzi a me, e brucia come io brucio nel cielo!" },
 				{ "domanda": "Ti ascolto.", "risposta": "Guardatemi! GUARDATEMI!!!" }

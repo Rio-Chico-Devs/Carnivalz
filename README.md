@@ -190,6 +190,20 @@ collegate nei due sensi (perlustrazione libera):
   (uccide un suo alleato evocato per aumentare il proprio fattore — se non ha
   nessuno da sacrificare, attacca lui stesso; usata da Jongo Dongo)
 
+### Combustione (nemici che bruciano)
+Un nemico può avere `combustione` nei dati: a ogni suo turno subisce `danno_per_turno`
+e, se presente, il suo `attacco` sale di `bonus_attacco` — entrambi si accumulano turno
+dopo turno finché resta "in fiamme". Senza `attiva_da_studio` è attiva già dal primo turno
+(Fomentado, che brucia di suo per natura); con `attiva_da_studio: N` si innesca dopo essere
+stato **studiato N volte** (El Muy Bonito: il suo stesso talento, messo sotto esame, lo
+manda a fuoco — e più brucia più diventa pericoloso, finché non lo consuma).
+
+### Studio sui nemici comuni: domande generiche
+Per i nemici comuni non serve scrivere una domanda su misura: se uno scambio in `studio`
+ha solo `risposta` (senza `domanda`), il gioco pesca la battuta del giocatore a caso da
+`data/studio.json` (`domande_generiche`). Le risposte restano scritte per ogni personaggio;
+solo boss e creature particolari hanno anche la domanda scritta apposta.
+
 ### Frenesia (miniboss con conto alla rovescia)
 Un nemico può avere nei dati una chiave `frenesia` (non serve essere una fonte): a una
 `soglia_hp` innesca un conto alla rovescia (`conteggio` turni). Se arriva a zero: maleficio,
