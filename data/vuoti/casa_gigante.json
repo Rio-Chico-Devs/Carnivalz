@@ -5,7 +5,8 @@
 			"testo": "Questo squarcio è una casa gigantesca: non nelle proporzioni, ma nel numero delle stanze, spaziose una via l'altra, come se non finisse mai. Dalla porta socchiusa filtra una ninna nanna stonata.",
 			"scelte": [
 				{ "testo": "Entra", "vai": "salone" },
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true, "richiede_non_flag": "casa_yhvina" },
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true, "richiede_flag": "casa_ricordo_sconfitto" }
 			]
 		},
 		"salone": {

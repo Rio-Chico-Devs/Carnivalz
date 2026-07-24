@@ -16,7 +16,9 @@ const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 
 @onready var fila_party: HBoxContainer = %Party
-@onready var fila_nemici: HBoxContainer = %Nemici
+@onready var nemico_centro: HBoxContainer = %NemicoCentro
+@onready var nemici_sinistra: HBoxContainer = %NemiciSinistra
+@onready var nemici_destra: HBoxContainer = %NemiciDestra
 @onready var etichetta_speranza: Label = %Speranza
 @onready var diario: RichTextLabel = %Diario
 @onready var azioni: HBoxContainer = %Azioni
@@ -50,6 +52,12 @@ var bersaglio_extra_sbloccato := false
 var bersaglio_provocazione: Dictionary = {}
 var turni_provocazione := 0
 var ultima_azione_offensiva := false
+
+# Il primo nemico (il boss, o il primo di un gruppo comune) resta sempre al
+# centro del campo; chi si aggiunge dopo (altri della stessa imboscata, o
+# un'evocazione) si dispone ai lati, alternando destra e sinistra.
+var nemico_centrale_occupato := false
+var prossimo_lato_nemico := "destra"
 
 func _ready() -> void:
 	for id_classe in GameState.party:
@@ -111,7 +119,15 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		fila_party.add_child(scheda)
 		ritratto.mostra(id_personaggio, GameState.livello_di(id_personaggio))
 	else:
-		fila_nemici.add_child(scheda)
+		if not nemico_centrale_occupato:
+			nemico_centrale_occupato = true
+			nemico_centro.add_child(scheda)
+		elif prossimo_lato_nemico == "destra":
+			nemici_destra.add_child(scheda)
+			prossimo_lato_nemico = "sinistra"
+		else:
+			nemici_sinistra.add_child(scheda)
+			prossimo_lato_nemico = "destra"
 		ritratto.mostra(id_personaggio)
 		if dati.has("xp"):
 			# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)

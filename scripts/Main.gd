@@ -41,14 +41,15 @@ func mostra_nodo(id_nodo: String) -> void:
 		GameState.imposta_flag(nodo["flag"])
 	if nodo.has("congeda"):
 		GameState.congeda(nodo["congeda"])
-	# agguato: ogni tanto, dalle macerie, qualcosa si fa avanti (una volta
-	# per stanza a visita; vinto lo scontro si torna qui e si perlustra)
+	# agguato: ogni volta che si entra nella stanza si tenta la probabilita';
+	# se scatta si combatte (e non si ritenta subito tornando qui a vittoria
+	# ottenuta); se non scatta, la prossima visita ritenta da capo
 	if nodo.has("agguato") and id_nodo not in GameState.stanze_ripulite:
-		GameState.stanze_ripulite.append(id_nodo)
 		var agguato: Dictionary = nodo["agguato"]
 		if GameState.rng.randf() < float(agguato.get("probabilita", 0.3)):
 			var gruppi: Array = agguato.get("gruppi", [])
 			if not gruppi.is_empty():
+				GameState.stanze_ripulite.append(id_nodo)
 				var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
 				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""))
 				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
@@ -93,6 +94,26 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
 
+func pickup(id_oggetto: String) -> String:
+	# messaggio "hai ottenuto X, va in Y": per gli oggetti chiave (di solito
+	# indizi/lore, come le pagine di giornale di Meridia) si mostra anche
+	# la descrizione, non solo il nome
+	var dati := GameState.dati_oggetto(id_oggetto)
+	var nome: String = String(dati.get("nome", id_oggetto))
+	if not GameState.aggiungi_oggetto(id_oggetto):
+		return "\n\n[i]%s: la sacca è piena, non c'è posto per lui.[/i]" % nome
+	var tipo := String(dati.get("tipo", "consumabile"))
+	var luogo := "nella sacca"
+	match tipo:
+		"collezionabile":
+			luogo = "tra i collezionabili"
+		"chiave":
+			luogo = "tra gli oggetti chiave"
+	var messaggio := "\n\n[i]Hai ottenuto: %s (%s).[/i]" % [nome, luogo]
+	if tipo == "chiave":
+		messaggio += "\n[i]%s[/i]" % String(dati.get("descrizione", ""))
+	return messaggio
+
 func aggiorna_palco(nodo: Dictionary) -> void:
 	if nodo.has("centro"):
 		slot_sinistra.visible = false
@@ -129,8 +150,11 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.imposta_flag(scelta["una_tantum"])
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
+	# il messaggio va accodato DOPO aver mostrato il nodo successivo, altrimenti
+	# mostra_nodo() sovrascrive narratore.text e lo cancella subito
+	var messaggio_pickup := ""
 	if scelta.has("oggetto"):
-		GameState.aggiungi_oggetto(scelta["oggetto"])
+		messaggio_pickup = pickup(scelta["oggetto"])
 	if scelta.has("lascia"):
 		GameState.rimuovi_classe(scelta["lascia"])
 	if scelta.has("ospite"):
@@ -165,6 +189,8 @@ func _su_scelta(scelta: Dictionary) -> void:
 		return
 	if scelta.has("vai"):
 		mostra_nodo(scelta["vai"])
+	if messaggio_pickup != "":
+		narratore.append_text(messaggio_pickup)
 
 func aggiorna_dialoga() -> void:
 	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce
@@ -187,6 +213,10 @@ func _su_compagno(id_classe: String) -> void:
 	for figlio in menu_compagni.get_children():
 		figlio.queue_free()
 	var nome: String = String(GameState.classi.get(id_classe, {}).get("nome", id_classe))
+	slot_sinistra.visible = false
+	slot_destra.visible = false
+	slot_centro.visible = true
+	mostra_slot(slot_centro, id_classe, "")
 	var voce: Dictionary = GameState.dialoghi.get(GameState.nodo_corrente, {})
 	var gia_detta: bool = voce.has("una_tantum") and GameState.ha_flag(voce["una_tantum"])
 	if voce.is_empty() or gia_detta:
