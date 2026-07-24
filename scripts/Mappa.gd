@@ -34,6 +34,8 @@ func crea_punti(punti: Array) -> void:
 	for punto in punti:
 		if not punto.get("attivo", false):
 			continue  # nessun Carnivalz in corso qui: niente marker
+		if punto.has("richiede_flag") and not GameState.ha_flag(punto["richiede_flag"]):
+			continue  # sbloccato solo dopo un'altra campagna (es. il tutorial)
 		var marker := Button.new()
 		marker.text = "!"
 		marker.tooltip_text = punto.get("nome", punto.get("id", "?"))

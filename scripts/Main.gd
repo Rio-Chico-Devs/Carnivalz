@@ -51,7 +51,8 @@ func mostra_nodo(id_nodo: String) -> void:
 			if not gruppi.is_empty():
 				GameState.stanze_ripulite.append(id_nodo)
 				var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
-				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""))
+				# fuggire da un agguato non ha penalita': si torna semplicemente qui
+				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
 				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 				return
 	narratore.text = nodo.get("testo", "")
@@ -174,7 +175,7 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.modifica_legame(int(scelta["legame"]))
 	if scelta.has("combatti"):
 		GameState.prepara_combattimento(scelta["combatti"], scelta.get("se_vinci", ""),
-				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""))
+				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""), scelta.get("se_fuggi", ""))
 		get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 		return
 	if scelta.get("torna_vuoto", false):

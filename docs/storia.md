@@ -237,6 +237,19 @@ del loro trauma. E attenzione: a volte un boss diventa tale spinto da
 manipolare in modo estremo il loro fattore Carnivalz. La maggior parte del
 gioco, però, si concentra su chi viene trasformato.
 
+## Il pianeta tutorial: «Il piccolo Carnivalz»
+Prima ancora di Jerah, il gioco apre su un pianeta primitivo corrotto da una
+fonte debolissima: un tutorial vero e proprio, non solo una schermata di
+istruzioni. Creature primitive (goblin, slime), un "piccolo carnival" — il
+boss finale è forte quanto un nemico normale, non una vera trasformazione da
+fonte. Qui si insegnano le meccaniche mentre si gioca: il primo goblin cade
+in un colpo, la Tartaruga Innocente insegna che **studiare può risparmiare**
+un nemico (sale il legame, cala lo stress, niente bottino — gli altri nemici
+dello scontro restano), la Manifestazione di un sogno (32 HP) insegna che si
+può **fuggire** da un combattimento troppo pericoloso, senza penalità. Il
+mondo di Jerah resta bloccato sulla mappa stellare finché questo pianeta non
+è completato (`richiede_flag: tutorial_completato`).
+
 ## La prima fonte: «L'ultimo spettacolo di Jerah» (canone del dungeon 1)
 Il suo nome era **Jerah**.
 Dopo anni di carriera e fama, un virus gli ha rovinato la carriera. Tutti lo

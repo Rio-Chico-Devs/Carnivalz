@@ -26,6 +26,7 @@ const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 var combattenti: Array[Dictionary] = []
 var in_corso := true
 var giocatore_ha_vinto := false
+var giocatore_e_fuggito := false
 var xp_bottino := 0
 var tazo_bottino := 0
 
@@ -262,9 +263,13 @@ func esegui_turno(attaccante: Dictionary) -> void:
 					usa_alleato(azione.id)
 				"provoca":
 					provoca(attaccante)
+				"fuggi":
+					fuggi(attaccante)
 	else:
 		await get_tree().create_timer(0.8).timeout
 		turno_nemico(attaccante)
+	if giocatore_e_fuggito:
+		return  # il combattimento e' finito qui, niente altro da risolvere sul turno
 	risolvi_dot_condizionale(attaccante, ultima_azione_offensiva)
 	var passo := int(GameState.regole.get("stress_per_fattore", 25))
 	var costo := floori(attaccante.fattore / float(maxi(passo, 1)))
@@ -292,6 +297,7 @@ func mostra_azioni() -> void:
 	bottone_azione("Abilità", _menu_abilita)
 	bottone_azione("Oggetti", _menu_oggetti, GameState.sacca.is_empty())
 	bottone_azione("Alleati", _menu_alleati, alleati_disponibili().is_empty())
+	bottone_azione("Fuggi", _scegli.bind({"tipo": "fuggi"}))
 
 func _menu_bersagli() -> void:
 	var nemici := vivi(false)
@@ -413,6 +419,24 @@ func studia(chi: Dictionary) -> void:
 	if bersaglio.id == fonte.get("id", ""):
 		aggiorna_speranza(int(GameState.regole.get("speranza_studio", 10)))
 	verifica_innesco_combustione(bersaglio)
+	if dati.has("risparmio") and bersaglio.hp > 0:
+		risparmia(bersaglio, dati["risparmio"])
+
+func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
+	# studiare certi nemici rivela che non meritano di essere uccisi: escono
+	# dal combattimento senza dare xp/tazo/drop, ma il legame sale e lo
+	# stress della squadra scende. Gli altri nemici del combattimento restano.
+	scrivi("[b]%s[/b]" % String(dati_risparmio.get("testo", "Decidi di risparmiarlo.")))
+	if dati_risparmio.has("legame"):
+		GameState.modifica_legame(int(dati_risparmio.legame))
+	if dati_risparmio.has("stress"):
+		for alleato in vivi(true):
+			alleato.stress = clampi(alleato.stress + int(dati_risparmio.stress), 0, 100)
+			aggiorna_scheda(alleato)
+	bersaglio.risparmiato = true
+	bersaglio.hp = 0
+	aggiorna_scheda(bersaglio)
+	_su_ko(bersaglio)
 
 func attiva_bersaglio_extra() -> void:
 	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
@@ -435,6 +459,12 @@ func provoca(chi: Dictionary) -> void:
 	bersaglio_provocazione = chi
 	turni_provocazione = int(GameState.regole.get("forza_azione_durata", 2))
 	scrivi("[i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]" % chi.nome)
+
+func fuggi(chi: Dictionary) -> void:
+	# nessuna penalita': solo si esce dal combattimento, senza bottino
+	scrivi("[i]%s fugge dal combattimento![/i]" % chi.nome)
+	giocatore_e_fuggito = true
+	in_corso = false
 
 func bersaglio_giocatore_casuale() -> Dictionary:
 	# la provocazione forza i nemici a colpire chi ha provocato, finche' dura
@@ -878,6 +908,8 @@ func _su_ko(caduto: Dictionary) -> void:
 				and caduto.id == portatore_frenesia.get("frenesia", {}).get("bersaglio_extra", ""):
 			frenesia_attiva = false
 			turni_afflitto = portatore_frenesia.get("frenesia", {}).get("testo_fermata", []).size()
+	elif caduto.get("risparmiato", false):
+		scrivi("[i]%s si allontana, risparmiato.[/i]" % caduto.nome)
 	else:
 		scrivi("[i]%s è a terra![/i]" % caduto.nome)
 		if not caduto.giocatore:
@@ -892,7 +924,8 @@ func _su_ko(caduto: Dictionary) -> void:
 		giocatore_ha_vinto = true
 		in_corso = false
 		for combattente in combattenti:
-			if not combattente.giocatore and not combattente.get("oggetto_scena", false):
+			if not combattente.giocatore and not combattente.get("oggetto_scena", false) \
+					and not combattente.get("risparmiato", false):
 				xp_bottino += combattente.xp
 				tazo_bottino += combattente.tazo
 		scrivi("[b]Vittoria![/b] Bottino: %d esperienza, %d Tazo." % [xp_bottino, tazo_bottino])
@@ -909,7 +942,7 @@ func risolvi_drop() -> void:
 	var moltiplicatore := 2.0 if GameState.possiede_oggetto("il_mondo_e_il_mio_tesoro") else 1.0
 	var righe: Array[String] = []
 	for c in combattenti:
-		if c.giocatore or c.get("oggetto_scena", false):
+		if c.giocatore or c.get("oggetto_scena", false) or c.get("risparmiato", false):
 			continue
 		var carta: Dictionary = c.carta
 		if not carta.is_empty():
@@ -1025,15 +1058,24 @@ func _esci() -> void:
 	var dopo_vittoria := GameState.nodo_se_vinci
 	var dopo_vittoria_eroe := GameState.nodo_se_vinci_eroe
 	var dopo_sconfitta := GameState.nodo_se_perdi
+	var dopo_fuga := GameState.nodo_se_fuggi if GameState.nodo_se_fuggi != "" else GameState.nodo_se_perdi
 	if giocatore_ha_vinto:
 		GameState.premia_vittoria(xp_bottino, tazo_bottino, not fonte.is_empty())
 		var eroe := convinto and dopo_vittoria_eroe != ""
 		GameState.nodo_corrente = dopo_vittoria_eroe if eroe else dopo_vittoria
+		GameState.salva()  # non si perde progresso restando sulla schermata di vittoria
+		get_tree().change_scene_to_file(SCENA_EVENTI)
+	elif giocatore_e_fuggito and dopo_fuga != "":
+		GameState.annulla_combattimento()
+		GameState.nodo_corrente = dopo_fuga
+		GameState.salva()
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	elif dopo_sconfitta != "":
 		GameState.annulla_combattimento()
 		GameState.nodo_corrente = dopo_sconfitta
+		GameState.salva()  # non si perde progresso restando sulla schermata di sconfitta
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	else:
 		GameState.reset_campagna()
+		GameState.salva()
 		get_tree().change_scene_to_file(SCENA_MAPPA)

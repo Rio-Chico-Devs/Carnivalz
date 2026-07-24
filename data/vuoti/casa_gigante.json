@@ -119,7 +119,7 @@
 			"destra": "insonne",
 			"espr_destra": "annoiata",
 			"scelte": [
-				{ "testo": "Chiedile di combattere al tuo fianco", "vai": "yhvina_si", "richiede_non_flag": "casa_yhvina", "recluta_temporaneo": "insonne", "livello_alleato": 6, "flag": "casa_yhvina" },
+				{ "testo": "Chiedile di combattere al tuo fianco", "vai": "yhvina_si", "richiede_non_flag": "casa_ricordo_sconfitto", "recluta_temporaneo": "insonne", "livello_alleato": 6, "flag": "casa_yhvina" },
 				{ "testo": "\"Ce la faccio da solo.\"", "vai": "attico" }
 			]
 		},

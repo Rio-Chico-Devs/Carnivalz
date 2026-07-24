@@ -254,6 +254,20 @@ Nuova abilità di classe (gate: `"provocazione"` in `abilita`, per ora solo Mock
 classe Fanatico): per `forza_azione_durata` turni, i nemici sono forzati a colpire chi ha
 provocato invece di scegliere a caso — utile per proteggere i compagni più fragili dietro un tank.
 
+### Risparmia (studiando certi nemici puoi risparmiarli)
+Un personaggio può avere nei dati una chiave `risparmio` ({`legame`, `stress`, `testo`}):
+se presente, **studiarlo lo risparmia automaticamente** appena finisce lo scambio — esce dal
+combattimento (niente xp/tazo/drop per lui), il legame di squadra sale, lo stress della
+squadra scende. Gli altri nemici dello stesso combattimento restano e vanno affrontati
+normalmente. Se il giocatore preferisce comunque attaccarlo invece di studiarlo, si comporta
+come un nemico qualsiasi (xp/tazo/carta inclusi). Usato dalla Tartaruga Innocente nel tutorial.
+
+### Fuggi
+Nuova azione sempre disponibile nel menu: esce dal combattimento senza xp/tazo/drop e senza
+alcuna penalità. Destinazione: `se_fuggi` sulla scelta `combatti` (o sull'`agguato`, dove di
+default punta alla stessa stanza — fuggire da un'imboscata casuale non costa nulla); se
+`se_fuggi` non è specificato, si usa `se_perdi` come fallback.
+
 ### Studio sui nemici comuni: domande generiche
 Per i nemici comuni non serve scrivere una domanda su misura: se uno scambio in `studio`
 ha solo `risposta` (senza `domanda`), il gioco pesca la battuta del giocatore a caso da
@@ -359,3 +373,8 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
     Vega-Hope, Niru-Meteora, Fio-Sognatrice, Yhvina-Insonne, Rio-Collezionista,
     Bero-Mecha, Mockingbear-Fanatico, Mr. Eto-Mente), stat ancora segnaposto
     per i nuovi; mancano ancora abilità/mosse/ritratti per ognuno
+20. ✅ Pianeta tutorial ("Il piccolo Carnivalz"): primo punto della mappa,
+    sblocca il mondo di Jerah solo al completamento (`richiede_flag` sui
+    punti). Insegna Studio/risparmio (Tartaruga Innocente) e Fuggi
+    (Manifestazione di un sogno); boss finale non convincibile, forte quanto
+    un nemico normale

@@ -1,0 +1,89 @@
+{
+	"nodo_iniziale": "inizio",
+	"nodi": {
+		"inizio": {
+			"testo": "Il varco ti deposita a pochi passi dalla fonte, come sempre: capita solo nei mondi già in rovina, o quando la fonte si nasconde bene, che la distanza sia maggiore. Qui no. Intorno a te, terra rossa, felci enormi, il cielo basso di un pianeta che sembra essersi fermato molto prima di imparare a stare in piedi.",
+			"espr_sinistra": "pensiero",
+			"scelte": [
+				{ "testo": "\"Dunque è questo il pianeta primitivo dove devo estinguere la fonte della follia?\"", "vai": "primo_incontro" }
+			]
+		},
+		"primo_incontro": {
+			"testo": "\"Vediamo di finire presto, non ho tempo da perdere...\" Tra le felci, qualcosa di verde e spelacchiato ti nota e si fa avanti, brandendo un bastone raccolto da terra.",
+			"espr_sinistra": "decisa",
+			"scelte": [
+				{ "testo": "Affrontalo", "combatti": ["goblin_tipico"], "se_vinci": "dopo_primo_goblin", "se_perdi": "sconfitta" }
+			]
+		},
+		"dopo_primo_goblin": {
+			"testo": "Un solo colpo, ed è già finita.",
+			"espr_sinistra": "pensiero",
+			"scelte": [
+				{ "testo": "\"Le creature qui sembrano molto deboli... la fonte non deve essere molto intelligente...\"", "vai": "masso" }
+			]
+		},
+		"masso": {
+			"testo": "Il sentiero costeggia un masso coperto di muschio, accanto a un ruscello poco profondo. \"Sembra esserci qualcosa nel ruscello...\"",
+			"espr_sinistra": "sorpresa",
+			"scelte": [
+				{ "testo": "Ispeziona sotto il masso", "vai": "due_nemici", "una_tantum": "tut_masso", "oggetto": "fiala_hp" },
+				{ "testo": "Prosegui senza fermarti", "vai": "due_nemici" }
+			]
+		},
+		"due_nemici": {
+			"testo": "Il sentiero si allarga in una radura fangosa. Un altro goblin ti aspetta, non da solo stavolta: una massa gelatinosa gli si accalca di fianco, quasi per farsi coraggio.",
+			"scelte": [
+				{ "testo": "Affrontali", "combatti": ["goblin_tipico", "slime_infimo"], "se_vinci": "bivio", "se_perdi": "sconfitta" }
+			]
+		},
+		"bivio": {
+			"testo": "Il sentiero si divide. A sinistra, il terreno scende verso alcune pozze d'acqua stagnante; a destra, sale su una collina spoglia.",
+			"scelte": [
+				{ "testo": "Scendi verso le pozze d'acqua", "vai": "pozze" },
+				{ "testo": "Sali sulla collina", "vai": "collina" }
+			]
+		},
+		"pozze": {
+			"testo": "Nell'acqua bassa, un goblin fruga tra i sassi. Poco lontano, immobile, qualcosa di enorme e corazzato che a prima vista sembra un macigno con la testa.",
+			"scelte": [
+				{ "testo": "Affrontali", "combatti": ["goblin_tipico", "tartaruga_innocente"], "se_vinci": "convergenza", "se_perdi": "sconfitta" }
+			]
+		},
+		"collina": {
+			"testo": "In cima alla collina, l'aria trema come sopra una fiamma invisibile. Qualcosa prende forma da quel tremore: non del tutto solido, non del tutto reale.",
+			"espr_sinistra": "sorpresa",
+			"scelte": [
+				{ "testo": "Affrontala", "combatti": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta", "se_fuggi": "convergenza" }
+			]
+		},
+		"convergenza": {
+			"testo": "Oltre le pozze, oltre la collina, i due sentieri tornano a unirsi davanti a una spaccatura nella roccia: da lì viene un ringhio basso, continuo, che non si ferma per riprendere fiato.",
+			"espr_sinistra": "decisa",
+			"scelte": [
+				{ "testo": "Entra nella spaccatura", "vai": "boss" }
+			]
+		},
+		"boss": {
+			"testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato ti aspetta, i pugni già stretti. Non ha nulla del carisma di una fonte: solo rabbia, tanta, per motivi che nessuno gli ha mai chiesto.",
+			"centro": "goblin_arrabbiato",
+			"espr_centro": "decisa",
+			"scelte": [
+				{ "testo": "Estingui la fonte", "combatti": ["goblin_arrabbiato"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
+			]
+		},
+		"vittoria": {
+			"testo": "Il goblin cade e non si rialza. L'aria intorno a te si calma: il fattore Carnivalz di questa zona non è più pericoloso. \"Così, facile,\" pensi. Non tutte le fonti nascondono una tragedia: a volte i mostri sono semplicemente malvagi per natura, senza aver mai davvero subito la trasformazione di un vero boss. Ma questo, immagini, è stato solo l'inizio.",
+			"espr_sinistra": "pensiero",
+			"flag": "tutorial_completato",
+			"scelte": [
+				{ "testo": "Torna alla mappa stellare", "reset": true }
+			]
+		},
+		"sconfitta": {
+			"testo": "Ti risvegli fuori dalla spaccatura, la testa pesante. Anche un pianeta primitivo, a quanto pare, sa essere sorprendente.",
+			"scelte": [
+				{ "testo": "Torna alla mappa stellare", "reset": true }
+			]
+		}
+	}
+}

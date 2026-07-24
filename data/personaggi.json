@@ -588,6 +588,111 @@
 				{ "domanda": "Vedo che hai capito quale è stato il nostro errore... Vale la pena... di ricominciare...", "risposta": "No. Per me è tardi... Ma cercherò di dare un bel finale a questa storia!" },
 				{ "domanda": "Vecchio Proprietario del teatro: È stato bello... lavorare con te, sai?...", "risposta": "Grazie. Osservami, mentre cala il sipario per l'ultima volta, vecchio amico..." }
 			]
+		},
+		{
+			"id": "goblin_tipico",
+			"nome": "Goblin Tipico",
+			"hp": 1,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 2,
+			"xp": 2,
+			"tazo": 2,
+			"ritratto": "res://art/personaggi/goblin_tipico.png",
+			"descrizione": "Verde, spelacchiato, armato di un bastone che ha trovato per terra. Non ha mai vinto una rissa in vita sua.",
+			"carta": { "id": "carta_goblin_tipico", "nome": "Goblin Tipico", "rarita": "comune", "chance": 0.03, "testo": "Ce ne sono a centinaia su questo pianeta. Nessuno li conta più." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.15 }
+			],
+			"studio": [
+				{ "risposta": "Grugnisce, e nemmeno troppo convinto." }
+			]
+		},
+		{
+			"id": "slime_infimo",
+			"nome": "Slime Infimo",
+			"hp": 1,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 1,
+			"xp": 2,
+			"tazo": 1,
+			"ritratto": "res://art/personaggi/slime_infimo.png",
+			"descrizione": "Una pozza gelatinosa che si crede un mostro. Ci vuole più tempo a notarlo che a batterlo.",
+			"carta": { "id": "carta_slime_infimo", "nome": "Slime Infimo", "rarita": "comune", "chance": 0.03, "testo": "Il gradino più basso della catena alimentare di questo pianeta. Forse anche più in basso." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.15 }
+			],
+			"studio": [
+				{ "risposta": "Non sembra avere nulla da dire. O da pensare." }
+			]
+		},
+		{
+			"id": "tartaruga_innocente",
+			"nome": "Tartaruga Innocente",
+			"hp": 6,
+			"attacco": 0,
+			"difesa": 2,
+			"velocita": 1,
+			"xp": 15,
+			"tazo": 5,
+			"ritratto": "res://art/personaggi/tartaruga_innocente.png",
+			"descrizione": "Un guscio enorme e un aspetto che mette paura. Non ha mai fatto del male a nessuno.",
+			"carta": { "id": "carta_tartaruga_innocente", "nome": "Tartaruga Innocente", "rarita": "non_comune", "chance": 0.05, "testo": "Vecchia, lenta, spaventosa da guardare. Nient'altro." },
+			"studio": [
+				{ "osservazione": "È solo una vecchia tartaruga, che ha avuto la sfortuna di avere un aspetto spaventoso." }
+			],
+			"risparmio": {
+				"legame": 10,
+				"stress": -15,
+				"testo": "Decidi di lasciarla andare. Non c'era nessuna ragione di combatterla."
+			}
+		},
+		{
+			"id": "manifestazione_di_un_sogno",
+			"nome": "Manifestazione di un sogno",
+			"categoria": "particolare",
+			"hp": 32,
+			"attacco": 5,
+			"difesa": 2,
+			"velocita": 4,
+			"xp": 30,
+			"tazo": 20,
+			"ritratto": "res://art/personaggi/manifestazione_di_un_sogno.png",
+			"descrizione": "Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.",
+			"carta": { "id": "carta_manifestazione_di_un_sogno", "nome": "Manifestazione di un sogno", "rarita": "rara", "chance": 0.04, "testo": "Non tutto quello che si incontra va combattuto. Alcune cose vanno solo evitate." },
+			"studio": [
+				{ "domanda": "Cosa sei, davvero?", "risposta": "Non dovresti essere qui. Non sei ancora pronto per affrontarmi." }
+			]
+		},
+		{
+			"id": "goblin_arrabbiato",
+			"nome": "Un goblin terribilmente arrabbiato",
+			"nome_breve": "Goblin Arrabbiato",
+			"hp": 16,
+			"attacco": 3,
+			"difesa": 1,
+			"velocita": 3,
+			"xp": 40,
+			"tazo": 25,
+			"ritratto": "res://art/personaggi/goblin_arrabbiato.png",
+			"descrizione": "Non è mai stato bello, forte o rispettato, nemmeno tra i suoi. Il fattore Carnivalz gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse.",
+			"carta": { "id": "carta_goblin_arrabbiato", "nome": "Un goblin terribilmente arrabbiato", "rarita": "non_comune", "testo": "La prima fonte che l'Organizzazione ti manda a estinguere. Non tutte le fonti nascondono una tragedia." },
+			"fonte": true,
+			"convincibile": false,
+			"mosse": [
+				{
+					"id": "colpo_rabbioso",
+					"tipo": "attacco_forte",
+					"valore": 5,
+					"peso": 2,
+					"testo": "Il goblin colpisce alla cieca, urlando."
+				}
+			],
+			"studio": [
+				{ "domanda": "Perché tutta questa rabbia?", "risposta": "RABBIA! SOLO RABBIA!" },
+				{ "domanda": "Non hai altro da dire?", "risposta": "Nessuno mi ha mai ascoltato prima. Perché dovrei parlare adesso?" }
+			]
 		}
 	]
 }

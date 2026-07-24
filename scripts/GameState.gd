@@ -70,6 +70,7 @@ var nemici_combattimento: Array = []
 var nodo_se_vinci: String = ""
 var nodo_se_vinci_eroe: String = ""
 var nodo_se_perdi: String = ""
+var nodo_se_fuggi: String = ""
 
 func _ready() -> void:
 	imposta_seed(int(Time.get_unix_time_from_system()))
@@ -377,11 +378,12 @@ func entra_squarcio(id_squarcio: String, file_eventi: String) -> bool:
 	congeda_tutti_temporanei()
 	return avvia_carnivalz(id_squarcio, file_eventi)
 
-func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String) -> void:
+func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String, se_fuggi := "") -> void:
 	nemici_combattimento = nemici.duplicate()
 	nodo_se_vinci = se_vinci
 	nodo_se_vinci_eroe = se_vinci_eroe
 	nodo_se_perdi = se_perdi
+	nodo_se_fuggi = se_fuggi
 
 func premia_vittoria(xp_totale: int, tazo_totale: int, fonte_estinta: bool) -> void:
 	for id_classe in party:
@@ -396,6 +398,7 @@ func annulla_combattimento() -> void:
 	nodo_se_vinci = ""
 	nodo_se_vinci_eroe = ""
 	nodo_se_perdi = ""
+	nodo_se_fuggi = ""
 
 # --- salvataggio (stato meta persistente; si salva nei punti sicuri: mappa e Vuoto) ---
 
