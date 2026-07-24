@@ -120,11 +120,12 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		fila_party.add_child(scheda)
 		ritratto.mostra(id_personaggio, GameState.livello_di(id_personaggio))
 	else:
+		var e_il_centrale := false
 		if not nemico_centrale_occupato:
 			nemico_centrale_occupato = true
+			e_il_centrale = true
 			scheda.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			scheda.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			ritratto.imposta_grande(true)  # il nemico principale e' sempre grande, in mezzo
 			nemico_centro.add_child(scheda)
 		elif prossimo_lato_nemico == "destra":
 			nemici_destra.add_child(scheda)
@@ -132,6 +133,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		else:
 			nemici_sinistra.add_child(scheda)
 			prossimo_lato_nemico = "destra"
+		# solo dopo add_child: prima l'@onready interno del ritratto e' ancora nullo
+		if e_il_centrale:
+			ritratto.imposta_grande(true)  # il nemico principale e' sempre grande, in mezzo
 		ritratto.mostra(id_personaggio)
 		if dati.has("xp"):
 			# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
@@ -1072,7 +1076,7 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 	combattente.etichetta_extra.text = dettagli
 
 func scrivi(riga: String) -> void:
-	diario.append_text("* " + riga + "\n")
+	diario.append_text(riga + "\n")
 
 func _esci() -> void:
 	# lo stress accumulato resta addosso ai personaggi

@@ -17,6 +17,7 @@ const EVENTI_DEBUG := "res://data/events.json"
 @onready var slot_sinistra = %SlotSinistra
 @onready var slot_centro = %SlotCentro
 @onready var slot_destra = %SlotDestra
+@onready var nome_parlante: Label = %NomeParlante
 @onready var narratore: RichTextLabel = %Narratore
 @onready var contenitore_scelte: VBoxContainer = %Scelte
 @onready var bottone_dialoga: Button = %BottoneDialoga
@@ -57,7 +58,7 @@ func mostra_nodo(id_nodo: String) -> void:
 				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
 				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 				return
-	narratore.text = "* " + nodo.get("testo", "")
+	narratore.text = nodo.get("testo", "")
 	aggiorna_palco(nodo)
 	aggiorna_stato()
 	if nodo.get("espulsione_automatica", false):
@@ -104,7 +105,7 @@ func pickup(id_oggetto: String) -> String:
 	var dati := GameState.dati_oggetto(id_oggetto)
 	var nome: String = String(dati.get("nome", id_oggetto))
 	if not GameState.aggiungi_oggetto(id_oggetto):
-		return "\n\n* [i]%s: la sacca è piena, non c'è posto per lui.[/i]" % nome
+		return "\n\n[i]%s: la sacca è piena, non c'è posto per lui.[/i]" % nome
 	var tipo := String(dati.get("tipo", "consumabile"))
 	var luogo := "nella sacca"
 	match tipo:
@@ -112,9 +113,9 @@ func pickup(id_oggetto: String) -> String:
 			luogo = "tra i collezionabili"
 		"chiave":
 			luogo = "tra gli oggetti chiave"
-	var messaggio := "\n\n* [i]Hai ottenuto: %s (%s).[/i]" % [nome, luogo]
+	var messaggio := "\n\n[i]Hai ottenuto: %s (%s).[/i]" % [nome, luogo]
 	if tipo == "chiave":
-		messaggio += "\n* [i]%s[/i]" % String(dati.get("descrizione", ""))
+		messaggio += "\n[i]%s[/i]" % String(dati.get("descrizione", ""))
 	return messaggio
 
 func aggiorna_palco(nodo: Dictionary) -> void:
@@ -123,6 +124,7 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 		slot_destra.visible = false
 		slot_centro.visible = true
 		mostra_slot(slot_centro, nodo["centro"], nodo.get("espr_centro", ""))
+		aggiorna_nome_parlante(id_da_valore(nodo["centro"]))
 		return
 	slot_centro.visible = false
 	slot_sinistra.visible = true
@@ -130,6 +132,16 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 	slot_destra.visible = nodo.has("destra")
 	if nodo.has("destra"):
 		mostra_slot(slot_destra, nodo["destra"], nodo.get("espr_destra", ""))
+	# la narrazione e' sempre vissuta come il dialogo interiore del protagonista
+	aggiorna_nome_parlante(GameState.id_protagonista)
+
+func id_da_valore(valore: Variant) -> String:
+	if valore is Dictionary:
+		return String(valore.get("id", ""))
+	return String(valore)
+
+func aggiorna_nome_parlante(id_personaggio: String) -> void:
+	nome_parlante.text = String(GameState.personaggi.get(id_personaggio, {}).get("nome", id_personaggio))
 
 func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
 	# valore: id stringa, oppure {id, espr}. L'espressione può anche venire
@@ -220,12 +232,13 @@ func _su_compagno(id_classe: String) -> void:
 	slot_destra.visible = false
 	slot_centro.visible = true
 	mostra_slot(slot_centro, id_classe, "")
+	aggiorna_nome_parlante(id_classe)
 	var voce: Dictionary = GameState.dialoghi.get(GameState.nodo_corrente, {})
 	var gia_detta: bool = voce.has("una_tantum") and GameState.ha_flag(voce["una_tantum"])
 	if voce.is_empty() or gia_detta:
-		narratore.append_text("\n\n* [i]%s non ha altro da dirti, qui.[/i]" % nome)
+		narratore.append_text("\n\n[i]%s non ha altro da dirti, qui.[/i]" % nome)
 		return
-	narratore.append_text("\n\n* " + (String(voce.get("testo", "")) % nome))
+	narratore.append_text("\n\n" + (String(voce.get("testo", "")) % nome))
 	if voce.has("flag"):
 		GameState.imposta_flag(voce["flag"])
 	if voce.has("una_tantum"):
