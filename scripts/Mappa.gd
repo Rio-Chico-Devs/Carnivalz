@@ -14,16 +14,18 @@ const SEED_STELLE := 20260721
 @onready var etichetta_tazo: Label = %Tazo
 @onready var bottone_negozio: Button = %BottoneNegozio
 @onready var bottone_menu: Button = %BottoneMenu
+@onready var bottone_salva: Button = %BottoneSalva
 
 func _ready() -> void:
 	AudioManager.musica_chiave("mappa")
-	GameState.salva()  # autosalvataggio: la mappa stellare è un punto sicuro
+	GameState.salva()  # autosalvataggio: la mappa stellare è l'unico punto che salva
 	resized.connect(queue_redraw)
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_negozio.pressed.connect(func() -> void:
 		get_tree().change_scene_to_file(SCENA_NEGOZIO))
 	bottone_menu.pressed.connect(func() -> void:
 		get_tree().change_scene_to_file(SCENA_MENU))
+	bottone_salva.pressed.connect(_su_salva)
 	var mappa: Dictionary = GameState.carica_mappa()
 	var percorso_sfondo: String = mappa.get("sfondo", "")
 	if percorso_sfondo != "" and ResourceLoader.exists(percorso_sfondo):
@@ -48,6 +50,38 @@ func crea_punti(punti: Array) -> void:
 		var pulsazione := marker.create_tween().set_loops()
 		pulsazione.tween_property(marker, "modulate:a", 0.45, 0.6)
 		pulsazione.tween_property(marker, "modulate:a", 1.0, 0.6)
+
+func _su_salva() -> void:
+	var overlay := ColorRect.new()
+	overlay.color = Color(0, 0, 0, 0.75)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(overlay)
+	var centro := CenterContainer.new()
+	centro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(centro)
+	var colonna := VBoxContainer.new()
+	colonna.add_theme_constant_override("separation", 10)
+	colonna.custom_minimum_size = Vector2(360, 0)
+	centro.add_child(colonna)
+	var titolo := Label.new()
+	titolo.text = "Scegli uno slot di salvataggio"
+	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	colonna.add_child(titolo)
+	for slot in range(1, GameState.SLOT_MASSIMO + 1):
+		var bottone := Button.new()
+		bottone.text = "Slot %d — %s" % [slot, GameState.anteprima_slot(slot)]
+		bottone.custom_minimum_size = Vector2(0, 44)
+		bottone.pressed.connect(_su_scelta_slot.bind(slot, overlay))
+		colonna.add_child(bottone)
+	var annulla := Button.new()
+	annulla.text = "Annulla"
+	annulla.custom_minimum_size = Vector2(0, 40)
+	annulla.pressed.connect(overlay.queue_free)
+	colonna.add_child(annulla)
+
+func _su_scelta_slot(slot: int, overlay: ColorRect) -> void:
+	GameState.salva_slot(slot)
+	overlay.queue_free()
 
 func _su_punto(punto: Dictionary) -> void:
 	# click sul "!": si entra nel sistema deformato del Carnivalz (il Vuoto)

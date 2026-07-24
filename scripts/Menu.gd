@@ -45,10 +45,49 @@ func _ready() -> void:
 			GameState.carica()
 			get_tree().change_scene_to_file(SCENA_MAPPA))
 		colonna.add_child(continua)
+	var carica_partita := Button.new()
+	carica_partita.text = "Carica partita"
+	carica_partita.custom_minimum_size = Vector2(0, 44)
+	carica_partita.pressed.connect(_su_carica_partita)
+	colonna.add_child(carica_partita)
 	_voce(colonna, "Nuova partita" if GameState.ha_salvataggio() else "Gioca", SCENA_MAPPA, true)
 	_voce(colonna, "Album delle carte", SCENA_ALBUM)
 	_voce(colonna, "Bestiario", SCENA_BESTIARIO)
 	_voce(colonna, "Oggetti", SCENA_COMPENDIO)
+
+func _su_carica_partita() -> void:
+	var overlay := ColorRect.new()
+	overlay.color = Color(0, 0, 0, 0.75)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(overlay)
+	var centro := CenterContainer.new()
+	centro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(centro)
+	var colonna := VBoxContainer.new()
+	colonna.add_theme_constant_override("separation", 10)
+	colonna.custom_minimum_size = Vector2(360, 0)
+	centro.add_child(colonna)
+	var titolo := Label.new()
+	titolo.text = "Carica una partita salvata"
+	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	colonna.add_child(titolo)
+	for slot in range(1, GameState.SLOT_MASSIMO + 1):
+		var occupato := GameState.ha_salvataggio_slot(slot)
+		var bottone := Button.new()
+		bottone.text = "Slot %d — %s" % [slot, GameState.anteprima_slot(slot)]
+		bottone.custom_minimum_size = Vector2(0, 44)
+		bottone.disabled = not occupato
+		bottone.pressed.connect(_su_scelta_slot.bind(slot))
+		colonna.add_child(bottone)
+	var annulla := Button.new()
+	annulla.text = "Annulla"
+	annulla.custom_minimum_size = Vector2(0, 40)
+	annulla.pressed.connect(overlay.queue_free)
+	colonna.add_child(annulla)
+
+func _su_scelta_slot(slot: int) -> void:
+	GameState.carica_slot(slot)
+	get_tree().change_scene_to_file(SCENA_MAPPA)
 
 func _voce(colonna: VBoxContainer, testo: String, scena: String, nuova: bool = false) -> void:
 	var bottone := Button.new()

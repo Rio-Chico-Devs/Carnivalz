@@ -30,12 +30,20 @@ Aprire `project.godot` con Godot 4.7+ (versione standard). Flusso:
   (ritratti). Finché mancano: placeholder generati (cielo stellato / iniziale del nome)
 
 ## Salvataggio
-Autosalvataggio nei **punti sicuri** (mappa stellare e Vuoto, mai in combattimento):
-`GameState.salva()` scrive `user://salvataggio.json` con lo stato meta (livelli, xp, stress,
-legame, Tazo, sacca/collezionabili/chiavi/carte, bestiario, compendio oggetti, negozi, flag,
-classi sbloccate). Dal menu, **Continua** ricarica e riporta alla mappa; **Nuova partita**
-azzera il progresso di storia (le collezioni album/bestiario/oggetti restano, sono meta).
-Non si salva a metà campagna/squarcio: si riparte dallo stato "overworld".
+Si salva **solo dalla mappa stellare** — mai nel Vuoto, mai dentro un carnivalz/squarcio,
+mai in combattimento. Due meccanismi, entrambi via `GameState._scrivi_salvataggio(percorso)`
+(stesso stato meta: livelli, xp, stress, legame, Tazo, sacca/collezionabili/chiavi/carte,
+bestiario, compendio oggetti, negozi, flag, classi sbloccate):
+- **Autosalvataggio**: `GameState.salva()`/`carica()`, un solo file (`user://salvataggio.json`),
+  scritto ogni volta che si entra nella mappa. Dal menu, **Continua** lo ricarica al volo.
+- **Salvataggi manuali**: `GameState.salva_slot(n)`/`carica_slot(n)`, **5 slot** al massimo
+  (`GameState.SLOT_MASSIMO`, un file per slot). Sulla mappa, il bottone **Salva** apre un
+  selettore degli slot (con anteprima: Tazo/fonti estinte/legame) e sovrascrive quello scelto;
+  dal menu, **Carica partita** apre lo stesso selettore in lettura (solo gli slot occupati sono
+  cliccabili).
+
+**Nuova partita** azzera il progresso di storia (le collezioni album/bestiario/oggetti restano,
+sono meta). Non si salva a metà campagna/squarcio: si riparte sempre dallo stato "overworld".
 
 ## Palco dialoghi (con espressioni)
 Ogni personaggio ha 16 **espressioni** per i dialoghi in `art/personaggi/<id>/<espr>.png`
@@ -263,10 +271,19 @@ normalmente. Se il giocatore preferisce comunque attaccarlo invece di studiarlo,
 come un nemico qualsiasi (xp/tazo/carta inclusi). Usato dalla Tartaruga Innocente nel tutorial.
 
 ### Fuggi
-Nuova azione sempre disponibile nel menu: esce dal combattimento senza xp/tazo/drop e senza
-alcuna penalità. Destinazione: `se_fuggi` sulla scelta `combatti` (o sull'`agguato`, dove di
-default punta alla stessa stanza — fuggire da un'imboscata casuale non costa nulla); se
-`se_fuggi` non è specificato, si usa `se_perdi` come fallback.
+Azione disponibile nel menu (bottone disabilitato se non si può fuggire): esce dal
+combattimento senza xp/tazo/drop e senza alcuna penalità. Destinazione: `se_fuggi` sulla
+scelta `combatti` (o sull'`agguato`, dove di default punta alla stessa stanza — fuggire da
+un'imboscata casuale non costa nulla); se `se_fuggi` non è specificato, si usa `se_perdi`
+come fallback. **Non si può fuggire dai boss** (c'è una `fonte` nello scontro) **né se
+almeno un membro del party ha lo stato Terrore** attivo (`fuga_possibile()`).
+
+### Terrore
+Nuovo stato (tipo `"terrore"` in `data/stati.json`): quando infierto, alza notevolmente lo
+stress di chi lo subisce (`terrore_stress_incremento`) e abbassa subito il legame di squadra
+(`terrore_legame_decremento`, globale). Finché resta attivo su almeno un membro del party,
+blocca l'azione Fuggi (vedi sopra). Agganciabile alle mosse boss con la chiave
+`"terrore": true` su `attacco_tutti` (colpisce tutto il party).
 
 ### Studio sui nemici comuni: domande generiche
 Per i nemici comuni non serve scrivere una domanda su misura: se uno scambio in `studio`
@@ -353,8 +370,8 @@ Tazo, roster, livelli, stress e legame restano, gli ospiti no).
     livello, Jerah 35 HP, bambola 66 HP), alleata temporanea Yhvina,
     fratture gated da quest (Ala Kizako, Fontana coi 4 pezzi)
 13. ✅ Impianto audio (musica per contesto, versi nemici, voci boss)
-14. ✅ Ritratti a espressioni (16 pose per i dialoghi) + salvataggio
-    (autosave su mappa/Vuoto, "Continua" dal menu)
+14. ✅ Ritratti a espressioni (16 pose per i dialoghi) + salvataggio (autosave +
+    5 slot manuali, solo dalla mappa stellare; "Continua"/"Carica partita" dal menu)
 15. ✅ Squarcio Industriale allungato (Discarica col Divoratore, Vecchio
     Centro di Controllo con diari di Kizako, Padiglione E sigillato);
     porta enorme nella Casa Gigante (bloccata dalla bambola, poi sigillata

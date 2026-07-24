@@ -297,7 +297,7 @@ func mostra_azioni() -> void:
 	bottone_azione("Abilità", _menu_abilita)
 	bottone_azione("Oggetti", _menu_oggetti, GameState.sacca.is_empty())
 	bottone_azione("Alleati", _menu_alleati, alleati_disponibili().is_empty())
-	bottone_azione("Fuggi", _scegli.bind({"tipo": "fuggi"}))
+	bottone_azione("Fuggi", _scegli.bind({"tipo": "fuggi"}), not fuga_possibile())
 
 func _menu_bersagli() -> void:
 	var nemici := vivi(false)
@@ -473,6 +473,16 @@ func bersaglio_giocatore_casuale() -> Dictionary:
 	var possibili := vivi(true)
 	return possibili[GameState.rng.randi_range(0, possibili.size() - 1)] if not possibili.is_empty() else {}
 
+func squadra_ha_terrore() -> bool:
+	for personaggio in vivi(true):
+		if ha_stato_attivo(personaggio, "terrore"):
+			return true
+	return false
+
+func fuga_possibile() -> bool:
+	# non si fugge dai boss, ne' quando il terrore ha paralizzato qualcuno
+	return fonte.is_empty() and not squadra_ha_terrore()
+
 func primo_nemico() -> Dictionary:
 	# la fonte ha la precedenza, altrimenti il primo nemico vivo
 	for combattente in vivi(false):
@@ -570,6 +580,9 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			if mossa.has("maledizione"):
 				for bersaglio in vivi(true):
 					applica_stato(bersaglio, "maledizione", int(mossa.maledizione))
+			if mossa.get("terrore", false):
+				for bersaglio in vivi(true):
+					applica_stato(bersaglio, "terrore")
 		"autolesione":
 			# si ferisce da sola: il dolore riverbera sullo stress della squadra
 			nemico.hp = maxi(nemico.hp - int(mossa.get("valore", 1)), 0)
@@ -706,6 +719,16 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			bersaglio.stati_attivi[id_stato] = {"danno": int(valore) * (2 if amplificato else 1)}
 		"velocita":
 			bersaglio.stati_attivi[id_stato] = {"valore": int(info_stato.get("valore", 0))}
+		"terrore":
+			bersaglio.stati_attivi[id_stato] = {}
+			var incremento_stress := int(GameState.regole.get("terrore_stress_incremento", 40))
+			var decremento_legame := int(GameState.regole.get("terrore_legame_decremento", -15))
+			if amplificato:
+				incremento_stress *= 2
+				decremento_legame *= 2
+			bersaglio.stress = clampi(bersaglio.stress + incremento_stress, 0, 100)
+			GameState.modifica_legame(decremento_legame)
+			scrivi("[b]%s %s[/b]" % [bersaglio.nome, info_stato.get("testo_applicazione", "è paralizzato dal terrore.")])
 	aggiorna_scheda(bersaglio)
 
 func velocita_effettiva(combattente: Dictionary) -> int:
@@ -1059,23 +1082,21 @@ func _esci() -> void:
 	var dopo_vittoria_eroe := GameState.nodo_se_vinci_eroe
 	var dopo_sconfitta := GameState.nodo_se_perdi
 	var dopo_fuga := GameState.nodo_se_fuggi if GameState.nodo_se_fuggi != "" else GameState.nodo_se_perdi
+	# nessun salvataggio qui: si salva solo dalla mappa stellare, mai dentro
+	# un carnivalz/squarcio o in combattimento
 	if giocatore_ha_vinto:
 		GameState.premia_vittoria(xp_bottino, tazo_bottino, not fonte.is_empty())
 		var eroe := convinto and dopo_vittoria_eroe != ""
 		GameState.nodo_corrente = dopo_vittoria_eroe if eroe else dopo_vittoria
-		GameState.salva()  # non si perde progresso restando sulla schermata di vittoria
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	elif giocatore_e_fuggito and dopo_fuga != "":
 		GameState.annulla_combattimento()
 		GameState.nodo_corrente = dopo_fuga
-		GameState.salva()
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	elif dopo_sconfitta != "":
 		GameState.annulla_combattimento()
 		GameState.nodo_corrente = dopo_sconfitta
-		GameState.salva()  # non si perde progresso restando sulla schermata di sconfitta
 		get_tree().change_scene_to_file(SCENA_EVENTI)
 	else:
 		GameState.reset_campagna()
-		GameState.salva()
 		get_tree().change_scene_to_file(SCENA_MAPPA)

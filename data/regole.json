@@ -34,5 +34,7 @@
 	"maledizione_countdown_iniziale": 9,
 	"maledizione_accelerazione_per_stack": 1,
 	"salta_turno_durata_massima": 3,
-	"forza_azione_durata": 2
+	"forza_azione_durata": 2,
+	"terrore_stress_incremento": 40,
+	"terrore_legame_decremento": -15
 }

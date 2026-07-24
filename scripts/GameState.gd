@@ -15,7 +15,8 @@ const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
-const PERCORSO_SALVATAGGIO := "user://salvataggio.json"
+const PERCORSO_SALVATAGGIO := "user://salvataggio.json"  # autosalvataggio
+const SLOT_MASSIMO := 5  # salvataggi manuali dell'utente, oltre all'autosalvataggio
 
 # Unica fonte di casualità del gioco: sempre seedata, per determinismo
 # e sync multiplayer futuro.
@@ -400,12 +401,43 @@ func annulla_combattimento() -> void:
 	nodo_se_perdi = ""
 	nodo_se_fuggi = ""
 
-# --- salvataggio (stato meta persistente; si salva nei punti sicuri: mappa e Vuoto) ---
+# --- salvataggio: solo dalla mappa stellare, mai dentro un carnivalz/squarcio.
+# Un autosalvataggio (PERCORSO_SALVATAGGIO) + SLOT_MASSIMO salvataggi manuali
+# scelti dall'utente (percorso_slot). ---
+
+func percorso_slot(slot: int) -> String:
+	return "user://salvataggio_slot_%d.json" % slot
 
 func ha_salvataggio() -> bool:
 	return FileAccess.file_exists(PERCORSO_SALVATAGGIO)
 
+func ha_salvataggio_slot(slot: int) -> bool:
+	return FileAccess.file_exists(percorso_slot(slot))
+
+func anteprima_slot(slot: int) -> String:
+	# riga sintetica per il selettore, senza toccare lo stato in corso
+	var percorso := percorso_slot(slot)
+	if not FileAccess.file_exists(percorso):
+		return "Vuoto"
+	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
+	if not d is Dictionary:
+		return "Vuoto"
+	return "Tazo %d · Fonti estinte %d · Legame %d" % [
+		int(d.get("tazo", 0)), int(d.get("fonti_estinte", 0)), int(d.get("legame", 0))]
+
 func salva() -> void:
+	_scrivi_salvataggio(PERCORSO_SALVATAGGIO)
+
+func salva_slot(slot: int) -> void:
+	_scrivi_salvataggio(percorso_slot(slot))
+
+func carica() -> bool:
+	return _leggi_salvataggio(PERCORSO_SALVATAGGIO)
+
+func carica_slot(slot: int) -> bool:
+	return _leggi_salvataggio(percorso_slot(slot))
+
+func _scrivi_salvataggio(percorso: String) -> void:
 	var dati := {
 		"versione": 1,
 		"seed": seed_partita,
@@ -426,19 +458,19 @@ func salva() -> void:
 		"negozi_sbloccati": negozi_sbloccati,
 		"flags": flags,
 	}
-	var f := FileAccess.open(PERCORSO_SALVATAGGIO, FileAccess.WRITE)
+	var f := FileAccess.open(percorso, FileAccess.WRITE)
 	if f == null:
 		push_error("Salvataggio non riuscito: " + str(FileAccess.get_open_error()))
 		return
 	f.store_string(JSON.stringify(dati, "\t"))
 	f.close()
 
-func carica() -> bool:
-	if not ha_salvataggio():
+func _leggi_salvataggio(percorso: String) -> bool:
+	if not FileAccess.file_exists(percorso):
 		return false
-	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(PERCORSO_SALVATAGGIO))
+	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
 	if not d is Dictionary:
-		push_error("Salvataggio corrotto")
+		push_error("Salvataggio corrotto: " + percorso)
 		return false
 	imposta_seed(int(d.get("seed", seed_partita)))
 	tazo = int(d.get("tazo", 0))
