@@ -65,6 +65,17 @@ sfondo nero). **Mancano ancora**: un font monospace "pixel" per il testo (per or
 font di sistema — se Bru fornisce un `.ttf` lo si aggiunge come tema) e gli sfondi di scena a
 piena pagina (per ora resta il `ColorRect` a tinta unita).
 
+**Dimensione del testo costante e testo centrato nel box**: `[i]`/`[b]`/`[center]` in BBCode
+possono usare varianti del font con metriche diverse (corsivo più piccolo del grassetto, a
+schermo, coi font di sistema): il box del narratore (`Narratore`, in `Main.tscn`) e il diario
+di combattimento (`Diario`, in `Combattimento.tscn`) impostano esplicitamente
+`normal/bold/italics/bold_italics_font_size` tutti uguali, così narrazione, dialogo e notifica
+non cambiano mai dimensione. Il box del narratore è inoltre un `NarratoreBox` (PanelContainer,
+altezza fissa) che contiene il vero `Narratore` (RichTextLabel con `fit_content = true`,
+`size_flags_vertical = SIZE_SHRINK_CENTER`): il testo è sempre centrato verticalmente dentro
+la cornice, non ancorato in alto. Il diario di combattimento resta invece un log scorrevole
+(`scroll_following = true`) e non usa questo centraggio, perché accumula righe nel tempo.
+
 **Coda di messaggi sequenziali**: il box in basso mostra **un messaggio alla volta**, mai
 testo misto o sovrapposto; si avanza cliccando "▸ Continua" (`Main.coda_messaggi`,
 `avanza_messaggio()`); le scelte vere compaiono solo a coda vuota. Ogni nodo evento può avere
