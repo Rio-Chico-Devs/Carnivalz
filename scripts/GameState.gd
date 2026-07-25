@@ -30,6 +30,7 @@ var oggetti: Dictionary = {}         # id oggetto -> definizione
 var negozi: Dictionary = {}          # id negozio -> definizione
 var regole: Dictionary = {}
 var dialoghi: Dictionary = {}        # id nodo -> battuta di un compagno (lore, sblocchi)
+var conversazioni: Dictionary = {}   # id nodo -> discussione tra due compagni + mediazione
 var audio: Dictionary = {}           # config musica (chiavi -> percorsi)
 var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemici comuni
 var stati: Dictionary = {}                # id stato -> definizione generica (tipo, contagiosa, ...)
@@ -143,6 +144,7 @@ func carica_regole() -> void:
 func carica_dialoghi() -> void:
 	var dati: Variant = carica_json(PERCORSO_DIALOGHI)
 	dialoghi = dati.get("luoghi", {}) if dati is Dictionary else {}
+	conversazioni = dati.get("conversazioni", {}) if dati is Dictionary else {}
 
 func carica_audio() -> void:
 	var dati: Variant = carica_json(PERCORSO_AUDIO)

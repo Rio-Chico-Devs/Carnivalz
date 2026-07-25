@@ -9,5 +9,38 @@
 				{ "tipo": "narrazione", "testo": "Con un calcio scosta i cuscini: c'è una botola." }
 			]
 		}
+	},
+	"conversazioni": {
+		"salone": {
+			"una_tantum": "conv_salone_sally_vega",
+			"tra": ["sally", "vega"],
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "sally", "testo": "Ti giuro che in questa casa non c'è NIENTE di normale. Nemmeno un poster storto." },
+				{ "tipo": "dialogo", "chi": "vega", "testo": "O forse è normale, per chi ci ha vissuto. Non tutti i ricordi buttano giù i muri." },
+				{ "tipo": "dialogo", "chi": "sally", "testo": "Ai ricordi buoni non serve una casa gigante per starci dentro." }
+			],
+			"mediazione": {
+				"testo": "Le due si voltano verso di te, aspettando che tu dica la tua.",
+				"opzioni": [
+					{
+						"testo": "Mostra la collana trovata in soffitta",
+						"richiede_oggetto": "collana_particolare",
+						"battuta": "Guardate: l'ho trovata in soffitta. Qualcuno di voi due la riconosce?",
+						"risposta": { "chi": "vega", "testo": "Vedi? Anche le cose piccole restano. Grazie per averla notata." },
+						"legame": 10
+					},
+					{
+						"testo": "Prova a mediare tra le due",
+						"battuta": "Magari ha ragione lei: a volte i ricordi fanno più rumore della verità.",
+						"risposta": { "chi": "sally", "testo": "...touché." },
+						"legame": 5
+					},
+					{
+						"testo": "Resta in silenzio e lascia che continuino da sole",
+						"legame": 0
+					}
+				]
+			}
+		}
 	}
 }

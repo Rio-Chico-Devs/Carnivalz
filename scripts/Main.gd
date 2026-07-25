@@ -37,6 +37,7 @@ const EVENTI_DEBUG := "res://data/events.json"
 
 var nodo_in_corso: Dictionary = {}
 var coda_messaggi: Array[Dictionary] = []
+var azione_dopo_coda: Callable = Callable()  # eseguita a coda vuota al posto delle scelte normali (es. mediazione)
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
@@ -102,7 +103,18 @@ func avanza_messaggio() -> void:
 		var msg: Dictionary = coda_messaggi.pop_front()
 		mostra_messaggio(msg)
 		mostra_continua()
+		# durante la lettura dei messaggi il bottone "Parla con la squadra"
+		# resta nascosto: appare solo a coda vuota, mai a meta' di una sequenza
+		bottone_dialoga.visible = false
+		for figlio in menu_compagni.get_children():
+			figlio.queue_free()
 		return
+	if azione_dopo_coda.is_valid():
+		var richiamo := azione_dopo_coda
+		azione_dopo_coda = Callable()
+		richiamo.call()
+		return
+	aggiorna_palco(nodo_in_corso)
 	ricostruisci_scelte(nodo_in_corso)
 	aggiorna_dialoga()
 
@@ -266,6 +278,19 @@ func aggiorna_dialoga() -> void:
 func _su_dialoga() -> void:
 	for figlio in menu_compagni.get_children():
 		figlio.queue_free()
+	# se due compagni presenti stanno discutendo tra loro in questo punto,
+	# l'opzione per assistere (e mediare) compare prima delle chiacchiere singole
+	var conversazione: Dictionary = GameState.conversazioni.get(GameState.nodo_corrente, {})
+	var tra: Array = conversazione.get("tra", [])
+	var conv_gia_vista: bool = conversazione.has("una_tantum") and GameState.ha_flag(conversazione["una_tantum"])
+	if not conversazione.is_empty() and not conv_gia_vista and tra.size() == 2 \
+			and tra[0] in GameState.party and tra[1] in GameState.party:
+		var nome_a: String = String(GameState.classi.get(tra[0], {}).get("nome", tra[0]))
+		var nome_b: String = String(GameState.classi.get(tra[1], {}).get("nome", tra[1]))
+		var bottone_conv := Button.new()
+		bottone_conv.text = "%s e %s stanno parlando..." % [nome_a, nome_b]
+		bottone_conv.pressed.connect(_su_conversazione.bind(conversazione))
+		menu_compagni.add_child(bottone_conv)
 	for id_classe in GameState.party:
 		if id_classe == GameState.id_protagonista:
 			continue
@@ -273,6 +298,54 @@ func _su_dialoga() -> void:
 		bottone.text = String(GameState.classi.get(id_classe, {}).get("nome", id_classe))
 		bottone.pressed.connect(_su_compagno.bind(id_classe))
 		menu_compagni.add_child(bottone)
+
+func _su_conversazione(conversazione: Dictionary) -> void:
+	for figlio in menu_compagni.get_children():
+		figlio.queue_free()
+	var tra: Array = conversazione.get("tra", [])
+	slot_centro.visible = false
+	slot_sinistra.visible = true
+	slot_destra.visible = true
+	mostra_slot(slot_sinistra, tra[0], "")
+	mostra_slot(slot_destra, tra[1], "")
+	if conversazione.has("flag"):
+		GameState.imposta_flag(conversazione["flag"])
+	if conversazione.has("una_tantum"):
+		GameState.imposta_flag(conversazione["una_tantum"])
+	coda_messaggi = sequenza_di(conversazione)
+	azione_dopo_coda = _mostra_mediazione.bind(conversazione) if conversazione.has("mediazione") else Callable()
+	avanza_messaggio()
+
+func _mostra_mediazione(conversazione: Dictionary) -> void:
+	# il giocatore puo' intervenire nella discussione: alcune opzioni sono
+	# sbloccate solo se ha in sacca l'oggetto giusto per dare peso alle sue parole
+	var mediazione: Dictionary = conversazione.get("mediazione", {})
+	nome_parlante.visible = false
+	narratore.text = "[i]%s[/i]" % String(mediazione.get("testo", "Puoi intervenire."))
+	for figlio in contenitore_scelte.get_children():
+		figlio.queue_free()
+	for opzione in mediazione.get("opzioni", []):
+		if opzione.has("richiede_oggetto") and not GameState.possiede_oggetto(opzione["richiede_oggetto"]):
+			continue
+		var bottone := Button.new()
+		bottone.text = String(opzione.get("testo", "…"))
+		bottone.pressed.connect(_su_mediazione.bind(opzione))
+		contenitore_scelte.add_child(bottone)
+
+func _su_mediazione(opzione: Dictionary) -> void:
+	for figlio in contenitore_scelte.get_children():
+		figlio.queue_free()
+	if opzione.has("legame"):
+		GameState.modifica_legame(int(opzione["legame"]))
+	coda_messaggi = []
+	if opzione.has("battuta"):
+		# cio' che dice Anonimo e' una battuta vera, non l'etichetta del bottone:
+		# compare come pagina di dialogo a se', mai nascosta dentro la scelta
+		coda_messaggi.append({"tipo": "dialogo", "chi": GameState.id_protagonista, "testo": String(opzione["battuta"])})
+	if opzione.has("risposta"):
+		var risposta: Dictionary = opzione["risposta"]
+		coda_messaggi.append({"tipo": "dialogo", "chi": String(risposta.get("chi", "")), "testo": String(risposta.get("testo", ""))})
+	avanza_messaggio()
 
 func _su_compagno(id_classe: String) -> void:
 	for figlio in menu_compagni.get_children():

@@ -224,8 +224,13 @@ func esegui_scontro() -> void:
 			aggiorna_speranza(int(GameState.regole.get("speranza_per_giro", 2)))
 			if turni_provocazione > 0:
 				turni_provocazione -= 1
-	await get_tree().create_timer(1.4).timeout
-	_esci()
+	mostra_continua_fine()
+
+func mostra_continua_fine() -> void:
+	# niente si chiude da solo: e' il giocatore a decidere quando lasciare
+	# la schermata di fine combattimento
+	pulisci_azioni()
+	bottone_azione("▸ Continua", _esci)
 
 func esegui_turno(attaccante: Dictionary) -> void:
 	scadenza_buff(attaccante)

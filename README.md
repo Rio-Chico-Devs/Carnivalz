@@ -102,6 +102,9 @@ Numeri piccoli e leggibili, ma con scelte vere:
   (livello − 1) × 10%, tetto 50%, + fattore/200)
 - Vittoria: XP e **Tazo** a tutto il party (somma di `xp` e `tazo` dei nemici). Sconfitta:
   nodo `se_perdi` o ritorno alla mappa
+- **Nulla si chiude da solo**: a combattimento risolto (vittoria o sconfitta) compare un
+  bottone "▸ Continua" (`mostra_continua_fine()`) al posto del vecchio timer automatico;
+  il giocatore decide quando lasciare la schermata
 - Tutti i numeri stanno in `data/regole.json`; l'RNG è quello seedato di GameState
 
 ## Inventario, Tazo e negozi
@@ -169,12 +172,23 @@ fonte convinta → nodo `se_vinci_eroe` (pangea, reincarnazione), altrimenti `se
 
 ## Dialogare con i compagni
 Nella schermata eventi (campagna o squarcio) compare "Parla con la squadra" quando il party
-ha almeno un compagno oltre al protagonista. Clic → scegli un compagno → se `data/dialoghi.json`
-ha una voce per il nodo corrente (`luoghi.<id_nodo>`) la mostra (con `%s` sostituito dal nome
-di chi parla), altrimenti un fallback generico. Le voci con `una_tantum` si dicono una volta
-sola e possono impostare un `flag` — usato per sbloccare scelte altrimenti nascoste (es. la
-botola sotto i cuscini nella Casa Gigante: nessuno la nota, da soli). Dopo la battuta le
-scelte si ricostruiscono, così l'eventuale sblocco appare subito.
+ha almeno un compagno oltre al protagonista — **solo a coda di messaggi vuota**: durante la
+lettura di una sequenza il bottone resta nascosto, non "sfarfalla" a seconda del punto in cui
+ti trovi. Clic → scegli un compagno → se `data/dialoghi.json` ha una voce per il nodo corrente
+(`luoghi.<id_nodo>`, formato `sequenza`) la mostra (narrazioni con `%s` sostituito dal nome di
+chi parla, dialoghi col nome del compagno centrato), altrimenti un fallback generico. Le voci
+con `una_tantum` si dicono una volta sola e possono impostare un `flag` — usato per sbloccare
+scelte altrimenti nascoste (es. la botola sotto i cuscini nella Casa Gigante: nessuno la nota,
+da soli). Dopo la battuta le scelte si ricostruiscono, così l'eventuale sblocco appare subito.
+
+**Mediazione**: se due compagni presenti nel party stanno discutendo tra loro in un nodo
+(`data/dialoghi.json` → `conversazioni.<id_nodo>`, chiave `tra: [id1, id2]`), "Parla con la
+squadra" mostra anche un'opzione per assistere alla conversazione. Dopo le loro battute, se la
+voce ha una `mediazione` il giocatore può intervenire: le opzioni possono richiedere un oggetto
+in sacca (`richiede_oggetto`, es. mostrare un ricordo trovato altrove) per sbloccarsi, e ognuna
+assegna un bonus/malus di `legame`. Ciò che dice Anonimo (`battuta`) e l'eventuale replica del
+compagno (`risposta`) sono pagine di dialogo vere e proprie, mai testo nascosto nell'etichetta
+del bottone — il bottone descrive l'azione ("Mostra la collana..."), non la battuta stessa.
 
 ## Drop, carte e collezioni
 Alla vittoria, ogni nemico sconfitto può lasciare:
