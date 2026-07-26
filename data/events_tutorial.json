@@ -3,8 +3,9 @@
 	"nodi": {
 		"inizio": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Sono a pochi passi dalla fonte, come sempre — capita solo nei mondi già in rovina, o quando la fonte si nasconde bene, che la distanza sia maggiore. Qui no. Intorno a me solo terra rossa, felci enormi, il cielo basso di un pianeta che sembra essersi fermato molto prima di imparare a stare in piedi." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Dunque è questo il pianeta primitivo dove devo estinguere la fonte della follia?" }
+				{ "tipo": "narrazione", "testo": "In queste pianure il vento soffia gentile.\n\nPiccole pozze d'acqua salutano il cielo con i loro riflessi mentre le foglie cambiano colore nel tempo...\n\nPiccole creature primitive vivono spensierate in queste radure lontane, aspettando che quello stesso vento che soffia incessante li porti via..." },
+				{ "tipo": "titolo", "testo": "Pianure di Redenna" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Dunque sarebbe questa la mia prima missione autonoma? Sembra un posto molto tranquillo, forse siamo in tempo per salvare queste pianure..." }
 			],
 			"espr_sinistra": "pensiero",
 			"scelte": [
@@ -13,7 +14,7 @@
 		},
 		"primo_incontro": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Tra le felci, qualcosa di verde e spelacchiato mi nota e si fa avanti, brandendo un bastone raccolto da terra." },
+				{ "tipo": "narrazione", "testo": "Tra le felci, qualcosa di verde e spelacchiato ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce." },
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Vediamo di finire presto: non ho tempo da perdere." }
 			],
 			"espr_sinistra": "decisa",
@@ -23,8 +24,8 @@
 		},
 		"dopo_primo_goblin": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Un solo colpo, ed è già finita." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Le creature qui sembrano molto deboli... la fonte non deve essere molto intelligente..." }
+				{ "tipo": "narrazione", "testo": "Alcune creature sono malvage di natura, è tuo compito decidere il loro destino." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Le creature qui sembrano molto deboli... Qualunque cosa stia causando questa anomalia non deve essere molto forte..." }
 			],
 			"espr_sinistra": "pensiero",
 			"scelte": [
@@ -82,9 +83,9 @@
 		},
 		"vittoria": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Il goblin cade e non si rialza. L'aria intorno a me si calma: il fattore Carnivalz di questa zona non è più pericoloso." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Così facile." },
-				{ "tipo": "narrazione", "testo": "Non tutte le fonti nascondono una tragedia: a volte i mostri sono semplicemente malvagi per natura, senza aver mai davvero subito la trasformazione di un vero boss. Immagino che questo sia stato solo l'inizio." }
+				{ "tipo": "narrazione", "testo": "Dopo lo scontro, il vento si placa e l'atmosfera sembra essere meno tesa: i livelli di disallineamento sono normali." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sembra essere tutto finito..." },
+				{ "tipo": "narrazione", "testo": "È ora di lasciare questo posto, altri compiti ti attendono." }
 			],
 			"espr_sinistra": "pensiero",
 			"flag": "tutorial_completato",

@@ -85,13 +85,18 @@ la cornice, non ancorato in alto. Il diario di combattimento resta invece un log
 testo misto o sovrapposto; si avanza cliccando "▸ Continua" (`Main.coda_messaggi`,
 `avanza_messaggio()`); le scelte vere compaiono solo a coda vuota. Ogni nodo evento può avere
 una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
-- **`narrazione`**: descrizione di quel che accade, sempre in *corsivo*, senza nome (il
-  narratore non esiste: è il protagonista che osserva e descrive dentro di sé)
+- **`narrazione`**: la voce narrante descrive la scena in **seconda persona** ("ti nota",
+  "il tuo compito"), sempre in *corsivo*, senza nome — non è Anonimo che parla, è chi
+  racconta la sua storia dall'esterno
 - **`dialogo`**: un personaggio parla (`chi`), il suo nome compare centrato sul box
-  (etichetta **`%NomeParlante`**) e il testo non è in corsivo
+  (etichetta **`%NomeParlante`**) e il testo non è in corsivo. Include Anonimo stesso: le
+  sue battute e i suoi pensieri in prima persona sono `dialogo` con `chi: "anonimo"`, mai
+  narrazione
 - **`notifica`**: oggetti/Tazo raccolti (`Main.pickup()`, i guadagni di Tazo in
   `_su_scelta()`); centrata e in grassetto nel box, **una voce alla volta**, mai
   insieme ad altro testo — per darle lo stesso peso di narrazione e dialogo
+- **`titolo`**: rivela il nome di un luogo (es. "Pianure di Redenna" nel tutorial), centrato
+  e grande (`font_size` doppio rispetto al testo normale), senza nome
 
 Un nodo senza `"sequenza"` continua a funzionare col vecchio campo `"testo"` (diventa
 un'unica narrazione: `sequenza_di()` è retrocompatibile, nessun contenuto esistente va

@@ -6,10 +6,16 @@ extends Control
 #
 # Il box in basso mostra UN messaggio alla volta, in coda (coda_messaggi),
 # avanzata cliccando "Continua"; solo a coda vuota compaiono le scelte vere.
-# Tre tipi di messaggio:
-#   - "narrazione": descrizione di quel che accade, sempre in corsivo, senza nome
-#   - "dialogo": un personaggio parla, il suo nome compare centrato sul box
+# Quattro tipi di messaggio:
+#   - "narrazione": la voce narrante che descrive la scena in seconda persona
+#     ("ti nota", "il tuo compito"), sempre in corsivo, senza nome — non è
+#     Anonimo che parla, è chi racconta la sua storia dall'esterno
+#   - "dialogo": un personaggio parla (incluso Anonimo, in prima persona: le
+#     sue battute/pensieri sono "dialogo" con chi="anonimo"), il suo nome
+#     compare centrato sul box
 #   - "notifica": oggetti/Tazo raccolti, centrato, una voce alla volta
+#   - "titolo": rivela il nome di un luogo (es. "Pianure di Redenna"), grande
+#     e centrato, senza nome
 # Un nodo può avere "sequenza" (lista di messaggi) oppure, in alternativa,
 # il vecchio campo "testo" (diventa un'unica narrazione, per compatibilità
 # con i contenuti non ancora convertiti).
@@ -130,6 +136,11 @@ func mostra_messaggio(msg: Dictionary) -> void:
 		"notifica":
 			nome_parlante.visible = false
 			narratore.text = "[center][b]%s[/b][/center]" % sostituisci_nome(String(msg.get("testo", "")))
+		"titolo":
+			# rivela il nome di un luogo: grande e centrato, non e' narrazione
+			# di scena ne' una battuta di qualcuno
+			nome_parlante.visible = false
+			narratore.text = "[center][b][font_size=36]%s[/font_size][/b][/center]" % sostituisci_nome(String(msg.get("testo", "")))
 		_:
 			nome_parlante.visible = false
 			narratore.text = "[i]%s[/i]" % sostituisci_nome(String(msg.get("testo", "")))
