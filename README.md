@@ -107,8 +107,14 @@ Numeri piccoli e leggibili, ma con scelte vere:
 - I **boss hanno mosse pesate** nei dati (`mosse`: attacco_forte, attacco_tutti,
   buff_difesa, buff_fattore, evoca + `peso_attacco_normale`): ogni scontro è unico
 - **Alleato temporaneo**: `recluta_temporaneo` (+`livello_alleato`) mette un compagno in squadra
-  solo per lo squarcio corrente; `congeda` (o l'uscita dallo squarcio) lo rimanda via. Yhvina
-  nella Casa Gigante
+  solo per lo squarcio/campagna corrente; `congeda` (o l'uscita dallo squarcio) lo rimanda via.
+  Yhvina nella Casa Gigante; il Vecchio Proprietario del teatro nel mondo di Jerah (20 hp,
+  attacco 0 — può essere colpito e cadere, ma non fa mai male sul serio). Deve stare in
+  `classes.json` (non basta `personaggi.json`): `recluta_temporaneo()` lo richiede
+- **`bottino_presenza`** su una classe: un alleato temporaneo può garantire un oggetto a ogni
+  vittoria semplicemente per essere stato in squadra (`{oggetto, chance}`, risolto in
+  `Combattimento.risolvi_drop()` insieme al resto del bottino) — es. la bottiglia di liquore
+  del Vecchio Proprietario del teatro
 - Il danno **subìto dal party cala in proporzione al livello** (probabilità di assorbire:
   (livello − 1) × 10%, tetto 50%, + fattore/200)
 - Vittoria: XP e **Tazo** a tutto il party (somma di `xp` e `tazo` dei nemici). Sconfitta:
@@ -389,12 +395,20 @@ con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, z
 ```
 Chiavi nodo (opzionali): `sinistra` (default: protagonista), `destra`, `centro` (esclude i lati).
 Chiavi effetto sulle scelte (tutte opzionali): `vai`, `richiede` (abilità nel party),
-`richiede_legame` (legame ≥ soglia), `richiede_ospite` (quell'ospite con te), `recluta`,
+`richiede_legame` (legame ≥ soglia), `richiede_ospite` (quell'ospite con te), `richiede_compagno`
+(quella classe nel party — es. un alleato temporaneo reclutato prima), `recluta`,
 `oggetto` (va nello slot giusto in base al tipo), `lascia`, `ospite` (personaggio temporaneo
-per la campagna), `tazo` (±; se negativa e non puoi pagare, la scelta non appare), `stress`
-(± a tutto il party), `legame` (±), `sblocca_negozio`, `combatti` (lista di id nemici;
-`se_vinci`/`se_vinci_eroe`/`se_perdi` destinazioni), `reset` (fine campagna: inventario,
-Tazo, roster, livelli, stress e legame restano, gli ospiti no).
+per la campagna, solo assist fuori combattimento), `recluta_temporaneo` + `livello_alleato`
+(alleato temporaneo che combatte davvero, deve stare in `classes.json`), `tazo` (±; se negativa
+e non puoi pagare, la scelta non appare), `stress` (± a tutto il party), `legame` (±),
+`sblocca_negozio`, `combatti` (lista di id nemici; `se_vinci`/`se_vinci_eroe`/`se_perdi`
+destinazioni), `reset` (fine campagna: inventario, Tazo, roster, livelli, stress e legame
+restano, gli ospiti no), `game_over` (sconfitta contro una vera fonte: si ricarica l'ultimo
+salvataggio, vedi sezione Combattimento).
+
+Un messaggio `dialogo` nella `sequenza` può avere `espr` per cambiare l'espressione del
+personaggio a metà conversazione (solo per scene `centro`, un solo personaggio a schermo —
+es. il giocoliere che perde il sorriso un attimo prima del combattimento).
 
 ## Convenzioni
 - Codice e chiavi JSON in italiano

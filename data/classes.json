@@ -136,6 +136,19 @@
 			"personalita": "manipolatore",
 			"abilita": [],
 			"ritratto": "res://art/personaggi/mr_eto.png"
+		},
+		{
+			"id": "vecchio_clown",
+			"nome": "Il Vecchio Proprietario del teatro",
+			"classe": "Alleato temporaneo",
+			"hp": 20,
+			"attacco": 0,
+			"difesa": 2,
+			"velocita": 2,
+			"fattore_base": 0,
+			"abilita": [],
+			"bottino_presenza": { "oggetto": "bottiglia_di_liquore", "chance": 1.0 },
+			"ritratto": "res://art/personaggi/vecchio_clown.png"
 		}
 	]
 }

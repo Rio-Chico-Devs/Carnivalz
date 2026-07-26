@@ -122,8 +122,11 @@ func mostra_messaggio(msg: Dictionary) -> void:
 	match String(msg.get("tipo", "narrazione")):
 		"dialogo":
 			nome_parlante.visible = true
-			aggiorna_nome_parlante(String(msg.get("chi", GameState.id_protagonista)))
+			var chi := String(msg.get("chi", GameState.id_protagonista))
+			aggiorna_nome_parlante(chi)
 			narratore.text = String(msg.get("testo", ""))
+			if msg.has("espr"):
+				aggiorna_espressione_centro(chi, String(msg["espr"]))
 		"notifica":
 			nome_parlante.visible = false
 			narratore.text = "[center][b]%s[/b][/center]" % String(msg.get("testo", ""))
@@ -149,6 +152,8 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 			continue  # evento raro: serve un legame abbastanza coltivato
 		if scelta.has("richiede_ospite") and scelta["richiede_ospite"] not in GameState.ospiti:
 			continue
+		if scelta.has("richiede_compagno") and scelta["richiede_compagno"] not in GameState.party:
+			continue  # serve un alleato specifico in squadra (es. un compagno temporaneo reclutato)
 		if scelta.has("richiede_flag") and not GameState.ha_flag(scelta["richiede_flag"]):
 			continue
 		if scelta.has("richiede_non_flag") and GameState.ha_flag(scelta["richiede_non_flag"]):
@@ -198,6 +203,15 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 	slot_destra.visible = nodo.has("destra")
 	if nodo.has("destra"):
 		mostra_slot(slot_destra, nodo["destra"], nodo.get("espr_destra", ""))
+
+func aggiorna_espressione_centro(id_personaggio: String, espressione: String) -> void:
+	# una scena "centro" (un solo personaggio a schermo) puo' cambiare la sua
+	# espressione a meta' sequenza: es. il giocoliere che perde il sorriso
+	# un attimo prima del combattimento
+	var centro: Variant = nodo_in_corso.get("centro")
+	var id_centro := String(centro.get("id", "")) if centro is Dictionary else String(centro)
+	if slot_centro.visible and id_centro == id_personaggio:
+		mostra_slot(slot_centro, id_personaggio, espressione)
 
 func aggiorna_nome_parlante(id_personaggio: String) -> void:
 	nome_parlante.text = String(GameState.personaggi.get(id_personaggio, {}).get("nome", id_personaggio))

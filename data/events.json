@@ -67,13 +67,48 @@
 		},
 		"carovana": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Dentro il carro, il vecchio proprietario del teatro dove si esibiva rammenda una muleta che nessuno agiterà più. È l'unico che i mostri hanno risparmiato." },
-				{ "tipo": "dialogo", "chi": "vecchio_clown", "testo": "Lo conoscevo prima della gloria. Portami da lui." }
+				{ "tipo": "narrazione", "testo": "In una terra molto, ma molto lontana, dove la luce del sole risplende ogni giorno...\n\nDove maghi, attori, acrobati e artisti di tutti i tipi si esibiscono in cerca di fama e di un'opportunità di rimanere nella storia...\n\nSi annida una forza scottata dalla sua stessa passione.\n\nChi è stato consumato dal suo stesso talento si esibisce senza riposo, trascinato non da un obbligo, ma dalle proprie stesse emozioni e da un vento che soffia sempre più forte...\n\nBenvenuti nelle terre consumate dalle fiamme della passione... Benvenuti ai deserti di Jondoh, il pianeta dello spettacolo." },
+				{ "tipo": "dialogo", "chi": "vecchio_clown", "testo": "Ciao straniero, è raro trovare qualcuno ancora sano in questi luoghi. Raccontami: cosa ti porta in questo mondo ormai divorato dalle fiamme?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sono qui per conto dell'Organizzazione, sembrerebbe che questo mondo sia ormai perduto. Dimmi, vecchio: cosa dannazione è successo in queste terre?" },
+				{ "tipo": "dialogo", "chi": "vecchio_clown", "testo": "Ho ho ho, che giovane focoso che abbiamo qui! Vale, ti racconterò quel che so... Vuoi un sorso?" }
 			],
 			"destra": "vecchio_clown",
 			"espr_destra": "pensiero",
 			"scelte": [
-				{ "testo": "Portalo con te fino al ruedo", "vai": "giostra_cavalli", "ospite": "vecchio_clown", "legame": 5 },
+				{ "testo": "Accetta la bevanda", "vai": "carovana_si", "legame": 10 },
+				{ "testo": "Rifiuta, preferisci ascoltare", "vai": "carovana_no" }
+			]
+		},
+		"carovana_si": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Grazie mille, ne avevo proprio bisogno." }
+			],
+			"destra": "vecchio_clown",
+			"espr_destra": "pensiero",
+			"scelte": [
+				{ "testo": "Ascolta il suo racconto", "vai": "carovana_racconto" }
+			]
+		},
+		"carovana_no": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "No, grazie: preferisco ascoltare la tua storia." }
+			],
+			"destra": "vecchio_clown",
+			"espr_destra": "pensiero",
+			"scelte": [
+				{ "testo": "Ascolta il suo racconto", "vai": "carovana_racconto" }
+			]
+		},
+		"carovana_racconto": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "[Qui andranno le cinque tavole disegnate da Bru sulla storia di Jerah — arte non ancora pronta.]" },
+				{ "tipo": "dialogo", "chi": "vecchio_clown", "testo": "E questo è quel che posso dirti dal punto di vista di un vecchio che non si è mai pentito delle sue azioni..." },
+				{ "tipo": "dialogo", "chi": "vecchio_clown", "testo": "Senti, so perché sei qui: permettimi di accompagnarti da lui, ti prego... Voglio solo parlarci un'ultima volta. Non m'importa quale sarà il mio destino, non sarò un peso..." }
+			],
+			"destra": "vecchio_clown",
+			"espr_destra": "pensiero",
+			"scelte": [
+				{ "testo": "Portalo con te fino al ruedo", "vai": "giostra_cavalli", "recluta_temporaneo": "vecchio_clown", "livello_alleato": 1, "legame": 5 },
 				{ "testo": "È troppo pericoloso: lascialo alla sua veglia", "vai": "giostra_cavalli" }
 			]
 		},
@@ -114,14 +149,17 @@
 		"falo_notte": {
 			"testo": "Le braci calano. Qualcuno dovrebbe dire qualcosa, ma il silenzio va bene lo stesso.",
 			"scelte": [
-				{ "testo": "Il Vecchio Proprietario del teatro apre la mano: un bottone dorato, del primo abito di luci di Jerah", "vai": "palco", "richiede_ospite": "vecchio_clown", "una_tantum": "cor_bottone", "oggetto": "bottone_dorato", "stress": -10 },
+				{ "testo": "Il Vecchio Proprietario del teatro apre la mano: un bottone dorato, del primo abito di luci di Jerah", "vai": "palco", "richiede_compagno": "vecchio_clown", "una_tantum": "cor_bottone", "oggetto": "bottone_dorato", "stress": -10 },
 				{ "testo": "Verso il ruedo", "vai": "palco" }
 			]
 		},
 		"palco": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Sul tablao, El Muy Bonito fa girare tre lame roventi che non ricadono mai." },
-				{ "tipo": "dialogo", "chi": "giocoliere", "testo": "La fonte non riceve nessuno. Prima si passa da me. ¡Ándale!" }
+				{ "tipo": "narrazione", "testo": "Una strana musica latina comincia a inondare la sala, dalle fiamme e dal cumulo di rose si innalza una figura di rara bellezza, che ti squadra con un'espressione malvagia..." },
+				{ "tipo": "dialogo", "chi": "giocoliere", "testo": "Vamos! Cosa ci fanno degli individui senza talento come voi qui? Perché non lasciate mai noi artisti in pace? Stavo cercando l'ispirazione! E ora tutto è perduto! Siate dannati..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Fatti da parte." },
+				{ "tipo": "dialogo", "chi": "giocoliere", "testo": "Cosa?! Como te atreves... Es la ora..." },
+				{ "tipo": "dialogo", "chi": "giocoliere", "espr": "arrabbiata", "testo": "DE MORIR!" }
 			],
 			"centro": "giocoliere",
 			"espr_centro": "cool",

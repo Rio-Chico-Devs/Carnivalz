@@ -250,6 +250,15 @@
 			"nome": "Meccanismo del varco",
 			"tipo": "chiave",
 			"descrizione": "Ingranaggi antichi, delle stesse dimensioni esatte della serratura sulla porta enorme nella Casa Gigante. Non l'hai ancora trovato: si dice che esista solo molto più avanti, nel tuo viaggio."
+		},
+		{
+			"id": "bottiglia_di_liquore",
+			"nome": "Bottiglia di liquore",
+			"tipo": "consumabile",
+			"descrizione": "Il Vecchio Proprietario del teatro non viaggia mai senza scorta. Un sorso basta a schiarire i pensieri.",
+			"effetto": {
+				"stress": -20
+			}
 		}
 	]
 }

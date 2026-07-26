@@ -1005,6 +1005,17 @@ func risolvi_drop() -> void:
 					var id_oggetto := String(raro.get("oggetto", ""))
 					if GameState.aggiungi_oggetto(id_oggetto):
 						righe.append(String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)))
+	# alcuni alleati temporanei danno un piccolo bottino garantito solo per
+	# essere stati presenti nello scontro (es. il Vecchio Proprietario del
+	# teatro e la sua bottiglia di liquore), vivi o caduti che siano
+	for c in combattenti:
+		if not c.giocatore:
+			continue
+		var presenza: Dictionary = GameState.personaggi.get(c.id, {}).get("bottino_presenza", {})
+		if not presenza.is_empty() and GameState.rng.randf() < float(presenza.get("chance", 1.0)):
+			var id_oggetto_presenza := String(presenza.get("oggetto", ""))
+			if GameState.aggiungi_oggetto(id_oggetto_presenza):
+				righe.append(String(GameState.dati_oggetto(id_oggetto_presenza).get("nome", id_oggetto_presenza)))
 	if not righe.is_empty():
 		scrivi("[b]Ottieni:[/b] %s." % ", ".join(righe))
 

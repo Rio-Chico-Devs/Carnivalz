@@ -495,15 +495,6 @@
 			}
 		},
 		{
-			"id": "vecchio_clown",
-			"nome": "Il Vecchio Proprietario del teatro",
-			"ritratto": "res://art/personaggi/vecchio_clown.png",
-			"assist": {
-				"testo": "Il Vecchio Proprietario del teatro entra nell'arena con fatica, la schiena curva ma i piedi fermi. \"Ancora in piedi, muchacho. Vedo che ti sei ripreso alla grande.\" Jerah, per un istante, non ha più uno sguardo malvagio.",
-				"effetto": { "speranza": 15 }
-			}
-		},
-		{
 			"id": "jerah",
 			"nome": "L'ultimo spettacolo di Jerah",
 			"nome_breve": "Jerah",
@@ -572,7 +563,7 @@
 					"testo": "Il biglietto ti scivola tra le dita e plana ai piedi di Jerah. Lui lo raccoglie come si raccoglie una cosa viva. Non dice perché."
 				},
 				{
-					"tipo": "ospite",
+					"tipo": "compagno",
 					"id": "vecchio_clown",
 					"speranza": 30,
 					"testo": "Il Vecchio Proprietario del teatro scavalca la barriera ed entra nel ruedo, zoppicando. \"Sono ancora qui, muchacho. Non me ne sono mai andato.\""
