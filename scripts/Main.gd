@@ -262,6 +262,12 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.reset_campagna()
 		get_tree().change_scene_to_file(SCENA_MAPPA)
 		return
+	if scelta.get("game_over", false):
+		# sconfitto da una vera fonte: niente "si viene risputati nel vuoto",
+		# si perde il progresso non salvato e si riparte dall'ultimo salvataggio
+		GameState.game_over()
+		get_tree().change_scene_to_file(SCENA_MAPPA)
+		return
 	if scelta.has("vai"):
 		mostra_nodo(scelta["vai"], notifiche)
 	elif not notifiche.is_empty():

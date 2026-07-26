@@ -239,6 +239,11 @@ collegate nei due sensi (perlustrazione libera):
   imposta scegliendola (loot permanente: Tazo, oggetti). `flag` (su scelta o nodo) +
   `richiede_flag`/`richiede_non_flag` per stanze segrete e boss che non rispawnano
 - **`torna_vuoto`** su una scelta: esce dallo squarcio (gli alleati temporanei restano fuori)
+- **`game_over`** su una scelta: sconfitta contro una vera fonte (un boss). Niente "si viene
+  risputati nel Vuoto": si perde il progresso non salvato e si riparte dall'ultimo salvataggio
+  (`GameState.game_over()`, autosalvataggio; se non esiste, `reset_campagna()`). È il content
+  author a deciderlo nodo per nodo (es. `sconfitta_boss` in Rocca di Ossidiana) — le sconfitte
+  contro nemici comuni restano invece un `se_perdi` qualsiasi, senza conseguenze permanenti
 - **`espulsione_automatica`** su un nodo: nessuna scelta reale, dopo una breve pausa si torna
   da soli al Vuoto (usato per fratture-segnale come "Qualcosa preme")
 - **Fratture nascoste**: nel `mappa.json`, un vuoto con `nascosto: true` appare solo se soddisfa

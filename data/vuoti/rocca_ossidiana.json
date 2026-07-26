@@ -76,9 +76,9 @@
 		},
 		"trono_marcio": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Sul trono di ossidiana e ossa, Jongo Dongo si alza senza fretta: la pelle è marcia, gli occhi ancora lucidissimi." },
+				{ "tipo": "narrazione", "testo": "Si narra di persone che, sedotte dai lussuosi inviti di forze oscure, corrompono e ricompongono la vera essenza della vita.\n\nIl pentimento non viene neanche considerato come opzione, nei loro sogni le stelle brillano accecandoli per sempre, una luce talmente forte da diventare oscurità pura.\n\nBenvenuto, nella terra marcita di Ya Teh Zaneh, possa la terra perdonare chi l'ha calpestata senza rispetto." },
 				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Un piccolo sacrificio, per un grande risultato." },
-				{ "tipo": "narrazione", "testo": "Non sembra spaventato. Non lo è mai stato, in vita sua, e nemmeno adesso che non lo è più del tutto." }
+				{ "tipo": "narrazione", "testo": "Impossibile concepire un egoismo così grande, non può esserci perdono..." }
 			],
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
@@ -97,12 +97,10 @@
 		},
 		"sconfitta_boss": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Jongo Dongo non ti uccide: si volta, semplicemente, come se non valessi il sacrificio." },
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Non sei ancora un raccolto." },
-				{ "tipo": "narrazione", "testo": "La Rocca ti risputa fuori, nel Vuoto, umiliato più che ferito." }
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Un nuovo sacrificio... Una nuova rotta verso il viaggio..." }
 			],
 			"scelte": [
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
 			]
 		},
 		"espulso": {

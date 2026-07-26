@@ -517,6 +517,13 @@ func _lista_str(v: Variant) -> Array[String]:
 			a.append(str(x))
 	return a
 
+func game_over() -> void:
+	# sconfitta contro una vera fonte (un boss): non si viene "risputati nel
+	# vuoto", si perde tutto il progresso non salvato e si riparte
+	# dall'ultimo salvataggio (o da zero, se non si e' mai salvato)
+	if not carica():
+		reset_campagna()
+
 func reset_campagna() -> void:
 	# fine campagna: roster, inventario, Tazo, livelli, stress e legame
 	# restano; il party si scioglie e gli ospiti tornano al loro mondo
