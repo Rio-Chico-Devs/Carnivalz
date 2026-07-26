@@ -152,7 +152,7 @@
 			]
 		},
 		"cartella_clinica": {
-			"testo": "\"...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di fattore Carnivalz anomali per l'età. Salute generale carente.\" La firma in fondo è illeggibile quanto il resto.",
+			"testo": "\"...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di disallineamento anomali per l'età. Salute generale carente.\" La firma in fondo è illeggibile quanto il resto.",
 			"scelte": [
 				{ "testo": "Richiudi il fascicolo", "vai": "stanza_studi" }
 			]

@@ -13,7 +13,7 @@
 		"concentrazione": {
 			"nome": "Concentrazione",
 			"effetto": "fattore_su",
-			"descrizione": "Se un compagno va a terra si concentra: il fattore Carnivalz sale."
+			"descrizione": "Se un compagno va a terra si concentra: il fattore di disallineamento sale."
 		}
 	}
 }

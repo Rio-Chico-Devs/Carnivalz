@@ -196,7 +196,7 @@
 			]
 		},
 		"sconfitta": {
-			"testo": "Ti risvegli fuori dalla plaza, la testa che rimbomba come un tamburo. Il Carnivalz ti ha risputato nella sabbia. Per stavolta.",
+			"testo": "Ti risvegli fuori dalla plaza, la testa che rimbomba come un tamburo. Il disallineamento ti ha risputato nella sabbia. Per stavolta.",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]
@@ -210,7 +210,7 @@
 			]
 		},
 		"vittoria_eroe": {
-			"testo": "L'ultimo spettacolo di Jerah finisce così: un inchino vero, il primo da anni, la muleta abbassata nella sabbia. Il nucleo si imbeve di fattore Carnivalz e si riassorbe: una pangea nuova, vita nuova, tutte le anime in fila per rinascere — anche la sua. L'Organizzazione lo chiamerà esito eroe. Tu lo chiami com'era: uno spettacolo, finito bene.",
+			"testo": "L'ultimo spettacolo di Jerah finisce così: un inchino vero, il primo da anni, la muleta abbassata nella sabbia. Il nucleo si imbeve di fattore di disallineamento e si riassorbe: una pangea nuova, vita nuova, tutte le anime in fila per rinascere — anche la sua. L'Organizzazione lo chiamerà esito eroe. Tu lo chiami com'era: uno spettacolo, finito bene.",
 			"centro": "jerah",
 			"espr_centro": "speciale",
 			"scelte": [

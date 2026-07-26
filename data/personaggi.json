@@ -676,7 +676,7 @@
 			"xp": 40,
 			"tazo": 25,
 			"ritratto": "res://art/personaggi/goblin_arrabbiato.png",
-			"descrizione": "Non è mai stato bello, forte o rispettato, nemmeno tra i suoi. Il fattore Carnivalz gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse.",
+			"descrizione": "Non è mai stato bello, forte o rispettato, nemmeno tra i suoi. Il fattore di disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse.",
 			"carta": { "id": "carta_goblin_arrabbiato", "nome": "Un goblin terribilmente arrabbiato", "rarita": "non_comune", "testo": "La prima fonte che l'Organizzazione ti manda a estinguere. Non tutte le fonti nascondono una tragedia." },
 			"fonte": true,
 			"convincibile": false,

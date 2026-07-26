@@ -10,13 +10,13 @@
 			]
 		},
 		"incavi": {
-			"testo": "Quattro incavi, quattro forme: un'anima inquieta, dei ricordi felici, la volontà di un fabbro, un cuore di Carnivalz. Sono cose che non si trovano in un posto solo: si raccolgono lungo tutta la strada. Finché mancano, la fontana resta asciutta.",
+			"testo": "Quattro incavi, quattro forme: un'anima inquieta, dei ricordi felici, la volontà di un fabbro, un cuore di disallineamento. Sono cose che non si trovano in un posto solo: si raccolgono lungo tutta la strada. Finché mancano, la fontana resta asciutta.",
 			"scelte": [
 				{ "testo": "Torna alla fontana", "vai": "fontana" }
 			]
 		},
 		"fontana_completa": {
-			"testo": "I quattro pezzi trovano il loro posto. L'acqua sgorga dal nulla, limpida, e sale oltre il bordo senza traboccare. Dentro il riflesso prende forma qualcuno che il Carnivalz aveva rubato al mondo. Si volta verso di te. [Un nuovo personaggio si unirà: lo gestiremo più avanti.]",
+			"testo": "I quattro pezzi trovano il loro posto. L'acqua sgorga dal nulla, limpida, e sale oltre il bordo senza traboccare. Dentro il riflesso prende forma qualcuno che il disallineamento aveva rubato al mondo. Si volta verso di te. [Un nuovo personaggio si unirà: lo gestiremo più avanti.]",
 			"scelte": [
 				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
 			]
