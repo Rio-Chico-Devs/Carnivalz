@@ -6,6 +6,11 @@ l'Organizzazione manda il party a estinguere le fonti prima che i pianeti vengan
 Storia completa (canone): `docs/storia.md`.
 Motore in Godot (GDScript), **contenuti tutti nei JSON** sotto `data/` — mai hardcodati negli script.
 Il protagonista è l'**Anonimo**: il gioco si vive in prima persona attraverso le sue avventure.
+Al via di una nuova partita (menu principale) il giocatore può scegliere un nome per lui — se
+lo lascia vuoto resta "Anonimo". Il nome scelto sostituisce quello di default ovunque (box
+dialoghi, ritratti, party) e va nel salvataggio (`GameState.imposta_nome_protagonista()`); un
+messaggio di `sequenza` può richiamarlo esplicitamente con `{nome}` (es. la battuta di
+benvenuto di Jerah).
 
 ## Come si avvia
 Aprire `project.godot` con Godot 4.7+ (versione standard). Flusso:

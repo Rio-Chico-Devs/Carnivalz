@@ -184,8 +184,9 @@
 		},
 		"boss": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Al centro del ruedo, sotto una scritta di fuoco che sanguina luce — EL ÚLTIMO ESPECTÁCULO DE JERAH — la fonte ti aspetta, la muleta di ferro nero in pugno." },
-				{ "tipo": "dialogo", "chi": "jerah", "testo": "Benvenuto, Anonimo. Ti aspettavamo." },
+				{ "tipo": "narrazione", "testo": "Cosa spinge l'uomo a dare di più? Perché cerchiamo sempre l'approvazione di chi ci circonda? Forse tutta la vita è uno spettacolo... ma cosa succede se il protagonista viene privato del suo lieto fine? Le risate dei bambini si trasformano in delusione, gli sguardi vengono rivolti altrove... E tutto si perde sotto il sipario... Ma a volte... C'è tempo per un ultimo spettacolo, uno spettacolo... mai visto prima." },
+				{ "tipo": "dialogo", "chi": "jerah", "testo": "Sento... che non sei come gli altri... sei venuto... ad ammirare la mia Jerah?!" },
+				{ "tipo": "dialogo", "chi": "jerah", "testo": "Benvenuto, {nome}. Ammira Jerah! AMAMI!" },
 				{ "tipo": "narrazione", "testo": "Il deserto trattiene il fiato." }
 			],
 			"centro": "jerah",

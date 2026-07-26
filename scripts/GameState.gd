@@ -36,6 +36,8 @@ var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemic
 var stati: Dictionary = {}                # id stato -> definizione generica (tipo, contagiosa, ...)
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
 var id_protagonista: String = ""
+var nome_protagonista: String = ""     # vuoto = usa il nome di default ("Anonimo")
+var nome_anonimo_default: String = ""  # catturato da classes.json al primo caricamento
 
 var classi_sbloccate: Array[String] = []  # roster: persiste tra le campagne
 var party: Array[String] = []             # scelto a inizio campagna
@@ -109,6 +111,19 @@ func carica_classi() -> void:
 	classi.clear()
 	for classe in dati.get("classi", []):
 		classi[classe["id"]] = classe
+	nome_anonimo_default = String(classi.get(id_protagonista, {}).get("nome", ""))
+
+func imposta_nome_protagonista(nome: String) -> void:
+	# il giocatore puo' scegliere un nome per il protagonista (altrimenti
+	# resta "Anonimo"); si applica direttamente ai dati in memoria cosi' che
+	# ogni punto che legge il nome (box dialoghi, ritratti, party) lo veda
+	# senza bisogno di un caso speciale
+	nome_protagonista = nome.strip_edges()
+	var nome_finale := nome_protagonista if nome_protagonista != "" else nome_anonimo_default
+	if classi.has(id_protagonista):
+		classi[id_protagonista]["nome"] = nome_finale
+	if personaggi.has(id_protagonista):
+		personaggi[id_protagonista]["nome"] = nome_finale
 
 func carica_personaggi() -> void:
 	personaggi.clear()
@@ -171,6 +186,7 @@ func carica_mappa() -> Dictionary:
 	return dati if dati is Dictionary else {}
 
 func nuova_partita() -> void:
+	imposta_nome_protagonista("")  # si riparte da "Anonimo": si rinomina di nuovo, se si vuole
 	classi_sbloccate.clear()
 	party.clear()
 	livelli.clear()
@@ -459,6 +475,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"studiati": studiati,
 		"negozi_sbloccati": negozi_sbloccati,
 		"flags": flags,
+		"nome_protagonista": nome_protagonista,
 	}
 	var f := FileAccess.open(percorso, FileAccess.WRITE)
 	if f == null:
@@ -491,6 +508,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	studiati = _lista_str(d.get("studiati", []))
 	negozi_sbloccati = _lista_str(d.get("negozi_sbloccati", []))
 	flags = _lista_str(d.get("flags", []))
+	imposta_nome_protagonista(String(d.get("nome_protagonista", "")))
 	# si riparte da uno stato "overworld" pulito: fuori da campagne e squarci
 	party.clear()
 	if id_protagonista != "":

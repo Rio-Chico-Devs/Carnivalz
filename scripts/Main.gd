@@ -124,15 +124,24 @@ func mostra_messaggio(msg: Dictionary) -> void:
 			nome_parlante.visible = true
 			var chi := String(msg.get("chi", GameState.id_protagonista))
 			aggiorna_nome_parlante(chi)
-			narratore.text = String(msg.get("testo", ""))
+			narratore.text = sostituisci_nome(String(msg.get("testo", "")))
 			if msg.has("espr"):
 				aggiorna_espressione_centro(chi, String(msg["espr"]))
 		"notifica":
 			nome_parlante.visible = false
-			narratore.text = "[center][b]%s[/b][/center]" % String(msg.get("testo", ""))
+			narratore.text = "[center][b]%s[/b][/center]" % sostituisci_nome(String(msg.get("testo", "")))
 		_:
 			nome_parlante.visible = false
-			narratore.text = "[i]%s[/i]" % String(msg.get("testo", ""))
+			narratore.text = "[i]%s[/i]" % sostituisci_nome(String(msg.get("testo", "")))
+
+func sostituisci_nome(testo: String) -> String:
+	# permette a narrazione/dialogo di citare il nome scelto dal giocatore
+	# per il protagonista, es. "Benvenuto, {nome}." (distinto dal "%s" di
+	# dialoghi.json, gia' risolto altrove per i nomi dei compagni)
+	if testo.find("{nome}") == -1:
+		return testo
+	var nome := String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "Anonimo"))
+	return testo.replace("{nome}", nome)
 
 func mostra_continua() -> void:
 	for figlio in contenitore_scelte.get_children():
