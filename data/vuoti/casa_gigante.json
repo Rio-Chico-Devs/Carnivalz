@@ -116,8 +116,12 @@
 		},
 		"camera_da_letto": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Una camera da letto rimasta ferma agli anni buoni. Seduta sul bordo del letto, sveglia da chissà quanto, una donna dagli occhi cerchiati ti fissa senza sorpresa." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Yhvina. L'Insonne. So perché sei qui: quella cosa, giù. Da solo non ce la fai." }
+				{ "tipo": "narrazione", "testo": "Eh? Sembra esserci qualcuno..." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Yhvina. L'Insonne. E tu chi sei? Non mi aspettavo di trovare qualcun altro..." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Hm... sembra che anche tu sia come me... Lo percepisci anche tu vero? Altrimenti non saresti qui... C'è qualcosa di estremamente sbagliato in questo posto..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "In realtà io sono qui per conto dell'organizzazione... questo squarcio dovrebbe essere di mia competenza... Tu come ci sei finita qui?" },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Organizzazione? Io sono qui per puro caso... mi capita di addormentarmi e ritrovarmi in posti come questo... Da qualche parte deve esserci qualcuno... o meglio qualcosa... che genera tutto questo... Io voglio solo andare a casa e farmi una dormita." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Pensandoci bene, abbiamo un obiettivo in comune... sarebbe una buona mossa proporle di andare a fondo in questa questione insieme..." }
 			],
 			"destra": "insonne",
 			"espr_destra": "annoiata",
@@ -128,10 +132,10 @@
 		},
 		"yhvina_si": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Yhvina si alza, lenta, e controlla una lama corta che teneva sotto il cuscino." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Solo per stavolta. Non fraintendere: siete troppo scarsi perché io mi leghi a voi. Ma quella bambola non merita di restare sola un altro giorno." },
-				{ "tipo": "narrazione", "testo": "Ti squadra." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Ci rivedremo, quando varrete la pena." }
+				{ "tipo": "narrazione", "testo": "Yhvina ti squadra con... cos'è quell'espressione disgustata...?" },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Hmph... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada." },
+				{ "tipo": "narrazione", "testo": "Le mani di Yhvina cambiano e il suo sguardo non ti rassicura per niente..." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Su, andiamo, abbiamo già perso fin troppo tempo." }
 			],
 			"destra": "insonne",
 			"espr_destra": "decisa",
@@ -193,9 +197,9 @@
 		},
 		"ricordo_concluso": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "La bambola si accascia tra le lettere bruciate e le sue stesse cuciture allentate. Poi, da nessuna bocca..." },
+				{ "tipo": "narrazione", "testo": "La bambola comincia a sfilacciarsi e ombre nere cominciano a disperdersi lungo le pareti..." },
 				{ "tipo": "dialogo", "chi": "tenero_ricordo", "testo": "...volevo, giocare... ancora... un pò..." },
-				{ "tipo": "narrazione", "testo": "Il silenzio che segue è peggio di qualunque lamento." }
+				{ "tipo": "narrazione", "testo": "L'atmosfera trasuda una tristezza profonda e umida... sembra quasi di aver fatto la cosa sbagliata..." }
 			],
 			"flag": "casa_ricordo_sconfitto",
 			"scelte": [
@@ -204,11 +208,10 @@
 		},
 		"congedo_yhvina": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Yhvina rinfodera la lama e ti dà le spalle senza cerimonie." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Non male, per essere degli scarti. Ma non basta." },
-				{ "tipo": "narrazione", "testo": "Si ferma sulla soglia." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "La prossima volta che ci incontriamo, cerca di non deludermi." },
-				{ "tipo": "narrazione", "testo": "E se ne va, sveglia come sempre." }
+				{ "tipo": "narrazione", "testo": "Bene, sembrerebbe che il nostro lavoro qui sia terminato, presto potrò tornare finalmente a casa." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Ecco che arriva... Bene. Se il destino vorrà, ci rivedremo ancora." },
+				{ "tipo": "narrazione", "testo": "Uno squarcio deforma Yhvina che scompare senza lasciare alcuna traccia... quando uno squarcio si chiude, tutto quello che ha portato viene riportato indietro." },
+				{ "tipo": "narrazione", "testo": "Il tuo compito sembra essere terminato." }
 			],
 			"destra": "insonne",
 			"congeda": "insonne",

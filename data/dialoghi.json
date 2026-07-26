@@ -4,9 +4,11 @@
 			"una_tantum": "dialogo_casa_botola",
 			"flag": "casa_botola",
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "%s si ferma davanti ai cuscini ammucchiati contro il muro." },
-				{ "tipo": "dialogo", "testo": "Aspetta... senti? Sotto è vuoto." },
-				{ "tipo": "narrazione", "testo": "Con un calcio scosta i cuscini: c'è una botola." }
+				{ "tipo": "narrazione", "testo": "%s si ferma davanti ai cuscini ammucchiati contro il muro, fissandoli con curiosità." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Hey, guarda qui, sembra esserci qualcosa sotto questo mucchio di cuscini... proviamo a spostarli?" },
+				{ "tipo": "narrazione", "testo": "Tira un calcio violento contro i cuscini." },
+				{ "tipo": "dialogo", "testo": "Ecco fatto... vedi? C'è un passaggio..." },
+				{ "tipo": "narrazione", "testo": "Non ha perso molto tempo... Ma il risultato c'è." }
 			]
 		}
 	},
