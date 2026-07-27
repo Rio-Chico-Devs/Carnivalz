@@ -29,6 +29,7 @@ extends Control
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
+const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
 
 @onready var slot_sinistra = %SlotSinistra
@@ -38,6 +39,7 @@ const EVENTI_DEBUG := "res://data/events.json"
 @onready var narratore: RichTextLabel = %Narratore
 @onready var contenitore_scelte: VBoxContainer = %Scelte
 @onready var bottone_dialoga: Button = %BottoneDialoga
+@onready var bottone_mappa: Button = %BottoneMappa
 @onready var menu_compagni: HBoxContainer = %MenuCompagni
 @onready var stato: Label = %Stato
 
@@ -53,6 +55,9 @@ func _ready() -> void:
 	for slot in [slot_sinistra, slot_centro, slot_destra]:
 		slot.imposta_grande(true)  # ritratto cinematografico, riempie lo schermo sopra il box
 	bottone_dialoga.pressed.connect(_su_dialoga)
+	bottone_mappa.visible = not GameState.mappa_zona.is_empty()
+	bottone_mappa.pressed.connect(func() -> void:
+		get_tree().change_scene_to_file(SCENA_MAPPA_ZONA))
 	mostra_nodo(GameState.nodo_corrente)
 
 func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) -> void:
@@ -63,12 +68,18 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 	GameState.nodo_corrente = id_nodo
 	if nodo.has("flag"):
 		GameState.imposta_flag(nodo["flag"])
+	if nodo.has("sblocca_stanze"):
+		# mappa dungeon di zona: visitare questo nodo sblocca altre stanze
+		for id_stanza in nodo["sblocca_stanze"]:
+			GameState.sblocca_stanza(String(id_stanza))
 	if nodo.has("congeda"):
 		GameState.congeda(nodo["congeda"])
 	# agguato: ogni volta che si entra nella stanza si tenta la probabilita';
 	# se scatta si combatte (e non si ritenta subito tornando qui a vittoria
-	# ottenuta); se non scatta, la prossima visita ritenta da capo
-	if nodo.has("agguato") and id_nodo not in GameState.stanze_ripulite:
+	# ottenuta); se non scatta, la prossima visita ritenta da capo. Una zona
+	# "ripulita" (salta_se_flag) non tenta piu' nessun agguato
+	if nodo.has("agguato") and id_nodo not in GameState.stanze_ripulite \
+			and not (nodo["agguato"].has("salta_se_flag") and GameState.ha_flag(String(nodo["agguato"]["salta_se_flag"]))):
 		var agguato: Dictionary = nodo["agguato"]
 		if GameState.rng.randf() < float(agguato.get("probabilita", 0.3)):
 			var gruppi: Array = agguato.get("gruppi", [])
@@ -108,9 +119,11 @@ func avanza_messaggio() -> void:
 	if not coda_messaggi.is_empty():
 		var msg: Dictionary = coda_messaggi.pop_front()
 		mostra_messaggio(msg)
-		# durante la lettura dei messaggi il bottone "Parla con la squadra"
-		# resta nascosto: appare solo a coda vuota, mai a meta' di una sequenza
+		# durante la lettura dei messaggi i bottoni "Parla con la squadra" e
+		# "Mappa" restano nascosti: appaiono solo a coda vuota, mai a meta' di
+		# una sequenza
 		bottone_dialoga.visible = false
+		bottone_mappa.visible = false
 		for figlio in menu_compagni.get_children():
 			figlio.queue_free()
 		if coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() \
@@ -142,6 +155,10 @@ func avanza_messaggio() -> void:
 	aggiorna_dialoga()
 
 func avvia_combattimento_automatico(dati: Dictionary) -> void:
+	if dati.has("salta_se_flag") and GameState.ha_flag(String(dati["salta_se_flag"])):
+		# zona gia' ripulita (boss sconfitto): non ci sono piu' nemici qui
+		mostra_nodo(String(dati.get("se_vinci", "")))
+		return
 	GameState.prepara_combattimento(dati.get("nemici", []), dati.get("se_vinci", ""),
 			dati.get("se_vinci_eroe", ""), dati.get("se_perdi", ""), dati.get("se_fuggi", ""))
 	get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
@@ -328,6 +345,11 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.game_over()
 		get_tree().change_scene_to_file(SCENA_MAPPA)
 		return
+	if scelta.get("torna_a_mappa", false):
+		# mappa dungeon di zona: si torna li' a scegliere la prossima stanza,
+		# invece di proseguire dritti verso un altro nodo
+		get_tree().change_scene_to_file(SCENA_MAPPA_ZONA)
+		return
 	if scelta.has("vai"):
 		mostra_nodo(scelta["vai"], notifiche)
 	elif not notifiche.is_empty():
@@ -338,6 +360,8 @@ func _su_scelta(scelta: Dictionary) -> void:
 func aggiorna_dialoga() -> void:
 	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce
 	bottone_dialoga.visible = GameState.party.size() > 1
+	# "Mappa" compare solo se la zona corrente ne ha una (mappa_dungeon)
+	bottone_mappa.visible = not GameState.mappa_zona.is_empty()
 	for figlio in menu_compagni.get_children():
 		figlio.queue_free()
 

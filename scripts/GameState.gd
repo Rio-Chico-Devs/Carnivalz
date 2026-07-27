@@ -64,6 +64,8 @@ var negozi_sbloccati: Array[String] = []
 var eventi: Dictionary = {}
 var nodo_corrente: String = ""
 var carnivalz_corrente: String = ""
+var stanza_iniziale_zona: String = ""  # nodo_iniziale della zona (sempre sbloccato sulla mappa)
+var mappa_zona: Dictionary = {}         # "mappa_dungeon" del file eventi corrente, se presente
 var ospiti: Array[String] = []       # personaggi temporanei della campagna
 var alleati_temporanei: Array[String] = []  # compagni che combattono per un solo squarcio
 var studiati: Array[String] = []     # chi hai studiato (per la sezione studio futura)
@@ -255,6 +257,8 @@ func nuova_partita() -> void:
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
+	stanza_iniziale_zona = ""
+	mappa_zona = {}
 	annulla_combattimento()
 
 func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
@@ -264,7 +268,26 @@ func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
 	carnivalz_corrente = id_punto
 	eventi = dati.get("nodi", {})
 	nodo_corrente = dati.get("nodo_iniziale", "")
+	stanza_iniziale_zona = nodo_corrente
+	mappa_zona = dati.get("mappa_dungeon", {})
 	return not eventi.is_empty() and nodo_corrente != ""
+
+# --- mappa dungeon di una zona (data/events_*.json, campo "mappa_dungeon"):
+# stanze libere da visitare in qualunque ordine, ma solo se sbloccate. La
+# stanza iniziale della zona e' sempre sbloccata; le altre lo diventano
+# tramite il campo nodo "sblocca_stanze" (Main.gd, alla prima visita del
+# nodo che le sblocca). Lo stato vive nei flag di GameState, come qualunque
+# altra scoperta permanente, ma con nome namespaced per zona (carnivalz_corrente)
+# cosi' zone diverse possono riusare gli stessi id di stanza senza scontrarsi.
+
+func stanza_sbloccata(id_stanza: String) -> bool:
+	return id_stanza == stanza_iniziale_zona or ha_flag(_flag_stanza(id_stanza))
+
+func sblocca_stanza(id_stanza: String) -> void:
+	imposta_flag(_flag_stanza(id_stanza))
+
+func _flag_stanza(id_stanza: String) -> String:
+	return "%s__stanza__%s" % [carnivalz_corrente, id_stanza]
 
 func party_ha_abilita(abilita: String) -> bool:
 	for id_classe in party:
@@ -589,6 +612,8 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
+	stanza_iniziale_zona = ""
+	mappa_zona = {}
 	punto_mappa_corrente = {}
 	musica_ambiente = ""
 	annulla_combattimento()
@@ -619,4 +644,6 @@ func reset_campagna() -> void:
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
+	stanza_iniziale_zona = ""
+	mappa_zona = {}
 	annulla_combattimento()

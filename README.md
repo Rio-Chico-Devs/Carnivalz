@@ -34,6 +34,8 @@ dritti in mappa.
   codice, social e ringraziamenti
 - `scenes/Intro.tscn` + `scripts/Intro.gd` — crawl introduttivo (solo per una nuova partita)
 - `scenes/Mappa.tscn` + `scripts/Mappa.gd` — mappa stellare, marker data-driven
+- `scenes/MappaZona.tscn` + `scripts/MappaZona.gd` — mappa dungeon della zona corrente, se ne
+  ha una (`mappa_dungeon`, vedi sotto)
 - `scenes/Selezione.tscn` + `scripts/Selezione.gd` — menu del party: mostra solo le classi
   sbloccate e si riadatta man mano che i personaggi entrano o escono dai disponibili
 - `scenes/Main.tscn` + `scripts/Main.gd` — motore eventi + palco dialoghi
@@ -76,6 +78,32 @@ ricarica lo stesso nodo (`mostra_nodo()`), senza cambiare scena — usato da `ev
 per far partire il tutorial da solo (`id_punto: "tutorial"`) appena finisce il monologo del
 protagonista: il giocatore non sceglie lui il punto di partenza, a differenza del normale click
 su un marker della mappa stellare.
+
+## Mappa dungeon di una zona (`mappa_dungeon`)
+Un file eventi (`data/events_*.json`) può avere un campo di primo livello `"mappa_dungeon":
+{"sfondo", "stanze": [{"id", "nome", "pos"}]}`, dove ogni `"id"` di stanza è anche l'id di un
+nodo in `"nodi"`. Se presente, la zona si esplora liberamente invece che in un ordine lineare
+imposto: dalla schermata `MappaZona.tscn` si clicca una stanza **sbloccata** per entrarci
+(`GameState.nodo_corrente = id; torna a Main.tscn`). Le stanze non ancora sbloccate mostrano solo
+"???" (stesso trattamento delle collezioni non ancora scoperte).
+- **Sblocco**: la stanza `nodo_iniziale` della zona è sempre sbloccata
+  (`GameState.stanza_iniziale_zona`); le altre si sbloccano con il campo nodo
+  `"sblocca_stanze": ["id1", "id2"]` (letto in `Main.mostra_nodo()` alla prima visita del nodo
+  che le sblocca). Lo stato vive nei flag di `GameState` (namespaced per zona,
+  `GameState.stanza_sbloccata()`/`sblocca_stanza()`), quindi zone diverse possono riusare gli
+  stessi id di stanza senza scontrarsi, e persiste nel salvataggio come qualunque altro flag
+- **Tornare alla mappa**: una scelta con `"torna_a_mappa": true` porta a `MappaZona.tscn` invece
+  che a un altro nodo (`Main._su_scelta()`). C'è anche un bottone **Mappa**, sempre visibile
+  accanto a "Parla con la squadra" quando la zona corrente ha una `mappa_dungeon`, per
+  consultarla/spostarsi in qualunque momento, non solo a fine stanza
+- **Zona ripulita**: `combattimento_automatico` e `agguato` accettano un campo opzionale
+  `"salta_se_flag"` — se quel flag è impostato (tipicamente quello del nodo di vittoria sul boss
+  della zona, via il campo `"flag"` già esistente sui nodi), il combattimento non parte più:
+  si salta dritti a `se_vinci` (`combattimento_automatico`) o l'imboscata non tenta più nulla
+  (`agguato`). Così, dopo il boss, la zona si rivisita senza più nemici
+- **Non ancora usata da nessun contenuto**: per ora solo l'infrastruttura esiste (nessun file
+  eventi ha davvero `mappa_dungeon` — il tutorial resta lineare come prima). Pronta per la
+  prossima zona quando le sue stanze saranno disegnate
 
 ## Salvataggio
 Si salva **solo dalla mappa stellare** — mai nel Vuoto, mai dentro un carnivalz/squarcio,

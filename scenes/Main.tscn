@@ -120,6 +120,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Parla con la squadra"
 
+[node name="BottoneMappa" type="Button" parent="Margini/Colonna/RigaDialoga"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Mappa"
+
 [node name="MenuCompagni" type="HBoxContainer" parent="Margini/Colonna/RigaDialoga"]
 unique_name_in_owner = true
 layout_mode = 2
