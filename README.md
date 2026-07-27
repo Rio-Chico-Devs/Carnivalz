@@ -316,11 +316,16 @@ collegate nei due sensi (perlustrazione libera):
   che pesato — fase di paralisi iniziale (il giocatore non può agire, testo dedicato), un
   primo tentativo di Fuggi che fallisce sempre (dal secondo in poi funziona normalmente) con
   possibilità di addormentare chi tenta la fuga, e un contrattacco letale se il bersaglio è
-  addormentato quando arriva il turno del nemico. Fuori da queste fasi scriptate il nemico non
-  attacca mai davvero: ogni suo turno mostra solo `testo_inerte` (narrazione, zero danno) —
-  `Combattimento.turno_nemico()` non lascia mai passare uno di questi nemici al ramo pesato
-  normale. Usato per ora solo dalla manifestazione di un sogno nel tutorial (insegna Fuggi con
-  margine di rischio reale, non solo per finta)
+  addormentato quando arriva il turno del nemico (`esegui_incubo()`). Fuori da queste fasi il
+  nemico non attacca mai davvero: ogni suo turno è solo narrazione a zero danno, secondo
+  l'elenco `testi_inerti` (`Combattimento.esegui_turno_inerte()`, un testo diverso e sempre più
+  inquietante ogni turno, mai un attacco pesato). Se l'incontro si trascina oltre l'ultimo testo
+  della lista senza che il giocatore fugga (o vinca), la scena si chiude da sola con un gesto
+  letale scriptato (`testo_fatale_manifestazione`/`testo_fatale_protagonista`/
+  `testo_fatale_bacio`, `esegui_scena_fatale()`) — stessa sconfitta immediata dell'incubo
+  (`sconfitta_scriptata()`, condivisa dai due epiloghi). Usato per ora solo dalla manifestazione
+  di un sogno nel tutorial (insegna Fuggi con margine di rischio reale e un limite di tempo
+  vero, non solo per finta)
 - **`danno_fisso_su_attacco`** su un personaggio: ogni "Attacca" del giocatore contro di lui
   vale sempre esattamente questo danno, bypassando del tutto difesa/critico/fattore
   (`Combattimento.attacca()`, controllato prima della formula normale). Serve per i bersagli

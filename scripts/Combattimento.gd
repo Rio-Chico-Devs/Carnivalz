@@ -64,6 +64,7 @@ var portatore_incontro: Dictionary = {}
 var incontro_paralisi_attiva := false
 var incontro_tentativi_fuga := 0
 var incontro_incubo_pronto := false
+var incontro_turni_inerti := 0
 
 # dialogo_soglia_hp: un nemico puo' dichiarare un hp_soglia e un testo che
 # compare una sola volta, alla prima discesa sotto quella soglia.
@@ -566,9 +567,7 @@ func turno_nemico(nemico: Dictionary) -> void:
 		if incontro_incubo_pronto:
 			esegui_incubo(nemico, portatore_incontro.get("incontro_scriptato", {}))
 			return
-		# nessun attacco vero fuori dalle fasi scriptate: solo narrazione, a
-		# oltranza, finche' non si fugge, ci si addormenta o si vince
-		scrivi("[i]%s[/i]" % String(portatore_incontro.get("incontro_scriptato", {}).get("testo_inerte", "")))
+		esegui_turno_inerte(nemico, portatore_incontro.get("incontro_scriptato", {}))
 		return
 	if not portatore_frenesia.is_empty() and nemico.id == portatore_frenesia.id:
 		gestisci_turno_frenesia(nemico)
@@ -580,6 +579,34 @@ func esegui_incubo(nemico: Dictionary, dati_incontro: Dictionary) -> void:
 	# aperti, sconfitta immediata (routing "se_perdi" come qualunque altra)
 	incontro_incubo_pronto = false
 	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_incubo", "")))
+	sconfitta_scriptata()
+
+func esegui_turno_inerte(nemico: Dictionary, dati_incontro: Dictionary) -> void:
+	# fuori dalle fasi scriptate lei non attacca mai per danno: ogni turno e'
+	# solo la narrazione di un suo gesto, sempre piu' inquietante. Chi non
+	# fugge (o vince) in tempo arriva alla scena finale, letale
+	var testi: Array = dati_incontro.get("testi_inerti", [])
+	if incontro_turni_inerti < testi.size():
+		scrivi("[i]%s[/i]" % String(testi[incontro_turni_inerti]))
+		incontro_turni_inerti += 1
+		return
+	esegui_scena_fatale(dati_incontro)
+
+func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
+	# l'incontro si e' trascinato troppo senza fuggire: lei chiude la scena
+	# con un gesto affettuoso, e letale
+	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_manifestazione", "")))
+	var protagonisti_vivi := vivi(true)
+	var nome_protagonista := protagonisti_vivi[0].nome if not protagonisti_vivi.is_empty() \
+			else String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "Anonimo"))
+	scrivi("%s: \"%s\"" % [nome_protagonista, String(dati_incontro.get("testo_fatale_protagonista", ""))])
+	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
+	sconfitta_scriptata()
+
+func sconfitta_scriptata() -> void:
+	# il party viene azzerato sul colpo: usato dagli epiloghi letali degli
+	# incontri scriptati (incubo, scena fatale), sempre instradati come una
+	# qualunque sconfitta (se_perdi)
 	var vittime := vivi(true)
 	for vittima in vittime:
 		vittima.hp = 0
