@@ -120,9 +120,18 @@ func avanza_messaggio() -> void:
 		azione_dopo_coda = Callable()
 		richiamo.call()
 		return
+	if nodo_in_corso.has("combattimento_automatico"):
+		# non c'e' nulla da scegliere: il combattimento parte da solo a fine sequenza
+		avvia_combattimento_automatico(nodo_in_corso["combattimento_automatico"])
+		return
 	aggiorna_palco(nodo_in_corso)
 	ricostruisci_scelte(nodo_in_corso)
 	aggiorna_dialoga()
+
+func avvia_combattimento_automatico(dati: Dictionary) -> void:
+	GameState.prepara_combattimento(dati.get("nemici", []), dati.get("se_vinci", ""),
+			dati.get("se_vinci_eroe", ""), dati.get("se_perdi", ""), dati.get("se_fuggi", ""))
+	get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 
 func mostra_messaggio(msg: Dictionary) -> void:
 	match String(msg.get("tipo", "narrazione")):

@@ -54,6 +54,21 @@ var bersaglio_provocazione: Dictionary = {}
 var turni_provocazione := 0
 var ultima_azione_offensiva := false
 
+# Incontro scriptato: un nemico puo' avere "incontro_scriptato" nei dati per
+# una sequenza di combattimento interamente scritta - una fase iniziale di
+# paralisi, un primo tentativo di fuga che fallisce sempre (dal secondo in
+# poi funziona normalmente), un contrattacco letale se il tentativo fallito
+# addormenta il giocatore. Usato per ora solo dalla manifestazione di un
+# sogno nel tutorial.
+var portatore_incontro: Dictionary = {}
+var incontro_paralisi_attiva := false
+var incontro_tentativi_fuga := 0
+var incontro_incubo_pronto := false
+
+# dialogo_soglia_hp: un nemico puo' dichiarare un hp_soglia e un testo che
+# compare una sola volta, alla prima discesa sotto quella soglia.
+var soglie_dialogo_mostrate: Dictionary = {}  # indice combattente -> bool
+
 # Il primo nemico (il boss, o il primo di un gruppo comune) resta sempre al
 # centro del campo; chi si aggiunge dopo (altri della stessa imboscata, o
 # un'evocazione) si dispone ai lati, alternando destra e sinistra.
@@ -70,7 +85,10 @@ func _ready() -> void:
 			fonte = dati
 		if portatore_frenesia.is_empty() and dati.has("frenesia"):
 			portatore_frenesia = dati
-	scrivi("[b]Il Carnivalz fa spazio: si combatte.[/b]")
+		if portatore_incontro.is_empty() and dati.has("incontro_scriptato"):
+			portatore_incontro = dati
+			incontro_paralisi_attiva = true
+	scrivi("[b]Il disallineamento fa spazio: si combatte.[/b]")
 	avvia_musica_e_voce()
 	if fonte.get("convincibile", false):
 		etichetta_speranza.visible = true
@@ -244,6 +262,9 @@ func esegui_turno(attaccante: Dictionary) -> void:
 	ultima_azione_offensiva = false
 	if attaccante.giocatore:
 		attaccante_corrente = attaccante
+		if not portatore_incontro.is_empty() and incontro_paralisi_attiva:
+			scrivi("[i]%s[/i]" % String(portatore_incontro.get("incontro_scriptato", {}).get("testo_paralisi_giocatore", "")))
+			return  # non puoi fare nulla: la pressione ti immobilizza
 		if ha_stato_attivo(attaccante, "berserk"):
 			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
 			var nemici := vivi(false)
@@ -473,6 +494,16 @@ func provoca(chi: Dictionary) -> void:
 	scrivi("[i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]" % chi.nome)
 
 func fuggi(chi: Dictionary) -> void:
+	if not portatore_incontro.is_empty():
+		var dati_incontro: Dictionary = portatore_incontro.get("incontro_scriptato", {})
+		if dati_incontro.get("prima_fuga_fallisce", false) and incontro_tentativi_fuga == 0:
+			incontro_tentativi_fuga += 1
+			scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fuga_fallita", "")))
+			if GameState.rng.randf() < float(dati_incontro.get("chance_sonno", 0.5)):
+				applica_stato(chi, "sonno")
+				if ha_stato_attivo(chi, "sonno"):
+					incontro_incubo_pronto = true
+			return  # il tentativo fallisce: il combattimento continua
 	# nessuna penalita': solo si esce dal combattimento, senza bottino
 	scrivi("[i]%s fugge dal combattimento![/i]" % chi.nome)
 	giocatore_e_fuggito = true
@@ -506,10 +537,30 @@ func primo_nemico() -> Dictionary:
 # --- turno nemico e mosse ---
 
 func turno_nemico(nemico: Dictionary) -> void:
+	if not portatore_incontro.is_empty() and nemico.id == portatore_incontro.id:
+		if incontro_paralisi_attiva:
+			scrivi("[i]%s[/i]" % String(portatore_incontro.get("incontro_scriptato", {}).get("testo_paralisi_nemico", "")))
+			incontro_paralisi_attiva = false  # la fase introduttiva scriptata finisce qui
+			return
+		if incontro_incubo_pronto:
+			esegui_incubo(nemico, portatore_incontro.get("incontro_scriptato", {}))
+			return
 	if not portatore_frenesia.is_empty() and nemico.id == portatore_frenesia.id:
 		gestisci_turno_frenesia(nemico)
 		return
 	turno_nemico_normale(nemico)
+
+func esegui_incubo(nemico: Dictionary, dati_incontro: Dictionary) -> void:
+	# il giocatore addormentato non si sveglia in tempo: incubo a occhi
+	# aperti, sconfitta immediata (routing "se_perdi" come qualunque altra)
+	incontro_incubo_pronto = false
+	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_incubo", "")))
+	var vittime := vivi(true)
+	for vittima in vittime:
+		vittima.hp = 0
+		aggiorna_scheda(vittima)
+	if not vittime.is_empty():
+		_su_ko(vittime[0])
 
 func gestisci_turno_frenesia(nemico: Dictionary) -> void:
 	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
@@ -533,6 +584,29 @@ func gestisci_turno_frenesia(nemico: Dictionary) -> void:
 		return
 	scrivi(String(dati_frenesia.get("testo_conteggio", "%d...")) % conteggio_frenesia)
 
+func verifica_dialogo_soglia(bersaglio: Dictionary) -> void:
+	var dati: Dictionary = GameState.personaggi.get(bersaglio.id, {}).get("dialogo_soglia_hp", {})
+	if dati.is_empty() or bersaglio.hp <= 0 or soglie_dialogo_mostrate.get(bersaglio.indice, false):
+		return
+	if bersaglio.hp <= int(dati.get("hp_soglia", 0)):
+		soglie_dialogo_mostrate[bersaglio.indice] = true
+		scrivi("[b]%s[/b]" % String(dati.get("testo", "")))
+
+func esegui_mossa_disperazione(nemico: Dictionary, dati: Dictionary) -> void:
+	# mossa forzata (non pesata) sotto una soglia di hp: danno diverso a
+	# seconda che il bersaglio si sia difeso nel turno precedente o no
+	scrivi("[i]%s[/i]" % String(dati.get("testo", "")))
+	var bersaglio := bersaglio_giocatore_casuale()
+	if bersaglio.is_empty():
+		return
+	var si_difende := false
+	for buff in bersaglio.buffs:
+		if buff.get("stat", "") == "difesa":
+			si_difende = true
+			break
+	var valore := int(dati.get("valore_normale", 1)) if si_difende else int(dati.get("valore_alto", 1))
+	attacca(nemico, bersaglio, valore)
+
 func verifica_innesco_frenesia(bersaglio: Dictionary) -> void:
 	if portatore_frenesia.is_empty() or bersaglio.id != portatore_frenesia.id \
 			or frenesia_gia_innescata or bersaglio.hp <= 0:
@@ -549,6 +623,10 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 	if convinto and nemico.id == fonte.get("id", "") \
 			and GameState.rng.randf() < float(GameState.regole.get("probabilita_cedimento", 0.5)):
 		cedimento(nemico)
+		return
+	var dati_disperazione: Dictionary = GameState.personaggi.get(nemico.id, {}).get("mossa_disperazione", {})
+	if not dati_disperazione.is_empty() and nemico.hp <= int(dati_disperazione.get("hp_soglia", 0)):
+		esegui_mossa_disperazione(nemico, dati_disperazione)
 		return
 	var mosse: Array = nemico.mosse
 	if not mosse.is_empty():
@@ -570,6 +648,18 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			difendi(nemico)
 		"attacco_forte":
 			attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)))
+		"attacco_multiplo":
+			for volta in range(int(mossa.get("colpi", 2))):
+				if vivi(true).is_empty():
+					break
+				attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)))
+		"buff_attacco":
+			nemico.buffs.append({
+				"stat": "attacco",
+				"valore": int(mossa.get("valore", 1)),
+				"turni": int(mossa.get("turni", 2)),
+			})
+			aggiorna_scheda(nemico)
 		"incendia":
 			# appicca il fuoco a un membro del party a caso: da qui in poi
 			# brucia a ogni suo turno, come la combustione dei nemici
@@ -818,6 +908,13 @@ func difesa_di(combattente: Dictionary) -> int:
 			totale += int(buff.get("valore", 0))
 	return totale
 
+func attacco_di(combattente: Dictionary) -> int:
+	var totale: int = combattente.attacco
+	for buff in combattente.buffs:
+		if buff.get("stat", "") == "attacco":
+			totale += int(buff.get("valore", 0))
+	return totale
+
 func scadenza_buff(combattente: Dictionary) -> void:
 	var rimasti: Array = []
 	for buff in combattente.buffs:
@@ -835,14 +932,14 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	if valore_attacco >= 0:
 		danno = valore_attacco  # mossa a valore fisso (es. faena, gran finale)
 	else:
-		danno = attaccante.attacco
+		danno = attacco_di(attaccante)
 		if attaccante.giocatore:
 			# il danno del party scala col livello: farmare ed equipaggiarsi conta
 			danno += floori((GameState.livello_di(attaccante.id) - 1)
 					* float(GameState.regole.get("bonus_attacco_per_livello", 0.5)))
 	if fattore_attivo(attaccante) and GameState.rng.randf() < attaccante.fattore / 100.0:
 		danno += 1
-		scrivi("Il fattore Carnivalz arde in %s!" % attaccante.nome)
+		scrivi("Il fattore di disallineamento arde in %s!" % attaccante.nome)
 	var difesa_bersaglio: float = float(difesa_di(bersaglio))
 	var critico := tenta_critico(bersaglio)
 	if critico:
@@ -875,6 +972,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	aggiorna_scheda(bersaglio)
 	if not bersaglio.giocatore:
 		verifica_innesco_frenesia(bersaglio)
+		verifica_dialogo_soglia(bersaglio)
 	if bersaglio.hp <= 0:
 		_su_ko(bersaglio)
 	elif bersaglio.giocatore:
@@ -969,7 +1067,7 @@ func _su_ko(caduto: Dictionary) -> void:
 		risolvi_drop()
 	elif vivi(true).is_empty():
 		in_corso = false
-		scrivi("[b]Il party è a terra. Il Carnivalz ha vinto.[/b]")
+		scrivi("[b]Il party è a terra. Il disallineamento ha vinto.[/b]")
 
 func risolvi_drop() -> void:
 	# drop dei nemici sconfitti: carta (rara, garantita solo per unici/boss),
@@ -1033,7 +1131,7 @@ func reagisci(alleato: Dictionary) -> void:
 		"fattore_su":
 			var bonus := int(GameState.regole.get("fattore_bonus_concentrazione", 25))
 			alleato.fattore = clampi(alleato.fattore + bonus, 0, 100)
-			scrivi("%s si concentra: il fattore Carnivalz sale." % alleato.nome)
+			scrivi("%s si concentra: il fattore di disallineamento sale." % alleato.nome)
 	aggiorna_scheda(alleato)
 
 func ha_stato_con_effetto(combattente: Dictionary, effetto: String) -> bool:

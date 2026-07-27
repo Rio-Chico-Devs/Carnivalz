@@ -32,7 +32,7 @@ func _ready() -> void:
 
 func crea_pianeta(punto: Dictionary) -> void:
 	var bottone := Button.new()
-	bottone.text = "☉  Scendi nel Carnivalz"
+	bottone.text = "☉  Scendi verso l'anomalia"
 	bottone.custom_minimum_size = Vector2(240, 64)
 	bottone.position = Vector2(640, 330) - Vector2(120, 32)
 	bottone.pressed.connect(_su_pianeta)

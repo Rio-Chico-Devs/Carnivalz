@@ -9,18 +9,16 @@
 			],
 			"espr_sinistra": "pensiero",
 			"scelte": [
-				{ "testo": "Avanza", "vai": "primo_incontro" }
+				{ "testo": "Fatti largo tra le pianure", "vai": "primo_incontro" }
 			]
 		},
 		"primo_incontro": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Tra le felci, qualcosa di verde e spelacchiato ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce." },
+				{ "tipo": "narrazione", "testo": "Tra le felci, qualcosa ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce." },
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Vediamo di finire presto: non ho tempo da perdere." }
 			],
 			"espr_sinistra": "decisa",
-			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["goblin_tipico"], "se_vinci": "dopo_primo_goblin", "se_perdi": "sconfitta" }
-			]
+			"combattimento_automatico": { "nemici": ["goblin_tipico"], "se_vinci": "dopo_primo_goblin", "se_perdi": "sconfitta" }
 		},
 		"dopo_primo_goblin": {
 			"sequenza": [
@@ -29,11 +27,11 @@
 			],
 			"espr_sinistra": "pensiero",
 			"scelte": [
-				{ "testo": "Avanza", "vai": "masso" }
+				{ "testo": "Continua per la tua strada", "vai": "masso" }
 			]
 		},
 		"masso": {
-			"testo": "Il sentiero costeggia un masso coperto di muschio, accanto a un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.",
+			"testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.",
 			"espr_sinistra": "sorpresa",
 			"scelte": [
 				{ "testo": "Ispeziona sotto il masso", "vai": "due_nemici", "una_tantum": "tut_masso", "oggetto": "fiala_hp" },
@@ -41,30 +39,33 @@
 			]
 		},
 		"due_nemici": {
-			"testo": "Il sentiero si allarga in una radura fangosa. Un altro goblin mi aspetta, non da solo stavolta: una massa gelatinosa gli si accalca di fianco, quasi per farsi coraggio.",
-			"scelte": [
-				{ "testo": "Affrontali", "combatti": ["goblin_tipico", "slime_infimo"], "se_vinci": "bivio", "se_perdi": "sconfitta" }
-			]
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Ti ritrovi in mezzo a una piccola radura fangosa. Le acque cristalline che emergono dai cumuli di fango umido creano un luccichio meraviglioso..." }
+			],
+			"combattimento_automatico": { "nemici": ["goblin_tipico", "slime_infimo"], "se_vinci": "bivio", "se_perdi": "sconfitta" }
 		},
 		"bivio": {
-			"testo": "Il sentiero si divide. A sinistra, il terreno scende verso alcune pozze d'acqua stagnante; a destra, sale su una collina spoglia.",
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Il sentiero sembra dividersi... ho un brutto presentimento... forse sarebbe meglio attraversare le pozze d'acqua." }
+			],
 			"scelte": [
 				{ "testo": "Scendi verso le pozze d'acqua", "vai": "pozze" },
 				{ "testo": "Sali sulla collina", "vai": "collina" }
 			]
 		},
 		"pozze": {
-			"testo": "Nell'acqua bassa, un goblin fruga tra i sassi. Poco lontano, immobile, qualcosa di enorme e corazzato che a prima vista sembra un macigno con la testa.",
-			"scelte": [
-				{ "testo": "Affrontali", "combatti": ["goblin_tipico", "tartaruga_innocente"], "se_vinci": "convergenza", "se_perdi": "sconfitta" }
-			]
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Un altro Goblin... e quella... cos'è? È enorme..." }
+			],
+			"combattimento_automatico": { "nemici": ["goblin_tipico", "tartaruga_innocente"], "se_vinci": "convergenza", "se_perdi": "sconfitta" }
 		},
 		"collina": {
-			"testo": "In cima alla collina, l'aria trema come sopra una fiamma invisibile. Qualcosa prende forma da quel tremore: non del tutto solido, non del tutto reale.",
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ho davvero un brutto presentimento..." },
+				{ "tipo": "narrazione", "testo": "Senti un odore dolce... Una creatura appare dal nulla, avvolgendoti in un velo iridescente che ti ricorda l'abbraccio di una madre." }
+			],
 			"espr_sinistra": "sorpresa",
-			"scelte": [
-				{ "testo": "Affrontala", "combatti": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta", "se_fuggi": "convergenza" }
-			]
+			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta", "se_fuggi": "convergenza" }
 		},
 		"convergenza": {
 			"testo": "Oltre le pozze, oltre la collina, i due sentieri tornano a unirsi davanti a una spaccatura nella roccia: da lì viene un ringhio basso, continuo, che non si ferma per riprendere fiato.",
@@ -74,12 +75,15 @@
 			]
 		},
 		"boss": {
-			"testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato mi aspetta, i pugni già stretti. Non ha nulla del carisma di una fonte: solo rabbia, tanta, per motivi che nessuno gli ha mai chiesto.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato ti aspetta, i pugni già stretti." },
+				{ "tipo": "dialogo", "chi": "goblin_arrabbiato", "testo": "?! ^?%&$!!" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Eccoti, facciamola finita." },
+				{ "tipo": "narrazione", "testo": "Il goblin carica a testa bassa." }
+			],
 			"centro": "goblin_arrabbiato",
 			"espr_centro": "decisa",
-			"scelte": [
-				{ "testo": "Estingui la fonte", "combatti": ["goblin_arrabbiato"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
-			]
+			"combattimento_automatico": { "nemici": ["goblin_arrabbiato"], "se_vinci": "vittoria", "se_perdi": "sconfitta" }
 		},
 		"vittoria": {
 			"sequenza": [
@@ -88,13 +92,122 @@
 				{ "tipo": "narrazione", "testo": "È ora di lasciare questo posto, altri compiti ti attendono." }
 			],
 			"espr_sinistra": "pensiero",
-			"flag": "tutorial_completato",
 			"scelte": [
-				{ "testo": "Torna alla mappa stellare", "reset": true }
+				{ "testo": "Torna al quartier generale", "vai": "hq_veronica_saluto" }
 			]
 		},
 		"sconfitta": {
 			"testo": "Mi risveglio fuori dalla spaccatura, la testa pesante. Anche un pianeta primitivo, a quanto pare, sa essere sorprendente.",
+			"scelte": [
+				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+			]
+		},
+		"hq_veronica_saluto": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Heilà, sei tornato! Com'è andata la tua prima missione da solo? Scommetto che l'hai completata al massimo della potenza!" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ciao Veronica, la missione è andata come previsto. Alla fine non è stato affatto difficile." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Ha ha ha! Beh! Non c'era da aspettarsi di meno avendo un'allenatrice che ti spinge al massimo della potenza come me, giusto?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "A proposito, oggi abbiamo un altro incontro vero?" },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Puoi dirlo al massimo della potenza! Non ci andrò piano, come sempre. Ma prima dovresti passare in sala riunioni, sai come sono..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Immaginavo. Allora non perdo altro tempo." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "\"Non perdo altro tempo\"? Che cattivo. Come puoi trattare la tua amichetta di infanzia in questo modo?" },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Hey, mi stai ascoltando?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ci vediamo dopo per l'allenamento Veronica, grazie di tutto." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Che antipatico..." }
+			],
+			"destra": "veronica",
+			"espr_destra": "felice",
+			"scelte": [
+				{ "testo": "Vai in sala riunioni", "vai": "hq_sala_riunioni_1" }
+			]
+		},
+		"hq_sala_riunioni_1": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Eccomi. Unità Pk09 a rapporto. Ho inoltrato il mio rapporto e le analisi fatte sul campo come sempre." },
+				{ "tipo": "narrazione", "testo": "Uno schermo oscurato si accende con un ronzio elettrico." },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Buongiorno unità Pk09, ci rallegriamo di ritrovarti operativo e in ottima salute. Proseguiamo a renderti grazie per i tuoi sforzi e ti confermiamo il successo dell'operazione." },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo diario gli eventi che vanno completati nell'arco della giornata." },
+				{ "tipo": "narrazione", "testo": "[Qui andrà spiegato il menu del Diario: le tue osservazioni personali, i task, gli eventi, i legami con la squadra, il tasso di soddisfazione dell'Organizzazione e le tue statistiche — schermata non ancora costruita.]" },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Bene unità Pk09, la nostra attuale istanza si ritira per deliberare. Complimenti per il tuo recente successo, ci aspettiamo grandi cose da lei. Per aspera ad astra!" },
+				{ "tipo": "narrazione", "testo": "Lo schermo si spegne con un ronzio elettrico." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Bene, finalmente la parte noiosa è finita, odio le scartoffie... Dovrei vedermi con Veronica per il mio ultimo allenamento..." }
+			],
+			"scelte": [
+				{ "testo": "Vai ai campi di addestramento", "vai": "hq_training_grounds" }
+			]
+		},
+		"hq_training_grounds": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Eccoti qui, al massimo della tua potenza spero. Sei pronto per un ultimo allenamento oltre ogni limite!?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Cos'è quella faccia, non mi sembri esplodere di potenza..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Scusami Veronica, sai come sono fatto, non sei mai cambiata da quando eravamo piccoli... sei sempre stata così... esplosiva..." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Sempre! Che senso ha vivere se non lo si fa superando ogni limite immaginabile ogni giorno?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Mi metti sempre di buon umore... Cominciamo..." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Adesso le cose si fanno serie. Preparati." }
+			],
+			"destra": "veronica",
+			"espr_destra": "decisa",
+			"scelte": [
+				{ "testo": "Affronta l'allenamento", "vai": "hq_scontro_veronica" }
+			]
+		},
+		"hq_scontro_veronica": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Fammi vedere di cosa sei capace, colpiscimi al massimo della potenza." },
+				{ "tipo": "narrazione", "testo": "Attacchi con tutto te stesso: il colpo va a segno." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Spero che quello non fosse tutto quello di cui sei capace, {nome}..." },
+				{ "tipo": "narrazione", "testo": "Veronica sembra caricare un pugno. È il momento di difendersi." },
+				{ "tipo": "narrazione", "testo": "Ti difendi, ma il colpo è comunque enorme: finisci a un passo dal collasso." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "In piedi. E adesso curati con tutta la tua anima!" },
+				{ "tipo": "narrazione", "testo": "Usi una fiala HP: basta appena a rimetterti in sesto." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Ottimo, che tu sia rimasto in piedi mi fa bruciare di emozione! Vuol dire che sono stata un'insegnante incredibilmente efficiente. Prova a colpirmi con un oggetto ora, scommetto che riuscirò a uscirne illesa alla massima potenza!" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm, sei la solita esagerata... una bomba al nitro?" },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Colpiscimi! Sto bruciando come mille soli!" },
+				{ "tipo": "narrazione", "testo": "Usi la bomba al nitro: un oggetto potente, infligge molti danni. Ma Veronica resta in piedi grazie a una sua abilità passiva — Invincibile: non può essere messa KO in un colpo solo. Le abilità passive si ottengono da oggetti equipaggiati, livellando, o avendo un compagno con un forte legame in squadra." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Hai visto!? È così che si fa a superare ogni limite!!!" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Forse dovresti curarti..." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "Curarmi? E perché... piuttosto preparati..." },
+				{ "tipo": "narrazione", "testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla." },
+				{ "tipo": "notifica", "testo": "Sei stato messo KO." },
+				{ "tipo": "dialogo", "chi": "veronica", "testo": "... Ho esagerato di nuovo... Ma al massimo della potenza!" }
+			],
+			"scelte": [
+				{ "testo": "...", "vai": "hq_infermeria" }
+			]
+		},
+		"hq_infermeria": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Ti risvegli in infermeria." },
+				{ "tipo": "dialogo", "chi": "curie", "testo": "Ben svegliato, a pezzi come sempre vedo..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Solito allenamento con Veronica..." },
+				{ "tipo": "dialogo", "chi": "curie", "testo": "Se non fossi un dominatore di limiti saresti già morto, lo sai?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Non ho mai capito perché io e Veronica abbiamo questa... fortuna?" },
+				{ "tipo": "dialogo", "chi": "curie", "testo": "Beh dovresti saperlo... solo individui con una forte forza di volontà e una fortunata costituzione diventano dominatori... Non è una fortuna, è un destino." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Anche lei è una dominatrice se non sbaglio..." },
+				{ "tipo": "dialogo", "chi": "curie", "testo": "Sì, ma non tutti i dominatori sono fatti per il combattimento: io sono specializzata nelle cure e nella conoscenza. Non mi sognerei mai di andarmene a zonzo per l'universo a... beh... lo sai... io non sono molto a favore della violenza..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Qualcuno purtroppo deve farlo... E per fortuna ci sono persone come voi a darci una mano..." },
+				{ "tipo": "dialogo", "chi": "curie", "testo": "Apprezzo le tue lodi... Ah! Dimenticavo, devi recarti nella sala riunioni: ti hanno affidato un bell'incarico, spero di non rivederti presto da queste parti <3" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Un bell'incarico... Questo vuol dire che ci rivedremo invece..." },
+				{ "tipo": "dialogo", "chi": "curie", "testo": "È inevitabile..." }
+			],
+			"destra": "curie",
+			"espr_destra": "carina",
+			"scelte": [
+				{ "testo": "Vai in sala riunioni", "vai": "hq_sala_riunioni_2" }
+			]
+		},
+		"hq_sala_riunioni_2": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Salve unità Pk09, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti..." },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Come ben sa, il numero di dominatori è calato drasticamente di questi tempi e sempre più mondi e realtà vengono compromessi a causa delle anomalie che stiamo studiando..." },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Non vogliamo compromettere la sua salute e la sua integrità, ma allo stesso tempo abbiamo bisogno che lei affini le sue abilità con alcuni casi di minore entità." },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Abbiamo aggiornato nelle sue planimetrie i luoghi d'interesse dove ci sarebbe bisogno di effettuare dei rilevamenti importanti, così come un punto anomalo dove i livelli di allineamento sono fuori controllo ma non in modo preoccupante: siamo sicuri che saprà gestire la situazione. Ha qualcosa da riferire?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "No, non mi piace perdere tempo, mi dirigo subito verso i luoghi d'interesse..." },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Ottimo, sapevamo di poter contare su di lei, unità Pk09. Per aspera ad astra!" }
+			],
+			"flag": "tutorial_completato",
 			"scelte": [
 				{ "testo": "Torna alla mappa stellare", "reset": true }
 			]

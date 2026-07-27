@@ -255,11 +255,15 @@ collegate nei due sensi (perlustrazione libera):
   imposta scegliendola (loot permanente: Tazo, oggetti). `flag` (su scelta o nodo) +
   `richiede_flag`/`richiede_non_flag` per stanze segrete e boss che non rispawnano
 - **`torna_vuoto`** su una scelta: esce dallo squarcio (gli alleati temporanei restano fuori)
-- **`game_over`** su una scelta: sconfitta contro una vera fonte (un boss). Niente "si viene
-  risputati nel Vuoto": si perde il progresso non salvato e si riparte dall'ultimo salvataggio
-  (`GameState.game_over()`, autosalvataggio; se non esiste, `reset_campagna()`). È il content
-  author a deciderlo nodo per nodo (es. `sconfitta_boss` in Rocca di Ossidiana) — le sconfitte
-  contro nemici comuni restano invece un `se_perdi` qualsiasi, senza conseguenze permanenti
+- **`game_over`** su una scelta: sconfitta seria (tipicamente contro una vera fonte, ma è una
+  scelta del content author nodo per nodo — il tutorial, per esempio, la usa per ogni scontro).
+  Niente "si viene risputati nel Vuoto": si perde il progresso non salvato e si riparte
+  dall'ultimo salvataggio (`GameState.game_over()`, autosalvataggio; se non esiste,
+  `reset_campagna()`). Le sconfitte comuni, dove non serve, restano un `se_perdi` qualsiasi,
+  senza conseguenze permanenti
+- **`combattimento_automatico`** su un nodo: `{nemici, se_vinci, se_perdi, se_fuggi}` — a fine
+  sequenza il combattimento parte da solo, senza mostrare scelte (`Main.avvia_combattimento_
+  automatico()`). Usato quando non c'è davvero nulla da scegliere: lo scontro è inevitabile
 - **`espulsione_automatica`** su un nodo: nessuna scelta reale, dopo una breve pausa si torna
   da soli al Vuoto (usato per fratture-segnale come "Qualcosa preme")
 - **Fratture nascoste**: nel `mappa.json`, un vuoto con `nascosto: true` appare solo se soddisfa
@@ -275,6 +279,23 @@ collegate nei due sensi (perlustrazione libera):
   `attacco_tutti` e `autolesione` accettano anche i campi `legame` (modifica il
   legame di squadra, un solo valore globale) e `maledizione` (infligge lo stato
   Maledizione, vedi sotto, a tutto il party vivo)
+- `buff_attacco`: come `buff_difesa` ma sul proprio attacco (`attacco_di()`, somma i buff
+  attivi come già fa `difesa_di()` per la difesa)
+- `attacco_multiplo`: `{valore, colpi}` — più colpi deboli in fila sullo stesso tipo di
+  bersaglio (es. Cattiveria innata del goblin arrabbiato del tutorial, 3 colpi)
+- **`dialogo_soglia_hp`** su un personaggio: `{hp_soglia, testo}` — un messaggio che compare
+  una sola volta, alla prima discesa dell'hp sotto quella soglia (es. il goblin arrabbiato che
+  non accetta il suo destino)
+- **`mossa_disperazione`** su un personaggio: `{hp_soglia, valore_alto, valore_normale, testo}`
+  — sotto quella soglia di hp la mossa pesata normale è sostituita da questa, forzata ogni
+  turno; il danno è `valore_normale` se il bersaglio si è difeso l'ultimo turno, `valore_alto`
+  altrimenti (Combattimento.esegui_mossa_disperazione())
+- **`incontro_scriptato`** su un personaggio: un intero combattimento scritto a mano invece
+  che pesato — fase di paralisi iniziale (il giocatore non può agire, testo dedicato), un
+  primo tentativo di Fuggi che fallisce sempre (dal secondo in poi funziona normalmente) con
+  possibilità di addormentare chi tenta la fuga, e un contrattacco letale se il bersaglio è
+  addormentato quando arriva il turno del nemico. Usato per ora solo dalla manifestazione di
+  un sogno nel tutorial (insegna Fuggi con margine di rischio reale, non solo per finta)
 
 ### Combustione (nemici che bruciano)
 Un nemico può avere `combustione` nei dati: a ogni suo turno subisce `danno_per_turno`
@@ -468,8 +489,14 @@ es. il giocoliere che perde il sorriso un attimo prima del combattimento).
     Vega-Hope, Niru-Meteora, Fio-Sognatrice, Yhvina-Insonne, Rio-Collezionista,
     Bero-Mecha, Mockingbear-Fanatico, Mr. Eto-Mente), stat ancora segnaposto
     per i nuovi; mancano ancora abilità/mosse/ritratti per ognuno
-20. ✅ Pianeta tutorial ("Il piccolo Carnivalz"): primo punto della mappa,
-    sblocca il mondo di Jerah solo al completamento (`richiede_flag` sui
-    punti). Insegna Studio/risparmio (Tartaruga Innocente) e Fuggi
-    (Manifestazione di un sogno); boss finale non convincibile, forte quanto
-    un nemico normale
+20. ✅ Pianeta tutorial ("Il piccolo Carnivalz", in-fiction "Pianure di Redenna"): primo
+    punto della mappa, sblocca il mondo di Jerah solo al completamento (`richiede_flag`
+    sui punti). Insegna Studio/risparmio (Tartaruga Innocente) e Fuggi (Manifestazione di
+    un sogno, `incontro_scriptato`); boss finale (goblin arrabbiato) non convincibile, con
+    mosse pesate + `dialogo_soglia_hp` + `mossa_disperazione`. Dopo la vittoria segue un
+    intermezzo al quartier generale dell'Organizzazione (Veronica, Dott.ssa Curie, una
+    figura misteriosa dietro uno schermo oscurato) — un secondo "combattimento" contro
+    Veronica, interamente narrato (non un vero Combattimento.tscn: è scriptato e
+    invincibile, serve solo a ripassare i comandi), prima di sbloccare Jerah per davvero.
+    Segnaposto ancora da costruire: la schermata del "Diario" (task/legami/statistiche) e
+    una vera mappa del quartier generale (per ora sono solo nodi narrativi)

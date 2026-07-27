@@ -661,6 +661,14 @@
 			"ritratto": "res://art/personaggi/manifestazione_di_un_sogno.png",
 			"descrizione": "Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.",
 			"carta": { "id": "carta_manifestazione_di_un_sogno", "nome": "Manifestazione di un sogno", "rarita": "rara", "chance": 0.04, "testo": "Non tutto quello che si incontra va combattuto. Alcune cose vanno solo evitate." },
+			"incontro_scriptato": {
+				"testo_paralisi_giocatore": "La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento...",
+				"testo_paralisi_nemico": "La manifestazione sembra ridere in modo gentile e ti accarezza di nuovo. Non puoi farci niente: la pressione ti immobilizza.",
+				"prima_fuga_fallisce": true,
+				"testo_fuga_fallita": "La creatura sembra triste... non vuole lasciarti.",
+				"chance_sonno": 0.5,
+				"testo_incubo": "Un incubo a occhi aperti ti travolge, mentre dormi tra le sue braccia."
+			},
 			"studio": [
 				{ "domanda": "Cosa sei, davvero?", "risposta": "Non dovresti essere qui. Non sei ancora pronto per affrontarmi." }
 			]
@@ -669,7 +677,7 @@
 			"id": "goblin_arrabbiato",
 			"nome": "Un goblin terribilmente arrabbiato",
 			"nome_breve": "Goblin Arrabbiato",
-			"hp": 5,
+			"hp": 7,
 			"attacco": 3,
 			"difesa": 1,
 			"velocita": 3,
@@ -682,17 +690,66 @@
 			"convincibile": false,
 			"mosse": [
 				{
-					"id": "colpo_rabbioso",
+					"id": "furia_di_un_goblin",
 					"tipo": "attacco_forte",
-					"valore": 5,
+					"valore": 2,
 					"peso": 2,
-					"testo": "Il goblin colpisce alla cieca, urlando."
+					"testo": "Furia di un goblin: colpisce alla cieca, urlando."
+				},
+				{
+					"id": "pugno_del_vile",
+					"tipo": "attacco_forte",
+					"valore": 2,
+					"peso": 2,
+					"testo": "Pugno del vile: un colpo sferrato senza il minimo onore."
+				},
+				{
+					"id": "capriccio_del_goblin",
+					"tipo": "buff_attacco",
+					"valore": 2,
+					"turni": 3,
+					"peso": 1,
+					"testo": "Capriccio del goblin: si mette a battere i piedi e se la prende con tutto quello che ha intorno. Il suo attacco aumenta."
+				},
+				{
+					"id": "cattiveria_innata",
+					"tipo": "attacco_multiplo",
+					"valore": 1,
+					"colpi": 3,
+					"peso": 1,
+					"testo": "Cattiveria innata: ti sferra tre attacchi deboli di fila."
 				}
 			],
+			"dialogo_soglia_hp": {
+				"hp_soglia": 5,
+				"testo": "Il goblin non accetta il suo destino: con le lacrime agli occhi, tenendo la sua mazza con le dita consunte, ti guarda con un odio indescrivibile. Il cuore di un perdente non vacilla mai. Preparati."
+			},
+			"mossa_disperazione": {
+				"hp_soglia": 3,
+				"id": "ultima_risorsa_del_perdente",
+				"valore_alto": 4,
+				"valore_normale": 2,
+				"testo": "Ultima risorsa del perdente: un attacco suicida, colmo di rabbia."
+			},
 			"studio": [
 				{ "domanda": "Perché tutta questa rabbia?", "risposta": "RABBIA! SOLO RABBIA!" },
 				{ "domanda": "Non hai altro da dire?", "risposta": "Nessuno mi ha mai ascoltato prima. Perché dovrei parlare adesso?" }
 			]
+		},
+		{
+			"id": "veronica",
+			"nome": "Veronica",
+			"ritratto": "res://art/personaggi/veronica.png"
+		},
+		{
+			"id": "curie",
+			"nome": "Dott.ssa Curie Heartlife",
+			"ritratto": "res://art/personaggi/curie.png"
+		},
+		{
+			"id": "figura_misteriosa",
+			"nome": "??? (Organizzazione)",
+			"ritratto": ""
 		}
 	]
 }
