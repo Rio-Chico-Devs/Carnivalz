@@ -344,6 +344,11 @@ collegate nei due sensi (perlustrazione libera):
   == "boss"` — e per i nemici con `incontro_scriptato`, come la manifestazione di un sogno)
   mostrano "♥ ???" al posto degli hp esatti: il giocatore non sa mai quanto gli manca per
   abbatterli (`Combattimento.aggiorna_scheda()`)
+- **`studio_compulsivo`**: abilità passiva di classe (`classes.json`, campo `abilita`, stesso
+  meccanismo di `provocazione`). Se chi usa Studia ce l'ha, e il bersaglio ha `hp_nascosti`,
+  quello studio strappa al nemico i suoi punti vita esatti per il resto dello scontro
+  (`Combattimento.studia()`) — l'unico modo di svelare gli hp di un boss. Per ora nessuna classe
+  ce l'ha ancora: da assegnare a un personaggio quando Bru decide chi
 - `buff_attacco`: come `buff_difesa` ma sul proprio attacco (`attacco_di()`, somma i buff
   attivi come già fa `difesa_di()` per la difesa)
 - `attacco_multiplo`: `{valore, colpi}` — più colpi deboli in fila sullo stesso tipo di

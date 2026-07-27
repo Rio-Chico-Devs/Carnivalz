@@ -656,7 +656,7 @@
 			"hp": 32,
 			"attacco": 5,
 			"difesa": 2,
-			"velocita": 4,
+			"velocita": 1,
 			"xp": 30,
 			"tazo": 20,
 			"danno_fisso_su_attacco": 1,

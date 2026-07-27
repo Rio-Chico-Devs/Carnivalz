@@ -450,6 +450,12 @@ func studia(chi: Dictionary) -> void:
 		GameState.segna_studiato(bersaglio.id)
 		return
 	bersaglio.volte_studiato += 1
+	if bersaglio.get("hp_nascosti", false) and "studio_compulsivo" in GameState.classi.get(chi.id, {}).get("abilita", []):
+		# solo chi ha questa passiva riesce a strappare gli hp esatti a un
+		# nemico che di norma non li mostra (i boss, o i nemici scriptati)
+		bersaglio.hp_nascosti = false
+		aggiorna_scheda(bersaglio)
+		scrivi("[i]Studio compulsivo: %s scopre i punti vita esatti di %s.[/i]" % [chi.nome, bersaglio.nome])
 	var dati: Dictionary = GameState.personaggi.get(bersaglio.id, {})
 	var scambi: Array = dati.get("studio", [])
 	if convinto and bersaglio.id == fonte.get("id", "") and dati.has("studio_cedimento"):
