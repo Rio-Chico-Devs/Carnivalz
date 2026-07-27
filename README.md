@@ -80,7 +80,8 @@ protagonista: il giocatore non sceglie lui il punto di partenza, a differenza de
 su un marker della mappa stellare.
 
 ## Mappa dungeon di una zona (`mappa_dungeon`)
-Un file eventi (`data/events_*.json`) può avere un campo di primo livello `"mappa_dungeon":
+Un file eventi (`data/events_*.json` o uno squarcio in `data/vuoti/*.json`) può avere un campo
+di primo livello `"mappa_dungeon":
 {"sfondo", "stanze": [{"id", "nome", "pos"}]}`, dove ogni `"id"` di stanza è anche l'id di un
 nodo in `"nodi"`. Se presente, la zona si esplora liberamente invece che in un ordine lineare
 imposto: dalla schermata `MappaZona.tscn` si clicca una stanza **sbloccata** per entrarci
@@ -101,9 +102,14 @@ imposto: dalla schermata `MappaZona.tscn` si clicca una stanza **sbloccata** per
   della zona, via il campo `"flag"` già esistente sui nodi), il combattimento non parte più:
   si salta dritti a `se_vinci` (`combattimento_automatico`) o l'imboscata non tenta più nulla
   (`agguato`). Così, dopo il boss, la zona si rivisita senza più nemici
-- **Non ancora usata da nessun contenuto**: per ora solo l'infrastruttura esiste (nessun file
-  eventi ha davvero `mappa_dungeon` — il tutorial resta lineare come prima). Pronta per la
-  prossima zona quando le sue stanze saranno disegnate
+- **In uso**: `data/vuoti/rocca_ossidiana.json` (Cunicoli sotterranei di Jondoh) — solo la
+  sezione post-checkpoint (il labirinto di cunicoli, la piazza sotterranea, il cargo
+  abbandonato, l'approccio al ponte marcio) è su `mappa_dungeon`; l'ingresso lineare (varco →
+  corridoio → fossa → sala del raccolto → sala del lamento) e la parte finale forzata (ponte →
+  cripta → trono) restano scelte dirette come nel resto del gioco. Il tutorial resta lineare
+- Non usa (per ora) `"salta_se_flag"`/`combattimento_automatico`: Jondoh usa solo `"combatti"`
+  sulle scelte, che non ha un equivalente diretto — la variazione di difficoltà del boss finale
+  (con/senza l'alleata) è gestita con due scelte "Affrontalo" alternative, gated da flag
 
 ## Salvataggio
 Si salva **solo dalla mappa stellare** — mai nel Vuoto, mai dentro un carnivalz/squarcio,
@@ -120,6 +126,15 @@ bestiario, compendio oggetti, negozi, flag, classi sbloccate):
 
 **Nuova partita** azzera il progresso di storia (le collezioni album/bestiario/oggetti restano,
 sono meta). Non si salva a metà campagna/squarcio: si riparte sempre dallo stato "overworld".
+
+**`"salva_checkpoint": true`** su un nodo (es. `dopo_lamento` nei Cunicoli di Jondoh) chiama
+`GameState.salva()` lì per lì, dentro lo squarcio — un'eccezione deliberata alla regola sopra,
+per non perdere Tazo/oggetti/flag raccolti in un dungeon molto lungo. **Non** fa però riprendere
+la partita da quel punto: `_leggi_salvataggio()` torna comunque sempre a uno stato overworld
+pulito (party/nodo/eventi azzerati), quindi un game_over dopo il checkpoint riporta comunque
+alla mappa stellare — si perde la posizione nel dungeon, non il bottino raccolto prima. Un vero
+"riprendi da qui dentro lo squarcio" richiederebbe salvare anche `eventi`/`nodo_corrente`/
+`carnivalz_corrente`/`mappa_zona`/party e non azzerarli al caricamento: non ancora fatto.
 
 ## Palco dialoghi (con espressioni)
 Ogni personaggio ha 16 **espressioni** per i dialoghi in `art/personaggi/<id>/<espr>.png`
@@ -191,6 +206,13 @@ Numeri piccoli e leggibili, ma con scelte vere:
   la difficoltà sta nel non morire durante scontri lunghi. `bonus_attacco_per_livello` in regole
 - I **boss hanno mosse pesate** nei dati (`mosse`: attacco_forte, attacco_tutti,
   buff_difesa, buff_fattore, evoca + `peso_attacco_normale`): ogni scontro è unico
+- **Abilità di classe extra** (in `abilita` su una classe, il bottone in "Abilità" compare da
+  solo): `"provocazione"` (i nemici colpiscono solo chi ha provocato) e `"attacco_area"`
+  (colpisce tutti i nemici vivi, danno = attacco × `moltiplicatore_attacco_area` in regole.json,
+  0.6 di default) — Yara (`sopravvissuta`, nei Cunicoli di Jondoh) è la prima ad averla
+- Effetti oggetto in combattimento, oltre a hp/stress/speranza/danno: `"difesa_incontro"` (buff
+  difesa che dura tutto lo scontro, non un turno solo come Difenditi) e `"cura_stati"` (azzera
+  `stati_attivi`) — es. il Gel Omega
 - **Alleato temporaneo**: `recluta_temporaneo` (+`livello_alleato`) mette un compagno in squadra
   solo per lo squarcio/campagna corrente; `congeda` (o l'uscita dallo squarcio) lo rimanda via.
   Yhvina nella Casa Gigante; il Vecchio Proprietario del teatro nel mondo di Jerah (20 hp,

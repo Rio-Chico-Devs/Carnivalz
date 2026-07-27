@@ -74,6 +74,14 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 			GameState.sblocca_stanza(String(id_stanza))
 	if nodo.has("congeda"):
 		GameState.congeda(nodo["congeda"])
+	if nodo.get("salva_checkpoint", false):
+		# eccezione deliberata alla regola "si salva solo dalla mappa stellare":
+		# protegge Tazo/oggetti/flag raccolti finora in un dungeon lungo. NON
+		# fa riprendere la partita da qui: _leggi_salvataggio() riporta sempre
+		# a uno stato overworld pulito, quindi un game_over dopo questo punto
+		# torna comunque alla mappa stellare (progresso di posizione perso,
+		# ma non il bottino raccolto prima del checkpoint)
+		GameState.salva()
 	# agguato: ogni volta che si entra nella stanza si tenta la probabilita';
 	# se scatta si combatte (e non si ritenta subito tornando qui a vittoria
 	# ottenuta); se non scatta, la prossima visita ritenta da capo. Una zona

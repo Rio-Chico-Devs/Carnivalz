@@ -334,6 +334,8 @@ func esegui_turno(attaccante: Dictionary) -> void:
 					usa_alleato(azione.id)
 				"provoca":
 					provoca(attaccante)
+				"area":
+					attacco_area(attaccante)
 				"fuggi":
 					fuggi(attaccante)
 	else:
@@ -385,6 +387,8 @@ func _menu_abilita() -> void:
 	bottone_azione("Studia", _scegli.bind({"tipo": "studia"}))
 	if "provocazione" in GameState.classi.get(attaccante_corrente.id, {}).get("abilita", []):
 		bottone_azione("Provoca", _scegli.bind({"tipo": "provoca"}))
+	if "attacco_area" in GameState.classi.get(attaccante_corrente.id, {}).get("abilita", []):
+		bottone_azione("Colpo d'area", _scegli.bind({"tipo": "area"}))
 	bottone_azione("Indietro", mostra_azioni)
 
 func _menu_oggetti() -> void:
@@ -448,6 +452,13 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary) -> void:
 		aggiorna_scheda(utente)
 	if effetto.has("speranza"):
 		aggiorna_speranza(int(effetto.speranza))
+	if effetto.has("difesa_incontro") and not utente.is_empty():
+		# dura per il resto dello scontro, non solo un turno come "Difenditi"
+		utente.buffs.append({"stat": "difesa", "valore": int(effetto.difesa_incontro), "turni": 900})
+		aggiorna_scheda(utente)
+	if effetto.get("cura_stati", false) and not utente.is_empty():
+		utente.stati_attivi.clear()
+		aggiorna_scheda(utente)
 	if effetto.has("danno"):
 		var bersaglio := primo_nemico()
 		if not bersaglio.is_empty():
@@ -540,6 +551,12 @@ func provoca(chi: Dictionary) -> void:
 	bersaglio_provocazione = chi
 	turni_provocazione = int(GameState.regole.get("forza_azione_durata", 2))
 	scrivi("[i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]" % chi.nome)
+
+func attacco_area(chi: Dictionary) -> void:
+	scrivi("[i]%s scatena un colpo che si abbatte su tutti i nemici![/i]" % chi.nome)
+	var valore := int(round(attacco_di(chi) * float(GameState.regole.get("moltiplicatore_attacco_area", 0.6))))
+	for nemico in vivi(false):
+		attacca(chi, nemico, valore)
 
 func fuggi(chi: Dictionary) -> void:
 	if not portatore_incontro.is_empty():

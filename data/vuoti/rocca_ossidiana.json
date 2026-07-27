@@ -1,49 +1,63 @@
 {
 	"nodo_iniziale": "varco",
+	"mappa_dungeon": {
+		"sfondo": "res://art/mappe_zona/jondoh.png",
+		"stanze": [
+			{ "id": "cunicolo_1", "nome": "Bivio dei cunicoli", "pos": [400, 320] },
+			{ "id": "cunicolo_2", "nome": "Cunicolo di sinistra", "pos": [220, 220] },
+			{ "id": "piazza_sotterranea", "nome": "Piazza sotterranea", "pos": [100, 120] },
+			{ "id": "cunicolo_3", "nome": "Cunicolo di destra", "pos": [580, 220] },
+			{ "id": "cargo_abbandonato", "nome": "Cargo abbandonato", "pos": [700, 120] },
+			{ "id": "ponte_approccio", "nome": "Il grande ponte marcio", "pos": [400, 460] }
+		]
+	},
 	"nodi": {
 		"varco": {
-			"testo": "Lo squarcio si apre su un buio diverso dagli altri: pareti di ossidiana levigata, nera e lucida come vetro spezzato, che riflettono una luce che non viene da nessuna parte. L'aria sa di terra smossa e di qualcosa che non dovrebbe muoversi più. Da qualche corridoio, un raschiare basso, ininterrotto.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "In un angolo remoto, lontano dalle luci più calde e raggiunto solo da freddi e gelidi venti, lunghi cunicoli sono stati scavati nella fredda e dura ossidiana che ricopre questo sfortunato luogo.\n\n\"Stai lontano dai cunicoli\", si diceva agli sfortunati esploratori che recuperavano il prezioso minerale da questo mondo primitivo. Quello che si cela sottoterra è un mondo che è meglio resti dimenticato...\n\nJondoh è il nome di questo pianeta, abbandonato da ogni luce, che ora ribolle e cerca disperatamente una nuova vita... Cosa si cela in fondo ai cunicoli di questo inferno nero?" },
+				{ "tipo": "titolo", "testo": "Cunicoli sotterranei di Jondoh" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questo posto... il solo respirare quest'aria mi rende profondamente triste... cosa sta succedendo in questo posto?" }
+			],
 			"scelte": [
 				{ "testo": "Scendi nel corridoio di ossidiana", "vai": "corridoio_ossidiana" },
 				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
 			]
 		},
 		"corridoio_ossidiana": {
-			"testo": "Il corridoio scende, tagliato nella roccia nera. Ai lati, nicchie scavate a mano, ognuna con un teschio incastonato come un ex voto. Il raschiare si fa più vicino: qualcosa, nel buio, sta ancora strisciando verso qualcosa.",
+			"testo": "Il corridoio scende, tagliato nella roccia nera. Ai lati, nicchie scavate a mano, segni di graffi e un odore ferroso misto a qualcosa di dolce contraddistinguono questi cunicoli: una leggera polvere grigia, come un fondo sabbioso, ricopre il terreno su cui cammini. Il raschiare si fa più vicino: intorno a te, vari buchi dai quali provengono suoni di graffi e grugniti indistinguibili grondano una sostanza nera che si solidifica a contatto con l'aria.",
 			"agguato": {
 				"probabilita": 0.35,
 				"gruppi": [["ghoul"], ["teschio_errante"], ["ghoul", "teschio_errante"], ["stigma"], ["diabolo"], ["ghoul", "stigma"]],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Scendi nella fossa dei teschi", "vai": "fossa_dei_teschi" },
+				{ "testo": "Scendi nella fossa oscura", "vai": "fossa_oscura" },
 				{ "testo": "Entra nella sala del raccolto", "vai": "sala_del_raccolto" },
 				{ "testo": "Torna al varco", "vai": "varco" }
 			]
 		},
-		"fossa_dei_teschi": {
-			"testo": "Una fossa a cielo aperto, piena fino all'orlo di teschi ammucchiati come ghiaia. Camminarci sopra produce un suono che preferiresti non aver sentito. In alto, incastrato tra due sporgenze di ossidiana, qualcosa luccica ancora.",
+		"fossa_oscura": {
+			"testo": "Una fossa oscura dove piccole pietre illuminano quel poco che è visibile. Qualcosa si muove nel buio: non sai se sia ostile o meno, e lo stress sale preoccupantemente. In alto, incastrato tra due sporgenze di ossidiana, qualcosa luccica ancora.",
 			"agguato": {
 				"probabilita": 0.3,
 				"gruppi": [["teschio_errante"], ["teschio_errante", "teschio_errante"], ["sadico"], ["teschio_errante", "sadico"]],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Fruga tra i teschi più vicini", "vai": "fossa_dei_teschi", "una_tantum": "oss_tazo_1", "tazo": 20 },
-				{ "testo": "Vola fino allo sperone di ossidiana", "vai": "sperone_ossidiana", "richiede": "volo" },
-				{ "testo": "Arrampicati a mani nude fino allo sperone", "vai": "sperone_ossidiana", "stress": 15 },
+				{ "testo": "Fruga nel buio", "vai": "fossa_oscura", "una_tantum": "oss_tazo_1", "tazo": 20 },
+				{ "testo": "Procedi verso il fondo", "vai": "fondo_del_fosso", "stress": 15 },
 				{ "testo": "Torna al corridoio", "vai": "corridoio_ossidiana" }
 			]
 		},
-		"sperone_ossidiana": {
-			"testo": "Lo sperone regge un piccolo tesoro incastrato tra le schegge: qualcuno, prima di te, si era arrampicato fin qui per lo stesso motivo, e non ce l'aveva fatta a scendere.",
+		"fondo_del_fosso": {
+			"testo": "Non sembra esserci altro. Senti qualcosa sballottato fra i tuoi piedi: uno zaino, di qualcuno più sfortunato di te...",
 			"scelte": [
-				{ "testo": "Recupera ciò che trovi", "vai": "fossa_dei_teschi", "una_tantum": "oss_sperone", "tazo": 40, "oggetto": "fiala_hp" },
-				{ "testo": "Torna alla fossa", "vai": "fossa_dei_teschi" }
+				{ "testo": "Recupera ciò che trovi", "vai": "fossa_oscura", "una_tantum": "oss_zaino", "tazo": 40, "oggetto": "fiala_hp" },
+				{ "testo": "Torna alla fossa", "vai": "fossa_oscura" }
 			]
 		},
 		"sala_del_raccolto": {
-			"testo": "Una sala enorme, un tempo un granaio: sacchi marci ammucchiati fino al soffitto, semi che non germoglieranno mai. Su un muro, inciso a mano, più e più volte, come se ripeterlo lo rendesse più vero: IL RACCOLTO RICHIEDE SEMPRE IL SUO PREZZO.",
+			"testo": "Cos'è questo posto... c'è una puzza tremenda... quelli... sono cadaveri. Il modo in cui sono stati disposti e ridotti ti fa riflettere: ci sono dei sacchi cuciti in modo primitivo, sparsi in giro.",
 			"agguato": {
 				"probabilita": 0.35,
 				"gruppi": [["ghoul"], ["ghoul", "ghoul"], ["madre_in_lacrime"], ["ghoul", "madre_in_lacrime"]],
@@ -52,8 +66,170 @@
 			"scelte": [
 				{ "testo": "Fruga tra i sacchi marci", "vai": "sala_del_raccolto", "una_tantum": "oss_tazo_2", "tazo": 25 },
 				{ "testo": "Recupera una fiala intatta tra le macerie", "vai": "sala_del_raccolto", "una_tantum": "oss_fiala_1", "oggetto": "fiala_hp" },
-				{ "testo": "Scendi verso la cripta", "vai": "cripta" },
+				{ "testo": "Scendi verso la sala del lamento", "vai": "sala_del_lamento" },
 				{ "testo": "Torna al corridoio", "vai": "corridoio_ossidiana" }
+			]
+		},
+		"sala_del_lamento": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "...ma cosa è successo in questo posto?!" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Dall'alto, un essere scappa verso uno dei cunicoli: era enorme, e mi stava osservando... Sarà meglio sbrigarmi a estinguere la fonte di questa follia..." },
+				{ "tipo": "narrazione", "testo": "Per terra trovi delle pergamene incomprensibili..." }
+			],
+			"scelte": [
+				{ "testo": "Raccogli le pergamene", "vai": "sala_del_lamento", "una_tantum": "oss_pergamene", "oggetto": "pergamene_incomprensibili" },
+				{ "testo": "Affronta ciò che urla nel buio", "richiede_non_flag": "oss_lamento_superato", "combatti": ["ghoul", "sacerdote_folle"], "se_vinci": "dopo_lamento", "se_perdi": "espulso" },
+				{ "testo": "Prosegui", "richiede_flag": "oss_lamento_superato", "vai": "dopo_lamento" },
+				{ "testo": "Torna alla sala del raccolto", "richiede_non_flag": "oss_lamento_superato", "vai": "sala_del_raccolto" }
+			]
+		},
+		"dopo_lamento": {
+			"testo": "Qualcosa, dentro di te, si fissa in questo punto. Non tornerai indietro da qui.",
+			"flag": "oss_lamento_superato",
+			"salva_checkpoint": true,
+			"sblocca_stanze": ["cunicolo_1", "ponte_approccio"],
+			"scelte": [
+				{ "testo": "Prendi il ciondolo strappato al sacerdote", "vai": "dopo_lamento", "una_tantum": "oss_ciondolo", "oggetto": "ciondolo_del_grande_viaggio" },
+				{ "testo": "Prosegui più a fondo nei cunicoli", "vai": "cunicolo_1" },
+				{ "testo": "Prendi i cunicoli di destra, verso il ponte", "vai": "ponte_approccio" }
+			]
+		},
+		"cunicolo_1": {
+			"testo": "Questi cunicoli sembrano non avere fine. Da qui la roccia si biforca in due direzioni diverse.",
+			"sblocca_stanze": ["cunicolo_1", "cunicolo_2", "cunicolo_3"],
+			"scelte": [
+				{ "testo": "Vai a sinistra", "vai": "cunicolo_2" },
+				{ "testo": "Vai a destra", "vai": "cunicolo_3" },
+				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+			]
+		},
+		"cunicolo_2": {
+			"testo": "Il cunicolo di sinistra scende ancora, ma in fondo si intravede un bagliore instabile, come di torce accese da qualcun altro.",
+			"sblocca_stanze": ["cunicolo_2", "piazza_sotterranea"],
+			"scelte": [
+				{ "testo": "Prosegui verso il bagliore", "vai": "piazza_sotterranea" },
+				{ "testo": "Torna al bivio", "vai": "cunicolo_1" },
+				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+			]
+		},
+		"cunicolo_3": {
+			"testo": "Il cunicolo di destra sale, e un filo di vento gelido comincia a farsi sentire: da qualche parte, più avanti, c'è una via verso la superficie.",
+			"sblocca_stanze": ["cunicolo_3", "cargo_abbandonato"],
+			"scelte": [
+				{ "testo": "Sali verso la superficie", "vai": "cargo_abbandonato" },
+				{ "testo": "Torna al bivio", "vai": "cunicolo_1" },
+				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+			]
+		},
+		"piazza_sotterranea": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Nella piazza sotterranea trovi qualcuno di vivo, finalmente. Ti osserva a lungo, immobile, prima di abbassare la guardia." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non ne arrivano molti fin qui. Ancora meno ne escono." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Jondoh è un pianeta minerario. Chi ci lavora non è nativo: sono schiavi, portati qui da altri mondi." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Respirare le polveri, toccare la sostanza nera... li fa mutare. Regrediscono, e sviluppano una malvagità che prima non avevano." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Per anni il problema è stato ignorato. Gli schiavi continuavano ad arrivare, i cunicoli continuavano a scavarsi." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Poi sono cominciate le sparizioni. La prima fu mia sorella minore. La più piccola di tutti noi." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Da quel giorno sono passati anni, e molti altri sono scomparsi in questi cunicoli." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Il lavoro si è spostato tutto in superficie: i cunicoli erano considerati troppo pericolosi." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Finché uno schiavo fu attaccato da un ghoul, in superficie. Il ghoul morì poco dopo: riescono a vivere solo qui sotto." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Da allora qualcosa è cambiato. Sempre più persone sparite, attacchi sempre più frequenti." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Ho passato anni a combattere queste cose. Non avrò pace finché non saprò la verità fino in fondo." }
+			],
+			"centro": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Chiedile di unirsi a te", "richiede_non_flag": "oss_compagna_reclutata", "recluta_temporaneo": "sopravvissuta", "livello_alleato": 5, "una_tantum": "oss_compagna_reclutata", "vai": "piazza_sotterranea" },
+				{ "testo": "Torna al cunicolo", "vai": "cunicolo_2" },
+				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+			]
+		},
+		"cargo_abbandonato": {
+			"testo": "All'aperto trovi un cargo abbandonato, arrugginito, mezzo sepolto nella sabbia nera. All'interno, casse sfondate e provviste dimenticate da chissà quanto tempo.",
+			"scelte": [
+				{ "testo": "Fruga tra le casse", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_tazo", "tazo": 30 },
+				{ "testo": "Recupera una fiala", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_fiala_1", "oggetto": "fiala_hp" },
+				{ "testo": "Recupera un'altra fiala", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_fiala_2", "oggetto": "fiala_hp" },
+				{ "testo": "Recupera l'infuso antico", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_infuso", "oggetto": "infuso_antico" },
+				{ "testo": "Recupera il gel omega", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_gel", "oggetto": "omega_gel" },
+				{ "testo": "Torna al cunicolo", "vai": "cunicolo_3" },
+				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+			]
+		},
+		"ponte_approccio": {
+			"testo": "Il cunicolo si apre su un grande ponte marcio, teso su un baratro che la luce non riesce a raggiungere. Oltre il ponte, il passaggio prosegue verso il basso.",
+			"scelte": [
+				{ "testo": "Attraversa il grande ponte marcio", "richiede_flag": "oss_compagna_reclutata", "vai": "ponte_meta_compagna" },
+				{ "testo": "Attraversa il grande ponte marcio", "richiede_non_flag": "oss_compagna_reclutata", "vai": "ponte_meta_solo" },
+				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+			]
+		},
+		"ponte_meta_compagna": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Stai attento: non sono mai riuscita ad attraversare questo ponte. Una creatura orribile vive nella parte inferiore. L'ho vista una sola volta, e mi è bastato..." }
+			],
+			"centro": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Prosegui", "vai": "ponte_centro" }
+			]
+		},
+		"ponte_meta_solo": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "...i ponti non mi sono mai piaciuti..." }
+			],
+			"scelte": [
+				{ "testo": "Prosegui", "vai": "ponte_centro" }
+			]
+		},
+		"ponte_centro": {
+			"testo": "Senti qualcosa muoversi sotto di te...",
+			"scelte": [
+				{ "testo": "Prosegui?", "vai": "ponte_quasi_fine" },
+				{ "testo": "Torna indietro", "vai": "ponte_approccio" }
+			]
+		},
+		"ponte_quasi_fine": {
+			"testo": "Sembra tutto ok: ormai sei a metà del ponte...",
+			"scelte": [
+				{ "testo": "Prosegui?", "vai": "ponte_attacco" }
+			]
+		},
+		"ponte_attacco": {
+			"testo": "Qualcosa sta salendo da sotto il ponte...",
+			"scelte": [
+				{ "testo": "Reagisci", "combatti": ["divoratore_di_carcasse"], "se_vinci": "dopo_ponte", "se_perdi": "espulso" }
+			]
+		},
+		"dopo_ponte": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ecco cos'era questa puzza." }
+			],
+			"scelte": [
+				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "dopo_ponte_compagna" },
+				{ "testo": "Continua", "richiede_non_flag": "oss_compagna_reclutata", "vai": "oltre_ponte" }
+			]
+		},
+		"dopo_ponte_compagna": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Eccolo. È proprio quella creatura schifosa!" }
+			],
+			"centro": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Continua", "vai": "oltre_ponte" }
+			]
+		},
+		"oltre_ponte": {
+			"testo": "Attraversato il ponte, volgi lo sguardo all'indietro: altri vermi risalgono e divorano la carcassa di quello che hai appena ucciso... Ce n'era più di uno.",
+			"scelte": [
+				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "oltre_ponte_gratitudine" },
+				{ "testo": "Entra nella cripta", "richiede_non_flag": "oss_compagna_reclutata", "vai": "cripta" }
+			]
+		},
+		"oltre_ponte_gratitudine": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non ce l'avrei mai fatta da sola... Grazie per avermi fatto venire con te." }
+			],
+			"centro": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Entra nella cripta", "vai": "cripta" }
 			]
 		},
 		"cripta": {
@@ -61,8 +237,7 @@
 			"scelte": [
 				{ "testo": "Affrontala", "richiede_non_flag": "oss_cripta_superata", "combatti": ["abominio_marcio"], "se_vinci": "altare_dei_sacrifici", "se_perdi": "espulso" },
 				{ "testo": "Intuisci il momento giusto e scivola oltre, nell'ombra", "richiede": "sesto_senso", "vai": "altare_dei_sacrifici" },
-				{ "testo": "Scendi verso l'altare", "richiede_flag": "oss_cripta_superata", "vai": "altare_dei_sacrifici" },
-				{ "testo": "Torna alla sala del raccolto", "vai": "sala_del_raccolto" }
+				{ "testo": "Scendi verso l'altare", "richiede_flag": "oss_cripta_superata", "vai": "altare_dei_sacrifici" }
 			]
 		},
 		"altare_dei_sacrifici": {
@@ -83,7 +258,21 @@
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+				{ "testo": "Affrontalo", "richiede_flag": "oss_compagna_reclutata", "vai": "sacrificio_compagna" },
+				{ "testo": "Affrontalo", "richiede_non_flag": "oss_compagna_reclutata", "combatti": ["jongo_dongo", "ghoul", "ghoul"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+			]
+		},
+		"sacrificio_compagna": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Questa è la mia occasione. Non lasciarmela portare via." },
+				{ "tipo": "narrazione", "testo": "Prima che tu possa fermarla, si lancia contro Jongo Dongo e i due ghoul al suo fianco. L'esplosione li spazza via insieme a lei: il boss vacilla, bruciato da dentro." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "No... aspetta!" }
+			],
+			"centro": "sopravvissuta",
+			"espr_centro": "decisa",
+			"congeda": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Affrontalo", "combatti": ["jongo_dongo_indebolito"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
 			]
 		},
 		"vittoria": {

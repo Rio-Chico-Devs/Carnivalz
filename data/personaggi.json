@@ -353,6 +353,91 @@
 			]
 		},
 		{
+			"id": "jongo_dongo_indebolito",
+			"nome": "Jongo Dongo",
+			"hp": 16,
+			"attacco": 3,
+			"difesa": 1,
+			"velocita": 3,
+			"fattore_base": 20,
+			"xp": 35,
+			"tazo": 50,
+			"peso_attacco_normale": 3,
+			"ritratto": "res://art/personaggi/jongo_dongo.png",
+			"descrizione": "Un tempo signore di queste terre. Il sacrificio di chi ti accompagnava lo ha già colpito una volta, prima ancora che tu alzassi un pugno: la sua maledizione ora vacilla.",
+			"descrizione_extra": {
+				"richiede_oggetto": "elenco_dei_sacrificati",
+				"testo": "Le ultime righe dell'elenco sono scritte con una grafia più tremante, come se la mano che scriveva stesse ancora decidendo. Gli ultimi nomi sulla lista condividono il suo: erano la sua famiglia. Non ha esitato nemmeno allora. Fino a dove ci si può spingere in cerca del potere..."
+			},
+			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
+			"fonte": true,
+			"convincibile": false,
+			"mosse": [
+				{ "id": "colpo_marcio", "tipo": "attacco_forte", "valore": 4, "peso": 2, "testo": "Jongo Dongo affonda un artiglio marcio, senza fretta." },
+				{ "id": "grido_del_raccolto", "tipo": "attacco_tutti", "valore": 1, "stress": 15, "peso": 2, "testo": "\"IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!\" Il grido vi si conficca dentro più delle unghie." },
+				{ "id": "sacrificio", "tipo": "sacrificio", "valore": 15, "peso": 3, "testo": "Jongo Dongo cerca con lo sguardo un ghoul a cui rivolgersi, con la stessa calma di sempre... e non ne trova più nessuno." }
+			],
+			"studio": [
+				{ "domanda": "Che cosa hai fatto...", "risposta": "Chi siete... voi... siete venuti a rubare nella nostra terra?!" },
+				{ "domanda": "Cosa è successo alla gente di queste terre?", "risposta": "Non devo dare spiegazioni e chi vuole farci del male!" },
+				{ "domanda": "Non hai idea delle forze con cui stai giocando...", "risposta": "Sono stato benedetto dalla verità del lungo viaggio!" },
+				{ "domanda": "Del lungo viaggio?", "risposta": "Un piccolo sacrificio per un grande risultato. Voi... non potete capire..." }
+			]
+		},
+		{
+			"id": "sacerdote_folle",
+			"nome": "Sacerdote Folle",
+			"hp": 12,
+			"attacco": 3,
+			"difesa": 1,
+			"velocita": 2,
+			"xp": 20,
+			"tazo": 15,
+			"ritratto": "res://art/personaggi/sacerdote_folle.png",
+			"descrizione": "Officiava i sacrifici della Rocca molto prima che Jongo Dongo ne facesse un culto. Recita ancora le sue litanie, anche se non è rimasto nessuno a rispondergli.",
+			"carta": { "id": "carta_sacerdote_folle", "nome": "Sacerdote Folle", "rarita": "non_comune", "chance": 0.04, "testo": "Ha smesso di distinguere la preghiera dalla minaccia. Forse non c'era mai stata differenza." },
+			"mosse": [
+				{ "id": "litania_1", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Per il viaggio!\" Il sacerdote colpisce recitando." },
+				{ "id": "litania_2", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Unisciti al raccolto!\" Il sacerdote colpisce recitando." },
+				{ "id": "litania_3", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Portatelo da me!\" Il sacerdote colpisce recitando." },
+				{ "id": "litania_4", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Non c'è altra strada!\" Il sacerdote colpisce recitando." },
+				{ "id": "richiamo_dei_teschi", "tipo": "evoca", "valore": "teschio_errante", "peso": 2, "testo": "Il sacerdote alza le braccia: un teschio errante risponde al richiamo." }
+			],
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "risposta": "Continua a recitare, senza guardarti." }
+			]
+		},
+		{
+			"id": "divoratore_di_carcasse",
+			"nome": "Divoratore di Carcasse",
+			"hp": 14,
+			"attacco": 3,
+			"difesa": 1,
+			"velocita": 2,
+			"xp": 18,
+			"tazo": 12,
+			"ritratto": "res://art/personaggi/divoratore_di_carcasse.png",
+			"descrizione": "Vive sotto il grande ponte marcio, nutrendosi di ciò che il ponte stesso lascia cadere. La puzza lo tradisce molto prima che si mostri.",
+			"carta": { "id": "carta_divoratore_di_carcasse", "nome": "Divoratore di Carcasse", "rarita": "non_comune", "chance": 0.04, "testo": "Non ha mai dovuto cacciare: gli basta aspettare sotto il ponte." },
+			"mosse": [
+				{ "id": "morso_multiplo", "tipo": "attacco_multiplo", "valore": 2, "colpi": 2, "peso": 2, "testo": "Il divoratore azzanna più volte, veloce." }
+			],
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "risposta": "Continua a masticare, indifferente." }
+			]
+		},
+		{
+			"id": "sopravvissuta",
+			"nome": "Yara",
+			"descrizione": "L'unica sopravvissuta dei cunicoli di Jondoh. Anni a combattere ciò che si muove nel buio, in cerca di una sorella che nessuno le ha mai lasciata cercare davvero."
+		},
+		{
 			"id": "zombie_cittadino",
 			"nome": "Zombie Cittadino",
 			"hp": 3,

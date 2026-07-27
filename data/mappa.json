@@ -46,7 +46,7 @@
 				},
 				{
 					"id": "rocca_ossidiana",
-					"nome": "La Rocca di Ossidiana",
+					"nome": "Cunicoli sotterranei di Jondoh",
 					"pos": [1000, 220],
 					"musica": "res://audio/musica/frattura_ossidiana.ogg",
 					"file_eventi": "res://data/vuoti/rocca_ossidiana.json"

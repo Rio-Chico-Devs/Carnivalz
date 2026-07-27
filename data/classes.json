@@ -138,6 +138,18 @@
 			"ritratto": "res://art/personaggi/mr_eto.png"
 		},
 		{
+			"id": "sopravvissuta",
+			"nome": "Yara",
+			"classe": "Alleata temporanea",
+			"hp": 9,
+			"attacco": 2,
+			"difesa": 1,
+			"velocita": 3,
+			"fattore_base": 0,
+			"abilita": ["attacco_area"],
+			"ritratto": "res://art/personaggi/yara.png"
+		},
+		{
 			"id": "vecchio_clown",
 			"nome": "Il Vecchio Proprietario del teatro",
 			"classe": "Alleato temporaneo",

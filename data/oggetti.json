@@ -193,6 +193,32 @@
 			"descrizione": "Nomi su nomi, per anni, nella stessa grafia. Verso la fine, la grafia trema. Gli ultimi nomi non li hai ancora letti con attenzione."
 		},
 		{
+			"id": "pergamene_incomprensibili",
+			"nome": "Pergamene incomprensibili",
+			"tipo": "collezionabile",
+			"descrizione": "Una scrittura che nessuno, su nessun pianeta che conosci, saprebbe leggere. Eppure qualcosa, guardandola, si muove nello stomaco."
+		},
+		{
+			"id": "ciondolo_del_grande_viaggio",
+			"nome": "Ciondolo del grande viaggio",
+			"tipo": "chiave",
+			"descrizione": "Strappato al sacerdote folle della sala del lamento. È caldo al tatto, come se qualcosa, dentro, fosse ancora acceso."
+		},
+		{
+			"id": "infuso_antico",
+			"nome": "Infuso antico",
+			"tipo": "consumabile",
+			"descrizione": "Un infuso di radici che non crescono più da nessuna parte, trovato ancora sigillato in un cargo abbandonato. Calma anche i pensieri più insistenti.",
+			"effetto": { "stress": -25 }
+		},
+		{
+			"id": "omega_gel",
+			"nome": "Gel Omega",
+			"tipo": "consumabile",
+			"descrizione": "Un gel industriale, denso e freddo. Irrigidisce la pelle a contatto e neutralizza qualunque cosa ti stia già avvelenando il sangue.",
+			"effetto": { "difesa_incontro": 3, "cura_stati": true }
+		},
+		{
 			"id": "bastone",
 			"nome": "Bastone",
 			"tipo": "consumabile",
