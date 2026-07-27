@@ -69,6 +69,11 @@ var incontro_incubo_pronto := false
 # compare una sola volta, alla prima discesa sotto quella soglia.
 var soglie_dialogo_mostrate: Dictionary = {}  # indice combattente -> bool
 
+# rabbia_su_morte_alleato: un nemico puo' dichiarare che la morte di un
+# certo alleato (es. una sua evocazione) ne aumenta l'attacco - il goblin
+# arrabbiato del tutorial diventa piu' pericoloso ogni goblin tipico che cade.
+var portatore_rabbia: Dictionary = {}
+
 # Il primo nemico (il boss, o il primo di un gruppo comune) resta sempre al
 # centro del campo; chi si aggiunge dopo (altri della stessa imboscata, o
 # un'evocazione) si dispone ai lati, alternando destra e sinistra.
@@ -88,6 +93,8 @@ func _ready() -> void:
 		if portatore_incontro.is_empty() and dati.has("incontro_scriptato"):
 			portatore_incontro = dati
 			incontro_paralisi_attiva = true
+		if portatore_rabbia.is_empty() and dati.has("rabbia_su_morte_alleato"):
+			portatore_rabbia = dati
 	var categoria_apertura := categoria_migliore_presente()
 	if categoria_apertura == "boss" or categoria_apertura == "miniboss":
 		scrivi("[b]Il disallineamento fa spazio: si combatte.[/b]")
@@ -190,6 +197,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"bottino_comune": dati.get("bottino_comune", []),
 		"drop_raro": dati.get("drop_raro", {}),
 		"mosse": dati.get("mosse", []),
+		"mosse_usate": [],
 		"peso_attacco_normale": int(dati.get("peso_attacco_normale", 4)),
 		"giocatore": giocatore,
 		"stati": [],
@@ -198,6 +206,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"volte_studiato": 0,
 		"combustione": combustione,
 		"in_fiamme": not combustione.is_empty() and not combustione.has("attiva_da_studio"),
+		"hp_nascosti": not giocatore and (categoria_di(dati) == "boss" or dati.has("incontro_scriptato")),
 		"scheda": scheda,
 		"etichetta_vita": vita,
 		"etichetta_extra": extra,
@@ -635,6 +644,25 @@ func verifica_innesco_frenesia(bersaglio: Dictionary) -> void:
 		conteggio_frenesia = int(dati_frenesia.get("conteggio", 3))
 		scrivi("[b]%s[/b]" % dati_frenesia.get("testo_inizio", "Qualcosa cambia."))
 
+func verifica_rabbia_su_morte(caduto: Dictionary) -> void:
+	if portatore_rabbia.is_empty():
+		return
+	var dati_rabbia: Dictionary = portatore_rabbia.get("rabbia_su_morte_alleato", {})
+	if caduto.id != String(dati_rabbia.get("id_alleato", "")):
+		return
+	var capo := vivo_con_id(String(portatore_rabbia.get("id", "")))
+	if capo.is_empty():
+		return
+	capo.attacco += int(dati_rabbia.get("valore_attacco", 1))
+	aggiorna_scheda(capo)
+	scrivi("[i]%s[/i]" % String(dati_rabbia.get("testo", "La rabbia cresce.")))
+
+func vivo_con_id(id_personaggio: String) -> Dictionary:
+	for combattente in vivi(false):
+		if combattente.id == id_personaggio:
+			return combattente
+	return {}
+
 func turno_nemico_normale(nemico: Dictionary) -> void:
 	if convinto and nemico.id == fonte.get("id", "") \
 			and GameState.rng.randf() < float(GameState.regole.get("probabilita_cedimento", 0.5)):
@@ -644,7 +672,11 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 	if not dati_disperazione.is_empty() and nemico.hp <= int(dati_disperazione.get("hp_soglia", 0)):
 		esegui_mossa_disperazione(nemico, dati_disperazione)
 		return
-	var mosse: Array = nemico.mosse
+	var mosse_usate: Array = nemico.mosse_usate
+	var mosse: Array = []
+	for mossa in nemico.mosse:
+		if not (mossa.get("una_tantum", false) and String(mossa.get("id", "")) in mosse_usate):
+			mosse.append(mossa)
 	if not mosse.is_empty():
 		var totale: int = int(nemico.peso_attacco_normale)
 		for mossa in mosse:
@@ -659,6 +691,8 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 
 func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
+	if mossa.get("una_tantum", false):
+		nemico.mosse_usate.append(String(mossa.get("id", "")))
 	match mossa.get("tipo", ""):
 		"difendi":
 			difendi(nemico)
@@ -728,9 +762,13 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 10)), 0, 100)
 			aggiorna_scheda(nemico)
 		"evoca":
-			if vivi(false).size() < 3:
+			var evocati := 0
+			for volta in range(int(mossa.get("quantita", 1))):
+				if vivi(false).size() >= 3:
+					break
 				aggiungi_combattente(String(mossa.get("valore", "")), false)
-			else:
+				evocati += 1
+			if evocati == 0:
 				scrivi("[i]...ma nessuno risponde al richiamo.[/i]")
 		"sacrificio":
 			# "un piccolo sacrificio per un grande risultato": si potenzia
@@ -1085,6 +1123,7 @@ func _su_ko(caduto: Dictionary) -> void:
 				AudioManager.voce_boss(caduto.id, fonte, "sconfitta")
 			else:
 				AudioManager.verso(caduto.id, GameState.personaggi.get(caduto.id, {}), "morte")
+			verifica_rabbia_su_morte(caduto)
 	for alleato in vivi(caduto.giocatore):
 		reagisci(alleato)
 	if vivi(false).is_empty():
@@ -1201,6 +1240,10 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 	if combattente.hp <= 0:
 		combattente.etichetta_vita.text = "KO"
 		combattente.scheda.modulate = Color(0.5, 0.4, 0.4, 0.5)
+	elif combattente.get("hp_nascosti", false):
+		# i boss (e i nemici scriptati come la manifestazione) non mostrano
+		# il conteggio esatto degli hp: mantiene l'incertezza sullo scontro
+		combattente.etichetta_vita.text = "♥ ???"
 	else:
 		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
 	var dettagli := "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]

@@ -583,7 +583,7 @@
 		{
 			"id": "goblin_tipico",
 			"nome": "Goblin Tipico",
-			"hp": 1,
+			"hp": 3,
 			"attacco": 1,
 			"difesa": 0,
 			"velocita": 2,
@@ -602,7 +602,7 @@
 		{
 			"id": "slime_infimo",
 			"nome": "Slime Infimo",
-			"hp": 1,
+			"hp": 5,
 			"attacco": 1,
 			"difesa": 0,
 			"velocita": 1,
@@ -621,7 +621,7 @@
 		{
 			"id": "tartaruga_innocente",
 			"nome": "Tartaruga Innocente",
-			"hp": 6,
+			"hp": 20,
 			"attacco": 0,
 			"difesa": 2,
 			"velocita": 1,
@@ -681,7 +681,7 @@
 			"id": "goblin_arrabbiato",
 			"nome": "Un goblin terribilmente arrabbiato",
 			"nome_breve": "Goblin Arrabbiato",
-			"hp": 7,
+			"hp": 15,
 			"attacco": 3,
 			"difesa": 1,
 			"velocita": 3,
@@ -692,7 +692,21 @@
 			"carta": { "id": "carta_goblin_arrabbiato", "nome": "Un goblin terribilmente arrabbiato", "rarita": "non_comune", "testo": "La prima fonte che l'Organizzazione ti manda a estinguere. Non tutte le fonti nascondono una tragedia." },
 			"fonte": true,
 			"convincibile": false,
+			"rabbia_su_morte_alleato": {
+				"id_alleato": "goblin_tipico",
+				"valore_attacco": 1,
+				"testo": "Il goblin arrabbiato ringhia: la morte del suo simile lo fa infuriare ancora di più. Il suo attacco cresce."
+			},
 			"mosse": [
+				{
+					"id": "richiamo_dei_suoi_simili",
+					"tipo": "evoca",
+					"valore": "goblin_tipico",
+					"quantita": 2,
+					"una_tantum": true,
+					"peso": 2,
+					"testo": "Richiamo dei suoi simili: urla nella notte, e due goblin tipici rispondono alla chiamata."
+				},
 				{
 					"id": "furia_di_un_goblin",
 					"tipo": "attacco_forte",

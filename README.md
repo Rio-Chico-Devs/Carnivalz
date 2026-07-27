@@ -287,6 +287,20 @@ collegate nei due sensi (perlustrazione libera):
   `attacco_tutti` e `autolesione` accettano anche i campi `legame` (modifica il
   legame di squadra, un solo valore globale) e `maledizione` (infligge lo stato
   Maledizione, vedi sotto, a tutto il party vivo)
+- `evoca` accetta anche `quantita` (default 1, es. il goblin arrabbiato ne evoca 2 in un
+  colpo solo) e `una_tantum` su qualunque mossa (non solo `evoca`): una mossa `una_tantum`
+  esce dal pool pesato del nemico non appena eseguita una volta, per il resto del combattimento
+  (`nemico.mosse_usate`, popolato in `Combattimento.esegui_mossa()` e filtrato in
+  `turno_nemico_normale()` — i dati originali non vengono mai mutati, così l'elenco mosse
+  torna intatto a un nuovo combattimento)
+- **`rabbia_su_morte_alleato`** su un personaggio: `{id_alleato, valore_attacco, testo}` — ogni
+  volta che un alleato con quell'id muore in questo combattimento (es. un goblin tipico evocato
+  dal goblin arrabbiato), l'attacco del portatore aumenta in modo permanente per il resto dello
+  scontro (`Combattimento.verifica_rabbia_su_morte()`, chiamata da `_su_ko()`)
+- I combattenti nemici con `hp_nascosti` (impostato in automatico per ogni boss — `categoria_di()
+  == "boss"` — e per i nemici con `incontro_scriptato`, come la manifestazione di un sogno)
+  mostrano "♥ ???" al posto degli hp esatti: il giocatore non sa mai quanto gli manca per
+  abbatterli (`Combattimento.aggiorna_scheda()`)
 - `buff_attacco`: come `buff_difesa` ma sul proprio attacco (`attacco_di()`, somma i buff
   attivi come già fa `difesa_di()` per la difesa)
 - `attacco_multiplo`: `{valore, colpi}` — più colpi deboli in fila sullo stesso tipo di
