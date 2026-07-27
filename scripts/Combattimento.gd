@@ -597,7 +597,7 @@ func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
 	# con un gesto affettuoso, e letale
 	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_manifestazione", "")))
 	var protagonisti_vivi := vivi(true)
-	var nome_protagonista := protagonisti_vivi[0].nome if not protagonisti_vivi.is_empty() \
+	var nome_protagonista: String = String(protagonisti_vivi[0].nome) if not protagonisti_vivi.is_empty() \
 			else String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "Anonimo"))
 	scrivi("%s: \"%s\"" % [nome_protagonista, String(dati_incontro.get("testo_fatale_protagonista", ""))])
 	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
