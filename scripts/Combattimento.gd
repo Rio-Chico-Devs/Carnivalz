@@ -56,14 +56,14 @@ var ultima_azione_offensiva := false
 
 # Incontro scriptato: un nemico puo' avere "incontro_scriptato" nei dati per
 # una sequenza di combattimento interamente scritta - una fase iniziale di
-# paralisi, un primo tentativo di fuga che fallisce sempre (dal secondo in
-# poi funziona normalmente), un contrattacco letale se il tentativo fallito
-# addormenta il giocatore. Usato per ora solo dalla manifestazione di un
-# sogno nel tutorial.
+# paralisi, un primo tentativo di fuga che fallisce sempre senza rischio (dal
+# secondo in poi funziona normalmente), e una sua escalation di turni inerti
+# che finisce in una scena fatale scriptata se non si fugge (o vince) in
+# tempo - l'unico modo di perdere questo scontro. Usato per ora solo dalla
+# manifestazione di un sogno nel tutorial.
 var portatore_incontro: Dictionary = {}
 var incontro_paralisi_attiva := false
 var incontro_tentativi_fuga := 0
-var incontro_incubo_pronto := false
 var incontro_turni_inerti := 0
 
 # dialogo_soglia_hp: un nemico puo' dichiarare un hp_soglia e un testo che
@@ -519,12 +519,10 @@ func fuggi(chi: Dictionary) -> void:
 	if not portatore_incontro.is_empty():
 		var dati_incontro: Dictionary = portatore_incontro.get("incontro_scriptato", {})
 		if dati_incontro.get("prima_fuga_fallisce", false) and incontro_tentativi_fuga == 0:
+			# il primo tentativo fallisce sempre, ma senza nessun rischio: non e'
+			# questo a poterti far morire, solo il suo copione se non scappi in tempo
 			incontro_tentativi_fuga += 1
 			scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fuga_fallita", "")))
-			if GameState.rng.randf() < float(dati_incontro.get("chance_sonno", 0.5)):
-				applica_stato(chi, "sonno")
-				if ha_stato_attivo(chi, "sonno"):
-					incontro_incubo_pronto = true
 			return  # il tentativo fallisce: il combattimento continua
 	# nessuna penalita': solo si esce dal combattimento, senza bottino
 	scrivi("[i]%s fugge dal combattimento![/i]" % chi.nome)
@@ -564,22 +562,12 @@ func turno_nemico(nemico: Dictionary) -> void:
 			scrivi("[i]%s[/i]" % String(portatore_incontro.get("incontro_scriptato", {}).get("testo_paralisi_nemico", "")))
 			incontro_paralisi_attiva = false  # la fase introduttiva scriptata finisce qui
 			return
-		if incontro_incubo_pronto:
-			esegui_incubo(nemico, portatore_incontro.get("incontro_scriptato", {}))
-			return
 		esegui_turno_inerte(nemico, portatore_incontro.get("incontro_scriptato", {}))
 		return
 	if not portatore_frenesia.is_empty() and nemico.id == portatore_frenesia.id:
 		gestisci_turno_frenesia(nemico)
 		return
 	turno_nemico_normale(nemico)
-
-func esegui_incubo(nemico: Dictionary, dati_incontro: Dictionary) -> void:
-	# il giocatore addormentato non si sveglia in tempo: incubo a occhi
-	# aperti, sconfitta immediata (routing "se_perdi" come qualunque altra)
-	incontro_incubo_pronto = false
-	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_incubo", "")))
-	sconfitta_scriptata()
 
 func esegui_turno_inerte(nemico: Dictionary, dati_incontro: Dictionary) -> void:
 	# fuori dalle fasi scriptate lei non attacca mai per danno: ogni turno e'

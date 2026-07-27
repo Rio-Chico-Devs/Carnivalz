@@ -676,9 +676,7 @@
 				"testo_fatale_protagonista": "Sei... davvero tu? Pensavo di averti perso per sempre...",
 				"testo_fatale_bacio": "La manifestazione bacia la fronte del protagonista.",
 				"prima_fuga_fallisce": true,
-				"testo_fuga_fallita": "La creatura sembra triste... non vuole lasciarti.",
-				"chance_sonno": 0.5,
-				"testo_incubo": "Un incubo a occhi aperti ti travolge, mentre dormi tra le sue braccia."
+				"testo_fuga_fallita": "La creatura sembra triste... non vuole lasciarti."
 			},
 			"studio": [
 				{ "domanda": "Cosa sei... Non ho mai visto qualcosa di simile...", "risposta": "Lasciati andare... Dormi..." },
