@@ -65,13 +65,24 @@
 				{ "tipo": "narrazione", "testo": "Senti un odore dolce... Una creatura appare dal nulla, avvolgendoti in un velo iridescente che ti ricorda l'abbraccio di una madre." }
 			],
 			"espr_sinistra": "sorpresa",
-			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta", "se_fuggi": "convergenza" }
+			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta", "se_fuggi": "collina_fuga" }
+		},
+		"collina_fuga": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ci è mancato poco... cos'era quello? Non avevo mai incontrato nulla di simile, ma di sicuro non era la causa di cui mi devo occupare..." }
+			],
+			"espr_sinistra": "pensiero",
+			"scelte": [
+				{ "testo": "Prosegui", "vai": "convergenza" }
+			]
 		},
 		"convergenza": {
-			"testo": "Oltre le pozze, oltre la collina, i due sentieri tornano a unirsi davanti a una spaccatura nella roccia: da lì viene un ringhio basso, continuo, che non si ferma per riprendere fiato.",
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sembro essere vicino... sento delle urla incomprensibili..." }
+			],
 			"espr_sinistra": "decisa",
 			"scelte": [
-				{ "testo": "Entra nella spaccatura", "vai": "boss" }
+				{ "testo": "Scatta verso i rumori", "vai": "boss" }
 			]
 		},
 		"boss": {
@@ -79,7 +90,7 @@
 				{ "tipo": "narrazione", "testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato ti aspetta, i pugni già stretti." },
 				{ "tipo": "dialogo", "chi": "goblin_arrabbiato", "testo": "?! ^?%&$!!" },
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Eccoti, facciamola finita." },
-				{ "tipo": "narrazione", "testo": "Il goblin carica a testa bassa." }
+				{ "tipo": "dialogo", "chi": "goblin_arrabbiato", "testo": "Ah?! Ti carica a testa bassa!" }
 			],
 			"centro": "goblin_arrabbiato",
 			"espr_centro": "decisa",

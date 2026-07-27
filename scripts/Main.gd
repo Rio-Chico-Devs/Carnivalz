@@ -108,12 +108,19 @@ func avanza_messaggio() -> void:
 	if not coda_messaggi.is_empty():
 		var msg: Dictionary = coda_messaggi.pop_front()
 		mostra_messaggio(msg)
-		mostra_continua()
 		# durante la lettura dei messaggi il bottone "Parla con la squadra"
 		# resta nascosto: appare solo a coda vuota, mai a meta' di una sequenza
 		bottone_dialoga.visible = false
 		for figlio in menu_compagni.get_children():
 			figlio.queue_free()
+		if coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() and not nodo_in_corso.has("combattimento_automatico"):
+			# ultimo messaggio e nessuna transizione in sospeso: le scelte vere
+			# compaiono subito sotto lo stesso testo, senza un "Continua" a vuoto
+			aggiorna_palco(nodo_in_corso)
+			ricostruisci_scelte(nodo_in_corso)
+			aggiorna_dialoga()
+		else:
+			mostra_continua()
 		return
 	if azione_dopo_coda.is_valid():
 		var richiamo := azione_dopo_coda

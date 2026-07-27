@@ -651,6 +651,7 @@
 		{
 			"id": "manifestazione_di_un_sogno",
 			"nome": "Manifestazione di un sogno",
+			"nome_breve": "La manifestazione",
 			"categoria": "particolare",
 			"hp": 32,
 			"attacco": 5,
@@ -658,19 +659,22 @@
 			"velocita": 4,
 			"xp": 30,
 			"tazo": 20,
+			"danno_fisso_su_attacco": 1,
 			"ritratto": "res://art/personaggi/manifestazione_di_un_sogno.png",
 			"descrizione": "Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.",
 			"carta": { "id": "carta_manifestazione_di_un_sogno", "nome": "Manifestazione di un sogno", "rarita": "rara", "chance": 0.04, "testo": "Non tutto quello che si incontra va combattuto. Alcune cose vanno solo evitate." },
 			"incontro_scriptato": {
 				"testo_paralisi_giocatore": "La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento...",
 				"testo_paralisi_nemico": "La manifestazione sembra ridere in modo gentile e ti accarezza di nuovo. Non puoi farci niente: la pressione ti immobilizza.",
+				"testo_inerte": "La manifestazione non attacca: si limita a fissarti, in attesa che tu decida cosa fare.",
 				"prima_fuga_fallisce": true,
 				"testo_fuga_fallita": "La creatura sembra triste... non vuole lasciarti.",
 				"chance_sonno": 0.5,
 				"testo_incubo": "Un incubo a occhi aperti ti travolge, mentre dormi tra le sue braccia."
 			},
 			"studio": [
-				{ "domanda": "Cosa sei, davvero?", "risposta": "Non dovresti essere qui. Non sei ancora pronto per affrontarmi." }
+				{ "domanda": "Cosa sei... Non ho mai visto qualcosa di simile...", "risposta": "Lasciati andare... Dormi..." },
+				{ "domanda": "Non riesco più... a ... restare in piedi... devo... scappare...", "risposta": "Sei stato molto bravo, ora riposa... per sempre... insieme a me..." }
 			]
 		},
 		{

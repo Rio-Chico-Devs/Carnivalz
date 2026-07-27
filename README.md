@@ -83,7 +83,11 @@ la cornice, non ancorato in alto. Il diario di combattimento resta invece un log
 
 **Coda di messaggi sequenziali**: il box in basso mostra **un messaggio alla volta**, mai
 testo misto o sovrapposto; si avanza cliccando "▸ Continua" (`Main.coda_messaggi`,
-`avanza_messaggio()`); le scelte vere compaiono solo a coda vuota. Ogni nodo evento può avere
+`avanza_messaggio()`). "Continua" compare solo se resta altro da leggere o se il messaggio
+appena mostrato precede un `combattimento_automatico`/un'`azione_dopo_coda` (una transizione
+di scena che merita un click esplicito); quando l'ultimo messaggio della coda è seguito solo
+da scelte vere, queste compaiono subito sotto lo stesso testo, senza un "Continua" a vuoto che
+lascerebbe la schermata identica per un secondo click. Ogni nodo evento può avere
 una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
 - **`narrazione`**: la voce narrante descrive la scena in **seconda persona** ("ti nota",
   "il tuo compito"), sempre in *corsivo*, senza nome — non è Anonimo che parla, è chi
@@ -264,6 +268,10 @@ collegate nei due sensi (perlustrazione libera):
 - **`combattimento_automatico`** su un nodo: `{nemici, se_vinci, se_perdi, se_fuggi}` — a fine
   sequenza il combattimento parte da solo, senza mostrare scelte (`Main.avvia_combattimento_
   automatico()`). Usato quando non c'è davvero nulla da scegliere: lo scontro è inevitabile
+- Testo d'apertura del combattimento (`Combattimento._ready()`): "Ora di combattere." per i
+  nemici comuni/particolari, la frase drammatica ("Il disallineamento fa spazio: si combatte.")
+  solo se tra i nemici presenti c'è un boss o un miniboss (`categoria_migliore_presente()`,
+  condivisa con `avvia_musica_e_voce()` per la scelta della musica)
 - **`espulsione_automatica`** su un nodo: nessuna scelta reale, dopo una breve pausa si torna
   da soli al Vuoto (usato per fratture-segnale come "Qualcosa preme")
 - **Fratture nascoste**: nel `mappa.json`, un vuoto con `nascosto: true` appare solo se soddisfa
@@ -294,8 +302,18 @@ collegate nei due sensi (perlustrazione libera):
   che pesato — fase di paralisi iniziale (il giocatore non può agire, testo dedicato), un
   primo tentativo di Fuggi che fallisce sempre (dal secondo in poi funziona normalmente) con
   possibilità di addormentare chi tenta la fuga, e un contrattacco letale se il bersaglio è
-  addormentato quando arriva il turno del nemico. Usato per ora solo dalla manifestazione di
-  un sogno nel tutorial (insegna Fuggi con margine di rischio reale, non solo per finta)
+  addormentato quando arriva il turno del nemico. Fuori da queste fasi scriptate il nemico non
+  attacca mai davvero: ogni suo turno mostra solo `testo_inerte` (narrazione, zero danno) —
+  `Combattimento.turno_nemico()` non lascia mai passare uno di questi nemici al ramo pesato
+  normale. Usato per ora solo dalla manifestazione di un sogno nel tutorial (insegna Fuggi con
+  margine di rischio reale, non solo per finta)
+- **`danno_fisso_su_attacco`** su un personaggio: ogni "Attacca" del giocatore contro di lui
+  vale sempre esattamente questo danno, bypassando del tutto difesa/critico/fattore
+  (`Combattimento.attacca()`, controllato prima della formula normale). Serve per i bersagli
+  scriptati con difesa "vera" nei dati ma che il design vuole colpibili per un danno fisso
+  basso: impostare solo `attacco`/`valore_attacco` non basterebbe, perché la difesa verrebbe
+  comunque sottratta dopo (rischiando di azzerare un danno fisso basso). Usato dalla
+  manifestazione di un sogno (sempre 1 danno a colpo)
 
 ### Combustione (nemici che bruciano)
 Un nemico può avere `combustione` nei dati: a ogni suo turno subisce `danno_per_turno`

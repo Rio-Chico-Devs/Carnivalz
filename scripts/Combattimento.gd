@@ -88,7 +88,11 @@ func _ready() -> void:
 		if portatore_incontro.is_empty() and dati.has("incontro_scriptato"):
 			portatore_incontro = dati
 			incontro_paralisi_attiva = true
-	scrivi("[b]Il disallineamento fa spazio: si combatte.[/b]")
+	var categoria_apertura := categoria_migliore_presente()
+	if categoria_apertura == "boss" or categoria_apertura == "miniboss":
+		scrivi("[b]Il disallineamento fa spazio: si combatte.[/b]")
+	else:
+		scrivi("[b]Ora di combattere.[/b]")
 	avvia_musica_e_voce()
 	if fonte.get("convincibile", false):
 		etichetta_speranza.visible = true
@@ -103,18 +107,26 @@ func categoria_di(dati: Dictionary) -> String:
 		return "miniboss"
 	return String(dati.get("categoria", "comune"))
 
-func avvia_musica_e_voce() -> void:
-	# musica per la categoria più "alta" tra i nemici; voce d'ingresso per boss/miniboss
+func categoria_migliore_presente() -> String:
+	# la categoria più "alta" tra i nemici presenti (per musica e testo d'apertura)
 	var ordine := ["boss", "miniboss", "particolare", "comune"]
 	var migliore := ordine.size() - 1
 	var categoria := "comune"
-	var principale: Dictionary = {}
 	for id_nemico in GameState.nemici_combattimento:
 		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
 		var idx := ordine.find(categoria_di(dati))
 		if idx >= 0 and idx < migliore:
 			migliore = idx
 			categoria = ordine[idx]
+	return categoria
+
+func avvia_musica_e_voce() -> void:
+	# musica per la categoria più "alta" tra i nemici; voce d'ingresso per boss/miniboss
+	var categoria := categoria_migliore_presente()
+	var principale: Dictionary = {}
+	for id_nemico in GameState.nemici_combattimento:
+		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
+		if categoria_di(dati) == categoria and principale.is_empty():
 			principale = dati
 	AudioManager.musica_chiave("combattimento_" + categoria)
 	if (categoria == "boss" or categoria == "miniboss") and not principale.is_empty():
@@ -545,6 +557,10 @@ func turno_nemico(nemico: Dictionary) -> void:
 		if incontro_incubo_pronto:
 			esegui_incubo(nemico, portatore_incontro.get("incontro_scriptato", {}))
 			return
+		# nessun attacco vero fuori dalle fasi scriptate: solo narrazione, a
+		# oltranza, finche' non si fugge, ci si addormenta o si vince
+		scrivi("[i]%s[/i]" % String(portatore_incontro.get("incontro_scriptato", {}).get("testo_inerte", "")))
+		return
 	if not portatore_frenesia.is_empty() and nemico.id == portatore_frenesia.id:
 		gestisci_turno_frenesia(nemico)
 		return
@@ -927,6 +943,22 @@ func scadenza_buff(combattente: Dictionary) -> void:
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1) -> void:
 	ultima_azione_offensiva = true
 	if tenta_slaughter(attaccante, bersaglio):
+		return
+	var dati_bersaglio: Dictionary = GameState.personaggi.get(bersaglio.id, {})
+	if valore_attacco < 0 and dati_bersaglio.has("danno_fisso_su_attacco"):
+		# alcuni nemici scriptati ignorano interamente difesa/critico/fattore:
+		# ogni attacco vale sempre lo stesso, fisso, danno
+		var danno_forzato := int(dati_bersaglio["danno_fisso_su_attacco"])
+		bersaglio.hp = maxi(bersaglio.hp - danno_forzato, 0)
+		scrivi("%s attacca %s: %d danno." % [attaccante.nome, bersaglio.nome, danno_forzato])
+		aggiorna_scheda(bersaglio)
+		if not bersaglio.giocatore:
+			verifica_innesco_frenesia(bersaglio)
+			verifica_dialogo_soglia(bersaglio)
+		if bersaglio.hp <= 0:
+			_su_ko(bersaglio)
+		elif bersaglio.giocatore:
+			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 		return
 	var danno: int
 	if valore_attacco >= 0:
