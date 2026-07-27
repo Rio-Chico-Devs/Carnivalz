@@ -1,0 +1,19 @@
+{
+	"nodo_iniziale": "monologo",
+	"nodi": {
+		"monologo": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "......" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ecco, deve essere questo il luogo del quale mi hanno parlato..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Beh, fare troppe domande non ci porterà da nessuna parte... Computer, allineami con la frattura in questione." },
+				{ "tipo": "dialogo", "chi": "computer", "testo": "Allineamento in corso... Partenza in 3... 2... 1... Arrivederci unità PK09, per aspera ad astra!" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "!" }
+			],
+			"espr_sinistra": "pensiero",
+			"avvio_automatico": { "id_punto": "tutorial", "file_eventi": "res://data/events_tutorial.json" }
+		}
+	}
+}

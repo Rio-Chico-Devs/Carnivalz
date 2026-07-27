@@ -17,12 +17,25 @@ var lettore_sfx: AudioStreamPlayer
 var traccia_corrente: String = ""
 
 func _ready() -> void:
+	_assicura_bus("Musica")
+	_assicura_bus("Effetti")
 	lettore_musica = AudioStreamPlayer.new()
-	lettore_musica.bus = "Master"
+	lettore_musica.bus = "Musica"
 	add_child(lettore_musica)
 	lettore_sfx = AudioStreamPlayer.new()
-	lettore_sfx.bus = "Master"
+	lettore_sfx.bus = "Effetti"
 	add_child(lettore_sfx)
+
+func _assicura_bus(nome: String) -> void:
+	# "Musica" ed "Effetti" sono bus separati (figli di "Master") cosi' le
+	# Opzioni possono regolarne il volume indipendentemente; creati al volo
+	# se il progetto non li ha ancora (niente file di bus layout da mantenere)
+	if AudioServer.get_bus_index(nome) != -1:
+		return
+	AudioServer.add_bus()
+	var indice := AudioServer.bus_count - 1
+	AudioServer.set_bus_name(indice, nome)
+	AudioServer.set_bus_send(indice, "Master")
 
 # --- musica ---
 

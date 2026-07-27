@@ -13,26 +13,69 @@ messaggio di `sequenza` può richiamarlo esplicitamente con `{nome}` (es. la bat
 benvenuto di Jerah).
 
 ## Come si avvia
-Aprire `project.godot` con Godot 4.7+ (versione standard). Flusso:
+Aprire `project.godot` con Godot 4.7+ (versione standard). Main scene: `scenes/Splash.tscn`.
+Flusso completo:
+**loghi d'apertura** (studio + personale, saltabili con un clic) → **menu principale** (Start /
+Opzioni / Extra) → Start → **Nuova partita** (nome del protagonista) → **introduzione** (crawl di
+lore a schermo nero + monologo del protagonista) → il **tutorial parte da solo** (nessuna
+selezione del punto, vedi `avvio_automatico` sotto) → da lì in poi, il normale giro
 **mappa stellare** ("!" dove un Carnivalz sta avendo luogo) → click → **selezione del party**
 (solo le classi sbloccate; l'Anonimo c'è sempre) → **campagna narrata** → fine → mappa.
+**Continua**/**Carica partita** (una partita già esistente) saltano loghi e introduzione e vanno
+dritti in mappa.
 
 ## Struttura
-- `scenes/Mappa.tscn` + `scripts/Mappa.gd` — mappa stellare (main scene), marker data-driven
+- `scenes/Splash.tscn` + `scripts/Splash.gd` — loghi d'apertura (studio/personale, placeholder
+  testuali finché mancano le immagini in `art/branding/`), poi il menu
+- `scenes/Menu.tscn` + `scripts/Menu.gd` — menu principale: Start (Continua/Carica
+  partita/Nuova partita) / Opzioni / Extra
+- `scenes/Opzioni.tscn` + `scripts/Opzioni.gd` — audio, grafica, accessibilità (vedi sotto)
+- `scenes/Extra.tscn` + `scripts/Extra.gd` — collezioni (album/bestiario/oggetti), carica
+  codice, social e ringraziamenti
+- `scenes/Intro.tscn` + `scripts/Intro.gd` — crawl introduttivo (solo per una nuova partita)
+- `scenes/Mappa.tscn` + `scripts/Mappa.gd` — mappa stellare, marker data-driven
 - `scenes/Selezione.tscn` + `scripts/Selezione.gd` — menu del party: mostra solo le classi
   sbloccate e si riadatta man mano che i personaggi entrano o escono dai disponibili
 - `scenes/Main.tscn` + `scripts/Main.gd` — motore eventi + palco dialoghi
 - `scenes/Combattimento.tscn` + `scripts/Combattimento.gd` — combattimento a turni
 - `scenes/Ritratto.tscn` + `scripts/Ritratto.gd` — ritratto riusabile (immagine o placeholder)
 - `scripts/GameState.gd` — autoload: roster, party, inventario, livelli, RNG seedato, JSON
+- `scripts/Impostazioni.gd` — autoload: impostazioni utente persistite a parte (vedi sotto)
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
 - `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + stat/xp se combattono)
 - `data/psiche.json` — le psichi e i loro effetti (reazione al KO di un compagno)
 - `data/regole.json` — numeri di bilanciamento (hp, danno, stress, fattore, xp, legame)
 - `data/events.json` — campagna di prova
+- `data/events_intro.json` — l'introduzione (monologo prima del tutorial)
+- `data/codici.json` — codici riscattabili da Extra (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
-  (ritratti). Finché mancano: placeholder generati (cielo stellato / iniziale del nome)
+  (ritratti), `art/branding/logo_studio.png`/`logo_personale.png` (loghi d'apertura). Finché
+  mancano: placeholder generati (cielo stellato / iniziale del nome / testo)
+
+## Opzioni e Impostazioni.gd
+Audio (volume generale/musica/effetti, bus separati "Musica"/"Effetti" creati al volo in
+`AudioManager._assicura_bus()` — niente file di bus layout da mantenere), grafica (schermo
+intero) e accessibilità (testo più grande via `content_scale_factor`, alto contrasto via un
+`Theme` globale minimale che forza il testo a un giallo ad alta visibilità — non è un vero
+ripensamento colore per colore, ma alza subito la leggibilità ovunque). Tutto applicato e
+salvato subito a ogni modifica in `user://impostazioni.cfg`, **indipendente dagli slot di
+salvataggio** della partita (persiste tra una partita e l'altra).
+
+## Extra: carica codice
+`GameState.codici` (da `data/codici.json`, vuoto per ora) e `GameState.riscatta_codice(testo)`:
+un codice riscattato sblocca un `effetto` (`oggetto` e/o `tazo`, riusando `aggiungi_oggetto()`/
+`modifica_tazo()`) una sola volta, ricordato in `user://codici_riscattati.cfg` — fuori dagli slot
+di salvataggio, cosa persiste come l'album delle carte anche a nuova partita. Per ora la lista
+codici è vuota: la schermata Extra è pronta, i codici veri arriveranno dopo.
+
+## Introduzione e avvio automatico di una campagna (`avvio_automatico`)
+Un nodo evento può avere `"avvio_automatico": {"id_punto", "file_eventi"}`: a fine sequenza,
+invece di scelte, `Main.avvia_automatico()` chiama `GameState.avvia_carnivalz()` con quei dati e
+ricarica lo stesso nodo (`mostra_nodo()`), senza cambiare scena — usato da `events_intro.json`
+per far partire il tutorial da solo (`id_punto: "tutorial"`) appena finisce il monologo del
+protagonista: il giocatore non sceglie lui il punto di partenza, a differenza del normale click
+su un marker della mappa stellare.
 
 ## Salvataggio
 Si salva **solo dalla mappa stellare** — mai nel Vuoto, mai dentro un carnivalz/squarcio,

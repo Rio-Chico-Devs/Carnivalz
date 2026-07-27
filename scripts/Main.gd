@@ -113,7 +113,8 @@ func avanza_messaggio() -> void:
 		bottone_dialoga.visible = false
 		for figlio in menu_compagni.get_children():
 			figlio.queue_free()
-		if coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() and not nodo_in_corso.has("combattimento_automatico"):
+		if coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() \
+				and not nodo_in_corso.has("combattimento_automatico") and not nodo_in_corso.has("avvio_automatico"):
 			# ultimo messaggio e nessuna transizione in sospeso: le scelte vere
 			# compaiono subito sotto lo stesso testo, senza un "Continua" a vuoto
 			aggiorna_palco(nodo_in_corso)
@@ -131,6 +132,11 @@ func avanza_messaggio() -> void:
 		# non c'e' nulla da scegliere: il combattimento parte da solo a fine sequenza
 		avvia_combattimento_automatico(nodo_in_corso["combattimento_automatico"])
 		return
+	if nodo_in_corso.has("avvio_automatico"):
+		# fine di un mini-evento (es. l'introduzione): parte in automatico una
+		# nuova campagna, senza che il giocatore debba scegliere nulla
+		avvia_automatico(nodo_in_corso["avvio_automatico"])
+		return
 	aggiorna_palco(nodo_in_corso)
 	ricostruisci_scelte(nodo_in_corso)
 	aggiorna_dialoga()
@@ -139,6 +145,10 @@ func avvia_combattimento_automatico(dati: Dictionary) -> void:
 	GameState.prepara_combattimento(dati.get("nemici", []), dati.get("se_vinci", ""),
 			dati.get("se_vinci_eroe", ""), dati.get("se_perdi", ""), dati.get("se_fuggi", ""))
 	get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
+
+func avvia_automatico(dati: Dictionary) -> void:
+	GameState.avvia_carnivalz(String(dati.get("id_punto", "")), String(dati.get("file_eventi", "")))
+	mostra_nodo(GameState.nodo_corrente)
 
 func mostra_messaggio(msg: Dictionary) -> void:
 	match String(msg.get("tipo", "narrazione")):

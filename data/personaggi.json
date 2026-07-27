@@ -667,7 +667,9 @@
 				"testo_paralisi_giocatore": "La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento...",
 				"testo_paralisi_nemico": "La manifestazione sembra ridere in modo gentile e ti accarezza di nuovo. Non puoi farci niente: la pressione ti immobilizza.",
 				"testi_inerti": [
+					"La manifestazione ti osserva con curiosità.",
 					"La manifestazione rilascia dei colori irreali, ipnotici. Ti senti sempre più stanco...",
+					"La manifestazione ti osserva con curiosità, senza muoversi.",
 					"La manifestazione ti accarezza di nuovo. Questa volta per poco non ti addormenti... Senti che la fine è vicina..."
 				],
 				"testo_fatale_manifestazione": "La manifestazione ti ricorda una persona di un lontano passato...",
@@ -759,6 +761,10 @@
 				{ "domanda": "Perché tutta questa rabbia?", "risposta": "RABBIA! SOLO RABBIA!" },
 				{ "domanda": "Non hai altro da dire?", "risposta": "Nessuno mi ha mai ascoltato prima. Perché dovrei parlare adesso?" }
 			]
+		},
+		{
+			"id": "computer",
+			"nome": "Computer"
 		},
 		{
 			"id": "veronica",

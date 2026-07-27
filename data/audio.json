@@ -1,6 +1,7 @@
 {
 	"musica": {
 		"menu": "res://audio/musica/menu.ogg",
+		"intro": "res://audio/musica/intro.ogg",
 		"mappa": "res://audio/musica/mappa.ogg",
 		"combattimento_comune": "res://audio/musica/battle_comune.ogg",
 		"combattimento_particolare": "res://audio/musica/battle_particolare.ogg",

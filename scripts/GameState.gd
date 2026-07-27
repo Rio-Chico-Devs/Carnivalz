@@ -15,6 +15,8 @@ const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
+const PERCORSO_CODICI := "res://data/codici.json"  # extra: sblocchi via codice
+const PERCORSO_CODICI_RISCATTATI := "user://codici_riscattati.cfg"
 const PERCORSO_SALVATAGGIO := "user://salvataggio.json"  # autosalvataggio
 const SLOT_MASSIMO := 5  # salvataggi manuali dell'utente, oltre all'autosalvataggio
 
@@ -34,6 +36,8 @@ var conversazioni: Dictionary = {}   # id nodo -> discussione tra due compagni +
 var audio: Dictionary = {}           # config musica (chiavi -> percorsi)
 var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemici comuni
 var stati: Dictionary = {}                # id stato -> definizione generica (tipo, contagiosa, ...)
+var codici: Dictionary = {}               # codice (maiuscolo) -> {testo, effetto}, vedi Extra
+var codici_riscattati: Array[String] = []  # persiste da solo, fuori dagli slot di salvataggio
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
 var id_protagonista: String = ""
 var nome_protagonista: String = ""     # vuoto = usa il nome di default ("Anonimo")
@@ -88,6 +92,7 @@ func _ready() -> void:
 	carica_audio()
 	carica_studio()
 	carica_stati()
+	carica_codici()
 	nuova_partita()
 
 func imposta_seed(nuovo_seed: int) -> void:
@@ -172,6 +177,39 @@ func carica_studio() -> void:
 func carica_stati() -> void:
 	var dati: Variant = carica_json(PERCORSO_STATI)
 	stati = dati.get("stati", {}) if dati is Dictionary else {}
+
+func carica_codici() -> void:
+	codici.clear()
+	var dati: Variant = carica_json(PERCORSO_CODICI)
+	if dati is Dictionary:
+		for voce in dati.get("codici", []):
+			codici[String(voce.get("codice", "")).to_upper()] = voce
+	codici_riscattati.clear()
+	var cfg := ConfigFile.new()
+	if cfg.load(PERCORSO_CODICI_RISCATTATI) == OK:
+		for chiave in cfg.get_value("riscattati", "lista", []):
+			codici_riscattati.append(String(chiave))
+
+func riscatta_codice(testo: String) -> Dictionary:
+	# ritorna il risultato per l'UI: {trovato, gia_riscattato, testo}. Vive
+	# fuori dagli slot di salvataggio (user://codici_riscattati.cfg): un
+	# codice riscattato resta tale anche iniziando una nuova partita, come
+	# l'album delle carte e il bestiario
+	var chiave := testo.strip_edges().to_upper()
+	if chiave == "" or not codici.has(chiave):
+		return {"trovato": false}
+	if chiave in codici_riscattati:
+		return {"trovato": true, "gia_riscattato": true, "testo": String(codici[chiave].get("testo", ""))}
+	codici_riscattati.append(chiave)
+	var cfg := ConfigFile.new()
+	cfg.set_value("riscattati", "lista", codici_riscattati)
+	cfg.save(PERCORSO_CODICI_RISCATTATI)
+	var effetto: Dictionary = codici[chiave].get("effetto", {})
+	if effetto.has("oggetto"):
+		aggiungi_oggetto(String(effetto["oggetto"]))
+	if effetto.has("tazo"):
+		modifica_tazo(int(effetto["tazo"]))
+	return {"trovato": true, "gia_riscattato": false, "testo": String(codici[chiave].get("testo", ""))}
 
 func domanda_studio_casuale() -> String:
 	# per i nemici comuni: la domanda del giocatore e' pescata a caso da un
