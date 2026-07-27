@@ -65,6 +65,7 @@ var portatore_incontro: Dictionary = {}
 var incontro_paralisi_attiva := false
 var incontro_tentativi_fuga := 0
 var incontro_turni_inerti := 0
+var incontro_tentativi_morfeo := 0
 
 # dialogo_soglia_hp: un nemico puo' dichiarare un hp_soglia e un testo che
 # compare una sola volta, alla prima discesa sotto quella soglia.
@@ -75,6 +76,16 @@ var soglie_dialogo_mostrate: Dictionary = {}  # indice combattente -> bool
 # arrabbiato del tutorial diventa piu' pericoloso ogni goblin tipico che cade.
 var portatore_rabbia: Dictionary = {}
 
+# Accessorio equipaggiato (GameState.accessorio_equipaggiato): effetto
+# passivo attivo per l'intero combattimento, letto una volta in _ready().
+# "scudo_primo_stato": respinge il primo stato subito nello scontro e
+# immunizza da quello stato per il resto (Combattimento.applica_stato()).
+# "resurrezione_dimezzata": chi morirebbe torna in vita a meta' hp, una
+# sola volta per combattimento (Combattimento._su_ko()).
+var effetto_accessorio: Dictionary = {}
+var scudo_primo_stato_pronto := false
+var resurrezione_pronta := false
+
 # Il primo nemico (il boss, o il primo di un gruppo comune) resta sempre al
 # centro del campo; chi si aggiunge dopo (altri della stessa imboscata, o
 # un'evocazione) si dispone ai lati, alternando destra e sinistra.
@@ -82,6 +93,10 @@ var nemico_centrale_occupato := false
 var prossimo_lato_nemico := "destra"
 
 func _ready() -> void:
+	if GameState.accessorio_equipaggiato != "":
+		effetto_accessorio = GameState.dati_oggetto(GameState.accessorio_equipaggiato).get("effetto_equipaggiato", {})
+		scudo_primo_stato_pronto = effetto_accessorio.get("tipo", "") == "scudo_primo_stato"
+		resurrezione_pronta = effetto_accessorio.get("tipo", "") == "resurrezione_dimezzata"
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
 	for id_nemico in GameState.nemici_combattimento:
@@ -203,6 +218,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"giocatore": giocatore,
 		"stati": [],
 		"stati_attivi": {},
+		"immunita_temporanea": [],
 		"buffs": [],
 		"volte_studiato": 0,
 		"combustione": combustione,
@@ -494,6 +510,10 @@ func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
 		for alleato in vivi(true):
 			alleato.stress = clampi(alleato.stress + int(dati_risparmio.stress), 0, 100)
 			aggiorna_scheda(alleato)
+	if dati_risparmio.has("oggetto"):
+		var id_oggetto := String(dati_risparmio.oggetto)
+		if GameState.aggiungi_oggetto(id_oggetto):
+			scrivi("[b]Ottieni:[/b] %s." % String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)))
 	bersaglio.risparmiato = true
 	bersaglio.hp = 0
 	aggiorna_scheda(bersaglio)
@@ -587,15 +607,46 @@ func esegui_turno_inerte(nemico: Dictionary, dati_incontro: Dictionary) -> void:
 	esegui_scena_fatale(dati_incontro)
 
 func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
-	# l'incontro si e' trascinato troppo senza fuggire: lei chiude la scena
-	# con un gesto affettuoso, e letale
+	# "Chiamata di Morfeo": il suo gesto finale, letale, a meno che qualcosa
+	# non ti protegga dal sonno che porta con se' (es. la Pietra Quieta)
+	incontro_tentativi_morfeo += 1
 	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_manifestazione", "")))
 	var protagonisti_vivi := vivi(true)
-	var nome_protagonista: String = String(protagonisti_vivi[0].nome) if not protagonisti_vivi.is_empty() \
-			else String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "Anonimo"))
-	scrivi("%s: \"%s\"" % [nome_protagonista, String(dati_incontro.get("testo_fatale_protagonista", ""))])
-	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
-	sconfitta_scriptata()
+	if protagonisti_vivi.is_empty():
+		return
+	var bersaglio: Dictionary = protagonisti_vivi[0]
+	var nome_protagonista: String = String(bersaglio.nome)
+	var scudo_prima := scudo_primo_stato_pronto
+	applica_stato(bersaglio, "sonno")
+	if ha_stato_attivo(bersaglio, "sonno"):
+		# lo stato ha attecchito per davvero: game over, come sempre
+		scrivi("%s: \"%s\"" % [nome_protagonista, String(dati_incontro.get("testo_fatale_protagonista", ""))])
+		scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
+		sconfitta_scriptata()
+		return
+	# respinto: o lo scudo l'ha appena consumato adesso, o l'immunita' era
+	# gia' attiva da un tentativo precedente
+	if scudo_prima and not scudo_primo_stato_pronto:
+		scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_scudo_rotto", "")))
+	if incontro_tentativi_morfeo >= 2:
+		esegui_vortice_di_rabbia(dati_incontro)
+	else:
+		scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_morfeo_fallito", "")))
+
+func esegui_vortice_di_rabbia(dati_incontro: Dictionary) -> void:
+	# secondo tentativo respinto: si dissolve in un vortice di rabbia - una
+	# vittoria alternativa, mai raggiunta a forza di colpi
+	scrivi("[b]%s[/b]" % String(dati_incontro.get("testo_vortice_rabbia", "")))
+	var bersaglio := primo_nemico()
+	if bersaglio.is_empty():
+		return
+	bersaglio.xp = int(dati_incontro.get("xp_vittoria_alternativa", bersaglio.xp))
+	bersaglio.hp = 0
+	aggiorna_scheda(bersaglio)
+	var oggetto_premio := String(dati_incontro.get("oggetto_vittoria_alternativa", ""))
+	if oggetto_premio != "":
+		GameState.aggiungi_oggetto(oggetto_premio)
+	_su_ko(bersaglio)
 
 func sconfitta_scriptata() -> void:
 	# il party viene azzerato sul colpo: usato dagli epiloghi letali degli
@@ -850,6 +901,8 @@ func applica_combustione(combattente: Dictionary) -> void:
 # per stress) ne capovolge l'effetto. Assente = "normale".
 
 func resistenza_di(combattente: Dictionary, chiave: String) -> String:
+	if chiave in combattente.get("immunita_temporanea", []):
+		return "immune"  # respinto in questo stesso combattimento (es. scudo_primo_stato)
 	var dati: Dictionary = GameState.personaggi.get(combattente.id, {})
 	return String(dati.get("resistenze", {}).get(chiave, "normale"))
 
@@ -859,6 +912,17 @@ func ha_stato_attivo(combattente: Dictionary, id_stato: String) -> bool:
 func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void:
 	var resistenza := resistenza_di(bersaglio, id_stato)
 	if resistenza == "immune":
+		return
+	if bersaglio.giocatore and scudo_primo_stato_pronto:
+		# l'accessorio equipaggiato respinge il primo stato subito in questo
+		# combattimento, e immunizza da quello stesso stato per il resto dello
+		# scontro; si consuma qui, una volta sola
+		scudo_primo_stato_pronto = false
+		bersaglio.immunita_temporanea.append(id_stato)
+		var nome_accessorio := String(GameState.dati_oggetto(GameState.accessorio_equipaggiato).get("nome", "Il tuo accessorio"))
+		var nome_stato := String(GameState.stati.get(id_stato, {}).get("nome", id_stato))
+		scrivi("[b]%s si spezza, respingendo %s: sarai immune per il resto dello scontro.[/b]" % [nome_accessorio, nome_stato])
+		GameState.consuma_accessorio_equipaggiato()
 		return
 	var amplificato := resistenza == "ipersensibile"
 	var info_stato: Dictionary = GameState.stati.get(id_stato, {})
@@ -1128,6 +1192,16 @@ func colpisci_diretto(bersaglio: Dictionary, danno: int) -> void:
 		_su_ko(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:
+	if caduto.giocatore and resurrezione_pronta and caduto.hp <= 0:
+		# l'accessorio equipaggiato si spezza al posto tuo: si torna in vita
+		# a meta' hp, una volta sola per combattimento, invece del KO
+		resurrezione_pronta = false
+		caduto.hp = maxi(int(ceil(float(caduto.hp_max) / 2.0)), 1)
+		aggiorna_scheda(caduto)
+		var nome_accessorio := String(GameState.dati_oggetto(GameState.accessorio_equipaggiato).get("nome", "Il tuo accessorio"))
+		scrivi("[b]%s si spezza: %s torna in piedi con metà dei suoi punti vita.[/b]" % [nome_accessorio, caduto.nome])
+		GameState.consuma_accessorio_equipaggiato()
+		return
 	if caduto.get("oggetto_scena", false):
 		scrivi("[i]%s vengono distrutte.[/i]" % caduto.nome)
 		if not portatore_frenesia.is_empty() \

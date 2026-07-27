@@ -56,7 +56,7 @@ func popola() -> void:
 
 # --- helper per le schede ---
 
-func aggiungi_scheda(titolo: String, sottotitolo: String, corpo: String, colore: Color, sbloccata: bool) -> void:
+func aggiungi_scheda(titolo: String, sottotitolo: String, corpo: String, colore: Color, sbloccata: bool, extra: Control = null) -> void:
 	var pannello := PanelContainer.new()
 	pannello.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if not sbloccata:
@@ -82,6 +82,8 @@ func aggiungi_scheda(titolo: String, sottotitolo: String, corpo: String, colore:
 		etichetta_corpo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		etichetta_corpo.modulate = Color(1, 1, 1, 0.82)
 		v.add_child(etichetta_corpo)
+	if extra != null:
+		v.add_child(extra)
 	lista.add_child(pannello)
 
 func colore_rarita(rarita: String) -> Color:

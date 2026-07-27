@@ -54,6 +54,8 @@ var legame: int = 0                       # 0..100, respira di continuo
 var sacca: Array[String] = []             # consumabili, max regole.sacca_massima
 var collezionabili: Array[String] = []
 var chiavi: Array[String] = []
+var accessori: Array[String] = []         # equipaggiamento posseduto (unico per id, non consumabile)
+var accessorio_equipaggiato: String = ""  # al massimo uno alla volta, vuoto = nessuno
 var carte: Array[String] = []             # carte dei nemici (album): id carta ottenute
 var tazo: int = 0
 var fonti_estinte: int = 0
@@ -234,6 +236,8 @@ func nuova_partita() -> void:
 	sacca.clear()
 	collezionabili.clear()
 	chiavi.clear()
+	accessori.clear()
+	accessorio_equipaggiato = ""
 	# carte, bestiario e oggetti_catalogo sono collezioni meta: non si azzerano
 	tazo = int(regole.get("tazo_iniziale", 30))
 	fonti_estinte = 0
@@ -294,11 +298,31 @@ func aggiungi_oggetto(id_oggetto: String) -> bool:
 		"chiave":
 			if id_oggetto not in chiavi:
 				chiavi.append(id_oggetto)
+		"accessorio":
+			if id_oggetto not in accessori:
+				accessori.append(id_oggetto)
 		_:
 			if sacca.size() >= int(regole.get("sacca_massima", 20)):
 				return false  # sacca piena
 			sacca.append(id_oggetto)
 	return true
+
+# --- equipaggiamento: un solo accessorio alla volta, effetto passivo in
+# combattimento (Combattimento._ready() legge accessorio_equipaggiato) ---
+
+func equipaggia_accessorio(id_oggetto: String) -> void:
+	if id_oggetto in accessori:
+		accessorio_equipaggiato = id_oggetto
+
+func rimuovi_accessorio() -> void:
+	accessorio_equipaggiato = ""
+
+func consuma_accessorio_equipaggiato() -> void:
+	# l'oggetto si rompe/si consuma usando il suo effetto: sparisce del tutto
+	if accessorio_equipaggiato == "":
+		return
+	accessori.erase(accessorio_equipaggiato)
+	accessorio_equipaggiato = ""
 
 # --- collezioni (album carte, bestiario, compendio oggetti) ---
 
@@ -319,7 +343,7 @@ func ottieni_carta(id_carta: String) -> bool:
 
 func possiede_oggetto(id_oggetto: String) -> bool:
 	return id_oggetto in sacca or id_oggetto in chiavi \
-			or id_oggetto in collezionabili or id_oggetto in carte
+			or id_oggetto in collezionabili or id_oggetto in carte or id_oggetto in accessori
 
 func compra(id_oggetto: String, prezzo: int) -> bool:
 	if tazo < prezzo:
@@ -507,6 +531,8 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"sacca": sacca,
 		"collezionabili": collezionabili,
 		"chiavi": chiavi,
+		"accessori": accessori,
+		"accessorio_equipaggiato": accessorio_equipaggiato,
 		"carte": carte,
 		"oggetti_catalogo": oggetti_catalogo,
 		"bestiario": bestiario,
@@ -540,6 +566,8 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	sacca = _lista_str(d.get("sacca", []))
 	collezionabili = _lista_str(d.get("collezionabili", []))
 	chiavi = _lista_str(d.get("chiavi", []))
+	accessori = _lista_str(d.get("accessori", []))
+	accessorio_equipaggiato = String(d.get("accessorio_equipaggiato", ""))
 	carte = _lista_str(d.get("carte", []))
 	oggetti_catalogo = _lista_str(d.get("oggetti_catalogo", []))
 	bestiario = _lista_str(d.get("bestiario", []))

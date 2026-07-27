@@ -194,6 +194,24 @@ Numeri piccoli e leggibili, ma con scelte vere:
   collezionati (`baratti`: richiede → produce). Lo stock evolve con le fonti estinte
   (campo `da_fonti`)
 
+## Equipaggiamento (accessori)
+Un nuovo tipo di oggetto, `"tipo": "accessorio"` in `data/oggetti.json`. A differenza dei
+consumabili (usati e persi in combattimento) o delle collezioni passive, un accessorio si
+**equipaggia** dal Compendio (`Compendio.gd`, un bottone sulla sua scheda se lo possiedi) — **uno
+solo alla volta** (`GameState.accessorio_equipaggiato`) — e il suo effetto (`effetto_equipaggiato`)
+è passivo, letto una volta a inizio combattimento (`Combattimento._ready()`):
+- **`scudo_primo_stato`**: il primo stato subito in quel combattimento viene respinto e non ha
+  effetto; il bersaglio diventa immune a *quello stesso stato* per il resto dello scontro
+  (`combattente.immunita_temporanea`, controllato in `resistenza_di()`). L'accessorio si
+  consuma (sparisce) nel momento in cui scatta (`GameState.consuma_accessorio_equipaggiato()`).
+  Esempio: la **Pietra Quieta**, lasciata dalla Tartaruga Innocente se la risparmi
+- **`resurrezione_dimezzata`**: se chi lo indossa morirebbe, l'accessorio si spezza e lo riporta
+  in vita a metà dei suoi hp massimi, una volta sola per combattimento (`Combattimento._su_ko()`,
+  controllato prima di qualunque altra risoluzione del KO). Esempio: il **Ricordo del Passato**
+- Gli accessori posseduti vivono in `GameState.accessori` (mai consumati dall'uso, a differenza
+  della sacca); si azzerano a nuova partita come il resto dell'inventario, non sono una
+  collezione meta
+
 ## Psiche, stress, fattore Carnivalz
 Ogni personaggio ha una **psiche** (`psiche` nella classe, definizioni in `data/psiche.json`):
 quando un compagno va a terra, ognuno accusa il colpo a modo suo —
@@ -367,12 +385,19 @@ collegate nei due sensi (perlustrazione libera):
   narrativo). Fuori da queste fasi il nemico non attacca mai davvero: ogni suo turno è solo
   narrazione a zero danno, secondo l'elenco `testi_inerti` (`Combattimento.esegui_turno_inerte()`,
   un testo diverso e sempre più inquietante ogni turno, mai un attacco pesato). Se l'incontro si
-  trascina oltre l'ultimo testo della lista senza che il giocatore fugga (o vinca), la scena si
-  chiude da sola con un gesto letale scriptato (`testo_fatale_manifestazione`/
-  `testo_fatale_protagonista`/`testo_fatale_bacio`, `esegui_scena_fatale()` →
-  `sconfitta_scriptata()`) — **l'unico modo di perdere questo scontro**, mai il tentativo di
-  fuga fallito in sé. Usato per ora solo dalla manifestazione di un sogno nel tutorial (insegna
-  Fuggi con un limite di tempo vero, non solo per finta, senza però punire l'atto di provarci)
+  trascina oltre l'ultimo testo della lista senza che il giocatore fugga (o vinca), lei tenta
+  "Chiamata di Morfeo" (`esegui_scena_fatale()`): applica lo stato `sonno` al bersaglio con
+  `applica_stato()` come qualunque altro stato — se attecchisce per davvero è game over
+  (`testo_fatale_protagonista`/`testo_fatale_bacio` → `sconfitta_scriptata()`), **l'unico modo
+  normale di perdere questo scontro**. Ma se il giocatore ha equipaggiato un accessorio con
+  `scudo_primo_stato` (es. la Pietra Quieta), il primo tentativo viene respinto e l'accessorio si
+  spezza (`testo_scudo_rotto`); lei ritenta una seconda volta più avanti, fallisce di nuovo
+  (ormai immune, `testo_morfeo_fallito`), e al secondo fallimento si dissolve in un vortice di
+  rabbia (`esegui_vortice_di_rabbia()`): una **vittoria alternativa**, mai raggiunta a forza di
+  colpi, che paga xp pari al boss della zona (`xp_vittoria_alternativa`) più un accessorio
+  garantito (`oggetto_vittoria_alternativa`, non soggetto a chance — il Ricordo del Passato).
+  Usato per ora solo dalla manifestazione di un sogno nel tutorial (insegna Fuggi con un limite
+  di tempo vero, non solo per finta, senza però punire l'atto di provarci)
 - **`danno_fisso_su_attacco`** su un personaggio: ogni "Attacca" del giocatore contro di lui
   vale sempre esattamente questo danno, bypassando del tutto difesa/critico/fattore
   (`Combattimento.attacca()`, controllato prima della formula normale). Serve per i bersagli

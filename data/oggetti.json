@@ -259,6 +259,20 @@
 			"effetto": {
 				"stress": -20
 			}
+		},
+		{
+			"id": "pietra_quieta",
+			"nome": "Pietra Quieta",
+			"tipo": "accessorio",
+			"descrizione": "Una pietra liscia e fredda, lasciata cadere da una tartaruga che hai scelto di risparmiare. Sembra assorbire la prima cosa brutta che ti capita, in ogni scontro.",
+			"effetto_equipaggiato": { "tipo": "scudo_primo_stato" }
+		},
+		{
+			"id": "ricordo_del_passato",
+			"nome": "Ricordo del Passato",
+			"tipo": "accessorio",
+			"descrizione": "Un oggetto che porta con sé il peso di qualcosa che non c'è più. Si spezza per riportarti in vita, una volta sola.",
+			"effetto_equipaggiato": { "tipo": "resurrezione_dimezzata" }
 		}
 	]
 }

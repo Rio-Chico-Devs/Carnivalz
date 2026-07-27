@@ -645,7 +645,8 @@
 			"risparmio": {
 				"legame": 10,
 				"stress": -15,
-				"testo": "Decidi di lasciarla andare. Non c'era nessuna ragione di combatterla."
+				"oggetto": "pietra_quieta",
+				"testo": "Decidi di lasciarla andare. Non c'era nessuna ragione di combatterla. Sul terreno, dove si trovava, resta una pietra liscia e fredda."
 			}
 		},
 		{
@@ -675,6 +676,11 @@
 				"testo_fatale_manifestazione": "La manifestazione ti ricorda una persona di un lontano passato...",
 				"testo_fatale_protagonista": "Sei... davvero tu? Pensavo di averti perso per sempre...",
 				"testo_fatale_bacio": "La manifestazione bacia la fronte del protagonista.",
+				"testo_scudo_rotto": "La pietra quieta, nella tua tasca, trema e si spacca in mille pezzi: il sonno che ti stava per travolgere si dissolve.",
+				"testo_morfeo_fallito": "Ci riprova, ma il sonno non riesce più a toccarti. Per la prima volta, sembra confusa.",
+				"testo_vortice_rabbia": "La manifestazione ti fissa, incredula. Poi la sua forma si sfalda, risucchiata in un vortice di rabbia che esplode e la disperde per sempre.",
+				"xp_vittoria_alternativa": 40,
+				"oggetto_vittoria_alternativa": "ricordo_del_passato",
 				"prima_fuga_fallisce": true,
 				"testo_fuga_fallita": "La creatura sembra triste... non vuole lasciarti."
 			},
