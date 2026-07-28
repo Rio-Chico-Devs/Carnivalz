@@ -875,12 +875,17 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 				else:
 					esegui_mossa(nemico, mossa)
 				return
+	nemico.difesa_accumulo = 0.0  # attacco normale: la guardia accumulata si perde
 	attacca(nemico, bersaglio_giocatore_casuale())
 
 func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
 	if mossa.get("una_tantum", false):
 		nemico.mosse_usate.append(String(mossa.get("id", "")))
+	if String(mossa.get("tipo", "")) != "difendi":
+		# stessa regola del giocatore: la guardia accumulata si perde appena
+		# si fa altro (vedi difendi()/esegui_turno)
+		nemico.difesa_accumulo = 0.0
 	match mossa.get("tipo", ""):
 		"difendi":
 			difendi(nemico)
