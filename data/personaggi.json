@@ -314,13 +314,23 @@
 			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
 			"fonte": true,
 			"convincibile": false,
+			"crisi_gelosia": {
+				"moltiplicatore_probabilita": 0.006,
+				"durata_turni": 2,
+				"riduzione_difesa": 3,
+				"probabilita_inerte": 0.4,
+				"testo_inizio": "Jongo Dongo vacilla: il legame che tiene unita la squadra gli è insopportabile. Qualcosa, in lui, cede all'invidia.",
+				"testo_turno_inerte": "Jongo Dongo si volta, distratto dalla propria rabbia: per un istante non vede nessuno di voi."
+			},
 			"mosse": [
 				{
 					"id": "colpo_marcio",
 					"tipo": "attacco_forte",
 					"valore": 4,
 					"peso": 2,
-					"testo": "Jongo Dongo affonda un artiglio marcio, senza fretta."
+					"telegrafata": true,
+					"testo_annuncio": "Jongo Dongo solleva l'artiglio marcio, immobile: sta per colpire con tutto il suo peso.",
+					"testo": "Jongo Dongo affonda l'artiglio marcio con tutto il suo peso."
 				},
 				{
 					"id": "grido_del_raccolto",

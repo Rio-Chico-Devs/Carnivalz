@@ -232,6 +232,8 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"immunita_temporanea": [],
 		"buffs": [],
 		"difesa_accumulo": 0.0,
+		"mossa_in_carica": {},
+		"crisi_turni_rimasti": 0,
 		"volte_studiato": 0,
 		"combustione": combustione,
 		"in_fiamme": not combustione.is_empty() and not combustione.has("attiva_da_studio"),
@@ -805,6 +807,31 @@ func vivo_con_id(id_personaggio: String) -> Dictionary:
 			return combattente
 	return {}
 
+func verifica_crisi_gelosia(nemico: Dictionary) -> bool:
+	# nata da invidia e gelosia: piu' il legame del party e' curato, piu' in
+	# fretta arriva - un paio di turni destabilizzato (difesa giu', rischio
+	# di restare inerte), non un cedimento definitivo come "convinto"
+	var dati: Dictionary = GameState.personaggi.get(nemico.id, {}).get("crisi_gelosia", {})
+	if dati.is_empty():
+		return false
+	if int(nemico.get("crisi_turni_rimasti", 0)) <= 0:
+		var moltiplicatore := float(dati.get("moltiplicatore_probabilita", 0.005))
+		if GameState.rng.randf() >= GameState.legame * moltiplicatore:
+			return false
+		nemico.crisi_turni_rimasti = int(dati.get("durata_turni", 2))
+		scrivi("[b]%s[/b]" % String(dati.get("testo_inizio", "")))
+	nemico.crisi_turni_rimasti = int(nemico.crisi_turni_rimasti) - 1
+	nemico.buffs.append({
+		"stat": "difesa",
+		"valore": -int(dati.get("riduzione_difesa", 3)),
+		"turni": 1,
+	})
+	aggiorna_scheda(nemico)
+	if GameState.rng.randf() < float(dati.get("probabilita_inerte", 0.4)):
+		scrivi("[i]%s[/i]" % String(dati.get("testo_turno_inerte", "")))
+		return true
+	return false
+
 func turno_nemico_normale(nemico: Dictionary) -> void:
 	if turni_fermo_leva > 0 and nemico.id == fonte.get("id", ""):
 		turni_fermo_leva -= 1
@@ -813,6 +840,15 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 	if convinto and nemico.id == fonte.get("id", "") \
 			and GameState.rng.randf() < float(GameState.regole.get("probabilita_cedimento", 0.5)):
 		cedimento(nemico)
+		return
+	if verifica_crisi_gelosia(nemico):
+		return
+	if not nemico.mossa_in_carica.is_empty():
+		# la mossa annunciata il turno scorso arriva ora, garantita: chi ha
+		# avuto l'avviso ha avuto anche il tempo di reagire
+		var mossa_pronta: Dictionary = nemico.mossa_in_carica
+		nemico.mossa_in_carica = {}
+		esegui_mossa(nemico, mossa_pronta)
 		return
 	var dati_disperazione: Dictionary = GameState.personaggi.get(nemico.id, {}).get("mossa_disperazione", {})
 	if not dati_disperazione.is_empty() and nemico.hp <= int(dati_disperazione.get("hp_soglia", 0)):
@@ -831,7 +867,13 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 		for mossa in mosse:
 			estratto -= int(mossa.get("peso", 1))
 			if estratto <= 0:
-				esegui_mossa(nemico, mossa)
+				if mossa.get("telegrafata", false):
+					# si "carica": niente danno questo turno, ma la mossa e'
+					# ormai annunciata e arrivera' di sicuro al prossimo
+					nemico.mossa_in_carica = mossa
+					scrivi("[b]%s[/b]" % String(mossa.get("testo_annuncio", "Qualcosa si sta caricando...")))
+				else:
+					esegui_mossa(nemico, mossa)
 				return
 	attacca(nemico, bersaglio_giocatore_casuale())
 

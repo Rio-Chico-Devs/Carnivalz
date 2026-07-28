@@ -228,6 +228,20 @@ Numeri piccoli e leggibili, ma con scelte vere:
   la difficoltà sta nel non morire durante scontri lunghi. `bonus_attacco_per_livello` in regole
 - I **boss hanno mosse pesate** nei dati (`mosse`: attacco_forte, attacco_tutti,
   buff_difesa, buff_fattore, evoca + `peso_attacco_normale`): ogni scontro è unico
+- **Mosse "telegrafate"** (`"telegrafata": true` + `"testo_annuncio"`): la prima volta che il
+  pool pesato la estrae, il nemico non la esegue subito — la "carica" (mostra solo l'annuncio,
+  quel turno non fa danno) e la mossa arriva garantita al turno successivo
+  (`mossa_in_carica` sul combattente). Dà al giocatore un giro per reagire (difendersi, curarsi,
+  ecc.) prima del colpo grosso — premia chi legge i segnali, non solo chi picchia più forte.
+  Prima ad averla: `colpo_marcio` di Jongo Dongo
+- **`"crisi_gelosia"`** su un nemico: nata da invidia verso il legame del party, tanto più
+  probabile per giro quanto più `GameState.legame` è alto (`GameState.rng.randf() <
+  legame × moltiplicatore_probabilita`, verificata a ogni suo turno). Una volta innescata dura
+  `durata_turni` (un paio): difesa giù di `riduzione_difesa` per quei turni e una probabilità
+  (`probabilita_inerte`) di restare inerte, saltando il turno del tutto. A differenza di
+  "convinto"/cedimento non è mai definitiva: prendersi cura della squadra destabilizza il
+  nemico più spesso, non lo sconfigge da solo. Prima ad averla: Jongo Dongo (numeri di
+  partenza, da confermare)
 - **Abilità di classe extra** (in `abilita` su una classe, il bottone in "Abilità" compare da
   solo): `"provocazione"` (i nemici colpiscono solo chi ha provocato) e `"attacco_area"`
   (colpisce tutti i nemici vivi, danno = attacco × `moltiplicatore_attacco_area` in regole.json,
