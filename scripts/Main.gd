@@ -55,7 +55,7 @@ func _ready() -> void:
 	for slot in [slot_sinistra, slot_centro, slot_destra]:
 		slot.imposta_grande(true)  # ritratto cinematografico, riempie lo schermo sopra il box
 	bottone_dialoga.pressed.connect(_su_dialoga)
-	bottone_mappa.visible = not GameState.mappa_zona.is_empty()
+	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente)
 	bottone_mappa.pressed.connect(func() -> void:
 		get_tree().change_scene_to_file(SCENA_MAPPA_ZONA))
 	mostra_nodo(GameState.nodo_corrente)
@@ -368,8 +368,8 @@ func _su_scelta(scelta: Dictionary) -> void:
 func aggiorna_dialoga() -> void:
 	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce
 	bottone_dialoga.visible = GameState.party.size() > 1
-	# "Mappa" compare solo se la zona corrente ne ha una (mappa_dungeon)
-	bottone_mappa.visible = not GameState.mappa_zona.is_empty()
+	# "Mappa" compare solo dentro la sezione esplorabile della zona
+	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente)
 	for figlio in menu_compagni.get_children():
 		figlio.queue_free()
 

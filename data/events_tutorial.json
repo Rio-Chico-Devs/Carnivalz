@@ -1,5 +1,19 @@
 {
 	"nodo_iniziale": "inizio",
+	"mappa_dungeon": {
+		"stanze": [
+			{ "id": "bivio", "nome": "Il bivio", "pos": [400, 400] },
+			{ "id": "pozze", "nome": "Le pozze d'acqua", "pos": [230, 260] },
+			{ "id": "collina", "nome": "La collina", "pos": [570, 260] },
+			{ "id": "convergenza", "nome": "Verso le urla", "pos": [400, 120] }
+		],
+		"connessioni": [
+			["bivio", "pozze"],
+			["bivio", "collina"],
+			["pozze", "convergenza"],
+			["collina", "convergenza"]
+		]
+	},
 	"nodi": {
 		"inizio": {
 			"sequenza": [
@@ -46,18 +60,32 @@
 		},
 		"bivio": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Il sentiero sembra dividersi... ho un brutto presentimento... forse sarebbe meglio attraversare le pozze d'acqua." }
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Il sentiero sembra dividersi... ho un brutto presentimento... forse sarebbe meglio attraversare le pozze d'acqua." },
+				{ "tipo": "narrazione", "testo": "Da qui in avanti puoi consultare la mappa (bottone \"Mappa\") per vedere dove ti trovi e tornare nei posti che hai già visitato." }
 			],
+			"sblocca_stanze": ["bivio", "pozze", "collina"],
 			"scelte": [
 				{ "testo": "Scendi verso le pozze d'acqua", "vai": "pozze" },
-				{ "testo": "Sali sulla collina", "vai": "collina" }
+				{ "testo": "Sali sulla collina", "vai": "collina" },
+				{ "testo": "Prosegui verso le urla", "richiede_flag": "tut_strada_aperta", "vai": "convergenza" }
 			]
 		},
 		"pozze": {
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Un altro Goblin... e quella... cos'è? È enorme..." }
 			],
-			"combattimento_automatico": { "nemici": ["goblin_tipico", "tartaruga_innocente"], "se_vinci": "convergenza", "se_perdi": "sconfitta" }
+			"combattimento_automatico": { "nemici": ["goblin_tipico", "tartaruga_innocente"], "salta_se_flag": "tut_pozze_fatte", "se_vinci": "dopo_pozze", "se_perdi": "sconfitta" }
+		},
+		"dopo_pozze": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Le pozze sono tranquille, ora. Da qui il sentiero risale verso le urla... ma posso ancora tornare indietro, se voglio dare un'occhiata alla collina." }
+			],
+			"flag": "tut_pozze_fatte",
+			"sblocca_stanze": ["convergenza"],
+			"scelte": [
+				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
+				{ "testo": "Apri la mappa", "torna_a_mappa": true }
+			]
 		},
 		"collina": {
 			"sequenza": [
@@ -66,15 +94,29 @@
 				{ "tipo": "narrazione", "testo": "La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento..." }
 			],
 			"espr_sinistra": "sorpresa",
-			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "collina_fuga" }
+			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "salta_se_flag": "tut_collina_fatta", "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "collina_fuga" }
+		},
+		"dopo_collina": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Non so cosa fosse... ma la collina è silenziosa, adesso." }
+			],
+			"espr_sinistra": "pensiero",
+			"flag": "tut_collina_fatta",
+			"sblocca_stanze": ["convergenza"],
+			"scelte": [
+				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
+				{ "testo": "Apri la mappa", "torna_a_mappa": true }
+			]
 		},
 		"collina_fuga": {
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ci è mancato poco... cos'era quello? Non avevo mai incontrato nulla di simile, ma di sicuro non era la causa di cui mi devo occupare..." }
 			],
 			"espr_sinistra": "pensiero",
+			"sblocca_stanze": ["convergenza"],
 			"scelte": [
-				{ "testo": "Prosegui", "vai": "convergenza" }
+				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
+				{ "testo": "Apri la mappa", "torna_a_mappa": true }
 			]
 		},
 		"convergenza": {
@@ -82,8 +124,10 @@
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sembro essere vicino... sento delle urla incomprensibili..." }
 			],
 			"espr_sinistra": "decisa",
+			"flag": "tut_strada_aperta",
 			"scelte": [
-				{ "testo": "Scatta verso i rumori", "vai": "boss" }
+				{ "testo": "Scatta verso i rumori", "vai": "boss" },
+				{ "testo": "Apri la mappa", "torna_a_mappa": true }
 			]
 		},
 		"boss": {

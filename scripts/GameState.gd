@@ -280,6 +280,15 @@ func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
 # altra scoperta permanente, ma con nome namespaced per zona (carnivalz_corrente)
 # cosi' zone diverse possono riusare gli stessi id di stanza senza scontrarsi.
 
+func stanza_nella_mappa(id_stanza: String) -> bool:
+	# la mappa vale per la sezione esplorabile della zona, non per tutto il
+	# file: fuori da quelle stanze (prologhi, scene al quartier generale...)
+	# il bottone "Mappa" non ha senso e non compare
+	for stanza in mappa_zona.get("stanze", []):
+		if String(stanza.get("id", "")) == id_stanza:
+			return true
+	return false
+
 func stanza_sbloccata(id_stanza: String) -> bool:
 	if id_stanza == stanza_iniziale_zona:
 		return true

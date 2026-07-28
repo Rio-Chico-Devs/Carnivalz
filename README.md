@@ -101,9 +101,11 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
   `GameState.stanza_sbloccata()`/`sblocca_stanza()`), quindi zone diverse possono riusare gli
   stessi id di stanza senza scontrarsi, e persiste nel salvataggio come qualunque altro flag
 - **Tornare alla mappa**: una scelta con `"torna_a_mappa": true` porta a `MappaZona.tscn` invece
-  che a un altro nodo (`Main._su_scelta()`). C'è anche un bottone **Mappa**, sempre visibile
-  accanto a "Parla con la squadra" quando la zona corrente ha una `mappa_dungeon`, per
-  consultarla/spostarsi in qualunque momento, non solo a fine stanza
+  che a un altro nodo (`Main._su_scelta()`). C'è anche un bottone **Mappa** accanto a "Parla con
+  la squadra", per consultarla/spostarsi in qualunque momento, non solo a fine stanza. Compare
+  **solo quando il nodo corrente è una delle stanze della mappa**
+  (`GameState.stanza_nella_mappa()`): fuori dalla sezione esplorabile (prologhi lineari, scene
+  al quartier generale) non avrebbe senso e resta nascosto
 - **Zona ripulita**: `combattimento_automatico` e `agguato` accettano un campo opzionale
   `"salta_se_flag"` — se quel flag è impostato (tipicamente quello del nodo di vittoria sul boss
   della zona, via il campo `"flag"` già esistente sui nodi), il combattimento non parte più:
@@ -113,8 +115,13 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
   sezione post-checkpoint (il labirinto di cunicoli, la piazza sotterranea, il cargo
   abbandonato, l'approccio al ponte marcio) è su `mappa_dungeon`; l'ingresso lineare (varco →
   corridoio → fossa → sala del raccolto → sala del lamento) e la parte finale forzata (ponte →
-  cripta → altare → trono) restano scelte dirette come nel resto del gioco. Il tutorial resta
-  lineare
+  cripta → altare → trono) restano scelte dirette come nel resto del gioco
+- **In uso anche nel tutorial** (`data/events_tutorial.json`), dove serve a *insegnare* la
+  mappa: dal bivio in poi (bivio, pozze, collina, convergenza) si esplora liberamente. Prima
+  era un bivio esclusivo — scelto un ramo si finiva dritti al boss — e quindi era impossibile
+  prendere la Pietra Quieta dalla tartaruga (pozze) e poi usarla contro la manifestazione
+  (collina). I due scontri usano `"salta_se_flag"` così una stanza già ripulita non li rilancia
+  a ogni rivisita
 - Non usa (per ora) `"salta_se_flag"`/`combattimento_automatico`: Jondoh usa solo `"combatti"`
   sulle scelte, che non ha un equivalente diretto. Il boss finale (Jongo Dongo) è identico in
   entrambi i casi: con/senza l'alleata cambia solo la scena (il suo sacrificio, narrato e

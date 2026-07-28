@@ -804,10 +804,10 @@
 					"id": "richiamo_dei_suoi_simili",
 					"tipo": "evoca",
 					"valore": "goblin_tipico",
-					"quantita": 2,
+					"quantita": 1,
 					"una_tantum": true,
 					"peso": 2,
-					"testo": "Richiamo dei suoi simili: urla nella notte, e due goblin tipici rispondono alla chiamata."
+					"testo": "Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata."
 				},
 				{
 					"id": "furia_di_un_goblin",
