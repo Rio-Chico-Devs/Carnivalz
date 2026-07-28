@@ -785,7 +785,7 @@
 			"nome_breve": "Goblin Arrabbiato",
 			"hp": 15,
 			"attacco": 3,
-			"difesa": 1,
+			"difesa": 0,
 			"velocita": 3,
 			"xp": 40,
 			"tazo": 25,
