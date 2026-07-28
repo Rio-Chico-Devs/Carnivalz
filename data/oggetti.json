@@ -101,6 +101,12 @@
 			"descrizione": "Un pezzo di stoffa con una firma sopra \"Lyloh\" e alcuni cuoricini disegnati, sembrerebbe che un bambino abbia scritto questo."
 		},
 		{
+			"id": "spilla_margherita",
+			"nome": "Spilla a margherita",
+			"tipo": "chiave",
+			"descrizione": "Una piccola spilla a forma di margherita, nascosta sotto una piastrella della Casa Gigante. Era della bambina."
+		},
+		{
 			"id": "merendine_scadute",
 			"nome": "Pacco di merendine scadute",
 			"tipo": "consumabile",

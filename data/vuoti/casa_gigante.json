@@ -2,7 +2,10 @@
 	"nodo_iniziale": "soglia",
 	"nodi": {
 		"soglia": {
-			"testo": "Questo squarcio è una casa gigantesca: non nelle proporzioni, ma nel numero delle stanze, spaziose una via l'altra, come se non finisse mai. Dalla porta socchiusa filtra una ninna nanna stonata.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Mi diceva mia madre: i bravi bambini restano lontani dalla grande casa in mezzo al bosco, non si avvicinano neanche per cogliere un fiore coperto di rugiada.\n\nI bambini che disobbediscono vengono trasformati in bellissime bambole di ottima fattura... con vestiti eleganti e accessori sgargianti.\n\nDiventano i giocattoli dei demoni che hanno occupato la casa... ci giocano e ci giocano e ci giocano ancora...\n\nFinché ogni cucitura non è recisa... finché ogni porcellana non è insudiciata... finché ogni filo non viene tirato.\n\nUn tempo questa casa donava amore e riparo... o forse... solo l'illusione di una vita perfetta..." },
+				{ "tipo": "titolo", "testo": "La Grande Magione Abbandonata" }
+			],
 			"scelte": [
 				{ "testo": "Entra", "vai": "salone" },
 				{ "testo": "Torna nel Vuoto", "torna_vuoto": true, "richiede_non_flag": "casa_yhvina" },
@@ -10,32 +13,75 @@
 			]
 		},
 		"salone": {
-			"testo": "Un salone enorme, arredato con cura anche dove nessuno guarda più. Due quadri alle pareti, un divano sventrato, e da qualche parte quel filo rosso che spunta appena, teso, verso le scale.",
+			"testo": "Sembra tutto abbandonato da tantissimo tempo... la polvere è così fitta da sembrare una leggera nebbia...",
 			"agguato": {
 				"probabilita": 0.3,
 				"gruppi": [["marionetta"], ["marionetta", "marionetta"], ["ombra_del_passato"], ["marionetta", "ombra_del_passato"]],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
+				{ "testo": "Vai nella sala principale", "vai": "sala_principale" },
+				{ "testo": "Vai nell'ala destra", "vai": "ala_destra" },
+				{ "testo": "Vai nell'ala sinistra", "vai": "ala_sinistra" },
+				{ "testo": "Torna alla soglia", "vai": "soglia" }
+			]
+		},
+		"sala_principale": {
+			"testo": "Sembra che le pareti siano addobbate con i quadri di gente che probabilmente viveva in questo posto...",
+			"scelte": [
 				{ "testo": "Osserva il quadro dell'uomo", "vai": "quadro_uomo" },
 				{ "testo": "Osserva il quadro della donna", "vai": "quadro_donna" },
-				{ "testo": "Fruga sotto i cuscini del divano", "vai": "salone", "una_tantum": "casa_tazo_1", "tazo": 18 },
-				{ "testo": "Tira il filo rosso", "vai": "salone", "una_tantum": "casa_filo", "flag": "casa_filo" },
+				{ "testo": "Osserva il quadro di famiglia", "vai": "quadro_famiglia", "una_tantum": "casa_filo", "flag": "casa_filo" },
+				{ "testo": "Fruga sotto i cuscini del divano", "vai": "sala_principale", "una_tantum": "casa_tazo_1", "tazo": 18 },
 				{ "testo": "Vai in cucina", "vai": "cucina" },
 				{ "testo": "Sali le scale", "vai": "scala" },
-				{ "testo": "Torna alla soglia", "vai": "soglia" }
+				{ "testo": "Torna al salone", "vai": "salone" }
+			]
+		},
+		"ala_destra": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Alte colonne si ergono lungo un corridoio a scacchi: la polvere ha reso ormai le mattonelle bianche di un giallo ocra molto oscuro..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... C'è qualcosa sotto questa piastrella." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sembra che non ci sia altro se non stanze completamente piene di macerie, oltre questo punto..." }
+			],
+			"scelte": [
+				{ "testo": "Alza la piastrella", "vai": "ala_destra", "una_tantum": "casa_spilla", "oggetto": "spilla_margherita" },
+				{ "testo": "Torna al salone", "vai": "salone" }
+			]
+		},
+		"ala_sinistra": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Mh... sembrerebbe non esserci nulla qui dentro. Certo che questa famiglia doveva possedere un'ingente quantità di soldi, per permettersi un posto del genere..." }
+			],
+			"scelte": [
+				{ "testo": "Torna al salone", "vai": "salone" }
 			]
 		},
 		"quadro_uomo": {
 			"testo": "Sembra un uomo molto severo... le rughe sul suo volto fanno trasparire un'estrema tristezza e una rabbia sempre tenuta a bada.",
 			"scelte": [
-				{ "testo": "Torna nel salone", "vai": "salone" }
+				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
 			]
 		},
 		"quadro_donna": {
 			"testo": "Una donna di una certa età... cos'ha in mano? Il suo sguardo non ti fa sentire al sicuro.",
 			"scelte": [
-				{ "testo": "Torna nel salone", "vai": "salone" }
+				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
+			]
+		},
+		"quadro_famiglia": {
+			"testo": "Ci sono un uomo, una donna, una bambina con una bambola in braccio e una donna anziana in posa... la donna più anziana ha uno sguardo che farebbe gelare il sangue a molti... Non sembrano molto felici...",
+			"scelte": [
+				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
+			]
+		},
+		"mensola": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Tutti gli strumenti in questa cucina sembrano di ottima fattura, c'è un forte odore di ammoniaca e detersivi sopravvissuto anche al tempo..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Queste sostanze sono molto pericolose se ingerite... cosa ci fanno in una cucina?" }
+			],
+			"scelte": [
+				{ "testo": "Torna in cucina", "vai": "cucina" }
 			]
 		},
 		"cucina": {
@@ -46,17 +92,30 @@
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
+				{ "testo": "Fruga nella mensola", "vai": "mensola", "una_tantum": "casa_mensola" },
 				{ "testo": "Stappa una bottiglia di vino di ottima qualità", "vai": "cucina", "una_tantum": "casa_vino_1", "oggetto": "vino_di_ottima_qualita" },
 				{ "testo": "Fruga nella credenza dei dolci", "vai": "cucina", "una_tantum": "casa_merendine", "oggetto": "merendine_scadute" },
-				{ "testo": "Torna nel salone", "vai": "salone" }
+				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
 			]
 		},
 		"scala": {
-			"testo": "La scala sale attraverso piani che sembrano più numerosi di quanti dovrebbero essere. Il filo rosso, se l'hai tirato, corre lungo il corrimano fino a sparire oltre il pianerottolo.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "La scala sale attraverso piani che sembrano più numerosi di quanti dovrebbero essere." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questa casa è immensa... la maggior parte delle stanze sono vuote... come se qualcuno avesse portato via tutto..." }
+			],
 			"scelte": [
 				{ "testo": "Entra nella stanza dei giochi", "vai": "stanza_giochi" },
 				{ "testo": "Sali fino alla soffitta", "vai": "soffitta" },
-				{ "testo": "Scendi nel salone", "vai": "salone" }
+				{ "testo": "Entra nel grande bagno", "vai": "grande_bagno" },
+				{ "testo": "Scendi nella sala principale", "vai": "sala_principale" }
+			]
+		},
+		"grande_bagno": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questo bagno è enorme... l'acqua non funziona più... un tempo deve essere stato bellissimo rilassarsi qui..." }
+			],
+			"scelte": [
+				{ "testo": "Torna alla scala", "vai": "scala" }
 			]
 		},
 		"stanza_giochi": {
@@ -108,7 +167,10 @@
 			]
 		},
 		"attico": {
-			"testo": "L'attico è basso e lungo, travi a vista e polvere sospesa. In fondo, sotto uno spiovente, una porta chiusa da cui filtra una luce fioca e costante: qualcuno, là dentro, non dorme.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "L'attico è basso e lungo, travi a vista e polvere sospesa. In fondo, sotto uno spiovente, una porta chiusa da cui filtra una luce fioca e costante: qualcuno, là dentro, non dorme." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sento uno strano potere... mi ricorda... Veronica? Non può essere..." }
+			],
 			"scelte": [
 				{ "testo": "Apri la porta della camera da letto", "vai": "camera_da_letto" },
 				{ "testo": "Torna alla soffitta", "vai": "soffitta" }
@@ -126,13 +188,13 @@
 			"destra": "insonne",
 			"espr_destra": "annoiata",
 			"scelte": [
-				{ "testo": "Chiedile di combattere al tuo fianco", "vai": "yhvina_si", "richiede_non_flag": "casa_ricordo_sconfitto", "recluta_temporaneo": "insonne", "livello_alleato": 6, "flag": "casa_yhvina" },
+				{ "testo": "Chiedile di combattere al tuo fianco", "vai": "yhvina_si", "richiede_non_flag": "casa_ricordo_sconfitto", "recluta_temporaneo": "insonne", "livello_alleato": 10, "flag": "casa_yhvina" },
 				{ "testo": "\"Ce la faccio da solo.\"", "vai": "attico" }
 			]
 		},
 		"yhvina_si": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Yhvina ti squadra con... cos'è quell'espressione disgustata...?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm... perché mi guarda così? Cos'è quell'espressione disgustata...?" },
 				{ "tipo": "dialogo", "chi": "insonne", "testo": "Hmph... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada." },
 				{ "tipo": "narrazione", "testo": "Le mani di Yhvina cambiano e il suo sguardo non ti rassicura per niente..." },
 				{ "tipo": "dialogo", "chi": "insonne", "testo": "Su, andiamo, abbiamo già perso fin troppo tempo." }
@@ -158,7 +220,11 @@
 			]
 		},
 		"tunnel": {
-			"testo": "Un tunnel scavato a mano, stretto, che scende oltre le fondamenta della casa. L'aria si fa più fredda a ogni passo.",
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Un tunnel scavato a mano, stretto, che scende oltre le fondamenta della casa. L'aria si fa più fredda a ogni passo." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "L'aria è fredda... presumo che ci siamo..." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Lo senti anche tu, vero? Quello che vogliamo trovare si trova in fondo a questo tunnel..." }
+			],
 			"scelte": [
 				{ "testo": "Avanza verso la luce in fondo", "vai": "altare" },
 				{ "testo": "Torna alla stanza degli studi", "vai": "stanza_studi" }
@@ -169,11 +235,20 @@
 			"scelte": [
 				{ "testo": "Leggi le lettere", "vai": "lettere_lettura" },
 				{ "testo": "Stappa l'ultima bottiglia di vino di ottima qualità", "vai": "altare", "una_tantum": "casa_vino_2", "oggetto": "vino_di_ottima_qualita" },
-				{ "testo": "Osserva da vicino la foto sull'altare", "richiede_non_flag": "casa_ricordo_sconfitto", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_concluso", "se_perdi": "cacciata" },
+				{ "testo": "Osserva da vicino la foto sull'altare", "richiede_non_flag": "casa_ricordo_sconfitto", "vai": "presentazione_ricordo" },
 				{ "testo": "Guarda oltre l'altare, nel buio", "richiede_non_flag": "casa_ricordo_sconfitto", "vai": "porta_bloccata" },
 				{ "testo": "L'altare è silenzioso, ora.", "richiede_flag": "casa_ricordo_sconfitto", "vai": "tunnel" },
 				{ "testo": "Guarda oltre l'altare, nel buio", "richiede_flag": "casa_ricordo_sconfitto", "vai": "porta_enorme" },
 				{ "testo": "Torna al tunnel", "vai": "tunnel" }
+			]
+		},
+		"presentazione_ricordo": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Quando si vuole bene a qualcuno, un legame viene creato... come migliaia di fili intrecciati diventa sempre più solido.\n\nChe nessuno osi dividere quello che è stato unito dall'amore... Sono questioni superiori agli uomini...\n\nCosì... filo su filo si tesse una piccola bambola di pezza, non troppo bella non troppo brutta... ma colma di amore...\n\nE con lo spezzarsi di quel legame... così come si sfalda una bambola, cominciò a sfaldarsi la fortuna di chi osò calpestare la tenerezza di un legame nato dal sentimento più puro..." },
+				{ "tipo": "titolo", "testo": "Un tenero ricordo" }
+			],
+			"scelte": [
+				{ "testo": "Affrontalo", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_concluso", "se_perdi": "cacciata" }
 			]
 		},
 		"porta_bloccata": {
@@ -208,7 +283,7 @@
 		},
 		"congedo_yhvina": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Bene, sembrerebbe che il nostro lavoro qui sia terminato, presto potrò tornare finalmente a casa." },
+				{ "tipo": "dialogo", "chi": "insonne", "testo": "Bene, sembrerebbe che il nostro lavoro qui sia terminato, sembra che potrò tornare finalmente a casa." },
 				{ "tipo": "dialogo", "chi": "insonne", "testo": "Ecco che arriva... Bene. Se il destino vorrà, ci rivedremo ancora." },
 				{ "tipo": "narrazione", "testo": "Uno squarcio deforma Yhvina che scompare senza lasciare alcuna traccia... quando uno squarcio si chiude, tutto quello che ha portato viene riportato indietro." },
 				{ "tipo": "narrazione", "testo": "Il tuo compito sembra essere terminato." }
@@ -222,7 +297,7 @@
 		"cacciata": {
 			"testo": "Qualcosa ti solleva di peso e la casa ti scaraventa fuori, oltre lo squarcio. La ninna nanna riprende, stonata come prima.",
 			"scelte": [
-				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
 			]
 		}
 	}
