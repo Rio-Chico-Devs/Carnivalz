@@ -12,7 +12,8 @@
 			"testo": "La strada principale di Meridia è un cimitero di vetrine rotte. Ogni tanto, tra le macerie, qualcosa si muove piano — o troppo in fretta.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino"], ["infetto_rapido"], ["zombie_cittadino", "infetto_rapido"]],
+				"gruppi": [["zombie_cittadino", "zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino", "zombie_cittadino"], ["zombie_cittadino", "infetto_rapido"], ["zombie_cittadino", "zombie_cittadino", "infetto_rapido"], ["infetto_rapido", "infetto_rapido"], ["zombie_mostruoso", "zombie_cittadino"]],
+				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
@@ -26,7 +27,8 @@
 			"testo": "Scaffali rovesciati, carrelli abbandonati a metà corsia. Qualcuno ha fatto scorte, prima della fine. Non è bastato.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino"]],
+				"gruppi": [["zombie_cittadino", "zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino", "zombie_cittadino"], ["zombie_mostruoso"], ["zombie_cittadino", "zombie_mostruoso"]],
+				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
@@ -39,7 +41,8 @@
 			"testo": "Un'officina meccanica, attrezzi sparsi ovunque. Un furgone è ancora sollevato sul ponte, come se il lavoro dovesse riprendere da un momento all'altro.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["infetto_rapido"], ["zombie_cittadino", "infetto_rapido"]],
+				"gruppi": [["infetto_rapido", "infetto_rapido"], ["zombie_cittadino", "infetto_rapido"], ["zombie_cittadino", "zombie_cittadino", "infetto_rapido"], ["zombie_mostruoso", "infetto_rapido"]],
+				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
@@ -62,13 +65,45 @@
 			"testo": "Un vicolo stretto dietro l'edicola, cassonetti rovesciati, una scala antincendio che sale verso il nulla. L'aria qui è ancora più ferma.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["zombie_cittadino"], ["infetto_rapido"], ["zombie_cittadino", "zombie_cittadino"]],
+				"gruppi": [["zombie_cittadino", "zombie_cittadino"], ["infetto_rapido", "infetto_rapido"], ["zombie_cittadino", "zombie_cittadino", "zombie_cittadino"], ["orrore_di_meridia"], ["zombie_mostruoso", "zombie_cittadino"]],
+				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
 				{ "testo": "Raccogli il mazzafrusto improvvisato", "vai": "vicolo", "una_tantum": "mer_mazzafrusto", "oggetto": "mazzafrusto", "tazo": 6 },
 				{ "testo": "Recupera lo sparachiodi caduto tra i cassonetti", "vai": "vicolo", "una_tantum": "mer_sparachiodi", "oggetto": "sparachiodi_arrugginito", "tazo": 5 },
+				{ "testo": "Scendi verso i quartieri profondi", "vai": "quartieri_profondi" },
 				{ "testo": "Torna all'edicola", "vai": "edicola" }
+			]
+		},
+		"quartieri_profondi": {
+			"testo": "Più a fondo la città cambia: i palazzi si stringono, la luce non arriva più e il silenzio ha un peso diverso. Qui non si muove niente finché non decide di muoversi tutto insieme.",
+			"agguato": {
+				"probabilita": 0.65,
+				"gruppi": [["zombie_mostruoso", "zombie_cittadino", "zombie_cittadino"], ["orrore_di_meridia", "zombie_cittadino"], ["zombie_mostruoso", "zombie_mostruoso"], ["orrore_di_meridia", "infetto_rapido"], ["titano_zombie"]],
+				"ripetibile": true,
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{ "testo": "Continua a battere i quartieri profondi", "vai": "quartieri_profondi" },
+				{ "testo": "Spingiti fino al cuore della città", "richiede_non_flag": "quest_meridia", "vai": "cuore_profondo" },
+				{ "testo": "Torna al vicolo", "vai": "vicolo" }
+			]
+		},
+		"cuore_profondo": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "In fondo ai quartieri profondi la strada si allarga in una piazza che era un mercato. Al centro, qualcosa di enorme sta immobile, in piedi solo perché non ha mai ricevuto il permesso di cadere." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Quella cosa... continua a ricucirsi da sola. Colpirla più forte non servirà a niente: devo colpirla più in fretta di quanto si aggiusti." }
+			],
+			"centro": "titano_zombie",
+			"combattimento_automatico": { "nemici": ["titano_zombie"], "salta_se_flag": "quest_meridia", "se_vinci": "meridia_vittoria", "se_perdi": "espulso" }
+		},
+		"meridia_vittoria": {
+			"testo": "Il titano non si ricuce più. Meridia resta quello che è — una città piena di morti che camminano — ma la cosa che la teneva sveglia fin nelle ossa ha smesso di respirare. Da qui in poi la città è solo un posto pericoloso, non più una condanna.",
+			"flag": "quest_meridia",
+			"scelte": [
+				{ "testo": "Torna nel Vuoto", "torna_vuoto": true },
+				{ "testo": "Resta a battere la città", "vai": "quartieri_profondi" }
 			]
 		},
 		"espulso": {

@@ -241,6 +241,16 @@ Numeri piccoli e leggibili, ma con scelte vere:
   (`mossa_in_carica` sul combattente). Dà al giocatore un giro per reagire (difendersi, curarsi,
   ecc.) prima del colpo grosso — premia chi legge i segnali, non solo chi picchia più forte.
   Prima ad averla: `colpo_marcio` di Jongo Dongo
+- **`"rigenerazione"`** su un nemico: a ogni suo turno recupera **metà del danno che ha subito
+  l'ultima volta** (`ultimo_danno_subito`); se in un turno non ne subisce, recupera comunque
+  metà dell'ultimo valore registrato — quindi vale colpire in fretta, non forte. Dopo
+  `colpi_prima_della_gamba` colpi incassati gli cede una gamba: resta fermo `turni_fermo` turni
+  a ricucirsi, senza attaccare (una sola volta per scontro). È il Titano Zombie di Meridia
+- **Mossa `"meta_vita"`**: toglie sempre **metà dei punti vita attuali** del bersaglio,
+  ignorando difesa, livello e critici; sotto `hp_soglia_ko` (5) è invece un KO secco. Non
+  uccide mai per il solo dimezzamento (lascia almeno 1 hp): o sei già quasi morto, o
+  sopravvivi. È il "Pugno devastante" del Titano — ed è `telegrafata`, quindi hai un turno
+  per curarti o difenderti
 - **`"crisi_gelosia"`** su un nemico: nata da invidia verso il legame del party, tanto più
   probabile per giro quanto più `GameState.legame` è alto (`GameState.rng.randf() <
   legame × moltiplicatore_probabilita`, verificata a ogni suo turno). Una volta innescata dura
@@ -369,6 +379,13 @@ fonte convinta → nodo `se_vinci_eroe` (pangea, reincarnazione), altrimenti `se
 ## Esperienza e legame
 - **XP**: la vittoria dà XP a tutto il party; livello massimo **130**, fabbisogno
   `xp_base × livello^1.5`, e i 30 livelli dopo il 100 sono ostici (fabbisogno ×5)
+- **XP a rendimento decrescente** (`Combattimento.xp_effettiva()`): ogni nemico ha un
+  `"livello"` consigliato nei dati (1 di default); superato quel livello, il party guadagna
+  `−xp_penalita_per_livello_extra` (15%) per ogni livello di scarto, con un pavimento a
+  `xp_minimo_percentuale` (10%). Così una **farm zone non diventa mai del tutto inutile**, ma
+  smette in fretta di essere la scorciatoia migliore: gli zombie comuni (livello 1) rendono
+  quasi nulla già al livello 10, mentre il Titano Zombie (livello 10) resta remunerativo molto
+  più a lungo. Chi vuole farmare può farlo, ma perde tempo rispetto ad avanzare
 - **Legame** (0–100): si coltiva interagendo e prendendosi cura dei compagni (chiave
   `legame` sulle scelte) e **cala di continuo** (−1 a ogni scelta). Un legame alto fa
   apparire gli eventi rari: chiave `richiede_legame` sulle scelte (es. la stella caduta
@@ -427,7 +444,9 @@ Ogni punto "!" apre il suo **sistema deformato** (scena Vuoto): il pianeta al ce
 collegate nei due sensi (perlustrazione libera):
 - **`agguato`** su un nodo: `{probabilita, gruppi: [[ids]...], se_perdi}` — tirato una
   volta per stanza a visita (seedato); vinto lo scontro si torna nella stanza; a ogni
-  rientro nello squarcio gli agguati si resettano (i nemici rispuntano)
+  rientro nello squarcio gli agguati si resettano (i nemici rispuntano). Con
+  `"ripetibile": true` la stanza non si esaurisce mai: continua a generare scontri a ogni
+  ingresso anche nella stessa visita — è così che funziona una **farm zone** (Meridia)
 - **`una_tantum`** su una scelta: appare solo se il flag non è mai stato preso, e lo
   imposta scegliendola (loot permanente: Tazo, oggetti). `flag` (su scelta o nodo) +
   `richiede_flag`/`richiede_non_flag` per stanze segrete e boss che non rispawnano
@@ -568,6 +587,12 @@ il danno (`critico_moltiplicatore`) e riduce la difesa effettiva del bersaglio
 schermo intero in fade (`art/fx/slaughter.png`, ancora da disegnare — senza l'immagine
 l'effetto scatta comunque, solo senza illustrazione). Chi è immune o invertito sullo stress
 non può subire uno Slaughter.
+
+**Lo Slaughter vale solo sui nemici comuni.** Boss e fonti (`fonte: true`), miniboss
+(chi ha `frenesia`), creature `categoria: "particolare"`, incontri scriptati
+(`incontro_scriptato`, es. la manifestazione di un sogno) e nemici `invincibile` non possono
+mai essere liquidati da un colpo di fortuna: le loro scene devono poter arrivare fino in fondo.
+Il party invece resta esposto allo Slaughter come prima.
 
 ### Provocazione
 Nuova abilità di classe (gate: `"provocazione"` in `abilita`, per ora solo Mockingbear,

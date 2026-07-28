@@ -85,14 +85,17 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 	# agguato: ogni volta che si entra nella stanza si tenta la probabilita';
 	# se scatta si combatte (e non si ritenta subito tornando qui a vittoria
 	# ottenuta); se non scatta, la prossima visita ritenta da capo. Una zona
-	# "ripulita" (salta_se_flag) non tenta piu' nessun agguato
+	# "ripulita" (salta_se_flag) non tenta piu' nessun agguato. Un agguato
+	# "ripetibile" non si esaurisce mai: la stanza continua a generare scontri
+	# a ogni ingresso, anche dopo averne vinto uno (farm zone)
 	if nodo.has("agguato") and id_nodo not in GameState.stanze_ripulite \
 			and not (nodo["agguato"].has("salta_se_flag") and GameState.ha_flag(String(nodo["agguato"]["salta_se_flag"]))):
 		var agguato: Dictionary = nodo["agguato"]
 		if GameState.rng.randf() < float(agguato.get("probabilita", 0.3)):
 			var gruppi: Array = agguato.get("gruppi", [])
 			if not gruppi.is_empty():
-				GameState.stanze_ripulite.append(id_nodo)
+				if not agguato.get("ripetibile", false):
+					GameState.stanze_ripulite.append(id_nodo)
 				var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
 				# fuggire da un agguato non ha penalita': si torna semplicemente qui
 				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)

@@ -14,7 +14,7 @@
 		},
 		{
 			"id": "carnivalz_del_bosco",
-			"nome": "L'ultimo spettacolo di Jerah",
+			"nome": "Il Vuoto Ardente",
 			"tema": "fama e spettacolo — passione, corrida, fiamme",
 			"pos": [400, 300],
 			"attivo": true,
@@ -34,6 +34,8 @@
 					"id": "teatro_del_passato",
 					"nome": "Il Teatro del Passato",
 					"pos": [660, 150],
+					"nascosto": true,
+					"richiede_flags": ["quest_industriale", "quest_meridia"],
 					"musica": "res://audio/musica/frattura_teatro.ogg",
 					"file_eventi": "res://data/vuoti/teatro_del_passato.json"
 				},
@@ -41,6 +43,8 @@
 					"id": "casa_gigante",
 					"nome": "La Casa Gigante",
 					"pos": [900, 400],
+					"nascosto": true,
+					"richiede_flags": ["quest_industriale", "quest_meridia"],
 					"musica": "res://audio/musica/frattura_casa.ogg",
 					"file_eventi": "res://data/vuoti/casa_gigante.json"
 				},

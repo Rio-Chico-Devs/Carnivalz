@@ -25,6 +25,8 @@
 	"difesa_difenditi_decadimento": 0.5,
 	"xp_base": 10,
 	"xp_esponente": 1.5,
+	"xp_penalita_per_livello_extra": 0.15,
+	"xp_minimo_percentuale": 0.1,
 	"livello_massimo": 130,
 	"livello_ostico": 100,
 	"moltiplicatore_ostico": 5,

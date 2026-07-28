@@ -435,6 +435,84 @@
 			"descrizione": "L'unica sopravvissuta dei cunicoli di Jondoh. Anni a combattere ciò che si muove nel buio, in cerca di una sorella che nessuno le ha mai lasciata cercare davvero."
 		},
 		{
+			"id": "zombie_mostruoso",
+			"nome": "Zombie Mostruoso",
+			"hp": 9,
+			"attacco": 2,
+			"difesa": 0,
+			"velocita": 1,
+			"xp": 12,
+			"tazo": 8,
+			"livello": 3,
+			"ritratto": "res://art/personaggi/zombie_mostruoso.png",
+			"descrizione": "Qualcosa, in questo, ha continuato a crescere anche dopo la morte. Le braccia non sono più della stessa lunghezza.",
+			"carta": { "id": "carta_zombie_mostruoso", "nome": "Zombie Mostruoso", "rarita": "non_comune", "chance": 0.04, "testo": "Non tutti marciscono allo stesso modo. Alcuni si gonfiano." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "risposta": "Un rantolo profondo, che sembra venire da più bocche insieme." }
+			]
+		},
+		{
+			"id": "orrore_di_meridia",
+			"nome": "Orrore di Meridia",
+			"categoria": "particolare",
+			"hp": 14,
+			"attacco": 3,
+			"difesa": 1,
+			"velocita": 2,
+			"xp": 20,
+			"tazo": 14,
+			"livello": 5,
+			"ritratto": "res://art/personaggi/orrore_di_meridia.png",
+			"descrizione": "Più corpi che si sono trovati nello stesso posto al momento sbagliato, e non si sono più separati.",
+			"carta": { "id": "carta_orrore_di_meridia", "nome": "Orrore di Meridia", "rarita": "non_comune", "chance": 0.05, "testo": "A Meridia nessuno è morto da solo. Alcuni non se ne sono accorti." },
+			"mosse": [
+				{ "id": "bracciata", "tipo": "attacco_forte", "valore": 4, "peso": 2, "testo": "L'orrore sferza con tutte le braccia insieme." },
+				{ "id": "morsi", "tipo": "attacco_multiplo", "valore": 2, "colpi": 2, "peso": 2, "testo": "Più bocche affondano contemporaneamente." }
+			],
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.25 }
+			],
+			"studio": [
+				{ "osservazione": "Non risponde: le sue bocche parlano tutte insieme, e nessuna dice niente." }
+			]
+		},
+		{
+			"id": "titano_zombie",
+			"nome": "Titano Zombie",
+			"categoria": "particolare",
+			"hp": 40,
+			"attacco": 4,
+			"difesa": 1,
+			"velocita": 1,
+			"xp": 60,
+			"tazo": 45,
+			"livello": 10,
+			"peso_attacco_normale": 3,
+			"ritratto": "res://art/personaggi/titano_zombie.png",
+			"descrizione": "La cosa più grande che Meridia abbia partorito dopo la fine. Si ricuce da solo, e non ha mai imparato a fermarsi.",
+			"carta": { "id": "carta_titano_zombie", "nome": "Titano Zombie", "rarita": "rara", "chance": 0.06, "testo": "Nelle parti profonde della città c'è qualcosa che non smette di rialzarsi. Chi l'ha visto non è tornato a raccontarlo due volte." },
+			"rigenerazione": {
+				"colpi_prima_della_gamba": 6,
+				"turni_fermo": 2,
+				"testo_rigenera": "La carne del titano si richiude su se stessa: recupera %d punti vita.",
+				"testo_gamba_si_rompe": "Una gamba cede sotto il suo stesso peso: il titano crolla e resta a terra, a ricucirsi.",
+				"testo_gamba_rotta_turno": "Il titano resta a terra, e continua a ricucirsi."
+			},
+			"mosse": [
+				{ "id": "pugno_devastante", "tipo": "meta_vita", "hp_soglia_ko": 5, "peso": 2, "telegrafata": true, "testo_annuncio": "Il titano solleva lentamente il pugno sopra la testa. Qualunque cosa stia per succedere, succederà al prossimo colpo.", "testo": "Pugno devastante: il colpo si abbatte con tutto il peso della città morta." },
+				{ "id": "spazzata", "tipo": "attacco_tutti", "valore": 2, "stress": 10, "peso": 2, "testo": "Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo." }
+			],
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.5 }
+			],
+			"studio": [
+				{ "osservazione": "Le ferite che gli apri si richiudono mentre le guardi. Colpirlo più forte non serve: serve colpirlo più in fretta." }
+			]
+		},
+		{
 			"id": "zombie_cittadino",
 			"nome": "Zombie Cittadino",
 			"hp": 3,

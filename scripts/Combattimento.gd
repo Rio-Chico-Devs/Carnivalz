@@ -234,6 +234,10 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"difesa_accumulo": 0.0,
 		"mossa_in_carica": {},
 		"crisi_turni_rimasti": 0,
+		"ultimo_danno_subito": 0,
+		"colpi_incassati": 0,
+		"gamba_rotta_turni": 0,
+		"gamba_gia_rotta": false,
 		"volte_studiato": 0,
 		"combustione": combustione,
 		"in_fiamme": not combustione.is_empty() and not combustione.has("attiva_da_studio"),
@@ -832,7 +836,35 @@ func verifica_crisi_gelosia(nemico: Dictionary) -> bool:
 		return true
 	return false
 
+func risolvi_rigenerazione(nemico: Dictionary) -> bool:
+	# "rigenerazione": a ogni turno recupera meta' del danno che ha subito
+	# nell'ultimo turno in cui ne ha subito (se in un turno non ne subisce,
+	# recupera sempre meta' dell'ultimo valore registrato). Dopo un certo
+	# numero di colpi incassati gli cede una gamba: resta fermo a recuperare
+	# per qualche turno, senza attaccare. Ritorna true se il turno e' consumato.
+	var dati: Dictionary = GameState.personaggi.get(nemico.id, {}).get("rigenerazione", {})
+	if dati.is_empty():
+		return false
+	var cura := int(floor(float(nemico.ultimo_danno_subito) / 2.0))
+	if cura > 0 and nemico.hp < nemico.hp_max:
+		nemico.hp = mini(nemico.hp + cura, nemico.hp_max)
+		aggiorna_scheda(nemico)
+		scrivi("[i]%s[/i]" % String(dati.get("testo_rigenera", "La carne si richiude su se stessa.")).replace("%d", str(cura)))
+	if int(nemico.gamba_rotta_turni) > 0:
+		nemico.gamba_rotta_turni = int(nemico.gamba_rotta_turni) - 1
+		scrivi("[i]%s[/i]" % String(dati.get("testo_gamba_rotta_turno", "Resta a terra, e continua a ricucirsi.")))
+		return true
+	var soglia := int(dati.get("colpi_prima_della_gamba", 6))
+	if soglia > 0 and int(nemico.colpi_incassati) >= soglia and not nemico.gamba_gia_rotta:
+		nemico.gamba_gia_rotta = true
+		nemico.gamba_rotta_turni = int(dati.get("turni_fermo", 2))
+		scrivi("[b]%s[/b]" % String(dati.get("testo_gamba_si_rompe", "Una gamba cede sotto il suo stesso peso.")))
+		return true
+	return false
+
 func turno_nemico_normale(nemico: Dictionary) -> void:
+	if risolvi_rigenerazione(nemico):
+		return
 	if turni_fermo_leva > 0 and nemico.id == fonte.get("id", ""):
 		turni_fermo_leva -= 1
 		scrivi("[i]%s[/i]" % testo_fermo_leva)
@@ -891,6 +923,20 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			difendi(nemico)
 		"attacco_forte":
 			attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)))
+		"meta_vita":
+			# toglie sempre meta' dei punti vita attuali del bersaglio, ignorando
+			# difese e livello; sotto una soglia minima e' invece un KO secco
+			var vittima := bersaglio_giocatore_casuale()
+			if not vittima.is_empty():
+				var soglia_ko := int(mossa.get("hp_soglia_ko", 5))
+				if vittima.hp < soglia_ko:
+					scrivi("[b]%s non regge il colpo.[/b]" % vittima.nome)
+					vittima.hp = 0
+				else:
+					vittima.hp = maxi(vittima.hp - int(floor(float(vittima.hp) / 2.0)), 1)
+				aggiorna_scheda(vittima)
+				if vittima.hp <= 0:
+					_su_ko(vittima)
 		"attacco_multiplo":
 			for volta in range(int(mossa.get("colpi", 2))):
 				if vivi(true).is_empty():
@@ -1241,6 +1287,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 		return
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
+	registra_danno_subito(bersaglio, danno)
 	if critico:
 		scrivi("[b]Colpo critico![/b] %s attacca %s: %d danno." % [attaccante.nome, bersaglio.nome, danno])
 	else:
@@ -1272,6 +1319,14 @@ func tenta_slaughter(attaccante: Dictionary, bersaglio: Dictionary) -> bool:
 	# chi trae forza dallo stress (resistenza "invertita") o ne e' immune non puo' essere finito cosi'
 	if bersaglio.hp <= 0:
 		return false
+	if not bersaglio.giocatore:
+		# solo i nemici comuni: boss, miniboss, creature particolari e incontri
+		# scriptati (la manifestazione) non si liquidano mai con un colpo di
+		# fortuna - le loro scene devono poter arrivare fino in fondo
+		var dati_bersaglio: Dictionary = GameState.personaggi.get(bersaglio.id, {})
+		if categoria_di(dati_bersaglio) != "comune" or dati_bersaglio.has("incontro_scriptato") \
+				or dati_bersaglio.get("invincibile", false):
+			return false
 	var resistenza := resistenza_di(bersaglio, "stress")
 	if resistenza == "immune" or resistenza == "invertito":
 		return false
@@ -1304,9 +1359,16 @@ func mostra_slaughter(bersaglio: Dictionary) -> void:
 	tween.tween_property(overlay, "modulate:a", 0.0, 0.4)
 	tween.tween_callback(overlay.queue_free)
 
+func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
+	# serve a chi si rigenera in proporzione ai colpi presi (vedi risolvi_rigenerazione)
+	if danno > 0:
+		bersaglio.ultimo_danno_subito = danno
+		bersaglio.colpi_incassati = int(bersaglio.colpi_incassati) + 1
+
 func colpisci_diretto(bersaglio: Dictionary, danno: int) -> void:
 	# oggetti e assist ignorano le difese
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
+	registra_danno_subito(bersaglio, danno)
 	scrivi("%s subisce %d danno." % [bersaglio.nome, danno])
 	aggiorna_scheda(bersaglio)
 	if bersaglio.hp <= 0:
@@ -1354,13 +1416,31 @@ func _su_ko(caduto: Dictionary) -> void:
 		for combattente in combattenti:
 			if not combattente.giocatore and not combattente.get("oggetto_scena", false) \
 					and not combattente.get("risparmiato", false):
-				xp_bottino += combattente.xp
+				xp_bottino += xp_effettiva(combattente)
 				tazo_bottino += combattente.tazo
 		scrivi("[b]Vittoria![/b] Bottino: %d esperienza, %d Tazo." % [xp_bottino, tazo_bottino])
 		risolvi_drop()
 	elif vivi(true).is_empty():
 		in_corso = false
 		scrivi("[b]Il party è a terra. Il disallineamento ha vinto.[/b]")
+
+func xp_effettiva(nemico: Dictionary) -> int:
+	# rendimento decrescente sul farming: piu' il party supera il livello
+	# consigliato del nemico, meno esperienza rende - senza mai azzerarsi,
+	# cosi' una farm zone resta utile a lungo ma smette di essere la scorciatoia
+	# migliore. Il livello del nemico sta nei dati ("livello", 1 di default).
+	var xp_base := int(nemico.xp)
+	var livello_nemico := int(GameState.personaggi.get(nemico.id, {}).get("livello", 1))
+	var livello_party := 1
+	for id_classe in GameState.party:
+		livello_party = maxi(livello_party, GameState.livello_di(id_classe))
+	var scarto := livello_party - livello_nemico
+	if scarto <= 0:
+		return xp_base
+	var penalita := float(GameState.regole.get("xp_penalita_per_livello_extra", 0.15))
+	var minimo := float(GameState.regole.get("xp_minimo_percentuale", 0.1))
+	var fattore := maxf(1.0 - scarto * penalita, minimo)
+	return maxi(int(round(xp_base * fattore)), 1)
 
 func risolvi_drop() -> void:
 	# drop dei nemici sconfitti: carta (rara, garantita solo per unici/boss),
