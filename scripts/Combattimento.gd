@@ -231,6 +231,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"stati_attivi": {},
 		"immunita_temporanea": [],
 		"buffs": [],
+		"difesa_accumulo": 0.0,
 		"volte_studiato": 0,
 		"combustione": combustione,
 		"in_fiamme": not combustione.is_empty() and not combustione.has("attiva_da_studio"),
@@ -351,6 +352,10 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				if not chiunque.is_empty():
 					bersaglio_scelto = chiunque[GameState.rng.randi_range(0, chiunque.size() - 1)]
 					scrivi("[i]%s è confuso e colpisce %s per sbaglio![/i]" % [attaccante.nome, bersaglio_scelto.nome])
+			if azione.get("tipo", "") != "difendi":
+				# smette di accumularsi appena si fa altro: o si tiene la
+				# guardia, o si rischia attaccando - non si ha tutto insieme
+				attaccante.difesa_accumulo = 0.0
 			match azione.get("tipo", ""):
 				"attacca":
 					attacca(attaccante, bersaglio_scelto)
@@ -453,12 +458,20 @@ func _scegli(azione: Dictionary) -> void:
 # --- azioni ---
 
 func difendi(chi: Dictionary) -> void:
+	# cumulativa ma a rendimento decrescente: ogni uso in piu' si avvicina
+	# a un tetto senza mai raggiungerlo (si azzera se sul turno successivo
+	# si fa altro - vedi esegui_turno) - premia chi si difende con
+	# continuita', ma non rende mai il danno subito davvero pari a zero
+	var tetto := float(GameState.regole.get("difesa_difenditi_tetto", 6))
+	var decadimento := float(GameState.regole.get("difesa_difenditi_decadimento", 0.5))
+	chi.difesa_accumulo = float(chi.difesa_accumulo) + (tetto - float(chi.difesa_accumulo)) * decadimento
+	var bonus := int(round(chi.difesa_accumulo))
 	chi.buffs.append({
 		"stat": "difesa",
-		"valore": int(GameState.regole.get("difesa_difenditi", 2)),
+		"valore": bonus,
 		"turni": 1,
 	})
-	scrivi("%s si mette in guardia." % chi.nome)
+	scrivi("%s si mette in guardia (difesa +%d)." % [chi.nome, bonus])
 	aggiorna_scheda(chi)
 
 func usa_oggetto(chi: Dictionary, id_oggetto: String) -> void:

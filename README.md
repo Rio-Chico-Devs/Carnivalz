@@ -213,9 +213,16 @@ Numeri piccoli e leggibili, ma con scelte vere:
 - Stats per combattente (nei dati): **hp, attacco, difesa, velocità, fattore**. Danno =
   attacco (+1 se il fattore arde) − difesa del bersaglio, minimo 0
 - Party e nemici in un'unica fila d'iniziativa per **velocità**, ricalcolata a ogni giro
-- **Menu azioni**: Attacca · Difenditi (difesa +2 fino al prossimo turno) · Abilità
-  (**Studia** sempre disponibile) · Oggetti (consumabili dalla sacca) · Alleati (gli ospiti
-  come il Vecchio Proprietario del teatro: un assist a combattimento, non sono veri combattenti)
+- **Menu azioni**: Attacca · Difenditi · Abilità (**Studia** sempre disponibile) · Oggetti
+  (consumabili dalla sacca) · Alleati (gli ospiti come il Vecchio Proprietario del teatro: un
+  assist a combattimento, non sono veri combattenti)
+- **Difenditi è cumulativo ma a rendimento decrescente**: ogni uso in più si avvicina a un
+  tetto senza mai raggiungerlo — `bonus += (tetto − bonus) × decadimento`
+  (`difesa_difenditi_tetto`/`difesa_difenditi_decadimento` in regole.json, default 6 e 0.5:
+  +3, +4.5, +5.25, +5.6… fino al prossimo turno). Si azzera (`difesa_accumulo`) appena si fa
+  qualunque altra azione: o si tiene la guardia con continuità, o si rischia attaccando, mai
+  entrambe le cose insieme — e il tetto resta comunque sotto l'attacco della maggior parte dei
+  nemici, quindi il danno subìto non scende mai davvero a zero solo restando sulla difensiva
 - **Danno del party scala col livello**: `danno = attacco + ⌊(liv−1) × 0.5⌋` (+ fattore, + oggetti).
   HP del party restano 5 (semplici); i boss hanno grandi riserve (Jerah 35, la bambola 66) →
   la difficoltà sta nel non morire durante scontri lunghi. `bonus_attacco_per_livello` in regole
