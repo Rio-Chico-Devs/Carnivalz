@@ -33,6 +33,8 @@ var tazo_bottino := 0
 var fonte: Dictionary = {}
 var speranza := 0
 var convinto := false
+var turni_fermo_leva := 0
+var testo_fermo_leva := ""
 var indice_studio := 0
 var alleati_usati: Array[String] = []
 var attaccante_corrente: Dictionary = {}
@@ -252,9 +254,16 @@ func applica_leve() -> void:
 				presente = id_leva in GameState.ospiti
 			"compagno":
 				presente = id_leva in GameState.party
+			"flag":
+				presente = GameState.ha_flag(id_leva)
 		if presente:
 			scrivi("[i]%s[/i]" % leva.get("testo", ""))
 			aggiorna_speranza(int(leva.get("speranza", 0)))
+			if leva.has("turni_fermo"):
+				# la fonte resta ferma, senza agire, per un tot di suoi turni:
+				# un premio extra per l'esplorazione, non solo un bonus speranza
+				turni_fermo_leva = maxi(turni_fermo_leva, int(leva["turni_fermo"]))
+				testo_fermo_leva = String(leva.get("testo_fermo", ""))
 
 func aggiorna_speranza(quantita: int) -> void:
 	if not fonte.get("convincibile", false):
@@ -783,6 +792,10 @@ func vivo_con_id(id_personaggio: String) -> Dictionary:
 	return {}
 
 func turno_nemico_normale(nemico: Dictionary) -> void:
+	if turni_fermo_leva > 0 and nemico.id == fonte.get("id", ""):
+		turni_fermo_leva -= 1
+		scrivi("[i]%s[/i]" % testo_fermo_leva)
+		return
 	if convinto and nemico.id == fonte.get("id", "") \
 			and GameState.rng.randf() < float(GameState.regole.get("probabilita_cedimento", 0.5)):
 		cedimento(nemico)

@@ -233,7 +233,8 @@
 		"altare": {
 			"testo": "Un altare tributario, costruito con le mani: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra. Oltre le candele, nel buio, si intuisce qualcosa di enorme incassato nella parete di fondo.",
 			"scelte": [
-				{ "testo": "Leggi le lettere", "vai": "lettere_lettura" },
+				{ "testo": "Leggi le lettere", "richiede_non_flag": "casa_lettere_bruciate", "vai": "lettere_lettura" },
+				{ "testo": "Brucia le lettere", "vai": "lettere_bruciate", "una_tantum": "casa_lettere_bruciate", "flag": "casa_lettere_bruciate" },
 				{ "testo": "Stappa l'ultima bottiglia di vino di ottima qualità", "vai": "altare", "una_tantum": "casa_vino_2", "oggetto": "vino_di_ottima_qualita" },
 				{ "testo": "Osserva da vicino la foto sull'altare", "richiede_non_flag": "casa_ricordo_sconfitto", "vai": "presentazione_ricordo" },
 				{ "testo": "Guarda oltre l'altare, nel buio", "richiede_non_flag": "casa_ricordo_sconfitto", "vai": "porta_bloccata" },
@@ -248,7 +249,7 @@
 				{ "tipo": "titolo", "testo": "Un tenero ricordo" }
 			],
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_concluso", "se_perdi": "cacciata" }
+				{ "testo": "Affrontalo", "combatti": ["tenero_ricordo"], "se_vinci": "ricordo_concluso", "se_vinci_eroe": "ricordo_concluso_buono", "se_perdi": "cacciata" }
 			]
 		},
 		"porta_bloccata": {
@@ -270,6 +271,12 @@
 				{ "testo": "Richiudi le lettere", "vai": "altare" }
 			]
 		},
+		"lettere_bruciate": {
+			"testo": "Le accendi una a una, sull'ultima candela ancora viva. Il rimorso di chi le ha scritte non serve più a nessuno: bruciano in fretta, come se anche loro non aspettassero altro.",
+			"scelte": [
+				{ "testo": "Torna all'altare", "vai": "altare" }
+			]
+		},
 		"ricordo_concluso": {
 			"sequenza": [
 				{ "tipo": "narrazione", "testo": "La bambola comincia a sfilacciarsi e ombre nere cominciano a disperdersi lungo le pareti..." },
@@ -279,6 +286,18 @@
 			"flag": "casa_ricordo_sconfitto",
 			"scelte": [
 				{ "testo": "Raccogli ciò che resta", "vai": "congedo_yhvina", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80 }
+			]
+		},
+		"ricordo_concluso_buono": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "La bambola comincia a sfilacciarsi lo stesso, ma questa volta senza opporre resistenza: le ombre nere si ritirano piano dalle pareti, senza violenza." },
+				{ "tipo": "dialogo", "chi": "tenero_ricordo", "testo": "...Lilloh... sei tornata a giocare con me?" },
+				{ "tipo": "narrazione", "testo": "Quello che resta, nell'aria, non è più dolore: solo quiete." },
+				{ "tipo": "dialogo", "chi": "tenero_ricordo", "testo": "Grazie... per non avermi dimenticata." }
+			],
+			"flag": "casa_ricordo_sconfitto",
+			"scelte": [
+				{ "testo": "Raccogli ciò che resta", "vai": "congedo_yhvina", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80, "legame": 15 }
 			]
 		},
 		"congedo_yhvina": {

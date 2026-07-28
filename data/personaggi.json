@@ -515,6 +515,14 @@
 				"testo": "A volte un oggetto può amarti più di quanto chi dovrebbe farlo abbia mai fatto..."
 			},
 			"carta": { "id": "carta_tenero_ricordo", "nome": "Un tenero ricordo", "rarita": "epica", "testo": "Una Bambola che ha preso vita dai sentimenti puri di un bambino, a volte l'amore può trasformarsi in qualcosa di pauroso." },
+			"fonte": true,
+			"convincibile": true,
+			"speranza_soglia": 100,
+			"testo_cedimento": "Qualcosa, nella bambola, si ammorbidisce. Non è più solo dolore, quello che trema tra le sue cuciture.",
+			"leve": [
+				{ "id": "spilla_margherita", "tipo": "oggetto", "testo": "\"...\"\n\n\"Lil...\"\n\n\"...Loh?\"", "speranza": 40, "turni_fermo": 2, "testo_fermo": "La... mia... migliore... amica..." },
+				{ "id": "casa_lettere_bruciate", "tipo": "flag", "testo": "Un lamento sottile, quasi un sollievo: qualcosa che pesava da anni si è appena alleggerito.", "speranza": 30 }
+			],
 			"mosse": [
 				{
 					"id": "spilli",

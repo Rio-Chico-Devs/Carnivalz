@@ -308,8 +308,13 @@ studiato finisce nel registro `studiati` (base per la futura sezione studio/code
 I boss **possono o non possono essere convinti** (`convincibile` nei dati della fonte: i
 malvagi, che manipolano il fattore, hanno `false` e la speranza non esiste per loro).
 Se la fonte è convincibile compare la **Speranza**:
-- **Leve** (lista `leve`): oggetti nell'inventario, ospiti temporanei (chiave evento
-  `ospite`) o compagni nel party — applicate all'inizio dello scontro, con il loro testo
+- **Leve** (lista `leve`): oggetti nell'inventario (`"oggetto"`), ospiti temporanei
+  (`"ospite"`), compagni nel party (`"compagno"`) o flag di storia (`"flag"`, es. un'azione
+  fatta prima dello scontro) — applicate all'inizio dello scontro, con il loro testo. Una
+  leva può anche avere `"turni_fermo"` + `"testo_fermo"`: per quei turni la fonte non agisce
+  affatto, mostrando quel testo al posto della mossa normale — un premio extra per
+  l'esplorazione, non solo punti Speranza (prima combinazione: la spilla a margherita contro
+  Un tenero ricordo, Casa Gigante)
 - **Studia** sulla fonte: +10 speranza a scambio
 - **Sopportare i colpi**: +3 quando un personaggio subisce o assorbe e resta in piedi
 - **Prolungare lo scontro**: +2 a ogni giro completo
