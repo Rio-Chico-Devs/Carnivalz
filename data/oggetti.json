@@ -61,7 +61,7 @@
 			"nome": "Fiala HP",
 			"tipo": "consumabile",
 			"descrizione": "Liquido rosso in vetro industriale. L'etichetta è sbiadita, l'effetto no.",
-			"effetto": { "hp": 4 }
+			"effetto": { "hp": 20 }
 		},
 		{
 			"id": "molotov",

@@ -64,7 +64,7 @@ var ultima_azione_offensiva := false
 # tempo - l'unico modo di perdere questo scontro. Usato per ora solo dalla
 # manifestazione di un sogno nel tutorial.
 var portatore_incontro: Dictionary = {}
-var incontro_paralisi_attiva := false
+var incontro_apertura_mostrata := false
 var incontro_tentativi_fuga := 0
 var incontro_turni_inerti := 0
 var incontro_tentativi_morfeo := 0
@@ -118,7 +118,6 @@ func _ready() -> void:
 			portatore_frenesia = dati
 		if portatore_incontro.is_empty() and dati.has("incontro_scriptato"):
 			portatore_incontro = dati
-			incontro_paralisi_attiva = true
 		if portatore_rabbia.is_empty() and dati.has("rabbia_su_morte_alleato"):
 			portatore_rabbia = dati
 		if portatore_fuga_bloccata.is_empty() and dati.has("blocca_fuga_turni"):
@@ -334,9 +333,6 @@ func esegui_turno(attaccante: Dictionary) -> void:
 	ultima_azione_offensiva = false
 	if attaccante.giocatore:
 		attaccante_corrente = attaccante
-		if not portatore_incontro.is_empty() and incontro_paralisi_attiva:
-			scrivi("[i]%s[/i]" % String(portatore_incontro.get("incontro_scriptato", {}).get("testo_paralisi_giocatore", "")))
-			return  # non puoi fare nulla: la pressione ti immobilizza
 		if ha_stato_attivo(attaccante, "berserk"):
 			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
 			var nemici := vivi(false)
@@ -523,6 +519,9 @@ func studia(chi: Dictionary) -> void:
 		scambi = dati["studio_cedimento"]
 	if scambi.is_empty():
 		scrivi("[i]%s non sembra rispondere ad alcun quesito.[/i]" % bersaglio.nome)
+	elif dati.has("testo_studio_esaurito") and int(bersaglio.volte_studiato) > scambi.size():
+		# il pool di scambi e' finito: non si ricomincia da capo all'infinito
+		scrivi("[i]%s[/i]" % String(dati["testo_studio_esaurito"]))
 	else:
 		var scambio: Dictionary = scambi[indice_studio % scambi.size()]
 		indice_studio += 1
@@ -640,9 +639,11 @@ func primo_nemico() -> Dictionary:
 
 func turno_nemico(nemico: Dictionary) -> void:
 	if not portatore_incontro.is_empty() and nemico.id == portatore_incontro.id:
-		if incontro_paralisi_attiva:
+		if not incontro_apertura_mostrata:
+			# il giocatore, piu' veloce, ha gia' agito normalmente questo giro:
+			# questa e' la sua unica battuta di apertura, non un secondo turno
 			scrivi("[i]%s[/i]" % String(portatore_incontro.get("incontro_scriptato", {}).get("testo_paralisi_nemico", "")))
-			incontro_paralisi_attiva = false  # la fase introduttiva scriptata finisce qui
+			incontro_apertura_mostrata = true
 			return
 		esegui_turno_inerte(nemico, portatore_incontro.get("incontro_scriptato", {}))
 		return

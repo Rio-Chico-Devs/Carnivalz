@@ -62,10 +62,11 @@
 		"collina": {
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ho davvero un brutto presentimento..." },
-				{ "tipo": "narrazione", "testo": "Senti un odore dolce... Una creatura appare dal nulla, avvolgendoti in un velo iridescente che ti ricorda l'abbraccio di una madre." }
+				{ "tipo": "narrazione", "testo": "Senti un odore dolce... Una creatura appare dal nulla, avvolgendoti in un velo iridescente che ti ricorda l'abbraccio di una madre." },
+				{ "tipo": "narrazione", "testo": "La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento..." }
 			],
 			"espr_sinistra": "sorpresa",
-			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta", "se_fuggi": "collina_fuga" }
+			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "convergenza", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "collina_fuga" }
 		},
 		"collina_fuga": {
 			"sequenza": [
@@ -109,6 +110,12 @@
 		},
 		"sconfitta": {
 			"testo": "Mi risveglio fuori dalla spaccatura, la testa pesante. Anche un pianeta primitivo, a quanto pare, sa essere sorprendente.",
+			"scelte": [
+				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+			]
+		},
+		"sconfitta_manifestazione": {
+			"testo": "Non ti risvegli. Non da questo sonno.",
 			"scelte": [
 				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
 			]

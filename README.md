@@ -81,12 +81,19 @@ su un marker della mappa stellare.
 
 ## Mappa dungeon di una zona (`mappa_dungeon`)
 Un file eventi (`data/events_*.json` o uno squarcio in `data/vuoti/*.json`) può avere un campo
-di primo livello `"mappa_dungeon":
-{"sfondo", "stanze": [{"id", "nome", "pos"}]}`, dove ogni `"id"` di stanza è anche l'id di un
-nodo in `"nodi"`. Se presente, la zona si esplora liberamente invece che in un ordine lineare
-imposto: dalla schermata `MappaZona.tscn` si clicca una stanza **sbloccata** per entrarci
-(`GameState.nodo_corrente = id; torna a Main.tscn`). Le stanze non ancora sbloccate mostrano solo
-"???" (stesso trattamento delle collezioni non ancora scoperte).
+di primo livello `"mappa_dungeon": {"sfondo", "stanze": [{"id", "nome", "pos"}], "connessioni":
+[["id_a", "id_b"], ...]}`, dove ogni `"id"` di stanza è anche l'id di un nodo in `"nodi"`. Se
+presente, la zona si esplora liberamente invece che in un ordine lineare imposto: dalla
+schermata `MappaZona.tscn` si clicca una stanza **sbloccata** per entrarci
+(`GameState.nodo_corrente = id; torna a Main.tscn`).
+
+La mappa è un **grafo**: le `"connessioni"` sono gli archi, disegnati come linee (`Line2D`) tra
+le posizioni delle due stanze. Finché non la esplori è solo un insieme di linee parziali:
+- una connessione non si disegna affatto se **nessuna** delle due estremità è ancora scoperta
+  (`GameState.stanza_sbloccata()`, vedi sotto)
+- se **una** estremità è scoperta, la linea appare, e l'altra estremità mostra un punto muto,
+  senza nome né interazione (`MappaZona.connessa_a_scoperta()`) — sai solo che lì c'è qualcosa
+- solo le stanze davvero sbloccate mostrano un bottone vero, cliccabile, col loro nome
 - **Sblocco**: la stanza `nodo_iniziale` della zona è sempre sbloccata
   (`GameState.stanza_iniziale_zona`); le altre si sbloccano con il campo nodo
   `"sblocca_stanze": ["id1", "id2"]` (letto in `Main.mostra_nodo()` alla prima visita del nodo
@@ -303,7 +310,11 @@ una singola `osservazione` (corsivo, senza scambio) per chi non può davvero ris
 **Studio è sempre disponibile**, anche su nemici muti (robot, zombie, creature che non
 parlano): se un nemico non ha proprio uno `studio` nei dati, esce comunque una riga scritta
 ("non sembra rispondere ad alcun quesito") invece di non succedere nulla. Chi viene
-studiato finisce nel registro `studiati` (base per la futura sezione studio/codex).
+studiato finisce nel registro `studiati` (base per la futura sezione studio/codex). Gli scambi
+di uno stesso personaggio, esauriti, ricominciano dal primo (`indice_studio % scambi.size()`)
+— a meno che i dati abbiano `"testo_studio_esaurito"`: da quel punto in poi (`volte_studiato`
+oltre la dimensione del pool) compare quel testo fisso invece di ripetere da capo il ciclo —
+usato dalla manifestazione di un sogno (2 scambi, poi "la testa ti gira...").
 
 I boss **possono o non possono essere convinti** (`convincibile` nei dati della fonte: i
 malvagi, che manipolano il fattore, hanno `false` e la speranza non esiste per loro).
@@ -665,7 +676,9 @@ es. il giocoliere che perde il sorriso un attimo prima del combattimento).
     con lore a pagine di giornale) e "Qualcosa preme" (frattura-segnale,
     espulsione automatica) — **il primo Vuoto è completo nella sua forma
     base**: 6 fratture attorno al pianeta di Jerah
-18. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru)
+18. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru). Dopo il Vuoto 7,
+    alcuni livelli già visti ripiombano nel caos: si ripercorrono per estinguere i 4 cavalieri
+    a guardia del boss finale del gioco — solo battendoli tutti si sblocca l'ultimo Vuoto
 19. ⬜ Le 10 classi vere (varianti M/F) e la sezione studio come schermata —
     roster e nomi/classe fissati in `classes.json` (Sally-Troublemaker,
     Vega-Hope, Niru-Meteora, Fio-Sognatrice, Yhvina-Insonne, Rio-Collezionista,

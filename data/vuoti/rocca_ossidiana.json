@@ -10,6 +10,12 @@
 			{ "id": "cunicolo_3", "nome": "Cunicolo di destra", "pos": [580, 220] },
 			{ "id": "cargo_abbandonato", "nome": "Cargo abbandonato", "pos": [700, 120] },
 			{ "id": "ponte_approccio", "nome": "Il grande ponte marcio", "pos": [400, 460] }
+		],
+		"connessioni": [
+			["cunicolo_1", "cunicolo_2"],
+			["cunicolo_1", "cunicolo_3"],
+			["cunicolo_2", "piazza_sotterranea"],
+			["cunicolo_3", "cargo_abbandonato"]
 		]
 	},
 	"nodi": {

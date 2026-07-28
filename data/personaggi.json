@@ -745,7 +745,6 @@
 			"descrizione": "Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.",
 			"carta": { "id": "carta_manifestazione_di_un_sogno", "nome": "Manifestazione di un sogno", "rarita": "rara", "chance": 0.04, "testo": "Non tutto quello che si incontra va combattuto. Alcune cose vanno solo evitate." },
 			"incontro_scriptato": {
-				"testo_paralisi_giocatore": "La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento...",
 				"testo_paralisi_nemico": "La manifestazione sembra ridere in modo gentile e ti accarezza di nuovo. Non puoi farci niente: la pressione ti immobilizza.",
 				"testi_inerti": [
 					"La manifestazione ti osserva con curiosità.",
@@ -767,7 +766,8 @@
 			"studio": [
 				{ "domanda": "Cosa sei... Non ho mai visto qualcosa di simile...", "risposta": "Lasciati andare... Dormi..." },
 				{ "domanda": "Non riesco più... a ... restare in piedi... devo... scappare...", "risposta": "Sei stato molto bravo, ora riposa... per sempre... insieme a me..." }
-			]
+			],
+			"testo_studio_esaurito": "La testa ti gira all'improvviso: non sei più in grado di studiare il nemico."
 		},
 		{
 			"id": "goblin_arrabbiato",
