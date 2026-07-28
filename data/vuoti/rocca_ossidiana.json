@@ -2,6 +2,7 @@
 	"nodo_iniziale": "varco",
 	"mappa_dungeon": {
 		"sfondo": "res://art/mappe_zona/jondoh.png",
+		"flag_completamento": "quest_ossidiana",
 		"stanze": [
 			{ "id": "cunicolo_1", "nome": "Bivio dei cunicoli", "pos": [400, 320] },
 			{ "id": "cunicolo_2", "nome": "Cunicolo di sinistra", "pos": [220, 220] },
@@ -220,7 +221,7 @@
 			"testo": "Attraversato il ponte, volgi lo sguardo all'indietro: altri vermi risalgono e divorano la carcassa di quello che hai appena ucciso... Ce n'era più di uno.",
 			"scelte": [
 				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "oltre_ponte_gratitudine" },
-				{ "testo": "Entra nella cripta", "richiede_non_flag": "oss_compagna_reclutata", "vai": "cripta" }
+				{ "testo": "Entra nella cripta", "richiede_non_flag": "oss_compagna_reclutata", "vai": "cripta_senza_compagna" }
 			]
 		},
 		"oltre_ponte_gratitudine": {
@@ -229,54 +230,85 @@
 			],
 			"centro": "sopravvissuta",
 			"scelte": [
-				{ "testo": "Entra nella cripta", "vai": "cripta" }
+				{ "testo": "Entra nella cripta", "vai": "cripta_con_compagna" }
 			]
 		},
-		"cripta": {
-			"testo": "La cripta si restringe, le pareti sudano un liquido nero. Al centro, immobile finché non ti avvicini, una massa di corpi fusi insieme si solleva a fatica, come se avesse aspettato solo te.",
+		"cripta_senza_compagna": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "C'è qualcuno che cammina..." },
+				{ "tipo": "dialogo", "chi": "l_immortale", "testo": "Nnnnghhh.... Yaaaargh..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "La situazione è chiara..." }
+			],
 			"scelte": [
-				{ "testo": "Affrontala", "richiede_non_flag": "oss_cripta_superata", "combatti": ["abominio_marcio"], "se_vinci": "altare_dei_sacrifici", "se_perdi": "espulso" },
+				{ "testo": "Affronta l'abominio", "richiede_non_flag": "oss_cripta_superata", "combatti": ["l_immortale"], "se_vinci": "altare_dei_sacrifici", "se_fuggi": "altare_dei_sacrifici", "se_perdi": "sconfitta_immortale" },
 				{ "testo": "Intuisci il momento giusto e scivola oltre, nell'ombra", "richiede": "sesto_senso", "vai": "altare_dei_sacrifici" },
 				{ "testo": "Scendi verso l'altare", "richiede_flag": "oss_cripta_superata", "vai": "altare_dei_sacrifici" }
 			]
 		},
+		"cripta_con_compagna": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "C'è qualcuno che cammina..." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non sembra essere qualcuno, ma qualcosa..." },
+				{ "tipo": "dialogo", "chi": "l_immortale", "testo": "Nnnnghhh.... Yaaaargh..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "La situazione è chiara..." }
+			],
+			"centro": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Affronta l'abominio", "richiede_non_flag": "oss_cripta_superata", "combatti": ["l_immortale"], "se_vinci": "altare_dei_sacrifici", "se_fuggi": "altare_dei_sacrifici", "se_perdi": "sconfitta_immortale" },
+				{ "testo": "Intuisci il momento giusto e scivola oltre, nell'ombra", "richiede": "sesto_senso", "vai": "altare_dei_sacrifici" },
+				{ "testo": "Scendi verso l'altare", "richiede_flag": "oss_cripta_superata", "vai": "altare_dei_sacrifici" }
+			]
+		},
+		"sconfitta_immortale": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Non riesci a scrollartelo di dosso in tempo. Il buio, alla fine, non ha nemmeno bisogno di uccidere: basta che resti lì, finché non resta più nulla da opporgli." }
+			],
+			"scelte": [
+				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+			]
+		},
 		"altare_dei_sacrifici": {
-			"testo": "Un altare di ossidiana nera, macchiato da secoli di uso. Ai suoi piedi, un libro enorme rilegato in pelle scura. Oltre l'altare, una scalinata scende verso una luce rossastra e un trono marcio.",
+			"testo": "Si narra di esseri nati dal bitume più nero, che vivono negli incubi delle persone.\n\nEsseri abietti che non hanno mai conosciuto la grazia di un tocco gentile.\n\nNon conoscono pietà o rimorso, schiavi perfetti di un oscuro potere che tutto fa marcire.\n\nIn fondo, chi avrebbe mai fatto qualcosa per loro?\n\nBenvenuto, nelle profondità marcite di Jondoh, possa la terra perdonare chi l'ha calpestata senza rispetto.",
 			"flag": "oss_cripta_superata",
 			"scelte": [
 				{ "testo": "Leggi l'elenco dei sacrificati", "vai": "altare_dei_sacrifici", "una_tantum": "oss_elenco", "oggetto": "elenco_dei_sacrificati" },
-				{ "testo": "Scendi verso il trono", "vai": "trono_marcio" },
-				{ "testo": "Torna alla cripta", "vai": "cripta" }
+				{ "testo": "Scendi verso il trono", "richiede_flag": "oss_compagna_reclutata", "vai": "trono_marcio_con_compagna" },
+				{ "testo": "Scendi verso il trono", "richiede_non_flag": "oss_compagna_reclutata", "vai": "trono_marcio_senza_compagna" },
+				{ "testo": "Torna alla cripta", "richiede_flag": "oss_compagna_reclutata", "vai": "cripta_con_compagna" },
+				{ "testo": "Torna alla cripta", "richiede_non_flag": "oss_compagna_reclutata", "vai": "cripta_senza_compagna" }
 			]
 		},
-		"trono_marcio": {
+		"trono_marcio_senza_compagna": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Si narra di persone che, sedotte dai lussuosi inviti di forze oscure, corrompono e ricompongono la vera essenza della vita.\n\nIl pentimento non viene neanche considerato come opzione, nei loro sogni le stelle brillano accecandoli per sempre, una luce talmente forte da diventare oscurità pura.\n\nBenvenuto, nella terra marcita di Ya Teh Zaneh, possa la terra perdonare chi l'ha calpestata senza rispetto." },
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Un piccolo sacrificio, per un grande risultato." },
-				{ "tipo": "narrazione", "testo": "Impossibile concepire un egoismo così grande, non può esserci perdono..." }
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sei tu il responsabile di tutto questo?" },
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Hmmm? Un piccolo sacrificio, per un grande risultato..." }
 			],
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"scelte": [
-				{ "testo": "Affrontalo", "richiede_flag": "oss_compagna_reclutata", "vai": "sacrificio_compagna" },
-				{ "testo": "Affrontalo", "richiede_non_flag": "oss_compagna_reclutata", "combatti": ["jongo_dongo", "ghoul", "ghoul"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
 			]
 		},
-		"sacrificio_compagna": {
+		"trono_marcio_con_compagna": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Questa è la mia occasione. Non lasciarmela portare via." },
-				{ "tipo": "narrazione", "testo": "Prima che tu possa fermarla, si lancia contro Jongo Dongo e i due ghoul al suo fianco. L'esplosione li spazza via insieme a lei: il boss vacilla, bruciato da dentro." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "No... aspetta!" }
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sei tu il responsabile di tutto questo?" },
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Hmmm? Un piccolo sacrificio, per un grande risultato..." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Riconosco quella voce... È la stessa che ho sentito quel giorno. Non posso dimenticarla... Maledetto! Sei stato tu!" },
+				{ "tipo": "narrazione", "testo": "Prima che tu possa fermarla, si lancia avventatamente contro Jongo Dongo, che non esita a trafiggerla." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Ma... le... detto... muori..." },
+				{ "tipo": "narrazione", "testo": "*click* La ragazza salta in aria: Jongo Dongo viene avvolto dalle fiamme." },
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "... Il dolore... non è altro che un mero ostacolo... sciocca ragazzina..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... Avrei dovuto fermarla... La pagherai..." }
 			],
-			"centro": "sopravvissuta",
+			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"congeda": "sopravvissuta",
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["jongo_dongo_indebolito"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
 			]
 		},
 		"vittoria": {
-			"testo": "Jongo Dongo cade in ginocchio, poi si sfalda: la maledizione che lo teneva in piedi si scioglie insieme a lui. Non chiede perdono. Non lo farebbe nemmeno ora. L'ossidiana intorno smette di sudare, ma resta nera: alcune cose, anche finite, non guariscono. Il raccolto, per una volta, non ha avuto il suo prezzo.",
+			"testo": "Jongo Dongo cade in ginocchio, poi si sfalda: la maledizione che lo teneva in piedi si scioglie insieme a lui. Non chiede perdono. Dai rimasugli sparsi nel vento si alza una voce sinistra... \"Eravamo così... vicini... il viaggio...\". L'ossidiana intorno smette di sudare, l'aria si alleggerisce e in lontananza puoi percepire qualcosa che si addormenta dolcemente.",
 			"centro": "jongo_dongo",
 			"espr_centro": "petrificata",
 			"flag": "quest_ossidiana",
@@ -286,7 +318,7 @@
 		},
 		"sconfitta_boss": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Un nuovo sacrificio... Una nuova rotta verso il viaggio..." }
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Un nuovo sacrificio... Una nuova possibilità..." }
 			],
 			"scelte": [
 				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }

@@ -106,10 +106,18 @@ imposto: dalla schermata `MappaZona.tscn` si clicca una stanza **sbloccata** per
   sezione post-checkpoint (il labirinto di cunicoli, la piazza sotterranea, il cargo
   abbandonato, l'approccio al ponte marcio) è su `mappa_dungeon`; l'ingresso lineare (varco →
   corridoio → fossa → sala del raccolto → sala del lamento) e la parte finale forzata (ponte →
-  cripta → trono) restano scelte dirette come nel resto del gioco. Il tutorial resta lineare
+  cripta → altare → trono) restano scelte dirette come nel resto del gioco. Il tutorial resta
+  lineare
 - Non usa (per ora) `"salta_se_flag"`/`combattimento_automatico`: Jondoh usa solo `"combatti"`
-  sulle scelte, che non ha un equivalente diretto — la variazione di difficoltà del boss finale
-  (con/senza l'alleata) è gestita con due scelte "Affrontalo" alternative, gated da flag
+  sulle scelte, che non ha un equivalente diretto. Il boss finale (Jongo Dongo) è identico in
+  entrambi i casi: con/senza l'alleata cambia solo la scena (il suo sacrificio, narrato e
+  senza effetto meccanico sul boss — vedi "Il Vuoto" più sotto), non la difficoltà
+- **`"flag_completamento"`** in `mappa_dungeon`: una volta impostato quel flag (di solito lo
+  stesso della vittoria sul boss), `GameState.stanza_sbloccata()` ritorna sempre true per
+  quella zona — **tutte** le sue stanze restano liberamente visitabili da quel momento, anche
+  quelle mai scoperte in quella run, non solo quelle sbloccate sul momento. Non riguarda i
+  passaggi fuori da `mappa_dungeon` (es. il grande ponte marcio di Jondoh, a senso unico per
+  sempre "per via dei vermi": quello resta bloccato anche a zona completata)
 
 ## Salvataggio
 Si salva **solo dalla mappa stellare** — mai nel Vuoto, mai dentro un carnivalz/squarcio,
@@ -213,6 +221,16 @@ Numeri piccoli e leggibili, ma con scelte vere:
 - Effetti oggetto in combattimento, oltre a hp/stress/speranza/danno: `"difesa_incontro"` (buff
   difesa che dura tutto lo scontro, non un turno solo come Difenditi) e `"cura_stati"` (azzera
   `stati_attivi`) — es. il Gel Omega
+- **Nemico `"invincibile": true`**: il suo hp non arriva mai a 0 sul serio — `_su_ko()` lo
+  intercetta prima, gli resetta hp a hp_max e mostra un testo, senza contare come vittoria
+  (`vivi(false)` non si svuota mai: la vittoria resta semplicemente irraggiungibile). Pensato
+  per scontri "non si vince, si sopravvive": vedi `"blocca_fuga_turni"` sotto
+- **`"blocca_fuga_turni": N`** su un nemico: `Fuggi` resta disabilitato finché non è passato
+  quel numero di giri (`giro_corrente`, si azzera a ogni scontro); un `"avviso_fuga":
+  {turno, richiede_compagno, testo}` mostra una battuta una tantum in quel turno, solo se il
+  compagno indicato è in squadra. Prima combinazione: l'Immortale nella cripta di Jondoh
+  (invincibile + fuga bloccata 5 turni), pensato per fuggire (`"se_fuggi"` sulla scelta
+  `"combatti"`) invece che vincere
 - **Alleato temporaneo**: `recluta_temporaneo` (+`livello_alleato`) mette un compagno in squadra
   solo per lo squarcio/campagna corrente; `congeda` (o l'uscita dallo squarcio) lo rimanda via.
   Yhvina nella Casa Gigante; il Vecchio Proprietario del teatro nel mondo di Jerah (20 hp,

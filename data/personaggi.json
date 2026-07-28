@@ -353,35 +353,22 @@
 			]
 		},
 		{
-			"id": "jongo_dongo_indebolito",
-			"nome": "Jongo Dongo",
-			"hp": 16,
-			"attacco": 3,
-			"difesa": 1,
-			"velocita": 3,
-			"fattore_base": 20,
-			"xp": 35,
-			"tazo": 50,
-			"peso_attacco_normale": 3,
-			"ritratto": "res://art/personaggi/jongo_dongo.png",
-			"descrizione": "Un tempo signore di queste terre. Il sacrificio di chi ti accompagnava lo ha già colpito una volta, prima ancora che tu alzassi un pugno: la sua maledizione ora vacilla.",
-			"descrizione_extra": {
-				"richiede_oggetto": "elenco_dei_sacrificati",
-				"testo": "Le ultime righe dell'elenco sono scritte con una grafia più tremante, come se la mano che scriveva stesse ancora decidendo. Gli ultimi nomi sulla lista condividono il suo: erano la sua famiglia. Non ha esitato nemmeno allora. Fino a dove ci si può spingere in cerca del potere..."
-			},
-			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
-			"fonte": true,
-			"convincibile": false,
-			"mosse": [
-				{ "id": "colpo_marcio", "tipo": "attacco_forte", "valore": 4, "peso": 2, "testo": "Jongo Dongo affonda un artiglio marcio, senza fretta." },
-				{ "id": "grido_del_raccolto", "tipo": "attacco_tutti", "valore": 1, "stress": 15, "peso": 2, "testo": "\"IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!\" Il grido vi si conficca dentro più delle unghie." },
-				{ "id": "sacrificio", "tipo": "sacrificio", "valore": 15, "peso": 3, "testo": "Jongo Dongo cerca con lo sguardo un ghoul a cui rivolgersi, con la stessa calma di sempre... e non ne trova più nessuno." }
-			],
+			"id": "l_immortale",
+			"nome": "???",
+			"hp": 6,
+			"attacco": 1,
+			"difesa": 0,
+			"velocita": 2,
+			"xp": 0,
+			"tazo": 0,
+			"categoria": "particolare",
+			"invincibile": true,
+			"blocca_fuga_turni": 5,
+			"avviso_fuga": { "turno": 5, "richiede_compagno": "sopravvissuta", "testo": "Dobbiamo scappare, adesso! Non si può vincere contro di lui!" },
+			"ritratto": "res://art/personaggi/l_immortale.png",
+			"descrizione": "Qualcosa che cammina nella cripta, e non si ferma per quanto lo si colpisca. Il suo vero nome è ancora un mistero.",
 			"studio": [
-				{ "domanda": "Che cosa hai fatto...", "risposta": "Chi siete... voi... siete venuti a rubare nella nostra terra?!" },
-				{ "domanda": "Cosa è successo alla gente di queste terre?", "risposta": "Non devo dare spiegazioni e chi vuole farci del male!" },
-				{ "domanda": "Non hai idea delle forze con cui stai giocando...", "risposta": "Sono stato benedetto dalla verità del lungo viaggio!" },
-				{ "domanda": "Del lungo viaggio?", "risposta": "Un piccolo sacrificio per un grande risultato. Voi... non potete capire..." }
+				{ "risposta": "Non risponde. Sembra già morto. O forse non è mai stato vivo, non nel modo in cui lo sei tu." }
 			]
 		},
 		{

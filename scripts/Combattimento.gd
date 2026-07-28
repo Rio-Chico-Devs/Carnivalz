@@ -67,6 +67,14 @@ var incontro_tentativi_fuga := 0
 var incontro_turni_inerti := 0
 var incontro_tentativi_morfeo := 0
 
+# blocca_fuga_turni: un nemico puo' impedire di fuggire per i suoi primi N
+# turni (es. l'Immortale, debole ma non lo si puo' davvero sconfiggere:
+# l'unica via d'uscita e' resistere e poi scappare). avviso_fuga mostra un
+# testo una tantum al turno indicato, se il compagno richiesto e' in squadra
+var giro_corrente := 1
+var portatore_fuga_bloccata: Dictionary = {}
+var avviso_fuga_mostrato := false
+
 # dialogo_soglia_hp: un nemico puo' dichiarare un hp_soglia e un testo che
 # compare una sola volta, alla prima discesa sotto quella soglia.
 var soglie_dialogo_mostrate: Dictionary = {}  # indice combattente -> bool
@@ -111,6 +119,8 @@ func _ready() -> void:
 			incontro_paralisi_attiva = true
 		if portatore_rabbia.is_empty() and dati.has("rabbia_su_morte_alleato"):
 			portatore_rabbia = dati
+		if portatore_fuga_bloccata.is_empty() and dati.has("blocca_fuga_turni"):
+			portatore_fuga_bloccata = dati
 	var categoria_apertura := categoria_migliore_presente()
 	if categoria_apertura == "boss" or categoria_apertura == "miniboss":
 		scrivi("[b]Il disallineamento fa spazio: si combatte.[/b]")
@@ -258,6 +268,7 @@ func aggiorna_speranza(quantita: int) -> void:
 
 func esegui_scontro() -> void:
 	while in_corso:
+		verifica_avviso_fuga()
 		# il cedimento (e ora rapidita'/lentezza) cambiano la velocita':
 		# l'iniziativa si ricalcola a ogni giro
 		combattenti.sort_custom(func(a, b):
@@ -280,7 +291,21 @@ func esegui_scontro() -> void:
 			aggiorna_speranza(int(GameState.regole.get("speranza_per_giro", 2)))
 			if turni_provocazione > 0:
 				turni_provocazione -= 1
+			giro_corrente += 1
 	mostra_continua_fine()
+
+func verifica_avviso_fuga() -> void:
+	if portatore_fuga_bloccata.is_empty() or avviso_fuga_mostrato:
+		return
+	var avviso: Dictionary = portatore_fuga_bloccata.get("avviso_fuga", {})
+	var turno_avviso := int(avviso.get("turno", 0))
+	if turno_avviso <= 0 or giro_corrente < turno_avviso:
+		return
+	var richiede := String(avviso.get("richiede_compagno", ""))
+	if richiede != "" and richiede not in GameState.party:
+		return
+	avviso_fuga_mostrato = true
+	scrivi("[i]%s[/i]" % String(avviso.get("testo", "")))
 
 func mostra_continua_fine() -> void:
 	# niente si chiude da solo: e' il giocatore a decidere quando lasciare
@@ -586,8 +611,13 @@ func squadra_ha_terrore() -> bool:
 	return false
 
 func fuga_possibile() -> bool:
-	# non si fugge dai boss, ne' quando il terrore ha paralizzato qualcuno
-	return fonte.is_empty() and not squadra_ha_terrore()
+	# non si fugge dai boss veri, ne' quando il terrore ha paralizzato qualcuno;
+	# un nemico con blocca_fuga_turni lo impedisce solo per i suoi primi turni
+	if not fonte.is_empty() or squadra_ha_terrore():
+		return false
+	if not portatore_fuga_bloccata.is_empty():
+		return giro_corrente >= int(portatore_fuga_bloccata.get("blocca_fuga_turni", 999))
+	return true
 
 func primo_nemico() -> Dictionary:
 	# la fonte ha la precedenza, altrimenti il primo nemico vivo
@@ -1209,6 +1239,12 @@ func colpisci_diretto(bersaglio: Dictionary, danno: int) -> void:
 		_su_ko(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:
+	if not caduto.giocatore and GameState.personaggi.get(caduto.id, {}).get("invincibile", false):
+		# non muore mai davvero: "sconfiggerlo" non basta, si rialza sempre
+		caduto.hp = caduto.hp_max
+		aggiorna_scheda(caduto)
+		scrivi("[i]%s si rialza, come se nulla fosse.[/i]" % caduto.nome)
+		return
 	if caduto.giocatore and resurrezione_pronta and caduto.hp <= 0:
 		# l'accessorio equipaggiato si spezza al posto tuo: si torna in vita
 		# a meta' hp, una volta sola per combattimento, invece del KO

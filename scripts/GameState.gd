@@ -281,7 +281,14 @@ func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
 # cosi' zone diverse possono riusare gli stessi id di stanza senza scontrarsi.
 
 func stanza_sbloccata(id_stanza: String) -> bool:
-	return id_stanza == stanza_iniziale_zona or ha_flag(_flag_stanza(id_stanza))
+	if id_stanza == stanza_iniziale_zona:
+		return true
+	var flag_completamento := String(mappa_zona.get("flag_completamento", ""))
+	if flag_completamento != "" and ha_flag(flag_completamento):
+		# a zona completata, tutte le sue stanze restano liberamente visitabili
+		# (anche quelle mai scoperte in quella run), non solo quelle sbloccate
+		return true
+	return ha_flag(_flag_stanza(id_stanza))
 
 func sblocca_stanza(id_stanza: String) -> void:
 	imposta_flag(_flag_stanza(id_stanza))
