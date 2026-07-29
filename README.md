@@ -384,6 +384,35 @@ fonte convinta → nodo `se_vinci_eroe` (pangea, reincarnazione), altrimenti `se
 (il pianeta viene distrutto). I nomi dei boss sono poetici (`nome` per il ritratto,
 `nome_breve` per log e bottoni): il primo è **«L'ultimo spettacolo di Jerah»**.
 
+## Crescita del protagonista (`data/crescita.json`)
+Le stat **non salgono da sole con il livello**: salgono in base a *quello che hai fatto*. Ogni
+azione riempie un contatore (`GameState.registra_azione()`); a ogni passaggio di livello i
+contatori diventano punti stat e si azzerano (`applica_crescita_livello()`), col resto che
+avanza al livello dopo.
+- **Le stat**: `hp`, `attacco`, `difesa`, `velocita`, `intelligenza` (aumenta la probabilità di
+  fuggire), `forza_mentale` (resistenza allo stress: attutisce lo stress in arrivo) e `fattore`
+  (Fattore Carnivalz: alimenta critici e Slaughter). Solo il protagonista le usa —
+  `Combattimento.aggiungi_combattente()` legge `GameState.stat_di()` per lui e i valori fissi di
+  `classes.json` per tutti gli altri
+- **Cosa alimenta cosa** (campo `crescita`, `ogni` = quante azioni per un punto): attaccare →
+  attacco, incassare danni → hp, difendersi → difesa, studiare e fuggire → intelligenza, usare
+  oggetti → hp, esplorare stanze nuove → velocità, accumulare stress → forza mentale, mettere a
+  segno critici → fattore
+- **Resistenze agli stati**: subire uno stato allena la resistenza a *quello* stato
+  (`registra_stato_subito()`); ogni `soglia_punto` volte vale un punto, e al massimo si diventa
+  immuni. Vale solo per il protagonista
+- **Passive**: si sbloccano da sole e vengono annunciate come notifica appena si torna a una
+  schermata di eventi (`Main.notifiche_passive()`). Tre famiglie in `crescita.json` —
+  `passive_soglia` (valori di stat raggiunti: Altruismo, Furia, Perspicacia acuta, Leadership,
+  Karma positivo, Benedizione dell'agnello, Disastro vivente), `passive_livello` (dal livello 10
+  al 130: Non c'è tempo!, Trinità, Crudeltà, Infinito, Una nuova alba…) e `passive_rare`
+  (Preferito del gatto: estratta a ogni livello con probabilità bassissima, garantita al 120)
+- **Effetti già attivi**: i bonus al drop (`bonus_drop`: La tua immondizia è il mio tesoro,
+  Tryharder), quelli alla carta (`bonus_carta`: Illuminazione 1 e 2) e Crudeltà
+  (`slaughter_bonus` contro nemici molto sotto livello) sono letti dai dati e applicati.
+  **Le altre passive sono dichiarate e si sbloccano, ma il loro effetto non è ancora
+  implementato**: sono elencate qui e in `crescita.json` come contratto da riempire
+
 ## Esperienza e legame
 - **XP**: la vittoria dà XP a tutto il party; livello massimo **130**, fabbisogno
   `xp_base × livello^1.5`, e i 30 livelli dopo il 100 sono ostici (fabbisogno ×5)

@@ -15,6 +15,7 @@ const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
+const PERCORSO_CRESCITA := "res://data/crescita.json"
 const PERCORSO_CODICI := "res://data/codici.json"  # extra: sblocchi via codice
 const PERCORSO_CODICI_RISCATTATI := "user://codici_riscattati.cfg"
 const PERCORSO_SALVATAGGIO := "user://salvataggio.json"  # autosalvataggio
@@ -72,6 +73,19 @@ var alleati_temporanei: Array[String] = []  # compagni che combattono per un sol
 var studiati: Array[String] = []     # chi hai studiato (per la sezione studio futura)
 var flags: Array[String] = []        # scoperte permanenti (loot una tantum, segreti)
 
+# --- crescita del protagonista (data/crescita.json). Le stat non salgono da
+# sole con il livello: si alimentano con quello che il giocatore fa davvero
+# (attaccare, studiare, esplorare, incassare colpi...). I contatori si
+# convertono in punti stat a ogni passaggio di livello e si azzerano.
+var crescita: Dictionary = {}
+var punti_stat: Dictionary = {}          # nome stat -> punti guadagnati oltre la base
+var contatori: Dictionary = {}           # nome azione -> quante volte compiuta
+var resistenze_stato: Dictionary = {}    # id stato -> punti di resistenza
+var volte_stato_subito: Dictionary = {}  # id stato -> quante volte subito (verso il prossimo punto)
+var passive_sbloccate: Array[String] = []
+var passive_da_notificare: Array[String] = []  # svuotato da chi le mostra a schermo
+var nodi_visitati: Array[String] = []    # per contare l'esplorazione (una volta per stanza)
+
 # Collezioni (meta-progressione): si popolano da sole e sopravvivono alle
 # campagne. Album delle carte, bestiario, compendio degli oggetti.
 var bestiario: Array[String] = []        # id nemici incontrati (voce al 1o incontro)
@@ -97,6 +111,7 @@ func _ready() -> void:
 	carica_audio()
 	carica_studio()
 	carica_stati()
+	carica_crescita()
 	carica_codici()
 	nuova_partita()
 
@@ -179,6 +194,10 @@ func carica_studio() -> void:
 	var dati: Variant = carica_json(PERCORSO_STUDIO)
 	domande_studio_generiche = dati.get("domande_generiche", []) if dati is Dictionary else []
 
+func carica_crescita() -> void:
+	var dati: Variant = carica_json(PERCORSO_CRESCITA)
+	crescita = dati if dati is Dictionary else {}
+
 func carica_stati() -> void:
 	var dati: Variant = carica_json(PERCORSO_STATI)
 	stati = dati.get("stati", {}) if dati is Dictionary else {}
@@ -236,6 +255,13 @@ func nuova_partita() -> void:
 	xp.clear()
 	stress.clear()
 	studiati.clear()
+	punti_stat.clear()
+	contatori.clear()
+	resistenze_stato.clear()
+	volte_stato_subito.clear()
+	passive_sbloccate.clear()
+	passive_da_notificare.clear()
+	nodi_visitati.clear()
 	sacca.clear()
 	collezionabili.clear()
 	chiavi.clear()
@@ -435,6 +461,93 @@ func aggiungi_xp(id_classe: String, quantita: int) -> void:
 			break
 		xp[id_classe] -= necessario
 		livelli[id_classe] = livello_di(id_classe) + 1
+		if id_classe == id_protagonista:
+			applica_crescita_livello()
+			verifica_passive(livello_di(id_classe))
+
+# --- crescita del protagonista: i contatori delle azioni diventano punti stat
+# a ogni passaggio di livello, poi si azzerano. Chi attacca cresce in attacco,
+# chi studia in intelligenza, chi esplora in velocita', chi incassa in hp... ---
+
+func registra_azione(nome_azione: String, quantita := 1) -> void:
+	contatori[nome_azione] = int(contatori.get(nome_azione, 0)) + quantita
+
+func registra_stato_subito(id_stato: String) -> void:
+	# subire uno stato allena la resistenza a quello stesso stato
+	volte_stato_subito[id_stato] = int(volte_stato_subito.get(id_stato, 0)) + 1
+
+func stat_base_di(nome_stat: String) -> int:
+	return int(crescita.get("stat", {}).get(nome_stat, {}).get("base", 0))
+
+func stat_di(nome_stat: String) -> int:
+	# valore attuale di una stat del protagonista: base + punti guadagnati
+	return stat_base_di(nome_stat) + int(punti_stat.get(nome_stat, 0))
+
+func resistenza_stato_di(id_stato: String) -> int:
+	return int(resistenze_stato.get(id_stato, 0))
+
+func applica_crescita_livello() -> void:
+	for nome_azione in crescita.get("crescita", {}):
+		var regola: Dictionary = crescita["crescita"][nome_azione]
+		var ogni := maxi(int(regola.get("ogni", 1)), 1)
+		var fatte := int(contatori.get(nome_azione, 0))
+		var guadagno := (fatte / ogni) * int(regola.get("punti", 1))
+		if guadagno > 0:
+			var nome_stat := String(regola.get("stat", ""))
+			punti_stat[nome_stat] = int(punti_stat.get(nome_stat, 0)) + guadagno
+			contatori[nome_azione] = fatte % ogni  # il resto vale per il prossimo livello
+	var soglia := maxi(int(crescita.get("resistenze", {}).get("soglia_punto", 3)), 1)
+	var tetto := int(crescita.get("resistenze", {}).get("massimo", 100))
+	for id_stato in volte_stato_subito.keys():
+		var volte := int(volte_stato_subito[id_stato])
+		var punti := volte / soglia
+		if punti > 0:
+			resistenze_stato[id_stato] = mini(resistenza_stato_di(id_stato) + punti, tetto)
+			volte_stato_subito[id_stato] = volte % soglia
+
+func ha_passiva(id_passiva: String) -> bool:
+	return id_passiva in passive_sbloccate
+
+func sblocca_passiva(id_passiva: String, nome: String) -> void:
+	if id_passiva in passive_sbloccate:
+		return
+	passive_sbloccate.append(id_passiva)
+	passive_da_notificare.append(nome)
+
+func verifica_passive(livello: int) -> void:
+	for voce in crescita.get("passive_livello", []):
+		if livello >= int(voce.get("livello", 999)):
+			sblocca_passiva(String(voce.get("id", "")), String(voce.get("nome", "")))
+	for voce in crescita.get("passive_soglia", []):
+		var soddisfatta := true
+		if voce.has("richiede_tutte_le_stat"):
+			var minimo := int(voce["richiede_tutte_le_stat"])
+			for nome_stat in crescita.get("stat", {}):
+				if stat_di(nome_stat) < minimo:
+					soddisfatta = false
+					break
+		for nome_stat in voce.get("richiede", {}):
+			if stat_di(nome_stat) < int(voce["richiede"][nome_stat]):
+				soddisfatta = false
+				break
+		if soddisfatta:
+			sblocca_passiva(String(voce.get("id", "")), String(voce.get("nome", "")))
+	for voce in crescita.get("passive_rare", []):
+		var id_rara := String(voce.get("id", ""))
+		if ha_passiva(id_rara):
+			continue
+		if livello >= int(voce.get("livello_garantito", 999)) \
+				or rng.randf() < float(voce.get("probabilita", 0.0)):
+			sblocca_passiva(id_rara, String(voce.get("nome", "")))
+
+func bonus_passiva(chiave: String) -> float:
+	# somma il contributo di tutte le passive sbloccate che dichiarano quella
+	# chiave nei dati (es. bonus_drop, bonus_carta, slaughter_bonus)
+	var totale := 0.0
+	for voce in crescita.get("passive_livello", []):
+		if voce.has(chiave) and ha_passiva(String(voce.get("id", ""))):
+			totale += float(voce[chiave])
+	return totale
 
 func sblocca_classe(id_classe: String) -> void:
 	if classi.has(id_classe) and id_classe not in classi_sbloccate:
@@ -586,6 +699,12 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"studiati": studiati,
 		"negozi_sbloccati": negozi_sbloccati,
 		"flags": flags,
+		"punti_stat": punti_stat,
+		"contatori": contatori,
+		"resistenze_stato": resistenze_stato,
+		"volte_stato_subito": volte_stato_subito,
+		"passive_sbloccate": passive_sbloccate,
+		"nodi_visitati": nodi_visitati,
 		"nome_protagonista": nome_protagonista,
 	}
 	var f := FileAccess.open(percorso, FileAccess.WRITE)
@@ -621,6 +740,13 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	studiati = _lista_str(d.get("studiati", []))
 	negozi_sbloccati = _lista_str(d.get("negozi_sbloccati", []))
 	flags = _lista_str(d.get("flags", []))
+	punti_stat = d.get("punti_stat", {})
+	contatori = d.get("contatori", {})
+	resistenze_stato = d.get("resistenze_stato", {})
+	volte_stato_subito = d.get("volte_stato_subito", {})
+	passive_sbloccate = _lista_str(d.get("passive_sbloccate", []))
+	nodi_visitati = _lista_str(d.get("nodi_visitati", []))
+	passive_da_notificare.clear()
 	imposta_nome_protagonista(String(d.get("nome_protagonista", "")))
 	# si riparte da uno stato "overworld" pulito: fuori da campagne e squarci
 	party.clear()

@@ -941,7 +941,12 @@
 		{
 			"id": "veronica",
 			"nome": "Veronica",
-			"ritratto": "res://art/personaggi/veronica.png"
+			"ritratto": "res://art/personaggi/veronica.png",
+			"studio": [
+				{ "domanda": "Veronica...", "risposta": "Veronica mi è sempre stata affianco fin da quando eravamo piccoli." },
+				{ "domanda": "C'è dell'altro?", "risposta": "Cerca sempre di essere positiva, ma io so cosa ha passato... la ammiro molto." }
+			],
+			"testo_studio_esaurito": "Non c'è altro che tu possa capire di lei adesso: è già tutta lì, davanti a te."
 		},
 		{
 			"id": "curie",

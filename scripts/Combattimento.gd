@@ -168,7 +168,9 @@ func avvia_musica_e_voce() -> void:
 
 func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
-	var hp_max := int(dati.get("hp", GameState.regole.get("hp_base", 5)))
+	var e_protagonista := giocatore and id_personaggio == GameState.id_protagonista
+	var hp_max := int(GameState.stat_di("hp")) if e_protagonista \
+			else int(dati.get("hp", GameState.regole.get("hp_base", 5)))
 	var scheda := VBoxContainer.new()
 	var ritratto := SCENA_RITRATTO.instantiate()
 	scheda.add_child(ritratto)
@@ -212,11 +214,11 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"nome": dati.get("nome_breve", dati.get("nome", id_personaggio)),
 		"hp": hp_max,
 		"hp_max": hp_max,
-		"attacco": int(dati.get("attacco", 1)),
-		"difesa": int(dati.get("difesa", 0)),
-		"velocita": int(dati.get("velocita", 3)),
+		"attacco": GameState.stat_di("attacco") if e_protagonista else int(dati.get("attacco", 1)),
+		"difesa": GameState.stat_di("difesa") if e_protagonista else int(dati.get("difesa", 0)),
+		"velocita": GameState.stat_di("velocita") if e_protagonista else int(dati.get("velocita", 3)),
 		"psiche": String(dati.get("psiche", "")),
-		"fattore": int(dati.get("fattore_base", 0)),
+		"fattore": GameState.stat_di("fattore") if e_protagonista else int(dati.get("fattore_base", 0)),
 		"stress": GameState.stress_di(id_personaggio) if giocatore else 0,
 		"xp": int(dati.get("xp", 10)),
 		"tazo": int(dati.get("tazo", 0)),
@@ -388,8 +390,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 	var passo := int(GameState.regole.get("stress_per_fattore", 25))
 	var costo := floori(attaccante.fattore / float(maxi(passo, 1)))
 	if costo > 0:
-		attaccante.stress = clampi(attaccante.stress + costo, 0, 100)
-		aggiorna_scheda(attaccante)
+		aggiungi_stress(attaccante, costo)
 
 # --- menu azioni del giocatore ---
 
@@ -478,12 +479,16 @@ func difendi(chi: Dictionary) -> void:
 		"turni": 1,
 	})
 	scrivi("%s si mette in guardia (difesa +%d)." % [chi.nome, bonus])
+	if chi.giocatore and chi.id == GameState.id_protagonista:
+		GameState.registra_azione("difese")
 	aggiorna_scheda(chi)
 
 func usa_oggetto(chi: Dictionary, id_oggetto: String) -> void:
 	var dati := GameState.dati_oggetto(id_oggetto)
 	GameState.sacca.erase(id_oggetto)
 	scrivi("%s usa: %s." % [chi.nome, dati.get("nome", id_oggetto)])
+	if chi.giocatore and chi.id == GameState.id_protagonista:
+		GameState.registra_azione("oggetti_usati")
 	applica_effetto(chi, dati.get("effetto", {}))
 
 func usa_alleato(id_ospite: String) -> void:
@@ -497,8 +502,7 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary) -> void:
 		utente.hp = clampi(utente.hp + int(effetto.hp), 0, utente.hp_max)
 		aggiorna_scheda(utente)
 	if effetto.has("stress") and not utente.is_empty():
-		utente.stress = clampi(utente.stress + int(effetto.stress), 0, 100)
-		aggiorna_scheda(utente)
+		aggiungi_stress(utente, int(effetto.stress))
 	if effetto.has("speranza"):
 		aggiorna_speranza(int(effetto.speranza))
 	if effetto.has("difesa_incontro") and not utente.is_empty():
@@ -556,6 +560,8 @@ func studia(chi: Dictionary) -> void:
 			scrivi("%s: \"%s\"" % [chi.nome, domanda])
 			scrivi("%s: \"%s\"" % [bersaglio.nome, scambio.get("risposta", "")])
 	GameState.segna_studiato(bersaglio.id)
+	if chi.giocatore and chi.id == GameState.id_protagonista:
+		GameState.registra_azione("studi")
 	if bersaglio.id == fonte.get("id", ""):
 		aggiorna_speranza(int(GameState.regole.get("speranza_studio", 10)))
 	verifica_innesco_combustione(bersaglio)
@@ -619,8 +625,17 @@ func fuggi(chi: Dictionary) -> void:
 			incontro_tentativi_fuga += 1
 			scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fuga_fallita", "")))
 			return  # il tentativo fallisce: il combattimento continua
+	if chi.giocatore and chi.id == GameState.id_protagonista:
+		# l'Intelligenza rende la fuga piu' affidabile: sotto una certa soglia
+		# puo' non riuscire, e il turno e' perso
+		var probabilita := minf(0.5 + GameState.stat_di("intelligenza") * 0.05, 1.0)
+		if GameState.rng.randf() >= probabilita:
+			scrivi("[i]%s prova a fuggire, ma non trova il varco giusto.[/i]" % chi.nome)
+			return
 	# nessuna penalita': solo si esce dal combattimento, senza bottino
 	scrivi("[i]%s fugge dal combattimento![/i]" % chi.nome)
+	if chi.giocatore and chi.id == GameState.id_protagonista:
+		GameState.registra_azione("fughe")
 	giocatore_e_fuggito = true
 	in_corso = false
 
@@ -636,6 +651,16 @@ func squadra_ha_terrore() -> bool:
 		if ha_stato_attivo(personaggio, "terrore"):
 			return true
 	return false
+
+func aggiungi_stress(chi: Dictionary, quantita: int) -> void:
+	# la Forza mentale del protagonista attutisce lo stress in arrivo; quello
+	# che passa comunque allena la stat per il prossimo livello
+	if quantita > 0 and chi.giocatore and chi.id == GameState.id_protagonista:
+		var riduzione := mini(GameState.stat_di("forza_mentale"), 90) / 100.0
+		quantita = maxi(int(round(quantita * (1.0 - riduzione))), 1)
+		GameState.registra_azione("stress_accumulato", quantita)
+	chi.stress = clampi(chi.stress + quantita, 0, 100)
+	aggiorna_scheda(chi)
 
 func fuga_possibile() -> bool:
 	# non si fugge dai boss veri, ne' quando il terrore ha paralizzato qualcuno;
@@ -968,8 +993,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				attacca(nemico, bersaglio, int(mossa.get("valore", 1)))
 			if mossa.has("stress"):
 				for bersaglio in vivi(true):
-					bersaglio.stress = clampi(bersaglio.stress + int(mossa.stress), 0, 100)
-					aggiorna_scheda(bersaglio)
+					aggiungi_stress(bersaglio, int(mossa.stress))
 			if mossa.has("legame"):
 				GameState.modifica_legame(int(mossa.legame))
 			if mossa.has("maledizione"):
@@ -983,8 +1007,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			nemico.hp = maxi(nemico.hp - int(mossa.get("valore", 1)), 0)
 			aggiorna_scheda(nemico)
 			for bersaglio in vivi(true):
-				bersaglio.stress = clampi(bersaglio.stress + int(mossa.get("stress", 10)), 0, 100)
-				aggiorna_scheda(bersaglio)
+				aggiungi_stress(bersaglio, int(mossa.get("stress", 10)))
 			if mossa.has("legame"):
 				GameState.modifica_legame(int(mossa.legame))
 			if mossa.has("maledizione"):
@@ -1072,6 +1095,9 @@ func applica_combustione(combattente: Dictionary) -> void:
 func resistenza_di(combattente: Dictionary, chiave: String) -> String:
 	if chiave in combattente.get("immunita_temporanea", []):
 		return "immune"  # respinto in questo stesso combattimento (es. scudo_primo_stato)
+	if combattente.giocatore and combattente.id == GameState.id_protagonista \
+			and GameState.resistenza_stato_di(chiave) >= int(GameState.crescita.get("resistenze", {}).get("massimo", 100)):
+		return "immune"  # allenato fino in fondo: quello stato non ti tocca piu'
 	var dati: Dictionary = GameState.personaggi.get(combattente.id, {})
 	return String(dati.get("resistenze", {}).get(chiave, "normale"))
 
@@ -1093,6 +1119,8 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 		scrivi("[b]%s si spezza, respingendo %s: sarai immune per il resto dello scontro.[/b]" % [nome_accessorio, nome_stato])
 		GameState.consuma_accessorio_equipaggiato()
 		return
+	if bersaglio.giocatore and bersaglio.id == GameState.id_protagonista:
+		GameState.registra_stato_subito(id_stato)
 	var amplificato := resistenza == "ipersensibile"
 	var info_stato: Dictionary = GameState.stati.get(id_stato, {})
 	var tipo := String(info_stato.get("tipo", ""))
@@ -1138,7 +1166,7 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			if amplificato:
 				incremento_stress *= 2
 				decremento_legame *= 2
-			bersaglio.stress = clampi(bersaglio.stress + incremento_stress, 0, 100)
+			aggiungi_stress(bersaglio, incremento_stress)
 			GameState.modifica_legame(decremento_legame)
 			scrivi("[b]%s %s[/b]" % [bersaglio.nome, info_stato.get("testo_applicazione", "è paralizzato dal terrore.")])
 	aggiorna_scheda(bersaglio)
@@ -1234,6 +1262,8 @@ func scadenza_buff(combattente: Dictionary) -> void:
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1) -> void:
 	ultima_azione_offensiva = true
+	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
+		GameState.registra_azione("attacchi_sferrati")
 	if tenta_slaughter(attaccante, bersaglio):
 		return
 	var dati_bersaglio: Dictionary = GameState.personaggi.get(bersaglio.id, {})
@@ -1291,6 +1321,8 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
 	registra_danno_subito(bersaglio, danno)
 	if critico:
+		if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
+			GameState.registra_azione("critici_inflitti")
 		scrivi("[b]Colpo critico![/b] %s attacca %s: %d danno." % [attaccante.nome, bersaglio.nome, danno])
 	else:
 		scrivi("%s attacca %s: %d danno." % [attaccante.nome, bersaglio.nome, danno])
@@ -1332,7 +1364,14 @@ func tenta_slaughter(attaccante: Dictionary, bersaglio: Dictionary) -> bool:
 	var resistenza := resistenza_di(bersaglio, "stress")
 	if resistenza == "immune" or resistenza == "invertito":
 		return false
-	if GameState.rng.randf() >= float(GameState.regole.get("slaughter_probabilita_base", 0.01)):
+	var probabilita := float(GameState.regole.get("slaughter_probabilita_base", 0.01))
+	if attaccante.giocatore and not bersaglio.giocatore:
+		var scarto: int = GameState.livello_di(attaccante.id) - int(GameState.personaggi.get(bersaglio.id, {}).get("livello", 1))
+		for voce in GameState.crescita.get("passive_livello", []):
+			if voce.has("slaughter_bonus") and GameState.ha_passiva(String(voce.get("id", ""))) \
+					and scarto >= int(voce.get("slaughter_scarto_livelli", 0)):
+				probabilita *= 1.0 + float(voce["slaughter_bonus"])
+	if GameState.rng.randf() >= probabilita:
 		return false
 	scrivi("[b]SLAUGHTER![/b] %s attacca %s, e non si rialzerà." % [attaccante.nome, bersaglio.nome])
 	bersaglio.hp = 0
@@ -1366,6 +1405,8 @@ func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 	if danno > 0:
 		bersaglio.ultimo_danno_subito = danno
 		bersaglio.colpi_incassati = int(bersaglio.colpi_incassati) + 1
+		if bersaglio.giocatore and bersaglio.id == GameState.id_protagonista:
+			GameState.registra_azione("danni_subiti", danno)
 
 func colpisci_diretto(bersaglio: Dictionary, danno: int) -> void:
 	# oggetti e assist ignorano le difese
@@ -1450,13 +1491,15 @@ func risolvi_drop() -> void:
 	# oggetto speciale, a scelta pesata). "Il mondo è il mio Tesoro" raddoppia
 	# tutte le chance rare. Tutto dall'RNG seedato.
 	var moltiplicatore := 2.0 if GameState.possiede_oggetto("il_mondo_e_il_mio_tesoro") else 1.0
+	moltiplicatore += GameState.bonus_passiva("bonus_drop")   # "La tua immondizia e' il mio tesoro", "Tryharder"
+	var molt_carta := moltiplicatore + GameState.bonus_passiva("bonus_carta")  # "Illuminazione" 1 e 2
 	var righe: Array[String] = []
 	for c in combattenti:
 		if c.giocatore or c.get("oggetto_scena", false) or c.get("risparmiato", false):
 			continue
 		var carta: Dictionary = c.carta
 		if not carta.is_empty():
-			var chance_carta := minf(float(carta.get("chance", 1.0)) * moltiplicatore, 1.0)
+			var chance_carta := minf(float(carta.get("chance", 1.0)) * molt_carta, 1.0)
 			if GameState.rng.randf() < chance_carta and GameState.ottieni_carta(String(carta.get("id", ""))):
 				righe.append("carta \"%s\" [%s]" % [carta.get("nome", ""), carta.get("rarita", "")])
 		for voce in c.bottino_comune:

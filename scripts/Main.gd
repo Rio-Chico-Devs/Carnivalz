@@ -72,6 +72,10 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		mostra_nodo(String(nodo["vai_se_flag"].get("vai", "")), notifiche_precedenti)
 		return
 	GameState.nodo_corrente = id_nodo
+	if id_nodo not in GameState.nodi_visitati:
+		# esplorare allena la velocita': ogni stanza conta una volta sola
+		GameState.nodi_visitati.append(id_nodo)
+		GameState.registra_azione("stanze_esplorate")
 	if nodo.has("flag"):
 		GameState.imposta_flag(nodo["flag"])
 	if nodo.has("sblocca_stanze"):
@@ -121,7 +125,7 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		get_tree().change_scene_to_file(SCENA_VUOTO)
 		return
 	nodo_in_corso = nodo
-	coda_messaggi = notifiche_precedenti + sequenza_di(nodo)
+	coda_messaggi = notifiche_precedenti + notifiche_passive() + sequenza_di(nodo)
 	avanza_messaggio()
 
 func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
@@ -248,6 +252,15 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		bottone.text = scelta.get("testo", "…")
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
+
+func notifiche_passive() -> Array[Dictionary]:
+	# abilita' passive sbloccate salendo di livello: si annunciano appena si
+	# torna a una schermata di eventi, insieme alle altre notifiche
+	var righe: Array[Dictionary] = []
+	for nome in GameState.passive_da_notificare:
+		righe.append({"tipo": "notifica", "testo": "Nuova abilità passiva: %s" % nome})
+	GameState.passive_da_notificare.clear()
+	return righe
 
 func pickup(id_oggetto: String) -> Array[Dictionary]:
 	# notifiche sequenziali: "hai raccolto X" e' un messaggio a se',
@@ -492,7 +505,11 @@ func aggiorna_stato() -> void:
 	for id_classe in GameState.party:
 		nomi.append(String(GameState.classi.get(id_classe, {}).get("nome", id_classe)))
 	var testo_party := ", ".join(nomi) if not nomi.is_empty() else "solo tu"
-	stato.text = "Party: %s   •   Sacca %d/%d   •   Tazo %d   •   Legame %d" % [
+	stato.text = "Party: %s   •   Sacca %d/%d   •   Tazo %d   •   Legame %d\nLv %d   •   HP %d   ATT %d   DIF %d   VEL %d   INT %d   MEN %d   FAT %d" % [
 		testo_party, GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20)),
 		GameState.tazo, GameState.legame,
+		GameState.livello_di(GameState.id_protagonista),
+		GameState.stat_di("hp"), GameState.stat_di("attacco"), GameState.stat_di("difesa"),
+		GameState.stat_di("velocita"), GameState.stat_di("intelligenza"),
+		GameState.stat_di("forza_mentale"), GameState.stat_di("fattore"),
 	]

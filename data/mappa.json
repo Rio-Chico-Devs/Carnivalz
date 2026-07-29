@@ -19,6 +19,7 @@
 			"pos": [400, 300],
 			"attivo": true,
 			"richiede_flag": "tutorial_completato",
+			"pianeta_richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_teatro", "casa_ricordo_sconfitto"],
 			"file_eventi": "res://data/events.json",
 			"musica": "res://audio/musica/vuoto_jerah.ogg",
 			"musica_campagna": "res://audio/musica/campagna_jerah.ogg",

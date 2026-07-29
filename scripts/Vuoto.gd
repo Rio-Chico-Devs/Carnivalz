@@ -30,7 +30,17 @@ func _ready() -> void:
 		if vuoto_visibile(vuoto):
 			crea_squarcio(vuoto)
 
+func pianeta_accessibile(punto: Dictionary) -> bool:
+	# il Carnivalz vero e proprio al centro del sistema non e' aperto da
+	# subito: compare solo quando le fratture richieste sono state percorse
+	for nome_flag in punto.get("pianeta_richiede_flags", []):
+		if not GameState.ha_flag(nome_flag):
+			return false
+	return true
+
 func crea_pianeta(punto: Dictionary) -> void:
+	if not pianeta_accessibile(punto):
+		return
 	var bottone := Button.new()
 	bottone.text = "☉  Scendi verso l'anomalia"
 	bottone.custom_minimum_size = Vector2(240, 64)
