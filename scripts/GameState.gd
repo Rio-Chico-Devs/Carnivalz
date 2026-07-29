@@ -64,6 +64,7 @@ var negozi_sbloccati: Array[String] = []
 var eventi: Dictionary = {}
 var nodo_corrente: String = ""
 var carnivalz_corrente: String = ""
+var file_eventi_corrente: String = ""  # serve a rientrare nella zona dopo un game over
 var stanza_iniziale_zona: String = ""  # nodo_iniziale della zona (sempre sbloccato sulla mappa)
 var mappa_zona: Dictionary = {}         # "mappa_dungeon" del file eventi corrente, se presente
 var ospiti: Array[String] = []       # personaggi temporanei della campagna
@@ -257,6 +258,7 @@ func nuova_partita() -> void:
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
+	file_eventi_corrente = ""
 	stanza_iniziale_zona = ""
 	mappa_zona = {}
 	annulla_combattimento()
@@ -266,6 +268,7 @@ func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
 	if not dati is Dictionary:
 		return false
 	carnivalz_corrente = id_punto
+	file_eventi_corrente = file_eventi
 	eventi = dati.get("nodi", {})
 	nodo_corrente = dati.get("nodo_iniziale", "")
 	stanza_iniziale_zona = nodo_corrente
@@ -628,6 +631,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
+	file_eventi_corrente = ""
 	stanza_iniziale_zona = ""
 	mappa_zona = {}
 	punto_mappa_corrente = {}
@@ -642,12 +646,23 @@ func _lista_str(v: Variant) -> Array[String]:
 			a.append(str(x))
 	return a
 
-func game_over() -> void:
-	# sconfitta contro una vera fonte (un boss): non si viene "risputati nel
-	# vuoto", si perde tutto il progresso non salvato e si riparte
-	# dall'ultimo salvataggio (o da zero, se non si e' mai salvato)
+func game_over() -> bool:
+	# sconfitta seria: si perde tutto il progresso non salvato (si ricarica
+	# l'ultimo salvataggio, o si riparte da zero se non ne esiste), ma non si
+	# viene sbalzati sulla mappa stellare: si rientra nella zona in cui si
+	# stava giocando, dal suo punto di partenza. Ritorna true se il rientro
+	# e' riuscito, false se non c'era una zona in cui tornare.
+	var zona := carnivalz_corrente
+	var file_zona := file_eventi_corrente
+	var punto: Dictionary = punto_mappa_corrente.duplicate(true)
+	var musica := musica_ambiente
 	if not carica():
 		reset_campagna()
+	if zona == "" or file_zona == "":
+		return false
+	punto_mappa_corrente = punto
+	musica_ambiente = musica
+	return entra_squarcio(zona, file_zona)
 
 func reset_campagna() -> void:
 	# fine campagna: roster, inventario, Tazo, livelli, stress e legame
@@ -660,6 +675,7 @@ func reset_campagna() -> void:
 	eventi.clear()
 	nodo_corrente = ""
 	carnivalz_corrente = ""
+	file_eventi_corrente = ""
 	stanza_iniziale_zona = ""
 	mappa_zona = {}
 	annulla_combattimento()

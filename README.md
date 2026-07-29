@@ -463,10 +463,16 @@ bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scon
 - **`torna_vuoto`** su una scelta: esce dallo squarcio (gli alleati temporanei restano fuori)
 - **`game_over`** su una scelta: sconfitta seria (tipicamente contro una vera fonte, ma è una
   scelta del content author nodo per nodo — il tutorial, per esempio, la usa per ogni scontro).
-  Niente "si viene risputati nel Vuoto": si perde il progresso non salvato e si riparte
-  dall'ultimo salvataggio (`GameState.game_over()`, autosalvataggio; se non esiste,
-  `reset_campagna()`). Le sconfitte comuni, dove non serve, restano un `se_perdi` qualsiasi,
-  senza conseguenze permanenti
+  Si perde il progresso non salvato (si ricarica l'autosalvataggio; se non esiste,
+  `reset_campagna()`) ma **non si viene sbalzati sulla mappa stellare**: `GameState.game_over()`
+  rientra nella zona in cui si stava giocando e la fa ripartire dal suo `nodo_iniziale`
+  (`file_eventi_corrente`), restituendo `false` solo se non c'è una zona in cui tornare — solo
+  in quel caso si finisce sulla mappa. Le sconfitte comuni, dove non serve, restano un
+  `se_perdi` qualsiasi, senza conseguenze permanenti
+- **`vai_se_flag`** su un nodo: `{flag, vai}` — se quel flag è impostato, entrando in quel nodo
+  se ne mostra un altro al suo posto (`Main.mostra_nodo()`, prima di qualunque altro effetto).
+  Serve alle stanze che cambiano alla seconda visita: la collina del tutorial mostra l'agguato
+  della manifestazione solo la prima volta, poi una scena diversa con la scelta se affrontarla
 - **`combattimento_automatico`** su un nodo: `{nemici, se_vinci, se_perdi, se_fuggi}` — a fine
   sequenza il combattimento parte da solo, senza mostrare scelte (`Main.avvia_combattimento_
   automatico()`). Usato quando non c'è davvero nulla da scegliere: lo scontro è inevitabile

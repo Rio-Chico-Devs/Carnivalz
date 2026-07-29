@@ -30,6 +30,7 @@ const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
+const SCENA_EVENTI := "res://scenes/Main.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
 
 @onready var slot_sinistra = %SlotSinistra
@@ -64,6 +65,11 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 	var nodo: Dictionary = GameState.eventi.get(id_nodo, {})
 	if nodo.is_empty():
 		push_error("Nodo evento mancante: " + id_nodo)
+		return
+	if nodo.has("vai_se_flag") and GameState.ha_flag(String(nodo["vai_se_flag"].get("flag", ""))):
+		# stessa stanza, seconda visita: si mostra un altro nodo al suo posto
+		# (es. un luogo dove il primo incontro e' gia' avvenuto)
+		mostra_nodo(String(nodo["vai_se_flag"].get("vai", "")), notifiche_precedenti)
 		return
 	GameState.nodo_corrente = id_nodo
 	if nodo.has("flag"):
@@ -351,10 +357,12 @@ func _su_scelta(scelta: Dictionary) -> void:
 		get_tree().change_scene_to_file(SCENA_MAPPA)
 		return
 	if scelta.get("game_over", false):
-		# sconfitto da una vera fonte: niente "si viene risputati nel vuoto",
-		# si perde il progresso non salvato e si riparte dall'ultimo salvataggio
-		GameState.game_over()
-		get_tree().change_scene_to_file(SCENA_MAPPA)
+		# si perde il progresso non salvato, ma non si viene sbalzati sulla
+		# mappa stellare: si ricomincia il livello dal suo punto di partenza
+		if GameState.game_over():
+			get_tree().change_scene_to_file(SCENA_EVENTI)
+		else:
+			get_tree().change_scene_to_file(SCENA_MAPPA)
 		return
 	if scelta.get("torna_a_mappa", false):
 		# mappa dungeon di zona: si torna li' a scegliere la prossima stanza,

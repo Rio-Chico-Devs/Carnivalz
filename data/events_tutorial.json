@@ -74,7 +74,7 @@
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Un altro Goblin... e quella... cos'è? È enorme..." }
 			],
-			"combattimento_automatico": { "nemici": ["goblin_tipico", "tartaruga_innocente"], "salta_se_flag": "tut_pozze_fatte", "se_vinci": "dopo_pozze", "se_perdi": "sconfitta" }
+			"combattimento_automatico": { "nemici": ["goblin_tipico", "tartaruga_innocente"], "salta_se_flag": "tut_pozze_fatte", "se_vinci": "dopo_pozze", "se_perdi": "sconfitta", "se_fuggi": "bivio" }
 		},
 		"dopo_pozze": {
 			"sequenza": [
@@ -88,13 +88,26 @@
 			]
 		},
 		"collina": {
+			"vai_se_flag": { "flag": "tut_collina_vista", "vai": "collina_ritorno" },
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ho davvero un brutto presentimento..." },
 				{ "tipo": "narrazione", "testo": "Senti un odore dolce... Una creatura appare dal nulla, avvolgendoti in un velo iridescente che ti ricorda l'abbraccio di una madre." },
 				{ "tipo": "narrazione", "testo": "La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento..." }
 			],
 			"espr_sinistra": "sorpresa",
-			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "salta_se_flag": "tut_collina_fatta", "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "collina_fuga" }
+			"flag": "tut_collina_vista",
+			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "salta_se_flag": "tut_collina_fatta", "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "bivio" }
+		},
+		"collina_ritorno": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Devo scoprire di più su quella creatura." },
+				{ "tipo": "narrazione", "testo": "Proprio al centro della collina la strana creatura volteggia, ignorando tutto il resto..." }
+			],
+			"espr_sinistra": "pensiero",
+			"scelte": [
+				{ "testo": "Combatti", "richiede_non_flag": "tut_collina_fatta", "combatti": ["manifestazione_di_un_sogno"], "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "bivio" },
+				{ "testo": "Torna al bivio", "vai": "bivio" }
+			]
 		},
 		"dopo_collina": {
 			"sequenza": [
@@ -102,17 +115,6 @@
 			],
 			"espr_sinistra": "pensiero",
 			"flag": "tut_collina_fatta",
-			"sblocca_stanze": ["convergenza"],
-			"scelte": [
-				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
-				{ "testo": "Apri la mappa", "torna_a_mappa": true }
-			]
-		},
-		"collina_fuga": {
-			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ci è mancato poco... cos'era quello? Non avevo mai incontrato nulla di simile, ma di sicuro non era la causa di cui mi devo occupare..." }
-			],
-			"espr_sinistra": "pensiero",
 			"sblocca_stanze": ["convergenza"],
 			"scelte": [
 				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
