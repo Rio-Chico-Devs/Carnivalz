@@ -245,7 +245,9 @@ Numeri piccoli e leggibili, ma con scelte vere:
   l'ultima volta** (`ultimo_danno_subito`); se in un turno non ne subisce, recupera comunque
   metà dell'ultimo valore registrato — quindi vale colpire in fretta, non forte. Dopo
   `colpi_prima_della_gamba` colpi incassati gli cede una gamba: resta fermo `turni_fermo` turni
-  a ricucirsi, senza attaccare (una sola volta per scontro). È il Titano Zombie di Meridia
+  a ricucirsi, senza attaccare (una sola volta per scontro). È il **Titano Zombie**, l'incontro
+  casuale più duro dei quartieri profondi di Meridia — non un boss né una fonte: la creatura
+  più potente che quella frattura abbia prodotto, e un bersaglio da farming di alto livello
 - **Mossa `"meta_vita"`**: toglie sempre **metà dei punti vita attuali** del bersaglio,
   ignorando difesa, livello e critici; sotto `hp_soglia_ko` (5) è invece un KO secco. Non
   uccide mai per il solo dimezzamento (lascia almeno 1 hp): o sei già quasi morto, o
@@ -440,8 +442,16 @@ Schermate: `Menu.tscn` (scena d'avvio) → Album/Bestiario/Compendio, che estend
 Ogni punto "!" apre il suo **sistema deformato** (scena Vuoto): il pianeta al centro
 (→ selezione party → campagna) e gli **squarci** intorno, definiti in `mappa.json`
 (`vuoti` del punto: id, nome, pos, file_eventi, `nascosto` + `richiede_oggetti`/
-`richiede_flag` per farli apparire). Gli squarci usano il motore eventi con stanze
-collegate nei due sensi (perlustrazione libera):
+`richiede_flags` per farli apparire). Gli squarci usano il motore eventi con stanze
+collegate nei due sensi (perlustrazione libera).
+
+**Le fratture non sono quest.** Sono frazioni del mondo vero, aperte come conseguenza del
+Carnivalz: non contengono una fonte e non si "completano" sconfiggendo qualcosa. Le prime
+del Vuoto Ardente (Meridia, Squarcio Industriale) si chiudono semplicemente esplorandole fino
+in fondo — il flag che impostano è di **esplorazione** (`meridia_esplorata`,
+`industriale_esplorato`), non di quest. La fonte non sta qui: si incontra nelle fratture più
+avanti. Fanno eccezione i luoghi che una fonte ce l'hanno davvero (la Casa Gigante con la
+bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scontro.
 - **`agguato`** su un nodo: `{probabilita, gruppi: [[ids]...], se_perdi}` — tirato una
   volta per stanza a visita (seedato); vinto lo scontro si torna nella stanza; a ogni
   rientro nello squarcio gli agguati si resettano (i nemici rispuntano). Con
@@ -729,6 +739,12 @@ es. il giocoliere che perde il sorriso un attimo prima del combattimento).
     con lore a pagine di giornale) e "Qualcosa preme" (frattura-segnale,
     espulsione automatica) — **il primo Vuoto è completo nella sua forma
     base**: 6 fratture attorno al pianeta di Jerah
+17b. ✅ **Il Vuoto Ardente** (ex "L'ultimo spettacolo di Jerah": il Vuoto non porta più il nome
+    del suo boss). Ordine di apertura: prima Meridia e lo Squarcio Industriale — semplici
+    frazioni del mondo vero, senza fonte, che si chiudono esplorandole; solo dopo compaiono
+    la Casa Gigante e il Teatro del Passato. Meridia è farm zone: agguati ripetibili, gruppi
+    fino a 3 nemici, quartieri profondi con Zombie Mostruoso, Orrore di Meridia e il raro
+    Titano Zombie
 18. ⬜ Gli altri 5 vuoti principali e la crepa post-Vuoto 5 (contenuti di Bru). Dopo il Vuoto 7,
     alcuni livelli già visti ripiombano nel caos: si ripercorrono per estinguere i 4 cavalieri
     a guardia del boss finale del gioco — solo battendoli tutti si sblocca l'ultimo Vuoto

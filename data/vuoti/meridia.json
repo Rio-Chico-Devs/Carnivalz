@@ -77,6 +77,7 @@
 			]
 		},
 		"quartieri_profondi": {
+			"flag": "meridia_esplorata",
 			"testo": "Più a fondo la città cambia: i palazzi si stringono, la luce non arriva più e il silenzio ha un peso diverso. Qui non si muove niente finché non decide di muoversi tutto insieme.",
 			"agguato": {
 				"probabilita": 0.65,
@@ -86,24 +87,7 @@
 			},
 			"scelte": [
 				{ "testo": "Continua a battere i quartieri profondi", "vai": "quartieri_profondi" },
-				{ "testo": "Spingiti fino al cuore della città", "richiede_non_flag": "quest_meridia", "vai": "cuore_profondo" },
 				{ "testo": "Torna al vicolo", "vai": "vicolo" }
-			]
-		},
-		"cuore_profondo": {
-			"sequenza": [
-				{ "tipo": "narrazione", "testo": "In fondo ai quartieri profondi la strada si allarga in una piazza che era un mercato. Al centro, qualcosa di enorme sta immobile, in piedi solo perché non ha mai ricevuto il permesso di cadere." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Quella cosa... continua a ricucirsi da sola. Colpirla più forte non servirà a niente: devo colpirla più in fretta di quanto si aggiusti." }
-			],
-			"centro": "titano_zombie",
-			"combattimento_automatico": { "nemici": ["titano_zombie"], "salta_se_flag": "quest_meridia", "se_vinci": "meridia_vittoria", "se_perdi": "espulso" }
-		},
-		"meridia_vittoria": {
-			"testo": "Il titano non si ricuce più. Meridia resta quello che è — una città piena di morti che camminano — ma la cosa che la teneva sveglia fin nelle ossa ha smesso di respirare. Da qui in poi la città è solo un posto pericoloso, non più una condanna.",
-			"flag": "quest_meridia",
-			"scelte": [
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true },
-				{ "testo": "Resta a battere la città", "vai": "quartieri_profondi" }
 			]
 		},
 		"espulso": {

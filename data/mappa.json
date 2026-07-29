@@ -35,7 +35,7 @@
 					"nome": "Il Teatro del Passato",
 					"pos": [660, 150],
 					"nascosto": true,
-					"richiede_flags": ["quest_industriale", "quest_meridia"],
+					"richiede_flags": ["industriale_esplorato", "meridia_esplorata"],
 					"musica": "res://audio/musica/frattura_teatro.ogg",
 					"file_eventi": "res://data/vuoti/teatro_del_passato.json"
 				},
@@ -44,7 +44,7 @@
 					"nome": "La Casa Gigante",
 					"pos": [900, 400],
 					"nascosto": true,
-					"richiede_flags": ["quest_industriale", "quest_meridia"],
+					"richiede_flags": ["industriale_esplorato", "meridia_esplorata"],
 					"musica": "res://audio/musica/frattura_casa.ogg",
 					"file_eventi": "res://data/vuoti/casa_gigante.json"
 				},
@@ -74,7 +74,7 @@
 					"nome": "Kizako Industries — Ala Dimenticata",
 					"pos": [180, 420],
 					"nascosto": true,
-					"richiede_flags": ["quest_industriale", "quest_teatro", "casa_ricordo_sconfitto"],
+					"richiede_flags": ["industriale_esplorato", "quest_teatro", "casa_ricordo_sconfitto"],
 					"musica": "res://audio/musica/frattura_kizako.ogg",
 					"file_eventi": "res://data/vuoti/kizako_ala.json"
 				},
@@ -83,7 +83,7 @@
 					"nome": "La Fontana",
 					"pos": [520, 560],
 					"nascosto": true,
-					"richiede_flags": ["quest_industriale", "quest_teatro", "casa_ricordo_sconfitto"],
+					"richiede_flags": ["industriale_esplorato", "quest_teatro", "casa_ricordo_sconfitto"],
 					"musica": "res://audio/musica/frattura_fontana.ogg",
 					"file_eventi": "res://data/vuoti/fontana.json"
 				},
