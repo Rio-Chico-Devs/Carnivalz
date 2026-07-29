@@ -307,10 +307,6 @@
 			"peso_attacco_normale": 3,
 			"ritratto": "res://art/personaggi/jongo_dongo.png",
 			"descrizione": "Un tempo signore di queste terre. Sacrificò raccolti e famiglie intere per la propria fortuna, e non si è mai pentito: la maledizione delle famiglie in lutto lo ha fatto marcire vivo, ma non lo ha fermato.",
-			"descrizione_extra": {
-				"richiede_oggetto": "elenco_dei_sacrificati",
-				"testo": "Le ultime righe dell'elenco sono scritte con una grafia più tremante, come se la mano che scriveva stesse ancora decidendo. Gli ultimi nomi sulla lista condividono il suo: erano la sua famiglia. Non ha esitato nemmeno allora. Fino a dove ci si può spingere in cerca del potere..."
-			},
 			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
 			"fonte": true,
 			"convincibile": false,
@@ -979,7 +975,74 @@
 		{
 			"id": "veronica",
 			"nome": "Veronica",
+			"categoria": "particolare",
+			"hp": 60,
+			"attacco": 4,
+			"difesa": 2,
+			"velocita": 4,
+			"xp": 0,
+			"tazo": 0,
+			"invincibile": true,
+			"peso_attacco_normale": 0,
 			"ritratto": "res://art/personaggi/veronica.png",
+			"descrizione": "La tua allenatrice, e l'amica d'infanzia che non ha mai imparato a dosare la forza.",
+			"tutorial_combattimento": {
+				"passi": [
+					{
+						"azione": "attacca",
+						"prima": [
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "Fammi vedere di cosa sei capace: colpiscimi al massimo della potenza." },
+							{ "tipo": "narrazione", "testo": "Scegli ATTACCA per colpire. È l'azione base: il danno dipende dal tuo attacco meno la difesa di chi hai davanti." }
+						],
+						"dopo": [
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "Spero che quello non fosse tutto quello di cui sei capace, {nome}..." }
+						]
+					},
+					{
+						"azione": "difendi",
+						"prima": [
+							{ "tipo": "narrazione", "testo": "Veronica sembra caricare un pugno. È il momento di difendersi." },
+							{ "tipo": "narrazione", "testo": "Scegli DIFENDITI: alza la guardia per il turno. Usata di fila cresce, ma sempre di meno — e si perde appena fai altro." }
+						],
+						"dopo": [
+							{ "tipo": "narrazione", "testo": "Ti difendi, ma il colpo è comunque enorme: finisci a un passo dal collasso." }
+						]
+					},
+					{
+						"azione": "oggetto",
+						"oggetto": "fiala_hp",
+						"prima": [
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "In piedi. E adesso curati con tutta la tua anima!" },
+							{ "tipo": "narrazione", "testo": "Apri OGGETTI e usa la Fiala HP: i consumabili si spendono, ma possono salvarti il combattimento." }
+						],
+						"dopo": [
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "Ottimo, che tu sia rimasto in piedi mi fa bruciare di emozione! Vuol dire che sono stata un'insegnante incredibilmente efficiente." }
+						]
+					},
+					{
+						"azione": "oggetto",
+						"oggetto": "bomba_al_nitro",
+						"prima": [
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "Prova a colpirmi con un oggetto ora: scommetto che riuscirò a uscirne illesa alla massima potenza!" },
+							{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm, sei la solita esagerata... una bomba al nitro?" },
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "Colpiscimi! Sto bruciando come mille soli!" }
+						],
+						"dopo": [
+							{ "tipo": "narrazione", "testo": "La bomba al nitro infligge moltissimi danni — ma Veronica resta in piedi grazie a una passiva: Invincibile, non può essere messa KO in un colpo solo." },
+							{ "tipo": "narrazione", "testo": "Le abilità passive si ottengono da oggetti equipaggiati, salendo di livello, o avendo in squadra un compagno con un forte legame." },
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "Hai visto!? È così che si fa a superare ogni limite!!!" },
+							{ "tipo": "dialogo", "chi": "anonimo", "testo": "Forse dovresti curarti..." },
+							{ "tipo": "dialogo", "chi": "veronica", "testo": "Curarmi? E perché... piuttosto preparati..." }
+						]
+					}
+				],
+				"oggetti_forniti": ["fiala_hp", "bomba_al_nitro"],
+				"finale": [
+					{ "tipo": "narrazione", "testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla." },
+					{ "tipo": "notifica", "testo": "Sei stato messo KO." },
+					{ "tipo": "dialogo", "chi": "veronica", "testo": "... Ho esagerato di nuovo... Ma al massimo della potenza!" }
+				]
+			},
 			"studio": [
 				{ "domanda": "Veronica...", "risposta": "Veronica mi è sempre stata affianco fin da quando eravamo piccoli." },
 				{ "domanda": "C'è dell'altro?", "risposta": "Cerca sempre di essere positiva, ma io so cosa ha passato... la ammiro molto." }

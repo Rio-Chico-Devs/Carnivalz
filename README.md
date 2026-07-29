@@ -241,6 +241,18 @@ Numeri piccoli e leggibili, ma con scelte vere:
   (`mossa_in_carica` sul combattente). Dà al giocatore un giro per reagire (difendersi, curarsi,
   ecc.) prima del colpo grosso — premia chi legge i segnali, non solo chi picchia più forte.
   Prima ad averla: `colpo_marcio` di Jongo Dongo
+- **Tutorial guidato in combattimento** (`"tutorial_combattimento"` su un nemico): uno script a
+  passi che detta, turno per turno, cosa il giocatore deve fare. Ogni passo ha `azione`
+  (`attacca` / `difendi` / `oggetto`, con `oggetto` opzionale per imporre quale), i messaggi
+  `prima` (l'istruzione) e `dopo` (la reazione). Il menu azioni si riduce a quella sola voce,
+  **evidenziata e pulsante** (`bottone_azione(..., evidenziato)`), le altre restano visibili ma
+  spente; **Abilità → Studia resta sempre libero**, perché guardare non è mai un errore e non
+  consuma il passo. Il portatore dello script **non agisce di suo**: le sue reazioni sono i
+  testi dei passi, non tiri di dado. `oggetti_forniti` garantisce che il giocatore abbia gli
+  oggetti richiesti; a passi finiti va in scena `finale` e lo scontro si chiude per copione
+  (`sconfitta_scriptata()`), non per vittoria. Primo caso: l'allenamento con **Veronica** al
+  quartier generale, che insegna Attacca, Difenditi, gli oggetti curativi e quelli offensivi —
+  ed essendo `invincibile` non può essere uccisa per sbaglio
 - **HP incatenati tra scontri**: a fine combattimento gli hp rimasti restano in
   `GameState.hp_persistenti` e il combattimento successivo riparte da lì; si recupera tutto
   appena si mette piede in una stanza **senza** che scatti un agguato (`Main.mostra_nodo()`).

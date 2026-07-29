@@ -300,9 +300,9 @@
 			"testo": "Si narra di esseri nati dal bitume più nero, che vivono negli incubi delle persone.\n\nEsseri abietti che non hanno mai conosciuto la grazia di un tocco gentile.\n\nNon conoscono pietà o rimorso, schiavi perfetti di un oscuro potere che tutto fa marcire.\n\nIn fondo, chi avrebbe mai fatto qualcosa per loro?\n\nBenvenuto, nelle profondità marcite di Jondoh, possa la terra perdonare chi l'ha calpestata senza rispetto.",
 			"flag": "oss_cripta_superata",
 			"scelte": [
-				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "altare_con_yara", "una_tantum": "oss_elenco", "oggetto": "elenco_dei_sacrificati" },
-				{ "testo": "Continua", "richiede_non_flag": "oss_compagna_reclutata", "vai": "altare_da_solo", "una_tantum": "oss_elenco", "oggetto": "elenco_dei_sacrificati" },
-				{ "testo": "Scendi verso il trono", "richiede_flag": "oss_elenco", "vai": "altare_gia_visto" }
+				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "altare_con_yara" },
+				{ "testo": "Continua", "richiede_non_flag": "oss_compagna_reclutata", "vai": "altare_da_solo" },
+				{ "testo": "Scendi verso il trono", "richiede_flag": "oss_altare_visto", "vai": "altare_gia_visto" }
 			]
 		},
 		"altare_gia_visto": {
@@ -315,6 +315,7 @@
 			]
 		},
 		"altare_da_solo": {
+			"flag": "oss_altare_visto",
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Quella creatura non era pericolosa... eppure sembrava impossibile infliggergli del danno vero... anche se... sembrava comunque soffrire..." }
 			],
@@ -325,6 +326,7 @@
 			]
 		},
 		"altare_con_yara": {
+			"flag": "oss_altare_visto",
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Povera creatura... Cosa pensi sia successo a quella cosa?" },
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questo posto... è qualcosa che non dovrebbe esistere... Non ho risposte alla tua domanda..." },

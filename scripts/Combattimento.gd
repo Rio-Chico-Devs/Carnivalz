@@ -63,6 +63,16 @@ var ultima_azione_offensiva := false
 # che finisce in una scena fatale scriptata se non si fugge (o vince) in
 # tempo - l'unico modo di perdere questo scontro. Usato per ora solo dalla
 # manifestazione di un sogno nel tutorial.
+# tutorial guidato: un nemico puo' portare uno script che detta, turno per
+# turno, quale azione il giocatore deve compiere. Il menu si riduce a quella
+# (piu' Studia, sempre libero), il bottone giusto viene evidenziato, e finche'
+# non la si esegue non si va avanti. Nessuna automazione: le azioni le fa il
+# giocatore.
+var tutorial: Dictionary = {}
+var tutorial_passo := 0
+var tutorial_finito := false
+var tutorial_passi_introdotti: Array[int] = []
+
 var portatore_incontro: Dictionary = {}
 var incontro_apertura_mostrata := false
 var incontro_tentativi_fuga := 0
@@ -122,6 +132,11 @@ func _ready() -> void:
 			portatore_rabbia = dati
 		if portatore_fuga_bloccata.is_empty() and dati.has("blocca_fuga_turni"):
 			portatore_fuga_bloccata = dati
+		if tutorial.is_empty() and dati.has("tutorial_combattimento"):
+			tutorial = dati["tutorial_combattimento"]
+			for id_oggetto in tutorial.get("oggetti_forniti", []):
+				if not GameState.possiede_oggetto(String(id_oggetto)):
+					GameState.aggiungi_oggetto(String(id_oggetto))
 	var categoria_apertura := categoria_migliore_presente()
 	if categoria_apertura == "boss" or categoria_apertura == "miniboss":
 		scrivi("[b]Il disallineamento fa spazio: si combatte.[/b]")
@@ -353,6 +368,11 @@ func esegui_turno(attaccante: Dictionary) -> void:
 			if not nemici.is_empty():
 				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)])
 		else:
+			var passo_corrente := passo_tutorial()
+			if not passo_corrente.is_empty() and tutorial_passo not in tutorial_passi_introdotti:
+				tutorial_passi_introdotti.append(tutorial_passo)
+				for msg in passo_corrente.get("prima", []):
+					scrivi_messaggio_tutorial(msg)
 			mostra_azioni()
 			var azione: Dictionary = await azione_scelta
 			var bersaglio_scelto: Dictionary = azione.get("bersaglio", {})
@@ -369,6 +389,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				# smette di accumularsi appena si fa altro: o si tiene la
 				# guardia, o si rischia attaccando - non si ha tutto insieme
 				attaccante.difesa_accumulo = 0.0
+			avanza_tutorial(azione)
 			match azione.get("tipo", ""):
 				"attacca":
 					attacca(attaccante, bersaglio_scelto)
@@ -403,15 +424,73 @@ func pulisci_azioni() -> void:
 	for figlio in azioni.get_children():
 		figlio.queue_free()
 
-func bottone_azione(testo: String, richiamo: Callable, spento := false) -> void:
+func bottone_azione(testo: String, richiamo: Callable, spento := false, evidenziato := false) -> void:
 	var bottone := Button.new()
-	bottone.text = testo
+	bottone.text = ("▶  " + testo) if evidenziato else testo
 	bottone.disabled = spento
 	bottone.pressed.connect(richiamo)
 	azioni.add_child(bottone)
+	if evidenziato:
+		# pulsa finche' non lo premi: e' li' che deve guardare il giocatore
+		bottone.modulate = Color(1, 0.95, 0.5)
+		var battito: Tween = bottone.create_tween().set_loops()
+		battito.tween_property(bottone, "modulate:a", 0.5, 0.45)
+		battito.tween_property(bottone, "modulate:a", 1.0, 0.45)
+
+func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
+	var testo := String(msg.get("testo", ""))
+	if testo.find("{nome}") != -1:
+		testo = testo.replace("{nome}", String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "")))
+	match String(msg.get("tipo", "narrazione")):
+		"dialogo":
+			var chi := String(msg.get("chi", GameState.id_protagonista))
+			scrivi("%s: \"%s\"" % [String(GameState.personaggi.get(chi, {}).get("nome", chi)), testo])
+		"notifica":
+			scrivi("[b]%s[/b]" % testo)
+		_:
+			scrivi("[i]%s[/i]" % testo)
+
+func avanza_tutorial(azione: Dictionary) -> void:
+	# il passo si chiude solo se il giocatore ha fatto davvero quello che gli
+	# era stato chiesto (Studia non consuma il passo: e' sempre concesso)
+	var passo := passo_tutorial()
+	if passo.is_empty():
+		return
+	if String(azione.get("tipo", "")) != String(passo.get("azione", "")):
+		return
+	if passo.has("oggetto") and String(azione.get("id", "")) != String(passo["oggetto"]):
+		return
+	for msg in passo.get("dopo", []):
+		scrivi_messaggio_tutorial(msg)
+	tutorial_passo += 1
+	if tutorial_passo >= tutorial.get("passi", []).size():
+		concludi_tutorial()
+
+func concludi_tutorial() -> void:
+	# lo scontro non si vince: finisce come deve finire, con la sua scena
+	tutorial_finito = true
+	for msg in tutorial.get("finale", []):
+		scrivi_messaggio_tutorial(msg)
+	sconfitta_scriptata()
+
+func passo_tutorial() -> Dictionary:
+	if tutorial.is_empty() or tutorial_finito:
+		return {}
+	var passi: Array = tutorial.get("passi", [])
+	return passi[tutorial_passo] if tutorial_passo < passi.size() else {}
 
 func mostra_azioni() -> void:
 	pulisci_azioni()
+	var passo := passo_tutorial()
+	if not passo.is_empty():
+		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
+		# sempre libero: guardare non e' mai un errore)
+		var richiesta := String(passo.get("azione", ""))
+		bottone_azione("Attacca", _menu_bersagli, richiesta != "attacca", richiesta == "attacca")
+		bottone_azione("Difenditi", _scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
+		bottone_azione("Abilità", _menu_abilita)
+		bottone_azione("Oggetti", _menu_oggetti, richiesta != "oggetto", richiesta == "oggetto")
+		return
 	bottone_azione("Attacca", _menu_bersagli)
 	bottone_azione("Difenditi", _scegli.bind({"tipo": "difendi"}))
 	bottone_azione("Abilità", _menu_abilita)
@@ -443,10 +522,14 @@ func _menu_oggetti() -> void:
 	var conteggio := {}
 	for id_oggetto in GameState.sacca:
 		conteggio[id_oggetto] = int(conteggio.get(id_oggetto, 0)) + 1
+	var passo := passo_tutorial()
+	var solo_questo := String(passo.get("oggetto", "")) if not passo.is_empty() else ""
 	for id_oggetto in conteggio:
 		var nome: String = GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)
+		var richiesto := solo_questo != "" and id_oggetto == solo_questo
 		bottone_azione("%s ×%d" % [nome, conteggio[id_oggetto]],
-				_scegli.bind({"tipo": "oggetto", "id": id_oggetto}))
+				_scegli.bind({"tipo": "oggetto", "id": id_oggetto}),
+				solo_questo != "" and not richiesto, richiesto)
 	bottone_azione("Indietro", mostra_azioni)
 
 func _menu_alleati() -> void:
@@ -692,6 +775,10 @@ func primo_nemico() -> Dictionary:
 # --- turno nemico e mosse ---
 
 func turno_nemico(nemico: Dictionary) -> void:
+	if not tutorial.is_empty() and not tutorial_finito \
+			and GameState.personaggi.get(nemico.id, {}).has("tutorial_combattimento"):
+		return  # durante il tutorial le sue reazioni sono scritte nei passi, non tirate a caso
+
 	if not portatore_incontro.is_empty() and nemico.id == portatore_incontro.id:
 		if not incontro_apertura_mostrata:
 			# il giocatore, piu' veloce, ha gia' agito normalmente questo giro:

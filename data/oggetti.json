@@ -64,6 +64,13 @@
 			"effetto": { "hp": 20 }
 		},
 		{
+			"id": "bomba_al_nitro",
+			"nome": "Bomba al nitro",
+			"tipo": "consumabile",
+			"descrizione": "Instabile, rumorosa, sproporzionata. Veronica ne tiene una scatola intera ai campi di addestramento.",
+			"effetto": { "danno": 12 }
+		},
+		{
 			"id": "molotov",
 			"nome": "Molotov",
 			"tipo": "consumabile",
@@ -191,12 +198,6 @@
 			"nome": "Il mondo è il mio Tesoro",
 			"tipo": "chiave",
 			"descrizione": "Un'arma forgiata dall'Artigiano su un nucleo che divora e restituisce doppio. Finché la porti con te, ogni nemico sconfitto rende di più: più bottino, più chance di drop rari."
-		},
-		{
-			"id": "elenco_dei_sacrificati",
-			"nome": "Elenco dei sacrificati",
-			"tipo": "chiave",
-			"descrizione": "Nomi su nomi, per anni, nella stessa grafia. Verso la fine, la grafia trema. Gli ultimi nomi non li hai ancora letti con attenzione."
 		},
 		{
 			"id": "pergamene_incomprensibili",

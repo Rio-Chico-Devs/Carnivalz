@@ -228,27 +228,11 @@
 		},
 		"hq_scontro_veronica": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "Fammi vedere di cosa sei capace, colpiscimi al massimo della potenza." },
-				{ "tipo": "narrazione", "testo": "Attacchi con tutto te stesso: il colpo va a segno." },
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "Spero che quello non fosse tutto quello di cui sei capace, {nome}..." },
-				{ "tipo": "narrazione", "testo": "Veronica sembra caricare un pugno. È il momento di difendersi." },
-				{ "tipo": "narrazione", "testo": "Ti difendi, ma il colpo è comunque enorme: finisci a un passo dal collasso." },
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "In piedi. E adesso curati con tutta la tua anima!" },
-				{ "tipo": "narrazione", "testo": "Usi una fiala HP: basta appena a rimetterti in sesto." },
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "Ottimo, che tu sia rimasto in piedi mi fa bruciare di emozione! Vuol dire che sono stata un'insegnante incredibilmente efficiente. Prova a colpirmi con un oggetto ora, scommetto che riuscirò a uscirne illesa alla massima potenza!" },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm, sei la solita esagerata... una bomba al nitro?" },
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "Colpiscimi! Sto bruciando come mille soli!" },
-				{ "tipo": "narrazione", "testo": "Usi la bomba al nitro: un oggetto potente, infligge molti danni. Ma Veronica resta in piedi grazie a una sua abilità passiva — Invincibile: non può essere messa KO in un colpo solo. Le abilità passive si ottengono da oggetti equipaggiati, livellando, o avendo un compagno con un forte legame in squadra." },
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "Hai visto!? È così che si fa a superare ogni limite!!!" },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Forse dovresti curarti..." },
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "Curarmi? E perché... piuttosto preparati..." },
-				{ "tipo": "narrazione", "testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla." },
-				{ "tipo": "notifica", "testo": "Sei stato messo KO." },
-				{ "tipo": "dialogo", "chi": "veronica", "testo": "... Ho esagerato di nuovo... Ma al massimo della potenza!" }
+				{ "tipo": "narrazione", "testo": "Veronica si mette in posizione. Questo non è un discorso: è un allenamento, e tocca a te muoverti." }
 			],
-			"scelte": [
-				{ "testo": "...", "vai": "hq_infermeria" }
-			]
+			"centro": "veronica",
+			"espr_centro": "decisa",
+			"combattimento_automatico": { "nemici": ["veronica"], "se_vinci": "hq_infermeria", "se_perdi": "hq_infermeria" }
 		},
 		"hq_infermeria": {
 			"sequenza": [
