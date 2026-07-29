@@ -692,12 +692,14 @@ func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
 		return
 	var bersaglio: Dictionary = protagonisti_vivi[0]
 	var nome_protagonista: String = String(bersaglio.nome)
+	# la scena si vede sempre per intero, fino al bacio: e' solo dopo che il
+	# destino si divide, a seconda che qualcosa ti protegga dal sonno o no
+	scrivi("%s: \"%s\"" % [nome_protagonista, String(dati_incontro.get("testo_fatale_protagonista", ""))])
+	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
 	var scudo_prima := scudo_primo_stato_pronto
 	applica_stato(bersaglio, "sonno")
 	if ha_stato_attivo(bersaglio, "sonno"):
-		# lo stato ha attecchito per davvero: game over, come sempre
-		scrivi("%s: \"%s\"" % [nome_protagonista, String(dati_incontro.get("testo_fatale_protagonista", ""))])
-		scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
+		# niente ha fermato il sonno: game over
 		sconfitta_scriptata()
 		return
 	# respinto: o lo scudo l'ha appena consumato adesso, o l'immunita' era
