@@ -4,6 +4,11 @@
 		"sfondo": "res://art/mappe_zona/jondoh.png",
 		"flag_completamento": "quest_ossidiana",
 		"stanze": [
+			{ "id": "varco", "nome": "Il varco", "pos": [400, 700] },
+			{ "id": "corridoio_ossidiana", "nome": "Corridoio di ossidiana", "pos": [400, 620] },
+			{ "id": "fossa_oscura", "nome": "La fossa oscura", "pos": [200, 620] },
+			{ "id": "sala_del_raccolto", "nome": "Sala del raccolto", "pos": [600, 620] },
+			{ "id": "sala_del_lamento", "nome": "Sala del lamento", "pos": [600, 540] },
 			{ "id": "cunicolo_1", "nome": "Bivio dei cunicoli", "pos": [400, 320] },
 			{ "id": "cunicolo_2", "nome": "Cunicolo di sinistra", "pos": [220, 220] },
 			{ "id": "piazza_sotterranea", "nome": "Piazza sotterranea", "pos": [100, 120] },
@@ -12,6 +17,13 @@
 			{ "id": "ponte_approccio", "nome": "Il grande ponte marcio", "pos": [400, 460] }
 		],
 		"connessioni": [
+			["varco", "corridoio_ossidiana"],
+			["corridoio_ossidiana", "fossa_oscura"],
+			["corridoio_ossidiana", "sala_del_raccolto"],
+			["sala_del_raccolto", "sala_del_lamento"],
+			["sala_del_lamento", "cunicolo_1"],
+			["sala_del_lamento", "ponte_approccio"],
+			["cunicolo_1", "ponte_approccio"],
 			["cunicolo_1", "cunicolo_2"],
 			["cunicolo_1", "cunicolo_3"],
 			["cunicolo_2", "piazza_sotterranea"],
@@ -144,9 +156,20 @@
 			],
 			"centro": "sopravvissuta",
 			"scelte": [
-				{ "testo": "Chiedile di unirsi a te", "richiede_non_flag": "oss_compagna_reclutata", "recluta_temporaneo": "sopravvissuta", "livello_alleato": 5, "una_tantum": "oss_compagna_reclutata", "vai": "piazza_sotterranea" },
+				{ "testo": "Chiedile di unirsi a te", "richiede_non_flag": "oss_compagna_reclutata", "recluta_temporaneo": "sopravvissuta", "livello_alleato": 5, "una_tantum": "oss_compagna_reclutata", "vai": "yara_si_unisce" },
 				{ "testo": "Torna al cunicolo", "vai": "cunicolo_2" },
 				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+			]
+		},
+		"yara_si_unisce": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Va bene. Non perché mi fidi di te: perché da sola non ci sono mai arrivata." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Vado avanti io quando serve. Tu bada a non morire." }
+			],
+			"centro": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Torna al cunicolo", "vai": "cunicolo_2" },
+				{ "testo": "Apri la mappa", "torna_a_mappa": true }
 			]
 		},
 		"cargo_abbandonato": {
@@ -277,11 +300,41 @@
 			"testo": "Si narra di esseri nati dal bitume più nero, che vivono negli incubi delle persone.\n\nEsseri abietti che non hanno mai conosciuto la grazia di un tocco gentile.\n\nNon conoscono pietà o rimorso, schiavi perfetti di un oscuro potere che tutto fa marcire.\n\nIn fondo, chi avrebbe mai fatto qualcosa per loro?\n\nBenvenuto, nelle profondità marcite di Jondoh, possa la terra perdonare chi l'ha calpestata senza rispetto.",
 			"flag": "oss_cripta_superata",
 			"scelte": [
-				{ "testo": "Leggi l'elenco dei sacrificati", "vai": "altare_dei_sacrifici", "una_tantum": "oss_elenco", "oggetto": "elenco_dei_sacrificati" },
+				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "altare_con_yara", "una_tantum": "oss_elenco", "oggetto": "elenco_dei_sacrificati" },
+				{ "testo": "Continua", "richiede_non_flag": "oss_compagna_reclutata", "vai": "altare_da_solo", "una_tantum": "oss_elenco", "oggetto": "elenco_dei_sacrificati" },
+				{ "testo": "Scendi verso il trono", "richiede_flag": "oss_elenco", "vai": "altare_gia_visto" }
+			]
+		},
+		"altare_gia_visto": {
+			"testo": "L'altare è come l'hai lasciato: candele consumate, l'elenco chiuso, la scalinata che scende verso la luce rossastra.",
+			"scelte": [
 				{ "testo": "Scendi verso il trono", "richiede_flag": "oss_compagna_reclutata", "vai": "trono_marcio_con_compagna" },
 				{ "testo": "Scendi verso il trono", "richiede_non_flag": "oss_compagna_reclutata", "vai": "trono_marcio_senza_compagna" },
 				{ "testo": "Torna alla cripta", "richiede_flag": "oss_compagna_reclutata", "vai": "cripta_con_compagna" },
 				{ "testo": "Torna alla cripta", "richiede_non_flag": "oss_compagna_reclutata", "vai": "cripta_senza_compagna" }
+			]
+		},
+		"altare_da_solo": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Quella creatura non era pericolosa... eppure sembrava impossibile infliggergli del danno vero... anche se... sembrava comunque soffrire..." }
+			],
+			"espr_sinistra": "pensiero",
+			"scelte": [
+				{ "testo": "Scendi verso il trono", "vai": "trono_marcio_senza_compagna" },
+				{ "testo": "Torna alla cripta", "vai": "cripta_senza_compagna" }
+			]
+		},
+		"altare_con_yara": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Povera creatura... Cosa pensi sia successo a quella cosa?" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questo posto... è qualcosa che non dovrebbe esistere... Non ho risposte alla tua domanda..." },
+				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non perdonerò mai chi ha causato tutto questo." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." }
+			],
+			"centro": "sopravvissuta",
+			"scelte": [
+				{ "testo": "Scendi verso il trono", "vai": "trono_marcio_con_compagna" },
+				{ "testo": "Torna alla cripta", "vai": "cripta_con_compagna" }
 			]
 		},
 		"trono_marcio_senza_compagna": {
@@ -292,7 +345,7 @@
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "jongo_prima_caduta", "se_perdi": "sconfitta_boss" }
 			]
 		},
 		"trono_marcio_con_compagna": {
@@ -309,9 +362,22 @@
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"congeda": "sopravvissuta",
+			"flag": "oss_yara_esplosa",
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "jongo_prima_caduta", "se_perdi": "sconfitta_boss" }
 			]
+		},
+		"jongo_prima_caduta": {
+			"sequenza": [
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Finalmente questa storia ha una fine." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... Come mai non percepisco alcun cambiamento?" },
+				{ "tipo": "narrazione", "testo": "Jongo Dongo si rialza." },
+				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... Come fa ad essere ancora in piedi?!" }
+			],
+			"centro": "jongo_dongo",
+			"mantieni_hp": true,
+			"combattimento_automatico": { "nemici": ["jongo_dongo_risorto"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
 		},
 		"vittoria": {
 			"testo": "Jongo Dongo cade in ginocchio, poi si sfalda: la maledizione che lo teneva in piedi si scioglie insieme a lui. Non chiede perdono. Dai rimasugli sparsi nel vento si alza una voce sinistra... \"Eravamo così... vicini... il viaggio...\". L'ossidiana intorno smette di sudare, l'aria si alleggerisce e in lontananza puoi percepire qualcosa che si addormenta dolcemente.",

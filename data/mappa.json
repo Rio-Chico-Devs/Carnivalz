@@ -19,7 +19,7 @@
 			"pos": [400, 300],
 			"attivo": true,
 			"richiede_flag": "tutorial_completato",
-			"pianeta_richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_teatro", "casa_ricordo_sconfitto"],
+			"pianeta_richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
 			"file_eventi": "res://data/events.json",
 			"musica": "res://audio/musica/vuoto_jerah.ogg",
 			"musica_campagna": "res://audio/musica/campagna_jerah.ogg",
@@ -36,7 +36,7 @@
 					"nome": "Il Teatro del Passato",
 					"pos": [660, 150],
 					"nascosto": true,
-					"richiede_flags": ["industriale_esplorato", "meridia_esplorata"],
+					"richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
 					"musica": "res://audio/musica/frattura_teatro.ogg",
 					"file_eventi": "res://data/vuoti/teatro_del_passato.json"
 				},
@@ -45,7 +45,7 @@
 					"nome": "La Casa Gigante",
 					"pos": [900, 400],
 					"nascosto": true,
-					"richiede_flags": ["industriale_esplorato", "meridia_esplorata"],
+					"richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
 					"musica": "res://audio/musica/frattura_casa.ogg",
 					"file_eventi": "res://data/vuoti/casa_gigante.json"
 				},

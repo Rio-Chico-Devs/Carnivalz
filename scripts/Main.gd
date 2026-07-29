@@ -111,6 +111,13 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
 				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
 				return
+	# nessun agguato e' scattato: qui si respira, e il party recupera tutto.
+	# Finche' gli scontri si incatenano (ondate), invece, gli hp restano quelli
+	# lasciati dallo scontro precedente. Un nodo puo' chiedere esplicitamente di
+	# non far recuperare ("mantieni_hp"): serve alle fasi di uno stesso scontro,
+	# dove in mezzo c'e' solo una scena e non una vera pausa
+	if not nodo.get("mantieni_hp", false):
+		GameState.hp_persistenti.clear()
 	aggiorna_palco(nodo)
 	aggiorna_stato()
 	if nodo.get("espulsione_automatica", false):

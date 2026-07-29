@@ -171,6 +171,10 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var e_protagonista := giocatore and id_personaggio == GameState.id_protagonista
 	var hp_max := int(GameState.stat_di("hp")) if e_protagonista \
 			else int(dati.get("hp", GameState.regole.get("hp_base", 5)))
+	var hp_iniziali := hp_max
+	if giocatore and GameState.hp_persistenti.has(id_personaggio):
+		# scontri incatenati: si riprende con i punti vita lasciati dal precedente
+		hp_iniziali = clampi(int(GameState.hp_persistenti[id_personaggio]), 1, hp_max)
 	var scheda := VBoxContainer.new()
 	var ritratto := SCENA_RITRATTO.instantiate()
 	scheda.add_child(ritratto)
@@ -212,7 +216,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"indice": combattenti.size(),
 		"id": id_personaggio,
 		"nome": dati.get("nome_breve", dati.get("nome", id_personaggio)),
-		"hp": hp_max,
+		"hp": hp_iniziali,
 		"hp_max": hp_max,
 		"attacco": GameState.stat_di("attacco") if e_protagonista else int(dati.get("attacco", 1)),
 		"difesa": GameState.stat_di("difesa") if e_protagonista else int(dati.get("difesa", 0)),
@@ -236,6 +240,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"difesa_accumulo": 0.0,
 		"mossa_in_carica": {},
 		"crisi_turni_rimasti": 0,
+		"soglia_gia_scattata": false,
 		"ultimo_danno_subito": 0,
 		"colpi_incassati": 0,
 		"gamba_rotta_turni": 0,
@@ -543,8 +548,13 @@ func studia(chi: Dictionary) -> void:
 	if scambi.is_empty():
 		scrivi("[i]%s non sembra rispondere ad alcun quesito.[/i]" % bersaglio.nome)
 	elif dati.has("testo_studio_esaurito") and int(bersaglio.volte_studiato) > scambi.size():
-		# il pool di scambi e' finito: non si ricomincia da capo all'infinito
-		scrivi("[i]%s[/i]" % String(dati["testo_studio_esaurito"]))
+		# il pool di scambi e' finito: non si ricomincia da capo all'infinito.
+		# Se pero' il suo colpo fatale e' gia' stato respinto, non e' piu' lei a
+		# confondere te: sei tu a vedere lei per quello che e' diventata
+		var testo_esaurito := String(dati["testo_studio_esaurito"])
+		if incontro_tentativi_morfeo > 0 and dati.get("incontro_scriptato", {}).has("testo_studio_dopo_scudo"):
+			testo_esaurito = String(dati["incontro_scriptato"]["testo_studio_dopo_scudo"])
+		scrivi("[i]%s[/i]" % testo_esaurito)
 	else:
 		var scambio: Dictionary = scambi[indice_studio % scambi.size()]
 		indice_studio += 1
@@ -784,6 +794,17 @@ func gestisci_turno_frenesia(nemico: Dictionary) -> void:
 		return
 	scrivi(String(dati_frenesia.get("testo_conteggio", "%d...")) % conteggio_frenesia)
 
+func verifica_mossa_soglia(nemico: Dictionary) -> bool:
+	# alcuni boss cambiano marcia a meta' vita: una mossa forzata, una volta sola
+	var dati: Dictionary = GameState.personaggi.get(nemico.id, {}).get("mossa_soglia_hp", {})
+	if dati.is_empty() or nemico.get("soglia_gia_scattata", false):
+		return false
+	if float(nemico.hp) / float(nemico.hp_max) > float(dati.get("frazione_hp", 0.5)):
+		return false
+	nemico.soglia_gia_scattata = true
+	esegui_mossa(nemico, dati)
+	return true
+
 func verifica_dialogo_soglia(bersaglio: Dictionary) -> void:
 	var dati: Dictionary = GameState.personaggi.get(bersaglio.id, {}).get("dialogo_soglia_hp", {})
 	if dati.is_empty() or bersaglio.hp <= 0 or soglie_dialogo_mostrate.get(bersaglio.indice, false):
@@ -902,6 +923,8 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 		return
 	if verifica_crisi_gelosia(nemico):
 		return
+	if verifica_mossa_soglia(nemico):
+		return
 	if not nemico.mossa_in_carica.is_empty():
 		# la mossa annunciata il turno scorso arriva ora, garantita: chi ha
 		# avuto l'avviso ha avuto anche il tempo di reagire
@@ -916,8 +939,15 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 	var mosse_usate: Array = nemico.mosse_usate
 	var mosse: Array = []
 	for mossa in nemico.mosse:
-		if not (mossa.get("una_tantum", false) and String(mossa.get("id", "")) in mosse_usate):
-			mosse.append(mossa)
+		if mossa.get("una_tantum", false) and String(mossa.get("id", "")) in mosse_usate:
+			continue
+		if String(mossa.get("tipo", "")) == "sacrificio" and vivi_alleati_di(nemico).is_empty():
+			continue  # non c'e' nessuno da sacrificare: la mossa non parte proprio
+		if mossa.has("richiede_non_flag") and GameState.ha_flag(String(mossa["richiede_non_flag"])):
+			continue  # qualcosa, nella storia, gli ha tolto questa possibilita'
+		if mossa.has("richiede_flag") and not GameState.ha_flag(String(mossa["richiede_flag"])):
+			continue
+		mosse.append(mossa)
 	if not mosse.is_empty():
 		var totale: int = int(nemico.peso_attacco_normale)
 		for mossa in mosse:
@@ -949,7 +979,10 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 		"difendi":
 			difendi(nemico)
 		"attacco_forte":
-			attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)))
+			var vittima_forte := bersaglio_giocatore_casuale()
+			attacca(nemico, vittima_forte, int(mossa.get("valore", nemico.attacco)))
+			if mossa.has("stato") and not vittima_forte.is_empty() and vittima_forte.hp > 0:
+				applica_stato(vittima_forte, String(mossa["stato"]))
 		"meta_vita":
 			# toglie sempre meta' dei punti vita attuali del bersaglio, ignorando
 			# difese e livello; sotto una soglia minima e' invece un KO secco
@@ -1353,6 +1386,8 @@ func tenta_slaughter(attaccante: Dictionary, bersaglio: Dictionary) -> bool:
 	# chi trae forza dallo stress (resistenza "invertita") o ne e' immune non puo' essere finito cosi'
 	if bersaglio.hp <= 0:
 		return false
+	if bersaglio.giocatore:
+		return false  # il colpo di fortuna non uccide mai il party: solo i nemici comuni
 	if not bersaglio.giocatore:
 		# solo i nemici comuni: boss, miniboss, creature particolari e incontri
 		# scriptati (la manifestazione) non si liquidano mai con un colpo di
@@ -1622,6 +1657,9 @@ func _esci() -> void:
 		if combattente.giocatore:
 			GameState.modifica_stress(combattente.id,
 					combattente.stress - GameState.stress_di(combattente.id))
+			# i punti vita rimasti valgono per l'eventuale scontro incatenato
+			# subito dopo; Main li azzera appena si respira in una stanza
+			GameState.hp_persistenti[combattente.id] = maxi(int(combattente.hp), 1)
 	# le destinazioni vanno lette PRIMA di premia/annulla, che le azzerano
 	var dopo_vittoria := GameState.nodo_se_vinci
 	var dopo_vittoria_eroe := GameState.nodo_se_vinci_eroe

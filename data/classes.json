@@ -141,7 +141,7 @@
 			"id": "sopravvissuta",
 			"nome": "Yara",
 			"classe": "Alleata temporanea",
-			"hp": 9,
+			"hp": 16,
 			"attacco": 2,
 			"difesa": 1,
 			"velocita": 3,

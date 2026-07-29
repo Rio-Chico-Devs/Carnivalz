@@ -241,6 +241,20 @@ Numeri piccoli e leggibili, ma con scelte vere:
   (`mossa_in_carica` sul combattente). Dà al giocatore un giro per reagire (difendersi, curarsi,
   ecc.) prima del colpo grosso — premia chi legge i segnali, non solo chi picchia più forte.
   Prima ad averla: `colpo_marcio` di Jongo Dongo
+- **HP incatenati tra scontri**: a fine combattimento gli hp rimasti restano in
+  `GameState.hp_persistenti` e il combattimento successivo riparte da lì; si recupera tutto
+  appena si mette piede in una stanza **senza** che scatti un agguato (`Main.mostra_nodo()`).
+  Così le ondate di Meridia danno l'impressione di uno scontro incessante invece di resettarsi
+  ogni volta. Un nodo può chiedere `"mantieni_hp": true` per non far recuperare nemmeno lì:
+  serve alle fasi di uno stesso boss, dove in mezzo c'è solo una scena (Jongo Dongo)
+- **`"mossa_soglia_hp"`** su un nemico: `{frazione_hp, ...mossa}` — una mossa forzata, una volta
+  sola, quando scende sotto quella frazione di vita (Jongo Dongo evoca tre ghoul a metà)
+- Una mossa può avere `"stato"` (applica quello stato al bersaglio colpito) e
+  `"richiede_flag"`/`"richiede_non_flag"` (esiste solo in certe condizioni di storia: il bastone
+  dalla pietra marcia di Jongo Dongo sparisce se Yara si è fatta esplodere addosso a lui)
+- La mossa `"sacrificio"` non viene nemmeno estratta se non c'è nessun alleato da sacrificare
+- **Lo Slaughter non colpisce mai il party**: è un colpo di fortuna che vale solo contro i
+  nemici comuni, in nessun caso contro i personaggi giocanti
 - **`"rigenerazione"`** su un nemico: a ogni suo turno recupera **metà del danno che ha subito
   l'ultima volta** (`ultimo_danno_subito`); se in un turno non ne subisce, recupera comunque
   metà dell'ultimo valore registrato — quindi vale colpire in fretta, non forte. Dopo
