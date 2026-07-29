@@ -314,7 +314,13 @@ Un nuovo tipo di oggetto, `"tipo": "accessorio"` in `data/oggetti.json`. A diffe
 consumabili (usati e persi in combattimento) o delle collezioni passive, un accessorio si
 **equipaggia** dal Compendio (`Compendio.gd`, un bottone sulla sua scheda se lo possiedi) — **uno
 solo alla volta** (`GameState.accessorio_equipaggiato`) — e il suo effetto (`effetto_equipaggiato`)
-è passivo, letto una volta a inizio combattimento (`Combattimento._ready()`):
+è passivo, letto una volta a inizio combattimento (`Combattimento._ready()`).
+
+**Il primo accessorio raccolto si equipaggia da solo** (`GameState.aggiungi_oggetto()`, solo se
+non ne hai già uno addosso): "avere" la Pietra Quieta deve bastare a proteggerti senza passare
+dal Compendio — il gioco non ha ancora insegnato che esista. Con uno già equipaggiato, il
+cambio resta una scelta esplicita. Attenzione quando si scrive contenuto: un accessorio **non
+finisce nella sacca** e quindi non compare nel menu "Oggetti" in combattimento; agisce da solo.
 - **`scudo_primo_stato`**: il primo stato subito in quel combattimento viene respinto e non ha
   effetto; il bersaglio diventa immune a *quello stesso stato* per il resto dello scontro
   (`combattente.immunita_temporanea`, controllato in `resistenza_di()`). L'accessorio si
@@ -463,12 +469,13 @@ bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scon
 - **`torna_vuoto`** su una scelta: esce dallo squarcio (gli alleati temporanei restano fuori)
 - **`game_over`** su una scelta: sconfitta seria (tipicamente contro una vera fonte, ma è una
   scelta del content author nodo per nodo — il tutorial, per esempio, la usa per ogni scontro).
-  Si perde il progresso non salvato (si ricarica l'autosalvataggio; se non esiste,
-  `reset_campagna()`) ma **non si viene sbalzati sulla mappa stellare**: `GameState.game_over()`
-  rientra nella zona in cui si stava giocando e la fa ripartire dal suo `nodo_iniziale`
-  (`file_eventi_corrente`), restituendo `false` solo se non c'è una zona in cui tornare — solo
-  in quel caso si finisce sulla mappa. Le sconfitte comuni, dove non serve, restano un
-  `se_perdi` qualsiasi, senza conseguenze permanenti
+  **Non si viene sbalzati sulla mappa stellare**: `GameState.game_over()` rientra nella zona in
+  cui si stava giocando e la fa ripartire dal suo `nodo_iniziale` (`file_eventi_corrente`),
+  restituendo `false` solo se non c'è una zona in cui tornare — solo in quel caso si finisce
+  sulla mappa. **Non ricarica il salvataggio**: l'autosalvataggio è un file solo, condiviso da
+  tutte le partite, e rileggerlo alla morte significava ritrovarsi addosso l'inventario di
+  un'altra sessione. La penalità della morte è rifare il livello, non perdere la partita in
+  corso. Le sconfitte comuni, dove non serve, restano un `se_perdi` qualsiasi
 - **`vai_se_flag`** su un nodo: `{flag, vai}` — se quel flag è impostato, entrando in quel nodo
   se ne mostra un altro al suo posto (`Main.mostra_nodo()`, prima di qualunque altro effetto).
   Serve alle stanze che cambiano alla seconda visita: la collina del tutorial mostra l'agguato

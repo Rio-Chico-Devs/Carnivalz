@@ -343,6 +343,11 @@ func aggiungi_oggetto(id_oggetto: String) -> bool:
 		"accessorio":
 			if id_oggetto not in accessori:
 				accessori.append(id_oggetto)
+			if accessorio_equipaggiato == "":
+				# se non ne hai gia' uno addosso, il primo accessorio si
+				# equipaggia da solo: "avere" la Pietra Quieta deve bastare a
+				# proteggerti, senza passare per il Compendio
+				accessorio_equipaggiato = id_oggetto
 		_:
 			if sacca.size() >= int(regole.get("sacca_massima", 20)):
 				return false  # sacca piena
@@ -647,22 +652,15 @@ func _lista_str(v: Variant) -> Array[String]:
 	return a
 
 func game_over() -> bool:
-	# sconfitta seria: si perde tutto il progresso non salvato (si ricarica
-	# l'ultimo salvataggio, o si riparte da zero se non ne esiste), ma non si
-	# viene sbalzati sulla mappa stellare: si rientra nella zona in cui si
-	# stava giocando, dal suo punto di partenza. Ritorna true se il rientro
-	# e' riuscito, false se non c'era una zona in cui tornare.
-	var zona := carnivalz_corrente
-	var file_zona := file_eventi_corrente
-	var punto: Dictionary = punto_mappa_corrente.duplicate(true)
-	var musica := musica_ambiente
-	if not carica():
-		reset_campagna()
-	if zona == "" or file_zona == "":
+	# sconfitta seria: si ricomincia il livello dal suo punto di partenza,
+	# tenendo il progresso della partita in corso. NON si ricarica il
+	# salvataggio: quello e' un file solo, condiviso da tutte le partite, e
+	# rileggerlo qui significherebbe ritrovarsi addosso l'inventario di
+	# un'altra sessione. La penalita' della morte e' rifare il livello.
+	# Ritorna false solo se non c'era una zona in cui rientrare.
+	if carnivalz_corrente == "" or file_eventi_corrente == "":
 		return false
-	punto_mappa_corrente = punto
-	musica_ambiente = musica
-	return entra_squarcio(zona, file_zona)
+	return entra_squarcio(carnivalz_corrente, file_eventi_corrente)
 
 func reset_campagna() -> void:
 	# fine campagna: roster, inventario, Tazo, livelli, stress e legame

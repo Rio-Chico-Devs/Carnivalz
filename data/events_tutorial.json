@@ -71,10 +71,20 @@
 			]
 		},
 		"pozze": {
+			"vai_se_flag": { "flag": "tut_pozze_fatte", "vai": "pozze_ripulite" },
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Un altro Goblin... e quella... cos'è? È enorme..." }
 			],
-			"combattimento_automatico": { "nemici": ["goblin_tipico", "tartaruga_innocente"], "salta_se_flag": "tut_pozze_fatte", "se_vinci": "dopo_pozze", "se_perdi": "sconfitta", "se_fuggi": "bivio" }
+			"combattimento_automatico": { "nemici": ["goblin_tipico", "tartaruga_innocente"], "se_vinci": "dopo_pozze", "se_perdi": "sconfitta", "se_fuggi": "bivio" }
+		},
+		"pozze_ripulite": {
+			"sequenza": [
+				{ "tipo": "narrazione", "testo": "Le pozze riflettono il cielo, immobili. Non è rimasto niente da affrontare, qui." }
+			],
+			"scelte": [
+				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
+				{ "testo": "Torna al bivio", "vai": "bivio" }
+			]
 		},
 		"dopo_pozze": {
 			"sequenza": [
@@ -96,7 +106,7 @@
 			],
 			"espr_sinistra": "sorpresa",
 			"flag": "tut_collina_vista",
-			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "salta_se_flag": "tut_collina_fatta", "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "bivio" }
+			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "bivio" }
 		},
 		"collina_ritorno": {
 			"sequenza": [
