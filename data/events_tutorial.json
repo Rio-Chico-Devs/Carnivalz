@@ -22,6 +22,7 @@
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Dunque sarebbe questa la mia prima missione autonoma? Sembra un posto molto tranquillo, forse siamo in tempo per salvare queste pianure..." }
 			],
 			"espr_sinistra": "pensiero",
+			"scena": "Le pianure di Redenna si aprono davanti a te, tranquille come sembravano da lassù.",
 			"scelte": [
 				{ "testo": "Fatti largo tra le pianure", "vai": "primo_incontro" }
 			]
@@ -64,6 +65,7 @@
 				{ "tipo": "narrazione", "testo": "Da qui in avanti puoi consultare la mappa (bottone \"Mappa\") per vedere dove ti trovi e tornare nei posti che hai già visitato." }
 			],
 			"sblocca_stanze": ["bivio", "pozze", "collina"],
+			"scena": "Il bivio: da una parte il sentiero scende verso le pozze d'acqua, dall'altra sale sulla collina. Più avanti, le urla.",
 			"scelte": [
 				{ "testo": "Scendi verso le pozze d'acqua", "vai": "pozze" },
 				{ "testo": "Sali sulla collina", "vai": "collina" },
@@ -91,6 +93,7 @@
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Le pozze sono tranquille, ora. Da qui il sentiero risale verso le urla... ma posso ancora tornare indietro, se voglio dare un'occhiata alla collina." }
 			],
 			"flag": "tut_pozze_fatte",
+			"scena": "Le pozze riflettono il cielo, immobili. Da qui il sentiero risale verso le urla.",
 			"sblocca_stanze": ["convergenza"],
 			"scelte": [
 				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
@@ -114,6 +117,7 @@
 				{ "tipo": "narrazione", "testo": "Proprio al centro della collina la strana creatura volteggia, ignorando tutto il resto..." }
 			],
 			"espr_sinistra": "pensiero",
+			"scena": "In cima alla collina la creatura volteggia piano, senza badare a niente.",
 			"scelte": [
 				{ "testo": "Combatti", "richiede_non_flag": "tut_collina_fatta", "combatti": ["manifestazione_di_un_sogno"], "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "bivio" },
 				{ "testo": "Torna al bivio", "vai": "bivio" }
@@ -125,6 +129,7 @@
 			],
 			"espr_sinistra": "pensiero",
 			"flag": "tut_collina_fatta",
+			"scena": "La collina è silenziosa. Non è rimasto niente, quassù.",
 			"sblocca_stanze": ["convergenza"],
 			"scelte": [
 				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
@@ -137,6 +142,7 @@
 			],
 			"espr_sinistra": "decisa",
 			"flag": "tut_strada_aperta",
+			"scena": "I due sentieri si ricongiungono qui. Le urla vengono da poco più avanti.",
 			"scelte": [
 				{ "testo": "Scatta verso i rumori", "vai": "boss" },
 				{ "testo": "Apri la mappa", "torna_a_mappa": true }

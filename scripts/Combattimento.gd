@@ -35,6 +35,7 @@ var speranza := 0
 var convinto := false
 var turni_fermo_leva := 0
 var testo_fermo_leva := ""
+var leve_giocate: Array[String] = []  # leve "oggetto" gia' usate in questo scontro
 var indice_studio := 0
 var alleati_usati: Array[String] = []
 var attaccante_corrente: Dictionary = {}
@@ -72,6 +73,7 @@ var tutorial: Dictionary = {}
 var tutorial_passo := 0
 var tutorial_finito := false
 var tutorial_passi_introdotti: Array[int] = []
+var tutorial_id := ""  # id del nemico che porta lo script del tutorial
 
 var portatore_incontro: Dictionary = {}
 var incontro_apertura_mostrata := false
@@ -134,9 +136,17 @@ func _ready() -> void:
 			portatore_fuga_bloccata = dati
 		if tutorial.is_empty() and dati.has("tutorial_combattimento"):
 			tutorial = dati["tutorial_combattimento"]
+			tutorial_id = id_nemico
 			for id_oggetto in tutorial.get("oggetti_forniti", []):
 				if not GameState.possiede_oggetto(String(id_oggetto)):
 					GameState.aggiungi_oggetto(String(id_oggetto))
+	if not tutorial.is_empty():
+		# un tutorial e' una scena scritta: deve andare esattamente come
+		# previsto, quindi nessun accessorio equipaggiato ci mette bocca
+		# (niente scudo contro gli stati, niente resurrezione a meta' vita)
+		effetto_accessorio = {}
+		scudo_primo_stato_pronto = false
+		resurrezione_pronta = false
 	var categoria_apertura := categoria_migliore_presente()
 	if categoria_apertura == "boss" or categoria_apertura == "miniboss":
 		scrivi("[b]Il disallineamento fa spazio: si combatte.[/b]")
@@ -272,12 +282,13 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	aggiorna_scheda(combattente)
 
 func applica_leve() -> void:
+	# le leve "oggetto" NON scattano da sole: averle in tasca non basta, vanno
+	# usate dal menu Oggetti durante lo scontro (vedi leve_utilizzabili/usa_leva).
+	# Compagni, ospiti e flag invece pesano gia' per il solo fatto di esserci.
 	for leva in fonte.get("leve", []):
 		var id_leva: String = leva.get("id", "")
 		var presente := false
 		match leva.get("tipo", ""):
-			"oggetto":
-				presente = GameState.possiede_oggetto(id_leva)
 			"ospite":
 				presente = id_leva in GameState.ospiti
 			"compagno":
@@ -293,12 +304,45 @@ func applica_leve() -> void:
 				turni_fermo_leva = maxi(turni_fermo_leva, int(leva["turni_fermo"]))
 				testo_fermo_leva = String(leva.get("testo_fermo", ""))
 
+func leve_utilizzabili() -> Array[Dictionary]:
+	# le leve "oggetto" che possiedi e non hai ancora giocato in questo scontro
+	var risultato: Array[Dictionary] = []
+	for leva in fonte.get("leve", []):
+		if String(leva.get("tipo", "")) != "oggetto":
+			continue
+		var id_leva := String(leva.get("id", ""))
+		if id_leva in leve_giocate or not GameState.possiede_oggetto(id_leva):
+			continue
+		risultato.append(leva)
+	return risultato
+
+func usa_leva(chi: Dictionary, id_leva: String) -> void:
+	# mostrare al nemico l'oggetto giusto: e' un'azione vera, costa il turno,
+	# e vale molto piu' di un attacco contro chi si puo' ancora convincere
+	for leva in fonte.get("leve", []):
+		if String(leva.get("tipo", "")) != "oggetto" or String(leva.get("id", "")) != id_leva:
+			continue
+		leve_giocate.append(id_leva)
+		var nome_oggetto := String(GameState.dati_oggetto(id_leva).get("nome", id_leva))
+		scrivi("%s mostra %s." % [chi.nome, nome_oggetto])
+		scrivi("[i]%s[/i]" % String(leva.get("testo", "")))
+		aggiorna_speranza(int(leva.get("speranza", 0)))
+		if leva.has("turni_fermo"):
+			turni_fermo_leva = maxi(turni_fermo_leva, int(leva["turni_fermo"]))
+			testo_fermo_leva = String(leva.get("testo_fermo", ""))
+		return
+
 func aggiorna_speranza(quantita: int) -> void:
 	if not fonte.get("convincibile", false):
 		return
 	speranza = clampi(speranza + quantita, 0, 100)
 	etichetta_speranza.text = "Speranza %d / %d" % [speranza, int(fonte.get("speranza_soglia", 100))]
 	if not convinto and speranza >= int(fonte.get("speranza_soglia", 100)):
+		var obbligatoria := String(fonte.get("leva_obbligatoria", ""))
+		if obbligatoria != "" and obbligatoria not in leve_giocate:
+			# la speranza da sola non basta: certe creature cedono solo davanti a
+			# una cosa precisa, e finche' non gliela mostri non cedono e basta
+			return
 		convinto = true
 		scrivi("[b]%s[/b]" % fonte.get("testo_cedimento", "Qualcosa, nella fonte, ha ceduto."))
 		AudioManager.voce_boss(String(fonte.get("id", "")), fonte, "cedimento")
@@ -389,7 +433,6 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				# smette di accumularsi appena si fa altro: o si tiene la
 				# guardia, o si rischia attaccando - non si ha tutto insieme
 				attaccante.difesa_accumulo = 0.0
-			avanza_tutorial(azione)
 			match azione.get("tipo", ""):
 				"attacca":
 					attacca(attaccante, bersaglio_scelto)
@@ -407,6 +450,11 @@ func esegui_turno(attaccante: Dictionary) -> void:
 					attacco_area(attaccante)
 				"fuggi":
 					fuggi(attaccante)
+				"leva":
+					usa_leva(attaccante, String(azione.get("id", "")))
+			# il passo del tutorial si chiude solo a azione risolta: cosi' le
+			# battute "dopo" commentano quel che e' appena successo, non lo anticipano
+			avanza_tutorial(azione)
 	else:
 		await get_tree().create_timer(0.8).timeout
 		turno_nemico(attaccante)
@@ -462,9 +510,24 @@ func avanza_tutorial(azione: Dictionary) -> void:
 		return
 	for msg in passo.get("dopo", []):
 		scrivi_messaggio_tutorial(msg)
+	applica_hp_scriptati(passo)
 	tutorial_passo += 1
 	if tutorial_passo >= tutorial.get("passi", []).size():
 		concludi_tutorial()
+
+func applica_hp_scriptati(passo: Dictionary) -> void:
+	# il tutorial e' una scena: certi colpi devono lasciare esattamente i punti
+	# vita che il copione prevede, non quelli che verrebbero dai numeri veri
+	if passo.has("hp_protagonista"):
+		for c in combattenti:
+			if c.giocatore and c.id == GameState.id_protagonista:
+				c.hp = clampi(int(passo["hp_protagonista"]), 1, int(c.hp_max))
+				aggiorna_scheda(c)
+	if passo.has("hp_nemico") and tutorial_id != "":
+		for c in combattenti:
+			if not c.giocatore and c.id == tutorial_id:
+				c.hp = clampi(int(passo["hp_nemico"]), 1, int(c.hp_max))
+				aggiorna_scheda(c)
 
 func concludi_tutorial() -> void:
 	# lo scontro non si vince: finisce come deve finire, con la sua scena
@@ -494,7 +557,7 @@ func mostra_azioni() -> void:
 	bottone_azione("Attacca", _menu_bersagli)
 	bottone_azione("Difenditi", _scegli.bind({"tipo": "difendi"}))
 	bottone_azione("Abilità", _menu_abilita)
-	bottone_azione("Oggetti", _menu_oggetti, GameState.sacca.is_empty())
+	bottone_azione("Oggetti", _menu_oggetti, GameState.sacca.is_empty() and leve_utilizzabili().is_empty())
 	bottone_azione("Alleati", _menu_alleati, alleati_disponibili().is_empty())
 	bottone_azione("Fuggi", _scegli.bind({"tipo": "fuggi"}), not fuga_possibile())
 
@@ -530,6 +593,12 @@ func _menu_oggetti() -> void:
 		bottone_azione("%s ×%d" % [nome, conteggio[id_oggetto]],
 				_scegli.bind({"tipo": "oggetto", "id": id_oggetto}),
 				solo_questo != "" and not richiesto, richiesto)
+	for leva in leve_utilizzabili():
+		if solo_questo != "":
+			break  # durante il tutorial si usa solo cio' che viene chiesto
+		var id_leva := String(leva.get("id", ""))
+		var nome_leva := String(GameState.dati_oggetto(id_leva).get("nome", id_leva))
+		bottone_azione("Mostra: %s" % nome_leva, _scegli.bind({"tipo": "leva", "id": id_leva}))
 	bottone_azione("Indietro", mostra_azioni)
 
 func _menu_alleati() -> void:
@@ -939,6 +1008,20 @@ func verifica_rabbia_su_morte(caduto: Dictionary) -> void:
 	capo.attacco += int(dati_rabbia.get("valore_attacco", 1))
 	aggiorna_scheda(capo)
 	scrivi("[i]%s[/i]" % String(dati_rabbia.get("testo", "La rabbia cresce.")))
+
+func verifica_cura_su_morte(caduto: Dictionary) -> void:
+	# certi padroni si nutrono dei propri sottoposti: ogni evocazione che cade
+	# li rimette in sesto (Jongo Dongo e i suoi ghoul)
+	for nemico in vivi(false):
+		var dati: Dictionary = GameState.personaggi.get(nemico.id, {}).get("cura_su_morte_alleato", {})
+		if dati.is_empty() or caduto.id != String(dati.get("id_alleato", "")):
+			continue
+		var cura := mini(int(dati.get("valore", 0)), int(nemico.hp_max) - int(nemico.hp))
+		if cura <= 0:
+			continue
+		nemico.hp += cura
+		aggiorna_scheda(nemico)
+		scrivi("[i]%s[/i]" % String(dati.get("testo", "Si rimette in sesto.")).replace("%d", str(cura)))
 
 func vivo_con_id(id_personaggio: String) -> Dictionary:
 	for combattente in vivi(false):
@@ -1573,6 +1656,7 @@ func _su_ko(caduto: Dictionary) -> void:
 			else:
 				AudioManager.verso(caduto.id, GameState.personaggi.get(caduto.id, {}), "morte")
 			verifica_rabbia_su_morte(caduto)
+			verifica_cura_su_morte(caduto)
 	for alleato in vivi(caduto.giocatore):
 		reagisci(alleato)
 	if vivi(false).is_empty():
@@ -1706,6 +1790,9 @@ func evidenzia(attivo: Dictionary) -> void:
 		combattente.scheda.modulate = Color.WHITE if suo_turno else Color(1, 1, 1, 0.65)
 
 func aggiorna_scheda(combattente: Dictionary) -> void:
+	# un nemico battuto lascia il campo: la sua immagine sparisce del tutto,
+	# non resta li' sbiadita. I compagni a terra restano visibili (sono tuoi)
+	combattente.scheda.visible = int(combattente.hp) > 0 or bool(combattente.giocatore)
 	if combattente.hp <= 0:
 		combattente.etichetta_vita.text = "KO"
 		combattente.scheda.modulate = Color(0.5, 0.4, 0.4, 0.5)

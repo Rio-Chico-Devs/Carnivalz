@@ -2,17 +2,6 @@
 	"sfondo": "res://art/mappa.png",
 	"punti": [
 		{
-			"id": "tutorial",
-			"nome": "Il piccolo Carnivalz",
-			"tema": "tutorial — pianeta primitivo, fonte debole",
-			"pos": [200, 520],
-			"attivo": true,
-			"file_eventi": "res://data/events_tutorial.json",
-			"musica": "",
-			"musica_campagna": "",
-			"vuoti": []
-		},
-		{
 			"id": "carnivalz_del_bosco",
 			"nome": "Il Vuoto Ardente",
 			"tema": "fama e spettacolo — passione, corrida, fiamme",

@@ -47,6 +47,7 @@ const EVENTI_DEBUG := "res://data/events.json"
 var nodo_in_corso: Dictionary = {}
 var coda_messaggi: Array[Dictionary] = []
 var azione_dopo_coda: Callable = Callable()  # eseguita a coda vuota al posto delle scelte normali (es. mediazione)
+var mostrando_scena := false  # true quando il nodo sta mostrando la sua descrizione di ritorno
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
@@ -72,7 +73,8 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		mostra_nodo(String(nodo["vai_se_flag"].get("vai", "")), notifiche_precedenti)
 		return
 	GameState.nodo_corrente = id_nodo
-	if id_nodo not in GameState.nodi_visitati:
+	var prima_visita: bool = id_nodo not in GameState.nodi_visitati
+	if prima_visita:
 		# esplorare allena la velocita': ogni stanza conta una volta sola
 		GameState.nodi_visitati.append(id_nodo)
 		GameState.registra_azione("stanze_esplorate")
@@ -120,6 +122,9 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		GameState.hp_persistenti.clear()
 	aggiorna_palco(nodo)
 	aggiorna_stato()
+	# i dialoghi di un posto si sentono una volta sola: da li' in avanti il
+	# nodo mostra la sua "scena", cioe' com'e' quel posto adesso
+	mostrando_scena = not prima_visita and nodo.has("scena")
 	if nodo.get("espulsione_automatica", false):
 		# non c'e' niente da scegliere: il posto stesso ti rigetta fuori
 		var seq := sequenza_di(nodo)
@@ -132,8 +137,25 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		get_tree().change_scene_to_file(SCENA_VUOTO)
 		return
 	nodo_in_corso = nodo
-	coda_messaggi = notifiche_precedenti + notifiche_passive() + sequenza_di(nodo)
+	coda_messaggi = notifiche_precedenti + notifiche_passive() + contenuto_nodo(nodo)
 	avanza_messaggio()
+
+func contenuto_nodo(nodo: Dictionary) -> Array[Dictionary]:
+	# prima visita: la scena si gioca per intero (dialoghi compresi). Dalla
+	# seconda in poi resta solo la descrizione del posto, cosi' tornare
+	# indietro non ti rifa' sentire le stesse battute
+	return messaggi_scena(nodo) if mostrando_scena else sequenza_di(nodo)
+
+func messaggi_scena(nodo: Dictionary) -> Array[Dictionary]:
+	# "scena" puo' essere una stringa (una narrazione sola) o una sequenza
+	var risultato: Array[Dictionary] = []
+	var scena: Variant = nodo.get("scena", "")
+	if scena is Array:
+		for msg in scena:
+			risultato.append(msg)
+	else:
+		risultato.append({"tipo": "narrazione", "testo": String(scena)})
+	return risultato
 
 func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
 	if nodo.has("sequenza"):
@@ -259,6 +281,13 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		bottone.text = scelta.get("testo", "…")
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
+	if mostrando_scena:
+		# la descrizione del posto resta sempre a portata di mano: dopo qualche
+		# scelta il box ha gia' cambiato testo, e riguardarsi intorno e' gratis
+		var bottone_osserva := Button.new()
+		bottone_osserva.text = "Osserva la scena"
+		bottone_osserva.pressed.connect(_su_osserva)
+		contenitore_scelte.add_child(bottone_osserva)
 
 func notifiche_passive() -> Array[Dictionary]:
 	# abilita' passive sbloccate salendo di livello: si annunciano appena si
@@ -329,6 +358,12 @@ func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
 	if espr_nodo != "":
 		espressione = espr_nodo
 	slot.mostra(id_personaggio, 0, espressione)
+
+func _su_osserva() -> void:
+	# guardarsi intorno non e' una scelta: non consuma niente, non muove il
+	# legame, non fa scattare agguati. Ridescrive e basta.
+	coda_messaggi = messaggi_scena(nodo_in_corso)
+	avanza_messaggio()
 
 func _su_scelta(scelta: Dictionary) -> void:
 	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi

@@ -64,6 +64,13 @@
 			"effetto": { "hp": 20 }
 		},
 		{
+			"id": "bomba_artigianale",
+			"nome": "Bomba artigianale",
+			"tipo": "consumabile",
+			"descrizione": "Messa insieme con quello che c'era nei cunicoli. Yara ne teneva sempre una addosso: non per combattere, per non farsi prendere viva.",
+			"effetto": { "danno": 8 }
+		},
+		{
 			"id": "bomba_al_nitro",
 			"nome": "Bomba al nitro",
 			"tipo": "consumabile",
@@ -111,7 +118,7 @@
 			"id": "spilla_margherita",
 			"nome": "Spilla a margherita",
 			"tipo": "chiave",
-			"descrizione": "Una piccola spilla a forma di margherita, nascosta sotto una piastrella della Casa Gigante. Era della bambina."
+			"descrizione": "Una piccola spilla a forma di margherita, nascosta sotto una piastrella della Casa Gigante. Qualcuno l'ha messa lì perché non venisse trovata."
 		},
 		{
 			"id": "merendine_scadute",

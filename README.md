@@ -250,7 +250,14 @@ Numeri piccoli e leggibili, ma con scelte vere:
   consuma il passo. Il portatore dello script **non agisce di suo**: le sue reazioni sono i
   testi dei passi, non tiri di dado. `oggetti_forniti` garantisce che il giocatore abbia gli
   oggetti richiesti; a passi finiti va in scena `finale` e lo scontro si chiude per copione
-  (`sconfitta_scriptata()`), non per vittoria. Primo caso: l'allenamento con **Veronica** al
+  (`sconfitta_scriptata()`), non per vittoria. Un passo può imporre l'esito con
+  `"hp_protagonista"` / `"hp_nemico"`: sono i punti vita che il copione prevede dopo quel
+  colpo, applicati subito dopo i messaggi `dopo` (`applica_hp_scriptati()`) — è così che il
+  pugno di Veronica ti lascia a 1 e la bomba al nitro lascia lei a 1. Per lo stesso motivo,
+  **in un combattimento tutorial gli accessori equipaggiati vengono spenti** (niente scudo
+  contro gli stati, niente resurrezione a metà vita): la scena deve andare come è scritta.
+  Le battute `dopo` arrivano **a azione risolta**, non prima, così commentano quello che è
+  appena successo. Primo caso: l'allenamento con **Veronica** al
   quartier generale, che insegna Attacca, Difenditi, gli oggetti curativi e quelli offensivi —
   ed essendo `invincibile` non può essere uccisa per sbaglio
 - **HP incatenati tra scontri**: a fine combattimento gli hp rimasti restano in
@@ -391,13 +398,22 @@ usato dalla manifestazione di un sogno (2 scambi, poi "la testa ti gira...").
 I boss **possono o non possono essere convinti** (`convincibile` nei dati della fonte: i
 malvagi, che manipolano il fattore, hanno `false` e la speranza non esiste per loro).
 Se la fonte è convincibile compare la **Speranza**:
-- **Leve** (lista `leve`): oggetti nell'inventario (`"oggetto"`), ospiti temporanei
-  (`"ospite"`), compagni nel party (`"compagno"`) o flag di storia (`"flag"`, es. un'azione
-  fatta prima dello scontro) — applicate all'inizio dello scontro, con il loro testo. Una
-  leva può anche avere `"turni_fermo"` + `"testo_fermo"`: per quei turni la fonte non agisce
-  affatto, mostrando quel testo al posto della mossa normale — un premio extra per
-  l'esplorazione, non solo punti Speranza (prima combinazione: la spilla a margherita contro
-  Un tenero ricordo, Casa Gigante)
+- **Leve** (lista `leve`): ospiti temporanei (`"ospite"`), compagni nel party (`"compagno"`)
+  o flag di storia (`"flag"`, es. un'azione fatta prima dello scontro) valgono per il solo
+  fatto di esserci: si applicano all'inizio dello scontro, con il loro testo. Le leve
+  **`"oggetto"`, invece, vanno giocate**: averle in tasca non basta, compaiono nel menu
+  **Oggetti** come voce "Mostra: <nome>" e costano un turno (`leve_utilizzabili()` /
+  `usa_leva()`). Mostrare la cosa giusta alla creatura giusta è una mossa, non un passivo:
+  chi ha esplorato deve comunque capire *quando* usarla. Il menu le elenca anche se sono
+  oggetti chiave (che non stanno nella sacca), e ognuna si può giocare una volta sola per
+  scontro (`leve_giocate`). Una leva può anche avere `"turni_fermo"` + `"testo_fermo"`: per
+  quei turni la fonte non agisce affatto, mostrando quel testo al posto della mossa normale
+  (prima combinazione: la spilla a margherita contro Un tenero ricordo, Casa Gigante)
+- **`leva_obbligatoria`** sulla fonte: l'id di una leva `"oggetto"` senza la quale il
+  cedimento non avviene **mai**, per quanta speranza si accumuli. Serve agli scontri lunghi,
+  dove la speranza passiva (+2 a giro, +3 a colpo incassato) arriverebbe a 100 da sola e
+  regalerebbe il finale buono a chi non ha trovato niente: Un tenero ricordo cede solo a chi
+  le mostra la spilla a margherita, e la mostra davvero
 - **Studia** sulla fonte: +10 speranza a scambio
 - **Sopportare i colpi**: +3 quando un personaggio subisce o assorbe e resta in piedi
 - **Prolungare lo scontro**: +2 a ogni giro completo
@@ -535,6 +551,15 @@ bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scon
   se ne mostra un altro al suo posto (`Main.mostra_nodo()`, prima di qualunque altro effetto).
   Serve alle stanze che cambiano alla seconda visita: la collina del tutorial mostra l'agguato
   della manifestazione solo la prima volta, poi una scena diversa con la scelta se affrontarla
+- **`scena`** su un nodo: la descrizione del posto *com'è adesso* (stringa, o una sequenza di
+  messaggi). Alla **prima visita** il nodo gioca la sua `sequenza`/`testo` per intero, dialoghi
+  compresi; da lì in avanti mostra la `scena` al suo posto (`Main.contenuto_nodo()`, che legge
+  `nodi_visitati`). Serve a non far risentire le stesse battute ogni volta che si torna
+  indietro — il difetto più fastidioso di un dungeon esplorabile in qualunque ordine. Quando
+  un nodo sta mostrando la sua scena compare anche il bottone **"Osserva la scena"**, che la
+  ridescrive senza costare niente (non muove il legame, non fa scattare agguati). I nodi che
+  sono già una pura descrizione di stanza non hanno bisogno di `scena`: il loro `testo` è
+  giusto che si rilegga ogni volta
 - **`combattimento_automatico`** su un nodo: `{nemici, se_vinci, se_perdi, se_fuggi}` — a fine
   sequenza il combattimento parte da solo, senza mostrare scelte (`Main.avvia_combattimento_
   automatico()`). Usato quando non c'è davvero nulla da scegliere: lo scontro è inevitabile
@@ -567,6 +592,11 @@ bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scon
   volta che un alleato con quell'id muore in questo combattimento (es. un goblin tipico evocato
   dal goblin arrabbiato), l'attacco del portatore aumenta in modo permanente per il resto dello
   scontro (`Combattimento.verifica_rabbia_su_morte()`, chiamata da `_su_ko()`)
+- **`cura_su_morte_alleato`** su un personaggio: `{id_alleato, valore, testo}` — ogni volta che
+  un alleato con quell'id cade, il portatore recupera quei punti vita (fino al suo massimo).
+  Jongo Dongo si rimette in sesto di 20 hp per ogni ghoul che muore, compresi quelli che
+  sacrifica lui stesso: ripulire il campo dai suoi servi smette di essere gratis
+  (`Combattimento.verifica_cura_su_morte()`, chiamata da `_su_ko()`)
 - I combattenti nemici con `hp_nascosti` (impostato in automatico per ogni boss — `categoria_di()
   == "boss"` — e per i nemici con `incontro_scriptato`, come la manifestazione di un sogno)
   mostrano "♥ ???" al posto degli hp esatti: il giocatore non sa mai quanto gli manca per
@@ -730,6 +760,12 @@ Gigante.
 Posizioni in coordinate 1280×720 (design resolution, stretch `canvas_items`). Solo i punti
 con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, zero codice.
 
+**Il tutorial non è un punto della mappa.** Le Pianure di Redenna partono da sole a fine
+introduzione (`avvio_automatico` in `events_intro.json`, che chiama `avvia_carnivalz("tutorial",
+…)` senza passare da `mappa.json`): la mappa stellare si vede solo dopo, e l'unico punto
+raggiungibile è **Il Vuoto Ardente**. Un game over nel tutorial ti rifà il tutorial, non ti
+sbalza in orbita.
+
 ### events.json (una campagna)
 ```json
 {
@@ -821,9 +857,9 @@ es. il giocoliere che perde il sorriso un attimo prima del combattimento).
     Vega-Hope, Niru-Meteora, Fio-Sognatrice, Yhvina-Insonne, Rio-Collezionista,
     Bero-Mecha, Mockingbear-Fanatico, Mr. Eto-Mente), stat ancora segnaposto
     per i nuovi; mancano ancora abilità/mosse/ritratti per ognuno
-20. ✅ Pianeta tutorial ("Il piccolo Carnivalz", in-fiction "Pianure di Redenna"): primo
-    punto della mappa, sblocca il mondo di Jerah solo al completamento (`richiede_flag`
-    sui punti). Insegna Studio/risparmio (Tartaruga Innocente) e Fuggi (Manifestazione di
+20. ✅ Pianeta tutorial (in-fiction "Pianure di Redenna"): non è un punto della mappa,
+    parte da solo a fine introduzione e sblocca il mondo di Jerah al completamento
+    (`richiede_flag` sui punti). Insegna Studio/risparmio (Tartaruga Innocente) e Fuggi (Manifestazione di
     un sogno, `incontro_scriptato`); boss finale (goblin arrabbiato) non convincibile, con
     mosse pesate + `dialogo_soglia_hp` + `mossa_disperazione`. Dopo la vittoria segue un
     intermezzo al quartier generale dell'Organizzazione (Veronica, Dott.ssa Curie, una

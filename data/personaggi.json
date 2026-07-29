@@ -54,9 +54,9 @@
 		{
 			"id": "comparsa_di_ruggine",
 			"nome": "Oppresso",
-			"hp": 12,
+			"hp": 27,
 			"attacco": 2,
-			"difesa": 1,
+			"difesa": 2,
 			"velocita": 2,
 			"xp": 10,
 			"tazo": 8,
@@ -75,9 +75,9 @@
 		{
 			"id": "voce_registrata",
 			"nome": "Capocantiere",
-			"hp": 10,
+			"hp": 25,
 			"attacco": 2,
-			"difesa": 0,
+			"difesa": 1,
 			"velocita": 4,
 			"xp": 9,
 			"tazo": 7,
@@ -95,9 +95,9 @@
 		{
 			"id": "operaio_posseduto",
 			"nome": "Emblema dell'oppressione",
-			"hp": 14,
+			"hp": 29,
 			"attacco": 2,
-			"difesa": 1,
+			"difesa": 2,
 			"velocita": 3,
 			"xp": 12,
 			"tazo": 10,
@@ -117,9 +117,9 @@
 			"id": "ferraglia_urlante",
 			"nome": "Ferraglia Urlante",
 			"categoria": "particolare",
-			"hp": 20,
+			"hp": 35,
 			"attacco": 2,
-			"difesa": 2,
+			"difesa": 3,
 			"velocita": 1,
 			"xp": 16,
 			"tazo": 14,
@@ -139,9 +139,9 @@
 			"id": "divoratore",
 			"nome": "Il Divoratore",
 			"categoria": "particolare",
-			"hp": 30,
+			"hp": 45,
 			"attacco": 3,
-			"difesa": 2,
+			"difesa": 3,
 			"velocita": 2,
 			"xp": 20,
 			"tazo": 25,
@@ -166,9 +166,9 @@
 		{
 			"id": "ghoul",
 			"nome": "Ghoul",
-			"hp": 15,
+			"hp": 35,
 			"attacco": 2,
-			"difesa": 0,
+			"difesa": 2,
 			"velocita": 3,
 			"xp": 9,
 			"tazo": 6,
@@ -185,9 +185,9 @@
 		{
 			"id": "teschio_errante",
 			"nome": "Teschio Errante",
-			"hp": 9,
+			"hp": 29,
 			"attacco": 2,
-			"difesa": 0,
+			"difesa": 2,
 			"velocita": 5,
 			"xp": 8,
 			"tazo": 5,
@@ -221,9 +221,9 @@
 		{
 			"id": "madre_in_lacrime",
 			"nome": "Madre in Lacrime",
-			"hp": 15,
+			"hp": 35,
 			"attacco": 2,
-			"difesa": 1,
+			"difesa": 3,
 			"velocita": 2,
 			"xp": 9,
 			"tazo": 6,
@@ -240,9 +240,9 @@
 		{
 			"id": "stigma",
 			"nome": "Stigma",
-			"hp": 14,
+			"hp": 34,
 			"attacco": 3,
-			"difesa": 0,
+			"difesa": 2,
 			"velocita": 4,
 			"xp": 9,
 			"tazo": 6,
@@ -259,9 +259,9 @@
 		{
 			"id": "diabolo",
 			"nome": "Diabolo",
-			"hp": 13,
+			"hp": 33,
 			"attacco": 2,
-			"difesa": 1,
+			"difesa": 3,
 			"velocita": 4,
 			"xp": 8,
 			"tazo": 6,
@@ -278,9 +278,9 @@
 		{
 			"id": "sadico",
 			"nome": "Sadico",
-			"hp": 16,
+			"hp": 36,
 			"attacco": 3,
-			"difesa": 0,
+			"difesa": 2,
 			"velocita": 3,
 			"xp": 10,
 			"tazo": 7,
@@ -297,9 +297,9 @@
 		{
 			"id": "jongo_dongo",
 			"nome": "Jongo Dongo",
-			"hp": 120,
-			"attacco": 3,
-			"difesa": 1,
+			"hp": 140,
+			"attacco": 6,
+			"difesa": 3,
 			"velocita": 3,
 			"fattore_base": 20,
 			"xp": 35,
@@ -310,6 +310,11 @@
 			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
 			"fonte": true,
 			"convincibile": false,
+			"cura_su_morte_alleato": {
+				"id_alleato": "ghoul",
+				"valore": 20,
+				"testo": "Jongo Dongo respira a fondo mentre il ghoul si affloscia: quello che resta del suo servo gli rientra dentro. Recupera %d punti vita."
+			},
 			"crisi_gelosia": {
 				"moltiplicatore_probabilita": 0.006,
 				"durata_turni": 2,
@@ -377,9 +382,9 @@
 		{
 			"id": "jongo_dongo_risorto",
 			"nome": "Jongo Dongo",
-			"hp": 120,
-			"attacco": 4,
-			"difesa": 1,
+			"hp": 140,
+			"attacco": 7,
+			"difesa": 3,
 			"velocita": 2,
 			"fattore_base": 20,
 			"xp": 80,
@@ -391,9 +396,9 @@
 			"fonte": true,
 			"convincibile": false,
 			"studio": [
-				{ "osservazione": "Qualcosa sembra risiedere dentro di lui... ah giusto." }
+				{ "osservazione": "Qualcosa sembra risiedere dentro di lui..." }
 			],
-			"testo_studio_esaurito": "Qualcosa sembra risiedere dentro di lui... ah giusto."
+			"testo_studio_esaurito": "Qualcosa sembra risiedere dentro di lui..."
 		},
 		{
 			"id": "l_immortale",
@@ -411,15 +416,15 @@
 			"ritratto": "res://art/personaggi/l_immortale.png",
 			"descrizione": "Qualcosa che cammina nella cripta, e non si ferma per quanto lo si colpisca. Il suo vero nome è ancora un mistero.",
 			"studio": [
-				{ "risposta": "Non risponde. Sembra già morto. O forse non è mai stato vivo, non nel modo in cui lo sei tu." }
+				{ "osservazione": "Non sembra reagire... non sembra avere alcuna volontà..." }
 			]
 		},
 		{
 			"id": "sacerdote_folle",
 			"nome": "Sacerdote Folle",
-			"hp": 36,
+			"hp": 56,
 			"attacco": 3,
-			"difesa": 1,
+			"difesa": 3,
 			"velocita": 2,
 			"xp": 20,
 			"tazo": 15,
@@ -443,9 +448,9 @@
 		{
 			"id": "divoratore_di_carcasse",
 			"nome": "Divoratore di Carcasse",
-			"hp": 55,
+			"hp": 75,
 			"attacco": 3,
-			"difesa": 1,
+			"difesa": 3,
 			"velocita": 2,
 			"xp": 18,
 			"tazo": 12,
@@ -459,7 +464,7 @@
 				{ "oggetto": "fiala_hp", "chance": 0.2 }
 			],
 			"studio": [
-				{ "risposta": "Continua a masticare, indifferente." }
+				{ "osservazione": "Inutile comunicarci, è una bestia senza intelletto." }
 			]
 		},
 		{
@@ -580,9 +585,9 @@
 		{
 			"id": "marionetta",
 			"nome": "Marionetta",
-			"hp": 3,
-			"attacco": 1,
-			"difesa": 0,
+			"hp": 38,
+			"attacco": 6,
+			"difesa": 4,
 			"velocita": 3,
 			"xp": 4,
 			"tazo": 3,
@@ -596,9 +601,9 @@
 		{
 			"id": "ombra_del_passato",
 			"nome": "Ombra del passato",
-			"hp": 4,
-			"attacco": 2,
-			"difesa": 0,
+			"hp": 39,
+			"attacco": 7,
+			"difesa": 4,
 			"velocita": 3,
 			"xp": 6,
 			"tazo": 5,
@@ -622,9 +627,9 @@
 			"id": "tenero_ricordo",
 			"nome": "Un tenero ricordo",
 			"nome_breve": "la bambola",
-			"hp": 90,
-			"attacco": 1,
-			"difesa": 0,
+			"hp": 666,
+			"attacco": 6,
+			"difesa": 4,
 			"velocita": 2,
 			"xp": 40,
 			"tazo": 90,
@@ -639,6 +644,7 @@
 			"fonte": true,
 			"convincibile": true,
 			"speranza_soglia": 100,
+			"leva_obbligatoria": "spilla_margherita",
 			"testo_cedimento": "Qualcosa, nella bambola, si ammorbidisce. Non è più solo dolore, quello che trema tra le sue cuciture.",
 			"leve": [
 				{ "id": "spilla_margherita", "tipo": "oggetto", "testo": "\"...\"\n\n\"Lil...\"\n\n\"...Loh?\"", "speranza": 40, "turni_fermo": 2, "testo_fermo": "La... mia... migliore... amica..." },
@@ -1000,6 +1006,7 @@
 					},
 					{
 						"azione": "difendi",
+						"hp_protagonista": 1,
 						"prima": [
 							{ "tipo": "narrazione", "testo": "Veronica sembra caricare un pugno. È il momento di difendersi." },
 							{ "tipo": "narrazione", "testo": "Scegli DIFENDITI: alza la guardia per il turno. Usata di fila cresce, ma sempre di meno — e si perde appena fai altro." }
@@ -1022,6 +1029,7 @@
 					{
 						"azione": "oggetto",
 						"oggetto": "bomba_al_nitro",
+						"hp_nemico": 1,
 						"prima": [
 							{ "tipo": "dialogo", "chi": "veronica", "testo": "Prova a colpirmi con un oggetto ora: scommetto che riuscirò a uscirne illesa alla massima potenza!" },
 							{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm, sei la solita esagerata... una bomba al nitro?" },
@@ -1044,8 +1052,7 @@
 				]
 			},
 			"studio": [
-				{ "domanda": "Veronica...", "risposta": "Veronica mi è sempre stata affianco fin da quando eravamo piccoli." },
-				{ "domanda": "C'è dell'altro?", "risposta": "Cerca sempre di essere positiva, ma io so cosa ha passato... la ammiro molto." }
+				{ "domanda": "Veronica è stata la mia prima e forse unica amica... non mi ha mai abbandonato fin da quando eravamo piccoli...", "risposta": "Hey! Cosa succede? Guarda che io sono qui!" }
 			],
 			"testo_studio_esaurito": "Non c'è altro che tu possa capire di lei adesso: è già tutta lì, davanti a te."
 		},
