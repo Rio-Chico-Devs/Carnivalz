@@ -526,7 +526,7 @@ func _menu_oggetti() -> void:
 	var solo_questo := String(passo.get("oggetto", "")) if not passo.is_empty() else ""
 	for id_oggetto in conteggio:
 		var nome: String = GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)
-		var richiesto := solo_questo != "" and id_oggetto == solo_questo
+		var richiesto: bool = solo_questo != "" and String(id_oggetto) == solo_questo
 		bottone_azione("%s ×%d" % [nome, conteggio[id_oggetto]],
 				_scegli.bind({"tipo": "oggetto", "id": id_oggetto}),
 				solo_questo != "" and not richiesto, richiesto)
