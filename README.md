@@ -92,7 +92,20 @@ file. Ora tutto passa da tre pezzi, in un posto solo:
   macchina** (`visible_ratio` animato in un `Tween`, velocità in caratteri/secondo da
   `data/stile.json` × il moltiplicatore delle Opzioni): un primo click lo completa subito, il
   successivo passa avanti. Finita la scrittura pulsa un "▼" in basso a destra — l'unico segnale
-  di "premi per continuare" in tutto il gioco, sempre nello stesso posto.
+  di "premi per continuare" in tutto il gioco, sempre nello stesso posto. **Altezza sempre
+  fissa** (`Stile.forma("altezza_box")`, `fit_content` spento apposta): un messaggio più lungo
+  di un altro non fa più crescere il box e spingere su/giù i ritratti sopra — se un testo non
+  ci sta, scorre dentro il box (`scroll_active`), il box non si muove mai. Lo scroll si
+  resetta in cima a ogni nuovo messaggio (`mostra()`).
+- **Box disegnato a mano**: `Stile.stile_box_testo()` è la cornice condivisa dal box eventi e
+  dal diario di combattimento. Con la sezione `"box"` di `data/stile.json` a `usa_texture:
+  false` (default) resta il box piatto qui sotto; con `usa_texture: true` + un'immagine in
+  `"texture"` diventa uno `StyleBoxTexture` a **nove riquadri**: i margini (`margine_sinistro`/
+  `destro`/`alto`/`basso`) restano fissi alla dimensione disegnata, il centro si allunga per
+  qualunque testo. Cinque proposte di cornice disegnabile a mano (ognuna presa da un materiale
+  già nel gioco: l'ossidiana di Jondoh, una locandina di circo strappata, il sipario di Jerah,
+  il rammendo di una bambola) sono in un artifact di preview mostrato a Bru in chat, con le
+  dimensioni di tela e i margini consigliati per ciascuna.
 - **`scripts/Transizioni.gd`** (autoload, `CanvasLayer` sopra tutto): un velo nero cala,
   la scena cambia mentre lo schermo è coperto, il velo si rialza. `Transizioni.vai(percorso)` ha
   sostituito ogni `get_tree().change_scene_to_file()` del progetto — un cambio di schermata non è
