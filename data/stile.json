@@ -46,8 +46,18 @@
 		"padding_box_y": 22,
 		"padding_bottone_x": 20,
 		"padding_bottone_y": 11,
-		"altezza_box": 132,
+		"altezza_box": 150,
 		"separazione": 14
+	},
+
+	"_nota_box": "Il box del testo (dialogo/narrazione/notifica) e il diario di combattimento: 'usa_texture' a true + un'immagine in 'texture' sostituisce il box piatto con un'immagine a nove riquadri disegnata a mano (vedi le proposte in Cinque cornici per lo stesso buio). I margini sono i pixel di bordo che NON si allungano quando il box cambia dimensione; senza immagine questa sezione non ha alcun effetto e resta il box piatto qui sotto in 'colori'/'forme'.",
+	"box": {
+		"usa_texture": false,
+		"texture": "",
+		"margine_sinistro": 30,
+		"margine_destro": 30,
+		"margine_alto": 22,
+		"margine_basso": 22
 	},
 
 	"_nota_tempi": "Tutte le durate delle animazioni, in secondi. caratteri_al_secondo è la velocità base della macchina da scrivere: le Opzioni la moltiplicano.",

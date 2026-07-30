@@ -172,16 +172,10 @@ func applica_stile() -> void:
 	diario.add_theme_color_override("default_color", Stile.colore("testo"))
 	for chiave in ["normal_font_size", "bold_font_size", "italics_font_size", "bold_italics_font_size"]:
 		diario.add_theme_font_size_override(chiave, Stile.dimensione("piccolo"))
-	var cornice := StyleBoxFlat.new()
-	cornice.bg_color = Color(Stile.colore("pannello"), 0.94)
-	cornice.border_color = Stile.colore("bordo")
-	cornice.set_border_width_all(Stile.forma("bordo"))
-	cornice.set_corner_radius_all(Stile.forma("raggio"))
-	cornice.content_margin_left = Stile.forma("padding_box_x")
-	cornice.content_margin_right = Stile.forma("padding_box_x")
-	cornice.content_margin_top = Stile.forma("padding_box_y")
-	cornice.content_margin_bottom = Stile.forma("padding_box_y")
-	diario_box.add_theme_stylebox_override("panel", cornice)
+	# stessa cornice del box eventi (Stile.stile_box_testo()): se in futuro
+	# arriva un'immagine disegnata a mano, la prende anche il diario di
+	# combattimento, senza bisogno di duplicare la logica qui
+	diario_box.add_theme_stylebox_override("panel", Stile.stile_box_testo())
 
 func categoria_di(dati: Dictionary) -> String:
 	if dati.get("fonte", false):

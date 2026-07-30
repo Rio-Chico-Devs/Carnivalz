@@ -14,6 +14,12 @@ extends PanelContainer
 # completa subito, il successivo passa avanti (comportamento standard delle
 # visual novel, e la cosa che i giocatori si aspettano senza doverla imparare).
 # Finita la scrittura compare il triangolino che pulsa in basso a destra.
+#
+# Altezza SEMPRE fissa (Stile.forma("altezza_box")): "fit_content" e' spento
+# apposta. Un messaggio piu' lungo di un altro non deve far crescere il box
+# e spingere su/giu' tutto il resto della schermata (i ritratti sopra) - se
+# un testo non ci sta, scorre dentro il box (scroll_active), il box stesso
+# non si muove mai.
 
 signal scrittura_finita
 
@@ -26,7 +32,7 @@ var tween_testo: Tween
 var tween_indicatore: Tween
 
 func _ready() -> void:
-	add_theme_stylebox_override("panel", stile_box())
+	add_theme_stylebox_override("panel", Stile.stile_box_testo())
 	targhetta.add_theme_color_override("font_color", Stile.colore("accento"))
 	targhetta.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
 	indicatore.add_theme_color_override("font_color", Stile.colore("accento"))
@@ -34,20 +40,9 @@ func _ready() -> void:
 	indicatore.visible = false
 	testo.custom_minimum_size = Vector2(0, Stile.forma("altezza_box"))
 
-func stile_box() -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = Color(Stile.colore("pannello"), 0.94)
-	s.border_color = Stile.colore("bordo")
-	s.set_border_width_all(Stile.forma("bordo"))
-	s.set_corner_radius_all(Stile.forma("raggio"))
-	s.content_margin_left = Stile.forma("padding_box_x")
-	s.content_margin_right = Stile.forma("padding_box_x")
-	s.content_margin_top = Stile.forma("padding_box_y")
-	s.content_margin_bottom = Stile.forma("padding_box_y")
-	return s
-
 func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 	visible = true
+	testo.scroll_to_line(0)  # nuovo messaggio: si riparte sempre dall'inizio del testo
 	match tipo:
 		"dialogo":
 			targhetta.visible = nome_parlante != ""

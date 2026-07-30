@@ -130,6 +130,39 @@ func stile_pannello() -> StyleBoxFlat:
 	s.set_corner_radius_all(forma("raggio"))
 	return s
 
+func stile_box_testo() -> StyleBox:
+	# il box dove parla il gioco (dialogo/narrazione/notifica) e il diario di
+	# combattimento condividono questa stessa cornice. Se Bru fornisce
+	# un'immagine (sezione "box" di data/stile.json: usa_texture + texture +
+	# margini) la si usa a nove riquadri - i bordi/angoli restano nitidi alla
+	# dimensione disegnata, il centro si allunga per adattarsi a qualunque
+	# testo. Senza immagine resta il box piatto coi colori di questo file:
+	# cambiare uno dei due non richiede toccare nessuno script.
+	var config: Dictionary = dati.get("box", {})
+	var percorso := String(config.get("texture", ""))
+	if bool(config.get("usa_texture", false)) and percorso != "" and ResourceLoader.exists(percorso):
+		var s := StyleBoxTexture.new()
+		s.texture = load(percorso)
+		s.texture_margin_left = float(config.get("margine_sinistro", 24))
+		s.texture_margin_right = float(config.get("margine_destro", 24))
+		s.texture_margin_top = float(config.get("margine_alto", 20))
+		s.texture_margin_bottom = float(config.get("margine_basso", 20))
+		s.content_margin_left = float(config.get("padding_sinistro", s.texture_margin_left))
+		s.content_margin_right = float(config.get("padding_destro", s.texture_margin_right))
+		s.content_margin_top = float(config.get("padding_alto", s.texture_margin_top))
+		s.content_margin_bottom = float(config.get("padding_basso", s.texture_margin_bottom))
+		return s
+	var piatto := StyleBoxFlat.new()
+	piatto.bg_color = Color(colore("pannello"), 0.94)
+	piatto.border_color = colore("bordo")
+	piatto.set_border_width_all(forma("bordo"))
+	piatto.set_corner_radius_all(forma("raggio"))
+	piatto.content_margin_left = forma("padding_box_x")
+	piatto.content_margin_right = forma("padding_box_x")
+	piatto.content_margin_top = forma("padding_box_y")
+	piatto.content_margin_bottom = forma("padding_box_y")
+	return piatto
+
 func stile_bottone(stato: String) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
 	s.set_corner_radius_all(forma("raggio"))
