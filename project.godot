@@ -15,7 +15,9 @@ config/icon="res://icon.svg"
 
 GameState="*res://scripts/GameState.gd"
 AudioManager="*res://scripts/AudioManager.gd"
+Stile="*res://scripts/Stile.gd"
 Impostazioni="*res://scripts/Impostazioni.gd"
+Transizioni="*res://scripts/Transizioni.gd"
 
 [display]
 

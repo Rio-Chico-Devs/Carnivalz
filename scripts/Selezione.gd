@@ -47,8 +47,8 @@ func aggiorna_selezione() -> void:
 		carte[id_classe].modulate = Color.WHITE if nel_party else Color(1, 1, 1, 0.4)
 
 func _su_inizia() -> void:
-	get_tree().change_scene_to_file(SCENA_EVENTI)
+	Transizioni.vai(SCENA_EVENTI)
 
 func _su_mappa() -> void:
 	GameState.reset_campagna()
-	get_tree().change_scene_to_file(SCENA_VUOTO)
+	Transizioni.vai(SCENA_VUOTO)

@@ -15,11 +15,13 @@ const SCENA_EVENTI := "res://scenes/Main.tscn"
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 
+@onready var sfondo: ColorRect = %Sfondo
 @onready var fila_party: HBoxContainer = %Party
 @onready var nemico_centro: HBoxContainer = %NemicoCentro
 @onready var nemici_sinistra: HBoxContainer = %NemiciSinistra
 @onready var nemici_destra: HBoxContainer = %NemiciDestra
 @onready var etichetta_speranza: Label = %Speranza
+@onready var diario_box: PanelContainer = %DiarioBox
 @onready var diario: RichTextLabel = %Diario
 @onready var azioni: HBoxContainer = %Azioni
 
@@ -112,9 +114,11 @@ var resurrezione_pronta := false
 # centro del campo; chi si aggiunge dopo (altri della stessa imboscata, o
 # un'evocazione) si dispone ai lati, alternando destra e sinistra.
 var nemico_centrale_occupato := false
+var fuoco_gia_dato := false  # il primo bottone di ogni menu prende il fuoco tastiera
 var prossimo_lato_nemico := "destra"
 
 func _ready() -> void:
+	applica_stile()
 	if GameState.accessorio_equipaggiato != "":
 		effetto_accessorio = GameState.dati_oggetto(GameState.accessorio_equipaggiato).get("effetto_equipaggiato", {})
 		scudo_primo_stato_pronto = effetto_accessorio.get("tipo", "") == "scudo_primo_stato"
@@ -158,6 +162,26 @@ func _ready() -> void:
 		aggiorna_speranza(0)
 	applica_leve()
 	esegui_scontro()
+
+func applica_stile() -> void:
+	# il combattimento e' un'altra stanza dello stesso gioco: stessi colori,
+	# stesso font, stessi bordi della schermata eventi
+	sfondo.color = Stile.colore("sfondo_combattimento")
+	etichetta_speranza.add_theme_color_override("font_color", Stile.colore("accento"))
+	etichetta_speranza.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
+	diario.add_theme_color_override("default_color", Stile.colore("testo"))
+	for chiave in ["normal_font_size", "bold_font_size", "italics_font_size", "bold_italics_font_size"]:
+		diario.add_theme_font_size_override(chiave, Stile.dimensione("piccolo"))
+	var cornice := StyleBoxFlat.new()
+	cornice.bg_color = Color(Stile.colore("pannello"), 0.94)
+	cornice.border_color = Stile.colore("bordo")
+	cornice.set_border_width_all(Stile.forma("bordo"))
+	cornice.set_corner_radius_all(Stile.forma("raggio"))
+	cornice.content_margin_left = Stile.forma("padding_box_x")
+	cornice.content_margin_right = Stile.forma("padding_box_x")
+	cornice.content_margin_top = Stile.forma("padding_box_y")
+	cornice.content_margin_bottom = Stile.forma("padding_box_y")
+	diario_box.add_theme_stylebox_override("panel", cornice)
 
 func categoria_di(dati: Dictionary) -> String:
 	if dati.get("fonte", false):
@@ -469,6 +493,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 # --- menu azioni del giocatore ---
 
 func pulisci_azioni() -> void:
+	fuoco_gia_dato = false
 	for figlio in azioni.get_children():
 		figlio.queue_free()
 
@@ -476,14 +501,19 @@ func bottone_azione(testo: String, richiamo: Callable, spento := false, evidenzi
 	var bottone := Button.new()
 	bottone.text = ("▶  " + testo) if evidenziato else testo
 	bottone.disabled = spento
+	bottone.custom_minimum_size = Vector2(0, 44)
 	bottone.pressed.connect(richiamo)
 	azioni.add_child(bottone)
+	if not spento and not fuoco_gia_dato:
+		# il primo bottone utile prende il fuoco: si gioca anche da tastiera
+		fuoco_gia_dato = true
+		bottone.grab_focus()
 	if evidenziato:
 		# pulsa finche' non lo premi: e' li' che deve guardare il giocatore
-		bottone.modulate = Color(1, 0.95, 0.5)
+		bottone.modulate = Stile.colore("accento")
 		var battito: Tween = bottone.create_tween().set_loops()
-		battito.tween_property(bottone, "modulate:a", 0.5, 0.45)
-		battito.tween_property(bottone, "modulate:a", 1.0, 0.45)
+		battito.tween_property(bottone, "modulate:a", 0.45, 0.5)
+		battito.tween_property(bottone, "modulate:a", 1.0, 0.5)
 
 func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
 	var testo := String(msg.get("testo", ""))
@@ -1523,6 +1553,8 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		return
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
 	registra_danno_subito(bersaglio, danno)
+	if bersaglio.hp > 0:
+		Stile.lampeggia(bersaglio.scheda, Stile.colore("pericolo"))
 	if critico:
 		if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
 			GameState.registra_azione("critici_inflitti")
@@ -1790,9 +1822,17 @@ func evidenzia(attivo: Dictionary) -> void:
 		combattente.scheda.modulate = Color.WHITE if suo_turno else Color(1, 1, 1, 0.65)
 
 func aggiorna_scheda(combattente: Dictionary) -> void:
-	# un nemico battuto lascia il campo: la sua immagine sparisce del tutto,
-	# non resta li' sbiadita. I compagni a terra restano visibili (sono tuoi)
-	combattente.scheda.visible = int(combattente.hp) > 0 or bool(combattente.giocatore)
+	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
+	# sbiadito. I compagni a terra restano visibili (sono tuoi, non sono usciti)
+	var fuori_dal_campo: bool = int(combattente.hp) <= 0 and not bool(combattente.giocatore)
+	if fuori_dal_campo and not bool(combattente.get("uscito", false)):
+		combattente["uscito"] = true
+		congeda_dal_campo(combattente.scheda)
+	elif not fuori_dal_campo and bool(combattente.get("uscito", false)):
+		# un invincibile che si rialza torna in scena: rientra, non riappare
+		combattente["uscito"] = false
+		combattente.scheda.visible = true
+		combattente.scheda.modulate = Color.WHITE
 	if combattente.hp <= 0:
 		combattente.etichetta_vita.text = "KO"
 		combattente.scheda.modulate = Color(0.5, 0.4, 0.4, 0.5)
@@ -1822,6 +1862,13 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 		dettagli += " · " + String(GameState.psichi.get(combattente.psiche, {}).get("nome", combattente.psiche))
 	combattente.etichetta_extra.text = dettagli
 
+func congeda_dal_campo(scheda: Control) -> void:
+	var uscita := scheda.create_tween()
+	uscita.tween_property(scheda, "modulate:a", 0.0, Stile.tempo("uscita_sconfitto"))
+	uscita.finished.connect(func() -> void:
+		if is_instance_valid(scheda):
+			scheda.visible = false)
+
 func scrivi(riga: String) -> void:
 	diario.append_text(riga + "\n")
 
@@ -1845,15 +1892,15 @@ func _esci() -> void:
 		GameState.premia_vittoria(xp_bottino, tazo_bottino, not fonte.is_empty())
 		var eroe := convinto and dopo_vittoria_eroe != ""
 		GameState.nodo_corrente = dopo_vittoria_eroe if eroe else dopo_vittoria
-		get_tree().change_scene_to_file(SCENA_EVENTI)
+		Transizioni.vai(SCENA_EVENTI)
 	elif giocatore_e_fuggito and dopo_fuga != "":
 		GameState.annulla_combattimento()
 		GameState.nodo_corrente = dopo_fuga
-		get_tree().change_scene_to_file(SCENA_EVENTI)
+		Transizioni.vai(SCENA_EVENTI)
 	elif dopo_sconfitta != "":
 		GameState.annulla_combattimento()
 		GameState.nodo_corrente = dopo_sconfitta
-		get_tree().change_scene_to_file(SCENA_EVENTI)
+		Transizioni.vai(SCENA_EVENTI)
 	else:
 		GameState.reset_campagna()
-		get_tree().change_scene_to_file(SCENA_MAPPA)
+		Transizioni.vai(SCENA_MAPPA)

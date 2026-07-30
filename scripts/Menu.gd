@@ -14,7 +14,7 @@ const SCENA_EXTRA := "res://scenes/Extra.tscn"
 func _ready() -> void:
 	AudioManager.musica_chiave("menu")
 	var sfondo := ColorRect.new()
-	sfondo.color = Color(0.04, 0.03, 0.08)
+	sfondo.color = Stile.colore("sfondo")
 	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(sfondo)
 
@@ -30,7 +30,8 @@ func _ready() -> void:
 	var titolo := Label.new()
 	titolo.text = "CARNIVALZ"
 	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titolo.add_theme_font_size_override("font_size", 44)
+	titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
+	titolo.add_theme_color_override("font_color", Stile.colore("accento"))
 	colonna.add_child(titolo)
 
 	var sottotitolo := Label.new()
@@ -55,13 +56,13 @@ func _ready() -> void:
 	bottone_opzioni.text = "Opzioni"
 	bottone_opzioni.custom_minimum_size = Vector2(0, 44)
 	bottone_opzioni.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_OPZIONI))
+		Transizioni.vai(SCENA_OPZIONI))
 	colonna.add_child(bottone_opzioni)
 	var bottone_extra := Button.new()
 	bottone_extra.text = "Extra"
 	bottone_extra.custom_minimum_size = Vector2(0, 44)
 	bottone_extra.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_EXTRA))
+		Transizioni.vai(SCENA_EXTRA))
 	colonna.add_child(bottone_extra)
 
 func _su_start() -> void:
@@ -82,7 +83,7 @@ func _su_start() -> void:
 		continua.custom_minimum_size = Vector2(0, 44)
 		continua.pressed.connect(func() -> void:
 			GameState.carica()
-			get_tree().change_scene_to_file(SCENA_MAPPA))
+			Transizioni.vai(SCENA_MAPPA))
 		colonna.add_child(continua)
 	var carica_partita := Button.new()
 	carica_partita.text = "Carica partita"
@@ -131,7 +132,7 @@ func _su_nuova_partita() -> void:
 	conferma.custom_minimum_size = Vector2(0, 44)
 	conferma.pressed.connect(func() -> void:
 		GameState.imposta_nome_protagonista(campo.text)
-		get_tree().change_scene_to_file(SCENA_INTRO))
+		Transizioni.vai(SCENA_INTRO))
 	colonna.add_child(conferma)
 	campo.text_submitted.connect(func(_testo: String) -> void: conferma.pressed.emit())
 
@@ -167,7 +168,7 @@ func _su_carica_partita() -> void:
 
 func _su_scelta_slot(slot: int) -> void:
 	GameState.carica_slot(slot)
-	get_tree().change_scene_to_file(SCENA_MAPPA)
+	Transizioni.vai(SCENA_MAPPA)
 
 func _spazio(altezza: int) -> Control:
 	var vuoto := Control.new()

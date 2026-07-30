@@ -1,14 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/Combattimento.gd" id="1_combattimento"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_diario"]
-bg_color = Color(0, 0, 0, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
 
 [node name="Combattimento" type="Control"]
 layout_mode = 3
@@ -20,13 +12,14 @@ grow_vertical = 2
 script = ExtResource("1_combattimento")
 
 [node name="Sfondo" type="ColorRect" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.09, 0.04, 0.07, 1)
+mouse_filter = 2
 
 [node name="Margini" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -35,18 +28,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 28
 
 [node name="Colonna" type="VBoxContainer" parent="Margini"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 14
 
 [node name="Campo" type="HBoxContainer" parent="Margini/Colonna"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 24
 
 [node name="Party" type="HBoxContainer" parent="Margini/Colonna/Campo"]
 unique_name_in_owner = true
@@ -56,6 +50,7 @@ theme_override_constants/separation = 16
 [node name="Spazio" type="Control" parent="Margini/Colonna/Campo"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="Nemici" type="HBoxContainer" parent="Margini/Colonna/Campo"]
 unique_name_in_owner = true
@@ -85,29 +80,22 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
 
-[node name="Diario" type="RichTextLabel" parent="Margini/Colonna"]
+[node name="DiarioBox" type="PanelContainer" parent="Margini/Colonna"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Diario" type="RichTextLabel" parent="Margini/Colonna/DiarioBox"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 150)
-size_flags_vertical = 0
 bbcode_enabled = true
 scroll_following = true
-theme_override_colors/default_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/normal_font_size = 18
-theme_override_font_sizes/bold_font_size = 18
-theme_override_font_sizes/italics_font_size = 18
-theme_override_font_sizes/bold_italics_font_size = 18
-theme_override_styles/normal = SubResource("StyleBoxFlat_diario")
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 14
 
 [node name="Azioni" type="HBoxContainer" parent="Margini/Colonna"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 52)
 alignment = 1
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10

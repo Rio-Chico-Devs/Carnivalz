@@ -38,7 +38,8 @@ func _ready() -> void:
 	centro.add_child(immagine)
 	etichetta = Label.new()
 	etichetta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	etichetta.add_theme_font_size_override("font_size", 30)
+	etichetta.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
+	etichetta.add_theme_color_override("font_color", Stile.colore("accento"))
 	centro.add_child(etichetta)
 	var bottone_salta := Button.new()
 	bottone_salta.flat = true
@@ -50,7 +51,7 @@ func _ready() -> void:
 func mostra_logo(i: int) -> void:
 	indice = i
 	if i >= LOGHI.size():
-		get_tree().change_scene_to_file(SCENA_MENU)
+		Transizioni.vai(SCENA_MENU)
 		return
 	var logo: Dictionary = LOGHI[i]
 	var percorso := String(logo.get("percorso", ""))

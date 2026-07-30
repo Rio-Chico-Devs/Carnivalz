@@ -18,7 +18,7 @@ var stanze_per_id: Dictionary = {}
 
 func _ready() -> void:
 	var sfondo := ColorRect.new()
-	sfondo.color = Color(0.05, 0.04, 0.1)
+	sfondo.color = Stile.colore("sfondo")
 	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(sfondo)
 
@@ -54,7 +54,7 @@ func _ready() -> void:
 	bottone_indietro.text = "Torna alla stanza corrente"
 	bottone_indietro.position = Vector2(24, 24)
 	bottone_indietro.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_EVENTI))
+		Transizioni.vai(SCENA_EVENTI))
 	add_child(bottone_indietro)
 
 func posizione_di(id_stanza: String) -> Vector2:
@@ -67,7 +67,7 @@ func crea_linea(strato: Node2D, id_a: String, id_b: String) -> void:
 	var linea := Line2D.new()
 	linea.points = [posizione_di(id_a), posizione_di(id_b)]
 	linea.width = 2.0
-	linea.default_color = Color(1, 1, 1, 0.35)
+	linea.default_color = Color(Stile.colore("bordo"), 0.9)
 	strato.add_child(linea)
 
 func connessa_a_scoperta(id_stanza: String) -> bool:
@@ -90,7 +90,7 @@ func crea_marker(strato: Control, stanza: Dictionary) -> void:
 		return  # non se ne conosce nemmeno l'esistenza: nessun segno sulla mappa
 	if not sbloccata:
 		var punto := ColorRect.new()
-		punto.color = Color(1, 1, 1, 0.4)
+		punto.color = Color(Stile.colore("bordo"), 0.9)
 		punto.size = Vector2(14, 14)
 		punto.position = pos - Vector2(7, 7)
 		punto.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -101,10 +101,10 @@ func crea_marker(strato: Control, stanza: Dictionary) -> void:
 	bottone.custom_minimum_size = Vector2(160, 48)
 	bottone.position = pos - Vector2(80, 24)
 	if id_stanza == GameState.nodo_corrente:
-		bottone.modulate = Color(1, 0.9, 0.6)  # dove ti trovi ora
+		bottone.modulate = Stile.colore("accento")  # dove ti trovi ora
 	bottone.pressed.connect(_su_stanza.bind(id_stanza))
 	strato.add_child(bottone)
 
 func _su_stanza(id_stanza: String) -> void:
 	GameState.nodo_corrente = id_stanza
-	get_tree().change_scene_to_file(SCENA_EVENTI)
+	Transizioni.vai(SCENA_EVENTI)

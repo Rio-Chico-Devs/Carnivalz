@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/BoxTesto.gd" id="1_box"]
+
+[node name="BoxTesto" type="PanelContainer"]
+script = ExtResource("1_box")
+
+[node name="Colonna" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Targhetta" type="Label" parent="Colonna"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Testo" type="RichTextLabel" parent="Colonna"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+mouse_filter = 2
+
+[node name="Indicatore" type="Label" parent="Colonna"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 2
+text = "▼"

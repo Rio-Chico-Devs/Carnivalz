@@ -3,7 +3,7 @@
 
 	"stat": {
 		"hp": { "nome": "Punti vita", "base": 20 },
-		"attacco": { "nome": "Attacco", "base": 1 },
+		"attacco": { "nome": "Attacco", "base": 3 },
 		"difesa": { "nome": "Difesa", "base": 0 },
 		"velocita": { "nome": "Velocità", "base": 3 },
 		"intelligenza": { "nome": "Intelligenza", "base": 1, "descrizione": "Aumenta la probabilità di fuggire." },
@@ -13,7 +13,7 @@
 
 	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello.",
 	"crescita": {
-		"attacchi_sferrati": { "stat": "attacco", "ogni": 8, "punti": 1 },
+		"attacchi_sferrati": { "stat": "attacco", "ogni": 5, "punti": 1 },
 		"danni_subiti": { "stat": "hp", "ogni": 12, "punti": 5 },
 		"difese": { "stat": "difesa", "ogni": 6, "punti": 1 },
 		"studi": { "stat": "intelligenza", "ogni": 4, "punti": 1 },

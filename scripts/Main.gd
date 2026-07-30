@@ -4,27 +4,35 @@ extends Control
 # e applica gli effetti (recluta / oggetto / lascia / reset). I contenuti
 # vivono solo nei JSON.
 #
-# Il box in basso mostra UN messaggio alla volta, in coda (coda_messaggi),
-# avanzata cliccando "Continua"; solo a coda vuota compaiono le scelte vere.
-# Quattro tipi di messaggio:
+# --- come si legge questa schermata ---
+# Il box in basso (scenes/BoxTesto.tscn) mostra UN messaggio alla volta, preso
+# da una coda (coda_messaggi). Il testo si scrive a macchina: un click lo
+# completa, il successivo passa avanti. Non c'e' piu' un bottone "Continua"
+# in mezzo alle scelte: si clicca dove si vuole (AreaAvanza copre lo schermo
+# mentre si legge) oppure si preme Invio/Spazio. Le scelte vere compaiono solo
+# quando la coda e' finita E il testo ha finito di scriversi: cosi' non si
+# clicca mai per sbaglio su un'opzione mentre si sta ancora leggendo.
+#
+# Quattro tipi di messaggio, quattro trattamenti diversi (le regole grafiche
+# stanno in BoxTesto.gd, non qui):
 #   - "narrazione": la voce narrante che descrive la scena in seconda persona
-#     ("ti nota", "il tuo compito"), sempre in corsivo, senza nome — non è
-#     Anonimo che parla, è chi racconta la sua storia dall'esterno
-#   - "dialogo": un personaggio parla (incluso Anonimo, in prima persona: le
-#     sue battute/pensieri sono "dialogo" con chi="anonimo"), il suo nome
-#     compare centrato sul box
-#   - "notifica": oggetti/Tazo raccolti, centrato, una voce alla volta
-#   - "titolo": rivela il nome di un luogo (es. "Pianure di Redenna"), grande
-#     e centrato, senza nome
+#     ("ti nota", "il tuo compito"), in corsivo e senza nome — non è Anonimo
+#     che parla, è chi racconta la storia dall'esterno
+#   - "dialogo": un personaggio parla (incluso Anonimo, in prima persona), col
+#     suo nome nella targhetta del box
+#   - "notifica": oggetti/Tazo/passive, centrato e color accento: è il gioco
+#     che ti informa, non la storia
+#   - "titolo": il nome di un luogo — non entra nel box, prende tutto lo
+#     schermo come una carta da film e poi si scioglie
 # Un nodo può avere "sequenza" (lista di messaggi) oppure, in alternativa,
 # il vecchio campo "testo" (diventa un'unica narrazione, per compatibilità
 # con i contenuti non ancora convertiti).
 #
-# Palco dialoghi sopra il box: a sinistra sempre il protagonista (o un
-# alternativo indicato dal nodo), a destra l'interlocutore della
-# discussione. Se il nodo indica "centro", parla un solo personaggio al
-# centro e i due spazi laterali spariscono. Questo riguarda solo i ritratti
-# visibili, non il nome sul box (quello segue il messaggio corrente).
+# Palco dei ritratti sopra il box: a sinistra il protagonista (o un
+# alternativo indicato dal nodo), a destra l'interlocutore. Se il nodo indica
+# "centro", parla un solo personaggio al centro e i due spazi laterali
+# spariscono. Chi non ha la battuta in quel momento resta in scena ma
+# attenuato: l'occhio va da solo su chi sta parlando.
 
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
@@ -33,34 +41,63 @@ const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
 
+@onready var sfondo: ColorRect = %Sfondo
 @onready var slot_sinistra = %SlotSinistra
 @onready var slot_centro = %SlotCentro
 @onready var slot_destra = %SlotDestra
-@onready var nome_parlante: Label = %NomeParlante
-@onready var narratore: RichTextLabel = %Narratore
+@onready var box = %BoxTesto
 @onready var contenitore_scelte: VBoxContainer = %Scelte
 @onready var bottone_dialoga: Button = %BottoneDialoga
 @onready var bottone_mappa: Button = %BottoneMappa
 @onready var menu_compagni: HBoxContainer = %MenuCompagni
-@onready var stato: Label = %Stato
+@onready var etichetta_party: Label = %Party
+@onready var etichetta_risorse: Label = %Risorse
+@onready var etichetta_stat: Label = %BarraStat
+@onready var carta_titolo: Control = %CartaTitolo
+@onready var testo_titolo: Label = %TestoTitolo
+@onready var suggerimento_titolo: Label = %SuggerimentoTitolo
+@onready var area_avanza: Button = %AreaAvanza
 
 var nodo_in_corso: Dictionary = {}
 var coda_messaggi: Array[Dictionary] = []
-var azione_dopo_coda: Callable = Callable()  # eseguita a coda vuota al posto delle scelte normali (es. mediazione)
+var azione_dopo_coda: Callable = Callable()     # eseguita a coda vuota al posto delle scelte normali (es. mediazione)
+var azione_a_fine_testo: Callable = Callable()  # eseguita appena il box ha finito di scrivere
 var mostrando_scena := false  # true quando il nodo sta mostrando la sua descrizione di ritorno
+var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la carta del titolo e' a schermo
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
 		# scena avviata direttamente dall'editor: carica la campagna di prova
 		GameState.avvia_carnivalz("debug", EVENTI_DEBUG)
 	AudioManager.musica(GameState.musica_ambiente)
+	applica_stile()
 	for slot in [slot_sinistra, slot_centro, slot_destra]:
 		slot.imposta_grande(true)  # ritratto cinematografico, riempie lo schermo sopra il box
+	box.scrittura_finita.connect(_su_testo_pronto)
+	area_avanza.focus_mode = Control.FOCUS_NONE
+	area_avanza.pressed.connect(_su_avanza)
 	bottone_dialoga.pressed.connect(_su_dialoga)
 	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente)
 	bottone_mappa.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_MAPPA_ZONA))
+		Transizioni.vai(SCENA_MAPPA_ZONA))
 	mostra_nodo(GameState.nodo_corrente)
+
+func applica_stile() -> void:
+	sfondo.color = Stile.colore("sfondo")
+	Stile.etichetta_piccola(etichetta_party)
+	Stile.etichetta_piccola(etichetta_risorse)
+	etichetta_stat.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
+	etichetta_stat.add_theme_color_override("font_color", Stile.colore("bordo"))
+	testo_titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
+	testo_titolo.add_theme_color_override("font_color", Stile.colore("accento"))
+	suggerimento_titolo.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
+	suggerimento_titolo.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+
+func _unhandled_input(evento: InputEvent) -> void:
+	# la tastiera fa esattamente quello che fa il mouse: avanza
+	if area_avanza.visible and evento.is_action_pressed("ui_accept"):
+		_su_avanza()
+		get_viewport().set_input_as_handled()
 
 func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) -> void:
 	var nodo: Dictionary = GameState.eventi.get(id_nodo, {})
@@ -111,7 +148,7 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 				var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
 				# fuggire da un agguato non ha penalita': si torna semplicemente qui
 				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
-				get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
+				Transizioni.vai(SCENA_COMBATTIMENTO)
 				return
 	# nessun agguato e' scattato: qui si respira, e il party recupera tutto.
 	# Finche' gli scontri si incatenano (ondate), invece, gli hp restano quelli
@@ -120,6 +157,7 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 	# dove in mezzo c'e' solo una scena e non una vera pausa
 	if not nodo.get("mantieni_hp", false):
 		GameState.hp_persistenti.clear()
+	nodo_in_corso = nodo
 	aggiorna_palco(nodo)
 	aggiorna_stato()
 	# i dialoghi di un posto si sentono una volta sola: da li' in avanti il
@@ -127,16 +165,15 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 	mostrando_scena = not prima_visita and nodo.has("scena")
 	if nodo.get("espulsione_automatica", false):
 		# non c'e' niente da scegliere: il posto stesso ti rigetta fuori
-		var seq := sequenza_di(nodo)
+		var seq := contenuto_nodo(nodo)
+		azione_a_fine_testo = Callable()
+		nascondi_comandi()
 		mostra_messaggio(seq[0] if not seq.is_empty() else {"tipo": "narrazione", "testo": ""})
-		for figlio in contenitore_scelte.get_children():
-			figlio.queue_free()
-		aggiorna_dialoga()
-		await get_tree().create_timer(1.8).timeout
+		area_avanza.visible = false
+		await get_tree().create_timer(2.2).timeout
 		GameState.congeda_tutti_temporanei()
-		get_tree().change_scene_to_file(SCENA_VUOTO)
+		Transizioni.vai(SCENA_VUOTO)
 		return
-	nodo_in_corso = nodo
 	coda_messaggi = notifiche_precedenti + notifiche_passive() + contenuto_nodo(nodo)
 	avanza_messaggio()
 
@@ -165,26 +202,20 @@ func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
 		return seq
 	return [{"tipo": "narrazione", "testo": nodo.get("testo", "")}]
 
+# --- coda dei messaggi ---
+
 func avanza_messaggio() -> void:
 	if not coda_messaggi.is_empty():
 		var msg: Dictionary = coda_messaggi.pop_front()
+		nascondi_comandi()
+		# se questo e' l'ultimo messaggio e non c'e' nessuna transizione in
+		# sospeso, appena finisce di scriversi compaiono le scelte vere
+		var ultimo: bool = coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() \
+				and not nodo_in_corso.has("combattimento_automatico") \
+				and not nodo_in_corso.has("avvio_automatico")
+		azione_a_fine_testo = _apri_scelte if ultimo else Callable()
 		mostra_messaggio(msg)
-		# durante la lettura dei messaggi i bottoni "Parla con la squadra" e
-		# "Mappa" restano nascosti: appaiono solo a coda vuota, mai a meta' di
-		# una sequenza
-		bottone_dialoga.visible = false
-		bottone_mappa.visible = false
-		for figlio in menu_compagni.get_children():
-			figlio.queue_free()
-		if coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() \
-				and not nodo_in_corso.has("combattimento_automatico") and not nodo_in_corso.has("avvio_automatico"):
-			# ultimo messaggio e nessuna transizione in sospeso: le scelte vere
-			# compaiono subito sotto lo stesso testo, senza un "Continua" a vuoto
-			aggiorna_palco(nodo_in_corso)
-			ricostruisci_scelte(nodo_in_corso)
-			aggiorna_dialoga()
-		else:
-			mostra_continua()
+		area_avanza.visible = true
 		return
 	if azione_dopo_coda.is_valid():
 		var richiamo := azione_dopo_coda
@@ -200,9 +231,39 @@ func avanza_messaggio() -> void:
 		# nuova campagna, senza che il giocatore debba scegliere nulla
 		avvia_automatico(nodo_in_corso["avvio_automatico"])
 		return
+	_apri_scelte()
+
+func _su_avanza() -> void:
+	# primo click: il testo si completa subito. Secondo click: si va avanti.
+	if box.sta_scrivendo:
+		box.completa()
+		return
+	if carta_titolo.visible:
+		chiudi_carta_titolo()
+		return
+	avanza_messaggio()
+
+func _su_testo_pronto() -> void:
+	if azione_a_fine_testo.is_valid():
+		var richiamo := azione_a_fine_testo
+		azione_a_fine_testo = Callable()
+		richiamo.call()
+
+func _apri_scelte() -> void:
+	box.nascondi_indicatore()
+	area_avanza.visible = false
 	aggiorna_palco(nodo_in_corso)
 	ricostruisci_scelte(nodo_in_corso)
 	aggiorna_dialoga()
+
+func nascondi_comandi() -> void:
+	# mentre si legge non c'e' niente da premere: i comandi tornano a coda vuota
+	for figlio in contenitore_scelte.get_children():
+		figlio.queue_free()
+	bottone_dialoga.visible = false
+	bottone_mappa.visible = false
+	for figlio in menu_compagni.get_children():
+		figlio.queue_free()
 
 func avvia_combattimento_automatico(dati: Dictionary) -> void:
 	if dati.has("salta_se_flag") and GameState.ha_flag(String(dati["salta_se_flag"])):
@@ -211,32 +272,60 @@ func avvia_combattimento_automatico(dati: Dictionary) -> void:
 		return
 	GameState.prepara_combattimento(dati.get("nemici", []), dati.get("se_vinci", ""),
 			dati.get("se_vinci_eroe", ""), dati.get("se_perdi", ""), dati.get("se_fuggi", ""))
-	get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
+	Transizioni.vai(SCENA_COMBATTIMENTO)
 
 func avvia_automatico(dati: Dictionary) -> void:
 	GameState.avvia_carnivalz(String(dati.get("id_punto", "")), String(dati.get("file_eventi", "")))
 	mostra_nodo(GameState.nodo_corrente)
 
+# --- messaggi a schermo ---
+
 func mostra_messaggio(msg: Dictionary) -> void:
-	match String(msg.get("tipo", "narrazione")):
-		"dialogo":
-			nome_parlante.visible = true
-			var chi := String(msg.get("chi", GameState.id_protagonista))
-			aggiorna_nome_parlante(chi)
-			narratore.text = sostituisci_nome(String(msg.get("testo", "")))
-			if msg.has("espr"):
-				aggiorna_espressione_centro(chi, String(msg["espr"]))
-		"notifica":
-			nome_parlante.visible = false
-			narratore.text = "[center][b]%s[/b][/center]" % sostituisci_nome(String(msg.get("testo", "")))
-		"titolo":
-			# rivela il nome di un luogo: grande e centrato, non e' narrazione
-			# di scena ne' una battuta di qualcuno
-			nome_parlante.visible = false
-			narratore.text = "[center][b][font_size=36]%s[/font_size][/b][/center]" % sostituisci_nome(String(msg.get("testo", "")))
-		_:
-			nome_parlante.visible = false
-			narratore.text = "[i]%s[/i]" % sostituisci_nome(String(msg.get("testo", "")))
+	var tipo := String(msg.get("tipo", "narrazione"))
+	var contenuto := sostituisci_nome(String(msg.get("testo", "")))
+	if tipo == "titolo":
+		mostra_carta_titolo(contenuto)
+		return
+	carta_titolo.visible = false
+	box.visible = true
+	var nome_parlante := ""
+	if tipo == "dialogo":
+		var chi := String(msg.get("chi", GameState.id_protagonista))
+		nome_parlante = String(GameState.personaggi.get(chi, {}).get("nome", chi))
+		if msg.has("espr"):
+			aggiorna_espressione_centro(chi, String(msg["espr"]))
+		evidenzia_parlante(chi)
+	else:
+		evidenzia_parlante("")
+	box.mostra(tipo, contenuto, nome_parlante)
+
+func mostra_carta_titolo(contenuto: String) -> void:
+	# il nome di un luogo non e' una riga di narrazione: si prende lo schermo,
+	# resta finche' non lo si chiude, e solo dopo la scena riprende. Quello che
+	# sarebbe dovuto succedere a fine testo (aprire le scelte) resta in attesa:
+	# altrimenti i bottoni comparirebbero dietro il velo della carta.
+	azione_dopo_titolo = azione_a_fine_testo
+	azione_a_fine_testo = Callable()
+	box.visible = false
+	testo_titolo.text = contenuto
+	carta_titolo.visible = true
+	carta_titolo.modulate.a = 0.0
+	var comparsa := create_tween()
+	comparsa.tween_property(carta_titolo, "modulate:a", 1.0, Stile.tempo("carta_titolo"))
+
+func chiudi_carta_titolo() -> void:
+	var uscita := create_tween()
+	uscita.tween_property(carta_titolo, "modulate:a", 0.0, Stile.tempo("carta_titolo") * 0.6)
+	uscita.finished.connect(_dopo_carta_titolo)
+
+func _dopo_carta_titolo() -> void:
+	carta_titolo.visible = false
+	if azione_dopo_titolo.is_valid():
+		var richiamo := azione_dopo_titolo
+		azione_dopo_titolo = Callable()
+		richiamo.call()
+		return
+	avanza_messaggio()
 
 func sostituisci_nome(testo: String) -> String:
 	# permette a narrazione/dialogo di citare il nome scelto dal giocatore
@@ -247,17 +336,12 @@ func sostituisci_nome(testo: String) -> String:
 	var nome := String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "Anonimo"))
 	return testo.replace("{nome}", nome)
 
-func mostra_continua() -> void:
-	for figlio in contenitore_scelte.get_children():
-		figlio.queue_free()
-	var bottone := Button.new()
-	bottone.text = "▸ Continua"
-	bottone.pressed.connect(avanza_messaggio)
-	contenitore_scelte.add_child(bottone)
+# --- scelte ---
 
 func ricostruisci_scelte(nodo: Dictionary) -> void:
 	for figlio in contenitore_scelte.get_children():
 		figlio.queue_free()
+	var primo: Button = null
 	for scelta in nodo.get("scelte", []):
 		if scelta.has("richiede") and not GameState.party_ha_abilita(scelta["richiede"]):
 			continue  # requisito non soddisfatto: la scelta non appare proprio
@@ -277,17 +361,28 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 			continue  # gia' raccolto/fatto: la scelta non torna
 		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
 			continue  # non puoi pagare cio' che non hai
-		var bottone := Button.new()
-		bottone.text = scelta.get("testo", "…")
+		var bottone := bottone_scelta(String(scelta.get("testo", "…")))
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
+		if primo == null:
+			primo = bottone
 	if mostrando_scena:
 		# la descrizione del posto resta sempre a portata di mano: dopo qualche
 		# scelta il box ha gia' cambiato testo, e riguardarsi intorno e' gratis
-		var bottone_osserva := Button.new()
-		bottone_osserva.text = "Osserva la scena"
+		var bottone_osserva := bottone_scelta("Osserva la scena")
 		bottone_osserva.pressed.connect(_su_osserva)
 		contenitore_scelte.add_child(bottone_osserva)
+		if primo == null:
+			primo = bottone_osserva
+	if primo != null:
+		# la prima scelta parte gia' selezionata: si puo' giocare da tastiera
+		primo.grab_focus()
+
+func bottone_scelta(testo: String) -> Button:
+	var bottone := Button.new()
+	bottone.text = testo
+	Stile.scelta(bottone)
+	return bottone
 
 func notifiche_passive() -> Array[Dictionary]:
 	# abilita' passive sbloccate salendo di livello: si annunciano appena si
@@ -319,6 +414,8 @@ func pickup(id_oggetto: String) -> Array[Dictionary]:
 		risultato.append({"tipo": "narrazione", "testo": String(dati.get("descrizione", ""))})
 	return risultato
 
+# --- palco dei ritratti ---
+
 func aggiorna_palco(nodo: Dictionary) -> void:
 	if nodo.has("centro"):
 		slot_sinistra.visible = false
@@ -333,6 +430,15 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 	if nodo.has("destra"):
 		mostra_slot(slot_destra, nodo["destra"], nodo.get("espr_destra", ""))
 
+func evidenzia_parlante(id_personaggio: String) -> void:
+	# chi parla resta pieno, gli altri si attenuano: si capisce a colpo d'occhio
+	# di chi e' la voce nel box, senza doverne leggere il nome
+	for slot in [slot_sinistra, slot_centro, slot_destra]:
+		if not slot.visible:
+			continue
+		var suo: bool = id_personaggio == "" or String(slot.id_mostrato) == id_personaggio
+		slot.imposta_attenuato(not suo)
+
 func aggiorna_espressione_centro(id_personaggio: String, espressione: String) -> void:
 	# una scena "centro" (un solo personaggio a schermo) puo' cambiare la sua
 	# espressione a meta' sequenza: es. il giocoliere che perde il sorriso
@@ -341,9 +447,6 @@ func aggiorna_espressione_centro(id_personaggio: String, espressione: String) ->
 	var id_centro := String(centro.get("id", "")) if centro is Dictionary else String(centro)
 	if slot_centro.visible and id_centro == id_personaggio:
 		mostra_slot(slot_centro, id_personaggio, espressione)
-
-func aggiorna_nome_parlante(id_personaggio: String) -> void:
-	nome_parlante.text = String(GameState.personaggi.get(id_personaggio, {}).get("nome", id_personaggio))
 
 func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
 	# valore: id stringa, oppure {id, espr}. L'espressione può anche venire
@@ -358,6 +461,8 @@ func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
 	if espr_nodo != "":
 		espressione = espr_nodo
 	slot.mostra(id_personaggio, 0, espressione)
+
+# --- azioni del giocatore ---
 
 func _su_osserva() -> void:
 	# guardarsi intorno non e' una scelta: non consuma niente, non muove il
@@ -399,30 +504,30 @@ func _su_scelta(scelta: Dictionary) -> void:
 	if scelta.has("combatti"):
 		GameState.prepara_combattimento(scelta["combatti"], scelta.get("se_vinci", ""),
 				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""), scelta.get("se_fuggi", ""))
-		get_tree().change_scene_to_file(SCENA_COMBATTIMENTO)
+		Transizioni.vai(SCENA_COMBATTIMENTO)
 		return
 	if scelta.get("torna_vuoto", false):
 		# uscita da uno squarcio: lo stato resta, ma gli alleati temporanei
 		# non ti seguono fuori
 		GameState.congeda_tutti_temporanei()
-		get_tree().change_scene_to_file(SCENA_VUOTO)
+		Transizioni.vai(SCENA_VUOTO)
 		return
 	if scelta.get("reset", false):
 		GameState.reset_campagna()
-		get_tree().change_scene_to_file(SCENA_MAPPA)
+		Transizioni.vai(SCENA_MAPPA)
 		return
 	if scelta.get("game_over", false):
 		# si perde il progresso non salvato, ma non si viene sbalzati sulla
 		# mappa stellare: si ricomincia il livello dal suo punto di partenza
 		if GameState.game_over():
-			get_tree().change_scene_to_file(SCENA_EVENTI)
+			Transizioni.vai(SCENA_EVENTI)
 		else:
-			get_tree().change_scene_to_file(SCENA_MAPPA)
+			Transizioni.vai(SCENA_MAPPA)
 		return
 	if scelta.get("torna_a_mappa", false):
 		# mappa dungeon di zona: si torna li' a scegliere la prossima stanza,
 		# invece di proseguire dritti verso un altro nodo
-		get_tree().change_scene_to_file(SCENA_MAPPA_ZONA)
+		Transizioni.vai(SCENA_MAPPA_ZONA)
 		return
 	if scelta.has("vai"):
 		mostra_nodo(scelta["vai"], notifiche)
@@ -484,17 +589,24 @@ func _mostra_mediazione(conversazione: Dictionary) -> void:
 	# il giocatore puo' intervenire nella discussione: alcune opzioni sono
 	# sbloccate solo se ha in sacca l'oggetto giusto per dare peso alle sue parole
 	var mediazione: Dictionary = conversazione.get("mediazione", {})
-	nome_parlante.visible = false
-	narratore.text = "[i]%s[/i]" % String(mediazione.get("testo", "Puoi intervenire."))
-	for figlio in contenitore_scelte.get_children():
-		figlio.queue_free()
+	nascondi_comandi()
+	azione_a_fine_testo = _opzioni_mediazione.bind(mediazione)
+	box.mostra("narrazione", String(mediazione.get("testo", "Puoi intervenire.")), "")
+	area_avanza.visible = false
+
+func _opzioni_mediazione(mediazione: Dictionary) -> void:
+	box.nascondi_indicatore()
+	var primo: Button = null
 	for opzione in mediazione.get("opzioni", []):
 		if opzione.has("richiede_oggetto") and not GameState.possiede_oggetto(opzione["richiede_oggetto"]):
 			continue
-		var bottone := Button.new()
-		bottone.text = String(opzione.get("testo", "…"))
+		var bottone := bottone_scelta(String(opzione.get("testo", "…")))
 		bottone.pressed.connect(_su_mediazione.bind(opzione))
 		contenitore_scelte.add_child(bottone)
+		if primo == null:
+			primo = bottone
+	if primo != null:
+		primo.grab_focus()
 
 func _su_mediazione(opzione: Dictionary) -> void:
 	for figlio in contenitore_scelte.get_children():
@@ -542,15 +654,18 @@ func _su_compagno(id_classe: String) -> void:
 	# la battuta puo' aver sbloccato una scelta gated da richiede_flag: la
 	# prossima volta che la coda si svuota, ricostruisci_scelte() la rilegge
 
+# --- barra di stato ---
+
 func aggiorna_stato() -> void:
 	var nomi: Array[String] = []
 	for id_classe in GameState.party:
 		nomi.append(String(GameState.classi.get(id_classe, {}).get("nome", id_classe)))
-	var testo_party := ", ".join(nomi) if not nomi.is_empty() else "solo tu"
-	stato.text = "Party: %s   •   Sacca %d/%d   •   Tazo %d   •   Legame %d\nLv %d   •   HP %d   ATT %d   DIF %d   VEL %d   INT %d   MEN %d   FAT %d" % [
-		testo_party, GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20)),
-		GameState.tazo, GameState.legame,
-		GameState.livello_di(GameState.id_protagonista),
+	etichetta_party.text = ", ".join(nomi) if not nomi.is_empty() else "solo tu"
+	etichetta_risorse.text = "Lv %d   ·   Tazo %d   ·   Sacca %d/%d   ·   Legame %d" % [
+		GameState.livello_di(GameState.id_protagonista), GameState.tazo,
+		GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20)), GameState.legame,
+	]
+	etichetta_stat.text = "HP %d   ATT %d   DIF %d   VEL %d   INT %d   MEN %d   FAT %d" % [
 		GameState.stat_di("hp"), GameState.stat_di("attacco"), GameState.stat_di("difesa"),
 		GameState.stat_di("velocita"), GameState.stat_di("intelligenza"),
 		GameState.stat_di("forza_mentale"), GameState.stat_di("fattore"),

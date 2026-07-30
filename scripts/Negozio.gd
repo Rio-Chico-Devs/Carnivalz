@@ -34,7 +34,7 @@ func costruisci() -> void:
 func aggiungi_intestazione(negozio: Dictionary) -> void:
 	var titolo := Label.new()
 	titolo.text = negozio.get("nome", "?")
-	titolo.add_theme_font_size_override("font_size", 22)
+	titolo.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
 	lista.add_child(titolo)
 	var descrizione := Label.new()
 	descrizione.text = negozio.get("descrizione", "")
@@ -85,4 +85,4 @@ func aggiungi_voce_baratto(baratto: Dictionary) -> void:
 	lista.add_child(riga)
 
 func _su_mappa() -> void:
-	get_tree().change_scene_to_file(SCENA_MAPPA)
+	Transizioni.vai(SCENA_MAPPA)

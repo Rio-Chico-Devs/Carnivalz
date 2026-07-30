@@ -24,7 +24,7 @@ func _ready() -> void:
 	titolo.text = "IL VUOTO — %s" % punto.get("nome", "?")
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_mappa.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_MAPPA))
+		Transizioni.vai(SCENA_MAPPA))
 	crea_pianeta(punto)
 	for vuoto in punto.get("vuoti", []):
 		if vuoto_visibile(vuoto):
@@ -76,12 +76,12 @@ func _su_pianeta() -> void:
 	var punto: Dictionary = GameState.punto_mappa_corrente
 	if GameState.avvia_carnivalz(punto.get("id", ""), punto.get("file_eventi", "")):
 		GameState.musica_ambiente = String(punto.get("musica_campagna", ""))
-		get_tree().change_scene_to_file(SCENA_SELEZIONE)
+		Transizioni.vai(SCENA_SELEZIONE)
 
 func _su_squarcio(vuoto: Dictionary) -> void:
 	if GameState.entra_squarcio(vuoto.get("id", ""), vuoto.get("file_eventi", "")):
 		GameState.musica_ambiente = String(vuoto.get("musica", ""))
-		get_tree().change_scene_to_file(SCENA_EVENTI)
+		Transizioni.vai(SCENA_EVENTI)
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.03, 0.02, 0.07))

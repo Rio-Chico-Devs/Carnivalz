@@ -43,13 +43,14 @@ func _ready() -> void:
 	etichetta.fit_content = true
 	etichetta.scroll_active = false
 	etichetta.custom_minimum_size = Vector2(880, 0)
-	etichetta.add_theme_font_size_override("normal_font_size", 20)
+	etichetta.add_theme_font_size_override("normal_font_size", Stile.dimensione("corpo"))
+	etichetta.add_theme_color_override("default_color", Stile.colore("narrazione"))
 	centro.add_child(etichetta)
 
 	suggerimento = Label.new()
 	suggerimento.text = "▸ premi per continuare"
 	suggerimento.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	suggerimento.modulate = Color(1, 1, 1, 0.4)
+	suggerimento.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
 	suggerimento.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
 	suggerimento.position.y -= 40
 	add_child(suggerimento)
@@ -79,4 +80,4 @@ func _su_fine_introduzione() -> void:
 	# "fine introduzione": da qui in poi parla il protagonista, e alla fine
 	# del suo monologo il tutorial parte da solo (avvio_automatico)
 	GameState.avvia_carnivalz("intro", FILE_EVENTI_INTRO)
-	get_tree().change_scene_to_file(SCENA_EVENTI)
+	Transizioni.vai(SCENA_EVENTI)

@@ -12,6 +12,7 @@ var volume_effetti := 1.0
 var schermo_intero := false
 var testo_grande := false
 var alto_contrasto := false
+var velocita_testo := 1.0  # moltiplica i caratteri al secondo del box (0.5 lento, 3 = quasi istantaneo)
 
 func _ready() -> void:
 	carica()
@@ -27,6 +28,7 @@ func carica() -> void:
 	schermo_intero = bool(cfg.get_value("grafica", "schermo_intero", false))
 	testo_grande = bool(cfg.get_value("accessibilita", "testo_grande", false))
 	alto_contrasto = bool(cfg.get_value("accessibilita", "alto_contrasto", false))
+	velocita_testo = float(cfg.get_value("accessibilita", "velocita_testo", 1.0))
 
 func salva() -> void:
 	var cfg := ConfigFile.new()
@@ -36,6 +38,7 @@ func salva() -> void:
 	cfg.set_value("grafica", "schermo_intero", schermo_intero)
 	cfg.set_value("accessibilita", "testo_grande", testo_grande)
 	cfg.set_value("accessibilita", "alto_contrasto", alto_contrasto)
+	cfg.set_value("accessibilita", "velocita_testo", velocita_testo)
 	cfg.save(PERCORSO)
 
 func applica_tutto() -> void:
@@ -67,14 +70,8 @@ func applica_scala_testo() -> void:
 	get_tree().root.content_scale_factor = 1.25 if testo_grande else 1.0
 
 func applica_alto_contrasto() -> void:
-	# tema globale minimale (testo giallo ad alta visibilità sullo sfondo
-	# scuro): non sostituisce un vero ripensamento dei colori schermata per
-	# schermata, ma alza da subito la leggibilità ovunque nell'interfaccia
-	if not alto_contrasto:
-		get_tree().root.theme = null
-		return
-	var tema := Theme.new()
-	var giallo := Color(1.0, 0.92, 0.2)
-	for tipo_controllo in ["Label", "Button", "RichTextLabel", "LineEdit", "CheckBox"]:
-		tema.set_color("font_color", tipo_controllo, giallo)
-	get_tree().root.theme = tema
+	# non e' un tema che sostituisce quello del gioco: e' una variante dello
+	# stesso tema, ricostruita da Stile con i colori del testo portati al
+	# giallo ad alta visibilita'. Tutto il resto (font, bordi, spaziature)
+	# resta identico, cosi' l'accessibilita' non fa sembrare un altro gioco.
+	Stile.imposta_alto_contrasto(alto_contrasto)

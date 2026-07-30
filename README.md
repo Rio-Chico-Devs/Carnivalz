@@ -42,6 +42,11 @@ dritti in mappa.
 - `scenes/Combattimento.tscn` + `scripts/Combattimento.gd` — combattimento a turni
 - `scenes/Ritratto.tscn` + `scripts/Ritratto.gd` — ritratto riusabile (immagine o placeholder)
 - `scripts/GameState.gd` — autoload: roster, party, inventario, livelli, RNG seedato, JSON
+- `scripts/Stile.gd` — autoload: il linguaggio visivo del gioco, letto da `data/stile.json` e
+  applicato come `Theme` globale (vedi sotto)
+- `scripts/Transizioni.gd` — autoload: dissolvenza in nero tra una schermata e l'altra (vedi sotto)
+- `scripts/BoxTesto.gd` + `scenes/BoxTesto.tscn` — il box del testo con macchina da scrivere,
+  usato dalla schermata eventi (vedi sotto)
 - `scripts/Impostazioni.gd` — autoload: impostazioni utente persistite a parte (vedi sotto)
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
 - `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + stat/xp se combattono)
@@ -55,12 +60,65 @@ dritti in mappa.
   (ritratti), `art/branding/logo_studio.png`/`logo_personale.png` (loghi d'apertura). Finché
   mancano: placeholder generati (cielo stellato / iniziale del nome / testo)
 
+## Stile visivo, box del testo e transizioni
+Prima di questo sistema ogni schermata dichiarava i suoi colori/font/dimensioni a mano — risultato:
+niente era davvero coerente, e cambiare "il colore del gioco" avrebbe voluto dire toccare quindici
+file. Ora tutto passa da tre pezzi, in un posto solo:
+
+- **`data/stile.json`**: l'unica fonte del linguaggio visivo. Font (di sistema o un `.ttf` messo
+  in `art/font/`, a scelta di Bru), scala tipografica (titolo/sezione/corpo/nome/piccolo/minuscolo
+  — sei taglie, sempre le stesse, mai un `font_size` a occhio dentro una scena), colori (viola-nero
+  da sottosuolo, un solo accento caldo color ottone — il rosso e il verde sono riservati a
+  danno/cura, non decorano nient'altro), forme (raggio degli angoli, spessore dei bordi,
+  padding) e tempi (durata di ogni animazione: dissolvenza, transizione tra scene, lampeggio di un
+  colpo, carta del titolo, macchina da scrivere).
+- **`scripts/Stile.gd`** (autoload, prima di `Impostazioni`): legge quel JSON una volta sola e
+  costruisce un `Theme` di Godot applicato alla radice dell'albero (`get_tree().root.theme`) —
+  ogni schermata lo eredita senza fare nulla. Chi disegna qualcosa a mano (mappa, menu,
+  combattimento) chiede i valori con `Stile.colore("accento")`, `Stile.dimensione("piccolo")`,
+  `Stile.tempo("transizione_scena")` invece di scriverseli in giro. Offre anche piccoli aiutanti
+  condivisi: `Stile.scelta(bottone)` (le opzioni di dialogo si allineano a sinistra, a piena
+  larghezza, come righe di un elenco — non pulsanti da modulo), `Stile.lampeggia(nodo, colore)`
+  (un colpo subito si vede sul ritratto, non solo si legge nel diario), `Stile.titolo_schermata()`,
+  `Stile.etichetta_piccola()`. L'**alto contrasto** delle Opzioni non sostituisce questo tema: gli
+  chiede di ricostruirsi con i colori del testo portati a un giallo ad alta visibilità
+  (`Stile.imposta_alto_contrasto()`), lasciando intatti font, bordi e spaziature — l'accessibilità
+  non deve far sembrare un altro gioco.
+- **`scripts/BoxTesto.gd`** + **`scenes/BoxTesto.tscn`**: il riquadro dove il gioco parla,
+  usato dalla schermata eventi. Tre trattamenti, decisi tutti qui e non nei singoli script:
+  **dialogo** (targhetta col nome di chi parla, testo dritto), **narrazione** (niente targhetta,
+  corsivo, colore smorzato — non è Anonimo che parla, è chi racconta dall'esterno), **notifica**
+  (centrato, colore accento — il gioco che informa, non la storia). Il testo si scrive **a
+  macchina** (`visible_ratio` animato in un `Tween`, velocità in caratteri/secondo da
+  `data/stile.json` × il moltiplicatore delle Opzioni): un primo click lo completa subito, il
+  successivo passa avanti. Finita la scrittura pulsa un "▼" in basso a destra — l'unico segnale
+  di "premi per continuare" in tutto il gioco, sempre nello stesso posto.
+- **`scripts/Transizioni.gd`** (autoload, `CanvasLayer` sopra tutto): un velo nero cala,
+  la scena cambia mentre lo schermo è coperto, il velo si rialza. `Transizioni.vai(percorso)` ha
+  sostituito ogni `get_tree().change_scene_to_file()` del progetto — un cambio di schermata non è
+  mai più uno scatto secco, ed è impossibile entrare due volte nella stessa stanza per un doppio
+  click (il velo assorbe l'input finché non è finito).
+
+Nella **schermata eventi** (`Main.gd`) questi pezzi si compongono così: non c'è più un bottone
+"Continua" incastonato tra le scelte — un'area invisibile copre tutto lo schermo mentre si legge
+(clic ovunque, o Invio/Spazio da tastiera, fanno la stessa cosa), e le scelte vere compaiono solo
+quando la coda dei messaggi è vuota **e** il box ha finito di scrivere: non si clicca mai per
+sbaglio su un'opzione mentre si sta ancora leggendo. Chi sta parlando resta a piena opacità, chi
+non ha la battuta in quel momento si attenua (`Ritratto.imposta_attenuato()`) — l'occhio va da
+solo su chi ha la voce, senza dover leggere il nome. Un messaggio `"titolo"` (il nome di un
+luogo) non entra nel box: prende tutto lo schermo come una carta da film, e **aspetta un click
+esplicito** prima di sciogliersi (non un timer) — è un momento che merita si guardi, non un
+ostacolo da far sparire in automatico. La prima scelta/bottone utile di ogni schermo prende il
+fuoco della tastiera da solo: il gioco si può giocare interamente senza mouse.
+
 ## Opzioni e Impostazioni.gd
 Audio (volume generale/musica/effetti, bus separati "Musica"/"Effetti" creati al volo in
 `AudioManager._assicura_bus()` — niente file di bus layout da mantenere), grafica (schermo
-intero) e accessibilità (testo più grande via `content_scale_factor`, alto contrasto via un
-`Theme` globale minimale che forza il testo a un giallo ad alta visibilità — non è un vero
-ripensamento colore per colore, ma alza subito la leggibilità ovunque). Tutto applicato e
+intero) e accessibilità: testo più grande via `content_scale_factor`, alto contrasto (delegato a
+`Stile.imposta_alto_contrasto()`, vedi sopra), e **velocità del testo** (cursore 0..1 che
+scala `Impostazioni.velocita_testo` tra 0.4× e 3×, moltiplicato per i caratteri/secondo di
+`data/stile.json` — da "si legge parola per parola" a "quasi tutto insieme", per chi preferisce
+leggere più in fretta o più lentamente della macchina da scrivere di base). Tutto applicato e
 salvato subito a ogni modifica in `user://impostazioni.cfg`, **indipendente dagli slot di
 salvataggio** della partita (persiste tra una partita e l'altra).
 
@@ -173,30 +231,23 @@ spazi laterali spariscono.
 
 **Stile cinematografico** (stile Undertale, su indicazione di Bru): i ritratti riempiono
 quasi tutto lo schermo (`Ritratto.imposta_grande(true)`, chiamato su tutti e tre gli slot in
-`Main._ready()`), il box del narratore è una striscia sottile e fissa in basso (bordo bianco,
-sfondo nero). **Mancano ancora**: un font monospace "pixel" per il testo (per ora resta il
-font di sistema — se Bru fornisce un `.ttf` lo si aggiunge come tema) e gli sfondi di scena a
-piena pagina (per ora resta il `ColorRect` a tinta unita).
+`Main._ready()`), il box del testo (`scenes/BoxTesto.tscn`, vedi la sezione "Stile visivo, box
+del testo e transizioni" più sopra) è una striscia bassa e fissa in basso, con font, bordi e
+colori che vengono tutti da `Stile.gd`. Un cambio di ritratto o di espressione non è mai uno
+scatto: la vecchia immagine sfuma nella nuova (`Ritratto.dissolvi_ingresso()`). **Mancano
+ancora** gli sfondi di scena a piena pagina (per ora resta il `ColorRect` a tinta unita, colore
+`Stile.colore("sfondo")`); il font è già configurabile da `data/stile.json` senza toccare il
+codice, appena Bru fornisce un `.ttf`.
 
-**Dimensione del testo costante e testo centrato nel box**: `[i]`/`[b]`/`[center]` in BBCode
-possono usare varianti del font con metriche diverse (corsivo più piccolo del grassetto, a
-schermo, coi font di sistema): il box del narratore (`Narratore`, in `Main.tscn`) e il diario
-di combattimento (`Diario`, in `Combattimento.tscn`) impostano esplicitamente
-`normal/bold/italics/bold_italics_font_size` tutti uguali, così narrazione, dialogo e notifica
-non cambiano mai dimensione. Il box del narratore è inoltre un `NarratoreBox` (PanelContainer,
-altezza fissa) che contiene il vero `Narratore` (RichTextLabel con `fit_content = true`,
-`size_flags_vertical = SIZE_SHRINK_CENTER`): il testo è sempre centrato verticalmente dentro
-la cornice, non ancorato in alto. Il diario di combattimento resta invece un log scorrevole
-(`scroll_following = true`) e non usa questo centraggio, perché accumula righe nel tempo.
-
-**Coda di messaggi sequenziali**: il box in basso mostra **un messaggio alla volta**, mai
-testo misto o sovrapposto; si avanza cliccando "▸ Continua" (`Main.coda_messaggi`,
-`avanza_messaggio()`). "Continua" compare solo se resta altro da leggere o se il messaggio
-appena mostrato precede un `combattimento_automatico`/un'`azione_dopo_coda` (una transizione
-di scena che merita un click esplicito); quando l'ultimo messaggio della coda è seguito solo
-da scelte vere, queste compaiono subito sotto lo stesso testo, senza un "Continua" a vuoto che
-lascerebbe la schermata identica per un secondo click. Ogni nodo evento può avere
-una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
+**Coda di messaggi sequenziali, con macchina da scrivere**: il box mostra **un messaggio alla
+volta**, mai testo misto o sovrapposto (`Main.coda_messaggi`, `avanza_messaggio()`). Il testo
+si scrive carattere per carattere; un click lo completa, il successivo passa al messaggio
+seguente — non c'è più un bottone "▸ Continua" incastonato tra le scelte: un'area invisibile
+(`AreaAvanza`) copre l'intero schermo mentre si legge, così qualunque click (o Invio/Spazio)
+fa la cosa giusta. Quando l'ultimo messaggio della coda è seguito solo da scelte vere, queste
+compaiono automaticamente **appena il box ha finito di scrivere** (`azione_a_fine_testo`),
+senza bisogno di un click a vuoto che lascerebbe la schermata identica. Ogni nodo evento può
+avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
 - **`narrazione`**: la voce narrante descrive la scena in **seconda persona** ("ti nota",
   "il tuo compito"), sempre in *corsivo*, senza nome — non è Anonimo che parla, è chi
   racconta la sua storia dall'esterno
@@ -207,8 +258,10 @@ una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"tes
 - **`notifica`**: oggetti/Tazo raccolti (`Main.pickup()`, i guadagni di Tazo in
   `_su_scelta()`); centrata e in grassetto nel box, **una voce alla volta**, mai
   insieme ad altro testo — per darle lo stesso peso di narrazione e dialogo
-- **`titolo`**: rivela il nome di un luogo (es. "Pianure di Redenna" nel tutorial), centrato
-  e grande (`font_size` doppio rispetto al testo normale), senza nome
+- **`titolo`**: rivela il nome di un luogo (es. "Pianure di Redenna" nel tutorial). Non entra
+  nel box: prende tutto lo schermo come una carta da film (velo scuro + testo grande in
+  `Stile.colore("accento")`) e **aspetta un click esplicito** ("▸ continua") prima di
+  sciogliersi — non un timer, perché un nome di luogo merita di essere letto con calma
 
 Un nodo senza `"sequenza"` continua a funzionare col vecchio campo `"testo"` (diventa
 un'unica narrazione: `sequenza_di()` è retrocompatibile, nessun contenuto esistente va
@@ -230,9 +283,12 @@ Numeri piccoli e leggibili, ma con scelte vere:
   qualunque altra azione: o si tiene la guardia con continuità, o si rischia attaccando, mai
   entrambe le cose insieme — e il tetto resta comunque sotto l'attacco della maggior parte dei
   nemici, quindi il danno subìto non scende mai davvero a zero solo restando sulla difensiva
-- **Danno del party scala col livello**: `danno = attacco + ⌊(liv−1) × 0.5⌋` (+ fattore, + oggetti).
-  HP del party restano 5 (semplici); i boss hanno grandi riserve (Jerah 35, la bambola 66) →
-  la difficoltà sta nel non morire durante scontri lunghi. `bonus_attacco_per_livello` in regole
+- **Danno del party scala col livello**: `danno = attacco + ⌊(liv−1) × 1.0⌋` (+ fattore, + oggetti).
+  Attacco base del protagonista **3** (`data/crescita.json`, stat "attacco"), non più 1: con
+  attacco 1 diversi nemici comuni (marionette, ombre) erano matematicamente immuni ai colpi
+  normali a inizio partita, perché danno − difesa restava a zero. HP del party restano 5
+  (semplici); i boss hanno grandi riserve (Jerah 35, la bambola 666) → la difficoltà sta nel
+  non morire durante scontri lunghi. `bonus_attacco_per_livello` in regole (ora 1.0, non più 0.5)
 - I **boss hanno mosse pesate** nei dati (`mosse`: attacco_forte, attacco_tutti,
   buff_difesa, buff_fattore, evoca + `peso_attacco_normale`): ogni scontro è unico
 - **Mosse "telegrafate"** (`"telegrafata": true` + `"testo_annuncio"`): la prima volta che il
@@ -324,6 +380,12 @@ Numeri piccoli e leggibili, ma con scelte vere:
   (livello − 1) × 10%, tetto 50%, + fattore/200)
 - Vittoria: XP e **Tazo** a tutto il party (somma di `xp` e `tazo` dei nemici). Sconfitta:
   nodo `se_perdi` o ritorno alla mappa
+- **Presentazione dei colpi**: chi subisce danno e resta in piedi lampeggia di rosso
+  (`Stile.lampeggia()`, chiamato in `attacca()`) — un colpo si vede sul ritratto, non solo si
+  legge nel diario. Un nemico che cade **esce di scena in dissolvenza** invece di sparire di
+  scatto (`aggiorna_scheda()` → `congeda_dal_campo()`); un invincibile che si rialza rientra
+  allo stesso modo, non "riappare" dal nulla. Ogni cambio di schermata (vittoria, sconfitta,
+  fuga) passa da `Transizioni.vai()`, mai da un `change_scene_to_file()` diretto
 - **Nulla si chiude da solo**: a combattimento risolto (vittoria o sconfitta) compare un
   bottone "▸ Continua" (`mostra_continua_fine()`) al posto del vecchio timer automatico;
   il giocatore decide quando lasciare la schermata

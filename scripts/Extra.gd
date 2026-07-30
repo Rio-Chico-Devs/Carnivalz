@@ -16,7 +16,7 @@ const RINGRAZIAMENTI := "I ringraziamenti arriveranno con una prossima versione 
 func _ready() -> void:
 	AudioManager.musica_chiave("menu")
 	var sfondo := ColorRect.new()
-	sfondo.color = Color(0.04, 0.03, 0.08)
+	sfondo.color = Stile.colore("sfondo")
 	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(sfondo)
 
@@ -39,7 +39,7 @@ func _ready() -> void:
 	var titolo := Label.new()
 	titolo.text = "Extra"
 	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titolo.add_theme_font_size_override("font_size", 32)
+	Stile.titolo_schermata(titolo)
 	colonna.add_child(titolo)
 
 	colonna.add_child(_separatore("Collezioni"))
@@ -77,7 +77,7 @@ func _ready() -> void:
 	indietro.text = "Indietro"
 	indietro.custom_minimum_size = Vector2(0, 40)
 	indietro.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_MENU))
+		Transizioni.vai(SCENA_MENU))
 	colonna.add_child(indietro)
 
 func _voce_scena(colonna: VBoxContainer, testo: String, scena: String) -> void:
@@ -85,7 +85,7 @@ func _voce_scena(colonna: VBoxContainer, testo: String, scena: String) -> void:
 	bottone.text = testo
 	bottone.custom_minimum_size = Vector2(0, 44)
 	bottone.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(scena))
+		Transizioni.vai(scena))
 	colonna.add_child(bottone)
 
 func _su_carica_codice() -> void:
@@ -148,7 +148,7 @@ func _mostra_messaggio(titolo_testo: String, corpo: String) -> void:
 	var titolo := Label.new()
 	titolo.text = titolo_testo
 	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titolo.add_theme_font_size_override("font_size", 24)
+	Stile.titolo_schermata(titolo)
 	colonna.add_child(titolo)
 	var corpo_etichetta := Label.new()
 	corpo_etichetta.text = corpo
@@ -171,7 +171,7 @@ func _separatore(testo: String) -> Control:
 	etichetta.text = testo
 	etichetta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	etichetta.modulate = Color(1, 1, 1, 0.5)
-	etichetta.add_theme_font_size_override("font_size", 14)
+	Stile.etichetta_piccola(etichetta)
 	contenitore.add_child(etichetta)
 	return contenitore
 

@@ -2,14 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/Ritratto.tscn" id="2_ritratto"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_narratore"]
-bg_color = Color(0, 0, 0, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
+[ext_resource type="PackedScene" path="res://scenes/BoxTesto.tscn" id="3_box"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -21,13 +14,14 @@ grow_vertical = 2
 script = ExtResource("1_main")
 
 [node name="Sfondo" type="ColorRect" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.07, 0.05, 0.09, 1)
+mouse_filter = 2
 
 [node name="Margini" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -36,18 +30,42 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 48
-theme_override_constants/margin_bottom = 32
+mouse_filter = 1
+theme_override_constants/margin_left = 56
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 56
+theme_override_constants/margin_bottom = 28
 
 [node name="Colonna" type="VBoxContainer" parent="Margini"]
 layout_mode = 2
+mouse_filter = 1
+theme_override_constants/separation = 14
+
+[node name="BarraAlto" type="HBoxContainer" parent="Margini/Colonna"]
+layout_mode = 2
+mouse_filter = 1
 theme_override_constants/separation = 16
+
+[node name="Party" type="Label" parent="Margini/Colonna/BarraAlto"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Risorse" type="Label" parent="Margini/Colonna/BarraAlto"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="BarraStat" type="Label" parent="Margini/Colonna"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
 
 [node name="Palco" type="HBoxContainer" parent="Margini/Colonna"]
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 24
 
 [node name="SlotSinistra" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
@@ -55,81 +73,105 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="SpazioA" type="Control" parent="Margini/Colonna/Palco"]
-layout_mode = 2
-size_flags_horizontal = 3
-
 [node name="SlotCentro" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-visible = false
-
-[node name="SpazioB" type="Control" parent="Margini/Colonna/Palco"]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="SlotDestra" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-visible = false
 
-[node name="NomeParlante" type="Label" parent="Margini/Colonna"]
+[node name="BoxTesto" parent="Margini/Colonna" instance=ExtResource("3_box")]
 unique_name_in_owner = true
 layout_mode = 2
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 20
-
-[node name="NarratoreBox" type="PanelContainer" parent="Margini/Colonna"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 150)
 size_flags_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_narratore")
-
-[node name="Narratore" type="RichTextLabel" parent="Margini/Colonna/NarratoreBox"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-fit_content = true
-bbcode_enabled = true
-theme_override_colors/default_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/normal_font_size = 20
-theme_override_font_sizes/bold_font_size = 20
-theme_override_font_sizes/italics_font_size = 20
-theme_override_font_sizes/bold_italics_font_size = 20
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 14
 
 [node name="Scelte" type="VBoxContainer" parent="Margini/Colonna"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="RigaDialoga" type="HBoxContainer" parent="Margini/Colonna"]
+[node name="RigaAzioni" type="HBoxContainer" parent="Margini/Colonna"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="BottoneDialoga" type="Button" parent="Margini/Colonna/RigaDialoga"]
+[node name="BottoneDialoga" type="Button" parent="Margini/Colonna/RigaAzioni"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Parla con la squadra"
 
-[node name="BottoneMappa" type="Button" parent="Margini/Colonna/RigaDialoga"]
+[node name="BottoneMappa" type="Button" parent="Margini/Colonna/RigaAzioni"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Mappa"
 
-[node name="MenuCompagni" type="HBoxContainer" parent="Margini/Colonna/RigaDialoga"]
+[node name="MenuCompagni" type="HBoxContainer" parent="Margini/Colonna/RigaAzioni"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Stato" type="Label" parent="Margini/Colonna"]
+[node name="CartaTitolo" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VeloTitolo" type="ColorRect" parent="CartaTitolo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.82)
+mouse_filter = 2
+
+[node name="CentroTitolo" type="CenterContainer" parent="CartaTitolo"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ColonnaTitolo" type="VBoxContainer" parent="CartaTitolo/CentroTitolo"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 22
+
+[node name="TestoTitolo" type="Label" parent="CartaTitolo/CentroTitolo/ColonnaTitolo"]
 unique_name_in_owner = true
 layout_mode = 2
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="SuggerimentoTitolo" type="Label" parent="CartaTitolo/CentroTitolo/ColonnaTitolo"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+mouse_filter = 2
+text = "▸ continua"
+
+[node name="AreaAvanza" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+flat = true

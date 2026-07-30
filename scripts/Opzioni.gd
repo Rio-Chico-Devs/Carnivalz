@@ -10,7 +10,7 @@ const SCENA_MENU := "res://scenes/Menu.tscn"
 func _ready() -> void:
 	AudioManager.musica_chiave("menu")
 	var sfondo := ColorRect.new()
-	sfondo.color = Color(0.04, 0.03, 0.08)
+	sfondo.color = Stile.colore("sfondo")
 	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(sfondo)
 
@@ -26,7 +26,7 @@ func _ready() -> void:
 	var titolo := Label.new()
 	titolo.text = "Opzioni"
 	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titolo.add_theme_font_size_override("font_size", 32)
+	Stile.titolo_schermata(titolo)
 	colonna.add_child(titolo)
 
 	colonna.add_child(_sezione("Audio"))
@@ -58,13 +58,17 @@ func _ready() -> void:
 		Impostazioni.alto_contrasto = attivo
 		Impostazioni.applica_alto_contrasto()
 		Impostazioni.salva())
+	_cursore(colonna, "Velocità del testo", (Impostazioni.velocita_testo - 0.4) / 2.6, func(v: float) -> void:
+		# 0 = si legge parola per parola, 1 = compare quasi tutto insieme
+		Impostazioni.velocita_testo = 0.4 + v * 2.6
+		Impostazioni.salva())
 
 	colonna.add_child(_spazio(10))
 	var indietro := Button.new()
 	indietro.text = "Indietro"
 	indietro.custom_minimum_size = Vector2(0, 40)
 	indietro.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_MENU))
+		Transizioni.vai(SCENA_MENU))
 	colonna.add_child(indietro)
 
 func _cursore(colonna: VBoxContainer, testo: String, valore: float, su_cambio: Callable) -> void:
@@ -101,7 +105,7 @@ func _sezione(testo: String) -> Control:
 	var etichetta := Label.new()
 	etichetta.text = testo
 	etichetta.modulate = Color(1, 1, 1, 0.5)
-	etichetta.add_theme_font_size_override("font_size", 14)
+	Stile.etichetta_piccola(etichetta)
 	contenitore.add_child(etichetta)
 	return contenitore
 

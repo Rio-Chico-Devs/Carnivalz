@@ -1,0 +1,64 @@
+{
+	"_nota": "Linguaggio visivo del gioco, in un posto solo. Da qui escono il tema di Godot (Stile.gd lo costruisce all'avvio e lo applica alla radice: tutte le schermate lo ereditano) e i colori che gli script chiedono a Stile.colore(). Cambiare un valore qui cambia tutto il gioco, senza toccare una scena.",
+
+	"_nota_font": "usa_font_di_sistema: true prende il primo font disponibile dell'elenco (l'ultimo nome è una famiglia generica, quindi qualcosa si trova sempre). Se Bru mette un .ttf in res://art/font/ basta scriverne il percorso in file_corpo/file_titolo e quello vince su tutto. Se in gioco il testo dovesse sparire, mettere usa_font_di_sistema a false: si torna al font incorporato di Godot.",
+	"font": {
+		"usa_font_di_sistema": true,
+		"file_corpo": "",
+		"file_titolo": "",
+		"corpo": ["Georgia", "Cambria", "Palatino Linotype", "Book Antiqua", "Liberation Serif", "DejaVu Serif", "serif"],
+		"titolo": ["Georgia", "Cambria", "Palatino Linotype", "Book Antiqua", "Liberation Serif", "DejaVu Serif", "serif"]
+	},
+
+	"_nota_dimensioni": "Scala tipografica: pochi gradini, sempre gli stessi. Niente font_size a occhio dentro le scene.",
+	"dimensioni": {
+		"titolo": 44,
+		"sezione": 26,
+		"corpo": 21,
+		"nome": 19,
+		"piccolo": 15,
+		"minuscolo": 12
+	},
+
+	"_nota_colori": "Viola-nero da sottosuolo, un solo accento caldo (ottone). Il rosso e il verde servono solo a danno e cure: non decorano.",
+	"colori": {
+		"sfondo": "#0a0710",
+		"sfondo_combattimento": "#0d0710",
+		"pannello": "#100b18",
+		"pannello_chiaro": "#191125",
+		"bordo": "#3d3350",
+		"bordo_acceso": "#c8a04a",
+		"testo": "#ece8f2",
+		"testo_smorzato": "#9a90ab",
+		"narrazione": "#c3bad3",
+		"accento": "#c8a04a",
+		"pericolo": "#c04a4d",
+		"positivo": "#6fbf7f",
+		"velo": "#000000"
+	},
+
+	"_nota_forme": "Bordi sottili e angoli appena smussati: il gioco è cupo, non morbido.",
+	"forme": {
+		"raggio": 4,
+		"bordo": 1,
+		"bordo_acceso": 2,
+		"padding_box_x": 30,
+		"padding_box_y": 22,
+		"padding_bottone_x": 20,
+		"padding_bottone_y": 11,
+		"altezza_box": 132,
+		"separazione": 14
+	},
+
+	"_nota_tempi": "Tutte le durate delle animazioni, in secondi. caratteri_al_secondo è la velocità base della macchina da scrivere: le Opzioni la moltiplicano.",
+	"tempi": {
+		"caratteri_al_secondo": 46,
+		"transizione_scena": 0.35,
+		"dissolvenza_ritratto": 0.22,
+		"comparsa_box": 0.18,
+		"lampeggio_colpo": 0.28,
+		"uscita_sconfitto": 0.4,
+		"carta_titolo": 0.7,
+		"battito_indicatore": 0.6
+	}
+}

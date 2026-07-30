@@ -11,7 +11,7 @@ var lista: VBoxContainer
 
 func _ready() -> void:
 	var sfondo := ColorRect.new()
-	sfondo.color = Color(0.05, 0.04, 0.09)
+	sfondo.color = Stile.colore("sfondo")
 	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(sfondo)
 
@@ -28,7 +28,7 @@ func _ready() -> void:
 	var titolo := Label.new()
 	titolo.text = titolo_schermata()
 	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titolo.add_theme_font_size_override("font_size", 28)
+	Stile.titolo_schermata(titolo)
 	colonna.add_child(titolo)
 
 	var scorri := ScrollContainer.new()
@@ -43,7 +43,7 @@ func _ready() -> void:
 	var indietro := Button.new()
 	indietro.text = "Torna al menu"
 	indietro.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	indietro.pressed.connect(func() -> void: get_tree().change_scene_to_file(SCENA_MENU))
+	indietro.pressed.connect(func() -> void: Transizioni.vai(SCENA_MENU))
 	colonna.add_child(indietro)
 
 	popola()
@@ -67,7 +67,7 @@ func aggiungi_scheda(titolo: String, sottotitolo: String, corpo: String, colore:
 	var riga := HBoxContainer.new()
 	var etichetta_titolo := Label.new()
 	etichetta_titolo.text = titolo
-	etichetta_titolo.add_theme_font_size_override("font_size", 18)
+	etichetta_titolo.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
 	etichetta_titolo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	riga.add_child(etichetta_titolo)
 	if sottotitolo != "":

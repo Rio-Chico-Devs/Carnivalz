@@ -22,9 +22,9 @@ func _ready() -> void:
 	resized.connect(queue_redraw)
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_negozio.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_NEGOZIO))
+		Transizioni.vai(SCENA_NEGOZIO))
 	bottone_menu.pressed.connect(func() -> void:
-		get_tree().change_scene_to_file(SCENA_MENU))
+		Transizioni.vai(SCENA_MENU))
 	bottone_salva.pressed.connect(_su_salva)
 	var mappa: Dictionary = GameState.carica_mappa()
 	var percorso_sfondo: String = mappa.get("sfondo", "")
@@ -42,7 +42,8 @@ func crea_punti(punti: Array) -> void:
 		marker.text = "!"
 		marker.tooltip_text = punto.get("nome", punto.get("id", "?"))
 		marker.custom_minimum_size = Vector2(44, 44)
-		marker.add_theme_font_size_override("font_size", 26)
+		marker.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
+		marker.add_theme_color_override("font_color", Stile.colore("accento"))
 		var pos: Array = punto.get("pos", [0, 0])
 		marker.position = Vector2(pos[0], pos[1]) - Vector2(22, 22)
 		marker.pressed.connect(_su_punto.bind(punto))
@@ -86,10 +87,10 @@ func _su_scelta_slot(slot: int, overlay: ColorRect) -> void:
 func _su_punto(punto: Dictionary) -> void:
 	# click sul "!": si entra nel sistema deformato del Carnivalz (il Vuoto)
 	GameState.punto_mappa_corrente = punto
-	get_tree().change_scene_to_file(SCENA_VUOTO)
+	Transizioni.vai(SCENA_VUOTO)
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.05, 0.04, 0.1))
+	draw_rect(Rect2(Vector2.ZERO, size), Stile.colore("sfondo"))
 	if sfondo != null and sfondo.texture != null:
 		return
 	# cielo placeholder finché non c'è l'illustrazione in art/mappa.png
