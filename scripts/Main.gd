@@ -54,8 +54,8 @@ const EVENTI_DEBUG := "res://data/events.json"
 @onready var etichetta_risorse: Label = %Risorse
 @onready var etichetta_stat: Label = %BarraStat
 @onready var carta_titolo: Control = %CartaTitolo
+@onready var colonna_titolo: VBoxContainer = %ColonnaTitolo
 @onready var testo_titolo: Label = %TestoTitolo
-@onready var suggerimento_titolo: Label = %SuggerimentoTitolo
 @onready var area_avanza: Button = %AreaAvanza
 
 var nodo_in_corso: Dictionary = {}
@@ -90,8 +90,9 @@ func applica_stile() -> void:
 	etichetta_stat.add_theme_color_override("font_color", Stile.colore("bordo"))
 	testo_titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
 	testo_titolo.add_theme_color_override("font_color", Stile.colore("accento"))
-	suggerimento_titolo.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
-	suggerimento_titolo.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+	var suggerimento_titolo := Stile.costruisci_prompt("continua")
+	colonna_titolo.add_child(suggerimento_titolo)
+	Stile.pulsa(suggerimento_titolo)
 
 func _unhandled_input(evento: InputEvent) -> void:
 	# la tastiera fa esattamente quello che fa il mouse: avanza

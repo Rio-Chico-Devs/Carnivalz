@@ -182,3 +182,44 @@ func lampeggia(nodo: CanvasItem, tinta: Color) -> void:
 	var battito := nodo.create_tween()
 	battito.tween_property(nodo, "modulate", tinta, durata * 0.35)
 	battito.tween_property(nodo, "modulate", Color.WHITE, durata * 0.65)
+
+func pulsa(nodo: CanvasItem) -> void:
+	# battito lento e infinito di opacita': l'invito a proseguire non deve
+	# mai restare immobile, o si perde tra tutto il resto che e' fermo a
+	# schermo. Il nodo deve gia' essere dentro l'albero quando si chiama
+	# questo (create_tween() lo richiede) - va chiamato dopo add_child().
+	if nodo == null or not is_instance_valid(nodo):
+		return
+	var durata := tempo("battito_indicatore")
+	var battito: Tween = nodo.create_tween().set_loops()
+	battito.tween_property(nodo, "modulate:a", 0.35, durata)
+	battito.tween_property(nodo, "modulate:a", 1.0, durata)
+
+func costruisci_prompt(testo: String) -> HBoxContainer:
+	# la riga "◆  premi per continuare  ◆": lo stesso identico invito a
+	# proseguire ovunque compaia nel gioco (crawl introduttivo, carta del
+	# titolo di un luogo). Centrata per costruzione (allineamento del
+	# contenitore, non offset calcolati a mano): non puo' sfasarsi quando
+	# cambia la larghezza dello schermo. Non pulsa da sola: chiamare
+	# Stile.pulsa() dopo averla aggiunta all'albero.
+	var riga := HBoxContainer.new()
+	riga.alignment = BoxContainer.ALIGNMENT_CENTER
+	riga.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	riga.add_theme_constant_override("separation", 14)
+	riga.add_child(_rombo_prompt())
+	var etichetta := Label.new()
+	etichetta.text = testo
+	etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	etichetta.add_theme_color_override("font_color", colore("testo_smorzato"))
+	etichetta.add_theme_font_size_override("font_size", dimensione("piccolo"))
+	riga.add_child(etichetta)
+	riga.add_child(_rombo_prompt())
+	return riga
+
+func _rombo_prompt() -> Label:
+	var rombo := Label.new()
+	rombo.text = "◆"
+	rombo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rombo.add_theme_color_override("font_color", colore("bordo_acceso"))
+	rombo.add_theme_font_size_override("font_size", dimensione("minuscolo"))
+	return rombo

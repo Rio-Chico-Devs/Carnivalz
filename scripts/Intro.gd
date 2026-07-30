@@ -21,7 +21,6 @@ const PARAGRAFI := [
 
 var indice := 0
 var etichetta: RichTextLabel
-var suggerimento: Label
 
 func _ready() -> void:
 	AudioManager.musica_chiave("intro")
@@ -47,13 +46,14 @@ func _ready() -> void:
 	etichetta.add_theme_color_override("default_color", Stile.colore("narrazione"))
 	centro.add_child(etichetta)
 
-	suggerimento = Label.new()
-	suggerimento.text = "▸ premi per continuare"
-	suggerimento.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	suggerimento.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
-	suggerimento.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	suggerimento.position.y -= 40
-	add_child(suggerimento)
+	var centro_prompt := CenterContainer.new()
+	centro_prompt.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	centro_prompt.position.y -= 40
+	centro_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(centro_prompt)
+	var suggerimento := Stile.costruisci_prompt("premi per continuare")
+	centro_prompt.add_child(suggerimento)
+	Stile.pulsa(suggerimento)
 
 	var bottone_avanti := Button.new()
 	bottone_avanti.flat = true
