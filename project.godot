@@ -18,6 +18,7 @@ AudioManager="*res://scripts/AudioManager.gd"
 Stile="*res://scripts/Stile.gd"
 Impostazioni="*res://scripts/Impostazioni.gd"
 Transizioni="*res://scripts/Transizioni.gd"
+Pausa="*res://scripts/Pausa.gd"
 
 [display]
 

@@ -171,7 +171,7 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		nascondi_comandi()
 		mostra_messaggio(seq[0] if not seq.is_empty() else {"tipo": "narrazione", "testo": ""})
 		area_avanza.visible = false
-		await get_tree().create_timer(2.2).timeout
+		await get_tree().create_timer(2.2, false).timeout  # false = rispetta la pausa
 		GameState.congeda_tutti_temporanei()
 		Transizioni.vai(SCENA_VUOTO)
 		return
@@ -285,6 +285,7 @@ func mostra_messaggio(msg: Dictionary) -> void:
 	var tipo := String(msg.get("tipo", "narrazione"))
 	var contenuto := sostituisci_nome(String(msg.get("testo", "")))
 	if tipo == "titolo":
+		GameState.registra_storico(tipo, "", contenuto)
 		mostra_carta_titolo(contenuto)
 		return
 	carta_titolo.visible = false
@@ -298,6 +299,7 @@ func mostra_messaggio(msg: Dictionary) -> void:
 		evidenzia_parlante(chi)
 	else:
 		evidenzia_parlante("")
+	GameState.registra_storico(tipo, nome_parlante, contenuto)
 	box.mostra(tipo, contenuto, nome_parlante)
 
 func mostra_carta_titolo(contenuto: String) -> void:

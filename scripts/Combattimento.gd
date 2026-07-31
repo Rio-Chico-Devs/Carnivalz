@@ -474,7 +474,9 @@ func esegui_turno(attaccante: Dictionary) -> void:
 			# battute "dopo" commentano quel che e' appena successo, non lo anticipano
 			avanza_tutorial(azione)
 	else:
-		await get_tree().create_timer(0.8).timeout
+		# process_always = false: in Godot un timer ignora la pausa di default,
+		# e il nemico agirebbe dietro al menu di pausa aperto
+		await get_tree().create_timer(0.8, false).timeout
 		turno_nemico(attaccante)
 	if giocatore_e_fuggito:
 		return  # il combattimento e' finito qui, niente altro da risolvere sul turno

@@ -207,7 +207,8 @@
 				{ "tipo": "narrazione", "testo": "Uno schermo oscurato si accende con un ronzio elettrico." },
 				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Buongiorno unità Pk09, ci rallegriamo di ritrovarti operativo e in ottima salute. Proseguiamo a renderti grazie per i tuoi sforzi e ti confermiamo il successo dell'operazione." },
 				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo diario gli eventi che vanno completati nell'arco della giornata." },
-				{ "tipo": "narrazione", "testo": "[Qui andrà spiegato il menu del Diario: le tue osservazioni personali, i task, gli eventi, i legami con la squadra, il tasso di soddisfazione dell'Organizzazione e le tue statistiche — schermata non ancora costruita.]" },
+				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Le ricordiamo che il suo Diario è sempre consultabile: vi troverà le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato." },
+				{ "tipo": "narrazione", "testo": "Puoi aprire il Diario in qualunque momento premendo ESC: da lì passi anche allo storico di tutto quello che hai letto finora." },
 				{ "tipo": "dialogo", "chi": "figura_misteriosa", "testo": "Bene unità Pk09, la nostra attuale istanza si ritira per deliberare. Complimenti per il tuo recente successo, ci aspettiamo grandi cose da lei. Per aspera ad astra!" },
 				{ "tipo": "narrazione", "testo": "Lo schermo si spegne con un ronzio elettrico." },
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Bene, finalmente la parte noiosa è finita, odio le scartoffie... Dovrei vedermi con Veronica per il mio ultimo allenamento..." }

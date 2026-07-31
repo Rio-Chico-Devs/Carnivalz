@@ -17,6 +17,9 @@ var in_corso := false
 
 func _ready() -> void:
 	layer = LIVELLO
+	# una dissolvenza deve poter finire anche se l'albero e' in pausa: altrimenti
+	# uscire dal menu di pausa lascerebbe lo schermo nero per sempre
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	velo = ColorRect.new()
 	velo.color = Color(0, 0, 0, 0)
 	velo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

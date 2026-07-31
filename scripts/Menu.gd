@@ -65,6 +65,15 @@ func _ready() -> void:
 		Transizioni.vai(SCENA_EXTRA))
 	colonna.add_child(bottone_extra)
 
+	# il menu di pausa non ha un pulsante a schermo: se non lo si dice qui,
+	# nessuno scopre che esiste (e con lui lo storico e il Diario)
+	colonna.add_child(_spazio(16))
+	var suggerimento := Label.new()
+	suggerimento.text = "In gioco: ESC per pausa, storico e Diario"
+	suggerimento.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Stile.etichetta_piccola(suggerimento)
+	colonna.add_child(suggerimento)
+
 func _su_start() -> void:
 	var overlay := ColorRect.new()
 	overlay.color = Color(0, 0, 0, 0.75)

@@ -86,6 +86,13 @@ var passive_sbloccate: Array[String] = []
 var passive_da_notificare: Array[String] = []  # svuotato da chi le mostra a schermo
 var nodi_visitati: Array[String] = []    # per contare l'esplorazione (una volta per stanza)
 
+# Storico dei messaggi gia' letti nel box: in un gioco fatto di testo, un click
+# di troppo non deve far perdere per sempre una battuta. Non entra nel
+# salvataggio (e' contesto della sessione, non progresso) e ha un tetto, cosi'
+# una partita lunga non se lo porta dietro all'infinito.
+const STORICO_MASSIMO := 200
+var storico: Array[Dictionary] = []      # {tipo, chi, testo}, dal piu' vecchio
+
 # hp che il party si porta dietro da uno scontro al successivo, finche' gli
 # scontri si incatenano senza respiro (ondate di agguati, fasi di un boss).
 # Si azzera appena si mette piede in una stanza in pace: li' si recupera tutto.
@@ -279,6 +286,7 @@ func nuova_partita() -> void:
 	passive_sbloccate.clear()
 	passive_da_notificare.clear()
 	nodi_visitati.clear()
+	storico.clear()
 	hp_persistenti.clear()
 	sacca.clear()
 	collezionabili.clear()
@@ -619,6 +627,15 @@ func aggiungi_ospite(id_personaggio: String) -> void:
 	if personaggi.has(id_personaggio) and id_personaggio not in ospiti:
 		ospiti.append(id_personaggio)
 
+func registra_storico(tipo: String, chi: String, testo: String) -> void:
+	# ogni messaggio che passa dal box finisce qui, cosi' il giocatore puo'
+	# rileggerlo dalla pausa anche se ha cliccato troppo in fretta
+	if testo.strip_edges() == "":
+		return
+	storico.append({"tipo": tipo, "chi": chi, "testo": testo})
+	if storico.size() > STORICO_MASSIMO:
+		storico.remove_at(0)
+
 func segna_studiato(id_personaggio: String) -> void:
 	if id_personaggio not in studiati:
 		studiati.append(id_personaggio)
@@ -820,4 +837,5 @@ func reset_campagna() -> void:
 	file_eventi_corrente = ""
 	stanza_iniziale_zona = ""
 	mappa_zona = {}
+	storico.clear()
 	annulla_combattimento()

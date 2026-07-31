@@ -48,6 +48,8 @@ dritti in mappa.
 - `scripts/BoxTesto.gd` + `scenes/BoxTesto.tscn` — il box del testo con macchina da scrivere,
   usato dalla schermata eventi (vedi sotto)
 - `scripts/Impostazioni.gd` — autoload: impostazioni utente persistite a parte (vedi sotto)
+- `scripts/Pausa.gd` — autoload: menu di pausa, storico dei dialoghi e Diario, aperti con ESC
+  da qualunque schermata di gioco (vedi sotto)
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
 - `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + stat/xp se combattono)
 - `data/psiche.json` — le psichi e i loro effetti (reazione al KO di un compagno)
@@ -130,6 +132,52 @@ luogo) non entra nel box: prende tutto lo schermo come una carta da film, e **as
 esplicito** prima di sciogliersi (non un timer) — è un momento che merita si guardi, non un
 ostacolo da far sparire in automatico. La prima scelta/bottone utile di ogni schermo prende il
 fuoco della tastiera da solo: il gioco si può giocare interamente senza mouse.
+
+## Pausa, storico e Diario (ESC)
+Tre buchi che si aprivano tutti sulla stessa mancanza: **il gioco non si poteva fermare**. Chi
+saltava una battuta con un click di troppo non poteva rileggerla, chi doveva alzarsi dalla
+sedia a metà di un combattimento lasciava i turni a scorrere, e il Diario di cui il tutorial
+parlava non esisteva. `scripts/Pausa.gd` (autoload, `CanvasLayer` a livello 100) risolve i tre
+insieme, perché sono lo stesso gesto: premere ESC.
+
+**Perché un autoload e non una scena.** Aprire un menu cambiando scena, da dentro uno squarcio,
+distruggerebbe la schermata eventi: rientrarci rifarebbe partire il nodo corrente, con i suoi
+agguati e i suoi pickup. Qui invece è solo un velo sopra la scena viva — sotto non si tocca
+niente. `pausabile()` esclude le schermate dove non ha senso (Splash, Menu, Opzioni, Extra) e si
+rifiuta di aprirsi a metà di una dissolvenza (`Transizioni.in_corso`), che riaprirebbe su una
+scena già in uscita. ESC dentro un sotto-pannello torna al menu di pausa, non butta fuori: chi
+sta rileggendo lo storico non vuole ritrovarsi di colpo in combattimento.
+
+**La pausa è vera.** `get_tree().paused = true` ferma tween e timer: niente va avanti alle spalle
+del giocatore. Fanno eccezione `Pausa` stesso, `AudioManager` (la musica non si interrompe) e
+`Transizioni` (una dissolvenza deve poter finire, o si resterebbe col nero incollato addosso) —
+tutti e tre in `PROCESS_MODE_ALWAYS`. Attenzione a una trappola di Godot: `create_timer()` di
+default nasce con `process_always = true` e **ignora la pausa**. I due punti dove serviva
+(`Combattimento.gd`, `Main.gd`) ora passano `false` esplicitamente.
+
+**Storico** — `GameState.storico`, riempito da `GameState.registra_storico(tipo, chi, testo)`
+che `Main.mostra_messaggio()` chiama su ogni messaggio a schermo (comprese le carte del titolo).
+Tiene le ultime `STORICO_MASSIMO = 200` voci e si apre già scrollato in fondo: quello che
+interessa è l'ultima cosa letta. Ogni riga tiene il colore del suo tipo (dialogo, narrazione in
+corsivo, notifica, titolo in grassetto), così si ritrova a colpo d'occhio *che tipo* di cosa si
+stava leggendo. Non entra nei salvataggi: è un comodo di sessione, e viene svuotato da
+`nuova_partita()` e `reset_campagna()`. Il diario di combattimento non ci passa perché è già
+tutto lì a schermo, scorrevole, per tutta la durata dello scontro.
+
+**Diario** — non una scheda personaggio, ma il referto che l'unità Pk09 tiene su sé stessa. Sei
+sezioni: *Stato* (livello, esperienza, le sette statistiche con base + punti guadagnati),
+*Cosa ti sta cambiando* (la parte più utile: per ogni azione tracciata da `data/crescita.json`,
+quanto manca al prossimo punto di statistica — il giocatore vede **cosa** lo sta facendo
+crescere, non solo quanto vale), *Abilità passive*, *Squadra* (legame, livello e stress dei
+compagni, con i temporanei marcati), *Osservazioni* (creature studiate/incontrate, oggetti
+catalogati, resistenze agli stati) e *Organizzazione* (fonti estinte + una valutazione a parole).
+La valutazione è di proposito un giudizio e non una percentuale: l'Organizzazione parla per
+gradi — "In osservazione", "Prestazione conforme alle attese", fino a "Elemento di valore.
+Aspettative in aumento".
+
+**Scoperta.** Un menu senza pulsante a schermo non esiste, se nessuno lo dice: il tutorial lo
+nomina esplicitamente quando la figura misteriosa parla del Diario, e il menu principale porta
+in fondo una riga discreta ("In gioco: ESC per pausa, storico e Diario").
 
 ## Opzioni e Impostazioni.gd
 Audio (volume generale/musica/effetti, bus separati "Musica"/"Effetti" creati al volo in
