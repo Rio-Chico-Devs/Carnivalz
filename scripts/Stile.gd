@@ -163,7 +163,10 @@ func stile_box_testo() -> StyleBox:
 	piatto.content_margin_bottom = forma("padding_box_y")
 	return piatto
 
-func stile_bottone(stato: String) -> StyleBoxFlat:
+func stile_bottone(stato: String) -> StyleBox:
+	var texture := stile_bottone_texture(stato)
+	if texture != null:
+		return texture
 	var s := StyleBoxFlat.new()
 	s.set_corner_radius_all(forma("raggio"))
 	s.set_border_width_all(forma("bordo"))
@@ -188,6 +191,39 @@ func stile_bottone(stato: String) -> StyleBoxFlat:
 		_:
 			s.bg_color = colore("pannello")
 			s.border_color = colore("bordo")
+	return s
+
+func stile_bottone_texture(stato: String) -> StyleBoxTexture:
+	# se Bru disegna UN SOLO frame di bottone (sezione "bottone_texture" di
+	# data/stile.json), i cinque stati derivano tutti da quella stessa
+	# immagine, ricolorata (modulate_color): non serve disegnare cinque
+	# varianti. Senza immagine questa funzione non ritorna nulla, e
+	# stile_bottone() ripiega sul bottone piatto qui sopra.
+	var config: Dictionary = dati.get("bottone_texture", {})
+	var percorso := String(config.get("texture", ""))
+	if not bool(config.get("usa_texture", false)) or percorso == "" or not ResourceLoader.exists(percorso):
+		return null
+	var s := StyleBoxTexture.new()
+	s.texture = load(percorso)
+	s.texture_margin_left = float(config.get("margine_sinistro", 16))
+	s.texture_margin_right = float(config.get("margine_destro", 16))
+	s.texture_margin_top = float(config.get("margine_alto", 10))
+	s.texture_margin_bottom = float(config.get("margine_basso", 10))
+	s.content_margin_left = forma("padding_bottone_x")
+	s.content_margin_right = forma("padding_bottone_x")
+	s.content_margin_top = forma("padding_bottone_y")
+	s.content_margin_bottom = forma("padding_bottone_y")
+	match stato:
+		"sopra":
+			s.modulate_color = Color(1.18, 1.14, 1.05)
+		"premuto":
+			s.modulate_color = Color(0.78, 0.78, 0.8)
+		"spento":
+			s.modulate_color = Color(1, 1, 1, 0.4)
+		"fuoco":
+			s.modulate_color = Color(1.1, 1.02, 0.85)
+		_:
+			s.modulate_color = Color.WHITE
 	return s
 
 # --- aiutanti per i controlli costruiti a mano ---

@@ -102,10 +102,17 @@ file. Ora tutto passa da tre pezzi, in un posto solo:
   false` (default) resta il box piatto qui sotto; con `usa_texture: true` + un'immagine in
   `"texture"` diventa uno `StyleBoxTexture` a **nove riquadri**: i margini (`margine_sinistro`/
   `destro`/`alto`/`basso`) restano fissi alla dimensione disegnata, il centro si allunga per
-  qualunque testo. Cinque proposte di cornice disegnabile a mano (ognuna presa da un materiale
-  già nel gioco: l'ossidiana di Jondoh, una locandina di circo strappata, il sipario di Jerah,
-  il rammendo di una bambola) sono in un artifact di preview mostrato a Bru in chat, con le
-  dimensioni di tela e i margini consigliati per ciascuna.
+  qualunque testo.
+- **Bottoni disegnati a mano**: stessa idea, `Stile.stile_bottone_texture()` + la sezione
+  `"bottone_texture"` di `data/stile.json`. Un solo frame disegnato (lo stato "normale") basta
+  per tutti e cinque gli stati di un bottone: sopra/premuto/spento/a fuoco derivano dalla stessa
+  immagine ricolorata (`modulate_color` — più chiara, più scura, semitrasparente, calda), non
+  richiedono cinque disegni separati. Senza immagine `stile_bottone()` ripiega sul bottone
+  piatto già in uso.
+- **Sfondo de Il Vuoto**: `Vuoto.gd` leggeva solo un cielo stellato disegnato a codice
+  (`_draw()`); ora, se il punto in `data/mappa.json` ha un campo `"sfondo"` con un'immagine
+  valida, quella sostituisce il cielo segnaposto (stesso pattern già usato da `Mappa.gd` per lo
+  sfondo della mappa stellare e da `MappaZona.gd` per lo sfondo di una zona).
 - **`scripts/Transizioni.gd`** (autoload, `CanvasLayer` sopra tutto): un velo nero cala,
   la scena cambia mentre lo schermo è coperto, il velo si rialza. `Transizioni.vai(percorso)` ha
   sostituito ogni `get_tree().change_scene_to_file()` del progetto — un cambio di schermata non è

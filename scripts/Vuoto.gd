@@ -11,6 +11,7 @@ const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 # Seed solo cosmetico: il caso di gioco sta in GameState.rng
 const SEED_STELLE := 20260722
 
+@onready var sfondo: TextureRect = %Sfondo
 @onready var titolo: Label = %Titolo
 @onready var strato_punti: Control = %Punti
 @onready var etichetta_tazo: Label = %Tazo
@@ -22,6 +23,9 @@ func _ready() -> void:
 	AudioManager.musica(String(punto.get("musica", "")))
 	# si salva solo dalla mappa stellare: il Vuoto e' gia' "dentro" un sistema
 	titolo.text = "IL VUOTO — %s" % punto.get("nome", "?")
+	var percorso_sfondo := String(punto.get("sfondo", ""))
+	if percorso_sfondo != "" and ResourceLoader.exists(percorso_sfondo):
+		sfondo.texture = load(percorso_sfondo)
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
 	bottone_mappa.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_MAPPA))
@@ -85,6 +89,8 @@ func _su_squarcio(vuoto: Dictionary) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.03, 0.02, 0.07))
+	if sfondo != null and sfondo.texture != null:
+		return  # un'illustrazione vera sostituisce il cielo stellato segnaposto
 	var rng := RandomNumberGenerator.new()
 	rng.seed = SEED_STELLE
 	for i in 160:

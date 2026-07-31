@@ -60,6 +60,16 @@
 		"margine_basso": 22
 	},
 
+	"_nota_bottone_texture": "Stessa idea del box, per i bottoni: UN SOLO frame disegnato (il bottone 'normale') basta per tutti gli stati - sopra/premuto/spento/a fuoco si ottengono ricolorando quella stessa immagine (piu' chiara, piu' scura, semitrasparente, calda), non disegnandone cinque copie.",
+	"bottone_texture": {
+		"usa_texture": false,
+		"texture": "",
+		"margine_sinistro": 16,
+		"margine_destro": 16,
+		"margine_alto": 10,
+		"margine_basso": 10
+	},
+
 	"_nota_tempi": "Tutte le durate delle animazioni, in secondi. caratteri_al_secondo è la velocità base della macchina da scrivere: le Opzioni la moltiplicano.",
 	"tempi": {
 		"caratteri_al_secondo": 46,
