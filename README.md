@@ -251,13 +251,19 @@ spazi laterali spariscono.
 
 **Stile cinematografico** (stile Undertale, su indicazione di Bru): i ritratti riempiono
 quasi tutto lo schermo (`Ritratto.imposta_grande(true)`, chiamato su tutti e tre gli slot in
-`Main._ready()`), il box del testo (`scenes/BoxTesto.tscn`, vedi la sezione "Stile visivo, box
-del testo e transizioni" più sopra) è una striscia bassa e fissa in basso, con font, bordi e
-colori che vengono tutti da `Stile.gd`. Un cambio di ritratto o di espressione non è mai uno
-scatto: la vecchia immagine sfuma nella nuova (`Ritratto.dissolvi_ingresso()`). **Mancano
-ancora** gli sfondi di scena a piena pagina (per ora resta il `ColorRect` a tinta unita, colore
-`Stile.colore("sfondo")`); il font è già configurabile da `data/stile.json` senza toccare il
-codice, appena Bru fornisce un `.ttf`.
+`Main._ready()` e sul combattente centrale in combattimento), il box del testo
+(`scenes/BoxTesto.tscn`, vedi la sezione "Stile visivo, box del testo e transizioni" più sopra)
+è una striscia bassa e fissa in basso, con font, bordi e colori che vengono tutti da `Stile.gd`.
+Un cambio di ritratto o di espressione non è mai uno scatto: la vecchia immagine sfuma nella
+nuova (`Ritratto.dissolvi_ingresso()`). La Cornice del ritratto è un `PanelContainer`, e il tema
+globale dà a ogni `PanelContainer` un pannello scuro bordato (utile per le schede del
+Compendio/Bestiario) — ma un personaggio "grande" deve galleggiare sulla scena, non stare
+dentro una scatola: `imposta_grande(true)` spegne quel pannello apposta
+(`StyleBoxEmpty`), `imposta_grande(false)` lo ripristina per i ritratti piccoli (fila di
+combattenti, schermo di selezione del party), dove la cornice visibile è invece voluta.
+**Mancano ancora** gli sfondi di scena a piena pagina (per ora resta il `ColorRect` a tinta
+unita, colore `Stile.colore("sfondo")`); il font è già configurabile da `data/stile.json` senza
+toccare il codice, appena Bru fornisce un `.ttf`.
 
 **Coda di messaggi sequenziali, con macchina da scrivere**: il box mostra **un messaggio alla
 volta**, mai testo misto o sovrapposto (`Main.coda_messaggi`, `avanza_messaggio()`). Il testo
