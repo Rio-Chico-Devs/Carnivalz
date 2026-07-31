@@ -56,6 +56,7 @@ dritti in mappa.
 - `data/regole.json` — numeri di bilanciamento (hp, danno, stress, fattore, xp, legame)
 - `data/events.json` — campagna di prova
 - `data/events_intro.json` — l'introduzione (monologo prima del tutorial)
+- `data/task.json` — gli appunti del Diario: dove andare e cosa qualcuno ti ha chiesto (vedi sotto)
 - `data/codici.json` — codici riscattabili da Extra (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
@@ -164,8 +165,10 @@ stava leggendo. Non entra nei salvataggi: è un comodo di sessione, e viene svuo
 `nuova_partita()` e `reset_campagna()`. Il diario di combattimento non ci passa perché è già
 tutto lì a schermo, scorrevole, per tutta la durata dello scontro.
 
-**Diario** — non una scheda personaggio, ma il referto che l'unità Pk09 tiene su sé stessa. Sei
-sezioni: *Stato* (livello, esperienza, le sette statistiche con base + punti guadagnati),
+**Diario** — non una scheda personaggio, ma il referto che l'unità Pk09 tiene su sé stessa.
+Sette sezioni. In cima *Appunti* — dove devo andare adesso, cosa mi hanno chiesto: è la guida del
+gioco, e ha una sezione tutta sua qui sotto. Poi *Stato* (livello, esperienza, le sette
+statistiche con base + punti guadagnati),
 *Cosa ti sta cambiando* (la parte più utile: per ogni azione tracciata da `data/crescita.json`,
 quanto manca al prossimo punto di statistica — il giocatore vede **cosa** lo sta facendo
 crescere, non solo quanto vale), *Abilità passive*, *Squadra* (legame, livello e stress dei
@@ -178,6 +181,40 @@ Aspettative in aumento".
 **Scoperta.** Un menu senza pulsante a schermo non esiste, se nessuno lo dice: il tutorial lo
 nomina esplicitamente quando la figura misteriosa parla del Diario, e il menu principale porta
 in fondo una riga discreta ("In gioco: ESC per pausa, storico e Diario").
+
+## Appunti del Diario (`data/task.json`)
+La guida del gioco. Non una lista di obiettivi con le spunte in un pannello a parte: sono i
+pensieri del protagonista quando mette a fuoco che c'è un posto dove deve andare o una cosa che
+qualcuno gli ha chiesto — *"Ho notato degli strani cambiamenti in quella regione... forse dovrei
+dare un'occhiata."* Stanno in cima al Diario, in corsivo, con il colore delle narrazioni: la
+stessa voce con cui il gioco racconta, non un'interfaccia che dà ordini.
+
+**Vivono sui flag.** Il campo `richiede_flags` dice quando un appunto compare (tutti alzati),
+`chiuso_da` quando si segna come fatto. Nessun nodo deve ricordarsi di aprire o chiudere niente:
+`GameState.imposta_flag()` chiama `aggiorna_task()` e il mondo si aggiorna da solo, ovunque sia
+successa la cosa — dentro uno squarcio, in un dialogo, a fine combattimento. `chiuso_da` vuoto
+significa "non si chiude": è un seme lasciato lì per i mondi che verranno (le pergamene da far
+leggere a Curie, la pressione senza nome dietro *Qualcosa preme*).
+
+Per gli appunti che nascono da una conversazione e non da uno stato del mondo, un nodo, una
+scelta o una battuta di un compagno possono anche aprirli a mano con `"task": "id"` (o una
+lista) e chiuderli con `"chiudi_task"`. Il campo `da` porta l'id di chi te l'ha chiesto: il
+Diario lo cerca sia tra i personaggi che tra le classi, così funziona sia per un png che per un
+compagno in squadra.
+
+**Come si annunciano.** Un appunto nuovo chiude la coda dei messaggi del nodo, non la apre:
+prima si vive la scena che l'ha fatto nascere, poi il protagonista ci ragiona sopra. Una
+notifica fa da intestazione ("Il Diario si è aggiornato"), poi arrivano i pensieri veri come
+narrazioni — al massimo `APPUNTI_LETTI_A_VOCE` (2) per volta, perché la fine del tutorial ne
+apre quattro insieme e scaricarli tutti addosso al giocatore sarebbe una lista travestita da
+monologo. Il resto si legge nel Diario.
+
+**Ordine delle operazioni.** In `aggiorna_task()` si chiude prima e si apre dopo: un appunto che
+nascerebbe già risolto (raccogli la spilla dopo aver battuto il ricordo) non lampeggia per un
+istante come nuovo. Quali appunti siano aperti e quali chiusi è progresso di partita e sta nel
+salvataggio; caricando una partita vecchia, `aggiorna_task()` la riallinea dai flag che ha già
+in mano — e poi svuota le notifiche, così non ti annuncia come appena successe cose fatte ore
+prima.
 
 ## Opzioni e Impostazioni.gd
 Audio (volume generale/musica/effetti, bus separati "Musica"/"Effetti" creati al volo in

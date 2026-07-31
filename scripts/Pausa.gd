@@ -247,6 +247,7 @@ func mostra_diario() -> void:
 	corpo.add_theme_constant_override("separation", 18)
 	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.add_child(corpo)
+	sezione_appunti(corpo)
 	sezione_stato(corpo)
 	sezione_crescita(corpo)
 	sezione_passive(corpo)
@@ -254,6 +255,67 @@ func mostra_diario() -> void:
 	sezione_osservazioni(corpo)
 	sezione_organizzazione(corpo)
 	bottone("Indietro", mostra_menu).grab_focus()
+
+func sezione_appunti(genitore: VBoxContainer) -> void:
+	# la prima cosa che si legge aprendo il Diario: dove devo andare adesso.
+	# Non sono obiettivi con la spunta, sono pensieri del protagonista, quindi
+	# stanno in corsivo e per esteso — la spunta e' solo un promemoria di
+	# quello che ha gia' risolto
+	titolo_sezione(genitore, "Appunti")
+	if GameState.task_attivi.is_empty() and GameState.task_chiusi.is_empty():
+		var vuoto := Label.new()
+		vuoto.text = "Niente da segnare, per ora."
+		Stile.etichetta_piccola(vuoto)
+		genitore.add_child(vuoto)
+		return
+	for id_task in GameState.task_attivi:
+		genitore.add_child(riga_appunto(GameState.dati_task(id_task)))
+	if GameState.task_chiusi.is_empty():
+		return
+	var separatore := Label.new()
+	separatore.text = "Già risolti"
+	Stile.etichetta_piccola(separatore)
+	genitore.add_child(separatore)
+	for id_task in GameState.task_chiusi:
+		var voce := GameState.dati_task(id_task)
+		var fatto := Label.new()
+		fatto.text = "✓  " + String(voce.get("titolo", id_task))
+		Stile.etichetta_piccola(fatto)
+		fatto.modulate = Color(1, 1, 1, 0.55)
+		genitore.add_child(fatto)
+
+func riga_appunto(voce: Dictionary) -> Control:
+	var blocco := VBoxContainer.new()
+	blocco.add_theme_constant_override("separation", 4)
+	var intestazione_riga := Label.new()
+	intestazione_riga.text = "◆  " + String(voce.get("titolo", ""))
+	intestazione_riga.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
+	intestazione_riga.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
+	blocco.add_child(intestazione_riga)
+	var chi := String(voce.get("da", ""))
+	if chi != "":
+		# chi ha chiesto la cosa puo' essere un png (personaggi.json) o un
+		# compagno giocabile (classes.json): si guarda in tutt'e due
+		var scheda: Dictionary = GameState.personaggi.get(chi, {})
+		var nome := String(scheda.get("nome", ""))
+		if nome == "":
+			var classe: Dictionary = GameState.classi.get(chi, {})
+			nome = String(classe.get("nome", chi))
+		var firma := Label.new()
+		firma.text = "chiesto da " + nome
+		Stile.etichetta_piccola(firma)
+		blocco.add_child(firma)
+	var corpo := RichTextLabel.new()
+	corpo.bbcode_enabled = true
+	corpo.fit_content = true
+	corpo.scroll_active = false
+	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	corpo.text = "[i]%s[/i]" % String(voce.get("testo", ""))
+	corpo.add_theme_color_override("default_color", Stile.colore("narrazione"))
+	corpo.add_theme_font_size_override("normal_font_size", Stile.dimensione("piccolo"))
+	corpo.add_theme_font_size_override("italics_font_size", Stile.dimensione("piccolo"))
+	blocco.add_child(corpo)
+	return blocco
 
 func titolo_sezione(genitore: VBoxContainer, testo: String) -> void:
 	var t := Label.new()

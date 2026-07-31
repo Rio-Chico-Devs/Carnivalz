@@ -1,0 +1,105 @@
+{
+	"_nota": "Gli appunti del Diario. Non sono una lista di obiettivi con le spunte: sono quello che il protagonista pensa fra sé quando capisce che c'è un posto dove deve andare o una cosa che deve fare. Un task compare quando TUTTE le sue 'richiede_flags' sono alzate (oppure quando un nodo lo attiva a mano con \"task\": \"id\") e si segna come fatto quando TUTTE le sue 'chiuso_da' lo sono. 'chiuso_da' vuoto = resta aperto (semi che germoglieranno nei mondi successivi). 'da' e' l'id del personaggio che l'ha chiesto, se e' stato qualcuno a chiederlo.",
+	"task": [
+		{
+			"id": "vuoto_ardente",
+			"titolo": "Il Vuoto Ardente",
+			"testo": "L'Organizzazione l'ha segnato sulle mie planimetrie come «punto anomalo, allineamento fuori controllo ma non in modo preoccupante». Quando parlano così vuol dire che non hanno idea di cosa ci sia dentro. Ho notato degli strani cambiamenti in quella regione... forse dovrei dare un'occhiata.",
+			"richiede_flags": ["tutorial_completato"],
+			"chiuso_da": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"]
+		},
+		{
+			"id": "squarcio_industriale",
+			"titolo": "Lo Squarcio Industriale",
+			"testo": "Una fabbrica che non lavora più da anni, e i rilevamenti dicono che dentro qualcosa continua a produrre. Non sono sicuro di voler sapere cosa. Ma è il primo punto sulla lista, e la lista non si accorcia da sola.",
+			"richiede_flags": ["tutorial_completato"],
+			"chiuso_da": ["industriale_esplorato"]
+		},
+		{
+			"id": "meridia",
+			"titolo": "Meridia",
+			"testo": "Sulla planimetria è ancora segnata come città. Dai numeri che ho davanti, città non lo è più da un pezzo — e quello che ci vive adesso non ha smesso di camminarci in mezzo.",
+			"richiede_flags": ["tutorial_completato"],
+			"chiuso_da": ["meridia_esplorata"]
+		},
+		{
+			"id": "jondoh",
+			"titolo": "I cunicoli di Jondoh",
+			"testo": "Un pianeta minerario, e sotto il pianeta una rete di cunicoli che scende e non risale mai. Chi li ha scavati non aveva intenzione di tornare su. Comincio a farmi un'idea del perché.",
+			"richiede_flags": ["tutorial_completato"],
+			"chiuso_da": ["quest_ossidiana"]
+		},
+		{
+			"id": "qualcosa_preme",
+			"titolo": "Qualcosa preme",
+			"testo": "C'è un punto sulla mappa che non ha un nome. Ci sono stato per un istante e mi ha rimandato indietro come si sputa un boccone. Non sono pronto, questo è chiaro. Ma prima o poi voglio sapere che cosa preme dall'altra parte.",
+			"richiede_flags": ["qualcosa_preme_toccato"],
+			"chiuso_da": []
+		},
+		{
+			"id": "yara_sorella",
+			"titolo": "La sorella di Yara",
+			"testo": "Yara ha passato anni là sotto ad ammazzare quelle cose per una domanda sola: dov'è finita sua sorella. Non le ho promesso niente. Ma sto andando nella stessa direzione, e a differenza di lei io ho intenzione di arrivare in fondo.",
+			"da": "sopravvissuta",
+			"richiede_flags": ["oss_yara_conosciuta"],
+			"chiuso_da": ["quest_ossidiana"]
+		},
+		{
+			"id": "pergamene",
+			"titolo": "Le pergamene incomprensibili",
+			"testo": "Le ho raccolte nella sala del lamento e non sono scritte in niente che io riconosca. La dottoressa Heartlife passa la vita sui libri: se qualcuno può dirmi cosa c'è scritto è lei. Devo ricordarmi di portargliele quando rientro.",
+			"richiede_flags": ["oss_pergamene"],
+			"chiuso_da": []
+		},
+		{
+			"id": "anomalia",
+			"titolo": "L'anomalia al centro del sistema",
+			"testo": "Tre rilevamenti, tre posti che non avrebbero dovuto esistere. E adesso il centro del sistema si è aperto. È lì che l'allineamento sta cedendo davvero — tutto il resto era solo il rumore che fa una cosa grossa mentre si avvicina. Devo scendere.",
+			"richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
+			"chiuso_da": []
+		},
+		{
+			"id": "teatro",
+			"titolo": "Il Teatro del Passato",
+			"testo": "Dopo i rilevamenti sulla planimetria sono comparsi due punti nuovi. Uno è un teatro. Un teatro che si affaccia sul Vuoto, con le luci ancora accese: vuol dire che là dentro qualcuno sta recitando per una platea che non c'è più.",
+			"richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
+			"chiuso_da": ["quest_teatro"]
+		},
+		{
+			"id": "casa_gigante",
+			"titolo": "La Casa Gigante",
+			"testo": "E poi c'è quella casa. Le proporzioni sono sbagliate in un modo che mi dà fastidio anche solo a guardarla da fuori — come se fosse stata costruita per qualcuno che non ha mai smesso di essere bambino.",
+			"richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
+			"chiuso_da": ["casa_ricordo_sconfitto"]
+		},
+		{
+			"id": "yhvina",
+			"titolo": "Yhvina",
+			"testo": "Non voleva compagnia e non voleva parlarne, e adesso mi cammina dietro. Non le ho chiesto perché è entrata in quella casa da sola. Ma se ne esce viva, prima o poi glielo chiedo.",
+			"da": "insonne",
+			"richiede_flags": ["casa_yhvina"],
+			"chiuso_da": ["casa_ricordo_sconfitto"]
+		},
+		{
+			"id": "spilla",
+			"titolo": "La spilla a forma di margherita",
+			"testo": "Era sotto una piastrella dell'ala destra. Non è un oggetto: è una prova. Se quella cosa che vive in fondo alla casa è davvero chi comincio a sospettare, non serve colpirla — serve metterle davanti questo, e vedere se se ne ricorda.",
+			"richiede_flags": ["casa_spilla"],
+			"chiuso_da": ["casa_ricordo_sconfitto"]
+		},
+		{
+			"id": "kizako",
+			"titolo": "Kizako Industries — Ala Dimenticata",
+			"testo": "Il nome era già sui documenti dello squarcio industriale, e adesso torna. Un'ala che qualcuno ha cancellato dalle planimetrie ufficiali: la gente cancella le cose per due motivi, o le ha dimenticate o non vuole che le si trovi.",
+			"richiede_flags": ["industriale_esplorato", "quest_teatro", "casa_ricordo_sconfitto"],
+			"chiuso_da": ["quest_kizako_ala"]
+		},
+		{
+			"id": "fontana",
+			"titolo": "La Fontana",
+			"testo": "Un punto d'acqua in mezzo a un mondo che brucia. Non ha senso, e le cose che non hanno senso in questo posto di solito sono le uniche che valgono la pena di essere raggiunte.",
+			"richiede_flags": ["industriale_esplorato", "quest_teatro", "casa_ricordo_sconfitto"],
+			"chiuso_da": ["fontana_completa"]
+		}
+	]
+}

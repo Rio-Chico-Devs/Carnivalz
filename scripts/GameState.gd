@@ -16,6 +16,7 @@ const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
 const PERCORSO_CRESCITA := "res://data/crescita.json"
+const PERCORSO_TASK := "res://data/task.json"
 const PERCORSO_CODICI := "res://data/codici.json"  # extra: sblocchi via codice
 const PERCORSO_CODICI_RISCATTATI := "user://codici_riscattati.cfg"
 const PERCORSO_SALVATAGGIO := "user://salvataggio.json"  # autosalvataggio
@@ -93,6 +94,15 @@ var nodi_visitati: Array[String] = []    # per contare l'esplorazione (una volta
 const STORICO_MASSIMO := 200
 var storico: Array[Dictionary] = []      # {tipo, chi, testo}, dal piu' vecchio
 
+# Appunti del Diario: dove andare, cosa qualcuno ti ha chiesto di fare. Non
+# sono una lista della spesa con le spunte, sono quello che il protagonista
+# pensa fra se'. Il catalogo sta in data/task.json; quali siano aperti e quali
+# chiusi e' progresso di partita, quindi entra nel salvataggio.
+var task_catalogo: Array[Dictionary] = []   # definizioni, da data/task.json
+var task_attivi: Array[String] = []         # aperti, nell'ordine in cui sono comparsi
+var task_chiusi: Array[String] = []         # gia' risolti
+var task_da_notificare: Array[String] = []  # svuotato da chi li annuncia a schermo
+
 # hp che il party si porta dietro da uno scontro al successivo, finche' gli
 # scontri si incatenano senza respiro (ondate di agguati, fasi di un boss).
 # Si azzera appena si mette piede in una stanza in pace: li' si recupera tutto.
@@ -124,6 +134,7 @@ func _ready() -> void:
 	carica_studio()
 	carica_stati()
 	carica_crescita()
+	carica_task()
 	carica_codici()
 	nuova_partita()
 
@@ -226,6 +237,14 @@ func carica_stati() -> void:
 	var dati: Variant = carica_json(PERCORSO_STATI)
 	stati = dati.get("stati", {}) if dati is Dictionary else {}
 
+func carica_task() -> void:
+	task_catalogo.clear()
+	var dati: Variant = carica_json(PERCORSO_TASK)
+	if not dati is Dictionary:
+		return
+	for voce in dati.get("task", []):
+		task_catalogo.append(voce)
+
 func carica_codici() -> void:
 	codici.clear()
 	var dati: Variant = carica_json(PERCORSO_CODICI)
@@ -287,6 +306,9 @@ func nuova_partita() -> void:
 	passive_da_notificare.clear()
 	nodi_visitati.clear()
 	storico.clear()
+	task_attivi.clear()
+	task_chiusi.clear()
+	task_da_notificare.clear()
 	hp_persistenti.clear()
 	sacca.clear()
 	collezionabili.clear()
@@ -643,9 +665,76 @@ func segna_studiato(id_personaggio: String) -> void:
 func imposta_flag(nome_flag: String) -> void:
 	if nome_flag not in flags:
 		flags.append(nome_flag)
+		# gli appunti del Diario vivono sui flag: appena il mondo cambia, il
+		# protagonista se ne accorge senza che ogni singolo nodo debba dirglielo
+		aggiorna_task()
 
 func ha_flag(nome_flag: String) -> bool:
 	return nome_flag in flags
+
+# --- appunti del Diario ---
+
+func dati_task(id_task: String) -> Dictionary:
+	for voce in task_catalogo:
+		if String(voce.get("id", "")) == id_task:
+			return voce
+	return {}
+
+func _tutti_i_flag(elenco: Variant) -> bool:
+	# vero solo se ogni flag della lista e' alzato. Una lista vuota e' vera per
+	# vacuita': serve saperlo, perche' "chiuso_da" vuoto va trattato a parte
+	if not elenco is Array:
+		return false
+	for nome_flag in elenco:
+		if not ha_flag(String(nome_flag)):
+			return false
+	return true
+
+func task_risolto(voce: Dictionary) -> bool:
+	var chiuso: Array = voce.get("chiuso_da", [])
+	# elenco vuoto = non si chiude da solo: e' un seme lasciato li' per dopo
+	return not chiuso.is_empty() and _tutti_i_flag(chiuso)
+
+func aggiorna_task() -> void:
+	# prima si chiude, poi si apre: cosi' un appunto che nasce gia' risolto
+	# (raccogli la spilla dopo aver battuto il ricordo) non lampeggia per
+	# un istante come nuovo
+	for voce in task_catalogo:
+		var id_task := String(voce.get("id", ""))
+		if id_task == "":
+			continue
+		if task_risolto(voce):
+			if id_task in task_attivi:
+				task_attivi.erase(id_task)
+			if id_task not in task_chiusi:
+				task_chiusi.append(id_task)
+			task_da_notificare.erase(id_task)
+			continue
+		if id_task in task_attivi or id_task in task_chiusi:
+			continue
+		var richiesti: Array = voce.get("richiede_flags", [])
+		# senza condizioni non compare da solo: lo accende un nodo, con "task"
+		if richiesti.is_empty() or not _tutti_i_flag(richiesti):
+			continue
+		task_attivi.append(id_task)
+		task_da_notificare.append(id_task)
+
+func apri_task(id_task: String) -> void:
+	# apertura esplicita da un nodo o da una scelta ("task": "id"), per gli
+	# appunti che nascono da una conversazione e non da uno stato del mondo
+	if id_task == "" or id_task in task_attivi or id_task in task_chiusi:
+		return
+	if dati_task(id_task).is_empty():
+		push_error("Task inesistente: " + id_task)
+		return
+	task_attivi.append(id_task)
+	task_da_notificare.append(id_task)
+
+func chiudi_task(id_task: String) -> void:
+	task_attivi.erase(id_task)
+	task_da_notificare.erase(id_task)
+	if id_task not in task_chiusi:
+		task_chiusi.append(id_task)
 
 func entra_squarcio(id_squarcio: String, file_eventi: String) -> bool:
 	# a ogni rientro gli agguati si ritirano: i nemici del Vuoto rispuntano;
@@ -740,6 +829,8 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"volte_stato_subito": volte_stato_subito,
 		"passive_sbloccate": passive_sbloccate,
 		"nodi_visitati": nodi_visitati,
+		"task_attivi": task_attivi,
+		"task_chiusi": task_chiusi,
 		"nome_protagonista": nome_protagonista,
 	}
 	var f := FileAccess.open(percorso, FileAccess.WRITE)
@@ -781,6 +872,14 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	volte_stato_subito = d.get("volte_stato_subito", {})
 	passive_sbloccate = _lista_str(d.get("passive_sbloccate", []))
 	nodi_visitati = _lista_str(d.get("nodi_visitati", []))
+	task_attivi = _lista_str(d.get("task_attivi", []))
+	task_chiusi = _lista_str(d.get("task_chiusi", []))
+	task_da_notificare.clear()
+	# una partita salvata prima che un appunto esistesse (o prima che il
+	# catalogo lo prevedesse) lo recupera qui dai flag che ha gia' in mano,
+	# senza annunciarlo come se fosse appena successo
+	aggiorna_task()
+	task_da_notificare.clear()
 	passive_da_notificare.clear()
 	imposta_nome_protagonista(String(d.get("nome_protagonista", "")))
 	# si riparte da uno stato "overworld" pulito: fuori da campagne e squarci

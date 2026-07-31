@@ -40,6 +40,7 @@ const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
+const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a voce prima di rimandare al Diario
 
 @onready var sfondo: ColorRect = %Sfondo
 @onready var slot_sinistra = %SlotSinistra
@@ -124,6 +125,7 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 			GameState.sblocca_stanza(String(id_stanza))
 	if nodo.has("congeda"):
 		GameState.congeda(nodo["congeda"])
+	applica_task(nodo)
 	if nodo.get("salva_checkpoint", false):
 		# eccezione deliberata alla regola "si salva solo dalla mappa stellare":
 		# protegge Tazo/oggetti/flag raccolti finora in un dungeon lungo. NON
@@ -175,7 +177,9 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		GameState.congeda_tutti_temporanei()
 		Transizioni.vai(SCENA_VUOTO)
 		return
-	coda_messaggi = notifiche_precedenti + notifiche_passive() + contenuto_nodo(nodo)
+	# gli appunti chiudono la coda, non la aprono: prima si vive la scena che
+	# li ha fatti nascere, poi il protagonista ci ragiona sopra
+	coda_messaggi = notifiche_precedenti + notifiche_passive() + contenuto_nodo(nodo) + notifiche_task()
 	avanza_messaggio()
 
 func contenuto_nodo(nodo: Dictionary) -> Array[Dictionary]:
@@ -387,6 +391,58 @@ func bottone_scelta(testo: String) -> Button:
 	Stile.scelta(bottone)
 	return bottone
 
+func notifiche_task() -> Array[Dictionary]:
+	# un appunto nuovo non e' una riga di sistema: e' il protagonista che si
+	# ferma un attimo e mette a fuoco dove deve andare. Quindi una notifica
+	# sola a fare da intestazione, e poi il pensiero vero come narrazione.
+	var righe: Array[Dictionary] = []
+	if GameState.task_da_notificare.is_empty():
+		return righe
+	var quanti := GameState.task_da_notificare.size()
+	var intestazione := "Il Diario si è aggiornato."
+	if quanti > 1:
+		intestazione = "Il Diario si è aggiornato: %d nuovi appunti." % quanti
+	righe.append({"tipo": "notifica", "testo": intestazione})
+	# quando ne arrivano tanti insieme (la fine del tutorial ne apre quattro)
+	# non si scaricano tutti addosso al giocatore: due si leggono qui, il
+	# resto lo trova nel Diario quando decide da dove cominciare
+	var letti := 0
+	for id_task in GameState.task_da_notificare:
+		if letti >= APPUNTI_LETTI_A_VOCE:
+			righe.append({"tipo": "narrazione",
+					"testo": "Il resto me lo sono segnato. Ci ripenso quando decido da dove cominciare."})
+			break
+		var voce := GameState.dati_task(id_task)
+		var testo := String(voce.get("testo", ""))
+		if testo != "":
+			righe.append({"tipo": "narrazione", "testo": testo})
+			letti += 1
+	GameState.task_da_notificare.clear()
+	return righe
+
+func applica_task(contenitore: Dictionary) -> void:
+	# "task" e "chiudi_task" accettano sia un id singolo che una lista, cosi'
+	# scrivere un appunto in un nodo costa una riga sola
+	for id_task in _lista_id(contenitore.get("task", [])):
+		GameState.apri_task(id_task)
+	for id_task in _lista_id(contenitore.get("chiudi_task", [])):
+		GameState.chiudi_task(id_task)
+
+func _lista_id(valore: Variant) -> Array[String]:
+	var risultato: Array[String] = []
+	if valore == null:
+		return risultato
+	if valore is Array:
+		for elemento in valore:
+			var id_elemento := String(elemento)
+			if id_elemento != "":
+				risultato.append(id_elemento)
+		return risultato
+	var id_singolo := String(valore)
+	if id_singolo != "":
+		risultato.append(id_singolo)
+	return risultato
+
 func notifiche_passive() -> Array[Dictionary]:
 	# abilita' passive sbloccate salendo di livello: si annunciano appena si
 	# torna a una schermata di eventi, insieme alle altre notifiche
@@ -499,6 +555,7 @@ func _su_scelta(scelta: Dictionary) -> void:
 			notifiche.append({"tipo": "notifica", "testo": "Hai ottenuto %d Tazo." % quantita})
 	if scelta.has("sblocca_negozio"):
 		GameState.sblocca_negozio(scelta["sblocca_negozio"])
+	applica_task(scelta)
 	if scelta.has("stress"):
 		for id_classe in GameState.party:
 			GameState.modifica_stress(id_classe, int(scelta["stress"]))
@@ -584,7 +641,8 @@ func _su_conversazione(conversazione: Dictionary) -> void:
 		GameState.imposta_flag(conversazione["flag"])
 	if conversazione.has("una_tantum"):
 		GameState.imposta_flag(conversazione["una_tantum"])
-	coda_messaggi = sequenza_di(conversazione)
+	applica_task(conversazione)
+	coda_messaggi = sequenza_di(conversazione) + notifiche_task()
 	azione_dopo_coda = _mostra_mediazione.bind(conversazione) if conversazione.has("mediazione") else Callable()
 	avanza_messaggio()
 
@@ -653,6 +711,8 @@ func _su_compagno(id_classe: String) -> void:
 			GameState.imposta_flag(voce["flag"])
 		if voce.has("una_tantum"):
 			GameState.imposta_flag(voce["una_tantum"])
+		applica_task(voce)
+		coda_messaggi += notifiche_task()
 	avanza_messaggio()
 	# la battuta puo' aver sbloccato una scelta gated da richiede_flag: la
 	# prossima volta che la coda si svuota, ricostruisci_scelte() la rilegge
