@@ -162,7 +162,19 @@ func carica_personaggi() -> void:
 	var dati: Variant = carica_json(PERCORSO_PERSONAGGI)
 	if dati is Dictionary:
 		for personaggio in dati.get("personaggi", []):
-			personaggi[personaggio["id"]] = personaggio
+			var id: String = String(personaggio["id"])
+			if personaggi.has(id):
+				# un personaggio che e' anche una classe giocabile (es. Yara,
+				# gia' in classes.json) non va sostituito di netto: perderebbe
+				# hp/attacco/difesa/ritratto della classe. Si fondono i campi,
+				# quelli di personaggi.json (qui di solito solo lore extra)
+				# vincono in caso di conflitto
+				var unito: Dictionary = personaggi[id].duplicate()
+				for chiave in personaggio:
+					unito[chiave] = personaggio[chiave]
+				personaggi[id] = unito
+			else:
+				personaggi[id] = personaggio
 
 func carica_psichi() -> void:
 	var dati: Variant = carica_json(PERCORSO_PSICHE)
