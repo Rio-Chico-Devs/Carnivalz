@@ -15,11 +15,23 @@ extends PanelContainer
 # visual novel, e la cosa che i giocatori si aspettano senza doverla imparare).
 # Finita la scrittura compare il triangolino che pulsa in basso a destra.
 #
+# La macchina da scrivere non va a velocita' costante: si ferma dove si
+# fermerebbe una voce. Una virgola e' un respiro corto, un punto una pausa
+# vera, i puntini di sospensione un silenzio. Il testo arriva a pezzi di
+# frase invece che a filo continuo - la stessa frase letta ad alta voce.
+# Le durate stanno in data/stile.json, sezione "ritmo".
+#
 # Altezza SEMPRE fissa (Stile.forma("altezza_box")): "fit_content" e' spento
 # apposta. Un messaggio piu' lungo di un altro non deve far crescere il box
 # e spingere su/giu' tutto il resto della schermata (i ritratti sopra) - se
 # un testo non ci sta, scorre dentro il box (scroll_active), il box stesso
-# non si muove mai.
+# non si muove mai. Per lo stesso motivo:
+#   - il triangolino "vai avanti" NON sta nella colonna: e' un fratello del
+#     contenitore, sovrapposto in basso a destra. Se stesse nel flusso, il
+#     box crescerebbe di una riga ogni volta che compare.
+#   - la targhetta col nome non si nasconde mai: quando non parla nessuno
+#     resta li' vuota. Nasconderla toglierebbe la sua riga e farebbe saltare
+#     su il testo tra una narrazione e un dialogo.
 
 signal scrittura_finita
 
@@ -39,22 +51,33 @@ func _ready() -> void:
 	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
 	indicatore.visible = false
 	testo.custom_minimum_size = Vector2(0, Stile.forma("altezza_box"))
+	# la targhetta tiene la sua riga anche quando e' vuota: se collassasse, il
+	# testo salterebbe su di una riga passando da un dialogo a una narrazione
+	var altezza_nome := 0.0
+	var font_nome := targhetta.get_theme_font("font")
+	if font_nome != null:
+		altezza_nome = font_nome.get_height(Stile.dimensione("nome"))
+		targhetta.custom_minimum_size = Vector2(0, altezza_nome)
+	# l'altezza del box e' decisa qui una volta per tutte e non cambia piu':
+	# testo + riga della targhetta + separazione + i margini della cornice
+	var cornice := Stile.stile_box_testo()
+	custom_minimum_size = Vector2(0, Stile.forma("altezza_box") + altezza_nome + 8
+			+ cornice.get_margin(SIDE_TOP) + cornice.get_margin(SIDE_BOTTOM))
 
 func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 	visible = true
 	testo.scroll_to_line(0)  # nuovo messaggio: si riparte sempre dall'inizio del testo
 	match tipo:
 		"dialogo":
-			targhetta.visible = nome_parlante != ""
 			targhetta.text = nome_parlante
 			testo.text = contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("testo"))
 		"notifica":
-			targhetta.visible = false
+			targhetta.text = ""
 			testo.text = "[center]%s[/center]" % contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("accento"))
 		_:
-			targhetta.visible = false
+			targhetta.text = ""
 			testo.text = "[i]%s[/i]" % contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("narrazione"))
 	scrivi_a_macchina()
@@ -71,8 +94,60 @@ func scrivi_a_macchina() -> void:
 	testo.visible_ratio = 0.0
 	sta_scrivendo = true
 	tween_testo = create_tween()
-	tween_testo.tween_property(testo, "visible_ratio", 1.0, float(totale) / velocita)
+	# un pezzo di tween per ogni pezzo di frase, con in mezzo il respiro
+	var scritti := 0
+	for respiro in respiri(testo.get_parsed_text()):
+		var fino_a: int = mini(int(respiro[0]), totale)
+		var pausa: float = float(respiro[1])
+		if fino_a <= scritti or fino_a >= totale:
+			continue
+		tween_testo.tween_property(testo, "visible_ratio", float(fino_a) / float(totale),
+				float(fino_a - scritti) / velocita)
+		if pausa > 0.0:
+			# chi ha alzato la velocita' del testo vuole meno attesa anche qui
+			tween_testo.tween_interval(pausa / maxf(Impostazioni.velocita_testo, 0.1))
+		scritti = fino_a
+	if scritti < totale:
+		tween_testo.tween_property(testo, "visible_ratio", 1.0,
+				float(totale - scritti) / velocita)
 	tween_testo.finished.connect(conclusione)
+
+func respiri(grezzo: String) -> Array:
+	# [[indice a cui fermarsi, secondi di pausa], ...]. "grezzo" e' il testo
+	# senza bbcode: gli indici combaciano con quelli di visible_ratio.
+	var punti: Array = []
+	var lunghezza := grezzo.length()
+	var i := 0
+	while i < lunghezza:
+		var c := grezzo[i]
+		if c == ".":
+			# quanti punti di fila: uno e' un punto fermo, tre sono un silenzio
+			var fine := i
+			while fine < lunghezza and grezzo[fine] == ".":
+				fine += 1
+			var quanti := fine - i
+			if _c_e_altro_dopo(grezzo, fine):
+				punti.append([fine, Stile.ritmo("pausa_sospensione") if quanti >= 2 else Stile.ritmo("pausa_punto")])
+			i = fine
+			continue
+		if c == "!" or c == "?":
+			var fine_forte := i
+			while fine_forte < lunghezza and (grezzo[fine_forte] == "!" or grezzo[fine_forte] == "?"):
+				fine_forte += 1
+			if _c_e_altro_dopo(grezzo, fine_forte):
+				punti.append([fine_forte, Stile.ritmo("pausa_punto")])
+			i = fine_forte
+			continue
+		if c == "," or c == ";" or c == ":":
+			if _c_e_altro_dopo(grezzo, i + 1):
+				punti.append([i + 1, Stile.ritmo("pausa_virgola")])
+		i += 1
+	return punti
+
+func _c_e_altro_dopo(grezzo: String, da: int) -> bool:
+	# non ha senso respirare sull'ultima punteggiatura della frase: il
+	# messaggio finisce li' e la pausa la fa gia' il giocatore
+	return grezzo.substr(da).strip_edges() != ""
 
 func completa() -> void:
 	# il giocatore ha fretta: il testo si chiude subito, senza saltare nulla

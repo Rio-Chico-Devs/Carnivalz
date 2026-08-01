@@ -61,61 +61,75 @@ unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Palco" type="HBoxContainer" parent="Margini/Colonna"]
+[node name="Centro" type="HBoxContainer" parent="Margini/Colonna"]
 layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_constants/separation = 28
+
+[node name="Palco" type="HBoxContainer" parent="Margini/Colonna/Centro"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 24
 
-[node name="SlotSinistra" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
+[node name="SlotSinistra" parent="Margini/Colonna/Centro/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="SlotCentro" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
+[node name="SlotCentro" parent="Margini/Colonna/Centro/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="SlotDestra" parent="Margini/Colonna/Palco" instance=ExtResource("2_ritratto")]
+[node name="SlotDestra" parent="Margini/Colonna/Centro/Palco" instance=ExtResource("2_ritratto")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+
+[node name="ColonnaAzioni" type="VBoxContainer" parent="Margini/Colonna/Centro"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_constants/separation = 10
+
+[node name="Scelte" type="VBoxContainer" parent="Margini/Colonna/Centro/ColonnaAzioni"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RigaAzioni" type="VBoxContainer" parent="Margini/Colonna/Centro/ColonnaAzioni"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BottoneDialoga" type="Button" parent="Margini/Colonna/Centro/ColonnaAzioni/RigaAzioni"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Parla con la squadra"
+
+[node name="BottoneMappa" type="Button" parent="Margini/Colonna/Centro/ColonnaAzioni/RigaAzioni"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Mappa"
+
+[node name="MenuCompagni" type="VBoxContainer" parent="Margini/Colonna/Centro/ColonnaAzioni/RigaAzioni"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
 
 [node name="BoxTesto" parent="Margini/Colonna" instance=ExtResource("3_box")]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
-
-[node name="Scelte" type="VBoxContainer" parent="Margini/Colonna"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="RigaAzioni" type="HBoxContainer" parent="Margini/Colonna"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="BottoneDialoga" type="Button" parent="Margini/Colonna/RigaAzioni"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Parla con la squadra"
-
-[node name="BottoneMappa" type="Button" parent="Margini/Colonna/RigaAzioni"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Mappa"
-
-[node name="MenuCompagni" type="HBoxContainer" parent="Margini/Colonna/RigaAzioni"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 8
 
 [node name="CartaTitolo" type="Control" parent="."]
 unique_name_in_owner = true

@@ -2,12 +2,16 @@
 	"nodo_iniziale": "inizio",
 	"mappa_dungeon": {
 		"stanze": [
-			{ "id": "bivio", "nome": "Il bivio", "pos": [400, 400] },
-			{ "id": "pozze", "nome": "Le pozze d'acqua", "pos": [230, 260] },
-			{ "id": "collina", "nome": "La collina", "pos": [570, 260] },
+			{ "id": "inizio", "nome": "Punto d'atterraggio", "pos": [400, 610] },
+			{ "id": "masso", "nome": "Il masso e il ruscello", "pos": [400, 490] },
+			{ "id": "bivio", "nome": "Il bivio", "pos": [400, 370] },
+			{ "id": "pozze", "nome": "Le pozze d'acqua", "pos": [220, 240] },
+			{ "id": "collina", "nome": "La collina", "pos": [580, 240] },
 			{ "id": "convergenza", "nome": "Verso le urla", "pos": [400, 120] }
 		],
 		"connessioni": [
+			["inizio", "masso"],
+			["masso", "bivio"],
 			["bivio", "pozze"],
 			["bivio", "collina"],
 			["pozze", "convergenza"],
@@ -28,6 +32,7 @@
 			]
 		},
 		"primo_incontro": {
+			"vai_se_flag": { "flag": "tut_primo_goblin", "vai": "dopo_primo_goblin" },
 			"sequenza": [
 				{ "tipo": "narrazione", "testo": "Tra le felci, qualcosa ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce." },
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Vediamo di finire presto: non ho tempo da perdere." }
@@ -41,6 +46,7 @@
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Le creature qui sembrano molto deboli... Qualunque cosa stia causando questa anomalia non deve essere molto forte..." }
 			],
 			"espr_sinistra": "pensiero",
+			"flag": "tut_primo_goblin",
 			"scelte": [
 				{ "testo": "Continua per la tua strada", "vai": "masso" }
 			]
@@ -54,6 +60,7 @@
 			]
 		},
 		"due_nemici": {
+			"vai_se_flag": { "flag": "tut_radura_superata", "vai": "bivio" },
 			"sequenza": [
 				{ "tipo": "narrazione", "testo": "Ti ritrovi in mezzo a una piccola radura fangosa. Le acque cristalline che emergono dai cumuli di fango umido creano un luccichio meraviglioso..." }
 			],
@@ -62,9 +69,10 @@
 		"bivio": {
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Il sentiero sembra dividersi... ho un brutto presentimento... forse sarebbe meglio attraversare le pozze d'acqua." },
-				{ "tipo": "narrazione", "testo": "Da qui in avanti puoi consultare la mappa (bottone \"Mappa\") per vedere dove ti trovi e tornare nei posti che hai già visitato." }
+				{ "tipo": "narrazione", "testo": "Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone \"Mappa\"). Segna dove sei, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi." }
 			],
-			"sblocca_stanze": ["bivio", "pozze", "collina"],
+			"flag": "tut_radura_superata",
+			"sblocca_stanze": ["inizio", "masso", "bivio", "pozze", "collina"],
 			"scena": "Il bivio: da una parte il sentiero scende verso le pozze d'acqua, dall'altra sale sulla collina. Più avanti, le urla.",
 			"scelte": [
 				{ "testo": "Scendi verso le pozze d'acqua", "vai": "pozze" },

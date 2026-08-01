@@ -51,6 +51,10 @@ func tempo(nome: String) -> float:
 func caratteri_al_secondo() -> float:
 	return float(dati.get("tempi", {}).get("caratteri_al_secondo", 45))
 
+func ritmo(nome: String) -> float:
+	# le pause della macchina da scrivere sulla punteggiatura
+	return float(dati.get("ritmo", {}).get(nome, 0.0))
+
 # --- font ---
 
 func font_da(chiave: String) -> Font:
@@ -230,10 +234,14 @@ func stile_bottone_texture(stato: String) -> StyleBoxTexture:
 
 func scelta(bottone: Button) -> void:
 	# le scelte di un dialogo si leggono come righe di un elenco, non come
-	# pulsanti da modulo: testo a sinistra, tutta la larghezza disponibile
+	# pulsanti da modulo: testo a sinistra, tutta la larghezza disponibile.
+	# Stanno nella colonna stretta di destra, quindi una scelta lunga va a
+	# capo da sola invece di essere tagliata a meta' parola.
 	bottone.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	bottone.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottone.custom_minimum_size = Vector2(0, 44)
+	bottone.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bottone.clip_text = false
 
 func etichetta_piccola(etichetta: Label) -> void:
 	etichetta.add_theme_font_size_override("font_size", dimensione("piccolo"))

@@ -28,6 +28,13 @@ extends Control
 # il vecchio campo "testo" (diventa un'unica narrazione, per compatibilità
 # con i contenuti non ancora convertiti).
 #
+# Schermata a tre fasce che non si muovono mai: barra di stato in alto, in
+# mezzo il palco dei ritratti con a destra la colonna delle scelte (larghezza
+# sempre riservata, anche vuota), e il box del testo inchiodato in basso a
+# un'altezza fissa. Niente di quello che compare o sparisce - triangolino,
+# scelte, bottoni - puo' far muovere il resto: era la cosa piu' fastidiosa
+# della vecchia disposizione, dove ogni click faceva ballare mezza schermata.
+#
 # Palco dei ritratti sopra il box: a sinistra il protagonista (o un
 # alternativo indicato dal nodo), a destra l'interlocutore. Se il nodo indica
 # "centro", parla un solo personaggio al centro e i due spazi laterali
@@ -50,7 +57,8 @@ const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a 
 @onready var contenitore_scelte: VBoxContainer = %Scelte
 @onready var bottone_dialoga: Button = %BottoneDialoga
 @onready var bottone_mappa: Button = %BottoneMappa
-@onready var menu_compagni: HBoxContainer = %MenuCompagni
+@onready var menu_compagni: VBoxContainer = %MenuCompagni
+@onready var colonna_azioni: VBoxContainer = %ColonnaAzioni
 @onready var etichetta_party: Label = %Party
 @onready var etichetta_risorse: Label = %Risorse
 @onready var etichetta_stat: Label = %BarraStat
@@ -91,6 +99,10 @@ func _ready() -> void:
 
 func applica_stile() -> void:
 	sfondo.color = Stile.colore("sfondo")
+	# la colonna delle scelte tiene sempre la sua larghezza, anche quando e'
+	# vuota: se comparisse solo al momento del bisogno, i ritratti si
+	# restringerebbero di colpo a ogni fine testo
+	colonna_azioni.custom_minimum_size = Vector2(Stile.forma("larghezza_scelte"), 0)
 	Stile.etichetta_piccola(etichetta_party)
 	Stile.etichetta_piccola(etichetta_risorse)
 	etichetta_stat.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
@@ -641,15 +653,13 @@ func _su_dialoga() -> void:
 			and tra[0] in GameState.party and tra[1] in GameState.party:
 		var nome_a: String = String(GameState.classi.get(tra[0], {}).get("nome", tra[0]))
 		var nome_b: String = String(GameState.classi.get(tra[1], {}).get("nome", tra[1]))
-		var bottone_conv := Button.new()
-		bottone_conv.text = "%s e %s stanno parlando..." % [nome_a, nome_b]
+		var bottone_conv := bottone_scelta("%s e %s stanno parlando..." % [nome_a, nome_b])
 		bottone_conv.pressed.connect(_su_conversazione.bind(conversazione))
 		menu_compagni.add_child(bottone_conv)
 	for id_classe in GameState.party:
 		if id_classe == GameState.id_protagonista:
 			continue
-		var bottone := Button.new()
-		bottone.text = String(GameState.classi.get(id_classe, {}).get("nome", id_classe))
+		var bottone := bottone_scelta(String(GameState.classi.get(id_classe, {}).get("nome", id_classe)))
 		bottone.pressed.connect(_su_compagno.bind(id_classe))
 		menu_compagni.add_child(bottone)
 

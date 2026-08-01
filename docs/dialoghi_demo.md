@@ -61,6 +61,7 @@ Il monologo che apre una partita nuova. Finita la sequenza il tutorial parte da 
 - **Anonimo:** «Vediamo di finire presto: non ho tempo da perdere.»
 
 ### `dopo_primo_goblin`
+<sub>alza `tut_primo_goblin`</sub>
 
 - *Alcune creature sono malvage di natura, è tuo compito decidere il loro destino.*
 - **Anonimo:** «Le creature qui sembrano molto deboli... Qualunque cosa stia causando questa anomalia non deve essere molto forte...»
@@ -82,9 +83,10 @@ Il monologo che apre una partita nuova. Finita la sequenza il tutorial parte da 
 - *Ti ritrovi in mezzo a una piccola radura fangosa. Le acque cristalline che emergono dai cumuli di fango umido creano un luccichio meraviglioso...*
 
 ### `bivio`
+<sub>alza `tut_radura_superata`</sub>
 
 - **Anonimo:** «Il sentiero sembra dividersi... ho un brutto presentimento... forse sarebbe meglio attraversare le pozze d'acqua.»
-- *Da qui in avanti puoi consultare la mappa (bottone "Mappa") per vedere dove ti trovi e tornare nei posti che hai già visitato.*
+- *Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone "Mappa"). Segna dove sei, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi.*
 
 **Tornandoci** ("Osserva la scena"):
 - *Il bivio: da una parte il sentiero scende verso le pozze d'acqua, dall'altra sale sulla collina. Più avanti, le urla.*

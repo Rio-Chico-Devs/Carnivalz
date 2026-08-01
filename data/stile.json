@@ -59,7 +59,8 @@
 		"padding_bottone_x": 20,
 		"padding_bottone_y": 11,
 		"altezza_box": 150,
-		"separazione": 14
+		"separazione": 14,
+		"larghezza_scelte": 360
 	},
 	"_nota_box": "Il box del testo (dialogo/narrazione/notifica) e il diario di combattimento: 'usa_texture' a true + un'immagine in 'texture' sostituisce il box piatto con un'immagine a nove riquadri disegnata a mano (vedi le proposte in Cinque cornici per lo stesso buio). I margini sono i pixel di bordo che NON si allungano quando il box cambia dimensione; senza immagine questa sezione non ha alcun effetto e resta il box piatto qui sotto in 'colori'/'forme'.",
 	"box": {
@@ -89,5 +90,11 @@
 		"uscita_sconfitto": 0.4,
 		"carta_titolo": 0.7,
 		"battito_indicatore": 0.85
+	},
+	"_nota_ritmo": "Le pause della macchina da scrivere sulla punteggiatura: il testo non scorre a velocita' costante, si ferma dove si fermerebbe una voce. In secondi, gia' divisi per la velocita' scelta dal giocatore.",
+	"ritmo": {
+		"pausa_virgola": 0.1,
+		"pausa_punto": 0.26,
+		"pausa_sospensione": 0.45
 	}
 }

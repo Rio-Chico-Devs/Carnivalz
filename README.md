@@ -122,6 +122,36 @@ file. Ora tutto passa da tre pezzi, in un posto solo:
   mai più uno scatto secco, ed è impossibile entrare due volte nella stessa stanza per un doppio
   click (il velo assorbe l'input finché non è finito).
 
+### Una schermata che non si muove mai
+Prima, ogni click faceva ballare mezza schermata: compariva il triangolino "vai avanti" e il box
+cresceva di una riga, comparivano le scelte e il box saliva, il nome di chi parla appariva e
+spariva e il testo saltava su e giù. Ora la schermata eventi è a tre fasce fisse e **niente di
+quello che compare o sparisce può spostare il resto**:
+
+- barra di stato in alto;
+- in mezzo il palco dei ritratti, con a destra la **colonna delle scelte** — larghezza sempre
+  riservata (`forme.larghezza_scelte`) anche quando è vuota, altrimenti i ritratti si
+  restringerebbero di colpo a ogni fine testo. Lì dentro stanno le scelte del nodo, "Parla con
+  la squadra", "Mappa" e la lista dei compagni: le scelte sono righe di un elenco, e una scelta
+  lunga va a capo da sola invece di essere tagliata (`Stile.scelta()`);
+- il box del testo inchiodato in basso a un'altezza decisa una volta sola in `BoxTesto._ready()`.
+
+Dentro il box valgono le stesse regole: il **triangolino non sta nel flusso** (è un fratello del
+contenitore, sovrapposto in basso a destra — se stesse nella colonna, il box crescerebbe ogni
+volta che compare) e la **targhetta col nome non si nasconde mai**: quando non parla nessuno
+resta lì vuota, tenendo la sua riga.
+
+### Il ritmo della macchina da scrivere
+Il testo non scorre a velocità costante: si ferma dove si fermerebbe una voce. Una virgola è un
+respiro corto, un punto una pausa vera, i puntini di sospensione un silenzio — il giocatore
+riceve la frase a pezzi di senso compiuto invece che a filo continuo. Tecnicamente il tween di
+`visible_ratio` non è più uno solo: `BoxTesto.respiri()` legge il testo senza bbcode
+(`get_parsed_text()`, così gli indici combaciano) e ne ricava i punti dove fermarsi, e la
+scrittura diventa una catena di pezzi separati da `tween_interval()`. Le durate stanno in
+`data/stile.json`, sezione `"ritmo"` (`pausa_virgola`, `pausa_punto`, `pausa_sospensione`) e si
+accorciano se il giocatore ha alzato la velocità del testo nelle opzioni. Non si respira mai
+sull'ultima punteggiatura di un messaggio: lì la pausa la fa già il giocatore, col click.
+
 Nella **schermata eventi** (`Main.gd`) questi pezzi si compongono così: non c'è più un bottone
 "Continua" incastonato tra le scelte — un'area invisibile copre tutto lo schermo mentre si legge
 (clic ovunque, o Invio/Spazio da tastiera, fanno la stessa cosa), e le scelte vere compaiono solo
@@ -387,6 +417,9 @@ Numeri piccoli e leggibili, ma con scelte vere:
 - **Menu azioni**: Attacca · Difenditi · Abilità (**Studia** sempre disponibile) · Oggetti
   (consumabili dalla sacca) · Alleati (gli ospiti come il Vecchio Proprietario del teatro: un
   assist a combattimento, non sono veri combattenti)
+- **Studia si mira come Attacca**: con più creature in campo si sceglie chi guardare, non si
+  prende quella che capita per prima. Con un solo nemico vivo il menu non compare e si studia
+  quello direttamente — così il tutorial (un nemico alla volta) resta a un click, come prima
 - **Difenditi è cumulativo ma a rendimento decrescente**: ogni uso in più si avvicina a un
   tetto senza mai raggiungerlo — `bonus += (tetto − bonus) × decadimento`
   (`difesa_difenditi_tetto`/`difesa_difenditi_decadimento` in regole.json, default 6 e 0.5:

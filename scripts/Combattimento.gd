@@ -457,7 +457,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				"difendi":
 					difendi(attaccante)
 				"studia":
-					studia(attaccante)
+					studia(attaccante, bersaglio_scelto)
 				"oggetto":
 					usa_oggetto(attaccante, azione.id)
 				"alleato":
@@ -597,9 +597,22 @@ func _menu_bersagli() -> void:
 		bottone_azione("Attacca %s" % nemico.nome, _scegli.bind({"tipo": "attacca", "bersaglio": nemico}))
 	bottone_azione("Indietro", mostra_azioni)
 
+func _menu_studia() -> void:
+	# studiare e' un'azione mirata quanto attaccare: con piu' creature in campo
+	# si sceglie chi guardare, non si prende quella che capita per prima
+	var nemici := vivi(false)
+	if nemici.size() <= 1:
+		_scegli({"tipo": "studia", "bersaglio": nemici[0] if not nemici.is_empty() else {}})
+		return
+	pulisci_azioni()
+	for nemico in nemici:
+		bottone_azione("Studia %s" % nemico.nome,
+				_scegli.bind({"tipo": "studia", "bersaglio": nemico}))
+	bottone_azione("Indietro", _menu_abilita)
+
 func _menu_abilita() -> void:
 	pulisci_azioni()
-	bottone_azione("Studia", _scegli.bind({"tipo": "studia"}))
+	bottone_azione("Studia", _menu_studia)
 	if "provocazione" in GameState.classi.get(attaccante_corrente.id, {}).get("abilita", []):
 		bottone_azione("Provoca", _scegli.bind({"tipo": "provoca"}))
 	if "attacco_area" in GameState.classi.get(attaccante_corrente.id, {}).get("abilita", []):
@@ -700,8 +713,10 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary) -> void:
 		if not bersaglio.is_empty():
 			colpisci_diretto(bersaglio, int(effetto.danno))
 
-func studia(chi: Dictionary) -> void:
-	var bersaglio := primo_nemico()
+func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
+	# il bersaglio arriva dal menu; se e' caduto nel frattempo (o se qualcuno
+	# chiama studia() senza sceglierlo) si ripiega sulla fonte
+	var bersaglio := scelto if not scelto.is_empty() and int(scelto.get("hp", 0)) > 0 else primo_nemico()
 	if bersaglio.is_empty():
 		return
 	if not portatore_frenesia.is_empty() and bersaglio.id == portatore_frenesia.id \

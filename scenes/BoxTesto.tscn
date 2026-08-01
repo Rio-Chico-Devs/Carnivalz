@@ -22,8 +22,10 @@ fit_content = false
 scroll_active = true
 mouse_filter = 2
 
-[node name="Indicatore" type="Label" parent="Colonna"]
+[node name="Indicatore" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-horizontal_alignment = 2
+mouse_filter = 2
 text = "▼"
+horizontal_alignment = 2
+vertical_alignment = 2
