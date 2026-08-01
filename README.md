@@ -951,12 +951,33 @@ classe Fanatico): per `forza_azione_durata` turni, i nemici sono forzati a colpi
 provocato invece di scegliere a caso — utile per proteggere i compagni più fragili dietro un tank.
 
 ### Risparmia (studiando certi nemici puoi risparmiarli)
-Un personaggio può avere nei dati una chiave `risparmio` ({`legame`, `stress`, `testo`}):
-se presente, **studiarlo lo risparmia automaticamente** appena finisce lo scambio — esce dal
-combattimento (niente xp/tazo/drop per lui), il legame di squadra sale, lo stress della
-squadra scende. Gli altri nemici dello stesso combattimento restano e vanno affrontati
-normalmente. Se il giocatore preferisce comunque attaccarlo invece di studiarlo, si comporta
-come un nemico qualsiasi (xp/tazo/carta inclusi). Usato dalla Tartaruga Innocente nel tutorial.
+Un personaggio può avere nei dati una chiave `risparmio` ({`legame`, `stress`, `oggetto`,
+`testo`, `studi_richiesti`}): studiarlo lo risparmia — esce dal combattimento, il legame di
+squadra sale, lo stress scende. Gli altri nemici dello stesso combattimento restano.
+
+**Risparmiare rende più esperienza che uccidere**: `xp_effettiva × xp_risparmio_moltiplicatore`
+(1.25 in `regole.json`), quindi la Tartaruga Innocente vale 19 invece di 15. Il perché è di
+design, non di bilancio: capire una creatura fino a non doverla più uccidere è la cosa
+difficile, e il gioco deve premiarla — altrimenti la via gentile costa e basta. **Nessun Tazo**
+però: non si fruga addosso a chi hai lasciato vivo. E dopo la scena il gioco te lo dice in
+chiaro (*"ne ricavi 19 esperienza invece dei 15 che ti avrebbe dato da morto"*), perché uno
+scambio che il giocatore non vede non è una scelta.
+
+`studi_richiesti` (1 se non specificato) dice **quante volte va studiata** prima che si possa
+lasciarla andare: certe creature cedono al primo sguardo, altre vanno ascoltate a lungo prima
+di ragionare. Se il giocatore preferisce comunque attaccarla si comporta come un nemico
+qualsiasi (xp normale, Tazo e carta inclusi).
+
+### Colpi che non si possono parare (`dialogo_soglia_hp.danno_fisso_dopo`)
+`dialogo_soglia_hp` fa dire una battuta a un nemico quando scende sotto una soglia di vita. Con
+in più `danno_fisso_dopo`, da quel momento **ogni suo attacco infligge esattamente quel danno**:
+niente difesa sottratta, niente critico, niente riduzione da livello, niente schivata. Alzare la
+guardia smette di servire. Il gioco non lo dice: il giocatore se ne accorge dai numeri, ed è
+esattamente il senso di quel "Preparati". Usato dal goblin arrabbiato del tutorial (5 danni
+fissi sotto i 5 hp).
+
+Attenzione a chi ha mosse multi-colpo: il danno fisso vale **per ogni colpo**, quindi la
+"Cattiveria innata" del goblin (3 colpi) fa 15 su un protagonista che ne ha 20.
 
 ### Fuggi
 Azione disponibile nel menu (bottone disabilitato se non si può fuggire): esce dal

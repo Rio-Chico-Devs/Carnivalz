@@ -40,5 +40,6 @@
 	"salta_turno_durata_massima": 3,
 	"forza_azione_durata": 2,
 	"terrore_stress_incremento": 40,
-	"terrore_legame_decremento": -15
+	"terrore_legame_decremento": -15,
+	"xp_risparmio_moltiplicatore": 1.25
 }

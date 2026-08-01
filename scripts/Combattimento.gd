@@ -825,7 +825,12 @@ func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
 		aggiorna_speranza(int(GameState.regole.get("speranza_studio", 10)))
 	verifica_innesco_combustione(bersaglio)
 	if dati.has("risparmio") and bersaglio.hp > 0:
-		risparmia(bersaglio, dati["risparmio"])
+		# certe creature cedono al primo sguardo, altre vanno ascoltate a lungo:
+		# "studi_richiesti" dice quante volte va studiata prima che si possa
+		# lasciarla andare (1 se non specificato)
+		var dati_risparmio: Dictionary = dati["risparmio"]
+		if int(bersaglio.volte_studiato) >= maxi(int(dati_risparmio.get("studi_richiesti", 1)), 1):
+			risparmia(bersaglio, dati_risparmio)
 
 func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
 	# studiare certi nemici rivela che non meritano di essere uccisi: escono
@@ -845,7 +850,13 @@ func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
 			aggiorna_scheda(alleato)
 		var quanto := int(dati_risparmio.stress)
 		conseguenze.append(("lo stress cala di %d" if quanto < 0 else "lo stress sale di %d") % absi(quanto))
-	conseguenze.append("da lui non prendi né esperienza né Tazo")
+	var xp_uccidendo := xp_effettiva(bersaglio)
+	var xp_lasciandolo := xp_da_risparmio(bersaglio)
+	if xp_lasciandolo > xp_uccidendo:
+		conseguenze.append("ne ricavi %d esperienza invece dei %d che ti avrebbe dato da morto"
+				% [xp_lasciandolo, xp_uccidendo])
+	if int(bersaglio.tazo) > 0:
+		conseguenze.append("niente Tazo: non si fruga addosso a chi hai lasciato vivo")
 	scrivi_forte("Lo lasci andare: " + ", ".join(conseguenze) + ".")
 	if dati_risparmio.has("oggetto"):
 		var id_oggetto := String(dati_risparmio.oggetto)
@@ -984,12 +995,19 @@ func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
 	# "Chiamata di Morfeo": il suo gesto finale, letale, a meno che qualcosa
 	# non ti protegga dal sonno che porta con se' (es. la Pietra Quieta)
 	incontro_tentativi_morfeo += 1
-	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_manifestazione", "")))
 	var protagonisti_vivi := vivi(true)
 	if protagonisti_vivi.is_empty():
 		return
 	var bersaglio: Dictionary = protagonisti_vivi[0]
 	var nome_protagonista: String = String(bersaglio.nome)
+	if incontro_tentativi_morfeo > 1:
+		# la scena e' un ricordo che affiora mentre stai per addormentarti: una
+		# volta che non puoi piu' dormire non puo' ripetersi. Ci riprova, non le
+		# riesce, e a quel punto si sfalda
+		scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_morfeo_fallito", "")))
+		esegui_vortice_di_rabbia(dati_incontro)
+		return
+	scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_manifestazione", "")))
 	# la scena si vede sempre per intero, fino al bacio: e' solo dopo che il
 	# destino si divide, a seconda che qualcosa ti protegga dal sonno o no
 	scrivi_forte(String(dati_incontro.get("testo_fatale_protagonista", "")), "dialogo", nome_protagonista)
@@ -1003,10 +1021,9 @@ func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
 	# respinto: o lo scudo l'ha appena consumato adesso, o l'immunita' era
 	# gia' attiva da un tentativo precedente
 	if scudo_prima and not scudo_primo_stato_pronto:
-		scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_scudo_rotto", "")))
-	if incontro_tentativi_morfeo >= 2:
-		esegui_vortice_di_rabbia(dati_incontro)
+		scrivi_forte("[i]%s[/i]" % String(dati_incontro.get("testo_scudo_rotto", "")))
 	else:
+		# immune per altre ragioni: il sonno non attecchisce e basta
 		scrivi("[i]%s[/i]" % String(dati_incontro.get("testo_morfeo_fallito", "")))
 
 func esegui_vortice_di_rabbia(dati_incontro: Dictionary) -> void:
@@ -1075,6 +1092,11 @@ func verifica_dialogo_soglia(bersaglio: Dictionary) -> void:
 	if bersaglio.hp <= int(dati.get("hp_soglia", 0)):
 		soglie_dialogo_mostrate[bersaglio.indice] = true
 		scrivi_forte(String(dati.get("testo", "")))
+		if dati.has("danno_fisso_dopo"):
+			# da qui in poi i suoi colpi passano sempre, sempre uguali: la
+			# guardia non serve piu' a niente. Al giocatore non si dice: se ne
+			# accorge dai numeri, ed e' proprio quello il senso di "preparati"
+			bersaglio["danno_fisso_attacco"] = int(dati["danno_fisso_dopo"])
 
 func esegui_mossa_disperazione(nemico: Dictionary, dati: Dictionary) -> void:
 	# mossa forzata (non pesata) sotto una soglia di hp: danno diverso a
@@ -1579,6 +1601,21 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	ultima_azione_offensiva = true
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
+	# chi ha superato la sua soglia colpisce sempre uguale: niente difesa,
+	# niente critico, niente riduzione da livello. Nessun messaggio lo annuncia
+	var fisso := int(attaccante.get("danno_fisso_attacco", 0))
+	if fisso > 0:
+		bersaglio.hp = maxi(bersaglio.hp - fisso, 0)
+		registra_danno_subito(bersaglio, fisso)
+		mostra_colpo(bersaglio, fisso)
+		if not bersaglio.giocatore:
+			verifica_innesco_frenesia(bersaglio)
+			verifica_dialogo_soglia(bersaglio)
+		if bersaglio.hp <= 0:
+			_su_ko(bersaglio)
+		elif bersaglio.giocatore:
+			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
+		return
 	if tenta_slaughter(attaccante, bersaglio):
 		return
 	var dati_bersaglio: Dictionary = GameState.personaggi.get(bersaglio.id, {})
@@ -1803,8 +1840,14 @@ func _su_ko(caduto: Dictionary) -> void:
 		giocatore_ha_vinto = true
 		in_corso = false
 		for combattente in combattenti:
-			if not combattente.giocatore and not combattente.get("oggetto_scena", false) \
-					and not combattente.get("risparmiato", false):
+			if combattente.giocatore or combattente.get("oggetto_scena", false):
+				continue
+			if combattente.get("risparmiato", false):
+				# lasciare andare qualcuno insegna piu' che abbatterlo: rende
+				# piu' esperienza di quanta ne avrebbe data da morto. Niente
+				# Tazo pero': non si fruga addosso a chi hai lasciato vivo
+				xp_bottino += xp_da_risparmio(combattente)
+			else:
 				xp_bottino += xp_effettiva(combattente)
 				tazo_bottino += combattente.tazo
 		scrivi_forte("Vittoria.", "notifica")
@@ -1814,6 +1857,13 @@ func _su_ko(caduto: Dictionary) -> void:
 	elif vivi(true).is_empty():
 		in_corso = false
 		scrivi_forte("Il party è a terra. Il disallineamento ha vinto.", "notifica")
+
+func xp_da_risparmio(nemico: Dictionary) -> int:
+	# quanto rende una creatura risparmiata: piu' di quanto renderebbe morta
+	# (moltiplicatore in regole.json). Il perche' e' di design, non di bilancio:
+	# capire una creatura fino a non doverla uccidere e' la cosa difficile
+	return int(round(xp_effettiva(nemico)
+			* float(GameState.regole.get("xp_risparmio_moltiplicatore", 1.25))))
 
 func xp_effettiva(nemico: Dictionary) -> int:
 	# rendimento decrescente sul farming: piu' il party supera il livello

@@ -6486,26 +6486,21 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento4.dopo1`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, narrazione
-> La bomba al nitro infligge moltissimi danni — ma Veronica resta in piedi grazie a una passiva: Invincibile, non può essere messa KO in un colpo solo.
->
-> →
-
-**`CRE.veronica.allenamento4.dopo2`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, narrazione
 > Le abilità passive si ottengono da oggetti equipaggiati, salendo di livello, o avendo in squadra un compagno con un forte legame.
 >
 > →
 
-**`CRE.veronica.allenamento4.dopo3`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Veronica
+**`CRE.veronica.allenamento4.dopo2`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Veronica
 > Hai visto!? È così che si fa a superare ogni limite!!!
 >
 > →
 
-**`CRE.veronica.allenamento4.dopo4`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Anonimo
+**`CRE.veronica.allenamento4.dopo3`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Anonimo
 > Forse dovresti curarti...
 >
 > →
 
-**`CRE.veronica.allenamento4.dopo5`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Veronica
+**`CRE.veronica.allenamento4.dopo4`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Veronica
 > Curarmi? E perché... piuttosto preparati...
 >
 > →
