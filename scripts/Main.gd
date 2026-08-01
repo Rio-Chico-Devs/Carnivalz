@@ -61,6 +61,12 @@ const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a 
 
 var nodo_in_corso: Dictionary = {}
 var coda_messaggi: Array[Dictionary] = []
+# un messaggio con "attesa" non aspetta il click: finito di scriversi si conta
+# il tempo indicato e si passa avanti da soli (il conto alla rovescia del
+# lancio, un silenzio che deve pesare). Il contatore serve a non avanzare due
+# volte se nel frattempo il giocatore clicca lo stesso.
+var attesa_messaggio := 0.0
+var contatore_messaggi := 0
 var azione_dopo_coda: Callable = Callable()     # eseguita a coda vuota al posto delle scelte normali (es. mediazione)
 var azione_a_fine_testo: Callable = Callable()  # eseguita appena il box ha finito di scrivere
 var mostrando_scena := false  # true quando il nodo sta mostrando la sua descrizione di ritorno
@@ -210,8 +216,10 @@ func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
 # --- coda dei messaggi ---
 
 func avanza_messaggio() -> void:
+	contatore_messaggi += 1
 	if not coda_messaggi.is_empty():
 		var msg: Dictionary = coda_messaggi.pop_front()
+		attesa_messaggio = float(msg.get("attesa", 0.0))
 		nascondi_comandi()
 		# se questo e' l'ultimo messaggio e non c'e' nessuna transizione in
 		# sospeso, appena finisce di scriversi compaiono le scelte vere
@@ -249,10 +257,27 @@ func _su_avanza() -> void:
 	avanza_messaggio()
 
 func _su_testo_pronto() -> void:
+	if attesa_messaggio > 0.0:
+		# si va avanti da soli: quello che sarebbe successo a fine testo lo fa
+		# comunque avanza_messaggio() quando la coda si svuota
+		var quanto := attesa_messaggio
+		attesa_messaggio = 0.0
+		azione_a_fine_testo = Callable()
+		_avanza_fra(quanto, contatore_messaggi)
+		return
 	if azione_a_fine_testo.is_valid():
 		var richiamo := azione_a_fine_testo
 		azione_a_fine_testo = Callable()
 		richiamo.call()
+
+func _avanza_fra(secondi: float, atteso: int) -> void:
+	# false = il timer rispetta la pausa: aprendo ESC il conto si ferma
+	await get_tree().create_timer(secondi, false).timeout
+	if not is_inside_tree():
+		return
+	if contatore_messaggi != atteso:
+		return  # il giocatore ha cliccato prima: e' gia' andato avanti da solo
+	avanza_messaggio()
 
 func _apri_scelte() -> void:
 	box.nascondi_indicatore()

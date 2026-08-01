@@ -4,13 +4,18 @@
 		"monologo": {
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "......" },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... ..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... ... ..." },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Coordinate confermate, obiettivo localizzato, perimetro di azione calcolato..." },
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ecco, deve essere questo il luogo del quale mi hanno parlato..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Beh, fare troppe domande non ci porterà da nessuna parte... Computer, allineami con la frattura in questione." },
-				{ "tipo": "dialogo", "chi": "computer", "testo": "Allineamento in corso... Partenza in 3... 2... 1... Arrivederci unità PK09, per aspera ad astra!" },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "!" }
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Computer... lanciami il più possibile vicino alla fonte." },
+				{ "tipo": "dialogo", "chi": "computer", "testo": "Autorizzazione confermata. Buona fortuna unità 111" },
+				{ "tipo": "dialogo", "chi": "computer", "testo": "lancio in...", "attesa": 0.8 },
+				{ "tipo": "dialogo", "chi": "computer", "testo": "3...", "attesa": 0.9 },
+				{ "tipo": "dialogo", "chi": "computer", "testo": "2...", "attesa": 0.9 },
+				{ "tipo": "dialogo", "chi": "computer", "testo": "1...", "attesa": 0.9 },
+				{ "tipo": "dialogo", "chi": "computer", "testo": "Per aspera, ad astra.", "attesa": 1.1 },
+				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." }
 			],
 			"espr_sinistra": "pensiero",
 			"avvio_automatico": { "id_punto": "tutorial", "file_eventi": "res://data/events_tutorial.json" }

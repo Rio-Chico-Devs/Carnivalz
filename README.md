@@ -974,6 +974,25 @@ Un messaggio `dialogo` nella `sequenza` può avere `espr` per cambiare l'espress
 personaggio a metà conversazione (solo per scene `centro`, un solo personaggio a schermo —
 es. il giocoliere che perde il sorriso un attimo prima del combattimento).
 
+Qualunque messaggio della `sequenza` può avere `attesa` (secondi): finito di scriversi non
+aspetta il click, conta quel tempo e passa avanti da solo. Serve a scandire un momento invece
+di lasciarlo in mano al ritmo del giocatore — il conto alla rovescia del lancio
+nell'introduzione è una pagina per cifra, `"3..."` `"2..."` `"1..."`, ognuna con la sua attesa.
+Cliccare comunque salta avanti subito: un contatore interno impedisce che il click e il timer
+avanzino due volte. Il timer rispetta la pausa, quindi aprire ESC ferma anche il conto.
+
+## Documento dei dialoghi (`docs/dialoghi_demo.md`)
+Tutto il testo che il giocatore può leggere nella demo, in un file solo, nell'ordine in cui sta
+nei `data/`: introduzione, tutorial, i sette squarci del Vuoto Ardente, la campagna di Jerah, le
+chiacchiere coi compagni, e i testi di studio e le battute dei nemici. In fondo due sezioni che
+servono a scrivere, non a rileggere: **Yhvina nella Casa Gigante, stanza per stanza** (una
+tabella che dice dove parla e dove risponde solo "non ho altro da dirti") e **Dove i compagni
+NON hanno niente da dire**, cioè tutti i nodi di ogni squarcio ancora senza una voce in
+`dialoghi.json`.
+
+È un'istantanea generata: si rifà con `python3 strumenti/genera_dialoghi.py` dopo aver toccato
+i JSON. Non è una fonte — la fonte restano i file in `data/`.
+
 ## Convenzioni
 - Codice e chiavi JSON in italiano
 - RNG solo seedato (`GameState.rng`), mai `randi()` sparsi: determinismo e multiplayer futuro
