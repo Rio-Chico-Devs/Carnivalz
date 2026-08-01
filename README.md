@@ -535,6 +535,43 @@ Numeri piccoli e leggibili, ma con scelte vere:
   il giocatore decide quando lasciare la schermata
 - Tutti i numeri stanno in `data/regole.json`; l'RNG è quello seedato di GameState
 
+### Come parla il combattimento
+Prima tutto finiva in un diario che si allungava all'infinito in caratteri minuscoli: un blocco
+di testo compresso che nessuno legge, dove il resoconto del tuo attacco di tre turni fa stava
+ancora lì a rubare spazio a quello che conta adesso. Il problema non era la scrittura, era che
+un canale solo stava facendo tre mestieri diversi. Ora sono tre canali, ognuno col suo:
+
+| Canale | Cosa dice | Quando lo guardi |
+|---|---|---|
+| **il campo** (schede, barre di vita) | lo **stato**: quanta vita, che stati addosso | di sfuggita, sempre |
+| **i numeri volanti** | il **colpo**: `−4` che sale dalla scheda di chi lo prende e svanisce | nell'istante in cui succede |
+| **il box** (lo stesso dei dialoghi) | il **momento**: un messaggio alla volta, poi lascia il posto | mentre lo leggi |
+| **lo storico** (ESC) | tutto quello che è passato | dopo, se ti è sfuggito qualcosa |
+
+La conseguenza più visibile: **un colpo normale non produce più nessuna riga di testo**. Vedi il
+numero salire, la scheda lampeggiare e la barra scendere — dirlo anche a parole era ridondante, e
+sono proprio quelle righe che riempivano il diario di rumore. Il box resta libero per le cose che
+vanno dette: un critico, un colpo parato, uno stato che attecchisce, una creatura che parla.
+
+**Due velocità, ed è lì che nasce il ritmo.** `scrivi()` è ordinario (guardie, buff, veleno):
+resta a schermo il tempo di leggerlo — proporzionale alla lunghezza, minimo 0.6s — e scorre da
+solo, senza chiedere niente. `scrivi_forte()` è una conseguenza (risparmiare una creatura, un
+boss che cede, un compagno a terra, un bottino, una mossa annunciata, tutto ciò che si scopre
+Studiando): **aspetta un click**, e solo su questi il triangolino resta acceso — così quel
+simbolo vuole dire una cosa sola, "questo sta aspettando te". Un click salta comunque avanti in
+qualunque momento, e in pausa il conto si ferma.
+
+Sotto c'è una coda (`coda_diario`). Chi produce testo non aspetta nessuno: accoda e prosegue. È
+il giro dei turni che la svuota nei suoi punti di respiro — a fine turno, e **prima di mostrare
+il menu delle azioni**, così non si sceglie mai con dei messaggi ancora da leggere. Una voce
+della coda può portarsi dietro un `Callable`: è così che il numero volante, il lampo sulla scheda
+e la barra della vita scattano nel messaggio giusto e non tre messaggi prima.
+
+**Le conseguenze si dicono.** Risparmiare una creatura muoveva legame e stress in silenzio: ora
+dopo la scena arriva la riga che dice cosa hai appena scambiato (*"Lo lasci andare: il legame
+della squadra sale di 10, lo stress cala di 5, da lui non prendi né esperienza né Tazo."*). Il
+bottino non è più una riga in coda a un elenco ma un messaggio suo, centrato, che aspetta.
+
 ## Inventario, Tazo e negozi
 - **Sacca**: massimo 20 oggetti **utilizzabili** (consumabili). Slot separati per
   **collezionabili** (materiali per l'Artigiano), **oggetti chiave** e **carte da gioco**.

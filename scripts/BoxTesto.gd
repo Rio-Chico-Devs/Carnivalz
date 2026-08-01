@@ -50,18 +50,24 @@ func _ready() -> void:
 	indicatore.add_theme_color_override("font_color", Stile.colore("accento"))
 	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
 	indicatore.visible = false
-	testo.custom_minimum_size = Vector2(0, Stile.forma("altezza_box"))
 	# la targhetta tiene la sua riga anche quando e' vuota: se collassasse, il
 	# testo salterebbe su di una riga passando da un dialogo a una narrazione
+	var font_targhetta := targhetta.get_theme_font("font")
+	if font_targhetta != null:
+		targhetta.custom_minimum_size = Vector2(0, font_targhetta.get_height(Stile.dimensione("nome")))
+	imposta_altezza(Stile.forma("altezza_box"))
+
+func imposta_altezza(altezza_testo: int) -> void:
+	# l'altezza del box si decide una volta e non cambia piu': testo + riga
+	# della targhetta + separazione + i margini della cornice. Il combattimento
+	# ne chiede una piu' bassa (messaggi corti, e il campo ha bisogno di spazio)
 	var altezza_nome := 0.0
 	var font_nome := targhetta.get_theme_font("font")
 	if font_nome != null:
 		altezza_nome = font_nome.get_height(Stile.dimensione("nome"))
-		targhetta.custom_minimum_size = Vector2(0, altezza_nome)
-	# l'altezza del box e' decisa qui una volta per tutte e non cambia piu':
-	# testo + riga della targhetta + separazione + i margini della cornice
+	testo.custom_minimum_size = Vector2(0, altezza_testo)
 	var cornice := Stile.stile_box_testo()
-	custom_minimum_size = Vector2(0, Stile.forma("altezza_box") + altezza_nome + 8
+	custom_minimum_size = Vector2(0, altezza_testo + altezza_nome + 8
 			+ cornice.get_margin(SIDE_TOP) + cornice.get_margin(SIDE_BOTTOM))
 
 func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:

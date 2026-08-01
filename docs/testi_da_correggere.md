@@ -461,391 +461,251 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 <sub>`scripts/Combattimento.gd`</sub>
 
 **`UI.Combattimento.001`**
-> [b]Il disallineamento fa spazio: si combatte.[/b]
+> Ora di combattere.
 >
 > →
 
-**`UI.Combattimento.002`**
-> [b]Ora di combattere.[/b]
->
-> →
-
-**`UI.Combattimento.003`** · quando si mostra un oggetto al nemico
+**`UI.Combattimento.002`** · quando si mostra un oggetto al nemico
 > %s mostra %s.
 >
 > →
 
-**`UI.Combattimento.004`** · barra della speranza
+**`UI.Combattimento.003`** · barra della speranza
 > Speranza %d / %d
 >
 > →
 
-**`UI.Combattimento.005`** · barra della speranza
-> Qualcosa, nella fonte, ha ceduto.
->
-> →
-
-**`UI.Combattimento.006`** · esegui_scontro
+**`UI.Combattimento.004`** · esegui_scontro
 > %s è in preda alla rabbia e attacca di nuovo!
 >
 > →
 
-**`UI.Combattimento.007`** · mostra_continua_fine
+**`UI.Combattimento.005`** · mostra_continua_fine
 > ▸ Continua
 >
 > →
 
-**`UI.Combattimento.008`** · esegui_turno
+**`UI.Combattimento.006`** · esegui_turno
 > [i]%s ha perso il controllo: può solo attaccare.[/i]
 >
 > →
 
-**`UI.Combattimento.009`** · esegui_turno
+**`UI.Combattimento.007`** · esegui_turno
 > [i]%s è confuso e colpisce %s per sbaglio![/i]
 >
 > →
 
-**`UI.Combattimento.010`** · scrivi_messaggio_tutorial
-> %s: "%s"
->
-> →
-
-**`UI.Combattimento.011`** · menu delle azioni
+**`UI.Combattimento.008`** · menu delle azioni
 > Attacca
 >
 > →
 
-**`UI.Combattimento.012`** · menu delle azioni
+**`UI.Combattimento.009`** · menu delle azioni
 > Difenditi
 >
 > →
 
-**`UI.Combattimento.013`** · menu delle azioni
+**`UI.Combattimento.010`** · menu delle azioni
 > Abilità
 >
 > →
 
-**`UI.Combattimento.014`** · menu delle azioni
+**`UI.Combattimento.011`** · menu delle azioni
 > Oggetti
 >
 > →
 
-**`UI.Combattimento.015`** · menu delle azioni
+**`UI.Combattimento.012`** · menu delle azioni
 > Alleati
 >
 > →
 
-**`UI.Combattimento.016`** · menu delle azioni
+**`UI.Combattimento.013`** · menu delle azioni
 > Fuggi
 >
 > →
 
-**`UI.Combattimento.017`** · scelta del bersaglio
+**`UI.Combattimento.014`** · scelta del bersaglio
 > Attacca %s
 >
 > →
 
-**`UI.Combattimento.018`** · scelta del bersaglio
+**`UI.Combattimento.015`** · scelta del bersaglio
 > Indietro
 >
 > →
 
-**`UI.Combattimento.019`** · scelta di chi studiare
+**`UI.Combattimento.016`** · scelta di chi studiare
 > Studia %s
 >
 > →
 
-**`UI.Combattimento.020`** · menu abilità
+**`UI.Combattimento.017`** · menu abilità
 > Studia
 >
 > →
 
-**`UI.Combattimento.021`** · menu abilità
+**`UI.Combattimento.018`** · menu abilità
 > Provoca
 >
 > →
 
-**`UI.Combattimento.022`** · menu abilità
+**`UI.Combattimento.019`** · menu abilità
 > Colpo d'area
 >
 > →
 
-**`UI.Combattimento.023`** · menu oggetti
+**`UI.Combattimento.020`** · menu oggetti
 > %s ×%d
 >
 > →
 
-**`UI.Combattimento.024`** · menu oggetti
+**`UI.Combattimento.021`** · menu oggetti
 > Mostra: %s
 >
 > →
 
-**`UI.Combattimento.025`** · quando ci si difende
+**`UI.Combattimento.022`** · quando ci si difende
 > %s si mette in guardia (difesa +%d).
 >
 > →
 
-**`UI.Combattimento.026`** · quando si usa un oggetto
+**`UI.Combattimento.023`** · quando si usa un oggetto
 > %s usa: %s.
 >
 > →
 
-**`UI.Combattimento.027`** · quando si studia
-> [i]Studio compulsivo: %s scopre i punti vita esatti di %s.[/i]
->
-> →
-
-**`UI.Combattimento.028`** · quando si studia
-> [i]%s non sembra rispondere ad alcun quesito.[/i]
->
-> →
-
-**`UI.Combattimento.029`** · risparmia
+**`UI.Combattimento.024`** · risparmia
 > Decidi di risparmiarlo.
 >
 > →
 
-**`UI.Combattimento.030`** · risparmia
-> [b]Ottieni:[/b] %s.
->
-> →
-
-**`UI.Combattimento.031`** · provocazione
+**`UI.Combattimento.025`** · provocazione
 > [i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]
 >
 > →
 
-**`UI.Combattimento.032`** · colpo d'area
+**`UI.Combattimento.026`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.033`** · quando si prova a fuggire
+**`UI.Combattimento.027`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.034`** · quando si prova a fuggire
-> [i]%s fugge dal combattimento![/i]
->
-> →
-
-**`UI.Combattimento.035`** · gestisci_turno_frenesia
-> Il maleficio si abbatte su di voi.
->
-> →
-
-**`UI.Combattimento.036`** · verifica_innesco_frenesia
-> Qualcosa cambia.
->
-> →
-
-**`UI.Combattimento.037`** · verifica_rabbia_su_morte
+**`UI.Combattimento.028`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.038`** · verifica_cura_su_morte
+**`UI.Combattimento.029`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.039`** · risolvi_rigenerazione
+**`UI.Combattimento.030`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.040`** · risolvi_rigenerazione
+**`UI.Combattimento.031`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.041`** · risolvi_rigenerazione
-> Una gamba cede sotto il suo stesso peso.
->
-> →
-
-**`UI.Combattimento.042`** · turno_nemico_normale
-> Qualcosa si sta caricando...
->
-> →
-
-**`UI.Combattimento.043`** · esegui_mossa
-> [b]%s non regge il colpo.[/b]
->
-> →
-
-**`UI.Combattimento.044`** · esegui_mossa
+**`UI.Combattimento.032`** · esegui_mossa
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.045`** · esegui_mossa
+**`UI.Combattimento.033`** · esegui_mossa
 > [i]Non ha nessuno da sacrificare, per ora. Colpisce lui stesso.[/i]
 >
 > →
 
-**`UI.Combattimento.046`** · esegui_mossa
+**`UI.Combattimento.034`** · esegui_mossa
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.047`** · cedimento
+**`UI.Combattimento.035`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.048`** · verifica_innesco_combustione
-> Qualcosa in lui prende fuoco.
->
-> →
-
-**`UI.Combattimento.049`** · applica_combustione
-> Brucia ancora un po'.
->
-> →
-
-**`UI.Combattimento.050`** · applica_stato
-> [b]%s si spezza, respingendo %s: sarai immune per il resto dello scontro.[/b]
->
-> →
-
-**`UI.Combattimento.051`** · applica_stato
-> [b]%s %s[/b]
->
-> →
-
-**`UI.Combattimento.052`** · applica_stato
-> viene colpito da una forza oscura.
->
-> →
-
-**`UI.Combattimento.053`** · applica_stato
+**`UI.Combattimento.036`** · applica_stato
 > [i]%s %s[/i]
 >
 > →
 
-**`UI.Combattimento.054`** · applica_stato
+**`UI.Combattimento.037`** · applica_stato
 > subisce uno stato.
 >
 > →
 
-**`UI.Combattimento.055`** · applica_stato
+**`UI.Combattimento.038`** · applica_stato
 > [i]%s ne è contagiato.[/i]
 >
 > →
 
-**`UI.Combattimento.056`** · applica_stato
-> è paralizzato dal terrore.
->
-> →
-
-**`UI.Combattimento.057`** · risolvi_stati_a_inizio_turno
-> [b]La maledizione si compie: %s non resiste oltre.[/b]
->
-> →
-
-**`UI.Combattimento.058`** · risolvi_stati_a_inizio_turno
+**`UI.Combattimento.039`** · risolvi_stati_a_inizio_turno
 > [i]%s non riesce ad agire: %s.[/i]
 >
 > →
 
-**`UI.Combattimento.059`** · risolvi_stati_a_inizio_turno
-> [i]%s: %s[/i]
->
-> →
-
-**`UI.Combattimento.060`** · risolvi_stati_a_inizio_turno
-> Il male si fa sentire ancora.
->
-> →
-
-**`UI.Combattimento.061`** · quando si attacca
-> %s attacca %s: %d danno.
->
-> →
-
-**`UI.Combattimento.062`** · quando si attacca
+**`UI.Combattimento.040`** · quando si attacca
 > Il fattore di disallineamento arde in %s!
 >
 > →
 
-**`UI.Combattimento.063`** · quando si attacca
-> %s attacca %s, ma il colpo non passa.
+**`UI.Combattimento.041`** · quando si attacca
+> %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.064`** · quando si attacca
-> [b]Colpo critico![/b] %s attacca %s: %d danno.
+**`UI.Combattimento.042`** · quando si attacca
+> [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.065`** · tenta_slaughter
-> [b]SLAUGHTER![/b] %s attacca %s, e non si rialzerà.
+**`UI.Combattimento.043`** · _su_ko
+> Vittoria.
 >
 > →
 
-**`UI.Combattimento.066`** · colpisci_diretto
-> %s subisce %d danno.
+**`UI.Combattimento.044`** · _su_ko
+> %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.067`** · _su_ko
-> [i]%s si rialza, come se nulla fosse.[/i]
+**`UI.Combattimento.045`** · _su_ko
+> Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.068`** · _su_ko
-> [b]%s si spezza: %s torna in piedi con metà dei suoi punti vita.[/b]
->
-> →
-
-**`UI.Combattimento.069`** · _su_ko
-> [i]%s vengono distrutte.[/i]
->
-> →
-
-**`UI.Combattimento.070`** · _su_ko
-> [i]%s si allontana, risparmiato.[/i]
->
-> →
-
-**`UI.Combattimento.071`** · _su_ko
-> [i]%s è a terra![/i]
->
-> →
-
-**`UI.Combattimento.072`** · _su_ko
-> [b]Vittoria![/b] Bottino: %d esperienza, %d Tazo.
->
-> →
-
-**`UI.Combattimento.073`** · _su_ko
-> [b]Il party è a terra. Il disallineamento ha vinto.[/b]
->
-> →
-
-**`UI.Combattimento.074`** · reagisci
+**`UI.Combattimento.046`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.075`** · reagisci
+**`UI.Combattimento.047`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.076`** · reagisci
+**`UI.Combattimento.048`** · reagisci
 > %s si concentra: il fattore di disallineamento sale.
 >
 > →
 
-**`UI.Combattimento.077`** · schede dei combattenti
+**`UI.Combattimento.049`** · schede dei combattenti
 > KO
 >
 > →
 
-**`UI.Combattimento.078`** · schede dei combattenti
+**`UI.Combattimento.050`** · schede dei combattenti
 > ♥ %d/%d
 >
 > →

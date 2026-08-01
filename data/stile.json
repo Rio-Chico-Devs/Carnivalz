@@ -59,6 +59,7 @@
 		"padding_bottone_x": 20,
 		"padding_bottone_y": 11,
 		"altezza_box": 150,
+		"altezza_box_combattimento": 96,
 		"separazione": 14,
 		"larghezza_scelte": 360
 	},
@@ -89,7 +90,8 @@
 		"lampeggio_colpo": 0.28,
 		"uscita_sconfitto": 0.4,
 		"carta_titolo": 0.7,
-		"battito_indicatore": 0.85
+		"battito_indicatore": 0.85,
+		"colpo_a_schermo": 0.45
 	},
 	"_nota_ritmo": "Le pause della macchina da scrivere sulla punteggiatura: il testo non scorre a velocita' costante, si ferma dove si fermerebbe una voce. In secondi, gia' divisi per la velocita' scelta dal giocatore.",
 	"ritmo": {
