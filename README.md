@@ -1014,17 +1014,28 @@ nell'introduzione è una pagina per cifra, `"3..."` `"2..."` `"1..."`, ognuna co
 Cliccare comunque salta avanti subito: un contatore interno impedisce che il click e il timer
 avanzino due volte. Il timer rispetta la pausa, quindi aprire ESC ferma anche il conto.
 
-## Documento dei dialoghi (`docs/dialoghi_demo.md`)
-Tutto il testo che il giocatore può leggere nella demo, in un file solo, nell'ordine in cui sta
-nei `data/`: introduzione, tutorial, i sette squarci del Vuoto Ardente, la campagna di Jerah, le
-chiacchiere coi compagni, e i testi di studio e le battute dei nemici. In fondo due sezioni che
-servono a scrivere, non a rileggere: **Yhvina nella Casa Gigante, stanza per stanza** (una
-tabella che dice dove parla e dove risponde solo "non ho altro da dirti") e **Dove i compagni
-NON hanno niente da dire**, cioè tutti i nodi di ogni squarcio ancora senza una voce in
-`dialoghi.json`.
+## Documento delle correzioni (`docs/testi_da_correggere.md`)
+Non un documento da leggere: un documento da **correggere**. Ogni singola cosa che il giocatore
+può leggere — battute, narrazioni, etichette dei bottoni, righe del diario di combattimento,
+nomi degli oggetti, voci del bestiario, appunti del Diario — compare una volta sola, con un
+identificatore stabile e una freccia sotto dove scrivere la versione giusta:
 
-È un'istantanea generata: si rifà con `python3 strumenti/genera_dialoghi.py` dopo aver toccato
-i JSON. Non è una fonte — la fonte restano i file in `data/`.
+```
+**`TUT.inizio.3`** · battuta di Anonimo
+> Dunque sarebbe questa la mia prima missione autonoma?
+>
+> →
+```
+
+Riconsegnato, le correzioni si applicano cercando l'ID: `TUT.inizio.3` è il terzo messaggio del
+nodo `inizio` di `events_tutorial.json`, `UI.Combattimento.042` è la quarantaduesima scritta di
+`Combattimento.gd`. **Copre anche le scritte scritte a mano dentro gli script** (menu, bottoni,
+diario di combattimento), che non erano mai passate sotto gli occhi di nessuno. In fondo
+un'appendice sui buchi da riempire: la tabella di Yhvina stanza per stanza nella Casa Gigante e
+tutti i nodi dove i compagni non hanno ancora niente da dire.
+
+È un'istantanea generata: si rifà con `python3 strumenti/genera_testi.py` dopo aver toccato i
+JSON o gli script. Non è una fonte — la fonte restano `data/` e `scripts/`.
 
 ## Convenzioni
 - Codice e chiavi JSON in italiano
