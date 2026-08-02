@@ -8,7 +8,17 @@
 				{ "oggetto": "razione_del_circo", "prezzo": 10, "da_fonti": 0 },
 				{ "oggetto": "tonico_calmante", "prezzo": 15, "da_fonti": 0 },
 				{ "oggetto": "petardo", "prezzo": 12, "da_fonti": 0 },
-				{ "oggetto": "cuore_di_latta", "prezzo": 80, "da_fonti": 1 }
+				{ "oggetto": "cuore_di_latta", "prezzo": 80, "da_fonti": 1 },
+				{ "oggetto": "benda_stretta", "prezzo": 14, "da_fonti": 0 },
+				{ "oggetto": "fiala_aura", "prezzo": 16, "da_fonti": 0 },
+				{ "oggetto": "sale_amaro", "prezzo": 18, "da_fonti": 0 },
+				{ "oggetto": "carbone_attivo", "prezzo": 18, "da_fonti": 0 },
+				{ "oggetto": "essenza_di_aura", "prezzo": 34, "da_fonti": 1 },
+				{ "oggetto": "coltello_di_servizio", "prezzo": 45, "da_fonti": 0 },
+				{ "oggetto": "amuleto_di_pietra", "prezzo": 55, "da_fonti": 0 },
+				{ "oggetto": "amuleto_di_ferro", "prezzo": 55, "da_fonti": 0 },
+				{ "oggetto": "amuleto_di_vento", "prezzo": 60, "da_fonti": 0 },
+				{ "oggetto": "amuleto_di_cenere", "prezzo": 90, "da_fonti": 1 }
 			]
 		},
 		{
@@ -17,7 +27,9 @@
 			"descrizione": "La sorella di Sally vende cose che non dovrebbero esistere. Sorride sempre.",
 			"stock": [
 				{ "oggetto": "lente_di_nyu", "prezzo": 40, "da_fonti": 0 },
-				{ "oggetto": "caramella_di_nyu", "prezzo": 35, "da_fonti": 0 }
+				{ "oggetto": "caramella_di_nyu", "prezzo": 35, "da_fonti": 0 },
+				{ "oggetto": "stigma_del_veglio", "prezzo": 70, "da_fonti": 0 },
+				{ "oggetto": "stigma_del_muto", "prezzo": 70, "da_fonti": 0 }
 			]
 		},
 		{
@@ -25,7 +37,8 @@
 			"nome": "La bottega dell'Artigiano",
 			"descrizione": "\"Roba industriale. Roba morta.\" Lui lavora solo ciò che ha una storia.",
 			"stock": [
-				{ "oggetto": "cuore_di_latta", "prezzo": 60, "da_fonti": 0 }
+				{ "oggetto": "cuore_di_latta", "prezzo": 60, "da_fonti": 0 },
+				{ "oggetto": "mannaia_scheggiata", "prezzo": 95, "da_fonti": 1 }
 			],
 			"baratti": [
 				{ "richiede": ["scheggia_di_specchio", "scheggia_di_specchio"], "produce": "specchio_tascabile" },

@@ -585,29 +585,62 @@ bottino non è più una riga in coda a un elenco ma un messaggio suo, centrato, 
   collezionati (`baratti`: richiede → produce). Lo stock evolve con le fonti estinte
   (campo `da_fonti`)
 
-## Equipaggiamento (accessori)
-Un nuovo tipo di oggetto, `"tipo": "accessorio"` in `data/oggetti.json`. A differenza dei
-consumabili (usati e persi in combattimento) o delle collezioni passive, un accessorio si
-**equipaggia** dal Compendio (`Compendio.gd`, un bottone sulla sua scheda se lo possiedi) — **uno
-solo alla volta** (`GameState.accessorio_equipaggiato`) — e il suo effetto (`effetto_equipaggiato`)
-è passivo, letto una volta a inizio combattimento (`Combattimento._ready()`).
+## Equipaggiamento: sette slot per personaggio
+Ogni membro della squadra ha i suoi slot, e **quello che porta vale solo per lui**: un amuleto
+addosso a Yhvina non protegge il protagonista. Si vestono da `ESC → Equipaggiamento`.
 
-**Il primo accessorio raccolto si equipaggia da solo** (`GameState.aggiungi_oggetto()`, solo se
-non ne hai già uno addosso): "avere" la Pietra Quieta deve bastare a proteggerti senza passare
-dal Compendio — il gioco non ha ancora insegnato che esista. Con uno già equipaggiato, il
-cambio resta una scelta esplicita. Attenzione quando si scrive contenuto: un accessorio **non
-finisce nella sacca** e quindi non compare nel menu "Oggetti" in combattimento; agisce da solo.
-- **`scudo_primo_stato`**: il primo stato subito in quel combattimento viene respinto e non ha
-  effetto; il bersaglio diventa immune a *quello stesso stato* per il resto dello scontro
-  (`combattente.immunita_temporanea`, controllato in `resistenza_di()`). L'accessorio si
-  consuma (sparisce) nel momento in cui scatta (`GameState.consuma_accessorio_equipaggiato()`).
-  Esempio: la **Pietra Quieta**, lasciata dalla Tartaruga Innocente se la risparmi
-- **`resurrezione_dimezzata`**: se chi lo indossa morirebbe, l'accessorio si spezza e lo riporta
-  in vita a metà dei suoi hp massimi, una volta sola per combattimento (`Combattimento._su_ko()`,
-  controllato prima di qualunque altra risoluzione del KO). Esempio: il **Ricordo del Passato**
-- Gli accessori posseduti vivono in `GameState.accessori` (mai consumati dall'uso, a differenza
-  della sacca); si azzerano a nuova partita come il resto dell'inventario, non sono una
-  collezione meta
+| Slot | Quanti | Cosa decide |
+|---|---|---|
+| **Arma** | 1 | come colpisci |
+| **Stigma** | 1 | un patto: dà e toglie |
+| **Accessori** | 4 | i piccoli aggiustamenti, che si sommano |
+| **Ultima risorsa** | 1 | la rete che scatta quando stai per cadere |
+
+Gli slot non sono numeri: se fossero sette caselle che fanno la stessa cosa sarebbero solo sette
+occasioni di sommare +1. Ognuno ha un mestiere diverso, e uno — lo stigma — **non è un bonus**:
+`stigma_del_veglio` dà aura per turno e toglie vita massima, `stigma_del_muto` dà difesa e toglie
+attacco. I malus entrano nella stessa somma dei bonus, quindi indossarne uno è una decisione, non
+un miglioramento gratuito.
+
+**Ultima risorsa** tiene un consumabile qualunque che *non scegli di usare*: scatta da solo
+appena la vita scende sotto `ultima_risorsa_soglia` (un quarto), una volta sola per scontro, e
+rende `ultima_risorsa_bonus` in più (+20%). Una Fiala HP che di solito ne dà 20 lì ne dà 24 — ma
+la tieni ferma lì invece di poterla usare quando decidi tu. È il tipico scambio che rende uno
+slot interessante: comodità contro controllo.
+
+I bonus numerici (`attacco`, `difesa`, `velocita`, `hp_max`, `aura_max`, `aura_per_turno`,
+`resistenza_maledizione`) entrano nelle statistiche quando il combattente viene costruito. Le
+protezioni speciali restano attaccate a chi le porta: `scudo_primo_stato` respinge il primo male
+che prende **lui**, `resurrezione_dimezzata` rimette in piedi **lui**. Prima erano globali: una
+Pietra Quieta addosso a chiunque proteggeva tutta la squadra.
+
+## L'aura
+Una seconda risorsa, per personaggio, che si spende per **forzare il mondo**: Provocazione costa
+3, Colpo d'area 4 (`regole.json`). Torna da sola un punto a turno, quindi a fine scontro non è
+mai un problema — dentro un turno lungo bisogna sceglierne l'uso. **Studia non costa e non
+costerà mai niente**: guardare una creatura è il cuore del gioco, non una risorsa da amministrare.
+
+Il massimo è `aura_iniziale` (10), o il campo `aura` della classe se ce l'ha, più quello che dà
+l'equipaggiamento. Si legge sulla scheda accanto alla vita, e si ricarica con Fiala d'aura (+6) o
+Essenza d'aura (+14).
+
+## Come è fatto un negozio
+Prima era un elenco piatto di righe uguali: nome, descrizione poetica, prezzo. Per decidere
+dovevi già sapere cosa fa un oggetto e cosa hai in tasca. Ora ogni riga risponde da sola alle tre
+domande che uno si fa davanti a uno scaffale:
+
+- **che cosa fa** — l'effetto in numeri (`+8 vita`, `difesa +1`, `toglie sonno`), generato dalle
+  stesse chiavi che legge il combattimento: un oggetto nuovo si racconta da solo, senza toccare
+  `Negozio.gd`. La descrizione poetica resta, ma sotto
+- **ne ho già** — quanti ne hai in sacca, o chi lo porta addosso se è roba da indossare.
+  Comprare il secondo amuleto uguale dev'essere una scelta, non una distrazione
+- **me lo posso permettere** — il prezzo e **quanti Tazo ti restano dopo**. Se non puoi, il
+  bottone è spento e c'è scritto quanto ti manca; se la sacca è piena lo dice invece di lasciarti
+  premere a vuoto
+
+Lo scaffale è diviso per mestiere (da usare in combattimento / armi e stigmi / accessori), così
+si sceglie tra tre categorie invece di leggere quindici righe tutte uguali. I baratti
+dell'Artigiano dicono cosa ti manca invece di limitarsi a fallire.
 
 ## Psiche, stress, fattore Carnivalz
 Ogni personaggio ha una **psiche** (`psiche` nella classe, definizioni in `data/psiche.json`):

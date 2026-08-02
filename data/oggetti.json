@@ -313,6 +313,97 @@
 			"tipo": "accessorio",
 			"descrizione": "Un oggetto che porta con sé il peso di qualcosa che non c'è più. Si spezza per riportarti in vita, una volta sola.",
 			"effetto_equipaggiato": { "tipo": "resurrezione_dimezzata" }
+		},
+		{
+			"id": "benda_stretta",
+			"nome": "Benda stretta",
+			"tipo": "consumabile",
+			"descrizione": "Sporca, ma tiene. Rimette in piedi chi ha ancora voglia di stare in piedi.",
+			"effetto": { "hp": 8 }
+		},
+		{
+			"id": "fiala_aura",
+			"nome": "Fiala d'aura",
+			"tipo": "consumabile",
+			"descrizione": "Un liquido che non sta fermo dentro il vetro. Restituisce un po' di quello che spendi quando forzi il mondo.",
+			"effetto": { "aura": 6 }
+		},
+		{
+			"id": "essenza_di_aura",
+			"nome": "Essenza d'aura",
+			"tipo": "consumabile",
+			"descrizione": "La stessa cosa della fiala, distillata più a lungo. Costa di più e vale di più.",
+			"effetto": { "aura": 14 }
+		},
+		{
+			"id": "sale_amaro",
+			"nome": "Sale amaro",
+			"tipo": "consumabile",
+			"descrizione": "Brucia in gola e sveglia i morti. Toglie di dosso il sonno, e solo quello.",
+			"effetto": { "cura_stato": "sonno" }
+		},
+		{
+			"id": "carbone_attivo",
+			"nome": "Carbone attivo",
+			"tipo": "consumabile",
+			"descrizione": "Nero, gessoso, disgustoso. Assorbe il veleno prima che finisca il suo lavoro.",
+			"effetto": { "cura_stato": "veleno" }
+		},
+		{
+			"id": "amuleto_di_pietra",
+			"nome": "Amuleto di pietra",
+			"tipo": "accessorio",
+			"descrizione": "Grezzo, pesante al collo. Chi lo porta incassa un po' meglio.",
+			"effetto_equipaggiato": { "difesa": 1 }
+		},
+		{
+			"id": "amuleto_di_ferro",
+			"nome": "Amuleto di ferro",
+			"tipo": "accessorio",
+			"descrizione": "Una scheggia di lama montata su uno spago. Rende i colpi un po' più cattivi.",
+			"effetto_equipaggiato": { "attacco": 1 }
+		},
+		{
+			"id": "amuleto_di_vento",
+			"nome": "Amuleto di vento",
+			"tipo": "accessorio",
+			"descrizione": "Leggerissimo, non sta mai fermo. Chi lo porta arriva prima.",
+			"effetto_equipaggiato": { "velocita": 1 }
+		},
+		{
+			"id": "amuleto_di_cenere",
+			"nome": "Amuleto di cenere",
+			"tipo": "accessorio",
+			"descrizione": "Cenere di qualcosa che è stato maledetto prima di te, e che ha resistito un momento in più.",
+			"effetto_equipaggiato": { "resistenza_maledizione": 1 }
+		},
+		{
+			"id": "coltello_di_servizio",
+			"nome": "Coltello di servizio",
+			"tipo": "arma",
+			"descrizione": "In dotazione a ogni operativo. Nessuno l'ha mai chiamato un'arma.",
+			"effetto_equipaggiato": { "attacco": 1 }
+		},
+		{
+			"id": "mannaia_scheggiata",
+			"nome": "Mannaia scheggiata",
+			"tipo": "arma",
+			"descrizione": "Pesante e mal bilanciata: colpisce più forte, ma ti rallenta.",
+			"effetto_equipaggiato": { "attacco": 3, "velocita": -1 }
+		},
+		{
+			"id": "stigma_del_veglio",
+			"nome": "Stigma del veglio",
+			"tipo": "stigma",
+			"descrizione": "Un marchio che non ti lascia dormire. L'aura si rigenera più in fretta, ma il corpo regge meno.",
+			"effetto_equipaggiato": { "aura_per_turno": 1, "hp_max": -3 }
+		},
+		{
+			"id": "stigma_del_muto",
+			"nome": "Stigma del muto",
+			"tipo": "stigma",
+			"descrizione": "Chi lo porta non urla mai. Incassa meglio, ma colpisce peggio.",
+			"effetto_equipaggiato": { "difesa": 2, "attacco": -1 }
 		}
 	]
 }

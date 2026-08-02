@@ -315,13 +315,13 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Compendio.002`** · _bottone_equip
-> Equipaggiato — tocca per togliere
+**`UI.Compendio.002`** · _etichetta_portatore
+> Nell'armadio — si mette addosso dal Diario (ESC)
 >
 > →
 
-**`UI.Compendio.003`** · _bottone_equip
-> Equipaggia
+**`UI.Compendio.003`** · _etichetta_portatore
+> Addosso a %s
 >
 > →
 
@@ -546,12 +546,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.Combattimento.018`** · menu abilità
-> Provoca
+> Provoca  (%d aura)
 >
 > →
 
 **`UI.Combattimento.019`** · menu abilità
-> Colpo d'area
+> Colpo d'area  (%d aura)
 >
 > →
 
@@ -575,137 +575,147 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.024`** · risparmia
+**`UI.Combattimento.024`** · applica_effetto
+> [i]%s si libera di %s.[/i]
+>
+> →
+
+**`UI.Combattimento.025`** · applica_effetto
+> [i]%s non ne aveva bisogno: niente %s addosso.[/i]
+>
+> →
+
+**`UI.Combattimento.026`** · risparmia
 > Decidi di risparmiarlo.
 >
 > →
 
-**`UI.Combattimento.025`** · provocazione
+**`UI.Combattimento.027`** · provocazione
 > [i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]
 >
 > →
 
-**`UI.Combattimento.026`** · colpo d'area
+**`UI.Combattimento.028`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.027`** · quando si prova a fuggire
+**`UI.Combattimento.029`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.028`** · verifica_rabbia_su_morte
+**`UI.Combattimento.030`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.029`** · verifica_cura_su_morte
+**`UI.Combattimento.031`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.030`** · risolvi_rigenerazione
+**`UI.Combattimento.032`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.031`** · risolvi_rigenerazione
+**`UI.Combattimento.033`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.032`** · esegui_mossa
+**`UI.Combattimento.034`** · esegui_mossa
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.033`** · esegui_mossa
+**`UI.Combattimento.035`** · esegui_mossa
 > [i]Non ha nessuno da sacrificare, per ora. Colpisce lui stesso.[/i]
 >
 > →
 
-**`UI.Combattimento.034`** · esegui_mossa
+**`UI.Combattimento.036`** · esegui_mossa
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.035`** · cedimento
+**`UI.Combattimento.037`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.036`** · applica_stato
+**`UI.Combattimento.038`** · applica_stato
 > [i]%s %s[/i]
 >
 > →
 
-**`UI.Combattimento.037`** · applica_stato
+**`UI.Combattimento.039`** · applica_stato
 > subisce uno stato.
 >
 > →
 
-**`UI.Combattimento.038`** · applica_stato
+**`UI.Combattimento.040`** · applica_stato
 > [i]%s ne è contagiato.[/i]
 >
 > →
 
-**`UI.Combattimento.039`** · risolvi_stati_a_inizio_turno
+**`UI.Combattimento.041`** · risolvi_stati_a_inizio_turno
 > [i]%s non riesce ad agire: %s.[/i]
 >
 > →
 
-**`UI.Combattimento.040`** · quando si attacca
+**`UI.Combattimento.042`** · quando si attacca
 > Il fattore di disallineamento arde in %s!
 >
 > →
 
-**`UI.Combattimento.041`** · quando si attacca
+**`UI.Combattimento.043`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.042`** · quando si attacca
+**`UI.Combattimento.044`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.043`** · _su_ko
+**`UI.Combattimento.045`** · _su_ko
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.044`** · _su_ko
+**`UI.Combattimento.046`** · _su_ko
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.045`** · _su_ko
+**`UI.Combattimento.047`** · _su_ko
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.046`** · reagisci
+**`UI.Combattimento.048`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.047`** · reagisci
+**`UI.Combattimento.049`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.048`** · reagisci
+**`UI.Combattimento.050`** · reagisci
 > %s si concentra: il fattore di disallineamento sale.
 >
 > →
 
-**`UI.Combattimento.049`** · schede dei combattenti
+**`UI.Combattimento.051`** · schede dei combattenti
 > KO
 >
 > →
 
-**`UI.Combattimento.050`** · schede dei combattenti
+**`UI.Combattimento.052`** · schede dei combattenti
 > ♥ %d/%d
 >
 > →
@@ -721,22 +731,52 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.Negozio.002`** · aggiungi_voce_vendita
-> %s — %s
+> Compra — %d Tazo
 >
 > →
 
 **`UI.Negozio.003`** · aggiungi_voce_vendita
-> Compra (%d Tazo)
+> la sacca è piena
 >
 > →
 
-**`UI.Negozio.004`** · aggiungi_voce_baratto
-> Porta: %s  →  %s
+**`UI.Negozio.004`** · aggiungi_voce_vendita
+> ti mancano %d Tazo
 >
 > →
 
-**`UI.Negozio.005`** · aggiungi_voce_baratto
+**`UI.Negozio.005`** · aggiungi_voce_vendita
+> te ne restano %d
+>
+> →
+
+**`UI.Negozio.006`** · quanti_ne_hai
+> ne hai già %d in sacca
+>
+> →
+
+**`UI.Negozio.007`** · quanti_ne_hai
+> ne hai già uno, nell'armadio
+>
+> →
+
+**`UI.Negozio.008`** · quanti_ne_hai
+> ne hai già uno, addosso a %s
+>
+> →
+
+**`UI.Negozio.009`** · aggiungi_voce_baratto
+> in cambio di:
+>
+> →
+
+**`UI.Negozio.010`** · aggiungi_voce_baratto
 > Baratta
+>
+> →
+
+**`UI.Negozio.011`** · aggiungi_voce_baratto
+> ti manca:
 >
 > →
 
@@ -766,236 +806,311 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.Pausa.005`** · menu di pausa
-> Volume generale
+> Equipaggiamento
 >
 > →
 
 **`UI.Pausa.006`** · menu di pausa
-> Musica
+> Volume generale
 >
 > →
 
 **`UI.Pausa.007`** · menu di pausa
+> Musica
+>
+> →
+
+**`UI.Pausa.008`** · menu di pausa
 > Torna al menu principale
 >
 > →
 
-**`UI.Pausa.008`** · conferma di uscita
+**`UI.Pausa.009`** · conferma di uscita
 > Tornare al menu?
 >
 > →
 
-**`UI.Pausa.009`** · conferma di uscita
+**`UI.Pausa.010`** · conferma di uscita
 > Il gioco salva solo dalla mappa stellare: tutto quello che hai fatto<br>dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso.
 >
 > →
 
-**`UI.Pausa.010`** · conferma di uscita
+**`UI.Pausa.011`** · conferma di uscita
 > No, resto qui
 >
 > →
 
-**`UI.Pausa.011`** · conferma di uscita
+**`UI.Pausa.012`** · conferma di uscita
 > Sì, torna al menu principale
 >
 > →
 
-**`UI.Pausa.012`** · storico dei dialoghi
+**`UI.Pausa.013`** · storico dei dialoghi
 > Non hai ancora letto niente.
 >
 > →
 
-**`UI.Pausa.013`** · storico dei dialoghi
+**`UI.Pausa.014`** · storico dei dialoghi
 > Indietro
 >
 > →
 
-**`UI.Pausa.014`** · Diario
+**`UI.Pausa.015`** · Diario
 > Diario — unità Pk09
 >
 > →
 
-**`UI.Pausa.015`** · Diario › Appunti
+**`UI.Pausa.016`** · Diario › Appunti
 > Appunti
 >
 > →
 
-**`UI.Pausa.016`** · Diario › Appunti
+**`UI.Pausa.017`** · Diario › Appunti
 > Niente da segnare, per ora.
 >
 > →
 
-**`UI.Pausa.017`** · Diario › Appunti
+**`UI.Pausa.018`** · Diario › Appunti
 > Già risolti
 >
 > →
 
-**`UI.Pausa.018`** · Diario › riga di un appunto
+**`UI.Pausa.019`** · Diario › riga di un appunto
 > chiesto da
 >
 > →
 
-**`UI.Pausa.019`** · Diario › Stato
+**`UI.Pausa.020`** · riepilogo_bonus
+> Non ha ancora niente addosso.
+>
+> →
+
+**`UI.Pausa.021`** · riepilogo_bonus
+> In totale:
+>
+> →
+
+**`UI.Pausa.022`** · etichetta_bonus
+> velocità
+>
+> →
+
+**`UI.Pausa.023`** · etichetta_bonus
+> vita massima
+>
+> →
+
+**`UI.Pausa.024`** · etichetta_bonus
+> aura massima
+>
+> →
+
+**`UI.Pausa.025`** · etichetta_bonus
+> aura per turno
+>
+> →
+
+**`UI.Pausa.026`** · etichetta_bonus
+> rintocchi di maledizione
+>
+> →
+
+**`UI.Pausa.027`** · riga_slot
+> %d
+>
+> →
+
+**`UI.Pausa.028`** · riga_slot
+> Un consumabile che non usi: scatta da solo sotto un quarto della vita, e rende il %d%% in più.
+>
+> →
+
+**`UI.Pausa.029`** · riga_slot
+> [b]%s[/b] — %s
+>
+> →
+
+**`UI.Pausa.030`** · riga_slot
+> Togli
+>
+> →
+
+**`UI.Pausa.031`** · riga_slot
+> — vuoto, e non hai niente da metterci —
+>
+> →
+
+**`UI.Pausa.032`** · riga_slot
+> %s — %s
+>
+> →
+
+**`UI.Pausa.033`** · riassunto_effetto
+> nessun effetto
+>
+> →
+
+**`UI.Pausa.034`** · Diario › Stato
 > Stato
 >
 > →
 
-**`UI.Pausa.020`** · Diario › Stato
+**`UI.Pausa.035`** · Diario › Stato
 > Livello
 >
 > →
 
-**`UI.Pausa.021`** · Diario › Stato
+**`UI.Pausa.036`** · Diario › Stato
 > %d  (%d / %d esperienza)
 >
 > →
 
-**`UI.Pausa.022`** · Diario › Cosa ti sta cambiando
+**`UI.Pausa.037`** · Diario › Cosa ti sta cambiando
 > Cosa ti sta cambiando
 >
 > →
 
-**`UI.Pausa.023`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.038`** · Diario › nomi delle azioni tracciate
 > Colpi che hai sferrato
 >
 > →
 
-**`UI.Pausa.024`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.039`** · Diario › nomi delle azioni tracciate
 > Danni che hai incassato
 >
 > →
 
-**`UI.Pausa.025`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.040`** · Diario › nomi delle azioni tracciate
 > Volte che hai tenuto la guardia
 >
 > →
 
-**`UI.Pausa.026`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.041`** · Diario › nomi delle azioni tracciate
 > Creature che hai studiato
 >
 > →
 
-**`UI.Pausa.027`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.042`** · Diario › nomi delle azioni tracciate
 > Volte che sei scappato
 >
 > →
 
-**`UI.Pausa.028`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.043`** · Diario › nomi delle azioni tracciate
 > Oggetti che hai usato
 >
 > →
 
-**`UI.Pausa.029`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.044`** · Diario › nomi delle azioni tracciate
 > Stanze che hai esplorato
 >
 > →
 
-**`UI.Pausa.030`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.045`** · Diario › nomi delle azioni tracciate
 > Stress che hai retto
 >
 > →
 
-**`UI.Pausa.031`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.046`** · Diario › nomi delle azioni tracciate
 > Colpi critici che hai messo a segno
 >
 > →
 
-**`UI.Pausa.032`** · Diario › Abilità passive
+**`UI.Pausa.047`** · Diario › Abilità passive
 > Abilità passive
 >
 > →
 
-**`UI.Pausa.033`** · Diario › Abilità passive
+**`UI.Pausa.048`** · Diario › Abilità passive
 > Nessuna, per ora.
 >
 > →
 
-**`UI.Pausa.034`** · Diario › Squadra
+**`UI.Pausa.049`** · Diario › Squadra
 > Squadra
 >
 > →
 
-**`UI.Pausa.035`** · Diario › Squadra
+**`UI.Pausa.050`** · Diario › Squadra
 > Legame
 >
 > →
 
-**`UI.Pausa.036`** · Diario › Squadra
+**`UI.Pausa.051`** · Diario › Squadra
 > %d / 100
 >
 > →
 
-**`UI.Pausa.037`** · Diario › Squadra
+**`UI.Pausa.052`** · Diario › Squadra
 > Lv %d   ·   stress %d
 >
 > →
 
-**`UI.Pausa.038`** · Diario › Osservazioni
+**`UI.Pausa.053`** · Diario › Osservazioni
 > Osservazioni
 >
 > →
 
-**`UI.Pausa.039`** · Diario › Osservazioni
+**`UI.Pausa.054`** · Diario › Osservazioni
 > Creature studiate
 >
 > →
 
-**`UI.Pausa.040`** · Diario › Osservazioni
+**`UI.Pausa.055`** · Diario › Osservazioni
 > Creature incontrate
 >
 > →
 
-**`UI.Pausa.041`** · Diario › Osservazioni
+**`UI.Pausa.056`** · Diario › Osservazioni
 > Oggetti catalogati
 >
 > →
 
-**`UI.Pausa.042`** · Diario › Osservazioni
+**`UI.Pausa.057`** · Diario › Osservazioni
 > %d / %d
 >
 > →
 
-**`UI.Pausa.043`** · Diario › Osservazioni
+**`UI.Pausa.058`** · Diario › Osservazioni
 > Resistenza —
 >
 > →
 
-**`UI.Pausa.044`** · Diario › Organizzazione
+**`UI.Pausa.059`** · Diario › Organizzazione
 > Organizzazione
 >
 > →
 
-**`UI.Pausa.045`** · Diario › Organizzazione
+**`UI.Pausa.060`** · Diario › Organizzazione
 > Fonti estinte
 >
 > →
 
-**`UI.Pausa.046`** · Diario › Organizzazione
+**`UI.Pausa.061`** · Diario › Organizzazione
 > Valutazione
 >
 > →
 
-**`UI.Pausa.047`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.062`** · Diario › giudizio dell'Organizzazione
 > In osservazione.
 >
 > →
 
-**`UI.Pausa.048`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.063`** · Diario › giudizio dell'Organizzazione
 > Prestazione conforme alle attese.
 >
 > →
 
-**`UI.Pausa.049`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.064`** · Diario › giudizio dell'Organizzazione
 > Rendimento soddisfacente.
 >
 > →
 
-**`UI.Pausa.050`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.065`** · Diario › giudizio dell'Organizzazione
 > Elemento affidabile.
 >
 > →
 
-**`UI.Pausa.051`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.066`** · Diario › giudizio dell'Organizzazione
 > Elemento di valore. Aspettative in aumento.
 >
 > →
@@ -7263,6 +7378,175 @@ carte collezionabili.
 
 **`OGG.ricordo_del_passato.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
 > Un oggetto che porta con sé il peso di qualcosa che non c'è più. Si spezza per riportarti in vita, una volta sola.
+>
+> →
+
+
+### Benda stretta  <sub>`benda_stretta`</sub>
+
+**`OGG.benda_stretta.nome`** · nome nella sacca e nei negozi
+> Benda stretta
+>
+> →
+
+**`OGG.benda_stretta.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Sporca, ma tiene. Rimette in piedi chi ha ancora voglia di stare in piedi.
+>
+> →
+
+
+### Fiala d'aura  <sub>`fiala_aura`</sub>
+
+**`OGG.fiala_aura.nome`** · nome nella sacca e nei negozi
+> Fiala d'aura
+>
+> →
+
+**`OGG.fiala_aura.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Un liquido che non sta fermo dentro il vetro. Restituisce un po' di quello che spendi quando forzi il mondo.
+>
+> →
+
+
+### Essenza d'aura  <sub>`essenza_di_aura`</sub>
+
+**`OGG.essenza_di_aura.nome`** · nome nella sacca e nei negozi
+> Essenza d'aura
+>
+> →
+
+**`OGG.essenza_di_aura.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> La stessa cosa della fiala, distillata più a lungo. Costa di più e vale di più.
+>
+> →
+
+
+### Sale amaro  <sub>`sale_amaro`</sub>
+
+**`OGG.sale_amaro.nome`** · nome nella sacca e nei negozi
+> Sale amaro
+>
+> →
+
+**`OGG.sale_amaro.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Brucia in gola e sveglia i morti. Toglie di dosso il sonno, e solo quello.
+>
+> →
+
+
+### Carbone attivo  <sub>`carbone_attivo`</sub>
+
+**`OGG.carbone_attivo.nome`** · nome nella sacca e nei negozi
+> Carbone attivo
+>
+> →
+
+**`OGG.carbone_attivo.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Nero, gessoso, disgustoso. Assorbe il veleno prima che finisca il suo lavoro.
+>
+> →
+
+
+### Amuleto di pietra  <sub>`amuleto_di_pietra`</sub>
+
+**`OGG.amuleto_di_pietra.nome`** · nome nella sacca e nei negozi
+> Amuleto di pietra
+>
+> →
+
+**`OGG.amuleto_di_pietra.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Grezzo, pesante al collo. Chi lo porta incassa un po' meglio.
+>
+> →
+
+
+### Amuleto di ferro  <sub>`amuleto_di_ferro`</sub>
+
+**`OGG.amuleto_di_ferro.nome`** · nome nella sacca e nei negozi
+> Amuleto di ferro
+>
+> →
+
+**`OGG.amuleto_di_ferro.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Una scheggia di lama montata su uno spago. Rende i colpi un po' più cattivi.
+>
+> →
+
+
+### Amuleto di vento  <sub>`amuleto_di_vento`</sub>
+
+**`OGG.amuleto_di_vento.nome`** · nome nella sacca e nei negozi
+> Amuleto di vento
+>
+> →
+
+**`OGG.amuleto_di_vento.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Leggerissimo, non sta mai fermo. Chi lo porta arriva prima.
+>
+> →
+
+
+### Amuleto di cenere  <sub>`amuleto_di_cenere`</sub>
+
+**`OGG.amuleto_di_cenere.nome`** · nome nella sacca e nei negozi
+> Amuleto di cenere
+>
+> →
+
+**`OGG.amuleto_di_cenere.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Cenere di qualcosa che è stato maledetto prima di te, e che ha resistito un momento in più.
+>
+> →
+
+
+### Coltello di servizio  <sub>`coltello_di_servizio`</sub>
+
+**`OGG.coltello_di_servizio.nome`** · nome nella sacca e nei negozi
+> Coltello di servizio
+>
+> →
+
+**`OGG.coltello_di_servizio.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> In dotazione a ogni operativo. Nessuno l'ha mai chiamato un'arma.
+>
+> →
+
+
+### Mannaia scheggiata  <sub>`mannaia_scheggiata`</sub>
+
+**`OGG.mannaia_scheggiata.nome`** · nome nella sacca e nei negozi
+> Mannaia scheggiata
+>
+> →
+
+**`OGG.mannaia_scheggiata.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Pesante e mal bilanciata: colpisce più forte, ma ti rallenta.
+>
+> →
+
+
+### Stigma del veglio  <sub>`stigma_del_veglio`</sub>
+
+**`OGG.stigma_del_veglio.nome`** · nome nella sacca e nei negozi
+> Stigma del veglio
+>
+> →
+
+**`OGG.stigma_del_veglio.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Un marchio che non ti lascia dormire. L'aura si rigenera più in fretta, ma il corpo regge meno.
+>
+> →
+
+
+### Stigma del muto  <sub>`stigma_del_muto`</sub>
+
+**`OGG.stigma_del_muto.nome`** · nome nella sacca e nei negozi
+> Stigma del muto
+>
+> →
+
+**`OGG.stigma_del_muto.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Chi lo porta non urla mai. Incassa meglio, ma colpisce peggio.
 >
 > →
 

@@ -133,15 +133,13 @@ var soglie_dialogo_mostrate: Dictionary = {}  # indice combattente -> bool
 # arrabbiato del tutorial diventa piu' pericoloso ogni goblin tipico che cade.
 var portatore_rabbia: Dictionary = {}
 
-# Accessorio equipaggiato (GameState.accessorio_equipaggiato): effetto
-# passivo attivo per l'intero combattimento, letto una volta in _ready().
-# "scudo_primo_stato": respinge il primo stato subito nello scontro e
-# immunizza da quello stato per il resto (Combattimento.applica_stato()).
-# "resurrezione_dimezzata": chi morirebbe torna in vita a meta' hp, una
-# sola volta per combattimento (Combattimento._su_ko()).
-var effetto_accessorio: Dictionary = {}
-var scudo_primo_stato_pronto := false
-var resurrezione_pronta := false
+# Equipaggiamento: ognuno porta il suo, e quello che porta vale solo per lui.
+# I bonus numerici (attacco, difesa, velocita', hp_max, aura) entrano nelle
+# statistiche quando il combattente viene costruito; le protezioni speciali
+# restano attaccate al singolo combattente, non alla squadra:
+# "scudo_primo_stato" (respinge il primo stato che LUI subisce e lo immunizza
+# per il resto dello scontro) e "resurrezione_dimezzata" (LUI torna in piedi a
+# meta' vita invece di cadere). Entrambe si consumano, una volta sola.
 
 # Il primo nemico (il boss, o il primo di un gruppo comune) resta sempre al
 # centro del campo; chi si aggiunge dopo (altri della stessa imboscata, o
@@ -152,10 +150,6 @@ var prossimo_lato_nemico := "destra"
 
 func _ready() -> void:
 	applica_stile()
-	if GameState.accessorio_equipaggiato != "":
-		effetto_accessorio = GameState.dati_oggetto(GameState.accessorio_equipaggiato).get("effetto_equipaggiato", {})
-		scudo_primo_stato_pronto = effetto_accessorio.get("tipo", "") == "scudo_primo_stato"
-		resurrezione_pronta = effetto_accessorio.get("tipo", "") == "resurrezione_dimezzata"
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
 	for id_nemico in GameState.nemici_combattimento:
@@ -179,11 +173,12 @@ func _ready() -> void:
 					GameState.aggiungi_oggetto(String(id_oggetto))
 	if not tutorial.is_empty():
 		# un tutorial e' una scena scritta: deve andare esattamente come
-		# previsto, quindi nessun accessorio equipaggiato ci mette bocca
-		# (niente scudo contro gli stati, niente resurrezione a meta' vita)
-		effetto_accessorio = {}
-		scudo_primo_stato_pronto = false
-		resurrezione_pronta = false
+		# previsto, quindi niente equipaggiamento ci mette bocca (niente scudo
+		# contro gli stati, niente resurrezione, niente ultima risorsa)
+		for combattente in combattenti:
+			combattente.scudo_stato = ""
+			combattente.resurrezione = ""
+			combattente.ultima_risorsa_usata = true
 	var categoria_apertura := categoria_migliore_presente()
 	if categoria_apertura == "boss" or categoria_apertura == "miniboss":
 		scrivi_forte("Il disallineamento fa spazio: si combatte.")
@@ -252,8 +247,12 @@ func avvia_musica_e_voce() -> void:
 func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
 	var e_protagonista := giocatore and id_personaggio == GameState.id_protagonista
+	# quello che ha addosso questo personaggio: vale solo per lui
+	var eq := func(chiave: String) -> int:
+		return GameState.bonus_equipaggiamento(id_personaggio, chiave) if giocatore else 0
 	var hp_max := int(GameState.stat_di("hp")) if e_protagonista \
 			else int(dati.get("hp", GameState.regole.get("hp_base", 5)))
+	hp_max = maxi(hp_max + eq.call("hp_max"), 1)
 	var hp_iniziali := hp_max
 	if giocatore and GameState.hp_persistenti.has(id_personaggio):
 		# scontri incatenati: si riprende con i punti vita lasciati dal precedente
@@ -301,9 +300,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"nome": dati.get("nome_breve", dati.get("nome", id_personaggio)),
 		"hp": hp_iniziali,
 		"hp_max": hp_max,
-		"attacco": GameState.stat_di("attacco") if e_protagonista else int(dati.get("attacco", 1)),
-		"difesa": GameState.stat_di("difesa") if e_protagonista else int(dati.get("difesa", 0)),
-		"velocita": GameState.stat_di("velocita") if e_protagonista else int(dati.get("velocita", 3)),
+		"attacco": maxi((GameState.stat_di("attacco") if e_protagonista else int(dati.get("attacco", 1))) + eq.call("attacco"), 0),
+		"difesa": maxi((GameState.stat_di("difesa") if e_protagonista else int(dati.get("difesa", 0))) + eq.call("difesa"), 0),
+		"velocita": maxi((GameState.stat_di("velocita") if e_protagonista else int(dati.get("velocita", 3))) + eq.call("velocita"), 1),
 		"psiche": String(dati.get("psiche", "")),
 		"fattore": GameState.stat_di("fattore") if e_protagonista else int(dati.get("fattore_base", 0)),
 		"stress": GameState.stress_di(id_personaggio) if giocatore else 0,
@@ -329,6 +328,17 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"gamba_rotta_turni": 0,
 		"gamba_gia_rotta": false,
 		"volte_studiato": 0,
+		# l'aura e' quello che spendi per forzare il mondo: le abilita' costano,
+		# e torna piano da sola a ogni turno. I nemici non ne hanno bisogno
+		"aura": GameState.aura_massima(id_personaggio) if giocatore else 0,
+		"aura_max": GameState.aura_massima(id_personaggio) if giocatore else 0,
+		"aura_per_turno": int(GameState.regole.get("aura_recupero_per_turno", 1)) + eq.call("aura_per_turno"),
+		# un solo scudo e una sola resurrezione per chi li porta addosso, non
+		# piu' uno per tutta la squadra
+		"scudo_stato": "" if not giocatore else id_accessorio_con(id_personaggio, "scudo_primo_stato"),
+		"resurrezione": "" if not giocatore else id_accessorio_con(id_personaggio, "resurrezione_dimezzata"),
+		"resistenza_maledizione": eq.call("resistenza_maledizione"),
+		"ultima_risorsa_usata": false,
 		"combustione": combustione,
 		"in_fiamme": not combustione.is_empty() and not combustione.has("attiva_da_studio"),
 		"hp_nascosti": not giocatore and (categoria_di(dati) == "boss" or dati.has("incontro_scriptato")),
@@ -338,6 +348,24 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	}
 	combattenti.append(combattente)
 	aggiorna_scheda(combattente)
+
+func id_accessorio_con(id_classe: String, tipo_effetto: String) -> String:
+	# quale oggetto addosso a questo personaggio fa quella cosa (lo scudo che
+	# respinge il primo stato, l'accessorio che ti rimette in piedi). Vuoto se
+	# non ne ha nessuno: sono protezioni personali, non di squadra
+	var slots := GameState.slot_di(id_classe)
+	var addosso: Array[String] = []
+	for slot in ["arma", "stigma"]:
+		var id_oggetto := String(slots.get(slot, ""))
+		if id_oggetto != "":
+			addosso.append(id_oggetto)
+	for id_oggetto in slots.get("accessori", []):
+		addosso.append(String(id_oggetto))
+	for id_oggetto in addosso:
+		var effetto: Dictionary = GameState.dati_oggetto(id_oggetto).get("effetto_equipaggiato", {})
+		if String(effetto.get("tipo", "")) == tipo_effetto:
+			return id_oggetto
+	return ""
 
 func applica_leve() -> void:
 	# le leve "oggetto" NON scattano da sole: averle in tasca non basta, vanno
@@ -458,6 +486,7 @@ func mostra_continua_fine() -> void:
 
 func esegui_turno(attaccante: Dictionary) -> void:
 	scadenza_buff(attaccante)
+	recupera_aura(attaccante)
 	evidenzia(attaccante)
 	if attaccante.in_fiamme:
 		applica_combustione(attaccante)
@@ -659,11 +688,19 @@ func _menu_studia() -> void:
 
 func _menu_abilita() -> void:
 	pulisci_azioni()
+	# Studia non costa niente e non costera' mai niente: guardare una creatura
+	# e' il cuore del gioco, non una risorsa da amministrare
 	bottone_azione("Studia", _menu_studia)
-	if "provocazione" in GameState.classi.get(attaccante_corrente.id, {}).get("abilita", []):
-		bottone_azione("Provoca", _scegli.bind({"tipo": "provoca"}))
-	if "attacco_area" in GameState.classi.get(attaccante_corrente.id, {}).get("abilita", []):
-		bottone_azione("Colpo d'area", _scegli.bind({"tipo": "area"}))
+	var abilita: Array = GameState.classi.get(attaccante_corrente.id, {}).get("abilita", [])
+	var aura: int = int(attaccante_corrente.get("aura", 0))
+	if "provocazione" in abilita:
+		var costo_prov := int(GameState.regole.get("costo_aura_provocazione", 3))
+		bottone_azione("Provoca  (%d aura)" % costo_prov,
+				_scegli.bind({"tipo": "provoca"}), aura < costo_prov)
+	if "attacco_area" in abilita:
+		var costo_area := int(GameState.regole.get("costo_aura_area", 4))
+		bottone_azione("Colpo d'area  (%d aura)" % costo_area,
+				_scegli.bind({"tipo": "area"}), aura < costo_area)
 	bottone_azione("Indietro", mostra_azioni)
 
 func _menu_oggetti() -> void:
@@ -740,10 +777,28 @@ func usa_alleato(id_ospite: String) -> void:
 	scrivi("[i]%s[/i]" % assist.get("testo", ""))
 	applica_effetto(attaccante_corrente, assist.get("effetto", {}))
 
-func applica_effetto(utente: Dictionary, effetto: Dictionary) -> void:
+func spendi_aura(chi: Dictionary, quanta: int) -> void:
+	chi.aura = maxi(int(chi.aura) - quanta, 0)
+	aggiorna_scheda(chi)
+
+func recupera_aura(chi: Dictionary) -> void:
+	# l'aura torna piano da sola: a fine scontro non e' mai un problema, ma
+	# dentro un turno lungo bisogna sceglierne l'uso
+	if int(chi.get("aura_max", 0)) <= 0:
+		return
+	var prima := int(chi.aura)
+	chi.aura = mini(prima + int(chi.get("aura_per_turno", 1)), int(chi.aura_max))
+	if chi.aura != prima:
+		aggiorna_scheda(chi)
+
+func applica_effetto(utente: Dictionary, effetto: Dictionary, moltiplicatore := 1.0) -> void:
+	# "moltiplicatore" > 1 quando l'oggetto e' scattato dallo slot Ultima
+	# risorsa: la stessa fiala, tenuta li' per quando serve davvero, rende di piu'
+	var scala := func(quanto: int) -> int:
+		return int(round(float(quanto) * moltiplicatore))
 	if effetto.has("hp") and not utente.is_empty():
 		var prima := int(utente.hp)
-		utente.hp = clampi(utente.hp + int(effetto.hp), 0, utente.hp_max)
+		utente.hp = clampi(utente.hp + scala.call(int(effetto.hp)), 0, utente.hp_max)
 		var recuperati := int(utente.hp) - prima
 		if recuperati > 0:
 			# la cura si vede come si vede il danno: un numero che sale, verde
@@ -753,21 +808,40 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary) -> void:
 				aggiorna_scheda(utente))
 		else:
 			aggiorna_scheda(utente)
+	if effetto.has("aura") and not utente.is_empty():
+		var aura_prima := int(utente.get("aura", 0))
+		utente.aura = mini(aura_prima + scala.call(int(effetto.aura)), int(utente.get("aura_max", 0)))
+		var recuperata := int(utente.aura) - aura_prima
+		if recuperata > 0:
+			var scheda_aura: Control = utente.scheda
+			accoda_effetto(func() -> void:
+				numero_volante(scheda_aura, "+%d aura" % recuperata, Stile.colore("accento"))
+				aggiorna_scheda(utente))
 	if effetto.has("stress") and not utente.is_empty():
-		aggiungi_stress(utente, int(effetto.stress))
+		aggiungi_stress(utente, scala.call(int(effetto.stress)))
 	if effetto.has("speranza"):
-		aggiorna_speranza(int(effetto.speranza))
+		aggiorna_speranza(scala.call(int(effetto.speranza)))
 	if effetto.has("difesa_incontro") and not utente.is_empty():
 		# dura per il resto dello scontro, non solo un turno come "Difenditi"
-		utente.buffs.append({"stat": "difesa", "valore": int(effetto.difesa_incontro), "turni": 900})
+		utente.buffs.append({"stat": "difesa", "valore": scala.call(int(effetto.difesa_incontro)), "turni": 900})
 		aggiorna_scheda(utente)
+	if effetto.has("cura_stato") and not utente.is_empty():
+		# cura mirata: toglie un solo male, quello scritto nell'oggetto
+		var id_stato := String(effetto.cura_stato)
+		var nome_stato := String(GameState.stati.get(id_stato, {}).get("nome", id_stato))
+		if utente.stati_attivi.has(id_stato):
+			utente.stati_attivi.erase(id_stato)
+			scrivi("[i]%s si libera di %s.[/i]" % [utente.nome, nome_stato.to_lower()])
+			aggiorna_scheda(utente)
+		else:
+			scrivi("[i]%s non ne aveva bisogno: niente %s addosso.[/i]" % [utente.nome, nome_stato.to_lower()])
 	if effetto.get("cura_stati", false) and not utente.is_empty():
 		utente.stati_attivi.clear()
 		aggiorna_scheda(utente)
 	if effetto.has("danno"):
 		var bersaglio := primo_nemico()
 		if not bersaglio.is_empty():
-			colpisci_diretto(bersaglio, int(effetto.danno))
+			colpisci_diretto(bersaglio, scala.call(int(effetto.danno)))
 
 func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
 	# il bersaglio arriva dal menu; se e' caduto nel frattempo (o se qualcuno
@@ -888,9 +962,11 @@ func attiva_bersaglio_extra() -> void:
 func provoca(chi: Dictionary) -> void:
 	bersaglio_provocazione = chi
 	turni_provocazione = int(GameState.regole.get("forza_azione_durata", 2))
+	spendi_aura(chi, int(GameState.regole.get("costo_aura_provocazione", 3)))
 	scrivi("[i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]" % chi.nome)
 
 func attacco_area(chi: Dictionary) -> void:
+	spendi_aura(chi, int(GameState.regole.get("costo_aura_area", 4)))
 	scrivi("[i]%s scatena un colpo che si abbatte su tutti i nemici![/i]" % chi.nome)
 	var valore := int(round(attacco_di(chi) * float(GameState.regole.get("moltiplicatore_attacco_area", 0.6))))
 	for nemico in vivi(false):
@@ -1012,7 +1088,7 @@ func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
 	# destino si divide, a seconda che qualcosa ti protegga dal sonno o no
 	scrivi_forte(String(dati_incontro.get("testo_fatale_protagonista", "")), "dialogo", nome_protagonista)
 	scrivi_forte("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
-	var scudo_prima := scudo_primo_stato_pronto
+	var scudo_prima := String(bersaglio.get("scudo_stato", "")) != ""
 	applica_stato(bersaglio, "sonno")
 	if ha_stato_attivo(bersaglio, "sonno"):
 		# niente ha fermato il sonno: game over
@@ -1020,7 +1096,7 @@ func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
 		return
 	# respinto: o lo scudo l'ha appena consumato adesso, o l'immunita' era
 	# gia' attiva da un tentativo precedente
-	if scudo_prima and not scudo_primo_stato_pronto:
+	if scudo_prima and String(bersaglio.get("scudo_stato", "")) == "":
 		scrivi_forte("[i]%s[/i]" % String(dati_incontro.get("testo_scudo_rotto", "")))
 	else:
 		# immune per altre ragioni: il sonno non attecchisce e basta
@@ -1443,16 +1519,18 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 	var resistenza := resistenza_di(bersaglio, id_stato)
 	if resistenza == "immune":
 		return
-	if bersaglio.giocatore and scudo_primo_stato_pronto:
-		# l'accessorio equipaggiato respinge il primo stato subito in questo
-		# combattimento, e immunizza da quello stesso stato per il resto dello
-		# scontro; si consuma qui, una volta sola
-		scudo_primo_stato_pronto = false
+	if bersaglio.giocatore and String(bersaglio.get("scudo_stato", "")) != "":
+		# l'accessorio addosso a QUESTO personaggio respinge il primo stato che
+		# subisce, e lo immunizza da quello stesso stato per il resto dello
+		# scontro; si consuma qui, una volta sola, e protegge solo lui
+		var id_scudo := String(bersaglio.scudo_stato)
+		bersaglio.scudo_stato = ""
 		bersaglio.immunita_temporanea.append(id_stato)
-		var nome_accessorio := String(GameState.dati_oggetto(GameState.accessorio_equipaggiato).get("nome", "Il tuo accessorio"))
+		var nome_accessorio := String(GameState.dati_oggetto(id_scudo).get("nome", "Il tuo accessorio"))
 		var nome_stato := String(GameState.stati.get(id_stato, {}).get("nome", id_stato))
-		scrivi_forte("%s si spezza respingendo %s: per il resto dello scontro ne sarai immune." % [nome_accessorio, nome_stato])
-		GameState.consuma_accessorio_equipaggiato()
+		scrivi_forte("%s si spezza respingendo %s: per il resto dello scontro %s ne sarà immune."
+				% [nome_accessorio, nome_stato, bersaglio.nome])
+		GameState.consuma_equipaggiato(id_scudo)
 		return
 	if bersaglio.giocatore and bersaglio.id == GameState.id_protagonista:
 		GameState.registra_stato_subito(id_stato)
@@ -1463,7 +1541,11 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 		"countdown":
 			var attivo: Dictionary = bersaglio.stati_attivi.get(id_stato, {})
 			if attivo.is_empty():
-				var iniziale := int(GameState.regole.get("maledizione_countdown_iniziale", 9))
+				# chi porta addosso una resistenza alla maledizione parte con
+				# qualche rintocco in piu': quando gli altri arrivano a zero lui
+				# e' ancora a uno, e serve un colpo in piu' per portarlo via
+				var iniziale := int(GameState.regole.get("maledizione_countdown_iniziale", 9)) \
+						+ int(bersaglio.get("resistenza_maledizione", 0))
 				bersaglio.stati_attivi[id_stato] = {"turni_rimasti": iniziale}
 				scrivi_forte("%s %s" % [bersaglio.nome, String(info_stato.get("testo_applicazione", "viene colpito da una forza oscura."))])
 			else:
@@ -1754,6 +1836,29 @@ func mostra_slaughter(bersaglio: Dictionary) -> void:
 	tween.tween_property(overlay, "modulate:a", 0.0, 0.4)
 	tween.tween_callback(overlay.queue_free)
 
+func verifica_ultima_risorsa(chi: Dictionary) -> void:
+	# lo slot "Ultima risorsa" tiene un consumabile che non scegli di usare:
+	# scatta da solo quando stai per cadere, una volta sola per scontro, e
+	# rende piu' di quanto renderebbe usato a mano. E' una rete, e come tutte
+	# le reti si strappa: l'oggetto viene consumato davvero
+	if not chi.giocatore or bool(chi.get("ultima_risorsa_usata", false)):
+		return
+	if int(chi.hp) <= 0:
+		return
+	var soglia := float(GameState.regole.get("ultima_risorsa_soglia", 0.25))
+	if float(chi.hp) > float(chi.hp_max) * soglia:
+		return
+	var id_oggetto := GameState.equipaggiato_in(String(chi.id), "ultima_risorsa")
+	if id_oggetto == "" or id_oggetto not in GameState.sacca:
+		return
+	chi.ultima_risorsa_usata = true
+	var dati := GameState.dati_oggetto(id_oggetto)
+	var bonus := 1.0 + float(GameState.regole.get("ultima_risorsa_bonus", 0.2))
+	scrivi_forte("Ultima risorsa: %s scatta da sola, e rende più del solito."
+			% String(dati.get("nome", id_oggetto)), "notifica")
+	GameState.consuma_equipaggiato(id_oggetto)
+	applica_effetto(chi, dati.get("effetto", {}), bonus)
+
 func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 	# serve a chi si rigenera in proporzione ai colpi presi (vedi risolvi_rigenerazione)
 	if danno > 0:
@@ -1786,11 +1891,13 @@ func mostra_colpo(bersaglio: Dictionary, danno: int) -> void:
 	# un colpo normale non ha bisogno di parole: si vede e basta. Cosi' il box
 	# resta libero per le cose che vanno dette davvero
 	accoda_effetto(effetto_colpo(bersaglio, danno))
+	verifica_ultima_risorsa(bersaglio)
 
 func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int) -> void:
 	# una riga che racconta un danno (veleno, fiamme, una mossa con un nome):
 	# il numero vola insieme alla frase, non prima e non dopo
 	accoda(riga, "narrazione", "", false, effetto_colpo(bersaglio, danno))
+	verifica_ultima_risorsa(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:
 	if not caduto.giocatore and GameState.personaggi.get(caduto.id, {}).get("invincibile", false):
@@ -1799,15 +1906,16 @@ func _su_ko(caduto: Dictionary) -> void:
 		aggiorna_scheda(caduto)
 		scrivi_forte("[i]%s si rialza, come se nulla fosse.[/i]" % caduto.nome)
 		return
-	if caduto.giocatore and resurrezione_pronta and caduto.hp <= 0:
-		# l'accessorio equipaggiato si spezza al posto tuo: si torna in vita
-		# a meta' hp, una volta sola per combattimento, invece del KO
-		resurrezione_pronta = false
+	if caduto.giocatore and String(caduto.get("resurrezione", "")) != "" and caduto.hp <= 0:
+		# l'accessorio addosso a lui si spezza al posto suo: torna in vita a
+		# meta' hp, una volta sola, e vale solo per chi lo portava
+		var id_resurrezione := String(caduto.resurrezione)
+		caduto.resurrezione = ""
 		caduto.hp = maxi(int(ceil(float(caduto.hp_max) / 2.0)), 1)
 		aggiorna_scheda(caduto)
-		var nome_accessorio := String(GameState.dati_oggetto(GameState.accessorio_equipaggiato).get("nome", "Il tuo accessorio"))
-		scrivi_forte("%s si spezza al posto tuo: %s torna in piedi con metà della vita." % [nome_accessorio, caduto.nome])
-		GameState.consuma_accessorio_equipaggiato()
+		var nome_accessorio := String(GameState.dati_oggetto(id_resurrezione).get("nome", "Il tuo accessorio"))
+		scrivi_forte("%s si spezza: %s torna in piedi con metà della vita." % [nome_accessorio, caduto.nome])
+		GameState.consuma_equipaggiato(id_resurrezione)
 		return
 	if caduto.get("oggetto_scena", false):
 		scrivi_forte("[i]%s vengono distrutte.[/i]" % caduto.nome)
@@ -2004,7 +2112,10 @@ func aggiorna_scheda(combattente: Dictionary) -> void:
 		combattente.etichetta_vita.text = "♥ ???"
 	else:
 		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
-	var dettagli := "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]
+	var dettagli := ""
+	if int(combattente.get("aura_max", 0)) > 0:
+		dettagli += "Aura %d/%d · " % [int(combattente.aura), int(combattente.aura_max)]
+	dettagli += "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]
 	var scudo := difesa_di(combattente)
 	if scudo > 0:
 		dettagli += " · Dif %d" % scudo

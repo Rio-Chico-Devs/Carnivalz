@@ -41,5 +41,12 @@
 	"forza_azione_durata": 2,
 	"terrore_stress_incremento": 40,
 	"terrore_legame_decremento": -15,
-	"xp_risparmio_moltiplicatore": 1.25
+	"xp_risparmio_moltiplicatore": 1.25,
+	"aura_iniziale": 10,
+	"aura_recupero_per_turno": 1,
+	"costo_aura_provocazione": 3,
+	"costo_aura_area": 4,
+	"slot_accessori": 4,
+	"ultima_risorsa_soglia": 0.25,
+	"ultima_risorsa_bonus": 0.2
 }

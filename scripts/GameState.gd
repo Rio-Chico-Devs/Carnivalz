@@ -57,7 +57,18 @@ var sacca: Array[String] = []             # consumabili, max regole.sacca_massim
 var collezionabili: Array[String] = []
 var chiavi: Array[String] = []
 var accessori: Array[String] = []         # equipaggiamento posseduto (unico per id, non consumabile)
-var accessorio_equipaggiato: String = ""  # al massimo uno alla volta, vuoto = nessuno
+var accessorio_equipaggiato: String = ""  # eredita' del vecchio sistema a un solo slot: migrato al caricamento
+
+# Equipaggiamento per personaggio. Ogni membro della squadra ha i suoi slot,
+# e quello che ci mette dentro vale solo per lui: un amuleto addosso a Yhvina
+# non protegge il protagonista. Struttura:
+#   id_classe -> { "arma": id, "stigma": id, "accessori": [id, ...],
+#                  "ultima_risorsa": id }
+# Gli slot non sono numeri: ognuno vuole dire una cosa diversa. Un'arma e' come
+# colpisci, uno stigma e' un patto (da' e toglie), gli accessori sono i piccoli
+# aggiustamenti, l'ultima risorsa e' la rete che scatta quando stai per cadere.
+var equipaggiamento: Dictionary = {}
+const SLOT_SINGOLI := ["arma", "stigma", "ultima_risorsa"]
 var carte: Array[String] = []             # carte dei nemici (album): id carta ottenute
 var tazo: int = 0
 var fonti_estinte: int = 0
@@ -315,6 +326,7 @@ func nuova_partita() -> void:
 	chiavi.clear()
 	accessori.clear()
 	accessorio_equipaggiato = ""
+	equipaggiamento.clear()
 	# carte, bestiario e oggetti_catalogo sono collezioni meta: non si azzerano
 	tazo = int(regole.get("tazo_iniziale", 30))
 	fonti_estinte = 0
@@ -414,14 +426,17 @@ func aggiungi_oggetto(id_oggetto: String) -> bool:
 		"chiave":
 			if id_oggetto not in chiavi:
 				chiavi.append(id_oggetto)
+		"arma", "stigma":
+			if id_oggetto not in accessori:
+				accessori.append(id_oggetto)
 		"accessorio":
 			if id_oggetto not in accessori:
 				accessori.append(id_oggetto)
-			if accessorio_equipaggiato == "":
-				# se non ne hai gia' uno addosso, il primo accessorio si
-				# equipaggia da solo: "avere" la Pietra Quieta deve bastare a
-				# proteggerti, senza passare per il Compendio
-				accessorio_equipaggiato = id_oggetto
+			# un accessorio nuovo si mette addosso al protagonista da solo, se
+			# ha ancora uno slot libero: "avere" la Pietra Quieta deve bastare
+			# a proteggerti, senza passare per una schermata
+			if id_protagonista != "" and not e_equipaggiato(id_oggetto):
+				equipaggia(id_protagonista, "accessori", id_oggetto)
 		_:
 			if sacca.size() >= int(regole.get("sacca_massima", 20)):
 				return false  # sacca piena
@@ -431,19 +446,113 @@ func aggiungi_oggetto(id_oggetto: String) -> bool:
 # --- equipaggiamento: un solo accessorio alla volta, effetto passivo in
 # combattimento (Combattimento._ready() legge accessorio_equipaggiato) ---
 
-func equipaggia_accessorio(id_oggetto: String) -> void:
-	if id_oggetto in accessori:
-		accessorio_equipaggiato = id_oggetto
+func slot_di(id_classe: String) -> Dictionary:
+	# gli slot di un personaggio, creati alla prima richiesta
+	if not equipaggiamento.has(id_classe):
+		equipaggiamento[id_classe] = {
+			"arma": "", "stigma": "", "ultima_risorsa": "", "accessori": [],
+		}
+	return equipaggiamento[id_classe]
 
-func rimuovi_accessorio() -> void:
-	accessorio_equipaggiato = ""
+func equipaggiato_in(id_classe: String, slot: String, indice := 0) -> String:
+	var slots := slot_di(id_classe)
+	if slot == "accessori":
+		var elenco: Array = slots["accessori"]
+		return String(elenco[indice]) if indice < elenco.size() else ""
+	return String(slots.get(slot, ""))
 
-func consuma_accessorio_equipaggiato() -> void:
-	# l'oggetto si rompe/si consuma usando il suo effetto: sparisce del tutto
-	if accessorio_equipaggiato == "":
-		return
-	accessori.erase(accessorio_equipaggiato)
-	accessorio_equipaggiato = ""
+func e_equipaggiato(id_oggetto: String) -> bool:
+	# un oggetto solo puo' stare addosso a una persona sola alla volta
+	for id_classe in equipaggiamento:
+		var slots: Dictionary = equipaggiamento[id_classe]
+		for slot in SLOT_SINGOLI:
+			if String(slots.get(slot, "")) == id_oggetto:
+				return true
+		if id_oggetto in slots.get("accessori", []):
+			return true
+	return false
+
+func portatore_di(id_oggetto: String) -> String:
+	for id_classe in equipaggiamento:
+		var slots: Dictionary = equipaggiamento[id_classe]
+		for slot in SLOT_SINGOLI:
+			if String(slots.get(slot, "")) == id_oggetto:
+				return String(id_classe)
+		if id_oggetto in slots.get("accessori", []):
+			return String(id_classe)
+	return ""
+
+func equipaggia(id_classe: String, slot: String, id_oggetto: String) -> bool:
+	# il tipo dell'oggetto deve combaciare con lo slot, e lo stesso oggetto non
+	# puo' stare addosso a due persone: prima si toglie da dove sta
+	if id_oggetto == "" or not posseduto_equipaggiabile(id_oggetto):
+		return false
+	var tipo := String(dati_oggetto(id_oggetto).get("tipo", ""))
+	if slot == "ultima_risorsa":
+		if tipo != "consumabile":
+			return false
+	elif slot == "accessori":
+		if tipo != "accessorio":
+			return false
+	elif tipo != slot:
+		return false
+	var vecchio_portatore := portatore_di(id_oggetto)
+	if vecchio_portatore != "":
+		togli_oggetto_equipaggiato(id_oggetto)
+	var slots := slot_di(id_classe)
+	if slot == "accessori":
+		var elenco: Array = slots["accessori"]
+		if elenco.size() >= int(regole.get("slot_accessori", 4)):
+			return false
+		elenco.append(id_oggetto)
+	else:
+		slots[slot] = id_oggetto
+	return true
+
+func togli_oggetto_equipaggiato(id_oggetto: String) -> void:
+	for id_classe in equipaggiamento:
+		var slots: Dictionary = equipaggiamento[id_classe]
+		for slot in SLOT_SINGOLI:
+			if String(slots.get(slot, "")) == id_oggetto:
+				slots[slot] = ""
+		var elenco: Array = slots.get("accessori", [])
+		elenco.erase(id_oggetto)
+
+func posseduto_equipaggiabile(id_oggetto: String) -> bool:
+	# armi, stigmi e accessori stanno nell'armadio (accessori); l'ultima
+	# risorsa e' un consumabile qualunque, quindi sta nella sacca
+	return id_oggetto in accessori or id_oggetto in sacca
+
+func aura_massima(id_classe: String) -> int:
+	# l'aura di base e' uguale per tutti; una classe puo' avercene di piu' nei
+	# suoi dati, e l'equipaggiamento la sposta ancora
+	var classe: Dictionary = classi.get(id_classe, {})
+	var base := int(classe.get("aura", regole.get("aura_iniziale", 10)))
+	return maxi(base + bonus_equipaggiamento(id_classe, "aura_max"), 0)
+
+func bonus_equipaggiamento(id_classe: String, chiave: String) -> int:
+	# somma di quello che danno arma, stigma e accessori addosso a quel
+	# personaggio. I malus degli stigmi entrano nella stessa somma: un patto
+	# non e' un bonus con l'asterisco, e' una somma che puo' venire negativa
+	var totale := 0
+	var slots := slot_di(id_classe)
+	var addosso: Array[String] = []
+	for slot in ["arma", "stigma"]:
+		var id_oggetto := String(slots.get(slot, ""))
+		if id_oggetto != "":
+			addosso.append(id_oggetto)
+	for id_oggetto in slots.get("accessori", []):
+		addosso.append(String(id_oggetto))
+	for id_oggetto in addosso:
+		var effetto: Dictionary = dati_oggetto(id_oggetto).get("effetto_equipaggiato", {})
+		totale += int(effetto.get(chiave, 0))
+	return totale
+
+func consuma_equipaggiato(id_oggetto: String) -> void:
+	# l'oggetto si rompe usando il suo effetto: esce dagli slot e dall'armadio
+	togli_oggetto_equipaggiato(id_oggetto)
+	accessori.erase(id_oggetto)
+	sacca.erase(id_oggetto)
 
 # --- collezioni (album carte, bestiario, compendio oggetti) ---
 
@@ -816,7 +925,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"collezionabili": collezionabili,
 		"chiavi": chiavi,
 		"accessori": accessori,
-		"accessorio_equipaggiato": accessorio_equipaggiato,
+		"equipaggiamento": equipaggiamento,
 		"carte": carte,
 		"oggetti_catalogo": oggetti_catalogo,
 		"bestiario": bestiario,
@@ -859,7 +968,12 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	collezionabili = _lista_str(d.get("collezionabili", []))
 	chiavi = _lista_str(d.get("chiavi", []))
 	accessori = _lista_str(d.get("accessori", []))
-	accessorio_equipaggiato = String(d.get("accessorio_equipaggiato", ""))
+	equipaggiamento = d.get("equipaggiamento", {})
+	# partite salvate col vecchio sistema a un solo accessorio: quello che
+	# avevi addosso diventa il primo accessorio del protagonista
+	var vecchio := String(d.get("accessorio_equipaggiato", ""))
+	if equipaggiamento.is_empty() and vecchio != "" and id_protagonista != "":
+		equipaggia(id_protagonista, "accessori", vecchio)
 	carte = _lista_str(d.get("carte", []))
 	oggetti_catalogo = _lista_str(d.get("oggetti_catalogo", []))
 	bestiario = _lista_str(d.get("bestiario", []))
