@@ -48,6 +48,15 @@
 	"aura_recupero_per_turno": 1,
 	"costo_aura_provocazione": 3,
 	"costo_aura_area": 4,
+	"_nota_zaino": "Lo zaino e' diviso per categoria e ogni categoria ha la sua capacita'. I consumabili crescono con gli 'spazi nella realta'' comprati al negozio; armi e accessori con i 'frammenti'. Gli oggetti speciali non hanno limite. Le tabelle sono la capacita' TOTALE a ogni acquisto, non l'incremento.",
+	"zaino": {
+		"consumabili": {"base": 20, "scala": [25, 30, 35, 40, 50, 52, 55, 58, 60, 75], "moneta": "spazio_nella_realta"},
+		"armi": {"base": 5, "scala": [6, 8, 10, 12, 14, 16, 18, 20, 22, 30], "moneta": "frammento_di_spazio"},
+		"accessori": {"base": 10, "scala": [13, 16, 19, 22, 25, 28, 31, 34, 37, 50], "moneta": "frammento_di_spazio"}
+	},
+	"_nota_carte": "Rarita' in ordine crescente e finiture con cui una carta puo' cadere. I doppioni non si buttano: si accumulano, e si vendono o si scambiano.",
+	"carte_rarita": ["comune", "ordinaria", "fuori dal comune", "eccentrica", "ricercata", "di classe", "fuori serie"],
+	"carte_finiture": ["normale", "con stile", "proibita"],
 	"_nota_slot": "Gli accessori non si aprono tutti insieme: si parte da slot_accessori_base e se ne apre uno a ognuno dei livelli elencati. Due classi ne hanno di piu' per un talento loro (slot_accessori_da_abilita).",
 	"slot_accessori_base": 1,
 	"slot_accessori_per_livello": [6, 15, 30],

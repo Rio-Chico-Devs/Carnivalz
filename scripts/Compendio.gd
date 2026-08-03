@@ -15,7 +15,7 @@ func popola() -> void:
 		if id_oggetto in GameState.oggetti_catalogo:
 			var tipo: String = dati.get("tipo", "consumabile")
 			var extra: Control = null
-			if id_oggetto in GameState.accessori:
+			if GameState.posseduto_equipaggiabile(id_oggetto) and tipo != "consumabile":
 				extra = _etichetta_portatore(id_oggetto)
 			aggiungi_scheda(dati.get("nome", id_oggetto), tipo,
 					dati.get("descrizione", ""), colore_tipo(tipo), true, extra)

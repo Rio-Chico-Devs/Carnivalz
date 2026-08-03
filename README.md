@@ -1202,6 +1202,41 @@ Attenzione a leggerlo: nel gioco le statistiche non salgono col livello, salgono
 hai fatto (`crescita.json`). Il simulatore alza solo il livello, quindi misura un protagonista
 arrivato fin lì senza guadagnare un punto — è il pavimento, non la media.
 
+## Lo zaino: quattro scomparti, tre con un tetto
+Non è un mucchio. Ogni categoria ha la sua capacità, e si allarga comprando spazio al negozio.
+
+| scomparto | base | come cresce | al massimo |
+|---|--:|---|--:|
+| **consumabili** | 20 | *Spazio nella realtà* ×10 | 75 |
+| **armi** | 5 | *Frammento — rastrelliera* ×10 | 30 |
+| **accessori** | 10 | *Frammento — vassoio* ×10 | 50 |
+| **oggetti speciali** | ∞ | — | ∞ |
+
+Gli oggetti speciali (stigmi, ricordi, chiavi) **non hanno limite**: sono la storia che ti porti
+dietro, non zavorra da amministrare. Le tabelle stanno in `regole.json` sotto `zaino` e sono la
+capacità **totale** a ogni acquisto, non l'incremento — così i numeri nel file sono gli stessi che
+il giocatore legge al negozio.
+
+Comprare uno spazio è l'unico acquisto che **non ti lascia niente in mano**: allarga e basta.
+Un'arma equipaggiata **resta nello zaino**, segnata `· in uso ·` — impugnarla non è metterla via.
+
+## Compagni temporanei e definitivi
+Chi ti accompagna per un tratto combatte al tuo fianco ma **non gli si affida niente**: la scheda
+lo dice al posto degli slot (*«È con te solo per un tratto»*). Le tue cose gliele dai solo quando
+resta. E se un compagno definitivo lascia la squadra, il suo equipaggiamento **torna nello zaino**
+— era tuo, gliel'avevi prestato.
+
+## Carte: doppioni, rarità, finiture
+Un doppione non è un drop sprecato: **si accumula**, e si vende o si scambia con i personaggi che
+incontri. L'unica copia che non si cede mai è l'ultima — l'album non si buca.
+
+- **Rarità**, in ordine: comune · ordinaria · fuori dal comune · eccentrica · ricercata · di classe
+  · fuori serie
+- **Finiture**, sempre più rare: normale · con stile · proibita
+
+`carte` resta l'elenco di quelle viste almeno una volta (è quello che l'Album conta);
+`carte_copie` tiene quante ne hai e con che finitura.
+
 ## La scheda del personaggio (`scripts/Personaggio.gd`)
 ESC → **Personaggio e squadra**. Vive dentro la Pausa e non come schermata a sé, così si apre da
 ovunque — mappa, stanza, Vuoto, combattimento — senza cambiare scena e senza perdere il posto.
@@ -1397,3 +1432,8 @@ verificata come le altre.
     una **modalità muta**, ed è questa che sblocca il **giocatore automatico**: 99.000 partite
     giocate dal motore vero danno, per la prima volta, un bilanciamento misurato invece che
     indovinato (`docs/bilanciamento.md`)
+
+23. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
+    (risfidare ogni tipo di nemico incontrato). Si aprono a gioco finito; l'infrastruttura c'è già
+    — il bestiario sa chi hai incontrato e il giocatore automatico sa già montare uno scontro
+    qualunque senza passare da una stanza

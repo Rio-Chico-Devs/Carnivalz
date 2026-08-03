@@ -188,7 +188,7 @@ func quanti_ne_hai(id_oggetto: String) -> String:
 			if String(x) == id_oggetto:
 				quanti += 1
 		return "" if quanti == 0 else "ne hai già %d in sacca" % quanti
-	if id_oggetto not in GameState.accessori:
+	if not GameState.posseduto_equipaggiabile(id_oggetto):
 		return ""
 	var id_portatore := GameState.portatore_di(id_oggetto)
 	if id_portatore == "":

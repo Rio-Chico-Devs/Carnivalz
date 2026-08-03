@@ -359,7 +359,7 @@ func oggetti_per(slot: String) -> Array[String]:
 	# cosa si puo' mettere in questo slot: del tipo giusto, posseduto, e non
 	# gia' addosso a qualcun altro
 	var risultato: Array[String] = []
-	var magazzino: Array = GameState.sacca if slot == "ultima_risorsa" else GameState.accessori
+	var magazzino: Array = GameState.magazzino_per_slot(slot)
 	for id_oggetto in magazzino:
 		var id_stringa := String(id_oggetto)
 		if id_stringa in risultato or GameState.e_equipaggiato(id_stringa):

@@ -404,6 +404,9 @@
 			"tipo": "stigma",
 			"descrizione": "Chi lo porta non urla mai. Incassa meglio, ma colpisce peggio.",
 			"effetto_equipaggiato": { "difesa": 2, "attacco": -1 }
-		}
+		},
+		{"id": "spazio_nella_realta", "nome": "Spazio nella realtà", "tipo": "spazio", "categoria": "consumabili", "descrizione": "Una piega vuota che si porta in tasca. Non pesa, e dentro ci sta altro."},
+		{"id": "frammento_per_le_armi", "nome": "Frammento — rastrelliera", "tipo": "spazio", "categoria": "armi", "descrizione": "Ganci che non esistono, appesi a un muro che non c'è. Ci si appende del ferro vero."},
+		{"id": "frammento_per_gli_accessori", "nome": "Frammento — vassoio", "tipo": "spazio", "categoria": "accessori", "descrizione": "Un ripiano sottile piegato dentro una tasca. Le cose piccole non si perdono più."}
 	]
 }

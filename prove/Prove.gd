@@ -30,6 +30,9 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_zaino()
+	prova_compagni_temporanei()
+	prova_carte()
 	prova_slot_accessori()
 	prova_scheda_personaggio()
 	prova_finale_scriptato()
@@ -414,6 +417,107 @@ func prova_salvataggio() -> void:
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
 	GameState.nuova_partita()
+
+func prova_zaino() -> void:
+	# Lo zaino e' diviso per categoria e ogni categoria ha il suo tetto, che si
+	# alza comprando spazio. Le tabelle in regole.json sono la capacita' TOTALE
+	# a ogni acquisto: se qualcuno le legge come incrementi, i numeri che il
+	# giocatore vede al negozio smettono di combaciare con quelli che ottiene.
+	titolo("lo zaino: categorie, capacita', spazi comprati")
+	GameState.nuova_partita()
+	for categoria: String in ["consumabili", "armi", "accessori"]:
+		var dati: Dictionary = GameState.regole.get("zaino", {}).get(categoria, {})
+		esigi(not dati.is_empty(), "manca la capacita' di '%s' in regole.json" % categoria)
+		var scala: Array = dati.get("scala", [])
+		esigi(GameState.capacita_zaino(categoria) == int(dati.get("base", 0)),
+				"%s: senza acquisti la capacita' non e' quella di base" % categoria)
+		var precedente := int(dati.get("base", 0))
+		for i in range(scala.size()):
+			esigi(GameState.compra_spazio(categoria), "%s: acquisto %d rifiutato" % [categoria, i + 1])
+			var adesso := GameState.capacita_zaino(categoria)
+			esigi(adesso == int(scala[i]),
+					"%s: dopo %d acquisti la capacita' dovrebbe essere %d, e' %d"
+					% [categoria, i + 1, int(scala[i]), adesso])
+			esigi(adesso > precedente, "%s: l'acquisto %d non allarga niente" % [categoria, i + 1])
+			precedente = adesso
+		esigi(not GameState.compra_spazio(categoria),
+				"%s: si compra spazio anche oltre l'ultimo gradino" % categoria)
+	# gli oggetti speciali non hanno tetto: sono la storia che ti porti dietro
+	esigi(GameState.capacita_zaino("speciali") < 0, "gli oggetti speciali non devono avere un limite")
+	# il tetto e' vero: a scomparto pieno non entra piu' niente
+	GameState.nuova_partita()
+	var consumabile := ""
+	for dati_oggetto in GameState.oggetti.values():
+		if dati_oggetto is Dictionary and String(dati_oggetto.get("tipo", "")) == "consumabile":
+			consumabile = String(dati_oggetto.get("id", ""))
+			break
+	if consumabile != "":
+		var tetto := GameState.capacita_zaino("consumabili")
+		for i in range(tetto + 5):
+			GameState.aggiungi_oggetto(consumabile)
+		esigi(GameState.sacca.size() == tetto,
+				"la sacca sfonda il tetto: %d oggetti su %d posti" % [GameState.sacca.size(), tetto])
+	# comprare uno spazio non lascia niente in mano: allarga e basta
+	GameState.nuova_partita()
+	var prima := GameState.capacita_zaino("consumabili")
+	var pezzi_prima := GameState.sacca.size() + GameState.oggetti_speciali.size()
+	esigi(GameState.aggiungi_oggetto("spazio_nella_realta"), "lo spazio nella realta' non si compra")
+	esigi(GameState.capacita_zaino("consumabili") > prima, "comprare spazio non allarga la sacca")
+	esigi(GameState.sacca.size() + GameState.oggetti_speciali.size() == pezzi_prima,
+			"lo spazio nella realta' e' finito nello zaino invece di allargarlo")
+
+func prova_compagni_temporanei() -> void:
+	# Chi ti accompagna per un tratto non e' ancora dei tuoi: combatte al tuo
+	# fianco ma non gli si affida niente. E quando qualcuno se ne va, le sue
+	# cose tornano nello zaino - erano tue, gliele avevi prestate.
+	titolo("compagni temporanei: niente da tenere, e niente da portarsi via")
+	GameState.nuova_partita()
+	var accessorio := ""
+	for dati in GameState.oggetti.values():
+		if dati is Dictionary and String(dati.get("tipo", "")) == "accessorio":
+			accessorio = String(dati.get("id", ""))
+			break
+	if accessorio == "":
+		return
+	var ospite := "sopravvissuta"
+	GameState.alleati_temporanei.append(ospite)
+	GameState.aggiungi_oggetto(accessorio)
+	GameState.togli_oggetto_equipaggiato(accessorio)
+	esigi(not GameState.e_definitivo(ospite), "un alleato temporaneo risulta definitivo")
+	esigi(not GameState.equipaggia(ospite, "accessori", accessorio),
+			"si riesce a equipaggiare un compagno che e' con te solo per un tratto")
+	# diventa definitivo: adesso si'
+	GameState.alleati_temporanei.erase(ospite)
+	esigi(GameState.equipaggia(ospite, "accessori", accessorio),
+			"un compagno definitivo non riesce a equipaggiare niente")
+	# e se se ne va, l'oggetto resta a te
+	GameState.alleati_temporanei.append(ospite)
+	GameState.congeda(ospite)
+	esigi(GameState.portatore_di(accessorio) == "",
+			"chi lascia la squadra si porta via le tue cose")
+	esigi(accessorio in GameState.accessori,
+			"l'oggetto di chi ha lasciato la squadra non e' tornato nello zaino")
+
+func prova_carte() -> void:
+	# I doppioni non si buttano: si accumulano, e si vendono o si scambiano.
+	# L'ultima copia pero' non si cede mai - l'album non si buca.
+	titolo("carte: doppioni, finiture, scambi")
+	GameState.nuova_partita()
+	esigi(GameState.regole.get("carte_rarita", []).size() >= 7,
+			"le rarita' delle carte dovrebbero essere sette")
+	esigi(GameState.regole.get("carte_finiture", []).size() == 3,
+			"le finiture dovrebbero essere tre: normale, con stile, proibita")
+	esigi(GameState.ottieni_carta("prova_carta", "normale"), "la prima copia non risulta nuova")
+	esigi(not GameState.ottieni_carta("prova_carta", "normale"), "un doppione risulta una carta nuova")
+	esigi(GameState.copie_carta("prova_carta") == 2, "il doppione non e' stato contato")
+	esigi(GameState.doppioni_carta("prova_carta") == 1, "i doppioni cedibili sono contati male")
+	GameState.ottieni_carta("prova_carta", "proibita")
+	esigi(GameState.copie_carta("prova_carta", "proibita") == 1, "la finitura non viene tenuta a parte")
+	esigi(GameState.cedi_carta("prova_carta", "proibita"), "non si riesce a cedere un doppione")
+	esigi(GameState.copie_carta("prova_carta") == 2, "cedere non ha tolto la copia")
+	esigi(GameState.cedi_carta("prova_carta"), "il secondo doppione non si cede")
+	esigi(not GameState.cedi_carta("prova_carta"), "si e' ceduta l'ultima copia: l'album si buca")
+	esigi("prova_carta" in GameState.carte, "la voce nell'album e' sparita cedendo i doppioni")
 
 func prova_slot_accessori() -> void:
 	# Gli accessori non si aprono tutti insieme: uno solo all'inizio, poi uno a

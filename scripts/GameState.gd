@@ -56,7 +56,20 @@ var legame: int = 0                       # 0..100, respira di continuo
 var sacca: Array[String] = []             # consumabili, max regole.sacca_massima
 var collezionabili: Array[String] = []
 var chiavi: Array[String] = []
+# Lo zaino non e' un mucchio: e' diviso per categoria, e ogni categoria ha la
+# sua capacita' (vedi "zaino" in regole.json).
+#   armi             -> quante ne puoi PORTARE, non quante ne puoi impugnare.
+#                       Un'arma equipaggiata resta qui dentro, segnata "in uso"
+#   accessori        -> i piccoli aggiustamenti
+#   consumabili      -> la sacca: l'unica che si spende in combattimento
+#   oggetti speciali -> stigmi, ricordi, chiavi. Nessun limite: sono la storia
+#                       che ti porti dietro, non zavorra da amministrare
+var armi: Array[String] = []
 var accessori: Array[String] = []         # equipaggiamento posseduto (unico per id, non consumabile)
+var oggetti_speciali: Array[String] = []
+# quante volte hai comprato spazio, per categoria: "spazi nella realta'" per i
+# consumabili, "frammenti" per armi e accessori
+var spazi_zaino: Dictionary = {}
 var accessorio_equipaggiato: String = ""  # eredita' del vecchio sistema a un solo slot: migrato al caricamento
 
 # Equipaggiamento per personaggio. Ogni membro della squadra ha i suoi slot,
@@ -69,7 +82,13 @@ var accessorio_equipaggiato: String = ""  # eredita' del vecchio sistema a un so
 # aggiustamenti, l'ultima risorsa e' la rete che scatta quando stai per cadere.
 var equipaggiamento: Dictionary = {}
 const SLOT_SINGOLI := ["arma", "stigma", "ultima_risorsa"]
+# Album delle carte. "carte" resta l'elenco di quelle che hai visto almeno una
+# volta (e' quello che l'Album conta); i doppioni non si buttano, si accumulano
+# in "carte_copie" - una carta in piu' e' merce da vendere o da scambiare, non
+# un drop sprecato. Ogni copia ha la sua finitura (normale, con stile, proibita):
+#   carte_copie = { id_carta: { "normale": 3, "con stile": 1 } }
 var carte: Array[String] = []             # carte dei nemici (album): id carta ottenute
+var carte_copie: Dictionary = {}
 var tazo: int = 0
 var fonti_estinte: int = 0
 var negozi_sbloccati: Array[String] = []
@@ -324,7 +343,10 @@ func nuova_partita() -> void:
 	sacca.clear()
 	collezionabili.clear()
 	chiavi.clear()
+	armi.clear()
 	accessori.clear()
+	oggetti_speciali.clear()
+	spazi_zaino.clear()
 	accessorio_equipaggiato = ""
 	equipaggiamento.clear()
 	# carte, bestiario e oggetti_catalogo sono collezioni meta: non si azzerano
@@ -418,17 +440,92 @@ func modifica_tazo(quantita: int) -> void:
 func dati_oggetto(id_oggetto: String) -> Dictionary:
 	return oggetti.get(id_oggetto, {})
 
+func categoria_zaino(id_oggetto: String) -> String:
+	# in quale scomparto finisce un oggetto. "" = non sta nello zaino
+	match String(dati_oggetto(id_oggetto).get("tipo", "consumabile")):
+		"arma":
+			return "armi"
+		"accessorio":
+			return "accessori"
+		"consumabile":
+			return "consumabili"
+		"stigma", "collezionabile", "chiave":
+			return "speciali"
+	return "consumabili"
+
+func contenuto_zaino(categoria: String) -> Array:
+	match categoria:
+		"armi":
+			return armi
+		"accessori":
+			return accessori
+		"consumabili":
+			return sacca
+		"speciali":
+			return oggetti_speciali
+	return sacca
+
+func spazi_comprati(categoria: String) -> int:
+	return int(spazi_zaino.get(categoria, 0))
+
+func capacita_zaino(categoria: String) -> int:
+	# -1 = nessun limite (gli oggetti speciali). Le tabelle in regole.json danno
+	# la capacita' TOTALE a ogni acquisto, non l'incremento: cosi' i numeri nel
+	# file sono gli stessi che il giocatore legge al negozio
+	if categoria == "speciali":
+		return -1
+	var dati: Dictionary = regole.get("zaino", {}).get(categoria, {})
+	if dati.is_empty():
+		return int(regole.get("sacca_massima", 20))
+	var scala: Array = dati.get("scala", [])
+	var comprati := mini(spazi_comprati(categoria), scala.size())
+	if comprati <= 0:
+		return int(dati.get("base", 20))
+	return int(scala[comprati - 1])
+
+func spazio_libero(categoria: String) -> int:
+	var tetto := capacita_zaino(categoria)
+	if tetto < 0:
+		return 9999
+	return maxi(tetto - contenuto_zaino(categoria).size(), 0)
+
+func compra_spazio(categoria: String) -> bool:
+	# un "spazio nella realta'" (o un frammento) allarga per sempre uno scomparto
+	var scala: Array = regole.get("zaino", {}).get(categoria, {}).get("scala", [])
+	if spazi_comprati(categoria) >= scala.size():
+		return false   # oltre l'ultimo gradino non si compra piu' niente
+	spazi_zaino[categoria] = spazi_comprati(categoria) + 1
+	return true
+
 func aggiungi_oggetto(id_oggetto: String) -> bool:
 	cataloga_oggetto(id_oggetto)  # la voce nel compendio appare al primo possesso
-	match dati_oggetto(id_oggetto).get("tipo", "consumabile"):
+	var tipo := String(dati_oggetto(id_oggetto).get("tipo", "consumabile"))
+	if tipo == "spazio":
+		# uno "spazio nella realta'" non entra nello zaino: LO ALLARGA. E' l'unico
+		# acquisto che non ti lascia niente in mano, e l'unico che non finisce mai
+		# in mezzo alle cose da amministrare
+		return compra_spazio(String(dati_oggetto(id_oggetto).get("categoria", "consumabili")))
+	var categoria := categoria_zaino(id_oggetto)
+	# gli scomparti a tetto lo rispettano; gli speciali no, per definizione
+	if capacita_zaino(categoria) >= 0 and spazio_libero(categoria) <= 0:
+		return false
+	match tipo:
 		"collezionabile":
 			collezionabili.append(id_oggetto)
+			oggetti_speciali.append(id_oggetto)
 		"chiave":
-			if id_oggetto not in chiavi:
-				chiavi.append(id_oggetto)
-		"arma", "stigma":
-			if id_oggetto not in accessori:
-				accessori.append(id_oggetto)
+			if id_oggetto in chiavi:
+				return true
+			chiavi.append(id_oggetto)
+			oggetti_speciali.append(id_oggetto)
+		"stigma":
+			if id_oggetto in oggetti_speciali:
+				return true
+			oggetti_speciali.append(id_oggetto)
+		"arma":
+			if id_oggetto in armi:
+				return true
+			armi.append(id_oggetto)
 		"accessorio":
 			if id_oggetto not in accessori:
 				accessori.append(id_oggetto)
@@ -438,8 +535,6 @@ func aggiungi_oggetto(id_oggetto: String) -> bool:
 			if id_protagonista != "" and not e_equipaggiato(id_oggetto):
 				equipaggia(id_protagonista, "accessori", id_oggetto)
 		_:
-			if sacca.size() >= int(regole.get("sacca_massima", 20)):
-				return false  # sacca piena
 			sacca.append(id_oggetto)
 	return true
 
@@ -482,9 +577,17 @@ func portatore_di(id_oggetto: String) -> String:
 			return String(id_classe)
 	return ""
 
+func e_definitivo(id_classe: String) -> bool:
+	# Chi ti accompagna per un tratto non e' ancora dei tuoi. Un compagno
+	# temporaneo combatte al tuo fianco ma non gli si da' niente da tenere: le
+	# tue cose gliele affidi solo quando resta.
+	return id_classe not in alleati_temporanei
+
 func equipaggia(id_classe: String, slot: String, id_oggetto: String) -> bool:
 	# il tipo dell'oggetto deve combaciare con lo slot, e lo stesso oggetto non
 	# puo' stare addosso a due persone: prima si toglie da dove sta
+	if not e_definitivo(id_classe):
+		return false   # e' con te per un tratto: non gli si affida niente
 	if id_oggetto == "" or not posseduto_equipaggiabile(id_oggetto):
 		return false
 	var tipo := String(dati_oggetto(id_oggetto).get("tipo", ""))
@@ -571,9 +674,21 @@ func togli_oggetto_equipaggiato(id_oggetto: String) -> void:
 		elenco.erase(id_oggetto)
 
 func posseduto_equipaggiabile(id_oggetto: String) -> bool:
-	# armi, stigmi e accessori stanno nell'armadio (accessori); l'ultima
-	# risorsa e' un consumabile qualunque, quindi sta nella sacca
-	return id_oggetto in accessori or id_oggetto in sacca
+	return id_oggetto in armi or id_oggetto in accessori \
+			or id_oggetto in oggetti_speciali or id_oggetto in sacca
+
+func magazzino_per_slot(slot: String) -> Array:
+	# da dove pescano gli slot della scheda personaggio e del negozio
+	match slot:
+		"arma":
+			return armi
+		"accessori":
+			return accessori
+		"stigma":
+			return oggetti_speciali
+		"ultima_risorsa":
+			return sacca
+	return accessori
 
 func aura_massima(id_classe: String) -> int:
 	# l'aura di base e' uguale per tutti; una classe puo' avercene di piu' nei
@@ -610,7 +725,9 @@ func bonus_equipaggiamento(id_classe: String, chiave: String) -> int:
 func consuma_equipaggiato(id_oggetto: String) -> void:
 	# l'oggetto si rompe usando il suo effetto: esce dagli slot e dall'armadio
 	togli_oggetto_equipaggiato(id_oggetto)
+	armi.erase(id_oggetto)
 	accessori.erase(id_oggetto)
+	oggetti_speciali.erase(id_oggetto)
 	sacca.erase(id_oggetto)
 
 # --- collezioni (album carte, bestiario, compendio oggetti) ---
@@ -623,11 +740,61 @@ func registra_bestiario(id_nemico: String) -> void:
 	if personaggi.has(id_nemico) and id_nemico not in bestiario:
 		bestiario.append(id_nemico)
 
-func ottieni_carta(id_carta: String) -> bool:
-	# ritorna true solo se la carta e' nuova (drop non sprecato sui doppioni)
-	if id_carta == "" or id_carta in carte:
+func ottieni_carta(id_carta: String, finitura := "") -> bool:
+	# ritorna true se la carta e' NUOVA (serve a chi vuole annunciarla come
+	# scoperta). Il doppione non e' mai sprecato: entra comunque nel conto,
+	# perche' si vende e si scambia
+	if id_carta == "":
+		return false
+	if finitura == "":
+		finitura = tira_finitura_carta()
+	var copie: Dictionary = carte_copie.get(id_carta, {})
+	copie[finitura] = int(copie.get(finitura, 0)) + 1
+	carte_copie[id_carta] = copie
+	if id_carta in carte:
 		return false
 	carte.append(id_carta)
+	return true
+
+func tira_finitura_carta() -> String:
+	# le finiture sono sempre piu' rare andando avanti nell'elenco: la prima e'
+	# quella di tutti i giorni, l'ultima quasi non si vede
+	var finiture: Array = regole.get("carte_finiture", ["normale"])
+	var probabilita := float(regole.get("carte_probabilita_finitura", 0.12))
+	var scelta := 0
+	while scelta < finiture.size() - 1 and rng.randf() < probabilita:
+		scelta += 1
+	return String(finiture[scelta])
+
+func copie_carta(id_carta: String, finitura := "") -> int:
+	var copie: Dictionary = carte_copie.get(id_carta, {})
+	if finitura != "":
+		return int(copie.get(finitura, 0))
+	var totale := 0
+	for quante in copie.values():
+		totale += int(quante)
+	return totale
+
+func doppioni_carta(id_carta: String) -> int:
+	# quante se ne possono vendere o scambiare senza perdere la voce nell'album
+	return maxi(copie_carta(id_carta) - 1, 0)
+
+func cedi_carta(id_carta: String, finitura := "") -> bool:
+	# vendere o scambiare: si cede una COPIA, mai l'ultima. L'album non si buca
+	if doppioni_carta(id_carta) <= 0:
+		return false
+	var copie: Dictionary = carte_copie.get(id_carta, {})
+	if finitura == "":
+		for chiave in copie:
+			if int(copie[chiave]) > 0:
+				finitura = String(chiave)
+				break
+	if int(copie.get(finitura, 0)) <= 0:
+		return false
+	copie[finitura] = int(copie[finitura]) - 1
+	if int(copie[finitura]) <= 0:
+		copie.erase(finitura)
+	carte_copie[id_carta] = copie
 	return true
 
 func possiede_oggetto(id_oggetto: String) -> bool:
@@ -785,7 +952,18 @@ func recluta_temporaneo(id_classe: String, livello: int) -> void:
 	if livello > 0:
 		livelli[id_classe] = livello
 
+func svuota_equipaggiamento(id_classe: String) -> void:
+	# Quando qualcuno lascia la squadra le sue cose non se ne vanno con lui:
+	# tornano nello zaino. Sono tue, gliele avevi prestate.
+	if not equipaggiamento.has(id_classe):
+		return
+	var slots: Dictionary = equipaggiamento[id_classe]
+	for slot in SLOT_SINGOLI:
+		slots[slot] = ""
+	slots["accessori"] = []
+
 func congeda(id_classe: String) -> void:
+	svuota_equipaggiamento(id_classe)
 	party.erase(id_classe)
 	alleati_temporanei.erase(id_classe)
 
@@ -984,6 +1162,10 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"collezionabili": collezionabili,
 		"chiavi": chiavi,
 		"accessori": accessori,
+		"armi": armi,
+		"oggetti_speciali": oggetti_speciali,
+		"spazi_zaino": spazi_zaino,
+		"carte_copie": carte_copie,
 		"equipaggiamento": equipaggiamento,
 		"carte": carte,
 		"oggetti_catalogo": oggetti_catalogo,
@@ -1027,6 +1209,23 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	collezionabili = _lista_str(d.get("collezionabili", []))
 	chiavi = _lista_str(d.get("chiavi", []))
 	accessori = _lista_str(d.get("accessori", []))
+	armi = _lista_str(d.get("armi", []))
+	oggetti_speciali = _lista_str(d.get("oggetti_speciali", []))
+	spazi_zaino = d.get("spazi_zaino", {})
+	carte_copie = d.get("carte_copie", {})
+	# salvataggi vecchi: armi e stigmi stavano tutti in "accessori", e le
+	# carte non avevano copie. Si smistano al primo caricamento
+	if armi.is_empty() and oggetti_speciali.is_empty():
+		var rimaste: Array[String] = []
+		for id_oggetto in accessori:
+			match String(dati_oggetto(id_oggetto).get("tipo", "")):
+				"arma": armi.append(id_oggetto)
+				"stigma": oggetti_speciali.append(id_oggetto)
+				_: rimaste.append(id_oggetto)
+		accessori = rimaste
+	for id_carta in carte:
+		if not carte_copie.has(id_carta):
+			carte_copie[id_carta] = {"normale": 1}
 	equipaggiamento = d.get("equipaggiamento", {})
 	# partite salvate col vecchio sistema a un solo accessorio: quello che
 	# avevi addosso diventa il primo accessorio del protagonista

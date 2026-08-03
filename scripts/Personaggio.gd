@@ -158,6 +158,12 @@ func disegna_identita() -> void:
 
 func disegna_slot() -> void:
 	intestazione(colonna_centro, "Cosa porta addosso")
+	if not GameState.e_definitivo(id_scelto):
+		# chi ti accompagna per un tratto combatte al tuo fianco, ma le tue cose
+		# gliele affidi solo quando resta
+		riga_semplice(colonna_centro,
+				"È con te solo per un tratto: non gli si affida ancora niente.", true)
+		return
 	voce_slot("arma", 0, "Arma")
 	voce_slot("stigma", 0, "Stigma")
 	voce_slot("ultima_risorsa", 0, "Ultima risorsa")
@@ -260,9 +266,12 @@ func riga_candidato(id_oggetto: String, attuale: String) -> Control:
 	var blocco := VBoxContainer.new()
 	blocco.add_theme_constant_override("separation", 0)
 	var bottone := Button.new()
+	if slot_aperto == "arma" and GameState.portatore_di(id_oggetto) == id_scelto:
+		# le armi non escono dallo zaino quando le impugni: restano li', segnate
+		bottone.text = "· in uso ·  "
 	var portatore := GameState.portatore_di(id_oggetto)
 	var addosso_ad_altri := portatore != "" and portatore != id_scelto
-	bottone.text = nome_oggetto(id_oggetto)
+	bottone.text += nome_oggetto(id_oggetto)
 	if addosso_ad_altri:
 		# non si nasconde: si dice chi ce l'ha. Un oggetto che sparisce
 		# dall'elenco sembra perso
@@ -358,7 +367,7 @@ func differenza_testo(id_candidato: String, id_attuale: String) -> String:
 func oggetti_per_slot(slot: String) -> Array[String]:
 	var risultato: Array[String] = []
 	var visti := {}
-	var sorgente: Array = GameState.sacca if slot == "ultima_risorsa" else GameState.accessori
+	var sorgente: Array = GameState.magazzino_per_slot(slot)
 	for id_oggetto in sorgente:
 		var chiave := String(id_oggetto)
 		if visti.has(chiave):

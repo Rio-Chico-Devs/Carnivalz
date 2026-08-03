@@ -6,6 +6,9 @@
 			"descrizione": "Equipaggiamento standard per operativi. Prezzi calmierati, anima zero.",
 			"stock": [
 				{ "oggetto": "razione_del_circo", "prezzo": 10, "da_fonti": 0 },
+				{ "oggetto": "spazio_nella_realta", "prezzo": 120, "da_fonti": 0 },
+				{ "oggetto": "frammento_per_le_armi", "prezzo": 150, "da_fonti": 0 },
+				{ "oggetto": "frammento_per_gli_accessori", "prezzo": 150, "da_fonti": 0 },
 				{ "oggetto": "tonico_calmante", "prezzo": 15, "da_fonti": 0 },
 				{ "oggetto": "petardo", "prezzo": 12, "da_fonti": 0 },
 				{ "oggetto": "cuore_di_latta", "prezzo": 80, "da_fonti": 1 },
