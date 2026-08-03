@@ -29,6 +29,7 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
 
@@ -407,6 +408,28 @@ func prova_salvataggio() -> void:
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
 	GameState.nuova_partita()
+
+func prova_script_compilano() -> void:
+	# Ogni .gd deve compilare. Sembra ovvio, e invece e' la prova che mancava:
+	# caricare una scena il cui SCRIPT e' rotto riesce lo stesso (la .tscn si
+	# legge, il nodo si istanzia, semplicemente resta senza codice), quindi la
+	# prova sulle scene non se ne accorgeva. E' successo davvero, scorporando
+	# Combattimento.gd: due chiamate rimaste indietro, tutto verde.
+	#
+	# Non e' la stessa cosa di "godot --check-only --script X": quello compila
+	# il file da solo, fuori dal progetto, e grida "GameState non esiste" su
+	# ventidue file sanissimi. Qui gli autoload e le classi con class_name ci
+	# sono, perche' siamo dentro il gioco.
+	titolo("ogni script compila")
+	for cartella_nome: String in ["res://scripts", "res://scripts/combattimento", "res://prove"]:
+		var cartella := DirAccess.open(cartella_nome)
+		if cartella == null:
+			continue
+		for nome in cartella.get_files():
+			if not nome.ends_with(".gd"):
+				continue
+			var percorso := cartella_nome + "/" + nome
+			esigi(load(percorso) != null, "%s non compila (vedi l'errore qui sopra)" % percorso)
 
 func prova_scene_caricabili() -> void:
 	# ogni schermata deve almeno istanziarsi: e' il tipo di rottura che un

@@ -1,45 +1,39 @@
 extends Control
 
-# Combattimento a turni.
+# Combattimento a turni: il MOTORE dei turni, e solo quello.
 #
-# COME PARLA IL COMBATTIMENTO. Prima tutto finiva in un diario che si
-# allungava all'infinito in caratteri minuscoli: un blocco di testo compresso
-# che nessuno legge, dove il resoconto del tuo attacco di tre turni fa stava
-# ancora li' a rubare spazio a quello che conta adesso. Ora l'informazione e'
-# divisa in tre canali, ognuno con un mestiere solo:
+# Chi fa cosa, dopo lo scorporo:
 #
-#   il campo    -> lo STATO: barre e numeri di vita sulle schede, sempre
-#                  visibili, da guardare di sfuggita
-#   i numeri    -> il COLPO: il danno vola sopra la scheda di chi lo prende e
-#      volanti      sparisce. E' un evento, non una riga di registro
-#   il box      -> il MOMENTO: un messaggio alla volta, nello stesso box e
-#                  con lo stesso corpo del testo dei dialoghi. Si legge, e
-#                  poi lascia il posto al successivo
+#   Combattimento.gd  -> l'ordine dei fatti. Chi agisce, in che sequenza, con
+#                        quali conseguenze. Questo file.
+#   Regole.gd         -> la matematica. Danno, difesa, critici, esperienza.
+#                        Nessun messaggio, nessuna scheda: solo numeri.
+#   Voce.gd           -> come il combattimento parla e quando aspetta: la coda
+#                        dei messaggi, il box, i numeri che volano.
+#   Campo.gd          -> le schede dei combattenti: vita, aura, stati, chi
+#                        tocca adesso.
+#   Menu.gd           -> i bottoni delle azioni.
 #
-# Chi vuole rileggere tutto ha lo storico in pausa (ESC): ogni riga passa
-# anche di la'. Il diario infinito non serve piu' a nessuno.
+# Non e' pulizia: e' una capacita'. Voce, Campo e Menu hanno una modalita'
+# MUTA in cui non creano niente e non aspettano niente, e allora questo stesso
+# motore - identico, non una sua imitazione - puo' giocare uno scontro intero
+# in un millesimo di secondo senza uno schermo. E' cosi' che prove/Simulatore.gd
+# gioca ogni nemico del gioco migliaia di volte e dice se e' bilanciato.
+# Vedi "strategia": se e' impostata, decide lei al posto del menu.
 #
-# Due velocita' per i messaggi, ed e' la differenza che fa il ritmo:
-#   scrivi()       -> ordinaria (attacchi, guardie, buff). Scorre da sola
-#                     dopo il tempo di lettura, non chiede niente
-#   scrivi_forte() -> conseguenza (risparmiare una creatura, un KO, un boss
-#                     che cede, un bottino). ASPETTA un click: e' un momento
-#                     che deve pesare, non una riga da far scorrere
-#
-# Party e nemici in un'unica fila d'iniziativa
-# ordinata per velocità (ricalcolata a ogni giro). Stats: hp, attacco,
-# difesa, velocità, fattore. I buff sono temporanei (n turni). I boss hanno
-# "mosse" pesate nei dati (attacco forte / a tutti / buff / evoca) che
-# rendono ogni scontro unico. Menu azioni del giocatore: Attacca,
-# Difenditi, Abilità (Studia sempre disponibile), Oggetti (dalla sacca),
-# Alleati (ospiti non combattenti). Esito eroe via speranza e cedimento.
-# Numeri in data/regole.json, casualità solo dall'RNG seedato di GameState.
+# Party e nemici in un'unica fila d'iniziativa ordinata per velocita'
+# (ricalcolata a ogni giro). Stats: hp, attacco, difesa, velocita', fattore. I
+# buff sono temporanei (n turni). I boss hanno "mosse" pesate nei dati (attacco
+# forte / a tutti / buff / evoca) che rendono ogni scontro unico. Menu azioni
+# del giocatore: Attacca, Difenditi, Abilita' (Studia sempre disponibile),
+# Oggetti (dalla sacca), Alleati (ospiti non combattenti). Esito eroe via
+# speranza e cedimento. Numeri in data/regole.json, casualita' solo dall'RNG
+# seedato di GameState.
 
 signal azione_scelta(azione: Dictionary)
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const SCENA_MAPPA := "res://scenes/Mappa.tscn"
-const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 
 @onready var sfondo: ColorRect = %Sfondo
 @onready var fila_party: HBoxContainer = %Party
@@ -52,11 +46,25 @@ const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 @onready var volanti: Control = %Volanti
 @onready var area_avanza: Button = %AreaAvanza
 
-# La coda dei messaggi. Chi produce testo (attacca, difendi, stati...) non
-# aspetta niente: accoda e prosegue. E' il giro dei turni che, ai suoi punti
-# di respiro, svuota la coda un messaggio alla volta.
-var coda_diario: Array[Dictionary] = []  # {tipo, chi, testo, forte, effetto}
-var salta_messaggio := false             # un click chiede di passare avanti
+# I tre collaboratori. In modalita' muta non toccano nessun nodo.
+var voce: VoceCombattimento
+var campo: CampoCombattimento
+var menu: MenuCombattimento
+
+# Muto: nessuno guarda: niente box, niente schede, niente attese. Va impostato
+# PRIMA che la scena entri nell'albero (vedi Simulatore.gd).
+var muto := false
+
+# Se impostata, sceglie lei le azioni del giocatore al posto del menu. Riceve
+# (scontro, combattente) e restituisce lo stesso dizionario che emetterebbe un
+# bottone: {"tipo": "attacca", "bersaglio": ...}. E' l'unico aggancio di cui il
+# giocatore automatico ha bisogno.
+var strategia := Callable()
+
+# Tetto ai giri (0 = nessun tetto). Un giocatore vero prima o poi smette o
+# muore; un giocatore automatico con una strategia sbagliata contro un nemico
+# invincibile no. "Questo scontro non finisce" e' un risultato, non un blocco.
+var limite_giri := 0
 
 var combattenti: Array[Dictionary] = []
 var in_corso := true
@@ -141,15 +149,16 @@ var portatore_rabbia: Dictionary = {}
 # per il resto dello scontro) e "resurrezione_dimezzata" (LUI torna in piedi a
 # meta' vita invece di cadere). Entrambe si consumano, una volta sola.
 
-# Il primo nemico (il boss, o il primo di un gruppo comune) resta sempre al
-# centro del campo; chi si aggiunge dopo (altri della stessa imboscata, o
-# un'evocazione) si dispone ai lati, alternando destra e sinistra.
-var nemico_centrale_occupato := false
-var fuoco_gia_dato := false  # il primo bottone di ogni menu prende il fuoco tastiera
-var prossimo_lato_nemico := "destra"
 
 func _ready() -> void:
-	applica_stile()
+	voce = VoceCombattimento.new(get_tree(), muto)
+	campo = CampoCombattimento.new(muto)
+	menu = MenuCombattimento.new(self, muto)
+	if not muto:
+		voce.collega(box, area_avanza, volanti)
+		campo.collega(fila_party, nemico_centro, nemici_sinistra, nemici_destra)
+		menu.collega(azioni)
+		applica_stile()
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
 	for id_nemico in GameState.nemici_combattimento:
@@ -184,9 +193,11 @@ func _ready() -> void:
 		scrivi_forte("Il disallineamento fa spazio: si combatte.")
 	else:
 		scrivi("Ora di combattere.")
-	avvia_musica_e_voce()
+	if not muto:
+		avvia_musica_e_voce()
 	if fonte.get("convincibile", false):
-		etichetta_speranza.visible = true
+		if not muto:
+			etichetta_speranza.visible = true
 		aggiorna_speranza(0)
 	applica_leve()
 	esegui_scontro()
@@ -201,7 +212,7 @@ func applica_stile() -> void:
 	# impostare qui, si porta dietro corpo del testo, cornice e macchina da
 	# scrivere. Il combattimento parla con la stessa voce del resto del gioco
 	area_avanza.focus_mode = Control.FOCUS_NONE
-	area_avanza.pressed.connect(_su_avanza)
+	area_avanza.pressed.connect(voce.avanza)
 	# in combattimento i messaggi sono corti e il campo ha bisogno di spazio:
 	# stesso box della schermata eventi, ma piu' basso
 	box.imposta_altezza(Stile.forma("altezza_box_combattimento"))
@@ -209,15 +220,8 @@ func applica_stile() -> void:
 func _unhandled_input(evento: InputEvent) -> void:
 	# da tastiera si salta avanti come col mouse
 	if area_avanza.visible and evento.is_action_pressed("ui_accept"):
-		_su_avanza()
+		voce.avanza()
 		get_viewport().set_input_as_handled()
-
-func categoria_di(dati: Dictionary) -> String:
-	if dati.get("fonte", false):
-		return "boss"
-	if dati.has("frenesia"):
-		return "miniboss"
-	return String(dati.get("categoria", "comune"))
 
 func categoria_migliore_presente() -> String:
 	# la categoria più "alta" tra i nemici presenti (per musica e testo d'apertura)
@@ -226,7 +230,7 @@ func categoria_migliore_presente() -> String:
 	var categoria := "comune"
 	for id_nemico in GameState.nemici_combattimento:
 		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
-		var idx := ordine.find(categoria_di(dati))
+		var idx := ordine.find(RegoleCombattimento.categoria_di(dati))
 		if idx >= 0 and idx < migliore:
 			migliore = idx
 			categoria = ordine[idx]
@@ -238,7 +242,7 @@ func avvia_musica_e_voce() -> void:
 	var principale: Dictionary = {}
 	for id_nemico in GameState.nemici_combattimento:
 		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
-		if categoria_di(dati) == categoria and principale.is_empty():
+		if RegoleCombattimento.categoria_di(dati) == categoria and principale.is_empty():
 			principale = dati
 	AudioManager.musica_chiave("combattimento_" + categoria)
 	if (categoria == "boss" or categoria == "miniboss") and not principale.is_empty():
@@ -257,41 +261,11 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	if giocatore and GameState.hp_persistenti.has(id_personaggio):
 		# scontri incatenati: si riprende con i punti vita lasciati dal precedente
 		hp_iniziali = clampi(int(GameState.hp_persistenti[id_personaggio]), 1, hp_max)
-	var scheda := VBoxContainer.new()
-	var ritratto := SCENA_RITRATTO.instantiate()
-	scheda.add_child(ritratto)
-	var vita := Label.new()
-	vita.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	scheda.add_child(vita)
-	var extra := Label.new()
-	extra.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	extra.add_theme_font_size_override("font_size", 12)
-	extra.modulate = Color(1, 1, 1, 0.7)
-	scheda.add_child(extra)
-	if giocatore:
-		fila_party.add_child(scheda)
-		ritratto.mostra(id_personaggio, GameState.livello_di(id_personaggio))
-	else:
-		var e_il_centrale := false
-		if not nemico_centrale_occupato:
-			nemico_centrale_occupato = true
-			e_il_centrale = true
-			scheda.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			scheda.size_flags_vertical = Control.SIZE_EXPAND_FILL
-			nemico_centro.add_child(scheda)
-		elif prossimo_lato_nemico == "destra":
-			nemici_destra.add_child(scheda)
-			prossimo_lato_nemico = "sinistra"
-		else:
-			nemici_sinistra.add_child(scheda)
-			prossimo_lato_nemico = "destra"
-		# solo dopo add_child: prima l'@onready interno del ritratto e' ancora nullo
-		if e_il_centrale:
-			ritratto.imposta_grande(true)  # il nemico principale e' sempre grande, in mezzo
-		ritratto.mostra(id_personaggio)
-		if dati.has("xp"):
-			# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
-			GameState.registra_bestiario(id_personaggio)
+	var nodi := campo.crea_scheda(id_personaggio, giocatore)
+	if not giocatore and dati.has("xp"):
+		# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
+		GameState.registra_bestiario(id_personaggio)
+		if not muto:
 			AudioManager.verso(id_personaggio, dati, "comparsa")
 	var combustione: Dictionary = dati.get("combustione", {})
 	var combattente := {
@@ -341,10 +315,10 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"ultima_risorsa_usata": false,
 		"combustione": combustione,
 		"in_fiamme": not combustione.is_empty() and not combustione.has("attiva_da_studio"),
-		"hp_nascosti": not giocatore and (categoria_di(dati) == "boss" or dati.has("incontro_scriptato")),
-		"scheda": scheda,
-		"etichetta_vita": vita,
-		"etichetta_extra": extra,
+		"hp_nascosti": not giocatore and (RegoleCombattimento.categoria_di(dati) == "boss" or dati.has("incontro_scriptato")),
+		"scheda": nodi["scheda"],
+		"etichetta_vita": nodi["etichetta_vita"],
+		"etichetta_extra": nodi["etichetta_extra"],
 	}
 	combattenti.append(combattente)
 	aggiorna_scheda(combattente)
@@ -422,7 +396,8 @@ func aggiorna_speranza(quantita: int) -> void:
 	if not fonte.get("convincibile", false):
 		return
 	speranza = clampi(speranza + quantita, 0, 100)
-	etichetta_speranza.text = "Speranza %d / %d" % [speranza, int(fonte.get("speranza_soglia", 100))]
+	if not muto:
+		etichetta_speranza.text = "Speranza %d / %d" % [speranza, int(fonte.get("speranza_soglia", 100))]
 	if not convinto and speranza >= int(fonte.get("speranza_soglia", 100)):
 		var obbligatoria := String(fonte.get("leva_obbligatoria", ""))
 		if obbligatoria != "" and obbligatoria not in leve_giocate:
@@ -431,7 +406,8 @@ func aggiorna_speranza(quantita: int) -> void:
 			return
 		convinto = true
 		scrivi_forte(String(fonte.get("testo_cedimento", "Qualcosa, nella fonte, ha ceduto.")))
-		AudioManager.voce_boss(String(fonte.get("id", "")), fonte, "cedimento")
+		if not muto:
+			AudioManager.voce_boss(String(fonte.get("id", "")), fonte, "cedimento")
 
 func esegui_scontro() -> void:
 	await svuota_coda()   # l'apertura si legge prima che qualcuno si muova
@@ -440,8 +416,8 @@ func esegui_scontro() -> void:
 		# il cedimento (e ora rapidita'/lentezza) cambiano la velocita':
 		# l'iniziativa si ricalcola a ogni giro
 		combattenti.sort_custom(func(a, b):
-			var va := velocita_effettiva(a)
-			var vb := velocita_effettiva(b)
+			var va := RegoleCombattimento.velocita_effettiva(a)
+			var vb := RegoleCombattimento.velocita_effettiva(b)
 			return a.indice < b.indice if va == vb else va > vb)
 		for combattente in combattenti.duplicate():
 			if not in_corso:
@@ -452,7 +428,7 @@ func esegui_scontro() -> void:
 			await svuota_coda()   # quello che e' successo si legge adesso, non dopo
 			var prob_extra := float(GameState.regole.get("probabilita_attacco_extra_rabbia", 0.35))
 			if in_corso and combattente.hp > 0 \
-					and ha_stato_con_effetto(combattente, "attacco_extra") \
+					and RegoleCombattimento.ha_stato_con_effetto(combattente, "attacco_extra") \
 					and GameState.rng.randf() < prob_extra:
 				scrivi("%s è in preda alla rabbia e attacca di nuovo!" % combattente.nome)
 				await esegui_turno(combattente)
@@ -462,6 +438,8 @@ func esegui_scontro() -> void:
 			if turni_provocazione > 0:
 				turni_provocazione -= 1
 			giro_corrente += 1
+			if limite_giri > 0 and giro_corrente > limite_giri:
+				in_corso = false
 	await svuota_coda()
 	mostra_continua_fine()
 
@@ -481,13 +459,14 @@ func verifica_avviso_fuga() -> void:
 func mostra_continua_fine() -> void:
 	# niente si chiude da solo: e' il giocatore a decidere quando lasciare
 	# la schermata di fine combattimento
-	pulisci_azioni()
-	bottone_azione("▸ Continua", _esci)
+	menu.pulisci()
+	menu.bottone("▸ Continua", _esci)
 
 func esegui_turno(attaccante: Dictionary) -> void:
-	scadenza_buff(attaccante)
+	RegoleCombattimento.scadenza_buff(attaccante)
+	aggiorna_scheda(attaccante)
 	recupera_aura(attaccante)
-	evidenzia(attaccante)
+	campo.evidenzia(combattenti, attaccante)
 	if attaccante.in_fiamme:
 		applica_combustione(attaccante)
 		if attaccante.hp <= 0:
@@ -497,7 +476,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 	ultima_azione_offensiva = false
 	if attaccante.giocatore:
 		attaccante_corrente = attaccante
-		if ha_stato_attivo(attaccante, "berserk"):
+		if RegoleCombattimento.ha_stato_attivo(attaccante, "berserk"):
 			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
 			var nemici := vivi(false)
 			if not nemici.is_empty():
@@ -510,10 +489,15 @@ func esegui_turno(attaccante: Dictionary) -> void:
 					scrivi_messaggio_tutorial(msg)
 			# si sceglie solo dopo aver letto tutto quello che e' successo finora
 			await svuota_coda()
-			mostra_azioni()
-			var azione: Dictionary = await azione_scelta
+			var azione: Dictionary
+			if strategia.is_valid():
+				# nessuno sta guardando: decide il giocatore automatico
+				azione = strategia.call(self, attaccante)
+			else:
+				menu.principale()
+				azione = await azione_scelta
 			var bersaglio_scelto: Dictionary = azione.get("bersaglio", {})
-			if azione.get("tipo", "") == "attacca" and ha_stato_attivo(attaccante, "confusione") \
+			if azione.get("tipo", "") == "attacca" and RegoleCombattimento.ha_stato_attivo(attaccante, "confusione") \
 					and GameState.rng.randf() < 0.5:
 				var chiunque: Array[Dictionary] = []
 				for c in vivi(true) + vivi(false):
@@ -549,9 +533,10 @@ func esegui_turno(attaccante: Dictionary) -> void:
 			# battute "dopo" commentano quel che e' appena successo, non lo anticipano
 			avanza_tutorial(azione)
 	else:
-		# process_always = false: in Godot un timer ignora la pausa di default,
-		# e il nemico agirebbe dietro al menu di pausa aperto
-		await get_tree().create_timer(0.3, false).timeout
+		if not muto:
+			# process_always = false: in Godot un timer ignora la pausa di
+			# default, e il nemico agirebbe dietro al menu di pausa aperto
+			await get_tree().create_timer(0.3, false).timeout
 		turno_nemico(attaccante)
 	if giocatore_e_fuggito:
 		return  # il combattimento e' finito qui, niente altro da risolvere sul turno
@@ -560,31 +545,6 @@ func esegui_turno(attaccante: Dictionary) -> void:
 	var costo := floori(attaccante.fattore / float(maxi(passo, 1)))
 	if costo > 0:
 		aggiungi_stress(attaccante, costo)
-
-# --- menu azioni del giocatore ---
-
-func pulisci_azioni() -> void:
-	fuoco_gia_dato = false
-	for figlio in azioni.get_children():
-		figlio.queue_free()
-
-func bottone_azione(testo: String, richiamo: Callable, spento := false, evidenziato := false) -> void:
-	var bottone := Button.new()
-	bottone.text = ("▶  " + testo) if evidenziato else testo
-	bottone.disabled = spento
-	bottone.custom_minimum_size = Vector2(0, 44)
-	bottone.pressed.connect(richiamo)
-	azioni.add_child(bottone)
-	if not spento and not fuoco_gia_dato:
-		# il primo bottone utile prende il fuoco: si gioca anche da tastiera
-		fuoco_gia_dato = true
-		bottone.grab_focus()
-	if evidenziato:
-		# pulsa finche' non lo premi: e' li' che deve guardare il giocatore
-		bottone.modulate = Stile.colore("accento")
-		var battito: Tween = bottone.create_tween().set_loops()
-		battito.tween_property(bottone, "modulate:a", 0.45, 0.5)
-		battito.tween_property(bottone, "modulate:a", 1.0, 0.5)
 
 func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
 	var testo := String(msg.get("testo", ""))
@@ -644,103 +604,12 @@ func passo_tutorial() -> Dictionary:
 	var passi: Array = tutorial.get("passi", [])
 	return passi[tutorial_passo] if tutorial_passo < passi.size() else {}
 
-func mostra_azioni() -> void:
-	pulisci_azioni()
-	var passo := passo_tutorial()
-	if not passo.is_empty():
-		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
-		# sempre libero: guardare non e' mai un errore)
-		var richiesta := String(passo.get("azione", ""))
-		bottone_azione("Attacca", _menu_bersagli, richiesta != "attacca", richiesta == "attacca")
-		bottone_azione("Difenditi", _scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
-		bottone_azione("Abilità", _menu_abilita)
-		bottone_azione("Oggetti", _menu_oggetti, richiesta != "oggetto", richiesta == "oggetto")
-		return
-	bottone_azione("Attacca", _menu_bersagli)
-	bottone_azione("Difenditi", _scegli.bind({"tipo": "difendi"}))
-	bottone_azione("Abilità", _menu_abilita)
-	bottone_azione("Oggetti", _menu_oggetti, GameState.sacca.is_empty() and leve_utilizzabili().is_empty())
-	bottone_azione("Alleati", _menu_alleati, alleati_disponibili().is_empty())
-	bottone_azione("Fuggi", _scegli.bind({"tipo": "fuggi"}), not fuga_possibile())
-
-func _menu_bersagli() -> void:
-	var nemici := vivi(false)
-	if nemici.size() == 1:
-		_scegli({"tipo": "attacca", "bersaglio": nemici[0]})
-		return
-	pulisci_azioni()
-	for nemico in nemici:
-		bottone_azione("Attacca %s" % nemico.nome, _scegli.bind({"tipo": "attacca", "bersaglio": nemico}))
-	bottone_azione("Indietro", mostra_azioni)
-
-func _menu_studia() -> void:
-	# studiare e' un'azione mirata quanto attaccare: con piu' creature in campo
-	# si sceglie chi guardare, non si prende quella che capita per prima
-	var nemici := vivi(false)
-	if nemici.size() <= 1:
-		_scegli({"tipo": "studia", "bersaglio": nemici[0] if not nemici.is_empty() else {}})
-		return
-	pulisci_azioni()
-	for nemico in nemici:
-		bottone_azione("Studia %s" % nemico.nome,
-				_scegli.bind({"tipo": "studia", "bersaglio": nemico}))
-	bottone_azione("Indietro", _menu_abilita)
-
-func _menu_abilita() -> void:
-	pulisci_azioni()
-	# Studia non costa niente e non costera' mai niente: guardare una creatura
-	# e' il cuore del gioco, non una risorsa da amministrare
-	bottone_azione("Studia", _menu_studia)
-	var abilita: Array = GameState.classi.get(attaccante_corrente.id, {}).get("abilita", [])
-	var aura: int = int(attaccante_corrente.get("aura", 0))
-	if "provocazione" in abilita:
-		var costo_prov := int(GameState.regole.get("costo_aura_provocazione", 3))
-		bottone_azione("Provoca  (%d aura)" % costo_prov,
-				_scegli.bind({"tipo": "provoca"}), aura < costo_prov)
-	if "attacco_area" in abilita:
-		var costo_area := int(GameState.regole.get("costo_aura_area", 4))
-		bottone_azione("Colpo d'area  (%d aura)" % costo_area,
-				_scegli.bind({"tipo": "area"}), aura < costo_area)
-	bottone_azione("Indietro", mostra_azioni)
-
-func _menu_oggetti() -> void:
-	pulisci_azioni()
-	var conteggio := {}
-	for id_oggetto in GameState.sacca:
-		conteggio[id_oggetto] = int(conteggio.get(id_oggetto, 0)) + 1
-	var passo := passo_tutorial()
-	var solo_questo := String(passo.get("oggetto", "")) if not passo.is_empty() else ""
-	for id_oggetto in conteggio:
-		var nome: String = GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)
-		var richiesto: bool = solo_questo != "" and String(id_oggetto) == solo_questo
-		bottone_azione("%s ×%d" % [nome, conteggio[id_oggetto]],
-				_scegli.bind({"tipo": "oggetto", "id": id_oggetto}),
-				solo_questo != "" and not richiesto, richiesto)
-	for leva in leve_utilizzabili():
-		if solo_questo != "":
-			break  # durante il tutorial si usa solo cio' che viene chiesto
-		var id_leva := String(leva.get("id", ""))
-		var nome_leva := String(GameState.dati_oggetto(id_leva).get("nome", id_leva))
-		bottone_azione("Mostra: %s" % nome_leva, _scegli.bind({"tipo": "leva", "id": id_leva}))
-	bottone_azione("Indietro", mostra_azioni)
-
-func _menu_alleati() -> void:
-	pulisci_azioni()
-	for id_ospite in alleati_disponibili():
-		var nome: String = GameState.personaggi.get(id_ospite, {}).get("nome", id_ospite)
-		bottone_azione(nome, _scegli.bind({"tipo": "alleato", "id": id_ospite}))
-	bottone_azione("Indietro", mostra_azioni)
-
 func alleati_disponibili() -> Array[String]:
 	var risultato: Array[String] = []
 	for id_ospite in GameState.ospiti:
 		if GameState.personaggi.get(id_ospite, {}).has("assist") and id_ospite not in alleati_usati:
 			risultato.append(id_ospite)
 	return risultato
-
-func _scegli(azione: Dictionary) -> void:
-	pulisci_azioni()
-	azione_scelta.emit(azione)
 
 # --- azioni ---
 
@@ -749,10 +618,7 @@ func difendi(chi: Dictionary) -> void:
 	# a un tetto senza mai raggiungerlo (si azzera se sul turno successivo
 	# si fa altro - vedi esegui_turno) - premia chi si difende con
 	# continuita', ma non rende mai il danno subito davvero pari a zero
-	var tetto := float(GameState.regole.get("difesa_difenditi_tetto", 6))
-	var decadimento := float(GameState.regole.get("difesa_difenditi_decadimento", 0.5))
-	chi.difesa_accumulo = float(chi.difesa_accumulo) + (tetto - float(chi.difesa_accumulo)) * decadimento
-	var bonus := int(round(chi.difesa_accumulo))
+	var bonus := RegoleCombattimento.bonus_difesa_guardia(chi)
 	chi.buffs.append({
 		"stat": "difesa",
 		"valore": bonus,
@@ -803,8 +669,8 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary, moltiplicatore := 
 		if recuperati > 0:
 			# la cura si vede come si vede il danno: un numero che sale, verde
 			var scheda_curato: Control = utente.scheda
-			accoda_effetto(func() -> void:
-				numero_volante(scheda_curato, "+%d" % recuperati, Stile.colore("positivo"))
+			voce.accoda_effetto(func() -> void:
+				voce.numero_volante(scheda_curato, "+%d" % recuperati, Stile.colore("positivo"))
 				aggiorna_scheda(utente))
 		else:
 			aggiorna_scheda(utente)
@@ -814,8 +680,8 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary, moltiplicatore := 
 		var recuperata := int(utente.aura) - aura_prima
 		if recuperata > 0:
 			var scheda_aura: Control = utente.scheda
-			accoda_effetto(func() -> void:
-				numero_volante(scheda_aura, "+%d aura" % recuperata, Stile.colore("accento"))
+			voce.accoda_effetto(func() -> void:
+				voce.numero_volante(scheda_aura, "+%d aura" % recuperata, Stile.colore("accento"))
 				aggiorna_scheda(utente))
 	if effetto.has("stress") and not utente.is_empty():
 		aggiungi_stress(utente, scala.call(int(effetto.stress)))
@@ -924,8 +790,8 @@ func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
 			aggiorna_scheda(alleato)
 		var quanto := int(dati_risparmio.stress)
 		conseguenze.append(("lo stress cala di %d" if quanto < 0 else "lo stress sale di %d") % absi(quanto))
-	var xp_uccidendo := xp_effettiva(bersaglio)
-	var xp_lasciandolo := xp_da_risparmio(bersaglio)
+	var xp_uccidendo := RegoleCombattimento.xp_effettiva(bersaglio)
+	var xp_lasciandolo := RegoleCombattimento.xp_da_risparmio(bersaglio)
 	if xp_lasciandolo > xp_uccidendo:
 		conseguenze.append("ne ricavi %d esperienza invece dei %d che ti avrebbe dato da morto"
 				% [xp_lasciandolo, xp_uccidendo])
@@ -968,7 +834,7 @@ func provoca(chi: Dictionary) -> void:
 func attacco_area(chi: Dictionary) -> void:
 	spendi_aura(chi, int(GameState.regole.get("costo_aura_area", 4)))
 	scrivi("[i]%s scatena un colpo che si abbatte su tutti i nemici![/i]" % chi.nome)
-	var valore := int(round(attacco_di(chi) * float(GameState.regole.get("moltiplicatore_attacco_area", 0.6))))
+	var valore := int(round(RegoleCombattimento.attacco_di(chi) * float(GameState.regole.get("moltiplicatore_attacco_area", 0.6))))
 	for nemico in vivi(false):
 		attacca(chi, nemico, valore)
 
@@ -1004,7 +870,7 @@ func bersaglio_giocatore_casuale() -> Dictionary:
 
 func squadra_ha_terrore() -> bool:
 	for personaggio in vivi(true):
-		if ha_stato_attivo(personaggio, "terrore"):
+		if RegoleCombattimento.ha_stato_attivo(personaggio, "terrore"):
 			return true
 	return false
 
@@ -1090,7 +956,7 @@ func esegui_scena_fatale(dati_incontro: Dictionary) -> void:
 	scrivi_forte("[i]%s[/i]" % String(dati_incontro.get("testo_fatale_bacio", "")))
 	var scudo_prima := String(bersaglio.get("scudo_stato", "")) != ""
 	applica_stato(bersaglio, "sonno")
-	if ha_stato_attivo(bersaglio, "sonno"):
+	if RegoleCombattimento.ha_stato_attivo(bersaglio, "sonno"):
 		# niente ha fermato il sonno: game over
 		sconfitta_scriptata()
 		return
@@ -1370,7 +1236,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				else:
 					var meta := int(floor(float(vittima.hp) / 2.0))
 					vittima.hp = maxi(vittima.hp - meta, 1)
-					accoda_effetto(effetto_colpo(vittima, meta))
+					voce.accoda_effetto(effetto_colpo(vittima, meta))
 				aggiorna_scheda(vittima)
 				if vittima.hp <= 0:
 					_su_ko(vittima)
@@ -1416,7 +1282,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			# si ferisce da sola: il dolore riverbera sullo stress della squadra
 			var male := int(mossa.get("valore", 1))
 			nemico.hp = maxi(nemico.hp - male, 0)
-			accoda_effetto(effetto_colpo(nemico, male))
+			voce.accoda_effetto(effetto_colpo(nemico, male))
 			for bersaglio in vivi(true):
 				aggiungi_stress(bersaglio, int(mossa.get("stress", 10)))
 			if mossa.has("legame"):
@@ -1503,20 +1369,8 @@ func applica_combustione(combattente: Dictionary) -> void:
 # "immune" annulla lo stato, "ipersensibile" lo amplifica, "invertito" (solo
 # per stress) ne capovolge l'effetto. Assente = "normale".
 
-func resistenza_di(combattente: Dictionary, chiave: String) -> String:
-	if chiave in combattente.get("immunita_temporanea", []):
-		return "immune"  # respinto in questo stesso combattimento (es. scudo_primo_stato)
-	if combattente.giocatore and combattente.id == GameState.id_protagonista \
-			and GameState.resistenza_stato_di(chiave) >= int(GameState.crescita.get("resistenze", {}).get("massimo", 100)):
-		return "immune"  # allenato fino in fondo: quello stato non ti tocca piu'
-	var dati: Dictionary = GameState.personaggi.get(combattente.id, {})
-	return String(dati.get("resistenze", {}).get(chiave, "normale"))
-
-func ha_stato_attivo(combattente: Dictionary, id_stato: String) -> bool:
-	return combattente.stati_attivi.has(id_stato)
-
 func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void:
-	var resistenza := resistenza_di(bersaglio, id_stato)
+	var resistenza := RegoleCombattimento.resistenza_di(bersaglio, id_stato)
 	if resistenza == "immune":
 		return
 	if bersaglio.giocatore and String(bersaglio.get("scudo_stato", "")) != "":
@@ -1565,7 +1419,7 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			scrivi("[i]%s %s[/i]" % [bersaglio.nome, info_stato.get("testo_applicazione", "subisce uno stato.")])
 			if info_stato.get("contagiosa", false):
 				for altro in vivi(bersaglio.giocatore):
-					if altro.indice != bersaglio.indice and resistenza_di(altro, id_stato) != "immune":
+					if altro.indice != bersaglio.indice and RegoleCombattimento.resistenza_di(altro, id_stato) != "immune":
 						altro.stati_attivi[id_stato] = {"turni_rimasti": durata}
 						scrivi("[i]%s ne è contagiato.[/i]" % altro.nome)
 		"dot_crescente":
@@ -1587,13 +1441,6 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			GameState.modifica_legame(decremento_legame)
 			scrivi_forte("%s %s" % [bersaglio.nome, String(info_stato.get("testo_applicazione", "è paralizzato dal terrore."))])
 	aggiorna_scheda(bersaglio)
-
-func velocita_effettiva(combattente: Dictionary) -> int:
-	var totale: int = int(combattente.velocita)
-	for id_stato in ["rapidita", "lentezza"]:
-		if combattente.stati_attivi.has(id_stato):
-			totale += int(GameState.stati.get(id_stato, {}).get("valore", 0))
-	return maxi(totale, 0)
 
 func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 	# esegue countdown/salta-turno/dot a inizio turno; ritorna true se il
@@ -1656,29 +1503,6 @@ func risolvi_dot_condizionale(combattente: Dictionary, azione_offensiva: bool) -
 
 # --- risoluzione dei colpi ---
 
-func difesa_di(combattente: Dictionary) -> int:
-	var totale: int = combattente.difesa
-	for buff in combattente.buffs:
-		if buff.get("stat", "") == "difesa":
-			totale += int(buff.get("valore", 0))
-	return totale
-
-func attacco_di(combattente: Dictionary) -> int:
-	var totale: int = combattente.attacco
-	for buff in combattente.buffs:
-		if buff.get("stat", "") == "attacco":
-			totale += int(buff.get("valore", 0))
-	return totale
-
-func scadenza_buff(combattente: Dictionary) -> void:
-	var rimasti: Array = []
-	for buff in combattente.buffs:
-		buff.turni = int(buff.turni) - 1
-		if int(buff.turni) > 0:
-			rimasti.append(buff)
-	combattente.buffs = rimasti
-	aggiorna_scheda(combattente)
-
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1) -> void:
 	ultima_azione_offensiva = true
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
@@ -1715,37 +1539,11 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		elif bersaglio.giocatore:
 			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 		return
-	var danno: int
-	if valore_attacco >= 0:
-		danno = valore_attacco  # mossa a valore fisso (es. faena, gran finale)
-	else:
-		danno = attacco_di(attaccante)
-		if attaccante.giocatore:
-			# il danno del party scala col livello: farmare ed equipaggiarsi conta
-			danno += floori((GameState.livello_di(attaccante.id) - 1)
-					* float(GameState.regole.get("bonus_attacco_per_livello", 0.5)))
-	if fattore_attivo(attaccante) and GameState.rng.randf() < attaccante.fattore / 100.0:
-		danno += 1
+	var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio, valore_attacco)
+	var danno := int(esito.danno)
+	var critico := bool(esito.critico)
+	if esito.fattore:
 		scrivi("Il fattore di disallineamento arde in %s!" % attaccante.nome)
-	var difesa_bersaglio: float = float(difesa_di(bersaglio))
-	var critico := tenta_critico(bersaglio)
-	if critico:
-		danno = int(round(danno * float(GameState.regole.get("critico_moltiplicatore", 1.5))))
-		difesa_bersaglio *= 1.0 - float(GameState.regole.get("critico_riduzione_difesa", 0.5))
-	danno -= int(difesa_bersaglio)
-	if ha_stato_con_effetto(bersaglio, "difesa_giu"):
-		danno += int(GameState.regole.get("malus_danno_depressione", 1))
-	danno = maxi(danno, 0)
-	if danno > 0 and bersaglio.giocatore:
-		# il danno subìto cala in proporzione al livello (e col fattore acceso)
-		var riduzione := minf(
-			(GameState.livello_di(bersaglio.id) - 1)
-				* float(GameState.regole.get("riduzione_danno_per_livello", 0.1)),
-			float(GameState.regole.get("riduzione_danno_massima", 0.5)))
-		if fattore_attivo(bersaglio):
-			riduzione += bersaglio.fattore / 200.0
-		if GameState.rng.randf() < riduzione:
-			danno = 0
 	if danno <= 0:
 		# questo invece va detto: un colpo che non passa e' un'informazione,
 		# non un evento da guardare
@@ -1769,45 +1567,12 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	elif bersaglio.giocatore:
 		aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 
-func tenta_critico(bersaglio: Dictionary) -> bool:
-	# lo stress alza la probabilita' di subire un critico; per chi ha una
-	# resistenza "invertita" (es. Sally) vale il contrario, per chi e' immune
-	# allo stress non conta nulla
-	var resistenza := resistenza_di(bersaglio, "stress")
-	var bonus_stress := float(bersaglio.stress) / 100.0 * float(GameState.regole.get("critico_bonus_per_stress", 0.15))
-	if resistenza == "invertito":
-		bonus_stress = -bonus_stress
-	elif resistenza == "immune":
-		bonus_stress = 0.0
-	var chance := clampf(float(GameState.regole.get("critico_chance_base", 0.05)) + bonus_stress, 0.0, 1.0)
-	return GameState.rng.randf() < chance
-
 func tenta_slaughter(attaccante: Dictionary, bersaglio: Dictionary) -> bool:
 	# probabilita' bassissima di KO istantaneo, anche su un attacco normale;
 	# chi trae forza dallo stress (resistenza "invertita") o ne e' immune non puo' essere finito cosi'
-	if bersaglio.hp <= 0:
+	if not RegoleCombattimento.puo_subire_slaughter(bersaglio):
 		return false
-	if bersaglio.giocatore:
-		return false  # il colpo di fortuna non uccide mai il party: solo i nemici comuni
-	if not bersaglio.giocatore:
-		# solo i nemici comuni: boss, miniboss, creature particolari e incontri
-		# scriptati (la manifestazione) non si liquidano mai con un colpo di
-		# fortuna - le loro scene devono poter arrivare fino in fondo
-		var dati_bersaglio: Dictionary = GameState.personaggi.get(bersaglio.id, {})
-		if categoria_di(dati_bersaglio) != "comune" or dati_bersaglio.has("incontro_scriptato") \
-				or dati_bersaglio.get("invincibile", false):
-			return false
-	var resistenza := resistenza_di(bersaglio, "stress")
-	if resistenza == "immune" or resistenza == "invertito":
-		return false
-	var probabilita := float(GameState.regole.get("slaughter_probabilita_base", 0.01))
-	if attaccante.giocatore and not bersaglio.giocatore:
-		var scarto: int = GameState.livello_di(attaccante.id) - int(GameState.personaggi.get(bersaglio.id, {}).get("livello", 1))
-		for voce in GameState.crescita.get("passive_livello", []):
-			if voce.has("slaughter_bonus") and GameState.ha_passiva(String(voce.get("id", ""))) \
-					and scarto >= int(voce.get("slaughter_scarto_livelli", 0)):
-				probabilita *= 1.0 + float(voce["slaughter_bonus"])
-	if GameState.rng.randf() >= probabilita:
+	if GameState.rng.randf() >= RegoleCombattimento.probabilita_slaughter(attaccante, bersaglio):
 		return false
 	scrivi_forte("[b]SLAUGHTER.[/b] %s colpisce %s una volta sola, e non si rialzerà." % [attaccante.nome, bersaglio.nome])
 	bersaglio.hp = 0
@@ -1822,6 +1587,8 @@ func mostra_slaughter(bersaglio: Dictionary) -> void:
 	# overlay a schermo intero con l'illustrazione e la scritta "SLAUGHTER"
 	# (art/fx/slaughter.png, ancora da disegnare): appare e sparisce in fade,
 	# senza mettere in pausa il combattimento
+	if muto:
+		return
 	var overlay := TextureRect.new()
 	if ResourceLoader.exists("res://art/fx/slaughter.png"):
 		overlay.texture = load("res://art/fx/slaughter.png")
@@ -1882,21 +1649,21 @@ func effetto_colpo(bersaglio: Dictionary, danno: int) -> Callable:
 	var scheda: Control = bersaglio.scheda
 	var vivo: bool = int(bersaglio.hp) > 0
 	return func() -> void:
-		numero_volante(scheda, "−%d" % danno, Stile.colore("pericolo"))
+		voce.numero_volante(scheda, "−%d" % danno, Stile.colore("pericolo"))
 		if vivo:
-			Stile.lampeggia(scheda, Stile.colore("pericolo"))
+			voce.lampeggia(scheda, Stile.colore("pericolo"))
 		aggiorna_scheda(bersaglio)
 
 func mostra_colpo(bersaglio: Dictionary, danno: int) -> void:
 	# un colpo normale non ha bisogno di parole: si vede e basta. Cosi' il box
 	# resta libero per le cose che vanno dette davvero
-	accoda_effetto(effetto_colpo(bersaglio, danno))
+	voce.accoda_effetto(effetto_colpo(bersaglio, danno))
 	verifica_ultima_risorsa(bersaglio)
 
 func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int) -> void:
 	# una riga che racconta un danno (veleno, fiamme, una mossa con un nome):
 	# il numero vola insieme alla frase, non prima e non dopo
-	accoda(riga, "narrazione", "", false, effetto_colpo(bersaglio, danno))
+	voce.accoda(riga, "narrazione", "", false, effetto_colpo(bersaglio, danno))
 	verifica_ultima_risorsa(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:
@@ -1936,7 +1703,9 @@ func _su_ko(caduto: Dictionary) -> void:
 			scrivi(riga)
 		if not caduto.giocatore:
 			# la fonte ha una voce di sconfitta; gli altri il verso di morte
-			if caduto.id == fonte.get("id", ""):
+			if muto:
+				pass
+			elif caduto.id == fonte.get("id", ""):
 				AudioManager.voce_boss(caduto.id, fonte, "sconfitta")
 			else:
 				AudioManager.verso(caduto.id, GameState.personaggi.get(caduto.id, {}), "morte")
@@ -1954,9 +1723,9 @@ func _su_ko(caduto: Dictionary) -> void:
 				# lasciare andare qualcuno insegna piu' che abbatterlo: rende
 				# piu' esperienza di quanta ne avrebbe data da morto. Niente
 				# Tazo pero': non si fruga addosso a chi hai lasciato vivo
-				xp_bottino += xp_da_risparmio(combattente)
+				xp_bottino += RegoleCombattimento.xp_da_risparmio(combattente)
 			else:
-				xp_bottino += xp_effettiva(combattente)
+				xp_bottino += RegoleCombattimento.xp_effettiva(combattente)
 				tazo_bottino += combattente.tazo
 		scrivi_forte("Vittoria.", "notifica")
 		if xp_bottino > 0 or tazo_bottino > 0:
@@ -1965,31 +1734,6 @@ func _su_ko(caduto: Dictionary) -> void:
 	elif vivi(true).is_empty():
 		in_corso = false
 		scrivi_forte("Il party è a terra. Il disallineamento ha vinto.", "notifica")
-
-func xp_da_risparmio(nemico: Dictionary) -> int:
-	# quanto rende una creatura risparmiata: piu' di quanto renderebbe morta
-	# (moltiplicatore in regole.json). Il perche' e' di design, non di bilancio:
-	# capire una creatura fino a non doverla uccidere e' la cosa difficile
-	return int(round(xp_effettiva(nemico)
-			* float(GameState.regole.get("xp_risparmio_moltiplicatore", 1.25))))
-
-func xp_effettiva(nemico: Dictionary) -> int:
-	# rendimento decrescente sul farming: piu' il party supera il livello
-	# consigliato del nemico, meno esperienza rende - senza mai azzerarsi,
-	# cosi' una farm zone resta utile a lungo ma smette di essere la scorciatoia
-	# migliore. Il livello del nemico sta nei dati ("livello", 1 di default).
-	var xp_base := int(nemico.xp)
-	var livello_nemico := int(GameState.personaggi.get(nemico.id, {}).get("livello", 1))
-	var livello_party := 1
-	for id_classe in GameState.party:
-		livello_party = maxi(livello_party, GameState.livello_di(id_classe))
-	var scarto := livello_party - livello_nemico
-	if scarto <= 0:
-		return xp_base
-	var penalita := float(GameState.regole.get("xp_penalita_per_livello_extra", 0.15))
-	var minimo := float(GameState.regole.get("xp_minimo_percentuale", 0.1))
-	var fattore := maxf(1.0 - scarto * penalita, minimo)
-	return maxi(int(round(xp_base * fattore)), 1)
 
 func risolvi_drop() -> void:
 	# drop dei nemici sconfitti: carta (rara, garantita solo per unici/boss),
@@ -2008,9 +1752,9 @@ func risolvi_drop() -> void:
 			var chance_carta := minf(float(carta.get("chance", 1.0)) * molt_carta, 1.0)
 			if GameState.rng.randf() < chance_carta and GameState.ottieni_carta(String(carta.get("id", ""))):
 				righe.append("carta \"%s\" [%s]" % [carta.get("nome", ""), carta.get("rarita", "")])
-		for voce in c.bottino_comune:
-			if GameState.rng.randf() < float(voce.get("chance", 0.0)):
-				var id_oggetto := String(voce.get("oggetto", ""))
+		for voce_bottino in c.bottino_comune:
+			if GameState.rng.randf() < float(voce_bottino.get("chance", 0.0)):
+				var id_oggetto := String(voce_bottino.get("oggetto", ""))
 				if GameState.aggiungi_oggetto(id_oggetto):
 					righe.append(String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)))
 		var raro: Dictionary = c.drop_raro
@@ -2060,15 +1804,6 @@ func reagisci(alleato: Dictionary) -> void:
 			scrivi("%s si concentra: il fattore di disallineamento sale." % alleato.nome)
 	aggiorna_scheda(alleato)
 
-func ha_stato_con_effetto(combattente: Dictionary, effetto: String) -> bool:
-	if combattente.psiche not in combattente.stati:
-		return false
-	return GameState.psichi.get(combattente.psiche, {}).get("effetto", "") == effetto
-
-func fattore_attivo(combattente: Dictionary) -> bool:
-	var soglia := int(GameState.regole.get("soglia_stress_sopraffatto", 80))
-	return combattente.fattore > 0 and combattente.stress < soglia
-
 func vivi(giocatore: bool) -> Array[Dictionary]:
 	var risultato: Array[Dictionary] = []
 	for combattente in combattenti:
@@ -2084,171 +1819,23 @@ func vivi_alleati_di(nemico: Dictionary) -> Array[Dictionary]:
 			risultato.append(combattente)
 	return risultato
 
-func evidenzia(attivo: Dictionary) -> void:
-	for combattente in combattenti:
-		if combattente.hp <= 0:
-			continue
-		var suo_turno: bool = combattente.indice == attivo.indice
-		combattente.scheda.modulate = Color.WHITE if suo_turno else Color(1, 1, 1, 0.65)
-
-func aggiorna_scheda(combattente: Dictionary) -> void:
-	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
-	# sbiadito. I compagni a terra restano visibili (sono tuoi, non sono usciti)
-	var fuori_dal_campo: bool = int(combattente.hp) <= 0 and not bool(combattente.giocatore)
-	if fuori_dal_campo and not bool(combattente.get("uscito", false)):
-		combattente["uscito"] = true
-		congeda_dal_campo(combattente.scheda)
-	elif not fuori_dal_campo and bool(combattente.get("uscito", false)):
-		# un invincibile che si rialza torna in scena: rientra, non riappare
-		combattente["uscito"] = false
-		combattente.scheda.visible = true
-		combattente.scheda.modulate = Color.WHITE
-	if combattente.hp <= 0:
-		combattente.etichetta_vita.text = "KO"
-		combattente.scheda.modulate = Color(0.5, 0.4, 0.4, 0.5)
-	elif combattente.get("hp_nascosti", false):
-		# i boss (e i nemici scriptati come la manifestazione) non mostrano
-		# il conteggio esatto degli hp: mantiene l'incertezza sullo scontro
-		combattente.etichetta_vita.text = "♥ ???"
-	else:
-		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
-	var dettagli := ""
-	if int(combattente.get("aura_max", 0)) > 0:
-		dettagli += "Aura %d/%d · " % [int(combattente.aura), int(combattente.aura_max)]
-	dettagli += "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]
-	var scudo := difesa_di(combattente)
-	if scudo > 0:
-		dettagli += " · Dif %d" % scudo
-	if combattente.stress >= int(GameState.regole.get("soglia_stress_sopraffatto", 80)):
-		dettagli += " · sopraffatto"
-	if combattente.get("in_fiamme", false):
-		dettagli += " · in fiamme"
-	for id_stato in combattente.stati_attivi:
-		var info_stato: Dictionary = GameState.stati.get(id_stato, {})
-		var nome_stato: String = String(info_stato.get("nome", id_stato))
-		var attivo: Dictionary = combattente.stati_attivi[id_stato]
-		if attivo.has("turni_rimasti"):
-			dettagli += " · %s (%d)" % [nome_stato, int(attivo.turni_rimasti)]
-		else:
-			dettagli += " · %s" % nome_stato
-	if combattente.psiche in combattente.stati:
-		dettagli += " · " + String(GameState.psichi.get(combattente.psiche, {}).get("nome", combattente.psiche))
-	combattente.etichetta_extra.text = dettagli
-
-func congeda_dal_campo(scheda: Control) -> void:
-	var uscita := scheda.create_tween()
-	uscita.tween_property(scheda, "modulate:a", 0.0, Stile.tempo("uscita_sconfitto"))
-	uscita.finished.connect(func() -> void:
-		if is_instance_valid(scheda):
-			scheda.visible = false)
+# --- il vocabolario del motore ------------------------------------------
+# Quattro parole, una riga ciascuna. Il motore dice "scrivi" e "aggiorna la
+# scheda" senza sapere se dall'altra parte c'e' uno schermo o il giocatore
+# automatico: e' esattamente questo che rende lo stesso codice giocabile e
+# simulabile.
 
 func scrivi(riga: String, tipo := "narrazione", chi := "") -> void:
-	# messaggio ordinario: si legge da solo e scorre
-	accoda(riga, tipo, chi, false)
+	voce.scrivi(riga, tipo, chi)
 
 func scrivi_forte(riga: String, tipo := "narrazione", chi := "") -> void:
-	# messaggio che cambia le cose: aspetta un click, non scorre via
-	accoda(riga, tipo, chi, true)
-
-func accoda_effetto(effetto: Callable) -> void:
-	# un battito senza parole: il numero che vola, il lampo sulla scheda. Sta
-	# nella coda come tutto il resto, cosi' succede al momento giusto e non
-	# tre messaggi prima
-	coda_diario.append({"tipo": "narrazione", "chi": "", "testo": "", "forte": false, "effetto": effetto})
-
-func accoda(riga: String, tipo: String, chi: String, forte: bool, effetto := Callable()) -> void:
-	if riga.strip_edges() == "":
-		return
-	coda_diario.append({
-		"tipo": tipo, "chi": chi, "testo": riga, "forte": forte, "effetto": effetto,
-	})
-	# tutto quello che si legge in combattimento finisce anche nello storico
-	# della pausa: se qualcosa e' scorso via troppo in fretta, e' li'
-	GameState.registra_storico(tipo, chi, riga)
+	voce.scrivi_forte(riga, tipo, chi)
 
 func svuota_coda() -> void:
-	# un messaggio alla volta, nell'ordine in cui e' successo. Il box e' lo
-	# stesso dei dialoghi: stesso corpo del testo, stessa macchina da scrivere,
-	# stesse pause sulla punteggiatura
-	while not coda_diario.is_empty():
-		var msg: Dictionary = coda_diario.pop_front()
-		var testo := String(msg.testo)
-		if testo != "":
-			box.mostra(String(msg.tipo), testo, String(msg.chi))
-		var effetto: Callable = msg.get("effetto", Callable())
-		if effetto.is_valid():
-			effetto.call()
-		if testo == "":
-			# solo il colpo: il tempo di vederlo, senza toccare il box
-			await attendi_colpo()
-			continue
-		await attendi_lettura(testo, bool(msg.forte))
-	box.nascondi_indicatore()
+	await voce.svuota_coda()
 
-func attendi_lettura(testo: String, forte: bool) -> void:
-	salta_messaggio = false
-	area_avanza.visible = true
-	# 1. finche' scrive, un click completa il testo invece di saltarlo
-	while box.sta_scrivendo:
-		if salta_messaggio:
-			salta_messaggio = false
-			box.completa()
-			break
-		await get_tree().process_frame
-	# 2. poi: i messaggi forti aspettano il click, gli altri il tempo di lettura.
-	# Il triangolino resta acceso solo sui forti, cosi' vuol dire una cosa sola:
-	# "questo sta aspettando te"
-	if forte:
-		while not salta_messaggio:
-			await get_tree().process_frame
-	else:
-		box.nascondi_indicatore()
-		# process_always = false: il conto si ferma se apri la pausa
-		var attesa := get_tree().create_timer(tempo_di_lettura(testo), false)
-		while attesa.time_left > 0.0 and not salta_messaggio:
-			await get_tree().process_frame
-	salta_messaggio = false
-	area_avanza.visible = false
-
-func attendi_colpo() -> void:
-	# il tempo di vedere il numero salire, saltabile con un click come il resto
-	salta_messaggio = false
-	area_avanza.visible = true
-	var attesa := get_tree().create_timer(
-			Stile.tempo("colpo_a_schermo") / maxf(Impostazioni.velocita_testo, 0.1), false)
-	while attesa.time_left > 0.0 and not salta_messaggio:
-		await get_tree().process_frame
-	salta_messaggio = false
-	area_avanza.visible = false
-
-func tempo_di_lettura(testo: String) -> float:
-	# quanto resta a schermo un messaggio ordinario: proporzionale a quanto e'
-	# lungo, con un minimo perche' anche "Si difende." vuole il suo istante.
-	# Segue la velocita' del testo scelta nelle opzioni
-	var secondi := clampf(float(testo.length()) / 26.0, 0.6, 2.8)
-	return secondi / maxf(Impostazioni.velocita_testo, 0.1)
-
-func _su_avanza() -> void:
-	salta_messaggio = true
-
-func numero_volante(scheda: Control, testo: String, tinta: Color) -> void:
-	# il danno non e' una riga di registro: e' una cosa che succede addosso a
-	# qualcuno. Sale dalla scheda di chi lo prende e svanisce
-	if scheda == null or not is_instance_valid(scheda):
-		return
-	var etichetta := Label.new()
-	etichetta.text = testo
-	etichetta.add_theme_color_override("font_color", tinta)
-	etichetta.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
-	etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	volanti.add_child(etichetta)
-	var centro := scheda.global_position + scheda.size * Vector2(0.5, 0.25)
-	etichetta.global_position = centro - Vector2(etichetta.size.x * 0.5, 0)
-	var salita := etichetta.create_tween()
-	salita.set_parallel(true)
-	salita.tween_property(etichetta, "global_position:y", centro.y - 54.0, 0.75)
-	salita.tween_property(etichetta, "modulate:a", 0.0, 0.75).set_delay(0.2)
-	salita.chain().tween_callback(etichetta.queue_free)
+func aggiorna_scheda(combattente: Dictionary) -> void:
+	campo.aggiorna(combattente)
 
 func _esci() -> void:
 	# lo stress accumulato resta addosso ai personaggi

@@ -59,7 +59,8 @@ dritti in mappa.
 - `data/task.json` — gli appunti del Diario: dove andare e cosa qualcuno ti ha chiesto (vedi sotto)
 - `data/codici.json` — codici riscattabili da Extra (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
-- `prove/Prove.tscn` + `prove/Prove.gd` — le prove del progetto: `./prove/esegui.sh` (vedi sotto)
+- `prove/` — le prove del progetto (`./prove/esegui.sh`) e il giocatore automatico
+  (`./prove/simula.sh`), entrambi descritti in fondo
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
   (ritratti), `art/branding/logo_studio.png`/`logo_personale.png` (loghi d'apertura). Finché
   mancano: placeholder generati (cielo stellato / iniziale del nome / testo)
@@ -1173,6 +1174,34 @@ non giocando.
 che lo avrebbe preso, poi la correzione. Le prove non sono un adempimento, sono la memoria degli
 errori già fatti — l'unica parte del progetto che non dimentica.
 
+## Il giocatore automatico (`prove/Simulatore.gd`)
+Le prove dicono che i dati sono coerenti. Non dicono se il gioco è **giocabile**. Il
+bilanciamento di Carnivalz era indovinato: i punti vita e l'attacco di ogni creatura scritti a
+occhio e mai verificati da nessuno, perché per verificarli bisognerebbe giocare lo stesso scontro
+venti volte di fila.
+
+```
+./prove/simula.sh          # ~8 minuti, riscrive docs/bilanciamento.md
+```
+
+**Non è una simulazione.** Non c'è nessun modello semplificato: viene istanziata
+`Combattimento.tscn` e giocata dal motore vero, con `Voce`/`Campo`/`Menu` in modalità muta. È lo
+stesso codice che gira quando ci giochi tu, senza la parte che si guarda — per questo lo scorporo
+di `Combattimento.gd` non era pulizia ma una capacità. Ogni scontro si risolve dentro `add_child`,
+quindi 99.000 partite stanno in otto minuti.
+
+Quattro modi di giocare, scelti perché misurano cose diverse: **attacca** (la durata vera),
+**difendi** (non attacca mai — se vince, quello scontro è rotto), **studia** (la strada che il
+gioco vorrebbe insegnare: dice se è percorribile), **casuale** (il pavimento). Cinque livelli del
+protagonista, semi fissi: due esecuzioni danno lo stesso risultato, quindi una differenza nella
+tabella è sempre una differenza nel gioco.
+
+Il numero che conta è nella prima tabella di `docs/bilanciamento.md`: **a che livello ogni
+scontro diventa giusto**, cioè da dove in poi si vince almeno l'80% delle volte andandoci dritto.
+Attenzione a leggerlo: nel gioco le statistiche non salgono col livello, salgono con quello che
+hai fatto (`crescita.json`). Il simulatore alza solo il livello, quindi misura un protagonista
+arrivato fin lì senza guadagnare un punto — è il pavimento, non la media.
+
 ## Convenzioni
 - Codice e chiavi JSON in italiano
 - RNG solo seedato (`GameState.rng`), mai `randi()` sparsi: determinismo e multiplayer futuro
@@ -1240,7 +1269,15 @@ errori già fatti — l'unica parte del progetto che non dimentica.
     invincibile, serve solo a ripassare i comandi), prima di sbloccare Jerah per davvero.
     Segnaposto ancora da costruire: la schermata del "Diario" (task/legami/statistiche) e
     una vera mappa del quartier generale (per ora sono solo nodi narrativi)
-21. ✅ **Le prove** (`prove/`, 1317 verifiche) e la pipeline che le fa girare a ogni push. Fino a
+21. ✅ **Le prove** (`prove/`, 1347 verifiche) e la pipeline che le fa girare a ogni push. Fino a
     qui il progetto era stato verificato **leggendolo**: nessuno aveva mai fatto girare il gioco
     per controllare, e un id sbagliato dentro un JSON non è un errore di compilazione. Ora si
     controlla eseguendo
+22. ✅ **Scorporo di `Combattimento.gd`** (2284 → 1871 righe) per **layer**, non per funzione:
+    `Regole` (matematica pura, zero effetti), `Voce` (coda, box, attese), `Campo` (schede),
+    `Menu` (bottoni). Il motore dei turni resta grosso e in un file solo — mosse, stati e
+    incontri scriptati si tengono per mano davvero, spezzarli sarebbe stato spostare righe
+    dietro un oggetto-contesto. Quello che è cambiato è che le tre parti che si guardano hanno
+    una **modalità muta**, ed è questa che sblocca il **giocatore automatico**: 99.000 partite
+    giocate dal motore vero danno, per la prima volta, un bilanciamento misurato invece che
+    indovinato (`docs/bilanciamento.md`)

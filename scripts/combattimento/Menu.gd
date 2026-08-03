@@ -1,0 +1,148 @@
+class_name MenuCombattimento
+extends RefCounted
+
+# I bottoni delle azioni: l'unica parte del combattimento con cui il giocatore
+# parla invece di guardare.
+#
+# Stanno in colonna sulla destra, con una larghezza riservata: il box del testo
+# non si restringe quando compaiono e non si allarga quando spariscono. Un menu
+# che fa saltare il resto della schermata e' un menu che si fa notare per il
+# motivo sbagliato.
+#
+# Il primo bottone utile prende il fuoco da tastiera: il combattimento si gioca
+# per intero senza mouse. Quando un passo del tutorial chiede una cosa precisa,
+# quella pulsa e le altre si spengono - senza mai togliere "Studia", perche'
+# guardare una creatura non e' mai un errore.
+#
+# In modalita' muta non costruisce niente: il giocatore automatico non preme
+# bottoni, sceglie da solo (vedi "strategia" in Combattimento.gd).
+
+var muta := false
+var scontro                    # il nodo Combattimento: il menu e' una sua vista
+var contenitore: HBoxContainer
+var fuoco_gia_dato := false
+
+func _init(nodo_scontro, silenzioso := false) -> void:
+	scontro = nodo_scontro
+	muta = silenzioso
+
+func collega(nodo_azioni: HBoxContainer) -> void:
+	contenitore = nodo_azioni
+
+func pulisci() -> void:
+	fuoco_gia_dato = false
+	if muta:
+		return
+	for figlio in contenitore.get_children():
+		figlio.queue_free()
+
+func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := false) -> void:
+	if muta:
+		return
+	var pulsante := Button.new()
+	pulsante.text = ("▶  " + testo) if evidenziato else testo
+	pulsante.disabled = spento
+	pulsante.custom_minimum_size = Vector2(0, 44)
+	pulsante.pressed.connect(richiamo)
+	contenitore.add_child(pulsante)
+	if not spento and not fuoco_gia_dato:
+		# il primo bottone utile prende il fuoco: si gioca anche da tastiera
+		fuoco_gia_dato = true
+		pulsante.grab_focus()
+	if evidenziato:
+		# pulsa finche' non lo premi: e' li' che deve guardare il giocatore
+		pulsante.modulate = Stile.colore("accento")
+		var battito: Tween = pulsante.create_tween().set_loops()
+		battito.tween_property(pulsante, "modulate:a", 0.45, 0.5)
+		battito.tween_property(pulsante, "modulate:a", 1.0, 0.5)
+
+# --- i menu ---
+
+func principale() -> void:
+	pulisci()
+	var passo: Dictionary = scontro.passo_tutorial()
+	if not passo.is_empty():
+		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
+		# sempre libero: guardare non e' mai un errore)
+		var richiesta := String(passo.get("azione", ""))
+		bottone("Attacca", bersagli, richiesta != "attacca", richiesta == "attacca")
+		bottone("Difenditi", scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
+		bottone("Abilità", abilita)
+		bottone("Oggetti", oggetti, richiesta != "oggetto", richiesta == "oggetto")
+		return
+	bottone("Attacca", bersagli)
+	bottone("Difenditi", scegli.bind({"tipo": "difendi"}))
+	bottone("Abilità", abilita)
+	bottone("Oggetti", oggetti, GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty())
+	bottone("Alleati", alleati, scontro.alleati_disponibili().is_empty())
+	bottone("Fuggi", scegli.bind({"tipo": "fuggi"}), not scontro.fuga_possibile())
+
+func bersagli() -> void:
+	var nemici: Array[Dictionary] = scontro.vivi(false)
+	if nemici.size() == 1:
+		scegli({"tipo": "attacca", "bersaglio": nemici[0]})
+		return
+	pulisci()
+	for nemico in nemici:
+		bottone("Attacca %s" % nemico.nome, scegli.bind({"tipo": "attacca", "bersaglio": nemico}))
+	bottone("Indietro", principale)
+
+func studia() -> void:
+	# studiare e' un'azione mirata quanto attaccare: con piu' creature in campo
+	# si sceglie chi guardare, non si prende quella che capita per prima
+	var nemici: Array[Dictionary] = scontro.vivi(false)
+	if nemici.size() <= 1:
+		scegli({"tipo": "studia", "bersaglio": nemici[0] if not nemici.is_empty() else {}})
+		return
+	pulisci()
+	for nemico in nemici:
+		bottone("Studia %s" % nemico.nome, scegli.bind({"tipo": "studia", "bersaglio": nemico}))
+	bottone("Indietro", abilita)
+
+func abilita() -> void:
+	pulisci()
+	# Studia non costa niente e non costera' mai niente: guardare una creatura
+	# e' il cuore del gioco, non una risorsa da amministrare
+	bottone("Studia", studia)
+	var attaccante: Dictionary = scontro.attaccante_corrente
+	var elenco: Array = GameState.classi.get(attaccante.get("id", ""), {}).get("abilita", [])
+	var aura := int(attaccante.get("aura", 0))
+	if "provocazione" in elenco:
+		var costo_prov := int(GameState.regole.get("costo_aura_provocazione", 3))
+		bottone("Provoca  (%d aura)" % costo_prov, scegli.bind({"tipo": "provoca"}), aura < costo_prov)
+	if "attacco_area" in elenco:
+		var costo_area := int(GameState.regole.get("costo_aura_area", 4))
+		bottone("Colpo d'area  (%d aura)" % costo_area, scegli.bind({"tipo": "area"}), aura < costo_area)
+	bottone("Indietro", principale)
+
+func oggetti() -> void:
+	pulisci()
+	var conteggio := {}
+	for id_oggetto in GameState.sacca:
+		conteggio[id_oggetto] = int(conteggio.get(id_oggetto, 0)) + 1
+	var passo: Dictionary = scontro.passo_tutorial()
+	var solo_questo := String(passo.get("oggetto", "")) if not passo.is_empty() else ""
+	for id_oggetto in conteggio:
+		var nome: String = GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)
+		var richiesto: bool = solo_questo != "" and String(id_oggetto) == solo_questo
+		bottone("%s ×%d" % [nome, conteggio[id_oggetto]],
+				scegli.bind({"tipo": "oggetto", "id": id_oggetto}),
+				solo_questo != "" and not richiesto, richiesto)
+	for leva in scontro.leve_utilizzabili():
+		if solo_questo != "":
+			break  # durante il tutorial si usa solo cio' che viene chiesto
+		var id_leva := String(leva.get("id", ""))
+		var nome_leva := String(GameState.dati_oggetto(id_leva).get("nome", id_leva))
+		bottone("Mostra: %s" % nome_leva, scegli.bind({"tipo": "leva", "id": id_leva}))
+	bottone("Indietro", principale)
+
+func alleati() -> void:
+	pulisci()
+	for id_ospite in scontro.alleati_disponibili():
+		var nome: String = GameState.personaggi.get(id_ospite, {}).get("nome", id_ospite)
+		bottone(nome, scegli.bind({"tipo": "alleato", "id": id_ospite}))
+	bottone("Indietro", principale)
+
+func scegli(azione: Dictionary) -> void:
+	pulisci()
+	scontro.azione_scelta.emit(azione)
