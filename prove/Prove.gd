@@ -30,6 +30,7 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_finale_scriptato()
 	prova_transizioni()
 	prova_suoni()
 	prova_script_compilano()
@@ -411,6 +412,42 @@ func prova_salvataggio() -> void:
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
 	GameState.nuova_partita()
+
+func prova_finale_scriptato() -> void:
+	# LA PROVA DELLA BOMBA. Nell'allenamento con Veronica la bomba e' l'ultimo
+	# passo del copione: appena la usi il tutorial si chiude, e la chiusura e'
+	# lei che ti stende con la Meteora di Atlante. Giusto cosi'. Solo che il
+	# ritratto del protagonista si spegneva SUBITO, sette messaggi prima che il
+	# box raccontasse la meteora - e allora il nesso che il giocatore vede e'
+	# "ho tirato la bomba e sono morto io".
+	#
+	# Qui si verifica la regola generale: una sconfitta scritta azzera i punti
+	# vita all'istante (il motore deve saperlo) ma non tocca nessuna scheda
+	# finche' la coda non ci arriva.
+	titolo("un finale scritto non spegne le schede prima del tempo")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scena: PackedScene = load("res://scenes/Combattimento.tscn")
+	var scontro: Node = scena.instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	# si riparte da uno scontro pulito: qualcuno vivo, coda vuota, contatore a zero
+	for combattente in scontro.combattenti:
+		combattente.hp = combattente.hp_max
+	scontro.voce.coda.clear()
+	scontro.voce.scrivi("Veronica scatena il suo attacco speciale.")
+	var schede_prima: int = scontro.campo.aggiornamenti
+	scontro.sconfitta_scriptata()
+	var eroe: Dictionary = scontro.vivi(true)[0] if not scontro.vivi(true).is_empty() else {}
+	esigi(eroe.is_empty(), "la sconfitta scriptata non ha azzerato i punti vita")
+	esigi(scontro.campo.aggiornamenti == schede_prima,
+			"il finale scritto spegne il ritratto prima che il box abbia raccontato perche': "
+			+ "e' il bug della bomba di Veronica")
+	esigi(not scontro.voce.coda.is_empty(),
+			"il finale scritto non ha lasciato niente da leggere")
+	scontro.free()
 
 func prova_transizioni() -> void:
 	# LA PROVA DELLA SCHERMATA VUOTA. Bru e' rimasto bloccato a Meridia: vinci

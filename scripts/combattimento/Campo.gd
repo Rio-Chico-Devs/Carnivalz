@@ -28,6 +28,10 @@ var nemici_destra: HBoxContainer
 
 var centrale_occupato := false
 var prossimo_lato := "destra"
+# quante volte e' stato chiesto di ridisegnare una scheda: lo contiamo anche da
+# muti, perche' e' l'unico modo che hanno le prove di accorgersi se una scheda
+# cambia PRIMA che il box abbia raccontato perche'
+var aggiornamenti := 0
 
 func _init(silenzioso := false) -> void:
 	muta = silenzioso
@@ -80,6 +84,7 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
 	# sbiadito. I compagni a terra restano visibili (sono tuoi, non sono usciti)
+	aggiornamenti += 1
 	if muta or combattente.get("scheda", null) == null:
 		return
 	var fuori_dal_campo: bool = int(combattente.hp) <= 0 and not bool(combattente.giocatore)

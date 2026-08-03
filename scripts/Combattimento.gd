@@ -1020,13 +1020,27 @@ func esegui_vortice_di_rabbia(dati_incontro: Dictionary) -> void:
 	_su_ko(bersaglio)
 
 func sconfitta_scriptata() -> void:
-	# il party viene azzerato sul colpo: usato dagli epiloghi letali degli
-	# incontri scriptati (incubo, scena fatale), sempre instradati come una
-	# qualunque sconfitta (se_perdi)
+	# Il colpo che chiude una scena scritta: l'epilogo letale di un incontro
+	# scriptato (l'incubo, la Chiamata di Morfeo) o la fine dell'allenamento con
+	# Veronica. Instradato sempre come una sconfitta qualunque (se_perdi).
+	#
+	# I punti vita vanno a zero SUBITO - il motore deve sapere com'e' finita -
+	# ma il ritratto si spegne quando la coda arriva fin qui, non un istante
+	# prima. Senza questa distinzione succedeva una cosa precisa e sbagliata:
+	# nell'allenamento tiri la bomba a Veronica, e il tuo ritratto diventa KO
+	# all'istante, SETTE messaggi prima che il box racconti la Meteora di
+	# Atlante che ti mette davvero a terra. Il giocatore legge il nesso di causa
+	# che ha davanti agli occhi - "ho tirato la bomba e sono morto io" - e ha
+	# ragione a leggerlo, perche' e' quello che lo schermo gli sta mostrando.
+	#
+	# E' la stessa regola di effetto_colpo(): i numeri cambiano quando devono,
+	# quello che si vede cambia quando lo si racconta.
 	var vittime := vivi(true)
 	for vittima in vittime:
 		vittima.hp = 0
-		aggiorna_scheda(vittima)
+	for vittima in vittime:
+		var caduta := vittima
+		voce.accoda_effetto(func() -> void: aggiorna_scheda(caduta))
 	if not vittime.is_empty():
 		_su_ko(vittime[0])
 
