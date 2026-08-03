@@ -59,6 +59,7 @@ dritti in mappa.
 - `data/task.json` — gli appunti del Diario: dove andare e cosa qualcuno ti ha chiesto (vedi sotto)
 - `data/codici.json` — codici riscattabili da Extra (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
+- `prove/Prove.tscn` + `prove/Prove.gd` — le prove del progetto: `./prove/esegui.sh` (vedi sotto)
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
   (ritratti), `art/branding/logo_studio.png`/`logo_personale.png` (loghi d'apertura). Finché
   mancano: placeholder generati (cielo stellato / iniziale del nome / testo)
@@ -1128,6 +1129,50 @@ tutti i nodi dove i compagni non hanno ancora niente da dire.
 È un'istantanea generata: si rifà con `python3 strumenti/genera_testi.py` dopo aver toccato i
 JSON o gli script. Non è una fonte — la fonte restano `data/` e `scripts/`.
 
+## Le prove (`prove/`)
+In un gioco fatto di dati, la maggior parte degli errori **non è un errore di compilazione**. Un
+`"vai": "collina_ovest"` scritto dove il nodo si chiama `collina_est` compila benissimo: è un
+vicolo cieco che il giocatore trova venti minuti dopo, in un ramo che nessuno ripercorre a mano
+ogni volta. Lo stesso vale per un nemico evocato da una mossa e mai definito, un oggetto messo in
+vendita che non esiste, un appunto del Diario appeso a un flag che nessun nodo alza mai.
+
+`prove/Prove.tscn` + `prove/Prove.gd` sono un programma che apre il progetto **dentro Godot vero**,
+con gli autoload caricati, e attraversa i dati come li attraversa il gioco. Non legge i JSON per
+conto suo: usa `GameState`, quindi se una regola cambia nel motore le prove cambiano con lui.
+
+```
+./prove/esegui.sh                 # oppure: GODOT=/percorso/godot ./prove/esegui.sh
+```
+
+Tre passi, in ordine di gravità: **importa** le risorse, **avvia** il gioco headless
+(`--quit-after 240`: se un autoload esplode all'avvio si sa subito), poi le **verifiche** —
+oggi 1317, raggruppate in quattordici famiglie:
+
+| Cosa controlla | Perché |
+|---|---|
+| dati caricati | i JSON esistono, si leggono, non sono vuoti |
+| ogni destinazione punta a un nodo che esiste | i vicoli ciechi (`vai`, `se_vinci`, `se_perdi`, `se_fuggi`, scelte, `vai_se_flag`) |
+| nessun nodo orfano | contenuto scritto e mai raggiungibile: lavoro buttato |
+| creature dei combattimenti e delle evocazioni | un boss che evoca un id inesistente crasha a metà scontro |
+| agguati | i gruppi random del Vuoto — i riferimenti a nemici più numerosi del gioco |
+| ogni oggetto nominato esiste | pickup, bottini, leve dello Studio, premi, `oggetti_forniti` |
+| negozi | ogni voce in vendita ha un oggetto e un prezzo |
+| appunti del Diario | ogni `richiede_flags`/`chiuso_da` è un flag che qualcuno alza davvero |
+| mappa stellare e mappe delle zone | ogni stanza è un nodo, ogni connessione unisce stanze vere |
+| equipaggiamento | slot, tipi ammessi e somma dei bonus/malus |
+| crescita e statistiche | ogni azione tracciata punta a una statistica esistente |
+| salvataggio | si scrive, si rilegge, e quello che torna è quello che era |
+| tutte le scene si caricano | una `.tscn` rotta si scopre qui, non aprendola |
+
+Escono con codice **0** se passa tutto, **1** se no, quindi valgono in una pipeline:
+`.github/workflows/prove.yml` le fa girare a ogni push e su ogni pull request, sulla stessa
+versione di Godot dichiarata in `project.godot`. Una modifica che rompe qualcosa si vede prima,
+non giocando.
+
+**Quando si aggiunge una prova.** Ogni volta che un bug è arrivato fino a Bru: prima la verifica
+che lo avrebbe preso, poi la correzione. Le prove non sono un adempimento, sono la memoria degli
+errori già fatti — l'unica parte del progetto che non dimentica.
+
 ## Convenzioni
 - Codice e chiavi JSON in italiano
 - RNG solo seedato (`GameState.rng`), mai `randi()` sparsi: determinismo e multiplayer futuro
@@ -1195,3 +1240,7 @@ JSON o gli script. Non è una fonte — la fonte restano `data/` e `scripts/`.
     invincibile, serve solo a ripassare i comandi), prima di sbloccare Jerah per davvero.
     Segnaposto ancora da costruire: la schermata del "Diario" (task/legami/statistiche) e
     una vera mappa del quartier generale (per ora sono solo nodi narrativi)
+21. ✅ **Le prove** (`prove/`, 1317 verifiche) e la pipeline che le fa girare a ogni push. Fino a
+    qui il progetto era stato verificato **leggendolo**: nessuno aveva mai fatto girare il gioco
+    per controllare, e un id sbagliato dentro un JSON non è un errore di compilazione. Ora si
+    controlla eseguendo

@@ -1,0 +1,40 @@
+name: Prove
+
+# Le prove girano a ogni push e su ogni pull request. Un id sbagliato dentro
+# un JSON non e' un errore di compilazione: e' un vicolo cieco che il
+# giocatore trova venti minuti dopo. Questo lo trova in due minuti.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    env:
+      # la stessa versione dichiarata in project.godot (config/features): le
+      # prove devono girare su quella con cui il gioco viene davvero aperto,
+      # non su una comoda da scaricare
+      VERSIONE_GODOT: "4.7"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scarica Godot
+        run: |
+          ARCHIVIO="Godot_v${VERSIONE_GODOT}-stable_linux.x86_64"
+          curl -sSL -o godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${VERSIONE_GODOT}-stable/${ARCHIVIO}.zip"
+          unzip -q godot.zip
+          chmod +x "${ARCHIVIO}"
+          mv "${ARCHIVIO}" /usr/local/bin/godot
+          godot --version
+
+      - name: Importa le risorse
+        run: godot --headless --path . --import
+
+      - name: Il gioco si avvia
+        run: godot --headless --path . --quit-after 240
+
+      - name: Prove
+        run: godot --headless --path . prove/Prove.tscn

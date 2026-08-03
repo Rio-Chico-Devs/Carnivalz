@@ -1,1 +1,8 @@
+# la cartella di lavoro di Godot: cache, risorse importate, roba di macchina
 .godot/
+
+# file generati dall'importazione, uno per risorsa. Godot li rifa' da solo
+# alla prima apertura del progetto (e la pipeline lo fa con --import): se
+# stessero nel repo, ognuno si porterebbe dietro gli id della sua macchina.
+*.import
+*.uid
