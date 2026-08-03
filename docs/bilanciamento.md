@@ -1,6 +1,6 @@
 # Bilanciamento (generato, non scrivere qui a mano)
 
-Prodotto da `prove/Simulatore.gd`: **99000 partite** giocate dal motore vero in 480 secondi.
+Prodotto da `prove/Simulatore.gd`: **99000 partite** giocate dal motore vero in 493 secondi.
 
 Non e' una stima e non e' un modello: e' `Combattimento.tscn` istanziata e giocata,
 con Voce/Campo/Menu muti. Se questi numeri sono sbagliati, sono sbagliati anche

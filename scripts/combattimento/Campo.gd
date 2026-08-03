@@ -98,18 +98,43 @@ func aggiorna(combattente: Dictionary) -> void:
 		# i boss (e i nemici scriptati come la manifestazione) non mostrano il
 		# conteggio esatto degli hp: mantiene l'incertezza sullo scontro
 		combattente.etichetta_vita.text = "♥ ???"
+	elif not conosciuta(combattente, 1):
+		combattente.etichetta_vita.text = "♥ ???"
 	else:
 		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
 	combattente.etichetta_extra.text = dettagli_di(combattente)
 
+func conosciuta(combattente: Dictionary, strato: int) -> bool:
+	# Studiare era una cosa che si LEGGEVA: premevi, usciva del testo, e sullo
+	# schermo non cambiava niente. Il giocatore capiva sempre di piu' e non lo
+	# vedeva da nessuna parte.
+	#
+	# Adesso la scheda di una creatura si riempie a strati, uno per studio:
+	#   0 studi -> "♥ ???", non sai niente di lei
+	#   1 studio -> i punti vita esatti
+	#   2 studi -> quanto para e quanto picchia
+	# I tuoi compagni li conosci gia'; i boss restano a "???" comunque, che e'
+	# una scelta piu' vecchia e piu' importante di questa.
+	if combattente.giocatore or combattente.get("oggetto_scena", false):
+		return true
+	if not bool(GameState.regole.get("studio_rivela", true)):
+		return true   # interruttore in regole.json: si torna al vecchio modo
+	return int(combattente.get("volte_studiato", 0)) >= strato
+
 func dettagli_di(combattente: Dictionary) -> String:
+	if not conosciuta(combattente, 1):
+		return "non l'hai ancora guardata"
 	var dettagli := ""
+	if not combattente.giocatore:
+		dettagli += progresso_studio(combattente)
 	if int(combattente.get("aura_max", 0)) > 0:
 		dettagli += "Aura %d/%d · " % [int(combattente.aura), int(combattente.aura_max)]
 	dettagli += "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]
 	var scudo := RegoleCombattimento.difesa_di(combattente)
-	if scudo > 0:
+	if scudo > 0 and conosciuta(combattente, 2):
 		dettagli += " · Dif %d" % scudo
+	if not combattente.giocatore and conosciuta(combattente, 2):
+		dettagli += " · Att %d" % RegoleCombattimento.attacco_di(combattente)
 	if combattente.stress >= int(GameState.regole.get("soglia_stress_sopraffatto", 80)):
 		dettagli += " · sopraffatto"
 	if combattente.get("in_fiamme", false):
@@ -125,6 +150,20 @@ func dettagli_di(combattente: Dictionary) -> String:
 	if combattente.psiche in combattente.stati:
 		dettagli += " · " + String(GameState.psichi.get(combattente.psiche, {}).get("nome", combattente.psiche))
 	return dettagli
+
+func progresso_studio(combattente: Dictionary) -> String:
+	# Per le creature che si possono lasciare andare, quante volte le hai gia'
+	# guardate e quante ne servono. Senza questo il risparmio arriva dal nulla:
+	# studi, studi, e a un certo punto succede qualcosa. Con questo si vede
+	# arrivare, ed e' una cosa che si sceglie invece che una che capita.
+	var dati: Dictionary = GameState.personaggi.get(combattente.id, {})
+	if not dati.has("risparmio"):
+		return ""
+	var richiesti := maxi(int(dati["risparmio"].get("studi_richiesti", 1)), 1)
+	var fatti := mini(int(combattente.get("volte_studiato", 0)), richiesti)
+	if fatti >= richiesti:
+		return ""
+	return "capita %d/%d · " % [fatti, richiesti]
 
 func evidenzia(combattenti: Array[Dictionary], attivo: Dictionary) -> void:
 	# di chi e' il turno si vede senza leggere: gli altri si spengono un po'

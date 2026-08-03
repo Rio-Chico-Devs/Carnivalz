@@ -1202,6 +1202,77 @@ Attenzione a leggerlo: nel gioco le statistiche non salgono col livello, salgono
 hai fatto (`crescita.json`). Il simulatore alza solo il livello, quindi misura un protagonista
 arrivato fin lì senza guadagnare un punto — è il pavimento, non la media.
 
+## Il gioco ha una voce (`scripts/Sintesi.gd`)
+Non c'è un solo file audio nel progetto, e ce ne saranno solo quando li farà Bru. Ma restare muti
+non è neutrale: un testo che scorre in silenzio non sembra *in attesa dell'audio*, sembra morto.
+
+La cosa che nei giochi fa sembrare **parlato** un testo scritto non è la musica — è il colpetto di
+voce per gruppo di lettere, intonato diverso per ogni personaggio. E un colpetto di voce è un'onda
+quadra di cinquanta millesimi di secondo, cioè mille numeri in fila. Quindi li calcoliamo:
+`Sintesi.gd` costruisce ogni suono campione per campione all'avvio.
+
+L'altezza e la forma d'onda di un personaggio vengono **dal suo nome**: due personaggi suonano
+sempre diversi, lo stesso personaggio sempre uguale, e non c'è niente da configurare. Chi vuole
+sceglierselo lo mette nei dati:
+
+```json
+"voce": {"altezza": 320, "forma": "sega"}
+```
+
+Sei suoni d'interfaccia (`conferma`, `annulla`, `colpo`, `cura`, `raccolta`, `errore`) e il blip
+della narrazione, più basso e più morbido, perché la voce che racconta dall'esterno non è nessuno.
+Durante i respiri sulla punteggiatura le lettere non avanzano, quindi **la voce si ferma da sola
+dove si fermerebbe una vera**.
+
+**Sono segnaposto, ed è il punto.** Ogni suono ha un percorso file corrispondente
+(`res://audio/ui/<nome>.wav`): appena quel file esiste, vince lui e la sintesi si fa da parte. Non
+c'è niente da ricablare — si copia un `.wav` nella cartella.
+
+## Come comincia uno scontro (`apertura`)
+Ogni combattimento cominciava con un menu. Ora comincia con la **creatura**: un gesto o una frase,
+prima che il giocatore possa fare qualsiasi cosa. Un campo nei dati del personaggio:
+
+```json
+"apertura": "Ritira la testa nel guscio prima ancora che tu faccia un passo. Non attacca. Aspetta."
+"apertura": {"tipo": "dialogo", "testo": "Un altro. Sempre un altro. Non finite mai di arrivare."}
+```
+
+Parla solo la creatura principale — in un'imboscata da tre, tre battute di presentazione sarebbero
+un'attesa e non un'entrata. Ce l'hanno per ora tartaruga, goblin tipico, goblin arrabbiato,
+manifestazione e Jerah: le altre sono da scrivere.
+
+## Lo studio si vede
+Studiare era una cosa che si **leggeva**: premevi, usciva del testo, e sullo schermo non cambiava
+niente. Il giocatore capiva sempre di più e non lo vedeva da nessuna parte. Ora la scheda di una
+creatura si riempie a strati, uno per studio:
+
+| studi | cosa sai |
+|--:|---|
+| 0 | `♥ ???` — «non l'hai ancora guardata» |
+| 1 | i punti vita esatti, stress, fattore, stati addosso |
+| 2 | quanto para e quanto picchia (`Dif`, `Att`) |
+
+Per le creature che si possono lasciare andare compare anche **`capita 1/3`**: quante volte l'hai
+guardata e quante ne servono. Senza, il risparmio arrivava dal nulla — studi, studi, e a un certo
+punto succede qualcosa; con, si vede arrivare, ed è una cosa che si sceglie invece che una che
+capita. I boss restano a `???` comunque (scelta più vecchia e più importante di questa), e
+`"studio_rivela": false` in `regole.json` riporta tutto com'era.
+
+## Esportare il gioco (`export_presets.cfg`)
+Fino a qui Carnivalz si poteva solo **aprire** nell'editor: non esisteva nessun modo di darlo a
+qualcuno che Godot non ce l'ha. Ora ci sono due destinazioni pronte, Linux e Windows:
+
+```
+godot --headless --export-release "Linux"   build/Carnivalz.x86_64
+godot --headless --export-release "Windows" build/Carnivalz.exe
+```
+
+Servono i template di esportazione installati (Editor → Gestisci template): sono il guscio
+dell'eseguibile, pesano un giga e non stanno nel repo. `exclude_filter` tiene fuori dal pacchetto
+quello che serve a noi e non al giocatore (`prove/`, `strumenti/`, `docs/`, i `.md`). La pipeline
+esporta e **fa partire l'eseguibile** a ogni push: che il gioco si possa consegnare è una proprietà
+verificata come le altre.
+
 ## Convenzioni
 - Codice e chiavi JSON in italiano
 - RNG solo seedato (`GameState.rng`), mai `randi()` sparsi: determinismo e multiplayer futuro

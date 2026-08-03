@@ -29,6 +29,7 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_suoni()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -408,6 +409,26 @@ func prova_salvataggio() -> void:
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
 	GameState.nuova_partita()
+
+func prova_suoni() -> void:
+	# I suoni del gioco non sono file, sono numeri calcolati all'avvio
+	# (Sintesi.gd). Un'onda sbagliata non da' errore: da' silenzio, o un clic.
+	titolo("suoni sintetizzati")
+	for nome: String in ["conferma", "annulla", "colpo", "cura", "raccolta", "errore"]:
+		var suono := Sintesi.interfaccia(nome)
+		esigi(suono != null and suono.data.size() > 0, "il suono '%s' esce vuoto" % nome)
+		esigi(suono.mix_rate == Sintesi.CAMPIONAMENTO, "il suono '%s' ha il campionamento sbagliato" % nome)
+	# due nomi diversi devono suonare diversi, e lo stesso nome sempre uguale:
+	# un personaggio che cambia voce tra una battuta e l'altra e' peggio del silenzio
+	var una := Sintesi.voce_da_nome("Veronica")
+	var altra := Sintesi.voce_da_nome("Jerah")
+	esigi(una != altra, "due personaggi diversi hanno la stessa identica voce")
+	esigi(una == Sintesi.voce_da_nome("Veronica"), "la voce di un personaggio cambia tra una chiamata e l'altra")
+	var blip := Sintesi.blip("Veronica")
+	esigi(blip.data.size() > 0, "il blip di una battuta esce vuoto")
+	# il primo campione deve partire da zero: senza rampa d'attacco ogni suono
+	# comincia con un clic, ed e' la differenza tra "voce" e "disturbo"
+	esigi(absi(blip.data.decode_s16(0)) < 500, "il blip parte di scatto: si sentirebbe un clic")
 
 func prova_script_compilano() -> void:
 	# Ogni .gd deve compilare. Sembra ovvio, e invece e' la prova che mancava:

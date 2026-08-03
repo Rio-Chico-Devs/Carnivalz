@@ -193,6 +193,7 @@ func _ready() -> void:
 		scrivi_forte("Il disallineamento fa spazio: si combatte.")
 	else:
 		scrivi("Ora di combattere.")
+	mostra_apertura()
 	if not muto:
 		avvia_musica_e_voce()
 	if fonte.get("convincibile", false):
@@ -235,6 +236,40 @@ func categoria_migliore_presente() -> String:
 			migliore = idx
 			categoria = ordine[idx]
 	return categoria
+
+func mostra_apertura() -> void:
+	# Ogni scontro cominciava con un menu. Adesso comincia con la CREATURA: un
+	# gesto, una frase, uno sguardo, prima che tu possa fare qualsiasi cosa. La
+	# tartaruga ritira la testa, il goblin ti insulta, la manifestazione non
+	# dice niente e ti guarda.
+	#
+	# Costa un campo nei dati ("apertura") e cambia come ci si sente entrando in
+	# un combattimento: due scontri diversi non cominciano piu' allo stesso modo.
+	# Parla solo la creatura principale - in un'imboscata da tre, tre battute di
+	# presentazione sarebbero un'attesa, non un'entrata.
+	var principale := creatura_principale()
+	var apertura: Variant = principale.get("apertura", null)
+	if apertura == null:
+		return
+	if apertura is String:
+		scrivi_forte("[i]%s[/i]" % String(apertura))
+		return
+	if apertura is Dictionary:
+		var testo := String(apertura.get("testo", ""))
+		if String(apertura.get("tipo", "narrazione")) == "dialogo":
+			scrivi_forte(testo, "dialogo", String(principale.get("nome_breve", principale.get("nome", ""))))
+		else:
+			scrivi_forte("[i]%s[/i]" % testo)
+
+func creatura_principale() -> Dictionary:
+	# la piu' "alta" in campo: il boss se c'e', altrimenti il primo del gruppo.
+	# La stessa che decide la musica e il testo d'apertura
+	var categoria := categoria_migliore_presente()
+	for id_nemico in GameState.nemici_combattimento:
+		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
+		if RegoleCombattimento.categoria_di(dati) == categoria:
+			return dati
+	return {}
 
 func avvia_musica_e_voce() -> void:
 	# musica per la categoria più "alta" tra i nemici; voce d'ingresso per boss/miniboss
@@ -670,6 +705,7 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary, moltiplicatore := 
 			# la cura si vede come si vede il danno: un numero che sale, verde
 			var scheda_curato: Control = utente.scheda
 			voce.accoda_effetto(func() -> void:
+				voce.suono("cura")
 				voce.numero_volante(scheda_curato, "+%d" % recuperati, Stile.colore("positivo"))
 				aggiorna_scheda(utente))
 		else:
@@ -1649,6 +1685,7 @@ func effetto_colpo(bersaglio: Dictionary, danno: int) -> Callable:
 	var scheda: Control = bersaglio.scheda
 	var vivo: bool = int(bersaglio.hp) > 0
 	return func() -> void:
+		voce.suono("colpo")
 		voce.numero_volante(scheda, "−%d" % danno, Stile.colore("pericolo"))
 		if vivo:
 			voce.lampeggia(scheda, Stile.colore("pericolo"))

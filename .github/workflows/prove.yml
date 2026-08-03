@@ -38,3 +38,52 @@ jobs:
 
       - name: Prove
         run: godot --headless --path . prove/Prove.tscn
+
+  # Che il gioco si possa CONSEGNARE e' una proprieta' come le altre: se smette
+  # di essere vero, va saputo subito. I template pesano un giga, quindi restano
+  # in cache tra una corsa e l'altra.
+  esportazione:
+    runs-on: ubuntu-latest
+    env:
+      VERSIONE_GODOT: "4.7"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scarica Godot
+        run: |
+          ARCHIVIO="Godot_v${VERSIONE_GODOT}-stable_linux.x86_64"
+          curl -sSL -o godot.zip \
+            "https://github.com/godotengine/godot/releases/download/${VERSIONE_GODOT}-stable/${ARCHIVIO}.zip"
+          unzip -q godot.zip
+          chmod +x "${ARCHIVIO}"
+          mv "${ARCHIVIO}" /usr/local/bin/godot
+
+      - name: Cache dei template
+        id: cache-template
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/godot/export_templates
+          key: template-godot-${{ env.VERSIONE_GODOT }}
+
+      - name: Scarica i template
+        if: steps.cache-template.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL -o template.tpz \
+            "https://github.com/godotengine/godot/releases/download/${VERSIONE_GODOT}-stable/Godot_v${VERSIONE_GODOT}-stable_export_templates.tpz"
+          mkdir -p ~/.local/share/godot/export_templates/${VERSIONE_GODOT}.stable
+          unzip -q -j template.tpz "templates/linux_release.x86_64" "templates/linux_debug.x86_64" \
+            -d ~/.local/share/godot/export_templates/${VERSIONE_GODOT}.stable/
+
+      - name: Esporta
+        run: |
+          godot --headless --path . --import
+          mkdir -p build
+          godot --headless --path . --export-release "Linux" build/Carnivalz.x86_64
+
+      - name: L'eseguibile parte
+        run: ./build/Carnivalz.x86_64 --headless --quit-after 200
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Carnivalz-linux
+          path: build/Carnivalz.x86_64

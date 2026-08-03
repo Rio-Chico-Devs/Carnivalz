@@ -8,6 +8,8 @@
 	"probabilita_attacco_extra_rabbia": 0.35,
 	"malus_danno_depressione": 1,
 	"fattore_bonus_concentrazione": 25,
+	"_nota_studio_rivela": "false = le creature mostrano tutto da subito, come prima",
+	"studio_rivela": true,
 	"soglia_stress_sopraffatto": 80,
 	"stress_per_fattore": 25,
 	"legame_iniziale": 20,

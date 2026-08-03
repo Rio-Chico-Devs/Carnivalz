@@ -144,5 +144,7 @@ func alleati() -> void:
 	bottone("Indietro", principale)
 
 func scegli(azione: Dictionary) -> void:
+	if not muta:
+		AudioManager.interfaccia("conferma")
 	pulisci()
 	scontro.azione_scelta.emit(azione)

@@ -35,6 +35,12 @@ extends PanelContainer
 
 signal scrittura_finita
 
+# Un colpetto di voce ogni tot lettere, mentre scrive. Tre e' il numero che
+# suona come parlato: a una lettera diventa una mitragliata, a cinque sembra
+# che il personaggio balbetti. Durante i respiri sulla punteggiatura le lettere
+# non avanzano, quindi la voce si ferma da sola dove si fermerebbe una vera.
+const LETTERE_PER_BLIP := 3
+
 @onready var targhetta: Label = %Targhetta
 @onready var testo: RichTextLabel = %Testo
 @onready var indicatore: Label = %Indicatore
@@ -42,6 +48,9 @@ signal scrittura_finita
 var sta_scrivendo := false
 var tween_testo: Tween
 var tween_indicatore: Tween
+var tipo_corrente := "narrazione"
+var nome_corrente := ""
+var lettere_al_blip := 0
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", Stile.stile_box_testo())
@@ -72,6 +81,13 @@ func imposta_altezza(altezza_testo: int) -> void:
 
 func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 	visible = true
+	tipo_corrente = tipo
+	nome_corrente = nome_parlante
+	lettere_al_blip = 0
+	if tipo == "notifica":
+		# la notifica non e' qualcuno che parla, e' il gioco che ti dice che hai
+		# qualcosa in piu': ha un suono suo, e arriva prima delle parole
+		AudioManager.interfaccia("raccolta")
 	testo.scroll_to_line(0)  # nuovo messaggio: si riparte sempre dall'inizio del testo
 	match tipo:
 		"dialogo":
@@ -99,6 +115,7 @@ func scrivi_a_macchina() -> void:
 		return
 	testo.visible_ratio = 0.0
 	sta_scrivendo = true
+	set_process(true)
 	tween_testo = create_tween()
 	# un pezzo di tween per ogni pezzo di frase, con in mezzo il respiro
 	var scritti := 0
@@ -163,8 +180,20 @@ func completa() -> void:
 	testo.visible_ratio = 1.0
 	conclusione()
 
+func _process(_delta: float) -> void:
+	# quante lettere sono comparse da quando ha suonato l'ultima volta
+	if not sta_scrivendo:
+		set_process(false)
+		return
+	var scritte := int(testo.visible_ratio * testo.get_total_character_count())
+	if scritte - lettere_al_blip < LETTERE_PER_BLIP:
+		return
+	lettere_al_blip = scritte
+	AudioManager.blip(nome_corrente, tipo_corrente)
+
 func conclusione() -> void:
 	sta_scrivendo = false
+	set_process(false)
 	indicatore.visible = true
 	if tween_indicatore != null and tween_indicatore.is_valid():
 		tween_indicatore.kill()

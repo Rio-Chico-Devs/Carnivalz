@@ -6,3 +6,6 @@
 # stessero nel repo, ognuno si porterebbe dietro gli id della sua macchina.
 *.import
 *.uid
+
+# gli eseguibili prodotti da Progetto > Esporta
+build/

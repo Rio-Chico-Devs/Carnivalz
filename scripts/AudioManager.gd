@@ -14,7 +14,9 @@ extends Node
 
 var lettore_musica: AudioStreamPlayer
 var lettore_sfx: AudioStreamPlayer
+var lettore_voce: AudioStreamPlayer   # i blip: hanno un lettore loro, o taglierebbero i versi
 var traccia_corrente: String = ""
+var suoni_pronti: Dictionary = {}     # chiave -> AudioStream gia' costruito
 
 func _ready() -> void:
 	_assicura_bus("Musica")
@@ -25,6 +27,9 @@ func _ready() -> void:
 	lettore_sfx = AudioStreamPlayer.new()
 	lettore_sfx.bus = "Effetti"
 	add_child(lettore_sfx)
+	lettore_voce = AudioStreamPlayer.new()
+	lettore_voce.bus = "Effetti"
+	add_child(lettore_voce)
 
 func _assicura_bus(nome: String) -> void:
 	# "Musica" ed "Effetti" sono bus separati (figli di "Master") cosi' le
@@ -94,3 +99,54 @@ func voce_boss(id_personaggio: String, dati: Dictionary, evento: String) -> void
 	if percorso == "":
 		percorso = "res://audio/voci/%s_%s.wav" % [id_personaggio, evento]
 	sfx(percorso)
+
+# --- suoni costruiti al volo (vedi Sintesi.gd) ---
+#
+# Il gioco non ha nessun file audio. Restare muti pero' non e' neutrale: un
+# testo che scorre in silenzio non sembra "in attesa dell'audio", sembra morto.
+# Questi suoni li costruiamo campione per campione all'avvio, costano niente, e
+# si fanno da parte da soli: se il .wav corrispondente esiste, vince lui.
+
+func _suono(chiave: String, percorso_vero: String, costruisci: Callable) -> AudioStream:
+	if suoni_pronti.has(chiave):
+		return suoni_pronti[chiave]
+	var suono: AudioStream
+	if percorso_vero != "" and ResourceLoader.exists(percorso_vero):
+		suono = load(percorso_vero)   # il file vero di Bru ha sempre la precedenza
+	else:
+		suono = costruisci.call()
+	suoni_pronti[chiave] = suono
+	return suono
+
+func interfaccia(nome: String) -> void:
+	# conferma, annulla, colpo, cura, raccolta, errore. Sostituibili copiando un
+	# file in res://audio/ui/<nome>.wav: non c'e' niente da ricablare
+	var suono := _suono("ui:" + nome, "res://audio/ui/%s.wav" % nome,
+			func() -> AudioStream: return Sintesi.interfaccia(nome))
+	lettore_sfx.stream = suono
+	lettore_sfx.play()
+
+func blip(nome_parlante: String, tipo := "dialogo") -> void:
+	# Un colpetto di voce per gruppo di lettere, mentre la macchina da scrivere
+	# scrive. E' il trucco piu' vecchio del mondo (Undertale, Animal Crossing,
+	# Banjo) e resta il modo piu' economico che esista per far sembrare parlato
+	# un testo scritto.
+	#
+	# L'altezza e la forma d'onda vengono dal NOME di chi parla: due personaggi
+	# suonano sempre diversi, lo stesso personaggio sempre uguale. Chi vuole
+	# scegliersela la mette nei dati sotto "voce": {"altezza": 320, "forma": "sega"}.
+	if tipo != "dialogo" or nome_parlante.strip_edges() == "":
+		# narrazione e notifiche non hanno una bocca: voce neutra, piu' bassa
+		lettore_voce.stream = _suono("blip:", "", func() -> AudioStream: return Sintesi.blip_narrazione())
+	else:
+		var dati_voce: Dictionary = _voce_di(nome_parlante)
+		lettore_voce.stream = _suono("blip:" + nome_parlante, "",
+				func() -> AudioStream: return Sintesi.blip(nome_parlante, dati_voce))
+	lettore_voce.play()
+
+func _voce_di(nome_parlante: String) -> Dictionary:
+	# la targhetta porta il nome visualizzato, non l'id: si cerca per nome
+	for dati in GameState.personaggi.values():
+		if dati is Dictionary and String(dati.get("nome", "")) == nome_parlante:
+			return dati.get("voce", {})
+	return {}

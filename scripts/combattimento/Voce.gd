@@ -170,6 +170,12 @@ func numero_volante(scheda: Control, testo: String, tinta: Color) -> void:
 	salita.tween_property(etichetta, "modulate:a", 0.0, 0.75).set_delay(0.2)
 	salita.chain().tween_callback(etichetta.queue_free)
 
+func suono(nome: String) -> void:
+	# colpo, cura, raccolta, conferma: sintetizzati finche' non esistono i file
+	# veri (vedi Sintesi.gd). Il giocatore automatico non sente niente
+	if not muta:
+		AudioManager.interfaccia(nome)
+
 func lampeggia(scheda: Control, tinta: Color) -> void:
 	if muta or scheda == null or not is_instance_valid(scheda):
 		return

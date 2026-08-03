@@ -704,6 +704,7 @@
 		{
 			"id": "jerah",
 			"nome": "L'ultimo spettacolo di Jerah",
+			"apertura": {"tipo": "dialogo", "testo": "Sei arrivato fino a qui. Allora meriti l'ultimo spettacolo."},
 			"nome_breve": "Jerah",
 			"hp": 35,
 			"attacco": 2,
@@ -790,6 +791,7 @@
 		{
 			"id": "goblin_tipico",
 			"nome": "Goblin Tipico",
+			"apertura": "Ringhia qualcosa che non è una parola, e si mette in mezzo.",
 			"hp": 6,
 			"attacco": 1,
 			"difesa": 0,
@@ -828,6 +830,7 @@
 		{
 			"id": "tartaruga_innocente",
 			"nome": "Tartaruga Innocente",
+			"apertura": "Ritira la testa nel guscio prima ancora che tu faccia un passo. Non attacca. Aspetta.",
 			"hp": 20,
 			"attacco": 0,
 			"difesa": 2,
@@ -859,6 +862,7 @@
 		{
 			"id": "manifestazione_di_un_sogno",
 			"nome": "Manifestazione di un sogno",
+			"apertura": "Non dice niente. Ti guarda, e sorride come se ti conoscesse.",
 			"nome_breve": "La manifestazione",
 			"categoria": "particolare",
 			"hp": 32,
@@ -900,6 +904,7 @@
 		{
 			"id": "goblin_arrabbiato",
 			"nome": "Un goblin terribilmente arrabbiato",
+			"apertura": {"tipo": "dialogo", "testo": "Un altro. Sempre un altro. Non finite mai di arrivare."},
 			"nome_breve": "Goblin Arrabbiato",
 			"hp": 30,
 			"attacco": 3,
