@@ -122,7 +122,14 @@ func _unhandled_input(evento: InputEvent) -> void:
 func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) -> void:
 	var nodo: Dictionary = GameState.eventi.get(id_nodo, {})
 	if nodo.is_empty():
+		# Un nodo che non esiste era un vicolo cieco definitivo: si usciva da qui
+		# senza aver mostrato niente e senza aver costruito nessuna scelta, e il
+		# giocatore restava davanti a una schermata vuota da cui non si esce.
+		# Meglio perdere la posizione che perdere la partita: si torna indietro
+		# di una schermata. Le prove non lasciano passare un id sbagliato, ma
+		# nessuna schermata deve poter diventare una prigione.
 		push_error("Nodo evento mancante: " + id_nodo)
+		Transizioni.vai(SCENA_VUOTO if GameState.carnivalz_corrente != "" else SCENA_MAPPA)
 		return
 	if nodo.has("vai_se_flag") and GameState.ha_flag(String(nodo["vai_se_flag"].get("flag", ""))):
 		# stessa stanza, seconda visita: si mostra un altro nodo al suo posto

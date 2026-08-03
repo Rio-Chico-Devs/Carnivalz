@@ -11,9 +11,14 @@ extends CanvasLayer
 # tranquillamente uscire dalla sua funzione subito dopo.
 
 const LIVELLO := 128
+const CATENA_MASSIMA := 8   # oltre questo due scene si stanno rimpallando a vicenda
 
 var velo: ColorRect
 var in_corso := false
+# Una scena che, appena entrata nell'albero, chiede subito di andare altrove.
+# Succede davvero: una stanza del Vuoto tira l'agguato dentro il suo _ready() e
+# parte per il combattimento senza che il giocatore abbia visto niente.
+var prossima := ""
 
 func _ready() -> void:
 	layer = LIVELLO
@@ -27,7 +32,23 @@ func _ready() -> void:
 	add_child(velo)
 
 func vai(percorso: String) -> void:
-	if in_corso or percorso == "":
+	if percorso == "":
+		return
+	if in_corso:
+		# QUESTA RIGA E' UN BUG CHE E' COSTATO UNA PARTITA. Prima qui c'era un
+		# "return" secco, e la richiesta spariva nel nulla. Il caso: vinci un
+		# agguato a Meridia, il combattimento chiama vai(eventi), la stanza
+		# rientra nell'albero e dentro il suo _ready() tira subito un altro
+		# agguato - ma la transizione precedente non e' ancora finita (in_corso
+		# resta acceso finche' il velo non si e' rialzato, tre decimi di secondo
+		# dopo che la scena e' gia' dentro). Quel vai(combattimento) veniva
+		# ingoiato: la stanza restava li' senza testo e senza uscite, e il
+		# giocatore era bloccato per sempre.
+		#
+		# Adesso si mette in fila. Il velo continua a mangiare i click, quindi la
+		# guardia fa ancora il suo mestiere vero - impedire che un doppio click
+		# apra due stanze - senza buttare via una navigazione legittima.
+		prossima = percorso
 		return
 	in_corso = true
 	velo.color = Color(Stile.colore("velo"), velo.color.a)
@@ -36,9 +57,20 @@ func vai(percorso: String) -> void:
 	var chiusura := create_tween()
 	chiusura.tween_property(velo, "color:a", 1.0, durata)
 	await chiusura.finished
-	get_tree().change_scene_to_file(percorso)
-	# un frame perche' la nuova scena entri nell'albero prima di scoprirla
-	await get_tree().process_frame
+	# Si resta al buio finche' le scene smettono di rimbalzare: chi entra e
+	# riparte subito non deve comparire per un istante e poi sparire
+	var destinazione := percorso
+	var passaggi := 0
+	while destinazione != "":
+		get_tree().change_scene_to_file(destinazione)
+		# un frame perche' la nuova scena entri nell'albero e possa dire la sua
+		await get_tree().process_frame
+		destinazione = prossima
+		prossima = ""
+		passaggi += 1
+		if passaggi > CATENA_MASSIMA:
+			push_error("Transizioni: %d cambi di scena di fila, due schermate si rimpallano" % passaggi)
+			break
 	var apertura := create_tween()
 	apertura.tween_property(velo, "color:a", 0.0, durata)
 	await apertura.finished

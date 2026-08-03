@@ -958,7 +958,7 @@ func turno_nemico(nemico: Dictionary) -> void:
 		return
 	turno_nemico_normale(nemico)
 
-func esegui_turno_inerte(nemico: Dictionary, dati_incontro: Dictionary) -> void:
+func esegui_turno_inerte(_nemico: Dictionary, dati_incontro: Dictionary) -> void:
 	# fuori dalle fasi scriptate lei non attacca mai per danno: ogni turno e'
 	# solo la narrazione di un suo gesto, sempre piu' inquietante. Chi non
 	# fugge (o vince) in tempo arriva alla scena finale, letale
@@ -1619,7 +1619,7 @@ func tenta_slaughter(attaccante: Dictionary, bersaglio: Dictionary) -> bool:
 	_su_ko(bersaglio)
 	return true
 
-func mostra_slaughter(bersaglio: Dictionary) -> void:
+func mostra_slaughter(_bersaglio: Dictionary) -> void:
 	# overlay a schermo intero con l'illustrazione e la scritta "SLAUGHTER"
 	# (art/fx/slaughter.png, ancora da disegnare): appare e sparisce in fade,
 	# senza mettere in pausa il combattimento

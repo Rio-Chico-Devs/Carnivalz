@@ -22,6 +22,7 @@ func _ready() -> void:
 	prova_nodi_raggiungibili()
 	prova_riferimenti_creature()
 	prova_agguati()
+	prova_agguati_hanno_una_via_duscita()
 	prova_riferimenti_oggetti()
 	prova_negozi()
 	prova_appunti()
@@ -29,6 +30,7 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_transizioni()
 	prova_suoni()
 	prova_script_compilano()
 	prova_scene_caricabili()
@@ -409,6 +411,47 @@ func prova_salvataggio() -> void:
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
 	GameState.nuova_partita()
+
+func prova_transizioni() -> void:
+	# LA PROVA DELLA SCHERMATA VUOTA. Bru e' rimasto bloccato a Meridia: vinci
+	# un agguato, la stanza rientra, dentro il suo _ready() ne tira subito un
+	# altro - ma la transizione precedente non e' ancora finita, e quel cambio di
+	# scena spariva nel nulla. Stanza senza testo, senza uscite, partita persa.
+	#
+	# Nessun dato era sbagliato: nessuna delle 1300 verifiche di prima poteva
+	# vederlo. Questa si'.
+	titolo("le transizioni non perdono nessuna richiesta")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	Transizioni.vai("res://scenes/Combattimento.tscn")
+	esigi(Transizioni.prossima == "res://scenes/Combattimento.tscn",
+			"un cambio di scena chiesto durante una transizione viene ingoiato: "
+			+ "e' il bug della schermata vuota a Meridia")
+	# l'ultima richiesta vince, e una richiesta vuota non cancella quella buona
+	Transizioni.vai("res://scenes/Mappa.tscn")
+	esigi(Transizioni.prossima == "res://scenes/Mappa.tscn",
+			"la seconda richiesta non sostituisce la prima")
+	Transizioni.vai("")
+	esigi(Transizioni.prossima == "res://scenes/Mappa.tscn",
+			"una destinazione vuota cancella quella in coda")
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+
+func prova_agguati_hanno_una_via_duscita() -> void:
+	# un agguato perso deve portare da qualche parte: senza se_perdi si finisce
+	# nel ramo "reset_campagna" e si perde la posizione senza spiegazione
+	titolo("ogni agguato dice dove si va se si perde")
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		var nodi: Dictionary = dati.get("nodi", {})
+		for id_nodo in nodi:
+			var agguato: Dictionary = nodi[id_nodo].get("agguato", {})
+			if agguato.is_empty():
+				continue
+			var se_perdi := String(agguato.get("se_perdi", ""))
+			esigi(se_perdi != "" and nodi.has(se_perdi),
+					"%s/%s: l'agguato non dice dove si va se si perde" % [percorso, id_nodo])
 
 func prova_suoni() -> void:
 	# I suoni del gioco non sono file, sono numeri calcolati all'avvio

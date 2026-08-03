@@ -49,9 +49,9 @@ func _init(albero_scena: SceneTree, silenziosa := false) -> void:
 	albero = albero_scena
 	muta = silenziosa
 
-func collega(box_testo, avanza: Button, contenitore_volanti: Control) -> void:
+func collega(box_testo, zona_avanza: Button, contenitore_volanti: Control) -> void:
 	box = box_testo
-	area_avanza = avanza
+	area_avanza = zona_avanza
 	volanti = contenitore_volanti
 
 # --- accodare ---
