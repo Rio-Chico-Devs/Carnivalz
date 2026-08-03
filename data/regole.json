@@ -48,7 +48,10 @@
 	"aura_recupero_per_turno": 1,
 	"costo_aura_provocazione": 3,
 	"costo_aura_area": 4,
-	"slot_accessori": 4,
+	"_nota_slot": "Gli accessori non si aprono tutti insieme: si parte da slot_accessori_base e se ne apre uno a ognuno dei livelli elencati. Due classi ne hanno di piu' per un talento loro (slot_accessori_da_abilita).",
+	"slot_accessori_base": 1,
+	"slot_accessori_per_livello": [6, 15, 30],
+	"slot_accessori_da_abilita": {"collezione": 4, "innesti": 1},
 	"ultima_risorsa_soglia": 0.25,
 	"ultima_risorsa_bonus": 0.2
 }

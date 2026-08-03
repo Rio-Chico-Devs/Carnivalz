@@ -30,6 +30,8 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_slot_accessori()
+	prova_scheda_personaggio()
 	prova_finale_scriptato()
 	prova_transizioni()
 	prova_suoni()
@@ -412,6 +414,83 @@ func prova_salvataggio() -> void:
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
 	GameState.nuova_partita()
+
+func prova_slot_accessori() -> void:
+	# Gli accessori non si aprono tutti insieme: uno solo all'inizio, poi uno a
+	# ogni soglia di livello, piu' quelli di chi ha il talento.
+	titolo("gli slot degli accessori si aprono a poco a poco")
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	var base := int(GameState.regole.get("slot_accessori_base", 1))
+	var soglie: Array = GameState.regole.get("slot_accessori_per_livello", [])
+	esigi(base >= 1, "senza almeno uno slot non si puo' equipaggiare niente")
+	GameState.livelli[eroe] = 1
+	esigi(GameState.slot_accessori_di(eroe) == base,
+			"al livello 1 gli slot dovrebbero essere %d, sono %d" % [base, GameState.slot_accessori_di(eroe)])
+	for i in range(soglie.size()):
+		GameState.livelli[eroe] = int(soglie[i])
+		esigi(GameState.slot_accessori_di(eroe) == base + i + 1,
+				"al livello %d gli slot dovrebbero essere %d" % [int(soglie[i]), base + i + 1])
+		esigi(GameState.livello_slot_accessorio(base + i) == int(soglie[i]),
+				"lo slot %d dovrebbe aprirsi al livello %d" % [base + i, int(soglie[i])])
+	# i due talenti: se qualcuno li sposta di classe, questa prova lo dice
+	var con_talento := 0
+	for dati_classe in GameState.classi.values():
+		if not dati_classe is Dictionary:
+			continue
+		var id_classe := String(dati_classe.get("id", ""))
+		if GameState.slot_accessori_da_talento(id_classe) > 0:
+			con_talento += 1
+			esigi(GameState.talento_dello_slot(id_classe, 20) != "",
+					"%s ha slot da talento ma la scheda non sa dire quale" % id_classe)
+	esigi(con_talento == 2, "i talenti che aprono slot dovrebbero essere su due classi, sono su %d" % con_talento)
+	# il tetto e' vero: oltre non si equipaggia, anche a forza
+	GameState.livelli[eroe] = 1
+	var accessori_veri: Array[String] = []
+	for dati in GameState.oggetti.values():
+		if dati is Dictionary and String(dati.get("tipo", "")) == "accessorio":
+			accessori_veri.append(String(dati.get("id", "")))
+	if accessori_veri.size() > base:
+		for id_oggetto in accessori_veri:
+			GameState.aggiungi_oggetto(id_oggetto)
+		var messi := 0
+		for id_oggetto in accessori_veri:
+			if GameState.equipaggia(eroe, "accessori", id_oggetto):
+				messi += 1
+		esigi(GameState.slot_di(eroe)["accessori"].size() <= base,
+				"si riescono a mettere piu' accessori degli slot aperti")
+
+func prova_scheda_personaggio() -> void:
+	# La scheda si costruisce tutta in codice: un errore qui non si vede finche'
+	# qualcuno non apre il menu. Qui si apre, si passa da ogni compagno e si
+	# spalanca ogni slot, cosi' ogni ramo del disegno viene percorso davvero.
+	#
+	# E soprattutto: la scheda calcola la differenza di statistiche SIMULANDO
+	# l'oggetto addosso - lo equipaggia, guarda, e rimette tutto com'era.
+	# Se quel "rimette tutto com'era" avesse una crepa, guardare un oggetto
+	# cambierebbe l'equipaggiamento del giocatore. Questo lo verifica.
+	titolo("la scheda del personaggio si apre, e guardare non cambia niente")
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	GameState.livelli[eroe] = 40
+	for dati in GameState.oggetti.values():
+		if dati is Dictionary and String(dati.get("tipo", "")) in ["accessorio", "arma", "stigma"]:
+			GameState.aggiungi_oggetto(String(dati.get("id", "")))
+	var prima := JSON.stringify(GameState.equipaggiamento)
+	var scheda := SchedaPersonaggio.new()
+	add_child(scheda)
+	scheda.apri(func() -> void: pass, func() -> void: pass)
+	esigi(scheda.get_child_count() > 0, "la scheda non ha disegnato niente")
+	for slot: String in ["arma", "stigma", "ultima_risorsa", "accessori"]:
+		scheda.slot_aperto = slot
+		scheda.indice_aperto = 0
+		scheda.ridisegna()
+		esigi(scheda.get_child_count() > 0, "la scheda si svuota aprendo lo slot '%s'" % slot)
+	scheda.slot_aperto = ""
+	scheda.ridisegna()
+	esigi(JSON.stringify(GameState.equipaggiamento) == prima,
+			"guardare gli oggetti nella scheda ha cambiato quello che il giocatore ha addosso")
+	scheda.queue_free()
 
 func prova_finale_scriptato() -> void:
 	# LA PROVA DELLA BOMBA. Nell'allenamento con Veronica la bomba e' l'ultimo

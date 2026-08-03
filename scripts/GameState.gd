@@ -502,12 +502,64 @@ func equipaggia(id_classe: String, slot: String, id_oggetto: String) -> bool:
 	var slots := slot_di(id_classe)
 	if slot == "accessori":
 		var elenco: Array = slots["accessori"]
-		if elenco.size() >= int(regole.get("slot_accessori", 4)):
+		if elenco.size() >= slot_accessori_di(id_classe):
 			return false
 		elenco.append(id_oggetto)
 	else:
 		slots[slot] = id_oggetto
 	return true
+
+# --- quanti accessori puo' portare uno ---------------------------------------
+#
+# Non e' un numero uguale per tutti e non e' fisso nel tempo. Si parte con UNO
+# slot solo: all'inizio del gioco decidere cosa portare deve essere una scelta,
+# non un modulo da riempire. Salendo di livello se ne apre uno alla volta
+# (slot_accessori_per_livello in regole.json).
+#
+# Due classi ne hanno di piu' per un talento loro, dichiarato tra le loro
+# abilita' e pagato in regole.json (slot_accessori_da_abilita): Bero ne ha uno
+# in piu' per gli innesti, Rio ne ha quattro in piu' perche' colleziona - e
+# arriva a otto, che e' il suo modo di essere forte.
+
+func slot_accessori_di(id_classe: String) -> int:
+	var totale := int(regole.get("slot_accessori_base", 1))
+	var livello := livello_di(id_classe)
+	for soglia in regole.get("slot_accessori_per_livello", []):
+		if livello >= int(soglia):
+			totale += 1
+	totale += slot_accessori_da_talento(id_classe)
+	return maxi(totale, 1)
+
+func slot_accessori_da_talento(id_classe: String) -> int:
+	var tabella: Dictionary = regole.get("slot_accessori_da_abilita", {})
+	var extra := 0
+	for abilita in classi.get(id_classe, {}).get("abilita", []):
+		extra += int(tabella.get(String(abilita), 0))
+	return extra
+
+func livello_slot_accessorio(indice: int) -> int:
+	# a che livello si apre l'accessorio numero <indice> (0 = il primo).
+	# 0 = aperto da sempre, -1 = non si apre col livello (viene da un talento)
+	var base := int(regole.get("slot_accessori_base", 1))
+	if indice < base:
+		return 0
+	var soglie: Array = regole.get("slot_accessori_per_livello", [])
+	var passo := indice - base
+	return int(soglie[passo]) if passo < soglie.size() else -1
+
+func talento_dello_slot(id_classe: String, indice: int) -> String:
+	# quale talento ha aperto questo slot, se e' stato un talento. Serve alla
+	# schermata del personaggio: uno slot in piu' che compare senza spiegazione
+	# e' un premio che non si capisce di aver vinto
+	var soglie: Array = regole.get("slot_accessori_per_livello", [])
+	var da_livello: int = int(regole.get("slot_accessori_base", 1)) + soglie.size()
+	if indice < da_livello or slot_accessori_da_talento(id_classe) <= 0:
+		return ""
+	var tabella: Dictionary = regole.get("slot_accessori_da_abilita", {})
+	for abilita in classi.get(id_classe, {}).get("abilita", []):
+		if int(tabella.get(String(abilita), 0)) > 0:
+			return String(abilita)
+	return ""
 
 func togli_oggetto_equipaggiato(id_oggetto: String) -> void:
 	for id_classe in equipaggiamento:
@@ -529,6 +581,13 @@ func aura_massima(id_classe: String) -> int:
 	var classe: Dictionary = classi.get(id_classe, {})
 	var base := int(classe.get("aura", regole.get("aura_iniziale", 10)))
 	return maxi(base + bonus_equipaggiamento(id_classe, "aura_max"), 0)
+
+func bonus_oggetto(id_oggetto: String, chiave: String) -> int:
+	# quanto da' (o toglie) un oggetto da solo, senza guardare chi lo porta.
+	# Serve a confrontare due oggetti senza metterli addosso a nessuno
+	if id_oggetto == "":
+		return 0
+	return int(dati_oggetto(id_oggetto).get("effetto_equipaggiato", {}).get(chiave, 0))
 
 func bonus_equipaggiamento(id_classe: String, chiave: String) -> int:
 	# somma di quello che danno arma, stigma e accessori addosso a quel

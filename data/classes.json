@@ -91,7 +91,7 @@
 			"velocita": 3,
 			"psiche": "concentrazione",
 			"fattore_base": 15,
-			"abilita": [],
+			"abilita": ["collezione"],
 			"ritratto": "res://art/personaggi/rio.png"
 		},
 		{
@@ -105,7 +105,7 @@
 			"psiche": "rabbia",
 			"fattore_base": 10,
 			"resistenze": { "stress": "immune" },
-			"abilita": [],
+			"abilita": ["innesti"],
 			"ritratto": "res://art/personaggi/bero.png"
 		},
 		{

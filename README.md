@@ -1202,6 +1202,51 @@ Attenzione a leggerlo: nel gioco le statistiche non salgono col livello, salgono
 hai fatto (`crescita.json`). Il simulatore alza solo il livello, quindi misura un protagonista
 arrivato fin lì senza guadagnare un punto — è il pavimento, non la media.
 
+## La scheda del personaggio (`scripts/Personaggio.gd`)
+ESC → **Personaggio e squadra**. Vive dentro la Pausa e non come schermata a sé, così si apre da
+ovunque — mappa, stanza, Vuoto, combattimento — senza cambiare scena e senza perdere il posto.
+
+Tre regole, prese da chi questo mestiere lo fa da vent'anni, e ognuna risponde a un errore che
+questa schermata fa quasi sempre:
+
+1. **Tutto su una schermata.** Statistiche ed equipaggiamento non si separano in due pagine: chi
+   cambia un accessorio vuole vedere subito cosa succede alle sue statistiche, non ricordarsele
+   mentre naviga. È la schermata più visitata del gioco e tradizionalmente la più confusa.
+2. **Sempre la differenza, mai solo il numero.** Un oggetto non dice «difesa +2»: dice **`+2`
+   accanto a quello che porti adesso**, col segno e col colore. La decisione deve costare un
+   secondo, non un calcolo.
+3. **Quello che non puoi ancora usare si vede lo stesso, e si capisce perché.** Uno slot chiuso
+   nascosto è un premio che non sai di poter vincere; uno slot chiuso che dice *«si apre al livello
+   15»* è un motivo per continuare.
+
+Tre colonne senza sottomenu: **chi è** (ritratto grande, nome, classe, livello, psiche) · **cosa
+porta** (arma, stigma, ultima risorsa, accessori) · **quanto vale** (statistiche, e in fase di
+scelta la differenza). In alto le linguette dei compagni — la squadra si guarda da qui, senza
+uscire. In basso il Diario.
+
+### Gli accessori si aprono a poco a poco
+Non sono quattro dal primo minuto: all'inizio ce n'è **uno solo**, perché decidere cosa portare
+deve essere una scelta e non un modulo da riempire. Poi se ne apre uno per ogni soglia in
+`regole.json`:
+
+```json
+"slot_accessori_base": 1,
+"slot_accessori_per_livello": [6, 15, 30],
+"slot_accessori_da_abilita": {"collezione": 4, "innesti": 1}
+```
+
+Due classi ne hanno di più per un **talento loro**, dichiarato tra le loro abilità: **Bero** ne ha
+uno in più per gli innesti (5), **Rio** ne ha quattro in più perché colleziona — e arriva a **8**,
+che è il suo modo di essere forte. La scheda lo dice a parole sotto lo slot (*«grazie al tuo
+talento: collezione»*): un premio che non sai di aver vinto non è un premio. Spostare il talento
+su un'altra classe è una riga di JSON.
+
+Il confronto tra oggetti è un **conto puro**: somma quello che dà il nuovo, sottrae quello che dava
+il vecchio, senza equipaggiare niente a nessuno. La prima versione invece provava sul campo — e non
+rimetteva tutto a posto: con gli slot pieni l'oggetto non entrava ma veniva tolto lo stesso a chi
+ce l'aveva. Bastava **scorrere l'elenco** per spogliare un compagno. Preso da
+`prova_scheda_personaggio()` al primo giro.
+
 ## Il gioco ha una voce (`scripts/Sintesi.gd`)
 Non c'è un solo file audio nel progetto, e ce ne saranno solo quando li farà Bru. Ma restare muti
 non è neutrale: un testo che scorre in silenzio non sembra *in attesa dell'audio*, sembra morto.

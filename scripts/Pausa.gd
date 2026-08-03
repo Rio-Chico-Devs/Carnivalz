@@ -34,7 +34,6 @@ var contenitore: MarginContainer
 var colonna: VBoxContainer
 var aperta := false
 var pannello := "menu"  # menu | storico | diario | equipaggiamento | uscita
-var id_vestito := ""    # di chi stiamo guardando l'equipaggiamento
 
 func _ready() -> void:
 	layer = LIVELLO
@@ -127,7 +126,7 @@ func mostra_menu() -> void:
 	var primo := bottone("Riprendi", chiudi)
 	bottone("Storico dei dialoghi", mostra_storico)
 	bottone("Diario", mostra_diario)
-	bottone("Equipaggiamento", mostra_equipaggiamento)
+	bottone("Personaggio e squadra", mostra_equipaggiamento)
 	cursore("Volume generale", Impostazioni.volume_master, func(v: float) -> void:
 		Impostazioni.volume_master = v
 		Impostazioni.applica_volumi()
@@ -334,55 +333,16 @@ const NOMI_SLOT := {
 }
 
 func mostra_equipaggiamento() -> void:
+	# La scheda del personaggio: chi e', cosa porta addosso, quanto vale, e la
+	# stessa cosa per ogni compagno. Vive qui dentro invece che come schermata a
+	# se' perche' cosi' si apre da ovunque - mappa, stanza, Vuoto, combattimento -
+	# senza cambiare scena e senza perdere il posto in cui si era.
+	# Come e' fatta e perche': vedi scripts/Personaggio.gd.
 	nuova_colonna()
 	pannello = "equipaggiamento"
-	if id_vestito == "" or id_vestito not in GameState.party:
-		id_vestito = GameState.id_protagonista
-	intestazione("Equipaggiamento")
-	if GameState.party.size() > 1:
-		var riga_squadra := HBoxContainer.new()
-		riga_squadra.add_theme_constant_override("separation", 8)
-		colonna.add_child(riga_squadra)
-		for id_classe in GameState.party:
-			var scheda: Dictionary = GameState.classi.get(id_classe, {})
-			var b := Button.new()
-			b.text = String(scheda.get("nome", id_classe))
-			b.disabled = id_classe == id_vestito
-			b.pressed.connect(func() -> void:
-				id_vestito = id_classe
-				mostra_equipaggiamento())
-			riga_squadra.add_child(b)
-	var scorrevole := ScrollContainer.new()
-	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	colonna.add_child(scorrevole)
-	var corpo := VBoxContainer.new()
-	corpo.add_theme_constant_override("separation", 14)
-	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scorrevole.add_child(corpo)
-	riepilogo_bonus(corpo)
-	riga_slot(corpo, "arma", 0)
-	riga_slot(corpo, "stigma", 0)
-	for i in range(int(GameState.regole.get("slot_accessori", 4))):
-		riga_slot(corpo, "accessori", i)
-	riga_slot(corpo, "ultima_risorsa", 0)
-	bottone("Indietro", mostra_menu).grab_focus()
-
-func riepilogo_bonus(genitore: VBoxContainer) -> void:
-	# quello che tutto insieme ti sta dando addosso, in una riga sola: e' il
-	# numero che conta, non i singoli pezzi
-	var voci: Array[String] = []
-	for chiave in ["attacco", "difesa", "velocita", "hp_max", "aura_max",
-			"aura_per_turno", "resistenza_maledizione"]:
-		var valore := GameState.bonus_equipaggiamento(id_vestito, chiave)
-		if valore != 0:
-			voci.append("%s %+d" % [etichetta_bonus(chiave), valore])
-	var riga := Label.new()
-	riga.text = "Non ha ancora niente addosso."
-	if not voci.is_empty():
-		riga.text = "In totale: " + ", ".join(voci)
-	riga.add_theme_color_override("font_color", Stile.colore("accento"))
-	riga.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	genitore.add_child(riga)
+	var scheda := SchedaPersonaggio.new()
+	colonna.add_child(scheda)
+	scheda.apri(mostra_menu, mostra_diario)
 
 func etichetta_bonus(chiave: String) -> String:
 	match chiave:
@@ -394,61 +354,6 @@ func etichetta_bonus(chiave: String) -> String:
 		"aura_per_turno": return "aura per turno"
 		"resistenza_maledizione": return "rintocchi di maledizione"
 		_: return chiave
-
-func riga_slot(genitore: VBoxContainer, slot: String, indice: int) -> void:
-	var addosso := GameState.equipaggiato_in(id_vestito, slot, indice)
-	var blocco := VBoxContainer.new()
-	blocco.add_theme_constant_override("separation", 4)
-	genitore.add_child(blocco)
-	var titolo := Label.new()
-	titolo.text = String(NOMI_SLOT.get(slot, slot))
-	if slot == "accessori":
-		titolo.text += " %d" % (indice + 1)
-	titolo.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
-	titolo.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	blocco.add_child(titolo)
-	if slot == "ultima_risorsa":
-		var spiega := Label.new()
-		spiega.text = "Un consumabile che non usi: scatta da solo sotto un quarto della vita, e rende il %d%% in più." \
-				% int(round(float(GameState.regole.get("ultima_risorsa_bonus", 0.2)) * 100.0))
-		spiega.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		Stile.etichetta_piccola(spiega)
-		blocco.add_child(spiega)
-	if addosso != "":
-		var dati := GameState.dati_oggetto(addosso)
-		var descrizione := RichTextLabel.new()
-		descrizione.bbcode_enabled = true
-		descrizione.fit_content = true
-		descrizione.scroll_active = false
-		descrizione.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		descrizione.text = "[b]%s[/b] — %s" % [String(dati.get("nome", addosso)), riassunto_effetto(dati)]
-		descrizione.add_theme_font_size_override("normal_font_size", Stile.dimensione("piccolo"))
-		descrizione.add_theme_font_size_override("bold_font_size", Stile.dimensione("piccolo"))
-		blocco.add_child(descrizione)
-		var togli := Button.new()
-		togli.text = "Togli"
-		Stile.scelta(togli)
-		togli.pressed.connect(func() -> void:
-			GameState.togli_oggetto_equipaggiato(addosso)
-			mostra_equipaggiamento())
-		blocco.add_child(togli)
-		return
-	var candidati := oggetti_per(slot)
-	if candidati.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "— vuoto, e non hai niente da metterci —"
-		Stile.etichetta_piccola(vuoto)
-		blocco.add_child(vuoto)
-		return
-	for id_oggetto in candidati:
-		var dati := GameState.dati_oggetto(id_oggetto)
-		var b := Button.new()
-		b.text = "%s — %s" % [String(dati.get("nome", id_oggetto)), riassunto_effetto(dati)]
-		Stile.scelta(b)
-		b.pressed.connect(func() -> void:
-			GameState.equipaggia(id_vestito, slot, id_oggetto)
-			mostra_equipaggiamento())
-		blocco.add_child(b)
 
 func oggetti_per(slot: String) -> Array[String]:
 	# cosa si puo' mettere in questo slot: del tipo giusto, posseduto, e non
