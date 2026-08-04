@@ -104,15 +104,18 @@ func abilita() -> void:
 	# Studia non costa niente e non costera' mai niente: guardare una creatura
 	# e' il cuore del gioco, non una risorsa da amministrare
 	bottone("Studia", studia)
+	# Le abilita' vengono dal personaggio, non da una lista scritta qui: quelle
+	# che sa fare (classes.json) incrociate con quelle che il combattimento sa
+	# eseguire (regole.json). Una nuova abilita' compare da sola.
 	var attaccante: Dictionary = scontro.attaccante_corrente
-	var elenco: Array = GameState.classi.get(attaccante.get("id", ""), {}).get("abilita", [])
 	var aura := int(attaccante.get("aura", 0))
-	if "provocazione" in elenco:
-		var costo_prov := int(GameState.regole.get("costo_aura_provocazione", 3))
-		bottone("Provoca  (%d aura)" % costo_prov, scegli.bind({"tipo": "provoca"}), aura < costo_prov)
-	if "attacco_area" in elenco:
-		var costo_area := int(GameState.regole.get("costo_aura_area", 4))
-		bottone("Colpo d'area  (%d aura)" % costo_area, scegli.bind({"tipo": "area"}), aura < costo_area)
+	for id_abilita in GameState.classi.get(attaccante.get("id", ""), {}).get("abilita", []):
+		var dati := GameState.abilita_combattimento(String(id_abilita))
+		if dati.is_empty():
+			continue  # abilita' narrativa (scasso, volo, veglia...): fuori dal combattimento
+		var costo := int(dati.get("aura", 0))
+		bottone("%s  (%d aura)" % [String(dati.get("nome", id_abilita)), costo],
+				scegli.bind({"tipo": "abilita", "id": String(id_abilita)}), aura < costo)
 	bottone("Indietro", principale)
 
 func oggetti() -> void:

@@ -9,7 +9,7 @@ extends CanvasLayer
 # che c'e' sotto.
 #
 # Tre pannelli, uno alla volta:
-#   menu     -> Riprendi / Storico / Diario / volumi / Torna al menu principale
+#   menu     -> Riprendi / Storico / Diario / Personaggio / Opzioni / Esci
 #   storico  -> i messaggi gia' letti (GameState.storico), dal piu' recente
 #   diario   -> chi sei diventato: statistiche, come sono cresciute, passive,
 #               squadra, creature studiate, valutazione dell'Organizzazione
@@ -33,7 +33,7 @@ var velo: ColorRect
 var contenitore: MarginContainer
 var colonna: VBoxContainer
 var aperta := false
-var pannello := "menu"  # menu | storico | diario | equipaggiamento | uscita
+var pannello := "menu"  # menu | storico | diario | equipaggiamento | opzioni | uscita
 
 func _ready() -> void:
 	layer = LIVELLO
@@ -84,6 +84,20 @@ func apri() -> void:
 	get_tree().paused = true
 	mostra_menu()
 
+func apri_su(quale: String) -> void:
+	# Aprire direttamente un pannello, senza passare dal menu di pausa. Serve
+	# alla Sede: "Alloggi" e "Archivio" sono stanze di un posto, non voci di un
+	# menu, e devono portare dritto dove dicono. Il pannello vive qui perche' e'
+	# un velo sopra la scena viva: si chiude e si torna esattamente dov'eri.
+	aperta = true
+	velo.visible = true
+	get_tree().paused = true
+	match quale:
+		"diario": mostra_diario()
+		"equipaggiamento": mostra_equipaggiamento()
+		"storico": mostra_storico()
+		_: mostra_menu()
+
 func chiudi() -> void:
 	aperta = false
 	velo.visible = false
@@ -127,34 +141,22 @@ func mostra_menu() -> void:
 	bottone("Storico dei dialoghi", mostra_storico)
 	bottone("Diario", mostra_diario)
 	bottone("Personaggio e squadra", mostra_equipaggiamento)
-	cursore("Volume generale", Impostazioni.volume_master, func(v: float) -> void:
-		Impostazioni.volume_master = v
-		Impostazioni.applica_volumi()
-		Impostazioni.salva())
-	cursore("Musica", Impostazioni.volume_musica, func(v: float) -> void:
-		Impostazioni.volume_musica = v
-		Impostazioni.applica_volumi()
-		Impostazioni.salva())
+	bottone("Opzioni", mostra_opzioni)
 	bottone("Torna al menu principale", conferma_uscita)
 	primo.grab_focus()
 
-func cursore(testo: String, valore: float, su_cambio: Callable) -> void:
-	var riga := HBoxContainer.new()
-	riga.add_theme_constant_override("separation", 14)
-	colonna.add_child(riga)
-	var etichetta := Label.new()
-	etichetta.text = testo
-	etichetta.custom_minimum_size = Vector2(200, 0)
-	Stile.etichetta_piccola(etichetta)
-	riga.add_child(etichetta)
-	var slider := HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 1.0
-	slider.step = 0.05
-	slider.value = valore
-	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slider.value_changed.connect(su_cambio)
-	riga.add_child(slider)
+# --- pannello: opzioni ---
+
+func mostra_opzioni() -> void:
+	# Le opzioni si possono guardare anche mentre giochi: alzare il volume a
+	# meta' di uno scontro non e' amministrare una partita. Sono le stesse della
+	# schermata principale, perche' l'elenco e' uno solo (PannelloOpzioni) - la
+	# pausa non ne mostra piu' due su sei come faceva prima.
+	nuova_colonna()
+	pannello = "opzioni"
+	intestazione("Opzioni")
+	PannelloOpzioni.costruisci(colonna, 200)
+	bottone("Indietro", mostra_menu).grab_focus()
 
 func conferma_uscita() -> void:
 	# uscire da qui butta via i progressi della zona in corso: si salva solo
@@ -163,7 +165,7 @@ func conferma_uscita() -> void:
 	pannello = "uscita"
 	intestazione("Tornare al menu?")
 	var avviso := Label.new()
-	avviso.text = "Il gioco salva solo dalla mappa stellare: tutto quello che hai fatto\ndentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso."
+	avviso.text = "Il gioco si salva da solo quando rientri alla Sede: tutto quello che hai\nfatto dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso."
 	avviso.add_theme_color_override("font_color", Stile.colore("pericolo"))
 	colonna.add_child(avviso)
 	var primo := bottone("No, resto qui", mostra_menu)

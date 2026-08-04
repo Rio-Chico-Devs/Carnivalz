@@ -5,7 +5,7 @@
 			"nome": "Razione da viaggio",
 			"tipo": "consumabile",
 			"descrizione": "Carne secca e datteri pressati, roba da traversata nel deserto. Rimette in piedi.",
-			"effetto": { "hp": 3 }
+			"effetto": { "hp": 15 }
 		},
 		{
 			"id": "tonico_calmante",
@@ -19,14 +19,14 @@
 			"nome": "Petardo",
 			"tipo": "consumabile",
 			"descrizione": "Del vecchio spettacolo pirotecnico. Ignora le difese.",
-			"effetto": { "danno": 2 }
+			"effetto": { "danno": 6 }
 		},
 		{
 			"id": "premio_di_pezza",
 			"nome": "Premio di pezza",
 			"tipo": "consumabile",
 			"descrizione": "Vinto al tiro a segno. Abbracciarlo guarisce più del previsto.",
-			"effetto": { "hp": 5 }
+			"effetto": { "hp": 25 }
 		},
 		{
 			"id": "lente_di_nyu",
@@ -47,42 +47,42 @@
 			"nome": "Cuore di latta",
 			"tipo": "consumabile",
 			"descrizione": "Battuto a mano dall'Artigiano. Batte davvero, se serve.",
-			"effetto": { "hp": 10 }
+			"effetto": { "hp": 50 }
 		},
 		{
 			"id": "specchio_tascabile",
 			"nome": "Specchio tascabile",
 			"tipo": "consumabile",
 			"descrizione": "Forgiato dalle schegge del padiglione. Riflette il male al mittente.",
-			"effetto": { "danno": 3 }
+			"effetto": { "danno": 9 }
 		},
 		{
 			"id": "fiala_hp",
 			"nome": "Fiala HP",
 			"tipo": "consumabile",
 			"descrizione": "Liquido rosso in vetro industriale. L'etichetta è sbiadita, l'effetto no.",
-			"effetto": { "hp": 20 }
+			"effetto": { "hp": 100 }
 		},
 		{
 			"id": "bomba_artigianale",
 			"nome": "Bomba artigianale",
 			"tipo": "consumabile",
 			"descrizione": "Messa insieme con quello che c'era nei cunicoli. Yara ne teneva sempre una addosso: non per combattere, per non farsi prendere viva.",
-			"effetto": { "danno": 8 }
+			"effetto": { "danno": 24 }
 		},
 		{
 			"id": "bomba_al_nitro",
 			"nome": "Bomba al nitro",
 			"tipo": "consumabile",
 			"descrizione": "Instabile, rumorosa, sproporzionata. Veronica ne tiene una scatola intera ai campi di addestramento.",
-			"effetto": { "danno": 12 }
+			"effetto": { "danno": 36 }
 		},
 		{
 			"id": "molotov",
 			"nome": "Molotov",
 			"tipo": "consumabile",
 			"descrizione": "Assemblata da qualcuno che non è sopravvissuto per lanciarla.",
-			"effetto": { "danno": 4 }
+			"effetto": { "danno": 12 }
 		},
 		{
 			"id": "benzina",
@@ -125,7 +125,7 @@
 			"nome": "Pacco di merendine scadute",
 			"tipo": "consumabile",
 			"descrizione": "La data è illeggibile da anni. Curano lo stesso, in un certo senso.",
-			"effetto": { "hp": 2, "stress": 5 }
+			"effetto": { "hp": 10, "stress": 5 }
 		},
 		{
 			"id": "vino_di_ottima_qualita",
@@ -230,42 +230,42 @@
 			"nome": "Gel Omega",
 			"tipo": "consumabile",
 			"descrizione": "Un gel industriale, denso e freddo. Irrigidisce la pelle a contatto e neutralizza qualunque cosa ti stia già avvelenando il sangue.",
-			"effetto": { "difesa_incontro": 3, "cura_stati": true }
+			"effetto": { "difesa_incontro": 9, "cura_stati": true }
 		},
 		{
 			"id": "bastone",
 			"nome": "Bastone",
 			"tipo": "consumabile",
 			"descrizione": "Un pezzo di legno qualsiasi, tenuto per anni vicino alla porta per un motivo che ora sembra ovvio.",
-			"effetto": { "danno": 1 }
+			"effetto": { "danno": 3 }
 		},
 		{
 			"id": "spranga_di_ferro",
 			"nome": "Spranga di ferro",
 			"tipo": "consumabile",
 			"descrizione": "Pesante, fredda, coperta di una ruggine che non viene via. Ignora le difese.",
-			"effetto": { "danno": 2 }
+			"effetto": { "danno": 6 }
 		},
 		{
 			"id": "mazzafrusto",
 			"nome": "Mazzafrusto",
 			"tipo": "consumabile",
 			"descrizione": "Improvvisato con catena e un lucchetto. Chi l'ha costruito non aveva molto tempo, e si vede.",
-			"effetto": { "danno": 2 }
+			"effetto": { "danno": 6 }
 		},
 		{
 			"id": "sparachiodi_arrugginito",
 			"nome": "Sparachiodi arrugginito",
 			"tipo": "consumabile",
 			"descrizione": "Da cantiere, non da difesa personale. Funziona lo stesso, se lo tieni ben saldo.",
-			"effetto": { "danno": 3 }
+			"effetto": { "danno": 9 }
 		},
 		{
 			"id": "motosega",
 			"nome": "Motosega",
 			"tipo": "consumabile",
 			"descrizione": "Il serbatoio ha ancora qualche strappo di vita. Rumorosa, definitiva, difficile da trovare intatta.",
-			"effetto": { "danno": 5 }
+			"effetto": { "danno": 15 }
 		},
 		{
 			"id": "pagina_di_giornale_1",
@@ -319,7 +319,7 @@
 			"nome": "Benda stretta",
 			"tipo": "consumabile",
 			"descrizione": "Sporca, ma tiene. Rimette in piedi chi ha ancora voglia di stare in piedi.",
-			"effetto": { "hp": 8 }
+			"effetto": { "hp": 40 }
 		},
 		{
 			"id": "fiala_aura",
@@ -354,14 +354,14 @@
 			"nome": "Amuleto di pietra",
 			"tipo": "accessorio",
 			"descrizione": "Grezzo, pesante al collo. Chi lo porta incassa un po' meglio.",
-			"effetto_equipaggiato": { "difesa": 1 }
+			"effetto_equipaggiato": { "difesa": 3 }
 		},
 		{
 			"id": "amuleto_di_ferro",
 			"nome": "Amuleto di ferro",
 			"tipo": "accessorio",
 			"descrizione": "Una scheggia di lama montata su uno spago. Rende i colpi un po' più cattivi.",
-			"effetto_equipaggiato": { "attacco": 1 }
+			"effetto_equipaggiato": { "attacco": 3 }
 		},
 		{
 			"id": "amuleto_di_vento",
@@ -382,28 +382,28 @@
 			"nome": "Coltello di servizio",
 			"tipo": "arma",
 			"descrizione": "In dotazione a ogni operativo. Nessuno l'ha mai chiamato un'arma.",
-			"effetto_equipaggiato": { "attacco": 1 }
+			"effetto_equipaggiato": { "attacco": 3 }
 		},
 		{
 			"id": "mannaia_scheggiata",
 			"nome": "Mannaia scheggiata",
 			"tipo": "arma",
 			"descrizione": "Pesante e mal bilanciata: colpisce più forte, ma ti rallenta.",
-			"effetto_equipaggiato": { "attacco": 3, "velocita": -1 }
+			"effetto_equipaggiato": { "attacco": 9, "velocita": -1 }
 		},
 		{
 			"id": "stigma_del_veglio",
 			"nome": "Stigma del veglio",
 			"tipo": "stigma",
 			"descrizione": "Un marchio che non ti lascia dormire. L'aura si rigenera più in fretta, ma il corpo regge meno.",
-			"effetto_equipaggiato": { "aura_per_turno": 1, "hp_max": -3 }
+			"effetto_equipaggiato": { "aura_per_turno": 1, "hp_max": -15 }
 		},
 		{
 			"id": "stigma_del_muto",
 			"nome": "Stigma del muto",
 			"tipo": "stigma",
 			"descrizione": "Chi lo porta non urla mai. Incassa meglio, ma colpisce peggio.",
-			"effetto_equipaggiato": { "difesa": 2, "attacco": -1 }
+			"effetto_equipaggiato": { "difesa": 6, "attacco": -3 }
 		},
 		{"id": "spazio_nella_realta", "nome": "Spazio nella realtà", "tipo": "spazio", "categoria": "consumabili", "descrizione": "Una piega vuota che si porta in tasca. Non pesa, e dentro ci sta altro."},
 		{"id": "frammento_per_le_armi", "nome": "Frammento — rastrelliera", "tipo": "spazio", "categoria": "armi", "descrizione": "Ganci che non esistono, appesi a un muro che non c'è. Ci si appende del ferro vero."},

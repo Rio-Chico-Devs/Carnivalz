@@ -102,6 +102,12 @@ func crea_marker(strato: Control, stanza: Dictionary) -> void:
 	bottone.position = pos - Vector2(80, 24)
 	if id_stanza == GameState.nodo_corrente:
 		bottone.modulate = Stile.colore("accento")  # dove ti trovi ora
+	else:
+		# una stanza sbloccata ma mai aperta e' esattamente il caso in cui serve
+		# sapere dove non sei ancora stato: qui il conto lo tiene nodi_visitati,
+		# che e' quello che gia' segna l'esplorazione
+		Stile.segna_visita(bottone,
+				"visto" if id_stanza in GameState.nodi_visitati else "nuovo")
 	bottone.pressed.connect(_su_stanza.bind(id_stanza))
 	strato.add_child(bottone)
 

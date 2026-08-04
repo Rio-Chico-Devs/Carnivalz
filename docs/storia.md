@@ -20,6 +20,26 @@ Si chiama semplicemente così: **l'Organizzazione**. Non ha altro nome.
 È lei a mandare il party dove un Carnivalz sta avendo luogo (i "!" sulla
 mappa stellare).
 
+## Le unità, e da dove parti
+L'Organizzazione è divisa in **unità**. Tu sei di stanza in una delle più
+importanti — non un ufficio: una **struttura da difendere**. Ogni unità deve
+tenere in casa **un numero minimo di dominatori**: se scende sotto quella
+soglia è scoperta, e le cose che escono dalle fratture lo sentono prima di noi.
+
+Ci sono anche le **forze militari**. Fanno i turni sul perimetro, hanno mezzi e
+procedure, e nessuno di loro ha il fattore Carnivalz — cosa che sanno
+benissimo: se qualcosa entra davvero, quelli che devono muoversi siete voi.
+Questo non li rende innocui. **Ci sono persone che, pur non essendo dominatori,
+sono più forti di un dominatore**: per addestramento, per intelligenza, per la
+tecnologia che si sono costruiti addosso. Il **Dott. Eto** è il primo che
+incontri, e non è l'ultimo: più avanti se ne trova uno che combatte con
+macchine militari e una tuta speciale.
+
+È dalla **Sala operativa** della tua unità che si guarda la mappa stellare: un
+tavolo tattico e la proiezione del settore, dove compare un punto ogni volta
+che il disallineamento comincia a bruciare da qualche parte. La mappa non è un
+posto in cui si vive: è una cosa che si consulta, prima di partire.
+
 ## I personaggi giocabili
 Sono toccati dal confine che ce l'hanno fatta: grazie alla loro **forza di
 volontà e peculiarità** sono riusciti a trasformare lo stress in **resilienza

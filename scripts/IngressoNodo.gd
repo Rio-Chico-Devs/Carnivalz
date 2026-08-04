@@ -35,7 +35,7 @@ extends RefCounted
 # in ogni nodo del gioco e controllare il verdetto costa qualche millesimo,
 # senza istanziare niente (vedi prova_ingresso_nodi).
 
-const SCENA_MAPPA := "res://scenes/Mappa.tscn"
+const SCENA_SEDE := "res://scenes/Sede.tscn"
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 
@@ -87,7 +87,7 @@ static func entra(id_nodo: String) -> Dictionary:
 		# verificato dalle prove su tutti i file di eventi: qui si finisce solo
 		# con dati sbagliati, e allora meglio la mappa che una prigione
 		push_error("Nodo evento mancante: " + id_nodo)
-		esito.scena = SCENA_VUOTO if GameState.carnivalz_corrente != "" else SCENA_MAPPA
+		esito.scena = SCENA_VUOTO if GameState.carnivalz_corrente != "" else SCENA_SEDE
 		return esito
 	var nodo: Dictionary = GameState.eventi[id_vero]
 	esito.id = id_vero

@@ -27,13 +27,18 @@ dritti in mappa.
 ## Struttura
 - `scenes/Splash.tscn` + `scripts/Splash.gd` — loghi d'apertura (studio/personale, placeholder
   testuali finché mancano le immagini in `art/branding/`), poi il menu
-- `scenes/Menu.tscn` + `scripts/Menu.gd` — menu principale: Start (Continua/Carica
-  partita/Nuova partita) / Opzioni / Extra
+- `scenes/Menu.tscn` + `scripts/Menu.gd` — **la schermata principale**: le cinque partite in
+  chiaro (una riga vuota si comincia, una piena si continua, la ✕ la cancella) / Opzioni /
+  Extra / Esci. Non c'è più nessun passaggio "Start → cosa vuoi fare?" (vedi *Gerarchia*)
 - `scenes/Opzioni.tscn` + `scripts/Opzioni.gd` — audio, grafica, accessibilità (vedi sotto)
 - `scenes/Extra.tscn` + `scripts/Extra.gd` — collezioni (album/bestiario/oggetti), carica
   codice, social e ringraziamenti
 - `scenes/Intro.tscn` + `scripts/Intro.gd` — crawl introduttivo (solo per una nuova partita)
-- `scenes/Mappa.tscn` + `scripts/Mappa.gd` — mappa stellare, marker data-driven
+- `scenes/Sede.tscn` + `scripts/Sede.gd` — **la Sede**: l'unità dell'Organizzazione in cui sei
+  di stanza, e il posto sicuro del gioco (qui si salva, da solo). Stanze data-driven da
+  `data/sede.json`
+- `scenes/Mappa.tscn` + `scripts/Mappa.gd` — la proiezione del settore, guardata dal tavolo
+  tattico della Sala operativa della Sede: marker data-driven
 - `scenes/MappaZona.tscn` + `scripts/MappaZona.gd` — mappa dungeon della zona corrente, se ne
   ha una (`mappa_dungeon`, vedi sotto)
 - `scenes/Selezione.tscn` + `scripts/Selezione.gd` — menu del party: mostra solo le classi
@@ -59,6 +64,9 @@ dritti in mappa.
 - `data/task.json` — gli appunti del Diario: dove andare e cosa qualcuno ti ha chiesto (vedi sotto)
 - `data/codici.json` — codici riscattabili da Extra (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
+- `data/sede.json` — la Sede: nome, descrizione, presidio richiesto e stanze
+- `scripts/PannelloOpzioni.gd` — l'elenco delle opzioni, definito una volta sola e usato sia
+  dalla schermata principale sia dalla pausa
 - `prove/` — le prove del progetto (`./prove/esegui.sh`) e il giocatore automatico
   (`./prove/simula.sh`), entrambi descritti in fondo
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
@@ -259,6 +267,12 @@ leggere più in fretta o più lentamente della macchina da scrivere di base). Tu
 salvato subito a ogni modifica in `user://impostazioni.cfg`, **indipendente dagli slot di
 salvataggio** della partita (persiste tra una partita e l'altra).
 
+L'**elenco** delle opzioni sta in `scripts/PannelloOpzioni.gd` e non altrove: sia la schermata
+`Opzioni.tscn` sia il pannello *Opzioni* della pausa lo chiedono a lui. Prima la pausa ne
+mostrava due su sei (i volumi), e chi alzava il contrasto in gioco non lo trovava; adesso
+aggiungerne una la fa comparire in tutti e due i posti, perché non c'è nessun altro posto dove
+metterla.
+
 ## Extra: carica codice
 `GameState.codici` (da `data/codici.json`, vuoto per ora) e `GameState.riscatta_codice(testo)`:
 un codice riscattato sblocca un `effetto` (`oggetto` e/o `tazo`, riusando `aggiungi_oggetto()`/
@@ -328,18 +342,60 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
   passaggi fuori da `mappa_dungeon` (es. il grande ponte marcio di Jondoh, a senso unico per
   sempre "per via dei vermi": quello resta bloccato anche a zona completata)
 
-## Salvataggio
-Si salva **solo dalla mappa stellare** — mai nel Vuoto, mai dentro un carnivalz/squarcio,
-mai in combattimento. Due meccanismi, entrambi via `GameState._scrivi_salvataggio(percorso)`
-(stesso stato meta: livelli, xp, stress, legame, Tazo, sacca/collezionabili/chiavi/carte,
-bestiario, compendio oggetti, negozi, flag, classi sbloccate):
-- **Autosalvataggio**: `GameState.salva()`/`carica()`, un solo file (`user://salvataggio.json`),
-  scritto ogni volta che si entra nella mappa. Dal menu, **Continua** lo ricarica al volo.
-- **Salvataggi manuali**: `GameState.salva_slot(n)`/`carica_slot(n)`, **5 slot** al massimo
-  (`GameState.SLOT_MASSIMO`, un file per slot). Sulla mappa, il bottone **Salva** apre un
-  selettore degli slot (con anteprima: Tazo/fonti estinte/legame) e sovrascrive quello scelto;
-  dal menu, **Carica partita** apre lo stesso selettore in lettura (solo gli slot occupati sono
-  cliccabili).
+## Gerarchia delle schermate: dove sta cosa
+
+Una regola sola, e vale in tutte e due le direzioni.
+
+**La schermata principale** decide *quale partita* e *se cominciarla o continuarla*. Lì e solo
+lì si carica, si comincia, si cancella. Cinque righe, una per partita: vuota → nuova partita
+(chiede il nome, poi l'introduzione), piena → si continua, la ✕ la cancella con una conferma
+davanti. Nessun "Start" che apre un sotto-menu che chiede cos'altro volevi fare.
+
+**Dentro il gioco** si gioca. Le opzioni si possono guardare (ESC → Opzioni: sono le stesse
+della schermata principale, perché l'elenco è uno solo — `PannelloOpzioni`), ma di salvataggi
+non si parla più: il gioco scrive da solo, sempre nella partita scelta all'inizio, ogni volta
+che rientri alla Sede. Niente selettore di slot in mezzo a una partita, niente modo di
+sovrascrivere per sbaglio il file di qualcun altro.
+
+La regola non è un'intenzione: è una prova. `prova_gerarchia_schermate()` legge i sorgenti e
+fallisce se uno script che non sia `GameState` o `Menu` nomina la gestione degli slot, o se
+uno che non sia `Sede`/`IngressoNodo` chiama `GameState.salva()`.
+
+## La Sede (`data/sede.json`, `scripts/Sede.gd`)
+
+**Dove sei quando non sei dentro un Carnivalz.** Prima il gioco non aveva un "dove": si usciva
+dal menu e ci si trovava sospesi su una mappa stellare, senza che nessuno avesse mai detto da
+dove la si stesse guardando.
+
+Sei di stanza in un'**unità dell'Organizzazione**. Non è un ufficio: è un presidio, e va
+difeso. Ogni unità deve tenere in casa un numero minimo di dominatori — sotto quella soglia è
+scoperta. Ci sono anche le forze militari, che fanno i turni sul perimetro e sanno benissimo
+di non avere il fattore Carnivalz; il che non vuol dire che siano innocue (chi è addestrato
+come si deve, o attrezzato come il **Dott. Eto**, sta al passo con gente che piega la realtà
+usando la testa e la tecnologia).
+
+Le stanze sono voci di `data/sede.json`: `id`, `nome`, `descrizione`, `azione`
+(`mappa` | `negozio` | `squadra` | `diario` | `testo`) e, se serve, `richiede_flag` +
+`testo_chiusa`. Aggiungerne una non richiede una riga di codice. `squadra` e `diario` non
+cambiano schermata: aprono il pannello della pausa sopra la Sede, e si torna dov'eri.
+
+Da qui si va alla **Sala operativa**, cioè alla mappa stellare. È l'unico collegamento
+obbligatorio, e c'è una prova che fallisce se sparisce.
+
+## Salvataggio: una partita, un file
+
+**Una partita = uno slot.** Lo slot si sceglie dalla schermata principale, una volta; da lì in
+poi `GameState.salva()` scrive sempre in `user://salvataggio_slot_<n>.json`
+(`GameState.slot_corrente`). Non esiste più un autosalvataggio unico separato dagli slot: era
+la sorgente della confusione (il giocatore doveva sapere quale dei due stesse usando).
+
+**Quando si salva:** rientrando alla **Sede**, da solo. Mai nel Vuoto, mai dentro uno
+squarcio, mai in combattimento. Non c'è un bottone: rientrare *è* il salvataggio.
+
+**Partite vecchie:** `GameState.recupera_salvataggio_vecchio()` gira all'apertura della
+schermata principale. Se esiste il vecchio `user://salvataggio.json` e non c'è ancora nessuna
+partita nel nuovo formato, diventa la **partita 1**. Chi stava giocando riapre e ritrova la sua
+roba, non cinque righe vuote.
 
 **Nuova partita** azzera il progresso di storia (le collezioni album/bestiario/oggetti restano,
 sono meta). Non si salva a metà campagna/squarcio: si riparte sempre dallo stato "overworld".
@@ -349,9 +405,34 @@ sono meta). Non si salva a metà campagna/squarcio: si riparte sempre dallo stat
 per non perdere Tazo/oggetti/flag raccolti in un dungeon molto lungo. **Non** fa però riprendere
 la partita da quel punto: `_leggi_salvataggio()` torna comunque sempre a uno stato overworld
 pulito (party/nodo/eventi azzerati), quindi un game_over dopo il checkpoint riporta comunque
-alla mappa stellare — si perde la posizione nel dungeon, non il bottino raccolto prima. Un vero
+alla Sede — si perde la posizione nel dungeon, non il bottino raccolto prima. Un vero
 "riprendi da qui dentro lo squarcio" richiederebbe salvare anche `eventi`/`nodo_corrente`/
 `carnivalz_corrente`/`mappa_zona`/party e non azzerarli al caricamento: non ancora fatto.
+
+## Dove sei già stato
+
+Tre stati, tre colori, **gli stessi in tutto il gioco** (`Stile.segna_visita`):
+
+| stato | segno | colore | quando |
+|---|---|---|---|
+| `nuovo` | `•` | ottone (accento) | non ci hai mai messo piede |
+| `visto` | — | smorzato | ci sei già stato |
+| `chiuso` | `✓` | verde | non c'è più niente da fare (lo dice un flag) |
+
+Il pallino non è decorazione: chi non distingue bene i colori deve poter vedere lo stesso quali
+posti gli restano. Ogni schermata che li usa mostra la legenda (`Stile.legenda_visite()`).
+
+Si applica a: i punti della **mappa stellare**, gli squarci del **Vuoto**, le stanze della
+**mappa di zona**, le stanze della **Sede** e le **scelte di un dialogo che portano altrove**
+(solo quelle con `vai`: una battuta non è un posto). Non è uno spoiler — dice che quella porta
+non l'hai aperta, non cosa c'è dietro.
+
+Il conto lo tiene `GameState.zone_visitate` (mondo) e `nodi_visitati` (stanze), tutti e due nel
+salvataggio. Un salvataggio vecchio, che non aveva `zone_visitate`, se lo ricostruisce dai flag
+delle stanze (`<zona>__stanza__<id>`): sono già la prova di dove sei stato.
+
+Opzionale nei dati: `"flag_completato"` su un punto della mappa o su uno squarcio dice quale
+flag lo dichiara `chiuso`.
 
 ## Palco dialoghi (con espressioni)
 Ogni personaggio ha 16 **espressioni** per i dialoghi in `art/personaggi/<id>/<espr>.png`
@@ -1352,6 +1433,74 @@ dell'eseguibile, pesano un giga e non stanno nel repo. `exclude_filter` tiene fu
 quello che serve a noi e non al giocatore (`prove/`, `strumenti/`, `docs/`, i `.md`). La pipeline
 esporta e **fa partire l'eseguibile** a ogni push: che il gioco si possa consegnare è una proprietà
 verificata come le altre.
+
+## I numeri del combattimento: perché sono grandi
+
+Vita **×5** e danno **×3** rispetto ai valori di prima. Non è inflazione fine a sé stessa: sono
+due decisioni diverse messe insieme.
+
+- I numeri **si vedono**. Un colpo che toglie 1 su 5 punti vita è aritmetica; uno che ne toglie
+  27 su 140 è una botta. A schermo passa la differenza fra "ho fatto una mossa" e "gli ho fatto
+  male".
+- Gli scontri **durano circa il doppio**. Se avessi scalato vita e danno con lo stesso fattore
+  la durata sarebbe rimasta identica e avrei solo aggiunto zeri.
+
+Il protagonista parte da **100** punti vita e **9** di attacco (`data/crescita.json`); le
+creature stanno fra 30 e 700. Le stat delle creature non sono state ritoccate a mano una per
+una: sono state riscalate tutte insieme, con lo stesso criterio, così i rapporti di forza fra
+di loro sono esattamente quelli di prima. Se un bilanciamento era sbagliato prima, è sbagliato
+uguale adesso — ma non l'ho *reso* sbagliato io.
+
+## Le abilità di combattimento (`regole.json` → `abilita_combattimento`)
+
+Non stanno nel codice. Una classe prende un'abilità scrivendone l'id nel suo campo `abilita`
+(`classes.json`), e il menu costruisce il bottone da questa tabella. Il motore conosce quattro
+**tipi**:
+
+| tipo | cosa fa |
+|---|---|
+| `provoca` | i nemici prendono di mira chi provoca, e nessun altro |
+| `area` | un colpo solo su tutti, a frazione dell'attacco (`moltiplicatore`) |
+| `raffica` | **tanti** colpi piccoli distribuiti a caso, ignorando le difese |
+| `carica` | questo turno non fai niente; il prossimo colpo vale `moltiplicatore` volte tanto |
+
+Un'abilità di un tipo che il motore non sa eseguire fa fallire le prove
+(`prova_abilita_di_combattimento`), invece di comparire nel menu e non fare niente.
+
+**Bombardamento** (`raffica`, di Bero — è un Mecha): 12 colpi al livello 1, `+0.5` per livello,
+fino a 50. Ogni colpo vale una frazione dell'attacco (`frazione_danno`), quindi resta piccolo
+apposta: la sensazione voluta è la scarica, non il singolo numero. A schermo **non** diventano
+venti messaggi in coda — sarebbero venti attese: parte tutto da un effetto solo, i numeri si
+accendono uno dietro l'altro a `PASSO_RAFFICA` di distanza, e il box scrive una riga sola
+("*Bombardamento: 14 colpi. In tutto, 41 danni.*").
+
+**Sovraccarico** (`carica`, del protagonista e di Niru): salti il turno, il prossimo attacco
+vale ×4 — bonus di livello compreso, altrimenti a livello alto caricare sarebbe un modo di
+picchiare *meno*. Mentre sei carico la tua scheda lo dice ("· carico"). È una scommessa: se
+cadi prima di scaricare, hai buttato un turno.
+
+## Il livello delle creature segue il tuo
+
+**Nessuna creatura scende mai più di 3 livelli sotto il protagonista**
+(`scarto_livello_massimo` in `regole.json`). Sopra può stare quanto vuole — il goblin arrabbiato
+del tutorial resta il macellaio che deve essere.
+
+Non è un livellamento amministrativo per non annoiare il giocatore: è la storia. Un dominatore
+porta addosso il fattore Carnivalz, e il disallineamento **si nutre di quello**. Più sei forte
+tu, più è forte ciò che ti viene incontro; e più è forte una fonte, più è forte quello che le
+vive intorno — che è anche il motivo per cui zone diverse hanno creature diverse.
+
+In pratica: `GameState.livello_nemico(id)` è `max(livello base, tuo livello − 3)`, e
+`GameState.stat_nemico(id, chiave)` alza hp/attacco/difesa/xp/tazo delle percentuali in
+`crescita_nemico_per_livello`. **Chi non scala:** le creature con `incontro_scriptato` (sono
+scene, non scontri: i loro numeri sono battute) e chi lo dichiara con
+`"scala_col_giocatore": false` — la Tartaruga Innocente non deve diventare un mostro perché sei
+salito di livello.
+
+Ogni creatura ha adesso un `livello` base che dice **quanto è profondo il posto in cui vive**
+(tutorial 1–6, Squarcio Industriale 4–6, Meridia 2–10, Cunicoli di Jondoh 8–14, Kizako 12,
+Casa Gigante 13–15, la campagna di Jerah 16–18). Le stat non cambiano per questo: cambiano il
+pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, da correggere.**
 
 ## Convenzioni
 - Codice e chiavi JSON in italiano

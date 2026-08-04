@@ -33,6 +33,9 @@ func _ready() -> void:
 	for vuoto in punto.get("vuoti", []):
 		if vuoto_visibile(vuoto):
 			crea_squarcio(vuoto)
+	var legenda := Stile.legenda_visite()
+	legenda.position = Vector2(24, 64)
+	add_child(legenda)
 
 func pianeta_accessibile(punto: Dictionary) -> bool:
 	# il Carnivalz vero e proprio al centro del sistema non e' aperto da
@@ -53,16 +56,23 @@ func crea_pianeta(punto: Dictionary) -> void:
 	strato_punti.add_child(bottone)
 
 func crea_squarcio(vuoto: Dictionary) -> void:
+	# Uno squarcio dove non sei mai entrato chiama (pallino + battito); uno gia'
+	# percorso sta zitto; uno la cui fonte e' spenta porta la spunta. E' quello
+	# che serve per sapere, guardando, cosa resta da fare in questo sistema.
+	var id_vuoto := String(vuoto.get("id", ""))
+	var stato := GameState.stato_visita(id_vuoto, String(vuoto.get("flag_completato", "")))
 	var bottone := Button.new()
 	bottone.text = vuoto.get("nome", "?")
 	bottone.custom_minimum_size = Vector2(180, 48)
+	Stile.segna_visita(bottone, stato)
 	var pos: Array = vuoto.get("pos", [0, 0])
 	bottone.position = Vector2(pos[0], pos[1]) - Vector2(90, 24)
 	bottone.pressed.connect(_su_squarcio.bind(vuoto))
 	strato_punti.add_child(bottone)
-	var pulsazione := bottone.create_tween().set_loops()
-	pulsazione.tween_property(bottone, "modulate:a", 0.55, 0.8)
-	pulsazione.tween_property(bottone, "modulate:a", 1.0, 0.8)
+	if stato == "nuovo":
+		var pulsazione := bottone.create_tween().set_loops()
+		pulsazione.tween_property(bottone, "modulate:a", 0.55, 0.8)
+		pulsazione.tween_property(bottone, "modulate:a", 1.0, 0.8)
 
 func vuoto_visibile(vuoto: Dictionary) -> bool:
 	if not vuoto.get("nascosto", false):

@@ -243,6 +243,43 @@ func scelta(bottone: Button) -> void:
 	bottone.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bottone.clip_text = false
 
+# --- dove sei gia' stato ---
+#
+# Tre stati, tre colori, uguali in tutto il gioco: la mappa stellare, il Vuoto,
+# la mappa di una zona, le stanze della Sede e persino le scelte di un dialogo
+# che portano da qualche parte. Un posto nuovo chiama (ottone, e un pallino che
+# lo stacca dagli altri); uno gia' visto non deve piu' chiamare (smorzato); uno
+# chiuso si toglie di mezzo (verde).
+#
+# Perche' un pallino e non solo il colore: chi non distingue bene i colori deve
+# poter vedere lo stesso quali posti gli restano da battere.
+const VISITA_NUOVO := "nuovo"
+const VISITA_VISTO := "visto"
+const VISITA_CHIUSO := "chiuso"
+
+func colore_visita(stato: String) -> Color:
+	match stato:
+		VISITA_NUOVO: return colore("accento")
+		VISITA_CHIUSO: return colore("positivo")
+		_: return colore("testo_smorzato")
+
+func segna_visita(bottone: Button, stato: String) -> void:
+	var tinta := colore_visita(stato)
+	for chiave in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
+		bottone.add_theme_color_override(chiave, tinta)
+	if stato == VISITA_NUOVO:
+		bottone.text = "•  " + bottone.text
+	elif stato == VISITA_CHIUSO:
+		bottone.text = "✓  " + bottone.text
+
+func legenda_visite() -> Label:
+	# senza questa riga i colori sono un indovinello: si scrive una volta, in
+	# fondo a ogni schermata che li usa
+	var etichetta := Label.new()
+	etichetta.text = "•  non ci sei ancora stato        ✓  chiuso"
+	etichetta_piccola(etichetta)
+	return etichetta
+
 func etichetta_piccola(etichetta: Label) -> void:
 	etichetta.add_theme_font_size_override("font_size", dimensione("piccolo"))
 	etichetta.add_theme_color_override("font_color", colore("testo_smorzato"))

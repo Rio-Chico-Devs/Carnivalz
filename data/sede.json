@@ -1,0 +1,52 @@
+{
+	"_nota": "La Sede: dove sei quando non sei dentro un Carnivalz. Da qui si guarda la mappa stellare (la Sala operativa), si compra, si gestisce la squadra, si legge il Diario. Ogni stanza e' una voce di questo file: aggiungerne una non richiede di toccare il codice. I nomi e i testi sono da correggere: sono la mia proposta, non il tuo canone.",
+
+	"nome": "Unità Terza",
+	"sottotitolo": "Presidio dell'Organizzazione",
+	"descrizione": "Sei di stanza qui. Non è un ufficio: è una struttura che va difesa. L'Organizzazione tiene in ogni unità un numero minimo di dominatori — se scende sotto quella soglia, l'unità è scoperta, e le cose che escono dalle fratture lo sentono prima di noi.",
+	"sfondo": "res://art/sede.png",
+
+	"_nota_presidio": "Il presidio e' quanti dominatori l'unita' deve tenere in casa. Non e' ancora una meccanica: e' una riga di stato che dice che il posto e' un presidio e non un albergo. Se diventera' una regola (partire in missione scopre l'unita') si tocchera' solo questo file e la riga che lo legge.",
+	"presidio_richiesto": 6,
+
+	"stanze": [
+		{
+			"id": "sala_operativa",
+			"nome": "Sala operativa",
+			"descrizione": "Il tavolo tattico al centro, e sopra la proiezione del settore. Dove il disallineamento sta bruciando compare un punto. È così che si guarda la mappa: da qui, con qualcuno che ti dice dove andare.",
+			"azione": "mappa"
+		},
+		{
+			"id": "emporio",
+			"nome": "Emporio dell'Organizzazione",
+			"descrizione": "Scaffali metallici, un bancone, e un tizio che non ti guarda mai in faccia. Tutto quello che ti serve per non morire là fuori.",
+			"azione": "negozio"
+		},
+		{
+			"id": "alloggi",
+			"nome": "Alloggi",
+			"descrizione": "Le brande della squadra. Qui si controlla chi porta cosa, e come sta chi lo porta.",
+			"azione": "squadra"
+		},
+		{
+			"id": "archivio",
+			"nome": "Archivio",
+			"descrizione": "Faldoni, schede, la tua valutazione. L'Organizzazione scrive tutto, anche quello che preferiresti non rileggere.",
+			"azione": "diario"
+		},
+		{
+			"id": "ponte_di_guardia",
+			"nome": "Ponte di guardia",
+			"descrizione": "Da qui si vede il perimetro. Le forze militari fanno i turni sui camminamenti: fucili, mezzi, procedure. Nessuno di loro ha il fattore Carnivalz, e nessuno di loro finge il contrario — sanno benissimo che se qualcosa entra davvero, quelli che devono muoversi siete voi. Il che non vuol dire che siano meno pericolosi di voi. Alcuni, addestrati come si deve, ti stenderebbero senza sudare.",
+			"azione": "testo"
+		},
+		{
+			"id": "officina",
+			"nome": "Officina del Dott. Eto",
+			"descrizione": "Cavi, banchi, cose smontate che dovrebbero stare montate. Eto non ha nessun fattore: ha una testa, e quella gli basta per stare al passo con gente che piega la realtà. Dice che è solo una questione di strumenti. Non sta scherzando.",
+			"azione": "testo",
+			"richiede_flag": "eto_incontrato",
+			"testo_chiusa": "La porta è chiusa. Sull'etichetta, un nome che non hai ancora avuto motivo di imparare."
+		}
+	]
+}

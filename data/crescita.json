@@ -2,8 +2,8 @@
 	"_nota": "Crescita del protagonista. Le stat non salgono da sole con il livello: salgono in base a QUELLO CHE HAI FATTO. Ogni azione riempie un contatore; a ogni livello i contatori vengono convertiti in punti stat e azzerati.",
 
 	"stat": {
-		"hp": { "nome": "Punti vita", "base": 20 },
-		"attacco": { "nome": "Attacco", "base": 3 },
+		"hp": { "nome": "Punti vita", "base": 100 },
+		"attacco": { "nome": "Attacco", "base": 9 },
 		"difesa": { "nome": "Difesa", "base": 0 },
 		"velocita": { "nome": "Velocità", "base": 3 },
 		"intelligenza": { "nome": "Intelligenza", "base": 1, "descrizione": "Aumenta la probabilità di fuggire." },
@@ -13,12 +13,12 @@
 
 	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello.",
 	"crescita": {
-		"attacchi_sferrati": { "stat": "attacco", "ogni": 5, "punti": 1 },
-		"danni_subiti": { "stat": "hp", "ogni": 12, "punti": 5 },
-		"difese": { "stat": "difesa", "ogni": 6, "punti": 1 },
+		"attacchi_sferrati": { "stat": "attacco", "ogni": 5, "punti": 3 },
+		"danni_subiti": { "stat": "hp", "ogni": 36, "punti": 25 },
+		"difese": { "stat": "difesa", "ogni": 6, "punti": 3 },
 		"studi": { "stat": "intelligenza", "ogni": 4, "punti": 1 },
 		"fughe": { "stat": "intelligenza", "ogni": 2, "punti": 1 },
-		"oggetti_usati": { "stat": "hp", "ogni": 5, "punti": 3 },
+		"oggetti_usati": { "stat": "hp", "ogni": 5, "punti": 15 },
 		"stanze_esplorate": { "stat": "velocita", "ogni": 10, "punti": 1 },
 		"stress_accumulato": { "stat": "forza_mentale", "ogni": 40, "punti": 1 },
 		"critici_inflitti": { "stat": "fattore", "ogni": 5, "punti": 1 }
@@ -30,11 +30,11 @@
 	"_nota_passive_soglia": "Sbloccate al raggiungimento di certi valori di stat, controllate a ogni passaggio di livello.",
 	"passive_soglia": [
 		{ "id": "altruismo", "nome": "Altruismo", "richiede": { "forza_mentale": 10, "intelligenza": 15 } },
-		{ "id": "furia", "nome": "Furia", "richiede": { "fattore": 20, "attacco": 30 } },
+		{ "id": "furia", "nome": "Furia", "richiede": { "fattore": 20, "attacco": 90 } },
 		{ "id": "perspicacia_acuta", "nome": "Perspicacia acuta", "richiede": { "intelligenza": 40 } },
 		{ "id": "leadership", "nome": "Leadership", "richiede": { "intelligenza": 50, "forza_mentale": 50 } },
 		{ "id": "karma_positivo", "nome": "Karma positivo", "richiede_tutte_le_stat": 50 },
-		{ "id": "benedizione_dell_agnello", "nome": "Benedizione dell'agnello", "richiede": { "difesa": 60, "hp": 501 } },
+		{ "id": "benedizione_dell_agnello", "nome": "Benedizione dell'agnello", "richiede": { "difesa": 180, "hp": 2505 } },
 		{ "id": "disastro_vivente", "nome": "Disastro vivente", "richiede": { "fattore": 100 } }
 	],
 

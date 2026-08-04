@@ -19,8 +19,22 @@ const PERCORSO_CRESCITA := "res://data/crescita.json"
 const PERCORSO_TASK := "res://data/task.json"
 const PERCORSO_CODICI := "res://data/codici.json"  # extra: sblocchi via codice
 const PERCORSO_CODICI_RISCATTATI := "user://codici_riscattati.cfg"
-const PERCORSO_SALVATAGGIO := "user://salvataggio.json"  # autosalvataggio
-const SLOT_MASSIMO := 5  # salvataggi manuali dell'utente, oltre all'autosalvataggio
+const PERCORSO_SALVATAGGIO_VECCHIO := "user://salvataggio.json"  # autosalvataggio di prima
+const SLOT_MASSIMO := 5  # una partita per slot: non ci sono altri salvataggi
+
+# Una partita = uno slot, e basta.
+#
+# Prima c'erano due cose diverse: un autosalvataggio unico (uno solo per tutto
+# il gioco) e cinque slot manuali. Il giocatore doveva sapere quale delle due
+# stesse usando, e "Salva" apriva un selettore in mezzo alla partita. Era la
+# stessa confusione di gerarchia che si vedeva nel menu: roba da schermata
+# principale che spuntava dentro il gioco.
+#
+# Adesso si sceglie la partita PRIMA di giocare, una volta, dalla schermata
+# principale. Da li' in poi il gioco scrive sempre in quel file, da solo, e in
+# gioco non c'e' piu' niente da amministrare: nessun selettore, nessuna scelta,
+# nessun modo di sovrascrivere per sbaglio la partita di qualcun altro.
+var slot_corrente: int = 1
 
 # Unica fonte di casualità del gioco: sempre seedata, per determinismo
 # e sync multiplayer futuro.
@@ -144,6 +158,12 @@ var bestiario: Array[String] = []        # id nemici incontrati (voce al 1o inco
 var oggetti_catalogo: Array[String] = [] # id oggetti ottenuti almeno una volta
 var stanze_ripulite: Array[String] = []  # agguati gia' tirati in questa visita
 var punto_mappa_corrente: Dictionary = {}  # il sistema/Vuoto che stai guardando
+
+# Dove sei gia' stato, a livello di mondo: id dei sistemi e degli squarci in cui
+# hai messo piede almeno una volta. Non e' progresso (i flag fanno quel
+# mestiere): serve alle mappe per dire "questo posto non l'hai ancora visto"
+# senza raccontare niente di cosa ci sia dentro.
+var zone_visitate: Array[String] = []
 
 var nemici_combattimento: Array = []
 var nodo_se_vinci: String = ""
@@ -335,6 +355,7 @@ func nuova_partita() -> void:
 	passive_sbloccate.clear()
 	passive_da_notificare.clear()
 	nodi_visitati.clear()
+	zone_visitate.clear()
 	storico.clear()
 	task_attivi.clear()
 	task_chiusi.clear()
@@ -377,6 +398,8 @@ func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
 		return false
 	carnivalz_corrente = id_punto
 	file_eventi_corrente = file_eventi
+	if id_punto != "" and id_punto not in zone_visitate:
+		zone_visitate.append(id_punto)
 	eventi = dati.get("nodi", {})
 	nodo_corrente = dati.get("nodo_iniziale", "")
 	stanza_iniziale_zona = nodo_corrente
@@ -416,6 +439,33 @@ func sblocca_stanza(id_stanza: String) -> void:
 func _flag_stanza(id_stanza: String) -> String:
 	return "%s__stanza__%s" % [carnivalz_corrente, id_stanza]
 
+# --- dove sei gia' stato ---
+#
+# Un posto puo' essere in tre stati, e sono gli stessi per la mappa stellare,
+# per il Vuoto, per una stanza della Sede: "nuovo" (mai messo piede),
+# "visto" (ci sei stato), "chiuso" (li' non c'e' piu' niente da fare, e lo dice
+# un flag). I colori li mette Stile; qui si sa solo com'e' messo il mondo.
+
+func segna_visitata(id_posto: String) -> void:
+	if id_posto != "" and id_posto not in zone_visitate:
+		zone_visitate.append(id_posto)
+
+func gia_visitata(id_posto: String) -> bool:
+	return id_posto in zone_visitate
+
+func stato_visita(id_posto: String, flag_chiuso := "") -> String:
+	if flag_chiuso != "" and ha_flag(flag_chiuso):
+		return "chiuso"
+	return "visto" if gia_visitata(id_posto) else "nuovo"
+
+func abilita_combattimento(id_abilita: String) -> Dictionary:
+	# la definizione di un'abilita' usabile in battaglia, o {} se quel nome e'
+	# un'abilita' narrativa (scasso, volo, sesto senso...) che in combattimento
+	# non fa niente
+	var tabella: Dictionary = regole.get("abilita_combattimento", {})
+	var dati: Variant = tabella.get(id_abilita, {})
+	return dati if dati is Dictionary else {}
+
 func party_ha_abilita(abilita: String) -> bool:
 	for id_classe in party:
 		if abilita in classi.get(id_classe, {}).get("abilita", []):
@@ -424,6 +474,60 @@ func party_ha_abilita(abilita: String) -> bool:
 
 func livello_di(id_classe: String) -> int:
 	return int(livelli.get(id_classe, 1))
+
+# --- quanto e' forte una creatura ADESSO ---
+#
+# Il mondo non ti aspetta fermo. Un dominatore porta addosso il fattore
+# Carnivalz, e il disallineamento si nutre di quello: piu' sei forte tu, piu'
+# forte diventa cio' che ti viene incontro. Non e' un livellamento
+# amministrativo per non annoiare il giocatore - e' letteralmente il motore del
+# mondo, ed e' anche il motivo per cui zone diverse hanno creature diverse:
+# vicino a una fonte potente vive roba potente.
+#
+# In pratica: nessuna creatura scende mai piu' di "scarto_livello_massimo"
+# livelli sotto di te. Puo' stare sopra quanto vuole - il goblin arrabbiato del
+# tutorial resta il macellaio che deve essere - ma non sotto. Un posto
+# rivisitabile non diventa mai un campo di grano da falciare.
+#
+# Chi non scala:
+#   - "incontro_scriptato": scene, non scontri. I loro numeri sono battute
+#   - "scala_col_giocatore": false, per chi deve restare esattamente com'e'
+#     (la Tartaruga Innocente non diventa un mostro perche' sei salito di livello)
+
+func scarto_livello_massimo() -> int:
+	return int(regole.get("scarto_livello_massimo", 3))
+
+func livello_base_nemico(id_nemico: String) -> int:
+	return maxi(int(personaggi.get(id_nemico, {}).get("livello", 1)), 1)
+
+func nemico_scala(id_nemico: String) -> bool:
+	var dati: Dictionary = personaggi.get(id_nemico, {})
+	if dati.is_empty() or dati.has("incontro_scriptato"):
+		return false
+	return bool(dati.get("scala_col_giocatore", true))
+
+func livello_nemico(id_nemico: String) -> int:
+	var base := livello_base_nemico(id_nemico)
+	if not nemico_scala(id_nemico):
+		return base
+	var pavimento := livello_di(id_protagonista) - scarto_livello_massimo()
+	return clampi(maxi(base, pavimento), 1, int(regole.get("livello_massimo", 130)))
+
+func stat_nemico(id_nemico: String, chiave: String, difetto := 0) -> int:
+	# La stat scritta nel file e' quella del suo livello base. Se il
+	# disallineamento l'ha tirata su, cresce di conseguenza: le percentuali
+	# stanno in regole.json, una per stat, cosi' un nemico livellato picchia
+	# piu' forte ma non diventa un muro invalicabile.
+	var dati: Dictionary = personaggi.get(id_nemico, {})
+	var base := int(dati.get(chiave, difetto))
+	var salto := livello_nemico(id_nemico) - livello_base_nemico(id_nemico)
+	if salto <= 0 or base <= 0:
+		return base
+	var per_livello: Dictionary = regole.get("crescita_nemico_per_livello", {})
+	var passo := float(per_livello.get(chiave, 0.0))
+	if passo <= 0.0:
+		return base
+	return maxi(int(round(base * (1.0 + passo * salto))), base)
 
 func stress_di(id_classe: String) -> int:
 	return int(stress.get(id_classe, 0))
@@ -1111,41 +1215,92 @@ func annulla_combattimento() -> void:
 	nodo_se_perdi = ""
 	nodo_se_fuggi = ""
 
-# --- salvataggio: solo dalla mappa stellare, mai dentro un carnivalz/squarcio.
-# Un autosalvataggio (PERCORSO_SALVATAGGIO) + SLOT_MASSIMO salvataggi manuali
-# scelti dall'utente (percorso_slot). ---
+# --- salvataggio: una partita per slot, scritto da solo.
+#
+# Si salva quando si rientra alla Sede (l'unico posto sicuro del gioco), mai
+# dentro un carnivalz/squarcio. Quale file venga scritto non e' una domanda che
+# si fa in gioco: e' lo slot scelto dalla schermata principale. ---
 
 func percorso_slot(slot: int) -> String:
 	return "user://salvataggio_slot_%d.json" % slot
 
+func imposta_slot(slot: int) -> void:
+	slot_corrente = clampi(slot, 1, SLOT_MASSIMO)
+
 func ha_salvataggio() -> bool:
-	return FileAccess.file_exists(PERCORSO_SALVATAGGIO)
+	for slot in range(1, SLOT_MASSIMO + 1):
+		if ha_salvataggio_slot(slot):
+			return true
+	return false
 
 func ha_salvataggio_slot(slot: int) -> bool:
 	return FileAccess.file_exists(percorso_slot(slot))
 
-func anteprima_slot(slot: int) -> String:
-	# riga sintetica per il selettore, senza toccare lo stato in corso
+func dati_slot(slot: int) -> Dictionary:
+	# legge la testata di un salvataggio senza toccare la partita in corso
 	var percorso := percorso_slot(slot)
 	if not FileAccess.file_exists(percorso):
-		return "Vuoto"
+		return {}
 	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
-	if not d is Dictionary:
+	return d if d is Dictionary else {}
+
+func anteprima_slot(slot: int) -> String:
+	var d := dati_slot(slot)
+	if d.is_empty():
 		return "Vuoto"
 	return "Tazo %d · Fonti estinte %d · Legame %d" % [
 		int(d.get("tazo", 0)), int(d.get("fonti_estinte", 0)), int(d.get("legame", 0))]
 
+func nome_slot(slot: int) -> String:
+	# chi sei in quella partita: il nome che ti sei dato e a che livello sei
+	var d := dati_slot(slot)
+	if d.is_empty():
+		return ""
+	var nome := String(d.get("nome_protagonista", ""))
+	if nome == "":
+		nome = nome_anonimo_default
+	var livelli_salvati: Dictionary = d.get("livelli", {})
+	var livello := int(livelli_salvati.get(id_protagonista, 1))
+	return "%s · livello %d" % [nome, livello]
+
+func elimina_slot(slot: int) -> void:
+	var percorso := percorso_slot(slot)
+	if FileAccess.file_exists(percorso):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
+		# su alcune piattaforme user:// non si globalizza: si riprova diretto
+		if FileAccess.file_exists(percorso):
+			DirAccess.open("user://").remove(percorso.get_file())
+
+func recupera_salvataggio_vecchio() -> void:
+	# Le partite giocate prima che "una partita = uno slot" esistesse stavano
+	# tutte nell'autosalvataggio unico. Alla prima apertura del gioco nuovo
+	# quel file diventa la partita numero 1, cosi' chi stava giocando riapre e
+	# ritrova la sua roba invece di una lista di slot vuoti.
+	if not FileAccess.file_exists(PERCORSO_SALVATAGGIO_VECCHIO):
+		return
+	if ha_salvataggio():
+		return  # c'e' gia' almeno una partita nel nuovo formato: non si tocca niente
+	var contenuto := FileAccess.get_file_as_string(PERCORSO_SALVATAGGIO_VECCHIO)
+	var f := FileAccess.open(percorso_slot(1), FileAccess.WRITE)
+	if f == null:
+		return
+	f.store_string(contenuto)
+	f.close()
+
 func salva() -> void:
-	_scrivi_salvataggio(PERCORSO_SALVATAGGIO)
+	_scrivi_salvataggio(percorso_slot(slot_corrente))
 
 func salva_slot(slot: int) -> void:
 	_scrivi_salvataggio(percorso_slot(slot))
 
 func carica() -> bool:
-	return _leggi_salvataggio(PERCORSO_SALVATAGGIO)
+	return carica_slot(slot_corrente)
 
 func carica_slot(slot: int) -> bool:
-	return _leggi_salvataggio(percorso_slot(slot))
+	if not _leggi_salvataggio(percorso_slot(slot)):
+		return false
+	imposta_slot(slot)
+	return true
 
 func _scrivi_salvataggio(percorso: String) -> void:
 	var dati := {
@@ -1179,6 +1334,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"volte_stato_subito": volte_stato_subito,
 		"passive_sbloccate": passive_sbloccate,
 		"nodi_visitati": nodi_visitati,
+		"zone_visitate": zone_visitate,
 		"task_attivi": task_attivi,
 		"task_chiusi": task_chiusi,
 		"nome_protagonista": nome_protagonista,
@@ -1249,6 +1405,16 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	volte_stato_subito = d.get("volte_stato_subito", {})
 	passive_sbloccate = _lista_str(d.get("passive_sbloccate", []))
 	nodi_visitati = _lista_str(d.get("nodi_visitati", []))
+	zone_visitate = _lista_str(d.get("zone_visitate", []))
+	if zone_visitate.is_empty():
+		# Salvataggi fatti prima che si tenesse il conto dei posti visitati: il
+		# conto c'e' lo stesso, scritto altrove. Ogni stanza sbloccata lascia un
+		# flag col nome della zona davanti (vedi _flag_stanza), quindi da li' si
+		# risale con certezza a dove il giocatore e' stato davvero.
+		for nome_flag in flags:
+			var pezzi := nome_flag.split("__stanza__")
+			if pezzi.size() == 2 and pezzi[0] != "" and pezzi[0] not in zone_visitate:
+				zone_visitate.append(pezzi[0])
 	task_attivi = _lista_str(d.get("task_attivi", []))
 	task_chiusi = _lista_str(d.get("task_chiusi", []))
 	task_da_notificare.clear()

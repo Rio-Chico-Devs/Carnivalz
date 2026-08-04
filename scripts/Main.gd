@@ -41,7 +41,7 @@ extends Control
 # spariscono. Chi non ha la battuta in quel momento resta in scena ma
 # attenuato: l'occhio va da solo su chi sta parlando.
 
-const SCENA_MAPPA := "res://scenes/Mappa.tscn"
+const SCENA_SEDE := "res://scenes/Sede.tscn"
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
@@ -382,6 +382,7 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
 			continue  # non puoi pagare cio' che non hai
 		var bottone := bottone_scelta(String(scelta.get("testo", "…")))
+		segna_destinazione(bottone, scelta)
 		bottone.pressed.connect(_su_scelta.bind(scelta))
 		contenitore_scelte.add_child(bottone)
 		if primo == null:
@@ -403,6 +404,23 @@ func bottone_scelta(testo: String) -> Button:
 	bottone.text = testo
 	Stile.scelta(bottone)
 	return bottone
+
+func segna_destinazione(bottone: Button, scelta: Dictionary) -> void:
+	# Quando da una stanza si va in piu' posti, quelli dove non sei ancora stato
+	# si vedono: pallino e ottone. Vale solo per le scelte che portano davvero
+	# altrove ("vai") - una battuta o un'azione non e' un posto, e colorarla
+	# racconterebbe una bugia.
+	#
+	# Non e' uno spoiler: dice che quella porta non l'hai aperta, non cosa c'e'
+	# dietro. Serve a non rifare tre volte lo stesso corridoio cercando l'unica
+	# via che manca.
+	if not scelta.has("vai"):
+		return
+	var destinazione := String(scelta["vai"])
+	if destinazione == "" or destinazione == GameState.nodo_corrente:
+		return
+	Stile.segna_visita(bottone,
+			"visto" if destinazione in GameState.nodi_visitati else "nuovo")
 
 func notifiche_task() -> Array[Dictionary]:
 	# un appunto nuovo non e' una riga di sistema: e' il protagonista che si
@@ -563,8 +581,9 @@ func _su_scelta(scelta: Dictionary) -> void:
 		Transizioni.vai(SCENA_VUOTO)
 		return
 	if scelta.get("reset", false):
+		# fine campagna: si rientra alla Sede, che e' anche dove il gioco salva
 		GameState.reset_campagna()
-		Transizioni.vai(SCENA_MAPPA)
+		Transizioni.vai(SCENA_SEDE)
 		return
 	if scelta.get("game_over", false):
 		# si perde il progresso non salvato, ma non si viene sbalzati sulla
@@ -572,7 +591,7 @@ func _su_scelta(scelta: Dictionary) -> void:
 		if GameState.game_over():
 			Transizioni.vai(SCENA_EVENTI)
 		else:
-			Transizioni.vai(SCENA_MAPPA)
+			Transizioni.vai(SCENA_SEDE)
 		return
 	if scelta.get("torna_a_mappa", false):
 		# mappa dungeon di zona: si torna li' a scegliere la prossima stanza,

@@ -38,6 +38,11 @@ func _ready() -> void:
 	prova_finale_scriptato()
 	prova_salvataggio_vecchio()
 	prova_ingresso_nodi()
+	prova_gerarchia_schermate()
+	prova_sede()
+	prova_posti_visitati()
+	prova_livello_dei_nemici()
+	prova_abilita_di_combattimento()
 	prova_transizioni()
 	prova_suoni()
 	prova_script_compilano()
@@ -331,8 +336,14 @@ func prova_equipaggiamento() -> void:
 			"un amuleto e' entrato nello slot dell'arma")
 	esigi(GameState.equipaggia(eroe, "accessori", "amuleto_di_pietra"),
 			"l'amuleto non entra nello slot accessori")
-	esigi(GameState.bonus_equipaggiamento(eroe, "difesa") == 1,
-			"l'amuleto di pietra non da' +1 difesa")
+	# quanto dia lo si chiede al suo file, non lo si scrive qui: se un giorno i
+	# numeri del gioco vengono riscalati, questa prova deve continuare a
+	# verificare la REGOLA (l'oggetto addosso conta) e non un valore di allora
+	var difesa_amuleto := int(GameState.dati_oggetto("amuleto_di_pietra")
+			.get("effetto_equipaggiato", {}).get("difesa", 0))
+	esigi(difesa_amuleto > 0, "l'amuleto di pietra non dichiara nessuna difesa")
+	esigi(GameState.bonus_equipaggiamento(eroe, "difesa") == difesa_amuleto,
+			"l'amuleto di pietra non da' la difesa che dichiara (%d)" % difesa_amuleto)
 	# lo stesso oggetto non puo' stare addosso a due persone
 	esigi(GameState.e_equipaggiato("amuleto_di_pietra"), "l'oggetto addosso non risulta equipaggiato")
 	esigi(GameState.portatore_di("amuleto_di_pietra") == eroe, "il portatore non e' quello giusto")
@@ -349,8 +360,13 @@ func prova_equipaggiamento() -> void:
 	GameState.nuova_partita()
 	GameState.accessori.append("stigma_del_muto")
 	GameState.equipaggia(eroe, "stigma", "stigma_del_muto")
-	esigi(GameState.bonus_equipaggiamento(eroe, "difesa") == 2, "lo stigma del muto non da' +2 difesa")
-	esigi(GameState.bonus_equipaggiamento(eroe, "attacco") == -1, "lo stigma del muto non toglie attacco")
+	var patto: Dictionary = GameState.dati_oggetto("stigma_del_muto").get("effetto_equipaggiato", {})
+	esigi(int(patto.get("difesa", 0)) > 0 and int(patto.get("attacco", 0)) < 0,
+			"lo stigma del muto non e' piu' un patto: deve dare difesa e togliere attacco")
+	esigi(GameState.bonus_equipaggiamento(eroe, "difesa") == int(patto.get("difesa", 0)),
+			"lo stigma del muto non da' la difesa che dichiara")
+	esigi(GameState.bonus_equipaggiamento(eroe, "attacco") == int(patto.get("attacco", 0)),
+			"lo stigma del muto non toglie l'attacco che dichiara")
 	# togliere svuota lo slot
 	GameState.togli_oggetto_equipaggiato("stigma_del_muto")
 	esigi(GameState.bonus_equipaggiamento(eroe, "difesa") == 0, "togliere lo stigma non toglie il bonus")
@@ -805,6 +821,201 @@ func prova_suoni() -> void:
 	# comincia con un clic, ed e' la differenza tra "voce" e "disturbo"
 	esigi(absi(blip.data.decode_s16(0)) < 500, "il blip parte di scatto: si sentirebbe un clic")
 
+func testo_script(percorso: String) -> String:
+	return FileAccess.get_file_as_string(percorso) if FileAccess.file_exists(percorso) else ""
+
+func script_del_gioco() -> Array[String]:
+	var elenco: Array[String] = []
+	for cartella_nome: String in ["res://scripts", "res://scripts/combattimento"]:
+		var cartella := DirAccess.open(cartella_nome)
+		if cartella == null:
+			continue
+		for nome in cartella.get_files():
+			if nome.ends_with(".gd"):
+				elenco.append(cartella_nome + "/" + nome)
+	return elenco
+
+func prova_gerarchia_schermate() -> void:
+	# LA REGOLA, in una prova.
+	#
+	# "Il caricamento della partita, la gestione dei salvataggi e i controlli su
+	# come far partire il gioco devono essere una prerogativa della schermata
+	# principale." Non e' un consiglio di stile: e' una regola, e come tutte le
+	# regole che contano deve poter FALLIRE quando qualcuno la rompe. Altrimenti
+	# fra tre mesi qualcuno rimette un selettore di slot dentro una schermata di
+	# gioco perche' li' faceva comodo, e nessuno se ne accorge.
+	#
+	# Chi puo' nominare la gestione dei salvataggi:
+	#   GameState  - ce l'ha dentro, e' lui che scrive i file
+	#   Menu       - E' la schermata principale
+	# Chi puo' chiamare salva():
+	#   Sede         - rientrare alla Sede E' il salvataggio
+	#   IngressoNodo - i checkpoint di meta' dungeon, deliberati e documentati
+	titolo("la gerarchia: i salvataggi stanno solo dove devono")
+	var gestione := ["carica_slot(", "salva_slot(", "elimina_slot(", "anteprima_slot(",
+			"ha_salvataggio_slot(", "nome_slot(", "imposta_slot(", "percorso_slot("]
+	var puo_gestire := ["res://scripts/GameState.gd", "res://scripts/Menu.gd"]
+	var puo_salvare := ["res://scripts/GameState.gd", "res://scripts/Sede.gd",
+			"res://scripts/IngressoNodo.gd"]
+	for percorso in script_del_gioco():
+		var testo := testo_script(percorso)
+		if percorso not in puo_gestire:
+			for nome_funzione in gestione:
+				esigi(testo.find(nome_funzione) == -1,
+						"%s tocca la gestione dei salvataggi (%s): e' roba da schermata principale"
+						% [percorso.get_file(), nome_funzione])
+		if percorso not in puo_salvare:
+			esigi(testo.find("GameState.salva(") == -1,
+					"%s salva la partita: si salva solo rientrando alla Sede" % percorso.get_file())
+	# e la Sede lo fa davvero: se questa riga sparisse, non salverebbe piu' nessuno
+	esigi(testo_script("res://scripts/Sede.gd").find("GameState.salva()") != -1,
+			"la Sede non salva piu': il gioco non ha piu' nessun punto di salvataggio")
+	# una partita e' uno slot, e lo slot lo sceglie il menu
+	GameState.imposta_slot(3)
+	esigi(GameState.slot_corrente == 3, "imposta_slot non cambia la partita corrente")
+	esigi(GameState.percorso_slot(3) == GameState.percorso_slot(GameState.slot_corrente),
+			"salva() non scriverebbe nella partita scelta")
+	GameState.imposta_slot(99)
+	esigi(GameState.slot_corrente == GameState.SLOT_MASSIMO,
+			"uno slot fuori scala non viene riportato dentro")
+	GameState.imposta_slot(1)
+
+func prova_livello_dei_nemici() -> void:
+	# La regola di Bru: una creatura puo' stare sopra di te quanto vuole, mai
+	# piu' di tre livelli sotto. Il perche' e' nella storia (il disallineamento
+	# si nutre del tuo fattore Carnivalz), ma qui si controlla il numero.
+	titolo("nessun nemico scende piu' di tre livelli sotto di te")
+	GameState.nuova_partita()
+	# Lo scarto si legge dal FILE, non dalla funzione che dovrebbe applicarlo:
+	# se lo chiedessi a GameState, una funzione sbagliata sposterebbe anche il
+	# metro con cui la misuro, e la prova direbbe di si' a qualunque cosa. Era
+	# proprio cosi' che non si accorgeva dello scarto portato da 3 a 5.
+	var scarto := int(GameState.regole.get("scarto_livello_massimo", 0))
+	esigi(scarto > 0, "scarto_livello_massimo non e' impostato in regole.json")
+	esigi(GameState.scarto_livello_massimo() == scarto,
+			"GameState non usa lo scarto scritto in regole.json")
+	for livello_eroe in [1, 5, 12, 40]:
+		GameState.livelli[GameState.id_protagonista] = livello_eroe
+		for id_creatura in GameState.personaggi:
+			var dati: Dictionary = GameState.personaggi[id_creatura]
+			if not dati.has("hp"):
+				continue  # non e' una creatura da combattimento
+			var livello := GameState.livello_nemico(id_creatura)
+			var base := GameState.livello_base_nemico(id_creatura)
+			esigi(livello >= base, "%s e' stato indebolito dal livellamento" % id_creatura)
+			if GameState.nemico_scala(id_creatura):
+				# QUESTA riga e' la regola, e la prima volta l'avevo scritta
+				# sbagliata: un mini() al posto di un maxi() la rendeva vera
+				# sempre, e passava anche col pavimento tolto. Il pavimento e'
+				# "livello del protagonista meno lo scarto", punto - non e' il
+				# livello base della creatura, che e' proprio quello da cui la si
+				# vuole tirare su.
+				var pavimento := maxi(livello_eroe - scarto, 1)
+				esigi(livello >= pavimento,
+						"%s e' lv %d con un protagonista lv %d: doveva essere almeno lv %d"
+						% [id_creatura, livello, livello_eroe, pavimento])
+			else:
+				esigi(livello == base,
+						"%s non doveva scalare col giocatore, e invece e' salito" % id_creatura)
+			# le stat seguono il livello, e non calano mai
+			for chiave in ["hp", "attacco", "difesa"]:
+				esigi(GameState.stat_nemico(id_creatura, chiave) >= int(dati.get(chiave, 0)),
+						"%s ha perso %s salendo di livello" % [id_creatura, chiave])
+	GameState.nuova_partita()
+
+func prova_abilita_di_combattimento() -> void:
+	# Le abilita' stanno in regole.json e il motore ne conosce quattro tipi. Se
+	# qualcuno ne scrive una di tipo "fiammata" il menu la mostra e poi non
+	# succede niente: e' esattamente il genere di buco che si trova giocando.
+	titolo("le abilita' di combattimento sono tutte eseguibili")
+	var tipi_noti := ["provoca", "area", "raffica", "carica"]
+	var tabella: Dictionary = GameState.regole.get("abilita_combattimento", {})
+	esigi(not tabella.is_empty(), "nessuna abilita' di combattimento in regole.json")
+	for id_abilita in tabella:
+		var dati: Dictionary = tabella[id_abilita]
+		esigi(String(dati.get("nome", "")) != "", "l'abilita' %s non ha un nome" % id_abilita)
+		esigi(String(dati.get("tipo", "")) in tipi_noti,
+				"l'abilita' %s e' di tipo '%s', che il combattimento non sa eseguire"
+				% [id_abilita, String(dati.get("tipo", ""))])
+		esigi(int(dati.get("aura", -1)) >= 0, "l'abilita' %s non dice quanta aura costa" % id_abilita)
+		if String(dati.get("tipo", "")) == "raffica":
+			esigi(int(dati.get("colpi", 0)) > 0, "la raffica %s non spara niente" % id_abilita)
+			esigi(float(dati.get("frazione_danno", 0.0)) > 0.0,
+					"la raffica %s non fa danno" % id_abilita)
+		if String(dati.get("tipo", "")) == "carica":
+			esigi(float(dati.get("moltiplicatore", 0.0)) > 1.0,
+					"il colpo caricato %s vale meno di un colpo normale" % id_abilita)
+	# nessuna classe deve avere un'abilita' che non esiste da nessuna parte
+	var narrative := ["anonimato", "studio", "veglia", "sesto_senso", "scasso", "trappole",
+			"volo", "impatto", "collezione", "innesti"]
+	for id_classe in GameState.classi:
+		for id_abilita in GameState.classi[id_classe].get("abilita", []):
+			esigi(tabella.has(id_abilita) or String(id_abilita) in narrative,
+					"%s ha l'abilita' '%s' e non esiste ne' in combattimento ne' fra le narrative"
+					% [id_classe, id_abilita])
+	# il costo dev'essere pagabile: un'abilita' che costa piu' dell'aura massima
+	# non si userebbe mai, e nessuno capirebbe perche'
+	var aura_massima := int(GameState.regole.get("aura_iniziale", 10))
+	for id_abilita in tabella:
+		esigi(int(tabella[id_abilita].get("aura", 0)) <= aura_massima,
+				"l'abilita' %s costa piu' aura di quanta se ne possa avere" % id_abilita)
+
+func prova_sede() -> void:
+	titolo("la Sede: stanze, azioni e presidio")
+	var letto: Variant = GameState.carica_json("res://data/sede.json")
+	esigi(letto is Dictionary, "data/sede.json non si legge")
+	if not letto is Dictionary:
+		return
+	var sede: Dictionary = letto
+	esigi(String(sede.get("nome", "")) != "", "la Sede non ha un nome")
+	var azioni_note := ["mappa", "negozio", "squadra", "diario", "testo"]
+	var stanze: Array = sede.get("stanze", [])
+	esigi(not stanze.is_empty(), "la Sede non ha stanze")
+	var ids: Array[String] = []
+	var porta_alla_mappa := false
+	for stanza in stanze:
+		var id_stanza := String(stanza.get("id", ""))
+		esigi(id_stanza != "", "una stanza della Sede non ha id")
+		esigi(id_stanza not in ids, "due stanze della Sede hanno lo stesso id: %s" % id_stanza)
+		ids.append(id_stanza)
+		esigi(String(stanza.get("nome", "")) != "", "la stanza %s non ha un nome" % id_stanza)
+		esigi(String(stanza.get("descrizione", "")) != "",
+				"la stanza %s non ha una descrizione: il pannello di destra resterebbe vuoto" % id_stanza)
+		var azione := String(stanza.get("azione", "testo"))
+		esigi(azione in azioni_note,
+				"la stanza %s fa '%s', che la Sede non sa fare" % [id_stanza, azione])
+		if azione == "mappa":
+			porta_alla_mappa = true
+		if stanza.has("richiede_flag"):
+			esigi(String(stanza.get("testo_chiusa", "")) != "",
+					"la stanza %s si puo' trovare chiusa e non dice perche'" % id_stanza)
+	# Se nessuna stanza porta alla mappa stellare, il gioco e' finito qui: si
+	# resta alla Sede a guardare le pareti. E' l'unico collegamento che DEVE
+	# esserci, e quindi l'unico che vale la pena controllare.
+	esigi(porta_alla_mappa, "dalla Sede non si arriva alla mappa stellare: non si parte piu'")
+
+func prova_posti_visitati() -> void:
+	titolo("dove sei gia' stato")
+	GameState.nuova_partita()
+	esigi(GameState.stato_visita("meridia") == "nuovo", "un posto mai visto non risulta nuovo")
+	GameState.segna_visitata("meridia")
+	esigi(GameState.stato_visita("meridia") == "visto", "un posto visitato risulta ancora nuovo")
+	GameState.segna_visitata("meridia")
+	esigi(GameState.zone_visitate.count("meridia") == 1, "un posto visitato due volte viene contato due volte")
+	GameState.imposta_flag("meridia_finita")
+	esigi(GameState.stato_visita("meridia", "meridia_finita") == "chiuso",
+			"una zona conclusa non risulta chiusa")
+	# entrare in una zona la segna da sola: nessuno deve ricordarsi di farlo
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial_prova", "res://data/events_tutorial.json")
+	esigi(GameState.gia_visitata("tutorial_prova"),
+			"entrare in una zona non la segna come visitata")
+	# i tre stati hanno tre colori diversi, o il segno non serve a niente
+	var tinte := [Stile.colore_visita("nuovo"), Stile.colore_visita("visto"), Stile.colore_visita("chiuso")]
+	esigi(tinte[0] != tinte[1] and tinte[1] != tinte[2] and tinte[0] != tinte[2],
+			"due stati di visita hanno lo stesso colore")
+	GameState.nuova_partita()
+
 func prova_script_compilano() -> void:
 	# Ogni .gd deve compilare. Sembra ovvio, e invece e' la prova che mancava:
 	# caricare una scena il cui SCRIPT e' rotto riesce lo stesso (la .tscn si
@@ -816,6 +1027,22 @@ func prova_script_compilano() -> void:
 	# il file da solo, fuori dal progetto, e grida "GameState non esiste" su
 	# ventidue file sanissimi. Qui gli autoload e le classi con class_name ci
 	# sono, perche' siamo dentro il gioco.
+	#
+	# E NON BASTA "load() != null". Era scritta cosi', e non funzionava: Godot
+	# restituisce lo stesso una risorsa GDScript per un file che non compila
+	# (vuota, ma non nulla), e per giunta la tiene in cache, quindi al secondo
+	# giro non riprova nemmeno. Ho aggiunto una riga sbagliata apposta in un file
+	# per controllare: tutto verde. Una prova che non sa fallire e' peggio di
+	# nessuna prova, perche' ti fa credere di essere coperto.
+	#
+	# Adesso si chiede allo script se sa fare una sua istanza: e' falso esatta-
+	# mente quando il file non ha compilato, ed e' vero per tutti gli altri
+	# (anche per le RefCounted con class_name). Provato rompendo un file apposta:
+	# prima passava, adesso fallisce.
+	#
+	# NON si ricarica ignorando la cache: farlo ricompila anche gli autoload e i
+	# .gd gia' vivi in memoria mentre il gioco gira, e Godot va in crash. Provato
+	# anche quello.
 	titolo("ogni script compila")
 	for cartella_nome: String in ["res://scripts", "res://scripts/combattimento", "res://prove"]:
 		var cartella := DirAccess.open(cartella_nome)
@@ -825,7 +1052,9 @@ func prova_script_compilano() -> void:
 			if not nome.ends_with(".gd"):
 				continue
 			var percorso := cartella_nome + "/" + nome
-			esigi(load(percorso) != null, "%s non compila (vedi l'errore qui sopra)" % percorso)
+			var script := load(percorso) as GDScript
+			esigi(script != null and script.can_instantiate(),
+					"%s non compila (vedi l'errore qui sopra)" % percorso)
 
 func prova_scene_caricabili() -> void:
 	# ogni schermata deve almeno istanziarsi: e' il tipo di rottura che un

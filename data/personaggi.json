@@ -2,9 +2,10 @@
 	"personaggi": [
 		{
 			"id": "maschera_vuota",
+			"livello": 16,
 			"nome": "Fomentado",
-			"hp": 10,
-			"attacco": 1,
+			"hp": 50,
+			"attacco": 3,
 			"difesa": 0,
 			"velocita": 2,
 			"xp": 8,
@@ -13,7 +14,7 @@
 			"descrizione": "Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.",
 			"carta": { "id": "carta_maschera_vuota", "nome": "Fomentado", "rarita": "non_comune", "chance": 0.05, "testo": "Un folle talentuoso che non ha mai rinunciato ai suoi sogni, un esempio di vita... forse." },
 			"combustione": {
-				"danno_per_turno": 1,
+				"danno_per_turno": 3,
 				"testo_turno": "Il fuoco che porta dentro non si spegne mai: un altro pezzo di lui si consuma."
 			},
 			"bottino_comune": [
@@ -26,10 +27,11 @@
 		},
 		{
 			"id": "giocoliere",
+			"livello": 17,
 			"nome": "El Muy Bonito",
 			"categoria": "particolare",
-			"hp": 18,
-			"attacco": 2,
+			"hp": 90,
+			"attacco": 6,
 			"difesa": 0,
 			"velocita": 5,
 			"psiche": "rabbia",
@@ -41,8 +43,8 @@
 			"carta": { "id": "carta_giocoliere", "nome": "El Muy Bonito", "rarita": "rara", "testo": "Ho sempre voluto un suo autografo! - Fan." },
 			"combustione": {
 				"attiva_da_studio": 2,
-				"danno_per_turno": 1,
-				"bonus_attacco": 1,
+				"danno_per_turno": 3,
+				"bonus_attacco": 3,
 				"testo_innesco": "Qualcosa in lui si spezza sotto lo sguardo attento: il talento che lo ha reso grande ora lo divora dall'interno. Comincia a bruciare — e più brucia, più diventa pericoloso.",
 				"testo_turno": "Le fiamme lo consumano un altro po'. Lui ne trae ancora più forza."
 			},
@@ -53,10 +55,11 @@
 		},
 		{
 			"id": "comparsa_di_ruggine",
+			"livello": 4,
 			"nome": "Oppresso",
-			"hp": 27,
-			"attacco": 2,
-			"difesa": 2,
+			"hp": 135,
+			"attacco": 6,
+			"difesa": 6,
 			"velocita": 2,
 			"xp": 10,
 			"tazo": 8,
@@ -74,10 +77,11 @@
 		},
 		{
 			"id": "voce_registrata",
+			"livello": 4,
 			"nome": "Capocantiere",
-			"hp": 25,
-			"attacco": 2,
-			"difesa": 1,
+			"hp": 125,
+			"attacco": 6,
+			"difesa": 3,
 			"velocita": 4,
 			"xp": 9,
 			"tazo": 7,
@@ -94,10 +98,11 @@
 		},
 		{
 			"id": "operaio_posseduto",
+			"livello": 5,
 			"nome": "Emblema dell'oppressione",
-			"hp": 29,
-			"attacco": 2,
-			"difesa": 2,
+			"hp": 145,
+			"attacco": 6,
+			"difesa": 6,
 			"velocita": 3,
 			"xp": 12,
 			"tazo": 10,
@@ -115,11 +120,12 @@
 		},
 		{
 			"id": "ferraglia_urlante",
+			"livello": 12,
 			"nome": "Ferraglia Urlante",
 			"categoria": "particolare",
-			"hp": 35,
-			"attacco": 2,
-			"difesa": 3,
+			"hp": 175,
+			"attacco": 6,
+			"difesa": 9,
 			"velocita": 1,
 			"xp": 16,
 			"tazo": 14,
@@ -137,11 +143,12 @@
 		},
 		{
 			"id": "divoratore",
+			"livello": 6,
 			"nome": "Il Divoratore",
 			"categoria": "particolare",
-			"hp": 45,
-			"attacco": 3,
-			"difesa": 3,
+			"hp": 225,
+			"attacco": 9,
+			"difesa": 9,
 			"velocita": 2,
 			"xp": 20,
 			"tazo": 25,
@@ -165,10 +172,11 @@
 		},
 		{
 			"id": "ghoul",
+			"livello": 8,
 			"nome": "Ghoul",
-			"hp": 35,
-			"attacco": 2,
-			"difesa": 2,
+			"hp": 175,
+			"attacco": 6,
+			"difesa": 6,
 			"velocita": 3,
 			"xp": 9,
 			"tazo": 6,
@@ -184,10 +192,11 @@
 		},
 		{
 			"id": "teschio_errante",
+			"livello": 8,
 			"nome": "Teschio Errante",
-			"hp": 29,
-			"attacco": 2,
-			"difesa": 2,
+			"hp": 145,
+			"attacco": 6,
+			"difesa": 6,
 			"velocita": 5,
 			"xp": 8,
 			"tazo": 5,
@@ -200,11 +209,12 @@
 		},
 		{
 			"id": "abominio_marcio",
+			"livello": 10,
 			"nome": "Abominio Marcio",
 			"categoria": "particolare",
-			"hp": 40,
-			"attacco": 3,
-			"difesa": 2,
+			"hp": 200,
+			"attacco": 9,
+			"difesa": 6,
 			"velocita": 2,
 			"xp": 16,
 			"tazo": 14,
@@ -220,10 +230,11 @@
 		},
 		{
 			"id": "madre_in_lacrime",
+			"livello": 8,
 			"nome": "Madre in Lacrime",
-			"hp": 35,
-			"attacco": 2,
-			"difesa": 3,
+			"hp": 175,
+			"attacco": 6,
+			"difesa": 9,
 			"velocita": 2,
 			"xp": 9,
 			"tazo": 6,
@@ -239,10 +250,11 @@
 		},
 		{
 			"id": "stigma",
+			"livello": 9,
 			"nome": "Stigma",
-			"hp": 34,
-			"attacco": 3,
-			"difesa": 2,
+			"hp": 170,
+			"attacco": 9,
+			"difesa": 6,
 			"velocita": 4,
 			"xp": 9,
 			"tazo": 6,
@@ -258,10 +270,11 @@
 		},
 		{
 			"id": "diabolo",
+			"livello": 9,
 			"nome": "Diabolo",
-			"hp": 33,
-			"attacco": 2,
-			"difesa": 3,
+			"hp": 165,
+			"attacco": 6,
+			"difesa": 9,
 			"velocita": 4,
 			"xp": 8,
 			"tazo": 6,
@@ -277,10 +290,11 @@
 		},
 		{
 			"id": "sadico",
+			"livello": 9,
 			"nome": "Sadico",
-			"hp": 36,
-			"attacco": 3,
-			"difesa": 2,
+			"hp": 180,
+			"attacco": 9,
+			"difesa": 6,
 			"velocita": 3,
 			"xp": 10,
 			"tazo": 7,
@@ -296,10 +310,11 @@
 		},
 		{
 			"id": "jongo_dongo",
+			"livello": 12,
 			"nome": "Jongo Dongo",
-			"hp": 140,
-			"attacco": 6,
-			"difesa": 3,
+			"hp": 700,
+			"attacco": 18,
+			"difesa": 9,
 			"velocita": 3,
 			"fattore_base": 20,
 			"xp": 35,
@@ -312,7 +327,7 @@
 			"convincibile": false,
 			"cura_su_morte_alleato": {
 				"id_alleato": "ghoul",
-				"valore": 20,
+				"valore": 100,
 				"testo": "Jongo Dongo respira a fondo mentre il ghoul si affloscia: quello che resta del suo servo gli rientra dentro. Recupera %d punti vita."
 			},
 			"crisi_gelosia": {
@@ -334,7 +349,7 @@
 				{
 					"id": "colpo_marcio",
 					"tipo": "attacco_forte",
-					"valore": 4,
+					"valore": 12,
 					"peso": 2,
 					"telegrafata": true,
 					"testo_annuncio": "Jongo Dongo solleva l'artiglio marcio, immobile: sta per colpire con tutto il suo peso.",
@@ -343,7 +358,7 @@
 				{
 					"id": "bastone_di_pietra_marcia",
 					"tipo": "attacco_forte",
-					"valore": 3,
+					"valore": 9,
 					"peso": 2,
 					"stato": "decomposizione",
 					"richiede_non_flag": "oss_yara_esplosa",
@@ -352,7 +367,7 @@
 				{
 					"id": "grido_del_raccolto",
 					"tipo": "attacco_tutti",
-					"valore": 1,
+					"valore": 3,
 					"stress": 15,
 					"peso": 2,
 					"testo": "\"IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!\" Il grido vi si conficca dentro più delle unghie."
@@ -360,7 +375,7 @@
 				{
 					"id": "sacrificio",
 					"tipo": "sacrificio",
-					"valore": 15,
+					"valore": 45,
 					"peso": 3,
 					"testo": "Jongo Dongo si volta verso uno dei suoi ghoul, con la stessa calma di sempre: \"Un piccolo sacrificio... per un grande risultato.\""
 				},
@@ -381,10 +396,11 @@
 		},
 		{
 			"id": "jongo_dongo_risorto",
+			"livello": 14,
 			"nome": "Jongo Dongo",
-			"hp": 140,
-			"attacco": 7,
-			"difesa": 3,
+			"hp": 700,
+			"attacco": 21,
+			"difesa": 9,
 			"velocita": 2,
 			"fattore_base": 20,
 			"xp": 80,
@@ -402,9 +418,11 @@
 		},
 		{
 			"id": "l_immortale",
+			"livello": 8,
+			"scala_col_giocatore": false,
 			"nome": "???",
-			"hp": 12,
-			"attacco": 1,
+			"hp": 60,
+			"attacco": 3,
 			"difesa": 0,
 			"velocita": 2,
 			"xp": 0,
@@ -421,10 +439,11 @@
 		},
 		{
 			"id": "sacerdote_folle",
+			"livello": 11,
 			"nome": "Sacerdote Folle",
-			"hp": 56,
-			"attacco": 3,
-			"difesa": 3,
+			"hp": 280,
+			"attacco": 9,
+			"difesa": 9,
 			"velocita": 2,
 			"xp": 20,
 			"tazo": 15,
@@ -432,10 +451,10 @@
 			"descrizione": "Officiava i sacrifici della Rocca molto prima che Jongo Dongo ne facesse un culto. Recita ancora le sue litanie, anche se non è rimasto nessuno a rispondergli.",
 			"carta": { "id": "carta_sacerdote_folle", "nome": "Sacerdote Folle", "rarita": "non_comune", "chance": 0.04, "testo": "Ha smesso di distinguere la preghiera dalla minaccia. Forse non c'era mai stata differenza." },
 			"mosse": [
-				{ "id": "litania_1", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Per il viaggio!\" Il sacerdote colpisce recitando." },
-				{ "id": "litania_2", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Unisciti al raccolto!\" Il sacerdote colpisce recitando." },
-				{ "id": "litania_3", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Portatelo da me!\" Il sacerdote colpisce recitando." },
-				{ "id": "litania_4", "tipo": "attacco_forte", "valore": 3, "peso": 2, "testo": "\"Non c'è altra strada!\" Il sacerdote colpisce recitando." },
+				{ "id": "litania_1", "tipo": "attacco_forte", "valore": 9, "peso": 2, "testo": "\"Per il viaggio!\" Il sacerdote colpisce recitando." },
+				{ "id": "litania_2", "tipo": "attacco_forte", "valore": 9, "peso": 2, "testo": "\"Unisciti al raccolto!\" Il sacerdote colpisce recitando." },
+				{ "id": "litania_3", "tipo": "attacco_forte", "valore": 9, "peso": 2, "testo": "\"Portatelo da me!\" Il sacerdote colpisce recitando." },
+				{ "id": "litania_4", "tipo": "attacco_forte", "valore": 9, "peso": 2, "testo": "\"Non c'è altra strada!\" Il sacerdote colpisce recitando." },
 				{ "id": "richiamo_dei_teschi", "tipo": "evoca", "valore": "teschio_errante", "peso": 2, "testo": "Il sacerdote alza le braccia: un teschio errante risponde al richiamo." }
 			],
 			"bottino_comune": [
@@ -447,10 +466,11 @@
 		},
 		{
 			"id": "divoratore_di_carcasse",
+			"livello": 11,
 			"nome": "Divoratore di Carcasse",
-			"hp": 75,
-			"attacco": 3,
-			"difesa": 3,
+			"hp": 375,
+			"attacco": 9,
+			"difesa": 9,
 			"velocita": 2,
 			"xp": 18,
 			"tazo": 12,
@@ -458,7 +478,7 @@
 			"descrizione": "Vive sotto il grande ponte marcio, nutrendosi di ciò che il ponte stesso lascia cadere. La puzza lo tradisce molto prima che si mostri.",
 			"carta": { "id": "carta_divoratore_di_carcasse", "nome": "Divoratore di Carcasse", "rarita": "non_comune", "chance": 0.04, "testo": "Non ha mai dovuto cacciare: gli basta aspettare sotto il ponte." },
 			"mosse": [
-				{ "id": "morso_multiplo", "tipo": "attacco_multiplo", "valore": 2, "colpi": 2, "peso": 2, "testo": "Il divoratore azzanna più volte, veloce." }
+				{ "id": "morso_multiplo", "tipo": "attacco_multiplo", "valore": 6, "colpi": 2, "peso": 2, "testo": "Il divoratore azzanna più volte, veloce." }
 			],
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.2 }
@@ -475,8 +495,8 @@
 		{
 			"id": "zombie_mostruoso",
 			"nome": "Zombie Mostruoso",
-			"hp": 22,
-			"attacco": 2,
+			"hp": 110,
+			"attacco": 6,
 			"difesa": 0,
 			"velocita": 1,
 			"xp": 12,
@@ -496,9 +516,9 @@
 			"id": "orrore_di_meridia",
 			"nome": "Orrore di Meridia",
 			"categoria": "particolare",
-			"hp": 34,
-			"attacco": 3,
-			"difesa": 1,
+			"hp": 170,
+			"attacco": 9,
+			"difesa": 3,
 			"velocita": 2,
 			"xp": 20,
 			"tazo": 14,
@@ -507,8 +527,8 @@
 			"descrizione": "Più corpi che si sono trovati nello stesso posto al momento sbagliato, e non si sono più separati.",
 			"carta": { "id": "carta_orrore_di_meridia", "nome": "Orrore di Meridia", "rarita": "non_comune", "chance": 0.05, "testo": "A Meridia nessuno è morto da solo. Alcuni non se ne sono accorti." },
 			"mosse": [
-				{ "id": "bracciata", "tipo": "attacco_forte", "valore": 4, "peso": 2, "testo": "L'orrore sferza con tutte le braccia insieme." },
-				{ "id": "morsi", "tipo": "attacco_multiplo", "valore": 2, "colpi": 2, "peso": 2, "testo": "Più bocche affondano contemporaneamente." }
+				{ "id": "bracciata", "tipo": "attacco_forte", "valore": 12, "peso": 2, "testo": "L'orrore sferza con tutte le braccia insieme." },
+				{ "id": "morsi", "tipo": "attacco_multiplo", "valore": 6, "colpi": 2, "peso": 2, "testo": "Più bocche affondano contemporaneamente." }
 			],
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.25 }
@@ -521,9 +541,9 @@
 			"id": "titano_zombie",
 			"nome": "Titano Zombie",
 			"categoria": "particolare",
-			"hp": 90,
-			"attacco": 4,
-			"difesa": 1,
+			"hp": 450,
+			"attacco": 12,
+			"difesa": 3,
 			"velocita": 1,
 			"xp": 60,
 			"tazo": 45,
@@ -540,8 +560,8 @@
 				"testo_gamba_rotta_turno": "Il titano resta a terra, e continua a ricucirsi."
 			},
 			"mosse": [
-				{ "id": "pugno_devastante", "tipo": "meta_vita", "hp_soglia_ko": 5, "peso": 2, "telegrafata": true, "testo_annuncio": "Il titano solleva lentamente il pugno sopra la testa. Qualunque cosa stia per succedere, succederà al prossimo colpo.", "testo": "Pugno devastante: il colpo si abbatte con tutto il peso della città morta." },
-				{ "id": "spazzata", "tipo": "attacco_tutti", "valore": 2, "stress": 10, "peso": 2, "testo": "Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo." }
+				{ "id": "pugno_devastante", "tipo": "meta_vita", "hp_soglia_ko": 25, "peso": 2, "telegrafata": true, "testo_annuncio": "Il titano solleva lentamente il pugno sopra la testa. Qualunque cosa stia per succedere, succederà al prossimo colpo.", "testo": "Pugno devastante: il colpo si abbatte con tutto il peso della città morta." },
+				{ "id": "spazzata", "tipo": "attacco_tutti", "valore": 6, "stress": 10, "peso": 2, "testo": "Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo." }
 			],
 			"bottino_comune": [
 				{ "oggetto": "fiala_hp", "chance": 0.5 }
@@ -552,9 +572,10 @@
 		},
 		{
 			"id": "zombie_cittadino",
+			"livello": 2,
 			"nome": "Zombie Cittadino",
-			"hp": 8,
-			"attacco": 1,
+			"hp": 40,
+			"attacco": 3,
 			"difesa": 0,
 			"velocita": 1,
 			"xp": 6,
@@ -568,9 +589,10 @@
 		},
 		{
 			"id": "infetto_rapido",
+			"livello": 2,
 			"nome": "Infetto Rapido",
-			"hp": 7,
-			"attacco": 2,
+			"hp": 35,
+			"attacco": 6,
 			"difesa": 0,
 			"velocita": 5,
 			"xp": 7,
@@ -584,10 +606,11 @@
 		},
 		{
 			"id": "marionetta",
+			"livello": 13,
 			"nome": "Marionetta",
-			"hp": 38,
-			"attacco": 6,
-			"difesa": 4,
+			"hp": 190,
+			"attacco": 18,
+			"difesa": 12,
 			"velocita": 3,
 			"xp": 4,
 			"tazo": 3,
@@ -600,10 +623,11 @@
 		},
 		{
 			"id": "ombra_del_passato",
+			"livello": 14,
 			"nome": "Ombra del passato",
-			"hp": 39,
-			"attacco": 7,
-			"difesa": 4,
+			"hp": 195,
+			"attacco": 21,
+			"difesa": 12,
 			"velocita": 3,
 			"xp": 6,
 			"tazo": 5,
@@ -625,11 +649,12 @@
 		},
 		{
 			"id": "tenero_ricordo",
+			"livello": 15,
 			"nome": "Un tenero ricordo",
 			"nome_breve": "la bambola",
 			"hp": 666,
-			"attacco": 6,
-			"difesa": 4,
+			"attacco": 18,
+			"difesa": 12,
 			"velocita": 2,
 			"xp": 40,
 			"tazo": 90,
@@ -654,14 +679,14 @@
 				{
 					"id": "spilli",
 					"tipo": "attacco_forte",
-					"valore": 3,
+					"valore": 9,
 					"peso": 2,
 					"testo": "La bambola spalanca le cuciture e lancia una manciata di spilli."
 				},
 				{
 					"id": "lamento",
 					"tipo": "attacco_tutti",
-					"valore": 2,
+					"valore": 6,
 					"stress": 10,
 					"legame": -5,
 					"maledizione": 1,
@@ -671,7 +696,7 @@
 				{
 					"id": "autolesione",
 					"tipo": "autolesione",
-					"valore": 1,
+					"valore": 3,
 					"stress": 12,
 					"maledizione": 1,
 					"peso": 2,
@@ -696,18 +721,19 @@
 				"testo_conteggio": "Il conto alla rovescia scende: %d...",
 				"testo_maleficio": "Il conto arriva a zero. La bambola si trafigge il petto con uno spillo, un colpo secco e definitivo. Il maleficio vi si abbatte addosso, tutti insieme.",
 				"bersaglio_extra": "lettere_altare",
-				"bersaglio_extra_hp": 3,
+				"bersaglio_extra_hp": 15,
 				"testo_sblocco_bersaglio": "Non è vero... bugiardi... a voi non è dispiaciuto davvero...",
 				"testo_fermata": ["Siate dannati... La mia Lyloh...", "Grazie..."]
 			}
 		},
 		{
 			"id": "jerah",
+			"livello": 18,
 			"nome": "L'ultimo spettacolo di Jerah",
 			"apertura": {"tipo": "dialogo", "testo": "Sei arrivato fino a qui. Allora meriti l'ultimo spettacolo."},
 			"nome_breve": "Jerah",
-			"hp": 35,
-			"attacco": 2,
+			"hp": 175,
+			"attacco": 6,
 			"difesa": 0,
 			"velocita": 3,
 			"psiche": "concentrazione",
@@ -729,21 +755,21 @@
 				{
 					"id": "gran_finale",
 					"tipo": "attacco_tutti",
-					"valore": 2,
+					"valore": 6,
 					"peso": 2,
 					"testo": "¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena."
 				},
 				{
 					"id": "incendia",
 					"tipo": "incendia",
-					"valore": 2,
+					"valore": 6,
 					"peso": 2,
 					"testo": "¡Vamos! ... Una folata di vento ardente ti infligge lo status in fiamme."
 				},
 				{
 					"id": "capote",
 					"tipo": "buff_difesa",
-					"valore": 3,
+					"valore": 9,
 					"turni": 2,
 					"peso": 1,
 					"testo": "Jerah schiva elegantemente tutti i tuoi colpi."
@@ -790,10 +816,11 @@
 		},
 		{
 			"id": "goblin_tipico",
+			"livello": 1,
 			"nome": "Goblin Tipico",
 			"apertura": "Ringhia qualcosa che non è una parola, e si mette in mezzo.",
-			"hp": 6,
-			"attacco": 1,
+			"hp": 30,
+			"attacco": 3,
 			"difesa": 0,
 			"velocita": 2,
 			"xp": 2,
@@ -810,9 +837,10 @@
 		},
 		{
 			"id": "slime_infimo",
+			"livello": 1,
 			"nome": "Slime Infimo",
-			"hp": 8,
-			"attacco": 1,
+			"hp": 40,
+			"attacco": 3,
 			"difesa": 0,
 			"velocita": 1,
 			"xp": 2,
@@ -829,11 +857,13 @@
 		},
 		{
 			"id": "tartaruga_innocente",
+			"livello": 1,
+			"scala_col_giocatore": false,
 			"nome": "Tartaruga Innocente",
 			"apertura": "Ritira la testa nel guscio prima ancora che tu faccia un passo. Non attacca. Aspetta.",
-			"hp": 20,
+			"hp": 100,
 			"attacco": 0,
-			"difesa": 2,
+			"difesa": 6,
 			"velocita": 1,
 			"xp": 15,
 			"tazo": 5,
@@ -861,17 +891,19 @@
 		},
 		{
 			"id": "manifestazione_di_un_sogno",
+			"livello": 3,
+			"scala_col_giocatore": false,
 			"nome": "Manifestazione di un sogno",
 			"apertura": "Non dice niente. Ti guarda, e sorride come se ti conoscesse.",
 			"nome_breve": "La manifestazione",
 			"categoria": "particolare",
-			"hp": 32,
-			"attacco": 5,
-			"difesa": 2,
+			"hp": 160,
+			"attacco": 15,
+			"difesa": 6,
 			"velocita": 1,
 			"xp": 30,
 			"tazo": 20,
-			"danno_fisso_su_attacco": 1,
+			"danno_fisso_su_attacco": 3,
 			"ritratto": "res://art/personaggi/manifestazione_di_un_sogno.png",
 			"descrizione": "Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.",
 			"carta": { "id": "carta_manifestazione_di_un_sogno", "nome": "Manifestazione di un sogno", "rarita": "rara", "chance": 0.04, "testo": "Non tutto quello che si incontra va combattuto. Alcune cose vanno solo evitate." },
@@ -903,11 +935,12 @@
 		},
 		{
 			"id": "goblin_arrabbiato",
+			"livello": 6,
 			"nome": "Un goblin terribilmente arrabbiato",
 			"apertura": {"tipo": "dialogo", "testo": "Un altro. Sempre un altro. Non finite mai di arrivare."},
 			"nome_breve": "Goblin Arrabbiato",
-			"hp": 30,
-			"attacco": 3,
+			"hp": 150,
+			"attacco": 9,
 			"difesa": 0,
 			"velocita": 3,
 			"xp": 40,
@@ -919,7 +952,7 @@
 			"convincibile": false,
 			"rabbia_su_morte_alleato": {
 				"id_alleato": "goblin_tipico",
-				"valore_attacco": 1,
+				"valore_attacco": 3,
 				"testo": "Il goblin arrabbiato ringhia: la morte del suo simile lo fa infuriare ancora di più. Il suo attacco cresce."
 			},
 			"mosse": [
@@ -935,21 +968,21 @@
 				{
 					"id": "furia_di_un_goblin",
 					"tipo": "attacco_forte",
-					"valore": 2,
+					"valore": 6,
 					"peso": 2,
 					"testo": "Furia di un goblin: colpisce alla cieca, urlando."
 				},
 				{
 					"id": "pugno_del_vile",
 					"tipo": "attacco_forte",
-					"valore": 2,
+					"valore": 6,
 					"peso": 2,
 					"testo": "Pugno del vile: un colpo sferrato senza il minimo onore."
 				},
 				{
 					"id": "capriccio_del_goblin",
 					"tipo": "buff_attacco",
-					"valore": 2,
+					"valore": 6,
 					"turni": 3,
 					"peso": 1,
 					"testo": "Capriccio del goblin: si mette a battere i piedi e se la prende con tutto quello che ha intorno. Il suo attacco aumenta."
@@ -957,22 +990,22 @@
 				{
 					"id": "cattiveria_innata",
 					"tipo": "attacco_multiplo",
-					"valore": 1,
+					"valore": 3,
 					"colpi": 3,
 					"peso": 1,
 					"testo": "Cattiveria innata: ti sferra tre attacchi deboli di fila."
 				}
 			],
 			"dialogo_soglia_hp": {
-				"hp_soglia": 5,
-				"danno_fisso_dopo": 5,
+				"hp_soglia": 25,
+				"danno_fisso_dopo": 15,
 				"testo": "Il goblin non accetta il suo destino: con le lacrime agli occhi, tenendo la sua mazza con le dita consunte, ti guarda con un odio indescrivibile. Il cuore di un perdente non vacilla mai. Preparati."
 			},
 			"mossa_disperazione": {
-				"hp_soglia": 3,
+				"hp_soglia": 15,
 				"id": "ultima_risorsa_del_perdente",
-				"valore_alto": 4,
-				"valore_normale": 2,
+				"valore_alto": 12,
+				"valore_normale": 6,
 				"testo": "Ultima risorsa del perdente: un attacco suicida, colmo di rabbia."
 			},
 			"studio": [
@@ -986,11 +1019,13 @@
 		},
 		{
 			"id": "veronica",
+			"livello": 5,
+			"scala_col_giocatore": false,
 			"nome": "Veronica",
 			"categoria": "particolare",
-			"hp": 60,
-			"attacco": 4,
-			"difesa": 2,
+			"hp": 300,
+			"attacco": 12,
+			"difesa": 6,
 			"velocita": 4,
 			"xp": 0,
 			"tazo": 0,
@@ -1012,7 +1047,7 @@
 					},
 					{
 						"azione": "difendi",
-						"hp_protagonista": 1,
+						"hp_protagonista": 5,
 						"prima": [
 							{ "tipo": "narrazione", "testo": "Veronica sembra caricare un pugno. È il momento di difendersi." },
 							{ "tipo": "narrazione", "testo": "Scegli DIFENDITI: alza la guardia per il turno. Usata di fila cresce, ma sempre di meno — e si perde appena fai altro." }
@@ -1035,7 +1070,7 @@
 					{
 						"azione": "oggetto",
 						"oggetto": "bomba_al_nitro",
-						"hp_nemico": 1,
+						"hp_nemico": 5,
 						"prima": [
 							{ "tipo": "dialogo", "chi": "veronica", "testo": "Prova a colpirmi con un oggetto ora: scommetto che riuscirò a uscirne illesa alla massima potenza!" },
 							{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm, sei la solita esagerata... una bomba al nitro?" },

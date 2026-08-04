@@ -41,7 +41,7 @@ offset_bottom = 48.0
 grow_horizontal = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-text = "CARNIVALZ — Mappa stellare"
+text = "Sala operativa — proiezione del settore"
 
 [node name="BarraSotto" type="HBoxContainer" parent="."]
 layout_mode = 1
@@ -66,17 +66,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="BottoneSalva" type="Button" parent="BarraSotto"]
+[node name="BottoneSede" type="Button" parent="BarraSotto"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Salva"
-
-[node name="BottoneMenu" type="Button" parent="BarraSotto"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Menu"
-
-[node name="BottoneNegozio" type="Button" parent="BarraSotto"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Negozi"
+text = "Torna alla Sede"

@@ -33,7 +33,7 @@ extends Control
 signal azione_scelta(azione: Dictionary)
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
-const SCENA_MAPPA := "res://scenes/Mappa.tscn"
+const SCENA_SEDE := "res://scenes/Sede.tscn"
 
 @onready var sfondo: ColorRect = %Sfondo
 @onready var fila_party: HBoxContainer = %Party
@@ -99,6 +99,10 @@ var bersaglio_extra_sbloccato := false
 var bersaglio_provocazione: Dictionary = {}
 var turni_provocazione := 0
 var ultima_azione_offensiva := false
+
+# quanto passa fra un numero e il successivo in una raffica: abbastanza poco da
+# leggersi come una scarica sola, abbastanza da vederli tutti
+const PASSO_RAFFICA := 0.055
 
 # Incontro scriptato: un nemico puo' avere "incontro_scriptato" nei dati per
 # una sequenza di combattimento interamente scritta - una fase iniziale di
@@ -289,8 +293,16 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	# quello che ha addosso questo personaggio: vale solo per lui
 	var eq := func(chiave: String) -> int:
 		return GameState.bonus_equipaggiamento(id_personaggio, chiave) if giocatore else 0
-	var hp_max := int(GameState.stat_di("hp")) if e_protagonista \
-			else int(dati.get("hp", GameState.regole.get("hp_base", 5)))
+	# Per una creatura i numeri buoni non sono quelli scritti nel suo file: sono
+	# quelli del suo livello di ADESSO. Il file dice quanto vale al suo livello
+	# base, GameState.stat_nemico dice quanto vale davanti a te (vedi la nota sul
+	# fattore Carnivalz in GameState).
+	var stat := func(chiave: String, difetto: int) -> int:
+		if giocatore:
+			return int(dati.get(chiave, difetto))
+		return GameState.stat_nemico(id_personaggio, chiave, difetto)
+	var hp_max: int = GameState.stat_di("hp") if e_protagonista \
+			else int(stat.call("hp", int(GameState.regole.get("hp_base", 25))))
 	hp_max = maxi(hp_max + eq.call("hp_max"), 1)
 	var hp_iniziali := hp_max
 	if giocatore and GameState.hp_persistenti.has(id_personaggio):
@@ -309,14 +321,14 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"nome": dati.get("nome_breve", dati.get("nome", id_personaggio)),
 		"hp": hp_iniziali,
 		"hp_max": hp_max,
-		"attacco": maxi((GameState.stat_di("attacco") if e_protagonista else int(dati.get("attacco", 1))) + eq.call("attacco"), 0),
-		"difesa": maxi((GameState.stat_di("difesa") if e_protagonista else int(dati.get("difesa", 0))) + eq.call("difesa"), 0),
-		"velocita": maxi((GameState.stat_di("velocita") if e_protagonista else int(dati.get("velocita", 3))) + eq.call("velocita"), 1),
+		"attacco": maxi((GameState.stat_di("attacco") if e_protagonista else int(stat.call("attacco", 1))) + eq.call("attacco"), 0),
+		"difesa": maxi((GameState.stat_di("difesa") if e_protagonista else int(stat.call("difesa", 0))) + eq.call("difesa"), 0),
+		"velocita": maxi((GameState.stat_di("velocita") if e_protagonista else int(stat.call("velocita", 3))) + eq.call("velocita"), 1),
 		"psiche": String(dati.get("psiche", "")),
 		"fattore": GameState.stat_di("fattore") if e_protagonista else int(dati.get("fattore_base", 0)),
 		"stress": GameState.stress_di(id_personaggio) if giocatore else 0,
-		"xp": int(dati.get("xp", 10)),
-		"tazo": int(dati.get("tazo", 0)),
+		"xp": int(stat.call("xp", 10)),
+		"tazo": int(stat.call("tazo", 0)),
 		"carta": dati.get("carta", {}),
 		"bottino_comune": dati.get("bottino_comune", []),
 		"drop_raro": dati.get("drop_raro", {}),
@@ -330,6 +342,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"buffs": [],
 		"difesa_accumulo": 0.0,
 		"mossa_in_carica": {},
+		# quanto vale il prossimo colpo di chi ha passato un turno a caricare:
+		# 0 = niente in canna (vedi abilita' di tipo "carica")
+		"carica_pronta": 0.0,
 		"crisi_turni_rimasti": 0,
 		"soglia_gia_scattata": false,
 		"ultimo_danno_subito": 0,
@@ -515,7 +530,8 @@ func esegui_turno(attaccante: Dictionary) -> void:
 			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
 			var nemici := vivi(false)
 			if not nemici.is_empty():
-				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)])
+				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)],
+						-1, consuma_carica(attaccante))
 		else:
 			var passo_corrente := passo_tutorial()
 			if not passo_corrente.is_empty() and tutorial_passo not in tutorial_passi_introdotti:
@@ -547,7 +563,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				attaccante.difesa_accumulo = 0.0
 			match azione.get("tipo", ""):
 				"attacca":
-					attacca(attaccante, bersaglio_scelto)
+					attacca(attaccante, bersaglio_scelto, -1, consuma_carica(attaccante))
 				"difendi":
 					difendi(attaccante)
 				"studia":
@@ -556,10 +572,8 @@ func esegui_turno(attaccante: Dictionary) -> void:
 					usa_oggetto(attaccante, azione.id)
 				"alleato":
 					usa_alleato(azione.id)
-				"provoca":
-					provoca(attaccante)
-				"area":
-					attacco_area(attaccante)
+				"abilita":
+					usa_abilita(attaccante, String(azione.get("id", "")))
 				"fuggi":
 					fuggi(attaccante)
 				"leva":
@@ -861,18 +875,118 @@ func attiva_bersaglio_extra() -> void:
 	oggetto.tazo = 0
 	aggiorna_scheda(oggetto)
 
+# --- abilita' di combattimento ---
+#
+# Le abilita' non stanno nel codice: stanno in regole.json, e una classe le
+# prende scrivendone l'id nel suo campo "abilita". Qui si sa solo come si
+# comportano i quattro TIPI che il motore conosce - provoca, area, raffica,
+# carica - e aggiungere "Fiammata dei Tre Cancelli" non richiede di toccare
+# questo file, solo di dire di che tipo e' e quanto costa.
+
+func usa_abilita(chi: Dictionary, id_abilita: String) -> void:
+	var dati := GameState.abilita_combattimento(id_abilita)
+	if dati.is_empty():
+		return
+	spendi_aura(chi, int(dati.get("aura", 0)))
+	match String(dati.get("tipo", "")):
+		"provoca": provoca(chi)
+		"area": attacco_area(chi, dati)
+		"raffica": raffica(chi, dati)
+		"carica": carica(chi, dati)
+
 func provoca(chi: Dictionary) -> void:
 	bersaglio_provocazione = chi
 	turni_provocazione = int(GameState.regole.get("forza_azione_durata", 2))
-	spendi_aura(chi, int(GameState.regole.get("costo_aura_provocazione", 3)))
 	scrivi("[i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]" % chi.nome)
 
-func attacco_area(chi: Dictionary) -> void:
-	spendi_aura(chi, int(GameState.regole.get("costo_aura_area", 4)))
+func attacco_area(chi: Dictionary, dati: Dictionary = {}) -> void:
 	scrivi("[i]%s scatena un colpo che si abbatte su tutti i nemici![/i]" % chi.nome)
-	var valore := int(round(RegoleCombattimento.attacco_di(chi) * float(GameState.regole.get("moltiplicatore_attacco_area", 0.6))))
+	var frazione := float(dati.get("moltiplicatore",
+			GameState.regole.get("moltiplicatore_attacco_area", 0.6)))
+	var valore := int(round(RegoleCombattimento.attacco_di(chi) * frazione))
 	for nemico in vivi(false):
 		attacca(chi, nemico, valore)
+
+func raffica(chi: Dictionary, dati: Dictionary) -> void:
+	# Tanti colpi piccoli invece di uno grosso. Il danno totale e' paragonabile a
+	# quello di un colpo caricato, ma quello che si VEDE e' diverso: una scarica
+	# di numeri addosso a tutto quello che hai davanti. E' il punto dell'abilita' -
+	# un bombardamento deve sembrare un bombardamento.
+	#
+	# Il numero di colpi cresce col livello: al primo sono una dozzina, a fine
+	# gioco sono cinquanta. Il danno del singolo colpo resta piccolo apposta.
+	var nemici := vivi(false)
+	if nemici.is_empty():
+		return
+	var livello := GameState.livello_di(String(chi.id)) if chi.giocatore else 1
+	var colpi := mini(
+			int(dati.get("colpi", 10)) + floori((livello - 1) * float(dati.get("colpi_per_livello", 0.0))),
+			int(dati.get("colpi_massimi", 99)))
+	var danno_colpo := maxi(int(round(RegoleCombattimento.attacco_di(chi)
+			* float(dati.get("frazione_danno", 0.25)))), 1)
+	ultima_azione_offensiva = true
+	if chi.giocatore and chi.id == GameState.id_protagonista:
+		GameState.registra_azione("attacchi_sferrati")
+	var elenco: Array = []
+	var totale := 0
+	for colpo in colpi:
+		var in_piedi := vivi(false)
+		if in_piedi.is_empty():
+			break
+		var bersaglio: Dictionary = in_piedi[GameState.rng.randi_range(0, in_piedi.size() - 1)]
+		# la raffica passa le difese: sono schegge, non un fendente da parare
+		var passato := mini(danno_colpo, int(bersaglio.hp))
+		bersaglio.hp = maxi(int(bersaglio.hp) - danno_colpo, 0)
+		registra_danno_subito(bersaglio, passato)
+		totale += passato
+		elenco.append({"scheda": bersaglio.scheda, "danno": passato})
+		if bersaglio.hp <= 0:
+			_su_ko(bersaglio)
+	scrivi_forte("[b]%s: %d colpi.[/b] In tutto, %d danni." % [
+			String(dati.get("nome", "Raffica")), colpi, totale])
+	voce.accoda_effetto(effetto_raffica(elenco))
+
+func effetto_raffica(colpi: Array) -> Callable:
+	# Venti messaggi in coda sarebbero venti attese, e il "casino" si perderebbe
+	# nell'attesa. Cosi' invece parte tutto da un effetto solo: i numeri si
+	# accendono uno dietro l'altro, in fretta, come una scarica.
+	return func() -> void:
+		for combattente in combattenti:
+			aggiorna_scheda(combattente)
+		if muto or colpi.is_empty():
+			return
+		voce.suono("colpo")
+		for indice in colpi.size():
+			var colpo: Dictionary = colpi[indice]
+			var scheda: Control = colpo["scheda"]
+			var quanto := int(colpo["danno"])
+			var mostra := func() -> void:
+				if not is_instance_valid(scheda):
+					return
+				voce.numero_volante(scheda, "−%d" % quanto, Stile.colore("pericolo"))
+				voce.lampeggia(scheda, Stile.colore("pericolo"))
+			if indice == 0:
+				mostra.call()
+			else:
+				get_tree().create_timer(indice * PASSO_RAFFICA, false).timeout.connect(mostra)
+
+func carica(chi: Dictionary, dati: Dictionary) -> void:
+	# Un turno buttato via per farne valere quattro. E' una scommessa: mentre
+	# carichi incassi, e se cadi prima di scaricare non hai fatto niente.
+	chi.carica_pronta = float(dati.get("moltiplicatore", 3.0))
+	var testo := String(dati.get("testo_carica", "%s si carica."))
+	scrivi_forte("[i]%s[/i]" % (testo % chi.nome))
+	aggiorna_scheda(chi)
+
+func consuma_carica(chi: Dictionary) -> float:
+	# quanto vale questo colpo. Si spende sul primo attacco vero: non su un'area,
+	# non su una raffica - quelli hanno gia' il loro modo di essere grossi
+	var carica := float(chi.get("carica_pronta", 0.0))
+	if carica <= 0.0:
+		return 1.0
+	chi.carica_pronta = 0.0
+	scrivi("[b]%s scarica tutto quello che ha accumulato.[/b]" % chi.nome)
+	return carica
 
 func fuggi(chi: Dictionary) -> void:
 	if not portatore_incontro.is_empty():
@@ -1553,7 +1667,8 @@ func risolvi_dot_condizionale(combattente: Dictionary, azione_offensiva: bool) -
 
 # --- risoluzione dei colpi ---
 
-func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1) -> void:
+func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
+		moltiplicatore := 1.0) -> void:
 	ultima_azione_offensiva = true
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
@@ -1589,7 +1704,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		elif bersaglio.giocatore:
 			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 		return
-	var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio, valore_attacco)
+	var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio, valore_attacco, moltiplicatore)
 	var danno := int(esito.danno)
 	var critico := bool(esito.critico)
 	if esito.fattore:
@@ -1919,4 +2034,4 @@ func _esci() -> void:
 		IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
 	else:
 		GameState.reset_campagna()
-		Transizioni.vai(SCENA_MAPPA)
+		Transizioni.vai(SCENA_SEDE)

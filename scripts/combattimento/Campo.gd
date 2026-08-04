@@ -144,6 +144,13 @@ func dettagli_di(combattente: Dictionary) -> String:
 		dettagli += " · sopraffatto"
 	if combattente.get("in_fiamme", false):
 		dettagli += " · in fiamme"
+	if float(combattente.get("carica_pronta", 0.0)) > 0.0:
+		dettagli += " · carico"  # ha un turno in canna: il prossimo colpo e' un altro discorso
+	if not combattente.giocatore and conosciuta(combattente, 2):
+		var livello_ora := GameState.livello_nemico(String(combattente.id))
+		if livello_ora > GameState.livello_base_nemico(String(combattente.id)):
+			# si e' alimentata del tuo carnival: e' piu' forte di quanto nascesse
+			dettagli += " · Lv %d (alimentata)" % livello_ora
 	for id_stato in combattente.stati_attivi:
 		var info_stato: Dictionary = GameState.stati.get(id_stato, {})
 		var nome_stato: String = String(info_stato.get("nome", id_stato))

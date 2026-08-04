@@ -19,7 +19,7 @@ extends Control
 # E lo scaffale e' diviso per mestiere (usare adesso / imbracciare / indossare):
 # tre categorie tra cui scegliere, non quindici righe tutte uguali da leggere.
 
-const SCENA_MAPPA := "res://scenes/Mappa.tscn"
+const SCENA_SEDE := "res://scenes/Sede.tscn"
 
 # l'ordine conta: prima quello che serve adesso, poi quello che serve dopo
 const CATEGORIE := [
@@ -296,4 +296,4 @@ func aggiungi_voce_baratto(baratto: Dictionary) -> void:
 		lato.add_child(manca)
 
 func _su_mappa() -> void:
-	Transizioni.vai(SCENA_MAPPA)
+	Transizioni.vai(SCENA_SEDE)

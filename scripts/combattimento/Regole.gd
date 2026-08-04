@@ -121,14 +121,15 @@ static func probabilita_slaughter(attaccante: Dictionary, bersaglio: Dictionary)
 	var probabilita := float(GameState.regole.get("slaughter_probabilita_base", 0.01))
 	if attaccante.giocatore and not bersaglio.giocatore:
 		var scarto: int = GameState.livello_di(attaccante.id) \
-				- int(GameState.personaggi.get(bersaglio.id, {}).get("livello", 1))
+				- GameState.livello_nemico(bersaglio.id)
 		for voce in GameState.crescita.get("passive_livello", []):
 			if voce.has("slaughter_bonus") and GameState.ha_passiva(String(voce.get("id", ""))) \
 					and scarto >= int(voce.get("slaughter_scarto_livelli", 0)):
 				probabilita *= 1.0 + float(voce["slaughter_bonus"])
 	return probabilita
 
-static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1) -> Dictionary:
+static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
+		moltiplicatore := 1.0) -> Dictionary:
 	# Tutta la matematica di un colpo in un posto solo. Restituisce cosa e'
 	# successo; chi chiama decide cosa raccontarne e chi far cadere.
 	#   danno    -> quanto passa davvero
@@ -145,6 +146,10 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 			# il danno del party scala col livello: farmare ed equipaggiarsi conta
 			danno += floori((GameState.livello_di(attaccante.id) - 1)
 					* float(GameState.regole.get("bonus_attacco_per_livello", 0.5)))
+	if moltiplicatore != 1.0:
+		# un colpo caricato moltiplica il colpo INTERO, bonus di livello compreso:
+		# altrimenti a livello alto caricare sarebbe un modo di picchiare meno
+		danno = int(round(danno * moltiplicatore))
 	if fattore_attivo(attaccante) and GameState.rng.randf() < attaccante.fattore / 100.0:
 		danno += 1
 		esito.fattore = true
@@ -178,11 +183,11 @@ static func xp_effettiva(nemico: Dictionary) -> int:
 	# consigliato del nemico, meno esperienza rende - senza mai azzerarsi, cosi'
 	# una farm zone resta utile a lungo ma smette di essere la scorciatoia migliore
 	var xp_base := int(nemico.xp)
-	var livello_nemico := int(GameState.personaggi.get(nemico.id, {}).get("livello", 1))
+	var livello_creatura := GameState.livello_nemico(String(nemico.id))
 	var livello_party := 1
 	for id_classe in GameState.party:
 		livello_party = maxi(livello_party, GameState.livello_di(id_classe))
-	var scarto := livello_party - livello_nemico
+	var scarto := livello_party - livello_creatura
 	if scarto <= 0:
 		return xp_base
 	var penalita := float(GameState.regole.get("xp_penalita_per_livello_extra", 0.15))
