@@ -80,4 +80,4 @@ func _su_fine_introduzione() -> void:
 	# "fine introduzione": da qui in poi parla il protagonista, e alla fine
 	# del suo monologo il tutorial parte da solo (avvio_automatico)
 	GameState.avvia_carnivalz("intro", FILE_EVENTI_INTRO)
-	Transizioni.vai(SCENA_EVENTI)
+	IngressoNodo.vai_al_nodo(GameState.nodo_corrente)

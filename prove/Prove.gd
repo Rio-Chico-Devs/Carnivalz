@@ -36,7 +36,7 @@ func _ready() -> void:
 	prova_slot_accessori()
 	prova_scheda_personaggio()
 	prova_finale_scriptato()
-	prova_nessuna_schermata_vuota()
+	prova_ingresso_nodi()
 	prova_transizioni()
 	prova_suoni()
 	prova_script_compilano()
@@ -633,27 +633,22 @@ func prova_finale_scriptato() -> void:
 			"il finale scritto non ha lasciato niente da leggere")
 	scontro.free()
 
-func prova_nessuna_schermata_vuota() -> void:
-	# LA PROVA CHE MANCAVA DA TRE GIRI.
+func prova_ingresso_nodi() -> void:
+	# LA GARANZIA, NELLA SUA FORMA DEFINITIVA.
 	#
-	# Il bug di Meridia e' tornato tre volte con tre cause diverse, e ogni volta
-	# ho corretto la causa. Sbagliato: la causa era che quello stato potesse
-	# esistere. Adesso mostra_nodo() non ha piu' nessuna via d'uscita che lasci
-	# la schermata senza contenuto - e questo non e' un'opinione, e' una cosa che
-	# si verifica.
+	# Entrare in un nodo puo' finire in due modi e basta: o c'e' qualcosa da
+	# mostrare, o si va da un'altra parte. Un terzo caso - ne' l'uno ne' l'altro -
+	# era la schermata vuota su cui Bru si e' bloccato tre volte.
 	#
-	# Si entra in OGNI nodo di OGNI file di eventi del gioco e si pretende che
-	# dopo la schermata abbia qualcosa da mostrare. Le transizioni sono
-	# neutralizzate (in_corso acceso a mano), quindi anche i nodi che fanno
-	# partire un agguato restano qui e vengono controllati come gli altri:
-	# e' esattamente la condizione in cui il giocatore si bloccava.
-	titolo("nessun nodo puo' lasciare la schermata vuota")
-	var scena: PackedScene = load("res://scenes/Main.tscn")
-	var schermata: Node = scena.instantiate()
-	var transizione_prima := Transizioni.in_corso
-	Transizioni.in_corso = true   # nessun cambio di scena vero durante la prova
+	# Adesso quella decisione sta in IngressoNodo, che non tocca l'albero delle
+	# scene: si puo' entrare in OGNI nodo del gioco e guardare il verdetto senza
+	# istanziare niente. E si controlla molte volte per nodo, cosi' si passa sia
+	# per il ramo dell'agguato che per quello della stanza tranquilla.
+	#
+	# Non e' una prova sul sintomo: e' una prova sull'invariante. Finche' passa,
+	# non esiste un ingresso che lasci il gioco a meta'.
+	titolo("entrare in un nodo finisce sempre in uno dei due modi")
 	GameState.nuova_partita()
-	add_child(schermata)
 	var controllati := 0
 	for percorso in file_eventi():
 		var dati := carica_eventi(percorso)
@@ -662,24 +657,21 @@ func prova_nessuna_schermata_vuota() -> void:
 			continue
 		GameState.eventi = nodi
 		for id_nodo in nodi:
-			# ogni nodo si prova due volte: la prima visita e il ritorno, che
-			# passano per rami diversi (la "scena" invece dei dialoghi)
-			for giro in 2:
-				schermata.nodo_in_corso = {}
-				Transizioni.prossima = ""
-				schermata.mostra_nodo(String(id_nodo))
+			for tentativo in 6:
+				GameState.stanze_ripulite.clear()
+				GameState.nodi_visitati.clear()
+				var esito: Dictionary = IngressoNodo.entra(String(id_nodo))
 				controllati += 1
-				# NESSUN "oppure sta partendo". Quel salvacondotto era il buco: il
-				# codice rotto lo passava, perche' metteva in coda la partenza e
-				# lasciava la schermata vuota lo stesso. La regola e' una sola e
-				# non ha eccezioni: dopo mostra_nodo() c'e' SEMPRE qualcosa da
-				# mostrare, che si stia partendo o no.
-				esigi(not schermata.nodo_in_corso.is_empty(),
-						"%s/%s: la schermata resta vuota" % [percorso, id_nodo])
-	schermata.queue_free()
-	Transizioni.prossima = ""
-	Transizioni.in_corso = transizione_prima
-	esigi(controllati > 100, "la prova ha controllato solo %d nodi: qualcosa non ha girato" % controllati)
+				var va_altrove := String(esito.get("scena", "")) != ""
+				var c_e_da_mostrare: bool = not (esito.get("nodo", {}) as Dictionary).is_empty()
+				esigi(va_altrove or c_e_da_mostrare,
+						"%s/%s: entrare non porta ne' a una schermata ne' altrove"
+						% [percorso, id_nodo])
+				if esito.get("agguato", false):
+					esigi(va_altrove, "%s/%s: l'agguato scatta ma non si parte" % [percorso, id_nodo])
+					esigi(not GameState.nemici_combattimento.is_empty(),
+							"%s/%s: si parte per un combattimento senza nemici" % [percorso, id_nodo])
+	esigi(controllati > 500, "la prova ha guardato solo %d ingressi" % controllati)
 
 func prova_transizioni() -> void:
 	# LA PROVA DELLA SCHERMATA VUOTA. Bru e' rimasto bloccato a Meridia: vinci

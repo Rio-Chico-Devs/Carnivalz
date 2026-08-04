@@ -95,7 +95,10 @@ func _ready() -> void:
 	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente)
 	bottone_mappa.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_MAPPA_ZONA))
-	mostra_nodo(GameState.nodo_corrente)
+	# Alla nascita non si decide piu' niente: chi ci ha mandati qui e' gia'
+	# entrato nel nodo (IngressoNodo.vai_al_nodo) e ha stabilito che c'era
+	# qualcosa da mostrare. Questa schermata esiste solo in quel caso.
+	disegna_nodo(IngressoNodo.raccogli(GameState.nodo_corrente), [])
 
 func applica_stile() -> void:
 	sfondo.color = Stile.colore("sfondo")
@@ -119,103 +122,46 @@ func _unhandled_input(evento: InputEvent) -> void:
 		_su_avanza()
 		get_viewport().set_input_as_handled()
 
-func tira_agguato(id_nodo: String, nodo: Dictionary) -> bool:
-	# Ogni volta che si entra nella stanza si tenta la probabilita'; se scatta
-	# si combatte (e non si ritenta subito tornando qui a vittoria ottenuta); se
-	# non scatta, la prossima visita ritenta da capo. Una zona "ripulita"
-	# (salta_se_flag) non tenta piu' nessun agguato. Un agguato "ripetibile" non
-	# si esaurisce mai: la stanza continua a generare scontri a ogni ingresso,
-	# anche dopo averne vinto uno (farm zone).
-	#
-	# Qui si DECIDE soltanto, e si prepara lo scontro. Partire e' un'altra cosa,
-	# e succede alla fine di mostra_nodo().
-	if not nodo.has("agguato") or id_nodo in GameState.stanze_ripulite:
-		return false
-	var agguato: Dictionary = nodo["agguato"]
-	if agguato.has("salta_se_flag") and GameState.ha_flag(String(agguato["salta_se_flag"])):
-		return false
-	if GameState.rng.randf() >= float(agguato.get("probabilita", 0.3)):
-		return false
-	var gruppi: Array = agguato.get("gruppi", [])
-	if gruppi.is_empty():
-		return false
-	if not agguato.get("ripetibile", false):
-		GameState.stanze_ripulite.append(id_nodo)
-	var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
-	# fuggire da un agguato non ha penalita': si torna semplicemente qui
-	GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
-	return true
-
 func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) -> void:
-	var nodo: Dictionary = GameState.eventi.get(id_nodo, {})
-	if nodo.is_empty():
-		# Un nodo che non esiste era un vicolo cieco definitivo: si usciva da qui
-		# senza aver mostrato niente e senza aver costruito nessuna scelta, e il
-		# giocatore restava davanti a una schermata vuota da cui non si esce.
-		# Meglio perdere la posizione che perdere la partita: si torna indietro
-		# di una schermata. Le prove non lasciano passare un id sbagliato, ma
-		# nessuna schermata deve poter diventare una prigione.
-		# L'unico caso in cui questa funzione esce senza disegnare, e l'unico in
-		# cui e' inevitabile: se il nodo non esiste non c'e' niente da mostrare.
-		# Non e' un buco lasciato aperto: che ogni destinazione punti a un nodo
-		# esistente e' verificato da prova_riferimenti_eventi() su tutti i file
-		# di eventi, quindi questo ramo non e' raggiungibile coi dati del gioco.
-		# Resta come rete per i dati sbagliati di domani.
-		push_error("Nodo evento mancante: " + id_nodo)
-		Transizioni.vai(SCENA_VUOTO if GameState.carnivalz_corrente != "" else SCENA_MAPPA)
+	# ENTRARE e MOSTRARE sono due cose diverse, e adesso si vede.
+	#
+	# IngressoNodo decide: quale nodo sia davvero, cosa cambia nel mondo per il
+	# solo fatto di essere entrati, se qui scatta un agguato, e se da qui si
+	# riparte per un'altra schermata. Non tocca niente di visibile.
+	#
+	# Se il verdetto dice di andarsene, questa funzione non disegna: non c'e'
+	# niente da disegnare. Se dice di restare, disegna - e allora c'e' sempre
+	# qualcosa da mostrare. Non esiste piu' una terza possibilita': era li' che
+	# viveva la schermata vuota.
+	# Chiamata da DENTRO la schermata (una scelta, un ritorno): qui restare un
+	# istante in mezzo non e' un problema, perche' la stanza precedente e' ancora
+	# sotto gli occhi finche' la transizione non l'ha portata via.
+	# Dalle ALTRE schermate non si passa di qui: si passa da
+	# IngressoNodo.vai_al_nodo(), che decide PRIMA che questa scena nasca.
+	var esito := IngressoNodo.entra(id_nodo)
+	if String(esito.scena) != "":
+		Transizioni.vai(String(esito.scena))
 		return
-	if nodo.has("vai_se_flag") and GameState.ha_flag(String(nodo["vai_se_flag"].get("flag", ""))):
-		# stessa stanza, seconda visita: si mostra un altro nodo al suo posto
-		# (es. un luogo dove il primo incontro e' gia' avvenuto)
-		mostra_nodo(String(nodo["vai_se_flag"].get("vai", "")), notifiche_precedenti)
+	disegna_nodo(esito, notifiche_precedenti)
+
+func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) -> void:
+	# Da qui in giu' si disegna e basta: nessuna decisione, nessuna navigazione,
+	# nessun modo di uscire senza aver messo qualcosa sullo schermo.
+	if String(esito.get("scena", "")) != "":
+		# ci si arriva solo se questa scena e' stata aperta a mano mentre il nodo
+		# mandava altrove (editor): non succede nel gioco
+		Transizioni.vai(String(esito.scena))
 		return
-	GameState.nodo_corrente = id_nodo
-	var prima_visita: bool = id_nodo not in GameState.nodi_visitati
-	if prima_visita:
-		# esplorare allena la velocita': ogni stanza conta una volta sola
-		GameState.nodi_visitati.append(id_nodo)
-		GameState.registra_azione("stanze_esplorate")
-	if nodo.has("flag"):
-		GameState.imposta_flag(nodo["flag"])
-	if nodo.has("sblocca_stanze"):
-		# mappa dungeon di zona: visitare questo nodo sblocca altre stanze
-		for id_stanza in nodo["sblocca_stanze"]:
-			GameState.sblocca_stanza(String(id_stanza))
-	if nodo.has("congeda"):
-		GameState.congeda(nodo["congeda"])
-	applica_task(nodo)
-	if nodo.get("salva_checkpoint", false):
-		# eccezione deliberata alla regola "si salva solo dalla mappa stellare":
-		# protegge Tazo/oggetti/flag raccolti finora in un dungeon lungo. NON
-		# fa riprendere la partita da qui: _leggi_salvataggio() riporta sempre
-		# a uno stato overworld pulito, quindi un game_over dopo questo punto
-		# torna comunque alla mappa stellare (progresso di posizione perso,
-		# ma non il bottino raccolto prima del checkpoint)
-		GameState.salva()
-	# agguato: ogni volta che si entra nella stanza si tenta la probabilita';
-	# se scatta si combatte (e non si ritenta subito tornando qui a vittoria
-	# ottenuta); se non scatta, la prossima visita ritenta da capo. Una zona
-	# "ripulita" (salta_se_flag) non tenta piu' nessun agguato. Un agguato
-	# "ripetibile" non si esaurisce mai: la stanza continua a generare scontri
-	# a ogni ingresso, anche dopo averne vinto uno (farm zone)
-	# L'agguato si TIRA qui - perche' da questo dipende se il party recupera i
-	# punti vita - ma non si PARTE piu' da qui. Vedi in fondo alla funzione.
-	var agguato_scattato := tira_agguato(id_nodo, nodo)
-	# nessun agguato e' scattato: qui si respira, e il party recupera tutto.
-	# Finche' gli scontri si incatenano (ondate), invece, gli hp restano quelli
-	# lasciati dallo scontro precedente. Un nodo puo' chiedere esplicitamente di
-	# non far recuperare ("mantieni_hp"): serve alle fasi di uno stesso scontro,
-	# dove in mezzo c'e' solo una scena e non una vera pausa
-	if not agguato_scattato and not nodo.get("mantieni_hp", false):
-		GameState.hp_persistenti.clear()
+	var nodo: Dictionary = esito.nodo
 	nodo_in_corso = nodo
 	aggiorna_palco(nodo)
 	aggiorna_stato()
-	# i dialoghi di un posto si sentono una volta sola: da li' in avanti il
-	# nodo mostra la sua "scena", cioe' com'e' quel posto adesso
-	mostrando_scena = not prima_visita and nodo.has("scena")
+	# i dialoghi di un posto si sentono una volta sola: da li' in avanti il nodo
+	# mostra la sua "scena", cioe' com'e' quel posto adesso
+	mostrando_scena = not bool(esito.prima_visita) and nodo.has("scena")
 	if nodo.get("espulsione_automatica", false):
-		# non c'e' niente da scegliere: il posto stesso ti rigetta fuori
+		# non c'e' niente da scegliere: il posto stesso ti rigetta fuori. Il testo
+		# si legge lo stesso - questa non e' un'uscita muta, e' una scena corta
 		var seq := contenuto_nodo(nodo)
 		azione_a_fine_testo = Callable()
 		nascondi_comandi()
@@ -225,26 +171,10 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		GameState.congeda_tutti_temporanei()
 		Transizioni.vai(SCENA_VUOTO)
 		return
-	# gli appunti chiudono la coda, non la aprono: prima si vive la scena che
-	# li ha fatti nascere, poi il protagonista ci ragiona sopra
+	# gli appunti chiudono la coda, non la aprono: prima si vive la scena che li
+	# ha fatti nascere, poi il protagonista ci ragiona sopra
 	coda_messaggi = notifiche_precedenti + notifiche_passive() + contenuto_nodo(nodo) + notifiche_task()
 	avanza_messaggio()
-	# E SOLO ADESSO si parte per il combattimento, a stanza gia' disegnata.
-	#
-	# Prima l'agguato usciva da questa funzione con un "return" secco, e da li'
-	# nascevano tutte le schermate vuote: restava una scena viva a cui nessuno
-	# aveva detto cosa mostrare. Ogni volta ho corretto il MOTIVO per cui la
-	# partenza non avveniva - e ogni volta ne saltava fuori un altro, perche' il
-	# problema non era il motivo: era che quello stato potesse esistere.
-	#
-	# Adesso non esiste. Questa funzione non ha piu' nessuna via d'uscita che
-	# lasci la schermata vuota: quando arriva qui la stanza e' completa,
-	# leggibile e giocabile. Se la transizione partisse in ritardo, fallisse, o
-	# non partisse affatto, il giocatore si trova in una stanza che funziona -
-	# non davanti al nulla. E' l'unica garanzia che non dipende dal fatto che io
-	# abbia capito bene.
-	if agguato_scattato:
-		Transizioni.vai(SCENA_COMBATTIMENTO)
 
 func contenuto_nodo(nodo: Dictionary) -> Array[Dictionary]:
 	# prima visita: la scena si gioca per intero (dialoghi compresi). Dalla
@@ -503,29 +433,6 @@ func notifiche_task() -> Array[Dictionary]:
 	GameState.task_da_notificare.clear()
 	return righe
 
-func applica_task(contenitore: Dictionary) -> void:
-	# "task" e "chiudi_task" accettano sia un id singolo che una lista, cosi'
-	# scrivere un appunto in un nodo costa una riga sola
-	for id_task in _lista_id(contenitore.get("task", [])):
-		GameState.apri_task(id_task)
-	for id_task in _lista_id(contenitore.get("chiudi_task", [])):
-		GameState.chiudi_task(id_task)
-
-func _lista_id(valore: Variant) -> Array[String]:
-	var risultato: Array[String] = []
-	if valore == null:
-		return risultato
-	if valore is Array:
-		for elemento in valore:
-			var id_elemento := String(elemento)
-			if id_elemento != "":
-				risultato.append(id_elemento)
-		return risultato
-	var id_singolo := String(valore)
-	if id_singolo != "":
-		risultato.append(id_singolo)
-	return risultato
-
 func notifiche_passive() -> Array[Dictionary]:
 	# abilita' passive sbloccate salendo di livello: si annunciano appena si
 	# torna a una schermata di eventi, insieme alle altre notifiche
@@ -638,7 +545,7 @@ func _su_scelta(scelta: Dictionary) -> void:
 			notifiche.append({"tipo": "notifica", "testo": "Hai ottenuto %d Tazo." % quantita})
 	if scelta.has("sblocca_negozio"):
 		GameState.sblocca_negozio(scelta["sblocca_negozio"])
-	applica_task(scelta)
+	IngressoNodo.applica_task_di(scelta)
 	if scelta.has("stress"):
 		for id_classe in GameState.party:
 			GameState.modifica_stress(id_classe, int(scelta["stress"]))
@@ -722,7 +629,7 @@ func _su_conversazione(conversazione: Dictionary) -> void:
 		GameState.imposta_flag(conversazione["flag"])
 	if conversazione.has("una_tantum"):
 		GameState.imposta_flag(conversazione["una_tantum"])
-	applica_task(conversazione)
+	IngressoNodo.applica_task_di(conversazione)
 	coda_messaggi = sequenza_di(conversazione) + notifiche_task()
 	azione_dopo_coda = _mostra_mediazione.bind(conversazione) if conversazione.has("mediazione") else Callable()
 	avanza_messaggio()
@@ -792,7 +699,7 @@ func _su_compagno(id_classe: String) -> void:
 			GameState.imposta_flag(voce["flag"])
 		if voce.has("una_tantum"):
 			GameState.imposta_flag(voce["una_tantum"])
-		applica_task(voce)
+		IngressoNodo.applica_task_di(voce)
 		coda_messaggi += notifiche_task()
 	avanza_messaggio()
 	# la battuta puo' aver sbloccato una scelta gated da richiede_flag: la

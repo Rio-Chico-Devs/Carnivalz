@@ -54,7 +54,7 @@ func _ready() -> void:
 	bottone_indietro.text = "Torna alla stanza corrente"
 	bottone_indietro.position = Vector2(24, 24)
 	bottone_indietro.pressed.connect(func() -> void:
-		Transizioni.vai(SCENA_EVENTI))
+		IngressoNodo.vai_al_nodo(GameState.nodo_corrente))
 	add_child(bottone_indietro)
 
 func posizione_di(id_stanza: String) -> Vector2:
@@ -107,4 +107,4 @@ func crea_marker(strato: Control, stanza: Dictionary) -> void:
 
 func _su_stanza(id_stanza: String) -> void:
 	GameState.nodo_corrente = id_stanza
-	Transizioni.vai(SCENA_EVENTI)
+	IngressoNodo.vai_al_nodo(GameState.nodo_corrente)

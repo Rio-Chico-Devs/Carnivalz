@@ -85,7 +85,7 @@ func _su_pianeta() -> void:
 func _su_squarcio(vuoto: Dictionary) -> void:
 	if GameState.entra_squarcio(vuoto.get("id", ""), vuoto.get("file_eventi", "")):
 		GameState.musica_ambiente = String(vuoto.get("musica", ""))
-		Transizioni.vai(SCENA_EVENTI)
+		IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.03, 0.02, 0.07))

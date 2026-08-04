@@ -1908,15 +1908,15 @@ func _esci() -> void:
 		GameState.premia_vittoria(xp_bottino, tazo_bottino, not fonte.is_empty())
 		var eroe := convinto and dopo_vittoria_eroe != ""
 		GameState.nodo_corrente = dopo_vittoria_eroe if eroe else dopo_vittoria
-		Transizioni.vai(SCENA_EVENTI)
+		IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
 	elif giocatore_e_fuggito and dopo_fuga != "":
 		GameState.annulla_combattimento()
 		GameState.nodo_corrente = dopo_fuga
-		Transizioni.vai(SCENA_EVENTI)
+		IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
 	elif dopo_sconfitta != "":
 		GameState.annulla_combattimento()
 		GameState.nodo_corrente = dopo_sconfitta
-		Transizioni.vai(SCENA_EVENTI)
+		IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
 	else:
 		GameState.reset_campagna()
 		Transizioni.vai(SCENA_MAPPA)
