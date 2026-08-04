@@ -36,6 +36,7 @@ func _ready() -> void:
 	prova_slot_accessori()
 	prova_scheda_personaggio()
 	prova_finale_scriptato()
+	prova_nessuna_schermata_vuota()
 	prova_transizioni()
 	prova_suoni()
 	prova_script_compilano()
@@ -631,6 +632,54 @@ func prova_finale_scriptato() -> void:
 	esigi(not scontro.voce.coda.is_empty(),
 			"il finale scritto non ha lasciato niente da leggere")
 	scontro.free()
+
+func prova_nessuna_schermata_vuota() -> void:
+	# LA PROVA CHE MANCAVA DA TRE GIRI.
+	#
+	# Il bug di Meridia e' tornato tre volte con tre cause diverse, e ogni volta
+	# ho corretto la causa. Sbagliato: la causa era che quello stato potesse
+	# esistere. Adesso mostra_nodo() non ha piu' nessuna via d'uscita che lasci
+	# la schermata senza contenuto - e questo non e' un'opinione, e' una cosa che
+	# si verifica.
+	#
+	# Si entra in OGNI nodo di OGNI file di eventi del gioco e si pretende che
+	# dopo la schermata abbia qualcosa da mostrare. Le transizioni sono
+	# neutralizzate (in_corso acceso a mano), quindi anche i nodi che fanno
+	# partire un agguato restano qui e vengono controllati come gli altri:
+	# e' esattamente la condizione in cui il giocatore si bloccava.
+	titolo("nessun nodo puo' lasciare la schermata vuota")
+	var scena: PackedScene = load("res://scenes/Main.tscn")
+	var schermata: Node = scena.instantiate()
+	var transizione_prima := Transizioni.in_corso
+	Transizioni.in_corso = true   # nessun cambio di scena vero durante la prova
+	GameState.nuova_partita()
+	add_child(schermata)
+	var controllati := 0
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		var nodi: Dictionary = dati.get("nodi", {})
+		if nodi.is_empty():
+			continue
+		GameState.eventi = nodi
+		for id_nodo in nodi:
+			# ogni nodo si prova due volte: la prima visita e il ritorno, che
+			# passano per rami diversi (la "scena" invece dei dialoghi)
+			for giro in 2:
+				schermata.nodo_in_corso = {}
+				Transizioni.prossima = ""
+				schermata.mostra_nodo(String(id_nodo))
+				controllati += 1
+				# NESSUN "oppure sta partendo". Quel salvacondotto era il buco: il
+				# codice rotto lo passava, perche' metteva in coda la partenza e
+				# lasciava la schermata vuota lo stesso. La regola e' una sola e
+				# non ha eccezioni: dopo mostra_nodo() c'e' SEMPRE qualcosa da
+				# mostrare, che si stia partendo o no.
+				esigi(not schermata.nodo_in_corso.is_empty(),
+						"%s/%s: la schermata resta vuota" % [percorso, id_nodo])
+	schermata.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = transizione_prima
+	esigi(controllati > 100, "la prova ha controllato solo %d nodi: qualcosa non ha girato" % controllati)
 
 func prova_transizioni() -> void:
 	# LA PROVA DELLA SCHERMATA VUOTA. Bru e' rimasto bloccato a Meridia: vinci

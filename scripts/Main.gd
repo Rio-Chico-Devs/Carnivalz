@@ -120,6 +120,33 @@ func _unhandled_input(evento: InputEvent) -> void:
 		_su_avanza()
 		get_viewport().set_input_as_handled()
 
+func tira_agguato(id_nodo: String, nodo: Dictionary) -> bool:
+	# Ogni volta che si entra nella stanza si tenta la probabilita'; se scatta
+	# si combatte (e non si ritenta subito tornando qui a vittoria ottenuta); se
+	# non scatta, la prossima visita ritenta da capo. Una zona "ripulita"
+	# (salta_se_flag) non tenta piu' nessun agguato. Un agguato "ripetibile" non
+	# si esaurisce mai: la stanza continua a generare scontri a ogni ingresso,
+	# anche dopo averne vinto uno (farm zone).
+	#
+	# Qui si DECIDE soltanto, e si prepara lo scontro. Partire e' un'altra cosa,
+	# e succede alla fine di mostra_nodo().
+	if not nodo.has("agguato") or id_nodo in GameState.stanze_ripulite:
+		return false
+	var agguato: Dictionary = nodo["agguato"]
+	if agguato.has("salta_se_flag") and GameState.ha_flag(String(agguato["salta_se_flag"])):
+		return false
+	if GameState.rng.randf() >= float(agguato.get("probabilita", 0.3)):
+		return false
+	var gruppi: Array = agguato.get("gruppi", [])
+	if gruppi.is_empty():
+		return false
+	if not agguato.get("ripetibile", false):
+		GameState.stanze_ripulite.append(id_nodo)
+	var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
+	# fuggire da un agguato non ha penalita': si torna semplicemente qui
+	GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
+	return true
+
 func sorveglia_schermata_vuota() -> void:
 	# LA RETE SOTTO IL TRAPEZIO. mostra_nodo() esce senza disegnare niente
 	# quando sta per cambiare schermata - un agguato, un'espulsione. E' giusto:
@@ -191,25 +218,15 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 	# "ripulita" (salta_se_flag) non tenta piu' nessun agguato. Un agguato
 	# "ripetibile" non si esaurisce mai: la stanza continua a generare scontri
 	# a ogni ingresso, anche dopo averne vinto uno (farm zone)
-	if nodo.has("agguato") and id_nodo not in GameState.stanze_ripulite \
-			and not (nodo["agguato"].has("salta_se_flag") and GameState.ha_flag(String(nodo["agguato"]["salta_se_flag"]))):
-		var agguato: Dictionary = nodo["agguato"]
-		if GameState.rng.randf() < float(agguato.get("probabilita", 0.3)):
-			var gruppi: Array = agguato.get("gruppi", [])
-			if not gruppi.is_empty():
-				if not agguato.get("ripetibile", false):
-					GameState.stanze_ripulite.append(id_nodo)
-				var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
-				# fuggire da un agguato non ha penalita': si torna semplicemente qui
-				GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
-				Transizioni.vai(SCENA_COMBATTIMENTO)
-				return
+	# L'agguato si TIRA qui - perche' da questo dipende se il party recupera i
+	# punti vita - ma non si PARTE piu' da qui. Vedi in fondo alla funzione.
+	var agguato_scattato := tira_agguato(id_nodo, nodo)
 	# nessun agguato e' scattato: qui si respira, e il party recupera tutto.
 	# Finche' gli scontri si incatenano (ondate), invece, gli hp restano quelli
 	# lasciati dallo scontro precedente. Un nodo puo' chiedere esplicitamente di
 	# non far recuperare ("mantieni_hp"): serve alle fasi di uno stesso scontro,
 	# dove in mezzo c'e' solo una scena e non una vera pausa
-	if not nodo.get("mantieni_hp", false):
+	if not agguato_scattato and not nodo.get("mantieni_hp", false):
 		GameState.hp_persistenti.clear()
 	nodo_in_corso = nodo
 	aggiorna_palco(nodo)
@@ -232,6 +249,22 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 	# li ha fatti nascere, poi il protagonista ci ragiona sopra
 	coda_messaggi = notifiche_precedenti + notifiche_passive() + contenuto_nodo(nodo) + notifiche_task()
 	avanza_messaggio()
+	# E SOLO ADESSO si parte per il combattimento, a stanza gia' disegnata.
+	#
+	# Prima l'agguato usciva da questa funzione con un "return" secco, e da li'
+	# nascevano tutte le schermate vuote: restava una scena viva a cui nessuno
+	# aveva detto cosa mostrare. Ogni volta ho corretto il MOTIVO per cui la
+	# partenza non avveniva - e ogni volta ne saltava fuori un altro, perche' il
+	# problema non era il motivo: era che quello stato potesse esistere.
+	#
+	# Adesso non esiste. Questa funzione non ha piu' nessuna via d'uscita che
+	# lasci la schermata vuota: quando arriva qui la stanza e' completa,
+	# leggibile e giocabile. Se la transizione partisse in ritardo, fallisse, o
+	# non partisse affatto, il giocatore si trova in una stanza che funziona -
+	# non davanti al nulla. E' l'unica garanzia che non dipende dal fatto che io
+	# abbia capito bene.
+	if agguato_scattato:
+		Transizioni.vai(SCENA_COMBATTIMENTO)
 
 func contenuto_nodo(nodo: Dictionary) -> Array[Dictionary]:
 	# prima visita: la scena si gioca per intero (dialoghi compresi). Dalla
