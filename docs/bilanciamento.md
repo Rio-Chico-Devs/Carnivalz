@@ -1,6 +1,6 @@
 # Bilanciamento (generato, non scrivere qui a mano)
 
-Prodotto da `prove/Simulatore.gd`: **99000 partite** giocate dal motore vero in 554 secondi.
+Prodotto da `prove/Simulatore.gd`: **99000 partite** giocate dal motore vero in 552 secondi.
 
 Non e' una stima e non e' un modello: e' `Combattimento.tscn` istanziata e giocata,
 con Voce/Campo/Menu muti. Se questi numeri sono sbagliati, sono sbagliati anche
@@ -9,9 +9,11 @@ quando ci giochi tu.
 Ogni riga e' la media su 150 partite con semi fissi: due esecuzioni danno lo stesso
 risultato, quindi una differenza qui e' sempre una differenza nel gioco.
 
-**Il protagonista e' da solo e non ha guadagnato nessun punto statistica**: nel gioco
-le stat non salgono col livello, salgono con quello che hai fatto. Qui sale solo il
-livello, quindi questi numeri sono il pavimento - un giocatore vero sta sopra.
+**Il protagonista e' quello vero.** Nel gioco le stat non salgono col livello, salgono
+con quello che hai fatto: per mesi qui saliva solo il livello, e la tabella misurava
+uno arrivato al livello 8 senza aver mai combattuto. Adesso si applica il
+`profilo_giocatore_tipo` di crescita.json prima di ogni scontro. Se quella stima e'
+sbagliata, tutta questa tabella e' sbagliata: e' il numero piu' importante del file.
 
 - **vinte / perse / ∞** — percentuale di partite. `∞` = non finisce entro 60 giri
 - **giri** — durata media (un giro = tutti agiscono una volta)
@@ -57,6 +59,37 @@ Livello minimo a cui si vince almeno l'80% delle volte andandoci dritto.
 | Capocantiere | `voce_registrata` | 250 | 9 | 2 |
 | Zombie Cittadino | `zombie_cittadino` | 80 | 5 | 1 |
 | Zombie Mostruoso | `zombie_mostruoso` | 220 | 9 | 2 |
+## Curva di riferimento (quanto dovrebbe essere forte una creatura)
+
+Non e' una regola che il gioco applica: e' un metro per accorgersi di chi e' fuori
+scala. Una creatura dovrebbe reggere una decina di colpi e portarsi via circa un
+terzo della vita del protagonista.
+
+| livello | il protagonista ha | hp consigliati | attacco consigliato |
+|--:|---|--:|--:|
+| 1 | 100 hp, 15 attacco | 120 | 4 |
+| 2 | 145 hp, 21 attacco | 168 | 6 |
+| 3 | 190 hp, 27 attacco | 216 | 8 |
+| 5 | 285 hp, 39 attacco | 312 | 12 |
+| 8 | 425 hp, 57 attacco | 456 | 18 |
+| 12 | 610 hp, 81 attacco | 648 | 25 |
+| 16 | 800 hp, 105 attacco | 840 | 33 |
+| 20 | 985 hp, 129 attacco | 1032 | 41 |
+
+### Creature molto lontane dal riferimento
+
+| creatura | livello | hp | consigliati | attacco | consigliato |
+|---|--:|--:|--:|--:|--:|
+| Diabolo | 9 | 330 | 504 | 9 | 19 |
+| Infetto Rapido | 2 | 70 | 168 | 9 | 6 |
+| L'ultimo spettacolo di Jerah | 18 | 2200 | 936 | 27 | 37 |
+| Jongo Dongo | 12 | 1400 | 648 | 27 | 25 |
+| ??? | 8 | 120 | 456 | 5 | 18 |
+| Manifestazione di un sogno | 3 | 320 | 216 | 23 | 8 |
+| Fomentado | 3 | 100 | 216 | 5 | 8 |
+| Tartaruga Innocente | 1 | 299 | 120 | 0 | 4 |
+| Un tenero ricordo | 15 | 6660 | 792 | 27 | 31 |
+| Zombie Cittadino | 2 | 80 | 168 | 5 | 6 |
 
 ## Protagonista di livello 1
 
