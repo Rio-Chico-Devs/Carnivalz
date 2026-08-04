@@ -41,9 +41,11 @@ const LIMITE_GIRI := 60       # oltre questo, lo scontro e' "non finisce"
 const LIVELLI := [1, 2, 3, 5, 8]
 # Attenzione a cosa vuol dire "livello" qui: nel gioco le statistiche non
 # salgono col livello, salgono con quello che hai fatto (vedi crescita.json).
-# Il simulatore alza solo il livello, quindi misura un protagonista che e'
-# arrivato fin li' senza guadagnare un solo punto: e' il caso peggiore, il
-# pavimento. Un giocatore vero sta sopra questi numeri, mai sotto.
+# Per mesi il simulatore alzava SOLO il livello, e quindi misurava un
+# protagonista arrivato al livello 8 senza aver mai combattuto - un giocatore
+# che non esiste. Adesso applica il "profilo_giocatore_tipo" di crescita.json
+# (vedi cresci_fino_a): il livello e' un'abbreviazione per "uno che ha giocato
+# fin qui".
 
 const STRATEGIE := ["attacca", "difendi", "studia", "casuale"]
 
@@ -272,6 +274,60 @@ func stampa_tabella() -> void:
 		if motivo != "":
 			print("  L%-2d  %-30s %s" % [int(r.livello), String(r.nome).substr(0, 30), motivo])
 
+func curva_di_riferimento() -> String:
+	# QUANTO DOVREBBE ESSERE FORTE una creatura di un certo livello, dato quanto
+	# e' forte il protagonista quando ci arriva. Non e' una regola che il gioco
+	# applica: e' un metro per guardare il contenuto e vedere chi e' fuori scala.
+	#
+	# Serve perche' le stat delle creature sono state scritte a mano in momenti
+	# diversi e non seguono nessuna curva: un Ghoul di livello 8 ha 350 hp e un
+	# Oppresso di livello 4 ne ha 270. Con un protagonista che a quel punto e'
+	# triplicato, il Ghoul non e' un nemico, e' un arredo.
+	#
+	# I due criteri: una creatura dovrebbe reggere una decina di colpi, e portarsi
+	# via circa un terzo della vita del protagonista nell'arco dello scontro.
+	var testo := "## Curva di riferimento (quanto dovrebbe essere forte una creatura)\n\n"
+	testo += "Non e' una regola che il gioco applica: e' un metro per accorgersi di chi e' fuori\n"
+	testo += "scala. Una creatura dovrebbe reggere una decina di colpi e portarsi via circa un\n"
+	testo += "terzo della vita del protagonista.\n\n"
+	testo += "| livello | il protagonista ha | hp consigliati | attacco consigliato |\n|--:|---|--:|--:|\n"
+	var atteso_hp := {}
+	var atteso_att := {}
+	for livello in range(1, 21):
+		GameState.nuova_partita()
+		GameState.livelli[GameState.id_protagonista] = livello
+		cresci_fino_a(livello)
+		var hp_eroe := GameState.stat_di("hp")
+		var att_eroe := GameState.stat_di("attacco")
+		atteso_hp[livello] = int(round(att_eroe * 10 * 0.8))
+		atteso_att[livello] = maxi(int(round(hp_eroe * 0.33 / 8.0)), 1)
+		if livello in [1, 2, 3, 5, 8, 12, 16, 20]:
+			testo += "| %d | %d hp, %d attacco | %d | %d |\n" % [
+					livello, hp_eroe, att_eroe, atteso_hp[livello], atteso_att[livello]]
+	testo += "\n### Creature molto lontane dal riferimento\n\n"
+	testo += "| creatura | livello | hp | consigliati | attacco | consigliato |\n|---|--:|--:|--:|--:|--:|\n"
+	var fuori := 0
+	var ids: Array[String] = nemici_da_provare()
+	for id_nemico in ids:
+		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
+		var livello := clampi(int(dati.get("livello", 1)), 1, 20)
+		var hp_atteso := int(atteso_hp.get(livello, 0))
+		var att_atteso := int(atteso_att.get(livello, 1))
+		var hp_vero := int(dati.get("hp", 0))
+		var att_vero := int(dati.get("attacco", 0))
+		# solo chi e' fuori di piu' della meta', in un senso o nell'altro
+		var storto_hp: bool = hp_atteso > 0 and (hp_vero < hp_atteso * 0.5 or hp_vero > hp_atteso * 2.0)
+		var storto_att: bool = att_vero > 0 and (att_vero < att_atteso * 0.5 or att_vero > att_atteso * 2.0)
+		if storto_hp or storto_att:
+			fuori += 1
+			testo += "| %s | %d | %d | %d | %d | %d |\n" % [
+					String(dati.get("nome", id_nemico)), livello, hp_vero, hp_atteso, att_vero, att_atteso]
+	if fuori == 0:
+		testo += "| — | | | | | |\n"
+	testo += "\n"
+	GameState.nuova_partita()
+	return testo
+
 func scrivi_documento(durata: float) -> void:
 	var testo := "# Bilanciamento (generato, non scrivere qui a mano)\n\n"
 	testo += "Prodotto da `prove/Simulatore.gd`: **%d partite** giocate dal motore vero in %.0f secondi.\n\n" \
@@ -281,9 +337,11 @@ func scrivi_documento(durata: float) -> void:
 	testo += "quando ci giochi tu.\n\n"
 	testo += "Ogni riga e' la media su %d partite con semi fissi: due esecuzioni danno lo stesso\n" % RIPETIZIONI
 	testo += "risultato, quindi una differenza qui e' sempre una differenza nel gioco.\n\n"
-	testo += "**Il protagonista e' da solo e non ha guadagnato nessun punto statistica**: nel gioco\n"
-	testo += "le stat non salgono col livello, salgono con quello che hai fatto. Qui sale solo il\n"
-	testo += "livello, quindi questi numeri sono il pavimento - un giocatore vero sta sopra.\n\n"
+	testo += "**Il protagonista e' quello vero.** Nel gioco le stat non salgono col livello, salgono\n"
+	testo += "con quello che hai fatto: per mesi qui saliva solo il livello, e la tabella misurava\n"
+	testo += "uno arrivato al livello 8 senza aver mai combattuto. Adesso si applica il\n"
+	testo += "`profilo_giocatore_tipo` di crescita.json prima di ogni scontro. Se quella stima e'\n"
+	testo += "sbagliata, tutta questa tabella e' sbagliata: e' il numero piu' importante del file.\n\n"
 	testo += "- **vinte / perse / ∞** — percentuale di partite. `∞` = non finisce entro %d giri\n" % LIMITE_GIRI
 	testo += "- **giri** — durata media (un giro = tutti agiscono una volta)\n"
 	testo += "- **danno** — punti vita persi in media dal protagonista (ne ha %d)\n" % int(GameState.stat_di("hp"))
@@ -299,7 +357,7 @@ func scrivi_documento(durata: float) -> void:
 		var livello := livello_in_cui_diventa_giusto(String(r.nemico))
 		testo += "| %s | `%s` | %d | %d | %s |\n" % [r.nome, r.nemico, int(r.hp), int(r.att),
 				("**mai**" if livello == 0 else str(livello))]
-	testo += "\n"
+	testo += curva_di_riferimento()
 	for livello: int in LIVELLI:
 		testo += "## Protagonista di livello %d\n\n" % livello
 		testo += "| creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |\n"

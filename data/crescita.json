@@ -3,7 +3,7 @@
 
 	"stat": {
 		"hp": { "nome": "Punti vita", "base": 100 },
-		"attacco": { "nome": "Attacco", "base": 9 },
+		"attacco": { "nome": "Attacco", "base": 15 },
 		"difesa": { "nome": "Difesa", "base": 0 },
 		"velocita": { "nome": "Velocità", "base": 3 },
 		"intelligenza": { "nome": "Intelligenza", "base": 1, "descrizione": "Aumenta la probabilità di fuggire." },
@@ -13,7 +13,7 @@
 
 	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello. ATTENZIONE: questi numeri sono la pendenza della curva del protagonista, ed e' la cosa piu' delicata del gioco. Il contenuto e' scritto a mano con numeri fissi, la crescita no: se la crescita corre piu' del contenuto, dal terzo livello in poi non si perde piu'. Prima era cosi' (+3 attacco ogni 5 colpi = il triplo di potenza a ogni livello), e la tabella di bilanciamento non se ne accorgeva perche' misurava un protagonista che non aveva mai combattuto. Se tocchi questi numeri, rilancia ./prove/simula.sh.",
 	"crescita": {
-		"attacchi_sferrati": { "stat": "attacco", "ogni": 8, "punti": 1 },
+		"attacchi_sferrati": { "stat": "attacco", "ogni": 5, "punti": 1 },
 		"danni_subiti": { "stat": "hp", "ogni": 24, "punti": 5 },
 		"difese": { "stat": "difesa", "ogni": 3, "punti": 1 },
 		"studi": { "stat": "intelligenza", "ogni": 4, "punti": 1 },

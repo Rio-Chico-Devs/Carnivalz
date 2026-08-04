@@ -1279,9 +1279,13 @@ tabella è sempre una differenza nel gioco.
 
 Il numero che conta è nella prima tabella di `docs/bilanciamento.md`: **a che livello ogni
 scontro diventa giusto**, cioè da dove in poi si vince almeno l'80% delle volte andandoci dritto.
-Attenzione a leggerlo: nel gioco le statistiche non salgono col livello, salgono con quello che
-hai fatto (`crescita.json`). Il simulatore alza solo il livello, quindi misura un protagonista
-arrivato fin lì senza guadagnare un punto — è il pavimento, non la media.
+
+**Il simulatore misura il giocatore che esiste davvero.** Per mesi non è stato così: alzava solo
+il livello, e nel gioco le statistiche non salgono col livello — salgono con quello che hai fatto.
+Misurava quindi uno arrivato al livello 8 senza aver mai combattuto, e la tabella diceva
+"equilibrato" mentre chi ci giocava non scendeva mai sotto metà vita. Adesso `cresci_fino_a()`
+applica il `profilo_giocatore_tipo` di `crescita.json` prima di ogni scontro. Se quella stima è
+sbagliata, tutta la tabella è sbagliata: è il numero più importante del file.
 
 ## Lo zaino: quattro scomparti, tre con un tetto
 Non è un mucchio. Ogni categoria ha la sua capacità, e si allarga comprando spazio al negozio.
@@ -1434,38 +1438,105 @@ quello che serve a noi e non al giocatore (`prove/`, `strumenti/`, `docs/`, i `.
 esporta e **fa partire l'eseguibile** a ogni push: che il gioco si possa consegnare è una proprietà
 verificata come le altre.
 
-## I numeri del combattimento: perché sono grandi
+## I numeri del combattimento
 
-Vita **×5** e danno **×3** rispetto ai valori di prima. Non è inflazione fine a sé stessa: sono
-due decisioni diverse messe insieme.
+Vita e danno sono grandi apposta: un colpo che toglie 1 su 5 punti vita è aritmetica, uno che
+ne toglie 27 su 140 è una botta. Ma la scala non era il problema vero. Il problema era un altro,
+ed è costato metà del bilanciamento del gioco.
 
-- I numeri **si vedono**. Un colpo che toglie 1 su 5 punti vita è aritmetica; uno che ne toglie
-  27 su 140 è una botta. A schermo passa la differenza fra "ho fatto una mossa" e "gli ho fatto
-  male".
-- Gli scontri **durano circa il doppio**. Se avessi scalato vita e danno con lo stesso fattore
-  la durata sarebbe rimasta identica e avrei solo aggiunto zeri.
+### La crescita correva trenta volte più veloce del mondo
 
-Il protagonista parte da **100** punti vita e **9** di attacco (`data/crescita.json`); le
-creature stanno fra 30 e 700. Le stat delle creature non sono state ritoccate a mano una per
-una: sono state riscalate tutte insieme, con lo stesso criterio, così i rapporti di forza fra
-di loro sono esattamente quelli di prima. Se un bilanciamento era sbagliato prima, è sbagliato
-uguale adesso — ma non l'ho *reso* sbagliato io.
+In Carnivalz le statistiche **non salgono col livello**: salgono con quello che fai
+(`data/crescita.json`). Il contenuto invece è scritto a mano, con numeri fissi. Se la crescita
+corre più del contenuto, da un certo punto in poi non si perde più.
 
-### Verificato, non sperato
+Era esattamente così. `attacchi_sferrati: ogni 5, punti 3`, con una trentina di colpi per
+livello, vuol dire **+18 di attacco per livello su una base di 9**: la potenza triplicava a ogni
+passaggio di livello.
 
-Il giocatore automatico ha rigirato le stesse 99.000 partite prima e dopo la riscalatura. Il
-risultato è quello che serviva:
+| protagonista *vero* | hp | attacco | creature della prima zona |
+|---|--:|--:|---|
+| livello 1 | 100 | 9 | 135 hp, 6 attacco |
+| livello 3 | 375 | 45 | 135 hp, 6 attacco |
+| livello 5 | 665 | 81 | 135 hp, 6 attacco |
 
-| protagonista | giri medi (attaccando) | vittorie |
-|---|---|---|
-| livello 1 | 8,5 → **12,7** (×1,50) | 26,4% → 29,1% |
-| livello 3 | 8,7 → **13,2** (×1,52) | 52,2% → 50,4% |
-| livello 5 | 7,6 → **12,1** (×1,58) | 70,5% → 69,5% |
+Al terzo livello uccidevi in quattro colpi e ti servivano sessanta colpi per morire. Da lì in poi
+la difficoltà non esisteva più.
 
-Gli scontri durano **una volta e mezzo tanto** e le probabilità di vincere sono rimaste dov'erano
-(±2 punti). Nella tabella "a che livello ogni scontro diventa giusto" **una sola creatura si è
-mossa**: la Tartaruga Innocente (5 → 8), che ha 0 di attacco e vive di difesa — ma è quella che
-non va picchiata: studiandola si risolve in 1 turno, come prima.
+**Perché nessuno se n'era accorto**: la tabella di bilanciamento misurava un protagonista che
+alzava solo il livello, cioè uno **arrivato al livello 8 senza aver mai combattuto**. Un
+giocatore che non esiste. La tabella diceva "equilibrato" mentre chi ci giocava davvero non
+scendeva mai sotto metà vita.
+
+Adesso il giocatore automatico simula quello vero: `profilo_giocatore_tipo` in `crescita.json`
+dice quante volte un giocatore compie ogni azione per ogni livello guadagnato, e sia il
+simulatore sia le prove partono da lì (**un posto solo**, o prima o poi direbbero due cose
+diverse). La curva è stata addolcita: raddoppi ogni quattro-cinque livelli invece che a ogni
+livello, e al 20 sei circa **nove volte** quello che eri.
+
+`prova_crescita_non_scappa()` controlla la **pendenza**: nessuna stat può più che moltiplicarsi
+per 1,6 da un livello al successivo, e dal livello 1 al 20 la crescita totale deve stare fra 4×
+e 18×. Sono paletti larghi — servono a fermare una valanga, non a impedire di ritoccare i numeri.
+
+### La difesa riduce, non cancella
+
+Il secondo motivo per cui non si moriva mai. *"Il protagonista para troppo spesso i colpi"* —
+vero, ed erano **due meccanismi diversi che stampavano lo stesso messaggio**:
+
+1. la difesa si sottraeva dal danno e si teneva il massimo con zero: difesa ≥ attacco → il colpo
+   spariva. Con `Difenditi` che accumula fino a un tetto, e con l'equipaggiamento addosso, era la
+   norma;
+2. una **probabilità di annullare del tutto il colpo**, `0,1` per livello con tetto `0,5`: al
+   livello 6 **metà dei colpi subiti spariva nel nulla**, a caso, senza che a schermo succedesse
+   niente.
+
+Un colpo che non fa niente non è un evento: è un buco nel ritmo. Adesso:
+
+- la difesa **riduce**, e sotto `danno_minimo_percentuale` (25%) del colpo pieno non si scende
+  mai. Pararsi bene vuol dire prendere 7 invece di 30, e quel 7 si vede volare;
+- il livello toglie una **percentuale** (`0,02` per livello, tetto `0,35`), non annulla a caso;
+- chi ha 0 di attacco continua a non fare male: la Tartaruga resta la Tartaruga.
+
+`prova_la_difesa_riduce_non_cancella()` fallisce se la parata a secco torna.
+
+### Dove siamo adesso
+
+Misurato col giocatore vero, ogni creatura al livello a cui la incontri:
+
+| | giri | quanta vita ti costa |
+|---|--:|---|
+| prime creature (lv 1–3) | 3–8 | poco: sono un'introduzione |
+| Squarcio Industriale / Meridia (lv 4–6) | 7–18 | dal 20% al 45% |
+| **il goblin arrabbiato** | 18 | ~47%: è tornato un muro |
+| Cunicoli di Jondoh (lv 8–9) | 5–7 | ~5% — **troppo poco, vedi sotto** |
+
+**Il problema che resta è di contenuto, non di regole.** Le stat delle creature sono state
+scritte a mano in momenti diversi e non seguono nessuna curva: un Ghoul di livello 8 ha 350 hp
+e un Oppresso di livello 4 ne ha 270, contro un protagonista che nel frattempo è triplicato.
+Da metà gioco in poi le creature comuni sono arredamento.
+
+Per questo `docs/bilanciamento.md` adesso contiene una **curva di riferimento**: quanti hp e
+quanto attacco dovrebbe avere una creatura di livello N perché lo scontro sia una lotta, e
+l'elenco di chi è fuori di più della metà. Non è una regola che il gioco applica — è un metro
+per riscrivere quei numeri sapendo dove si sta andando.
+
+### I numeri hanno un colore
+
+Un numero rosso dice *quanto*. Il colore dice *cosa*.
+
+| | |
+|---|---|
+| colpo normale | rosso |
+| **critico** | oro, più grande, entra con uno scatto e resta più a lungo |
+| fuoco / gelo / veleno / elettrico / psico / oscuro / sacro | il colore del suo elemento |
+| cura | verde |
+
+Lo dichiarano i dati, non il codice: `"elemento"` su un'arma (cambiare arma cambia il colore dei
+tuoi numeri), su una mossa di una creatura, sulla creatura stessa, su uno stato in `stati.json`
+(il veleno vola verde acido), su un oggetto (il petardo fa fuoco) e su un'abilità. I colori
+stanno in `stile.json` → `colori_danno`. `prova_colori_del_danno()` fallisce se qualcuno usa un
+elemento che non ha un colore — altrimenti l'errore non si vedrebbe: sarebbe semplicemente rosso
+come tutti gli altri.
 
 ## Le abilità di combattimento (`regole.json` → `abilita_combattimento`)
 
