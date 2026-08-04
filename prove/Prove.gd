@@ -36,6 +36,7 @@ func _ready() -> void:
 	prova_slot_accessori()
 	prova_scheda_personaggio()
 	prova_finale_scriptato()
+	prova_salvataggio_vecchio()
 	prova_ingresso_nodi()
 	prova_transizioni()
 	prova_suoni()
@@ -632,6 +633,76 @@ func prova_finale_scriptato() -> void:
 	esigi(not scontro.voce.coda.is_empty(),
 			"il finale scritto non ha lasciato niente da leggere")
 	scontro.free()
+
+func prova_salvataggio_vecchio() -> void:
+	# UN SALVATAGGIO DI IERI DEVE APRIRSI OGGI.
+	#
+	# Lo zaino e' cambiato: armi, accessori e oggetti speciali stavano tutti
+	# nello stesso mucchio ("accessori") e adesso hanno scomparti diversi; le
+	# carte non avevano copie. Una partita in corso non si butta per questo.
+	#
+	# Qui si scrive a mano un salvataggio nel VECCHIO formato - senza "armi",
+	# senza "oggetti_speciali", senza "spazi_zaino", senza "carte_copie" - e si
+	# pretende che si apra senza perdere niente.
+	titolo("un salvataggio del vecchio formato si apre ancora")
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	# tre oggetti di tipo diverso, tutti nel mucchio unico di una volta
+	var un_arma := ""
+	var uno_stigma := ""
+	var un_accessorio := ""
+	for dati in GameState.oggetti.values():
+		if not dati is Dictionary:
+			continue
+		var id_oggetto := String(dati.get("id", ""))
+		match String(dati.get("tipo", "")):
+			"arma": un_arma = id_oggetto if un_arma == "" else un_arma
+			"stigma": uno_stigma = id_oggetto if uno_stigma == "" else uno_stigma
+			"accessorio": un_accessorio = id_oggetto if un_accessorio == "" else un_accessorio
+	var vecchio := {
+		"versione": 1,
+		"seed": 4242,
+		"tazo": 314,
+		"legame": 55,
+		"classi_sbloccate": [eroe],
+		"livelli": {eroe: 7},
+		"sacca": ["fiala_hp", "fiala_hp"],
+		"accessori": [un_arma, uno_stigma, un_accessorio],   # il vecchio mucchio unico
+		"carte": ["carta_di_prova"],                          # senza conteggio delle copie
+		"flags": ["una_cosa_successa"],
+		"nodi_visitati": ["una_stanza"],
+		"equipaggiamento": {eroe: {"arma": un_arma, "stigma": uno_stigma,
+				"ultima_risorsa": "", "accessori": [un_accessorio]}},
+		"nome_protagonista": "Bru",
+	}
+	var percorso := "user://prova_salvataggio_vecchio.json"
+	var file := FileAccess.open(percorso, FileAccess.WRITE)
+	file.store_string(JSON.stringify(vecchio))
+	file.close()
+	GameState.nuova_partita()
+	esigi(GameState._leggi_salvataggio(percorso), "il salvataggio vecchio non si apre proprio")
+	esigi(GameState.tazo == 314, "Tazo persi aprendo un salvataggio vecchio")
+	esigi(GameState.legame == 55, "legame perso")
+	esigi(GameState.livello_di(eroe) == 7, "livello perso")
+	esigi(GameState.sacca.size() == 2, "consumabili persi")
+	esigi("una_cosa_successa" in GameState.flags, "flag di progresso persi")
+	# gli oggetti si sono smistati da soli nei nuovi scomparti, senza sparire
+	if un_arma != "":
+		esigi(un_arma in GameState.armi, "l'arma non e' finita nello scomparto delle armi")
+		esigi(GameState.equipaggiato_in(eroe, "arma") == un_arma, "l'arma equipaggiata si e' staccata")
+	if uno_stigma != "":
+		esigi(uno_stigma in GameState.oggetti_speciali, "lo stigma non e' finito tra gli oggetti speciali")
+		esigi(GameState.equipaggiato_in(eroe, "stigma") == uno_stigma, "lo stigma equipaggiato si e' staccato")
+	if un_accessorio != "":
+		esigi(un_accessorio in GameState.accessori, "l'accessorio e' sparito dallo zaino")
+		esigi(GameState.equipaggiato_in(eroe, "accessori", 0) == un_accessorio,
+				"l'accessorio equipaggiato si e' staccato")
+	# le carte vecchie hanno adesso una copia a testa, e l'album le conta ancora
+	esigi("carta_di_prova" in GameState.carte, "una carta e' sparita dall'album")
+	esigi(GameState.copie_carta("carta_di_prova") == 1, "la carta vecchia non ha una copia")
+	# nessuno spazio comprato: si riparte dalle capacita' di base
+	esigi(GameState.capacita_zaino("consumabili") == int(GameState.regole.get("zaino", {})
+			.get("consumabili", {}).get("base", 20)), "la capacita' della sacca non e' quella di base")
 
 func prova_ingresso_nodi() -> void:
 	# LA GARANZIA, NELLA SUA FORMA DEFINITIVA.

@@ -1223,9 +1223,6 @@ func _leggi_salvataggio(percorso: String) -> bool:
 				"stigma": oggetti_speciali.append(id_oggetto)
 				_: rimaste.append(id_oggetto)
 		accessori = rimaste
-	for id_carta in carte:
-		if not carte_copie.has(id_carta):
-			carte_copie[id_carta] = {"normale": 1}
 	equipaggiamento = d.get("equipaggiamento", {})
 	# partite salvate col vecchio sistema a un solo accessorio: quello che
 	# avevi addosso diventa il primo accessorio del protagonista
@@ -1233,6 +1230,14 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	if equipaggiamento.is_empty() and vecchio != "" and id_protagonista != "":
 		equipaggia(id_protagonista, "accessori", vecchio)
 	carte = _lista_str(d.get("carte", []))
+	# Salvataggi vecchi: le carte non avevano il conteggio delle copie. Ogni
+	# carta gia' vista ne prende una, cosi' l'album resta pieno com'era.
+	# (Questa riga stava piu' su, PRIMA che "carte" venisse caricata: girava a
+	# vuoto e i doppioni di una partita vecchia sparivano. Trovato da
+	# prova_salvataggio_vecchio.)
+	for id_carta in carte:
+		if not carte_copie.has(id_carta):
+			carte_copie[id_carta] = {"normale": 1}
 	oggetti_catalogo = _lista_str(d.get("oggetti_catalogo", []))
 	bestiario = _lista_str(d.get("bestiario", []))
 	studiati = _lista_str(d.get("studiati", []))
