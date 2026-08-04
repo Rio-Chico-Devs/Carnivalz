@@ -82,10 +82,30 @@ func nemici_da_provare() -> Array[String]:
 
 # --- una partita ------------------------------------------------------------
 
+func cresci_fino_a(livello: int) -> void:
+	# IL GIOCATORE CHE ESISTE DAVVERO.
+	#
+	# Per mesi questa riga non c'e' stata, e la tabella di bilanciamento ha
+	# raccontato una bugia: alzava solo il livello, e nel gioco le statistiche
+	# NON salgono col livello - salgono con quello che hai fatto (crescita.json).
+	# Il protagonista misurato era quindi uno arrivato al livello 8 senza aver
+	# mai sferrato un colpo: un giocatore che non esiste. La tabella diceva
+	# "equilibrato" mentre chi ci giocava davvero non scendeva sotto meta' vita.
+	#
+	# Adesso si simula quello che uno ha in mano DAVVERO a quel livello: quante
+	# volte compie ogni azione per ogni livello guadagnato. La stima sta in
+	# data/crescita.json ("profilo_giocatore_tipo"), non qui, perche' la usano
+	# anche le prove: se sta in due posti, prima o poi dicono due cose diverse.
+	var per_livello: Dictionary = GameState.crescita.get("profilo_giocatore_tipo", {})
+	for nome_azione: String in per_livello:
+		GameState.contatori[nome_azione] = int(per_livello[nome_azione]) * (livello - 1)
+	GameState.applica_crescita_livello()
+
 func gioca_una_volta(id_nemico: String, nome_strategia: String, livello: int, seme: int) -> Dictionary:
 	GameState.nuova_partita()
 	GameState.imposta_seed(seme)
 	GameState.livelli[GameState.id_protagonista] = livello
+	cresci_fino_a(livello)
 	GameState.nemici_combattimento = [id_nemico]
 	var scontro := SCENA_COMBATTIMENTO.instantiate()
 	# muto PRIMA di entrare nell'albero: e' _ready() a costruire i collaboratori

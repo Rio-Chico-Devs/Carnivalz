@@ -11,17 +11,30 @@
 		"fattore": { "nome": "Fattore Carnivalz", "base": 15, "descrizione": "Aumenta la probabilità di critici e di Slaughter." }
 	},
 
-	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello.",
+	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello. ATTENZIONE: questi numeri sono la pendenza della curva del protagonista, ed e' la cosa piu' delicata del gioco. Il contenuto e' scritto a mano con numeri fissi, la crescita no: se la crescita corre piu' del contenuto, dal terzo livello in poi non si perde piu'. Prima era cosi' (+3 attacco ogni 5 colpi = il triplo di potenza a ogni livello), e la tabella di bilanciamento non se ne accorgeva perche' misurava un protagonista che non aveva mai combattuto. Se tocchi questi numeri, rilancia ./prove/simula.sh.",
 	"crescita": {
-		"attacchi_sferrati": { "stat": "attacco", "ogni": 5, "punti": 3 },
-		"danni_subiti": { "stat": "hp", "ogni": 36, "punti": 25 },
-		"difese": { "stat": "difesa", "ogni": 6, "punti": 3 },
+		"attacchi_sferrati": { "stat": "attacco", "ogni": 8, "punti": 1 },
+		"danni_subiti": { "stat": "hp", "ogni": 24, "punti": 5 },
+		"difese": { "stat": "difesa", "ogni": 3, "punti": 1 },
 		"studi": { "stat": "intelligenza", "ogni": 4, "punti": 1 },
 		"fughe": { "stat": "intelligenza", "ogni": 2, "punti": 1 },
-		"oggetti_usati": { "stat": "hp", "ogni": 5, "punti": 15 },
+		"oggetti_usati": { "stat": "hp", "ogni": 2, "punti": 5 },
 		"stanze_esplorate": { "stat": "velocita", "ogni": 10, "punti": 1 },
 		"stress_accumulato": { "stat": "forza_mentale", "ogni": 40, "punti": 1 },
 		"critici_inflitti": { "stat": "fattore", "ogni": 5, "punti": 1 }
+	},
+
+	"_nota_profilo": "Quante volte un giocatore normale compie ogni azione, per ogni livello che guadagna. NON e' una regola di gioco: e' la stima con cui il giocatore automatico e le prove capiscono quanto e' forte DAVVERO uno arrivato al livello N. Serve perche' in Carnivalz le stat non salgono col livello, salgono con le azioni: senza questa stima ogni misura riguarda un protagonista che non ha mai combattuto, ed e' esattamente l'errore che ha fatto sembrare equilibrato un gioco in cui dal terzo livello non si perdeva piu'.",
+	"profilo_giocatore_tipo": {
+		"attacchi_sferrati": 30,
+		"danni_subiti": 200,
+		"difese": 4,
+		"studi": 3,
+		"fughe": 0,
+		"oggetti_usati": 2,
+		"stanze_esplorate": 8,
+		"stress_accumulato": 60,
+		"critici_inflitti": 2
 	},
 
 	"_nota_resistenze": "Ogni volta che subisci uno stato, cresce la resistenza a QUELLO stato: convertita in punti al passaggio di livello (soglia_punto volte subito = +1).",

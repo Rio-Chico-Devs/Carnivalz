@@ -757,7 +757,9 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary, moltiplicatore := 
 	if effetto.has("danno"):
 		var bersaglio := primo_nemico()
 		if not bersaglio.is_empty():
-			colpisci_diretto(bersaglio, scala.call(int(effetto.danno)))
+			# un petardo fa fuoco, una fiala d'acido fa veleno: lo dice l'oggetto
+			colpisci_diretto(bersaglio, scala.call(int(effetto.danno)),
+					String(effetto.get("elemento", "")))
 
 func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
 	# il bersaglio arriva dal menu; se e' caduto nel frattempo (o se qualcuno
@@ -905,7 +907,7 @@ func attacco_area(chi: Dictionary, dati: Dictionary = {}) -> void:
 			GameState.regole.get("moltiplicatore_attacco_area", 0.6)))
 	var valore := int(round(RegoleCombattimento.attacco_di(chi) * frazione))
 	for nemico in vivi(false):
-		attacca(chi, nemico, valore)
+		attacca(chi, nemico, valore, 1.0, String(dati.get("elemento", "")))
 
 func raffica(chi: Dictionary, dati: Dictionary) -> void:
 	# Tanti colpi piccoli invece di uno grosso. Il danno totale e' paragonabile a
@@ -944,12 +946,15 @@ func raffica(chi: Dictionary, dati: Dictionary) -> void:
 			_su_ko(bersaglio)
 	scrivi_forte("[b]%s: %d colpi.[/b] In tutto, %d danni." % [
 			String(dati.get("nome", "Raffica")), colpi, totale])
-	voce.accoda_effetto(effetto_raffica(elenco))
+	voce.accoda_effetto(effetto_raffica(elenco, String(dati.get("elemento", ""))))
 
-func effetto_raffica(colpi: Array) -> Callable:
+func effetto_raffica(colpi: Array, elemento := "") -> Callable:
 	# Venti messaggi in coda sarebbero venti attese, e il "casino" si perderebbe
 	# nell'attesa. Cosi' invece parte tutto da un effetto solo: i numeri si
-	# accendono uno dietro l'altro, in fretta, come una scarica.
+	# accendono uno dietro l'altro, in fretta, come una scarica - e sbandano di
+	# lato a turno, o venti numeri sulla stessa verticale sarebbero una colonna
+	# illeggibile invece di un macello.
+	var tinta := Stile.colore_danno(elemento)
 	return func() -> void:
 		for combattente in combattenti:
 			aggiorna_scheda(combattente)
@@ -960,11 +965,12 @@ func effetto_raffica(colpi: Array) -> Callable:
 			var colpo: Dictionary = colpi[indice]
 			var scheda: Control = colpo["scheda"]
 			var quanto := int(colpo["danno"])
+			var lato := (-1.0 if indice % 2 == 0 else 1.0) * (12.0 + (indice % 5) * 9.0)
 			var mostra := func() -> void:
 				if not is_instance_valid(scheda):
 					return
-				voce.numero_volante(scheda, "−%d" % quanto, Stile.colore("pericolo"))
-				voce.lampeggia(scheda, Stile.colore("pericolo"))
+				voce.numero_volante(scheda, "−%d" % quanto, tinta, false, lato)
+				voce.lampeggia(scheda, tinta)
 			if indice == 0:
 				mostra.call()
 			else:
@@ -1385,7 +1391,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			difendi(nemico)
 		"attacco_forte":
 			var vittima_forte := bersaglio_giocatore_casuale()
-			attacca(nemico, vittima_forte, int(mossa.get("valore", nemico.attacco)))
+			attacca(nemico, vittima_forte, int(mossa.get("valore", nemico.attacco)),
+					1.0, String(mossa.get("elemento", "")))
 			if mossa.has("stato") and not vittima_forte.is_empty() and vittima_forte.hp > 0:
 				applica_stato(vittima_forte, String(mossa["stato"]))
 		"meta_vita":
@@ -1408,7 +1415,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			for volta in range(int(mossa.get("colpi", 2))):
 				if vivi(true).is_empty():
 					break
-				attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)))
+				attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)),
+						1.0, String(mossa.get("elemento", "")))
 		"buff_attacco":
 			nemico.buffs.append({
 				"stat": "attacco",
@@ -1430,7 +1438,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				aggiorna_scheda(bersaglio)
 		"attacco_tutti":
 			for bersaglio in vivi(true):
-				attacca(nemico, bersaglio, int(mossa.get("valore", 1)))
+				attacca(nemico, bersaglio, int(mossa.get("valore", 1)),
+						1.0, String(mossa.get("elemento", "")))
 			if mossa.has("stress"):
 				for bersaglio in vivi(true):
 					aggiungi_stress(bersaglio, int(mossa.stress))
@@ -1522,7 +1531,7 @@ func applica_combustione(combattente: Dictionary) -> void:
 	if comb.has("bonus_attacco"):
 		combattente.attacco += int(comb["bonus_attacco"])
 	scrivi_con_colpo("[i]%s[/i]" % String(comb.get("testo_turno", "Brucia ancora un po'.")),
-			combattente, danno)
+			combattente, danno, String(comb.get("elemento", "fuoco")))
 	if combattente.hp <= 0:
 		_su_ko(combattente)
 
@@ -1640,7 +1649,7 @@ func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 					attivo.danno = danno + 1
 				scrivi_con_colpo("[i]%s: %s[/i]" % [combattente.nome,
 						String(info_stato.get("testo_turno", "Il male si fa sentire ancora."))],
-						combattente, danno)
+						combattente, danno, String(info_stato.get("elemento", "")))
 				if combattente.hp <= 0:
 					_su_ko(combattente)
 					return true
@@ -1660,7 +1669,7 @@ func risolvi_dot_condizionale(combattente: Dictionary, azione_offensiva: bool) -
 		combattente.hp = maxi(combattente.hp - danno, 0)
 		scrivi_con_colpo("[i]%s: %s[/i]" % [combattente.nome,
 				String(info_stato.get("testo_turno", "Il male si fa sentire ancora."))],
-				combattente, danno)
+				combattente, danno, String(info_stato.get("elemento", "")))
 		if combattente.hp <= 0:
 			_su_ko(combattente)
 			return
@@ -1668,8 +1677,10 @@ func risolvi_dot_condizionale(combattente: Dictionary, azione_offensiva: bool) -
 # --- risoluzione dei colpi ---
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
-		moltiplicatore := 1.0) -> void:
+		moltiplicatore := 1.0, elemento := "") -> void:
 	ultima_azione_offensiva = true
+	if elemento == "":
+		elemento = elemento_di(attaccante)
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
 	# chi ha superato la sua soglia colpisce sempre uguale: niente difesa,
@@ -1678,7 +1689,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	if fisso > 0:
 		bersaglio.hp = maxi(bersaglio.hp - fisso, 0)
 		registra_danno_subito(bersaglio, fisso)
-		mostra_colpo(bersaglio, fisso)
+		mostra_colpo(bersaglio, fisso, elemento)
 		if not bersaglio.giocatore:
 			verifica_innesco_frenesia(bersaglio)
 			verifica_dialogo_soglia(bersaglio)
@@ -1695,7 +1706,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		# ogni attacco vale sempre lo stesso, fisso, danno
 		var danno_forzato := int(dati_bersaglio["danno_fisso_su_attacco"])
 		bersaglio.hp = maxi(bersaglio.hp - danno_forzato, 0)
-		mostra_colpo(bersaglio, danno_forzato)
+		mostra_colpo(bersaglio, danno_forzato, elemento)
 		if not bersaglio.giocatore:
 			verifica_innesco_frenesia(bersaglio)
 			verifica_dialogo_soglia(bersaglio)
@@ -1723,7 +1734,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 			GameState.registra_azione("critici_inflitti")
 		# un critico merita una parola: e' l'eccezione, non la regola
 		scrivi("[b]Colpo critico![/b] %s coglie %s in pieno." % [attaccante.nome, bersaglio.nome])
-	mostra_colpo(bersaglio, danno)
+	mostra_colpo(bersaglio, danno, elemento, critico)
 	if not bersaglio.giocatore:
 		verifica_innesco_frenesia(bersaglio)
 		verifica_dialogo_soglia(bersaglio)
@@ -1799,37 +1810,56 @@ func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 		if bersaglio.giocatore and bersaglio.id == GameState.id_protagonista:
 			GameState.registra_azione("danni_subiti", danno)
 
-func colpisci_diretto(bersaglio: Dictionary, danno: int) -> void:
+func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "") -> void:
 	# oggetti e assist ignorano le difese
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
 	registra_danno_subito(bersaglio, danno)
-	mostra_colpo(bersaglio, danno)
+	mostra_colpo(bersaglio, danno, elemento)
 	if bersaglio.hp <= 0:
 		_su_ko(bersaglio)
 
-func effetto_colpo(bersaglio: Dictionary, danno: int) -> Callable:
+func elemento_di(combattente: Dictionary) -> String:
+	# Di che colore e' il colpo normale di questo combattente. Per una creatura
+	# lo dice il suo file; per un membro del party lo dice l'arma che ha in mano
+	# - cambiare arma cambia il colore dei numeri che fai, ed e' il modo piu'
+	# diretto di far vedere che l'arma nuova e' un'altra cosa.
+	if not combattente.giocatore:
+		return String(GameState.personaggi.get(combattente.id, {}).get("elemento", ""))
+	var id_arma := GameState.equipaggiato_in(String(combattente.id), "arma")
+	if id_arma == "":
+		return ""
+	return String(GameState.dati_oggetto(id_arma).get("elemento", ""))
+
+func effetto_colpo(bersaglio: Dictionary, danno: int, elemento := "", critico := false) -> Callable:
 	# quello che si vede quando qualcuno incassa: il numero che sale dalla sua
-	# scheda, il lampo rosso, la barra della vita che scende. Tutto insieme e
-	# al momento giusto della sequenza, non tre messaggi prima
+	# scheda, il lampo, la barra della vita che scende. Tutto insieme e al
+	# momento giusto della sequenza, non tre messaggi prima.
+	#
+	# Il numero ha un colore e una taglia, e vogliono dire qualcosa: rosso e'
+	# un colpo normale, oro e grosso e' un critico, arancione e' fuoco, verde
+	# acido e' veleno. Guardando lo scontro si capisce COSA sta succedendo senza
+	# leggere una riga (vedi colori_danno in stile.json).
 	var scheda: Control = bersaglio.scheda
 	var vivo: bool = int(bersaglio.hp) > 0
+	var tinta := Stile.colore_danno("critico" if critico else elemento)
+	var testo := ("−%d!" % danno) if critico else ("−%d" % danno)
 	return func() -> void:
 		voce.suono("colpo")
-		voce.numero_volante(scheda, "−%d" % danno, Stile.colore("pericolo"))
+		voce.numero_volante(scheda, testo, tinta, critico)
 		if vivo:
-			voce.lampeggia(scheda, Stile.colore("pericolo"))
+			voce.lampeggia(scheda, tinta)
 		aggiorna_scheda(bersaglio)
 
-func mostra_colpo(bersaglio: Dictionary, danno: int) -> void:
+func mostra_colpo(bersaglio: Dictionary, danno: int, elemento := "", critico := false) -> void:
 	# un colpo normale non ha bisogno di parole: si vede e basta. Cosi' il box
 	# resta libero per le cose che vanno dette davvero
-	voce.accoda_effetto(effetto_colpo(bersaglio, danno))
+	voce.accoda_effetto(effetto_colpo(bersaglio, danno, elemento, critico))
 	verifica_ultima_risorsa(bersaglio)
 
-func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int) -> void:
+func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int, elemento := "") -> void:
 	# una riga che racconta un danno (veleno, fiamme, una mossa con un nome):
 	# il numero vola insieme alla frase, non prima e non dopo
-	voce.accoda(riga, "narrazione", "", false, effetto_colpo(bersaglio, danno))
+	voce.accoda(riga, "narrazione", "", false, effetto_colpo(bersaglio, danno, elemento))
 	verifica_ultima_risorsa(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:

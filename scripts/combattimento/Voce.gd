@@ -151,23 +151,40 @@ func avanza() -> void:
 
 # --- il colpo che si vede ---
 
-func numero_volante(scheda: Control, testo: String, tinta: Color) -> void:
+func numero_volante(scheda: Control, testo: String, tinta: Color, grande := false,
+		sbandata := 0.0) -> void:
 	# il danno non e' una riga di registro: e' una cosa che succede addosso a
-	# qualcuno. Sale dalla scheda di chi lo prende e svanisce
+	# qualcuno. Sale dalla scheda di chi lo prende e svanisce.
+	#
+	# "grande" e' per i critici: numero piu' grosso, sale piu' in alto e resta a
+	# schermo piu' a lungo. Un critico deve interrompere la lettura, un colpo
+	# normale no - e' la stessa differenza fra scrivi() e scrivi_forte().
+	#
+	# "sbandata" sposta il numero di lato: serve alle raffiche, dove venti colpi
+	# uno sopra l'altro sarebbero una colonna illeggibile.
 	if muta or scheda == null or not is_instance_valid(scheda):
 		return
 	var etichetta := Label.new()
 	etichetta.text = testo
 	etichetta.add_theme_color_override("font_color", tinta)
-	etichetta.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
+	etichetta.add_theme_font_size_override("font_size",
+			Stile.dimensione("titolo") if grande else Stile.dimensione("sezione"))
 	etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	volanti.add_child(etichetta)
 	var centro := scheda.global_position + scheda.size * Vector2(0.5, 0.25)
-	etichetta.global_position = centro - Vector2(etichetta.size.x * 0.5, 0)
+	etichetta.global_position = centro - Vector2(etichetta.size.x * 0.5 - sbandata, 0)
+	var durata := 1.15 if grande else 0.75
 	var salita := etichetta.create_tween()
 	salita.set_parallel(true)
-	salita.tween_property(etichetta, "global_position:y", centro.y - 54.0, 0.75)
-	salita.tween_property(etichetta, "modulate:a", 0.0, 0.75).set_delay(0.2)
+	salita.tween_property(etichetta, "global_position:y",
+			centro.y - (86.0 if grande else 54.0), durata)
+	salita.tween_property(etichetta, "modulate:a", 0.0, durata).set_delay(0.2)
+	if grande:
+		# il critico entra con uno scatto: si vede che e' successo qualcosa
+		etichetta.pivot_offset = etichetta.size * 0.5
+		etichetta.scale = Vector2(0.6, 0.6)
+		salita.tween_property(etichetta, "scale", Vector2.ONE, 0.18) \
+				.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	salita.chain().tween_callback(etichetta.queue_free)
 
 func suono(nome: String) -> void:

@@ -153,26 +153,46 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	if fattore_attivo(attaccante) and GameState.rng.randf() < attaccante.fattore / 100.0:
 		danno += 1
 		esito.fattore = true
+	var danno_pieno := danno   # quanto valeva il colpo prima che qualcuno lo fermasse
+	if danno_pieno <= 0:
+		esito.danno = 0
+		return esito   # chi ha 0 di attacco non fa male: la Tartaruga resta la Tartaruga
 	var difesa_bersaglio := float(difesa_di(bersaglio))
 	esito.critico = tenta_critico(bersaglio)
 	if esito.critico:
 		danno = int(round(danno * float(GameState.regole.get("critico_moltiplicatore", 1.5))))
+		danno_pieno = danno
 		difesa_bersaglio *= 1.0 - float(GameState.regole.get("critico_riduzione_difesa", 0.5))
 	danno -= int(difesa_bersaglio)
 	if ha_stato_con_effetto(bersaglio, "difesa_giu"):
 		danno += int(GameState.regole.get("malus_danno_depressione", 1))
-	danno = maxi(danno, 0)
-	if danno > 0 and bersaglio.giocatore:
-		# il danno subito cala in proporzione al livello (e col fattore acceso)
+	# LA DIFESA RIDUCE, NON CANCELLA.
+	#
+	# Prima si sottraeva la difesa e si teneva il massimo con zero: bastava una
+	# difesa alta quanto l'attacco e il colpo spariva. Con "Difenditi" che
+	# accumula, e con l'equipaggiamento addosso, quasi tutti i colpi finivano in
+	# "X para il colpo di Y" - una riga di testo al posto di un numero, decine di
+	# volte per scontro. Un colpo che non fa niente non e' un evento: e' un buco
+	# nel ritmo, e chi gioca smette di sentirsi in pericolo.
+	#
+	# Adesso sotto una percentuale del colpo pieno non si scende mai: pararsi bene
+	# vuol dire prendere 7 invece di 30, e quel 7 si vede volare. La parata a
+	# secco resta possibile solo contro chi non fa male per davvero.
+	var pavimento := maxi(int(ceil(danno_pieno
+			* float(GameState.regole.get("danno_minimo_percentuale", 0.25)))), 1)
+	danno = maxi(danno, pavimento)
+	if bersaglio.giocatore:
+		# Il livello (e il fattore acceso) tolgono una PERCENTUALE al colpo. Prima
+		# era una probabilita' di annullarlo del tutto - fino a meta' dei colpi
+		# subiti spariva nel nulla, a caso, e a schermo non succedeva niente.
+		# Adesso il colpo arriva sempre, e arriva piu' leggero.
 		var riduzione := minf(
 			(GameState.livello_di(bersaglio.id) - 1)
-				* float(GameState.regole.get("riduzione_danno_per_livello", 0.1)),
-			float(GameState.regole.get("riduzione_danno_massima", 0.5)))
+				* float(GameState.regole.get("riduzione_danno_per_livello", 0.02)),
+			float(GameState.regole.get("riduzione_danno_massima", 0.35)))
 		if fattore_attivo(bersaglio):
-			riduzione += bersaglio.fattore / 200.0
-		if GameState.rng.randf() < riduzione:
-			danno = 0
-			esito.schivato = true
+			riduzione += bersaglio.fattore / 400.0
+		danno = maxi(int(round(danno * (1.0 - clampf(riduzione, 0.0, 0.9)))), 1)
 	esito.danno = danno
 	return esito
 

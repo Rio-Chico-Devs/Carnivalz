@@ -2,9 +2,11 @@
 	"hp_base": 25,
 	"danno_attacco": 3,
 	"moltiplicatore_attacco_area": 0.6,
-	"bonus_attacco_per_livello": 3.0,
-	"riduzione_danno_per_livello": 0.1,
-	"riduzione_danno_massima": 0.5,
+	"bonus_attacco_per_livello": 1.0,
+	"riduzione_danno_per_livello": 0.02,
+	"riduzione_danno_massima": 0.35,
+	"_nota_difesa": "danno_minimo_percentuale: la difesa riduce, non cancella. Sotto questa frazione del colpo pieno non si scende mai, quindi un numero vola sempre. Prima un colpo poteva finire a zero e diventare la riga 'X para il colpo di Y': succedeva decine di volte per scontro e toglieva ogni senso di pericolo.",
+	"danno_minimo_percentuale": 0.25,
 	"probabilita_attacco_extra_rabbia": 0.35,
 	"malus_danno_depressione": 3,
 	"fattore_bonus_concentrazione": 25,
@@ -51,7 +53,7 @@
 
 	"_nota_livello_nemici": "Il disallineamento si alimenta del fattore Carnivalz di chi lo attraversa: piu' e' forte il dominatore, piu' e' forte cio' che gli viene incontro. In gioco: nessuna creatura scende mai piu' di scarto_livello_massimo livelli sotto il protagonista, e a ogni livello guadagnato sopra il suo cresce delle percentuali qui sotto. Sopra puo' stare quanto vuole (il goblin arrabbiato resta il macellaio che e'). Chi non deve scalare lo dice nel suo file: \"scala_col_giocatore\": false.",
 	"scarto_livello_massimo": 3,
-	"crescita_nemico_per_livello": {"hp": 0.14, "attacco": 0.09, "difesa": 0.05, "xp": 0.10, "tazo": 0.06},
+	"crescita_nemico_per_livello": {"hp": 0.30, "attacco": 0.22, "difesa": 0.12, "xp": 0.14, "tazo": 0.08},
 
 	"_nota_abilita": "Le abilita' di combattimento, tutte qui. Una classe le ottiene scrivendone l'id nel suo campo \"abilita\" (classes.json); il menu costruisce i bottoni da questa tabella, quindi aggiungerne una non richiede di toccare il codice. I tipi che il motore conosce: provoca, area, raffica, carica.",
 	"abilita_combattimento": {
@@ -71,6 +73,7 @@
 		"bombardamento": {
 			"nome": "Bombardamento",
 			"tipo": "raffica",
+			"elemento": "fuoco",
 			"aura": 7,
 			"colpi": 12,
 			"colpi_per_livello": 0.5,

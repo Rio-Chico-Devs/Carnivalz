@@ -19,7 +19,7 @@
 			"nome": "Petardo",
 			"tipo": "consumabile",
 			"descrizione": "Del vecchio spettacolo pirotecnico. Ignora le difese.",
-			"effetto": { "danno": 6 }
+			"effetto": { "elemento": "fuoco", "danno": 6 }
 		},
 		{
 			"id": "premio_di_pezza",
@@ -54,7 +54,7 @@
 			"nome": "Specchio tascabile",
 			"tipo": "consumabile",
 			"descrizione": "Forgiato dalle schegge del padiglione. Riflette il male al mittente.",
-			"effetto": { "danno": 9 }
+			"effetto": { "elemento": "psico", "danno": 9 }
 		},
 		{
 			"id": "fiala_hp",
@@ -68,21 +68,21 @@
 			"nome": "Bomba artigianale",
 			"tipo": "consumabile",
 			"descrizione": "Messa insieme con quello che c'era nei cunicoli. Yara ne teneva sempre una addosso: non per combattere, per non farsi prendere viva.",
-			"effetto": { "danno": 24 }
+			"effetto": { "elemento": "fuoco", "danno": 24 }
 		},
 		{
 			"id": "bomba_al_nitro",
 			"nome": "Bomba al nitro",
 			"tipo": "consumabile",
 			"descrizione": "Instabile, rumorosa, sproporzionata. Veronica ne tiene una scatola intera ai campi di addestramento.",
-			"effetto": { "danno": 36 }
+			"effetto": { "elemento": "fuoco", "danno": 36 }
 		},
 		{
 			"id": "molotov",
 			"nome": "Molotov",
 			"tipo": "consumabile",
 			"descrizione": "Assemblata da qualcuno che non è sopravvissuto per lanciarla.",
-			"effetto": { "danno": 12 }
+			"effetto": { "elemento": "fuoco", "danno": 12 }
 		},
 		{
 			"id": "benzina",

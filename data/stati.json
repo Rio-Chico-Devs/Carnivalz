@@ -1,8 +1,8 @@
 {
 	"stati": {
-		"veleno": { "nome": "Veleno", "categoria": "debuff", "tipo": "dot_crescente", "testo_turno": "Il veleno si diffonde: peggiora ancora." },
-		"decomposizione": { "nome": "Decomposizione", "categoria": "debuff", "tipo": "dot_condizionale", "testo_turno": "La decomposizione avanza, punita da ogni colpo sferrato." },
-		"congelamento": { "nome": "Congelamento", "categoria": "debuff", "tipo": "salta_turno", "testo_applicazione": "si blocca, congelato." },
+		"veleno": { "nome": "Veleno", "categoria": "debuff", "tipo": "dot_crescente", "elemento": "veleno", "testo_turno": "Il veleno si diffonde: peggiora ancora." },
+		"decomposizione": { "nome": "Decomposizione", "categoria": "debuff", "tipo": "dot_condizionale", "elemento": "veleno", "testo_turno": "La decomposizione avanza, punita da ogni colpo sferrato." },
+		"congelamento": { "nome": "Congelamento", "categoria": "debuff", "tipo": "salta_turno", "elemento": "gelo", "testo_applicazione": "si blocca, congelato." },
 		"sonno": { "nome": "Sonno", "categoria": "debuff", "tipo": "salta_turno", "testo_applicazione": "cade addormentato." },
 		"egocentrismo": { "nome": "Egocentrismo", "categoria": "debuff", "tipo": "salta_turno", "testo_applicazione": "è troppo preso da se stesso per agire." },
 		"demotivazione": { "nome": "Demotivazione", "categoria": "debuff", "tipo": "salta_turno", "contagiosa": true, "testo_applicazione": "perde ogni motivazione, e la sensazione si allarga al resto della squadra." },
@@ -10,7 +10,7 @@
 		"confusione": { "nome": "Confusione", "categoria": "debuff", "tipo": "colpisci_a_caso", "testo_applicazione": "è confuso: potrebbe colpire chiunque." },
 		"rapidita": { "nome": "Rapidità", "categoria": "buff", "tipo": "velocita", "valore": 2 },
 		"lentezza": { "nome": "Lentezza", "categoria": "debuff", "tipo": "velocita", "valore": -2 },
-		"maledizione": { "nome": "Maledizione", "categoria": "debuff", "tipo": "countdown", "testo_applicazione": "viene maledetto." },
-		"terrore": { "nome": "Terrore", "categoria": "debuff", "tipo": "terrore", "testo_applicazione": "è paralizzato dal terrore: lo stress esplode, il morale della squadra crolla." }
+		"maledizione": { "nome": "Maledizione", "categoria": "debuff", "tipo": "countdown", "elemento": "oscuro", "testo_applicazione": "viene maledetto." },
+		"terrore": { "nome": "Terrore", "categoria": "debuff", "tipo": "terrore", "elemento": "psico", "testo_applicazione": "è paralizzato dal terrore: lo stress esplode, il morale della squadra crolla." }
 	}
 }

@@ -42,6 +42,9 @@ func _ready() -> void:
 	prova_sede()
 	prova_posti_visitati()
 	prova_livello_dei_nemici()
+	prova_crescita_non_scappa()
+	prova_la_difesa_riduce_non_cancella()
+	prova_colori_del_danno()
 	prova_abilita_di_combattimento()
 	prova_transizioni()
 	prova_suoni()
@@ -922,6 +925,138 @@ func prova_livello_dei_nemici() -> void:
 				esigi(GameState.stat_nemico(id_creatura, chiave) >= int(dati.get(chiave, 0)),
 						"%s ha perso %s salendo di livello" % [id_creatura, chiave])
 	GameState.nuova_partita()
+
+func cresci_giocatore_fino_a(livello: int) -> void:
+	# la stessa stima che usa il giocatore automatico, dallo stesso posto
+	GameState.nuova_partita()
+	GameState.livelli[GameState.id_protagonista] = livello
+	var profilo: Dictionary = GameState.crescita.get("profilo_giocatore_tipo", {})
+	for nome_azione: String in profilo:
+		GameState.contatori[nome_azione] = int(profilo[nome_azione]) * (livello - 1)
+	GameState.applica_crescita_livello()
+
+func prova_crescita_non_scappa() -> void:
+	# LA PROVA CHE MANCAVA, ED E' COSTATA IL BILANCIAMENTO DI MEZZO GIOCO.
+	#
+	# In Carnivalz le statistiche non salgono col livello: salgono con quello che
+	# fai. Il contenuto invece e' scritto a mano, con numeri fissi. Se la crescita
+	# corre piu' del contenuto, dal terzo livello in poi non si perde piu' - ed e'
+	# successo davvero: +3 di attacco ogni 5 colpi, con una trentina di colpi per
+	# livello, voleva dire triplicare la potenza a ogni livello. Al livello 3 il
+	# protagonista aveva 375 hp e 45 di attacco contro creature da 135 hp e 6.
+	#
+	# Nessuno se n'era accorto perche' la tabella di bilanciamento misurava un
+	# protagonista arrivato al livello 8 senza aver mai combattuto.
+	#
+	# Qui si controlla la PENDENZA, non i valori: quanto puo' crescere da un
+	# livello al successivo, e quanto in tutto lungo la partita. Sono paletti
+	# larghi: servono a fermare una valanga, non a impedire di ritoccare i numeri.
+	titolo("la crescita del protagonista non scappa al contenuto")
+	var profilo: Dictionary = GameState.crescita.get("profilo_giocatore_tipo", {})
+	esigi(not profilo.is_empty(), "manca profilo_giocatore_tipo in crescita.json")
+	var stat_misurate := ["hp", "attacco", "difesa"]
+	var precedente := {}
+	var base := {}
+	for chiave in stat_misurate:
+		base[chiave] = GameState.stat_base_di(chiave)
+	for livello in range(1, 21):
+		cresci_giocatore_fino_a(livello)
+		for chiave: String in stat_misurate:
+			var ora := GameState.stat_di(chiave)
+			if precedente.has(chiave) and int(precedente[chiave]) > 0:
+				# due condizioni insieme, e servono tutte e due: il rapporto da
+				# solo grida al raddoppio quando la Difesa passa da 1 a 2 (che
+				# non e' una valanga, e' un punto), l'incremento da solo non
+				# vedrebbe niente su numeri grandi
+				var salto := float(ora) / float(precedente[chiave])
+				var aumento := ora - int(precedente[chiave])
+				esigi(salto <= 1.6 or aumento <= 5,
+						"al livello %d la stat '%s' cresce di %.1f volte in un colpo (+%d): e' una valanga"
+						% [livello, chiave, salto, aumento])
+			precedente[chiave] = ora
+	# quanto si e' cresciuti in tutto dal livello 1 al 20: deve essere tanto (e'
+	# il senso del gioco) ma non assurdo
+	for chiave: String in ["hp", "attacco"]:
+		var partenza := maxi(int(base[chiave]), 1)
+		var arrivo := GameState.stat_di(chiave)
+		var volte := float(arrivo) / float(partenza)
+		esigi(volte >= 4.0,
+				"dal livello 1 al 20 la stat '%s' cresce solo %.1f volte: non si sente nessuna evoluzione"
+				% [chiave, volte])
+		esigi(volte <= 18.0,
+				"dal livello 1 al 20 la stat '%s' cresce %.1f volte: il contenuto non ci sta dietro"
+				% [chiave, volte])
+	GameState.nuova_partita()
+
+func prova_la_difesa_riduce_non_cancella() -> void:
+	# Bru: "il protagonista para troppo spesso i colpi". Era vero, e aveva due
+	# cause: la difesa che sottraeva fino a zero, e una probabilita' di annullare
+	# del tutto il colpo che al livello 6 arrivava a meta' dei colpi subiti.
+	# Adesso un colpo che parte arriva sempre, e lascia sempre un numero.
+	titolo("la difesa riduce, non cancella: un colpo lascia sempre un numero")
+	GameState.nuova_partita()
+	var frazione := float(GameState.regole.get("danno_minimo_percentuale", 0.0))
+	esigi(frazione > 0.0, "danno_minimo_percentuale non e' impostato in regole.json")
+	var attaccante := {
+		"id": "goblin_tipico", "giocatore": false, "attacco": 30, "difesa": 0,
+		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
+		"psiche": "", "immunita_temporanea": [], "hp": 100,
+	}
+	# un bersaglio corazzato oltre ogni ragionevolezza: la difesa e' TRIPLA
+	# rispetto al colpo, e il colpo deve passare lo stesso
+	var bersaglio := {
+		"id": "anonimo", "giocatore": false, "attacco": 0, "difesa": 90,
+		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
+		"psiche": "", "immunita_temporanea": [], "hp": 100,
+	}
+	var minimo := 999
+	for prova in 200:
+		var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio)
+		minimo = mini(minimo, int(esito.danno))
+	esigi(minimo >= 1,
+			"contro una difesa altissima un colpo e' arrivato a %d: torna la parata a secco" % minimo)
+	esigi(minimo >= int(ceil(30 * frazione)),
+			"la difesa ha tolto piu' del %d%% del colpo (minimo passato: %d)"
+			% [int(round((1.0 - frazione) * 100)), minimo])
+	# chi non fa male non fa male: la Tartaruga resta la Tartaruga
+	attaccante.attacco = 0
+	var esito_nullo := RegoleCombattimento.calcola_danno(attaccante, bersaglio)
+	esigi(int(esito_nullo.danno) == 0, "un attaccante con 0 di attacco ha fatto danno")
+	GameState.nuova_partita()
+
+func prova_colori_del_danno() -> void:
+	# Un numero che vola col colore sbagliato non e' un errore che si vede: e'
+	# semplicemente rosso come tutti gli altri, e l'informazione si perde. Qui si
+	# controlla che ogni elemento nominato nei dati abbia il suo colore.
+	titolo("ogni elemento ha il suo colore")
+	var tabella: Dictionary = Stile.dati.get("colori_danno", {})
+	esigi(not tabella.is_empty(), "manca colori_danno in stile.json")
+	for chiave: String in ["normale", "critico", "cura"]:
+		esigi(tabella.has(chiave), "colori_danno non ha '%s'" % chiave)
+	var elementi: Array[String] = []
+	var raccogli := func(valore: Variant) -> void:
+		var nome := String(valore)
+		if nome != "" and nome not in elementi:
+			elementi.append(nome)
+	for id_stato in GameState.stati:
+		raccogli.call(GameState.stati[id_stato].get("elemento", ""))
+	for id_personaggio in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_personaggio]
+		raccogli.call(dati.get("elemento", ""))
+		raccogli.call(dati.get("combustione", {}).get("elemento", ""))
+		for mossa in dati.get("mosse", []):
+			raccogli.call(mossa.get("elemento", ""))
+	for id_oggetto in GameState.oggetti:
+		raccogli.call(GameState.oggetti[id_oggetto].get("effetto", {}).get("elemento", ""))
+	var abilita: Dictionary = GameState.regole.get("abilita_combattimento", {})
+	for id_abilita in abilita:
+		raccogli.call(abilita[id_abilita].get("elemento", ""))
+	esigi(not elementi.is_empty(), "nessun elemento dichiarato da nessuna parte: la funzione e' morta")
+	for nome_elemento in elementi:
+		esigi(tabella.has(nome_elemento),
+				"l'elemento '%s' e' usato nei dati ma non ha un colore in stile.json" % nome_elemento)
+		esigi(Stile.colore_danno(nome_elemento) != Stile.colore_danno("normale"),
+				"l'elemento '%s' ha lo stesso colore di un colpo normale: non si distingue" % nome_elemento)
 
 func prova_abilita_di_combattimento() -> void:
 	# Le abilita' stanno in regole.json e il motore ne conosce quattro tipi. Se

@@ -243,6 +243,17 @@ func scelta(bottone: Button) -> void:
 	bottone.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bottone.clip_text = false
 
+func colore_danno(elemento: String) -> Color:
+	# Il colore di un numero che vola. "critico" e "cura" sono due elementi come
+	# gli altri: chi mostra il numero sa gia' cosa sta mostrando, e chiede il
+	# colore per nome invece di sceglierselo. Un elemento che nessuno ha
+	# dichiarato (o una mossa senza elemento) torna al rosso del colpo normale.
+	var tabella: Dictionary = dati.get("colori_danno", {})
+	var esadecimale := String(tabella.get(elemento, tabella.get("normale", "#c04a4d")))
+	if alto_contrasto:
+		return Color(1.0, 0.92, 0.2)
+	return Color.html(esadecimale)
+
 # --- dove sei gia' stato ---
 #
 # Tre stati, tre colori, uguali in tutto il gioco: la mappa stellare, il Vuoto,

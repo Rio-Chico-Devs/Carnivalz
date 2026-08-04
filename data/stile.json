@@ -49,6 +49,20 @@
 		"positivo": "#6fbf7f",
 		"velo": "#000000"
 	},
+	"_nota_colori_danno": "Il colore dei numeri che volano addosso a chi incassa. Un colpo normale e' rosso; un critico e' oro e piu' grande; un attacco o uno stato con un elemento porta il colore del suo elemento, cosi' si vede a colpo d'occhio COSA ti ha fatto male e non solo quanto. Un'arma, una mossa o uno stato dichiarano il proprio elemento col campo \"elemento\".",
+	"colori_danno": {
+		"normale": "#c04a4d",
+		"critico": "#ffd166",
+		"cura": "#6fbf7f",
+		"fuoco": "#ff7a3d",
+		"gelo": "#79c7ff",
+		"veleno": "#8fd14f",
+		"elettrico": "#ffe14d",
+		"psico": "#c58cff",
+		"oscuro": "#8f6bff",
+		"sacro": "#f5efd0",
+		"sangue": "#a3222b"
+	},
 	"_nota_forme": "Bordi sottili e angoli appena smussati: il gioco è cupo, non morbido.",
 	"forme": {
 		"raggio": 4,
