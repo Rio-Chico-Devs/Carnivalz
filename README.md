@@ -1451,6 +1451,22 @@ una: sono state riscalate tutte insieme, con lo stesso criterio, così i rapport
 di loro sono esattamente quelli di prima. Se un bilanciamento era sbagliato prima, è sbagliato
 uguale adesso — ma non l'ho *reso* sbagliato io.
 
+### Verificato, non sperato
+
+Il giocatore automatico ha rigirato le stesse 99.000 partite prima e dopo la riscalatura. Il
+risultato è quello che serviva:
+
+| protagonista | giri medi (attaccando) | vittorie |
+|---|---|---|
+| livello 1 | 8,5 → **12,7** (×1,50) | 26,4% → 29,1% |
+| livello 3 | 8,7 → **13,2** (×1,52) | 52,2% → 50,4% |
+| livello 5 | 7,6 → **12,1** (×1,58) | 70,5% → 69,5% |
+
+Gli scontri durano **una volta e mezzo tanto** e le probabilità di vincere sono rimaste dov'erano
+(±2 punti). Nella tabella "a che livello ogni scontro diventa giusto" **una sola creatura si è
+mossa**: la Tartaruga Innocente (5 → 8), che ha 0 di attacco e vive di difesa — ma è quella che
+non va picchiata: studiandola si risolve in 1 turno, come prima.
+
 ## Le abilità di combattimento (`regole.json` → `abilita_combattimento`)
 
 Non stanno nel codice. Una classe prende un'abilità scrivendone l'id nel suo campo `abilita`
