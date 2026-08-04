@@ -76,3 +76,17 @@ func vai(percorso: String) -> void:
 	await apertura.finished
 	velo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	in_corso = false
+	# E QUI C'ERA ANCORA IL BUCO. Il ciclo qui sopra legge "prossima" un frame
+	# dopo il cambio di scena, ma il _ready() della scena appena entrata non e'
+	# detto che sia gia' girato a quel punto: dipende da quando Godot smaltisce
+	# le chiamate differite. Se arriva un attimo dopo, la richiesta finiva in
+	# "prossima" e non la raccoglieva piu' nessuno - stessa schermata vuota di
+	# prima, solo piu' difficile da incontrare.
+	#
+	# Adesso si guarda di nuovo alla fine, quando la transizione e' chiusa per
+	# davvero e in_corso e' gia' tornato falso. Non esiste piu' nessun istante
+	# in cui una richiesta puo' entrare e non essere raccolta da nessuno.
+	if prossima != "":
+		var rimasta := prossima
+		prossima = ""
+		vai(rimasta)
