@@ -96,7 +96,6 @@ func _ready() -> void:
 	bottone_mappa.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_MAPPA_ZONA))
 	mostra_nodo(GameState.nodo_corrente)
-	sorveglia_schermata_vuota()
 
 func applica_stile() -> void:
 	sfondo.color = Stile.colore("sfondo")
@@ -147,31 +146,6 @@ func tira_agguato(id_nodo: String, nodo: Dictionary) -> bool:
 	GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
 	return true
 
-func sorveglia_schermata_vuota() -> void:
-	# LA RETE SOTTO IL TRAPEZIO. mostra_nodo() esce senza disegnare niente
-	# quando sta per cambiare schermata - un agguato, un'espulsione. E' giusto:
-	# non ha senso costruire testo e bottoni per una schermata che sparira' tra
-	# un istante. Ma se per qualsiasi ragione quel cambio non avviene, resta li'
-	# una scena viva e VUOTA: niente testo, nessuna uscita, solo il bottone
-	# "Parla con la squadra". Da li' non si esce piu'.
-	#
-	# E' successo due volte, per due motivi diversi. Il secondo l'ho chiuso, ma
-	# la FORMA del codice permette che ne esista un terzo: finche' una funzione
-	# sola sia disegna sia decide di andarsene, quello stato intermedio esiste.
-	#
-	# Quindi: due frame dopo, se siamo ancora qui e non abbiamo disegnato
-	# niente, si disegna. Meglio una stanza mostrata di troppo che una partita
-	# persa. E se scatta e' un bug: resta scritto nel registro.
-	await get_tree().process_frame
-	await get_tree().process_frame
-	if not is_inside_tree() or not nodo_in_corso.is_empty():
-		return
-	if Transizioni.in_corso or Transizioni.prossima != "":
-		return   # sta davvero cambiando schermata: e' tutto a posto
-	push_error("Schermata vuota evitata sul nodo '%s': mostra_nodo() e' uscito senza disegnare e senza partire"
-			% GameState.nodo_corrente)
-	mostra_nodo(GameState.nodo_corrente)
-
 func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) -> void:
 	var nodo: Dictionary = GameState.eventi.get(id_nodo, {})
 	if nodo.is_empty():
@@ -181,6 +155,12 @@ func mostra_nodo(id_nodo: String, notifiche_precedenti: Array[Dictionary] = []) 
 		# Meglio perdere la posizione che perdere la partita: si torna indietro
 		# di una schermata. Le prove non lasciano passare un id sbagliato, ma
 		# nessuna schermata deve poter diventare una prigione.
+		# L'unico caso in cui questa funzione esce senza disegnare, e l'unico in
+		# cui e' inevitabile: se il nodo non esiste non c'e' niente da mostrare.
+		# Non e' un buco lasciato aperto: che ogni destinazione punti a un nodo
+		# esistente e' verificato da prova_riferimenti_eventi() su tutti i file
+		# di eventi, quindi questo ramo non e' raggiungibile coi dati del gioco.
+		# Resta come rete per i dati sbagliati di domani.
 		push_error("Nodo evento mancante: " + id_nodo)
 		Transizioni.vai(SCENA_VUOTO if GameState.carnivalz_corrente != "" else SCENA_MAPPA)
 		return
