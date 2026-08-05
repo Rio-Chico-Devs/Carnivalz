@@ -23,6 +23,123 @@ Le 16: `neutra` · `arrabbiata` · `felice` · `carina` · `infastidita` · `dis
 `neutra` e' quella di ripiego, conviene farla per prima. Se manca anche quella
 si usa il file singolo `art/personaggi/<id>.png`, che va benissimo da solo.
 
+Le 16 non sono una gabbia: `espr` e' il nome del file, quindi una scena puo'
+chiedere `"espr": "sotto_la_pioggia"` e basta disegnare quel file.
+
+## Cosa serve, adesso
+
+Non 16 espressioni per 48 personaggi (768 disegni, che non li fa nessuno).
+Questo e' quello che i dialoghi scritti finora chiedono davvero.
+
+### 1. Il ritratto singolo — 47 da fare
+
+Basta questo perche' nessuno sia piu' un segnaposto. Le creature da
+combattimento si fermano qui: non parlano, non gli serve altro.
+
+```
+art/personaggi/abominio_marcio.png
+art/personaggi/anonimo.png
+art/personaggi/bero.png
+art/personaggi/comparsa_di_ruggine.png
+art/personaggi/curie.png
+art/personaggi/diabolo.png
+art/personaggi/divoratore.png
+art/personaggi/divoratore_di_carcasse.png
+art/personaggi/ferraglia_urlante.png
+art/personaggi/fio.png
+art/personaggi/ghoul.png
+art/personaggi/giocoliere.png
+art/personaggi/goblin_arrabbiato.png
+art/personaggi/goblin_tipico.png
+art/personaggi/infetto_rapido.png
+art/personaggi/jerah.png
+art/personaggi/jongo_dongo.png
+art/personaggi/l_immortale.png
+art/personaggi/lettere_altare.png
+art/personaggi/madre_in_lacrime.png
+art/personaggi/manifestazione_di_un_sogno.png
+art/personaggi/marionetta.png
+art/personaggi/maschera_vuota.png
+art/personaggi/mockingbear.png
+art/personaggi/mr_eto.png
+art/personaggi/niru.png
+art/personaggi/ombra_del_passato.png
+art/personaggi/operaio_posseduto.png
+art/personaggi/orrore_di_meridia.png
+art/personaggi/rio.png
+art/personaggi/sacerdote_folle.png
+art/personaggi/sadico.png
+art/personaggi/sally.png
+art/personaggi/slime_infimo.png
+art/personaggi/stigma.png
+art/personaggi/tartaruga_innocente.png
+art/personaggi/tenero_ricordo.png
+art/personaggi/teschio_errante.png
+art/personaggi/titano_zombie.png
+art/personaggi/vecchio_clown.png
+art/personaggi/vega.png
+art/personaggi/veronica.png
+art/personaggi/voce_registrata.png
+art/personaggi/yara.png
+art/personaggi/yhvina.png
+art/personaggi/zombie_cittadino.png
+art/personaggi/zombie_mostruoso.png
+```
+
+### 2. Le espressioni dei dialoghi — 28 da fare
+
+Solo per chi ha delle battute, e solo le facce che le battute nominano.
+Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto
+singolo: si puo' fare in qualunque ordine.
+
+```
+art/personaggi/anonimo/neutra.png
+art/personaggi/computer/neutra.png
+art/personaggi/curie/carina.png
+art/personaggi/curie/neutra.png
+art/personaggi/figura_misteriosa/neutra.png
+art/personaggi/giocoliere/arrabbiata.png
+art/personaggi/giocoliere/cool.png
+art/personaggi/giocoliere/neutra.png
+art/personaggi/goblin_arrabbiato/decisa.png
+art/personaggi/goblin_arrabbiato/neutra.png
+art/personaggi/insonne/annoiata.png
+art/personaggi/insonne/decisa.png
+art/personaggi/insonne/neutra.png
+art/personaggi/jerah/decisa.png
+art/personaggi/jerah/delusa.png
+art/personaggi/jerah/neutra.png
+art/personaggi/jerah/speciale.png
+art/personaggi/jongo_dongo/decisa.png
+art/personaggi/jongo_dongo/neutra.png
+art/personaggi/jongo_dongo/petrificata.png
+art/personaggi/l_immortale/neutra.png
+art/personaggi/sopravvissuta/neutra.png
+art/personaggi/tenero_ricordo/neutra.png
+art/personaggi/vecchio_clown/neutra.png
+art/personaggi/vecchio_clown/pensiero.png
+art/personaggi/veronica/decisa.png
+art/personaggi/veronica/felice.png
+art/personaggi/veronica/neutra.png
+```
+
+| chi | quante | quali |
+|---|--:|---|
+| L'ultimo spettacolo di Jerah (`jerah`) | 4 | `decisa` · `delusa` · `neutra` · `speciale` |
+| El Muy Bonito (`giocoliere`) | 3 | `arrabbiata` · `cool` · `neutra` |
+| Yhvina (`insonne`) | 3 | `annoiata` · `decisa` · `neutra` |
+| Jongo Dongo (`jongo_dongo`) | 3 | `decisa` · `neutra` · `petrificata` |
+| Veronica (`veronica`) | 3 | `decisa` · `felice` · `neutra` |
+| Dott.ssa Curie Heartlife (`curie`) | 2 | `carina` · `neutra` |
+| Un goblin terribilmente arrabbiato (`goblin_arrabbiato`) | 2 | `decisa` · `neutra` |
+| Il Vecchio Proprietario del teatro (`vecchio_clown`) | 2 | `neutra` · `pensiero` |
+| Anonimo (`anonimo`) | 1 | `neutra` |
+| computer (`computer`) | 1 | `neutra` |
+| figura_misteriosa (`figura_misteriosa`) | 1 | `neutra` |
+| ??? (`l_immortale`) | 1 | `neutra` |
+| Yara (`sopravvissuta`) | 1 | `neutra` |
+| Un tenero ricordo (`tenero_ricordo`) | 1 | `neutra` |
+
 ## Squadra
 
 | chi | file | espressioni | c'è |

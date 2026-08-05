@@ -38,6 +38,49 @@ def carica(percorso):
         return json.load(f)
 
 
+def file_eventi():
+    import glob
+    fuori = sorted(glob.glob(os.path.join(RADICE, "data", "events*.json")))
+    fuori += sorted(glob.glob(os.path.join(RADICE, "data", "vuoti", "*.json")))
+    return fuori
+
+
+def espressioni_richieste():
+    """Quali facce i dialoghi chiedono DAVVERO, personaggio per personaggio.
+
+    E' la differenza fra "servono 16 espressioni per 48 personaggi" (768 disegni,
+    che nessuno fa) e "servono queste, adesso". Chi compare in scena ha bisogno
+    almeno della neutra; le altre solo se una battuta le nomina.
+    """
+    usi = {}
+    def segna(chi, espressione):
+        if not chi or not espressione:
+            return
+        usi.setdefault(chi, set()).add(espressione)
+    for percorso in file_eventi():
+        with open(percorso, encoding="utf-8") as f:
+            nodi = json.load(f).get("nodi", {})
+        for nodo in nodi.values():
+            in_scena = {}
+            for lato in ["sinistra", "destra", "centro"]:
+                valore = nodo.get(lato)
+                if isinstance(valore, dict):
+                    in_scena[lato] = valore.get("id", "")
+                    segna(valore.get("id", ""), valore.get("espr", ""))
+                elif isinstance(valore, str) and valore:
+                    in_scena[lato] = valore
+                segna(in_scena.get(lato, ""), nodo.get("espr_" + lato, ""))
+            for chi in in_scena.values():
+                segna(chi, "neutra")   # in scena senza indicazioni: la neutra serve
+            for msg in nodo.get("sequenza", []):
+                if not isinstance(msg, dict):
+                    continue
+                segna(msg.get("chi", ""), msg.get("espr", ""))
+                if msg.get("tipo") == "dialogo":
+                    segna(msg.get("chi", ""), "neutra")
+    return usi
+
+
 def esiste(percorso_res):
     return os.path.exists(os.path.join(RADICE, percorso_res.replace("res://", "")))
 
@@ -94,6 +137,57 @@ def genera():
     righe.append("")
     righe.append("`neutra` e' quella di ripiego, conviene farla per prima. Se manca anche quella")
     righe.append("si usa il file singolo `art/personaggi/<id>.png`, che va benissimo da solo.")
+    righe.append("")
+    righe.append("Le 16 non sono una gabbia: `espr` e' il nome del file, quindi una scena puo'")
+    righe.append("chiedere `\"espr\": \"sotto_la_pioggia\"` e basta disegnare quel file.")
+    righe.append("")
+
+    # --- la lista che serve DAVVERO, in cima ---
+    usi = espressioni_richieste()
+    nomi = {v["id"]: v["nome"] for v in elenco}
+    mancanti_ritratto = [v for v in elenco if not esiste(v["file"])]
+    righe.append("## Cosa serve, adesso")
+    righe.append("")
+    righe.append("Non 16 espressioni per 48 personaggi (768 disegni, che non li fa nessuno).")
+    righe.append("Questo e' quello che i dialoghi scritti finora chiedono davvero.")
+    righe.append("")
+    righe.append("### 1. Il ritratto singolo — %d da fare"
+            % len({v["file"] for v in mancanti_ritratto}))
+    righe.append("")
+    righe.append("Basta questo perche' nessuno sia piu' un segnaposto. Le creature da")
+    righe.append("combattimento si fermano qui: non parlano, non gli serve altro.")
+    righe.append("")
+    righe.append("```")
+    # due creature possono condividere lo stesso ritratto (Jongo Dongo e il suo
+    # risorto): il disegno e' uno, e nella lista deve comparire una volta sola
+    visti = set()
+    for v in sorted(mancanti_ritratto, key=lambda x: x["file"]):
+        percorso = v["file"].replace("res://", "")
+        if percorso in visti:
+            continue
+        visti.add(percorso)
+        righe.append(percorso)
+    righe.append("```")
+    righe.append("")
+    conteggio = sum(len(e) for e in usi.values())
+    righe.append("### 2. Le espressioni dei dialoghi — %d da fare" % conteggio)
+    righe.append("")
+    righe.append("Solo per chi ha delle battute, e solo le facce che le battute nominano.")
+    righe.append("Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto")
+    righe.append("singolo: si puo' fare in qualunque ordine.")
+    righe.append("")
+    righe.append("```")
+    for cid in sorted(usi):
+        for espressione in sorted(usi[cid]):
+            righe.append("art/personaggi/%s/%s.png" % (cid, espressione))
+    righe.append("```")
+    righe.append("")
+    righe.append("| chi | quante | quali |")
+    righe.append("|---|--:|---|")
+    for cid in sorted(usi, key=lambda c: (-len(usi[c]), c)):
+        righe.append("| %s (`%s`) | %d | %s |" % (
+            nomi.get(cid, cid), cid, len(usi[cid]),
+            " · ".join("`%s`" % e for e in sorted(usi[cid]))))
     righe.append("")
 
     for gruppo in ["Squadra", "Creature", "Personaggi"]:
