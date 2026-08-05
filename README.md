@@ -24,6 +24,19 @@ selezione del punto, vedi `avvio_automatico` sotto) → da lì in poi, il normal
 **Continua**/**Carica partita** (una partita già esistente) saltano loghi e introduzione e vanno
 dritti in mappa.
 
+### Aprire il progetto da uno zip
+
+**Scompatta lo zip con il sistema operativo** (tasto destro → *Estrai tutto*), poi in Godot:
+*Importa* → scegli il `project.godot` estratto.
+
+Non usare *Importa* direttamente sul `.zip`: quel bottone è pensato per i **pacchetti di asset**
+della libreria, non per un progetto intero, ed è molto più schizzinoso.
+
+Lo zip si costruisce con `./strumenti/pacchetto.sh`, che usa `git archive`. Fatto a mano con
+`zip` su un elenco di file l'archivio finisce **senza le voci di cartella**, e allora Godot non
+riesce a creare le cartelle annidate: si becca un elenco di *"failed extraction from package"*
+su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È già successo.
+
 ## Struttura
 - `scenes/Splash.tscn` + `scripts/Splash.gd` — loghi d'apertura (studio/personale, placeholder
   testuali finché mancano le immagini in `art/branding/`), poi il menu
