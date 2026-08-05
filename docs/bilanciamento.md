@@ -1,6 +1,6 @@
 # Bilanciamento (generato, non scrivere qui a mano)
 
-Prodotto da `prove/Simulatore.gd`: **99000 partite** giocate dal motore vero in 481 secondi.
+Prodotto da `prove/Simulatore.gd`: **99000 partite** giocate dal motore vero in 485 secondi.
 
 Non e' una stima e non e' un modello: e' `Combattimento.tscn` istanziata e giocata,
 con Voce/Campo/Menu muti. Se questi numeri sono sbagliati, sono sbagliati anche
@@ -203,10 +203,10 @@ terzo della vita del protagonista.
 | Stigma | `stigma` | difendi | 0% | 100% | 0% | 3.8 | 100.0 | 0% | 0 |
 | Stigma | `stigma` | studia | 0% | 100% | 0% | 3.0 | 100.0 | 0% | 0 |
 | Stigma | `stigma` | casuale | 0% | 100% | 0% | 3.1 | 100.0 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 49% | 0% | 51% | 46.3 | 0.0 | 0% | 7 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 19 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 3.0 | 0.0 | 99% | 19 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 19 |
 | Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 5.1 | 100.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 6.5 | 100.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 5.4 | 100.0 | 0% | 0 |
@@ -340,10 +340,10 @@ terzo della vita del protagonista.
 | Stigma | `stigma` | difendi | 0% | 100% | 0% | 5.8 | 145.0 | 0% | 0 |
 | Stigma | `stigma` | studia | 0% | 100% | 0% | 4.8 | 145.0 | 0% | 0 |
 | Stigma | `stigma` | casuale | 1% | 99% | 0% | 4.9 | 144.7 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 49% | 0% | 51% | 46.3 | 0.0 | 0% | 6 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 16 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 3.0 | 0.0 | 99% | 16 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 16 |
 | Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 6.0 | 145.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 7.1 | 145.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 6.3 | 145.0 | 0% | 0 |
@@ -477,10 +477,10 @@ terzo della vita del protagonista.
 | Stigma | `stigma` | difendi | 0% | 100% | 0% | 9.5 | 190.0 | 0% | 0 |
 | Stigma | `stigma` | studia | 1% | 99% | 0% | 5.8 | 189.1 | 0% | 0 |
 | Stigma | `stigma` | casuale | 1% | 99% | 0% | 6.5 | 189.4 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 49% | 0% | 51% | 46.3 | 0.0 | 0% | 5 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 14 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 3.0 | 0.0 | 99% | 14 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 14 |
 | Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 6.7 | 190.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 7.7 | 190.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 6.9 | 190.0 | 0% | 0 |
@@ -614,10 +614,10 @@ terzo della vita del protagonista.
 | Stigma | `stigma` | difendi | 0% | 100% | 0% | 18.4 | 285.0 | 0% | 0 |
 | Stigma | `stigma` | studia | 5% | 95% | 0% | 9.5 | 280.7 | 0% | 0 |
 | Stigma | `stigma` | casuale | 2% | 98% | 0% | 10.9 | 282.6 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 49% | 0% | 51% | 46.3 | 0.0 | 0% | 3 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 8 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 3.0 | 0.0 | 99% | 8 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 8 |
 | Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 7.8 | 285.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 8.6 | 285.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 7.9 | 285.0 | 0% | 0 |
@@ -751,10 +751,10 @@ terzo della vita del protagonista.
 | Stigma | `stigma` | difendi | 0% | 100% | 0% | 36.6 | 425.0 | 0% | 0 |
 | Stigma | `stigma` | studia | 100% | 0% | 0% | 10.6 | 250.0 | 0% | 9 |
 | Stigma | `stigma` | casuale | 35% | 65% | 0% | 18.1 | 392.9 | 0% | 3 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 57% | 0% | 43% | 44.3 | 0.0 | 0% | 1 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 19% | 0% | 81% | 56.7 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 3 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 3.0 | 0.0 | 99% | 3 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 3 |
 | Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 8.9 | 425.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 9.2 | 425.0 | 0% | 0 |
 | Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 8.8 | 425.0 | 0% | 0 |
