@@ -12,6 +12,14 @@ extends Node
 # cieco che il giocatore trova venti minuti dopo. Queste prove servono a
 # quello, non a coprire percentuali di codice.
 
+# Le 16 espressioni dei ritratti nei dialoghi (vedi art/personaggi/README.md).
+# "neutra" e' quella di ripiego quando un dialogo ne chiede una che non c'e'.
+const ESPRESSIONI := [
+	"neutra", "arrabbiata", "felice", "carina", "infastidita", "disgusto",
+	"speciale", "dialogo", "delusa", "petrificata", "annoiata", "pensiero",
+	"sorpresa", "sforzo", "cool", "decisa",
+]
+
 var fallimenti: Array[String] = []
 var conteggio := 0
 
@@ -50,6 +58,7 @@ func _ready() -> void:
 	prova_abilita_di_combattimento()
 	prova_transizioni()
 	prova_suoni()
+	prova_nomi_delle_immagini()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -1233,6 +1242,54 @@ func prova_posti_visitati() -> void:
 	esigi(tinte[0] != tinte[1] and tinte[1] != tinte[2] and tinte[0] != tinte[2],
 			"due stati di visita hanno lo stesso colore")
 	GameState.nuova_partita()
+
+func prova_nomi_delle_immagini() -> void:
+	# UN DISEGNO COL NOME SBAGLIATO NON DA' NESSUN ERRORE.
+	#
+	# Il gioco cerca il file, non lo trova, e mostra il segnaposto con l'iniziale
+	# del nome. Nessun avviso, niente nella console: uno se ne accorge giocando,
+	# magari fra un mese, e nel frattempo pensa di aver messo il disegno.
+	#
+	# Il tranello vero e' che il nome del file NON e' l'id: lo decide il campo
+	# "ritratto" nei dati. Yhvina ha id "insonne" e file yhvina.png.
+	#
+	# Qui non si pretende che i disegni ci siano - si fanno a poco a poco. Si
+	# pretende che ogni file MESSO abbia un nome che qualcuno sta cercando.
+	titolo("i disegni messi hanno un nome che il gioco cerca")
+	var attesi: Array[String] = []
+	var cartelle_attese: Array[String] = []
+	var raccogli := func(id_personaggio: String, ritratto: String) -> void:
+		if ritratto != "" and ritratto not in attesi:
+			attesi.append(ritratto.get_file())
+		if id_personaggio != "" and id_personaggio not in cartelle_attese:
+			cartelle_attese.append(id_personaggio)
+	for id_classe in GameState.classi:
+		raccogli.call(String(id_classe), String(GameState.classi[id_classe].get("ritratto", "")))
+	for id_personaggio in GameState.personaggi:
+		raccogli.call(String(id_personaggio),
+				String(GameState.personaggi[id_personaggio].get("ritratto", "")))
+	esigi(not attesi.is_empty(), "nessun ritratto dichiarato nei dati: la prova non guarda niente")
+
+	var cartella := DirAccess.open("res://art/personaggi")
+	if cartella == null:
+		return  # la cartella non c'e' ancora: non e' un errore, e' un progetto giovane
+	for nome in cartella.get_files():
+		if nome.begins_with(".") or nome.ends_with(".md") or nome.ends_with(".import"):
+			continue
+		esigi(nome in attesi,
+				"art/personaggi/%s non lo cerca nessuno: nome sbagliato? (vedi docs/immagini.md)" % nome)
+	for nome_cartella in cartella.get_directories():
+		esigi(nome_cartella in cartelle_attese,
+				"art/personaggi/%s/ non e' l'id di nessuno: le cartelle delle espressioni si chiamano come l'id"
+				% nome_cartella)
+		var dentro := DirAccess.open("res://art/personaggi/" + nome_cartella)
+		if dentro == null:
+			continue
+		for nome_file in dentro.get_files():
+			if nome_file.begins_with(".") or nome_file.ends_with(".import"):
+				continue
+			esigi(nome_file.get_basename() in ESPRESSIONI,
+					"art/personaggi/%s/%s non e' un'espressione conosciuta" % [nome_cartella, nome_file])
 
 func prova_script_compilano() -> void:
 	# Ogni .gd deve compilare. Sembra ovvio, e invece e' la prova che mancava:
