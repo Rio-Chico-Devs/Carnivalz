@@ -12,12 +12,26 @@ Il gioco carica l'espressione richiesta dal dialogo. Se manca, ripiega su `neutr
 se manca anche quella, sul vecchio file singolo `art/personaggi/<id>.png`; se manca tutto,
 mostra un segnaposto con l'iniziale. Quindi puoi disegnarle a poco a poco senza rompere nulla.
 
+Il nome del file **non e' sempre l'id**: lo decide il campo `ritratto` nei dati. Yhvina ha id
+`insonne` ma il suo ritratto singolo si chiama `yhvina.png` (la cartella delle espressioni,
+invece, si chiama sempre come l'id: `art/personaggi/insonne/`). L'elenco esatto per ognuno,
+generato dai dati, sta in `docs/immagini.md`.
+
 ## Le 16 espressioni
 `neutra` · `arrabbiata` · `felice` · `carina` · `infastidita` · `disgusto` · `speciale` ·
 `dialogo` · `delusa` · `petrificata` · `annoiata` · `pensiero` · `sorpresa` · `sforzo` ·
 `cool` · `decisa`
 
 (La `neutra` è quella di default: conviene farla per prima per ogni personaggio.)
+
+**Non sono una gabbia.** `espr` è semplicemente il nome del file: se una scena chiede
+`"espr": "sotto_la_pioggia"`, basta che esista `sotto_la_pioggia.png`. Le 16 servono perché
+avere sempre gli stessi nomi rende riusabili i disegni fra una scena e l'altra — ma quando una
+scena ha bisogno di una faccia sua, se la prende.
+
+`prove/Prove.gd` controlla i nomi dei file: non pretende che i disegni ci siano, ma un file che
+**nessun dialogo chiede** fa fallire le prove. È l'unico modo di accorgersi di un nome scritto
+storto, che altrimenti diventa in silenzio il segnaposto con l'iniziale.
 
 ## Chi compare nei dialoghi (dungeon 1)
 - `anonimo` — il protagonista, sempre a sinistra
@@ -38,3 +52,18 @@ oppure, forma breve equivalente:
 "espr_destra": "arrabbiata"
 ```
 Valgono anche `espr_sinistra` e `espr_centro`. Senza indicazione: `neutra`.
+
+## E battuta per battuta
+
+Quella qui sopra è la faccia con cui il personaggio **entra in scena**. Dentro la `sequenza`,
+ogni singolo messaggio può cambiarla:
+
+```json
+"sequenza": [
+  { "tipo": "dialogo", "chi": "insonne", "testo": "Non dormo da tre giorni.", "espr": "delusa" },
+  { "tipo": "dialogo", "chi": "insonne", "testo": "Ma sto benissimo.", "espr": "cool" }
+]
+```
+
+Vale su qualunque lato del palco. Un'espressione dura finché qualcuno non la cambia: una
+battuta senza `espr` tiene quella di prima.

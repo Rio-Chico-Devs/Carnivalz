@@ -58,6 +58,7 @@ func _ready() -> void:
 	prova_abilita_di_combattimento()
 	prova_transizioni()
 	prova_suoni()
+	prova_espressione_per_battuta()
 	prova_nomi_delle_immagini()
 	prova_script_compilano()
 	prova_scene_caricabili()
@@ -1243,6 +1244,55 @@ func prova_posti_visitati() -> void:
 			"due stati di visita hanno lo stesso colore")
 	GameState.nuova_partita()
 
+func prova_espressione_per_battuta() -> void:
+	# OGNI BATTUTA PUO' AVERE LA SUA FACCIA, E SU QUALUNQUE LATO DEL PALCO.
+	#
+	# Il campo "espr" su un messaggio c'era gia', ma funzionava solo nelle scene
+	# a un personaggio solo ("centro"): in un dialogo a due veniva letto e
+	# buttato via. Nessun errore, nessun avviso - semplicemente il ritratto non
+	# cambiava, e chi scriveva i dialoghi non aveva modo di accorgersene se non
+	# guardando lo schermo battuta per battuta.
+	#
+	# Questa prova mette due personaggi in scena e fa parlare quello di destra
+	# con un'espressione: se il suo ritratto non cambia, fallisce.
+	titolo("l'espressione di una battuta arriva a chi parla, ovunque sia")
+	GameState.nuova_partita()
+	GameState.eventi = {
+		"prova_palco": {
+			"sinistra": GameState.id_protagonista,
+			"destra": "insonne",
+			"sequenza": [{"tipo": "narrazione", "testo": "Il corridoio è fermo."}],
+		},
+	}
+	GameState.nodo_corrente = "prova_palco"
+	var scena: PackedScene = load("res://scenes/Main.tscn")
+	var schermata: Node = scena.instantiate()
+	add_child(schermata)
+	esigi(schermata.slot_destra.visible, "il secondo personaggio non e' in scena")
+	esigi(String(schermata.slot_destra.id_mostrato) == "insonne",
+			"a destra c'e' qualcun altro: %s" % String(schermata.slot_destra.id_mostrato))
+	var prima := String(schermata.slot_destra.espressione_mostrata)
+	schermata.mostra_messaggio({"tipo": "dialogo", "chi": "insonne",
+			"testo": "Non dormo da tre giorni.", "espr": "arrabbiata"})
+	esigi(String(schermata.slot_destra.espressione_mostrata) == "arrabbiata",
+			"la battuta chiedeva 'arrabbiata' e il ritratto a destra e' rimasto '%s'"
+			% String(schermata.slot_destra.espressione_mostrata))
+	esigi(prima != "arrabbiata", "la prova parte gia' col risultato che vuole verificare")
+	# una battuta senza "espr" non riporta la faccia a neutra: dura finche'
+	# qualcuno non la cambia, come in scena
+	schermata.mostra_messaggio({"tipo": "dialogo", "chi": "insonne", "testo": "Ma sto bene."})
+	esigi(String(schermata.slot_destra.espressione_mostrata) == "arrabbiata",
+			"una battuta senza espressione ha riportato il ritratto a neutra")
+	# e non tocca chi non sta parlando
+	schermata.mostra_messaggio({"tipo": "dialogo", "chi": GameState.id_protagonista,
+			"testo": "Si vede.", "espr": "pensiero"})
+	esigi(String(schermata.slot_destra.espressione_mostrata) == "arrabbiata",
+			"la battuta di uno ha cambiato la faccia dell'altro")
+	esigi(String(schermata.slot_sinistra.espressione_mostrata) == "pensiero",
+			"il protagonista a sinistra non ha cambiato espressione")
+	schermata.free()
+	GameState.nuova_partita()
+
 func prova_nomi_delle_immagini() -> void:
 	# UN DISEGNO COL NOME SBAGLIATO NON DA' NESSUN ERRORE.
 	#
@@ -1285,11 +1335,41 @@ func prova_nomi_delle_immagini() -> void:
 		var dentro := DirAccess.open("res://art/personaggi/" + nome_cartella)
 		if dentro == null:
 			continue
+		# Le 16 sono una convenzione, non una gabbia: un dialogo puo' chiedere
+		# un'espressione con qualunque nome ("sotto_la_pioggia"), e allora quel
+		# file e' legittimo. Quello che non deve passare e' un file che NESSUNO
+		# chiama - cioe' un nome scritto storto, che a schermo diventa
+		# silenziosamente il segnaposto.
+		var ammesse := ESPRESSIONI + espressioni_usate_nei_dialoghi()
 		for nome_file in dentro.get_files():
 			if nome_file.begins_with(".") or nome_file.ends_with(".import"):
 				continue
-			esigi(nome_file.get_basename() in ESPRESSIONI,
-					"art/personaggi/%s/%s non e' un'espressione conosciuta" % [nome_cartella, nome_file])
+			esigi(nome_file.get_basename() in ammesse,
+					"art/personaggi/%s/%s: nessun dialogo chiede questa espressione (nome storto?)"
+					% [nome_cartella, nome_file])
+
+func espressioni_usate_nei_dialoghi() -> Array:
+	# tutte le espressioni che i file di eventi chiedono davvero, comunque si
+	# chiamino: sui messaggi ("espr") e sui lati del palco
+	var trovate: Array = []
+	var aggiungi := func(valore: Variant) -> void:
+		var nome := String(valore)
+		if nome != "" and nome not in trovate:
+			trovate.append(nome)
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		for id_nodo in dati:
+			var nodo: Dictionary = dati[id_nodo]
+			for chiave in ["espr_sinistra", "espr_destra", "espr_centro"]:
+				aggiungi.call(nodo.get(chiave, ""))
+			for lato in ["sinistra", "destra", "centro"]:
+				var valore: Variant = nodo.get(lato, null)
+				if valore is Dictionary:
+					aggiungi.call(valore.get("espr", ""))
+			for msg in nodo.get("sequenza", []):
+				if msg is Dictionary:
+					aggiungi.call(msg.get("espr", ""))
+	return trovate
 
 func prova_script_compilano() -> void:
 	# Ogni .gd deve compilare. Sembra ovvio, e invece e' la prova che mancava:

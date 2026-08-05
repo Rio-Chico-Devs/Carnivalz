@@ -312,7 +312,7 @@ func mostra_messaggio(msg: Dictionary) -> void:
 		var chi := String(msg.get("chi", GameState.id_protagonista))
 		nome_parlante = String(GameState.personaggi.get(chi, {}).get("nome", chi))
 		if msg.has("espr"):
-			aggiorna_espressione_centro(chi, String(msg["espr"]))
+			aggiorna_espressione(chi, String(msg["espr"]))
 		evidenzia_parlante(chi)
 	else:
 		evidenzia_parlante("")
@@ -506,14 +506,25 @@ func evidenzia_parlante(id_personaggio: String) -> void:
 		var suo: bool = id_personaggio == "" or String(slot.id_mostrato) == id_personaggio
 		slot.imposta_attenuato(not suo)
 
-func aggiorna_espressione_centro(id_personaggio: String, espressione: String) -> void:
-	# una scena "centro" (un solo personaggio a schermo) puo' cambiare la sua
-	# espressione a meta' sequenza: es. il giocoliere che perde il sorriso
-	# un attimo prima del combattimento
-	var centro: Variant = nodo_in_corso.get("centro")
-	var id_centro := String(centro.get("id", "")) if centro is Dictionary else String(centro)
-	if slot_centro.visible and id_centro == id_personaggio:
-		mostra_slot(slot_centro, id_personaggio, espressione)
+func aggiorna_espressione(id_personaggio: String, espressione: String) -> void:
+	# OGNI BATTUTA PUO' AVERE LA SUA FACCIA.
+	#
+	# "espr" su un messaggio cambia il ritratto di chi sta parlando, su qualunque
+	# lato del palco si trovi. E' quello che rende una conversazione una scena e
+	# non una sequenza di didascalie: la stessa persona dice tre righe e cambia
+	# espressione tre volte, come farebbe un attore.
+	#
+	# Prima funzionava SOLO nelle scene a un personaggio solo ("centro"): in un
+	# dialogo a due il campo veniva letto e buttato via senza un errore, e chi
+	# scriveva i dialoghi non aveva modo di accorgersene se non guardando.
+	#
+	# Chi non ha "espr" tiene la faccia che aveva: un'espressione dura finche'
+	# qualcuno non la cambia, come in scena.
+	if id_personaggio == "" or espressione == "":
+		return
+	for slot in [slot_sinistra, slot_centro, slot_destra]:
+		if slot.visible and String(slot.id_mostrato) == id_personaggio:
+			slot.mostra(id_personaggio, 0, espressione)
 
 func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
 	# valore: id stringa, oppure {id, espr}. L'espressione può anche venire

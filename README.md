@@ -429,12 +429,40 @@ Opzionale nei dati: `"flag_completato"` su un punto della mappa o su uno squarci
 flag lo dichiara `chiuso`.
 
 ## Palco dialoghi (con espressioni)
-Ogni personaggio ha 16 **espressioni** per i dialoghi in `art/personaggi/<id>/<espr>.png`
-(neutra, arrabbiata, felice, carina, infastidita, disgusto, speciale, dialogo, delusa,
-petrificata, annoiata, pensiero, sorpresa, sforzo, cool, decisa). Fallback: espressione →
-`neutra.png` → vecchio file singolo → iniziale. Nei nodi, i lati indicano l'espressione con
-`{ "id": "jerah", "espr": "arrabbiata" }` o con `espr_sinistra`/`espr_destra`/`espr_centro`.
-Dettagli in `art/personaggi/README.md`.
+
+**Ogni personaggio è una libreria di immagini, e ogni battuta ne sceglie una.**
+
+I file stanno in `art/personaggi/<id>/<espr>.png`. Le 16 espressioni canoniche (`neutra`,
+`arrabbiata`, `felice`, `carina`, `infastidita`, `disgusto`, `speciale`, `dialogo`, `delusa`,
+`petrificata`, `annoiata`, `pensiero`, `sorpresa`, `sforzo`, `cool`, `decisa`) sono una
+convenzione, non una gabbia: `espr` è semplicemente il nome del file, quindi una scena può
+chiedere `"espr": "sotto_la_pioggia"` e basta disegnare `sotto_la_pioggia.png`.
+
+Fallback, in quest'ordine: l'espressione chiesta → `neutra.png` → il vecchio file singolo
+`art/personaggi/<id>.png` → un segnaposto con l'iniziale. Si disegna a poco a poco senza
+rompere niente.
+
+**Chi la sceglie, e quando:**
+
+| dove | effetto |
+|---|---|
+| `"destra": { "id": "jerah", "espr": "arrabbiata" }` | la faccia con cui **entra in scena** |
+| `espr_sinistra` / `espr_destra` / `espr_centro` sul nodo | idem, forma breve |
+| **`"espr"` su un messaggio della `sequenza`** | **cambia la faccia di chi sta parlando, battuta per battuta** |
+
+L'ultima riga è quella che fa di una conversazione una scena invece di una sequenza di
+didascalie: la stessa persona dice tre righe e cambia espressione tre volte, come farebbe un
+attore. Un'espressione **dura finché qualcuno non la cambia** — una battuta senza `espr` non
+riporta la faccia a neutra — e non tocca chi non sta parlando.
+
+Funzionava solo a metà: `espr` su un messaggio veniva applicato **unicamente** nelle scene a un
+personaggio solo (`centro`); in un dialogo a due veniva letto e buttato via, senza nessun errore.
+Adesso `aggiorna_espressione()` cerca chi parla su tutti e tre i lati del palco.
+`prova_espressione_per_battuta()` mette due personaggi in scena, fa parlare quello di destra e
+fallisce se il suo ritratto non cambia.
+
+Dettagli sui file in `art/personaggi/README.md`; l'elenco completo dei nomi esatti, generato dai
+dati, in `docs/immagini.md`.
 Sopra il box del narratore ci sono due spazi per i disegni: a **sinistra sempre il
 protagonista** (o un alternativo, chiave `sinistra` nel nodo), a **destra l'interlocutore**
 (chiave `destra`). I dialoghi sono discussioni tra almeno due persone, quindi gli spazi sono
