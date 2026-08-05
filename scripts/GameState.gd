@@ -497,6 +497,21 @@ func livello_di(id_classe: String) -> int:
 func scarto_livello_massimo() -> int:
 	return int(regole.get("scarto_livello_massimo", 3))
 
+func e_boss(id_nemico: String) -> bool:
+	var dati: Dictionary = personaggi.get(id_nemico, {})
+	return bool(dati.get("fonte", false)) or String(dati.get("categoria", "")) == "boss" \
+			or dati.has("frenesia")
+
+func scarto_di(id_nemico: String) -> int:
+	# Un boss non si supera farmando. Le creature comuni restano al massimo tre
+	# livelli sotto di te, e va bene: sono il paesaggio, e un paesaggio che si
+	# attraversa piu' in fretta e' una ricompensa. Una fonte no: quella e' il
+	# motivo per cui sei li'. Se farmando la si potesse rendere una formalita',
+	# lo scontro che dovrebbe essere il punto della zona diventerebbe la sua
+	# parte piu' noiosa. Le fonti stanno SEMPRE almeno al tuo livello.
+	return int(regole.get("scarto_livello_boss", 0)) if e_boss(id_nemico) \
+			else scarto_livello_massimo()
+
 func livello_base_nemico(id_nemico: String) -> int:
 	return maxi(int(personaggi.get(id_nemico, {}).get("livello", 1)), 1)
 
@@ -510,7 +525,7 @@ func livello_nemico(id_nemico: String) -> int:
 	var base := livello_base_nemico(id_nemico)
 	if not nemico_scala(id_nemico):
 		return base
-	var pavimento := livello_di(id_protagonista) - scarto_livello_massimo()
+	var pavimento := livello_di(id_protagonista) - scarto_di(id_nemico)
 	return clampi(maxi(base, pavimento), 1, int(regole.get("livello_massimo", 130)))
 
 func stat_nemico(id_nemico: String, chiave: String, difetto := 0) -> int:

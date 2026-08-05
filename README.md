@@ -174,53 +174,47 @@ esplicito** prima di sciogliersi (non un timer) — è un momento che merita si 
 ostacolo da far sparire in automatico. La prima scelta/bottone utile di ogni schermo prende il
 fuoco della tastiera da solo: il gioco si può giocare interamente senza mouse.
 
-## Pausa, storico e Diario (ESC)
-Tre buchi che si aprivano tutti sulla stessa mancanza: **il gioco non si poteva fermare**. Chi
-saltava una battuta con un click di troppo non poteva rileggerla, chi doveva alzarsi dalla
-sedia a metà di un combattimento lasciava i turni a scorrere, e il Diario di cui il tutorial
-parlava non esisteva. `scripts/Pausa.gd` (autoload, `CanvasLayer` a livello 100) risolve i tre
-insieme, perché sono lo stesso gesto: premere ESC.
+## Pausa, Diario, Zaino (ESC)
 
-**Perché un autoload e non una scena.** Aprire un menu cambiando scena, da dentro uno squarcio,
-distruggerebbe la schermata eventi: rientrarci rifarebbe partire il nodo corrente, con i suoi
-agguati e i suoi pickup. Qui invece è solo un velo sopra la scena viva — sotto non si tocca
-niente. `pausabile()` esclude le schermate dove non ha senso (Splash, Menu, Opzioni, Extra) e si
-rifiuta di aprirsi a metà di una dissolvenza (`Transizioni.in_corso`), che riaprirebbe su una
-scena già in uscita. ESC dentro un sotto-pannello torna al menu di pausa, non butta fuori: chi
-sta rileggendo lo storico non vuole ritrovarsi di colpo in combattimento.
+Un velo sopra la scena viva, non una schermata: si apre da ovunque — mappa, stanza, Vuoto,
+combattimento — senza cambiare scena e senza perdere il posto in cui si era. Mentre è aperto
+l'albero è in pausa: i tween si fermano, i timer del combattimento si fermano, niente va avanti
+alle spalle del giocatore.
 
-**La pausa è vera.** `get_tree().paused = true` ferma tween e timer: niente va avanti alle spalle
-del giocatore. Fanno eccezione `Pausa` stesso, `AudioManager` (la musica non si interrompe) e
-`Transizioni` (una dissolvenza deve poter finire, o si resterebbe col nero incollato addosso) —
-tutti e tre in `PROCESS_MODE_ALWAYS`. Attenzione a una trappola di Godot: `create_timer()` di
-default nasce con `process_always = true` e **ignora la pausa**. I due punti dove serviva
-(`Combattimento.gd`, `Main.gd`) ora passano `false` esplicitamente.
+**Un pannello alla volta**, mai due cose insieme: *Riprendi · Storico · Diario · Personaggio e
+squadra · Zaino · Opzioni · Torna al menu principale*.
 
-**Storico** — `GameState.storico`, riempito da `GameState.registra_storico(tipo, chi, testo)`
-che `Main.mostra_messaggio()` chiama su ogni messaggio a schermo (comprese le carte del titolo).
-Tiene le ultime `STORICO_MASSIMO = 200` voci e si apre già scrollato in fondo: quello che
-interessa è l'ultima cosa letta. Ogni riga tiene il colore del suo tipo (dialogo, narrazione in
-corsivo, notifica, titolo in grassetto), così si ritrova a colpo d'occhio *che tipo* di cosa si
-stava leggendo. Non entra nei salvataggi: è un comodo di sessione, e viene svuotato da
-`nuova_partita()` e `reset_campagna()`. Il diario di combattimento non ci passa perché è già
-tutto lì a schermo, scorrevole, per tutta la durata dello scontro.
+**Tazo e livello sono sempre in alto a destra**, in ogni pannello. Li disegna `intestazione()`,
+non i singoli pannelli: così nessuno può dimenticarseli. Prima erano sepolti dentro una sezione
+del Diario, e per sapere quanti soldi si avevano bisognava navigare.
 
-**Diario** — non una scheda personaggio, ma il referto che l'unità Pk09 tiene su sé stessa.
-Sette sezioni. In cima *Appunti* — dove devo andare adesso, cosa mi hanno chiesto: è la guida del
-gioco, e ha una sezione tutta sua qui sotto. Poi *Stato* (livello, esperienza, le sette
-statistiche con base + punti guadagnati),
-*Cosa ti sta cambiando* (la parte più utile: per ogni azione tracciata da `data/crescita.json`,
-quanto manca al prossimo punto di statistica — il giocatore vede **cosa** lo sta facendo
-crescere, non solo quanto vale), *Abilità passive*, *Squadra* (legame, livello e stress dei
-compagni, con i temporanei marcati), *Osservazioni* (creature studiate/incontrate, oggetti
-catalogati, resistenze agli stati) e *Organizzazione* (fonti estinte + una valutazione a parole).
-La valutazione è di proposito un giudizio e non una percentuale: l'Organizzazione parla per
-gradi — "In osservazione", "Prestazione conforme alle attese", fino a "Elemento di valore.
-Aspettative in aumento".
+### Il Diario ha un indice
 
-**Scoperta.** Un menu senza pulsante a schermo non esiste, se nessuno lo dice: il tutorial lo
-nomina esplicitamente quando la figura misteriosa parla del Diario, e il menu principale porta
-in fondo una riga discreta ("In gioco: ESC per pausa, storico e Diario").
+Le sette sezioni (*Appunti, Stato, Cosa ti sta cambiando, Abilità passive, Squadra,
+Osservazioni, Organizzazione*) erano impilate nello stesso scorrevole: per arrivare all'ultima
+si rotolava per due schermate passando in mezzo a tutto il resto. Adesso **indice a sinistra,
+una sezione alla volta a destra**, con quella aperta segnata in ottone. Un diario non è un
+tabulato: è un posto dove si va a cercare una cosa precisa.
+
+### Lo Zaino
+
+Mancava del tutto: per sapere cosa si aveva addosso bisognava aprire la scheda di un personaggio
+e guardare cosa si poteva equipaggiare — che è un'altra domanda. Adesso è un pannello suo, uno
+scomparto alla volta (*Consumabili · Armi · Accessori · Oggetti speciali · Ricordi e chiavi*),
+ognuno con la sua capienza. Gli oggetti uguali si contano su una riga sola (`×3`), e un'arma
+equipaggiata è segnata **in uso — Yhvina**: resta nello zaino, è una regola dello zaino, e qui è
+l'unico posto dove si vede.
+
+### Aperta da una stanza della Sede
+
+`Pausa.apri_su("diario" | "equipaggiamento" | "inventario")` apre un pannello **senza passare dal
+menu di pausa**: serve alla Sede, dove *Alloggi* e *Archivio* sono stanze di un posto, non voci
+di un menu.
+
+Questo aveva un bug, ed era mio: si cliccava *Alloggi*, si tornava indietro, e ci si ritrovava
+nel **menu di pausa** in mezzo alla Sede senza aver mai premuto ESC. Adesso `modo_diretto` dice
+da dove si è arrivati, e `indietro()` è una funzione sola che decide dove tornare — così non c'è
+un pannello che se lo ricorda e uno che se lo dimentica.
 
 ## Appunti del Diario (`data/task.json`)
 La guida del gioco. Non una lista di obiettivi con le spunte in un pannello a parte: sono i
@@ -1478,47 +1472,87 @@ livello, e al 20 sei circa **nove volte** quello che eri.
 per 1,6 da un livello al successivo, e dal livello 1 al 20 la crescita totale deve stare fra 4×
 e 18×. Sono paletti larghi — servono a fermare una valanga, non a impedire di ritoccare i numeri.
 
-### La difesa riduce, non cancella
+### La difesa riduce, non cancella. Mai zero.
 
 Il secondo motivo per cui non si moriva mai. *"Il protagonista para troppo spesso i colpi"* —
 vero, ed erano **due meccanismi diversi che stampavano lo stesso messaggio**:
 
 1. la difesa si sottraeva dal danno e si teneva il massimo con zero: difesa ≥ attacco → il colpo
-   spariva. Con `Difenditi` che accumula fino a un tetto, e con l'equipaggiamento addosso, era la
-   norma;
+   spariva. Con `Difenditi` che accumula, e con l'equipaggiamento addosso, era la norma;
 2. una **probabilità di annullare del tutto il colpo**, `0,1` per livello con tetto `0,5`: al
    livello 6 **metà dei colpi subiti spariva nel nulla**, a caso, senza che a schermo succedesse
    niente.
 
-Un colpo che non fa niente non è un evento: è un buco nel ritmo. Adesso:
+Un colpo che non fa niente non è un evento: è un buco nel ritmo. Adesso due regole sole:
 
-- la difesa **riduce**, e sotto `danno_minimo_percentuale` (25%) del colpo pieno non si scende
-  mai. Pararsi bene vuol dire prendere 7 invece di 30, e quel 7 si vede volare;
-- il livello toglie una **percentuale** (`0,02` per livello, tetto `0,35`), non annulla a caso;
-- chi ha 0 di attacco continua a non fare male: la Tartaruga resta la Tartaruga.
+| | |
+|---|---|
+| la corazza **vince** (difesa ≥ colpo) | passa **1**. Un graffio, mai zero |
+| la corazza **perde** | passa quel che resta, ma mai meno di `danno_minimo_percentuale` (10%) del colpo pieno |
 
-`prova_la_difesa_riduce_non_cancella()` fallisce se la parata a secco torna.
+Il livello toglie una **percentuale** (`0,02` per livello, tetto `0,35`), non annulla a caso. Chi
+ha 0 di attacco continua a non fare male.
+
+Il primo caso è quello che rende possibile una creatura come la **Tartaruga Innocente**: 555
+punti vita e `"difesa_per_turno": 3` — a ogni suo turno la corazza cresce di tre punti e non
+torna più indietro. Arriva il momento in cui il tuo colpo passa per 1, e con quella vita non la
+abbatti in nessun modo. Non è un muro ingiusto: è il gioco che dice, con i numeri invece che con
+una riga di testo, che quella creatura non va picchiata — va capita.
+
+`prova_la_difesa_riduce_non_cancella()` verifica tutti e due i rami;
+`prova_corazza_che_cresce()` verifica che la corazza arrivi davvero a fermare un colpo, e che ci
+metta abbastanza turni perché si capisca cosa sta succedendo.
+
+### Una fonte non si supera farmando
+
+Le creature comuni restano al massimo tre livelli sotto di te, e va bene: sono il paesaggio, e
+attraversarlo più in fretta **è** la ricompensa per essere diventato forte. Una fonte no: quella
+è il motivo per cui sei lì. `scarto_livello_boss: 0` — boss, fonti e miniboss stanno **sempre
+almeno al tuo livello**, per sempre.
+
+`prova_i_boss_non_si_superano_farmando()` controlla tutte e due le facce: che nessuna fonte
+scenda sotto di te a nessun livello, e che qualche creatura comune resti sotto — altrimenti
+livellare non servirebbe a niente.
+
+### Le stat riallineate a una curva
+
+Le stat delle creature erano state scritte a mano in momenti diversi e non seguivano nessuna
+curva: un Ghoul di livello 8 aveva 350 hp, un Oppresso di livello 4 ne aveva 270, contro un
+protagonista che nel frattempo era triplicato. Sono state ricalcolate **partendo da quanto deve
+durare uno scontro e quanto deve costarti**, non dai numeri:
+
+| | turni | quanta vita ti costa |
+|---|--:|--:|
+| comune | 8 | 30% |
+| particolare | 12 | 45% |
+| miniboss | 16 | 60% |
+| **fonte / boss** | 20 | 62% |
+
+Da lì discendono hp, attacco e difesa — non il contrario. La difesa sta sotto un terzo del tuo
+attacco al livello a cui la incontri: sopra quella soglia la corazza vincerebbe e passeresti a 1,
+che è un effetto voluto solo dove è voluto. Il carattere di ogni creatura è conservato entro
+±25% rispetto alle sue pari, così "questa è più grossa di quella" resta vero.
+
+Restano fuori dal riallineamento, di proposito: la Tartaruga (555, decisa a mano), l'Immortale
+(è una battuta), la Manifestazione di un sogno (scena, non scontro), Veronica (tutorial) e la
+vita di Un tenero ricordo (6660 è un simbolo).
 
 ### Dove siamo adesso
 
-Misurato col giocatore vero, ogni creatura al livello a cui la incontri:
+Ogni creatura al livello a cui la incontri, misurata attaccando e basta (niente oggetti, niente
+abilità — è il pavimento):
 
-| | giri | quanta vita ti costa |
-|---|--:|---|
-| prime creature (lv 1–3) | 3–8 | poco: sono un'introduzione |
-| Squarcio Industriale / Meridia (lv 4–6) | 7–18 | dal 20% al 45% |
-| **il goblin arrabbiato** | 18 | ~47%: è tornato un muro |
-| Cunicoli di Jondoh (lv 8–9) | 5–7 | ~5% — **troppo poco, vedi sotto** |
+| | vinte | giri | quanta vita ti costa |
+|---|--:|--:|--:|
+| creature comuni lv 1–3 | 100% | 5–6 | ~25% |
+| creature comuni lv 4–9 | 100% | 6–12 | 25–45% |
+| creature particolari (Divoratore) | 53% | 15 | 97% |
+| **goblin arrabbiato** (fonte) | 73% | **28** | 90% |
+| fonti incontrate sotto livello | 0–45% | — | tutta |
 
-**Il problema che resta è di contenuto, non di regole.** Le stat delle creature sono state
-scritte a mano in momenti diversi e non seguono nessuna curva: un Ghoul di livello 8 ha 350 hp
-e un Oppresso di livello 4 ne ha 270, contro un protagonista che nel frattempo è triplicato.
-Da metà gioco in poi le creature comuni sono arredamento.
-
-Per questo `docs/bilanciamento.md` adesso contiene una **curva di riferimento**: quanti hp e
-quanto attacco dovrebbe avere una creatura di livello N perché lo scontro sia una lotta, e
-l'elenco di chi è fuori di più della metà. Non è una regola che il gioco applica — è un metro
-per riscrivere quei numeri sapendo dove si sta andando.
+Il goblin arrabbiato è tornato quello che deve essere: ventotto turni, e ci arrivi con il fiato
+corto. Il Divoratore è una monetina lanciata in aria se ti limiti a picchiare — e smette di
+esserlo appena usi qualcosa.
 
 ### I numeri hanno un colore
 

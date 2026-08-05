@@ -6,7 +6,7 @@
 	"riduzione_danno_per_livello": 0.02,
 	"riduzione_danno_massima": 0.35,
 	"_nota_difesa": "danno_minimo_percentuale: la difesa riduce, non cancella. Sotto questa frazione del colpo pieno non si scende mai, quindi un numero vola sempre. Prima un colpo poteva finire a zero e diventare la riga 'X para il colpo di Y': succedeva decine di volte per scontro e toglieva ogni senso di pericolo.",
-	"danno_minimo_percentuale": 0.25,
+	"danno_minimo_percentuale": 0.1,
 	"probabilita_attacco_extra_rabbia": 0.35,
 	"malus_danno_depressione": 3,
 	"fattore_bonus_concentrazione": 25,
@@ -53,7 +53,9 @@
 
 	"_nota_livello_nemici": "Il disallineamento si alimenta del fattore Carnivalz di chi lo attraversa: piu' e' forte il dominatore, piu' e' forte cio' che gli viene incontro. In gioco: nessuna creatura scende mai piu' di scarto_livello_massimo livelli sotto il protagonista, e a ogni livello guadagnato sopra il suo cresce delle percentuali qui sotto. Sopra puo' stare quanto vuole (il goblin arrabbiato resta il macellaio che e'). Chi non deve scalare lo dice nel suo file: \"scala_col_giocatore\": false.",
 	"scarto_livello_massimo": 3,
-	"crescita_nemico_per_livello": {"hp": 0.30, "attacco": 0.22, "difesa": 0.12, "xp": 0.14, "tazo": 0.08},
+	"_nota_boss": "scarto_livello_boss: le fonti (e i miniboss) non scendono MAI sotto il tuo livello. Farmare rende piu' facile il paesaggio, non lo scontro per cui sei venuto: se un boss si potesse superare a forza di livelli, il momento piu' importante di una zona diventerebbe la sua parte piu' noiosa.",
+	"scarto_livello_boss": 0,
+	"crescita_nemico_per_livello": {"hp": 0.13, "attacco": 0.13, "difesa": 0.10, "xp": 0.12, "tazo": 0.08},
 
 	"_nota_abilita": "Le abilita' di combattimento, tutte qui. Una classe le ottiene scrivendone l'id nel suo campo \"abilita\" (classes.json); il menu costruisce i bottoni da questa tabella, quindi aggiungerne una non richiede di toccare il codice. I tipi che il motore conosce: provoca, area, raffica, carica.",
 	"abilita_combattimento": {

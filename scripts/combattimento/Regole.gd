@@ -114,6 +114,12 @@ static func puo_subire_slaughter(bersaglio: Dictionary) -> bool:
 	if categoria_di(dati) != "comune" or dati.has("incontro_scriptato") \
 			or dati.get("invincibile", false):
 		return false
+	if dati.has("risparmio") or dati.has("difesa_per_turno"):
+		# Una creatura che si puo' risparmiare, o che si chiude e non si abbatte,
+		# e' li' per insegnare che non tutto si risolve picchiando. Un colpo di
+		# fortuna all'1% che la liquida non e' una variazione: e' il gioco che
+		# smentisce sé stesso. La Tartaruga moriva cosi' nella meta' delle prove.
+		return false
 	var resistenza := resistenza_di(bersaglio, "stress")
 	return resistenza != "immune" and resistenza != "invertito"
 
@@ -166,7 +172,7 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	danno -= int(difesa_bersaglio)
 	if ha_stato_con_effetto(bersaglio, "difesa_giu"):
 		danno += int(GameState.regole.get("malus_danno_depressione", 1))
-	# LA DIFESA RIDUCE, NON CANCELLA.
+	# LA DIFESA RIDUCE, NON CANCELLA. MAI ZERO.
 	#
 	# Prima si sottraeva la difesa e si teneva il massimo con zero: bastava una
 	# difesa alta quanto l'attacco e il colpo spariva. Con "Difenditi" che
@@ -175,12 +181,23 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	# volte per scontro. Un colpo che non fa niente non e' un evento: e' un buco
 	# nel ritmo, e chi gioca smette di sentirsi in pericolo.
 	#
-	# Adesso sotto una percentuale del colpo pieno non si scende mai: pararsi bene
-	# vuol dire prendere 7 invece di 30, e quel 7 si vede volare. La parata a
-	# secco resta possibile solo contro chi non fa male per davvero.
-	var pavimento := maxi(int(ceil(danno_pieno
-			* float(GameState.regole.get("danno_minimo_percentuale", 0.25)))), 1)
-	danno = maxi(danno, pavimento)
+	# Due regole, e insieme dicono tutto quello che c'e' da sapere:
+	#
+	#   la corazza VINCE  (difesa >= colpo)  ->  passa 1. Un graffio, non niente.
+	#   la corazza PERDE                     ->  passa quel che resta, ma mai meno
+	#                                            di una frazione del colpo pieno
+	#
+	# Il primo caso e' quello che rende possibile una creatura come la Tartaruga
+	# Innocente, che a ogni turno alza la guardia di tre punti e non se li toglie
+	# piu': arriva il momento in cui a mani nude le fai 1, e con quella vita non
+	# la abbatti in nessun modo. Non e' un muro ingiusto - e' il gioco che ti dice
+	# che quella creatura non va picchiata, va capita.
+	if danno <= 0:
+		danno = 1
+	else:
+		var pavimento := maxi(int(ceil(danno_pieno
+				* float(GameState.regole.get("danno_minimo_percentuale", 0.1)))), 1)
+		danno = maxi(danno, pavimento)
 	if bersaglio.giocatore:
 		# Il livello (e il fattore acceso) tolgono una PERCENTUALE al colpo. Prima
 		# era una probabilita' di annullarlo del tutto - fino a meta' dei colpi

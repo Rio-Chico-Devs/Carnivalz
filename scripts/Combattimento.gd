@@ -1059,7 +1059,28 @@ func primo_nemico() -> Dictionary:
 
 # --- turno nemico e mosse ---
 
+func corazza_che_cresce(nemico: Dictionary) -> void:
+	# Una creatura puo' irrobustirsi a ogni suo turno, e non tornare piu'
+	# indietro: "difesa_per_turno" nel suo file. Non e' un buff a scadenza, e'
+	# la sua difesa base che sale e resta.
+	#
+	# E' la Tartaruga Innocente: si chiude nel guscio, e ogni volta si chiude un
+	# po' di piu'. Prima o poi la sua corazza supera il tuo colpo e da li' in poi
+	# le fai 1 (vedi RegoleCombattimento.calcola_danno); con la vita che ha, a
+	# mani nude non la abbatti in nessun modo. Non e' un muro ingiusto: e' il
+	# gioco che dice, con i numeri invece che con una riga di testo, che quella
+	# creatura non va picchiata - va capita.
+	var passo := int(GameState.personaggi.get(nemico.id, {}).get("difesa_per_turno", 0))
+	if passo <= 0 or nemico.hp <= 0:
+		return
+	nemico.difesa = int(nemico.difesa) + passo
+	var testo := String(GameState.personaggi.get(nemico.id, {}).get("testo_corazza",
+			"%s si chiude ancora un po'. La sua corazza è più spessa di prima."))
+	scrivi("[i]%s[/i]" % (testo % nemico.nome))
+	aggiorna_scheda(nemico)
+
 func turno_nemico(nemico: Dictionary) -> void:
+	corazza_che_cresce(nemico)
 	if not tutorial.is_empty() and not tutorial_finito \
 			and GameState.personaggi.get(nemico.id, {}).has("tutorial_combattimento"):
 		return  # durante il tutorial le sue reazioni sono scritte nei passi, non tirate a caso

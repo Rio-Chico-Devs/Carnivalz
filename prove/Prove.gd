@@ -44,6 +44,8 @@ func _ready() -> void:
 	prova_livello_dei_nemici()
 	prova_crescita_non_scappa()
 	prova_la_difesa_riduce_non_cancella()
+	prova_i_boss_non_si_superano_farmando()
+	prova_corazza_che_cresce()
 	prova_colori_del_danno()
 	prova_abilita_di_combattimento()
 	prova_transizioni()
@@ -1002,26 +1004,107 @@ func prova_la_difesa_riduce_non_cancella() -> void:
 		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
 		"psiche": "", "immunita_temporanea": [], "hp": 100,
 	}
-	# un bersaglio corazzato oltre ogni ragionevolezza: la difesa e' TRIPLA
-	# rispetto al colpo, e il colpo deve passare lo stesso
 	var bersaglio := {
-		"id": "anonimo", "giocatore": false, "attacco": 0, "difesa": 90,
+		"id": "anonimo", "giocatore": false, "attacco": 0, "difesa": 0,
 		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
 		"psiche": "", "immunita_temporanea": [], "hp": 100,
 	}
+	# 1. LA CORAZZA VINCE (difesa tripla rispetto al colpo): passa esattamente 1.
+	#    Mai zero - e mai piu' di un graffio. E' quello che rende possibile una
+	#    creatura che si chiude e non si abbatte piu' a mani nude.
+	bersaglio.difesa = 90
 	var minimo := 999
+	var massimo := 0
 	for prova in 200:
 		var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio)
 		minimo = mini(minimo, int(esito.danno))
+		massimo = maxi(massimo, int(esito.danno))
 	esigi(minimo >= 1,
 			"contro una difesa altissima un colpo e' arrivato a %d: torna la parata a secco" % minimo)
+	esigi(massimo <= 1,
+			"la corazza ha perso pur superando il colpo: e' passato %d invece di 1" % massimo)
+	# 2. LA CORAZZA PERDE (difesa appena sotto il colpo): passa almeno la frazione
+	#    minima del colpo pieno, cosi' difendersi riduce ma non annulla
+	bersaglio.difesa = 28
+	minimo = 999
+	for prova in 200:
+		minimo = mini(minimo, int(RegoleCombattimento.calcola_danno(attaccante, bersaglio).danno))
 	esigi(minimo >= int(ceil(30 * frazione)),
-			"la difesa ha tolto piu' del %d%% del colpo (minimo passato: %d)"
+			"la difesa ha tolto piu' del %d%% di un colpo che passava (minimo: %d)"
 			% [int(round((1.0 - frazione) * 100)), minimo])
-	# chi non fa male non fa male: la Tartaruga resta la Tartaruga
+	# 3. chi non fa male non fa male: 0 di attacco resta 0 danni
 	attaccante.attacco = 0
 	var esito_nullo := RegoleCombattimento.calcola_danno(attaccante, bersaglio)
 	esigi(int(esito_nullo.danno) == 0, "un attaccante con 0 di attacco ha fatto danno")
+	GameState.nuova_partita()
+
+func prova_i_boss_non_si_superano_farmando() -> void:
+	# Bru: "i boss saranno sempre a livello del personaggio, farmare per essere
+	# piu' forti non deve poter rendere il boss meno una sfida". Le creature
+	# comuni si possono superare - sono il paesaggio, e attraversarlo piu' in
+	# fretta e' una ricompensa. Le fonti no.
+	titolo("una fonte non si supera farmando")
+	GameState.nuova_partita()
+	var fonti: Array[String] = []
+	var comuni: Array[String] = []
+	for id_creatura in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		if not dati.has("hp") or not GameState.nemico_scala(id_creatura):
+			continue
+		if GameState.e_boss(id_creatura):
+			fonti.append(id_creatura)
+		else:
+			comuni.append(id_creatura)
+	esigi(not fonti.is_empty(), "nessuna fonte riconosciuta: la regola non protegge niente")
+	for livello_eroe in [5, 12, 30, 60]:
+		GameState.livelli[GameState.id_protagonista] = livello_eroe
+		for id_fonte in fonti:
+			esigi(GameState.livello_nemico(id_fonte) >= livello_eroe,
+					"la fonte %s e' lv %d contro un protagonista lv %d: si supera farmando"
+					% [id_fonte, GameState.livello_nemico(id_fonte), livello_eroe])
+		# e le comuni invece devono restare indietro, o non c'e' nessuna
+		# ricompensa nel diventare forti
+		var qualcuna_sotto := false
+		for id_comune in comuni:
+			if GameState.livello_nemico(id_comune) < livello_eroe:
+				qualcuna_sotto = true
+		esigi(qualcuna_sotto,
+				"al livello %d nessuna creatura comune resta sotto di te: livellare non serve a niente"
+				% livello_eroe)
+	GameState.nuova_partita()
+
+func prova_corazza_che_cresce() -> void:
+	# La Tartaruga si chiude a ogni turno e non si riapre. La prova non e' sul
+	# numero (quello e' contenuto): e' sul fatto che il campo esista, che sia
+	# permanente, e che porti davvero il colpo del protagonista a 1.
+	titolo("una corazza che cresce a ogni turno arriva a fermare un colpo")
+	GameState.nuova_partita()
+	var dati: Dictionary = GameState.personaggi.get("tartaruga_innocente", {})
+	var passo := int(dati.get("difesa_per_turno", 0))
+	esigi(passo > 0, "la Tartaruga non ha piu' la corazza che cresce")
+	esigi(int(dati.get("attacco", 0)) == 0, "la Tartaruga ha imparato ad attaccare")
+	var attaccante := {
+		"id": GameState.id_protagonista, "giocatore": true, "attacco": 40, "difesa": 0,
+		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
+		"psiche": "", "immunita_temporanea": [], "hp": 100,
+	}
+	var guscio := {
+		"id": "tartaruga_innocente", "giocatore": false, "attacco": 0,
+		"difesa": int(dati.get("difesa", 0)),
+		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
+		"psiche": "", "immunita_temporanea": [], "hp": int(dati.get("hp", 1)),
+	}
+	var turni_per_fermarlo := 0
+	for turno in 60:
+		guscio.difesa = int(guscio.difesa) + passo
+		if int(RegoleCombattimento.calcola_danno(attaccante, guscio).danno) <= 1:
+			turni_per_fermarlo = turno + 1
+			break
+	esigi(turni_per_fermarlo > 0,
+			"la corazza non arriva mai a fermare un colpo da 40: la Tartaruga si abbatte a mani nude")
+	esigi(turni_per_fermarlo >= 3,
+			"la corazza ferma tutto dopo %d turni: non c'e' il tempo di capire cosa sta succedendo"
+			% turni_per_fermarlo)
 	GameState.nuova_partita()
 
 func prova_colori_del_danno() -> void:

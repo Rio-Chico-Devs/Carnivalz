@@ -164,6 +164,7 @@ func disegna_slot() -> void:
 		riga_semplice(colonna_centro,
 				"È con te solo per un tratto: non gli si affida ancora niente.", true)
 		return
+	riga_semplice(colonna_centro, "Clicca uno slot per vedere cosa puoi metterci.", true)
 	voce_slot("arma", 0, "Arma")
 	voce_slot("stigma", 0, "Stigma")
 	voce_slot("ultima_risorsa", 0, "Ultima risorsa")
@@ -187,7 +188,9 @@ func voce_slot(slot: String, indice: int, etichetta: String) -> void:
 		bottone.text = "%s — 🔒 si apre al livello %d" % [etichetta, livello]
 		bottone.disabled = true
 	elif id_oggetto == "":
-		bottone.text = "%s — vuoto" % etichetta
+		# "vuoto" e' uno stato; "+ metti qualcosa" e' un invito. Uno slot su cui si
+		# puo' cliccare deve dire che si puo' cliccare
+		bottone.text = "%s — + metti qualcosa" % etichetta
 	else:
 		bottone.text = "%s — %s" % [etichetta, nome_oggetto(id_oggetto)]
 	bottone.alignment = HORIZONTAL_ALIGNMENT_LEFT

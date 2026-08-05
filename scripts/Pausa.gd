@@ -8,11 +8,18 @@ extends CanvasLayer
 # invece e' tutto un velo sopra la scena viva, che non tocca niente di quello
 # che c'e' sotto.
 #
-# Tre pannelli, uno alla volta:
-#   menu     -> Riprendi / Storico / Diario / Personaggio / Opzioni / Esci
-#   storico  -> i messaggi gia' letti (GameState.storico), dal piu' recente
-#   diario   -> chi sei diventato: statistiche, come sono cresciute, passive,
-#               squadra, creature studiate, valutazione dell'Organizzazione
+# Un pannello alla volta, mai due cose insieme:
+#   menu          -> Riprendi / Storico / Diario / Personaggio / Inventario /
+#                    Opzioni / Esci
+#   storico       -> i messaggi gia' letti (GameState.storico), dal piu' recente
+#   diario        -> chi sei diventato. NON e' piu' un muro solo: ha un indice a
+#                    sinistra e una sezione alla volta a destra (vedi sotto)
+#   inventario    -> lo zaino, uno scomparto alla volta, con la sua capienza
+#   equipaggiamento -> la scheda del personaggio (scripts/Personaggio.gd)
+#
+# In ogni pannello, in alto a destra: Tazo e livello. Sempre, senza doverli
+# andare a cercare - sono le due cose che si guardano piu' spesso, e le disegna
+# intestazione(), cosi' nessun pannello puo' dimenticarsele.
 #
 # Mentre e' aperto l'albero e' in pausa (get_tree().paused): i tween si
 # fermano, i timer del combattimento si fermano, niente va avanti alle spalle
@@ -29,11 +36,41 @@ const SCENE_ESCLUSE := [
 ]
 const SCENA_MENU := "res://scenes/Menu.tscn"
 
+# Le sezioni del Diario, in ordine. Prima erano impilate tutte in un unico
+# scorrevole: sette titoli uno sotto l'altro, e per arrivare all'ultimo si
+# rotolava per due schermate. Adesso una alla volta, con l'indice a sinistra.
+const SEZIONI_DIARIO := [
+	["appunti", "Appunti"],
+	["stato", "Stato"],
+	["crescita", "Cosa ti sta cambiando"],
+	["passive", "Abilità passive"],
+	["squadra", "Squadra"],
+	["osservazioni", "Osservazioni"],
+	["organizzazione", "Organizzazione"],
+]
+
+# Gli scomparti dello zaino: gli stessi di GameState (contenuto_zaino), piu' i
+# collezionabili, che non sono zaino ma nemmeno vanno persi di vista.
+const SCOMPARTI := [
+	["consumabili", "Consumabili"],
+	["armi", "Armi"],
+	["accessori", "Accessori"],
+	["speciali", "Oggetti speciali"],
+	["collezionabili", "Ricordi e chiavi"],
+]
+
 var velo: ColorRect
 var contenitore: MarginContainer
 var colonna: VBoxContainer
 var aperta := false
-var pannello := "menu"  # menu | storico | diario | equipaggiamento | opzioni | uscita
+var pannello := "menu"  # menu | storico | diario | inventario | equipaggiamento | opzioni | uscita
+var sezione_diario := "appunti"
+var scomparto_aperto := "consumabili"
+# Aperta da una stanza della Sede (Alloggi, Archivio) invece che con ESC: allora
+# "Indietro" deve CHIUDERE e riportare alla Sede, non aprire il menu di pausa.
+# Senza questa riga succedeva davvero: cliccavi Alloggi, tornavi indietro, e ti
+# ritrovavi in pausa in mezzo alla Sede senza aver premuto ESC.
+var modo_diretto := false
 
 func _ready() -> void:
 	layer = LIVELLO
@@ -57,8 +94,11 @@ func _unhandled_input(evento: InputEvent) -> void:
 		return
 	if aperta:
 		# ESC da un sotto-pannello torna al menu, non butta fuori dalla pausa:
-		# chi stava rileggendo lo storico non vuole ritrovarsi in combattimento
-		if pannello == "menu":
+		# chi stava rileggendo lo storico non vuole ritrovarsi in combattimento.
+		# A meno che il pannello non sia stato aperto da fuori (una stanza della
+		# Sede): li' non esiste nessun menu di pausa da cui si sia passati, e
+		# tornare indietro vuol dire tornare alla stanza.
+		if pannello == "menu" or modo_diretto:
 			chiudi()
 		else:
 			mostra_menu()
@@ -80,6 +120,7 @@ func pausabile() -> bool:
 
 func apri() -> void:
 	aperta = true
+	modo_diretto = false
 	velo.visible = true
 	get_tree().paused = true
 	mostra_menu()
@@ -89,17 +130,32 @@ func apri_su(quale: String) -> void:
 	# alla Sede: "Alloggi" e "Archivio" sono stanze di un posto, non voci di un
 	# menu, e devono portare dritto dove dicono. Il pannello vive qui perche' e'
 	# un velo sopra la scena viva: si chiude e si torna esattamente dov'eri.
+	#
+	# modo_diretto e' quello che fa la differenza a tornare indietro: da qui si
+	# esce alla stanza, non al menu di pausa (che non si e' mai aperto).
 	aperta = true
+	modo_diretto = true
 	velo.visible = true
 	get_tree().paused = true
 	match quale:
 		"diario": mostra_diario()
 		"equipaggiamento": mostra_equipaggiamento()
+		"inventario": mostra_inventario()
 		"storico": mostra_storico()
-		_: mostra_menu()
+		_:
+			modo_diretto = false
+			mostra_menu()
+
+func indietro() -> Callable:
+	# dove porta "Indietro" da un sotto-pannello: al menu di pausa se ci si e'
+	# arrivati da li', fuori del tutto se il pannello e' stato aperto da una
+	# stanza. Una funzione sola, cosi' non c'e' un pannello che se lo ricorda e
+	# uno che se lo dimentica
+	return chiudi if modo_diretto else mostra_menu
 
 func chiudi() -> void:
 	aperta = false
+	modo_diretto = false
 	velo.visible = false
 	get_tree().paused = false
 	svuota()
@@ -117,11 +173,26 @@ func nuova_colonna() -> VBoxContainer:
 	return colonna
 
 func intestazione(testo: String) -> void:
+	# Titolo a sinistra, Tazo e livello a destra. Sempre: sono le due cose che si
+	# guardano piu' spesso, e finche' erano sepolte dentro una sezione del Diario
+	# bisognava navigare per sapere quanti soldi si avevano. Stanno qui dentro e
+	# non in ogni pannello proprio perche' nessuno se le possa dimenticare.
+	var riga := HBoxContainer.new()
+	riga.add_theme_constant_override("separation", 20)
+	colonna.add_child(riga)
 	var titolo := Label.new()
 	titolo.text = testo
+	titolo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	titolo.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
 	titolo.add_theme_color_override("font_color", Stile.colore("accento"))
-	colonna.add_child(titolo)
+	riga.add_child(titolo)
+	var risorse := Label.new()
+	risorse.text = "Tazo %d     Lv %d" % [
+			GameState.tazo, GameState.livello_di(GameState.id_protagonista)]
+	risorse.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	risorse.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
+	risorse.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
+	riga.add_child(risorse)
 
 func bottone(testo: String, richiamo: Callable) -> Button:
 	var b := Button.new()
@@ -141,6 +212,7 @@ func mostra_menu() -> void:
 	bottone("Storico dei dialoghi", mostra_storico)
 	bottone("Diario", mostra_diario)
 	bottone("Personaggio e squadra", mostra_equipaggiamento)
+	bottone("Zaino", mostra_inventario)
 	bottone("Opzioni", mostra_opzioni)
 	bottone("Torna al menu principale", conferma_uscita)
 	primo.grab_focus()
@@ -156,7 +228,7 @@ func mostra_opzioni() -> void:
 	pannello = "opzioni"
 	intestazione("Opzioni")
 	PannelloOpzioni.costruisci(colonna, 200)
-	bottone("Indietro", mostra_menu).grab_focus()
+	bottone("Indietro", indietro()).grab_focus()
 
 func conferma_uscita() -> void:
 	# uscire da qui butta via i progressi della zona in corso: si salva solo
@@ -168,7 +240,7 @@ func conferma_uscita() -> void:
 	avviso.text = "Il gioco si salva da solo quando rientri alla Sede: tutto quello che hai\nfatto dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso."
 	avviso.add_theme_color_override("font_color", Stile.colore("pericolo"))
 	colonna.add_child(avviso)
-	var primo := bottone("No, resto qui", mostra_menu)
+	var primo := bottone("No, resto qui", mostra_menu if not modo_diretto else chiudi)
 	bottone("Sì, torna al menu principale", func() -> void:
 		chiudi()
 		GameState.reset_campagna()
@@ -195,7 +267,7 @@ func mostra_storico() -> void:
 		righe.add_child(vuoto)
 	for voce in GameState.storico:
 		righe.add_child(riga_storico(voce))
-	bottone("Indietro", mostra_menu).grab_focus()
+	bottone("Indietro", indietro()).grab_focus()
 	# si apre gia' in fondo: l'ultima cosa letta e' quella che interessa di piu'
 	await get_tree().process_frame
 	if is_instance_valid(scorrevole):
@@ -240,24 +312,177 @@ func riga_storico(voce: Dictionary) -> Control:
 # --- pannello: diario ---
 
 func mostra_diario() -> void:
+	# Indice a sinistra, UNA sezione alla volta a destra.
+	#
+	# Prima erano tutte impilate nello stesso scorrevole: sette titoli uno sotto
+	# l'altro, e per arrivare alla valutazione dell'Organizzazione bisognava
+	# rotolare per due schermate passando in mezzo a tutto il resto. Un diario
+	# non e' un tabulato: e' un posto dove si va a cercare una cosa precisa.
 	nuova_colonna()
 	pannello = "diario"
-	intestazione("Diario — unità Pk09")
+	intestazione("Diario")
+	var corpo := HBoxContainer.new()
+	corpo.add_theme_constant_override("separation", 24)
+	corpo.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	colonna.add_child(corpo)
+
+	var indice := VBoxContainer.new()
+	indice.add_theme_constant_override("separation", 6)
+	indice.custom_minimum_size = Vector2(280, 0)
+	corpo.add_child(indice)
+	var primo: Button = null
+	for voce in SEZIONI_DIARIO:
+		var chiave := String(voce[0])
+		var b := Button.new()
+		b.text = String(voce[1])
+		Stile.scelta(b)
+		if chiave == sezione_diario:
+			# dove sei si vede: senza questo l'indice e' sette bottoni uguali
+			b.add_theme_color_override("font_color", Stile.colore("accento"))
+			b.text = "▸  " + b.text
+		else:
+			b.pressed.connect(func() -> void:
+				sezione_diario = chiave
+				mostra_diario())
+			if primo == null:
+				primo = b
+		indice.add_child(b)
+
 	var scorrevole := ScrollContainer.new()
+	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	colonna.add_child(scorrevole)
-	var corpo := VBoxContainer.new()
-	corpo.add_theme_constant_override("separation", 18)
-	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scorrevole.add_child(corpo)
-	sezione_appunti(corpo)
-	sezione_stato(corpo)
-	sezione_crescita(corpo)
-	sezione_passive(corpo)
-	sezione_squadra(corpo)
-	sezione_osservazioni(corpo)
-	sezione_organizzazione(corpo)
-	bottone("Indietro", mostra_menu).grab_focus()
+	corpo.add_child(scorrevole)
+	var dentro := VBoxContainer.new()
+	dentro.add_theme_constant_override("separation", 10)
+	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scorrevole.add_child(dentro)
+	match sezione_diario:
+		"appunti": sezione_appunti(dentro)
+		"stato": sezione_stato(dentro)
+		"crescita": sezione_crescita(dentro)
+		"passive": sezione_passive(dentro)
+		"squadra": sezione_squadra(dentro)
+		"osservazioni": sezione_osservazioni(dentro)
+		"organizzazione": sezione_organizzazione(dentro)
+	bottone("Indietro", indietro()).grab_focus()
+
+# --- pannello: inventario ---
+
+func mostra_inventario() -> void:
+	# Lo zaino, uno scomparto alla volta. Mancava del tutto dal menu di pausa:
+	# per sapere cosa si aveva addosso bisognava aprire la scheda di un
+	# personaggio e guardare cosa si poteva equipaggiare - che e' un'altra
+	# domanda. Qui si guarda e basta.
+	nuova_colonna()
+	pannello = "inventario"
+	intestazione("Zaino")
+	var corpo := HBoxContainer.new()
+	corpo.add_theme_constant_override("separation", 24)
+	corpo.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	colonna.add_child(corpo)
+
+	var indice := VBoxContainer.new()
+	indice.add_theme_constant_override("separation", 6)
+	indice.custom_minimum_size = Vector2(280, 0)
+	corpo.add_child(indice)
+	for voce in SCOMPARTI:
+		var chiave := String(voce[0])
+		var quanti := contenuto_scomparto(chiave).size()
+		var b := Button.new()
+		b.text = "%s  (%s)" % [String(voce[1]), capienza_testo(chiave, quanti)]
+		Stile.scelta(b)
+		if chiave == scomparto_aperto:
+			b.add_theme_color_override("font_color", Stile.colore("accento"))
+			b.text = "▸  " + b.text
+		else:
+			b.pressed.connect(func() -> void:
+				scomparto_aperto = chiave
+				mostra_inventario())
+		indice.add_child(b)
+
+	var scorrevole := ScrollContainer.new()
+	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	corpo.add_child(scorrevole)
+	var dentro := VBoxContainer.new()
+	dentro.add_theme_constant_override("separation", 12)
+	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scorrevole.add_child(dentro)
+	disegna_scomparto(dentro, scomparto_aperto)
+	bottone("Indietro", indietro()).grab_focus()
+
+func contenuto_scomparto(chiave: String) -> Array:
+	if chiave == "collezionabili":
+		return GameState.collezionabili + GameState.chiavi
+	return GameState.contenuto_zaino(chiave)
+
+func capienza_testo(chiave: String, quanti: int) -> String:
+	# gli scomparti senza tetto non devono mostrarne uno finto: gli oggetti
+	# speciali sono la storia che ti porti dietro, non zavorra da amministrare
+	if chiave in ["speciali", "collezionabili"]:
+		return "%d" % quanti
+	return "%d / %d" % [quanti, GameState.capacita_zaino(chiave)]
+
+func disegna_scomparto(genitore: VBoxContainer, chiave: String) -> void:
+	var elenco := contenuto_scomparto(chiave)
+	if elenco.is_empty():
+		var vuoto := Label.new()
+		vuoto.text = "Questo scomparto è vuoto."
+		Stile.etichetta_piccola(vuoto)
+		genitore.add_child(vuoto)
+		return
+	# quanti ne hai dello stesso tipo: tre fiale sono una riga con un x3, non tre
+	# righe uguali una sotto l'altra
+	var conteggio := {}
+	var ordine: Array[String] = []
+	for id_oggetto in elenco:
+		var id_stringa := String(id_oggetto)
+		if not conteggio.has(id_stringa):
+			conteggio[id_stringa] = 0
+			ordine.append(id_stringa)
+		conteggio[id_stringa] = int(conteggio[id_stringa]) + 1
+	for id_oggetto in ordine:
+		genitore.add_child(riga_oggetto(id_oggetto, int(conteggio[id_oggetto])))
+
+func riga_oggetto(id_oggetto: String, quanti: int) -> Control:
+	var dati := GameState.dati_oggetto(id_oggetto)
+	var blocco := VBoxContainer.new()
+	blocco.add_theme_constant_override("separation", 2)
+	var riga := HBoxContainer.new()
+	riga.add_theme_constant_override("separation", 10)
+	blocco.add_child(riga)
+	var nome := Label.new()
+	nome.text = String(dati.get("nome", id_oggetto))
+	if quanti > 1:
+		nome.text += "  ×%d" % quanti
+	nome.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	nome.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
+	riga.add_child(nome)
+	# un'arma equipaggiata resta nello zaino, segnata: e' una regola dello zaino,
+	# e qui e' l'unico posto dove si vede
+	var portatore := GameState.portatore_di(id_oggetto)
+	if portatore != "":
+		var uso := Label.new()
+		uso.text = "in uso — %s" % nome_di_classe(portatore)
+		uso.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
+		uso.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
+		riga.add_child(uso)
+	var effetto := riassunto_effetto(dati)
+	var descrizione := String(dati.get("descrizione", ""))
+	var sotto := Label.new()
+	sotto.text = descrizione if descrizione != "" else effetto
+	if descrizione != "" and effetto != "" and effetto != "nessun effetto":
+		sotto.text = "%s  —  %s" % [descrizione, effetto]
+	sotto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	Stile.etichetta_piccola(sotto)
+	blocco.add_child(sotto)
+	return blocco
+
+func nome_di_classe(id_classe: String) -> String:
+	var definizione: Dictionary = GameState.classi.get(id_classe, {})
+	if not definizione.is_empty():
+		return String(definizione.get("nome", id_classe))
+	return String(GameState.personaggi.get(id_classe, {}).get("nome", id_classe))
 
 func sezione_appunti(genitore: VBoxContainer) -> void:
 	# la prima cosa che si legge aprendo il Diario: dove devo andare adesso.
@@ -344,7 +569,7 @@ func mostra_equipaggiamento() -> void:
 	pannello = "equipaggiamento"
 	var scheda := SchedaPersonaggio.new()
 	colonna.add_child(scheda)
-	scheda.apri(mostra_menu, mostra_diario)
+	scheda.apri(indietro(), mostra_diario)
 
 func etichetta_bonus(chiave: String) -> String:
 	match chiave:
