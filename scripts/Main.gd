@@ -557,8 +557,11 @@ func _su_scelta(scelta: Dictionary) -> void:
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
 	var notifiche: Array[Dictionary] = []
-	if scelta.has("oggetto"):
-		notifiche.append_array(pickup(scelta["oggetto"]))
+	# "oggetto" ne da' uno, "oggetti" ne da' quanti se ne scrivono - anche lo
+	# stesso due volte, per un ritrovamento che vale il doppio. Le due forme
+	# convivono: i contenuti gia' scritti usano la prima e non vanno ritoccati.
+	for id_oggetto in IngressoNodo.lista_id(scelta.get("oggetto", scelta.get("oggetti", []))):
+		notifiche.append_array(pickup(id_oggetto))
 	if scelta.has("lascia"):
 		GameState.rimuovi_classe(scelta["lascia"])
 	if scelta.has("ospite"):
@@ -597,12 +600,13 @@ func _su_scelta(scelta: Dictionary) -> void:
 		Transizioni.vai(SCENA_SEDE)
 		return
 	if scelta.get("game_over", false):
-		# si perde il progresso non salvato, ma non si viene sbalzati sulla
-		# mappa stellare: si ricomincia il livello dal suo punto di partenza
-		if GameState.game_over():
-			Transizioni.vai(SCENA_EVENTI)
-		else:
-			Transizioni.vai(SCENA_SEDE)
+		# "Riprendi dall'ultimo salvataggio" ricarica davvero il file della
+		# partita: si torna com'eri, oggetti compresi. Se un salvataggio non
+		# c'e' ancora (sei nel tutorial) si rifa' la zona, che e' l'unica cosa
+		# sensata: da fuori il tutorial non ci si rientra piu'.
+		match GameState.game_over():
+			"zona": Transizioni.vai(SCENA_EVENTI)
+			_: Transizioni.vai(SCENA_SEDE)
 		return
 	if scelta.get("torna_a_mappa", false):
 		# mappa dungeon di zona: si torna li' a scegliere la prossima stanza,

@@ -407,6 +407,32 @@ roba, non cinque righe vuote.
 **Nuova partita** azzera il progresso di storia (le collezioni album/bestiario/oggetti restano,
 sono meta). Non si salva a metà campagna/squarcio: si riparte sempre dallo stato "overworld".
 
+### Il game over ricarica davvero
+
+*"Riprendi dall'ultimo salvataggio"* non lo faceva: rifaceva la zona tenendo lo stato che c'era
+in memoria. Le fiale usate restavano usate, i Tazo spesi restavano spesi — il bottone mentiva, e
+chi moriva dopo aver speso mezza sacca ricominciava senza. Il motivo scritto nel codice era che
+il salvataggio era *un file solo condiviso da tutte le partite*: non è più vero da quando una
+partita è uno slot, e con il motivo è caduta anche la scelta.
+
+Adesso `GameState.game_over()` rilegge il file della partita e dice cosa ha fatto:
+
+| esito | quando | dove si finisce |
+|---|---|---|
+| `salvataggio` | c'è un file **di questa partita** | ricaricato: alla Sede, com'eri all'ultimo salvataggio |
+| `zona` | nessun salvataggio ancora (tutorial) | si rifà la zona dal suo inizio |
+| `""` | né l'uno né l'altra | alla Sede |
+
+`partita_su_file` è la riga che evita l'errore peggiore: chi comincia una partita **nuova** in
+uno slot già occupato e muore prima di aver salvato non deve ritrovarsi addosso l'inventario
+della partita di prima. Finché questa partita non ha scritto lei quel file, quel file non è suo.
+
+Nel tutorial un salvataggio non esiste ancora, quindi lì il bottone dice *"Rialzati e
+ricomincia"*: prometteva una cosa che il gioco non poteva mantenere.
+
+`prova_game_over_ricarica_davvero()` salva, consuma, muore e controlla che sia tornato tutto —
+e che una partita senza file non peschi quello di un'altra.
+
 **`"salva_checkpoint": true`** su un nodo (es. `dopo_lamento` nei Cunicoli di Jondoh) chiama
 `GameState.salva()` lì per lì, dentro lo squarcio — un'eccezione deliberata alla regola sopra,
 per non perdere Tazo/oggetti/flag raccolti in un dungeon molto lungo. **Non** fa però riprendere

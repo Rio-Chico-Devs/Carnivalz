@@ -35,6 +35,11 @@ const SLOT_MASSIMO := 5  # una partita per slot: non ci sono altri salvataggi
 # gioco non c'e' piu' niente da amministrare: nessun selettore, nessuna scelta,
 # nessun modo di sovrascrivere per sbaglio la partita di qualcun altro.
 var slot_corrente: int = 1
+# Questa partita ha gia' scritto (o letto) il suo file almeno una volta.
+# Serve al game over: si ricarica il salvataggio solo se e' DI QUESTA partita.
+# Senza, chi comincia una partita nuova in uno slot occupato e muore nel
+# tutorial si ritroverebbe addosso l'inventario della partita di prima.
+var partita_su_file := false
 
 # Unica fonte di casualità del gioco: sempre seedata, per determinismo
 # e sync multiplayer futuro.
@@ -341,6 +346,7 @@ func carica_mappa() -> Dictionary:
 	return dati if dati is Dictionary else {}
 
 func nuova_partita() -> void:
+	partita_su_file = false
 	imposta_nome_protagonista("")  # si riparte da "Anonimo": si rinomina di nuovo, se si vuole
 	classi_sbloccate.clear()
 	party.clear()
@@ -1360,6 +1366,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		return
 	f.store_string(JSON.stringify(dati, "\t"))
 	f.close()
+	partita_su_file = true
 
 func _leggi_salvataggio(percorso: String) -> bool:
 	if not FileAccess.file_exists(percorso):
@@ -1368,6 +1375,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	if not d is Dictionary:
 		push_error("Salvataggio corrotto: " + percorso)
 		return false
+	partita_su_file = true
 	imposta_seed(int(d.get("seed", seed_partita)))
 	tazo = int(d.get("tazo", 0))
 	fonti_estinte = int(d.get("fonti_estinte", 0))
@@ -1469,16 +1477,30 @@ func _lista_str(v: Variant) -> Array[String]:
 			a.append(str(x))
 	return a
 
-func game_over() -> bool:
-	# sconfitta seria: si ricomincia il livello dal suo punto di partenza,
-	# tenendo il progresso della partita in corso. NON si ricarica il
-	# salvataggio: quello e' un file solo, condiviso da tutte le partite, e
-	# rileggerlo qui significherebbe ritrovarsi addosso l'inventario di
-	# un'altra sessione. La penalita' della morte e' rifare il livello.
-	# Ritorna false solo se non c'era una zona in cui rientrare.
+func game_over() -> String:
+	# "Riprendi dall'ultimo salvataggio" adesso lo fa DAVVERO.
+	#
+	# Prima non ricaricava niente: rifaceva la zona tenendo lo stato che c'era in
+	# memoria. Le fiale usate restavano usate, i Tazo spesi restavano spesi, e
+	# chi rileggeva il bottone si chiedeva giustamente che salvataggio fosse.
+	# Il motivo scritto qui sopra era che il salvataggio era un file solo,
+	# condiviso da tutte le partite - non e' piu' vero da quando una partita e'
+	# uno slot, e con quel motivo e' caduta anche la scelta.
+	#
+	# Si ricarica solo il file DI QUESTA partita (partita_su_file): chi comincia
+	# una partita nuova in uno slot gia' occupato e muore prima di aver salvato
+	# non deve ritrovarsi addosso la partita di prima.
+	#
+	# Restituisce cosa e' successo, perche' chi ha chiamato deve sapere dove
+	# mandare il giocatore:
+	#   "salvataggio" -> ripreso dal file: si e' fuori da ogni zona, si va alla Sede
+	#   "zona"        -> nessun salvataggio ancora (tutorial): si rifa' la zona
+	#   ""            -> non c'era ne' l'uno ne' l'altra
+	if partita_su_file and carica_slot(slot_corrente):
+		return "salvataggio"
 	if carnivalz_corrente == "" or file_eventi_corrente == "":
-		return false
-	return entra_squarcio(carnivalz_corrente, file_eventi_corrente)
+		return ""
+	return "zona" if entra_squarcio(carnivalz_corrente, file_eventi_corrente) else ""
 
 func reset_campagna() -> void:
 	# fine campagna: roster, inventario, Tazo, livelli, stress e legame

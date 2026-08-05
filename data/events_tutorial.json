@@ -55,7 +55,7 @@
 			"testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.",
 			"espr_sinistra": "sorpresa",
 			"scelte": [
-				{ "testo": "Ispeziona sotto il masso", "vai": "due_nemici", "una_tantum": "tut_masso", "oggetto": "fiala_hp" },
+				{ "testo": "Ispeziona sotto il masso", "vai": "due_nemici", "una_tantum": "tut_masso", "oggetti": ["fiala_hp", "fiala_hp"] },
 				{ "testo": "Prosegui senza fermarti", "vai": "due_nemici" }
 			]
 		},
@@ -120,6 +120,7 @@
 			"combattimento_automatico": { "nemici": ["manifestazione_di_un_sogno"], "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "bivio" }
 		},
 		"collina_ritorno": {
+			"vai_se_flag": { "flag": "tut_collina_fatta", "vai": "collina_vuota" },
 			"sequenza": [
 				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Devo scoprire di più su quella creatura." },
 				{ "tipo": "narrazione", "testo": "Proprio al centro della collina la strana creatura volteggia, ignorando tutto il resto..." }
@@ -128,6 +129,26 @@
 			"scena": "In cima alla collina la creatura volteggia piano, senza badare a niente.",
 			"scelte": [
 				{ "testo": "Combatti", "richiede_non_flag": "tut_collina_fatta", "combatti": ["manifestazione_di_un_sogno"], "se_vinci": "dopo_collina", "se_perdi": "sconfitta_manifestazione", "se_fuggi": "bivio" },
+				{ "testo": "Torna al bivio", "vai": "bivio" }
+			]
+		},
+		"collina_vuota": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "La cima della collina è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"espr": "pensiero",
+					"testo": "Qui ho già finito."
+				}
+			],
+			"espr_sinistra": "pensiero",
+			"scena": "La cima della collina è vuota. Resta il cerchio schiacciato nell'erba.",
+			"scelte": [
+				{ "testo": "Prosegui verso le urla", "vai": "convergenza" },
 				{ "testo": "Torna al bivio", "vai": "bivio" }
 			]
 		},
@@ -181,13 +202,13 @@
 		"sconfitta": {
 			"testo": "Mi risveglio fuori dalla spaccatura, la testa pesante. Anche un pianeta primitivo, a quanto pare, sa essere sorprendente.",
 			"scelte": [
-				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+				{ "testo": "Rialzati e ricomincia", "game_over": true }
 			]
 		},
 		"sconfitta_manifestazione": {
 			"testo": "Non ti risvegli. Non da questo sonno.",
 			"scelte": [
-				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+				{ "testo": "Rialzati e ricomincia", "game_over": true }
 			]
 		},
 		"hq_veronica_saluto": {

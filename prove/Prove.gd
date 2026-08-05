@@ -58,6 +58,7 @@ func _ready() -> void:
 	prova_abilita_di_combattimento()
 	prova_transizioni()
 	prova_suoni()
+	prova_game_over_ricarica_davvero()
 	prova_espressione_per_battuta()
 	prova_nomi_delle_immagini()
 	prova_script_compilano()
@@ -1242,6 +1243,62 @@ func prova_posti_visitati() -> void:
 	var tinte := [Stile.colore_visita("nuovo"), Stile.colore_visita("visto"), Stile.colore_visita("chiuso")]
 	esigi(tinte[0] != tinte[1] and tinte[1] != tinte[2] and tinte[0] != tinte[2],
 			"due stati di visita hanno lo stesso colore")
+	GameState.nuova_partita()
+
+func prova_game_over_ricarica_davvero() -> void:
+	# "Riprendi dall'ultimo salvataggio" deve fare quello che dice.
+	#
+	# Non lo faceva: rifaceva la zona tenendo lo stato in memoria, quindi le
+	# fiale usate restavano usate e i Tazo spesi restavano spesi. Il bottone
+	# mentiva, e chi moriva dopo aver speso mezza sacca ricominciava senza.
+	#
+	# Qui si salva, si consuma roba, si muore, e si controlla che sia tornata.
+	titolo("riprendere dal salvataggio riporta davvero indietro")
+	var slot_prova := GameState.SLOT_MASSIMO
+	var percorso := GameState.percorso_slot(slot_prova)
+	var c_era := FileAccess.file_exists(percorso)
+	var salvato := FileAccess.get_file_as_string(percorso) if c_era else ""
+
+	GameState.nuova_partita()
+	GameState.imposta_slot(slot_prova)
+	GameState.sacca.append("fiala_hp")
+	GameState.sacca.append("fiala_hp")
+	GameState.tazo = 500
+	GameState.salva()                       # questo e' "il momento del salvataggio"
+	# ...poi si gioca: si spende, si consuma, si entra in una zona
+	GameState.sacca.erase("fiala_hp")
+	GameState.tazo = 12
+	GameState.avvia_carnivalz("prova_zona", "res://data/events_tutorial.json")
+	esigi(GameState.sacca.count("fiala_hp") == 1, "la prova non ha consumato niente")
+
+	esigi(GameState.game_over() == "salvataggio",
+			"il game over non ha ricaricato il salvataggio")
+	esigi(GameState.sacca.count("fiala_hp") == 2,
+			"le fiale usate non sono tornate: si riprende da un salvataggio che non e' un salvataggio")
+	esigi(GameState.tazo == 500, "i Tazo spesi non sono tornati (%d invece di 500)" % GameState.tazo)
+	esigi(GameState.carnivalz_corrente == "",
+			"dopo aver ricaricato si e' ancora dentro la zona: il caricamento deve riportare fuori")
+
+	# Una partita NUOVA in uno slot gia' occupato non deve ricaricare la partita
+	# di prima: finche' non ha salvato lei, quel file non e' suo.
+	GameState.nuova_partita()
+	GameState.imposta_slot(slot_prova)
+	GameState.tazo = 7
+	GameState.avvia_carnivalz("prova_zona", "res://data/events_tutorial.json")
+	esigi(GameState.game_over() == "zona",
+			"una partita che non ha ancora salvato ha ricaricato il file di un'altra")
+	esigi(GameState.tazo == 7,
+			"il game over ha portato dentro i Tazo di un'altra partita (%d)" % GameState.tazo)
+
+	# pulizia: lo slot di prova torna com'era
+	if c_era:
+		var f := FileAccess.open(percorso, FileAccess.WRITE)
+		if f != null:
+			f.store_string(salvato)
+			f.close()
+	else:
+		GameState.elimina_slot(slot_prova)
+	GameState.imposta_slot(1)
 	GameState.nuova_partita()
 
 func prova_espressione_per_battuta() -> void:
