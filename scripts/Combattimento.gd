@@ -1214,6 +1214,8 @@ func verifica_mossa_soglia(nemico: Dictionary) -> bool:
 		return false
 	if float(nemico.hp) / float(nemico.hp_max) > float(dati.get("frazione_hp", 0.5)):
 		return false
+	if not mossa_eseguibile(nemico, dati):
+		return false  # la aspetta: la soglia non si consuma per una mossa che non parte
 	nemico.soglia_gia_scattata = true
 	esegui_mossa(nemico, dati)
 	return true
@@ -1362,7 +1364,12 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 		# avuto l'avviso ha avuto anche il tempo di reagire
 		var mossa_pronta: Dictionary = nemico.mossa_in_carica
 		nemico.mossa_in_carica = {}
-		esegui_mossa(nemico, mossa_pronta)
+		if mossa_eseguibile(nemico, mossa_pronta):
+			esegui_mossa(nemico, mossa_pronta)
+		else:
+			# annunciata quando si poteva, impossibile adesso: niente scena
+			# inventata, tira un colpo e basta
+			attacca(nemico, bersaglio_giocatore_casuale())
 		return
 	var dati_disperazione: Dictionary = GameState.personaggi.get(nemico.id, {}).get("mossa_disperazione", {})
 	if not dati_disperazione.is_empty() and nemico.hp <= int(dati_disperazione.get("hp_soglia", 0)):
@@ -1373,8 +1380,8 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 	for mossa in nemico.mosse:
 		if mossa.get("una_tantum", false) and String(mossa.get("id", "")) in mosse_usate:
 			continue
-		if String(mossa.get("tipo", "")) == "sacrificio" and vivi_alleati_di(nemico).is_empty():
-			continue  # non c'e' nessuno da sacrificare: la mossa non parte proprio
+		if not mossa_eseguibile(nemico, mossa):
+			continue
 		if mossa.has("richiede_non_flag") and GameState.ha_flag(String(mossa["richiede_non_flag"])):
 			continue  # qualcosa, nella storia, gli ha tolto questa possibilita'
 		if mossa.has("richiede_flag") and not GameState.ha_flag(String(mossa["richiede_flag"])):
@@ -1398,6 +1405,18 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 				return
 	nemico.difesa_accumulo = 0.0  # attacco normale: la guardia accumulata si perde
 	attacca(nemico, bersaglio_giocatore_casuale())
+
+func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
+	# Se una mossa non puo' fare quello che dice, non deve partire: meglio un
+	# colpo normale che una scena che smentisce sé stessa.
+	#
+	# Un solo posto che lo decide, perche' i modi di arrivare a una mossa sono
+	# quattro (sorteggio pesato, soglia di vita, disperazione, mossa annunciata
+	# il turno prima) e finche' il controllo stava solo dentro il sorteggio gli
+	# altri tre lo scavalcavano.
+	if String(mossa.get("tipo", "")) == "sacrificio":
+		return not vivi_alleati_di(nemico).is_empty()
+	return true
 
 func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
@@ -1507,19 +1526,24 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				scrivi("[i]...ma nessuno risponde al richiamo.[/i]")
 		"sacrificio":
 			# "un piccolo sacrificio per un grande risultato": si potenzia
-			# uccidendo un suo stesso alleato evocato, se ce n'è uno vivo
+			# uccidendo un suo stesso alleato evocato.
+			#
+			# Se non ne ha, NON LA FA. Qui c'era un ripiego - "non ha nessuno da
+			# sacrificare, colpisce lui stesso" - che raccontava una scena che
+			# non doveva esistere: uno che annuncia un rito e poi tira un pugno.
+			# Adesso e' esegui_turno a non sceglierla mai senza alleati (vedi
+			# turno_nemico_normale e mossa_eseguibile), e questo ramo non puo'
+			# piu' essere raggiunto a mani vuote.
 			var alleati := vivi_alleati_di(nemico)
 			if alleati.is_empty():
-				scrivi("[i]Non ha nessuno da sacrificare, per ora. Colpisce lui stesso.[/i]")
-				attacca(nemico, bersaglio_giocatore_casuale())
-			else:
-				var vittima: Dictionary = alleati[GameState.rng.randi_range(0, alleati.size() - 1)]
-				scrivi("[i]%s lo colpisce lui stesso, senza esitare.[/i]" % nemico.nome)
-				vittima.hp = 0
-				aggiorna_scheda(vittima)
-				nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 15)), 0, 100)
-				aggiorna_scheda(nemico)
-				_su_ko(vittima)
+				return
+			var vittima: Dictionary = alleati[GameState.rng.randi_range(0, alleati.size() - 1)]
+			scrivi("[i]%s lo colpisce lui stesso, senza esitare.[/i]" % nemico.nome)
+			vittima.hp = 0
+			aggiorna_scheda(vittima)
+			nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 15)), 0, 100)
+			aggiorna_scheda(nemico)
+			_su_ko(vittima)
 
 func cedimento(combattente: Dictionary) -> void:
 	# la fonte convinta perde pezzi di spettacolo: statistiche giu', fino alla fine

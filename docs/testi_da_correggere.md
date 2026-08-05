@@ -96,77 +96,72 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.Menu.004`**
-> Start
->
-> →
-
-**`UI.Menu.005`**
 > Opzioni
 >
 > →
 
-**`UI.Menu.006`**
+**`UI.Menu.005`**
 > Extra
 >
 > →
 
+**`UI.Menu.006`**
+> Esci dal gioco
+>
+> →
+
 **`UI.Menu.007`**
-> In gioco: ESC per pausa, storico e Diario
+> In gioco: ESC per pausa, storico, Diario e scheda del personaggio.<br>La partita si salva da sola ogni volta che rientri alla Sede.
 >
 > →
 
-**`UI.Menu.008`** · menu › Start
-> Continua
+**`UI.Menu.008`** · riempi_partite
+> %d.  %s<br>%s
 >
 > →
 
-**`UI.Menu.009`** · menu › Start
-> Carica partita
+**`UI.Menu.009`** · riempi_partite
+> %d.  Nuova partita
 >
 > →
 
-**`UI.Menu.010`** · menu › Start
-> Nuova partita
->
-> →
-
-**`UI.Menu.011`** · menu › Start
-> Gioca
->
-> →
-
-**`UI.Menu.012`** · menu › Start
-> Indietro
->
-> →
-
-**`UI.Menu.013`** · _su_nuova_partita
+**`UI.Menu.010`** · _su_nuova_partita
 > Come ti chiami?
 >
 > →
 
-**`UI.Menu.014`** · _su_nuova_partita
+**`UI.Menu.011`** · _su_nuova_partita
 > Lascia vuoto per restare l'Anonimo.
 >
 > →
 
-**`UI.Menu.015`** · _su_nuova_partita
-> Conferma
+**`UI.Menu.012`** · _su_nuova_partita
+> Comincia
 >
 > →
 
-**`UI.Menu.016`** · _su_carica_partita
-> Carica una partita salvata
+**`UI.Menu.013`** · _su_nuova_partita
+> Indietro
 >
 > →
 
-**`UI.Menu.017`** · _su_carica_partita
-> Slot %d — %s
+**`UI.Menu.014`** · _su_cancella
+> Cancellare la partita %d?
 >
 > →
 
-**`UI.Menu.018`** · _su_carica_partita
-> Annulla
+**`UI.Menu.015`** · _su_cancella
+> %s<br>%s<br>Non si torna indietro.
+>
+> →
+
+**`UI.Menu.016`** · _su_cancella
+> No, lasciala stare
+>
+> →
+
+**`UI.Menu.017`** · _su_cancella
+> Sì, cancella
 >
 > →
 
@@ -181,26 +176,6 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.Opzioni.002`**
-> Volume generale
->
-> →
-
-**`UI.Opzioni.003`**
-> Musica
->
-> →
-
-**`UI.Opzioni.004`**
-> Effetti
->
-> →
-
-**`UI.Opzioni.005`**
-> Velocità del testo
->
-> →
-
-**`UI.Opzioni.006`**
 > Indietro
 >
 > →
@@ -345,21 +320,6 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Mappa.002`** · salvataggio
-> Scegli uno slot di salvataggio
->
-> →
-
-**`UI.Mappa.003`** · salvataggio
-> Slot %d — %s
->
-> →
-
-**`UI.Mappa.004`** · salvataggio
-> Annulla
->
-> →
-
 
 ## 1.11 Il Vuoto (mappa di una regione)
 
@@ -495,228 +455,148 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.008`** · menu delle azioni
-> Attacca
->
-> →
-
-**`UI.Combattimento.009`** · menu delle azioni
-> Difenditi
->
-> →
-
-**`UI.Combattimento.010`** · menu delle azioni
-> Abilità
->
-> →
-
-**`UI.Combattimento.011`** · menu delle azioni
-> Oggetti
->
-> →
-
-**`UI.Combattimento.012`** · menu delle azioni
-> Alleati
->
-> →
-
-**`UI.Combattimento.013`** · menu delle azioni
-> Fuggi
->
-> →
-
-**`UI.Combattimento.014`** · scelta del bersaglio
-> Attacca %s
->
-> →
-
-**`UI.Combattimento.015`** · scelta del bersaglio
-> Indietro
->
-> →
-
-**`UI.Combattimento.016`** · scelta di chi studiare
-> Studia %s
->
-> →
-
-**`UI.Combattimento.017`** · menu abilità
-> Studia
->
-> →
-
-**`UI.Combattimento.018`** · menu abilità
-> Provoca  (%d aura)
->
-> →
-
-**`UI.Combattimento.019`** · menu abilità
-> Colpo d'area  (%d aura)
->
-> →
-
-**`UI.Combattimento.020`** · menu oggetti
-> %s ×%d
->
-> →
-
-**`UI.Combattimento.021`** · menu oggetti
-> Mostra: %s
->
-> →
-
-**`UI.Combattimento.022`** · quando ci si difende
+**`UI.Combattimento.008`** · quando ci si difende
 > %s si mette in guardia (difesa +%d).
 >
 > →
 
-**`UI.Combattimento.023`** · quando si usa un oggetto
+**`UI.Combattimento.009`** · quando si usa un oggetto
 > %s usa: %s.
 >
 > →
 
-**`UI.Combattimento.024`** · applica_effetto
+**`UI.Combattimento.010`** · applica_effetto
 > [i]%s si libera di %s.[/i]
 >
 > →
 
-**`UI.Combattimento.025`** · applica_effetto
+**`UI.Combattimento.011`** · applica_effetto
 > [i]%s non ne aveva bisogno: niente %s addosso.[/i]
 >
 > →
 
-**`UI.Combattimento.026`** · risparmia
+**`UI.Combattimento.012`** · risparmia
 > Decidi di risparmiarlo.
 >
 > →
 
-**`UI.Combattimento.027`** · provocazione
+**`UI.Combattimento.013`** · provocazione
 > [i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]
 >
 > →
 
-**`UI.Combattimento.028`** · colpo d'area
+**`UI.Combattimento.014`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.029`** · quando si prova a fuggire
+**`UI.Combattimento.015`** · consuma_carica
+> [b]%s scarica tutto quello che ha accumulato.[/b]
+>
+> →
+
+**`UI.Combattimento.016`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.030`** · verifica_rabbia_su_morte
+**`UI.Combattimento.017`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.031`** · verifica_cura_su_morte
+**`UI.Combattimento.018`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.032`** · risolvi_rigenerazione
+**`UI.Combattimento.019`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.033`** · risolvi_rigenerazione
+**`UI.Combattimento.020`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.034`** · esegui_mossa
+**`UI.Combattimento.021`** · esegui_mossa
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.035`** · esegui_mossa
-> [i]Non ha nessuno da sacrificare, per ora. Colpisce lui stesso.[/i]
->
-> →
-
-**`UI.Combattimento.036`** · esegui_mossa
+**`UI.Combattimento.022`** · esegui_mossa
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.037`** · cedimento
+**`UI.Combattimento.023`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.038`** · applica_stato
+**`UI.Combattimento.024`** · applica_stato
 > [i]%s %s[/i]
 >
 > →
 
-**`UI.Combattimento.039`** · applica_stato
+**`UI.Combattimento.025`** · applica_stato
 > subisce uno stato.
 >
 > →
 
-**`UI.Combattimento.040`** · applica_stato
+**`UI.Combattimento.026`** · applica_stato
 > [i]%s ne è contagiato.[/i]
 >
 > →
 
-**`UI.Combattimento.041`** · risolvi_stati_a_inizio_turno
+**`UI.Combattimento.027`** · risolvi_stati_a_inizio_turno
 > [i]%s non riesce ad agire: %s.[/i]
 >
 > →
 
-**`UI.Combattimento.042`** · quando si attacca
+**`UI.Combattimento.028`** · quando si attacca
 > Il fattore di disallineamento arde in %s!
 >
 > →
 
-**`UI.Combattimento.043`** · quando si attacca
+**`UI.Combattimento.029`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.044`** · quando si attacca
+**`UI.Combattimento.030`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.045`** · _su_ko
+**`UI.Combattimento.031`** · _su_ko
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.046`** · _su_ko
+**`UI.Combattimento.032`** · _su_ko
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.047`** · _su_ko
+**`UI.Combattimento.033`** · _su_ko
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.048`** · reagisci
+**`UI.Combattimento.034`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.049`** · reagisci
+**`UI.Combattimento.035`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.050`** · reagisci
+**`UI.Combattimento.036`** · reagisci
 > %s si concentra: il fattore di disallineamento sale.
->
-> →
-
-**`UI.Combattimento.051`** · schede dei combattenti
-> KO
->
-> →
-
-**`UI.Combattimento.052`** · schede dei combattenti
-> ♥ %d/%d
 >
 > →
 
@@ -785,332 +665,317 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 <sub>`scripts/Pausa.gd`</sub>
 
-**`UI.Pausa.001`** · menu di pausa
-> Pausa
+**`UI.Pausa.001`** · intestazione
+> Tazo %d     Lv %d
 >
 > →
 
 **`UI.Pausa.002`** · menu di pausa
-> Riprendi
+> Pausa
 >
 > →
 
 **`UI.Pausa.003`** · menu di pausa
-> Storico dei dialoghi
+> Riprendi
 >
 > →
 
 **`UI.Pausa.004`** · menu di pausa
-> Diario
+> Storico dei dialoghi
 >
 > →
 
 **`UI.Pausa.005`** · menu di pausa
-> Equipaggiamento
+> Diario
 >
 > →
 
 **`UI.Pausa.006`** · menu di pausa
-> Volume generale
+> Personaggio e squadra
 >
 > →
 
 **`UI.Pausa.007`** · menu di pausa
-> Musica
+> Zaino
 >
 > →
 
 **`UI.Pausa.008`** · menu di pausa
+> Opzioni
+>
+> →
+
+**`UI.Pausa.009`** · menu di pausa
 > Torna al menu principale
 >
 > →
 
-**`UI.Pausa.009`** · conferma di uscita
-> Tornare al menu?
->
-> →
-
-**`UI.Pausa.010`** · conferma di uscita
-> Il gioco salva solo dalla mappa stellare: tutto quello che hai fatto<br>dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso.
->
-> →
-
-**`UI.Pausa.011`** · conferma di uscita
-> No, resto qui
->
-> →
-
-**`UI.Pausa.012`** · conferma di uscita
-> Sì, torna al menu principale
->
-> →
-
-**`UI.Pausa.013`** · storico dei dialoghi
-> Non hai ancora letto niente.
->
-> →
-
-**`UI.Pausa.014`** · storico dei dialoghi
+**`UI.Pausa.010`** · mostra_opzioni
 > Indietro
 >
 > →
 
-**`UI.Pausa.015`** · Diario
-> Diario — unità Pk09
+**`UI.Pausa.011`** · conferma di uscita
+> Tornare al menu?
 >
 > →
 
-**`UI.Pausa.016`** · Diario › Appunti
-> Appunti
+**`UI.Pausa.012`** · conferma di uscita
+> Il gioco si salva da solo quando rientri alla Sede: tutto quello che hai<br>fatto dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso.
 >
 > →
 
-**`UI.Pausa.017`** · Diario › Appunti
-> Niente da segnare, per ora.
+**`UI.Pausa.013`** · conferma di uscita
+> No, resto qui
 >
 > →
 
-**`UI.Pausa.018`** · Diario › Appunti
-> Già risolti
+**`UI.Pausa.014`** · conferma di uscita
+> Sì, torna al menu principale
 >
 > →
 
-**`UI.Pausa.019`** · Diario › riga di un appunto
-> chiesto da
+**`UI.Pausa.015`** · storico dei dialoghi
+> Non hai ancora letto niente.
 >
 > →
 
-**`UI.Pausa.020`** · riepilogo_bonus
-> Non ha ancora niente addosso.
+**`UI.Pausa.016`** · mostra_inventario
+> %s  (%s)
 >
 > →
 
-**`UI.Pausa.021`** · riepilogo_bonus
-> In totale:
->
-> →
-
-**`UI.Pausa.022`** · etichetta_bonus
-> velocità
->
-> →
-
-**`UI.Pausa.023`** · etichetta_bonus
-> vita massima
->
-> →
-
-**`UI.Pausa.024`** · etichetta_bonus
-> aura massima
->
-> →
-
-**`UI.Pausa.025`** · etichetta_bonus
-> aura per turno
->
-> →
-
-**`UI.Pausa.026`** · etichetta_bonus
-> rintocchi di maledizione
->
-> →
-
-**`UI.Pausa.027`** · riga_slot
-> %d
->
-> →
-
-**`UI.Pausa.028`** · riga_slot
-> Un consumabile che non usi: scatta da solo sotto un quarto della vita, e rende il %d%% in più.
->
-> →
-
-**`UI.Pausa.029`** · riga_slot
-> [b]%s[/b] — %s
->
-> →
-
-**`UI.Pausa.030`** · riga_slot
-> Togli
->
-> →
-
-**`UI.Pausa.031`** · riga_slot
-> — vuoto, e non hai niente da metterci —
->
-> →
-
-**`UI.Pausa.032`** · riga_slot
-> %s — %s
->
-> →
-
-**`UI.Pausa.033`** · riassunto_effetto
-> nessun effetto
->
-> →
-
-**`UI.Pausa.034`** · Diario › Stato
-> Stato
->
-> →
-
-**`UI.Pausa.035`** · Diario › Stato
-> Livello
->
-> →
-
-**`UI.Pausa.036`** · Diario › Stato
-> %d  (%d / %d esperienza)
->
-> →
-
-**`UI.Pausa.037`** · Diario › Cosa ti sta cambiando
-> Cosa ti sta cambiando
->
-> →
-
-**`UI.Pausa.038`** · Diario › nomi delle azioni tracciate
-> Colpi che hai sferrato
->
-> →
-
-**`UI.Pausa.039`** · Diario › nomi delle azioni tracciate
-> Danni che hai incassato
->
-> →
-
-**`UI.Pausa.040`** · Diario › nomi delle azioni tracciate
-> Volte che hai tenuto la guardia
->
-> →
-
-**`UI.Pausa.041`** · Diario › nomi delle azioni tracciate
-> Creature che hai studiato
->
-> →
-
-**`UI.Pausa.042`** · Diario › nomi delle azioni tracciate
-> Volte che sei scappato
->
-> →
-
-**`UI.Pausa.043`** · Diario › nomi delle azioni tracciate
-> Oggetti che hai usato
->
-> →
-
-**`UI.Pausa.044`** · Diario › nomi delle azioni tracciate
-> Stanze che hai esplorato
->
-> →
-
-**`UI.Pausa.045`** · Diario › nomi delle azioni tracciate
-> Stress che hai retto
->
-> →
-
-**`UI.Pausa.046`** · Diario › nomi delle azioni tracciate
-> Colpi critici che hai messo a segno
->
-> →
-
-**`UI.Pausa.047`** · Diario › Abilità passive
-> Abilità passive
->
-> →
-
-**`UI.Pausa.048`** · Diario › Abilità passive
-> Nessuna, per ora.
->
-> →
-
-**`UI.Pausa.049`** · Diario › Squadra
-> Squadra
->
-> →
-
-**`UI.Pausa.050`** · Diario › Squadra
-> Legame
->
-> →
-
-**`UI.Pausa.051`** · Diario › Squadra
-> %d / 100
->
-> →
-
-**`UI.Pausa.052`** · Diario › Squadra
-> Lv %d   ·   stress %d
->
-> →
-
-**`UI.Pausa.053`** · Diario › Osservazioni
-> Osservazioni
->
-> →
-
-**`UI.Pausa.054`** · Diario › Osservazioni
-> Creature studiate
->
-> →
-
-**`UI.Pausa.055`** · Diario › Osservazioni
-> Creature incontrate
->
-> →
-
-**`UI.Pausa.056`** · Diario › Osservazioni
-> Oggetti catalogati
->
-> →
-
-**`UI.Pausa.057`** · Diario › Osservazioni
+**`UI.Pausa.017`** · capienza_testo
 > %d / %d
 >
 > →
 
-**`UI.Pausa.058`** · Diario › Osservazioni
+**`UI.Pausa.018`** · disegna_scomparto
+> Questo scomparto è vuoto.
+>
+> →
+
+**`UI.Pausa.019`** · riga_oggetto
+> ×%d
+>
+> →
+
+**`UI.Pausa.020`** · riga_oggetto
+> in uso — %s
+>
+> →
+
+**`UI.Pausa.021`** · riga_oggetto
+> %s  —  %s
+>
+> →
+
+**`UI.Pausa.022`** · Diario › Appunti
+> Appunti
+>
+> →
+
+**`UI.Pausa.023`** · Diario › Appunti
+> Niente da segnare, per ora.
+>
+> →
+
+**`UI.Pausa.024`** · Diario › Appunti
+> Già risolti
+>
+> →
+
+**`UI.Pausa.025`** · Diario › riga di un appunto
+> chiesto da
+>
+> →
+
+**`UI.Pausa.026`** · etichetta_bonus
+> velocità
+>
+> →
+
+**`UI.Pausa.027`** · etichetta_bonus
+> vita massima
+>
+> →
+
+**`UI.Pausa.028`** · etichetta_bonus
+> aura massima
+>
+> →
+
+**`UI.Pausa.029`** · etichetta_bonus
+> aura per turno
+>
+> →
+
+**`UI.Pausa.030`** · etichetta_bonus
+> rintocchi di maledizione
+>
+> →
+
+**`UI.Pausa.031`** · riassunto_effetto
+> nessun effetto
+>
+> →
+
+**`UI.Pausa.032`** · Diario › Stato
+> Stato
+>
+> →
+
+**`UI.Pausa.033`** · Diario › Stato
+> Livello
+>
+> →
+
+**`UI.Pausa.034`** · Diario › Stato
+> %d  (%d / %d esperienza)
+>
+> →
+
+**`UI.Pausa.035`** · Diario › Cosa ti sta cambiando
+> Cosa ti sta cambiando
+>
+> →
+
+**`UI.Pausa.036`** · Diario › nomi delle azioni tracciate
+> Colpi che hai sferrato
+>
+> →
+
+**`UI.Pausa.037`** · Diario › nomi delle azioni tracciate
+> Danni che hai incassato
+>
+> →
+
+**`UI.Pausa.038`** · Diario › nomi delle azioni tracciate
+> Volte che hai tenuto la guardia
+>
+> →
+
+**`UI.Pausa.039`** · Diario › nomi delle azioni tracciate
+> Creature che hai studiato
+>
+> →
+
+**`UI.Pausa.040`** · Diario › nomi delle azioni tracciate
+> Volte che sei scappato
+>
+> →
+
+**`UI.Pausa.041`** · Diario › nomi delle azioni tracciate
+> Oggetti che hai usato
+>
+> →
+
+**`UI.Pausa.042`** · Diario › nomi delle azioni tracciate
+> Stanze che hai esplorato
+>
+> →
+
+**`UI.Pausa.043`** · Diario › nomi delle azioni tracciate
+> Stress che hai retto
+>
+> →
+
+**`UI.Pausa.044`** · Diario › nomi delle azioni tracciate
+> Colpi critici che hai messo a segno
+>
+> →
+
+**`UI.Pausa.045`** · Diario › Abilità passive
+> Abilità passive
+>
+> →
+
+**`UI.Pausa.046`** · Diario › Abilità passive
+> Nessuna, per ora.
+>
+> →
+
+**`UI.Pausa.047`** · Diario › Squadra
+> Squadra
+>
+> →
+
+**`UI.Pausa.048`** · Diario › Squadra
+> Legame
+>
+> →
+
+**`UI.Pausa.049`** · Diario › Squadra
+> %d / 100
+>
+> →
+
+**`UI.Pausa.050`** · Diario › Squadra
+> Lv %d   ·   stress %d
+>
+> →
+
+**`UI.Pausa.051`** · Diario › Osservazioni
+> Osservazioni
+>
+> →
+
+**`UI.Pausa.052`** · Diario › Osservazioni
+> Creature studiate
+>
+> →
+
+**`UI.Pausa.053`** · Diario › Osservazioni
+> Creature incontrate
+>
+> →
+
+**`UI.Pausa.054`** · Diario › Osservazioni
+> Oggetti catalogati
+>
+> →
+
+**`UI.Pausa.055`** · Diario › Osservazioni
 > Resistenza —
 >
 > →
 
-**`UI.Pausa.059`** · Diario › Organizzazione
+**`UI.Pausa.056`** · Diario › Organizzazione
 > Organizzazione
 >
 > →
 
-**`UI.Pausa.060`** · Diario › Organizzazione
+**`UI.Pausa.057`** · Diario › Organizzazione
 > Fonti estinte
 >
 > →
 
-**`UI.Pausa.061`** · Diario › Organizzazione
+**`UI.Pausa.058`** · Diario › Organizzazione
 > Valutazione
 >
 > →
 
-**`UI.Pausa.062`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.059`** · Diario › giudizio dell'Organizzazione
 > In osservazione.
 >
 > →
 
-**`UI.Pausa.063`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.060`** · Diario › giudizio dell'Organizzazione
 > Prestazione conforme alle attese.
 >
 > →
 
-**`UI.Pausa.064`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.061`** · Diario › giudizio dell'Organizzazione
 > Rendimento soddisfacente.
 >
 > →
 
-**`UI.Pausa.065`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.062`** · Diario › giudizio dell'Organizzazione
 > Elemento affidabile.
 >
 > →
 
-**`UI.Pausa.066`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.063`** · Diario › giudizio dell'Organizzazione
 > Elemento di valore. Aspettative in aumento.
 >
 > →
@@ -1137,6 +1002,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`UI.GameState.002`** · anteprima_slot
 > Tazo %d · Fonti estinte %d · Legame %d
+>
+> →
+
+**`UI.GameState.003`** · nome_slot
+> %s · livello %d
 >
 > →
 
@@ -1177,12 +1047,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`INT.monologo.6`** · battuta di Anonimo
-> Computer... lanciami il più possibile vicino alla fonte.
+> Computer... proiettami il più possibile vicino alla fonte.
 >
 > →
 
 **`INT.monologo.7`** · battuta di Computer
-> Autorizzazione confermata. Buona fortuna unità 111
+> Autorizzazione confermata. Buona fortuna unità UJ-111
 >
 > →
 
@@ -1288,8 +1158,8 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`TUT.masso.scelta1`** · bottone di scelta (fa raccogliere Fiala HP)
-> Ispeziona sotto il masso
+**`TUT.masso.scelta1`** · bottone di scelta
+> Ispeziona l'acqua che luccica
 >
 > →
 
@@ -1310,32 +1180,37 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `bivio`
 
 **`TUT.bivio.1`** · battuta di Anonimo
-> Il sentiero sembra dividersi... ho un brutto presentimento... forse sarebbe meglio attraversare le pozze d'acqua.
+> Hm... sembra che io possa proseguire sia dalla parte bassa che alta di questo bivio...
 >
 > →
 
-**`TUT.bivio.2`** · narrazione
-> Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone "Mappa"). Segna dove sei, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi.
+**`TUT.bivio.2`** · battuta di Anonimo
+> Forse sarebbe meglio proseguire dalla parte bassa, posso sempre tornare indietro...
+>
+> →
+
+**`TUT.bivio.3`** · battuta di Anonimo
+> Anche se... Ho un brutto presentimento... qualcosa mi turba... e proviene dalla collina. Forse sarebbe meglio investigare cosa c'è sopra la collina...
+>
+> →
+
+**`TUT.bivio.4`** · narrazione
+> Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone "Mappa"). Da qui puoi controllare la tua posizione, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi.
 >
 > →
 
 **`TUT.bivio.scena`** · quando ci torni («Osserva la scena»)
-> Il bivio: da una parte il sentiero scende verso le pozze d'acqua, dall'altra sale sulla collina. Più avanti, le urla.
+> Il terreno sembra innalzarsi creando una piccola collina... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.
 >
 > →
 
 **`TUT.bivio.scelta1`** · bottone di scelta
-> Scendi verso le pozze d'acqua
+> Procedi verso le pozze d'acqua
 >
 > →
 
 **`TUT.bivio.scelta2`** · bottone di scelta
 > Sali sulla collina
->
-> →
-
-**`TUT.bivio.scelta3`** · bottone di scelta
-> Prosegui verso le urla
 >
 > →
 
@@ -1351,12 +1226,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `pozze_ripulite`
 
 **`TUT.pozze_ripulite.1`** · narrazione
-> Le pozze riflettono il cielo, immobili. Non è rimasto niente da affrontare, qui.
+> Le pozze riflettono il cielo, immobili. C'è una particolare calma in questo posto.
 >
 > →
 
 **`TUT.pozze_ripulite.scelta1`** · bottone di scelta
-> Prosegui verso le urla
+> Attraversa gli arbusti
 >
 > →
 
@@ -1369,17 +1244,17 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `dopo_pozze`
 
 **`TUT.dopo_pozze.1`** · battuta di Anonimo
-> Le pozze sono tranquille, ora. Da qui il sentiero risale verso le urla... ma posso ancora tornare indietro, se voglio dare un'occhiata alla collina.
+> Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicuro di aver fatto tutto quello che era necessario fare prima di proseguire.
 >
 > →
 
 **`TUT.dopo_pozze.scena`** · quando ci torni («Osserva la scena»)
-> Le pozze riflettono il cielo, immobili. Da qui il sentiero risale verso le urla.
+> Le pozze riflettono il cielo, immobili. Da qui il sentiero è interrotto da un mucchio di arbusti.
 >
 > →
 
 **`TUT.dopo_pozze.scelta1`** · bottone di scelta
-> Prosegui verso le urla
+> Oltrepassa gli arbusti
 >
 > →
 
@@ -1396,13 +1271,58 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`TUT.collina.2`** · narrazione
-> Senti un odore dolce... Una creatura appare dal nulla, avvolgendoti in un velo iridescente che ti ricorda l'abbraccio di una madre.
+**`TUT.collina.2`** · battuta di Anonimo
+> Cos'è questo odore dolce... è molto piacevole...
 >
 > →
 
-**`TUT.collina.3`** · narrazione
-> La manifestazione ti osserva e ti accarezza. Hai un terribile presentimento...
+**`TUT.collina.3`** · battuta di Anonimo
+> Non sembrerebbe esserci niente qui sopra...
+>
+> →
+
+**`TUT.collina.4`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`TUT.collina.5`** · battuta di Anonimo
+> *sniff* L'odore sembra essersi fatto più forte... cos'è questa stanchezza improvvisa...
+>
+> →
+
+**`TUT.collina.6`** · narrazione
+> Piccole particelle di luce cominciano a concentrarsi davanti a te, roteando e creando un gioco di movimenti ipnotici...
+>
+> →
+
+**`TUT.collina.7`** · battuta di Anonimo
+> Cosa sta succedendo? ...
+>
+> →
+
+**`TUT.collina.8`** · narrazione
+> Una creatura appare dal nulla, cammina intorno a te osservandoti da vicino, senti una stanchezza travolgente che ti impedisce di reagire...
+>
+> →
+
+**`TUT.collina.9`** · battuta di Anonimo
+> Devo... riprendermi...
+>
+> →
+
+**`TUT.collina.10`** · battuta di Anonimo
+> !!! È ora di porre fine a tutto questo!
+>
+> →
+
+**`TUT.collina.11`** · narrazione
+> La creatura si allontana leggermente avvolgendoti in un velo iridescente.
+>
+> →
+
+**`TUT.collina.12`** · narrazione
+> La manifestazione ti osserva e prova ad avvicinarsi di nuovo. Hai un terribile presentimento...
 >
 > →
 
@@ -1420,7 +1340,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.collina_ritorno.scena`** · quando ci torni («Osserva la scena»)
-> In cima alla collina la creatura volteggia piano, senza badare a niente.
+> La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...
 >
 > →
 
@@ -1435,6 +1355,34 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
+### Tutorial › `collina_vuota`
+
+**`TUT.collina_vuota.1`** · narrazione
+> La cima della collina è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo.
+>
+> →
+
+**`TUT.collina_vuota.2`** · battuta di Anonimo
+> Qui ho già finito.
+>
+> →
+
+**`TUT.collina_vuota.scena`** · quando ci torni («Osserva la scena»)
+> La cima della collina è vuota. Resta il cerchio schiacciato nell'erba.
+>
+> →
+
+**`TUT.collina_vuota.scelta1`** · bottone di scelta
+> Attraversa gli arbusti
+>
+> →
+
+**`TUT.collina_vuota.scelta2`** · bottone di scelta
+> Torna al bivio
+>
+> →
+
+
 ### Tutorial › `dopo_collina`
 
 **`TUT.dopo_collina.1`** · battuta di Anonimo
@@ -1443,12 +1391,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.dopo_collina.scena`** · quando ci torni («Osserva la scena»)
-> La collina è silenziosa. Non è rimasto niente, quassù.
+> La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...
 >
 > →
 
 **`TUT.dopo_collina.scelta1`** · bottone di scelta
-> Prosegui verso le urla
+> Attraversa gli arbusti
 >
 > →
 
@@ -1461,12 +1409,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `convergenza`
 
 **`TUT.convergenza.1`** · battuta di Anonimo
-> Sembro essere vicino... sento delle urla incomprensibili...
+> Le urla si fanno sempre più forti, devo essere vicino...
 >
 > →
 
 **`TUT.convergenza.scena`** · quando ci torni («Osserva la scena»)
-> I due sentieri si ricongiungono qui. Le urla vengono da poco più avanti.
+> Sono vicino. Lo sento.
 >
 > →
 
@@ -1476,7 +1424,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.convergenza.scelta2`** · bottone di scelta
-> Apri la mappa
+> Torna alla collina
+>
+> →
+
+**`TUT.convergenza.scelta3`** · bottone di scelta
+> Torna alle pozze
 >
 > →
 
@@ -1530,12 +1483,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `sconfitta`
 
 **`TUT.sconfitta.1`** · narrazione
-> Mi risveglio fuori dalla spaccatura, la testa pesante. Anche un pianeta primitivo, a quanto pare, sa essere sorprendente.
+> Sconfitta totale, sei stato spazzato via.
 >
 > →
 
 **`TUT.sconfitta.scelta1`** · bottone di scelta
-> Riprendi dall'ultimo salvataggio
+> Rialzati e ricomincia
 >
 > →
 
@@ -1543,12 +1496,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `sconfitta_manifestazione`
 
 **`TUT.sconfitta_manifestazione.1`** · narrazione
-> Non ti risvegli. Non da questo sonno.
+> È ora di dormire, nei sogni ogni tuo desiderio diventa realtà...
 >
 > →
 
 **`TUT.sconfitta_manifestazione.scelta1`** · bottone di scelta
-> Riprendi dall'ultimo salvataggio
+> Rialzati e ricomincia
 >
 > →
 
@@ -1561,12 +1514,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_veronica_saluto.2`** · battuta di Anonimo
-> Ciao Veronica, la missione è andata come previsto. Alla fine non è stato affatto difficile.
+> Tutto come previsto.
 >
 > →
 
 **`TUT.hq_veronica_saluto.3`** · battuta di Veronica
-> Ha ha ha! Beh! Non c'era da aspettarsi di meno avendo un'allenatrice che ti spinge al massimo della potenza come me, giusto?
+> BAHAHA! Certamente! Non c'era da aspettarsi di meno da te avendo un'allenatrice esplosiva come me, giusto?
 >
 > →
 
@@ -1576,31 +1529,51 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_veronica_saluto.5`** · battuta di Veronica
-> Puoi dirlo al massimo della potenza! Non ci andrò piano, come sempre. Ma prima dovresti passare in sala riunioni, sai come sono...
+> Yes Baby! Non vedo l'ora di dare il massimo!
 >
 > →
 
-**`TUT.hq_veronica_saluto.6`** · battuta di Anonimo
-> Immaginavo. Allora non perdo altro tempo.
+**`TUT.hq_veronica_saluto.6`** · battuta di Veronica
+> ...
 >
 > →
 
 **`TUT.hq_veronica_saluto.7`** · battuta di Veronica
-> "Non perdo altro tempo"? Che cattivo. Come puoi trattare la tua amichetta di infanzia in questo modo?
+> Ma prima dovresti passare in sala riunioni, vogliono vederti per il rapporto...
 >
 > →
 
-**`TUT.hq_veronica_saluto.8`** · battuta di Veronica
-> Hey, mi stai ascoltando?
+**`TUT.hq_veronica_saluto.8`** · battuta di Anonimo
+> Immaginavo. Allora non perdo altro tempo.
 >
 > →
 
-**`TUT.hq_veronica_saluto.9`** · battuta di Anonimo
-> Ci vediamo dopo per l'allenamento Veronica, grazie di tutto.
+**`TUT.hq_veronica_saluto.9`** · battuta di Veronica
+> "NON PERDO ALTRO TEMPO"!? Che cattivo.
 >
 > →
 
 **`TUT.hq_veronica_saluto.10`** · battuta di Veronica
+> Come puoi trattarmi in questo modo?
+>
+> →
+
+**`TUT.hq_veronica_saluto.11`** · battuta di Veronica
+> ...
+>
+> →
+
+**`TUT.hq_veronica_saluto.12`** · battuta di Veronica
+> Hey, mi stai ascoltando?
+>
+> →
+
+**`TUT.hq_veronica_saluto.13`** · battuta di Anonimo
+> Ci vediamo dopo per l'allenamento Veronica.
+>
+> →
+
+**`TUT.hq_veronica_saluto.14`** · battuta di Veronica
 > Che antipatico...
 >
 > →
@@ -1614,7 +1587,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `hq_sala_riunioni_1`
 
 **`TUT.hq_sala_riunioni_1.1`** · battuta di Anonimo
-> Eccomi. Unità Pk09 a rapporto. Ho inoltrato il mio rapporto e le analisi fatte sul campo come sempre.
+> Eccomi. Unità UJ-111 a rapporto. Ho inoltrato la mia analisi sulla frattura e le osservazioni fatte sul campo come sempre.
 >
 > →
 
@@ -1624,7 +1597,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_sala_riunioni_1.3`** · battuta di ??? (Organizzazione)
-> Buongiorno unità Pk09, ci rallegriamo di ritrovarti operativo e in ottima salute. Proseguiamo a renderti grazie per i tuoi sforzi e ti confermiamo il successo dell'operazione.
+> Buongiorno unità UJ-111, ci rallegriamo di ritrovarti operativo e in ottima salute. Proseguiamo a renderti grazie per i tuoi sforzi e ti confermiamo il successo dell'operazione.
 >
 > →
 
@@ -1644,7 +1617,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_sala_riunioni_1.7`** · battuta di ??? (Organizzazione)
-> Bene unità Pk09, la nostra attuale istanza si ritira per deliberare. Complimenti per il tuo recente successo, ci aspettiamo grandi cose da lei. Per aspera ad astra!
+> Bene unità UJ-111, la nostra attuale istanza si ritira per deliberare. Complimenti per il suo recente successo, ci aspettiamo grandi cose da lei. Per aspera ad astra!
 >
 > →
 
@@ -1654,7 +1627,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_sala_riunioni_1.9`** · battuta di Anonimo
-> Bene, finalmente la parte noiosa è finita, odio le scartoffie... Dovrei vedermi con Veronica per il mio ultimo allenamento...
+> Burocrazia...
+>
+> →
+
+**`TUT.hq_sala_riunioni_1.10`** · battuta di Anonimo
+> Adesso dovrei vedermi con Veronica per il mio ultimo allenamento... meglio non farla aspettare...
 >
 > →
 
@@ -1677,27 +1655,27 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_training_grounds.3`** · battuta di Veronica
-> Cos'è quella faccia, non mi sembri esplodere di potenza...
+> Cos'è quella faccia, non mi sembri trasudare potenza...
 >
 > →
 
 **`TUT.hq_training_grounds.4`** · battuta di Anonimo
-> Scusami Veronica, sai come sono fatto, non sei mai cambiata da quando eravamo piccoli... sei sempre stata così... esplosiva...
+> Hai troppo entusiasmo, la cosa mi imbarazza.
 >
 > →
 
 **`TUT.hq_training_grounds.5`** · battuta di Veronica
-> Sempre! Che senso ha vivere se non lo si fa superando ogni limite immaginabile ogni giorno?
+> SEMPRE! Che senso ha vivere se non lo si fa superando ogni limite conosciuto ogni singolo giorno?
 >
 > →
 
 **`TUT.hq_training_grounds.6`** · battuta di Anonimo
-> Mi metti sempre di buon umore... Cominciamo...
+> Sigh...
 >
 > →
 
 **`TUT.hq_training_grounds.7`** · battuta di Veronica
-> Adesso le cose si fanno serie. Preparati.
+> Basta con le chiacchiere fai parlare i pugni adesso! Le cose si fanno serie. Preparati.
 >
 > →
 
@@ -1753,7 +1731,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_infermeria.8`** · battuta di Anonimo
-> Anche lei è una dominatrice se non sbaglio...
+> Anche lei è una dominatrice se ricordo bene...
 >
 > →
 
@@ -1763,21 +1741,31 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_infermeria.10`** · battuta di Anonimo
-> Qualcuno purtroppo deve farlo... E per fortuna ci sono persone come voi a darci una mano...
+> Qualcuno purtroppo deve farlo...
 >
 > →
 
 **`TUT.hq_infermeria.11`** · battuta di Dott.ssa Curie Heartlife
-> Apprezzo le tue lodi... Ah! Dimenticavo, devi recarti nella sala riunioni: ti hanno affidato un bell'incarico, spero di non rivederti presto da queste parti <3
+> Apprezzo quel che fate...
 >
 > →
 
-**`TUT.hq_infermeria.12`** · battuta di Anonimo
-> Un bell'incarico... Questo vuol dire che ci rivedremo invece...
+**`TUT.hq_infermeria.12`** · battuta di Dott.ssa Curie Heartlife
+> Ah! Dimenticavo, devi recarti nella sala riunioni: ti hanno affidato un bell'incarico...
 >
 > →
 
 **`TUT.hq_infermeria.13`** · battuta di Dott.ssa Curie Heartlife
+> Spero di non rivederti presto da queste parti <3
+>
+> →
+
+**`TUT.hq_infermeria.14`** · battuta di Anonimo
+> Un bell'incarico... Penso che siamo destinati a rivederci.
+>
+> →
+
+**`TUT.hq_infermeria.15`** · battuta di Dott.ssa Curie Heartlife
 > È inevitabile...
 >
 > →
@@ -1791,7 +1779,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `hq_sala_riunioni_2`
 
 **`TUT.hq_sala_riunioni_2.1`** · battuta di ??? (Organizzazione)
-> Salve unità Pk09, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti...
+> Salve unità UJ-111, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti...
 >
 > →
 
@@ -1816,7 +1804,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_sala_riunioni_2.6`** · battuta di ??? (Organizzazione)
-> Ottimo, sapevamo di poter contare su di lei, unità Pk09. Per aspera ad astra!
+> Ottimo, sapevamo di poter contare su di lei, unità UJ-111. Per aspera ad astra!
 >
 > →
 
@@ -7547,6 +7535,45 @@ carte collezionabili.
 
 **`OGG.stigma_del_muto.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
 > Chi lo porta non urla mai. Incassa meglio, ma colpisce peggio.
+>
+> →
+
+
+### Spazio nella realtà  <sub>`spazio_nella_realta`</sub>
+
+**`OGG.spazio_nella_realta.nome`** · nome nella sacca e nei negozi
+> Spazio nella realtà
+>
+> →
+
+**`OGG.spazio_nella_realta.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Una piega vuota che si porta in tasca. Non pesa, e dentro ci sta altro.
+>
+> →
+
+
+### Frammento — rastrelliera  <sub>`frammento_per_le_armi`</sub>
+
+**`OGG.frammento_per_le_armi.nome`** · nome nella sacca e nei negozi
+> Frammento — rastrelliera
+>
+> →
+
+**`OGG.frammento_per_le_armi.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Ganci che non esistono, appesi a un muro che non c'è. Ci si appende del ferro vero.
+>
+> →
+
+
+### Frammento — vassoio  <sub>`frammento_per_gli_accessori`</sub>
+
+**`OGG.frammento_per_gli_accessori.nome`** · nome nella sacca e nei negozi
+> Frammento — vassoio
+>
+> →
+
+**`OGG.frammento_per_gli_accessori.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Un ripiano sottile piegato dentro una tasca. Le cose piccole non si perdono più.
 >
 > →
 
