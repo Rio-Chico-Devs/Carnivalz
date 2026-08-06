@@ -275,8 +275,13 @@ boss finale è forte quanto un nemico normale, non una vera trasformazione da
 fonte. Qui si insegnano le meccaniche mentre si gioca: il primo goblin cade
 in un colpo, la Tartaruga Innocente insegna che **studiare può risparmiare**
 un nemico (sale il legame, cala lo stress, niente bottino — gli altri nemici
-dello scontro restano), la Manifestazione di un sogno (32 HP) insegna che si
-può **fuggire** da un combattimento troppo pericoloso, senza penalità. Il
+dello scontro restano), la Manifestazione di un sogno (320 HP) insegna che si
+può **fuggire** da un combattimento troppo pericoloso, senza penalità. Chi
+invece regge il suo colpo fatale — la pietra quieta in tasca che si spacca
+al posto tuo — ottiene la **vittoria alternativa**: la creatura si sfalda in
+un vortice di rabbia e lascia il **Ricordo del Passato** (40 XP), la pietra
+che riporta in vita una volta sola. È l'unico modo di averla nel tutorial:
+se compare nella sacca, è perché quella sera lì è andata così. Il
 mondo di Jerah resta bloccato sulla mappa stellare finché questo pianeta non
 è completato (`richiede_flag: tutorial_completato`).
 
