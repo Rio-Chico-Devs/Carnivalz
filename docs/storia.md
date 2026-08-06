@@ -222,6 +222,32 @@ coprifuoco e ospedali al collasso → l'ultima edizione, mai finita di
 comporre). **Meridia tornerà**: altre fratture di questo stesso mondo
 perduto compariranno altrove nel gioco.
 
+Non ci si arriva sparandoci dentro. Lo squarcio si apre sulla **cima di una
+collina** che affaccia sulla città; si scende per le strade di periferia, si
+entra, e solo allora il protagonista dice a se stesso qual è il compito:
+**studiare il quartiere est**, niente di più. L'Organizzazione studia Meridia
+da tempo — la fonte è estinta da un pezzo, eppure il mondo non dà cenni di
+ripresa, come se fosse fermo. Da qui le tre direzioni: la strada principale
+(l'esplorazione libera, con gli agguati), il **parco** e la **struttura
+abbandonata**.
+
+La struttura è un **garage sotterraneo con le luci ancora accese** dopo tutti
+questi anni: quattro piani di discesa fino a un cumulo di macerie che continua
+a scendere, e da cui *sale aria*. A mani nude non si passa — è un filo lasciato
+aperto (appunto `mer_macerie`). Uscendo, quello che seguiva il protagonista da
+quando è entrato in città si fa vedere: un **Infetto Rapido**, e subito dopo due
+ondate di tre Zombie Cittadini, senza pausa in mezzo. Vinte le ondate resta la
+domanda che regge tutta la frattura: *la fonte dovrebbe essere estinta, allora
+perché queste creature continuano a comparire?*
+
+Nel **parco**, al centro di un lago prosciugato, c'è una **fiala da laboratorio**
+con della sostanza ancora incrostata dentro: va consegnata all'Organizzazione
+perché la analizzi (appunto `mer_fiala`, ancora aperto). Raccoglierla richiama
+giù dal cielo una **Nuvola di Marciume** — un pezzo della coltre che copre il
+pianeta, sceso più in basso degli altri. Non è una grande minaccia; la domanda
+che lascia è se le nuvole e il comportamento anomalo della frattura siano la
+stessa cosa.
+
 ### Qualcosa preme
 Una frattura minima, per ora: un varco che non si apre su un luogo ma su una
 **pressione enorme e senza forma** — qualcosa, dall'altra parte, si accorge

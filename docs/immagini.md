@@ -31,7 +31,7 @@ chiedere `"espr": "sotto_la_pioggia"` e basta disegnare quel file.
 Non 16 espressioni per 48 personaggi (768 disegni, che non li fa nessuno).
 Questo e' quello che i dialoghi scritti finora chiedono davvero.
 
-### 1. Il ritratto singolo — 49 da fare
+### 1. Il ritratto singolo — 50 da fare
 
 Basta questo perche' nessuno sia piu' un segnaposto. Le creature da
 combattimento si fermano qui: non parlano, non gli serve altro.
@@ -63,6 +63,7 @@ art/personaggi/maschera_vuota.png
 art/personaggi/mockingbear.png
 art/personaggi/mr_eto.png
 art/personaggi/niru.png
+art/personaggi/nuvola_di_marciume.png
 art/personaggi/ombra_del_passato.png
 art/personaggi/operaio_posseduto.png
 art/personaggi/operaio_sfruttato.png
@@ -88,7 +89,7 @@ art/personaggi/zombie_cittadino.png
 art/personaggi/zombie_mostruoso.png
 ```
 
-### 2. Le espressioni dei dialoghi — 32 da fare
+### 2. Le espressioni dei dialoghi — 35 da fare
 
 Solo per chi ha delle battute, e solo le facce che le battute nominano.
 Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto
@@ -98,6 +99,7 @@ singolo: si puo' fare in qualunque ordine.
 art/personaggi/anonimo/decisa.png
 art/personaggi/anonimo/neutra.png
 art/personaggi/anonimo/pensiero.png
+art/personaggi/anonimo/sforzo.png
 art/personaggi/anonimo/sorpresa.png
 art/personaggi/computer/neutra.png
 art/personaggi/curie/carina.png
@@ -108,6 +110,7 @@ art/personaggi/giocoliere/cool.png
 art/personaggi/giocoliere/neutra.png
 art/personaggi/goblin_arrabbiato/decisa.png
 art/personaggi/goblin_arrabbiato/neutra.png
+art/personaggi/infetto_rapido/neutra.png
 art/personaggi/insonne/annoiata.png
 art/personaggi/insonne/decisa.png
 art/personaggi/insonne/neutra.png
@@ -119,6 +122,7 @@ art/personaggi/jongo_dongo/decisa.png
 art/personaggi/jongo_dongo/neutra.png
 art/personaggi/jongo_dongo/petrificata.png
 art/personaggi/l_immortale/neutra.png
+art/personaggi/nuvola_di_marciume/neutra.png
 art/personaggi/robo_pattuglia/neutra.png
 art/personaggi/sopravvissuta/neutra.png
 art/personaggi/tenero_ricordo/neutra.png
@@ -131,7 +135,7 @@ art/personaggi/veronica/neutra.png
 
 | chi | quante | quali |
 |---|--:|---|
-| Anonimo (`anonimo`) | 4 | `decisa` · `neutra` · `pensiero` · `sorpresa` |
+| Anonimo (`anonimo`) | 5 | `decisa` · `neutra` · `pensiero` · `sforzo` · `sorpresa` |
 | L'ultimo spettacolo di Jerah (`jerah`) | 4 | `decisa` · `delusa` · `neutra` · `speciale` |
 | El Muy Bonito (`giocoliere`) | 3 | `arrabbiata` · `cool` · `neutra` |
 | Yhvina (`insonne`) | 3 | `annoiata` · `decisa` · `neutra` |
@@ -142,7 +146,9 @@ art/personaggi/veronica/neutra.png
 | Il Vecchio Proprietario del teatro (`vecchio_clown`) | 2 | `neutra` · `pensiero` |
 | computer (`computer`) | 1 | `neutra` |
 | figura_misteriosa (`figura_misteriosa`) | 1 | `neutra` |
+| Infetto Rapido (`infetto_rapido`) | 1 | `neutra` |
 | ??? (`l_immortale`) | 1 | `neutra` |
+| Nuvola di Marciume (`nuvola_di_marciume`) | 1 | `neutra` |
 | Robo Pattuglia (`robo_pattuglia`) | 1 | `neutra` |
 | Yara (`sopravvissuta`) | 1 | `neutra` |
 | Un tenero ricordo (`tenero_ricordo`) | 1 | `neutra` |
@@ -172,6 +178,7 @@ art/personaggi/veronica/neutra.png
 | Slime Infimo | 1 | `art/personaggi/slime_infimo.png` | — |  |
 | Tartaruga Innocente | 1 | `art/personaggi/tartaruga_innocente.png` | — |  |
 | Infetto Rapido | 2 | `art/personaggi/infetto_rapido.png` | — |  |
+| Nuvola di Marciume | 2 | `art/personaggi/nuvola_di_marciume.png` | — |  |
 | Zombie Cittadino | 2 | `art/personaggi/zombie_cittadino.png` | — |  |
 | Fomentado | 3 | `art/personaggi/maschera_vuota.png` | — |  |
 | Manifestazione di un sogno | 3 | `art/personaggi/manifestazione_di_un_sogno.png` | — |  |
@@ -220,6 +227,7 @@ quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
 
 | file | dove | cosa si vede | c'è |
 |---|---|---|:-:|
+| `art/illustrazioni/meridia_morto_vivente.png` | meridia.json › fuori_struttura | In mezzo alla strada, fermo, c'è qualcosa che ti sta guardando da parecchio. |  |
 | `art/illustrazioni/file_reparto_montaggio.png` | squarcio_industriale.json › file_computer | In fila davanti alla catena ci sono più uomini di quanti quel reparto potesse contenerne. Nessuno guarda l'obiettivo. |  |
 
 ## Il resto
@@ -234,4 +242,4 @@ quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
 
 ---
 
-Ritratti presenti: **0 su 50**.
+Ritratti presenti: **0 su 51**.

@@ -2750,12 +2750,22 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Meridia › `varco`
 
 **`MER.varco.1`** · narrazione
-> Lo squarcio si apre su una città che non è la tua: insegne spente, auto abbandonate in mezzo alla strada, portiere aperte come se chi guidava fosse sceso di corsa e non fosse più tornato. Un cartello arrugginito dice ancora, a metà: MERIDIA — BENVEN... Il resto è caduto.
+> Lo squarcio si apre sulla cima di una collina che affaccia su un'enorme città. Varie ombre si muovono in lontananza, lente... la terra trema... l'aria è umida, e una leggera brezza porta il tipico odore di morte che contraddistingue le terre marcite. Il sole è nascosto da una nube densa e minacciosa, che rende tutta la zona fredda e buia.
+>
+> →
+
+**`MER.varco.2`** · battuta di Anonimo
+> Questo posto trasmette una desolazione tremenda...
+>
+> →
+
+**`MER.varco.scena`** · quando ci torni («Osserva la scena»)
+> La collina sopra Meridia. Sotto di te la città, e le ombre che si muovono piano.
 >
 > →
 
 **`MER.varco.scelta1`** · bottone di scelta
-> Avanza per la strada principale
+> Scendi verso le strade di periferia
 >
 > →
 
@@ -2765,10 +2775,470 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
+### Meridia › `periferia`
+
+**`MER.periferia.1`** · narrazione
+> Lungo queste strade non ci sono segni di vita... tutto è marcio, tutto dimenticato da tempo. Anche all'aperto una sottile polvere permea l'aria, rendendola difficile da respirare... tuttavia non sembra ancora essere nociva.
+>
+> →
+
+**`MER.periferia.scena`** · quando ci torni («Osserva la scena»)
+> Le strade di periferia. La polvere sospesa, e niente che si muova.
+>
+> →
+
+**`MER.periferia.scelta1`** · bottone di scelta
+> Prosegui verso l'ingresso della città
+>
+> →
+
+**`MER.periferia.scelta2`** · bottone di scelta
+> Torna al varco
+>
+> →
+
+
+### Meridia › `ingresso_citta`
+
+**`MER.ingresso_citta.1`** · battuta di Anonimo
+> Da qui è possibile entrare in questa città... i livelli di disallineamento sono alle stelle. Per ora il mio compito consiste solo nello studiare il quartiere est...
+>
+> →
+
+**`MER.ingresso_citta.2`** · battuta di Anonimo
+> Sembrerebbe che l'Organizzazione stia studiando questo posto già da tempo. Nonostante la fonte sia stata estinta da un pezzo, questo mondo non dà cenni di ripresa... come se fosse fermo nel tempo...
+>
+> →
+
+**`MER.ingresso_citta.scena`** · quando ci torni («Osserva la scena»)
+> L'ingresso della città. I primi palazzi, e i cartelli che nessuno legge più.
+>
+> →
+
+**`MER.ingresso_citta.scelta1`** · bottone di scelta
+> Prosegui verso i primi complessi di edifici
+>
+> →
+
+**`MER.ingresso_citta.scelta2`** · bottone di scelta
+> Torna alle strade di periferia
+>
+> →
+
+
+### Meridia › `complessi`
+
+**`MER.complessi.1`** · battuta di Anonimo
+> Sarà già da un po' di minuti che cammino... qualcuno mi tiene d'occhio da quando sono entrato... no... anche più di un soggetto...
+>
+> →
+
+**`MER.complessi.2`** · battuta di Anonimo
+> ... Bene, da qui posso cominciare a raccogliere dati sulla zona. Ci sono varie strutture che sembrano essere interessanti...
+>
+> →
+
+**`MER.complessi.scena`** · quando ci torni («Osserva la scena»)
+> I primi complessi di edifici. La strada principale davanti, il parco da un lato, la struttura dall'altro.
+>
+> →
+
+**`MER.complessi.scelta1`** · bottone di scelta
+> Avanza per la strada principale
+>
+> →
+
+**`MER.complessi.scelta2`** · bottone di scelta
+> Investiga il parco
+>
+> →
+
+**`MER.complessi.scelta3`** · bottone di scelta
+> Investiga dentro la struttura abbandonata
+>
+> →
+
+**`MER.complessi.scelta4`** · bottone di scelta
+> Torna all'ingresso della città
+>
+> →
+
+
+### Meridia › `complessi_dopo`
+
+**`MER.complessi_dopo.1`** · narrazione
+> I primi complessi di edifici. Da qui si vede tutto quello che c'è da vedere di questo quartiere: la strada principale, il parco, la struttura.
+>
+> →
+
+**`MER.complessi_dopo.scena`** · quando ci torni («Osserva la scena»)
+> I primi complessi di edifici. La strada principale davanti, il parco da un lato, la struttura dall'altro.
+>
+> →
+
+**`MER.complessi_dopo.scelta1`** · bottone di scelta
+> Avanza per la strada principale
+>
+> →
+
+**`MER.complessi_dopo.scelta2`** · bottone di scelta
+> Investiga il parco
+>
+> →
+
+**`MER.complessi_dopo.scelta3`** · bottone di scelta
+> Investiga dentro la struttura abbandonata
+>
+> →
+
+**`MER.complessi_dopo.scelta4`** · bottone di scelta
+> Torna all'ingresso della città
+>
+> →
+
+
+### Meridia › `struttura`
+
+**`MER.struttura.1`** · battuta di Anonimo
+> Sembra che sia un garage sotterraneo? Le luci sono ancora accese... Incredibile che funzioni ancora la corrente dopo così tanti anni...
+>
+> →
+
+**`MER.struttura.scena`** · quando ci torni («Osserva la scena»)
+> La struttura abbandonata. La rampa che scende, e le luci che nessuno ha mai spento.
+>
+> →
+
+**`MER.struttura.scelta1`** · bottone di scelta
+> Esplora i piani inferiori
+>
+> →
+
+**`MER.struttura.scelta2`** · bottone di scelta
+> Torna ai complessi di edifici
+>
+> →
+
+
+### Meridia › `garage_1`
+
+**`MER.garage_1.1`** · battuta di Anonimo
+> Sembra una stanza enorme... ci saranno posti per almeno un migliaio di auto. Quanta gente viveva in questa città?
+>
+> →
+
+**`MER.garage_1.scena`** · quando ci torni («Osserva la scena»)
+> Piano -1. Le file di posti auto vuoti, a perdita d'occhio.
+>
+> →
+
+**`MER.garage_1.scelta1`** · bottone di scelta
+> Scendi al piano inferiore
+>
+> →
+
+**`MER.garage_1.scelta2`** · bottone di scelta
+> Risali in superficie
+>
+> →
+
+
+### Meridia › `garage_2`
+
+**`MER.garage_2.1`** · narrazione
+> Vari rottami sembrano sparsi ovunque: difficile vedere cosa si cela negli angoli di questo enorme piano...
+>
+> →
+
+**`MER.garage_2.scena`** · quando ci torni («Osserva la scena»)
+> Piano -2. I rottami sparsi, e gli angoli che restano bui.
+>
+> →
+
+**`MER.garage_2.scelta1`** · bottone di scelta
+> Scendi al piano inferiore
+>
+> →
+
+**`MER.garage_2.scelta2`** · bottone di scelta
+> Risali al piano superiore
+>
+> →
+
+
+### Meridia › `garage_3`
+
+**`MER.garage_3.1`** · battuta di Anonimo
+> ... Cos'è stato? ...
+>
+> →
+
+**`MER.garage_3.scena`** · quando ci torni («Osserva la scena»)
+> Piano -3. Il rumore che hai sentito non si ripete.
+>
+> →
+
+**`MER.garage_3.scelta1`** · bottone di scelta
+> Perlustra il piano
+>
+> →
+
+**`MER.garage_3.scelta2`** · bottone di scelta
+> Scendi al piano inferiore
+>
+> →
+
+**`MER.garage_3.scelta3`** · bottone di scelta
+> Risali al piano superiore
+>
+> →
+
+
+### Meridia › `garage_3_perlustra`
+
+**`MER.garage_3_perlustra.1`** · narrazione
+> Non hai trovato nulla d'interessante... vari fori sono distribuiti nelle pareti... sembrano scavati a mano.
+>
+> →
+
+**`MER.garage_3_perlustra.scelta1`** · bottone di scelta
+> Scendi al piano inferiore
+>
+> →
+
+**`MER.garage_3_perlustra.scelta2`** · bottone di scelta
+> Torna a guardarti intorno
+>
+> →
+
+
+### Meridia › `garage_4`
+
+**`MER.garage_4.1`** · battuta di Anonimo
+> C'è solo un gigantesco cumulo di macerie che si sviluppa verso il basso... sento provenire dell'aria da qui sotto... che si possa accedere in qualche modo?
+>
+> →
+
+**`MER.garage_4.scena`** · quando ci torni («Osserva la scena»)
+> Piano -4. Il cumulo di macerie che scende ancora, e l'aria che ne sale.
+>
+> →
+
+**`MER.garage_4.scelta1`** · bottone di scelta
+> Perlustra il piano
+>
+> →
+
+**`MER.garage_4.scelta2`** · bottone di scelta
+> Torna in superficie
+>
+> →
+
+
+### Meridia › `garage_4_perlustra`
+
+**`MER.garage_4_perlustra.1`** · narrazione
+> Nonostante i tuoi sforzi il cumulo di macerie ti impedisce di proseguire oltre... Non sembra esserci più niente qui.
+>
+> →
+
+**`MER.garage_4_perlustra.scelta1`** · bottone di scelta
+> Torna in superficie
+>
+> →
+
+**`MER.garage_4_perlustra.scelta2`** · bottone di scelta
+> Guarda ancora il cumulo
+>
+> →
+
+
+### Meridia › `fuori_struttura`
+
+**`MER.fuori_struttura.1`** · battuta di Anonimo
+> Alla fine è stato inutile entrare in questo posto... sarà meglio dare un'occhiata nelle altre zone...
+>
+> →
+
+**`MER.fuori_struttura.2`** · didascalia dell'illustrazione `art/illustrazioni/meridia_morto_vivente.png`
+> In mezzo alla strada, fermo, c'è qualcosa che ti sta guardando da parecchio.
+>
+> →
+
+**`MER.fuori_struttura.3`** · battuta di Anonimo
+> E quello cos'è?
+>
+> →
+
+**`MER.fuori_struttura.4`** · battuta di Infetto Rapido
+> Mooooaaahhh...
+>
+> →
+
+**`MER.fuori_struttura.5`** · narrazione
+> La creatura ti osserva... sembra in qualche modo... invidiosa? In un battito d'occhio, ti ritrovi faccia a faccia con qualcosa di terribile.
+>
+> →
+
+
+### Meridia › `dopo_infetto`
+
+**`MER.dopo_infetto.1`** · battuta di Anonimo
+> ... Credo di aver attirato l'attenzione...
+>
+> →
+
+
+### Meridia › `seconda_ondata`
+
+**`MER.seconda_ondata.1`** · narrazione
+> Non fai in tempo a riprendere fiato: dal fondo della strada ne arrivano altri, con lo stesso passo di prima.
+>
+> →
+
+
+### Meridia › `dopo_ondate`
+
+**`MER.dopo_ondate.1`** · battuta di Anonimo
+> Sembra essere finita... ecco cosa mi stava seguendo. La fonte dovrebbe essere stata estinta: allora perché queste creature continuano a comparire?
+>
+> →
+
+**`MER.dopo_ondate.2`** · battuta di Anonimo
+> Sarà meglio proseguire con le indagini.
+>
+> →
+
+**`MER.dopo_ondate.scena`** · quando ci torni («Osserva la scena»)
+> Fuori dalla struttura. La strada, adesso, è di nuovo vuota.
+>
+> →
+
+**`MER.dopo_ondate.scelta1`** · bottone di scelta
+> Torna ai complessi di edifici
+>
+> →
+
+**`MER.dopo_ondate.scelta2`** · bottone di scelta
+> Rientra nella struttura
+>
+> →
+
+
+### Meridia › `fuori_struttura_dopo`
+
+**`MER.fuori_struttura_dopo.1`** · narrazione
+> Fuori dalla struttura. Dove si erano ammassati non è rimasto niente.
+>
+> →
+
+**`MER.fuori_struttura_dopo.scena`** · quando ci torni («Osserva la scena»)
+> Fuori dalla struttura. La strada, adesso, è di nuovo vuota.
+>
+> →
+
+**`MER.fuori_struttura_dopo.scelta1`** · bottone di scelta
+> Torna ai complessi di edifici
+>
+> →
+
+**`MER.fuori_struttura_dopo.scelta2`** · bottone di scelta
+> Rientra nella struttura
+>
+> →
+
+
+### Meridia › `parco`
+
+**`MER.parco.1`** · battuta di Anonimo
+> Questo parco è immenso... doveva essere meraviglioso, un tempo...
+>
+> →
+
+**`MER.parco.scena`** · quando ci torni («Osserva la scena»)
+> Il parco. Gli alberi secchi, e il lago quasi prosciugato.
+>
+> →
+
+**`MER.parco.scelta1`** · bottone di scelta (fa raccogliere Fiala misteriosa)
+> Esamina il parco
+>
+> →
+
+**`MER.parco.scelta2`** · bottone di scelta
+> Torna ai complessi di edifici
+>
+> →
+
+
+### Meridia › `parco_lago`
+
+**`MER.parco_lago.1`** · narrazione
+> Al centro del lago qualcosa luccica. L'acqua è bassa, così ti fai strada verso l'oggetto...
+>
+> →
+
+**`MER.parco_lago.2`** · battuta di Anonimo
+> Qualcosa sembra venire verso di me dal cielo...
+>
+> →
+
+**`MER.parco_lago.3`** · battuta di Nuvola di Marciume
+> Baflooon!
+>
+> →
+
+
+### Meridia › `dopo_nuvola`
+
+**`MER.dopo_nuvola.1`** · battuta di Anonimo
+> Non era una grande minaccia, alla fine... ma mi chiedo se ci sia una correlazione tra le nuvole che ricoprono il pianeta e l'anomalo comportamento di questa frattura.
+>
+> →
+
+**`MER.dopo_nuvola.2`** · battuta di Anonimo
+> Meglio continuare con le indagini.
+>
+> →
+
+**`MER.dopo_nuvola.scena`** · quando ci torni («Osserva la scena»)
+> Il parco. Gli alberi secchi, e il lago quasi prosciugato.
+>
+> →
+
+**`MER.dopo_nuvola.scelta1`** · bottone di scelta
+> Torna ai complessi di edifici
+>
+> →
+
+
+### Meridia › `parco_dopo`
+
+**`MER.parco_dopo.1`** · narrazione
+> Il parco è tornato immobile. Sopra gli alberi secchi le nuvole continuano a passare, basse.
+>
+> →
+
+**`MER.parco_dopo.scena`** · quando ci torni («Osserva la scena»)
+> Il parco. Gli alberi secchi, e il lago quasi prosciugato.
+>
+> →
+
+**`MER.parco_dopo.scelta1`** · bottone di scelta
+> Torna ai complessi di edifici
+>
+> →
+
+
 ### Meridia › `strada_principale`
 
 **`MER.strada_principale.1`** · narrazione
-> La strada principale di Meridia è un cimitero di vetrine rotte. Ogni tanto, tra le macerie, qualcosa si muove piano — o troppo in fretta.
+> Lungo le strade principali della città leggi diversi cartelli che portano il nome della città nella quale ti trovi: «Meridia».
+>
+> →
+
+**`MER.strada_principale.scena`** · quando ci torni («Osserva la scena»)
+> La strada principale. Le vetrine rotte, e i cartelli col nome della città.
 >
 > →
 
@@ -2788,15 +3258,20 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`MER.strada_principale.scelta4`** · bottone di scelta
-> Torna al varco
+> Torna ai complessi di edifici
 >
 > →
 
 
 ### Meridia › `supermercato`
 
-**`MER.supermercato.1`** · narrazione
-> Scaffali rovesciati, carrelli abbandonati a metà corsia. Qualcuno ha fatto scorte, prima della fine. Non è bastato.
+**`MER.supermercato.1`** · battuta di Anonimo
+> Questo posto è stato vandalizzato innumerevoli volte. Devo cercare di fare piano: i nemici si nascondono dietro ogni angolo...
+>
+> →
+
+**`MER.supermercato.scena`** · quando ci torni («Osserva la scena»)
+> Il supermercato saccheggiato. Scaffali rovesciati, carrelli fermi a metà corsia.
 >
 > →
 
@@ -2818,8 +3293,13 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Meridia › `officina`
 
-**`MER.officina.1`** · narrazione
-> Un'officina meccanica, attrezzi sparsi ovunque. Un furgone è ancora sollevato sul ponte, come se il lavoro dovesse riprendere da un momento all'altro.
+**`MER.officina.1`** · battuta di Anonimo
+> Una normalissima officina... è buio pesto, potrei essere attaccato da un momento all'altro.
+>
+> →
+
+**`MER.officina.scena`** · quando ci torni («Osserva la scena»)
+> L'officina abbandonata. Il furgone ancora sollevato sul ponte.
 >
 > →
 
@@ -2841,23 +3321,28 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Meridia › `edicola`
 
-**`MER.edicola.1`** · narrazione
-> Un'edicola con la saracinesca a metà. Dentro, pile di giornali ingialliti, l'ultima consegna mai ritirata da nessuno.
+**`MER.edicola.1`** · battuta di Anonimo
+> Le edicole sono sempre un ottimo posto per raccogliere informazioni.
+>
+> →
+
+**`MER.edicola.scena`** · quando ci torni («Osserva la scena»)
+> L'edicola con la saracinesca a metà, e le pile di giornali mai ritirati.
 >
 > →
 
 **`MER.edicola.scelta1`** · bottone di scelta (fa raccogliere Pagina di giornale (prima))
-> Leggi la prima pagina rimasta
+> Leggi la prima pagina di giornale
 >
 > →
 
 **`MER.edicola.scelta2`** · bottone di scelta (fa raccogliere Pagina di giornale (seconda))
-> Leggi la seconda pagina rimasta
+> Leggi la seconda pagina di giornale
 >
 > →
 
 **`MER.edicola.scelta3`** · bottone di scelta (fa raccogliere Pagina di giornale (ultima))
-> Leggi l'ultima edizione mai stampata
+> Leggi la terza pagina di giornale
 >
 > →
 
@@ -2874,8 +3359,13 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Meridia › `vicolo`
 
-**`MER.vicolo.1`** · narrazione
-> Un vicolo stretto dietro l'edicola, cassonetti rovesciati, una scala antincendio che sale verso il nulla. L'aria qui è ancora più ferma.
+**`MER.vicolo.1`** · battuta di Anonimo
+> Procedendo verso il centro della città l'aria si fa sempre più pesante...
+>
+> →
+
+**`MER.vicolo.scena`** · quando ci torni («Osserva la scena»)
+> Il vicolo dietro l'edicola. I cassonetti rovesciati, la scala antincendio verso il nulla.
 >
 > →
 
@@ -2902,8 +3392,23 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Meridia › `quartieri_profondi`
 
-**`MER.quartieri_profondi.1`** · narrazione
-> Più a fondo la città cambia: i palazzi si stringono, la luce non arriva più e il silenzio ha un peso diverso. Qui non si muove niente finché non decide di muoversi tutto insieme.
+**`MER.quartieri_profondi.1`** · battuta di Anonimo
+> *Cough*
+>
+> →
+
+**`MER.quartieri_profondi.2`** · battuta di Anonimo
+> *Spit*
+>
+> →
+
+**`MER.quartieri_profondi.3`** · battuta di Anonimo
+> Non posso reggere ancora molto... Meglio non spingersi oltre senza avere un'attrezzatura adeguata. Mi limiterò a esplorare fino a questa zona, per ora...
+>
+> →
+
+**`MER.quartieri_profondi.scena`** · quando ci torni («Osserva la scena»)
+> I quartieri profondi. I palazzi si stringono, e l'aria non si respira più.
 >
 > →
 
@@ -2921,7 +3426,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Meridia › `espulso`
 
 **`MER.espulso.1`** · narrazione
-> Le mani marce ti si chiudono attorno per un istante, poi lo squarcio ti strappa via, di nuovo nel Vuoto. Meridia resta lì, silenziosa e piena.
+> Il tuo destino è segnato. Tra le mille bocche affamate scompari in silenzio... un ultimo respiro si perde tra le nuvole che ricoprono questo pianeta.
 >
 > →
 
@@ -6661,6 +7166,26 @@ carte collezionabili.
 >
 > →
 
+**`CRE.infetto_rapido.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> Cosa vuoi da me?
+>
+> →
+
+**`CRE.infetto_rapido.studio1.risposta`** · Studia › cosa risponde
+> Non sembra voler altro se non la tua fine.
+>
+> →
+
+**`CRE.infetto_rapido.studio2.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (provi a rallentarlo con la voce)
+>
+> →
+
+**`CRE.infetto_rapido.studio2.risposta`** · Studia › cosa risponde
+> Corre lo stesso. Non ha mai smesso.
+>
+> →
+
 **`CRE.infetto_rapido.carta.nome`** · nome sulla carta collezionabile
 > Infetto Rapido
 >
@@ -6668,6 +7193,54 @@ carte collezionabili.
 
 **`CRE.infetto_rapido.carta.testo`** · retro della carta collezionabile
 > Corre da anni. Non si è mai fermato a chiedersi perché.
+>
+> →
+
+
+### Nuvola di Marciume  <sub>`nuvola_di_marciume`</sub>
+
+**`CRE.nuvola_di_marciume.nome`** · nome a schermo
+> Nuvola di Marciume
+>
+> →
+
+**`CRE.nuvola_di_marciume.nome_breve`** · nome corto (schede in combattimento)
+> Nuvola
+>
+> →
+
+**`CRE.nuvola_di_marciume.descrizione`** · voce del bestiario
+> Un pezzo della coltre che copre Meridia, sceso più in basso degli altri. Non insegue nessuno: capita addosso.
+>
+> →
+
+**`CRE.nuvola_di_marciume.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (la osservi mentre si addensa)
+>
+> →
+
+**`CRE.nuvola_di_marciume.studio1.risposta`** · Studia › cosa risponde
+> Sembra che le nubi che ricoprono il cielo possano prendere vita propria...
+>
+> →
+
+**`CRE.nuvola_di_marciume.studio2.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (provi a richiamare la sua attenzione)
+>
+> →
+
+**`CRE.nuvola_di_marciume.studio2.risposta`** · Studia › cosa risponde
+> Non sembra reagire ad alcuno stimolo.
+>
+> →
+
+**`CRE.nuvola_di_marciume.carta.nome`** · nome sulla carta collezionabile
+> Nuvola di Marciume
+>
+> →
+
+**`CRE.nuvola_di_marciume.carta.testo`** · retro della carta collezionabile
+> Il cielo di Meridia, in una porzione abbastanza piccola da poterla colpire.
 >
 > →
 
@@ -7997,6 +8570,19 @@ carte collezionabili.
 > →
 
 
+### Fiala misteriosa  <sub>`fiala_misteriosa`</sub>
+
+**`OGG.fiala_misteriosa.nome`** · nome nella sacca e nei negozi
+> Fiala misteriosa
+>
+> →
+
+**`OGG.fiala_misteriosa.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Una fiala da laboratorio... ha ancora della sostanza incrostata sulle pareti interne. Da consegnare all'Organizzazione per l'analisi.
+>
+> →
+
+
 ### Meccanismo del varco  <sub>`meccanismo_del_varco`</sub>
 
 **`OGG.meccanismo_del_varco.nome`** · nome nella sacca e nei negozi
@@ -8621,6 +9207,36 @@ carte collezionabili.
 >
 > →
 
+**`APP.mer_indagine.titolo`** · titolo dell'appunto
+> Investiga il quartiere est
+>
+> →
+
+**`APP.mer_indagine.testo`** · il pensiero per esteso
+> Il compito è solo questo: raccogliere quanti più dati possibili nei dintorni. Ci sono varie strutture che sembrano interessanti — la strada principale, il parco, quella struttura abbandonata con le luci ancora accese. Nessuno mi ha chiesto di spingermi oltre.
+>
+> →
+
+**`APP.mer_fiala.titolo`** · titolo dell'appunto
+> La fiala del lago
+>
+> →
+
+**`APP.mer_fiala.testo`** · il pensiero per esteso
+> Una fiala da laboratorio, in mezzo a un lago prosciugato, in un parco di una città morta da anni. Ha ancora della sostanza incrostata dentro. Non so cosa sia, e non ho gli strumenti per scoprirlo qui: va consegnata all'Organizzazione perché la analizzino.
+>
+> →
+
+**`APP.mer_macerie.titolo`** · titolo dell'appunto
+> Sotto il quarto piano
+>
+> →
+
+**`APP.mer_macerie.testo`** · il pensiero per esteso
+> In fondo al garage sotterraneo, quattro piani sotto la città, il cumulo di macerie continua a scendere — e da sotto sale aria. Qualcosa, là in fondo, è aperto. A mani nude non si passa.
+>
+> →
+
 **`APP.meridia.titolo`** · titolo dell'appunto
 > Meridia
 >
@@ -8961,6 +9577,66 @@ carte collezionabili.
 >
 > →
 
+**`LUO.MER.varco`** · nome di una stanza sulla mappa della zona
+> Il varco
+>
+> →
+
+**`LUO.MER.periferia`** · nome di una stanza sulla mappa della zona
+> Strade di periferia
+>
+> →
+
+**`LUO.MER.ingresso_citta`** · nome di una stanza sulla mappa della zona
+> Ingresso della città
+>
+> →
+
+**`LUO.MER.complessi`** · nome di una stanza sulla mappa della zona
+> Primi complessi
+>
+> →
+
+**`LUO.MER.struttura`** · nome di una stanza sulla mappa della zona
+> Struttura abbandonata
+>
+> →
+
+**`LUO.MER.parco`** · nome di una stanza sulla mappa della zona
+> Il parco
+>
+> →
+
+**`LUO.MER.strada_principale`** · nome di una stanza sulla mappa della zona
+> Strada principale
+>
+> →
+
+**`LUO.MER.supermercato`** · nome di una stanza sulla mappa della zona
+> Supermercato
+>
+> →
+
+**`LUO.MER.officina`** · nome di una stanza sulla mappa della zona
+> Officina
+>
+> →
+
+**`LUO.MER.edicola`** · nome di una stanza sulla mappa della zona
+> Edicola
+>
+> →
+
+**`LUO.MER.vicolo`** · nome di una stanza sulla mappa della zona
+> Vicolo sul retro
+>
+> →
+
+**`LUO.MER.quartieri_profondi`** · nome di una stanza sulla mappa della zona
+> Quartieri profondi
+>
+> →
+
 
 # 11. Negozi
 
@@ -9245,16 +9921,36 @@ quindi il bottone non esiste proprio.
 - `espulso` — Le macerie ti schiacciano... il tuo destino è deciso, diventi un tutt'uno con i rottami...…
 
 
-### Meridia — 8 stanze mute
+### Meridia — 28 stanze mute
 
-- `varco` — Lo squarcio si apre su una città che non è la tua: insegne spente, auto abbandonate in mezzo alla…
-- `strada_principale` — La strada principale di Meridia è un cimitero di vetrine rotte. Ogni tanto, tra le macerie,…
-- `supermercato` — Scaffali rovesciati, carrelli abbandonati a metà corsia. Qualcuno ha fatto scorte, prima della…
-- `officina` — Un'officina meccanica, attrezzi sparsi ovunque. Un furgone è ancora sollevato sul ponte, come se il…
-- `edicola` — Un'edicola con la saracinesca a metà. Dentro, pile di giornali ingialliti, l'ultima consegna mai…
-- `vicolo` — Un vicolo stretto dietro l'edicola, cassonetti rovesciati, una scala antincendio che sale verso il…
-- `quartieri_profondi` — Più a fondo la città cambia: i palazzi si stringono, la luce non arriva più e il silenzio ha un…
-- `espulso` — Le mani marce ti si chiudono attorno per un istante, poi lo squarcio ti strappa via, di nuovo nel…
+- `varco` — La collina sopra Meridia. Sotto di te la città, e le ombre che si muovono piano.
+- `periferia` — Le strade di periferia. La polvere sospesa, e niente che si muova.
+- `ingresso_citta` — L'ingresso della città. I primi palazzi, e i cartelli che nessuno legge più.
+- `complessi` — I primi complessi di edifici. La strada principale davanti, il parco da un lato, la struttura…
+- `complessi_dopo` — I primi complessi di edifici. La strada principale davanti, il parco da un lato, la struttura…
+- `struttura` — La struttura abbandonata. La rampa che scende, e le luci che nessuno ha mai spento.
+- `garage_1` — Piano -1. Le file di posti auto vuoti, a perdita d'occhio.
+- `garage_2` — Piano -2. I rottami sparsi, e gli angoli che restano bui.
+- `garage_3` — Piano -3. Il rumore che hai sentito non si ripete.
+- `garage_3_perlustra` — Non hai trovato nulla d'interessante... vari fori sono distribuiti nelle pareti... sembrano scavati…
+- `garage_4` — Piano -4. Il cumulo di macerie che scende ancora, e l'aria che ne sale.
+- `garage_4_perlustra` — Nonostante i tuoi sforzi il cumulo di macerie ti impedisce di proseguire oltre... Non sembra…
+- `fuori_struttura` — La creatura ti osserva... sembra in qualche modo... invidiosa? In un battito d'occhio, ti ritrovi…
+- `dopo_infetto`
+- `seconda_ondata` — Non fai in tempo a riprendere fiato: dal fondo della strada ne arrivano altri, con lo stesso passo…
+- `dopo_ondate` — Fuori dalla struttura. La strada, adesso, è di nuovo vuota.
+- `fuori_struttura_dopo` — Fuori dalla struttura. La strada, adesso, è di nuovo vuota.
+- `parco` — Il parco. Gli alberi secchi, e il lago quasi prosciugato.
+- `parco_lago` — Al centro del lago qualcosa luccica. L'acqua è bassa, così ti fai strada verso l'oggetto...
+- `dopo_nuvola` — Il parco. Gli alberi secchi, e il lago quasi prosciugato.
+- `parco_dopo` — Il parco. Gli alberi secchi, e il lago quasi prosciugato.
+- `strada_principale` — La strada principale. Le vetrine rotte, e i cartelli col nome della città.
+- `supermercato` — Il supermercato saccheggiato. Scaffali rovesciati, carrelli fermi a metà corsia.
+- `officina` — L'officina abbandonata. Il furgone ancora sollevato sul ponte.
+- `edicola` — L'edicola con la saracinesca a metà, e le pile di giornali mai ritirati.
+- `vicolo` — Il vicolo dietro l'edicola. I cassonetti rovesciati, la scala antincendio verso il nulla.
+- `quartieri_profondi` — I quartieri profondi. I palazzi si stringono, e l'aria non si respira più.
+- `espulso` — Il tuo destino è segnato. Tra le mille bocche affamate scompari in silenzio... un ultimo respiro si…
 
 
 ### Il Teatro del Passato — 6 stanze mute

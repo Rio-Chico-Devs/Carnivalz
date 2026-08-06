@@ -23,6 +23,27 @@
 			"chiuso_da": []
 		},
 		{
+			"id": "mer_indagine",
+			"titolo": "Investiga il quartiere est",
+			"testo": "Il compito è solo questo: raccogliere quanti più dati possibili nei dintorni. Ci sono varie strutture che sembrano interessanti — la strada principale, il parco, quella struttura abbandonata con le luci ancora accese. Nessuno mi ha chiesto di spingermi oltre.",
+			"richiede_flags": ["mer_indagine"],
+			"chiuso_da": ["meridia_esplorata"]
+		},
+		{
+			"id": "mer_fiala",
+			"titolo": "La fiala del lago",
+			"testo": "Una fiala da laboratorio, in mezzo a un lago prosciugato, in un parco di una città morta da anni. Ha ancora della sostanza incrostata dentro. Non so cosa sia, e non ho gli strumenti per scoprirlo qui: va consegnata all'Organizzazione perché la analizzino.",
+			"richiede_flags": ["mer_fiala"],
+			"chiuso_da": []
+		},
+		{
+			"id": "mer_macerie",
+			"titolo": "Sotto il quarto piano",
+			"testo": "In fondo al garage sotterraneo, quattro piani sotto la città, il cumulo di macerie continua a scendere — e da sotto sale aria. Qualcosa, là in fondo, è aperto. A mani nude non si passa.",
+			"richiede_flags": ["mer_macerie"],
+			"chiuso_da": []
+		},
+		{
 			"id": "meridia",
 			"titolo": "Meridia",
 			"testo": "Sulla planimetria è ancora segnata come città. Dai numeri che ho davanti, città non lo è più da un pezzo — e quello che ci vive adesso non ha smesso di camminarci in mezzo.",

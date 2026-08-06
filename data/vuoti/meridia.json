@@ -1,99 +1,989 @@
 {
 	"nodo_iniziale": "varco",
+	"mappa_dungeon": {
+		"flag_completamento": "meridia_esplorata",
+		"stanze": [
+			{
+				"id": "varco",
+				"nome": "Il varco",
+				"pos": [
+					240,
+					620
+				]
+			},
+			{
+				"id": "periferia",
+				"nome": "Strade di periferia",
+				"pos": [
+					240,
+					540
+				]
+			},
+			{
+				"id": "ingresso_citta",
+				"nome": "Ingresso della città",
+				"pos": [
+					240,
+					460
+				]
+			},
+			{
+				"id": "complessi",
+				"nome": "Primi complessi",
+				"pos": [
+					240,
+					380
+				]
+			},
+			{
+				"id": "struttura",
+				"nome": "Struttura abbandonata",
+				"pos": [
+					100,
+					380
+				]
+			},
+			{
+				"id": "parco",
+				"nome": "Il parco",
+				"pos": [
+					380,
+					380
+				]
+			},
+			{
+				"id": "strada_principale",
+				"nome": "Strada principale",
+				"pos": [
+					240,
+					300
+				]
+			},
+			{
+				"id": "supermercato",
+				"nome": "Supermercato",
+				"pos": [
+					100,
+					220
+				]
+			},
+			{
+				"id": "officina",
+				"nome": "Officina",
+				"pos": [
+					240,
+					220
+				]
+			},
+			{
+				"id": "edicola",
+				"nome": "Edicola",
+				"pos": [
+					380,
+					220
+				]
+			},
+			{
+				"id": "vicolo",
+				"nome": "Vicolo sul retro",
+				"pos": [
+					380,
+					140
+				]
+			},
+			{
+				"id": "quartieri_profondi",
+				"nome": "Quartieri profondi",
+				"pos": [
+					380,
+					60
+				]
+			}
+		],
+		"connessioni": [
+			[
+				"varco",
+				"periferia"
+			],
+			[
+				"periferia",
+				"ingresso_citta"
+			],
+			[
+				"ingresso_citta",
+				"complessi"
+			],
+			[
+				"complessi",
+				"struttura"
+			],
+			[
+				"complessi",
+				"parco"
+			],
+			[
+				"complessi",
+				"strada_principale"
+			],
+			[
+				"strada_principale",
+				"supermercato"
+			],
+			[
+				"strada_principale",
+				"officina"
+			],
+			[
+				"strada_principale",
+				"edicola"
+			],
+			[
+				"edicola",
+				"vicolo"
+			],
+			[
+				"vicolo",
+				"quartieri_profondi"
+			]
+		]
+	},
 	"nodi": {
 		"varco": {
-			"testo": "Lo squarcio si apre su una città che non è la tua: insegne spente, auto abbandonate in mezzo alla strada, portiere aperte come se chi guidava fosse sceso di corsa e non fosse più tornato. Un cartello arrugginito dice ancora, a metà: MERIDIA — BENVEN... Il resto è caduto.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Lo squarcio si apre sulla cima di una collina che affaccia su un'enorme città. Varie ombre si muovono in lontananza, lente... la terra trema... l'aria è umida, e una leggera brezza porta il tipico odore di morte che contraddistingue le terre marcite. Il sole è nascosto da una nube densa e minacciosa, che rende tutta la zona fredda e buia."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo posto trasmette una desolazione tremenda...",
+					"espr": "pensiero"
+				}
+			],
+			"scena": "La collina sopra Meridia. Sotto di te la città, e le ombre che si muovono piano.",
 			"scelte": [
-				{ "testo": "Avanza per la strada principale", "vai": "strada_principale" },
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+				{
+					"testo": "Scendi verso le strade di periferia",
+					"vai": "periferia"
+				},
+				{
+					"testo": "Torna nel Vuoto",
+					"torna_vuoto": true
+				}
+			]
+		},
+		"periferia": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Lungo queste strade non ci sono segni di vita... tutto è marcio, tutto dimenticato da tempo. Anche all'aperto una sottile polvere permea l'aria, rendendola difficile da respirare... tuttavia non sembra ancora essere nociva."
+				}
+			],
+			"scena": "Le strade di periferia. La polvere sospesa, e niente che si muova.",
+			"scelte": [
+				{
+					"testo": "Prosegui verso l'ingresso della città",
+					"vai": "ingresso_citta"
+				},
+				{
+					"testo": "Torna al varco",
+					"vai": "varco"
+				}
+			]
+		},
+		"ingresso_citta": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Da qui è possibile entrare in questa città... i livelli di disallineamento sono alle stelle. Per ora il mio compito consiste solo nello studiare il quartiere est..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembrerebbe che l'Organizzazione stia studiando questo posto già da tempo. Nonostante la fonte sia stata estinta da un pezzo, questo mondo non dà cenni di ripresa... come se fosse fermo nel tempo...",
+					"espr": "pensiero"
+				}
+			],
+			"scena": "L'ingresso della città. I primi palazzi, e i cartelli che nessuno legge più.",
+			"scelte": [
+				{
+					"testo": "Prosegui verso i primi complessi di edifici",
+					"vai": "complessi"
+				},
+				{
+					"testo": "Torna alle strade di periferia",
+					"vai": "periferia"
+				}
+			]
+		},
+		"complessi": {
+			"vai_se_flag": {
+				"flag": "mer_indagine",
+				"vai": "complessi_dopo"
+			},
+			"flag": "mer_indagine",
+			"task": "mer_indagine",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sarà già da un po' di minuti che cammino... qualcuno mi tiene d'occhio da quando sono entrato... no... anche più di un soggetto...",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Bene, da qui posso cominciare a raccogliere dati sulla zona. Ci sono varie strutture che sembrano essere interessanti..."
+				}
+			],
+			"scena": "I primi complessi di edifici. La strada principale davanti, il parco da un lato, la struttura dall'altro.",
+			"scelte": [
+				{
+					"testo": "Avanza per la strada principale",
+					"vai": "strada_principale"
+				},
+				{
+					"testo": "Investiga il parco",
+					"vai": "parco"
+				},
+				{
+					"testo": "Investiga dentro la struttura abbandonata",
+					"vai": "struttura"
+				},
+				{
+					"testo": "Torna all'ingresso della città",
+					"vai": "ingresso_citta"
+				}
+			]
+		},
+		"complessi_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "I primi complessi di edifici. Da qui si vede tutto quello che c'è da vedere di questo quartiere: la strada principale, il parco, la struttura."
+				}
+			],
+			"scena": "I primi complessi di edifici. La strada principale davanti, il parco da un lato, la struttura dall'altro.",
+			"scelte": [
+				{
+					"testo": "Avanza per la strada principale",
+					"vai": "strada_principale"
+				},
+				{
+					"testo": "Investiga il parco",
+					"vai": "parco"
+				},
+				{
+					"testo": "Investiga dentro la struttura abbandonata",
+					"vai": "struttura"
+				},
+				{
+					"testo": "Torna all'ingresso della città",
+					"vai": "ingresso_citta"
+				}
+			]
+		},
+		"struttura": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra che sia un garage sotterraneo? Le luci sono ancora accese... Incredibile che funzioni ancora la corrente dopo così tanti anni..."
+				}
+			],
+			"scena": "La struttura abbandonata. La rampa che scende, e le luci che nessuno ha mai spento.",
+			"scelte": [
+				{
+					"testo": "Esplora i piani inferiori",
+					"vai": "garage_1"
+				},
+				{
+					"testo": "Torna ai complessi di edifici",
+					"vai": "complessi"
+				}
+			]
+		},
+		"garage_1": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra una stanza enorme... ci saranno posti per almeno un migliaio di auto. Quanta gente viveva in questa città?"
+				}
+			],
+			"scena": "Piano -1. Le file di posti auto vuoti, a perdita d'occhio.",
+			"scelte": [
+				{
+					"testo": "Scendi al piano inferiore",
+					"vai": "garage_2"
+				},
+				{
+					"testo": "Risali in superficie",
+					"vai": "struttura"
+				}
+			]
+		},
+		"garage_2": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Vari rottami sembrano sparsi ovunque: difficile vedere cosa si cela negli angoli di questo enorme piano..."
+				}
+			],
+			"scena": "Piano -2. I rottami sparsi, e gli angoli che restano bui.",
+			"scelte": [
+				{
+					"testo": "Scendi al piano inferiore",
+					"vai": "garage_3"
+				},
+				{
+					"testo": "Risali al piano superiore",
+					"vai": "garage_1"
+				}
+			]
+		},
+		"garage_3": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Cos'è stato? ...",
+					"espr": "sorpresa"
+				}
+			],
+			"scena": "Piano -3. Il rumore che hai sentito non si ripete.",
+			"scelte": [
+				{
+					"testo": "Perlustra il piano",
+					"vai": "garage_3_perlustra"
+				},
+				{
+					"testo": "Scendi al piano inferiore",
+					"vai": "garage_4"
+				},
+				{
+					"testo": "Risali al piano superiore",
+					"vai": "garage_2"
+				}
+			]
+		},
+		"garage_3_perlustra": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Non hai trovato nulla d'interessante... vari fori sono distribuiti nelle pareti... sembrano scavati a mano."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Scendi al piano inferiore",
+					"vai": "garage_4"
+				},
+				{
+					"testo": "Torna a guardarti intorno",
+					"vai": "garage_3"
+				}
+			]
+		},
+		"garage_4": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "C'è solo un gigantesco cumulo di macerie che si sviluppa verso il basso... sento provenire dell'aria da qui sotto... che si possa accedere in qualche modo?",
+					"espr": "pensiero"
+				}
+			],
+			"scena": "Piano -4. Il cumulo di macerie che scende ancora, e l'aria che ne sale.",
+			"scelte": [
+				{
+					"testo": "Perlustra il piano",
+					"vai": "garage_4_perlustra"
+				},
+				{
+					"testo": "Torna in superficie",
+					"vai": "fuori_struttura"
+				}
+			]
+		},
+		"garage_4_perlustra": {
+			"flag": "mer_macerie",
+			"task": "mer_macerie",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Nonostante i tuoi sforzi il cumulo di macerie ti impedisce di proseguire oltre... Non sembra esserci più niente qui."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna in superficie",
+					"vai": "fuori_struttura"
+				},
+				{
+					"testo": "Guarda ancora il cumulo",
+					"vai": "garage_4"
+				}
+			]
+		},
+		"fuori_struttura": {
+			"vai_se_flag": {
+				"flag": "mer_agguato_battuto",
+				"vai": "fuori_struttura_dopo"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Alla fine è stato inutile entrare in questo posto... sarà meglio dare un'occhiata nelle altre zone..."
+				},
+				{
+					"tipo": "immagine",
+					"file": "res://art/illustrazioni/meridia_morto_vivente.png",
+					"testo": "In mezzo alla strada, fermo, c'è qualcosa che ti sta guardando da parecchio."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "E quello cos'è?",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "infetto_rapido",
+					"testo": "Mooooaaahhh..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "La creatura ti osserva... sembra in qualche modo... invidiosa? In un battito d'occhio, ti ritrovi faccia a faccia con qualcosa di terribile."
+				}
+			],
+			"destra": "infetto_rapido",
+			"combattimento_automatico": {
+				"nemici": [
+					"infetto_rapido"
+				],
+				"se_vinci": "dopo_infetto",
+				"se_perdi": "espulso",
+				"se_fuggi": "complessi"
+			}
+		},
+		"dopo_infetto": {
+			"mantieni_hp": true,
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Credo di aver attirato l'attenzione..."
+				}
+			],
+			"combattimento_automatico": {
+				"nemici": [
+					"zombie_cittadino",
+					"zombie_cittadino",
+					"zombie_cittadino"
+				],
+				"se_vinci": "seconda_ondata",
+				"se_perdi": "espulso",
+				"se_fuggi": "complessi"
+			}
+		},
+		"seconda_ondata": {
+			"mantieni_hp": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Non fai in tempo a riprendere fiato: dal fondo della strada ne arrivano altri, con lo stesso passo di prima."
+				}
+			],
+			"combattimento_automatico": {
+				"nemici": [
+					"zombie_cittadino",
+					"zombie_cittadino",
+					"zombie_cittadino"
+				],
+				"se_vinci": "dopo_ondate",
+				"se_perdi": "espulso",
+				"se_fuggi": "complessi"
+			}
+		},
+		"dopo_ondate": {
+			"flag": "mer_agguato_battuto",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra essere finita... ecco cosa mi stava seguendo. La fonte dovrebbe essere stata estinta: allora perché queste creature continuano a comparire?",
+					"espr": "pensiero"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sarà meglio proseguire con le indagini."
+				}
+			],
+			"scena": "Fuori dalla struttura. La strada, adesso, è di nuovo vuota.",
+			"scelte": [
+				{
+					"testo": "Torna ai complessi di edifici",
+					"vai": "complessi"
+				},
+				{
+					"testo": "Rientra nella struttura",
+					"vai": "struttura"
+				}
+			]
+		},
+		"fuori_struttura_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Fuori dalla struttura. Dove si erano ammassati non è rimasto niente."
+				}
+			],
+			"scena": "Fuori dalla struttura. La strada, adesso, è di nuovo vuota.",
+			"scelte": [
+				{
+					"testo": "Torna ai complessi di edifici",
+					"vai": "complessi"
+				},
+				{
+					"testo": "Rientra nella struttura",
+					"vai": "struttura"
+				}
+			]
+		},
+		"parco": {
+			"vai_se_flag": {
+				"flag": "mer_nuvola_battuta",
+				"vai": "parco_dopo"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo parco è immenso... doveva essere meraviglioso, un tempo..."
+				}
+			],
+			"scena": "Il parco. Gli alberi secchi, e il lago quasi prosciugato.",
+			"scelte": [
+				{
+					"testo": "Esamina il parco",
+					"vai": "parco_lago",
+					"una_tantum": "mer_fiala",
+					"oggetto": "fiala_misteriosa"
+				},
+				{
+					"testo": "Torna ai complessi di edifici",
+					"vai": "complessi"
+				}
+			]
+		},
+		"parco_lago": {
+			"task": "mer_fiala",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Al centro del lago qualcosa luccica. L'acqua è bassa, così ti fai strada verso l'oggetto..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Qualcosa sembra venire verso di me dal cielo...",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "nuvola_di_marciume",
+					"testo": "Baflooon!"
+				}
+			],
+			"destra": "nuvola_di_marciume",
+			"combattimento_automatico": {
+				"nemici": [
+					"nuvola_di_marciume"
+				],
+				"se_vinci": "dopo_nuvola",
+				"se_perdi": "espulso",
+				"se_fuggi": "parco"
+			}
+		},
+		"dopo_nuvola": {
+			"flag": "mer_nuvola_battuta",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non era una grande minaccia, alla fine... ma mi chiedo se ci sia una correlazione tra le nuvole che ricoprono il pianeta e l'anomalo comportamento di questa frattura.",
+					"espr": "pensiero"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Meglio continuare con le indagini."
+				}
+			],
+			"scena": "Il parco. Gli alberi secchi, e il lago quasi prosciugato.",
+			"scelte": [
+				{
+					"testo": "Torna ai complessi di edifici",
+					"vai": "complessi"
+				}
+			]
+		},
+		"parco_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il parco è tornato immobile. Sopra gli alberi secchi le nuvole continuano a passare, basse."
+				}
+			],
+			"scena": "Il parco. Gli alberi secchi, e il lago quasi prosciugato.",
+			"scelte": [
+				{
+					"testo": "Torna ai complessi di edifici",
+					"vai": "complessi"
+				}
 			]
 		},
 		"strada_principale": {
-			"testo": "La strada principale di Meridia è un cimitero di vetrine rotte. Ogni tanto, tra le macerie, qualcosa si muove piano — o troppo in fretta.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Lungo le strade principali della città leggi diversi cartelli che portano il nome della città nella quale ti trovi: «Meridia»."
+				}
+			],
+			"scena": "La strada principale. Le vetrine rotte, e i cartelli col nome della città.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["zombie_cittadino", "zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino", "zombie_cittadino"], ["zombie_cittadino", "infetto_rapido"], ["zombie_cittadino", "zombie_cittadino", "infetto_rapido"], ["infetto_rapido", "infetto_rapido"], ["zombie_mostruoso", "zombie_cittadino"]],
+				"gruppi": [
+					[
+						"zombie_cittadino",
+						"zombie_cittadino"
+					],
+					[
+						"zombie_cittadino",
+						"zombie_cittadino",
+						"zombie_cittadino"
+					],
+					[
+						"zombie_cittadino",
+						"infetto_rapido"
+					],
+					[
+						"zombie_cittadino",
+						"zombie_cittadino",
+						"infetto_rapido"
+					],
+					[
+						"infetto_rapido",
+						"infetto_rapido"
+					],
+					[
+						"zombie_mostruoso",
+						"zombie_cittadino"
+					]
+				],
 				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Entra nel supermercato saccheggiato", "vai": "supermercato" },
-				{ "testo": "Entra nell'officina abbandonata", "vai": "officina" },
-				{ "testo": "Vai verso l'edicola", "vai": "edicola" },
-				{ "testo": "Torna al varco", "vai": "varco" }
+				{
+					"testo": "Entra nel supermercato saccheggiato",
+					"vai": "supermercato"
+				},
+				{
+					"testo": "Entra nell'officina abbandonata",
+					"vai": "officina"
+				},
+				{
+					"testo": "Vai verso l'edicola",
+					"vai": "edicola"
+				},
+				{
+					"testo": "Torna ai complessi di edifici",
+					"vai": "complessi"
+				}
 			]
 		},
 		"supermercato": {
-			"testo": "Scaffali rovesciati, carrelli abbandonati a metà corsia. Qualcuno ha fatto scorte, prima della fine. Non è bastato.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo posto è stato vandalizzato innumerevoli volte. Devo cercare di fare piano: i nemici si nascondono dietro ogni angolo..."
+				}
+			],
+			"scena": "Il supermercato saccheggiato. Scaffali rovesciati, carrelli fermi a metà corsia.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["zombie_cittadino", "zombie_cittadino"], ["zombie_cittadino", "zombie_cittadino", "zombie_cittadino"], ["zombie_mostruoso"], ["zombie_cittadino", "zombie_mostruoso"]],
+				"gruppi": [
+					[
+						"zombie_cittadino",
+						"zombie_cittadino"
+					],
+					[
+						"zombie_cittadino",
+						"zombie_cittadino",
+						"zombie_cittadino"
+					],
+					[
+						"zombie_mostruoso"
+					],
+					[
+						"zombie_cittadino",
+						"zombie_mostruoso"
+					]
+				],
 				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Fruga tra gli scaffali caduti", "vai": "supermercato", "una_tantum": "mer_bastone", "oggetto": "bastone", "tazo": 6 },
-				{ "testo": "Svuota una cassa ancora chiusa", "vai": "supermercato", "una_tantum": "mer_tazo_1", "tazo": 8 },
-				{ "testo": "Torna alla strada", "vai": "strada_principale" }
+				{
+					"testo": "Fruga tra gli scaffali caduti",
+					"vai": "supermercato",
+					"una_tantum": "mer_bastone",
+					"oggetto": "bastone",
+					"tazo": 6
+				},
+				{
+					"testo": "Svuota una cassa ancora chiusa",
+					"vai": "supermercato",
+					"una_tantum": "mer_tazo_1",
+					"tazo": 8
+				},
+				{
+					"testo": "Torna alla strada",
+					"vai": "strada_principale"
+				}
 			]
 		},
 		"officina": {
-			"testo": "Un'officina meccanica, attrezzi sparsi ovunque. Un furgone è ancora sollevato sul ponte, come se il lavoro dovesse riprendere da un momento all'altro.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Una normalissima officina... è buio pesto, potrei essere attaccato da un momento all'altro."
+				}
+			],
+			"scena": "L'officina abbandonata. Il furgone ancora sollevato sul ponte.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["infetto_rapido", "infetto_rapido"], ["zombie_cittadino", "infetto_rapido"], ["zombie_cittadino", "zombie_cittadino", "infetto_rapido"], ["zombie_mostruoso", "infetto_rapido"]],
+				"gruppi": [
+					[
+						"infetto_rapido",
+						"infetto_rapido"
+					],
+					[
+						"zombie_cittadino",
+						"infetto_rapido"
+					],
+					[
+						"zombie_cittadino",
+						"zombie_cittadino",
+						"infetto_rapido"
+					],
+					[
+						"zombie_mostruoso",
+						"infetto_rapido"
+					]
+				],
 				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Recupera la spranga di ferro sul banco", "vai": "officina", "una_tantum": "mer_spranga", "oggetto": "spranga_di_ferro", "tazo": 5 },
-				{ "testo": "Forza l'armadietto degli attrezzi", "vai": "officina", "richiede": "scasso", "una_tantum": "mer_motosega", "oggetto": "motosega" },
-				{ "testo": "Torna alla strada", "vai": "strada_principale" }
+				{
+					"testo": "Recupera la spranga di ferro sul banco",
+					"vai": "officina",
+					"una_tantum": "mer_spranga",
+					"oggetto": "spranga_di_ferro",
+					"tazo": 5
+				},
+				{
+					"testo": "Forza l'armadietto degli attrezzi",
+					"vai": "officina",
+					"richiede": "scasso",
+					"una_tantum": "mer_motosega",
+					"oggetto": "motosega"
+				},
+				{
+					"testo": "Torna alla strada",
+					"vai": "strada_principale"
+				}
 			]
 		},
 		"edicola": {
-			"testo": "Un'edicola con la saracinesca a metà. Dentro, pile di giornali ingialliti, l'ultima consegna mai ritirata da nessuno.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Le edicole sono sempre un ottimo posto per raccogliere informazioni."
+				}
+			],
+			"scena": "L'edicola con la saracinesca a metà, e le pile di giornali mai ritirati.",
 			"scelte": [
-				{ "testo": "Leggi la prima pagina rimasta", "vai": "edicola", "una_tantum": "mer_giornale_1", "oggetto": "pagina_di_giornale_1" },
-				{ "testo": "Leggi la seconda pagina rimasta", "vai": "edicola", "una_tantum": "mer_giornale_2", "oggetto": "pagina_di_giornale_2" },
-				{ "testo": "Leggi l'ultima edizione mai stampata", "vai": "edicola", "una_tantum": "mer_giornale_3", "oggetto": "pagina_di_giornale_3" },
-				{ "testo": "Vai verso il vicolo sul retro", "vai": "vicolo" },
-				{ "testo": "Torna alla strada", "vai": "strada_principale" }
+				{
+					"testo": "Leggi la prima pagina di giornale",
+					"vai": "edicola",
+					"una_tantum": "mer_giornale_1",
+					"oggetto": "pagina_di_giornale_1"
+				},
+				{
+					"testo": "Leggi la seconda pagina di giornale",
+					"vai": "edicola",
+					"una_tantum": "mer_giornale_2",
+					"oggetto": "pagina_di_giornale_2"
+				},
+				{
+					"testo": "Leggi la terza pagina di giornale",
+					"vai": "edicola",
+					"una_tantum": "mer_giornale_3",
+					"oggetto": "pagina_di_giornale_3"
+				},
+				{
+					"testo": "Vai verso il vicolo sul retro",
+					"vai": "vicolo"
+				},
+				{
+					"testo": "Torna alla strada",
+					"vai": "strada_principale"
+				}
 			]
 		},
 		"vicolo": {
-			"testo": "Un vicolo stretto dietro l'edicola, cassonetti rovesciati, una scala antincendio che sale verso il nulla. L'aria qui è ancora più ferma.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Procedendo verso il centro della città l'aria si fa sempre più pesante..."
+				}
+			],
+			"scena": "Il vicolo dietro l'edicola. I cassonetti rovesciati, la scala antincendio verso il nulla.",
 			"agguato": {
 				"probabilita": 0.5,
-				"gruppi": [["zombie_cittadino", "zombie_cittadino"], ["infetto_rapido", "infetto_rapido"], ["zombie_cittadino", "zombie_cittadino", "zombie_cittadino"], ["orrore_di_meridia"], ["zombie_mostruoso", "zombie_cittadino"]],
+				"gruppi": [
+					[
+						"zombie_cittadino",
+						"zombie_cittadino"
+					],
+					[
+						"infetto_rapido",
+						"infetto_rapido"
+					],
+					[
+						"zombie_cittadino",
+						"zombie_cittadino",
+						"zombie_cittadino"
+					],
+					[
+						"orrore_di_meridia"
+					],
+					[
+						"zombie_mostruoso",
+						"zombie_cittadino"
+					]
+				],
 				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Raccogli il mazzafrusto improvvisato", "vai": "vicolo", "una_tantum": "mer_mazzafrusto", "oggetto": "mazzafrusto", "tazo": 6 },
-				{ "testo": "Recupera lo sparachiodi caduto tra i cassonetti", "vai": "vicolo", "una_tantum": "mer_sparachiodi", "oggetto": "sparachiodi_arrugginito", "tazo": 5 },
-				{ "testo": "Scendi verso i quartieri profondi", "vai": "quartieri_profondi" },
-				{ "testo": "Torna all'edicola", "vai": "edicola" }
+				{
+					"testo": "Raccogli il mazzafrusto improvvisato",
+					"vai": "vicolo",
+					"una_tantum": "mer_mazzafrusto",
+					"oggetto": "mazzafrusto",
+					"tazo": 6
+				},
+				{
+					"testo": "Recupera lo sparachiodi caduto tra i cassonetti",
+					"vai": "vicolo",
+					"una_tantum": "mer_sparachiodi",
+					"oggetto": "sparachiodi_arrugginito",
+					"tazo": 5
+				},
+				{
+					"testo": "Scendi verso i quartieri profondi",
+					"vai": "quartieri_profondi"
+				},
+				{
+					"testo": "Torna all'edicola",
+					"vai": "edicola"
+				}
 			]
 		},
 		"quartieri_profondi": {
 			"flag": "meridia_esplorata",
-			"testo": "Più a fondo la città cambia: i palazzi si stringono, la luce non arriva più e il silenzio ha un peso diverso. Qui non si muove niente finché non decide di muoversi tutto insieme.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "*Cough*"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "*Spit*"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non posso reggere ancora molto... Meglio non spingersi oltre senza avere un'attrezzatura adeguata. Mi limiterò a esplorare fino a questa zona, per ora...",
+					"espr": "sforzo"
+				}
+			],
+			"scena": "I quartieri profondi. I palazzi si stringono, e l'aria non si respira più.",
 			"agguato": {
 				"probabilita": 0.65,
-				"gruppi": [["zombie_mostruoso", "zombie_cittadino", "zombie_cittadino"], ["orrore_di_meridia", "zombie_cittadino"], ["zombie_mostruoso", "zombie_mostruoso"], ["orrore_di_meridia", "infetto_rapido"], ["titano_zombie"]],
+				"gruppi": [
+					[
+						"zombie_mostruoso",
+						"zombie_cittadino",
+						"zombie_cittadino"
+					],
+					[
+						"orrore_di_meridia",
+						"zombie_cittadino"
+					],
+					[
+						"zombie_mostruoso",
+						"zombie_mostruoso"
+					],
+					[
+						"orrore_di_meridia",
+						"infetto_rapido"
+					],
+					[
+						"titano_zombie"
+					]
+				],
 				"ripetibile": true,
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Continua a battere i quartieri profondi", "vai": "quartieri_profondi" },
-				{ "testo": "Torna al vicolo", "vai": "vicolo" }
+				{
+					"testo": "Continua a battere i quartieri profondi",
+					"vai": "quartieri_profondi"
+				},
+				{
+					"testo": "Torna al vicolo",
+					"vai": "vicolo"
+				}
 			]
 		},
 		"espulso": {
-			"testo": "Le mani marce ti si chiudono attorno per un istante, poi lo squarcio ti strappa via, di nuovo nel Vuoto. Meridia resta lì, silenziosa e piena.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il tuo destino è segnato. Tra le mille bocche affamate scompari in silenzio... un ultimo respiro si perde tra le nuvole che ricoprono questo pianeta."
+				}
+			],
 			"scelte": [
-				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+				{
+					"testo": "Riprendi fiato nel Vuoto",
+					"torna_vuoto": true
+				}
 			]
 		}
 	}

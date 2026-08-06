@@ -286,6 +286,12 @@
 			"descrizione": "L'ultima edizione mai stampata di Meridia. Metà pagina è vuota: chi la componeva non ha fatto in tempo a finirla. Le parole rimaste dicono solo: 'evacuare subito, non fer'."
 		},
 		{
+			"id": "fiala_misteriosa",
+			"nome": "Fiala misteriosa",
+			"tipo": "chiave",
+			"descrizione": "Una fiala da laboratorio... ha ancora della sostanza incrostata sulle pareti interne. Da consegnare all'Organizzazione per l'analisi."
+		},
+		{
 			"id": "meccanismo_del_varco",
 			"nome": "Meccanismo del varco",
 			"tipo": "chiave",

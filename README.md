@@ -1800,7 +1800,26 @@ pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, 
     Kizako si raggiunge **solo dalla Sala informatica**. Nuovo tipo di messaggio `immagine`:
     un'illustrazione a schermo intero con didascalia, che senza il disegno resta comunque
     leggibile
-24. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
+24. ✅ **Meridia riscritta** (testi di Bru) e **`docs/mappe.md`**. La zona non butta più il
+    giocatore in mezzo agli zombie: si arriva su una collina che affaccia sulla città, si
+    scende per le strade di periferia, si entra, e solo dopo l'Organizzazione dà il compito
+    («studia il quartiere est»). Da lì tre direzioni — la strada principale, il parco, la
+    struttura abbandonata — e due scene scritte: il **garage sotterraneo** (quattro piani
+    fino a un cumulo di macerie da cui sale aria: si potrà scendere più avanti) che uscendo
+    fa scattare l'agguato di quello che ti seguiva da quando sei entrato, e il **parco**, dove
+    la fiala nel lago prosciugato chiama giù dal cielo una **Nuvola di Marciume**.
+    `docs/mappe.md` si rigenera dai dati (`python3 strumenti/genera_mappe.py`) e disegna ogni
+    zona due volte: la **griglia** (le stanze una rispetto all'altra, come le vedrà il
+    giocatore) e il **percorso** (la zona ripercorsa dall'ingresso, con oggetti, agguati,
+    scontri scritti, flag e requisiti di ogni ramo)
+25. ⬜ **La mappa a quadratini**: disegnare la griglia invece dei pallini e delle linee di
+    oggi. Le posizioni nei dati sono già allineate alla griglia, quindi è lavoro di
+    `MappaZona.gd`, non di contenuto. Restano da fare stanze grandi (`dimensione`), zone
+    segrete in verde, icone (boss, miniboss, negozio, personaggio chiave, uscita), una mappa
+    **per piano** invece di una per zona, la cornice della vista con lo zoom, e più avanti la
+    **mappa totale a contorni** (l'abilità di un personaggio: vedi la forma della zona e capisci
+    che lì c'è qualcosa, senza sapere cosa)
+26. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
     (risfidare ogni tipo di nemico incontrato). Si aprono a gioco finito; l'infrastruttura c'è già
     — il bestiario sa chi hai incontrato e il giocatore automatico sa già montare uno scontro
     qualunque senza passare da una stanza

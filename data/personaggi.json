@@ -662,6 +662,34 @@
 			"carta": { "id": "carta_infetto_rapido", "nome": "Infetto Rapido", "rarita": "comune", "chance": 0.02, "testo": "Corre da anni. Non si è mai fermato a chiedersi perché." },
 			"bottino_comune": [
 				{ "oggetto": "spranga_di_ferro", "chance": 0.15 }
+			],
+			"studio": [
+				{ "domanda": "Cosa vuoi da me?", "risposta": "Non sembra voler altro se non la tua fine." },
+				{ "domanda": "(provi a rallentarlo con la voce)", "risposta": "Corre lo stesso. Non ha mai smesso." }
+			]
+		},
+		{
+			"id": "nuvola_di_marciume",
+			"elemento": "veleno",
+			"livello": 2,
+			"nome": "Nuvola di Marciume",
+			"nome_breve": "Nuvola",
+			"hp": 110,
+			"attacco": 6,
+			"difesa": 2,
+			"velocita": 4,
+			"xp": 6,
+			"tazo": 4,
+			"ritratto": "res://art/personaggi/nuvola_di_marciume.png",
+			"descrizione": "Un pezzo della coltre che copre Meridia, sceso più in basso degli altri. Non insegue nessuno: capita addosso.",
+			"apertura": "Si sgonfia e si rigonfia piano, come se respirasse.",
+			"carta": { "id": "carta_nuvola_di_marciume", "nome": "Nuvola di Marciume", "rarita": "comune", "chance": 0.03, "testo": "Il cielo di Meridia, in una porzione abbastanza piccola da poterla colpire." },
+			"bottino_comune": [
+				{ "oggetto": "fiala_hp", "chance": 0.2 }
+			],
+			"studio": [
+				{ "domanda": "(la osservi mentre si addensa)", "risposta": "Sembra che le nubi che ricoprono il cielo possano prendere vita propria..." },
+				{ "domanda": "(provi a richiamare la sua attenzione)", "risposta": "Non sembra reagire ad alcuno stimolo." }
 			]
 		},
 		{
