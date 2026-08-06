@@ -121,6 +121,58 @@
 			]
 		},
 		{
+			"id": "robo_pattuglia",
+			"elemento": "elettrico",
+			"livello": 4,
+			"nome": "Robo Pattuglia",
+			"nome_breve": "Robo Pattuglia",
+			"hp": 150,
+			"attacco": 12,
+			"difesa": 9,
+			"velocita": 3,
+			"xp": 11,
+			"tazo": 9,
+			"ritratto": "res://art/personaggi/robo_pattuglia.png",
+			"descrizione": "Una macchina di sorveglianza che non ha mai ricevuto l'ordine di smettere. Esegue un regolamento che nessuno applica più.",
+			"apertura": "Scende dalla botola senza fretta, come chi ha tutto il tempo del mondo.",
+			"carta": { "id": "carta_robo_pattuglia", "nome": "Robo Pattuglia", "rarita": "non_comune", "chance": 0.04, "testo": "Turno di guardia iniziato il 14/03. Turno di guardia mai terminato." },
+			"bottino_comune": [
+				{ "oggetto": "viti_e_bulloni", "chance": 0.35 },
+				{ "oggetto": "componente_elettronico", "chance": 0.1 }
+			],
+			"studio": [
+				{ "domanda": "Cos'è questo posto.", "risposta": "NON HO I PERMESSI NECESSARI PER RISPONDERE ALLE SUE DOMANDE." },
+				{ "domanda": "(provi ancora)", "risposta": "Non sembra essere possibile comunicare con questa macchina..." }
+			]
+		},
+		{
+			"id": "operaio_sfruttato",
+			"livello": 5,
+			"nome": "Operaio Sfruttato",
+			"nome_breve": "Operaio Sfruttato",
+			"categoria": "particolare",
+			"hp": 260,
+			"attacco": 16,
+			"difesa": 8,
+			"velocita": 4,
+			"psiche": "rabbia",
+			"fattore_base": 15,
+			"xp": 16,
+			"tazo": 14,
+			"ritratto": "res://art/personaggi/operaio_sfruttato.png",
+			"descrizione": "Non difende i file: difende le ore che ci ha lasciato dentro. Toccarli è toccare l'unica cosa che gli è rimasta.",
+			"apertura": { "tipo": "dialogo", "testo": "Non rovinare il mio lavoro!" },
+			"carta": { "id": "carta_operaio_sfruttato", "nome": "Operaio Sfruttato", "rarita": "rara", "chance": 0.05, "testo": "Straordinari non retribuiti: illeggibile. Ferie maturate: nessuna." },
+			"bottino_comune": [
+				{ "oggetto": "viti_e_bulloni", "chance": 0.3 },
+				{ "oggetto": "fiala_hp", "chance": 0.25 }
+			],
+			"studio": [
+				{ "domanda": "Cosa è successo in questo posto?", "risposta": "Fai silenzio! Non toccare i miei file!" },
+				{ "domanda": "(provi a calmarlo)", "risposta": "Impossibile ragionarci: è furioso." }
+			]
+		},
+		{
 			"id": "ferraglia_urlante",
 			"livello": 6,
 			"nome": "Ferraglia Urlante",

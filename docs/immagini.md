@@ -31,7 +31,7 @@ chiedere `"espr": "sotto_la_pioggia"` e basta disegnare quel file.
 Non 16 espressioni per 48 personaggi (768 disegni, che non li fa nessuno).
 Questo e' quello che i dialoghi scritti finora chiedono davvero.
 
-### 1. Il ritratto singolo — 47 da fare
+### 1. Il ritratto singolo — 49 da fare
 
 Basta questo perche' nessuno sia piu' un segnaposto. Le creature da
 combattimento si fermano qui: non parlano, non gli serve altro.
@@ -65,8 +65,10 @@ art/personaggi/mr_eto.png
 art/personaggi/niru.png
 art/personaggi/ombra_del_passato.png
 art/personaggi/operaio_posseduto.png
+art/personaggi/operaio_sfruttato.png
 art/personaggi/orrore_di_meridia.png
 art/personaggi/rio.png
+art/personaggi/robo_pattuglia.png
 art/personaggi/sacerdote_folle.png
 art/personaggi/sadico.png
 art/personaggi/sally.png
@@ -86,14 +88,17 @@ art/personaggi/zombie_cittadino.png
 art/personaggi/zombie_mostruoso.png
 ```
 
-### 2. Le espressioni dei dialoghi — 28 da fare
+### 2. Le espressioni dei dialoghi — 32 da fare
 
 Solo per chi ha delle battute, e solo le facce che le battute nominano.
 Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto
 singolo: si puo' fare in qualunque ordine.
 
 ```
+art/personaggi/anonimo/decisa.png
 art/personaggi/anonimo/neutra.png
+art/personaggi/anonimo/pensiero.png
+art/personaggi/anonimo/sorpresa.png
 art/personaggi/computer/neutra.png
 art/personaggi/curie/carina.png
 art/personaggi/curie/neutra.png
@@ -114,6 +119,7 @@ art/personaggi/jongo_dongo/decisa.png
 art/personaggi/jongo_dongo/neutra.png
 art/personaggi/jongo_dongo/petrificata.png
 art/personaggi/l_immortale/neutra.png
+art/personaggi/robo_pattuglia/neutra.png
 art/personaggi/sopravvissuta/neutra.png
 art/personaggi/tenero_ricordo/neutra.png
 art/personaggi/vecchio_clown/neutra.png
@@ -125,6 +131,7 @@ art/personaggi/veronica/neutra.png
 
 | chi | quante | quali |
 |---|--:|---|
+| Anonimo (`anonimo`) | 4 | `decisa` · `neutra` · `pensiero` · `sorpresa` |
 | L'ultimo spettacolo di Jerah (`jerah`) | 4 | `decisa` · `delusa` · `neutra` · `speciale` |
 | El Muy Bonito (`giocoliere`) | 3 | `arrabbiata` · `cool` · `neutra` |
 | Yhvina (`insonne`) | 3 | `annoiata` · `decisa` · `neutra` |
@@ -133,10 +140,10 @@ art/personaggi/veronica/neutra.png
 | Dott.ssa Curie Heartlife (`curie`) | 2 | `carina` · `neutra` |
 | Un goblin terribilmente arrabbiato (`goblin_arrabbiato`) | 2 | `decisa` · `neutra` |
 | Il Vecchio Proprietario del teatro (`vecchio_clown`) | 2 | `neutra` · `pensiero` |
-| Anonimo (`anonimo`) | 1 | `neutra` |
 | computer (`computer`) | 1 | `neutra` |
 | figura_misteriosa (`figura_misteriosa`) | 1 | `neutra` |
 | ??? (`l_immortale`) | 1 | `neutra` |
+| Robo Pattuglia (`robo_pattuglia`) | 1 | `neutra` |
 | Yara (`sopravvissuta`) | 1 | `neutra` |
 | Un tenero ricordo (`tenero_ricordo`) | 1 | `neutra` |
 
@@ -172,7 +179,9 @@ art/personaggi/veronica/neutra.png
 | Capocantiere | 4 | `art/personaggi/voce_registrata.png` | — |  |
 | El Muy Bonito | 4 | `art/personaggi/giocoliere.png` | — |  |
 | Oppresso | 4 | `art/personaggi/comparsa_di_ruggine.png` | — |  |
+| Robo Pattuglia | 4 | `art/personaggi/robo_pattuglia.png` | — |  |
 | Emblema dell'oppressione | 5 | `art/personaggi/operaio_posseduto.png` | — |  |
+| Operaio Sfruttato | 5 | `art/personaggi/operaio_sfruttato.png` | — |  |
 | Orrore di Meridia | 5 | `art/personaggi/orrore_di_meridia.png` | — |  |
 | Veronica | 5 | `art/personaggi/veronica.png` | — |  |
 | Ferraglia Urlante | 6 | `art/personaggi/ferraglia_urlante.png` | — |  |
@@ -203,6 +212,16 @@ art/personaggi/veronica/neutra.png
 | Dott.ssa Curie Heartlife | `art/personaggi/curie.png` | `art/personaggi/curie/` |  |
 | Le lettere sull'altare | `art/personaggi/lettere_altare.png` | `art/personaggi/lettere_altare/` |  |
 
+## Le illustrazioni delle scene
+
+Disegni singoli a schermo intero: la scena si ferma, li mostra con la
+didascalia sotto, e poi riprende. Se il file non c'e' resta la didascalia,
+quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
+
+| file | dove | cosa si vede | c'è |
+|---|---|---|:-:|
+| `art/illustrazioni/file_reparto_montaggio.png` | squarcio_industriale.json › file_computer | In fila davanti alla catena ci sono più uomini di quanti quel reparto potesse contenerne. Nessuno guarda l'obiettivo. |  |
+
 ## Il resto
 
 | file | cos'è | c'è |
@@ -215,4 +234,4 @@ art/personaggi/veronica/neutra.png
 
 ---
 
-Ritratti presenti: **0 su 48**.
+Ritratti presenti: **0 su 50**.

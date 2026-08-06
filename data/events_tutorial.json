@@ -873,7 +873,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "figura_misteriosa",
-					"testo": "Salve unità UJ-111, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti..."
+					"testo": "Salve candidato, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti..."
 				},
 				{
 					"tipo": "dialogo",
@@ -889,19 +889,163 @@
 					"tipo": "dialogo",
 					"chi": "figura_misteriosa",
 					"testo": "Abbiamo aggiornato nelle sue planimetrie i luoghi d'interesse dove ci sarebbe bisogno di effettuare dei rilevamenti importanti, così come un punto anomalo dove i livelli di allineamento sono fuori controllo ma non in modo preoccupante: siamo sicuri che saprà gestire la situazione. Ha qualcosa da riferire?"
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Come mai mi trovo qui?",
+					"vai": "hq_domanda_perche"
 				},
 				{
+					"testo": "Cosa sono i dominatori in realtà?",
+					"vai": "hq_domanda_dominatori"
+				},
+				{
+					"testo": "Da quanto tempo sta succedendo tutto questo?",
+					"vai": "hq_domanda_quando"
+				},
+				{
+					"testo": "Nessuna domanda. Parto immediatamente.",
+					"vai": "hq_congedo"
+				}
+			],
+			"scena": "Lo schermo oscurato aspetta. Non ha fretta."
+		},
+		"hq_domanda_perche": {
+			"sequenza": [
+				{
 					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "No, non mi piace perdere tempo, mi dirigo subito verso i luoghi d'interesse..."
+					"chi": "figura_misteriosa",
+					"testo": "Lei è qui per essere studiato e per compiere il suo dovere in quanto dominatore, ovviamente. Senza di lei sarebbe impossibile tornare a quella che un tempo veniva chiamata \"normalità\". Insieme a lei altre unità sono attualmente accolte dalle nostre strutture sparse lungo tutto il cosmo. Non deve sentirsi solo."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "figura_misteriosa",
-					"testo": "Ottimo, sapevamo di poter contare su di lei, unità UJ-111. Per aspera ad astra!"
+					"testo": "Ha altro che le preme chiedere?"
 				}
 			],
+			"scelte": [
+				{
+					"testo": "Come mai mi trovo qui?",
+					"vai": "hq_domanda_perche"
+				},
+				{
+					"testo": "Cosa sono i dominatori in realtà?",
+					"vai": "hq_domanda_dominatori"
+				},
+				{
+					"testo": "Da quanto tempo sta succedendo tutto questo?",
+					"vai": "hq_domanda_quando"
+				},
+				{
+					"testo": "Nessuna domanda. Parto immediatamente.",
+					"vai": "hq_congedo"
+				}
+			]
+		},
+		"hq_domanda_dominatori": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Quello che noi definiamo come \"Dominatore\" è un soggetto con particolari capacità di resilienza, capace di adattarsi a diverse situazioni grazie a quello che noi pensiamo essere stato \"un vissuto particolarmente travagliato\"."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Vi contraddistinguono ottime doti di resistenza allo stress e una strana energia che nasce dai vostri sentimenti negativi, che solo voi siete capaci di dominare e trasformare in forza. Per questo vi chiamiamo \"Dominatori\"."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Ha altro che le preme chiedere?"
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Come mai mi trovo qui?",
+					"vai": "hq_domanda_perche"
+				},
+				{
+					"testo": "Cosa sono i dominatori in realtà?",
+					"vai": "hq_domanda_dominatori"
+				},
+				{
+					"testo": "Da quanto tempo sta succedendo tutto questo?",
+					"vai": "hq_domanda_quando"
+				},
+				{
+					"testo": "Nessuna domanda. Parto immediatamente.",
+					"vai": "hq_congedo"
+				}
+			]
+		},
+		"hq_domanda_quando": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Secondo i nostri registri, basandoci su un primitivo calendario di un pianeta chiamato \"Terra\" che fu il primo caso di disallineamento nella storia... si parla di ormai più di qualche migliaio di anni..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Calcolando stima..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "... ... ..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Esattamente 3696 anni su base terrestre, 245 giorni, 22 ore, 31 minuti e 59 secondi."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Ha altro che le preme chiedere?"
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Come mai mi trovo qui?",
+					"vai": "hq_domanda_perche"
+				},
+				{
+					"testo": "Cosa sono i dominatori in realtà?",
+					"vai": "hq_domanda_dominatori"
+				},
+				{
+					"testo": "Da quanto tempo sta succedendo tutto questo?",
+					"vai": "hq_domanda_quando"
+				},
+				{
+					"testo": "Nessuna domanda. Parto immediatamente.",
+					"vai": "hq_congedo"
+				}
+			]
+		},
+		"hq_congedo": {
 			"flag": "tutorial_completato",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "No, non ho altre domande... Parto immediatamente."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Ottimo, sapevamo di poter contare su di lei, candidato. Per aspera ad astra!"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Torna alla mappa stellare",

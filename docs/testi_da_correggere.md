@@ -1158,7 +1158,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`TUT.masso.scelta1`** · bottone di scelta
+**`TUT.masso.scelta1`** · bottone di scelta (fa raccogliere Fiala HP, Fiala HP)
 > Ispeziona l'acqua che luccica
 >
 > →
@@ -1779,7 +1779,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `hq_sala_riunioni_2`
 
 **`TUT.hq_sala_riunioni_2.1`** · battuta di ??? (Organizzazione)
-> Salve unità UJ-111, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti...
+> Salve candidato, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti...
 >
 > →
 
@@ -1798,17 +1798,169 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`TUT.hq_sala_riunioni_2.5`** · battuta di Anonimo
-> No, non mi piace perdere tempo, mi dirigo subito verso i luoghi d'interesse...
->
-> →
-
-**`TUT.hq_sala_riunioni_2.6`** · battuta di ??? (Organizzazione)
-> Ottimo, sapevamo di poter contare su di lei, unità UJ-111. Per aspera ad astra!
+**`TUT.hq_sala_riunioni_2.scena`** · quando ci torni («Osserva la scena»)
+> Lo schermo oscurato aspetta. Non ha fretta.
 >
 > →
 
 **`TUT.hq_sala_riunioni_2.scelta1`** · bottone di scelta
+> Come mai mi trovo qui?
+>
+> →
+
+**`TUT.hq_sala_riunioni_2.scelta2`** · bottone di scelta
+> Cosa sono i dominatori in realtà?
+>
+> →
+
+**`TUT.hq_sala_riunioni_2.scelta3`** · bottone di scelta
+> Da quanto tempo sta succedendo tutto questo?
+>
+> →
+
+**`TUT.hq_sala_riunioni_2.scelta4`** · bottone di scelta
+> Nessuna domanda. Parto immediatamente.
+>
+> →
+
+
+### Tutorial › `hq_domanda_perche`
+
+**`TUT.hq_domanda_perche.1`** · battuta di ??? (Organizzazione)
+> Lei è qui per essere studiato e per compiere il suo dovere in quanto dominatore, ovviamente. Senza di lei sarebbe impossibile tornare a quella che un tempo veniva chiamata "normalità". Insieme a lei altre unità sono attualmente accolte dalle nostre strutture sparse lungo tutto il cosmo. Non deve sentirsi solo.
+>
+> →
+
+**`TUT.hq_domanda_perche.2`** · battuta di ??? (Organizzazione)
+> Ha altro che le preme chiedere?
+>
+> →
+
+**`TUT.hq_domanda_perche.scelta1`** · bottone di scelta
+> Come mai mi trovo qui?
+>
+> →
+
+**`TUT.hq_domanda_perche.scelta2`** · bottone di scelta
+> Cosa sono i dominatori in realtà?
+>
+> →
+
+**`TUT.hq_domanda_perche.scelta3`** · bottone di scelta
+> Da quanto tempo sta succedendo tutto questo?
+>
+> →
+
+**`TUT.hq_domanda_perche.scelta4`** · bottone di scelta
+> Nessuna domanda. Parto immediatamente.
+>
+> →
+
+
+### Tutorial › `hq_domanda_dominatori`
+
+**`TUT.hq_domanda_dominatori.1`** · battuta di ??? (Organizzazione)
+> Quello che noi definiamo come "Dominatore" è un soggetto con particolari capacità di resilienza, capace di adattarsi a diverse situazioni grazie a quello che noi pensiamo essere stato "un vissuto particolarmente travagliato".
+>
+> →
+
+**`TUT.hq_domanda_dominatori.2`** · battuta di ??? (Organizzazione)
+> Vi contraddistinguono ottime doti di resistenza allo stress e una strana energia che nasce dai vostri sentimenti negativi, che solo voi siete capaci di dominare e trasformare in forza. Per questo vi chiamiamo "Dominatori".
+>
+> →
+
+**`TUT.hq_domanda_dominatori.3`** · battuta di ??? (Organizzazione)
+> Ha altro che le preme chiedere?
+>
+> →
+
+**`TUT.hq_domanda_dominatori.scelta1`** · bottone di scelta
+> Come mai mi trovo qui?
+>
+> →
+
+**`TUT.hq_domanda_dominatori.scelta2`** · bottone di scelta
+> Cosa sono i dominatori in realtà?
+>
+> →
+
+**`TUT.hq_domanda_dominatori.scelta3`** · bottone di scelta
+> Da quanto tempo sta succedendo tutto questo?
+>
+> →
+
+**`TUT.hq_domanda_dominatori.scelta4`** · bottone di scelta
+> Nessuna domanda. Parto immediatamente.
+>
+> →
+
+
+### Tutorial › `hq_domanda_quando`
+
+**`TUT.hq_domanda_quando.1`** · battuta di ??? (Organizzazione)
+> Secondo i nostri registri, basandoci su un primitivo calendario di un pianeta chiamato "Terra" che fu il primo caso di disallineamento nella storia... si parla di ormai più di qualche migliaio di anni...
+>
+> →
+
+**`TUT.hq_domanda_quando.2`** · battuta di ??? (Organizzazione)
+> Calcolando stima...
+>
+> →
+
+**`TUT.hq_domanda_quando.3`** · battuta di ??? (Organizzazione)
+> ...
+>
+> →
+
+**`TUT.hq_domanda_quando.4`** · battuta di ??? (Organizzazione)
+> ... ... ...
+>
+> →
+
+**`TUT.hq_domanda_quando.5`** · battuta di ??? (Organizzazione)
+> Esattamente 3696 anni su base terrestre, 245 giorni, 22 ore, 31 minuti e 59 secondi.
+>
+> →
+
+**`TUT.hq_domanda_quando.6`** · battuta di ??? (Organizzazione)
+> Ha altro che le preme chiedere?
+>
+> →
+
+**`TUT.hq_domanda_quando.scelta1`** · bottone di scelta
+> Come mai mi trovo qui?
+>
+> →
+
+**`TUT.hq_domanda_quando.scelta2`** · bottone di scelta
+> Cosa sono i dominatori in realtà?
+>
+> →
+
+**`TUT.hq_domanda_quando.scelta3`** · bottone di scelta
+> Da quanto tempo sta succedendo tutto questo?
+>
+> →
+
+**`TUT.hq_domanda_quando.scelta4`** · bottone di scelta
+> Nessuna domanda. Parto immediatamente.
+>
+> →
+
+
+### Tutorial › `hq_congedo`
+
+**`TUT.hq_congedo.1`** · battuta di Anonimo
+> No, non ho altre domande... Parto immediatamente.
+>
+> →
+
+**`TUT.hq_congedo.2`** · battuta di ??? (Organizzazione)
+> Ottimo, sapevamo di poter contare su di lei, candidato. Per aspera ad astra!
+>
+> →
+
+**`TUT.hq_congedo.scelta1`** · bottone di scelta
 > Torna alla mappa stellare
 >
 > →
@@ -1822,12 +1974,27 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `varco`
 
 **`IND.varco.1`** · narrazione
-> Lo squarcio si richiude alle tue spalle con un sospiro di vapore. Davanti: un complesso industriale gigantesco, macchine alte come palazzi, ruggine e sudore. Fa un caldo pazzesco. In lontananza, voci registrate parlano a nessuno.
+> Lo squarcio si richiude alle tue spalle con un sospiro di vapore. Un tetro colore rosso pervade la stanza, vagamente illuminata da qualche sprazzo di luce proveniente da chissà dove. Corridoi stretti, e un odore di olio consumato misto a ferro.
+>
+> →
+
+**`IND.varco.2`** · battuta di Anonimo
+> Strano... non riesco a percepire in modo distinto se ci sia una fonte o meno...
+>
+> →
+
+**`IND.varco.3`** · battuta di Anonimo
+> Questo posto mette una pressione particolare... qualcosa di terribile è successo qui...
+>
+> →
+
+**`IND.varco.scena`** · quando ci torni («Osserva la scena»)
+> La luce rossa, i corridoi stretti, l'olio consumato. Lo squarcio è alle tue spalle.
 >
 > →
 
 **`IND.varco.scelta1`** · bottone di scelta
-> Avanza nel corridoio dei tubi
+> Addentrati nel complesso
 >
 > →
 
@@ -1837,10 +2004,165 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
+### Lo Squarcio Industriale › `corridoi_stretti`
+
+**`IND.corridoi_stretti.1`** · battuta di Anonimo
+> Questa zona sembrerebbe essere abbandonata... eppure nell'aria riesco a percepire un lieve sentore di pericolo...
+>
+> →
+
+**`IND.corridoi_stretti.2`** · narrazione
+> Attraversi lunghi corridoi illuminati da luci che si accendono e si spengono... Il silenzio fa spazio a nuovi rumori meccanici, come se ci fossero dei macchinari in moto. In fondo all'ultimo corridoio, una luce rossa illumina il percorso.
+>
+> →
+
+**`IND.corridoi_stretti.scena`** · quando ci torni («Osserva la scena»)
+> Corridoi stretti, luci a intermittenza. In fondo, una luce rossa.
+>
+> →
+
+**`IND.corridoi_stretti.scelta1`** · bottone di scelta
+> Prosegui verso la luce rossa
+>
+> →
+
+**`IND.corridoi_stretti.scelta2`** · bottone di scelta
+> Torna al varco
+>
+> →
+
+
+### Lo Squarcio Industriale › `corridoi_stretti_dopo`
+
+**`IND.corridoi_stretti_dopo.1`** · narrazione
+> I corridoi sono gli stessi. Le luci continuano ad accendersi e spegnersi, senza nessuno che le guardi.
+>
+> →
+
+**`IND.corridoi_stretti_dopo.scena`** · quando ci torni («Osserva la scena»)
+> Corridoi stretti, luci a intermittenza. In fondo, una luce rossa.
+>
+> →
+
+**`IND.corridoi_stretti_dopo.scelta1`** · bottone di scelta
+> Prosegui verso la sala vetrata
+>
+> →
+
+**`IND.corridoi_stretti_dopo.scelta2`** · bottone di scelta
+> Torna al varco
+>
+> →
+
+
+### Lo Squarcio Industriale › `sala_vetrata`
+
+**`IND.sala_vetrata.1`** · narrazione
+> Nella stanza tutto è illuminato da una fioca luce rossa. Lungo i lati, vari schermi con messaggi di errore muoiono e si riattivano in continuazione...
+>
+> →
+
+**`IND.sala_vetrata.2`** · narrazione
+> Sul lato noti una gigantesca finestra su una stanza dove un macchinario continua a produrre piccoli pezzi meccanici...
+>
+> →
+
+**`IND.sala_vetrata.3`** · battuta di Anonimo
+> Sembrerebbe che la produzione non sia mai stata dismessa... Non riesco a distinguere bene cosa viene prodotto, da quassù...
+>
+> →
+
+**`IND.sala_vetrata.4`** · battuta di Anonimo
+> ... Cos'era quel rumore?
+>
+> →
+
+**`IND.sala_vetrata.5`** · narrazione
+> Dalla botola in alto qualcosa ti osserva. Non ti eri neanche accorto della sua presenza...
+>
+> →
+
+**`IND.sala_vetrata.6`** · battuta di Robo Pattuglia
+> 01001111 01010011 01010011 01000101 01010010 01010110 01000001 01011010 01001001 01001111 01001110 01000101 00100000 01000100 01000101 01001100 00100000 01010011 01001111 01000111 01000111 01000101 01010100 01010100 01001111 00100000 01000011 01001111 01001110 01000011 01001100 01010101 01010011 01000001
+>
+> →
+
+**`IND.sala_vetrata.7`** · battuta di Robo Pattuglia
+> 01001001 01101101 01110000 01101111 01110011 01110100 01100001 01111010 01101001 01101111 01101110 01100101 00100000 01100100 01100101 01101100 00100000 01101100 01101001 01101110 01100111 01110101 01100001 01100111 01100111 01101001 01101111 00100000 01100011 01101111 01101101 01110000 01101100 01100101 01110100 01100001 01110100 01100001
+>
+> →
+
+**`IND.sala_vetrata.8`** · battuta di Robo Pattuglia
+> BUONGIORNO VISITATORE, PURTROPPO IL COMPLESSO E' ATTUALMENTE CHIUSO.
+>
+> →
+
+**`IND.sala_vetrata.9`** · battuta di Robo Pattuglia
+> DOVRO' TERMINARLA.
+>
+> →
+
+
+### Lo Squarcio Industriale › `sala_vetrata_dopo`
+
+**`IND.sala_vetrata_dopo.1`** · narrazione
+> Il macchinario continua a produrre, oltre la vetrata. La botola in alto è aperta e non ne scende più niente.
+>
+> →
+
+**`IND.sala_vetrata_dopo.scena`** · quando ci torni («Osserva la scena»)
+> La luce rossa, gli schermi che muoiono e si riaccendono, la vetrata sulla catena di montaggio.
+>
+> →
+
+**`IND.sala_vetrata_dopo.scelta1`** · bottone di scelta
+> Avanza nel corridoio dei tubi
+>
+> →
+
+**`IND.sala_vetrata_dopo.scelta2`** · bottone di scelta
+> Torna ai corridoi
+>
+> →
+
+
+### Lo Squarcio Industriale › `dopo_robo`
+
+**`IND.dopo_robo.1`** · battuta di Anonimo
+> Non mi ero neanche accorto di essere osservato... D'altronde era una macchina: non ha una natura malvagia, esegue solo i comandi che le vengono dati...
+>
+> →
+
+**`IND.dopo_robo.2`** · battuta di Anonimo
+> Sembra esserci un percorso da questa parte, tra i tubi...
+>
+> →
+
+**`IND.dopo_robo.scena`** · quando ci torni («Osserva la scena»)
+> La luce rossa, gli schermi che muoiono e si riaccendono, la vetrata sulla catena di montaggio.
+>
+> →
+
+**`IND.dopo_robo.scelta1`** · bottone di scelta
+> Avanza nel corridoio dei tubi
+>
+> →
+
+**`IND.dopo_robo.scelta2`** · bottone di scelta
+> Torna ai corridoi
+>
+> →
+
+
 ### Lo Squarcio Industriale › `corridoio_tubi`
 
 **`IND.corridoio_tubi.1`** · narrazione
-> Tubi e valvole in ogni direzione, alcuni ancora caldi. Da qualche parte un programma si accende, borbotta qualcosa, si rispegne. Sembra tutto morto. Sembra.
+> Il corridoio termina in un'altra piccola stanza dismessa... Tubi e valvole in ogni direzione, alcuni ancora caldi. Da qualche parte un programma si accende, borbotta qualcosa, si rispegne.
+>
+> →
+
+**`IND.corridoio_tubi.scena`** · quando ci torni («Osserva la scena»)
+> La piccola stanza dismessa in fondo al corridoio dei tubi.
 >
 > →
 
@@ -1850,17 +2172,223 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.corridoio_tubi.scelta2`** · bottone di scelta
-> Verso la sala delle valvole
+> Addentrati ancora di più nel complesso
 >
 > →
 
 **`IND.corridoio_tubi.scelta3`** · bottone di scelta
+> Torna al varco
+>
+> →
+
+
+### Lo Squarcio Industriale › `corridoio_tubi_aperto`
+
+**`IND.corridoio_tubi_aperto.1`** · narrazione
+> La piccola stanza dismessa in fondo al corridoio dei tubi. Adesso che sai dove guardare, sopra le tre entrate c'è scritto qualcosa: «sala delle valvole», «Deposito», «Sala informatica».
+>
+> →
+
+**`IND.corridoio_tubi_aperto.scena`** · quando ci torni («Osserva la scena»)
+> La piccola stanza dismessa: tre entrate, e sopra ognuna una targa.
+>
+> →
+
+**`IND.corridoio_tubi_aperto.scelta1`** · bottone di scelta (fa raccogliere Viti e bulloni)
+> Fruga in un armadietto arrugginito
+>
+> →
+
+**`IND.corridoio_tubi_aperto.scelta2`** · bottone di scelta
+> Verso la sala delle valvole
+>
+> →
+
+**`IND.corridoio_tubi_aperto.scelta3`** · bottone di scelta
 > Entra nel deposito
 >
 > →
 
-**`IND.corridoio_tubi.scelta4`** · bottone di scelta
+**`IND.corridoio_tubi_aperto.scelta4`** · bottone di scelta
+> Sali alla sala informatica
+>
+> →
+
+**`IND.corridoio_tubi_aperto.scelta5`** · bottone di scelta
+> Torna nei corridoi infiniti
+>
+> →
+
+**`IND.corridoio_tubi_aperto.scelta6`** · bottone di scelta
 > Torna al varco
+>
+> →
+
+
+### Lo Squarcio Industriale › `corridoi_infiniti`
+
+**`IND.corridoi_infiniti.1`** · battuta di Anonimo
+> Questo posto sembra non finire mai, e continuo a non percepire nulla... eppure qualcosa di strano si cela in questa frattura... meglio continuare a raccogliere dati...
+>
+> →
+
+**`IND.corridoi_infiniti.2`** · narrazione
+> I corridoi si intrecciano e sembrano essere infiniti, ma a un certo punto davanti a te compare una porta che sembra cedere facilmente...
+>
+> →
+
+**`IND.corridoi_infiniti.3`** · battuta di Anonimo
+> Sembra facile da abbattere...
+>
+> →
+
+**`IND.corridoi_infiniti.scena`** · quando ci torni («Osserva la scena»)
+> Corridoi che si intrecciano senza fine. Davanti a te, una porta che non oppone molta resistenza.
+>
+> →
+
+**`IND.corridoi_infiniti.scelta1`** · bottone di scelta
+> Abbatti la porta
+>
+> →
+
+**`IND.corridoi_infiniti.scelta2`** · bottone di scelta
+> Torna indietro fra i tubi
+>
+> →
+
+
+### Lo Squarcio Industriale › `corridoi_infiniti_dopo`
+
+**`IND.corridoi_infiniti_dopo.1`** · narrazione
+> I corridoi si intrecciano sempre allo stesso modo. In fondo, il vano vuoto della porta che hai buttato giù.
+>
+> →
+
+**`IND.corridoi_infiniti_dopo.scena`** · quando ci torni («Osserva la scena»)
+> Corridoi che si intrecciano senza fine. In fondo, il vano vuoto della porta abbattuta.
+>
+> →
+
+**`IND.corridoi_infiniti_dopo.scelta1`** · bottone di scelta
+> Entra nella stanza degli schermi
+>
+> →
+
+**`IND.corridoi_infiniti_dopo.scelta2`** · bottone di scelta
+> Torna indietro fra i tubi
+>
+> →
+
+
+### Lo Squarcio Industriale › `sala_sorveglianza`
+
+**`IND.sala_sorveglianza.1`** · narrazione
+> Qualcosa nell'aria sembra aver reagito al suono della porta che cadeva per terra...
+>
+> →
+
+**`IND.sala_sorveglianza.2`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`IND.sala_sorveglianza.3`** · battuta di Anonimo
+> Sembra che qualcosa sia cambiato in questo posto... C'è davvero qualcosa in questo posto...
+>
+> →
+
+**`IND.sala_sorveglianza.4`** · narrazione
+> Al centro della stanza ci sono vari schermi dai quali riesci a vedere diverse angolazioni di te stesso... Nel computer sul lato destro sembrano esserci aperti dei file...
+>
+> →
+
+**`IND.sala_sorveglianza.scena`** · quando ci torni («Osserva la scena»)
+> Gli schermi che ti riprendono da ogni angolazione. Sulla destra, il computer con i file aperti.
+>
+> →
+
+**`IND.sala_sorveglianza.scelta1`** · bottone di scelta
+> Leggi i file
+>
+> →
+
+**`IND.sala_sorveglianza.scelta2`** · bottone di scelta
+> Torna indietro fra i corridoi
+>
+> →
+
+
+### Lo Squarcio Industriale › `file_computer`
+
+**`IND.file_computer.1`** · narrazione
+> Pagina 1 di 6. «Rapporto interno, riservato alla direzione. Reparto montaggio: media di sedici ore per turno. Richieste di sostituzione presentate nel trimestre: quarantuno. Richieste accolte: nessuna.»
+>
+> →
+
+**`IND.file_computer.2`** · narrazione
+> Pagina 2 di 6. «Il personale del turno di notte riferisce di sentire la catena muoversi a impianto spento. Il fenomeno non risulta da nessuna rilevazione strumentale. Provvedimento adottato: sospensione delle pause non necessarie.»
+>
+> →
+
+**`IND.file_computer.3`** · narrazione
+> Pagina 3 di 6. «Allegato fotografico. Reparto montaggio, ultimo giorno documentato.»
+>
+> →
+
+**`IND.file_computer.4`** · didascalia dell'illustrazione `art/illustrazioni/file_reparto_montaggio.png`
+> In fila davanti alla catena ci sono più uomini di quanti quel reparto potesse contenerne. Nessuno guarda l'obiettivo.
+>
+> →
+
+**`IND.file_computer.5`** · narrazione
+> Alle tue spalle una sedia raschia il pavimento. C'era qualcuno seduto a quel computer, e non se n'era mai andato.
+>
+> →
+
+
+### Lo Squarcio Industriale › `dopo_operaio`
+
+**`IND.dopo_operaio.1`** · battuta di Anonimo
+> Sembrerebbe che questo posto fosse un inferno per i lavoratori... Nello scontro il computer è rimasto danneggiato... è impossibile continuare la lettura, se solo avessi uno strumento per recuperare i file...
+>
+> →
+
+**`IND.dopo_operaio.2`** · battuta di Anonimo
+> Non c'è altro da fare qui... posso proseguire oltre in tre direzioni... sulle varie entrate c'è scritto qualcosa...
+>
+> →
+
+**`IND.dopo_operaio.scena`** · quando ci torni («Osserva la scena»)
+> Gli schermi che ti riprendono da ogni angolazione. Il computer sulla destra, adesso spento e annerito.
+>
+> →
+
+**`IND.dopo_operaio.scelta1`** · bottone di scelta
+> Torna indietro fra i tubi
+>
+> →
+
+
+### Lo Squarcio Industriale › `sala_sorveglianza_dopo`
+
+**`IND.sala_sorveglianza_dopo.1`** · narrazione
+> Gli schermi continuano a riprenderti da ogni angolazione. Il computer sulla destra è spento e annerito: quello che c'era dentro è ancora lì, ma non da questa parte dello schermo.
+>
+> →
+
+**`IND.sala_sorveglianza_dopo.2`** · battuta di Anonimo
+> Senza uno strumento adatto, quei file restano dove sono.
+>
+> →
+
+**`IND.sala_sorveglianza_dopo.scena`** · quando ci torni («Osserva la scena»)
+> Gli schermi che ti riprendono da ogni angolazione. Il computer sulla destra, adesso spento e annerito.
+>
+> →
+
+**`IND.sala_sorveglianza_dopo.scelta1`** · bottone di scelta
+> Torna indietro fra i corridoi
 >
 > →
 
@@ -1868,11 +2396,16 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `deposito`
 
 **`IND.deposito.1`** · narrazione
-> Scaffali piegati dal caldo, casse sventrate. Qualcuno ha vissuto qui, tra un turno e l'altro, per molto tempo.
+> Un vecchio deposito abbandonato: sembra che qualcuno ci sia vissuto per un breve periodo...
 >
 > →
 
-**`IND.deposito.scelta1`** · bottone di scelta (fa raccogliere Fiala HP)
+**`IND.deposito.scena`** · quando ci torni («Osserva la scena»)
+> Il vecchio deposito. Scaffali piegati dal caldo, casse sventrate.
+>
+> →
+
+**`IND.deposito.scelta1`** · bottone di scelta (fa raccogliere Fiala HP, Fiala HP)
 > Fruga nella cassa marchiata con una croce
 >
 > →
@@ -1901,7 +2434,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `sala_valvole`
 
 **`IND.sala_valvole.1`** · narrazione
-> Una sala di valvole grandi come ruote di carro. Il metallo geme. Ogni tanto, dalle macerie, qualcosa si muove.
+> Ti ritrovi in una sala piena di valvole e tubi che perdono in continuazione...
+>
+> →
+
+**`IND.sala_valvole.scena`** · quando ci torni («Osserva la scena»)
+> La sala delle valvole: ruote di metallo grandi come carri, e perdite dappertutto.
 >
 > →
 
@@ -1911,7 +2449,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.sala_valvole.scelta2`** · bottone di scelta
-> Sali verso le schede madri giganti
+> Sali verso la sala informatica
 >
 > →
 
@@ -1929,7 +2467,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `sala_schede`
 
 **`IND.sala_schede.1`** · narrazione
-> Schede madri grandi come pareti, piste di rame come strade viste dall'alto. Una voce registrata ripete un annuncio di cui non esiste più il pubblico.
+> Le pareti di questa stanza sono adornate con circuiti e fili che si perdono sull'alto soffitto, un assordante rumore elettrico pervade ogni angolo di questa stanza. In fondo sembra esserci una porta con scritto «centro di controllo».
+>
+> →
+
+**`IND.sala_schede.scena`** · quando ci torni («Osserva la scena»)
+> La sala informatica: circuiti alle pareti, e in fondo la porta del centro di controllo.
 >
 > →
 
@@ -1953,11 +2496,21 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
+**`IND.sala_schede.scelta5`** · bottone di scelta
+> Torna nel corridoio
+>
+> →
+
 
 ### Lo Squarcio Industriale › `centro_controllo`
 
-**`IND.centro_controllo.1`** · narrazione
-> Il vecchio centro di controllo: una fila di monitor spenti rivolti verso un'unica poltrona, ancora al centro della stanza. Sulla scrivania, diari rilegati a mano, pieni della stessa calligrafia nervosa.
+**`IND.centro_controllo.1`** · battuta di Anonimo
+> Sembrerebbe un vecchio centro di controllo... sopra quella scrivania ci sono vari documenti...
+>
+> →
+
+**`IND.centro_controllo.scena`** · quando ci torni («Osserva la scena»)
+> Il vecchio centro di controllo: monitor spenti, un'unica poltrona, e i diari sulla scrivania.
 >
 > →
 
@@ -1982,7 +2535,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.centro_controllo.scelta5`** · bottone di scelta
-> Torna alle schede madri
+> Torna alla sala informatica
 >
 > →
 
@@ -1990,7 +2543,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `diario_1`
 
 **`IND.diario_1.1`** · narrazione
-> "Giorno 1. Il complesso è operativo. Ho detto ai capisquadra che voglio efficienza, non lamentele. Kizako."
+> «Giorno 1. Il complesso è operativo. Ho detto ai capisquadra che voglio efficienza, non lamentele. Sfortunatamente nessuno sembra capire l'importanza di questo progetto... perché sono tutti così restii a lavorare? Eppure sono io quello che ha investito i migliori anni della sua vita per creare questo posto... ingrati. Sono tutti ingrati.»
 >
 > →
 
@@ -2003,7 +2556,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `diario_2`
 
 **`IND.diario_2.1`** · narrazione
-> "Giorno 340 circa (ho perso il conto). Tre operai non si sono presentati oggi. Il caporeparto dice che 'vedono cose'. Ho ordinato di aumentare i turni ai restanti, per compensare. Non possiamo permetterci ritardi sulle consegne belliche. Kizako."
+> «Tre operai non si sono presentati oggi. Il caporeparto dice che ne ha abbastanza di come viene gestito questo posto. Ho ordinato di aumentare i turni ai restanti, per compensare. Non possiamo permetterci ritardi sulle consegne. Come mai non capiscono che è ora il momento di impegnarsi di più? Sono tutti dannatamente pigri...»
 >
 > →
 
@@ -2016,7 +2569,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `diario_3`
 
 **`IND.diario_3.1`** · narrazione
-> "Ultimo giorno che scrivo qui. Il reparto montaggio non risponde più al citofono. Ho mandato una squadra a controllare: non è tornata nessuno. Non chiuderò l'impianto. Sposterò la produzione altrove. Questo posto, ormai, può tenersi quello che si è preso. Kizako."
+> «Questo posto sembra essere destinato alla rovina, quei maledetti del sindacato sono riusciti a rovinarmi. Ma non gliela darò vinta... Sono io che ho creato tutto questo! Mi rifiuto di perdere tutti questi progressi... Non chiuderò l'impianto. Sposterò la produzione altrove. Questo posto, ormai, può anche andare in malora: recupererò i dati e troverò un nuovo posto da dove ricominciare...»
 >
 > →
 
@@ -2029,7 +2582,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `nastro`
 
 **`IND.nastro.1`** · narrazione
-> Il nastro trasportatore corre ancora, a vuoto, trasportando niente da nessuna parte. Il caldo qui toglie il respiro.
+> Il nastro trasportatore corre ancora, a vuoto.
+>
+> →
+
+**`IND.nastro.scena`** · quando ci torni («Osserva la scena»)
+> Il nastro trasportatore che corre a vuoto. Il caldo, qui, toglie il respiro.
 >
 > →
 
@@ -2039,7 +2597,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.nastro.scelta2`** · bottone di scelta (fa raccogliere Molotov)
-> Raccogli la bottiglia con lo straccio nel collo
+> Raccogli la bottiglia artigianale
 >
 > →
 
@@ -2056,23 +2614,38 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Lo Squarcio Industriale › `cuore`
 
-**`IND.cuore.1`** · narrazione
-> Il cuore del complesso: una turbina ferma, grande come una piazza. Sulle pale, qualcuno ha inciso dei nomi. Un'insegna sbiadita, ancora leggibile: KIZAKO INDUSTRIES. La voce registrata qui è più chiara: sta contando i pezzi prodotti, all'infinito.
+**`IND.cuore.1`** · battuta di Anonimo
+> Sembra che questo sia il cuore del complesso... ci sono vari nomi incisi sui macchinari distrutti.
+>
+> →
+
+**`IND.cuore.2`** · battuta di Anonimo
+> E qui... Un'insegna sbiadita, illeggibile: KI...O IND..TR.ES. Sembra essere tutto andato in malora... Qualcuno deve aver tentato di distruggere questo posto.
+>
+> →
+
+**`IND.cuore.3`** · battuta di Anonimo
+> Più avanti sento dei rumori... sembra una discarica gigantesca...
+>
+> →
+
+**`IND.cuore.scena`** · quando ci torni («Osserva la scena»)
+> Il cuore del complesso: la turbina ferma, i nomi incisi sulle pale, l'insegna sbiadita.
 >
 > →
 
 **`IND.cuore.scelta1`** · bottone di scelta
-> Apri la cassetta degli incassi
+> Apri la cassetta
 >
 > →
 
 **`IND.cuore.scelta2`** · bottone di scelta (fa raccogliere Fiala HP)
-> Cerca tra le pale della turbina
+> Cerca tra i macchinari distrutti
 >
 > →
 
 **`IND.cuore.scelta3`** · bottone di scelta
-> Esci nel piazzale della discarica
+> Esci nel piazzale della grande discarica
 >
 > →
 
@@ -2084,8 +2657,13 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Lo Squarcio Industriale › `discarica`
 
-**`IND.discarica.1`** · narrazione
-> Un piazzale a cielo aperto, montagne di rottami più alte di una casa. Il sole rosso ci batte sopra senza pietà. Sotto le macerie, ogni tanto, qualcosa si sposta da sola.
+**`IND.discarica.1`** · battuta di Anonimo
+> Incredibile, i rottami si estendono a perdita d'occhio. Sento dei lievi tremori provenire da sottoterra... questo posto non è sicuro...
+>
+> →
+
+**`IND.discarica.scena`** · quando ci torni («Osserva la scena»)
+> Il piazzale a cielo aperto: montagne di rottami, e il sole rosso che ci batte sopra.
 >
 > →
 
@@ -2105,7 +2683,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.discarica.scelta4`** · bottone di scelta
-> Va' verso la struttura tonda in fondo al piazzale
+> Va' verso la struttura tonda più in fondo
 >
 > →
 
@@ -2117,8 +2695,13 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Lo Squarcio Industriale › `padiglione_e`
 
-**`IND.padiglione_e.1`** · narrazione
-> Il Padiglione E: una struttura tonda enorme, come un silo rovesciato, molto più grande di tutto il resto del complesso. Un unico portello sul fondo, sigillato, con una scritta ormai illeggibile sopra. Da sotto, un rombo bassissimo, quasi impercettibile, che non si ferma mai.
+**`IND.padiglione_e.1`** · battuta di Anonimo
+> Cosa ci fa questo padiglione in mezzo alla discarica? Sembra esserci un'entrata sotterranea gigantesca... impossibile da aprire...
+>
+> →
+
+**`IND.padiglione_e.scena`** · quando ci torni («Osserva la scena»)
+> Il Padiglione: una struttura tonda enorme, e un unico portello sigillato sul fondo.
 >
 > →
 
@@ -2135,13 +2718,13 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Lo Squarcio Industriale › `padiglione_e_chiuso`
 
-**`IND.padiglione_e_chiuso.1`** · narrazione
-> Non si muove di un millimetro: qualunque cosa lo tenga chiuso, non è fatta per cedere a mani nude. Qualunque cosa ci sia sotto, dovrà aspettare.
+**`IND.padiglione_e_chiuso.1`** · battuta di Anonimo
+> Non si muove di un millimetro: qualunque cosa lo tenga chiuso, non è fatta per cedere a mani nude. Qualunque cosa ci sia sotto, doveva essere tenuta nascosta. Sarà meglio fare rapporto all'organizzazione...
 >
 > →
 
 **`IND.padiglione_e_chiuso.scelta1`** · bottone di scelta
-> Torna al Padiglione E
+> Torna al padiglione
 >
 > →
 
@@ -2149,7 +2732,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Lo Squarcio Industriale › `espulso`
 
 **`IND.espulso.1`** · narrazione
-> Le macerie ti si chiudono addosso e lo squarcio ti sputa fuori, nel Vuoto. Il complesso continua a scaldare il nulla.
+> Le macerie ti schiacciano... il tuo destino è deciso, diventi un tutt'uno con i rottami... dimenticato per sempre sotto quel sole rosso, per l'eternità...
 >
 > →
 
@@ -5338,6 +5921,102 @@ carte collezionabili.
 > →
 
 
+### Robo Pattuglia  <sub>`robo_pattuglia`</sub>
+
+**`CRE.robo_pattuglia.nome`** · nome a schermo
+> Robo Pattuglia
+>
+> →
+
+**`CRE.robo_pattuglia.nome_breve`** · nome corto (schede in combattimento)
+> Robo Pattuglia
+>
+> →
+
+**`CRE.robo_pattuglia.descrizione`** · voce del bestiario
+> Una macchina di sorveglianza che non ha mai ricevuto l'ordine di smettere. Esegue un regolamento che nessuno applica più.
+>
+> →
+
+**`CRE.robo_pattuglia.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> Cos'è questo posto.
+>
+> →
+
+**`CRE.robo_pattuglia.studio1.risposta`** · Studia › cosa risponde
+> NON HO I PERMESSI NECESSARI PER RISPONDERE ALLE SUE DOMANDE.
+>
+> →
+
+**`CRE.robo_pattuglia.studio2.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (provi ancora)
+>
+> →
+
+**`CRE.robo_pattuglia.studio2.risposta`** · Studia › cosa risponde
+> Non sembra essere possibile comunicare con questa macchina...
+>
+> →
+
+**`CRE.robo_pattuglia.carta.nome`** · nome sulla carta collezionabile
+> Robo Pattuglia
+>
+> →
+
+**`CRE.robo_pattuglia.carta.testo`** · retro della carta collezionabile
+> Turno di guardia iniziato il 14/03. Turno di guardia mai terminato.
+>
+> →
+
+
+### Operaio Sfruttato  <sub>`operaio_sfruttato`</sub>
+
+**`CRE.operaio_sfruttato.nome`** · nome a schermo
+> Operaio Sfruttato
+>
+> →
+
+**`CRE.operaio_sfruttato.nome_breve`** · nome corto (schede in combattimento)
+> Operaio Sfruttato
+>
+> →
+
+**`CRE.operaio_sfruttato.descrizione`** · voce del bestiario
+> Non difende i file: difende le ore che ci ha lasciato dentro. Toccarli è toccare l'unica cosa che gli è rimasta.
+>
+> →
+
+**`CRE.operaio_sfruttato.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> Cosa è successo in questo posto?
+>
+> →
+
+**`CRE.operaio_sfruttato.studio1.risposta`** · Studia › cosa risponde
+> Fai silenzio! Non toccare i miei file!
+>
+> →
+
+**`CRE.operaio_sfruttato.studio2.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (provi a calmarlo)
+>
+> →
+
+**`CRE.operaio_sfruttato.studio2.risposta`** · Studia › cosa risponde
+> Impossibile ragionarci: è furioso.
+>
+> →
+
+**`CRE.operaio_sfruttato.carta.nome`** · nome sulla carta collezionabile
+> Operaio Sfruttato
+>
+> →
+
+**`CRE.operaio_sfruttato.carta.testo`** · retro della carta collezionabile
+> Straordinari non retribuiti: illeggibile. Ferie maturate: nessuna.
+>
+> →
+
+
 ### Ferraglia Urlante  <sub>`ferraglia_urlante`</sub>
 
 **`CRE.ferraglia_urlante.nome`** · nome a schermo
@@ -7932,6 +8611,16 @@ carte collezionabili.
 >
 > →
 
+**`APP.file_industriale.titolo`** · titolo dell'appunto
+> I file dello Squarcio Industriale
+>
+> →
+
+**`APP.file_industriale.testo`** · il pensiero per esteso
+> In fondo ai corridoi c'è una stanza piena di schermi che riprendono chi ci entra, e un computer con dei file aperti. Ne ho lette tre pagine su sei prima che lo scontro lo mandasse in pezzi. Le altre tre sono ancora lì dentro: mi serve uno strumento capace di recuperare dei dati da una macchina bruciata.
+>
+> →
+
 **`APP.meridia.titolo`** · titolo dell'appunto
 > Meridia
 >
@@ -8202,6 +8891,76 @@ carte collezionabili.
 >
 > →
 
+**`LUO.IND.varco`** · nome di una stanza sulla mappa della zona
+> Il varco
+>
+> →
+
+**`LUO.IND.corridoi_stretti`** · nome di una stanza sulla mappa della zona
+> Corridoi stretti
+>
+> →
+
+**`LUO.IND.sala_vetrata`** · nome di una stanza sulla mappa della zona
+> Sala vetrata
+>
+> →
+
+**`LUO.IND.corridoio_tubi`** · nome di una stanza sulla mappa della zona
+> Corridoio dei tubi
+>
+> →
+
+**`LUO.IND.corridoi_infiniti`** · nome di una stanza sulla mappa della zona
+> Corridoi infiniti
+>
+> →
+
+**`LUO.IND.sala_sorveglianza`** · nome di una stanza sulla mappa della zona
+> Stanza degli schermi
+>
+> →
+
+**`LUO.IND.deposito`** · nome di una stanza sulla mappa della zona
+> Deposito
+>
+> →
+
+**`LUO.IND.sala_valvole`** · nome di una stanza sulla mappa della zona
+> Sala delle valvole
+>
+> →
+
+**`LUO.IND.sala_schede`** · nome di una stanza sulla mappa della zona
+> Sala informatica
+>
+> →
+
+**`LUO.IND.centro_controllo`** · nome di una stanza sulla mappa della zona
+> Vecchio centro di controllo
+>
+> →
+
+**`LUO.IND.nastro`** · nome di una stanza sulla mappa della zona
+> Il nastro trasportatore
+>
+> →
+
+**`LUO.IND.cuore`** · nome di una stanza sulla mappa della zona
+> Cuore del complesso
+>
+> →
+
+**`LUO.IND.discarica`** · nome di una stanza sulla mappa della zona
+> La grande discarica
+>
+> →
+
+**`LUO.IND.padiglione_e`** · nome di una stanza sulla mappa della zona
+> Il Padiglione
+>
+> →
+
 
 # 11. Negozi
 
@@ -8455,23 +9214,35 @@ quindi il bottone non esiste proprio.
 - `espulso` — Il buio ti si richiude sopra come una fossa che si rinchiude. Quando riprendi fiato, sei di nuovo…
 
 
-### Lo Squarcio Industriale — 15 stanze mute
+### Lo Squarcio Industriale — 27 stanze mute
 
-- `varco` — Lo squarcio si richiude alle tue spalle con un sospiro di vapore. Davanti: un complesso industriale…
-- `corridoio_tubi` — Tubi e valvole in ogni direzione, alcuni ancora caldi. Da qualche parte un programma si accende,…
-- `deposito` — Scaffali piegati dal caldo, casse sventrate. Qualcuno ha vissuto qui, tra un turno e l'altro, per…
-- `sala_valvole` — Una sala di valvole grandi come ruote di carro. Il metallo geme. Ogni tanto, dalle macerie,…
-- `sala_schede` — Schede madri grandi come pareti, piste di rame come strade viste dall'alto. Una voce registrata…
-- `centro_controllo` — Il vecchio centro di controllo: una fila di monitor spenti rivolti verso un'unica poltrona, ancora…
-- `diario_1` — "Giorno 1. Il complesso è operativo. Ho detto ai capisquadra che voglio efficienza, non lamentele.…
-- `diario_2` — "Giorno 340 circa (ho perso il conto). Tre operai non si sono presentati oggi. Il caporeparto dice…
-- `diario_3` — "Ultimo giorno che scrivo qui. Il reparto montaggio non risponde più al citofono. Ho mandato una…
-- `nastro` — Il nastro trasportatore corre ancora, a vuoto, trasportando niente da nessuna parte. Il caldo qui…
-- `cuore` — Il cuore del complesso: una turbina ferma, grande come una piazza. Sulle pale, qualcuno ha inciso…
-- `discarica` — Un piazzale a cielo aperto, montagne di rottami più alte di una casa. Il sole rosso ci batte sopra…
-- `padiglione_e` — Il Padiglione E: una struttura tonda enorme, come un silo rovesciato, molto più grande di tutto il…
-- `padiglione_e_chiuso` — Non si muove di un millimetro: qualunque cosa lo tenga chiuso, non è fatta per cedere a mani nude.…
-- `espulso` — Le macerie ti si chiudono addosso e lo squarcio ti sputa fuori, nel Vuoto. Il complesso continua a…
+- `varco` — La luce rossa, i corridoi stretti, l'olio consumato. Lo squarcio è alle tue spalle.
+- `corridoi_stretti` — Corridoi stretti, luci a intermittenza. In fondo, una luce rossa.
+- `corridoi_stretti_dopo` — Corridoi stretti, luci a intermittenza. In fondo, una luce rossa.
+- `sala_vetrata` — Nella stanza tutto è illuminato da una fioca luce rossa. Lungo i lati, vari schermi con messaggi di…
+- `sala_vetrata_dopo` — La luce rossa, gli schermi che muoiono e si riaccendono, la vetrata sulla catena di montaggio.
+- `dopo_robo` — La luce rossa, gli schermi che muoiono e si riaccendono, la vetrata sulla catena di montaggio.
+- `corridoio_tubi` — La piccola stanza dismessa in fondo al corridoio dei tubi.
+- `corridoio_tubi_aperto` — La piccola stanza dismessa: tre entrate, e sopra ognuna una targa.
+- `corridoi_infiniti` — Corridoi che si intrecciano senza fine. Davanti a te, una porta che non oppone molta resistenza.
+- `corridoi_infiniti_dopo` — Corridoi che si intrecciano senza fine. In fondo, il vano vuoto della porta abbattuta.
+- `sala_sorveglianza` — Gli schermi che ti riprendono da ogni angolazione. Sulla destra, il computer con i file aperti.
+- `file_computer` — Pagina 1 di 6. «Rapporto interno, riservato alla direzione. Reparto montaggio: media di sedici ore…
+- `dopo_operaio` — Gli schermi che ti riprendono da ogni angolazione. Il computer sulla destra, adesso spento e…
+- `sala_sorveglianza_dopo` — Gli schermi che ti riprendono da ogni angolazione. Il computer sulla destra, adesso spento e…
+- `deposito` — Il vecchio deposito. Scaffali piegati dal caldo, casse sventrate.
+- `sala_valvole` — La sala delle valvole: ruote di metallo grandi come carri, e perdite dappertutto.
+- `sala_schede` — La sala informatica: circuiti alle pareti, e in fondo la porta del centro di controllo.
+- `centro_controllo` — Il vecchio centro di controllo: monitor spenti, un'unica poltrona, e i diari sulla scrivania.
+- `diario_1` — «Giorno 1. Il complesso è operativo. Ho detto ai capisquadra che voglio efficienza, non lamentele.…
+- `diario_2` — «Tre operai non si sono presentati oggi. Il caporeparto dice che ne ha abbastanza di come viene…
+- `diario_3` — «Questo posto sembra essere destinato alla rovina, quei maledetti del sindacato sono riusciti a…
+- `nastro` — Il nastro trasportatore che corre a vuoto. Il caldo, qui, toglie il respiro.
+- `cuore` — Il cuore del complesso: la turbina ferma, i nomi incisi sulle pale, l'insegna sbiadita.
+- `discarica` — Il piazzale a cielo aperto: montagne di rottami, e il sole rosso che ci batte sopra.
+- `padiglione_e` — Il Padiglione: una struttura tonda enorme, e un unico portello sigillato sul fondo.
+- `padiglione_e_chiuso`
+- `espulso` — Le macerie ti schiacciano... il tuo destino è deciso, diventi un tutt'uno con i rottami...…
 
 
 ### Meridia — 8 stanze mute

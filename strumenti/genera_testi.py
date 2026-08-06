@@ -274,6 +274,8 @@ def sigla_messaggio(msg, protagonista="anonimo"):
         return "notifica"
     if tipo == "titolo":
         return "carta del titolo"
+    if tipo == "immagine":
+        return "didascalia dell'illustrazione `%s`" % msg.get("file", "").replace("res://", "")
     return "narrazione"
 
 def sequenza_di(nodo):
@@ -302,8 +304,12 @@ def sezione_eventi(sigla, nome_umano, percorso):
             dettagli = []
             if "combatti" in s:
                 dettagli.append("porta a un combattimento")
-            if "oggetto" in s:
-                dettagli.append("fa raccogliere " + str(oggetti.get(s["oggetto"], {}).get("nome", s["oggetto"])))
+            # "oggetto" accetta un id singolo o una lista (due fiale da una cassa sola)
+            raccolti = s.get("oggetto", s.get("oggetti", []))
+            raccolti = raccolti if isinstance(raccolti, list) else [raccolti]
+            if raccolti:
+                dettagli.append("fa raccogliere " + ", ".join(
+                    str(oggetti.get(o, {}).get("nome", o)) for o in raccolti))
             if s.get("torna_vuoto"):
                 dettagli.append("esce dallo squarcio")
             coda = " (" + ", ".join(dettagli) + ")" if dettagli else ""

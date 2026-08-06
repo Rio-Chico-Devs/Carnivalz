@@ -16,6 +16,13 @@
 			"chiuso_da": ["industriale_esplorato"]
 		},
 		{
+			"id": "file_industriale",
+			"titolo": "I file dello Squarcio Industriale",
+			"testo": "In fondo ai corridoi c'è una stanza piena di schermi che riprendono chi ci entra, e un computer con dei file aperti. Ne ho lette tre pagine su sei prima che lo scontro lo mandasse in pezzi. Le altre tre sono ancora lì dentro: mi serve uno strumento capace di recuperare dei dati da una macchina bruciata.",
+			"richiede_flags": ["ind_sorveglianza"],
+			"chiuso_da": []
+		},
+		{
 			"id": "meridia",
 			"titolo": "Meridia",
 			"testo": "Sulla planimetria è ancora segnata come città. Dai numeri che ho davanti, città non lo è più da un pezzo — e quello che ci vive adesso non ha smesso di camminarci in mezzo.",

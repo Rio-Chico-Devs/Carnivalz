@@ -112,6 +112,16 @@ di Magic. Musiche latine. Jerah ne è il maestro e la fonte.
 ### Il Vuoto di Jerah (implementato)
 - **Lo Squarcio Industriale** — complesso Kizako in rovina, ruggine e calore;
   sirene e luci di cantiere, operai posseduti dai propri turni infiniti.
+  Si entra da corridoi a luce intermittente e da una sala vetrata affacciata
+  su una catena di montaggio che nessuno ha mai spento: di lì scende il **Robo
+  Pattuglia**, che si scusa in binario prima di eseguire l'ordine. Più a fondo,
+  oltre corridoi che sembrano non finire mai, una porta che cede facile: dentro,
+  **schermi che riprendono il protagonista da ogni angolazione** e un computer
+  coi file della direzione ancora aperti. Se ne leggono **tre pagine su sei** —
+  ore per turno, richieste di sostituzione respinte, la catena che si muove a
+  impianto spento — poi l'**Operaio Sfruttato** difende i suoi file, e nello
+  scontro il computer si rompe. Le altre tre pagine restano lì: servirà uno
+  strumento per recuperarle (appunto `file_industriale`, aperto e mai chiuso).
 - **Il Teatro del Passato** — un ragazzo si allena in acrobazie folli per una
   platea vuota. Solo esplorazione, 138 Tazo, la copia di uno strano biglietto
   (significato mai detto: il giocatore lo ipotizza).

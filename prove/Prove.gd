@@ -61,6 +61,7 @@ func _ready() -> void:
 	prova_game_over_ricarica_davvero()
 	prova_espressione_per_battuta()
 	prova_nomi_delle_immagini()
+	prova_illustrazioni()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -229,10 +230,13 @@ func prova_riferimenti_oggetti() -> void:
 		for id_nodo in dati.get("nodi", {}):
 			var nodo: Dictionary = dati["nodi"][id_nodo]
 			for scelta in nodo.get("scelte", []):
-				for chiave in ["oggetto", "richiede_oggetto"]:
-					if scelta.has(chiave):
-						esigi(GameState.oggetti.has(String(scelta[chiave])),
-								"%s/%s: l'oggetto '%s' non esiste" % [percorso, id_nodo, scelta[chiave]])
+				# "oggetto" accetta un id singolo o una lista (una scelta puo'
+				# far raccogliere due fiale): si legge con lo stesso lettore che
+				# usa il gioco, altrimenti la prova guarda un'altra cosa
+				for chiave in ["oggetto", "oggetti", "richiede_oggetto"]:
+					for id_oggetto in IngressoNodo.lista_id(scelta.get(chiave, [])):
+						esigi(GameState.oggetti.has(id_oggetto),
+								"%s/%s: l'oggetto '%s' non esiste" % [percorso, id_nodo, id_oggetto])
 				for id_oggetto in scelta.get("richiede_oggetti", []):
 					esigi(GameState.oggetti.has(String(id_oggetto)),
 							"%s/%s: l'oggetto '%s' non esiste" % [percorso, id_nodo, id_oggetto])
@@ -1405,6 +1409,62 @@ func prova_nomi_delle_immagini() -> void:
 					"art/personaggi/%s/%s: nessun dialogo chiede questa espressione (nome storto?)"
 					% [nome_cartella, nome_file])
 
+const CARTELLA_ILLUSTRAZIONI := "res://art/illustrazioni/"
+
+func illustrazioni_chieste() -> Array:
+	# tutti i file che un messaggio "immagine" chiede, in tutti i file di eventi
+	var trovate: Array = []
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		for id_nodo in dati.get("nodi", {}):
+			for msg in dati["nodi"][id_nodo].get("sequenza", []):
+				if msg is Dictionary and String(msg.get("tipo", "")) == "immagine":
+					var file_chiesto := String(msg.get("file", ""))
+					if file_chiesto != "" and file_chiesto not in trovate:
+						trovate.append(file_chiesto)
+	return trovate
+
+func prova_illustrazioni() -> void:
+	# UN'ILLUSTRAZIONE COL PERCORSO SBAGLIATO NON SI VEDE, E NON LO DICE NESSUNO.
+	#
+	# Il messaggio "immagine" e' fatto apposta per non rompersi: se il disegno
+	# non c'e' ancora resta la didascalia e la scena si legge lo stesso. E'
+	# giusto - i disegni si fanno a poco a poco - ma vuol dire anche che un
+	# percorso scritto storto si comporta ESATTAMENTE come un disegno non ancora
+	# fatto. Il giorno che il file arriva, non compare, e nessuno sa perche'.
+	#
+	# Quindi: la didascalia e' obbligatoria (e' quello che resta), il percorso e'
+	# obbligatorio e deve stare dove il gioco lo cerchera'. E al contrario, un
+	# file messo in art/illustrazioni/ che nessuna scena chiama e' un nome storto
+	# dall'altro lato.
+	titolo("le illustrazioni delle scene")
+	var chieste := illustrazioni_chieste()
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		for id_nodo in dati.get("nodi", {}):
+			for msg in dati["nodi"][id_nodo].get("sequenza", []):
+				if not (msg is Dictionary) or String(msg.get("tipo", "")) != "immagine":
+					continue
+				var dove := "%s/%s" % [percorso, id_nodo]
+				esigi(String(msg.get("testo", "")) != "",
+						"%s: illustrazione senza didascalia (se il disegno manca non resta niente)" % dove)
+				var file_chiesto := String(msg.get("file", ""))
+				esigi(file_chiesto != "", "%s: illustrazione senza campo 'file'" % dove)
+				esigi(file_chiesto.begins_with(CARTELLA_ILLUSTRAZIONI),
+						"%s: l'illustrazione '%s' non sta in %s"
+						% [dove, file_chiesto, CARTELLA_ILLUSTRAZIONI])
+				esigi(file_chiesto.get_extension() == "png",
+						"%s: l'illustrazione '%s' non e' un .png" % [dove, file_chiesto])
+
+	var cartella := DirAccess.open(CARTELLA_ILLUSTRAZIONI)
+	if cartella == null:
+		return  # la cartella non c'e' ancora: si disegnera'
+	for nome in cartella.get_files():
+		if nome.begins_with(".") or nome.ends_with(".md") or nome.ends_with(".import"):
+			continue
+		esigi(CARTELLA_ILLUSTRAZIONI + nome in chieste,
+				"art/illustrazioni/%s non lo chiede nessuna scena: nome sbagliato?" % nome)
+
 func espressioni_usate_nei_dialoghi() -> Array:
 	# tutte le espressioni che i file di eventi chiedono davvero, comunque si
 	# chiamino: sui messaggi ("espr") e sui lati del palco
@@ -1415,8 +1475,8 @@ func espressioni_usate_nei_dialoghi() -> Array:
 			trovate.append(nome)
 	for percorso in file_eventi():
 		var dati := carica_eventi(percorso)
-		for id_nodo in dati:
-			var nodo: Dictionary = dati[id_nodo]
+		for id_nodo in dati.get("nodi", {}):
+			var nodo: Dictionary = dati["nodi"][id_nodo]
 			for chiave in ["espr_sinistra", "espr_destra", "espr_centro"]:
 				aggiungi.call(nodo.get(chiave, ""))
 			for lato in ["sinistra", "destra", "centro"]:

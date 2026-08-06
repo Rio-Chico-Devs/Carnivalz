@@ -547,6 +547,13 @@ avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio
   nel box: prende tutto lo schermo come una carta da film (velo scuro + testo grande in
   `Stile.colore("accento")`) e **aspetta un click esplicito** ("▸ continua") prima di
   sciogliersi — non un timer, perché un nome di luogo merita di essere letto con calma
+- **`immagine`**: un'illustrazione a schermo intero (`file`, sotto `art/illustrazioni/`) col
+  `testo` come didascalia. Usa lo stesso velo della carta del titolo, perché fa la stessa
+  cosa: prende lo schermo, aspetta un click, poi la scena riprende. **Se il disegno non c'è
+  ancora resta la didascalia** e la scena si legge lo stesso — ma proprio per questo un
+  percorso storto sarebbe identico a un disegno non ancora fatto, quindi
+  `prova_illustrazioni` pretende didascalia + percorso dentro `art/illustrazioni/`, e in più
+  che ogni file messo lì sia chiamato da qualche scena (vedi `art/illustrazioni/README.md`)
 
 Un nodo senza `"sequenza"` continua a funzionare col vecchio campo `"testo"` (diventa
 un'unica narrazione: `sequenza_di()` è retrocompatibile, nessun contenuto esistente va
@@ -1289,7 +1296,17 @@ conto suo: usa `GameState`, quindi se una regola cambia nel motore le prove camb
 
 Tre passi, in ordine di gravità: **importa** le risorse, **avvia** il gioco headless
 (`--quit-after 240`: se un autoload esplode all'avvio si sa subito), poi le **verifiche** —
-oggi 1317, raggruppate in quattordici famiglie:
+oggi 4367, raggruppate in una quarantina di famiglie.
+
+**Lo script guarda anche gli errori di Godot, non solo il verdetto delle prove.** In GDScript
+un errore a runtime interrompe la funzione in cui succede e ridà il controllo a chi l'ha
+chiamata, che tira dritto: una prova che esplode a metà non conta le sue verifiche e non
+lascia nessun fallimento, quindi il totale cala di qualche numero e in fondo compare lo stesso
+"PASSATE, nessun problema". È successo davvero (una prova leggeva un file di eventi nel modo
+sbagliato): due `SCRIPT ERROR` nell'output, e verde. Nessun contatore dentro `Prove.gd` può
+accorgersene, perché il codice che dovrebbe accorgersene è proprio quello che non viene
+eseguito — se ne accorge chi guarda da fuori, e `esegui.sh` fallisce se Godot ha stampato
+anche un solo errore.
 
 | Cosa controlla | Perché |
 |---|---|
@@ -1770,7 +1787,20 @@ pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, 
     giocate dal motore vero danno, per la prima volta, un bilanciamento misurato invece che
     indovinato (`docs/bilanciamento.md`)
 
-23. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
+23. ✅ **Lo Squarcio Industriale riscritto e allungato** (testi di Bru). La zona non comincia
+    più dal corridoio dei tubi: corridoi a luce intermittente, sala vetrata sulla catena di
+    montaggio, e il **Robo Pattuglia** che si presenta in binario prima di eseguire l'ordine.
+    Dal corridoio dei tubi si può **andare ancora più a fondo**: corridoi che non finiscono
+    mai, una porta che cede, e dentro la **stanza degli schermi** — che riprendono il
+    protagonista da ogni angolazione — con i file della direzione ancora aperti. Se ne leggono
+    tre pagine su sei, poi l'**Operaio Sfruttato** difende il suo lavoro e nello scontro il
+    computer si rompe: le altre tre restano lì (appunto aperto, servirà uno strumento). Solo
+    dopo aver visto quella stanza le tre entrate del corridoio hanno un nome — *sala delle
+    valvole*, *Deposito*, *Sala informatica* — e il vecchio centro di controllo coi diari di
+    Kizako si raggiunge **solo dalla Sala informatica**. Nuovo tipo di messaggio `immagine`:
+    un'illustrazione a schermo intero con didascalia, che senza il disegno resta comunque
+    leggibile
+24. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
     (risfidare ogni tipo di nemico incontrato). Si aprono a gioco finito; l'infrastruttura c'è già
     — il bestiario sa chi hai incontrato e il giocatore automatico sa già montare uno scontro
     qualunque senza passare da una stanza

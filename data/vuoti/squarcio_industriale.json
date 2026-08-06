@@ -1,149 +1,1035 @@
 {
 	"nodo_iniziale": "varco",
+	"mappa_dungeon": {
+		"flag_completamento": "industriale_esplorato",
+		"stanze": [
+			{
+				"id": "varco",
+				"nome": "Il varco",
+				"pos": [
+					400,
+					720
+				]
+			},
+			{
+				"id": "corridoi_stretti",
+				"nome": "Corridoi stretti",
+				"pos": [
+					400,
+					640
+				]
+			},
+			{
+				"id": "sala_vetrata",
+				"nome": "Sala vetrata",
+				"pos": [
+					400,
+					560
+				]
+			},
+			{
+				"id": "corridoio_tubi",
+				"nome": "Corridoio dei tubi",
+				"pos": [
+					400,
+					480
+				]
+			},
+			{
+				"id": "corridoi_infiniti",
+				"nome": "Corridoi infiniti",
+				"pos": [
+					180,
+					480
+				]
+			},
+			{
+				"id": "sala_sorveglianza",
+				"nome": "Stanza degli schermi",
+				"pos": [
+					80,
+					400
+				]
+			},
+			{
+				"id": "deposito",
+				"nome": "Deposito",
+				"pos": [
+					620,
+					480
+				]
+			},
+			{
+				"id": "sala_valvole",
+				"nome": "Sala delle valvole",
+				"pos": [
+					400,
+					380
+				]
+			},
+			{
+				"id": "sala_schede",
+				"nome": "Sala informatica",
+				"pos": [
+					620,
+					300
+				]
+			},
+			{
+				"id": "centro_controllo",
+				"nome": "Vecchio centro di controllo",
+				"pos": [
+					740,
+					220
+				]
+			},
+			{
+				"id": "nastro",
+				"nome": "Il nastro trasportatore",
+				"pos": [
+					300,
+					280
+				]
+			},
+			{
+				"id": "cuore",
+				"nome": "Cuore del complesso",
+				"pos": [
+					300,
+					180
+				]
+			},
+			{
+				"id": "discarica",
+				"nome": "La grande discarica",
+				"pos": [
+					300,
+					90
+				]
+			},
+			{
+				"id": "padiglione_e",
+				"nome": "Il Padiglione",
+				"pos": [
+					120,
+					90
+				]
+			}
+		],
+		"connessioni": [
+			[
+				"varco",
+				"corridoi_stretti"
+			],
+			[
+				"corridoi_stretti",
+				"sala_vetrata"
+			],
+			[
+				"sala_vetrata",
+				"corridoio_tubi"
+			],
+			[
+				"corridoio_tubi",
+				"corridoi_infiniti"
+			],
+			[
+				"corridoi_infiniti",
+				"sala_sorveglianza"
+			],
+			[
+				"corridoio_tubi",
+				"deposito"
+			],
+			[
+				"corridoio_tubi",
+				"sala_valvole"
+			],
+			[
+				"corridoio_tubi",
+				"sala_schede"
+			],
+			[
+				"sala_valvole",
+				"sala_schede"
+			],
+			[
+				"sala_schede",
+				"centro_controllo"
+			],
+			[
+				"sala_valvole",
+				"nastro"
+			],
+			[
+				"nastro",
+				"cuore"
+			],
+			[
+				"cuore",
+				"discarica"
+			],
+			[
+				"discarica",
+				"padiglione_e"
+			]
+		]
+	},
 	"nodi": {
 		"varco": {
-			"testo": "Lo squarcio si richiude alle tue spalle con un sospiro di vapore. Davanti: un complesso industriale gigantesco, macchine alte come palazzi, ruggine e sudore. Fa un caldo pazzesco. In lontananza, voci registrate parlano a nessuno.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Lo squarcio si richiude alle tue spalle con un sospiro di vapore. Un tetro colore rosso pervade la stanza, vagamente illuminata da qualche sprazzo di luce proveniente da chissà dove. Corridoi stretti, e un odore di olio consumato misto a ferro."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Strano... non riesco a percepire in modo distinto se ci sia una fonte o meno..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo posto mette una pressione particolare... qualcosa di terribile è successo qui...",
+					"espr": "pensiero"
+				}
+			],
+			"scena": "La luce rossa, i corridoi stretti, l'olio consumato. Lo squarcio è alle tue spalle.",
 			"scelte": [
-				{ "testo": "Avanza nel corridoio dei tubi", "vai": "corridoio_tubi" },
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+				{
+					"testo": "Addentrati nel complesso",
+					"vai": "corridoi_stretti"
+				},
+				{
+					"testo": "Torna nel Vuoto",
+					"torna_vuoto": true
+				}
+			]
+		},
+		"corridoi_stretti": {
+			"vai_se_flag": {
+				"flag": "ind_robo_battuto",
+				"vai": "corridoi_stretti_dopo"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questa zona sembrerebbe essere abbandonata... eppure nell'aria riesco a percepire un lieve sentore di pericolo..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Attraversi lunghi corridoi illuminati da luci che si accendono e si spengono... Il silenzio fa spazio a nuovi rumori meccanici, come se ci fossero dei macchinari in moto. In fondo all'ultimo corridoio, una luce rossa illumina il percorso."
+				}
+			],
+			"scena": "Corridoi stretti, luci a intermittenza. In fondo, una luce rossa.",
+			"scelte": [
+				{
+					"testo": "Prosegui verso la luce rossa",
+					"vai": "sala_vetrata"
+				},
+				{
+					"testo": "Torna al varco",
+					"vai": "varco"
+				}
+			]
+		},
+		"corridoi_stretti_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "I corridoi sono gli stessi. Le luci continuano ad accendersi e spegnersi, senza nessuno che le guardi."
+				}
+			],
+			"scena": "Corridoi stretti, luci a intermittenza. In fondo, una luce rossa.",
+			"scelte": [
+				{
+					"testo": "Prosegui verso la sala vetrata",
+					"vai": "sala_vetrata"
+				},
+				{
+					"testo": "Torna al varco",
+					"vai": "varco"
+				}
+			]
+		},
+		"sala_vetrata": {
+			"vai_se_flag": {
+				"flag": "ind_robo_battuto",
+				"vai": "sala_vetrata_dopo"
+			},
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Nella stanza tutto è illuminato da una fioca luce rossa. Lungo i lati, vari schermi con messaggi di errore muoiono e si riattivano in continuazione..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Sul lato noti una gigantesca finestra su una stanza dove un macchinario continua a produrre piccoli pezzi meccanici..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembrerebbe che la produzione non sia mai stata dismessa... Non riesco a distinguere bene cosa viene prodotto, da quassù..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Cos'era quel rumore?",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Dalla botola in alto qualcosa ti osserva. Non ti eri neanche accorto della sua presenza..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "robo_pattuglia",
+					"testo": "01001111 01010011 01010011 01000101 01010010 01010110 01000001 01011010 01001001 01001111 01001110 01000101 00100000 01000100 01000101 01001100 00100000 01010011 01001111 01000111 01000111 01000101 01010100 01010100 01001111 00100000 01000011 01001111 01001110 01000011 01001100 01010101 01010011 01000001"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "robo_pattuglia",
+					"testo": "01001001 01101101 01110000 01101111 01110011 01110100 01100001 01111010 01101001 01101111 01101110 01100101 00100000 01100100 01100101 01101100 00100000 01101100 01101001 01101110 01100111 01110101 01100001 01100111 01100111 01101001 01101111 00100000 01100011 01101111 01101101 01110000 01101100 01100101 01110100 01100001 01110100 01100001"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "robo_pattuglia",
+					"testo": "BUONGIORNO VISITATORE, PURTROPPO IL COMPLESSO E' ATTUALMENTE CHIUSO."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "robo_pattuglia",
+					"testo": "DOVRO' TERMINARLA."
+				}
+			],
+			"destra": "robo_pattuglia",
+			"combattimento_automatico": {
+				"nemici": [
+					"robo_pattuglia"
+				],
+				"se_vinci": "dopo_robo",
+				"se_perdi": "espulso",
+				"se_fuggi": "corridoi_stretti"
+			}
+		},
+		"sala_vetrata_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il macchinario continua a produrre, oltre la vetrata. La botola in alto è aperta e non ne scende più niente."
+				}
+			],
+			"scena": "La luce rossa, gli schermi che muoiono e si riaccendono, la vetrata sulla catena di montaggio.",
+			"scelte": [
+				{
+					"testo": "Avanza nel corridoio dei tubi",
+					"vai": "corridoio_tubi"
+				},
+				{
+					"testo": "Torna ai corridoi",
+					"vai": "corridoi_stretti"
+				}
+			]
+		},
+		"dopo_robo": {
+			"flag": "ind_robo_battuto",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non mi ero neanche accorto di essere osservato... D'altronde era una macchina: non ha una natura malvagia, esegue solo i comandi che le vengono dati..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra esserci un percorso da questa parte, tra i tubi..."
+				}
+			],
+			"scena": "La luce rossa, gli schermi che muoiono e si riaccendono, la vetrata sulla catena di montaggio.",
+			"scelte": [
+				{
+					"testo": "Avanza nel corridoio dei tubi",
+					"vai": "corridoio_tubi"
+				},
+				{
+					"testo": "Torna ai corridoi",
+					"vai": "corridoi_stretti"
+				}
 			]
 		},
 		"corridoio_tubi": {
-			"testo": "Tubi e valvole in ogni direzione, alcuni ancora caldi. Da qualche parte un programma si accende, borbotta qualcosa, si rispegne. Sembra tutto morto. Sembra.",
+			"vai_se_flag": {
+				"flag": "ind_sorveglianza",
+				"vai": "corridoio_tubi_aperto"
+			},
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il corridoio termina in un'altra piccola stanza dismessa... Tubi e valvole in ogni direzione, alcuni ancora caldi. Da qualche parte un programma si accende, borbotta qualcosa, si rispegne."
+				}
+			],
+			"scena": "La piccola stanza dismessa in fondo al corridoio dei tubi.",
 			"agguato": {
 				"probabilita": 0.35,
-				"gruppi": [["comparsa_di_ruggine"], ["voce_registrata"], ["comparsa_di_ruggine", "voce_registrata"]],
+				"gruppi": [
+					[
+						"comparsa_di_ruggine"
+					],
+					[
+						"voce_registrata"
+					],
+					[
+						"comparsa_di_ruggine",
+						"voce_registrata"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Fruga in un armadietto arrugginito", "vai": "corridoio_tubi", "una_tantum": "ind_armadietto", "oggetto": "viti_e_bulloni", "tazo": 12 },
-				{ "testo": "Verso la sala delle valvole", "vai": "sala_valvole" },
-				{ "testo": "Entra nel deposito", "vai": "deposito" },
-				{ "testo": "Torna al varco", "vai": "varco" }
+				{
+					"testo": "Fruga in un armadietto arrugginito",
+					"vai": "corridoio_tubi",
+					"una_tantum": "ind_armadietto",
+					"oggetto": "viti_e_bulloni",
+					"tazo": 12
+				},
+				{
+					"testo": "Addentrati ancora di più nel complesso",
+					"vai": "corridoi_infiniti"
+				},
+				{
+					"testo": "Torna al varco",
+					"vai": "varco"
+				}
+			]
+		},
+		"corridoio_tubi_aperto": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "La piccola stanza dismessa in fondo al corridoio dei tubi. Adesso che sai dove guardare, sopra le tre entrate c'è scritto qualcosa: «sala delle valvole», «Deposito», «Sala informatica»."
+				}
+			],
+			"scena": "La piccola stanza dismessa: tre entrate, e sopra ognuna una targa.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [
+					[
+						"comparsa_di_ruggine"
+					],
+					[
+						"voce_registrata"
+					],
+					[
+						"comparsa_di_ruggine",
+						"voce_registrata"
+					]
+				],
+				"se_perdi": "espulso"
+			},
+			"scelte": [
+				{
+					"testo": "Fruga in un armadietto arrugginito",
+					"vai": "corridoio_tubi",
+					"una_tantum": "ind_armadietto",
+					"oggetto": "viti_e_bulloni",
+					"tazo": 12
+				},
+				{
+					"testo": "Verso la sala delle valvole",
+					"vai": "sala_valvole"
+				},
+				{
+					"testo": "Entra nel deposito",
+					"vai": "deposito"
+				},
+				{
+					"testo": "Sali alla sala informatica",
+					"vai": "sala_schede"
+				},
+				{
+					"testo": "Torna nei corridoi infiniti",
+					"vai": "corridoi_infiniti"
+				},
+				{
+					"testo": "Torna al varco",
+					"vai": "varco"
+				}
+			]
+		},
+		"corridoi_infiniti": {
+			"vai_se_flag": {
+				"flag": "ind_sorveglianza",
+				"vai": "corridoi_infiniti_dopo"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo posto sembra non finire mai, e continuo a non percepire nulla... eppure qualcosa di strano si cela in questa frattura... meglio continuare a raccogliere dati..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "I corridoi si intrecciano e sembrano essere infiniti, ma a un certo punto davanti a te compare una porta che sembra cedere facilmente..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra facile da abbattere...",
+					"espr": "pensiero"
+				}
+			],
+			"scena": "Corridoi che si intrecciano senza fine. Davanti a te, una porta che non oppone molta resistenza.",
+			"scelte": [
+				{
+					"testo": "Abbatti la porta",
+					"vai": "sala_sorveglianza"
+				},
+				{
+					"testo": "Torna indietro fra i tubi",
+					"vai": "corridoio_tubi"
+				}
+			]
+		},
+		"corridoi_infiniti_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "I corridoi si intrecciano sempre allo stesso modo. In fondo, il vano vuoto della porta che hai buttato giù."
+				}
+			],
+			"scena": "Corridoi che si intrecciano senza fine. In fondo, il vano vuoto della porta abbattuta.",
+			"scelte": [
+				{
+					"testo": "Entra nella stanza degli schermi",
+					"vai": "sala_sorveglianza"
+				},
+				{
+					"testo": "Torna indietro fra i tubi",
+					"vai": "corridoio_tubi"
+				}
+			]
+		},
+		"sala_sorveglianza": {
+			"vai_se_flag": {
+				"flag": "ind_sorveglianza",
+				"vai": "sala_sorveglianza_dopo"
+			},
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Qualcosa nell'aria sembra aver reagito al suono della porta che cadeva per terra..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra che qualcosa sia cambiato in questo posto... C'è davvero qualcosa in questo posto...",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Al centro della stanza ci sono vari schermi dai quali riesci a vedere diverse angolazioni di te stesso... Nel computer sul lato destro sembrano esserci aperti dei file..."
+				}
+			],
+			"scena": "Gli schermi che ti riprendono da ogni angolazione. Sulla destra, il computer con i file aperti.",
+			"scelte": [
+				{
+					"testo": "Leggi i file",
+					"vai": "file_computer"
+				},
+				{
+					"testo": "Torna indietro fra i corridoi",
+					"vai": "corridoi_infiniti"
+				}
+			]
+		},
+		"file_computer": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Pagina 1 di 6. «Rapporto interno, riservato alla direzione. Reparto montaggio: media di sedici ore per turno. Richieste di sostituzione presentate nel trimestre: quarantuno. Richieste accolte: nessuna.»"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Pagina 2 di 6. «Il personale del turno di notte riferisce di sentire la catena muoversi a impianto spento. Il fenomeno non risulta da nessuna rilevazione strumentale. Provvedimento adottato: sospensione delle pause non necessarie.»"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Pagina 3 di 6. «Allegato fotografico. Reparto montaggio, ultimo giorno documentato.»"
+				},
+				{
+					"tipo": "immagine",
+					"file": "res://art/illustrazioni/file_reparto_montaggio.png",
+					"testo": "In fila davanti alla catena ci sono più uomini di quanti quel reparto potesse contenerne. Nessuno guarda l'obiettivo."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Alle tue spalle una sedia raschia il pavimento. C'era qualcuno seduto a quel computer, e non se n'era mai andato."
+				}
+			],
+			"combattimento_automatico": {
+				"nemici": [
+					"operaio_sfruttato"
+				],
+				"se_vinci": "dopo_operaio",
+				"se_perdi": "espulso",
+				"se_fuggi": "sala_sorveglianza"
+			}
+		},
+		"dopo_operaio": {
+			"flag": "ind_sorveglianza",
+			"task": "file_industriale",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembrerebbe che questo posto fosse un inferno per i lavoratori... Nello scontro il computer è rimasto danneggiato... è impossibile continuare la lettura, se solo avessi uno strumento per recuperare i file..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non c'è altro da fare qui... posso proseguire oltre in tre direzioni... sulle varie entrate c'è scritto qualcosa...",
+					"espr": "pensiero"
+				}
+			],
+			"scena": "Gli schermi che ti riprendono da ogni angolazione. Il computer sulla destra, adesso spento e annerito.",
+			"scelte": [
+				{
+					"testo": "Torna indietro fra i tubi",
+					"vai": "corridoio_tubi"
+				}
+			]
+		},
+		"sala_sorveglianza_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Gli schermi continuano a riprenderti da ogni angolazione. Il computer sulla destra è spento e annerito: quello che c'era dentro è ancora lì, ma non da questa parte dello schermo."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Senza uno strumento adatto, quei file restano dove sono."
+				}
+			],
+			"scena": "Gli schermi che ti riprendono da ogni angolazione. Il computer sulla destra, adesso spento e annerito.",
+			"scelte": [
+				{
+					"testo": "Torna indietro fra i corridoi",
+					"vai": "corridoi_infiniti"
+				}
 			]
 		},
 		"deposito": {
-			"testo": "Scaffali piegati dal caldo, casse sventrate. Qualcuno ha vissuto qui, tra un turno e l'altro, per molto tempo.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Un vecchio deposito abbandonato: sembra che qualcuno ci sia vissuto per un breve periodo..."
+				}
+			],
+			"scena": "Il vecchio deposito. Scaffali piegati dal caldo, casse sventrate.",
 			"scelte": [
-				{ "testo": "Fruga nella cassa marchiata con una croce", "vai": "deposito", "una_tantum": "ind_fiala_1", "oggetto": "fiala_hp" },
-				{ "testo": "Svuota il barattolo di minuteria", "vai": "deposito", "una_tantum": "ind_viti", "oggetto": "viti_e_bulloni" },
-				{ "testo": "Solleva la mattonella smossa", "vai": "deposito", "una_tantum": "ind_tazo_1", "tazo": 30 },
-				{ "testo": "Svita una piastra di rivestimento", "vai": "deposito", "una_tantum": "ind_viti_2", "oggetto": "viti_e_bulloni" },
-				{ "testo": "Torna nel corridoio", "vai": "corridoio_tubi" }
+				{
+					"testo": "Fruga nella cassa marchiata con una croce",
+					"vai": "deposito",
+					"una_tantum": "ind_fiala_1",
+					"oggetto": [
+						"fiala_hp",
+						"fiala_hp"
+					]
+				},
+				{
+					"testo": "Svuota il barattolo di minuteria",
+					"vai": "deposito",
+					"una_tantum": "ind_viti",
+					"oggetto": "viti_e_bulloni"
+				},
+				{
+					"testo": "Solleva la mattonella smossa",
+					"vai": "deposito",
+					"una_tantum": "ind_tazo_1",
+					"tazo": 30
+				},
+				{
+					"testo": "Svita una piastra di rivestimento",
+					"vai": "deposito",
+					"una_tantum": "ind_viti_2",
+					"oggetto": "viti_e_bulloni"
+				},
+				{
+					"testo": "Torna nel corridoio",
+					"vai": "corridoio_tubi"
+				}
 			]
 		},
 		"sala_valvole": {
-			"testo": "Una sala di valvole grandi come ruote di carro. Il metallo geme. Ogni tanto, dalle macerie, qualcosa si muove.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Ti ritrovi in una sala piena di valvole e tubi che perdono in continuazione..."
+				}
+			],
+			"scena": "La sala delle valvole: ruote di metallo grandi come carri, e perdite dappertutto.",
 			"agguato": {
 				"probabilita": 0.35,
-				"gruppi": [["comparsa_di_ruggine"], ["comparsa_di_ruggine", "comparsa_di_ruggine"], ["voce_registrata", "voce_registrata"]],
+				"gruppi": [
+					[
+						"comparsa_di_ruggine"
+					],
+					[
+						"comparsa_di_ruggine",
+						"comparsa_di_ruggine"
+					],
+					[
+						"voce_registrata",
+						"voce_registrata"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Recupera i bulloni caduti da una valvola", "vai": "sala_valvole", "una_tantum": "ind_bulloni_valvola", "oggetto": "viti_e_bulloni", "tazo": 8 },
-				{ "testo": "Sali verso le schede madri giganti", "vai": "sala_schede" },
-				{ "testo": "Segui il nastro trasportatore", "vai": "nastro" },
-				{ "testo": "Torna nel corridoio", "vai": "corridoio_tubi" }
+				{
+					"testo": "Recupera i bulloni caduti da una valvola",
+					"vai": "sala_valvole",
+					"una_tantum": "ind_bulloni_valvola",
+					"oggetto": "viti_e_bulloni",
+					"tazo": 8
+				},
+				{
+					"testo": "Sali verso la sala informatica",
+					"vai": "sala_schede"
+				},
+				{
+					"testo": "Segui il nastro trasportatore",
+					"vai": "nastro"
+				},
+				{
+					"testo": "Torna nel corridoio",
+					"vai": "corridoio_tubi"
+				}
 			]
 		},
 		"sala_schede": {
-			"testo": "Schede madri grandi come pareti, piste di rame come strade viste dall'alto. Una voce registrata ripete un annuncio di cui non esiste più il pubblico.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Le pareti di questa stanza sono adornate con circuiti e fili che si perdono sull'alto soffitto, un assordante rumore elettrico pervade ogni angolo di questa stanza. In fondo sembra esserci una porta con scritto «centro di controllo»."
+				}
+			],
+			"scena": "La sala informatica: circuiti alle pareti, e in fondo la porta del centro di controllo.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["voce_registrata"], ["comparsa_di_ruggine"]],
+				"gruppi": [
+					[
+						"voce_registrata"
+					],
+					[
+						"comparsa_di_ruggine"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Stacca il componente che lampeggia verso l'alto", "vai": "sala_schede", "una_tantum": "ind_componente", "oggetto": "componente_elettronico" },
-				{ "testo": "Recupera la fiala incastrata tra i condensatori", "vai": "sala_schede", "una_tantum": "ind_fiala_2", "oggetto": "fiala_hp" },
-				{ "testo": "Scendi al vecchio centro di controllo", "vai": "centro_controllo" },
-				{ "testo": "Torna alle valvole", "vai": "sala_valvole" }
+				{
+					"testo": "Stacca il componente che lampeggia verso l'alto",
+					"vai": "sala_schede",
+					"una_tantum": "ind_componente",
+					"oggetto": "componente_elettronico"
+				},
+				{
+					"testo": "Recupera la fiala incastrata tra i condensatori",
+					"vai": "sala_schede",
+					"una_tantum": "ind_fiala_2",
+					"oggetto": "fiala_hp"
+				},
+				{
+					"testo": "Scendi al vecchio centro di controllo",
+					"vai": "centro_controllo"
+				},
+				{
+					"testo": "Torna alle valvole",
+					"vai": "sala_valvole"
+				},
+				{
+					"testo": "Torna nel corridoio",
+					"vai": "corridoio_tubi"
+				}
 			]
 		},
 		"centro_controllo": {
-			"testo": "Il vecchio centro di controllo: una fila di monitor spenti rivolti verso un'unica poltrona, ancora al centro della stanza. Sulla scrivania, diari rilegati a mano, pieni della stessa calligrafia nervosa.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembrerebbe un vecchio centro di controllo... sopra quella scrivania ci sono vari documenti..."
+				}
+			],
+			"scena": "Il vecchio centro di controllo: monitor spenti, un'unica poltrona, e i diari sulla scrivania.",
 			"scelte": [
-				{ "testo": "Leggi il primo diario", "vai": "diario_1" },
-				{ "testo": "Leggi il secondo diario", "vai": "diario_2" },
-				{ "testo": "Leggi il terzo diario", "vai": "diario_3" },
-				{ "testo": "Apri il cassetto della scrivania", "vai": "centro_controllo", "una_tantum": "ind_tazo_controllo", "tazo": 25 },
-				{ "testo": "Torna alle schede madri", "vai": "sala_schede" }
+				{
+					"testo": "Leggi il primo diario",
+					"vai": "diario_1"
+				},
+				{
+					"testo": "Leggi il secondo diario",
+					"vai": "diario_2"
+				},
+				{
+					"testo": "Leggi il terzo diario",
+					"vai": "diario_3"
+				},
+				{
+					"testo": "Apri il cassetto della scrivania",
+					"vai": "centro_controllo",
+					"una_tantum": "ind_tazo_controllo",
+					"tazo": 25
+				},
+				{
+					"testo": "Torna alla sala informatica",
+					"vai": "sala_schede"
+				}
 			]
 		},
 		"diario_1": {
-			"testo": "\"Giorno 1. Il complesso è operativo. Ho detto ai capisquadra che voglio efficienza, non lamentele. Kizako.\"",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "«Giorno 1. Il complesso è operativo. Ho detto ai capisquadra che voglio efficienza, non lamentele. Sfortunatamente nessuno sembra capire l'importanza di questo progetto... perché sono tutti così restii a lavorare? Eppure sono io quello che ha investito i migliori anni della sua vita per creare questo posto... ingrati. Sono tutti ingrati.»"
+				}
+			],
 			"scelte": [
-				{ "testo": "Richiudi il diario", "vai": "centro_controllo" }
+				{
+					"testo": "Richiudi il diario",
+					"vai": "centro_controllo"
+				}
 			]
 		},
 		"diario_2": {
-			"testo": "\"Giorno 340 circa (ho perso il conto). Tre operai non si sono presentati oggi. Il caporeparto dice che 'vedono cose'. Ho ordinato di aumentare i turni ai restanti, per compensare. Non possiamo permetterci ritardi sulle consegne belliche. Kizako.\"",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "«Tre operai non si sono presentati oggi. Il caporeparto dice che ne ha abbastanza di come viene gestito questo posto. Ho ordinato di aumentare i turni ai restanti, per compensare. Non possiamo permetterci ritardi sulle consegne. Come mai non capiscono che è ora il momento di impegnarsi di più? Sono tutti dannatamente pigri...»"
+				}
+			],
 			"scelte": [
-				{ "testo": "Richiudi il diario", "vai": "centro_controllo" }
+				{
+					"testo": "Richiudi il diario",
+					"vai": "centro_controllo"
+				}
 			]
 		},
 		"diario_3": {
-			"testo": "\"Ultimo giorno che scrivo qui. Il reparto montaggio non risponde più al citofono. Ho mandato una squadra a controllare: non è tornata nessuno. Non chiuderò l'impianto. Sposterò la produzione altrove. Questo posto, ormai, può tenersi quello che si è preso. Kizako.\"",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "«Questo posto sembra essere destinato alla rovina, quei maledetti del sindacato sono riusciti a rovinarmi. Ma non gliela darò vinta... Sono io che ho creato tutto questo! Mi rifiuto di perdere tutti questi progressi... Non chiuderò l'impianto. Sposterò la produzione altrove. Questo posto, ormai, può anche andare in malora: recupererò i dati e troverò un nuovo posto da dove ricominciare...»"
+				}
+			],
 			"scelte": [
-				{ "testo": "Richiudi il diario", "vai": "centro_controllo" }
+				{
+					"testo": "Richiudi il diario",
+					"vai": "centro_controllo"
+				}
 			]
 		},
 		"nastro": {
-			"testo": "Il nastro trasportatore corre ancora, a vuoto, trasportando niente da nessuna parte. Il caldo qui toglie il respiro.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il nastro trasportatore corre ancora, a vuoto."
+				}
+			],
+			"scena": "Il nastro trasportatore che corre a vuoto. Il caldo, qui, toglie il respiro.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["comparsa_di_ruggine"], ["voce_registrata"]],
+				"gruppi": [
+					[
+						"comparsa_di_ruggine"
+					],
+					[
+						"voce_registrata"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Prendi la tanica di benzina sotto il rullo", "vai": "nastro", "una_tantum": "ind_benzina", "oggetto": "benzina" },
-				{ "testo": "Raccogli la bottiglia con lo straccio nel collo", "vai": "nastro", "una_tantum": "ind_molotov", "oggetto": "molotov" },
-				{ "testo": "Segui il nastro fino al cuore del complesso", "vai": "cuore" },
-				{ "testo": "Torna alle valvole", "vai": "sala_valvole" }
+				{
+					"testo": "Prendi la tanica di benzina sotto il rullo",
+					"vai": "nastro",
+					"una_tantum": "ind_benzina",
+					"oggetto": "benzina"
+				},
+				{
+					"testo": "Raccogli la bottiglia artigianale",
+					"vai": "nastro",
+					"una_tantum": "ind_molotov",
+					"oggetto": "molotov"
+				},
+				{
+					"testo": "Segui il nastro fino al cuore del complesso",
+					"vai": "cuore"
+				},
+				{
+					"testo": "Torna alle valvole",
+					"vai": "sala_valvole"
+				}
 			]
 		},
 		"cuore": {
-			"testo": "Il cuore del complesso: una turbina ferma, grande come una piazza. Sulle pale, qualcuno ha inciso dei nomi. Un'insegna sbiadita, ancora leggibile: KIZAKO INDUSTRIES. La voce registrata qui è più chiara: sta contando i pezzi prodotti, all'infinito.",
 			"flag": "industriale_esplorato",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra che questo sia il cuore del complesso... ci sono vari nomi incisi sui macchinari distrutti."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "E qui... Un'insegna sbiadita, illeggibile: KI...O IND..TR.ES. Sembra essere tutto andato in malora... Qualcuno deve aver tentato di distruggere questo posto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Più avanti sento dei rumori... sembra una discarica gigantesca...",
+					"espr": "pensiero"
+				}
+			],
+			"scena": "Il cuore del complesso: la turbina ferma, i nomi incisi sulle pale, l'insegna sbiadita.",
 			"scelte": [
-				{ "testo": "Apri la cassetta degli incassi", "vai": "cuore", "una_tantum": "ind_tazo_2", "tazo": 40 },
-				{ "testo": "Cerca tra le pale della turbina", "vai": "cuore", "una_tantum": "ind_fiala_3", "oggetto": "fiala_hp" },
-				{ "testo": "Esci nel piazzale della discarica", "vai": "discarica" },
-				{ "testo": "Torna al nastro", "vai": "nastro" }
+				{
+					"testo": "Apri la cassetta",
+					"vai": "cuore",
+					"una_tantum": "ind_tazo_2",
+					"tazo": 40
+				},
+				{
+					"testo": "Cerca tra i macchinari distrutti",
+					"vai": "cuore",
+					"una_tantum": "ind_fiala_3",
+					"oggetto": "fiala_hp"
+				},
+				{
+					"testo": "Esci nel piazzale della grande discarica",
+					"vai": "discarica"
+				},
+				{
+					"testo": "Torna al nastro",
+					"vai": "nastro"
+				}
 			]
 		},
 		"discarica": {
-			"testo": "Un piazzale a cielo aperto, montagne di rottami più alte di una casa. Il sole rosso ci batte sopra senza pietà. Sotto le macerie, ogni tanto, qualcosa si sposta da sola.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Incredibile, i rottami si estendono a perdita d'occhio. Sento dei lievi tremori provenire da sottoterra... questo posto non è sicuro..."
+				}
+			],
+			"scena": "Il piazzale a cielo aperto: montagne di rottami, e il sole rosso che ci batte sopra.",
 			"agguato": {
 				"probabilita": 0.35,
-				"gruppi": [["comparsa_di_ruggine"], ["operaio_posseduto"], ["comparsa_di_ruggine", "operaio_posseduto"], ["divoratore"]],
+				"gruppi": [
+					[
+						"comparsa_di_ruggine"
+					],
+					[
+						"operaio_posseduto"
+					],
+					[
+						"comparsa_di_ruggine",
+						"operaio_posseduto"
+					],
+					[
+						"divoratore"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Rovista tra i rottami più vicini", "vai": "discarica", "una_tantum": "ind_rottame_1", "oggetto": "rottame_di_metallo" },
-				{ "testo": "Scava sotto una montagna di lamiere", "vai": "discarica", "una_tantum": "ind_rottame_2", "oggetto": "rottame_di_metallo", "tazo": 15 },
-				{ "testo": "Controlla un container ribaltato", "vai": "discarica", "una_tantum": "ind_tazo_discarica", "tazo": 35 },
-				{ "testo": "Va' verso la struttura tonda in fondo al piazzale", "vai": "padiglione_e" },
-				{ "testo": "Torna al cuore del complesso", "vai": "cuore" }
+				{
+					"testo": "Rovista tra i rottami più vicini",
+					"vai": "discarica",
+					"una_tantum": "ind_rottame_1",
+					"oggetto": "rottame_di_metallo"
+				},
+				{
+					"testo": "Scava sotto una montagna di lamiere",
+					"vai": "discarica",
+					"una_tantum": "ind_rottame_2",
+					"oggetto": "rottame_di_metallo",
+					"tazo": 15
+				},
+				{
+					"testo": "Controlla un container ribaltato",
+					"vai": "discarica",
+					"una_tantum": "ind_tazo_discarica",
+					"tazo": 35
+				},
+				{
+					"testo": "Va' verso la struttura tonda più in fondo",
+					"vai": "padiglione_e"
+				},
+				{
+					"testo": "Torna al cuore del complesso",
+					"vai": "cuore"
+				}
 			]
 		},
 		"padiglione_e": {
-			"testo": "Il Padiglione E: una struttura tonda enorme, come un silo rovesciato, molto più grande di tutto il resto del complesso. Un unico portello sul fondo, sigillato, con una scritta ormai illeggibile sopra. Da sotto, un rombo bassissimo, quasi impercettibile, che non si ferma mai.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Cosa ci fa questo padiglione in mezzo alla discarica? Sembra esserci un'entrata sotterranea gigantesca... impossibile da aprire..."
+				}
+			],
+			"scena": "Il Padiglione: una struttura tonda enorme, e un unico portello sigillato sul fondo.",
 			"scelte": [
-				{ "testo": "Prova a forzare il portello", "vai": "padiglione_e_chiuso" },
-				{ "testo": "Torna alla discarica", "vai": "discarica" }
+				{
+					"testo": "Prova a forzare il portello",
+					"vai": "padiglione_e_chiuso"
+				},
+				{
+					"testo": "Torna alla discarica",
+					"vai": "discarica"
+				}
 			]
 		},
 		"padiglione_e_chiuso": {
-			"testo": "Non si muove di un millimetro: qualunque cosa lo tenga chiuso, non è fatta per cedere a mani nude. Qualunque cosa ci sia sotto, dovrà aspettare.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non si muove di un millimetro: qualunque cosa lo tenga chiuso, non è fatta per cedere a mani nude. Qualunque cosa ci sia sotto, doveva essere tenuta nascosta. Sarà meglio fare rapporto all'organizzazione..."
+				}
+			],
 			"scelte": [
-				{ "testo": "Torna al Padiglione E", "vai": "padiglione_e" }
+				{
+					"testo": "Torna al padiglione",
+					"vai": "padiglione_e"
+				}
 			]
 		},
 		"espulso": {
-			"testo": "Le macerie ti si chiudono addosso e lo squarcio ti sputa fuori, nel Vuoto. Il complesso continua a scaldare il nulla.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Le macerie ti schiacciano... il tuo destino è deciso, diventi un tutt'uno con i rottami... dimenticato per sempre sotto quel sole rosso, per l'eternità..."
+				}
+			],
 			"scelte": [
-				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+				{
+					"testo": "Riprendi fiato nel Vuoto",
+					"torna_vuoto": true
+				}
 			]
 		}
 	}

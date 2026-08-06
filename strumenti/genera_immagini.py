@@ -81,6 +81,34 @@ def espressioni_richieste():
     return usi
 
 
+def illustrazioni():
+    """Le illustrazioni a schermo intero che una scena si ferma a mostrare.
+
+    Non sono ritratti: sono disegni singoli, chiamati da un messaggio
+    `"tipo": "immagine"` col percorso scritto dentro il file di eventi. La
+    didascalia serve a capire cosa ci deve stare dentro.
+    """
+    fuori = []
+    visti = set()
+    for percorso in file_eventi():
+        with open(percorso, encoding="utf-8") as f:
+            nodi = json.load(f).get("nodi", {})
+        for id_nodo, nodo in nodi.items():
+            for msg in nodo.get("sequenza", []):
+                if not isinstance(msg, dict) or msg.get("tipo") != "immagine":
+                    continue
+                file_chiesto = msg.get("file", "")
+                if not file_chiesto or file_chiesto in visti:
+                    continue
+                visti.add(file_chiesto)
+                fuori.append({
+                    "file": file_chiesto,
+                    "dove": "%s › %s" % (os.path.basename(percorso), id_nodo),
+                    "didascalia": msg.get("testo", ""),
+                })
+    return fuori
+
+
 def esiste(percorso_res):
     return os.path.exists(os.path.join(RADICE, percorso_res.replace("res://", "")))
 
@@ -214,6 +242,22 @@ def genera():
                 righe.append("| %s | `%s` | %s | %s |" % (
                     v["nome"], percorso,
                     "`%s`" % cartella if cartella != "—" else "—", segno))
+        righe.append("")
+
+    quadri = illustrazioni()
+    if quadri:
+        righe.append("## Le illustrazioni delle scene")
+        righe.append("")
+        righe.append("Disegni singoli a schermo intero: la scena si ferma, li mostra con la")
+        righe.append("didascalia sotto, e poi riprende. Se il file non c'e' resta la didascalia,")
+        righe.append("quindi si possono fare con calma. Vanno in `art/illustrazioni/`.")
+        righe.append("")
+        righe.append("| file | dove | cosa si vede | c'è |")
+        righe.append("|---|---|---|:-:|")
+        for q in quadri:
+            righe.append("| `%s` | %s | %s | %s |" % (
+                q["file"].replace("res://", ""), q["dove"], q["didascalia"],
+                "✓" if esiste(q["file"]) else ""))
         righe.append("")
 
     righe.append("## Il resto")

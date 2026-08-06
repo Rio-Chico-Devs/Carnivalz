@@ -65,6 +65,7 @@ const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a 
 @onready var carta_titolo: Control = %CartaTitolo
 @onready var colonna_titolo: VBoxContainer = %ColonnaTitolo
 @onready var testo_titolo: Label = %TestoTitolo
+var immagine_titolo: TextureRect
 @onready var area_avanza: Button = %AreaAvanza
 
 var nodo_in_corso: Dictionary = {}
@@ -112,6 +113,16 @@ func applica_stile() -> void:
 	etichetta_stat.add_theme_color_override("font_color", Stile.colore("bordo"))
 	testo_titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
 	testo_titolo.add_theme_color_override("font_color", Stile.colore("accento"))
+	# Una scena puo' fermarsi su un'illustrazione: usa lo stesso velo a schermo
+	# intero della carta del titolo, perche' fa la stessa cosa - prende lo
+	# schermo, aspetta, e poi la scena riprende. L'immagine sta SOPRA il testo,
+	# che diventa la sua didascalia.
+	immagine_titolo = TextureRect.new()
+	immagine_titolo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	immagine_titolo.custom_minimum_size = Vector2(760, 460)
+	immagine_titolo.visible = false
+	colonna_titolo.add_child(immagine_titolo)
+	colonna_titolo.move_child(immagine_titolo, 0)
 	var suggerimento_titolo := Stile.costruisci_prompt("continua")
 	colonna_titolo.add_child(suggerimento_titolo)
 	Stile.pulsa(suggerimento_titolo)
@@ -305,6 +316,10 @@ func mostra_messaggio(msg: Dictionary) -> void:
 		GameState.registra_storico(tipo, "", contenuto)
 		mostra_carta_titolo(contenuto)
 		return
+	if tipo == "immagine":
+		GameState.registra_storico("narrazione", "", contenuto)
+		mostra_carta_titolo(contenuto, String(msg.get("file", "")))
+		return
 	carta_titolo.visible = false
 	box.visible = true
 	var nome_parlante := ""
@@ -319,7 +334,7 @@ func mostra_messaggio(msg: Dictionary) -> void:
 	GameState.registra_storico(tipo, nome_parlante, contenuto)
 	box.mostra(tipo, contenuto, nome_parlante)
 
-func mostra_carta_titolo(contenuto: String) -> void:
+func mostra_carta_titolo(contenuto: String, percorso_immagine := "") -> void:
 	# il nome di un luogo non e' una riga di narrazione: si prende lo schermo,
 	# resta finche' non lo si chiude, e solo dopo la scena riprende. Quello che
 	# sarebbe dovuto succedere a fine testo (aprire le scelte) resta in attesa:
@@ -327,7 +342,17 @@ func mostra_carta_titolo(contenuto: String) -> void:
 	azione_dopo_titolo = azione_a_fine_testo
 	azione_a_fine_testo = Callable()
 	box.visible = false
+	# un'illustrazione che non c'e' ancora non blocca niente: resta la didascalia,
+	# e la scena si legge lo stesso. I disegni si fanno a poco a poco
+	var c_e_immagine := percorso_immagine != "" and ResourceLoader.exists(percorso_immagine)
+	immagine_titolo.visible = c_e_immagine
+	if c_e_immagine:
+		immagine_titolo.texture = load(percorso_immagine)
 	testo_titolo.text = contenuto
+	testo_titolo.add_theme_font_size_override("font_size",
+			Stile.dimensione("corpo") if percorso_immagine != "" else Stile.dimensione("titolo"))
+	testo_titolo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	testo_titolo.custom_minimum_size = Vector2(760, 0) if percorso_immagine != "" else Vector2.ZERO
 	carta_titolo.visible = true
 	carta_titolo.modulate.a = 0.0
 	var comparsa := create_tween()
