@@ -1819,7 +1819,20 @@ pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, 
     **per piano** invece di una per zona, la cornice della vista con lo zoom, e più avanti la
     **mappa totale a contorni** (l'abilità di un personaggio: vedi la forma della zona e capisci
     che lì c'è qualcosa, senza sapere cosa)
-26. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
+26. ✅ **La Casa Gigante esce di casa** (testi di Bru). Dalla soglia si può anche non entrare: sul
+    fianco c'è l'ingresso ai **giardini tropicali**, e da lì tre sentieri. A **est**, in fondo,
+    un albero con dentro un volto: la **custode dei giardini**, un tempo capo ricerca al fianco
+    della capofamiglia, demansionata per essersi rifiutata di lavorare a quello che le
+    chiedevano. Parla solo a chi le mostra la spilla a margherita, e da lì in poi è il banco
+    degli indizi della zona *e* il suo pezzo di lore più lungo. A **ovest** il **grande
+    laboratorio** (matrice di accesso, diserbante, diari di ricerca); a **nord** il **vivaio**,
+    murato da rovi che si rigenerano finché non arriva il diserbante, e in fondo al vivaio il
+    miniboss **Volto sulla parete** — quel che resta della capofamiglia — che custodisce l'**ID**
+    con cui si apre la botola. La botola adesso ha una serratura vera: la matrice da sola
+    risponde «UTENTE NON IDENTIFICATO. ID VUOTO.». Yhvina non serve più solo per un
+    combattimento: attraversa tutta la parte nuova, e in fondo all'albero della lore c'è la
+    scena che decide se sarà reclutabile più avanti nel gioco
+27. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
     (risfidare ogni tipo di nemico incontrato). Si aprono a gioco finito; l'infrastruttura c'è già
     — il bestiario sa chi hai incontrato e il giocatore automatico sa già montare uno scontro
     qualunque senza passare da una stanza

@@ -4,22 +4,93 @@
 			"una_tantum": "dialogo_casa_botola",
 			"flag": "casa_botola",
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "%s si ferma davanti ai cuscini ammucchiati contro il muro, fissandoli con curiosità." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Hey, guarda qui, sembra esserci qualcosa sotto questo mucchio di cuscini... proviamo a spostarli?" },
-				{ "tipo": "narrazione", "testo": "Tira un calcio violento contro i cuscini." },
-				{ "tipo": "dialogo", "testo": "Ecco fatto... vedi? C'è un passaggio..." },
-				{ "tipo": "narrazione", "testo": "Non ha perso molto tempo... Ma il risultato c'è." }
+				{
+					"tipo": "narrazione",
+					"testo": "%s si ferma davanti ai cuscini ammucchiati contro il muro, fissandoli con curiosità."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Hey, guarda qui, sembra esserci qualcosa sotto questo mucchio di cuscini... proviamo a spostarli?"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Tira un calcio violento contro i cuscini."
+				},
+				{
+					"tipo": "dialogo",
+					"testo": "Ecco fatto... vedi? C'è un passaggio..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Non ha perso molto tempo... Ma il risultato c'è."
+				}
+			]
+		},
+		"spirito_hub": {
+			"una_tantum": "dialogo_casa_custode",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Sai, quella dolce signora mi sta proprio simpatica... yaaawn..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Dovresti prendere esempio. Lei sì che sa riconoscere i talenti delle persone."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				}
+			]
+		},
+		"albero_addio": {
+			"una_tantum": "dialogo_casa_addio",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Un vero peccato. Mi stava cominciando a essere molto simpatica... yaaawn..."
+				}
+			]
+		},
+		"albero_addio_buono": {
+			"una_tantum": "dialogo_casa_addio_buono",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Forse è meglio non parlarle, ora."
+				}
 			]
 		}
 	},
 	"conversazioni": {
 		"salone": {
 			"una_tantum": "conv_salone_sally_vega",
-			"tra": ["sally", "vega"],
+			"tra": [
+				"sally",
+				"vega"
+			],
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sally", "testo": "Ti giuro che in questa casa non c'è NIENTE di normale. Nemmeno un poster storto." },
-				{ "tipo": "dialogo", "chi": "vega", "testo": "O forse è normale, per chi ci ha vissuto. Non tutti i ricordi buttano giù i muri." },
-				{ "tipo": "dialogo", "chi": "sally", "testo": "Ai ricordi buoni non serve una casa gigante per starci dentro." }
+				{
+					"tipo": "dialogo",
+					"chi": "sally",
+					"testo": "Ti giuro che in questa casa non c'è NIENTE di normale. Nemmeno un poster storto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "vega",
+					"testo": "O forse è normale, per chi ci ha vissuto. Non tutti i ricordi buttano giù i muri."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sally",
+					"testo": "Ai ricordi buoni non serve una casa gigante per starci dentro."
+				}
 			],
 			"mediazione": {
 				"testo": "Le due si voltano verso di te, aspettando che tu dica la tua.",
@@ -28,13 +99,19 @@
 						"testo": "Mostra la collana trovata in soffitta",
 						"richiede_oggetto": "collana_particolare",
 						"battuta": "Guardate: l'ho trovata in soffitta. Qualcuno di voi due la riconosce?",
-						"risposta": { "chi": "vega", "testo": "Vedi? Anche le cose piccole restano. Grazie per averla notata." },
+						"risposta": {
+							"chi": "vega",
+							"testo": "Vedi? Anche le cose piccole restano. Grazie per averla notata."
+						},
 						"legame": 10
 					},
 					{
 						"testo": "Prova a mediare tra le due",
 						"battuta": "Magari ha ragione lei: a volte i ricordi fanno più rumore della verità.",
-						"risposta": { "chi": "sally", "testo": "...touché." },
+						"risposta": {
+							"chi": "sally",
+							"testo": "...touché."
+						},
 						"legame": 5
 					},
 					{

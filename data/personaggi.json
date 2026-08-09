@@ -732,6 +732,76 @@
 			]
 		},
 		{
+			"id": "donna_spinosa",
+			"elemento": "veleno",
+			"livello": 13,
+			"nome": "Donna Spinosa",
+			"nome_breve": "Donna Spinosa",
+			"hp": 700,
+			"attacco": 27,
+			"difesa": 10,
+			"velocita": 4,
+			"xp": 30,
+			"tazo": 16,
+			"ritratto": "res://art/personaggi/donna_spinosa.png",
+			"descrizione": "Cresciuta in una vasca con un cartellino che diceva un'altra cosa. Sta ferma finché non le passi accanto, e allora si ricorda di essere stata progettata.",
+			"apertura": "Si stacca dal tronco a cui sembrava appartenere, senza rumore.",
+			"carta": { "id": "carta_donna_spinosa", "nome": "Donna Spinosa", "rarita": "non_comune", "chance": 0.04, "testo": "Vivaio 3, vasca 11. Specie dichiarata: ornamentale." },
+			"mosse": [
+				{ "id": "spine_sottili", "tipo": "attacco_forte", "valore": 8, "peso": 2, "stato": "veleno", "testo": "Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo." }
+			],
+			"peso_attacco_normale": 3,
+			"bottino_comune": [
+				{ "oggetto": "fiore_di_luna", "chance": 0.25 }
+			],
+			"studio": [
+				{ "domanda": "Chi eri?", "risposta": "Muove le labbra, ma quello che ne esce è solo un fruscio di foglie." },
+				{ "domanda": "(cerchi il cartellino della sua vasca)", "risposta": "La specie dichiarata sul cartellino non ha niente a che vedere con quello che ti sta davanti." }
+			]
+		},
+		{
+			"id": "volto_sulla_parete",
+			"elemento": "veleno",
+			"livello": 15,
+			"nome": "Volto sulla parete",
+			"nome_breve": "Il volto",
+			"categoria": "particolare",
+			"hp": 1580,
+			"attacco": 34,
+			"difesa": 20,
+			"velocita": 3,
+			"psiche": "rabbia",
+			"fattore_base": 40,
+			"xp": 120,
+			"tazo": 90,
+			"ritratto": "res://art/personaggi/volto_sulla_parete.png",
+			"descrizione": "Quello che è rimasto della capofamiglia, cresciuto dentro la parete insieme a tutto il resto. Difende ancora i risultati di ricerche che non servono più a nessuno.",
+			"apertura": { "tipo": "dialogo", "testo": "Chi siete... Siete venuti a rubare i risultati delle mie ricerche, vero? Schifosi..." },
+			"carta": { "id": "carta_volto_sulla_parete", "nome": "Volto sulla parete", "rarita": "rara", "chance": 0.06, "testo": "Capo ricerca. Ha firmato ogni autorizzazione, compresa l'ultima." },
+			"mosse": [
+				{ "id": "radici_che_stringono", "tipo": "attacco_forte", "valore": 14, "peso": 2, "stato": "veleno", "testo": "Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore." },
+				{ "id": "sfogo_di_spore", "tipo": "attacco_tutti", "valore": 11, "peso": 1, "testo": "La parete si apre e sputa una nube di spore su tutta la stanza." }
+			],
+			"peso_attacco_normale": 3,
+			"bottino_comune": [
+				{ "oggetto": "fiore_di_luna", "chance": 0.5 }
+			],
+			"studio": [
+				{ "domanda": "(la osservi)", "risposta": "Sembra il volto di una persona anziana: trasuda odio e rabbia da ogni parte." },
+				{ "domanda": "Cosa è successo in questo posto?", "risposta": "Fastidiosi parassiti... sparite!" },
+				{ "domanda": "Ho capito: sei quella folle che ha rovinato questo posto.", "risposta": "Eh?! Chi ti credi di essere. Sudicio insetto!" },
+				{ "domanda": "Non ti è bastato rovinare la tua famiglia?", "risposta": "Piccolo stupido: delle parole di voi scarafaggi non me ne faccio niente!" },
+				{ "domanda": "(cerchi un appiglio, un rimorso, qualcosa)", "risposta": "C'è solo malvagità in questo essere. Non hai alternative." }
+			]
+		},
+		{
+			"id": "spirito_dei_giardini",
+			"nome": "Spirito dei giardini",
+			"nome_breve": "la custode",
+			"ritratto": "res://art/personaggi/spirito_dei_giardini.png",
+			"descrizione": "La vecchia custode dei giardini della magione, e un tempo capo ricerca al fianco della capofamiglia. Innaffia le stesse piante da più anni di quanti ne sappia contare."
+		},
+		{
 			"id": "lettere_altare",
 			"nome": "Le lettere sull'altare",
 			"nome_breve": "le lettere",

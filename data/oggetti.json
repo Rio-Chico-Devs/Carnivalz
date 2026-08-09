@@ -286,6 +286,37 @@
 			"descrizione": "L'ultima edizione mai stampata di Meridia. Metà pagina è vuota: chi la componeva non ha fatto in tempo a finirla. Le parole rimaste dicono solo: 'evacuare subito, non fer'."
 		},
 		{
+			"id": "fiore_di_luna",
+			"nome": "Fiore di luna",
+			"tipo": "consumabile",
+			"descrizione": "Un fiore comune, usato per trattare lievi infezioni o avvelenamenti. Oltre a essere bello, può anche essere molto utile.",
+			"effetto": { "hp": 20, "cura_stato": "veleno" }
+		},
+		{
+			"id": "diserbante",
+			"nome": "Diserbante dei vivai",
+			"tipo": "chiave",
+			"descrizione": "Una tanica dai laboratori della magione: «uso interno — contenimento vivai». Sviluppato dai capi ricerca per fermare quello che coltivavano, nel caso qualcuno avesse perso il controllo. Qualcuno l'ha perso."
+		},
+		{
+			"id": "matrice",
+			"nome": "Matrice di accesso",
+			"tipo": "chiave",
+			"descrizione": "Una piastrina mai assegnata a nessuno, presa dalla sala delle matrici. Da sola apre solo un messaggio di errore: le manca il chip di identificazione di chi dovrebbe portarla."
+		},
+		{
+			"id": "id_card",
+			"nome": "ID della capofamiglia",
+			"tipo": "chiave",
+			"descrizione": "Il chip di identificazione della padrona di casa, trovato in fondo al vivaio, coperto di piccole piante. Con una matrice, apre tutto quello che lei poteva aprire."
+		},
+		{
+			"id": "diari_di_ricerca",
+			"nome": "Diari di ricerca",
+			"tipo": "chiave",
+			"descrizione": "I quaderni della capo ricerca dei giardini: anni di medicinali a basso costo per i pianeti più poveri, e poi, senza che nulla lo annunci, le prime pagine sui veleni."
+		},
+		{
 			"id": "fiala_misteriosa",
 			"nome": "Fiala misteriosa",
 			"tipo": "chiave",

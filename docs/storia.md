@@ -134,6 +134,34 @@ di Magic. Musiche latine. Jerah ne è il maestro e la fonte.
   (frenesia col conto alla rovescia, si ferma studiandola e distruggendo le
   lettere; drop 80 Tazo + *Prova di un forte amore*, Lyloh; non rispawna).
 
+  **Fuori dalla casa ci sono i giardini**, e sono metà della zona. Tre sentieri.
+  A **est**, in fondo, un albero grande con un volto dentro la corteccia: la
+  **custode dei giardini**. Innaffia le stesse piante da prima che la casa
+  diventasse quello che è; era **capo ricerca al fianco della capofamiglia**, e
+  l'hanno demansionata per essersi rifiutata di lavorare ai nuovi progetti.
+  Parla solo a chi le mostra la **spilla a margherita** — la scambia per la
+  signorina Lylloh — e da quel momento è insieme il banco degli indizi della
+  zona e il suo pezzo di lore più lungo: cosa producevano qui (medicinali a
+  basso costo per i pianeti poveri, finché una grossa somma di denaro non ha
+  spostato la ricerca sui **veleni e sulle piante da guerra**), chi c'era nelle
+  foto, e infine la storia di **sua figlia**, che se n'è andata dicendole
+  «ti supererò, a qualunque costo — grazie di niente». È quella conversazione
+  che decide se **Yhvina sarà reclutabile più avanti nel gioco**: la custode le
+  vede addosso la stessa rabbia, e il giocatore può chiuderla bene o lasciar
+  perdere.
+
+  A **ovest** il **grande laboratorio**, intatto perché nessuno è mai tornato a
+  svuotarlo: i **diari di ricerca**, la **sala delle matrici** (le chiavi di
+  accesso della magione, fabbricate in casa) e dietro di essa il **diserbante**,
+  sviluppato dai capi ricerca proprio per il caso in cui qualcuno avesse perso
+  il controllo dei vivai. A **nord** il **vivaio**, murato da rovi che si
+  rigenerano mentre li colpisci; col diserbante si apre, e tre piani più sotto
+  c'è quello che li teneva vivi: il **Volto sulla parete**, ciò che resta della
+  capofamiglia, che difende ancora i risultati delle sue ricerche. Addosso a lei
+  c'è l'**ID** che, insieme a una matrice, apre la botola sotto i cuscini.
+  Battuta lei, i giardini tornano quieti — e la custode, colpita anche lei dal
+  diserbante, si congeda.
+
 ### Fratture nascoste del Vuoto di Jerah
 Si aprono **completando fino in fondo le tre quest originali** (industriale +
 teatro + casa):

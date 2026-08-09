@@ -4568,16 +4568,21 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.soglia.scelta1`** · bottone di scelta
-> Entra
+> Entra nella casa
 >
 > →
 
-**`CASA.soglia.scelta2`** · bottone di scelta (esce dallo squarcio)
-> Torna nel Vuoto
+**`CASA.soglia.scelta2`** · bottone di scelta
+> Va' verso i giardini
 >
 > →
 
 **`CASA.soglia.scelta3`** · bottone di scelta (esce dallo squarcio)
+> Torna nel Vuoto
+>
+> →
+
+**`CASA.soglia.scelta4`** · bottone di scelta (esce dallo squarcio)
 > Torna nel Vuoto
 >
 > →
@@ -4884,6 +4889,16 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.stanza_giochi.scelta6`** · bottone di scelta
+> Prova la matrice sul lettore
+>
+> →
+
+**`CASA.stanza_giochi.scelta7`** · bottone di scelta
+> Esamina il lettore della botola
+>
+> →
+
+**`CASA.stanza_giochi.scelta8`** · bottone di scelta
 > Torna alla scala
 >
 > →
@@ -5360,6 +5375,1334 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`CASA.cacciata.scelta1`** · bottone di scelta
 > Riprendi dall'ultimo salvataggio
+>
+> →
+
+
+### La Casa Gigante › `giardino_ingresso`
+
+**`CASA.giardino_ingresso.1`** · battuta di Anonimo
+> Andando da questa parte sembra esserci l'entrata verso un giardino...
+>
+> →
+
+**`CASA.giardino_ingresso.scena`** · quando ci torni («Osserva la scena»)
+> Il vialetto che porta al giardino, sul fianco della casa.
+>
+> →
+
+**`CASA.giardino_ingresso.scelta1`** · bottone di scelta
+> Entra nel giardino
+>
+> →
+
+**`CASA.giardino_ingresso.scelta2`** · bottone di scelta
+> Torna alla soglia
+>
+> →
+
+
+### La Casa Gigante › `giardino`
+
+**`CASA.giardino.1`** · narrazione
+> Una luna bellissima illumina il giardino. Puoi scorgere poco e niente fra i rami... ogni tanto, tra le foglie, un movimento rapido e sfuggevole ti fa rimanere all'erta.
+>
+> →
+
+**`CASA.giardino.scena`** · quando ci torni («Osserva la scena»)
+> Il giardino sotto la luna. Tre sentieri: est, ovest, nord.
+>
+> →
+
+**`CASA.giardino.scelta1`** · bottone di scelta
+> Prendi il sentiero verso il giardino est
+>
+> →
+
+**`CASA.giardino.scelta2`** · bottone di scelta
+> Prendi il sentiero verso il giardino ovest
+>
+> →
+
+**`CASA.giardino.scelta3`** · bottone di scelta
+> Prendi il sentiero verso il giardino nord
+>
+> →
+
+**`CASA.giardino.scelta4`** · bottone di scelta
+> Torna verso la soglia
+>
+> →
+
+
+### La Casa Gigante › `giardino_est`
+
+**`CASA.giardino_est.1`** · battuta di Anonimo
+> ... C'è un profondo silenzio in questo posto...
+>
+> →
+
+**`CASA.giardino_est.scena`** · quando ci torni («Osserva la scena»)
+> Il giardino est. Il silenzio, qui, è più fitto che altrove.
+>
+> →
+
+**`CASA.giardino_est.scelta1`** · bottone di scelta (fa raccogliere Fiore di luna, Fiore di luna)
+> Esplora il giardino est
+>
+> →
+
+**`CASA.giardino_est.scelta2`** · bottone di scelta
+> Addentrati nel giardino est
+>
+> →
+
+**`CASA.giardino_est.scelta3`** · bottone di scelta
+> Torna al giardino
+>
+> →
+
+
+### La Casa Gigante › `fiori_di_luna`
+
+**`CASA.fiori_di_luna.1`** · narrazione
+> Tra l'erba alta, due fiori pallidi si aprono solo di notte.
+>
+> →
+
+**`CASA.fiori_di_luna.2`** · battuta di Anonimo
+> Questi campioni possono essere utili... posso portarli nella serra dell'Organizzazione, o consumarli nel caso venga colpito da un essere velenoso.
+>
+> →
+
+**`CASA.fiori_di_luna.3`** · narrazione
+> I fiori di luna sono fiori comuni, utilizzati per trattare lievi infezioni o avvelenamenti. Oltre a essere belli, possono anche essere molto utili.
+>
+> →
+
+**`CASA.fiori_di_luna.scelta1`** · bottone di scelta
+> Torna a guardarti intorno
+>
+> →
+
+
+### La Casa Gigante › `albero_voce`
+
+**`CASA.albero_voce.1`** · battuta di Anonimo
+> Non sembra essere possibile procedere oltre...
+>
+> →
+
+**`CASA.albero_voce.2`** · battuta di Spirito dei giardini
+> Hey... tu...
+>
+> →
+
+**`CASA.albero_voce.3`** · battuta di Anonimo
+> ?
+>
+> →
+
+**`CASA.albero_voce.4`** · battuta di Spirito dei giardini
+> ... Qui, vicino all'albero...
+>
+> →
+
+**`CASA.albero_voce.scena`** · quando ci torni («Osserva la scena»)
+> La profondità del giardino est. L'albero grande in fondo, e niente altro.
+>
+> →
+
+**`CASA.albero_voce.scelta1`** · bottone di scelta
+> Avvicinati
+>
+> →
+
+**`CASA.albero_voce.scelta2`** · bottone di scelta
+> Vai via
+>
+> →
+
+
+### La Casa Gigante › `voce_ignorata`
+
+**`CASA.voce_ignorata.1`** · battuta di Spirito dei giardini
+> Hey... dove... vai? Aspetta...
+>
+> →
+
+**`CASA.voce_ignorata.scelta1`** · bottone di scelta
+> Torna indietro e avvicinati
+>
+> →
+
+**`CASA.voce_ignorata.scelta2`** · bottone di scelta
+> Torna al giardino est
+>
+> →
+
+
+### La Casa Gigante › `voce_avvicinati`
+
+**`CASA.voce_avvicinati.1`** · battuta di Anonimo
+> Sembra provenire da qui...
+>
+> →
+
+**`CASA.voce_avvicinati.2`** · battuta di Spirito dei giardini
+> Lei è qui per aiutare la signorina Lylloh?
+>
+> →
+
+**`CASA.voce_avvicinati.3`** · battuta di Anonimo
+> ? Chi parla?
+>
+> →
+
+**`CASA.voce_avvicinati.4`** · battuta di Spirito dei giardini
+> ... Devo aver sbagliato persona...
+>
+> →
+
+**`CASA.voce_avvicinati.5`** · narrazione
+> Cerchi ovunque... ma sembra che la voce non ci sia più. Qualunque cosa fosse, ormai è andata via.
+>
+> →
+
+**`CASA.voce_avvicinati.scelta1`** · bottone di scelta
+> Torna al giardino est
+>
+> →
+
+
+### La Casa Gigante › `albero_voce_spilla`
+
+**`CASA.albero_voce_spilla.1`** · battuta di Spirito dei giardini
+> ... Signorina Lylloh? È lei?
+>
+> →
+
+**`CASA.albero_voce_spilla.scena`** · quando ci torni («Osserva la scena»)
+> La profondità del giardino est. L'albero grande in fondo, e niente altro.
+>
+> →
+
+**`CASA.albero_voce_spilla.scelta1`** · bottone di scelta
+> Mostra la spilla a margherita
+>
+> →
+
+**`CASA.albero_voce_spilla.scelta2`** · bottone di scelta
+> Torna al giardino est
+>
+> →
+
+
+### La Casa Gigante › `spirito_rivelato`
+
+**`CASA.spirito_rivelato.1`** · battuta di Spirito dei giardini
+> ...
+>
+> →
+
+**`CASA.spirito_rivelato.2`** · battuta di Spirito dei giardini
+> Come fa ad avere la spilla della signorina? Le ha per caso fatto del male?!
+>
+> →
+
+**`CASA.spirito_rivelato.3`** · battuta di Anonimo
+> Non so di cosa parli. Ho raccolto questo oggetto nei pressi dell'ala sinistra della casa, che si trova poco lontano da qui.
+>
+> →
+
+**`CASA.spirito_rivelato.4`** · battuta di Spirito dei giardini
+> ...
+>
+> →
+
+**`CASA.spirito_rivelato.5`** · narrazione
+> Le foglie cominciano a muoversi freneticamente e il vento si alza lievemente... Dall'albero centrale un volto appare sulla sua superficie.
+>
+> →
+
+**`CASA.spirito_rivelato.6`** · battuta di Spirito dei giardini
+> Cosa... è successo alla signorina Lylloh?
+>
+> →
+
+**`CASA.spirito_rivelato.7`** · battuta di Anonimo
+> Non saprei rispondere a questa domanda. Io sono qui con un compito ben preciso... Ma penso che la persona che lei chiama signorina Lylloh, purtroppo, non ci sia più.
+>
+> →
+
+**`CASA.spirito_rivelato.8`** · battuta di Spirito dei giardini
+> ... Dovevo immaginarlo. Ho perso il conto dei giorni che ho passato innaffiando queste piante... da quando non mi è stato più permesso avvicinarmi alla magione...
+>
+> →
+
+**`CASA.spirito_rivelato.9`** · battuta di Spirito dei giardini
+> Cosa... ci fa lei esattamente qui?
+>
+> →
+
+**`CASA.spirito_rivelato.10`** · battuta di Anonimo
+> Sarebbe crudele dirle la verità... ancora non ho capito se è ostile o meno... sarà meglio limitarmi a investigare su cosa è accaduto qui.
+>
+> →
+
+**`CASA.spirito_rivelato.11`** · battuta di Anonimo
+> Sono qui solo di passaggio, siccome è stato richiesto il mio... aiuto. Qualunque cosa sia successa qui, io sono venuto per risolverla.
+>
+> →
+
+**`CASA.spirito_rivelato.12`** · battuta di Anonimo
+> Vorrei sapere di più su questo posto, e su cosa devo aspettarmi da te.
+>
+> →
+
+**`CASA.spirito_rivelato.13`** · battuta di Spirito dei giardini
+> Hohoho... Che giovinotto energico... Io sono solo una vecchia custode, con un grande amore verso questo giardino e verso la signorina...
+>
+> →
+
+**`CASA.spirito_rivelato.14`** · battuta di Spirito dei giardini
+> Se lei è qui per aiutare... non la intralcerò. Anzi... se ha bisogno di farsi due chiacchiere con una povera vecchia, sarò felice di aiutarla... hohoho...
+>
+> →
+
+**`CASA.spirito_rivelato.scelta1`** · bottone di scelta
+> Resta a parlare con lei
+>
+> →
+
+
+### La Casa Gigante › `spirito_hub`
+
+**`CASA.spirito_hub.1`** · battuta di Spirito dei giardini
+> Hohoho... Mi dica pure, giovinotto.
+>
+> →
+
+**`CASA.spirito_hub.scena`** · quando ci torni («Osserva la scena»)
+> Il volto della vecchia custode, sulla corteccia dell'albero grande.
+>
+> →
+
+**`CASA.spirito_hub.scelta1`** · bottone di scelta
+> Chiedi consiglio su dove cercare
+>
+> →
+
+**`CASA.spirito_hub.scelta2`** · bottone di scelta
+> Chiedile come si apre la botola
+>
+> →
+
+**`CASA.spirito_hub.scelta3`** · bottone di scelta
+> Chiedile ancora dei laboratori
+>
+> →
+
+**`CASA.spirito_hub.scelta4`** · bottone di scelta
+> Mostrale la matrice
+>
+> →
+
+**`CASA.spirito_hub.scelta5`** · bottone di scelta
+> Chiedile ancora del vivaio
+>
+> →
+
+**`CASA.spirito_hub.scelta6`** · bottone di scelta
+> Chiedile del passato di questa casa
+>
+> →
+
+**`CASA.spirito_hub.scelta7`** · bottone di scelta
+> Falle compagnia un momento
+>
+> →
+
+**`CASA.spirito_hub.scelta8`** · bottone di scelta
+> Torna al giardino est
+>
+> →
+
+
+### La Casa Gigante › `spirito_indizio_yhvina`
+
+**`CASA.spirito_indizio_yhvina.1`** · battuta di Spirito dei giardini
+> Nei piani superiori della casa ho visto da qui aggirarsi qualcuno... forse dovresti dare un'occhiata... hohoho...
+>
+> →
+
+**`CASA.spirito_indizio_yhvina.scelta1`** · bottone di scelta
+> Ringraziala
+>
+> →
+
+
+### La Casa Gigante › `spirito_laboratori`
+
+**`CASA.spirito_laboratori.1`** · battuta di Yhvina
+> ... Cos'è quello?
+>
+> →
+
+**`CASA.spirito_laboratori.2`** · battuta di Spirito dei giardini
+> Hohoho... Vedo che hai trovato una compagna molto elegante. Che bella fanciulla!
+>
+> →
+
+**`CASA.spirito_laboratori.3`** · battuta di Yhvina
+> ...
+>
+> →
+
+**`CASA.spirito_laboratori.4`** · battuta di Spirito dei giardini
+> Hohoho, che fanciulla tenera!
+>
+> →
+
+**`CASA.spirito_laboratori.5`** · battuta di Yhvina
+> Hmpf, ecco un'altra persona sfacciata! Vedo che questo posto è pieno di maleducati! Yawn...
+>
+> →
+
+**`CASA.spirito_laboratori.6`** · battuta di Anonimo
+> Abbiamo trovato una botola in una stanza del primo piano... sapresti dirmi come aprirla?
+>
+> →
+
+**`CASA.spirito_laboratori.7`** · battuta di Spirito dei giardini
+> Hmmm... Sì. Le stanze inferiori erano una prerogativa dei signori: a me non era consentito accedervi.
+>
+> →
+
+**`CASA.spirito_laboratori.8`** · battuta di Spirito dei giardini
+> Forse dovreste provare a cercare nei laboratori sull'altro lato del giardino... potreste trovare una copia delle chiavi di accesso dei signori da quelle parti. Era in quel centro di ricerca che fabbricavano le varie chiavi di accesso della magione.
+>
+> →
+
+**`CASA.spirito_laboratori.9`** · battuta di Yhvina
+> Ottimo, allora è deciso: andremo verso i giardini a ovest.
+>
+> →
+
+**`CASA.spirito_laboratori.10`** · battuta di Spirito dei giardini
+> Che ragazza decisa... Mi ricordi la mia piccola bambina. Non la vedo da quando ha cominciato a lavorare per quel gruppo di ricercatori su Terna 9... Sai, hai gli stessi occhi stanchi... dovresti riposarti un pochino, tesoro.
+>
+> →
+
+**`CASA.spirito_laboratori.11`** · battuta di Yhvina
+> Non si preoccupi, io purtroppo non dormo mai. Non è che non voglia... Non dipende da me.
+>
+> →
+
+**`CASA.spirito_laboratori.12`** · battuta di Spirito dei giardini
+> Sento che non sei come gli altri, hohoho... Non dirò altro. Ma prenditi cura di te, tesoro.
+>
+> →
+
+**`CASA.spirito_laboratori.13`** · battuta di Yhvina
+> ...
+>
+> →
+
+**`CASA.spirito_laboratori.scelta1`** · bottone di scelta
+> Torna a parlarle
+>
+> →
+
+
+### La Casa Gigante › `spirito_laboratori_ancora`
+
+**`CASA.spirito_laboratori_ancora.1`** · battuta di Spirito dei giardini
+> Hai provato a cercare nei laboratori?
+>
+> →
+
+**`CASA.spirito_laboratori_ancora.scelta1`** · bottone di scelta
+> Torna a parlarle
+>
+> →
+
+
+### La Casa Gigante › `spirito_matrice`
+
+**`CASA.spirito_matrice.1`** · battuta di Spirito dei giardini
+> Hohoho... Come prosegue il suo lavoro? Ha trovato quel che cercava? Si sta prendendo cura della sua amica?
+>
+> →
+
+**`CASA.spirito_matrice.2`** · battuta di Yhvina
+> Sono io che mi prendo cura di lui. Se non ci fossi io, probabilmente sarebbe rimasto a contare le macerie di quel rudere laggiù.
+>
+> →
+
+**`CASA.spirito_matrice.3`** · battuta di Spirito dei giardini
+> Hohoho, non ne dubito, signorina! Come sempre la trovo stanca ma in forma!
+>
+> →
+
+**`CASA.spirito_matrice.4`** · battuta di Yhvina
+> Bisogna fare quel che bisogna fare... yaaawn...
+>
+> →
+
+**`CASA.spirito_matrice.5`** · battuta di Spirito dei giardini
+> Ma passiamo a noi: hai l'espressione di chi deve chiedermi qualcosa.
+>
+> →
+
+**`CASA.spirito_matrice.6`** · battuta di Anonimo
+> La matrice da sola non serve... sembrerebbe aver bisogno di un chip di identificazione da inserire. Ha idea se i padroni della casa avessero qualcosa di simile?
+>
+> →
+
+**`CASA.spirito_matrice.7`** · battuta di Spirito dei giardini
+> I signori, dopo la disgrazia, non sono più tornati in questa casa... solo la capofamiglia abitava la magione. Soleva aggirarsi sempre nel vivaio da quando è rimasta sola: adorava i suoi fiori, non ha mai dato importanza ad altro. Ricordo ancora i bei tempi passati con il signorino, prima che diventasse adulto... era un giovanotto molto solo. Forse dovreste perlustrare il vivaio.
+>
+> →
+
+**`CASA.spirito_matrice.8`** · battuta di Anonimo
+> Dobbiamo trovare un modo per distruggere quei rovi...
+>
+> →
+
+**`CASA.spirito_matrice.9`** · battuta di Spirito dei giardini
+> Rovi?
+>
+> →
+
+**`CASA.spirito_matrice.10`** · battuta di Anonimo
+> Sì, dei rovi ci impediscono di proseguire: l'intero vivaio sembra inglobato in essi.
+>
+> →
+
+**`CASA.spirito_matrice.11`** · battuta di Spirito dei giardini
+> ... Nei laboratori dovrebbe esserci qualcosa che vi possa aiutare. Sapete, ero una dei capi ricerca prima di venire demansionata, siccome mi ero rifiutata di far parte dei progetti che la signora aveva per i nostri vivai. Ricordo di aver sviluppato un potente diserbante insieme ai miei colleghi, per prevenire e controllare eventuali scenari dovuti alla cattiva gestione dell'esperimento.
+>
+> →
+
+**`CASA.spirito_matrice.scelta1`** · bottone di scelta
+> Chiedi di più sull'esperimento
+>
+> →
+
+**`CASA.spirito_matrice.scelta2`** · bottone di scelta
+> Concludi il discorso
+>
+> →
+
+
+### La Casa Gigante › `spirito_vivaio_ancora`
+
+**`CASA.spirito_vivaio_ancora.1`** · battuta di Spirito dei giardini
+> Forse dovreste provare a perlustrare il vivaio.
+>
+> →
+
+**`CASA.spirito_vivaio_ancora.scelta1`** · bottone di scelta
+> Torna a parlarle
+>
+> →
+
+
+### La Casa Gigante › `spirito_esperimento`
+
+**`CASA.spirito_esperimento.1`** · battuta di Spirito dei giardini
+> Una volta, in questo posto, coltivavamo piante per sviluppare medicinali e antibiotici per delle grandi case farmaceutiche.
+>
+> →
+
+**`CASA.spirito_esperimento.2`** · battuta di Spirito dei giardini
+> Questo finché la signora, dopo aver ricevuto una grossa somma di denaro, non ha cominciato a considerare l'utilizzo delle nostre piante anche in campo bellico. Veleni. Piante capaci di distruggere interi complessi, di divorare persone.
+>
+> →
+
+**`CASA.spirito_esperimento.3`** · battuta di Spirito dei giardini
+> ... Quello che era un progetto nato per migliorare le condizioni delle persone è diventato qualcosa che creava nuovi problemi. Io e la signora eravamo delle ricercatrici di successo: insieme abbiamo sviluppato decine di medicinali biologici a basso costo, in grado di risolvere la maggior parte dei problemi dei pianeti più poveri. Ma qualcosa è cambiato. Non so spiegare quando né come... ma quel cambiamento ha avuto un impatto anche sulla sua famiglia.
+>
+> →
+
+**`CASA.spirito_esperimento.scena`** · quando ci torni («Osserva la scena»)
+> Il volto della vecchia custode, sulla corteccia dell'albero grande.
+>
+> →
+
+**`CASA.spirito_esperimento.scelta1`** · bottone di scelta
+> Chiedi delle persone nelle foto
+>
+> →
+
+**`CASA.spirito_esperimento.scelta2`** · bottone di scelta
+> Chiedi dei suoi ultimi ricordi
+>
+> →
+
+**`CASA.spirito_esperimento.scelta3`** · bottone di scelta
+> Chiedi dei diari di ricerca
+>
+> →
+
+**`CASA.spirito_esperimento.scelta4`** · bottone di scelta
+> Torna a parlare d'altro
+>
+> →
+
+
+### La Casa Gigante › `spirito_foto`
+
+**`CASA.spirito_foto.1`** · battuta di Spirito dei giardini
+> La famiglia era composta dal signore, dalla signora e dalla piccola signorina Lylloh. La capofamiglia era la mia compagna di ricerche. Il signore e la signora sono sempre state persone molto sole... La signorina Lylloh ha ereditato questa solitudine.
+>
+> →
+
+**`CASA.spirito_foto.2`** · battuta di Spirito dei giardini
+> A causa della rigida educazione imposta dalla capofamiglia, la signorina Lylloh non ha mai conosciuto l'amicizia vera. È vero che non le mancava nulla, ma solo dal punto di vista materiale. Nel corso degli anni questa sua tristezza la consumò, fino al giorno della tragedia. Così perdemmo l'unica cosa di puro e innocente che restava in quella casa.
+>
+> →
+
+**`CASA.spirito_foto.scelta1`** · bottone di scelta
+> Resta ad ascoltarla
+>
+> →
+
+
+### La Casa Gigante › `spirito_ricordi`
+
+**`CASA.spirito_ricordi.1`** · battuta di Spirito dei giardini
+> Mentirei se ti dicessi che i miei ricordi sono nitidi: è passato troppo tempo. Ormai, quando provo a ricordare, riesco a mettere insieme solo piccoli ponti che si collegano tra di loro senza portare da nessuna parte. Giusto il necessario per esserti utile... hohoho...
+>
+> →
+
+**`CASA.spirito_ricordi.scelta1`** · bottone di scelta
+> Resta ad ascoltarla
+>
+> →
+
+
+### La Casa Gigante › `spirito_diari`
+
+**`CASA.spirito_diari.1`** · battuta di Spirito dei giardini
+> ... Hai trovato i miei diari? Hohoho... pensavo fossero stati buttati via. D'altronde non c'era più bisogno di me. Ormai puoi immaginare quanto male abbia causato con le mie ricerche.
+>
+> →
+
+**`CASA.spirito_diari.2`** · battuta di Yhvina
+> Non è colpa sua... lei voleva solo far del bene. Conosco fin troppo bene questa sensazione. Non ci si può far nulla, se non schiacciare con la forza le fonti che ti causano quel male.
+>
+> →
+
+**`CASA.spirito_diari.3`** · battuta di Spirito dei giardini
+> Non importa se all'inizio le intenzioni erano buone. Non passo giorno a pentirmi di non aver mai provato a fermare la vecchia signora... In parte mi sento responsabile. Sento che dentro hai una grande rabbia: ma non fare gli sbagli che ha fatto questa povera vecchia. Ricorda sempre che ci sono molte strade da percorrere.
+>
+> →
+
+**`CASA.spirito_diari.4`** · battuta di Yhvina
+> ...
+>
+> →
+
+**`CASA.spirito_diari.scelta1`** · bottone di scelta
+> Approfondisci la questione
+>
+> →
+
+**`CASA.spirito_diari.scelta2`** · bottone di scelta
+> Vai via
+>
+> →
+
+
+### La Casa Gigante › `spirito_storia`
+
+**`CASA.spirito_storia.1`** · battuta di Anonimo
+> Posso chiederti... come mai hai deciso di visitare questo posto?
+>
+> →
+
+**`CASA.spirito_storia.2`** · battuta di Yhvina
+> ... Non sono affari tuoi. Diciamo che è una questione personale: non mi interessa in quale posto finirò. Ma sradicherò qualunque follia causi la disfatta di questi mondi. A qualunque costo.
+>
+> →
+
+**`CASA.spirito_storia.3`** · battuta di Spirito dei giardini
+> ... Conosco quello sguardo... hohoho... Permettimi di raccontarti un'ultima storia.
+>
+> →
+
+**`CASA.spirito_storia.4`** · battuta di Spirito dei giardini
+> Sai, non sono sempre stata così aperta al dialogo. Per me esisteva soltanto il mio lavoro, le mie piante, le mie ricerche. Come un albero, radicata nei miei ideali, non mi sono mai accorta che ero consumata dai miei obiettivi. Mio marito morì in un tragico incidente, nel posto dove mia figlia venne assunta per lavorare a dei progetti di particolare importanza per quell'azienda... la Meteo Inc., una delle aziende più discusse tra le galassie per i loro metodi e le loro ricerche senza scrupoli.
+>
+> →
+
+**`CASA.spirito_storia.5`** · battuta di Spirito dei giardini
+> Mia figlia ti somigliava molto. Non aveva mai avuto un padre, e sua madre era totalmente assente: crebbe in un mondo freddo, dove ogni richiesta era un fastidio per gli altri. Ho perso il conto dei momenti importanti della sua vita che mi sono persa. Ricordo ancora le sue ultime parole:
+>
+> →
+
+**`CASA.spirito_storia.6`** · didascalia dell'illustrazione `art/illustrazioni/casa_figlia_addio.png`
+> «Sono venuta a salutarti... ma non perché nutra un qualunque sentimento nei tuoi confronti: per avvisarti che ti supererò, a qualunque costo. Non voglio mai più vederti. Questo è un addio: grazie di niente.»
+>
+> →
+
+**`CASA.spirito_storia.7`** · battuta di Spirito dei giardini
+> Da quel giorno non la vidi più. Pensai che fosse una cosa buona: era decisa, intelligente, determinata. Ma passati vari anni mi resi conto di cosa avevo fatto. Avevo trascorso la mia vita in un laboratorio, perdendo le persone che avevo più care senza rendermene conto, senza dargli importanza. E ora che le mie ricerche erano state gettate alle fiamme e trasformate in armi, cominciavo ad aprire gli occhi sulle cose veramente importanti.
+>
+> →
+
+**`CASA.spirito_storia.8`** · battuta di Yhvina
+> ...
+>
+> →
+
+**`CASA.spirito_storia.9`** · battuta di Spirito dei giardini
+> Ti chiedo scusa se mi sono permessa di raccontarti questa piccola storia, hohoho... Solo che mi ricordi davvero tanto mia figlia, e volevo forse illudermi di poter giustificarmi con te, come se fosse stata lei... hohoho...
+>
+> →
+
+**`CASA.spirito_storia.10`** · battuta di Yhvina
+> Non preoccuparti... va bene così. Ma non fraintendiamoci: io... non sono così buona da meritare la pietà di qualcuno.
+>
+> →
+
+**`CASA.spirito_storia.11`** · battuta di Spirito dei giardini
+> ...
+>
+> →
+
+**`CASA.spirito_storia.scelta1`** · bottone di scelta
+> Concludi in modo positivo
+>
+> →
+
+**`CASA.spirito_storia.scelta2`** · bottone di scelta
+> Lascia perdere
+>
+> →
+
+
+### La Casa Gigante › `spirito_storia_buona`
+
+**`CASA.spirito_storia_buona.1`** · battuta di Anonimo
+> Penso di poter dire la stessa cosa. Ma nonostante sia vero... solo il fatto di essere consapevoli di quel che si è, o di quel che si è fatto... forse ci dà un'ultima possibilità di aggiustare le cose.
+>
+> →
+
+**`CASA.spirito_storia_buona.2`** · battuta di Yhvina
+> ...
+>
+> →
+
+**`CASA.spirito_storia_buona.scelta1`** · bottone di scelta
+> Torna a parlare d'altro
+>
+> →
+
+
+### La Casa Gigante › `spirito_storia_lasciata`
+
+**`CASA.spirito_storia_lasciata.1`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`CASA.spirito_storia_lasciata.scelta1`** · bottone di scelta
+> Torna a parlare d'altro
+>
+> →
+
+
+### La Casa Gigante › `albero_addio`
+
+**`CASA.albero_addio.1`** · narrazione
+> L'albero dove prima era presente il volto della signora ora è avvizzito, e al suo posto è rimasto solo un accenno di quel volto. Sembra... felice?
+>
+> →
+
+**`CASA.albero_addio.2`** · battuta di Anonimo
+> Il diserbante deve aver colpito anche lei...
+>
+> →
+
+**`CASA.albero_addio.scena`** · quando ci torni («Osserva la scena»)
+> L'albero avvizzito. Sulla corteccia, l'accenno di un volto che sorride.
+>
+> →
+
+**`CASA.albero_addio.scelta1`** · bottone di scelta
+> Torna al giardino est
+>
+> →
+
+
+### La Casa Gigante › `albero_addio_buono`
+
+**`CASA.albero_addio_buono.1`** · battuta di Yhvina
+> ... Signora?
+>
+> →
+
+**`CASA.albero_addio_buono.2`** · battuta di Spirito dei giardini
+> ... Sento che in questi giardini è tornata la pace. Grazie a voi le mie piccole piante possono finalmente riposare.
+>
+> →
+
+**`CASA.albero_addio_buono.3`** · battuta di Spirito dei giardini
+> Sarà l'età, mio caro... ma ho tanto sonno. Forse è arrivato il momento anche per questa vecchia signora di prendersi una piccola pausa, dopo tutti questi anni di lavoro... hohoho... Ma prima, eccoti un piccolo regalo, per ringraziarti della tua gentilezza. Grazie per aver tenuto compagnia a questa povera vecchia.
+>
+> →
+
+**`CASA.albero_addio_buono.4`** · battuta di Spirito dei giardini
+> Guarda che belli, i miei fiori! Era passato così tanto tempo dall'ultima volta che li ho visti felici. Grazie, giovanotti... hohoho...
+>
+> →
+
+**`CASA.albero_addio_buono.5`** · narrazione
+> L'albero dove prima era presente il volto della signora ora è avvizzito, e al suo posto è rimasto solo un accenno di quel volto. Sembra... felice?
+>
+> →
+
+**`CASA.albero_addio_buono.6`** · battuta di Anonimo
+> Il diserbante deve aver colpito anche lei...
+>
+> →
+
+**`CASA.albero_addio_buono.7`** · battuta di Yhvina
+> ...
+>
+> →
+
+**`CASA.albero_addio_buono.8`** · battuta di Anonimo
+> ... ?
+>
+> →
+
+**`CASA.albero_addio_buono.9`** · battuta di Yhvina
+> Perché mi fissi, stupido!? Tutto questo polline mi ha stancato...
+>
+> →
+
+**`CASA.albero_addio_buono.10`** · battuta di Yhvina
+> Diamoci una mossa prima che mi arrabbi sul serio. Ne ho abbastanza di questo posto.
+>
+> →
+
+**`CASA.albero_addio_buono.11`** · battuta di Yhvina
+> ...
+>
+> →
+
+**`CASA.albero_addio_buono.scena`** · quando ci torni («Osserva la scena»)
+> L'albero avvizzito. Sulla corteccia, l'accenno di un volto che sorride.
+>
+> →
+
+**`CASA.albero_addio_buono.scelta1`** · bottone di scelta (fa raccogliere Fiore di luna, Fiore di luna, Fiore di luna)
+> Raccogli il regalo della custode
+>
+> →
+
+**`CASA.albero_addio_buono.scelta2`** · bottone di scelta
+> Torna al giardino est
+>
+> →
+
+
+### La Casa Gigante › `giardino_ovest`
+
+**`CASA.giardino_ovest.1`** · narrazione
+> Il sentiero a ovest esce dal folto e si allarga su una radura lastricata. In fondo, basso e lungo, un edificio con le finestre a nastro: non è parte della casa, e non prova nemmeno a sembrarlo.
+>
+> →
+
+**`CASA.giardino_ovest.scena`** · quando ci torni («Osserva la scena»)
+> La radura lastricata a ovest, e in fondo il grande laboratorio.
+>
+> →
+
+**`CASA.giardino_ovest.scelta1`** · bottone di scelta
+> Entra nel grande laboratorio
+>
+> →
+
+**`CASA.giardino_ovest.scelta2`** · bottone di scelta
+> Torna al giardino
+>
+> →
+
+
+### La Casa Gigante › `laboratorio`
+
+**`CASA.laboratorio.1`** · narrazione
+> Banconi in fila, vetreria ancora al suo posto, cartelle appese a ogni postazione. Qui dentro non è passato nessuno a portare via niente: semplicemente, un giorno, non è più tornato nessuno.
+>
+> →
+
+**`CASA.laboratorio.2`** · battuta di Anonimo
+> Un centro di ricerca vero e proprio... e in ottimo stato. Chi lavorava qui non se n'è andato di fretta: se n'è andato e basta.
+>
+> →
+
+**`CASA.laboratorio.scena`** · quando ci torni («Osserva la scena»)
+> Il grande laboratorio: banconi in fila, e le cartelle ancora appese.
+>
+> →
+
+**`CASA.laboratorio.scelta1`** · bottone di scelta (fa raccogliere Diari di ricerca)
+> Perlustra i banconi
+>
+> →
+
+**`CASA.laboratorio.scelta2`** · bottone di scelta
+> Fruga in un armadietto del personale
+>
+> →
+
+**`CASA.laboratorio.scelta3`** · bottone di scelta
+> Entra nella sala delle matrici
+>
+> →
+
+**`CASA.laboratorio.scelta4`** · bottone di scelta
+> Torna al giardino ovest
+>
+> →
+
+
+### La Casa Gigante › `sala_matrici`
+
+**`CASA.sala_matrici.1`** · narrazione
+> Una stanza piccola e schermata, piena di macchine da incisione. Su un ripiano, una fila di piastrine identiche: le chiavi di accesso della magione, tutte vergini, tutte mai assegnate a nessuno.
+>
+> →
+
+**`CASA.sala_matrici.scena`** · quando ci torni («Osserva la scena»)
+> La sala delle matrici: le macchine da incisione e le piastrine mai assegnate.
+>
+> →
+
+**`CASA.sala_matrici.scelta1`** · bottone di scelta (fa raccogliere Matrice di accesso)
+> Prendi una matrice dal ripiano
+>
+> →
+
+**`CASA.sala_matrici.scelta2`** · bottone di scelta
+> Prosegui oltre la sala
+>
+> →
+
+**`CASA.sala_matrici.scelta3`** · bottone di scelta
+> Torna nel laboratorio
+>
+> →
+
+
+### La Casa Gigante › `deposito_chimico`
+
+**`CASA.deposito_chimico.1`** · narrazione
+> Un deposito chimico dietro la sala delle matrici. Taniche allineate contro la parete, tutte con la stessa etichetta scritta a mano e la stessa dicitura sotto: «uso interno — contenimento vivai».
+>
+> →
+
+**`CASA.deposito_chimico.scena`** · quando ci torni («Osserva la scena»)
+> Il deposito chimico. Le taniche contro la parete, allineate.
+>
+> →
+
+**`CASA.deposito_chimico.scelta1`** · bottone di scelta (fa raccogliere Diserbante dei vivai)
+> Prendi una tanica di diserbante
+>
+> →
+
+**`CASA.deposito_chimico.scelta2`** · bottone di scelta
+> Torna alla sala delle matrici
+>
+> →
+
+
+### La Casa Gigante › `giardino_nord`
+
+**`CASA.giardino_nord.1`** · narrazione
+> Il sentiero a nord finisce contro una parete viva: rovi fitti come una muraglia, che salgono per tre piani e coprono per intero la struttura di vetro dietro di essi.
+>
+> →
+
+**`CASA.giardino_nord.scena`** · quando ci torni («Osserva la scena»)
+> La muraglia di rovi a nord, e il vetro del vivaio appena visibile dietro.
+>
+> →
+
+**`CASA.giardino_nord.scelta1`** · bottone di scelta
+> Avvicinati ai rovi
+>
+> →
+
+**`CASA.giardino_nord.scelta2`** · bottone di scelta
+> Torna al giardino
+>
+> →
+
+
+### La Casa Gigante › `vivaio_ingresso`
+
+**`CASA.vivaio_ingresso.1`** · battuta di Anonimo
+> Cosa sono queste piante? Sembrano crescere continuamente...
+>
+> →
+
+**`CASA.vivaio_ingresso.scena`** · quando ci torni («Osserva la scena»)
+> Le piante impediscono il passaggio: colpirle è inutile.
+>
+> →
+
+**`CASA.vivaio_ingresso.scelta1`** · bottone di scelta
+> Prova a diradare le piante con un colpo
+>
+> →
+
+**`CASA.vivaio_ingresso.scelta2`** · bottone di scelta
+> Versa il diserbante sui rovi
+>
+> →
+
+**`CASA.vivaio_ingresso.scelta3`** · bottone di scelta
+> Torna al giardino nord
+>
+> →
+
+
+### La Casa Gigante › `vivaio_rovi`
+
+**`CASA.vivaio_rovi.1`** · battuta di Anonimo
+> !!!
+>
+> →
+
+**`CASA.vivaio_rovi.2`** · battuta di Anonimo
+> Tutto inutile: sembra che reagiscano, e se distrutte riescono a rigenerarsi immediatamente.
+>
+> →
+
+**`CASA.vivaio_rovi.scelta1`** · bottone di scelta
+> Torna a guardare i rovi
+>
+> →
+
+
+### La Casa Gigante › `vivaio_varco`
+
+**`CASA.vivaio_varco.1`** · narrazione
+> Il diserbante affonda nel terreno ai piedi della muraglia. Per un momento non succede niente. Poi i rovi si fermano: non appassiscono, si fermano soltanto.
+>
+> →
+
+**`CASA.vivaio_varco.2`** · battuta di Anonimo
+> Le piante hanno smesso di crescere momentaneamente. È il mio momento per colpirle.
+>
+> →
+
+**`CASA.vivaio_varco.scelta1`** · bottone di scelta
+> Colpisci le piante
+>
+> →
+
+
+### La Casa Gigante › `vivaio_apertura`
+
+**`CASA.vivaio_apertura.1`** · narrazione
+> Le piante si seccano e lasciano una piccola apertura, che ti permette di entrare nel vivaio.
+>
+> →
+
+**`CASA.vivaio_apertura.scelta1`** · bottone di scelta
+> Entra nel vivaio
+>
+> →
+
+**`CASA.vivaio_apertura.scelta2`** · bottone di scelta
+> Torna al giardino nord
+>
+> →
+
+
+### La Casa Gigante › `vivaio_1`
+
+**`CASA.vivaio_1.1`** · narrazione
+> Il primo piano del vivaio: vasche lunghe quanto la sala, e sopra ognuna un cartellino di specie che non hai mai sentito nominare. Quello che ci cresce dentro adesso non è quello che c'era scritto.
+>
+> →
+
+**`CASA.vivaio_1.scena`** · quando ci torni («Osserva la scena»)
+> Il primo piano del vivaio, le vasche lunghe e i cartellini illeggibili.
+>
+> →
+
+**`CASA.vivaio_1.scelta1`** · bottone di scelta
+> Perlustra il piano
+>
+> →
+
+**`CASA.vivaio_1.scelta2`** · bottone di scelta
+> Prosegui al piano inferiore
+>
+> →
+
+**`CASA.vivaio_1.scelta3`** · bottone di scelta
+> Esci dal vivaio
+>
+> →
+
+
+### La Casa Gigante › `vivaio_1_perlustra`
+
+**`CASA.vivaio_1_perlustra.1`** · battuta di Anonimo
+> Non sembra esserci nulla di interessante, qui...
+>
+> →
+
+**`CASA.vivaio_1_perlustra.scelta1`** · bottone di scelta
+> Torna a guardarti intorno
+>
+> →
+
+
+### La Casa Gigante › `vivaio_2`
+
+**`CASA.vivaio_2.1`** · narrazione
+> Il secondo piano è più buio: le vetrate sono coperte dai rovi anche da dentro.
+>
+> →
+
+**`CASA.vivaio_2.scena`** · quando ci torni («Osserva la scena»)
+> Il secondo piano del vivaio, con le vetrate coperte dai rovi.
+>
+> →
+
+**`CASA.vivaio_2.scelta1`** · bottone di scelta
+> Perlustra il piano
+>
+> →
+
+**`CASA.vivaio_2.scelta2`** · bottone di scelta
+> Risali al primo piano
+>
+> →
+
+
+### La Casa Gigante › `vivaio_2_perlustra`
+
+**`CASA.vivaio_2_perlustra.1`** · narrazione
+> C'è un buco, dove prima deve esserci stato un ascensore. Vuoi proseguire?
+>
+> →
+
+**`CASA.vivaio_2_perlustra.scelta1`** · bottone di scelta
+> Vai giù per il buco
+>
+> →
+
+**`CASA.vivaio_2_perlustra.scelta2`** · bottone di scelta
+> Torna a guardarti intorno
+>
+> →
+
+
+### La Casa Gigante › `vivaio_3`
+
+**`CASA.vivaio_3.1`** · battuta di Anonimo
+> Più giù vedi l'ascensore a pezzi: questo deve essere il piano più basso... Cosa ha cercato di uscire da qui?
+>
+> →
+
+**`CASA.vivaio_3.2`** · battuta di Yhvina
+> Sta' attento... yaaawn. Percepisco che qualcosa di forte si trova più avanti.
+>
+> →
+
+**`CASA.vivaio_3.3`** · narrazione
+> Ti ritrovi in una stanza piena di piante come quelle che avvolgono l'intero vivaio.
+>
+> →
+
+**`CASA.vivaio_3.scena`** · quando ci torni («Osserva la scena»)
+> Il fondo del vivaio: l'ascensore a pezzi, e la stanza invasa dalle piante.
+>
+> →
+
+**`CASA.vivaio_3.scelta1`** · bottone di scelta
+> Perlustra la stanza
+>
+> →
+
+**`CASA.vivaio_3.scelta2`** · bottone di scelta
+> Risali al secondo piano
+>
+> →
+
+
+### La Casa Gigante › `vivaio_fondo`
+
+**`CASA.vivaio_fondo.1`** · battuta di Anonimo
+> Questa stanza sembra ricoperta da queste fastidiose piante... Forse sarebbe il caso di estinguerle una volta per tutte.
+>
+> →
+
+**`CASA.vivaio_fondo.scelta1`** · bottone di scelta
+> Usa il diserbante sul terreno
+>
+> →
+
+**`CASA.vivaio_fondo.scelta2`** · bottone di scelta
+> Risali
+>
+> →
+
+
+### La Casa Gigante › `volto_appare`
+
+**`CASA.volto_appare.1`** · battuta di Yhvina
+> ... Sembra che qualunque cosa controlli queste piante non abbia gradito le tue doti da giardiniere.
+>
+> →
+
+**`CASA.volto_appare.2`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`CASA.volto_appare.3`** · narrazione
+> Qualcosa prende forma sulla parete...
+>
+> →
+
+**`CASA.volto_appare.4`** · battuta di Volto sulla parete
+> Chi siete... Siete venuti a rubare i risultati delle mie ricerche, vero? Schifosi...
+>
+> →
+
+**`CASA.volto_appare.5`** · battuta di Anonimo
+> ... Fatti avanti e fai silenzio.
+>
+> →
+
+**`CASA.volto_appare.6`** · battuta di Volto sulla parete
+> Come osi, piccolo stupido impudente... Tu non sai chi hai davanti!
+>
+> →
+
+
+### La Casa Gigante › `dopo_volto`
+
+**`CASA.dopo_volto.1`** · battuta di Yhvina
+> ... Che faticaccia. Le erbacce non muoiono mai.
+>
+> →
+
+**`CASA.dopo_volto.scena`** · quando ci torni («Osserva la scena»)
+> La stanza in fondo al vivaio. Sulla parete non è rimasto niente.
+>
+> →
+
+**`CASA.dopo_volto.scelta1`** · bottone di scelta (fa raccogliere ID della capofamiglia, Fiala HP, Fiala HP)
+> Perlustra la stanza
+>
+> →
+
+**`CASA.dopo_volto.scelta2`** · bottone di scelta
+> Risali
+>
+> →
+
+
+### La Casa Gigante › `id_card_trovata`
+
+**`CASA.id_card_trovata.1`** · narrazione
+> Nel cassetto di una delle scrivanie trovi l'ID della capofamiglia, coperto di piccole piante.
+>
+> →
+
+**`CASA.id_card_trovata.scelta1`** · bottone di scelta
+> Risali
+>
+> →
+
+
+### La Casa Gigante › `vivaio_fondo_dopo`
+
+**`CASA.vivaio_fondo_dopo.1`** · narrazione
+> La stanza in fondo al vivaio. Il terreno è secco, e sulla parete non prende più forma niente.
+>
+> →
+
+**`CASA.vivaio_fondo_dopo.scena`** · quando ci torni («Osserva la scena»)
+> La stanza in fondo al vivaio. Sulla parete non è rimasto niente.
+>
+> →
+
+**`CASA.vivaio_fondo_dopo.scelta1`** · bottone di scelta (fa raccogliere ID della capofamiglia, Fiala HP, Fiala HP)
+> Perlustra la stanza
+>
+> →
+
+**`CASA.vivaio_fondo_dopo.scelta2`** · bottone di scelta
+> Risali
+>
+> →
+
+
+### La Casa Gigante › `botola_chiusa`
+
+**`CASA.botola_chiusa.1`** · narrazione
+> La botola non ha maniglia: solo una fessura sottile sul bordo, e sopra la fessura una spia che continua a lampeggiare piano, da anni.
+>
+> →
+
+**`CASA.botola_chiusa.2`** · battuta di Anonimo
+> Una chiave di accesso. Certo che ci voleva una chiave di accesso...
+>
+> →
+
+**`CASA.botola_chiusa.scelta1`** · bottone di scelta
+> Torna alla stanza dei giochi
+>
+> →
+
+
+### La Casa Gigante › `lettore_vuoto`
+
+**`CASA.lettore_vuoto.1`** · narrazione
+> Infili la matrice nella fessura. La spia smette di lampeggiare e resta accesa, fissa, per qualche secondo.
+>
+> →
+
+**`CASA.lettore_vuoto.2`** · narrazione
+> «UTENTE NON IDENTIFICATO. ID VUOTO.»
+>
+> →
+
+**`CASA.lettore_vuoto.3`** · battuta di Anonimo
+> Manca il chip di identificazione. La piastrina da sola non dice a nessuno chi sono.
+>
+> →
+
+**`CASA.lettore_vuoto.scelta1`** · bottone di scelta
+> Torna alla stanza dei giochi
+>
+> →
+
+
+### La Casa Gigante › `spirito_chiacchiere`
+
+**`CASA.spirito_chiacchiere.1`** · battuta di Spirito dei giardini
+> Hohoho... Non serve sempre chiedere qualcosa, sa? Una vecchia si accontenta anche solo di sentire dei passi che si fermano.
+>
+> →
+
+**`CASA.spirito_chiacchiere.scelta1`** · bottone di scelta
+> Resta ancora un po'
 >
 > →
 
@@ -6141,6 +7484,40 @@ fondo a questo documento.
 
 **`COMP.stanza_giochi.5`** · narrazione
 > Non ha perso molto tempo... Ma il risultato c'è.
+>
+> →
+
+
+### Nella stanza `spirito_hub`
+
+**`COMP.spirito_hub.1`** · battuta di Yhvina
+> Sai, quella dolce signora mi sta proprio simpatica... yaaawn...
+>
+> →
+
+**`COMP.spirito_hub.2`** · battuta di Yhvina
+> Dovresti prendere esempio. Lei sì che sa riconoscere i talenti delle persone.
+>
+> →
+
+**`COMP.spirito_hub.3`** · battuta di Anonimo
+> ...
+>
+> →
+
+
+### Nella stanza `albero_addio`
+
+**`COMP.albero_addio.1`** · battuta di Yhvina
+> Un vero peccato. Mi stava cominciando a essere molto simpatica... yaaawn...
+>
+> →
+
+
+### Nella stanza `albero_addio_buono`
+
+**`COMP.albero_addio_buono.1`** · battuta di Anonimo
+> ... Forse è meglio non parlarle, ora.
 >
 > →
 
@@ -7287,6 +8664,165 @@ carte collezionabili.
 
 **`CRE.ombra_del_passato.carta.testo`** · retro della carta collezionabile
 > Le ombre del passato assumono la forma di persone ricordate con odio, parlano di fatti che hanno lasciato dei segni irremovibili nell'anima di qualcuno e sono forti quanto l'odio provato nei confronti di quelle persone.
+>
+> →
+
+
+### Donna Spinosa  <sub>`donna_spinosa`</sub>
+
+**`CRE.donna_spinosa.nome`** · nome a schermo
+> Donna Spinosa
+>
+> →
+
+**`CRE.donna_spinosa.nome_breve`** · nome corto (schede in combattimento)
+> Donna Spinosa
+>
+> →
+
+**`CRE.donna_spinosa.descrizione`** · voce del bestiario
+> Cresciuta in una vasca con un cartellino che diceva un'altra cosa. Sta ferma finché non le passi accanto, e allora si ricorda di essere stata progettata.
+>
+> →
+
+**`CRE.donna_spinosa.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> Chi eri?
+>
+> →
+
+**`CRE.donna_spinosa.studio1.risposta`** · Studia › cosa risponde
+> Muove le labbra, ma quello che ne esce è solo un fruscio di foglie.
+>
+> →
+
+**`CRE.donna_spinosa.studio2.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (cerchi il cartellino della sua vasca)
+>
+> →
+
+**`CRE.donna_spinosa.studio2.risposta`** · Studia › cosa risponde
+> La specie dichiarata sul cartellino non ha niente a che vedere con quello che ti sta davanti.
+>
+> →
+
+**`CRE.donna_spinosa.mossa1.testo`** · cosa si legge quando la usa
+> Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo.
+>
+> →
+
+**`CRE.donna_spinosa.carta.nome`** · nome sulla carta collezionabile
+> Donna Spinosa
+>
+> →
+
+**`CRE.donna_spinosa.carta.testo`** · retro della carta collezionabile
+> Vivaio 3, vasca 11. Specie dichiarata: ornamentale.
+>
+> →
+
+
+### Volto sulla parete  <sub>`volto_sulla_parete`</sub>
+
+**`CRE.volto_sulla_parete.nome`** · nome a schermo
+> Volto sulla parete
+>
+> →
+
+**`CRE.volto_sulla_parete.nome_breve`** · nome corto (schede in combattimento)
+> Il volto
+>
+> →
+
+**`CRE.volto_sulla_parete.descrizione`** · voce del bestiario
+> Quello che è rimasto della capofamiglia, cresciuto dentro la parete insieme a tutto il resto. Difende ancora i risultati di ricerche che non servono più a nessuno.
+>
+> →
+
+**`CRE.volto_sulla_parete.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (la osservi)
+>
+> →
+
+**`CRE.volto_sulla_parete.studio1.risposta`** · Studia › cosa risponde
+> Sembra il volto di una persona anziana: trasuda odio e rabbia da ogni parte.
+>
+> →
+
+**`CRE.volto_sulla_parete.studio2.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> Cosa è successo in questo posto?
+>
+> →
+
+**`CRE.volto_sulla_parete.studio2.risposta`** · Studia › cosa risponde
+> Fastidiosi parassiti... sparite!
+>
+> →
+
+**`CRE.volto_sulla_parete.studio3.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> Ho capito: sei quella folle che ha rovinato questo posto.
+>
+> →
+
+**`CRE.volto_sulla_parete.studio3.risposta`** · Studia › cosa risponde
+> Eh?! Chi ti credi di essere. Sudicio insetto!
+>
+> →
+
+**`CRE.volto_sulla_parete.studio4.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> Non ti è bastato rovinare la tua famiglia?
+>
+> →
+
+**`CRE.volto_sulla_parete.studio4.risposta`** · Studia › cosa risponde
+> Piccolo stupido: delle parole di voi scarafaggi non me ne faccio niente!
+>
+> →
+
+**`CRE.volto_sulla_parete.studio5.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
+> (cerchi un appiglio, un rimorso, qualcosa)
+>
+> →
+
+**`CRE.volto_sulla_parete.studio5.risposta`** · Studia › cosa risponde
+> C'è solo malvagità in questo essere. Non hai alternative.
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa1.testo`** · cosa si legge quando la usa
+> Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore.
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa2.testo`** · cosa si legge quando la usa
+> La parete si apre e sputa una nube di spore su tutta la stanza.
+>
+> →
+
+**`CRE.volto_sulla_parete.carta.nome`** · nome sulla carta collezionabile
+> Volto sulla parete
+>
+> →
+
+**`CRE.volto_sulla_parete.carta.testo`** · retro della carta collezionabile
+> Capo ricerca. Ha firmato ogni autorizzazione, compresa l'ultima.
+>
+> →
+
+
+### Spirito dei giardini  <sub>`spirito_dei_giardini`</sub>
+
+**`CRE.spirito_dei_giardini.nome`** · nome a schermo
+> Spirito dei giardini
+>
+> →
+
+**`CRE.spirito_dei_giardini.nome_breve`** · nome corto (schede in combattimento)
+> la custode
+>
+> →
+
+**`CRE.spirito_dei_giardini.descrizione`** · voce del bestiario
+> La vecchia custode dei giardini della magione, e un tempo capo ricerca al fianco della capofamiglia. Innaffia le stesse piante da più anni di quanti ne sappia contare.
 >
 > →
 
@@ -8570,6 +10106,71 @@ carte collezionabili.
 > →
 
 
+### Fiore di luna  <sub>`fiore_di_luna`</sub>
+
+**`OGG.fiore_di_luna.nome`** · nome nella sacca e nei negozi
+> Fiore di luna
+>
+> →
+
+**`OGG.fiore_di_luna.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Un fiore comune, usato per trattare lievi infezioni o avvelenamenti. Oltre a essere bello, può anche essere molto utile.
+>
+> →
+
+
+### Diserbante dei vivai  <sub>`diserbante`</sub>
+
+**`OGG.diserbante.nome`** · nome nella sacca e nei negozi
+> Diserbante dei vivai
+>
+> →
+
+**`OGG.diserbante.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Una tanica dai laboratori della magione: «uso interno — contenimento vivai». Sviluppato dai capi ricerca per fermare quello che coltivavano, nel caso qualcuno avesse perso il controllo. Qualcuno l'ha perso.
+>
+> →
+
+
+### Matrice di accesso  <sub>`matrice`</sub>
+
+**`OGG.matrice.nome`** · nome nella sacca e nei negozi
+> Matrice di accesso
+>
+> →
+
+**`OGG.matrice.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Una piastrina mai assegnata a nessuno, presa dalla sala delle matrici. Da sola apre solo un messaggio di errore: le manca il chip di identificazione di chi dovrebbe portarla.
+>
+> →
+
+
+### ID della capofamiglia  <sub>`id_card`</sub>
+
+**`OGG.id_card.nome`** · nome nella sacca e nei negozi
+> ID della capofamiglia
+>
+> →
+
+**`OGG.id_card.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Il chip di identificazione della padrona di casa, trovato in fondo al vivaio, coperto di piccole piante. Con una matrice, apre tutto quello che lei poteva aprire.
+>
+> →
+
+
+### Diari di ricerca  <sub>`diari_di_ricerca`</sub>
+
+**`OGG.diari_di_ricerca.nome`** · nome nella sacca e nei negozi
+> Diari di ricerca
+>
+> →
+
+**`OGG.diari_di_ricerca.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> I quaderni della capo ricerca dei giardini: anni di medicinali a basso costo per i pianeti più poveri, e poi, senza che nulla lo annunci, le prime pagine sui veleni.
+>
+> →
+
+
 ### Fiala misteriosa  <sub>`fiala_misteriosa`</sub>
 
 **`OGG.fiala_misteriosa.nome`** · nome nella sacca e nei negozi
@@ -9337,6 +10938,36 @@ carte collezionabili.
 >
 > →
 
+**`APP.casa_botola.titolo`** · titolo dell'appunto
+> La botola sotto i cuscini
+>
+> →
+
+**`APP.casa_botola.testo`** · il pensiero per esteso
+> Sotto i cuscini della stanza dei giochi c'è una botola senza maniglia: solo una fessura e una spia che lampeggia da anni. Serve una chiave di accesso di quelle che i signori di questa casa si facevano fabbricare in proprio, e le facevano nel centro di ricerca in fondo ai giardini.
+>
+> →
+
+**`APP.casa_custode.titolo`** · titolo dell'appunto
+> La custode dei giardini
+>
+> →
+
+**`APP.casa_custode.testo`** · il pensiero per esteso
+> C'è un volto dentro la corteccia dell'albero grande, in fondo al giardino est. Innaffia le stesse piante da prima che questa casa diventasse quello che è: era capo ricerca, e l'hanno demansionata per essersi rifiutata di lavorare a quello che le chiedevano. Sa più cose di chiunque altro qui dentro, e non ha nessuna fretta di raccontarle.
+>
+> →
+
+**`APP.casa_vivaio.titolo`** · titolo dell'appunto
+> I rovi del vivaio
+>
+> →
+
+**`APP.casa_vivaio.testo`** · il pensiero per esteso
+> Il giardino nord finisce contro una muraglia viva che copre l'intero vivaio: colpirla non serve, si rigenera mentre la guardi. Nei laboratori dovrebbe esserci un diserbante sviluppato apposta, quando ancora qualcuno prevedeva che questo potesse succedere.
+>
+> →
+
 **`APP.kizako.titolo`** · titolo dell'appunto
 > Kizako Industries — Ala Dimenticata
 >
@@ -9504,6 +11135,141 @@ carte collezionabili.
 
 **`LUO.OSS.ponte_approccio`** · nome di una stanza sulla mappa della zona
 > Il grande ponte marcio
+>
+> →
+
+**`LUO.CASA.soglia`** · nome di una stanza sulla mappa della zona
+> La soglia
+>
+> →
+
+**`LUO.CASA.salone`** · nome di una stanza sulla mappa della zona
+> Il salone
+>
+> →
+
+**`LUO.CASA.sala_principale`** · nome di una stanza sulla mappa della zona
+> Sala principale
+>
+> →
+
+**`LUO.CASA.ala_destra`** · nome di una stanza sulla mappa della zona
+> Ala destra
+>
+> →
+
+**`LUO.CASA.ala_sinistra`** · nome di una stanza sulla mappa della zona
+> Ala sinistra
+>
+> →
+
+**`LUO.CASA.cucina`** · nome di una stanza sulla mappa della zona
+> Cucina
+>
+> →
+
+**`LUO.CASA.scala`** · nome di una stanza sulla mappa della zona
+> La scala
+>
+> →
+
+**`LUO.CASA.grande_bagno`** · nome di una stanza sulla mappa della zona
+> Grande bagno
+>
+> →
+
+**`LUO.CASA.stanza_giochi`** · nome di una stanza sulla mappa della zona
+> Stanza dei giochi
+>
+> →
+
+**`LUO.CASA.soffitta`** · nome di una stanza sulla mappa della zona
+> Soffitta
+>
+> →
+
+**`LUO.CASA.attico`** · nome di una stanza sulla mappa della zona
+> Attico
+>
+> →
+
+**`LUO.CASA.camera_da_letto`** · nome di una stanza sulla mappa della zona
+> Camera da letto
+>
+> →
+
+**`LUO.CASA.stanza_studi`** · nome di una stanza sulla mappa della zona
+> Stanza degli studi
+>
+> →
+
+**`LUO.CASA.tunnel`** · nome di una stanza sulla mappa della zona
+> Il tunnel
+>
+> →
+
+**`LUO.CASA.altare`** · nome di una stanza sulla mappa della zona
+> L'altare
+>
+> →
+
+**`LUO.CASA.giardino_ingresso`** · nome di una stanza sulla mappa della zona
+> Verso i giardini
+>
+> →
+
+**`LUO.CASA.giardino`** · nome di una stanza sulla mappa della zona
+> Il giardino
+>
+> →
+
+**`LUO.CASA.giardino_est`** · nome di una stanza sulla mappa della zona
+> Giardino est
+>
+> →
+
+**`LUO.CASA.albero_voce`** · nome di una stanza sulla mappa della zona
+> L'albero grande
+>
+> →
+
+**`LUO.CASA.giardino_ovest`** · nome di una stanza sulla mappa della zona
+> Giardino ovest
+>
+> →
+
+**`LUO.CASA.laboratorio`** · nome di una stanza sulla mappa della zona
+> Il grande laboratorio
+>
+> →
+
+**`LUO.CASA.sala_matrici`** · nome di una stanza sulla mappa della zona
+> Sala delle matrici
+>
+> →
+
+**`LUO.CASA.deposito_chimico`** · nome di una stanza sulla mappa della zona
+> Deposito chimico
+>
+> →
+
+**`LUO.CASA.giardino_nord`** · nome di una stanza sulla mappa della zona
+> Giardino nord
+>
+> →
+
+**`LUO.CASA.vivaio_1`** · nome di una stanza sulla mappa della zona
+> Vivaio, primo piano
+>
+> →
+
+**`LUO.CASA.vivaio_2`** · nome di una stanza sulla mappa della zona
+> Vivaio, secondo piano
+>
+> →
+
+**`LUO.CASA.vivaio_3`** · nome di una stanza sulla mappa della zona
+> Fondo del vivaio
 >
 > →
 
@@ -9790,6 +11556,52 @@ squarcio: da lì in poi il bottone «Parla con la squadra» c'è ovunque, e dent
 | `ricordo_concluso_buono` | — | **muta** |
 | `congedo_yhvina` | 2 battute | **muta** |
 | `cacciata` | — | **muta** |
+| `giardino_ingresso` | — | **muta** |
+| `giardino` | — | **muta** |
+| `giardino_est` | — | **muta** |
+| `fiori_di_luna` | — | **muta** |
+| `albero_voce` | — | **muta** |
+| `voce_ignorata` | — | **muta** |
+| `voce_avvicinati` | — | **muta** |
+| `albero_voce_spilla` | — | **muta** |
+| `spirito_rivelato` | — | **muta** |
+| `spirito_hub` | — | dice qualcosa |
+| `spirito_indizio_yhvina` | — | **muta** |
+| `spirito_laboratori` | 6 battute | **muta** |
+| `spirito_laboratori_ancora` | — | **muta** |
+| `spirito_matrice` | 2 battute | **muta** |
+| `spirito_vivaio_ancora` | — | **muta** |
+| `spirito_esperimento` | — | **muta** |
+| `spirito_foto` | — | **muta** |
+| `spirito_ricordi` | — | **muta** |
+| `spirito_diari` | 2 battute | **muta** |
+| `spirito_storia` | 3 battute | **muta** |
+| `spirito_storia_buona` | 1 battuta | **muta** |
+| `spirito_storia_lasciata` | — | **muta** |
+| `albero_addio` | — | dice qualcosa |
+| `albero_addio_buono` | 5 battute | dice qualcosa |
+| `giardino_ovest` | — | **muta** |
+| `laboratorio` | — | **muta** |
+| `sala_matrici` | — | **muta** |
+| `deposito_chimico` | — | **muta** |
+| `giardino_nord` | — | **muta** |
+| `vivaio_ingresso` | — | **muta** |
+| `vivaio_rovi` | — | **muta** |
+| `vivaio_varco` | — | **muta** |
+| `vivaio_apertura` | — | **muta** |
+| `vivaio_1` | — | **muta** |
+| `vivaio_1_perlustra` | — | **muta** |
+| `vivaio_2` | — | **muta** |
+| `vivaio_2_perlustra` | — | **muta** |
+| `vivaio_3` | 1 battuta | **muta** |
+| `vivaio_fondo` | — | **muta** |
+| `volto_appare` | 1 battuta | **muta** |
+| `dopo_volto` | 1 battuta | **muta** |
+| `id_card_trovata` | — | **muta** |
+| `vivaio_fondo_dopo` | — | **muta** |
+| `botola_chiusa` | — | **muta** |
+| `lettore_vuoto` | — | **muta** |
+| `spirito_chiacchiere` | — | **muta** |
 
 
 ## Tutte le stanze dove i compagni non hanno niente da dire
@@ -9813,7 +11625,7 @@ sentire una volta sola. L'introduzione e il tutorial non compaiono qui: là sei 
 quindi il bottone non esiste proprio.
 
 
-### La Casa Gigante — 32 stanze mute
+### La Casa Gigante — 75 stanze mute
 
 - `soglia` — La facciata della grande casa ti sovrasta, storta, con tutte le finestre buie tranne una.
 - `salone` — Sembra tutto abbandonato da tantissimo tempo... la polvere è così fitta da sembrare una leggera…
@@ -9847,6 +11659,49 @@ quindi il bottone non esiste proprio.
 - `ricordo_concluso_buono` — La bambola comincia a sfilacciarsi lo stesso, ma questa volta senza opporre resistenza: le ombre…
 - `congedo_yhvina` — Dove c'era Yhvina non è rimasto niente. Il tuo compito, qui, è terminato.
 - `cacciata` — Qualcosa ti solleva di peso e la casa ti scaraventa fuori, oltre lo squarcio. La ninna nanna…
+- `giardino_ingresso` — Il vialetto che porta al giardino, sul fianco della casa.
+- `giardino` — Il giardino sotto la luna. Tre sentieri: est, ovest, nord.
+- `giardino_est` — Il giardino est. Il silenzio, qui, è più fitto che altrove.
+- `fiori_di_luna` — Tra l'erba alta, due fiori pallidi si aprono solo di notte.
+- `albero_voce` — La profondità del giardino est. L'albero grande in fondo, e niente altro.
+- `voce_ignorata`
+- `voce_avvicinati` — Cerchi ovunque... ma sembra che la voce non ci sia più. Qualunque cosa fosse, ormai è andata via.
+- `albero_voce_spilla` — La profondità del giardino est. L'albero grande in fondo, e niente altro.
+- `spirito_rivelato` — Le foglie cominciano a muoversi freneticamente e il vento si alza lievemente... Dall'albero…
+- `spirito_indizio_yhvina`
+- `spirito_laboratori`
+- `spirito_laboratori_ancora`
+- `spirito_matrice`
+- `spirito_vivaio_ancora`
+- `spirito_esperimento` — Il volto della vecchia custode, sulla corteccia dell'albero grande.
+- `spirito_foto`
+- `spirito_ricordi`
+- `spirito_diari`
+- `spirito_storia`
+- `spirito_storia_buona`
+- `spirito_storia_lasciata`
+- `giardino_ovest` — La radura lastricata a ovest, e in fondo il grande laboratorio.
+- `laboratorio` — Il grande laboratorio: banconi in fila, e le cartelle ancora appese.
+- `sala_matrici` — La sala delle matrici: le macchine da incisione e le piastrine mai assegnate.
+- `deposito_chimico` — Il deposito chimico. Le taniche contro la parete, allineate.
+- `giardino_nord` — La muraglia di rovi a nord, e il vetro del vivaio appena visibile dietro.
+- `vivaio_ingresso` — Le piante impediscono il passaggio: colpirle è inutile.
+- `vivaio_rovi`
+- `vivaio_varco` — Il diserbante affonda nel terreno ai piedi della muraglia. Per un momento non succede niente. Poi i…
+- `vivaio_apertura` — Le piante si seccano e lasciano una piccola apertura, che ti permette di entrare nel vivaio.
+- `vivaio_1` — Il primo piano del vivaio, le vasche lunghe e i cartellini illeggibili.
+- `vivaio_1_perlustra`
+- `vivaio_2` — Il secondo piano del vivaio, con le vetrate coperte dai rovi.
+- `vivaio_2_perlustra` — C'è un buco, dove prima deve esserci stato un ascensore. Vuoi proseguire?
+- `vivaio_3` — Il fondo del vivaio: l'ascensore a pezzi, e la stanza invasa dalle piante.
+- `vivaio_fondo`
+- `volto_appare` — Qualcosa prende forma sulla parete...
+- `dopo_volto` — La stanza in fondo al vivaio. Sulla parete non è rimasto niente.
+- `id_card_trovata` — Nel cassetto di una delle scrivanie trovi l'ID della capofamiglia, coperto di piccole piante.
+- `vivaio_fondo_dopo` — La stanza in fondo al vivaio. Sulla parete non è rimasto niente.
+- `botola_chiusa` — La botola non ha maniglia: solo una fessura sottile sul bordo, e sopra la fessura una spia che…
+- `lettore_vuoto` — Infili la matrice nella fessura. La spia smette di lampeggiare e resta accesa, fissa, per qualche…
+- `spirito_chiacchiere`
 
 
 ### Cunicoli sotterranei di Jondoh — 37 stanze mute

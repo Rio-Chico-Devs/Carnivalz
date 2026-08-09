@@ -1,336 +1,2633 @@
 {
 	"nodo_iniziale": "soglia",
+	"mappa_dungeon": {
+		"flag_completamento": "casa_ricordo_sconfitto",
+		"stanze": [
+			{
+				"id": "soglia",
+				"nome": "La soglia",
+				"pos": [
+					380,
+					780
+				]
+			},
+			{
+				"id": "salone",
+				"nome": "Il salone",
+				"pos": [
+					380,
+					700
+				]
+			},
+			{
+				"id": "sala_principale",
+				"nome": "Sala principale",
+				"pos": [
+					380,
+					620
+				]
+			},
+			{
+				"id": "ala_destra",
+				"nome": "Ala destra",
+				"pos": [
+					520,
+					700
+				]
+			},
+			{
+				"id": "ala_sinistra",
+				"nome": "Ala sinistra",
+				"pos": [
+					240,
+					700
+				]
+			},
+			{
+				"id": "cucina",
+				"nome": "Cucina",
+				"pos": [
+					520,
+					620
+				]
+			},
+			{
+				"id": "scala",
+				"nome": "La scala",
+				"pos": [
+					380,
+					540
+				]
+			},
+			{
+				"id": "grande_bagno",
+				"nome": "Grande bagno",
+				"pos": [
+					520,
+					540
+				]
+			},
+			{
+				"id": "stanza_giochi",
+				"nome": "Stanza dei giochi",
+				"pos": [
+					240,
+					540
+				]
+			},
+			{
+				"id": "soffitta",
+				"nome": "Soffitta",
+				"pos": [
+					380,
+					460
+				]
+			},
+			{
+				"id": "attico",
+				"nome": "Attico",
+				"pos": [
+					380,
+					380
+				]
+			},
+			{
+				"id": "camera_da_letto",
+				"nome": "Camera da letto",
+				"pos": [
+					380,
+					300
+				]
+			},
+			{
+				"id": "stanza_studi",
+				"nome": "Stanza degli studi",
+				"pos": [
+					100,
+					540
+				]
+			},
+			{
+				"id": "tunnel",
+				"nome": "Il tunnel",
+				"pos": [
+					100,
+					460
+				]
+			},
+			{
+				"id": "altare",
+				"nome": "L'altare",
+				"pos": [
+					100,
+					380
+				]
+			},
+			{
+				"id": "giardino_ingresso",
+				"nome": "Verso i giardini",
+				"pos": [
+					660,
+					780
+				]
+			},
+			{
+				"id": "giardino",
+				"nome": "Il giardino",
+				"pos": [
+					660,
+					700
+				]
+			},
+			{
+				"id": "giardino_est",
+				"nome": "Giardino est",
+				"pos": [
+					800,
+					700
+				]
+			},
+			{
+				"id": "albero_voce",
+				"nome": "L'albero grande",
+				"pos": [
+					940,
+					700
+				]
+			},
+			{
+				"id": "giardino_ovest",
+				"nome": "Giardino ovest",
+				"pos": [
+					660,
+					620
+				]
+			},
+			{
+				"id": "laboratorio",
+				"nome": "Il grande laboratorio",
+				"pos": [
+					660,
+					540
+				]
+			},
+			{
+				"id": "sala_matrici",
+				"nome": "Sala delle matrici",
+				"pos": [
+					660,
+					460
+				]
+			},
+			{
+				"id": "deposito_chimico",
+				"nome": "Deposito chimico",
+				"pos": [
+					660,
+					380
+				]
+			},
+			{
+				"id": "giardino_nord",
+				"nome": "Giardino nord",
+				"pos": [
+					800,
+					780
+				]
+			},
+			{
+				"id": "vivaio_1",
+				"nome": "Vivaio, primo piano",
+				"pos": [
+					940,
+					780
+				]
+			},
+			{
+				"id": "vivaio_2",
+				"nome": "Vivaio, secondo piano",
+				"pos": [
+					940,
+					860
+				]
+			},
+			{
+				"id": "vivaio_3",
+				"nome": "Fondo del vivaio",
+				"pos": [
+					940,
+					940
+				]
+			}
+		],
+		"connessioni": [
+			[
+				"soglia",
+				"salone"
+			],
+			[
+				"soglia",
+				"giardino_ingresso"
+			],
+			[
+				"salone",
+				"sala_principale"
+			],
+			[
+				"salone",
+				"ala_destra"
+			],
+			[
+				"salone",
+				"ala_sinistra"
+			],
+			[
+				"sala_principale",
+				"cucina"
+			],
+			[
+				"sala_principale",
+				"scala"
+			],
+			[
+				"scala",
+				"grande_bagno"
+			],
+			[
+				"scala",
+				"stanza_giochi"
+			],
+			[
+				"scala",
+				"soffitta"
+			],
+			[
+				"soffitta",
+				"attico"
+			],
+			[
+				"attico",
+				"camera_da_letto"
+			],
+			[
+				"stanza_giochi",
+				"stanza_studi"
+			],
+			[
+				"stanza_studi",
+				"tunnel"
+			],
+			[
+				"tunnel",
+				"altare"
+			],
+			[
+				"giardino_ingresso",
+				"giardino"
+			],
+			[
+				"giardino",
+				"giardino_est"
+			],
+			[
+				"giardino_est",
+				"albero_voce"
+			],
+			[
+				"giardino",
+				"giardino_ovest"
+			],
+			[
+				"giardino_ovest",
+				"laboratorio"
+			],
+			[
+				"laboratorio",
+				"sala_matrici"
+			],
+			[
+				"sala_matrici",
+				"deposito_chimico"
+			],
+			[
+				"giardino",
+				"giardino_nord"
+			],
+			[
+				"giardino_nord",
+				"vivaio_1"
+			],
+			[
+				"vivaio_1",
+				"vivaio_2"
+			],
+			[
+				"vivaio_2",
+				"vivaio_3"
+			]
+		]
+	},
 	"nodi": {
 		"soglia": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Mi diceva mia madre: i bravi bambini restano lontani dalla grande casa in mezzo al bosco, non si avvicinano neanche per cogliere un fiore coperto di rugiada.\n\nI bambini che disobbediscono vengono trasformati in bellissime bambole di ottima fattura... con vestiti eleganti e accessori sgargianti.\n\nDiventano i giocattoli dei demoni che hanno occupato la casa... ci giocano e ci giocano e ci giocano ancora...\n\nFinché ogni cucitura non è recisa... finché ogni porcellana non è insudiciata... finché ogni filo non viene tirato.\n\nUn tempo questa casa donava amore e riparo... o forse... solo l'illusione di una vita perfetta..." },
-				{ "tipo": "titolo", "testo": "La Grande Magione Abbandonata" }
+				{
+					"tipo": "narrazione",
+					"testo": "Mi diceva mia madre: i bravi bambini restano lontani dalla grande casa in mezzo al bosco, non si avvicinano neanche per cogliere un fiore coperto di rugiada.\n\nI bambini che disobbediscono vengono trasformati in bellissime bambole di ottima fattura... con vestiti eleganti e accessori sgargianti.\n\nDiventano i giocattoli dei demoni che hanno occupato la casa... ci giocano e ci giocano e ci giocano ancora...\n\nFinché ogni cucitura non è recisa... finché ogni porcellana non è insudiciata... finché ogni filo non viene tirato.\n\nUn tempo questa casa donava amore e riparo... o forse... solo l'illusione di una vita perfetta..."
+				},
+				{
+					"tipo": "titolo",
+					"testo": "La Grande Magione Abbandonata"
+				}
 			],
 			"scena": "La facciata della grande casa ti sovrasta, storta, con tutte le finestre buie tranne una.",
 			"scelte": [
-				{ "testo": "Entra", "vai": "salone" },
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true, "richiede_non_flag": "casa_yhvina" },
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true, "richiede_flag": "casa_ricordo_sconfitto" }
+				{
+					"testo": "Entra nella casa",
+					"vai": "salone"
+				},
+				{
+					"testo": "Va' verso i giardini",
+					"vai": "giardino_ingresso"
+				},
+				{
+					"testo": "Torna nel Vuoto",
+					"torna_vuoto": true,
+					"richiede_non_flag": "casa_yhvina"
+				},
+				{
+					"testo": "Torna nel Vuoto",
+					"torna_vuoto": true,
+					"richiede_flag": "casa_ricordo_sconfitto"
+				}
 			]
 		},
 		"salone": {
 			"testo": "Sembra tutto abbandonato da tantissimo tempo... la polvere è così fitta da sembrare una leggera nebbia...",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["marionetta", "marionetta"], ["ombra_del_passato"], ["marionetta", "ombra_del_passato"]],
+				"gruppi": [
+					[
+						"marionetta"
+					],
+					[
+						"marionetta",
+						"marionetta"
+					],
+					[
+						"ombra_del_passato"
+					],
+					[
+						"marionetta",
+						"ombra_del_passato"
+					]
+				],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
-				{ "testo": "Vai nella sala principale", "vai": "sala_principale" },
-				{ "testo": "Vai nell'ala destra", "vai": "ala_destra" },
-				{ "testo": "Vai nell'ala sinistra", "vai": "ala_sinistra" },
-				{ "testo": "Torna alla soglia", "vai": "soglia" }
+				{
+					"testo": "Vai nella sala principale",
+					"vai": "sala_principale"
+				},
+				{
+					"testo": "Vai nell'ala destra",
+					"vai": "ala_destra"
+				},
+				{
+					"testo": "Vai nell'ala sinistra",
+					"vai": "ala_sinistra"
+				},
+				{
+					"testo": "Torna alla soglia",
+					"vai": "soglia"
+				}
 			]
 		},
 		"sala_principale": {
 			"testo": "Sembra che le pareti siano addobbate con i quadri di gente che probabilmente viveva in questo posto...",
 			"scelte": [
-				{ "testo": "Osserva il quadro dell'uomo", "vai": "quadro_uomo" },
-				{ "testo": "Osserva il quadro della donna", "vai": "quadro_donna" },
-				{ "testo": "Osserva il quadro di famiglia", "vai": "quadro_famiglia", "una_tantum": "casa_filo", "flag": "casa_filo" },
-				{ "testo": "Fruga sotto i cuscini del divano", "vai": "sala_principale", "una_tantum": "casa_tazo_1", "tazo": 18 },
-				{ "testo": "Vai in cucina", "vai": "cucina" },
-				{ "testo": "Sali le scale", "vai": "scala" },
-				{ "testo": "Torna al salone", "vai": "salone" }
+				{
+					"testo": "Osserva il quadro dell'uomo",
+					"vai": "quadro_uomo"
+				},
+				{
+					"testo": "Osserva il quadro della donna",
+					"vai": "quadro_donna"
+				},
+				{
+					"testo": "Osserva il quadro di famiglia",
+					"vai": "quadro_famiglia",
+					"una_tantum": "casa_filo",
+					"flag": "casa_filo"
+				},
+				{
+					"testo": "Fruga sotto i cuscini del divano",
+					"vai": "sala_principale",
+					"una_tantum": "casa_tazo_1",
+					"tazo": 18
+				},
+				{
+					"testo": "Vai in cucina",
+					"vai": "cucina"
+				},
+				{
+					"testo": "Sali le scale",
+					"vai": "scala"
+				},
+				{
+					"testo": "Torna al salone",
+					"vai": "salone"
+				}
 			]
 		},
 		"ala_destra": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Alte colonne si ergono lungo un corridoio a scacchi: la polvere ha reso ormai le mattonelle bianche di un giallo ocra molto oscuro..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... C'è qualcosa sotto questa piastrella." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sembra che non ci sia altro se non stanze completamente piene di macerie, oltre questo punto..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Alte colonne si ergono lungo un corridoio a scacchi: la polvere ha reso ormai le mattonelle bianche di un giallo ocra molto oscuro..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... C'è qualcosa sotto questa piastrella."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra che non ci sia altro se non stanze completamente piene di macerie, oltre questo punto..."
+				}
 			],
 			"scena": "Il corridoio a scacchi dell'ala destra, e in fondo le stanze sfondate dalle macerie. Non porta da nessuna parte.",
 			"scelte": [
-				{ "testo": "Alza la piastrella", "vai": "ala_destra", "una_tantum": "casa_spilla", "oggetto": "spilla_margherita" },
-				{ "testo": "Torna al salone", "vai": "salone" }
+				{
+					"testo": "Alza la piastrella",
+					"vai": "ala_destra",
+					"una_tantum": "casa_spilla",
+					"oggetto": "spilla_margherita"
+				},
+				{
+					"testo": "Torna al salone",
+					"vai": "salone"
+				}
 			]
 		},
 		"ala_sinistra": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Mh... sembrerebbe non esserci nulla qui dentro. Certo che questa famiglia doveva possedere un'ingente quantità di soldi, per permettersi un posto del genere..." }
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Mh... sembrerebbe non esserci nulla qui dentro. Certo che questa famiglia doveva possedere un'ingente quantità di soldi, per permettersi un posto del genere..."
+				}
 			],
 			"scena": "L'ala sinistra: stanze grandi, vuote, e niente dentro a parte la polvere.",
 			"scelte": [
-				{ "testo": "Torna al salone", "vai": "salone" }
+				{
+					"testo": "Torna al salone",
+					"vai": "salone"
+				}
 			]
 		},
 		"quadro_uomo": {
 			"testo": "Sembra un uomo molto severo... le rughe sul suo volto fanno trasparire un'estrema tristezza e una rabbia sempre tenuta a bada.",
 			"scelte": [
-				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
+				{
+					"testo": "Torna nella sala principale",
+					"vai": "sala_principale"
+				}
 			]
 		},
 		"quadro_donna": {
 			"testo": "Una donna di una certa età... cos'ha in mano? Il suo sguardo non ti fa sentire al sicuro.",
 			"scelte": [
-				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
+				{
+					"testo": "Torna nella sala principale",
+					"vai": "sala_principale"
+				}
 			]
 		},
 		"quadro_famiglia": {
 			"testo": "Ci sono un uomo, una donna, una bambina con una bambola in braccio e una donna anziana in posa... la donna più anziana ha uno sguardo che farebbe gelare il sangue a molti... Non sembrano molto felici...",
 			"scelte": [
-				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
+				{
+					"testo": "Torna nella sala principale",
+					"vai": "sala_principale"
+				}
 			]
 		},
 		"mensola": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Tutti gli strumenti in questa cucina sembrano di ottima fattura, c'è un forte odore di ammoniaca e detersivi sopravvissuto anche al tempo..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Queste sostanze sono molto pericolose se ingerite... cosa ci fanno in una cucina?" }
+				{
+					"tipo": "narrazione",
+					"testo": "Tutti gli strumenti in questa cucina sembrano di ottima fattura, c'è un forte odore di ammoniaca e detersivi sopravvissuto anche al tempo..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Queste sostanze sono molto pericolose se ingerite... cosa ci fanno in una cucina?"
+				}
 			],
 			"scena": "La mensola dei detersivi, allineati come in una vetrina. L'odore di ammoniaca non se ne va.",
 			"scelte": [
-				{ "testo": "Torna in cucina", "vai": "cucina" }
+				{
+					"testo": "Torna in cucina",
+					"vai": "cucina"
+				}
 			]
 		},
 		"cucina": {
 			"testo": "Pentole in fila, un tavolo apparecchiato per tre da molto tempo, senza che nessuno l'abbia mai sparecchiato. In una credenza, bottiglie impolverate; in un'altra, qualcosa di dolce.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["marionetta", "marionetta"], ["ombra_del_passato"]],
+				"gruppi": [
+					[
+						"marionetta"
+					],
+					[
+						"marionetta",
+						"marionetta"
+					],
+					[
+						"ombra_del_passato"
+					]
+				],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
-				{ "testo": "Fruga nella mensola", "vai": "mensola", "una_tantum": "casa_mensola" },
-				{ "testo": "Stappa una bottiglia di vino di ottima qualità", "vai": "cucina", "una_tantum": "casa_vino_1", "oggetto": "vino_di_ottima_qualita" },
-				{ "testo": "Fruga nella credenza dei dolci", "vai": "cucina", "una_tantum": "casa_merendine", "oggetto": "merendine_scadute" },
-				{ "testo": "Torna nella sala principale", "vai": "sala_principale" }
+				{
+					"testo": "Fruga nella mensola",
+					"vai": "mensola",
+					"una_tantum": "casa_mensola"
+				},
+				{
+					"testo": "Stappa una bottiglia di vino di ottima qualità",
+					"vai": "cucina",
+					"una_tantum": "casa_vino_1",
+					"oggetto": "vino_di_ottima_qualita"
+				},
+				{
+					"testo": "Fruga nella credenza dei dolci",
+					"vai": "cucina",
+					"una_tantum": "casa_merendine",
+					"oggetto": "merendine_scadute"
+				},
+				{
+					"testo": "Torna nella sala principale",
+					"vai": "sala_principale"
+				}
 			]
 		},
 		"scala": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "La scala sale attraverso piani che sembrano più numerosi di quanti dovrebbero essere." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questa casa è immensa... la maggior parte delle stanze sono vuote... come se qualcuno avesse portato via tutto..." }
+				{
+					"tipo": "narrazione",
+					"testo": "La scala sale attraverso piani che sembrano più numerosi di quanti dovrebbero essere."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questa casa è immensa... la maggior parte delle stanze sono vuote... come se qualcuno avesse portato via tutto..."
+				}
 			],
 			"scena": "La scala, e i suoi piani che non finiscono mai. Da qui si arriva ovunque, in questa casa.",
 			"scelte": [
-				{ "testo": "Entra nella stanza dei giochi", "vai": "stanza_giochi" },
-				{ "testo": "Sali fino alla soffitta", "vai": "soffitta" },
-				{ "testo": "Entra nel grande bagno", "vai": "grande_bagno" },
-				{ "testo": "Scendi nella sala principale", "vai": "sala_principale" }
+				{
+					"testo": "Entra nella stanza dei giochi",
+					"vai": "stanza_giochi"
+				},
+				{
+					"testo": "Sali fino alla soffitta",
+					"vai": "soffitta"
+				},
+				{
+					"testo": "Entra nel grande bagno",
+					"vai": "grande_bagno"
+				},
+				{
+					"testo": "Scendi nella sala principale",
+					"vai": "sala_principale"
+				}
 			]
 		},
 		"grande_bagno": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questo bagno è enorme... l'acqua non funziona più... un tempo deve essere stato bellissimo rilassarsi qui..." }
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo bagno è enorme... l'acqua non funziona più... un tempo deve essere stato bellissimo rilassarsi qui..."
+				}
 			],
 			"scena": "Il grande bagno, le rubinetterie secche e la vasca piena di calcinacci.",
 			"scelte": [
-				{ "testo": "Torna alla scala", "vai": "scala" }
+				{
+					"testo": "Torna alla scala",
+					"vai": "scala"
+				}
 			]
 		},
 		"stanza_giochi": {
 			"testo": "La stanza dei giochi: scaffali di giocattoli allineati come spettatori, un baule, e un mucchio di cuscini contro il muro. Tre fotografie, in cornici diverse, osservano la stanza da un comò.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["marionetta", "marionetta"], ["ombra_del_passato"], ["marionetta", "ombra_del_passato"]],
+				"gruppi": [
+					[
+						"marionetta"
+					],
+					[
+						"marionetta",
+						"marionetta"
+					],
+					[
+						"ombra_del_passato"
+					],
+					[
+						"marionetta",
+						"ombra_del_passato"
+					]
+				],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
-				{ "testo": "Osserva la prima fotografia", "vai": "foto_1", "una_tantum": "casa_foto_1" },
-				{ "testo": "Osserva la seconda fotografia", "vai": "foto_2", "una_tantum": "casa_foto_2" },
-				{ "testo": "Osserva la terza fotografia", "vai": "foto_3", "una_tantum": "casa_foto_3" },
-				{ "testo": "Apri il baule dei giocattoli", "vai": "stanza_giochi", "una_tantum": "casa_fiala", "oggetto": "fiala_hp" },
-				{ "testo": "Scendi nella botola", "vai": "stanza_studi", "richiede_flag": "casa_botola" },
-				{ "testo": "Torna alla scala", "vai": "scala" }
+				{
+					"testo": "Osserva la prima fotografia",
+					"vai": "foto_1",
+					"una_tantum": "casa_foto_1"
+				},
+				{
+					"testo": "Osserva la seconda fotografia",
+					"vai": "foto_2",
+					"una_tantum": "casa_foto_2"
+				},
+				{
+					"testo": "Osserva la terza fotografia",
+					"vai": "foto_3",
+					"una_tantum": "casa_foto_3"
+				},
+				{
+					"testo": "Apri il baule dei giocattoli",
+					"vai": "stanza_giochi",
+					"una_tantum": "casa_fiala",
+					"oggetto": "fiala_hp"
+				},
+				{
+					"testo": "Scendi nella botola",
+					"vai": "stanza_studi",
+					"richiede_flag": "casa_botola",
+					"richiede_oggetti": [
+						"id_card",
+						"matrice"
+					]
+				},
+				{
+					"testo": "Prova la matrice sul lettore",
+					"vai": "lettore_vuoto",
+					"richiede_flag": "casa_botola",
+					"richiede_oggetto": "matrice",
+					"richiede_non_flag": "casa_id_card"
+				},
+				{
+					"testo": "Esamina il lettore della botola",
+					"vai": "botola_chiusa",
+					"richiede_flag": "casa_botola",
+					"richiede_non_flag": "casa_matrice"
+				},
+				{
+					"testo": "Torna alla scala",
+					"vai": "scala"
+				}
 			]
 		},
 		"foto_1": {
 			"testo": "Una fotografia ingiallita: una ragazzina, forse sei o sette anni, gioca seduta per terra con una bambola fatta a mano. Sta ridendo.",
 			"scelte": [
-				{ "testo": "Torna alla stanza dei giochi", "vai": "stanza_giochi" }
+				{
+					"testo": "Torna alla stanza dei giochi",
+					"vai": "stanza_giochi"
+				}
 			]
 		},
 		"foto_2": {
 			"testo": "La stessa ragazzina, cresciuta: un vestito più elegante, una posa più composta. Tiene ancora la bambola, stretta contro il fianco, come se qualcuno potesse portargliela via da un momento all'altro.",
 			"scelte": [
-				{ "testo": "Torna alla stanza dei giochi", "vai": "stanza_giochi" }
+				{
+					"testo": "Torna alla stanza dei giochi",
+					"vai": "stanza_giochi"
+				}
 			]
 		},
 		"foto_3": {
 			"testo": "Una festa di compleanno: candeline, un tavolo pieno di regali che sembrano tutti uguali e tutti sbagliati. La ragazzina è al centro, la bambola in grembo. Non sorride, in questa.",
 			"scelte": [
-				{ "testo": "Torna alla stanza dei giochi", "vai": "stanza_giochi" }
+				{
+					"testo": "Torna alla stanza dei giochi",
+					"vai": "stanza_giochi"
+				}
 			]
 		},
 		"soffitta": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questa vecchia soffitta sembra cadere a pezzi, se non fosse per la luce della luna che passa attraverso le fessure, non vedresti nulla..." }
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questa vecchia soffitta sembra cadere a pezzi, se non fosse per la luce della luna che passa attraverso le fessure, non vedresti nulla..."
+				}
 			],
 			"scena": "La soffitta: scatoloni ovunque, tutti con la stessa scritta a mano. Nessuno è mai stato buttato.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["marionetta"], ["ombra_del_passato"]],
+				"gruppi": [
+					[
+						"marionetta"
+					],
+					[
+						"ombra_del_passato"
+					]
+				],
 				"se_perdi": "cacciata"
 			},
 			"scelte": [
-				{ "testo": "Rovista tra gli scatoloni", "vai": "soffitta", "una_tantum": "casa_collana", "oggetto": "collana_particolare" },
-				{ "testo": "Controlla dentro un vecchio baule chiuso a chiave", "vai": "soffitta", "una_tantum": "casa_tazo_2", "tazo": 22 },
-				{ "testo": "Un altro sottoscala porta più su, verso l'attico", "vai": "attico" },
-				{ "testo": "Torna alla scala", "vai": "scala" }
+				{
+					"testo": "Rovista tra gli scatoloni",
+					"vai": "soffitta",
+					"una_tantum": "casa_collana",
+					"oggetto": "collana_particolare"
+				},
+				{
+					"testo": "Controlla dentro un vecchio baule chiuso a chiave",
+					"vai": "soffitta",
+					"una_tantum": "casa_tazo_2",
+					"tazo": 22
+				},
+				{
+					"testo": "Un altro sottoscala porta più su, verso l'attico",
+					"vai": "attico"
+				},
+				{
+					"testo": "Torna alla scala",
+					"vai": "scala"
+				}
 			]
 		},
 		"attico": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Salendo ancora più in alto la polvere sembra diminuire, in questo piccolo attico puoi respirare più liberamente..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sento uno strano potere... mi ricorda... Veronica? Non può essere..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Salendo ancora più in alto la polvere sembra diminuire, in questo piccolo attico puoi respirare più liberamente..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sento uno strano potere... mi ricorda... Veronica? Non può essere..."
+				}
 			],
 			"scena": "L'attico, basso e lungo. In fondo, sotto uno spiovente, una porta chiusa da cui filtra una luce fioca e costante.",
 			"scelte": [
-				{ "testo": "Apri la porta della camera da letto", "vai": "camera_da_letto" },
-				{ "testo": "Torna alla soffitta", "vai": "soffitta" }
+				{
+					"testo": "Apri la porta della camera da letto",
+					"vai": "camera_da_letto"
+				},
+				{
+					"testo": "Torna alla soffitta",
+					"vai": "soffitta"
+				}
 			]
 		},
 		"camera_da_letto": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Sembra esserci qualcuno..." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Eh? E tu chi sei? Non mi aspettavo di trovare qualcun altro..." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Hm... sembra che anche tu sia come me... Lo percepisci anche tu vero? Altrimenti non saresti qui... C'è qualcosa di estremamente sbagliato in questo posto..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "In realtà io sono qui per conto dell'organizzazione... questo squarcio dovrebbe essere di mia competenza... Tu come ci sei finita qui?" },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Organizzazione? Io sono qui per puro caso... mi capita di addormentarmi e ritrovarmi in posti come questo... Da qualche parte deve esserci qualcuno... o meglio qualcosa... che genera tutto questo... Io voglio solo andare a casa e farmi una dormita." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Pensandoci bene, abbiamo un obiettivo in comune... sarebbe una buona mossa proporle di andare a fondo in questa questione insieme..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Sembra esserci qualcuno..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Eh? E tu chi sei? Non mi aspettavo di trovare qualcun altro..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Hm... sembra che anche tu sia come me... Lo percepisci anche tu vero? Altrimenti non saresti qui... C'è qualcosa di estremamente sbagliato in questo posto..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "In realtà io sono qui per conto dell'organizzazione... questo squarcio dovrebbe essere di mia competenza... Tu come ci sei finita qui?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Organizzazione? Io sono qui per puro caso... mi capita di addormentarmi e ritrovarmi in posti come questo... Da qualche parte deve esserci qualcuno... o meglio qualcosa... che genera tutto questo... Io voglio solo andare a casa e farmi una dormita."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Pensandoci bene, abbiamo un obiettivo in comune... sarebbe una buona mossa proporle di andare a fondo in questa questione insieme..."
+				}
 			],
 			"destra": "insonne",
 			"espr_destra": "annoiata",
 			"scena": "La camera da letto sotto lo spiovente: un materasso per terra, una lampada che nessuno spegne mai.",
 			"scelte": [
-				{ "testo": "Chiedile di combattere al tuo fianco", "vai": "yhvina_si", "richiede_non_flag": "casa_ricordo_sconfitto", "recluta_temporaneo": "insonne", "livello_alleato": 15, "flag": "casa_yhvina" },
-				{ "testo": "\"Ce la faccio da solo.\"", "vai": "attico" }
+				{
+					"testo": "Chiedile di combattere al tuo fianco",
+					"vai": "yhvina_si",
+					"richiede_non_flag": "casa_ricordo_sconfitto",
+					"recluta_temporaneo": "insonne",
+					"livello_alleato": 15,
+					"flag": "casa_yhvina"
+				},
+				{
+					"testo": "\"Ce la faccio da solo.\"",
+					"vai": "attico"
+				}
 			]
 		},
 		"yhvina_si": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Proponi a Yhvina di unirsi a te." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm... perché mi guarda così? Cos'è quell'espressione disgustata...?" },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Hmph... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada." },
-				{ "tipo": "narrazione", "testo": "Le mani di Yhvina cambiano e il suo sguardo non ti rassicura per niente..." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Su, andiamo, abbiamo già perso fin troppo tempo." }
+				{
+					"tipo": "narrazione",
+					"testo": "Proponi a Yhvina di unirsi a te."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Ehm... perché mi guarda così? Cos'è quell'espressione disgustata...?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Hmph... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Le mani di Yhvina cambiano e il suo sguardo non ti rassicura per niente..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Su, andiamo, abbiamo già perso fin troppo tempo."
+				}
 			],
 			"destra": "insonne",
 			"espr_destra": "decisa",
 			"scena": "Yhvina è in piedi accanto alla porta, e aspetta che sia tu a muoverti.",
 			"scelte": [
-				{ "testo": "Esci dalla camera", "vai": "attico" }
+				{
+					"testo": "Esci dalla camera",
+					"vai": "attico"
+				}
 			]
 		},
 		"stanza_studi": {
 			"testo": "Sotto i cuscini, la botola dà su una stanza degli studi: scrivania, diplomi alle pareti, e un fascicolo lasciato aperto come se qualcuno l'avesse richiuso in fretta, tanti anni fa.",
 			"scelte": [
-				{ "testo": "Leggi la cartella clinica", "vai": "cartella_clinica" },
-				{ "testo": "Prosegui nel tunnel", "vai": "tunnel" },
-				{ "testo": "Risali dalla botola", "vai": "stanza_giochi" }
+				{
+					"testo": "Leggi la cartella clinica",
+					"vai": "cartella_clinica"
+				},
+				{
+					"testo": "Prosegui nel tunnel",
+					"vai": "tunnel"
+				},
+				{
+					"testo": "Risali dalla botola",
+					"vai": "stanza_giochi"
+				}
 			]
 		},
 		"cartella_clinica": {
 			"testo": "\"...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di disallineamento anomali per l'età. Salute generale carente.\" La firma in fondo è illeggibile quanto il resto.",
 			"scelte": [
-				{ "testo": "Richiudi il fascicolo", "vai": "stanza_studi" }
+				{
+					"testo": "Richiudi il fascicolo",
+					"vai": "stanza_studi"
+				}
 			]
 		},
 		"tunnel": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Un tunnel scavato a mano, stretto, che scende oltre le fondamenta della casa. L'aria si fa più fredda a ogni passo." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "L'aria è fredda... presumo che ci siamo..." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Lo senti anche tu, vero? Quello che vogliamo trovare si trova in fondo a questo tunnel..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Un tunnel scavato a mano, stretto, che scende oltre le fondamenta della casa. L'aria si fa più fredda a ogni passo."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "L'aria è fredda... presumo che ci siamo..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Lo senti anche tu, vero? Quello che vogliamo trovare si trova in fondo a questo tunnel..."
+				}
 			],
 			"scena": "Il tunnel scavato a mano scende oltre le fondamenta. Più avanti, il freddo.",
 			"scelte": [
-				{ "testo": "Avanza verso la luce in fondo", "vai": "altare" },
-				{ "testo": "Torna alla stanza degli studi", "vai": "stanza_studi" }
+				{
+					"testo": "Avanza verso la luce in fondo",
+					"vai": "altare"
+				},
+				{
+					"testo": "Torna alla stanza degli studi",
+					"vai": "stanza_studi"
+				}
 			]
 		},
 		"altare": {
 			"testo": "Un altare tributario, costruito con le mani: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra. Oltre le candele, nel buio, si intuisce qualcosa di enorme incassato nella parete di fondo.",
 			"scelte": [
-				{ "testo": "Leggi le lettere", "richiede_non_flag": "casa_lettere_bruciate", "vai": "lettere_lettura" },
-				{ "testo": "Brucia le lettere", "vai": "lettere_bruciate", "una_tantum": "casa_lettere_bruciate", "flag": "casa_lettere_bruciate" },
-				{ "testo": "Stappa l'ultima bottiglia di vino di ottima qualità", "vai": "altare", "una_tantum": "casa_vino_2", "oggetto": "vino_di_ottima_qualita" },
-				{ "testo": "Osserva da vicino la foto sull'altare", "richiede_non_flag": "casa_ricordo_sconfitto", "vai": "presentazione_ricordo" },
-				{ "testo": "Guarda oltre l'altare, nel buio", "richiede_non_flag": "casa_ricordo_sconfitto", "vai": "porta_bloccata" },
-				{ "testo": "L'altare è silenzioso, ora.", "richiede_flag": "casa_ricordo_sconfitto", "vai": "tunnel" },
-				{ "testo": "Guarda oltre l'altare, nel buio", "richiede_flag": "casa_ricordo_sconfitto", "vai": "porta_enorme" },
-				{ "testo": "Torna al tunnel", "vai": "tunnel" }
+				{
+					"testo": "Leggi le lettere",
+					"richiede_non_flag": "casa_lettere_bruciate",
+					"vai": "lettere_lettura"
+				},
+				{
+					"testo": "Brucia le lettere",
+					"vai": "lettere_bruciate",
+					"una_tantum": "casa_lettere_bruciate",
+					"flag": "casa_lettere_bruciate"
+				},
+				{
+					"testo": "Stappa l'ultima bottiglia di vino di ottima qualità",
+					"vai": "altare",
+					"una_tantum": "casa_vino_2",
+					"oggetto": "vino_di_ottima_qualita"
+				},
+				{
+					"testo": "Osserva da vicino la foto sull'altare",
+					"richiede_non_flag": "casa_ricordo_sconfitto",
+					"vai": "presentazione_ricordo"
+				},
+				{
+					"testo": "Guarda oltre l'altare, nel buio",
+					"richiede_non_flag": "casa_ricordo_sconfitto",
+					"vai": "porta_bloccata"
+				},
+				{
+					"testo": "L'altare è silenzioso, ora.",
+					"richiede_flag": "casa_ricordo_sconfitto",
+					"vai": "tunnel"
+				},
+				{
+					"testo": "Guarda oltre l'altare, nel buio",
+					"richiede_flag": "casa_ricordo_sconfitto",
+					"vai": "porta_enorme"
+				},
+				{
+					"testo": "Torna al tunnel",
+					"vai": "tunnel"
+				}
 			]
 		},
 		"presentazione_ricordo": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Quando si vuole bene a qualcuno, un legame viene creato... come migliaia di fili intrecciati diventa sempre più solido.\n\nChe nessuno osi dividere quello che è stato unito dall'amore... Sono questioni superiori agli uomini...\n\nCosì... filo su filo si tesse una piccola bambola di pezza, non troppo bella non troppo brutta... ma colma di amore...\n\nE con lo spezzarsi di quel legame... così come si sfalda una bambola, cominciò a sfaldarsi la fortuna di chi osò calpestare la tenerezza di un legame nato dal sentimento più puro..." },
-				{ "tipo": "titolo", "testo": "Un tenero ricordo" }
+				{
+					"tipo": "narrazione",
+					"testo": "Quando si vuole bene a qualcuno, un legame viene creato... come migliaia di fili intrecciati diventa sempre più solido.\n\nChe nessuno osi dividere quello che è stato unito dall'amore... Sono questioni superiori agli uomini...\n\nCosì... filo su filo si tesse una piccola bambola di pezza, non troppo bella non troppo brutta... ma colma di amore...\n\nE con lo spezzarsi di quel legame... così come si sfalda una bambola, cominciò a sfaldarsi la fortuna di chi osò calpestare la tenerezza di un legame nato dal sentimento più puro..."
+				},
+				{
+					"tipo": "titolo",
+					"testo": "Un tenero ricordo"
+				}
 			],
-			"combattimento_automatico": { "nemici": ["tenero_ricordo"], "se_vinci": "ricordo_concluso", "se_vinci_eroe": "ricordo_concluso_buono", "se_perdi": "cacciata" }
+			"combattimento_automatico": {
+				"nemici": [
+					"tenero_ricordo"
+				],
+				"se_vinci": "ricordo_concluso",
+				"se_vinci_eroe": "ricordo_concluso_buono",
+				"se_perdi": "cacciata"
+			}
 		},
 		"porta_bloccata": {
 			"testo": "Fai un passo oltre le candele, e la bambola si volta di scatto verso di te — non ti aveva mai guardato prima. Non si muove, non parla: si limita a restare tra te e il buio, e in qualche modo è più che sufficiente. Meglio non insistere. Non ancora.",
 			"scelte": [
-				{ "testo": "Torna all'altare", "vai": "altare" }
+				{
+					"testo": "Torna all'altare",
+					"vai": "altare"
+				}
 			]
 		},
 		"porta_enorme": {
 			"testo": "Con la bambola non più a guardia, il passo oltre l'altare è libero: una porta enorme, sproporzionata perfino per questa casa, incassata nella roccia oltre le candele consumate. Nessuna maniglia, solo un meccanismo circolare al centro, coperto di polvere e fermo da chissà quanto.",
 			"scelte": [
-				{ "testo": "Prova ad aprirla", "richiede_oggetti": ["meccanismo_del_varco"], "vai": "tunnel" },
-				{ "testo": "Non si muove di un millimetro. Non è ancora il momento.", "vai": "altare" }
+				{
+					"testo": "Prova ad aprirla",
+					"richiede_oggetti": [
+						"meccanismo_del_varco"
+					],
+					"vai": "tunnel"
+				},
+				{
+					"testo": "Non si muove di un millimetro. Non è ancora il momento.",
+					"vai": "altare"
+				}
 			]
 		},
 		"lettere_lettura": {
 			"testo": "Sono lettere mai spedite, scritte dai genitori: parlano di rimorso, di quanto avrebbero voluto tornare indietro. \"Se solo non avessimo preteso così tanto da te,\" dice una. Un'altra si interrompe a metà frase.",
 			"scelte": [
-				{ "testo": "Richiudi le lettere", "vai": "altare" }
+				{
+					"testo": "Richiudi le lettere",
+					"vai": "altare"
+				}
 			]
 		},
 		"lettere_bruciate": {
 			"testo": "Le accendi una a una, sull'ultima candela ancora viva. Il rimorso di chi le ha scritte non serve più a nessuno: bruciano in fretta, come se anche loro non aspettassero altro.",
 			"scelte": [
-				{ "testo": "Torna all'altare", "vai": "altare" }
+				{
+					"testo": "Torna all'altare",
+					"vai": "altare"
+				}
 			]
 		},
 		"ricordo_concluso": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Le cuciture non cedono: si strappano. La bambola si apre da sola lungo le giunture, un filo dopo l'altro, e ogni strappo suona come qualcosa che si rompe dentro un corpo vero." },
-				{ "tipo": "narrazione", "testo": "Le ombre nere escono da lei tutte insieme, si spargono sulle pareti e scappano in ogni direzione, disperdendosi con lamenti assordanti che ti restano nelle orecchie molto dopo che il buio le ha inghiottite." },
-				{ "tipo": "dialogo", "chi": "tenero_ricordo", "testo": "...volevo, giocare... ancora... un pò..." },
-				{ "tipo": "narrazione", "testo": "Quello che resta a terra non somiglia più a niente. L'atmosfera trasuda una tristezza profonda e umida... sembra quasi di aver fatto la cosa sbagliata..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Le cuciture non cedono: si strappano. La bambola si apre da sola lungo le giunture, un filo dopo l'altro, e ogni strappo suona come qualcosa che si rompe dentro un corpo vero."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Le ombre nere escono da lei tutte insieme, si spargono sulle pareti e scappano in ogni direzione, disperdendosi con lamenti assordanti che ti restano nelle orecchie molto dopo che il buio le ha inghiottite."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "tenero_ricordo",
+					"testo": "...volevo, giocare... ancora... un pò..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Quello che resta a terra non somiglia più a niente. L'atmosfera trasuda una tristezza profonda e umida... sembra quasi di aver fatto la cosa sbagliata..."
+				}
 			],
 			"flag": "casa_ricordo_sconfitto",
 			"scelte": [
-				{ "testo": "Raccogli ciò che resta", "vai": "congedo_yhvina", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80 }
+				{
+					"testo": "Raccogli ciò che resta",
+					"vai": "congedo_yhvina",
+					"una_tantum": "casa_prova",
+					"oggetto": "prova_di_un_forte_amore",
+					"tazo": 80
+				}
 			]
 		},
 		"ricordo_concluso_buono": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "La bambola comincia a sfilacciarsi lo stesso, ma questa volta senza opporre resistenza: le ombre nere si ritirano piano dalle pareti, senza violenza." },
-				{ "tipo": "dialogo", "chi": "tenero_ricordo", "testo": "...Lilloh... sei tornata a giocare con me?" },
-				{ "tipo": "narrazione", "testo": "Quello che resta, nell'aria, non è più dolore: solo quiete." },
-				{ "tipo": "dialogo", "chi": "tenero_ricordo", "testo": "Grazie... per non avermi dimenticata." }
+				{
+					"tipo": "narrazione",
+					"testo": "La bambola comincia a sfilacciarsi lo stesso, ma questa volta senza opporre resistenza: le ombre nere si ritirano piano dalle pareti, senza violenza."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "tenero_ricordo",
+					"testo": "...Lilloh... sei tornata a giocare con me?"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Quello che resta, nell'aria, non è più dolore: solo quiete."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "tenero_ricordo",
+					"testo": "Grazie... per non avermi dimenticata."
+				}
 			],
 			"flag": "casa_ricordo_sconfitto",
 			"scelte": [
-				{ "testo": "Raccogli ciò che resta", "vai": "congedo_yhvina", "una_tantum": "casa_prova", "oggetto": "prova_di_un_forte_amore", "tazo": 80, "legame": 15 }
+				{
+					"testo": "Raccogli ciò che resta",
+					"vai": "congedo_yhvina",
+					"una_tantum": "casa_prova",
+					"oggetto": "prova_di_un_forte_amore",
+					"tazo": 80,
+					"legame": 15
+				}
 			]
 		},
 		"congedo_yhvina": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Bene, sembrerebbe che il nostro lavoro qui sia terminato, sembra che potrò tornare finalmente a casa." },
-				{ "tipo": "dialogo", "chi": "insonne", "testo": "Ecco che arriva... Bene. Se il destino vorrà, ci rivedremo ancora." },
-				{ "tipo": "narrazione", "testo": "Uno squarcio deforma Yhvina che scompare senza lasciare alcuna traccia... quando uno squarcio si chiude, tutto quello che ha portato viene riportato indietro." },
-				{ "tipo": "narrazione", "testo": "Il tuo compito sembra essere terminato." }
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Bene, sembrerebbe che il nostro lavoro qui sia terminato, sembra che potrò tornare finalmente a casa."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Ecco che arriva... Bene. Se il destino vorrà, ci rivedremo ancora."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Uno squarcio deforma Yhvina che scompare senza lasciare alcuna traccia... quando uno squarcio si chiude, tutto quello che ha portato viene riportato indietro."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Il tuo compito sembra essere terminato."
+				}
 			],
 			"destra": "insonne",
 			"congeda": "insonne",
 			"scena": "Dove c'era Yhvina non è rimasto niente. Il tuo compito, qui, è terminato.",
 			"scelte": [
-				{ "testo": "Torna verso l'altare", "vai": "altare" }
+				{
+					"testo": "Torna verso l'altare",
+					"vai": "altare"
+				}
 			]
 		},
 		"cacciata": {
 			"testo": "Qualcosa ti solleva di peso e la casa ti scaraventa fuori, oltre lo squarcio. La ninna nanna riprende, stonata come prima.",
 			"scelte": [
-				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+				{
+					"testo": "Riprendi dall'ultimo salvataggio",
+					"game_over": true
+				}
+			]
+		},
+		"giardino_ingresso": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Andando da questa parte sembra esserci l'entrata verso un giardino..."
+				}
+			],
+			"scena": "Il vialetto che porta al giardino, sul fianco della casa.",
+			"scelte": [
+				{
+					"testo": "Entra nel giardino",
+					"vai": "giardino"
+				},
+				{
+					"testo": "Torna alla soglia",
+					"vai": "soglia"
+				}
+			]
+		},
+		"giardino": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Una luna bellissima illumina il giardino. Puoi scorgere poco e niente fra i rami... ogni tanto, tra le foglie, un movimento rapido e sfuggevole ti fa rimanere all'erta."
+				}
+			],
+			"scena": "Il giardino sotto la luna. Tre sentieri: est, ovest, nord.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [
+					[
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"marionetta"
+					]
+				],
+				"salta_se_flag": "casa_volto_battuto",
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{
+					"testo": "Prendi il sentiero verso il giardino est",
+					"vai": "giardino_est"
+				},
+				{
+					"testo": "Prendi il sentiero verso il giardino ovest",
+					"vai": "giardino_ovest"
+				},
+				{
+					"testo": "Prendi il sentiero verso il giardino nord",
+					"vai": "giardino_nord"
+				},
+				{
+					"testo": "Torna verso la soglia",
+					"vai": "giardino_ingresso"
+				}
+			]
+		},
+		"giardino_est": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... C'è un profondo silenzio in questo posto..."
+				}
+			],
+			"scena": "Il giardino est. Il silenzio, qui, è più fitto che altrove.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [
+					[
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"marionetta"
+					]
+				],
+				"salta_se_flag": "casa_volto_battuto",
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{
+					"testo": "Esplora il giardino est",
+					"vai": "fiori_di_luna",
+					"una_tantum": "casa_fiori",
+					"oggetto": [
+						"fiore_di_luna",
+						"fiore_di_luna"
+					]
+				},
+				{
+					"testo": "Addentrati nel giardino est",
+					"vai": "albero_voce"
+				},
+				{
+					"testo": "Torna al giardino",
+					"vai": "giardino"
+				}
+			]
+		},
+		"fiori_di_luna": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Tra l'erba alta, due fiori pallidi si aprono solo di notte."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questi campioni possono essere utili... posso portarli nella serra dell'Organizzazione, o consumarli nel caso venga colpito da un essere velenoso."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "I fiori di luna sono fiori comuni, utilizzati per trattare lievi infezioni o avvelenamenti. Oltre a essere belli, possono anche essere molto utili."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a guardarti intorno",
+					"vai": "giardino_est"
+				}
+			]
+		},
+		"albero_voce": {
+			"vai_se_flag": {
+				"flag": "casa_spilla",
+				"vai": "albero_voce_spilla"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non sembra essere possibile procedere oltre..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hey... tu..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "?",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Qui, vicino all'albero..."
+				}
+			],
+			"scena": "La profondità del giardino est. L'albero grande in fondo, e niente altro.",
+			"scelte": [
+				{
+					"testo": "Avvicinati",
+					"vai": "voce_avvicinati"
+				},
+				{
+					"testo": "Vai via",
+					"vai": "voce_ignorata"
+				}
+			]
+		},
+		"voce_ignorata": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hey... dove... vai? Aspetta..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna indietro e avvicinati",
+					"vai": "voce_avvicinati"
+				},
+				{
+					"testo": "Torna al giardino est",
+					"vai": "giardino_est"
+				}
+			]
+		},
+		"voce_avvicinati": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembra provenire da qui..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Lei è qui per aiutare la signorina Lylloh?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "? Chi parla?",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Devo aver sbagliato persona..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Cerchi ovunque... ma sembra che la voce non ci sia più. Qualunque cosa fosse, ormai è andata via."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna al giardino est",
+					"vai": "giardino_est"
+				}
+			]
+		},
+		"albero_voce_spilla": {
+			"vai_se_flag": {
+				"flag": "casa_spirito",
+				"vai": "spirito_hub"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Signorina Lylloh? È lei?"
+				}
+			],
+			"scena": "La profondità del giardino est. L'albero grande in fondo, e niente altro.",
+			"scelte": [
+				{
+					"testo": "Mostra la spilla a margherita",
+					"vai": "spirito_rivelato",
+					"richiede_oggetto": "spilla_margherita"
+				},
+				{
+					"testo": "Torna al giardino est",
+					"vai": "giardino_est"
+				}
+			]
+		},
+		"spirito_rivelato": {
+			"flag": "casa_spirito",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Come fa ad avere la spilla della signorina? Le ha per caso fatto del male?!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non so di cosa parli. Ho raccolto questo oggetto nei pressi dell'ala sinistra della casa, che si trova poco lontano da qui."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Le foglie cominciano a muoversi freneticamente e il vento si alza lievemente... Dall'albero centrale un volto appare sulla sua superficie."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Cosa... è successo alla signorina Lylloh?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non saprei rispondere a questa domanda. Io sono qui con un compito ben preciso... Ma penso che la persona che lei chiama signorina Lylloh, purtroppo, non ci sia più."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Dovevo immaginarlo. Ho perso il conto dei giorni che ho passato innaffiando queste piante... da quando non mi è stato più permesso avvicinarmi alla magione..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Cosa... ci fa lei esattamente qui?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sarebbe crudele dirle la verità... ancora non ho capito se è ostile o meno... sarà meglio limitarmi a investigare su cosa è accaduto qui.",
+					"espr": "pensiero"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sono qui solo di passaggio, siccome è stato richiesto il mio... aiuto. Qualunque cosa sia successa qui, io sono venuto per risolverla."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Vorrei sapere di più su questo posto, e su cosa devo aspettarmi da te."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hohoho... Che giovinotto energico... Io sono solo una vecchia custode, con un grande amore verso questo giardino e verso la signorina..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Se lei è qui per aiutare... non la intralcerò. Anzi... se ha bisogno di farsi due chiacchiere con una povera vecchia, sarò felice di aiutarla... hohoho..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Resta a parlare con lei",
+					"vai": "spirito_hub"
+				}
+			],
+			"task": "casa_custode"
+		},
+		"spirito_hub": {
+			"vai_se_flag": {
+				"flag": "casa_volto_battuto",
+				"vai": "albero_addio"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hohoho... Mi dica pure, giovinotto."
+				}
+			],
+			"scena": "Il volto della vecchia custode, sulla corteccia dell'albero grande.",
+			"scelte": [
+				{
+					"testo": "Chiedi consiglio su dove cercare",
+					"vai": "spirito_indizio_yhvina",
+					"richiede_non_flag": "casa_yhvina"
+				},
+				{
+					"testo": "Chiedile come si apre la botola",
+					"vai": "spirito_laboratori",
+					"richiede_flag": "casa_botola",
+					"richiede_non_flag": "casa_matrice",
+					"una_tantum": "casa_spirito_lab"
+				},
+				{
+					"testo": "Chiedile ancora dei laboratori",
+					"vai": "spirito_laboratori_ancora",
+					"richiede_flag": "casa_spirito_lab",
+					"richiede_non_flag": "casa_matrice"
+				},
+				{
+					"testo": "Mostrale la matrice",
+					"vai": "spirito_matrice",
+					"richiede_flag": "casa_matrice",
+					"una_tantum": "casa_spirito_vivaio"
+				},
+				{
+					"testo": "Chiedile ancora del vivaio",
+					"vai": "spirito_vivaio_ancora",
+					"richiede_flag": "casa_spirito_vivaio",
+					"richiede_non_flag": "casa_id_card"
+				},
+				{
+					"testo": "Chiedile del passato di questa casa",
+					"vai": "spirito_esperimento",
+					"richiede_flag": "casa_spirito_vivaio"
+				},
+				{
+					"testo": "Falle compagnia un momento",
+					"vai": "spirito_chiacchiere"
+				},
+				{
+					"testo": "Torna al giardino est",
+					"vai": "giardino_est"
+				}
+			]
+		},
+		"spirito_indizio_yhvina": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Nei piani superiori della casa ho visto da qui aggirarsi qualcuno... forse dovresti dare un'occhiata... hohoho..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Ringraziala",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"spirito_laboratori": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "... Cos'è quello?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hohoho... Vedo che hai trovato una compagna molto elegante. Che bella fanciulla!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "...",
+					"espr": "carina"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hohoho, che fanciulla tenera!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Hmpf, ecco un'altra persona sfacciata! Vedo che questo posto è pieno di maleducati! Yawn...",
+					"espr": "infastidita"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Abbiamo trovato una botola in una stanza del primo piano... sapresti dirmi come aprirla?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hmmm... Sì. Le stanze inferiori erano una prerogativa dei signori: a me non era consentito accedervi."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Forse dovreste provare a cercare nei laboratori sull'altro lato del giardino... potreste trovare una copia delle chiavi di accesso dei signori da quelle parti. Era in quel centro di ricerca che fabbricavano le varie chiavi di accesso della magione."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Ottimo, allora è deciso: andremo verso i giardini a ovest.",
+					"espr": "decisa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Che ragazza decisa... Mi ricordi la mia piccola bambina. Non la vedo da quando ha cominciato a lavorare per quel gruppo di ricercatori su Terna 9... Sai, hai gli stessi occhi stanchi... dovresti riposarti un pochino, tesoro."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Non si preoccupi, io purtroppo non dormo mai. Non è che non voglia... Non dipende da me.",
+					"espr": "delusa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Sento che non sei come gli altri, hohoho... Non dirò altro. Ma prenditi cura di te, tesoro."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a parlarle",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"spirito_laboratori_ancora": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hai provato a cercare nei laboratori?"
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a parlarle",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"spirito_matrice": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hohoho... Come prosegue il suo lavoro? Ha trovato quel che cercava? Si sta prendendo cura della sua amica?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Sono io che mi prendo cura di lui. Se non ci fossi io, probabilmente sarebbe rimasto a contare le macerie di quel rudere laggiù.",
+					"espr": "annoiata"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hohoho, non ne dubito, signorina! Come sempre la trovo stanca ma in forma!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Bisogna fare quel che bisogna fare... yaaawn..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Ma passiamo a noi: hai l'espressione di chi deve chiedermi qualcosa."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "La matrice da sola non serve... sembrerebbe aver bisogno di un chip di identificazione da inserire. Ha idea se i padroni della casa avessero qualcosa di simile?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "I signori, dopo la disgrazia, non sono più tornati in questa casa... solo la capofamiglia abitava la magione. Soleva aggirarsi sempre nel vivaio da quando è rimasta sola: adorava i suoi fiori, non ha mai dato importanza ad altro. Ricordo ancora i bei tempi passati con il signorino, prima che diventasse adulto... era un giovanotto molto solo. Forse dovreste perlustrare il vivaio."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Dobbiamo trovare un modo per distruggere quei rovi..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Rovi?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sì, dei rovi ci impediscono di proseguire: l'intero vivaio sembra inglobato in essi."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Nei laboratori dovrebbe esserci qualcosa che vi possa aiutare. Sapete, ero una dei capi ricerca prima di venire demansionata, siccome mi ero rifiutata di far parte dei progetti che la signora aveva per i nostri vivai. Ricordo di aver sviluppato un potente diserbante insieme ai miei colleghi, per prevenire e controllare eventuali scenari dovuti alla cattiva gestione dell'esperimento."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Chiedi di più sull'esperimento",
+					"vai": "spirito_esperimento"
+				},
+				{
+					"testo": "Concludi il discorso",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"spirito_vivaio_ancora": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Forse dovreste provare a perlustrare il vivaio."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a parlarle",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"spirito_esperimento": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Una volta, in questo posto, coltivavamo piante per sviluppare medicinali e antibiotici per delle grandi case farmaceutiche."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Questo finché la signora, dopo aver ricevuto una grossa somma di denaro, non ha cominciato a considerare l'utilizzo delle nostre piante anche in campo bellico. Veleni. Piante capaci di distruggere interi complessi, di divorare persone."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Quello che era un progetto nato per migliorare le condizioni delle persone è diventato qualcosa che creava nuovi problemi. Io e la signora eravamo delle ricercatrici di successo: insieme abbiamo sviluppato decine di medicinali biologici a basso costo, in grado di risolvere la maggior parte dei problemi dei pianeti più poveri. Ma qualcosa è cambiato. Non so spiegare quando né come... ma quel cambiamento ha avuto un impatto anche sulla sua famiglia."
+				}
+			],
+			"scena": "Il volto della vecchia custode, sulla corteccia dell'albero grande.",
+			"scelte": [
+				{
+					"testo": "Chiedi delle persone nelle foto",
+					"vai": "spirito_foto"
+				},
+				{
+					"testo": "Chiedi dei suoi ultimi ricordi",
+					"vai": "spirito_ricordi"
+				},
+				{
+					"testo": "Chiedi dei diari di ricerca",
+					"vai": "spirito_diari",
+					"richiede_oggetto": "diari_di_ricerca"
+				},
+				{
+					"testo": "Torna a parlare d'altro",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"spirito_foto": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "La famiglia era composta dal signore, dalla signora e dalla piccola signorina Lylloh. La capofamiglia era la mia compagna di ricerche. Il signore e la signora sono sempre state persone molto sole... La signorina Lylloh ha ereditato questa solitudine."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "A causa della rigida educazione imposta dalla capofamiglia, la signorina Lylloh non ha mai conosciuto l'amicizia vera. È vero che non le mancava nulla, ma solo dal punto di vista materiale. Nel corso degli anni questa sua tristezza la consumò, fino al giorno della tragedia. Così perdemmo l'unica cosa di puro e innocente che restava in quella casa."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Resta ad ascoltarla",
+					"vai": "spirito_esperimento"
+				}
+			]
+		},
+		"spirito_ricordi": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Mentirei se ti dicessi che i miei ricordi sono nitidi: è passato troppo tempo. Ormai, quando provo a ricordare, riesco a mettere insieme solo piccoli ponti che si collegano tra di loro senza portare da nessuna parte. Giusto il necessario per esserti utile... hohoho..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Resta ad ascoltarla",
+					"vai": "spirito_esperimento"
+				}
+			]
+		},
+		"spirito_diari": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Hai trovato i miei diari? Hohoho... pensavo fossero stati buttati via. D'altronde non c'era più bisogno di me. Ormai puoi immaginare quanto male abbia causato con le mie ricerche."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Non è colpa sua... lei voleva solo far del bene. Conosco fin troppo bene questa sensazione. Non ci si può far nulla, se non schiacciare con la forza le fonti che ti causano quel male.",
+					"espr": "decisa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Non importa se all'inizio le intenzioni erano buone. Non passo giorno a pentirmi di non aver mai provato a fermare la vecchia signora... In parte mi sento responsabile. Sento che dentro hai una grande rabbia: ma non fare gli sbagli che ha fatto questa povera vecchia. Ricorda sempre che ci sono molte strade da percorrere."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Approfondisci la questione",
+					"vai": "spirito_storia"
+				},
+				{
+					"testo": "Vai via",
+					"vai": "spirito_esperimento"
+				}
+			]
+		},
+		"spirito_storia": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Posso chiederti... come mai hai deciso di visitare questo posto?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "... Non sono affari tuoi. Diciamo che è una questione personale: non mi interessa in quale posto finirò. Ma sradicherò qualunque follia causi la disfatta di questi mondi. A qualunque costo.",
+					"espr": "decisa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Conosco quello sguardo... hohoho... Permettimi di raccontarti un'ultima storia."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Sai, non sono sempre stata così aperta al dialogo. Per me esisteva soltanto il mio lavoro, le mie piante, le mie ricerche. Come un albero, radicata nei miei ideali, non mi sono mai accorta che ero consumata dai miei obiettivi. Mio marito morì in un tragico incidente, nel posto dove mia figlia venne assunta per lavorare a dei progetti di particolare importanza per quell'azienda... la Meteo Inc., una delle aziende più discusse tra le galassie per i loro metodi e le loro ricerche senza scrupoli."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Mia figlia ti somigliava molto. Non aveva mai avuto un padre, e sua madre era totalmente assente: crebbe in un mondo freddo, dove ogni richiesta era un fastidio per gli altri. Ho perso il conto dei momenti importanti della sua vita che mi sono persa. Ricordo ancora le sue ultime parole:"
+				},
+				{
+					"tipo": "immagine",
+					"file": "res://art/illustrazioni/casa_figlia_addio.png",
+					"testo": "«Sono venuta a salutarti... ma non perché nutra un qualunque sentimento nei tuoi confronti: per avvisarti che ti supererò, a qualunque costo. Non voglio mai più vederti. Questo è un addio: grazie di niente.»"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Da quel giorno non la vidi più. Pensai che fosse una cosa buona: era decisa, intelligente, determinata. Ma passati vari anni mi resi conto di cosa avevo fatto. Avevo trascorso la mia vita in un laboratorio, perdendo le persone che avevo più care senza rendermene conto, senza dargli importanza. E ora che le mie ricerche erano state gettate alle fiamme e trasformate in armi, cominciavo ad aprire gli occhi sulle cose veramente importanti."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Ti chiedo scusa se mi sono permessa di raccontarti questa piccola storia, hohoho... Solo che mi ricordi davvero tanto mia figlia, e volevo forse illudermi di poter giustificarmi con te, come se fosse stata lei... hohoho..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Non preoccuparti... va bene così. Ma non fraintendiamoci: io... non sono così buona da meritare la pietà di qualcuno.",
+					"espr": "delusa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Concludi in modo positivo",
+					"vai": "spirito_storia_buona",
+					"richiede_legame": 40,
+					"flag": "casa_yhvina_legame"
+				},
+				{
+					"testo": "Lascia perdere",
+					"vai": "spirito_storia_lasciata"
+				}
+			]
+		},
+		"spirito_storia_buona": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Penso di poter dire la stessa cosa. Ma nonostante sia vero... solo il fatto di essere consapevoli di quel che si è, o di quel che si è fatto... forse ci dà un'ultima possibilità di aggiustare le cose."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a parlare d'altro",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"spirito_storia_lasciata": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a parlare d'altro",
+					"vai": "spirito_hub"
+				}
+			]
+		},
+		"albero_addio": {
+			"vai_se_flag": {
+				"flag": "casa_yhvina_legame",
+				"vai": "albero_addio_buono"
+			},
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "L'albero dove prima era presente il volto della signora ora è avvizzito, e al suo posto è rimasto solo un accenno di quel volto. Sembra... felice?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Il diserbante deve aver colpito anche lei..."
+				}
+			],
+			"scena": "L'albero avvizzito. Sulla corteccia, l'accenno di un volto che sorride.",
+			"scelte": [
+				{
+					"testo": "Torna al giardino est",
+					"vai": "giardino_est"
+				}
+			]
+		},
+		"albero_addio_buono": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "... Signora?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "... Sento che in questi giardini è tornata la pace. Grazie a voi le mie piccole piante possono finalmente riposare."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Sarà l'età, mio caro... ma ho tanto sonno. Forse è arrivato il momento anche per questa vecchia signora di prendersi una piccola pausa, dopo tutti questi anni di lavoro... hohoho... Ma prima, eccoti un piccolo regalo, per ringraziarti della tua gentilezza. Grazie per aver tenuto compagnia a questa povera vecchia."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Guarda che belli, i miei fiori! Era passato così tanto tempo dall'ultima volta che li ho visti felici. Grazie, giovanotti... hohoho..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "L'albero dove prima era presente il volto della signora ora è avvizzito, e al suo posto è rimasto solo un accenno di quel volto. Sembra... felice?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Il diserbante deve aver colpito anche lei..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... ?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Perché mi fissi, stupido!? Tutto questo polline mi ha stancato...",
+					"espr": "infastidita"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Diamoci una mossa prima che mi arrabbi sul serio. Ne ho abbastanza di questo posto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "..."
+				}
+			],
+			"scena": "L'albero avvizzito. Sulla corteccia, l'accenno di un volto che sorride.",
+			"scelte": [
+				{
+					"testo": "Raccogli il regalo della custode",
+					"vai": "albero_addio_buono",
+					"una_tantum": "casa_regalo_custode",
+					"oggetto": [
+						"fiore_di_luna",
+						"fiore_di_luna",
+						"fiore_di_luna"
+					],
+					"tazo": 120
+				},
+				{
+					"testo": "Torna al giardino est",
+					"vai": "giardino_est"
+				}
+			]
+		},
+		"giardino_ovest": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il sentiero a ovest esce dal folto e si allarga su una radura lastricata. In fondo, basso e lungo, un edificio con le finestre a nastro: non è parte della casa, e non prova nemmeno a sembrarlo."
+				}
+			],
+			"scena": "La radura lastricata a ovest, e in fondo il grande laboratorio.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [
+					[
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"marionetta"
+					]
+				],
+				"salta_se_flag": "casa_volto_battuto",
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{
+					"testo": "Entra nel grande laboratorio",
+					"vai": "laboratorio"
+				},
+				{
+					"testo": "Torna al giardino",
+					"vai": "giardino"
+				}
+			]
+		},
+		"laboratorio": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Banconi in fila, vetreria ancora al suo posto, cartelle appese a ogni postazione. Qui dentro non è passato nessuno a portare via niente: semplicemente, un giorno, non è più tornato nessuno."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Un centro di ricerca vero e proprio... e in ottimo stato. Chi lavorava qui non se n'è andato di fretta: se n'è andato e basta."
+				}
+			],
+			"scena": "Il grande laboratorio: banconi in fila, e le cartelle ancora appese.",
+			"scelte": [
+				{
+					"testo": "Perlustra i banconi",
+					"vai": "laboratorio",
+					"una_tantum": "casa_diari",
+					"oggetto": "diari_di_ricerca"
+				},
+				{
+					"testo": "Fruga in un armadietto del personale",
+					"vai": "laboratorio",
+					"una_tantum": "casa_tazo_lab",
+					"tazo": 45
+				},
+				{
+					"testo": "Entra nella sala delle matrici",
+					"vai": "sala_matrici"
+				},
+				{
+					"testo": "Torna al giardino ovest",
+					"vai": "giardino_ovest"
+				}
+			]
+		},
+		"sala_matrici": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Una stanza piccola e schermata, piena di macchine da incisione. Su un ripiano, una fila di piastrine identiche: le chiavi di accesso della magione, tutte vergini, tutte mai assegnate a nessuno."
+				}
+			],
+			"scena": "La sala delle matrici: le macchine da incisione e le piastrine mai assegnate.",
+			"scelte": [
+				{
+					"testo": "Prendi una matrice dal ripiano",
+					"vai": "sala_matrici",
+					"una_tantum": "casa_matrice",
+					"oggetto": "matrice"
+				},
+				{
+					"testo": "Prosegui oltre la sala",
+					"vai": "deposito_chimico"
+				},
+				{
+					"testo": "Torna nel laboratorio",
+					"vai": "laboratorio"
+				}
+			]
+		},
+		"deposito_chimico": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Un deposito chimico dietro la sala delle matrici. Taniche allineate contro la parete, tutte con la stessa etichetta scritta a mano e la stessa dicitura sotto: «uso interno — contenimento vivai»."
+				}
+			],
+			"scena": "Il deposito chimico. Le taniche contro la parete, allineate.",
+			"scelte": [
+				{
+					"testo": "Prendi una tanica di diserbante",
+					"vai": "deposito_chimico",
+					"una_tantum": "casa_diserbante",
+					"oggetto": "diserbante"
+				},
+				{
+					"testo": "Torna alla sala delle matrici",
+					"vai": "sala_matrici"
+				}
+			]
+		},
+		"giardino_nord": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il sentiero a nord finisce contro una parete viva: rovi fitti come una muraglia, che salgono per tre piani e coprono per intero la struttura di vetro dietro di essi."
+				}
+			],
+			"scena": "La muraglia di rovi a nord, e il vetro del vivaio appena visibile dietro.",
+			"agguato": {
+				"probabilita": 0.35,
+				"gruppi": [
+					[
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"marionetta"
+					]
+				],
+				"salta_se_flag": "casa_volto_battuto",
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{
+					"testo": "Avvicinati ai rovi",
+					"vai": "vivaio_ingresso"
+				},
+				{
+					"testo": "Torna al giardino",
+					"vai": "giardino"
+				}
+			],
+			"flag": "casa_vivaio_bloccato",
+			"task": "casa_vivaio"
+		},
+		"vivaio_ingresso": {
+			"vai_se_flag": {
+				"flag": "casa_vivaio_aperto",
+				"vai": "vivaio_1"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Cosa sono queste piante? Sembrano crescere continuamente..."
+				}
+			],
+			"scena": "Le piante impediscono il passaggio: colpirle è inutile.",
+			"scelte": [
+				{
+					"testo": "Prova a diradare le piante con un colpo",
+					"vai": "vivaio_rovi"
+				},
+				{
+					"testo": "Versa il diserbante sui rovi",
+					"vai": "vivaio_varco",
+					"richiede_oggetto": "diserbante"
+				},
+				{
+					"testo": "Torna al giardino nord",
+					"vai": "giardino_nord"
+				}
+			]
+		},
+		"vivaio_rovi": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "!!!",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Tutto inutile: sembra che reagiscano, e se distrutte riescono a rigenerarsi immediatamente."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a guardare i rovi",
+					"vai": "vivaio_ingresso"
+				}
+			]
+		},
+		"vivaio_varco": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il diserbante affonda nel terreno ai piedi della muraglia. Per un momento non succede niente. Poi i rovi si fermano: non appassiscono, si fermano soltanto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Le piante hanno smesso di crescere momentaneamente. È il mio momento per colpirle."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Colpisci le piante",
+					"vai": "vivaio_apertura"
+				}
+			]
+		},
+		"vivaio_apertura": {
+			"flag": "casa_vivaio_aperto",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Le piante si seccano e lasciano una piccola apertura, che ti permette di entrare nel vivaio."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Entra nel vivaio",
+					"vai": "vivaio_1"
+				},
+				{
+					"testo": "Torna al giardino nord",
+					"vai": "giardino_nord"
+				}
+			]
+		},
+		"vivaio_1": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il primo piano del vivaio: vasche lunghe quanto la sala, e sopra ognuna un cartellino di specie che non hai mai sentito nominare. Quello che ci cresce dentro adesso non è quello che c'era scritto."
+				}
+			],
+			"scena": "Il primo piano del vivaio, le vasche lunghe e i cartellini illeggibili.",
+			"agguato": {
+				"probabilita": 0.4,
+				"gruppi": [
+					[
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"ombra_del_passato"
+					]
+				],
+				"salta_se_flag": "casa_volto_battuto",
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{
+					"testo": "Perlustra il piano",
+					"vai": "vivaio_1_perlustra"
+				},
+				{
+					"testo": "Prosegui al piano inferiore",
+					"vai": "vivaio_2"
+				},
+				{
+					"testo": "Esci dal vivaio",
+					"vai": "giardino_nord"
+				}
+			]
+		},
+		"vivaio_1_perlustra": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non sembra esserci nulla di interessante, qui..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna a guardarti intorno",
+					"vai": "vivaio_1"
+				}
+			]
+		},
+		"vivaio_2": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il secondo piano è più buio: le vetrate sono coperte dai rovi anche da dentro."
+				}
+			],
+			"scena": "Il secondo piano del vivaio, con le vetrate coperte dai rovi.",
+			"agguato": {
+				"probabilita": 0.4,
+				"gruppi": [
+					[
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"donna_spinosa"
+					],
+					[
+						"donna_spinosa",
+						"ombra_del_passato"
+					]
+				],
+				"salta_se_flag": "casa_volto_battuto",
+				"se_perdi": "cacciata"
+			},
+			"scelte": [
+				{
+					"testo": "Perlustra il piano",
+					"vai": "vivaio_2_perlustra"
+				},
+				{
+					"testo": "Risali al primo piano",
+					"vai": "vivaio_1"
+				}
+			]
+		},
+		"vivaio_2_perlustra": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "C'è un buco, dove prima deve esserci stato un ascensore. Vuoi proseguire?"
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Vai giù per il buco",
+					"vai": "vivaio_3"
+				},
+				{
+					"testo": "Torna a guardarti intorno",
+					"vai": "vivaio_2"
+				}
+			]
+		},
+		"vivaio_3": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Più giù vedi l'ascensore a pezzi: questo deve essere il piano più basso... Cosa ha cercato di uscire da qui?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Sta' attento... yaaawn. Percepisco che qualcosa di forte si trova più avanti."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Ti ritrovi in una stanza piena di piante come quelle che avvolgono l'intero vivaio."
+				}
+			],
+			"scena": "Il fondo del vivaio: l'ascensore a pezzi, e la stanza invasa dalle piante.",
+			"scelte": [
+				{
+					"testo": "Perlustra la stanza",
+					"vai": "vivaio_fondo"
+				},
+				{
+					"testo": "Risali al secondo piano",
+					"vai": "vivaio_2"
+				}
+			]
+		},
+		"vivaio_fondo": {
+			"vai_se_flag": {
+				"flag": "casa_volto_battuto",
+				"vai": "vivaio_fondo_dopo"
+			},
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questa stanza sembra ricoperta da queste fastidiose piante... Forse sarebbe il caso di estinguerle una volta per tutte."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Usa il diserbante sul terreno",
+					"vai": "volto_appare",
+					"richiede_oggetto": "diserbante"
+				},
+				{
+					"testo": "Risali",
+					"vai": "vivaio_3"
+				}
+			]
+		},
+		"volto_appare": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "... Sembra che qualunque cosa controlli queste piante non abbia gradito le tue doti da giardiniere."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Qualcosa prende forma sulla parete..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "volto_sulla_parete",
+					"testo": "Chi siete... Siete venuti a rubare i risultati delle mie ricerche, vero? Schifosi..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Fatti avanti e fai silenzio.",
+					"espr": "decisa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "volto_sulla_parete",
+					"testo": "Come osi, piccolo stupido impudente... Tu non sai chi hai davanti!"
+				}
+			],
+			"destra": "volto_sulla_parete",
+			"combattimento_automatico": {
+				"nemici": [
+					"volto_sulla_parete"
+				],
+				"se_vinci": "dopo_volto",
+				"se_perdi": "cacciata",
+				"se_fuggi": "vivaio_3"
+			}
+		},
+		"dopo_volto": {
+			"flag": "casa_volto_battuto",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "... Che faticaccia. Le erbacce non muoiono mai."
+				}
+			],
+			"scena": "La stanza in fondo al vivaio. Sulla parete non è rimasto niente.",
+			"scelte": [
+				{
+					"testo": "Perlustra la stanza",
+					"vai": "id_card_trovata",
+					"una_tantum": "casa_id_card",
+					"oggetto": [
+						"id_card",
+						"fiala_hp",
+						"fiala_hp"
+					],
+					"tazo": 190
+				},
+				{
+					"testo": "Risali",
+					"vai": "vivaio_3"
+				}
+			]
+		},
+		"id_card_trovata": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Nel cassetto di una delle scrivanie trovi l'ID della capofamiglia, coperto di piccole piante."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Risali",
+					"vai": "vivaio_3"
+				}
+			]
+		},
+		"vivaio_fondo_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "La stanza in fondo al vivaio. Il terreno è secco, e sulla parete non prende più forma niente."
+				}
+			],
+			"scena": "La stanza in fondo al vivaio. Sulla parete non è rimasto niente.",
+			"scelte": [
+				{
+					"testo": "Perlustra la stanza",
+					"vai": "id_card_trovata",
+					"una_tantum": "casa_id_card",
+					"oggetto": [
+						"id_card",
+						"fiala_hp",
+						"fiala_hp"
+					],
+					"tazo": 190
+				},
+				{
+					"testo": "Risali",
+					"vai": "vivaio_3"
+				}
+			]
+		},
+		"botola_chiusa": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "La botola non ha maniglia: solo una fessura sottile sul bordo, e sopra la fessura una spia che continua a lampeggiare piano, da anni."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Una chiave di accesso. Certo che ci voleva una chiave di accesso..."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna alla stanza dei giochi",
+					"vai": "stanza_giochi"
+				}
+			],
+			"task": "casa_botola"
+		},
+		"lettore_vuoto": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Infili la matrice nella fessura. La spia smette di lampeggiare e resta accesa, fissa, per qualche secondo."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "«UTENTE NON IDENTIFICATO. ID VUOTO.»"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Manca il chip di identificazione. La piastrina da sola non dice a nessuno chi sono."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Torna alla stanza dei giochi",
+					"vai": "stanza_giochi"
+				}
+			]
+		},
+		"spirito_chiacchiere": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "spirito_dei_giardini",
+					"testo": "Hohoho... Non serve sempre chiedere qualcosa, sa? Una vecchia si accontenta anche solo di sentire dei passi che si fermano."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Resta ancora un po'",
+					"vai": "spirito_hub"
+				}
 			]
 		}
 	}

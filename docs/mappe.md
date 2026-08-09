@@ -257,15 +257,31 @@ inizio
 
 # Casa Gigante
 
-<sub>`data/vuoti/casa_gigante.json` — 33 scene</sub>
+<sub>`data/vuoti/casa_gigante.json` — 79 scene</sub>
 
-*Questa zona non ha ancora una `mappa_dungeon`: si gioca solo a scelte.*
+## La griglia
+
+| | | | | | | |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|   |   | **Camera da letto** |   |   |   |   |
+| **L'altare** |   | **Attico** |   | **Deposito chimico** |   |   |
+| **Il tunnel** |   | **Soffitta** |   | **Sala delle matrici** |   |   |
+| **Stanza degli studi** | **Stanza dei giochi** | **La scala** | **Grande bagno** | **Il grande laboratorio** |   |   |
+|   |   | **Sala principale** | **Cucina** | **Giardino ovest** |   |   |
+|   | **Ala sinistra** | **Il salone** | **Ala destra** | **Il giardino** | **Giardino est** | **L'albero grande** |
+|   |   | ▶ ✕ **La soglia** |   | **Verso i giardini** | **Giardino nord** | **Vivaio, primo piano** |
+|   |   |   |   |   |   | **Vivaio, secondo piano** |
+|   |   |   |   |   |   | **Fondo del vivaio** |
+
+27 stanze sulla mappa, 26 collegamenti.
+
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `albero_addio`, `albero_addio_buono`, `albero_voce_spilla`, `botola_chiusa`, `cacciata`, `cartella_clinica`, `congedo_yhvina`, `dopo_volto`, `fiori_di_luna`, `foto_1`, `foto_2`, `foto_3`, `id_card_trovata`, `lettere_bruciate`, `lettere_lettura`, `lettore_vuoto`, `mensola`, `porta_bloccata`, `porta_enorme`, `presentazione_ricordo`, `quadro_donna`, `quadro_famiglia`, `quadro_uomo`, `ricordo_concluso`, `ricordo_concluso_buono`, `spirito_chiacchiere`, `spirito_diari`, `spirito_esperimento`, `spirito_foto`, `spirito_hub`, `spirito_indizio_yhvina`, `spirito_laboratori`, `spirito_laboratori_ancora`, `spirito_matrice`, `spirito_ricordi`, `spirito_rivelato`, `spirito_storia`, `spirito_storia_buona`, `spirito_storia_lasciata`, `spirito_vivaio_ancora`, `vivaio_1_perlustra`, `vivaio_2_perlustra`, `vivaio_apertura`, `vivaio_fondo`, `vivaio_fondo_dopo`, `vivaio_ingresso`, `vivaio_rovi`, `vivaio_varco`, `voce_avvicinati`, `voce_ignorata`, `volto_appare`, `yhvina_si`.
 
 ## Il percorso
 
 ```
 soglia
-  · Entra → salone   (agguato 30%)
+  · Entra nella casa → salone   (agguato 30%)
     · Vai nella sala principale → sala_principale
       · Osserva il quadro dell'uomo → quadro_uomo
         · Torna nella sala principale → sala_principale [gia' visto]
@@ -289,7 +305,7 @@ soglia
           · Osserva la terza fotografia → foto_3
             · Torna alla stanza dei giochi → stanza_giochi [gia' visto]
           · Apri il baule dei giocattoli   (+fiala_hp)
-          · Scendi nella botola → stanza_studi   (serve casa_botola)
+          · Scendi nella botola → stanza_studi   (serve casa_botola; serve id_card, matrice)
             · Leggi la cartella clinica → cartella_clinica
               · Richiudi il fascicolo → stanza_studi [gia' visto]
             · Prosegui nel tunnel → tunnel
@@ -314,6 +330,10 @@ soglia
                 · Torna al tunnel → tunnel [gia' visto]
               · Torna alla stanza degli studi → stanza_studi [gia' visto]
             · Risali dalla botola → stanza_giochi [gia' visto]
+          · Prova la matrice sul lettore → lettore_vuoto   (serve casa_botola; serve matrice; solo se non casa_id_card)
+            · Torna alla stanza dei giochi → stanza_giochi [gia' visto]
+          · Esamina il lettore della botola → botola_chiusa   (serve casa_botola; solo se non casa_matrice)
+            · Torna alla stanza dei giochi → stanza_giochi [gia' visto]
           · Torna alla scala → scala [gia' visto]
         · Sali fino alla soffitta → soffitta   (agguato 30%)
           · Rovista tra gli scatoloni   (+collana_particolare)
@@ -334,6 +354,107 @@ soglia
       · Torna al salone → salone [gia' visto]
     · Vai nell'ala sinistra → ala_sinistra
       · Torna al salone → salone [gia' visto]
+    · Torna alla soglia → soglia [gia' visto]
+  · Va' verso i giardini → giardino_ingresso
+    · Entra nel giardino → giardino   (agguato 35%)
+      · Prendi il sentiero verso il giardino est → giardino_est   (agguato 35%)
+        · Esplora il giardino est → fiori_di_luna   (+fiore_di_luna, fiore_di_luna)
+          · Torna a guardarti intorno → giardino_est [gia' visto]
+        · Addentrati nel giardino est → albero_voce
+          ⟳ con casa_spilla diventa albero_voce_spilla
+          albero_voce_spilla
+            ⟳ con casa_spirito diventa spirito_hub
+            spirito_hub
+              ⟳ con casa_volto_battuto diventa albero_addio
+              albero_addio
+                ⟳ con casa_yhvina_legame diventa albero_addio_buono
+                albero_addio_buono
+                  · Raccogli il regalo della custode   (+fiore_di_luna, fiore_di_luna, fiore_di_luna; +120 Tazo)
+                  · Torna al giardino est → giardino_est [gia' visto]
+                · Torna al giardino est → giardino_est [gia' visto]
+              · Chiedi consiglio su dove cercare → spirito_indizio_yhvina   (solo se non casa_yhvina)
+                · Ringraziala → spirito_hub [gia' visto]
+              · Chiedile come si apre la botola → spirito_laboratori   (serve casa_botola; solo se non casa_matrice)
+                · Torna a parlarle → spirito_hub [gia' visto]
+              · Chiedile ancora dei laboratori → spirito_laboratori_ancora   (serve casa_spirito_lab; solo se non casa_matrice)
+                · Torna a parlarle → spirito_hub [gia' visto]
+              · Mostrale la matrice → spirito_matrice   (serve casa_matrice)
+                · Chiedi di più sull'esperimento → spirito_esperimento
+                  · Chiedi delle persone nelle foto → spirito_foto
+                    · Resta ad ascoltarla → spirito_esperimento [gia' visto]
+                  · Chiedi dei suoi ultimi ricordi → spirito_ricordi
+                    · Resta ad ascoltarla → spirito_esperimento [gia' visto]
+                  · Chiedi dei diari di ricerca → spirito_diari   (serve diari_di_ricerca)
+                    · Approfondisci la questione → spirito_storia
+                      · Concludi in modo positivo → spirito_storia_buona
+                        · Torna a parlare d'altro → spirito_hub [gia' visto]
+                      · Lascia perdere → spirito_storia_lasciata
+                        · Torna a parlare d'altro → spirito_hub [gia' visto]
+                    · Vai via → spirito_esperimento [gia' visto]
+                  · Torna a parlare d'altro → spirito_hub [gia' visto]
+                · Concludi il discorso → spirito_hub [gia' visto]
+              · Chiedile ancora del vivaio → spirito_vivaio_ancora   (serve casa_spirito_vivaio; solo se non casa_id_card)
+                · Torna a parlarle → spirito_hub [gia' visto]
+              · Chiedile del passato di questa casa → spirito_esperimento [gia' visto]
+              · Falle compagnia un momento → spirito_chiacchiere
+                · Resta ancora un po' → spirito_hub [gia' visto]
+              · Torna al giardino est → giardino_est [gia' visto]
+            · Mostra la spilla a margherita → spirito_rivelato   (serve spilla_margherita; flag casa_spirito)
+              · Resta a parlare con lei → spirito_hub [gia' visto]
+            · Torna al giardino est → giardino_est [gia' visto]
+          · Avvicinati → voce_avvicinati
+            · Torna al giardino est → giardino_est [gia' visto]
+          · Vai via → voce_ignorata
+            · Torna indietro e avvicinati → voce_avvicinati [gia' visto]
+            · Torna al giardino est → giardino_est [gia' visto]
+        · Torna al giardino → giardino [gia' visto]
+      · Prendi il sentiero verso il giardino ovest → giardino_ovest   (agguato 35%)
+        · Entra nel grande laboratorio → laboratorio
+          · Perlustra i banconi   (+diari_di_ricerca)
+          · Fruga in un armadietto del personale   (+45 Tazo)
+          · Entra nella sala delle matrici → sala_matrici
+            · Prendi una matrice dal ripiano   (+matrice)
+            · Prosegui oltre la sala → deposito_chimico
+              · Prendi una tanica di diserbante   (+diserbante)
+              · Torna alla sala delle matrici → sala_matrici [gia' visto]
+            · Torna nel laboratorio → laboratorio [gia' visto]
+          · Torna al giardino ovest → giardino_ovest [gia' visto]
+        · Torna al giardino → giardino [gia' visto]
+      · Prendi il sentiero verso il giardino nord → giardino_nord   (flag casa_vivaio_bloccato; agguato 35%)
+        · Avvicinati ai rovi → vivaio_ingresso
+          ⟳ con casa_vivaio_aperto diventa vivaio_1
+          vivaio_1   (agguato 40%)
+            · Perlustra il piano → vivaio_1_perlustra
+              · Torna a guardarti intorno → vivaio_1 [gia' visto]
+            · Prosegui al piano inferiore → vivaio_2   (agguato 40%)
+              · Perlustra il piano → vivaio_2_perlustra
+                · Vai giù per il buco → vivaio_3
+                  · Perlustra la stanza → vivaio_fondo
+                    ⟳ con casa_volto_battuto diventa vivaio_fondo_dopo
+                    vivaio_fondo_dopo
+                      · Perlustra la stanza → id_card_trovata   (+id_card, fiala_hp, fiala_hp; +190 Tazo)
+                        · Risali → vivaio_3 [gia' visto]
+                      · Risali → vivaio_3 [gia' visto]
+                    · Usa il diserbante sul terreno → volto_appare   (serve diserbante; scontro! volto_sulla_parete)
+                      vinci → dopo_volto   (flag casa_volto_battuto)
+                        · Perlustra la stanza → id_card_trovata [gia' visto]
+                        · Risali → vivaio_3 [gia' visto]
+                      perdi → cacciata [gia' visto]
+                      fuggi → vivaio_3 [gia' visto]
+                    · Risali → vivaio_3 [gia' visto]
+                  · Risali al secondo piano → vivaio_2 [gia' visto]
+                · Torna a guardarti intorno → vivaio_2 [gia' visto]
+              · Risali al primo piano → vivaio_1 [gia' visto]
+            · Esci dal vivaio → giardino_nord [gia' visto]
+          · Prova a diradare le piante con un colpo → vivaio_rovi
+            · Torna a guardare i rovi → vivaio_ingresso [gia' visto]
+          · Versa il diserbante sui rovi → vivaio_varco   (serve diserbante)
+            · Colpisci le piante → vivaio_apertura   (flag casa_vivaio_aperto)
+              · Entra nel vivaio → vivaio_1 [gia' visto]
+              · Torna al giardino nord → giardino_nord [gia' visto]
+          · Torna al giardino nord → giardino_nord [gia' visto]
+        · Torna al giardino → giardino [gia' visto]
+      · Torna verso la soglia → giardino_ingresso [gia' visto]
     · Torna alla soglia → soglia [gia' visto]
   · Torna nel Vuoto   (solo se non casa_yhvina; esce dalla zona)
   · Torna nel Vuoto   (serve casa_ricordo_sconfitto; esce dalla zona)

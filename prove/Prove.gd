@@ -293,6 +293,20 @@ func flag_alzati() -> Dictionary:
 						alzati[String(scelta[chiave])] = true
 			for id_stanza in nodo.get("sblocca_stanze", []):
 				alzati["__stanza__" + String(id_stanza)] = true
+	# ANCHE I COMPAGNI ALZANO FLAG. La botola della Casa Gigante si scopre
+	# parlando con Yhvina, e quel dialogo sta in dialoghi.json, non nei file di
+	# eventi: guardando solo quelli, un flag alzato li' sembra non alzato da
+	# nessuno e la prova sugli appunti grida al lupo su un appunto sanissimo.
+	for contenitore in [GameState.dialoghi, GameState.conversazioni]:
+		for id_nodo in contenitore:
+			var voce: Dictionary = contenitore[id_nodo]
+			for chiave in ["flag", "una_tantum"]:
+				if voce.has(chiave):
+					alzati[String(voce[chiave])] = true
+			for opzione in voce.get("mediazione", {}).get("opzioni", []):
+				for chiave in ["flag", "una_tantum"]:
+					if opzione.has(chiave):
+						alzati[String(opzione[chiave])] = true
 	return alzati
 
 func prova_appunti() -> void:

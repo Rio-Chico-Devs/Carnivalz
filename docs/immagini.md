@@ -31,7 +31,7 @@ chiedere `"espr": "sotto_la_pioggia"` e basta disegnare quel file.
 Non 16 espressioni per 48 personaggi (768 disegni, che non li fa nessuno).
 Questo e' quello che i dialoghi scritti finora chiedono davvero.
 
-### 1. Il ritratto singolo — 50 da fare
+### 1. Il ritratto singolo — 53 da fare
 
 Basta questo perche' nessuno sia piu' un segnaposto. Le creature da
 combattimento si fermano qui: non parlano, non gli serve altro.
@@ -45,6 +45,7 @@ art/personaggi/curie.png
 art/personaggi/diabolo.png
 art/personaggi/divoratore.png
 art/personaggi/divoratore_di_carcasse.png
+art/personaggi/donna_spinosa.png
 art/personaggi/ferraglia_urlante.png
 art/personaggi/fio.png
 art/personaggi/ghoul.png
@@ -74,6 +75,7 @@ art/personaggi/sacerdote_folle.png
 art/personaggi/sadico.png
 art/personaggi/sally.png
 art/personaggi/slime_infimo.png
+art/personaggi/spirito_dei_giardini.png
 art/personaggi/stigma.png
 art/personaggi/tartaruga_innocente.png
 art/personaggi/tenero_ricordo.png
@@ -83,13 +85,14 @@ art/personaggi/vecchio_clown.png
 art/personaggi/vega.png
 art/personaggi/veronica.png
 art/personaggi/voce_registrata.png
+art/personaggi/volto_sulla_parete.png
 art/personaggi/yara.png
 art/personaggi/yhvina.png
 art/personaggi/zombie_cittadino.png
 art/personaggi/zombie_mostruoso.png
 ```
 
-### 2. Le espressioni dei dialoghi — 35 da fare
+### 2. Le espressioni dei dialoghi — 40 da fare
 
 Solo per chi ha delle battute, e solo le facce che le battute nominano.
 Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto
@@ -112,7 +115,10 @@ art/personaggi/goblin_arrabbiato/decisa.png
 art/personaggi/goblin_arrabbiato/neutra.png
 art/personaggi/infetto_rapido/neutra.png
 art/personaggi/insonne/annoiata.png
+art/personaggi/insonne/carina.png
 art/personaggi/insonne/decisa.png
+art/personaggi/insonne/delusa.png
+art/personaggi/insonne/infastidita.png
 art/personaggi/insonne/neutra.png
 art/personaggi/jerah/decisa.png
 art/personaggi/jerah/delusa.png
@@ -125,20 +131,22 @@ art/personaggi/l_immortale/neutra.png
 art/personaggi/nuvola_di_marciume/neutra.png
 art/personaggi/robo_pattuglia/neutra.png
 art/personaggi/sopravvissuta/neutra.png
+art/personaggi/spirito_dei_giardini/neutra.png
 art/personaggi/tenero_ricordo/neutra.png
 art/personaggi/vecchio_clown/neutra.png
 art/personaggi/vecchio_clown/pensiero.png
 art/personaggi/veronica/decisa.png
 art/personaggi/veronica/felice.png
 art/personaggi/veronica/neutra.png
+art/personaggi/volto_sulla_parete/neutra.png
 ```
 
 | chi | quante | quali |
 |---|--:|---|
+| Yhvina (`insonne`) | 6 | `annoiata` · `carina` · `decisa` · `delusa` · `infastidita` · `neutra` |
 | Anonimo (`anonimo`) | 5 | `decisa` · `neutra` · `pensiero` · `sforzo` · `sorpresa` |
 | L'ultimo spettacolo di Jerah (`jerah`) | 4 | `decisa` · `delusa` · `neutra` · `speciale` |
 | El Muy Bonito (`giocoliere`) | 3 | `arrabbiata` · `cool` · `neutra` |
-| Yhvina (`insonne`) | 3 | `annoiata` · `decisa` · `neutra` |
 | Jongo Dongo (`jongo_dongo`) | 3 | `decisa` · `neutra` · `petrificata` |
 | Veronica (`veronica`) | 3 | `decisa` · `felice` · `neutra` |
 | Dott.ssa Curie Heartlife (`curie`) | 2 | `carina` · `neutra` |
@@ -151,7 +159,9 @@ art/personaggi/veronica/neutra.png
 | Nuvola di Marciume (`nuvola_di_marciume`) | 1 | `neutra` |
 | Robo Pattuglia (`robo_pattuglia`) | 1 | `neutra` |
 | Yara (`sopravvissuta`) | 1 | `neutra` |
+| Spirito dei giardini (`spirito_dei_giardini`) | 1 | `neutra` |
 | Un tenero ricordo (`tenero_ricordo`) | 1 | `neutra` |
+| Volto sulla parete (`volto_sulla_parete`) | 1 | `neutra` |
 
 ## Squadra
 
@@ -206,10 +216,12 @@ art/personaggi/veronica/neutra.png
 | Divoratore di Carcasse | 11 | `art/personaggi/divoratore_di_carcasse.png` | — |  |
 | Sacerdote Folle | 11 | `art/personaggi/sacerdote_folle.png` | — |  |
 | Jongo Dongo | 12 | `art/personaggi/jongo_dongo.png` | — |  |
+| Donna Spinosa | 13 | `art/personaggi/donna_spinosa.png` | — |  |
 | Marionetta | 13 | `art/personaggi/marionetta.png` | — |  |
 | Jongo Dongo | 14 | `art/personaggi/jongo_dongo.png` | — |  |
 | Ombra del passato | 14 | `art/personaggi/ombra_del_passato.png` | — |  |
 | Un tenero ricordo | 15 | `art/personaggi/tenero_ricordo.png` | — |  |
+| Volto sulla parete | 15 | `art/personaggi/volto_sulla_parete.png` | — |  |
 | L'ultimo spettacolo di Jerah | 18 | `art/personaggi/jerah.png` | — |  |
 
 ## Personaggi
@@ -218,6 +230,7 @@ art/personaggi/veronica/neutra.png
 |---|---|---|:-:|
 | Dott.ssa Curie Heartlife | `art/personaggi/curie.png` | `art/personaggi/curie/` |  |
 | Le lettere sull'altare | `art/personaggi/lettere_altare.png` | `art/personaggi/lettere_altare/` |  |
+| Spirito dei giardini | `art/personaggi/spirito_dei_giardini.png` | `art/personaggi/spirito_dei_giardini/` |  |
 
 ## Le illustrazioni delle scene
 
@@ -227,6 +240,7 @@ quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
 
 | file | dove | cosa si vede | c'è |
 |---|---|---|:-:|
+| `art/illustrazioni/casa_figlia_addio.png` | casa_gigante.json › spirito_storia | «Sono venuta a salutarti... ma non perché nutra un qualunque sentimento nei tuoi confronti: per avvisarti che ti supererò, a qualunque costo. Non voglio mai più vederti. Questo è un addio: grazie di niente.» |  |
 | `art/illustrazioni/meridia_morto_vivente.png` | meridia.json › fuori_struttura | In mezzo alla strada, fermo, c'è qualcosa che ti sta guardando da parecchio. |  |
 | `art/illustrazioni/file_reparto_montaggio.png` | squarcio_industriale.json › file_computer | In fila davanti alla catena ci sono più uomini di quanti quel reparto potesse contenerne. Nessuno guarda l'obiettivo. |  |
 
@@ -242,4 +256,4 @@ quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
 
 ---
 
-Ritratti presenti: **0 su 51**.
+Ritratti presenti: **0 su 54**.

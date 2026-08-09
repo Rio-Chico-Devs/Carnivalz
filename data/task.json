@@ -116,6 +116,28 @@
 			"chiuso_da": ["casa_ricordo_sconfitto"]
 		},
 		{
+			"id": "casa_botola",
+			"titolo": "La botola sotto i cuscini",
+			"testo": "Sotto i cuscini della stanza dei giochi c'è una botola senza maniglia: solo una fessura e una spia che lampeggia da anni. Serve una chiave di accesso di quelle che i signori di questa casa si facevano fabbricare in proprio, e le facevano nel centro di ricerca in fondo ai giardini.",
+			"richiede_flags": ["casa_botola"],
+			"chiuso_da": ["casa_id_card"]
+		},
+		{
+			"id": "casa_custode",
+			"titolo": "La custode dei giardini",
+			"testo": "C'è un volto dentro la corteccia dell'albero grande, in fondo al giardino est. Innaffia le stesse piante da prima che questa casa diventasse quello che è: era capo ricerca, e l'hanno demansionata per essersi rifiutata di lavorare a quello che le chiedevano. Sa più cose di chiunque altro qui dentro, e non ha nessuna fretta di raccontarle.",
+			"da": "spirito_dei_giardini",
+			"richiede_flags": ["casa_spirito"],
+			"chiuso_da": ["casa_volto_battuto"]
+		},
+		{
+			"id": "casa_vivaio",
+			"titolo": "I rovi del vivaio",
+			"testo": "Il giardino nord finisce contro una muraglia viva che copre l'intero vivaio: colpirla non serve, si rigenera mentre la guardi. Nei laboratori dovrebbe esserci un diserbante sviluppato apposta, quando ancora qualcuno prevedeva che questo potesse succedere.",
+			"richiede_flags": ["casa_vivaio_bloccato"],
+			"chiuso_da": ["casa_vivaio_aperto"]
+		},
+		{
 			"id": "kizako",
 			"titolo": "Kizako Industries — Ala Dimenticata",
 			"testo": "Il nome era già sui documenti dello squarcio industriale, e adesso torna. Un'ala che qualcuno ha cancellato dalle planimetrie ufficiali: la gente cancella le cose per due motivi, o le ha dimenticate o non vuole che le si trovi.",
