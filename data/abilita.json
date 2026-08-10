@@ -1,34 +1,36 @@
 {
 	"_nota": "LE ABILITA' DEI PERSONAGGI GIOCABILI. Prima stavano in regole.json, in mezzo ai numeri di bilanciamento, ed erano quattro. Adesso sono un file loro perche' sono diventate una progressione: non solo cosa sa fare un personaggio, ma quando lo impara e cosa puo' diventare. Il motore di combattimento conosce dei TIPI (astio, vendetta, flagello, annichilazione, mantra, pieta, provoca, area, raffica, carica); tutto il resto - nomi, numeri, testi, livelli, costi - sta qui.",
-
 	"_nota_linee": "UNA LINEA E' UN'ABILITA' CHE CRESCE. Annichilazione I diventa II, II diventa III, fino alla mastery. Chi conosce un grado non conosce gli altri: nel menu ne compare uno solo, il piu' alto che hai sbloccato. Questo non e' un accordo fra chi scrive i dati e chi scrive il codice - e' come e' fatto il sistema, e prova_linee_abilita fallisce se due gradi della stessa linea risultano noti insieme.",
-
 	"_nota_punti": "COME SI IMPARA. Fino al livello 24 le abilita' arrivano da sole ai livelli scritti qui sotto: sono il mestiere di base, non una scelta. Dal 25 in poi arrivano PUNTI, uno ogni quattro livelli, e li spendi su quello che vuoi fra i nodi che il tuo livello ha aperto. Le due scelte che Bru ha descritto escono da sole da questa regola: al 25 hai un punto e davanti Pieta' o Terra bruciata, al 29 ne hai un altro e davanti quello che non hai preso piu' Annichilazione II. Nessuna delle due e' scritta come caso particolare: sono la conseguenza di avere un punto e piu' di una porta.",
 	"punti": {
 		"dal_livello": 25,
 		"ogni_livelli": 4,
 		"per_volta": 1
 	},
-
 	"_nota_armi": "OGNI ARMA PORTA I SUOI ATTACCHI. Un personaggio ha un attacco base; l'arma che impugna fa comparire una serie di attacchi suoi, e il danno di quegli attacchi e' l'attacco base del personaggio piu' il bonus che l'arma da' a QUELL'attacco. Cosi' cambiare arma non cambia solo un numero: cambia cosa puoi fare. Le classi d'arma dicono chi puo' impugnare cosa.",
 	"classi_arma": {
 		"catalizzatore": {
 			"nome": "Catalizzatore",
 			"_cosa_e": "Il protagonista non combatte con l'arma: combatte attraverso l'arma. Qualunque cosa impugni diventa un catalizzatore per i suoi poteri oscuri e psichici, quindi puo' usarle tutte.",
-			"usata_da": ["anonimo"]
+			"usata_da": [
+				"anonimo"
+			]
 		},
 		"pesante": {
 			"nome": "Arma pesante",
 			"_cosa_e": "Martelli e cose che si portano con due mani. Lente, e non gliene importa niente della tua difesa.",
-			"usata_da": ["veronica"]
+			"usata_da": [
+				"veronica"
+			]
 		},
 		"artigli": {
 			"nome": "Artigli e glifi",
 			"_cosa_e": "Artigli per quello che va aperto, glifi di evocazione per quello che va chiamato.",
-			"usata_da": ["yhvina"]
+			"usata_da": [
+				"yhvina"
+			]
 		}
 	},
-
 	"abilita": {
 		"provocazione": {
 			"nome": "Provoca",
@@ -62,7 +64,6 @@
 			"testo_carica": "%s si carica. Il prossimo colpo sarà un altro discorso.",
 			"descrizione": "Questo turno non fai niente. Il prossimo colpo vale quattro volte tanto."
 		},
-
 		"astio": {
 			"nome": "Astio",
 			"tipo": "astio",
@@ -96,7 +97,6 @@
 			"testo_inutile": "[i]%s è ancora troppo in piedi perché serva a qualcosa.[/i]",
 			"descrizione": "Perdi il turno. Se il nemico è quasi finito, lascerà molto più di quanto avrebbe lasciato."
 		},
-
 		"flagello": {
 			"nome": "Flagello",
 			"tipo": "flagello",
@@ -164,7 +164,7 @@
 			"colpi": 25,
 			"elemento": "oscuro",
 			"bonus_dominio": 0.15,
-			"bonus_attacco": 0.10,
+			"bonus_attacco": 0.1,
 			"probabilita_terrore": 0.05,
 			"testo_uso": "[i]%s smette di essere un posto dove si può stare.[/i]",
 			"descrizione": "Il 10% di danno in più, e ogni colpo può far terrorizzare chi non è un boss."
@@ -187,7 +187,6 @@
 			"testo_statistiche": "Qualcosa torna indietro: tutte le statistiche di %s salgono di %d, fino alla fine dello scontro.",
 			"descrizione": "Il 12% di danno in più, e ogni volta che lo usi tutte le tue statistiche salgono di 1 fino alla fine dello scontro. Si accumula."
 		},
-
 		"annichilazione": {
 			"nome": "Annichilazione",
 			"tipo": "annichilazione",
@@ -197,7 +196,7 @@
 			"aura": 7,
 			"frazione_danno": 0.75,
 			"soglia_hp": 0.25,
-			"probabilita_ko": 0.50,
+			"probabilita_ko": 0.5,
 			"elemento": "oscuro",
 			"testo_uso": "[i]Attorno a %s l'aria si chiude in anelli: verde acqua, nero, bianco.[/i]",
 			"testo_ko": "[b]Gli anelli si stringono. Dove c'era %s non c'è più niente.[/b]",
@@ -277,13 +276,12 @@
 			"aura": 8,
 			"frazione_danno": 0.75,
 			"soglia_hp": 0.25,
-			"probabilita_ko": 0.70,
+			"probabilita_ko": 0.7,
 			"elemento": "oscuro",
 			"testo_uso": "[i]Attorno a %s non si chiude l'aria: si chiude il posto dove stava.[/i]",
 			"testo_ko": "[b]Gli anelli si stringono. Dove c'era %s non c'è più niente.[/b]",
 			"descrizione": "70%: più in là di così il vuoto non va."
 		},
-
 		"mantra": {
 			"nome": "Mantra",
 			"tipo": "mantra",
@@ -292,8 +290,8 @@
 			"livello": 14,
 			"aura": 2,
 			"difesa_per_dominio": 0.35,
-			"attacco_per_dominio": 0.20,
-			"stress_per_dominio": 0.40,
+			"attacco_per_dominio": 0.2,
+			"stress_per_dominio": 0.4,
 			"testo_uso": "[i]%s si ferma e respira. La barra di dominio si svuota tutta in una volta.[/i]",
 			"testo_niente": "[i]%s prova a raccogliersi, ma non ha niente da bruciare.[/i]",
 			"descrizione": "Svuoti la barra di dominio e la spendi su di te: difesa e attacco salgono, lo stress cala. Quanto? Quanto era piena."
@@ -307,8 +305,8 @@
 			"costo": 1,
 			"aura": 2,
 			"difesa_per_dominio": 0.35,
-			"attacco_per_dominio": 0.20,
-			"stress_per_dominio": 0.40,
+			"attacco_per_dominio": 0.2,
+			"stress_per_dominio": 0.4,
 			"legame": 2,
 			"testo_uso": "[i]%s si ferma e respira, e chi gli sta intorno respira con lui.[/i]",
 			"testo_niente": "[i]%s prova a raccogliersi, ma non ha niente da bruciare.[/i]",
@@ -323,8 +321,8 @@
 			"costo": 1,
 			"aura": 3,
 			"difesa_per_dominio": 0.35,
-			"attacco_per_dominio": 0.20,
-			"stress_per_dominio": 0.40,
+			"attacco_per_dominio": 0.2,
+			"stress_per_dominio": 0.4,
 			"legame": 2,
 			"provoca": true,
 			"testo_uso": "[i]%s si ferma e respira, e diventa l'unica cosa che i nemici riescono a guardare.[/i]",
@@ -340,8 +338,8 @@
 			"costo": 1,
 			"aura": 3,
 			"difesa_per_dominio": 0.35,
-			"attacco_per_dominio": 0.20,
-			"stress_per_dominio": 0.40,
+			"attacco_per_dominio": 0.2,
+			"stress_per_dominio": 0.4,
 			"legame": 2,
 			"provoca": true,
 			"turni_immune": 1,
@@ -358,8 +356,8 @@
 			"costo": 1,
 			"aura": 3,
 			"difesa_per_dominio": 0.35,
-			"attacco_per_dominio": 0.20,
-			"stress_per_dominio": 0.40,
+			"attacco_per_dominio": 0.2,
+			"stress_per_dominio": 0.4,
 			"legame": 2,
 			"provoca": true,
 			"turni_immune": 1,
@@ -377,33 +375,102 @@
 			"costo": 1,
 			"aura": 4,
 			"difesa_per_dominio": 0.35,
-			"attacco_per_dominio": 0.20,
-			"stress_per_dominio": 0.40,
+			"attacco_per_dominio": 0.2,
+			"stress_per_dominio": 0.4,
 			"legame": 2,
 			"provoca": true,
 			"turni_immune": 1,
 			"velocita": 2,
 			"cura_stati": true,
-			"stati_incurabili": ["maledizione"],
+			"stati_incurabili": [
+				"maledizione"
+			],
 			"testo_uso": "[i]%s si ferma, e tutto quello che gli avevano messo addosso scivola via.[/i]",
 			"testo_niente": "[i]%s prova a raccogliersi, ma non ha niente da bruciare.[/i]",
 			"descrizione": "Come Mantra V, e ti togli di dosso ogni stato. Tranne la maledizione: quella non se ne va respirando."
+		},
+		"spezza_spazio": {
+			"nome": "Spezza spazio",
+			"tipo": "annichilazione",
+			"livello": 1,
+			"aura": 0,
+			"dominio": 1.0,
+			"frazione_danno": 1.9,
+			"soglia_hp": 0.18,
+			"probabilita_ko": 0.35,
+			"elemento": "oscuro",
+			"testo_uso": "[i]%s apre uno strappo dove non c'era niente da aprire.[/i]",
+			"testo_ko": "[b]Lo strappo si richiude su %s, e non lo restituisce.[/b]",
+			"descrizione": "Costa una barra intera di dominio. Un colpo solo, pesante, e se il bersaglio è già a terra può non rialzarsi."
+		},
+		"mattanza": {
+			"nome": "Mattanza",
+			"tipo": "flagello",
+			"livello": 1,
+			"aura": 0,
+			"dominio": 1.5,
+			"colpi": 8,
+			"colpi_per_battuta": 2,
+			"colpi_massimi": 40,
+			"finestra_secondi": 5.0,
+			"frazione_per_colpo": 0.22,
+			"elemento": "oscuro",
+			"testo_uso": "[i]%s non smette più. Pesta finché ha fiato.[/i]",
+			"descrizione": "Costa una barra e mezza. Tanti colpi molto più deboli di uno normale: quanti dipende da quante volte batti la barra spaziatrice in cinque secondi."
 		}
 	},
-
 	"_nota_potenziamenti": "I NODI CHE NON SONO ABILITA'. Bru: \"possiamo scegliere anche di potenziare l'attacco normale\". Sono nodi come gli altri - livello che li apre, punti che costano - solo che invece di darti una voce nel menu ti danno una statistica. Servono a rendere una scelta anche il non prendere niente di nuovo.",
 	"potenziamenti": {
-		"attacco_i": { "nome": "Colpo più pesante", "livello": 25, "costo": 1, "stat": "attacco", "quanto": 6,
-			"descrizione": "L'attacco normale colpisce più forte. Niente di appariscente: fa solo più male." },
-		"attacco_ii": { "nome": "Colpo più pesante II", "livello": 37, "costo": 1, "richiede": "attacco_i", "stat": "attacco", "quanto": 10,
-			"descrizione": "Ancora più forte." },
-		"attacco_iii": { "nome": "Colpo più pesante III", "livello": 53, "costo": 1, "richiede": "attacco_ii", "stat": "attacco", "quanto": 16,
-			"descrizione": "Ancora." },
-		"vita_i": { "nome": "Fondo del serbatoio", "livello": 29, "costo": 1, "stat": "hp", "quanto": 60,
-			"descrizione": "Reggi più a lungo." },
-		"vita_ii": { "nome": "Fondo del serbatoio II", "livello": 45, "costo": 1, "richiede": "vita_i", "stat": "hp", "quanto": 110,
-			"descrizione": "Reggi ancora più a lungo." },
-		"dominio_i": { "nome": "Sfogo più lungo", "livello": 33, "costo": 1, "stat": "fattore", "quanto": 8,
-			"descrizione": "La barra di dominio si riempie prima, e quando si scarica pesa di più." }
+		"attacco_i": {
+			"nome": "Colpo più pesante",
+			"livello": 25,
+			"costo": 1,
+			"stat": "attacco",
+			"quanto": 6,
+			"descrizione": "L'attacco normale colpisce più forte. Niente di appariscente: fa solo più male."
+		},
+		"attacco_ii": {
+			"nome": "Colpo più pesante II",
+			"livello": 37,
+			"costo": 1,
+			"richiede": "attacco_i",
+			"stat": "attacco",
+			"quanto": 10,
+			"descrizione": "Ancora più forte."
+		},
+		"attacco_iii": {
+			"nome": "Colpo più pesante III",
+			"livello": 53,
+			"costo": 1,
+			"richiede": "attacco_ii",
+			"stat": "attacco",
+			"quanto": 16,
+			"descrizione": "Ancora."
+		},
+		"vita_i": {
+			"nome": "Fondo del serbatoio",
+			"livello": 29,
+			"costo": 1,
+			"stat": "hp",
+			"quanto": 60,
+			"descrizione": "Reggi più a lungo."
+		},
+		"vita_ii": {
+			"nome": "Fondo del serbatoio II",
+			"livello": 45,
+			"costo": 1,
+			"richiede": "vita_i",
+			"stat": "hp",
+			"quanto": 110,
+			"descrizione": "Reggi ancora più a lungo."
+		},
+		"dominio_i": {
+			"nome": "Sfogo più lungo",
+			"livello": 33,
+			"costo": 1,
+			"stat": "fattore",
+			"quanto": 8,
+			"descrizione": "La barra di dominio si riempie prima, e quando si scarica pesa di più."
+		}
 	}
 }

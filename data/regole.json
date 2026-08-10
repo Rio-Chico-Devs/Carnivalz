@@ -143,5 +143,25 @@
 	"difesa_scatti_massimi": 6,
 	"difesa_scatto_piatto": 2,
 	"_nota_pila": "La pila e' lo scomparto dove finisce quello che i nemici lasciano cadere: solo vendibile o scambiabile. Ogni tipo ci sta fino a 'pila_cap_predefinito'; la cianfrusaglia dichiara un suo 'cap' (999) perche' e' l'unica che tutti lasciano cadere.",
-	"pila_cap_predefinito": 99
+	"pila_cap_predefinito": 99,
+	"_nota_dominio": "LA BARRA DI DOMINIO E' UNA BARRA DI ENERGIA. Non e' piu' una statistica passiva che alimenta i critici e basta: si riempie mentre combatti - attaccando, cogliendo in pieno, abbattendo qualcuno, e anche incassando - e si spende. Ha tre segmenti: verde, blu, rossa. A rossa piena si puo' lanciare il colpo fatale. Gli attacchi speciali costano segmenti (Spezza spazio uno, Mattanza uno e mezzo), quindi la barra e' una risorsa da amministrare in fretta, non un contatore da guardare.",
+	"dominio": {
+		"segmenti": 3,
+		"per_segmento": 100,
+		"_colori": [
+			"verde",
+			"blu",
+			"rossa"
+		],
+		"_guadagni": "quanto entra nella barra per ogni cosa che fai",
+		"per_attacco": 14,
+		"per_critico": 22,
+		"per_uccisione": 45,
+		"per_colpo_subito": 10,
+		"per_abilita": 6
+	},
+	"_nota_maestria": "MAESTRIA DEL DOMINIO: fino a 100 punti, e ogni punto rende la barra un po' piu' generosa a riempirsi e un po' piu' economica a spendersi. E' la statistica in cui conviene depositare se giochi sugli speciali invece che sui colpi normali - la scelta stile Dark Souls fra alzare le basi e alzare quello che ci fai.",
+	"maestria_massima": 100,
+	"maestria_guadagno_per_punto": 0.006,
+	"maestria_sconto_per_punto": 0.004
 }

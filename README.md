@@ -884,6 +884,33 @@ avanza al livello dopo.
   **Le altre passive sono dichiarate e si sbloccano, ma il loro effetto non è ancora
   implementato**: sono elencate qui e in `crescita.json` come contratto da riempire
 
+## Il drop crea dipendenza: il drop c'è sempre (`ruoli.json` → `drop_garantito`)
+La dipendenza non nasce dai premi grossi: nasce dal fatto che **non esca mai niente**. Dieci
+scontri di fila a mani vuote e non si combatte più volentieri — e nessuna tabella di
+bilanciamento se ne accorge, perché il gioco resta «equilibrato» e smette solo di tirare.
+- Ogni creatura lascia **sempre** qualcosa, e il pavimento viene **prima** di tutti i tiri di
+  dado: pochi Tazo, un **Frammento di vita**, o **Cianfrusaglia**. Le probabilità escono dal
+  ruolo, non da quaranta righe scritte a mano; una creatura può dichiarare un suo
+  `drop_garantito` e allora vince quello — è il posto dove darle *qualcosa di suo*
+- **La pila** è uno scomparto a parte, e non è un dettaglio: se la roba da vendere finisse
+  nella sacca, ogni scontro riempirebbe lo spazio dei consumabili e il giocatore passerebbe la
+  partita a buttare via cose invece che a combattere. Nella pila si accumula e basta. Non è
+  una lista ma **un conto per tipo**: 999 cianfrusaglie sono un numero, non 999 voci. 99 per
+  tipo, **999 per la cianfrusaglia**, l'unica che lasciano tutti
+- **Frammento di vita**: non ridà una cifra, apre una rigenerazione di **3 battute al 10%**.
+  È poca apposta — il valore non sta nel quanto, sta nel *quando* lo prendi
+
+## La barra di dominio è energia (`regole.json` → `dominio`)
+Non più un contatore passivo: una risorsa che entra ed esce. Si riempie **attaccando,
+cogliendo in pieno, abbattendo qualcuno e incassando**; ha **tre segmenti — verde, blu,
+rossa** — e gli attacchi speciali li spendono.
+- **Spezza spazio** (una barra intera) e **Mattanza** (una barra e mezza) ci sono dall'inizio
+- **Maestria del dominio** (fino a 100 punti): la barra si riempie prima e si consuma meno.
+  È la statistica di chi gioca sugli speciali invece che sui colpi normali — la scelta stile
+  Dark Souls fra alzare le basi e alzare quello che ci fai. A 100 punti uno speciale costa il
+  40% in meno, **mai meno di mezza barra**: sotto quella soglia la barra smetterebbe di essere
+  una risorsa
+
 ## La mappa di zona: si cammina, e si cammina al buio
 Dalla mappa **non ci si teletrasporta**, e adesso ci si può anche esplorare — prima no, ed era
 il difetto che la rendeva inutilizzabile: `si_puo_andare()` pretendeva che la stanza fosse

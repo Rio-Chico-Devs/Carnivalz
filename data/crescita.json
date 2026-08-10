@@ -31,6 +31,11 @@
 			"nome": "Dominio",
 			"base": 15,
 			"descrizione": "La barra di dominio: quando è carica il prossimo colpo pesa di più, e poi si scarica. Alimenta critici e Slaughter."
+		},
+		"maestria_dominio": {
+			"nome": "Maestria del dominio",
+			"base": 0,
+			"descrizione": "Quanto sai spremere la barra di dominio: si riempie prima e si consuma meno. Fino a 100."
 		}
 	},
 	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello. ATTENZIONE: questi numeri sono la pendenza della curva del protagonista, ed e' la cosa piu' delicata del gioco. Il contenuto e' scritto a mano con numeri fissi, la crescita no: se la crescita corre piu' del contenuto, dal terzo livello in poi non si perde piu'. Prima era cosi' (+3 attacco ogni 5 colpi = il triplo di potenza a ogni livello), e la tabella di bilanciamento non se ne accorgeva perche' misurava un protagonista che non aveva mai combattuto. Se tocchi questi numeri, rilancia ./prove/simula.sh.",

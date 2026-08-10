@@ -353,6 +353,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"scatti_difesa": 0,
 		# il frammento di vita: quante battute di rigenerazione restano, e quanta
 		# vita rimette a posto ognuna
+		# la barra di dominio come energia: tre segmenti che si riempiono
+		# combattendo e si spendono sugli speciali
+		"dominio": 0,
 		"rigenerazione_battute": 0,
 		"rigenerazione_quota": 0.0,
 		"mossa_in_carica": {},
@@ -977,6 +980,8 @@ func usa_abilita(chi: Dictionary, id_abilita: String) -> void:
 	var dati := GameState.abilita_combattimento(id_abilita)
 	if dati.is_empty():
 		return
+	if not paga_il_dominio(chi, dati):
+		return
 	spendi_aura(chi, int(dati.get("aura", 0)))
 	match String(dati.get("tipo", "")):
 		"provoca": provoca(chi)
@@ -992,6 +997,8 @@ func usa_abilita_su(chi: Dictionary, id_abilita: String, bersaglio: Dictionary) 
 	# scegliere come un attacco normale
 	var dati := GameState.abilita_combattimento(id_abilita)
 	if dati.is_empty() or bersaglio.is_empty():
+		return
+	if not paga_il_dominio(chi, dati):
 		return
 	spendi_aura(chi, int(dati.get("aura", 0)))
 	match String(dati.get("tipo", "")):
@@ -1013,6 +1020,17 @@ func colpo_darma(chi: Dictionary, bersaglio: Dictionary, attacco: Dictionary) ->
 		scrivi(testo % chi.nome)
 	attacca(chi, bersaglio, -1, consuma_carica(chi), String(attacco.get("elemento", "")),
 			int(attacco.get("bonus", 0)))
+
+func paga_il_dominio(chi: Dictionary, dati: Dictionary) -> bool:
+	# Un'abilita' che costa barra non parte se la barra non c'e'. E deve DIRLO:
+	# un bottone che si preme e non succede niente si legge come rotto
+	var segmenti := float(dati.get("dominio", 0.0))
+	if segmenti <= 0.0:
+		return true
+	if not RegoleCombattimento.spendi_dominio(chi, segmenti):
+		scrivi("[i]%s non ha abbastanza dominio: servono %.1f barre.[/i]" % [chi.nome, segmenti])
+		return false
+	return true
 
 func categoria_del_combattente(chi: Dictionary) -> String:
 	# categoria_di legge il record di personaggi.json, non la scheda in campo

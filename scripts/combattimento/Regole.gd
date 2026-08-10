@@ -50,6 +50,75 @@ static func fattore_attivo(combattente: Dictionary) -> bool:
 
 # --- statistiche effettive (base + buff + stati) ---
 
+# --- la barra di dominio: energia, non un contatore --------------------------
+#
+# Tre segmenti - verde, blu, rossa - che si riempiono combattendo e si spendono
+# sugli attacchi speciali. A rossa piena si puo' lanciare il colpo fatale.
+# La Maestria del dominio la rende piu' generosa a riempirsi e piu' economica a
+# spendersi: e' la statistica di chi gioca sugli speciali invece che sui colpi
+# normali.
+
+static func dominio_pieno() -> int:
+	var dati: Dictionary = GameState.regole.get("dominio", {})
+	return int(dati.get("segmenti", 3)) * int(dati.get("per_segmento", 100))
+
+static func maestria_di(combattente: Dictionary) -> int:
+	if not combattente.get("giocatore", false):
+		return 0
+	var tetto := int(GameState.regole.get("maestria_massima", 100))
+	return clampi(GameState.stat_di("maestria_dominio"), 0, tetto)
+
+static func riempi_dominio(combattente: Dictionary, motivo: String) -> int:
+	# ritorna quanto e' entrato davvero. Il motivo e' una chiave di regole.json
+	# ("per_attacco", "per_critico", ...): cosi' aggiungere una cosa che carica
+	# la barra non richiede di toccare questo file
+	var dati: Dictionary = GameState.regole.get("dominio", {})
+	var base := float(dati.get(motivo, 0))
+	if base <= 0.0:
+		return 0
+	var bonus := 1.0 + maestria_di(combattente) \
+			* float(GameState.regole.get("maestria_guadagno_per_punto", 0.006))
+	var prima := int(combattente.get("dominio", 0))
+	var dopo := clampi(prima + int(round(base * bonus)), 0, dominio_pieno())
+	combattente.dominio = dopo
+	return dopo - prima
+
+static func segmenti_pieni(combattente: Dictionary) -> int:
+	var per_segmento := maxi(int(GameState.regole.get("dominio", {}).get("per_segmento", 100)), 1)
+	return int(combattente.get("dominio", 0)) / per_segmento
+
+static func colore_dominio(combattente: Dictionary) -> String:
+	var colori: Array = GameState.regole.get("dominio", {}).get("_colori", ["verde", "blu", "rossa"])
+	var pieni := segmenti_pieni(combattente)
+	if pieni <= 0 or colori.is_empty():
+		return ""
+	return String(colori[mini(pieni, colori.size()) - 1])
+
+static func costo_in_dominio(combattente: Dictionary, segmenti: float) -> int:
+	# quanto costa DAVVERO uno speciale a questo combattente: la Maestria fa
+	# sconto, ma non oltre il minimo - altrimenti a cento punti gli speciali
+	# sarebbero gratis e la barra smetterebbe di essere una risorsa
+	var per_segmento := float(GameState.regole.get("dominio", {}).get("per_segmento", 100))
+	# lo sconto non ha un pavimento perche' non gli serve: cento punti tolgono il
+	# 40%, e piu' di cento non se ne mettono. Un pavimento che non si raggiunge
+	# mai e' codice che non protegge niente e racconta una protezione che non
+	# c'e' - se ne era accorta prova_barra_di_dominio_come_energia, che
+	# toglierlo non la faceva fallire. Quello che va garantito e' un altro: che
+	# uno speciale costi sempre qualcosa, e lo garantisce la prova sul rapporto
+	var sconto := 1.0 - maestria_di(combattente) \
+			* float(GameState.regole.get("maestria_sconto_per_punto", 0.004))
+	return maxi(int(round(segmenti * per_segmento * maxf(sconto, 0.0))), 1)
+
+static func puo_spendere_dominio(combattente: Dictionary, segmenti: float) -> bool:
+	return int(combattente.get("dominio", 0)) >= costo_in_dominio(combattente, segmenti)
+
+static func spendi_dominio(combattente: Dictionary, segmenti: float) -> bool:
+	var costo := costo_in_dominio(combattente, segmenti)
+	if int(combattente.get("dominio", 0)) < costo:
+		return false
+	combattente.dominio = int(combattente.dominio) - costo
+	return true
+
 static func moltiplicatore_scatti(scatti: int) -> float:
 	# LA TABELLA DI POKEMON, e Bru l'ha chiesta per nome. Uno scatto in su vale
 	# meno del precedente, uno in giu' fa piu' male del precedente, e sopra il

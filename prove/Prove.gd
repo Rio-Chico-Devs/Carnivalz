@@ -58,6 +58,7 @@ func _ready() -> void:
 	prova_la_difesa_riduce_non_cancella()
 	prova_i_boss_non_si_superano_farmando()
 	prova_salita_di_livello_si_racconta()
+	prova_barra_di_dominio_come_energia()
 	prova_il_drop_c_e_sempre()
 	prova_guardia_a_scatti()
 	prova_corazza_che_cresce()
@@ -1346,6 +1347,9 @@ func prova_ogni_abilita_gira_davvero() -> void:
 		# misura solo il ramo "non hai niente da bruciare"
 		eroe.aura = 99
 		eroe.fattore = 80
+		# e la barra di dominio piena: gli speciali la spendono, e senza non
+		# partono affatto (che e' giusto, ma qui si sta misurando altro)
+		eroe.dominio = RegoleCombattimento.dominio_pieno()
 		var attacco_prima := int(eroe.attacco)
 		var difesa_prima := int(eroe.difesa)
 		var hp_nemico_prima := int(nemico.hp)
@@ -1922,6 +1926,97 @@ func prova_salita_di_livello_si_racconta() -> void:
 			== "resurrezione_dimezzata",
 			"quello che lascia la Manifestazione non fa piu' rivivere")
 
+	GameState.nuova_partita()
+
+func prova_barra_di_dominio_come_energia() -> void:
+	# Bru: "useremo la barra di dominio come una barra di energia che si riempie
+	# man mano che attacchi, fai critici, uccidi nemici, vieni colpito... ha 3
+	# livelli di barra, verde, blu e rossa... puoi usare barra per usare attacchi
+	# speciali che consumeranno tot barra".
+	#
+	# Quindi non e' piu' un contatore che guardi: e' una risorsa che entra ed
+	# esce. Se entrasse e basta non sarebbe una risorsa, e se uscisse senza
+	# entrare nessuno la userebbe: qui si controllano tutti e due i versi.
+	titolo("la barra di dominio si riempie combattendo e si spende sugli speciali")
+	GameState.nuova_partita()
+	var pieno := RegoleCombattimento.dominio_pieno()
+	var segmenti := int(GameState.regole.get("dominio", {}).get("segmenti", 0))
+	esigi(segmenti == 3, "i segmenti della barra sono %d invece di 3" % segmenti)
+	esigi(pieno > 0, "la barra piena vale zero")
+	var eroe := {"id": GameState.id_protagonista, "giocatore": true, "dominio": 0}
+
+	# 1. si riempie, e ogni cosa che fai vale qualcosa
+	for motivo in ["per_attacco", "per_critico", "per_uccisione", "per_colpo_subito"]:
+		eroe.dominio = 0
+		var entrato := RegoleCombattimento.riempi_dominio(eroe, motivo)
+		esigi(entrato > 0, "'%s' non carica niente nella barra" % motivo)
+		esigi(int(eroe.dominio) == entrato, "la barra non ha registrato quello che e' entrato")
+	# e non sfonda
+	eroe.dominio = 0
+	for volta in 200:
+		RegoleCombattimento.riempi_dominio(eroe, "per_uccisione")
+	esigi(int(eroe.dominio) == pieno, "la barra ha sfondato: %d su %d" % [int(eroe.dominio), pieno])
+
+	# 2. i tre colori sono tre soglie vere, non un'etichetta
+	var per_segmento := int(GameState.regole.get("dominio", {}).get("per_segmento", 100))
+	var visti: Array[String] = []
+	for quanti in [0, 1, 2, 3]:
+		eroe.dominio = quanti * per_segmento
+		esigi(RegoleCombattimento.segmenti_pieni(eroe) == quanti,
+				"con %d di barra risultano %d segmenti invece di %d"
+				% [int(eroe.dominio), RegoleCombattimento.segmenti_pieni(eroe), quanti])
+		var colore := RegoleCombattimento.colore_dominio(eroe)
+		if quanti > 0:
+			esigi(colore != "", "col segmento %d la barra non ha colore" % quanti)
+			esigi(colore not in visti, "il segmento %d ha lo stesso colore di uno prima" % quanti)
+			visti.append(colore)
+	esigi(visti == ["verde", "blu", "rossa"],
+			"i colori della barra sono %s invece di verde/blu/rossa" % str(visti))
+
+	# 3. si spende, e quello che non si puo' pagare non parte
+	eroe.dominio = pieno
+	esigi(RegoleCombattimento.puo_spendere_dominio(eroe, 1.0), "a barra piena non si paga un segmento")
+	esigi(RegoleCombattimento.spendi_dominio(eroe, 1.0), "spendere un segmento non e' riuscito")
+	esigi(int(eroe.dominio) < pieno, "spendere non ha tolto niente dalla barra")
+	eroe.dominio = 0
+	esigi(not RegoleCombattimento.puo_spendere_dominio(eroe, 1.0),
+			"a barra vuota si paga lo stesso: la barra non e' una risorsa")
+	esigi(not RegoleCombattimento.spendi_dominio(eroe, 1.0), "si e' speso quello che non c'era")
+
+	# 4. LA MAESTRIA CONTA, in tutti e due i versi, e non arriva mai a gratis
+	var senza_maestria := RegoleCombattimento.costo_in_dominio(eroe, 1.0)
+	GameState.punti_stat["maestria_dominio"] = int(GameState.regole.get("maestria_massima", 100))
+	var con_maestria := RegoleCombattimento.costo_in_dominio(eroe, 1.0)
+	esigi(con_maestria < senza_maestria,
+			"con cento punti di maestria uno speciale costa uguale (%d)" % con_maestria)
+	# e non arriva mai a gratis: al massimo della maestria uno speciale deve
+	# costare ancora piu' di meta' barra, altrimenti la barra smette di essere
+	# una risorsa e diventa un contatore da guardare
+	esigi(con_maestria >= senza_maestria / 2,
+			"al massimo della maestria uno speciale costa %d invece di %d: quasi gratis"
+			% [con_maestria, senza_maestria])
+	eroe.dominio = 0
+	var carica_alta := RegoleCombattimento.riempi_dominio(eroe, "per_attacco")
+	GameState.punti_stat["maestria_dominio"] = 0
+	eroe.dominio = 0
+	var carica_bassa := RegoleCombattimento.riempi_dominio(eroe, "per_attacco")
+	esigi(carica_alta > carica_bassa,
+			"la maestria non fa riempire la barra piu' in fretta (%d contro %d)"
+			% [carica_alta, carica_bassa])
+	esigi(GameState.stat_di("maestria_dominio") <= int(GameState.regole.get("maestria_massima", 100)),
+			"la maestria puo' andare oltre il suo tetto")
+
+	# 5. i due attacchi che Bru ha chiesto dall'inizio, e quanto costano
+	var spezza: Dictionary = GameState.abilita_combattimento("spezza_spazio")
+	esigi(not spezza.is_empty(), "Spezza spazio non esiste")
+	esigi(absf(float(spezza.get("dominio", 0.0)) - 1.0) < 0.001,
+			"Spezza spazio costa %.1f barre invece di una" % float(spezza.get("dominio", 0.0)))
+	var mattanza: Dictionary = GameState.abilita_combattimento("mattanza")
+	esigi(not mattanza.is_empty(), "Mattanza non esiste")
+	esigi(absf(float(mattanza.get("dominio", 0.0)) - 1.5) < 0.001,
+			"Mattanza costa %.1f barre invece di una e mezza" % float(mattanza.get("dominio", 0.0)))
+	esigi(int(spezza.get("livello", 99)) <= 1 and int(mattanza.get("livello", 99)) <= 1,
+			"Spezza spazio e Mattanza non ci sono dall'inizio")
 	GameState.nuova_partita()
 
 func prova_il_drop_c_e_sempre() -> void:
