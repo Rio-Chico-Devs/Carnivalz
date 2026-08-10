@@ -385,6 +385,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"scheda": nodi["scheda"],
 		"etichetta_vita": nodi["etichetta_vita"],
 		"etichetta_extra": nodi["etichetta_extra"],
+		"barra_dominio": nodi.get("barra_dominio", null),
 	}
 	combattenti.append(combattente)
 	aggiorna_scheda(combattente)

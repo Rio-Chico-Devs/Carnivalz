@@ -62,6 +62,8 @@ const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a 
 @onready var etichetta_party: Label = %Party
 @onready var etichetta_risorse: Label = %Risorse
 @onready var etichetta_stat: Label = %BarraStat
+var barra_dominio: Control = null
+var etichetta_dominio: Label = null
 @onready var carta_titolo: Control = %CartaTitolo
 @onready var colonna_titolo: VBoxContainer = %ColonnaTitolo
 @onready var testo_titolo: Label = %TestoTitolo
@@ -111,6 +113,7 @@ func applica_stile() -> void:
 	Stile.etichetta_piccola(etichetta_risorse)
 	etichetta_stat.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
 	etichetta_stat.add_theme_color_override("font_color", Stile.colore("bordo"))
+	costruisci_barra_dominio()
 	testo_titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
 	testo_titolo.add_theme_color_override("font_color", Stile.colore("accento"))
 	# Una scena puo' fermarsi su un'illustrazione: usa lo stesso velo a schermo
@@ -352,7 +355,15 @@ func mostra_carta_titolo(contenuto: String, percorso_immagine := "") -> void:
 	testo_titolo.add_theme_font_size_override("font_size",
 			Stile.dimensione("corpo") if percorso_immagine != "" else Stile.dimensione("titolo"))
 	testo_titolo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	testo_titolo.custom_minimum_size = Vector2(760, 0) if percorso_immagine != "" else Vector2.ZERO
+	# UNA LARGHEZZA MINIMA CI VUOLE SEMPRE, e senza era il bug che si vedeva
+	# nello screenshot: "Pianure di Redenna" scritto una lettera per riga.
+	#
+	# Con l'autowrap acceso, la larghezza minima di una Label collassa a quella
+	# del carattere piu' largo - e' la sua dimensione "minima" nel senso letterale.
+	# Dentro un CenterContainer, che dimensiona il figlio proprio sul suo minimo,
+	# il risultato e' una colonna di lettere. Con l'immagine il minimo c'era
+	# (760), senza no: e la carta del titolo senza immagine e' il caso normale.
+	testo_titolo.custom_minimum_size = Vector2(760, 0)
 	carta_titolo.visible = true
 	carta_titolo.modulate.a = 0.0
 	var comparsa := create_tween()
@@ -777,6 +788,44 @@ func _su_compagno(id_classe: String) -> void:
 
 # --- barra di stato ---
 
+const DOMINIO_MASSIMO := 100.0
+
+func costruisci_barra_dominio() -> void:
+	# LA BARRA DI DOMINIO, che Bru non trovava perche' non c'era: c'era un
+	# "FAT 15" in fondo a una riga di sette numeri. Il dominio non e' una
+	# statistica come le altre - e' quello che si carica mentre giochi e che
+	# spendi in un colpo solo - e una cosa che sale e scende va guardata, non
+	# letta.
+	var riga := HBoxContainer.new()
+	riga.name = "RigaDominio"
+	riga.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	riga.add_theme_constant_override("separation", 8)
+	var nome := Label.new()
+	nome.text = "Dominio"
+	nome.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
+	nome.add_theme_color_override("font_color", Stile.colore("bordo"))
+	riga.add_child(nome)
+	barra_dominio = Stile.barra(140, 7)
+	barra_dominio.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	riga.add_child(barra_dominio)
+	etichetta_dominio = Label.new()
+	etichetta_dominio.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
+	etichetta_dominio.add_theme_color_override("font_color", Stile.colore("bordo"))
+	riga.add_child(etichetta_dominio)
+	var colonna := etichetta_stat.get_parent()
+	colonna.add_child(riga)
+	colonna.move_child(riga, etichetta_stat.get_index() + 1)
+
+func aggiorna_barra_dominio() -> void:
+	if barra_dominio == null:
+		return
+	var quanto := GameState.stat_di("fattore")
+	Stile.riempi_barra(barra_dominio, quanto / DOMINIO_MASSIMO)
+	etichetta_dominio.text = "%d/%d" % [quanto, int(DOMINIO_MASSIMO)]
+	# quando e' carica lo deve dire: e' il momento in cui vale la pena spenderla
+	etichetta_dominio.add_theme_color_override("font_color",
+			Stile.colore("accento") if quanto >= int(DOMINIO_MASSIMO) else Stile.colore("bordo"))
+
 func aggiorna_stato() -> void:
 	var nomi: Array[String] = []
 	for id_classe in GameState.party:
@@ -786,8 +835,11 @@ func aggiorna_stato() -> void:
 		GameState.livello_di(GameState.id_protagonista), GameState.tazo,
 		GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20)), GameState.legame,
 	]
-	etichetta_stat.text = "HP %d   ATT %d   DIF %d   VEL %d   INT %d   MEN %d   FAT %d" % [
+	# il Dominio esce dalla riga di numeri: adesso ha la sua barra qui sotto,
+	# e scriverlo due volte lo renderebbe solo un numero in mezzo agli altri
+	etichetta_stat.text = "HP %d   ATT %d   DIF %d   VEL %d   INT %d   MEN %d" % [
 		GameState.stat_di("hp"), GameState.stat_di("attacco"), GameState.stat_di("difesa"),
 		GameState.stat_di("velocita"), GameState.stat_di("intelligenza"),
-		GameState.stat_di("forza_mentale"), GameState.stat_di("fattore"),
+		GameState.stat_di("forza_mentale"),
 	]
+	aggiorna_barra_dominio()

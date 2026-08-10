@@ -60,6 +60,8 @@ func _ready() -> void:
 	prova_corazza_che_cresce()
 	prova_colori_del_danno()
 	prova_abilita_di_combattimento()
+	await prova_carta_del_titolo_sta_su_una_riga()
+	prova_barra_di_dominio_si_vede()
 	prova_ogni_abilita_gira_davvero()
 	prova_attacchi_darma()
 	prova_linee_abilita()
@@ -1217,6 +1219,88 @@ func prova_salire_di_livello_non_peggiora() -> void:
 					% [id_creatura, livello_eroe, incassi, tetto_incassi, nome_ruolo])
 	esigi(esaminate > 20,
 			"la prova ha guardato solo %d creature che scalano: il filtro si e' stretto" % esaminate)
+	GameState.nuova_partita()
+
+func prova_carta_del_titolo_sta_su_una_riga() -> void:
+	# IL BUG CHE 8389 VERIFICHE NON HANNO VISTO, e che si vedeva al primo
+	# sguardo: "Pianure di Redenna" scritto una lettera per riga.
+	#
+	# Con l'autowrap acceso, la larghezza minima di una Label collassa a quella
+	# del carattere piu' largo - e' letteralmente il suo minimo. Dentro un
+	# CenterContainer, che dimensiona il figlio proprio sul minimo, viene fuori
+	# una colonna di lettere. Nessuna prova poteva accorgersene guardando i
+	# dati: e' una proprieta' di come il testo finisce sullo schermo, e va
+	# misurata sullo schermo.
+	titolo("il titolo di una zona sta su una riga, non una lettera per riga")
+	GameState.nuova_partita()
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	# i titoli veri del gioco, non uno inventato per l'occasione
+	var titoli: Array[String] = ["Pianure di Redenna"]
+	var dati: Variant = GameState.carica_json("res://data/mappa.json")
+	if dati is Dictionary:
+		for voce in (dati as Dictionary).get("punti", []):
+			var nome := String(voce.get("nome", ""))
+			if nome != "" and not nome in titoli:
+				titoli.append(nome)
+	esigi(titoli.size() >= 2, "non si e' trovato nessun nome di zona da provare")
+	for testo in titoli:
+		schermata.mostra_carta_titolo(testo)
+		# il layout non e' pronto finche' il contenitore non l'ha calcolato
+		await get_tree().process_frame
+		var etichetta: Label = schermata.testo_titolo
+		esigi(etichetta.size.x > 200.0,
+				"la carta del titolo e' larga %d pixel: il testo ci finisce incolonnato"
+				% int(etichetta.size.x))
+		esigi(etichetta.get_line_count() <= 2,
+				"'%s' viene spezzato su %d righe: e' il titolo incolonnato"
+				% [testo, etichetta.get_line_count()])
+	schermata.free()
+	GameState.nuova_partita()
+
+func prova_barra_di_dominio_si_vede() -> void:
+	# Bru: "non vedo la barra di dominio". Non la vedeva perche' non c'era: al
+	# suo posto c'era "FAT 15" in fondo a una riga di sette numeri. Il dominio
+	# e' quello che si carica mentre giochi e che spendi in un colpo solo, e una
+	# cosa che sale e scende va guardata, non letta.
+	titolo("la barra di dominio c'e', e si riempie insieme al dominio")
+	GameState.nuova_partita()
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	esigi(schermata.barra_dominio != null, "nella schermata di gioco non c'e' nessuna barra di dominio")
+	if schermata.barra_dominio == null:
+		schermata.free()
+		return
+	esigi(schermata.barra_dominio.custom_minimum_size.x > 0.0,
+			"la barra di dominio e' larga zero: c'e' ma non si vede")
+	# si riempie per davvero, e in proporzione
+	var letta := func() -> float:
+		return float(schermata.barra_dominio.get_meta("quota", -1.0))
+	GameState.punti_stat["fattore"] = 0 - GameState.stat_base_di("fattore")
+	schermata.aggiorna_barra_dominio()
+	esigi(is_zero_approx(letta.call()), "col dominio a zero la barra e' piena il %d%%"
+			% int(letta.call() * 100))
+	GameState.punti_stat["fattore"] = 50 - GameState.stat_base_di("fattore")
+	schermata.aggiorna_barra_dominio()
+	esigi(absf(letta.call() - 0.5) < 0.02,
+			"col dominio a 50 la barra e' piena il %d%% invece che a meta'" % int(letta.call() * 100))
+	GameState.punti_stat["fattore"] = 100 - GameState.stat_base_di("fattore")
+	schermata.aggiorna_barra_dominio()
+	esigi(absf(letta.call() - 1.0) < 0.001, "col dominio al massimo la barra non e' piena")
+	# e in campo la vede anche la scheda di chi giochi tu
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	var trovata := false
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and combattente.get("barra_dominio", null) != null:
+			trovata = true
+	esigi(trovata, "in combattimento la scheda del party non ha la barra di dominio")
+	scontro.free()
+	schermata.free()
 	GameState.nuova_partita()
 
 func prova_ogni_abilita_gira_davvero() -> void:

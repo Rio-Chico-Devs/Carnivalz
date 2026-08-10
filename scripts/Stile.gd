@@ -291,6 +291,36 @@ func legenda_visite() -> Label:
 	etichetta_piccola(etichetta)
 	return etichetta
 
+func barra(larghezza := 120, altezza := 8) -> Control:
+	# UNA BARRA, non un numero. "Dominio 15" e' un'informazione; una barra che
+	# si riempie e poi si svuota e' una cosa che GUARDI mentre gioca. Il
+	# dominio e' uno sfogo che si carica e si scarica, e senza vederlo salire
+	# non c'e' niente da aspettare.
+	#
+	# Disegnata col segnale draw invece che con una ProgressBar: cosi' non serve
+	# ne' uno script suo ne' un tema a parte, e il pieno puo' cambiare colore
+	# quando la barra e' carica - che e' l'unico momento che conta.
+	var telaio := Control.new()
+	telaio.custom_minimum_size = Vector2(larghezza, altezza)
+	telaio.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	telaio.set_meta("quota", 0.0)
+	telaio.draw.connect(func() -> void:
+		var quota := clampf(float(telaio.get_meta("quota", 0.0)), 0.0, 1.0)
+		var dentro := Rect2(Vector2.ZERO, telaio.size)
+		telaio.draw_rect(dentro, colore("pannello"))
+		if quota > 0.0:
+			var piena := quota >= 0.999
+			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * quota, telaio.size.y)),
+					colore("accento") if piena else colore("bordo_acceso"))
+		telaio.draw_rect(dentro, colore("bordo"), false, 1.0))
+	return telaio
+
+func riempi_barra(telaio: Control, quota: float) -> void:
+	if telaio == null or not is_instance_valid(telaio):
+		return
+	telaio.set_meta("quota", clampf(quota, 0.0, 1.0))
+	telaio.queue_redraw()
+
 func etichetta_piccola(etichetta: Label) -> void:
 	etichetta.add_theme_font_size_override("font_size", dimensione("piccolo"))
 	etichetta.add_theme_color_override("font_color", colore("testo_smorzato"))

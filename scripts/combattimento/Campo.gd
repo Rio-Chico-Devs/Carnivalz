@@ -53,6 +53,15 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 	var vita := Label.new()
 	vita.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	scheda.add_child(vita)
+	# LA BARRA DI DOMINIO, sotto la vita. Solo per chi giochi tu: di un nemico
+	# il dominio si scopre studiandolo, e resta una riga di testo. Della tua
+	# squadra invece e' la cosa che stai aspettando che si riempia, e aspettare
+	# un numero in una riga di sei non e' aspettare niente
+	var dominio: Control = null
+	if giocatore:
+		dominio = Stile.barra(84, 5)
+		dominio.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		scheda.add_child(dominio)
 	var extra := Label.new()
 	extra.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	extra.add_theme_font_size_override("font_size", 12)
@@ -79,7 +88,8 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 		if e_il_centrale:
 			ritratto.imposta_grande(true)
 		ritratto.mostra(id_personaggio)
-	return {"scheda": scheda, "etichetta_vita": vita, "etichetta_extra": extra}
+	return {"scheda": scheda, "etichetta_vita": vita, "etichetta_extra": extra,
+			"barra_dominio": dominio}
 
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
@@ -108,6 +118,8 @@ func aggiorna(combattente: Dictionary) -> void:
 	else:
 		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
 	combattente.etichetta_extra.text = dettagli_di(combattente)
+	if combattente.get("barra_dominio", null) != null:
+		Stile.riempi_barra(combattente.barra_dominio, float(combattente.fattore) / 100.0)
 
 func conosciuta(combattente: Dictionary, strato: int) -> bool:
 	# Studiare era una cosa che si LEGGEVA: premevi, usciva del testo, e sullo
