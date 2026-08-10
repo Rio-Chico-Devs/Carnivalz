@@ -57,6 +57,8 @@ func _ready() -> void:
 	prova_crescita_non_scappa()
 	prova_la_difesa_riduce_non_cancella()
 	prova_i_boss_non_si_superano_farmando()
+	prova_salita_di_livello_si_racconta()
+	prova_guardia_a_scatti()
 	prova_corazza_che_cresce()
 	prova_colori_del_danno()
 	prova_abilita_di_combattimento()
@@ -1837,6 +1839,167 @@ func prova_i_boss_non_si_superano_farmando() -> void:
 				% livello_eroe)
 	GameState.nuova_partita()
 
+func prova_salita_di_livello_si_racconta() -> void:
+	# Bru: "quando sali di livello deve spiegarti che lo hai fatto e mostrarti
+	# l'aumento delle statistiche". Qui e' piu' importante che altrove, perche'
+	# in Carnivalz le stat non salgono col livello: salgono con quello che hai
+	# fatto, e diventano punti proprio al passaggio di livello. Se quel momento
+	# non dice niente, il giocatore non scopre mai a cosa e' servito giocare
+	# come ha giocato.
+	titolo("salire di livello lo dice, e dice cosa e' cambiato")
+	GameState.nuova_partita()
+	esigi(GameState.salite_di_livello.is_empty(),
+			"si parte con delle salite di livello in attesa")
+	# si gioca un po' - cosi' i contatori hanno qualcosa da convertire - e poi
+	# si prende l'esperienza per salire
+	var profilo: Dictionary = GameState.crescita.get("profilo_giocatore_tipo", {})
+	for nome_azione: String in profilo:
+		GameState.contatori[nome_azione] = int(profilo[nome_azione])
+	var prima_attacco := GameState.stat_di("attacco")
+	GameState.aggiungi_xp(GameState.id_protagonista,
+			GameState.fabbisogno_xp(GameState.livello_di(GameState.id_protagonista)))
+	esigi(GameState.livello_di(GameState.id_protagonista) == 2,
+			"con l'esperienza esatta non si e' saliti di livello")
+	esigi(GameState.salite_di_livello.size() == 1,
+			"la salita di livello non ha lasciato niente da raccontare")
+	var salita: Dictionary = GameState.salite_di_livello[0]
+	esigi(int(salita.get("livello", 0)) == 2, "la salita non dice a che livello sei arrivato")
+	var cresciute: Array = salita.get("stat", [])
+	esigi(not cresciute.is_empty(),
+			"la salita non elenca nessuna statistica cresciuta, ma le stat sono cambiate")
+	for voce in cresciute:
+		esigi(String(voce.get("nome", "")) != "",
+				"una statistica cresciuta non ha un nome da mostrare")
+		esigi(int(voce.get("dopo", 0)) > int(voce.get("prima", 0)),
+				"'%s' e' nell'elenco delle cresciute ma non e' cresciuta" % String(voce.get("nome", "")))
+	# e il conto e' quello vero, non un numero raccontato a caso
+	for voce in cresciute:
+		if String(voce.get("stat", "")) == "attacco":
+			esigi(int(voce.get("prima", -1)) == prima_attacco,
+					"l'attacco 'prima' e' %d, ma prima era %d" % [int(voce.get("prima", -1)), prima_attacco])
+			esigi(int(voce.get("dopo", 0)) == GameState.stat_di("attacco"),
+					"l'attacco 'dopo' non e' quello che hai adesso")
+
+	# ...e chi lo mostra lo svuota, altrimenti lo racconterebbe a ogni stanza.
+	# La schermata le consuma gia' nascendo (e' il suo mestiere: le mostra
+	# appena si torna agli eventi), quindi si apre PRIMA e si sale di livello
+	# DOPO - come succede giocando, dove si sale in combattimento e si legge
+	# tornando alla stanza
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	GameState.salite_di_livello.append(salita)
+	var righe: Array = schermata.notifiche_salite_di_livello()
+	esigi(righe.size() >= 2,
+			"la salita di livello produce %d messaggi: non basta a spiegare cos'e' successo" % righe.size())
+	var tutto := ""
+	for riga in righe:
+		tutto += String(riga.get("testo", "")) + "\n"
+	esigi(tutto.contains("Livello 2"), "il messaggio non dice a che livello sei arrivato")
+	esigi(tutto.contains("→"), "il messaggio non mostra il prima e il dopo delle statistiche")
+	esigi(GameState.salite_di_livello.is_empty(),
+			"dopo averla mostrata la salita e' ancora in coda: si ripeterebbe a ogni stanza")
+	esigi(schermata.notifiche_salite_di_livello().is_empty(),
+			"la salita si racconta due volte")
+	schermata.free()
+
+	# e la Manifestazione lascia la pietra per rivivere, come ha chiesto Bru:
+	# e' un incontro unico, quindi il premio non puo' dipendere da un tiro di
+	# dado - un dado su una cosa che non si ripete non e' una probabilita', e'
+	# una beffa
+	var manifestazione: Dictionary = GameState.personaggi.get("manifestazione_di_un_sogno", {})
+	var lascia_la_pietra := false
+	for voce in manifestazione.get("bottino_comune", []):
+		if String(voce.get("oggetto", "")) == "ricordo_del_passato":
+			lascia_la_pietra = true
+			esigi(float(voce.get("chance", 0.0)) >= 1.0,
+					"la pietra per rivivere cade solo il %d%% delle volte, da un nemico che si incontra una volta sola"
+					% int(float(voce.get("chance", 0.0)) * 100))
+	esigi(lascia_la_pietra, "la Manifestazione non lascia piu' la pietra per rivivere")
+	esigi(GameState.oggetti.has("ricordo_del_passato"),
+			"la pietra per rivivere non esiste fra gli oggetti")
+	esigi(String(GameState.dati_oggetto("ricordo_del_passato").get("effetto_equipaggiato", {}).get("tipo", ""))
+			== "resurrezione_dimezzata",
+			"quello che lascia la Manifestazione non fa piu' rivivere")
+
+	GameState.nuova_partita()
+
+func prova_guardia_a_scatti() -> void:
+	# BRU, IN PAROLE SUE: "quando ti difendi, la difesa sale di pochissimo, ma
+	# deve essere cumulativa fino alla fine della battaglia... se mi difendo 5
+	# volte dovrei poter ridurre i danni degli attacchi dei nemici, ovviamente
+	# non e' che continuo a difendermi e continua a salire all'infinito...
+	# bisogna fare come in pokemon".
+	#
+	# Sono quattro cose, e servono tutte e quattro: sale poco, resta, il quinto
+	# scatto si sente addosso, e sopra il tetto non va. Prima ne mancavano due:
+	# la guardia si azzerava appena facevi altro (quindi difendersi cinque volte
+	# valeva quanto difendersi una) e non c'era nessun tetto vero.
+	titolo("la guardia si accumula, resta, e ha un tetto (come in Pokemon)")
+	GameState.nuova_partita()
+	var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+	esigi(tetto > 0, "non c'e' nessun tetto agli scatti di difesa")
+	var eroe := {
+		"id": GameState.id_protagonista, "giocatore": true, "attacco": 10, "difesa": 4,
+		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
+		"psiche": "", "immunita_temporanea": [], "hp": 200, "scatti_difesa": 0,
+	}
+	var nemico := {
+		"id": "ghoul", "giocatore": false, "attacco": 40, "difesa": 0,
+		"fattore": 0, "stress": 0, "buffs": [], "stati": [], "stati_attivi": {},
+		"psiche": "", "immunita_temporanea": [], "hp": 200, "scatti_difesa": 0,
+	}
+	# 1. sale poco per volta, e ogni scatto in su vale meno del precedente
+	var difese: Array[int] = [RegoleCombattimento.difesa_di(eroe)]
+	for scatto in tetto:
+		RegoleCombattimento.alza_guardia(eroe)
+		difese.append(RegoleCombattimento.difesa_di(eroe))
+	for indice in range(1, difese.size()):
+		esigi(difese[indice] > difese[indice - 1],
+				"al %d° scatto la difesa non e' salita (%d -> %d)"
+				% [indice, difese[indice - 1], difese[indice]])
+	esigi(difese[1] - difese[0] <= difese[0] + 6,
+			"il primo scatto raddoppia e passa la difesa: non e' 'di pochissimo'")
+
+	# 2. IL TETTO. Oltre non si va, per quante volte ci si chiuda
+	var al_tetto := RegoleCombattimento.difesa_di(eroe)
+	for ancora in 20:
+		RegoleCombattimento.alza_guardia(eroe)
+	esigi(RegoleCombattimento.difesa_di(eroe) == al_tetto,
+			"difendendosi altre venti volte la difesa e' salita ancora: si diventa inattaccabili stando fermi")
+	esigi(RegoleCombattimento.scatti_difesa(eroe) == tetto,
+			"gli scatti sono %d, oltre il tetto di %d" % [RegoleCombattimento.scatti_difesa(eroe), tetto])
+
+	# 3. CINQUE VOLTE SI SENTONO, ed e' la richiesta di Bru misurata sul danno
+	#    vero, non sul numero della difesa
+	eroe.scatti_difesa = 0
+	var danno_medio := func() -> float:
+		var somma := 0
+		for tiro in 400:
+			somma += int(RegoleCombattimento.calcola_danno(nemico, eroe).danno)
+		return float(somma) / 400.0
+	var scoperto: float = danno_medio.call()
+	for volta in 5:
+		RegoleCombattimento.alza_guardia(eroe)
+	var chiuso: float = danno_medio.call()
+	esigi(chiuso < scoperto * 0.75,
+			"difendendosi cinque volte si incassa %.1f invece di %.1f: non si sente"
+			% [chiuso, scoperto])
+	esigi(chiuso >= 1.0, "difendendosi cinque volte non si incassa piu' niente: la difesa cancella")
+
+	# 4. e certi colpi la aprono, anche sotto zero
+	var prima_di_aprirla := RegoleCombattimento.difesa_di(eroe)
+	RegoleCombattimento.abbassa_guardia(eroe, 2)
+	esigi(RegoleCombattimento.difesa_di(eroe) < prima_di_aprirla,
+			"un colpo che apre la guardia non l'ha abbassata")
+	eroe.scatti_difesa = 0
+	var a_zero := RegoleCombattimento.difesa_di(eroe)
+	RegoleCombattimento.abbassa_guardia(eroe, 3)
+	esigi(RegoleCombattimento.difesa_di(eroe) < a_zero,
+			"sotto zero gli scatti non fanno piu' niente: la guardia aperta non si paga")
+	esigi(RegoleCombattimento.scatti_difesa(eroe) >= -tetto,
+			"gli scatti sono scesi sotto il tetto in negativo")
+	GameState.nuova_partita()
+
 func prova_corazza_che_cresce() -> void:
 	# La Tartaruga si chiude a ogni turno e non si riapre. La prova non e' sul
 	# numero (quello e' contenuto): e' sul fatto che il campo esista, che sia
@@ -2288,12 +2451,11 @@ func prova_mappa_a_quadratini() -> void:
 	esigi(String(quadratini["Strade di periferia"].text) == "?",
 			"un posto intravisto deve mostrare il punto di domanda")
 
-	# un quadratino intravisto ma non ancora aperto dalla storia non ci porta:
-	# lo dice, e resta dov'e'
+	# un quadratino LONTANO non ci porta: lo dice, e resta dov'e'
 	mappa.etichetta_stato.text = " "
-	mappa._su_stanza("periferia", false, false)
+	mappa._su_stanza("quartieri_profondi", false, false)
 	esigi(GameState.nodo_corrente == "varco",
-			"cliccare un posto non ancora raggiungibile ha spostato il giocatore")
+			"cliccare un posto non raggiungibile ha spostato il giocatore")
 	esigi(mappa.etichetta_stato.text != " ",
 			"cliccare un posto non raggiungibile non ha detto niente al giocatore")
 
@@ -2314,20 +2476,51 @@ func prova_mappa_a_quadratini() -> void:
 			"dal varco si arriva al vicolo in un click: la mappa e' un teletrasporto")
 	esigi(mappa.si_puo_andare("varco"), "non si puo' restare dove si e'")
 
-	# il proiettore e' l'unica eccezione, e sta al giocatore averlo piantato
-	esigi(GameState.proiettore_qui() == "", "il proiettore risulta piantato senza averlo piantato")
+	# NEL BUIO CI SI CAMMINA. Il punto interrogativo accanto a te e' un invito,
+	# e un invito che poi rifiuta e' peggio di nessun invito: era il difetto che
+	# rendeva la mappa inutilizzabile. Andarci E' il modo di scoprire cosa c'e'
+	GameState.flags.clear()
+	GameState.nodi_visitati = ["varco"] as Array[String]
+	GameState.nodo_corrente = "varco"
+	esigi(not GameState.stanza_sbloccata("periferia"),
+			"la prova parte con la periferia gia' aperta: non prova niente")
+	esigi(mappa.si_puo_andare("periferia"),
+			"nella stanza accanto, mai vista, non si puo' andare: la mappa non lascia esplorare")
+
+	# --- I PROIETTORI SONO UNA RETE, NON UN RITORNO ALLA BASE ---
+	#
+	# Bru: "puoi selezionare i punti dove si trovano i proiettori, ma solo se
+	# sei in uno dei punti dove c'e' un altro teletrasporto". Quindi il salto ha
+	# due condizioni, e servono tutte e due: uno di qua e uno di la'.
+	GameState.nodi_visitati = ["varco", "periferia", "ingresso_citta", "complessi",
+			"strada_principale", "edicola", "vicolo"] as Array[String]
+	for id_stanza in GameState.nodi_visitati:
+		GameState.sblocca_stanza(id_stanza)
+	GameState.nodo_corrente = "varco"
+	esigi(GameState.proiettori_di_zona().is_empty(),
+			"risultano piantati dei proiettori senza averne piantato nessuno")
 	GameState.piazza_proiettore("vicolo")
-	esigi(mappa.si_puo_andare("vicolo"),
-			"col proiettore piantato nel vicolo non ci si torna: il proiettore non serve a niente")
-	# uno solo: piantarlo altrove lo sposta
-	GameState.piazza_proiettore("edicola")
 	esigi(not mappa.si_puo_andare("vicolo"),
-			"il proiettore spostato funziona ancora dove stava prima: sono diventati due")
-	esigi(mappa.si_puo_andare("edicola"), "il proiettore spostato non funziona dove l'hai messo")
+			"si salta a un proiettore stando in un posto qualunque: e' un ritorno alla base, non una rete")
+	# adesso ce n'e' uno anche sotto i piedi: il salto si apre
+	GameState.piazza_proiettore("varco")
+	esigi(GameState.su_un_proiettore(), "il proiettore sotto i piedi non risulta")
+	esigi(mappa.si_puo_andare("vicolo"),
+			"da un proiettore a un altro non si salta: il proiettore non serve a niente")
+	# e sono piu' d'uno: piantarne un altro non cancella i primi
+	GameState.piazza_proiettore("edicola")
+	esigi(mappa.si_puo_andare("vicolo") and mappa.si_puo_andare("edicola"),
+			"piantare un proiettore nuovo ha spento quelli di prima")
+	esigi(GameState.proiettori_di_zona().size() == 3,
+			"i proiettori piantati sono %d invece di 3" % GameState.proiettori_di_zona().size())
+	# a un proiettore mai visto non si salta: si salta dove si e' gia' stati
+	GameState.piazza_proiettore("quartieri_profondi")
+	esigi(not mappa.si_puo_andare("quartieri_profondi"),
+			"si salta a un proiettore in un posto dove non si e' mai messo piede")
 	# e vale per la zona in cui l'hai piantato, non per tutte
 	GameState.entra_squarcio("prova_mappa_altrove", "res://data/vuoti/meridia.json")
-	esigi(GameState.proiettore_qui() == "",
-			"il proiettore piantato in una zona risulta piantato anche in un'altra")
+	esigi(GameState.proiettori_di_zona().is_empty(),
+			"i proiettori piantati in una zona risultano piantati anche in un'altra")
 
 	# una stanza grande occupa davvero piu' di un quadratino
 	GameState.entra_squarcio("prova_mappa2", "res://data/vuoti/casa_gigante.json")

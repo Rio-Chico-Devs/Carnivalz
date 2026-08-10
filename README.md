@@ -884,6 +884,41 @@ avanza al livello dopo.
   **Le altre passive sono dichiarate e si sbloccano, ma il loro effetto non è ancora
   implementato**: sono elencate qui e in `crescita.json` come contratto da riempire
 
+## La mappa di zona: si cammina, e si cammina al buio
+Dalla mappa **non ci si teletrasporta**, e adesso ci si può anche esplorare — prima no, ed era
+il difetto che la rendeva inutilizzabile: `si_puo_andare()` pretendeva che la stanza fosse
+*già* sbloccata, ma una stanza si sblocca solo se un evento la nomina. Quindi i punti
+interrogativi invitavano ad andarci e poi rispondevano «da questa parte non si passa». Una
+mappa su cui non si può esplorare non è una mappa, è un disegno.
+- **Nei posti confinanti ci si va sempre**, scoperti o no: andarci *è* il modo di scoprirli.
+  Entrare in una stanza la sblocca (`IngressoNodo.applica_effetti`)
+- Il resto della mappa resta guardabile e non raggiungibile: si vede che c'è, si vede che non
+  ci si salta
+- **I proiettori sono una rete, non un ritorno alla base**: se ne piantano più d'uno per zona,
+  e si salta da uno all'altro **solo stando su un proiettore**, e solo verso un proiettore in
+  un posto dove sei già stato. Se sei in mezzo al niente, cammini
+
+## La guardia a scatti (come in Pokémon)
+Difendersi alza la difesa di **uno scatto**, e lo scatto **resta fino alla fine dello
+scontro**: difendersi cinque volte vale cinque volte. Prima era un buff da un turno che si
+azzerava appena facevi altro, quindi difendersi cinque volte valeva quanto difendersi una —
+fra una e l'altra dovevi pur combattere.
+- Ogni scatto in su vale meno del precedente (`(2+n)/2`), e sopra `difesa_scatti_massimi` (6)
+  non si sale: non si diventa mai inattaccabili stando fermi
+- **Certi colpi la aprono**: una mossa con `abbassa_difesa` fa scendere gli scatti, anche
+  sotto zero, e allora si incassa più del normale. Serve perché senza qualcosa che la faccia
+  scendere, chiudersi sarebbe una strada senza rischio — e una strada senza rischio non è una
+  scelta, è l'unica cosa sensata da fare
+- Il `difesa_scatto_piatto` esiste perché qui la difesa base può essere **zero** (il
+  protagonista al livello 1 non ne ha), e qualunque moltiplicatore per zero resta zero
+
+## Salire di livello si vede
+In Carnivalz le statistiche non salgono col livello: salgono con quello che hai fatto, e
+diventano punti proprio al passaggio di livello. Quello è l'unico momento in cui il giocatore
+scopre **a cosa è servito giocare come ha giocato**, quindi lo dice: il livello raggiunto,
+ogni statistica cresciuta con prima → dopo, e i punti abilità disponibili
+(`GameState.salite_di_livello`, mostrate da `Main.notifiche_salite_di_livello()`).
+
 ## Abilità, progressione e armi (`data/abilita.json`)
 Le abilità stavano in `regole.json` in mezzo ai numeri di bilanciamento, ed erano quattro. Ora
 hanno un file loro, perché sono diventate una **progressione**: non solo cosa sa fare un

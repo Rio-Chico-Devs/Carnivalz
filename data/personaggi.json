@@ -1517,7 +1517,13 @@
 					"risposta": "Sei stato molto bravo, ora riposa... per sempre... insieme a me..."
 				}
 			],
-			"testo_studio_esaurito": "La testa ti gira all'improvviso: non sei più in grado di studiare il nemico."
+			"testo_studio_esaurito": "La testa ti gira all'improvviso: non sei più in grado di studiare il nemico.",
+			"bottino_comune": [
+				{
+					"oggetto": "ricordo_del_passato",
+					"chance": 1.0
+				}
+			]
 		},
 		{
 			"id": "goblin_arrabbiato",

@@ -181,17 +181,25 @@ func si_vede(id_stanza: String) -> bool:
 	return visitata(id_stanza) or GameState.stanza_sbloccata(id_stanza) or intravista(id_stanza)
 
 func si_puo_andare(id_stanza: String) -> bool:
-	# DALLA MAPPA NON CI SI TELETRASPORTA. Vedere un posto e poterci arrivare
-	# sono due cose diverse: da qui si va solo dove si andrebbe a piedi, cioe'
-	# in una stanza che confina con quella in cui sei. L'unica eccezione e' il
-	# proiettore, e sta al giocatore aver deciso dove piantarlo.
-	if not GameState.stanza_sbloccata(id_stanza):
-		return false
+	# DALLA MAPPA CI SI CAMMINA, E SI CAMMINA ANCHE NEL BUIO.
+	#
+	# Qui c'era il difetto che rendeva la mappa inutilizzabile: si pretendeva
+	# che la stanza fosse GIA' sbloccata. Ma una stanza si sblocca solo se un
+	# evento la nomina, quindi i punti interrogativi invitavano ad andarci e
+	# poi rispondevano "da questa parte non si passa". Una mappa su cui non si
+	# puo' esplorare non e' una mappa, e' un disegno.
+	#
+	# Adesso: nei posti confinanti ci si va sempre, scoperti o no - andarci E'
+	# il modo di scoprirli. Il resto della mappa resta guardabile e non
+	# raggiungibile, tranne i proiettori (vedi sotto).
 	if id_stanza == GameState.nodo_corrente:
 		return true
-	if id_stanza == GameState.proiettore_qui():
+	if id_stanza in GameState.stanze_confinanti(GameState.nodo_corrente):
 		return true
-	return id_stanza in GameState.stanze_confinanti(GameState.nodo_corrente)
+	# I PROIETTORI SONO UNA RETE, non un ritorno alla base: si salta da uno
+	# all'altro, e solo stando su uno. Se sei in mezzo al niente, cammini.
+	return GameState.su_un_proiettore() and GameState.ce_un_proiettore(id_stanza) \
+			and visitata(id_stanza)
 
 # --- i quadratini --------------------------------------------------------
 
@@ -249,14 +257,14 @@ func vesti_vuoto(bottone: Button, noto: bool, raggiungibile: bool) -> void:
 		scatola.border_color = Color(tinta, 0.9 if raggiungibile else 0.35)
 		bottone.add_theme_stylebox_override(stato, scatola)
 
-func _su_stanza(id_stanza: String, noto: bool, raggiungibile: bool) -> void:
+func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
 	# un click che non porta da nessuna parte deve comunque dire perche': il
 	# silenzio si legge come un bottone rotto
-	if not noto:
-		etichetta_stato.text = "Da questa parte non si passa, per ora."
-		return
 	if not raggiungibile:
-		etichetta_stato.text = "Troppo lontano. Da qui si va solo dove si arriva a piedi."
+		if GameState.ce_un_proiettore(id_stanza):
+			etichetta_stato.text = "C'è un proiettore, ma per usarlo devi essere su un altro proiettore."
+		else:
+			etichetta_stato.text = "Troppo lontano. Da qui si va solo dove si arriva a piedi."
 		return
 	GameState.nodo_corrente = id_stanza
 	IngressoNodo.vai_al_nodo(id_stanza)

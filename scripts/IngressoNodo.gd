@@ -132,6 +132,11 @@ static func applica_effetti(id_nodo: String, nodo: Dictionary, prima_visita: boo
 		# esplorare allena la velocità: ogni stanza conta una volta sola
 		GameState.nodi_visitati.append(id_nodo)
 		GameState.registra_azione("stanze_esplorate")
+		# ESSERCI DENTRO VUOL DIRE AVERLA SCOPERTA. Prima una stanza risultava
+		# "sbloccata" solo se un evento la nominava per nome, quindi si poteva
+		# stare in una stanza che per la mappa non era ancora aperta - ed era
+		# meta' della ragione per cui dalla mappa non si esplorava.
+		GameState.sblocca_stanza(id_nodo)
 	if nodo.has("flag"):
 		GameState.imposta_flag(nodo["flag"])
 	if nodo.has("sblocca_stanze"):

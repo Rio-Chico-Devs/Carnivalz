@@ -63,6 +63,33 @@ esegui_pulito() {
 
 echo "→ importo le risorse"
 "$GODOT" --headless --path . --import >/dev/null
+
+# PRIMA DI TUTTO: L'ERRORE CHE APPENDE TUTTO.
+#
+# In questo progetto i warning sono errori, e "tipo dedotto da un Variant" è
+# uno di quelli. Il guaio è come si manifesta: non fallisce, APPENDE. Godot non
+# carica la scena, _ready() non parte, e si aspetta il tempo massimo per
+# scoprire che c'era una riga sbagliata.
+#
+# Il modo di prenderlo in un secondo non è chiedere a Godot di compilare
+# (--check-only non carica gli autoload, quindi non conosce GameState e si
+# lamenta di tutt'altro): è cercare la riga. `var x := qualcosa.call(...)` dà
+# sempre Variant, perché una Callable non dichiara cosa restituisce. È l'errore
+# che è già costato due esecuzioni intere.
+echo "→ niente tipi dedotti da un Variant"
+# Due forme, e mi hanno fermato tre esecuzioni intere:
+#   var x := qualcosa.call(...)     -> una Callable non dichiara cosa ritorna
+#   var x := nodo.metodo(...)       -> su una variabile tipata Node il metodo
+#                                      non è noto staticamente
+# In entrambi i casi esce Variant, i warning qui sono errori, e la scena non si
+# carica più: il gioco non fallisce, si pianta.
+if grep -rnE '^[[:space:]]*var [a-z_0-9]+ :=[^=]*(\.call\(|\b(schermata|scontro|mappa|negozio|pausa|istanza)\.[a-z_0-9]+\()' scripts prove --include='*.gd' ; then
+	echo "" >&2
+	echo "✗ le righe qui sopra deducono il tipo da una Callable: in GDScript è" >&2
+	echo "  Variant, i warning qui sono errori, e la scena non si carica più." >&2
+	echo "  Scrivi il tipo a mano: var x: int = qualcosa.call(...)" >&2
+	exit 1
+fi
 echo "→ il gioco si avvia"
 esegui_pulito "l'avvio del gioco" "$GODOT" --headless --path . --quit-after 240
 echo "→ prove"

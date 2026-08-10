@@ -25,8 +25,6 @@
 	"cedimento_hp": 3,
 	"tazo_iniziale": 30,
 	"sacca_massima": 20,
-	"difesa_difenditi_tetto": 18,
-	"difesa_difenditi_decadimento": 0.5,
 	"xp_base": 10,
 	"xp_esponente": 1.5,
 	"xp_penalita_per_livello_extra": 0.15,
@@ -140,5 +138,8 @@
 	},
 	"ultima_risorsa_soglia": 0.25,
 	"ultima_risorsa_bonus": 0.2,
-	"flagello_probabilita_fallimento": 0.12
+	"flagello_probabilita_fallimento": 0.12,
+	"_nota_difesa_scatti": "LA GUARDIA A SCATTI, come in Pokemon. Difendersi alza la difesa di uno scatto e lo scatto RESTA fino alla fine dello scontro: difendersi cinque volte vale cinque volte. Ogni scatto in su vale meno del precedente ((2+n)/2) e sopra 'difesa_scatti_massimi' non si sale, quindi non si diventa mai inattaccabili stando fermi. Certi colpi nemici la aprono e la fanno scendere, anche sotto zero, e allora si incassa piu' del normale. Il 'piatto' serve perche' qui la difesa base puo' essere zero (il protagonista al livello 1 non ne ha) e qualunque moltiplicatore per zero resta zero.",
+	"difesa_scatti_massimi": 6,
+	"difesa_scatto_piatto": 2
 }

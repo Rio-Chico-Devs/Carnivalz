@@ -140,6 +140,10 @@ var resistenze_stato: Dictionary = {}    # id stato -> punti di resistenza
 var volte_stato_subito: Dictionary = {}  # id stato -> quante volte subito (verso il prossimo punto)
 var passive_sbloccate: Array[String] = []
 var passive_da_notificare: Array[String] = []  # svuotato da chi le mostra a schermo
+# Le salite di livello in attesa di essere raccontate: {livello, stat, punti_abilita}.
+# Non entrano nel salvataggio - sono una cosa da dire adesso, non un progresso -
+# e le svuota chi le mostra a schermo (vedi Main.notifiche_salite_di_livello)
+var salite_di_livello: Array[Dictionary] = []
 var nodi_visitati: Array[String] = []    # per contare l'esplorazione (una volta per stanza)
 
 # Storico dei messaggi gia' letti nel box: in un gioco fatto di testo, un click
@@ -388,6 +392,7 @@ func nuova_partita() -> void:
 	volte_stato_subito.clear()
 	passive_sbloccate.clear()
 	passive_da_notificare.clear()
+	salite_di_livello.clear()
 	nodi_visitati.clear()
 	proiettori.clear()
 	zone_visitate.clear()
@@ -477,13 +482,43 @@ func _flag_stanza(id_stanza: String) -> String:
 # --- il proiettore ---
 
 func piazza_proiettore(id_stanza: String) -> void:
-	if carnivalz_corrente == "":
+	# I PROIETTORI SONO PIU' D'UNO, e questa non e' una rifinitura: e' la
+	# regola. Bru: "puoi selezionare i punti dove si trovano i proiettori per
+	# il teletrasporto, ma solo se sei in uno dei punti dove c'e' un altro
+	# teletrasporto". Cioe' si salta da un proiettore a un altro, e basta.
+	# Prima ce n'era uno solo per zona e ci si arrivava da ovunque: era un
+	# ritorno alla base, non una rete.
+	if carnivalz_corrente == "" or id_stanza == "":
 		return
-	proiettori[carnivalz_corrente] = id_stanza
+	var suoi: Array = proiettori.get(carnivalz_corrente, [])
+	if id_stanza not in suoi:
+		suoi.append(id_stanza)
+	proiettori[carnivalz_corrente] = suoi
+
+func proiettori_di_zona() -> Array[String]:
+	var elenco: Array[String] = []
+	var grezzo: Variant = proiettori.get(carnivalz_corrente, [])
+	if grezzo is String:
+		# salvataggi fatti quando il proiettore era uno solo
+		if String(grezzo) != "":
+			elenco.append(String(grezzo))
+		return elenco
+	for id_stanza in (grezzo as Array):
+		elenco.append(String(id_stanza))
+	return elenco
+
+func ce_un_proiettore(id_stanza: String) -> bool:
+	return id_stanza in proiettori_di_zona()
+
+func su_un_proiettore() -> bool:
+	# se sei su un proiettore puoi saltare agli altri. Se no, si cammina
+	return ce_un_proiettore(nodo_corrente)
 
 func proiettore_qui() -> String:
-	# dove sta il proiettore in questa zona, "" se non e' stato piantato
-	return String(proiettori.get(carnivalz_corrente, ""))
+	# il primo proiettore della zona, "" se non ne e' stato piantato nessuno.
+	# Resta per chi lo chiedeva quando ce n'era uno solo
+	var elenco := proiettori_di_zona()
+	return elenco[0] if not elenco.is_empty() else ""
 
 func stanze_confinanti(id_stanza: String) -> Array[String]:
 	# i vicini sulla mappa: sono gli unici posti in cui la mappa lascia andare,
@@ -1302,7 +1337,30 @@ func aggiungi_xp(id_classe: String, quantita: int) -> void:
 		xp[id_classe] -= necessario
 		livelli[id_classe] = livello_di(id_classe) + 1
 		if id_classe == id_protagonista:
+			# SALIRE DI LIVELLO SI DEVE VEDERE. In Carnivalz le stat non salgono
+			# col livello, salgono con quello che hai fatto: quindi il momento
+			# in cui diventano punti e' l'unico in cui il giocatore scopre a
+			# cosa e' servito giocare come ha giocato. Prima cambiavano dei
+			# numeri da qualche parte e nessuno lo diceva.
+			var prima := {}
+			for nome_stat in crescita.get("stat", {}):
+				prima[nome_stat] = stat_di(String(nome_stat))
 			applica_crescita_livello()
+			var cresciute: Array[Dictionary] = []
+			for nome_stat in prima:
+				var dopo := stat_di(String(nome_stat))
+				if dopo > int(prima[nome_stat]):
+					cresciute.append({
+						"stat": String(nome_stat),
+						"nome": String(crescita.get("stat", {}).get(nome_stat, {}).get("nome", nome_stat)),
+						"prima": int(prima[nome_stat]),
+						"dopo": dopo,
+					})
+			salite_di_livello.append({
+				"livello": livello_di(id_classe),
+				"stat": cresciute,
+				"punti_abilita": punti_abilita_liberi(),
+			})
 			verifica_passive(livello_di(id_classe))
 
 # --- crescita del protagonista: i contatori delle azioni diventano punti stat

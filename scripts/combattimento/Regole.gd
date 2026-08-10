@@ -50,12 +50,41 @@ static func fattore_attivo(combattente: Dictionary) -> bool:
 
 # --- statistiche effettive (base + buff + stati) ---
 
+static func moltiplicatore_scatti(scatti: int) -> float:
+	# LA TABELLA DI POKEMON, e Bru l'ha chiesta per nome. Uno scatto in su vale
+	# meno del precedente, uno in giu' fa piu' male del precedente, e sopra il
+	# tetto non si va: e' quello che rende "difenditi" una tattica invece che
+	# un modo di non perdere mai.
+	var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+	var n := clampi(scatti, -tetto, tetto)
+	return (2.0 + n) / 2.0 if n >= 0 else 2.0 / (2.0 - n)
+
+static func scatti_difesa(combattente: Dictionary) -> int:
+	var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+	return clampi(int(combattente.get("scatti_difesa", 0)), -tetto, tetto)
+
 static func difesa_di(combattente: Dictionary) -> int:
-	var totale: int = combattente.difesa
+	# LA GUARDIA SI ACCUMULA E RESTA, fino alla fine dello scontro.
+	#
+	# Prima era un buff che durava un turno e si azzerava appena facevi altro:
+	# difendersi cinque volte non valeva piu' che difendersi una volta, perche'
+	# fra una e l'altra dovevi pur combattere. Bru: "se mi difendo 5 volte
+	# dovrei poter ridurre i danni degli attacchi dei nemici... bisogna fare
+	# come in pokemon".
+	#
+	# Il piatto per scatto c'e' perche' qui la difesa base puo' essere ZERO (il
+	# protagonista al livello 1 non ne ha: se la guadagna parando), e qualunque
+	# moltiplicatore per zero resta zero. Cosi' i primi scatti si sentono anche
+	# a mani nude, e piu' avanti comanda il moltiplicatore.
+	var scatti := scatti_difesa(combattente)
+	var base: int = combattente.difesa
 	for buff in combattente.buffs:
 		if buff.get("stat", "") == "difesa":
-			totale += int(buff.get("valore", 0))
-	return totale
+			base += int(buff.get("valore", 0))
+	var totale := int(round(base * moltiplicatore_scatti(scatti)))
+	if scatti > 0:
+		totale += scatti * int(GameState.regole.get("difesa_scatto_piatto", 2))
+	return maxi(totale, 0)
 
 static func attacco_di(combattente: Dictionary) -> int:
 	var totale: int = combattente.attacco
@@ -79,15 +108,22 @@ static func scadenza_buff(combattente: Dictionary) -> void:
 			rimasti.append(buff)
 	combattente.buffs = rimasti
 
-static func bonus_difesa_guardia(combattente: Dictionary) -> int:
-	# "Difenditi" e' cumulativa ma a rendimento decrescente: ogni uso in piu' si
-	# avvicina a un tetto senza mai raggiungerlo. Si azzera appena si fa altro
-	# (vedi esegui_turno): o si tiene la guardia, o si rischia attaccando.
-	var tetto := float(GameState.regole.get("difesa_difenditi_tetto", 6))
-	var decadimento := float(GameState.regole.get("difesa_difenditi_decadimento", 0.5))
-	combattente.difesa_accumulo = float(combattente.difesa_accumulo) \
-			+ (tetto - float(combattente.difesa_accumulo)) * decadimento
-	return int(round(combattente.difesa_accumulo))
+static func alza_guardia(combattente: Dictionary) -> int:
+	# uno scatto in su, e resta fino alla fine dello scontro. Ritorna quanto e'
+	# cambiata la difesa davvero, che e' l'unica cosa che ha senso dire al
+	# giocatore: "+1 scatto" non vuol dire niente, "+4" si'
+	var prima := difesa_di(combattente)
+	var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+	combattente.scatti_difesa = mini(scatti_difesa(combattente) + 1, tetto)
+	return difesa_di(combattente) - prima
+
+static func abbassa_guardia(combattente: Dictionary, quanti := 1) -> int:
+	# certi colpi la guardia te la aprono: scende di uno o piu' scatti, e
+	# scendere sotto zero vuol dire incassare piu' del normale
+	var prima := difesa_di(combattente)
+	var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+	combattente.scatti_difesa = maxi(scatti_difesa(combattente) - quanti, -tetto)
+	return prima - difesa_di(combattente)
 
 # --- risoluzione di un colpo ---
 

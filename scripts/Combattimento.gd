@@ -348,7 +348,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"stati_attivi": {},
 		"immunita_temporanea": [],
 		"buffs": [],
-		"difesa_accumulo": 0.0,
+		# LA GUARDIA A SCATTI, stile Pokemon: si alza difendendosi, certi colpi
+		# la aprono, e resta com'e' fino alla fine dello scontro
+		"scatti_difesa": 0,
 		"mossa_in_carica": {},
 		# quanto vale il prossimo colpo di chi ha passato un turno a caricare:
 		# 0 = niente in canna (vedi abilita' di tipo "carica")
@@ -579,10 +581,6 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				if not chiunque.is_empty():
 					bersaglio_scelto = chiunque[GameState.rng.randi_range(0, chiunque.size() - 1)]
 					scrivi("[i]%s è confuso e colpisce %s per sbaglio![/i]" % [attaccante.nome, bersaglio_scelto.nome])
-			if azione.get("tipo", "") != "difendi":
-				# smette di accumularsi appena si fa altro: o si tiene la
-				# guardia, o si rischia attaccando - non si ha tutto insieme
-				attaccante.difesa_accumulo = 0.0
 			match azione.get("tipo", ""):
 				"attacca":
 					colpo_darma(attaccante, bersaglio_scelto, azione.get("arma", {}))
@@ -689,17 +687,20 @@ func alleati_disponibili() -> Array[String]:
 # --- azioni ---
 
 func difendi(chi: Dictionary) -> void:
-	# cumulativa ma a rendimento decrescente: ogni uso in piu' si avvicina
-	# a un tetto senza mai raggiungerlo (si azzera se sul turno successivo
-	# si fa altro - vedi esegui_turno) - premia chi si difende con
-	# continuita', ma non rende mai il danno subito davvero pari a zero
-	var bonus := RegoleCombattimento.bonus_difesa_guardia(chi)
-	chi.buffs.append({
-		"stat": "difesa",
-		"valore": bonus,
-		"turni": 1,
-	})
-	scrivi("%s si mette in guardia (difesa +%d)." % [chi.nome, bonus])
+	# LA GUARDIA RESTA. Si alza di uno scatto e non si azzera piu' fino alla
+	# fine dello scontro: difendersi cinque volte vale cinque volte, non una.
+	# Il tetto agli scatti e' quello che impedisce di diventare inattaccabili
+	# stando fermi (vedi RegoleCombattimento.moltiplicatore_scatti).
+	var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+	if RegoleCombattimento.scatti_difesa(chi) >= tetto:
+		scrivi("[i]%s è già chiuso quanto può: la guardia non sale oltre.[/i]" % chi.nome)
+		if chi.giocatore and chi.id == GameState.id_protagonista:
+			GameState.registra_azione("difese")
+		aggiorna_scheda(chi)
+		return
+	var guadagno := RegoleCombattimento.alza_guardia(chi)
+	scrivi("%s si mette in guardia (difesa +%d, ora %d)." % [
+			chi.nome, guadagno, RegoleCombattimento.difesa_di(chi)])
 	if chi.giocatore and chi.id == GameState.id_protagonista:
 		GameState.registra_azione("difese")
 	aggiorna_scheda(chi)
@@ -1696,8 +1697,20 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 				else:
 					esegui_mossa(nemico, mossa)
 				return
-	nemico.difesa_accumulo = 0.0  # attacco normale: la guardia accumulata si perde
 	attacca(nemico, bersaglio_giocatore_casuale())
+
+func apri_la_guardia(vittima: Dictionary, mossa: Dictionary) -> void:
+	# CERTI COLPI LA GUARDIA TE LA APRONO. Serve perche' la guardia adesso resta
+	# fino a fine scontro: senza qualcosa che la faccia scendere, chiudersi
+	# sarebbe una strada senza rischio, e una strada senza rischio non e' una
+	# scelta - e' l'unica cosa sensata da fare.
+	var quanti := int(mossa.get("abbassa_difesa", 0))
+	if quanti <= 0 or vittima.is_empty() or int(vittima.hp) <= 0:
+		return
+	var perso := RegoleCombattimento.abbassa_guardia(vittima, quanti)
+	scrivi(String(mossa.get("testo_guardia", "[i]La guardia di %s si apre.[/i]")) % vittima.nome)
+	if perso > 0:
+		scrivi("Difesa −%d, ora %d." % [perso, RegoleCombattimento.difesa_di(vittima)])
 
 func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 	# Se una mossa non puo' fare quello che dice, non deve partire: meglio un
@@ -1715,10 +1728,6 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
 	if mossa.get("una_tantum", false):
 		nemico.mosse_usate.append(String(mossa.get("id", "")))
-	if String(mossa.get("tipo", "")) != "difendi":
-		# stessa regola del giocatore: la guardia accumulata si perde appena
-		# si fa altro (vedi difendi()/esegui_turno)
-		nemico.difesa_accumulo = 0.0
 	match mossa.get("tipo", ""):
 		"difendi":
 			difendi(nemico)
@@ -1728,6 +1737,14 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 					1.0, String(mossa.get("elemento", "")))
 			if mossa.has("stato") and not vittima_forte.is_empty() and vittima_forte.hp > 0:
 				applica_stato(vittima_forte, String(mossa["stato"]))
+			apri_la_guardia(vittima_forte, mossa)
+		"spezza_guardia":
+			# un colpo che non fa piu' male degli altri, ma ti apre: e' la
+			# risposta del gioco a chi si chiude e non si muove piu'
+			var vittima_guardia := bersaglio_giocatore_casuale()
+			attacca(nemico, vittima_guardia, int(mossa.get("valore", -1)),
+					1.0, String(mossa.get("elemento", "")))
+			apri_la_guardia(vittima_guardia, mossa)
 		"meta_vita":
 			# toglie sempre meta' dei punti vita attuali del bersaglio, ignorando
 			# difese e livello; sotto una soglia minima e' invece un KO secco
