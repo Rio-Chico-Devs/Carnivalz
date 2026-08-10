@@ -402,6 +402,9 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 			continue
 		if scelta.has("richiede_oggetti") and not GameState.possiede_tutti(scelta["richiede_oggetti"]):
 			continue  # servono tutti i pezzi (es. la Fontana)
+		if scelta.get("piazza_proiettore", false) \
+				and GameState.proiettore_qui() == GameState.nodo_corrente:
+			continue  # e' gia' qui: piantarlo di nuovo non farebbe niente
 		if scelta.has("una_tantum") and GameState.ha_flag(scelta["una_tantum"]):
 			continue  # gia' raccolto/fatto: la scelta non torna
 		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
@@ -582,6 +585,14 @@ func _su_scelta(scelta: Dictionary) -> void:
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
 	var notifiche: Array[Dictionary] = []
+	if scelta.get("piazza_proiettore", false):
+		# il proiettore e' uno solo: piantarlo qui lo toglie da dove stava
+		var dove_stava := GameState.proiettore_qui()
+		GameState.piazza_proiettore(GameState.nodo_corrente)
+		notifiche.append({"tipo": "notifica", "testo":
+				"Proiettore piantato. Da qualunque punto della zona, la mappa riporta qui."
+				if dove_stava == "" else
+				"Proiettore spostato qui. Dove stava prima non c'e' piu'."})
 	# "oggetto" ne da' uno, "oggetti" ne da' quanti se ne scrivono - anche lo
 	# stesso due volte, per un ritrovamento che vale il doppio. Le due forme
 	# convivono: i contenuti gia' scritti usano la prima e non vanno ritoccati.

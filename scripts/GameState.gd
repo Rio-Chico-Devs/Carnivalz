@@ -162,6 +162,17 @@ var hp_persistenti: Dictionary = {}      # id classe -> hp rimasti
 var bestiario: Array[String] = []        # id nemici incontrati (voce al 1o incontro)
 var oggetti_catalogo: Array[String] = [] # id oggetti ottenuti almeno una volta
 var stanze_ripulite: Array[String] = []  # agguati gia' tirati in questa visita
+
+# IL PROIETTORE. Sulla mappa non ci si teletrasporta dove si vuole: si va solo
+# in una stanza confinante, come si andrebbe a piedi. L'unica eccezione e'
+# questo, che il dominatore ha in dotazione: lo si pianta in una stanza che lo
+# permette, e da li' in avanti da qualunque punto della zona ci si torna.
+#
+# UNO SOLO, e piantarlo altrove lo sposta. E' quello che rende la scelta di
+# dove ancorarlo una decisione invece di una comodita' che si accumula. Vive
+# per zona (chiave = carnivalz_corrente), perche' un'ancora piantata a Meridia
+# non ha senso dentro la Casa Gigante.
+var proiettori: Dictionary = {}   # id zona -> id stanza dove sta il proiettore
 var punto_mappa_corrente: Dictionary = {}  # il sistema/Vuoto che stai guardando
 
 # Dove sei gia' stato, a livello di mondo: id dei sistemi e degli squarci in cui
@@ -361,6 +372,7 @@ func nuova_partita() -> void:
 	passive_sbloccate.clear()
 	passive_da_notificare.clear()
 	nodi_visitati.clear()
+	proiettori.clear()
 	zone_visitate.clear()
 	storico.clear()
 	task_attivi.clear()
@@ -444,6 +456,32 @@ func sblocca_stanza(id_stanza: String) -> void:
 
 func _flag_stanza(id_stanza: String) -> String:
 	return "%s__stanza__%s" % [carnivalz_corrente, id_stanza]
+
+# --- il proiettore ---
+
+func piazza_proiettore(id_stanza: String) -> void:
+	if carnivalz_corrente == "":
+		return
+	proiettori[carnivalz_corrente] = id_stanza
+
+func proiettore_qui() -> String:
+	# dove sta il proiettore in questa zona, "" se non e' stato piantato
+	return String(proiettori.get(carnivalz_corrente, ""))
+
+func stanze_confinanti(id_stanza: String) -> Array[String]:
+	# i vicini sulla mappa: sono gli unici posti in cui la mappa lascia andare,
+	# perche' muoversi vuol dire attraversare quello che c'e' in mezzo
+	var vicine: Array[String] = []
+	for coppia in mappa_zona.get("connessioni", []):
+		if coppia.size() < 2:
+			continue
+		var a := String(coppia[0])
+		var b := String(coppia[1])
+		if a == id_stanza and b not in vicine:
+			vicine.append(b)
+		elif b == id_stanza and a not in vicine:
+			vicine.append(a)
+	return vicine
 
 # --- dove sei gia' stato ---
 #
@@ -1355,6 +1393,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"volte_stato_subito": volte_stato_subito,
 		"passive_sbloccate": passive_sbloccate,
 		"nodi_visitati": nodi_visitati,
+		"proiettori": proiettori,
 		"zone_visitate": zone_visitate,
 		"task_attivi": task_attivi,
 		"task_chiusi": task_chiusi,
@@ -1428,6 +1467,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	volte_stato_subito = d.get("volte_stato_subito", {})
 	passive_sbloccate = _lista_str(d.get("passive_sbloccate", []))
 	nodi_visitati = _lista_str(d.get("nodi_visitati", []))
+	proiettori = d.get("proiettori", {})
 	zone_visitate = _lista_str(d.get("zone_visitate", []))
 	if zone_visitate.is_empty():
 		# Salvataggi fatti prima che si tenesse il conto dei posti visitati: il

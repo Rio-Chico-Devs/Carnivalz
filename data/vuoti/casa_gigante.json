@@ -411,6 +411,10 @@
 					"vai": "ala_sinistra"
 				},
 				{
+					"testo": "Pianta un proiettore nel salone",
+					"piazza_proiettore": true
+				},
+				{
 					"testo": "Torna alla soglia",
 					"vai": "soglia"
 				}
@@ -614,6 +618,10 @@
 				{
 					"testo": "Entra nel grande bagno",
 					"vai": "grande_bagno"
+				},
+				{
+					"testo": "Pianta un proiettore in cima alla scala",
+					"piazza_proiettore": true
 				},
 				{
 					"testo": "Scendi nella sala principale",
@@ -868,7 +876,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "insonne",
-					"testo": "Hmph... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada."
+					"testo": "Hmpf... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada."
 				},
 				{
 					"tipo": "narrazione",
@@ -1067,7 +1075,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "tenero_ricordo",
-					"testo": "...volevo, giocare... ancora... un pò..."
+					"testo": "...volevo, giocare... ancora... un po'..."
 				},
 				{
 					"tipo": "narrazione",
@@ -1094,7 +1102,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "tenero_ricordo",
-					"testo": "...Lilloh... sei tornata a giocare con me?"
+					"testo": "...Lylloh... sei tornata a giocare con me?"
 				},
 				{
 					"tipo": "narrazione",
@@ -1216,6 +1224,10 @@
 				{
 					"testo": "Prendi il sentiero verso il giardino nord",
 					"vai": "giardino_nord"
+				},
+				{
+					"testo": "Pianta un proiettore nel giardino",
+					"piazza_proiettore": true
 				},
 				{
 					"testo": "Torna verso la soglia",
@@ -2131,6 +2143,10 @@
 				{
 					"testo": "Entra nella sala delle matrici",
 					"vai": "sala_matrici"
+				},
+				{
+					"testo": "Pianta un proiettore nel laboratorio",
+					"piazza_proiettore": true
 				},
 				{
 					"testo": "Torna al giardino ovest",

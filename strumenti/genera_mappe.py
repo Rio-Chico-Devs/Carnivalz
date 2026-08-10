@@ -38,8 +38,25 @@ una figura composta da tanti quadratini, e la figura e' la mappa.
 I quadratini si **illuminano man mano che esplori**: finche' non ci sei mai
 arrivato, un quadratino non c'e'. Se e' il vicino ancora ignoto di un posto in
 cui sei stato, si vede che c'e' qualcosa ma non cosa: e' il quadratino spento
-al bordo della luce. Il gioco lo sa gia' fare — `nodi_visitati` tiene il conto
-di dove sei stato, `stanza_sbloccata()` di cosa e' raggiungibile.
+al bordo della luce.
+
+**Dalla mappa non ci si teletrasporta.** Vedere un posto e poterci arrivare
+sono due cose diverse: da qui si va solo dove si andrebbe a piedi, cioe' in una
+stanza che confina con quella in cui sei. Una mappa che porta ovunque cancella
+l'esplorazione senza che nessuno se ne accorga - si continua a giocare,
+semplicemente il mondo non ha piu' distanze.
+
+### Il proiettore
+
+L'unica eccezione. E' in dotazione al dominatore: in alcune stanze compare la
+scelta di **piantarlo li'**, e da quel momento la mappa ci riporta da qualunque
+punto della zona. Ne esiste **uno solo**, e piantarlo altrove lo sposta: e'
+quello che rende «dove lo ancoro» una decisione invece di una comodita' che si
+accumula. Vive per zona - un'ancora piantata a Meridia non ha senso dentro la
+Casa Gigante.
+
+Nei dati e' una scelta con `"piazza_proiettore": true`, e sparisce da sola nella
+stanza dove il proiettore sta gia'.
 
 ### La legenda
 
@@ -101,9 +118,11 @@ non cosa troverai.
 | zone segrete in verde | ✅ campo `tipo: "segreta"` — nessuna ancora marcata nei dati |
 | icone (boss, scontro duro, uscita...) | ✅ campo `icona`, disegnate a mano finche' non arrivano i disegni: basta mettere `art/icone_mappa/<icona>.png` |
 | cornice della vista | ✅ |
+| **niente teletrasporto**: si va solo nelle stanze confinanti | ✅ |
+| il **proiettore** come unica eccezione | ✅ `piazza_proiettore` sulla scelta |
 | zoom e trascinamento | ⬜ oggi la griglia si adatta da sola al riquadro |
 | piu' piani per zona | ⬜ oggi la mappa e' una sola per file di eventi |
-| eventi che compaiono sulla mappa dopo uno scontro | ⬜ |
+| eventi che compaiono sulla mappa dopo uno scontro, e **scadono** se il giocatore perde troppo tempo | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
 ## Come si legge quello che segue

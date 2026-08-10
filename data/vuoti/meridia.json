@@ -292,6 +292,10 @@
 					"vai": "struttura"
 				},
 				{
+					"testo": "Pianta un proiettore fra i complessi",
+					"piazza_proiettore": true
+				},
+				{
 					"testo": "Torna all'ingresso della città",
 					"vai": "ingresso_citta"
 				}
@@ -715,6 +719,10 @@
 					"vai": "edicola"
 				},
 				{
+					"testo": "Pianta un proiettore sulla strada principale",
+					"piazza_proiettore": true
+				},
+				{
 					"testo": "Torna ai complessi di edifici",
 					"vai": "complessi"
 				}
@@ -918,6 +926,10 @@
 				{
 					"testo": "Scendi verso i quartieri profondi",
 					"vai": "quartieri_profondi"
+				},
+				{
+					"testo": "Pianta un proiettore nel vicolo",
+					"piazza_proiettore": true
 				},
 				{
 					"testo": "Torna all'edicola",

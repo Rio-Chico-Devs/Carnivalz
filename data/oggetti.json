@@ -5,84 +5,113 @@
 			"nome": "Razione da viaggio",
 			"tipo": "consumabile",
 			"descrizione": "Carne secca e datteri pressati, roba da traversata nel deserto. Rimette in piedi.",
-			"effetto": { "hp": 15 }
+			"effetto": {
+				"hp": 15
+			}
 		},
 		{
 			"id": "tonico_calmante",
 			"nome": "Tonico calmante",
 			"tipo": "consumabile",
 			"descrizione": "Distillato dall'Organizzazione. Allontana il confine per un po'.",
-			"effetto": { "stress": -25 }
+			"effetto": {
+				"stress": -25
+			}
 		},
 		{
 			"id": "petardo",
 			"nome": "Petardo",
 			"tipo": "consumabile",
 			"descrizione": "Del vecchio spettacolo pirotecnico. Ignora le difese.",
-			"effetto": { "elemento": "fuoco", "danno": 6 }
+			"effetto": {
+				"elemento": "fuoco",
+				"danno": 6
+			}
 		},
 		{
 			"id": "premio_di_pezza",
 			"nome": "Premio di pezza",
 			"tipo": "consumabile",
 			"descrizione": "Vinto al tiro a segno. Abbracciarlo guarisce più del previsto.",
-			"effetto": { "hp": 25 }
+			"effetto": {
+				"hp": 25
+			}
 		},
 		{
 			"id": "lente_di_nyu",
 			"nome": "Lente di Nyu",
 			"tipo": "consumabile",
 			"descrizione": "Mostra alla fonte quello che non vuole vedere: una via d'uscita.",
-			"effetto": { "speranza": 15 }
+			"effetto": {
+				"speranza": 15
+			}
 		},
 		{
 			"id": "caramella_di_nyu",
 			"nome": "Caramella di Nyu",
 			"tipo": "consumabile",
 			"descrizione": "Sa di un ricordo bello. Di chi, non si sa.",
-			"effetto": { "stress": -50 }
+			"effetto": {
+				"stress": -50
+			}
 		},
 		{
 			"id": "cuore_di_latta",
 			"nome": "Cuore di latta",
 			"tipo": "consumabile",
 			"descrizione": "Battuto a mano dall'Artigiano. Batte davvero, se serve.",
-			"effetto": { "hp": 50 }
+			"effetto": {
+				"hp": 50
+			}
 		},
 		{
 			"id": "specchio_tascabile",
 			"nome": "Specchio tascabile",
 			"tipo": "consumabile",
 			"descrizione": "Forgiato dalle schegge del padiglione. Riflette il male al mittente.",
-			"effetto": { "elemento": "psico", "danno": 9 }
+			"effetto": {
+				"elemento": "psico",
+				"danno": 9
+			}
 		},
 		{
 			"id": "fiala_hp",
 			"nome": "Fiala HP",
 			"tipo": "consumabile",
 			"descrizione": "Liquido rosso in vetro industriale. L'etichetta è sbiadita, l'effetto no.",
-			"effetto": { "hp": 100 }
+			"effetto": {
+				"hp": 100
+			}
 		},
 		{
 			"id": "bomba_artigianale",
 			"nome": "Bomba artigianale",
 			"tipo": "consumabile",
 			"descrizione": "Messa insieme con quello che c'era nei cunicoli. Yara ne teneva sempre una addosso: non per combattere, per non farsi prendere viva.",
-			"effetto": { "elemento": "fuoco", "danno": 24 }
+			"effetto": {
+				"elemento": "fuoco",
+				"danno": 24
+			}
 		},
 		{
 			"id": "bomba_al_nitro",
 			"nome": "Bomba al nitro",
 			"tipo": "consumabile",
 			"descrizione": "Instabile, rumorosa, sproporzionata. Veronica ne tiene una scatola intera ai campi di addestramento.",
-			"effetto": { "elemento": "fuoco", "danno": 36 }
+			"effetto": {
+				"elemento": "fuoco",
+				"danno": 36
+			}
 		},
 		{
 			"id": "molotov",
 			"nome": "Molotov",
 			"tipo": "consumabile",
 			"descrizione": "Assemblata da qualcuno che non è sopravvissuto per lanciarla.",
-			"effetto": { "elemento": "fuoco", "danno": 12 }
+			"effetto": {
+				"elemento": "fuoco",
+				"danno": 12
+			}
 		},
 		{
 			"id": "benzina",
@@ -112,7 +141,7 @@
 			"id": "prova_di_un_forte_amore",
 			"nome": "Prova di un forte amore",
 			"tipo": "chiave",
-			"descrizione": "Un pezzo di stoffa con una firma sopra \"Lyloh\" e alcuni cuoricini disegnati, sembrerebbe che un bambino abbia scritto questo."
+			"descrizione": "Un pezzo di stoffa con una firma sopra \"Lylloh\" e alcuni cuoricini disegnati, sembrerebbe che un bambino abbia scritto questo."
 		},
 		{
 			"id": "spilla_margherita",
@@ -125,14 +154,19 @@
 			"nome": "Pacco di merendine scadute",
 			"tipo": "consumabile",
 			"descrizione": "La data è illeggibile da anni. Curano lo stesso, in un certo senso.",
-			"effetto": { "hp": 10, "stress": 5 }
+			"effetto": {
+				"hp": 10,
+				"stress": 5
+			}
 		},
 		{
 			"id": "vino_di_ottima_qualita",
 			"nome": "Vino di ottima qualità",
 			"tipo": "consumabile",
 			"descrizione": "Un'annata che qualcuno teneva per un'occasione speciale, mai arrivata.",
-			"effetto": { "stress": -20 }
+			"effetto": {
+				"stress": -20
+			}
 		},
 		{
 			"id": "collana_particolare",
@@ -223,49 +257,64 @@
 			"nome": "Infuso antico",
 			"tipo": "consumabile",
 			"descrizione": "Un infuso di radici che non crescono più da nessuna parte, trovato ancora sigillato in un cargo abbandonato. Calma anche i pensieri più insistenti.",
-			"effetto": { "stress": -25 }
+			"effetto": {
+				"stress": -25
+			}
 		},
 		{
 			"id": "omega_gel",
 			"nome": "Gel Omega",
 			"tipo": "consumabile",
 			"descrizione": "Un gel industriale, denso e freddo. Irrigidisce la pelle a contatto e neutralizza qualunque cosa ti stia già avvelenando il sangue.",
-			"effetto": { "difesa_incontro": 9, "cura_stati": true }
+			"effetto": {
+				"difesa_incontro": 9,
+				"cura_stati": true
+			}
 		},
 		{
 			"id": "bastone",
 			"nome": "Bastone",
 			"tipo": "consumabile",
 			"descrizione": "Un pezzo di legno qualsiasi, tenuto per anni vicino alla porta per un motivo che ora sembra ovvio.",
-			"effetto": { "danno": 3 }
+			"effetto": {
+				"danno": 3
+			}
 		},
 		{
 			"id": "spranga_di_ferro",
 			"nome": "Spranga di ferro",
 			"tipo": "consumabile",
 			"descrizione": "Pesante, fredda, coperta di una ruggine che non viene via. Ignora le difese.",
-			"effetto": { "danno": 6 }
+			"effetto": {
+				"danno": 6
+			}
 		},
 		{
 			"id": "mazzafrusto",
 			"nome": "Mazzafrusto",
 			"tipo": "consumabile",
 			"descrizione": "Improvvisato con catena e un lucchetto. Chi l'ha costruito non aveva molto tempo, e si vede.",
-			"effetto": { "danno": 6 }
+			"effetto": {
+				"danno": 6
+			}
 		},
 		{
 			"id": "sparachiodi_arrugginito",
 			"nome": "Sparachiodi arrugginito",
 			"tipo": "consumabile",
 			"descrizione": "Da cantiere, non da difesa personale. Funziona lo stesso, se lo tieni ben saldo.",
-			"effetto": { "danno": 9 }
+			"effetto": {
+				"danno": 9
+			}
 		},
 		{
 			"id": "motosega",
 			"nome": "Motosega",
 			"tipo": "consumabile",
 			"descrizione": "Il serbatoio ha ancora qualche strappo di vita. Rumorosa, definitiva, difficile da trovare intatta.",
-			"effetto": { "danno": 15 }
+			"effetto": {
+				"danno": 15
+			}
 		},
 		{
 			"id": "pagina_di_giornale_1",
@@ -290,7 +339,10 @@
 			"nome": "Fiore di luna",
 			"tipo": "consumabile",
 			"descrizione": "Un fiore comune, usato per trattare lievi infezioni o avvelenamenti. Oltre a essere bello, può anche essere molto utile.",
-			"effetto": { "hp": 20, "cura_stato": "veleno" }
+			"effetto": {
+				"hp": 20,
+				"cura_stato": "veleno"
+			}
 		},
 		{
 			"id": "diserbante",
@@ -342,108 +394,159 @@
 			"nome": "Pietra Quieta",
 			"tipo": "accessorio",
 			"descrizione": "Una pietra liscia e fredda, lasciata cadere da una tartaruga che hai scelto di risparmiare. Sembra assorbire la prima cosa brutta che ti capita, in ogni scontro.",
-			"effetto_equipaggiato": { "tipo": "scudo_primo_stato" }
+			"effetto_equipaggiato": {
+				"tipo": "scudo_primo_stato"
+			}
 		},
 		{
 			"id": "ricordo_del_passato",
 			"nome": "Ricordo del Passato",
 			"tipo": "accessorio",
 			"descrizione": "Un oggetto che porta con sé il peso di qualcosa che non c'è più. Si spezza per riportarti in vita, una volta sola.",
-			"effetto_equipaggiato": { "tipo": "resurrezione_dimezzata" }
+			"effetto_equipaggiato": {
+				"tipo": "resurrezione_dimezzata"
+			}
 		},
 		{
 			"id": "benda_stretta",
 			"nome": "Benda stretta",
 			"tipo": "consumabile",
 			"descrizione": "Sporca, ma tiene. Rimette in piedi chi ha ancora voglia di stare in piedi.",
-			"effetto": { "hp": 40 }
+			"effetto": {
+				"hp": 40
+			}
 		},
 		{
 			"id": "fiala_aura",
 			"nome": "Fiala d'aura",
 			"tipo": "consumabile",
 			"descrizione": "Un liquido che non sta fermo dentro il vetro. Restituisce un po' di quello che spendi quando forzi il mondo.",
-			"effetto": { "aura": 6 }
+			"effetto": {
+				"aura": 6
+			}
 		},
 		{
 			"id": "essenza_di_aura",
 			"nome": "Essenza d'aura",
 			"tipo": "consumabile",
 			"descrizione": "La stessa cosa della fiala, distillata più a lungo. Costa di più e vale di più.",
-			"effetto": { "aura": 14 }
+			"effetto": {
+				"aura": 14
+			}
 		},
 		{
 			"id": "sale_amaro",
 			"nome": "Sale amaro",
 			"tipo": "consumabile",
 			"descrizione": "Brucia in gola e sveglia i morti. Toglie di dosso il sonno, e solo quello.",
-			"effetto": { "cura_stato": "sonno" }
+			"effetto": {
+				"cura_stato": "sonno"
+			}
 		},
 		{
 			"id": "carbone_attivo",
 			"nome": "Carbone attivo",
 			"tipo": "consumabile",
 			"descrizione": "Nero, gessoso, disgustoso. Assorbe il veleno prima che finisca il suo lavoro.",
-			"effetto": { "cura_stato": "veleno" }
+			"effetto": {
+				"cura_stato": "veleno"
+			}
 		},
 		{
 			"id": "amuleto_di_pietra",
 			"nome": "Amuleto di pietra",
 			"tipo": "accessorio",
 			"descrizione": "Grezzo, pesante al collo. Chi lo porta incassa un po' meglio.",
-			"effetto_equipaggiato": { "difesa": 3 }
+			"effetto_equipaggiato": {
+				"difesa": 3
+			}
 		},
 		{
 			"id": "amuleto_di_ferro",
 			"nome": "Amuleto di ferro",
 			"tipo": "accessorio",
 			"descrizione": "Una scheggia di lama montata su uno spago. Rende i colpi un po' più cattivi.",
-			"effetto_equipaggiato": { "attacco": 3 }
+			"effetto_equipaggiato": {
+				"attacco": 3
+			}
 		},
 		{
 			"id": "amuleto_di_vento",
 			"nome": "Amuleto di vento",
 			"tipo": "accessorio",
 			"descrizione": "Leggerissimo, non sta mai fermo. Chi lo porta arriva prima.",
-			"effetto_equipaggiato": { "velocita": 1 }
+			"effetto_equipaggiato": {
+				"velocita": 1
+			}
 		},
 		{
 			"id": "amuleto_di_cenere",
 			"nome": "Amuleto di cenere",
 			"tipo": "accessorio",
 			"descrizione": "Cenere di qualcosa che è stato maledetto prima di te, e che ha resistito un momento in più.",
-			"effetto_equipaggiato": { "resistenza_maledizione": 1 }
+			"effetto_equipaggiato": {
+				"resistenza_maledizione": 1
+			}
 		},
 		{
 			"id": "coltello_di_servizio",
 			"nome": "Coltello di servizio",
 			"tipo": "arma",
 			"descrizione": "In dotazione a ogni operativo. Nessuno l'ha mai chiamato un'arma.",
-			"effetto_equipaggiato": { "attacco": 3 }
+			"effetto_equipaggiato": {
+				"attacco": 3
+			}
 		},
 		{
 			"id": "mannaia_scheggiata",
 			"nome": "Mannaia scheggiata",
 			"tipo": "arma",
 			"descrizione": "Pesante e mal bilanciata: colpisce più forte, ma ti rallenta.",
-			"effetto_equipaggiato": { "attacco": 9, "velocita": -1 }
+			"effetto_equipaggiato": {
+				"attacco": 9,
+				"velocita": -1
+			}
 		},
 		{
 			"id": "stigma_del_veglio",
 			"nome": "Stigma del veglio",
 			"tipo": "stigma",
 			"descrizione": "Un marchio che non ti lascia dormire. L'aura si rigenera più in fretta, ma il corpo regge meno.",
-			"effetto_equipaggiato": { "aura_per_turno": 1, "hp_max": -15 }
+			"effetto_equipaggiato": {
+				"aura_per_turno": 1,
+				"hp_max": -15
+			}
 		},
 		{
 			"id": "stigma_del_muto",
 			"nome": "Stigma del muto",
 			"tipo": "stigma",
 			"descrizione": "Chi lo porta non urla mai. Incassa meglio, ma colpisce peggio.",
-			"effetto_equipaggiato": { "difesa": 6, "attacco": -3 }
+			"effetto_equipaggiato": {
+				"difesa": 6,
+				"attacco": -3
+			}
 		},
-		{"id": "spazio_nella_realta", "nome": "Spazio nella realtà", "tipo": "spazio", "categoria": "consumabili", "descrizione": "Una piega vuota che si porta in tasca. Non pesa, e dentro ci sta altro."},
-		{"id": "frammento_per_le_armi", "nome": "Frammento — rastrelliera", "tipo": "spazio", "categoria": "armi", "descrizione": "Ganci che non esistono, appesi a un muro che non c'è. Ci si appende del ferro vero."},
-		{"id": "frammento_per_gli_accessori", "nome": "Frammento — vassoio", "tipo": "spazio", "categoria": "accessori", "descrizione": "Un ripiano sottile piegato dentro una tasca. Le cose piccole non si perdono più."}
+		{
+			"id": "spazio_nella_realta",
+			"nome": "Spazio nella realtà",
+			"tipo": "spazio",
+			"categoria": "consumabili",
+			"descrizione": "Una piega vuota che si porta in tasca. Non pesa, e dentro ci sta altro."
+		},
+		{
+			"id": "frammento_per_le_armi",
+			"nome": "Frammento — rastrelliera",
+			"tipo": "spazio",
+			"categoria": "armi",
+			"descrizione": "Ganci che non esistono, appesi a un muro che non c'è. Ci si appende del ferro vero."
+		},
+		{
+			"id": "frammento_per_gli_accessori",
+			"nome": "Frammento — vassoio",
+			"tipo": "spazio",
+			"categoria": "accessori",
+			"descrizione": "Un ripiano sottile piegato dentro una tasca. Le cose piccole non si perdono più."
+		}
 	]
 }

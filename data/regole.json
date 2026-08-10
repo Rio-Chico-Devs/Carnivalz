@@ -48,22 +48,25 @@
 	"xp_risparmio_moltiplicatore": 1.25,
 	"aura_iniziale": 10,
 	"aura_recupero_per_turno": 1,
-
 	"_nota_scala": "I numeri del combattimento sono grandi apposta. Un colpo che toglie 1 su 5 punti vita e' matematica; un colpo che ne toglie 27 su 140 e' una botta. Vita x5 e danno x3 rispetto ai valori vecchi: gli scontri durano circa il doppio e ogni numero a schermo si vede. Cambiare hp_base o danno_attacco qui NON riscala i personaggi: le loro stat stanno nei loro file.",
-
 	"_nota_livello_nemici": "Il disallineamento si alimenta del fattore Carnivalz di chi lo attraversa: piu' e' forte il dominatore, piu' e' forte cio' che gli viene incontro. In gioco: nessuna creatura scende mai piu' di scarto_livello_massimo livelli sotto il protagonista, e a ogni livello guadagnato sopra il suo cresce delle percentuali qui sotto. Sopra puo' stare quanto vuole (il goblin arrabbiato resta il macellaio che e'). Chi non deve scalare lo dice nel suo file: \"scala_col_giocatore\": false.",
 	"scarto_livello_massimo": 3,
 	"_nota_boss": "scarto_livello_boss: le fonti (e i miniboss) non scendono MAI sotto il tuo livello. Farmare rende piu' facile il paesaggio, non lo scontro per cui sei venuto: se un boss si potesse superare a forza di livelli, il momento piu' importante di una zona diventerebbe la sua parte piu' noiosa.",
 	"scarto_livello_boss": 0,
-	"crescita_nemico_per_livello": {"hp": 0.13, "attacco": 0.13, "difesa": 0.10, "xp": 0.12, "tazo": 0.08},
-
+	"crescita_nemico_per_livello": {
+		"hp": 0.13,
+		"attacco": 0.13,
+		"difesa": 0.1,
+		"xp": 0.12,
+		"tazo": 0.08
+	},
 	"_nota_abilita": "Le abilita' di combattimento, tutte qui. Una classe le ottiene scrivendone l'id nel suo campo \"abilita\" (classes.json); il menu costruisce i bottoni da questa tabella, quindi aggiungerne una non richiede di toccare il codice. I tipi che il motore conosce: provoca, area, raffica, carica.",
 	"abilita_combattimento": {
 		"provocazione": {
 			"nome": "Provoca",
 			"tipo": "provoca",
 			"aura": 3,
-			"descrizione": "I nemici prendono di mira te e nessun altro, finche' reggi."
+			"descrizione": "I nemici prendono di mira te e nessun altro, finché reggi."
 		},
 		"attacco_area": {
 			"nome": "Colpo d'area",
@@ -88,23 +91,87 @@
 			"tipo": "carica",
 			"aura": 5,
 			"moltiplicatore": 4.0,
-			"testo_carica": "%s si carica. Il prossimo colpo sara' un altro discorso.",
+			"testo_carica": "%s si carica. Il prossimo colpo sarà un altro discorso.",
 			"descrizione": "Questo turno non fai niente. Il prossimo colpo vale quattro volte tanto."
 		}
 	},
 	"_nota_zaino": "Lo zaino e' diviso per categoria e ogni categoria ha la sua capacita'. I consumabili crescono con gli 'spazi nella realta'' comprati al negozio; armi e accessori con i 'frammenti'. Gli oggetti speciali non hanno limite. Le tabelle sono la capacita' TOTALE a ogni acquisto, non l'incremento.",
 	"zaino": {
-		"consumabili": {"base": 20, "scala": [25, 30, 35, 40, 50, 52, 55, 58, 60, 75], "moneta": "spazio_nella_realta"},
-		"armi": {"base": 5, "scala": [6, 8, 10, 12, 14, 16, 18, 20, 22, 30], "moneta": "frammento_di_spazio"},
-		"accessori": {"base": 10, "scala": [13, 16, 19, 22, 25, 28, 31, 34, 37, 50], "moneta": "frammento_di_spazio"}
+		"consumabili": {
+			"base": 20,
+			"scala": [
+				25,
+				30,
+				35,
+				40,
+				50,
+				52,
+				55,
+				58,
+				60,
+				75
+			],
+			"moneta": "spazio_nella_realta"
+		},
+		"armi": {
+			"base": 5,
+			"scala": [
+				6,
+				8,
+				10,
+				12,
+				14,
+				16,
+				18,
+				20,
+				22,
+				30
+			],
+			"moneta": "frammento_di_spazio"
+		},
+		"accessori": {
+			"base": 10,
+			"scala": [
+				13,
+				16,
+				19,
+				22,
+				25,
+				28,
+				31,
+				34,
+				37,
+				50
+			],
+			"moneta": "frammento_di_spazio"
+		}
 	},
 	"_nota_carte": "Rarita' in ordine crescente e finiture con cui una carta puo' cadere. I doppioni non si buttano: si accumulano, e si vendono o si scambiano.",
-	"carte_rarita": ["comune", "ordinaria", "fuori dal comune", "eccentrica", "ricercata", "di classe", "fuori serie"],
-	"carte_finiture": ["normale", "con stile", "proibita"],
+	"carte_rarita": [
+		"comune",
+		"ordinaria",
+		"fuori dal comune",
+		"eccentrica",
+		"ricercata",
+		"di classe",
+		"fuori serie"
+	],
+	"carte_finiture": [
+		"normale",
+		"con stile",
+		"proibita"
+	],
 	"_nota_slot": "Gli accessori non si aprono tutti insieme: si parte da slot_accessori_base e se ne apre uno a ognuno dei livelli elencati. Due classi ne hanno di piu' per un talento loro (slot_accessori_da_abilita).",
 	"slot_accessori_base": 1,
-	"slot_accessori_per_livello": [6, 15, 30],
-	"slot_accessori_da_abilita": {"collezione": 4, "innesti": 1},
+	"slot_accessori_per_livello": [
+		6,
+		15,
+		30
+	],
+	"slot_accessori_da_abilita": {
+		"collezione": 4,
+		"innesti": 1
+	},
 	"ultima_risorsa_soglia": 0.25,
 	"ultima_risorsa_bonus": 0.2
 }

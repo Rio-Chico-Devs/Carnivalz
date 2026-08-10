@@ -180,6 +180,19 @@ func intravista(id_stanza: String) -> bool:
 func si_vede(id_stanza: String) -> bool:
 	return visitata(id_stanza) or GameState.stanza_sbloccata(id_stanza) or intravista(id_stanza)
 
+func si_puo_andare(id_stanza: String) -> bool:
+	# DALLA MAPPA NON CI SI TELETRASPORTA. Vedere un posto e poterci arrivare
+	# sono due cose diverse: da qui si va solo dove si andrebbe a piedi, cioe'
+	# in una stanza che confina con quella in cui sei. L'unica eccezione e' il
+	# proiettore, e sta al giocatore aver deciso dove piantarlo.
+	if not GameState.stanza_sbloccata(id_stanza):
+		return false
+	if id_stanza == GameState.nodo_corrente:
+		return true
+	if id_stanza == GameState.proiettore_qui():
+		return true
+	return id_stanza in GameState.stanze_confinanti(GameState.nodo_corrente)
+
 # --- i quadratini --------------------------------------------------------
 
 func disegna_bottoni() -> void:
@@ -197,43 +210,53 @@ func disegna_bottoni() -> void:
 		bottone.tooltip_text = String(stanza.get("nome", id_stanza))
 		bottone.mouse_filter = Control.MOUSE_FILTER_STOP
 		var noto := GameState.stanza_sbloccata(id_stanza)
+		var raggiungibile := si_puo_andare(id_stanza)
 		if visitata(id_stanza):
-			vesti_pieno(bottone, e_segreta(stanza))
+			vesti_pieno(bottone, e_segreta(stanza), raggiungibile)
 		else:
-			# il punto di domanda del disegno di Bru: quello che invita ad andarci
+			# il punto di domanda: quello che invita ad andarci
 			bottone.text = "?"
 			bottone.add_theme_font_size_override("font_size", int(lato * 0.5))
-			vesti_vuoto(bottone, noto)
-		bottone.pressed.connect(_su_stanza.bind(id_stanza, noto))
+			vesti_vuoto(bottone, noto, raggiungibile)
+		bottone.pressed.connect(_su_stanza.bind(id_stanza, noto, raggiungibile))
 		bottone.mouse_entered.connect(func() -> void:
 			etichetta_stato.text = String(stanza.get("nome", id_stanza)) if noto or visitata(id_stanza) else "?")
 		strato_bottoni.add_child(bottone)
 
-func vesti_pieno(bottone: Button, segreta: bool) -> void:
+func vesti_pieno(bottone: Button, segreta: bool, raggiungibile: bool) -> void:
+	# un posto dove sei stato ma da cui sei lontano resta rosso, ma spento: si
+	# vede che c'e' e si vede che non ci si salta
 	var tinta := Stile.colore("positivo") if segreta else Stile.colore("pericolo")
+	if not raggiungibile:
+		tinta = tinta.darkened(0.45)
 	for stato in ["normal", "hover", "pressed", "focus"]:
 		var scatola := StyleBoxFlat.new()
-		scatola.bg_color = tinta.lightened(0.12) if stato != "normal" else tinta
+		scatola.bg_color = tinta.lightened(0.12) if stato != "normal" and raggiungibile else tinta
 		scatola.set_corner_radius_all(3)
 		scatola.set_border_width_all(2)
-		scatola.border_color = tinta.darkened(0.35)
+		scatola.border_color = Stile.colore("accento") if raggiungibile else tinta.darkened(0.3)
 		bottone.add_theme_stylebox_override(stato, scatola)
 
-func vesti_vuoto(bottone: Button, noto: bool) -> void:
+func vesti_vuoto(bottone: Button, noto: bool, raggiungibile: bool) -> void:
 	var tinta := Stile.colore("accento") if noto else Stile.colore("bordo")
-	bottone.add_theme_color_override("font_color", Color(tinta, 0.95 if noto else 0.5))
+	var forza := 0.95 if raggiungibile else (0.5 if noto else 0.4)
+	bottone.add_theme_color_override("font_color", Color(tinta, forza))
 	for stato in ["normal", "hover", "pressed", "focus"]:
 		var scatola := StyleBoxFlat.new()
 		scatola.bg_color = Color(tinta, 0.10 if stato == "normal" else 0.20)
 		scatola.set_corner_radius_all(3)
 		scatola.set_border_width_all(2)
-		scatola.border_color = Color(tinta, 0.9 if noto else 0.45)
+		scatola.border_color = Color(tinta, 0.9 if raggiungibile else 0.35)
 		bottone.add_theme_stylebox_override(stato, scatola)
 
-func _su_stanza(id_stanza: String, noto: bool) -> void:
+func _su_stanza(id_stanza: String, noto: bool, raggiungibile: bool) -> void:
+	# un click che non porta da nessuna parte deve comunque dire perche': il
+	# silenzio si legge come un bottone rotto
 	if not noto:
-		# un vicolo cieco per ora: non si finge che il click non sia successo
 		etichetta_stato.text = "Da questa parte non si passa, per ora."
+		return
+	if not raggiungibile:
+		etichetta_stato.text = "Troppo lontano. Da qui si va solo dove si arriva a piedi."
 		return
 	GameState.nodo_corrente = id_stanza
 	IngressoNodo.vai_al_nodo(id_stanza)
@@ -275,6 +298,8 @@ func _disegna_sopra() -> void:
 		var rettangolo := rettangolo_di(stanza)
 		if visitata(id_stanza):
 			disegna_icona(String(stanza.get("icona", "")), rettangolo)
+		if id_stanza == GameState.proiettore_qui():
+			disegna_proiettore(rettangolo)
 		if id_stanza == GameState.nodo_corrente:
 			disegna_sei_qui(rettangolo)
 
@@ -304,6 +329,20 @@ func disegna_icona(icona: String, rettangolo: Rect2) -> void:
 			strato_sopra.draw_line(centro + Vector2(d, -d), centro - Vector2(d, -d), tinta, spessore)
 		_:
 			strato_sopra.draw_arc(centro, raggio * 0.4, 0.0, TAU, 16, tinta, 2.0)
+
+func disegna_proiettore(rettangolo: Rect2) -> void:
+	# il proiettore piantato: un anello nell'angolo, per non coprire l'icona
+	# della stanza e per non farsi confondere con la freccia
+	var percorso := CARTELLA_ICONE + "proiettore.png"
+	var misura := minf(rettangolo.size.x, rettangolo.size.y) * 0.3
+	var angolo := rettangolo.position + Vector2(rettangolo.size.x - misura * 1.2, misura * 0.2)
+	if ResourceLoader.exists(percorso):
+		strato_sopra.draw_texture_rect(load(percorso), Rect2(angolo, Vector2.ONE * misura), false)
+		return
+	var centro := angolo + Vector2.ONE * misura * 0.5
+	var tinta := Stile.colore("accento")
+	strato_sopra.draw_arc(centro, misura * 0.45, 0.0, TAU, 20, tinta, maxf(misura * 0.16, 2.0))
+	strato_sopra.draw_circle(centro, misura * 0.13, tinta)
 
 func disegna_sei_qui(rettangolo: Rect2) -> void:
 	# la freccia: dove sei adesso. Sta sopra il quadrato, non dentro, cosi' non

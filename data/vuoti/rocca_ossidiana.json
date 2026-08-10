@@ -432,6 +432,10 @@
 					"vai": "cunicolo_3"
 				},
 				{
+					"testo": "Pianta un proiettore al bivio dei cunicoli",
+					"piazza_proiettore": true
+				},
+				{
 					"testo": "Torna alla mappa",
 					"torna_a_mappa": true
 				}

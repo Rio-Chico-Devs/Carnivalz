@@ -345,8 +345,18 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 <sub>`scripts/MappaZona.gd`</sub>
 
-**`UI.MappaZona.001`**
+**`UI.MappaZona.001`** · costruisci_intelaiatura
 > Torna alla stanza corrente
+>
+> →
+
+**`UI.MappaZona.002`** · _su_stanza
+> Da questa parte non si passa, per ora.
+>
+> →
+
+**`UI.MappaZona.003`** · _su_stanza
+> Troppo lontano. Da qui si va solo dove si arriva a piedi.
 >
 > →
 
@@ -2220,6 +2230,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.corridoio_tubi_aperto.scelta6`** · bottone di scelta
+> Pianta un proiettore nella stanza dei tubi
+>
+> →
+
+**`IND.corridoio_tubi_aperto.scelta7`** · bottone di scelta
 > Torna al varco
 >
 > →
@@ -2459,6 +2474,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.sala_valvole.scelta4`** · bottone di scelta
+> Pianta un proiettore nella sala delle valvole
+>
+> →
+
+**`IND.sala_valvole.scelta5`** · bottone di scelta
 > Torna nel corridoio
 >
 > →
@@ -2650,6 +2670,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`IND.cuore.scelta4`** · bottone di scelta
+> Pianta un proiettore nel cuore del complesso
+>
+> →
+
+**`IND.cuore.scelta5`** · bottone di scelta
 > Torna al nastro
 >
 > →
@@ -2892,6 +2917,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`MER.complessi_dopo.scelta4`** · bottone di scelta
+> Pianta un proiettore fra i complessi
+>
+> →
+
+**`MER.complessi_dopo.scelta5`** · bottone di scelta
 > Torna all'ingresso della città
 >
 > →
@@ -3258,6 +3288,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`MER.strada_principale.scelta4`** · bottone di scelta
+> Pianta un proiettore sulla strada principale
+>
+> →
+
+**`MER.strada_principale.scelta5`** · bottone di scelta
 > Torna ai complessi di edifici
 >
 > →
@@ -3385,6 +3420,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`MER.vicolo.scelta4`** · bottone di scelta
+> Pianta un proiettore nel vicolo
+>
+> →
+
+**`MER.vicolo.scelta5`** · bottone di scelta
 > Torna all'edicola
 >
 > →
@@ -3668,6 +3708,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`OSS.cunicolo_1.scelta3`** · bottone di scelta
+> Pianta un proiettore al bivio dei cunicoli
+>
+> →
+
+**`OSS.cunicolo_1.scelta4`** · bottone di scelta
 > Torna alla mappa
 >
 > →
@@ -4611,6 +4656,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.salone.scelta4`** · bottone di scelta
+> Pianta un proiettore nel salone
+>
+> →
+
+**`CASA.salone.scelta5`** · bottone di scelta
 > Torna alla soglia
 >
 > →
@@ -4833,6 +4883,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.scala.scelta4`** · bottone di scelta
+> Pianta un proiettore in cima alla scala
+>
+> →
+
+**`CASA.scala.scelta5`** · bottone di scelta
 > Scendi nella sala principale
 >
 > →
@@ -5065,7 +5120,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.yhvina_si.3`** · battuta di Yhvina
-> Hmph... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada.
+> Hmpf... beh, una cosa è certa, prima finisce questa storia, meglio è... Ma non montarti la testa, una volta finita questa storia, ognuno per la sua strada.
 >
 > →
 
@@ -5290,7 +5345,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.ricordo_concluso.3`** · battuta di Un tenero ricordo
-> ...volevo, giocare... ancora... un pò...
+> ...volevo, giocare... ancora... un po'...
 >
 > →
 
@@ -5313,7 +5368,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.ricordo_concluso_buono.2`** · battuta di Un tenero ricordo
-> ...Lilloh... sei tornata a giocare con me?
+> ...Lylloh... sei tornata a giocare con me?
 >
 > →
 
@@ -5430,6 +5485,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.giardino.scelta4`** · bottone di scelta
+> Pianta un proiettore nel giardino
+>
+> →
+
+**`CASA.giardino.scelta5`** · bottone di scelta
 > Torna verso la soglia
 >
 > →
@@ -6267,6 +6327,11 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.laboratorio.scelta4`** · bottone di scelta
+> Pianta un proiettore nel laboratorio
+>
+> →
+
+**`CASA.laboratorio.scelta5`** · bottone di scelta
 > Torna al giardino ovest
 >
 > →
@@ -9750,7 +9815,7 @@ carte collezionabili.
 > →
 
 **`OGG.prova_di_un_forte_amore.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
-> Un pezzo di stoffa con una firma sopra "Lyloh" e alcuni cuoricini disegnati, sembrerebbe che un bambino abbia scritto questo.
+> Un pezzo di stoffa con una firma sopra "Lylloh" e alcuni cuoricini disegnati, sembrerebbe che un bambino abbia scritto questo.
 >
 > →
 

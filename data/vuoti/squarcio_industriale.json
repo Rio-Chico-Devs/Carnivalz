@@ -470,6 +470,10 @@
 					"vai": "corridoi_infiniti"
 				},
 				{
+					"testo": "Pianta un proiettore nella stanza dei tubi",
+					"piazza_proiettore": true
+				},
+				{
 					"testo": "Torna al varco",
 					"vai": "varco"
 				}
@@ -727,6 +731,10 @@
 					"vai": "nastro"
 				},
 				{
+					"testo": "Pianta un proiettore nella sala delle valvole",
+					"piazza_proiettore": true
+				},
+				{
 					"testo": "Torna nel corridoio",
 					"vai": "corridoio_tubi"
 				}
@@ -935,6 +943,10 @@
 				{
 					"testo": "Esci nel piazzale della grande discarica",
 					"vai": "discarica"
+				},
+				{
+					"testo": "Pianta un proiettore nel cuore del complesso",
+					"piazza_proiettore": true
 				},
 				{
 					"testo": "Torna al nastro",

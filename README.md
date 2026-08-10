@@ -1824,8 +1824,24 @@ pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, 
     toccare una riga. Due stanze non possono finire sullo stesso quadratino — `prova_mappe`
     tiene il conto di ogni cella occupata, perché una sovrapposizione a schermo non è un
     errore, è un quadrato che ne copre un altro e lo rende incliccabile.
+    **Dalla mappa non ci si teletrasporta**: si va solo dove si andrebbe a piedi, cioè in una
+    stanza che confina con quella in cui sei. Una mappa che porta ovunque cancella
+    l'esplorazione senza che nessuno se ne accorga — si continua a giocare, semplicemente il
+    mondo non ha più distanze. L'unica eccezione è il **proiettore**, in dotazione al
+    dominatore: in alcune stanze compare la scelta di piantarlo lì
+    (`"piazza_proiettore": true`), e da quel momento la mappa ci riporta da qualunque punto
+    della zona. Ne esiste **uno solo** e piantarlo altrove lo sposta — è quello che rende
+    «dove lo ancoro» una decisione invece di una comodità che si accumula.
     Restano: zoom e trascinamento, una mappa **per piano** invece di una per zona, gli eventi
-    che compaiono sulla mappa dopo uno scontro, e la **mappa totale a contorni**
+    che compaiono sulla mappa dopo uno scontro (e **scadono** se il giocatore perde troppo
+    tempo), e la **mappa totale a contorni**
+25b. ✅ **`strumenti/controlla_testi.py`**: cerca nei testi che il giocatore legge gli errori
+    che in italiano si fanno sempre e che si riconoscono con certezza — «perchè» senza accento
+    acuto, «un pò», «qual'è», refusi noti, e soprattutto l'**accento scritto con l'apostrofo**
+    (`finche'`, `sara'`), che nei commenti del codice è la convenzione e nei dati finisce a
+    schermo tale e quale. Poche regole che non sbagliano mai, non tante che gridano al lupo:
+    un controllo che dà falsi allarmi smette di essere letto dopo due giri.
+    `python3 strumenti/controlla_testi.py --correggi` sistema quelle sicure
 26. ✅ **La Casa Gigante esce di casa** (testi di Bru). Dalla soglia si può anche non entrare: sul
     fianco c'è l'ingresso ai **giardini tropicali**, e da lì tre sentieri. A **est**, in fondo,
     un albero con dentro un volto: la **custode dei giardini**, un tempo capo ricerca al fianco

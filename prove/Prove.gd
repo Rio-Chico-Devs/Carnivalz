@@ -1498,11 +1498,43 @@ func prova_mappa_a_quadratini() -> void:
 	# un quadratino intravisto ma non ancora aperto dalla storia non ci porta:
 	# lo dice, e resta dov'e'
 	mappa.etichetta_stato.text = " "
-	mappa._su_stanza("periferia", false)
+	mappa._su_stanza("periferia", false, false)
 	esigi(GameState.nodo_corrente == "varco",
 			"cliccare un posto non ancora raggiungibile ha spostato il giocatore")
 	esigi(mappa.etichetta_stato.text != " ",
 			"cliccare un posto non raggiungibile non ha detto niente al giocatore")
+
+	# --- DALLA MAPPA NON CI SI TELETRASPORTA ---
+	#
+	# Vedere un posto e poterci arrivare sono due cose diverse. Una mappa che
+	# porta ovunque cancella l'esplorazione senza che nessuno se ne accorga: si
+	# continua a giocare, semplicemente il mondo non ha piu' distanze.
+	titolo("dalla mappa si va solo dove si arriva a piedi")
+	GameState.nodi_visitati = ["varco", "periferia", "ingresso_citta", "complessi",
+			"strada_principale", "edicola", "vicolo"] as Array[String]
+	for id_stanza in GameState.nodi_visitati:
+		GameState.sblocca_stanza(id_stanza)
+	GameState.nodo_corrente = "varco"
+	esigi(mappa.si_puo_andare("periferia"),
+			"dal varco si dovrebbe poter andare alla periferia: confinano")
+	esigi(not mappa.si_puo_andare("vicolo"),
+			"dal varco si arriva al vicolo in un click: la mappa e' un teletrasporto")
+	esigi(mappa.si_puo_andare("varco"), "non si puo' restare dove si e'")
+
+	# il proiettore e' l'unica eccezione, e sta al giocatore averlo piantato
+	esigi(GameState.proiettore_qui() == "", "il proiettore risulta piantato senza averlo piantato")
+	GameState.piazza_proiettore("vicolo")
+	esigi(mappa.si_puo_andare("vicolo"),
+			"col proiettore piantato nel vicolo non ci si torna: il proiettore non serve a niente")
+	# uno solo: piantarlo altrove lo sposta
+	GameState.piazza_proiettore("edicola")
+	esigi(not mappa.si_puo_andare("vicolo"),
+			"il proiettore spostato funziona ancora dove stava prima: sono diventati due")
+	esigi(mappa.si_puo_andare("edicola"), "il proiettore spostato non funziona dove l'hai messo")
+	# e vale per la zona in cui l'hai piantato, non per tutte
+	GameState.entra_squarcio("prova_mappa_altrove", "res://data/vuoti/meridia.json")
+	esigi(GameState.proiettore_qui() == "",
+			"il proiettore piantato in una zona risulta piantato anche in un'altra")
 
 	# una stanza grande occupa davvero piu' di un quadratino
 	GameState.entra_squarcio("prova_mappa2", "res://data/vuoti/casa_gigante.json")

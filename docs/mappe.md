@@ -11,8 +11,25 @@ una figura composta da tanti quadratini, e la figura e' la mappa.
 I quadratini si **illuminano man mano che esplori**: finche' non ci sei mai
 arrivato, un quadratino non c'e'. Se e' il vicino ancora ignoto di un posto in
 cui sei stato, si vede che c'e' qualcosa ma non cosa: e' il quadratino spento
-al bordo della luce. Il gioco lo sa gia' fare — `nodi_visitati` tiene il conto
-di dove sei stato, `stanza_sbloccata()` di cosa e' raggiungibile.
+al bordo della luce.
+
+**Dalla mappa non ci si teletrasporta.** Vedere un posto e poterci arrivare
+sono due cose diverse: da qui si va solo dove si andrebbe a piedi, cioe' in una
+stanza che confina con quella in cui sei. Una mappa che porta ovunque cancella
+l'esplorazione senza che nessuno se ne accorga - si continua a giocare,
+semplicemente il mondo non ha piu' distanze.
+
+### Il proiettore
+
+L'unica eccezione. E' in dotazione al dominatore: in alcune stanze compare la
+scelta di **piantarlo li'**, e da quel momento la mappa ci riporta da qualunque
+punto della zona. Ne esiste **uno solo**, e piantarlo altrove lo sposta: e'
+quello che rende «dove lo ancoro» una decisione invece di una comodita' che si
+accumula. Vive per zona - un'ancora piantata a Meridia non ha senso dentro la
+Casa Gigante.
+
+Nei dati e' una scelta con `"piazza_proiettore": true`, e sparisce da sola nella
+stanza dove il proiettore sta gia'.
 
 ### La legenda
 
@@ -74,9 +91,11 @@ non cosa troverai.
 | zone segrete in verde | ✅ campo `tipo: "segreta"` — nessuna ancora marcata nei dati |
 | icone (boss, scontro duro, uscita...) | ✅ campo `icona`, disegnate a mano finche' non arrivano i disegni: basta mettere `art/icone_mappa/<icona>.png` |
 | cornice della vista | ✅ |
+| **niente teletrasporto**: si va solo nelle stanze confinanti | ✅ |
+| il **proiettore** come unica eccezione | ✅ `piazza_proiettore` sulla scelta |
 | zoom e trascinamento | ⬜ oggi la griglia si adatta da sola al riquadro |
 | piu' piani per zona | ⬜ oggi la mappa e' una sola per file di eventi |
-| eventi che compaiono sulla mappa dopo uno scontro | ⬜ |
+| eventi che compaiono sulla mappa dopo uno scontro, e **scadono** se il giocatore perde troppo tempo | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
 ## Come si legge quello che segue
@@ -360,6 +379,7 @@ soglia
           · Torna alla scala → scala [gia' visto]
         · Entra nel grande bagno → grande_bagno
           · Torna alla scala → scala [gia' visto]
+        · Pianta un proiettore in cima alla scala
         · Scendi nella sala principale → sala_principale [gia' visto]
       · Torna al salone → salone [gia' visto]
     · Vai nell'ala destra → ala_destra
@@ -367,6 +387,7 @@ soglia
       · Torna al salone → salone [gia' visto]
     · Vai nell'ala sinistra → ala_sinistra
       · Torna al salone → salone [gia' visto]
+    · Pianta un proiettore nel salone
     · Torna alla soglia → soglia [gia' visto]
   · Va' verso i giardini → giardino_ingresso
     · Entra nel giardino → giardino   (agguato 35%)
@@ -431,6 +452,7 @@ soglia
               · Prendi una tanica di diserbante   (+diserbante)
               · Torna alla sala delle matrici → sala_matrici [gia' visto]
             · Torna nel laboratorio → laboratorio [gia' visto]
+          · Pianta un proiettore nel laboratorio
           · Torna al giardino ovest → giardino_ovest [gia' visto]
         · Torna al giardino → giardino [gia' visto]
       · Prendi il sentiero verso il giardino nord → giardino_nord   (flag casa_vivaio_bloccato; agguato 35%)
@@ -467,6 +489,7 @@ soglia
               · Torna al giardino nord → giardino_nord [gia' visto]
           · Torna al giardino nord → giardino_nord [gia' visto]
         · Torna al giardino → giardino [gia' visto]
+      · Pianta un proiettore nel giardino
       · Torna verso la soglia → giardino_ingresso [gia' visto]
     · Torna alla soglia → soglia [gia' visto]
   · Torna nel Vuoto   (solo se non casa_yhvina; esce dalla zona)
@@ -576,8 +599,10 @@ varco
                 · Scendi verso i quartieri profondi → quartieri_profondi   (flag meridia_esplorata; agguato 65%, ripetibile)
                   · Continua a battere i quartieri profondi
                   · Torna al vicolo → vicolo [gia' visto]
+                · Pianta un proiettore nel vicolo
                 · Torna all'edicola → edicola [gia' visto]
               · Torna alla strada → strada_principale [gia' visto]
+            · Pianta un proiettore sulla strada principale
             · Torna ai complessi di edifici → complessi [gia' visto]
           · Investiga il parco → parco
             ⟳ con mer_nuvola_battuta diventa parco_dopo
@@ -621,6 +646,7 @@ varco
                 · Risali al piano superiore → garage_1 [gia' visto]
               · Risali in superficie → struttura [gia' visto]
             · Torna ai complessi di edifici → complessi [gia' visto]
+          · Pianta un proiettore fra i complessi
           · Torna all'ingresso della città → ingresso_citta [gia' visto]
         · Avanza per la strada principale → strada_principale [gia' visto]
         · Investiga il parco → parco [gia' visto]
@@ -717,6 +743,7 @@ varco
                   · Torna alla mappa
                 · Torna al bivio → cunicolo_1 [gia' visto]
                 · Torna alla mappa
+              · Pianta un proiettore al bivio dei cunicoli
               · Torna alla mappa
             · Prendi i cunicoli di destra, verso il ponte → ponte_approccio
               · Attraversa il grande ponte marcio → ponte_meta_compagna   (serve oss_compagna_reclutata)
@@ -831,8 +858,10 @@ varco
                           · Torna al padiglione → padiglione_e [gia' visto]
                         · Torna alla discarica → discarica [gia' visto]
                       · Torna al cuore del complesso → cuore [gia' visto]
+                    · Pianta un proiettore nel cuore del complesso
                     · Torna al nastro → nastro [gia' visto]
                   · Torna alle valvole → sala_valvole [gia' visto]
+                · Pianta un proiettore nella sala delle valvole
                 · Torna nel corridoio → corridoio_tubi [gia' visto]
               · Entra nel deposito → deposito
                 · Fruga nella cassa marchiata con una croce   (+fiala_hp, fiala_hp)
@@ -858,6 +887,7 @@ varco
                   · Torna indietro fra i tubi → corridoio_tubi [gia' visto]
                 · Abbatti la porta → sala_sorveglianza [gia' visto]
                 · Torna indietro fra i tubi → corridoio_tubi [gia' visto]
+              · Pianta un proiettore nella stanza dei tubi
               · Torna al varco → varco [gia' visto]
             · Fruga in un armadietto arrugginito   (+viti_e_bulloni; +12 Tazo)
             · Addentrati ancora di più nel complesso → corridoi_infiniti [gia' visto]
