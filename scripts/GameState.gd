@@ -16,6 +16,7 @@ const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
 const PERCORSO_RUOLI := "res://data/ruoli.json"
+const PERCORSO_ABILITA := "res://data/abilita.json"
 const PERCORSO_CRESCITA := "res://data/crescita.json"
 const PERCORSO_TASK := "res://data/task.json"
 const PERCORSO_CODICI := "res://data/codici.json"  # extra: sblocchi via codice
@@ -60,6 +61,8 @@ var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemic
 var stati: Dictionary = {}
                                           # id stato -> definizione generica (tipo, contagiosa, ...)
 var ruoli: Dictionary = {}   # data/ruoli.json: curva e ruoli da cui escono i numeri di una creatura
+var abilita: Dictionary = {}       # data/abilita.json: abilita', linee, punti, classi d'arma
+var nodi_abilita: Array[String] = []  # i nodi comprati coi punti (abilita' e potenziamenti)
 var codici: Dictionary = {}               # codice (maiuscolo) -> {testo, effetto}, vedi Extra
 var codici_riscattati: Array[String] = []  # persiste da solo, fuori dagli slot di salvataggio
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
@@ -203,6 +206,7 @@ func _ready() -> void:
 	carica_studio()
 	carica_stati()
 	carica_ruoli()
+	carica_abilita()
 	carica_crescita()
 	carica_task()
 	carica_codici()
@@ -307,6 +311,10 @@ func carica_stati() -> void:
 	var dati: Variant = carica_json(PERCORSO_STATI)
 	stati = dati.get("stati", {}) if dati is Dictionary else {}
 
+func carica_abilita() -> void:
+	var dati: Variant = carica_json(PERCORSO_ABILITA)
+	abilita = dati if dati is Dictionary else {}
+
 func carica_ruoli() -> void:
 	var dati: Variant = carica_json(PERCORSO_RUOLI)
 	ruoli = dati if dati is Dictionary else {}
@@ -374,6 +382,7 @@ func nuova_partita() -> void:
 	stress.clear()
 	studiati.clear()
 	punti_stat.clear()
+	nodi_abilita.clear()
 	contatori.clear()
 	resistenze_stato.clear()
 	volte_stato_subito.clear()
@@ -514,9 +523,168 @@ func abilita_combattimento(id_abilita: String) -> Dictionary:
 	# la definizione di un'abilita' usabile in battaglia, o {} se quel nome e'
 	# un'abilita' narrativa (scasso, volo, sesto senso...) che in combattimento
 	# non fa niente
-	var tabella: Dictionary = regole.get("abilita_combattimento", {})
+	var tabella: Dictionary = abilita.get("abilita", {})
 	var dati: Variant = tabella.get(id_abilita, {})
 	return dati if dati is Dictionary else {}
+
+# --- la progressione: cosa sai fare, e cosa puoi ancora imparare -------------
+#
+# Fino al livello in cui cominciano i punti, un'abilita' arriva da sola quando
+# arrivi al suo livello: e' il mestiere di base. Dopo, arriva un punto ogni
+# tot livelli e lo spendi su quello che vuoi fra i nodi che il livello ha
+# aperto. Le scelte che Bru ha descritto (al 25 Pieta' o Terra bruciata, al 29
+# quello che resta o Annichilazione II) non sono scritte da nessuna parte come
+# casi particolari: sono la conseguenza di avere un punto solo e piu' di una
+# porta aperta.
+
+func punti_abilita_guadagnati(livello: int) -> int:
+	var regola: Dictionary = abilita.get("punti", {})
+	var dal := int(regola.get("dal_livello", 25))
+	if livello < dal:
+		return 0
+	var ogni := maxi(int(regola.get("ogni_livelli", 4)), 1)
+	return (1 + (livello - dal) / ogni) * int(regola.get("per_volta", 1))
+
+func costo_nodo(id_nodo: String) -> int:
+	return int(nodo_abilita(id_nodo).get("costo", 0))
+
+func nodo_abilita(id_nodo: String) -> Dictionary:
+	# un nodo e' un'abilita' o un potenziamento: si cercano nello stesso modo
+	# perche' costano allo stesso modo
+	var dati: Variant = abilita.get("abilita", {}).get(id_nodo,
+			abilita.get("potenziamenti", {}).get(id_nodo, {}))
+	return dati if dati is Dictionary else {}
+
+func punti_abilita_spesi() -> int:
+	var totale := 0
+	for id_nodo in nodi_abilita:
+		totale += costo_nodo(id_nodo)
+	return totale
+
+func punti_abilita_liberi() -> int:
+	return punti_abilita_guadagnati(livello_di(id_protagonista)) - punti_abilita_spesi()
+
+func nodo_gia_preso(id_nodo: String) -> bool:
+	return id_nodo in nodi_abilita
+
+func nodo_disponibile(id_nodo: String) -> bool:
+	# aperto dal livello, non gia' preso, alla portata dei punti che hai, e con
+	# il nodo che richiede gia' in mano
+	var dati := nodo_abilita(id_nodo)
+	if dati.is_empty() or nodo_gia_preso(id_nodo):
+		return false
+	if livello_di(id_protagonista) < int(dati.get("livello", 999)):
+		return false
+	var richiesto := String(dati.get("richiede", ""))
+	if richiesto != "" and not nodo_gia_preso(richiesto):
+		return false
+	# di una linea si compra il grado successivo a quello che hai, non uno a caso
+	var linea := String(dati.get("linea", ""))
+	if linea != "" and int(dati.get("grado", 1)) != grado_di_linea(linea) + 1:
+		return false
+	return costo_nodo(id_nodo) <= punti_abilita_liberi()
+
+func sblocca_nodo(id_nodo: String) -> bool:
+	if not nodo_disponibile(id_nodo):
+		return false
+	nodi_abilita.append(id_nodo)
+	return true
+
+func grado_di_linea(linea: String) -> int:
+	# a che punto sei di una linea. Zero vuol dire che non l'hai ancora aperta
+	var massimo := 0
+	for id_nodo in abilita_del_protagonista():
+		var dati := abilita_combattimento(id_nodo)
+		if String(dati.get("linea", "")) == linea:
+			massimo = maxi(massimo, int(dati.get("grado", 1)))
+	return massimo
+
+func abilita_del_protagonista() -> Array[String]:
+	# tutto quello che sa fare: quelle scritte nella sua classe, quelle che il
+	# livello gli ha dato da solo, e quelle che ha comprato coi punti
+	var elenco: Array[String] = []
+	for id_abilita in classi.get(id_protagonista, {}).get("abilita", []):
+		if not String(id_abilita) in elenco:
+			elenco.append(String(id_abilita))
+	var livello := livello_di(id_protagonista)
+	for id_abilita in abilita.get("abilita", {}):
+		var dati := abilita_combattimento(String(id_abilita))
+		var suo_livello := int(dati.get("livello", 0))
+		if suo_livello <= 0 or String(id_abilita) in elenco:
+			continue
+		var arriva_da_sola := int(dati.get("costo", 0)) <= 0
+		if arriva_da_sola and livello >= suo_livello:
+			elenco.append(String(id_abilita))
+		elif nodo_gia_preso(String(id_abilita)):
+			elenco.append(String(id_abilita))
+	return elenco
+
+func abilita_usabili(id_classe: String) -> Array[String]:
+	# QUELLO CHE COMPARE NEL MENU. Di una linea si vede un grado solo, il piu'
+	# alto: Terra bruciata prende il posto di Flagello invece di stargli
+	# accanto, altrimenti dopo cinque potenziamenti il menu sarebbe una lista di
+	# sei versioni della stessa cosa
+	if id_classe != id_protagonista:
+		var altrui: Array[String] = []
+		for id_abilita in classi.get(id_classe, {}).get("abilita", []):
+			altrui.append(String(id_abilita))
+		return altrui
+	var migliore := {}   # linea -> [grado, id]
+	var senza_linea: Array[String] = []
+	for id_abilita in abilita_del_protagonista():
+		var dati := abilita_combattimento(id_abilita)
+		var linea := String(dati.get("linea", ""))
+		if linea == "":
+			senza_linea.append(id_abilita)
+			continue
+		var grado := int(dati.get("grado", 1))
+		if not migliore.has(linea) or grado > int(migliore[linea][0]):
+			migliore[linea] = [grado, id_abilita]
+	for linea in migliore:
+		senza_linea.append(String(migliore[linea][1]))
+	return senza_linea
+
+# --- le armi portano i loro attacchi ----------------------------------------
+
+func classe_arma_di(id_classe: String) -> String:
+	# che tipo di arma sa impugnare questo personaggio
+	for nome_classe in abilita.get("classi_arma", {}):
+		if id_classe in abilita["classi_arma"][nome_classe].get("usata_da", []):
+			return String(nome_classe)
+	return ""
+
+func puo_impugnare(id_classe: String, id_arma: String) -> bool:
+	# un'arma senza classe la impugna chiunque (le vecchie armi del gioco);
+	# altrimenti deve essere della classe di quel personaggio
+	var richiesta := String(dati_oggetto(id_arma).get("classe_arma", ""))
+	return richiesta == "" or richiesta == classe_arma_di(id_classe)
+
+func attacchi_arma(id_classe: String) -> Array[Dictionary]:
+	# GLI ATTACCHI CHE COMPAIONO PERCHE' HAI QUELL'ARMA IN MANO.
+	#
+	# Bru: "ogni arma equipaggiata fara' comparire una serie di attacchi
+	# collegati all'arma in se'". Quindi cambiare arma non cambia solo un
+	# numero: cambia cosa puoi fare. Il danno di ognuno e' l'attacco base del
+	# personaggio piu' il bonus che l'arma da' a QUELL'attacco, e il bonus e'
+	# scritto sull'arma perche' e' dell'arma che stiamo parlando.
+	var elenco: Array[Dictionary] = []
+	var id_arma := String(slot_di(id_classe).get("arma", ""))
+	if id_arma == "" or not puo_impugnare(id_classe, id_arma):
+		return elenco
+	for attacco in dati_oggetto(id_arma).get("attacchi", []):
+		if attacco is Dictionary:
+			var voce: Dictionary = (attacco as Dictionary).duplicate()
+			voce["arma"] = id_arma
+			elenco.append(voce)
+	return elenco
+
+func bonus_da_potenziamenti(nome_stat: String) -> int:
+	var totale := 0
+	for id_nodo in nodi_abilita:
+		var dati: Variant = abilita.get("potenziamenti", {}).get(id_nodo, {})
+		if dati is Dictionary and String(dati.get("stat", "")) == nome_stat:
+			totale += int(dati.get("quanto", 0))
+	return totale
 
 func party_ha_abilita(abilita: String) -> bool:
 	for id_classe in party:
@@ -1152,8 +1320,10 @@ func stat_base_di(nome_stat: String) -> int:
 	return int(crescita.get("stat", {}).get(nome_stat, {}).get("base", 0))
 
 func stat_di(nome_stat: String) -> int:
-	# valore attuale di una stat del protagonista: base + punti guadagnati
-	return stat_base_di(nome_stat) + int(punti_stat.get(nome_stat, 0))
+	# valore attuale di una stat del protagonista: base, piu' i punti guadagnati
+	# giocando, piu' i nodi di potenziamento comprati coi punti abilita'
+	return stat_base_di(nome_stat) + int(punti_stat.get(nome_stat, 0)) \
+			+ bonus_da_potenziamenti(nome_stat)
 
 func resistenza_stato_di(id_stato: String) -> int:
 	return int(resistenze_stato.get(id_stato, 0))
@@ -1514,6 +1684,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"negozi_sbloccati": negozi_sbloccati,
 		"flags": flags,
 		"punti_stat": punti_stat,
+		"nodi_abilita": nodi_abilita,
 		"contatori": contatori,
 		"resistenze_stato": resistenze_stato,
 		"volte_stato_subito": volte_stato_subito,
@@ -1588,6 +1759,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	negozi_sbloccati = _lista_str(d.get("negozi_sbloccati", []))
 	flags = _lista_str(d.get("flags", []))
 	punti_stat = d.get("punti_stat", {})
+	nodi_abilita = _lista_str(d.get("nodi_abilita", []))
 	contatori = d.get("contatori", {})
 	resistenze_stato = d.get("resistenze_stato", {})
 	volte_stato_subito = d.get("volte_stato_subito", {})

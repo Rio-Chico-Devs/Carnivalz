@@ -357,6 +357,14 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"soglia_gia_scattata": false,
 		"ultimo_danno_subito": 0,
 		"colpi_incassati": 0,
+		# Astio: finche' e' acceso, ogni colpo incassato alza l'attacco
+		"astio_turni": 0,
+		"astio_frazione": 0.0,
+		"astio_testo": "",
+		# Mantra IV in su: un turno in cui non ti scalfiscono
+		"turni_immune": 0,
+		# Pieta': quanto in piu' lascera' cadere questo qui
+		"bonus_drop": 0.0,
 		"gamba_rotta_turni": 0,
 		"gamba_gia_rotta": false,
 		"volte_studiato": 0,
@@ -522,6 +530,11 @@ func mostra_continua_fine() -> void:
 
 func esegui_turno(attaccante: Dictionary) -> void:
 	RegoleCombattimento.scadenza_buff(attaccante)
+	scala_astio(attaccante)
+	if int(attaccante.get("turni_immune", 0)) > 0:
+		# l'immunita' di Mantra copre il giro fino al tuo turno successivo: si
+		# consuma qui, quando torni a muovere, non a fine giro
+		attaccante.turni_immune = int(attaccante.turni_immune) - 1
 	aggiorna_scheda(attaccante)
 	recupera_aura(attaccante)
 	campo.evidenzia(combattenti, attaccante)
@@ -571,7 +584,7 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				attaccante.difesa_accumulo = 0.0
 			match azione.get("tipo", ""):
 				"attacca":
-					attacca(attaccante, bersaglio_scelto, -1, consuma_carica(attaccante))
+					colpo_darma(attaccante, bersaglio_scelto, azione.get("arma", {}))
 				"difendi":
 					difendi(attaccante)
 				"studia":
@@ -581,7 +594,11 @@ func esegui_turno(attaccante: Dictionary) -> void:
 				"alleato":
 					usa_alleato(azione.id)
 				"abilita":
-					usa_abilita(attaccante, String(azione.get("id", "")))
+					var su: Dictionary = azione.get("bersaglio", {})
+					if su.is_empty():
+						usa_abilita(attaccante, String(azione.get("id", "")))
+					else:
+						usa_abilita_su(attaccante, String(azione.get("id", "")), su)
 				"fuggi":
 					fuggi(attaccante)
 				"leva":
@@ -934,6 +951,234 @@ func usa_abilita(chi: Dictionary, id_abilita: String) -> void:
 		"area": attacco_area(chi, dati)
 		"raffica": raffica(chi, dati)
 		"carica": carica(chi, dati)
+		"astio": astio(chi, dati)
+		"mantra": mantra(chi, dati)
+		"flagello": flagello(chi, dati)
+
+func usa_abilita_su(chi: Dictionary, id_abilita: String, bersaglio: Dictionary) -> void:
+	# le abilita' che chiedono un bersaglio passano di qui: il menu le fa
+	# scegliere come un attacco normale
+	var dati := GameState.abilita_combattimento(id_abilita)
+	if dati.is_empty() or bersaglio.is_empty():
+		return
+	spendi_aura(chi, int(dati.get("aura", 0)))
+	match String(dati.get("tipo", "")):
+		"vendetta": vendetta(chi, bersaglio, dati)
+		"annichilazione": annichilazione(chi, bersaglio, dati)
+		"pieta": pieta(chi, bersaglio, dati)
+
+func colpo_darma(chi: Dictionary, bersaglio: Dictionary, attacco: Dictionary) -> void:
+	# IL DANNO DI UN ATTACCO D'ARMA, come l'ha descritto Bru: l'attacco base del
+	# personaggio piu' il bonus che l'arma da' a quell'attacco. Non un
+	# moltiplicatore: una somma, perche' cosi' un'arma resta leggibile - "+4" e'
+	# +4, e non cambia significato salendo di livello.
+	if attacco.is_empty():
+		attacca(chi, bersaglio, -1, consuma_carica(chi))
+		return
+	spendi_aura(chi, int(attacco.get("aura", 0)))
+	var testo := String(attacco.get("testo", ""))
+	if testo != "":
+		scrivi(testo % chi.nome)
+	attacca(chi, bersaglio, -1, consuma_carica(chi), String(attacco.get("elemento", "")),
+			int(attacco.get("bonus", 0)))
+
+func categoria_del_combattente(chi: Dictionary) -> String:
+	# categoria_di legge il record di personaggi.json, non la scheda in campo
+	return RegoleCombattimento.categoria_di(GameState.personaggi.get(String(chi.get("id", "")), {}))
+
+func abilita_vuole_bersaglio(id_abilita: String) -> bool:
+	return String(GameState.abilita_combattimento(id_abilita).get("tipo", "")) \
+			in ["vendetta", "annichilazione", "pieta"]
+
+# --- Astio: piu' ti fanno male, piu' fai male -------------------------------
+
+func astio(chi: Dictionary, dati: Dictionary) -> void:
+	# Non e' un buff che sale e basta: sale SE incassi. Chi la usa e poi para
+	# per tre turni non ha guadagnato niente, e questo e' il punto - e' un patto
+	# con chi ti sta picchiando, non uno scudo.
+	chi.astio_turni = int(dati.get("turni", 3))
+	chi.astio_frazione = float(dati.get("frazione_attacco", 0.12))
+	chi.astio_testo = String(dati.get("testo_accumulo", "L'astio di %s cresce: attacco +%d."))
+	scrivi(String(dati.get("testo_uso", "[i]%s si incattivisce.[/i]")) % chi.nome)
+
+func alimenta_astio(chi: Dictionary) -> void:
+	# chiamata quando chi ha l'astio addosso incassa un colpo
+	if int(chi.get("astio_turni", 0)) <= 0:
+		return
+	var quanto := maxi(int(round(RegoleCombattimento.attacco_di(chi)
+			* float(chi.get("astio_frazione", 0.12)))), 1)
+	chi.attacco = int(chi.attacco) + quanto
+	scrivi(String(chi.get("astio_testo", "L'astio di %s cresce: attacco +%d.")) % [chi.nome, quanto])
+
+func scala_astio(chi: Dictionary) -> void:
+	if int(chi.get("astio_turni", 0)) <= 0:
+		return
+	chi.astio_turni = int(chi.astio_turni) - 1
+	if int(chi.astio_turni) <= 0:
+		scrivi("[i]L'astio di %s si spegne. Resta quello che ha guadagnato.[/i]" % chi.nome)
+
+# --- Vendetta: quanto sei ridotto male ---------------------------------------
+
+func vendetta(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) -> void:
+	var pieno := float(dati.get("moltiplicatore_pieno", 0.8))
+	var vuoto := float(dati.get("moltiplicatore_vuoto", 3.0))
+	var quota := float(chi.hp) / maxf(float(chi.get("hp_max", 1)), 1.0)
+	var moltiplicatore := pieno + (vuoto - pieno) * (1.0 - clampf(quota, 0.0, 1.0))
+	scrivi(String(dati.get("testo_uso", "[i]%s si scaglia su %s.[/i]")) % [chi.nome, bersaglio.nome])
+	attacca(chi, bersaglio, -1, moltiplicatore, String(dati.get("elemento", "")))
+
+# --- Annichilazione: il vuoto attorno a chi e' gia' a terra ------------------
+
+func annichilazione(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) -> void:
+	# Fa MENO danno di un colpo normale, sempre. Quello che compra e' un'altra
+	# cosa: se il bersaglio e' gia' sotto la soglia, meta' delle volte (e con i
+	# gradi alti quasi due su tre) non si rialza affatto.
+	scrivi(String(dati.get("testo_uso", "[i]Attorno a %s l'aria si chiude.[/i]")) % bersaglio.nome)
+	var quota := float(bersaglio.hp) / maxf(float(bersaglio.get("hp_max", 1)), 1.0)
+	var basso := quota <= float(dati.get("soglia_hp", 0.25))
+	if basso and not bersaglio.get("invincibile", false) \
+			and GameState.rng.randf() < float(dati.get("probabilita_ko", 0.5)):
+		ultima_azione_offensiva = true
+		if chi.giocatore and chi.id == GameState.id_protagonista:
+			GameState.registra_azione("attacchi_sferrati")
+		bersaglio.hp = 0
+		scrivi_forte(String(dati.get("testo_ko", "[b]Dove c'era %s non c'è più niente.[/b]")) % bersaglio.nome)
+		_su_ko(bersaglio)
+		return
+	attacca(chi, bersaglio, -1, float(dati.get("frazione_danno", 0.75)),
+			String(dati.get("elemento", "")))
+
+# --- Pieta': non e' misericordia -------------------------------------------
+
+func pieta(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) -> void:
+	# Costa il turno e non fa danno. Bru: non e' una morale, e' che a un
+	# moribondo si cava di piu'.
+	var quota := float(bersaglio.hp) / maxf(float(bersaglio.get("hp_max", 1)), 1.0)
+	if quota > float(dati.get("soglia_hp", 0.3)):
+		scrivi(String(dati.get("testo_inutile", "[i]%s è ancora troppo in piedi.[/i]")) % bersaglio.nome)
+		return
+	bersaglio.bonus_drop = float(bersaglio.get("bonus_drop", 0.0)) + float(dati.get("bonus_drop", 0.35))
+	scrivi(String(dati.get("testo_uso", "[i]%s si ferma un attimo.[/i]")) % chi.nome)
+
+# --- Mantra: si svuota la barra di dominio e si spende su di se' ------------
+
+func mantra(chi: Dictionary, dati: Dictionary) -> void:
+	# La barra di dominio non e' un contatore morale ed e' uno sfogo: qui lo
+	# sfogo lo tieni dentro invece di scaricarlo addosso a qualcuno, e ti
+	# torna in difesa, attacco e testa a posto. Quanto? Quanto era piena.
+	var quanta := int(chi.get("fattore", 0))
+	if quanta <= 0:
+		scrivi(String(dati.get("testo_niente", "[i]%s non ha niente da bruciare.[/i]")) % chi.nome)
+		return
+	chi.fattore = 0
+	var difesa := maxi(int(round(quanta * float(dati.get("difesa_per_dominio", 0.35)))), 1)
+	var attacco := maxi(int(round(quanta * float(dati.get("attacco_per_dominio", 0.20)))), 1)
+	chi.difesa = int(chi.difesa) + difesa
+	chi.attacco = int(chi.attacco) + attacco
+	scrivi(String(dati.get("testo_uso", "[i]%s si ferma e respira.[/i]")) % chi.nome)
+	scrivi("Difesa +%d, attacco +%d." % [difesa, attacco])
+	if chi.giocatore:
+		var sollievo := int(round(quanta * float(dati.get("stress_per_dominio", 0.40))))
+		if sollievo > 0:
+			GameState.modifica_stress(String(chi.id), -sollievo)
+			scrivi("Lo stress di %s cala di %d." % [chi.nome, sollievo])
+	var legame := int(dati.get("legame", 0))
+	if legame > 0 and chi.giocatore:
+		GameState.modifica_legame(legame)
+		scrivi("[i]Chi gli sta intorno respira con lui.[/i]")
+	if bool(dati.get("provoca", false)):
+		provoca(chi)
+	var immune := int(dati.get("turni_immune", 0))
+	if immune > 0:
+		chi.turni_immune = maxi(int(chi.get("turni_immune", 0)), immune)
+		scrivi("[i]Per un momento non c'è niente che possa toccarlo.[/i]")
+	var veloce := int(dati.get("velocita", 0))
+	if veloce > 0:
+		chi.velocita = int(chi.velocita) + veloce
+	if bool(dati.get("cura_stati", false)):
+		var incurabili: Array = dati.get("stati_incurabili", [])
+		var tolti: Array[String] = []
+		for id_stato in chi.get("stati_attivi", {}).keys():
+			if String(id_stato) in incurabili:
+				continue
+			tolti.append(String(id_stato))
+		for id_stato in tolti:
+			chi.stati_attivi.erase(id_stato)
+		if not tolti.is_empty():
+			scrivi("[i]Tutto quello che gli avevano messo addosso scivola via.[/i]")
+
+# --- Flagello: una pioggia di aghi, e cosa diventa ---------------------------
+
+func flagello(chi: Dictionary, dati: Dictionary) -> void:
+	# La linea intera passa di qui: cambiano solo i numeri che legge nei dati.
+	# Il totale e' il danno di UN attacco normale, spezzato in venti o
+	# venticinque colpi - non venti attacchi normali. Da Terra bruciata in poi
+	# il totale cresce con quanto e' piena la barra di dominio, e dal grado
+	# Maelstrom in poi anche di suo.
+	var nemici := vivi(false)
+	if nemici.is_empty():
+		return
+	var colpi := maxi(int(dati.get("colpi", 20)), 1)
+	var totale_previsto := float(RegoleCombattimento.attacco_di(chi))
+	totale_previsto *= 1.0 + float(dati.get("bonus_attacco", 0.0))
+	var pieno := float(chi.get("fattore", 0)) / 100.0
+	totale_previsto *= 1.0 + float(dati.get("bonus_dominio", 0.0)) * clampf(pieno, 0.0, 1.0)
+	var danno_colpo := maxi(int(round(totale_previsto / float(colpi))), 1)
+	scrivi(String(dati.get("testo_uso", "[i]Il buio si chiude su %s.[/i]"))
+			% (nemici[0].nome if nemici.size() == 1 else "loro"))
+	ultima_azione_offensiva = true
+	if chi.giocatore and chi.id == GameState.id_protagonista:
+		GameState.registra_azione("attacchi_sferrati")
+	var elenco: Array = []
+	var totale := 0
+	var falliti := 0
+	var critici := 0
+	var prob_fallimento := float(GameState.regole.get("flagello_probabilita_fallimento", 0.12))
+	var prob_terrore := float(dati.get("probabilita_terrore", 0.0))
+	for colpo in colpi:
+		var in_piedi := vivi(false)
+		if in_piedi.is_empty():
+			break
+		var bersaglio: Dictionary = in_piedi[GameState.rng.randi_range(0, in_piedi.size() - 1)]
+		# ogni ago per conto suo: puo' andare a vuoto o entrare male. Il critico
+		# si chiede alla stessa funzione del resto del gioco, non a una regola
+		# scritta qui: se un giorno lo stress smette di far male, smette di far
+		# male anche qui, senza che nessuno se ne debba ricordare
+		if GameState.rng.randf() < prob_fallimento:
+			falliti += 1
+			continue
+		var quanto := danno_colpo
+		if RegoleCombattimento.tenta_critico(bersaglio):
+			quanto = int(round(quanto * float(GameState.regole.get("critico_moltiplicatore", 1.5))))
+			critici += 1
+		var passato := mini(quanto, int(bersaglio.hp))
+		bersaglio.hp = maxi(int(bersaglio.hp) - quanto, 0)
+		registra_danno_subito(bersaglio, passato)
+		totale += passato
+		elenco.append({"scheda": bersaglio.scheda, "danno": passato})
+		# il terrore non attecchisce su chi comanda la stanza
+		if prob_terrore > 0.0 and bersaglio.hp > 0 \
+				and not categoria_del_combattente(bersaglio) in ["boss", "miniboss"] \
+				and GameState.rng.randf() < prob_terrore:
+			applica_stato(bersaglio, "terrore")
+		if bersaglio.hp <= 0:
+			_su_ko(bersaglio)
+	var coda := ""
+	if critici > 0:
+		coda += "  %d a segno in pieno." % critici
+	if falliti > 0:
+		coda += "  %d a vuoto." % falliti
+	scrivi_forte("[b]%s: %d colpi.[/b] In tutto, %d danni.%s" % [
+			String(dati.get("nome", "Flagello")), colpi - falliti, totale, coda])
+	var bonus := int(dati.get("bonus_statistiche", 0))
+	if bonus > 0:
+		for chiave in ["attacco", "difesa", "velocita"]:
+			chi[chiave] = int(chi.get(chiave, 0)) + bonus
+		chi.hp_max = int(chi.get("hp_max", 1)) + bonus
+		chi.hp = int(chi.hp) + bonus
+		scrivi(String(dati.get("testo_statistiche",
+				"Tutte le statistiche di %s salgono di %d.")) % [chi.nome, bonus])
+	voce.accoda_effetto(effetto_raffica(elenco, String(dati.get("elemento", ""))))
 
 func provoca(chi: Dictionary) -> void:
 	bersaglio_provocazione = chi
@@ -1769,12 +2014,18 @@ func risolvi_dot_condizionale(combattente: Dictionary, azione_offensiva: bool) -
 # --- risoluzione dei colpi ---
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
-		moltiplicatore := 1.0, elemento := "") -> void:
+		moltiplicatore := 1.0, elemento := "", bonus := 0) -> void:
 	ultima_azione_offensiva = true
 	if elemento == "":
 		elemento = elemento_di(attaccante)
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
+	if int(bersaglio.get("turni_immune", 0)) > 0:
+		# Mantra IV in su: per un turno non lo scalfiscono. Il colpo si vede
+		# arrivare e non arriva - e' l'unica cosa in tutto il gioco che annulla
+		# un danno del tutto, quindi deve dirlo chiaramente
+		scrivi("[i]Il colpo su %s si ferma a un dito dalla pelle.[/i]" % bersaglio.nome)
+		return
 	# chi ha superato la sua soglia colpisce sempre uguale: niente difesa,
 	# niente critico, niente riduzione da livello. Nessun messaggio lo annuncia
 	var fisso := int(attaccante.get("danno_fisso_attacco", 0))
@@ -1807,11 +2058,11 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		elif bersaglio.giocatore:
 			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 		return
-	var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio, valore_attacco, moltiplicatore)
+	var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio, valore_attacco, moltiplicatore, bonus)
 	var danno := int(esito.danno)
 	var critico := bool(esito.critico)
 	if esito.fattore:
-		scrivi("Il fattore di disallineamento arde in %s!" % attaccante.nome)
+		scrivi("Il dominio di %s arde!" % attaccante.nome)
 	if danno <= 0:
 		# questo invece va detto: un colpo che non passa e' un'informazione,
 		# non un evento da guardare
@@ -1901,6 +2152,9 @@ func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 		bersaglio.colpi_incassati = int(bersaglio.colpi_incassati) + 1
 		if bersaglio.giocatore and bersaglio.id == GameState.id_protagonista:
 			GameState.registra_azione("danni_subiti", danno)
+		# l'Astio si alimenta qui, e solo qui: un colpo incassato e' un colpo
+		# incassato, che arrivi da un attacco, da un veleno o da una raffica
+		alimenta_astio(bersaglio)
 
 func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "") -> void:
 	# oggetti e assist ignorano le difese
@@ -2040,19 +2294,24 @@ func risolvi_drop() -> void:
 	for c in combattenti:
 		if c.giocatore or c.get("oggetto_scena", false) or c.get("risparmiato", false):
 			continue
+		# Pieta' usata su questo qui mentre era quasi finito: vale solo per lui,
+		# non per tutta la stanza. E' il senso dell'abilita' - hai speso un turno
+		# su UN nemico, e quel nemico lascia di piu'
+		var suo := moltiplicatore + float(c.get("bonus_drop", 0.0))
+		var sua_carta := molt_carta + float(c.get("bonus_drop", 0.0))
 		var carta: Dictionary = c.carta
 		if not carta.is_empty():
-			var chance_carta := minf(float(carta.get("chance", 1.0)) * molt_carta, 1.0)
+			var chance_carta := minf(float(carta.get("chance", 1.0)) * sua_carta, 1.0)
 			if GameState.rng.randf() < chance_carta and GameState.ottieni_carta(String(carta.get("id", ""))):
 				righe.append("carta \"%s\" [%s]" % [carta.get("nome", ""), carta.get("rarita", "")])
 		for voce_bottino in c.bottino_comune:
-			if GameState.rng.randf() < float(voce_bottino.get("chance", 0.0)):
+			if GameState.rng.randf() < float(voce_bottino.get("chance", 0.0)) * suo:
 				var id_oggetto := String(voce_bottino.get("oggetto", ""))
 				if GameState.aggiungi_oggetto(id_oggetto):
 					righe.append(String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto)))
 		var raro: Dictionary = c.drop_raro
 		if not raro.is_empty():
-			var chance_rara := minf(float(raro.get("chance", 0.0)) * moltiplicatore, 1.0)
+			var chance_rara := minf(float(raro.get("chance", 0.0)) * suo, 1.0)
 			if GameState.rng.randf() < chance_rara:
 				var peso_tazo := int(raro.get("peso_tazo", 1))
 				var peso_oggetto := int(raro.get("peso_oggetto", 1))
@@ -2094,7 +2353,7 @@ func reagisci(alleato: Dictionary) -> void:
 		"fattore_su":
 			var bonus := int(GameState.regole.get("fattore_bonus_concentrazione", 25))
 			alleato.fattore = clampi(alleato.fattore + bonus, 0, 100)
-			scrivi("%s si concentra: il fattore di disallineamento sale." % alleato.nome)
+			scrivi("%s si concentra: la barra di dominio sale." % alleato.nome)
 	aggiorna_scheda(alleato)
 
 func vivi(giocatore: bool) -> Array[Dictionary]:

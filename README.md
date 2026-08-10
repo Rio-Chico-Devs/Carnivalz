@@ -71,6 +71,7 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
 - `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + `livello`/`ruolo` se combattono)
 - `data/ruoli.json` — la curva e i ruoli da cui escono i numeri di ogni creatura
+- `data/abilita.json` — abilità, linee di potenziamento, punti e classi d'arma
 - `data/psiche.json` — le psichi e i loro effetti (reazione al KO di un compagno)
 - `data/regole.json` — numeri di bilanciamento (hp, danno, stress, fattore, xp, legame)
 - `data/events.json` — campagna di prova
@@ -861,7 +862,7 @@ contatori diventano punti stat e si azzerano (`applica_crescita_livello()`), col
 avanza al livello dopo.
 - **Le stat**: `hp`, `attacco`, `difesa`, `velocita`, `intelligenza` (aumenta la probabilità di
   fuggire), `forza_mentale` (resistenza allo stress: attutisce lo stress in arrivo) e `fattore`
-  (Fattore Carnivalz: alimenta critici e Slaughter). Solo il protagonista le usa —
+  (**Dominio**, già Fattore Carnivalz: alimenta critici e Slaughter). Solo il protagonista le usa —
   `Combattimento.aggiungi_combattente()` legge `GameState.stat_di()` per lui e i valori fissi di
   `classes.json` per tutti gli altri
 - **Cosa alimenta cosa** (campo `crescita`, `ogni` = quante azioni per un punto): attaccare →
@@ -882,6 +883,38 @@ avanza al livello dopo.
   (`slaughter_bonus` contro nemici molto sotto livello) sono letti dai dati e applicati.
   **Le altre passive sono dichiarate e si sbloccano, ma il loro effetto non è ancora
   implementato**: sono elencate qui e in `crescita.json` come contratto da riempire
+
+## Abilità, progressione e armi (`data/abilita.json`)
+Le abilità stavano in `regole.json` in mezzo ai numeri di bilanciamento, ed erano quattro. Ora
+hanno un file loro, perché sono diventate una **progressione**: non solo cosa sa fare un
+personaggio, ma quando lo impara e cosa può diventare.
+- **Fino al livello 24 le abilità arrivano da sole** ai livelli scritti nei dati: Astio (5),
+  Vendetta (8), Flagello (11), Mantra (14), Annichilazione (19). Sono il mestiere di base, non
+  una scelta
+- **Dal 25 arrivano i punti**, uno ogni quattro livelli, e li spendi sui nodi che il tuo
+  livello ha aperto — l'idea di Bru del sistema a distribuzione di punti stile Final Fantasy
+  XIII. **Le due scelte che aveva descritto escono da sole da questa regola** e non sono
+  scritte come casi particolari: al 25 hai un punto e davanti Pietà o Terra bruciata, al 29
+  ne hai un altro e davanti quello che non hai preso più Annichilazione II
+- **Le linee** sono abilità che crescono. Di una linea si conosce **un grado solo**, il più
+  alto: Terra bruciata prende il posto di Flagello nel menu invece di stargli accanto —
+  altrimenti dopo cinque potenziamenti il menu sarebbe una lista di sei versioni della stessa
+  cosa. `prova_linee_abilita` fallisce se due gradi della stessa linea risultano noti insieme
+  - **Flagello** → Terra bruciata → Maelstrom → Devastazione → Apocalisse → *Fine karmica*
+  - **Annichilazione** I→V → *Annichilazione totale* (KO al 50/55/58/62/65/**70%**)
+  - **Mantra** I→V → *Pace assoluta*
+- **I nodi che non sono abilità**: potenziamenti dell'attacco normale, della vita e della
+  barra di dominio. Costano punti come tutto il resto, così anche "non prendere niente di
+  nuovo" è una scelta
+- **Le armi portano i loro attacchi** (`attacchi` sull'oggetto): equipaggiare un'arma fa
+  comparire una serie di attacchi suoi, e il danno è **l'attacco base del personaggio più il
+  bonus dell'arma per quell'attacco**. Cambiare arma non cambia un numero, cambia cosa puoi
+  fare. Le classi d'arma dicono chi impugna cosa: il protagonista usa qualunque arma come
+  **catalizzatore** (non combatte con l'arma, combatte *attraverso* l'arma), Veronica le
+  **pesanti**, Yhvina **artigli e glifi**
+- **Il Fattore Carnivalz adesso si chiama barra di dominio** nei testi e nella scheda. La
+  chiave interna resta `fattore`: rinominarla toccherebbe i salvataggi già fatti, i record
+  delle creature e le mosse dei boss senza cambiare una riga di quello che si vede giocando
 
 ## Da dove escono i numeri delle creature (`data/ruoli.json`)
 Nessuna creatura ha più `hp`, `attacco`, `difesa`, `velocita`, `xp` e `tazo` scritti nel suo

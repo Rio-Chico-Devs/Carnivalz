@@ -60,41 +60,7 @@
 		"xp": 0.12,
 		"tazo": 0.08
 	},
-	"_nota_abilita": "Le abilita' di combattimento, tutte qui. Una classe le ottiene scrivendone l'id nel suo campo \"abilita\" (classes.json); il menu costruisce i bottoni da questa tabella, quindi aggiungerne una non richiede di toccare il codice. I tipi che il motore conosce: provoca, area, raffica, carica.",
-	"abilita_combattimento": {
-		"provocazione": {
-			"nome": "Provoca",
-			"tipo": "provoca",
-			"aura": 3,
-			"descrizione": "I nemici prendono di mira te e nessun altro, finché reggi."
-		},
-		"attacco_area": {
-			"nome": "Colpo d'area",
-			"tipo": "area",
-			"aura": 4,
-			"moltiplicatore": 0.6,
-			"descrizione": "Un colpo solo, su tutto quello che hai davanti."
-		},
-		"bombardamento": {
-			"nome": "Bombardamento",
-			"tipo": "raffica",
-			"elemento": "fuoco",
-			"aura": 7,
-			"colpi": 12,
-			"colpi_per_livello": 0.5,
-			"colpi_massimi": 50,
-			"frazione_danno": 0.28,
-			"descrizione": "Tanti colpi piccoli, distribuiti a caso su chi hai davanti. Fa un macello."
-		},
-		"colpo_caricato": {
-			"nome": "Sovraccarico",
-			"tipo": "carica",
-			"aura": 5,
-			"moltiplicatore": 4.0,
-			"testo_carica": "%s si carica. Il prossimo colpo sarà un altro discorso.",
-			"descrizione": "Questo turno non fai niente. Il prossimo colpo vale quattro volte tanto."
-		}
-	},
+	"_nota_abilita": "Le abilita' di combattimento sono in data/abilita.json: stavano qui, ma da quando hanno livelli, gradi e costi in punti sono una progressione, non un numero di bilanciamento.",
 	"_nota_zaino": "Lo zaino e' diviso per categoria e ogni categoria ha la sua capacita'. I consumabili crescono con gli 'spazi nella realta'' comprati al negozio; armi e accessori con i 'frammenti'. Gli oggetti speciali non hanno limite. Le tabelle sono la capacita' TOTALE a ogni acquisto, non l'incremento.",
 	"zaino": {
 		"consumabili": {
@@ -173,5 +139,6 @@
 		"innesti": 1
 	},
 	"ultima_risorsa_soglia": 0.25,
-	"ultima_risorsa_bonus": 0.2
+	"ultima_risorsa_bonus": 0.2,
+	"flagello_probabilita_fallimento": 0.12
 }

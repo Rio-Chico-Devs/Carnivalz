@@ -78,6 +78,14 @@ func principale() -> void:
 	bottone("Fuggi", scegli.bind({"tipo": "fuggi"}), not scontro.fuga_possibile())
 
 func bersagli() -> void:
+	# L'ARMA CHE HAI IN MANO CAMBIA COSA PUOI FARE, non solo un numero. Se ne
+	# porta con se' degli attacchi, "Attacca" diventa una scelta fra quelli;
+	# a mani nude (o con un'arma vecchia che non ne dichiara) resta il colpo
+	# normale, esattamente com'era
+	var attacchi := GameState.attacchi_arma(String(scontro.attaccante_corrente.get("id", "")))
+	if not attacchi.is_empty():
+		colpi_darma(attacchi)
+		return
 	var nemici: Array[Dictionary] = scontro.vivi(false)
 	if nemici.size() == 1:
 		scegli({"tipo": "attacca", "bersaglio": nemici[0]})
@@ -85,6 +93,30 @@ func bersagli() -> void:
 	pulisci()
 	for nemico in nemici:
 		bottone("Attacca %s" % nemico.nome, scegli.bind({"tipo": "attacca", "bersaglio": nemico}))
+
+func colpi_darma(attacchi: Array[Dictionary]) -> void:
+	pulisci()
+	var aura := int(scontro.attaccante_corrente.get("aura", 0))
+	bottone("Colpo normale", bersagli_di_attacco.bind({}))
+	for attacco in attacchi:
+		var costo := int(attacco.get("aura", 0))
+		var etichetta := "%s  (+%d)" % [String(attacco.get("nome", "?")), int(attacco.get("bonus", 0))]
+		if costo > 0:
+			etichetta += "  (%d aura)" % costo
+		bottone(etichetta, bersagli_di_attacco.bind(attacco), aura < costo)
+	bottone("Indietro", principale)
+
+func bersagli_di_attacco(attacco: Dictionary) -> void:
+	var nemici: Array[Dictionary] = scontro.vivi(false)
+	if nemici.size() == 1:
+		scegli({"tipo": "attacca", "bersaglio": nemici[0], "arma": attacco})
+		return
+	pulisci()
+	var nome := String(attacco.get("nome", "Attacca"))
+	for nemico in nemici:
+		bottone("%s su %s" % [nome, nemico.nome],
+				scegli.bind({"tipo": "attacca", "bersaglio": nemico, "arma": attacco}))
+	bottone("Indietro", bersagli)
 	bottone("Indietro", principale)
 
 func studia() -> void:
@@ -109,14 +141,34 @@ func abilita() -> void:
 	# eseguire (regole.json). Una nuova abilita' compare da sola.
 	var attaccante: Dictionary = scontro.attaccante_corrente
 	var aura := int(attaccante.get("aura", 0))
-	for id_abilita in GameState.classi.get(attaccante.get("id", ""), {}).get("abilita", []):
+	# abilita_usabili tiene conto della progressione: di una linea passa un
+	# grado solo, il piu' alto. Terra bruciata prende il posto di Flagello
+	# invece di stargli accanto
+	for id_abilita in GameState.abilita_usabili(String(attaccante.get("id", ""))):
 		var dati := GameState.abilita_combattimento(String(id_abilita))
 		if dati.is_empty():
 			continue  # abilita' narrativa (scasso, volo, veglia...): fuori dal combattimento
 		var costo := int(dati.get("aura", 0))
-		bottone("%s  (%d aura)" % [String(dati.get("nome", id_abilita)), costo],
-				scegli.bind({"tipo": "abilita", "id": String(id_abilita)}), aura < costo)
+		var etichetta := "%s  (%d aura)" % [String(dati.get("nome", id_abilita)), costo]
+		if scontro.abilita_vuole_bersaglio(String(id_abilita)):
+			bottone(etichetta, bersagli_abilita.bind(String(id_abilita)), aura < costo)
+		else:
+			bottone(etichetta, scegli.bind({"tipo": "abilita", "id": String(id_abilita)}), aura < costo)
 	bottone("Indietro", principale)
+
+func bersagli_abilita(id_abilita: String) -> void:
+	# Vendetta, Annichilazione e Pieta' vogliono sapere su chi: si scelgono come
+	# un attacco normale, non come un'abilita' che parte da sola
+	var nemici: Array[Dictionary] = scontro.vivi(false)
+	if nemici.size() == 1:
+		scegli({"tipo": "abilita", "id": id_abilita, "bersaglio": nemici[0]})
+		return
+	pulisci()
+	var nome := String(GameState.abilita_combattimento(id_abilita).get("nome", id_abilita))
+	for nemico in nemici:
+		bottone("%s su %s" % [nome, nemico.nome],
+				scegli.bind({"tipo": "abilita", "id": id_abilita, "bersaglio": nemico}))
+	bottone("Indietro", abilita)
 
 func oggetti() -> void:
 	pulisci()

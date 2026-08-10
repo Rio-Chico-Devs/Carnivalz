@@ -1,29 +1,86 @@
 {
 	"_nota": "Crescita del protagonista. Le stat non salgono da sole con il livello: salgono in base a QUELLO CHE HAI FATTO. Ogni azione riempie un contatore; a ogni livello i contatori vengono convertiti in punti stat e azzerati.",
-
 	"stat": {
-		"hp": { "nome": "Punti vita", "base": 100 },
-		"attacco": { "nome": "Attacco", "base": 15 },
-		"difesa": { "nome": "Difesa", "base": 0 },
-		"velocita": { "nome": "Velocità", "base": 3 },
-		"intelligenza": { "nome": "Intelligenza", "base": 1, "descrizione": "Aumenta la probabilità di fuggire." },
-		"forza_mentale": { "nome": "Forza mentale", "base": 1, "descrizione": "Resistenza allo stress." },
-		"fattore": { "nome": "Fattore Carnivalz", "base": 15, "descrizione": "Aumenta la probabilità di critici e di Slaughter." }
+		"hp": {
+			"nome": "Punti vita",
+			"base": 100
+		},
+		"attacco": {
+			"nome": "Attacco",
+			"base": 15
+		},
+		"difesa": {
+			"nome": "Difesa",
+			"base": 0
+		},
+		"velocita": {
+			"nome": "Velocità",
+			"base": 3
+		},
+		"intelligenza": {
+			"nome": "Intelligenza",
+			"base": 1,
+			"descrizione": "Aumenta la probabilità di fuggire."
+		},
+		"forza_mentale": {
+			"nome": "Forza mentale",
+			"base": 1,
+			"descrizione": "Resistenza allo stress."
+		},
+		"fattore": {
+			"nome": "Dominio",
+			"base": 15,
+			"descrizione": "La barra di dominio: quando è carica il prossimo colpo pesa di più, e poi si scarica. Alimenta critici e Slaughter."
+		}
 	},
-
 	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello. ATTENZIONE: questi numeri sono la pendenza della curva del protagonista, ed e' la cosa piu' delicata del gioco. Il contenuto e' scritto a mano con numeri fissi, la crescita no: se la crescita corre piu' del contenuto, dal terzo livello in poi non si perde piu'. Prima era cosi' (+3 attacco ogni 5 colpi = il triplo di potenza a ogni livello), e la tabella di bilanciamento non se ne accorgeva perche' misurava un protagonista che non aveva mai combattuto. Se tocchi questi numeri, rilancia ./prove/simula.sh.",
 	"crescita": {
-		"attacchi_sferrati": { "stat": "attacco", "ogni": 5, "punti": 1 },
-		"danni_subiti": { "stat": "hp", "ogni": 24, "punti": 5 },
-		"difese": { "stat": "difesa", "ogni": 3, "punti": 1 },
-		"studi": { "stat": "intelligenza", "ogni": 4, "punti": 1 },
-		"fughe": { "stat": "intelligenza", "ogni": 2, "punti": 1 },
-		"oggetti_usati": { "stat": "hp", "ogni": 2, "punti": 5 },
-		"stanze_esplorate": { "stat": "velocita", "ogni": 10, "punti": 1 },
-		"stress_accumulato": { "stat": "forza_mentale", "ogni": 40, "punti": 1 },
-		"critici_inflitti": { "stat": "fattore", "ogni": 5, "punti": 1 }
+		"attacchi_sferrati": {
+			"stat": "attacco",
+			"ogni": 5,
+			"punti": 1
+		},
+		"danni_subiti": {
+			"stat": "hp",
+			"ogni": 24,
+			"punti": 5
+		},
+		"difese": {
+			"stat": "difesa",
+			"ogni": 3,
+			"punti": 1
+		},
+		"studi": {
+			"stat": "intelligenza",
+			"ogni": 4,
+			"punti": 1
+		},
+		"fughe": {
+			"stat": "intelligenza",
+			"ogni": 2,
+			"punti": 1
+		},
+		"oggetti_usati": {
+			"stat": "hp",
+			"ogni": 2,
+			"punti": 5
+		},
+		"stanze_esplorate": {
+			"stat": "velocita",
+			"ogni": 10,
+			"punti": 1
+		},
+		"stress_accumulato": {
+			"stat": "forza_mentale",
+			"ogni": 40,
+			"punti": 1
+		},
+		"critici_inflitti": {
+			"stat": "fattore",
+			"ogni": 5,
+			"punti": 1
+		}
 	},
-
 	"_nota_profilo": "Quante volte un giocatore normale compie ogni azione, per ogni livello che guadagna. NON e' una regola di gioco: e' la stima con cui il giocatore automatico e le prove capiscono quanto e' forte DAVVERO uno arrivato al livello N. Serve perche' in Carnivalz le stat non salgono col livello, salgono con le azioni: senza questa stima ogni misura riguarda un protagonista che non ha mai combattuto, ed e' esattamente l'errore che ha fatto sembrare equilibrato un gioco in cui dal terzo livello non si perdeva piu'.",
 	"profilo_giocatore_tipo": {
 		"attacchi_sferrati": 30,
@@ -36,42 +93,177 @@
 		"stress_accumulato": 60,
 		"critici_inflitti": 2
 	},
-
 	"_nota_resistenze": "Ogni volta che subisci uno stato, cresce la resistenza a QUELLO stato: convertita in punti al passaggio di livello (soglia_punto volte subito = +1).",
-	"resistenze": { "soglia_punto": 3, "massimo": 100 },
-
+	"resistenze": {
+		"soglia_punto": 3,
+		"massimo": 100
+	},
 	"_nota_passive_soglia": "Sbloccate al raggiungimento di certi valori di stat, controllate a ogni passaggio di livello.",
 	"passive_soglia": [
-		{ "id": "altruismo", "nome": "Altruismo", "richiede": { "forza_mentale": 10, "intelligenza": 15 } },
-		{ "id": "furia", "nome": "Furia", "richiede": { "fattore": 20, "attacco": 90 } },
-		{ "id": "perspicacia_acuta", "nome": "Perspicacia acuta", "richiede": { "intelligenza": 40 } },
-		{ "id": "leadership", "nome": "Leadership", "richiede": { "intelligenza": 50, "forza_mentale": 50 } },
-		{ "id": "karma_positivo", "nome": "Karma positivo", "richiede_tutte_le_stat": 50 },
-		{ "id": "benedizione_dell_agnello", "nome": "Benedizione dell'agnello", "richiede": { "difesa": 180, "hp": 2505 } },
-		{ "id": "disastro_vivente", "nome": "Disastro vivente", "richiede": { "fattore": 100 } }
+		{
+			"id": "altruismo",
+			"nome": "Altruismo",
+			"richiede": {
+				"forza_mentale": 10,
+				"intelligenza": 15
+			}
+		},
+		{
+			"id": "furia",
+			"nome": "Furia",
+			"richiede": {
+				"fattore": 20,
+				"attacco": 90
+			}
+		},
+		{
+			"id": "perspicacia_acuta",
+			"nome": "Perspicacia acuta",
+			"richiede": {
+				"intelligenza": 40
+			}
+		},
+		{
+			"id": "leadership",
+			"nome": "Leadership",
+			"richiede": {
+				"intelligenza": 50,
+				"forza_mentale": 50
+			}
+		},
+		{
+			"id": "karma_positivo",
+			"nome": "Karma positivo",
+			"richiede_tutte_le_stat": 50
+		},
+		{
+			"id": "benedizione_dell_agnello",
+			"nome": "Benedizione dell'agnello",
+			"richiede": {
+				"difesa": 180,
+				"hp": 2505
+			}
+		},
+		{
+			"id": "disastro_vivente",
+			"nome": "Disastro vivente",
+			"richiede": {
+				"fattore": 100
+			}
+		}
 	],
-
 	"_nota_passive_rare": "Estratte a ogni passaggio di livello; se non escono entro 'livello_garantito' si sbloccano d'ufficio lì.",
 	"passive_rare": [
-		{ "id": "preferito_del_gatto", "nome": "Preferito del gatto", "probabilita": 0.008, "livello_garantito": 120 }
+		{
+			"id": "preferito_del_gatto",
+			"nome": "Preferito del gatto",
+			"probabilita": 0.008,
+			"livello_garantito": 120
+		}
 	],
-
 	"passive_livello": [
-		{ "livello": 10, "id": "non_ce_tempo", "nome": "Non c'è tempo!", "descrizione": "Randomicamente raddoppi la tua velocità, solo nel primo turno." },
-		{ "livello": 16, "id": "immondizia_tesoro", "nome": "La tua immondizia è il mio tesoro", "descrizione": "5% in più di drop dai nemici.", "bonus_drop": 0.05 },
-		{ "livello": 23, "id": "battito_dell_eroe", "nome": "Battito dell'eroe", "descrizione": "Sotto l'11% dei punti vita raddoppi l'attacco e azzeri lo stress, per un turno soltanto." },
-		{ "livello": 33, "id": "trinita", "nome": "Trinità", "descrizione": "Randomicamente un attacco normale diventa tre attacchi consecutivi." },
-		{ "livello": 40, "id": "presenza_minacciosa", "nome": "Presenza Minacciosa", "descrizione": "I nemici di livello inferiore al tuo subiscono 1 turno di terrore quando scendono sotto il 50% dei punti vita." },
-		{ "livello": 55, "id": "crudelta", "nome": "Crudeltà", "descrizione": "Probabilità di KO istantaneo aumentata del 50% contro nemici con almeno 10 livelli in meno.", "slaughter_bonus": 0.5, "slaughter_scarto_livelli": 10 },
-		{ "livello": 65, "id": "illuminazione_1", "nome": "Illuminazione parte 1", "descrizione": "Leggero aumento della probabilità di ottenere la carta del nemico.", "bonus_carta": 0.15 },
-		{ "livello": 69, "id": "charm", "nome": "Charm", "descrizione": "Il legame con la squadra aumenta più facilmente." },
-		{ "livello": 78, "id": "negazione", "nome": "Negazione", "descrizione": "Bassa probabilità che un attacco subito venga annullato." },
-		{ "livello": 88, "id": "infinito", "nome": "Infinito", "descrizione": "Oltre il decimo turno, ogni turno che passa tutte le tue stat aumentano di 1 fino alla fine del combattimento." },
-		{ "livello": 101, "id": "oltre_il_limite", "nome": "Oltre il limite!", "descrizione": "Tutti i nemici sotto il livello 100 iniziano con un turno di terrore." },
-		{ "livello": 111, "id": "ancora_oltre_il_limite", "nome": "Ancora una volta oltre il limite!", "descrizione": "Sblocchi dialoghi speciali; i nemici sotto il livello 100 iniziano con due turni di terrore." },
-		{ "livello": 120, "id": "tryharder", "nome": "Tryharder", "descrizione": "Probabilità di drop aumentata del 7%.", "bonus_drop": 0.07 },
-		{ "livello": 124, "id": "illuminazione_2", "nome": "Illuminazione parte 2", "descrizione": "L'aumento di probabilità di ottenere la carta del nemico diventa consistente.", "bonus_carta": 0.5 },
-		{ "livello": 126, "id": "pressione_ultraterrena", "nome": "Pressione ultraterrena", "descrizione": "Compaiono nemici speciali benedetti da uno status divino: creature di livello 130 che hanno dominato il disallineamento e sono attratte dalla tua forza." },
-		{ "livello": 130, "id": "una_nuova_alba", "nome": "Una nuova alba", "descrizione": "Probabilità di infliggere terrore a qualunque nemico a ogni attacco, aumentata al 33%." }
-	]
+		{
+			"livello": 10,
+			"id": "non_ce_tempo",
+			"nome": "Non c'è tempo!",
+			"descrizione": "Randomicamente raddoppi la tua velocità, solo nel primo turno."
+		},
+		{
+			"livello": 16,
+			"id": "immondizia_tesoro",
+			"nome": "La tua immondizia è il mio tesoro",
+			"descrizione": "5% in più di drop dai nemici.",
+			"bonus_drop": 0.05
+		},
+		{
+			"livello": 23,
+			"id": "battito_dell_eroe",
+			"nome": "Battito dell'eroe",
+			"descrizione": "Sotto l'11% dei punti vita raddoppi l'attacco e azzeri lo stress, per un turno soltanto."
+		},
+		{
+			"livello": 33,
+			"id": "trinita",
+			"nome": "Trinità",
+			"descrizione": "Randomicamente un attacco normale diventa tre attacchi consecutivi."
+		},
+		{
+			"livello": 40,
+			"id": "presenza_minacciosa",
+			"nome": "Presenza Minacciosa",
+			"descrizione": "I nemici di livello inferiore al tuo subiscono 1 turno di terrore quando scendono sotto il 50% dei punti vita."
+		},
+		{
+			"livello": 55,
+			"id": "crudelta",
+			"nome": "Crudeltà",
+			"descrizione": "Probabilità di KO istantaneo aumentata del 50% contro nemici con almeno 10 livelli in meno.",
+			"slaughter_bonus": 0.5,
+			"slaughter_scarto_livelli": 10
+		},
+		{
+			"livello": 65,
+			"id": "illuminazione_1",
+			"nome": "Illuminazione parte 1",
+			"descrizione": "Leggero aumento della probabilità di ottenere la carta del nemico.",
+			"bonus_carta": 0.15
+		},
+		{
+			"livello": 69,
+			"id": "charm",
+			"nome": "Charm",
+			"descrizione": "Il legame con la squadra aumenta più facilmente."
+		},
+		{
+			"livello": 78,
+			"id": "negazione",
+			"nome": "Negazione",
+			"descrizione": "Bassa probabilità che un attacco subito venga annullato."
+		},
+		{
+			"livello": 88,
+			"id": "infinito",
+			"nome": "Infinito",
+			"descrizione": "Oltre il decimo turno, ogni turno che passa tutte le tue stat aumentano di 1 fino alla fine del combattimento."
+		},
+		{
+			"livello": 101,
+			"id": "oltre_il_limite",
+			"nome": "Oltre il limite!",
+			"descrizione": "Tutti i nemici sotto il livello 100 iniziano con un turno di terrore."
+		},
+		{
+			"livello": 111,
+			"id": "ancora_oltre_il_limite",
+			"nome": "Ancora una volta oltre il limite!",
+			"descrizione": "Sblocchi dialoghi speciali; i nemici sotto il livello 100 iniziano con due turni di terrore."
+		},
+		{
+			"livello": 120,
+			"id": "tryharder",
+			"nome": "Tryharder",
+			"descrizione": "Probabilità di drop aumentata del 7%.",
+			"bonus_drop": 0.07
+		},
+		{
+			"livello": 124,
+			"id": "illuminazione_2",
+			"nome": "Illuminazione parte 2",
+			"descrizione": "L'aumento di probabilità di ottenere la carta del nemico diventa consistente.",
+			"bonus_carta": 0.5
+		},
+		{
+			"livello": 126,
+			"id": "pressione_ultraterrena",
+			"nome": "Pressione ultraterrena",
+			"descrizione": "Compaiono nemici speciali benedetti da uno status divino: creature di livello 130 che hanno dominato il disallineamento e sono attratte dalla tua forza."
+		},
+		{
+			"livello": 130,
+			"id": "una_nuova_alba",
+			"nome": "Una nuova alba",
+			"descrizione": "Probabilità di infliggere terrore a qualunque nemico a ogni attacco, aumentata al 33%."
+		}
+	],
+	"_nota_dominio": "La chiave interna resta 'fattore' anche se il giocatore legge 'Dominio': cambiarla vorrebbe dire toccare i salvataggi gia' fatti, i record delle creature (fattore_base) e le mosse dei boss, e non cambierebbe una riga di quello che si vede giocando. Il nome che conta e' quello qui sopra."
 }

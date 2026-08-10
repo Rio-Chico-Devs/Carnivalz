@@ -134,7 +134,7 @@ func dettagli_di(combattente: Dictionary) -> String:
 		dettagli += progresso_studio(combattente)
 	if int(combattente.get("aura_max", 0)) > 0:
 		dettagli += "Aura %d/%d · " % [int(combattente.aura), int(combattente.aura_max)]
-	dettagli += "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]
+	dettagli += "Stress %d · Dominio %d" % [combattente.stress, combattente.fattore]
 	var scudo := RegoleCombattimento.difesa_di(combattente)
 	if scudo > 0 and conosciuta(combattente, 2):
 		dettagli += " · Dif %d" % scudo

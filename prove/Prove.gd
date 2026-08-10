@@ -60,6 +60,11 @@ func _ready() -> void:
 	prova_corazza_che_cresce()
 	prova_colori_del_danno()
 	prova_abilita_di_combattimento()
+	prova_ogni_abilita_gira_davvero()
+	prova_attacchi_darma()
+	prova_linee_abilita()
+	prova_punti_abilita()
+	prova_abilita_arrivano_al_livello_giusto()
 	prova_transizioni()
 	prova_suoni()
 	prova_game_over_ricarica_davvero()
@@ -1214,6 +1219,376 @@ func prova_salire_di_livello_non_peggiora() -> void:
 			"la prova ha guardato solo %d creature che scalano: il filtro si e' stretto" % esaminate)
 	GameState.nuova_partita()
 
+func prova_ogni_abilita_gira_davvero() -> void:
+	# LA PROVA CHE VALE PIU' DI TUTTE LE ALTRE MESSE INSIEME.
+	#
+	# Le altre guardano i dati: che i gradi salgano, che i punti si contino,
+	# che le percentuali siano quelle. Ma un'abilita' puo' essere scritta
+	# benissimo e non fare niente, e nel gioco si vede cosi': la scegli dal
+	# menu, il turno passa, e non succede nulla. Qui ognuna viene ESEGUITA
+	# davvero, dentro un combattimento vero, e deve lasciare un segno.
+	titolo("ogni abilita' del protagonista fa davvero qualcosa")
+	var tabella: Dictionary = GameState.abilita.get("abilita", {})
+	var esaminate := 0
+	for id_abilita in tabella:
+		var dati: Dictionary = tabella[id_abilita]
+		var tipo := String(dati.get("tipo", ""))
+		if tipo in ["provoca", "carica"]:
+			continue  # non fanno danno per mestiere: le guarda prova_abilita_di_combattimento
+		esaminate += 1
+		GameState.nuova_partita()
+		GameState.livelli[GameState.id_protagonista] = 40
+		GameState.nemici_combattimento = ["ghoul", "ghoul"]
+		var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+		scontro.muto = true
+		scontro.limite_giri = 1
+		scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+		add_child(scontro)
+		var eroe: Dictionary = {}
+		var nemico: Dictionary = {}
+		for combattente in scontro.combattenti:
+			if combattente.giocatore and eroe.is_empty():
+				eroe = combattente
+			elif not combattente.giocatore and nemico.is_empty():
+				nemico = combattente
+		if eroe.is_empty() or nemico.is_empty():
+			esigi(false, "%s: non si e' riusciti a montare lo scontro di prova" % id_abilita)
+			scontro.free()
+			continue
+		# gli si mette in mano quello che l'abilita' consuma, altrimenti si
+		# misura solo il ramo "non hai niente da bruciare"
+		eroe.aura = 99
+		eroe.fattore = 80
+		var attacco_prima := int(eroe.attacco)
+		var difesa_prima := int(eroe.difesa)
+		var hp_nemico_prima := int(nemico.hp)
+		match tipo:
+			"astio":
+				scontro.usa_abilita(eroe, String(id_abilita))
+				esigi(int(eroe.get("astio_turni", 0)) > 0,
+						"%s non ha acceso l'astio" % id_abilita)
+				# e adesso il patto: incassare deve alzare l'attacco
+				scontro.registra_danno_subito(eroe, 10)
+				esigi(int(eroe.attacco) > attacco_prima,
+						"%s: il protagonista ha incassato un colpo e l'attacco non e' salito" % id_abilita)
+			"mantra":
+				scontro.usa_abilita(eroe, String(id_abilita))
+				esigi(int(eroe.get("fattore", 99)) == 0,
+						"%s non ha svuotato la barra di dominio" % id_abilita)
+				esigi(int(eroe.difesa) > difesa_prima and int(eroe.attacco) > attacco_prima,
+						"%s ha svuotato la barra senza dare niente in cambio" % id_abilita)
+			"flagello":
+				scontro.usa_abilita(eroe, String(id_abilita))
+				var restano := 0
+				for combattente in scontro.combattenti:
+					if not combattente.giocatore:
+						restano += int(combattente.hp)
+				esigi(restano < hp_nemico_prima * 2,
+						"%s: venti colpi e nessun nemico ha perso un punto vita" % id_abilita)
+			"vendetta", "annichilazione":
+				scontro.usa_abilita_su(eroe, String(id_abilita), nemico)
+				esigi(int(nemico.hp) < hp_nemico_prima,
+						"%s non ha fatto nessun danno al bersaglio" % id_abilita)
+			"pieta":
+				# su un nemico intero non deve fare niente...
+				scontro.usa_abilita_su(eroe, String(id_abilita), nemico)
+				esigi(is_zero_approx(float(nemico.get("bonus_drop", 0.0))),
+						"%s ha funzionato su un nemico ancora in piedi" % id_abilita)
+				# ...e su uno quasi finito deve alzare il drop
+				nemico.hp = maxi(int(nemico.hp_max) / 10, 1)
+				scontro.usa_abilita_su(eroe, String(id_abilita), nemico)
+				esigi(float(nemico.get("bonus_drop", 0.0)) > 0.0,
+						"%s su un moribondo non ha alzato il drop: costa un turno e non compra niente" % id_abilita)
+			"area", "raffica":
+				scontro.usa_abilita(eroe, String(id_abilita))
+		scontro.free()
+	esigi(esaminate >= 15,
+			"la prova ha eseguito solo %d abilita': il filtro si e' stretto" % esaminate)
+	GameState.nuova_partita()
+
+func prova_attacchi_darma() -> void:
+	# Bru: "ogni arma equipaggiata fara' comparire una serie di attacchi
+	# collegati all'arma in se'. Il danno e' l'attacco base del personaggio piu'
+	# il bonus fornito dall'arma a seconda dell'attacco". Quindi due cose devono
+	# essere vere insieme: che gli attacchi COMPAIANO cambiando arma, e che il
+	# bonus finisca davvero nel danno invece di stare scritto e basta.
+	titolo("l'arma che impugni cambia cosa puoi fare, non solo un numero")
+	GameState.nuova_partita()
+	var con_attacchi: Array[String] = []
+	for id_oggetto in GameState.oggetti:
+		var dati: Dictionary = GameState.oggetti[id_oggetto]
+		if String(dati.get("tipo", "")) != "arma":
+			continue
+		for attacco in dati.get("attacchi", []):
+			esigi(String(attacco.get("nome", "")) != "",
+					"%s ha un attacco senza nome" % id_oggetto)
+			esigi(int(attacco.get("bonus", -1)) >= 0,
+					"l'attacco '%s' di %s non dice quanto aggiunge"
+					% [String(attacco.get("nome", "?")), id_oggetto])
+			esigi(String(attacco.get("testo", "")).count("%s") <= 1,
+					"l'attacco '%s' di %s ha piu' di un segnaposto nel testo"
+					% [String(attacco.get("nome", "?")), id_oggetto])
+		if not dati.get("attacchi", []).is_empty():
+			con_attacchi.append(String(id_oggetto))
+	esigi(con_attacchi.size() >= 2,
+			"solo %d armi portano attacchi: il sistema non e' usato da nessuno" % con_attacchi.size())
+
+	# a mani vuote non compare niente
+	esigi(GameState.attacchi_arma(GameState.id_protagonista).is_empty(),
+			"senza arma in mano compaiono comunque degli attacchi d'arma")
+
+	# e con l'arma addosso compaiono i suoi, non quelli di un'altra
+	for id_arma in con_attacchi:
+		GameState.equipaggiamento.clear()
+		GameState.slot_di(GameState.id_protagonista)["arma"] = id_arma
+		var elenco := GameState.attacchi_arma(GameState.id_protagonista)
+		var attesi: Array = GameState.dati_oggetto(id_arma).get("attacchi", [])
+		esigi(elenco.size() == attesi.size(),
+				"con %s in mano compaiono %d attacchi invece di %d"
+				% [id_arma, elenco.size(), attesi.size()])
+		for voce in elenco:
+			esigi(String(voce.get("arma", "")) == id_arma,
+					"un attacco di %s dice di venire da un'altra arma" % id_arma)
+
+	# IL BONUS ARRIVA DAVVERO NEL DANNO. Si prova in campo, con lo stesso seme:
+	# stesso colpo, una volta senza l'attacco d'arma e una volta con, e il
+	# secondo deve fare piu' male esattamente di quanto dice l'arma
+	var id_prova := con_attacchi[0]
+	var attacco_forte: Dictionary = {}
+	for voce in GameState.dati_oggetto(id_prova).get("attacchi", []):
+		if attacco_forte.is_empty() or int(voce.get("bonus", 0)) > int(attacco_forte.get("bonus", 0)):
+			attacco_forte = voce
+	esigi(int(attacco_forte.get("bonus", 0)) > 0, "nessun attacco d'arma aggiunge niente")
+	var danno_di := func(usa_arma: bool) -> int:
+		GameState.nuova_partita()
+		GameState.imposta_seed(1234)
+		GameState.livelli[GameState.id_protagonista] = 10
+		GameState.nemici_combattimento = ["ghoul"]
+		var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+		scontro.muto = true
+		scontro.limite_giri = 1
+		scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+		add_child(scontro)
+		var eroe: Dictionary = {}
+		var nemico: Dictionary = {}
+		for combattente in scontro.combattenti:
+			if combattente.giocatore and eroe.is_empty():
+				eroe = combattente
+			elif not combattente.giocatore and nemico.is_empty():
+				nemico = combattente
+		eroe.aura = 99
+		# niente critici e niente fattore: si misura il colpo, non la fortuna
+		eroe.stress = 0
+		eroe.fattore = 0
+		nemico.stress = 0
+		nemico.difesa = 0
+		var prima := int(nemico.hp)
+		scontro.colpo_darma(eroe, nemico, attacco_forte if usa_arma else {})
+		var fatto := prima - int(nemico.hp)
+		scontro.free()
+		return fatto
+	var senza: int = danno_di.call(false)
+	var con: int = danno_di.call(true)
+	esigi(con > senza,
+			"l'attacco '%s' aggiunge +%d sulla carta ma in campo fa %d danni contro i %d di un colpo normale"
+			% [String(attacco_forte.get("nome", "?")), int(attacco_forte.get("bonus", 0)), con, senza])
+	# quanto aggiunge sta fra il bonus scritto e quel bonus colto in pieno: il
+	# bonus dell'arma fa parte del colpo, quindi un critico moltiplica anche
+	# quello. Sopra questa forbice vuol dire che il bonus e' entrato due volte,
+	# sotto che non e' entrato affatto
+	var bonus := int(attacco_forte.get("bonus", 0))
+	var massimo := int(ceil(bonus * float(GameState.regole.get("critico_moltiplicatore", 1.5))))
+	esigi(con - senza >= bonus and con - senza <= massimo,
+			"l'attacco '%s' dice +%d ma in campo aggiunge %d (atteso fra %d e %d, critico compreso)"
+			% [String(attacco_forte.get("nome", "?")), bonus, con - senza, bonus, massimo])
+
+	# e le classi d'arma: chi non sa impugnarla non ne prende gli attacchi
+	esigi(GameState.classe_arma_di(GameState.id_protagonista) == "catalizzatore",
+			"il protagonista non usa piu' i catalizzatori")
+	GameState.nuova_partita()
+
+func prova_linee_abilita() -> void:
+	# UNA LINEA E' UN'ABILITA' CHE CRESCE, non sei abilita' che si somigliano.
+	# Se due gradi della stessa linea risultassero noti insieme, il menu
+	# mostrerebbe Flagello accanto a Terra bruciata accanto a Maelstrom: sei
+	# versioni della stessa cosa, e nessuna ragione per usare le prime cinque.
+	titolo("le linee di abilita' crescono, e nel menu ne passa un grado solo")
+	var tabella: Dictionary = GameState.abilita.get("abilita", {})
+	esigi(not tabella.is_empty(), "data/abilita.json non caricato")
+	# 1. dentro una linea i gradi sono 1,2,3... senza buchi e senza doppioni, e
+	#    ogni grado sta a un livello piu' alto del precedente
+	var linee := {}
+	for id_abilita in tabella:
+		var dati: Dictionary = tabella[id_abilita]
+		var linea := String(dati.get("linea", ""))
+		if linea == "":
+			esigi(not dati.has("grado"),
+					"%s dichiara un grado ma non dice di che linea fa parte" % id_abilita)
+			continue
+		var grado := int(dati.get("grado", 0))
+		esigi(grado >= 1, "%s e' nella linea '%s' senza un grado" % [id_abilita, linea])
+		if not linee.has(linea):
+			linee[linea] = {}
+		esigi(not linee[linea].has(grado),
+				"nella linea '%s' ci sono due gradi %d: uno dei due non si potra' mai comprare"
+				% [linea, grado])
+		linee[linea][grado] = id_abilita
+	esigi(linee.size() >= 3, "le linee sono %d: ne mancano" % linee.size())
+	for linea in linee:
+		var gradi: Dictionary = linee[linea]
+		var livello_prima := 0
+		for grado in range(1, gradi.size() + 1):
+			esigi(gradi.has(grado),
+					"la linea '%s' salta il grado %d: la scala si interrompe e i gradi sopra non si aprono mai"
+					% [linea, grado])
+			if not gradi.has(grado):
+				continue
+			var dati: Dictionary = tabella[gradi[grado]]
+			var livello := int(dati.get("livello", 0))
+			esigi(livello > livello_prima,
+					"nella linea '%s' il grado %d si impara al livello %d, non dopo il grado precedente (%d)"
+					% [linea, grado, livello, livello_prima])
+			livello_prima = livello
+			if grado > 1:
+				esigi(int(dati.get("costo", 0)) > 0,
+						"%s e' un potenziamento e non costa punti: arriverebbe da solo" % gradi[grado])
+
+	# 2. LE PERCENTUALI CHE HA DETTO BRU, una per una. Sono il senso della
+	#    linea intera, e un refuso qui non lo troverebbe nessuno giocando
+	var attese := {"annichilazione": 0.50, "annichilazione_ii": 0.55, "annichilazione_iii": 0.58,
+			"annichilazione_iv": 0.62, "annichilazione_v": 0.65, "annichilazione_totale": 0.70}
+	for id_abilita in attese:
+		esigi(tabella.has(id_abilita), "manca %s" % id_abilita)
+		esigi(is_equal_approx(float(tabella.get(id_abilita, {}).get("probabilita_ko", 0.0)),
+				float(attese[id_abilita])),
+				"%s ha una chance di KO del %d%% invece del %d%%"
+				% [id_abilita, int(float(tabella.get(id_abilita, {}).get("probabilita_ko", 0.0)) * 100),
+				int(float(attese[id_abilita]) * 100)])
+	# e la linea del Flagello cresce di danno grado dopo grado, mai al contrario
+	var bonus_prima := -1.0
+	for id_abilita in ["flagello", "terra_bruciata", "maelstrom", "devastazione",
+			"apocalisse", "fine_karmica"]:
+		esigi(tabella.has(id_abilita), "manca %s" % id_abilita)
+		var bonus := float(tabella.get(id_abilita, {}).get("bonus_attacco", 0.0))
+		esigi(bonus >= bonus_prima,
+				"%s fa meno danno del grado prima: il potenziamento peggiora l'abilita'" % id_abilita)
+		bonus_prima = bonus
+
+	# 3. nel menu ne compare uno solo. Si prova sul serio: si porta il
+	#    protagonista al livello, si comprano i gradi, si guarda il menu
+	GameState.nuova_partita()
+	GameState.livelli[GameState.id_protagonista] = 130
+	for linea in linee:
+		var gradi: Dictionary = linee[linea]
+		for grado in range(2, gradi.size() + 1):
+			if gradi.has(grado):
+				GameState.nodi_abilita.append(String(gradi[grado]))
+	var usabili := GameState.abilita_usabili(GameState.id_protagonista)
+	for linea in linee:
+		var quanti := 0
+		var quale := ""
+		for id_abilita in usabili:
+			if String(tabella.get(id_abilita, {}).get("linea", "")) == linea:
+				quanti += 1
+				quale = String(id_abilita)
+		esigi(quanti == 1,
+				"della linea '%s' nel menu compaiono %d abilita' invece di una" % [linea, quanti])
+		var gradi_linea: Dictionary = linee[linea]
+		esigi(quale == String(gradi_linea.get(gradi_linea.size(), "")),
+				"della linea '%s' il menu mostra '%s' invece del grado piu' alto" % [linea, quale])
+	GameState.nuova_partita()
+
+func prova_punti_abilita() -> void:
+	# I PUNTI SONO UNA RISORSA, e una risorsa che non si conta non e' una
+	# risorsa. Se si potesse comprare tutto, le scelte al 25 e al 29 che Bru ha
+	# descritto non sarebbero scelte.
+	titolo("i punti abilita' si guadagnano, si spendono, e non si spendono due volte")
+	GameState.nuova_partita()
+	# 1. prima del livello di partenza non ce n'e' nessuno, e crescono un po'
+	#    per volta, mai a salti
+	var regola: Dictionary = GameState.abilita.get("punti", {})
+	var dal := int(regola.get("dal_livello", 25))
+	esigi(dal > 1, "i punti abilita' partono dal livello %d" % dal)
+	esigi(GameState.punti_abilita_guadagnati(dal - 1) == 0,
+			"al livello %d ci sono gia' dei punti" % (dal - 1))
+	esigi(GameState.punti_abilita_guadagnati(dal) == int(regola.get("per_volta", 1)),
+			"al livello %d non arriva il primo punto" % dal)
+	var prima := 0
+	for livello in range(1, 131):
+		var ora := GameState.punti_abilita_guadagnati(livello)
+		esigi(ora >= prima, "al livello %d i punti CALANO da %d a %d" % [livello, prima, ora])
+		esigi(ora - prima <= int(regola.get("per_volta", 1)),
+				"al livello %d arrivano %d punti in un colpo solo" % [livello, ora - prima])
+		prima = ora
+
+	# 2. LA SCELTA CHE BRU HA DESCRITTO, provata come si gioca. Al 25 c'e' un
+	#    punto e ci sono due porte: Pieta' o Terra bruciata. Prenderne una deve
+	#    chiudere l'altra, altrimenti non e' una scelta, e' un elenco
+	GameState.livelli[GameState.id_protagonista] = 25
+	esigi(GameState.punti_abilita_liberi() == 1,
+			"al livello 25 il protagonista ha %d punti invece di 1" % GameState.punti_abilita_liberi())
+	esigi(GameState.nodo_disponibile("pieta"), "al livello 25 Pieta' non e' disponibile")
+	esigi(GameState.nodo_disponibile("terra_bruciata"),
+			"al livello 25 Terra bruciata non e' disponibile")
+	esigi(GameState.sblocca_nodo("terra_bruciata"), "Terra bruciata non si e' sbloccata")
+	esigi(not GameState.nodo_disponibile("pieta"),
+			"col punto gia' speso Pieta' e' ancora disponibile: i punti non si contano")
+	esigi(GameState.punti_abilita_liberi() == 0,
+			"dopo aver speso l'unico punto ne restano %d" % GameState.punti_abilita_liberi())
+	esigi(not GameState.sblocca_nodo("pieta"), "si e' comprato un nodo senza punti")
+
+	# 3. al 29 arriva il secondo punto, e le porte sono quelle giuste
+	GameState.livelli[GameState.id_protagonista] = 29
+	esigi(GameState.punti_abilita_liberi() == 1, "al livello 29 non arriva il secondo punto")
+	esigi(GameState.nodo_disponibile("pieta"), "al 29 Pieta' doveva essere ancora li'")
+	esigi(GameState.nodo_disponibile("annichilazione_ii"),
+			"al 29 Annichilazione II non e' disponibile")
+
+	# 4. non si salta un grado: Maelstrom vuole Terra bruciata, e il livello
+	esigi(not GameState.nodo_disponibile("maelstrom"),
+			"al livello 29 si puo' gia' comprare Maelstrom, che apre molto piu' avanti")
+	GameState.livelli[GameState.id_protagonista] = 130
+	esigi(GameState.nodo_disponibile("apocalisse") == false,
+			"si puo' comprare Apocalisse saltando i gradi in mezzo")
+	esigi(GameState.nodo_disponibile("maelstrom"),
+			"col livello alto e Terra bruciata in mano Maelstrom non si apre")
+
+	# 5. mai piu' di quello che hai guadagnato, comprando tutto quello che si puo'
+	for giro in 60:
+		var comprato := false
+		for id_nodo in GameState.abilita.get("abilita", {}):
+			if GameState.sblocca_nodo(String(id_nodo)):
+				comprato = true
+		for id_nodo in GameState.abilita.get("potenziamenti", {}):
+			if GameState.sblocca_nodo(String(id_nodo)):
+				comprato = true
+		if not comprato:
+			break
+	esigi(GameState.punti_abilita_spesi() <= GameState.punti_abilita_guadagnati(130),
+			"spesi %d punti su %d guadagnati"
+			% [GameState.punti_abilita_spesi(), GameState.punti_abilita_guadagnati(130)])
+	esigi(GameState.punti_abilita_liberi() >= 0, "i punti liberi sono andati sotto zero")
+	GameState.nuova_partita()
+
+func prova_abilita_arrivano_al_livello_giusto() -> void:
+	# Quello che Bru ha scritto, riga per riga: Astio al 5, Vendetta all'8,
+	# Flagello all'11, Annichilazione al 19. Prima di quel livello non ci
+	# devono essere, e a quel livello ci devono essere senza spendere niente.
+	titolo("le abilita' di base arrivano ai livelli che ha detto Bru")
+	var attese := {"astio": 5, "vendetta": 8, "flagello": 11, "mantra": 14, "annichilazione": 19}
+	for id_abilita in attese:
+		var livello := int(attese[id_abilita])
+		GameState.nuova_partita()
+		GameState.livelli[GameState.id_protagonista] = livello - 1
+		esigi(not id_abilita in GameState.abilita_del_protagonista(),
+				"al livello %d il protagonista sa gia' fare %s" % [livello - 1, id_abilita])
+		GameState.livelli[GameState.id_protagonista] = livello
+		esigi(id_abilita in GameState.abilita_del_protagonista(),
+				"al livello %d il protagonista non ha imparato %s" % [livello, id_abilita])
+		esigi(int(GameState.abilita_combattimento(String(id_abilita)).get("costo", 0)) == 0,
+				"%s arriva col livello ma costa anche punti: uno dei due e' di troppo" % id_abilita)
+	GameState.nuova_partita()
+
 func valore_di_ruolo(chiave: String, nome_ruolo: String, livello: int) -> int:
 	const FINTA := "__creatura_di_ruolo__"
 	GameState.personaggi[FINTA] = {"id": FINTA, "ruolo": nome_ruolo, "livello": livello,
@@ -1436,9 +1811,9 @@ func prova_colori_del_danno() -> void:
 			raccogli.call(mossa.get("elemento", ""))
 	for id_oggetto in GameState.oggetti:
 		raccogli.call(GameState.oggetti[id_oggetto].get("effetto", {}).get("elemento", ""))
-	var abilita: Dictionary = GameState.regole.get("abilita_combattimento", {})
-	for id_abilita in abilita:
-		raccogli.call(abilita[id_abilita].get("elemento", ""))
+	var tutte: Dictionary = GameState.abilita.get("abilita", {})
+	for id_abilita in tutte:
+		raccogli.call(tutte[id_abilita].get("elemento", ""))
 	esigi(not elementi.is_empty(), "nessun elemento dichiarato da nessuna parte: la funzione e' morta")
 	for nome_elemento in elementi:
 		esigi(tabella.has(nome_elemento),
@@ -1447,16 +1822,38 @@ func prova_colori_del_danno() -> void:
 				"l'elemento '%s' ha lo stesso colore di un colpo normale: non si distingue" % nome_elemento)
 
 func prova_abilita_di_combattimento() -> void:
-	# Le abilita' stanno in regole.json e il motore ne conosce quattro tipi. Se
+	# Le abilita' stanno in data/abilita.json e il motore ne conosce dei TIPI. Se
 	# qualcuno ne scrive una di tipo "fiammata" il menu la mostra e poi non
 	# succede niente: e' esattamente il genere di buco che si trova giocando.
 	titolo("le abilita' di combattimento sono tutte eseguibili")
-	var tipi_noti := ["provoca", "area", "raffica", "carica"]
-	var tabella: Dictionary = GameState.regole.get("abilita_combattimento", {})
-	esigi(not tabella.is_empty(), "nessuna abilita' di combattimento in regole.json")
+	var tipi_noti := ["provoca", "area", "raffica", "carica",
+			"astio", "vendetta", "annichilazione", "pieta", "mantra", "flagello"]
+	var tabella: Dictionary = GameState.abilita.get("abilita", {})
+	esigi(not tabella.is_empty(), "nessuna abilita' di combattimento in data/abilita.json")
 	for id_abilita in tabella:
 		var dati: Dictionary = tabella[id_abilita]
 		esigi(String(dati.get("nome", "")) != "", "l'abilita' %s non ha un nome" % id_abilita)
+		# UN SEGNAPOSTO DI TROPPO NON E' UN REFUSO: in GDScript un format
+		# sbagliato e' un errore a runtime, e un errore a runtime interrompe la
+		# funzione dov'e' successo. Fine karmica aveva due %s e ne riceveva uno:
+		# l'abilita' stampava mezza riga e poi NON FACEVA DANNO AFFATTO, e da
+		# fuori sembrava solo un'abilita' debole.
+		#
+		# Quanti ne riceve dipende dal tipo, e sta scritto qui perche' e' un
+		# patto fra i dati e il motore: Vendetta nomina chi colpisce e chi
+		# subisce, tutte le altre nominano una cosa sola.
+		var quanti_ne_riceve := 2 if String(dati.get("tipo", "")) == "vendetta" else 1
+		for chiave in ["testo_uso", "testo_ko", "testo_niente", "testo_inutile", "testo_carica"]:
+			var testo := String(dati.get(chiave, ""))
+			if testo == "":
+				continue
+			esigi(testo.count("%s") <= quanti_ne_riceve,
+					"%s: '%s' ha %d segnaposto e il motore ne passa %d: l'abilita' si interrompe li'"
+					% [id_abilita, chiave, testo.count("%s"), quanti_ne_riceve])
+		esigi(String(dati.get("testo_accumulo", "")).count("%") <= 2,
+				"%s: 'testo_accumulo' ha troppi segnaposto" % id_abilita)
+		esigi(String(dati.get("testo_statistiche", "")).count("%") <= 2,
+				"%s: 'testo_statistiche' ha troppi segnaposto" % id_abilita)
 		esigi(String(dati.get("tipo", "")) in tipi_noti,
 				"l'abilita' %s e' di tipo '%s', che il combattimento non sa eseguire"
 				% [id_abilita, String(dati.get("tipo", ""))])

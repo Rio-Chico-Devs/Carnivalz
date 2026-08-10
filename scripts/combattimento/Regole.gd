@@ -135,7 +135,7 @@ static func probabilita_slaughter(attaccante: Dictionary, bersaglio: Dictionary)
 	return probabilita
 
 static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
-		moltiplicatore := 1.0) -> Dictionary:
+		moltiplicatore := 1.0, bonus := 0) -> Dictionary:
 	# Tutta la matematica di un colpo in un posto solo. Restituisce cosa e'
 	# successo; chi chiama decide cosa raccontarne e chi far cadere.
 	#   danno    -> quanto passa davvero
@@ -152,6 +152,12 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 			# il danno del party scala col livello: farmare ed equipaggiarsi conta
 			danno += floori((GameState.livello_di(attaccante.id) - 1)
 					* float(GameState.regole.get("bonus_attacco_per_livello", 0.5)))
+	# IL BONUS DELL'ARMA SI SOMMA, non sostituisce. Passarlo come valore fisso
+	# sembrava equivalente e non lo era: un valore fisso salta il bonus di
+	# livello, quindi un attacco d'arma da "+5" a livello 10 faceva SEI DANNI IN
+	# MENO di un colpo normale. Se ne e' accorta prova_attacchi_darma misurando
+	# i due colpi in campo con lo stesso seme, non leggendo il codice
+	danno += bonus
 	if moltiplicatore != 1.0:
 		# un colpo caricato moltiplica il colpo INTERO, bonus di livello compreso:
 		# altrimenti a livello alto caricare sarebbe un modo di picchiare meno

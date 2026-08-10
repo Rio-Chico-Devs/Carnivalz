@@ -21,14 +21,34 @@ fi
 # Nessun contatore dentro Prove.gd può accorgersene, perché il codice che
 # dovrebbe accorgersene è proprio quello che non viene eseguito. Se ne accorge
 # chi guarda da fuori: questo script.
+#
+# E UN ERRORE DI PARSE NON FA NEMMENO QUELLO: APPENDE TUTTO.
+#
+# Se lo script della scena non compila, Godot non lo carica, _ready() non parte
+# mai, e la scena resta lì aperta a non fare niente. Nessun errore in coda,
+# nessun esito, nessun verde e nessun rosso: il comando semplicemente non
+# torna più. È successo con una riga sola - una variabile dedotta da un
+# Variant, che qui è un warning trattato come errore - e ha bloccato le prove
+# per venti minuti prima che si capisse che non erano lente, erano ferme.
+# Quindi ogni esecuzione ha un tempo massimo, e scadere è un fallimento.
+LIMITE_SECONDI="${LIMITE_SECONDI:-600}"
+
 esegui_pulito() {
 	local titolo="$1"; shift
 	local registro
 	registro="$(mktemp)"
 	set +e
-	"$@" 2>&1 | tee "$registro"
+	timeout --foreground "$LIMITE_SECONDI" "$@" 2>&1 | tee "$registro"
 	local esito=${PIPESTATUS[0]}
 	set -e
+	if [ "$esito" -eq 124 ]; then
+		echo ""
+		echo "✗ $titolo: non è finito entro ${LIMITE_SECONDI}s." >&2
+		echo "  Di solito vuol dire che uno script non compila: Godot non carica la" >&2
+		echo "  scena, _ready() non parte e non arriva né un verde né un rosso." >&2
+		rm -f "$registro"
+		exit 1
+	fi
 	if grep -qE '^(USER )?(SCRIPT ERROR|ERROR):' "$registro"; then
 		echo ""
 		echo "✗ $titolo: Godot ha segnalato degli errori (sopra). Non è verde." >&2

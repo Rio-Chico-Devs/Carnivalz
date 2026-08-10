@@ -495,7 +495,27 @@
 			"descrizione": "In dotazione a ogni operativo. Nessuno l'ha mai chiamato un'arma.",
 			"effetto_equipaggiato": {
 				"attacco": 3
-			}
+			},
+			"classe_arma": "catalizzatore",
+			"attacchi": [
+				{
+					"id": "affondo",
+					"nome": "Affondo",
+					"bonus": 2,
+					"aura": 0,
+					"testo": "[i]%s entra corto e preciso.[/i]",
+					"descrizione": "Corto e preciso. Non c'è molto altro da dire su un coltello."
+				},
+				{
+					"id": "scarica_breve",
+					"nome": "Scarica breve",
+					"bonus": 5,
+					"aura": 2,
+					"elemento": "oscuro",
+					"testo": "[i]La lama di %s smette di essere una lama per un istante.[/i]",
+					"descrizione": "Il coltello fa da catalizzatore: quello che esce dall'altra parte non è acciaio."
+				}
+			]
 		},
 		{
 			"id": "mannaia_scheggiata",
@@ -505,7 +525,27 @@
 			"effetto_equipaggiato": {
 				"attacco": 9,
 				"velocita": -1
-			}
+			},
+			"classe_arma": "catalizzatore",
+			"attacchi": [
+				{
+					"id": "fendente",
+					"nome": "Fendente",
+					"bonus": 4,
+					"aura": 0,
+					"testo": "[i]%s cala la mannaia con tutto il peso che ha.[/i]",
+					"descrizione": "Pesante, lento, e non gli importa della tua guardia."
+				},
+				{
+					"id": "spaccata",
+					"nome": "Spaccata",
+					"bonus": 11,
+					"aura": 3,
+					"elemento": "oscuro",
+					"testo": "[i]%s apre un varco dove non ce n'era uno.[/i]",
+					"descrizione": "Costa aura, ma quello che apre resta aperto."
+				}
+			]
 		},
 		{
 			"id": "stigma_del_veglio",
