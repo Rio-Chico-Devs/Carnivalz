@@ -5147,8 +5147,8 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### La Casa Gigante › `stanza_studi`
 
-**`CASA.stanza_studi.1`** · narrazione
-> Sotto i cuscini, la botola dà su una stanza degli studi: scrivania, diplomi alle pareti, e un fascicolo lasciato aperto come se qualcuno l'avesse richiuso in fretta, tanti anni fa.
+**`CASA.stanza_studi.1`** · battuta di Anonimo
+> Sembrerebbe una stanza adibita per lo studio... Chiunque l'abbia creata ci teneva a fare le cose per bene.
 >
 > →
 
@@ -5171,7 +5171,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `cartella_clinica`
 
 **`CASA.cartella_clinica.1`** · narrazione
-> "...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di disallineamento anomali per l'età. Salute generale carente." La firma in fondo è illeggibile quanto il resto.
+> «...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di disallineamento anomali per l'età. Salute generale carente.» La firma in fondo è illeggibile.
 >
 > →
 
@@ -5184,7 +5184,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `tunnel`
 
 **`CASA.tunnel.1`** · narrazione
-> Un tunnel scavato a mano, stretto, che scende oltre le fondamenta della casa. L'aria si fa più fredda a ogni passo.
+> Un tunnel scavato artificialmente, stretto, che scende oltre le fondamenta della casa. L'aria si fa più gelida a ogni passo.
 >
 > →
 
@@ -5199,7 +5199,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.tunnel.scena`** · quando ci torni («Osserva la scena»)
-> Il tunnel scavato a mano scende oltre le fondamenta. Più avanti, il freddo.
+> Il tunnel scende oltre le fondamenta. Le temperature sono molto basse in questa sezione.
 >
 > →
 
@@ -5217,7 +5217,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `altare`
 
 **`CASA.altare.1`** · narrazione
-> Un altare tributario, costruito con le mani: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra. Oltre le candele, nel buio, si intuisce qualcosa di enorme incassato nella parete di fondo.
+> Un altare tributario, costruito con cura: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra. Oltre le candele, nel buio, si intravede qualcosa di enorme incassato nella parete di fondo.
 >
 > →
 
@@ -5226,37 +5226,32 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`CASA.altare.scelta2`** · bottone di scelta
-> Brucia le lettere
+**`CASA.altare.scelta2`** · bottone di scelta (fa raccogliere Vino di ottima qualità)
+> Raccogli la bottiglia di vino
 >
 > →
 
-**`CASA.altare.scelta3`** · bottone di scelta (fa raccogliere Vino di ottima qualità)
-> Stappa l'ultima bottiglia di vino di ottima qualità
->
-> →
-
-**`CASA.altare.scelta4`** · bottone di scelta
+**`CASA.altare.scelta3`** · bottone di scelta
 > Osserva da vicino la foto sull'altare
 >
 > →
 
-**`CASA.altare.scelta5`** · bottone di scelta
+**`CASA.altare.scelta4`** · bottone di scelta
 > Guarda oltre l'altare, nel buio
 >
 > →
 
-**`CASA.altare.scelta6`** · bottone di scelta
+**`CASA.altare.scelta5`** · bottone di scelta
 > L'altare è silenzioso, ora.
 >
 > →
 
-**`CASA.altare.scelta7`** · bottone di scelta
+**`CASA.altare.scelta6`** · bottone di scelta
 > Guarda oltre l'altare, nel buio
 >
 > →
 
-**`CASA.altare.scelta8`** · bottone di scelta
+**`CASA.altare.scelta7`** · bottone di scelta
 > Torna al tunnel
 >
 > →
@@ -5265,7 +5260,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `presentazione_ricordo`
 
 **`CASA.presentazione_ricordo.1`** · narrazione
-> Quando si vuole bene a qualcuno, un legame viene creato... come migliaia di fili intrecciati diventa sempre più solido.<br>Che nessuno osi dividere quello che è stato unito dall'amore... Sono questioni superiori agli uomini...<br>Così... filo su filo si tesse una piccola bambola di pezza, non troppo bella non troppo brutta... ma colma di amore...<br>E con lo spezzarsi di quel legame... così come si sfalda una bambola, cominciò a sfaldarsi la fortuna di chi osò calpestare la tenerezza di un legame nato dal sentimento più puro...
+> Quando si ama qualcuno, si creano dei legami indissolubili che viaggiano attraverso il tempo... come migliaia di fili intrecciati, il legame diventa sempre più solido e strutturato...<br>Che nessuno osi dividere quello che è stato unito dall'amore... Sono questioni superiori agli uomini...<br>Ma alcune persone, spinte dal proprio ego, calpestano brutalmente l'innocenza che nasce da un cuore puro...<br>E con lo spezzarsi di quel legame... così come si sfalda una bambola, comincia a sfaldarsi la fortuna di chi osò calpestare il cuore di un'innocente.
 >
 > →
 
@@ -5291,7 +5286,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `porta_enorme`
 
 **`CASA.porta_enorme.1`** · narrazione
-> Con la bambola non più a guardia, il passo oltre l'altare è libero: una porta enorme, sproporzionata perfino per questa casa, incassata nella roccia oltre le candele consumate. Nessuna maniglia, solo un meccanismo circolare al centro, coperto di polvere e fermo da chissà quanto.
+> Il passo oltre l'altare è libero: una porta enorme, incassata nella roccia, sembra bloccare il passaggio. Nessuna maniglia, solo un meccanismo circolare al centro, coperto di polvere e fermo da tempo...
 >
 > →
 
@@ -5301,7 +5296,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.porta_enorme.scelta2`** · bottone di scelta
-> Non si muove di un millimetro. Non è ancora il momento.
+> Non si muove di un millimetro.
 >
 > →
 
@@ -5309,7 +5304,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `lettere_lettura`
 
 **`CASA.lettere_lettura.1`** · narrazione
-> Sono lettere mai spedite, scritte dai genitori: parlano di rimorso, di quanto avrebbero voluto tornare indietro. "Se solo non avessimo preteso così tanto da te," dice una. Un'altra si interrompe a metà frase.
+> Sul pavimento ci sono varie lettere scritte a pugno. Il solo toccarle ti mette i brividi... Riesci a leggere solo alcune parole sulla superficie della busta: «Alla mia piccola Lylloh...»
 >
 > →
 
@@ -5319,28 +5314,15 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-### La Casa Gigante › `lettere_bruciate`
-
-**`CASA.lettere_bruciate.1`** · narrazione
-> Le accendi una a una, sull'ultima candela ancora viva. Il rimorso di chi le ha scritte non serve più a nessuno: bruciano in fretta, come se anche loro non aspettassero altro.
->
-> →
-
-**`CASA.lettere_bruciate.scelta1`** · bottone di scelta
-> Torna all'altare
->
-> →
-
-
 ### La Casa Gigante › `ricordo_concluso`
 
 **`CASA.ricordo_concluso.1`** · narrazione
-> Le cuciture non cedono: si strappano. La bambola si apre da sola lungo le giunture, un filo dopo l'altro, e ogni strappo suona come qualcosa che si rompe dentro un corpo vero.
+> Le cuciture della bambola cominciano a strapparsi, creando un rumore inascoltabile. La bambola si apre da sola lungo le giunture, un filo dopo l'altro, e ogni strappo esplode in urla di dolore.
 >
 > →
 
 **`CASA.ricordo_concluso.2`** · narrazione
-> Le ombre nere escono da lei tutte insieme, si spargono sulle pareti e scappano in ogni direzione, disperdendosi con lamenti assordanti che ti restano nelle orecchie molto dopo che il buio le ha inghiottite.
+> Una quantità infinita di ombre nere fuoriesce da lei in continuazione, si sparge sulle pareti e scappa in ogni direzione, disperdendosi ovunque senza lasciare traccia...
 >
 > →
 
@@ -5350,7 +5332,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`CASA.ricordo_concluso.4`** · narrazione
-> Quello che resta a terra non somiglia più a niente. L'atmosfera trasuda una tristezza profonda e umida... sembra quasi di aver fatto la cosa sbagliata...
+> A terra rimane solo un mucchietto di cuciture, polvere e bottoni. L'atmosfera trasuda una tristezza profonda e umida...
 >
 > →
 
@@ -5363,22 +5345,22 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `ricordo_concluso_buono`
 
 **`CASA.ricordo_concluso_buono.1`** · narrazione
-> La bambola comincia a sfilacciarsi lo stesso, ma questa volta senza opporre resistenza: le ombre nere si ritirano piano dalle pareti, senza violenza.
+> La bambola sembra essersi fermata. Qualcosa di luminoso sembra staccarsi con grazia dalla stoffa, tendendo verso il cielo quello che sembra essere un arto.
 >
 > →
 
 **`CASA.ricordo_concluso_buono.2`** · battuta di Un tenero ricordo
-> ...Lylloh... sei tornata a giocare con me?
+> ...Lylloh... sei tu? Sei... tornata per giocare con me?
 >
 > →
 
 **`CASA.ricordo_concluso_buono.3`** · narrazione
-> Quello che resta, nell'aria, non è più dolore: solo quiete.
+> La figura luminosa sparisce come vapore al vento... Quello che resta, nell'aria, è una fresca brezza che rasserena lo spirito...
 >
 > →
 
-**`CASA.ricordo_concluso_buono.4`** · battuta di Un tenero ricordo
-> Grazie... per non avermi dimenticata.
+**`CASA.ricordo_concluso_buono.4`** · narrazione
+> Riesci a sentire leggermente nell'aria una gracile voce: «Grazie... per non avermi dimenticata...»
 >
 > →
 
@@ -5391,21 +5373,51 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `congedo_yhvina`
 
 **`CASA.congedo_yhvina.1`** · battuta di Yhvina
-> Bene, sembrerebbe che il nostro lavoro qui sia terminato, sembra che potrò tornare finalmente a casa.
+> Bene, sembrerebbe che il nostro lavoro qui sia terminato. Sembra che potrò tornare finalmente a casa.
 >
 > →
 
-**`CASA.congedo_yhvina.2`** · battuta di Yhvina
-> Ecco che arriva... Bene. Se il destino vorrà, ci rivedremo ancora.
+**`CASA.congedo_yhvina.2`** · battuta di Anonimo
+> Ti ringrazio... per l'aiuto.
 >
 > →
 
-**`CASA.congedo_yhvina.3`** · narrazione
-> Uno squarcio deforma Yhvina che scompare senza lasciare alcuna traccia... quando uno squarcio si chiude, tutto quello che ha portato viene riportato indietro.
+**`CASA.congedo_yhvina.3`** · battuta di Yhvina
+> Hmpf... beh, non potevo certo lasciare che ti facessi massacrare. Dovresti cercare di diventare più forte: con il tuo livello attuale non avresti potuto affrontare questo posto da solo. Vedi di non cacciarti nei guai.
 >
 > →
 
-**`CASA.congedo_yhvina.4`** · narrazione
+**`CASA.congedo_yhvina.4`** · battuta di Anonimo
+> Lo terrò a mente. Grazie.
+>
+> →
+
+**`CASA.congedo_yhvina.5`** · battuta di Yhvina
+> Sembra che sia arrivato il mio passaggio...
+>
+> →
+
+**`CASA.congedo_yhvina.6`** · battuta di Yhvina
+> Se il destino vorrà, ci rivedremo ancora. Spero tu non sia più una palla al piede, semmai succederà: non ci sarò sempre io a salvarti.
+>
+> →
+
+**`CASA.congedo_yhvina.7`** · narrazione
+> Uno squarcio si crea alle spalle di Yhvina, che scompare senza lasciare alcuna traccia... Quando una fonte scompare lo squarcio si chiude e comincia a guarire: tutto quello che ha portato viene riportato indietro.
+>
+> →
+
+**`CASA.congedo_yhvina.8`** · narrazione
+> Un altro squarcio si apre dinnanzi a te: quando sei pronto, potrai lasciare questo posto.
+>
+> →
+
+**`CASA.congedo_yhvina.9`** · battuta di Anonimo
+> Ed ecco il mio...
+>
+> →
+
+**`CASA.congedo_yhvina.10`** · narrazione
 > Il tuo compito sembra essere terminato.
 >
 > →
@@ -5424,7 +5436,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### La Casa Gigante › `cacciata`
 
 **`CASA.cacciata.1`** · narrazione
-> Qualcosa ti solleva di peso e la casa ti scaraventa fuori, oltre lo squarcio. La ninna nanna riprende, stonata come prima.
+> Vieni consumato da un tetro fumo che non fa rimanere altro se non il tuo ricordo.
 >
 > →
 
@@ -6768,6 +6780,24 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`CASA.spirito_chiacchiere.scelta1`** · bottone di scelta
 > Resta ancora un po'
+>
+> →
+
+
+### La Casa Gigante › `yhvina_si_dopo`
+
+**`CASA.yhvina_si_dopo.1`** · narrazione
+> Da qui si riescono a vedere i giardini che si estendono mischiandosi alla foresta...
+>
+> →
+
+**`CASA.yhvina_si_dopo.scena`** · quando ci torni («Osserva la scena»)
+> Da qui si riescono a vedere i giardini che si estendono mischiandosi alla foresta...
+>
+> →
+
+**`CASA.yhvina_si_dopo.scelta1`** · bottone di scelta
+> Esci dalla camera
 >
 > →
 
@@ -11616,10 +11646,9 @@ squarcio: da lì in poi il bottone «Parla con la squadra» c'è ovunque, e dent
 | `porta_bloccata` | — | **muta** |
 | `porta_enorme` | — | **muta** |
 | `lettere_lettura` | — | **muta** |
-| `lettere_bruciate` | — | **muta** |
 | `ricordo_concluso` | — | **muta** |
 | `ricordo_concluso_buono` | — | **muta** |
-| `congedo_yhvina` | 2 battute | **muta** |
+| `congedo_yhvina` | 4 battute | **muta** |
 | `cacciata` | — | **muta** |
 | `giardino_ingresso` | — | **muta** |
 | `giardino` | — | **muta** |
@@ -11667,6 +11696,7 @@ squarcio: da lì in poi il bottone «Parla con la squadra» c'è ovunque, e dent
 | `botola_chiusa` | — | **muta** |
 | `lettore_vuoto` | — | **muta** |
 | `spirito_chiacchiere` | — | **muta** |
+| `yhvina_si_dopo` | — | **muta** |
 
 
 ## Tutte le stanze dove i compagni non hanno niente da dire
@@ -11711,19 +11741,18 @@ quindi il bottone non esiste proprio.
 - `attico` — L'attico, basso e lungo. In fondo, sotto uno spiovente, una porta chiusa da cui filtra una luce…
 - `camera_da_letto` — La camera da letto sotto lo spiovente: un materasso per terra, una lampada che nessuno spegne mai.
 - `yhvina_si` — Yhvina è in piedi accanto alla porta, e aspetta che sia tu a muoverti.
-- `stanza_studi` — Sotto i cuscini, la botola dà su una stanza degli studi: scrivania, diplomi alle pareti, e un…
-- `cartella_clinica` — "...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di disallineamento anomali…
-- `tunnel` — Il tunnel scavato a mano scende oltre le fondamenta. Più avanti, il freddo.
-- `altare` — Un altare tributario, costruito con le mani: candele consumate, una foto incorniciata, e un mucchio…
-- `presentazione_ricordo` — Quando si vuole bene a qualcuno, un legame viene creato... come migliaia di fili intrecciati…
+- `stanza_studi`
+- `cartella_clinica` — «...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di disallineamento anomali…
+- `tunnel` — Il tunnel scende oltre le fondamenta. Le temperature sono molto basse in questa sezione.
+- `altare` — Un altare tributario, costruito con cura: candele consumate, una foto incorniciata, e un mucchio di…
+- `presentazione_ricordo` — Quando si ama qualcuno, si creano dei legami indissolubili che viaggiano attraverso il tempo...…
 - `porta_bloccata` — Fai un passo oltre le candele, e la bambola si volta di scatto verso di te — non ti aveva mai…
-- `porta_enorme` — Con la bambola non più a guardia, il passo oltre l'altare è libero: una porta enorme,…
-- `lettere_lettura` — Sono lettere mai spedite, scritte dai genitori: parlano di rimorso, di quanto avrebbero voluto…
-- `lettere_bruciate` — Le accendi una a una, sull'ultima candela ancora viva. Il rimorso di chi le ha scritte non serve…
-- `ricordo_concluso` — Le cuciture non cedono: si strappano. La bambola si apre da sola lungo le giunture, un filo dopo…
-- `ricordo_concluso_buono` — La bambola comincia a sfilacciarsi lo stesso, ma questa volta senza opporre resistenza: le ombre…
+- `porta_enorme` — Il passo oltre l'altare è libero: una porta enorme, incassata nella roccia, sembra bloccare il…
+- `lettere_lettura` — Sul pavimento ci sono varie lettere scritte a pugno. Il solo toccarle ti mette i brividi... Riesci…
+- `ricordo_concluso` — Le cuciture della bambola cominciano a strapparsi, creando un rumore inascoltabile. La bambola si…
+- `ricordo_concluso_buono` — La bambola sembra essersi fermata. Qualcosa di luminoso sembra staccarsi con grazia dalla stoffa,…
 - `congedo_yhvina` — Dove c'era Yhvina non è rimasto niente. Il tuo compito, qui, è terminato.
-- `cacciata` — Qualcosa ti solleva di peso e la casa ti scaraventa fuori, oltre lo squarcio. La ninna nanna…
+- `cacciata` — Vieni consumato da un tetro fumo che non fa rimanere altro se non il tuo ricordo.
 - `giardino_ingresso` — Il vialetto che porta al giardino, sul fianco della casa.
 - `giardino` — Il giardino sotto la luna. Tre sentieri: est, ovest, nord.
 - `giardino_est` — Il giardino est. Il silenzio, qui, è più fitto che altrove.
@@ -11767,6 +11796,7 @@ quindi il bottone non esiste proprio.
 - `botola_chiusa` — La botola non ha maniglia: solo una fessura sottile sul bordo, e sopra la fessura una spia che…
 - `lettore_vuoto` — Infili la matrice nella fessura. La spia smette di lampeggiare e resta accesa, fissa, per qualche…
 - `spirito_chiacchiere`
+- `yhvina_si_dopo` — Da qui si riescono a vedere i giardini che si estendono mischiandosi alla foresta...
 
 
 ### Cunicoli sotterranei di Jondoh — 37 stanze mute

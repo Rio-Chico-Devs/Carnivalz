@@ -894,9 +894,14 @@
 			"scelte": [
 				{
 					"testo": "Esci dalla camera",
-					"vai": "attico"
+					"vai": "attico",
+					"una_tantum": "casa_camera_lasciata"
 				}
-			]
+			],
+			"vai_se_flag": {
+				"flag": "casa_camera_lasciata",
+				"vai": "yhvina_si_dopo"
+			}
 		},
 		"stanza_studi": {
 			"testo": "Sotto i cuscini, la botola dà su una stanza degli studi: scrivania, diplomi alle pareti, e un fascicolo lasciato aperto come se qualcuno l'avesse richiuso in fretta, tanti anni fa.",
@@ -913,6 +918,13 @@
 					"testo": "Risali dalla botola",
 					"vai": "stanza_giochi"
 				}
+			],
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sembrerebbe una stanza adibita per lo studio... Chiunque l'abbia creata ci teneva a fare le cose per bene."
+				}
 			]
 		},
 		"cartella_clinica": {
@@ -922,13 +934,19 @@
 					"testo": "Richiudi il fascicolo",
 					"vai": "stanza_studi"
 				}
+			],
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "«...sbalzi di umore frequenti, episodi depressivi persistenti. Livelli di disallineamento anomali per l'età. Salute generale carente.» La firma in fondo è illeggibile."
+				}
 			]
 		},
 		"tunnel": {
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Un tunnel scavato a mano, stretto, che scende oltre le fondamenta della casa. L'aria si fa più fredda a ogni passo."
+					"testo": "Un tunnel scavato artificialmente, stretto, che scende oltre le fondamenta della casa. L'aria si fa più gelida a ogni passo."
 				},
 				{
 					"tipo": "dialogo",
@@ -941,7 +959,7 @@
 					"testo": "Lo senti anche tu, vero? Quello che vogliamo trovare si trova in fondo a questo tunnel..."
 				}
 			],
-			"scena": "Il tunnel scavato a mano scende oltre le fondamenta. Più avanti, il freddo.",
+			"scena": "Il tunnel scende oltre le fondamenta. Le temperature sono molto basse in questa sezione.",
 			"scelte": [
 				{
 					"testo": "Avanza verso la luce in fondo",
@@ -958,44 +976,43 @@
 			"scelte": [
 				{
 					"testo": "Leggi le lettere",
-					"richiede_non_flag": "casa_lettere_bruciate",
 					"vai": "lettere_lettura"
 				},
 				{
-					"testo": "Brucia le lettere",
-					"vai": "lettere_bruciate",
-					"una_tantum": "casa_lettere_bruciate",
-					"flag": "casa_lettere_bruciate"
-				},
-				{
-					"testo": "Stappa l'ultima bottiglia di vino di ottima qualità",
+					"testo": "Raccogli la bottiglia di vino",
 					"vai": "altare",
 					"una_tantum": "casa_vino_2",
 					"oggetto": "vino_di_ottima_qualita"
 				},
 				{
 					"testo": "Osserva da vicino la foto sull'altare",
-					"richiede_non_flag": "casa_ricordo_sconfitto",
-					"vai": "presentazione_ricordo"
+					"vai": "presentazione_ricordo",
+					"richiede_non_flag": "casa_ricordo_sconfitto"
 				},
 				{
 					"testo": "Guarda oltre l'altare, nel buio",
-					"richiede_non_flag": "casa_ricordo_sconfitto",
-					"vai": "porta_bloccata"
+					"vai": "porta_bloccata",
+					"richiede_non_flag": "casa_ricordo_sconfitto"
 				},
 				{
 					"testo": "L'altare è silenzioso, ora.",
-					"richiede_flag": "casa_ricordo_sconfitto",
-					"vai": "tunnel"
+					"vai": "tunnel",
+					"richiede_flag": "casa_ricordo_sconfitto"
 				},
 				{
 					"testo": "Guarda oltre l'altare, nel buio",
-					"richiede_flag": "casa_ricordo_sconfitto",
-					"vai": "porta_enorme"
+					"vai": "porta_enorme",
+					"richiede_flag": "casa_ricordo_sconfitto"
 				},
 				{
 					"testo": "Torna al tunnel",
 					"vai": "tunnel"
+				}
+			],
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Un altare tributario, costruito con cura: candele consumate, una foto incorniciata, e un mucchio di lettere ingiallite. Ai piedi dell'altare, buttata su un fianco, una bambola sporca di terra. Oltre le candele, nel buio, si intravede qualcosa di enorme incassato nella parete di fondo."
 				}
 			]
 		},
@@ -1003,7 +1020,7 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Quando si vuole bene a qualcuno, un legame viene creato... come migliaia di fili intrecciati diventa sempre più solido.\n\nChe nessuno osi dividere quello che è stato unito dall'amore... Sono questioni superiori agli uomini...\n\nCosì... filo su filo si tesse una piccola bambola di pezza, non troppo bella non troppo brutta... ma colma di amore...\n\nE con lo spezzarsi di quel legame... così come si sfalda una bambola, cominciò a sfaldarsi la fortuna di chi osò calpestare la tenerezza di un legame nato dal sentimento più puro..."
+					"testo": "Quando si ama qualcuno, si creano dei legami indissolubili che viaggiano attraverso il tempo... come migliaia di fili intrecciati, il legame diventa sempre più solido e strutturato...\nChe nessuno osi dividere quello che è stato unito dall'amore... Sono questioni superiori agli uomini...\nMa alcune persone, spinte dal proprio ego, calpestano brutalmente l'innocenza che nasce da un cuore puro...\nE con lo spezzarsi di quel legame... così come si sfalda una bambola, comincia a sfaldarsi la fortuna di chi osò calpestare il cuore di un'innocente."
 				},
 				{
 					"tipo": "titolo",
@@ -1039,8 +1056,14 @@
 					"vai": "tunnel"
 				},
 				{
-					"testo": "Non si muove di un millimetro. Non è ancora il momento.",
+					"testo": "Non si muove di un millimetro.",
 					"vai": "altare"
+				}
+			],
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il passo oltre l'altare è libero: una porta enorme, incassata nella roccia, sembra bloccare il passaggio. Nessuna maniglia, solo un meccanismo circolare al centro, coperto di polvere e fermo da tempo..."
 				}
 			]
 		},
@@ -1051,14 +1074,11 @@
 					"testo": "Richiudi le lettere",
 					"vai": "altare"
 				}
-			]
-		},
-		"lettere_bruciate": {
-			"testo": "Le accendi una a una, sull'ultima candela ancora viva. Il rimorso di chi le ha scritte non serve più a nessuno: bruciano in fretta, come se anche loro non aspettassero altro.",
-			"scelte": [
+			],
+			"sequenza": [
 				{
-					"testo": "Torna all'altare",
-					"vai": "altare"
+					"tipo": "narrazione",
+					"testo": "Sul pavimento ci sono varie lettere scritte a pugno. Il solo toccarle ti mette i brividi... Riesci a leggere solo alcune parole sulla superficie della busta: «Alla mia piccola Lylloh...»"
 				}
 			]
 		},
@@ -1066,11 +1086,11 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Le cuciture non cedono: si strappano. La bambola si apre da sola lungo le giunture, un filo dopo l'altro, e ogni strappo suona come qualcosa che si rompe dentro un corpo vero."
+					"testo": "Le cuciture della bambola cominciano a strapparsi, creando un rumore inascoltabile. La bambola si apre da sola lungo le giunture, un filo dopo l'altro, e ogni strappo esplode in urla di dolore."
 				},
 				{
 					"tipo": "narrazione",
-					"testo": "Le ombre nere escono da lei tutte insieme, si spargono sulle pareti e scappano in ogni direzione, disperdendosi con lamenti assordanti che ti restano nelle orecchie molto dopo che il buio le ha inghiottite."
+					"testo": "Una quantità infinita di ombre nere fuoriesce da lei in continuazione, si sparge sulle pareti e scappa in ogni direzione, disperdendosi ovunque senza lasciare traccia..."
 				},
 				{
 					"tipo": "dialogo",
@@ -1079,7 +1099,7 @@
 				},
 				{
 					"tipo": "narrazione",
-					"testo": "Quello che resta a terra non somiglia più a niente. L'atmosfera trasuda una tristezza profonda e umida... sembra quasi di aver fatto la cosa sbagliata..."
+					"testo": "A terra rimane solo un mucchietto di cuciture, polvere e bottoni. L'atmosfera trasuda una tristezza profonda e umida..."
 				}
 			],
 			"flag": "casa_ricordo_sconfitto",
@@ -1097,21 +1117,20 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "La bambola comincia a sfilacciarsi lo stesso, ma questa volta senza opporre resistenza: le ombre nere si ritirano piano dalle pareti, senza violenza."
+					"testo": "La bambola sembra essersi fermata. Qualcosa di luminoso sembra staccarsi con grazia dalla stoffa, tendendo verso il cielo quello che sembra essere un arto."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "tenero_ricordo",
-					"testo": "...Lylloh... sei tornata a giocare con me?"
+					"testo": "...Lylloh... sei tu? Sei... tornata per giocare con me?"
 				},
 				{
 					"tipo": "narrazione",
-					"testo": "Quello che resta, nell'aria, non è più dolore: solo quiete."
+					"testo": "La figura luminosa sparisce come vapore al vento... Quello che resta, nell'aria, è una fresca brezza che rasserena lo spirito..."
 				},
 				{
-					"tipo": "dialogo",
-					"chi": "tenero_ricordo",
-					"testo": "Grazie... per non avermi dimenticata."
+					"tipo": "narrazione",
+					"testo": "Riesci a sentire leggermente nell'aria una gracile voce: «Grazie... per non avermi dimenticata...»"
 				}
 			],
 			"flag": "casa_ricordo_sconfitto",
@@ -1131,16 +1150,46 @@
 				{
 					"tipo": "dialogo",
 					"chi": "insonne",
-					"testo": "Bene, sembrerebbe che il nostro lavoro qui sia terminato, sembra che potrò tornare finalmente a casa."
+					"testo": "Bene, sembrerebbe che il nostro lavoro qui sia terminato. Sembra che potrò tornare finalmente a casa."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Ti ringrazio... per l'aiuto."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "insonne",
-					"testo": "Ecco che arriva... Bene. Se il destino vorrà, ci rivedremo ancora."
+					"testo": "Hmpf... beh, non potevo certo lasciare che ti facessi massacrare. Dovresti cercare di diventare più forte: con il tuo livello attuale non avresti potuto affrontare questo posto da solo. Vedi di non cacciarti nei guai.",
+					"espr": "infastidita"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Lo terrò a mente. Grazie."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Sembra che sia arrivato il mio passaggio..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "insonne",
+					"testo": "Se il destino vorrà, ci rivedremo ancora. Spero tu non sia più una palla al piede, semmai succederà: non ci sarò sempre io a salvarti."
 				},
 				{
 					"tipo": "narrazione",
-					"testo": "Uno squarcio deforma Yhvina che scompare senza lasciare alcuna traccia... quando uno squarcio si chiude, tutto quello che ha portato viene riportato indietro."
+					"testo": "Uno squarcio si crea alle spalle di Yhvina, che scompare senza lasciare alcuna traccia... Quando una fonte scompare lo squarcio si chiude e comincia a guarire: tutto quello che ha portato viene riportato indietro."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Un altro squarcio si apre dinnanzi a te: quando sei pronto, potrai lasciare questo posto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Ed ecco il mio..."
 				},
 				{
 					"tipo": "narrazione",
@@ -1163,6 +1212,12 @@
 				{
 					"testo": "Riprendi dall'ultimo salvataggio",
 					"game_over": true
+				}
+			],
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Vieni consumato da un tetro fumo che non fa rimanere altro se non il tuo ricordo."
 				}
 			]
 		},
@@ -2657,6 +2712,21 @@
 				{
 					"testo": "Resta ancora un po'",
 					"vai": "spirito_hub"
+				}
+			]
+		},
+		"yhvina_si_dopo": {
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Da qui si riescono a vedere i giardini che si estendono mischiandosi alla foresta..."
+				}
+			],
+			"scena": "Da qui si riescono a vedere i giardini che si estendono mischiandosi alla foresta...",
+			"scelte": [
+				{
+					"testo": "Esci dalla camera",
+					"vai": "attico"
 				}
 			]
 		}

@@ -131,8 +131,16 @@ di Magic. Musiche latine. Jerah ne è il maestro e la fonte.
   poi se ne va (ci reputa troppo scarsi; torna nel Vuoto 3). Serve **parlare
   con un compagno** per trovare la botola: da soli è invisibile. Sotto: studi,
   tunnel, altare con lettere di rimorso, e il miniboss **Un tenero ricordo**
-  (frenesia col conto alla rovescia, si ferma studiandola e distruggendo le
-  lettere; drop 80 Tazo + *Prova di un forte amore*, Lyloh; non rispawna).
+  (drop 80 Tazo + *Prova di un forte amore*, Lylloh; non rispawna).
+
+  **Le lettere non si bruciano prima dello scontro: si scoprono durante.**
+  Studiando la bambola abbastanza volte si nota che le lettere sull'altare
+  vibrano, e che è la bambola a soffrirne l'influenza — allora diventano un
+  bersaglio, e distruggerle è la leva che apre la strada al finale buono. È
+  anche quello che alimenta la **frenesia** (il conto alla rovescia a metà
+  vita): distrutte in tempo, il conto non parte proprio; scoperte tardi, sono
+  l'unico modo di fermarlo. La seconda leva resta la **spilla a margherita**,
+  che va mostrata dal menu Oggetti durante lo scontro.
 
   **Fuori dalla casa ci sono i giardini**, e sono metà della zona. Tre sentieri.
   A **est**, in fondo, un albero grande con un volto dentro la corteccia: la

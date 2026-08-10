@@ -94,6 +94,14 @@ var conteggio_frenesia := 0
 var turni_afflitto := 0
 var bersaglio_extra_sbloccato := false
 
+# Leva di tipo "bersaglio": studiando la fonte abbastanza volte, qualcosa che
+# sta nella stanza comincia a reagire e diventa attaccabile. Distruggerlo e' la
+# leva. E' il caso delle lettere sull'altare: non si bruciano piu' prima dello
+# scontro, si scoprono durante - studiando si nota che vibrano, e che la
+# bambola ne soffre l'influenza.
+var leve_bersaglio_comparse: Array[String] = []
+var leve_bersaglio_riscosse: Array[String] = []
+
 # Stati generici (veleno, congelamento, berserk, maledizione...): vedi
 # data/stati.json. Provocazione: un compagno forza i nemici a colpire lui.
 var bersaglio_provocazione: Dictionary = {}
@@ -776,6 +784,7 @@ func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
 		GameState.segna_studiato(bersaglio.id)
 		return
 	bersaglio.volte_studiato += 1
+	verifica_leve_bersaglio(bersaglio)
 	if bersaglio.get("hp_nascosti", false) and "studio_compulsivo" in GameState.classi.get(chi.id, {}).get("abilita", []):
 		# solo chi ha questa passiva riesce a strappare gli hp esatti a un
 		# nemico che di norma non li mostra (i boss, o i nemici scriptati)
@@ -860,22 +869,52 @@ func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
 	aggiorna_scheda(bersaglio)
 	_su_ko(bersaglio)
 
-func attiva_bersaglio_extra() -> void:
-	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
-	var id_bersaglio: String = dati_frenesia.get("bersaglio_extra", "")
-	if id_bersaglio == "":
+func verifica_leve_bersaglio(bersaglio: Dictionary) -> void:
+	# studiare la fonte abbastanza volte fa comparire quello che le sta accanto
+	if bersaglio.id != fonte.get("id", ""):
 		return
+	for leva in fonte.get("leve", []):
+		if String(leva.get("tipo", "")) != "bersaglio":
+			continue
+		var id_leva := String(leva.get("id", ""))
+		if id_leva in leve_bersaglio_comparse:
+			continue
+		if int(bersaglio.volte_studiato) < int(leva.get("dopo_studi", 3)):
+			continue
+		leve_bersaglio_comparse.append(id_leva)
+		scrivi_forte("[i]%s[/i]" % String(leva.get("testo_comparsa", "")))
+		crea_oggetto_scena(id_leva, int(leva.get("hp", 30)))
+
+func leva_bersaglio_di(id_combattente: String) -> Dictionary:
+	for leva in fonte.get("leve", []):
+		if String(leva.get("tipo", "")) == "bersaglio" and String(leva.get("id", "")) == id_combattente:
+			return leva
+	return {}
+
+func crea_oggetto_scena(id_bersaglio: String, punti_vita: int) -> void:
+	# un oggetto di scena non agisce mai e non vale niente: sta li' per essere
+	# colpito. Vive nella fila dei nemici solo perche' e' li' che si prende la mira
 	aggiungi_combattente(id_bersaglio, false)
 	var oggetto: Dictionary = combattenti.back()
 	oggetto.oggetto_scena = true
-	oggetto.hp = int(dati_frenesia.get("bersaglio_extra_hp", 2))
-	oggetto.hp_max = oggetto.hp
+	oggetto.hp = punti_vita
+	oggetto.hp_max = punti_vita
 	oggetto.attacco = 0
 	oggetto.difesa = 0
 	oggetto.velocita = 0
 	oggetto.xp = 0
 	oggetto.tazo = 0
 	aggiorna_scheda(oggetto)
+
+func attiva_bersaglio_extra() -> void:
+	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
+	var id_bersaglio: String = dati_frenesia.get("bersaglio_extra", "")
+	if id_bersaglio == "":
+		return
+	if id_bersaglio in leve_bersaglio_comparse:
+		return   # e' gia' in campo: l'ha fatto comparire lo studio, prima
+	leve_bersaglio_comparse.append(id_bersaglio)
+	crea_oggetto_scena(id_bersaglio, int(dati_frenesia.get("bersaglio_extra_hp", 2)))
 
 # --- abilita' di combattimento ---
 #
@@ -1253,6 +1292,14 @@ func verifica_innesco_frenesia(bersaglio: Dictionary) -> void:
 			or frenesia_gia_innescata or bersaglio.hp <= 0:
 		return
 	var dati_frenesia: Dictionary = portatore_frenesia.get("frenesia", {})
+	# Se quello che alimentava la frenesia e' gia' stato distrutto, la frenesia
+	# non parte proprio. Altrimenti chi scopre le lettere studiando e le
+	# distrugge subito si ritroverebbe punito: al conto alla rovescia non
+	# resterebbe piu' niente da colpire per fermarlo.
+	var id_ancora := String(dati_frenesia.get("bersaglio_extra", ""))
+	if id_ancora != "" and id_ancora in leve_bersaglio_riscosse:
+		frenesia_gia_innescata = true
+		return
 	var soglia := float(dati_frenesia.get("soglia_hp", 0.5))
 	if float(bersaglio.hp) / float(bersaglio.hp_max) <= soglia:
 		frenesia_attiva = true
@@ -1927,6 +1974,11 @@ func _su_ko(caduto: Dictionary) -> void:
 		return
 	if caduto.get("oggetto_scena", false):
 		scrivi_forte("[i]%s vengono distrutte.[/i]" % caduto.nome)
+		var leva := leva_bersaglio_di(String(caduto.id))
+		if not leva.is_empty() and String(caduto.id) not in leve_bersaglio_riscosse:
+			leve_bersaglio_riscosse.append(String(caduto.id))
+			scrivi_forte("[i]%s[/i]" % String(leva.get("testo", "")))
+			aggiorna_speranza(int(leva.get("speranza", 0)))
 		if not portatore_frenesia.is_empty() \
 				and caduto.id == portatore_frenesia.get("frenesia", {}).get("bersaglio_extra", ""):
 			frenesia_attiva = false

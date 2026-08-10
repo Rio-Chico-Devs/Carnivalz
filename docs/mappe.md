@@ -307,7 +307,7 @@ inizio
 
 27 stanze sulla mappa, 26 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `albero_addio`, `albero_addio_buono`, `albero_voce_spilla`, `botola_chiusa`, `cacciata`, `cartella_clinica`, `congedo_yhvina`, `dopo_volto`, `fiori_di_luna`, `foto_1`, `foto_2`, `foto_3`, `id_card_trovata`, `lettere_bruciate`, `lettere_lettura`, `lettore_vuoto`, `mensola`, `porta_bloccata`, `porta_enorme`, `presentazione_ricordo`, `quadro_donna`, `quadro_famiglia`, `quadro_uomo`, `ricordo_concluso`, `ricordo_concluso_buono`, `spirito_chiacchiere`, `spirito_diari`, `spirito_esperimento`, `spirito_foto`, `spirito_hub`, `spirito_indizio_yhvina`, `spirito_laboratori`, `spirito_laboratori_ancora`, `spirito_matrice`, `spirito_ricordi`, `spirito_rivelato`, `spirito_storia`, `spirito_storia_buona`, `spirito_storia_lasciata`, `spirito_vivaio_ancora`, `vivaio_1_perlustra`, `vivaio_2_perlustra`, `vivaio_apertura`, `vivaio_fondo`, `vivaio_fondo_dopo`, `vivaio_ingresso`, `vivaio_rovi`, `vivaio_varco`, `voce_avvicinati`, `voce_ignorata`, `volto_appare`, `yhvina_si`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `albero_addio`, `albero_addio_buono`, `albero_voce_spilla`, `botola_chiusa`, `cacciata`, `cartella_clinica`, `congedo_yhvina`, `dopo_volto`, `fiori_di_luna`, `foto_1`, `foto_2`, `foto_3`, `id_card_trovata`, `lettere_lettura`, `lettore_vuoto`, `mensola`, `porta_bloccata`, `porta_enorme`, `presentazione_ricordo`, `quadro_donna`, `quadro_famiglia`, `quadro_uomo`, `ricordo_concluso`, `ricordo_concluso_buono`, `spirito_chiacchiere`, `spirito_diari`, `spirito_esperimento`, `spirito_foto`, `spirito_hub`, `spirito_indizio_yhvina`, `spirito_laboratori`, `spirito_laboratori_ancora`, `spirito_matrice`, `spirito_ricordi`, `spirito_rivelato`, `spirito_storia`, `spirito_storia_buona`, `spirito_storia_lasciata`, `spirito_vivaio_ancora`, `vivaio_1_perlustra`, `vivaio_2_perlustra`, `vivaio_apertura`, `vivaio_fondo`, `vivaio_fondo_dopo`, `vivaio_ingresso`, `vivaio_rovi`, `vivaio_varco`, `voce_avvicinati`, `voce_ignorata`, `volto_appare`, `yhvina_si`, `yhvina_si_dopo`.
 
 ## Il percorso
 
@@ -342,11 +342,9 @@ soglia
               · Richiudi il fascicolo → stanza_studi [gia' visto]
             · Prosegui nel tunnel → tunnel
               · Avanza verso la luce in fondo → altare
-                · Leggi le lettere → lettere_lettura   (solo se non casa_lettere_bruciate)
+                · Leggi le lettere → lettere_lettura
                   · Richiudi le lettere → altare [gia' visto]
-                · Brucia le lettere → lettere_bruciate
-                  · Torna all'altare → altare [gia' visto]
-                · Stappa l'ultima bottiglia di vino di ottima qualità   (+vino_di_ottima_qualita)
+                · Raccogli la bottiglia di vino   (+vino_di_ottima_qualita)
                 · Osserva da vicino la foto sull'altare → presentazione_ricordo   (solo se non casa_ricordo_sconfitto; scontro! tenero_ricordo)
                   vinci → ricordo_concluso   (flag casa_ricordo_sconfitto)
                     · Raccogli ciò che resta → congedo_yhvina   (+prova_di_un_forte_amore; +80 Tazo)
@@ -358,7 +356,7 @@ soglia
                 · L'altare è silenzioso, ora. → tunnel [gia' visto]
                 · Guarda oltre l'altare, nel buio → porta_enorme   (serve casa_ricordo_sconfitto)
                   · Prova ad aprirla → tunnel [gia' visto]
-                  · Non si muove di un millimetro. Non è ancora il momento. → altare [gia' visto]
+                  · Non si muove di un millimetro. → altare [gia' visto]
                 · Torna al tunnel → tunnel [gia' visto]
               · Torna alla stanza degli studi → stanza_studi [gia' visto]
             · Risali dalla botola → stanza_giochi [gia' visto]
@@ -373,6 +371,9 @@ soglia
           · Un altro sottoscala porta più su, verso l'attico → attico
             · Apri la porta della camera da letto → camera_da_letto
               · Chiedile di combattere al tuo fianco → yhvina_si   (solo se non casa_ricordo_sconfitto)
+                ⟳ con casa_camera_lasciata diventa yhvina_si_dopo
+                yhvina_si_dopo
+                  · Esci dalla camera → attico [gia' visto]
                 · Esci dalla camera → attico [gia' visto]
               · "Ce la faccio da solo." → attico [gia' visto]
             · Torna alla soffitta → soffitta [gia' visto]

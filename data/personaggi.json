@@ -13,17 +13,32 @@
 			"tazo": 5,
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
 			"descrizione": "Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.",
-			"carta": { "id": "carta_maschera_vuota", "nome": "Fomentado", "rarita": "non_comune", "chance": 0.05, "testo": "Un folle talentuoso che non ha mai rinunciato ai suoi sogni, un esempio di vita... forse." },
+			"carta": {
+				"id": "carta_maschera_vuota",
+				"nome": "Fomentado",
+				"rarita": "non_comune",
+				"chance": 0.05,
+				"testo": "Un folle talentuoso che non ha mai rinunciato ai suoi sogni, un esempio di vita... forse."
+			},
 			"combustione": {
 				"danno_per_turno": 5,
 				"testo_turno": "Il fuoco che porta dentro non si spegne mai: un altro pezzo di lui si consuma."
 			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.3 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.3
+				}
 			],
 			"studio": [
-				{ "domanda": "Rispondi.", "risposta": "¡Ándale! ...ándale... Non c'è tempo per fermarsi, lo spettacolo continua!" },
-				{ "domanda": "Fammi capire cosa succede...", "risposta": "¡Soy para todos! ...o para nadie. Pero nunca pararé!" }
+				{
+					"domanda": "Rispondi.",
+					"risposta": "¡Ándale! ...ándale... Non c'è tempo per fermarsi, lo spettacolo continua!"
+				},
+				{
+					"domanda": "Fammi capire cosa succede...",
+					"risposta": "¡Soy para todos! ...o para nadie. Pero nunca pararé!"
+				}
 			]
 		},
 		{
@@ -42,7 +57,12 @@
 			"tazo": 15,
 			"ritratto": "res://art/personaggi/giocoliere.png",
 			"descrizione": "Una rara bellezza, un campione nella recita, ma il talento a volte può farti uscire fuori di testa.",
-			"carta": { "id": "carta_giocoliere", "nome": "El Muy Bonito", "rarita": "rara", "testo": "Ho sempre voluto un suo autografo! - Fan." },
+			"carta": {
+				"id": "carta_giocoliere",
+				"nome": "El Muy Bonito",
+				"rarita": "rara",
+				"testo": "Ho sempre voluto un suo autografo! - Fan."
+			},
 			"combustione": {
 				"attiva_da_studio": 2,
 				"danno_per_turno": 5,
@@ -51,8 +71,14 @@
 				"testo_turno": "Le fiamme lo consumano un altro po'. Lui ne trae ancora più forza."
 			},
 			"studio": [
-				{ "domanda": "Rivelami i tuoi desideri", "risposta": "¡No me digas lo que tengo que hacer, hombre! Soccombi dinnanzi a me, e brucia come io brucio nel cielo!" },
-				{ "domanda": "Ti ascolto.", "risposta": "Guardatemi! GUARDATEMI!!!" }
+				{
+					"domanda": "Rivelami i tuoi desideri",
+					"risposta": "¡No me digas lo que tengo que hacer, hombre! Soccombi dinnanzi a me, e brucia come io brucio nel cielo!"
+				},
+				{
+					"domanda": "Ti ascolto.",
+					"risposta": "Guardatemi! GUARDATEMI!!!"
+				}
 			]
 		},
 		{
@@ -67,14 +93,32 @@
 			"tazo": 8,
 			"ritratto": "res://art/personaggi/comparsa_di_ruggine.png",
 			"descrizione": "La ruggine ha preso il posto della pelle, sta ancora aspettando che il suo turno finisca...",
-			"carta": { "id": "carta_comparsa_di_ruggine", "nome": "Oppresso", "rarita": "non_comune", "chance": 0.04, "testo": "Timbrava il cartellino anche il giorno in cui il mondo è finito." },
+			"carta": {
+				"id": "carta_comparsa_di_ruggine",
+				"nome": "Oppresso",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Timbrava il cartellino anche il giorno in cui il mondo è finito."
+			},
 			"bottino_comune": [
-				{ "oggetto": "viti_e_bulloni", "chance": 0.3 },
-				{ "oggetto": "fiala_hp", "chance": 0.25 }
+				{
+					"oggetto": "viti_e_bulloni",
+					"chance": 0.3
+				},
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.25
+				}
 			],
 			"studio": [
-				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "Taglia, separa, ricomincia... taglia, separa, ricomincia..." },
-				{ "domanda": "(ascolti ancora)", "risposta": "Acqua, ho bisogno di acqua..." }
+				{
+					"domanda": "(ascolti il suo ultimo ricordo)",
+					"risposta": "Taglia, separa, ricomincia... taglia, separa, ricomincia..."
+				},
+				{
+					"domanda": "(ascolti ancora)",
+					"risposta": "Acqua, ho bisogno di acqua..."
+				}
 			]
 		},
 		{
@@ -89,13 +133,26 @@
 			"tazo": 7,
 			"ritratto": "res://art/personaggi/voce_registrata.png",
 			"descrizione": "Gestire dieci... cento... no... mille operai insoddisfatti, non dà gratificazione alcuna.",
-			"carta": { "id": "carta_voce_registrata", "nome": "Capocantiere", "rarita": "non_comune", "chance": 0.04, "testo": "Urlava ordini anche quando non restava più nessuno ad ascoltarli." },
+			"carta": {
+				"id": "carta_voce_registrata",
+				"nome": "Capocantiere",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Urlava ordini anche quando non restava più nessuno ad ascoltarli."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.3 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.3
+				}
 			],
 			"studio": [
-				{ "risposta": "Hey, tu! Torna subito al lavoro!" },
-				{ "risposta": "Lavorate! Lavorate!" }
+				{
+					"risposta": "Hey, tu! Torna subito al lavoro!"
+				},
+				{
+					"risposta": "Lavorate! Lavorate!"
+				}
 			]
 		},
 		{
@@ -110,14 +167,32 @@
 			"tazo": 10,
 			"ritratto": "res://art/personaggi/operaio_posseduto.png",
 			"descrizione": "Ferraglia tenuta insieme dallo spirito di un lavoratore che non è mai tornato a casa.",
-			"carta": { "id": "carta_operaio_posseduto", "nome": "Emblema dell'oppressione", "rarita": "rara", "chance": 0.05, "testo": "Kizako Industries — dipendente n° illeggibile. Anzianità: eterna." },
+			"carta": {
+				"id": "carta_operaio_posseduto",
+				"nome": "Emblema dell'oppressione",
+				"rarita": "rara",
+				"chance": 0.05,
+				"testo": "Kizako Industries — dipendente n° illeggibile. Anzianità: eterna."
+			},
 			"bottino_comune": [
-				{ "oggetto": "viti_e_bulloni", "chance": 0.35 },
-				{ "oggetto": "fiala_hp", "chance": 0.25 }
+				{
+					"oggetto": "viti_e_bulloni",
+					"chance": 0.35
+				},
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.25
+				}
 			],
 			"studio": [
-				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "signor... Kiz..a.. urgh... basta..." },
-				{ "domanda": "(ascolti ancora)", "risposta": "I miei bambini... devo tornare a casa..." }
+				{
+					"domanda": "(ascolti il suo ultimo ricordo)",
+					"risposta": "signor... Kiz..a.. urgh... basta..."
+				},
+				{
+					"domanda": "(ascolti ancora)",
+					"risposta": "I miei bambini... devo tornare a casa..."
+				}
 			]
 		},
 		{
@@ -135,14 +210,32 @@
 			"ritratto": "res://art/personaggi/robo_pattuglia.png",
 			"descrizione": "Una macchina di sorveglianza che non ha mai ricevuto l'ordine di smettere. Esegue un regolamento che nessuno applica più.",
 			"apertura": "Scende dalla botola senza fretta, come chi ha tutto il tempo del mondo.",
-			"carta": { "id": "carta_robo_pattuglia", "nome": "Robo Pattuglia", "rarita": "non_comune", "chance": 0.04, "testo": "Turno di guardia iniziato il 14/03. Turno di guardia mai terminato." },
+			"carta": {
+				"id": "carta_robo_pattuglia",
+				"nome": "Robo Pattuglia",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Turno di guardia iniziato il 14/03. Turno di guardia mai terminato."
+			},
 			"bottino_comune": [
-				{ "oggetto": "viti_e_bulloni", "chance": 0.35 },
-				{ "oggetto": "componente_elettronico", "chance": 0.1 }
+				{
+					"oggetto": "viti_e_bulloni",
+					"chance": 0.35
+				},
+				{
+					"oggetto": "componente_elettronico",
+					"chance": 0.1
+				}
 			],
 			"studio": [
-				{ "domanda": "Cos'è questo posto.", "risposta": "NON HO I PERMESSI NECESSARI PER RISPONDERE ALLE SUE DOMANDE." },
-				{ "domanda": "(provi ancora)", "risposta": "Non sembra essere possibile comunicare con questa macchina..." }
+				{
+					"domanda": "Cos'è questo posto.",
+					"risposta": "NON HO I PERMESSI NECESSARI PER RISPONDERE ALLE SUE DOMANDE."
+				},
+				{
+					"domanda": "(provi ancora)",
+					"risposta": "Non sembra essere possibile comunicare con questa macchina..."
+				}
 			]
 		},
 		{
@@ -161,15 +254,36 @@
 			"tazo": 14,
 			"ritratto": "res://art/personaggi/operaio_sfruttato.png",
 			"descrizione": "Non difende i file: difende le ore che ci ha lasciato dentro. Toccarli è toccare l'unica cosa che gli è rimasta.",
-			"apertura": { "tipo": "dialogo", "testo": "Non rovinare il mio lavoro!" },
-			"carta": { "id": "carta_operaio_sfruttato", "nome": "Operaio Sfruttato", "rarita": "rara", "chance": 0.05, "testo": "Straordinari non retribuiti: illeggibile. Ferie maturate: nessuna." },
+			"apertura": {
+				"tipo": "dialogo",
+				"testo": "Non rovinare il mio lavoro!"
+			},
+			"carta": {
+				"id": "carta_operaio_sfruttato",
+				"nome": "Operaio Sfruttato",
+				"rarita": "rara",
+				"chance": 0.05,
+				"testo": "Straordinari non retribuiti: illeggibile. Ferie maturate: nessuna."
+			},
 			"bottino_comune": [
-				{ "oggetto": "viti_e_bulloni", "chance": 0.3 },
-				{ "oggetto": "fiala_hp", "chance": 0.25 }
+				{
+					"oggetto": "viti_e_bulloni",
+					"chance": 0.3
+				},
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.25
+				}
 			],
 			"studio": [
-				{ "domanda": "Cosa è successo in questo posto?", "risposta": "Fai silenzio! Non toccare i miei file!" },
-				{ "domanda": "(provi a calmarlo)", "risposta": "Impossibile ragionarci: è furioso." }
+				{
+					"domanda": "Cosa è successo in questo posto?",
+					"risposta": "Fai silenzio! Non toccare i miei file!"
+				},
+				{
+					"domanda": "(provi a calmarlo)",
+					"risposta": "Impossibile ragionarci: è furioso."
+				}
 			]
 		},
 		{
@@ -185,14 +299,32 @@
 			"tazo": 14,
 			"ritratto": "res://art/personaggi/ferraglia_urlante.png",
 			"descrizione": "Una montagna di rottami saldati dal dolore. Sembra di sentire le urla di una protesta.",
-			"carta": { "id": "carta_ferraglia_urlante", "nome": "Ferraglia Urlante", "rarita": "epica", "chance": 0.06, "testo": "Non un operaio: un intero reparto, compresso in una cosa sola." },
+			"carta": {
+				"id": "carta_ferraglia_urlante",
+				"nome": "Ferraglia Urlante",
+				"rarita": "epica",
+				"chance": 0.06,
+				"testo": "Non un operaio: un intero reparto, compresso in una cosa sola."
+			},
 			"bottino_comune": [
-				{ "oggetto": "viti_e_bulloni", "chance": 0.4 },
-				{ "oggetto": "componente_elettronico", "chance": 0.1 }
+				{
+					"oggetto": "viti_e_bulloni",
+					"chance": 0.4
+				},
+				{
+					"oggetto": "componente_elettronico",
+					"chance": 0.1
+				}
 			],
 			"studio": [
-				{ "domanda": "(ascolti il suo ultimo ricordo)", "risposta": "Non ce la faccio più! Voglio guardare la tivù!" },
-				{ "domanda": "(ascolti ancora)", "risposta": "Qualcuno spenga le macchine! Non le sopporto più!" }
+				{
+					"domanda": "(ascolti il suo ultimo ricordo)",
+					"risposta": "Non ce la faccio più! Voglio guardare la tivù!"
+				},
+				{
+					"domanda": "(ascolti ancora)",
+					"risposta": "Qualcuno spenga le macchine! Non le sopporto più!"
+				}
 			]
 		},
 		{
@@ -209,7 +341,10 @@
 			"ritratto": "res://art/personaggi/divoratore.png",
 			"descrizione": "Una macchina che sembra uscita dai sogni di un pazzo, sembra divorare ogni cosa nel suo raggio d'azione, che sia viva o morta...",
 			"bottino_comune": [
-				{ "oggetto": "rottame_di_metallo", "chance": 0.4 }
+				{
+					"oggetto": "rottame_di_metallo",
+					"chance": 0.4
+				}
 			],
 			"drop_raro": {
 				"chance": 0.2,
@@ -218,10 +353,22 @@
 				"peso_tazo": 2,
 				"peso_oggetto": 1
 			},
-			"carta": { "id": "carta_divoratore", "nome": "Il Divoratore", "rarita": "rara", "chance": 0.06, "testo": "Questa macchina ci fornirà nuova energia dai rifiuti! Sono un genio! - Dr. Kizako, Genio Indiscusso" },
+			"carta": {
+				"id": "carta_divoratore",
+				"nome": "Il Divoratore",
+				"rarita": "rara",
+				"chance": 0.06,
+				"testo": "Questa macchina ci fornirà nuova energia dai rifiuti! Sono un genio! - Dr. Kizako, Genio Indiscusso"
+			},
 			"studio": [
-				{ "domanda": "Fa veramente paura...", "risposta": "RRRR RRRR" },
-				{ "domanda": "Non c'è nulla da osservare", "risposta": "*Rattle*" }
+				{
+					"domanda": "Fa veramente paura...",
+					"risposta": "RRRR RRRR"
+				},
+				{
+					"domanda": "Non c'è nulla da osservare",
+					"risposta": "*Rattle*"
+				}
 			]
 		},
 		{
@@ -236,12 +383,23 @@
 			"tazo": 6,
 			"ritratto": "res://art/personaggi/ghoul.png",
 			"descrizione": "Carne marcia tenuta insieme dalla fame e da poco altro. Uno dei tanti che la Rocca di Ossidiana non ha mai lasciato andare.",
-			"carta": { "id": "carta_ghoul", "nome": "Ghoul", "rarita": "comune", "chance": 0.03, "testo": "Non ricorda il proprio nome. Ricorda solo la fame." },
+			"carta": {
+				"id": "carta_ghoul",
+				"nome": "Ghoul",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Non ricorda il proprio nome. Ricorda solo la fame."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "risposta": "Non sembra comprendere ragioni o avere una volontà." }
+				{
+					"risposta": "Non sembra comprendere ragioni o avere una volontà."
+				}
 			]
 		},
 		{
@@ -256,9 +414,17 @@
 			"tazo": 5,
 			"ritratto": "res://art/personaggi/teschio_errante.png",
 			"descrizione": "Un teschio che galleggia basso sull'ossidiana, a scatti, come se cercasse ancora il corpo perduto.",
-			"carta": { "id": "carta_teschio_errante", "nome": "Teschio Errante", "rarita": "comune", "chance": 0.03, "testo": "Vaga da anni. Non ha mai smesso di cercare." },
+			"carta": {
+				"id": "carta_teschio_errante",
+				"nome": "Teschio Errante",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Vaga da anni. Non ha mai smesso di cercare."
+			},
 			"studio": [
-				{ "risposta": "una cosa molto Metal." }
+				{
+					"risposta": "una cosa molto Metal."
+				}
 			]
 		},
 		{
@@ -275,12 +441,23 @@
 			"tazo": 14,
 			"ritratto": "res://art/personaggi/abominio_marcio.png",
 			"descrizione": "Più corpi fusi insieme dal marciume, tenuti in piedi da qualcosa che non è più vita. Una delle tante forme che prende la maledizione della Rocca.",
-			"carta": { "id": "carta_abominio_marcio", "nome": "Abominio Marcio", "rarita": "non_comune", "chance": 0.05, "testo": "Non è un solo mostro: sono tutti quelli che nessuno è venuto a seppellire." },
+			"carta": {
+				"id": "carta_abominio_marcio",
+				"nome": "Abominio Marcio",
+				"rarita": "non_comune",
+				"chance": 0.05,
+				"testo": "Non è un solo mostro: sono tutti quelli che nessuno è venuto a seppellire."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.25 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.25
+				}
 			],
 			"studio": [
-				{ "osservazione": "... Cosa è successo in questo posto?" }
+				{
+					"osservazione": "... Cosa è successo in questo posto?"
+				}
 			]
 		},
 		{
@@ -295,12 +472,23 @@
 			"tazo": 6,
 			"ritratto": "res://art/personaggi/madre_in_lacrime.png",
 			"descrizione": "Piange lacrime di ossidiana per figli che non tornano, e non lascia avvicinare nessuno a quel dolore.",
-			"carta": { "id": "carta_madre_in_lacrime", "nome": "Madre in Lacrime", "rarita": "comune", "chance": 0.03, "testo": "Nessuno ricorda più i nomi dei suoi figli. Lei sì." },
+			"carta": {
+				"id": "carta_madre_in_lacrime",
+				"nome": "Madre in Lacrime",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Nessuno ricorda più i nomi dei suoi figli. Lei sì."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "risposta": "Lasciate stare i miei figli!" }
+				{
+					"risposta": "Lasciate stare i miei figli!"
+				}
 			]
 		},
 		{
@@ -315,12 +503,23 @@
 			"tazo": 6,
 			"ritratto": "res://art/personaggi/stigma.png",
 			"descrizione": "Porta incisi sulla pelle i peccati di qualcun altro, marchiato da una colpa che non è la sua.",
-			"carta": { "id": "carta_stigma", "nome": "Stigma", "rarita": "comune", "chance": 0.03, "testo": "Il marchio non si cancella. Nemmeno con la morte." },
+			"carta": {
+				"id": "carta_stigma",
+				"nome": "Stigma",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Il marchio non si cancella. Nemmeno con la morte."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "risposta": "Quel che non sai, quel che credi!" }
+				{
+					"risposta": "Quel che non sai, quel che credi!"
+				}
 			]
 		},
 		{
@@ -335,12 +534,23 @@
 			"tazo": 6,
 			"ritratto": "res://art/personaggi/diabolo.png",
 			"descrizione": "Un piccolo demone da baraccone, cresciuto storto tra le fiamme della Rocca.",
-			"carta": { "id": "carta_diabolo", "nome": "Diabolo", "rarita": "comune", "chance": 0.03, "testo": "Rideva anche mentre bruciava. Forse rideva soprattutto per quello." },
+			"carta": {
+				"id": "carta_diabolo",
+				"nome": "Diabolo",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Rideva anche mentre bruciava. Forse rideva soprattutto per quello."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "risposta": "E' l'ora del male!" }
+				{
+					"risposta": "E' l'ora del male!"
+				}
 			]
 		},
 		{
@@ -355,12 +565,23 @@
 			"tazo": 7,
 			"ritratto": "res://art/personaggi/sadico.png",
 			"descrizione": "Trova piacere nel dolore altrui, l'unico linguaggio che la Rocca gli ha insegnato.",
-			"carta": { "id": "carta_sadico", "nome": "Sadico", "rarita": "comune", "chance": 0.03, "testo": "Alla Rocca ha imparato una sola cosa: far male fa stare meglio." },
+			"carta": {
+				"id": "carta_sadico",
+				"nome": "Sadico",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Alla Rocca ha imparato una sola cosa: far male fa stare meglio."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.25 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.25
+				}
 			],
 			"studio": [
-				{ "risposta": "Viooolenza!" }
+				{
+					"risposta": "Viooolenza!"
+				}
 			]
 		},
 		{
@@ -378,7 +599,12 @@
 			"peso_attacco_normale": 3,
 			"ritratto": "res://art/personaggi/jongo_dongo.png",
 			"descrizione": "Un tempo signore di queste terre. Sacrificò raccolti e famiglie intere per la propria fortuna, e non si è mai pentito: la maledizione delle famiglie in lutto lo ha fatto marcire vivo, ma non lo ha fermato.",
-			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
+			"carta": {
+				"id": "carta_jongo_dongo",
+				"nome": "Jongo Dongo",
+				"rarita": "epica",
+				"testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta."
+			},
 			"fonte": true,
 			"convincibile": false,
 			"cura_su_morte_alleato": {
@@ -444,10 +670,22 @@
 				}
 			],
 			"studio": [
-				{ "domanda": "Che cosa hai fatto...", "risposta": "Chi siete... voi... siete venuti a rubare nella nostra terra?!" },
-				{ "domanda": "Cosa è successo alla gente di queste terre?", "risposta": "Non devo dare spiegazioni e chi vuole farci del male!" },
-				{ "domanda": "Non hai idea delle forze con cui stai giocando...", "risposta": "Sono stato benedetto dalla verità del lungo viaggio!" },
-				{ "domanda": "Del lungo viaggio?", "risposta": "Un piccolo sacrificio per un grande risultato. Voi... non potete capire..." }
+				{
+					"domanda": "Che cosa hai fatto...",
+					"risposta": "Chi siete... voi... siete venuti a rubare nella nostra terra?!"
+				},
+				{
+					"domanda": "Cosa è successo alla gente di queste terre?",
+					"risposta": "Non devo dare spiegazioni e chi vuole farci del male!"
+				},
+				{
+					"domanda": "Non hai idea delle forze con cui stai giocando...",
+					"risposta": "Sono stato benedetto dalla verità del lungo viaggio!"
+				},
+				{
+					"domanda": "Del lungo viaggio?",
+					"risposta": "Un piccolo sacrificio per un grande risultato. Voi... non potete capire..."
+				}
 			]
 		},
 		{
@@ -465,11 +703,18 @@
 			"peso_attacco_normale": 1,
 			"ritratto": "res://art/personaggi/jongo_dongo.png",
 			"descrizione": "Ormai non rimane altro di lui che un corpo marcito che si muove solo grazie a una volontà misteriosa.",
-			"carta": { "id": "carta_jongo_dongo", "nome": "Jongo Dongo", "rarita": "epica", "testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta." },
+			"carta": {
+				"id": "carta_jongo_dongo",
+				"nome": "Jongo Dongo",
+				"rarita": "epica",
+				"testo": "\"Un piccolo sacrificio per un grande risultato.\" Lo pensava anche l'ultima volta."
+			},
 			"fonte": true,
 			"convincibile": false,
 			"studio": [
-				{ "osservazione": "Qualcosa sembra risiedere dentro di lui..." }
+				{
+					"osservazione": "Qualcosa sembra risiedere dentro di lui..."
+				}
 			],
 			"testo_studio_esaurito": "Qualcosa sembra risiedere dentro di lui..."
 		},
@@ -488,11 +733,17 @@
 			"categoria": "particolare",
 			"invincibile": true,
 			"blocca_fuga_turni": 5,
-			"avviso_fuga": { "turno": 5, "richiede_compagno": "sopravvissuta", "testo": "Dobbiamo scappare, adesso! Non si può vincere contro di lui!" },
+			"avviso_fuga": {
+				"turno": 5,
+				"richiede_compagno": "sopravvissuta",
+				"testo": "Dobbiamo scappare, adesso! Non si può vincere contro di lui!"
+			},
 			"ritratto": "res://art/personaggi/l_immortale.png",
 			"descrizione": "Qualcosa che cammina nella cripta, e non si ferma per quanto lo si colpisca. Il suo vero nome è ancora un mistero.",
 			"studio": [
-				{ "osservazione": "Non sembra reagire... non sembra avere alcuna volontà..." }
+				{
+					"osservazione": "Non sembra reagire... non sembra avere alcuna volontà..."
+				}
 			]
 		},
 		{
@@ -508,19 +759,60 @@
 			"tazo": 15,
 			"ritratto": "res://art/personaggi/sacerdote_folle.png",
 			"descrizione": "Officiava i sacrifici della Rocca molto prima che Jongo Dongo ne facesse un culto. Recita ancora le sue litanie, anche se non è rimasto nessuno a rispondergli.",
-			"carta": { "id": "carta_sacerdote_folle", "nome": "Sacerdote Folle", "rarita": "non_comune", "chance": 0.04, "testo": "Ha smesso di distinguere la preghiera dalla minaccia. Forse non c'era mai stata differenza." },
+			"carta": {
+				"id": "carta_sacerdote_folle",
+				"nome": "Sacerdote Folle",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Ha smesso di distinguere la preghiera dalla minaccia. Forse non c'era mai stata differenza."
+			},
 			"mosse": [
-				{ "id": "litania_1", "tipo": "attacco_forte", "valore": 14, "peso": 2, "testo": "\"Per il viaggio!\" Il sacerdote colpisce recitando." },
-				{ "id": "litania_2", "tipo": "attacco_forte", "valore": 14, "peso": 2, "testo": "\"Unisciti al raccolto!\" Il sacerdote colpisce recitando." },
-				{ "id": "litania_3", "tipo": "attacco_forte", "valore": 14, "peso": 2, "testo": "\"Portatelo da me!\" Il sacerdote colpisce recitando." },
-				{ "id": "litania_4", "tipo": "attacco_forte", "valore": 14, "peso": 2, "testo": "\"Non c'è altra strada!\" Il sacerdote colpisce recitando." },
-				{ "id": "richiamo_dei_teschi", "tipo": "evoca", "valore": "teschio_errante", "peso": 2, "testo": "Il sacerdote alza le braccia: un teschio errante risponde al richiamo." }
+				{
+					"id": "litania_1",
+					"tipo": "attacco_forte",
+					"valore": 14,
+					"peso": 2,
+					"testo": "\"Per il viaggio!\" Il sacerdote colpisce recitando."
+				},
+				{
+					"id": "litania_2",
+					"tipo": "attacco_forte",
+					"valore": 14,
+					"peso": 2,
+					"testo": "\"Unisciti al raccolto!\" Il sacerdote colpisce recitando."
+				},
+				{
+					"id": "litania_3",
+					"tipo": "attacco_forte",
+					"valore": 14,
+					"peso": 2,
+					"testo": "\"Portatelo da me!\" Il sacerdote colpisce recitando."
+				},
+				{
+					"id": "litania_4",
+					"tipo": "attacco_forte",
+					"valore": 14,
+					"peso": 2,
+					"testo": "\"Non c'è altra strada!\" Il sacerdote colpisce recitando."
+				},
+				{
+					"id": "richiamo_dei_teschi",
+					"tipo": "evoca",
+					"valore": "teschio_errante",
+					"peso": 2,
+					"testo": "Il sacerdote alza le braccia: un teschio errante risponde al richiamo."
+				}
 			],
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "risposta": "Continua a recitare, senza guardarti." }
+				{
+					"risposta": "Continua a recitare, senza guardarti."
+				}
 			]
 		},
 		{
@@ -536,15 +828,33 @@
 			"tazo": 12,
 			"ritratto": "res://art/personaggi/divoratore_di_carcasse.png",
 			"descrizione": "Vive sotto il grande ponte marcio, nutrendosi di ciò che il ponte stesso lascia cadere. La puzza lo tradisce molto prima che si mostri.",
-			"carta": { "id": "carta_divoratore_di_carcasse", "nome": "Divoratore di Carcasse", "rarita": "non_comune", "chance": 0.04, "testo": "Non ha mai dovuto cacciare: gli basta aspettare sotto il ponte." },
+			"carta": {
+				"id": "carta_divoratore_di_carcasse",
+				"nome": "Divoratore di Carcasse",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Non ha mai dovuto cacciare: gli basta aspettare sotto il ponte."
+			},
 			"mosse": [
-				{ "id": "morso_multiplo", "tipo": "attacco_multiplo", "valore": 9, "colpi": 2, "peso": 2, "testo": "Il divoratore azzanna più volte, veloce." }
+				{
+					"id": "morso_multiplo",
+					"tipo": "attacco_multiplo",
+					"valore": 9,
+					"colpi": 2,
+					"peso": 2,
+					"testo": "Il divoratore azzanna più volte, veloce."
+				}
 			],
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "osservazione": "Inutile comunicarci, è una bestia senza intelletto." }
+				{
+					"osservazione": "Inutile comunicarci, è una bestia senza intelletto."
+				}
 			]
 		},
 		{
@@ -564,12 +874,23 @@
 			"livello": 3,
 			"ritratto": "res://art/personaggi/zombie_mostruoso.png",
 			"descrizione": "Qualcosa, in questo, ha continuato a crescere anche dopo la morte. Le braccia non sono più della stessa lunghezza.",
-			"carta": { "id": "carta_zombie_mostruoso", "nome": "Zombie Mostruoso", "rarita": "non_comune", "chance": 0.04, "testo": "Non tutti marciscono allo stesso modo. Alcuni si gonfiano." },
+			"carta": {
+				"id": "carta_zombie_mostruoso",
+				"nome": "Zombie Mostruoso",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Non tutti marciscono allo stesso modo. Alcuni si gonfiano."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "risposta": "Un rantolo profondo, che sembra venire da più bocche insieme." }
+				{
+					"risposta": "Un rantolo profondo, che sembra venire da più bocche insieme."
+				}
 			]
 		},
 		{
@@ -585,16 +906,40 @@
 			"livello": 5,
 			"ritratto": "res://art/personaggi/orrore_di_meridia.png",
 			"descrizione": "Più corpi che si sono trovati nello stesso posto al momento sbagliato, e non si sono più separati.",
-			"carta": { "id": "carta_orrore_di_meridia", "nome": "Orrore di Meridia", "rarita": "non_comune", "chance": 0.05, "testo": "A Meridia nessuno è morto da solo. Alcuni non se ne sono accorti." },
+			"carta": {
+				"id": "carta_orrore_di_meridia",
+				"nome": "Orrore di Meridia",
+				"rarita": "non_comune",
+				"chance": 0.05,
+				"testo": "A Meridia nessuno è morto da solo. Alcuni non se ne sono accorti."
+			},
 			"mosse": [
-				{ "id": "bracciata", "tipo": "attacco_forte", "valore": 18, "peso": 2, "testo": "L'orrore sferza con tutte le braccia insieme." },
-				{ "id": "morsi", "tipo": "attacco_multiplo", "valore": 9, "colpi": 2, "peso": 2, "testo": "Più bocche affondano contemporaneamente." }
+				{
+					"id": "bracciata",
+					"tipo": "attacco_forte",
+					"valore": 18,
+					"peso": 2,
+					"testo": "L'orrore sferza con tutte le braccia insieme."
+				},
+				{
+					"id": "morsi",
+					"tipo": "attacco_multiplo",
+					"valore": 9,
+					"colpi": 2,
+					"peso": 2,
+					"testo": "Più bocche affondano contemporaneamente."
+				}
 			],
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.25 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.25
+				}
 			],
 			"studio": [
-				{ "osservazione": "Non risponde: le sue bocche parlano tutte insieme, e nessuna dice niente." }
+				{
+					"osservazione": "Non risponde: le sue bocche parlano tutte insieme, e nessuna dice niente."
+				}
 			]
 		},
 		{
@@ -611,7 +956,13 @@
 			"peso_attacco_normale": 3,
 			"ritratto": "res://art/personaggi/titano_zombie.png",
 			"descrizione": "La cosa più grande che Meridia abbia partorito dopo la fine. Si ricuce da solo, e non ha mai imparato a fermarsi.",
-			"carta": { "id": "carta_titano_zombie", "nome": "Titano Zombie", "rarita": "rara", "chance": 0.06, "testo": "Nelle parti profonde della città c'è qualcosa che non smette di rialzarsi. Chi l'ha visto non è tornato a raccontarlo due volte." },
+			"carta": {
+				"id": "carta_titano_zombie",
+				"nome": "Titano Zombie",
+				"rarita": "rara",
+				"chance": 0.06,
+				"testo": "Nelle parti profonde della città c'è qualcosa che non smette di rialzarsi. Chi l'ha visto non è tornato a raccontarlo due volte."
+			},
 			"rigenerazione": {
 				"colpi_prima_della_gamba": 6,
 				"turni_fermo": 2,
@@ -620,14 +971,34 @@
 				"testo_gamba_rotta_turno": "Il titano resta a terra, e continua a ricucirsi."
 			},
 			"mosse": [
-				{ "id": "pugno_devastante", "tipo": "meta_vita", "hp_soglia_ko": 50, "peso": 2, "telegrafata": true, "testo_annuncio": "Il titano solleva lentamente il pugno sopra la testa. Qualunque cosa stia per succedere, succederà al prossimo colpo.", "testo": "Pugno devastante: il colpo si abbatte con tutto il peso della città morta." },
-				{ "id": "spazzata", "tipo": "attacco_tutti", "valore": 9, "stress": 10, "peso": 2, "testo": "Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo." }
+				{
+					"id": "pugno_devastante",
+					"tipo": "meta_vita",
+					"hp_soglia_ko": 50,
+					"peso": 2,
+					"telegrafata": true,
+					"testo_annuncio": "Il titano solleva lentamente il pugno sopra la testa. Qualunque cosa stia per succedere, succederà al prossimo colpo.",
+					"testo": "Pugno devastante: il colpo si abbatte con tutto il peso della città morta."
+				},
+				{
+					"id": "spazzata",
+					"tipo": "attacco_tutti",
+					"valore": 9,
+					"stress": 10,
+					"peso": 2,
+					"testo": "Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo."
+				}
 			],
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.5 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.5
+				}
 			],
 			"studio": [
-				{ "osservazione": "Le ferite che gli apri si richiudono mentre le guardi. Colpirlo più forte non serve: serve colpirlo più in fretta." }
+				{
+					"osservazione": "Le ferite che gli apri si richiudono mentre le guardi. Colpirlo più forte non serve: serve colpirlo più in fretta."
+				}
 			]
 		},
 		{
@@ -642,9 +1013,18 @@
 			"tazo": 3,
 			"ritratto": "res://art/personaggi/zombie_cittadino.png",
 			"descrizione": "Era qualcuno, a Meridia, prima del coprifuoco. Ora cammina piano, verso niente in particolare, con tutti gli altri.",
-			"carta": { "id": "carta_zombie_cittadino", "nome": "Zombie Cittadino", "rarita": "comune", "chance": 0.02, "testo": "Meridia ne ha fatti a migliaia, tutti uguali." },
+			"carta": {
+				"id": "carta_zombie_cittadino",
+				"nome": "Zombie Cittadino",
+				"rarita": "comune",
+				"chance": 0.02,
+				"testo": "Meridia ne ha fatti a migliaia, tutti uguali."
+			},
 			"bottino_comune": [
-				{ "oggetto": "bastone", "chance": 0.25 }
+				{
+					"oggetto": "bastone",
+					"chance": 0.25
+				}
 			]
 		},
 		{
@@ -659,13 +1039,28 @@
 			"tazo": 4,
 			"ritratto": "res://art/personaggi/infetto_rapido.png",
 			"descrizione": "Non tutti a Meridia sono diventati lenti. Questi corrono ancora, come se stessero ancora scappando da qualcosa.",
-			"carta": { "id": "carta_infetto_rapido", "nome": "Infetto Rapido", "rarita": "comune", "chance": 0.02, "testo": "Corre da anni. Non si è mai fermato a chiedersi perché." },
+			"carta": {
+				"id": "carta_infetto_rapido",
+				"nome": "Infetto Rapido",
+				"rarita": "comune",
+				"chance": 0.02,
+				"testo": "Corre da anni. Non si è mai fermato a chiedersi perché."
+			},
 			"bottino_comune": [
-				{ "oggetto": "spranga_di_ferro", "chance": 0.15 }
+				{
+					"oggetto": "spranga_di_ferro",
+					"chance": 0.15
+				}
 			],
 			"studio": [
-				{ "domanda": "Cosa vuoi da me?", "risposta": "Non sembra voler altro se non la tua fine." },
-				{ "domanda": "(provi a rallentarlo con la voce)", "risposta": "Corre lo stesso. Non ha mai smesso." }
+				{
+					"domanda": "Cosa vuoi da me?",
+					"risposta": "Non sembra voler altro se non la tua fine."
+				},
+				{
+					"domanda": "(provi a rallentarlo con la voce)",
+					"risposta": "Corre lo stesso. Non ha mai smesso."
+				}
 			]
 		},
 		{
@@ -683,13 +1078,28 @@
 			"ritratto": "res://art/personaggi/nuvola_di_marciume.png",
 			"descrizione": "Un pezzo della coltre che copre Meridia, sceso più in basso degli altri. Non insegue nessuno: capita addosso.",
 			"apertura": "Si sgonfia e si rigonfia piano, come se respirasse.",
-			"carta": { "id": "carta_nuvola_di_marciume", "nome": "Nuvola di Marciume", "rarita": "comune", "chance": 0.03, "testo": "Il cielo di Meridia, in una porzione abbastanza piccola da poterla colpire." },
+			"carta": {
+				"id": "carta_nuvola_di_marciume",
+				"nome": "Nuvola di Marciume",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Il cielo di Meridia, in una porzione abbastanza piccola da poterla colpire."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.2 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.2
+				}
 			],
 			"studio": [
-				{ "domanda": "(la osservi mentre si addensa)", "risposta": "Sembra che le nubi che ricoprono il cielo possano prendere vita propria..." },
-				{ "domanda": "(provi a richiamare la sua attenzione)", "risposta": "Non sembra reagire ad alcuno stimolo." }
+				{
+					"domanda": "(la osservi mentre si addensa)",
+					"risposta": "Sembra che le nubi che ricoprono il cielo possano prendere vita propria..."
+				},
+				{
+					"domanda": "(provi a richiamare la sua attenzione)",
+					"risposta": "Non sembra reagire ad alcuno stimolo."
+				}
 			]
 		},
 		{
@@ -705,9 +1115,18 @@
 			"tazo": 3,
 			"ritratto": "res://art/personaggi/marionetta.png",
 			"descrizione": "Legno, fili e un po' di rancore. Qualcuno la muoveva con affetto, una volta.",
-			"carta": { "id": "carta_marionetta", "nome": "Marionetta", "rarita": "comune", "chance": 0.03, "testo": "I fili non li tiene più nessuno. Eppure si muove." },
+			"carta": {
+				"id": "carta_marionetta",
+				"nome": "Marionetta",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "I fili non li tiene più nessuno. Eppure si muove."
+			},
 			"bottino_comune": [
-				{ "oggetto": "merendine_scadute", "chance": 0.3 }
+				{
+					"oggetto": "merendine_scadute",
+					"chance": 0.3
+				}
 			]
 		},
 		{
@@ -723,12 +1142,26 @@
 			"tazo": 5,
 			"ritratto": "res://art/personaggi/ombra_del_passato.png",
 			"descrizione": "Un'ombra del passato, vive grazie ai sentimenti repressi di qualcuno che ricorda la persona da cui prende forma con sentimenti negativi.",
-			"carta": { "id": "carta_ombra_del_passato", "nome": "Ombra del passato", "rarita": "non_comune", "chance": 0.04, "testo": "Le ombre del passato assumono la forma di persone ricordate con odio, parlano di fatti che hanno lasciato dei segni irremovibili nell'anima di qualcuno e sono forti quanto l'odio provato nei confronti di quelle persone." },
+			"carta": {
+				"id": "carta_ombra_del_passato",
+				"nome": "Ombra del passato",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Le ombre del passato assumono la forma di persone ricordate con odio, parlano di fatti che hanno lasciato dei segni irremovibili nell'anima di qualcuno e sono forti quanto l'odio provato nei confronti di quelle persone."
+			},
 			"studio": [
-				{ "osservazione": "\"Signorina, si sente bene?\"" },
-				{ "osservazione": "\"Ormai è cresciuta, non può più giocare con le bambole.\"" },
-				{ "osservazione": "\"Oggi passerai il resto della giornata nella tua camera per colpa della tua disubbidienza.\"" },
-				{ "osservazione": "\"Sei come tuo padre, troppo sensibile per gestire gli affari di famiglia.\"" }
+				{
+					"osservazione": "\"Signorina, si sente bene?\""
+				},
+				{
+					"osservazione": "\"Ormai è cresciuta, non può più giocare con le bambole.\""
+				},
+				{
+					"osservazione": "\"Oggi passerai il resto della giornata nella tua camera per colpa della tua disubbidienza.\""
+				},
+				{
+					"osservazione": "\"Sei come tuo padre, troppo sensibile per gestire gli affari di famiglia.\""
+				}
 			]
 		},
 		{
@@ -746,17 +1179,39 @@
 			"ritratto": "res://art/personaggi/donna_spinosa.png",
 			"descrizione": "Cresciuta in una vasca con un cartellino che diceva un'altra cosa. Sta ferma finché non le passi accanto, e allora si ricorda di essere stata progettata.",
 			"apertura": "Si stacca dal tronco a cui sembrava appartenere, senza rumore.",
-			"carta": { "id": "carta_donna_spinosa", "nome": "Donna Spinosa", "rarita": "non_comune", "chance": 0.04, "testo": "Vivaio 3, vasca 11. Specie dichiarata: ornamentale." },
+			"carta": {
+				"id": "carta_donna_spinosa",
+				"nome": "Donna Spinosa",
+				"rarita": "non_comune",
+				"chance": 0.04,
+				"testo": "Vivaio 3, vasca 11. Specie dichiarata: ornamentale."
+			},
 			"mosse": [
-				{ "id": "spine_sottili", "tipo": "attacco_forte", "valore": 8, "peso": 2, "stato": "veleno", "testo": "Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo." }
+				{
+					"id": "spine_sottili",
+					"tipo": "attacco_forte",
+					"valore": 8,
+					"peso": 2,
+					"stato": "veleno",
+					"testo": "Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo."
+				}
 			],
 			"peso_attacco_normale": 3,
 			"bottino_comune": [
-				{ "oggetto": "fiore_di_luna", "chance": 0.25 }
+				{
+					"oggetto": "fiore_di_luna",
+					"chance": 0.25
+				}
 			],
 			"studio": [
-				{ "domanda": "Chi eri?", "risposta": "Muove le labbra, ma quello che ne esce è solo un fruscio di foglie." },
-				{ "domanda": "(cerchi il cartellino della sua vasca)", "risposta": "La specie dichiarata sul cartellino non ha niente a che vedere con quello che ti sta davanti." }
+				{
+					"domanda": "Chi eri?",
+					"risposta": "Muove le labbra, ma quello che ne esce è solo un fruscio di foglie."
+				},
+				{
+					"domanda": "(cerchi il cartellino della sua vasca)",
+					"risposta": "La specie dichiarata sul cartellino non ha niente a che vedere con quello che ti sta davanti."
+				}
 			]
 		},
 		{
@@ -776,22 +1231,62 @@
 			"tazo": 90,
 			"ritratto": "res://art/personaggi/volto_sulla_parete.png",
 			"descrizione": "Quello che è rimasto della capofamiglia, cresciuto dentro la parete insieme a tutto il resto. Difende ancora i risultati di ricerche che non servono più a nessuno.",
-			"apertura": { "tipo": "dialogo", "testo": "Chi siete... Siete venuti a rubare i risultati delle mie ricerche, vero? Schifosi..." },
-			"carta": { "id": "carta_volto_sulla_parete", "nome": "Volto sulla parete", "rarita": "rara", "chance": 0.06, "testo": "Capo ricerca. Ha firmato ogni autorizzazione, compresa l'ultima." },
+			"apertura": {
+				"tipo": "dialogo",
+				"testo": "Chi siete... Siete venuti a rubare i risultati delle mie ricerche, vero? Schifosi..."
+			},
+			"carta": {
+				"id": "carta_volto_sulla_parete",
+				"nome": "Volto sulla parete",
+				"rarita": "rara",
+				"chance": 0.06,
+				"testo": "Capo ricerca. Ha firmato ogni autorizzazione, compresa l'ultima."
+			},
 			"mosse": [
-				{ "id": "radici_che_stringono", "tipo": "attacco_forte", "valore": 14, "peso": 2, "stato": "veleno", "testo": "Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore." },
-				{ "id": "sfogo_di_spore", "tipo": "attacco_tutti", "valore": 11, "peso": 1, "testo": "La parete si apre e sputa una nube di spore su tutta la stanza." }
+				{
+					"id": "radici_che_stringono",
+					"tipo": "attacco_forte",
+					"valore": 14,
+					"peso": 2,
+					"stato": "veleno",
+					"testo": "Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore."
+				},
+				{
+					"id": "sfogo_di_spore",
+					"tipo": "attacco_tutti",
+					"valore": 11,
+					"peso": 1,
+					"testo": "La parete si apre e sputa una nube di spore su tutta la stanza."
+				}
 			],
 			"peso_attacco_normale": 3,
 			"bottino_comune": [
-				{ "oggetto": "fiore_di_luna", "chance": 0.5 }
+				{
+					"oggetto": "fiore_di_luna",
+					"chance": 0.5
+				}
 			],
 			"studio": [
-				{ "domanda": "(la osservi)", "risposta": "Sembra il volto di una persona anziana: trasuda odio e rabbia da ogni parte." },
-				{ "domanda": "Cosa è successo in questo posto?", "risposta": "Fastidiosi parassiti... sparite!" },
-				{ "domanda": "Ho capito: sei quella folle che ha rovinato questo posto.", "risposta": "Eh?! Chi ti credi di essere. Sudicio insetto!" },
-				{ "domanda": "Non ti è bastato rovinare la tua famiglia?", "risposta": "Piccolo stupido: delle parole di voi scarafaggi non me ne faccio niente!" },
-				{ "domanda": "(cerchi un appiglio, un rimorso, qualcosa)", "risposta": "C'è solo malvagità in questo essere. Non hai alternative." }
+				{
+					"domanda": "(la osservi)",
+					"risposta": "Sembra il volto di una persona anziana: trasuda odio e rabbia da ogni parte."
+				},
+				{
+					"domanda": "Cosa è successo in questo posto?",
+					"risposta": "Fastidiosi parassiti... sparite!"
+				},
+				{
+					"domanda": "Ho capito: sei quella folle che ha rovinato questo posto.",
+					"risposta": "Eh?! Chi ti credi di essere. Sudicio insetto!"
+				},
+				{
+					"domanda": "Non ti è bastato rovinare la tua famiglia?",
+					"risposta": "Piccolo stupido: delle parole di voi scarafaggi non me ne faccio niente!"
+				},
+				{
+					"domanda": "(cerchi un appiglio, un rimorso, qualcosa)",
+					"risposta": "C'è solo malvagità in questo essere. Non hai alternative."
+				}
 			]
 		},
 		{
@@ -826,15 +1321,35 @@
 				"richiede_oggetto": "prova_di_un_forte_amore",
 				"testo": "A volte un oggetto può amarti più di quanto chi dovrebbe farlo abbia mai fatto..."
 			},
-			"carta": { "id": "carta_tenero_ricordo", "nome": "Un tenero ricordo", "rarita": "epica", "testo": "Una Bambola che ha preso vita dai sentimenti puri di un bambino, a volte l'amore può trasformarsi in qualcosa di pauroso." },
+			"carta": {
+				"id": "carta_tenero_ricordo",
+				"nome": "Un tenero ricordo",
+				"rarita": "epica",
+				"testo": "Una Bambola che ha preso vita dai sentimenti puri di un bambino, a volte l'amore può trasformarsi in qualcosa di pauroso."
+			},
 			"fonte": true,
 			"convincibile": true,
 			"speranza_soglia": 100,
 			"leva_obbligatoria": "spilla_margherita",
 			"testo_cedimento": "Qualcosa, nella bambola, si ammorbidisce. Non è più solo dolore, quello che trema tra le sue cuciture.",
 			"leve": [
-				{ "id": "spilla_margherita", "tipo": "oggetto", "testo": "\"...\"\n\n\"Lil...\"\n\n\"...Loh?\"", "speranza": 40, "turni_fermo": 2, "testo_fermo": "La... mia... migliore... amica..." },
-				{ "id": "casa_lettere_bruciate", "tipo": "flag", "testo": "Un lamento sottile, quasi un sollievo: qualcosa che pesava da anni si è appena alleggerito.", "speranza": 30 }
+				{
+					"id": "spilla_margherita",
+					"tipo": "oggetto",
+					"testo": "\"...\"\n\n\"Lil...\"\n\n\"...Loh?\"",
+					"speranza": 40,
+					"turni_fermo": 2,
+					"testo_fermo": "La... mia... migliore... amica..."
+				},
+				{
+					"id": "lettere_altare",
+					"tipo": "bersaglio",
+					"dopo_studi": 3,
+					"hp": 30,
+					"testo_comparsa": "Sull'altare, le lettere cominciano a vibrare in modo irrequieto. La bambola se ne accorge, e per un istante smette di guardare voi.",
+					"testo": "Un lamento sottile, quasi un sollievo: qualcosa che pesava da anni si è appena alleggerito.",
+					"speranza": 30
+				}
 			],
 			"mosse": [
 				{
@@ -872,8 +1387,15 @@
 				}
 			],
 			"studio": [
-				{ "osservazione": "È coperta di polvere, le cuciture sono tutte consumate. Trasuda un'energia oscura indescrivibile." },
-				{ "osservazione": "Sembra quasi di sentire un pianto provenire dalle cuciture." }
+				{
+					"osservazione": "È coperta di polvere, le cuciture sono tutte consumate. Trasuda un'energia oscura indescrivibile."
+				},
+				{
+					"osservazione": "Sembra quasi di sentire un pianto provenire dalle cuciture."
+				},
+				{
+					"osservazione": "Le lettere sull'altare tremano ogni volta che la guardi. Non è la bambola a tenerle: sono loro a tenere lei."
+				}
 			],
 			"frenesia": {
 				"soglia_hp": 0.5,
@@ -884,7 +1406,10 @@
 				"bersaglio_extra": "lettere_altare",
 				"bersaglio_extra_hp": 30,
 				"testo_sblocco_bersaglio": "Non è vero... bugiardi... a voi non è dispiaciuto davvero...",
-				"testo_fermata": ["Siate dannati... La mia Lylloh...", "Grazie..."]
+				"testo_fermata": [
+					"Siate dannati... La mia Lylloh...",
+					"Grazie..."
+				]
 			}
 		},
 		{
@@ -892,7 +1417,10 @@
 			"elemento": "fuoco",
 			"livello": 18,
 			"nome": "L'ultimo spettacolo di Jerah",
-			"apertura": {"tipo": "dialogo", "testo": "Sei arrivato fino a qui. Allora meriti l'ultimo spettacolo."},
+			"apertura": {
+				"tipo": "dialogo",
+				"testo": "Sei arrivato fino a qui. Allora meriti l'ultimo spettacolo."
+			},
 			"nome_breve": "Jerah",
 			"hp": 2225,
 			"attacco": 63,
@@ -908,7 +1436,12 @@
 				"richiede_oggetto": "biglietto_strano",
 				"testo": "Sembrerebbe che il suo egoismo vacillasse di fronte all'unica prova di affetto sincero che abbia mai ricevuto. Anche una sola persona può cambiare il destino di un intero mondo grazie a un gesto di affetto."
 			},
-			"carta": { "id": "carta_jerah", "nome": "L'ultimo spettacolo di Jerah", "rarita": "leggendaria", "testo": "Era un giovane promettente, abbandonato da tutti, non mi sono mai pentito di avergli dato una possibilità. - Raphael Genio del Teatro" },
+			"carta": {
+				"id": "carta_jerah",
+				"nome": "L'ultimo spettacolo di Jerah",
+				"rarita": "leggendaria",
+				"testo": "Era un giovane promettente, abbandonato da tutti, non mi sono mai pentito di avergli dato una possibilità. - Raphael Genio del Teatro"
+			},
 			"fonte": true,
 			"convincibile": true,
 			"speranza_soglia": 60,
@@ -966,14 +1499,32 @@
 				}
 			],
 			"studio": [
-				{ "domanda": "Rivelami chi sei... Perché fai tutto questo?", "risposta": "Cosa ne puoi sapere tu, di me, un pobre hombre che ha sacrificato tutto per dimostrare cosa valeva!" },
-				{ "domanda": "Abbiamo più cose in comune di quanto pensi, tu potresti aiutare a capirmi.", "risposta": "¡Pobre hombre! ¡Muere!" },
-				{ "domanda": "Non ti do la colpa di tutto questo, voglio solo capire la tua storia...", "risposta": "La mia storia è proprio quello che ha causato tutto questo, questo mondo non merita di essere salvato." },
-				{ "domanda": "Forse questo mondo no, ma tu sì.", "risposta": "..." }
+				{
+					"domanda": "Rivelami chi sei... Perché fai tutto questo?",
+					"risposta": "Cosa ne puoi sapere tu, di me, un pobre hombre che ha sacrificato tutto per dimostrare cosa valeva!"
+				},
+				{
+					"domanda": "Abbiamo più cose in comune di quanto pensi, tu potresti aiutare a capirmi.",
+					"risposta": "¡Pobre hombre! ¡Muere!"
+				},
+				{
+					"domanda": "Non ti do la colpa di tutto questo, voglio solo capire la tua storia...",
+					"risposta": "La mia storia è proprio quello che ha causato tutto questo, questo mondo non merita di essere salvato."
+				},
+				{
+					"domanda": "Forse questo mondo no, ma tu sì.",
+					"risposta": "..."
+				}
 			],
 			"studio_cedimento": [
-				{ "domanda": "Vedo che hai capito quale è stato il nostro errore... Vale la pena... di ricominciare...", "risposta": "No. Per me è tardi... Ma cercherò di dare un bel finale a questa storia!" },
-				{ "domanda": "Vecchio Proprietario del teatro: È stato bello... lavorare con te, sai?...", "risposta": "Grazie. Osservami, mentre cala il sipario per l'ultima volta, vecchio amico..." }
+				{
+					"domanda": "Vedo che hai capito quale è stato il nostro errore... Vale la pena... di ricominciare...",
+					"risposta": "No. Per me è tardi... Ma cercherò di dare un bel finale a questa storia!"
+				},
+				{
+					"domanda": "Vecchio Proprietario del teatro: È stato bello... lavorare con te, sai?...",
+					"risposta": "Grazie. Osservami, mentre cala il sipario per l'ultima volta, vecchio amico..."
+				}
 			]
 		},
 		{
@@ -989,12 +1540,23 @@
 			"tazo": 2,
 			"ritratto": "res://art/personaggi/goblin_tipico.png",
 			"descrizione": "Verde, spelacchiato, armato di un bastone che ha trovato per terra. Non ha mai vinto una rissa in vita sua.",
-			"carta": { "id": "carta_goblin_tipico", "nome": "Goblin Tipico", "rarita": "comune", "chance": 0.03, "testo": "Ce ne sono a centinaia su questo pianeta. Nessuno li conta più." },
+			"carta": {
+				"id": "carta_goblin_tipico",
+				"nome": "Goblin Tipico",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Ce ne sono a centinaia su questo pianeta. Nessuno li conta più."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.15 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.15
+				}
 			],
 			"studio": [
-				{ "risposta": "Grugnisce, e nemmeno troppo convinto." }
+				{
+					"risposta": "Grugnisce, e nemmeno troppo convinto."
+				}
 			]
 		},
 		{
@@ -1009,12 +1571,23 @@
 			"tazo": 1,
 			"ritratto": "res://art/personaggi/slime_infimo.png",
 			"descrizione": "Una pozza gelatinosa che si crede un mostro. Ci vuole più tempo a notarlo che a batterlo.",
-			"carta": { "id": "carta_slime_infimo", "nome": "Slime Infimo", "rarita": "comune", "chance": 0.03, "testo": "Il gradino più basso della catena alimentare di questo pianeta. Forse anche più in basso." },
+			"carta": {
+				"id": "carta_slime_infimo",
+				"nome": "Slime Infimo",
+				"rarita": "comune",
+				"chance": 0.03,
+				"testo": "Il gradino più basso della catena alimentare di questo pianeta. Forse anche più in basso."
+			},
 			"bottino_comune": [
-				{ "oggetto": "fiala_hp", "chance": 0.15 }
+				{
+					"oggetto": "fiala_hp",
+					"chance": 0.15
+				}
 			],
 			"studio": [
-				{ "risposta": "Non sembra avere nulla da dire. O da pensare." }
+				{
+					"risposta": "Non sembra avere nulla da dire. O da pensare."
+				}
 			]
 		},
 		{
@@ -1034,7 +1607,13 @@
 			"peso_attacco_normale": 0,
 			"ritratto": "res://art/personaggi/tartaruga_innocente.png",
 			"descrizione": "Un guscio enorme e un aspetto che mette paura. Non ha mai fatto del male a nessuno.",
-			"carta": { "id": "carta_tartaruga_innocente", "nome": "Tartaruga Innocente", "rarita": "non_comune", "chance": 0.05, "testo": "Vecchia, lenta, spaventosa da guardare. Nient'altro." },
+			"carta": {
+				"id": "carta_tartaruga_innocente",
+				"nome": "Tartaruga Innocente",
+				"rarita": "non_comune",
+				"chance": 0.05,
+				"testo": "Vecchia, lenta, spaventosa da guardare. Nient'altro."
+			},
 			"mosse": [
 				{
 					"id": "si_ritira_nel_guscio",
@@ -1044,7 +1623,9 @@
 				}
 			],
 			"studio": [
-				{ "osservazione": "È solo una vecchia tartaruga, che ha avuto la sfortuna di avere un aspetto spaventoso." }
+				{
+					"osservazione": "È solo una vecchia tartaruga, che ha avuto la sfortuna di avere un aspetto spaventoso."
+				}
 			],
 			"risparmio": {
 				"legame": 10,
@@ -1071,7 +1652,13 @@
 			"danno_fisso_su_attacco": 5,
 			"ritratto": "res://art/personaggi/manifestazione_di_un_sogno.png",
 			"descrizione": "Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.",
-			"carta": { "id": "carta_manifestazione_di_un_sogno", "nome": "Manifestazione di un sogno", "rarita": "rara", "chance": 0.04, "testo": "Non tutto quello che si incontra va combattuto. Alcune cose vanno solo evitate." },
+			"carta": {
+				"id": "carta_manifestazione_di_un_sogno",
+				"nome": "Manifestazione di un sogno",
+				"rarita": "rara",
+				"chance": 0.04,
+				"testo": "Non tutto quello che si incontra va combattuto. Alcune cose vanno solo evitate."
+			},
 			"incontro_scriptato": {
 				"testo_paralisi_nemico": "La manifestazione sembra ridere in modo gentile e ti accarezza di nuovo. Non puoi farci niente: la pressione ti immobilizza.",
 				"testi_inerti": [
@@ -1093,8 +1680,14 @@
 				"testo_studio_dopo_scudo": "La creatura sembra confusa e in preda alla rabbia."
 			},
 			"studio": [
-				{ "domanda": "Cosa sei... Non ho mai visto qualcosa di simile...", "risposta": "Lasciati andare... Dormi..." },
-				{ "domanda": "Non riesco più... a ... restare in piedi... devo... scappare...", "risposta": "Sei stato molto bravo, ora riposa... per sempre... insieme a me..." }
+				{
+					"domanda": "Cosa sei... Non ho mai visto qualcosa di simile...",
+					"risposta": "Lasciati andare... Dormi..."
+				},
+				{
+					"domanda": "Non riesco più... a ... restare in piedi... devo... scappare...",
+					"risposta": "Sei stato molto bravo, ora riposa... per sempre... insieme a me..."
+				}
 			],
 			"testo_studio_esaurito": "La testa ti gira all'improvviso: non sei più in grado di studiare il nemico."
 		},
@@ -1102,7 +1695,10 @@
 			"id": "goblin_arrabbiato",
 			"livello": 6,
 			"nome": "Un goblin terribilmente arrabbiato",
-			"apertura": {"tipo": "dialogo", "testo": "Un altro. Sempre un altro. Non finite mai di arrivare."},
+			"apertura": {
+				"tipo": "dialogo",
+				"testo": "Un altro. Sempre un altro. Non finite mai di arrivare."
+			},
 			"nome_breve": "Goblin Arrabbiato",
 			"hp": 1125,
 			"attacco": 22,
@@ -1112,7 +1708,12 @@
 			"tazo": 25,
 			"ritratto": "res://art/personaggi/goblin_arrabbiato.png",
 			"descrizione": "Non è mai stato bello, forte o rispettato, nemmeno tra i suoi. Il fattore di disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse.",
-			"carta": { "id": "carta_goblin_arrabbiato", "nome": "Un goblin terribilmente arrabbiato", "rarita": "non_comune", "testo": "La prima fonte che l'Organizzazione ti manda a estinguere. Non tutte le fonti nascondono una tragedia." },
+			"carta": {
+				"id": "carta_goblin_arrabbiato",
+				"nome": "Un goblin terribilmente arrabbiato",
+				"rarita": "non_comune",
+				"testo": "La prima fonte che l'Organizzazione ti manda a estinguere. Non tutte le fonti nascondono una tragedia."
+			},
 			"fonte": true,
 			"convincibile": false,
 			"rabbia_su_morte_alleato": {
@@ -1174,8 +1775,14 @@
 				"testo": "Ultima risorsa del perdente: un attacco suicida, colmo di rabbia."
 			},
 			"studio": [
-				{ "domanda": "Perché tutta questa rabbia?", "risposta": "RABBIA! SOLO RABBIA!" },
-				{ "domanda": "Non hai altro da dire?", "risposta": "Nessuno mi ha mai ascoltato prima. Perché dovrei parlare adesso?" }
+				{
+					"domanda": "Perché tutta questa rabbia?",
+					"risposta": "RABBIA! SOLO RABBIA!"
+				},
+				{
+					"domanda": "Non hai altro da dire?",
+					"risposta": "Nessuno mi ha mai ascoltato prima. Perché dovrei parlare adesso?"
+				}
 			]
 		},
 		{
@@ -1203,33 +1810,64 @@
 					{
 						"azione": "attacca",
 						"prima": [
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "Fammi vedere di cosa sei capace: colpiscimi al massimo della potenza." },
-							{ "tipo": "narrazione", "testo": "Scegli ATTACCA per colpire. È l'azione base: il danno dipende dal tuo attacco meno la difesa di chi hai davanti." }
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Fammi vedere di cosa sei capace: colpiscimi al massimo della potenza."
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "Scegli ATTACCA per colpire. È l'azione base: il danno dipende dal tuo attacco meno la difesa di chi hai davanti."
+							}
 						],
 						"dopo": [
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "Spero che quello non fosse tutto quello di cui sei capace, {nome}..." }
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Spero che quello non fosse tutto quello di cui sei capace, {nome}..."
+							}
 						]
 					},
 					{
 						"azione": "difendi",
 						"hp_protagonista": 10,
 						"prima": [
-							{ "tipo": "narrazione", "testo": "Veronica sembra caricare un pugno. È il momento di difendersi." },
-							{ "tipo": "narrazione", "testo": "Scegli DIFENDITI: alza la guardia per il turno. Usata di fila cresce, ma sempre di meno — e si perde appena fai altro." }
+							{
+								"tipo": "narrazione",
+								"testo": "Veronica sembra caricare un pugno. È il momento di difendersi."
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "Scegli DIFENDITI: alza la guardia per il turno. Usata di fila cresce, ma sempre di meno — e si perde appena fai altro."
+							}
 						],
 						"dopo": [
-							{ "tipo": "narrazione", "testo": "Ti difendi, ma il colpo è comunque enorme: finisci a un passo dal collasso." }
+							{
+								"tipo": "narrazione",
+								"testo": "Ti difendi, ma il colpo è comunque enorme: finisci a un passo dal collasso."
+							}
 						]
 					},
 					{
 						"azione": "oggetto",
 						"oggetto": "fiala_hp",
 						"prima": [
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "In piedi. E adesso curati con tutta la tua anima!" },
-							{ "tipo": "narrazione", "testo": "Apri OGGETTI e usa la Fiala HP: i consumabili si spendono, ma possono salvarti il combattimento." }
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "In piedi. E adesso curati con tutta la tua anima!"
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "Apri OGGETTI e usa la Fiala HP: i consumabili si spendono, ma possono salvarti il combattimento."
+							}
 						],
 						"dopo": [
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "Ottimo, che tu sia rimasto in piedi mi fa bruciare di emozione! Vuol dire che sono stata un'insegnante incredibilmente efficiente." }
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Ottimo, che tu sia rimasto in piedi mi fa bruciare di emozione! Vuol dire che sono stata un'insegnante incredibilmente efficiente."
+							}
 						]
 					},
 					{
@@ -1237,27 +1875,70 @@
 						"oggetto": "bomba_al_nitro",
 						"hp_nemico": 10,
 						"prima": [
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "Prova a colpirmi con un oggetto ora: scommetto che riuscirò a uscirne illesa alla massima potenza!" },
-							{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ehm, sei la solita esagerata... una bomba al nitro?" },
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "Colpiscimi! Sto bruciando come mille soli!" }
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Prova a colpirmi con un oggetto ora: scommetto che riuscirò a uscirne illesa alla massima potenza!"
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "anonimo",
+								"testo": "Ehm, sei la solita esagerata... una bomba al nitro?"
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Colpiscimi! Sto bruciando come mille soli!"
+							}
 						],
 						"dopo": [
-								{ "tipo": "narrazione", "testo": "Le abilità passive si ottengono da oggetti equipaggiati, salendo di livello, o avendo in squadra un compagno con un forte legame." },
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "Hai visto!? È così che si fa a superare ogni limite!!!" },
-							{ "tipo": "dialogo", "chi": "anonimo", "testo": "Forse dovresti curarti..." },
-							{ "tipo": "dialogo", "chi": "veronica", "testo": "Curarmi? E perché... piuttosto preparati..." }
+							{
+								"tipo": "narrazione",
+								"testo": "Le abilità passive si ottengono da oggetti equipaggiati, salendo di livello, o avendo in squadra un compagno con un forte legame."
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Hai visto!? È così che si fa a superare ogni limite!!!"
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "anonimo",
+								"testo": "Forse dovresti curarti..."
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Curarmi? E perché... piuttosto preparati..."
+							}
 						]
 					}
 				],
-				"oggetti_forniti": ["fiala_hp", "bomba_al_nitro"],
+				"oggetti_forniti": [
+					"fiala_hp",
+					"bomba_al_nitro"
+				],
 				"finale": [
-					{ "tipo": "narrazione", "testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla." },
-					{ "tipo": "notifica", "testo": "Sei stato messo KO." },
-					{ "tipo": "dialogo", "chi": "veronica", "testo": "... Ho esagerato di nuovo... Ma al massimo della potenza!" }
+					{
+						"tipo": "narrazione",
+						"testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla."
+					},
+					{
+						"tipo": "notifica",
+						"testo": "Sei stato messo KO."
+					},
+					{
+						"tipo": "dialogo",
+						"chi": "veronica",
+						"testo": "... Ho esagerato di nuovo... Ma al massimo della potenza!"
+					}
 				]
 			},
 			"studio": [
-				{ "domanda": "Veronica è stata la mia prima e forse unica amica... non mi ha mai abbandonato fin da quando eravamo piccoli...", "risposta": "Hey! Cosa succede? Guarda che io sono qui!" }
+				{
+					"domanda": "Veronica è stata la mia prima e forse unica amica... non mi ha mai abbandonato fin da quando eravamo piccoli...",
+					"risposta": "Hey! Cosa succede? Guarda che io sono qui!"
+				}
 			],
 			"testo_studio_esaurito": "Non c'è altro che tu possa capire di lei adesso: è già tutta lì, davanti a te."
 		},

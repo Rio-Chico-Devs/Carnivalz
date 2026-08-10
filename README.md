@@ -1855,7 +1855,16 @@ pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, 
     risponde «UTENTE NON IDENTIFICATO. ID VUOTO.». Yhvina non serve più solo per un
     combattimento: attraversa tutta la parte nuova, e in fondo all'albero della lore c'è la
     scena che decide se sarà reclutabile più avanti nel gioco
-27. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
+27. ✅ **Le leve di tipo «bersaglio»** (testi di Bru). Una leva non è più solo un oggetto da
+    mostrare o un flag alzato prima dello scontro: può essere **qualcosa che sta nella stanza e
+    che studiando si sveglia**. Nella Casa Gigante le lettere sull'altare non si bruciano più
+    prima del combattimento — studiando la bambola abbastanza volte cominciano a vibrare,
+    diventano attaccabili, e distruggerle è la leva. Nei dati è
+    `{"tipo": "bersaglio", "dopo_studi": N, "hp": N, "testo_comparsa": …}` sulla creatura.
+    Le lettere sono anche quello che alimenta la **frenesia**: distrutte prima della soglia, il
+    conto alla rovescia non parte affatto — altrimenti chi usa la meccanica che il gioco gli ha
+    appena insegnato si ritroverebbe punito, senza più niente da colpire per fermare il conto
+28. ⬜ **Modalità post-gioco**: *Boss Rush* (risfidare ogni boss di fila) e *Fonte delle Memorie*
     (risfidare ogni tipo di nemico incontrato). Si aprono a gioco finito; l'infrastruttura c'è già
     — il bestiario sa chi hai incontrato e il giocatore automatico sa già montare uno scontro
     qualunque senza passare da una stanza

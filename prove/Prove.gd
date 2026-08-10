@@ -64,6 +64,7 @@ func _ready() -> void:
 	prova_espressione_per_battuta()
 	prova_nomi_delle_immagini()
 	prova_illustrazioni()
+	prova_leva_bersaglio()
 	prova_mappa_a_quadratini()
 	prova_script_compilano()
 	prova_scene_caricabili()
@@ -1457,6 +1458,77 @@ func prova_nomi_delle_immagini() -> void:
 			esigi(nome_file.get_basename() in ammesse,
 					"art/personaggi/%s/%s: nessun dialogo chiede questa espressione (nome storto?)"
 					% [nome_cartella, nome_file])
+
+func prova_leva_bersaglio() -> void:
+	# LE LETTERE NON SI BRUCIANO PIU' PRIMA: SI SCOPRONO DURANTE.
+	#
+	# Studiando la bambola abbastanza volte le lettere sull'altare cominciano a
+	# vibrare e diventano attaccabili: distruggerle e' la leva. Tre cose possono
+	# rompersi senza che nessuno se ne accorga - le lettere non compaiono mai (e
+	# la leva diventa irraggiungibile), compaiono ma distruggerle non da' niente
+	# (leva muta), oppure il conto alla rovescia parte lo stesso dopo che sono
+	# state distrutte, e allora al giocatore non resta piu' niente da colpire per
+	# fermarlo: punito per aver usato la meccanica che il gioco gli ha insegnato.
+	titolo("le lettere si scoprono studiando, e distruggerle vale")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["tenero_ricordo"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+
+	var bambola: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if not combattente.giocatore:
+			bambola = combattente
+	esigi(not bambola.is_empty(), "la bambola non e' in campo")
+
+	var leva: Dictionary = scontro.leva_bersaglio_di("lettere_altare")
+	esigi(not leva.is_empty(), "la bambola non ha piu' la leva delle lettere")
+	var quanti_studi := int(leva.get("dopo_studi", 3))
+
+	var in_campo := func() -> bool:
+		for combattente in scontro.combattenti:
+			if String(combattente.id) == "lettere_altare":
+				return true
+		return false
+
+	# prima della soglia di studi le lettere non ci sono
+	bambola.volte_studiato = quanti_studi - 1
+	scontro.verifica_leve_bersaglio(bambola)
+	esigi(not in_campo.call(), "le lettere compaiono prima di aver studiato abbastanza")
+
+	bambola.volte_studiato = quanti_studi
+	scontro.verifica_leve_bersaglio(bambola)
+	esigi(in_campo.call(), "studiando abbastanza le lettere non compaiono: la leva e' irraggiungibile")
+
+	# e non compaiono due volte
+	scontro.verifica_leve_bersaglio(bambola)
+	var quante := 0
+	for combattente in scontro.combattenti:
+		if String(combattente.id) == "lettere_altare":
+			quante += 1
+	esigi(quante == 1, "le lettere sono comparse piu' di una volta")
+
+	# distruggerle vale la speranza dichiarata nei dati
+	var lettere: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if String(combattente.id) == "lettere_altare":
+			lettere = combattente
+	var speranza_prima: int = scontro.speranza
+	lettere.hp = 0
+	scontro._su_ko(lettere)
+	esigi(scontro.speranza == speranza_prima + int(leva.get("speranza", 0)),
+			"distruggere le lettere non ha dato la speranza che la leva promette")
+
+	# e adesso il conto alla rovescia non deve piu' partire: non c'e' piu' niente
+	# da colpire per fermarlo
+	bambola.hp = int(bambola.hp_max * 0.2)
+	scontro.verifica_innesco_frenesia(bambola)
+	esigi(not scontro.frenesia_attiva,
+			"la frenesia parte anche senza le lettere: il giocatore non puo' piu' fermarla")
+	scontro.queue_free()
 
 func prova_mappa_a_quadratini() -> void:
 	# LA MAPPA NON DEVE RACCONTARE PIU' DI QUELLO CHE SAI.
