@@ -45,25 +45,33 @@ di dove sei stato, `stanza_sbloccata()` di cosa e' raggiungibile.
 
 | segno | cosa vuol dire |
 |---|---|
-| quadrato **rosso** | percorso normale, gia' battuto |
-| quadrato **verde** | zona segreta |
-| quadrato **bianco** | mai visto: non e' sulla mappa finche' non ci arrivi |
-| **cerchio blu** | il boss della zona |
+| quadrato **rosso pieno** | ci sei stato: percorso normale |
+| quadrato **verde pieno** | ci sei stato: zona segreta (`tipo: "segreta"`) |
+| quadrato con **`?`** acceso | lo sai raggiungibile e non ci sei mai andato. Cliccandolo ci vai |
+| quadrato con **`?`** spento | sai solo che li' c'e' qualcosa, perche' confina con un posto in cui sei stato. Cliccandolo il gioco dice perche' non si passa ancora |
+| **niente** | non ne sai nemmeno l'esistenza: la mappa si costruisce camminando |
 | **freccia** | dove sei adesso |
-| **cornice** | la porzione di mappa che stai guardando (si allarga e si stringe) |
-| **`exit`** | il punto da cui si esce dalla zona |
+| **cerchio** | il boss della zona |
+| **punto pieno** | uno scontro duro: li' negli agguati puo' capitare qualcosa di molto piu' grosso |
+| **✕** | il punto da cui si esce dalla zona |
+| **cornice** | la porzione di mappa che stai guardando |
 
-Le altre icone — miniboss, area segreta, negozio locale, personaggio chiave,
-incontro casuale — sono disegni che arriveranno: nei dati sono gia' un campo
-`icona` sulla stanza, quindi aggiungerne una vuol dire aggiungere un file, non
-toccare il codice.
+Le icone sono disegnate a mano dal codice finche' non arrivano i disegni veri.
+Aggiungerne una vuol dire **aggiungere un file**, non toccare il codice: se
+esiste `art/icone_mappa/<icona>.png` quello vince sul disegno provvisorio.
 
 ### Le stanze grandi
 
-Una stanza grande **occupa piu' di un quadratino**: nei dati e' un campo
+Una stanza grande **occupa piu' di un quadratino**: nei dati e' il campo
 `dimensione` (larghezza x altezza in quadratini). Serve a far vedere che la
 piazza sotterranea non e' larga come un ripostiglio: la mappa deve mentire il
 meno possibile.
+
+Due stanze non possono finire sullo stesso quadratino. Non e' una convenzione:
+`prova_mappe` tiene il conto di ogni casella occupata, e allargare una stanza
+sopra la vicina fa fallire le prove invece di produrre un quadrato che ne copre
+un altro (con quello sotto diventato incliccabile, e nessun errore da nessuna
+parte).
 
 ### I piani
 
@@ -87,21 +95,25 @@ non cosa troverai.
 |---|---|
 | una mappa per zona, coi collegamenti | ✅ `mappa_dungeon` nel file di eventi |
 | i posti si illuminano esplorando | ✅ `nodi_visitati` / `stanza_sbloccata()` |
-| distinzione «mai visto» / «visto» / «sei qui» | ✅ colori di `Stile.segna_visita()` |
-| **quadrati su griglia** invece di pallini e linee | ⬜ i dati hanno gia' le posizioni allineate alla griglia: manca il disegno |
-| stanze grandi (`dimensione`) | ⬜ |
-| zone segrete in verde (`tipo: "segreta"`) | ⬜ |
-| icone (boss, miniboss, negozio, personaggio, uscita) | ⬜ servono i disegni |
+| **quadrati su griglia** invece di pallini e linee | ✅ campo `cella` |
+| **stanze grandi** su piu' quadratini | ✅ campo `dimensione` |
+| il **«?»** su quello che si intravede | ✅ e cliccandolo ci si va, se la storia l'ha aperto |
+| zone segrete in verde | ✅ campo `tipo: "segreta"` — nessuna ancora marcata nei dati |
+| icone (boss, scontro duro, uscita...) | ✅ campo `icona`, disegnate a mano finche' non arrivano i disegni: basta mettere `art/icone_mappa/<icona>.png` |
+| cornice della vista | ✅ |
+| zoom e trascinamento | ⬜ oggi la griglia si adatta da sola al riquadro |
 | piu' piani per zona | ⬜ oggi la mappa e' una sola per file di eventi |
-| cornice della vista, zoom | ⬜ |
+| eventi che compaiono sulla mappa dopo uno scontro | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
 ## Come si legge quello che segue
 
 Per ogni zona ci sono due disegni della stessa cosa.
 
-**La griglia** e' la mappa come la vedra' il giocatore: dove stanno le stanze
-una rispetto all'altra. `▶` e' il punto di ingresso, `✕` l'uscita dalla zona.
+**La griglia** e' la mappa come la vede il giocatore: dove stanno le stanze una
+rispetto all'altra. `▶` e' il punto di ingresso, `✕` l'uscita dalla zona, `◇` una
+zona segreta. Una stanza grande occupa piu' caselle: le caselle in piu' portano
+una freccia (`↑`, `←`) verso quella che ha il nome.
 
 **Il percorso** e' la stessa zona ripercorsa dall'ingresso, per far vedere in
 che ordine si apre. Ogni riga e' una scelta; l'indentazione e' la profondita'.
@@ -133,21 +145,26 @@ def file_zone():
 
 
 def griglia(mappa):
-    """Dalle posizioni in pixel alla griglia: colonne e righe sono i valori distinti.
+    """Le stanze sulla griglia, una casella per quadratino occupato.
 
-    Le mappe sono nate con coordinate in pixel, ma sono sempre state allineate:
-    prendendo le x distinte in ordine si ottengono le colonne, e le y le righe.
-    Cosi' il disegno qui e' gia' quello a quadratini, senza toccare i dati.
+    Una stanza grande occupa piu' caselle (campo "dimensione"): qui compare in
+    tutte quelle che occupa, cosi' nel disegno si vede larga davvero. La prima
+    casella e' quella che porta il nome, le altre la continuano.
     """
     stanze = mappa.get("stanze", [])
     if not stanze:
         return None
-    xs = sorted({s["pos"][0] for s in stanze})
-    ys = sorted({s["pos"][1] for s in stanze})
+    colonne = righe = 0
     celle = {}
     for s in stanze:
-        celle[(xs.index(s["pos"][0]), ys.index(s["pos"][1]))] = s
-    return celle, len(xs), len(ys)
+        c, r = s["cella"]
+        larghezza, altezza = s.get("dimensione", [1, 1])
+        colonne = max(colonne, c + larghezza)
+        righe = max(righe, r + altezza)
+        for dx in range(larghezza):
+            for dy in range(altezza):
+                celle[(c + dx, r + dy)] = (s, dx == 0 and dy == 0)
+    return celle, colonne, righe
 
 
 def disegna_griglia(mappa, id_iniziale, nodi):
@@ -167,15 +184,21 @@ def disegna_griglia(mappa, id_iniziale, nodi):
     for r in range(righe):
         cella_riga = []
         for c in range(colonne):
-            s = celle.get((c, r))
-            if s is None:
+            voce = celle.get((c, r))
+            if voce is None:
                 cella_riga.append(" ")
+                continue
+            s, prima = voce
+            if not prima:
+                cella_riga.append("↑" if celle.get((c, r - 1), (None,))[0] is s else "←")
                 continue
             segno = ""
             if s["id"] == id_iniziale:
                 segno = "▶ "
             if s["id"] in uscite:
                 segno += "✕ "
+            if s.get("tipo") == "segreta":
+                segno += "◇ "
             cella_riga.append("%s**%s**" % (segno, s.get("nome", s["id"])))
         fuori.append("| " + " | ".join(cella_riga) + " |")
     return fuori

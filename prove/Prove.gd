@@ -20,6 +20,8 @@ const ESPRESSIONI := [
 	"sorpresa", "sforzo", "cool", "decisa",
 ]
 
+const ICONE_MAPPA := ["boss", "miniboss", "forte", "uscita", "negozio", "personaggio", "chiave"]
+
 var fallimenti: Array[String] = []
 var conteggio := 0
 
@@ -62,6 +64,7 @@ func _ready() -> void:
 	prova_espressione_per_battuta()
 	prova_nomi_delle_immagini()
 	prova_illustrazioni()
+	prova_mappa_a_quadratini()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -348,6 +351,16 @@ func prova_mappe() -> void:
 			continue
 		var nodi: Dictionary = dati.get("nodi", {})
 		var stanze: Dictionary = {}
+		# DUE STANZE NON POSSONO STARE SULLO STESSO QUADRATINO.
+		#
+		# Da quando una stanza puo' essere grande (campo "dimensione"), allargarne
+		# una di un quadratino puo' farla finire sopra la vicina. A schermo non
+		# si vede un errore: si vede un quadrato che ne copre un altro, e la
+		# stanza sotto diventa incliccabile. Qui si tiene il conto di ogni cella
+		# occupata, cosi' la sovrapposizione non e' improbabile: non passa.
+		var occupate: Dictionary = {}
+		esigi(String(mappa_zona.get("nome", "")) != "",
+				"%s: la mappa della zona non ha nome" % percorso)
 		for stanza in mappa_zona.get("stanze", []):
 			var id_stanza := String(stanza.get("id", ""))
 			stanze[id_stanza] = true
@@ -355,6 +368,28 @@ func prova_mappe() -> void:
 					"%s: la mappa mostra la stanza '%s', che non e' un nodo" % [percorso, id_stanza])
 			esigi(String(stanza.get("nome", "")) != "",
 					"%s: la stanza '%s' non ha nome sulla mappa" % [percorso, id_stanza])
+			var cella: Array = stanza.get("cella", [])
+			esigi(cella.size() == 2 and int(cella[0]) >= 0 and int(cella[1]) >= 0,
+					"%s: la stanza '%s' non ha una cella valida sulla griglia" % [percorso, id_stanza])
+			if cella.size() != 2:
+				continue
+			var misura: Array = stanza.get("dimensione", [1, 1])
+			esigi(misura.size() == 2 and int(misura[0]) >= 1 and int(misura[1]) >= 1,
+					"%s: la stanza '%s' ha una dimensione impossibile" % [percorso, id_stanza])
+			var tipo := String(stanza.get("tipo", "normale"))
+			esigi(tipo in ["normale", "segreta"],
+					"%s: la stanza '%s' e' di tipo '%s', che non esiste" % [percorso, id_stanza, tipo])
+			if stanza.has("icona"):
+				esigi(String(stanza["icona"]) in ICONE_MAPPA,
+						"%s: la stanza '%s' chiede l'icona '%s', che non esiste"
+						% [percorso, id_stanza, stanza["icona"]])
+			for dx in maxi(int(misura[0]), 1):
+				for dy in maxi(int(misura[1]), 1):
+					var chiave := "%d,%d" % [int(cella[0]) + dx, int(cella[1]) + dy]
+					esigi(not occupate.has(chiave),
+							"%s: '%s' e '%s' occupano lo stesso quadratino %s"
+							% [percorso, occupate.get(chiave, "?"), id_stanza, chiave])
+					occupate[chiave] = id_stanza
 		for coppia in mappa_zona.get("connessioni", []):
 			for estremo in coppia:
 				esigi(stanze.has(String(estremo)),
@@ -1422,6 +1457,77 @@ func prova_nomi_delle_immagini() -> void:
 			esigi(nome_file.get_basename() in ammesse,
 					"art/personaggi/%s/%s: nessun dialogo chiede questa espressione (nome storto?)"
 					% [nome_cartella, nome_file])
+
+func prova_mappa_a_quadratini() -> void:
+	# LA MAPPA NON DEVE RACCONTARE PIU' DI QUELLO CHE SAI.
+	#
+	# I tre stati di un quadratino sono l'unica cosa che la schermata deve
+	# azzeccare, e sono tutti e tre sbagliabili in silenzio: una stanza mai
+	# sentita che compare rovina l'esplorazione di tutta la zona, una stanza
+	# raggiungibile che non compare la blocca, e un "?" cliccabile che non
+	# doveva esserlo teletrasporta il giocatore dove la storia non l'ha ancora
+	# portato. A schermo nessuno di questi tre casi da' errore.
+	titolo("la mappa a quadratini")
+	GameState.nuova_partita()
+	GameState.entra_squarcio("prova_mappa", "res://data/vuoti/meridia.json")
+
+	# stato di partenza: si e' visto solo il varco, e da li' si intravede la
+	# periferia. Tutto il resto della citta' non esiste ancora
+	GameState.nodi_visitati = ["varco"] as Array[String]
+	GameState.nodo_corrente = "varco"
+
+	var mappa: Control = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	mappa.cornice.size = Vector2(900, 700)
+	mappa.ricostruisci()
+
+	var quadratini: Dictionary = {}
+	for figlio in mappa.strato_bottoni.get_children():
+		quadratini[figlio.tooltip_text] = figlio
+
+	esigi(quadratini.has("Il varco"), "il varco, dove sei, non e' sulla mappa")
+	esigi(quadratini.has("Strade di periferia"),
+			"la periferia confina col varco: doveva comparire come '?'")
+	esigi(not quadratini.has("Quartieri profondi"),
+			"i quartieri profondi non confinano con niente di noto: non dovevano comparire")
+	esigi(String(quadratini["Il varco"].text) == "",
+			"il varco e' stato visitato: non deve mostrare un punto di domanda")
+	esigi(String(quadratini["Strade di periferia"].text) == "?",
+			"un posto intravisto deve mostrare il punto di domanda")
+
+	# un quadratino intravisto ma non ancora aperto dalla storia non ci porta:
+	# lo dice, e resta dov'e'
+	mappa.etichetta_stato.text = " "
+	mappa._su_stanza("periferia", false)
+	esigi(GameState.nodo_corrente == "varco",
+			"cliccare un posto non ancora raggiungibile ha spostato il giocatore")
+	esigi(mappa.etichetta_stato.text != " ",
+			"cliccare un posto non raggiungibile non ha detto niente al giocatore")
+
+	# una stanza grande occupa davvero piu' di un quadratino
+	GameState.entra_squarcio("prova_mappa2", "res://data/vuoti/casa_gigante.json")
+	GameState.nodi_visitati = ["soglia", "salone"] as Array[String]
+	GameState.nodo_corrente = "salone"
+	mappa.queue_free()
+	mappa = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	mappa.cornice.size = Vector2(900, 700)
+	mappa.ricostruisci()
+	var salone: Dictionary = {}
+	var soglia: Dictionary = {}
+	for stanza in GameState.mappa_zona.get("stanze", []):
+		if String(stanza.get("id", "")) == "salone":
+			salone = stanza
+		elif String(stanza.get("id", "")) == "soglia":
+			soglia = stanza
+	esigi(not salone.is_empty() and not soglia.is_empty(), "salone o soglia non sono sulla mappa")
+	var rettangolo_salone: Rect2 = mappa.rettangolo_di(salone)
+	var rettangolo_soglia: Rect2 = mappa.rettangolo_di(soglia)
+	esigi(rettangolo_salone.size.y > rettangolo_soglia.size.y * 1.5,
+			"il salone e' alto due quadratini nei dati, ma a schermo e' come gli altri")
+	esigi(not rettangolo_salone.intersects(rettangolo_soglia),
+			"il salone grande finisce sopra la soglia")
+	mappa.queue_free()
 
 const CARTELLA_ILLUSTRAZIONI := "res://art/illustrazioni/"
 

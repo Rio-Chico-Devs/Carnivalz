@@ -18,25 +18,33 @@ di dove sei stato, `stanza_sbloccata()` di cosa e' raggiungibile.
 
 | segno | cosa vuol dire |
 |---|---|
-| quadrato **rosso** | percorso normale, gia' battuto |
-| quadrato **verde** | zona segreta |
-| quadrato **bianco** | mai visto: non e' sulla mappa finche' non ci arrivi |
-| **cerchio blu** | il boss della zona |
+| quadrato **rosso pieno** | ci sei stato: percorso normale |
+| quadrato **verde pieno** | ci sei stato: zona segreta (`tipo: "segreta"`) |
+| quadrato con **`?`** acceso | lo sai raggiungibile e non ci sei mai andato. Cliccandolo ci vai |
+| quadrato con **`?`** spento | sai solo che li' c'e' qualcosa, perche' confina con un posto in cui sei stato. Cliccandolo il gioco dice perche' non si passa ancora |
+| **niente** | non ne sai nemmeno l'esistenza: la mappa si costruisce camminando |
 | **freccia** | dove sei adesso |
-| **cornice** | la porzione di mappa che stai guardando (si allarga e si stringe) |
-| **`exit`** | il punto da cui si esce dalla zona |
+| **cerchio** | il boss della zona |
+| **punto pieno** | uno scontro duro: li' negli agguati puo' capitare qualcosa di molto piu' grosso |
+| **✕** | il punto da cui si esce dalla zona |
+| **cornice** | la porzione di mappa che stai guardando |
 
-Le altre icone — miniboss, area segreta, negozio locale, personaggio chiave,
-incontro casuale — sono disegni che arriveranno: nei dati sono gia' un campo
-`icona` sulla stanza, quindi aggiungerne una vuol dire aggiungere un file, non
-toccare il codice.
+Le icone sono disegnate a mano dal codice finche' non arrivano i disegni veri.
+Aggiungerne una vuol dire **aggiungere un file**, non toccare il codice: se
+esiste `art/icone_mappa/<icona>.png` quello vince sul disegno provvisorio.
 
 ### Le stanze grandi
 
-Una stanza grande **occupa piu' di un quadratino**: nei dati e' un campo
+Una stanza grande **occupa piu' di un quadratino**: nei dati e' il campo
 `dimensione` (larghezza x altezza in quadratini). Serve a far vedere che la
 piazza sotterranea non e' larga come un ripostiglio: la mappa deve mentire il
 meno possibile.
+
+Due stanze non possono finire sullo stesso quadratino. Non e' una convenzione:
+`prova_mappe` tiene il conto di ogni casella occupata, e allargare una stanza
+sopra la vicina fa fallire le prove invece di produrre un quadrato che ne copre
+un altro (con quello sotto diventato incliccabile, e nessun errore da nessuna
+parte).
 
 ### I piani
 
@@ -60,21 +68,25 @@ non cosa troverai.
 |---|---|
 | una mappa per zona, coi collegamenti | ✅ `mappa_dungeon` nel file di eventi |
 | i posti si illuminano esplorando | ✅ `nodi_visitati` / `stanza_sbloccata()` |
-| distinzione «mai visto» / «visto» / «sei qui» | ✅ colori di `Stile.segna_visita()` |
-| **quadrati su griglia** invece di pallini e linee | ⬜ i dati hanno gia' le posizioni allineate alla griglia: manca il disegno |
-| stanze grandi (`dimensione`) | ⬜ |
-| zone segrete in verde (`tipo: "segreta"`) | ⬜ |
-| icone (boss, miniboss, negozio, personaggio, uscita) | ⬜ servono i disegni |
+| **quadrati su griglia** invece di pallini e linee | ✅ campo `cella` |
+| **stanze grandi** su piu' quadratini | ✅ campo `dimensione` |
+| il **«?»** su quello che si intravede | ✅ e cliccandolo ci si va, se la storia l'ha aperto |
+| zone segrete in verde | ✅ campo `tipo: "segreta"` — nessuna ancora marcata nei dati |
+| icone (boss, scontro duro, uscita...) | ✅ campo `icona`, disegnate a mano finche' non arrivano i disegni: basta mettere `art/icone_mappa/<icona>.png` |
+| cornice della vista | ✅ |
+| zoom e trascinamento | ⬜ oggi la griglia si adatta da sola al riquadro |
 | piu' piani per zona | ⬜ oggi la mappa e' una sola per file di eventi |
-| cornice della vista, zoom | ⬜ |
+| eventi che compaiono sulla mappa dopo uno scontro | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
 ## Come si legge quello che segue
 
 Per ogni zona ci sono due disegni della stessa cosa.
 
-**La griglia** e' la mappa come la vedra' il giocatore: dove stanno le stanze
-una rispetto all'altra. `▶` e' il punto di ingresso, `✕` l'uscita dalla zona.
+**La griglia** e' la mappa come la vede il giocatore: dove stanno le stanze una
+rispetto all'altra. `▶` e' il punto di ingresso, `✕` l'uscita dalla zona, `◇` una
+zona segreta. Una stanza grande occupa piu' caselle: le caselle in piu' portano
+una freccia (`↑`, `←`) verso quella che ha il nome.
 
 **Il percorso** e' la stessa zona ripercorsa dall'ingresso, per far vedere in
 che ordine si apre. Ogni riga e' una scelta; l'indentazione e' la profondita'.
@@ -269,6 +281,7 @@ inizio
 | **Stanza degli studi** | **Stanza dei giochi** | **La scala** | **Grande bagno** | **Il grande laboratorio** |   |   |
 |   |   | **Sala principale** | **Cucina** | **Giardino ovest** |   |   |
 |   | **Ala sinistra** | **Il salone** | **Ala destra** | **Il giardino** | **Giardino est** | **L'albero grande** |
+|   |   | ↑ |   | ↑ |   |   |
 |   |   | ▶ ✕ **La soglia** |   | **Verso i giardini** | **Giardino nord** | **Vivaio, primo piano** |
 |   |   |   |   |   |   | **Vivaio, secondo piano** |
 |   |   |   |   |   |   | **Fondo del vivaio** |
@@ -520,16 +533,16 @@ portone
 
 ## La griglia
 
-| | | |
-|:--:|:--:|:--:|
-|   |   | **Quartieri profondi** |
-|   |   | **Vicolo sul retro** |
-| **Supermercato** | **Officina** | **Edicola** |
-|   | **Strada principale** |   |
-| **Struttura abbandonata** | **Primi complessi** | **Il parco** |
-|   | **Ingresso della città** |   |
-|   | **Strade di periferia** |   |
-|   | ▶ ✕ **Il varco** |   |
+| | | | |
+|:--:|:--:|:--:|:--:|
+|   |   | **Quartieri profondi** | ← |
+|   |   | **Vicolo sul retro** |   |
+| **Supermercato** | **Officina** | **Edicola** |   |
+|   | **Strada principale** |   |   |
+| **Struttura abbandonata** | **Primi complessi** | **Il parco** |   |
+|   | **Ingresso della città** | ↑ |   |
+|   | **Strade di periferia** |   |   |
+|   | ▶ ✕ **Il varco** |   |   |
 
 12 stanze sulla mappa, 11 collegamenti.
 
@@ -643,8 +656,8 @@ soglia   (flag qualcosa_preme_toccato)
 
 | | | | | | | |
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| ✕ **Piazza sotterranea** |   |   |   |   |   | ✕ **Cargo abbandonato** |
-|   |   | ✕ **Cunicolo di sinistra** |   | ✕ **Cunicolo di destra** |   |   |
+| ✕ **Piazza sotterranea** | ← |   |   |   |   | ✕ **Cargo abbandonato** |
+| ↑ | ↑ | ✕ **Cunicolo di sinistra** |   | ✕ **Cunicolo di destra** |   |   |
 |   |   |   | ✕ **Bivio dei cunicoli** |   |   |   |
 |   |   |   | ✕ **Il grande ponte marcio** |   |   |   |
 |   |   |   |   |   | **Sala del lamento** |   |
@@ -757,8 +770,8 @@ varco
 
 | | | | | | | |
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|   | **Il Padiglione** |   | **La grande discarica** |   |   |   |
-|   |   |   | **Cuore del complesso** |   |   |   |
+|   | **Il Padiglione** | ← | **La grande discarica** | ← |   |   |
+|   | ↑ | ↑ | **Cuore del complesso** | ← |   |   |
 |   |   |   |   |   |   | **Vecchio centro di controllo** |
 |   |   |   | **Il nastro trasportatore** |   |   |   |
 |   |   |   |   |   | **Sala informatica** |   |

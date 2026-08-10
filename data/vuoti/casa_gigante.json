@@ -1,223 +1,237 @@
 {
 	"nodo_iniziale": "soglia",
 	"mappa_dungeon": {
+		"nome": "La Casa Gigante",
 		"flag_completamento": "casa_ricordo_sconfitto",
 		"stanze": [
 			{
 				"id": "soglia",
 				"nome": "La soglia",
-				"pos": [
-					380,
-					780
-				]
+				"cella": [
+					2,
+					7
+				],
+				"icona": "uscita"
 			},
 			{
 				"id": "salone",
 				"nome": "Il salone",
-				"pos": [
-					380,
-					700
+				"cella": [
+					2,
+					5
+				],
+				"dimensione": [
+					1,
+					2
 				]
 			},
 			{
 				"id": "sala_principale",
 				"nome": "Sala principale",
-				"pos": [
-					380,
-					620
+				"cella": [
+					2,
+					4
 				]
 			},
 			{
 				"id": "ala_destra",
 				"nome": "Ala destra",
-				"pos": [
-					520,
-					700
+				"cella": [
+					3,
+					5
 				]
 			},
 			{
 				"id": "ala_sinistra",
 				"nome": "Ala sinistra",
-				"pos": [
-					240,
-					700
+				"cella": [
+					1,
+					5
 				]
 			},
 			{
 				"id": "cucina",
 				"nome": "Cucina",
-				"pos": [
-					520,
-					620
+				"cella": [
+					3,
+					4
 				]
 			},
 			{
 				"id": "scala",
 				"nome": "La scala",
-				"pos": [
-					380,
-					540
+				"cella": [
+					2,
+					3
 				]
 			},
 			{
 				"id": "grande_bagno",
 				"nome": "Grande bagno",
-				"pos": [
-					520,
-					540
+				"cella": [
+					3,
+					3
 				]
 			},
 			{
 				"id": "stanza_giochi",
 				"nome": "Stanza dei giochi",
-				"pos": [
-					240,
-					540
+				"cella": [
+					1,
+					3
 				]
 			},
 			{
 				"id": "soffitta",
 				"nome": "Soffitta",
-				"pos": [
-					380,
-					460
+				"cella": [
+					2,
+					2
 				]
 			},
 			{
 				"id": "attico",
 				"nome": "Attico",
-				"pos": [
-					380,
-					380
+				"cella": [
+					2,
+					1
 				]
 			},
 			{
 				"id": "camera_da_letto",
 				"nome": "Camera da letto",
-				"pos": [
-					380,
-					300
-				]
+				"cella": [
+					2,
+					0
+				],
+				"icona": "personaggio"
 			},
 			{
 				"id": "stanza_studi",
 				"nome": "Stanza degli studi",
-				"pos": [
-					100,
-					540
+				"cella": [
+					0,
+					3
 				]
 			},
 			{
 				"id": "tunnel",
 				"nome": "Il tunnel",
-				"pos": [
-					100,
-					460
+				"cella": [
+					0,
+					2
 				]
 			},
 			{
 				"id": "altare",
 				"nome": "L'altare",
-				"pos": [
-					100,
-					380
-				]
+				"cella": [
+					0,
+					1
+				],
+				"icona": "boss"
 			},
 			{
 				"id": "giardino_ingresso",
 				"nome": "Verso i giardini",
-				"pos": [
-					660,
-					780
+				"cella": [
+					4,
+					7
 				]
 			},
 			{
 				"id": "giardino",
 				"nome": "Il giardino",
-				"pos": [
-					660,
-					700
+				"cella": [
+					4,
+					5
+				],
+				"dimensione": [
+					1,
+					2
 				]
 			},
 			{
 				"id": "giardino_est",
 				"nome": "Giardino est",
-				"pos": [
-					800,
-					700
+				"cella": [
+					5,
+					5
 				]
 			},
 			{
 				"id": "albero_voce",
 				"nome": "L'albero grande",
-				"pos": [
-					940,
-					700
-				]
+				"cella": [
+					6,
+					5
+				],
+				"icona": "personaggio"
 			},
 			{
 				"id": "giardino_ovest",
 				"nome": "Giardino ovest",
-				"pos": [
-					660,
-					620
+				"cella": [
+					4,
+					4
 				]
 			},
 			{
 				"id": "laboratorio",
 				"nome": "Il grande laboratorio",
-				"pos": [
-					660,
-					540
+				"cella": [
+					4,
+					3
 				]
 			},
 			{
 				"id": "sala_matrici",
 				"nome": "Sala delle matrici",
-				"pos": [
-					660,
-					460
+				"cella": [
+					4,
+					2
 				]
 			},
 			{
 				"id": "deposito_chimico",
 				"nome": "Deposito chimico",
-				"pos": [
-					660,
-					380
+				"cella": [
+					4,
+					1
 				]
 			},
 			{
 				"id": "giardino_nord",
 				"nome": "Giardino nord",
-				"pos": [
-					800,
-					780
+				"cella": [
+					5,
+					7
 				]
 			},
 			{
 				"id": "vivaio_1",
 				"nome": "Vivaio, primo piano",
-				"pos": [
-					940,
-					780
+				"cella": [
+					6,
+					7
 				]
 			},
 			{
 				"id": "vivaio_2",
 				"nome": "Vivaio, secondo piano",
-				"pos": [
-					940,
-					860
+				"cella": [
+					6,
+					8
 				]
 			},
 			{
 				"id": "vivaio_3",
 				"nome": "Fondo del vivaio",
-				"pos": [
-					940,
-					940
-				]
+				"cella": [
+					6,
+					9
+				],
+				"icona": "forte"
 			}
 		],
 		"connessioni": [

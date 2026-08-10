@@ -1,414 +1,1156 @@
 {
 	"nodo_iniziale": "varco",
 	"mappa_dungeon": {
-		"sfondo": "res://art/mappe_zona/jondoh.png",
+		"nome": "La Rocca di Ossidiana",
 		"flag_completamento": "quest_ossidiana",
+		"sfondo": "res://art/mappe_zona/jondoh.png",
 		"stanze": [
-			{ "id": "varco", "nome": "Il varco", "pos": [400, 700] },
-			{ "id": "corridoio_ossidiana", "nome": "Corridoio di ossidiana", "pos": [400, 620] },
-			{ "id": "fossa_oscura", "nome": "La fossa oscura", "pos": [200, 620] },
-			{ "id": "sala_del_raccolto", "nome": "Sala del raccolto", "pos": [600, 620] },
-			{ "id": "sala_del_lamento", "nome": "Sala del lamento", "pos": [600, 540] },
-			{ "id": "cunicolo_1", "nome": "Bivio dei cunicoli", "pos": [400, 320] },
-			{ "id": "cunicolo_2", "nome": "Cunicolo di sinistra", "pos": [220, 220] },
-			{ "id": "piazza_sotterranea", "nome": "Piazza sotterranea", "pos": [100, 120] },
-			{ "id": "cunicolo_3", "nome": "Cunicolo di destra", "pos": [580, 220] },
-			{ "id": "cargo_abbandonato", "nome": "Cargo abbandonato", "pos": [700, 120] },
-			{ "id": "ponte_approccio", "nome": "Il grande ponte marcio", "pos": [400, 460] }
+			{
+				"id": "varco",
+				"nome": "Il varco",
+				"cella": [
+					3,
+					6
+				],
+				"icona": "uscita"
+			},
+			{
+				"id": "corridoio_ossidiana",
+				"nome": "Corridoio di ossidiana",
+				"cella": [
+					3,
+					5
+				]
+			},
+			{
+				"id": "fossa_oscura",
+				"nome": "La fossa oscura",
+				"cella": [
+					1,
+					5
+				]
+			},
+			{
+				"id": "sala_del_raccolto",
+				"nome": "Sala del raccolto",
+				"cella": [
+					5,
+					5
+				]
+			},
+			{
+				"id": "sala_del_lamento",
+				"nome": "Sala del lamento",
+				"cella": [
+					5,
+					4
+				]
+			},
+			{
+				"id": "cunicolo_1",
+				"nome": "Bivio dei cunicoli",
+				"cella": [
+					3,
+					2
+				]
+			},
+			{
+				"id": "cunicolo_2",
+				"nome": "Cunicolo di sinistra",
+				"cella": [
+					2,
+					1
+				]
+			},
+			{
+				"id": "piazza_sotterranea",
+				"nome": "Piazza sotterranea",
+				"cella": [
+					0,
+					0
+				],
+				"dimensione": [
+					2,
+					2
+				]
+			},
+			{
+				"id": "cunicolo_3",
+				"nome": "Cunicolo di destra",
+				"cella": [
+					4,
+					1
+				]
+			},
+			{
+				"id": "cargo_abbandonato",
+				"nome": "Cargo abbandonato",
+				"cella": [
+					6,
+					0
+				]
+			},
+			{
+				"id": "ponte_approccio",
+				"nome": "Il grande ponte marcio",
+				"cella": [
+					3,
+					3
+				]
+			}
 		],
 		"connessioni": [
-			["varco", "corridoio_ossidiana"],
-			["corridoio_ossidiana", "fossa_oscura"],
-			["corridoio_ossidiana", "sala_del_raccolto"],
-			["sala_del_raccolto", "sala_del_lamento"],
-			["sala_del_lamento", "cunicolo_1"],
-			["sala_del_lamento", "ponte_approccio"],
-			["cunicolo_1", "ponte_approccio"],
-			["cunicolo_1", "cunicolo_2"],
-			["cunicolo_1", "cunicolo_3"],
-			["cunicolo_2", "piazza_sotterranea"],
-			["cunicolo_3", "cargo_abbandonato"]
+			[
+				"varco",
+				"corridoio_ossidiana"
+			],
+			[
+				"corridoio_ossidiana",
+				"fossa_oscura"
+			],
+			[
+				"corridoio_ossidiana",
+				"sala_del_raccolto"
+			],
+			[
+				"sala_del_raccolto",
+				"sala_del_lamento"
+			],
+			[
+				"sala_del_lamento",
+				"cunicolo_1"
+			],
+			[
+				"sala_del_lamento",
+				"ponte_approccio"
+			],
+			[
+				"cunicolo_1",
+				"ponte_approccio"
+			],
+			[
+				"cunicolo_1",
+				"cunicolo_2"
+			],
+			[
+				"cunicolo_1",
+				"cunicolo_3"
+			],
+			[
+				"cunicolo_2",
+				"piazza_sotterranea"
+			],
+			[
+				"cunicolo_3",
+				"cargo_abbandonato"
+			]
 		]
 	},
 	"nodi": {
 		"varco": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "In un angolo remoto, lontano dalle luci più calde e raggiunto solo da freddi e gelidi venti, lunghi cunicoli sono stati scavati nella fredda e dura ossidiana che ricopre questo sfortunato luogo.\n\n\"Stai lontano dai cunicoli\", si diceva agli sfortunati esploratori che recuperavano il prezioso minerale da questo mondo primitivo. Quello che si cela sottoterra è un mondo che è meglio resti dimenticato...\n\nJondoh è il nome di questo pianeta, abbandonato da ogni luce, che ora ribolle e cerca disperatamente una nuova vita... Cosa si cela in fondo ai cunicoli di questo inferno nero?" },
-				{ "tipo": "titolo", "testo": "Cunicoli sotterranei di Jondoh" },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questo posto... il solo respirare quest'aria mi rende profondamente triste... cosa sta succedendo in questo posto?" }
+				{
+					"tipo": "narrazione",
+					"testo": "In un angolo remoto, lontano dalle luci più calde e raggiunto solo da freddi e gelidi venti, lunghi cunicoli sono stati scavati nella fredda e dura ossidiana che ricopre questo sfortunato luogo.\n\n\"Stai lontano dai cunicoli\", si diceva agli sfortunati esploratori che recuperavano il prezioso minerale da questo mondo primitivo. Quello che si cela sottoterra è un mondo che è meglio resti dimenticato...\n\nJondoh è il nome di questo pianeta, abbandonato da ogni luce, che ora ribolle e cerca disperatamente una nuova vita... Cosa si cela in fondo ai cunicoli di questo inferno nero?"
+				},
+				{
+					"tipo": "titolo",
+					"testo": "Cunicoli sotterranei di Jondoh"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo posto... il solo respirare quest'aria mi rende profondamente triste... cosa sta succedendo in questo posto?"
+				}
 			],
 			"scena": "Il varco resta aperto alle tue spalle, un taglio di luce fredda sulla parete nera. Davanti, il corridoio scende.",
 			"scelte": [
-				{ "testo": "Scendi nel corridoio di ossidiana", "vai": "corridoio_ossidiana" },
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+				{
+					"testo": "Scendi nel corridoio di ossidiana",
+					"vai": "corridoio_ossidiana"
+				},
+				{
+					"testo": "Torna nel Vuoto",
+					"torna_vuoto": true
+				}
 			]
 		},
 		"corridoio_ossidiana": {
 			"testo": "Il corridoio scende, tagliato nella roccia nera. Ai lati, nicchie scavate a mano, segni di graffi e un odore ferroso misto a qualcosa di dolce contraddistinguono questi cunicoli: una leggera polvere grigia, come un fondo sabbioso, ricopre il terreno su cui cammini. Il raschiare si fa più vicino: intorno a te, vari buchi dai quali provengono suoni di graffi e grugniti indistinguibili grondano una sostanza nera che si solidifica a contatto con l'aria.",
 			"agguato": {
 				"probabilita": 0.35,
-				"gruppi": [["ghoul"], ["teschio_errante"], ["ghoul", "teschio_errante"], ["stigma"], ["diabolo"], ["ghoul", "stigma"]],
+				"gruppi": [
+					[
+						"ghoul"
+					],
+					[
+						"teschio_errante"
+					],
+					[
+						"ghoul",
+						"teschio_errante"
+					],
+					[
+						"stigma"
+					],
+					[
+						"diabolo"
+					],
+					[
+						"ghoul",
+						"stigma"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Scendi nella fossa oscura", "vai": "fossa_oscura" },
-				{ "testo": "Entra nella sala del raccolto", "vai": "sala_del_raccolto" },
-				{ "testo": "Torna al varco", "vai": "varco" }
+				{
+					"testo": "Scendi nella fossa oscura",
+					"vai": "fossa_oscura"
+				},
+				{
+					"testo": "Entra nella sala del raccolto",
+					"vai": "sala_del_raccolto"
+				},
+				{
+					"testo": "Torna al varco",
+					"vai": "varco"
+				}
 			]
 		},
 		"fossa_oscura": {
 			"testo": "Una fossa oscura dove piccole pietre illuminano quel poco che è visibile. Qualcosa si muove nel buio: non sai se sia ostile o meno, e lo stress sale preoccupantemente. In alto, incastrato tra due sporgenze di ossidiana, qualcosa luccica ancora.",
 			"agguato": {
 				"probabilita": 0.3,
-				"gruppi": [["teschio_errante"], ["teschio_errante", "teschio_errante"], ["sadico"], ["teschio_errante", "sadico"]],
+				"gruppi": [
+					[
+						"teschio_errante"
+					],
+					[
+						"teschio_errante",
+						"teschio_errante"
+					],
+					[
+						"sadico"
+					],
+					[
+						"teschio_errante",
+						"sadico"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Fruga nel buio", "vai": "fossa_oscura", "una_tantum": "oss_tazo_1", "tazo": 20 },
-				{ "testo": "Procedi verso il fondo", "vai": "fondo_del_fosso", "stress": 15 },
-				{ "testo": "Torna al corridoio", "vai": "corridoio_ossidiana" }
+				{
+					"testo": "Fruga nel buio",
+					"vai": "fossa_oscura",
+					"una_tantum": "oss_tazo_1",
+					"tazo": 20
+				},
+				{
+					"testo": "Procedi verso il fondo",
+					"vai": "fondo_del_fosso",
+					"stress": 15
+				},
+				{
+					"testo": "Torna al corridoio",
+					"vai": "corridoio_ossidiana"
+				}
 			]
 		},
 		"fondo_del_fosso": {
 			"testo": "Non sembra esserci altro. Senti qualcosa sballottato fra i tuoi piedi: uno zaino, di qualcuno più sfortunato di te...",
 			"scelte": [
-				{ "testo": "Recupera ciò che trovi", "vai": "fossa_oscura", "una_tantum": "oss_zaino", "tazo": 40, "oggetto": "fiala_hp" },
-				{ "testo": "Torna alla fossa", "vai": "fossa_oscura" }
+				{
+					"testo": "Recupera ciò che trovi",
+					"vai": "fossa_oscura",
+					"una_tantum": "oss_zaino",
+					"tazo": 40,
+					"oggetto": "fiala_hp"
+				},
+				{
+					"testo": "Torna alla fossa",
+					"vai": "fossa_oscura"
+				}
 			]
 		},
 		"sala_del_raccolto": {
 			"testo": "Cos'è questo posto... c'è una puzza tremenda... quelli... sono cadaveri. Il modo in cui sono stati disposti e ridotti ti fa riflettere: ci sono dei sacchi cuciti in modo primitivo, sparsi in giro.",
 			"agguato": {
 				"probabilita": 0.35,
-				"gruppi": [["ghoul"], ["ghoul", "ghoul"], ["madre_in_lacrime"], ["ghoul", "madre_in_lacrime"]],
+				"gruppi": [
+					[
+						"ghoul"
+					],
+					[
+						"ghoul",
+						"ghoul"
+					],
+					[
+						"madre_in_lacrime"
+					],
+					[
+						"ghoul",
+						"madre_in_lacrime"
+					]
+				],
 				"se_perdi": "espulso"
 			},
 			"scelte": [
-				{ "testo": "Fruga tra i sacchi marci", "vai": "sala_del_raccolto", "una_tantum": "oss_tazo_2", "tazo": 25 },
-				{ "testo": "Recupera una fiala intatta tra le macerie", "vai": "sala_del_raccolto", "una_tantum": "oss_fiala_1", "oggetto": "fiala_hp" },
-				{ "testo": "Scendi verso la sala del lamento", "vai": "sala_del_lamento" },
-				{ "testo": "Torna al corridoio", "vai": "corridoio_ossidiana" }
+				{
+					"testo": "Fruga tra i sacchi marci",
+					"vai": "sala_del_raccolto",
+					"una_tantum": "oss_tazo_2",
+					"tazo": 25
+				},
+				{
+					"testo": "Recupera una fiala intatta tra le macerie",
+					"vai": "sala_del_raccolto",
+					"una_tantum": "oss_fiala_1",
+					"oggetto": "fiala_hp"
+				},
+				{
+					"testo": "Scendi verso la sala del lamento",
+					"vai": "sala_del_lamento"
+				},
+				{
+					"testo": "Torna al corridoio",
+					"vai": "corridoio_ossidiana"
+				}
 			]
 		},
 		"sala_del_lamento": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "...ma cosa è successo in questo posto?!" },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Dall'alto, un essere scappa verso uno dei cunicoli: era enorme, e mi stava osservando... Sarà meglio sbrigarmi a estinguere la fonte di questa follia..." },
-				{ "tipo": "narrazione", "testo": "Per terra trovi delle pergamene incomprensibili..." }
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "...ma cosa è successo in questo posto?!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Dall'alto, un essere scappa verso uno dei cunicoli: era enorme, e mi stava osservando... Sarà meglio sbrigarmi a estinguere la fonte di questa follia..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Per terra trovi delle pergamene incomprensibili..."
+				}
 			],
 			"scena": "La sala del lamento: pareti coperte di graffi fino a dove arriva il braccio di un uomo, e un'eco che non si decide a spegnersi.",
 			"scelte": [
-				{ "testo": "Raccogli le pergamene", "richiede_non_flag": "oss_lamento_superato", "vai": "lamento_imboscata", "una_tantum": "oss_pergamene", "oggetto": "pergamene_incomprensibili" },
-				{ "testo": "Raccogli le pergamene", "richiede_flag": "oss_lamento_superato", "vai": "sala_del_lamento", "una_tantum": "oss_pergamene", "oggetto": "pergamene_incomprensibili" },
-				{ "testo": "Affronta ciò che urla nel buio", "richiede_non_flag": "oss_lamento_superato", "vai": "lamento_imboscata" },
-				{ "testo": "Prosegui", "richiede_flag": "oss_lamento_superato", "vai": "dopo_lamento" },
-				{ "testo": "Torna alla sala del raccolto", "richiede_non_flag": "oss_lamento_superato", "vai": "sala_del_raccolto" }
+				{
+					"testo": "Raccogli le pergamene",
+					"richiede_non_flag": "oss_lamento_superato",
+					"vai": "lamento_imboscata",
+					"una_tantum": "oss_pergamene",
+					"oggetto": "pergamene_incomprensibili"
+				},
+				{
+					"testo": "Raccogli le pergamene",
+					"richiede_flag": "oss_lamento_superato",
+					"vai": "sala_del_lamento",
+					"una_tantum": "oss_pergamene",
+					"oggetto": "pergamene_incomprensibili"
+				},
+				{
+					"testo": "Affronta ciò che urla nel buio",
+					"richiede_non_flag": "oss_lamento_superato",
+					"vai": "lamento_imboscata"
+				},
+				{
+					"testo": "Prosegui",
+					"richiede_flag": "oss_lamento_superato",
+					"vai": "dopo_lamento"
+				},
+				{
+					"testo": "Torna alla sala del raccolto",
+					"richiede_non_flag": "oss_lamento_superato",
+					"vai": "sala_del_raccolto"
+				}
 			]
 		},
 		"lamento_imboscata": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Una figura oscura ti travolge dal buio!" },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "!!!" }
+				{
+					"tipo": "narrazione",
+					"testo": "Una figura oscura ti travolge dal buio!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "!!!"
+				}
 			],
-			"combattimento_automatico": { "nemici": ["ghoul", "sacerdote_folle"], "se_vinci": "dopo_lamento", "se_perdi": "espulso" }
+			"combattimento_automatico": {
+				"nemici": [
+					"ghoul",
+					"sacerdote_folle"
+				],
+				"se_vinci": "dopo_lamento",
+				"se_perdi": "espulso"
+			}
 		},
 		"dopo_lamento": {
 			"testo": "Qualcosa, dentro di te, si fissa in questo punto. Non tornerai indietro da qui.",
 			"flag": "oss_lamento_superato",
 			"salva_checkpoint": true,
-			"sblocca_stanze": ["cunicolo_1", "ponte_approccio"],
+			"sblocca_stanze": [
+				"cunicolo_1",
+				"ponte_approccio"
+			],
 			"scelte": [
-				{ "testo": "Prendi il ciondolo strappato al sacerdote", "vai": "dopo_lamento", "una_tantum": "oss_ciondolo", "oggetto": "ciondolo_del_grande_viaggio" },
-				{ "testo": "Prosegui più a fondo nei cunicoli", "vai": "cunicolo_1" },
-				{ "testo": "Prendi i cunicoli di destra, verso il ponte", "vai": "ponte_approccio" }
+				{
+					"testo": "Prendi il ciondolo strappato al sacerdote",
+					"vai": "dopo_lamento",
+					"una_tantum": "oss_ciondolo",
+					"oggetto": "ciondolo_del_grande_viaggio"
+				},
+				{
+					"testo": "Prosegui più a fondo nei cunicoli",
+					"vai": "cunicolo_1"
+				},
+				{
+					"testo": "Prendi i cunicoli di destra, verso il ponte",
+					"vai": "ponte_approccio"
+				}
 			]
 		},
 		"cunicolo_1": {
 			"testo": "Questi cunicoli sembrano non avere fine. Da qui la roccia si biforca in due direzioni diverse.",
-			"sblocca_stanze": ["cunicolo_1", "cunicolo_2", "cunicolo_3"],
+			"sblocca_stanze": [
+				"cunicolo_1",
+				"cunicolo_2",
+				"cunicolo_3"
+			],
 			"scelte": [
-				{ "testo": "Vai a sinistra", "vai": "cunicolo_2" },
-				{ "testo": "Vai a destra", "vai": "cunicolo_3" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Vai a sinistra",
+					"vai": "cunicolo_2"
+				},
+				{
+					"testo": "Vai a destra",
+					"vai": "cunicolo_3"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"cunicolo_2": {
 			"testo": "Il cunicolo di sinistra scende ancora, ma in fondo si intravede un bagliore instabile, come di torce accese da qualcun altro.",
-			"sblocca_stanze": ["cunicolo_2", "piazza_sotterranea"],
+			"sblocca_stanze": [
+				"cunicolo_2",
+				"piazza_sotterranea"
+			],
 			"scelte": [
-				{ "testo": "Prosegui verso il bagliore", "vai": "piazza_sotterranea" },
-				{ "testo": "Torna al bivio", "vai": "cunicolo_1" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Prosegui verso il bagliore",
+					"vai": "piazza_sotterranea"
+				},
+				{
+					"testo": "Torna al bivio",
+					"vai": "cunicolo_1"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"cunicolo_3": {
 			"testo": "Il cunicolo di destra sale, e un filo di vento gelido comincia a farsi sentire: da qualche parte, più avanti, c'è una via verso la superficie.",
-			"sblocca_stanze": ["cunicolo_3", "cargo_abbandonato"],
+			"sblocca_stanze": [
+				"cunicolo_3",
+				"cargo_abbandonato"
+			],
 			"scelte": [
-				{ "testo": "Sali verso la superficie", "vai": "cargo_abbandonato" },
-				{ "testo": "Torna al bivio", "vai": "cunicolo_1" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Sali verso la superficie",
+					"vai": "cargo_abbandonato"
+				},
+				{
+					"testo": "Torna al bivio",
+					"vai": "cunicolo_1"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"piazza_sotterranea": {
-			"vai_se_flag": { "flag": "oss_yara_conosciuta", "vai": "piazza_ritorno" },
+			"vai_se_flag": {
+				"flag": "oss_yara_conosciuta",
+				"vai": "piazza_ritorno"
+			},
 			"flag": "oss_yara_conosciuta",
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Nella piazza sotterranea trovi qualcuno di vivo, finalmente. Ti osserva a lungo, immobile, prima di abbassare la guardia." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non ne arrivano molti fin qui. Ancora meno ne escono." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Jondoh è un pianeta minerario. Chi ci lavora non è nativo: sono schiavi, portati qui da altri mondi." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Respirare le polveri, toccare la sostanza nera... li fa mutare. Regrediscono, e sviluppano una malvagità che prima non avevano." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Per anni il problema è stato ignorato. Gli schiavi continuavano ad arrivare, i cunicoli continuavano a scavarsi." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Poi sono cominciate le sparizioni. La prima fu mia sorella minore. La più piccola di tutti noi." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Da quel giorno sono passati anni, e molti altri sono scomparsi in questi cunicoli." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Il lavoro si è spostato tutto in superficie: i cunicoli erano considerati troppo pericolosi." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Finché uno schiavo fu attaccato da un ghoul, in superficie. Il ghoul morì poco dopo: riescono a vivere solo qui sotto." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Da allora qualcosa è cambiato. Sempre più persone sparite, attacchi sempre più frequenti." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Ho passato anni a combattere queste cose. Non avrò pace finché non saprò la verità fino in fondo." }
+				{
+					"tipo": "narrazione",
+					"testo": "Nella piazza sotterranea trovi qualcuno di vivo, finalmente. Ti osserva a lungo, immobile, prima di abbassare la guardia."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Non ne arrivano molti fin qui. Ancora meno ne escono."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Jondoh è un pianeta minerario. Chi ci lavora non è nativo: sono schiavi, portati qui da altri mondi."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Respirare le polveri, toccare la sostanza nera... li fa mutare. Regrediscono, e sviluppano una malvagità che prima non avevano."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Per anni il problema è stato ignorato. Gli schiavi continuavano ad arrivare, i cunicoli continuavano a scavarsi."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Poi sono cominciate le sparizioni. La prima fu mia sorella minore. La più piccola di tutti noi."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Da quel giorno sono passati anni, e molti altri sono scomparsi in questi cunicoli."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Il lavoro si è spostato tutto in superficie: i cunicoli erano considerati troppo pericolosi."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Finché uno schiavo fu attaccato da un ghoul, in superficie. Il ghoul morì poco dopo: riescono a vivere solo qui sotto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Da allora qualcosa è cambiato. Sempre più persone sparite, attacchi sempre più frequenti."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Ho passato anni a combattere queste cose. Non avrò pace finché non saprò la verità fino in fondo."
+				}
 			],
 			"centro": "sopravvissuta",
 			"scelte": [
-				{ "testo": "Chiedile di unirsi a te", "recluta_temporaneo": "sopravvissuta", "livello_alleato": 5, "una_tantum": "oss_compagna_reclutata", "vai": "yara_si_unisce" },
-				{ "testo": "Torna al cunicolo", "vai": "cunicolo_2" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Chiedile di unirsi a te",
+					"recluta_temporaneo": "sopravvissuta",
+					"livello_alleato": 5,
+					"una_tantum": "oss_compagna_reclutata",
+					"vai": "yara_si_unisce"
+				},
+				{
+					"testo": "Torna al cunicolo",
+					"vai": "cunicolo_2"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"piazza_ritorno": {
-			"vai_se_flag": { "flag": "oss_compagna_reclutata", "vai": "piazza_con_yara" },
+			"vai_se_flag": {
+				"flag": "oss_compagna_reclutata",
+				"vai": "piazza_con_yara"
+			},
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Hey... ciao di nuovo..." }
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Hey... ciao di nuovo..."
+				}
 			],
 			"centro": "sopravvissuta",
 			"scena": "Yara è dove l'hai lasciata: la schiena contro la roccia, gli occhi puntati sulla galleria da cui sei arrivato.",
 			"scelte": [
-				{ "testo": "Chiedile di unirsi a te", "recluta_temporaneo": "sopravvissuta", "livello_alleato": 5, "una_tantum": "oss_compagna_reclutata", "vai": "yara_si_unisce" },
-				{ "testo": "Torna al cunicolo", "vai": "cunicolo_2" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Chiedile di unirsi a te",
+					"recluta_temporaneo": "sopravvissuta",
+					"livello_alleato": 5,
+					"una_tantum": "oss_compagna_reclutata",
+					"vai": "yara_si_unisce"
+				},
+				{
+					"testo": "Torna al cunicolo",
+					"vai": "cunicolo_2"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"piazza_con_yara": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "C'è qualcosa di brillante per terra." }
+				{
+					"tipo": "narrazione",
+					"testo": "C'è qualcosa di brillante per terra."
+				}
 			],
 			"scena": "La piazza è vuota, adesso: le torce consumate fino alla base, e il silenzio che si richiude ogni volta che smetti di parlare.",
 			"scelte": [
-				{ "testo": "Raccogli l'oggetto brillante", "vai": "piazza_con_yara", "una_tantum": "oss_bomba_artigianale", "oggetto": "bomba_artigianale" },
-				{ "testo": "Torna al cunicolo", "vai": "cunicolo_2" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Raccogli l'oggetto brillante",
+					"vai": "piazza_con_yara",
+					"una_tantum": "oss_bomba_artigianale",
+					"oggetto": "bomba_artigianale"
+				},
+				{
+					"testo": "Torna al cunicolo",
+					"vai": "cunicolo_2"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"yara_si_unisce": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Va bene. Non perché mi fidi di te: perché da sola non ci sono mai arrivata." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Vado avanti io quando serve. Tu bada a non morire." }
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Va bene. Non perché mi fidi di te: perché da sola non ci sono mai arrivata."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Vado avanti io quando serve. Tu bada a non morire."
+				}
 			],
 			"centro": "sopravvissuta",
 			"scena": "Yara ti aspetta, già rivolta verso l'uscita della piazza.",
 			"scelte": [
-				{ "testo": "Torna al cunicolo", "vai": "cunicolo_2" },
-				{ "testo": "Apri la mappa", "torna_a_mappa": true }
+				{
+					"testo": "Torna al cunicolo",
+					"vai": "cunicolo_2"
+				},
+				{
+					"testo": "Apri la mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"cargo_abbandonato": {
 			"testo": "All'aperto trovi un cargo abbandonato, arrugginito, mezzo sepolto nella sabbia nera. All'interno, casse sfondate e provviste dimenticate da chissà quanto tempo.",
 			"scelte": [
-				{ "testo": "Fruga tra le casse", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_tazo", "tazo": 30 },
-				{ "testo": "Recupera una fiala", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_fiala_1", "oggetto": "fiala_hp" },
-				{ "testo": "Recupera un'altra fiala", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_fiala_2", "oggetto": "fiala_hp" },
-				{ "testo": "Recupera l'infuso antico", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_infuso", "oggetto": "infuso_antico" },
-				{ "testo": "Recupera il gel omega", "vai": "cargo_abbandonato", "una_tantum": "oss_cargo_gel", "oggetto": "omega_gel" },
-				{ "testo": "Torna al cunicolo", "vai": "cunicolo_3" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Fruga tra le casse",
+					"vai": "cargo_abbandonato",
+					"una_tantum": "oss_cargo_tazo",
+					"tazo": 30
+				},
+				{
+					"testo": "Recupera una fiala",
+					"vai": "cargo_abbandonato",
+					"una_tantum": "oss_cargo_fiala_1",
+					"oggetto": "fiala_hp"
+				},
+				{
+					"testo": "Recupera un'altra fiala",
+					"vai": "cargo_abbandonato",
+					"una_tantum": "oss_cargo_fiala_2",
+					"oggetto": "fiala_hp"
+				},
+				{
+					"testo": "Recupera l'infuso antico",
+					"vai": "cargo_abbandonato",
+					"una_tantum": "oss_cargo_infuso",
+					"oggetto": "infuso_antico"
+				},
+				{
+					"testo": "Recupera il gel omega",
+					"vai": "cargo_abbandonato",
+					"una_tantum": "oss_cargo_gel",
+					"oggetto": "omega_gel"
+				},
+				{
+					"testo": "Torna al cunicolo",
+					"vai": "cunicolo_3"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"ponte_approccio": {
 			"testo": "Il cunicolo si apre su un grande ponte marcio, teso su un baratro che la luce non riesce a raggiungere. Oltre il ponte, il passaggio prosegue verso il basso.",
 			"scelte": [
-				{ "testo": "Attraversa il grande ponte marcio", "richiede_flag": "oss_compagna_reclutata", "vai": "ponte_meta_compagna" },
-				{ "testo": "Attraversa il grande ponte marcio", "richiede_non_flag": "oss_compagna_reclutata", "vai": "ponte_meta_solo" },
-				{ "testo": "Torna alla mappa", "torna_a_mappa": true }
+				{
+					"testo": "Attraversa il grande ponte marcio",
+					"richiede_flag": "oss_compagna_reclutata",
+					"vai": "ponte_meta_compagna"
+				},
+				{
+					"testo": "Attraversa il grande ponte marcio",
+					"richiede_non_flag": "oss_compagna_reclutata",
+					"vai": "ponte_meta_solo"
+				},
+				{
+					"testo": "Torna alla mappa",
+					"torna_a_mappa": true
+				}
 			]
 		},
 		"ponte_meta_compagna": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Stai attento: non sono mai riuscita ad attraversare questo ponte. Una creatura orribile vive nella parte inferiore. L'ho vista una sola volta, e mi è bastato..." }
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Stai attento: non sono mai riuscita ad attraversare questo ponte. Una creatura orribile vive nella parte inferiore. L'ho vista una sola volta, e mi è bastato..."
+				}
 			],
 			"centro": "sopravvissuta",
 			"scena": "Le assi del ponte scricchiolano già sotto il primo passo. Sotto, solo buio.",
 			"scelte": [
-				{ "testo": "Prosegui", "vai": "ponte_centro" }
+				{
+					"testo": "Prosegui",
+					"vai": "ponte_centro"
+				}
 			]
 		},
 		"ponte_meta_solo": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "...i ponti non mi sono mai piaciuti..." }
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "...i ponti non mi sono mai piaciuti..."
+				}
 			],
 			"scena": "Le assi del ponte scricchiolano già sotto il primo passo. Sotto, solo buio.",
 			"scelte": [
-				{ "testo": "Prosegui", "vai": "ponte_centro" }
+				{
+					"testo": "Prosegui",
+					"vai": "ponte_centro"
+				}
 			]
 		},
 		"ponte_centro": {
 			"testo": "Senti qualcosa muoversi sotto di te...",
 			"scelte": [
-				{ "testo": "Prosegui?", "vai": "ponte_quasi_fine" },
-				{ "testo": "Torna indietro", "vai": "ponte_approccio" }
+				{
+					"testo": "Prosegui?",
+					"vai": "ponte_quasi_fine"
+				},
+				{
+					"testo": "Torna indietro",
+					"vai": "ponte_approccio"
+				}
 			]
 		},
 		"ponte_quasi_fine": {
 			"testo": "Sembra tutto ok: ormai sei a metà del ponte...",
 			"scelte": [
-				{ "testo": "Prosegui?", "vai": "ponte_attacco" }
+				{
+					"testo": "Prosegui?",
+					"vai": "ponte_attacco"
+				}
 			]
 		},
 		"ponte_attacco": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Qualcosa sta salendo da sotto il ponte..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Ecco cos'era questa puzza." }
+				{
+					"tipo": "narrazione",
+					"testo": "Qualcosa sta salendo da sotto il ponte..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Ecco cos'era questa puzza."
+				}
 			],
 			"scelte": [
-				{ "testo": "Reagisci", "richiede_flag": "oss_compagna_reclutata", "vai": "ponte_attacco_compagna" },
-				{ "testo": "Reagisci", "richiede_non_flag": "oss_compagna_reclutata", "combatti": ["divoratore_di_carcasse"], "se_vinci": "oltre_ponte", "se_perdi": "espulso", "se_fuggi": "ponte_approccio" }
+				{
+					"testo": "Reagisci",
+					"richiede_flag": "oss_compagna_reclutata",
+					"vai": "ponte_attacco_compagna"
+				},
+				{
+					"testo": "Reagisci",
+					"richiede_non_flag": "oss_compagna_reclutata",
+					"combatti": [
+						"divoratore_di_carcasse"
+					],
+					"se_vinci": "oltre_ponte",
+					"se_perdi": "espulso",
+					"se_fuggi": "ponte_approccio"
+				}
 			]
 		},
 		"ponte_attacco_compagna": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Eccolo. È proprio quella creatura schifosa!" }
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Eccolo. È proprio quella creatura schifosa!"
+				}
 			],
 			"centro": "sopravvissuta",
-			"combattimento_automatico": { "nemici": ["divoratore_di_carcasse"], "se_vinci": "oltre_ponte", "se_perdi": "espulso", "se_fuggi": "ponte_approccio" }
+			"combattimento_automatico": {
+				"nemici": [
+					"divoratore_di_carcasse"
+				],
+				"se_vinci": "oltre_ponte",
+				"se_perdi": "espulso",
+				"se_fuggi": "ponte_approccio"
+			}
 		},
 		"oltre_ponte": {
 			"testo": "Attraversato il ponte, volgi lo sguardo all'indietro: altri vermi risalgono e divorano la carcassa di quello che hai appena ucciso... Ce n'era più di uno.",
 			"scelte": [
-				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "oltre_ponte_gratitudine" },
-				{ "testo": "Entra nella cripta", "richiede_non_flag": "oss_compagna_reclutata", "vai": "cripta_senza_compagna" }
+				{
+					"testo": "Continua",
+					"richiede_flag": "oss_compagna_reclutata",
+					"vai": "oltre_ponte_gratitudine"
+				},
+				{
+					"testo": "Entra nella cripta",
+					"richiede_non_flag": "oss_compagna_reclutata",
+					"vai": "cripta_senza_compagna"
+				}
 			]
 		},
 		"oltre_ponte_gratitudine": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non ce l'avrei mai fatta da sola... Grazie per avermi fatto venire con te." }
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Non ce l'avrei mai fatta da sola... Grazie per avermi fatto venire con te."
+				}
 			],
 			"centro": "sopravvissuta",
 			"scena": "Dall'altra parte del ponte l'aria è ancora più densa. Yara non guarda più indietro.",
 			"scelte": [
-				{ "testo": "Entra nella cripta", "vai": "cripta_con_compagna" }
+				{
+					"testo": "Entra nella cripta",
+					"vai": "cripta_con_compagna"
+				}
 			]
 		},
 		"cripta_senza_compagna": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Si narra di esseri nati dal bitume più nero, che vivono negli incubi delle persone.\n\nEsseri abietti che non hanno mai conosciuto la grazia di un tocco gentile.\n\nNon conoscono pietà o rimorso, schiavi perfetti di un oscuro potere che tutto fa marcire.\n\nIn fondo, chi avrebbe mai fatto qualcosa per loro?\n\nBenvenuto, nelle profondità marcite di Jondoh, possa la terra perdonare chi l'ha calpestata senza rispetto." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "C'è qualcuno che cammina..." },
-				{ "tipo": "dialogo", "chi": "l_immortale", "testo": "Nnnnghhh.... Yaaaargh..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "La situazione è chiara..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Si narra di esseri nati dal bitume più nero, che vivono negli incubi delle persone.\n\nEsseri abietti che non hanno mai conosciuto la grazia di un tocco gentile.\n\nNon conoscono pietà o rimorso, schiavi perfetti di un oscuro potere che tutto fa marcire.\n\nIn fondo, chi avrebbe mai fatto qualcosa per loro?\n\nBenvenuto, nelle profondità marcite di Jondoh, possa la terra perdonare chi l'ha calpestata senza rispetto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "C'è qualcuno che cammina..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "l_immortale",
+					"testo": "Nnnnghhh.... Yaaaargh..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "La situazione è chiara..."
+				}
 			],
 			"scena": "La cripta è una galleria bassa di ossidiana lucida. Qualcosa continua a camminarci dentro, senza arrivare da nessuna parte.",
 			"scelte": [
-				{ "testo": "Affronta l'abominio", "richiede_non_flag": "oss_cripta_superata", "combatti": ["l_immortale"], "se_vinci": "altare_dei_sacrifici", "se_fuggi": "altare_dei_sacrifici", "se_perdi": "sconfitta_immortale" },
-				{ "testo": "Intuisci il momento giusto e scivola oltre, nell'ombra", "richiede": "sesto_senso", "vai": "altare_dei_sacrifici" },
-				{ "testo": "Scendi verso l'altare", "richiede_flag": "oss_cripta_superata", "vai": "altare_dei_sacrifici" }
+				{
+					"testo": "Affronta l'abominio",
+					"richiede_non_flag": "oss_cripta_superata",
+					"combatti": [
+						"l_immortale"
+					],
+					"se_vinci": "altare_dei_sacrifici",
+					"se_fuggi": "altare_dei_sacrifici",
+					"se_perdi": "sconfitta_immortale"
+				},
+				{
+					"testo": "Intuisci il momento giusto e scivola oltre, nell'ombra",
+					"richiede": "sesto_senso",
+					"vai": "altare_dei_sacrifici"
+				},
+				{
+					"testo": "Scendi verso l'altare",
+					"richiede_flag": "oss_cripta_superata",
+					"vai": "altare_dei_sacrifici"
+				}
 			]
 		},
 		"cripta_con_compagna": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Si narra di esseri nati dal bitume più nero, che vivono negli incubi delle persone.\n\nEsseri abietti che non hanno mai conosciuto la grazia di un tocco gentile.\n\nNon conoscono pietà o rimorso, schiavi perfetti di un oscuro potere che tutto fa marcire.\n\nIn fondo, chi avrebbe mai fatto qualcosa per loro?\n\nBenvenuto, nelle profondità marcite di Jondoh, possa la terra perdonare chi l'ha calpestata senza rispetto." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "C'è qualcuno che cammina..." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non sembra essere qualcuno, ma qualcosa..." },
-				{ "tipo": "dialogo", "chi": "l_immortale", "testo": "Nnnnghhh.... Yaaaargh..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "La situazione è chiara..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Si narra di esseri nati dal bitume più nero, che vivono negli incubi delle persone.\n\nEsseri abietti che non hanno mai conosciuto la grazia di un tocco gentile.\n\nNon conoscono pietà o rimorso, schiavi perfetti di un oscuro potere che tutto fa marcire.\n\nIn fondo, chi avrebbe mai fatto qualcosa per loro?\n\nBenvenuto, nelle profondità marcite di Jondoh, possa la terra perdonare chi l'ha calpestata senza rispetto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "C'è qualcuno che cammina..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Non sembra essere qualcuno, ma qualcosa..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "l_immortale",
+					"testo": "Nnnnghhh.... Yaaaargh..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "La situazione è chiara..."
+				}
 			],
 			"centro": "sopravvissuta",
 			"scena": "La cripta è una galleria bassa di ossidiana lucida. Qualcosa continua a camminarci dentro, senza arrivare da nessuna parte.",
 			"scelte": [
-				{ "testo": "Affronta l'abominio", "richiede_non_flag": "oss_cripta_superata", "combatti": ["l_immortale"], "se_vinci": "altare_dei_sacrifici", "se_fuggi": "altare_dei_sacrifici", "se_perdi": "sconfitta_immortale" },
-				{ "testo": "Intuisci il momento giusto e scivola oltre, nell'ombra", "richiede": "sesto_senso", "vai": "altare_dei_sacrifici" },
-				{ "testo": "Scendi verso l'altare", "richiede_flag": "oss_cripta_superata", "vai": "altare_dei_sacrifici" }
+				{
+					"testo": "Affronta l'abominio",
+					"richiede_non_flag": "oss_cripta_superata",
+					"combatti": [
+						"l_immortale"
+					],
+					"se_vinci": "altare_dei_sacrifici",
+					"se_fuggi": "altare_dei_sacrifici",
+					"se_perdi": "sconfitta_immortale"
+				},
+				{
+					"testo": "Intuisci il momento giusto e scivola oltre, nell'ombra",
+					"richiede": "sesto_senso",
+					"vai": "altare_dei_sacrifici"
+				},
+				{
+					"testo": "Scendi verso l'altare",
+					"richiede_flag": "oss_cripta_superata",
+					"vai": "altare_dei_sacrifici"
+				}
 			]
 		},
 		"sconfitta_immortale": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Non riesci a scrollartelo di dosso in tempo. Il buio, alla fine, non ha nemmeno bisogno di uccidere: basta che resti lì, finché non resta più nulla da opporgli." }
+				{
+					"tipo": "narrazione",
+					"testo": "Non riesci a scrollartelo di dosso in tempo. Il buio, alla fine, non ha nemmeno bisogno di uccidere: basta che resti lì, finché non resta più nulla da opporgli."
+				}
 			],
 			"scelte": [
-				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+				{
+					"testo": "Riprendi dall'ultimo salvataggio",
+					"game_over": true
+				}
 			]
 		},
 		"altare_dei_sacrifici": {
 			"testo": "Un altare scavato nella pietra nera: candele consumate fino alla base, cera colata sopra cera, e una scalinata che scende ancora, verso una luce rossastra.",
 			"flag": "oss_cripta_superata",
 			"scelte": [
-				{ "testo": "Continua", "richiede_flag": "oss_compagna_reclutata", "vai": "altare_con_yara" },
-				{ "testo": "Continua", "richiede_non_flag": "oss_compagna_reclutata", "vai": "altare_da_solo" }
+				{
+					"testo": "Continua",
+					"richiede_flag": "oss_compagna_reclutata",
+					"vai": "altare_con_yara"
+				},
+				{
+					"testo": "Continua",
+					"richiede_non_flag": "oss_compagna_reclutata",
+					"vai": "altare_da_solo"
+				}
 			]
 		},
 		"altare_da_solo": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Quella creatura non era pericolosa... eppure sembrava impossibile infliggergli del danno vero... anche se... sembrava comunque soffrire..." }
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Quella creatura non era pericolosa... eppure sembrava impossibile infliggergli del danno vero... anche se... sembrava comunque soffrire..."
+				}
 			],
 			"espr_sinistra": "pensiero",
 			"scena": "L'altare è come l'hai lasciato: le candele consumate, la scalinata che scende verso la luce rossastra.",
 			"scelte": [
-				{ "testo": "Scendi verso il trono", "vai": "trono_marcio_senza_compagna" },
-				{ "testo": "Torna alla cripta", "vai": "cripta_senza_compagna" }
+				{
+					"testo": "Scendi verso il trono",
+					"vai": "trono_marcio_senza_compagna"
+				},
+				{
+					"testo": "Torna alla cripta",
+					"vai": "cripta_senza_compagna"
+				}
 			]
 		},
 		"altare_con_yara": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Povera creatura... Cosa pensi sia successo a quella cosa?" },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Questo posto... è qualcosa che non dovrebbe esistere... Non ho risposte alla tua domanda..." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Non perdonerò mai chi ha causato tutto questo." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." }
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Povera creatura... Cosa pensi sia successo a quella cosa?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo posto... è qualcosa che non dovrebbe esistere... Non ho risposte alla tua domanda..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Non perdonerò mai chi ha causato tutto questo."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				}
 			],
 			"centro": "sopravvissuta",
 			"scena": "L'altare è come l'avete lasciato: le candele consumate, la scalinata che scende verso la luce rossastra.",
 			"scelte": [
-				{ "testo": "Scendi verso il trono", "vai": "trono_marcio_con_compagna" },
-				{ "testo": "Torna alla cripta", "vai": "cripta_con_compagna" }
+				{
+					"testo": "Scendi verso il trono",
+					"vai": "trono_marcio_con_compagna"
+				},
+				{
+					"testo": "Torna alla cripta",
+					"vai": "cripta_con_compagna"
+				}
 			]
 		},
 		"trono_marcio_senza_compagna": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Qualcuno recita in una lingua a te sconosciuta dei canti mentre scendi gli ultimi gradini: le parole non vogliono dire niente, ma il ritmo è quello di una preghiera che non si è mai interrotta." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sei tu il responsabile di tutto questo?" },
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Hmmm? Un piccolo sacrificio, per un grande risultato..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Qualcuno recita in una lingua a te sconosciuta dei canti mentre scendi gli ultimi gradini: le parole non vogliono dire niente, ma il ritmo è quello di una preghiera che non si è mai interrotta."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sei tu il responsabile di tutto questo?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "jongo_dongo",
+					"testo": "Hmmm? Un piccolo sacrificio, per un grande risultato..."
+				}
 			],
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "jongo_prima_caduta", "se_perdi": "sconfitta_boss" }
+				{
+					"testo": "Affrontalo",
+					"combatti": [
+						"jongo_dongo"
+					],
+					"se_vinci": "jongo_prima_caduta",
+					"se_perdi": "sconfitta_boss"
+				}
 			]
 		},
 		"trono_marcio_con_compagna": {
 			"sequenza": [
-				{ "tipo": "narrazione", "testo": "Qualcuno recita in una lingua a te sconosciuta dei canti mentre scendete gli ultimi gradini: le parole non vogliono dire niente, ma il ritmo è quello di una preghiera che non si è mai interrotta." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Sei tu il responsabile di tutto questo?" },
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Hmmm? Un piccolo sacrificio, per un grande risultato..." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Riconosco quella voce... È la stessa che ho sentito quel giorno. Non posso dimenticarla... Maledetto! Sei stato tu!" },
-				{ "tipo": "narrazione", "testo": "Prima che tu possa fermarla, si lancia avventatamente contro Jongo Dongo, che non esita a trafiggerla." },
-				{ "tipo": "dialogo", "chi": "sopravvissuta", "testo": "Ma... le... detto... muori..." },
-				{ "tipo": "narrazione", "testo": "*click* La ragazza salta in aria: Jongo Dongo viene avvolto dalle fiamme." },
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "... Il dolore... non è altro che un mero ostacolo... sciocca ragazzina..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... Avrei dovuto fermarla... La pagherai..." }
+				{
+					"tipo": "narrazione",
+					"testo": "Qualcuno recita in una lingua a te sconosciuta dei canti mentre scendete gli ultimi gradini: le parole non vogliono dire niente, ma il ritmo è quello di una preghiera che non si è mai interrotta."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sei tu il responsabile di tutto questo?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "jongo_dongo",
+					"testo": "Hmmm? Un piccolo sacrificio, per un grande risultato..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Riconosco quella voce... È la stessa che ho sentito quel giorno. Non posso dimenticarla... Maledetto! Sei stato tu!"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Prima che tu possa fermarla, si lancia avventatamente contro Jongo Dongo, che non esita a trafiggerla."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "sopravvissuta",
+					"testo": "Ma... le... detto... muori..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "*click* La ragazza salta in aria: Jongo Dongo viene avvolto dalle fiamme."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "jongo_dongo",
+					"testo": "... Il dolore... non è altro che un mero ostacolo... sciocca ragazzina..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Avrei dovuto fermarla... La pagherai..."
+				}
 			],
 			"centro": "jongo_dongo",
 			"espr_centro": "decisa",
 			"congeda": "sopravvissuta",
 			"flag": "oss_yara_esplosa",
 			"scelte": [
-				{ "testo": "Affrontalo", "combatti": ["jongo_dongo"], "se_vinci": "jongo_prima_caduta", "se_perdi": "sconfitta_boss" }
+				{
+					"testo": "Affrontalo",
+					"combatti": [
+						"jongo_dongo"
+					],
+					"se_vinci": "jongo_prima_caduta",
+					"se_perdi": "sconfitta_boss"
+				}
 			]
 		},
 		"jongo_prima_caduta": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Finalmente questa storia ha una fine." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... Come mai non percepisco alcun cambiamento?" },
-				{ "tipo": "narrazione", "testo": "Jongo Dongo si rialza." },
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... Come fa ad essere ancora in piedi?!" }
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Finalmente questa storia ha una fine."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Come mai non percepisco alcun cambiamento?"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Jongo Dongo si rialza."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "jongo_dongo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Come fa ad essere ancora in piedi?!"
+				}
 			],
 			"centro": "jongo_dongo",
 			"mantieni_hp": true,
-			"combattimento_automatico": { "nemici": ["jongo_dongo_risorto"], "se_vinci": "vittoria", "se_perdi": "sconfitta_boss" }
+			"combattimento_automatico": {
+				"nemici": [
+					"jongo_dongo_risorto"
+				],
+				"se_vinci": "vittoria",
+				"se_perdi": "sconfitta_boss"
+			}
 		},
 		"vittoria": {
 			"testo": "Jongo Dongo cade in ginocchio, poi si sfalda: la maledizione che lo teneva in piedi si scioglie insieme a lui. Non chiede perdono. Dai rimasugli sparsi nel vento si alza una voce sinistra... \"Eravamo così... vicini... il viaggio...\". L'ossidiana intorno smette di sudare, l'aria si alleggerisce e in lontananza puoi percepire qualcosa che si addormenta dolcemente.",
@@ -416,21 +1158,34 @@
 			"espr_centro": "petrificata",
 			"flag": "quest_ossidiana",
 			"scelte": [
-				{ "testo": "Torna nel Vuoto", "torna_vuoto": true }
+				{
+					"testo": "Torna nel Vuoto",
+					"torna_vuoto": true
+				}
 			]
 		},
 		"sconfitta_boss": {
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "jongo_dongo", "testo": "Un nuovo sacrificio... Una nuova possibilità..." }
+				{
+					"tipo": "dialogo",
+					"chi": "jongo_dongo",
+					"testo": "Un nuovo sacrificio... Una nuova possibilità..."
+				}
 			],
 			"scelte": [
-				{ "testo": "Riprendi dall'ultimo salvataggio", "game_over": true }
+				{
+					"testo": "Riprendi dall'ultimo salvataggio",
+					"game_over": true
+				}
 			]
 		},
 		"espulso": {
 			"testo": "Il buio ti si richiude sopra come una fossa che si rinchiude. Quando riprendi fiato, sei di nuovo nel Vuoto. La Rocca di Ossidiana resta lì, marcia e paziente.",
 			"scelte": [
-				{ "testo": "Riprendi fiato nel Vuoto", "torna_vuoto": true }
+				{
+					"testo": "Riprendi fiato nel Vuoto",
+					"torna_vuoto": true
+				}
 			]
 		}
 	}

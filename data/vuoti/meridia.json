@@ -1,103 +1,115 @@
 {
 	"nodo_iniziale": "varco",
 	"mappa_dungeon": {
+		"nome": "Meridia",
 		"flag_completamento": "meridia_esplorata",
 		"stanze": [
 			{
 				"id": "varco",
 				"nome": "Il varco",
-				"pos": [
-					240,
-					620
-				]
+				"cella": [
+					1,
+					7
+				],
+				"icona": "uscita"
 			},
 			{
 				"id": "periferia",
 				"nome": "Strade di periferia",
-				"pos": [
-					240,
-					540
+				"cella": [
+					1,
+					6
 				]
 			},
 			{
 				"id": "ingresso_citta",
 				"nome": "Ingresso della città",
-				"pos": [
-					240,
-					460
+				"cella": [
+					1,
+					5
 				]
 			},
 			{
 				"id": "complessi",
 				"nome": "Primi complessi",
-				"pos": [
-					240,
-					380
+				"cella": [
+					1,
+					4
 				]
 			},
 			{
 				"id": "struttura",
 				"nome": "Struttura abbandonata",
-				"pos": [
-					100,
-					380
+				"cella": [
+					0,
+					4
 				]
 			},
 			{
 				"id": "parco",
 				"nome": "Il parco",
-				"pos": [
-					380,
-					380
+				"cella": [
+					2,
+					4
+				],
+				"dimensione": [
+					1,
+					2
 				]
 			},
 			{
 				"id": "strada_principale",
 				"nome": "Strada principale",
-				"pos": [
-					240,
-					300
+				"cella": [
+					1,
+					3
 				]
 			},
 			{
 				"id": "supermercato",
 				"nome": "Supermercato",
-				"pos": [
-					100,
-					220
+				"cella": [
+					0,
+					2
 				]
 			},
 			{
 				"id": "officina",
 				"nome": "Officina",
-				"pos": [
-					240,
-					220
+				"cella": [
+					1,
+					2
 				]
 			},
 			{
 				"id": "edicola",
 				"nome": "Edicola",
-				"pos": [
-					380,
-					220
+				"cella": [
+					2,
+					2
 				]
 			},
 			{
 				"id": "vicolo",
 				"nome": "Vicolo sul retro",
-				"pos": [
-					380,
-					140
-				]
+				"cella": [
+					2,
+					1
+				],
+				"icona": "forte"
 			},
 			{
 				"id": "quartieri_profondi",
 				"nome": "Quartieri profondi",
-				"pos": [
-					380,
-					60
-				]
+				"cella": [
+					2,
+					0
+				],
+				"dimensione": [
+					2,
+					1
+				],
+				"icona": "forte"
 			}
 		],
 		"connessioni": [

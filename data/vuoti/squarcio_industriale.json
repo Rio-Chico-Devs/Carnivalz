@@ -1,119 +1,136 @@
 {
 	"nodo_iniziale": "varco",
 	"mappa_dungeon": {
+		"nome": "Lo Squarcio Industriale",
 		"flag_completamento": "industriale_esplorato",
 		"stanze": [
 			{
 				"id": "varco",
 				"nome": "Il varco",
-				"pos": [
-					400,
-					720
-				]
+				"cella": [
+					4,
+					10
+				],
+				"icona": "uscita"
 			},
 			{
 				"id": "corridoi_stretti",
 				"nome": "Corridoi stretti",
-				"pos": [
-					400,
-					640
+				"cella": [
+					4,
+					9
 				]
 			},
 			{
 				"id": "sala_vetrata",
 				"nome": "Sala vetrata",
-				"pos": [
-					400,
-					560
-				]
+				"cella": [
+					4,
+					8
+				],
+				"icona": "forte"
 			},
 			{
 				"id": "corridoio_tubi",
 				"nome": "Corridoio dei tubi",
-				"pos": [
-					400,
-					480
+				"cella": [
+					4,
+					7
 				]
 			},
 			{
 				"id": "corridoi_infiniti",
 				"nome": "Corridoi infiniti",
-				"pos": [
-					180,
-					480
+				"cella": [
+					2,
+					7
 				]
 			},
 			{
 				"id": "sala_sorveglianza",
 				"nome": "Stanza degli schermi",
-				"pos": [
-					80,
-					400
+				"cella": [
+					0,
+					6
 				]
 			},
 			{
 				"id": "deposito",
 				"nome": "Deposito",
-				"pos": [
-					620,
-					480
+				"cella": [
+					5,
+					7
 				]
 			},
 			{
 				"id": "sala_valvole",
 				"nome": "Sala delle valvole",
-				"pos": [
-					400,
-					380
+				"cella": [
+					4,
+					5
 				]
 			},
 			{
 				"id": "sala_schede",
 				"nome": "Sala informatica",
-				"pos": [
-					620,
-					300
+				"cella": [
+					5,
+					4
 				]
 			},
 			{
 				"id": "centro_controllo",
 				"nome": "Vecchio centro di controllo",
-				"pos": [
-					740,
-					220
+				"cella": [
+					6,
+					2
 				]
 			},
 			{
 				"id": "nastro",
 				"nome": "Il nastro trasportatore",
-				"pos": [
-					300,
-					280
+				"cella": [
+					3,
+					3
 				]
 			},
 			{
 				"id": "cuore",
 				"nome": "Cuore del complesso",
-				"pos": [
-					300,
-					180
+				"cella": [
+					3,
+					1
+				],
+				"dimensione": [
+					2,
+					1
 				]
 			},
 			{
 				"id": "discarica",
 				"nome": "La grande discarica",
-				"pos": [
-					300,
-					90
-				]
+				"cella": [
+					3,
+					0
+				],
+				"dimensione": [
+					2,
+					1
+				],
+				"icona": "forte"
 			},
 			{
 				"id": "padiglione_e",
 				"nome": "Il Padiglione",
-				"pos": [
-					120,
-					90
-				]
+				"cella": [
+					1,
+					0
+				],
+				"dimensione": [
+					2,
+					2
+				],
+				"icona": "chiave"
 			}
 		],
 		"connessioni": [

@@ -1812,13 +1812,20 @@ pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, 
     zona due volte: la **griglia** (le stanze una rispetto all'altra, come le vedrà il
     giocatore) e il **percorso** (la zona ripercorsa dall'ingresso, con oggetti, agguati,
     scontri scritti, flag e requisiti di ogni ramo)
-25. ⬜ **La mappa a quadratini**: disegnare la griglia invece dei pallini e delle linee di
-    oggi. Le posizioni nei dati sono già allineate alla griglia, quindi è lavoro di
-    `MappaZona.gd`, non di contenuto. Restano da fare stanze grandi (`dimensione`), zone
-    segrete in verde, icone (boss, miniboss, negozio, personaggio chiave, uscita), una mappa
-    **per piano** invece di una per zona, la cornice della vista con lo zoom, e più avanti la
-    **mappa totale a contorni** (l'abilità di un personaggio: vedi la forma della zona e capisci
-    che lì c'è qualcosa, senza sapere cosa)
+25. ✅ **La mappa a quadratini.** Le stanze non stanno più a coordinate libere in pixel: ognuna
+    occupa una o più **celle** di una griglia (`cella`, e `dimensione` per quelle grandi), così
+    il salone si vede largo e il vivaio si vede scendere. Tre stati, e sono l'unica cosa che
+    conta: **pieno** dove sei stato (rosso, o verde per una zona segreta), **`?` acceso** su
+    quello che sai raggiungibile e non hai ancora battuto — cliccabile, ci si va — e **`?`
+    spento** su quello che confina con un posto noto, che cliccato dice perché non si passa
+    ancora invece di non fare niente. Quello che non confina con niente di noto non viene
+    disegnato affatto: la mappa si costruisce camminando. Icone (`icona`) disegnate dal codice
+    finché non arrivano i disegni: mettere `art/icone_mappa/<icona>.png` le sostituisce senza
+    toccare una riga. Due stanze non possono finire sullo stesso quadratino — `prova_mappe`
+    tiene il conto di ogni cella occupata, perché una sovrapposizione a schermo non è un
+    errore, è un quadrato che ne copre un altro e lo rende incliccabile.
+    Restano: zoom e trascinamento, una mappa **per piano** invece di una per zona, gli eventi
+    che compaiono sulla mappa dopo uno scontro, e la **mappa totale a contorni**
 26. ✅ **La Casa Gigante esce di casa** (testi di Bru). Dalla soglia si può anche non entrare: sul
     fianco c'è l'ingresso ai **giardini tropicali**, e da lì tre sentieri. A **est**, in fondo,
     un albero con dentro un volto: la **custode dei giardini**, un tempo capo ricerca al fianco

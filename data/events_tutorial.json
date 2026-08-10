@@ -1,53 +1,55 @@
 {
 	"nodo_iniziale": "inizio",
 	"mappa_dungeon": {
+		"nome": "Pianure di Redenna",
 		"stanze": [
 			{
 				"id": "inizio",
 				"nome": "Punto d'atterraggio",
-				"pos": [
-					400,
-					610
+				"cella": [
+					1,
+					4
 				]
 			},
 			{
 				"id": "masso",
 				"nome": "Il masso e il ruscello",
-				"pos": [
-					400,
-					490
+				"cella": [
+					1,
+					3
 				]
 			},
 			{
 				"id": "bivio",
 				"nome": "Il bivio",
-				"pos": [
-					400,
-					370
+				"cella": [
+					1,
+					2
 				]
 			},
 			{
 				"id": "pozze",
 				"nome": "Le pozze d'acqua",
-				"pos": [
-					220,
-					240
+				"cella": [
+					0,
+					1
 				]
 			},
 			{
 				"id": "collina",
 				"nome": "La collina",
-				"pos": [
-					580,
-					240
-				]
+				"cella": [
+					2,
+					1
+				],
+				"icona": "forte"
 			},
 			{
 				"id": "convergenza",
 				"nome": "Verso le urla",
-				"pos": [
-					400,
-					120
+				"cella": [
+					1,
+					0
 				]
 			}
 		],
