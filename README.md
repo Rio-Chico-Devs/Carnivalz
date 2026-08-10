@@ -69,7 +69,8 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `scripts/Pausa.gd` — autoload: menu di pausa, storico dei dialoghi e Diario, aperti con ESC
   da qualunque schermata di gioco (vedi sotto)
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
-- `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + stat/xp se combattono)
+- `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + `livello`/`ruolo` se combattono)
+- `data/ruoli.json` — la curva e i ruoli da cui escono i numeri di ogni creatura
 - `data/psiche.json` — le psichi e i loro effetti (reazione al KO di un compagno)
 - `data/regole.json` — numeri di bilanciamento (hp, danno, stress, fattore, xp, legame)
 - `data/events.json` — campagna di prova
@@ -881,6 +882,50 @@ avanza al livello dopo.
   (`slaughter_bonus` contro nemici molto sotto livello) sono letti dai dati e applicati.
   **Le altre passive sono dichiarate e si sbloccano, ma il loro effetto non è ancora
   implementato**: sono elencate qui e in `crescita.json` come contratto da riempire
+
+## Da dove escono i numeri delle creature (`data/ruoli.json`)
+Nessuna creatura ha più `hp`, `attacco`, `difesa`, `velocita`, `xp` e `tazo` scritti nel suo
+record. Dichiara due cose — a che **livello** sta e che **ruolo** ha — e i numeri escono da
+`ruoli.json` (`GameState.stat_di_ruolo()`, chiamata dall'unico imbuto che già esisteva,
+`stat_nemico()`). Prima erano 40 creature × 6 numeri scritti a mano in momenti diversi:
+bastava aggiungere contenuto perché il gioco si sbilanciasse in un punto qualunque, e
+ricalibrare voleva dire ripassarli tutti.
+- **`ruoli.json` non ha numeri suoi: ha quote del protagonista.** Il riferimento a un dato
+  livello è `GameState.stat_eroe_tipo()`, cioè quanto vale davvero il protagonista lì —
+  stat base di `crescita.json` più i punti che uno che ha giocato fin lì ha guadagnato, con
+  la stessa stima (`profilo_giocatore_tipo`) che usa il giocatore automatico, letta dallo
+  stesso posto. Quindi **le due curve non possono divergere: è una sola**. Se cambi la
+  crescita del protagonista, tutte le creature si spostano con lui nello stesso istante
+- **I ruoli** (`comune`, `veloce`, `corazzato`, `particolare`, `miniboss`, `fonte`,
+  `oggetto_scena`) sono moltiplicatori sulla curva, e dicono *come si combatte* contro quella
+  creatura — non che cosa è nella storia (quella resta `categoria`, per musica e aperture)
+- **Le manopole**, tutte in `ruoli.json`: `quota_hp` e `quota_attacco` (quanto vale una
+  creatura rispetto a te), `scontri_per_livello` (il ritmo: quante creature comuni del tuo
+  livello per salire di livello — l'esperienza non è scelta, è il fabbisogno diviso per
+  quel numero) e `deriva_attacco_per_livello` (quanto il tardo gioco si fa più duro oltre
+  alla semplice crescita dei numeri). **Ricalibrare il gioco intero è cambiare una riga**
+- **I tazo hanno una curva loro** (`tazo.base`, `tazo.per_livello`), e non è una svista:
+  l'esperienza insegue un fabbisogno che cresce come `livello^1.5`, i soldi inseguono un
+  negozio con i prezzi scritti a mano e fermi (una razione 10, un frammento 150). Agganciarli
+  all'esperienza sembrava più elegante — una curva in meno — ma raddoppiava i soldi del tardo
+  gioco e affamava il livello 1. Restano due numeri in un posto solo, non uno per creatura
+- **Le eccezioni sono dichiarate**: una creatura può ancora scrivere un numero a mano e quel
+  numero vince, ma deve dire *perché* (campo `fuori_curva`) — `prova_curva_creature` fallisce
+  se non lo fa, e fallisce anche al contrario, se una ragione resta lì a descrivere un numero
+  che non c'è più. Le eccezioni attuali sono cinque e sono tutte scelte narrative (la
+  Tartaruga Innocente che è un indovinello, l'Immortale che non va battuto, il goblin del
+  tutorial che deve essere un macellaio, Veronica che è scriptata, la bambola che si vince
+  con le leve)
+- **Una creatura tirata su dal disallineamento** non è più «la sua stat base più una
+  percentuale per livello di scarto»: è la stat che ha una creatura *del suo ruolo a quel
+  livello*, presa dalla stessa curva. Il vecchio +13% per livello faceva una cosa che nessuno
+  aveva mai visto, perché il simulatore non guardava sopra il livello 8: **i boss diventavano
+  più difficili man mano che salivi** (dal 18 al 25 il protagonista cresce di 1,2 volte, un
+  nemico livellato col +13% cresceva di 1,5 — Jerah si vinceva il 100% delle volte al livello
+  18 e il 29% al 25). `prova_salire_di_livello_non_peggiora` adesso lo impedisce:
+  una creatura tirata su può avvicinarsi a una nata al tuo livello, mai superarla
+- La tabella dei numeri che ne escono, livello per livello e ruolo per ruolo, sta in
+  `docs/bilanciamento.md` — generata, non scritta a mano
 
 ## Esperienza e legame
 - **XP**: la vittoria dà XP a tutto il party; livello massimo **130**, fabbisogno

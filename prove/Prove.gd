@@ -52,6 +52,8 @@ func _ready() -> void:
 	prova_sede()
 	prova_posti_visitati()
 	prova_livello_dei_nemici()
+	prova_curva_creature()
+	prova_salire_di_livello_non_peggiora()
 	prova_crescita_non_scappa()
 	prova_la_difesa_riduce_non_cancella()
 	prova_i_boss_non_si_superano_farmando()
@@ -93,6 +95,18 @@ func prova_dati_caricati() -> void:
 	esigi(GameState.id_protagonista != "", "protagonista non definito in classes.json")
 
 # --- ogni file di eventi ---
+
+func creature() -> Array[String]:
+	# l'elenco delle creature che combattono, in un posto solo. Serve alle prove
+	# per dire "le ho guardate tutte": un filtro sbagliato dentro una prova la fa
+	# restringere in silenzio, e una prova che guarda meta' del gioco passa
+	# esattamente come una che lo guarda tutto
+	var elenco: Array[String] = []
+	for id_creatura in GameState.personaggi:
+		if GameState.e_creatura(id_creatura):
+			elenco.append(String(id_creatura))
+	elenco.sort()
+	return elenco
 
 func file_eventi() -> Array[String]:
 	var elenco: Array[String] = [
@@ -964,12 +978,15 @@ func prova_livello_dei_nemici() -> void:
 	esigi(scarto > 0, "scarto_livello_massimo non e' impostato in regole.json")
 	esigi(GameState.scarto_livello_massimo() == scarto,
 			"GameState non usa lo scarto scritto in regole.json")
+	var attese := creature().size()
+	esigi(attese > 30, "l'elenco delle creature si e' svuotato: la prova non guarda piu' niente")
 	for livello_eroe in [1, 5, 12, 40]:
 		GameState.livelli[GameState.id_protagonista] = livello_eroe
+		var esaminate := 0
 		for id_creatura in GameState.personaggi:
-			var dati: Dictionary = GameState.personaggi[id_creatura]
-			if not dati.has("hp"):
+			if not GameState.e_creatura(id_creatura):
 				continue  # non e' una creatura da combattimento
+			esaminate += 1
 			var livello := GameState.livello_nemico(id_creatura)
 			var base := GameState.livello_base_nemico(id_creatura)
 			esigi(livello >= base, "%s e' stato indebolito dal livellamento" % id_creatura)
@@ -989,9 +1006,233 @@ func prova_livello_dei_nemici() -> void:
 						"%s non doveva scalare col giocatore, e invece e' salito" % id_creatura)
 			# le stat seguono il livello, e non calano mai
 			for chiave in ["hp", "attacco", "difesa"]:
-				esigi(GameState.stat_nemico(id_creatura, chiave) >= int(dati.get(chiave, 0)),
+				esigi(GameState.stat_nemico(id_creatura, chiave)
+						>= GameState.stat_base_nemico(id_creatura, chiave),
 						"%s ha perso %s salendo di livello" % [id_creatura, chiave])
+		esigi(esaminate == attese,
+				"col protagonista lv %d la prova ha guardato %d creature su %d"
+				% [livello_eroe, esaminate, attese])
 	GameState.nuova_partita()
+
+func prova_curva_creature() -> void:
+	# LA PROVA CHE RENDE INUTILE RICALIBRARE A MANO.
+	#
+	# Bru: "dobbiamo trovare un modo di avere sempre sotto controllo xp, livelli
+	# e potenza dei nemici senza dover sempre ricalibrare". Il modo e' smettere
+	# di scrivere i numeri: una creatura dichiara livello e ruolo, il resto esce
+	# da ruoli.json, e ruoli.json non ha numeri suoi - ha quote del protagonista.
+	# Ma un sistema del genere regge solo finche' nessuno ci infila dentro
+	# un'eccezione di nascosto: basta una creatura con "hp": 400 scritto a mano
+	# perche' il giorno che cambi la curva quella resti indietro in silenzio.
+	# Quindi qui si pretende che ogni numero a mano dica anche perche'.
+	titolo("ogni creatura sta sulla curva del suo ruolo, o dice perche' no")
+	var tabella: Dictionary = GameState.ruoli.get("ruoli", {})
+	esigi(not tabella.is_empty(), "ruoli.json non caricato o senza ruoli")
+	var stat_derivate := ["hp", "attacco", "difesa", "velocita", "xp", "tazo"]
+
+	# 1. nessuna creatura senza ruolo, nessun ruolo inventato, nessun livello a caso
+	var elenco := creature()
+	esigi(elenco.size() > 30, "l'elenco delle creature si e' svuotato: la prova non guarda piu' niente")
+	var ruoli_usati := {}
+	for id_creatura in elenco:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		var nome_ruolo := String(dati.get("ruolo", ""))
+		esigi(tabella.has(nome_ruolo),
+				"%s ha ruolo '%s', che in ruoli.json non esiste" % [id_creatura, nome_ruolo])
+		ruoli_usati[nome_ruolo] = true
+		esigi(dati.has("livello"),
+				"%s non dice a che livello sta: senza livello la curva non sa che numeri darle" % id_creatura)
+		esigi(int(dati.get("livello", 0)) >= 1,
+				"%s e' al livello %d" % [id_creatura, int(dati.get("livello", 0))])
+
+	# 2. ogni numero scritto a mano e' un'eccezione dichiarata, con la sua ragione
+	for id_creatura in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		if not dati.has("ruolo"):
+			continue
+		var a_mano: Array[String] = []
+		for chiave: String in stat_derivate:
+			if dati.has(chiave):
+				a_mano.append(chiave)
+		var motivo := String(dati.get("fuori_curva", ""))
+		if a_mano.is_empty():
+			# il contrario conta uguale: una ragione senza eccezione e' una bugia
+			# che resta nel file e racconta di un numero che non c'e' piu'
+			esigi(motivo == "",
+					"%s dichiara fuori_curva ma non scrive nessun numero a mano: la ragione non descrive niente"
+					% id_creatura)
+			continue
+		esigi(motivo.length() >= 30,
+				"%s scrive a mano %s senza dire perche' (campo 'fuori_curva'): fra sei mesi nessuno sapra' se era una scelta o una svista"
+				% [id_creatura, ", ".join(a_mano)])
+
+	# 3. i ruoli descritti sono i ruoli usati: un ruolo che nessuno ha e' una
+	#    riga che promette un modo di combattere che nel gioco non esiste
+	for nome_ruolo in tabella:
+		esigi(ruoli_usati.has(nome_ruolo) or nome_ruolo == "oggetto_scena",
+				"il ruolo '%s' e' descritto in ruoli.json ma nessuna creatura ce l'ha" % nome_ruolo)
+
+	# 4. il ruolo mantiene la promessa del suo nome. Non e' pedanteria: i
+	#    moltiplicatori sono sei numeri per riga, e invertirne due si nota solo
+	#    giocandoci mezz'ora
+	var comune: Dictionary = tabella.get("comune", {})
+	esigi(float(tabella.get("veloce", {}).get("velocita", 0.0)) > float(comune.get("velocita", 0.0)),
+			"il ruolo 'veloce' non e' piu' veloce di un comune")
+	esigi(float(tabella.get("corazzato", {}).get("difesa", 0.0)) > float(comune.get("difesa", 0.0)),
+			"il ruolo 'corazzato' non para piu' di un comune")
+	esigi(float(tabella.get("veloce", {}).get("hp", 9.9)) < float(comune.get("hp", 0.0)),
+			"il ruolo 'veloce' regge quanto un comune: allora e' solo un comune piu' rapido")
+	for nome_ruolo: String in ["particolare", "miniboss", "fonte"]:
+		var r: Dictionary = tabella.get(nome_ruolo, {})
+		esigi(float(r.get("hp", 0.0)) > float(comune.get("hp", 0.0)),
+				"il ruolo '%s' regge meno di un nemico di riserva" % nome_ruolo)
+		esigi(float(r.get("xp", 0.0)) > float(comune.get("xp", 0.0)),
+				"il ruolo '%s' vale meno esperienza di un nemico di riserva" % nome_ruolo)
+
+	# 5. la curva sale. Un segno sbagliato in una formula si vede solo qui: le
+	#    creature non calerebbero a vista d'occhio, calerebbero piano
+	var prima := {}
+	for livello in range(1, 41):
+		for chiave: String in ["hp", "attacco", "difesa", "velocita", "xp"]:
+			var ora := valore_di_curva(chiave, livello)
+			esigi(ora > 0, "al livello %d la curva da' %s = %d" % [livello, chiave, ora])
+			if prima.has(chiave):
+				esigi(ora >= int(prima[chiave]),
+						"dal livello %d al %d la curva fa CALARE %s (%d -> %d)"
+						% [livello - 1, livello, chiave, int(prima[chiave]), ora])
+			prima[chiave] = ora
+
+	# 6. LA PARTE CHE VALE. La curva delle creature e quella del protagonista
+	#    sono la stessa curva: se lo fossero solo "piu' o meno", il giorno che
+	#    Bru tocca crescita.json le creature resterebbero indietro senza che
+	#    nessuno se ne accorga - ed e' esattamente com'era prima.
+	for livello: int in [1, 3, 8, 15, 30]:
+		var eroe_hp := GameState.stat_eroe_tipo("hp", livello)
+		esigi(eroe_hp > 0.0, "al livello %d il protagonista tipo ha %d hp" % [livello, int(eroe_hp)])
+		var atteso := int(round(eroe_hp
+				* float(GameState.ruoli.get("curva", {}).get("quota_hp", 1.05))
+				* float(comune.get("hp", 1.0))))
+		esigi(valore_di_curva("hp", livello) == atteso,
+				"al livello %d un comune ha %d hp invece dei %d che dice la quota del protagonista"
+				% [livello, valore_di_curva("hp", livello), atteso])
+		# e il protagonista tipo e' davvero quello che il gioco costruisce:
+		# stessa stima, stesso conto, non una tabella parallela
+		cresci_giocatore_fino_a(livello)
+		for chiave: String in ["hp", "attacco", "difesa", "velocita"]:
+			esigi(int(GameState.stat_eroe_tipo(chiave, livello)) == GameState.stat_di(chiave),
+					"al livello %d stat_eroe_tipo dice %s = %d, ma il protagonista costruito ne ha %d"
+					% [livello, chiave, int(GameState.stat_eroe_tipo(chiave, livello)),
+					GameState.stat_di(chiave)])
+
+	# 7. il ritmo e' quello dichiarato: "scontri_per_livello" deve voler dire
+	#    davvero quanti scontri servono per salire, altrimenti e' una manopola
+	#    che gira a vuoto e si torna a tarare l'esperienza creatura per creatura
+	GameState.nuova_partita()
+	for livello: int in [1, 4, 10, 25]:
+		var quanti := GameState.scontri_per_livello(livello)
+		esigi(quanti >= 1.0, "al livello %d servirebbero %.1f scontri" % [livello, quanti])
+		var per_scontro := valore_di_curva("xp", livello)
+		var servono := float(GameState.fabbisogno_xp(livello)) / float(maxi(per_scontro, 1))
+		esigi(absf(servono - quanti) <= 1.0,
+				"al livello %d ruoli.json promette %.1f scontri per salire, ma ne servono %.1f"
+				% [livello, quanti, servono])
+	# e il ritmo non deve scappare: era 4 scontri al livello 1 e 26 al 20, e
+	# nessuno l'aveva mai misurato perche' nessuna prova guardava sopra l'8
+	var al_primo := GameState.scontri_per_livello(1)
+	var al_trentesimo := GameState.scontri_per_livello(30)
+	esigi(al_trentesimo <= al_primo * 4.0,
+			"per salire di livello al 30 servono %.1f scontri contro i %.1f del livello 1: e' una macinata"
+			% [al_trentesimo, al_primo])
+	GameState.nuova_partita()
+
+func prova_salire_di_livello_non_peggiora() -> void:
+	# LA PROVA CHE NESSUNO AVEVA, E CHE SI VEDEVA SOLO GIOCANDO PARECCHIO.
+	#
+	# Il disallineamento tira su le creature perche' una zona vecchia non
+	# diventi un corridoio vuoto. Ma la crescita del nemico e quella del
+	# protagonista sono due cose diverse, e se la prima corre piu' della seconda
+	# succede una cosa assurda: SALIRE DI LIVELLO TI PEGGIORA LA VITA. Era
+	# esattamente cosi' - +13% per livello di scarto contro un protagonista che
+	# dal 18 al 25 cresce di 1,2 volte - e il giocatore automatico l'ha
+	# misurato: Jerah vinto il 100% delle volte al livello 18, il 29% al 25.
+	#
+	# Non si misura il numero del nemico da solo (che deve salire), si misura
+	# quanto pesa RISPETTO a te: quanti colpi ti serve dargli, e quanti gliene
+	# servono a lui. Quella e' la forma dello scontro, ed e' quella che non deve
+	# peggiorare mentre giochi.
+	# IL METRO GIUSTO, dopo che il primo era sbagliato. La prima versione
+	# pretendeva che uno scontro non diventasse mai relativamente piu' duro, e
+	# non e' vero: il disallineamento tira su le creature APPOSTA perche' una
+	# zona vecchia non diventi un corridoio vuoto, quindi un goblin di livello 1
+	# a fine gioco deve costare piu' colpi di quanti ne costava all'inizio.
+	# Quello che non deve succedere e' che superi il suo stesso ruolo: una
+	# creatura tirata su puo' avvicinarsi a una del tuo livello, mai batterla.
+	# Questa e' anche esattamente la condizione che il vecchio +13% violava.
+	titolo("nessuna creatura diventa piu' dura di una del suo ruolo al tuo livello")
+	var elenco := creature()
+	esigi(elenco.size() > 30, "l'elenco delle creature si e' svuotato: la prova non guarda piu' niente")
+	var esaminate := 0
+	for id_creatura in elenco:
+		if not GameState.nemico_scala(id_creatura):
+			continue  # chi non scala resta dov'e': e' il suo mestiere
+		if String(GameState.personaggi[id_creatura].get("fuori_curva", "")) != "":
+			# le eccezioni dichiarate stanno fuori dalla curva per scelta, ed e'
+			# il senso di essere un'eccezione: la bambola ha 6660 punti vita
+			# perche' non deve essere abbattuta a colpi. Il tetto qui misura la
+			# curva, e loro non ci sono sopra. Che siano poche e che dicano
+			# perche' lo pretende prova_curva_creature
+			continue
+		var nome_ruolo := String(GameState.personaggi[id_creatura].get("ruolo", ""))
+		esaminate += 1
+		for livello_eroe in range(2, 31):
+			cresci_giocatore_fino_a(livello_eroe)
+			if GameState.livello_nemico(id_creatura) > livello_eroe:
+				# sta ancora sopra di te: deve fare male, e' il suo mestiere. Il
+				# tetto vale da quando l'hai raggiunta in poi, cioe' nel tratto
+				# in cui e' il disallineamento a tenerla su e non il suo posto
+				# nella storia
+				continue
+			var mio_attacco := maxi(GameState.stat_di("attacco"), 1)
+			var mia_vita := maxi(GameState.stat_di("hp"), 1)
+			# quanto costa lei adesso: colpi per abbatterla, e colpi suoi per
+			# abbattere te
+			var colpi := float(GameState.stat_nemico(id_creatura, "hp")) / maxf(
+					float(mio_attacco - GameState.stat_nemico(id_creatura, "difesa")), 1.0)
+			var incassi := float(mia_vita) / maxf(float(GameState.stat_nemico(id_creatura, "attacco")), 1.0)
+			# e quanto costerebbe una del suo ruolo nata al tuo livello: il tetto
+			var tetto_colpi := float(valore_di_ruolo("hp", nome_ruolo, livello_eroe)) / maxf(
+					float(mio_attacco - valore_di_ruolo("difesa", nome_ruolo, livello_eroe)), 1.0)
+			var tetto_incassi := float(mia_vita) / maxf(
+					float(valore_di_ruolo("attacco", nome_ruolo, livello_eroe)), 1.0)
+			esigi(colpi <= tetto_colpi * 1.1 + 1.0,
+					"%s: col protagonista lv %d servono %.1f colpi per abbatterla, piu' dei %.1f che costerebbe un '%s' nato al tuo livello"
+					% [id_creatura, livello_eroe, colpi, tetto_colpi, nome_ruolo])
+			esigi(incassi >= tetto_incassi * 0.9 - 1.0,
+					"%s: col protagonista lv %d ti abbatte in %.1f colpi, meno dei %.1f di un '%s' nato al tuo livello"
+					% [id_creatura, livello_eroe, incassi, tetto_incassi, nome_ruolo])
+	esigi(esaminate > 20,
+			"la prova ha guardato solo %d creature che scalano: il filtro si e' stretto" % esaminate)
+	GameState.nuova_partita()
+
+func valore_di_ruolo(chiave: String, nome_ruolo: String, livello: int) -> int:
+	const FINTA := "__creatura_di_ruolo__"
+	GameState.personaggi[FINTA] = {"id": FINTA, "ruolo": nome_ruolo, "livello": livello,
+			"scala_col_giocatore": false}
+	var valore := GameState.stat_di_ruolo(FINTA, chiave, livello)
+	GameState.personaggi.erase(FINTA)
+	return valore
+
+func valore_di_curva(chiave: String, livello: int) -> int:
+	# quanto vale la stat di un nemico comune a quel livello. Si passa da una
+	# creatura vera messa temporaneamente a quel livello, invece di rifare il
+	# conto qui: una prova che si calcola da sola il risultato atteso non prova
+	# la formula, prova se stessa
+	const FINTA := "__creatura_di_prova__"
+	GameState.personaggi[FINTA] = {"id": FINTA, "ruolo": "comune", "livello": livello,
+			"scala_col_giocatore": false}
+	var valore := GameState.stat_di_ruolo(FINTA, chiave)
+	GameState.personaggi.erase(FINTA)
+	return valore
 
 func cresci_giocatore_fino_a(livello: int) -> void:
 	# la stessa stima che usa il giocatore automatico, dallo stesso posto
@@ -1113,8 +1354,7 @@ func prova_i_boss_non_si_superano_farmando() -> void:
 	var fonti: Array[String] = []
 	var comuni: Array[String] = []
 	for id_creatura in GameState.personaggi:
-		var dati: Dictionary = GameState.personaggi[id_creatura]
-		if not dati.has("hp") or not GameState.nemico_scala(id_creatura):
+		if not GameState.e_creatura(id_creatura) or not GameState.nemico_scala(id_creatura):
 			continue
 		if GameState.e_boss(id_creatura):
 			fonti.append(id_creatura)

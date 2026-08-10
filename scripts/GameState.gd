@@ -15,6 +15,7 @@ const PERCORSO_DIALOGHI := "res://data/dialoghi.json"
 const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
+const PERCORSO_RUOLI := "res://data/ruoli.json"
 const PERCORSO_CRESCITA := "res://data/crescita.json"
 const PERCORSO_TASK := "res://data/task.json"
 const PERCORSO_CODICI := "res://data/codici.json"  # extra: sblocchi via codice
@@ -56,7 +57,9 @@ var dialoghi: Dictionary = {}        # id nodo -> battuta di un compagno (lore, 
 var conversazioni: Dictionary = {}   # id nodo -> discussione tra due compagni + mediazione
 var audio: Dictionary = {}           # config musica (chiavi -> percorsi)
 var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemici comuni
-var stati: Dictionary = {}                # id stato -> definizione generica (tipo, contagiosa, ...)
+var stati: Dictionary = {}
+                                          # id stato -> definizione generica (tipo, contagiosa, ...)
+var ruoli: Dictionary = {}   # data/ruoli.json: curva e ruoli da cui escono i numeri di una creatura
 var codici: Dictionary = {}               # codice (maiuscolo) -> {testo, effetto}, vedi Extra
 var codici_riscattati: Array[String] = []  # persiste da solo, fuori dagli slot di salvataggio
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
@@ -199,6 +202,7 @@ func _ready() -> void:
 	carica_audio()
 	carica_studio()
 	carica_stati()
+	carica_ruoli()
 	carica_crescita()
 	carica_task()
 	carica_codici()
@@ -302,6 +306,10 @@ func carica_crescita() -> void:
 func carica_stati() -> void:
 	var dati: Variant = carica_json(PERCORSO_STATI)
 	stati = dati.get("stati", {}) if dati is Dictionary else {}
+
+func carica_ruoli() -> void:
+	var dati: Variant = carica_json(PERCORSO_RUOLI)
+	ruoli = dati if dati is Dictionary else {}
 
 func carica_task() -> void:
 	task_catalogo.clear()
@@ -572,14 +580,132 @@ func livello_nemico(id_nemico: String) -> int:
 	var pavimento := livello_di(id_protagonista) - scarto_di(id_nemico)
 	return clampi(maxi(base, pavimento), 1, int(regole.get("livello_massimo", 130)))
 
-func stat_nemico(id_nemico: String, chiave: String, difetto := 0) -> int:
-	# La stat scritta nel file e' quella del suo livello base. Se il
-	# disallineamento l'ha tirata su, cresce di conseguenza: le percentuali
-	# stanno in regole.json, una per stat, cosi' un nemico livellato picchia
-	# piu' forte ma non diventa un muro invalicabile.
+func e_creatura(id_personaggio: String) -> bool:
+	# ha un ruolo che combatte. Chi parla e basta non ha ruolo; un oggetto di
+	# scena (le lettere sull'altare) ce l'ha ma non e' un nemico: sta in campo
+	# per essere colpito, non va nel bestiario e non vale niente
+	var ruolo := String(personaggi.get(id_personaggio, {}).get("ruolo", ""))
+	return ruolo != "" and ruolo != "oggetto_scena"
+
+func stat_eroe_tipo(chiave: String, livello: int) -> float:
+	# QUANTO VALE DAVVERO IL PROTAGONISTA AL LIVELLO N.
+	#
+	# Non "quanto varrebbe se il livello desse le stat": in Carnivalz il livello
+	# non le da', le stat salgono con quello che hai fatto (crescita.json). Qui
+	# si rifa' il conto che fa il gioco - stat base piu' i punti guadagnati -
+	# partendo dalla stima di quante volte uno compie ogni azione per livello
+	# (profilo_giocatore_tipo). E' la stessa stima che usa il giocatore
+	# automatico, letta dallo stesso posto: se stesse in due posti, prima o poi
+	# direbbero due cose diverse.
+	var punti := 0
+	var profilo: Dictionary = crescita.get("profilo_giocatore_tipo", {})
+	for nome_azione in crescita.get("crescita", {}):
+		var regola: Dictionary = crescita["crescita"][nome_azione]
+		if String(regola.get("stat", "")) != chiave:
+			continue
+		var ogni := maxi(int(regola.get("ogni", 1)), 1)
+		var fatte := int(profilo.get(nome_azione, 0)) * maxi(livello - 1, 0)
+		punti += (fatte / ogni) * int(regola.get("punti", 1))
+	return float(stat_base_di(chiave) + punti)
+
+func scontri_per_livello(livello: int) -> float:
+	# quante creature comuni del tuo livello per guadagnare un livello
+	var ritmo: Dictionary = ruoli.get("scontri_per_livello", {})
+	var quanti := float(ritmo.get("base", 5.0)) + float(ritmo.get("passo", 0.35)) * float(maxi(livello - 1, 0))
+	return maxf(quanti, 1.0)
+
+func xp_di_riferimento(livello: int) -> float:
+	# l'esperienza di una creatura comune a quel livello: non un numero scelto,
+	# ma il fabbisogno del livello diviso per quanti scontri vogliamo che costi
+	return float(fabbisogno_xp(livello)) / scontri_per_livello(livello)
+
+func stat_di_ruolo(id_nemico: String, chiave: String, a_livello := 0) -> int:
+	# DA DOVE ESCONO I NUMERI DI UNA CREATURA.
+	#
+	# Non stanno piu' scritti uno per uno: escono dal livello a cui la creatura
+	# sta e dal ruolo che ha. E il riferimento non e' una tabella a parte, e' il
+	# PROTAGONISTA a quel livello (stat_eroe_tipo): la creatura vale una quota
+	# di lui. Cosi' le due curve non possono divergere di nascosto mentre si
+	# aggiunge contenuto, perche' non sono due curve - e' una sola, guardata da
+	# due parti. Ricalibrare il gioco intero e' cambiare una riga di ruoli.json.
+	#
+	# Una creatura puo' comunque scrivere il numero a mano: quello vince. Ma e'
+	# un'eccezione dichiarata, non un numero fra gli altri, e prova_curva_creature
+	# pretende che dica anche perche' (campo "fuori_curva").
 	var dati: Dictionary = personaggi.get(id_nemico, {})
-	var base := int(dati.get(chiave, difetto))
-	var salto := livello_nemico(id_nemico) - livello_base_nemico(id_nemico)
+	var ruolo: Dictionary = ruoli.get("ruoli", {}).get(String(dati.get("ruolo", "comune")), {})
+	if ruolo.is_empty():
+		return 0
+	var curva: Dictionary = ruoli.get("curva", {})
+	# a_livello < 1 vuol dire "al suo livello": chi la tira su per il
+	# disallineamento passa il livello a cui si trova adesso
+	var livello := maxi(livello_base_nemico(id_nemico), 1) if a_livello < 1 else a_livello
+	var quanto := float(ruolo.get(chiave, 1.0))
+	match chiave:
+		"hp":
+			return maxi(int(round(stat_eroe_tipo("hp", livello) * float(curva.get("quota_hp", 1.05)) * quanto)), 1)
+		"attacco":
+			# la deriva: quanto il gioco si fa piu' duro andando avanti, oltre
+			# alla semplice crescita dei numeri. Una manopola sola
+			var deriva := 1.0 + float(ruoli.get("deriva_attacco_per_livello", 0.0)) * float(livello - 1)
+			return maxi(int(round(stat_eroe_tipo("attacco", livello)
+					* float(curva.get("quota_attacco", 0.29)) * quanto * deriva)), 0)
+		"difesa":
+			# il protagonista al livello 1 non ha difesa: se la guadagna parando.
+			# Le creature una corazza ce l'hanno gia' addosso
+			var d := float(curva.get("difesa_base", 1.0)) + stat_eroe_tipo("difesa", livello)
+			return maxi(int(round(d * quanto)), 0)
+		"velocita":
+			if quanto <= 0.0:
+				return 0
+			return maxi(int(round(stat_eroe_tipo("velocita", livello)
+					* float(curva.get("quota_velocita", 1.0)) * quanto)), 1)
+		"xp":
+			if quanto <= 0.0:
+				return 0
+			return maxi(int(round(xp_di_riferimento(livello) * quanto)), 1)
+		"tazo":
+			# i soldi non seguono l'esperienza: l'esperienza insegue un
+			# fabbisogno che cresce come livello^1.5, i soldi inseguono un
+			# negozio con i prezzi fermi. Due domande diverse, due curve diverse
+			if quanto <= 0.0:
+				return 0
+			var soldi: Dictionary = ruoli.get("tazo", {})
+			return maxi(int(round((float(soldi.get("base", 1.8))
+					+ float(soldi.get("per_livello", 1.15)) * float(livello - 1)) * quanto)), 1)
+	return 0
+
+func stat_base_nemico(id_nemico: String, chiave: String, difetto := 0) -> int:
+	# il numero al suo livello base: scritto a mano se c'e', altrimenti dedotto
+	var dati: Dictionary = personaggi.get(id_nemico, {})
+	if dati.has(chiave):
+		return int(dati[chiave])
+	return stat_di_ruolo(id_nemico, chiave) if dati.has("ruolo") else difetto
+
+func stat_nemico(id_nemico: String, chiave: String, difetto := 0) -> int:
+	# QUANTO VALE UNA CREATURA ADESSO, tirata su dal disallineamento.
+	#
+	# Qui c'era una percentuale fissa per ogni livello di scarto (+13% di hp e
+	# attacco), e faceva una cosa che nessuno aveva mai misurato perche' il
+	# simulatore non guardava sopra il livello 8: I BOSS DIVENTAVANO PIU'
+	# DIFFICILI MAN MANO CHE SALIVI. Dal livello 18 al 25 il protagonista cresce
+	# di 1,2 volte, un nemico livellato col +13% cresceva di 1,5. Misurato:
+	# Jerah si vinceva il 100% delle volte al livello 18 e il 29% al 25.
+	#
+	# Adesso una creatura tirata su non e' "la sua stat base piu' una
+	# percentuale": e' la stat che ha una creatura del suo ruolo A QUEL
+	# LIVELLO, presa dalla stessa curva di tutte le altre - che e' agganciata al
+	# protagonista. Quindi salire di livello non puo' piu' peggiorare la tua
+	# situazione, per costruzione.
+	var dati: Dictionary = personaggi.get(id_nemico, {})
+	var livello := livello_nemico(id_nemico)
+	var salto := livello - livello_base_nemico(id_nemico)
+	if not dati.has(chiave) and dati.has("ruolo"):
+		return stat_di_ruolo(id_nemico, chiave, livello)
+	# le eccezioni scritte a mano stanno fuori dalla curva per scelta: per loro
+	# resta la vecchia crescita percentuale, perche' non c'e' nessuna curva da
+	# cui ricalcolarle
+	var base := stat_base_nemico(id_nemico, chiave, difetto)
 	if salto <= 0 or base <= 0:
 		return base
 	var per_livello: Dictionary = regole.get("crescita_nemico_per_livello", {})

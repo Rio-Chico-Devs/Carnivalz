@@ -38,7 +38,12 @@ const RIPETIZIONI := 150      # per ogni coppia nemico/strategia
 # di scontri di fila esplode. Un frame ogni tanto la libera.
 const SCONTRI_PER_FRAME := 30
 const LIMITE_GIRI := 60       # oltre questo, lo scontro e' "non finisce"
-const LIVELLI := [1, 2, 3, 5, 8]
+const LIVELLI := [1, 2, 3, 5, 8, 12, 18, 25]
+# I livelli sopra l'8 mancavano, e la mancanza costava esattamente quello che
+# doveva costare: nessuno aveva mai misurato il gioco dopo il tutorial. La
+# curva dell'attacco si spezzava al livello 9 e la tabella non poteva dirlo,
+# perche' non guardava li'. Adesso il contenuto arriva al livello 18 (Jerah) e
+# le misure arrivano al 25.
 # Attenzione a cosa vuol dire "livello" qui: nel gioco le statistiche non
 # salgono col livello, salgono con quello che hai fatto (vedi crescita.json).
 # Per mesi il simulatore alzava SOLO il livello, e quindi misurava un
@@ -73,8 +78,9 @@ func nemici_da_provare() -> Array[String]:
 	# combattono davvero. Fuori solo chi porta uno script del tutorial: quello
 	# non e' uno scontro, e' una scena, e va esattamente come e' scritto
 	var elenco: Array[String] = []
-	for dati in GameState.personaggi.values():
-		if not dati is Dictionary or not dati.has("xp"):
+	for id_creatura in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		if not GameState.e_creatura(id_creatura):
 			continue
 		if dati.has("tutorial_combattimento"):
 			continue
@@ -169,8 +175,10 @@ func gioca_molte_volte(id_nemico: String, nome_strategia: String, livello: int) 
 	return {
 		"nemico": id_nemico,
 		"nome": String(GameState.personaggi.get(id_nemico, {}).get("nome", id_nemico)),
-		"hp": int(GameState.personaggi.get(id_nemico, {}).get("hp", 0)),
-		"att": int(GameState.personaggi.get(id_nemico, {}).get("attacco", 0)),
+		# non piu' dal file: le stat di una creatura escono dal suo ruolo, e
+		# leggerle dal record dava zero per tutte tranne le cinque eccezioni
+		"hp": GameState.stat_base_nemico(id_nemico, "hp"),
+		"att": GameState.stat_base_nemico(id_nemico, "attacco"),
 		"strategia": nome_strategia,
 		"livello": livello,
 		"vittorie": 100.0 * vittorie / RIPETIZIONI,
@@ -274,56 +282,83 @@ func stampa_tabella() -> void:
 		if motivo != "":
 			print("  L%-2d  %-30s %s" % [int(r.livello), String(r.nome).substr(0, 30), motivo])
 
+func stat_di_prova(chiave: String, nome_ruolo: String, livello: int) -> int:
+	# quanto vale una stat per un dato ruolo a un dato livello. Passa da una
+	# creatura vera messa li' per un istante invece di rifare il conto: un
+	# documento che si ricalcola i numeri per conto suo racconta i numeri suoi,
+	# non quelli del gioco
+	const FINTA := "__creatura_di_prova__"
+	GameState.personaggi[FINTA] = {"id": FINTA, "ruolo": nome_ruolo, "livello": livello,
+			"scala_col_giocatore": false}
+	var valore := GameState.stat_di_ruolo(FINTA, chiave)
+	GameState.personaggi.erase(FINTA)
+	return valore
+
 func curva_di_riferimento() -> String:
-	# QUANTO DOVREBBE ESSERE FORTE una creatura di un certo livello, dato quanto
-	# e' forte il protagonista quando ci arriva. Non e' una regola che il gioco
-	# applica: e' un metro per guardare il contenuto e vedere chi e' fuori scala.
+	# DOVE STANNO I NUMERI DELLE CREATURE, adesso che non stanno piu' nei file.
 	#
-	# Serve perche' le stat delle creature sono state scritte a mano in momenti
-	# diversi e non seguono nessuna curva: un Ghoul di livello 8 ha 350 hp e un
-	# Oppresso di livello 4 ne ha 270. Con un protagonista che a quel punto e'
-	# triplicato, il Ghoul non e' un nemico, e' un arredo.
-	#
-	# I due criteri: una creatura dovrebbe reggere una decina di colpi, e portarsi
-	# via circa un terzo della vita del protagonista nell'arco dello scontro.
-	var testo := "## Curva di riferimento (quanto dovrebbe essere forte una creatura)\n\n"
-	testo += "Non e' una regola che il gioco applica: e' un metro per accorgersi di chi e' fuori\n"
-	testo += "scala. Una creatura dovrebbe reggere una decina di colpi e portarsi via circa un\n"
-	testo += "terzo della vita del protagonista.\n\n"
-	testo += "| livello | il protagonista ha | hp consigliati | attacco consigliato |\n|--:|---|--:|--:|\n"
-	var atteso_hp := {}
-	var atteso_att := {}
-	for livello in range(1, 21):
+	# Fino a poco fa qui c'era un "metro" scritto a mano per accorgersi di chi
+	# era fuori scala, e serviva perche' le stat erano scritte una per una in
+	# momenti diversi: un Ghoul di livello 8 con 350 hp accanto a un Oppresso di
+	# livello 4 con 270. Adesso quel problema non esiste piu' - una creatura
+	# dichiara livello e ruolo e i numeri escono da ruoli.json - e il metro non
+	# serve. Serve il contrario: vedere che numeri sono usciti.
+	var testo := "## Da dove escono i numeri delle creature\n\n"
+	testo += "Nessuna creatura ha piu' hp, attacco, difesa, xp e tazo scritti a mano: dichiara a\n"
+	testo += "che **livello** sta e che **ruolo** ha, e i numeri escono da `data/ruoli.json`. E\n"
+	testo += "ruoli.json a sua volta non ha numeri suoi: ha **quote del protagonista**. La riga\n"
+	testo += "\"protagonista\" qui sotto e' calcolata da `crescita.json` esattamente come la calcola\n"
+	testo += "il gioco, quindi le due curve non possono divergere: e' una sola curva.\n\n"
+	testo += "### Il metro: un nemico comune al tuo livello\n\n"
+	testo += "| livello | il protagonista ha | un comune ha | scontri per salire | xp a scontro |\n"
+	testo += "|--:|---|---|--:|--:|\n"
+	for livello: int in [1, 2, 3, 5, 8, 12, 16, 20, 25, 30]:
 		GameState.nuova_partita()
 		GameState.livelli[GameState.id_protagonista] = livello
 		cresci_fino_a(livello)
-		var hp_eroe := GameState.stat_di("hp")
-		var att_eroe := GameState.stat_di("attacco")
-		atteso_hp[livello] = int(round(att_eroe * 10 * 0.8))
-		atteso_att[livello] = maxi(int(round(hp_eroe * 0.33 / 8.0)), 1)
-		if livello in [1, 2, 3, 5, 8, 12, 16, 20]:
-			testo += "| %d | %d hp, %d attacco | %d | %d |\n" % [
-					livello, hp_eroe, att_eroe, atteso_hp[livello], atteso_att[livello]]
-	testo += "\n### Creature molto lontane dal riferimento\n\n"
-	testo += "| creatura | livello | hp | consigliati | attacco | consigliato |\n|---|--:|--:|--:|--:|--:|\n"
+		testo += "| %d | %d hp, %d att, %d dif, %d vel | %d hp, %d att, %d dif, %d vel | %.1f | %d |\n" % [
+				livello, GameState.stat_di("hp"), GameState.stat_di("attacco"),
+				GameState.stat_di("difesa"), GameState.stat_di("velocita"),
+				stat_di_prova("hp", "comune", livello), stat_di_prova("attacco", "comune", livello),
+				stat_di_prova("difesa", "comune", livello), stat_di_prova("velocita", "comune", livello),
+				GameState.scontri_per_livello(livello), stat_di_prova("xp", "comune", livello)]
+	testo += "\n**\"Scontri per salire\"** e' la manopola del ritmo del gioco intero: l'esperienza di\n"
+	testo += "una creatura non e' scelta, e' il fabbisogno del livello diviso per quel numero.\n"
+	testo += "Prima l'esperienza era una retta e il fabbisogno una potenza, quindi al livello 1\n"
+	testo += "bastavano 4 scontri e al livello 20 ne servivano 26 - e nessuno l'aveva mai misurato,\n"
+	testo += "perche' nessuna prova guardava sopra il livello 8.\n\n"
+	testo += "### Cosa cambia il ruolo (a livello 10)\n\n"
+	testo += "| ruolo | hp | attacco | difesa | velocita | xp | tazo | cos'e' |\n"
+	testo += "|---|--:|--:|--:|--:|--:|--:|---|\n"
+	for nome_ruolo in GameState.ruoli.get("ruoli", {}):
+		var descrizione: Dictionary = GameState.ruoli["ruoli"][nome_ruolo]
+		testo += "| **%s** | %d | %d | %d | %d | %d | %d | %s |\n" % [nome_ruolo,
+				stat_di_prova("hp", nome_ruolo, 10), stat_di_prova("attacco", nome_ruolo, 10),
+				stat_di_prova("difesa", nome_ruolo, 10), stat_di_prova("velocita", nome_ruolo, 10),
+				stat_di_prova("xp", nome_ruolo, 10), stat_di_prova("tazo", nome_ruolo, 10),
+				String(descrizione.get("_cosa_e", ""))]
+	testo += "\n### Le eccezioni dichiarate\n\n"
+	testo += "Una creatura puo' ancora scrivere un numero a mano, e quel numero vince. Ma deve\n"
+	testo += "dire perche' (campo `fuori_curva`), e `prova_curva_creature` fallisce se non lo fa:\n"
+	testo += "cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.\n\n"
+	testo += "| creatura | livello | ruolo | scritto a mano | perche' |\n|---|--:|---|---|---|\n"
 	var fuori := 0
-	var ids: Array[String] = nemici_da_provare()
-	for id_nemico in ids:
-		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
-		var livello := clampi(int(dati.get("livello", 1)), 1, 20)
-		var hp_atteso := int(atteso_hp.get(livello, 0))
-		var att_atteso := int(atteso_att.get(livello, 1))
-		var hp_vero := int(dati.get("hp", 0))
-		var att_vero := int(dati.get("attacco", 0))
-		# solo chi e' fuori di piu' della meta', in un senso o nell'altro
-		var storto_hp: bool = hp_atteso > 0 and (hp_vero < hp_atteso * 0.5 or hp_vero > hp_atteso * 2.0)
-		var storto_att: bool = att_vero > 0 and (att_vero < att_atteso * 0.5 or att_vero > att_atteso * 2.0)
-		if storto_hp or storto_att:
-			fuori += 1
-			testo += "| %s | %d | %d | %d | %d | %d |\n" % [
-					String(dati.get("nome", id_nemico)), livello, hp_vero, hp_atteso, att_vero, att_atteso]
+	for id_creatura in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		if not dati.has("ruolo"):
+			continue
+		var a_mano: Array[String] = []
+		for chiave: String in ["hp", "attacco", "difesa", "velocita", "xp", "tazo"]:
+			if dati.has(chiave):
+				a_mano.append("%s %d" % [chiave, int(dati[chiave])])
+		if a_mano.is_empty():
+			continue
+		fuori += 1
+		testo += "| %s | %d | %s | %s | %s |\n" % [String(dati.get("nome", id_creatura)),
+				int(dati.get("livello", 1)), String(dati.get("ruolo", "")),
+				", ".join(a_mano), String(dati.get("fuori_curva", ""))]
 	if fuori == 0:
-		testo += "| — | | | | | |\n"
+		testo += "| — | | | | |\n"
 	testo += "\n"
 	GameState.nuova_partita()
 	return testo

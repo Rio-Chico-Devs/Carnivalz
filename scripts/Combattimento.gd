@@ -317,7 +317,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		# scontri incatenati: si riprende con i punti vita lasciati dal precedente
 		hp_iniziali = clampi(int(GameState.hp_persistenti[id_personaggio]), 1, hp_max)
 	var nodi := campo.crea_scheda(id_personaggio, giocatore)
-	if not giocatore and dati.has("xp"):
+	if not giocatore and GameState.e_creatura(id_personaggio):
 		# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
 		GameState.registra_bestiario(id_personaggio)
 		if not muto:
