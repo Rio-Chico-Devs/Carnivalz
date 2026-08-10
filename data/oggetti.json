@@ -587,6 +587,25 @@
 			"tipo": "spazio",
 			"categoria": "accessori",
 			"descrizione": "Un ripiano sottile piegato dentro una tasca. Le cose piccole non si perdono più."
+		},
+		{
+			"id": "cianfrusaglia",
+			"nome": "Cianfrusaglia",
+			"tipo": "pila",
+			"prezzo_vendita": 3,
+			"cap": 999,
+			"descrizione": "Roba. Un bottone, una vite, un dente. Non serve a niente e per questo se ne accumula tantissima: è l'unica cosa che tutti lasciano cadere, e l'unica che si vende senza pensarci."
+		},
+		{
+			"id": "frammento_di_vita",
+			"nome": "Frammento di vita",
+			"tipo": "consumabile",
+			"prezzo_vendita": 12,
+			"effetto": {
+				"rigenerazione_battute": 3,
+				"rigenerazione_percentuale": 0.1
+			},
+			"descrizione": "Una scheggia tiepida. Si scioglie addosso e per tre battute rimette a posto un decimo di quello che avevi: poco, e proprio per questo va preso al momento giusto."
 		}
 	]
 }

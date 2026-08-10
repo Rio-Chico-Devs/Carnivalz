@@ -1,6 +1,5 @@
 {
 	"_nota": "DA DOVE VENGONO I NUMERI DI UNA CREATURA. Prima ogni creatura aveva hp, attacco, difesa, xp e tazo scritti a mano: quaranta creature, duecento numeri, e nessun modo di sapere se un numero era una scelta o una svista. Bastava aggiungere contenuto perche' il gioco si sbilanciasse in un punto qualunque, e ricalibrare voleva dire ripassarli tutti. Adesso una creatura dichiara due cose - a che LIVELLO sta e che RUOLO ha - e i numeri escono da qui. Ricalibrare il gioco intero e' cambiare una riga in questo file.",
-
 	"_nota_curva": "E QUESTO FILE DA DOVE PRENDE I NUMERI SUOI. Per la potenza, da nessuna parte: non ce ne sono (l'unica curva scritta a mano e' quella dei soldi, e sotto c'e' scritto perche'). La potenza di riferimento a un dato livello e' quella del PROTAGONISTA a quel livello, calcolata da crescita.json (stat base + quello che un giocatore normale guadagna, profilo_giocatore_tipo). Qui sotto ci sono solo QUOTE: quanta parte del protagonista vale una creatura. Non e' una copia dei suoi numeri, sono i suoi numeri. Se domani cambi la crescita del protagonista, tutte le creature si spostano con lui nello stesso istante e non c'e' niente da ricalibrare: e' impossibile che le due curve divergano, perche' e' una sola.",
 	"curva": {
 		"_quota_hp": "riserva di una creatura, in quote della vita del protagonista pari livello",
@@ -12,51 +11,118 @@
 		"_quota_velocita": "la velocita' decide solo chi muove per primo, quindi ha senso solo in rapporto a lui. Un ruolo sotto 1 lo lascia partire, sopra 1 gli arriva addosso prima",
 		"quota_velocita": 1.0
 	},
-
 	"_nota_ritmo": "QUANTO SI MACINA PER SALIRE DI LIVELLO. L'esperienza di una creatura non e' un numero scelto: e' il fabbisogno del livello (regole.json, xp_base * livello^xp_esponente) diviso per quanti scontri vogliamo che servano. Quindi 'scontri_per_livello' vuol dire esattamente cio' che dice: quante creature COMUNI del tuo livello per guadagnare un livello. Prima l'esperienza era una retta e il fabbisogno una potenza: al livello 1 bastavano 4 scontri, al livello 20 ne servivano 26, e nessuno l'aveva mai misurato. Adesso il ritmo del gioco intero sta in queste due cifre.",
 	"scontri_per_livello": {
 		"base": 5.0,
 		"passo": 0.35
 	},
-
 	"_nota_tazo": "I soldi hanno una curva loro, e per una ragione: l'esperienza deve raggiungere un fabbisogno che cresce come livello^1.5, i soldi devono raggiungere un negozio i cui prezzi sono scritti a mano e stanno fermi (una razione 10, un frammento 150). Agganciare i tazo all'esperienza sembrava piu' elegante - una curva in meno - ma raddoppiava i soldi del tardo gioco e affamava il livello 1. Sono due domande diverse e vogliono due risposte diverse. Questa resta una retta: due numeri in un posto solo, non uno per creatura.",
 	"tazo": {
 		"base": 1.8,
 		"per_livello": 1.15
 	},
-
 	"_nota_deriva": "Quanto il gioco si fa piu' duro andando avanti, oltre alla semplice crescita dei numeri. A 0 la forma di uno scontro e' identica al livello 1 e al livello 20 (solo con numeri piu' grandi); alzandolo, le creature tarde picchiano proporzionalmente di piu' e gli scontri si accorciano. E' UNA MANOPOLA SOLA per la difficolta' del tardo gioco.",
 	"deriva_attacco_per_livello": 0.012,
-
 	"_nota_ruoli": "Ogni ruolo e' un moltiplicatore sulla curva. Un ruolo non e' una categoria narrativa: dice come si COMBATTE contro quella creatura. La categoria (comune/particolare/boss) resta un campo suo, per musica e testi d'apertura.",
 	"ruoli": {
 		"comune": {
 			"_cosa_e": "il nemico di riserva: muore in cinque o sei turni e si porta via un quarto della vita. E' il metro di tutto il resto - il suo xp e' 1.0, cioe' e' lui la creatura che conta in 'scontri_per_livello'",
-			"hp": 0.82, "attacco": 1.30, "difesa": 1.0, "velocita": 0.80, "xp": 1.0, "tazo": 1.0
+			"hp": 0.82,
+			"attacco": 1.3,
+			"difesa": 1.0,
+			"velocita": 0.8,
+			"xp": 1.0,
+			"tazo": 1.0
 		},
 		"veloce": {
 			"_cosa_e": "colpisce prima e piu' spesso, ma regge poco e non para niente",
-			"hp": 0.62, "attacco": 1.20, "difesa": 0.2, "velocita": 1.90, "xp": 1.1, "tazo": 1.1
+			"hp": 0.62,
+			"attacco": 1.2,
+			"difesa": 0.2,
+			"velocita": 1.9,
+			"xp": 1.1,
+			"tazo": 1.1
 		},
 		"corazzato": {
 			"_cosa_e": "il muro: lento, poco offensivo, ma i colpi normali ci rimbalzano",
-			"hp": 1.10, "attacco": 1.00, "difesa": 2.6, "velocita": 0.55, "xp": 1.2, "tazo": 1.2
+			"hp": 1.1,
+			"attacco": 1.0,
+			"difesa": 2.6,
+			"velocita": 0.55,
+			"xp": 1.2,
+			"tazo": 1.2
 		},
 		"particolare": {
 			"_cosa_e": "l'incontro che ti fa alzare la testa: non un boss, ma nemmeno uno qualunque",
-			"hp": 1.35, "attacco": 1.55, "difesa": 1.4, "velocita": 0.90, "xp": 2.2, "tazo": 2.0
+			"hp": 1.35,
+			"attacco": 1.55,
+			"difesa": 1.4,
+			"velocita": 0.9,
+			"xp": 2.2,
+			"tazo": 2.0
 		},
 		"miniboss": {
 			"_cosa_e": "il guardiano di un ramo: si prepara, e se non ti prepari perdi",
-			"hp": 2.20, "attacco": 1.70, "difesa": 1.7, "velocita": 0.95, "xp": 4.5, "tazo": 4.0
+			"hp": 2.2,
+			"attacco": 1.7,
+			"difesa": 1.7,
+			"velocita": 0.95,
+			"xp": 4.5,
+			"tazo": 4.0
 		},
 		"fonte": {
 			"_cosa_e": "quello che tiene in piedi una frattura. Sempre al livello del protagonista",
-			"hp": 2.90, "attacco": 1.80, "difesa": 2.0, "velocita": 0.90, "xp": 7.0, "tazo": 6.0
+			"hp": 2.9,
+			"attacco": 1.8,
+			"difesa": 2.0,
+			"velocita": 0.9,
+			"xp": 7.0,
+			"tazo": 6.0
 		},
 		"oggetto_scena": {
 			"_cosa_e": "non combatte: sta li' per essere colpito (le lettere sull'altare)",
-			"hp": 0.12, "attacco": 0.0, "difesa": 0.0, "velocita": 0.0, "xp": 0.0, "tazo": 0.0
+			"hp": 0.12,
+			"attacco": 0.0,
+			"difesa": 0.0,
+			"velocita": 0.0,
+			"xp": 0.0,
+			"tazo": 0.0
 		}
-	}
+	},
+	"_nota_drop": "IL DROP C'E' SEMPRE. Bru: \"il drop deve sempre esserci, ogni nemico droppa qualcosa di suo\". Un nemico che non lascia niente e' un nemico che non valeva la pena affrontare, e dieci di fila cosi' spengono la voglia di combattere. Quindi ogni creatura lascia SEMPRE qualcosa: pochi tazo, un frammento di vita, o cianfrusaglia. Da dove escono le probabilita' e' la stessa storia dei numeri: dal ruolo, non da quaranta righe scritte a mano. Una creatura puo' dichiarare un suo 'drop_garantito' e allora vince quello - e' il posto dove metterle 'qualcosa di suo'.",
+	"drop_garantito": {
+		"_come_si_legge": "pesi relativi: quanto spesso quella cosa esce rispetto alle altre. La quantita' di tazo e' una frazione del tazo che quella creatura vale gia'.",
+		"comune": {
+			"cianfrusaglia": 6,
+			"tazo": 3,
+			"frammento_di_vita": 1
+		},
+		"veloce": {
+			"cianfrusaglia": 5,
+			"tazo": 4,
+			"frammento_di_vita": 1
+		},
+		"corazzato": {
+			"cianfrusaglia": 7,
+			"tazo": 2,
+			"frammento_di_vita": 1
+		},
+		"particolare": {
+			"cianfrusaglia": 3,
+			"tazo": 4,
+			"frammento_di_vita": 3
+		},
+		"miniboss": {
+			"cianfrusaglia": 2,
+			"tazo": 4,
+			"frammento_di_vita": 4
+		},
+		"fonte": {
+			"cianfrusaglia": 1,
+			"tazo": 4,
+			"frammento_di_vita": 5
+		},
+		"oggetto_scena": {}
+	},
+	"quota_tazo_garantito": 0.35
 }

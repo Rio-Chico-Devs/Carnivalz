@@ -80,6 +80,8 @@ var legame: int = 0                       # 0..100, respira di continuo
 # Inventario a slot: solo la sacca ha un limite ed è spendibile in combattimento
 var sacca: Array[String] = []             # consumabili, max regole.sacca_massima
 var collezionabili: Array[String] = []
+# La pila: id oggetto -> quanti. Non una lista, un conto (vedi aggiungi_alla_pila)
+var pila: Dictionary = {}
 var chiavi: Array[String] = []
 # Lo zaino non e' un mucchio: e' diviso per categoria, e ogni categoria ha la
 # sua capacita' (vedi "zaino" in regole.json).
@@ -403,6 +405,7 @@ func nuova_partita() -> void:
 	hp_persistenti.clear()
 	sacca.clear()
 	collezionabili.clear()
+	pila.clear()
 	chiavi.clear()
 	armi.clear()
 	accessori.clear()
@@ -932,6 +935,90 @@ func modifica_tazo(quantita: int) -> void:
 func dati_oggetto(id_oggetto: String) -> Dictionary:
 	return oggetti.get(id_oggetto, {})
 
+# --- la pila: dove finisce quello che i nemici lasciano cadere ---------------
+#
+# Bru: "un'altra sezione dell'inventario dove finiscono i drop comuni dei vari
+# nemici, che sono solo vendibili o scambiabili e non hanno altra funzione".
+#
+# E' uno scomparto a parte apposta: se la roba da vendere finisse nella sacca,
+# ogni scontro riempirebbe lo spazio dei consumabili e il giocatore passerebbe
+# la partita a buttare via cose invece che a combattere. Qui invece si accumula
+# e basta - e' quello il piacere. Non e' una lista come gli altri scomparti ma
+# un conto per tipo: novecentonovantanove cianfrusaglie sono un numero, non
+# novecentonovantanove voci.
+
+func drop_garantito_di(id_nemico: String) -> Dictionary:
+	# COSA LASCIA SEMPRE QUESTA CREATURA. Ritorna {"tipo": "tazo"|"oggetto",
+	# "oggetto": id, "quanti": n} - mai vuoto per una creatura che combatte.
+	#
+	# Bru: "il drop deve sempre esserci, ogni nemico droppa qualcosa di suo".
+	# Un nemico che non lascia niente e' un nemico che non valeva la pena
+	# affrontare; dieci di fila cosi' e non si combatte piu' volentieri. Quindi
+	# qui non c'e' nessun ramo che ritorna "niente".
+	var dati: Dictionary = personaggi.get(id_nemico, {})
+	if dati.has("drop_garantito"):
+		# quello che la creatura dichiara di suo vince: e' il posto dove darle
+		# una cosa che lasciano solo lei e i suoi simili
+		var suo: Dictionary = dati["drop_garantito"]
+		return {"tipo": "oggetto", "oggetto": String(suo.get("oggetto", "cianfrusaglia")),
+				"quanti": maxi(int(suo.get("quanti", 1)), 1)}
+	var ruolo := String(dati.get("ruolo", ""))
+	var pesi: Dictionary = ruoli.get("drop_garantito", {}).get(ruolo, {})
+	var totale := 0
+	for chiave in pesi:
+		if not String(chiave).begins_with("_"):
+			totale += int(pesi[chiave])
+	if totale <= 0:
+		return {}
+	var tiro := rng.randi_range(1, totale)
+	var scelto := "cianfrusaglia"
+	for chiave in pesi:
+		if String(chiave).begins_with("_"):
+			continue
+		tiro -= int(pesi[chiave])
+		if tiro <= 0:
+			scelto = String(chiave)
+			break
+	if scelto == "tazo":
+		var quanto := int(round(stat_nemico(id_nemico, "tazo")
+				* float(ruoli.get("quota_tazo_garantito", 0.35))))
+		return {"tipo": "tazo", "quanti": maxi(quanto, 1)}
+	return {"tipo": "oggetto", "oggetto": scelto, "quanti": 1}
+
+func cap_pila(id_oggetto: String) -> int:
+	var dichiarato := int(dati_oggetto(id_oggetto).get("cap", 0))
+	if dichiarato > 0:
+		return dichiarato
+	return int(regole.get("pila_cap_predefinito", 99))
+
+func quanti_nella_pila(id_oggetto: String) -> int:
+	return int(pila.get(id_oggetto, 0))
+
+func aggiungi_alla_pila(id_oggetto: String, quanti := 1) -> int:
+	# ritorna quanti ne sono entrati davvero: al tetto, il resto si perde e chi
+	# chiama puo' dirlo
+	if quanti <= 0 or not oggetti.has(id_oggetto):
+		return 0
+	cataloga_oggetto(id_oggetto)
+	var prima := quanti_nella_pila(id_oggetto)
+	var dopo := mini(prima + quanti, cap_pila(id_oggetto))
+	pila[id_oggetto] = dopo
+	return dopo - prima
+
+func togli_dalla_pila(id_oggetto: String, quanti := 1) -> int:
+	var prima := quanti_nella_pila(id_oggetto)
+	var tolti := mini(quanti, prima)
+	if tolti <= 0:
+		return 0
+	if prima - tolti <= 0:
+		pila.erase(id_oggetto)
+	else:
+		pila[id_oggetto] = prima - tolti
+	return tolti
+
+func e_da_pila(id_oggetto: String) -> bool:
+	return String(dati_oggetto(id_oggetto).get("tipo", "")) == "pila"
+
 func categoria_zaino(id_oggetto: String) -> String:
 	# in quale scomparto finisce un oggetto. "" = non sta nello zaino
 	match String(dati_oggetto(id_oggetto).get("tipo", "consumabile")):
@@ -997,6 +1084,10 @@ func aggiungi_oggetto(id_oggetto: String) -> bool:
 		# acquisto che non ti lascia niente in mano, e l'unico che non finisce mai
 		# in mezzo alle cose da amministrare
 		return compra_spazio(String(dati_oggetto(id_oggetto).get("categoria", "consumabili")))
+	if tipo == "pila":
+		# non entra nello zaino: si accumula nella pila, e li' non c'e' niente
+		# da amministrare
+		return aggiungi_alla_pila(id_oggetto) > 0
 	var categoria := categoria_zaino(id_oggetto)
 	# gli scomparti a tetto lo rispettano; gli speciali no, per definizione
 	if capacita_zaino(categoria) >= 0 and spazio_libero(categoria) <= 0:
@@ -1741,6 +1832,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"studiati": studiati,
 		"negozi_sbloccati": negozi_sbloccati,
 		"flags": flags,
+		"pila": pila,
 		"punti_stat": punti_stat,
 		"nodi_abilita": nodi_abilita,
 		"contatori": contatori,
@@ -1816,6 +1908,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	studiati = _lista_str(d.get("studiati", []))
 	negozi_sbloccati = _lista_str(d.get("negozi_sbloccati", []))
 	flags = _lista_str(d.get("flags", []))
+	pila = d.get("pila", {})
 	punti_stat = d.get("punti_stat", {})
 	nodi_abilita = _lista_str(d.get("nodi_abilita", []))
 	contatori = d.get("contatori", {})

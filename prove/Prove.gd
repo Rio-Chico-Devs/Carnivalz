@@ -58,6 +58,7 @@ func _ready() -> void:
 	prova_la_difesa_riduce_non_cancella()
 	prova_i_boss_non_si_superano_farmando()
 	prova_salita_di_livello_si_racconta()
+	prova_il_drop_c_e_sempre()
 	prova_guardia_a_scatti()
 	prova_corazza_che_cresce()
 	prova_colori_del_danno()
@@ -1921,6 +1922,96 @@ func prova_salita_di_livello_si_racconta() -> void:
 			== "resurrezione_dimezzata",
 			"quello che lascia la Manifestazione non fa piu' rivivere")
 
+	GameState.nuova_partita()
+
+func prova_il_drop_c_e_sempre() -> void:
+	# Bru: "il sistema di drop deve creare dipendenza, il drop deve sempre
+	# esserci, ogni nemico droppa qualcosa di suo". La dipendenza non nasce dai
+	# premi grossi: nasce dal fatto che NON ESCE MAI NIENTE. Dieci scontri di
+	# fila a mani vuote e non si combatte piu' volentieri, e nessuna tabella di
+	# bilanciamento se ne accorge - il gioco resta "equilibrato" e smette di
+	# tirare.
+	titolo("ogni creatura lascia sempre qualcosa")
+	GameState.nuova_partita()
+	var elenco := creature()
+	esigi(elenco.size() > 30, "l'elenco delle creature si e' svuotato")
+	for id_creatura in elenco:
+		# non una volta: cento, perche' un pavimento che regge il 99% delle
+		# volte non e' un pavimento
+		for tentativo in 100:
+			var lascia := GameState.drop_garantito_di(id_creatura)
+			esigi(not lascia.is_empty(), "%s non lascia niente" % id_creatura)
+			if lascia.is_empty():
+				break
+			var tipo := String(lascia.get("tipo", ""))
+			esigi(tipo in ["tazo", "oggetto"],
+					"%s lascia qualcosa di tipo '%s', che nessuno sa raccogliere" % [id_creatura, tipo])
+			esigi(int(lascia.get("quanti", 0)) >= 1,
+					"%s lascia zero unita' di qualcosa: e' come non lasciare niente" % id_creatura)
+			if tipo == "oggetto":
+				esigi(GameState.oggetti.has(String(lascia.get("oggetto", ""))),
+						"%s lascia '%s', che non esiste fra gli oggetti"
+						% [id_creatura, String(lascia.get("oggetto", ""))])
+
+	# LA PILA: si accumula, ha un tetto per tipo, e la cianfrusaglia ne ha uno suo
+	esigi(GameState.oggetti.has("cianfrusaglia"), "la cianfrusaglia non esiste")
+	esigi(GameState.e_da_pila("cianfrusaglia"), "la cianfrusaglia non finisce nella pila")
+	esigi(GameState.cap_pila("cianfrusaglia") == 999,
+			"la cianfrusaglia si ferma a %d invece che a 999" % GameState.cap_pila("cianfrusaglia"))
+	esigi(GameState.quanti_nella_pila("cianfrusaglia") == 0, "la pila non parte vuota")
+	GameState.aggiungi_alla_pila("cianfrusaglia", 5)
+	esigi(GameState.quanti_nella_pila("cianfrusaglia") == 5,
+			"cinque cianfrusaglie ne fanno %d" % GameState.quanti_nella_pila("cianfrusaglia"))
+	var entrate := GameState.aggiungi_alla_pila("cianfrusaglia", 2000)
+	esigi(GameState.quanti_nella_pila("cianfrusaglia") == 999,
+			"la pila ha sfondato il tetto: %d" % GameState.quanti_nella_pila("cianfrusaglia"))
+	esigi(entrate == 994, "il conto di quante ne sono entrate e' sbagliato: %d" % entrate)
+	esigi(GameState.aggiungi_alla_pila("cianfrusaglia", 10) == 0,
+			"al tetto entrano ancora oggetti")
+	esigi(GameState.togli_dalla_pila("cianfrusaglia", 999) == 999, "non si svuota la pila")
+	esigi(GameState.quanti_nella_pila("cianfrusaglia") == 0, "svuotata, la pila conta ancora qualcosa")
+	# e non ruba spazio alla sacca: e' proprio il punto di essere uno scomparto a parte
+	var sacca_prima := GameState.sacca.size()
+	GameState.aggiungi_oggetto("cianfrusaglia")
+	esigi(GameState.sacca.size() == sacca_prima,
+			"la cianfrusaglia e' finita nella sacca: riempirebbe lo spazio dei consumabili")
+	esigi(GameState.quanti_nella_pila("cianfrusaglia") == 1,
+			"raccolta, la cianfrusaglia non e' finita nella pila")
+
+	# IL FRAMMENTO DI VITA rigenera per piu' battute, e poco per volta
+	var frammento: Dictionary = GameState.dati_oggetto("frammento_di_vita")
+	esigi(not frammento.is_empty(), "il frammento di vita non esiste")
+	var effetto: Dictionary = frammento.get("effetto", {})
+	esigi(int(effetto.get("rigenerazione_battute", 0)) == 3,
+			"il frammento rigenera per %d battute invece di 3" % int(effetto.get("rigenerazione_battute", 0)))
+	esigi(absf(float(effetto.get("rigenerazione_percentuale", 0.0)) - 0.10) < 0.001,
+			"il frammento rimette a posto il %d%% invece del 10%%"
+			% int(float(effetto.get("rigenerazione_percentuale", 0.0)) * 100))
+	# e in campo funziona davvero
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+	eroe.hp = int(eroe.hp_max) / 2
+	scontro.applica_effetto(eroe, effetto)
+	esigi(int(eroe.get("rigenerazione_battute", 0)) == 3,
+			"il frammento non ha aperto nessuna rigenerazione")
+	var vita_prima := int(eroe.hp)
+	scontro.risolvi_rigenerazione_frammento(eroe)
+	esigi(int(eroe.hp) > vita_prima, "la prima battuta di rigenerazione non ha curato niente")
+	esigi(int(eroe.hp) - vita_prima <= int(eroe.hp_max) / 5,
+			"una battuta ha rimesso a posto piu' di un quinto della vita: non e' 'poca'")
+	for battuta in 5:
+		scontro.risolvi_rigenerazione_frammento(eroe)
+	esigi(int(eroe.get("rigenerazione_battute", 0)) == 0,
+			"la rigenerazione non finisce mai: sono tre battute, non per sempre")
+	scontro.free()
 	GameState.nuova_partita()
 
 func prova_guardia_a_scatti() -> void:

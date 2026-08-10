@@ -351,6 +351,10 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		# LA GUARDIA A SCATTI, stile Pokemon: si alza difendendosi, certi colpi
 		# la aprono, e resta com'e' fino alla fine dello scontro
 		"scatti_difesa": 0,
+		# il frammento di vita: quante battute di rigenerazione restano, e quanta
+		# vita rimette a posto ognuna
+		"rigenerazione_battute": 0,
+		"rigenerazione_quota": 0.0,
 		"mossa_in_carica": {},
 		# quanto vale il prossimo colpo di chi ha passato un turno a caricare:
 		# 0 = niente in canna (vedi abilita' di tipo "carica")
@@ -531,7 +535,24 @@ func mostra_continua_fine() -> void:
 	menu.pulisci()
 	menu.bottone("▸ Continua", _esci)
 
+func risolvi_rigenerazione_frammento(chi: Dictionary) -> void:
+	if int(chi.get("rigenerazione_battute", 0)) <= 0 or int(chi.hp) <= 0:
+		return
+	chi.rigenerazione_battute = int(chi.rigenerazione_battute) - 1
+	var quanto := maxi(int(round(int(chi.hp_max) * float(chi.get("rigenerazione_quota", 0.10)))), 1)
+	var prima := int(chi.hp)
+	chi.hp = mini(int(chi.hp) + quanto, int(chi.hp_max))
+	var recuperati := int(chi.hp) - prima
+	if recuperati > 0:
+		var scheda_curato: Control = chi.scheda
+		scrivi("[i]%s si rimette insieme: +%d.[/i]" % [chi.nome, recuperati])
+		voce.accoda_effetto(func() -> void:
+			voce.suono("cura")
+			voce.numero_volante(scheda_curato, "+%d" % recuperati, Stile.colore("positivo"))
+			aggiorna_scheda(chi))
+
 func esegui_turno(attaccante: Dictionary) -> void:
+	risolvi_rigenerazione_frammento(attaccante)
 	RegoleCombattimento.scadenza_buff(attaccante)
 	scala_astio(attaccante)
 	if int(attaccante.get("turni_immune", 0)) > 0:
@@ -751,6 +772,15 @@ func applica_effetto(utente: Dictionary, effetto: Dictionary, moltiplicatore := 
 				aggiorna_scheda(utente))
 		else:
 			aggiorna_scheda(utente)
+	if effetto.has("rigenerazione_battute") and not utente.is_empty():
+		# IL FRAMMENTO DI VITA. Non ridà una cifra: apre una rigenerazione che
+		# dura qualche battuta e rimette a posto una frazione di quello che hai.
+		# È poca apposta - un decimo per battuta - perché il valore non sta nel
+		# quanto, sta nel QUANDO lo prendi: preso al momento giusto ti tiene in
+		# piedi tre battute, preso a caso non cambia niente.
+		utente.rigenerazione_battute = int(effetto.rigenerazione_battute)
+		utente.rigenerazione_quota = float(effetto.get("rigenerazione_percentuale", 0.10)) * moltiplicatore
+		scrivi("[i]%s comincia a rimettersi insieme.[/i]" % utente.nome)
 	if effetto.has("aura") and not utente.is_empty():
 		var aura_prima := int(utente.get("aura", 0))
 		utente.aura = mini(aura_prima + scala.call(int(effetto.aura)), int(utente.get("aura_max", 0)))
@@ -2312,6 +2342,27 @@ func risolvi_drop() -> void:
 	for c in combattenti:
 		if c.giocatore or c.get("oggetto_scena", false) or c.get("risparmiato", false):
 			continue
+		# IL DROP C'E' SEMPRE, e viene prima di tutti i tiri di dado: non e' una
+		# probabilita' in piu', e' il pavimento. Chi hai abbattuto lascia
+		# qualcosa, punto - pochi tazo, un frammento di vita o cianfrusaglia
+		var garantito := GameState.drop_garantito_di(String(c.id))
+		if not garantito.is_empty():
+			if String(garantito.get("tipo", "")) == "tazo":
+				var quanti_tazo := int(garantito.get("quanti", 1))
+				GameState.modifica_tazo(quanti_tazo)
+				righe.append("%d Tazo" % quanti_tazo)
+			else:
+				var id_lasciato := String(garantito.get("oggetto", ""))
+				var quanti := int(garantito.get("quanti", 1))
+				var nome_lasciato := String(GameState.dati_oggetto(id_lasciato).get("nome", id_lasciato))
+				if GameState.e_da_pila(id_lasciato):
+					var entrati := GameState.aggiungi_alla_pila(id_lasciato, quanti)
+					if entrati > 0:
+						righe.append("%s ×%d" % [nome_lasciato, entrati])
+					else:
+						righe.append("%s (la pila è piena)" % nome_lasciato)
+				elif GameState.aggiungi_oggetto(id_lasciato):
+					righe.append(nome_lasciato)
 		# Pieta' usata su questo qui mentre era quasi finito: vale solo per lui,
 		# non per tutta la stanza. E' il senso dell'abilita' - hai speso un turno
 		# su UN nemico, e quel nemico lascia di piu'
