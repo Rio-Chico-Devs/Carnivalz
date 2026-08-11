@@ -901,6 +901,14 @@ frenetico pur restando una schermata ferma.
   giocatore automatico c'è un orologio virtuale che *salta* al prossimo momento in cui
   qualcuno agisce: non misura un gioco diverso, perché l'ordine delle azioni esce dalle stesse
   ricariche — cambia solo se il tempo lo conta un cronometro o l'aritmetica
+- **Sul nemico si clicca**: il colpo normale non è una voce di menu, è la creatura stessa —
+  ci si martella sopra, e se la ricarica non è pronta il click non conta. Il menu resta per
+  quello che non si fa colpendo: difendersi, gli attacchi d'arma, gli speciali, gli oggetti,
+  gli alleati, la fuga
+- **Le parole scorrono, il mondo non si ferma**: `pompa_messaggi()` svuota la coda in
+  parallelo al tempo, e i messaggi «forti» in tempo reale non aspettano più un click. Senza
+  quella pompa non arrivava a schermo un solo numero di danno e lo scontro non si chiudeva
+  mai — nel motore a turni erano il ciclo a fare tutte e due le cose
 - **Il party agisce da solo**; tu comandi un personaggio alla volta (`id_comandato`) e gli
   altri se la cavano con `azione_automatica()`
 - I nemici di livello basso fanno **meno male** di prima: in tempo reale i colpi arrivano più

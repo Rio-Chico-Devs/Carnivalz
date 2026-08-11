@@ -83,7 +83,11 @@ echo "→ niente tipi dedotti da un Variant"
 #                                      non è noto staticamente
 # In entrambi i casi esce Variant, i warning qui sono errori, e la scena non si
 # carica più: il gioco non fallisce, si pianta.
-if grep -rnE '^[[:space:]]*var [a-z_0-9]+ :=[^=]*(\.call\(|\b(schermata|scontro|mappa|negozio|pausa|istanza)\.[a-z_0-9]+\()' scripts prove --include='*.gd' ; then
+# Il controllo guarda solo la TESTA dell'espressione, subito dopo il ':='. Se
+# guardasse tutta la riga prenderebbe anche `var x := int(nodo.campo.get(...))`,
+# che ha un tipo dichiarato e va benissimo: un controllo che grida al lupo si
+# impara a ignorarlo, e allora tanto vale non averlo.
+if grep -rnE '^[[:space:]]*var [a-z_0-9]+ :=[[:space:]]*([a-z_0-9]+\.call\(|(schermata|scontro|mappa|negozio|pausa|istanza)\.[a-z_0-9.]+\()' scripts prove --include='*.gd' ; then
 	echo "" >&2
 	echo "✗ le righe qui sopra deducono il tipo da una Callable: in GDScript è" >&2
 	echo "  Variant, i warning qui sono errori, e la scena non si carica più." >&2

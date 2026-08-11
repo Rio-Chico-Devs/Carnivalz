@@ -59,19 +59,25 @@ func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := 
 # --- i menu ---
 
 func principale() -> void:
+	# IL COLPO NORMALE NON STA QUI. Si da' cliccando sul nemico, e si martella
+	# quanto si vuole: il menu e' per quello che una creatura non sa fare da
+	# sola - difendersi, gli speciali, gli oggetti, gli alleati, la fuga. Bru:
+	# "solo per gli attacchi speciali dovrebbe esserci il menu di scelta".
 	pulisci()
 	var passo: Dictionary = scontro.passo_tutorial()
 	if not passo.is_empty():
 		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
 		# sempre libero: guardare non e' mai un errore)
 		var richiesta := String(passo.get("azione", ""))
-		bottone("Attacca", bersagli, richiesta != "attacca", richiesta == "attacca")
 		bottone("Difenditi", scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
 		bottone("Abilità", abilita)
 		bottone("Oggetti", oggetti, richiesta != "oggetto", richiesta == "oggetto")
 		return
-	bottone("Attacca", bersagli)
 	bottone("Difenditi", scegli.bind({"tipo": "difendi"}))
+	if not GameState.attacchi_arma(String(scontro.attaccante_corrente.get("id", ""))).is_empty():
+		# gli attacchi d'arma non sono il colpo normale: sono scelte, e le scelte
+		# stanno nel menu
+		bottone("Arma", bersagli)
 	bottone("Abilità", abilita)
 	bottone("Oggetti", oggetti, GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty())
 	bottone("Alleati", alleati, scontro.alleati_disponibili().is_empty())

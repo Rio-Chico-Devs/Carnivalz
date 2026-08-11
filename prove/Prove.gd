@@ -58,6 +58,7 @@ func _ready() -> void:
 	prova_la_difesa_riduce_non_cancella()
 	prova_i_boss_non_si_superano_farmando()
 	prova_salita_di_livello_si_racconta()
+	await prova_scontro_vero_si_gioca()
 	prova_il_nemico_non_ti_aspetta()
 	prova_barra_di_dominio_come_energia()
 	prova_il_drop_c_e_sempre()
@@ -1937,6 +1938,87 @@ func prova_salita_di_livello_si_racconta() -> void:
 			== "resurrezione_dimezzata",
 			"quello che lascia la Manifestazione non fa piu' rivivere")
 
+	GameState.nuova_partita()
+
+func prova_scontro_vero_si_gioca() -> void:
+	# LA PROVA CHE MANCAVA, E CHE E' COSTATA UN COMBATTIMENTO INTERO.
+	#
+	# Tutte le altre girano in "muto" col giocatore automatico: chiamano le
+	# funzioni direttamente e non premono mai un bottone. Quindi non hanno mai
+	# visto che, in tempo reale, NESSUNO svuotava la coda dei messaggi e nessuno
+	# chiudeva lo scontro - il ciclo a turni faceva tutte e due le cose, e
+	# toglierlo le ha portate via. Bru, giocando: "non sto subendo danni ne'
+	# riesco ad infliggerli, il primo combattimento blocca tutto".
+	#
+	# Qui lo scontro si monta come in partita - non muto, senza strategia - e si
+	# gioca come si gioca: cliccando sul nemico.
+	titolo("uno scontro vero si gioca: si colpisce, si viene colpiti, e finisce")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+		elif not combattente.giocatore and nemico.is_empty():
+			nemico = combattente
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+
+	# 1. SUL NEMICO SI CLICCA, e il click e' un colpo
+	esigi(nemico.get("bersaglio_cliccabile", null) != null,
+			"il nemico non ha niente da cliccare: il colpo normale non si puo' dare")
+	esigi(eroe.get("bersaglio_cliccabile", null) == null,
+			"anche il protagonista e' cliccabile come bersaglio")
+	var vita_nemico := int(nemico.hp)
+	eroe.ricarica = 0.0          # la ricarica e' pronta, come dopo qualche istante
+	scontro._su_click_nemico(nemico)
+	esigi(int(nemico.hp) < vita_nemico,
+			"cliccando sul nemico non gli e' successo niente: il colpo normale non arriva")
+
+	# 2. e non si martella a vuoto: finche' ricarichi, il click non conta
+	var dopo_il_colpo := int(nemico.hp)
+	scontro._su_click_nemico(nemico)
+	scontro._su_click_nemico(nemico)
+	esigi(int(nemico.hp) == dopo_il_colpo,
+			"cliccando durante la ricarica si colpisce lo stesso: la ricarica non serve a niente")
+
+	# 3. IL MONDO VA AVANTI DA SOLO: si lascia scorrere il tempo senza toccare
+	#    niente e il protagonista deve incassare
+	var vita_eroe := int(eroe.hp)
+	for battito in 300:
+		scontro.avanza_orologio(0.1)
+		if int(eroe.hp) < vita_eroe:
+			break
+	esigi(int(eroe.hp) < vita_eroe,
+			"trenta secondi senza fare niente e il protagonista e' intatto: i nemici non si muovono")
+
+	# 4. E FINISCE. Si abbatte il nemico e lo scontro deve chiudersi
+	nemico.hp = 1
+	eroe.ricarica = 0.0
+	scontro._su_click_nemico(nemico)
+	esigi(int(nemico.hp) <= 0, "il colpo di grazia non ha abbattuto il nemico")
+	esigi(not scontro.in_corso,
+			"abbattuto l'ultimo nemico lo scontro e' ancora in corso: non finisce piu'")
+	esigi(scontro.giocatore_ha_vinto, "lo scontro e' finito senza registrare la vittoria")
+
+	# 5. E LE PAROLE ARRIVANO A SCHERMO. Non si pretende che la coda sia gia'
+	#    vuota - ogni messaggio ha il suo tempo di lettura, e sono secondi - si
+	#    pretende che CALI: che ci sia qualcuno che la consuma. Era esattamente
+	#    quello che mancava, e nessuna prova poteva vederlo perche' giravano
+	#    tutte in muto, dove non c'e' niente da leggere
+	var in_coda_prima: int = scontro.voce.coda.size()
+	esigi(in_coda_prima > 0, "lo scontro non ha prodotto un solo messaggio da leggere")
+	var girati := 0
+	while scontro.voce.coda.size() >= in_coda_prima and girati < 2000:
+		await get_tree().process_frame
+		girati += 1
+	esigi(scontro.voce.coda.size() < in_coda_prima,
+			"la coda dei messaggi non cala mai (%d ferma li'): non la svuota nessuno, e a schermo non arriva niente"
+			% in_coda_prima)
+	scontro.free()
 	GameState.nuova_partita()
 
 func prova_il_nemico_non_ti_aspetta() -> void:

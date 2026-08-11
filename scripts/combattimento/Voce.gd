@@ -44,6 +44,9 @@ var muta := false
 
 var coda: Array[Dictionary] = []   # {tipo, chi, testo, forte, effetto}
 var salta_messaggio := false       # un click chiede di passare avanti
+# In tempo reale nessun messaggio puo' fermare il mondo aspettando un click:
+# anche quelli "forti" scorrono da soli, solo con piu' calma
+var tempo_reale := false
 
 func _init(albero_scena: SceneTree, silenziosa := false) -> void:
 	albero = albero_scena
@@ -116,7 +119,7 @@ func attendi_lettura(testo: String, forte: bool) -> void:
 	# 2. poi: i messaggi forti aspettano il click, gli altri il tempo di lettura.
 	# Il triangolino resta acceso solo sui forti, cosi' vuol dire una cosa sola:
 	# "questo sta aspettando te"
-	if forte:
+	if forte and not tempo_reale:
 		while not salta_messaggio:
 			await albero.process_frame
 	else:

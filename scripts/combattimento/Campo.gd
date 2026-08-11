@@ -50,6 +50,20 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 	var scheda := VBoxContainer.new()
 	var ritratto := SCENA_RITRATTO.instantiate()
 	scheda.add_child(ritratto)
+	# SUL NEMICO SI CLICCA. Bru: "per colpire dovresti cliccare in continuazione
+	# sul nemico nel caso volessi attaccare normalmente, solo per gli attacchi
+	# speciali dovrebbe esserci il menu". Quindi il colpo normale non e' una voce
+	# di menu: e' la creatura stessa. Il bottone sta SOPRA il ritratto e prende
+	# tutta la scheda, cosi' si colpisce dove si guarda
+	if not giocatore:
+		var bersaglio := Button.new()
+		bersaglio.flat = true
+		bersaglio.name = "Bersaglio"
+		bersaglio.set_anchors_preset(Control.PRESET_FULL_RECT)
+		bersaglio.mouse_filter = Control.MOUSE_FILTER_STOP
+		bersaglio.focus_mode = Control.FOCUS_NONE
+		bersaglio.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		scheda.add_child(bersaglio)
 	var vita := Label.new()
 	vita.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	scheda.add_child(vita)
@@ -89,7 +103,7 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 			ritratto.imposta_grande(true)
 		ritratto.mostra(id_personaggio)
 	return {"scheda": scheda, "etichetta_vita": vita, "etichetta_extra": extra,
-			"barra_dominio": dominio}
+			"barra_dominio": dominio, "bersaglio": scheda.get_node_or_null("Bersaglio")}
 
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'

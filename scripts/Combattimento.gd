@@ -398,6 +398,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"etichetta_vita": nodi["etichetta_vita"],
 		"etichetta_extra": nodi["etichetta_extra"],
 		"barra_dominio": nodi.get("barra_dominio", null),
+		"bersaglio_cliccabile": nodi.get("bersaglio", null),
 	}
 	combattenti.append(combattente)
 	aggiorna_scheda(combattente)
@@ -620,8 +621,18 @@ func esegui_scontro() -> void:
 		combattente.ricarica = ricarica_di(combattente) * 0.5 + apertura
 	scontro_avviato = true
 	if tempo_reale and not muto:
-		# da qui in poi comanda _process: la scena resta viva e il tempo scorre
+		# da qui in poi comanda _process per il tempo, e la pompa per le parole.
+		#
+		# SENZA LA POMPA NON SI VEDEVA NIENTE. Nel motore a turni era il ciclo a
+		# svuotare la coda dopo ogni azione; togliendolo, i messaggi si
+		# accumulavano e non arrivava a schermo un solo numero di danno - e lo
+		# scontro non si chiudeva mai, perche' anche la fine stava li'. Bru:
+		# "non sto subendo danni ne' riesco ad infliggerli, il primo
+		# combattimento blocca tutto". Succedeva tutto: non si vedeva.
+		for combattente in combattenti:
+			collega_bersaglio(combattente)
 		menu.principale()
+		pompa_messaggi()
 		return
 	# --- orologio virtuale: le prove e il giocatore automatico ---
 	#
@@ -649,6 +660,35 @@ func esegui_scontro() -> void:
 			if puo_agire(combattente) and combattente.giocatore and comandi_tu(combattente):
 				riarma(combattente)
 				battuta_di(combattente)
+		await svuota_coda()
+	await svuota_coda()
+	mostra_continua_fine()
+
+func collega_bersaglio(combattente: Dictionary) -> void:
+	var bottone = combattente.get("bersaglio_cliccabile", null)
+	if bottone == null or not is_instance_valid(bottone):
+		return
+	if not bottone.pressed.is_connected(_su_click_nemico):
+		bottone.pressed.connect(_su_click_nemico.bind(combattente))
+
+func _su_click_nemico(bersaglio: Dictionary) -> void:
+	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu. Si martella li'
+	# sopra: se la ricarica non e' pronta il click non fa niente, e la scheda
+	# del protagonista lo dice gia' con la sua barra
+	if int(bersaglio.get("hp", 0)) <= 0 or not il_tempo_scorre():
+		return
+	agisci_ora({"tipo": "attacca", "bersaglio": bersaglio})
+
+func pompa_messaggi() -> void:
+	# LE PAROLE SCORRONO, IL MONDO NON SI FERMA. In tempo reale la coda non puo'
+	# essere un'attesa: si legge quello che si fa in tempo di leggerlo, e intanto
+	# i nemici continuano. Quando lo scontro finisce, si finisce di leggere e
+	# solo allora compare "Continua".
+	voce.tempo_reale = true
+	while in_corso:
+		if voce.coda.is_empty():
+			await get_tree().process_frame
+			continue
 		await svuota_coda()
 	await svuota_coda()
 	mostra_continua_fine()
