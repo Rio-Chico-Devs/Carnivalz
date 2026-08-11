@@ -170,7 +170,34 @@ static func attacco_di(combattente: Dictionary) -> int:
 	for buff in combattente.buffs:
 		if buff.get("stat", "") == "attacco":
 			totale += int(buff.get("valore", 0))
+	if e_disperata(combattente):
+		totale = int(round(totale * (1.0 + float(dati_disperazione().get("bonus_attacco", 0.3)))))
 	return totale
+
+# --- alle strette: una creatura ferita e' una creatura peggiore --------------
+#
+# Bru: "quando i nemici sono a fin di vita diventano piu' ostici". Non e' una
+# mossa scritta creatura per creatura: e' una regola sola, in ruoli.json, che
+# vale per tutte. Sotto una frazione della sua vita una creatura colpisce piu'
+# forte, e - questa e' la parte che si sente giocando - comincia a scegliere
+# meglio cosa fare (vedi "quando" e "priorita" nelle mosse).
+#
+# E' DEDOTTA, non memorizzata: "disperata" e' una cosa che si guarda, non uno
+# stato da accendere e spegnere. Cosi' non esiste il caso di una creatura
+# disperata a vita piena, o curata e ancora furiosa - non c'e' nessun posto in
+# cui quel disallineamento possa nascere.
+
+static func dati_disperazione() -> Dictionary:
+	return GameState.ruoli.get("disperazione", {})
+
+static func e_disperata(combattente: Dictionary) -> bool:
+	if combattente.get("giocatore", false):
+		return false   # vale sulle creature: il panico del party e' lo stress
+	var massimo := float(combattente.get("hp_max", 0))
+	if massimo <= 0.0 or int(combattente.get("hp", 0)) <= 0:
+		return false
+	return float(combattente.get("hp", 0)) / massimo \
+			<= float(dati_disperazione().get("soglia", 0.3))
 
 static func velocita_effettiva(combattente: Dictionary) -> int:
 	var totale: int = int(combattente.velocita)

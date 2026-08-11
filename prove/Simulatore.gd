@@ -133,8 +133,14 @@ func gioca_una_volta(id_nemico: String, nome_strategia: String, livello: int, se
 	var esito := {
 		"vinto": bool(scontro.giocatore_ha_vinto),
 		"fuggito": bool(scontro.giocatore_e_fuggito),
-		"infinito": int(scontro.giro_corrente) > LIMITE_GIRI,
-		"giri": int(scontro.giro_corrente),
+		# LA DURATA SI MISURA IN BATTUTE DEL PROTAGONISTA, non in giri.
+		# "giro_corrente" e' rimasto fermo a 1 da quando i turni non ci sono
+		# piu': questa tabella ha stampato "1.0 giri" e "0% infiniti" per ogni
+		# riga senza che niente sembrasse rotto - anzi, sembrava tutto piu'
+		# veloce. Un misuratore che dice sempre lo stesso numero e' peggio di
+		# nessun misuratore, perche' ci si fida.
+		"infinito": int(scontro.battute_del_giocatore) >= LIMITE_GIRI,
+		"giri": int(scontro.battute_del_giocatore),
 		"hp_finali": int(eroe.get("hp", 0)),
 		"hp_max": int(eroe.get("hp_max", 1)),
 		"risparmiato": risparmiato,
@@ -378,7 +384,7 @@ func scrivi_documento(durata: float) -> void:
 	testo += "`profilo_giocatore_tipo` di crescita.json prima di ogni scontro. Se quella stima e'\n"
 	testo += "sbagliata, tutta questa tabella e' sbagliata: e' il numero piu' importante del file.\n\n"
 	testo += "- **vinte / perse / ∞** — percentuale di partite. `∞` = non finisce entro %d giri\n" % LIMITE_GIRI
-	testo += "- **giri** — durata media (un giro = tutti agiscono una volta)\n"
+	testo += "- **giri** — durata media in BATTUTE del protagonista (una battuta = un suo ciclo di ricarica)\n"
 	testo += "- **danno** — punti vita persi in media dal protagonista (ne ha %d)\n" % int(GameState.stat_di("hp"))
 	testo += "- **risp.** — percentuale di partite in cui la creatura e' stata risparmiata\n\n"
 	testo += "## A che livello ogni scontro diventa giusto\n\n"

@@ -62,6 +62,8 @@ func _ready() -> void:
 	prova_il_nemico_non_ti_aspetta()
 	prova_barra_di_dominio_come_energia()
 	await prova_mattanza_svuota_la_barra()
+	prova_ogni_creatura_ha_un_set_di_mosse()
+	prova_le_creature_capiscono_come_stanno()
 	prova_il_drop_c_e_sempre()
 	prova_guardia_a_scatti()
 	prova_corazza_che_cresce()
@@ -2406,6 +2408,183 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(int(lui.hp) == a_raffica_finita,
 			"si continua a colpire con spazio anche a barra finita: la finestra non si chiude")
 	vero.free()
+	GameState.nuova_partita()
+
+func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
+	# Bru: "dobbiamo dare un set di attacchi a ogni nemico che o fanno danno o
+	# fanno cose". Una creatura senza mosse non e' un nemico facile: e' un
+	# nemico che non esiste - tira il suo colpo normale finche' uno dei due
+	# cade, e lo scontro non ha niente da raccontare. Erano trenta su
+	# trentanove, e nessuna prova poteva accorgersene perche' il motore
+	# funzionava benissimo: era il bestiario a essere vuoto.
+	titolo("ogni creatura che combatte ha un set di mosse, e le mosse sono eseguibili")
+	var tipi_noti := ["difendi", "attacco_forte", "spezza_guardia", "meta_vita",
+			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
+			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
+			"cura", "rubavita", "stato"]
+	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione
+	var senza_mosse_per_scelta := ["manifestazione_di_un_sogno", "veronica"]
+	var chiavi_condizione := ["vita_sotto", "vita_sopra", "alleati_almeno",
+			"alleati_al_massimo", "battuta_almeno", "senza_stato", "bersaglio_vita_sotto"]
+	var contate := 0
+	var con_cura := 0
+	for id_creatura in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		if not dati.has("ruolo") or String(dati.get("ruolo", "")) == "oggetto_scena":
+			continue
+		contate += 1
+		var mosse: Array = dati.get("mosse", [])
+		if String(id_creatura) in senza_mosse_per_scelta:
+			continue
+		esigi(not mosse.is_empty(),
+				"%s non ha nessuna mossa: in campo tira il suo colpo e basta" % id_creatura)
+		var viste: Array[String] = []
+		for mossa in mosse:
+			var etichetta := "%s / %s" % [id_creatura, String(mossa.get("id", "?"))]
+			esigi(String(mossa.get("id", "")) != "",
+					"%s: una mossa senza id - ricariche e una_tantum si perdono per strada"
+					% id_creatura)
+			esigi(String(mossa.get("nome", "")) != "",
+					"%s: la mossa non ha un nome, e il documento dei nemici non puo' chiamarla" % etichetta)
+			esigi(String(mossa.get("id", "")) not in viste,
+					"%s: due mosse con lo stesso id, e la ricarica dell'una spegne l'altra" % etichetta)
+			viste.append(String(mossa.get("id", "")))
+			esigi(String(mossa.get("tipo", "")) in tipi_noti,
+					"%s e' di tipo '%s', che il combattimento non sa eseguire" % [etichetta, String(mossa.get("tipo", ""))])
+			esigi(String(mossa.get("testo", "")) != "",
+					"%s non ha un testo: in campo succede qualcosa e nessuno dice cosa" % etichetta)
+			if mossa.has("stato"):
+				esigi(GameState.stati.has(String(mossa["stato"])),
+						"%s lascia addosso '%s', che non esiste in stati.json" % [etichetta, String(mossa["stato"])])
+			if String(mossa.get("tipo", "")) == "cura":
+				con_cura += 1
+				esigi(float(mossa.get("quota_vita", 0.0)) > 0.0,
+						"%s e' una cura che non cura niente" % etichetta)
+				# UNA CURA SENZA RICARICA NON RENDE LO SCONTRO DIFFICILE: LO RENDE
+				# INFINITO. Con la priorita' alta e' la scelta migliore anche il
+				# giro dopo, e quello dopo ancora
+				esigi(int(mossa.get("ricarica", 0)) > 0,
+						"%s si puo' rifare ogni battuta: lo scontro non finisce piu'" % etichetta)
+			if int(mossa.get("priorita", 0)) > 0:
+				esigi(not Dictionary(mossa.get("quando", {})).is_empty(),
+						"%s ha priorita' ma nessuna condizione: la sceglierebbe sempre, e sarebbe l'unica mossa che fa"
+						% etichetta)
+			for chiave in Dictionary(mossa.get("quando", {})):
+				esigi(String(chiave) in chiavi_condizione,
+						"%s guarda '%s', che il motore non sa guardare: la condizione sarebbe sempre vera"
+						% [etichetta, String(chiave)])
+			if mossa.has("valore") and String(mossa.get("tipo", "")) in ["attacco_forte",
+					"attacco_multiplo", "attacco_tutti", "spezza_guardia", "rubavita"]:
+				# un numero scritto a mano non sale col livello della creatura:
+				# al livello 20 fa il danno che faceva al 4. Si puo' fare, ma
+				# dev'essere dichiarato, come per le stat fuori curva
+				esigi(mossa.has("fuori_curva"),
+						"%s picchia con un numero fisso (%d) invece di una quota del suo attacco: al doppio del livello farebbe lo stesso danno. Se e' voluto, scrivi perche' in 'fuori_curva'"
+						% [etichetta, int(mossa["valore"])])
+	esigi(contate >= 30, "la prova ha guardato solo %d creature: il filtro si e' stretto" % contate)
+	esigi(con_cura >= 5,
+			"nel bestiario ci sono %d creature che sanno rimettersi in piedi: Bru ne voleva abbastanza da farlo notare"
+			% con_cura)
+
+func prova_le_creature_capiscono_come_stanno() -> void:
+	# Bru: "quando i nemici sono a fin di vita diventano piu' ostici, devono
+	# capire la loro condizione e usare le mosse a loro disposizione saggiamente,
+	# per esempio se hanno pochi punti vita devono capirlo e se hanno attacchi
+	# che li curano o abilita' le attivano".
+	#
+	# Sono due cose diverse e vanno provate separate: piu' ostici (il numero) e
+	# piu' svegli (la scelta). La seconda e' quella che si sente giocando, e
+	# anche quella che si rompe in silenzio: basta che la cura resti dentro il
+	# sorteggio e una creatura moribonda si cura una volta su cinque, cioe' mai.
+	titolo("una creatura ferita capisce di esserlo, e sceglie di conseguenza")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["robo_pattuglia"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+		elif not combattente.giocatore and nemico.is_empty():
+			nemico = combattente
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro di prova non si e' montato")
+	scontro.in_corso = true
+	eroe.hp_max = 100000   # deve reggere: qui si guarda il nemico
+	eroe.hp = 100000
+	var cura: Dictionary = {}
+	for mossa in nemico.mosse:
+		if String(mossa.get("tipo", "")) == "cura":
+			cura = mossa
+			break
+	esigi(not cura.is_empty(), "la Robo Pattuglia non sa piu' ripararsi: la prova misura un'altra creatura")
+
+	# 1. DA INTERA NON SI CURA. E' la prima cosa che fa sembrare stupida una
+	#    creatura che dovrebbe sembrare astuta
+	nemico.hp = nemico.hp_max
+	esigi(not bool(scontro.mossa_disponibile(nemico, cura)),
+			"a vita piena la riparazione d'emergenza e' ancora disponibile")
+	esigi(scontro.mossa_saggia(nemico).is_empty(),
+			"a vita piena la creatura sceglie gia' una mossa da disperata")
+
+	# 2. FERITA, SI CURA - e non "puo' capitare che si curi": lo fa
+	nemico.hp = maxi(int(nemico.hp_max) / 5, 1)
+	esigi(bool(scontro.mossa_disponibile(nemico, cura)),
+			"ferita a un quinto, la creatura non ha la riparazione fra le cose che puo' fare")
+	esigi(String(scontro.mossa_saggia(nemico).get("id", "")) == String(cura.get("id", "")),
+			"ferita a un quinto sceglie '%s' invece di ripararsi"
+			% String(scontro.mossa_saggia(nemico).get("id", "-")))
+	var prima_della_cura := int(nemico.hp)
+	scontro.turno_nemico_normale(nemico)
+	esigi(int(nemico.hp) > prima_della_cura,
+			"la creatura ferita ha giocato il suo turno e non si e' curata (%d -> %d)"
+			% [prima_della_cura, int(nemico.hp)])
+
+	# 3. E NON SI CURA ALL'INFINITO. Senza ricarica, la mossa migliore resta la
+	#    migliore anche il giro dopo: non uno scontro difficile, uno scontro che
+	#    non finisce
+	esigi(not bool(scontro.mossa_disponibile(nemico, cura)),
+			"la cura e' subito di nuovo pronta: la creatura si rimette in piedi piu' in fretta di quanto la si abbatta")
+	nemico.hp = maxi(int(nemico.hp_max) / 5, 1)
+	var dopo_la_ricarica := int(nemico.hp)
+	scontro.turno_nemico_normale(nemico)
+	esigi(int(nemico.hp) <= dopo_la_ricarica,
+			"si e' curata due volte di fila: la ricarica non conta")
+
+	# 4. ALLE STRETTE PICCHIA DI PIU'. E' la parte che non si vede sceglere: si
+	#    misura sul numero
+	nemico.hp = nemico.hp_max
+	var attacco_intero := RegoleCombattimento.attacco_di(nemico)
+	esigi(not RegoleCombattimento.e_disperata(nemico), "a vita piena risulta gia' disperata")
+	nemico.hp = maxi(int(nemico.hp_max) / 10, 1)
+	esigi(RegoleCombattimento.e_disperata(nemico), "a un decimo di vita non risulta disperata")
+	var attacco_alle_strette := RegoleCombattimento.attacco_di(nemico)
+	esigi(attacco_alle_strette > attacco_intero,
+			"ferita a morte colpisce come prima (%d): 'a fin di vita diventano piu' ostici' non succede"
+			% attacco_alle_strette)
+
+	# 5. E IL VALORE DI UNA MOSSA E' UNA QUOTA DEL SUO ATTACCO, non un numero
+	#    scritto: se no una mossa calibrata al livello 4 al livello 20 fa ridere
+	var colpo: Dictionary = {}
+	for mossa in nemico.mosse:
+		if mossa.has("quota"):
+			colpo = mossa
+			break
+	esigi(not colpo.is_empty(), "nessuna mossa della Robo Pattuglia usa una quota dell'attacco")
+	if not colpo.is_empty():
+		nemico.hp = nemico.hp_max   # via l'effetto disperazione, che qui sporcherebbe
+		var attacco_vero := int(nemico.attacco)
+		var con_attacco_basso: int = scontro.valore_mossa(nemico, colpo)
+		nemico.attacco = attacco_vero * 4
+		var con_attacco_alto: int = scontro.valore_mossa(nemico, colpo)
+		esigi(con_attacco_alto > con_attacco_basso,
+				"quadruplicando l'attacco della creatura la sua mossa fa sempre %d: e' un numero fisso travestito"
+				% con_attacco_alto)
+		nemico.attacco = attacco_vero
+	scontro.free()
 	GameState.nuova_partita()
 
 func prova_il_drop_c_e_sempre() -> void:

@@ -23,6 +23,12 @@
 	},
 	"_nota_deriva": "Quanto il gioco si fa piu' duro andando avanti, oltre alla semplice crescita dei numeri. A 0 la forma di uno scontro e' identica al livello 1 e al livello 20 (solo con numeri piu' grandi); alzandolo, le creature tarde picchiano proporzionalmente di piu' e gli scontri si accorciano. E' UNA MANOPOLA SOLA per la difficolta' del tardo gioco.",
 	"deriva_attacco_per_livello": 0.012,
+	"_nota_disperazione": "ALLE STRETTE UNA CREATURA E' PEGGIORE. Bru: \"quando i nemici sono a fin di vita diventano piu' ostici, devono capire la loro condizione e usare le mosse a loro disposizione saggiamente\". Sta qui, in una riga sola per tutto il gioco, invece che dentro ogni creatura: sotto questa frazione della sua vita chiunque colpisce di piu', e comincia a scegliere le mosse invece di sorteggiarle (vedi 'quando' e 'priorita' nelle mosse in personaggi.json). Scriverla creatura per creatura avrebbe voluto dire scordarsela su meta' del bestiario, e accorgersene solo giocando.",
+	"disperazione": {
+		"soglia": 0.3,
+		"bonus_attacco": 0.3,
+		"testo": "[i]%s è alle strette. Adesso non combatte per vincere: combatte per non finire.[/i]"
+	},
 	"_nota_ruoli": "Ogni ruolo e' un moltiplicatore sulla curva. Un ruolo non e' una categoria narrativa: dice come si COMBATTE contro quella creatura. La categoria (comune/particolare/boss) resta un campo suo, per musica e testi d'apertura.",
 	"ruoli": {
 		"comune": {

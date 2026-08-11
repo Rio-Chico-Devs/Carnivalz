@@ -34,6 +34,30 @@
 					"domanda": "Fammi capire cosa succede...",
 					"risposta": "¡Soy para todos! ...o para nadie. Pero nunca pararé!"
 				}
+			],
+			"mosse": [
+				{
+					"id": "vampata",
+					"nome": "Vampata",
+					"tipo": "attacco_forte",
+					"testo": "La maschera avvampa: per un istante ha di nuovo un volto.",
+					"quota": 1.4,
+					"elemento": "fuoco",
+					"peso": 2
+				},
+				{
+					"id": "ultima_fiammata",
+					"nome": "Ultima fiammata",
+					"tipo": "attacco_forte",
+					"testo": "Non le resta molto da bruciare, e brucia tutto insieme.",
+					"quota": 2.3,
+					"elemento": "fuoco",
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 7,
+					"una_tantum": true
+				}
 			]
 		},
 		{
@@ -68,6 +92,40 @@
 				{
 					"domanda": "Ti ascolto.",
 					"risposta": "Guardatemi! GUARDATEMI!!!"
+				}
+			],
+			"mosse": [
+				{
+					"id": "torce_in_aria",
+					"nome": "Torce in aria",
+					"tipo": "attacco_multiplo",
+					"testo": "Tre torce salgono, girano, e tornano giu' addosso a te.",
+					"quota": 0.75,
+					"colpi": 2,
+					"elemento": "fuoco",
+					"peso": 2
+				},
+				{
+					"id": "numero_col_fuoco",
+					"nome": "Numero col fuoco",
+					"tipo": "attacco_forte",
+					"testo": "El Muy Bonito sorride al pubblico che non c'e', e sputa una lingua di fuoco.",
+					"quota": 1.6,
+					"elemento": "fuoco",
+					"peso": 2
+				},
+				{
+					"id": "gran_finale",
+					"nome": "Gran finale",
+					"tipo": "attacco_tutti",
+					"testo": "«Se e' l'ultimo, che sia il migliore!»",
+					"quota": 1.1,
+					"elemento": "fuoco",
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 7,
+					"una_tantum": true
 				}
 			]
 		},
@@ -104,6 +162,26 @@
 					"domanda": "(ascolti ancora)",
 					"risposta": "Acqua, ho bisogno di acqua..."
 				}
+			],
+			"mosse": [
+				{
+					"id": "si_irrigidisce",
+					"nome": "Si irrigidisce",
+					"tipo": "buff_difesa",
+					"testo": "La ruggine si chiude su se stessa: adesso e' una porta.",
+					"valore": 3,
+					"turni": 3,
+					"peso": 2,
+					"ricarica": 3
+				},
+				{
+					"id": "colpo_di_ruggine",
+					"nome": "Colpo di ruggine",
+					"tipo": "spezza_guardia",
+					"testo": "Un braccio di lamiera scende di piatto e ti apre la guardia.",
+					"quota": 1.0,
+					"peso": 2
+				}
 			]
 		},
 		{
@@ -132,6 +210,25 @@
 				},
 				{
 					"risposta": "Lavorate! Lavorate!"
+				}
+			],
+			"mosse": [
+				{
+					"id": "richiamo_disciplinare",
+					"nome": "Richiamo disciplinare",
+					"tipo": "attacco_forte",
+					"testo": "«Quello che stai facendo risulta in una nota.»",
+					"quota": 1.35,
+					"peso": 2
+				},
+				{
+					"id": "ordine_urlato",
+					"nome": "Ordine urlato",
+					"tipo": "stato",
+					"testo": "La voce sale di un tono e non lascia spazio per pensare ad altro.",
+					"stato": "demotivazione",
+					"peso": 1,
+					"ricarica": 4
 				}
 			]
 		},
@@ -167,6 +264,29 @@
 				{
 					"domanda": "(ascolti ancora)",
 					"risposta": "I miei bambini... devo tornare a casa..."
+				}
+			],
+			"mosse": [
+				{
+					"id": "chiave_inglese",
+					"nome": "Chiave inglese",
+					"tipo": "attacco_forte",
+					"testo": "L'attrezzo arriva da sotto, con la forza di chi lo ha usato per vent'anni.",
+					"quota": 1.45,
+					"peso": 2
+				},
+				{
+					"id": "straordinario_non_pagato",
+					"nome": "Straordinario non pagato",
+					"tipo": "buff_attacco",
+					"testo": "Non ha finito. Non ha mai finito.",
+					"valore": 3,
+					"turni": 3,
+					"quando": {
+						"vita_sotto": 0.5
+					},
+					"priorita": 4,
+					"ricarica": 5
 				}
 			]
 		},
@@ -205,6 +325,39 @@
 				{
 					"domanda": "(provi ancora)",
 					"risposta": "Non sembra essere possibile comunicare con questa macchina..."
+				}
+			],
+			"mosse": [
+				{
+					"id": "scarica_di_avvertimento",
+					"nome": "Scarica di avvertimento",
+					"tipo": "attacco_forte",
+					"testo": "«Allontanarsi.» La scarica parte comunque.",
+					"quota": 1.25,
+					"elemento": "elettrico",
+					"peso": 2
+				},
+				{
+					"id": "protocollo_contenimento",
+					"nome": "Protocollo di contenimento",
+					"tipo": "buff_difesa",
+					"testo": "Le piastre si sovrappongono con uno scatto meccanico.",
+					"valore": 3,
+					"turni": 3,
+					"peso": 1,
+					"ricarica": 3
+				},
+				{
+					"id": "riparazione_emergenza",
+					"nome": "Riparazione d'emergenza",
+					"tipo": "cura",
+					"testo": "«Danno critico. Riparazione in corso.» Qualcosa, dentro, si risalda.",
+					"quota_vita": 0.22,
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 8,
+					"ricarica": 5
 				}
 			]
 		},
@@ -249,6 +402,30 @@
 					"domanda": "(provi a calmarlo)",
 					"risposta": "Impossibile ragionarci: è furioso."
 				}
+			],
+			"mosse": [
+				{
+					"id": "difende_le_sue_ore",
+					"nome": "Difende le sue ore",
+					"tipo": "buff_difesa",
+					"testo": "Si mette davanti a quel poco che gli e' rimasto.",
+					"valore": 2,
+					"turni": 3,
+					"peso": 2,
+					"ricarica": 3
+				},
+				{
+					"id": "esplosione_di_rabbia",
+					"nome": "Esplosione di rabbia",
+					"tipo": "attacco_forte",
+					"testo": "Tutto quello che non ha mai detto esce insieme.",
+					"quota": 2.0,
+					"quando": {
+						"vita_sotto": 0.4
+					},
+					"priorita": 6,
+					"ricarica": 4
+				}
 			]
 		},
 		{
@@ -284,6 +461,37 @@
 				{
 					"domanda": "(ascolti ancora)",
 					"risposta": "Qualcuno spenga le macchine! Non le sopporto più!"
+				}
+			],
+			"mosse": [
+				{
+					"id": "valanga_di_rottami",
+					"nome": "Valanga di rottami",
+					"tipo": "attacco_tutti",
+					"testo": "La montagna si sposta di un metro, e un metro basta.",
+					"quota": 0.85,
+					"peso": 1
+				},
+				{
+					"id": "urlo_di_lamiera",
+					"nome": "Urlo di lamiera",
+					"tipo": "stato",
+					"testo": "Il rumore non e' un rumore: e' una protesta di mille voci saldate insieme.",
+					"stato": "terrore",
+					"peso": 1,
+					"ricarica": 5
+				},
+				{
+					"id": "si_ricompatta",
+					"nome": "Si ricompatta",
+					"tipo": "cura",
+					"testo": "I rottami si richiamano da terra e tornano al loro posto.",
+					"quota_vita": 0.2,
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 7,
+					"ricarica": 6
 				}
 			]
 		},
@@ -324,6 +532,25 @@
 					"domanda": "Non c'è nulla da osservare",
 					"risposta": "*Rattle*"
 				}
+			],
+			"mosse": [
+				{
+					"id": "morso_che_divora",
+					"nome": "Morso che divora",
+					"tipo": "rubavita",
+					"testo": "Le lame girano, prendono, e quello che prendono non torna.",
+					"quota": 1.3,
+					"quota_furto": 0.6,
+					"peso": 3
+				},
+				{
+					"id": "aspirazione",
+					"nome": "Aspirazione",
+					"tipo": "attacco_tutti",
+					"testo": "Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.",
+					"quota": 0.75,
+					"peso": 1
+				}
 			]
 		},
 		{
@@ -350,6 +577,25 @@
 				{
 					"risposta": "Non sembra comprendere ragioni o avere una volontà."
 				}
+			],
+			"mosse": [
+				{
+					"id": "morso_famelico",
+					"nome": "Morso famelico",
+					"tipo": "rubavita",
+					"testo": "Il ghoul morde e non lascia andare: quello che ti toglie se lo tiene.",
+					"quota": 1.2,
+					"quota_furto": 0.5,
+					"peso": 2
+				},
+				{
+					"id": "artigliata",
+					"nome": "Artigliata",
+					"tipo": "attacco_forte",
+					"testo": "Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.",
+					"quota": 1.45,
+					"peso": 2
+				}
 			]
 		},
 		{
@@ -369,6 +615,26 @@
 			"studio": [
 				{
 					"risposta": "una cosa molto Metal."
+				}
+			],
+			"mosse": [
+				{
+					"id": "carica_a_scatti",
+					"nome": "Carica a scatti",
+					"tipo": "attacco_multiplo",
+					"testo": "Si avvicina a scatti, come una fotografia che si muove male.",
+					"quota": 0.65,
+					"colpi": 2,
+					"peso": 2
+				},
+				{
+					"id": "sguardo_vuoto",
+					"nome": "Sguardo vuoto",
+					"tipo": "stato",
+					"testo": "Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.",
+					"stato": "terrore",
+					"peso": 1,
+					"ricarica": 5
 				}
 			]
 		},
@@ -398,6 +664,39 @@
 				{
 					"osservazione": "... Cosa è successo in questo posto?"
 				}
+			],
+			"mosse": [
+				{
+					"id": "sputo_marcio",
+					"nome": "Sputo marcio",
+					"tipo": "attacco_forte",
+					"testo": "Qualcosa gli sale su dal petto e ti arriva addosso.",
+					"quota": 1.3,
+					"elemento": "veleno",
+					"stato": "veleno",
+					"peso": 2
+				},
+				{
+					"id": "abbraccio_di_carne",
+					"nome": "Abbraccio di carne",
+					"tipo": "rubavita",
+					"testo": "Ti stringe, e per un momento non si capisce piu' dove finisci tu.",
+					"quota": 1.4,
+					"quota_furto": 0.5,
+					"peso": 1
+				},
+				{
+					"id": "si_ricuce",
+					"nome": "Si ricuce",
+					"tipo": "cura",
+					"testo": "I corpi si rimescolano, e quello che era aperto adesso e' chiuso.",
+					"quota_vita": 0.25,
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 8,
+					"ricarica": 5
+				}
 			]
 		},
 		{
@@ -423,6 +722,25 @@
 			"studio": [
 				{
 					"risposta": "Lasciate stare i miei figli!"
+				}
+			],
+			"mosse": [
+				{
+					"id": "lacrime_di_ossidiana",
+					"nome": "Lacrime di ossidiana",
+					"tipo": "attacco_tutti",
+					"testo": "Piange, e quello che cade taglia.",
+					"quota": 0.7,
+					"stress": 8,
+					"peso": 1
+				},
+				{
+					"id": "non_avvicinarti",
+					"nome": "Non avvicinarti",
+					"tipo": "attacco_forte",
+					"testo": "«Non toccarli.» Non c'e' nessuno da toccare.",
+					"quota": 1.5,
+					"peso": 2
 				}
 			]
 		},
@@ -450,6 +768,25 @@
 				{
 					"risposta": "Quel che non sai, quel che credi!"
 				}
+			],
+			"mosse": [
+				{
+					"id": "colpa_altrui",
+					"nome": "Colpa altrui",
+					"tipo": "attacco_forte",
+					"testo": "Ti addosso il peso di una cosa che non hai fatto.",
+					"quota": 1.45,
+					"peso": 2
+				},
+				{
+					"id": "marchio",
+					"nome": "Marchio",
+					"tipo": "stato",
+					"testo": "Un segno ti resta sulla pelle, e da li' comincia a fare male.",
+					"stato": "veleno",
+					"peso": 1,
+					"ricarica": 4
+				}
 			]
 		},
 		{
@@ -476,6 +813,26 @@
 				{
 					"risposta": "E' l'ora del male!"
 				}
+			],
+			"mosse": [
+				{
+					"id": "forconata",
+					"nome": "Forconata",
+					"tipo": "attacco_multiplo",
+					"testo": "Due colpi bassi, dati con troppo entusiasmo.",
+					"quota": 0.7,
+					"colpi": 2,
+					"peso": 2
+				},
+				{
+					"id": "sberleffo",
+					"nome": "Sberleffo",
+					"tipo": "stato",
+					"testo": "Ti imita mentre ti muovi, e ti viene voglia solo di prenderlo.",
+					"stato": "confusione",
+					"peso": 1,
+					"ricarica": 5
+				}
 			]
 		},
 		{
@@ -501,6 +858,30 @@
 			"studio": [
 				{
 					"risposta": "Viooolenza!"
+				}
+			],
+			"mosse": [
+				{
+					"id": "taglio_lento",
+					"nome": "Taglio lento",
+					"tipo": "attacco_forte",
+					"testo": "Non ha fretta. Non ne ha mai avuta.",
+					"quota": 1.2,
+					"elemento": "veleno",
+					"stato": "veleno",
+					"peso": 2
+				},
+				{
+					"id": "infierisce",
+					"nome": "Infierisce",
+					"tipo": "attacco_forte",
+					"testo": "Aspettava questo momento: si china su chi sta peggio.",
+					"quota": 1.9,
+					"quando": {
+						"bersaglio_vita_sotto": 0.4
+					},
+					"priorita": 7,
+					"ricarica": 2
 				}
 			]
 		},
@@ -545,8 +926,9 @@
 			"mosse": [
 				{
 					"id": "colpo_marcio",
+					"nome": "Colpo marcio",
 					"tipo": "attacco_forte",
-					"valore": 18,
+					"quota": 1.4,
 					"peso": 2,
 					"telegrafata": true,
 					"testo_annuncio": "Jongo Dongo solleva l'artiglio marcio, immobile: sta per colpire con tutto il suo peso.",
@@ -554,8 +936,9 @@
 				},
 				{
 					"id": "bastone_di_pietra_marcia",
+					"nome": "Bastone di pietra marcia",
 					"tipo": "attacco_forte",
-					"valore": 14,
+					"quota": 1.15,
 					"peso": 2,
 					"stato": "decomposizione",
 					"richiede_non_flag": "oss_yara_esplosa",
@@ -563,14 +946,16 @@
 				},
 				{
 					"id": "grido_del_raccolto",
+					"nome": "Grido del raccolto",
 					"tipo": "attacco_tutti",
-					"valore": 5,
+					"quota": 0.7,
 					"stress": 15,
 					"peso": 2,
 					"testo": "\"IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!\" Il grido vi si conficca dentro più delle unghie."
 				},
 				{
 					"id": "sacrificio",
+					"nome": "Un piccolo sacrificio",
 					"tipo": "sacrificio",
 					"valore": 68,
 					"peso": 3,
@@ -578,10 +963,25 @@
 				},
 				{
 					"id": "raccolto_di_carne",
+					"nome": "Raccolto di carne",
 					"tipo": "evoca",
 					"valore": "ghoul",
 					"peso": 2,
 					"testo": "Jongo Dongo batte il palmo marcio sull'ossidiana: la terra stessa gli restituisce un altro ghoul."
+				},
+				{
+					"id": "maledizione_di_chi_muore",
+					"nome": "Maledizione di chi muore",
+					"tipo": "attacco_tutti",
+					"testo": "Quello che ha fatto marcire lui, adesso lo passa a voi.",
+					"quota": 1.0,
+					"elemento": "veleno",
+					"quando": {
+						"vita_sotto": 0.25
+					},
+					"priorita": 7,
+					"una_tantum": true,
+					"maledizione": 2
 				}
 			],
 			"studio": [
@@ -626,7 +1026,39 @@
 					"osservazione": "Qualcosa sembra risiedere dentro di lui..."
 				}
 			],
-			"testo_studio_esaurito": "Qualcosa sembra risiedere dentro di lui..."
+			"testo_studio_esaurito": "Qualcosa sembra risiedere dentro di lui...",
+			"mosse": [
+				{
+					"id": "mano_marcia",
+					"nome": "Mano marcia",
+					"tipo": "attacco_forte",
+					"testo": "La mano arriva piano, e non e' piu' una mano.",
+					"quota": 1.5,
+					"elemento": "veleno",
+					"peso": 2
+				},
+				{
+					"id": "respiro_di_putredine",
+					"nome": "Respiro di putredine",
+					"tipo": "attacco_tutti",
+					"testo": "Espira, e l'aria intorno smette di essere aria.",
+					"quota": 0.9,
+					"elemento": "veleno",
+					"peso": 1
+				},
+				{
+					"id": "volonta_misteriosa",
+					"nome": "Volonta' misteriosa",
+					"tipo": "cura",
+					"testo": "Il corpo non dovrebbe reggere. Qualcosa lo tiene su lo stesso.",
+					"quota_vita": 0.18,
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 8,
+					"ricarica": 6
+				}
+			]
 		},
 		{
 			"id": "l_immortale",
@@ -653,6 +1085,17 @@
 				{
 					"osservazione": "Non sembra reagire... non sembra avere alcuna volontà..."
 				}
+			],
+			"mosse": [
+				{
+					"id": "non_si_ferma",
+					"nome": "Non si ferma",
+					"tipo": "attacco_forte",
+					"testo": "Continua a camminare, e continua a colpire. Non e' veloce. Non serve.",
+					"quota": 1.0,
+					"elemento": "oscuro",
+					"peso": 2
+				}
 			]
 		},
 		{
@@ -673,38 +1116,55 @@
 			"mosse": [
 				{
 					"id": "litania_1",
+					"nome": "Litania: «Per il viaggio!»",
 					"tipo": "attacco_forte",
-					"valore": 14,
+					"quota": 1.2,
 					"peso": 2,
 					"testo": "\"Per il viaggio!\" Il sacerdote colpisce recitando."
 				},
 				{
 					"id": "litania_2",
+					"nome": "Litania: «Unisciti al raccolto!»",
 					"tipo": "attacco_forte",
-					"valore": 14,
+					"quota": 1.2,
 					"peso": 2,
 					"testo": "\"Unisciti al raccolto!\" Il sacerdote colpisce recitando."
 				},
 				{
 					"id": "litania_3",
+					"nome": "Litania: «Portatelo da me!»",
 					"tipo": "attacco_forte",
-					"valore": 14,
+					"quota": 1.2,
 					"peso": 2,
 					"testo": "\"Portatelo da me!\" Il sacerdote colpisce recitando."
 				},
 				{
 					"id": "litania_4",
+					"nome": "Litania: «Non c'è altra strada!»",
 					"tipo": "attacco_forte",
-					"valore": 14,
+					"quota": 1.2,
 					"peso": 2,
 					"testo": "\"Non c'è altra strada!\" Il sacerdote colpisce recitando."
 				},
 				{
 					"id": "richiamo_dei_teschi",
+					"nome": "Richiamo dei teschi",
 					"tipo": "evoca",
 					"valore": "teschio_errante",
 					"peso": 2,
 					"testo": "Il sacerdote alza le braccia: un teschio errante risponde al richiamo."
+				},
+				{
+					"id": "litania_che_rimargina",
+					"nome": "Litania che rimargina",
+					"tipo": "cura",
+					"testo": "Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.",
+					"quota_vita": 0.2,
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 7,
+					"ricarica": 5
 				}
 			],
 			"bottino_comune": [
@@ -737,11 +1197,24 @@
 			"mosse": [
 				{
 					"id": "morso_multiplo",
+					"nome": "Morso multiplo",
 					"tipo": "attacco_multiplo",
-					"valore": 9,
+					"quota": 0.55,
 					"colpi": 2,
 					"peso": 2,
 					"testo": "Il divoratore azzanna più volte, veloce."
+				},
+				{
+					"id": "si_ingozza",
+					"nome": "Si ingozza",
+					"tipo": "cura",
+					"testo": "Si volta verso quello che il ponte ha lasciato cadere, e mangia.",
+					"quota_vita": 0.2,
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 7,
+					"ricarica": 5
 				}
 			],
 			"bottino_comune": [
@@ -785,6 +1258,16 @@
 				{
 					"risposta": "Un rantolo profondo, che sembra venire da più bocche insieme."
 				}
+			],
+			"mosse": [
+				{
+					"id": "braccio_lungo",
+					"nome": "Braccio lungo",
+					"tipo": "attacco_forte",
+					"testo": "Il braccio piu' lungo arriva da dove non te lo aspetti.",
+					"quota": 1.5,
+					"peso": 2
+				}
 			]
 		},
 		{
@@ -805,18 +1288,32 @@
 			"mosse": [
 				{
 					"id": "bracciata",
+					"nome": "Bracciata",
 					"tipo": "attacco_forte",
-					"valore": 18,
+					"quota": 1.4,
 					"peso": 2,
 					"testo": "L'orrore sferza con tutte le braccia insieme."
 				},
 				{
 					"id": "morsi",
+					"nome": "Morsi",
 					"tipo": "attacco_multiplo",
-					"valore": 9,
+					"quota": 0.6,
 					"colpi": 2,
 					"peso": 2,
 					"testo": "Più bocche affondano contemporaneamente."
+				},
+				{
+					"id": "si_ricompone_orrore",
+					"nome": "Si ricompone",
+					"tipo": "cura",
+					"testo": "I corpi si rimescolano, e quello che mancava lo prendono da un altro.",
+					"quota_vita": 0.2,
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 7,
+					"ricarica": 5
 				}
 			],
 			"bottino_comune": [
@@ -857,6 +1354,7 @@
 			"mosse": [
 				{
 					"id": "pugno_devastante",
+					"nome": "Pugno devastante",
 					"tipo": "meta_vita",
 					"hp_soglia_ko": 50,
 					"peso": 2,
@@ -866,8 +1364,9 @@
 				},
 				{
 					"id": "spazzata",
+					"nome": "Spazzata",
 					"tipo": "attacco_tutti",
-					"valore": 9,
+					"quota": 0.7,
 					"stress": 10,
 					"peso": 2,
 					"testo": "Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo."
@@ -904,6 +1403,29 @@
 					"oggetto": "bastone",
 					"chance": 0.25
 				}
+			],
+			"mosse": [
+				{
+					"id": "passo_pesante",
+					"nome": "Passo pesante",
+					"tipo": "attacco_forte",
+					"testo": "Ti cammina addosso come camminava verso il lavoro.",
+					"quota": 1.2,
+					"peso": 2
+				},
+				{
+					"id": "in_mezzo_agli_altri",
+					"nome": "In mezzo agli altri",
+					"tipo": "buff_difesa",
+					"testo": "Si infila fra i suoi, e i suoi si chiudono intorno.",
+					"valore": 2,
+					"turni": 3,
+					"peso": 1,
+					"quando": {
+						"alleati_almeno": 1
+					},
+					"ricarica": 4
+				}
 			]
 		},
 		{
@@ -934,6 +1456,17 @@
 				{
 					"domanda": "(provi a rallentarlo con la voce)",
 					"risposta": "Corre lo stesso. Non ha mai smesso."
+				}
+			],
+			"mosse": [
+				{
+					"id": "raffica_di_unghiate",
+					"nome": "Raffica di unghiate",
+					"tipo": "attacco_multiplo",
+					"testo": "Arriva addosso prima che tu decida da che parte guardare.",
+					"quota": 0.6,
+					"colpi": 2,
+					"peso": 3
 				}
 			]
 		},
@@ -969,6 +1502,26 @@
 					"domanda": "(provi a richiamare la sua attenzione)",
 					"risposta": "Non sembra reagire ad alcuno stimolo."
 				}
+			],
+			"mosse": [
+				{
+					"id": "capita_addosso",
+					"nome": "Capita addosso",
+					"tipo": "attacco_tutti",
+					"testo": "Non insegue nessuno: si sposta, e vi trova.",
+					"quota": 0.55,
+					"elemento": "veleno",
+					"peso": 2
+				},
+				{
+					"id": "spore",
+					"nome": "Spore",
+					"tipo": "stato",
+					"testo": "Respiri, e te ne accorgi dopo.",
+					"stato": "veleno",
+					"peso": 2,
+					"ricarica": 3
+				}
 			]
 		},
 		{
@@ -990,6 +1543,38 @@
 				{
 					"oggetto": "merendine_scadute",
 					"chance": 0.3
+				}
+			],
+			"mosse": [
+				{
+					"id": "colpo_di_legno",
+					"nome": "Colpo di legno",
+					"tipo": "attacco_forte",
+					"testo": "Un braccio di legno gira su un perno e arriva duro.",
+					"quota": 1.45,
+					"elemento": "oscuro",
+					"peso": 2
+				},
+				{
+					"id": "fili_che_stringono",
+					"nome": "Fili che stringono",
+					"tipo": "stato",
+					"testo": "I fili non tengono su lei: tengono giu' te.",
+					"stato": "lentezza",
+					"peso": 1,
+					"ricarica": 4
+				},
+				{
+					"id": "si_rimette_i_fili",
+					"nome": "Si rimette i fili",
+					"tipo": "cura",
+					"testo": "Raccoglie i suoi fili da terra e se li riannoda addosso.",
+					"quota_vita": 0.2,
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 7,
+					"ricarica": 6
 				}
 			]
 		},
@@ -1021,6 +1606,32 @@
 				{
 					"osservazione": "\"Sei come tuo padre, troppo sensibile per gestire gli affari di famiglia.\""
 				}
+			],
+			"mosse": [
+				{
+					"id": "rinfaccia",
+					"nome": "Rinfaccia",
+					"tipo": "attacco_forte",
+					"testo": "Ti dice una cosa vera, e detta da lei fa male il doppio.",
+					"quota": 1.5,
+					"elemento": "oscuro",
+					"stress": 10,
+					"peso": 2
+				},
+				{
+					"id": "si_nutre_del_rancore",
+					"nome": "Si nutre del rancore",
+					"tipo": "rubavita",
+					"testo": "Piu' le pensi contro, piu' si fa solida.",
+					"quota": 1.2,
+					"elemento": "oscuro",
+					"quota_furto": 0.6,
+					"quando": {
+						"vita_sotto": 0.5
+					},
+					"priorita": 5,
+					"ricarica": 3
+				}
 			]
 		},
 		{
@@ -1043,11 +1654,21 @@
 			"mosse": [
 				{
 					"id": "spine_sottili",
+					"nome": "Spine sottili",
 					"tipo": "attacco_forte",
-					"valore": 8,
+					"quota": 1.2,
 					"peso": 2,
 					"stato": "veleno",
 					"testo": "Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo."
+				},
+				{
+					"id": "spine_a_tappeto",
+					"nome": "Spine a tappeto",
+					"tipo": "attacco_tutti",
+					"testo": "Si apre tutta insieme, e per un metro intorno non si sta.",
+					"quota": 0.75,
+					"elemento": "veleno",
+					"peso": 1
 				}
 			],
 			"peso_attacco_normale": 3,
@@ -1094,18 +1715,32 @@
 			"mosse": [
 				{
 					"id": "radici_che_stringono",
+					"nome": "Radici che stringono",
 					"tipo": "attacco_forte",
-					"valore": 14,
+					"quota": 1.3,
 					"peso": 2,
 					"stato": "veleno",
 					"testo": "Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore."
 				},
 				{
 					"id": "sfogo_di_spore",
+					"nome": "Sfogo di spore",
 					"tipo": "attacco_tutti",
-					"valore": 11,
+					"quota": 0.7,
 					"peso": 1,
 					"testo": "La parete si apre e sputa una nube di spore su tutta la stanza."
+				},
+				{
+					"id": "assorbe_dalla_parete",
+					"nome": "Assorbe dalla parete",
+					"tipo": "cura",
+					"testo": "La parete si muove dietro di lei, e le rida' quello che le hai tolto.",
+					"quota_vita": 0.2,
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 8,
+					"ricarica": 5
 				}
 			],
 			"peso_attacco_normale": 3,
@@ -1203,15 +1838,17 @@
 			"mosse": [
 				{
 					"id": "spilli",
+					"nome": "Spilli",
 					"tipo": "attacco_forte",
-					"valore": 14,
+					"quota": 1.3,
 					"peso": 2,
 					"testo": "La bambola spalanca le cuciture e lancia una manciata di spilli."
 				},
 				{
 					"id": "lamento",
+					"nome": "Lamento",
 					"tipo": "attacco_tutti",
-					"valore": 9,
+					"quota": 0.7,
 					"stress": 10,
 					"legame": -5,
 					"maledizione": 1,
@@ -1220,6 +1857,7 @@
 				},
 				{
 					"id": "autolesione",
+					"nome": "Si strappa una cucitura",
 					"tipo": "autolesione",
 					"valore": 5,
 					"stress": 12,
@@ -1229,10 +1867,23 @@
 				},
 				{
 					"id": "richiamo_marionette",
+					"nome": "Richiamo delle marionette",
 					"tipo": "evoca",
 					"valore": "marionetta",
 					"peso": 2,
 					"testo": "Dei fili scendono dal soffitto: una marionetta si alza da terra."
+				},
+				{
+					"id": "si_ricuce_le_cuciture",
+					"nome": "Si ricuce le cuciture",
+					"tipo": "cura",
+					"testo": "Il filo rientra da solo nei buchi, come se qualcuno la stesse ancora rammendando.",
+					"quota_vita": 0.15,
+					"quando": {
+						"vita_sotto": 0.25
+					},
+					"priorita": 6,
+					"ricarica": 6
 				}
 			],
 			"studio": [
@@ -1293,13 +1944,15 @@
 			"mosse": [
 				{
 					"id": "gran_finale",
+					"nome": "¡Gran finale!",
 					"tipo": "attacco_tutti",
-					"valore": 9,
+					"quota": 0.85,
 					"peso": 2,
 					"testo": "¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena."
 				},
 				{
 					"id": "incendia",
+					"nome": "¡Vamos!",
 					"tipo": "incendia",
 					"valore": 9,
 					"peso": 2,
@@ -1307,6 +1960,7 @@
 				},
 				{
 					"id": "capote",
+					"nome": "Capote",
 					"tipo": "buff_difesa",
 					"valore": 14,
 					"turni": 2,
@@ -1315,10 +1969,24 @@
 				},
 				{
 					"id": "llamada",
+					"nome": "Llamada",
 					"tipo": "evoca",
 					"valore": "maschera_vuota",
 					"peso": 1,
 					"testo": "Jerah batte il tacco tre volte: dal fumo sale un Fomentado."
+				},
+				{
+					"id": "fiamma_disperata",
+					"nome": "Fiamma disperata",
+					"tipo": "attacco_tutti",
+					"testo": "«Lo spettacolo non finisce finche' non lo decido io.»",
+					"quota": 1.3,
+					"elemento": "fuoco",
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 7,
+					"ricarica": 4
 				}
 			],
 			"testo_cedimento": "Jerah barcolla. \"Qué espectáculo... voi due,\" mormora. L'arena intera trema con lui. Ma non smette di attaccare: \"Non posso perdere!\"",
@@ -1396,6 +2064,27 @@
 				{
 					"risposta": "Grugnisce, e nemmeno troppo convinto."
 				}
+			],
+			"mosse": [
+				{
+					"id": "sassata",
+					"nome": "Sassata",
+					"tipo": "attacco_forte",
+					"testo": "Il goblin raccoglie un sasso e lo tira senza nemmeno mirare.",
+					"quota": 1.3,
+					"peso": 2
+				},
+				{
+					"id": "si_copre_la_testa",
+					"nome": "Si copre la testa",
+					"tipo": "difendi",
+					"testo": "Il goblin capisce come sta andando e si copre la testa con le braccia.",
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 5,
+					"ricarica": 3
+				}
 			]
 		},
 		{
@@ -1421,6 +2110,29 @@
 			"studio": [
 				{
 					"risposta": "Non sembra avere nulla da dire. O da pensare."
+				}
+			],
+			"mosse": [
+				{
+					"id": "bava_appiccicosa",
+					"nome": "Bava appiccicosa",
+					"tipo": "stato",
+					"testo": "Lo slime si allunga e lascia una bava che rallenta ogni movimento.",
+					"stato": "lentezza",
+					"peso": 1,
+					"ricarica": 4
+				},
+				{
+					"id": "si_ricompone",
+					"nome": "Si ricompone",
+					"tipo": "cura",
+					"testo": "Lo slime si raccoglie su se stesso e torna tondo.",
+					"quota_vita": 0.3,
+					"quando": {
+						"vita_sotto": 0.4
+					},
+					"priorita": 6,
+					"ricarica": 4
 				}
 			]
 		},
@@ -1450,9 +2162,22 @@
 			"mosse": [
 				{
 					"id": "si_ritira_nel_guscio",
+					"nome": "Si ritira nel guscio",
 					"tipo": "difendi",
 					"peso": 1,
 					"testo": "La tartaruga si ritira nel guscio."
+				},
+				{
+					"id": "dentro_il_guscio",
+					"nome": "Dentro il guscio",
+					"tipo": "cura",
+					"testo": "La tartaruga si tira dentro il guscio, e dentro il guscio si rimette.",
+					"quota_vita": 0.15,
+					"quando": {
+						"vita_sotto": 0.5
+					},
+					"priorita": 6,
+					"ricarica": 4
 				}
 			],
 			"studio": [
@@ -1555,6 +2280,7 @@
 			"mosse": [
 				{
 					"id": "richiamo_dei_suoi_simili",
+					"nome": "Richiamo dei suoi simili",
 					"tipo": "evoca",
 					"valore": "goblin_tipico",
 					"quantita": 1,
@@ -1564,20 +2290,23 @@
 				},
 				{
 					"id": "furia_di_un_goblin",
+					"nome": "Furia di un goblin",
 					"tipo": "attacco_forte",
-					"valore": 9,
+					"quota": 1.3,
 					"peso": 2,
 					"testo": "Furia di un goblin: colpisce alla cieca, urlando."
 				},
 				{
 					"id": "pugno_del_vile",
+					"nome": "Pugno del vile",
 					"tipo": "attacco_forte",
-					"valore": 9,
+					"quota": 1.2,
 					"peso": 2,
 					"testo": "Pugno del vile: un colpo sferrato senza il minimo onore."
 				},
 				{
 					"id": "capriccio_del_goblin",
+					"nome": "Capriccio del goblin",
 					"tipo": "buff_attacco",
 					"valore": 9,
 					"turni": 3,
@@ -1586,8 +2315,9 @@
 				},
 				{
 					"id": "cattiveria_innata",
+					"nome": "Cattiveria innata",
 					"tipo": "attacco_multiplo",
-					"valore": 5,
+					"quota": 0.5,
 					"colpi": 3,
 					"peso": 1,
 					"testo": "Cattiveria innata: ti sferra tre attacchi deboli di fila."

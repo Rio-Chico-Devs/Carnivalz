@@ -1,6 +1,6 @@
 # Bilanciamento (generato, non scrivere qui a mano)
 
-Prodotto da `prove/Simulatore.gd`: **182400 partite** giocate dal motore vero in 979 secondi.
+Prodotto da `prove/Simulatore.gd`: **182400 partite** giocate dal motore vero in 1146 secondi.
 
 Non e' una stima e non e' un modello: e' `Combattimento.tscn` istanziata e giocata,
 con Voce/Campo/Menu muti. Se questi numeri sono sbagliati, sono sbagliati anche
@@ -26,40 +26,40 @@ Livello minimo a cui si vince almeno l'80% delle volte andandoci dritto.
 
 | creatura | id | hp | att | livello |
 |---|---|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | 737 | 34 | 8 |
+| Abominio Marcio | `abominio_marcio` | 737 | 34 | 12 |
 | Oppresso | `comparsa_di_ruggine` | 277 | 10 | 3 |
-| Diabolo | `diabolo` | 405 | 26 | 5 |
-| Il Divoratore | `divoratore` | 468 | 21 | 5 |
+| Diabolo | `diabolo` | 405 | 26 | 8 |
+| Il Divoratore | `divoratore` | 468 | 21 | 8 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | 486 | 32 | 8 |
-| Donna Spinosa | `donna_spinosa` | 568 | 38 | 8 |
+| Donna Spinosa | `donna_spinosa` | 568 | 38 | 12 |
 | Ferraglia Urlante | `ferraglia_urlante` | 381 | 14 | 5 |
 | Ghoul | `ghoul` | 366 | 23 | 5 |
 | El Muy Bonito | `giocoliere` | 340 | 15 | 5 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | 1125 | 25 | **mai** |
 | Goblin Tipico | `goblin_tipico` | 86 | 6 | 1 |
-| Infetto Rapido | `infetto_rapido` | 94 | 7 | 1 |
+| Infetto Rapido | `infetto_rapido` | 94 | 7 | 2 |
 | L'ultimo spettacolo di Jerah | `jerah` | 2710 | 74 | **mai** |
 | Jongo Dongo | `jongo_dongo` | 1857 | 48 | **mai** |
 | Jongo Dongo | `jongo_dongo_risorto` | 2147 | 56 | **mai** |
 | ??? | `l_immortale` | 120 | 5 | **mai** |
 | Madre in Lacrime | `madre_in_lacrime` | 366 | 23 | 5 |
 | Manifestazione di un sogno | `manifestazione_di_un_sogno` | 439 | 14 | **mai** |
-| Marionetta | `marionetta` | 568 | 38 | 8 |
-| Fomentado | `maschera_vuota` | 164 | 10 | 1 |
+| Marionetta | `marionetta` | 568 | 38 | 12 |
+| Fomentado | `maschera_vuota` | 164 | 10 | 2 |
 | Nuvola di Marciume | `nuvola_di_marciume` | 94 | 7 | 1 |
-| Ombra del passato | `ombra_del_passato` | 607 | 41 | 8 |
+| Ombra del passato | `ombra_del_passato` | 607 | 41 | 12 |
 | Emblema dell'oppressione | `operaio_posseduto` | 245 | 15 | 3 |
 | Operaio Sfruttato | `operaio_sfruttato` | 404 | 18 | 5 |
 | Orrore di Meridia | `orrore_di_meridia` | 404 | 18 | 5 |
 | Robo Pattuglia | `robo_pattuglia` | 277 | 10 | 3 |
-| Sacerdote Folle | `sacerdote_folle` | 486 | 32 | 8 |
-| Sadico | `sadico` | 405 | 26 | 5 |
-| Slime Infimo | `slime_infimo` | 86 | 6 | 1 |
-| Stigma | `stigma` | 405 | 26 | 5 |
+| Sacerdote Folle | `sacerdote_folle` | 486 | 32 | 12 |
+| Sadico | `sadico` | 405 | 26 | 8 |
+| Slime Infimo | `slime_infimo` | 86 | 6 | 2 |
+| Stigma | `stigma` | 405 | 26 | 8 |
 | Tartaruga Innocente | `tartaruga_innocente` | 555 | 0 | 12 |
 | Un tenero ricordo | `tenero_ricordo` | 6660 | 27 | **mai** |
 | Teschio Errante | `teschio_errante` | 366 | 23 | 5 |
-| Titano Zombie | `titano_zombie` | 737 | 34 | 18 |
+| Titano Zombie | `titano_zombie` | 737 | 34 | 12 |
 | Capocantiere | `voce_registrata` | 207 | 13 | 3 |
 | Volto sulla parete | `volto_sulla_parete` | 1733 | 57 | 18 |
 | Zombie Cittadino | `zombie_cittadino` | 125 | 8 | 1 |
@@ -123,1255 +123,1255 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 3.9 | 100.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 4.8 | 100.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 3.8 | 100.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 3.9 | 100.0 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 5% | 95% | 0% | 9.7 | 97.2 | 0% | 1 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 1% | 99% | 61.0 | 76.1 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 7% | 93% | 0% | 9.8 | 97.3 | 0% | 1 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 3% | 97% | 0% | 14.4 | 99.0 | 0% | 0 |
-| Diabolo | `diabolo` | attacca | 5% | 95% | 0% | 3.9 | 97.5 | 0% | 2 |
-| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 8.2 | 100.0 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 0% | 100% | 0% | 4.0 | 100.0 | 0% | 0 |
-| Diabolo | `diabolo` | casuale | 1% | 99% | 0% | 4.8 | 99.8 | 0% | 0 |
-| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 5.0 | 100.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 18.0 | 100.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 5.0 | 100.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 6.1 | 100.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 4% | 96% | 0% | 4.2 | 98.4 | 0% | 2 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 8.1 | 100.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 0% | 100% | 0% | 4.4 | 100.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 1% | 99% | 0% | 4.6 | 99.7 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | attacca | 5% | 95% | 0% | 4.1 | 97.4 | 0% | 2 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 5.9 | 100.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 1% | 99% | 0% | 4.4 | 99.9 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 4.5 | 99.8 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 7.9 | 100.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 63% | 37% | 53.0 | 96.7 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 8.0 | 100.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 10.1 | 100.0 | 0% | 0 |
-| Ghoul | `ghoul` | attacca | 6% | 94% | 0% | 4.7 | 97.1 | 0% | 2 |
-| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 12.1 | 100.0 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 0% | 100% | 0% | 4.8 | 100.0 | 0% | 0 |
-| Ghoul | `ghoul` | casuale | 1% | 99% | 0% | 5.4 | 99.7 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | attacca | 0% | 100% | 0% | 7.4 | 100.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 81% | 19% | 49.0 | 98.1 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 5.0 | 100.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 7.8 | 100.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 6.9 | 100.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 17.9 | 100.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 7.1 | 100.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 7.9 | 100.0 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 6.4 | 33.6 | 0% | 2 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 60.3 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 9.5 | 52.6 | 0% | 2 |
-| Goblin Tipico | `goblin_tipico` | casuale | 70% | 30% | 0% | 18.7 | 77.4 | 0% | 1 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 6.4 | 46.1 | 0% | 6 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 69.8 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 9.7 | 70.1 | 0% | 6 |
-| Infetto Rapido | `infetto_rapido` | casuale | 53% | 47% | 0% | 17.5 | 90.1 | 0% | 3 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 3.8 | 100.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 4.5 | 100.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 3.8 | 100.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 4.0 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 6.5 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 10.6 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 6.1 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 6.9 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 2.6 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 2.2 | 100.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 19.8 | 100.0 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 64.4 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 100% | 0% | 19.7 | 100.0 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 26.1 | 100.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 6% | 94% | 0% | 4.7 | 97.1 | 0% | 2 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 12.1 | 100.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 0% | 100% | 0% | 4.8 | 100.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 1% | 99% | 0% | 5.4 | 99.7 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 3% | 97% | 0% | 2.9 | 98.4 | 0% | 2 |
-| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 3.8 | 100.0 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 0% | 100% | 0% | 3.0 | 100.0 | 0% | 0 |
-| Marionetta | `marionetta` | casuale | 0% | 100% | 0% | 3.1 | 100.0 | 0% | 0 |
-| Fomentado | `maschera_vuota` | attacca | 99% | 1% | 0% | 9.5 | 86.4 | 0% | 9 |
-| Fomentado | `maschera_vuota` | difendi | 100% | 0% | 0% | 33.0 | 40.7 | 0% | 9 |
-| Fomentado | `maschera_vuota` | studia | 7% | 93% | 0% | 9.8 | 97.2 | 0% | 1 |
-| Fomentado | `maschera_vuota` | casuale | 9% | 91% | 0% | 14.3 | 98.4 | 0% | 1 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 6.4 | 46.1 | 0% | 6 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 69.8 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 9.7 | 70.1 | 0% | 6 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 53% | 47% | 0% | 17.5 | 90.1 | 0% | 3 |
-| Ombra del passato | `ombra_del_passato` | attacca | 3% | 97% | 0% | 2.9 | 98.5 | 0% | 2 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 3.8 | 100.0 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 0% | 100% | 0% | 3.0 | 100.0 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | casuale | 0% | 100% | 0% | 3.1 | 100.0 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 9% | 91% | 0% | 7.3 | 95.6 | 0% | 2 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 79% | 21% | 50.5 | 97.8 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 1% | 99% | 0% | 7.6 | 99.7 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 1% | 99% | 0% | 9.3 | 99.6 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 99% | 1% | 36.9 | 100.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 0% | 100% | 0% | 7.3 | 100.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 98% | 2% | 40.2 | 99.9 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 7.5 | 100.0 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 5% | 95% | 0% | 9.7 | 97.2 | 0% | 1 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 1% | 99% | 61.0 | 76.1 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 7% | 93% | 0% | 9.8 | 97.3 | 0% | 1 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 3% | 97% | 0% | 14.4 | 99.0 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 4% | 96% | 0% | 5.2 | 97.2 | 0% | 2 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 10.8 | 100.0 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 0% | 100% | 0% | 5.2 | 100.0 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 1% | 99% | 0% | 6.0 | 99.2 | 0% | 1 |
-| Sadico | `sadico` | attacca | 5% | 95% | 0% | 3.9 | 97.5 | 0% | 2 |
-| Sadico | `sadico` | difendi | 0% | 100% | 0% | 8.2 | 100.0 | 0% | 0 |
-| Sadico | `sadico` | studia | 0% | 100% | 0% | 4.0 | 100.0 | 0% | 0 |
-| Sadico | `sadico` | casuale | 1% | 99% | 0% | 4.8 | 99.8 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 6.4 | 33.6 | 0% | 2 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 60.3 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 9.5 | 52.6 | 0% | 2 |
-| Slime Infimo | `slime_infimo` | casuale | 70% | 30% | 0% | 18.7 | 77.4 | 0% | 1 |
-| Stigma | `stigma` | attacca | 5% | 95% | 0% | 3.9 | 97.5 | 0% | 2 |
-| Stigma | `stigma` | difendi | 0% | 100% | 0% | 8.2 | 100.0 | 0% | 0 |
-| Stigma | `stigma` | studia | 0% | 100% | 0% | 4.0 | 100.0 | 0% | 0 |
-| Stigma | `stigma` | casuale | 1% | 99% | 0% | 4.8 | 99.8 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 8% | 92% | 0% | 1.0 | 96.9 | 0% | 1 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 81.1 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 7% | 93% | 0% | 1.0 | 97.5 | 0% | 1 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 17% | 83% | 0% | 1.0 | 92.5 | 0% | 3 |
+| Diabolo | `diabolo` | attacca | 2% | 98% | 0% | 1.0 | 98.4 | 0% | 1 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Diabolo | `diabolo` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 2% | 98% | 0% | 1.0 | 99.3 | 0% | 1 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | attacca | 1% | 99% | 0% | 1.0 | 99.9 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 1.0 | 99.9 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ghoul | `ghoul` | attacca | 3% | 97% | 0% | 1.0 | 98.5 | 0% | 1 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ghoul | `ghoul` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 21.4 | 0% | 2 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 51.8 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 35.5 | 0% | 2 |
+| Goblin Tipico | `goblin_tipico` | casuale | 97% | 3% | 0% | 1.0 | 33.4 | 0% | 2 |
+| Infetto Rapido | `infetto_rapido` | attacca | 28% | 72% | 0% | 1.0 | 95.6 | 0% | 2 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 3% | 97% | 0% | 1.0 | 99.2 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | casuale | 29% | 71% | 0% | 1.0 | 94.4 | 0% | 2 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 3% | 97% | 0% | 1.0 | 98.5 | 0% | 1 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Marionetta | `marionetta` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Fomentado | `maschera_vuota` | attacca | 5% | 95% | 0% | 1.0 | 96.5 | 0% | 0 |
+| Fomentado | `maschera_vuota` | difendi | 19% | 81% | 0% | 1.0 | 99.0 | 0% | 2 |
+| Fomentado | `maschera_vuota` | studia | 3% | 97% | 0% | 1.0 | 98.6 | 0% | 0 |
+| Fomentado | `maschera_vuota` | casuale | 23% | 77% | 0% | 1.0 | 95.4 | 0% | 2 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 80% | 20% | 0% | 1.0 | 86.5 | 0% | 5 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 3% | 97% | 0% | 1.0 | 99.2 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 4% | 96% | 0% | 1.0 | 98.6 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | attacca | 1% | 99% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | casuale | 1% | 99% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 3% | 97% | 0% | 1.0 | 97.9 | 0% | 1 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 1% | 99% | 0% | 1.0 | 99.9 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 1% | 99% | 0% | 1.0 | 99.7 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 7% | 93% | 0% | 1.0 | 96.8 | 0% | 1 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 97.8 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 5% | 95% | 0% | 1.0 | 98.6 | 0% | 1 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 9% | 91% | 0% | 1.0 | 97.2 | 0% | 1 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 1% | 99% | 0% | 1.0 | 99.8 | 0% | 0 |
+| Sadico | `sadico` | attacca | 2% | 98% | 0% | 1.0 | 98.6 | 0% | 1 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Sadico | `sadico` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Sadico | `sadico` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | attacca | 76% | 24% | 0% | 1.0 | 46.1 | 0% | 2 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 98.7 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 55% | 45% | 0% | 1.0 | 66.8 | 0% | 1 |
+| Slime Infimo | `slime_infimo` | casuale | 21% | 79% | 0% | 1.0 | 88.3 | 0% | 0 |
+| Stigma | `stigma` | attacca | 1% | 99% | 0% | 1.0 | 99.1 | 0% | 0 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Stigma | `stigma` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Stigma | `stigma` | casuale | 1% | 99% | 0% | 1.0 | 99.9 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 3 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 3 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 5.3 | 100.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 6.5 | 100.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 5.4 | 100.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 5.6 | 100.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 6% | 94% | 0% | 4.7 | 97.1 | 0% | 2 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 12.1 | 100.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 0% | 100% | 0% | 4.8 | 100.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | casuale | 1% | 99% | 0% | 5.4 | 99.7 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 5.3 | 100.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 6.6 | 100.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 5.1 | 100.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 5.5 | 100.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 9% | 91% | 0% | 7.6 | 95.2 | 0% | 1 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 63% | 37% | 54.3 | 95.8 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 1% | 99% | 0% | 7.9 | 99.9 | 0% | 0 |
-| Capocantiere | `voce_registrata` | casuale | 1% | 99% | 0% | 10.2 | 99.5 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 3.5 | 100.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 3.9 | 100.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 3.4 | 100.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 3.6 | 100.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 9.4 | 69.2 | 0% | 5 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 66.8 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 75% | 25% | 0% | 11.9 | 91.2 | 0% | 4 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 3% | 97% | 0% | 17.5 | 98.6 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 5% | 95% | 0% | 9.7 | 97.2 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 1% | 99% | 61.0 | 76.1 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 5% | 95% | 0% | 9.8 | 98.3 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 2% | 98% | 0% | 14.6 | 98.9 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 3 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 2% | 98% | 0% | 1.0 | 98.6 | 0% | 1 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 5% | 95% | 0% | 1.0 | 97.4 | 0% | 1 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 1% | 99% | 0% | 1.0 | 99.7 | 0% | 0 |
+| Capocantiere | `voce_registrata` | casuale | 1% | 99% | 0% | 1.0 | 99.5 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 54.8 | 0% | 5 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 62.4 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 73.0 | 0% | 5 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 97% | 3% | 0% | 1.0 | 56.6 | 0% | 5 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 7% | 93% | 0% | 1.0 | 96.3 | 0% | 1 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 4% | 96% | 0% | 1.0 | 98.1 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 4% | 96% | 0% | 1.0 | 99.0 | 0% | 0 |
 
 ## Protagonista di livello 2
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 5.0 | 145.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 7.7 | 145.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 5.0 | 145.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 5.4 | 145.0 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 17% | 83% | 0% | 16.9 | 133.9 | 0% | 3 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 0% | 100% | 61.0 | 75.9 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 12% | 88% | 0% | 17.3 | 137.8 | 0% | 2 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 7% | 93% | 0% | 24.2 | 141.6 | 0% | 1 |
-| Diabolo | `diabolo` | attacca | 7% | 93% | 0% | 6.5 | 139.5 | 0% | 3 |
-| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 15.1 | 145.0 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 0% | 100% | 0% | 6.8 | 145.0 | 0% | 0 |
-| Diabolo | `diabolo` | casuale | 1% | 99% | 0% | 7.2 | 144.5 | 0% | 0 |
-| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 7.9 | 145.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 30.8 | 145.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 8.0 | 145.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 9.4 | 145.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 4% | 96% | 0% | 6.0 | 141.4 | 0% | 2 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 13.6 | 145.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 1% | 99% | 0% | 6.2 | 144.8 | 0% | 1 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 1% | 99% | 0% | 7.0 | 144.4 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | attacca | 6% | 94% | 0% | 5.8 | 139.7 | 0% | 3 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 8.3 | 145.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 3% | 97% | 0% | 6.0 | 143.9 | 0% | 1 |
-| Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 6.4 | 144.4 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 12.4 | 145.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 1% | 99% | 60.9 | 105.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 12.4 | 145.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 15.5 | 145.0 | 0% | 0 |
-| Ghoul | `ghoul` | attacca | 8% | 92% | 0% | 6.7 | 138.8 | 0% | 2 |
-| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 23.2 | 145.0 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 0% | 100% | 0% | 7.0 | 145.0 | 0% | 0 |
-| Ghoul | `ghoul` | casuale | 1% | 99% | 0% | 8.3 | 144.4 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | attacca | 0% | 100% | 0% | 11.1 | 145.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 8% | 92% | 60.6 | 113.2 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 6.9 | 145.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 10.0 | 145.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 9.9 | 145.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 28.3 | 145.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 10.0 | 145.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 11.5 | 145.0 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 4.7 | 19.0 | 0% | 2 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 60.3 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 7.7 | 34.6 | 0% | 2 |
-| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 14.6 | 49.7 | 0% | 2 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 4.7 | 28.9 | 0% | 6 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 68.7 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 7.8 | 48.7 | 0% | 6 |
-| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 14.0 | 63.2 | 0% | 6 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 4.9 | 145.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 6.2 | 145.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 4.9 | 145.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 5.1 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 8.7 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 16.0 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 8.4 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 9.8 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 3.0 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 3.9 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 3.0 | 145.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 3.1 | 145.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 35.4 | 145.0 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 63.4 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 100% | 0% | 35.4 | 145.0 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 46.0 | 145.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 8% | 92% | 0% | 6.7 | 138.8 | 0% | 2 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 23.2 | 145.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 0% | 100% | 0% | 7.0 | 145.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 1% | 99% | 0% | 8.3 | 144.4 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 145.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 145.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 145.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 145.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 6% | 94% | 0% | 4.7 | 141.2 | 0% | 3 |
-| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 6.6 | 145.0 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 1% | 99% | 0% | 4.8 | 145.0 | 0% | 0 |
-| Marionetta | `marionetta` | casuale | 1% | 99% | 0% | 5.0 | 144.7 | 0% | 0 |
-| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 6.8 | 48.5 | 0% | 9 |
-| Fomentado | `maschera_vuota` | difendi | 100% | 0% | 0% | 33.0 | 40.5 | 0% | 9 |
-| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 9.5 | 70.3 | 0% | 9 |
-| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 15.3 | 83.5 | 0% | 9 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 4.7 | 28.9 | 0% | 6 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 68.7 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 7.8 | 48.7 | 0% | 6 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 14.0 | 63.2 | 0% | 6 |
-| Ombra del passato | `ombra_del_passato` | attacca | 5% | 95% | 0% | 3.9 | 141.5 | 0% | 3 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 5.8 | 145.0 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 0% | 100% | 0% | 4.0 | 145.0 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | casuale | 1% | 99% | 0% | 4.6 | 144.7 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 12% | 88% | 0% | 10.7 | 135.4 | 0% | 2 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 8% | 92% | 60.5 | 112.3 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 3% | 97% | 0% | 11.4 | 144.0 | 0% | 1 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 1% | 99% | 0% | 14.2 | 144.2 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 0% | 100% | 0% | 9.0 | 145.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 39% | 61% | 57.2 | 128.5 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 0% | 100% | 0% | 9.0 | 145.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 0% | 100% | 0% | 11.1 | 145.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 0% | 100% | 0% | 9.5 | 145.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 37% | 63% | 57.9 | 129.8 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 0% | 100% | 0% | 9.6 | 145.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 11.6 | 145.0 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 17% | 83% | 0% | 16.9 | 133.9 | 0% | 3 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 61.0 | 75.9 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 12% | 88% | 0% | 17.3 | 137.8 | 0% | 2 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 7% | 93% | 0% | 24.2 | 141.6 | 0% | 1 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 4% | 96% | 0% | 7.0 | 140.3 | 0% | 2 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 15.5 | 145.0 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 3% | 97% | 0% | 7.1 | 144.2 | 0% | 1 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 1% | 99% | 0% | 8.1 | 143.6 | 0% | 1 |
-| Sadico | `sadico` | attacca | 7% | 93% | 0% | 6.5 | 139.5 | 0% | 3 |
-| Sadico | `sadico` | difendi | 0% | 100% | 0% | 15.1 | 145.0 | 0% | 0 |
-| Sadico | `sadico` | studia | 0% | 100% | 0% | 6.8 | 145.0 | 0% | 0 |
-| Sadico | `sadico` | casuale | 1% | 99% | 0% | 7.2 | 144.5 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 4.7 | 19.0 | 0% | 2 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 60.3 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 7.7 | 34.6 | 0% | 2 |
-| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 14.6 | 49.7 | 0% | 2 |
-| Stigma | `stigma` | attacca | 7% | 93% | 0% | 6.5 | 139.5 | 0% | 3 |
-| Stigma | `stigma` | difendi | 0% | 100% | 0% | 15.1 | 145.0 | 0% | 0 |
-| Stigma | `stigma` | studia | 0% | 100% | 0% | 6.8 | 145.0 | 0% | 0 |
-| Stigma | `stigma` | casuale | 1% | 99% | 0% | 7.2 | 144.5 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 18% | 82% | 0% | 1.0 | 134.3 | 0% | 3 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 70.6 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 19% | 81% | 0% | 1.0 | 134.3 | 0% | 3 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 23% | 77% | 0% | 1.0 | 87.5 | 0% | 4 |
+| Diabolo | `diabolo` | attacca | 2% | 98% | 0% | 1.0 | 142.5 | 0% | 1 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Diabolo | `diabolo` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 2% | 98% | 0% | 1.0 | 143.4 | 0% | 1 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | attacca | 1% | 99% | 0% | 1.0 | 144.6 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 1.0 | 144.6 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ghoul | `ghoul` | attacca | 3% | 97% | 0% | 1.0 | 142.2 | 0% | 1 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ghoul | `ghoul` | casuale | 1% | 99% | 0% | 1.0 | 144.9 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 11.3 | 0% | 2 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 44.5 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 22.9 | 0% | 2 |
+| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 1.0 | 19.6 | 0% | 2 |
+| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 1.0 | 60.2 | 0% | 6 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 1.0 | 96.8 | 0% | 6 |
+| Infetto Rapido | `infetto_rapido` | casuale | 95% | 5% | 0% | 1.0 | 74.2 | 0% | 6 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 143.1 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 3% | 97% | 0% | 1.0 | 142.3 | 0% | 1 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 1% | 99% | 0% | 1.0 | 144.7 | 0% | 0 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Marionetta | `marionetta` | casuale | 1% | 99% | 0% | 1.0 | 144.7 | 0% | 0 |
+| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 1.0 | 76.5 | 0% | 9 |
+| Fomentado | `maschera_vuota` | difendi | 100% | 0% | 0% | 1.0 | 73.4 | 0% | 9 |
+| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 1.0 | 103.5 | 0% | 9 |
+| Fomentado | `maschera_vuota` | casuale | 97% | 3% | 0% | 1.0 | 85.3 | 0% | 9 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 1.0 | 50.8 | 0% | 6 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 1.0 | 95.2 | 0% | 6 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 48% | 52% | 0% | 1.0 | 122.5 | 0% | 3 |
+| Ombra del passato | `ombra_del_passato` | attacca | 1% | 99% | 0% | 1.0 | 144.7 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | casuale | 1% | 99% | 0% | 1.0 | 144.7 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 3% | 97% | 0% | 1.0 | 141.4 | 0% | 1 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 3% | 97% | 0% | 1.0 | 144.1 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 3% | 97% | 0% | 1.0 | 143.6 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 19% | 81% | 0% | 1.0 | 133.1 | 0% | 3 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 80.8 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 17% | 83% | 0% | 1.0 | 137.1 | 0% | 3 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 18% | 82% | 0% | 1.0 | 104.9 | 0% | 3 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 1% | 99% | 0% | 1.0 | 144.5 | 0% | 0 |
+| Sadico | `sadico` | attacca | 3% | 97% | 0% | 1.0 | 142.1 | 0% | 1 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Sadico | `sadico` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Sadico | `sadico` | casuale | 1% | 99% | 0% | 1.0 | 144.7 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 1.0 | 18.1 | 0% | 2 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 96.0 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 1.0 | 37.8 | 0% | 2 |
+| Slime Infimo | `slime_infimo` | casuale | 57% | 43% | 0% | 1.0 | 64.9 | 0% | 1 |
+| Stigma | `stigma` | attacca | 2% | 98% | 0% | 1.0 | 143.3 | 0% | 1 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Stigma | `stigma` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Stigma | `stigma` | casuale | 1% | 99% | 0% | 1.0 | 144.4 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 3 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 3 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 6.3 | 145.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 7.3 | 145.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 6.3 | 145.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 6.5 | 145.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 8% | 92% | 0% | 6.7 | 138.8 | 0% | 2 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 23.2 | 145.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 0% | 100% | 0% | 7.0 | 145.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | casuale | 1% | 99% | 0% | 8.3 | 144.4 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 8.0 | 145.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 9.2 | 145.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 6.9 | 145.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 7.4 | 145.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 75% | 25% | 0% | 11.3 | 127.7 | 0% | 10 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 0% | 100% | 61.0 | 100.1 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 5% | 95% | 0% | 13.2 | 143.4 | 0% | 1 |
-| Capocantiere | `voce_registrata` | casuale | 3% | 97% | 0% | 17.2 | 143.8 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 4.9 | 145.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 6.1 | 145.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 4.8 | 145.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 5.0 | 145.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 6.7 | 40.9 | 0% | 5 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 66.6 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 9.5 | 60.9 | 0% | 5 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 93% | 7% | 0% | 20.2 | 98.2 | 0% | 5 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 8.5 | 62.6 | 0% | 9 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 61.0 | 75.9 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 11.5 | 87.1 | 0% | 9 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 51% | 49% | 0% | 22.7 | 128.3 | 0% | 5 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 3 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 3% | 97% | 0% | 1.0 | 142.6 | 0% | 1 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 1% | 99% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 5% | 95% | 0% | 1.0 | 139.8 | 0% | 1 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 144.7 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 3% | 97% | 0% | 1.0 | 143.4 | 0% | 0 |
+| Capocantiere | `voce_registrata` | casuale | 1% | 99% | 0% | 1.0 | 144.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 30.8 | 0% | 5 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 54.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 46.2 | 0% | 5 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 1.0 | 36.6 | 0% | 5 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 1.0 | 82.1 | 0% | 9 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 100.2 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 99% | 1% | 0% | 1.0 | 114.1 | 0% | 9 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 90% | 10% | 0% | 1.0 | 97.1 | 0% | 8 |
 
 ## Protagonista di livello 3
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 6.7 | 190.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 11.9 | 190.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 6.7 | 190.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 7.4 | 190.0 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 15.6 | 106.7 | 0% | 16 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 0% | 100% | 61.0 | 72.8 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 18.5 | 127.5 | 0% | 16 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 15% | 85% | 0% | 34.3 | 179.9 | 0% | 2 |
-| Diabolo | `diabolo` | attacca | 10% | 90% | 0% | 8.5 | 179.9 | 0% | 4 |
-| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 23.7 | 190.0 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 1% | 99% | 0% | 8.9 | 189.5 | 0% | 0 |
-| Diabolo | `diabolo` | casuale | 1% | 99% | 0% | 10.1 | 189.1 | 0% | 0 |
-| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 10.6 | 190.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 44.0 | 190.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 10.6 | 190.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 12.8 | 190.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 5% | 95% | 0% | 8.4 | 184.3 | 0% | 2 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 19.8 | 190.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 3% | 97% | 0% | 8.7 | 188.7 | 0% | 1 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 1% | 99% | 0% | 9.9 | 189.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | attacca | 6% | 94% | 0% | 7.5 | 181.8 | 0% | 3 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 10.7 | 190.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 3% | 97% | 0% | 7.8 | 187.4 | 0% | 2 |
-| Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 8.2 | 189.1 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 17.1 | 190.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 61.0 | 90.3 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 17.2 | 190.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 23.0 | 190.0 | 0% | 0 |
-| Ghoul | `ghoul` | attacca | 11% | 89% | 0% | 9.3 | 178.6 | 0% | 3 |
-| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 40.5 | 190.0 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 2% | 98% | 0% | 9.9 | 189.1 | 0% | 1 |
-| Ghoul | `ghoul` | casuale | 1% | 99% | 0% | 11.9 | 189.1 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | attacca | 31% | 69% | 0% | 15.0 | 186.3 | 0% | 9 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 61.0 | 108.7 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 8.0 | 190.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 11.8 | 190.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 13.9 | 190.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 40.1 | 190.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 14.1 | 190.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 16.8 | 190.0 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 3.8 | 11.5 | 0% | 1 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 60.2 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 6.8 | 24.0 | 0% | 1 |
-| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 12.2 | 33.6 | 0% | 1 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.8 | 19.5 | 0% | 5 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 67.6 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.9 | 35.7 | 0% | 5 |
-| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 11.1 | 42.9 | 0% | 5 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 6.2 | 190.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 8.0 | 190.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 6.5 | 190.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 6.7 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 11.3 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 22.4 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 10.8 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 12.6 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 4.0 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 4.8 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 4.0 | 190.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 4.2 | 190.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 33% | 67% | 60.5 | 187.4 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 62.3 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 35% | 65% | 60.4 | 187.3 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 0% | 100% | 61.0 | 148.3 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 11% | 89% | 0% | 9.3 | 178.6 | 0% | 3 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 40.5 | 190.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 2% | 98% | 0% | 9.9 | 189.1 | 0% | 1 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 1% | 99% | 0% | 11.9 | 189.1 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 190.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 190.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 190.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 190.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 7% | 93% | 0% | 5.8 | 183.1 | 0% | 3 |
-| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 9.4 | 190.0 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 1% | 99% | 0% | 6.0 | 189.6 | 0% | 0 |
-| Marionetta | `marionetta` | casuale | 1% | 99% | 0% | 6.5 | 189.3 | 0% | 0 |
-| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 5.7 | 34.8 | 0% | 9 |
-| Fomentado | `maschera_vuota` | difendi | 100% | 0% | 0% | 33.0 | 38.9 | 0% | 9 |
-| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 7.9 | 50.1 | 0% | 9 |
-| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 13.0 | 62.0 | 0% | 9 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 3.8 | 19.5 | 0% | 5 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 67.6 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 6.9 | 35.7 | 0% | 5 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 11.1 | 42.9 | 0% | 5 |
-| Ombra del passato | `ombra_del_passato` | attacca | 7% | 93% | 0% | 5.6 | 183.6 | 0% | 4 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 8.4 | 190.0 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 1% | 99% | 0% | 5.7 | 189.7 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | casuale | 1% | 99% | 0% | 6.0 | 189.4 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 9.9 | 122.2 | 0% | 18 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 0% | 100% | 61.0 | 108.2 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 95% | 5% | 0% | 13.4 | 166.7 | 0% | 17 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 7% | 93% | 0% | 20.1 | 187.5 | 0% | 1 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 0% | 100% | 0% | 12.5 | 190.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 0% | 100% | 61.0 | 127.4 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 0% | 100% | 0% | 12.6 | 190.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 0% | 100% | 0% | 15.7 | 190.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 0% | 100% | 0% | 13.4 | 190.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 1% | 99% | 61.0 | 127.9 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 0% | 100% | 0% | 13.5 | 190.0 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 17.1 | 190.0 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 15.6 | 106.7 | 0% | 16 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 61.0 | 72.8 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 18.5 | 127.5 | 0% | 16 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 15% | 85% | 0% | 34.3 | 179.9 | 0% | 2 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 4% | 96% | 0% | 8.8 | 183.4 | 0% | 2 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 21.1 | 190.0 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 3% | 97% | 0% | 8.9 | 187.8 | 0% | 1 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 1% | 99% | 0% | 10.1 | 187.9 | 0% | 1 |
-| Sadico | `sadico` | attacca | 10% | 90% | 0% | 8.5 | 179.9 | 0% | 4 |
-| Sadico | `sadico` | difendi | 0% | 100% | 0% | 23.7 | 190.0 | 0% | 0 |
-| Sadico | `sadico` | studia | 1% | 99% | 0% | 8.9 | 189.5 | 0% | 0 |
-| Sadico | `sadico` | casuale | 1% | 99% | 0% | 10.1 | 189.1 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 3.8 | 11.5 | 0% | 1 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 60.2 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 6.8 | 24.0 | 0% | 1 |
-| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 12.2 | 33.6 | 0% | 1 |
-| Stigma | `stigma` | attacca | 10% | 90% | 0% | 8.5 | 179.9 | 0% | 4 |
-| Stigma | `stigma` | difendi | 0% | 100% | 0% | 23.7 | 190.0 | 0% | 0 |
-| Stigma | `stigma` | studia | 1% | 99% | 0% | 8.9 | 189.5 | 0% | 0 |
-| Stigma | `stigma` | casuale | 1% | 99% | 0% | 10.1 | 189.1 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 1.0 | 82.4 | 0% | 16 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 48.9 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 1.0 | 95.2 | 0% | 16 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 74% | 26% | 0% | 1.0 | 55.3 | 0% | 12 |
+| Diabolo | `diabolo` | attacca | 4% | 96% | 0% | 1.0 | 184.9 | 0% | 1 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 2% | 98% | 0% | 1.0 | 189.4 | 0% | 1 |
+| Diabolo | `diabolo` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 3% | 97% | 0% | 1.0 | 187.0 | 0% | 1 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | attacca | 3% | 97% | 0% | 1.0 | 186.3 | 0% | 2 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 1.0 | 189.6 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 146.4 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 1.0 | 174.5 | 0% | 0 |
+| Ghoul | `ghoul` | attacca | 7% | 93% | 0% | 1.0 | 183.1 | 0% | 2 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 3% | 97% | 0% | 1.0 | 188.5 | 0% | 1 |
+| Ghoul | `ghoul` | casuale | 3% | 97% | 0% | 1.0 | 187.5 | 0% | 1 |
+| El Muy Bonito | `giocoliere` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 189.6 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 4.8 | 0% | 1 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 31.5 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 9.8 | 0% | 1 |
+| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 1.0 | 9.0 | 0% | 1 |
+| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 1.0 | 24.6 | 0% | 5 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 134.5 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 1.0 | 48.7 | 0% | 5 |
+| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 1.0 | 41.0 | 0% | 5 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 106.9 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 120.3 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 7% | 93% | 0% | 1.0 | 182.9 | 0% | 2 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 4% | 96% | 0% | 1.0 | 188.3 | 0% | 1 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 3% | 97% | 0% | 1.0 | 187.5 | 0% | 1 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 1% | 99% | 0% | 1.0 | 188.0 | 0% | 1 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Marionetta | `marionetta` | casuale | 1% | 99% | 0% | 1.0 | 189.7 | 0% | 0 |
+| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 1.0 | 44.3 | 0% | 9 |
+| Fomentado | `maschera_vuota` | difendi | 100% | 0% | 0% | 1.0 | 59.5 | 0% | 9 |
+| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 1.0 | 68.9 | 0% | 9 |
+| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 1.0 | 55.1 | 0% | 9 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 1.0 | 21.5 | 0% | 5 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 1.0 | 52.6 | 0% | 5 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 88% | 12% | 0% | 1.0 | 91.2 | 0% | 4 |
+| Ombra del passato | `ombra_del_passato` | attacca | 3% | 97% | 0% | 1.0 | 186.8 | 0% | 2 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | casuale | 1% | 99% | 0% | 1.0 | 189.7 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 81% | 19% | 0% | 1.0 | 166.9 | 0% | 15 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 187.0 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 9% | 91% | 0% | 1.0 | 183.4 | 0% | 2 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 29% | 71% | 0% | 1.0 | 178.3 | 0% | 5 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 135.8 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 1% | 99% | 0% | 1.0 | 189.9 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 1.0 | 120.3 | 0% | 16 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 56.0 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 99% | 1% | 0% | 1.0 | 134.2 | 0% | 16 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 18% | 82% | 0% | 1.0 | 68.0 | 0% | 3 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 3% | 97% | 0% | 1.0 | 186.3 | 0% | 1 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Sadico | `sadico` | attacca | 5% | 95% | 0% | 1.0 | 185.3 | 0% | 2 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Sadico | `sadico` | studia | 1% | 99% | 0% | 1.0 | 189.8 | 0% | 0 |
+| Sadico | `sadico` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 1.0 | 3.3 | 0% | 1 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 47.6 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 1.0 | 9.2 | 0% | 1 |
+| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 1.0 | 10.1 | 0% | 1 |
+| Stigma | `stigma` | attacca | 5% | 95% | 0% | 1.0 | 184.4 | 0% | 2 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Stigma | `stigma` | studia | 1% | 99% | 0% | 1.0 | 189.9 | 0% | 0 |
+| Stigma | `stigma` | casuale | 1% | 99% | 0% | 1.0 | 189.2 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 1 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 7.0 | 190.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 7.9 | 190.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 7.0 | 190.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 7.1 | 190.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 11% | 89% | 0% | 9.3 | 178.6 | 0% | 3 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 40.5 | 190.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 2% | 98% | 0% | 9.9 | 189.1 | 0% | 1 |
-| Teschio Errante | `teschio_errante` | casuale | 1% | 99% | 0% | 11.9 | 189.1 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 10.8 | 190.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 11.1 | 190.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 9.0 | 190.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 9.0 | 190.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 8.5 | 78.5 | 0% | 13 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 0% | 100% | 61.0 | 86.3 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 11.5 | 109.2 | 0% | 13 |
-| Capocantiere | `voce_registrata` | casuale | 53% | 47% | 0% | 22.9 | 166.4 | 0% | 7 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 6.2 | 190.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 7.9 | 190.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 6.1 | 190.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 6.6 | 190.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 4.9 | 23.9 | 0% | 4 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 63.6 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 7.8 | 42.2 | 0% | 4 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 15.4 | 63.2 | 0% | 4 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 6.6 | 41.4 | 0% | 9 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 61.0 | 72.8 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 9.7 | 63.6 | 0% | 9 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 99% | 1% | 0% | 20.4 | 100.0 | 0% | 9 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 9% | 91% | 0% | 1.0 | 181.8 | 0% | 3 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 2% | 98% | 0% | 1.0 | 189.4 | 0% | 1 |
+| Teschio Errante | `teschio_errante` | casuale | 2% | 98% | 0% | 1.0 | 188.7 | 0% | 1 |
+| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 99% | 1% | 0% | 1.0 | 113.1 | 0% | 13 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 102.5 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 95% | 5% | 0% | 1.0 | 151.8 | 0% | 12 |
+| Capocantiere | `voce_registrata` | casuale | 89% | 11% | 0% | 1.0 | 123.9 | 0% | 12 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 190.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 13.1 | 0% | 4 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 36.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 26.4 | 0% | 4 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 1.0 | 19.3 | 0% | 4 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 1.0 | 46.4 | 0% | 9 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 69.7 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 1.0 | 63.2 | 0% | 9 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 1.0 | 55.1 | 0% | 9 |
 
 ## Protagonista di livello 5
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 10.9 | 285.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 23.4 | 285.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 10.9 | 285.0 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 12.4 | 285.0 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 9.4 | 36.6 | 0% | 14 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 0% | 100% | 61.0 | 69.6 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 12.1 | 48.5 | 0% | 14 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 28.9 | 93.0 | 0% | 14 |
-| Diabolo | `diabolo` | attacca | 99% | 1% | 0% | 11.5 | 216.7 | 0% | 35 |
-| Diabolo | `diabolo` | difendi | 0% | 39% | 61% | 58.1 | 265.1 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 33% | 67% | 0% | 14.9 | 274.9 | 0% | 12 |
-| Diabolo | `diabolo` | casuale | 3% | 97% | 0% | 18.3 | 282.3 | 0% | 1 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 14.2 | 192.8 | 0% | 48 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 61.0 | 119.7 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 17.3 | 237.7 | 0% | 48 |
-| Il Divoratore | `divoratore` | casuale | 1% | 99% | 0% | 25.2 | 285.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 31% | 69% | 0% | 14.2 | 265.2 | 0% | 13 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 38.9 | 285.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 12% | 88% | 0% | 15.0 | 277.3 | 0% | 5 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 7% | 93% | 0% | 17.1 | 279.2 | 0% | 3 |
-| Donna Spinosa | `donna_spinosa` | attacca | 9% | 91% | 0% | 11.0 | 269.1 | 0% | 4 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 15.3 | 285.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 5% | 95% | 0% | 11.5 | 277.5 | 0% | 3 |
-| Donna Spinosa | `donna_spinosa` | casuale | 3% | 97% | 0% | 12.3 | 282.8 | 0% | 1 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 14.7 | 115.2 | 0% | 26 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 61.0 | 85.2 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 17.7 | 141.0 | 0% | 26 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 67% | 33% | 0% | 42.2 | 250.3 | 0% | 17 |
-| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 11.0 | 167.0 | 0% | 30 |
-| Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 61.0 | 137.6 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 14.0 | 216.3 | 0% | 30 |
-| Ghoul | `ghoul` | casuale | 10% | 90% | 0% | 21.3 | 277.6 | 0% | 3 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 9.5 | 81.8 | 0% | 25 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 61.0 | 91.9 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 6% | 94% | 0% | 10.0 | 282.3 | 0% | 2 |
-| El Muy Bonito | `giocoliere` | casuale | 7% | 93% | 0% | 14.5 | 279.9 | 0% | 2 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 24.0 | 285.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 7% | 93% | 60.8 | 229.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 23.6 | 285.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 29.5 | 285.0 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 3.8 | 9.1 | 0% | 3 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 63.3 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 6.8 | 19.2 | 0% | 3 |
-| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 12.2 | 27.7 | 0% | 3 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 2.9 | 4.3 | 0% | 3 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 60.3 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 5.9 | 11.3 | 0% | 3 |
-| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 9.2 | 15.1 | 0% | 3 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 9.6 | 285.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 12.5 | 285.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 10.8 | 285.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 11.2 | 285.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 17.1 | 285.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 99% | 1% | 38.2 | 284.9 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 16.2 | 285.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 20.2 | 285.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 6.7 | 285.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 8.6 | 285.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 6.7 | 285.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 7.0 | 285.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 0% | 100% | 61.0 | 71.5 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 60.3 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 0% | 100% | 61.0 | 71.6 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 0% | 100% | 61.0 | 67.9 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 11.0 | 167.0 | 0% | 30 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 0% | 100% | 61.0 | 137.6 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 14.0 | 216.3 | 0% | 30 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 10% | 90% | 0% | 21.3 | 277.6 | 0% | 3 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 285.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 285.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 285.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 285.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 11% | 89% | 0% | 9.3 | 268.1 | 0% | 5 |
-| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 18.4 | 285.0 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 1% | 99% | 0% | 9.8 | 283.3 | 0% | 1 |
-| Marionetta | `marionetta` | casuale | 1% | 99% | 0% | 11.1 | 283.6 | 0% | 0 |
-| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 3.9 | 12.9 | 0% | 6 |
-| Fomentado | `maschera_vuota` | difendi | 100% | 0% | 0% | 33.0 | 37.1 | 0% | 6 |
-| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 6.8 | 25.2 | 0% | 6 |
-| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 10.1 | 29.1 | 0% | 6 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 2.9 | 4.3 | 0% | 3 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 60.3 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 5.9 | 11.3 | 0% | 3 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 9.2 | 15.1 | 0% | 3 |
-| Ombra del passato | `ombra_del_passato` | attacca | 10% | 90% | 0% | 8.5 | 269.4 | 0% | 6 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 15.2 | 285.0 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 1% | 99% | 0% | 8.9 | 283.5 | 0% | 1 |
-| Ombra del passato | `ombra_del_passato` | casuale | 1% | 99% | 0% | 10.0 | 283.7 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 6.7 | 53.9 | 0% | 18 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 0% | 100% | 61.0 | 92.2 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 9.5 | 80.0 | 0% | 18 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 20.4 | 134.7 | 0% | 18 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 11.5 | 122.4 | 0% | 39 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 0% | 100% | 61.0 | 104.0 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 14.5 | 159.3 | 0% | 39 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 41% | 59% | 0% | 30.5 | 266.8 | 0% | 16 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 11.6 | 113.2 | 0% | 39 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 0% | 100% | 61.0 | 107.4 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 14.6 | 147.2 | 0% | 39 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 54% | 46% | 0% | 32.5 | 259.9 | 0% | 21 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 9.4 | 36.6 | 0% | 14 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 61.0 | 69.6 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 12.1 | 48.5 | 0% | 14 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 100% | 0% | 0% | 28.9 | 93.0 | 0% | 14 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 11% | 89% | 0% | 12.6 | 269.3 | 0% | 5 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 99% | 1% | 43.7 | 284.7 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 8% | 92% | 0% | 13.0 | 278.1 | 0% | 4 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 1% | 99% | 0% | 15.3 | 281.6 | 0% | 1 |
-| Sadico | `sadico` | attacca | 99% | 1% | 0% | 11.5 | 216.7 | 0% | 35 |
-| Sadico | `sadico` | difendi | 0% | 39% | 61% | 58.1 | 265.1 | 0% | 0 |
-| Sadico | `sadico` | studia | 33% | 67% | 0% | 14.9 | 274.9 | 0% | 12 |
-| Sadico | `sadico` | casuale | 3% | 97% | 0% | 18.3 | 282.3 | 0% | 1 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 3.8 | 9.1 | 0% | 3 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 63.3 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 6.8 | 19.2 | 0% | 3 |
-| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 12.2 | 27.7 | 0% | 3 |
-| Stigma | `stigma` | attacca | 99% | 1% | 0% | 11.5 | 216.7 | 0% | 35 |
-| Stigma | `stigma` | difendi | 0% | 39% | 61% | 58.1 | 265.1 | 0% | 0 |
-| Stigma | `stigma` | studia | 33% | 67% | 0% | 14.9 | 274.9 | 0% | 12 |
-| Stigma | `stigma` | casuale | 3% | 97% | 0% | 18.3 | 282.3 | 0% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 1.0 | 21.0 | 0% | 14 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 25.2 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 1.0 | 23.6 | 0% | 14 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 1.0 | 15.8 | 0% | 14 |
+| Diabolo | `diabolo` | attacca | 53% | 47% | 0% | 1.0 | 253.0 | 0% | 19 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 180.1 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 9% | 91% | 0% | 1.0 | 275.3 | 0% | 3 |
+| Diabolo | `diabolo` | casuale | 73% | 27% | 0% | 1.0 | 233.2 | 0% | 25 |
+| Il Divoratore | `divoratore` | attacca | 67% | 33% | 0% | 1.0 | 263.3 | 0% | 32 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 129.7 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 21% | 79% | 0% | 1.0 | 282.3 | 0% | 10 |
+| Il Divoratore | `divoratore` | casuale | 83% | 17% | 0% | 1.0 | 185.1 | 0% | 40 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 7% | 93% | 0% | 1.0 | 273.6 | 0% | 3 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 272.6 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 4% | 96% | 0% | 1.0 | 281.1 | 0% | 2 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 6% | 94% | 0% | 1.0 | 279.3 | 0% | 3 |
+| Donna Spinosa | `donna_spinosa` | attacca | 3% | 97% | 0% | 1.0 | 277.9 | 0% | 2 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 2% | 98% | 0% | 1.0 | 283.5 | 0% | 1 |
+| Donna Spinosa | `donna_spinosa` | casuale | 3% | 97% | 0% | 1.0 | 282.5 | 0% | 1 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 1.0 | 84.1 | 0% | 26 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 55.7 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 1.0 | 97.1 | 0% | 26 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 10% | 90% | 0% | 1.0 | 68.2 | 0% | 3 |
+| Ghoul | `ghoul` | attacca | 89% | 11% | 0% | 1.0 | 232.6 | 0% | 27 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 198.5 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 34% | 66% | 0% | 1.0 | 271.1 | 0% | 10 |
+| Ghoul | `ghoul` | casuale | 73% | 27% | 0% | 1.0 | 226.7 | 0% | 22 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 1.0 | 106.9 | 0% | 25 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 88.6 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 1% | 99% | 0% | 1.0 | 284.8 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | casuale | 11% | 89% | 0% | 1.0 | 272.1 | 0% | 3 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 243.6 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 283.5 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 3.7 | 0% | 3 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 24.3 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 7.5 | 0% | 3 |
+| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 1.0 | 5.4 | 0% | 3 |
+| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 1.0 | 5.5 | 0% | 3 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 86.5 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 1.0 | 12.2 | 0% | 3 |
+| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 1.0 | 14.3 | 0% | 3 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 105.7 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 69.2 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 103.1 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 70.5 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 99% | 1% | 0% | 1.0 | 212.5 | 0% | 30 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 242.7 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 64% | 36% | 0% | 1.0 | 259.5 | 0% | 19 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 75% | 25% | 0% | 1.0 | 229.1 | 0% | 22 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 5% | 95% | 0% | 1.0 | 275.9 | 0% | 3 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Marionetta | `marionetta` | casuale | 1% | 99% | 0% | 1.0 | 284.0 | 0% | 1 |
+| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 1.0 | 27.7 | 0% | 6 |
+| Fomentado | `maschera_vuota` | difendi | 0% | 100% | 0% | 1.0 | 35.2 | 0% | 0 |
+| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 1.0 | 17.9 | 0% | 6 |
+| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 1.0 | 20.5 | 0% | 6 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 1.0 | 4.8 | 0% | 3 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 1.0 | 16.3 | 0% | 3 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 99% | 1% | 0% | 1.0 | 41.4 | 0% | 3 |
+| Ombra del passato | `ombra_del_passato` | attacca | 3% | 97% | 0% | 1.0 | 278.5 | 0% | 2 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 1% | 99% | 0% | 1.0 | 284.0 | 0% | 1 |
+| Ombra del passato | `ombra_del_passato` | casuale | 2% | 98% | 0% | 1.0 | 283.5 | 0% | 1 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 1.0 | 53.1 | 0% | 18 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 81.4 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 1.0 | 89.7 | 0% | 18 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 1.0 | 67.4 | 0% | 18 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 1.0 | 124.6 | 0% | 39 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 64.6 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 1.0 | 137.6 | 0% | 39 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 99% | 1% | 0% | 1.0 | 100.6 | 0% | 39 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 1.0 | 139.5 | 0% | 39 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 96.7 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 1.0 | 186.8 | 0% | 39 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 20% | 80% | 0% | 1.0 | 124.3 | 0% | 8 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 1.0 | 24.1 | 0% | 14 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 28.4 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 1.0 | 28.9 | 0% | 14 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 91% | 9% | 0% | 1.0 | 23.5 | 0% | 13 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 6% | 94% | 0% | 1.0 | 274.2 | 0% | 3 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 1% | 99% | 0% | 1.0 | 284.4 | 0% | 1 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 1% | 99% | 0% | 1.0 | 282.1 | 0% | 1 |
+| Sadico | `sadico` | attacca | 8% | 92% | 0% | 1.0 | 269.7 | 0% | 3 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Sadico | `sadico` | studia | 6% | 94% | 0% | 1.0 | 279.0 | 0% | 2 |
+| Sadico | `sadico` | casuale | 4% | 96% | 0% | 1.0 | 278.7 | 0% | 1 |
+| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 1.0 | 2.7 | 0% | 3 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 24.9 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 1.0 | 5.2 | 0% | 3 |
+| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 1.0 | 4.9 | 0% | 3 |
+| Stigma | `stigma` | attacca | 15% | 85% | 0% | 1.0 | 266.8 | 0% | 5 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Stigma | `stigma` | studia | 6% | 94% | 0% | 1.0 | 277.6 | 0% | 2 |
+| Stigma | `stigma` | casuale | 5% | 95% | 0% | 1.0 | 279.4 | 0% | 2 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 1 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 7.8 | 285.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 8.4 | 285.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 8.0 | 285.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 8.1 | 285.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 11.0 | 167.0 | 0% | 30 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 0% | 100% | 61.0 | 137.6 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 14.0 | 216.3 | 0% | 30 |
-| Teschio Errante | `teschio_errante` | casuale | 10% | 90% | 0% | 21.3 | 277.6 | 0% | 3 |
-| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 14.1 | 285.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 14.6 | 285.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 13.8 | 285.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 12.3 | 285.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 5.7 | 35.6 | 0% | 11 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 8.8 | 58.2 | 0% | 11 |
-| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 17.8 | 88.0 | 0% | 11 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 9.6 | 285.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 12.0 | 285.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 9.3 | 285.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 10.0 | 285.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 3.8 | 9.1 | 0% | 3 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 63.3 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 6.8 | 18.9 | 0% | 3 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 12.0 | 27.4 | 0% | 3 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 4.8 | 16.4 | 0% | 6 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 61.0 | 69.6 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 7.8 | 29.6 | 0% | 6 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 14.9 | 44.5 | 0% | 6 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 1.0 | 183.0 | 0% | 30 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 212.8 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 93% | 7% | 0% | 1.0 | 233.1 | 0% | 28 |
+| Teschio Errante | `teschio_errante` | casuale | 93% | 7% | 0% | 1.0 | 172.0 | 0% | 28 |
+| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 1.0 | 38.5 | 0% | 11 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 50.1 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 1.0 | 56.0 | 0% | 11 |
+| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 1.0 | 37.0 | 0% | 11 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 285.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 3.7 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 24.3 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 10.8 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 1.0 | 7.3 | 0% | 3 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 1.0 | 15.4 | 0% | 6 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 33.9 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 1.0 | 25.8 | 0% | 6 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 1.0 | 16.9 | 0% | 6 |
 
 ## Protagonista di livello 8
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 100% | 0% | 0% | 15.8 | 329.1 | 0% | 86 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 79% | 21% | 54.9 | 421.5 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 91% | 9% | 0% | 18.7 | 390.0 | 0% | 79 |
-| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 23.6 | 425.0 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 6.7 | 14.4 | 0% | 12 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 0% | 100% | 61.0 | 69.7 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 9.6 | 21.0 | 0% | 12 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 20.7 | 40.2 | 0% | 12 |
-| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 7.6 | 97.9 | 0% | 35 |
-| Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 61.0 | 129.9 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 10.6 | 142.0 | 0% | 35 |
-| Diabolo | `diabolo` | casuale | 97% | 3% | 0% | 23.2 | 259.0 | 0% | 34 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 8.6 | 80.4 | 0% | 34 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 61.0 | 107.7 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 11.6 | 112.4 | 0% | 34 |
-| Il Divoratore | `divoratore` | casuale | 100% | 0% | 0% | 26.8 | 200.4 | 0% | 34 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 9.4 | 131.3 | 0% | 43 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 61.0 | 269.4 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 12.4 | 170.0 | 0% | 43 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 82% | 18% | 0% | 27.1 | 326.9 | 0% | 35 |
-| Donna Spinosa | `donna_spinosa` | attacca | 100% | 0% | 0% | 11.6 | 262.4 | 0% | 51 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 21.1 | 425.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 89% | 11% | 0% | 14.7 | 357.8 | 0% | 45 |
-| Donna Spinosa | `donna_spinosa` | casuale | 5% | 95% | 0% | 17.6 | 416.0 | 0% | 2 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 8.6 | 33.5 | 0% | 18 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 61.0 | 78.9 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 11.6 | 47.2 | 0% | 18 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 100% | 0% | 0% | 26.7 | 86.9 | 0% | 18 |
-| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 6.8 | 68.4 | 0% | 30 |
-| Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 61.0 | 115.9 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 9.8 | 104.3 | 0% | 30 |
-| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 21.2 | 178.3 | 0% | 30 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 7.6 | 51.6 | 0% | 21 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 61.0 | 92.2 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 9.7 | 213.2 | 0% | 21 |
-| El Muy Bonito | `giocoliere` | casuale | 45% | 55% | 0% | 16.2 | 338.1 | 0% | 9 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 31% | 69% | 0% | 31.7 | 412.1 | 0% | 68 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 0% | 100% | 61.0 | 274.8 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 8% | 92% | 0% | 31.8 | 422.8 | 0% | 18 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 40.0 | 425.0 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 4.8 | 20.9 | 0% | 10 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 7.8 | 37.7 | 0% | 10 |
-| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 14.9 | 56.0 | 0% | 10 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 2.9 | 13.1 | 0% | 10 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.0 | 27.2 | 0% | 10 |
-| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 8.7 | 29.9 | 0% | 10 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 15.3 | 425.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 21.5 | 425.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 18.1 | 425.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 18.7 | 425.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 28.9 | 425.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 43% | 57% | 57.4 | 379.8 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 26.7 | 425.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 98% | 2% | 34.6 | 424.1 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 11.4 | 425.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 15.8 | 425.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 11.4 | 425.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 12.0 | 425.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 0% | 100% | 61.0 | 66.1 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 0% | 100% | 61.0 | 66.1 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 0% | 100% | 61.0 | 63.5 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 6.8 | 68.4 | 0% | 30 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 0% | 100% | 61.0 | 115.9 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 9.8 | 104.3 | 0% | 30 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 21.2 | 178.3 | 0% | 30 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 425.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 425.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 425.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 425.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 100% | 0% | 0% | 11.4 | 285.7 | 0% | 51 |
-| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 38.6 | 425.0 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 97% | 3% | 0% | 15.0 | 372.8 | 0% | 50 |
-| Marionetta | `marionetta` | casuale | 2% | 98% | 0% | 19.8 | 421.8 | 0% | 1 |
-| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 3.9 | 16.5 | 0% | 10 |
-| Fomentado | `maschera_vuota` | difendi | 100% | 0% | 0% | 49.0 | 65.9 | 0% | 10 |
-| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 6.9 | 32.7 | 0% | 10 |
-| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 11.5 | 42.7 | 0% | 10 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 2.9 | 13.1 | 0% | 10 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 6.0 | 27.2 | 0% | 10 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 8.7 | 29.9 | 0% | 10 |
-| Ombra del passato | `ombra_del_passato` | attacca | 97% | 3% | 0% | 12.3 | 335.7 | 0% | 54 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 32.2 | 425.0 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 33% | 67% | 0% | 15.4 | 408.4 | 0% | 18 |
-| Ombra del passato | `ombra_del_passato` | casuale | 2% | 98% | 0% | 17.9 | 422.3 | 0% | 1 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 4.8 | 20.9 | 0% | 10 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 7.7 | 37.0 | 0% | 10 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 15.1 | 57.7 | 0% | 10 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 7.6 | 51.6 | 0% | 21 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 0% | 100% | 61.0 | 92.2 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 10.6 | 75.7 | 0% | 21 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 100% | 0% | 0% | 23.1 | 124.6 | 0% | 21 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 7.7 | 42.0 | 0% | 21 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 0% | 100% | 61.0 | 97.5 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 10.8 | 61.6 | 0% | 21 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 100% | 0% | 0% | 23.4 | 104.5 | 0% | 21 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 6.7 | 14.4 | 0% | 12 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 61.0 | 69.7 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 9.6 | 21.0 | 0% | 12 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 100% | 0% | 0% | 20.7 | 40.2 | 0% | 12 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 88% | 12% | 0% | 16.4 | 236.2 | 0% | 65 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 3% | 97% | 60.9 | 318.7 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 50% | 50% | 0% | 20.4 | 334.9 | 0% | 34 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 6% | 94% | 0% | 25.4 | 410.5 | 0% | 3 |
-| Sadico | `sadico` | attacca | 100% | 0% | 0% | 7.6 | 97.9 | 0% | 35 |
-| Sadico | `sadico` | difendi | 0% | 0% | 100% | 61.0 | 129.9 | 0% | 0 |
-| Sadico | `sadico` | studia | 100% | 0% | 0% | 10.6 | 142.0 | 0% | 35 |
-| Sadico | `sadico` | casuale | 97% | 3% | 0% | 23.2 | 259.0 | 0% | 34 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 4.8 | 20.9 | 0% | 10 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 7.8 | 37.7 | 0% | 10 |
-| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 14.9 | 56.0 | 0% | 10 |
-| Stigma | `stigma` | attacca | 100% | 0% | 0% | 7.6 | 97.9 | 0% | 35 |
-| Stigma | `stigma` | difendi | 0% | 0% | 100% | 61.0 | 129.9 | 0% | 0 |
-| Stigma | `stigma` | studia | 100% | 0% | 0% | 10.6 | 142.0 | 0% | 35 |
-| Stigma | `stigma` | casuale | 97% | 3% | 0% | 23.2 | 259.0 | 0% | 34 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 19% | 0% | 81% | 56.7 | 0.0 | 0% | 0 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | casuale | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 1.0 | 8.8 | 0% | 12 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 20.1 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 1.0 | 10.1 | 0% | 12 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 1.0 | 8.8 | 0% | 12 |
+| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 1.0 | 98.1 | 0% | 35 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 90.0 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 1.0 | 125.0 | 0% | 35 |
+| Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 1.0 | 77.7 | 0% | 35 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 1.0 | 86.1 | 0% | 34 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 72.2 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 1.0 | 118.0 | 0% | 34 |
+| Il Divoratore | `divoratore` | casuale | 99% | 1% | 0% | 1.0 | 62.2 | 0% | 34 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 1.0 | 244.8 | 0% | 43 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 165.7 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 1.0 | 279.7 | 0% | 43 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 41% | 59% | 0% | 1.0 | 202.4 | 0% | 17 |
+| Donna Spinosa | `donna_spinosa` | attacca | 25% | 75% | 0% | 1.0 | 388.2 | 0% | 13 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 9% | 91% | 0% | 1.0 | 408.7 | 0% | 4 |
+| Donna Spinosa | `donna_spinosa` | casuale | 6% | 94% | 0% | 1.0 | 414.4 | 0% | 3 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 1.0 | 17.0 | 0% | 18 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 27.4 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 1.0 | 21.3 | 0% | 18 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 99% | 1% | 0% | 1.0 | 17.5 | 0% | 18 |
+| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 1.0 | 89.5 | 0% | 30 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 89.4 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 1.0 | 114.8 | 0% | 30 |
+| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 1.0 | 81.7 | 0% | 30 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 1.0 | 56.2 | 0% | 21 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 58.2 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 1.0 | 147.9 | 0% | 21 |
+| El Muy Bonito | `giocoliere` | casuale | 87% | 13% | 0% | 1.0 | 219.0 | 0% | 18 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 181.5 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 255.1 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 13.4 | 0% | 10 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 41.1 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 28.6 | 0% | 10 |
+| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 1.0 | 19.9 | 0% | 10 |
+| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 1.0 | 11.2 | 0% | 10 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 120.5 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 1.0 | 29.0 | 0% | 10 |
+| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 1.0 | 26.4 | 0% | 10 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 424.1 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 424.9 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 57.6 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 52.0 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 57.5 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 52.3 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 1.0 | 77.1 | 0% | 30 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 104.1 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 1.0 | 101.8 | 0% | 30 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 1.0 | 76.4 | 0% | 30 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 14% | 86% | 0% | 1.0 | 404.5 | 0% | 7 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 404.8 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 10% | 90% | 0% | 1.0 | 406.9 | 0% | 5 |
+| Marionetta | `marionetta` | casuale | 8% | 92% | 0% | 1.0 | 409.1 | 0% | 4 |
+| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 1.0 | 14.0 | 0% | 10 |
+| Fomentado | `maschera_vuota` | difendi | 0% | 100% | 0% | 1.0 | 44.1 | 0% | 0 |
+| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 1.0 | 51.8 | 0% | 10 |
+| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 1.0 | 30.7 | 0% | 10 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 1.0 | 10.3 | 0% | 10 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 1.0 | 34.9 | 0% | 10 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 1.0 | 66.6 | 0% | 10 |
+| Ombra del passato | `ombra_del_passato` | attacca | 17% | 83% | 0% | 1.0 | 395.6 | 0% | 10 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 423.9 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 9% | 91% | 0% | 1.0 | 411.5 | 0% | 5 |
+| Ombra del passato | `ombra_del_passato` | casuale | 11% | 89% | 0% | 1.0 | 412.0 | 0% | 6 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 1.0 | 14.0 | 0% | 10 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 42.9 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 1.0 | 35.4 | 0% | 10 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 1.0 | 23.4 | 0% | 10 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 1.0 | 55.1 | 0% | 21 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 33.1 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 1.0 | 65.3 | 0% | 21 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 100% | 0% | 0% | 1.0 | 30.3 | 0% | 21 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 1.0 | 37.6 | 0% | 21 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 55.0 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 1.0 | 56.0 | 0% | 21 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 99% | 1% | 0% | 1.0 | 38.8 | 0% | 21 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 1.0 | 6.2 | 0% | 12 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 21.4 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 1.0 | 13.0 | 0% | 12 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 99% | 1% | 0% | 1.0 | 11.8 | 0% | 12 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 38% | 62% | 0% | 1.0 | 373.7 | 0% | 23 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 408.5 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 17% | 83% | 0% | 1.0 | 406.0 | 0% | 10 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 9% | 91% | 0% | 1.0 | 398.9 | 0% | 7 |
+| Sadico | `sadico` | attacca | 100% | 0% | 0% | 1.0 | 134.3 | 0% | 35 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Sadico | `sadico` | studia | 100% | 0% | 0% | 1.0 | 192.4 | 0% | 35 |
+| Sadico | `sadico` | casuale | 60% | 40% | 0% | 1.0 | 330.5 | 0% | 21 |
+| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 1.0 | 12.2 | 0% | 10 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 42.5 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 1.0 | 22.6 | 0% | 10 |
+| Slime Infimo | `slime_infimo` | casuale | 97% | 3% | 0% | 1.0 | 20.9 | 0% | 10 |
+| Stigma | `stigma` | attacca | 100% | 0% | 0% | 1.0 | 126.8 | 0% | 35 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Stigma | `stigma` | studia | 100% | 0% | 0% | 1.0 | 168.8 | 0% | 35 |
+| Stigma | `stigma` | casuale | 84% | 16% | 0% | 1.0 | 255.0 | 0% | 29 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 1 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 8.5 | 425.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 8.5 | 425.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 8.4 | 425.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 8.8 | 425.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 6.8 | 68.4 | 0% | 30 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 0% | 100% | 61.0 | 115.9 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 9.8 | 104.3 | 0% | 30 |
-| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 21.2 | 178.3 | 0% | 30 |
-| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 18.0 | 425.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 17.8 | 425.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 17.9 | 425.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 16.4 | 425.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 4.8 | 20.9 | 0% | 10 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 7.8 | 37.7 | 0% | 10 |
-| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 14.9 | 56.0 | 0% | 10 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 15.0 | 425.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 17.8 | 425.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 14.6 | 425.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 15.5 | 425.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 4.8 | 20.9 | 0% | 10 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 7.7 | 37.0 | 0% | 10 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 15.1 | 57.7 | 0% | 10 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 4.8 | 20.9 | 0% | 10 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 61.0 | 82.1 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 7.8 | 37.7 | 0% | 10 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 14.9 | 56.0 | 0% | 10 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 1.0 | 63.9 | 0% | 30 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 92.8 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 1.0 | 78.9 | 0% | 30 |
+| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 1.0 | 57.6 | 0% | 30 |
+| Titano Zombie | `titano_zombie` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 1.0 | 22.7 | 0% | 10 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 37.1 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 1.0 | 40.8 | 0% | 10 |
+| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 1.0 | 23.9 | 0% | 10 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 425.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 20.8 | 0% | 10 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 39.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 36.9 | 0% | 10 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 1.0 | 21.3 | 0% | 10 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 1.0 | 24.6 | 0% | 10 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 44.8 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 1.0 | 44.2 | 0% | 10 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 1.0 | 27.1 | 0% | 10 |
 
 ## Protagonista di livello 12
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 100% | 0% | 0% | 9.9 | 139.8 | 0% | 60 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 0% | 100% | 61.0 | 257.2 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 100% | 0% | 0% | 12.9 | 188.1 | 0% | 60 |
-| Abominio Marcio | `abominio_marcio` | casuale | 98% | 2% | 0% | 30.4 | 382.8 | 0% | 59 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 8.5 | 35.2 | 0% | 23 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 0% | 100% | 61.0 | 88.4 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 11.2 | 47.7 | 0% | 23 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 26.0 | 92.3 | 0% | 23 |
-| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 8.6 | 96.9 | 0% | 42 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 61.0 | 136.9 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 11.6 | 135.6 | 0% | 42 |
-| Il Divoratore | `divoratore` | casuale | 100% | 0% | 0% | 26.8 | 267.7 | 0% | 42 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 6.6 | 56.5 | 0% | 37 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 61.0 | 133.0 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 9.6 | 84.5 | 0% | 37 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 100% | 0% | 0% | 20.5 | 156.7 | 0% | 37 |
-| Donna Spinosa | `donna_spinosa` | attacca | 100% | 0% | 0% | 7.5 | 100.1 | 0% | 51 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 29.1 | 610.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 10.5 | 166.3 | 0% | 51 |
-| Donna Spinosa | `donna_spinosa` | casuale | 60% | 40% | 0% | 20.9 | 462.0 | 0% | 31 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 8.6 | 34.4 | 0% | 23 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 61.0 | 88.4 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 11.6 | 48.7 | 0% | 23 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 100% | 0% | 0% | 26.7 | 90.8 | 0% | 23 |
-| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 8.6 | 99.4 | 0% | 42 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 61.0 | 137.3 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 10.9 | 300.6 | 0% | 42 |
-| El Muy Bonito | `giocoliere` | casuale | 35% | 65% | 0% | 18.9 | 541.8 | 0% | 15 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 34% | 66% | 0% | 32.6 | 586.1 | 0% | 118 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 3% | 97% | 60.9 | 488.0 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 7% | 93% | 0% | 32.4 | 607.1 | 0% | 26 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 41.0 | 610.0 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.8 | 28.8 | 0% | 21 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 110.6 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.9 | 52.9 | 0% | 21 |
-| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 11.1 | 65.0 | 0% | 21 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 1% | 99% | 0% | 22.1 | 609.8 | 0% | 3 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 99% | 1% | 36.5 | 609.9 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 26.5 | 610.0 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 99% | 1% | 28.3 | 609.8 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 53% | 47% | 0% | 38.8 | 539.5 | 0% | 216 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 1% | 99% | 61.0 | 325.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 21% | 79% | 0% | 39.3 | 582.5 | 0% | 89 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 67% | 33% | 53.5 | 573.4 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 19.2 | 610.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 30.3 | 610.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 19.3 | 610.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 20.9 | 610.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 610.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 610.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 610.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 610.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 100% | 0% | 0% | 7.6 | 125.8 | 0% | 51 |
-| Marionetta | `marionetta` | difendi | 0% | 0% | 100% | 61.0 | 334.2 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 100% | 0% | 0% | 10.4 | 177.6 | 0% | 51 |
-| Marionetta | `marionetta` | casuale | 99% | 1% | 0% | 23.1 | 358.4 | 0% | 50 |
-| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Fomentado | `maschera_vuota` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 7.7 | 64.8 | 0% | 19 |
-| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 14.1 | 93.6 | 0% | 19 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 3.8 | 28.8 | 0% | 21 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 110.6 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 6.9 | 52.9 | 0% | 21 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 11.1 | 65.0 | 0% | 21 |
-| Ombra del passato | `ombra_del_passato` | attacca | 100% | 0% | 0% | 8.5 | 157.3 | 0% | 55 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 4% | 96% | 60.9 | 512.8 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 100% | 0% | 0% | 11.2 | 214.7 | 0% | 55 |
-| Ombra del passato | `ombra_del_passato` | casuale | 87% | 13% | 0% | 25.6 | 452.5 | 0% | 48 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 7.9 | 66.4 | 0% | 19 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 15.6 | 105.1 | 0% | 19 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 8.6 | 99.4 | 0% | 42 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 0% | 100% | 61.0 | 137.3 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 11.6 | 139.8 | 0% | 42 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 100% | 0% | 0% | 26.0 | 265.5 | 0% | 42 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 8.7 | 60.8 | 0% | 42 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 0% | 100% | 61.0 | 115.9 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 11.7 | 82.8 | 0% | 42 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 100% | 0% | 0% | 26.4 | 160.8 | 0% | 42 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 8.5 | 35.2 | 0% | 23 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 61.0 | 88.4 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 11.2 | 47.7 | 0% | 23 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 100% | 0% | 0% | 26.0 | 92.3 | 0% | 23 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 100% | 0% | 0% | 9.9 | 85.6 | 0% | 50 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 0% | 100% | 61.0 | 250.1 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 100% | 0% | 0% | 17.8 | 192.7 | 0% | 57 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 46% | 54% | 0% | 38.7 | 495.6 | 0% | 30 |
-| Sadico | `sadico` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Sadico | `sadico` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Sadico | `sadico` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Sadico | `sadico` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Stigma | `stigma` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Stigma | `stigma` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Stigma | `stigma` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Stigma | `stigma` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 100% | 0% | 0% | 9.3 | 0.0 | 0% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 100% | 0% | 0% | 1.0 | 240.5 | 0% | 60 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 100% | 0% | 0% | 1.0 | 342.4 | 0% | 60 |
+| Abominio Marcio | `abominio_marcio` | casuale | 4% | 96% | 0% | 1.0 | 605.0 | 0% | 2 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 1.0 | 18.2 | 0% | 23 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 22.9 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 1.0 | 22.9 | 0% | 23 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 1.0 | 13.2 | 0% | 23 |
+| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 1.0 | 30.0 | 0% | 19 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 51.5 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 1.0 | 45.5 | 0% | 19 |
+| Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 1.0 | 26.2 | 0% | 19 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 1.0 | 104.1 | 0% | 42 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 79.9 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 1.0 | 131.8 | 0% | 42 |
+| Il Divoratore | `divoratore` | casuale | 100% | 0% | 0% | 1.0 | 74.3 | 0% | 42 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 1.0 | 60.1 | 0% | 37 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 86.3 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 1.0 | 101.4 | 0% | 37 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 98% | 2% | 0% | 1.0 | 64.1 | 0% | 36 |
+| Donna Spinosa | `donna_spinosa` | attacca | 100% | 0% | 0% | 1.0 | 159.9 | 0% | 51 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 1.0 | 246.6 | 0% | 51 |
+| Donna Spinosa | `donna_spinosa` | casuale | 84% | 16% | 0% | 1.0 | 382.3 | 0% | 43 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 1.0 | 18.5 | 0% | 23 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 24.9 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 1.0 | 23.2 | 0% | 23 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 99% | 1% | 0% | 1.0 | 18.9 | 0% | 23 |
+| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 1.0 | 52.8 | 0% | 19 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 60.0 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 1.0 | 69.3 | 0% | 19 |
+| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 1.0 | 48.3 | 0% | 19 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 1.0 | 103.4 | 0% | 42 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 91.7 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 1.0 | 299.7 | 0% | 42 |
+| El Muy Bonito | `giocoliere` | casuale | 78% | 22% | 0% | 1.0 | 390.6 | 0% | 33 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 218.4 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 352.7 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 35.7 | 0% | 19 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 54.0 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 46.0 | 0% | 19 |
+| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 1.0 | 36.9 | 0% | 19 |
+| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 1.0 | 33.0 | 0% | 21 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 143.3 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 1.0 | 64.1 | 0% | 21 |
+| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 1.0 | 50.6 | 0% | 21 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 606.6 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 1.0 | 606.6 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | attacca | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 207.1 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 305.3 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 597.4 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 609.9 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 39.9 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 38.0 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 40.2 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 38.1 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 1.0 | 39.1 | 0% | 19 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 65.4 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 1.0 | 61.7 | 0% | 19 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 1.0 | 42.9 | 0% | 19 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 100% | 0% | 0% | 1.0 | 180.6 | 0% | 51 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 142.7 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 100% | 0% | 0% | 1.0 | 242.3 | 0% | 51 |
+| Marionetta | `marionetta` | casuale | 83% | 17% | 0% | 1.0 | 194.1 | 0% | 42 |
+| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 1.0 | 69.5 | 0% | 19 |
+| Fomentado | `maschera_vuota` | difendi | 0% | 100% | 0% | 1.0 | 56.4 | 0% | 0 |
+| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 1.0 | 95.2 | 0% | 19 |
+| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 1.0 | 59.0 | 0% | 19 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 1.0 | 29.4 | 0% | 21 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 1.0 | 67.9 | 0% | 21 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 99% | 1% | 0% | 1.0 | 116.9 | 0% | 21 |
+| Ombra del passato | `ombra_del_passato` | attacca | 100% | 0% | 0% | 1.0 | 223.8 | 0% | 55 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 171.3 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 100% | 0% | 0% | 1.0 | 277.0 | 0% | 55 |
+| Ombra del passato | `ombra_del_passato` | casuale | 99% | 1% | 0% | 1.0 | 217.3 | 0% | 55 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 1.0 | 25.6 | 0% | 19 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 58.2 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 1.0 | 52.0 | 0% | 19 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 1.0 | 42.4 | 0% | 19 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 1.0 | 89.7 | 0% | 42 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 53.9 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 1.0 | 113.3 | 0% | 42 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 100% | 0% | 0% | 1.0 | 75.0 | 0% | 42 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 1.0 | 101.2 | 0% | 42 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 84.9 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 1.0 | 130.8 | 0% | 42 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 84% | 16% | 0% | 1.0 | 91.4 | 0% | 35 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 1.0 | 24.7 | 0% | 23 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 25.4 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 1.0 | 30.3 | 0% | 23 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 93% | 7% | 0% | 1.0 | 20.7 | 0% | 21 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 100% | 0% | 0% | 1.0 | 107.1 | 0% | 47 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 224.8 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 100% | 0% | 0% | 1.0 | 226.1 | 0% | 57 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 23% | 77% | 0% | 1.0 | 231.5 | 0% | 13 |
+| Sadico | `sadico` | attacca | 100% | 0% | 0% | 1.0 | 42.8 | 0% | 19 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Sadico | `sadico` | studia | 100% | 0% | 0% | 1.0 | 76.7 | 0% | 19 |
+| Sadico | `sadico` | casuale | 99% | 1% | 0% | 1.0 | 160.4 | 0% | 19 |
+| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 1.0 | 29.5 | 0% | 19 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 47.3 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 1.0 | 48.5 | 0% | 19 |
+| Slime Infimo | `slime_infimo` | casuale | 93% | 7% | 0% | 1.0 | 34.5 | 0% | 18 |
+| Stigma | `stigma` | attacca | 100% | 0% | 0% | 1.0 | 39.8 | 0% | 19 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 609.5 | 0% | 0 |
+| Stigma | `stigma` | studia | 100% | 0% | 0% | 1.0 | 71.6 | 0% | 19 |
+| Stigma | `stigma` | casuale | 100% | 0% | 0% | 1.0 | 100.4 | 0% | 19 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 100% | 0% | 0% | 1.0 | 0.0 | 0% | 1 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 100% | 1 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 8.9 | 610.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 8.5 | 610.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 8.6 | 610.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 8.9 | 610.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Titano Zombie | `titano_zombie` | attacca | 70% | 30% | 0% | 18.1 | 558.6 | 0% | 42 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 21.5 | 610.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 46% | 54% | 0% | 19.8 | 585.1 | 0% | 28 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 20.6 | 610.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 1% | 99% | 0% | 21.7 | 609.2 | 0% | 4 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 24.9 | 610.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 21.5 | 610.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 22.1 | 610.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 7.9 | 66.4 | 0% | 19 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 15.6 | 105.1 | 0% | 19 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 4.9 | 37.8 | 0% | 19 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 61.0 | 111.0 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 7.9 | 67.3 | 0% | 19 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 15.4 | 101.5 | 0% | 19 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 1.0 | 28.8 | 0% | 19 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 57.2 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 1.0 | 44.6 | 0% | 19 |
+| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 1.0 | 28.2 | 0% | 19 |
+| Titano Zombie | `titano_zombie` | attacca | 99% | 1% | 0% | 1.0 | 477.8 | 0% | 59 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 90% | 10% | 0% | 1.0 | 510.8 | 0% | 54 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 1.0 | 41.2 | 0% | 19 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 50.7 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 1.0 | 64.4 | 0% | 19 |
+| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 1.0 | 38.6 | 0% | 19 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 610.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 37.9 | 0% | 19 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 51.4 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 59.2 | 0% | 19 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 1.0 | 34.6 | 0% | 19 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 1.0 | 43.8 | 0% | 19 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 59.5 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 1.0 | 68.8 | 0% | 19 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 1.0 | 45.2 | 0% | 19 |
 
 ## Protagonista di livello 18
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 100% | 0% | 0% | 9.9 | 168.7 | 0% | 71 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 0% | 100% | 61.0 | 519.4 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 100% | 0% | 0% | 12.9 | 227.2 | 0% | 71 |
-| Abominio Marcio | `abominio_marcio` | casuale | 99% | 1% | 0% | 30.5 | 501.9 | 0% | 70 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 10.3 | 72.9 | 0% | 39 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 0% | 100% | 61.0 | 117.0 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 13.0 | 94.1 | 0% | 39 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 31.6 | 187.8 | 0% | 39 |
-| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 9.9 | 168.7 | 0% | 71 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 61.0 | 519.4 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 12.9 | 227.2 | 0% | 71 |
-| Il Divoratore | `divoratore` | casuale | 99% | 1% | 0% | 30.5 | 501.9 | 0% | 70 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 5.7 | 48.4 | 0% | 32 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 61.0 | 214.9 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 8.8 | 76.0 | 0% | 32 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 100% | 0% | 0% | 17.3 | 137.1 | 0% | 32 |
-| Donna Spinosa | `donna_spinosa` | attacca | 100% | 0% | 0% | 5.6 | 52.4 | 0% | 32 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 35.7 | 890.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 8.7 | 100.3 | 0% | 32 |
-| Donna Spinosa | `donna_spinosa` | casuale | 96% | 4% | 0% | 17.5 | 318.6 | 0% | 31 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 10.4 | 73.1 | 0% | 39 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 61.0 | 117.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 13.4 | 97.4 | 0% | 39 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 99% | 0% | 1% | 32.1 | 186.5 | 0% | 39 |
-| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 9.9 | 172.0 | 0% | 71 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 61.0 | 527.4 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 12.6 | 416.5 | 0% | 71 |
-| El Muy Bonito | `giocoliere` | casuale | 29% | 71% | 0% | 22.2 | 817.6 | 0% | 20 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 64% | 36% | 0% | 35.2 | 815.5 | 0% | 333 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 35% | 65% | 59.2 | 812.7 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 22% | 78% | 0% | 36.1 | 875.1 | 0% | 114 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 98% | 2% | 42.8 | 888.6 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.9 | 46.4 | 0% | 36 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 149.0 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 7.0 | 83.6 | 0% | 36 |
-| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 11.7 | 111.4 | 0% | 36 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 37% | 63% | 0% | 30.5 | 808.0 | 0% | 191 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 83% | 17% | 52.7 | 875.2 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 38% | 62% | 0% | 36.8 | 797.7 | 0% | 195 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 91% | 9% | 40.6 | 876.8 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 71% | 29% | 0% | 38.9 | 706.8 | 0% | 446 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 2% | 98% | 60.9 | 541.6 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 49% | 51% | 0% | 40.9 | 780.5 | 0% | 309 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 56% | 44% | 54.8 | 811.7 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 5% | 95% | 0% | 26.9 | 888.3 | 0% | 26 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 39.1 | 890.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 26.7 | 890.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 29.0 | 890.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 890.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 890.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 890.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 890.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Marionetta | `marionetta` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 100% | 0% | 0% | 8.6 | 106.5 | 0% | 32 |
-| Marionetta | `marionetta` | casuale | 100% | 0% | 0% | 17.8 | 200.9 | 0% | 32 |
-| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Fomentado | `maschera_vuota` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 8.6 | 106.4 | 0% | 32 |
-| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 16.2 | 181.6 | 0% | 32 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 3.9 | 46.4 | 0% | 36 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 149.0 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 7.0 | 83.6 | 0% | 36 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 11.7 | 111.4 | 0% | 36 |
-| Ombra del passato | `ombra_del_passato` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 100% | 0% | 0% | 8.6 | 106.5 | 0% | 32 |
-| Ombra del passato | `ombra_del_passato` | casuale | 100% | 0% | 0% | 17.8 | 200.9 | 0% | 32 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 8.6 | 106.5 | 0% | 32 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 17.8 | 200.9 | 0% | 32 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 9.9 | 172.0 | 0% | 71 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 0% | 100% | 61.0 | 527.4 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 12.9 | 231.7 | 0% | 71 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 100% | 0% | 0% | 30.1 | 498.3 | 0% | 71 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 9.9 | 91.0 | 0% | 71 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 0% | 100% | 61.0 | 305.3 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 13.0 | 120.8 | 0% | 71 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 100% | 0% | 0% | 29.8 | 264.6 | 0% | 71 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 10.3 | 72.9 | 0% | 39 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 61.0 | 117.0 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 13.0 | 94.1 | 0% | 39 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 100% | 0% | 0% | 31.6 | 187.8 | 0% | 39 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 100% | 0% | 0% | 9.0 | 95.2 | 0% | 51 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 0% | 100% | 61.0 | 519.9 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 100% | 0% | 0% | 17.2 | 246.5 | 0% | 64 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 41% | 59% | 1% | 36.7 | 700.8 | 0% | 28 |
-| Sadico | `sadico` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Sadico | `sadico` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Sadico | `sadico` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Sadico | `sadico` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Stigma | `stigma` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Stigma | `stigma` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Stigma | `stigma` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Stigma | `stigma` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 100% | 0% | 0% | 5.2 | 0.0 | 0% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 100% | 0% | 0% | 1.0 | 283.7 | 0% | 71 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 889.7 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 100% | 0% | 0% | 1.0 | 402.7 | 0% | 71 |
+| Abominio Marcio | `abominio_marcio` | casuale | 7% | 93% | 0% | 1.0 | 868.3 | 0% | 5 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 1.0 | 38.4 | 0% | 39 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 29.1 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 1.0 | 48.5 | 0% | 39 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 1.0 | 23.3 | 0% | 39 |
+| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 1.0 | 61.3 | 0% | 32 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 65.7 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 1.0 | 81.3 | 0% | 32 |
+| Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 1.0 | 44.3 | 0% | 32 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 1.0 | 219.7 | 0% | 71 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 121.8 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 1.0 | 252.2 | 0% | 71 |
+| Il Divoratore | `divoratore` | casuale | 99% | 1% | 0% | 1.0 | 145.2 | 0% | 71 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 1.0 | 34.0 | 0% | 32 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 71.7 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 1.0 | 72.9 | 0% | 32 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 99% | 1% | 0% | 1.0 | 44.8 | 0% | 32 |
+| Donna Spinosa | `donna_spinosa` | attacca | 100% | 0% | 0% | 1.0 | 77.4 | 0% | 32 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 1.0 | 125.5 | 0% | 32 |
+| Donna Spinosa | `donna_spinosa` | casuale | 100% | 0% | 0% | 1.0 | 218.9 | 0% | 32 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 1.0 | 38.4 | 0% | 39 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 35.9 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 1.0 | 52.0 | 0% | 39 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 91% | 9% | 0% | 1.0 | 32.1 | 0% | 35 |
+| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 1.0 | 83.5 | 0% | 32 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 88.6 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 1.0 | 122.2 | 0% | 32 |
+| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 1.0 | 80.0 | 0% | 32 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 1.0 | 230.8 | 0% | 71 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 130.7 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 1.0 | 438.4 | 0% | 71 |
+| El Muy Bonito | `giocoliere` | casuale | 78% | 22% | 0% | 1.0 | 635.4 | 0% | 55 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 269.8 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 430.1 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 54.5 | 0% | 32 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 78.3 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 89.6 | 0% | 32 |
+| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 1.0 | 58.3 | 0% | 32 |
+| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 1.0 | 66.3 | 0% | 36 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 170.2 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 1.0 | 110.9 | 0% | 36 |
+| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 1.0 | 88.1 | 0% | 36 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 3% | 97% | 0% | 1.0 | 886.9 | 0% | 16 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 646.4 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 16% | 84% | 0% | 1.0 | 864.5 | 0% | 79 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 1% | 99% | 0% | 1.0 | 702.3 | 0% | 3 |
+| Jongo Dongo | `jongo_dongo` | attacca | 2% | 98% | 0% | 1.0 | 889.0 | 0% | 12 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 305.7 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 444.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 411.1 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 593.2 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 26.0 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 26.0 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 26.0 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 26.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 1.0 | 76.9 | 0% | 32 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 98.6 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 1.0 | 109.1 | 0% | 32 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 1.0 | 76.8 | 0% | 32 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 100% | 0% | 0% | 1.0 | 53.0 | 0% | 32 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 81.2 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 100% | 0% | 0% | 1.0 | 103.3 | 0% | 32 |
+| Marionetta | `marionetta` | casuale | 100% | 0% | 0% | 1.0 | 65.1 | 0% | 32 |
+| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 1.0 | 120.4 | 0% | 32 |
+| Fomentado | `maschera_vuota` | difendi | 0% | 100% | 0% | 1.0 | 83.2 | 0% | 0 |
+| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 1.0 | 157.0 | 0% | 32 |
+| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 1.0 | 102.3 | 0% | 32 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 1.0 | 55.5 | 0% | 36 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 1.0 | 104.7 | 0% | 36 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 1.0 | 139.0 | 0% | 36 |
+| Ombra del passato | `ombra_del_passato` | attacca | 100% | 0% | 0% | 1.0 | 90.6 | 0% | 32 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 87.5 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 100% | 0% | 0% | 1.0 | 129.1 | 0% | 32 |
+| Ombra del passato | `ombra_del_passato` | casuale | 100% | 0% | 0% | 1.0 | 79.5 | 0% | 32 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 1.0 | 56.9 | 0% | 32 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 85.6 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 1.0 | 98.1 | 0% | 32 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 1.0 | 74.0 | 0% | 32 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 1.0 | 186.9 | 0% | 71 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 77.9 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 1.0 | 209.4 | 0% | 71 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 100% | 0% | 0% | 1.0 | 147.0 | 0% | 71 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 1.0 | 189.0 | 0% | 71 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 116.3 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 1.0 | 258.8 | 0% | 71 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 43% | 57% | 0% | 1.0 | 154.1 | 0% | 30 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 1.0 | 46.3 | 0% | 39 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 34.0 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 1.0 | 61.0 | 0% | 39 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 78% | 22% | 0% | 1.0 | 35.5 | 0% | 30 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 100% | 0% | 0% | 1.0 | 88.4 | 0% | 44 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 245.3 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 100% | 0% | 0% | 1.0 | 216.1 | 0% | 56 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 37% | 63% | 0% | 1.0 | 243.8 | 0% | 25 |
+| Sadico | `sadico` | attacca | 100% | 0% | 0% | 1.0 | 81.4 | 0% | 32 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Sadico | `sadico` | studia | 100% | 0% | 0% | 1.0 | 126.7 | 0% | 32 |
+| Sadico | `sadico` | casuale | 99% | 1% | 0% | 1.0 | 225.0 | 0% | 32 |
+| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 1.0 | 54.3 | 0% | 32 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 62.2 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 1.0 | 84.0 | 0% | 32 |
+| Slime Infimo | `slime_infimo` | casuale | 76% | 24% | 0% | 1.0 | 57.1 | 0% | 24 |
+| Stigma | `stigma` | attacca | 100% | 0% | 0% | 1.0 | 77.9 | 0% | 32 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 884.4 | 0% | 0 |
+| Stigma | `stigma` | studia | 100% | 0% | 0% | 1.0 | 119.8 | 0% | 32 |
+| Stigma | `stigma` | casuale | 100% | 0% | 0% | 1.0 | 155.6 | 0% | 32 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 100% | 0% | 0% | 1.0 | 0.0 | 0% | 1 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.8 | 0.0 | 99% | 1 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 10.0 | 890.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 9.5 | 890.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 9.6 | 890.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 10.3 | 890.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Titano Zombie | `titano_zombie` | attacca | 87% | 13% | 0% | 18.1 | 792.4 | 0% | 62 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 22.0 | 890.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 63% | 37% | 0% | 20.4 | 842.2 | 0% | 44 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 21.9 | 890.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 100% | 0% | 0% | 16.7 | 318.4 | 0% | 145 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 35.1 | 890.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 100% | 0% | 0% | 19.7 | 418.5 | 0% | 145 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 1% | 99% | 0% | 31.8 | 889.6 | 0% | 1 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 8.6 | 106.5 | 0% | 32 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 17.8 | 200.9 | 0% | 32 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 5.7 | 66.9 | 0% | 32 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 61.0 | 265.4 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 8.8 | 109.5 | 0% | 32 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 17.8 | 197.3 | 0% | 32 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 99% | 1 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 1.0 | 59.4 | 0% | 32 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 85.4 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 1.0 | 80.2 | 0% | 32 |
+| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 1.0 | 47.1 | 0% | 32 |
+| Titano Zombie | `titano_zombie` | attacca | 100% | 0% | 0% | 1.0 | 684.3 | 0% | 71 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 889.9 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 97% | 3% | 0% | 1.0 | 727.3 | 0% | 69 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 1.0 | 76.2 | 0% | 32 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 73.7 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 1.0 | 113.3 | 0% | 32 |
+| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 1.0 | 69.4 | 0% | 32 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 99% | 1% | 0% | 1.0 | 695.3 | 0% | 144 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 59% | 41% | 0% | 1.0 | 790.0 | 0% | 86 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 890.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 74.0 | 0% | 32 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 74.7 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 107.8 | 0% | 32 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 1.0 | 61.6 | 0% | 32 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 1.0 | 85.3 | 0% | 32 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 87.5 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 1.0 | 120.6 | 0% | 32 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 1.0 | 83.4 | 0% | 32 |
 
 ## Protagonista di livello 25
 
 | creatura | id | come si gioca | vinte | perse | ∞ | giri | danno | risp. | xp |
 |---|---|---|--:|--:|--:|--:|--:|--:|--:|
-| Abominio Marcio | `abominio_marcio` | attacca | 100% | 0% | 0% | 10.5 | 281.0 | 0% | 101 |
-| Abominio Marcio | `abominio_marcio` | difendi | 0% | 19% | 81% | 60.6 | 1142.9 | 0% | 0 |
-| Abominio Marcio | `abominio_marcio` | studia | 100% | 0% | 0% | 13.5 | 371.6 | 0% | 101 |
-| Abominio Marcio | `abominio_marcio` | casuale | 93% | 7% | 0% | 31.9 | 840.8 | 0% | 94 |
-| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 11.2 | 125.5 | 0% | 55 |
-| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 0% | 100% | 61.0 | 325.8 | 0% | 0 |
-| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 13.9 | 157.5 | 0% | 55 |
-| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 34.2 | 346.8 | 0% | 55 |
-| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 10.5 | 281.0 | 0% | 101 |
-| Il Divoratore | `divoratore` | difendi | 0% | 19% | 81% | 60.6 | 1142.9 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 13.5 | 371.6 | 0% | 101 |
-| Il Divoratore | `divoratore` | casuale | 93% | 7% | 0% | 31.9 | 840.8 | 0% | 94 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 6.6 | 88.3 | 0% | 46 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 61.0 | 514.1 | 0% | 0 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 9.6 | 131.6 | 0% | 46 |
-| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 100% | 0% | 0% | 20.5 | 265.1 | 0% | 46 |
-| Donna Spinosa | `donna_spinosa` | attacca | 100% | 0% | 0% | 6.5 | 94.4 | 0% | 46 |
-| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 38.8 | 1220.0 | 0% | 0 |
-| Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 9.6 | 159.1 | 0% | 46 |
-| Donna Spinosa | `donna_spinosa` | casuale | 97% | 3% | 0% | 20.2 | 503.5 | 0% | 44 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 11.4 | 126.1 | 0% | 55 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 61.0 | 325.8 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 14.4 | 164.0 | 0% | 55 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 99% | 0% | 1% | 35.2 | 350.6 | 0% | 54 |
-| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 10.5 | 283.2 | 0% | 101 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 19% | 81% | 60.7 | 1150.4 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 13.5 | 589.6 | 0% | 101 |
-| El Muy Bonito | `giocoliere` | casuale | 25% | 75% | 0% | 23.8 | 1152.1 | 0% | 25 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 27% | 73% | 0% | 33.8 | 1180.4 | 0% | 191 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 96% | 4% | 48.0 | 1217.7 | 0% | 0 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 6% | 94% | 0% | 33.5 | 1216.9 | 0% | 42 |
-| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 99% | 1% | 37.7 | 1219.3 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.9 | 71.4 | 0% | 51 |
-| Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 61.0 | 488.5 | 0% | 0 |
-| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 7.0 | 128.7 | 0% | 51 |
-| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 11.7 | 189.0 | 0% | 51 |
-| L'ultimo spettacolo di Jerah | `jerah` | attacca | 29% | 71% | 0% | 29.2 | 1120.1 | 0% | 195 |
-| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 92% | 8% | 44.1 | 1202.6 | 0% | 0 |
-| L'ultimo spettacolo di Jerah | `jerah` | studia | 34% | 66% | 0% | 34.3 | 1095.9 | 0% | 234 |
-| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 90% | 10% | 39.3 | 1195.5 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | attacca | 62% | 38% | 0% | 37.1 | 992.7 | 0% | 525 |
-| Jongo Dongo | `jongo_dongo` | difendi | 0% | 20% | 80% | 59.7 | 974.1 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo` | studia | 39% | 61% | 0% | 38.8 | 1086.2 | 0% | 348 |
-| Jongo Dongo | `jongo_dongo` | casuale | 0% | 69% | 31% | 51.5 | 1140.9 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | attacca | 1% | 99% | 0% | 26.8 | 1219.6 | 0% | 9 |
-| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 33.8 | 1220.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 26.6 | 1220.0 | 0% | 0 |
-| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 28.1 | 1220.0 | 0% | 0 |
-| ??? | `l_immortale` | attacca | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | difendi | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | studia | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| ??? | `l_immortale` | casuale | 0% | 0% | 100% | 61.0 | 60.0 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 6.0 | 1220.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 6.0 | 1220.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 6.0 | 1220.0 | 0% | 0 |
-| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 6.0 | 1220.0 | 0% | 0 |
-| Marionetta | `marionetta` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Marionetta | `marionetta` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Marionetta | `marionetta` | studia | 100% | 0% | 0% | 9.4 | 189.8 | 0% | 46 |
-| Marionetta | `marionetta` | casuale | 100% | 0% | 0% | 20.4 | 388.3 | 0% | 46 |
-| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 5.9 | 110.1 | 0% | 46 |
-| Fomentado | `maschera_vuota` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 8.8 | 175.8 | 0% | 46 |
-| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 17.9 | 339.7 | 0% | 46 |
-| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 3.9 | 71.4 | 0% | 51 |
-| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 0% | 100% | 61.0 | 488.5 | 0% | 0 |
-| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 7.0 | 128.7 | 0% | 51 |
-| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 11.7 | 189.0 | 0% | 51 |
-| Ombra del passato | `ombra_del_passato` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Ombra del passato | `ombra_del_passato` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Ombra del passato | `ombra_del_passato` | studia | 100% | 0% | 0% | 9.4 | 189.8 | 0% | 46 |
-| Ombra del passato | `ombra_del_passato` | casuale | 100% | 0% | 0% | 20.4 | 388.3 | 0% | 46 |
-| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 9.4 | 189.8 | 0% | 46 |
-| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 20.4 | 388.3 | 0% | 46 |
-| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 10.5 | 283.2 | 0% | 101 |
-| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 19% | 81% | 60.7 | 1150.4 | 0% | 0 |
-| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 13.6 | 375.3 | 0% | 101 |
-| Operaio Sfruttato | `operaio_sfruttato` | casuale | 96% | 4% | 0% | 31.7 | 834.9 | 0% | 97 |
-| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 10.6 | 146.3 | 0% | 101 |
-| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 0% | 100% | 61.0 | 619.2 | 0% | 0 |
-| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 13.7 | 192.6 | 0% | 101 |
-| Orrore di Meridia | `orrore_di_meridia` | casuale | 100% | 0% | 0% | 32.3 | 445.0 | 0% | 101 |
-| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 11.2 | 125.5 | 0% | 55 |
-| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 61.0 | 325.8 | 0% | 0 |
-| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 13.9 | 157.5 | 0% | 55 |
-| Robo Pattuglia | `robo_pattuglia` | casuale | 100% | 0% | 0% | 34.2 | 346.8 | 0% | 55 |
-| Sacerdote Folle | `sacerdote_folle` | attacca | 100% | 0% | 0% | 11.0 | 202.7 | 0% | 78 |
-| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 82% | 18% | 53.8 | 1191.4 | 0% | 0 |
-| Sacerdote Folle | `sacerdote_folle` | studia | 100% | 0% | 0% | 19.4 | 462.9 | 0% | 94 |
-| Sacerdote Folle | `sacerdote_folle` | casuale | 21% | 79% | 0% | 33.2 | 1062.1 | 0% | 16 |
-| Sadico | `sadico` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Sadico | `sadico` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Sadico | `sadico` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Sadico | `sadico` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Slime Infimo | `slime_infimo` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Slime Infimo | `slime_infimo` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Stigma | `stigma` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Stigma | `stigma` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Stigma | `stigma` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Stigma | `stigma` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Tartaruga Innocente | `tartaruga_innocente` | attacca | 100% | 0% | 0% | 3.9 | 0.0 | 0% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 0% | 100% | 61.0 | 0.0 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | attacca | 100% | 0% | 0% | 1.0 | 439.2 | 0% | 101 |
+| Abominio Marcio | `abominio_marcio` | difendi | 0% | 100% | 0% | 1.0 | 1212.6 | 0% | 0 |
+| Abominio Marcio | `abominio_marcio` | studia | 100% | 0% | 0% | 1.0 | 580.9 | 0% | 101 |
+| Abominio Marcio | `abominio_marcio` | casuale | 5% | 95% | 0% | 1.0 | 1193.5 | 0% | 5 |
+| Oppresso | `comparsa_di_ruggine` | attacca | 100% | 0% | 0% | 1.0 | 56.2 | 0% | 55 |
+| Oppresso | `comparsa_di_ruggine` | difendi | 0% | 100% | 0% | 1.0 | 29.8 | 0% | 0 |
+| Oppresso | `comparsa_di_ruggine` | studia | 100% | 0% | 0% | 1.0 | 74.9 | 0% | 55 |
+| Oppresso | `comparsa_di_ruggine` | casuale | 100% | 0% | 0% | 1.0 | 29.7 | 0% | 55 |
+| Diabolo | `diabolo` | attacca | 100% | 0% | 0% | 1.0 | 91.1 | 0% | 46 |
+| Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.0 | 84.8 | 0% | 0 |
+| Diabolo | `diabolo` | studia | 100% | 0% | 0% | 1.0 | 128.3 | 0% | 46 |
+| Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 1.0 | 68.5 | 0% | 46 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 1.0 | 317.6 | 0% | 101 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 1.0 | 167.2 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 1.0 | 388.9 | 0% | 101 |
+| Il Divoratore | `divoratore` | casuale | 99% | 1% | 0% | 1.0 | 207.8 | 0% | 100 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 1.0 | 74.9 | 0% | 46 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 86.9 | 0% | 0 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 1.0 | 109.0 | 0% | 46 |
+| Divoratore di Carcasse | `divoratore_di_carcasse` | casuale | 99% | 1% | 0% | 1.0 | 72.9 | 0% | 46 |
+| Donna Spinosa | `donna_spinosa` | attacca | 100% | 0% | 0% | 1.0 | 113.7 | 0% | 46 |
+| Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 1219.5 | 0% | 0 |
+| Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 1.0 | 179.5 | 0% | 46 |
+| Donna Spinosa | `donna_spinosa` | casuale | 100% | 0% | 0% | 1.0 | 301.5 | 0% | 46 |
+| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 1.0 | 58.5 | 0% | 55 |
+| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 1.0 | 35.8 | 0% | 0 |
+| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 1.0 | 68.8 | 0% | 55 |
+| Ferraglia Urlante | `ferraglia_urlante` | casuale | 84% | 16% | 0% | 1.0 | 42.1 | 0% | 46 |
+| Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 1.0 | 124.5 | 0% | 46 |
+| Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 1.0 | 123.0 | 0% | 0 |
+| Ghoul | `ghoul` | studia | 100% | 0% | 0% | 1.0 | 183.0 | 0% | 46 |
+| Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 1.0 | 129.8 | 0% | 46 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 1.0 | 322.2 | 0% | 101 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 1.0 | 174.1 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 1.0 | 601.7 | 0% | 101 |
+| El Muy Bonito | `giocoliere` | casuale | 81% | 19% | 0% | 1.0 | 797.7 | 0% | 81 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 100% | 0% | 1.0 | 369.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | casuale | 0% | 100% | 0% | 1.0 | 595.1 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | attacca | 100% | 0% | 0% | 1.0 | 85.7 | 0% | 46 |
+| Goblin Tipico | `goblin_tipico` | difendi | 0% | 100% | 0% | 1.0 | 108.4 | 0% | 0 |
+| Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 1.0 | 140.7 | 0% | 46 |
+| Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 1.0 | 103.0 | 0% | 46 |
+| Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 1.0 | 104.3 | 0% | 51 |
+| Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 1.0 | 190.5 | 0% | 0 |
+| Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 1.0 | 173.4 | 0% | 51 |
+| Infetto Rapido | `infetto_rapido` | casuale | 100% | 0% | 0% | 1.0 | 115.3 | 0% | 51 |
+| L'ultimo spettacolo di Jerah | `jerah` | attacca | 2% | 98% | 0% | 1.0 | 1218.5 | 0% | 13 |
+| L'ultimo spettacolo di Jerah | `jerah` | difendi | 0% | 100% | 0% | 1.0 | 704.1 | 0% | 0 |
+| L'ultimo spettacolo di Jerah | `jerah` | studia | 21% | 79% | 0% | 1.0 | 1168.5 | 0% | 136 |
+| L'ultimo spettacolo di Jerah | `jerah` | casuale | 0% | 100% | 0% | 1.0 | 827.1 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | attacca | 2% | 98% | 0% | 1.0 | 1219.2 | 0% | 16 |
+| Jongo Dongo | `jongo_dongo` | difendi | 0% | 100% | 0% | 1.0 | 416.7 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo` | studia | 1% | 99% | 0% | 1.0 | 1219.6 | 0% | 11 |
+| Jongo Dongo | `jongo_dongo` | casuale | 0% | 100% | 0% | 1.0 | 591.7 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | attacca | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | difendi | 0% | 100% | 0% | 1.0 | 649.8 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | studia | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Jongo Dongo | `jongo_dongo_risorto` | casuale | 0% | 100% | 0% | 1.0 | 894.3 | 0% | 0 |
+| ??? | `l_immortale` | attacca | 0% | 100% | 0% | 1.0 | 24.0 | 0% | 0 |
+| ??? | `l_immortale` | difendi | 0% | 100% | 0% | 1.0 | 24.0 | 0% | 0 |
+| ??? | `l_immortale` | studia | 0% | 100% | 0% | 1.0 | 24.0 | 0% | 0 |
+| ??? | `l_immortale` | casuale | 0% | 100% | 0% | 1.0 | 24.0 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | attacca | 100% | 0% | 0% | 1.0 | 114.4 | 0% | 46 |
+| Madre in Lacrime | `madre_in_lacrime` | difendi | 0% | 100% | 0% | 1.0 | 138.3 | 0% | 0 |
+| Madre in Lacrime | `madre_in_lacrime` | studia | 100% | 0% | 0% | 1.0 | 167.1 | 0% | 46 |
+| Madre in Lacrime | `madre_in_lacrime` | casuale | 100% | 0% | 0% | 1.0 | 124.7 | 0% | 46 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | attacca | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | difendi | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | studia | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Manifestazione di un sogno | `manifestazione_di_un_sogno` | casuale | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Marionetta | `marionetta` | attacca | 100% | 0% | 0% | 1.0 | 99.7 | 0% | 46 |
+| Marionetta | `marionetta` | difendi | 0% | 100% | 0% | 1.0 | 106.3 | 0% | 0 |
+| Marionetta | `marionetta` | studia | 100% | 0% | 0% | 1.0 | 163.8 | 0% | 46 |
+| Marionetta | `marionetta` | casuale | 100% | 0% | 0% | 1.0 | 111.8 | 0% | 46 |
+| Fomentado | `maschera_vuota` | attacca | 100% | 0% | 0% | 1.0 | 178.9 | 0% | 46 |
+| Fomentado | `maschera_vuota` | difendi | 0% | 100% | 0% | 1.0 | 115.0 | 0% | 0 |
+| Fomentado | `maschera_vuota` | studia | 100% | 0% | 0% | 1.0 | 234.9 | 0% | 46 |
+| Fomentado | `maschera_vuota` | casuale | 100% | 0% | 0% | 1.0 | 165.6 | 0% | 46 |
+| Nuvola di Marciume | `nuvola_di_marciume` | attacca | 100% | 0% | 0% | 1.0 | 81.2 | 0% | 51 |
+| Nuvola di Marciume | `nuvola_di_marciume` | difendi | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Nuvola di Marciume | `nuvola_di_marciume` | studia | 100% | 0% | 0% | 1.0 | 150.0 | 0% | 51 |
+| Nuvola di Marciume | `nuvola_di_marciume` | casuale | 100% | 0% | 0% | 1.0 | 167.0 | 0% | 51 |
+| Ombra del passato | `ombra_del_passato` | attacca | 100% | 0% | 0% | 1.0 | 126.8 | 0% | 46 |
+| Ombra del passato | `ombra_del_passato` | difendi | 0% | 100% | 0% | 1.0 | 121.6 | 0% | 0 |
+| Ombra del passato | `ombra_del_passato` | studia | 100% | 0% | 0% | 1.0 | 186.1 | 0% | 46 |
+| Ombra del passato | `ombra_del_passato` | casuale | 100% | 0% | 0% | 1.0 | 134.3 | 0% | 46 |
+| Emblema dell'oppressione | `operaio_posseduto` | attacca | 100% | 0% | 0% | 1.0 | 94.1 | 0% | 46 |
+| Emblema dell'oppressione | `operaio_posseduto` | difendi | 0% | 100% | 0% | 1.0 | 118.3 | 0% | 0 |
+| Emblema dell'oppressione | `operaio_posseduto` | studia | 100% | 0% | 0% | 1.0 | 156.1 | 0% | 46 |
+| Emblema dell'oppressione | `operaio_posseduto` | casuale | 100% | 0% | 0% | 1.0 | 121.1 | 0% | 46 |
+| Operaio Sfruttato | `operaio_sfruttato` | attacca | 100% | 0% | 0% | 1.0 | 253.0 | 0% | 101 |
+| Operaio Sfruttato | `operaio_sfruttato` | difendi | 0% | 100% | 0% | 1.0 | 103.0 | 0% | 0 |
+| Operaio Sfruttato | `operaio_sfruttato` | studia | 100% | 0% | 0% | 1.0 | 312.6 | 0% | 101 |
+| Operaio Sfruttato | `operaio_sfruttato` | casuale | 100% | 0% | 0% | 1.0 | 246.9 | 0% | 101 |
+| Orrore di Meridia | `orrore_di_meridia` | attacca | 100% | 0% | 0% | 1.0 | 329.2 | 0% | 101 |
+| Orrore di Meridia | `orrore_di_meridia` | difendi | 0% | 100% | 0% | 1.0 | 152.8 | 0% | 0 |
+| Orrore di Meridia | `orrore_di_meridia` | studia | 100% | 0% | 0% | 1.0 | 379.9 | 0% | 101 |
+| Orrore di Meridia | `orrore_di_meridia` | casuale | 43% | 57% | 0% | 1.0 | 240.7 | 0% | 44 |
+| Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 1.0 | 81.4 | 0% | 55 |
+| Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 100% | 0% | 1.0 | 36.5 | 0% | 0 |
+| Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 1.0 | 96.5 | 0% | 55 |
+| Robo Pattuglia | `robo_pattuglia` | casuale | 70% | 30% | 0% | 1.0 | 45.0 | 0% | 38 |
+| Sacerdote Folle | `sacerdote_folle` | attacca | 100% | 0% | 0% | 1.0 | 178.0 | 0% | 69 |
+| Sacerdote Folle | `sacerdote_folle` | difendi | 0% | 100% | 0% | 1.0 | 340.0 | 0% | 0 |
+| Sacerdote Folle | `sacerdote_folle` | studia | 100% | 0% | 0% | 1.0 | 328.0 | 0% | 79 |
+| Sacerdote Folle | `sacerdote_folle` | casuale | 21% | 79% | 0% | 1.0 | 388.6 | 0% | 17 |
+| Sadico | `sadico` | attacca | 100% | 0% | 0% | 1.0 | 120.0 | 0% | 46 |
+| Sadico | `sadico` | difendi | 0% | 100% | 0% | 1.0 | 1219.2 | 0% | 0 |
+| Sadico | `sadico` | studia | 100% | 0% | 0% | 1.0 | 186.9 | 0% | 46 |
+| Sadico | `sadico` | casuale | 99% | 1% | 0% | 1.0 | 314.1 | 0% | 46 |
+| Slime Infimo | `slime_infimo` | attacca | 100% | 0% | 0% | 1.0 | 82.4 | 0% | 46 |
+| Slime Infimo | `slime_infimo` | difendi | 0% | 100% | 0% | 1.0 | 78.7 | 0% | 0 |
+| Slime Infimo | `slime_infimo` | studia | 100% | 0% | 0% | 1.0 | 129.0 | 0% | 46 |
+| Slime Infimo | `slime_infimo` | casuale | 65% | 35% | 0% | 1.0 | 90.5 | 0% | 30 |
+| Stigma | `stigma` | attacca | 100% | 0% | 0% | 1.0 | 115.5 | 0% | 46 |
+| Stigma | `stigma` | difendi | 0% | 100% | 0% | 1.0 | 1184.7 | 0% | 0 |
+| Stigma | `stigma` | studia | 100% | 0% | 0% | 1.0 | 177.3 | 0% | 46 |
+| Stigma | `stigma` | casuale | 99% | 1% | 0% | 1.0 | 243.2 | 0% | 46 |
+| Tartaruga Innocente | `tartaruga_innocente` | attacca | 100% | 0% | 0% | 1.0 | 0.0 | 0% | 1 |
+| Tartaruga Innocente | `tartaruga_innocente` | difendi | 0% | 100% | 0% | 1.0 | 0.0 | 0% | 0 |
 | Tartaruga Innocente | `tartaruga_innocente` | studia | 100% | 0% | 0% | 1.0 | 0.0 | 100% | 1 |
-| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 2.7 | 0.0 | 96% | 1 |
-| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 10.0 | 1220.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 9.5 | 1220.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 9.6 | 1220.0 | 0% | 0 |
-| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 10.3 | 1220.0 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Teschio Errante | `teschio_errante` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Titano Zombie | `titano_zombie` | attacca | 73% | 27% | 0% | 19.4 | 1138.2 | 0% | 73 |
-| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 21.7 | 1220.0 | 0% | 0 |
-| Titano Zombie | `titano_zombie` | studia | 46% | 54% | 0% | 21.3 | 1179.6 | 0% | 46 |
-| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 22.0 | 1220.0 | 0% | 0 |
-| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Capocantiere | `voce_registrata` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
-| Volto sulla parete | `volto_sulla_parete` | attacca | 100% | 0% | 0% | 18.0 | 448.8 | 0% | 207 |
-| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 37.2 | 1220.0 | 0% | 0 |
-| Volto sulla parete | `volto_sulla_parete` | studia | 100% | 0% | 0% | 21.0 | 579.0 | 0% | 207 |
-| Volto sulla parete | `volto_sulla_parete` | casuale | 1% | 99% | 0% | 34.4 | 1218.4 | 0% | 1 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 9.4 | 189.8 | 0% | 46 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 20.4 | 388.3 | 0% | 46 |
-| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 6.6 | 127.9 | 0% | 46 |
-| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 61.0 | 718.2 | 0% | 0 |
-| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 9.7 | 196.2 | 0% | 46 |
-| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 20.5 | 386.8 | 0% | 46 |
+| Tartaruga Innocente | `tartaruga_innocente` | casuale | 100% | 0% | 0% | 1.0 | 0.0 | 97% | 1 |
+| Un tenero ricordo | `tenero_ricordo` | attacca | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | difendi | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | studia | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Un tenero ricordo | `tenero_ricordo` | casuale | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | attacca | 100% | 0% | 0% | 1.0 | 87.9 | 0% | 46 |
+| Teschio Errante | `teschio_errante` | difendi | 0% | 100% | 0% | 1.0 | 110.7 | 0% | 0 |
+| Teschio Errante | `teschio_errante` | studia | 100% | 0% | 0% | 1.0 | 125.3 | 0% | 46 |
+| Teschio Errante | `teschio_errante` | casuale | 100% | 0% | 0% | 1.0 | 75.6 | 0% | 46 |
+| Titano Zombie | `titano_zombie` | attacca | 98% | 2% | 0% | 1.0 | 979.1 | 0% | 99 |
+| Titano Zombie | `titano_zombie` | difendi | 0% | 100% | 0% | 1.0 | 1219.8 | 0% | 0 |
+| Titano Zombie | `titano_zombie` | studia | 98% | 2% | 0% | 1.0 | 1026.5 | 0% | 99 |
+| Titano Zombie | `titano_zombie` | casuale | 0% | 100% | 0% | 1.0 | 1219.5 | 0% | 0 |
+| Capocantiere | `voce_registrata` | attacca | 100% | 0% | 0% | 1.0 | 121.6 | 0% | 46 |
+| Capocantiere | `voce_registrata` | difendi | 0% | 100% | 0% | 1.0 | 101.7 | 0% | 0 |
+| Capocantiere | `voce_registrata` | studia | 100% | 0% | 0% | 1.0 | 187.4 | 0% | 46 |
+| Capocantiere | `voce_registrata` | casuale | 100% | 0% | 0% | 1.0 | 118.4 | 0% | 46 |
+| Volto sulla parete | `volto_sulla_parete` | attacca | 58% | 42% | 0% | 1.0 | 1123.9 | 0% | 120 |
+| Volto sulla parete | `volto_sulla_parete` | difendi | 0% | 100% | 0% | 1.0 | 1218.3 | 0% | 0 |
+| Volto sulla parete | `volto_sulla_parete` | studia | 38% | 62% | 0% | 1.0 | 1160.2 | 0% | 79 |
+| Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.0 | 1220.0 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 100% | 0% | 0% | 1.0 | 109.2 | 0% | 46 |
+| Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 100% | 0% | 1.0 | 101.8 | 0% | 0 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 100% | 0% | 0% | 1.0 | 159.3 | 0% | 46 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 100% | 0% | 0% | 1.0 | 102.3 | 0% | 46 |
+| Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 1.0 | 126.8 | 0% | 46 |
+| Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 1.0 | 121.6 | 0% | 0 |
+| Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 1.0 | 184.1 | 0% | 46 |
+| Zombie Mostruoso | `zombie_mostruoso` | casuale | 100% | 0% | 0% | 1.0 | 135.7 | 0% | 46 |
 

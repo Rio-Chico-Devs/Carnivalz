@@ -353,6 +353,10 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"drop_raro": dati.get("drop_raro", {}),
 		"mosse": dati.get("mosse", []),
 		"mosse_usate": [],
+		# quante volte ha mosso (le mosse possono chiedere "non prima della
+		# terza") e quali sue mosse sono ancora in ricarica
+		"battute": 0,
+		"ricariche_mosse": {},
 		"peso_attacco_normale": int(dati.get("peso_attacco_normale", 4)),
 		"giocatore": giocatore,
 		"stati": [],
@@ -816,6 +820,8 @@ func battuta_di(attaccante: Dictionary) -> void:
 	# che si alzava a ogni giro senza chiedere niente a nessuno.
 	if attaccante.giocatore and String(attaccante.get("id", "")) == GameState.id_protagonista:
 		battute_del_giocatore += 1
+	attaccante.battute = int(attaccante.get("battute", 0)) + 1
+	scala_ricariche(attaccante)
 	risolvi_rigenerazione_frammento(attaccante)
 	RegoleCombattimento.scadenza_buff(attaccante)
 	scala_astio(attaccante)
@@ -2171,16 +2177,15 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 	if not dati_disperazione.is_empty() and nemico.hp <= int(dati_disperazione.get("hp_soglia", 0)):
 		esegui_mossa_disperazione(nemico, dati_disperazione)
 		return
-	var mosse_usate: Array = nemico.mosse_usate
+	# PRIMA IL GIUDIZIO, POI IL CASO. Una creatura ferita che ha di che curarsi
+	# si cura: non e' una possibilita' fra le altre, e' quello che fa
+	var scelta := mossa_saggia(nemico)
+	if not scelta.is_empty():
+		lancia_mossa(nemico, scelta)
+		return
 	var mosse: Array = []
 	for mossa in nemico.mosse:
-		if mossa.get("una_tantum", false) and String(mossa.get("id", "")) in mosse_usate:
-			continue
-		if not mossa_eseguibile(nemico, mossa):
-			continue
-		if mossa.has("richiede_non_flag") and GameState.ha_flag(String(mossa["richiede_non_flag"])):
-			continue  # qualcosa, nella storia, gli ha tolto questa possibilita'
-		if mossa.has("richiede_flag") and not GameState.ha_flag(String(mossa["richiede_flag"])):
+		if not mossa_disponibile(nemico, mossa):
 			continue
 		mosse.append(mossa)
 	if not mosse.is_empty():
@@ -2191,15 +2196,20 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 		for mossa in mosse:
 			estratto -= int(mossa.get("peso", 1))
 			if estratto <= 0:
-				if mossa.get("telegrafata", false):
-					# si "carica": niente danno questo turno, ma la mossa e'
-					# ormai annunciata e arrivera' di sicuro al prossimo
-					nemico.mossa_in_carica = mossa
-					scrivi_forte(String(mossa.get("testo_annuncio", "Qualcosa si sta caricando...")))
-				else:
-					esegui_mossa(nemico, mossa)
+				lancia_mossa(nemico, mossa)
 				return
 	attacca(nemico, bersaglio_giocatore_casuale())
+
+func lancia_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
+	# una mossa telegrafata non parte adesso: si annuncia e arriva al prossimo
+	# giro, garantita. Passa di qui qualunque strada l'abbia scelta - il
+	# sorteggio o il giudizio - se no una mossa "telegrafata" scelta per
+	# saggezza partirebbe senza avviso, e l'avviso e' meta' della sua ragione
+	if mossa.get("telegrafata", false):
+		nemico.mossa_in_carica = mossa
+		scrivi_forte(String(mossa.get("testo_annuncio", "Qualcosa si sta caricando...")))
+		return
+	esegui_mossa(nemico, mossa)
 
 func apri_la_guardia(vittima: Dictionary, mossa: Dictionary) -> void:
 	# CERTI COLPI LA GUARDIA TE LA APRONO. Serve perche' la guardia adesso resta
@@ -2222,20 +2232,160 @@ func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 	# quattro (sorteggio pesato, soglia di vita, disperazione, mossa annunciata
 	# il turno prima) e finche' il controllo stava solo dentro il sorteggio gli
 	# altri tre lo scavalcavano.
-	if String(mossa.get("tipo", "")) == "sacrificio":
-		return not vivi_alleati_di(nemico).is_empty()
+	match String(mossa.get("tipo", "")):
+		"sacrificio":
+			return not vivi_alleati_di(nemico).is_empty()
+		"cura":
+			# non ci si cura da pieni: e' la prima cosa che fa sembrare stupida
+			# una creatura che dovrebbe sembrare astuta
+			if String(mossa.get("bersaglio", "se_stesso")) == "alleato":
+				return not alleato_piu_ferito(nemico).is_empty()
+			return int(nemico.hp) < int(nemico.hp_max)
 	return true
+
+# --- LE MOSSE SI SCELGONO, NON SI SORTEGGIANO SOLTANTO ------------------------
+#
+# Bru: "dobbiamo dare un set di attacchi a ogni nemico che o fanno danno o fanno
+# cose... quando i nemici sono a fin di vita diventano piu' ostici, devono capire
+# la loro condizione e usare le mosse a loro disposizione saggiamente, per
+# esempio se hanno pochi punti vita devono capirlo e se hanno attacchi che li
+# curano o abilita' le attivano".
+#
+# Il sorteggio pesato resta - e' quello che rende uno scontro diverso dal
+# precedente - ma sopra ci sta un giudizio. Ogni mossa puo' dichiarare:
+#
+#   "quando"    le condizioni perche' sia anche solo possibile. Una mossa fuori
+#               condizione non entra nemmeno nel sorteggio, quindi non serve
+#               sperare che il caso non la peschi al momento sbagliato.
+#   "priorita"  se e' > 0 e le condizioni ci sono, la mossa si SCEGLIE invece di
+#               sorteggiarla (vince la piu' alta). E' qui che vive la saggezza:
+#               una cura a priorita' alta sotto il 30% di vita non e' una
+#               possibilita' su cinque, e' quello che una creatura ferita FA.
+#   "ricarica"  quante sue battute deve aspettare prima di rifarla. Senza, una
+#               cura con priorita' alta si ricurerebbe all'infinito e lo scontro
+#               non finirebbe mai - e non "sarebbe difficile": non finirebbe.
+#
+# Tutto quello che decide se una mossa e' disponibile sta in mossa_disponibile,
+# e ci passano sia il giudizio sia il sorteggio. Erano due elenchi di controlli
+# somiglianti, e i due elenchi divergevano.
+
+func chiave_mossa(mossa: Dictionary) -> String:
+	return String(mossa.get("id", mossa.get("nome", mossa.get("tipo", "?"))))
+
+func condizioni_mossa(nemico: Dictionary, mossa: Dictionary) -> bool:
+	var quando: Dictionary = mossa.get("quando", {})
+	if quando.is_empty():
+		return true
+	var vita := float(nemico.hp) / maxf(float(nemico.get("hp_max", 1)), 1.0)
+	if quando.has("vita_sotto") and vita > float(quando["vita_sotto"]):
+		return false
+	if quando.has("vita_sopra") and vita < float(quando["vita_sopra"]):
+		return false
+	if quando.has("alleati_almeno") \
+			and vivi_alleati_di(nemico).size() < int(quando["alleati_almeno"]):
+		return false
+	if quando.has("alleati_al_massimo") \
+			and vivi_alleati_di(nemico).size() > int(quando["alleati_al_massimo"]):
+		return false
+	if quando.has("battuta_almeno") \
+			and int(nemico.get("battute", 0)) < int(quando["battuta_almeno"]):
+		return false
+	if quando.has("senza_stato") and RegoleCombattimento.ha_stato_attivo(
+			nemico, String(quando["senza_stato"])):
+		return false
+	if quando.has("bersaglio_vita_sotto"):
+		# finire un ferito e' una decisione, non un caso: la mossa esiste solo
+		# quando qualcuno di la' e' davvero a terra
+		var trovato := false
+		for chiunque in vivi(true):
+			if float(chiunque.hp) / maxf(float(chiunque.get("hp_max", 1)), 1.0) \
+					<= float(quando["bersaglio_vita_sotto"]):
+				trovato = true
+				break
+		if not trovato:
+			return false
+	return true
+
+func mossa_disponibile(nemico: Dictionary, mossa: Dictionary) -> bool:
+	if mossa.get("una_tantum", false) and chiave_mossa(mossa) in nemico.mosse_usate:
+		return false
+	if int(nemico.get("ricariche_mosse", {}).get(chiave_mossa(mossa), 0)) > 0:
+		return false
+	if mossa.has("richiede_non_flag") and GameState.ha_flag(String(mossa["richiede_non_flag"])):
+		return false  # qualcosa, nella storia, gli ha tolto questa possibilita'
+	if mossa.has("richiede_flag") and not GameState.ha_flag(String(mossa["richiede_flag"])):
+		return false
+	if not mossa_eseguibile(nemico, mossa):
+		return false
+	return condizioni_mossa(nemico, mossa)
+
+func mossa_saggia(nemico: Dictionary) -> Dictionary:
+	# quello che una creatura in QUELLA condizione sceglie di fare. Fra pari
+	# priorita' decide il caso: due risposte ugualmente sensate non devono
+	# diventare una sequenza che si impara a memoria
+	var migliori: Array[Dictionary] = []
+	var massima := 0
+	for mossa in nemico.mosse:
+		var quanto := int(mossa.get("priorita", 0))
+		if quanto <= 0 or not mossa_disponibile(nemico, mossa):
+			continue
+		if quanto > massima:
+			massima = quanto
+			migliori = [mossa]
+		elif quanto == massima:
+			migliori.append(mossa)
+	if migliori.is_empty():
+		return {}
+	return migliori[GameState.rng.randi_range(0, migliori.size() - 1)]
+
+func scala_ricariche(nemico: Dictionary) -> void:
+	var ricariche: Dictionary = nemico.get("ricariche_mosse", {})
+	for chiave in ricariche.keys():
+		ricariche[chiave] = maxi(int(ricariche[chiave]) - 1, 0)
+
+func alleato_piu_ferito(nemico: Dictionary) -> Dictionary:
+	var scelto: Dictionary = {}
+	var peggio := 1.0
+	for alleato in vivi_alleati_di(nemico):
+		var quota := float(alleato.hp) / maxf(float(alleato.get("hp_max", 1)), 1.0)
+		if quota < peggio and quota < 1.0:
+			peggio = quota
+			scelto = alleato
+	return scelto
+
+func valore_mossa(nemico: Dictionary, mossa: Dictionary) -> int:
+	# QUANTO PICCHIA UNA MOSSA, E DA DOVE ESCE IL NUMERO.
+	#
+	# "quota" e' una frazione dell'attacco che quella creatura ha ADESSO: cosi'
+	# una mossa resta calibrata a ogni livello, anche quando il disallineamento
+	# tira su la creatura di dieci livelli sopra il suo - e ricalibrare il gioco
+	# resta una riga in ruoli.json, che era tutto il punto della curva dei ruoli.
+	# Un "valore" scritto a mano vince lo stesso, ma e' un'eccezione dichiarata:
+	# il documento dei nemici la segnala una per una.
+	if mossa.has("valore"):
+		return int(mossa["valore"])
+	if mossa.has("quota"):
+		return maxi(int(round(RegoleCombattimento.attacco_di(nemico) * float(mossa["quota"]))), 1)
+	return -1   # come un colpo normale suo
 
 func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
 	if mossa.get("una_tantum", false):
-		nemico.mosse_usate.append(String(mossa.get("id", "")))
+		nemico.mosse_usate.append(chiave_mossa(mossa))
+	if int(mossa.get("ricarica", 0)) > 0:
+		# la rimette in canna fra tante sue battute. Senza, una cura scelta per
+		# priorita' tornerebbe a essere la scelta migliore anche il giro dopo, e
+		# quello dopo ancora: lo scontro non diventerebbe difficile, diventerebbe
+		# infinito
+		var ricariche: Dictionary = nemico.get("ricariche_mosse", {})
+		ricariche[chiave_mossa(mossa)] = int(mossa["ricarica"])
+		nemico.ricariche_mosse = ricariche
 	match mossa.get("tipo", ""):
 		"difendi":
 			difendi(nemico)
 		"attacco_forte":
 			var vittima_forte := bersaglio_giocatore_casuale()
-			attacca(nemico, vittima_forte, int(mossa.get("valore", nemico.attacco)),
+			attacca(nemico, vittima_forte, valore_mossa(nemico, mossa),
 					1.0, String(mossa.get("elemento", "")))
 			if mossa.has("stato") and not vittima_forte.is_empty() and vittima_forte.hp > 0:
 				applica_stato(vittima_forte, String(mossa["stato"]))
@@ -2244,7 +2394,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			# un colpo che non fa piu' male degli altri, ma ti apre: e' la
 			# risposta del gioco a chi si chiude e non si muove piu'
 			var vittima_guardia := bersaglio_giocatore_casuale()
-			attacca(nemico, vittima_guardia, int(mossa.get("valore", -1)),
+			attacca(nemico, vittima_guardia, valore_mossa(nemico, mossa),
 					1.0, String(mossa.get("elemento", "")))
 			apri_la_guardia(vittima_guardia, mossa)
 		"meta_vita":
@@ -2267,7 +2417,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			for volta in range(int(mossa.get("colpi", 2))):
 				if vivi(true).is_empty():
 					break
-				attacca(nemico, bersaglio_giocatore_casuale(), int(mossa.get("valore", nemico.attacco)),
+				attacca(nemico, bersaglio_giocatore_casuale(), valore_mossa(nemico, mossa),
 						1.0, String(mossa.get("elemento", "")))
 		"buff_attacco":
 			nemico.buffs.append({
@@ -2290,7 +2440,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				aggiorna_scheda(bersaglio)
 		"attacco_tutti":
 			for bersaglio in vivi(true):
-				attacca(nemico, bersaglio, int(mossa.get("valore", 1)),
+				attacca(nemico, bersaglio, valore_mossa(nemico, mossa),
 						1.0, String(mossa.get("elemento", "")))
 			if mossa.has("stress"):
 				for bersaglio in vivi(true):
@@ -2317,6 +2467,55 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 					applica_stato(bersaglio, "maledizione", int(mossa.maledizione))
 			if nemico.hp <= 0:
 				_su_ko(nemico)
+		"cura":
+			# SE SA CURARSI, QUANDO STA PER CADERE SI CURA. Bru: "se hanno pochi
+			# punti vita devono capirlo, e se hanno attacchi che li curano o
+			# abilita' le attivano". Il capirlo sta in "quando" e "priorita";
+			# qui c'e' solo il gesto. Cura una quota della vita MASSIMA di chi
+			# la riceve, non un numero fisso: cosi' vale uguale a ogni livello
+			var curato := nemico
+			if String(mossa.get("bersaglio", "se_stesso")) == "alleato":
+				curato = alleato_piu_ferito(nemico)
+			if curato.is_empty():
+				return
+			var quanto := maxi(int(round(float(curato.hp_max)
+					* float(mossa.get("quota_vita", 0.25)))), 1)
+			var prima_cura := int(curato.hp)
+			curato.hp = mini(prima_cura + quanto, int(curato.hp_max))
+			var rimesso := int(curato.hp) - prima_cura
+			if rimesso > 0:
+				var scheda_curato: Control = curato.scheda
+				scrivi("[i]%s si rimette insieme: +%d.[/i]" % [curato.nome, rimesso])
+				voce.accoda_effetto(func() -> void:
+					voce.suono("cura")
+					voce.numero_volante(scheda_curato, "+%d" % rimesso, Stile.colore("positivo"))
+					aggiorna_scheda(curato))
+		"rubavita":
+			# colpisce e si rimette in piedi con quello che ha tolto: e' la mossa
+			# che rende davvero pericolosa una creatura ferita, perche' picchiarla
+			# e basta smette di bastare
+			var vittima_furto := bersaglio_giocatore_casuale()
+			if vittima_furto.is_empty():
+				return
+			var vita_prima := int(vittima_furto.hp)
+			attacca(nemico, vittima_furto, valore_mossa(nemico, mossa),
+					1.0, String(mossa.get("elemento", "")))
+			var rubato := int(round((vita_prima - int(vittima_furto.hp))
+					* float(mossa.get("quota_furto", 0.5))))
+			if rubato > 0 and int(nemico.hp) > 0:
+				var scheda_ladro: Control = nemico.scheda
+				nemico.hp = mini(int(nemico.hp) + rubato, int(nemico.hp_max))
+				scrivi("[i]%s se ne nutre: +%d.[/i]" % [nemico.nome, rubato])
+				voce.accoda_effetto(func() -> void:
+					voce.numero_volante(scheda_ladro, "+%d" % rubato, Stile.colore("positivo"))
+					aggiorna_scheda(nemico))
+		"stato":
+			# nessun danno: solo quello che ti lascia addosso. Una mossa che "fa
+			# cose" invece di fare male, ed e' meta' di quello che Bru ha chiesto
+			var vittima_stato := bersaglio_giocatore_casuale()
+			if not vittima_stato.is_empty():
+				applica_stato(vittima_stato, String(mossa.get("stato", "")),
+						int(mossa.get("valore_stato", 1)))
 		"buff_difesa":
 			nemico.buffs.append({
 				"stat": "difesa",
@@ -2684,6 +2883,21 @@ func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 		# fai critici, uccidi nemici, VIENI COLPITO". Incassare carica: e' la
 		# parte che rende sensato restare in mezzo invece di scappare
 		RegoleCombattimento.riempi_dominio(bersaglio, "per_colpo_subito")
+		segnala_disperazione(bersaglio)
+
+func segnala_disperazione(creatura: Dictionary) -> void:
+	# QUANDO UNA CREATURA PASSA IL CONFINE, SI DEVE VEDERE. Da qui in poi
+	# colpisce piu' forte e comincia a scegliere invece di sorteggiare (vedi
+	# mossa_saggia): se succedesse in silenzio, il giocatore sentirebbe solo che
+	# "ha cominciato a fare piu' male" e lo scriverebbe alla sfortuna. Una volta
+	# sola, alla prima discesa: e' un cambio di stato, non un ritornello
+	if creatura.giocatore or bool(creatura.get("disperazione_detta", false)) \
+			or not RegoleCombattimento.e_disperata(creatura):
+		return
+	creatura.disperazione_detta = true
+	var testo := String(RegoleCombattimento.dati_disperazione().get("testo", ""))
+	if testo != "":
+		scrivi(testo % creatura.nome)
 
 func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "") -> void:
 	# oggetti e assist ignorano le difese

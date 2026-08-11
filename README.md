@@ -951,6 +951,41 @@ ogni colpo pari a 1/10 del tuo attacco attuale».
 - Si prova in `prova_mattanza_svuota_la_barra()`, che la misura muta e poi ne apre una vera per
   premere spazio davvero
 
+## Le creature capiscono come stanno (`personaggi.json` → `mosse`, `ruoli.json` → `disperazione`)
+Bru: «dobbiamo dare un set di attacchi a ogni nemico che o fanno danno o fanno cose... quando i
+nemici sono a fin di vita diventano più ostici, devono capire la loro condizione e usare le mosse
+a loro disposizione **saggiamente** — se hanno pochi punti vita devono capirlo, e se hanno
+attacchi che li curano li attivano».
+- **Ogni creatura che combatte ha un set di mosse.** Erano trenta su trentanove a non averne
+  nessuna: tiravano il loro colpo normale finché uno dei due cadeva. Una creatura senza mosse
+  non è un nemico facile, è un nemico che non c'è — e nessuna prova poteva accorgersene, perché
+  il motore funzionava benissimo: era il bestiario a essere vuoto
+- **Il valore di una mossa è una quota del suo attacco** (`quota: 1.4` = una volta e mezza scarsa
+  il suo colpo normale), non un numero scritto. Un numero scritto resta fermo mentre la creatura
+  viene tirata su dal disallineamento: le mosse dei boss valevano **un terzo** del loro stesso
+  colpo normale, ferme alla scala di prima del riscalamento. Ora una mossa è calibrata a
+  qualunque livello, e ricalibrare resta una riga in `ruoli.json`
+- **Prima il giudizio, poi il caso.** Ogni mossa può dichiarare `quando` (le condizioni perché
+  esista: `vita_sotto`, `bersaglio_vita_sotto`, `alleati_almeno`, `battuta_almeno`, `senza_stato`,
+  …), `priorita` (se > 0 e le condizioni ci sono, la mossa si **sceglie** invece di sorteggiarla —
+  vince la più alta) e `ricarica` (quante sue battute prima di rifarla). Una cura a priorità alta
+  sotto il 30% di vita non è una possibilità su cinque: è quello che una creatura ferita *fa*
+- **Una cura senza ricarica non rende lo scontro difficile: lo rende infinito.** La mossa migliore
+  resta la migliore anche il giro dopo. È una regola provata, non una raccomandazione
+- **Tre tipi nuovi**: `cura` (si rimette in piedi, o rimette in piedi un alleato), `rubavita`
+  (colpisce e si nutre di quello che toglie) e `stato` (nessun danno: solo quello che ti lascia
+  addosso). Undici creature ora sanno rimettersi in piedi
+- **Alle strette diventano peggiori**, e vale per *tutte*: sotto il 30% della vita una creatura
+  colpisce il 30% in più e comincia a scegliere. È una riga sola in `ruoli.json`, non una cosa
+  scritta creatura per creatura — così non può mancare a metà bestiario. Ed è **dedotta**, non
+  memorizzata: non esiste il caso di una creatura disperata a vita piena
+- **Il documento**: [`docs/nemici.md`](docs/nemici.md) — statistiche e set di mosse di tutte e 39
+  le creature, con i valori calcolati. Lo **genera il gioco** (`./strumenti/nemici.sh`) dagli
+  stessi numeri che usa in campo: un documento scritto a mano racconta il gioco del giorno in cui
+  è stato scritto, e nessuno se ne accorge finché non ci si fida
+- Si prova in `prova_ogni_creatura_ha_un_set_di_mosse()` (i dati) e
+  `prova_le_creature_capiscono_come_stanno()` (la testa)
+
 ## Il drop crea dipendenza: il drop c'è sempre (`ruoli.json` → `drop_garantito`)
 La dipendenza non nasce dai premi grossi: nasce dal fatto che **non esca mai niente**. Dieci
 scontri di fila a mani vuote e non si combatte più volentieri — e nessuna tabella di
@@ -1553,6 +1588,7 @@ venti volte di fila.
 
 ```
 ./prove/simula.sh          # ~8 minuti, riscrive docs/bilanciamento.md
+./strumenti/nemici.sh      # pochi secondi, riscrive docs/nemici.md
 ```
 
 **Non è una simulazione.** Non c'è nessun modello semplificato: viene istanziata
