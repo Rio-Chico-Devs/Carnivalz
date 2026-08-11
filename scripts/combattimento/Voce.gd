@@ -47,6 +47,9 @@ var salta_messaggio := false       # un click chiede di passare avanti
 # In tempo reale nessun messaggio puo' fermare il mondo aspettando un click:
 # anche quelli "forti" scorrono da soli, solo con piu' calma
 var tempo_reale := false
+# quante righe al massimo possono stare in attesa di essere lette prima che il
+# box cominci a raccontare un combattimento diverso da quello a schermo
+const CODA_MASSIMA := 6
 
 func _init(albero_scena: SceneTree, silenziosa := false) -> void:
 	albero = albero_scena
@@ -68,20 +71,53 @@ func scrivi_forte(riga: String, tipo := "narrazione", chi := "") -> void:
 	accoda(riga, tipo, chi, true)
 
 func accoda_effetto(effetto: Callable) -> void:
-	# un battito senza parole: il numero che vola, il lampo sulla scheda. Sta
-	# nella coda come tutto il resto, cosi' succede al momento giusto e non tre
-	# messaggi prima
+	# un battito senza parole: il numero che vola, il lampo sulla scheda.
+	#
+	# A TURNI stava nella coda come tutto il resto, cosi' succedeva al momento
+	# giusto del racconto e non tre messaggi prima. IN TEMPO REALE e' esattamente
+	# il contrario: il numero deve uscire QUANDO il colpo entra. Bru: "il testo
+	# che scorre e spiega non deve influenzare lo scontro, deve essere tutto
+	# fluido". Se il numero aspettasse il suo turno di lettura, martellando si
+	# vedrebbe il danno del click di tre secondi fa - e la coda crescerebbe piu'
+	# in fretta di quanto la si legge, perche' ogni voce vuole il suo istante.
+	if tempo_reale:
+		effetto.call()
+		return
 	coda.append({"tipo": "narrazione", "chi": "", "testo": "", "forte": false, "effetto": effetto})
 
 func accoda(riga: String, tipo: String, chi: String, forte: bool, effetto := Callable()) -> void:
 	if riga.strip_edges() == "":
 		return
+	var effetto_da_accodare := effetto
+	if tempo_reale and effetto.is_valid():
+		# il colpo si vede subito, la frase si legge quando tocca a lei
+		effetto.call()
+		effetto_da_accodare = Callable()
 	coda.append({
-		"tipo": tipo, "chi": chi, "testo": riga, "forte": forte, "effetto": effetto,
+		"tipo": tipo, "chi": chi, "testo": riga, "forte": forte, "effetto": effetto_da_accodare,
 	})
 	# tutto quello che si legge in combattimento finisce anche nello storico
 	# della pausa: se qualcosa e' scorso via troppo in fretta, e' li'
 	GameState.registra_storico(tipo, chi, riga)
+	sfoltisci()
+
+func sfoltisci() -> void:
+	# IL DIARIO NON PUO' RESTARE INDIETRO. In tempo reale si producono piu' righe
+	# di quante se ne leggano: ogni messaggio vuole il suo secondo, e in un
+	# secondo succedono tre cose. Senza un tetto, dopo mezzo minuto il box
+	# racconterebbe l'inizio dello scontro mentre a schermo se ne combatte un
+	# altro - un commento in differita, cioe' rumore.
+	#
+	# Si buttano le righe ordinarie piu' vecchie, mai quelle "forti" (un KO, un
+	# bottino, una creatura che cede): quelle sono le cose che cambiano lo
+	# scontro. E non si perde niente comunque - lo storico della pausa le ha
+	# gia' prese tutte, una per una.
+	if not tempo_reale or coda.size() <= CODA_MASSIMA:
+		return
+	for indice in coda.size():
+		if not bool(coda[indice].get("forte", false)):
+			coda.remove_at(indice)
+			return
 
 # --- far leggere ---
 

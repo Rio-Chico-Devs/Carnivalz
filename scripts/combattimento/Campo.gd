@@ -70,10 +70,19 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 	# squadra invece e' la cosa che stai aspettando che si riempia, e aspettare
 	# un numero in una riga di sei non e' aspettare niente
 	var dominio: Control = null
+	# LA BARRA DEL FIATO, sotto quella del dominio. Sono due cose opposte e va
+	# visto a colpo d'occhio: il dominio si riempie ed e' una cosa BUONA (a
+	# rossa piena arriva il colpo fatale), il fiato si riempie ed e' una cosa
+	# CATTIVA - piena vuol dire fermo. Senza questa barra il gioco punirebbe lo
+	# spam senza mai dire perche': si clicca, non parte niente, e sembra rotto
+	var stamina: Control = null
 	if giocatore:
 		dominio = Stile.barra(84, 5)
 		dominio.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		scheda.add_child(dominio)
+		stamina = Stile.barra(84, 3)
+		stamina.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		scheda.add_child(stamina)
 	var extra := Label.new()
 	extra.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	extra.add_theme_font_size_override("font_size", 12)
@@ -101,7 +110,8 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 			ritratto.imposta_grande(true)
 		ritratto.mostra(id_personaggio)
 	return {"scheda": scheda, "etichetta_vita": vita, "etichetta_extra": extra,
-			"barra_dominio": dominio, "bersaglio": (null if giocatore else scheda)}
+			"barra_dominio": dominio, "barra_stamina": stamina,
+			"bersaglio": (null if giocatore else scheda)}
 
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
@@ -135,6 +145,10 @@ func aggiorna(combattente: Dictionary) -> void:
 		# gia' piena di un pezzo (base 15) a scontro appena cominciato
 		Stile.riempi_barra(combattente.barra_dominio,
 				float(combattente.get("dominio", 0)) / float(maxi(RegoleCombattimento.dominio_pieno(), 1)))
+	if combattente.get("barra_stamina", null) != null:
+		Stile.riempi_barra(combattente.barra_stamina, RegoleCombattimento.quota_fiato(combattente))
+		combattente.barra_stamina.modulate = Stile.colore("pericolo") \
+				if RegoleCombattimento.in_affanno(combattente) else Color.WHITE
 
 func conosciuta(combattente: Dictionary, strato: int) -> bool:
 	# Studiare era una cosa che si LEGGEVA: premevi, usciva del testo, e sullo
@@ -173,6 +187,8 @@ func dettagli_di(combattente: Dictionary) -> String:
 		dettagli += " · Att %d" % RegoleCombattimento.attacco_di(combattente)
 	if combattente.stress >= int(GameState.regole.get("soglia_stress_sopraffatto", 80)):
 		dettagli += " · sopraffatto"
+	if RegoleCombattimento.in_affanno(combattente):
+		dettagli += " · senza fiato"
 	if combattente.get("in_fiamme", false):
 		dettagli += " · in fiamme"
 	if float(combattente.get("carica_pronta", 0.0)) > 0.0:

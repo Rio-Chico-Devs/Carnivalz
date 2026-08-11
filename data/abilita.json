@@ -471,6 +471,23 @@
 			"stat": "fattore",
 			"quanto": 8,
 			"descrizione": "La barra di dominio si riempie prima, e quando si scarica pesa di più."
+		},
+		"fiato_i": {
+			"nome": "Fiato lungo",
+			"livello": 25,
+			"costo": 1,
+			"stat": "stamina",
+			"quanto": 8,
+			"descrizione": "Reggi piu' colpi di fila prima di restare senza aria. E' il potenziamento di chi martella invece di aspettare l'occasione."
+		},
+		"fiato_ii": {
+			"nome": "Fiato lungo II",
+			"livello": 41,
+			"costo": 1,
+			"richiede": "fiato_i",
+			"stat": "stamina",
+			"quanto": 12,
+			"descrizione": "Ancora piu' aria."
 		}
 	}
 }

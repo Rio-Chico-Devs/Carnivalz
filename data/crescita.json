@@ -15,7 +15,8 @@
 		},
 		"velocita": {
 			"nome": "Velocità",
-			"base": 3
+			"base": 3,
+			"descrizione": "Ogni quanto agisce chi si muove da solo: i compagni che non stai comandando e le creature. Su di te non incide — tu colpisci quando clicchi, e il limite è il fiato."
 		},
 		"intelligenza": {
 			"nome": "Intelligenza",
@@ -36,13 +37,19 @@
 			"nome": "Maestria del dominio",
 			"base": 0,
 			"descrizione": "Quanto sai spremere la barra di dominio: si riempie prima e si consuma meno. Fino a 100."
+		},
+		"stamina": {
+			"nome": "Stamina",
+			"base": 0,
+			"descrizione": "Quanto fiato hai: più ne metti, più colpi riesci a incatenare prima di restare senza."
 		}
 	},
 	"_nota_crescita": "ogni: quante volte serve compiere l'azione per guadagnare 'punti' in quella stat al prossimo passaggio di livello. ATTENZIONE: questi numeri sono la pendenza della curva del protagonista, ed e' la cosa piu' delicata del gioco. Il contenuto e' scritto a mano con numeri fissi, la crescita no: se la crescita corre piu' del contenuto, dal terzo livello in poi non si perde piu'. Prima era cosi' (+3 attacco ogni 5 colpi = il triplo di potenza a ogni livello), e la tabella di bilanciamento non se ne accorgeva perche' misurava un protagonista che non aveva mai combattuto. Se tocchi questi numeri, rilancia ./prove/simula.sh.",
+	"_nota_attacchi": "IL NUMERO DI 'attacchi_sferrati' E' CAMBIATO CON I CLICK, E DOVEVA. Un colpo non e' piu' uno per battuta: ne dai quanti ne regge il fiato, cioe' tre o quattro nello stesso tempo. Lasciando 'ogni: 5' il protagonista avrebbe guadagnato attacco tre volte piu' in fretta di prima, e siccome le creature escono da una quota del SUO attacco (ruoli.json), il gioco intero si sarebbe spostato di nascosto. Si e' moltiplicato per tre 'ogni' e per tre il profilo: 90/15 fa gli stessi sei punti a livello di 30/5. La pendenza e' la stessa, e' cambiato solo cosa si conta. (E questa nota sta FUORI da 'crescita': dentro, era una voce fra le regole, e la prima che la leggeva come dizionario esplodeva - portandosi via meta' delle prove senza farne fallire una.)",
 	"crescita": {
 		"attacchi_sferrati": {
 			"stat": "attacco",
-			"ogni": 5,
+			"ogni": 15,
 			"punti": 1
 		},
 		"danni_subiti": {
@@ -88,7 +95,7 @@
 	},
 	"_nota_profilo": "Quante volte un giocatore normale compie ogni azione, per ogni livello che guadagna. NON e' una regola di gioco: e' la stima con cui il giocatore automatico e le prove capiscono quanto e' forte DAVVERO uno arrivato al livello N. Serve perche' in Carnivalz le stat non salgono col livello, salgono con le azioni: senza questa stima ogni misura riguarda un protagonista che non ha mai combattuto, ed e' esattamente l'errore che ha fatto sembrare equilibrato un gioco in cui dal terzo livello non si perdeva piu'.",
 	"profilo_giocatore_tipo": {
-		"attacchi_sferrati": 30,
+		"attacchi_sferrati": 90,
 		"danni_subiti": 200,
 		"difese": 4,
 		"studi": 3,

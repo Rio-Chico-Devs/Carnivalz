@@ -34,6 +34,11 @@ func pulisci() -> void:
 	if muta:
 		return
 	for figlio in contenitore.get_children():
+		# tolto SUBITO dall'albero, non solo messo in coda per la distruzione:
+		# queue_free() lo libera a fine frame, e finche' non succede il vecchio
+		# bottone sta ancora li' accanto al nuovo. Prima non si notava - il menu
+		# si ricostruiva ogni due secondi - adesso si ricostruisce a ogni azione
+		contenitore.remove_child(figlio)
 		figlio.queue_free()
 
 func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := false) -> void:
@@ -207,9 +212,14 @@ func alleati() -> void:
 func scegli(azione: Dictionary) -> void:
 	if not muta:
 		AudioManager.interfaccia("conferma")
-	pulisci()
 	# IL BLOCCO ERA QUI. Il menu emetteva un segnale che, tolti i turni, non
 	# ascoltava piu' nessuno: l'azione non partiva, il menu restava chiuso e il
-	# gioco sembrava piantato. In tempo reale l'azione si esegue subito, e chi
-	# decide se la tua ricarica e' pronta e' agisci_ora
+	# gioco sembrava piantato. In tempo reale l'azione si esegue subito, e quello
+	# che decide se puo' partire e' il fiato (vedi agisci_ora)
 	scontro.agisci_ora(azione)
+	# E IL MENU TORNA SUBITO DOV'ERA. Prima si cancellava e si riapriva alla
+	# ricarica successiva: sceglievi una cosa e per un paio di secondi sotto non
+	# c'era piu' niente da premere. In un gioco che deve essere "veloce e
+	# reattivo, tutto raggiungibile senza intoppi", quel vuoto era l'intoppo
+	if scontro.in_corso:
+		principale()

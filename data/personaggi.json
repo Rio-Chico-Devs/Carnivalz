@@ -1649,7 +1649,7 @@
 							},
 							{
 								"tipo": "narrazione",
-								"testo": "Scegli ATTACCA per colpire. È l'azione base: il danno dipende dal tuo attacco meno la difesa di chi hai davanti."
+								"testo": "Clicca sulla creatura per colpirla, e continua a cliccare: ogni click è un colpo. Il danno è il tuo attacco meno la sua difesa — e a furia di martellare ti manca il fiato, quindi guarda la barretta sotto la tua vita."
 							}
 						],
 						"dopo": [
@@ -1670,7 +1670,7 @@
 							},
 							{
 								"tipo": "narrazione",
-								"testo": "Scegli DIFENDITI: alza la guardia per il turno. Usata di fila cresce, ma sempre di meno — e si perde appena fai altro."
+								"testo": "Scegli DIFENDITI: alza la guardia, e la guardia resta fino alla fine dello scontro. Difendersi di fila vale ogni volta, ma ogni scatto conta un po' meno del precedente — e oltre un certo punto non si sale più."
 							}
 						],
 						"dopo": [

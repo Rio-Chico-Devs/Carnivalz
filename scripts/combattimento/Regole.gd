@@ -119,6 +119,101 @@ static func spendi_dominio(combattente: Dictionary, segmenti: float) -> bool:
 	combattente.dominio = int(combattente.dominio) - costo
 	return true
 
+# --- il fiato: l'unico orologio di chi stai comandando -----------------------
+#
+# Il colpo normale non ha piu' nessuna ricarica. Bru: "OGNI click e' danno per
+# il nemico... se clicco entra danno, punto". Quello che regola il ritmo non e'
+# un'attesa, e' il FIATO: ogni colpo lo consuma, torna da solo mentre non
+# colpisci, e a fondo corsa si va in AFFANNO - per un momento non parte piu'
+# niente. Martellare resta la cosa giusta da fare; martellare SEMPRE no.
+#
+# LA RIPRESA AL 45% NON E' UN CAPRICCIO. Senza, appena il fiato risale sopra il
+# costo di un colpo si potrebbe ricliccare: chi martella resterebbe incollato
+# alla soglia e batterebbe comunque a ritmo pieno. L'affanno sarebbe un
+# lampeggio, non una pausa. Con una soglia di rientro piu' bassa di quella di
+# uscita si scende, si aspetta, e si riparte con del fiato in mano.
+#
+# SCRIVE UNA FUNZIONE SOLA: imposta_fiato. "In affanno con la barra vuota" e
+# "fiato oltre il massimo" non si possono rappresentare perche' non c'e'
+# nessun'altra strada per arrivarci.
+
+static func fiato_massimo(id_personaggio: String, giocatore: bool) -> float:
+	# Le creature non hanno fiato: non cliccano, il loro ritmo e' la velocita'.
+	# Un compagno ha il fiato di base; i punti messi nella statistica Stamina
+	# valgono per il protagonista, che e' l'unico che ne mette.
+	if not giocatore:
+		return 0.0
+	var dati: Dictionary = GameState.regole.get("stamina", {})
+	var punti: int = GameState.stat_di("stamina") if id_personaggio == GameState.id_protagonista else 0
+	return maxf(float(dati.get("base", 100)) + punti * float(dati.get("per_punto", 6)), 1.0)
+
+static func costo_di_fiato(chiave: String) -> float:
+	return float(GameState.regole.get("stamina", {}).get(chiave, 0))
+
+static func azione_gratuita(tipo: String) -> bool:
+	# studiare non e' mai un errore, e restare senza fiato non deve poterti
+	# impedire di scappare
+	return tipo in GameState.regole.get("stamina", {}).get("azioni_gratuite", [])
+
+static func in_affanno(combattente: Dictionary) -> bool:
+	return bool(combattente.get("affanno", false))
+
+static func quota_fiato(combattente: Dictionary) -> float:
+	var massimo := float(combattente.get("stamina_max", 0.0))
+	if massimo <= 0.0:
+		return 0.0
+	return clampf(float(combattente.get("stamina", 0.0)) / massimo, 0.0, 1.0)
+
+static func imposta_fiato(combattente: Dictionary, valore: float) -> void:
+	var massimo := float(combattente.get("stamina_max", 0.0))
+	if massimo <= 0.0:
+		combattente.stamina = 0.0
+		combattente.affanno = false
+		return
+	var dati: Dictionary = GameState.regole.get("stamina", {})
+	combattente.stamina = clampf(valore, 0.0, massimo)
+	if float(combattente.stamina) >= massimo * float(dati.get("soglia_affanno", 1.0)):
+		combattente.affanno = true
+	elif float(combattente.stamina) <= massimo * float(dati.get("soglia_ripresa", 0.45)):
+		combattente.affanno = false
+
+static func consuma_fiato(combattente: Dictionary, costo: float) -> bool:
+	# false = non c'era fiato, e quindi non e' successo niente. L'ultimo colpo
+	# possibile parte e TI MANDA in affanno: la pausa arriva dopo il colpo, non
+	# al posto suo, altrimenti l'ultimo click di ogni raffica sarebbe a vuoto
+	var massimo := float(combattente.get("stamina_max", 0.0))
+	if massimo <= 0.0 or costo <= 0.0:
+		return true
+	if in_affanno(combattente):
+		return false
+	imposta_fiato(combattente, float(combattente.get("stamina", 0.0)) + costo)
+	return true
+
+static func recupera_fiato(combattente: Dictionary, delta: float) -> void:
+	if float(combattente.get("stamina_max", 0.0)) <= 0.0 or delta <= 0.0:
+		return
+	imposta_fiato(combattente, float(combattente.get("stamina", 0.0))
+			- float(GameState.regole.get("stamina", {}).get("recupero_al_secondo", 26)) * delta)
+
+static func colpi_disponibili(combattente: Dictionary) -> int:
+	# QUANTI COLPI CI STANNO PRIMA DI RESTARE SENZA ARIA.
+	#
+	# Serve al giocatore automatico: nelle prove non c'e' un mouse, ma se il
+	# simulatore non cliccasse misurerebbe un gioco che nessuno gioca - un
+	# protagonista con una sola azione a battuta, cioe' il motore a turni che
+	# abbiamo tolto.
+	#
+	# Non e' una stima: e' lo spazio che resta nella barra. Quindi tiene conto da
+	# solo del fiato rientrato durante la battuta e di quello che un'azione ha
+	# appena speso, senza doverli sapere. Chi gioca cosi' martella fino al bordo
+	# dell'affanno e si ferma li' - che e' quello che fa una persona che ci vede.
+	var costo := costo_di_fiato("costo_colpo")
+	var massimo := float(combattente.get("stamina_max", 0.0))
+	if costo <= 0.0 or massimo <= 0.0:
+		return 0
+	var soglia := massimo * float(GameState.regole.get("stamina", {}).get("soglia_affanno", 1.0))
+	return maxi(int(floor((soglia - float(combattente.get("stamina", 0.0))) / costo)), 0)
+
 static func moltiplicatore_scatti(scatti: int) -> float:
 	# LA TABELLA DI POKEMON, e Bru l'ha chiesta per nome. Uno scatto in su vale
 	# meno del precedente, uno in giu' fa piu' male del precedente, e sopra il

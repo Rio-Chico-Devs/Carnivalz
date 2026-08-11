@@ -155,6 +155,8 @@
 		],
 		"_guadagni": "quanto entra nella barra per ogni cosa che fai",
 		"per_attacco": 14,
+		"_per_colpo_cliccato": "un colpo cliccato riempie meno di un attacco intero, per lo stesso motivo per cui fa meno danno: in un ciclo di fiato ne dai tre o quattro. Tre da cinque valgono un attacco da quattordici, quindi la barra si carica allo stesso ritmo di prima - martellare non e' diventato il modo veloce di avere gli speciali gratis.",
+		"per_colpo_cliccato": 5,
 		"per_critico": 22,
 		"per_uccisione": 45,
 		"per_colpo_subito": 10,
@@ -171,7 +173,29 @@
 		"ricarica_minima": 0.45,
 		"ricarica_massima": 4.0,
 		"apertura_secondi": 1.2,
+		"_battuta_comandato": "LA VELOCITA' NON TI RIGUARDA PIU'. Chi stai comandando tu non ha una ricarica: colpisce quando clicchi, e il limite e' il fiato. Questa e' solo la lunghezza del suo respiro - il battito che fa scadere gli stati, tornare l'aura e scalare i buff. E' fisso apposta: se dipendesse dalla velocita', la velocita' tornerebbe a decidere il tuo ritmo, che e' proprio quello che non deve fare. Sugli altri - nemici e compagni in automatico - la velocita' comanda eccome.",
+		"battuta_comandato": 1.6,
 		"_battute_massime": "tetto di sicurezza dell'orologio virtuale: oltre, lo scontro si chiude e lo dice invece di girare a vuoto",
 		"battute_massime": 4000
-	}
+	},
+	"_nota_stamina": "OGNI CLICK E' DANNO, E LO SPAM SI PAGA. Il colpo normale non ha piu' nessuna ricarica: clicchi, entra danno, punto. Quello che regola il ritmo e' il FIATO: ogni colpo alza la stamina, la stamina scende da sola, e a fondo corsa sei in affanno e per un momento non colpisci piu'. Non e' un freno arbitrario - e' la stessa cosa che fa un tetto agli scatti della guardia: rende una strada ovvia (martellare) una scelta con un costo, invece dell'unica cosa sensata da fare.",
+	"stamina": {
+		"base": 100,
+		"_per_punto": "quanto fiato aggiunge un punto messo nella statistica Stamina",
+		"per_punto": 6,
+		"_costo_colpo": "quanto fiato costa un colpo cliccato",
+		"costo_colpo": 17,
+		"_costo_azione": "quanto fiato costa un'azione presa dal menu (guardia, speciali, oggetti). Costa piu' di un colpo perche' altrimenti il menu diventerebbe la scorciatoia: senza un prezzo, 'Difenditi' premuto sei volte di fila alzerebbe la guardia al massimo in due secondi - quello che a turni costava sei turni interi. Il fiato e' l'unico orologio del personaggio che comandi: tutto quello che fa passa di li'.",
+		"costo_azione": 26,
+		"_azioni_gratuite": "quello che non costa fiato. Studiare non e' mai un errore e non lo diventera' adesso; e restare senza fiato non deve poterti impedire di scappare.",
+		"azioni_gratuite": ["studia", "fuggi", "leva"],
+		"_recupero": "fiato che torna ogni secondo mentre non colpisci",
+		"recupero_al_secondo": 26,
+		"_affanno": "sopra questa quota sei in affanno: i colpi non partono finche' non scendi sotto 'ripresa'",
+		"soglia_affanno": 1.0,
+		"soglia_ripresa": 0.45,
+		"testo_affanno": "[i]%s non ha più fiato. Un secondo, e poi ancora.[/i]"
+	},
+	"_nota_colpo_cliccato": "IL COLPO CLICCATO VALE MENO DI UN COLPO A TURNI, e deve. A turni ne davi uno per giro; adesso ne dai quanti ne regge il fiato - da tre a cinque nello stesso tempo. Senza questa frazione il protagonista farebbe quattro volte il danno di prima. NON si abbassa l'attacco base per ottenere lo stesso effetto: l'attacco base e' anche la curva da cui escono i numeri delle creature (vedi ruoli.json), quindi abbassarlo indebolirebbe pure loro e non cambierebbe niente. Si abbassa il colpo, non il personaggio.",
+	"frazione_colpo_cliccato": 0.34
 }

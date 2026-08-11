@@ -59,6 +59,7 @@ func _ready() -> void:
 	prova_i_boss_non_si_superano_farmando()
 	prova_salita_di_livello_si_racconta()
 	await prova_scontro_vero_si_gioca()
+	await prova_il_fiato_regola_i_click()
 	prova_il_nemico_non_ti_aspetta()
 	prova_barra_di_dominio_come_energia()
 	prova_il_drop_c_e_sempre()
@@ -1994,17 +1995,22 @@ func prova_scontro_vero_si_gioca() -> void:
 	esigi(eroe.get("bersaglio_cliccabile", null) == null,
 			"anche il protagonista e' cliccabile come bersaglio")
 	var vita_nemico := int(nemico.hp)
-	eroe.ricarica = 0.0          # la ricarica e' pronta, come dopo qualche istante
 	scontro._su_click_nemico(nemico)
 	esigi(int(nemico.hp) < vita_nemico,
 			"cliccando sul nemico non gli e' successo niente: il colpo normale non arriva")
 
-	# 2. e non si martella a vuoto: finche' ricarichi, il click non conta
-	var dopo_il_colpo := int(nemico.hp)
+	# 2. E OGNI CLICK E' DANNO. Non "un click ogni ricarica": ogni click. Bru:
+	#    "se clicco entra danno, punto". Qui la prova e' cambiata al contrario di
+	#    com'era scritta - prima pretendeva che il secondo click NON facesse
+	#    niente, ed era esattamente il gioco che non gli piaceva
+	var dopo_il_primo := int(nemico.hp)
 	scontro._su_click_nemico(nemico)
+	esigi(int(nemico.hp) < dopo_il_primo,
+			"il secondo click non ha fatto danno: si aspetta ancora qualcosa")
+	var dopo_il_secondo := int(nemico.hp)
 	scontro._su_click_nemico(nemico)
-	esigi(int(nemico.hp) == dopo_il_colpo,
-			"cliccando durante la ricarica si colpisce lo stesso: la ricarica non serve a niente")
+	esigi(int(nemico.hp) < dopo_il_secondo,
+			"il terzo click non ha fatto danno: si aspetta ancora qualcosa")
 
 	# 2-bis. LA BARRA SI RIEMPIE COLPENDO E INCASSANDO
 	esigi(int(eroe.get("dominio", 0)) > 0,
@@ -2014,16 +2020,18 @@ func prova_scontro_vero_si_gioca() -> void:
 	esigi(int(eroe.get("dominio", 0)) > dominio_prima,
 			"incassando un colpo la barra non si e' mossa: restare in mezzo non paga niente")
 
-	# 2-ter. OGNI CREATURA HA LA SUA RAPIDITA': i ruoli si devono sentire
-	var ricarica_eroe: float = scontro.ricarica_di(eroe)
-	var lento_finto := {"velocita": maxi(int(eroe.velocita) / 2, 1), "stati_attivi": {}}
-	var svelto_finto := {"velocita": int(eroe.velocita) * 2, "stati_attivi": {}}
-	esigi(scontro.ricarica_di(svelto_finto) < ricarica_eroe,
-			"chi e' il doppio piu' veloce di te ricarica in %.2fs contro i tuoi %.2fs: la velocita' non si sente"
-			% [scontro.ricarica_di(svelto_finto), ricarica_eroe])
-	esigi(scontro.ricarica_di(lento_finto) > ricarica_eroe,
-			"chi e' la meta' piu' lento di te ricarica in %.2fs contro i tuoi %.2fs: la velocita' non si sente"
-			% [scontro.ricarica_di(lento_finto), ricarica_eroe])
+	# 2-ter. OGNI CREATURA HA LA SUA RAPIDITA': i ruoli si devono sentire. Il
+	#    confronto e' fra due creature (nessuna delle due sei tu): la velocita'
+	#    vale per chi si muove da solo
+	var ricarica_nemico: float = scontro.ricarica_di(nemico)
+	var lento_finto := {"velocita": maxi(int(nemico.velocita) / 2, 1), "stati_attivi": {}}
+	var svelto_finto := {"velocita": int(nemico.velocita) * 2, "stati_attivi": {}}
+	esigi(scontro.ricarica_di(svelto_finto) < ricarica_nemico,
+			"chi e' il doppio piu' veloce ricarica in %.2fs contro %.2fs: la velocita' non si sente"
+			% [scontro.ricarica_di(svelto_finto), ricarica_nemico])
+	esigi(scontro.ricarica_di(lento_finto) > ricarica_nemico,
+			"chi e' la meta' piu' lento ricarica in %.2fs contro %.2fs: la velocita' non si sente"
+			% [scontro.ricarica_di(lento_finto), ricarica_nemico])
 
 	# 3. IL MONDO VA AVANTI DA SOLO: si lascia scorrere il tempo senza toccare
 	#    niente e il protagonista deve incassare
@@ -2037,7 +2045,7 @@ func prova_scontro_vero_si_gioca() -> void:
 
 	# 4. E FINISCE. Si abbatte il nemico e lo scontro deve chiudersi
 	nemico.hp = 1
-	eroe.ricarica = 0.0
+	RegoleCombattimento.imposta_fiato(eroe, 0.0)   # con l'aria in corpo il colpo parte
 	scontro._su_click_nemico(nemico)
 	esigi(int(nemico.hp) <= 0, "il colpo di grazia non ha abbattuto il nemico")
 	esigi(not scontro.in_corso,
@@ -2058,6 +2066,161 @@ func prova_scontro_vero_si_gioca() -> void:
 	esigi(scontro.voce.coda.size() < in_coda_prima,
 			"la coda dei messaggi non cala mai (%d ferma li'): non la svuota nessuno, e a schermo non arriva niente"
 			% in_coda_prima)
+	scontro.free()
+	GameState.nuova_partita()
+
+func prova_il_fiato_regola_i_click() -> void:
+	# LA PROVA DEL PATTO NUOVO, e sono tre promesse che da sole si smentiscono:
+	#
+	#   "OGNI click e' danno per il nemico... se clicco entra danno, punto"
+	#   "aggiungiamo una barra stamina che sale piu' si clicca cosi' lo spamming
+	#    diventa punito"
+	#   "la velocita' a questo punto e' una caratteristica che ha effetto solo
+	#    quando i personaggi sono in modo automatico"
+	#
+	# Colpisci quanto vuoi, ma non troppo, e il tuo ritmo non dipende piu' dalla
+	# tua velocita'. Stanno in piedi solo insieme, quindi si provano insieme: in
+	# uno scontro vero, non muto, cliccando come si clicca in partita.
+	titolo("il fiato: si martella quanto si vuole, finche' c'e' aria")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+		elif not combattente.giocatore and nemico.is_empty():
+			nemico = combattente
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+	# un sacco da boxe: qui si misura come si colpisce, non si vince
+	nemico.hp_max = 100000
+	nemico.hp = 100000
+
+	# 1. IL FIATO PARTE PIENO (cioe' la barra dell'affanno parte vuota), e ce
+	#    l'ha solo chi clicca: una creatura si muove a velocita', non a fiato
+	esigi(is_zero_approx(RegoleCombattimento.quota_fiato(eroe)),
+			"lo scontro comincia col fiato gia' corto (%d%%)"
+			% int(RegoleCombattimento.quota_fiato(eroe) * 100))
+	esigi(float(eroe.get("stamina_max", 0.0)) > 0.0,
+			"il protagonista non ha nessuna riserva di fiato: la barra non puo' voler dire niente")
+	esigi(is_zero_approx(float(nemico.get("stamina_max", 0.0))),
+			"anche le creature hanno il fiato: loro non cliccano, il loro limite e' la velocita'")
+
+	# 2. SI MARTELLA, E OGNI COLPO ENTRA - finche' c'e' aria. Poi si smette, e
+	#    non perche' lo decide un cronometro: perche' la barra e' piena
+	var colpi_dati := 0
+	for tentativo in 60:
+		var vita := int(nemico.hp)
+		scontro._su_click_nemico(nemico)
+		if int(nemico.hp) >= vita:
+			break
+		colpi_dati += 1
+	esigi(colpi_dati >= 3,
+			"un fiato intero basta per %d colpi: martellare non e' una raffica, e' un'altra attesa" % colpi_dati)
+	esigi(colpi_dati <= 12,
+			"si sono dati %d colpi di fila senza restare senza aria: lo spam non e' punito da niente" % colpi_dati)
+	esigi(RegoleCombattimento.in_affanno(eroe),
+			"dopo %d colpi di fila il protagonista non e' in affanno" % colpi_dati)
+	esigi(RegoleCombattimento.quota_fiato(eroe) > 0.9,
+			"la barra del fiato e' al %d%% dopo una raffica che l'ha esaurito: non racconta quello che succede"
+			% int(RegoleCombattimento.quota_fiato(eroe) * 100))
+
+	# 3. E IN AFFANNO IL CLICK NON ENTRA. E' l'unico momento in cui un click non
+	#    fa danno, ed e' un momento che si vede: la barra e' rossa e piena
+	var vita_in_affanno := int(nemico.hp)
+	scontro._su_click_nemico(nemico)
+	esigi(int(nemico.hp) == vita_in_affanno,
+			"senza fiato il colpo entra lo stesso: la stamina non regola niente")
+
+	# 4. L'AFFANNO E' UNA PAUSA, NON UN LAMPEGGIO. Se bastasse il fiato di un
+	#    colpo per ricominciare, chi martella resterebbe incollato alla soglia e
+	#    batterebbe comunque a ritmo pieno: la soglia di rientro e' piu' bassa
+	eroe.hp = eroe.hp_max
+	scontro.avanza_orologio(0.2)
+	esigi(RegoleCombattimento.in_affanno(eroe),
+			"due decimi di secondo e si riparte: l'affanno non e' una pausa, e' un lampeggio")
+	var atteso := 0.0
+	for battito in 60:
+		scontro.avanza_orologio(0.1)
+		atteso += 0.1
+		if not RegoleCombattimento.in_affanno(eroe):
+			break
+	esigi(not RegoleCombattimento.in_affanno(eroe),
+			"dopo %.1f secondi fermo il fiato non e' ancora tornato: l'affanno non finisce piu'" % atteso)
+	eroe.hp = eroe.hp_max
+	var vita_ripresa := int(nemico.hp)
+	scontro._su_click_nemico(nemico)
+	esigi(int(nemico.hp) < vita_ripresa, "ripreso fiato, il click non colpisce piu'")
+
+	# 5. IL COLPO CLICCATO VALE MENO DI UN COLPO PIENO, e deve: a turni ne davi
+	#    uno per giro, adesso ne dai quattro. Senza la frazione il protagonista
+	#    farebbe il triplo del danno di prima senza che nessuno se ne accorga
+	#    Si misurano i colpi VERI, quelli che escono da un click, non il conto
+	#    che dovrebbe farli: una frazione scritta in regole.json e mai passata al
+	#    motore sarebbe una frazione che non esiste, e una prova che legge il
+	#    numero invece del colpo non se ne accorgerebbe mai. Si prende il MINIMO
+	#    di cinque colpi per parte, cosi' un critico casuale non decide l'esito
+	eroe.attacco = 100
+	nemico.difesa = 0
+	nemico.scatti_difesa = 0
+	RegoleCombattimento.imposta_fiato(eroe, 0.0)
+	var minimo_cliccato := 1 << 30
+	for tentativo in 5:
+		var vita_prima := int(nemico.hp)
+		scontro._su_click_nemico(nemico)
+		minimo_cliccato = mini(minimo_cliccato, vita_prima - int(nemico.hp))
+	var minimo_pieno := 1 << 30
+	for tentativo in 5:
+		var colpo: Dictionary = RegoleCombattimento.calcola_danno(eroe, nemico)
+		minimo_pieno = mini(minimo_pieno, int(colpo.danno))
+	esigi(minimo_cliccato > 0, "i cinque colpi di misura non sono nemmeno entrati")
+	esigi(minimo_cliccato < minimo_pieno,
+			"un colpo cliccato fa %d e uno pieno %d: se cliccare rende come attaccare a turni, con quattro click al secondo il protagonista fa il quadruplo del danno di prima"
+			% [minimo_cliccato, minimo_pieno])
+
+	# 6. LA VELOCITA' NON TI RIGUARDA PIU'. E' la stat che Bru voleva rendere
+	#    sensata dandole un mestiere solo: muovere chi va da solo
+	var respiro: float = scontro.ricarica_di(eroe)
+	var velocita_vera := int(eroe.velocita)
+	eroe.velocita = velocita_vera * 4
+	esigi(is_equal_approx(scontro.ricarica_di(eroe), respiro),
+			"quadruplicando la velocita' il tuo respiro passa da %.2fs a %.2fs: la velocita' decide ancora il tuo ritmo"
+			% [respiro, scontro.ricarica_di(eroe)])
+	eroe.velocita = velocita_vera
+
+	# 7. IL MENU C'E' SEMPRE. Era il primo dei problemi: "il menu sotto non e'
+	#    sempre consultabile". Si aspetta che l'apertura finisca di parlare -
+	#    quello e' l'unico momento in cui il menu non c'e' ancora - e da li' in
+	#    poi non deve sparire mai piu', nemmeno subito dopo aver scelto qualcosa
+	var frame_attesi := 0
+	while scontro.menu.contenitore.get_child_count() == 0 and frame_attesi < 3000:
+		scontro.voce.avanza()   # come chi tiene premuto per saltare l'apertura
+		await get_tree().process_frame
+		frame_attesi += 1
+	esigi(scontro.menu.contenitore.get_child_count() > 0,
+			"passata l'apertura, sotto non c'e' ancora nessun bottone da premere")
+	RegoleCombattimento.imposta_fiato(eroe, 0.0)
+	var fiato_prima_azione := float(eroe.get("stamina", 0.0))
+	scontro.menu.scegli({"tipo": "difendi"})
+	esigi(scontro.menu.contenitore.get_child_count() > 0,
+			"scelta un'azione, il menu e' sparito: sotto non c'e' piu' niente da premere")
+	esigi(float(eroe.get("stamina", 0.0)) > fiato_prima_azione,
+			"un'azione del menu non costa fiato: allora e' gratis, e gratis vuol dire infinita")
+
+	# 8. E LA GUARDIA NON SI POMPA CON UN FIATO SOLO. A turni la guardia massima
+	#    costava sei turni interi; se adesso costasse due secondi di bottone,
+	#    "Difenditi" smetterebbe di essere una tattica e diventerebbe un rito
+	var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+	eroe.scatti_difesa = 0
+	RegoleCombattimento.imposta_fiato(eroe, 0.0)
+	for tentativo in tetto + 2:
+		scontro.menu.scegli({"tipo": "difendi"})
+	esigi(RegoleCombattimento.scatti_difesa(eroe) < tetto,
+			"con un fiato solo si arriva a %d scatti su %d: la guardia massima e' gratis"
+			% [RegoleCombattimento.scatti_difesa(eroe), tetto])
 	scontro.free()
 	GameState.nuova_partita()
 

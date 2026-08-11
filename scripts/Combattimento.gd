@@ -142,7 +142,11 @@ var incontro_tentativi_morfeo := 0
 var giro_corrente := 1
 var battute_del_giocatore := 0   # quante volte hai mosso: il "limite_giri" conta queste
 var id_comandato := ""           # chi stai giocando adesso; vuoto = il protagonista
-var menu_acceso := false         # la tua ricarica e' finita e il menu e' aperto
+# QUI C'ERA "menu_acceso", e la sua esistenza era il bug. Il menu si accendeva
+# quando la tua ricarica finiva e si spegneva appena agivi: per meta' dello
+# scontro, sotto, non c'era niente. Bru: "il menu sotto non e' sempre
+# consultabile". Adesso si costruisce una volta e resta: non c'e' piu' uno stato
+# in cui il menu non c'e', quindi non c'e' piu' niente da tenere acceso.
 var studio_in_corso := false     # il tempo e' fermo perche' stai studiando
 var portatore_fuga_bloccata: Dictionary = {}
 var avviso_fuga_mostrato := false
@@ -359,6 +363,13 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		# la barra di dominio come energia: tre segmenti che si riempiono
 		# combattendo e si spendono sugli speciali
 		"dominio": 0,
+		# IL FIATO. Sale a ogni colpo cliccato e a ogni azione presa dal menu,
+		# scende da solo, e quando tocca il fondo si va in affanno. E' l'unico
+		# limite che ha chi stai comandando: la sua velocita' non lo riguarda piu'
+		"stamina": 0.0,
+		"stamina_max": maxf(RegoleCombattimento.fiato_massimo(id_personaggio, giocatore)
+				+ float(eq.call("stamina")), 0.0),
+		"affanno": false,
 		"rigenerazione_battute": 0,
 		"rigenerazione_quota": 0.0,
 		"mossa_in_carica": {},
@@ -529,6 +540,18 @@ func il_tempo_scorre() -> bool:
 	return in_corso and tempo_fermo <= 0
 
 func ricarica_di(combattente: Dictionary) -> float:
+	# LA VELOCITA' VALE SOLO PER CHI SI MUOVE DA SOLO. Bru: "la velocita' a questo
+	# punto e' una caratteristica che ha effetto solo quando i personaggi sono in
+	# modo automatico, cosi' possiamo dare senso a questa stat".
+	#
+	# Quindi chi stai comandando tu non ha una ricarica che decide quando puo'
+	# agire: colpisce quando clicchi, e il limite e' il fiato. Quello che gli resta
+	# e' un RESPIRO di lunghezza fissa - il battito che fa scadere gli stati,
+	# tornare l'aura, scalare i buff. Fisso apposta: se dipendesse dalla velocita',
+	# la velocita' tornerebbe a decidere il tuo ritmo dalla porta di servizio.
+	var tempo_dati: Dictionary = GameState.regole.get("tempo", {})
+	if e_il_comandato(combattente):
+		return float(tempo_dati.get("battuta_comandato", 1.6))
 	# quanto ci mette a rimuoversi. Piu' sei veloce, meno aspetti
 	# IL RIFERIMENTO E' IL PROTAGONISTA, non un numero fisso.
 	#
@@ -537,7 +560,7 @@ func ricarica_di(combattente: Dictionary) -> float:
 	# creatura si muoveva uguale, e i ruoli - il veloce, il corazzato - non si
 	# sentivano affatto. Rapportandola a chi giochi tu, un "veloce" e' sempre il
 	# doppio di te e un "corazzato" sempre la meta', al livello 1 come al 30.
-	var dati: Dictionary = GameState.regole.get("tempo", {})
+	var dati := tempo_dati
 	var riferimento := float(dati.get("velocita_riferimento", 6))
 	for altro in combattenti:
 		if altro.giocatore and String(altro.get("id", "")) == GameState.id_protagonista:
@@ -575,11 +598,15 @@ func avanza_orologio(delta: float) -> void:
 		if int(combattente.hp) <= 0 or combattente.get("oggetto_scena", false):
 			continue
 		combattente.ricarica = float(combattente.get("ricarica", 0.0)) - delta
+		# IL FIATO TORNA COL TEMPO, non con le battute: e' l'unica cosa in tutto il
+		# motore che scorre davvero in continuo, ed e' giusto cosi' - e' quello che
+		# rende una raffica di click una scelta e non una macro
+		RegoleCombattimento.recupera_fiato(combattente, delta)
 	# agisce chi e' piu' in ritardo: se due ricariche scadono insieme, decide la
 	# velocita', come faceva l'iniziativa
 	var pronti: Array[Dictionary] = []
 	for combattente in combattenti:
-		if puo_agire(combattente) and not (combattente.giocatore and comandi_tu(combattente)):
+		if puo_agire(combattente):
 			pronti.append(combattente)
 	pronti.sort_custom(func(a, b):
 		var ra := float(a.get("ricarica", 0.0))
@@ -599,17 +626,28 @@ func avanza_orologio(delta: float) -> void:
 	if limite_giri > 0 and battute_del_giocatore >= limite_giri:
 		in_corso = false
 
-func comandi_tu(combattente: Dictionary) -> bool:
+func e_il_comandato(combattente: Dictionary) -> bool:
 	# CHI GIOCHI TU. Bru: "il party agira' da solo come i nemici, ma tu avrai la
 	# possibilita' di usare tutti i combattenti: scegli tu chi utilizzare, gli
 	# altri andranno sempre in automatico". Quindi comandato ce n'e' uno solo, e
-	# se non lo dici e' il protagonista
+	# se non lo dici e' il protagonista.
+	#
+	# Questa NON guarda se c'e' un giocatore automatico, e la differenza conta:
+	# anche nelle prove qualcuno deve stare al posto tuo - avere il tuo respiro
+	# fisso, martellare come martelleresti tu. Se il simulatore giocasse un
+	# personaggio senza fiato e con una sola azione a battuta, misurerebbe il
+	# motore a turni che abbiamo tolto.
 	if not combattente.get("giocatore", false):
 		return false
-	if strategia.is_valid():
-		return false   # il giocatore automatico li muove tutti
 	var comandato := id_comandato if id_comandato != "" else GameState.id_protagonista
 	return String(combattente.get("id", "")) == comandato
+
+func comandi_tu(combattente: Dictionary) -> bool:
+	# ...e questa invece si': "lo stai muovendo tu, con le mani". Col giocatore
+	# automatico e' falsa per tutti, perche' nessuno sta guardando lo schermo
+	if strategia.is_valid():
+		return false
+	return e_il_comandato(combattente)
 
 func _process(delta: float) -> void:
 	if not tempo_reale or not scontro_avviato or muto:
@@ -623,7 +661,7 @@ func _process(delta: float) -> void:
 		studio_in_corso = false
 		riprendi_il_tempo()
 	avanza_orologio(delta)
-	aggiorna_pronto_giocatore()
+	aggiorna_fiato_a_schermo()
 
 func esegui_scontro() -> void:
 	await svuota_coda()   # l'apertura si legge prima che qualcuno si muova
@@ -643,6 +681,10 @@ func esegui_scontro() -> void:
 		# combattimento blocca tutto". Succedeva tutto: non si vedeva.
 		for combattente in combattenti:
 			collega_bersaglio(combattente)
+		# il menu si costruisce UNA VOLTA e resta li' per tutto lo scontro: da qui
+		# in poi nessuno lo cancella piu'. Va detto adesso chi lo sta usando, se no
+		# la prima versione del menu nasce senza le tue abilita' e senza la tua arma
+		attaccante_corrente = combattente_comandato()
 		menu.principale()
 		pompa_messaggi()
 		return
@@ -668,10 +710,6 @@ func esegui_scontro() -> void:
 		avanza_orologio(maxf(salto, 0.0001))
 		if not in_corso:
 			break
-		for combattente in combattenti:
-			if puo_agire(combattente) and combattente.giocatore and comandi_tu(combattente):
-				riarma(combattente)
-				battuta_di(combattente)
 		await svuota_coda()
 	await svuota_coda()
 	mostra_continua_fine()
@@ -689,12 +727,53 @@ func _su_input_nemico(evento: InputEvent, bersaglio: Dictionary) -> void:
 		_su_click_nemico(bersaglio)
 
 func _su_click_nemico(bersaglio: Dictionary) -> void:
-	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu. Si martella li'
-	# sopra: se la ricarica non e' pronta il click non fa niente, e la scheda
-	# del protagonista lo dice gia' con la sua barra
-	if int(bersaglio.get("hp", 0)) <= 0 or not il_tempo_scorre():
+	colpo_cliccato(bersaglio)
+
+func colpo_cliccato(bersaglio: Dictionary) -> void:
+	# SE CLICCO, ENTRA DANNO. PUNTO.
+	#
+	# Bru, per esteso: "OGNI click e' danno per il nemico... la scelta delle cose
+	# deve essere veloce e reattiva, non c'e' tempo da perdere, deve essere tutto
+	# raggiungibile senza intoppi, il testo che scorre e spiega non deve
+	# influenzare lo scontro".
+	#
+	# Quindi qui non si guarda nessuna ricarica e non si aspetta nessuna coda. Le
+	# uniche cose che possono fermare un colpo sono cose che il giocatore VEDE:
+	# lo scontro finito, il tempo fermo da uno script o da uno studio, un turno
+	# saltato da uno stato, e il fiato esaurito. Un click che non fa niente senza
+	# una ragione a schermo si legge come un gioco rotto - e lo era.
+	if not in_corso or int(bersaglio.get("hp", 0)) <= 0 or not il_tempo_scorre():
 		return
-	agisci_ora({"tipo": "attacca", "bersaglio": bersaglio})
+	var tu := combattente_comandato()
+	if tu.is_empty() or int(tu.hp) <= 0 or bool(tu.get("battuta_saltata", false)):
+		return
+	if not RegoleCombattimento.consuma_fiato(tu, RegoleCombattimento.costo_di_fiato("costo_colpo")):
+		segnala_affanno(tu)
+		return
+	attaccante_corrente = tu
+	# il colpo cliccato vale una FRAZIONE di un colpo intero, e deve: a turni ne
+	# davi uno per giro, adesso ne dai quanti ne regge il fiato. Senza la
+	# frazione il protagonista farebbe tre volte il danno di prima (vedi la nota
+	# in regole.json: si abbassa il colpo, non il personaggio)
+	attacca(tu, bersaglio, -1,
+			consuma_carica(tu) * float(GameState.regole.get("frazione_colpo_cliccato", 0.34)),
+			"", 0, "per_colpo_cliccato")
+	# CLICCARE E' ATTACCARE, anche per il tutorial. Senza questa riga il primo
+	# passo - "colpiscimi" - non si sarebbe chiuso mai: il colpo normale non
+	# passa piu' dal menu, e il tutorial aspettava un'azione che non arriva piu'
+	avanza_tutorial({"tipo": "attacca", "bersaglio": bersaglio})
+	aggiorna_scheda(tu)
+
+func segnala_affanno(chi: Dictionary) -> void:
+	# UNA VOLTA SOLA. Chi e' senza fiato continua a cliccare - e' esattamente
+	# quello che fa una persona - e se ogni click scrivesse una riga il diario
+	# diventerebbe una colonna di "non ha piu' fiato" e non si leggerebbe piu'
+	# niente. Si dice quando succede, non finche' dura: il resto lo dice la barra
+	if bool(chi.get("affanno_detto", false)):
+		return
+	chi.affanno_detto = true
+	scrivi(String(GameState.regole.get("stamina", {}).get("testo_affanno",
+			"[i]%s non ha più fiato.[/i]")) % chi.nome)
 
 func pompa_messaggi() -> void:
 	# LE PAROLE SCORRONO, IL MONDO NON SI FERMA. In tempo reale la coda non puo'
@@ -710,39 +789,58 @@ func pompa_messaggi() -> void:
 	await svuota_coda()
 	mostra_continua_fine()
 
-func aggiorna_pronto_giocatore() -> void:
-	# il menu si accende quando la tua ricarica e' finita, e si spegne mentre
-	# ricarichi: e' l'unico modo di far vedere il tempo in una schermata ferma
-	if menu == null:
+func aggiorna_fiato_a_schermo() -> void:
+	# IL MENU NON SI SPEGNE PIU'. Era il primo dei problemi di Bru: "il menu sotto
+	# non e' sempre consultabile". Prima si costruiva quando la ricarica finiva e
+	# si cancellava appena agivi, quindi per meta' dello scontro sotto non c'era
+	# niente da guardare - in un gioco che deve essere "dinamico e molto
+	# reattivo". Adesso il menu esiste sempre e quello che cambia a schermo e' la
+	# barra del fiato: e' li' che si legge il ritmo.
+	if muto:
 		return
-	var tu := combattente_comandato()
-	var pronto := not tu.is_empty() and puo_agire(tu)
-	if pronto != menu_acceso:
-		menu_acceso = pronto
-		attaccante_corrente = tu
-		if pronto:
-			menu.principale()
-		else:
-			menu.pulisci()
+	for combattente in combattenti:
+		if not RegoleCombattimento.in_affanno(combattente):
+			combattente.affanno_detto = false
+		var barra = combattente.get("barra_stamina", null)
+		if barra == null or not is_instance_valid(barra):
+			continue
+		Stile.riempi_barra(barra, RegoleCombattimento.quota_fiato(combattente))
+		barra.modulate = Stile.colore("pericolo") \
+				if RegoleCombattimento.in_affanno(combattente) else Color.WHITE
 
 func combattente_comandato() -> Dictionary:
 	for combattente in combattenti:
-		if comandi_tu(combattente) and int(combattente.hp) > 0:
+		if e_il_comandato(combattente) and int(combattente.hp) > 0:
 			return combattente
 	return {}
 
 func agisci_ora(azione: Dictionary) -> void:
-	# L'AZIONE DEL GIOCATORE, presa quando la prende lui. Non c'e' piu' nessuno
-	# che aspetta: se la tua ricarica non e' finita, il click non fa niente -
-	# e il menu spento lo dice gia'
+	# L'AZIONE DEL MENU, presa quando la prende lui. Non c'e' piu' nessuna
+	# ricarica da aspettare: il menu e' sempre aperto e quello che scegli parte
+	# subito. Quello che si paga e' il FIATO, come per un colpo - un po' di piu',
+	# perche' altrimenti il menu diventerebbe la scorciatoia: "Difenditi" premuto
+	# sei volte di fila alzerebbe la guardia al massimo in due secondi, cioe' quel
+	# che a turni costava sei turni interi.
 	var tu := combattente_comandato()
-	if tu.is_empty() or not puo_agire(tu):
+	if tu.is_empty() or int(tu.hp) <= 0 or not in_corso:
 		return
-	riarma(tu)
+	if bool(tu.get("battuta_saltata", false)):
+		return
+	var tipo := String(azione.get("tipo", ""))
+	if RegoleCombattimento.ha_stato_attivo(tu, "berserk") and tipo != "attacca":
+		# fuori controllo: le mani vanno da sole, il menu non risponde
+		scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % tu.nome)
+		return
+	if not RegoleCombattimento.azione_gratuita(tipo) and not RegoleCombattimento.consuma_fiato(
+			tu, RegoleCombattimento.costo_di_fiato("costo_azione")):
+		segnala_affanno(tu)
+		return
 	attaccante_corrente = tu
-	esegui_azione(tu, azione)
-	menu_acceso = false
-	menu.pulisci()
+	# false: la battuta la chiude il suo respiro, non l'azione. Se la chiudesse
+	# l'azione, chi agisce spesso pagherebbe piu' volte lo stress del Fattore e
+	# i dot condizionali - due cose pensate per succedere una volta a battuta
+	esegui_azione(tu, azione, false)
+	aggiorna_scheda(tu)
 
 func verifica_avviso_fuga() -> void:
 	if portatore_fuga_bloccata.is_empty() or avviso_fuga_mostrato:
@@ -808,15 +906,38 @@ func battuta_di(attaccante: Dictionary) -> void:
 	aggiorna_scheda(attaccante)
 	recupera_aura(attaccante)
 	campo.evidenzia(combattenti, attaccante)
+	attaccante.battuta_saltata = false
 	if attaccante.in_fiamme:
 		applica_combustione(attaccante)
 		if attaccante.hp <= 0:
 			return  # bruciato prima di poter agire
 	if risolvi_stati_a_inizio_turno(attaccante):
-		return  # il turno salta per uno stato (congelamento, sonno, egocentrismo, demotivazione) o la maledizione lo uccide
+		# il turno salta per uno stato (congelamento, sonno, egocentrismo,
+		# demotivazione) o la maledizione lo uccide. Per chi comandi tu "saltare"
+		# non puo' piu' voler dire "non ti tocca": il turno non e' un permesso.
+		# Vuol dire che per tutta questa battuta le mani non rispondono - i click
+		# non partono e il menu non risponde, finche' non torna il respiro
+		attaccante.battuta_saltata = true
+		return
 	ultima_azione_offensiva = false
 	if attaccante.giocatore:
 		attaccante_corrente = attaccante
+		var passo_corrente := passo_tutorial()
+		if not passo_corrente.is_empty() and tutorial_passo not in tutorial_passi_introdotti:
+			tutorial_passi_introdotti.append(tutorial_passo)
+			for msg in passo_corrente.get("prima", []):
+				scrivi_messaggio_tutorial(msg)
+		if e_il_comandato(attaccante):
+			# CHI COMANDI TU NON AGISCE "QUANDO TOCCA A LUI": agisce quando clicchi.
+			# La sua battuta e' solo il respiro - stati, buff, aura, astio - ed e'
+			# gia' passata tutta qui sopra. Se al posto delle tue mani c'e' il
+			# giocatore automatico, qui si martella per lui: se no le prove
+			# misurerebbero un protagonista con un colpo a battuta, cioe' esattamente
+			# il motore a turni che abbiamo tolto.
+			if strategia.is_valid():
+				gioca_al_posto_tuo(attaccante)
+			coda_di_battuta(attaccante)
+			return
 		if RegoleCombattimento.ha_stato_attivo(attaccante, "berserk"):
 			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
 			var nemici := vivi(false)
@@ -824,33 +945,58 @@ func battuta_di(attaccante: Dictionary) -> void:
 				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)],
 						-1, consuma_carica(attaccante))
 		else:
-			var passo_corrente := passo_tutorial()
-			if not passo_corrente.is_empty() and tutorial_passo not in tutorial_passi_introdotti:
-				tutorial_passi_introdotti.append(tutorial_passo)
-				for msg in passo_corrente.get("prima", []):
-					scrivi_messaggio_tutorial(msg)
+			# un compagno che non stai comandando se la cava da solo, e quanto
+			# spesso lo fa dipende dalla sua velocita': e' li' che quella stat conta
 			var azione: Dictionary = {}
 			if strategia.is_valid():
-				# nessuno sta guardando: decide il giocatore automatico
 				azione = strategia.call(self, attaccante)
-			elif comandi_tu(attaccante):
-				# LO DECIDI TU, E NON ADESSO. In tempo reale la battuta non
-				# aspetta nessuno: il menu si accende e il mondo continua a
-				# girare finche' non clicchi (vedi agisci_ora)
-				menu_acceso = true
-				attaccante_corrente = attaccante
-				attaccante.ricarica = 0.0   # resta pronto finche' non agisce
-				if not muto:
-					menu.principale()
-				return
 			else:
-				# un compagno che non stai comandando se la cava da solo
 				azione = azione_automatica(attaccante)
 			esegui_azione(attaccante, azione)
 			return
 	else:
 		turno_nemico(attaccante)
 	coda_di_battuta(attaccante)
+
+func gioca_al_posto_tuo(chi: Dictionary) -> void:
+	# LE MANI DEL GIOCATORE, quando le mani non ci sono.
+	#
+	# Fa quello che farebbe una persona: prende un'azione dal menu e per il resto
+	# della battuta martella sul nemico. Se non martellasse, ogni numero di
+	# bilanciamento - le migliaia di scontri simulati che dicono se una creatura
+	# e' giusta - uscirebbe da un gioco che non esiste piu'.
+	#
+	# I due costi sono gli stessi che paghi tu, letti dallo stesso posto: se il
+	# fiato non basta per l'azione, l'azione non parte, esattamente come col
+	# bottone premuto a vuoto.
+	var azione: Dictionary = strategia.call(self, chi)
+	var tipo := String(azione.get("tipo", ""))
+	var arma: Dictionary = azione.get("arma", {})
+	if tipo == "attacca" and arma.is_empty():
+		# ATTACCARE ADESSO VUOL DIRE CLICCARE. Il colpo normale non e' piu' una
+		# voce di menu, quindi una strategia che "attacca" sta martellando: se
+		# passasse dal menu darebbe un colpo pieno per battuta, cioe' misurerebbe
+		# il gioco vecchio. E si martella SOLO qui: una strategia che si difende
+		# deve restare quella che si difende e basta, se no le prove di
+		# bilanciamento non misurano piu' gli archetipi che dicono di misurare
+		martella(chi)
+		return
+	if RegoleCombattimento.azione_gratuita(tipo) or RegoleCombattimento.consuma_fiato(
+			chi, RegoleCombattimento.costo_di_fiato("costo_azione")):
+		esegui_azione(chi, azione, false)
+
+func martella(chi: Dictionary) -> void:
+	# quanti colpi ci stanno prima di restare senza aria, e li da' tutti
+	if not in_corso or int(chi.hp) <= 0:
+		return
+	var quanti := RegoleCombattimento.colpi_disponibili(chi)
+	for volta in quanti:
+		if not in_corso or int(chi.hp) <= 0:
+			return
+		var nemici := vivi(false)
+		if nemici.is_empty():
+			return
+		colpo_cliccato(nemici[GameState.rng.randi_range(0, nemici.size() - 1)])
 
 func azione_automatica(chi: Dictionary) -> Dictionary:
 	# UN COMPAGNO CHE NON STAI COMANDANDO SE LA CAVA DA SOLO. Non e' un'IA
@@ -878,7 +1024,11 @@ func azione_automatica(chi: Dictionary) -> Dictionary:
 	return {"tipo": "attacca",
 			"bersaglio": nemici[GameState.rng.randi_range(0, nemici.size() - 1)]}
 
-func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
+func esegui_azione(attaccante: Dictionary, azione: Dictionary, chiudi_battuta := true) -> void:
+	# chiudi_battuta = false quando l'azione arriva dalle tue mani invece che da
+	# una battuta: la coda di battuta (lo stress del Fattore, i dot condizionali)
+	# e' roba che succede UNA VOLTA per respiro, e adesso che puoi agire quando
+	# vuoi non puo' piu' stare attaccata all'azione
 	ultima_azione_offensiva = false
 	if true:
 		if true:
@@ -916,7 +1066,8 @@ func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
 			# il passo del tutorial si chiude solo a azione risolta: cosi' le
 			# battute "dopo" commentano quel che e' appena successo, non lo anticipano
 			avanza_tutorial(azione)
-	coda_di_battuta(attaccante)
+	if chiudi_battuta:
+		coda_di_battuta(attaccante)
 
 func coda_di_battuta(attaccante: Dictionary) -> void:
 	if giocatore_e_fuggito:
@@ -2376,15 +2527,18 @@ func risolvi_dot_condizionale(combattente: Dictionary, azione_offensiva: bool) -
 # --- risoluzione dei colpi ---
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
-		moltiplicatore := 1.0, elemento := "", bonus := 0) -> void:
+		moltiplicatore := 1.0, elemento := "", bonus := 0, motivo_dominio := "per_attacco") -> void:
 	ultima_azione_offensiva = true
 	if elemento == "":
 		elemento = elemento_di(attaccante)
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
 	# ogni colpo dato carica la barra: e' il modo piu' diretto di riempirla,
-	# e il motivo per cui martellare sul nemico non e' solo danno
-	RegoleCombattimento.riempi_dominio(attaccante, "per_attacco")
+	# e il motivo per cui martellare sul nemico non e' solo danno.
+	# Un colpo CLICCATO ne carica meno di uno intero, per la stessa ragione per
+	# cui fa meno danno: in un respiro ne dai tre o quattro. Se caricasse uguale,
+	# martellare sarebbe il modo veloce di avere gli speciali gratis
+	RegoleCombattimento.riempi_dominio(attaccante, motivo_dominio)
 	if int(bersaglio.get("turni_immune", 0)) > 0:
 		# Mantra IV in su: per un turno non lo scalfiscono. Il colpo si vede
 		# arrivare e non arriva - e' l'unica cosa in tutto il gioco che annulla
