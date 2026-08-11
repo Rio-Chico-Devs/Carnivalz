@@ -884,6 +884,28 @@ avanza al livello dopo.
   **Le altre passive sono dichiarate e si sbloccano, ma il loro effetto non è ancora
   implementato**: sono elencate qui e in `crescita.json` come contratto da riempire
 
+## Via i turni: il combattimento in tempo reale
+I nemici non aspettano che tu scelga. Ognuno ha una **ricarica** che scorre da sola; quando
+finisce, agisce. Se stai fermo, ti arrivano addosso lo stesso — è questo che rende il gioco
+frenetico pur restando una schermata ferma.
+- **Una battuta è un ciclo di ricarica tuo**, non un tempo globale. Così «tre turni di veleno»
+  vuol dire tre tue battute, esattamente come prima, e tutto quello che contava i turni —
+  stati, Astio, guardia a scatti, rigenerazione — continua a funzionare senza sapere che il
+  mondo è cambiato sotto. Era la traduzione giusta: un turno *è* sempre stato «la prossima
+  volta che tocca a te»
+- **Il tempo si ferma solo quando il gioco ha qualcosa da dirti**: mentre **studi** una
+  creatura e mentre un **boss esegue uno script**. Senza, studiare sarebbe una punizione —
+  apri una pagina di testo e intanto ti picchiano in tre — e lo Studio è il cuore del gioco.
+  `ferma_il_tempo()` si annida, e riparte da solo quando non c'è più niente da leggere
+- **Un motore, due orologi.** In gioco il tempo lo dà `_process(delta)`. Nelle prove e nel
+  giocatore automatico c'è un orologio virtuale che *salta* al prossimo momento in cui
+  qualcuno agisce: non misura un gioco diverso, perché l'ordine delle azioni esce dalle stesse
+  ricariche — cambia solo se il tempo lo conta un cronometro o l'aritmetica
+- **Il party agisce da solo**; tu comandi un personaggio alla volta (`id_comandato`) e gli
+  altri se la cavano con `azione_automatica()`
+- I nemici di livello basso fanno **meno male** di prima: in tempo reale i colpi arrivano più
+  spesso, e la difficoltà la fa la fretta con cui devi decidere, non la cifra del danno
+
 ## Il drop crea dipendenza: il drop c'è sempre (`ruoli.json` → `drop_garantito`)
 La dipendenza non nasce dai premi grossi: nasce dal fatto che **non esca mai niente**. Dieci
 scontri di fila a mani vuote e non si combatte più volentieri — e nessuna tabella di

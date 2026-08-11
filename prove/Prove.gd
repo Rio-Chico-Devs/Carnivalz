@@ -58,6 +58,7 @@ func _ready() -> void:
 	prova_la_difesa_riduce_non_cancella()
 	prova_i_boss_non_si_superano_farmando()
 	prova_salita_di_livello_si_racconta()
+	prova_il_nemico_non_ti_aspetta()
 	prova_barra_di_dominio_come_energia()
 	prova_il_drop_c_e_sempre()
 	prova_guardia_a_scatti()
@@ -1926,6 +1927,93 @@ func prova_salita_di_livello_si_racconta() -> void:
 			== "resurrezione_dimezzata",
 			"quello che lascia la Manifestazione non fa piu' rivivere")
 
+	GameState.nuova_partita()
+
+func prova_il_nemico_non_ti_aspetta() -> void:
+	# LA PROVA DEL CAMBIO D'IMPIANTO. Bru: "eliminiamo i turni, i nemici non
+	# aspetteranno che tu scelga la tua mossa, continueranno ad attaccare".
+	#
+	# E' l'unica cosa che distingue davvero il gioco nuovo dal vecchio, e si
+	# misura in un modo solo: si sta fermi e si guarda se si viene colpiti. Un
+	# motore che sembra in tempo reale ma aspetta comunque il giocatore passa
+	# tutte le altre prove del mondo.
+	titolo("i nemici non aspettano che tu scelga")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["ghoul"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	# una battuta sola, se no l'orologio virtuale gioca tutto lo scontro qui
+	# dentro e quando si torna non c'e' piu' niente da guardare (e' successo:
+	# la prima versione misurava un protagonista gia' morto e concludeva che il
+	# nemico non lo aveva toccato)
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+		elif not combattente.giocatore and nemico.is_empty():
+			nemico = combattente
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro di prova non si e' montato")
+
+	# LO SCONTRO E' FINITO DA SOLO, e questo e' gia' un risultato: con la prima
+	# versione del motore l'orologio virtuale girava a vuoto per sempre, perche'
+	# le battute del protagonista si contavano solo se le comandava una persona
+	esigi(not scontro.in_corso,
+			"con limite_giri = 1 lo scontro non si e' chiuso: la fine non scatta piu'")
+	esigi(scontro.battute_del_giocatore >= 1,
+			"il protagonista ha mosso %d volte: il contatore delle battute non sale"
+			% scontro.battute_del_giocatore)
+
+	# si riapre lo scontro: da qui in poi il giocatore non fa NIENTE
+	scontro.in_corso = true
+	scontro.limite_giri = 0
+	scontro.strategia = Callable()
+	scontro.id_comandato = GameState.id_protagonista
+	for combattente in scontro.combattenti:
+		combattente.hp = int(combattente.hp_max)
+		combattente.ricarica = scontro.ricarica_di(combattente)
+
+	# la ricarica e' una ricarica: piu' sei veloce, meno aspetti
+	var lento := {"velocita": 2, "stati_attivi": {}}
+	var svelto := {"velocita": 20, "stati_attivi": {}}
+	esigi(scontro.ricarica_di(svelto) < scontro.ricarica_di(lento),
+			"chi e' piu' veloce non ricarica prima: la velocita' non conta piu' niente")
+	esigi(scontro.ricarica_di(lento) > 0.0, "la ricarica e' zero: tutti agirebbero a ogni fotogramma")
+
+	# IL TEMPO SI FERMA solo quando il gioco ha qualcosa da dirti. Si controlla
+	# adesso, a scontro vivo: piu' avanti il protagonista sara' caduto (sta
+	# fermo mentre lo picchiano) e a scontro chiuso il tempo e' fermo per un
+	# altro motivo - la prima versione di questa prova ci si e' fatta ingannare
+	esigi(scontro.il_tempo_scorre(), "il tempo e' gia' fermo senza nessuna ragione")
+	scontro.ferma_il_tempo()
+	esigi(not scontro.il_tempo_scorre(), "fermare il tempo non lo ferma")
+	var vita_ferma := int(eroe.hp)
+	for battito in 100:
+		scontro.avanza_orologio(0.1)
+	esigi(int(eroe.hp) == vita_ferma,
+			"col tempo fermo il protagonista ha perso vita: gli script dei boss e lo studio non proteggono niente")
+	scontro.riprendi_il_tempo()
+	esigi(scontro.il_tempo_scorre(), "il tempo non riparte")
+	# e si annida: due cose che fermano il tempo insieme non si scavalcano
+	scontro.ferma_il_tempo()
+	scontro.ferma_il_tempo()
+	scontro.riprendi_il_tempo()
+	esigi(not scontro.il_tempo_scorre(),
+			"una sola ripresa ha fatto ripartire il tempo che era stato fermato due volte")
+	scontro.riprendi_il_tempo()
+	esigi(scontro.il_tempo_scorre(), "dopo due riprese il tempo e' ancora fermo")
+
+	# E ADESSO LA COSA CHE CONTA: si sta fermi e si guarda se il mondo va avanti
+	var vita_prima := int(eroe.hp)
+	for battito in 200:
+		scontro.avanza_orologio(0.1)
+	esigi(int(eroe.hp) < vita_prima,
+			"venti secondi di immobilita' e il protagonista ha ancora %d vita su %d: il nemico sta aspettando il tuo turno"
+			% [int(eroe.hp), vita_prima])
+	scontro.free()
 	GameState.nuova_partita()
 
 func prova_barra_di_dominio_come_energia() -> void:

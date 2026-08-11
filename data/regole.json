@@ -163,5 +163,15 @@
 	"_nota_maestria": "MAESTRIA DEL DOMINIO: fino a 100 punti, e ogni punto rende la barra un po' piu' generosa a riempirsi e un po' piu' economica a spendersi. E' la statistica in cui conviene depositare se giochi sugli speciali invece che sui colpi normali - la scelta stile Dark Souls fra alzare le basi e alzare quello che ci fai.",
 	"maestria_massima": 100,
 	"maestria_guadagno_per_punto": 0.006,
-	"maestria_sconto_per_punto": 0.004
+	"maestria_sconto_per_punto": 0.004,
+	"_nota_tempo_reale": "VIA I TURNI. I nemici non aspettano che tu scelga: ognuno ha una ricarica che scorre da sola e quando finisce agisce. Una BATTUTA e' un ciclo di ricarica tuo - quindi 'tre turni di veleno' vuol dire tre tue battute, esattamente come prima, e tutto quello che contava i turni continua a funzionare senza sapere che il mondo e' cambiato sotto. Il tempo si ferma solo quando il gioco ha qualcosa da dirti: mentre studi una creatura e mentre un boss esegue uno script.",
+	"tempo": {
+		"ricarica_base": 1.6,
+		"velocita_riferimento": 6,
+		"ricarica_minima": 0.45,
+		"ricarica_massima": 4.0,
+		"apertura_secondi": 1.2,
+		"_battute_massime": "tetto di sicurezza dell'orologio virtuale: oltre, lo scontro si chiude e lo dice invece di girare a vuoto",
+		"battute_massime": 4000
+	}
 }
