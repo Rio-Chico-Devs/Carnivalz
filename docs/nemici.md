@@ -56,7 +56,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| si_ritira_nel_guscio | alza la guardia | — | sempre | sorteggio | — |
+| Si ritira nel guscio | alza la guardia | — | sempre | sorteggio | — |
 | Dentro il guscio | **si rimette in piedi** (+15% della vita massima) | — | sotto il 50% di vita | priorità 6 | 4 battute |
 
 ### Infetto Rapido — livello 2, veloce
@@ -183,8 +183,8 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| bracciata | un colpo pesante su uno solo | **18 fisso** | sempre | sorteggio | — |
-| morsi | 2 colpi su bersagli a caso | **9 fisso** | sempre | sorteggio | — |
+| Bracciata | un colpo pesante su uno solo | ×1.40 → 25 | sempre | sorteggio | — |
+| Morsi | 2 colpi su bersagli a caso | ×0.60 → 11 a colpo (22 totali) | sempre | sorteggio | — |
 | Si ricompone | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
 
 ### Veronica — livello 5, miniboss
@@ -224,11 +224,11 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| richiamo_dei_suoi_simili | chiama 1 × `goblin_tipico` | — | sempre | sorteggio | — |
-| furia_di_un_goblin | un colpo pesante su uno solo | **9 fisso** | sempre | sorteggio | — |
-| pugno_del_vile | un colpo pesante su uno solo | **9 fisso** | sempre | sorteggio | — |
-| capriccio_del_goblin | si potenzia l'attacco (+9 per 3 battute) | — | sempre | sorteggio | — |
-| cattiveria_innata | 3 colpi su bersagli a caso | **5 fisso** | sempre | sorteggio | — |
+| Richiamo dei suoi simili | chiama 1 × `goblin_tipico` | — | sempre | sorteggio | — |
+| Furia di un goblin | un colpo pesante su uno solo | ×1.30 → 33 | sempre | sorteggio | — |
+| Pugno del vile | un colpo pesante su uno solo | ×1.20 → 30 | sempre | sorteggio | — |
+| Capriccio del goblin | si potenzia l'attacco (+9 per 3 battute) | — | sempre | sorteggio | — |
+| Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 13 a colpo (39 totali) | sempre | sorteggio | — |
 
 Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -319,8 +319,8 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| pugno_devastante | toglie **metà** della vita che ti resta | come il suo colpo normale | sempre | sorteggio | — |
-| spazzata | colpisce **tutta la squadra** | **9 fisso** | sempre | sorteggio | — |
+| Pugno devastante | toglie **metà** della vita che ti resta | come il suo colpo normale | sempre | sorteggio | — |
+| Spazzata | colpisce **tutta la squadra** | ×0.70 → 24 | sempre | sorteggio | — |
 
 Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -333,7 +333,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| morso_multiplo | 2 colpi su bersagli a caso | **9 fisso** | sempre | sorteggio | — |
+| Morso multiplo | 2 colpi su bersagli a caso | ×0.55 → 18 a colpo (36 totali) | sempre | sorteggio | — |
 | Si ingozza | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
 
 ### Sacerdote Folle — livello 11, comune
@@ -343,11 +343,11 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| litania_1 | un colpo pesante su uno solo | **14 fisso** | sempre | sorteggio | — |
-| litania_2 | un colpo pesante su uno solo | **14 fisso** | sempre | sorteggio | — |
-| litania_3 | un colpo pesante su uno solo | **14 fisso** | sempre | sorteggio | — |
-| litania_4 | un colpo pesante su uno solo | **14 fisso** | sempre | sorteggio | — |
-| richiamo_dei_teschi | chiama 1 × `teschio_errante` | — | sempre | sorteggio | — |
+| Litania: «Per il viaggio!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| Litania: «Unisciti al raccolto!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| Litania: «Portatelo da me!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| Litania: «Non c'è altra strada!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| Richiamo dei teschi | chiama 1 × `teschio_errante` | — | sempre | sorteggio | — |
 | Litania che rimargina | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
 
 ### Jongo Dongo — livello 12, fonte
@@ -357,11 +357,11 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| colpo_marcio | un colpo pesante su uno solo | **18 fisso** | sempre | sorteggio | — |
-| bastone_di_pietra_marcia | un colpo pesante su uno solo | **14 fisso** | sempre | sorteggio | — |
-| grido_del_raccolto | colpisce **tutta la squadra** | **5 fisso** | sempre | sorteggio | — |
-| sacrificio | uccide un suo alleato per farsi più forte | — | sempre | sorteggio | — |
-| raccolto_di_carne | chiama 1 × `ghoul` | — | sempre | sorteggio | — |
+| Colpo marcio | un colpo pesante su uno solo | ×1.40 → 67 | sempre | sorteggio | — |
+| Bastone di pietra marcia | un colpo pesante su uno solo | ×1.15 → 55 | sempre | sorteggio | — |
+| Grido del raccolto | colpisce **tutta la squadra** | ×0.70 → 34 | sempre | sorteggio | — |
+| Un piccolo sacrificio | uccide un suo alleato per farsi più forte | — | sempre | sorteggio | — |
+| Raccolto di carne | chiama 1 × `ghoul` | — | sempre | sorteggio | — |
 | Maledizione di chi muore | colpisce **tutta la squadra** | ×1.00 → 48 | sotto il 25% di vita | priorità 7 | — |
 
 Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
@@ -373,7 +373,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| spine_sottili | un colpo pesante su uno solo | **8 fisso** | sempre | sorteggio | — |
+| Spine sottili | un colpo pesante su uno solo | ×1.20 → 46 | sempre | sorteggio | — |
 | Spine a tappeto | colpisce **tutta la squadra** | ×0.75 → 29 | sempre | sorteggio | — |
 
 ### Marionetta — livello 13, comune
@@ -415,10 +415,10 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| spilli | un colpo pesante su uno solo | **14 fisso** | sempre | sorteggio | — |
-| lamento | colpisce **tutta la squadra** | **9 fisso** | sempre | sorteggio | — |
-| autolesione | si ferisce da sola, e la cosa vi pesa addosso | **5 fisso** | sempre | sorteggio | — |
-| richiamo_marionette | chiama 1 × `marionetta` | — | sempre | sorteggio | — |
+| Spilli | un colpo pesante su uno solo | ×1.30 → 35 | sempre | sorteggio | — |
+| Lamento | colpisce **tutta la squadra** | ×0.70 → 19 | sempre | sorteggio | — |
+| Si strappa una cucitura | si ferisce da sola, e la cosa vi pesa addosso | **5 fisso** | sempre | sorteggio | — |
+| Richiamo delle marionette | chiama 1 × `marionetta` | — | sempre | sorteggio | — |
 | Si ricuce le cuciture | **si rimette in piedi** (+15% della vita massima) | — | sotto il 25% di vita | priorità 6 | 6 battute |
 
 Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
@@ -430,8 +430,8 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| radici_che_stringono | un colpo pesante su uno solo | **14 fisso** | sempre | sorteggio | — |
-| sfogo_di_spore | colpisce **tutta la squadra** | **11 fisso** | sempre | sorteggio | — |
+| Radici che stringono | un colpo pesante su uno solo | ×1.30 → 74 | sempre | sorteggio | — |
+| Sfogo di spore | colpisce **tutta la squadra** | ×0.70 → 40 | sempre | sorteggio | — |
 | Assorbe dalla parete | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 8 | 5 battute |
 
 ## Livelli 16 e oltre — le fonti
@@ -443,8 +443,8 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 
 | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --- | --- | --- | --- | --- | --- |
-| gran_finale | colpisce **tutta la squadra** | **9 fisso** | sempre | sorteggio | — |
-| incendia | ti dà fuoco (9 a battuta) | — | sempre | sorteggio | — |
-| capote | si chiude (difesa +14 per 2 battute) | — | sempre | sorteggio | — |
-| llamada | chiama 1 × `maschera_vuota` | — | sempre | sorteggio | — |
+| ¡Gran finale! | colpisce **tutta la squadra** | ×0.85 → 63 | sempre | sorteggio | — |
+| ¡Vamos! | ti dà fuoco (9 a battuta) | — | sempre | sorteggio | — |
+| Capote | si chiude (difesa +14 per 2 battute) | — | sempre | sorteggio | — |
+| Llamada | chiama 1 × `maschera_vuota` | — | sempre | sorteggio | — |
 | Fiamma disperata | colpisce **tutta la squadra** | ×1.30 → 96 | sotto il 30% di vita | priorità 7 | 4 battute |
