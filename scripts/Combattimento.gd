@@ -1,6 +1,6 @@
 extends Control
 
-# Combattimento a turni: il MOTORE dei turni, e solo quello.
+# Combattimento in tempo reale: il MOTORE, e solo quello.
 #
 # Chi fa cosa, dopo lo scorporo:
 #
@@ -21,14 +21,16 @@ extends Control
 # gioca ogni nemico del gioco migliaia di volte e dice se e' bilanciato.
 # Vedi "strategia": se e' impostata, decide lei al posto del menu.
 #
-# Party e nemici in un'unica fila d'iniziativa ordinata per velocita'
-# (ricalcolata a ogni giro). Stats: hp, attacco, difesa, velocita', fattore. I
-# buff sono temporanei (n turni). I boss hanno "mosse" pesate nei dati (attacco
-# forte / a tutti / buff / evoca) che rendono ogni scontro unico. Menu azioni
-# del giocatore: Attacca, Difenditi, Abilita' (Studia sempre disponibile),
-# Oggetti (dalla sacca), Alleati (ospiti non combattenti). Esito eroe via
-# speranza e cedimento. Numeri in data/regole.json, casualita' solo dall'RNG
-# seedato di GameState.
+# Nessuna fila d'iniziativa: ognuno ha la sua ricarica e agisce quando scade.
+# Chi comandi tu no - lui colpisce quando clicchi, e il suo limite e' il fiato
+# (vedi "IL TEMPO" piu' sotto e la sezione sulla stamina in Regole.gd). Stats:
+# hp, attacco, difesa, velocita', fattore. I buff durano n battute. I boss hanno
+# "mosse" pesate nei dati (attacco forte / a tutti / buff / evoca) che rendono
+# ogni scontro unico. Il colpo normale si da' cliccando sulla creatura; il menu
+# tiene Difenditi, Arma, Abilita' (Studia sempre disponibile), Oggetti (dalla
+# sacca), Alleati (ospiti non combattenti), Fuggi - e non si spegne mai. Esito
+# eroe via speranza e cedimento. Numeri in data/regole.json, casualita' solo
+# dall'RNG seedato di GameState.
 
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"

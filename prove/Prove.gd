@@ -2083,6 +2083,7 @@ func prova_il_fiato_regola_i_click() -> void:
 	# uno scontro vero, non muto, cliccando come si clicca in partita.
 	titolo("il fiato: si martella quanto si vuole, finche' c'e' aria")
 	GameState.nuova_partita()
+	GameState.recluta("insonne")   # serve una compagna: la velocita' si misura su di lei
 	GameState.nemici_combattimento = ["goblin_tipico"]
 	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 	add_child(scontro)
@@ -2098,6 +2099,13 @@ func prova_il_fiato_regola_i_click() -> void:
 	# un sacco da boxe: qui si misura come si colpisce, non si vince
 	nemico.hp_max = 100000
 	nemico.hp = 100000
+	# ...e lo Slaughter va spento per la durata della prova. E' un KO istantaneo
+	# all'1% per colpo: qui di colpi ne partono una quindicina di fila, quindi
+	# una volta su sette la misura finirebbe contro un cadavere e la prova
+	# fallirebbe a caso. Una prova che a volte e' rossa smette di voler dire
+	# qualcosa il giorno dopo, quando si impara a rilanciarla
+	var slaughter_vero: float = float(GameState.regole.get("slaughter_probabilita_base", 0.01))
+	GameState.regole["slaughter_probabilita_base"] = 0.0
 
 	# 1. IL FIATO PARTE PIENO (cioe' la barra dell'affanno parte vuota), e ce
 	#    l'ha solo chi clicca: una creatura si muove a velocita', non a fiato
@@ -2182,14 +2190,38 @@ func prova_il_fiato_regola_i_click() -> void:
 			% [minimo_cliccato, minimo_pieno])
 
 	# 6. LA VELOCITA' NON TI RIGUARDA PIU'. E' la stat che Bru voleva rendere
-	#    sensata dandole un mestiere solo: muovere chi va da solo
-	var respiro: float = scontro.ricarica_di(eroe)
-	var velocita_vera := int(eroe.velocita)
-	eroe.velocita = velocita_vera * 4
-	esigi(is_equal_approx(scontro.ricarica_di(eroe), respiro),
-			"quadruplicando la velocita' il tuo respiro passa da %.2fs a %.2fs: la velocita' decide ancora il tuo ritmo"
-			% [respiro, scontro.ricarica_di(eroe)])
-	eroe.velocita = velocita_vera
+	#    sensata dandole un mestiere solo: muovere chi va da solo.
+	#
+	#    Sul protagonista da solo non si vede: e' LUI il riferimento con cui si
+	#    misurano le ricariche di tutti, quindi la sua veniva 1.6 anche prima -
+	#    una prova scritta su di lui passava anche col codice rotto, ed e' quello
+	#    che ha fatto la prima volta. Si guarda una COMPAGNA, che una velocita'
+	#    diversa dalla tua ce l'ha: da sola si muove al suo ritmo, e nell'attimo
+	#    in cui la prendi in mano quel ritmo diventa il tuo respiro
+	var compagna: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and String(combattente.id) != GameState.id_protagonista:
+			compagna = combattente
+			break
+	esigi(not compagna.is_empty(), "la compagna non e' scesa in campo: non c'e' niente da misurare")
+	if not compagna.is_empty():
+		var respiro_fisso := float(GameState.regole.get("tempo", {}).get("battuta_comandato", 1.6))
+		var da_sola: float = scontro.ricarica_di(compagna)
+		esigi(not is_equal_approx(da_sola, respiro_fisso),
+				"da sola la compagna si muove ogni %.2fs, che e' esattamente il respiro fisso: cosi' la prova non distingue niente"
+				% da_sola)
+		scontro.id_comandato = String(compagna.id)
+		var in_mano: float = scontro.ricarica_di(compagna)
+		esigi(is_equal_approx(in_mano, respiro_fisso),
+				"presa in mano, la compagna respira ogni %.2fs invece dei %.2fs fissi: la velocita' decide ancora il tuo ritmo"
+				% [in_mano, respiro_fisso])
+		var velocita_vera := int(compagna.velocita)
+		compagna.velocita = velocita_vera * 4
+		esigi(is_equal_approx(scontro.ricarica_di(compagna), respiro_fisso),
+				"quadruplicando la velocita' di chi comandi il suo respiro passa a %.2fs: la velocita' ti riguarda ancora"
+				% scontro.ricarica_di(compagna))
+		compagna.velocita = velocita_vera
+		scontro.id_comandato = ""
 
 	# 7. IL MENU C'E' SEMPRE. Era il primo dei problemi: "il menu sotto non e'
 	#    sempre consultabile". Si aspetta che l'apertura finisca di parlare -
@@ -2204,9 +2236,20 @@ func prova_il_fiato_regola_i_click() -> void:
 			"passata l'apertura, sotto non c'e' ancora nessun bottone da premere")
 	RegoleCombattimento.imposta_fiato(eroe, 0.0)
 	var fiato_prima_azione := float(eroe.get("stamina", 0.0))
+	# si entra in un sottomenu, come chi va a cercarsi un'abilita', e poi si
+	# sceglie: quando l'azione e' partita si deve essere di nuovo al menu
+	# principale. Se il menu restasse dov'e', si finirebbe dentro un sottomenu
+	# senza piu' un modo di tornare indietro - e "Difenditi" non sarebbe li'
+	scontro.menu.abilita()
 	scontro.menu.scegli({"tipo": "difendi"})
 	esigi(scontro.menu.contenitore.get_child_count() > 0,
 			"scelta un'azione, il menu e' sparito: sotto non c'e' piu' niente da premere")
+	var tornato_al_principale := false
+	for figlio in scontro.menu.contenitore.get_children():
+		if figlio is Button and String(figlio.text).findn("Difenditi") != -1:
+			tornato_al_principale = true
+	esigi(tornato_al_principale,
+			"dopo una scelta il menu resta dov'era: si entra in un sottomenu e non si torna piu' indietro")
 	esigi(float(eroe.get("stamina", 0.0)) > fiato_prima_azione,
 			"un'azione del menu non costa fiato: allora e' gratis, e gratis vuol dire infinita")
 
@@ -2221,6 +2264,7 @@ func prova_il_fiato_regola_i_click() -> void:
 	esigi(RegoleCombattimento.scatti_difesa(eroe) < tetto,
 			"con un fiato solo si arriva a %d scatti su %d: la guardia massima e' gratis"
 			% [RegoleCombattimento.scatti_difesa(eroe), tetto])
+	GameState.regole["slaughter_probabilita_base"] = slaughter_vero
 	scontro.free()
 	GameState.nuova_partita()
 

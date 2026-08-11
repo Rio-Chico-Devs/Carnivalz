@@ -57,7 +57,7 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `scenes/Selezione.tscn` + `scripts/Selezione.gd` — menu del party: mostra solo le classi
   sbloccate e si riadatta man mano che i personaggi entrano o escono dai disponibili
 - `scenes/Main.tscn` + `scripts/Main.gd` — motore eventi + palco dialoghi
-- `scenes/Combattimento.tscn` + `scripts/Combattimento.gd` — combattimento a turni
+- `scenes/Combattimento.tscn` + `scripts/Combattimento.gd` — combattimento in tempo reale
 - `scenes/Ritratto.tscn` + `scripts/Ritratto.gd` — ritratto riusabile (immagine o placeholder)
 - `scripts/GameState.gd` — autoload: roster, party, inventario, livelli, RNG seedato, JSON
 - `scripts/Stile.gd` — autoload: il linguaggio visivo del gioco, letto da `data/stile.json` e
@@ -901,10 +901,10 @@ frenetico pur restando una schermata ferma.
   giocatore automatico c'è un orologio virtuale che *salta* al prossimo momento in cui
   qualcuno agisce: non misura un gioco diverso, perché l'ordine delle azioni esce dalle stesse
   ricariche — cambia solo se il tempo lo conta un cronometro o l'aritmetica
-- **Sul nemico si clicca**: il colpo normale non è una voce di menu, è la creatura stessa —
-  ci si martella sopra, e se la ricarica non è pronta il click non conta. Il menu resta per
-  quello che non si fa colpendo: difendersi, gli attacchi d'arma, gli speciali, gli oggetti,
-  gli alleati, la fuga
+- **Sul nemico si clicca, e ogni click è danno.** Bru: «se clicco entra danno, punto». Il colpo
+  normale non è una voce di menu, è la creatura stessa: ci si martella sopra quanto si vuole,
+  senza nessuna ricarica da aspettare. Il menu resta per quello che non si fa colpendo —
+  difendersi, gli attacchi d'arma, gli speciali, gli oggetti, gli alleati, la fuga
 - **Le parole scorrono, il mondo non si ferma**: `pompa_messaggi()` svuota la coda in
   parallelo al tempo, e i messaggi «forti» in tempo reale non aspettano più un click. Senza
   quella pompa non arrivava a schermo un solo numero di danno e lo scontro non si chiudeva
@@ -913,6 +913,51 @@ frenetico pur restando una schermata ferma.
   altri se la cavano con `azione_automatica()`
 - I nemici di livello basso fanno **meno male** di prima: in tempo reale i colpi arrivano più
   spesso, e la difficoltà la fa la fretta con cui devi decidere, non la cifra del danno
+
+## Il fiato: l'unico orologio di chi comandi (`regole.json` → `stamina`)
+Se ogni click è danno, qualcosa deve pur regolare il ritmo — e non può essere un'attesa,
+perché l'attesa è esattamente quello che abbiamo tolto. Lo regola il **fiato**: una barra che
+**sale** a ogni colpo e a ogni azione presa dal menu, scende da sola nel tempo, e a fondo corsa
+manda in **affanno** — per un momento non parte più niente. Bru: «aggiungiamo anche una barra
+stamina che sale più si clicca, così lo spamming diventa punito».
+- **La soglia di rientro è più bassa di quella di uscita** (`soglia_ripresa` 0.45 contro
+  `soglia_affanno` 1.0). Senza, appena il fiato risale sopra il costo di un colpo si potrebbe
+  ricliccare: chi martella resterebbe incollato alla soglia e batterebbe comunque a ritmo
+  pieno, e l'affanno sarebbe un lampeggio invece che una pausa
+- **Scrive una funzione sola**, `RegoleCombattimento.imposta_fiato()`: «in affanno con la barra
+  vuota» e «fiato oltre il massimo» non si possono rappresentare, perché non c'è un'altra
+  strada per arrivarci
+- **Anche il menu costa fiato** (`costo_azione`, più di un colpo). Altrimenti il menu
+  diventerebbe la scorciatoia: *Difenditi* premuto sei volte di fila alzerebbe la guardia al
+  massimo in due secondi, cioè quello che a turni costava sei turni interi. Fanno eccezione
+  **Studia** e **Fuggi** (`azioni_gratuite`): guardare non è mai un errore, e restare senza
+  aria non deve poterti impedire di scappare
+- **La stamina si migliora coi punti** (`abilita.json` → `fiato_i`, `fiato_ii`), come le altre
+  basi: è il ramo di chi gioca martellando
+- **Il colpo cliccato vale una frazione di un colpo pieno** (`frazione_colpo_cliccato`) e
+  carica meno la barra di dominio (`per_colpo_cliccato`): in un respiro se ne danno tre o
+  quattro. **Non** si è abbassato l'attacco base — l'attacco base è anche la curva da cui
+  escono i numeri delle creature (`ruoli.json`), quindi abbassarlo le avrebbe indebolite in
+  proporzione e non avrebbe cambiato niente. Per lo stesso motivo `attacchi_sferrati` in
+  `crescita.json` passa da uno ogni 5 a uno ogni 15, col profilo moltiplicato per tre: la
+  pendenza della crescita resta identica, è cambiato solo cosa si conta
+- **La velocità adesso ha un mestiere solo**: muovere chi va da solo. Chi comandi tu ha un
+  **respiro di lunghezza fissa** (`battuta_comandato`) che serve agli stati, ai buff e all'aura
+  — se dipendesse dalla velocità, la velocità tornerebbe a decidere il tuo ritmo dalla porta di
+  servizio. Cambia personaggio comandato (`id_comandato`) e la stessa creatura passa da un
+  ritmo all'altro
+- **Il menu non si spegne più**: si costruisce una volta e si ricostruisce subito dopo ogni
+  scelta. Prima si accendeva alla fine della ricarica e si cancellava appena agivi — per metà
+  dello scontro, sotto, non c'era niente da premere
+- **Nelle prove qualcuno martella al posto tuo** (`gioca_al_posto_tuo()`,
+  `RegoleCombattimento.colpi_disponibili()`): il giocatore automatico non ha un mouse, e se non
+  cliccasse misurerebbe un protagonista con un colpo a battuta — cioè il motore a turni che
+  abbiamo tolto. Il conto non è una stima, è lo spazio che resta nella barra
+- **In tempo reale i numeri non si accodano**: escono quando il colpo entra
+  (`Voce.accoda_effetto()`), e il diario butta le righe ordinarie più vecchie se resta indietro
+  (`Voce.sfoltisci()`, mai le «forti»). Bru: «il testo che scorre e spiega non deve influenzare
+  lo scontro». Niente va perso comunque — lo storico della pausa le prende tutte
+- Si prova in `prova_il_fiato_regola_i_click()`, che non è muta e clicca davvero
 
 ## Il drop crea dipendenza: il drop c'è sempre (`ruoli.json` → `drop_garantito`)
 La dipendenza non nasce dai premi grossi: nasce dal fatto che **non esca mai niente**. Dieci
