@@ -51,19 +51,17 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 	var ritratto := SCENA_RITRATTO.instantiate()
 	scheda.add_child(ritratto)
 	# SUL NEMICO SI CLICCA. Bru: "per colpire dovresti cliccare in continuazione
-	# sul nemico nel caso volessi attaccare normalmente, solo per gli attacchi
-	# speciali dovrebbe esserci il menu". Quindi il colpo normale non e' una voce
-	# di menu: e' la creatura stessa. Il bottone sta SOPRA il ritratto e prende
-	# tutta la scheda, cosi' si colpisce dove si guarda
+	# sul nemico, solo per gli attacchi speciali dovrebbe esserci il menu".
+	#
+	# La prima versione metteva un Button dentro la scheda con gli ancoraggi a
+	# tutto schermo: ma la scheda e' un VBoxContainer, e un contenitore IGNORA
+	# gli ancoraggi dei figli - li mette in fila. Il bottone diventava una riga
+	# alta zero, invisibile e non cliccabile. Niente bottone allora: e' la
+	# scheda stessa a sentire il click, ed e' anche piu' giusto - si colpisce
+	# la creatura, non un rettangolo sopra la creatura.
 	if not giocatore:
-		var bersaglio := Button.new()
-		bersaglio.flat = true
-		bersaglio.name = "Bersaglio"
-		bersaglio.set_anchors_preset(Control.PRESET_FULL_RECT)
-		bersaglio.mouse_filter = Control.MOUSE_FILTER_STOP
-		bersaglio.focus_mode = Control.FOCUS_NONE
-		bersaglio.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		scheda.add_child(bersaglio)
+		scheda.mouse_filter = Control.MOUSE_FILTER_STOP
+		scheda.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	var vita := Label.new()
 	vita.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	scheda.add_child(vita)
@@ -103,7 +101,7 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 			ritratto.imposta_grande(true)
 		ritratto.mostra(id_personaggio)
 	return {"scheda": scheda, "etichetta_vita": vita, "etichetta_extra": extra,
-			"barra_dominio": dominio, "bersaglio": scheda.get_node_or_null("Bersaglio")}
+			"barra_dominio": dominio, "bersaglio": (null if giocatore else scheda)}
 
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
@@ -133,7 +131,10 @@ func aggiorna(combattente: Dictionary) -> void:
 		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
 	combattente.etichetta_extra.text = dettagli_di(combattente)
 	if combattente.get("barra_dominio", null) != null:
-		Stile.riempi_barra(combattente.barra_dominio, float(combattente.fattore) / 100.0)
+		# la barra e' il DOMINIO, non il Fattore: leggendo il fattore partiva
+		# gia' piena di un pezzo (base 15) a scontro appena cominciato
+		Stile.riempi_barra(combattente.barra_dominio,
+				float(combattente.get("dominio", 0)) / float(maxi(RegoleCombattimento.dominio_pieno(), 1)))
 
 func conosciuta(combattente: Dictionary, strato: int) -> bool:
 	# Studiare era una cosa che si LEGGEVA: premevi, usciva del testo, e sullo

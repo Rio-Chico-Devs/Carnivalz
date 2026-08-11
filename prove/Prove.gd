@@ -1967,9 +1967,30 @@ func prova_scontro_vero_si_gioca() -> void:
 			nemico = combattente
 	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
 
-	# 1. SUL NEMICO SI CLICCA, e il click e' un colpo
+	# 0. LA BARRA PARTE VUOTA. Bru: "appare con una piccola porzione piena e non
+	#    vuota a inizio scontro" - leggeva il Fattore (base 15) invece del dominio
+	esigi(int(eroe.get("dominio", -1)) == 0,
+			"lo scontro comincia con %d di dominio in cassa" % int(eroe.get("dominio", -1)))
+	var barra = eroe.get("barra_dominio", null)
+	esigi(barra != null, "la scheda del protagonista non ha la barra")
+	if barra != null:
+		esigi(is_zero_approx(float(barra.get_meta("quota", -1.0))),
+				"a inizio scontro la barra e' gia' piena per un %d%%"
+				% int(float(barra.get_meta("quota", 0.0)) * 100))
+
+	# 1. SUL NEMICO SI CLICCA, e il click e' un colpo. Il bersaglio dev'essere
+	#    un Control che sente il mouse: la prima versione ci metteva un Button
+	#    dentro un VBoxContainer, dove gli ancoraggi non contano e diventava una
+	#    riga alta zero - c'era, e non si poteva cliccare
 	esigi(nemico.get("bersaglio_cliccabile", null) != null,
 			"il nemico non ha niente da cliccare: il colpo normale non si puo' dare")
+	var da_cliccare = nemico.get("bersaglio_cliccabile", null)
+	if da_cliccare != null:
+		esigi(da_cliccare.mouse_filter == Control.MOUSE_FILTER_STOP,
+				"la scheda del nemico non ferma il mouse: il click le passa attraverso")
+		esigi(da_cliccare.size.x > 8.0 and da_cliccare.size.y > 8.0,
+				"l'area cliccabile del nemico e' %dx%d pixel: non ci si becca"
+				% [int(da_cliccare.size.x), int(da_cliccare.size.y)])
 	esigi(eroe.get("bersaglio_cliccabile", null) == null,
 			"anche il protagonista e' cliccabile come bersaglio")
 	var vita_nemico := int(nemico.hp)
@@ -1984,6 +2005,25 @@ func prova_scontro_vero_si_gioca() -> void:
 	scontro._su_click_nemico(nemico)
 	esigi(int(nemico.hp) == dopo_il_colpo,
 			"cliccando durante la ricarica si colpisce lo stesso: la ricarica non serve a niente")
+
+	# 2-bis. LA BARRA SI RIEMPIE COLPENDO E INCASSANDO
+	esigi(int(eroe.get("dominio", 0)) > 0,
+			"dopo aver colpito la barra di dominio e' ancora a zero")
+	var dominio_prima := int(eroe.get("dominio", 0))
+	scontro.attacca(nemico, eroe)
+	esigi(int(eroe.get("dominio", 0)) > dominio_prima,
+			"incassando un colpo la barra non si e' mossa: restare in mezzo non paga niente")
+
+	# 2-ter. OGNI CREATURA HA LA SUA RAPIDITA': i ruoli si devono sentire
+	var ricarica_eroe: float = scontro.ricarica_di(eroe)
+	var lento_finto := {"velocita": maxi(int(eroe.velocita) / 2, 1), "stati_attivi": {}}
+	var svelto_finto := {"velocita": int(eroe.velocita) * 2, "stati_attivi": {}}
+	esigi(scontro.ricarica_di(svelto_finto) < ricarica_eroe,
+			"chi e' il doppio piu' veloce di te ricarica in %.2fs contro i tuoi %.2fs: la velocita' non si sente"
+			% [scontro.ricarica_di(svelto_finto), ricarica_eroe])
+	esigi(scontro.ricarica_di(lento_finto) > ricarica_eroe,
+			"chi e' la meta' piu' lento di te ricarica in %.2fs contro i tuoi %.2fs: la velocita' non si sente"
+			% [scontro.ricarica_di(lento_finto), ricarica_eroe])
 
 	# 3. IL MONDO VA AVANTI DA SOLO: si lascia scorrere il tempo senza toccare
 	#    niente e il protagonista deve incassare

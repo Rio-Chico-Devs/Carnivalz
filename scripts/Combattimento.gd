@@ -530,8 +530,20 @@ func il_tempo_scorre() -> bool:
 
 func ricarica_di(combattente: Dictionary) -> float:
 	# quanto ci mette a rimuoversi. Piu' sei veloce, meno aspetti
+	# IL RIFERIMENTO E' IL PROTAGONISTA, non un numero fisso.
+	#
+	# Con un riferimento fisso (6) al livello 1 le velocita' vere sono 2 o 3, e
+	# tutte le ricariche finivano schiacciate contro il limite lento: ogni
+	# creatura si muoveva uguale, e i ruoli - il veloce, il corazzato - non si
+	# sentivano affatto. Rapportandola a chi giochi tu, un "veloce" e' sempre il
+	# doppio di te e un "corazzato" sempre la meta', al livello 1 come al 30.
 	var dati: Dictionary = GameState.regole.get("tempo", {})
-	var riferimento := maxf(float(dati.get("velocita_riferimento", 6)), 1.0)
+	var riferimento := float(dati.get("velocita_riferimento", 6))
+	for altro in combattenti:
+		if altro.giocatore and String(altro.get("id", "")) == GameState.id_protagonista:
+			riferimento = float(RegoleCombattimento.velocita_effettiva(altro))
+			break
+	riferimento = maxf(riferimento, 1.0)
 	var mia := maxf(float(RegoleCombattimento.velocita_effettiva(combattente)), 1.0)
 	var secondi := float(dati.get("ricarica_base", 1.6)) * (riferimento / mia)
 	return clampf(secondi, float(dati.get("ricarica_minima", 0.45)),
@@ -665,11 +677,16 @@ func esegui_scontro() -> void:
 	mostra_continua_fine()
 
 func collega_bersaglio(combattente: Dictionary) -> void:
-	var bottone = combattente.get("bersaglio_cliccabile", null)
-	if bottone == null or not is_instance_valid(bottone):
+	var scheda = combattente.get("bersaglio_cliccabile", null)
+	if scheda == null or not is_instance_valid(scheda):
 		return
-	if not bottone.pressed.is_connected(_su_click_nemico):
-		bottone.pressed.connect(_su_click_nemico.bind(combattente))
+	if not scheda.gui_input.is_connected(_su_input_nemico):
+		scheda.gui_input.connect(_su_input_nemico.bind(combattente))
+
+func _su_input_nemico(evento: InputEvent, bersaglio: Dictionary) -> void:
+	if evento is InputEventMouseButton and evento.pressed \
+			and evento.button_index == MOUSE_BUTTON_LEFT:
+		_su_click_nemico(bersaglio)
 
 func _su_click_nemico(bersaglio: Dictionary) -> void:
 	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu. Si martella li'
@@ -2365,6 +2382,9 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		elemento = elemento_di(attaccante)
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
+	# ogni colpo dato carica la barra: e' il modo piu' diretto di riempirla,
+	# e il motivo per cui martellare sul nemico non e' solo danno
+	RegoleCombattimento.riempi_dominio(attaccante, "per_attacco")
 	if int(bersaglio.get("turni_immune", 0)) > 0:
 		# Mantra IV in su: per un turno non lo scalfiscono. Il colpo si vede
 		# arrivare e non arriva - e' l'unica cosa in tutto il gioco che annulla
@@ -2406,6 +2426,8 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	var esito := RegoleCombattimento.calcola_danno(attaccante, bersaglio, valore_attacco, moltiplicatore, bonus)
 	var danno := int(esito.danno)
 	var critico := bool(esito.critico)
+	if critico:
+		RegoleCombattimento.riempi_dominio(attaccante, "per_critico")
 	if esito.fattore:
 		scrivi("Il dominio di %s arde!" % attaccante.nome)
 	if danno <= 0:
@@ -2500,6 +2522,10 @@ func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 		# l'Astio si alimenta qui, e solo qui: un colpo incassato e' un colpo
 		# incassato, che arrivi da un attacco, da un veleno o da una raffica
 		alimenta_astio(bersaglio)
+		# E ANCHE LA BARRA DI DOMINIO. Bru: "si riempie man mano che attacchi,
+		# fai critici, uccidi nemici, VIENI COLPITO". Incassare carica: e' la
+		# parte che rende sensato restare in mezzo invece di scappare
+		RegoleCombattimento.riempi_dominio(bersaglio, "per_colpo_subito")
 
 func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "") -> void:
 	# oggetti e assist ignorano le difese
@@ -2603,6 +2629,14 @@ func _su_ko(caduto: Dictionary) -> void:
 				AudioManager.verso(caduto.id, GameState.personaggi.get(caduto.id, {}), "morte")
 			verifica_rabbia_su_morte(caduto)
 			verifica_cura_su_morte(caduto)
+	# abbattere qualcuno riempie la barra di chi resta in piedi dall'altra parte.
+	#
+	# La barra si alza e basta: NON si aggiorna la scheda qui. Farlo sembrava
+	# innocuo e invece riaccendeva i ritratti prima che il box avesse raccontato
+	# cosa era successo - il bug della bomba di Veronica, che una prova sorveglia
+	# da mesi. Quello che si vede passa sempre dalla coda, mai da qui.
+	for vincitore in vivi(not caduto.giocatore):
+		RegoleCombattimento.riempi_dominio(vincitore, "per_uccisione")
 	for alleato in vivi(caduto.giocatore):
 		reagisci(alleato)
 	if vivi(false).is_empty():
