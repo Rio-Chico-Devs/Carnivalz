@@ -34,10 +34,9 @@ func pulisci() -> void:
 	if muta:
 		return
 	for figlio in contenitore.get_children():
-		# tolto SUBITO dall'albero, non solo messo in coda per la distruzione:
-		# queue_free() lo libera a fine frame, e finche' non succede il vecchio
-		# bottone sta ancora li' accanto al nuovo. Prima non si notava - il menu
-		# si ricostruiva ogni due secondi - adesso si ricostruisce a ogni azione
+		# tolto SUBITO dall'albero, non solo messo in coda: queue_free() libera a
+		# fine frame, e finche' non succede il vecchio bottone sta ancora li'
+		# accanto al nuovo
 		contenitore.remove_child(figlio)
 		figlio.queue_free()
 
@@ -64,29 +63,41 @@ func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := 
 # --- i menu ---
 
 func principale() -> void:
-	# IL COLPO NORMALE NON STA QUI. Si da' cliccando sul nemico, e si martella
-	# quanto si vuole: il menu e' per quello che una creatura non sa fare da
-	# sola - difendersi, gli speciali, gli oggetti, gli alleati, la fuga. Bru:
-	# "solo per gli attacchi speciali dovrebbe esserci il menu di scelta".
+	# IL COLPO NORMALE NON STA QUI. Si da' cliccando sul nemico: il menu e' per
+	# quello che una creatura non sa fare da sola - difendersi, gli speciali, gli
+	# oggetti, gli alleati, la fuga. Bru: "solo per gli attacchi speciali dovrebbe
+	# esserci il menu di scelta".
+	#
+	# E NON SPARISCE MENTRE RICARICHI: si spegne. I bottoni restano dove sono,
+	# grigi, e tornano vivi quando tocca a te. Cancellarli faceva vedere la stessa
+	# cosa - che non e' il tuo momento - al prezzo di non far piu' leggere niente.
 	pulisci()
+	if bool(scontro.mattanza_attiva):
+		# durante la Mattanza sotto non c'e' un menu: c'e' una cosa sola da fare,
+		# e va scritta grossa. Il bottone e' spento apposta - si preme SPAZIO,
+		# non lui: un bottone premibile inviterebbe a cliccare, e cliccando non
+		# succede niente
+		bottone("␣  MARTELLA  ␣", principale, true)
+		return
+	var fermo := not bool(scontro.giocatore_pronto())
 	var passo: Dictionary = scontro.passo_tutorial()
 	if not passo.is_empty():
 		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
 		# sempre libero: guardare non e' mai un errore)
 		var richiesta := String(passo.get("azione", ""))
-		bottone("Difenditi", scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
-		bottone("Abilità", abilita)
-		bottone("Oggetti", oggetti, richiesta != "oggetto", richiesta == "oggetto")
+		bottone("Difenditi", scegli.bind({"tipo": "difendi"}), fermo or richiesta != "difendi", richiesta == "difendi")
+		bottone("Abilità", abilita, fermo)
+		bottone("Oggetti", oggetti, fermo or richiesta != "oggetto", richiesta == "oggetto")
 		return
-	bottone("Difenditi", scegli.bind({"tipo": "difendi"}))
+	bottone("Difenditi", scegli.bind({"tipo": "difendi"}), fermo)
 	if not GameState.attacchi_arma(String(scontro.attaccante_corrente.get("id", ""))).is_empty():
 		# gli attacchi d'arma non sono il colpo normale: sono scelte, e le scelte
 		# stanno nel menu
-		bottone("Arma", bersagli)
-	bottone("Abilità", abilita)
-	bottone("Oggetti", oggetti, GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty())
-	bottone("Alleati", alleati, scontro.alleati_disponibili().is_empty())
-	bottone("Fuggi", scegli.bind({"tipo": "fuggi"}), not scontro.fuga_possibile())
+		bottone("Arma", bersagli, fermo)
+	bottone("Abilità", abilita, fermo)
+	bottone("Oggetti", oggetti, fermo or (GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty()))
+	bottone("Alleati", alleati, fermo or scontro.alleati_disponibili().is_empty())
+	bottone("Fuggi", scegli.bind({"tipo": "fuggi"}), fermo or not scontro.fuga_possibile())
 
 func bersagli() -> void:
 	# L'ARMA CHE HAI IN MANO CAMBIA COSA PUOI FARE, non solo un numero. Se ne
@@ -161,10 +172,20 @@ func abilita() -> void:
 			continue  # abilita' narrativa (scasso, volo, veglia...): fuori dal combattimento
 		var costo := int(dati.get("aura", 0))
 		var etichetta := "%s  (%d aura)" % [String(dati.get("nome", id_abilita)), costo]
+		# LA BARRA SPEGNE QUELLO CHE NON PUOI ANCORA CHIAMARE. Bru, sulla
+		# Mattanza: "quando riempi almeno una barra puoi andare in mattanza, solo
+		# in quel momento". Un bottone acceso che poi ti risponde "non hai
+		# abbastanza dominio" e' un bottone che ha mentito
+		var senza_barra := not bool(scontro.dominio_sufficiente(attaccante, dati))
+		if bool(dati.get("consuma_tutto", false)):
+			etichetta = "%s  (tutta la barra)" % String(dati.get("nome", id_abilita))
+		elif float(dati.get("dominio", 0.0)) > 0.0:
+			etichetta += "  (%.1f barre)" % float(dati.get("dominio", 0.0))
 		if scontro.abilita_vuole_bersaglio(String(id_abilita)):
-			bottone(etichetta, bersagli_abilita.bind(String(id_abilita)), aura < costo)
+			bottone(etichetta, bersagli_abilita.bind(String(id_abilita)), aura < costo or senza_barra)
 		else:
-			bottone(etichetta, scegli.bind({"tipo": "abilita", "id": String(id_abilita)}), aura < costo)
+			bottone(etichetta, scegli.bind({"tipo": "abilita", "id": String(id_abilita)}),
+					aura < costo or senza_barra)
 	bottone("Indietro", principale)
 
 func bersagli_abilita(id_abilita: String) -> void:
@@ -214,12 +235,10 @@ func scegli(azione: Dictionary) -> void:
 		AudioManager.interfaccia("conferma")
 	# IL BLOCCO ERA QUI. Il menu emetteva un segnale che, tolti i turni, non
 	# ascoltava piu' nessuno: l'azione non partiva, il menu restava chiuso e il
-	# gioco sembrava piantato. In tempo reale l'azione si esegue subito, e quello
-	# che decide se puo' partire e' il fiato (vedi agisci_ora)
+	# gioco sembrava piantato. In tempo reale l'azione si esegue subito, e chi
+	# decide se la tua ricarica e' pronta e' agisci_ora
 	scontro.agisci_ora(azione)
-	# E IL MENU TORNA SUBITO DOV'ERA. Prima si cancellava e si riapriva alla
-	# ricarica successiva: sceglievi una cosa e per un paio di secondi sotto non
-	# c'era piu' niente da premere. In un gioco che deve essere "veloce e
-	# reattivo, tutto raggiungibile senza intoppi", quel vuoto era l'intoppo
+	# e si torna subito al menu principale: se restasse dov'era, chi ha scelto
+	# dentro un sottomenu ci resterebbe dentro senza un modo di uscirne
 	if scontro.in_corso:
 		principale()

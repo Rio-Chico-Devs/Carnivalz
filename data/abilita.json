@@ -405,18 +405,25 @@
 		},
 		"mattanza": {
 			"nome": "Mattanza",
-			"tipo": "flagello",
+			"tipo": "mattanza",
 			"livello": 1,
 			"aura": 0,
-			"dominio": 1.5,
-			"colpi": 8,
-			"colpi_per_battuta": 2,
-			"colpi_massimi": 40,
-			"finestra_secondi": 5.0,
-			"frazione_per_colpo": 0.22,
+			"_dominio_minimo": "quanti segmenti pieni servono per poterla chiamare. Uno: appena la barra ne riempie uno, e SOLO da quel momento, la Mattanza compare accesa nel menu",
+			"dominio_minimo": 1.0,
+			"_consuma_tutto": "non ha un prezzo, ha un serbatoio: prende TUTTA la barra, e quanta ce n'era decide quanto dura",
+			"consuma_tutto": true,
+			"_secondi_per_segmento": "quanto dura la finestra per ogni segmento bruciato. Una barra sola: due secondi e due; tutte e tre: sei e sei",
+			"secondi_per_segmento": 2.2,
+			"_frazione_attacco": "quanto vale un colpo di mattanza: un decimo del tuo attacco di adesso. Va DIRITTO, senza passare dalla difesa - e' il motivo per cui vale la pena tenerla per i corazzati",
+			"frazione_attacco": 0.1,
+			"_pressioni_al_secondo": "quanto batte sulla barra spaziatrice una persona. Non e' una regola di gioco: e' la mano che il giocatore automatico non ha, e serve perche' le prove misurino la Mattanza che giochi tu invece di una che non esiste",
+			"pressioni_al_secondo": 6.0,
+			"_ferma_il_tempo": "false = mentre martelli il mondo va avanti e le creature ti picchiano. Metti true se vuole diventare un momento tuo e basta",
+			"ferma_il_tempo": false,
 			"elemento": "oscuro",
 			"testo_uso": "[i]%s non smette più. Pesta finché ha fiato.[/i]",
-			"descrizione": "Costa una barra e mezza. Tanti colpi molto più deboli di uno normale: quanti dipende da quante volte batti la barra spaziatrice in cinque secondi."
+			"testo_fine": "[i]%s si ferma. %d colpi, e il silenzio dopo.[/i]",
+			"descrizione": "Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice è un colpo da un decimo del tuo attacco, che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti."
 		}
 	},
 	"_nota_potenziamenti": "I NODI CHE NON SONO ABILITA'. Bru: \"possiamo scegliere anche di potenziare l'attacco normale\". Sono nodi come gli altri - livello che li apre, punti che costano - solo che invece di darti una voce nel menu ti danno una statistica. Servono a rendere una scelta anche il non prendere niente di nuovo.",
@@ -471,23 +478,6 @@
 			"stat": "fattore",
 			"quanto": 8,
 			"descrizione": "La barra di dominio si riempie prima, e quando si scarica pesa di più."
-		},
-		"fiato_i": {
-			"nome": "Fiato lungo",
-			"livello": 25,
-			"costo": 1,
-			"stat": "stamina",
-			"quanto": 8,
-			"descrizione": "Reggi piu' colpi di fila prima di restare senza aria. E' il potenziamento di chi martella invece di aspettare l'occasione."
-		},
-		"fiato_ii": {
-			"nome": "Fiato lungo II",
-			"livello": 41,
-			"costo": 1,
-			"richiede": "fiato_i",
-			"stat": "stamina",
-			"quanto": 12,
-			"descrizione": "Ancora piu' aria."
 		}
 	}
 }

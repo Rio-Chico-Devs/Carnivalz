@@ -901,10 +901,14 @@ frenetico pur restando una schermata ferma.
   giocatore automatico c'è un orologio virtuale che *salta* al prossimo momento in cui
   qualcuno agisce: non misura un gioco diverso, perché l'ordine delle azioni esce dalle stesse
   ricariche — cambia solo se il tempo lo conta un cronometro o l'aritmetica
-- **Sul nemico si clicca, e ogni click è danno.** Bru: «se clicco entra danno, punto». Il colpo
-  normale non è una voce di menu, è la creatura stessa: ci si martella sopra quanto si vuole,
-  senza nessuna ricarica da aspettare. Il menu resta per quello che non si fa colpendo —
-  difendersi, gli attacchi d'arma, gli speciali, gli oggetti, gli alleati, la fuga
+- **Sul nemico si clicca**: il colpo normale non è una voce di menu, è la creatura stessa —
+  ci si martella sopra, e se la ricarica non è pronta il click non conta. Il menu resta per
+  quello che non si fa colpendo: difendersi, gli attacchi d'arma, gli speciali, gli oggetti,
+  gli alleati, la fuga
+- **Il menu non sparisce mai, si spegne**: mentre ricarichi i bottoni restano al loro posto
+  in grigio invece di essere cancellati. Si vede lo stesso che non è il tuo momento, e si
+  continua a leggere cosa si potrà fare — prima, per metà dello scontro, sotto non c'era
+  niente. Dopo ogni scelta il menu torna al principale da solo
 - **Le parole scorrono, il mondo non si ferma**: `pompa_messaggi()` svuota la coda in
   parallelo al tempo, e i messaggi «forti» in tempo reale non aspettano più un click. Senza
   quella pompa non arrivava a schermo un solo numero di danno e lo scontro non si chiudeva
@@ -914,50 +918,38 @@ frenetico pur restando una schermata ferma.
 - I nemici di livello basso fanno **meno male** di prima: in tempo reale i colpi arrivano più
   spesso, e la difficoltà la fa la fretta con cui devi decidere, non la cifra del danno
 
-## Il fiato: l'unico orologio di chi comandi (`regole.json` → `stamina`)
-Se ogni click è danno, qualcosa deve pur regolare il ritmo — e non può essere un'attesa,
-perché l'attesa è esattamente quello che abbiamo tolto. Lo regola il **fiato**: una barra che
-**sale** a ogni colpo e a ogni azione presa dal menu, scende da sola nel tempo, e a fondo corsa
-manda in **affanno** — per un momento non parte più niente. Bru: «aggiungiamo anche una barra
-stamina che sale più si clicca, così lo spamming diventa punito».
-- **La soglia di rientro è più bassa di quella di uscita** (`soglia_ripresa` 0.45 contro
-  `soglia_affanno` 1.0). Senza, appena il fiato risale sopra il costo di un colpo si potrebbe
-  ricliccare: chi martella resterebbe incollato alla soglia e batterebbe comunque a ritmo
-  pieno, e l'affanno sarebbe un lampeggio invece che una pausa
-- **Scrive una funzione sola**, `RegoleCombattimento.imposta_fiato()`: «in affanno con la barra
-  vuota» e «fiato oltre il massimo» non si possono rappresentare, perché non c'è un'altra
-  strada per arrivarci
-- **Anche il menu costa fiato** (`costo_azione`, più di un colpo). Altrimenti il menu
-  diventerebbe la scorciatoia: *Difenditi* premuto sei volte di fila alzerebbe la guardia al
-  massimo in due secondi, cioè quello che a turni costava sei turni interi. Fanno eccezione
-  **Studia** e **Fuggi** (`azioni_gratuite`): guardare non è mai un errore, e restare senza
-  aria non deve poterti impedire di scappare
-- **La stamina si migliora coi punti** (`abilita.json` → `fiato_i`, `fiato_ii`), come le altre
-  basi: è il ramo di chi gioca martellando
-- **Il colpo cliccato vale una frazione di un colpo pieno** (`frazione_colpo_cliccato`) e
-  carica meno la barra di dominio (`per_colpo_cliccato`): in un respiro se ne danno tre o
-  quattro. **Non** si è abbassato l'attacco base — l'attacco base è anche la curva da cui
-  escono i numeri delle creature (`ruoli.json`), quindi abbassarlo le avrebbe indebolite in
-  proporzione e non avrebbe cambiato niente. Per lo stesso motivo `attacchi_sferrati` in
-  `crescita.json` passa da uno ogni 5 a uno ogni 15, col profilo moltiplicato per tre: la
-  pendenza della crescita resta identica, è cambiato solo cosa si conta
-- **La velocità adesso ha un mestiere solo**: muovere chi va da solo. Chi comandi tu ha un
-  **respiro di lunghezza fissa** (`battuta_comandato`) che serve agli stati, ai buff e all'aura
-  — se dipendesse dalla velocità, la velocità tornerebbe a decidere il tuo ritmo dalla porta di
-  servizio. Cambia personaggio comandato (`id_comandato`) e la stessa creatura passa da un
-  ritmo all'altro
-- **Il menu non si spegne più**: si costruisce una volta e si ricostruisce subito dopo ogni
-  scelta. Prima si accendeva alla fine della ricarica e si cancellava appena agivi — per metà
-  dello scontro, sotto, non c'era niente da premere
-- **Nelle prove qualcuno martella al posto tuo** (`gioca_al_posto_tuo()`,
-  `RegoleCombattimento.colpi_disponibili()`): il giocatore automatico non ha un mouse, e se non
-  cliccasse misurerebbe un protagonista con un colpo a battuta — cioè il motore a turni che
-  abbiamo tolto. Il conto non è una stima, è lo spazio che resta nella barra
-- **In tempo reale i numeri non si accodano**: escono quando il colpo entra
-  (`Voce.accoda_effetto()`), e il diario butta le righe ordinarie più vecchie se resta indietro
-  (`Voce.sfoltisci()`, mai le «forti»). Bru: «il testo che scorre e spiega non deve influenzare
-  lo scontro». Niente va perso comunque — lo storico della pausa le prende tutte
-- Si prova in `prova_il_fiato_regola_i_click()`, che non è muta e clicca davvero
+## La Mattanza: la barra si svuota, e finché si svuota tu batti (`abilita.json` → `mattanza`)
+È la cosa che la barra di dominio serve a comprare, e l'unico momento del gioco in cui il
+combattimento passa dalle mani invece che dalle scelte. Bru: «quando riempi almeno una barra
+puoi andare in mattanza, **solo in quel momento**; la mattanza consuma tutta la barra e finché
+non è consumata potrai premere spazio per colpire numerose volte il nemico, con un valore di
+ogni colpo pari a 1/10 del tuo attacco attuale».
+- **La soglia è a segmenti pieni** (`dominio_minimo`: 1). Mezza barra non apre niente: è quello
+  che rende il dominio una cosa che si *aspetta* invece di un contatore che sale. Nel menu la
+  voce resta spenta finché non è ora — un bottone acceso che poi risponde «non hai abbastanza
+  dominio» è un bottone che ha mentito, quindi il menu e il motore fanno la stessa domanda a
+  `dominio_sufficiente()`, non due domande somiglianti
+- **Non ha un prezzo, ha un serbatoio** (`consuma_tutto`): si porta via *tutta* la barra, e
+  quanta ce n'era decide quanto dura la finestra (`secondi_per_segmento`, 2,2 s per segmento —
+  una barra sola dà poco più di due secondi, tre ne danno quasi sette). Per questo tenersela da
+  parte è una scelta e non solo pazienza
+- **La durata è la barra stessa che si scarica.** Non c'è un secondo contatore accanto a quello
+  vero: guardi la barra scendere e sai quanto ti resta. Il dominio viene riscritto ogni frame
+  dal residuo, così un colpo incassato — che normalmente ricarica — non può allungare la
+  finestra all'infinito
+- **Ogni pressione di spazio è un colpo** da `frazione_attacco` (un decimo) del tuo attacco di
+  adesso, e va **diritto**: ignora la difesa. È il motivo per cui vale la pena tenersela per i
+  corazzati, invece di essere l'ennesima cosa che contro un corazzato non serve. `is_echo()` è
+  esclusa apposta: tenere premuto non vale come martellare
+- **Il mondo va avanti mentre batti** (`ferma_il_tempo: false`): sei chiuso lì a pestare e le
+  creature ti picchiano, quindi *quando* la chiami conta. Metti `true` nei dati se preferisci
+  che diventi un momento tuo e basta
+- **Nelle prove qualcuno batte al posto tuo**: nell'orologio virtuale non esiste una barra
+  spaziatrice, quindi la finestra si risolve tutta insieme a `pressioni_al_secondo` (6). Senza,
+  il simulatore direbbe che la Mattanza non fa danno — e ricalibreremmo il gioco su un'abilità
+  che non ha mai colpito
+- Si prova in `prova_mattanza_svuota_la_barra()`, che la misura muta e poi ne apre una vera per
+  premere spazio davvero
 
 ## Il drop crea dipendenza: il drop c'è sempre (`ruoli.json` → `drop_garantito`)
 La dipendenza non nasce dai premi grossi: nasce dal fatto che **non esca mai niente**. Dieci
