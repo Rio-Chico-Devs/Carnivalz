@@ -146,7 +146,11 @@ func dettagli_di(combattente: Dictionary) -> String:
 		dettagli += progresso_studio(combattente)
 	if int(combattente.get("aura_max", 0)) > 0:
 		dettagli += "Aura %d/%d · " % [int(combattente.aura), int(combattente.aura_max)]
-	dettagli += "Stress %d · Dominio %d" % [combattente.stress, combattente.fattore]
+	# due nomi diversi perche' sono due cose diverse: il Fattore e' la brace che
+	# alimenta critici e Slaughter, la barra di dominio e' l'energia che spendi
+	dettagli += "Stress %d · Fattore %d" % [combattente.stress, combattente.fattore]
+	if combattente.giocatore:
+		dettagli += " · Dominio %d" % int(combattente.get("dominio", 0))
 	var scudo := RegoleCombattimento.difesa_di(combattente)
 	if scudo > 0 and conosciuta(combattente, 2):
 		dettagli += " · Dif %d" % scudo

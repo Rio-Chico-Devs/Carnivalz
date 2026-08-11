@@ -82,6 +82,12 @@ var sacca: Array[String] = []             # consumabili, max regole.sacca_massim
 var collezionabili: Array[String] = []
 # La pila: id oggetto -> quanti. Non una lista, un conto (vedi aggiungi_alla_pila)
 var pila: Dictionary = {}
+# LA BARRA DI DOMINIO NON STA QUI, e la riga resta per dirlo. Si riempie
+# dentro un combattimento e si azzera al successivo: e' una prerogativa dello
+# scontro, non una risorsa che ti porti dietro per la mappa. Vive nella scheda
+# del combattente (Combattimento.gd, campo "dominio"), non nello stato del
+# mondo. Per un giorno e' stata qui e la si vedeva sulla schermata dei dialoghi
+# gia' carica a inizio partita: due errori in uno.
 var chiavi: Array[String] = []
 # Lo zaino non e' un mucchio: e' diviso per categoria, e ogni categoria ha la
 # sua capacita' (vedi "zaino" in regole.json).
@@ -581,7 +587,9 @@ func punti_abilita_guadagnati(livello: int) -> int:
 	if livello < dal:
 		return 0
 	var ogni := maxi(int(regola.get("ogni_livelli", 4)), 1)
-	return (1 + (livello - dal) / ogni) * int(regola.get("per_volta", 1))
+	@warning_ignore("integer_division")
+	var quanti := 1 + (livello - dal) / ogni
+	return quanti * int(regola.get("per_volta", 1))
 
 func costo_nodo(id_nodo: String) -> int:
 	return int(nodo_abilita(id_nodo).get("costo", 0))
@@ -724,9 +732,9 @@ func bonus_da_potenziamenti(nome_stat: String) -> int:
 			totale += int(dati.get("quanto", 0))
 	return totale
 
-func party_ha_abilita(abilita: String) -> bool:
+func party_ha_abilita(cercata: String) -> bool:
 	for id_classe in party:
-		if abilita in classi.get(id_classe, {}).get("abilita", []):
+		if cercata in classi.get(id_classe, {}).get("abilita", []):
 			return true
 	return false
 
@@ -1219,8 +1227,8 @@ func slot_accessori_di(id_classe: String) -> int:
 func slot_accessori_da_talento(id_classe: String) -> int:
 	var tabella: Dictionary = regole.get("slot_accessori_da_abilita", {})
 	var extra := 0
-	for abilita in classi.get(id_classe, {}).get("abilita", []):
-		extra += int(tabella.get(String(abilita), 0))
+	for nome_abilita in classi.get(id_classe, {}).get("abilita", []):
+		extra += int(tabella.get(String(nome_abilita), 0))
 	return extra
 
 func livello_slot_accessorio(indice: int) -> int:
@@ -1242,9 +1250,9 @@ func talento_dello_slot(id_classe: String, indice: int) -> String:
 	if indice < da_livello or slot_accessori_da_talento(id_classe) <= 0:
 		return ""
 	var tabella: Dictionary = regole.get("slot_accessori_da_abilita", {})
-	for abilita in classi.get(id_classe, {}).get("abilita", []):
-		if int(tabella.get(String(abilita), 0)) > 0:
-			return String(abilita)
+	for nome_abilita in classi.get(id_classe, {}).get("abilita", []):
+		if int(tabella.get(String(nome_abilita), 0)) > 0:
+			return String(nome_abilita)
 	return ""
 
 func togli_oggetto_equipaggiato(id_oggetto: String) -> void:

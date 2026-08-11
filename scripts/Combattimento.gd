@@ -30,7 +30,6 @@ extends Control
 # speranza e cedimento. Numeri in data/regole.json, casualita' solo dall'RNG
 # seedato di GameState.
 
-signal azione_scelta(azione: Dictionary)
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const SCENA_SEDE := "res://scenes/Sede.tscn"
@@ -1561,12 +1560,12 @@ func carica(chi: Dictionary, dati: Dictionary) -> void:
 func consuma_carica(chi: Dictionary) -> float:
 	# quanto vale questo colpo. Si spende sul primo attacco vero: non su un'area,
 	# non su una raffica - quelli hanno gia' il loro modo di essere grossi
-	var carica := float(chi.get("carica_pronta", 0.0))
-	if carica <= 0.0:
+	var moltiplicatore_carica := float(chi.get("carica_pronta", 0.0))
+	if moltiplicatore_carica <= 0.0:
 		return 1.0
 	chi.carica_pronta = 0.0
 	scrivi("[b]%s scarica tutto quello che ha accumulato.[/b]" % chi.nome)
-	return carica
+	return moltiplicatore_carica
 
 func fuggi(chi: Dictionary) -> void:
 	if not portatore_incontro.is_empty():

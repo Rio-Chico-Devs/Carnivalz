@@ -202,4 +202,8 @@ func scegli(azione: Dictionary) -> void:
 	if not muta:
 		AudioManager.interfaccia("conferma")
 	pulisci()
-	scontro.azione_scelta.emit(azione)
+	# IL BLOCCO ERA QUI. Il menu emetteva un segnale che, tolti i turni, non
+	# ascoltava piu' nessuno: l'azione non partiva, il menu restava chiuso e il
+	# gioco sembrava piantato. In tempo reale l'azione si esegue subito, e chi
+	# decide se la tua ricarica e' pronta e' agisci_ora
+	scontro.agisci_ora(azione)

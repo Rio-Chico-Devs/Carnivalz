@@ -996,9 +996,14 @@ personaggio, ma quando lo impara e cosa può diventare.
   fare. Le classi d'arma dicono chi impugna cosa: il protagonista usa qualunque arma come
   **catalizzatore** (non combatte con l'arma, combatte *attraverso* l'arma), Veronica le
   **pesanti**, Yhvina **artigli e glifi**
-- **Il Fattore Carnivalz adesso si chiama barra di dominio** nei testi e nella scheda. La
-  chiave interna resta `fattore`: rinominarla toccherebbe i salvataggi già fatti, i record
-  delle creature e le mosse dei boss senza cambiare una riga di quello che si vede giocando
+- **Fattore Carnivalz e barra di dominio sono due cose diverse**, e per un giorno si sono
+  chiamate tutte e due «Dominio». Il **Fattore** è la brace che alimenta critici e Slaughter
+  (chiave interna `fattore`, parte da 15); la **barra di dominio** è l'energia a tre segmenti
+  che si riempie combattendo e si spende sugli speciali. Con quel nome in comune, la barra
+  sulla schermata dei dialoghi mostrava la statistica e risultava già carica a inizio partita
+- **La barra vive solo nel combattimento e si azzera a ogni scontro**: non è una risorsa che
+  ti porti in giro per la mappa. La schermata dei dialoghi non mostra né lei né le
+  statistiche — quelle si consultano nel Diario
 
 ## Da dove escono i numeri delle creature (`data/ruoli.json`)
 Nessuna creatura ha più `hp`, `attacco`, `difesa`, `velocita`, `xp` e `tazo` scritti nel suo

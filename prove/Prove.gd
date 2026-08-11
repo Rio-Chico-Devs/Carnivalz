@@ -66,7 +66,7 @@ func _ready() -> void:
 	prova_colori_del_danno()
 	prova_abilita_di_combattimento()
 	await prova_carta_del_titolo_sta_su_una_riga()
-	prova_barra_di_dominio_si_vede()
+	prova_barra_di_dominio_sta_nel_combattimento()
 	prova_ogni_abilita_gira_davvero()
 	prova_attacchi_darma()
 	prova_linee_abilita()
@@ -1263,49 +1263,59 @@ func prova_carta_del_titolo_sta_su_una_riga() -> void:
 	schermata.free()
 	GameState.nuova_partita()
 
-func prova_barra_di_dominio_si_vede() -> void:
-	# Bru: "non vedo la barra di dominio". Non la vedeva perche' non c'era: al
-	# suo posto c'era "FAT 15" in fondo a una riga di sette numeri. Il dominio
-	# e' quello che si carica mentre giochi e che spendi in un colpo solo, e una
-	# cosa che sale e scende va guardata, non letta.
-	titolo("la barra di dominio c'e', e si riempie insieme al dominio")
+func prova_barra_di_dominio_sta_nel_combattimento() -> void:
+	# Bru: "non c'e' bisogno di far vedere le stats, sono consultabili nel
+	# diario, inutile metterle nella schermata dei dialoghi. Stessa cosa la
+	# barra di dominio: e' una prerogativa del combattimento, non e' che e'
+	# sempre li', a ogni combattimento si riazzera".
+	#
+	# Erano due errori in uno: la barra stava dove non serviva, e li' mostrava
+	# la vecchia statistica 'fattore' (che parte da 15) invece di se stessa - a
+	# partita nuova risultava gia' carica senza che nessuno avesse fatto niente.
+	titolo("la barra di dominio vive nel combattimento, e riparte da zero")
 	GameState.nuova_partita()
+
+	# 1. la schermata dei dialoghi non mostra ne' statistiche ne' barra
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(schermata)
-	esigi(schermata.barra_dominio != null, "nella schermata di gioco non c'e' nessuna barra di dominio")
-	if schermata.barra_dominio == null:
-		schermata.free()
-		return
-	esigi(schermata.barra_dominio.custom_minimum_size.x > 0.0,
-			"la barra di dominio e' larga zero: c'e' ma non si vede")
-	# si riempie per davvero, e in proporzione
-	var letta := func() -> float:
-		return float(schermata.barra_dominio.get_meta("quota", -1.0))
-	GameState.punti_stat["fattore"] = 0 - GameState.stat_base_di("fattore")
-	schermata.aggiorna_barra_dominio()
-	esigi(is_zero_approx(letta.call()), "col dominio a zero la barra e' piena il %d%%"
-			% int(letta.call() * 100))
-	GameState.punti_stat["fattore"] = 50 - GameState.stat_base_di("fattore")
-	schermata.aggiorna_barra_dominio()
-	esigi(absf(letta.call() - 0.5) < 0.02,
-			"col dominio a 50 la barra e' piena il %d%% invece che a meta'" % int(letta.call() * 100))
-	GameState.punti_stat["fattore"] = 100 - GameState.stat_base_di("fattore")
-	schermata.aggiorna_barra_dominio()
-	esigi(absf(letta.call() - 1.0) < 0.001, "col dominio al massimo la barra non e' piena")
-	# e in campo la vede anche la scheda di chi giochi tu
-	GameState.nuova_partita()
+	esigi(not schermata.etichetta_stat.visible,
+			"la riga delle statistiche e' ancora sulla schermata dei dialoghi")
+	esigi(not "barra_dominio" in schermata,
+			"la schermata dei dialoghi ha ancora una barra di dominio addosso")
+	schermata.free()
+
+	# 2. in combattimento la barra c'e', sulla scheda di chi giochi tu
 	GameState.nemici_combattimento = ["goblin_tipico"]
 	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 	scontro.limite_giri = 1
 	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
 	add_child(scontro)
+	var eroe: Dictionary = {}
 	var trovata := false
 	for combattente in scontro.combattenti:
-		if combattente.giocatore and combattente.get("barra_dominio", null) != null:
-			trovata = true
+		if combattente.giocatore:
+			if eroe.is_empty():
+				eroe = combattente
+			if combattente.get("barra_dominio", null) != null:
+				trovata = true
 	esigi(trovata, "in combattimento la scheda del party non ha la barra di dominio")
+
+	# 3. E RIPARTE DA ZERO. Si carica combattendo, e il combattimento dopo
+	#    ricomincia da capo: non e' una risorsa che ci si porta per la mappa
+	RegoleCombattimento.riempi_dominio(eroe, "per_uccisione")
+	esigi(int(eroe.get("dominio", 0)) > 0, "la barra non si carica combattendo")
 	scontro.free()
-	schermata.free()
+	var secondo: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	secondo.muto = true
+	secondo.limite_giri = 1
+	secondo.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(secondo)
+	for combattente in secondo.combattenti:
+		if combattente.giocatore:
+			esigi(int(combattente.get("dominio", 0)) == 0,
+					"lo scontro dopo comincia con %d di dominio gia' in cassa: non si riazzera"
+					% int(combattente.get("dominio", 0)))
+	secondo.free()
 	GameState.nuova_partita()
 
 func prova_ogni_abilita_gira_davvero() -> void:

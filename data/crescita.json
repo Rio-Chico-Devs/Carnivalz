@@ -28,9 +28,9 @@
 			"descrizione": "Resistenza allo stress."
 		},
 		"fattore": {
-			"nome": "Dominio",
+			"nome": "Fattore Carnivalz",
 			"base": 15,
-			"descrizione": "La barra di dominio: quando è carica il prossimo colpo pesa di più, e poi si scarica. Alimenta critici e Slaughter."
+			"descrizione": "Quanto il disallineamento arde in te: alimenta i critici e lo Slaughter. Non è la barra di dominio — quella è l'energia che spendi, questa è la brace."
 		},
 		"maestria_dominio": {
 			"nome": "Maestria del dominio",
@@ -270,5 +270,5 @@
 			"descrizione": "Probabilità di infliggere terrore a qualunque nemico a ogni attacco, aumentata al 33%."
 		}
 	],
-	"_nota_dominio": "La chiave interna resta 'fattore' anche se il giocatore legge 'Dominio': cambiarla vorrebbe dire toccare i salvataggi gia' fatti, i record delle creature (fattore_base) e le mosse dei boss, e non cambierebbe una riga di quello che si vede giocando. Il nome che conta e' quello qui sopra."
+	"_nota_dominio": "ATTENZIONE AI DUE NOMI. 'fattore' e' la brace che alimenta critici e Slaughter; la BARRA DI DOMINIO e' un'altra cosa - l'energia a tre segmenti che si riempie combattendo e si spende sugli speciali, e sta in GameState.dominio. Per un po' si sono chiamate tutte e due 'Dominio' e in partita la barra risultava gia' carica di 15 senza che nessuno avesse fatto niente: era la statistica, non la barra. Restano due meccanismi separati: unirli e' una decisione di bilanciamento, non una pulizia."
 }
