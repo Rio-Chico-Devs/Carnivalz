@@ -2109,11 +2109,8 @@ func verifica_crisi_gelosia(nemico: Dictionary) -> bool:
 		nemico.crisi_turni_rimasti = int(dati.get("durata_turni", 2))
 		scrivi_forte(String(dati.get("testo_inizio", "")))
 	nemico.crisi_turni_rimasti = int(nemico.crisi_turni_rimasti) - 1
-	nemico.buffs.append({
-		"stat": "difesa",
-		"valore": -int(dati.get("riduzione_difesa", 3)),
-		"turni": 1,
-	})
+	RegoleCombattimento.applica_buff(nemico, "difesa",
+			-int(dati.get("riduzione_difesa", 3)), 1, "crisi_gelosia")
 	aggiorna_scheda(nemico)
 	if GameState.rng.randf() < float(dati.get("probabilita_inerte", 0.4)):
 		scrivi("[i]%s[/i]" % String(dati.get("testo_turno_inerte", "")))
@@ -2420,11 +2417,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				attacca(nemico, bersaglio_giocatore_casuale(), valore_mossa(nemico, mossa),
 						1.0, String(mossa.get("elemento", "")))
 		"buff_attacco":
-			nemico.buffs.append({
-				"stat": "attacco",
-				"valore": int(mossa.get("valore", 1)),
-				"turni": int(mossa.get("turni", 2)),
-			})
+			RegoleCombattimento.applica_buff(nemico, "attacco", int(mossa.get("valore", 1)),
+					int(mossa.get("turni", 2)), chiave_mossa(mossa))
 			aggiorna_scheda(nemico)
 		"incendia":
 			# appicca il fuoco a un membro del party a caso: da qui in poi
@@ -2517,11 +2511,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				applica_stato(vittima_stato, String(mossa.get("stato", "")),
 						int(mossa.get("valore_stato", 1)))
 		"buff_difesa":
-			nemico.buffs.append({
-				"stat": "difesa",
-				"valore": int(mossa.get("valore", 1)),
-				"turni": int(mossa.get("turni", 2)),
-			})
+			RegoleCombattimento.applica_buff(nemico, "difesa", int(mossa.get("valore", 1)),
+					int(mossa.get("turni", 2)), chiave_mossa(mossa))
 			aggiorna_scheda(nemico)
 		"buff_fattore":
 			nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 10)), 0, 100)

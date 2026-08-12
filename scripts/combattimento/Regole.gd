@@ -207,12 +207,44 @@ static func velocita_effettiva(combattente: Dictionary) -> int:
 	return maxi(totale, 0)
 
 static func scadenza_buff(combattente: Dictionary) -> void:
+	# UN GIRO DI CLESSIDRA, ALL'INIZIO DELLA SUA BATTUTA. Non e' un tempo
+	# globale: e' il SUO ritmo. "Difesa +3 per 3 battute" vuol dire tre suoi
+	# cicli di ricarica, quindi su una creatura lenta dura il doppio dei secondi
+	# che dura su una veloce - ed e' giusto cosi', perche' e' anche il doppio
+	# del tempo in cui quella creatura agisce.
 	var rimasti: Array = []
 	for buff in combattente.buffs:
 		buff.turni = int(buff.turni) - 1
 		if int(buff.turni) > 0:
 			rimasti.append(buff)
 	combattente.buffs = rimasti
+
+static func applica_buff(combattente: Dictionary, stat: String, valore: int,
+		turni: int, fonte: String) -> void:
+	# LO STESSO POTENZIAMENTO NON SI ACCUMULA CON SE STESSO: si rinnova.
+	#
+	# Prima ogni uso appendeva un buff nuovo, e chi aveva una mossa di
+	# potenziamento senza ricarica poteva rifarla ogni battuta: il goblin
+	# arrabbiato si sommava +9 di attacco all'infinito, Jerah +14 di difesa
+	# finche' non lo si scalfiva piu'. Non era una scelta di design, era una
+	# somma senza tetto - e non si vedeva da nessuna parte, perche' a schermo
+	# compare solo il totale.
+	#
+	# Due mosse DIVERSE che alzano la stessa stat si sommano ancora: e' un modo
+	# di dire "questa creatura sta mettendo insieme due cose". Una mossa con se
+	# stessa no: rinnova la durata, e tiene il valore piu' alto dei due.
+	for buff in combattente.buffs:
+		if String(buff.get("fonte", "")) == fonte and String(buff.get("stat", "")) == stat:
+			# vince il piu' forte NEL SUO VERSO: un potenziamento tiene il valore
+			# piu' alto, un malus (la crisi di gelosia abbassa la difesa) il piu'
+			# basso. Prendere sempre il massimo avrebbe ammorbidito i malus
+			buff.valore = maxi(int(buff.get("valore", 0)), valore) if valore >= 0 \
+					else mini(int(buff.get("valore", 0)), valore)
+			buff.turni = maxi(int(buff.get("turni", 0)), turni)
+			return
+	combattente.buffs.append({
+		"stat": stat, "valore": valore, "turni": turni, "fonte": fonte,
+	})
 
 static func alza_guardia(combattente: Dictionary) -> int:
 	# uno scatto in su, e resta fino alla fine dello scontro. Ritorna quanto e'

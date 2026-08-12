@@ -2566,6 +2566,30 @@ func prova_le_creature_capiscono_come_stanno() -> void:
 			"ferita a morte colpisce come prima (%d): 'a fin di vita diventano piu' ostici' non succede"
 			% attacco_alle_strette)
 
+	# 4-bis. LO STESSO POTENZIAMENTO NON SI SOMMA CON SE STESSO.
+	#    Ogni uso appendeva un buff nuovo, e una mossa di potenziamento senza
+	#    ricarica si puo' rifare ogni battuta: il goblin arrabbiato si sommava
+	#    +9 di attacco all'infinito e Jerah +14 di difesa finche' non lo si
+	#    scalfiva piu'. Non era una scelta, era una somma senza tetto - e a
+	#    schermo non si vedeva, perche' compare solo il totale.
+	nemico.hp = nemico.hp_max
+	nemico.buffs = []
+	var difesa_nuda := RegoleCombattimento.difesa_di(nemico)
+	RegoleCombattimento.applica_buff(nemico, "difesa", 5, 3, "prova")
+	var difesa_con_uno := RegoleCombattimento.difesa_di(nemico)
+	esigi(difesa_con_uno > difesa_nuda, "il potenziamento non ha alzato la difesa")
+	for volta in 5:
+		RegoleCombattimento.applica_buff(nemico, "difesa", 5, 3, "prova")
+	esigi(RegoleCombattimento.difesa_di(nemico) == difesa_con_uno,
+			"sei usi della stessa mossa portano la difesa a %d invece di %d: si somma con se stessa, e senza tetto"
+			% [RegoleCombattimento.difesa_di(nemico), difesa_con_uno])
+	# ...ma due mosse DIVERSE sulla stessa stat si sommano ancora: e' un modo di
+	# dire "questa creatura sta mettendo insieme due cose"
+	RegoleCombattimento.applica_buff(nemico, "difesa", 5, 3, "un'altra prova")
+	esigi(RegoleCombattimento.difesa_di(nemico) > difesa_con_uno,
+			"due mosse diverse che alzano la difesa non si sommano piu': cosi' non se ne puo' costruire nessuna")
+	nemico.buffs = []
+
 	# 5. E IL VALORE DI UNA MOSSA E' UNA QUOTA DEL SUO ATTACCO, non un numero
 	#    scritto: se no una mossa calibrata al livello 4 al livello 20 fa ridere
 	var colpo: Dictionary = {}

@@ -20,6 +20,26 @@
   *sceglie* (vince la priorità più alta). È lì che vive la sua testa.
 - **Ricarica** è quante sue battute deve aspettare prima di rifarla.
 
+### Cos'è una «battuta»
+
+Non ci sono più i turni: ogni creatura ha una **ricarica** che scorre da sola, e quando
+finisce quella creatura agisce. Una *battuta* è un suo ciclo di ricarica — «per 3 battute»
+vuol dire **tre volte che tocca a lei**, non tre secondi e non tre tue mosse.
+
+Il che vuol dire due cose che vale la pena avere in testa:
+
+- **dura più a lungo su una creatura lenta.** La ricarica esce dalla velocità: un corazzato
+  che si irrigidisce «per 3 battute» resta chiuso cinque o sei secondi buoni, un veloce che
+  fa la stessa cosa poco più di due. È coerente — sono anche tre sue azioni in tutti e due
+  i casi — ma a schermo si sente come una durata diversa;
+- **il conto scala all'inizio del suo turno, non alla fine.** Una mossa lanciata alla sua
+  battuta N protegge per tutta la N, la N+1 e la N+2, e all'inizio della N+3 è già scaduta:
+  copre le sue due azioni successive e tutto il tempo che ci sta in mezzo, compreso quello
+  in cui la stai colpendo tu.
+
+Lo stesso potenziamento **non si somma con se stesso**: rifarlo rinnova la durata, non
+raddoppia il numero. Due mosse *diverse* che alzano la stessa statistica si sommano ancora.
+
 ## La regola che vale per tutte
 
 Sotto il **30% della sua vita** una creatura è *alle strette*: colpisce il **30% in più**
