@@ -133,6 +133,20 @@ func intestazione() -> Array[String]:
 		"Lo stesso potenziamento **non si somma con se stesso**: rifarlo rinnova la durata, non",
 		"raddoppia il numero. Due mosse *diverse* che alzano la stessa statistica si sommano ancora.",
 		"",
+		"## Il tecno log",
+		"",
+		"Di ogni creatura c'è una **scheda di specie** che lo Studio riempie a strati, uno per",
+		"volta: il primo studio dice chi è e da dove viene, il secondo com'è fatta, il terzo come si",
+		"comporta. In gioco si legge nel Bestiario; qui sotto c'è già tutta, perché è il documento",
+		"su cui si correggono i testi — e i testi non si correggono tre righe per volta.",
+		"",
+		"La **Filogenesi** è il campo che Bru ha chiesto per primo: il corpo d'origine. A Meridia la",
+		"stessa infezione ha preso corpi diversi, e la scheda lo dice — il Cittadino e l'Infetto",
+		"Rapido sono tutti e due *umana*, il Divoratore di Carcasse è *ferina*, la Robo Pattuglia è",
+		"*meccanica*. **Denominazione**, **Areale** e **Metamorfosi** non sono scritti a mano: il",
+		"nome è quello della creatura, l'areale esce da dove compare davvero nei file delle zone, e",
+		"la metamorfosi dice «osservata» solo se hai incontrato anche la forma in cui si trasforma.",
+		"",
 		"## La regola che vale per tutte",
 		"",
 		"Sotto il **%d%% della sua vita** una creatura è *alle strette*: colpisce il **%d%% in più**" % [soglia, bonus],
@@ -182,6 +196,21 @@ func scheda(id_creatura: String) -> Array[String]:
 		if dati.has(chiave):
 			righe.append("")
 			righe.append("Ha anche **%s** (scritta a mano nei suoi dati, non nella tabella)." % chiave)
+	righe.append_array(scheda_tecnolog(id_creatura))
+	return righe
+
+func scheda_tecnolog(id_creatura: String) -> Array[String]:
+	# IL TECNO LOG COM'E' SCRITTO, tutto insieme. In gioco si vede a strati - uno
+	# per studio - ma qui serve la pagina intera: e' il documento su cui Bru
+	# corregge i testi, e non si correggono tre righe per volta.
+	var righe: Array[String] = ["", "**Tecno log**", ""]
+	righe.append("| Campo | Rilevamento |")
+	righe.append("| --- | --- |")
+	for riga in GameState.tecnolog_di(id_creatura):
+		righe.append("| %s | %s |" % [String(riga.get("etichetta", "")),
+				String(riga.get("valore", "")).replace("|", "/")])
+	righe.append("")
+	righe.append("*Studi necessari per la pagina intera: %d.*" % GameState.strati_tecnolog())
 	return righe
 
 func stat_di(id_creatura: String, chiave: String, difetto: int) -> int:

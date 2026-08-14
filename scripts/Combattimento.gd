@@ -1193,6 +1193,7 @@ func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
 				domanda = GameState.domanda_studio_casuale()
 			scrivi_forte(domanda, "dialogo", String(chi.nome))
 			scrivi_forte(String(scambio.get("risposta", "")), "dialogo", String(bersaglio.nome))
+	rileva_tecnolog(bersaglio)
 	GameState.segna_studiato(bersaglio.id)
 	if chi.giocatore and chi.id == GameState.id_protagonista:
 		GameState.registra_azione("studi")
@@ -1206,6 +1207,29 @@ func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
 		var dati_risparmio: Dictionary = dati["risparmio"]
 		if int(bersaglio.volte_studiato) >= maxi(int(dati_risparmio.get("studi_richiesti", 1)), 1):
 			risparmia(bersaglio, dati_risparmio)
+
+func rileva_tecnolog(bersaglio: Dictionary) -> void:
+	# QUELLO CHE LO STUDIO SCRIVE. Bru: "lo studio deve dare questi aspetti di
+	# descrizione della specie: filogenesi, ovvero il corpo d'origine".
+	#
+	# Escono solo i campi di QUESTO strato, non tutta la scheda da capo: il primo
+	# studio dice chi e' e da dove viene, il secondo com'e' fatta, il terzo come
+	# si comporta. Ristampare ogni volta l'intera pagina avrebbe tolto il senso
+	# di studiare la seconda volta - e sarebbero venti righe in mezzo a uno
+	# scontro. La pagina intera si rilegge nel Bestiario, che e' il posto giusto:
+	# li' non c'e' nessuno che ti picchia mentre leggi.
+	if bersaglio.get("oggetto_scena", false):
+		return
+	var strato := int(bersaglio.get("volte_studiato", 0))
+	var nuove: Array[String] = []
+	for riga in GameState.tecnolog_di(String(bersaglio.id)):
+		if int(riga.get("strato", 1)) == strato:
+			nuove.append("%s: %s" % [String(riga.get("etichetta", "")), String(riga.get("valore", ""))])
+	if nuove.is_empty():
+		return
+	scrivi("[i]TECNO LOG — %s[/i]" % String(bersaglio.nome))
+	for riga in nuove:
+		scrivi("[i]%s[/i]" % riga)
 
 func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
 	# studiare certi nemici rivela che non meritano di essere uccisi: escono

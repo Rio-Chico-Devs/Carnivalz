@@ -1002,6 +1002,35 @@ attacchi che li curano li attivano».
   normale tolto dal sorteggio**: col peso normale una creatura tira spesso un pugno, e un pugno
   non è mai una battuta persa — la prova passerebbe anche col motore rotto
 
+## Il tecno log: cosa lo Studio scrive (`data/tecnolog.json`)
+Bru: «dobbiamo riformulare lo studio, che deve dare questi aspetti di descrizione della specie:
+**filogenesi**, ovvero il corpo d'origine — nel caso degli zombie ci possono essere zombie umani,
+animali…». Studiare non è più una battuta di dialogo e due numeri sulla scheda: è una **pagina
+che si riempie**, e resta nel Bestiario, che da elenco di nomi diventa un archivio.
+- **Dodici campi**, quelli dello schema: Denominazione, Classificazione, Filogenesi, Fenotipo,
+  Stadio, Morfologia, Fisiologia, Habitus, Etologia, Metamorfosi, Ecologia, Areale
+- **Si riempie a strati, uno per studio**: il primo dice chi è e da dove viene, il secondo com'è
+  fatta, il terzo come si comporta. In combattimento escono solo le righe *nuove* — ristampare
+  ogni volta l'intera pagina toglierebbe il senso di studiare la seconda volta, e sarebbero venti
+  righe in mezzo a uno scontro
+- **Tre campi non si scrivono a mano**, e non devono: la *Denominazione* è il nome della creatura;
+  l'*Areale* esce da dove la creatura compare davvero nei file delle zone (mettila in una stanza
+  nuova e l'areale si allarga da solo); la *Metamorfosi* dice «osservata» solo se hai incontrato
+  **anche** la forma in cui si trasforma — è il tuo registro, non un'enciclopedia. Un campo
+  scritto a mano che ripete un dato che il gioco già conosce è un campo che prima o poi mentirà
+- **La Filogenesi distingue davvero**: a Meridia la stessa infezione ha preso corpi diversi, e i
+  vocabolari (`umana`, `ferina`, `aviaria`, `vegetale`, `meccanica`, `artificiale`, `onirica`,
+  `indeterminata`…) sono chiusi e verificati — così ogni creatura non si inventa il suo lessico e
+  la scheda si legge di fila
+- **La conoscenza della specie non si azzera a partita nuova** (`rilevamenti`, accanto al
+  bestiario). I numeri di una creatura — quanti hp le restano, quanto para — vanno riscoperti a
+  ogni scontro, perché sono lo stato di *quella* creatura lì davanti; quello che si sa della
+  specie no
+- Le schede complete stanno in [`docs/nemici.md`](docs/nemici.md), sotto le mosse: è lì che si
+  correggono i testi, perché non si correggono tre righe per volta
+- Si prova in `prova_tecnolog_completo()` (nessun campo vuoto, nessun termine fuori vocabolario) e
+  `prova_tecnolog_si_riempie_studiando()` (a strati, e studiando davvero in combattimento)
+
 ## Il drop crea dipendenza: il drop c'è sempre (`ruoli.json` → `drop_garantito`)
 La dipendenza non nasce dai premi grossi: nasce dal fatto che **non esca mai niente**. Dieci
 scontri di fila a mani vuote e non si combatte più volentieri — e nessuna tabella di

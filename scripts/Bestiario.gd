@@ -20,9 +20,27 @@ func popola() -> void:
 			aggiungi_scheda("??? ", "mai incontrato", "", Color(0.6, 0.6, 0.6), false)
 			continue
 		var corpo: String = dati.get("descrizione", "")
+		corpo += tecnolog(id_pers)
 		if dati.has("descrizione_extra"):
 			corpo += "\n\n" + testo_extra(dati["descrizione_extra"])
 		aggiungi_scheda(dati.get("nome", id_pers), "", corpo, Color.WHITE, true)
+
+func tecnolog(id_creatura: String) -> String:
+	# LA PAGINA CHE LO STUDIO RIEMPIE, e il posto giusto per rileggerla: qui non
+	# c'e' nessuno che ti picchia mentre leggi. In combattimento escono solo le
+	# righe nuove, una manciata per studio (vedi Combattimento.rileva_tecnolog).
+	#
+	# Quello che non hai ancora rilevato NON si nasconde: si mostra vuoto. Una
+	# scheda con dei buchi dice "ci sono altre due cose da sapere su di lei"; una
+	# scheda accorciata dice soltanto che hai finito.
+	var studi := GameState.volte_studiato(id_creatura)
+	if studi <= 0:
+		return "\n\n[ TECNO LOG — nessun rilevamento. Studiala in combattimento. ]"
+	var righe: Array[String] = ["", "[ TECNO LOG — rilevamenti: %d / %d ]"
+			% [mini(studi, GameState.strati_tecnolog()), GameState.strati_tecnolog()]]
+	for riga in GameState.tecnolog_di(id_creatura, studi):
+		righe.append("%s: %s" % [String(riga.get("etichetta", "")), String(riga.get("valore", ""))])
+	return "\n" + "\n".join(righe)
 
 func testo_extra(extra: Dictionary) -> String:
 	var sbloccato := true

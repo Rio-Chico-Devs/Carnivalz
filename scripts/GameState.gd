@@ -16,6 +16,7 @@ const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
 const PERCORSO_RUOLI := "res://data/ruoli.json"
+const PERCORSO_TECNOLOG := "res://data/tecnolog.json"
 const PERCORSO_ABILITA := "res://data/abilita.json"
 const PERCORSO_CRESCITA := "res://data/crescita.json"
 const PERCORSO_TASK := "res://data/task.json"
@@ -61,6 +62,7 @@ var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemic
 var stati: Dictionary = {}
                                           # id stato -> definizione generica (tipo, contagiosa, ...)
 var ruoli: Dictionary = {}   # data/ruoli.json: curva e ruoli da cui escono i numeri di una creatura
+var tecnolog: Dictionary = {}      # data/tecnolog.json: la scheda di specie che lo Studio riempie
 var abilita: Dictionary = {}       # data/abilita.json: abilita', linee, punti, classi d'arma
 var nodi_abilita: Array[String] = []  # i nodi comprati coi punti (abilita' e potenziamenti)
 var codici: Dictionary = {}               # codice (maiuscolo) -> {testo, effetto}, vedi Extra
@@ -135,6 +137,12 @@ var mappa_zona: Dictionary = {}         # "mappa_dungeon" del file eventi corren
 var ospiti: Array[String] = []       # personaggi temporanei della campagna
 var alleati_temporanei: Array[String] = []  # compagni che combattono per un solo squarcio
 var studiati: Array[String] = []     # chi hai studiato (per la sezione studio futura)
+# QUANTE VOLTE HAI STUDIATO OGNI SPECIE, e non si azzera a partita nuova.
+# I numeri di una creatura (quanti hp le restano, quanto para) vanno riscoperti
+# a ogni scontro - sono lo stato di QUELLA creatura li' davanti. Il tecno log no:
+# e' quello che si sa della specie, e una volta scritto e' scritto. Per questo
+# sta con le collezioni meta, accanto al bestiario, e non fra le cose di partita
+var rilevamenti: Dictionary = {}     # id creatura -> studi accumulati
 var flags: Array[String] = []        # scoperte permanenti (loot una tantum, segreti)
 
 # --- crescita del protagonista (data/crescita.json). Le stat non salgono da
@@ -218,6 +226,7 @@ func _ready() -> void:
 	carica_studio()
 	carica_stati()
 	carica_ruoli()
+	carica_tecnolog()
 	carica_abilita()
 	carica_crescita()
 	carica_task()
@@ -330,6 +339,11 @@ func carica_abilita() -> void:
 func carica_ruoli() -> void:
 	var dati: Variant = carica_json(PERCORSO_RUOLI)
 	ruoli = dati if dati is Dictionary else {}
+
+func carica_tecnolog() -> void:
+	var dati: Variant = carica_json(PERCORSO_TECNOLOG)
+	if dati is Dictionary:
+		tecnolog = dati
 
 func carica_task() -> void:
 	task_catalogo.clear()
@@ -1331,6 +1345,155 @@ func registra_bestiario(id_nemico: String) -> void:
 	if personaggi.has(id_nemico) and id_nemico not in bestiario:
 		bestiario.append(id_nemico)
 
+# --- IL TECNO LOG: la scheda di specie che lo Studio riempie ------------------
+#
+# Bru: "dobbiamo riformulare lo studio, che deve dare questi aspetti di
+# descrizione della specie: filogenesi ovvero il corpo d'origine - nel caso
+# degli zombie ci possono essere zombie umani, animali...".
+#
+# Studiare non e' piu' solo una battuta di dialogo e due numeri sulla scheda:
+# e' una pagina che si riempie a strati, uno per studio. Il primo dice chi e' e
+# da dove viene, il secondo com'e' fatto, il terzo come si comporta - e resta
+# nel Bestiario, che da elenco di nomi diventa un archivio.
+#
+# TRE CAMPI NON SI SCRIVONO A MANO. La Denominazione e' il nome della creatura;
+# l'Areale esce da dove la creatura compare DAVVERO nei file delle zone (mettila
+# in una stanza nuova e l'areale si allarga da solo); la Metamorfosi dice
+# "osservata" solo se hai incontrato anche la forma in cui si trasforma - e'
+# il tuo registro, non un'enciclopedia. Un campo scritto a mano che ripete un
+# dato che il gioco gia' conosce e' un campo che prima o poi dira' una bugia.
+
+var _areali: Dictionary = {}          # id creatura -> Array[String] di zone
+var _areali_costruiti := false
+
+func campi_tecnolog() -> Array:
+	return tecnolog.get("campi", [])
+
+func strati_tecnolog() -> int:
+	var massimo := 1
+	for campo in campi_tecnolog():
+		massimo = maxi(massimo, int(campo.get("strato", 1)))
+	return massimo
+
+func costruisci_areali() -> void:
+	# si legge una volta sola, alla prima domanda: sono otto file, e nessuno
+	# chiede l'areale prima di aver studiato qualcosa
+	if _areali_costruiti:
+		return
+	_areali_costruiti = true
+	var zone: Dictionary = {}   # percorso file -> nome della zona
+	raccogli_zone(carica_json(PERCORSO_MAPPA), zone)
+	zone["res://data/events_tutorial.json"] = "Il pianeta del risveglio"
+	for percorso in zone:
+		var dati: Variant = carica_json(String(percorso))
+		if dati == null:
+			continue
+		var trovate: Array[String] = []
+		cerca_creature(dati, trovate)
+		for id_creatura in trovate:
+			var elenco: Array = _areali.get(id_creatura, [])
+			if String(zone[percorso]) not in elenco:
+				elenco.append(String(zone[percorso]))
+			_areali[id_creatura] = elenco
+
+func raccogli_zone(nodo: Variant, dentro: Dictionary) -> void:
+	if nodo is Dictionary:
+		if nodo.has("file_eventi") and nodo.has("nome") and String(nodo["file_eventi"]) != "":
+			# la voce senza file e' un posto annunciato e non ancora scritto
+			# (una frattura che si aprira'): non c'e' niente da leggere
+			dentro[String(nodo["file_eventi"])] = String(nodo["nome"])
+		for chiave in nodo:
+			raccogli_zone(nodo[chiave], dentro)
+	elif nodo is Array:
+		for voce in nodo:
+			raccogli_zone(voce, dentro)
+
+func cerca_creature(nodo: Variant, dentro: Array[String]) -> void:
+	# le creature di una stanza stanno in "combatti" (o "nemici", la forma
+	# vecchia), quelle degli agguati in "gruppi". Tre chiavi, e un solo posto che
+	# le conosce - la prima versione ne guardava due e lasciava senza areale
+	# meta' bestiario, boss compresi
+	if nodo is Dictionary:
+		for chiave in nodo:
+			if String(chiave) in ["nemici", "combatti"] and nodo[chiave] is Array:
+				for id_creatura in nodo[chiave]:
+					if String(id_creatura) not in dentro:
+						dentro.append(String(id_creatura))
+			elif String(chiave) == "gruppi" and nodo[chiave] is Array:
+				for gruppo in nodo[chiave]:
+					if gruppo is Array:
+						for id_creatura in gruppo:
+							if String(id_creatura) not in dentro:
+								dentro.append(String(id_creatura))
+			else:
+				cerca_creature(nodo[chiave], dentro)
+	elif nodo is Array:
+		for voce in nodo:
+			cerca_creature(voce, dentro)
+
+func areale_di(id_creatura: String) -> String:
+	costruisci_areali()
+	var zone: Array = _areali.get(id_creatura, [])
+	if zone.is_empty():
+		return String(tecnolog.get("non_rilevato", "— non ancora rilevato"))
+	return " — ".join(zone)
+
+func classificazione_di(id_creatura: String) -> String:
+	var voce: Dictionary = tecnolog.get("voci", {}).get(id_creatura, {})
+	if voce.has("classificazione"):
+		return String(voce["classificazione"])
+	var ruolo := String(personaggi.get(id_creatura, {}).get("ruolo", "comune"))
+	var forma := String(tecnolog.get("classificazione_per_ruolo", {}).get(ruolo, ""))
+	if forma == "":
+		return String(tecnolog.get("non_rilevato", "— non ancora rilevato"))
+	return "%s — %s" % [forma, String(tecnolog.get("rango", "rango infra-specifico"))]
+
+func metamorfosi_di(id_creatura: String) -> String:
+	# "osservata" vuol dire che l'hai vista tu: la forma in cui si trasforma
+	# dev'essere nel tuo bestiario. Finche' non la incontri, il campo dice il
+	# vero - che tu non l'hai osservata - anche se il gioco lo sa gia'
+	var diventa := String(tecnolog.get("voci", {}).get(id_creatura, {}).get("diventa", ""))
+	if diventa != "" and diventa in bestiario:
+		return "osservata"
+	return "non osservata"
+
+func valore_tecnolog(id_creatura: String, id_campo: String) -> String:
+	match id_campo:
+		"denominazione":
+			return String(personaggi.get(id_creatura, {}).get("nome", id_creatura))
+		"classificazione":
+			return classificazione_di(id_creatura)
+		"areale":
+			return areale_di(id_creatura)
+		"metamorfosi":
+			return metamorfosi_di(id_creatura)
+	var scritto := String(tecnolog.get("voci", {}).get(id_creatura, {}).get(id_campo, ""))
+	if scritto == "":
+		return String(tecnolog.get("non_rilevato", "— non ancora rilevato"))
+	return scritto
+
+func tecnolog_di(id_creatura: String, strati := -1) -> Array:
+	# la scheda come la si puo' leggere adesso. "strati" e' quanti studi hai
+	# fatto: -1 (il difetto) vuol dire "dammela tutta", ed e' quello che serve al
+	# documento e alle prove; ZERO vuol dire zero, cioe' una pagina bianca.
+	#
+	# Il difetto era 0 e voleva dire "tutta", e le due cose si sono scontrate
+	# subito: una creatura mai studiata mostrava l'intera scheda. Un valore che
+	# vuol dire due cose opposte prima o poi le confonde.
+	var righe: Array = []
+	for campo in campi_tecnolog():
+		var strato := int(campo.get("strato", 1))
+		var rivelato: bool = strati < 0 or strati >= strato
+		righe.append({
+			"id": String(campo.get("id", "")),
+			"etichetta": String(campo.get("etichetta", "")),
+			"strato": strato,
+			"rivelato": rivelato,
+			"valore": valore_tecnolog(id_creatura, String(campo.get("id", ""))) if rivelato \
+					else String(tecnolog.get("non_rilevato", "— non ancora rilevato")),
+		})
+	return righe
+
 func ottieni_carta(id_carta: String, finitura := "") -> bool:
 	# ritorna true se la carta e' NUOVA (serve a chi vuole annunciarla come
 	# scoperta). Il doppione non e' mai sprecato: entra comunque nel conto,
@@ -1623,6 +1786,10 @@ func registra_storico(tipo: String, chi: String, testo: String) -> void:
 func segna_studiato(id_personaggio: String) -> void:
 	if id_personaggio not in studiati:
 		studiati.append(id_personaggio)
+	rilevamenti[id_personaggio] = volte_studiato(id_personaggio) + 1
+
+func volte_studiato(id_creatura: String) -> int:
+	return int(rilevamenti.get(id_creatura, 0))
 
 func imposta_flag(nome_flag: String) -> void:
 	if nome_flag not in flags:
@@ -1837,6 +2004,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"carte": carte,
 		"oggetti_catalogo": oggetti_catalogo,
 		"bestiario": bestiario,
+		"rilevamenti": rilevamenti,
 		"studiati": studiati,
 		"negozi_sbloccati": negozi_sbloccati,
 		"flags": flags,
@@ -1913,6 +2081,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 			carte_copie[id_carta] = {"normale": 1}
 	oggetti_catalogo = _lista_str(d.get("oggetti_catalogo", []))
 	bestiario = _lista_str(d.get("bestiario", []))
+	rilevamenti = d.get("rilevamenti", {})
 	studiati = _lista_str(d.get("studiati", []))
 	negozi_sbloccati = _lista_str(d.get("negozi_sbloccati", []))
 	flags = _lista_str(d.get("flags", []))

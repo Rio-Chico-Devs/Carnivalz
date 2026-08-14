@@ -65,6 +65,8 @@ func _ready() -> void:
 	prova_ogni_creatura_ha_un_set_di_mosse()
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
+	prova_tecnolog_completo()
+	prova_tecnolog_si_riempie_studiando()
 	prova_il_drop_c_e_sempre()
 	prova_guardia_a_scatti()
 	prova_corazza_che_cresce()
@@ -2703,6 +2705,170 @@ func fotografia(scontro: Node, eroe: Dictionary, nemico: Dictionary) -> String:
 		str(bool(eroe.get("in_fiamme", false))),
 		str(not Dictionary(nemico.get("mossa_in_carica", {})).is_empty()),
 	]
+
+func prova_tecnolog_completo() -> void:
+	# Bru ha dato lo schema: Denominazione, Classificazione, Filogenesi, Fenotipo,
+	# Stadio, Morfologia, Fisiologia, Habitus, Etologia, Metamorfosi, Ecologia,
+	# Areale. Uno schema con dodici campi e' una promessa dodici volte: basta che
+	# una creatura ne abbia undici e la sua pagina, in gioco, ha un buco - e non
+	# lo vedi finche' non la studi.
+	titolo("il tecno log e' completo per ogni creatura, e i termini sono quelli")
+	var vocabolari: Dictionary = GameState.tecnolog.get("vocabolari", {})
+	esigi(not vocabolari.is_empty(), "il tecnolog non dichiara nessun vocabolario")
+	var campi: Array = GameState.campi_tecnolog()
+	esigi(campi.size() >= 12, "lo schema ha %d campi invece dei dodici chiesti" % campi.size())
+	var strati: Array[int] = []
+	for campo in campi:
+		esigi(String(campo.get("etichetta", "")) != "",
+				"il campo %s non ha un'etichetta" % String(campo.get("id", "?")))
+		var strato := int(campo.get("strato", 0))
+		esigi(strato >= 1, "il campo %s non dice a quale studio si rivela" % String(campo.get("id", "?")))
+		if strato not in strati:
+			strati.append(strato)
+	esigi(strati.size() >= 3,
+			"i campi si rivelano in %d strati: cosi' studiare la seconda volta non aggiunge niente"
+			% strati.size())
+	var guardate := 0
+	var vuoto := String(GameState.tecnolog.get("non_rilevato", "—"))
+	for id_creatura in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		if not dati.has("ruolo") or String(dati.get("ruolo", "")) == "oggetto_scena":
+			continue
+		guardate += 1
+		for riga in GameState.tecnolog_di(String(id_creatura)):
+			if String(riga.get("id", "")) == "areale":
+				# L'AREALE PUO' ESSERE VUOTO PER DAVVERO, ed e' un'informazione:
+				# vuol dire che quella creatura non e' ancora stata messa in
+				# nessuna stanza. Pretendere che sia pieno vorrebbe dire scrivere
+				# a mano un dato che il gioco calcola, cioe' esattamente la bugia
+				# da cui si voleva stare alla larga. Che il conto funzioni lo
+				# garantisce la soglia qui sotto
+				continue
+			esigi(String(riga.get("valore", "")) != vuoto,
+					"%s: il campo %s del tecno log e' vuoto"
+					% [id_creatura, String(riga.get("etichetta", "?"))])
+			esigi(String(riga.get("valore", "")) != "",
+					"%s: il campo %s e' una stringa vuota" % [id_creatura, String(riga.get("etichetta", "?"))])
+		var voce: Dictionary = GameState.tecnolog.get("voci", {}).get(id_creatura, {})
+		for chiave in vocabolari:
+			if voce.has(chiave):
+				esigi(String(voce[chiave]) in Array(vocabolari[chiave]),
+						"%s ha %s '%s', che non e' fra i termini ammessi: cosi' ogni creatura si inventa il suo lessico e la scheda non si legge piu' di fila"
+						% [id_creatura, String(chiave), String(voce[chiave])])
+	esigi(guardate >= 30, "la prova ha guardato solo %d creature" % guardate)
+	# e l'areale dev'essere PIENO per quasi tutte: se il conto smettesse di
+	# leggere una delle chiavi in cui una zona elenca le sue creature, il
+	# documento continuerebbe a uscire - solo, con meta' bestiario senza casa.
+	# E' successo: guardava "nemici" e "gruppi" e si perdeva "combatti", cioe'
+	# quasi tutti i boss
+	var con_casa := 0
+	for id_creatura in GameState.personaggi:
+		var scheda: Dictionary = GameState.personaggi[id_creatura]
+		if not scheda.has("ruolo") or String(scheda.get("ruolo", "")) == "oggetto_scena":
+			continue
+		if GameState.areale_di(String(id_creatura)) != vuoto:
+			con_casa += 1
+	esigi(con_casa >= guardate * 3 / 4,
+			"solo %d creature su %d hanno un areale: il conto non sta leggendo tutte le chiavi con cui una zona elenca le sue creature"
+			% [con_casa, guardate])
+
+func prova_tecnolog_si_riempie_studiando() -> void:
+	# LA PARTE CHE VALE: la scheda non c'e' finche' non la si studia, e si
+	# riempie A STRATI. Se uscisse tutta al primo studio, studiare due volte
+	# sarebbe pignoleria; se non uscisse mai, sarebbe un file di testo.
+	titolo("il tecno log si riempie studiando, uno strato per volta")
+	GameState.nuova_partita()
+	GameState.rilevamenti.clear()
+	var cavia := "ghoul"
+	var vuoto := String(GameState.tecnolog.get("non_rilevato", "—"))
+
+	# 1. DA NON STUDIATA, NIENTE. Nemmeno la filogenesi, che pure il gioco sa
+	for riga in GameState.tecnolog_di(cavia, 0):
+		esigi(String(riga.get("valore", "")) == vuoto,
+				"senza aver studiato niente si legge gia' %s" % String(riga.get("etichetta", "")))
+
+	# 2. UN SOLO STUDIO apre il primo strato e non gli altri
+	var aperti_al_primo := 0
+	for riga in GameState.tecnolog_di(cavia, 1):
+		if int(riga.get("strato", 1)) == 1:
+			esigi(String(riga.get("valore", "")) != vuoto,
+					"dopo il primo studio %s e' ancora vuoto" % String(riga.get("etichetta", "")))
+			aperti_al_primo += 1
+		else:
+			esigi(String(riga.get("valore", "")) == vuoto,
+					"il primo studio ha gia' aperto %s, che sta a uno strato piu' in la'"
+					% String(riga.get("etichetta", "")))
+	esigi(aperti_al_primo >= 3, "il primo studio apre %d campi soli" % aperti_al_primo)
+
+	# 3. LA FILOGENESI C'E', ed e' la cosa che Bru ha chiesto per prima: da quale
+	#    corpo viene. Creature nate da corpi diversi devono dirlo
+	var filo_ghoul := GameState.valore_tecnolog("ghoul", "filogenesi")
+	var filo_bestia := GameState.valore_tecnolog("divoratore_di_carcasse", "filogenesi")
+	var filo_macchina := GameState.valore_tecnolog("robo_pattuglia", "filogenesi")
+	esigi(filo_ghoul == "umana",
+			"il ghoul risulta di filogenesi '%s': e' un corpo umano marcito" % filo_ghoul)
+	esigi(filo_bestia != filo_ghoul and filo_macchina != filo_ghoul,
+			"tre creature nate da corpi diversi hanno tutte la stessa filogenesi: il campo non distingue niente")
+
+	# 4. L'AREALE NON E' SCRITTO A MANO: esce da dove la creatura compare davvero
+	var areale := GameState.areale_di("ghoul")
+	esigi(areale != vuoto and areale.length() > 3,
+			"l'areale del ghoul e' vuoto: nessuna zona lo dichiara, o il conto non le legge")
+	# e un BOSS, che una zona non elenca fra i suoi mostri vaganti ma dentro il
+	# nodo in cui lo si affronta. E' la chiave che il conto si perdeva - guardava
+	# "nemici" e "gruppi" e non "combatti" - e senza questa riga la cosa non si
+	# vedeva: restavano abbastanza creature con la casa da far passare la soglia
+	esigi(GameState.areale_di("jongo_dongo") != vuoto,
+			"il signore della Rocca non ha un areale: il conto non legge la chiave con cui una stanza dichiara lo scontro che ci si combatte")
+	esigi(GameState.areale_di("non_esiste_questa_creatura") == vuoto,
+			"una creatura che non compare da nessuna parte ha comunque un areale")
+
+	# 5. E LA METAMORFOSI DICE 'osservata' SOLO SE L'HAI VISTA. E' il tuo
+	#    registro: finche' non incontri la seconda forma, non l'hai osservata
+	GameState.bestiario.erase("jongo_dongo_risorto")
+	esigi(GameState.metamorfosi_di("jongo_dongo") == "non osservata",
+			"la metamorfosi risulta osservata senza aver mai incontrato la seconda forma")
+	GameState.registra_bestiario("jongo_dongo_risorto")
+	esigi(GameState.metamorfosi_di("jongo_dongo") == "osservata",
+			"incontrata la seconda forma, la metamorfosi risulta ancora non osservata")
+
+	# 6. E STUDIANDO IN COMBATTIMENTO IL CONTO SALE, e resta fra uno scontro e
+	#    l'altro: i numeri di una creatura si riscoprono ogni volta, quello che
+	#    si sa della SPECIE no
+	GameState.rilevamenti.clear()
+	GameState.nemici_combattimento = [cavia]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+		elif not combattente.giocatore and nemico.is_empty():
+			nemico = combattente
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro di prova non si e' montato")
+	scontro.in_corso = true
+	eroe.hp = eroe.hp_max
+	nemico.hp = nemico.hp_max
+	esigi(GameState.volte_studiato(cavia) == 0,
+			"il conto dei rilevamenti parte da %d" % GameState.volte_studiato(cavia))
+	scontro.studia(eroe, nemico)
+	esigi(GameState.volte_studiato(cavia) == 1,
+			"dopo uno studio i rilevamenti sono %d" % GameState.volte_studiato(cavia))
+	scontro.studia(eroe, nemico)
+	esigi(GameState.volte_studiato(cavia) == 2,
+			"il secondo studio non ha aperto il secondo strato (rilevamenti: %d)"
+			% GameState.volte_studiato(cavia))
+	scontro.free()
+	esigi(GameState.volte_studiato(cavia) == 2,
+			"finito lo scontro il tecno log si e' dimenticato quello che sapeva")
+	GameState.nuova_partita()
+	esigi(GameState.volte_studiato(cavia) == 2,
+			"a partita nuova il tecno log riparte da zero: e' una collezione meta, come il bestiario")
+	GameState.rilevamenti.clear()
 
 func prova_il_drop_c_e_sempre() -> void:
 	# Bru: "il sistema di drop deve creare dipendenza, il drop deve sempre
