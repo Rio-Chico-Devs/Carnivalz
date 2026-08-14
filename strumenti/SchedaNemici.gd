@@ -23,7 +23,7 @@ const USCITA := "res://docs/nemici.md"
 # le mosse che non fanno danno: nella tabella al posto del numero va cosa fanno
 const SENZA_DANNO := ["difendi", "buff_attacco", "buff_difesa", "buff_fattore",
 		"evoca", "sacrificio", "cura", "stato", "incendia", "potenziamento", "scena",
-		"modalita", "trasformazione"]
+		"modalita", "trasformazione", "tormento"]
 
 func _ready() -> void:
 	var righe: Array[String] = []
@@ -561,7 +561,8 @@ func effetto_di(mossa: Dictionary) -> String:
 					int(mossa.get("durata", 3)),
 					" — **intoccabile** finché dura" if mossa.get("immune", false) else "",
 					", ".join(voci)]
-		"tormento": return "**non smette** finché non cade: colpisce tutta la squadra a ogni loro battuta"
+		"tormento": return ("**non smette** finché non cade: a ogni vostra battuta prende tutta la squadra per ×%.2f del suo attacco"
+				% float(mossa.get("quota_per_turno", 0.25)))
 		"potenziamento":
 			var pezzi: Array[String] = []
 			for stat in mossa.get("stat", {}):

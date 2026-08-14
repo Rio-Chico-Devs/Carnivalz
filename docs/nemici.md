@@ -622,7 +622,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Rabbia della macchina | 7 colpi su bersagli a caso | ×0.20 → 3 a colpo (21 totali) | sempre | sorteggio | — |
 | 2 | A ritroso | **si rimette in piedi** (+20% della vita massima) | — | sotto il 50% di vita | priorità 4 | 5 battute |
-| 3 | Astio Infinito | **non smette** finché non cade: colpisce tutta la squadra a ogni loro battuta | come il suo colpo normale | sotto il 20% di vita | priorità 5 | 5 battute |
+| 3 | Astio Infinito | **non smette** finché non cade: a ogni vostra battuta prende tutta la squadra per ×0.30 del suo attacco | — | sotto il 20% di vita | priorità 5 | 5 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
