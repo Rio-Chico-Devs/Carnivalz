@@ -635,10 +635,10 @@
 			"id": "ferraglia_urlante",
 			"livello": 6,
 			"ruolo": "corazzato",
-			"nome": "Ferraglia Urlante",
+			"nome": "Rottami Erranti",
 			"categoria": "particolare",
 			"ritratto": "res://art/personaggi/ferraglia_urlante.png",
-			"descrizione": "Una montagna di rottami saldati dal dolore. Sembra di sentire le urla di una protesta.",
+			"descrizione": "Un ammasso di rottami errante. Sembra che al centro ci sia un nucleo di colossite che è sopravvissuto da solo, costruendosi la sua forma attuale.",
 			"carta": {
 				"id": "carta_ferraglia_urlante",
 				"nome": "Ferraglia Urlante",
@@ -671,36 +671,141 @@
 					"id": "valanga_di_rottami",
 					"nome": "Valanga di rottami",
 					"tipo": "attacco_tutti",
-					"testo": "La montagna si sposta di un metro, e un metro basta.",
+					"testo": "Si scrolla, e mezza discarica vi arriva addosso.",
 					"quota": 0.85,
 					"peso": 1
 				},
 				{
 					"id": "urlo_di_lamiera",
-					"nome": "Urlo di lamiera",
+					"nome": "Metallo pesante",
 					"tipo": "stato",
-					"testo": "Il rumore non e' un rumore: e' una protesta di mille voci saldate insieme.",
+					"testo": "La lamiera vibra su una nota che non finisce.",
 					"stato": "terrore",
 					"peso": 1,
 					"ricarica": 5
 				},
 				{
-					"id": "si_ricompatta",
-					"nome": "Si ricompatta",
+					"id": "bis_di_rottami",
+					"nome": "Bis di rottami",
 					"tipo": "cura",
-					"testo": "I rottami si richiamano da terra e tornano al loro posto.",
-					"quota_vita": 0.2,
+					"testo": "One... more... ti-ti time...",
+					"quota_vita": 0.6,
 					"quando": {
 						"vita_sotto": 0.3
 					},
 					"priorita": 7,
-					"ricarica": 6
+					"massimo_usi": 2,
+					"ricarica": 4
 				},
 				{
-					"id": "libera_4",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "assolo_metallico",
+					"nome": "Assolo metallico",
+					"tipo": "stato",
+					"testo": "Una serie melodica di suoni metallici, e nessuno riesce più a pensare in fila.",
+					"stati": [
+						"confusione",
+						"berserk"
+					],
+					"peso": 1,
+					"ricarica": 4
+				},
+				{
+					"id": "protocollo_di_estinzione",
+					"nome": "Protocollo di estinzione",
+					"tipo": "trasformazione",
+					"testo": "PROTOCOLLO DI ESTINZIONE. I rottami cominciano a cercarsi fra loro.",
+					"diventa": "golem_errante",
+					"battute": 5,
+					"testo_trasforma": "I rottami hanno finito di saldarsi. Quello che si alza non è più una pattuglia.",
+					"una_tantum": true,
+					"priorita": 6,
+					"quando": {
+						"vita_sotto": 0.5
+					}
+				},
+				{
+					"id": "ritmo_errante",
+					"nome": "Ritmo errante",
+					"tipo": "potenziamento",
+					"testo": "Set... me... free...",
+					"stat": {
+						"velocita": 2
+					},
+					"turni": 3,
+					"peso": 1,
+					"ricarica": 3
+				}
+			]
+		},
+		{
+			"id": "golem_errante",
+			"livello": 7,
+			"ruolo": "particolare",
+			"nome": "Golem errante di rottami",
+			"categoria": "particolare",
+			"ritratto": "res://art/personaggi/ferraglia_urlante.png",
+			"_nota": "INVENTATO DA ME, DA CORREGGERE. Bru ha scritto solo il nome, nella Metamorfosi dei Rottami Erranti: 'Capace di diventare un Golem errante di rottami'. Livello 7 perche' era l'unica fascia del gioco senza nessuna creatura, e perche' e' quello che i Rottami (livello 6) diventano: deve essere un gradino sopra. Il ritratto e' quello dei Rottami finche' non ce n'e' uno suo.",
+			"descrizione": "Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non e' piu' al centro: e' in cima.",
+			"carta": {
+				"id": "carta_golem_errante",
+				"nome": "Golem errante di rottami",
+				"rarita": "epica",
+				"chance": 0.06,
+				"testo": "Non l'hai battuto: l'hai lasciato finire."
+			},
+			"bottino_comune": [
+				{
+					"oggetto": "viti_e_bulloni",
+					"chance": 0.5
+				},
+				{
+					"oggetto": "componente_elettronico",
+					"chance": 0.2
+				}
+			],
+			"mosse": [
+				{
+					"id": "pugno_saldato",
+					"nome": "Pugno saldato",
+					"tipo": "attacco_forte",
+					"testo": "Un braccio solo, fatto di tutto quello che era rimasto.",
+					"quota": 1.5,
+					"peso": 3
+				},
+				{
+					"id": "onda_di_ferraglia",
+					"nome": "Onda di ferraglia",
+					"tipo": "attacco_tutti",
+					"testo": "Si apre, e la discarica vi passa sopra un'altra volta.",
+					"quota": 0.95,
+					"peso": 1,
+					"ricarica": 2
+				},
+				{
+					"id": "nucleo_esposto",
+					"nome": "Nucleo esposto",
+					"tipo": "potenziamento",
+					"testo": "La colossite in cima si accende, e il resto del corpo si irrigidisce intorno.",
+					"stat": {
+						"attacco": 4,
+						"difesa": 3,
+						"velocita": -1
+					},
+					"turni": 3,
+					"peso": 1,
+					"ricarica": 3
+				},
+				{
+					"id": "raccoglie_ancora",
+					"nome": "Raccoglie ancora",
+					"tipo": "cura",
+					"testo": "Si china, e quello che aveva perso torna al suo posto.",
+					"quota_vita": 0.25,
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 7,
+					"ricarica": 5
 				},
 				{
 					"id": "libera_5",
@@ -723,7 +828,7 @@
 			"nome": "Il Divoratore",
 			"categoria": "particolare",
 			"ritratto": "res://art/personaggi/divoratore.png",
-			"descrizione": "Una macchina che sembra uscita dai sogni di un pazzo, sembra divorare ogni cosa nel suo raggio d'azione, che sia viva o morta...",
+			"descrizione": "Una macchina gigantesca che divora e ricicla tutto quello che trova sul suo cammino. Sarebbe un ottimo macchinario, se non fosse che non sembra saper distinguere le forme di vita dal resto.",
 			"bottino_comune": [
 				{
 					"oggetto": "rottame_di_metallo",
@@ -757,44 +862,84 @@
 			"mosse": [
 				{
 					"id": "morso_che_divora",
-					"nome": "Morso che divora",
+					"nome": "Presa",
 					"tipo": "rubavita",
-					"testo": "Le lame girano, prendono, e quello che prendono non torna.",
+					"testo": "Le tenaglie si chiudono, e quello che prende non lo restituisce.",
 					"quota": 1.3,
 					"quota_furto": 0.6,
 					"peso": 3
 				},
 				{
 					"id": "aspirazione",
-					"nome": "Aspirazione",
+					"nome": "Ciclo infinito",
 					"tipo": "attacco_tutti",
-					"testo": "Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.",
+					"testo": "Rotea su se stessa, e l'aspirazione prende tutto quello che c'è intorno.",
 					"quota": 0.75,
 					"peso": 1
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "ectoplasmer",
+					"nome": "Ectoplasmer",
+					"tipo": "attacco_forte",
+					"testo": "Il vetro nero si accende, e quello che ne esce non è luce.",
+					"quota": 1.65,
+					"peso": 1,
+					"ricarica": 3
 				},
 				{
-					"id": "libera_4",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "simulazione_ouroboros",
+					"nome": "Simulazione Ouroboros",
+					"tipo": "modalita",
+					"testo": "Si chiude su se stessa con la parte anteriore, e comincia a girare.",
+					"durata": 3,
+					"immune": true,
+					"per_battuta": {
+						"stat": {
+							"attacco": 3,
+							"difesa": 3,
+							"velocita": -1
+						},
+						"cura_quota": 0.15
+					},
+					"testo_battuta": "Il ciclo continua, e ogni giro la lascia più grossa.",
+					"testo_fine": "La simulazione si apre. Adesso è di nuovo raggiungibile.",
+					"quando": {
+						"vita_sotto": 0.3
+					},
+					"priorita": 8,
+					"una_tantum": true
 				},
 				{
-					"id": "libera_5",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "autoriciclaggio",
+					"nome": "Autoriciclaggio",
+					"tipo": "modalita",
+					"testo": "Comincia a consumare se stessa.",
+					"durata": 4,
+					"per_battuta": {
+						"stat": {
+							"attacco": -2,
+							"difesa": -2
+						},
+						"cura_quota": 0.25
+					},
+					"testo_battuta": "Un altro pezzo di sé passa nel ciclo.",
+					"testo_fine": "Ha finito quello che poteva darsi da sola.",
+					"quando": {
+						"vita_sotto": 0.2,
+						"dopo_mossa": "simulazione_ouroboros"
+					},
+					"priorita": 7,
+					"una_tantum": true
 				},
 				{
-					"id": "libera_6",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "tritatutto_divoratore",
+					"nome": "Tritatutto",
+					"tipo": "attacco_multiplo",
+					"testo": "Ti afferra, e prova a farti passare tutto intero.",
+					"colpi": 3,
+					"quota": 0.5,
+					"peso": 1,
+					"ricarica": 2
 				}
 			]
 		},
@@ -3161,7 +3306,7 @@
 			"nome_breve": "Goblin Arrabbiato",
 			"hp": 1125,
 			"ritratto": "res://art/personaggi/goblin_arrabbiato.png",
-			"descrizione": "Non è mai stato bello, forte o rispettato, nemmeno tra i suoi. Il fattore di disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse.",
+			"descrizione": "Questo goblin sembra soffrire molto. Non si sa per cosa o per chi, e non è possibile capirlo: conosce solo il linguaggio che parla la sua mazza.",
 			"carta": {
 				"id": "carta_goblin_arrabbiato",
 				"nome": "Un goblin terribilmente arrabbiato",
@@ -3196,11 +3341,11 @@
 				},
 				{
 					"id": "pugno_del_vile",
-					"nome": "Pugno del vile",
+					"nome": "Mazzata",
 					"tipo": "attacco_forte",
 					"quota": 1.2,
 					"peso": 2,
-					"testo": "Pugno del vile: un colpo sferrato senza il minimo onore."
+					"testo": "La mazza scende, e il goblin non guarda nemmeno dove."
 				},
 				{
 					"id": "capriccio_del_goblin",
@@ -3444,7 +3589,9 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"dominatore": true,
+			"_nota_dominatore": "Bru: 'veronica non necessita di un entry nel bestiario ma di un entry nella sezione dei dominatori'. Combatte ancora - il tutorial la usa - ma non e' una creatura da studiare: la sua scheda sta in tecnolog.dominatori, con campi suoi."
 		},
 		{
 			"id": "curie",

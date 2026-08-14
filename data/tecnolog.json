@@ -79,7 +79,8 @@
 			"artificiale",
 			"onirica",
 			"rancore",
-			"indeterminata"
+			"indeterminata",
+			"naturale"
 		],
 		"specie": [
 			"Zombie",
@@ -96,7 +97,8 @@
 			"Ferino",
 			"Umano",
 			"Onirico",
-			"Indeterminato"
+			"Indeterminato",
+			"Golem"
 		],
 		"stadio": [
 			"I",
@@ -119,7 +121,8 @@
 			"forma onirica",
 			"forma speciale",
 			"non classificabile",
-			"soggetto umano"
+			"soggetto umano",
+			"rango evoluto"
 		]
 	},
 	"_nota_classificazione": "La classificazione e' il RANGO nella scala della sua specie, e sale con lo stadio: base -> variante base -> superiore -> avanzato -> calamita'. Fuori scala ci sono le forme che non appartengono a una progressione (onirica, speciale). Se una voce non se la scrive, il rango esce dal ruolo - che e' anche la cosa da cui escono i suoi numeri.",
@@ -135,7 +138,7 @@
 	"voci": {
 		"goblin_tipico": {
 			"classificazione": "rango base",
-			"filogenesi": "ferina",
+			"filogenesi": "naturale",
 			"areale": [
 				"Pianure selvagge di Canuka Rei"
 			],
@@ -187,21 +190,16 @@
 			"ecologia": "Non appartiene a questo ecosistema e non lo tocca. E' presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora facendo."
 		},
 		"goblin_arrabbiato": {
-			"filogenesi": "ferina",
+			"classificazione": "rango superiore",
+			"filogenesi": "naturale",
+			"areale": [
+				"Pianure selvagge di Canuka Rei"
+			],
 			"specie": "Goblin",
 			"stadio": "III",
-			"morfologia": "Stessa specie del comune, portata a due volte e mezzo la taglia. La crescita e' avvenuta in fretta e male: le articolazioni non hanno tenuto il passo, le spalle sono piu' alte del collo.",
-			"habitus": "Non sta mai fermo. Anche a riposo continua a spostare il peso da un piede all'altro.",
-			"ecologia": "Ha preso il posto di un capobranco che non c'era. Il disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse."
-		},
-		"veronica": {
-			"classificazione": "soggetto umano",
-			"filogenesi": "umana",
-			"specie": "Umano",
-			"stadio": "I",
-			"morfologia": "Nessuna alterazione. E' una persona.",
-			"habitus": "Sta dritta e vicino. Troppo vicino.",
-			"ecologia": "Non e' una creatura del Vuoto: e' quello che c'era prima del Vuoto."
+			"morfologia": "Questo goblin presenta una carnagione più rossa rispetto ai suoi simili. Possiede una mazza e... non sembra indossare vestiti?",
+			"habitus": "Non è stato possibile osservare altro che un comportamento rabbioso e fastidioso.",
+			"ecologia": "Ha ottenuto con la violenza il comando di un piccolo gruppo di goblin, con i quali devasta l'area circostante."
 		},
 		"maschera_vuota": {
 			"classificazione": "rango base",
@@ -276,21 +274,29 @@
 			"ecologia": "Legato a un luogo preciso e a niente altro. Non difende i file: difende le ore che ci ha lasciato dentro."
 		},
 		"ferraglia_urlante": {
+			"classificazione": "rango evoluto",
 			"filogenesi": "meccanica",
+			"areale": [
+				"Geodos"
+			],
 			"specie": "Robot",
 			"stadio": "III",
-			"morfologia": "Ammasso di rottami di piu' provenienze, saldati da un calore che non e' quello di una fornace. Nessuna simmetria, nessun fronte riconoscibile.",
-			"habitus": "Non ha portamento. Occupa.",
-			"ecologia": "Cresce a spese del reparto: ogni pezzo che si stacca da una macchina prima o poi finisce addosso a lei."
+			"morfologia": "Questa creatura presenta un nucleo di colossite al centro, che ha utilizzato vari rottami per creare un corpo simile a quello di un carro armato umanoide.",
+			"habitus": "Sembra aver mantenuto la sua funzione di pattuglia, anche se sembra più che altro vagare a vuoto.",
+			"ecologia": "Raccoglie e ricondiziona i rottami: ha una funzione di pulizia e di guardia. Spesso si scontra con altri esseri che abitano la discarica, e non è chiaro perché.",
+			"diventa": "golem_errante"
 		},
 		"divoratore": {
-			"classificazione": "rango avanzato",
+			"classificazione": "rango evoluto",
 			"filogenesi": "meccanica",
+			"areale": [
+				"Geodos"
+			],
 			"specie": "Robot",
-			"stadio": "III",
-			"morfologia": "Struttura cilindrica con apertura anteriore continua. Interno rivestito di lame contrapposte che ruotano in fasi alternate.",
-			"habitus": "Avanza in linea retta. Non gira: si riposiziona.",
-			"ecologia": "In cima alla catena del reparto per assenza di concorrenza. Non ha predatori perche' non ha nulla che valga la pena mangiare."
+			"stadio": "VI",
+			"morfologia": "Questa creatura presenta varie sezioni con delle luci ovali rosse che si accendono mentre riciclano energia. Presenta una specie di meccanismo a tenaglia che cattura sia forme di vita organiche che non; gli spuntoni su quella che sembrerebbe essere una bocca prosciugano l'energia di esseri umani e artificiali. Dietro quello che sembrerebbe essere un vetro nero, che funge da pannello energetico, non si riesce a intravedere nulla. Il nucleo è fatto di Colossio, il che rende la bestia difficile da distruggere.",
+			"habitus": "Sembra scannerizzare solo quel che trova dinnanzi a sé. Non ha schemi particolari: consuma quello che trova e lo trasforma in energia, che probabilmente trasferisce ai generatori della zona tramite aggancio.",
+			"ecologia": "Funge da convertitore energetico e da meccanismo di riciclaggio della zona. Non sorprende che tutto il complesso sia ancora attivo, viste le dimensioni della discarica e l'efficienza di queste macchine."
 		},
 		"zombie_cittadino": {
 			"classificazione": "rango base",
@@ -534,6 +540,18 @@
 			"morfologia": "Adulto, corporatura da ballerino, in abito di scena intatto. La combustione parte dall'interno e non ha ancora consumato il tessuto: e' la parte che non torna.",
 			"habitus": "In scena, sempre. Anche da solo, anche adesso.",
 			"ecologia": "Il mondo intero arde, teatro del suo ultimo show. Le altre forme del Vuoto sono comparse."
+		},
+		"golem_errante": {
+			"classificazione": "rango calamita'",
+			"filogenesi": "meccanica",
+			"areale": [
+				"Geodos"
+			],
+			"specie": "Golem",
+			"stadio": "IV",
+			"morfologia": "Quello che i Rottami Erranti tenevano insieme a fatica, qui è saldato. Il nucleo di colossite non è più al centro: è in cima, dove starebbe una testa.",
+			"habitus": "Non pattuglia più niente. Sta fermo finché non ha deciso, e quando ha deciso non si ferma.",
+			"ecologia": "Non raccoglie e non ricondiziona: è il punto in cui la discarica smette di essere un magazzino e diventa una cosa sola."
 		}
 	},
 	"_nota_specie": "SPECIE, non fenotipo. Bru: 'fenotipo verra' sostituito con specie'. E' il nome della cosa - Zombie, Slime, Robot - non un aggettivo su come e' venuta. E' il campo che lega creature diverse: Zombie Cittadino, Zombie Mostruoso e Orrore di Meridia sono la stessa specie a tre stadi. Per questo Specie e Stadio stanno vicini e si leggono insieme.",
@@ -551,5 +569,37 @@
 		"tutorial": "Il pianeta del risveglio",
 		"carnivalz_del_bosco": "Il Vuoto Ardente"
 	},
-	"_nota_zone_senza_regione": "Le zone che qui hanno per regione il proprio nome sono quelle a cui Bru non ha ancora dato un mondo dietro. Non e' un buco silenzioso: la prova pretende che ogni zona sia in questa tabella, quindi una zona nuova si fa notare subito."
+	"_nota_zone_senza_regione": "Le zone che qui hanno per regione il proprio nome sono quelle a cui Bru non ha ancora dato un mondo dietro. Non e' un buco silenzioso: la prova pretende che ogni zona sia in questa tabella, quindi una zona nuova si fa notare subito.",
+	"_nota_dominatori": "I DOMINATORI NON SONO CREATURE, E LA LORO SCHEDA NON E' UN TECNO LOG. Una creatura si studia: la scheda si riempie a strati mentre la osservi. Un dominatore lo conosci, e quello che c'e' da sapere e' chi e', da dove viene e cosa dice quando conta. Quindi campi diversi, e nessuno strato.",
+	"campi_dominatore": [
+		{
+			"id": "nome",
+			"etichetta": "Nome",
+			"derivato": "nome"
+		},
+		{
+			"id": "ruolo",
+			"etichetta": "Ruolo"
+		},
+		{
+			"id": "classe",
+			"etichetta": "Classe"
+		},
+		{
+			"id": "motto",
+			"etichetta": "Motto"
+		},
+		{
+			"id": "entry_log",
+			"etichetta": "Entry log"
+		}
+	],
+	"dominatori": {
+		"veronica": {
+			"ruolo": "Dominatrice",
+			"classe": "Brawler",
+			"motto": "Se non riesci a dare fondo fino all'ultima briciola della tua essenza... è meglio che tu ti faccia da parte. Ti proteggerò io.",
+			"entry_log": "Veronica è una ragazza cresciuta nei bassifondi di Bacnel, un pianeta conosciuto per la sua povertà e la sua scarsità morale. Ha conosciuto {protagonista} quando erano ancora soltanto dei ragazzini: se non fosse stato per Veronica, non si sa quale destino {protagonista} avrebbe affrontato. Arruolatasi nell'organizzazione dopo un tragico evento sul suo pianeta natale, insieme a {protagonista} ha continuato i suoi allenamenti fino a diventare una dei dominatori più talentuosi dell'avamposto Jarer."
+		}
+	}
 }

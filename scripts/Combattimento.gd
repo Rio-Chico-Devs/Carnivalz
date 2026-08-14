@@ -353,6 +353,10 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"drop_raro": dati.get("drop_raro", {}),
 		"mosse": dati.get("mosse", []),
 		"mosse_usate": [],
+		# la forma in cui si e' chiusa (Ouroboros, Autoriciclaggio) e il conto
+		# alla rovescia verso quello che diventera'. Vuoti = e' se' stessa
+		"modalita": {},
+		"trasformazione": {},
 		# quante volte ha mosso (le mosse possono chiedere "non prima della
 		# terza") e quali sue mosse sono ancora in ricarica
 		"battute": 0,
@@ -825,6 +829,8 @@ func battuta_di(attaccante: Dictionary) -> void:
 	risolvi_rigenerazione_frammento(attaccante)
 	RegoleCombattimento.scadenza_buff(attaccante)
 	scala_astio(attaccante)
+	avanza_modalita(attaccante)
+	avanza_trasformazione(attaccante)
 	if int(attaccante.get("turni_immune", 0)) > 0:
 		# l'immunita' di Mantra copre il giro fino al tuo turno successivo: si
 		# consuma qui, quando torni a muovere, non a fine giro
@@ -2278,6 +2284,12 @@ func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 			# guardia gia' al massimo: "e' gia' chiuso quanto puo'" e basta
 			return RegoleCombattimento.scatti_difesa(nemico) \
 					< int(GameState.regole.get("difesa_scatti_massimi", 6))
+		"modalita", "trasformazione":
+			# non ci si chiude due volte, e non si annuncia due volte la stessa
+			# trasformazione: sarebbe una battuta buttata a dire una cosa gia'
+			# detta
+			return Dictionary(nemico.get("modalita", {})).is_empty() \
+					and Dictionary(nemico.get("trasformazione", {})).is_empty()
 		"scena":
 			# NON ALLE STRETTE. Una mossa che non fa niente e' una scelta di
 			# regia finche' la creatura sta bene: sotto la soglia della
@@ -2392,6 +2404,12 @@ func condizioni_mossa(nemico: Dictionary, mossa: Dictionary) -> bool:
 	if quando.has("battuta_almeno") \
 			and int(nemico.get("battute", 0)) < int(quando["battuta_almeno"]):
 		return false
+	if quando.has("dopo_mossa") and String(quando["dopo_mossa"]) not in nemico.get("mosse_usate", []):
+		# "solo se ha attaccato con Simulazione Ouroboros": una mossa che esiste
+		# soltanto come SEGUITO di un'altra. Il Divoratore si consuma da solo per
+		# rimettersi in piedi, ma solo dopo essersi chiuso - se no e' un gesto
+		# senza la scena che lo precede
+		return false
 	if quando.has("dopo_rinascita") \
 			and bool(nemico.get("gia_rinato", false)) != bool(quando["dopo_rinascita"]):
 		# "dopo essere rinato": la Benedizione del colosso non esiste finche' non
@@ -2418,6 +2436,11 @@ func mossa_disponibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 	if casella_libera(mossa):
 		return false   # e' un posto vuoto nell'elenco, non una mossa
 	if mossa.get("una_tantum", false) and chiave_mossa(mossa) in nemico.mosse_usate:
+		return false
+	# "MASSIMO 2 VOLTE PER COMBATTIMENTO": una_tantum e' il caso N=1 di questo, e
+	# il Bis di rottami e' il motivo per cui serviva il caso generale - due volte
+	# ha senso ("one more time" detto due volte e' una gag), tre no
+	if mossa.has("massimo_usi") and usi_della_mossa(nemico, mossa) >= int(mossa["massimo_usi"]):
 		return false
 	if int(nemico.get("ricariche_mosse", {}).get(chiave_mossa(mossa), 0)) > 0:
 		return false
@@ -2462,6 +2485,81 @@ func alleato_piu_ferito(nemico: Dictionary) -> Dictionary:
 			peggio = quota
 			scelto = alleato
 	return scelto
+
+func stati_di(mossa: Dictionary) -> Array[String]:
+	# "stato": uno solo, com'e' sempre stato. "stati": una lista. Le due forme
+	# convivono perche' riscrivere trenta mosse per farne funzionare una sarebbe
+	# stato un modo di introdurre difetti dove non ce n'erano
+	var elenco: Array[String] = []
+	for voce in mossa.get("stati", []):
+		if String(voce) != "":
+			elenco.append(String(voce))
+	if elenco.is_empty() and String(mossa.get("stato", "")) != "":
+		elenco.append(String(mossa["stato"]))
+	return elenco
+
+func usi_della_mossa(nemico: Dictionary, mossa: Dictionary) -> int:
+	var quanti := 0
+	for usata in nemico.get("mosse_usate", []):
+		if String(usata) == chiave_mossa(mossa):
+			quanti += 1
+	return quanti
+
+func avanza_modalita(chi: Dictionary) -> void:
+	# UNA BATTUTA DELLA MODALITA'. Scorre all'inizio del suo turno, come tutto
+	# il resto che si misura in battute: cosi' "per 3 turni" vuol dire tre volte
+	# che tocca a lui, e non tre secondi - la stessa regola dei potenziamenti
+	var modalita: Dictionary = chi.get("modalita", {})
+	if modalita.is_empty():
+		return
+	for stat in modalita.get("stat", {}):
+		RegoleCombattimento.applica_buff(chi, String(stat),
+				int(modalita["stat"][stat]) * (int(modalita.get("passate", 0)) + 1),
+				99, "modalita_%s" % String(modalita.get("id", "")))
+	var quota: float = float(modalita.get("cura_quota", 0.0))
+	if quota > 0.0 and int(chi.hp) > 0:
+		var quanto := maxi(int(round(float(chi.hp_max) * quota)), 1)
+		var prima := int(chi.hp)
+		chi.hp = mini(prima + quanto, int(chi.hp_max))
+		if int(chi.hp) > prima:
+			scrivi("[i]%s si rimette insieme: +%d.[/i]" % [chi.nome, int(chi.hp) - prima])
+	if String(modalita.get("testo_battuta", "")) != "":
+		scrivi("[i]%s[/i]" % String(modalita["testo_battuta"]))
+	modalita.passate = int(modalita.get("passate", 0)) + 1
+	modalita.battute = int(modalita.get("battute", 1)) - 1
+	if int(modalita.battute) <= 0:
+		# I POTENZIAMENTI DELLA MODALITA' SE NE VANNO CON LEI. Restano attaccati
+		# alla fonte "modalita_<id>", quindi si tolgono per nome: se restassero,
+		# una forma "per tre turni" sarebbe per sempre
+		var rimasti: Array = []
+		for buff in chi.buffs:
+			if not String(buff.get("fonte", "")).begins_with("modalita_"):
+				rimasti.append(buff)
+		chi.buffs = rimasti
+		if String(modalita.get("testo_fine", "")) != "":
+			scrivi_forte("[i]%s[/i]" % String(modalita["testo_fine"]))
+		chi.modalita = {}
+	aggiorna_scheda(chi)
+
+func avanza_trasformazione(chi: Dictionary) -> void:
+	var conto: Dictionary = chi.get("trasformazione", {})
+	if conto.is_empty():
+		return
+	conto.battute = int(conto.get("battute", 1)) - 1
+	if int(conto.battute) > 0:
+		return
+	chi.trasformazione = {}
+	var diventa := String(conto.get("diventa", ""))
+	if diventa == "" or not GameState.personaggi.has(diventa):
+		return
+	scrivi_forte("[i]%s[/i]" % String(conto.get("testo", "Non è più quello di prima.")))
+	# ESCE DI SCENA E NE ENTRA UN'ALTRA. Non e' una cura e non e' una rinascita:
+	# la creatura che avevi davanti non c'e' piu', e quella nuova entra intera.
+	# La vecchia si toglie senza dare esperienza, perche' non l'hai battuta
+	chi.hp = 0
+	chi.trasformato = true
+	aggiorna_scheda(chi)
+	aggiungi_combattente(diventa, false)
 
 func bersagli_del_potenziamento(nemico: Dictionary, mossa: Dictionary) -> Array:
 	# "se_stesso" (il difetto), "alleati" (i suoi compagni, non lui), "tutti"
@@ -2542,7 +2640,10 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	# La seconda e' un difetto, la prima e' regia - e senza questa riga sono
 	# indistinguibili, perche' tutte e due scrivono la loro frase e basta
 	nemico.ultima_mossa_tipo = String(mossa.get("tipo", ""))
-	if mossa.get("una_tantum", false):
+	if mossa.get("una_tantum", false) or mossa.has("massimo_usi"):
+		# il conto serve anche a "massimo_usi", e a "dopo_mossa": una condizione
+		# che chiede "solo se ha gia' fatto quella" ha bisogno che quella si sia
+		# lasciata dietro una traccia
 		nemico.mosse_usate.append(chiave_mossa(mossa))
 	if int(mossa.get("ricarica", 0)) > 0:
 		# la rimette in canna fra tante sue battute. Senza, una cura scelta per
@@ -2613,6 +2714,39 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 							int(mossa["stat"][stat]), int(mossa.get("turni", 3)),
 							chiave_mossa(mossa))
 				aggiorna_scheda(chi)
+		"modalita":
+			# SI CHIUDE IN UNA FORMA, E PER QUALCHE BATTUTA E' UN'ALTRA COSA.
+			# Bru, sulla Simulazione Ouroboros: "immune per 3 turni, ogni turno
+			# aumenta attacco e difesa, diminuisce velocita' e ripristina il 15%
+			# di vita". E sull'Autoriciclaggio, che e' la stessa macchina al
+			# contrario: "per quattro turni comincia a perdere attacco e difesa
+			# ma recupera il 25% di vita".
+			#
+			# Non e' un potenziamento, che si applica una volta e scade: e' uno
+			# STATO CHE LAVORA, una battuta per volta. Il conto scorre in
+			# avanza_modalita, all'inizio di ogni sua battuta
+			nemico.modalita = {
+				"id": chiave_mossa(mossa),
+				"nome": String(mossa.get("nome", "")),
+				"battute": int(mossa.get("durata", 3)),
+				"stat": mossa.get("per_battuta", {}).get("stat", {}),
+				"cura_quota": float(mossa.get("per_battuta", {}).get("cura_quota", 0.0)),
+				"testo_battuta": String(mossa.get("testo_battuta", "")),
+				"testo_fine": String(mossa.get("testo_fine", "")),
+			}
+			if bool(mossa.get("immune", false)):
+				nemico.turni_immune = int(mossa.get("durata", 3)) + 1
+			aggiorna_scheda(nemico)
+		"trasformazione":
+			# NON DIVENTA SUBITO: annuncia, e il conto parte. "Hai 5 turni prima
+			# che si trasformi in un altro nemico" - cinque battute per decidere
+			# se abbatterlo prima o prepararsi a un'altra cosa
+			nemico.trasformazione = {
+				"diventa": String(mossa.get("diventa", "")),
+				"battute": int(mossa.get("battute", 5)),
+				"testo": String(mossa.get("testo_trasforma", "Non è più quello di prima.")),
+			}
+			aggiorna_scheda(nemico)
 		"scena":
 			# NON FA NIENTE, E LO FA APPOSTA. Una casella che esiste solo per il
 			# suo motto: lo Zombie Cittadino che si guarda intorno senza scopo,
@@ -2747,8 +2881,16 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			# cose" invece di fare male, ed e' meta' di quello che Bru ha chiesto
 			var vittima_stato := bersaglio_giocatore_casuale()
 			if not vittima_stato.is_empty():
-				applica_stato(vittima_stato, String(mossa.get("stato", "")),
-						int(mossa.get("valore_stato", 1)))
+				# UNA MOSSA PUO' LASCIARE PIU' DI UNA COSA ADDOSSO. L'Assolo
+				# metallico "infligge confusione E berserk": due mosse separate
+				# sarebbero due battute per fare una cosa sola, e a schermo due
+				# righe per un suono solo
+				for id_stato in stati_di(mossa):
+					applica_stato(vittima_stato, id_stato,
+							int(mossa.get("valore_stato", 1)))
+			if mossa.has("stress"):
+				for chiunque in vivi(true):
+					aggiungi_stress(chiunque, int(mossa.stress))
 		"buff_difesa":
 			RegoleCombattimento.applica_buff(nemico, "difesa", int(mossa.get("valore", 1)),
 					int(mossa.get("turni", 2)), chiave_mossa(mossa))

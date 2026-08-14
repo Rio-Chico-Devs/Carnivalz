@@ -66,6 +66,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
+	prova_modalita_e_trasformazione()
 	prova_tecnolog_completo()
 	prova_areale_e_la_regione_grande()
 	prova_tecnolog_si_riempie_studiando()
@@ -2426,14 +2427,15 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 	var tipi_noti := ["difendi", "attacco_forte", "spezza_guardia", "meta_vita",
 			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
 			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
-			"cura", "rubavita", "stato", "potenziamento", "scena", "aura"]
+			"cura", "rubavita", "stato", "potenziamento", "scena", "aura",
+			"modalita", "trasformazione"]
 	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione.
 	# Le sei caselle ce le hanno lo stesso, tutte libere
 	var senza_mosse_per_scelta := ["manifestazione_di_un_sogno", "veronica"]
 	var caselle_per_creatura := 6
 	var chiavi_condizione := ["vita_sotto", "vita_sopra", "alleati_almeno",
 			"alleati_al_massimo", "battuta_almeno", "senza_stato", "bersaglio_vita_sotto",
-			"dopo_rinascita"]
+			"dopo_rinascita", "dopo_mossa"]
 	var contate := 0
 	var con_cura := 0
 	for id_creatura in GameState.personaggi:
@@ -2863,6 +2865,102 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
 	scontro.free()
 
+func prova_modalita_e_trasformazione() -> void:
+	# Le quattro meccaniche del secondo giro: la forma in cui una creatura si
+	# chiude per qualche battuta (Ouroboros, Autoriciclaggio), la trasformazione
+	# annunciata, il tetto di usi, e la mossa che ne lascia addosso due
+	titolo("le forme, le trasformazioni e i tetti d'uso")
+	GameState.nuova_partita()
+	GameState.legame = 0
+	GameState.nemici_combattimento = ["divoratore"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+		elif not combattente.giocatore and nemico.is_empty():
+			nemico = combattente
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro di prova non si e' montato")
+
+	# 1. LA MODALITA' LAVORA A OGNI SUA BATTUTA, e finisce quando deve
+	nemico.hp = maxi(int(float(nemico.hp_max) * 0.5), 1)
+	var vita_prima := int(nemico.hp)
+	var attacco_prima := RegoleCombattimento.attacco_di(nemico)
+	scontro.esegui_mossa(nemico, {"id": "prova_forma", "tipo": "modalita", "testo": "-",
+			"durata": 3, "immune": true,
+			"per_battuta": {"stat": {"attacco": 3}, "cura_quota": 0.1}})
+	esigi(not Dictionary(nemico.get("modalita", {})).is_empty(), "la forma non si e' accesa")
+	esigi(int(nemico.get("turni_immune", 0)) > 0,
+			"la forma dice 'intoccabile' e non ha reso immune nessuno")
+	scontro.avanza_modalita(nemico)
+	esigi(int(nemico.hp) > vita_prima, "una battuta di forma non ha curato niente")
+	esigi(RegoleCombattimento.attacco_di(nemico) > attacco_prima,
+			"una battuta di forma non ha alzato l'attacco")
+	scontro.avanza_modalita(nemico)
+	scontro.avanza_modalita(nemico)
+	esigi(Dictionary(nemico.get("modalita", {})).is_empty(),
+			"dopo tre battute la forma e' ancora accesa: 'per 3 turni' non finisce mai")
+	esigi(RegoleCombattimento.attacco_di(nemico) == attacco_prima,
+			"finita la forma, il potenziamento e' rimasto: una forma a tempo diventa per sempre")
+
+	# 2. NON CI SI CHIUDE DUE VOLTE
+	var forma := {"id": "prova_forma2", "tipo": "modalita", "testo": "-", "durata": 3}
+	scontro.esegui_mossa(nemico, forma)
+	esigi(not scontro.mossa_eseguibile(nemico, forma),
+			"puo' richiudersi mentre e' gia' chiusa: sarebbe una battuta a vuoto")
+	nemico.modalita = {}
+
+	# 3. LA CONDIZIONE "SOLO DOPO QUELL'ALTRA MOSSA"
+	var seguito := {"id": "prova_seguito", "tipo": "modalita", "testo": "-", "durata": 2,
+			"quando": {"dopo_mossa": "prova_prima"}}
+	nemico.mosse_usate = []
+	esigi(not scontro.condizioni_mossa(nemico, seguito),
+			"il seguito e' disponibile senza che la mossa che lo precede sia mai partita")
+	nemico.mosse_usate = ["prova_prima"]
+	esigi(scontro.condizioni_mossa(nemico, seguito),
+			"fatta la prima, il seguito non si sblocca lo stesso")
+
+	# 4. IL TETTO D'USO: due volte si', la terza no
+	var bis := {"id": "prova_bis", "tipo": "cura", "testo": "-", "quota_vita": 0.1,
+			"massimo_usi": 2}
+	nemico.mosse_usate = []
+	nemico.hp = maxi(int(float(nemico.hp_max) * 0.5), 1)
+	esigi(scontro.mossa_disponibile(nemico, bis), "al primo giro il bis non c'e'")
+	scontro.esegui_mossa(nemico, bis)
+	nemico.hp = maxi(int(float(nemico.hp_max) * 0.5), 1)
+	esigi(scontro.mossa_disponibile(nemico, bis), "al secondo giro il bis e' gia' sparito")
+	scontro.esegui_mossa(nemico, bis)
+	nemico.hp = maxi(int(float(nemico.hp_max) * 0.5), 1)
+	esigi(not scontro.mossa_disponibile(nemico, bis),
+			"al terzo giro il bis c'e' ancora: 'massimo 2 volte' non tiene")
+
+	# 5. UNA MOSSA CHE NE LASCIA ADDOSSO DUE
+	eroe.stati_attivi = {}
+	scontro.esegui_mossa(nemico, {"id": "prova_assolo", "tipo": "stato", "testo": "-",
+			"stati": ["confusione", "berserk"]})
+	esigi(eroe.stati_attivi.size() >= 2,
+			"l'assolo ha lasciato addosso %d stati invece di due" % eroe.stati_attivi.size())
+
+	# 6. LA TRASFORMAZIONE: annuncia, conta, e poi entra un'altra creatura
+	var quanti_prima: int = scontro.combattenti.size()
+	scontro.esegui_mossa(nemico, {"id": "prova_trasf", "tipo": "trasformazione", "testo": "-",
+			"diventa": "golem_errante", "battute": 2})
+	esigi(not Dictionary(nemico.get("trasformazione", {})).is_empty(),
+			"la trasformazione non e' stata annunciata")
+	scontro.avanza_trasformazione(nemico)
+	esigi(scontro.combattenti.size() == quanti_prima,
+			"si e' trasformato subito: l'annuncio non serviva a niente")
+	scontro.avanza_trasformazione(nemico)
+	esigi(scontro.combattenti.size() > quanti_prima,
+			"finito il conto non e' entrato niente in campo: la trasformazione non trasforma")
+	esigi(int(nemico.hp) <= 0, "quello di prima e' ancora in piedi: adesso ce ne sono due")
+	scontro.free()
+
 func fotografia(scontro: Node, eroe: Dictionary, nemico: Dictionary) -> String:
 	# tutto quello che una mossa puo' cambiare, in una riga. Se dopo la battuta
 	# di una creatura questa riga e' identica a prima, quella battuta non e'
@@ -2921,6 +3019,8 @@ func prova_tecnolog_completo() -> void:
 		var dati: Dictionary = GameState.personaggi[id_creatura]
 		if not dati.has("ruolo") or String(dati.get("ruolo", "")) == "oggetto_scena":
 			continue
+		if dati.get("dominatore", false):
+			continue   # ha una scheda sua, con campi suoi: non e' un tecno log
 		guardate += 1
 		for riga in GameState.tecnolog_di(String(id_creatura)):
 			if String(riga.get("id", "")) == "areale":
@@ -2983,20 +3083,24 @@ func prova_areale_e_la_regione_grande() -> void:
 		esigi(String(zone[percorso]) in per_zona,
 				"la zona '%s' non ha una regione in areale_per_zona: la sua gente finirebbe con l'areale sbagliato"
 				% String(zone[percorso]))
-	# e la traduzione dev'essere QUELLA: chi vive nello Squarcio dice Geodos.
-	# LA CREATURA DI PROVA DEVE ESSERE UNA SENZA AREALE SCRITTO A MANO, se no
-	# non prova niente: la prima versione guardava l'Operaio Sfruttato, che ha
-	# "Geodos" scritto nella sua voce, e passava anche togliendo del tutto la
-	# traduzione dal codice. Il Divoratore invece dipende solo dalla tabella
-	var voce_divoratore: Dictionary = GameState.tecnolog.get("voci", {}).get("divoratore", {})
-	esigi(not voce_divoratore.has("areale"),
-			"il Divoratore adesso ha un areale scritto a mano: questa prova non misura piu' la traduzione, scegline un'altra")
-	var casa := GameState.areale_di("divoratore")
-	esigi(casa.contains("Geodos"),
-			"il Divoratore ha areale '%s': lo Squarcio Industriale e' una frattura di Geodos, e la scheda deve dire il mondo"
-			% casa)
-	esigi(not casa.contains("Squarcio"),
-			"l'areale dice ancora '%s': e' il nome della stanza, non della regione" % casa)
+	# E LA TRADUZIONE DEVE FUNZIONARE DAVVERO: chi vive nello Squarcio dice
+	# Geodos. La prova non puo' appoggiarsi a una creatura scelta a mano - le
+	# prime due versioni lo facevano e sono morte tutte e due nel giro di un
+	# giorno: la prima guardava l'Operaio Sfruttato, che ha "Geodos" scritto
+	# nella voce e quindi passava anche senza traduzione; la seconda guardava il
+	# Divoratore, e Bru gli ha scritto l'areale il giorno dopo. Quindi si toglie
+	# la mano di dosso per un istante e si misura il meccanismo nudo
+	var voce: Dictionary = GameState.tecnolog.get("voci", {}).get("divoratore", {})
+	var scritto: Variant = voce.get("areale", null)
+	voce.erase("areale")
+	var dedotto := GameState.areale_di("divoratore")
+	if scritto != null:
+		voce["areale"] = scritto
+	esigi(dedotto.contains("Geodos"),
+			"dedotto dalle zone, il Divoratore ha areale '%s': lo Squarcio Industriale e' una frattura di Geodos, e la scheda deve dire il mondo"
+			% dedotto)
+	esigi(not dedotto.contains("Squarcio"),
+			"l'areale dedotto dice ancora '%s': e' il nome della stanza, non della regione" % dedotto)
 	# la mano vince sulla mappa, perche' dove una specie VIVE puo' essere piu'
 	# grande di dove il gioco ti porta a incontrarla
 	var slime := GameState.areale_di("slime_infimo")

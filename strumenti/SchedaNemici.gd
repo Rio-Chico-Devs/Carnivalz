@@ -22,7 +22,8 @@ const USCITA := "res://docs/nemici.md"
 
 # le mosse che non fanno danno: nella tabella al posto del numero va cosa fanno
 const SENZA_DANNO := ["difendi", "buff_attacco", "buff_difesa", "buff_fattore",
-		"evoca", "sacrificio", "cura", "stato", "incendia", "potenziamento", "scena"]
+		"evoca", "sacrificio", "cura", "stato", "incendia", "potenziamento", "scena",
+		"modalita", "trasformazione"]
 
 func _ready() -> void:
 	var righe: Array[String] = []
@@ -33,6 +34,7 @@ func _ready() -> void:
 		righe.append("## %s" % zona)
 		for id_creatura in per_zona[zona]:
 			righe.append_array(scheda(String(id_creatura)))
+	righe.append_array(sezione_dominatori())
 	righe.append_array(indice_dei_motti())
 	var testo := "\n".join(righe) + "\n"
 	var file := FileAccess.open(USCITA, FileAccess.WRITE)
@@ -54,6 +56,12 @@ func quante() -> int:
 
 func combatte(id_creatura: String) -> bool:
 	var dati: Dictionary = GameState.personaggi.get(id_creatura, {})
+	if dati.get("dominatore", false):
+		# UN DOMINATORE NON E' UN NEMICO DA CATALOGARE. Bru: "Veronica non
+		# necessita di un entry nel bestiario ma di un entry nella sezione dei
+		# dominatori". Combatte lo stesso - il tutorial la usa - ma questo
+		# documento e' il bestiario, e lei ha una scheda sua
+		return false
 	return dati.has("ruolo") and String(dati.get("ruolo", "")) != "oggetto_scena"
 
 func raggruppa() -> Dictionary:
@@ -398,6 +406,43 @@ func frasi_in_campo(mosse: Array) -> Array[String]:
 	righe.append_array(elenco)
 	return righe
 
+func sezione_dominatori() -> Array[String]:
+	# I DOMINATORI HANNO UNA SCHEDA DIVERSA, e questa e' la ragione per cui non
+	# stanno nel bestiario. Una creatura si studia, e la sua scheda si riempie a
+	# strati mentre la osservi. Un dominatore lo conosci: quello che c'e' da
+	# sapere e' chi e', da dove viene, e cosa dice quando conta
+	var elenco: Dictionary = GameState.tecnolog.get("dominatori", {})
+	if elenco.is_empty():
+		return []
+	var righe: Array[String] = [
+		"",
+		"## I dominatori",
+		"",
+		"Non sono creature e non si studiano: la loro scheda ha campi suoi. Nel testo,",
+		"`{protagonista}` è il nome che hai scelto tu all'inizio.",
+	]
+	for id_dominatore in elenco:
+		var scheda: Dictionary = elenco[id_dominatore]
+		var dati: Dictionary = GameState.personaggi.get(String(id_dominatore), {})
+		righe.append("")
+		righe.append("### %s" % String(dati.get("nome", id_dominatore)))
+		righe.append("")
+		righe.append("`%s` · ♥ %d · attacco %d · difesa %d · velocità %d" % [
+			id_dominatore,
+			stat_di(String(id_dominatore), "hp", 25),
+			stat_di(String(id_dominatore), "attacco", 1),
+			stat_di(String(id_dominatore), "difesa", 0),
+			stat_di(String(id_dominatore), "velocita", 3)])
+		righe.append("")
+		righe.append("| Campo | |")
+		righe.append("| --- | --- |")
+		for campo in GameState.tecnolog.get("campi_dominatore", []):
+			var id_campo := String(campo.get("id", ""))
+			var valore := String(dati.get("nome", id_dominatore)) if id_campo == "nome" \
+					else String(scheda.get(id_campo, "—"))
+			righe.append("| %s | %s |" % [String(campo.get("etichetta", id_campo)), valore])
+	return righe
+
 func indice_dei_motti() -> Array[String]:
 	# Tutte le frasi salienti dei mostri in un posto solo. Sparse una per
 	# creatura si correggono male: una accanto all'altra si sente subito chi
@@ -438,9 +483,19 @@ func scheda_tecnolog(id_creatura: String) -> Array[String]:
 	var righe: Array[String] = ["", "**Tecno log**", ""]
 	righe.append("| Campo | Rilevamento |")
 	righe.append("| --- | --- |")
+	var diventa := String(GameState.tecnolog.get("voci", {})
+			.get(id_creatura, {}).get("diventa", ""))
 	for riga in GameState.tecnolog_di(id_creatura):
-		righe.append("| %s | %s |" % [String(riga.get("etichetta", "")),
-				String(riga.get("valore", "")).replace("|", "/")])
+		var valore := String(riga.get("valore", "")).replace("|", "/")
+		if String(riga.get("id", "")) == "metamorfosi" and diventa != "":
+			# IN GIOCO la Metamorfosi dice solo quello che hai osservato tu, ed e'
+			# giusto: e' il tuo registro. Ma QUESTO documento e' il tavolo di
+			# lavoro, non la schermata - e se non ci fosse scritto in cosa si
+			# trasforma, l'unica cosa che rende speciale quella creatura non
+			# starebbe da nessuna parte
+			valore += " — *in gioco*; qui: diventa **%s**" % String(
+					GameState.personaggi.get(diventa, {}).get("nome", diventa))
+		righe.append("| %s | %s |" % [String(riga.get("etichetta", "")), valore])
 	righe.append("")
 	righe.append("*Studi necessari per la pagina intera: %d.*" % GameState.strati_tecnolog())
 	return righe
@@ -477,9 +532,35 @@ func effetto_di(mossa: Dictionary) -> String:
 				int(round(float(mossa.get("quota_vita", 0.25)) * 100)),
 				", su un alleato" if String(mossa.get("bersaglio", "se_stesso")) == "alleato" else ""]
 		"rubavita": return "colpisce e **si nutre** (il %d%% del danno torna a lei)" % int(round(float(mossa.get("quota_furto", 0.5)) * 100))
-		"stato": return "nessun danno: lascia addosso **%s**" % String(
-				GameState.stati.get(String(mossa.get("stato", "")), {}).get("nome", mossa.get("stato", "?")))
+		"stato":
+			# una mossa puo' lasciarne piu' di uno addosso: l'Assolo metallico ne
+			# lascia due. Leggere solo "stato" e ignorare "stati" stampava un
+			# punto interrogativo, che e' il modo peggiore di dire "due cose"
+			var nomi: Array[String] = []
+			for id_stato in mossa.get("stati", [String(mossa.get("stato", ""))]):
+				if String(id_stato) == "":
+					continue
+				nomi.append("**%s**" % String(GameState.stati.get(String(id_stato), {})
+						.get("nome", id_stato)))
+			if nomi.is_empty():
+				return "nessun danno"
+			return "nessun danno: lascia addosso %s" % " e ".join(nomi)
 		"scena": return "**non fa niente**: è solo il suo motto"
+		"trasformazione": return "annuncia, e dopo **%d sue battute** diventa `%s`" % [
+				int(mossa.get("battute", 5)), String(mossa.get("diventa", "?"))]
+		"modalita":
+			var per_battuta: Dictionary = mossa.get("per_battuta", {})
+			var voci: Array[String] = []
+			for stat in per_battuta.get("stat", {}):
+				var quanto := int(per_battuta["stat"][stat])
+				voci.append("%s %s%d" % [String(stat), "+" if quanto >= 0 else "", quanto])
+			if float(per_battuta.get("cura_quota", 0.0)) > 0.0:
+				voci.append("+%d%% di vita" % int(round(
+						float(per_battuta["cura_quota"]) * 100)))
+			return "**si chiude per %d sue battute**%s, e a ogni battuta %s" % [
+					int(mossa.get("durata", 3)),
+					" — **intoccabile** finché dura" if mossa.get("immune", false) else "",
+					", ".join(voci)]
 		"aura": return "**non smette** finché non cade: colpisce tutta la squadra a ogni loro battuta"
 		"potenziamento":
 			var pezzi: Array[String] = []

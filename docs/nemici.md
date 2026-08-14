@@ -147,7 +147,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | --- | --- |
 | Denominazione | Goblin Tipico |
 | Classificazione | rango base |
-| Filogenesi | ferina |
+| Filogenesi | naturale |
 | Areale | Pianure selvagge di Canuka Rei |
 | Specie | Goblin |
 | Stadio | I |
@@ -734,111 +734,94 @@ Dalla seconda volta muore come chiunque. È lì che lo scontro cambia faccia.
 
 *Studi necessari per la pagina intera: 3.*
 
-### Veronica — livello 5, miniboss
-*La tua allenatrice, e l'amica d'infanzia che non ha mai imparato a dosare la forza.*
-
-`veronica` · ♥ 600 · attacco 18 · difesa 6 · velocità 6 · xp 0
-
-Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro scriptato).
-
-**Tecno log**
-
-| Campo | Rilevamento |
-| --- | --- |
-| Denominazione | Veronica |
-| Classificazione | soggetto umano |
-| Filogenesi | umana |
-| Areale | Il pianeta del risveglio |
-| Specie | Umano |
-| Stadio | I |
-| Morfologia | Nessuna alterazione. E' una persona. |
-| Habitus | Sta dritta e vicino. Troppo vicino. |
-| Metamorfosi | non osservata |
-| Ecologia | Non e' una creatura del Vuoto: e' quello che c'era prima del Vuoto. |
-
-*Studi necessari per la pagina intera: 3.*
-
 ## Livelli 6-10 — il mestiere
 
 ### Il Divoratore — livello 6, particolare
-*Una macchina che sembra uscita dai sogni di un pazzo, sembra divorare ogni cosa nel suo raggio d'azione, che sia viva o morta...*
+*Una macchina gigantesca che divora e ricicla tutto quello che trova sul suo cammino. Sarebbe un ottimo macchinario, se non fosse che non sembra saper distinguere le forme di vita dal resto.*
 
 `divoratore` · ♥ 468 · attacco 21 · difesa 10 · velocità 6 · xp 48
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 6 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Morso che divora | colpisce e **si nutre** (il 60% del danno torna a lei) | ×1.30 → 27 | sempre | sorteggio | — |
-| 2 | Aspirazione | colpisce **tutta la squadra** | ×0.75 → 16 | sempre | sorteggio | — |
-| 3 | — | *casella libera* | — | — | — | — |
-| 4 | — | *casella libera* | — | — | — | — |
-| 5 | — | *casella libera* | — | — | — | — |
-| 6 | — | *casella libera* | — | — | — | — |
+| 1 | Presa | colpisce e **si nutre** (il 60% del danno torna a lei) | ×1.30 → 27 | sempre | sorteggio | — |
+| 2 | Ciclo infinito | colpisce **tutta la squadra** | ×0.75 → 16 | sempre | sorteggio | — |
+| 3 | Ectoplasmer | un colpo pesante su uno solo | ×1.65 → 35 | sempre | sorteggio | 3 battute |
+| 4 | Simulazione Ouroboros | **si chiude per 3 sue battute** — **intoccabile** finché dura, e a ogni battuta attacco +3, difesa +3, velocita -1, +15% di vita | — | sotto il 30% di vita | priorità 8 | — |
+| 5 | Autoriciclaggio | **si chiude per 4 sue battute**, e a ogni battuta attacco -2, difesa -2, +25% di vita | — | sotto il 20% di vita | priorità 7 | — |
+| 6 | Tritatutto | 3 colpi su bersagli a caso | ×0.50 → 11 a colpo (33 totali) | sempre | sorteggio | 2 battute |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Le lame girano, prendono, e quello che prendono non torna.
-2. Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.
+1. Le tenaglie si chiudono, e quello che prende non lo restituisce.
+2. Rotea su se stessa, e l'aspirazione prende tutto quello che c'è intorno.
+3. Il vetro nero si accende, e quello che ne esce non è luce.
+4. Si chiude su se stessa con la parte anteriore, e comincia a girare.
+5. Comincia a consumare se stessa.
+6. Ti afferra, e prova a farti passare tutto intero.
 
 **Tecno log**
 
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Il Divoratore |
-| Classificazione | rango avanzato |
+| Classificazione | rango evoluto |
 | Filogenesi | meccanica |
 | Areale | Geodos |
 | Specie | Robot |
-| Stadio | III |
-| Morfologia | Struttura cilindrica con apertura anteriore continua. Interno rivestito di lame contrapposte che ruotano in fasi alternate. |
-| Habitus | Avanza in linea retta. Non gira: si riposiziona. |
+| Stadio | VI |
+| Morfologia | Questa creatura presenta varie sezioni con delle luci ovali rosse che si accendono mentre riciclano energia. Presenta una specie di meccanismo a tenaglia che cattura sia forme di vita organiche che non; gli spuntoni su quella che sembrerebbe essere una bocca prosciugano l'energia di esseri umani e artificiali. Dietro quello che sembrerebbe essere un vetro nero, che funge da pannello energetico, non si riesce a intravedere nulla. Il nucleo è fatto di Colossio, il che rende la bestia difficile da distruggere. |
+| Habitus | Sembra scannerizzare solo quel che trova dinnanzi a sé. Non ha schemi particolari: consuma quello che trova e lo trasforma in energia, che probabilmente trasferisce ai generatori della zona tramite aggancio. |
 | Metamorfosi | non osservata |
-| Ecologia | In cima alla catena del reparto per assenza di concorrenza. Non ha predatori perche' non ha nulla che valga la pena mangiare. |
+| Ecologia | Funge da convertitore energetico e da meccanismo di riciclaggio della zona. Non sorprende che tutto il complesso sia ancora attivo, viste le dimensioni della discarica e l'efficienza di queste macchine. |
 
 *Studi necessari per la pagina intera: 3.*
 
-### Ferraglia Urlante — livello 6, corazzato
-*Una montagna di rottami saldati dal dolore. Sembra di sentire le urla di una protesta.*
+### Rottami Erranti — livello 6, corazzato
+*Un ammasso di rottami errante. Sembra che al centro ci sia un nucleo di colossite che è sopravvissuto da solo, costruendosi la sua forma attuale.*
 
 `ferraglia_urlante` · ♥ 381 · attacco 14 · difesa 18 · velocità 4 · xp 26
 
-**Mosse: 3 su 6 caselle.**
+**Mosse: 6 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Valanga di rottami | colpisce **tutta la squadra** | ×0.85 → 12 | sempre | sorteggio | — |
-| 2 | Urlo di lamiera | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
-| 3 | Si ricompatta | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 6 battute |
-| 4 | — | *casella libera* | — | — | — | — |
-| 5 | — | *casella libera* | — | — | — | — |
-| 6 | — | *casella libera* | — | — | — | — |
+| 2 | Metallo pesante | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
+| 3 | Bis di rottami | **si rimette in piedi** (+60% della vita massima) | — | sotto il 30% di vita | priorità 7 | 4 battute |
+| 4 | Assolo metallico | nessun danno: lascia addosso **Confusione** e **Berserk** | — | sempre | sorteggio | 4 battute |
+| 5 | Protocollo di estinzione | annuncia, e dopo **5 sue battute** diventa `golem_errante` | — | sotto il 50% di vita | priorità 6 | — |
+| 6 | Ritmo errante | si potenzia (velocita +2, per 3 battute) | — | sempre | sorteggio | 3 battute |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
-1. La montagna si sposta di un metro, e un metro basta.
-2. Il rumore non e' un rumore: e' una protesta di mille voci saldate insieme.
-3. I rottami si richiamano da terra e tornano al loro posto.
+1. Si scrolla, e mezza discarica vi arriva addosso.
+2. La lamiera vibra su una nota che non finisce.
+3. One... more... ti-ti time...
+4. Una serie melodica di suoni metallici, e nessuno riesce più a pensare in fila.
+5. PROTOCOLLO DI ESTINZIONE. I rottami cominciano a cercarsi fra loro.
+6. Set... me... free...
 
 **Tecno log**
 
 | Campo | Rilevamento |
 | --- | --- |
-| Denominazione | Ferraglia Urlante |
-| Classificazione | rango superiore |
+| Denominazione | Rottami Erranti |
+| Classificazione | rango evoluto |
 | Filogenesi | meccanica |
 | Areale | Geodos |
 | Specie | Robot |
 | Stadio | III |
-| Morfologia | Ammasso di rottami di piu' provenienze, saldati da un calore che non e' quello di una fornace. Nessuna simmetria, nessun fronte riconoscibile. |
-| Habitus | Non ha portamento. Occupa. |
-| Metamorfosi | non osservata |
-| Ecologia | Cresce a spese del reparto: ogni pezzo che si stacca da una macchina prima o poi finisce addosso a lei. |
+| Morfologia | Questa creatura presenta un nucleo di colossite al centro, che ha utilizzato vari rottami per creare un corpo simile a quello di un carro armato umanoide. |
+| Habitus | Sembra aver mantenuto la sua funzione di pattuglia, anche se sembra più che altro vagare a vuoto. |
+| Metamorfosi | non osservata — *in gioco*; qui: diventa **Golem errante di rottami** |
+| Ecologia | Raccoglie e ricondiziona i rottami: ha una funzione di pulizia e di guardia. Spesso si scontra con altri esseri che abitano la discarica, e non è chiaro perché. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Un goblin terribilmente arrabbiato — livello 6, fonte
-*Non è mai stato bello, forte o rispettato, nemmeno tra i suoi. Il fattore di disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse.*
+*Questo goblin sembra soffrire molto. Non si sa per cosa o per chi, e non è possibile capirlo: conosce solo il linguaggio che parla la sua mazza.*
 
 `goblin_arrabbiato` · ♥ 1125 · attacco 25 · difesa 14 · velocità 6 · xp 152
 
@@ -848,7 +831,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Richiamo dei suoi simili | chiama 1 × `goblin_tipico` | — | sempre | sorteggio | — |
 | 2 | Furia di un goblin | un colpo pesante su uno solo | ×1.30 → 33 | sempre | sorteggio | — |
-| 3 | Pugno del vile | un colpo pesante su uno solo | ×1.20 → 30 | sempre | sorteggio | — |
+| 3 | Mazzata | un colpo pesante su uno solo | ×1.20 → 30 | sempre | sorteggio | — |
 | 4 | Capriccio del goblin | si potenzia l'attacco (+9 per 3 battute) | — | sempre | sorteggio | — |
 | 5 | Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 13 a colpo (39 totali) | sempre | sorteggio | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -857,7 +840,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 1. Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata.
 2. Furia di un goblin: colpisce alla cieca, urlando.
-3. Pugno del vile: un colpo sferrato senza il minimo onore.
+3. La mazza scende, e il goblin non guarda nemmeno dove.
 4. Capriccio del goblin: si mette a battere i piedi e se la prende con tutto quello che ha intorno. Il suo attacco aumenta.
 5. Cattiveria innata: ti sferra tre attacchi deboli di fila.
 
@@ -868,15 +851,55 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Un goblin terribilmente arrabbiato |
-| Classificazione | rango calamita' |
-| Filogenesi | ferina |
-| Areale | Il pianeta del risveglio |
+| Classificazione | rango superiore |
+| Filogenesi | naturale |
+| Areale | Pianure selvagge di Canuka Rei |
 | Specie | Goblin |
 | Stadio | III |
-| Morfologia | Stessa specie del comune, portata a due volte e mezzo la taglia. La crescita e' avvenuta in fretta e male: le articolazioni non hanno tenuto il passo, le spalle sono piu' alte del collo. |
-| Habitus | Non sta mai fermo. Anche a riposo continua a spostare il peso da un piede all'altro. |
+| Morfologia | Questo goblin presenta una carnagione più rossa rispetto ai suoi simili. Possiede una mazza e... non sembra indossare vestiti? |
+| Habitus | Non è stato possibile osservare altro che un comportamento rabbioso e fastidioso. |
 | Metamorfosi | non osservata |
-| Ecologia | Ha preso il posto di un capobranco che non c'era. Il disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse. |
+| Ecologia | Ha ottenuto con la violenza il comando di un piccolo gruppo di goblin, con i quali devasta l'area circostante. |
+
+*Studi necessari per la pagina intera: 3.*
+
+### Golem errante di rottami — livello 7, particolare
+*Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non e' piu' al centro: e' in cima.*
+
+`golem_errante` · ♥ 539 · attacco 25 · difesa 13 · velocità 6 · xp 58
+
+**Mosse: 4 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Pugno saldato | un colpo pesante su uno solo | ×1.50 → 38 | sempre | sorteggio | — |
+| 2 | Onda di ferraglia | colpisce **tutta la squadra** | ×0.95 → 24 | sempre | sorteggio | 2 battute |
+| 3 | Nucleo esposto | si potenzia (attacco +4, difesa +3, velocita -1, per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 4 | Raccoglie ancora | **si rimette in piedi** (+25% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
+
+**Motto** — quello che si legge in campo quando la mossa parte:
+
+1. Un braccio solo, fatto di tutto quello che era rimasto.
+2. Si apre, e la discarica vi passa sopra un'altra volta.
+3. La colossite in cima si accende, e il resto del corpo si irrigidisce intorno.
+4. Si china, e quello che aveva perso torna al suo posto.
+
+**Tecno log**
+
+| Campo | Rilevamento |
+| --- | --- |
+| Denominazione | Golem errante di rottami |
+| Classificazione | rango calamita' |
+| Filogenesi | meccanica |
+| Areale | Geodos |
+| Specie | Golem |
+| Stadio | IV |
+| Morfologia | Quello che i Rottami Erranti tenevano insieme a fatica, qui è saldato. Il nucleo di colossite non è più al centro: è in cima, dove starebbe una testa. |
+| Habitus | Non pattuglia più niente. Sta fermo finché non ha deciso, e quando ha deciso non si ferma. |
+| Metamorfosi | non osservata |
+| Ecologia | Non raccoglie e non ricondiziona: è il punto in cui la discarica smette di essere un magazzino e diventa una cosa sola. |
 
 *Studi necessari per la pagina intera: 3.*
 
@@ -1348,7 +1371,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | Stadio | III |
 | Morfologia | Adulto di corporatura importante, marcito in piedi. La pelle si e' aperta lungo le linee di tensione e non si e' richiusa; sotto, il tessuto e' ancora attivo. |
 | Habitus | Sta come stava da vivo, e questa e' la cosa che colpisce di piu' chi lo vede. |
-| Metamorfosi | non osservata |
+| Metamorfosi | non osservata — *in gioco*; qui: diventa **Jongo Dongo** |
 | Ecologia | Era il signore di queste terre. Sacrifico' raccolti e famiglie intere per la propria fortuna, e non si e' mai pentito. |
 
 *Studi necessari per la pagina intera: 3.*
@@ -1632,6 +1655,23 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 
 *Studi necessari per la pagina intera: 3.*
 
+## I dominatori
+
+Non sono creature e non si studiano: la loro scheda ha campi suoi. Nel testo,
+`{protagonista}` è il nome che hai scelto tu all'inizio.
+
+### Veronica
+
+`veronica` · ♥ 600 · attacco 18 · difesa 6 · velocità 6
+
+| Campo | |
+| --- | --- |
+| Nome | Veronica |
+| Ruolo | Dominatrice |
+| Classe | Brawler |
+| Motto | Se non riesci a dare fondo fino all'ultima briciola della tua essenza... è meglio che tu ti faccia da parte. Ti proteggerò io. |
+| Entry log | Veronica è una ragazza cresciuta nei bassifondi di Bacnel, un pianeta conosciuto per la sua povertà e la sua scarsità morale. Ha conosciuto {protagonista} quando erano ancora soltanto dei ragazzini: se non fosse stato per Veronica, non si sa quale destino {protagonista} avrebbe affrontato. Arruolatasi nell'organizzazione dopo un tragico evento sul suo pianeta natale, insieme a {protagonista} ha continuato i suoi allenamenti fino a diventare una dei dominatori più talentuosi dell'avamposto Jarer. |
+
 ## Tutti i motti
 
 Ogni frase che una creatura dice in campo, tutte di fila. È la pagina su cui si sente se
@@ -1732,22 +1772,36 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 
 **Il Divoratore**
 
-1. Le lame girano, prendono, e quello che prendono non torna.
-2. Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.
+1. Le tenaglie si chiudono, e quello che prende non lo restituisce.
+2. Rotea su se stessa, e l'aspirazione prende tutto quello che c'è intorno.
+3. Il vetro nero si accende, e quello che ne esce non è luce.
+4. Si chiude su se stessa con la parte anteriore, e comincia a girare.
+5. Comincia a consumare se stessa.
+6. Ti afferra, e prova a farti passare tutto intero.
 
-**Ferraglia Urlante**
+**Rottami Erranti**
 
-1. La montagna si sposta di un metro, e un metro basta.
-2. Il rumore non e' un rumore: e' una protesta di mille voci saldate insieme.
-3. I rottami si richiamano da terra e tornano al loro posto.
+1. Si scrolla, e mezza discarica vi arriva addosso.
+2. La lamiera vibra su una nota che non finisce.
+3. One... more... ti-ti time...
+4. Una serie melodica di suoni metallici, e nessuno riesce più a pensare in fila.
+5. PROTOCOLLO DI ESTINZIONE. I rottami cominciano a cercarsi fra loro.
+6. Set... me... free...
 
 **Un goblin terribilmente arrabbiato**
 
 1. Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata.
 2. Furia di un goblin: colpisce alla cieca, urlando.
-3. Pugno del vile: un colpo sferrato senza il minimo onore.
+3. La mazza scende, e il goblin non guarda nemmeno dove.
 4. Capriccio del goblin: si mette a battere i piedi e se la prende con tutto quello che ha intorno. Il suo attacco aumenta.
 5. Cattiveria innata: ti sferra tre attacchi deboli di fila.
+
+**Golem errante di rottami**
+
+1. Un braccio solo, fatto di tutto quello che era rimasto.
+2. Si apre, e la discarica vi passa sopra un'altra volta.
+3. La colossite in cima si accende, e il resto del corpo si irrigidisce intorno.
+4. Si china, e quello che aveva perso torna al suo posto.
 
 **Ghoul**
 
