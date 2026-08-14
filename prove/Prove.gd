@@ -65,6 +65,7 @@ func _ready() -> void:
 	prova_ogni_creatura_ha_un_set_di_mosse()
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
+	prova_le_meccaniche_nuove_delle_mosse()
 	prova_tecnolog_completo()
 	prova_areale_e_la_regione_grande()
 	prova_tecnolog_si_riempie_studiando()
@@ -2733,6 +2734,134 @@ func prova_nessuna_creatura_perde_la_battuta() -> void:
 		scontro.free()
 	esigi(guardate >= 30, "la prova ha guardato solo %d creature: il filtro si e' stretto" % guardate)
 	GameState.nuova_partita()
+
+func prova_le_meccaniche_nuove_delle_mosse() -> void:
+	# Le sette cose che le mosse di Bru chiedevano e il motore non sapeva fare.
+	# Ognuna misurata sul campo, con lo scontro montato: leggere il codice non
+	# basta, perche' meta' di questi difetti sono "il valore c'e' e non arriva
+	# a destinazione" - il buff di velocita' che non toccava la ricarica lo ha
+	# scoperto la prova, non la rilettura
+	titolo("le meccaniche nuove fanno davvero quello che dicono")
+	GameState.nuova_partita()
+	GameState.legame = 0
+	GameState.nemici_combattimento = ["zombie_mostruoso"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1   # qui si chiamano le mosse a mano: l'orologio non deve girare da solo
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+		elif not combattente.giocatore and nemico.is_empty():
+			nemico = combattente
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro di prova non si e' montato")
+
+	# 1. IL POTENZIAMENTO TOCCA PIU' STATISTICHE INSIEME, e sa anche togliere
+	var attacco_prima := RegoleCombattimento.attacco_di(nemico)
+	var velocita_prima := RegoleCombattimento.velocita_effettiva(nemico)
+	scontro.esegui_mossa(nemico, {"id": "prova_moan", "tipo": "potenziamento",
+			"testo": "-", "stat": {"attacco": 5, "velocita": -1}, "turni": 3})
+	esigi(RegoleCombattimento.attacco_di(nemico) == attacco_prima + 5,
+			"il potenziamento non ha alzato l'attacco: %d invece di %d"
+			% [RegoleCombattimento.attacco_di(nemico), attacco_prima + 5])
+	esigi(RegoleCombattimento.velocita_effettiva(nemico) == velocita_prima - 1,
+			"il potenziamento non ha abbassato la velocita': un valore negativo non morde")
+
+	# 2. E LA VELOCITA' SI SENTE NELLA RICARICA. Qui stava il difetto vero:
+	# applica_buff accetta qualunque statistica, quindi il buff esisteva e si
+	# vedeva - ma velocita_effettiva non guardava i buff, e la ricarica non
+	# cambiava di un millesimo
+	var ricarica_rallentato: float = scontro.ricarica_di(nemico)
+	nemico.buffs = []
+	var ricarica_pulita: float = scontro.ricarica_di(nemico)
+	esigi(ricarica_rallentato > ricarica_pulita,
+			"con la velocita' abbassata ricarica in %.2fs invece che in %.2fs: il potenziamento di velocita' non arriva all'orologio"
+			% [ricarica_rallentato, ricarica_pulita])
+
+	# 3. IL POTENZIAMENTO AGLI ALLEATI tocca gli altri e non se stesso
+	scontro.aggiungi_combattente("zombie_cittadino", false)
+	var compagno: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if not combattente.giocatore and String(combattente.id) == "zombie_cittadino":
+			compagno = combattente
+	esigi(not compagno.is_empty(), "il compagno di prova non e' entrato in campo")
+	nemico.buffs = []
+	compagno.buffs = []
+	scontro.esegui_mossa(nemico, {"id": "prova_incitamento", "tipo": "potenziamento",
+			"testo": "-", "bersaglio": "alleati", "stat": {"velocita": 2}, "turni": 3})
+	esigi(compagno.buffs.size() == 1,
+			"l'incitamento non ha toccato il compagno: potenziare gli altri non funziona")
+	esigi(nemico.buffs.is_empty(),
+			"l'incitamento ha potenziato anche chi lo lancia: 'agli alleati' vuol dire agli altri")
+
+	# 4. LA SCENA non fa niente, e alle strette non si sceglie mai
+	var scena := {"id": "prova_scena", "tipo": "scena", "testo": "-"}
+	nemico.hp = int(nemico.hp_max)
+	esigi(scontro.mossa_eseguibile(nemico, scena),
+			"la scena non e' disponibile nemmeno da sano: non si potrebbe usare mai")
+	nemico.hp = maxi(int(float(nemico.hp_max) * 0.1), 1)
+	esigi(not scontro.mossa_eseguibile(nemico, scena),
+			"alle strette la creatura puo' ancora guardarsi intorno invece di reagire")
+	nemico.hp = int(nemico.hp_max)
+
+	# 5. IL DANNO CHE SALE COL CALARE DELLA VITA
+	var rabbia := {"id": "prova_rabbia", "tipo": "attacco_forte", "testo": "-",
+			"quota": 1.0, "quota_a_terra": 3.0}
+	nemico.hp = int(nemico.hp_max)
+	var da_sano: int = scontro.valore_mossa(nemico, rabbia)
+	nemico.hp = maxi(int(float(nemico.hp_max) * 0.1), 1)
+	var da_morente: int = scontro.valore_mossa(nemico, rabbia)
+	esigi(da_morente > da_sano * 2,
+			"ridotto male colpisce per %d contro i %d da sano: la rampa non c'e'"
+			% [da_morente, da_sano])
+	nemico.hp = int(nemico.hp_max)
+
+	# 6. IL COLPO CHE COSTA A CHI LO TIRA, e non lo uccide mai
+	var vita_prima := int(nemico.hp)
+	scontro.paga_di_persona(nemico, {"costo_vita": 0.25})
+	esigi(int(nemico.hp) < vita_prima, "la mossa che 'colpisce anche se stesso' non gli costa niente")
+	nemico.hp = 1
+	scontro.paga_di_persona(nemico, {"costo_vita": 0.9})
+	esigi(int(nemico.hp) >= 1, "il colpo a proprio carico lo ha ucciso: si suicida invece di combattere")
+	nemico.hp = int(nemico.hp_max)
+
+	# 7. LA PERCENTUALE DELLA VITA RIMASTA: non passa dalla difesa, ma non uccide
+	eroe.hp = int(eroe.hp_max)
+	var vita_eroe := int(eroe.hp)
+	scontro.esegui_mossa(nemico, {"id": "prova_discesa", "tipo": "attacco_tutti",
+			"testo": "-", "quota_vita_bersaglio": 0.8})
+	esigi(int(eroe.hp) < vita_eroe / 2,
+			"la discesa ha tolto solo %d di %d: non e' una frazione della vita rimasta"
+			% [vita_eroe - int(eroe.hp), vita_eroe])
+	esigi(int(eroe.hp) >= 1, "la discesa ha steso la squadra: un colpo a cui non puoi fare niente non e' uno scontro")
+	eroe.hp = int(eroe.hp_max)
+
+	# 8. L'AURA colpisce tutti a ogni loro battuta, E MUORE CON CHI LA TIENE SU
+	scontro.esegui_mossa(nemico, {"id": "prova_aura", "tipo": "aura", "testo": "-",
+			"quota_per_turno": 0.3, "testo_turno": "-"})
+	esigi(bool(eroe.get("in_fiamme", false)),
+			"l'aura non si e' posata su nessuno")
+	esigi(String(eroe.get("combustione", {}).get("fonte", "")) == String(nemico.id),
+			"l'aura non ricorda chi l'ha lanciata: non potrebbe mai spegnersi")
+	scontro.spegni_aura_di(nemico)
+	esigi(not bool(eroe.get("in_fiamme", false)),
+			"caduto chi la teneva accesa, il vento continua a tagliare: l'aura sopravvive al suo padrone")
+
+	# 9. LA RINASCITA: una volta sola, e poi si muore come tutti
+	GameState.personaggi["zombie_mostruoso"]["rinascita"] = {"quota_vita": 0.25, "testo": "[i]%s[/i]"}
+	nemico.hp = 0
+	nemico.gia_rinato = false
+	scontro._su_ko(nemico)
+	esigi(int(nemico.hp) > 0, "la rinascita non l'ha rimesso in piedi")
+	esigi(bool(nemico.get("gia_rinato", false)), "e' rinato senza segnarselo: rinascerebbe per sempre")
+	nemico.hp = 0
+	scontro._su_ko(nemico)
+	esigi(int(nemico.hp) <= 0, "e' rinato una seconda volta: lo scontro non finisce piu'")
+	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
+	scontro.free()
 
 func fotografia(scontro: Node, eroe: Dictionary, nemico: Dictionary) -> String:
 	# tutto quello che una mossa puo' cambiare, in una riga. Se dopo la battuta
