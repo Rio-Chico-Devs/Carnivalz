@@ -2843,10 +2843,17 @@ func prova_areale_e_la_regione_grande() -> void:
 		esigi(String(zone[percorso]) in per_zona,
 				"la zona '%s' non ha una regione in areale_per_zona: la sua gente finirebbe con l'areale sbagliato"
 				% String(zone[percorso]))
-	# e la traduzione dev'essere QUELLA: chi vive nello Squarcio dice Geodos
-	var casa := GameState.areale_di("operaio_sfruttato")
+	# e la traduzione dev'essere QUELLA: chi vive nello Squarcio dice Geodos.
+	# LA CREATURA DI PROVA DEVE ESSERE UNA SENZA AREALE SCRITTO A MANO, se no
+	# non prova niente: la prima versione guardava l'Operaio Sfruttato, che ha
+	# "Geodos" scritto nella sua voce, e passava anche togliendo del tutto la
+	# traduzione dal codice. Il Divoratore invece dipende solo dalla tabella
+	var voce_divoratore: Dictionary = GameState.tecnolog.get("voci", {}).get("divoratore", {})
+	esigi(not voce_divoratore.has("areale"),
+			"il Divoratore adesso ha un areale scritto a mano: questa prova non misura piu' la traduzione, scegline un'altra")
+	var casa := GameState.areale_di("divoratore")
 	esigi(casa.contains("Geodos"),
-			"l'Operaio Sfruttato ha areale '%s': lo Squarcio Industriale e' una frattura di Geodos, e la scheda deve dire il mondo"
+			"il Divoratore ha areale '%s': lo Squarcio Industriale e' una frattura di Geodos, e la scheda deve dire il mondo"
 			% casa)
 	esigi(not casa.contains("Squarcio"),
 			"l'areale dice ancora '%s': e' il nome della stanza, non della regione" % casa)
