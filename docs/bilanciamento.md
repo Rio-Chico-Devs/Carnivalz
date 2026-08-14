@@ -1,6 +1,6 @@
 # Bilanciamento (generato, non scrivere qui a mano)
 
-Prodotto da `prove/Simulatore.gd`: **182400 partite** giocate dal motore vero in 1227 secondi.
+Prodotto da `prove/Simulatore.gd`: **187200 partite** giocate dal motore vero in 1242 secondi.
 
 Non e' una stima e non e' un modello: e' `Combattimento.tscn` istanziata e giocata,
 con Voce/Campo/Menu muti. Se questi numeri sono sbagliati, sono sbagliati anche
@@ -32,11 +32,12 @@ Livello minimo a cui si vince almeno l'80% delle volte andandoci dritto.
 | Il Divoratore | `divoratore` | 468 | 21 | 8 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | 486 | 32 | 8 |
 | Donna Spinosa | `donna_spinosa` | 568 | 38 | 12 |
-| Ferraglia Urlante | `ferraglia_urlante` | 381 | 14 | 5 |
+| Rottami Erranti | `ferraglia_urlante` | 381 | 14 | 8 |
 | Ghoul | `ghoul` | 366 | 23 | 5 |
 | El Muy Bonito | `giocoliere` | 340 | 15 | 5 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | 1125 | 25 | **mai** |
 | Goblin Tipico | `goblin_tipico` | 86 | 6 | 1 |
+| Golem errante di rottami | `golem_errante` | 539 | 25 | 8 |
 | Infetto Rapido | `infetto_rapido` | 94 | 7 | 2 |
 | L'ultimo spettacolo di Jerah | `jerah` | 2710 | 74 | **mai** |
 | Jongo Dongo | `jongo_dongo` | 1857 | 48 | **mai** |
@@ -136,10 +137,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 1.6 | 100.0 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 0% | 100% | 0% | 1.4 | 100.0 | 0% | 0 |
 | Diabolo | `diabolo` | casuale | 0% | 100% | 0% | 1.5 | 100.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 2.1 | 100.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 2.5 | 100.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 2.1 | 100.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 2.3 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 2.2 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 2.1 | 100.0 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 2% | 98% | 0% | 1.0 | 99.3 | 0% | 1 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
@@ -148,10 +149,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 0% | 100% | 0% | 1.0 | 100.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 1.0 | 99.9 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 16.4 | 100.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 6.0 | 100.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 7.5 | 100.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 7.1 | 100.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 100% | 0% | 20.2 | 100.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 0% | 100% | 0% | 7.0 | 100.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 0% | 100% | 0% | 8.7 | 100.0 | 0% | 0 |
 | Ghoul | `ghoul` | attacca | 3% | 97% | 0% | 2.0 | 98.5 | 0% | 1 |
 | Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
@@ -168,6 +169,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 51.8 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 10.1 | 36.9 | 0% | 2 |
 | Goblin Tipico | `goblin_tipico` | casuale | 72% | 21% | 7% | 33.6 | 64.0 | 0% | 1 |
+| Golem errante di rottami | `golem_errante` | attacca | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 100% | 0% | 2.1 | 100.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 0% | 100% | 0% | 2.0 | 100.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | casuale | 0% | 100% | 0% | 2.1 | 100.0 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | attacca | 28% | 72% | 0% | 5.9 | 95.6 | 0% | 2 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 27.1 | 100.0 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 3% | 97% | 0% | 6.6 | 99.2 | 0% | 0 |
@@ -293,10 +298,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 3.3 | 145.0 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 0% | 100% | 0% | 2.6 | 145.0 | 0% | 0 |
 | Diabolo | `diabolo` | casuale | 0% | 100% | 0% | 2.7 | 145.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 3.4 | 145.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 5.0 | 145.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 3.4 | 145.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 3.7 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 3.1 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 4.4 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 3.1 | 145.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 3.5 | 145.0 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 2% | 98% | 0% | 1.0 | 143.4 | 0% | 1 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 1.7 | 145.0 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
@@ -305,16 +310,16 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 0% | 100% | 0% | 1.0 | 145.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 1.0 | 144.6 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 9.3 | 145.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 99% | 1% | 43.2 | 144.9 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 9.4 | 145.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 99% | 1% | 22.4 | 144.9 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 11.1 | 145.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 82% | 18% | 50.2 | 142.3 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 0% | 100% | 0% | 11.0 | 145.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 0% | 99% | 1% | 22.6 | 144.9 | 0% | 0 |
 | Ghoul | `ghoul` | attacca | 3% | 97% | 0% | 2.9 | 142.2 | 0% | 1 |
 | Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 3.6 | 145.0 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 0% | 100% | 0% | 2.9 | 145.0 | 0% | 0 |
 | Ghoul | `ghoul` | casuale | 1% | 99% | 0% | 3.1 | 144.9 | 0% | 0 |
 | El Muy Bonito | `giocoliere` | attacca | 0% | 100% | 0% | 3.7 | 145.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 8.9 | 145.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 8.7 | 145.0 | 0% | 0 |
 | El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 3.1 | 145.0 | 0% | 0 |
 | El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 4.2 | 145.0 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 3.0 | 145.0 | 0% | 0 |
@@ -325,6 +330,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 44.5 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 7.7 | 22.9 | 0% | 2 |
 | Goblin Tipico | `goblin_tipico` | casuale | 99% | 0% | 1% | 15.7 | 22.3 | 0% | 2 |
+| Golem errante di rottami | `golem_errante` | attacca | 0% | 100% | 0% | 2.9 | 145.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 100% | 0% | 3.5 | 145.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 0% | 100% | 0% | 2.9 | 145.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | casuale | 0% | 100% | 0% | 3.2 | 145.0 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 4.7 | 60.2 | 0% | 6 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 100% | 0% | 45.8 | 145.0 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 7.7 | 96.8 | 0% | 6 |
@@ -450,10 +459,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 100% | 0% | 11.8 | 190.0 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 2% | 98% | 0% | 4.7 | 189.4 | 0% | 1 |
 | Diabolo | `diabolo` | casuale | 0% | 100% | 0% | 5.6 | 190.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 6.3 | 190.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 18.2 | 190.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 6.2 | 190.0 | 0% | 0 |
-| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 8.3 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 5.9 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | difendi | 0% | 100% | 0% | 15.1 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 5.9 | 190.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | casuale | 0% | 100% | 0% | 7.6 | 190.0 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 3% | 97% | 0% | 2.9 | 187.0 | 0% | 1 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 100% | 0% | 3.9 | 190.0 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 0% | 100% | 0% | 3.0 | 190.0 | 0% | 0 |
@@ -462,16 +471,16 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 2.4 | 190.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 0% | 100% | 0% | 2.0 | 190.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | casuale | 1% | 99% | 0% | 2.2 | 189.6 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 18.4 | 190.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 1% | 99% | 60.0 | 122.4 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 0% | 100% | 0% | 18.2 | 190.0 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 0% | 18% | 82% | 57.9 | 156.4 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 20.3 | 190.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 105.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 0% | 100% | 0% | 20.6 | 190.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 0% | 89% | 11% | 48.7 | 184.7 | 0% | 0 |
 | Ghoul | `ghoul` | attacca | 7% | 93% | 0% | 5.4 | 183.1 | 0% | 2 |
 | Ghoul | `ghoul` | difendi | 0% | 100% | 0% | 11.0 | 190.0 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 3% | 97% | 0% | 5.6 | 188.5 | 0% | 1 |
 | Ghoul | `ghoul` | casuale | 3% | 97% | 0% | 6.3 | 187.5 | 0% | 1 |
 | El Muy Bonito | `giocoliere` | attacca | 0% | 100% | 0% | 6.8 | 190.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 33.8 | 190.0 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 100% | 0% | 32.9 | 190.0 | 0% | 0 |
 | El Muy Bonito | `giocoliere` | studia | 0% | 100% | 0% | 4.4 | 190.0 | 0% | 0 |
 | El Muy Bonito | `giocoliere` | casuale | 0% | 100% | 0% | 6.9 | 190.0 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 5.6 | 190.0 | 0% | 0 |
@@ -482,6 +491,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 31.5 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 6.8 | 9.8 | 0% | 1 |
 | Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 12.2 | 9.5 | 0% | 1 |
+| Golem errante di rottami | `golem_errante` | attacca | 0% | 100% | 0% | 5.2 | 190.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 100% | 0% | 8.8 | 190.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 0% | 100% | 0% | 5.4 | 190.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | casuale | 0% | 100% | 0% | 6.2 | 190.0 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.8 | 24.6 | 0% | 5 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 60.0 | 134.5 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.8 | 48.7 | 0% | 5 |
@@ -607,10 +620,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 60.0 | 180.1 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 9% | 91% | 0% | 12.1 | 275.3 | 0% | 3 |
 | Diabolo | `diabolo` | casuale | 73% | 27% | 0% | 34.3 | 233.2 | 0% | 25 |
-| Il Divoratore | `divoratore` | attacca | 67% | 33% | 0% | 15.6 | 263.3 | 0% | 32 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 129.7 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 21% | 79% | 0% | 17.1 | 282.3 | 0% | 10 |
-| Il Divoratore | `divoratore` | casuale | 82% | 8% | 10% | 45.8 | 185.1 | 0% | 40 |
+| Il Divoratore | `divoratore` | attacca | 0% | 100% | 0% | 17.8 | 285.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 156.4 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 0% | 100% | 0% | 17.6 | 285.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | casuale | 0% | 16% | 84% | 57.1 | 223.4 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 7% | 93% | 0% | 7.6 | 273.6 | 0% | 3 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 63% | 37% | 52.9 | 272.6 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 4% | 96% | 0% | 7.8 | 281.1 | 0% | 2 |
@@ -619,16 +632,16 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 9.2 | 285.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 2% | 98% | 0% | 5.3 | 283.5 | 0% | 1 |
 | Donna Spinosa | `donna_spinosa` | casuale | 3% | 97% | 0% | 6.0 | 282.5 | 0% | 1 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 17.7 | 86.6 | 0% | 26 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 52.7 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 20.6 | 102.2 | 0% | 26 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 13% | 0% | 87% | 58.5 | 64.9 | 0% | 3 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 0% | 100% | 0% | 25.4 | 285.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 45.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 0% | 100% | 0% | 27.7 | 285.0 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 0% | 10% | 90% | 59.1 | 194.4 | 0% | 0 |
 | Ghoul | `ghoul` | attacca | 89% | 11% | 0% | 11.3 | 232.6 | 0% | 27 |
 | Ghoul | `ghoul` | difendi | 0% | 1% | 99% | 60.0 | 198.5 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 34% | 66% | 0% | 13.3 | 271.1 | 0% | 10 |
 | Ghoul | `ghoul` | casuale | 73% | 27% | 0% | 33.3 | 226.7 | 0% | 22 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 9.7 | 122.6 | 0% | 25 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 115.1 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 9.7 | 123.0 | 0% | 25 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 116.9 | 0% | 0 |
 | El Muy Bonito | `giocoliere` | studia | 1% | 99% | 0% | 8.7 | 284.9 | 0% | 0 |
 | El Muy Bonito | `giocoliere` | casuale | 4% | 96% | 0% | 13.6 | 279.1 | 0% | 1 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 14.2 | 285.0 | 0% | 0 |
@@ -639,6 +652,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 24.3 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 6.8 | 7.5 | 0% | 3 |
 | Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 11.7 | 5.1 | 0% | 3 |
+| Golem errante di rottami | `golem_errante` | attacca | 0% | 100% | 0% | 15.2 | 285.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 21% | 79% | 58.4 | 244.1 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 0% | 100% | 0% | 14.5 | 285.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | casuale | 0% | 75% | 25% | 43.2 | 276.0 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 2.9 | 5.5 | 0% | 3 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 60.0 | 86.5 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 5.9 | 12.2 | 0% | 3 |
@@ -764,10 +781,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 60.0 | 90.0 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 100% | 0% | 0% | 10.6 | 125.0 | 0% | 35 |
 | Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 23.3 | 77.7 | 0% | 35 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 9.3 | 86.1 | 0% | 34 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 72.2 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 12.2 | 118.0 | 0% | 34 |
-| Il Divoratore | `divoratore` | casuale | 99% | 0% | 1% | 28.6 | 62.2 | 0% | 34 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 19.4 | 156.6 | 0% | 34 |
+| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 81.9 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 25.4 | 214.6 | 0% | 34 |
+| Il Divoratore | `divoratore` | casuale | 37% | 0% | 63% | 55.3 | 98.3 | 0% | 13 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 12.5 | 244.8 | 0% | 43 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 60.0 | 165.7 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 14.2 | 279.7 | 0% | 43 |
@@ -776,18 +793,18 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 22.3 | 425.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 9% | 91% | 0% | 10.9 | 408.7 | 0% | 4 |
 | Donna Spinosa | `donna_spinosa` | casuale | 6% | 94% | 0% | 16.6 | 414.4 | 0% | 3 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 9.8 | 17.0 | 0% | 18 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 29.6 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 12.8 | 21.5 | 0% | 18 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 97% | 0% | 3% | 31.5 | 18.1 | 0% | 18 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 15.6 | 36.6 | 0% | 21 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 27.7 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 100% | 0% | 0% | 19.0 | 48.4 | 0% | 22 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 2% | 0% | 98% | 59.5 | 74.9 | 0% | 1 |
 | Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 7.0 | 89.5 | 0% | 30 |
 | Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 60.0 | 89.4 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 100% | 0% | 0% | 10.0 | 114.8 | 0% | 30 |
 | Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 21.2 | 81.7 | 0% | 30 |
 | El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 7.7 | 55.3 | 0% | 21 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 68.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 9.9 | 167.5 | 0% | 21 |
-| El Muy Bonito | `giocoliere` | casuale | 77% | 23% | 0% | 18.8 | 266.2 | 0% | 16 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 68.6 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 9.9 | 168.1 | 0% | 21 |
+| El Muy Bonito | `giocoliere` | casuale | 76% | 24% | 0% | 18.8 | 267.2 | 0% | 16 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 19.9 | 425.0 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 0% | 100% | 60.0 | 183.2 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 19.9 | 425.0 | 0% | 0 |
@@ -796,6 +813,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 41.1 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 7.7 | 20.3 | 0% | 10 |
 | Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 15.0 | 17.7 | 0% | 10 |
+| Golem errante di rottami | `golem_errante` | attacca | 100% | 0% | 0% | 13.4 | 155.3 | 0% | 49 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 0% | 100% | 60.0 | 87.6 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 100% | 0% | 0% | 16.5 | 196.4 | 0% | 49 |
+| Golem errante di rottami | `golem_errante` | casuale | 12% | 0% | 88% | 57.6 | 127.8 | 0% | 6 |
 | Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.0 | 11.2 | 0% | 10 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 60.0 | 120.5 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.0 | 29.0 | 0% | 10 |
@@ -921,10 +942,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 60.0 | 51.5 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 100% | 0% | 0% | 7.9 | 45.5 | 0% | 19 |
 | Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 15.6 | 26.2 | 0% | 19 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 9.2 | 104.1 | 0% | 42 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 79.9 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 12.1 | 131.8 | 0% | 42 |
-| Il Divoratore | `divoratore` | casuale | 100% | 0% | 0% | 27.1 | 74.3 | 0% | 42 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 19.2 | 192.9 | 0% | 42 |
+| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 89.8 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 21.6 | 211.6 | 0% | 42 |
+| Il Divoratore | `divoratore` | casuale | 41% | 0% | 59% | 54.2 | 112.5 | 0% | 18 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 7.4 | 60.1 | 0% | 37 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 60.0 | 86.3 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 10.5 | 101.4 | 0% | 37 |
@@ -933,18 +954,18 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 31.8 | 610.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 10.5 | 246.6 | 0% | 51 |
 | Donna Spinosa | `donna_spinosa` | casuale | 84% | 16% | 0% | 21.4 | 382.3 | 0% | 43 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 10.4 | 18.5 | 0% | 23 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 26.7 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 13.5 | 23.7 | 0% | 23 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 98% | 0% | 2% | 34.2 | 19.2 | 0% | 23 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 13.6 | 16.2 | 0% | 23 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 23.8 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 100% | 0% | 0% | 16.7 | 21.7 | 0% | 24 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 14% | 0% | 86% | 57.4 | 62.6 | 0% | 6 |
 | Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 5.3 | 52.8 | 0% | 19 |
 | Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 60.0 | 60.0 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 100% | 0% | 0% | 8.3 | 69.3 | 0% | 19 |
 | Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 18.2 | 48.3 | 0% | 19 |
 | El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 8.7 | 110.9 | 0% | 42 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 95.8 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 11.6 | 333.5 | 0% | 42 |
-| El Muy Bonito | `giocoliere` | casuale | 68% | 32% | 0% | 21.8 | 422.1 | 0% | 29 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 98.2 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 11.6 | 333.9 | 0% | 42 |
+| El Muy Bonito | `giocoliere` | casuale | 67% | 33% | 0% | 21.7 | 422.6 | 0% | 28 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 20.2 | 610.0 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 0% | 100% | 60.0 | 227.0 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 20.2 | 610.0 | 0% | 0 |
@@ -953,6 +974,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 54.0 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 8.5 | 46.0 | 0% | 19 |
 | Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 17.5 | 35.4 | 0% | 19 |
+| Golem errante di rottami | `golem_errante` | attacca | 100% | 0% | 0% | 10.9 | 117.0 | 0% | 42 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 0% | 100% | 60.0 | 82.0 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 100% | 0% | 0% | 14.0 | 154.3 | 0% | 42 |
+| Golem errante di rottami | `golem_errante` | casuale | 57% | 0% | 43% | 50.1 | 107.2 | 0% | 24 |
 | Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.8 | 33.0 | 0% | 21 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 60.0 | 143.3 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.8 | 64.1 | 0% | 21 |
@@ -1078,10 +1103,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 60.0 | 65.7 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 100% | 0% | 0% | 8.6 | 81.3 | 0% | 32 |
 | Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 17.8 | 44.3 | 0% | 32 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 10.7 | 219.7 | 0% | 71 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 121.8 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 13.6 | 252.2 | 0% | 71 |
-| Il Divoratore | `divoratore` | casuale | 99% | 0% | 1% | 32.7 | 145.2 | 0% | 71 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 27.7 | 486.1 | 0% | 71 |
+| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 131.7 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 21.8 | 363.0 | 0% | 71 |
+| Il Divoratore | `divoratore` | casuale | 17% | 0% | 83% | 58.1 | 197.5 | 0% | 13 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 6.8 | 34.0 | 0% | 32 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 60.0 | 71.7 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 9.8 | 72.9 | 0% | 32 |
@@ -1090,18 +1115,18 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 100% | 0% | 40.7 | 890.0 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 8.8 | 125.5 | 0% | 32 |
 | Donna Spinosa | `donna_spinosa` | casuale | 100% | 0% | 0% | 17.9 | 218.9 | 0% | 32 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 12.3 | 38.5 | 0% | 39 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 36.6 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 15.5 | 53.1 | 0% | 39 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 85% | 0% | 15% | 42.3 | 32.5 | 0% | 34 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 25.0 | 221.2 | 0% | 55 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 30.3 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 100% | 0% | 0% | 30.5 | 282.3 | 0% | 57 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 1% | 0% | 99% | 59.8 | 90.9 | 0% | 1 |
 | Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 5.7 | 83.5 | 0% | 32 |
 | Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 60.0 | 88.6 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 100% | 0% | 0% | 8.8 | 122.2 | 0% | 32 |
 | Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 18.0 | 80.0 | 0% | 32 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 9.9 | 207.0 | 0% | 71 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 127.4 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 12.6 | 451.6 | 0% | 71 |
-| El Muy Bonito | `giocoliere` | casuale | 67% | 33% | 0% | 26.3 | 652.8 | 0% | 47 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 9.9 | 207.1 | 0% | 71 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 131.7 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 12.6 | 453.3 | 0% | 71 |
+| El Muy Bonito | `giocoliere` | casuale | 67% | 33% | 0% | 26.3 | 654.7 | 0% | 47 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 22.5 | 890.0 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 0% | 100% | 60.0 | 275.4 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 22.8 | 890.0 | 0% | 0 |
@@ -1110,6 +1135,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 78.3 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 8.7 | 65.5 | 0% | 32 |
 | Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 18.7 | 53.1 | 0% | 32 |
+| Golem errante di rottami | `golem_errante` | attacca | 100% | 0% | 0% | 12.4 | 220.6 | 0% | 71 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 0% | 100% | 60.0 | 124.5 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 100% | 0% | 0% | 15.5 | 282.5 | 0% | 71 |
+| Golem errante di rottami | `golem_errante` | casuale | 15% | 0% | 85% | 57.7 | 192.0 | 0% | 10 |
 | Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.9 | 66.3 | 0% | 36 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 60.0 | 170.2 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.9 | 110.9 | 0% | 36 |
@@ -1235,10 +1264,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | `diabolo` | difendi | 0% | 0% | 100% | 60.0 | 84.8 | 0% | 0 |
 | Diabolo | `diabolo` | studia | 100% | 0% | 0% | 9.5 | 128.3 | 0% | 46 |
 | Diabolo | `diabolo` | casuale | 100% | 0% | 0% | 20.0 | 68.5 | 0% | 46 |
-| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 11.5 | 317.6 | 0% | 101 |
-| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 167.2 | 0% | 0 |
-| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 14.4 | 388.9 | 0% | 101 |
-| Il Divoratore | `divoratore` | casuale | 99% | 0% | 1% | 34.3 | 207.8 | 0% | 100 |
+| Il Divoratore | `divoratore` | attacca | 100% | 0% | 0% | 29.3 | 741.4 | 0% | 101 |
+| Il Divoratore | `divoratore` | difendi | 0% | 0% | 100% | 60.0 | 176.0 | 0% | 0 |
+| Il Divoratore | `divoratore` | studia | 100% | 0% | 0% | 27.8 | 685.7 | 0% | 101 |
+| Il Divoratore | `divoratore` | casuale | 11% | 0% | 89% | 58.9 | 270.9 | 0% | 12 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | attacca | 100% | 0% | 0% | 7.5 | 74.9 | 0% | 46 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | difendi | 0% | 0% | 100% | 60.0 | 86.9 | 0% | 0 |
 | Divoratore di Carcasse | `divoratore_di_carcasse` | studia | 100% | 0% | 0% | 10.4 | 109.0 | 0% | 46 |
@@ -1247,18 +1276,18 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Donna Spinosa | `donna_spinosa` | difendi | 0% | 99% | 1% | 46.8 | 1219.5 | 0% | 0 |
 | Donna Spinosa | `donna_spinosa` | studia | 100% | 0% | 0% | 9.6 | 179.5 | 0% | 46 |
 | Donna Spinosa | `donna_spinosa` | casuale | 100% | 0% | 0% | 20.4 | 301.5 | 0% | 46 |
-| Ferraglia Urlante | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 13.3 | 58.9 | 0% | 55 |
-| Ferraglia Urlante | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 36.6 | 0% | 0 |
-| Ferraglia Urlante | `ferraglia_urlante` | studia | 100% | 0% | 0% | 16.5 | 70.0 | 0% | 55 |
-| Ferraglia Urlante | `ferraglia_urlante` | casuale | 83% | 0% | 17% | 44.3 | 42.8 | 0% | 47 |
+| Rottami Erranti | `ferraglia_urlante` | attacca | 100% | 0% | 0% | 29.7 | 421.0 | 0% | 93 |
+| Rottami Erranti | `ferraglia_urlante` | difendi | 0% | 0% | 100% | 60.0 | 29.5 | 0% | 0 |
+| Rottami Erranti | `ferraglia_urlante` | studia | 100% | 0% | 0% | 36.8 | 538.7 | 0% | 92 |
+| Rottami Erranti | `ferraglia_urlante` | casuale | 1% | 0% | 99% | 60.0 | 125.5 | 0% | 1 |
 | Ghoul | `ghoul` | attacca | 100% | 0% | 0% | 6.5 | 124.5 | 0% | 46 |
 | Ghoul | `ghoul` | difendi | 0% | 0% | 100% | 60.0 | 123.0 | 0% | 0 |
 | Ghoul | `ghoul` | studia | 100% | 0% | 0% | 9.5 | 183.0 | 0% | 46 |
 | Ghoul | `ghoul` | casuale | 100% | 0% | 0% | 20.3 | 129.8 | 0% | 46 |
-| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 10.6 | 315.6 | 0% | 101 |
-| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 161.0 | 0% | 0 |
-| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 13.6 | 570.2 | 0% | 101 |
-| El Muy Bonito | `giocoliere` | casuale | 84% | 16% | 0% | 29.8 | 748.7 | 0% | 85 |
+| El Muy Bonito | `giocoliere` | attacca | 100% | 0% | 0% | 10.6 | 316.0 | 0% | 101 |
+| El Muy Bonito | `giocoliere` | difendi | 0% | 0% | 100% | 60.0 | 166.4 | 0% | 0 |
+| El Muy Bonito | `giocoliere` | studia | 100% | 0% | 0% | 13.6 | 571.1 | 0% | 101 |
+| El Muy Bonito | `giocoliere` | casuale | 84% | 16% | 0% | 29.8 | 750.9 | 0% | 85 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | attacca | 0% | 100% | 0% | 21.8 | 1220.0 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | difendi | 0% | 0% | 100% | 60.0 | 366.1 | 0% | 0 |
 | Un goblin terribilmente arrabbiato | `goblin_arrabbiato` | studia | 0% | 100% | 0% | 21.7 | 1220.0 | 0% | 0 |
@@ -1267,6 +1296,10 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Goblin Tipico | `goblin_tipico` | difendi | 0% | 0% | 100% | 60.0 | 108.4 | 0% | 0 |
 | Goblin Tipico | `goblin_tipico` | studia | 100% | 0% | 0% | 9.6 | 133.2 | 0% | 46 |
 | Goblin Tipico | `goblin_tipico` | casuale | 100% | 0% | 0% | 20.6 | 92.2 | 0% | 46 |
+| Golem errante di rottami | `golem_errante` | attacca | 100% | 0% | 0% | 13.4 | 342.1 | 0% | 101 |
+| Golem errante di rottami | `golem_errante` | difendi | 0% | 0% | 100% | 60.0 | 167.4 | 0% | 0 |
+| Golem errante di rottami | `golem_errante` | studia | 100% | 0% | 0% | 16.8 | 447.1 | 0% | 101 |
+| Golem errante di rottami | `golem_errante` | casuale | 8% | 0% | 92% | 58.9 | 278.0 | 0% | 8 |
 | Infetto Rapido | `infetto_rapido` | attacca | 100% | 0% | 0% | 3.9 | 104.3 | 0% | 51 |
 | Infetto Rapido | `infetto_rapido` | difendi | 0% | 0% | 100% | 60.0 | 190.5 | 0% | 0 |
 | Infetto Rapido | `infetto_rapido` | studia | 100% | 0% | 0% | 6.9 | 173.4 | 0% | 51 |
