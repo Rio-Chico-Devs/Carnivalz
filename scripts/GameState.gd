@@ -815,6 +815,17 @@ func e_creatura(id_personaggio: String) -> bool:
 	var ruolo := String(personaggi.get(id_personaggio, {}).get("ruolo", ""))
 	return ruolo != "" and ruolo != "oggetto_scena"
 
+func e_da_bestiario(id_personaggio: String) -> bool:
+	# COMBATTERE E FINIRE NEL BESTIARIO SONO DUE COSE DIVERSE, e le abbiamo
+	# scoperte separate il giorno in cui Veronica e' diventata una dominatrice.
+	# Lei combatte - il tutorial la usa - ma Bru: "Veronica non necessita di un
+	# entry nel bestiario ma di un entry nella sezione dei dominatori". Con una
+	# funzione sola per tutte e due le domande sarebbe rimasta nel Bestiario con
+	# una scheda vuota, perche' la sua voce di tecno log non c'e' piu': una
+	# pagina di "non ancora rilevato" per una persona che conosci da bambino
+	return e_creatura(id_personaggio) \
+			and not personaggi.get(id_personaggio, {}).get("dominatore", false)
+
 func stat_eroe_tipo(chiave: String, livello: int) -> float:
 	# QUANTO VALE DAVVERO IL PROTAGONISTA AL LIVELLO N.
 	#

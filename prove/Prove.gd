@@ -66,6 +66,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
+	prova_i_dominatori_non_sono_bestiario()
 	prova_modalita_e_trasformazione()
 	prova_tecnolog_completo()
 	prova_areale_e_la_regione_grande()
@@ -2864,6 +2865,36 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	esigi(int(nemico.hp) <= 0, "e' rinato una seconda volta: lo scontro non finisce piu'")
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
 	scontro.free()
+
+func prova_i_dominatori_non_sono_bestiario() -> void:
+	# Bru: "Veronica non necessita di un entry nel bestiario ma di un entry nella
+	# sezione dei dominatori". Toglierle la voce di tecno log non bastava: il
+	# Bestiario in gioco elenca chiunque abbia un ruolo che combatte, e Veronica
+	# combatte - quindi restava li' dentro con una scheda di dieci righe tutte
+	# "non ancora rilevato". Combattere e finire nel bestiario sono due domande
+	# diverse, e finche' se le faceva una funzione sola non potevano dare due
+	# risposte diverse
+	titolo("un dominatore combatte ma non finisce nel bestiario")
+	var dominatori: Dictionary = GameState.tecnolog.get("dominatori", {})
+	esigi(not dominatori.is_empty(), "nessun dominatore dichiarato")
+	for id_dominatore in dominatori:
+		var nome := String(id_dominatore)
+		esigi(GameState.e_creatura(nome),
+				"%s non risulta nemmeno capace di combattere: il tutorial la usa" % nome)
+		esigi(not GameState.e_da_bestiario(nome),
+				"%s e' ancora nel bestiario: la sua pagina sarebbe tutta 'non rilevato'" % nome)
+		esigi(not GameState.tecnolog.get("voci", {}).has(nome),
+				"%s ha ancora una voce di tecno log: le schede dei dominatori sono un'altra cosa" % nome)
+		var scheda: Dictionary = dominatori[nome]
+		for campo in GameState.tecnolog.get("campi_dominatore", []):
+			var id_campo := String(campo.get("id", ""))
+			if id_campo == "nome":
+				continue   # e' quello del personaggio, non si scrive due volte
+			esigi(String(scheda.get(id_campo, "")) != "",
+					"%s non ha %s" % [nome, id_campo])
+	# e una creatura normale invece ci deve stare
+	esigi(GameState.e_da_bestiario("goblin_tipico"),
+			"il Goblin Tipico e' sparito dal bestiario: il filtro dei dominatori prende troppo")
 
 func prova_modalita_e_trasformazione() -> void:
 	# Le quattro meccaniche del secondo giro: la forma in cui una creatura si

@@ -328,7 +328,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		# scontri incatenati: si riprende con i punti vita lasciati dal precedente
 		hp_iniziali = clampi(int(GameState.hp_persistenti[id_personaggio]), 1, hp_max)
 	var nodi := campo.crea_scheda(id_personaggio, giocatore)
-	if not giocatore and GameState.e_creatura(id_personaggio):
+	if not giocatore and GameState.e_da_bestiario(id_personaggio):
 		# voce nel bestiario al primo incontro (gli oggetti di scena non ne hanno)
 		GameState.registra_bestiario(id_personaggio)
 		if not muto:
@@ -2553,6 +2553,9 @@ func avanza_trasformazione(chi: Dictionary) -> void:
 	if diventa == "" or not GameState.personaggi.has(diventa):
 		return
 	scrivi_forte("[i]%s[/i]" % String(conto.get("testo", "Non è più quello di prima.")))
+	# quello che teneva acceso se ne va con lui, come quando cade: trasformarsi
+	# e' uscire di scena, e _su_ko qui non passa
+	spegni_aura_di(chi)
 	# ESCE DI SCENA E NE ENTRA UN'ALTRA. Non e' una cura e non e' una rinascita:
 	# la creatura che avevi davanti non c'e' piu', e quella nuova entra intera.
 	# La vecchia si toglie senza dare esperienza, perche' non l'hai battuta

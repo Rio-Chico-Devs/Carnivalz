@@ -7,14 +7,14 @@ extends Collezione
 func titolo_schermata() -> String:
 	var totali := 0
 	for id_pers in GameState.personaggi:
-		if GameState.e_creatura(id_pers):
+		if GameState.e_da_bestiario(id_pers):
 			totali += 1
 	return "Bestiario  (%d / %d)" % [GameState.bestiario.size(), totali]
 
 func popola() -> void:
 	for id_pers in GameState.personaggi:
 		var dati: Dictionary = GameState.personaggi[id_pers]
-		if not GameState.e_creatura(id_pers):
+		if not GameState.e_da_bestiario(id_pers):
 			continue  # solo creature affrontabili
 		if id_pers not in GameState.bestiario:
 			aggiungi_scheda("??? ", "mai incontrato", "", Color(0.6, 0.6, 0.6), false)
