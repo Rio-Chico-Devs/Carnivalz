@@ -5,6 +5,11 @@
 > (`data/ruoli.json`) e dalle mosse dichiarate in `data/personaggi.json`. Se cambi un
 > livello o una quota, rilancia lo strumento e questa pagina si aggiorna da sola.
 
+> ⚠️ **Non correggere questo file: si riscrive da capo a ogni lancio.** Le fonti sono
+> `data/personaggi.json` (mosse e frasi) e `data/tecnolog.json` (le schede di specie). Se ti
+> torna comodo scrivere le correzioni qui sopra il testo vecchio, va benissimo — ma mandamele
+> prima che qualcuno rilanci lo strumento, se no vanno perse.
+
 ## Come si leggono i numeri
 
 - Le **statistiche** sono quelle della creatura al suo livello base. In gioco una creatura
@@ -16,6 +21,12 @@
   creatura al suo livello. Qui sotto c'è un esempio intero, con tutto quello che succede al
   colpo prima che ti arrivi addosso. Una mossa con un numero fisso è un'eccezione
   dichiarata, e qui è segnata come tale.
+- **Cosa fa** è una descrizione che lo strumento ricava dal tipo di mossa: serve a te per
+  capirla in un colpo d'occhio, e **in gioco non compare da nessuna parte**. Il grassetto lì
+  dentro è solo tipografia di questa pagina (evidenzia la parola che conta: il nome di uno
+  stato, «tutta la squadra»). La frase che si legge davvero a schermo quando la mossa parte è
+  un'altra cosa, ed è sotto ogni tabella, in **Cosa si legge in campo**: quella si può
+  riscrivere parola per parola.
 - **Quando** dice a quale condizione la mossa esiste. Una mossa fuori condizione non entra
   nemmeno nel sorteggio: non è che «capita di rado», è che non c'è.
 - **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la
@@ -111,6 +122,11 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Il goblin raccoglie un sasso e lo tira senza nemmeno mirare.
+2. Il goblin capisce come sta andando e si copre la testa con le braccia.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -145,6 +161,11 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Lo slime si allunga e lascia una bava che rallenta ogni movimento.
+2. Lo slime si raccoglie su se stesso e torna tondo.
 
 **Tecno log**
 
@@ -181,6 +202,11 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. La tartaruga si ritira nel guscio.
+2. La tartaruga si tira dentro il guscio, e dentro il guscio si rimette.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -215,6 +241,10 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Arriva addosso prima che tu decida da che parte guardare.
 
 **Tecno log**
 
@@ -251,6 +281,11 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Non insegue nessuno: si sposta, e vi trova.
+2. Respiri, e te ne accorgi dopo.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -285,6 +320,11 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Ti cammina addosso come camminava verso il lavoro.
+2. Si infila fra i suoi, e i suoi si chiudono intorno.
 
 **Tecno log**
 
@@ -347,6 +387,11 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. La maschera avvampa: per un istante ha di nuovo un volto.
+2. Non le resta molto da bruciare, e brucia tutto insieme.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -381,6 +426,10 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Il braccio piu' lungo arriva da dove non te lo aspetti.
 
 **Tecno log**
 
@@ -417,6 +466,11 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. La ruggine si chiude su se stessa: adesso e' una porta.
+2. Un braccio di lamiera scende di piatto e ti apre la guardia.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -451,6 +505,12 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Tre torce salgono, girano, e tornano giu' addosso a te.
+2. El Muy Bonito sorride al pubblico che non c'e', e sputa una lingua di fuoco.
+3. «Se e' l'ultimo, che sia il migliore!»
 
 **Tecno log**
 
@@ -487,6 +547,12 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. «Allontanarsi.» La scarica parte comunque.
+2. Le piastre si sovrappongono con uno scatto meccanico.
+3. «Danno critico. Riparazione in corso.» Qualcosa, dentro, si risalda.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -521,6 +587,11 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. «Quello che stai facendo risulta in una nota.»
+2. La voce sale di un tono e non lascia spazio per pensare ad altro.
 
 **Tecno log**
 
@@ -557,6 +628,11 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. L'attrezzo arriva da sotto, con la forza di chi lo ha usato per vent'anni.
+2. Non ha finito. Non ha mai finito.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -592,6 +668,11 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Si mette davanti a quel poco che gli e' rimasto.
+2. Tutto quello che non ha mai detto esce insieme.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -626,6 +707,12 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. L'orrore sferza con tutte le braccia insieme.
+2. Più bocche affondano contemporaneamente.
+3. I corpi si rimescolano, e quello che mancava lo prendono da un altro.
 
 **Tecno log**
 
@@ -690,6 +777,11 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Le lame girano, prendono, e quello che prendono non torna.
+2. Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -725,6 +817,12 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. La montagna si sposta di un metro, e un metro basta.
+2. Il rumore non e' un rumore: e' una protesta di mille voci saldate insieme.
+3. I rottami si richiamano da terra e tornano al loro posto.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -759,6 +857,14 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 4 | Capriccio del goblin | si potenzia l'attacco (+9 per 3 battute) | — | sempre | sorteggio | — |
 | 5 | Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 13 a colpo (39 totali) | sempre | sorteggio | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata.
+2. Furia di un goblin: colpisce alla cieca, urlando.
+3. Pugno del vile: un colpo sferrato senza il minimo onore.
+4. Capriccio del goblin: si mette a battere i piedi e se la prende con tutto quello che ha intorno. Il suo attacco aumenta.
+5. Cattiveria innata: ti sferra tre attacchi deboli di fila.
 
 Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -797,6 +903,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Il ghoul morde e non lascia andare: quello che ti toglie se lo tiene.
+2. Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -831,6 +942,10 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
 
 **Tecno log**
 
@@ -867,6 +982,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Piange, e quello che cade taglia.
+2. «Non toccarli.» Non c'e' nessuno da toccare.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -901,6 +1021,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Si avvicina a scatti, come una fotografia che si muove male.
+2. Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.
 
 **Tecno log**
 
@@ -937,6 +1062,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Due colpi bassi, dati con troppo entusiasmo.
+2. Ti imita mentre ti muovi, e ti viene voglia solo di prenderlo.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -971,6 +1101,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Non ha fretta. Non ne ha mai avuta.
+2. Aspettava questo momento: si china su chi sta peggio.
 
 **Tecno log**
 
@@ -1007,6 +1142,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Ti addosso il peso di una cosa che non hai fatto.
+2. Un segno ti resta sulla pelle, e da li' comincia a fare male.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1042,6 +1182,12 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Qualcosa gli sale su dal petto e ti arriva addosso.
+2. Ti stringe, e per un momento non si capisce piu' dove finisci tu.
+3. I corpi si rimescolano, e quello che era aperto adesso e' chiuso.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1076,6 +1222,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Pugno devastante: il colpo si abbatte con tutto il peso della città morta.
+2. Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo.
 
 Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -1116,6 +1267,11 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Il divoratore azzanna più volte, veloce.
+2. Si volta verso quello che il ponte ha lasciato cadere, e mangia.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1151,6 +1307,15 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | Richiamo dei teschi | chiama 1 × `teschio_errante` | — | sempre | sorteggio | — |
 | 6 | Litania che rimargina | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. "Per il viaggio!" Il sacerdote colpisce recitando.
+2. "Unisciti al raccolto!" Il sacerdote colpisce recitando.
+3. "Portatelo da me!" Il sacerdote colpisce recitando.
+4. "Non c'è altra strada!" Il sacerdote colpisce recitando.
+5. Il sacerdote alza le braccia: un teschio errante risponde al richiamo.
+6. Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1185,6 +1350,15 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | 4 | Un piccolo sacrificio | uccide un suo alleato per farsi più forte | — | sempre | sorteggio | — |
 | 5 | Raccolto di carne | chiama 1 × `ghoul` | — | sempre | sorteggio | — |
 | 6 | Maledizione di chi muore | colpisce **tutta la squadra** | ×1.00 → 48 | sotto il 25% di vita | priorità 7 | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Jongo Dongo affonda l'artiglio marcio con tutto il suo peso.
+2. Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, la carne comincia a cedere.
+3. "IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!" Il grido vi si conficca dentro più delle unghie.
+4. Jongo Dongo si volta verso uno dei suoi ghoul, con la stessa calma di sempre: "Un piccolo sacrificio... per un grande risultato."
+5. Jongo Dongo batte il palmo marcio sull'ossidiana: la terra stessa gli restituisce un altro ghoul.
+6. Quello che ha fatto marcire lui, adesso lo passa a voi.
 
 Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -1223,6 +1397,11 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo.
+2. Si apre tutta insieme, e per un metro intorno non si sta.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1257,6 +1436,12 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Un braccio di legno gira su un perno e arriva duro.
+2. I fili non tengono su lei: tengono giu' te.
+3. Raccoglie i suoi fili da terra e se li riannoda addosso.
 
 **Tecno log**
 
@@ -1293,6 +1478,12 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. La mano arriva piano, e non e' piu' una mano.
+2. Espira, e l'aria intorno smette di essere aria.
+3. Il corpo non dovrebbe reggere. Qualcosa lo tiene su lo stesso.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1328,6 +1519,11 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Ti dice una cosa vera, e detta da lei fa male il doppio.
+2. Piu' le pensi contro, piu' si fa solida.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1362,6 +1558,14 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 4 | Richiamo delle marionette | chiama 1 × `marionetta` | — | sempre | sorteggio | — |
 | 5 | Si ricuce le cuciture | **si rimette in piedi** (+15% della vita massima) | — | sotto il 25% di vita | priorità 6 | 6 battute |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. La bambola spalanca le cuciture e lancia una manciata di spilli.
+2. Un lamento terribile riempie la stanza. I cuori di tutti sobbalzano.
+3. La bambola si strappa una cucitura da sola, piano. Fa più male a voi che a lei.
+4. Dei fili scendono dal soffitto: una marionetta si alza da terra.
+5. Il filo rientra da solo nei buchi, come se qualcuno la stesse ancora rammendando.
 
 Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -1400,6 +1604,12 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore.
+2. La parete si apre e sputa una nube di spore su tutta la stanza.
+3. La parete si muove dietro di lei, e le rida' quello che le hai tolto.
+
 **Tecno log**
 
 | Campo | Rilevamento |
@@ -1436,6 +1646,14 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 | 4 | Llamada | chiama 1 × `maschera_vuota` | — | sempre | sorteggio | — |
 | 5 | Fiamma disperata | colpisce **tutta la squadra** | ×1.30 → 96 | sotto il 30% di vita | priorità 7 | 4 battute |
 | 6 | — | *casella libera* | — | — | — | — |
+
+**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+
+1. ¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena.
+2. ¡Vamos! ... Una folata di vento ardente ti infligge lo status in fiamme.
+3. Jerah schiva elegantemente tutti i tuoi colpi.
+4. Jerah batte il tacco tre volte: dal fumo sale un Fomentado.
+5. «Lo spettacolo non finisce finche' non lo decido io.»
 
 **Tecno log**
 

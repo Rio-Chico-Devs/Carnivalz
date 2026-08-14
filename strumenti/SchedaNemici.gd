@@ -98,6 +98,11 @@ func intestazione() -> Array[String]:
 		"> (`data/ruoli.json`) e dalle mosse dichiarate in `data/personaggi.json`. Se cambi un",
 		"> livello o una quota, rilancia lo strumento e questa pagina si aggiorna da sola.",
 		"",
+		"> ⚠️ **Non correggere questo file: si riscrive da capo a ogni lancio.** Le fonti sono",
+		"> `data/personaggi.json` (mosse e frasi) e `data/tecnolog.json` (le schede di specie). Se ti",
+		"> torna comodo scrivere le correzioni qui sopra il testo vecchio, va benissimo — ma mandamele",
+		"> prima che qualcuno rilanci lo strumento, se no vanno perse.",
+		"",
 		"## Come si leggono i numeri",
 		"",
 		"- Le **statistiche** sono quelle della creatura al suo livello base. In gioco una creatura",
@@ -109,6 +114,12 @@ func intestazione() -> Array[String]:
 		"  creatura al suo livello. Qui sotto c'è un esempio intero, con tutto quello che succede al",
 		"  colpo prima che ti arrivi addosso. Una mossa con un numero fisso è un'eccezione",
 		"  dichiarata, e qui è segnata come tale.",
+		"- **Cosa fa** è una descrizione che lo strumento ricava dal tipo di mossa: serve a te per",
+		"  capirla in un colpo d'occhio, e **in gioco non compare da nessuna parte**. Il grassetto lì",
+		"  dentro è solo tipografia di questa pagina (evidenzia la parola che conta: il nome di uno",
+		"  stato, «tutta la squadra»). La frase che si legge davvero a schermo quando la mossa parte è",
+		"  un'altra cosa, ed è sotto ogni tabella, in **Cosa si legge in campo**: quella si può",
+		"  riscrivere parola per parola.",
 		"- **Quando** dice a quale condizione la mossa esiste. Una mossa fuori condizione non entra",
 		"  nemmeno nel sorteggio: non è che «capita di rado», è che non c'è.",
 		"- **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la",
@@ -319,11 +330,39 @@ func scheda(id_creatura: String) -> Array[String]:
 			("priorità %d" % int(mossa["priorita"])) if int(mossa.get("priorita", 0)) > 0 else "sorteggio",
 			("%d battute" % int(mossa["ricarica"])) if int(mossa.get("ricarica", 0)) > 0 else "—",
 		])
+	righe.append_array(frasi_in_campo(mosse))
 	for chiave in ["mossa_soglia_hp", "mossa_disperazione", "rigenerazione", "frenesia"]:
 		if dati.has(chiave):
 			righe.append("")
 			righe.append("Ha anche **%s** (scritta a mano nei suoi dati, non nella tabella)." % chiave)
 	righe.append_array(scheda_tecnolog(id_creatura))
+	return righe
+
+func frasi_in_campo(mosse: Array) -> Array[String]:
+	# La riga che si legge davvero a schermo quando la mossa parte: e' il campo
+	# "testo" della mossa, e prima non compariva da nessuna parte in questa
+	# pagina. Bru l'aveva cercata e non trovata, e aveva provato a scriverla nel
+	# grassetto della colonna "Cosa fa" - che pero' e' solo tipografia. Se il
+	# posto giusto non si vede, uno se ne inventa uno sbagliato: quindi si vede
+	var righe: Array[String] = []
+	var elenco: Array[String] = []
+	var casella := 0
+	for voce in mosse:
+		var mossa: Dictionary = voce
+		casella += 1
+		if String(mossa.get("tipo", "")) == "-":
+			continue
+		var testo := String(mossa.get("testo", "")).strip_edges()
+		if testo == "" or testo == "-":
+			elenco.append("%d. *(nessuna frase: parte in silenzio)*" % casella)
+		else:
+			elenco.append("%d. %s" % [casella, testo])
+	if elenco.is_empty():
+		return righe
+	righe.append("")
+	righe.append("**Cosa si legge in campo** — la riga che compare quando la mossa parte:")
+	righe.append("")
+	righe.append_array(elenco)
 	return righe
 
 func scheda_tecnolog(id_creatura: String) -> Array[String]:
