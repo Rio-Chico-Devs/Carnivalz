@@ -49,20 +49,28 @@
 					"id": "ultima_fiammata",
 					"nome": "Ultima fiammata",
 					"tipo": "attacco_forte",
-					"testo": "Non le resta molto da bruciare, e brucia tutto insieme.",
+					"testo": "L'ultima fiammata se lo porta via insieme a te.",
 					"quota": 2.3,
 					"elemento": "fuoco",
 					"quando": {
 						"vita_sotto": 0.3
 					},
 					"priorita": 7,
-					"una_tantum": true
+					"una_tantum": true,
+					"costo_vita": 0.25
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "esibizionista",
+					"nome": "Esibizionista",
+					"tipo": "potenziamento",
+					"testo": "Si sta... esibendo?",
+					"stat": {
+						"attacco": 3,
+						"velocita": 2
+					},
+					"turni": 3,
+					"peso": 1,
+					"ricarica": 1
 				},
 				{
 					"id": "libera_4",
@@ -130,13 +138,14 @@
 					"peso": 2
 				},
 				{
-					"id": "numero_col_fuoco",
-					"nome": "Numero col fuoco",
-					"tipo": "attacco_forte",
-					"testo": "El Muy Bonito sorride al pubblico che non c'e', e sputa una lingua di fuoco.",
-					"quota": 1.6,
-					"elemento": "fuoco",
-					"peso": 2
+					"id": "posa_minacciosa",
+					"nome": "Posa minacciosa",
+					"tipo": "stato",
+					"testo": "La sua presenza infiamma l'aria.",
+					"stato": "lentezza",
+					"stress": 8,
+					"peso": 1,
+					"ricarica": 2
 				},
 				{
 					"id": "gran_finale",
@@ -152,22 +161,39 @@
 					"una_tantum": true
 				},
 				{
-					"id": "libera_4",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "vamos",
+					"nome": "Vamos!",
+					"tipo": "attacco_multiplo",
+					"testo": "Vamos!",
+					"colpi": 25,
+					"quota": 0.04,
+					"elemento": "fuoco",
+					"quando": {
+						"vita_sotto": 0.5
+					},
+					"peso": 1,
+					"ricarica": 4
 				},
 				{
-					"id": "libera_5",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "flashy_punch",
+					"nome": "Flashy Punch",
+					"tipo": "spezza_guardia",
+					"testo": "Flaaashy... Punch!",
+					"quota": 1.3,
+					"elemento": "fuoco",
+					"peso": 2,
+					"ricarica": 2
 				},
 				{
-					"id": "libera_6",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "flashy_kick",
+					"nome": "Flashy Kick",
+					"tipo": "attacco_forte",
+					"testo": "Flaaashy... Kick!",
+					"quota": 1.15,
+					"elemento": "fuoco",
+					"stato": "lentezza",
+					"peso": 2,
+					"ricarica": 2
 				}
 			]
 		},
@@ -225,10 +251,14 @@
 					"peso": 2
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "lamento",
+					"nome": "Lamento",
+					"tipo": "buff_attacco",
+					"testo": "Bastaaaaaaaa!",
+					"valore": 4,
+					"turni": 3,
+					"peso": 1,
+					"ricarica": 2
 				},
 				{
 					"id": "libera_4",
@@ -368,12 +398,11 @@
 					"colpi": 7
 				},
 				{
-					"id": "straordinario_non_pagato",
-					"nome": "Straordinario non pagato",
-					"tipo": "buff_attacco",
-					"testo": "Non ha finito. Non ha mai finito.",
-					"valore": 3,
-					"turni": 3,
+					"id": "a_ritroso",
+					"nome": "A ritroso",
+					"tipo": "cura",
+					"testo": "Si ferma, e per un attimo la ferraglia si rimette a posto da sola.",
+					"quota_vita": 0.2,
 					"quando": {
 						"vita_sotto": 0.5
 					},
@@ -381,10 +410,18 @@
 					"ricarica": 5
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "astio_infinito",
+					"nome": "Astio Infinito",
+					"tipo": "aura",
+					"testo": "Un vento tagliente, colmo di malvagità, si alza e non cala più.",
+					"quota_per_turno": 0.3,
+					"testo_turno": "Il vento tagliente non ti lascia stare.",
+					"elemento": "oscuro",
+					"quando": {
+						"vita_sotto": 0.2
+					},
+					"priorita": 5,
+					"ricarica": 5
 				},
 				{
 					"id": "libera_4",
@@ -404,7 +441,11 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"hp": 290,
+			"attacco": 16,
+			"difesa": 5,
+			"fuori_curva": "Bru ha chiesto 290/16/5; la curva del ruolo comune a livello 5 da' 245/15/6. Alzarlo di livello lo terrebbe sulla curva ma sposterebbe anche l'xp e il posto nella progressione, e il ruolo particolare a livello 5 darebbe 404/18/8: troppo. Scritte a mano e' l'unica delle tre strade che da' i suoi numeri senza cambiarne nessun altro."
 		},
 		{
 			"id": "robo_pattuglia",
@@ -552,19 +593,23 @@
 					"id": "esplosione_di_rabbia",
 					"nome": "Esplosione di rabbia",
 					"tipo": "attacco_forte",
-					"testo": "Tutto quello che non ha mai detto esce insieme.",
-					"quota": 2.0,
+					"testo": "Vent'anni tutti insieme, e non ne resta niente per dopo.",
+					"quota": 1.2,
 					"quando": {
 						"vita_sotto": 0.4
 					},
 					"priorita": 6,
-					"ricarica": 4
+					"ricarica": 4,
+					"quota_a_terra": 2.6
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "rivoluzione",
+					"nome": "Rivoluzione",
+					"tipo": "attacco_tutti",
+					"testo": "Un colpo di vento concentrato in un urlo.",
+					"quota": 0.9,
+					"peso": 1,
+					"ricarica": 2
 				},
 				{
 					"id": "libera_4",
@@ -1703,28 +1748,55 @@
 					"peso": 2
 				},
 				{
-					"id": "libera_2",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "tritatutto",
+					"nome": "Tritatutto",
+					"tipo": "attacco_tutti",
+					"testo": "Fa girare le braccia lunghe come una macchina che nessuno ha spento.",
+					"quota": 1.1,
+					"peso": 1,
+					"ricarica": 2
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "moan",
+					"nome": "Moan",
+					"tipo": "potenziamento",
+					"testo": "Un rantolo indefinito, che dura troppo.",
+					"stat": {
+						"attacco": 5,
+						"velocita": -1
+					},
+					"turni": 3,
+					"peso": 1,
+					"ricarica": 3
 				},
 				{
-					"id": "libera_4",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "incitamento_delle_masse",
+					"nome": "Incitamento delle masse",
+					"tipo": "potenziamento",
+					"bersaglio": "alleati",
+					"testo": "Ooooooouhh...",
+					"stat": {
+						"velocita": 2
+					},
+					"turni": 3,
+					"quando": {
+						"vita_sotto": 0.5
+					},
+					"peso": 1,
+					"ricarica": 2
 				},
 				{
-					"id": "libera_5",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "catastrofe",
+					"nome": "Catastrofe",
+					"tipo": "attacco_multiplo",
+					"testo": "Raccoglie mezzo isolato e lo tira addosso a tutti, un pezzo per volta.",
+					"colpi": 20,
+					"quota": 0.05,
+					"quando": {
+						"vita_sotto": 0.5
+					},
+					"peso": 1,
+					"ricarica": 4
 				},
 				{
 					"id": "libera_6",
@@ -1779,22 +1851,38 @@
 					"ricarica": 5
 				},
 				{
-					"id": "libera_4",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "presenza_colossale",
+					"nome": "Presenza colossale",
+					"tipo": "scena",
+					"testo": "Si ferma. Guarda il cielo. Non ti sta pensando.",
+					"peso": 1,
+					"ricarica": 3
 				},
 				{
-					"id": "libera_5",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "discesa_colossale",
+					"nome": "Discesa colossale",
+					"tipo": "attacco_tutti",
+					"testo": "Ricade a terra, e la terra non regge.",
+					"quota_vita_bersaglio": 0.8,
+					"telegrafata": true,
+					"testo_annuncio": "Salta. È in alto, e sta per tornare giù.",
+					"quando": {
+						"vita_sotto": 0.15
+					},
+					"priorita": 8,
+					"ricarica": 2
 				},
 				{
-					"id": "libera_6",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "benedizione_del_colosso",
+					"nome": "Benedizione del colosso",
+					"tipo": "cura",
+					"testo": "Resta immobile, e quello che si era staccato torna al suo posto.",
+					"quota_vita": 0.5,
+					"una_tantum": true,
+					"priorita": 9,
+					"quando": {
+						"dopo_rinascita": true
+					}
 				}
 			],
 			"bottino_comune": [
@@ -1807,7 +1895,11 @@
 				{
 					"osservazione": "Non risponde: le sue bocche parlano tutte insieme, e nessuna dice niente."
 				}
-			]
+			],
+			"rinascita": {
+				"quota_vita": 0.25,
+				"testo": "[i]%s si rimescola, e si rialza.[/i]"
+			}
 		},
 		{
 			"id": "titano_zombie",
@@ -1932,10 +2024,12 @@
 					"ricarica": 4
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "zombie_style",
+					"nome": "Zombie style",
+					"tipo": "scena",
+					"testo": "Si guarda intorno senza alcuno scopo...",
+					"peso": 1,
+					"ricarica": 3
 				},
 				{
 					"id": "libera_4",
@@ -2765,10 +2859,21 @@
 					"ricarica": 2
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "ultima_risorsa",
+					"nome": "Ultima risorsa",
+					"tipo": "potenziamento",
+					"testo": "Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.",
+					"stat": {
+						"attacco": 3,
+						"difesa": 2,
+						"velocita": 2
+					},
+					"turni": 3,
+					"quando": {
+						"vita_sotto": 0.35
+					},
+					"priorita": 6,
+					"ricarica": 1
 				},
 				{
 					"id": "libera_4",
@@ -2838,10 +2943,13 @@
 					"ricarica": 4
 				},
 				{
-					"id": "libera_3",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "colpo_dello_slime",
+					"nome": "Colpo dello slime",
+					"tipo": "attacco_forte",
+					"testo": "Si raccoglie tutto da una parte e ti si getta contro.",
+					"quota": 1.3,
+					"peso": 2,
+					"ricarica": 2
 				},
 				{
 					"id": "libera_4",

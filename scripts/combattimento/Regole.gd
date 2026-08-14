@@ -204,6 +204,19 @@ static func velocita_effettiva(combattente: Dictionary) -> int:
 	for id_stato in ["rapidita", "lentezza"]:
 		if combattente.stati_attivi.has(id_stato):
 			totale += int(GameState.stati.get(id_stato, {}).get("valore", 0))
+	# E I POTENZIAMENTI. Mancavano, e non se ne accorgeva nessuno: applica_buff
+	# accetta qualunque statistica, quindi una mossa poteva dichiarare "velocita"
+	# +2, la scheda lo mostrava, il buff scadeva a tempo debito - e la ricarica
+	# restava identica. Un potenziamento che si vede e non fa niente e' peggio
+	# di un potenziamento che non c'e'
+	# get() e non l'accesso diretto: questa funzione la chiama anche chi ha in
+	# mano un combattente parziale (le prove ne montano di finti con la sola
+	# velocita'), e un errore qui non solleva niente - abortisce la funzione e
+	# torna zero. Cioe' la creatura piu' veloce del campo diventerebbe la piu'
+	# lenta, in silenzio
+	for buff in combattente.get("buffs", []):
+		if String(buff.get("stat", "")) == "velocita":
+			totale += int(buff.get("valore", 0))
 	return maxi(totale, 0)
 
 static func scadenza_buff(combattente: Dictionary) -> void:

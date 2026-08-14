@@ -2425,13 +2425,14 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 	var tipi_noti := ["difendi", "attacco_forte", "spezza_guardia", "meta_vita",
 			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
 			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
-			"cura", "rubavita", "stato"]
+			"cura", "rubavita", "stato", "potenziamento", "scena", "aura"]
 	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione.
 	# Le sei caselle ce le hanno lo stesso, tutte libere
 	var senza_mosse_per_scelta := ["manifestazione_di_un_sogno", "veronica"]
 	var caselle_per_creatura := 6
 	var chiavi_condizione := ["vita_sotto", "vita_sopra", "alleati_almeno",
-			"alleati_al_massimo", "battuta_almeno", "senza_stato", "bersaglio_vita_sotto"]
+			"alleati_al_massimo", "battuta_almeno", "senza_stato", "bersaglio_vita_sotto",
+			"dopo_rinascita"]
 	var contate := 0
 	var con_cura := 0
 	for id_creatura in GameState.personaggi:
@@ -2489,8 +2490,9 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 						"%s e' una cura che non cura niente" % etichetta)
 				# UNA CURA SENZA RICARICA NON RENDE LO SCONTRO DIFFICILE: LO RENDE
 				# INFINITO. Con la priorita' alta e' la scelta migliore anche il
-				# giro dopo, e quello dopo ancora
-				esigi(int(mossa.get("ricarica", 0)) > 0,
+				# giro dopo, e quello dopo ancora. "una_tantum" va bene uguale, ed
+				# e' anzi piu' forte di una ricarica: si fa una volta e mai piu'
+				esigi(int(mossa.get("ricarica", 0)) > 0 or mossa.get("una_tantum", false),
 						"%s si puo' rifare ogni battuta: lo scontro non finisce piu'" % etichetta)
 			if int(mossa.get("priorita", 0)) > 0:
 				esigi(not Dictionary(mossa.get("quando", {})).is_empty(),
@@ -2712,9 +2714,18 @@ func prova_nessuna_creatura_perde_la_battuta() -> void:
 		var ferme := 0
 		for battuta in 24:
 			eroe.hp = eroe.hp_max   # sempre in piedi: qui si guarda solo il nemico
+			nemico.ultima_mossa_tipo = ""
 			var prima := fotografia(scontro, eroe, nemico)
 			scontro.turno_nemico_normale(nemico)
-			if fotografia(scontro, eroe, nemico) == prima:
+			if fotografia(scontro, eroe, nemico) != prima:
+				continue
+			# UNA SCENA E' L'UNICA BATTUTA FERMA AMMESSA, ed e' ferma apposta:
+			# lo Zombie che si guarda intorno, l'Orrore che guarda il cielo.
+			# Senza questa distinzione la prova avrebbe due strade sbagliate:
+			# fallire su una regia voluta, oppure - togliendola - smettere di
+			# vedere le mosse che promettono un effetto e non lo fanno, che e'
+			# il difetto per cui era stata scritta
+			if String(nemico.get("ultima_mossa_tipo", "")) != "scena":
 				ferme += 1
 		esigi(ferme == 0,
 				"%s ha passato %d battute su 24 senza che succedesse niente: si e' fermata invece di tirare almeno un colpo"

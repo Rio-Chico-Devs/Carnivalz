@@ -2278,6 +2278,33 @@ func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 			# guardia gia' al massimo: "e' gia' chiuso quanto puo'" e basta
 			return RegoleCombattimento.scatti_difesa(nemico) \
 					< int(GameState.regole.get("difesa_scatti_massimi", 6))
+		"scena":
+			# NON ALLE STRETTE. Una mossa che non fa niente e' una scelta di
+			# regia finche' la creatura sta bene: sotto la soglia della
+			# disperazione diventa il contrario di quello che Bru ha chiesto -
+			# "quando sono a fin di vita devono capire la loro condizione e usare
+			# le mosse saggiamente" - perche' guardarsi intorno mentre si muore
+			# non e' capire niente
+			return not RegoleCombattimento.e_disperata(nemico)
+		"potenziamento":
+			# stessa regola dei buff singoli: finche' e' su, rifarlo non aggiunge
+			# niente. Basta che UNO dei bersagli non ce l'abbia gia'
+			for chi in bersagli_del_potenziamento(nemico, mossa):
+				var gia_addosso := false
+				for buff in chi.buffs:
+					if String(buff.get("fonte", "")) == chiave_mossa(mossa):
+						gia_addosso = true
+						break
+				if not gia_addosso:
+					return true
+			return false
+		"aura":
+			# se il vento c'e' gia', rilanciarlo e' una battuta buttata
+			for combattente in vivi(true):
+				if String(combattente.get("combustione", {}).get("fonte", "")) \
+						!= String(nemico.get("id", "")):
+					return true
+			return false
 		"buff_attacco", "buff_difesa":
 			# QUESTO E' NUOVO, ED E' COLPA DEL RIMEDIO PRECEDENTE. Da quando lo
 			# stesso potenziamento si rinnova invece di sommarsi, rifarlo mentre
@@ -2365,6 +2392,12 @@ func condizioni_mossa(nemico: Dictionary, mossa: Dictionary) -> bool:
 	if quando.has("battuta_almeno") \
 			and int(nemico.get("battute", 0)) < int(quando["battuta_almeno"]):
 		return false
+	if quando.has("dopo_rinascita") \
+			and bool(nemico.get("gia_rinato", false)) != bool(quando["dopo_rinascita"]):
+		# "dopo essere rinato": la Benedizione del colosso non esiste finche' non
+		# lo hai gia' abbattuto una volta. E' la seconda meta' dello scontro che
+		# si apre solo dopo la prima
+		return false
 	if quando.has("senza_stato") and RegoleCombattimento.ha_stato_attivo(
 			nemico, String(quando["senza_stato"])):
 		return false
@@ -2430,6 +2463,49 @@ func alleato_piu_ferito(nemico: Dictionary) -> Dictionary:
 			scelto = alleato
 	return scelto
 
+func bersagli_del_potenziamento(nemico: Dictionary, mossa: Dictionary) -> Array:
+	# "se_stesso" (il difetto), "alleati" (i suoi compagni, non lui), "tutti"
+	if String(mossa.get("bersaglio", "se_stesso")) == "se_stesso":
+		return [nemico]
+	var squadra := vivi_alleati_di(nemico)
+	if String(mossa.get("bersaglio", "")) == "tutti":
+		squadra.append(nemico)
+	return squadra
+
+func paga_di_persona(chi: Dictionary, mossa: Dictionary) -> void:
+	# Il colpo che costa a chi lo tira: "un colpo pesante su uno solo E SE
+	# STESSO". Si paga in frazione della propria vita massima, non in punti, se
+	# no a livello alto il prezzo sparisce. Non si suicida: resta sempre a 1,
+	# perche' una mossa che ti uccide da sola la creatura non dovrebbe sceglierla
+	if not mossa.has("costo_vita"):
+		return
+	var prezzo := maxi(int(round(float(chi.get("hp_max", 1))
+			* float(mossa["costo_vita"]))), 1)
+	var pagato := mini(prezzo, maxi(int(chi.hp) - 1, 0))
+	if pagato <= 0:
+		return
+	chi.hp = int(chi.hp) - pagato
+	scrivi_con_colpo("[i]%s ci rimette anche di suo.[/i]" % chi.nome, chi, pagato)
+	aggiorna_scheda(chi)
+
+func spegni_aura_di(chi: Dictionary) -> void:
+	# L'AURA MUORE CON CHI LA TIENE ACCESA. Bru: "infligge danni a ogni inizio
+	# turno di ogni avversario finche' non viene sconfitto l'utilizzatore".
+	# Senza questo, il vento tagliente dell'Emblema restava addosso alla squadra
+	# per tutto il resto dello scontro - e nello scontro dopo sarebbe sembrato
+	# un bug del veleno
+	var fonte := String(chi.get("id", ""))
+	if fonte == "":
+		return
+	for combattente in combattenti:
+		var comb: Dictionary = combattente.get("combustione", {})
+		if String(comb.get("fonte", "")) != fonte:
+			continue
+		combattente.combustione = {}
+		combattente.in_fiamme = false
+		aggiorna_scheda(combattente)
+	scrivi("[i]Il vento si ferma.[/i]")
+
 func valore_mossa(nemico: Dictionary, mossa: Dictionary) -> int:
 	# QUANTO PICCHIA UNA MOSSA, E DA DOVE ESCE IL NUMERO.
 	#
@@ -2441,12 +2517,31 @@ func valore_mossa(nemico: Dictionary, mossa: Dictionary) -> int:
 	# il documento dei nemici la segnala una per una.
 	if mossa.has("valore"):
 		return int(mossa["valore"])
+	if mossa.has("quota_a_terra"):
+		# PIU' E' RIDOTTA MALE, PIU' FA MALE. Bru: "un colpo pesante su uno solo
+		# che e' piu' potente quanto piu' bassa e' la vita". La quota va da
+		# "quota" a piena vita a "quota_a_terra" a zero, per gradi: non e' un
+		# interruttore alla soglia della disperazione, e' una rampa - cosi' la
+		# creatura diventa piu' pericolosa mentre la stai battendo, e si sente
+		var pieno := maxf(float(nemico.get("hp_max", 1)), 1.0)
+		var quanto_manca := clampf(1.0 - float(nemico.get("hp", 0)) / pieno, 0.0, 1.0)
+		var minima := float(mossa.get("quota", 1.0))
+		var massima := float(mossa["quota_a_terra"])
+		return maxi(int(round(RegoleCombattimento.attacco_di(nemico)
+				* (minima + (massima - minima) * quanto_manca))), 1)
 	if mossa.has("quota"):
 		return maxi(int(round(RegoleCombattimento.attacco_di(nemico) * float(mossa["quota"]))), 1)
 	return -1   # come un colpo normale suo
 
 func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
+	# QUALE MOSSA HA APPENA FATTO. Serve a chi guarda da fuori (le prove) per
+	# distinguere le due battute che a schermo si somigliano: quella in cui non
+	# e' successo niente perche' la creatura ha scelto una scena, e quella in cui
+	# non e' successo niente perche' una mossa ha promesso e non ha mantenuto.
+	# La seconda e' un difetto, la prima e' regia - e senza questa riga sono
+	# indistinguibili, perche' tutte e due scrivono la loro frase e basta
+	nemico.ultima_mossa_tipo = String(mossa.get("tipo", ""))
 	if mossa.get("una_tantum", false):
 		nemico.mosse_usate.append(chiave_mossa(mossa))
 	if int(mossa.get("ricarica", 0)) > 0:
@@ -2467,6 +2562,7 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			if mossa.has("stato") and not vittima_forte.is_empty() and vittima_forte.hp > 0:
 				applica_stato(vittima_forte, String(mossa["stato"]))
 			apri_la_guardia(vittima_forte, mossa)
+			paga_di_persona(nemico, mossa)
 		"spezza_guardia":
 			# un colpo che non fa piu' male degli altri, ma ti apre: e' la
 			# risposta del gioco a chi si chiude e non si muove piu'
@@ -2500,6 +2596,52 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			RegoleCombattimento.applica_buff(nemico, "attacco", int(mossa.get("valore", 1)),
 					int(mossa.get("turni", 2)), chiave_mossa(mossa))
 			aggiorna_scheda(nemico)
+		"potenziamento":
+			# UN POTENZIAMENTO CHE TOCCA PIU' COSE INSIEME, e puo' anche togliere.
+			# buff_attacco e buff_difesa sanno alzare una statistica sola, e le
+			# mosse che Bru ha scritto ne muovono due o tre per volta ("Ultima
+			# risorsa: aumenta velocita' difesa attacco", "Moan: aumenta attacco
+			# considerevolmente, diminuisce leggermente la velocita'"). Spezzarle
+			# in tre mosse avrebbe voluto dire tre battute per fare una cosa sola.
+			#
+			# Puo' anche potenziare GLI ALTRI ("Incitamento delle masse: aumenta
+			# la velocita' degli altri suoi compagni"), ed e' la prima mossa del
+			# bestiario che guarda la squadra invece di se' stessa
+			for chi in bersagli_del_potenziamento(nemico, mossa):
+				for stat in mossa.get("stat", {}):
+					RegoleCombattimento.applica_buff(chi, String(stat),
+							int(mossa["stat"][stat]), int(mossa.get("turni", 3)),
+							chiave_mossa(mossa))
+				aggiorna_scheda(chi)
+		"scena":
+			# NON FA NIENTE, E LO FA APPOSTA. Una casella che esiste solo per il
+			# suo motto: lo Zombie Cittadino che si guarda intorno senza scopo,
+			# l'Orrore che si ferma a guardare il cielo. E' l'unico modo che ha
+			# il gioco di dire "questa cosa non ti sta pensando".
+			#
+			# Non e' la battuta sprecata da cui ci si guardava: quella era una
+			# mossa che PROMETTEVA un effetto e non riusciva a farlo. Questa non
+			# promette niente. Ma alle strette non si sceglie mai - vedi
+			# mossa_eseguibile - perche' una creatura che sta per morire e si
+			# guarda intorno smentisce la regola che la fa diventare pericolosa
+			pass
+		"aura":
+			# Colpisce tutta la squadra a ogni loro battuta, e NON SMETTE finche'
+			# non cade chi l'ha lanciata: e' quello che Bru ha chiesto per l'Astio
+			# Infinito. Passa per la combustione, che e' la macchina che gia'
+			# esisteva per "qualcosa ti fa male a ogni tuo turno": non ne serviva
+			# una seconda, serviva solo dirle chi la tiene accesa
+			var quanto_aura := maxi(int(round(RegoleCombattimento.attacco_di(nemico)
+					* float(mossa.get("quota_per_turno", 0.25)))), 1)
+			for bersaglio_aura in vivi(true):
+				bersaglio_aura.combustione = {
+					"danno_per_turno": quanto_aura,
+					"testo_turno": String(mossa.get("testo_turno", "Il vento tagliente non passa.")),
+					"elemento": String(mossa.get("elemento", "oscuro")),
+					"fonte": String(nemico.get("id", "")),
+				}
+				bersaglio_aura.in_fiamme = true
+				aggiorna_scheda(bersaglio_aura)
 		"incendia":
 			# appicca il fuoco a un membro del party a caso: da qui in poi
 			# brucia a ogni suo turno, come la combustione dei nemici
@@ -2513,6 +2655,23 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				bersaglio.in_fiamme = true
 				aggiorna_scheda(bersaglio)
 		"attacco_tutti":
+			if mossa.has("quota_vita_bersaglio"):
+				# UNA FRAZIONE DI QUELLO CHE TI RESTA, non del suo attacco: e' la
+				# Discesa colossale, che si annuncia una battuta prima e poi si
+				# porta via quasi tutto. Non passa dalla difesa - contro un colpo
+				# grosso quanto una casa la corazza non c'entra - ma non uccide:
+				# lascia sempre un punto, perche' un colpo che azzera la squadra
+				# senza che tu possa farci niente non e' una boss fight, e' un
+				# filmato
+				var frazione := clampf(float(mossa["quota_vita_bersaglio"]), 0.0, 0.99)
+				for bersaglio_vita in vivi(true):
+					var tolto := maxi(int(round(float(bersaglio_vita.hp) * frazione)), 1)
+					bersaglio_vita.hp = maxi(int(bersaglio_vita.hp) - tolto, 1)
+					scrivi_con_colpo("[i]%s viene travolto.[/i]" % bersaglio_vita.nome,
+							bersaglio_vita, tolto, String(mossa.get("elemento", "")))
+					aggiorna_scheda(bersaglio_vita)
+				paga_di_persona(nemico, mossa)
+				return
 			for bersaglio in vivi(true):
 				attacca(nemico, bersaglio, valore_mossa(nemico, mossa),
 						1.0, String(mossa.get("elemento", "")))
@@ -3023,6 +3182,22 @@ func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int, elemento 
 	verifica_ultima_risorsa(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:
+	if not caduto.giocatore:
+		spegni_aura_di(caduto)
+	var rinascita: Dictionary = GameState.personaggi.get(caduto.id, {}).get("rinascita", {})
+	if not caduto.giocatore and not rinascita.is_empty() \
+			and not caduto.get("gia_rinato", false):
+		# ANCORA QUI. Non e' l'invincibile, che non muore mai e trasforma lo
+		# scontro in un muro: questa e' UNA VOLTA SOLA, e si vede. Torna su con
+		# una fetta di vita, e da li' in poi e' mortale come chiunque - ma tu hai
+		# gia' speso tutto per abbatterla la prima volta, ed e' li' che lo scontro
+		# cambia faccia
+		caduto.gia_rinato = true
+		caduto.hp = maxi(int(round(float(caduto.hp_max)
+				* float(rinascita.get("quota_vita", 0.25)))), 1)
+		aggiorna_scheda(caduto)
+		scrivi_forte(String(rinascita.get("testo", "[i]%s si rimette in piedi.[/i]")) % caduto.nome)
+		return
 	if not caduto.giocatore and GameState.personaggi.get(caduto.id, {}).get("invincibile", false):
 		# non muore mai davvero: "sconfiggerlo" non basta, si rialza sempre
 		caduto.hp = caduto.hp_max
