@@ -1,0 +1,519 @@
+<title>Rilevamento del bestiario</title>
+<style>
+  :root {
+    --ground:   #E6E8EA;
+    --surface:  #F4F5F6;
+    --sunken:   #DCDFE2;
+    --line:     #C6CBCF;
+    --ink:      #191C1F;
+    --muted:    #5C6469;
+    --faint:    #838B90;
+    --accent:   #9E3F22;
+    --grave:    #8E3520;
+    --aperto:   #8A6520;
+    --minore:   #4A6B7C;
+    --serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:   #131619;
+      --surface:  #1B1F22;
+      --sunken:   #0E1113;
+      --line:     #2E3438;
+      --ink:      #DEE3E6;
+      --muted:    #949CA2;
+      --faint:    #6E767C;
+      --accent:   #D4643E;
+      --grave:    #DE7050;
+      --aperto:   #C79A3E;
+      --minore:   #7FA5B8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:   #131619;
+    --surface:  #1B1F22;
+    --sunken:   #0E1113;
+    --line:     #2E3438;
+    --ink:      #DEE3E6;
+    --muted:    #949CA2;
+    --faint:    #6E767C;
+    --accent:   #D4643E;
+    --grave:    #DE7050;
+    --aperto:   #C79A3E;
+    --minore:   #7FA5B8;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16.5px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 0 1.25rem 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 60rem; margin: 0 auto; }
+  .prosa { max-width: 40rem; }
+
+  header.testata {
+    display: flex; flex-direction: column; gap: 1.1rem;
+    padding: 4rem 0 2rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .occhiello {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 3.9rem); line-height: 1.02;
+    letter-spacing: -.015em; margin: 0; text-wrap: balance;
+  }
+  .sottotitolo { color: var(--muted); max-width: 38rem; margin: 0; font-size: 1.05rem; }
+
+  .misure {
+    display: grid; gap: 1px; background: var(--line);
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    border: 1px solid var(--line); margin: 2rem 0 0;
+  }
+  .misura { background: var(--surface); padding: .85rem 1rem; }
+  .misura b {
+    display: block; font-family: var(--mono); font-size: 1.5rem; font-weight: 500;
+    font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  }
+  .misura span {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--faint);
+  }
+
+  section { padding-top: 3.5rem; }
+  h2 {
+    font-family: var(--serif); font-weight: 400; font-size: 1.9rem;
+    margin: 0 0 .35rem; letter-spacing: -.01em; text-wrap: balance;
+  }
+  .cappello { color: var(--muted); margin: 0 0 1.8rem; max-width: 40rem; }
+  p { margin: 0 0 1rem; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--sunken);
+         padding: .1em .35em; border-radius: 2px; }
+  strong { font-weight: 650; }
+
+  .registro { display: flex; flex-direction: column; gap: 1px; background: var(--line);
+              border: 1px solid var(--line); }
+  .voce {
+    background: var(--surface); padding: 1.4rem 1.5rem 1.5rem;
+    border-left: 4px solid var(--riga, var(--faint));
+    display: flex; flex-direction: column; gap: .55rem;
+  }
+  .voce.grave  { --riga: var(--grave); }
+  .voce.aperto { --riga: var(--aperto); }
+  .voce.minore { --riga: var(--minore); }
+
+  .capo { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem .9rem; }
+  .gravita {
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--riga); border: 1px solid var(--riga);
+    padding: .12rem .45rem; border-radius: 2px; white-space: nowrap;
+  }
+  .dove { font-family: var(--mono); font-size: .74rem; color: var(--faint); }
+  .voce h3 {
+    font-family: var(--serif); font-weight: 400; font-size: 1.32rem;
+    margin: 0; letter-spacing: -.01em; text-wrap: balance; flex-basis: 100%;
+  }
+  .prove {
+    font-family: var(--mono); font-size: .82rem; line-height: 1.7;
+    background: var(--sunken); border-left: 2px solid var(--line);
+    padding: .7rem .9rem; margin: .15rem 0 .1rem;
+    font-variant-numeric: tabular-nums; overflow-x: auto; white-space: pre;
+  }
+  .voce p { margin: 0; max-width: 46rem; }
+  .proposta { color: var(--muted); }
+  .proposta b { color: var(--ink); font-weight: 650; }
+
+  .decisioni { display: grid; gap: 1px; background: var(--line);
+               border: 1px solid var(--line); }
+  .decisione { background: var(--surface); padding: 1.3rem 1.5rem;
+               display: flex; flex-direction: column; gap: .5rem; }
+  .decisione h3 { font-family: var(--serif); font-weight: 400; font-size: 1.2rem; margin: 0; }
+  .decisione p { margin: 0; }
+  .mia { font-size: .93rem; color: var(--muted); border-left: 2px solid var(--accent);
+         padding-left: .8rem; }
+
+  .coda { display: grid; gap: 1px; background: var(--line);
+          grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+          border: 1px solid var(--line); }
+  .lavoro { background: var(--surface); padding: 1.1rem 1.2rem; }
+  .lavoro b { display: block; font-family: var(--serif); font-size: 1.08rem;
+              font-weight: 400; margin-bottom: .25rem; }
+  .lavoro span.testo { font-size: .92rem; color: var(--muted); }
+  .tag { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em;
+         text-transform: uppercase; color: var(--faint); display: block; margin-bottom: .4rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  .scorre { overflow-x: auto; border: 1px solid var(--line); }
+  th, td { text-align: left; padding: .5rem .8rem; border-bottom: 1px solid var(--line);
+           background: var(--surface); }
+  th { font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+       text-transform: uppercase; color: var(--faint); font-weight: 400; }
+  td.specie { font-family: var(--mono); }
+  tr:last-child td { border-bottom: 0; }
+
+  footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+           font-family: var(--mono); font-size: .78rem; color: var(--faint); }
+</style>
+
+<div class="wrap">
+
+<header class="testata">
+  <div class="occhiello">Carnivalz · contato sui dati, non a memoria</div>
+  <h1>Rilevamento del bestiario</h1>
+  <p class="sottotitolo">Dove siamo con le creature, e le undici cose che non tornano. Ogni
+  numero qui sotto è stato contato adesso sui file del progetto.</p>
+  <div class="misure">
+    <div class="misura"><b>39</b><span>creature</span></div>
+    <div class="misura"><b>10</b><span>campi scheda</span></div>
+    <div class="misura"><b>6</b><span>caselle mossa</span></div>
+    <div class="misura"><b>66</b><span>prove</span></div>
+    <div class="misura"><b>24.736</b><span>verifiche</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Dove siamo</h2>
+  <div class="prosa">
+    <p><strong>Il combattimento</strong> non ha più turni: ogni creatura ha una ricarica che
+    scorre da sola, e una <em>battuta</em> è un suo ciclo. La barra di dominio si riempie a tre
+    livelli, e con almeno un segmento pieno parte la <strong>Mattanza</strong>: la barra si
+    svuota e finché si svuota batti spazio, un decimo del tuo attacco a colpo.</p>
+
+    <p><strong>Il bestiario</strong> ha trentanove creature, ognuna con sei caselle di mossa —
+    le libere sono libere davvero, il sorteggio non le pesca. Sotto il 30% della vita una
+    creatura è <em>alle strette</em>: colpisce il 30% in più e comincia a <em>scegliere</em> le
+    mosse invece di sorteggiarle. È una riga sola in <code>data/ruoli.json</code>, così non può
+    mancare a metà bestiario.</p>
+
+    <p><strong>Il tecno log</strong> è la scheda di specie che lo Studio riempie a strati: dieci
+    campi, tre studi. Specie e Stadio si leggono insieme, l'Areale dice il mondo e non la stanza,
+    il Motto è la frase che si sente in campo.</p>
+
+    <p><strong>Gli strumenti</strong> generano invece di raccontare: <code>nemici.sh</code>
+    riscrive il documento del bestiario dai dati veri, <code>simula.sh</code> fa giocare un
+    giocatore automatico e misura, <code>esegui.sh</code> passa le prove. Nessun documento è
+    scritto a mano, quindi nessun documento può raccontare il gioco di ieri.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Le discrepanze</h2>
+  <p class="cappello">In ordine di quanto costano. Le prime tre non sono rifiniture: sono cose
+  che hai chiesto e che nei dati non ci sono ancora.</p>
+
+  <div class="registro">
+
+    <article class="voce grave">
+      <div class="capo">
+        <span class="gravita">Grave</span>
+        <span class="dove">data/tecnolog.json</span>
+        <h3>Lo Stadio non è una scala: non si riesce a metterlo in fila</h3>
+      </div>
+      <div class="prove">Orrore di Meridia    Stadio VI    livello  5
+Jongo Dongo          Stadio III   livello 14
+Stadi IV e V         nessuna creatura su 39</div>
+      <p>Specie e Stadio dovrebbero dire insieme «a che punto è arrivata questa cosa». Oggi lo
+      Stadio non predice né la forza né la posizione nella storia: l'Orrore è il più deformato
+      degli Zombie ma lo incontri a livello 5, prima di nove Zombie meno evoluti di lui.</p>
+      <p class="proposta"><b>Da decidere:</b> lo Stadio misura quanto la specie si è deformata —
+      e allora l'Orrore VI è giusto, ed è il suo livello 5 a essere sbagliato — oppure quanto sei
+      avanti nel gioco quando lo incontri? Sono due cose diverse, e in questo momento fanno a
+      botte.</p>
+    </article>
+
+    <article class="voce grave">
+      <div class="capo">
+        <span class="gravita">Grave</span>
+        <span class="dove">data/personaggi.json</span>
+        <h3>Diciassette creature su trentanove non sanno reagire quando stanno per morire</h3>
+      </div>
+      <div class="prove">senza cura, difesa, potenziamento, evocazione o sacrificio:
+  L2  Infetto Rapido       L8  Ghoul              L9  Sadico
+  L2  Nuvola di Marciume   L8  Teschio Errante    L13 Donna Spinosa
+  L3  Fomentado            L8  Madre in Lacrime   L14 Ombra del passato
+  L3  Zombie Mostruoso     L8  ???                + 4 altre
+  L4  El Muy Bonito        L9  Stigma</div>
+      <p>Hai chiesto che a fin di vita capiscano la loro condizione e usino le mosse saggiamente.
+      La regola globale le fa colpire più forte, ma per queste diciassette «alle strette» è solo
+      un numero più grande: <strong>non hanno niente da scegliere</strong>. La testa c'è, il
+      repertorio no.</p>
+      <p class="proposta"><b>Proposta:</b> è la stessa lista delle caselle da riempire. Basta una
+      mossa di reazione a testa perché la regola cominci a vedersi.</p>
+    </article>
+
+    <article class="voce grave">
+      <div class="capo">
+        <span class="gravita">Grave</span>
+        <span class="dove">scripts/Combattimento.gd</span>
+        <h3>Sette meccaniche che le tue mosse chiedono e il motore non ha</h3>
+      </div>
+      <div class="prove">buff su più statistiche     Ultima risorsa, Esibizionista, Moan
+potenziare gli alleati      Incitamento delle masse
+mossa di sola scena         Zombie style, Presenza colossale
+rinascita                   Ancora qui
+danno che sale col calare   Esplosione di rabbia
+aura a ogni turno           Astio Infinito
+% della vita rimasta        Discesa colossale</div>
+      <p>Le mosse che hai scritto per Zombie Mostruoso, Oppresso, Emblema, Operaio Sfruttato,
+      El Muy Bonito e Orrore di Meridia sono ferme qui. Ho portato solo i rinomini e quelle
+      esprimibili oggi.</p>
+      <p class="proposta"><b>È il prossimo lavoro.</b> Le prime tre sbloccano da sole più di metà
+      delle mosse che aspettano.</p>
+    </article>
+
+    <article class="voce aperto">
+      <div class="capo">
+        <span class="gravita">Aperto</span>
+        <span class="dove">data/personaggi.json</span>
+        <h3>Il bestiario è per due terzi vuoto</h3>
+      </div>
+      <div class="prove">6 mosse   2 creature       2 mosse   21 creature
+5 mosse   3 creature       1 mossa    3 creature
+3 mosse   8 creature       0 mosse    2 creature (scriptate)</div>
+      <p>Ventuno creature su trentanove hanno esattamente due mosse. Non è un difetto — le sei
+      caselle sono il tuo spazio di decisione — ma Infetto Rapido, Zombie Mostruoso e l'Immortale
+      con <strong>una mossa sola</strong> fanno letteralmente sempre la stessa cosa.</p>
+      <p class="proposta"><b>Nota:</b> le cinque mosse che hai scritto per lo Zombie Mostruoso lo
+      tolgono da questa lista appena il motore le regge.</p>
+    </article>
+
+    <article class="voce aperto">
+      <div class="capo">
+        <span class="gravita">Aperto</span>
+        <span class="dove">data/tecnolog.json</span>
+        <h3>Tre zone su sei non hanno ancora un mondo dietro</h3>
+      </div>
+      <div class="prove">Squarcio Industriale      →  Geodos        ✓
+Kizako — Ala Dimenticata  →  Geodos        ✓
+Cunicoli di Jondoh        →  Jondoh        ✓
+Il Teatro del Passato     →  (sé stesso)   ?
+La Casa Gigante           →  (sé stessa)   ?
+Meridia                   →  (sé stessa)   ?</div>
+      <p>Da quando mi hai spiegato che lo Squarcio è solo una frattura di Geodos, la tabella
+      traduce zona → regione in un posto solo. Per tre zone la regione grande non ce l'ho, e
+      finiscono col proprio nome.</p>
+      <p class="proposta"><b>Mi servono i nomi.</b> Meridia potrebbe legittimamente essere già il
+      pianeta — dimmelo e la lascio così.</p>
+    </article>
+
+    <article class="voce aperto">
+      <div class="capo">
+        <span class="gravita">Aperto</span>
+        <span class="dove">data/personaggi.json</span>
+        <h3>Cinque creature hanno un identificativo che non dice il loro nome</h3>
+      </div>
+      <div class="prove">comparsa_di_ruggine  →  Oppresso
+giocoliere           →  El Muy Bonito
+maschera_vuota       →  Fomentado
+operaio_posseduto    →  Emblema dell'oppressione
+voce_registrata      →  Capocantiere</div>
+      <p>Cercare «Oppresso» nel progetto non trova niente. Ogni volta che mi mandi una correzione
+      devo tradurre a mano, ed è esattamente il punto in cui si sbaglia creatura.</p>
+      <p class="proposta"><b>Proposta:</b> rinominarli. È meccanico, tocca anche le zone, e le
+      prove lo coprono — se ne resta indietro uno, falliscono.</p>
+    </article>
+
+    <article class="voce aperto">
+      <div class="capo">
+        <span class="gravita">Aperto</span>
+        <span class="dove">data/vuoti/</span>
+        <h3>L'Abominio Marcio esiste ma non lo incontri mai</h3>
+      </div>
+      <div class="prove">abominio_marcio   L10   particolare   scheda completa
+                        piazzato in 0 zone su 9</div>
+      <p>Ha statistiche, mosse, tecno log intero. Non è in nessuna stanza di nessuna zona: è
+      l'unica creatura del bestiario che il giocatore non può vedere.</p>
+      <p class="proposta"><b>Da decidere:</b> piazzarlo o toglierlo. Tenerlo lì in mezzo costa
+      manutenzione e non rende niente.</p>
+    </article>
+
+    <article class="voce aperto">
+      <div class="capo">
+        <span class="gravita">Aperto</span>
+        <span class="dove">bilanciamento</span>
+        <h3>Fra il livello 15 e il 18 non si incontra niente di nuovo</h3>
+      </div>
+      <div class="prove">L1 ███   L6 ███    L11 ██    L16 —
+L2 ███   L7 —      L12 █     L17 —
+L3 ███   L8 ████   L13 ██    L18 █
+L4 ████  L9 ███    L14 ██    L19 —
+L5 ████  L10 ██    L15 ██</div>
+      <p>Quattro livelli senza nessuna creatura, e il 12 e il 18 con una sola. Il finale del gioco
+      è una scala con i gradini staccati.</p>
+      <p class="proposta"><b>Da guardare</b> insieme alle fratture che si aprono col livello: è lo
+      stesso problema visto dall'altra parte.</p>
+    </article>
+
+    <article class="voce minore">
+      <div class="capo">
+        <span class="gravita">Da decidere</span>
+        <span class="dove">data/personaggi.json</span>
+        <h3>Metà bestiario è fuori dal sistema degli elementi</h3>
+      </div>
+      <div class="prove">nessun elemento  22       fuoco       3
+veleno            7       elettrico   1
+oscuro            5       psico       1</div>
+      <p>Se gli elementi devono contare — resistenze, debolezze, qualcosa da capire e sfruttare —
+      ventidue creature su trentanove non partecipano. Se invece sono colore va benissimo così,
+      ma allora non aspettiamoci che il giocatore ci ragioni sopra.</p>
+      <p class="proposta"><b>Domanda vera:</b> gli elementi sono una meccanica o un aggettivo?</p>
+    </article>
+
+    <article class="voce minore">
+      <div class="capo">
+        <span class="gravita">Da decidere</span>
+        <span class="dove">data/tecnolog.json</span>
+        <h3>Otto specie su quindici hanno un solo membro</h3>
+      </div>
+      <div class="prove">Zombie 11 · Feticcio 5 · Umano 5 · Robot 3
+Incarnazione 2 · Ferino 2 · Automa 2 · Goblin 2
+Slime · Tartaruga · Nimbo · Ombra · Flora · Onirico · Indeterminato — uno a testa</div>
+      <p>Specie e Stadio si leggono insieme solo dove c'è una scala da percorrere. Per otto
+      creature il campo Specie è un'etichetta e basta: vera, ma che non collega a niente.</p>
+      <p class="proposta"><b>Non è un errore:</b> è il posto dove si vede quali famiglie vorresti
+      far crescere.</p>
+    </article>
+
+    <article class="voce minore">
+      <div class="capo">
+        <span class="gravita">Manutenzione</span>
+        <span class="dove">docs/bilanciamento.md</span>
+        <h3>La tabella di bilanciamento racconta il gioco dell'11 agosto</h3>
+      </div>
+      <div class="prove">generata prima di: le ricariche che non tolgono più il turno
+                   i potenziamenti che si rinnovano invece di sommarsi
+                   le sei caselle
+                   le tue correzioni di oggi</div>
+      <p>È l'unico documento del progetto che in questo momento non dice il vero — e proprio
+      perché di solito è affidabile, è quello di cui ci si fida per sbaglio.</p>
+      <p class="proposta"><b>Da rilanciare:</b> circa venti minuti di macchina, nessuna decisione
+      tua.</p>
+    </article>
+
+  </div>
+</section>
+
+<section>
+  <h2>Tre cose che aspettano te</h2>
+  <p class="cappello">Non le tocco senza risposta: se le indovino male, il lavoro è da rifare.</p>
+
+  <div class="decisioni">
+    <div class="decisione">
+      <h3>«Vamos!» di El Muy Bonito</h3>
+      <p>Hai scritto <em>venticinque colpi pari al suo attacco attuale su tutta la squadra</em>.
+      A livello 4 sono circa 375 danni a testa: non è una mossa, è la fine dello scontro.</p>
+      <p class="mia">Credo intendessi l'attacco <b>diviso</b> venticinque — come in «catastrofe»
+      dello Zombie Mostruoso, dove l'hai scritto esplicitamente. Confermi?</p>
+    </div>
+    <div class="decisione">
+      <h3>Flashy Punch e Flashy Kick</h3>
+      <p>Le hai lasciate con «decidi tu». Sono le caselle 5 e 6 di El Muy Bonito, e il motto ce
+      l'hanno già.</p>
+      <p class="mia">Proposta: <b>Punch</b> = colpo singolo forte che apre la guardia;
+      <b>Kick</b> = colpo che sbilancia e lascia addosso Lentezza. Due mosse annunciate a gran
+      voce che fanno due cose diverse, come si conviene a uno che annuncia tutto.</p>
+    </div>
+    <div class="decisione">
+      <h3>Le statistiche dell'Emblema dell'oppressione</h3>
+      <p>Hai scritto ♥290, attacco 16, difesa 5. I suoi numeri escono dalla curva del ruolo, che
+      oggi dà ♥245, attacco 15, difesa 6.</p>
+      <p class="mia">Tre strade: <b>alzarlo di livello</b> (sale tutto insieme e resta sulla
+      curva), <b>cambiargli ruolo</b> da comune a particolare, oppure <b>scrivergli le stat a
+      mano</b> come eccezione dichiarata — lo fanno già cinque creature.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Il lavoro davanti</h2>
+  <p class="cappello">I primi due sono già decisi. Gli altri aspettano un tuo cenno.</p>
+  <div class="coda">
+    <div class="lavoro">
+      <span class="tag">Prossimo</span>
+      <b>Le sette meccaniche</b>
+      <span class="testo">Buff multi-statistica, buff agli alleati e mossa di sola scena per
+      prime: da sole sbloccano più di metà delle mosse che hai scritto.</span>
+    </div>
+    <div class="lavoro">
+      <span class="tag">A seguire</span>
+      <b>Le mosse che aspettano</b>
+      <span class="testo">Zombie Mostruoso, Oppresso, Emblema, Operaio Sfruttato, El Muy Bonito e
+      Orrore di Meridia: le tue caselle, riempite.</span>
+    </div>
+    <div class="lavoro">
+      <span class="tag">In coda</span>
+      <b>Fratture che si aprono col livello</b>
+      <span class="testo">Con l'avviso «questa zona è troppo forte» e la rovina da rivisitare. È
+      l'unico lavoro rimasto nella lista da prima.</span>
+    </div>
+    <div class="lavoro">
+      <span class="tag">In coda</span>
+      <b>Il colpo fatale a barra rossa</b>
+      <span class="testo">Aperto da parecchio: cosa succede quando la barra del nemico è rossa e
+      tu hai il dominio pieno.</span>
+    </div>
+    <div class="lavoro">
+      <span class="tag">Contenuti</span>
+      <b>Veronica e Yhvina</b>
+      <span class="testo">Dati personaggio ancora da scrivere. Veronica ha zero mosse e una scheda
+      che dice «soggetto umano».</span>
+    </div>
+    <div class="lavoro">
+      <span class="tag">Contenuti</span>
+      <b>Laboratorio, giardino, vivaio</b>
+      <span class="testo">Luoghi annunciati e non ancora scritti, con le loro creature.</span>
+    </div>
+    <div class="lavoro">
+      <span class="tag">Aspetto te</span>
+      <b>Rosa o viola-nero</b>
+      <span class="testo">La decisione sull'interfaccia è ferma da qualche giro. Finché non c'è,
+      lo stile resta quello di adesso.</span>
+    </div>
+    <div class="lavoro">
+      <span class="tag">Aspetto te</span>
+      <b>Il resto del bestiario</b>
+      <span class="testo">Mi hai corretto sedici creature su trentanove. Le altre ventitré hanno
+      la scheda che ho scritto io, specie compresa.</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Le specie che ho scelto io</h2>
+  <p class="cappello">Dove non ti sei ancora espresso ho deciso io il nome della specie. Sono la
+  prima cosa da correggere: una volta che una creatura entra in una famiglia sbagliata, ci resta.</p>
+  <div class="scorre">
+    <table>
+      <thead><tr><th>Creatura</th><th>Specie che ho messo</th><th>Su cosa mi sono basato</th></tr></thead>
+      <tbody>
+        <tr><td>Goblin Tipico, Goblin arrabbiato</td><td class="specie">Goblin</td><td>avevi lasciato «degenerato»</td></tr>
+        <tr><td>Tartaruga Innocente</td><td class="specie">Tartaruga</td><td>avevi lasciato «ipertrofico»</td></tr>
+        <tr><td>Infetto Rapido</td><td class="specie">Zombie</td><td>umana, Meridia, come Cittadino e Mostruoso</td></tr>
+        <tr><td>Manifestazione di un sogno</td><td class="specie">Onirico</td><td>avevi lasciato «artefatto»</td></tr>
+        <tr><td>Fomentado</td><td class="specie">Feticcio</td><td>stesso Vuoto Ardente di El Muy Bonito</td></tr>
+        <tr><td>Marionetta, Un tenero ricordo</td><td class="specie">Automa</td><td>mia invenzione</td></tr>
+        <tr><td>Ghoul, Teschio, Madre, Stigma, Titano, Abominio</td><td class="specie">Zombie</td><td>mia invenzione</td></tr>
+        <tr><td>Diabolo, Divoratore di Carcasse</td><td class="specie">Ferino</td><td>mia invenzione</td></tr>
+        <tr><td>Donna Spinosa, Spirito dei giardini</td><td class="specie">Flora</td><td>mia invenzione</td></tr>
+        <tr><td>Ombra del passato</td><td class="specie">Ombra</td><td>mia invenzione</td></tr>
+        <tr><td>Veronica, Sadico, Sacerdote, Jongo, Jerah</td><td class="specie">Umano</td><td>mia invenzione</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Contato sui file del progetto · ramo claude/inizio-progetto-dya2lr · suite verde, 24.736 verifiche
+</footer>
+
+</div>
