@@ -57,6 +57,30 @@
 					},
 					"priorita": 7,
 					"una_tantum": true
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -126,6 +150,24 @@
 					},
 					"priorita": 7,
 					"una_tantum": true
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -181,6 +223,30 @@
 					"testo": "Un braccio di lamiera scende di piatto e ti apre la guardia.",
 					"quota": 1.0,
 					"peso": 2
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -229,6 +295,30 @@
 					"stato": "demotivazione",
 					"peso": 1,
 					"ricarica": 4
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -287,6 +377,30 @@
 					},
 					"priorita": 4,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -358,6 +472,24 @@
 					},
 					"priorita": 8,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -425,6 +557,30 @@
 					},
 					"priorita": 6,
 					"ricarica": 4
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -492,6 +648,24 @@
 					},
 					"priorita": 7,
 					"ricarica": 6
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -550,6 +724,30 @@
 					"testo": "Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.",
 					"quota": 0.75,
 					"peso": 1
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -595,6 +793,30 @@
 					"testo": "Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.",
 					"quota": 1.45,
 					"peso": 2
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -635,6 +857,30 @@
 					"stato": "terrore",
 					"peso": 1,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -696,6 +942,24 @@
 					},
 					"priorita": 8,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -741,6 +1005,30 @@
 					"testo": "«Non toccarli.» Non c'e' nessuno da toccare.",
 					"quota": 1.5,
 					"peso": 2
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -786,6 +1074,30 @@
 					"stato": "veleno",
 					"peso": 1,
 					"ricarica": 4
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -832,6 +1144,30 @@
 					"stato": "confusione",
 					"peso": 1,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -882,6 +1218,30 @@
 					},
 					"priorita": 7,
 					"ricarica": 2
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1057,6 +1417,24 @@
 					},
 					"priorita": 8,
 					"ricarica": 6
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1095,6 +1473,36 @@
 					"quota": 1.0,
 					"elemento": "oscuro",
 					"peso": 2
+				},
+				{
+					"id": "libera_2",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1215,6 +1623,30 @@
 					},
 					"priorita": 7,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"bottino_comune": [
@@ -1267,6 +1699,36 @@
 					"testo": "Il braccio piu' lungo arriva da dove non te lo aspetti.",
 					"quota": 1.5,
 					"peso": 2
+				},
+				{
+					"id": "libera_2",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1314,6 +1776,24 @@
 					},
 					"priorita": 7,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"bottino_comune": [
@@ -1370,6 +1850,30 @@
 					"stress": 10,
 					"peso": 2,
 					"testo": "Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo."
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"bottino_comune": [
@@ -1425,6 +1929,30 @@
 						"alleati_almeno": 1
 					},
 					"ricarica": 4
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1467,6 +1995,36 @@
 					"quota": 0.6,
 					"colpi": 2,
 					"peso": 3
+				},
+				{
+					"id": "libera_2",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1521,6 +2079,30 @@
 					"stato": "veleno",
 					"peso": 2,
 					"ricarica": 3
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1575,6 +2157,24 @@
 					},
 					"priorita": 7,
 					"ricarica": 6
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1631,6 +2231,30 @@
 					},
 					"priorita": 5,
 					"ricarica": 3
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -1669,6 +2293,30 @@
 					"quota": 0.75,
 					"elemento": "veleno",
 					"peso": 1
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"peso_attacco_normale": 3,
@@ -1741,6 +2389,24 @@
 					},
 					"priorita": 8,
 					"ricarica": 5
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"peso_attacco_normale": 3,
@@ -1884,6 +2550,12 @@
 					},
 					"priorita": 6,
 					"ricarica": 6
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"studio": [
@@ -1987,6 +2659,12 @@
 					},
 					"priorita": 7,
 					"ricarica": 4
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"testo_cedimento": "Jerah barcolla. \"Qué espectáculo... voi due,\" mormora. L'arena intera trema con lui. Ma non smette di attaccare: \"Non posso perdere!\"",
@@ -2084,6 +2762,30 @@
 					},
 					"priorita": 5,
 					"ricarica": 3
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -2133,6 +2835,30 @@
 					},
 					"priorita": 6,
 					"ricarica": 4
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -2178,6 +2904,30 @@
 					},
 					"priorita": 6,
 					"ricarica": 4
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"studio": [
@@ -2247,6 +2997,44 @@
 				{
 					"oggetto": "ricordo_del_passato",
 					"chance": 1.0
+				}
+			],
+			"mosse": [
+				{
+					"id": "libera_1",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_2",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			]
 		},
@@ -2321,6 +3109,12 @@
 					"colpi": 3,
 					"peso": 1,
 					"testo": "Cattiveria innata: ti sferra tre attacchi deboli di fila."
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
 				}
 			],
 			"dialogo_soglia_hp": {
@@ -2502,7 +3296,45 @@
 					"risposta": "Hey! Cosa succede? Guarda che io sono qui!"
 				}
 			],
-			"testo_studio_esaurito": "Non c'è altro che tu possa capire di lei adesso: è già tutta lì, davanti a te."
+			"testo_studio_esaurito": "Non c'è altro che tu possa capire di lei adesso: è già tutta lì, davanti a te.",
+			"mosse": [
+				{
+					"id": "libera_1",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_2",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				}
+			]
 		},
 		{
 			"id": "curie",

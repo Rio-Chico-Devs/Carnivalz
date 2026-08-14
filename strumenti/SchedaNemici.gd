@@ -112,6 +112,9 @@ func intestazione() -> Array[String]:
 		"- **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la",
 		"  *sceglie* (vince la priorità più alta). È lì che vive la sua testa.",
 		"- **Ricarica** è quante sue battute deve aspettare prima di rifarla.",
+		"- Ogni creatura ha **sei caselle**, anche quando ne usa tre: le libere sono il posto dove",
+		"  decidere cosa aggiungere. Una casella libera non è una mossa debole — non esiste: il",
+		"  sorteggio non la pesca, e la creatura tira il suo colpo normale come se non ci fosse.",
 		"",
 		"### Cos'è una «battuta»",
 		"",
@@ -178,13 +181,29 @@ func scheda(id_creatura: String) -> Array[String]:
 	righe.append(" · ".join(voci))
 	righe.append("")
 	var mosse: Array = dati.get("mosse", [])
-	if mosse.is_empty():
-		righe.append("Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).")
-		return righe
-	righe.append("| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |")
-	righe.append("| --- | --- | --- | --- | --- | --- |")
+	var piene := 0
 	for mossa in mosse:
-		righe.append("| %s | %s | %s | %s | %s | %s |" % [
+		if String(mossa.get("tipo", "")) != "-":
+			piene += 1
+	if piene == 0:
+		righe.append("Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro scriptato).")
+		righe.append_array(scheda_tecnolog(id_creatura))
+		return righe
+	righe.append("**Mosse: %d su %d caselle.**" % [piene, mosse.size()])
+	righe.append("")
+	righe.append("| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |")
+	righe.append("| --: | --- | --- | --- | --- | --- | --- |")
+	var casella := 0
+	for mossa in mosse:
+		casella += 1
+		if String(mossa.get("tipo", "")) == "-":
+			# LA CASELLA LIBERA SI VEDE. E' il motivo per cui ce ne sono sei
+			# anche a chi ne usa tre: sono il posto dove Bru decidera' cosa
+			# aggiungere, e un posto che non si vede non e' un posto
+			righe.append("| %d | — | *casella libera* | — | — | — | — |" % casella)
+			continue
+		righe.append("| %d | %s | %s | %s | %s | %s | %s |" % [
+			casella,
 			String(mossa.get("nome", mossa.get("id", "?"))),
 			effetto_di(mossa),
 			valore_di(id_creatura, mossa),

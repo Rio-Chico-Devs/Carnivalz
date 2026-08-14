@@ -2425,8 +2425,10 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
 			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
 			"cura", "rubavita", "stato"]
-	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione
+	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione.
+	# Le sei caselle ce le hanno lo stesso, tutte libere
 	var senza_mosse_per_scelta := ["manifestazione_di_un_sogno", "veronica"]
+	var caselle_per_creatura := 6
 	var chiavi_condizione := ["vita_sotto", "vita_sopra", "alleati_almeno",
 			"alleati_al_massimo", "battuta_almeno", "senza_stato", "bersaglio_vita_sotto"]
 	var contate := 0
@@ -2437,12 +2439,33 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 			continue
 		contate += 1
 		var mosse: Array = dati.get("mosse", [])
+		# SEI CASELLE PER TUTTI, anche a chi ne servono tre: Bru le tiene per
+		# decidere alla fine quante mosse dare a ognuno, e vederle vuote nel file
+		# e' il punto. Le libere non sono mosse deboli: sono posti liberi
+		esigi(mosse.size() == caselle_per_creatura,
+				"%s ha %d caselle invece di %d: l'elenco non si legge piu' a colpo d'occhio"
+				% [id_creatura, mosse.size(), caselle_per_creatura])
+		var piene := 0
+		for mossa in mosse:
+			if String(mossa.get("tipo", "")) != "-":
+				piene += 1
 		if String(id_creatura) in senza_mosse_per_scelta:
+			esigi(piene == 0,
+					"%s ha %d mosse: il suo turno lo detta un copione, non deve averne" % [id_creatura, piene])
 			continue
-		esigi(not mosse.is_empty(),
-				"%s non ha nessuna mossa: in campo tira il suo colpo e basta" % id_creatura)
+		esigi(piene >= 1,
+				"%s ha sei caselle e sono tutte libere: in campo tira il suo colpo e basta" % id_creatura)
 		var viste: Array[String] = []
 		for mossa in mosse:
+			if String(mossa.get("tipo", "")) == "-":
+				# una casella libera dev'essere libera DAVVERO: se le restasse
+				# addosso mezzo campo di quando era piena, prima o poi qualcuno
+				# lo legge
+				esigi(String(mossa.get("nome", "")) == "-" and String(mossa.get("testo", "")) == "-",
+						"%s: una casella libera porta ancora qualcosa scritto" % id_creatura)
+				esigi(mossa.size() <= 4,
+						"%s: una casella libera ha %d campi addosso" % [id_creatura, mossa.size()])
+				continue
 			var etichetta := "%s / %s" % [id_creatura, String(mossa.get("id", "?"))]
 			esigi(String(mossa.get("id", "")) != "",
 					"%s: una mossa senza id - ricariche e una_tantum si perdono per strada"
@@ -2524,6 +2547,18 @@ func prova_le_creature_capiscono_come_stanno() -> void:
 			cura = mossa
 			break
 	esigi(not cura.is_empty(), "la Robo Pattuglia non sa piu' ripararsi: la prova misura un'altra creatura")
+
+	# 0. UNA CASELLA LIBERA NON E' UNA MOSSA. Se il sorteggio potesse pescarla,
+	#    la creatura passerebbe la battuta a fare niente - e con tre caselle
+	#    libere su sei succederebbe una volta su due
+	var libera: Dictionary = {}
+	for mossa in nemico.mosse:
+		if String(mossa.get("tipo", "")) == "-":
+			libera = mossa
+			break
+	esigi(not libera.is_empty(), "la Robo Pattuglia non ha nessuna casella libera da provare")
+	esigi(not bool(scontro.mossa_disponibile(nemico, libera)),
+			"una casella libera risulta fra le mosse che la creatura puo' fare")
 
 	# 1. DA INTERA NON SI CURA. E' la prima cosa che fa sembrare stupida una
 	#    creatura che dovrebbe sembrare astuta

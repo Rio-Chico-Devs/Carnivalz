@@ -2333,6 +2333,20 @@ func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 func chiave_mossa(mossa: Dictionary) -> String:
 	return String(mossa.get("id", mossa.get("nome", mossa.get("tipo", "?"))))
 
+const CASELLA_LIBERA := "-"
+
+func casella_libera(mossa: Dictionary) -> bool:
+	# SEI CASELLE PER OGNI CREATURA, anche a chi ne servono tre. Bru: "voglio
+	# vedere nel file 6 mosse di cui 3 tutte '-', non perche' sia una mossa ma
+	# per ordine mentale mio, cosi' decido quante ne ha ognuno alla fine".
+	#
+	# Una casella libera non e' una mossa debole: NON ESISTE. Se il sorteggio
+	# potesse pescarla, quella creatura passerebbe una battuta a non fare niente
+	# - che e' esattamente la cosa che abbiamo appena tolto di mezzo. Si riconosce
+	# dal tipo, che e' un trattino: nessun ramo di esegui_mossa lo esegue, e
+	# mossa_disponibile lo scarta prima di guardare qualunque altra cosa.
+	return String(mossa.get("tipo", "")) == CASELLA_LIBERA
+
 func condizioni_mossa(nemico: Dictionary, mossa: Dictionary) -> bool:
 	var quando: Dictionary = mossa.get("quando", {})
 	if quando.is_empty():
@@ -2368,6 +2382,8 @@ func condizioni_mossa(nemico: Dictionary, mossa: Dictionary) -> bool:
 	return true
 
 func mossa_disponibile(nemico: Dictionary, mossa: Dictionary) -> bool:
+	if casella_libera(mossa):
+		return false   # e' un posto vuoto nell'elenco, non una mossa
 	if mossa.get("una_tantum", false) and chiave_mossa(mossa) in nemico.mosse_usate:
 		return false
 	if int(nemico.get("ricariche_mosse", {}).get(chiave_mossa(mossa), 0)) > 0:

@@ -19,6 +19,9 @@
 - **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la
   *sceglie* (vince la priorità più alta). È lì che vive la sua testa.
 - **Ricarica** è quante sue battute deve aspettare prima di rifarla.
+- Ogni creatura ha **sei caselle**, anche quando ne usa tre: le libere sono il posto dove
+  decidere cosa aggiungere. Una casella libera non è una mossa debole — non esiste: il
+  sorteggio non la pesca, e la creatura tira il suo colpo normale come se non ci fosse.
 
 ### Cos'è una «battuta»
 
@@ -68,10 +71,16 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `goblin_tipico` · ♥ 86 · attacco 6 · difesa 1 · velocità 2 · xp 2
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Sassata | un colpo pesante su uno solo | ×1.30 → 8 | sempre | sorteggio | — |
-| Si copre la testa | alza la guardia | — | sotto il 35% di vita | priorità 5 | 3 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Sassata | un colpo pesante su uno solo | ×1.30 → 8 | sempre | sorteggio | — |
+| 2 | Si copre la testa | alza la guardia | — | sotto il 35% di vita | priorità 5 | 3 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -97,10 +106,16 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `slime_infimo` · ♥ 86 · attacco 6 · difesa 1 · velocità 2 · xp 2
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Bava appiccicosa | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 4 battute |
-| Si ricompone | **si rimette in piedi** (+30% della vita massima) | — | sotto il 40% di vita | priorità 6 | 4 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Bava appiccicosa | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 4 battute |
+| 2 | Si ricompone | **si rimette in piedi** (+30% della vita massima) | — | sotto il 40% di vita | priorità 6 | 4 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -126,10 +141,16 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `tartaruga_innocente` · ♥ 555 · attacco 0 · difesa 6 · velocità 2 · xp 2
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Si ritira nel guscio | alza la guardia | — | sempre | sorteggio | — |
-| Dentro il guscio | **si rimette in piedi** (+15% della vita massima) | — | sotto il 50% di vita | priorità 6 | 4 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Si ritira nel guscio | alza la guardia | — | sempre | sorteggio | — |
+| 2 | Dentro il guscio | **si rimette in piedi** (+15% della vita massima) | — | sotto il 50% di vita | priorità 6 | 4 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -155,9 +176,16 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `infetto_rapido` · ♥ 94 · attacco 7 · difesa 0 · velocità 6 · xp 6
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Raffica di unghiate | 2 colpi su bersagli a caso | ×0.60 → 4 a colpo (8 totali) | sempre | sorteggio | — |
+**Mosse: 1 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Raffica di unghiate | 2 colpi su bersagli a caso | ×0.60 → 4 a colpo (8 totali) | sempre | sorteggio | — |
+| 2 | — | *casella libera* | — | — | — | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -183,10 +211,16 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `nuvola_di_marciume` · ♥ 94 · attacco 7 · difesa 0 · velocità 6 · xp 6 · elemento veleno
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Capita addosso | colpisce **tutta la squadra** | ×0.55 → 4 | sempre | sorteggio | — |
-| Spore | nessun danno: lascia addosso **Veleno** | — | sempre | sorteggio | 3 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Capita addosso | colpisce **tutta la squadra** | ×0.55 → 4 | sempre | sorteggio | — |
+| 2 | Spore | nessun danno: lascia addosso **Veleno** | — | sempre | sorteggio | 3 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -212,10 +246,16 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `zombie_cittadino` · ♥ 125 · attacco 8 · difesa 2 · velocità 2 · xp 5
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Passo pesante | un colpo pesante su uno solo | ×1.20 → 10 | sempre | sorteggio | — |
-| In mezzo agli altri | si chiude (difesa +2 per 3 battute) | — | con almeno 1 alleati in piedi | sorteggio | 4 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Passo pesante | un colpo pesante su uno solo | ×1.20 → 10 | sempre | sorteggio | — |
+| 2 | In mezzo agli altri | si chiude (difesa +2 per 3 battute) | — | con almeno 1 alleati in piedi | sorteggio | 4 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -241,17 +281,42 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `manifestazione_di_un_sogno` · ♥ 439 · attacco 14 · difesa 5 · velocità 4 · xp 41 · elemento psico
 
-Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
+Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro scriptato).
+
+**Tecno log**
+
+| Campo | Rilevamento |
+| --- | --- |
+| Denominazione | Manifestazione di un sogno |
+| Classificazione | forma somnii |
+| Filogenesi | onirica |
+| Areale | Il pianeta del risveglio |
+| Fenotipo | artefatto |
+| Stadio | III |
+| Morfologia | Non ha una struttura stabile: i bordi si spostano se la si guarda troppo a lungo. Le misure prese in due momenti diversi non coincidono. |
+| Fisiologia | Nessun metabolismo rilevabile. Non ha temperatura, non consuma, non si stanca. Il danno la attraversa senza lasciare traccia finche' qualcosa, altrove, continua a sognarla. |
+| Habitus | Sta ferma al centro del campo e non cerca posizione: e' il campo a disporsi intorno a lei. |
+| Etologia | Non risponde agli stimoli come una creatura: risponde come una scena. Esegue una sequenza, e la sequenza non cambia se la si interrompe. |
+| Metamorfosi | non osservata |
+| Ecologia | Non appartiene a questo ecosistema e non lo tocca. E' presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora facendo. |
+
+*Studi necessari per la pagina intera: 3.*
 
 ### Fomentado — livello 3, comune
 *Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.*
 
 `maschera_vuota` · ♥ 164 · attacco 10 · difesa 3 · velocità 3 · xp 9 · elemento fuoco
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Vampata | un colpo pesante su uno solo | ×1.40 → 14 | sempre | sorteggio | — |
-| Ultima fiammata | un colpo pesante su uno solo | ×2.30 → 23 | sotto il 30% di vita | priorità 7 | — |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Vampata | un colpo pesante su uno solo | ×1.40 → 14 | sempre | sorteggio | — |
+| 2 | Ultima fiammata | un colpo pesante su uno solo | ×2.30 → 23 | sotto il 30% di vita | priorità 7 | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -277,9 +342,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `zombie_mostruoso` · ♥ 164 · attacco 10 · difesa 3 · velocità 3 · xp 9
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Braccio lungo | un colpo pesante su uno solo | ×1.50 → 15 | sempre | sorteggio | — |
+**Mosse: 1 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Braccio lungo | un colpo pesante su uno solo | ×1.50 → 15 | sempre | sorteggio | — |
+| 2 | — | *casella libera* | — | — | — | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -305,10 +377,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `comparsa_di_ruggine` · ♥ 277 · attacco 10 · difesa 13 · velocità 3 · xp 16
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Si irrigidisce | si chiude (difesa +3 per 3 battute) | — | sempre | sorteggio | 3 battute |
-| Colpo di ruggine | colpisce e **apre la guardia** | ×1.00 → 10 | sempre | sorteggio | — |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Si irrigidisce | si chiude (difesa +3 per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 2 | Colpo di ruggine | colpisce e **apre la guardia** | ×1.00 → 10 | sempre | sorteggio | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -334,11 +412,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `giocoliere` · ♥ 340 · attacco 15 · difesa 7 · velocità 5 · xp 29 · elemento fuoco
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Torce in aria | 2 colpi su bersagli a caso | ×0.75 → 11 a colpo (22 totali) | sempre | sorteggio | — |
-| Numero col fuoco | un colpo pesante su uno solo | ×1.60 → 24 | sempre | sorteggio | — |
-| Gran finale | colpisce **tutta la squadra** | ×1.10 → 17 | sotto il 35% di vita | priorità 7 | — |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Torce in aria | 2 colpi su bersagli a caso | ×0.75 → 11 a colpo (22 totali) | sempre | sorteggio | — |
+| 2 | Numero col fuoco | un colpo pesante su uno solo | ×1.60 → 24 | sempre | sorteggio | — |
+| 3 | Gran finale | colpisce **tutta la squadra** | ×1.10 → 17 | sotto il 35% di vita | priorità 7 | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -364,11 +447,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `robo_pattuglia` · ♥ 277 · attacco 10 · difesa 13 · velocità 3 · xp 16 · elemento elettrico
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Scarica di avvertimento | un colpo pesante su uno solo | ×1.25 → 13 | sempre | sorteggio | — |
-| Protocollo di contenimento | si chiude (difesa +3 per 3 battute) | — | sempre | sorteggio | 3 battute |
-| Riparazione d'emergenza | **si rimette in piedi** (+22% della vita massima) | — | sotto il 35% di vita | priorità 8 | 5 battute |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Scarica di avvertimento | un colpo pesante su uno solo | ×1.25 → 13 | sempre | sorteggio | — |
+| 2 | Protocollo di contenimento | si chiude (difesa +3 per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 3 | Riparazione d'emergenza | **si rimette in piedi** (+22% della vita massima) | — | sotto il 35% di vita | priorità 8 | 5 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -394,10 +482,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `voce_registrata` · ♥ 207 · attacco 13 · difesa 5 · velocità 4 · xp 13
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Richiamo disciplinare | un colpo pesante su uno solo | ×1.35 → 18 | sempre | sorteggio | — |
-| Ordine urlato | nessun danno: lascia addosso **Demotivazione** | — | sempre | sorteggio | 4 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Richiamo disciplinare | un colpo pesante su uno solo | ×1.35 → 18 | sempre | sorteggio | — |
+| 2 | Ordine urlato | nessun danno: lascia addosso **Demotivazione** | — | sempre | sorteggio | 4 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -423,10 +517,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `operaio_posseduto` · ♥ 245 · attacco 15 · difesa 6 · velocità 5 · xp 18
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Chiave inglese | un colpo pesante su uno solo | ×1.45 → 22 | sempre | sorteggio | — |
-| Straordinario non pagato | si potenzia l'attacco (+3 per 3 battute) | — | sotto il 50% di vita | priorità 4 | 5 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Chiave inglese | un colpo pesante su uno solo | ×1.45 → 22 | sempre | sorteggio | — |
+| 2 | Straordinario non pagato | si potenzia l'attacco (+3 per 3 battute) | — | sotto il 50% di vita | priorità 4 | 5 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -452,10 +552,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `operaio_sfruttato` · ♥ 404 · attacco 18 · difesa 8 · velocità 5 · xp 39
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Difende le sue ore | si chiude (difesa +2 per 3 battute) | — | sempre | sorteggio | 3 battute |
-| Esplosione di rabbia | un colpo pesante su uno solo | ×2.00 → 36 | sotto il 40% di vita | priorità 6 | 4 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Difende le sue ore | si chiude (difesa +2 per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 2 | Esplosione di rabbia | un colpo pesante su uno solo | ×2.00 → 36 | sotto il 40% di vita | priorità 6 | 4 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -481,11 +587,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `orrore_di_meridia` · ♥ 404 · attacco 18 · difesa 8 · velocità 5 · xp 39
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Bracciata | un colpo pesante su uno solo | ×1.40 → 25 | sempre | sorteggio | — |
-| Morsi | 2 colpi su bersagli a caso | ×0.60 → 11 a colpo (22 totali) | sempre | sorteggio | — |
-| Si ricompone | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Bracciata | un colpo pesante su uno solo | ×1.40 → 25 | sempre | sorteggio | — |
+| 2 | Morsi | 2 colpi su bersagli a caso | ×0.60 → 11 a colpo (22 totali) | sempre | sorteggio | — |
+| 3 | Si ricompone | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -511,7 +622,26 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `veronica` · ♥ 600 · attacco 18 · difesa 6 · velocità 6 · xp 0
 
-Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
+Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro scriptato).
+
+**Tecno log**
+
+| Campo | Rilevamento |
+| --- | --- |
+| Denominazione | Veronica |
+| Classificazione | nessuna — soggetto umano |
+| Filogenesi | umana |
+| Areale | Il pianeta del risveglio |
+| Fenotipo | integro |
+| Stadio | I |
+| Morfologia | Nessuna alterazione. E' una persona. |
+| Fisiologia | Nella norma per la sua eta' e il suo mestiere, con una soglia del dolore che gli operatori descrivono come 'non spiegabile con l'allenamento'. |
+| Habitus | Sta dritta e vicino. Troppo vicino. |
+| Etologia | Colpisce per insegnare, e non sa dosare. Osservata mentre chiedeva scusa e continuava. |
+| Metamorfosi | non osservata |
+| Ecologia | Non e' una creatura del Vuoto: e' quello che c'era prima del Vuoto. |
+
+*Studi necessari per la pagina intera: 3.*
 
 ## Livelli 6-10 — il mestiere
 
@@ -520,10 +650,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `divoratore` · ♥ 468 · attacco 21 · difesa 10 · velocità 6 · xp 48
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Morso che divora | colpisce e **si nutre** (il 60% del danno torna a lei) | ×1.30 → 27 | sempre | sorteggio | — |
-| Aspirazione | colpisce **tutta la squadra** | ×0.75 → 16 | sempre | sorteggio | — |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Morso che divora | colpisce e **si nutre** (il 60% del danno torna a lei) | ×1.30 → 27 | sempre | sorteggio | — |
+| 2 | Aspirazione | colpisce **tutta la squadra** | ×0.75 → 16 | sempre | sorteggio | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -549,11 +685,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `ferraglia_urlante` · ♥ 381 · attacco 14 · difesa 18 · velocità 4 · xp 26
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Valanga di rottami | colpisce **tutta la squadra** | ×0.85 → 12 | sempre | sorteggio | — |
-| Urlo di lamiera | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
-| Si ricompatta | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 6 battute |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Valanga di rottami | colpisce **tutta la squadra** | ×0.85 → 12 | sempre | sorteggio | — |
+| 2 | Urlo di lamiera | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
+| 3 | Si ricompatta | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 6 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -579,13 +720,16 @@ Nessuna mossa: il suo turno lo detta un copione (tutorial o incontro scriptato).
 
 `goblin_arrabbiato` · ♥ 1125 · attacco 25 · difesa 14 · velocità 6 · xp 152
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Richiamo dei suoi simili | chiama 1 × `goblin_tipico` | — | sempre | sorteggio | — |
-| Furia di un goblin | un colpo pesante su uno solo | ×1.30 → 33 | sempre | sorteggio | — |
-| Pugno del vile | un colpo pesante su uno solo | ×1.20 → 30 | sempre | sorteggio | — |
-| Capriccio del goblin | si potenzia l'attacco (+9 per 3 battute) | — | sempre | sorteggio | — |
-| Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 13 a colpo (39 totali) | sempre | sorteggio | — |
+**Mosse: 5 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Richiamo dei suoi simili | chiama 1 × `goblin_tipico` | — | sempre | sorteggio | — |
+| 2 | Furia di un goblin | un colpo pesante su uno solo | ×1.30 → 33 | sempre | sorteggio | — |
+| 3 | Pugno del vile | un colpo pesante su uno solo | ×1.20 → 30 | sempre | sorteggio | — |
+| 4 | Capriccio del goblin | si potenzia l'attacco (+9 per 3 battute) | — | sempre | sorteggio | — |
+| 5 | Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 13 a colpo (39 totali) | sempre | sorteggio | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -613,10 +757,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `ghoul` · ♥ 366 · attacco 23 · difesa 10 · velocità 6 · xp 30
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Morso famelico | colpisce e **si nutre** (il 50% del danno torna a lei) | ×1.20 → 28 | sempre | sorteggio | — |
-| Artigliata | un colpo pesante su uno solo | ×1.45 → 33 | sempre | sorteggio | — |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Morso famelico | colpisce e **si nutre** (il 50% del danno torna a lei) | ×1.20 → 28 | sempre | sorteggio | — |
+| 2 | Artigliata | un colpo pesante su uno solo | ×1.45 → 33 | sempre | sorteggio | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -642,9 +792,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `l_immortale` · ♥ 120 · attacco 5 · difesa 0 · velocità 7 · xp 67 · elemento oscuro
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Non si ferma | un colpo pesante su uno solo | ×1.00 → 5 | sempre | sorteggio | — |
+**Mosse: 1 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Non si ferma | un colpo pesante su uno solo | ×1.00 → 5 | sempre | sorteggio | — |
+| 2 | — | *casella libera* | — | — | — | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -670,10 +827,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `madre_in_lacrime` · ♥ 366 · attacco 23 · difesa 10 · velocità 6 · xp 30
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Lacrime di ossidiana | colpisce **tutta la squadra** | ×0.70 → 16 | sempre | sorteggio | — |
-| Non avvicinarti | un colpo pesante su uno solo | ×1.50 → 35 | sempre | sorteggio | — |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Lacrime di ossidiana | colpisce **tutta la squadra** | ×0.70 → 16 | sempre | sorteggio | — |
+| 2 | Non avvicinarti | un colpo pesante su uno solo | ×1.50 → 35 | sempre | sorteggio | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -699,10 +862,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `teschio_errante` · ♥ 366 · attacco 23 · difesa 10 · velocità 6 · xp 30
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Carica a scatti | 2 colpi su bersagli a caso | ×0.65 → 15 a colpo (30 totali) | sempre | sorteggio | — |
-| Sguardo vuoto | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Carica a scatti | 2 colpi su bersagli a caso | ×0.65 → 15 a colpo (30 totali) | sempre | sorteggio | — |
+| 2 | Sguardo vuoto | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -728,10 +897,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `diabolo` · ♥ 405 · attacco 26 · difesa 11 · velocità 7 · xp 35
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Forconata | 2 colpi su bersagli a caso | ×0.70 → 18 a colpo (36 totali) | sempre | sorteggio | — |
-| Sberleffo | nessun danno: lascia addosso **Confusione** | — | sempre | sorteggio | 5 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Forconata | 2 colpi su bersagli a caso | ×0.70 → 18 a colpo (36 totali) | sempre | sorteggio | — |
+| 2 | Sberleffo | nessun danno: lascia addosso **Confusione** | — | sempre | sorteggio | 5 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -757,10 +932,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `sadico` · ♥ 405 · attacco 26 · difesa 11 · velocità 7 · xp 35
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Taglio lento | un colpo pesante su uno solo | ×1.20 → 31 | sempre | sorteggio | — |
-| Infierisce | un colpo pesante su uno solo | ×1.90 → 49 | se qualcuno di voi è sotto il 40% | priorità 7 | 2 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Taglio lento | un colpo pesante su uno solo | ×1.20 → 31 | sempre | sorteggio | — |
+| 2 | Infierisce | un colpo pesante su uno solo | ×1.90 → 49 | se qualcuno di voi è sotto il 40% | priorità 7 | 2 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -786,10 +967,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `stigma` · ♥ 405 · attacco 26 · difesa 11 · velocità 7 · xp 35
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Colpa altrui | un colpo pesante su uno solo | ×1.45 → 38 | sempre | sorteggio | — |
-| Marchio | nessun danno: lascia addosso **Veleno** | — | sempre | sorteggio | 4 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Colpa altrui | un colpo pesante su uno solo | ×1.45 → 38 | sempre | sorteggio | — |
+| 2 | Marchio | nessun danno: lascia addosso **Veleno** | — | sempre | sorteggio | 4 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -815,11 +1002,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `abominio_marcio` · ♥ 737 · attacco 34 · difesa 18 · velocità 9 · xp 86 · elemento veleno
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Sputo marcio | un colpo pesante su uno solo | ×1.30 → 44 | sempre | sorteggio | — |
-| Abbraccio di carne | colpisce e **si nutre** (il 50% del danno torna a lei) | ×1.40 → 48 | sempre | sorteggio | — |
-| Si ricuce | **si rimette in piedi** (+25% della vita massima) | — | sotto il 35% di vita | priorità 8 | 5 battute |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Sputo marcio | un colpo pesante su uno solo | ×1.30 → 44 | sempre | sorteggio | — |
+| 2 | Abbraccio di carne | colpisce e **si nutre** (il 50% del danno torna a lei) | ×1.40 → 48 | sempre | sorteggio | — |
+| 3 | Si ricuce | **si rimette in piedi** (+25% della vita massima) | — | sotto il 35% di vita | priorità 8 | 5 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -845,10 +1037,16 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 `titano_zombie` · ♥ 737 · attacco 34 · difesa 18 · velocità 9 · xp 86
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Pugno devastante | toglie **metà** della vita che ti resta | come il suo colpo normale | sempre | sorteggio | — |
-| Spazzata | colpisce **tutta la squadra** | ×0.70 → 24 | sempre | sorteggio | — |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Pugno devastante | toglie **metà** della vita che ti resta | come il suo colpo normale | sempre | sorteggio | — |
+| 2 | Spazzata | colpisce **tutta la squadra** | ×0.70 → 24 | sempre | sorteggio | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -878,10 +1076,16 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
 `divoratore_di_carcasse` · ♥ 486 · attacco 32 · difesa 14 · velocità 9 · xp 43 · elemento veleno
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Morso multiplo | 2 colpi su bersagli a caso | ×0.55 → 18 a colpo (36 totali) | sempre | sorteggio | — |
-| Si ingozza | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Morso multiplo | 2 colpi su bersagli a caso | ×0.55 → 18 a colpo (36 totali) | sempre | sorteggio | — |
+| 2 | Si ingozza | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -907,14 +1111,16 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
 `sacerdote_folle` · ♥ 486 · attacco 32 · difesa 14 · velocità 9 · xp 43 · elemento oscuro
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Litania: «Per il viaggio!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
-| Litania: «Unisciti al raccolto!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
-| Litania: «Portatelo da me!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
-| Litania: «Non c'è altra strada!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
-| Richiamo dei teschi | chiama 1 × `teschio_errante` | — | sempre | sorteggio | — |
-| Litania che rimargina | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
+**Mosse: 6 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Litania: «Per il viaggio!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| 2 | Litania: «Unisciti al raccolto!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| 3 | Litania: «Portatelo da me!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| 4 | Litania: «Non c'è altra strada!» | un colpo pesante su uno solo | ×1.20 → 38 | sempre | sorteggio | — |
+| 5 | Richiamo dei teschi | chiama 1 × `teschio_errante` | — | sempre | sorteggio | — |
+| 6 | Litania che rimargina | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
 
 **Tecno log**
 
@@ -940,14 +1146,16 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
 `jongo_dongo` · ♥ 1857 · attacco 48 · difesa 30 · velocità 10 · xp 329 · elemento veleno
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Colpo marcio | un colpo pesante su uno solo | ×1.40 → 67 | sempre | sorteggio | — |
-| Bastone di pietra marcia | un colpo pesante su uno solo | ×1.15 → 55 | sempre | sorteggio | — |
-| Grido del raccolto | colpisce **tutta la squadra** | ×0.70 → 34 | sempre | sorteggio | — |
-| Un piccolo sacrificio | uccide un suo alleato per farsi più forte | — | sempre | sorteggio | — |
-| Raccolto di carne | chiama 1 × `ghoul` | — | sempre | sorteggio | — |
-| Maledizione di chi muore | colpisce **tutta la squadra** | ×1.00 → 48 | sotto il 25% di vita | priorità 7 | — |
+**Mosse: 6 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Colpo marcio | un colpo pesante su uno solo | ×1.40 → 67 | sempre | sorteggio | — |
+| 2 | Bastone di pietra marcia | un colpo pesante su uno solo | ×1.15 → 55 | sempre | sorteggio | — |
+| 3 | Grido del raccolto | colpisce **tutta la squadra** | ×0.70 → 34 | sempre | sorteggio | — |
+| 4 | Un piccolo sacrificio | uccide un suo alleato per farsi più forte | — | sempre | sorteggio | — |
+| 5 | Raccolto di carne | chiama 1 × `ghoul` | — | sempre | sorteggio | — |
+| 6 | Maledizione di chi muore | colpisce **tutta la squadra** | ×1.00 → 48 | sotto il 25% di vita | priorità 7 | — |
 
 Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -975,10 +1183,16 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 `donna_spinosa` · ♥ 568 · attacco 38 · difesa 17 · velocità 10 · xp 51 · elemento veleno
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Spine sottili | un colpo pesante su uno solo | ×1.20 → 46 | sempre | sorteggio | — |
-| Spine a tappeto | colpisce **tutta la squadra** | ×0.75 → 29 | sempre | sorteggio | — |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Spine sottili | un colpo pesante su uno solo | ×1.20 → 46 | sempre | sorteggio | — |
+| 2 | Spine a tappeto | colpisce **tutta la squadra** | ×0.75 → 29 | sempre | sorteggio | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -1004,11 +1218,16 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 `marionetta` · ♥ 568 · attacco 38 · difesa 17 · velocità 10 · xp 51 · elemento oscuro
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Colpo di legno | un colpo pesante su uno solo | ×1.45 → 55 | sempre | sorteggio | — |
-| Fili che stringono | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 4 battute |
-| Si rimette i fili | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 6 battute |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Colpo di legno | un colpo pesante su uno solo | ×1.45 → 55 | sempre | sorteggio | — |
+| 2 | Fili che stringono | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 4 battute |
+| 3 | Si rimette i fili | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 6 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -1034,11 +1253,16 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 `jongo_dongo_risorto` · ♥ 2147 · attacco 56 · difesa 36 · velocità 12 · xp 384 · elemento veleno
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Mano marcia | un colpo pesante su uno solo | ×1.50 → 84 | sempre | sorteggio | — |
-| Respiro di putredine | colpisce **tutta la squadra** | ×0.90 → 50 | sempre | sorteggio | — |
-| Volonta' misteriosa | **si rimette in piedi** (+18% della vita massima) | — | sotto il 30% di vita | priorità 8 | 6 battute |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Mano marcia | un colpo pesante su uno solo | ×1.50 → 84 | sempre | sorteggio | — |
+| 2 | Respiro di putredine | colpisce **tutta la squadra** | ×0.90 → 50 | sempre | sorteggio | — |
+| 3 | Volonta' misteriosa | **si rimette in piedi** (+18% della vita massima) | — | sotto il 30% di vita | priorità 8 | 6 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -1064,10 +1288,16 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 `ombra_del_passato` · ♥ 607 · attacco 41 · difesa 18 · velocità 10 · xp 55 · elemento oscuro
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Rinfaccia | un colpo pesante su uno solo | ×1.50 → 62 | sempre | sorteggio | — |
-| Si nutre del rancore | colpisce e **si nutre** (il 60% del danno torna a lei) | ×1.20 → 49 | sotto il 50% di vita | priorità 5 | 3 battute |
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Rinfaccia | un colpo pesante su uno solo | ×1.50 → 62 | sempre | sorteggio | — |
+| 2 | Si nutre del rancore | colpisce e **si nutre** (il 60% del danno torna a lei) | ×1.20 → 49 | sotto il 50% di vita | priorità 5 | 3 battute |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -1093,13 +1323,16 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 `tenero_ricordo` · ♥ 6660 · attacco 27 · difesa 12 · velocità 13 · xp 411 · elemento oscuro
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Spilli | un colpo pesante su uno solo | ×1.30 → 35 | sempre | sorteggio | — |
-| Lamento | colpisce **tutta la squadra** | ×0.70 → 19 | sempre | sorteggio | — |
-| Si strappa una cucitura | si ferisce da sola, e la cosa vi pesa addosso | **5 fisso** | sempre | sorteggio | — |
-| Richiamo delle marionette | chiama 1 × `marionetta` | — | sempre | sorteggio | — |
-| Si ricuce le cuciture | **si rimette in piedi** (+15% della vita massima) | — | sotto il 25% di vita | priorità 6 | 6 battute |
+**Mosse: 5 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Spilli | un colpo pesante su uno solo | ×1.30 → 35 | sempre | sorteggio | — |
+| 2 | Lamento | colpisce **tutta la squadra** | ×0.70 → 19 | sempre | sorteggio | — |
+| 3 | Si strappa una cucitura | si ferisce da sola, e la cosa vi pesa addosso | **5 fisso** | sempre | sorteggio | — |
+| 4 | Richiamo delle marionette | chiama 1 × `marionetta` | — | sempre | sorteggio | — |
+| 5 | Si ricuce le cuciture | **si rimette in piedi** (+15% della vita massima) | — | sotto il 25% di vita | priorità 6 | 6 battute |
+| 6 | — | *casella libera* | — | — | — | — |
 
 Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 
@@ -1127,11 +1360,16 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 
 `volto_sulla_parete` · ♥ 1733 · attacco 57 · difesa 32 · velocità 13 · xp 264 · elemento veleno
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| Radici che stringono | un colpo pesante su uno solo | ×1.30 → 74 | sempre | sorteggio | — |
-| Sfogo di spore | colpisce **tutta la squadra** | ×0.70 → 40 | sempre | sorteggio | — |
-| Assorbe dalla parete | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 8 | 5 battute |
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Radici che stringono | un colpo pesante su uno solo | ×1.30 → 74 | sempre | sorteggio | — |
+| 2 | Sfogo di spore | colpisce **tutta la squadra** | ×0.70 → 40 | sempre | sorteggio | — |
+| 3 | Assorbe dalla parete | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 8 | 5 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 
@@ -1159,13 +1397,16 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 
 `jerah` · ♥ 2710 · attacco 74 · difesa 46 · velocità 14 · xp 488 · elemento fuoco
 
-| Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
-| --- | --- | --- | --- | --- | --- |
-| ¡Gran finale! | colpisce **tutta la squadra** | ×0.85 → 63 | sempre | sorteggio | — |
-| ¡Vamos! | ti dà fuoco (9 a battuta) | — | sempre | sorteggio | — |
-| Capote | si chiude (difesa +14 per 2 battute) | — | sempre | sorteggio | — |
-| Llamada | chiama 1 × `maschera_vuota` | — | sempre | sorteggio | — |
-| Fiamma disperata | colpisce **tutta la squadra** | ×1.30 → 96 | sotto il 30% di vita | priorità 7 | 4 battute |
+**Mosse: 5 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | ¡Gran finale! | colpisce **tutta la squadra** | ×0.85 → 63 | sempre | sorteggio | — |
+| 2 | ¡Vamos! | ti dà fuoco (9 a battuta) | — | sempre | sorteggio | — |
+| 3 | Capote | si chiude (difesa +14 per 2 battute) | — | sempre | sorteggio | — |
+| 4 | Llamada | chiama 1 × `maschera_vuota` | — | sempre | sorteggio | — |
+| 5 | Fiamma disperata | colpisce **tutta la squadra** | ×1.30 → 96 | sotto il 30% di vita | priorità 7 | 4 battute |
+| 6 | — | *casella libera* | — | — | — | — |
 
 **Tecno log**
 

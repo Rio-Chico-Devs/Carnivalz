@@ -960,6 +960,11 @@ attacchi che li curano li attivano».
   nessuna: tiravano il loro colpo normale finché uno dei due cadeva. Una creatura senza mosse
   non è un nemico facile, è un nemico che non c'è — e nessuna prova poteva accorgersene, perché
   il motore funzionava benissimo: era il bestiario a essere vuoto
+- **Sei caselle per tutte**, anche a chi ne servono tre. Bru: «voglio vedere nel file 6 mosse di
+  cui 3 tutte `-`, non perché sia una mossa ma per ordine mentale mio, così decido quante ne ha
+  ognuno alla fine». Una casella libera si riconosce dal tipo (`-`) e **non è una mossa debole:
+  non esiste** — `mossa_disponibile()` la scarta prima di guardare qualunque altra cosa, se no
+  con tre libere su sei una creatura passerebbe una battuta su due a fare niente
 - **Il valore di una mossa è una quota del suo attacco** (`quota: 1.4` = una volta e mezza scarsa
   il suo colpo normale), non un numero scritto. Un numero scritto resta fermo mentre la creatura
   viene tirata su dal disallineamento: le mosse dei boss valevano **un terzo** del loro stesso
