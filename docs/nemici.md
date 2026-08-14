@@ -124,13 +124,13 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `goblin_tipico` · ♥ 86 · attacco 6 · difesa 1 · velocità 2 · xp 2
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 3 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Bastonata | un colpo pesante su uno solo | ×1.30 → 8 | sempre | sorteggio | — |
 | 2 | Difesa Goblin! | alza la guardia | — | sotto il 35% di vita | priorità 5 | 2 battute |
-| 3 | — | *casella libera* | — | — | — | — |
+| 3 | Ultima risorsa | si potenzia (attacco +3, difesa +2, velocita +2, per 3 battute) | — | sotto il 35% di vita | priorità 6 | 1 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -139,6 +139,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 1. Il goblin stringe il bastone con tutte e due le mani e mena alla cieca.
 2. «Difesa Goblin!» — e si copre la testa con le braccia.
+3. Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.
 
 **Tecno log**
 
@@ -162,13 +163,13 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `slime_infimo` · ♥ 86 · attacco 6 · difesa 1 · velocità 2 · xp 2
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 3 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Bava appiccicosa | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 4 battute |
 | 2 | Si ricompone | **si rimette in piedi** (+20% della vita massima) | — | sotto il 40% di vita | priorità 6 | 4 battute |
-| 3 | — | *casella libera* | — | — | — | — |
+| 3 | Colpo dello slime | un colpo pesante su uno solo | ×1.30 → 8 | sempre | sorteggio | 2 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -177,6 +178,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 1. Lo slime si allunga e lascia una bava che rallenta ogni movimento.
 2. Lo slime si raccoglie su se stesso e torna tondo.
+3. Si raccoglie tutto da una parte e ti si getta contro.
 
 **Tecno log**
 
@@ -279,7 +281,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Capita addosso | colpisce **tutta la squadra** | ×0.55 → 4 | sempre | sorteggio | — |
+| 1 | Travolgere | colpisce **tutta la squadra** | ×0.55 → 4 | sempre | sorteggio | — |
 | 2 | Spore | nessun danno: lascia addosso **Veleno** | — | sempre | sorteggio | 3 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
@@ -288,7 +290,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Non insegue nessuno: si sposta, e vi trova.
+1. Scende tutta insieme e vi passa sopra.
 2. Respiri, e te ne accorgi dopo.
 
 **Tecno log**
@@ -313,13 +315,13 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `zombie_cittadino` · ♥ 125 · attacco 8 · difesa 2 · velocità 2 · xp 5
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 3 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Agitazione | un colpo pesante su uno solo | ×1.20 → 10 | sempre | sorteggio | — |
 | 2 | In mezzo agli altri | si chiude (difesa +2 per 3 battute) | — | con almeno 1 alleati in piedi | sorteggio | 4 battute |
-| 3 | — | *casella libera* | — | — | — | — |
+| 3 | Zombie style | **non fa niente**: è solo il suo motto | — | sempre | sorteggio | 3 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -328,6 +330,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 1. Si agita tutto insieme e ti viene addosso.
 2. Si infila fra i suoi, e i suoi si chiudono intorno.
+3. Si guarda intorno senza alcuno scopo...
 
 **Tecno log**
 
@@ -375,13 +378,13 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 `maschera_vuota` · ♥ 164 · attacco 10 · difesa 3 · velocità 3 · xp 9 · elemento fuoco
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 3 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Vampata | un colpo pesante su uno solo | ×1.40 → 14 | sempre | sorteggio | — |
 | 2 | Ultima fiammata | un colpo pesante su uno solo | ×2.30 → 23 | sotto il 30% di vita | priorità 7 | — |
-| 3 | — | *casella libera* | — | — | — | — |
+| 3 | Esibizionista | si potenzia (attacco +3, velocita +2, per 3 battute) | — | sempre | sorteggio | 1 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -389,7 +392,8 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. La maschera avvampa: per un istante ha di nuovo un volto.
-2. Non le resta molto da bruciare, e brucia tutto insieme.
+2. L'ultima fiammata se lo porta via insieme a te.
+3. Si sta... esibendo?
 
 **Tecno log**
 
@@ -413,20 +417,24 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 `zombie_mostruoso` · ♥ 164 · attacco 10 · difesa 3 · velocità 3 · xp 9
 
-**Mosse: 1 su 6 caselle.**
+**Mosse: 5 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Braccio lungo | un colpo pesante su uno solo | ×1.50 → 15 | sempre | sorteggio | — |
-| 2 | — | *casella libera* | — | — | — | — |
-| 3 | — | *casella libera* | — | — | — | — |
-| 4 | — | *casella libera* | — | — | — | — |
-| 5 | — | *casella libera* | — | — | — | — |
+| 1 | Falciata | un colpo pesante su uno solo | ×1.50 → 15 | sempre | sorteggio | — |
+| 2 | Tritatutto | colpisce **tutta la squadra** | ×1.10 → 11 | sempre | sorteggio | 2 battute |
+| 3 | Moan | si potenzia (attacco +5, velocita -1, per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 4 | Incitamento delle masse | **potenzia i suoi** (velocita +2, per 3 battute) | — | sotto il 50% di vita | sorteggio | 2 battute |
+| 5 | Catastrofe | 20 colpi su bersagli a caso | ×0.05 → 1 a colpo (20 totali) | sotto il 50% di vita | sorteggio | 4 battute |
 | 6 | — | *casella libera* | — | — | — | — |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Il braccio piu' lungo arriva da dove non te lo aspetti.
+1. Il braccio lungo arriva da dove non te lo aspetti, e passa su tutti e due.
+2. Fa girare le braccia lunghe come una macchina che nessuno ha spento.
+3. Un rantolo indefinito, che dura troppo.
+4. Ooooooouhh...
+5. Raccoglie mezzo isolato e lo tira addosso a tutti, un pezzo per volta.
 
 **Tecno log**
 
@@ -450,13 +458,13 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 `comparsa_di_ruggine` · ♥ 277 · attacco 10 · difesa 13 · velocità 3 · xp 16
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 3 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Vita di ruggine | alza la guardia | — | sempre | sorteggio | 3 battute |
 | 2 | Colpo di ruggine | colpisce e **apre la guardia** | ×1.00 → 10 | sempre | sorteggio | — |
-| 3 | — | *casella libera* | — | — | — | — |
+| 3 | Lamento | si potenzia l'attacco (+4 per 3 battute) | — | sempre | sorteggio | 2 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -465,6 +473,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 1. La ruggine si addensa e si stratifica addosso a quello che resta di lui.
 2. Un accumulo di ruggine materializzata ti arriva addosso.
+3. Bastaaaaaaaa!
 
 **Tecno log**
 
@@ -488,22 +497,25 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 `giocoliere` · ♥ 340 · attacco 15 · difesa 7 · velocità 5 · xp 29 · elemento fuoco
 
-**Mosse: 3 su 6 caselle.**
+**Mosse: 6 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Acrobazia folle | 2 colpi su bersagli a caso | ×0.75 → 11 a colpo (22 totali) | sempre | sorteggio | — |
-| 2 | Numero col fuoco | un colpo pesante su uno solo | ×1.60 → 24 | sempre | sorteggio | — |
+| 2 | Posa minacciosa | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 2 battute |
 | 3 | Gran finale | colpisce **tutta la squadra** | ×1.10 → 17 | sotto il 35% di vita | priorità 7 | — |
-| 4 | — | *casella libera* | — | — | — | — |
-| 5 | — | *casella libera* | — | — | — | — |
-| 6 | — | *casella libera* | — | — | — | — |
+| 4 | Vamos! | 25 colpi su bersagli a caso | ×0.04 → 1 a colpo (25 totali) | sotto il 50% di vita | sorteggio | 4 battute |
+| 5 | Flashy Punch | colpisce e **apre la guardia** | ×1.30 → 20 | sempre | sorteggio | 2 battute |
+| 6 | Flashy Kick | un colpo pesante su uno solo | ×1.15 → 17 | sempre | sorteggio | 2 battute |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. «Miren!» — e comincia a girare su se stesso con le torce accese.
-2. El Muy Bonito sorride al pubblico che non c'e', e sputa una lingua di fuoco.
+2. La sua presenza infiamma l'aria.
 3. «Se e' l'ultimo, che sia il migliore!»
+4. Vamos!
+5. Flaaashy... Punch!
+6. Flaaashy... Kick!
 
 **Tecno log**
 
@@ -602,15 +614,15 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 ### Emblema dell'oppressione — livello 5, comune
 *Sembra che un cumulo di oggetti venga tenuto insieme da una manifestazione che si nutre della rabbia conservata nel complesso.*
 
-`operaio_posseduto` · ♥ 245 · attacco 15 · difesa 6 · velocità 5 · xp 18
+`operaio_posseduto` · ♥ 290 · attacco 16 · difesa 5 · velocità 5 · xp 18
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 3 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Rabbia della macchina | 7 colpi su bersagli a caso | ×0.20 → 3 a colpo (21 totali) | sempre | sorteggio | — |
-| 2 | Straordinario non pagato | si potenzia l'attacco (+3 per 3 battute) | — | sotto il 50% di vita | priorità 4 | 5 battute |
-| 3 | — | *casella libera* | — | — | — | — |
+| 2 | A ritroso | **si rimette in piedi** (+20% della vita massima) | — | sotto il 50% di vita | priorità 4 | 5 battute |
+| 3 | Astio Infinito | **non smette** finché non cade: colpisce tutta la squadra a ogni loro battuta | come il suo colpo normale | sotto il 20% di vita | priorità 5 | 5 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -618,7 +630,8 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Sette colpi di ferraglia, uno dietro l'altro, senza mai fermarsi.
-2. Non ha finito. Non ha mai finito.
+2. Si ferma, e per un attimo la ferraglia si rimette a posto da sola.
+3. Un vento tagliente, colmo di malvagità, si alza e non cala più.
 
 **Tecno log**
 
@@ -642,13 +655,13 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 `operaio_sfruttato` · ♥ 404 · attacco 18 · difesa 8 · velocità 5 · xp 39
 
-**Mosse: 2 su 6 caselle.**
+**Mosse: 3 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Resisto ancora | alza la guardia | — | sempre | sorteggio | 3 battute |
-| 2 | Esplosione di rabbia | un colpo pesante su uno solo | ×2.00 → 36 | sotto il 40% di vita | priorità 6 | 4 battute |
-| 3 | — | *casella libera* | — | — | — | — |
+| 2 | Esplosione di rabbia | un colpo pesante su uno solo | da ×1.20 a **×2.60** (22 → **47**) più è ridotta male | sotto il 40% di vita | priorità 6 | 4 battute |
+| 3 | Rivoluzione | colpisce **tutta la squadra** | ×0.90 → 16 | sempre | sorteggio | 2 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
@@ -656,7 +669,8 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Tiene stretti i denti e non si sposta di un passo.
-2. Tutto quello che non ha mai detto esce insieme.
+2. Vent'anni tutti insieme, e non ne resta niente per dopo.
+3. Un colpo di vento concentrato in un urlo.
 
 **Tecno log**
 
@@ -680,22 +694,28 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 `orrore_di_meridia` · ♥ 404 · attacco 18 · difesa 8 · velocità 5 · xp 39
 
-**Mosse: 3 su 6 caselle.**
+**Mosse: 6 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Terremoto | colpisce **tutta la squadra** | ×1.40 → 25 | sempre | sorteggio | — |
 | 2 | Spazzata | colpisce **tutta la squadra** | ×0.60 → 11 | sempre | sorteggio | — |
-| 3 | Ancora qui | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
-| 4 | — | *casella libera* | — | — | — | — |
-| 5 | — | *casella libera* | — | — | — | — |
-| 6 | — | *casella libera* | — | — | — | — |
+| 3 | Si rimescola | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
+| 4 | Presenza colossale | **non fa niente**: è solo il suo motto | — | sempre | sorteggio | 3 battute |
+| 5 | Discesa colossale | **si annuncia una battuta prima**, poi colpisce **tutta la squadra** | **l'80% della vita che ti resta** | sotto il 15% di vita | priorità 8 | 2 battute |
+| 6 | Benedizione del colosso | **si rimette in piedi** (+50% della vita massima) | — | dopo essere rinata | priorità 9 | — |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Appoggia il peso da un lato, e il pavimento risponde.
 2. Un braccio solo, largo quanto la stanza, che passa sopra tutti.
 3. I corpi si rimescolano, e quello che mancava lo prendono da un altro.
+4. Si ferma. Guarda il cielo. Non ti sta pensando.
+5. Ricade a terra, e la terra non regge.
+6. Resta immobile, e quello che si era staccato torna al suo posto.
+
+**Non è una mossa: torna in piedi una volta sola.** Quando cade, si rialza con il **25%** della vita massima.
+Dalla seconda volta muore come chiunque. È lì che lo scontro cambia faccia.
 
 **Tecno log**
 
@@ -917,6 +937,9 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
+
+**Non muore mai.** Abbatterlo non serve: si rialza sempre, e da questo scontro
+si esce in un altro modo.
 
 **Tecno log**
 
@@ -1173,7 +1196,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Pugno devastante | toglie **metà** della vita che ti resta | come il suo colpo normale | sempre | sorteggio | — |
+| 1 | Pugno devastante | **si annuncia una battuta prima**, poi toglie **metà** della vita che ti resta | come il suo colpo normale | sempre | sorteggio | — |
 | 2 | Spazzata | colpisce **tutta la squadra** | ×0.70 → 24 | sempre | sorteggio | — |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
@@ -1295,7 +1318,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Colpo marcio | un colpo pesante su uno solo | ×1.40 → 67 | sempre | sorteggio | — |
+| 1 | Colpo marcio | **si annuncia una battuta prima**, poi un colpo pesante su uno solo | ×1.40 → 67 | sempre | sorteggio | — |
 | 2 | Bastone di pietra marcia | un colpo pesante su uno solo | ×1.15 → 55 | sempre | sorteggio | — |
 | 3 | Grido del raccolto | colpisce **tutta la squadra** | ×0.70 → 34 | sempre | sorteggio | — |
 | 4 | Un piccolo sacrificio | uccide un suo alleato per farsi più forte | — | sempre | sorteggio | — |
@@ -1618,11 +1641,13 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 
 1. Il goblin stringe il bastone con tutte e due le mani e mena alla cieca.
 2. «Difesa Goblin!» — e si copre la testa con le braccia.
+3. Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.
 
 **Slime Infimo**
 
 1. Lo slime si allunga e lascia una bava che rallenta ogni movimento.
 2. Lo slime si raccoglie su se stesso e torna tondo.
+3. Si raccoglie tutto da una parte e ti si getta contro.
 
 **Tartaruga Innocente**
 
@@ -1635,33 +1660,43 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 
 **Nuvola di Marciume**
 
-1. Non insegue nessuno: si sposta, e vi trova.
+1. Scende tutta insieme e vi passa sopra.
 2. Respiri, e te ne accorgi dopo.
 
 **Zombie Cittadino**
 
 1. Si agita tutto insieme e ti viene addosso.
 2. Si infila fra i suoi, e i suoi si chiudono intorno.
+3. Si guarda intorno senza alcuno scopo...
 
 **Fomentado**
 
 1. La maschera avvampa: per un istante ha di nuovo un volto.
-2. Non le resta molto da bruciare, e brucia tutto insieme.
+2. L'ultima fiammata se lo porta via insieme a te.
+3. Si sta... esibendo?
 
 **Zombie Mostruoso**
 
-1. Il braccio piu' lungo arriva da dove non te lo aspetti.
+1. Il braccio lungo arriva da dove non te lo aspetti, e passa su tutti e due.
+2. Fa girare le braccia lunghe come una macchina che nessuno ha spento.
+3. Un rantolo indefinito, che dura troppo.
+4. Ooooooouhh...
+5. Raccoglie mezzo isolato e lo tira addosso a tutti, un pezzo per volta.
 
 **Oppresso**
 
 1. La ruggine si addensa e si stratifica addosso a quello che resta di lui.
 2. Un accumulo di ruggine materializzata ti arriva addosso.
+3. Bastaaaaaaaa!
 
 **El Muy Bonito**
 
 1. «Miren!» — e comincia a girare su se stesso con le torce accese.
-2. El Muy Bonito sorride al pubblico che non c'e', e sputa una lingua di fuoco.
+2. La sua presenza infiamma l'aria.
 3. «Se e' l'ultimo, che sia il migliore!»
+4. Vamos!
+5. Flaaashy... Punch!
+6. Flaaashy... Kick!
 
 **Robo Pattuglia**
 
@@ -1677,18 +1712,23 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 **Emblema dell'oppressione**
 
 1. Sette colpi di ferraglia, uno dietro l'altro, senza mai fermarsi.
-2. Non ha finito. Non ha mai finito.
+2. Si ferma, e per un attimo la ferraglia si rimette a posto da sola.
+3. Un vento tagliente, colmo di malvagità, si alza e non cala più.
 
 **Operaio Sfruttato**
 
 1. Tiene stretti i denti e non si sposta di un passo.
-2. Tutto quello che non ha mai detto esce insieme.
+2. Vent'anni tutti insieme, e non ne resta niente per dopo.
+3. Un colpo di vento concentrato in un urlo.
 
 **Orrore di Meridia**
 
 1. Appoggia il peso da un lato, e il pavimento risponde.
 2. Un braccio solo, largo quanto la stanza, che passa sopra tutti.
 3. I corpi si rimescolano, e quello che mancava lo prendono da un altro.
+4. Si ferma. Guarda il cielo. Non ti sta pensando.
+5. Ricade a terra, e la terra non regge.
+6. Resta immobile, e quello che si era staccato torna al suo posto.
 
 **Il Divoratore**
 

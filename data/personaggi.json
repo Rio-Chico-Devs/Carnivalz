@@ -1741,9 +1741,9 @@
 			"mosse": [
 				{
 					"id": "braccio_lungo",
-					"nome": "Braccio lungo",
+					"nome": "Falciata",
 					"tipo": "attacco_forte",
-					"testo": "Il braccio piu' lungo arriva da dove non te lo aspetti.",
+					"testo": "Il braccio lungo arriva da dove non te lo aspetti, e passa su tutti e due.",
 					"quota": 1.5,
 					"peso": 2
 				},
@@ -1840,7 +1840,7 @@
 				},
 				{
 					"id": "si_ricompone_orrore",
-					"nome": "Ancora qui",
+					"nome": "Si rimescola",
 					"tipo": "cura",
 					"testo": "I corpi si rimescolano, e quello che mancava lo prendono da un altro.",
 					"quota_vita": 0.2,
@@ -1898,7 +1898,8 @@
 			],
 			"rinascita": {
 				"quota_vita": 0.25,
-				"testo": "[i]%s si rimescola, e si rialza.[/i]"
+				"testo": "[i]%s si rimescola, e si rialza.[/i]",
+				"nome": "Ancora qui"
 			}
 		},
 		{
@@ -2159,9 +2160,9 @@
 			"mosse": [
 				{
 					"id": "capita_addosso",
-					"nome": "Capita addosso",
+					"nome": "Travolgere",
 					"tipo": "attacco_tutti",
-					"testo": "Non insegue nessuno: si sposta, e vi trova.",
+					"testo": "Scende tutta insieme e vi passa sopra.",
 					"quota": 0.55,
 					"elemento": "veleno",
 					"peso": 2

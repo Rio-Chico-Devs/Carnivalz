@@ -22,7 +22,7 @@ const USCITA := "res://docs/nemici.md"
 
 # le mosse che non fanno danno: nella tabella al posto del numero va cosa fanno
 const SENZA_DANNO := ["difendi", "buff_attacco", "buff_difesa", "buff_fattore",
-		"evoca", "sacrificio", "cura", "stato", "incendia"]
+		"evoca", "sacrificio", "cura", "stato", "incendia", "potenziamento", "scena"]
 
 func _ready() -> void:
 	var righe: Array[String] = []
@@ -338,13 +338,28 @@ func scheda(id_creatura: String) -> Array[String]:
 		righe.append("| %d | %s | %s | %s | %s | %s | %s |" % [
 			casella,
 			String(mossa.get("nome", mossa.get("id", "?"))),
-			effetto_di(mossa),
+			("**si annuncia una battuta prima**, poi " if mossa.get("telegrafata", false)
+					else "") + effetto_di(mossa),
 			valore_di(id_creatura, mossa),
 			condizione_di(mossa),
 			("priorità %d" % int(mossa["priorita"])) if int(mossa.get("priorita", 0)) > 0 else "sorteggio",
 			("%d battute" % int(mossa["ricarica"])) if int(mossa.get("ricarica", 0)) > 0 else "—",
 		])
 	righe.append_array(frasi_in_campo(mosse))
+	# QUELLO CHE NON E' UNA MOSSA E CAMBIA LO SCONTRO LO STESSO. La rinascita non
+	# sta in una casella perche' non scatta in una battuta: scatta quando cade.
+	# Ma se non compare qui, l'unica cosa che davvero decide come finisce quello
+	# scontro non e' scritta da nessuna parte
+	if dati.has("rinascita"):
+		righe.append("")
+		righe.append("**Non è una mossa: torna in piedi una volta sola.** Quando cade, si rialza con il"
+				+ " **%d%%** della vita massima." % int(round(float(
+				Dictionary(dati["rinascita"]).get("quota_vita", 0.25)) * 100)))
+		righe.append("Dalla seconda volta muore come chiunque. È lì che lo scontro cambia faccia.")
+	if dati.get("invincibile", false):
+		righe.append("")
+		righe.append("**Non muore mai.** Abbatterlo non serve: si rialza sempre, e da questo scontro")
+		righe.append("si esce in un altro modo.")
 	for chiave in ["mossa_soglia_hp", "mossa_disperazione", "rigenerazione", "frenesia"]:
 		if dati.has(chiave):
 			righe.append("")
@@ -464,11 +479,37 @@ func effetto_di(mossa: Dictionary) -> String:
 		"rubavita": return "colpisce e **si nutre** (il %d%% del danno torna a lei)" % int(round(float(mossa.get("quota_furto", 0.5)) * 100))
 		"stato": return "nessun danno: lascia addosso **%s**" % String(
 				GameState.stati.get(String(mossa.get("stato", "")), {}).get("nome", mossa.get("stato", "?")))
+		"scena": return "**non fa niente**: è solo il suo motto"
+		"aura": return "**non smette** finché non cade: colpisce tutta la squadra a ogni loro battuta"
+		"potenziamento":
+			var pezzi: Array[String] = []
+			for stat in mossa.get("stat", {}):
+				var quanto := int(mossa["stat"][stat])
+				pezzi.append("%s %s%d" % [String(stat), "+" if quanto >= 0 else "", quanto])
+			var chi := "si potenzia"
+			match String(mossa.get("bersaglio", "se_stesso")):
+				"alleati": chi = "**potenzia i suoi**"
+				"tutti": chi = "**potenzia tutti i suoi, lei compresa**"
+			return "%s (%s, per %d battute)" % [chi, ", ".join(pezzi), int(mossa.get("turni", 3))]
 	return tipo
 
 func valore_di(id_creatura: String, mossa: Dictionary) -> String:
 	if String(mossa.get("tipo", "")) in SENZA_DANNO:
 		return "—"
+	if mossa.has("quota_vita_bersaglio"):
+		# non e' una frazione del suo attacco: e' una frazione di quello che TI
+		# resta. Scriverlo come gli altri direbbe una bugia grossa
+		var percento := int(round(float(mossa["quota_vita_bersaglio"]) * 100))
+		# "il 80%" no: in italiano davanti a otto e undici l'articolo si elide
+		var articolo := "l'" if percento in [8, 11, 18, 80, 81, 82, 83, 84, 85, 86, 87,
+				88, 89] else "il "
+		return "**%s%d%% della vita che ti resta**" % [articolo, percento]
+	if mossa.has("quota_a_terra"):
+		var attacco_rampa := stat_di(id_creatura, "attacco", 1)
+		return "da ×%.2f a **×%.2f** (%d → **%d**) più è ridotta male" % [
+				float(mossa.get("quota", 1.0)), float(mossa["quota_a_terra"]),
+				maxi(int(round(attacco_rampa * float(mossa.get("quota", 1.0)))), 1),
+				maxi(int(round(attacco_rampa * float(mossa["quota_a_terra"]))), 1)]
 	if mossa.has("valore"):
 		return "**%d fisso**" % int(mossa["valore"])
 	if mossa.has("quota"):
@@ -499,4 +540,12 @@ func condizione_di(mossa: Dictionary) -> String:
 		pezzi.append("dalla sua %da battuta" % int(quando["battuta_almeno"]))
 	if quando.has("senza_stato"):
 		pezzi.append("se non ha già %s" % String(quando["senza_stato"]))
+	if quando.has("dopo_rinascita"):
+		pezzi.append("dopo essere rinata" if bool(quando["dopo_rinascita"])
+				else "finché non è ancora rinata")
+	if pezzi.is_empty():
+		# UNA CONDIZIONE CHE IL DOCUMENTO NON SA LEGGERE lasciava la colonna
+		# vuota, e una colonna vuota si legge come "sempre": esattamente il
+		# contrario. Meglio dirlo
+		return "**condizione non descritta** (%s)" % ", ".join(quando.keys())
 	return ", ".join(pezzi)
