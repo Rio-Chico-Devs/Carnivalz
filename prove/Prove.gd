@@ -64,6 +64,7 @@ func _ready() -> void:
 	await prova_mattanza_svuota_la_barra()
 	prova_ogni_creatura_ha_un_set_di_mosse()
 	prova_le_creature_capiscono_come_stanno()
+	prova_nessuna_creatura_perde_la_battuta()
 	prova_il_drop_c_e_sempre()
 	prova_guardia_a_scatti()
 	prova_corazza_che_cresce()
@@ -2610,6 +2611,98 @@ func prova_le_creature_capiscono_come_stanno() -> void:
 		nemico.attacco = attacco_vero
 	scontro.free()
 	GameState.nuova_partita()
+
+func prova_nessuna_creatura_perde_la_battuta() -> void:
+	# Bru: "se si parla di ricarica della mossa e' ok - non puo' usare quella
+	# mossa per tre battute - ma se il nemico rimane fermo per tre battute non
+	# va bene".
+	#
+	# E' la prova piu' scomoda da scrivere e la piu' facile da rompere senza
+	# accorgersene, perche' una battuta buttata non da' nessun errore: la
+	# creatura "agisce", scrive una riga, e non succede niente. Il richiamo con
+	# il campo gia' pieno stampava "...ma nessuno risponde al richiamo"; la
+	# guardia gia' al massimo "e' gia' chiuso quanto puo'"; e da quando i
+	# potenziamenti si rinnovano invece di sommarsi, rifare un potenziamento
+	# ancora acceso non aggiunge piu' niente. Tre modi diversi di stare fermi
+	# raccontandolo bene.
+	#
+	# Qui ogni creatura del bestiario gioca otto battute di fila SENZA che le
+	# ricariche scalino - cioe' nella condizione peggiore, con tutto quello che
+	# ha gia' speso - e a ognuna deve succedere qualcosa.
+	titolo("nessuna creatura passa una battuta a fare niente")
+	var saltate := ["manifestazione_di_un_sogno", "veronica",  # copione
+			"tartaruga_innocente"]  # attacco 0: il suo mestiere e' non fare male
+	var guardate := 0
+	for id_creatura in GameState.personaggi:
+		var dati: Dictionary = GameState.personaggi[id_creatura]
+		if not dati.has("ruolo") or String(dati.get("ruolo", "")) == "oggetto_scena":
+			continue
+		if String(id_creatura) in saltate:
+			continue
+		GameState.nuova_partita()
+		GameState.legame = 0   # la crisi di gelosia e' un'inerzia voluta: qui darebbe falsi rossi
+		GameState.nemici_combattimento = [String(id_creatura)]
+		var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+		scontro.muto = true
+		scontro.limite_giri = 1
+		scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+		add_child(scontro)
+		var eroe: Dictionary = {}
+		var nemico: Dictionary = {}
+		for combattente in scontro.combattenti:
+			if combattente.giocatore and eroe.is_empty():
+				eroe = combattente
+			elif not combattente.giocatore and nemico.is_empty():
+				nemico = combattente
+		if eroe.is_empty() or nemico.is_empty():
+			esigi(false, "%s: lo scontro non si e' montato" % id_creatura)
+			scontro.free()
+			continue
+		guardate += 1
+		scontro.in_corso = true
+		eroe.hp_max = 5000000
+		eroe.hp = 5000000       # deve reggere otto battute di chiunque
+		nemico.hp_max = 5000000
+		nemico.hp = 5000000     # e non deve morire di autolesione a meta' prova
+		# IL COLPO NORMALE SI TOGLIE DAL SORTEGGIO. Con il suo peso normale una
+		# creatura tira spesso un pugno e basta, e un pugno non e' mai una
+		# battuta persa: la prova diventerebbe una questione di fortuna, e
+		# passerebbe anche col motore rotto. A peso zero esce sempre una MOSSA
+		# finche' ce n'e' una disponibile - e se non ce n'e', si vede il colpo
+		# normale di ripiego, che e' proprio la cosa che si vuole garantire
+		nemico.peso_attacco_normale = 0
+		var ferme := 0
+		for battuta in 24:
+			eroe.hp = eroe.hp_max   # sempre in piedi: qui si guarda solo il nemico
+			var prima := fotografia(scontro, eroe, nemico)
+			scontro.turno_nemico_normale(nemico)
+			if fotografia(scontro, eroe, nemico) == prima:
+				ferme += 1
+		esigi(ferme == 0,
+				"%s ha passato %d battute su 24 senza che succedesse niente: si e' fermata invece di tirare almeno un colpo"
+				% [id_creatura, ferme])
+		scontro.free()
+	esigi(guardate >= 30, "la prova ha guardato solo %d creature: il filtro si e' stretto" % guardate)
+	GameState.nuova_partita()
+
+func fotografia(scontro: Node, eroe: Dictionary, nemico: Dictionary) -> String:
+	# tutto quello che una mossa puo' cambiare, in una riga. Se dopo la battuta
+	# di una creatura questa riga e' identica a prima, quella battuta non e'
+	# servita a niente - e non c'e' nessun altro modo di accorgersene, perche'
+	# una mossa a vuoto scrive la sua frase esattamente come una che funziona
+	var stati_addosso := 0
+	var vivi_di_la := 0
+	for combattente in scontro.combattenti:
+		if combattente.giocatore:
+			stati_addosso += combattente.stati_attivi.size()
+		elif int(combattente.hp) > 0:
+			vivi_di_la += 1
+	return "%d/%d/%d/%d/%d/%d/%s/%s" % [
+		int(eroe.hp), int(nemico.hp), stati_addosso, vivi_di_la,
+		RegoleCombattimento.scatti_difesa(nemico), int(nemico.buffs.size()),
+		str(bool(eroe.get("in_fiamme", false))),
+		str(not Dictionary(nemico.get("mossa_in_carica", {})).is_empty()),
+	]
 
 func prova_il_drop_c_e_sempre() -> void:
 	# Bru: "il sistema di drop deve creare dipendenza, il drop deve sempre

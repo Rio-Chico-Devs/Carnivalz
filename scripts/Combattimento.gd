@@ -2222,13 +2222,21 @@ func apri_la_guardia(vittima: Dictionary, mossa: Dictionary) -> void:
 		scrivi("Difesa −%d, ora %d." % [perso, RegoleCombattimento.difesa_di(vittima)])
 
 func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
-	# Se una mossa non puo' fare quello che dice, non deve partire: meglio un
-	# colpo normale che una scena che smentisce sé stessa.
+	# UNA CREATURA NON SPRECA MAI LA SUA BATTUTA.
+	#
+	# Bru: "se si parla di ricarica della mossa e' ok - non puo' usare QUELLA
+	# mossa per tre battute - ma se il nemico rimane fermo per tre battute non
+	# va bene". Ed e' la stessa cosa detta due volte: una mossa che non puo'
+	# fare quello che dice non deve partire, perche' se parte quella e' una
+	# battuta buttata. Meglio un colpo normale che una scena che smentisce se'
+	# stessa - e meglio un colpo normale che niente.
 	#
 	# Un solo posto che lo decide, perche' i modi di arrivare a una mossa sono
-	# quattro (sorteggio pesato, soglia di vita, disperazione, mossa annunciata
-	# il turno prima) e finche' il controllo stava solo dentro il sorteggio gli
-	# altri tre lo scavalcavano.
+	# cinque (sorteggio pesato, giudizio, soglia di vita, disperazione, mossa
+	# annunciata la battuta prima) e finche' il controllo stava solo dentro il
+	# sorteggio gli altri quattro lo scavalcavano. Quello che qui torna false
+	# non toglie il turno alla creatura: la fa cadere sul suo colpo normale
+	# (vedi il fondo di turno_nemico_normale).
 	match String(mossa.get("tipo", "")):
 		"sacrificio":
 			return not vivi_alleati_di(nemico).is_empty()
@@ -2238,6 +2246,38 @@ func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 			if String(mossa.get("bersaglio", "se_stesso")) == "alleato":
 				return not alleato_piu_ferito(nemico).is_empty()
 			return int(nemico.hp) < int(nemico.hp_max)
+		"evoca":
+			# il campo tiene tre creature: chiamarne una quarta stampava
+			# "...ma nessuno risponde al richiamo" e buttava via la battuta
+			return vivi(false).size() < 3
+		"difendi":
+			# guardia gia' al massimo: "e' gia' chiuso quanto puo'" e basta
+			return RegoleCombattimento.scatti_difesa(nemico) \
+					< int(GameState.regole.get("difesa_scatti_massimi", 6))
+		"buff_attacco", "buff_difesa":
+			# QUESTO E' NUOVO, ED E' COLPA DEL RIMEDIO PRECEDENTE. Da quando lo
+			# stesso potenziamento si rinnova invece di sommarsi, rifarlo mentre
+			# e' ancora acceso non aggiunge piu' niente: prima era una somma
+			# senza tetto, adesso sarebbe una battuta a vuoto. Finche' e' su, la
+			# mossa non c'e'
+			for buff in nemico.buffs:
+				if String(buff.get("fonte", "")) == chiave_mossa(mossa):
+					return false
+			return true
+		"stato":
+			# se sono gia' tutti conciati cosi' (o tutti immuni), non fa niente
+			var id_stato := String(mossa.get("stato", ""))
+			for chiunque in vivi(true):
+				if RegoleCombattimento.resistenza_di(chiunque, id_stato) == "immune":
+					continue
+				if not RegoleCombattimento.ha_stato_attivo(chiunque, id_stato):
+					return true
+			return false
+		"incendia":
+			for chiunque in vivi(true):
+				if not bool(chiunque.get("in_fiamme", false)):
+					return true
+			return false
 	return true
 
 # --- LE MOSSE SI SCELGONO, NON SI SORTEGGIANO SOLTANTO ------------------------

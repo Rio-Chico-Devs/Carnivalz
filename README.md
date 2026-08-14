@@ -983,8 +983,24 @@ attacchi che li curano li attivano».
   le creature, con i valori calcolati. Lo **genera il gioco** (`./strumenti/nemici.sh`) dagli
   stessi numeri che usa in campo: un documento scritto a mano racconta il gioco del giorno in cui
   è stato scritto, e nessuno se ne accorge finché non ci si fida
-- Si prova in `prova_ogni_creatura_ha_un_set_di_mosse()` (i dati) e
-  `prova_le_creature_capiscono_come_stanno()` (la testa)
+- **Una creatura non spreca mai la sua battuta.** Bru: «se si parla di ricarica della mossa è ok
+  — non può usare *quella* mossa per tre battute — ma se il nemico rimane fermo per tre battute
+  non va bene». La ricarica toglie la mossa, non il turno: quello che `mossa_eseguibile()` scarta
+  fa cadere la creatura sul suo colpo normale. Ci passano tutte e cinque le strade che portano a
+  una mossa (sorteggio, giudizio, soglia di vita, disperazione, mossa annunciata), perché finché
+  il controllo stava dentro il solo sorteggio le altre quattro lo scavalcavano. Non parte: un
+  richiamo col campo già pieno, una guardia già al massimo, una cura a vita piena, un sacrificio
+  senza alleati, uno stato su chi ce l'ha già, un incendio su chi già brucia, un potenziamento
+  ancora acceso
+- **Lo stesso potenziamento si rinnova, non si somma.** Ogni uso appendeva un buff nuovo: il
+  goblin arrabbiato si sommava +9 di attacco all'infinito e Jerah +14 di difesa finché non lo si
+  scalfiva più — una somma senza tetto, invisibile perché a schermo compare solo il totale. Due
+  mosse *diverse* sulla stessa statistica si sommano ancora
+- Si prova in `prova_ogni_creatura_ha_un_set_di_mosse()` (i dati),
+  `prova_le_creature_capiscono_come_stanno()` (la testa) e
+  `prova_nessuna_creatura_perde_la_battuta()`, che fa giocare a ognuna 24 battute **col colpo
+  normale tolto dal sorteggio**: col peso normale una creatura tira spesso un pugno, e un pugno
+  non è mai una battuta persa — la prova passerebbe anche col motore rotto
 
 ## Il drop crea dipendenza: il drop c'è sempre (`ruoli.json` → `drop_garantito`)
 La dipendenza non nasce dai premi grossi: nasce dal fatto che **non esca mai niente**. Dieci
