@@ -561,7 +561,7 @@ func effetto_di(mossa: Dictionary) -> String:
 					int(mossa.get("durata", 3)),
 					" — **intoccabile** finché dura" if mossa.get("immune", false) else "",
 					", ".join(voci)]
-		"aura": return "**non smette** finché non cade: colpisce tutta la squadra a ogni loro battuta"
+		"tormento": return "**non smette** finché non cade: colpisce tutta la squadra a ogni loro battuta"
 		"potenziamento":
 			var pezzi: Array[String] = []
 			for stat in mossa.get("stat", {}):

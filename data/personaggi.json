@@ -412,7 +412,7 @@
 				{
 					"id": "astio_infinito",
 					"nome": "Astio Infinito",
-					"tipo": "aura",
+					"tipo": "tormento",
 					"testo": "Un vento tagliente, colmo di malvagità, si alza e non cala più.",
 					"quota_per_turno": 0.3,
 					"testo_turno": "Il vento tagliente non ti lascia stare.",

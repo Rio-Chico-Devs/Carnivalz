@@ -2428,7 +2428,7 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 	var tipi_noti := ["difendi", "attacco_forte", "spezza_guardia", "meta_vita",
 			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
 			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
-			"cura", "rubavita", "stato", "potenziamento", "scena", "aura",
+			"cura", "rubavita", "stato", "potenziamento", "scena", "tormento",
 			"modalita", "trasformazione"]
 	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione.
 	# Le sei caselle ce le hanno lo stesso, tutte libere
@@ -2842,16 +2842,16 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	esigi(int(eroe.hp) >= 1, "la discesa ha steso la squadra: un colpo a cui non puoi fare niente non e' uno scontro")
 	eroe.hp = int(eroe.hp_max)
 
-	# 8. L'AURA colpisce tutti a ogni loro battuta, E MUORE CON CHI LA TIENE SU
-	scontro.esegui_mossa(nemico, {"id": "prova_aura", "tipo": "aura", "testo": "-",
+	# 8. IL TORMENTO colpisce tutti a ogni loro battuta, E MUORE CON CHI LA TIENE SU
+	scontro.esegui_mossa(nemico, {"id": "prova_aura", "tipo": "tormento", "testo": "-",
 			"quota_per_turno": 0.3, "testo_turno": "-"})
 	esigi(bool(eroe.get("in_fiamme", false)),
-			"l'aura non si e' posata su nessuno")
+			"il tormento non si e' posata su nessuno")
 	esigi(String(eroe.get("combustione", {}).get("fonte", "")) == String(nemico.id),
-			"l'aura non ricorda chi l'ha lanciata: non potrebbe mai spegnersi")
-	scontro.spegni_aura_di(nemico)
+			"il tormento non ricorda chi l'ha lanciata: non potrebbe mai spegnersi")
+	scontro.spegni_tormento_di(nemico)
 	esigi(not bool(eroe.get("in_fiamme", false)),
-			"caduto chi la teneva accesa, il vento continua a tagliare: l'aura sopravvive al suo padrone")
+			"caduto chi la teneva accesa, il vento continua a tagliare: il tormento sopravvive al suo padrone")
 
 	# 9. LA RINASCITA: una volta sola, e poi si muore come tutti
 	GameState.personaggi["zombie_mostruoso"]["rinascita"] = {"quota_vita": 0.25, "testo": "[i]%s[/i]"}
@@ -3554,7 +3554,7 @@ func prova_abilita_di_combattimento() -> void:
 			esigi(tabella.has(id_abilita) or String(id_abilita) in narrative,
 					"%s ha l'abilita' '%s' e non esiste ne' in combattimento ne' fra le narrative"
 					% [id_classe, id_abilita])
-	# il costo dev'essere pagabile: un'abilita' che costa piu' dell'aura massima
+	# il costo dev'essere pagabile: un'abilita' che costa piu' delil tormento massima
 	# non si userebbe mai, e nessuno capirebbe perche'
 	var aura_massima := int(GameState.regole.get("aura_iniziale", 10))
 	for id_abilita in tabella:

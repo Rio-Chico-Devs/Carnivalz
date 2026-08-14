@@ -2310,7 +2310,7 @@ func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 				if not gia_addosso:
 					return true
 			return false
-		"aura":
+		"tormento":
 			# se il vento c'e' gia', rilanciarlo e' una battuta buttata
 			for combattente in vivi(true):
 				if String(combattente.get("combustione", {}).get("fonte", "")) \
@@ -2555,7 +2555,7 @@ func avanza_trasformazione(chi: Dictionary) -> void:
 	scrivi_forte("[i]%s[/i]" % String(conto.get("testo", "Non è più quello di prima.")))
 	# quello che teneva acceso se ne va con lui, come quando cade: trasformarsi
 	# e' uscire di scena, e _su_ko qui non passa
-	spegni_aura_di(chi)
+	spegni_tormento_di(chi)
 	# ESCE DI SCENA E NE ENTRA UN'ALTRA. Non e' una cura e non e' una rinascita:
 	# la creatura che avevi davanti non c'e' piu', e quella nuova entra intera.
 	# La vecchia si toglie senza dare esperienza, perche' non l'hai battuta
@@ -2589,8 +2589,8 @@ func paga_di_persona(chi: Dictionary, mossa: Dictionary) -> void:
 	scrivi_con_colpo("[i]%s ci rimette anche di suo.[/i]" % chi.nome, chi, pagato)
 	aggiorna_scheda(chi)
 
-func spegni_aura_di(chi: Dictionary) -> void:
-	# L'AURA MUORE CON CHI LA TIENE ACCESA. Bru: "infligge danni a ogni inizio
+func spegni_tormento_di(chi: Dictionary) -> void:
+	# IL TORMENTO MUORE CON CHI LA TIENE ACCESA. Bru: "infligge danni a ogni inizio
 	# turno di ogni avversario finche' non viene sconfitto l'utilizzatore".
 	# Senza questo, il vento tagliente dell'Emblema restava addosso alla squadra
 	# per tutto il resto dello scontro - e nello scontro dopo sarebbe sembrato
@@ -2768,23 +2768,23 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			# mossa_eseguibile - perche' una creatura che sta per morire e si
 			# guarda intorno smentisce la regola che la fa diventare pericolosa
 			pass
-		"aura":
+		"tormento":
 			# Colpisce tutta la squadra a ogni loro battuta, e NON SMETTE finche'
 			# non cade chi l'ha lanciata: e' quello che Bru ha chiesto per l'Astio
 			# Infinito. Passa per la combustione, che e' la macchina che gia'
 			# esisteva per "qualcosa ti fa male a ogni tuo turno": non ne serviva
 			# una seconda, serviva solo dirle chi la tiene accesa
-			var quanto_aura := maxi(int(round(RegoleCombattimento.attacco_di(nemico)
+			var quanto_tormento := maxi(int(round(RegoleCombattimento.attacco_di(nemico)
 					* float(mossa.get("quota_per_turno", 0.25)))), 1)
-			for bersaglio_aura in vivi(true):
-				bersaglio_aura.combustione = {
-					"danno_per_turno": quanto_aura,
+			for bersaglio_tormento in vivi(true):
+				bersaglio_tormento.combustione = {
+					"danno_per_turno": quanto_tormento,
 					"testo_turno": String(mossa.get("testo_turno", "Il vento tagliente non passa.")),
 					"elemento": String(mossa.get("elemento", "oscuro")),
 					"fonte": String(nemico.get("id", "")),
 				}
-				bersaglio_aura.in_fiamme = true
-				aggiorna_scheda(bersaglio_aura)
+				bersaglio_tormento.in_fiamme = true
+				aggiorna_scheda(bersaglio_tormento)
 		"incendia":
 			# appicca il fuoco a un membro del party a caso: da qui in poi
 			# brucia a ogni suo turno, come la combustione dei nemici
@@ -3334,7 +3334,7 @@ func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int, elemento 
 
 func _su_ko(caduto: Dictionary) -> void:
 	if not caduto.giocatore:
-		spegni_aura_di(caduto)
+		spegni_tormento_di(caduto)
 	var rinascita: Dictionary = GameState.personaggi.get(caduto.id, {}).get("rinascita", {})
 	if not caduto.giocatore and not rinascita.is_empty() \
 			and not caduto.get("gia_rinato", false):
