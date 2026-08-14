@@ -90,7 +90,7 @@ func intestazione() -> Array[String]:
 	var disperazione: Dictionary = GameState.ruoli.get("disperazione", {})
 	var soglia := int(round(float(disperazione.get("soglia", 0.3)) * 100))
 	var bonus := int(round(float(disperazione.get("bonus_attacco", 0.3)) * 100))
-	return [
+	var righe: Array[String] = [
 		"# Il bestiario, e cosa sa fare",
 		"",
 		"> **Generato dal gioco**, non scritto a mano: `./strumenti/nemici.sh`. I numeri qui sotto",
@@ -104,9 +104,11 @@ func intestazione() -> Array[String]:
 		"  non scende mai troppo sotto il tuo livello (il disallineamento la tira su), e quando",
 		"  viene tirata su **rifà il conto sulla stessa curva** — quindi resta la stessa creatura,",
 		"  più grande, non una creatura diversa.",
-		"- Il **danno di una mossa** è una *quota* dell'attacco che la creatura ha in quel momento.",
-		"  «×1,4» vuol dire una volta e mezza scarsa il suo colpo normale, a qualunque livello.",
-		"  Una mossa con un numero fisso è un'eccezione dichiarata, e qui è segnata come tale.",
+		"- Il **Valore** di una mossa si legge in due pezzi: il `×numero` è quante volte il suo colpo",
+		"  normale vale quella mossa, e dopo la freccia c'è lo stesso conto già fatto per questa",
+		"  creatura al suo livello. Qui sotto c'è un esempio intero, con tutto quello che succede al",
+		"  colpo prima che ti arrivi addosso. Una mossa con un numero fisso è un'eccezione",
+		"  dichiarata, e qui è segnata come tale.",
 		"- **Quando** dice a quale condizione la mossa esiste. Una mossa fuori condizione non entra",
 		"  nemmeno nel sorteggio: non è che «capita di rado», è che non c'è.",
 		"- **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la",
@@ -116,6 +118,9 @@ func intestazione() -> Array[String]:
 		"  decidere cosa aggiungere. Una casella libera non è una mossa debole — non esiste: il",
 		"  sorteggio non la pesca, e la creatura tira il suo colpo normale come se non ci fosse.",
 		"",
+	]
+	righe.append_array(spiegazione_del_danno())
+	righe.append_array([
 		"### Cos'è una «battuta»",
 		"",
 		"Non ci sono più i turni: ogni creatura ha una **ricarica** che scorre da sola, e quando",
@@ -156,7 +161,110 @@ func intestazione() -> Array[String]:
 		"e comincia a scegliere le mosse invece di sorteggiarle — chi sa curarsi si cura, chi ha un",
 		"ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga sola in",
 		"`data/ruoli.json`, così non può mancare a metà bestiario.",
-	]
+	])
+	return righe
+
+func esempio_del_danno() -> Dictionary:
+	# La creatura piu' bassa di livello che abbia una mossa a quota: e' l'esempio
+	# piu' semplice possibile, e siccome lo si sceglie qui invece di scriverlo a
+	# mano non puo' diventare falso quando si cambia una quota o un livello.
+	var scelto := {}
+	for chiave in GameState.personaggi:
+		var id_creatura := String(chiave)
+		if not combatte(id_creatura):
+			continue
+		var dati: Dictionary = GameState.personaggi.get(id_creatura, {})
+		var livello := GameState.livello_base_nemico(id_creatura)
+		if not scelto.is_empty() and int(scelto["livello"]) <= livello:
+			continue
+		for voce in dati.get("mosse", []):
+			var mossa: Dictionary = voce
+			if not mossa.has("quota"):
+				continue
+			var attacco := stat_di(id_creatura, "attacco", 1)
+			var quota := float(mossa["quota"])
+			scelto = {
+				"livello": livello,
+				"nome": String(dati.get("nome", id_creatura)),
+				"mossa": String(mossa.get("nome", "?")),
+				"quota": quota,
+				"attacco": attacco,
+				"colpo": maxi(int(round(attacco * quota)), 1),
+			}
+			break
+	return scelto
+
+func spiegazione_del_danno() -> Array[String]:
+	# Il "→ 10" della colonna Valore e' il pezzo che si legge male: sembra IL
+	# danno, ed e' solo il colpo prima che qualcuno lo fermi. Qui si dice cosa
+	# gli succede dopo, con i numeri veri di data/regole.json invece che a
+	# memoria: se Bru cambia il pavimento o la riduzione, cambia anche la pagina.
+	var pavimento := int(round(float(GameState.regole.get("danno_minimo_percentuale", 0.1)) * 100))
+	var per_livello := float(GameState.regole.get("riduzione_danno_per_livello", 0.02)) * 100.0
+	var riduzione_max := int(round(float(GameState.regole.get("riduzione_danno_massima", 0.35)) * 100))
+	var critico := numero(float(GameState.regole.get("critico_moltiplicatore", 1.5)))
+	var meta_difesa := int(round(float(GameState.regole.get("critico_riduzione_difesa", 0.5)) * 100))
+	var esempio := esempio_del_danno()
+	var righe: Array[String] = []
+	if esempio.is_empty():
+		righe.append_array(["### Da «×quota → numero» a quanto fa male davvero", ""])
+		righe.append("Il **×quota** è la regola vera, il numero dopo la freccia è lo stesso conto già fatto.")
+	else:
+		# la quota si scrive come la scrive la tabella, non "meglio": chi legge
+		# deve poter ritrovare questa riga identica nella colonna Valore
+		var quota := "%.2f" % float(esempio["quota"])
+		righe.append_array([
+			"### Da «×%s → %d» a quanto fa male davvero" % [quota, int(esempio["colpo"])],
+			"",
+			"Le due metà dicono la stessa cosa in due lingue.",
+			"",
+			"**%s** ha attacco %d. La sua «%s» vale `×%s`, cioè %s volte"
+					% [String(esempio["nome"]), int(esempio["attacco"]),
+					String(esempio["mossa"]), quota, quota],
+			"il suo colpo normale: %d × %s fa **%d**, ed è il numero dopo la freccia."
+					% [int(esempio["attacco"]), quota, int(esempio["colpo"])],
+			"",
+			"Il `×%s` è la regola, e vale **a qualunque livello**: è una frazione dell'attacco che la"
+					% quota,
+			"creatura ha *in quel momento*, quindi se lei cresce cresce anche il colpo. Il numero dopo",
+			"la freccia è solo lo stesso conto già fatto per questa creatura al suo livello base.",
+		])
+	righe.append_array([
+		"",
+		"E soprattutto: quello è **il colpo che parte, non quello che ti arriva**. Prima di",
+		"toccarti passa da qui, in quest'ordine:",
+		"",
+		"1. **se coglie in pieno** (critico) il colpo si moltiplica per **×%s** e la tua difesa"
+				% critico,
+		"   conta il %d%% di meno;" % meta_difesa,
+		"2. **si toglie la tua difesa** — punto per punto, dal colpo;",
+		"3. **sotto il pavimento non si scende.** Se la tua difesa regge il colpo intero passa **1**:",
+		"   un graffio, mai zero, così un numero vola sempre. Se non lo regge, passa quel che resta",
+		"   ma **mai meno del %d%% del colpo pieno** — la corazza riduce, non cancella;" % pavimento,
+		"4. **il tuo livello smorza il resto**: %s%% in meno per ogni livello oltre il primo, fino a un"
+				% numero(per_livello),
+		"   massimo del %d%%. Vale solo per la tua squadra: è il premio per aver giocato." % riduzione_max,
+		"",
+	])
+	if not esempio.is_empty():
+		righe.append_array([
+			"Quindi quel **%d** è il colpo su un bersaglio nudo. Addosso a te arriva quasi sempre più"
+					% int(esempio["colpo"]),
+			"piccolo, e più grosso solo in due casi: quando coglie in pieno, e quando la creatura è",
+			"alle strette — la regola qui sotto, che la fa colpire più forte proprio mentre muore.",
+			"",
+		])
+	return righe
+
+func numero(valore: float) -> String:
+	# 1.2 -> "1,2" e 2.0 -> "2": in un documento italiano la virgola, e niente
+	# zeri di coda che facciano sembrare preciso quello che preciso non e'
+	var testo := ("%.2f" % valore).replace(".", ",")
+	while testo.ends_with("0"):
+		testo = testo.substr(0, testo.length() - 1)
+	if testo.ends_with(","):
+		testo = testo.substr(0, testo.length() - 1)
+	return testo
 
 func scheda(id_creatura: String) -> Array[String]:
 	var dati: Dictionary = GameState.personaggi.get(id_creatura, {})

@@ -11,9 +11,11 @@
   non scende mai troppo sotto il tuo livello (il disallineamento la tira su), e quando
   viene tirata su **rifà il conto sulla stessa curva** — quindi resta la stessa creatura,
   più grande, non una creatura diversa.
-- Il **danno di una mossa** è una *quota* dell'attacco che la creatura ha in quel momento.
-  «×1,4» vuol dire una volta e mezza scarsa il suo colpo normale, a qualunque livello.
-  Una mossa con un numero fisso è un'eccezione dichiarata, e qui è segnata come tale.
+- Il **Valore** di una mossa si legge in due pezzi: il `×numero` è quante volte il suo colpo
+  normale vale quella mossa, e dopo la freccia c'è lo stesso conto già fatto per questa
+  creatura al suo livello. Qui sotto c'è un esempio intero, con tutto quello che succede al
+  colpo prima che ti arrivi addosso. Una mossa con un numero fisso è un'eccezione
+  dichiarata, e qui è segnata come tale.
 - **Quando** dice a quale condizione la mossa esiste. Una mossa fuori condizione non entra
   nemmeno nel sorteggio: non è che «capita di rado», è che non c'è.
 - **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la
@@ -22,6 +24,33 @@
 - Ogni creatura ha **sei caselle**, anche quando ne usa tre: le libere sono il posto dove
   decidere cosa aggiungere. Una casella libera non è una mossa debole — non esiste: il
   sorteggio non la pesca, e la creatura tira il suo colpo normale come se non ci fosse.
+
+### Da «×1.30 → 8» a quanto fa male davvero
+
+Le due metà dicono la stessa cosa in due lingue.
+
+**Goblin Tipico** ha attacco 6. La sua «Sassata» vale `×1.30`, cioè 1.30 volte
+il suo colpo normale: 6 × 1.30 fa **8**, ed è il numero dopo la freccia.
+
+Il `×1.30` è la regola, e vale **a qualunque livello**: è una frazione dell'attacco che la
+creatura ha *in quel momento*, quindi se lei cresce cresce anche il colpo. Il numero dopo
+la freccia è solo lo stesso conto già fatto per questa creatura al suo livello base.
+
+E soprattutto: quello è **il colpo che parte, non quello che ti arriva**. Prima di
+toccarti passa da qui, in quest'ordine:
+
+1. **se coglie in pieno** (critico) il colpo si moltiplica per **×1,5** e la tua difesa
+   conta il 50% di meno;
+2. **si toglie la tua difesa** — punto per punto, dal colpo;
+3. **sotto il pavimento non si scende.** Se la tua difesa regge il colpo intero passa **1**:
+   un graffio, mai zero, così un numero vola sempre. Se non lo regge, passa quel che resta
+   ma **mai meno del 10% del colpo pieno** — la corazza riduce, non cancella;
+4. **il tuo livello smorza il resto**: 2% in meno per ogni livello oltre il primo, fino a un
+   massimo del 35%. Vale solo per la tua squadra: è il premio per aver giocato.
+
+Quindi quel **8** è il colpo su un bersaglio nudo. Addosso a te arriva quasi sempre più
+piccolo, e più grosso solo in due casi: quando coglie in pieno, e quando la creatura è
+alle strette — la regola qui sotto, che la fa colpire più forte proprio mentre muore.
 
 ### Cos'è una «battuta»
 
