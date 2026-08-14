@@ -25,8 +25,8 @@
   capirla in un colpo d'occhio, e **in gioco non compare da nessuna parte**. Il grassetto lì
   dentro è solo tipografia di questa pagina (evidenzia la parola che conta: il nome di uno
   stato, «tutta la squadra»). La frase che si legge davvero a schermo quando la mossa parte è
-  un'altra cosa, ed è sotto ogni tabella, in **Cosa si legge in campo**: quella si può
-  riscrivere parola per parola.
+  un'altra cosa, ed è sotto ogni tabella, nel **Motto**: quella si può riscrivere parola per
+  parola, ed è raccolta tutta insieme in fondo alla pagina.
 - **Quando** dice a quale condizione la mossa esiste. Una mossa fuori condizione non entra
   nemmeno nel sorteggio: non è che «capita di rado», è che non c'è.
 - **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la
@@ -40,7 +40,7 @@
 
 Le due metà dicono la stessa cosa in due lingue.
 
-**Goblin Tipico** ha attacco 6. La sua «Sassata» vale `×1.30`, cioè 1.30 volte
+**Goblin Tipico** ha attacco 6. La sua «Bastonata» vale `×1.30`, cioè 1.30 volte
 il suo colpo normale: 6 × 1.30 fa **8**, ed è il numero dopo la freccia.
 
 Il `×1.30` è la regola, e vale **a qualunque livello**: è una frazione dell'attacco che la
@@ -90,12 +90,25 @@ volta: il primo studio dice chi è e da dove viene, il secondo com'è fatta, il 
 comporta. In gioco si legge nel Bestiario; qui sotto c'è già tutta, perché è il documento
 su cui si correggono i testi — e i testi non si correggono tre righe per volta.
 
-La **Filogenesi** è il campo che Bru ha chiesto per primo: il corpo d'origine. A Meridia la
-stessa infezione ha preso corpi diversi, e la scheda lo dice — il Cittadino e l'Infetto
-Rapido sono tutti e due *umana*, il Divoratore di Carcasse è *ferina*, la Robo Pattuglia è
-*meccanica*. **Denominazione**, **Areale** e **Metamorfosi** non sono scritti a mano: il
-nome è quello della creatura, l'areale esce da dove compare davvero nei file delle zone, e
-la metamorfosi dice «osservata» solo se hai incontrato anche la forma in cui si trasforma.
+La **Filogenesi** è il corpo d'origine: a Meridia la stessa infezione ha preso corpi diversi,
+e la scheda lo dice — il Cittadino e l'Infetto Rapido sono tutti e due *umana*, il Divoratore
+di Carcasse è *ferina*, la Robo Pattuglia è *meccanica*, l'Oppresso è *rancore*.
+
+La **Specie** è il nome della cosa, non un aggettivo su come è venuta: *Zombie*, *Slime*,
+*Robot*. È il campo che lega creature diverse — Zombie Cittadino, Zombie Mostruoso e Orrore
+di Meridia sono la stessa specie a tre **Stadi**, e i due campi si leggono insieme. La
+**Classificazione** è il rango sulla scala di quella specie: base → variante base → superiore
+→ avanzato → calamità, più le forme che non stanno su nessuna scala (onirica, speciale).
+
+L'**Areale** è la **regione grande, non la stanza**: l'Oppresso lo incontri nello Squarcio
+Industriale, ma la sua regione è *Geodos*, di cui lo Squarcio è solo una frattura. La
+traduzione da zona a regione sta in un posto solo (`areale_per_zona`), così ribattezzare un
+mondo è una riga; e una specie che vive dove il gioco non ti porta ancora può scriversi
+l'areale a mano — lo Slime è su tre pianeti anche se lo incontri in una radura sola.
+
+**Denominazione** e **Metamorfosi** non si scrivono mai a mano: il nome è quello della
+creatura, e la metamorfosi dice «osservata» solo se hai incontrato anche la forma in cui si
+trasforma. È il tuo registro, non un'enciclopedia.
 
 ## La regola che vale per tutte
 
@@ -115,32 +128,30 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Sassata | un colpo pesante su uno solo | ×1.30 → 8 | sempre | sorteggio | — |
-| 2 | Si copre la testa | alza la guardia | — | sotto il 35% di vita | priorità 5 | 3 battute |
+| 1 | Bastonata | un colpo pesante su uno solo | ×1.30 → 8 | sempre | sorteggio | — |
+| 2 | Difesa Goblin! | alza la guardia | — | sotto il 35% di vita | priorità 5 | 2 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Il goblin raccoglie un sasso e lo tira senza nemmeno mirare.
-2. Il goblin capisce come sta andando e si copre la testa con le braccia.
+1. Il goblin stringe il bastone con tutte e due le mani e mena alla cieca.
+2. «Difesa Goblin!» — e si copre la testa con le braccia.
 
 **Tecno log**
 
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Goblin Tipico |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | ferina |
-| Areale | Il pianeta del risveglio |
-| Fenotipo | degenerato |
+| Areale | Pianure selvagge di Canuka Rei |
+| Specie | Goblin |
 | Stadio | I |
 | Morfologia | Un metro e poco piu'. Scheletro leggero, spalle asimmetriche, mani sproporzionate rispetto agli avambracci. Tegumento verdastro, spelacchiato a chiazze, spesso escoriato sulle nocche. |
-| Fisiologia | Metabolismo rapido e disordinato, temperatura sopra la norma. Non regge il digiuno e non regge i colpi: cede al primo trauma serio. |
 | Habitus | Sta curvo anche da fermo, con il peso su una gamba sola. Guarda in basso e di lato, mai davanti. |
-| Etologia | Attacca solo se convinto di essere in vantaggio numerico, e cambia idea appena non lo e' piu'. Raccoglie a terra qualunque cosa possa essere impugnata. |
 | Metamorfosi | non osservata |
 | Ecologia | Vive ai margini di gruppi piu' grandi, dai quali viene tollerato e derubato. Non forma legami stabili. |
 
@@ -156,13 +167,13 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Bava appiccicosa | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 4 battute |
-| 2 | Si ricompone | **si rimette in piedi** (+30% della vita massima) | — | sotto il 40% di vita | priorità 6 | 4 battute |
+| 2 | Si ricompone | **si rimette in piedi** (+20% della vita massima) | — | sotto il 40% di vita | priorità 6 | 4 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Lo slime si allunga e lascia una bava che rallenta ogni movimento.
 2. Lo slime si raccoglie su se stesso e torna tondo.
@@ -172,15 +183,13 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Slime Infimo |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | indeterminata |
-| Areale | Il pianeta del risveglio |
-| Fenotipo | ibrido mutato |
+| Areale | Pianure selvagge di Canuka Rei · Gombok 2 · Profondità di Derios Nu |
+| Specie | Slime |
 | Stadio | I |
 | Morfologia | Massa gelatinosa senza scheletro ne' organi distinguibili, volume variabile fra i venti e i quaranta litri. La superficie e' l'unica parte con una struttura: piu' densa, quasi una pelle. |
-| Fisiologia | Non ha temperatura propria. Assorbe e rilascia acqua a seconda dell'ambiente; il danno che subisce si richiude da solo se gli si lascia il tempo. |
 | Habitus | Nessuna postura: si accumula. Da fermo e' indistinguibile da una pozza. |
-| Etologia | Reagisce alla vibrazione, non alla luce. Non insegue: aspetta, e si sposta di pochi centimetri per volta verso quello che si muove. |
 | Metamorfosi | non osservata |
 | Ecologia | Riempie gli avvallamenti e i sottoscala. Non compete con nessuno perche' non toglie niente a nessuno. |
 
@@ -202,7 +211,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. La tartaruga si ritira nel guscio.
 2. La tartaruga si tira dentro il guscio, e dentro il guscio si rimette.
@@ -212,15 +221,13 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Tartaruga Innocente |
-| Classificazione | forma loricata — rango infra-specifico |
+| Classificazione | rango superiore |
 | Filogenesi | ferina |
 | Areale | Il pianeta del risveglio |
-| Fenotipo | ipertrofico |
+| Specie | Tartaruga |
 | Stadio | II |
 | Morfologia | Carapace di oltre due metri di diametro, cresciuto ben oltre le proporzioni dell'animale che lo porta. Il collo e gli arti sono rimasti quelli di un esemplare comune. |
-| Fisiologia | Metabolismo lentissimo, temperatura costante. La resistenza al danno e' quasi interamente meccanica: il guscio. |
 | Habitus | Si muove pochissimo e si ritira alla minima ombra. Da fuori sembra una minaccia; da dentro e' un animale spaventato. |
-| Etologia | NON ATTACCA MAI. Non e' stato osservato un solo caso di aggressione, nemmeno sotto danno prolungato. Alza la difesa e aspetta che la cosa passi. |
 | Metamorfosi | non osservata |
 | Ecologia | Occupa lo spazio e non lo contende. Nessun predatore noto: nessuno ci guadagna abbastanza da insistere. |
 
@@ -242,7 +249,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Arriva addosso prima che tu decida da che parte guardare.
 
@@ -251,17 +258,15 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Infetto Rapido |
-| Classificazione | forma agilis — rango infra-specifico |
+| Classificazione | rango variante base |
 | Filogenesi | umana |
 | Areale | Meridia |
-| Fenotipo | atrofico |
+| Specie | Zombie |
 | Stadio | II |
-| Morfologia | Corpo adulto ridotto: massa magra sotto la meta' della norma, tendini accorciati, mandibola prominente. La perdita di peso e' quello che l'ha reso veloce. |
-| Fisiologia | Metabolismo acceso, temperatura alta, autonomia brevissima. Corre finche' regge e poi crolla, ma finche' regge non lo si stacca. |
-| Habitus | Non sta mai in piedi del tutto: parte accovacciato. |
-| Etologia | Insegue. E' l'unica forma di Meridia che insegue davvero, e lo fa a raffiche di colpi rapidi invece che con un colpo solo. |
+| Morfologia | Corpo adulto allungato: massa magra sotto la metà della norma, tendini allungati, mandibola non visibile. Presenta delle strane orecchie mutate. |
+| Habitus | Tende a restare immobile per poi scattare in velocità verso la sua vittima. |
 | Metamorfosi | non osservata |
-| Ecologia | Batte le strade laterali e i cortili. Le colonne di cittadini lo evitano. |
+| Ecologia | Non sembra avere alcuno scopo, come la sua forma base. |
 
 *Studi necessari per la pagina intera: 3.*
 
@@ -281,7 +286,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Non insegue nessuno: si sposta, e vi trova.
 2. Respiri, e te ne accorgi dopo.
@@ -291,22 +296,20 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Nuvola di Marciume |
-| Classificazione | forma nebulae |
+| Classificazione | rango variante base |
 | Filogenesi | indeterminata |
-| Areale | Meridia |
-| Fenotipo | ibrido mutato |
-| Stadio | II |
+| Areale | Meridia · Nautilus 5 · Avamposto sconosciuto |
+| Specie | Nimbo |
+| Stadio | I |
 | Morfologia | Nessun corpo solido: sospensione di particolato organico che mantiene coesione entro un raggio di due metri. Al centro si intravede materiale non identificato. |
-| Fisiologia | Non ha organi. Corrode per contatto prolungato e non si puo' colpire in un punto solo: quello che si disperde rientra. |
-| Habitus | Fluttua a mezzo metro da terra e scende quando l'aria si ferma. |
-| Etologia | Non insegue nessuno: capita addosso. Rilascia spore che continuano a lavorare dopo che si e' allontanata. |
+| Habitus | Fluttua e sembra osservare i dintorni in cerca di qualcosa. |
 | Metamorfosi | non osservata |
-| Ecologia | E' un pezzo della coltre che copre Meridia, sceso piu' in basso degli altri. Dove staziona, il resto non cresce. |
+| Ecologia | È un pezzo della coltre che copre Meridia. Sembra causare una decomposizione molto rallentata nelle forme di vita organiche. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Zombie Cittadino — livello 2, comune
-*Era qualcuno, a Meridia, prima del coprifuoco. Ora cammina piano, verso niente in particolare, con tutti gli altri.*
+*Questo esemplare sembra essere il più comune e debole della sua specie. Non sembra avere alcuna volontà.*
 
 `zombie_cittadino` · ♥ 125 · attacco 8 · difesa 2 · velocità 2 · xp 5
 
@@ -314,16 +317,16 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Passo pesante | un colpo pesante su uno solo | ×1.20 → 10 | sempre | sorteggio | — |
+| 1 | Agitazione | un colpo pesante su uno solo | ×1.20 → 10 | sempre | sorteggio | — |
 | 2 | In mezzo agli altri | si chiude (difesa +2 per 3 battute) | — | con almeno 1 alleati in piedi | sorteggio | 4 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Ti cammina addosso come camminava verso il lavoro.
+1. Si agita tutto insieme e ti viene addosso.
 2. Si infila fra i suoi, e i suoi si chiudono intorno.
 
 **Tecno log**
@@ -331,22 +334,20 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Zombie Cittadino |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | umana |
 | Areale | Meridia |
-| Fenotipo | degenerato |
+| Specie | Zombie |
 | Stadio | I |
-| Morfologia | Adulto di Meridia, conservato quasi per intero. Vestiti ancora allacciati, scarpe ancora ai piedi. La decomposizione e' ferma a uno stadio che non progredisce. |
-| Fisiologia | Metabolismo assente, temperatura ambientale. Non si nutre e non si consuma: quello che lo tiene in piedi non passa dallo stomaco. |
-| Habitus | Cammina piano, in linea, con gli altri. Verso niente in particolare. |
-| Etologia | Non insegue e non evita: procede. Diventa aggressivo solo a contatto, e allora colpisce con il peso, non con le mani. |
+| Morfologia | Adulto di Meridia, sesso indistinguibile. Non resta altro che un guscio senza alcuno scopo; la decomposizione è ferma a uno stadio che non progredisce. |
+| Habitus | Cammina piano, spesso in gruppo, senza alcuna meta... I movimenti repentini attirano la sua attenzione. |
 | Metamorfosi | non osservata |
-| Ecologia | Si muove in colonne lungo le strade principali. Dove passa la colonna, le altre forme si fanno da parte. |
+| Ecologia | Non ha alcun rapporto fruttifero con l'ambiente: non si nutre, non nutre, totalmente inutile. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Manifestazione di un sogno — livello 3, miniboss
-*Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.*
+*Una manifestazione traslucida che sfida l'impossibile. Queste creature sembrano riflettere quel che scorgono nelle profondità dei rimpianti di chi incontrano.*
 
 `manifestazione_di_un_sogno` · ♥ 439 · attacco 14 · difesa 5 · velocità 4 · xp 41 · elemento psico
 
@@ -357,22 +358,20 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Manifestazione di un sogno |
-| Classificazione | forma somnii |
+| Classificazione | forma onirica |
 | Filogenesi | onirica |
-| Areale | Il pianeta del risveglio |
-| Fenotipo | artefatto |
+| Areale | Dynapia · Profondità del sogno di Rui · Negaton 1 · Pianure selvagge di Canuka Rei |
+| Specie | Onirico |
 | Stadio | III |
 | Morfologia | Non ha una struttura stabile: i bordi si spostano se la si guarda troppo a lungo. Le misure prese in due momenti diversi non coincidono. |
-| Fisiologia | Nessun metabolismo rilevabile. Non ha temperatura, non consuma, non si stanca. Il danno la attraversa senza lasciare traccia finche' qualcosa, altrove, continua a sognarla. |
 | Habitus | Sta ferma al centro del campo e non cerca posizione: e' il campo a disporsi intorno a lei. |
-| Etologia | Non risponde agli stimoli come una creatura: risponde come una scena. Esegue una sequenza, e la sequenza non cambia se la si interrompe. |
 | Metamorfosi | non osservata |
 | Ecologia | Non appartiene a questo ecosistema e non lo tocca. E' presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora facendo. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Fomentado — livello 3, comune
-*Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.*
+*Un'anima irrequieta spinta al suo limite dalla sua stessa passione. Brucia forte, sempre! Finché non rimarrà che cenere.*
 
 `maschera_vuota` · ♥ 164 · attacco 10 · difesa 3 · velocità 3 · xp 9 · elemento fuoco
 
@@ -387,7 +386,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. La maschera avvampa: per un istante ha di nuovo un volto.
 2. Non le resta molto da bruciare, e brucia tutto insieme.
@@ -397,22 +396,20 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Fomentado |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | umana |
 | Areale | Il Vuoto Ardente |
-| Fenotipo | degenerato |
-| Stadio | II |
-| Morfologia | Corpo umano adulto, svuotato. Il volto non c'e' piu': al suo posto una superficie liscia che riflette il calore. Le mani conservano i calli del mestiere di prima. |
-| Fisiologia | Temperatura costantemente sopra i sessanta gradi. Brucia dall'interno e non si spegne; il combustibile e' quello che era la sua passione. |
-| Habitus | Cammina veloce e diritto, come chi e' in ritardo. Non si guarda intorno. |
-| Etologia | Si avvicina fino al contatto e brucia. Sotto una certa soglia di danno rilascia tutto quello che le resta in una sola vampata. |
+| Specie | Feticcio |
+| Stadio | I |
+| Morfologia | Corpo umano adulto, indole focosa. Sembra sprigionare energia in ogni sua mossa, ed è avvolto da fiamme ardenti. |
+| Habitus | Suole esibirsi in diversi numeri di intrattenimento finché non viene notato. |
 | Metamorfosi | non osservata |
-| Ecologia | Non compete e non collabora: attraversa. Dove passa, quello che resta e' cenere fredda. |
+| Ecologia | Brucia tutto quello con cui viene a contatto, consuma tutto quello che tocca, e ha una forte sinergia con i suoi simili. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Zombie Mostruoso — livello 3, comune
-*Qualcosa, in questo, ha continuato a crescere anche dopo la morte. Le braccia non sono più della stessa lunghezza.*
+*Questo esemplare ha subito deformazioni alle braccia e alle sue dimensioni. Ha uno sguardo assente, e condivide lo stato di demenza dei suoi simili.*
 
 `zombie_mostruoso` · ♥ 164 · attacco 10 · difesa 3 · velocità 3 · xp 9
 
@@ -427,7 +424,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Il braccio piu' lungo arriva da dove non te lo aspetti.
 
@@ -436,22 +433,20 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Zombie Mostruoso |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango superiore |
 | Filogenesi | umana |
 | Areale | Meridia |
-| Fenotipo | ipertrofico |
+| Specie | Zombie |
 | Stadio | II |
-| Morfologia | Corpo umano che ha continuato a crescere dopo la morte, in modo asimmetrico: un braccio arriva a terra, l'altro e' rimasto quello di prima. La gabbia toracica si e' aperta e richiusa male. |
-| Fisiologia | Nessun metabolismo, ma una crescita attiva che non si ferma. La massa aumenta senza che entri nulla dall'esterno: e' il substrato stesso a moltiplicarsi. |
+| Morfologia | Questi esemplari sono enormi e deformi. Sono in grado di fomentare gli altri loro simili e presentano delle deviazioni assenti nelle forme inferiori di questa specie. |
 | Habitus | Sbilanciato in avanti, si trascina appoggiandosi al braccio lungo. |
-| Etologia | Usa il braccio lungo per arrivare da fuori portata, ed e' l'unica cosa che sa fare. Non cambia mai approccio. |
 | Metamorfosi | non osservata |
 | Ecologia | Stessa origine del cittadino, esito diverso. La differenza fra i due non e' stata spiegata da nessuno. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Oppresso — livello 4, corazzato
-*La ruggine ha preso il posto della pelle, sta ancora aspettando che il suo turno finisca...*
+*Si tratta della manifestazione di un'anima perduta, con dei forti rancori legati al suo passato.*
 
 `comparsa_di_ruggine` · ♥ 277 · attacco 10 · difesa 13 · velocità 3 · xp 16
 
@@ -459,39 +454,37 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Si irrigidisce | si chiude (difesa +3 per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 1 | Vita di ruggine | alza la guardia | — | sempre | sorteggio | 3 battute |
 | 2 | Colpo di ruggine | colpisce e **apre la guardia** | ×1.00 → 10 | sempre | sorteggio | — |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. La ruggine si chiude su se stessa: adesso e' una porta.
-2. Un braccio di lamiera scende di piatto e ti apre la guardia.
+1. La ruggine si addensa e si stratifica addosso a quello che resta di lui.
+2. Un accumulo di ruggine materializzata ti arriva addosso.
 
 **Tecno log**
 
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Oppresso |
-| Classificazione | forma loricata — rango infra-specifico |
-| Filogenesi | umana |
-| Areale | Lo Squarcio Industriale — Kizako Industries — Ala Dimenticata |
-| Fenotipo | ibrido mutato |
-| Stadio | II |
-| Morfologia | Ossido metallico cresciuto al posto del derma, saldato all'osso in piu' punti. Le articolazioni si aprono a scatti e stridono. |
-| Fisiologia | Metabolismo quasi fermo. Alta resistenza meccanica, nessuna capacita' di rigenerare: quello che si spezza resta spezzato. |
-| Habitus | In piedi, immobile, con lo sguardo verso un punto che non c'e'. Sta ancora aspettando che il suo turno finisca. |
-| Etologia | Reagisce solo a chi le passa davanti. Si irrigidisce prima di incassare, e cerca di aprire la guardia di chi ha di fronte. |
+| Classificazione | rango base |
+| Filogenesi | rancore |
+| Areale | Geodos |
+| Specie | Incarnazione |
+| Stadio | I |
+| Morfologia | Ossido metallico concentrato sotto forma di un'ombra del passato. |
+| Habitus | Impossibile determinare il momento della materializzazione: varie forme appaiono all'improvviso. |
 | Metamorfosi | non osservata |
-| Ecologia | Presidia i corridoi di passaggio. Non si sposta dal reparto in cui e' stata assegnata. |
+| Ecologia | Non sembra avere alcuna funzione. L'unica correlazione osservabile è il legame all'ambiente nel quale si materializza. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### El Muy Bonito — livello 4, particolare
-*Una rara bellezza, un campione nella recita, ma il talento a volte può farti uscire fuori di testa.*
+*Vamos! Ammirate el Muy Bonito, y despues a morir!*
 
 `giocoliere` · ♥ 340 · attacco 15 · difesa 7 · velocità 5 · xp 29 · elemento fuoco
 
@@ -499,16 +492,16 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Torce in aria | 2 colpi su bersagli a caso | ×0.75 → 11 a colpo (22 totali) | sempre | sorteggio | — |
+| 1 | Acrobazia folle | 2 colpi su bersagli a caso | ×0.75 → 11 a colpo (22 totali) | sempre | sorteggio | — |
 | 2 | Numero col fuoco | un colpo pesante su uno solo | ×1.60 → 24 | sempre | sorteggio | — |
 | 3 | Gran finale | colpisce **tutta la squadra** | ×1.10 → 17 | sotto il 35% di vita | priorità 7 | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Tre torce salgono, girano, e tornano giu' addosso a te.
+1. «Miren!» — e comincia a girare su se stesso con le torce accese.
 2. El Muy Bonito sorride al pubblico che non c'e', e sputa una lingua di fuoco.
 3. «Se e' l'ultimo, che sia il migliore!»
 
@@ -517,22 +510,20 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | El Muy Bonito |
-| Classificazione | forma aberrans — rango infra-specifico |
+| Classificazione | forma speciale |
 | Filogenesi | umana |
 | Areale | Il Vuoto Ardente |
-| Fenotipo | ibrido mutato |
-| Stadio | II |
-| Morfologia | Corpo adulto in buone condizioni apparenti, con il volto conservato meglio del resto. Le mani hanno acquisito una terza articolazione per dito. |
-| Fisiologia | Temperatura elevata alle estremita'. Manipola il fuoco senza subirne il danno, ma la pelle sotto le mani e' ormai carbone. |
-| Habitus | Sta in scena anche quando non c'e' scena: piedi in terza posizione, mento alto. |
-| Etologia | Alterna colpi rapidi a un numero preparato. Ridotto male lo esegue comunque, e lo chiama gran finale. |
+| Specie | Feticcio |
+| Stadio | III |
+| Morfologia | Corpo adulto in eccellenti condizioni apparenti, volto e fattezze conservate. Le fiamme che lo avvolgono hanno un'armonia diversa rispetto a quelle delle specie inferiori: non bruciano, ma accompagnano i suoi movimenti ottenendo un effetto rigenerativo. |
+| Habitus | Tende a rimanere sempre in posa. Si erge in difesa di colui che gli ha fornito il riconoscimento che ha sempre cercato. |
 | Metamorfosi | non osservata |
-| Ecologia | Non compete con le altre forme: le usa come pubblico. Il talento, a volte, ti fa uscire di testa. |
+| Ecologia | Il suo ruolo è difendere a ogni costo la fonte. Sembra non esserci un legame affettivo, ma un legame di rispetto e devozione che contraddistingue il rapporto fra la fonte e questo soggetto. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Robo Pattuglia — livello 4, corazzato
-*Una macchina di sorveglianza che non ha mai ricevuto l'ordine di smettere. Esegue un regolamento che nessuno applica più.*
+*Questo macchinario sembra avere la funzione di tenere in ordine e pattugliare i corridoi della struttura che gli è stata affidata.*
 
 `robo_pattuglia` · ♥ 277 · attacco 10 · difesa 13 · velocità 3 · xp 16 · elemento elettrico
 
@@ -541,39 +532,37 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Scarica di avvertimento | un colpo pesante su uno solo | ×1.25 → 13 | sempre | sorteggio | — |
-| 2 | Protocollo di contenimento | si chiude (difesa +3 per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 2 | Protocollo di contenimento | alza la guardia | — | sempre | sorteggio | 3 battute |
 | 3 | Riparazione d'emergenza | **si rimette in piedi** (+22% della vita massima) | — | sotto il 35% di vita | priorità 8 | 5 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. «Allontanarsi.» La scarica parte comunque.
-2. Le piastre si sovrappongono con uno scatto meccanico.
-3. «Danno critico. Riparazione in corso.» Qualcosa, dentro, si risalda.
+1. «Noi vogliamo solo il vostro bene!»
+2. «Soggetto pericoloso! Rafforzare le difese!»
+3. «Vrrr... clank... riparazioni eseguite!»
 
 **Tecno log**
 
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Robo Pattuglia |
-| Classificazione | unita' di sorveglianza |
+| Classificazione | rango base |
 | Filogenesi | meccanica |
-| Areale | Lo Squarcio Industriale |
-| Fenotipo | integro |
+| Areale | Geodos |
+| Specie | Robot |
 | Stadio | I |
-| Morfologia | Telaio di sorveglianza su tre punti d'appoggio, piastre sovrapponibili, un solo sensore frontale. Nessuna alterazione: e' esattamente com'e' uscito. |
-| Fisiologia | Alimentazione residua. Ripara i propri circuiti sotto una certa soglia di danno, e lo dice ad alta voce mentre lo fa. |
+| Morfologia | L'unità presenta lievi danni in superficie, tuttavia sembra essere completamente operativa. È composta da un'unità centrale dalla quale spuntano due pinze prensili e quattro piedi appuntiti che la sorreggono quando non si sposta rotolando. |
 | Habitus | Percorre lo stesso tratto avanti e indietro, alla stessa velocita'. |
-| Etologia | Avverte prima di colpire. Scarica solo dopo l'avviso, ed esegue un regolamento che nessuno applica piu'. |
 | Metamorfosi | non osservata |
 | Ecologia | Non fa parte della catena alimentare. E' arredamento che ha continuato a funzionare. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Capocantiere — livello 4, comune
-*Gestire dieci... cento... no... mille operai insoddisfatti, non dà gratificazione alcuna.*
+*Un'incarnazione delle figure di comando che gestivano i dipendenti del complesso.*
 
 `voce_registrata` · ♥ 207 · attacco 13 · difesa 5 · velocità 4 · xp 13
 
@@ -582,38 +571,36 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Richiamo disciplinare | un colpo pesante su uno solo | ×1.35 → 18 | sempre | sorteggio | — |
-| 2 | Ordine urlato | nessun danno: lascia addosso **Demotivazione** | — | sempre | sorteggio | 4 battute |
+| 2 | Rabbia repressa | si potenzia l'attacco (+4 per 3 battute) | — | sempre | sorteggio | 4 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. «Quello che stai facendo risulta in una nota.»
-2. La voce sale di un tono e non lascia spazio per pensare ad altro.
+2. «AL LAVORO!»
 
 **Tecno log**
 
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Capocantiere |
-| Classificazione | forma vocis |
-| Filogenesi | artificiale |
-| Areale | Lo Squarcio Industriale |
-| Fenotipo | artefatto |
+| Classificazione | rango base |
+| Filogenesi | umana |
+| Areale | Geodos |
+| Specie | Feticcio |
 | Stadio | I |
 | Morfologia | Non c'e' un corpo. L'emissione arriva dagli altoparlanti di reparto, e la posizione cambia con quelli. |
-| Fisiologia | Nessuna fisiologia. Il danno che subisce e' il danno che subiscono i diffusori. |
 | Habitus | Nessun portamento: solo un volume che sale. |
-| Etologia | Ripete ordini a cui non risponde piu' nessuno. Sotto stress alza il tono e la squadra ne risente. |
 | Metamorfosi | non osservata |
 | Ecologia | Regola il comportamento delle altre forme del reparto, che si dispongono ancora secondo i suoi turni. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Emblema dell'oppressione — livello 5, comune
-*Ferraglia tenuta insieme dallo spirito di un lavoratore che non è mai tornato a casa.*
+*Sembra che un cumulo di oggetti venga tenuto insieme da una manifestazione che si nutre della rabbia conservata nel complesso.*
 
 `operaio_posseduto` · ♥ 245 · attacco 15 · difesa 6 · velocità 5 · xp 18
 
@@ -621,16 +608,16 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Chiave inglese | un colpo pesante su uno solo | ×1.45 → 22 | sempre | sorteggio | — |
+| 1 | Rabbia della macchina | 7 colpi su bersagli a caso | ×0.20 → 3 a colpo (21 totali) | sempre | sorteggio | — |
 | 2 | Straordinario non pagato | si potenzia l'attacco (+3 per 3 battute) | — | sotto il 50% di vita | priorità 4 | 5 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. L'attrezzo arriva da sotto, con la forza di chi lo ha usato per vent'anni.
+1. Sette colpi di ferraglia, uno dietro l'altro, senza mai fermarsi.
 2. Non ha finito. Non ha mai finito.
 
 **Tecno log**
@@ -638,22 +625,20 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Emblema dell'oppressione |
-| Classificazione | forma vulgaris — rango infra-specifico |
-| Filogenesi | meccanica |
-| Areale | Lo Squarcio Industriale — Kizako Industries — Ala Dimenticata |
-| Fenotipo | ricomposto |
+| Classificazione | rango avanzato |
+| Filogenesi | umana |
+| Areale | Geodos |
+| Specie | Feticcio |
 | Stadio | II |
-| Morfologia | Ferraglia tenuta insieme in forma umanoide: due gambe, un braccio piu' lungo dell'altro, un attrezzo saldato al posto della mano. |
-| Fisiologia | Nessun metabolismo. Si muove finche' regge la struttura, e la struttura regge parecchio. |
-| Habitus | Sta come stava alla catena: leggermente piegato in avanti, il peso sul lato dell'attrezzo. |
-| Etologia | Colpisce con la chiave inglese e insiste sempre sullo stesso punto. Quando e' ridotto male accelera invece di fermarsi. |
+| Morfologia | La creatura appare come un cumulo di ferraglia che presenta vari nuclei spiritici, i quali la tengono insieme in un tentativo di possessione. |
+| Habitus | Aggredisce tutto quello che entra nel suo raggio d'azione. Non è possibile osservare nessun altro tipo di comportamento non violento. |
 | Metamorfosi | non osservata |
-| Ecologia | Occupa la sua postazione e la difende. Non insegue oltre il limite del suo reparto. |
+| Ecologia | Non ha alcuna funzione nell'ambiente se non quella di consumarne l'energia negativa per potenziarsi. |
 
 *Studi necessari per la pagina intera: 3.*
 
 ### Operaio Sfruttato — livello 5, particolare
-*Non difende i file: difende le ore che ci ha lasciato dentro. Toccarli è toccare l'unica cosa che gli è rimasta.*
+*Una manifestazione del rancore serbato a causa di anni di sfruttamento e violenze continue dei lavoratori del complesso.*
 
 `operaio_sfruttato` · ♥ 404 · attacco 18 · difesa 8 · velocità 5 · xp 39
 
@@ -661,16 +646,16 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Difende le sue ore | si chiude (difesa +2 per 3 battute) | — | sempre | sorteggio | 3 battute |
+| 1 | Resisto ancora | alza la guardia | — | sempre | sorteggio | 3 battute |
 | 2 | Esplosione di rabbia | un colpo pesante su uno solo | ×2.00 → 36 | sotto il 40% di vita | priorità 6 | 4 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Si mette davanti a quel poco che gli e' rimasto.
+1. Tiene stretti i denti e non si sposta di un passo.
 2. Tutto quello che non ha mai detto esce insieme.
 
 **Tecno log**
@@ -678,15 +663,13 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Operaio Sfruttato |
-| Classificazione | forma aberrans — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | umana |
-| Areale | Lo Squarcio Industriale |
-| Fenotipo | degenerato |
+| Areale | Geodos |
+| Specie | Feticcio |
 | Stadio | II |
 | Morfologia | Corpo adulto consumato: massa muscolare ridotta, mani ingrossate, colonna deformata dalla postura di vent'anni. |
-| Fisiologia | Metabolismo al minimo, temperatura bassa. Regge molto piu' di quanto sembri, e non per costituzione. |
 | Habitus | Sta davanti a quello che sorveglia, mai di fianco. Le braccia sono sempre fra te e i suoi fascicoli. |
-| Etologia | Difende, non attacca, finche' non lo si porta allo stremo: sotto una certa soglia esce tutto quello che non ha mai detto. |
 | Metamorfosi | non osservata |
 | Ecologia | Legato a un luogo preciso e a niente altro. Non difende i file: difende le ore che ci ha lasciato dentro. |
 
@@ -701,17 +684,17 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Bracciata | un colpo pesante su uno solo | ×1.40 → 25 | sempre | sorteggio | — |
-| 2 | Morsi | 2 colpi su bersagli a caso | ×0.60 → 11 a colpo (22 totali) | sempre | sorteggio | — |
-| 3 | Si ricompone | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
+| 1 | Terremoto | colpisce **tutta la squadra** | ×1.40 → 25 | sempre | sorteggio | — |
+| 2 | Spazzata | colpisce **tutta la squadra** | ×0.60 → 11 | sempre | sorteggio | — |
+| 3 | Ancora qui | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
-1. L'orrore sferza con tutte le braccia insieme.
-2. Più bocche affondano contemporaneamente.
+1. Appoggia il peso da un lato, e il pavimento risponde.
+2. Un braccio solo, largo quanto la stanza, che passa sopra tutti.
 3. I corpi si rimescolano, e quello che mancava lo prendono da un altro.
 
 **Tecno log**
@@ -719,17 +702,15 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Orrore di Meridia |
-| Classificazione | forma aberrans — rango infra-specifico |
+| Classificazione | rango calamita' |
 | Filogenesi | umana |
 | Areale | Meridia |
-| Fenotipo | ricomposto |
-| Stadio | III |
-| Morfologia | Piu' corpi adulti fusi lungo i piani di contatto. Il numero esatto non e' determinabile: le teste rilevate variano fra tre e cinque a seconda dell'angolo. |
-| Fisiologia | Metabolismi multipli non sincronizzati. Quando una parte cede, un'altra la sostituisce: si ricompone prendendo da se' stesso. |
-| Habitus | Occupa piu' spazio di quanto serva. Si muove tutto insieme e in ritardo su se' stesso. |
-| Etologia | Colpisce con tutte le braccia disponibili e morde con tutte le bocche disponibili. Ridotto male, si rimescola. |
+| Specie | Zombie |
+| Stadio | VI |
+| Morfologia | La creatura presenta una conformazione semplice ma enorme. La superficie del corpo è cosparsa di una sostanza melmosa che dona beneficio allo strato superficiale; proporzioni enormi, oltre misura. |
+| Habitus | Non sembra essere aggressiva se non provocata, tuttavia causa una continua distruzione intorno a sé. Non sembra avere alcun interesse se non nel cielo, che guarda costantemente. Travolge tutto quello che trova camminando in circolo, e non esce mai dalla circonferenza creata dal suo movimento. |
 | Metamorfosi | non osservata |
-| Ecologia | Si sono trovati nello stesso posto al momento sbagliato, e non si sono piu' separati. Continua ad aggregare. |
+| Ecologia | Non ha alcun ruolo se non quello di girare intorno a un perno fisso, in attesa di qualcosa... |
 
 *Studi necessari per la pagina intera: 3.*
 
@@ -745,15 +726,13 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Veronica |
-| Classificazione | nessuna — soggetto umano |
+| Classificazione | soggetto umano |
 | Filogenesi | umana |
 | Areale | Il pianeta del risveglio |
-| Fenotipo | integro |
+| Specie | Umano |
 | Stadio | I |
 | Morfologia | Nessuna alterazione. E' una persona. |
-| Fisiologia | Nella norma per la sua eta' e il suo mestiere, con una soglia del dolore che gli operatori descrivono come 'non spiegabile con l'allenamento'. |
 | Habitus | Sta dritta e vicino. Troppo vicino. |
-| Etologia | Colpisce per insegnare, e non sa dosare. Osservata mentre chiedeva scusa e continuava. |
 | Metamorfosi | non osservata |
 | Ecologia | Non e' una creatura del Vuoto: e' quello che c'era prima del Vuoto. |
 
@@ -777,7 +756,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Le lame girano, prendono, e quello che prendono non torna.
 2. Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.
@@ -787,15 +766,13 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Il Divoratore |
-| Classificazione | forma vorax |
+| Classificazione | rango avanzato |
 | Filogenesi | meccanica |
-| Areale | Lo Squarcio Industriale |
-| Fenotipo | artefatto |
+| Areale | Geodos |
+| Specie | Robot |
 | Stadio | III |
 | Morfologia | Struttura cilindrica con apertura anteriore continua. Interno rivestito di lame contrapposte che ruotano in fasi alternate. |
-| Fisiologia | Consuma quello che ingerisce, e non distingue fra vivo e morto. Quello che toglie non lo disperde: lo trattiene. |
 | Habitus | Avanza in linea retta. Non gira: si riposiziona. |
-| Etologia | Aspira quello che ha davanti e mastica. Sotto danno accelera l'aspirazione invece di ritirarsi. |
 | Metamorfosi | non osservata |
 | Ecologia | In cima alla catena del reparto per assenza di concorrenza. Non ha predatori perche' non ha nulla che valga la pena mangiare. |
 
@@ -817,7 +794,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. La montagna si sposta di un metro, e un metro basta.
 2. Il rumore non e' un rumore: e' una protesta di mille voci saldate insieme.
@@ -828,15 +805,13 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Ferraglia Urlante |
-| Classificazione | forma loricata — rango infra-specifico |
+| Classificazione | rango superiore |
 | Filogenesi | meccanica |
-| Areale | Kizako Industries — Ala Dimenticata |
-| Fenotipo | ricomposto |
+| Areale | Geodos |
+| Specie | Robot |
 | Stadio | III |
 | Morfologia | Ammasso di rottami di piu' provenienze, saldati da un calore che non e' quello di una fornace. Nessuna simmetria, nessun fronte riconoscibile. |
-| Fisiologia | Nessun metabolismo. Alta inerzia: si muove poco ma quello che si muove pesa. Riprende forma raccogliendo da terra quello che ha perso. |
 | Habitus | Non ha portamento. Occupa. |
-| Etologia | Si sposta di un metro e quel metro basta. L'emissione sonora che la accompagna induce panico misurabile a distanza. |
 | Metamorfosi | non osservata |
 | Ecologia | Cresce a spese del reparto: ogni pezzo che si stacca da una macchina prima o poi finisce addosso a lei. |
 
@@ -858,7 +833,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 5 | Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 13 a colpo (39 totali) | sempre | sorteggio | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata.
 2. Furia di un goblin: colpisce alla cieca, urlando.
@@ -873,15 +848,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Un goblin terribilmente arrabbiato |
-| Classificazione | forma princeps — rango infra-specifico |
+| Classificazione | rango calamita' |
 | Filogenesi | ferina |
 | Areale | Il pianeta del risveglio |
-| Fenotipo | ipertrofico |
+| Specie | Goblin |
 | Stadio | III |
 | Morfologia | Stessa specie del comune, portata a due volte e mezzo la taglia. La crescita e' avvenuta in fretta e male: le articolazioni non hanno tenuto il passo, le spalle sono piu' alte del collo. |
-| Fisiologia | Metabolismo bruciato, temperatura alta e instabile. Regge una quantita' di danno che nel comune sarebbe letale tre volte. |
 | Habitus | Non sta mai fermo. Anche a riposo continua a spostare il peso da un piede all'altro. |
-| Etologia | Chiama i suoi simili e li usa come schermo. Sotto sforzo si potenzia con scatti d'ira che non sembrano diretti a nessuno in particolare. |
 | Metamorfosi | non osservata |
 | Ecologia | Ha preso il posto di un capobranco che non c'era. Il disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse. |
 
@@ -903,7 +876,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Il ghoul morde e non lascia andare: quello che ti toglie se lo tiene.
 2. Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.
@@ -913,15 +886,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Ghoul |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | degenerato |
+| Areale | Jondoh |
+| Specie | Zombie |
 | Stadio | II |
 | Morfologia | Corpo adulto scarnificato, tenuto insieme da tessuto connettivo indurito. Le unghie sono l'unica struttura cresciuta dopo la morte, e sono cresciute molto. |
-| Fisiologia | Non digerisce: assorbe. Quello che toglie a un altro corpo lo rimette sul proprio, e si vede a occhio nudo. |
 | Habitus | Curvo, con le mani sempre davanti all'altezza del petto. |
-| Etologia | Morde e non lascia andare. Alterna il morso alla sciabolata di unghie a seconda della distanza. |
 | Metamorfosi | non osservata |
 | Ecologia | La forma piu' diffusa della Rocca. Uno dei tanti che Jondoh non ha mai lasciato andare. |
 
@@ -943,7 +914,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
 
@@ -954,13 +925,11 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Denominazione | ??? |
 | Classificazione | non classificabile |
 | Filogenesi | indeterminata |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | integro |
+| Areale | Jondoh |
+| Specie | Indeterminato |
 | Stadio | III |
 | Morfologia | Umanoide, statura media, avvolto. Nessuna parte del corpo e' stata osservata direttamente, e nessuno strumento ha restituito una misura stabile. |
-| Fisiologia | Il danno non lo ferma. E' stato colpito fino alla distruzione apparente in undici occasioni, e in undici occasioni ha ripreso a camminare. |
 | Habitus | Cammina. Non e' veloce, e non gli serve esserlo. |
-| Etologia | Colpisce piano e senza variare. Non insegue oltre la cripta, ma dentro la cripta non si ferma mai. |
 | Metamorfosi | non osservata |
 | Ecologia | Non ha posto nella catena: nessuna forma della Rocca lo tocca e lui non tocca loro. Il suo vero nome e' ancora un mistero. |
 
@@ -982,7 +951,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Piange, e quello che cade taglia.
 2. «Non toccarli.» Non c'e' nessuno da toccare.
@@ -992,15 +961,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Madre in Lacrime |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | ibrido mutato |
+| Areale | Jondoh |
+| Specie | Zombie |
 | Stadio | II |
 | Morfologia | Corpo adulto femminile con inclusioni di ossidiana lungo gli zigomi e il collo. Le lacrime sono vetro nero e non si fermano. |
-| Fisiologia | Produzione continua di materiale minerale a partire dal proprio tessuto. Si sta consumando per farlo, e non smette. |
 | Habitus | Sta chinata su qualcosa che non c'e', e non lascia avvicinare. |
-| Etologia | Colpisce chi si avvicina, e il pianto raggiunge tutti. Non attacca per prima se si resta lontani. |
 | Metamorfosi | non osservata |
 | Ecologia | Non contende niente e non si sposta. Piange figli che non tornano, e la Rocca la lascia in pace. |
 
@@ -1022,7 +989,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Si avvicina a scatti, come una fotografia che si muove male.
 2. Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.
@@ -1032,15 +999,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Teschio Errante |
-| Classificazione | forma capitis |
+| Classificazione | rango superiore |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | atrofico |
+| Areale | Jondoh |
+| Specie | Zombie |
 | Stadio | III |
 | Morfologia | Solo il cranio, senza mandibola in un terzo dei casi rilevati. Nessun corpo, nessun collegamento visibile a una massa che lo sostenga. |
-| Fisiologia | Nessun metabolismo. Si mantiene a mezzo metro dall'ossidiana e non scende. Il danno strutturale e' l'unico che conta. |
 | Habitus | Si sposta a scatti, come una fotografia che si muove male. |
-| Etologia | Carica ripetuta a distanza breve. L'osservazione prolungata delle orbite produce panico misurabile. |
 | Metamorfosi | non osservata |
 | Ecologia | Cerca ancora il corpo perduto. Segue chi ne ha uno. |
 
@@ -1062,7 +1027,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Due colpi bassi, dati con troppo entusiasmo.
 2. Ti imita mentre ti muovi, e ti viene voglia solo di prenderlo.
@@ -1072,15 +1037,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Diabolo |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | ferina |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | ibrido mutato |
+| Areale | Jondoh |
+| Specie | Ferino |
 | Stadio | I |
 | Morfologia | Ottanta centimetri, bipede, corna corte e ricurve, coda prensile. Le proporzioni sono da cucciolo, l'eta' stimata no. |
-| Fisiologia | Metabolismo rapido, temperatura alta. Regge poco ma si riprende in fretta. |
 | Habitus | Non sta fermo un secondo e ti gira intorno mentre parli. |
-| Etologia | Due colpi bassi dati con troppo entusiasmo, e una presa in giro che manda le persone fuori bersaglio. |
 | Metamorfosi | non osservata |
 | Ecologia | Cresciuto storto fra le fiamme della Rocca. Segue le forme piu' grandi e ne raccoglie gli scarti. |
 
@@ -1102,7 +1065,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Non ha fretta. Non ne ha mai avuta.
 2. Aspettava questo momento: si china su chi sta peggio.
@@ -1112,15 +1075,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Sadico |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | integro |
+| Areale | Jondoh |
+| Specie | Umano |
 | Stadio | II |
 | Morfologia | Corpo adulto senza alterazioni fisiche rilevanti. E' l'unico caso in cui la deformazione non e' del corpo. |
-| Fisiologia | Fisiologia nella norma. Nessuna resistenza particolare: e' pericoloso per come sceglie, non per come e' fatto. |
 | Habitus | Si muove con calma, e la calma e' la parte peggiore. |
-| Etologia | Taglia piano finche' hai da perdere. Si china su chi sta gia' male, e quello e' il momento in cui colpisce forte. |
 | Metamorfosi | non osservata |
 | Ecologia | Il dolore altrui e' l'unico linguaggio che la Rocca gli ha insegnato. Le altre forme lo evitano. |
 
@@ -1142,7 +1103,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Ti addosso il peso di una cosa che non hai fatto.
 2. Un segno ti resta sulla pelle, e da li' comincia a fare male.
@@ -1152,15 +1113,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Stigma |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | degenerato |
+| Areale | Jondoh |
+| Specie | Zombie |
 | Stadio | II |
 | Morfologia | Adulto con incisioni profonde su tutta la superficie dorsale, disposte in ordine leggibile. Le incisioni non guariscono e non sanguinano. |
-| Fisiologia | Metabolismo rallentato. Il segno che lascia addosso continua a lavorare da solo per un tempo lungo. |
 | Habitus | Sta dritto e si lascia guardare. E' l'unica cosa che gli e' rimasta. |
-| Etologia | Colpisce e marchia. Il marchio e' la parte che conta: il colpo e' un pretesto. |
 | Metamorfosi | non osservata |
 | Ecologia | Porta i peccati di qualcun altro. Chi glieli ha incisi non e' mai stato identificato. |
 
@@ -1182,7 +1141,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Qualcosa gli sale su dal petto e ti arriva addosso.
 2. Ti stringe, e per un momento non si capisce piu' dove finisci tu.
@@ -1193,15 +1152,13 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Abominio Marcio |
-| Classificazione | forma aberrans — rango infra-specifico |
+| Classificazione | rango avanzato |
 | Filogenesi | indeterminata |
 | Areale | — non ancora rilevato |
-| Fenotipo | ricomposto |
+| Specie | Zombie |
 | Stadio | III |
 | Morfologia | Piu' corpi fusi dal marciume, di specie diverse: sono stati riconosciuti segmenti umani e segmenti animali nello stesso soggetto. |
-| Fisiologia | Fermentazione attiva. Si ricuce da solo, e quello che ti toglie se lo rimette addosso. Emette continuamente materiale volatile tossico. |
 | Habitus | Occupa lo spazio in altezza piu' che in larghezza. Ondeggia. |
-| Etologia | Sputo a distanza, presa a contatto, e sotto pressione si rimescola e riparte. |
 | Metamorfosi | non osservata |
 | Ecologia | Una delle tante forme che prende la maledizione della Rocca. Continua ad aggregare quello che trova. |
 
@@ -1223,7 +1180,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Pugno devastante: il colpo si abbatte con tutto il peso della città morta.
 2. Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo.
@@ -1235,15 +1192,13 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Titano Zombie |
-| Classificazione | forma aberrans — rango infra-specifico |
+| Classificazione | rango avanzato |
 | Filogenesi | umana |
 | Areale | Meridia |
-| Fenotipo | ipertrofico |
+| Specie | Zombie |
 | Stadio | III |
 | Morfologia | Oltre quattro metri. Struttura ossea moltiplicata invece che ingrandita: doppie file di costole, articolazioni supplementari alle ginocchia. |
-| Fisiologia | Rigenerazione attiva e continua: recupera meta' di quello che ha appena incassato. Sotto un certo numero di colpi una gamba cede, e allora si ferma a ricucirsi. |
 | Habitus | In piedi, sempre. Si abbassa solo quando cede. |
-| Etologia | Spazza l'area davanti a se' e chiude la distanza con un colpo che toglie meta' di quello che ti resta. Non ha imparato a fermarsi. |
 | Metamorfosi | non osservata |
 | Ecologia | La cosa piu' grande che Meridia abbia partorito dopo la fine. Le altre forme non le si avvicinano. |
 
@@ -1267,7 +1222,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Il divoratore azzanna più volte, veloce.
 2. Si volta verso quello che il ponte ha lasciato cadere, e mangia.
@@ -1277,15 +1232,13 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Divoratore di Carcasse |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | ferina |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | ipertrofico |
+| Areale | Jondoh |
+| Specie | Ferino |
 | Stadio | II |
 | Morfologia | Quadrupede di grossa taglia con cranio sproporzionato e dentatura a piu' file. Il collo e' piu' spesso della testa. |
-| Fisiologia | Digestione rapidissima. Mangia quello che trova e ne ricava vita a vista d'occhio; sotto pressione mangia di piu', non di meno. |
 | Habitus | Sta basso, con il muso a terra. La puzza lo tradisce molto prima che si mostri. |
-| Etologia | Morsi rapidi e ripetuti. Ferito, si volta verso quello che il ponte ha lasciato cadere e si ingozza. |
 | Metamorfosi | non osservata |
 | Ecologia | Vive sotto il grande ponte marcio e ripulisce quello che cade. Nessuno gli contende quel posto. |
 
@@ -1307,7 +1260,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | Richiamo dei teschi | chiama 1 × `teschio_errante` | — | sempre | sorteggio | — |
 | 6 | Litania che rimargina | **si rimette in piedi** (+20% della vita massima) | — | sotto il 35% di vita | priorità 7 | 5 battute |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. "Per il viaggio!" Il sacerdote colpisce recitando.
 2. "Unisciti al raccolto!" Il sacerdote colpisce recitando.
@@ -1321,15 +1274,13 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Sacerdote Folle |
-| Classificazione | forma sacerdotis |
+| Classificazione | rango base |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | integro |
+| Areale | Jondoh |
+| Specie | Umano |
 | Stadio | II |
 | Morfologia | Adulto in paramenti, conservato. Nessuna alterazione fisica: la deformazione e' nel calendario che continua a seguire. |
-| Fisiologia | Fisiologia nella norma, con una resistenza alla fatica non spiegabile. Le ferite si chiudono al ritmo della recita. |
 | Habitus | In piedi, le braccia leggermente aperte, rivolto a un altare che non c'e' piu'. |
-| Etologia | Alterna quattro colpi rituali e chiama teschi. Ridotto male, recita piu' in fretta e si rimargina. |
 | Metamorfosi | non osservata |
 | Ecologia | Officiava i sacrifici molto prima che Jongo Dongo ne facesse un culto. Non e' rimasto nessuno a rispondergli. |
 
@@ -1351,7 +1302,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | Raccolto di carne | chiama 1 × `ghoul` | — | sempre | sorteggio | — |
 | 6 | Maledizione di chi muore | colpisce **tutta la squadra** | ×1.00 → 48 | sotto il 25% di vita | priorità 7 | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Jongo Dongo affonda l'artiglio marcio con tutto il suo peso.
 2. Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, la carne comincia a cedere.
@@ -1367,15 +1318,13 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Jongo Dongo |
-| Classificazione | forma princeps — rango infra-specifico |
+| Classificazione | rango calamita' |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | degenerato |
+| Areale | Jondoh |
+| Specie | Umano |
 | Stadio | III |
 | Morfologia | Adulto di corporatura importante, marcito in piedi. La pelle si e' aperta lungo le linee di tensione e non si e' richiusa; sotto, il tessuto e' ancora attivo. |
-| Fisiologia | Putrefazione controllata: si consuma e continua. Emette veleno da tutta la superficie. Il calo di funzione non ha mai raggiunto l'arresto. |
 | Habitus | Sta come stava da vivo, e questa e' la cosa che colpisce di piu' chi lo vede. |
-| Etologia | Colpo d'artiglio, bastone, grido che raggiunge tutti. Chiama ghoul dall'ossidiana e ne sacrifica uno per farsi piu' forte. |
 | Metamorfosi | non osservata |
 | Ecologia | Era il signore di queste terre. Sacrifico' raccolti e famiglie intere per la propria fortuna, e non si e' mai pentito. |
 
@@ -1397,7 +1346,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo.
 2. Si apre tutta insieme, e per un metro intorno non si sta.
@@ -1407,15 +1356,13 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Donna Spinosa |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | vegetale |
 | Areale | La Casa Gigante |
-| Fenotipo | ibrido mutato |
+| Specie | Flora |
 | Stadio | II |
 | Morfologia | Struttura arborea su impianto umanoide. Le spine sono modificazioni dei rami secondari e coprono tutta la superficie dorsale. |
-| Fisiologia | Fotosintesi residua piu' assorbimento diretto. Le spine rilasciano un composto che continua a lavorare dopo il contatto. |
 | Habitus | Immobile finche' non le si passa accanto. Poi si ricorda di essere stata progettata. |
-| Etologia | Attacco di contatto e apertura a raggiera quando ha piu' di un bersaglio vicino. Non insegue oltre due passi. |
 | Metamorfosi | non osservata |
 | Ecologia | Cresciuta in una vasca con un cartellino che diceva un'altra cosa. Quello che doveva essere non risulta agli atti. |
 
@@ -1437,7 +1384,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Un braccio di legno gira su un perno e arriva duro.
 2. I fili non tengono su lei: tengono giu' te.
@@ -1448,15 +1395,13 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Marionetta |
-| Classificazione | forma vulgaris — rango infra-specifico |
+| Classificazione | rango base |
 | Filogenesi | artificiale |
 | Areale | La Casa Gigante |
-| Fenotipo | artefatto |
+| Specie | Automa |
 | Stadio | II |
 | Morfologia | Legno di conifera, snodi in ottone, un metro e dieci. I fili non sono agganciati a nulla di visibile e restano tesi. |
-| Fisiologia | Nessuna fisiologia. Il danno che conta e' quello agli snodi; il resto si puo' sostituire, e a quanto pare si sostituisce da solo. |
 | Habitus | Sta appesa anche quando cammina: il peso non arriva mai del tutto ai piedi. |
-| Etologia | Colpisce con il braccio ruotando sul perno, e usa i fili per rallentare chi le sta davanti. Ridotta male, se li riannoda addosso. |
 | Metamorfosi | non osservata |
 | Ecologia | Qualcuno la muoveva con affetto, una volta. Adesso i fili scendono dal soffitto e nessuno li tiene. |
 
@@ -1478,7 +1423,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. La mano arriva piano, e non e' piu' una mano.
 2. Espira, e l'aria intorno smette di essere aria.
@@ -1489,15 +1434,13 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Jongo Dongo |
-| Classificazione | forma princeps — rango infra-specifico |
+| Classificazione | rango calamita' |
 | Filogenesi | umana |
-| Areale | Cunicoli sotterranei di Jondoh |
-| Fenotipo | ricomposto |
+| Areale | Jondoh |
+| Specie | Zombie |
 | Stadio | III |
 | Morfologia | Lo stesso corpo, rimesso insieme dopo la distruzione. Le linee di frattura sono visibili e non corrispondono a come si era spezzato. |
-| Fisiologia | Non c'e' piu' niente da consumare, e continua lo stesso. Sotto una certa soglia il corpo si tiene su per una ragione che non e' fisiologica. |
 | Habitus | Piu' lento di prima, e piu' dritto. |
-| Etologia | Mano marcia, respiro di putredine, e una tenuta che non dovrebbe esserci. |
 | Metamorfosi | non osservata |
 | Ecologia | Non rimane altro di lui che un corpo marcito che si muove grazie a una volonta' misteriosa. La volonta' non e' la sua. |
 
@@ -1519,7 +1462,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Ti dice una cosa vera, e detta da lei fa male il doppio.
 2. Piu' le pensi contro, piu' si fa solida.
@@ -1529,15 +1472,13 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Ombra del passato |
-| Classificazione | forma umbrae |
+| Classificazione | rango avanzato |
 | Filogenesi | indeterminata |
 | Areale | La Casa Gigante |
-| Fenotipo | artefatto |
+| Specie | Ombra |
 | Stadio | III |
 | Morfologia | Nessuna massa misurabile. La sagoma corrisponde a una persona precisa, diversa per ogni osservatore, e i contorni sono piu' netti dove il ricordo e' piu' recente. |
-| Fisiologia | Non ha corpo da danneggiare. Si consolida in proporzione al rancore che le si porta, e si nutre di quello che toglie. |
 | Habitus | Sta ferma a distanza di conversazione. Non si avvicina mai piu' di cosi'. |
-| Etologia | Parla prima di colpire, e quello che dice e' vero. Sotto pressione smette di parlare e comincia a prendere. |
 | Metamorfosi | non osservata |
 | Ecologia | Vive dei sentimenti repressi di chi la incontra. Senza qualcuno che ricordi, non c'e'. |
 
@@ -1559,7 +1500,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | Si ricuce le cuciture | **si rimette in piedi** (+15% della vita massima) | — | sotto il 25% di vita | priorità 6 | 6 battute |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. La bambola spalanca le cuciture e lancia una manciata di spilli.
 2. Un lamento terribile riempie la stanza. I cuori di tutti sobbalzano.
@@ -1574,15 +1515,13 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Un tenero ricordo |
-| Classificazione | forma amoris |
+| Classificazione | rango calamita' |
 | Filogenesi | artificiale |
 | Areale | La Casa Gigante |
-| Fenotipo | artefatto |
+| Specie | Automa |
 | Stadio | III |
 | Morfologia | Bambola di pezza cucita a mano, quaranta centimetri, imbottitura non identificata. Le cuciture sono state rifatte molte volte e da mani diverse. |
-| Fisiologia | Nessuna fisiologia. Il filo rientra da solo nei buchi. Il contenuto dell'imbottitura non e' stato campionato: chi ci ha provato non ha finito. |
 | Habitus | Sta seduta. Anche quando si muove, l'impressione e' che sia sempre seduta. |
-| Etologia | Spilli, lamento, e un'autolesione che fa piu' male a chi guarda che a lei. Chiama marionette dal soffitto. |
 | Metamorfosi | non osservata |
 | Ecologia | Al centro della casa, e la casa le sta intorno. E' stata amata: e' questo il problema. |
 
@@ -1604,7 +1543,7 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore.
 2. La parete si apre e sputa una nube di spore su tutta la stanza.
@@ -1615,15 +1554,13 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | Volto sulla parete |
-| Classificazione | forma dominans — rango infra-specifico |
+| Classificazione | rango avanzato |
 | Filogenesi | umana |
 | Areale | La Casa Gigante |
-| Fenotipo | ricomposto |
+| Specie | Incarnazione |
 | Stadio | III |
 | Morfologia | Volto adulto femminile cresciuto dentro la parete portante, con propaggini radicali che percorrono l'intera stanza. La parete e' parte del soggetto. |
-| Fisiologia | Metabolismo condiviso con la struttura dell'edificio: assorbe dalla parete quello che le viene tolto. Non e' separabile da dove sta. |
 | Habitus | Non ha portamento: ha esposizione. Ti guarda da un'altezza che non hai scelto tu. |
-| Etologia | Radici che stringono, e nube di spore quando ha piu' di un bersaglio. Sotto una certa soglia riprende dalla parete. |
 | Metamorfosi | non osservata |
 | Ecologia | Difende ancora i risultati di ricerche che non servono piu' a nessuno. Era la capofamiglia. |
 
@@ -1647,7 +1584,7 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 | 5 | Fiamma disperata | colpisce **tutta la squadra** | ×1.30 → 96 | sotto il 30% di vita | priorità 7 | 4 battute |
 | 6 | — | *casella libera* | — | — | — | — |
 
-**Cosa si legge in campo** — la riga che compare quando la mossa parte:
+**Motto** — quello che si legge in campo quando la mossa parte:
 
 1. ¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena.
 2. ¡Vamos! ... Una folata di vento ardente ti infligge lo status in fiamme.
@@ -1660,16 +1597,227 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 | Campo | Rilevamento |
 | --- | --- |
 | Denominazione | L'ultimo spettacolo di Jerah |
-| Classificazione | forma princeps — rango unico |
+| Classificazione | rango calamita' |
 | Filogenesi | umana |
 | Areale | Il Vuoto Ardente |
-| Fenotipo | ibrido mutato |
+| Specie | Umano |
 | Stadio | III |
 | Morfologia | Adulto, corporatura da ballerino, in abito di scena intatto. La combustione parte dall'interno e non ha ancora consumato il tessuto: e' la parte che non torna. |
-| Fisiologia | Temperatura interna incompatibile con la vita, mantenuta stabile. Non brucia il suo combustibile: lo rinnova. |
 | Habitus | In scena, sempre. Anche da solo, anche adesso. |
-| Etologia | Muro di fiamme su tutta l'arena, vento ardente che appicca, schivate eleganti, e un Fomentado chiamato dal fumo. Alle strette, non chiude lo spettacolo. |
 | Metamorfosi | non osservata |
 | Ecologia | Il mondo intero arde, teatro del suo ultimo show. Le altre forme del Vuoto sono comparse. |
 
 *Studi necessari per la pagina intera: 3.*
+
+## Tutti i motti
+
+Ogni frase che una creatura dice in campo, tutte di fila. È la pagina su cui si sente se
+parlano con voci diverse — e quali creature non hanno ancora niente da dire.
+
+**Goblin Tipico**
+
+1. Il goblin stringe il bastone con tutte e due le mani e mena alla cieca.
+2. «Difesa Goblin!» — e si copre la testa con le braccia.
+
+**Slime Infimo**
+
+1. Lo slime si allunga e lascia una bava che rallenta ogni movimento.
+2. Lo slime si raccoglie su se stesso e torna tondo.
+
+**Tartaruga Innocente**
+
+1. La tartaruga si ritira nel guscio.
+2. La tartaruga si tira dentro il guscio, e dentro il guscio si rimette.
+
+**Infetto Rapido**
+
+1. Arriva addosso prima che tu decida da che parte guardare.
+
+**Nuvola di Marciume**
+
+1. Non insegue nessuno: si sposta, e vi trova.
+2. Respiri, e te ne accorgi dopo.
+
+**Zombie Cittadino**
+
+1. Si agita tutto insieme e ti viene addosso.
+2. Si infila fra i suoi, e i suoi si chiudono intorno.
+
+**Fomentado**
+
+1. La maschera avvampa: per un istante ha di nuovo un volto.
+2. Non le resta molto da bruciare, e brucia tutto insieme.
+
+**Zombie Mostruoso**
+
+1. Il braccio piu' lungo arriva da dove non te lo aspetti.
+
+**Oppresso**
+
+1. La ruggine si addensa e si stratifica addosso a quello che resta di lui.
+2. Un accumulo di ruggine materializzata ti arriva addosso.
+
+**El Muy Bonito**
+
+1. «Miren!» — e comincia a girare su se stesso con le torce accese.
+2. El Muy Bonito sorride al pubblico che non c'e', e sputa una lingua di fuoco.
+3. «Se e' l'ultimo, che sia il migliore!»
+
+**Robo Pattuglia**
+
+1. «Noi vogliamo solo il vostro bene!»
+2. «Soggetto pericoloso! Rafforzare le difese!»
+3. «Vrrr... clank... riparazioni eseguite!»
+
+**Capocantiere**
+
+1. «Quello che stai facendo risulta in una nota.»
+2. «AL LAVORO!»
+
+**Emblema dell'oppressione**
+
+1. Sette colpi di ferraglia, uno dietro l'altro, senza mai fermarsi.
+2. Non ha finito. Non ha mai finito.
+
+**Operaio Sfruttato**
+
+1. Tiene stretti i denti e non si sposta di un passo.
+2. Tutto quello che non ha mai detto esce insieme.
+
+**Orrore di Meridia**
+
+1. Appoggia il peso da un lato, e il pavimento risponde.
+2. Un braccio solo, largo quanto la stanza, che passa sopra tutti.
+3. I corpi si rimescolano, e quello che mancava lo prendono da un altro.
+
+**Il Divoratore**
+
+1. Le lame girano, prendono, e quello che prendono non torna.
+2. Tutto quello che sta nel suo raggio comincia a scivolare verso il centro.
+
+**Ferraglia Urlante**
+
+1. La montagna si sposta di un metro, e un metro basta.
+2. Il rumore non e' un rumore: e' una protesta di mille voci saldate insieme.
+3. I rottami si richiamano da terra e tornano al loro posto.
+
+**Un goblin terribilmente arrabbiato**
+
+1. Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata.
+2. Furia di un goblin: colpisce alla cieca, urlando.
+3. Pugno del vile: un colpo sferrato senza il minimo onore.
+4. Capriccio del goblin: si mette a battere i piedi e se la prende con tutto quello che ha intorno. Il suo attacco aumenta.
+5. Cattiveria innata: ti sferra tre attacchi deboli di fila.
+
+**Ghoul**
+
+1. Il ghoul morde e non lascia andare: quello che ti toglie se lo tiene.
+2. Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.
+
+**???**
+
+1. Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
+
+**Madre in Lacrime**
+
+1. Piange, e quello che cade taglia.
+2. «Non toccarli.» Non c'e' nessuno da toccare.
+
+**Teschio Errante**
+
+1. Si avvicina a scatti, come una fotografia che si muove male.
+2. Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.
+
+**Diabolo**
+
+1. Due colpi bassi, dati con troppo entusiasmo.
+2. Ti imita mentre ti muovi, e ti viene voglia solo di prenderlo.
+
+**Sadico**
+
+1. Non ha fretta. Non ne ha mai avuta.
+2. Aspettava questo momento: si china su chi sta peggio.
+
+**Stigma**
+
+1. Ti addosso il peso di una cosa che non hai fatto.
+2. Un segno ti resta sulla pelle, e da li' comincia a fare male.
+
+**Abominio Marcio**
+
+1. Qualcosa gli sale su dal petto e ti arriva addosso.
+2. Ti stringe, e per un momento non si capisce piu' dove finisci tu.
+3. I corpi si rimescolano, e quello che era aperto adesso e' chiuso.
+
+**Titano Zombie**
+
+1. Pugno devastante: il colpo si abbatte con tutto il peso della città morta.
+2. Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo.
+
+**Divoratore di Carcasse**
+
+1. Il divoratore azzanna più volte, veloce.
+2. Si volta verso quello che il ponte ha lasciato cadere, e mangia.
+
+**Sacerdote Folle**
+
+1. "Per il viaggio!" Il sacerdote colpisce recitando.
+2. "Unisciti al raccolto!" Il sacerdote colpisce recitando.
+3. "Portatelo da me!" Il sacerdote colpisce recitando.
+4. "Non c'è altra strada!" Il sacerdote colpisce recitando.
+5. Il sacerdote alza le braccia: un teschio errante risponde al richiamo.
+6. Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.
+
+**Jongo Dongo**
+
+1. Jongo Dongo affonda l'artiglio marcio con tutto il suo peso.
+2. Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, la carne comincia a cedere.
+3. "IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!" Il grido vi si conficca dentro più delle unghie.
+4. Jongo Dongo si volta verso uno dei suoi ghoul, con la stessa calma di sempre: "Un piccolo sacrificio... per un grande risultato."
+5. Jongo Dongo batte il palmo marcio sull'ossidiana: la terra stessa gli restituisce un altro ghoul.
+6. Quello che ha fatto marcire lui, adesso lo passa a voi.
+
+**Donna Spinosa**
+
+1. Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo.
+2. Si apre tutta insieme, e per un metro intorno non si sta.
+
+**Marionetta**
+
+1. Un braccio di legno gira su un perno e arriva duro.
+2. I fili non tengono su lei: tengono giu' te.
+3. Raccoglie i suoi fili da terra e se li riannoda addosso.
+
+**Jongo Dongo**
+
+1. La mano arriva piano, e non e' piu' una mano.
+2. Espira, e l'aria intorno smette di essere aria.
+3. Il corpo non dovrebbe reggere. Qualcosa lo tiene su lo stesso.
+
+**Ombra del passato**
+
+1. Ti dice una cosa vera, e detta da lei fa male il doppio.
+2. Piu' le pensi contro, piu' si fa solida.
+
+**Un tenero ricordo**
+
+1. La bambola spalanca le cuciture e lancia una manciata di spilli.
+2. Un lamento terribile riempie la stanza. I cuori di tutti sobbalzano.
+3. La bambola si strappa una cucitura da sola, piano. Fa più male a voi che a lei.
+4. Dei fili scendono dal soffitto: una marionetta si alza da terra.
+5. Il filo rientra da solo nei buchi, come se qualcuno la stesse ancora rammendando.
+
+**Volto sulla parete**
+
+1. Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore.
+2. La parete si apre e sputa una nube di spore su tutta la stanza.
+3. La parete si muove dietro di lei, e le rida' quello che le hai tolto.
+
+**L'ultimo spettacolo di Jerah**
+
+1. ¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena.
+2. ¡Vamos! ... Una folata di vento ardente ti infligge lo status in fiamme.
+3. Jerah schiva elegantemente tutti i tuoi colpi.
+4. Jerah batte il tacco tre volte: dal fumo sale un Fomentado.
+5. «Lo spettacolo non finisce finche' non lo decido io.»
+

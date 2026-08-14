@@ -33,6 +33,7 @@ func _ready() -> void:
 		righe.append("## %s" % zona)
 		for id_creatura in per_zona[zona]:
 			righe.append_array(scheda(String(id_creatura)))
+	righe.append_array(indice_dei_motti())
 	var testo := "\n".join(righe) + "\n"
 	var file := FileAccess.open(USCITA, FileAccess.WRITE)
 	if file == null:
@@ -118,8 +119,8 @@ func intestazione() -> Array[String]:
 		"  capirla in un colpo d'occhio, e **in gioco non compare da nessuna parte**. Il grassetto lì",
 		"  dentro è solo tipografia di questa pagina (evidenzia la parola che conta: il nome di uno",
 		"  stato, «tutta la squadra»). La frase che si legge davvero a schermo quando la mossa parte è",
-		"  un'altra cosa, ed è sotto ogni tabella, in **Cosa si legge in campo**: quella si può",
-		"  riscrivere parola per parola.",
+		"  un'altra cosa, ed è sotto ogni tabella, nel **Motto**: quella si può riscrivere parola per",
+		"  parola, ed è raccolta tutta insieme in fondo alla pagina.",
 		"- **Quando** dice a quale condizione la mossa esiste. Una mossa fuori condizione non entra",
 		"  nemmeno nel sorteggio: non è che «capita di rado», è che non c'è.",
 		"- **Scelta** dice che quella mossa non si sorteggia: se la condizione c'è, la creatura la",
@@ -159,12 +160,25 @@ func intestazione() -> Array[String]:
 		"comporta. In gioco si legge nel Bestiario; qui sotto c'è già tutta, perché è il documento",
 		"su cui si correggono i testi — e i testi non si correggono tre righe per volta.",
 		"",
-		"La **Filogenesi** è il campo che Bru ha chiesto per primo: il corpo d'origine. A Meridia la",
-		"stessa infezione ha preso corpi diversi, e la scheda lo dice — il Cittadino e l'Infetto",
-		"Rapido sono tutti e due *umana*, il Divoratore di Carcasse è *ferina*, la Robo Pattuglia è",
-		"*meccanica*. **Denominazione**, **Areale** e **Metamorfosi** non sono scritti a mano: il",
-		"nome è quello della creatura, l'areale esce da dove compare davvero nei file delle zone, e",
-		"la metamorfosi dice «osservata» solo se hai incontrato anche la forma in cui si trasforma.",
+		"La **Filogenesi** è il corpo d'origine: a Meridia la stessa infezione ha preso corpi diversi,",
+		"e la scheda lo dice — il Cittadino e l'Infetto Rapido sono tutti e due *umana*, il Divoratore",
+		"di Carcasse è *ferina*, la Robo Pattuglia è *meccanica*, l'Oppresso è *rancore*.",
+		"",
+		"La **Specie** è il nome della cosa, non un aggettivo su come è venuta: *Zombie*, *Slime*,",
+		"*Robot*. È il campo che lega creature diverse — Zombie Cittadino, Zombie Mostruoso e Orrore",
+		"di Meridia sono la stessa specie a tre **Stadi**, e i due campi si leggono insieme. La",
+		"**Classificazione** è il rango sulla scala di quella specie: base → variante base → superiore",
+		"→ avanzato → calamità, più le forme che non stanno su nessuna scala (onirica, speciale).",
+		"",
+		"L'**Areale** è la **regione grande, non la stanza**: l'Oppresso lo incontri nello Squarcio",
+		"Industriale, ma la sua regione è *Geodos*, di cui lo Squarcio è solo una frattura. La",
+		"traduzione da zona a regione sta in un posto solo (`areale_per_zona`), così ribattezzare un",
+		"mondo è una riga; e una specie che vive dove il gioco non ti porta ancora può scriversi",
+		"l'areale a mano — lo Slime è su tre pianeti anche se lo incontri in una radura sola.",
+		"",
+		"**Denominazione** e **Metamorfosi** non si scrivono mai a mano: il nome è quello della",
+		"creatura, e la metamorfosi dice «osservata» solo se hai incontrato anche la forma in cui si",
+		"trasforma. È il tuo registro, non un'enciclopedia.",
 		"",
 		"## La regola che vale per tutte",
 		"",
@@ -338,13 +352,12 @@ func scheda(id_creatura: String) -> Array[String]:
 	righe.append_array(scheda_tecnolog(id_creatura))
 	return righe
 
-func frasi_in_campo(mosse: Array) -> Array[String]:
-	# La riga che si legge davvero a schermo quando la mossa parte: e' il campo
-	# "testo" della mossa, e prima non compariva da nessuna parte in questa
-	# pagina. Bru l'aveva cercata e non trovata, e aveva provato a scriverla nel
-	# grassetto della colonna "Cosa fa" - che pero' e' solo tipografia. Se il
-	# posto giusto non si vede, uno se ne inventa uno sbagliato: quindi si vede
-	var righe: Array[String] = []
+func motti_di(mosse: Array) -> Array[String]:
+	# IL MOTTO: la riga che si legge davvero a schermo quando la mossa parte.
+	# E' il campo "testo" della mossa, e prima non compariva da nessuna parte in
+	# questa pagina. Bru l'aveva cercata, non l'aveva trovata, e aveva provato a
+	# scriverla nel grassetto della colonna "Cosa fa" - che pero' e' solo
+	# tipografia. Se il posto giusto non si vede, uno se ne inventa uno sbagliato
 	var elenco: Array[String] = []
 	var casella := 0
 	for voce in mosse:
@@ -354,15 +367,53 @@ func frasi_in_campo(mosse: Array) -> Array[String]:
 			continue
 		var testo := String(mossa.get("testo", "")).strip_edges()
 		if testo == "" or testo == "-":
-			elenco.append("%d. *(nessuna frase: parte in silenzio)*" % casella)
+			elenco.append("%d. *(nessun motto: parte in silenzio)*" % casella)
 		else:
 			elenco.append("%d. %s" % [casella, testo])
+	return elenco
+
+func frasi_in_campo(mosse: Array) -> Array[String]:
+	var righe: Array[String] = []
+	var elenco := motti_di(mosse)
 	if elenco.is_empty():
 		return righe
 	righe.append("")
-	righe.append("**Cosa si legge in campo** — la riga che compare quando la mossa parte:")
+	righe.append("**Motto** — quello che si legge in campo quando la mossa parte:")
 	righe.append("")
 	righe.append_array(elenco)
+	return righe
+
+func indice_dei_motti() -> Array[String]:
+	# Tutte le frasi salienti dei mostri in un posto solo. Sparse una per
+	# creatura si correggono male: una accanto all'altra si sente subito chi
+	# parla come chi, e chi non ha ancora niente da dire
+	var righe: Array[String] = [
+		"",
+		"## Tutti i motti",
+		"",
+		"Ogni frase che una creatura dice in campo, tutte di fila. È la pagina su cui si sente se",
+		"parlano con voci diverse — e quali creature non hanno ancora niente da dire.",
+		"",
+	]
+	var ordinate: Array[String] = []
+	for id_creatura in GameState.personaggi:
+		if combatte(String(id_creatura)):
+			ordinate.append(String(id_creatura))
+	ordinate.sort_custom(func(a: String, b: String) -> bool:
+		var la := GameState.livello_base_nemico(a)
+		var lb := GameState.livello_base_nemico(b)
+		if la != lb:
+			return la < lb
+		return a < b)
+	for id_creatura in ordinate:
+		var dati: Dictionary = GameState.personaggi.get(id_creatura, {})
+		var elenco := motti_di(dati.get("mosse", []))
+		if elenco.is_empty():
+			continue
+		righe.append("**%s**" % String(dati.get("nome", id_creatura)))
+		righe.append("")
+		righe.append_array(elenco)
+		righe.append("")
 	return righe
 
 func scheda_tecnolog(id_creatura: String) -> Array[String]:

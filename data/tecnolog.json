@@ -1,6 +1,6 @@
 {
-	"_nota": "IL TECNO LOG: cosa lo Studio scrive, e quando. Bru: \"lo studio deve dare questi aspetti di descrizione della specie: filogenesi, ovvero il corpo d'origine - nel caso degli zombie ci possono essere zombie umani, animali...\". Studiare non e' piu' solo una battuta di dialogo e un paio di numeri: e' una scheda che si riempie. Ogni campo ha uno STRATO, cioe' a quale studio si rivela: il primo dice chi e' e da dove viene, il secondo com'e' fatto, il terzo come si comporta. Cosi' studiare tre volte la stessa creatura non e' pignoleria, e' il modo di finire una pagina.",
-	"_nota_derivati": "Tre campi NON si scrivono a mano, e non devono: Denominazione e' il nome della creatura, Areale esce da dove la creatura compare davvero nei file delle zone (aggiungila a una stanza nuova e l'areale si allarga da solo), Metamorfosi dice 'osservata' solo se hai incontrato ANCHE la forma in cui si trasforma - e' il tuo registro, non un'enciclopedia. Un campo scritto a mano che ripete un dato che il gioco gia' conosce e' un campo che prima o poi dira' una bugia.",
+	"_nota": "IL TECNO LOG: cosa lo Studio scrive, e quando. Studiare non e' una battuta di dialogo e due numeri: e' una scheda di specie che si riempie a strati. Ogni campo ha uno STRATO, cioe' a quale studio si rivela: il primo dice chi e' e da dove viene, il secondo che cos'e' e com'e' fatto, il terzo come si comporta.",
+	"_nota_derivati": "Tre campi NON si scrivono a mano nella voce, e non devono: Denominazione e' il nome della creatura; Areale esce dalle zone in cui la creatura compare davvero, tradotte in regione grande da 'areale_per_zona' (una creatura spostata di stanza non puo' restare con l'areale sbagliato); Metamorfosi dice 'osservata' solo se hai incontrato ANCHE la forma in cui si trasforma. Una voce puo' scriversi l'areale a mano quando la specie vive in posti dove il gioco non ti porta: in quel caso la mano vince, perche' e' un fatto di mondo, non un fatto di mappa.",
 	"campi": [
 		{
 			"id": "denominazione",
@@ -14,34 +14,36 @@
 			"etichetta": "Classificazione",
 			"strato": 1,
 			"derivato": "classificazione",
-			"nota": "forma <latino> — rango infra-specifico, dal ruolo se non scritta"
+			"vocabolario": "rango",
+			"nota": "rango nella scala della sua specie; dal ruolo se la voce non se lo scrive"
 		},
 		{
 			"id": "filogenesi",
 			"etichetta": "Filogenesi",
 			"strato": 1,
 			"vocabolario": "filogenesi",
-			"nota": "substrato biologico riconoscibile: il corpo d'origine"
+			"nota": "substrato d'origine: il corpo da cui viene"
 		},
 		{
 			"id": "areale",
 			"etichetta": "Areale",
 			"strato": 1,
 			"derivato": "areale",
-			"nota": "dove compare davvero, letto dai file delle zone"
+			"nota": "la regione grande, non la stanza: dalle zone dove compare, o scritto a mano"
 		},
 		{
-			"id": "fenotipo",
-			"etichetta": "Fenotipo",
+			"id": "specie",
+			"etichetta": "Specie",
 			"strato": 2,
-			"vocabolario": "fenotipo"
+			"vocabolario": "specie",
+			"nota": "il nome della specie, non un aggettivo su come e' venuta"
 		},
 		{
 			"id": "stadio",
 			"etichetta": "Stadio",
 			"strato": 2,
 			"vocabolario": "stadio",
-			"nota": "grado di deformazione osservata, niente altro"
+			"nota": "a che punto della sua specie si trova questo esemplare"
 		},
 		{
 			"id": "morfologia",
@@ -49,18 +51,8 @@
 			"strato": 2
 		},
 		{
-			"id": "fisiologia",
-			"etichetta": "Fisiologia",
-			"strato": 2
-		},
-		{
 			"id": "habitus",
 			"etichetta": "Habitus",
-			"strato": 3
-		},
-		{
-			"id": "etologia",
-			"etichetta": "Etologia",
 			"strato": 3
 		},
 		{
@@ -86,452 +78,478 @@
 			"mineraria",
 			"artificiale",
 			"onirica",
+			"rancore",
 			"indeterminata"
 		],
-		"fenotipo": [
-			"integro",
-			"ibrido mutato",
-			"degenerato",
-			"atrofico",
-			"ipertrofico",
-			"ricomposto",
-			"artefatto"
+		"specie": [
+			"Zombie",
+			"Goblin",
+			"Slime",
+			"Tartaruga",
+			"Nimbo",
+			"Robot",
+			"Automa",
+			"Feticcio",
+			"Incarnazione",
+			"Ombra",
+			"Flora",
+			"Ferino",
+			"Umano",
+			"Onirico",
+			"Indeterminato"
 		],
 		"stadio": [
 			"I",
 			"II",
-			"III"
+			"III",
+			"IV",
+			"V",
+			"VI"
 		],
 		"metamorfosi": [
 			"osservata",
 			"non osservata"
+		],
+		"rango": [
+			"rango base",
+			"rango variante base",
+			"rango superiore",
+			"rango avanzato",
+			"rango calamita'",
+			"forma onirica",
+			"forma speciale",
+			"non classificabile",
+			"soggetto umano"
 		]
 	},
-	"_nota_classificazione": "La forma latina esce dal RUOLO, che e' anche la cosa da cui escono i suoi numeri: cosi' la riga tecnica e la scheda dicono la stessa cosa senza doverlo ricordare a nessuno. Una creatura puo' scriversi la sua se le serve un nome suo.",
+	"_nota_classificazione": "La classificazione e' il RANGO nella scala della sua specie, e sale con lo stadio: base -> variante base -> superiore -> avanzato -> calamita'. Fuori scala ci sono le forme che non appartengono a una progressione (onirica, speciale). Se una voce non se la scrive, il rango esce dal ruolo - che e' anche la cosa da cui escono i suoi numeri.",
 	"classificazione_per_ruolo": {
-		"comune": "forma vulgaris",
-		"veloce": "forma agilis",
-		"corazzato": "forma loricata",
-		"particolare": "forma aberrans",
-		"miniboss": "forma dominans",
-		"fonte": "forma princeps"
+		"comune": "rango base",
+		"veloce": "rango variante base",
+		"corazzato": "rango superiore",
+		"particolare": "rango avanzato",
+		"miniboss": "rango avanzato",
+		"fonte": "rango calamita'"
 	},
-	"rango": "rango infra-specifico",
 	"non_rilevato": "— non ancora rilevato",
 	"voci": {
 		"goblin_tipico": {
+			"classificazione": "rango base",
 			"filogenesi": "ferina",
-			"fenotipo": "degenerato",
+			"areale": [
+				"Pianure selvagge di Canuka Rei"
+			],
+			"specie": "Goblin",
 			"stadio": "I",
 			"morfologia": "Un metro e poco piu'. Scheletro leggero, spalle asimmetriche, mani sproporzionate rispetto agli avambracci. Tegumento verdastro, spelacchiato a chiazze, spesso escoriato sulle nocche.",
-			"fisiologia": "Metabolismo rapido e disordinato, temperatura sopra la norma. Non regge il digiuno e non regge i colpi: cede al primo trauma serio.",
 			"habitus": "Sta curvo anche da fermo, con il peso su una gamba sola. Guarda in basso e di lato, mai davanti.",
-			"etologia": "Attacca solo se convinto di essere in vantaggio numerico, e cambia idea appena non lo e' piu'. Raccoglie a terra qualunque cosa possa essere impugnata.",
 			"ecologia": "Vive ai margini di gruppi piu' grandi, dai quali viene tollerato e derubato. Non forma legami stabili."
 		},
 		"slime_infimo": {
+			"classificazione": "rango base",
 			"filogenesi": "indeterminata",
-			"fenotipo": "ibrido mutato",
+			"areale": [
+				"Pianure selvagge di Canuka Rei",
+				"Gombok 2",
+				"Profondità di Derios Nu"
+			],
+			"specie": "Slime",
 			"stadio": "I",
 			"morfologia": "Massa gelatinosa senza scheletro ne' organi distinguibili, volume variabile fra i venti e i quaranta litri. La superficie e' l'unica parte con una struttura: piu' densa, quasi una pelle.",
-			"fisiologia": "Non ha temperatura propria. Assorbe e rilascia acqua a seconda dell'ambiente; il danno che subisce si richiude da solo se gli si lascia il tempo.",
 			"habitus": "Nessuna postura: si accumula. Da fermo e' indistinguibile da una pozza.",
-			"etologia": "Reagisce alla vibrazione, non alla luce. Non insegue: aspetta, e si sposta di pochi centimetri per volta verso quello che si muove.",
 			"ecologia": "Riempie gli avvallamenti e i sottoscala. Non compete con nessuno perche' non toglie niente a nessuno."
 		},
 		"tartaruga_innocente": {
+			"classificazione": "rango superiore",
 			"filogenesi": "ferina",
-			"fenotipo": "ipertrofico",
+			"areale": [
+				"Il pianeta del risveglio"
+			],
+			"specie": "Tartaruga",
 			"stadio": "II",
 			"morfologia": "Carapace di oltre due metri di diametro, cresciuto ben oltre le proporzioni dell'animale che lo porta. Il collo e gli arti sono rimasti quelli di un esemplare comune.",
-			"fisiologia": "Metabolismo lentissimo, temperatura costante. La resistenza al danno e' quasi interamente meccanica: il guscio.",
 			"habitus": "Si muove pochissimo e si ritira alla minima ombra. Da fuori sembra una minaccia; da dentro e' un animale spaventato.",
-			"etologia": "NON ATTACCA MAI. Non e' stato osservato un solo caso di aggressione, nemmeno sotto danno prolungato. Alza la difesa e aspetta che la cosa passi.",
 			"ecologia": "Occupa lo spazio e non lo contende. Nessun predatore noto: nessuno ci guadagna abbastanza da insistere."
 		},
 		"manifestazione_di_un_sogno": {
-			"classificazione": "forma somnii",
+			"classificazione": "forma onirica",
 			"filogenesi": "onirica",
-			"fenotipo": "artefatto",
+			"areale": [
+				"Dynapia",
+				"Profondità del sogno di Rui",
+				"Negaton 1",
+				"Pianure selvagge di Canuka Rei"
+			],
+			"specie": "Onirico",
 			"stadio": "III",
 			"morfologia": "Non ha una struttura stabile: i bordi si spostano se la si guarda troppo a lungo. Le misure prese in due momenti diversi non coincidono.",
-			"fisiologia": "Nessun metabolismo rilevabile. Non ha temperatura, non consuma, non si stanca. Il danno la attraversa senza lasciare traccia finche' qualcosa, altrove, continua a sognarla.",
 			"habitus": "Sta ferma al centro del campo e non cerca posizione: e' il campo a disporsi intorno a lei.",
-			"etologia": "Non risponde agli stimoli come una creatura: risponde come una scena. Esegue una sequenza, e la sequenza non cambia se la si interrompe.",
 			"ecologia": "Non appartiene a questo ecosistema e non lo tocca. E' presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora facendo."
 		},
 		"goblin_arrabbiato": {
 			"filogenesi": "ferina",
-			"fenotipo": "ipertrofico",
+			"specie": "Goblin",
 			"stadio": "III",
 			"morfologia": "Stessa specie del comune, portata a due volte e mezzo la taglia. La crescita e' avvenuta in fretta e male: le articolazioni non hanno tenuto il passo, le spalle sono piu' alte del collo.",
-			"fisiologia": "Metabolismo bruciato, temperatura alta e instabile. Regge una quantita' di danno che nel comune sarebbe letale tre volte.",
 			"habitus": "Non sta mai fermo. Anche a riposo continua a spostare il peso da un piede all'altro.",
-			"etologia": "Chiama i suoi simili e li usa come schermo. Sotto sforzo si potenzia con scatti d'ira che non sembrano diretti a nessuno in particolare.",
 			"ecologia": "Ha preso il posto di un capobranco che non c'era. Il disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse."
 		},
 		"veronica": {
-			"classificazione": "nessuna — soggetto umano",
+			"classificazione": "soggetto umano",
 			"filogenesi": "umana",
-			"fenotipo": "integro",
+			"specie": "Umano",
 			"stadio": "I",
 			"morfologia": "Nessuna alterazione. E' una persona.",
-			"fisiologia": "Nella norma per la sua eta' e il suo mestiere, con una soglia del dolore che gli operatori descrivono come 'non spiegabile con l'allenamento'.",
 			"habitus": "Sta dritta e vicino. Troppo vicino.",
-			"etologia": "Colpisce per insegnare, e non sa dosare. Osservata mentre chiedeva scusa e continuava.",
 			"ecologia": "Non e' una creatura del Vuoto: e' quello che c'era prima del Vuoto."
 		},
 		"maschera_vuota": {
+			"classificazione": "rango base",
 			"filogenesi": "umana",
-			"fenotipo": "degenerato",
-			"stadio": "II",
-			"morfologia": "Corpo umano adulto, svuotato. Il volto non c'e' piu': al suo posto una superficie liscia che riflette il calore. Le mani conservano i calli del mestiere di prima.",
-			"fisiologia": "Temperatura costantemente sopra i sessanta gradi. Brucia dall'interno e non si spegne; il combustibile e' quello che era la sua passione.",
-			"habitus": "Cammina veloce e diritto, come chi e' in ritardo. Non si guarda intorno.",
-			"etologia": "Si avvicina fino al contatto e brucia. Sotto una certa soglia di danno rilascia tutto quello che le resta in una sola vampata.",
-			"ecologia": "Non compete e non collabora: attraversa. Dove passa, quello che resta e' cenere fredda."
+			"areale": [
+				"Il Vuoto Ardente"
+			],
+			"specie": "Feticcio",
+			"stadio": "I",
+			"morfologia": "Corpo umano adulto, indole focosa. Sembra sprigionare energia in ogni sua mossa, ed è avvolto da fiamme ardenti.",
+			"habitus": "Suole esibirsi in diversi numeri di intrattenimento finché non viene notato.",
+			"ecologia": "Brucia tutto quello con cui viene a contatto, consuma tutto quello che tocca, e ha una forte sinergia con i suoi simili."
 		},
 		"comparsa_di_ruggine": {
-			"filogenesi": "umana",
-			"fenotipo": "ibrido mutato",
-			"stadio": "II",
-			"morfologia": "Ossido metallico cresciuto al posto del derma, saldato all'osso in piu' punti. Le articolazioni si aprono a scatti e stridono.",
-			"fisiologia": "Metabolismo quasi fermo. Alta resistenza meccanica, nessuna capacita' di rigenerare: quello che si spezza resta spezzato.",
-			"habitus": "In piedi, immobile, con lo sguardo verso un punto che non c'e'. Sta ancora aspettando che il suo turno finisca.",
-			"etologia": "Reagisce solo a chi le passa davanti. Si irrigidisce prima di incassare, e cerca di aprire la guardia di chi ha di fronte.",
-			"ecologia": "Presidia i corridoi di passaggio. Non si sposta dal reparto in cui e' stata assegnata."
+			"classificazione": "rango base",
+			"filogenesi": "rancore",
+			"areale": [
+				"Geodos"
+			],
+			"specie": "Incarnazione",
+			"stadio": "I",
+			"morfologia": "Ossido metallico concentrato sotto forma di un'ombra del passato.",
+			"habitus": "Impossibile determinare il momento della materializzazione: varie forme appaiono all'improvviso.",
+			"ecologia": "Non sembra avere alcuna funzione. L'unica correlazione osservabile è il legame all'ambiente nel quale si materializza."
 		},
 		"voce_registrata": {
-			"classificazione": "forma vocis",
-			"filogenesi": "artificiale",
-			"fenotipo": "artefatto",
+			"classificazione": "rango base",
+			"filogenesi": "umana",
+			"areale": [
+				"Geodos"
+			],
+			"specie": "Feticcio",
 			"stadio": "I",
 			"morfologia": "Non c'e' un corpo. L'emissione arriva dagli altoparlanti di reparto, e la posizione cambia con quelli.",
-			"fisiologia": "Nessuna fisiologia. Il danno che subisce e' il danno che subiscono i diffusori.",
 			"habitus": "Nessun portamento: solo un volume che sale.",
-			"etologia": "Ripete ordini a cui non risponde piu' nessuno. Sotto stress alza il tono e la squadra ne risente.",
 			"ecologia": "Regola il comportamento delle altre forme del reparto, che si dispongono ancora secondo i suoi turni."
 		},
 		"operaio_posseduto": {
-			"filogenesi": "meccanica",
-			"fenotipo": "ricomposto",
+			"classificazione": "rango avanzato",
+			"filogenesi": "umana",
+			"areale": [
+				"Geodos"
+			],
+			"specie": "Feticcio",
 			"stadio": "II",
-			"morfologia": "Ferraglia tenuta insieme in forma umanoide: due gambe, un braccio piu' lungo dell'altro, un attrezzo saldato al posto della mano.",
-			"fisiologia": "Nessun metabolismo. Si muove finche' regge la struttura, e la struttura regge parecchio.",
-			"habitus": "Sta come stava alla catena: leggermente piegato in avanti, il peso sul lato dell'attrezzo.",
-			"etologia": "Colpisce con la chiave inglese e insiste sempre sullo stesso punto. Quando e' ridotto male accelera invece di fermarsi.",
-			"ecologia": "Occupa la sua postazione e la difende. Non insegue oltre il limite del suo reparto."
+			"morfologia": "La creatura appare come un cumulo di ferraglia che presenta vari nuclei spiritici, i quali la tengono insieme in un tentativo di possessione.",
+			"habitus": "Aggredisce tutto quello che entra nel suo raggio d'azione. Non è possibile osservare nessun altro tipo di comportamento non violento.",
+			"ecologia": "Non ha alcuna funzione nell'ambiente se non quella di consumarne l'energia negativa per potenziarsi."
 		},
 		"robo_pattuglia": {
-			"classificazione": "unita' di sorveglianza",
+			"classificazione": "rango base",
 			"filogenesi": "meccanica",
-			"fenotipo": "integro",
+			"areale": [
+				"Geodos"
+			],
+			"specie": "Robot",
 			"stadio": "I",
-			"morfologia": "Telaio di sorveglianza su tre punti d'appoggio, piastre sovrapponibili, un solo sensore frontale. Nessuna alterazione: e' esattamente com'e' uscito.",
-			"fisiologia": "Alimentazione residua. Ripara i propri circuiti sotto una certa soglia di danno, e lo dice ad alta voce mentre lo fa.",
+			"morfologia": "L'unità presenta lievi danni in superficie, tuttavia sembra essere completamente operativa. È composta da un'unità centrale dalla quale spuntano due pinze prensili e quattro piedi appuntiti che la sorreggono quando non si sposta rotolando.",
 			"habitus": "Percorre lo stesso tratto avanti e indietro, alla stessa velocita'.",
-			"etologia": "Avverte prima di colpire. Scarica solo dopo l'avviso, ed esegue un regolamento che nessuno applica piu'.",
 			"ecologia": "Non fa parte della catena alimentare. E' arredamento che ha continuato a funzionare."
 		},
 		"operaio_sfruttato": {
+			"classificazione": "rango base",
 			"filogenesi": "umana",
-			"fenotipo": "degenerato",
+			"areale": [
+				"Geodos"
+			],
+			"specie": "Feticcio",
 			"stadio": "II",
 			"morfologia": "Corpo adulto consumato: massa muscolare ridotta, mani ingrossate, colonna deformata dalla postura di vent'anni.",
-			"fisiologia": "Metabolismo al minimo, temperatura bassa. Regge molto piu' di quanto sembri, e non per costituzione.",
 			"habitus": "Sta davanti a quello che sorveglia, mai di fianco. Le braccia sono sempre fra te e i suoi fascicoli.",
-			"etologia": "Difende, non attacca, finche' non lo si porta allo stremo: sotto una certa soglia esce tutto quello che non ha mai detto.",
 			"ecologia": "Legato a un luogo preciso e a niente altro. Non difende i file: difende le ore che ci ha lasciato dentro."
 		},
 		"ferraglia_urlante": {
 			"filogenesi": "meccanica",
-			"fenotipo": "ricomposto",
+			"specie": "Robot",
 			"stadio": "III",
 			"morfologia": "Ammasso di rottami di piu' provenienze, saldati da un calore che non e' quello di una fornace. Nessuna simmetria, nessun fronte riconoscibile.",
-			"fisiologia": "Nessun metabolismo. Alta inerzia: si muove poco ma quello che si muove pesa. Riprende forma raccogliendo da terra quello che ha perso.",
 			"habitus": "Non ha portamento. Occupa.",
-			"etologia": "Si sposta di un metro e quel metro basta. L'emissione sonora che la accompagna induce panico misurabile a distanza.",
 			"ecologia": "Cresce a spese del reparto: ogni pezzo che si stacca da una macchina prima o poi finisce addosso a lei."
 		},
 		"divoratore": {
-			"classificazione": "forma vorax",
+			"classificazione": "rango avanzato",
 			"filogenesi": "meccanica",
-			"fenotipo": "artefatto",
+			"specie": "Robot",
 			"stadio": "III",
 			"morfologia": "Struttura cilindrica con apertura anteriore continua. Interno rivestito di lame contrapposte che ruotano in fasi alternate.",
-			"fisiologia": "Consuma quello che ingerisce, e non distingue fra vivo e morto. Quello che toglie non lo disperde: lo trattiene.",
 			"habitus": "Avanza in linea retta. Non gira: si riposiziona.",
-			"etologia": "Aspira quello che ha davanti e mastica. Sotto danno accelera l'aspirazione invece di ritirarsi.",
 			"ecologia": "In cima alla catena del reparto per assenza di concorrenza. Non ha predatori perche' non ha nulla che valga la pena mangiare."
 		},
 		"zombie_cittadino": {
+			"classificazione": "rango base",
 			"filogenesi": "umana",
-			"fenotipo": "degenerato",
+			"areale": [
+				"Meridia"
+			],
+			"specie": "Zombie",
 			"stadio": "I",
-			"morfologia": "Adulto di Meridia, conservato quasi per intero. Vestiti ancora allacciati, scarpe ancora ai piedi. La decomposizione e' ferma a uno stadio che non progredisce.",
-			"fisiologia": "Metabolismo assente, temperatura ambientale. Non si nutre e non si consuma: quello che lo tiene in piedi non passa dallo stomaco.",
-			"habitus": "Cammina piano, in linea, con gli altri. Verso niente in particolare.",
-			"etologia": "Non insegue e non evita: procede. Diventa aggressivo solo a contatto, e allora colpisce con il peso, non con le mani.",
-			"ecologia": "Si muove in colonne lungo le strade principali. Dove passa la colonna, le altre forme si fanno da parte."
+			"morfologia": "Adulto di Meridia, sesso indistinguibile. Non resta altro che un guscio senza alcuno scopo; la decomposizione è ferma a uno stadio che non progredisce.",
+			"habitus": "Cammina piano, spesso in gruppo, senza alcuna meta... I movimenti repentini attirano la sua attenzione.",
+			"ecologia": "Non ha alcun rapporto fruttifero con l'ambiente: non si nutre, non nutre, totalmente inutile."
 		},
 		"zombie_mostruoso": {
+			"classificazione": "rango superiore",
 			"filogenesi": "umana",
-			"fenotipo": "ipertrofico",
+			"areale": [
+				"Meridia"
+			],
+			"specie": "Zombie",
 			"stadio": "II",
-			"morfologia": "Corpo umano che ha continuato a crescere dopo la morte, in modo asimmetrico: un braccio arriva a terra, l'altro e' rimasto quello di prima. La gabbia toracica si e' aperta e richiusa male.",
-			"fisiologia": "Nessun metabolismo, ma una crescita attiva che non si ferma. La massa aumenta senza che entri nulla dall'esterno: e' il substrato stesso a moltiplicarsi.",
+			"morfologia": "Questi esemplari sono enormi e deformi. Sono in grado di fomentare gli altri loro simili e presentano delle deviazioni assenti nelle forme inferiori di questa specie.",
 			"habitus": "Sbilanciato in avanti, si trascina appoggiandosi al braccio lungo.",
-			"etologia": "Usa il braccio lungo per arrivare da fuori portata, ed e' l'unica cosa che sa fare. Non cambia mai approccio.",
 			"ecologia": "Stessa origine del cittadino, esito diverso. La differenza fra i due non e' stata spiegata da nessuno."
 		},
 		"infetto_rapido": {
+			"classificazione": "rango variante base",
 			"filogenesi": "umana",
-			"fenotipo": "atrofico",
+			"areale": [
+				"Meridia"
+			],
+			"specie": "Zombie",
 			"stadio": "II",
-			"morfologia": "Corpo adulto ridotto: massa magra sotto la meta' della norma, tendini accorciati, mandibola prominente. La perdita di peso e' quello che l'ha reso veloce.",
-			"fisiologia": "Metabolismo acceso, temperatura alta, autonomia brevissima. Corre finche' regge e poi crolla, ma finche' regge non lo si stacca.",
-			"habitus": "Non sta mai in piedi del tutto: parte accovacciato.",
-			"etologia": "Insegue. E' l'unica forma di Meridia che insegue davvero, e lo fa a raffiche di colpi rapidi invece che con un colpo solo.",
-			"ecologia": "Batte le strade laterali e i cortili. Le colonne di cittadini lo evitano."
+			"morfologia": "Corpo adulto allungato: massa magra sotto la metà della norma, tendini allungati, mandibola non visibile. Presenta delle strane orecchie mutate.",
+			"habitus": "Tende a restare immobile per poi scattare in velocità verso la sua vittima.",
+			"ecologia": "Non sembra avere alcuno scopo, come la sua forma base."
 		},
 		"nuvola_di_marciume": {
-			"classificazione": "forma nebulae",
+			"classificazione": "rango variante base",
 			"filogenesi": "indeterminata",
-			"fenotipo": "ibrido mutato",
-			"stadio": "II",
+			"areale": [
+				"Meridia",
+				"Nautilus 5",
+				"Avamposto sconosciuto"
+			],
+			"specie": "Nimbo",
+			"stadio": "I",
 			"morfologia": "Nessun corpo solido: sospensione di particolato organico che mantiene coesione entro un raggio di due metri. Al centro si intravede materiale non identificato.",
-			"fisiologia": "Non ha organi. Corrode per contatto prolungato e non si puo' colpire in un punto solo: quello che si disperde rientra.",
-			"habitus": "Fluttua a mezzo metro da terra e scende quando l'aria si ferma.",
-			"etologia": "Non insegue nessuno: capita addosso. Rilascia spore che continuano a lavorare dopo che si e' allontanata.",
-			"ecologia": "E' un pezzo della coltre che copre Meridia, sceso piu' in basso degli altri. Dove staziona, il resto non cresce."
+			"habitus": "Fluttua e sembra osservare i dintorni in cerca di qualcosa.",
+			"ecologia": "È un pezzo della coltre che copre Meridia. Sembra causare una decomposizione molto rallentata nelle forme di vita organiche.",
+			"nota_futura": "Più avanti nella storia si scopre, aggiornando questo log, che l'origine è la fonte."
 		},
 		"orrore_di_meridia": {
+			"classificazione": "rango calamita'",
 			"filogenesi": "umana",
-			"fenotipo": "ricomposto",
-			"stadio": "III",
-			"morfologia": "Piu' corpi adulti fusi lungo i piani di contatto. Il numero esatto non e' determinabile: le teste rilevate variano fra tre e cinque a seconda dell'angolo.",
-			"fisiologia": "Metabolismi multipli non sincronizzati. Quando una parte cede, un'altra la sostituisce: si ricompone prendendo da se' stesso.",
-			"habitus": "Occupa piu' spazio di quanto serva. Si muove tutto insieme e in ritardo su se' stesso.",
-			"etologia": "Colpisce con tutte le braccia disponibili e morde con tutte le bocche disponibili. Ridotto male, si rimescola.",
-			"ecologia": "Si sono trovati nello stesso posto al momento sbagliato, e non si sono piu' separati. Continua ad aggregare."
+			"areale": [
+				"Meridia"
+			],
+			"specie": "Zombie",
+			"stadio": "VI",
+			"morfologia": "La creatura presenta una conformazione semplice ma enorme. La superficie del corpo è cosparsa di una sostanza melmosa che dona beneficio allo strato superficiale; proporzioni enormi, oltre misura.",
+			"habitus": "Non sembra essere aggressiva se non provocata, tuttavia causa una continua distruzione intorno a sé. Non sembra avere alcun interesse se non nel cielo, che guarda costantemente. Travolge tutto quello che trova camminando in circolo, e non esce mai dalla circonferenza creata dal suo movimento.",
+			"ecologia": "Non ha alcun ruolo se non quello di girare intorno a un perno fisso, in attesa di qualcosa..."
 		},
 		"titano_zombie": {
 			"filogenesi": "umana",
-			"fenotipo": "ipertrofico",
+			"specie": "Zombie",
 			"stadio": "III",
 			"morfologia": "Oltre quattro metri. Struttura ossea moltiplicata invece che ingrandita: doppie file di costole, articolazioni supplementari alle ginocchia.",
-			"fisiologia": "Rigenerazione attiva e continua: recupera meta' di quello che ha appena incassato. Sotto un certo numero di colpi una gamba cede, e allora si ferma a ricucirsi.",
 			"habitus": "In piedi, sempre. Si abbassa solo quando cede.",
-			"etologia": "Spazza l'area davanti a se' e chiude la distanza con un colpo che toglie meta' di quello che ti resta. Non ha imparato a fermarsi.",
 			"ecologia": "La cosa piu' grande che Meridia abbia partorito dopo la fine. Le altre forme non le si avvicinano."
 		},
 		"giocoliere": {
+			"classificazione": "forma speciale",
 			"filogenesi": "umana",
-			"fenotipo": "ibrido mutato",
-			"stadio": "II",
-			"morfologia": "Corpo adulto in buone condizioni apparenti, con il volto conservato meglio del resto. Le mani hanno acquisito una terza articolazione per dito.",
-			"fisiologia": "Temperatura elevata alle estremita'. Manipola il fuoco senza subirne il danno, ma la pelle sotto le mani e' ormai carbone.",
-			"habitus": "Sta in scena anche quando non c'e' scena: piedi in terza posizione, mento alto.",
-			"etologia": "Alterna colpi rapidi a un numero preparato. Ridotto male lo esegue comunque, e lo chiama gran finale.",
-			"ecologia": "Non compete con le altre forme: le usa come pubblico. Il talento, a volte, ti fa uscire di testa."
+			"areale": [
+				"Il Vuoto Ardente"
+			],
+			"specie": "Feticcio",
+			"stadio": "III",
+			"morfologia": "Corpo adulto in eccellenti condizioni apparenti, volto e fattezze conservate. Le fiamme che lo avvolgono hanno un'armonia diversa rispetto a quelle delle specie inferiori: non bruciano, ma accompagnano i suoi movimenti ottenendo un effetto rigenerativo.",
+			"habitus": "Tende a rimanere sempre in posa. Si erge in difesa di colui che gli ha fornito il riconoscimento che ha sempre cercato.",
+			"ecologia": "Il suo ruolo è difendere a ogni costo la fonte. Sembra non esserci un legame affettivo, ma un legame di rispetto e devozione che contraddistingue il rapporto fra la fonte e questo soggetto."
 		},
 		"marionetta": {
 			"filogenesi": "artificiale",
-			"fenotipo": "artefatto",
+			"specie": "Automa",
 			"stadio": "II",
 			"morfologia": "Legno di conifera, snodi in ottone, un metro e dieci. I fili non sono agganciati a nulla di visibile e restano tesi.",
-			"fisiologia": "Nessuna fisiologia. Il danno che conta e' quello agli snodi; il resto si puo' sostituire, e a quanto pare si sostituisce da solo.",
 			"habitus": "Sta appesa anche quando cammina: il peso non arriva mai del tutto ai piedi.",
-			"etologia": "Colpisce con il braccio ruotando sul perno, e usa i fili per rallentare chi le sta davanti. Ridotta male, se li riannoda addosso.",
 			"ecologia": "Qualcuno la muoveva con affetto, una volta. Adesso i fili scendono dal soffitto e nessuno li tiene."
 		},
 		"ombra_del_passato": {
-			"classificazione": "forma umbrae",
+			"classificazione": "rango avanzato",
 			"filogenesi": "indeterminata",
-			"fenotipo": "artefatto",
+			"specie": "Ombra",
 			"stadio": "III",
 			"morfologia": "Nessuna massa misurabile. La sagoma corrisponde a una persona precisa, diversa per ogni osservatore, e i contorni sono piu' netti dove il ricordo e' piu' recente.",
-			"fisiologia": "Non ha corpo da danneggiare. Si consolida in proporzione al rancore che le si porta, e si nutre di quello che toglie.",
 			"habitus": "Sta ferma a distanza di conversazione. Non si avvicina mai piu' di cosi'.",
-			"etologia": "Parla prima di colpire, e quello che dice e' vero. Sotto pressione smette di parlare e comincia a prendere.",
 			"ecologia": "Vive dei sentimenti repressi di chi la incontra. Senza qualcuno che ricordi, non c'e'."
 		},
 		"donna_spinosa": {
 			"filogenesi": "vegetale",
-			"fenotipo": "ibrido mutato",
+			"specie": "Flora",
 			"stadio": "II",
 			"morfologia": "Struttura arborea su impianto umanoide. Le spine sono modificazioni dei rami secondari e coprono tutta la superficie dorsale.",
-			"fisiologia": "Fotosintesi residua piu' assorbimento diretto. Le spine rilasciano un composto che continua a lavorare dopo il contatto.",
 			"habitus": "Immobile finche' non le si passa accanto. Poi si ricorda di essere stata progettata.",
-			"etologia": "Attacco di contatto e apertura a raggiera quando ha piu' di un bersaglio vicino. Non insegue oltre due passi.",
 			"ecologia": "Cresciuta in una vasca con un cartellino che diceva un'altra cosa. Quello che doveva essere non risulta agli atti."
 		},
 		"volto_sulla_parete": {
 			"filogenesi": "umana",
-			"fenotipo": "ricomposto",
+			"specie": "Incarnazione",
 			"stadio": "III",
 			"morfologia": "Volto adulto femminile cresciuto dentro la parete portante, con propaggini radicali che percorrono l'intera stanza. La parete e' parte del soggetto.",
-			"fisiologia": "Metabolismo condiviso con la struttura dell'edificio: assorbe dalla parete quello che le viene tolto. Non e' separabile da dove sta.",
 			"habitus": "Non ha portamento: ha esposizione. Ti guarda da un'altezza che non hai scelto tu.",
-			"etologia": "Radici che stringono, e nube di spore quando ha piu' di un bersaglio. Sotto una certa soglia riprende dalla parete.",
 			"ecologia": "Difende ancora i risultati di ricerche che non servono piu' a nessuno. Era la capofamiglia."
 		},
 		"tenero_ricordo": {
-			"classificazione": "forma amoris",
+			"classificazione": "rango calamita'",
 			"filogenesi": "artificiale",
-			"fenotipo": "artefatto",
+			"specie": "Automa",
 			"stadio": "III",
 			"morfologia": "Bambola di pezza cucita a mano, quaranta centimetri, imbottitura non identificata. Le cuciture sono state rifatte molte volte e da mani diverse.",
-			"fisiologia": "Nessuna fisiologia. Il filo rientra da solo nei buchi. Il contenuto dell'imbottitura non e' stato campionato: chi ci ha provato non ha finito.",
 			"habitus": "Sta seduta. Anche quando si muove, l'impressione e' che sia sempre seduta.",
-			"etologia": "Spilli, lamento, e un'autolesione che fa piu' male a chi guarda che a lei. Chiama marionette dal soffitto.",
 			"ecologia": "Al centro della casa, e la casa le sta intorno. E' stata amata: e' questo il problema."
 		},
 		"spirito_dei_giardini": {
 			"classificazione": "forma horti",
 			"filogenesi": "vegetale",
-			"fenotipo": "integro",
+			"specie": "Flora",
 			"stadio": "I",
 			"morfologia": "Non e' stato possibile stabilire dove finisca il soggetto e dove cominci il giardino.",
-			"fisiologia": "Nessuna misura utile.",
 			"habitus": "Non si mostra a chi lo cerca.",
-			"etologia": "Non risulta un solo episodio di aggressione.",
 			"ecologia": "Tiene insieme quello che resta del verde della Casa. Se ne va se il verde se ne va."
 		},
 		"ghoul": {
 			"filogenesi": "umana",
-			"fenotipo": "degenerato",
+			"specie": "Zombie",
 			"stadio": "II",
 			"morfologia": "Corpo adulto scarnificato, tenuto insieme da tessuto connettivo indurito. Le unghie sono l'unica struttura cresciuta dopo la morte, e sono cresciute molto.",
-			"fisiologia": "Non digerisce: assorbe. Quello che toglie a un altro corpo lo rimette sul proprio, e si vede a occhio nudo.",
 			"habitus": "Curvo, con le mani sempre davanti all'altezza del petto.",
-			"etologia": "Morde e non lascia andare. Alterna il morso alla sciabolata di unghie a seconda della distanza.",
 			"ecologia": "La forma piu' diffusa della Rocca. Uno dei tanti che Jondoh non ha mai lasciato andare."
 		},
 		"teschio_errante": {
-			"classificazione": "forma capitis",
+			"classificazione": "rango superiore",
 			"filogenesi": "umana",
-			"fenotipo": "atrofico",
+			"specie": "Zombie",
 			"stadio": "III",
 			"morfologia": "Solo il cranio, senza mandibola in un terzo dei casi rilevati. Nessun corpo, nessun collegamento visibile a una massa che lo sostenga.",
-			"fisiologia": "Nessun metabolismo. Si mantiene a mezzo metro dall'ossidiana e non scende. Il danno strutturale e' l'unico che conta.",
 			"habitus": "Si sposta a scatti, come una fotografia che si muove male.",
-			"etologia": "Carica ripetuta a distanza breve. L'osservazione prolungata delle orbite produce panico misurabile.",
 			"ecologia": "Cerca ancora il corpo perduto. Segue chi ne ha uno."
 		},
 		"madre_in_lacrime": {
 			"filogenesi": "umana",
-			"fenotipo": "ibrido mutato",
+			"specie": "Zombie",
 			"stadio": "II",
 			"morfologia": "Corpo adulto femminile con inclusioni di ossidiana lungo gli zigomi e il collo. Le lacrime sono vetro nero e non si fermano.",
-			"fisiologia": "Produzione continua di materiale minerale a partire dal proprio tessuto. Si sta consumando per farlo, e non smette.",
 			"habitus": "Sta chinata su qualcosa che non c'e', e non lascia avvicinare.",
-			"etologia": "Colpisce chi si avvicina, e il pianto raggiunge tutti. Non attacca per prima se si resta lontani.",
 			"ecologia": "Non contende niente e non si sposta. Piange figli che non tornano, e la Rocca la lascia in pace."
 		},
 		"stigma": {
 			"filogenesi": "umana",
-			"fenotipo": "degenerato",
+			"specie": "Zombie",
 			"stadio": "II",
 			"morfologia": "Adulto con incisioni profonde su tutta la superficie dorsale, disposte in ordine leggibile. Le incisioni non guariscono e non sanguinano.",
-			"fisiologia": "Metabolismo rallentato. Il segno che lascia addosso continua a lavorare da solo per un tempo lungo.",
 			"habitus": "Sta dritto e si lascia guardare. E' l'unica cosa che gli e' rimasta.",
-			"etologia": "Colpisce e marchia. Il marchio e' la parte che conta: il colpo e' un pretesto.",
 			"ecologia": "Porta i peccati di qualcun altro. Chi glieli ha incisi non e' mai stato identificato."
 		},
 		"diabolo": {
 			"filogenesi": "ferina",
-			"fenotipo": "ibrido mutato",
+			"specie": "Ferino",
 			"stadio": "I",
 			"morfologia": "Ottanta centimetri, bipede, corna corte e ricurve, coda prensile. Le proporzioni sono da cucciolo, l'eta' stimata no.",
-			"fisiologia": "Metabolismo rapido, temperatura alta. Regge poco ma si riprende in fretta.",
 			"habitus": "Non sta fermo un secondo e ti gira intorno mentre parli.",
-			"etologia": "Due colpi bassi dati con troppo entusiasmo, e una presa in giro che manda le persone fuori bersaglio.",
 			"ecologia": "Cresciuto storto fra le fiamme della Rocca. Segue le forme piu' grandi e ne raccoglie gli scarti."
 		},
 		"sadico": {
 			"filogenesi": "umana",
-			"fenotipo": "integro",
+			"specie": "Umano",
 			"stadio": "II",
 			"morfologia": "Corpo adulto senza alterazioni fisiche rilevanti. E' l'unico caso in cui la deformazione non e' del corpo.",
-			"fisiologia": "Fisiologia nella norma. Nessuna resistenza particolare: e' pericoloso per come sceglie, non per come e' fatto.",
 			"habitus": "Si muove con calma, e la calma e' la parte peggiore.",
-			"etologia": "Taglia piano finche' hai da perdere. Si china su chi sta gia' male, e quello e' il momento in cui colpisce forte.",
 			"ecologia": "Il dolore altrui e' l'unico linguaggio che la Rocca gli ha insegnato. Le altre forme lo evitano."
 		},
 		"abominio_marcio": {
 			"filogenesi": "indeterminata",
-			"fenotipo": "ricomposto",
+			"specie": "Zombie",
 			"stadio": "III",
 			"morfologia": "Piu' corpi fusi dal marciume, di specie diverse: sono stati riconosciuti segmenti umani e segmenti animali nello stesso soggetto.",
-			"fisiologia": "Fermentazione attiva. Si ricuce da solo, e quello che ti toglie se lo rimette addosso. Emette continuamente materiale volatile tossico.",
 			"habitus": "Occupa lo spazio in altezza piu' che in larghezza. Ondeggia.",
-			"etologia": "Sputo a distanza, presa a contatto, e sotto pressione si rimescola e riparte.",
 			"ecologia": "Una delle tante forme che prende la maledizione della Rocca. Continua ad aggregare quello che trova."
 		},
 		"sacerdote_folle": {
-			"classificazione": "forma sacerdotis",
+			"classificazione": "rango base",
 			"filogenesi": "umana",
-			"fenotipo": "integro",
+			"specie": "Umano",
 			"stadio": "II",
 			"morfologia": "Adulto in paramenti, conservato. Nessuna alterazione fisica: la deformazione e' nel calendario che continua a seguire.",
-			"fisiologia": "Fisiologia nella norma, con una resistenza alla fatica non spiegabile. Le ferite si chiudono al ritmo della recita.",
 			"habitus": "In piedi, le braccia leggermente aperte, rivolto a un altare che non c'e' piu'.",
-			"etologia": "Alterna quattro colpi rituali e chiama teschi. Ridotto male, recita piu' in fretta e si rimargina.",
 			"ecologia": "Officiava i sacrifici molto prima che Jongo Dongo ne facesse un culto. Non e' rimasto nessuno a rispondergli."
 		},
 		"divoratore_di_carcasse": {
 			"filogenesi": "ferina",
-			"fenotipo": "ipertrofico",
+			"specie": "Ferino",
 			"stadio": "II",
 			"morfologia": "Quadrupede di grossa taglia con cranio sproporzionato e dentatura a piu' file. Il collo e' piu' spesso della testa.",
-			"fisiologia": "Digestione rapidissima. Mangia quello che trova e ne ricava vita a vista d'occhio; sotto pressione mangia di piu', non di meno.",
 			"habitus": "Sta basso, con il muso a terra. La puzza lo tradisce molto prima che si mostri.",
-			"etologia": "Morsi rapidi e ripetuti. Ferito, si volta verso quello che il ponte ha lasciato cadere e si ingozza.",
 			"ecologia": "Vive sotto il grande ponte marcio e ripulisce quello che cade. Nessuno gli contende quel posto."
 		},
 		"l_immortale": {
 			"classificazione": "non classificabile",
 			"filogenesi": "indeterminata",
-			"fenotipo": "integro",
+			"specie": "Indeterminato",
 			"stadio": "III",
 			"morfologia": "Umanoide, statura media, avvolto. Nessuna parte del corpo e' stata osservata direttamente, e nessuno strumento ha restituito una misura stabile.",
-			"fisiologia": "Il danno non lo ferma. E' stato colpito fino alla distruzione apparente in undici occasioni, e in undici occasioni ha ripreso a camminare.",
 			"habitus": "Cammina. Non e' veloce, e non gli serve esserlo.",
-			"etologia": "Colpisce piano e senza variare. Non insegue oltre la cripta, ma dentro la cripta non si ferma mai.",
 			"ecologia": "Non ha posto nella catena: nessuna forma della Rocca lo tocca e lui non tocca loro. Il suo vero nome e' ancora un mistero."
 		},
 		"jongo_dongo": {
 			"filogenesi": "umana",
-			"fenotipo": "degenerato",
+			"specie": "Umano",
 			"stadio": "III",
 			"morfologia": "Adulto di corporatura importante, marcito in piedi. La pelle si e' aperta lungo le linee di tensione e non si e' richiusa; sotto, il tessuto e' ancora attivo.",
-			"fisiologia": "Putrefazione controllata: si consuma e continua. Emette veleno da tutta la superficie. Il calo di funzione non ha mai raggiunto l'arresto.",
 			"habitus": "Sta come stava da vivo, e questa e' la cosa che colpisce di piu' chi lo vede.",
-			"etologia": "Colpo d'artiglio, bastone, grido che raggiunge tutti. Chiama ghoul dall'ossidiana e ne sacrifica uno per farsi piu' forte.",
 			"ecologia": "Era il signore di queste terre. Sacrifico' raccolti e famiglie intere per la propria fortuna, e non si e' mai pentito.",
 			"diventa": "jongo_dongo_risorto"
 		},
 		"jongo_dongo_risorto": {
 			"filogenesi": "umana",
-			"fenotipo": "ricomposto",
+			"specie": "Zombie",
 			"stadio": "III",
 			"morfologia": "Lo stesso corpo, rimesso insieme dopo la distruzione. Le linee di frattura sono visibili e non corrispondono a come si era spezzato.",
-			"fisiologia": "Non c'e' piu' niente da consumare, e continua lo stesso. Sotto una certa soglia il corpo si tiene su per una ragione che non e' fisiologica.",
 			"habitus": "Piu' lento di prima, e piu' dritto.",
-			"etologia": "Mano marcia, respiro di putredine, e una tenuta che non dovrebbe esserci.",
 			"ecologia": "Non rimane altro di lui che un corpo marcito che si muove grazie a una volonta' misteriosa. La volonta' non e' la sua."
 		},
 		"jerah": {
-			"classificazione": "forma princeps — rango unico",
+			"classificazione": "rango calamita'",
 			"filogenesi": "umana",
-			"fenotipo": "ibrido mutato",
+			"specie": "Umano",
 			"stadio": "III",
 			"morfologia": "Adulto, corporatura da ballerino, in abito di scena intatto. La combustione parte dall'interno e non ha ancora consumato il tessuto: e' la parte che non torna.",
-			"fisiologia": "Temperatura interna incompatibile con la vita, mantenuta stabile. Non brucia il suo combustibile: lo rinnova.",
 			"habitus": "In scena, sempre. Anche da solo, anche adesso.",
-			"etologia": "Muro di fiamme su tutta l'arena, vento ardente che appicca, schivate eleganti, e un Fomentado chiamato dal fumo. Alle strette, non chiude lo spettacolo.",
 			"ecologia": "Il mondo intero arde, teatro del suo ultimo show. Le altre forme del Vuoto sono comparse."
 		}
-	}
+	},
+	"_nota_specie": "SPECIE, non fenotipo. Bru: 'fenotipo verra' sostituito con specie'. E' il nome della cosa - Zombie, Slime, Robot - non un aggettivo su come e' venuta. E' il campo che lega creature diverse: Zombie Cittadino, Zombie Mostruoso e Orrore di Meridia sono la stessa specie a tre stadi. Per questo Specie e Stadio stanno vicini e si leggono insieme.",
+	"_nota_areale": "L'AREALE E' LA REGIONE GRANDE, NON LA STANZA. Bru: 'l'areale non e' la zona specifica ma quella generica: l'Oppresso si trova nella frattura industriale, che e' solo una parte di una zona molto piu' grande, il pianeta Geodos'. Quindi la traduzione sta qui, una volta per zona, invece che quaranta volte nelle voci: cambiare il nome di un mondo e' una riga sola, e nessuna creatura puo' restare indietro.",
+	"areale_per_zona": {
+		"squarcio_industriale": "Geodos",
+		"kizako_ala": "Geodos",
+		"meridia": "Meridia",
+		"rocca_ossidiana": "Jondoh",
+		"teatro_del_passato": "Il Teatro del Passato",
+		"casa_gigante": "La Casa Gigante",
+		"qualcosa_preme": "Il Vuoto Ardente",
+		"fontana": "Il Vuoto Ardente",
+		"frattura_post_v5": "Il Vuoto Ardente",
+		"tutorial": "Il pianeta del risveglio",
+		"carnivalz_del_bosco": "Il Vuoto Ardente"
+	},
+	"_nota_zone_senza_regione": "Le zone che qui hanno per regione il proprio nome sono quelle a cui Bru non ha ancora dato un mondo dietro. Non e' un buco silenzioso: la prova pretende che ogni zona sia in questa tabella, quindi una zona nuova si fa notare subito."
 }

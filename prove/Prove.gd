@@ -66,6 +66,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_tecnolog_completo()
+	prova_areale_e_la_regione_grande()
 	prova_tecnolog_si_riempie_studiando()
 	prova_il_drop_c_e_sempre()
 	prova_guardia_a_scatti()
@@ -2742,16 +2743,27 @@ func fotografia(scontro: Node, eroe: Dictionary, nemico: Dictionary) -> String:
 	]
 
 func prova_tecnolog_completo() -> void:
-	# Bru ha dato lo schema: Denominazione, Classificazione, Filogenesi, Fenotipo,
-	# Stadio, Morfologia, Fisiologia, Habitus, Etologia, Metamorfosi, Ecologia,
-	# Areale. Uno schema con dodici campi e' una promessa dodici volte: basta che
-	# una creatura ne abbia undici e la sua pagina, in gioco, ha un buco - e non
-	# lo vedi finche' non la studi.
+	# Lo schema che ha chiesto Bru, dopo la sua passata di correzioni:
+	# Denominazione, Classificazione, Filogenesi, Areale, SPECIE (era Fenotipo),
+	# Stadio, Morfologia, Habitus, Metamorfosi, Ecologia. Fisiologia ed Etologia
+	# sono uscite: "e' di troppo". Dieci campi sono una promessa dieci volte -
+	# basta che una creatura ne abbia nove e la sua pagina, in gioco, ha un buco,
+	# e non lo vedi finche' non la studi.
 	titolo("il tecno log e' completo per ogni creatura, e i termini sono quelli")
 	var vocabolari: Dictionary = GameState.tecnolog.get("vocabolari", {})
 	esigi(not vocabolari.is_empty(), "il tecnolog non dichiara nessun vocabolario")
 	var campi: Array = GameState.campi_tecnolog()
-	esigi(campi.size() >= 12, "lo schema ha %d campi invece dei dodici chiesti" % campi.size())
+	var presenti: Array[String] = []
+	for campo in campi:
+		presenti.append(String(campo.get("id", "")))
+	for atteso in ["denominazione", "classificazione", "filogenesi", "areale", "specie",
+			"stadio", "morfologia", "habitus", "metamorfosi", "ecologia"]:
+		esigi(atteso in presenti, "lo schema non ha il campo '%s'" % atteso)
+	# e quelli che Bru ha TOLTO devono restare fuori: un campo che rientra in
+	# silenzio si riprende trenta righe di prosa che nessuno rileggera' piu'
+	for tolto in ["fenotipo", "fisiologia", "etologia"]:
+		esigi(tolto not in presenti,
+				"'%s' e' tornato nello schema: Bru l'aveva tolto" % tolto)
 	var strati: Array[int] = []
 	for campo in campi:
 		esigi(String(campo.get("etichetta", "")) != "",
@@ -2774,22 +2786,28 @@ func prova_tecnolog_completo() -> void:
 			if String(riga.get("id", "")) == "areale":
 				# L'AREALE PUO' ESSERE VUOTO PER DAVVERO, ed e' un'informazione:
 				# vuol dire che quella creatura non e' ancora stata messa in
-				# nessuna stanza. Pretendere che sia pieno vorrebbe dire scrivere
-				# a mano un dato che il gioco calcola, cioe' esattamente la bugia
-				# da cui si voleva stare alla larga. Che il conto funzioni lo
-				# garantisce la soglia qui sotto
+				# nessuna stanza e non ha una regione scritta a mano. Che il
+				# conto funzioni lo garantisce la soglia qui sotto
 				continue
 			esigi(String(riga.get("valore", "")) != vuoto,
 					"%s: il campo %s del tecno log e' vuoto"
 					% [id_creatura, String(riga.get("etichetta", "?"))])
 			esigi(String(riga.get("valore", "")) != "",
 					"%s: il campo %s e' una stringa vuota" % [id_creatura, String(riga.get("etichetta", "?"))])
+		# IL LESSICO SI CONTROLLA PER CAMPO, NON PER NOME DEL VOCABOLARIO. La
+		# prima versione girava sui vocabolari e cercava una chiave con lo stesso
+		# nome nella voce: cosi' la Classificazione, che pesca dal vocabolario
+		# "rango", non veniva guardata da nessuno - e "Rango Base", "rango base"
+		# e "Rango base" passavano tutte e tre
 		var voce: Dictionary = GameState.tecnolog.get("voci", {}).get(id_creatura, {})
-		for chiave in vocabolari:
-			if voce.has(chiave):
-				esigi(String(voce[chiave]) in Array(vocabolari[chiave]),
-						"%s ha %s '%s', che non e' fra i termini ammessi: cosi' ogni creatura si inventa il suo lessico e la scheda non si legge piu' di fila"
-						% [id_creatura, String(chiave), String(voce[chiave])])
+		for campo in campi:
+			var id_campo := String(campo.get("id", ""))
+			var nome_vocabolario := String(campo.get("vocabolario", ""))
+			if nome_vocabolario == "" or not voce.has(id_campo):
+				continue
+			esigi(String(voce[id_campo]) in Array(vocabolari.get(nome_vocabolario, [])),
+					"%s ha %s '%s', che non e' fra i termini ammessi: cosi' ogni creatura si inventa il suo lessico e la scheda non si legge piu' di fila"
+					% [id_creatura, id_campo, String(voce[id_campo])])
 	esigi(guardate >= 30, "la prova ha guardato solo %d creature" % guardate)
 	# e l'areale dev'essere PIENO per quasi tutte: se il conto smettesse di
 	# leggere una delle chiavi in cui una zona elenca le sue creature, il
@@ -2806,6 +2824,38 @@ func prova_tecnolog_completo() -> void:
 	esigi(con_casa >= guardate * 3 / 4,
 			"solo %d creature su %d hanno un areale: il conto non sta leggendo tutte le chiavi con cui una zona elenca le sue creature"
 			% [con_casa, guardate])
+
+func prova_areale_e_la_regione_grande() -> void:
+	# Bru: "l'areale non e' la zona specifica ma quella generica: l'Oppresso si
+	# trova nella frattura industriale, che e' solo una parte di una zona molto
+	# piu' grande, il pianeta Geodos". Il rischio di questa modifica e' che sia
+	# INERTE - la tabella c'e', nessuno la legge, e il documento continua a
+	# stampare il nome della stanza senza che niente si lamenti.
+	titolo("l'areale e' la regione grande, non la stanza in cui la incontri")
+	var per_zona: Dictionary = GameState.tecnolog.get("areale_per_zona", {})
+	esigi(not per_zona.is_empty(), "non c'e' nessuna traduzione da zona a regione")
+	# OGNI zona della mappa dev'essere nella tabella: una frattura nuova che non
+	# c'e' finisce nel documento col proprio nome, e nessuno se ne accorge
+	var mappa: Variant = GameState.carica_json("res://data/mappa.json")
+	var zone: Dictionary = {}
+	GameState.raccogli_zone(mappa, zone)
+	for percorso in zone:
+		esigi(String(zone[percorso]) in per_zona,
+				"la zona '%s' non ha una regione in areale_per_zona: la sua gente finirebbe con l'areale sbagliato"
+				% String(zone[percorso]))
+	# e la traduzione dev'essere QUELLA: chi vive nello Squarcio dice Geodos
+	var casa := GameState.areale_di("operaio_sfruttato")
+	esigi(casa.contains("Geodos"),
+			"l'Operaio Sfruttato ha areale '%s': lo Squarcio Industriale e' una frattura di Geodos, e la scheda deve dire il mondo"
+			% casa)
+	esigi(not casa.contains("Squarcio"),
+			"l'areale dice ancora '%s': e' il nome della stanza, non della regione" % casa)
+	# la mano vince sulla mappa, perche' dove una specie VIVE puo' essere piu'
+	# grande di dove il gioco ti porta a incontrarla
+	var slime := GameState.areale_di("slime_infimo")
+	esigi(slime.contains("Gombok 2"),
+			"lo Slime ha areale '%s': la sua voce ne dichiara tre, e l'areale scritto a mano deve vincere su quello dedotto"
+			% slime)
 
 func prova_tecnolog_si_riempie_studiando() -> void:
 	# LA PARTE CHE VALE: la scheda non c'e' finche' non la si studia, e si

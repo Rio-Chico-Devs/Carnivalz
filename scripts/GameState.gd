@@ -1356,14 +1356,16 @@ func registra_bestiario(id_nemico: String) -> void:
 # da dove viene, il secondo com'e' fatto, il terzo come si comporta - e resta
 # nel Bestiario, che da elenco di nomi diventa un archivio.
 #
-# TRE CAMPI NON SI SCRIVONO A MANO. La Denominazione e' il nome della creatura;
-# l'Areale esce da dove la creatura compare DAVVERO nei file delle zone (mettila
-# in una stanza nuova e l'areale si allarga da solo); la Metamorfosi dice
-# "osservata" solo se hai incontrato anche la forma in cui si trasforma - e'
-# il tuo registro, non un'enciclopedia. Un campo scritto a mano che ripete un
-# dato che il gioco gia' conosce e' un campo che prima o poi dira' una bugia.
+# TRE CAMPI NON SI SCRIVONO A MANO SE NON SERVE. La Denominazione e' il nome
+# della creatura; la Metamorfosi dice "osservata" solo se hai incontrato anche la
+# forma in cui si trasforma - e' il tuo registro, non un'enciclopedia; l'Areale
+# esce da dove la creatura compare davvero nei file delle zone, tradotto in
+# REGIONE GRANDE dalla tabella tecnolog.areale_per_zona. Un campo scritto a mano
+# che ripete un dato che il gioco gia' conosce e' un campo che prima o poi dira'
+# una bugia - ma l'areale accetta la mano, perche' dove una specie VIVE puo'
+# essere piu' grande di dove il gioco ti porta a incontrarla.
 
-var _areali: Dictionary = {}          # id creatura -> Array[String] di zone
+var _areali: Dictionary = {}          # id creatura -> Array[String] di regioni
 var _areali_costruiti := false
 
 func campi_tecnolog() -> Array:
@@ -1381,19 +1383,27 @@ func costruisci_areali() -> void:
 	if _areali_costruiti:
 		return
 	_areali_costruiti = true
-	var zone: Dictionary = {}   # percorso file -> nome della zona
+	var zone: Dictionary = {}   # percorso file -> id della zona
 	raccogli_zone(carica_json(PERCORSO_MAPPA), zone)
-	zone["res://data/events_tutorial.json"] = "Il pianeta del risveglio"
+	zone["res://data/events_tutorial.json"] = "tutorial"
+	var per_zona: Dictionary = tecnolog.get("areale_per_zona", {})
 	for percorso in zone:
 		var dati: Variant = carica_json(String(percorso))
 		if dati == null:
 			continue
+		# LA REGIONE GRANDE, NON LA STANZA. Bru: "l'areale non e' la zona
+		# specifica ma quella generica: l'Oppresso si trova nella frattura
+		# industriale, che e' solo una parte del pianeta Geodos". La traduzione
+		# sta in un posto solo (tecnolog.areale_per_zona), quindi ribattezzare un
+		# mondo e' una riga - e una zona che non e' nella tabella si fa notare,
+		# perche' c'e' una prova che le pretende tutte
+		var regione := String(per_zona.get(String(zone[percorso]), String(zone[percorso])))
 		var trovate: Array[String] = []
 		cerca_creature(dati, trovate)
 		for id_creatura in trovate:
 			var elenco: Array = _areali.get(id_creatura, [])
-			if String(zone[percorso]) not in elenco:
-				elenco.append(String(zone[percorso]))
+			if regione not in elenco:
+				elenco.append(regione)
 			_areali[id_creatura] = elenco
 
 func raccogli_zone(nodo: Variant, dentro: Dictionary) -> void:
@@ -1401,7 +1411,7 @@ func raccogli_zone(nodo: Variant, dentro: Dictionary) -> void:
 		if nodo.has("file_eventi") and nodo.has("nome") and String(nodo["file_eventi"]) != "":
 			# la voce senza file e' un posto annunciato e non ancora scritto
 			# (una frattura che si aprira'): non c'e' niente da leggere
-			dentro[String(nodo["file_eventi"])] = String(nodo["nome"])
+			dentro[String(nodo["file_eventi"])] = String(nodo.get("id", nodo["nome"]))
 		for chiave in nodo:
 			raccogli_zone(nodo[chiave], dentro)
 	elif nodo is Array:
@@ -1432,21 +1442,30 @@ func cerca_creature(nodo: Variant, dentro: Array[String]) -> void:
 			cerca_creature(voce, dentro)
 
 func areale_di(id_creatura: String) -> String:
+	# La mano vince sulla mappa, e non e' un'incoerenza: dove la incontri e' un
+	# fatto di gioco, dove VIVE e' un fatto di mondo. Lo Slime lo trovi in una
+	# radura del tutorial ed e' su tre pianeti; se scrivessimo solo quello che il
+	# gioco tocca, la scheda racconterebbe il livello invece della specie
+	var scritto: Variant = tecnolog.get("voci", {}).get(id_creatura, {}).get("areale", null)
+	if scritto is Array and not (scritto as Array).is_empty():
+		return " · ".join(scritto)
+	if scritto is String and String(scritto) != "":
+		return String(scritto)
 	costruisci_areali()
 	var zone: Array = _areali.get(id_creatura, [])
 	if zone.is_empty():
 		return String(tecnolog.get("non_rilevato", "— non ancora rilevato"))
-	return " — ".join(zone)
+	return " · ".join(zone)
 
 func classificazione_di(id_creatura: String) -> String:
 	var voce: Dictionary = tecnolog.get("voci", {}).get(id_creatura, {})
 	if voce.has("classificazione"):
 		return String(voce["classificazione"])
 	var ruolo := String(personaggi.get(id_creatura, {}).get("ruolo", "comune"))
-	var forma := String(tecnolog.get("classificazione_per_ruolo", {}).get(ruolo, ""))
-	if forma == "":
+	var rango := String(tecnolog.get("classificazione_per_ruolo", {}).get(ruolo, ""))
+	if rango == "":
 		return String(tecnolog.get("non_rilevato", "— non ancora rilevato"))
-	return "%s — %s" % [forma, String(tecnolog.get("rango", "rango infra-specifico"))]
+	return rango
 
 func metamorfosi_di(id_creatura: String) -> String:
 	# "osservata" vuol dire che l'hai vista tu: la forma in cui si trasforma

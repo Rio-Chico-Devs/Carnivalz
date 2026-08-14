@@ -7,7 +7,7 @@
 			"ruolo": "comune",
 			"nome": "Fomentado",
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
-			"descrizione": "Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.",
+			"descrizione": "Un'anima irrequieta spinta al suo limite dalla sua stessa passione. Brucia forte, sempre! Finché non rimarrà che cenere.",
 			"carta": {
 				"id": "carta_maschera_vuota",
 				"nome": "Fomentado",
@@ -94,7 +94,7 @@
 			"psiche": "rabbia",
 			"fattore_base": 15,
 			"ritratto": "res://art/personaggi/giocoliere.png",
-			"descrizione": "Una rara bellezza, un campione nella recita, ma il talento a volte può farti uscire fuori di testa.",
+			"descrizione": "Vamos! Ammirate el Muy Bonito, y despues a morir!",
 			"carta": {
 				"id": "carta_giocoliere",
 				"nome": "El Muy Bonito",
@@ -121,9 +121,9 @@
 			"mosse": [
 				{
 					"id": "torce_in_aria",
-					"nome": "Torce in aria",
+					"nome": "Acrobazia folle",
 					"tipo": "attacco_multiplo",
-					"testo": "Tre torce salgono, girano, e tornano giu' addosso a te.",
+					"testo": "«Miren!» — e comincia a girare su se stesso con le torce accese.",
 					"quota": 0.75,
 					"colpi": 2,
 					"elemento": "fuoco",
@@ -177,7 +177,7 @@
 			"ruolo": "corazzato",
 			"nome": "Oppresso",
 			"ritratto": "res://art/personaggi/comparsa_di_ruggine.png",
-			"descrizione": "La ruggine ha preso il posto della pelle, sta ancora aspettando che il suo turno finisca...",
+			"descrizione": "Si tratta della manifestazione di un'anima perduta, con dei forti rancori legati al suo passato.",
 			"carta": {
 				"id": "carta_comparsa_di_ruggine",
 				"nome": "Oppresso",
@@ -208,10 +208,10 @@
 			"mosse": [
 				{
 					"id": "si_irrigidisce",
-					"nome": "Si irrigidisce",
-					"tipo": "buff_difesa",
-					"testo": "La ruggine si chiude su se stessa: adesso e' una porta.",
-					"valore": 3,
+					"nome": "Vita di ruggine",
+					"tipo": "difendi",
+					"testo": "La ruggine si addensa e si stratifica addosso a quello che resta di lui.",
+					"valore": 2,
 					"turni": 3,
 					"peso": 2,
 					"ricarica": 3
@@ -220,7 +220,7 @@
 					"id": "colpo_di_ruggine",
 					"nome": "Colpo di ruggine",
 					"tipo": "spezza_guardia",
-					"testo": "Un braccio di lamiera scende di piatto e ti apre la guardia.",
+					"testo": "Un accumulo di ruggine materializzata ti arriva addosso.",
 					"quota": 1.0,
 					"peso": 2
 				},
@@ -256,7 +256,7 @@
 			"ruolo": "comune",
 			"nome": "Capocantiere",
 			"ritratto": "res://art/personaggi/voce_registrata.png",
-			"descrizione": "Gestire dieci... cento... no... mille operai insoddisfatti, non dà gratificazione alcuna.",
+			"descrizione": "Un'incarnazione delle figure di comando che gestivano i dipendenti del complesso.",
 			"carta": {
 				"id": "carta_voce_registrata",
 				"nome": "Capocantiere",
@@ -289,12 +289,13 @@
 				},
 				{
 					"id": "ordine_urlato",
-					"nome": "Ordine urlato",
-					"tipo": "stato",
-					"testo": "La voce sale di un tono e non lascia spazio per pensare ad altro.",
-					"stato": "demotivazione",
+					"nome": "Rabbia repressa",
+					"tipo": "buff_attacco",
+					"testo": "«AL LAVORO!»",
 					"peso": 1,
-					"ricarica": 4
+					"ricarica": 4,
+					"valore": 4,
+					"turni": 3
 				},
 				{
 					"id": "libera_3",
@@ -328,7 +329,7 @@
 			"ruolo": "comune",
 			"nome": "Emblema dell'oppressione",
 			"ritratto": "res://art/personaggi/operaio_posseduto.png",
-			"descrizione": "Ferraglia tenuta insieme dallo spirito di un lavoratore che non è mai tornato a casa.",
+			"descrizione": "Sembra che un cumulo di oggetti venga tenuto insieme da una manifestazione che si nutre della rabbia conservata nel complesso.",
 			"carta": {
 				"id": "carta_operaio_posseduto",
 				"nome": "Emblema dell'oppressione",
@@ -359,11 +360,12 @@
 			"mosse": [
 				{
 					"id": "chiave_inglese",
-					"nome": "Chiave inglese",
-					"tipo": "attacco_forte",
-					"testo": "L'attrezzo arriva da sotto, con la forza di chi lo ha usato per vent'anni.",
-					"quota": 1.45,
-					"peso": 2
+					"nome": "Rabbia della macchina",
+					"tipo": "attacco_multiplo",
+					"testo": "Sette colpi di ferraglia, uno dietro l'altro, senza mai fermarsi.",
+					"quota": 0.2,
+					"peso": 2,
+					"colpi": 7
 				},
 				{
 					"id": "straordinario_non_pagato",
@@ -412,7 +414,7 @@
 			"nome": "Robo Pattuglia",
 			"nome_breve": "Robo Pattuglia",
 			"ritratto": "res://art/personaggi/robo_pattuglia.png",
-			"descrizione": "Una macchina di sorveglianza che non ha mai ricevuto l'ordine di smettere. Esegue un regolamento che nessuno applica più.",
+			"descrizione": "Questo macchinario sembra avere la funzione di tenere in ordine e pattugliare i corridoi della struttura che gli è stata affidata.",
 			"apertura": "Scende dalla botola senza fretta, come chi ha tutto il tempo del mondo.",
 			"carta": {
 				"id": "carta_robo_pattuglia",
@@ -446,7 +448,7 @@
 					"id": "scarica_di_avvertimento",
 					"nome": "Scarica di avvertimento",
 					"tipo": "attacco_forte",
-					"testo": "«Allontanarsi.» La scarica parte comunque.",
+					"testo": "«Noi vogliamo solo il vostro bene!»",
 					"quota": 1.25,
 					"elemento": "elettrico",
 					"peso": 2
@@ -454,9 +456,9 @@
 				{
 					"id": "protocollo_contenimento",
 					"nome": "Protocollo di contenimento",
-					"tipo": "buff_difesa",
-					"testo": "Le piastre si sovrappongono con uno scatto meccanico.",
-					"valore": 3,
+					"tipo": "difendi",
+					"testo": "«Soggetto pericoloso! Rafforzare le difese!»",
+					"valore": 2,
 					"turni": 3,
 					"peso": 1,
 					"ricarica": 3
@@ -465,7 +467,7 @@
 					"id": "riparazione_emergenza",
 					"nome": "Riparazione d'emergenza",
 					"tipo": "cura",
-					"testo": "«Danno critico. Riparazione in corso.» Qualcosa, dentro, si risalda.",
+					"testo": "«Vrrr... clank... riparazioni eseguite!»",
 					"quota_vita": 0.22,
 					"quando": {
 						"vita_sotto": 0.35
@@ -503,7 +505,7 @@
 			"psiche": "rabbia",
 			"fattore_base": 15,
 			"ritratto": "res://art/personaggi/operaio_sfruttato.png",
-			"descrizione": "Non difende i file: difende le ore che ci ha lasciato dentro. Toccarli è toccare l'unica cosa che gli è rimasta.",
+			"descrizione": "Una manifestazione del rancore serbato a causa di anni di sfruttamento e violenze continue dei lavoratori del complesso.",
 			"apertura": {
 				"tipo": "dialogo",
 				"testo": "Non rovinare il mio lavoro!"
@@ -538,10 +540,10 @@
 			"mosse": [
 				{
 					"id": "difende_le_sue_ore",
-					"nome": "Difende le sue ore",
-					"tipo": "buff_difesa",
-					"testo": "Si mette davanti a quel poco che gli e' rimasto.",
-					"valore": 2,
+					"nome": "Resisto ancora",
+					"tipo": "difendi",
+					"testo": "Tiene stretti i denti e non si sposta di un passo.",
+					"valore": 3,
 					"turni": 3,
 					"peso": 2,
 					"ricarica": 3
@@ -1672,7 +1674,7 @@
 			"livello": 3,
 			"ruolo": "comune",
 			"ritratto": "res://art/personaggi/zombie_mostruoso.png",
-			"descrizione": "Qualcosa, in questo, ha continuato a crescere anche dopo la morte. Le braccia non sono più della stessa lunghezza.",
+			"descrizione": "Questo esemplare ha subito deformazioni alle braccia e alle sue dimensioni. Ha uno sguardo assente, e condivide lo stato di demenza dei suoi simili.",
 			"carta": {
 				"id": "carta_zombie_mostruoso",
 				"nome": "Zombie Mostruoso",
@@ -1750,24 +1752,23 @@
 			"mosse": [
 				{
 					"id": "bracciata",
-					"nome": "Bracciata",
-					"tipo": "attacco_forte",
+					"nome": "Terremoto",
+					"tipo": "attacco_tutti",
 					"quota": 1.4,
 					"peso": 2,
-					"testo": "L'orrore sferza con tutte le braccia insieme."
+					"testo": "Appoggia il peso da un lato, e il pavimento risponde."
 				},
 				{
 					"id": "morsi",
-					"nome": "Morsi",
-					"tipo": "attacco_multiplo",
+					"nome": "Spazzata",
+					"tipo": "attacco_tutti",
 					"quota": 0.6,
-					"colpi": 2,
 					"peso": 2,
-					"testo": "Più bocche affondano contemporaneamente."
+					"testo": "Un braccio solo, largo quanto la stanza, che passa sopra tutti."
 				},
 				{
 					"id": "si_ricompone_orrore",
-					"nome": "Si ricompone",
+					"nome": "Ancora qui",
 					"tipo": "cura",
 					"testo": "I corpi si rimescolano, e quello che mancava lo prendono da un altro.",
 					"quota_vita": 0.2,
@@ -1894,7 +1895,7 @@
 			"ruolo": "comune",
 			"nome": "Zombie Cittadino",
 			"ritratto": "res://art/personaggi/zombie_cittadino.png",
-			"descrizione": "Era qualcuno, a Meridia, prima del coprifuoco. Ora cammina piano, verso niente in particolare, con tutti gli altri.",
+			"descrizione": "Questo esemplare sembra essere il più comune e debole della sua specie. Non sembra avere alcuna volontà.",
 			"carta": {
 				"id": "carta_zombie_cittadino",
 				"nome": "Zombie Cittadino",
@@ -1911,9 +1912,9 @@
 			"mosse": [
 				{
 					"id": "passo_pesante",
-					"nome": "Passo pesante",
+					"nome": "Agitazione",
 					"tipo": "attacco_forte",
-					"testo": "Ti cammina addosso come camminava verso il lavoro.",
+					"testo": "Si agita tutto insieme e ti viene addosso.",
 					"quota": 1.2,
 					"peso": 2
 				},
@@ -2746,22 +2747,22 @@
 			"mosse": [
 				{
 					"id": "sassata",
-					"nome": "Sassata",
+					"nome": "Bastonata",
 					"tipo": "attacco_forte",
-					"testo": "Il goblin raccoglie un sasso e lo tira senza nemmeno mirare.",
+					"testo": "Il goblin stringe il bastone con tutte e due le mani e mena alla cieca.",
 					"quota": 1.3,
 					"peso": 2
 				},
 				{
 					"id": "si_copre_la_testa",
-					"nome": "Si copre la testa",
+					"nome": "Difesa Goblin!",
 					"tipo": "difendi",
-					"testo": "Il goblin capisce come sta andando e si copre la testa con le braccia.",
+					"testo": "«Difesa Goblin!» — e si copre la testa con le braccia.",
 					"quando": {
 						"vita_sotto": 0.35
 					},
 					"priorita": 5,
-					"ricarica": 3
+					"ricarica": 2
 				},
 				{
 					"id": "libera_3",
@@ -2829,7 +2830,7 @@
 					"nome": "Si ricompone",
 					"tipo": "cura",
 					"testo": "Lo slime si raccoglie su se stesso e torna tondo.",
-					"quota_vita": 0.3,
+					"quota_vita": 0.2,
 					"quando": {
 						"vita_sotto": 0.4
 					},
@@ -2954,7 +2955,7 @@
 			"categoria": "particolare",
 			"danno_fisso_su_attacco": 5,
 			"ritratto": "res://art/personaggi/manifestazione_di_un_sogno.png",
-			"descrizione": "Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.",
+			"descrizione": "Una manifestazione traslucida che sfida l'impossibile. Queste creature sembrano riflettere quel che scorgono nelle profondità dei rimpianti di chi incontrano.",
 			"carta": {
 				"id": "carta_manifestazione_di_un_sogno",
 				"nome": "Manifestazione di un sogno",
