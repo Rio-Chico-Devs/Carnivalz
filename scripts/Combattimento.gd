@@ -2735,7 +2735,13 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				"testo_fine": String(mossa.get("testo_fine", "")),
 			}
 			if bool(mossa.get("immune", false)):
-				nemico.turni_immune = int(mossa.get("durata", 3)) + 1
+				# ESATTAMENTE quanto dura la forma, non una battuta di piu'.
+				# Modalita' e immunita' scorrono nella stessa battuta - prima
+				# avanza_modalita, subito dopo il conto dell'immunita' - quindi
+				# con "durata" tutte e due finiscono insieme. Con "durata + 1"
+				# restava intoccabile per una battuta dopo essersi riaperta, e a
+				# schermo era solo un colpo che spariva senza motivo
+				nemico.turni_immune = int(mossa.get("durata", 3))
 			aggiorna_scheda(nemico)
 		"trasformazione":
 			# NON DIVENTA SUBITO: annuncia, e il conto parte. "Hai 5 turni prima
@@ -3405,6 +3411,13 @@ func _su_ko(caduto: Dictionary) -> void:
 		for combattente in combattenti:
 			if combattente.giocatore or combattente.get("oggetto_scena", false):
 				continue
+			if combattente.get("trasformato", false):
+				# NON L'HAI BATTUTA: SE N'E' ANDATA. Chi si trasforma lascia il
+				# campo con zero punti vita, ed e' proprio la forma in cui la
+				# battaglia la conta come caduta - quindi senza questa riga
+				# abbattere il Golem pagava anche i Rottami da cui era nato:
+				# esperienza doppia, Tazo doppi e due bottini per un nemico solo
+				continue
 			if combattente.get("risparmiato", false):
 				# lasciare andare qualcuno insegna piu' che abbatterlo: rende
 				# piu' esperienza di quanta ne avrebbe data da morto. Niente
@@ -3433,6 +3446,8 @@ func risolvi_drop() -> void:
 	for c in combattenti:
 		if c.giocatore or c.get("oggetto_scena", false) or c.get("risparmiato", false):
 			continue
+		if c.get("trasformato", false):
+			continue   # se n'e' andata trasformandosi: non c'e' niente da raccogliere
 		# IL DROP C'E' SEMPRE, e viene prima di tutti i tiri di dado: non e' una
 		# probabilita' in piu', e' il pavimento. Chi hai abbattuto lascia
 		# qualcosa, punto - pochi tazo, un frammento di vita o cianfrusaglia

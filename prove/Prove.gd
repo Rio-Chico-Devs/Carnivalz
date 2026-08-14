@@ -2959,6 +2959,35 @@ func prova_modalita_e_trasformazione() -> void:
 	esigi(scontro.combattenti.size() > quanti_prima,
 			"finito il conto non e' entrato niente in campo: la trasformazione non trasforma")
 	esigi(int(nemico.hp) <= 0, "quello di prima e' ancora in piedi: adesso ce ne sono due")
+
+	# 7. CHI SI TRASFORMA NON PAGA I PREMI DI CHI E' STATO BATTUTO. La creatura
+	# trasformata resta in campo a zero punti vita, che e' la stessa forma in cui
+	# la battaglia conta i caduti: senza una riga che la distingua, abbattere il
+	# Golem incassava anche l'esperienza, i Tazo e il bottino dei Rottami da cui
+	# era nato. Due premi per un nemico solo, e in silenzio
+	esigi(bool(nemico.get("trasformato", false)),
+			"la creatura trasformata non si e' segnata come tale: verra' contata fra i caduti")
+
+	# 8. L'IMMUNITA' DELLA FORMA FINISCE QUANDO FINISCE LA FORMA
+	var chiuso: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if not combattente.giocatore and int(combattente.hp) > 0:
+			chiuso = combattente
+			break
+	if not chiuso.is_empty():
+		chiuso.modalita = {}
+		chiuso.turni_immune = 0
+		scontro.esegui_mossa(chiuso, {"id": "prova_scudo", "tipo": "modalita", "testo": "-",
+				"durata": 2, "immune": true, "per_battuta": {"stat": {"attacco": 1}}})
+		scontro.avanza_modalita(chiuso)
+		chiuso.turni_immune = int(chiuso.turni_immune) - 1
+		scontro.avanza_modalita(chiuso)
+		chiuso.turni_immune = maxi(int(chiuso.turni_immune) - 1, 0)
+		esigi(Dictionary(chiuso.get("modalita", {})).is_empty(),
+				"dopo due battute la forma e' ancora accesa")
+		esigi(int(chiuso.get("turni_immune", 0)) <= 0,
+				"la forma e' finita ma resta intoccabile per %d battute: i colpi spariscono senza motivo"
+				% int(chiuso.get("turni_immune", 0)))
 	scontro.free()
 
 func fotografia(scontro: Node, eroe: Dictionary, nemico: Dictionary) -> String:
