@@ -1,0 +1,544 @@
+<title>Manuale dei personaggi</title>
+<style>
+  :root {
+    --paper:#FFFFFF; --board:#EFEDE8; --sunk:#E6E3DC; --line:#D0CBC2; --hair:#E2DED7;
+    --ink:#15171B; --ink2:#4D535B; --ink3:#858C95;
+    --mark:#9C3312; --sys:#1A5661;
+    --natura:#3E6B3A; --artificio:#4A5C78; --spirituale:#6B4A7C; --speciale:#8A6510; --tetro:#2C2C33;
+    --mono: ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    --serif: Georgia,"Iowan Old Style","Times New Roman",serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#15171B; --board:#1B1E23; --sunk:#101216; --line:#32373F; --hair:#242830;
+      --ink:#E5E8EC; --ink2:#A5ABB5; --ink3:#727A84; --mark:#DE7748; --sys:#69B4C2;
+      --natura:#7FBE78; --artificio:#8FA8CE; --spirituale:#BB92CE; --speciale:#D6A83E; --tetro:#9BA0AC;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#15171B; --board:#1B1E23; --sunk:#101216; --line:#32373F; --hair:#242830;
+    --ink:#E5E8EC; --ink2:#A5ABB5; --ink3:#727A84; --mark:#DE7748; --sys:#69B4C2;
+    --natura:#7FBE78; --artificio:#8FA8CE; --spirituale:#BB92CE; --speciale:#D6A83E; --tetro:#9BA0AC;
+  }
+
+  * { box-sizing:border-box; }
+  body { background:var(--board); color:var(--ink); font-family:var(--serif);
+         font-size:16px; line-height:1.6; margin:0; padding:0 1rem 6rem;
+         -webkit-font-smoothing:antialiased; }
+  .sheet { max-width:60rem; margin:0 auto; background:var(--paper);
+           border-left:1px solid var(--line); border-right:1px solid var(--line);
+           padding:0 clamp(1.2rem,4vw,3.2rem) 4rem; }
+  .col { max-width:38rem; }
+
+  header.cover { padding:3.5rem 0 2rem; border-bottom:2px solid var(--ink); }
+  .doctype { font-family:var(--mono); font-size:.68rem; letter-spacing:.18em;
+             text-transform:uppercase; color:var(--mark); }
+  h1 { font-family:var(--sans); font-weight:700; font-size:clamp(2rem,5.5vw,3.1rem);
+       line-height:1.03; letter-spacing:-.03em; margin:.7rem 0 .6rem; text-wrap:balance; }
+  .subtitle { font-size:1.04rem; color:var(--ink2); margin:0 0 1.2rem; max-width:34rem; }
+
+  nav.toc { margin:1.6rem 0 0; padding:1rem 0 0; border-top:1px solid var(--hair);
+            columns:2; column-gap:2rem; font-family:var(--mono); font-size:.8rem; }
+  nav.toc a { display:block; color:var(--ink2); text-decoration:none; padding:.18rem 0;
+              break-inside:avoid; }
+  nav.toc a:hover, nav.toc a:focus { color:var(--mark); }
+  nav.toc a::before { content:attr(data-n) "  "; color:var(--ink3); }
+
+  section { padding-top:3rem; }
+  h2 { font-family:var(--sans); font-weight:700; font-size:1.5rem; letter-spacing:-.02em;
+       margin:0 0 .2rem; padding-bottom:.42rem; border-bottom:1px solid var(--line);
+       text-wrap:balance; }
+  h2 .n { font-family:var(--mono); font-size:.76rem; color:var(--mark); font-weight:400;
+          margin-right:.5rem; }
+  h3 { font-family:var(--sans); font-weight:700; font-size:1.02rem; margin:1.8rem 0 .4rem; }
+  .sommario { color:var(--ink2); margin:0 0 1.5rem; max-width:38rem; }
+  p { margin:0 0 .9rem; }
+  code { font-family:var(--mono); font-size:.84em; background:var(--sunk);
+         padding:.08em .32em; border-radius:2px; color:var(--ink2); }
+
+  .scroll { overflow-x:auto; border:1px solid var(--line); margin:.9rem 0 1.3rem; }
+  table { width:100%; border-collapse:collapse; font-size:.87rem; font-family:var(--sans); }
+  th,td { text-align:left; padding:.46rem .68rem; border-bottom:1px solid var(--hair);
+          vertical-align:top; }
+  th { font-family:var(--mono); font-size:.63rem; letter-spacing:.1em; text-transform:uppercase;
+       color:var(--ink3); font-weight:400; background:var(--sunk); }
+  td.m { font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr:last-child td { border-bottom:0; }
+  .lib { color:var(--ink3); font-size:.85em; }
+
+  .tipo { font-family:var(--mono); font-size:.63rem; letter-spacing:.06em; text-transform:uppercase;
+          padding:.1rem .38rem; border:1px solid currentColor; border-radius:2px; white-space:nowrap; }
+  .t-natura{color:var(--natura)} .t-artificio{color:var(--artificio)}
+  .t-spirituale{color:var(--spirituale)} .t-speciale{color:var(--speciale)} .t-tetro{color:var(--tetro)}
+
+  .tipi { display:grid; gap:1px; background:var(--line); border:1px solid var(--line);
+          grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); margin:1.1rem 0 1.4rem; }
+  .tipoc { background:var(--paper); padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.4rem;
+           border-top:3px solid var(--c); }
+  .tipoc h4 { font-family:var(--sans); font-size:1.15rem; margin:0; color:var(--c); letter-spacing:-.01em; }
+  .tipoc p { margin:0; font-size:.92rem; color:var(--ink2); }
+  .tipoc .chi { font-family:var(--mono); font-size:.7rem; color:var(--ink3); margin-top:auto;
+                border-top:1px solid var(--hair); padding-top:.45rem; }
+
+  .stato-c { border:1px solid var(--line); border-left:3px solid var(--mark);
+             background:var(--paper); padding:1rem 1.15rem; margin-bottom:1px; }
+  .stati { background:var(--line); border:1px solid var(--line); display:flex; flex-direction:column; gap:1px; }
+  .stato-c h4 { font-family:var(--sans); font-size:1.08rem; margin:0 0 .35rem; }
+  .stato-c .spec { margin:0 0 .5rem; font-size:.95rem; }
+  .stato-c .impl { font-family:var(--mono); font-size:.75rem; color:var(--ink3); }
+  .stato-c .impl b { color:var(--mark); font-weight:400; }
+  .stato-c.uguale { border-left-color:var(--sys); }
+  .stato-c.uguale .impl b { color:var(--sys); }
+
+  .box { border:1px solid var(--line); border-left:3px solid var(--sys); background:var(--sunk);
+         padding:.9rem 1.1rem; margin:1.1rem 0; font-size:.93rem; color:var(--ink2); }
+  .box b { color:var(--ink); }
+  .box.att { border-left-color:var(--mark); }
+
+  pre.json { font-family:var(--mono); font-size:.78rem; line-height:1.55; background:var(--sunk);
+             border:1px solid var(--line); padding:.9rem 1rem; overflow-x:auto; margin:.9rem 0 1.2rem;
+             color:var(--ink2); }
+  pre.json b { color:var(--mark); font-weight:400; }
+  pre.json i { color:var(--ink3); font-style:normal; }
+
+  ul,ol { margin:0 0 1rem; padding-left:1.2rem; }
+  li { margin-bottom:.38rem; }
+
+  footer { margin-top:3.5rem; padding-top:1.1rem; border-top:1px solid var(--line);
+           font-family:var(--mono); font-size:.72rem; color:var(--ink3); }
+
+  @media print {
+    body { background:#fff; font-size:10pt; padding:0; }
+    .sheet { border:0; max-width:none; padding:0; }
+    section { padding-top:1.3rem; }
+    h2,h3 { break-after:avoid; }
+    .scroll,.box,.stato-c,pre.json,.tipoc { break-inside:avoid; }
+  }
+</style>
+
+<div class="sheet">
+
+<header class="cover">
+  <div class="doctype">Manuale di riferimento · personaggi, tipi, status, armi</div>
+  <h1>Chi combatte,<br>e con cosa</h1>
+  <p class="subtitle">Ogni campo che si può scrivere su un personaggio, una mossa o un'arma.
+  I cinque tipi, gli otto status, e i 39 nemici aggiornati a oggi.</p>
+  <nav class="toc">
+    <a data-n="1" href="#tipi">I cinque tipi</a>
+    <a data-n="2" href="#status">Gli otto status</a>
+    <a data-n="3" href="#scheda">Anatomia di un personaggio</a>
+    <a data-n="4" href="#mosse">Anatomia di una mossa</a>
+    <a data-n="5" href="#albero">L'albero di abilità</a>
+    <a data-n="6" href="#armi">Le armi</a>
+    <a data-n="7" href="#nemici">I 39 nemici</a>
+    <a data-n="8" href="#divergenze">Cosa va cambiato nel codice</a>
+  </nav>
+</header>
+
+<section id="tipi">
+  <h2><span class="n">1</span>I cinque tipi</h2>
+  <p class="sommario">L'asse che decide efficacia e resistenze. Uno solo, non due: è la scelta che
+  tiene il combattimento leggibile.</p>
+
+  <div class="tipi">
+    <article class="tipoc" style="--c:var(--natura)">
+      <h4>Natura</h4>
+      <p>Quello che è nato così ed è rimasto vivo. Bestie, piante, goblin, tutto ciò che il Vuoto
+      non ha ancora riscritto.</p>
+      <div class="chi">Goblin · Ferino · Flora · Tartaruga · Slime</div>
+    </article>
+    <article class="tipoc" style="--c:var(--artificio)">
+      <h4>Artificio</h4>
+      <p>Costruito da qualcuno, e ancora acceso quando non serve più a niente. Non prova dolore,
+      e non smette.</p>
+      <div class="chi">Robot · Automa · Golem</div>
+    </article>
+    <article class="tipoc" style="--c:var(--spirituale)">
+      <h4>Spirituale</h4>
+      <p>Un corpo che regge qualcosa che non è più suo. Gli Zombie di Meridia, i Feticci che tengono
+      insieme la ferraglia con la rabbia.</p>
+      <div class="chi">Zombie · Feticcio</div>
+    </article>
+    <article class="tipoc" style="--c:var(--speciale)">
+      <h4>Speciale</h4>
+      <p>Non ha una categoria e non ne vuole una. Sogni, nuvole, cose che le schede segnano come
+      «indeterminato» e che più avanti si scopre da dove vengono.</p>
+      <div class="chi">Onirico · Nimbo · Indeterminato</div>
+    </article>
+    <article class="tipoc" style="--c:var(--tetro)">
+      <h4>Tetro</h4>
+      <p>Quello che nasce dal rancore e dal buio: ombre, incarnazioni, tutto ciò che il dominio ha
+      toccato dalla parte sbagliata. È il tipo delle fonti.</p>
+      <div class="chi">Ombra · Incarnazione · tutto ciò che è oscuro</div>
+    </article>
+  </div>
+
+  <div class="box att">
+    <b>Decisione da confermare.</b> Oggi il gioco ha <b>due</b> assi che fanno un lavoro simile:
+    <code>elemento</code> (fuoco, veleno, oscuro, elettrico, psico — su 16 creature) e
+    <code>filogenesi</code> nel tecno log (naturale, meccanica, umana, ferina…). I cinque tipi qui
+    sopra <b>sostituiscono l'elemento</b> come asse di efficacia; la filogenesi resta dov'è, perché
+    è narrativa — dice da che corpo viene, non contro cosa è forte. La tabella dei 39 nemici in
+    fondo mostra il tipo che assegnerei a ciascuno: correggila e la applico.
+  </div>
+
+  <h3>Cosa fa il tipo, in campo</h3>
+  <p class="col">Tre valori soli, come già funzionano le resistenze: <strong>normale</strong>,
+  <strong>ipersensibile</strong> (il colpo pesa di più), <strong>immune</strong> (non arriva). Niente
+  tabella a venticinque caselle da imparare a memoria: si scopre studiando la creatura, e il tecno
+  log lo scrive.</p>
+</section>
+
+<section id="status">
+  <h2><span class="n">2</span>Gli otto status</h2>
+  <p class="sommario">Definizione tua, e accanto cosa fa oggi il motore. Dove divergono è segnato:
+  quelli col bordo rosso vanno cambiati nel codice.</p>
+
+  <div class="stati">
+
+    <article class="stato-c">
+      <h4>Terrore</h4>
+      <p class="spec">Indebolimento temporaneo del personaggio e <strong>impossibilità di fare
+      critico</strong>.</p>
+      <p class="impl"><b>Da cambiare.</b> Esiste, ma fa un'altra cosa: alza lo stress di 40 e abbassa
+      il legame di 15. Non blocca i critici e non indebolisce le statistiche.</p>
+    </article>
+
+    <article class="stato-c">
+      <h4>Fiamme</h4>
+      <p class="spec">Danno continuo a ogni turno. È il danno nel tempo <strong>più forte</strong>.</p>
+      <p class="impl"><b>Da promuovere.</b> Il meccanismo esiste (<code>combustione</code>) ed è già
+      usato da tre creature, ma <b>non è uno status</b>: sta fuori da <code>stati.json</code>, quindi
+      non si cura, non si resiste e non compare nella scheda.</p>
+    </article>
+
+    <article class="stato-c">
+      <h4>Tossina</h4>
+      <p class="spec">Indebolimento temporaneo e <strong>leggeri danni ogni turno, meno di
+      Fiamme</strong>.</p>
+      <p class="impl"><b>Da cambiare.</b> Oggi si chiama <code>veleno</code> ed è
+      <code>dot_crescente</code>: il danno <b>aumenta</b> ogni turno, quindi col tempo supera le
+      Fiamme invece di restare sotto. Va rinominato e reso costante e leggero.</p>
+    </article>
+
+    <article class="stato-c uguale">
+      <h4>Sonno</h4>
+      <p class="spec">Immobile per <strong>massimo 3 turni</strong>, con possibilità casuale di
+      svegliarsi <strong>dal secondo in poi</strong>.</p>
+      <p class="impl"><b>Quasi.</b> Esiste come <code>salta_turno</code>. Vanno aggiunti il tetto di
+      3 e il tiro di risveglio dal secondo turno.</p>
+    </article>
+
+    <article class="stato-c">
+      <h4>Maledizione</h4>
+      <p class="spec">Parte un conto alla rovescia basato sulla tua <strong>resistenza alle
+      maledizioni</strong>. Comincia da <strong>10</strong>: un attacco che dà 3 punti maledizione ti
+      porta a 7. A <strong>zero vai KO</strong>, e non puoi essere rianimato con oggetti fino alla
+      fine del combattimento.</p>
+      <p class="impl"><b>Da riscrivere.</b> Oggi è un contatore di <b>turni</b> (parte da 9 e scala
+      da solo), non una riserva che gli attacchi consumano a colpi da 3. E il KO che ne segue è un KO
+      normale: gli oggetti di rianimazione funzionano.</p>
+    </article>
+
+    <article class="stato-c uguale">
+      <h4>Rabbia</h4>
+      <p class="spec">Attacchi soltanto: <strong>non puoi usare mosse</strong>.</p>
+      <p class="impl"><b>Solo il nome.</b> È esattamente <code>berserk</code>, già implementato:
+      «perde il controllo: può solo attaccare». Basta rinominarlo.</p>
+    </article>
+
+    <article class="stato-c">
+      <h4>Provocato</h4>
+      <p class="spec">Puoi attaccare <strong>solo il nemico che ti ha provocato</strong>.</p>
+      <p class="impl"><b>Da promuovere.</b> La Provocazione esiste come <b>abilità</b> del giocatore
+      (costa 3 aura, i nemici prendono di mira te). Come <b>status subìto</b> dal giocatore non
+      esiste: nessuna creatura può provocarti.</p>
+    </article>
+
+    <article class="stato-c">
+      <h4>Frastornato</h4>
+      <p class="spec">Puoi <strong>solo attaccare</strong>, e i bersagli sono <strong>casuali</strong>.</p>
+      <p class="impl"><b>Metà.</b> <code>confusione</code> fa già i bersagli casuali, ma non impedisce
+      di usare le mosse. Va aggiunta la seconda metà, e rinominato.</p>
+    </article>
+
+  </div>
+
+  <div class="box">
+    <b>Quello che resta com'è.</b> Nel motore ci sono altri quattro stati che non hai elencato e che
+    è meglio non buttare: <b>Lentezza</b> e <b>Rapidità</b> (velocità ±2, li usano già slime e
+    marionetta), <b>Congelamento</b> (salta turno, elemento gelo) e <b>Decomposizione</b> (danno che
+    scatta solo se agisci, addosso a Jongo Dongo). Se vuoi ridurre la lista, dimmi quali tagliare.
+  </div>
+</section>
+
+<section id="scheda">
+  <h2><span class="n">3</span>Anatomia di un personaggio</h2>
+  <p class="sommario">Tutti i campi scrivibili. Quelli marcati <code>·</code> sono facoltativi: se
+  non li scrivi, il gioco li ricava dalla curva del ruolo.</p>
+
+  <h3>Identità</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Campo</th><th>Tipo</th><th>Cosa fa</th></tr></thead>
+    <tbody>
+      <tr><td class="m">id</td><td class="m">testo</td><td>Nome interno. <strong>Deve dire chi è</strong>: cercare «Oppresso» e non trovarlo è il punto in cui si sbaglia creatura</td></tr>
+      <tr><td class="m">nome</td><td class="m">testo</td><td>Come si legge a schermo</td></tr>
+      <tr><td class="m">nome_breve ·</td><td class="m">testo</td><td>Per la scheda in combattimento, se il nome è lungo</td></tr>
+      <tr><td class="m">descrizione</td><td class="m">testo</td><td>La riga in corsivo sotto il nome nel bestiario</td></tr>
+      <tr><td class="m">ritratto</td><td class="m">percorso</td><td><code>res://art/personaggi/…png</code></td></tr>
+      <tr><td class="m">livello</td><td class="m">intero</td><td>Il suo livello base. Il mondo lo tira su se tu sei più forte</td></tr>
+      <tr><td class="m">ruolo</td><td class="m">enum</td><td><code>comune · veloce · corazzato · particolare · miniboss · fonte</code>. Decide tutte le statistiche</td></tr>
+      <tr><td class="m">tipo</td><td class="m">enum</td><td>Uno dei cinque. Decide efficacia e resistenze</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Statistiche</h3>
+  <div class="box">
+    <b>Normalmente non si scrivono.</b> Escono dalla curva del ruolo in <code>data/ruoli.json</code>:
+    così ricalibrare tutto il gioco è una riga sola, e una creatura tirata su di livello resta la
+    stessa creatura più grande. Scriverle a mano è <b>un'eccezione che deve dichiarare il perché</b>
+    in un campo <code>fuori_curva</code> — e una prova lo pretende.
+  </div>
+  <div class="scroll"><table>
+    <thead><tr><th>Campo</th><th>Cosa fa</th></tr></thead>
+    <tbody>
+      <tr><td class="m">hp · attacco · difesa · velocita</td><td>Se presenti vincono sulla curva</td></tr>
+      <tr><td class="m">fattore_base</td><td>Quanto arde in lei: alimenta critici e Slaughter</td></tr>
+      <tr><td class="m">resistenze</td><td>Per tipo o per status: <code>normale · ipersensibile · immune</code></td></tr>
+      <tr><td class="m">scala_col_giocatore</td><td><code>false</code> = resta esattamente com'è (la Tartaruga)</td></tr>
+      <tr><td class="m">invincibile</td><td>Non muore mai: si rialza sempre</td></tr>
+      <tr><td class="m">rinascita</td><td>Torna in piedi <strong>una volta sola</strong>, a una quota di vita</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Comportamento e contenuti</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Campo</th><th>Cosa fa</th></tr></thead>
+    <tbody>
+      <tr><td class="m">mosse</td><td><strong>Sempre sei caselle</strong>, anche vuote. Le libere sono spazio dichiarato</td></tr>
+      <tr><td class="m">studio</td><td>Domande e risposte dello Studia: è la sua voce</td></tr>
+      <tr><td class="m">risparmio</td><td>Se c'è, la creatura si può risparmiare invece di abbatterla</td></tr>
+      <tr><td class="m">bottino_comune</td><td>Oggetti con probabilità</td></tr>
+      <tr><td class="m">drop_raro · carta</td><td>Il pezzo raro, e la carta da collezione</td></tr>
+      <tr><td class="m">combustione</td><td>Brucia a ogni sua battuta, da subito o dopo N studi</td></tr>
+      <tr><td class="m">frenesia · mossa_disperazione</td><td>Comportamenti speciali dei boss</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="mosse">
+  <h2><span class="n">4</span>Anatomia di una mossa</h2>
+  <p class="sommario">Il formato più usato del progetto: 124 mosse scritte finora. Ogni creatura ne
+  ha sei caselle.</p>
+
+<pre class="json">{
+  <b>"id"</b>: "falciata",                 <i>identificativo, unico nella creatura</i>
+  <b>"nome"</b>: "Falciata",               <i>come compare nelle tabelle</i>
+  <b>"testo"</b>: "Il braccio lungo…",     <i>LA FRASE CHE SI LEGGE IN CAMPO</i>
+  <b>"tipo"</b>: "attacco_forte",          <i>uno dei 20 tipi del motore</i>
+  <b>"quota"</b>: 1.5,                     <i>×1,5 il suo attacco ATTUALE</i>
+  <b>"quota_a_terra"</b>: 2.6,             <i>· sale mentre lei cala di vita</i>
+  <b>"valore"</b>: 23,                     <i>· numero fisso: eccezione dichiarata</i>
+  <b>"elemento"</b>: "fuoco",              <i>· diventerà "tipo"</i>
+  <b>"colpi"</b>: 20,                      <i>· per attacco_multiplo</i>
+  <b>"stati"</b>: ["frastornato","rabbia"],<i>· cosa lascia addosso</i>
+  <b>"quando"</b>: { "vita_sotto": 0.3 },  <i>· a quale condizione ESISTE</i>
+  <b>"priorita"</b>: 7,                    <i>· &gt;0 = la SCEGLIE invece di sorteggiarla</i>
+  <b>"peso"</b>: 2,                        <i>· peso nel sorteggio</i>
+  <b>"ricarica"</b>: 3,                    <i>· sue battute di attesa</i>
+  <b>"massimo_usi"</b>: 2,                 <i>· tetto per scontro</i>
+  <b>"telegrafata"</b>: true,              <i>· si annuncia una battuta prima</i>
+  <b>"costo_vita"</b>: 0.25                <i>· quanto costa a chi la tira</i>
+}</pre>
+
+  <h3>Le condizioni disponibili</h3>
+  <p class="col">Dentro <code>quando</code>. Una mossa fuori condizione <strong>non entra nemmeno nel
+  sorteggio</strong>: non è che capita di rado, è che non c'è.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Chiave</th><th>Vera quando</th></tr></thead>
+    <tbody>
+      <tr><td class="m">vita_sotto · vita_sopra</td><td>La sua vita è sotto/sopra una quota</td></tr>
+      <tr><td class="m">bersaglio_vita_sotto</td><td>Qualcuno di là è ridotto male — finire un ferito è una decisione</td></tr>
+      <tr><td class="m">alleati_almeno · alleati_al_massimo</td><td>Quanti dei suoi sono in piedi</td></tr>
+      <tr><td class="m">battuta_almeno</td><td>Non prima della sua N-esima battuta</td></tr>
+      <tr><td class="m">senza_stato</td><td>Solo se non ha già quello stato addosso</td></tr>
+      <tr><td class="m">dopo_mossa</td><td>Solo dopo che ha usato quell'altra mossa</td></tr>
+      <tr><td class="m">dopo_rinascita</td><td>Solo dopo essere tornata in piedi</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="albero">
+  <h2><span class="n">5</span>L'albero di abilità</h2>
+  <p class="sommario">Una <strong>linea</strong> è un'abilità che cresce di grado. Chi conosce un
+  grado non conosce gli altri: nel menu ne compare uno solo, il più alto sbloccato.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Linea</th><th>Gradi</th><th>Da lv</th><th>Cosa fa</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Annichilazione</strong></td><td class="m">6</td><td class="m">19</td><td>Meno danno di un colpo normale, ma se il nemico è già a terra metà delle volte non si rialza</td></tr>
+      <tr><td><strong>Flagello</strong></td><td class="m">6</td><td class="m">11</td><td>Il danno di un colpo spezzato in venti aghi su tutti i nemici. Ognuno può fare critico o andare a vuoto</td></tr>
+      <tr><td><strong>Mantra</strong></td><td class="m">6</td><td class="m">14</td><td>Svuota la barra di dominio su di te: difesa e attacco salgono, lo stress cala. Quanto? Quanto era piena</td></tr>
+      <tr><td>Sciolte</td><td class="m">9</td><td class="m">0-25</td><td>Provoca, Astio, Vendetta, Pietà, Mattanza, Studio, Anonimato, Sovraccarico, Spezza spazio</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Come si scrive un nodo</h3>
+<pre class="json">"annichilazione_ii": {
+  <b>"nome"</b>: "Annichilazione II",
+  <b>"linea"</b>: "annichilazione",   <i>a quale linea appartiene</i>
+  <b>"grado"</b>: 2,                  <i>sostituisce il grado 1 nel menu</i>
+  <b>"livello"</b>: 29,               <i>livello minimo per aprirlo</i>
+  <b>"costo"</b>: 1,                  <i>punti abilità</i>
+  <b>"richiede"</b>: "annichilazione",<i>· nodo che va preso prima</i>
+  <b>"aura"</b>: 7,                   <i>quanto costa usarla in campo</i>
+  <b>"frazione_danno"</b>: 0.75,      <i>parametri specifici del tipo</i>
+  <b>"testo_uso"</b>: "…",            <i>la frase quando parte</i>
+  <b>"descrizione"</b>: "…"           <i>quello che legge il giocatore nel menu</i>
+}</pre>
+
+  <div class="box att">
+    <b>Difetto bloccante per la demo:</b> i punti abilità arrivano <b>dal livello 25</b>, uno ogni 4
+    (<code>abilita.json → punti</code>). La demo finisce a Jerah, <b>livello 18</b>. Così com'è
+    l'albero non si vede mai. E i punti oggi sono <b>solo del protagonista</b>: i compagni non ne
+    hanno.
+  </div>
+</section>
+
+<section id="armi">
+  <h2><span class="n">6</span>Le armi</h2>
+  <p class="sommario">Un'arma non è un numero più grande: <strong>porta i suoi attacchi</strong>.
+  Cambiare arma non cambia quanto picchi, cambia cosa puoi fare.</p>
+
+<pre class="json">{
+  <b>"id"</b>: "mannaia_scheggiata",
+  <b>"nome"</b>: "Mannaia scheggiata",
+  <b>"tipo"</b>: "arma",
+  <b>"descrizione"</b>: "Pesante e mal bilanciata: colpisce più forte, ma ti rallenta.",
+  <b>"classe_arma"</b>: "catalizzatore",   <i>chi la può impugnare</i>
+  <b>"effetto_equipaggiato"</b>: {         <i>quello che dà solo a portarla</i>
+    "attacco": 9,
+    "velocita": -1,                        <i>i valori negativi si possono</i>
+    "difesa": 0, "hp_max": 0
+  },
+  <b>"attacchi"</b>: [                     <i>LE MOSSE CHE L'ARMA PORTA</i>
+    { <b>"id"</b>: "fendente", <b>"nome"</b>: "Fendente",
+      <b>"bonus"</b>: 4,                   <i>si SOMMA al tuo attacco</i>
+      <b>"aura"</b>: 0,                    <i>costo: 0 = gratis, sempre disponibile</i>
+      <b>"testo"</b>: "%s cala la mannaia con tutto il peso che ha.",
+      <b>"descrizione"</b>: "Pesante, lento, e non gli importa della tua guardia." },
+    { <b>"id"</b>: "spaccata", <b>"nome"</b>: "Spaccata",
+      <b>"bonus"</b>: 11, <b>"aura"</b>: 3,
+      <b>"elemento"</b>: "oscuro",         <i>· diventerà "tipo"</i>
+      <b>"stati"</b>: ["tossina"],         <i>· cosa lascia addosso</i>
+      <b>"testo"</b>: "%s apre un varco dove non ce n'era uno." }
+  ],
+  <b>"prezzo_vendita"</b>: 120
+}</pre>
+
+  <h3>Le tre classi d'arma</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Classe</th><th>Chi</th><th>Perché</th></tr></thead>
+    <tbody>
+      <tr><td class="m">catalizzatore</td><td>Il protagonista</td><td>Non combatte <em>con</em> l'arma: combatte <em>attraverso</em> l'arma. Qualunque cosa impugni diventa un catalizzatore, quindi <strong>le può usare tutte</strong></td></tr>
+      <tr><td class="m">pesante</td><td>Veronica</td><td>Martelli e cose a due mani. Lente, e non gliene importa della tua guardia</td></tr>
+      <tr><td class="m">artigli</td><td>Yhvina</td><td>Artigli e glifi: veloci, e portano i suoi</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="box att">
+    <b>Stato attuale:</b> esistono <b>due armi sole</b> — Coltello di servizio (+3) e Mannaia
+    scheggiata (+9, −1 velocità) — e stanno tutte e due nel Vuoto Ardente. Il sistema è completo e
+    provato; manca il contenuto. Nota per quando le scriveremo: i bonus sono <b>numeri fissi</b>,
+    quindi a livello 20 un +9 non si sente più. Se un'arma deve restare una decisione anche a fine
+    gioco, i bonus vanno per fasce oppure diventano quote.
+  </div>
+</section>
+
+<section id="nemici">
+  <h2><span class="n">7</span>I 39 nemici</h2>
+  <p class="sommario">Aggiornati a oggi, con il tipo che proporrei per ciascuno. La colonna Mosse
+  dice quante caselle sono piene e quante restano libere.</p>
+  <h3>Livelli 1-5</h3><div class="scroll"><table><thead><tr><th>Creatura</th><th>ID</th><th>Lv</th><th>Ruolo</th><th>Tipo</th><th>Specie</th><th>Mosse</th></tr></thead><tbody>
+<tr><td><strong>Goblin Tipico</strong></td><td class="m">goblin_tipico</td><td class="m">1</td><td>comune</td><td><span class="tipo t-natura">Natura</span></td><td>Goblin</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Slime Infimo</strong></td><td class="m">slime_infimo</td><td class="m">1</td><td>comune</td><td><span class="tipo t-natura">Natura</span></td><td>Slime</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Tartaruga Innocente</strong></td><td class="m">tartaruga_innocente</td><td class="m">1</td><td>corazzato</td><td><span class="tipo t-natura">Natura</span></td><td>Tartaruga</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Infetto Rapido</strong></td><td class="m">infetto_rapido</td><td class="m">2</td><td>veloce</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">1<span class="lib"> +5</span></td></tr>
+<tr><td><strong>Nuvola di Marciume</strong></td><td class="m">nuvola_di_marciume</td><td class="m">2</td><td>veloce</td><td><span class="tipo t-speciale">Speciale</span></td><td>Nimbo</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Zombie Cittadino</strong></td><td class="m">zombie_cittadino</td><td class="m">2</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Manifestazione di un sogno</strong></td><td class="m">manifestazione_di_un_sogno</td><td class="m">3</td><td>miniboss</td><td><span class="tipo t-speciale">Speciale</span></td><td>Onirico</td><td class="m">0<span class="lib"> +6</span></td></tr>
+<tr><td><strong>Fomentado</strong></td><td class="m">maschera_vuota</td><td class="m">3</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Feticcio</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Zombie Mostruoso</strong></td><td class="m">zombie_mostruoso</td><td class="m">3</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">5<span class="lib"> +1</span></td></tr>
+<tr><td><strong>Oppresso</strong></td><td class="m">comparsa_di_ruggine</td><td class="m">4</td><td>corazzato</td><td><span class="tipo t-tetro">Tetro</span></td><td>Incarnazione</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>El Muy Bonito</strong></td><td class="m">giocoliere</td><td class="m">4</td><td>particolare</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Feticcio</td><td class="m">6<span class="lib"> +0</span></td></tr>
+<tr><td><strong>Robo Pattuglia</strong></td><td class="m">robo_pattuglia</td><td class="m">4</td><td>corazzato</td><td><span class="tipo t-artificio">Artificio</span></td><td>Robot</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Capocantiere</strong></td><td class="m">voce_registrata</td><td class="m">4</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Feticcio</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Emblema dell'oppressione</strong></td><td class="m">operaio_posseduto</td><td class="m">5</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Feticcio</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Operaio Sfruttato</strong></td><td class="m">operaio_sfruttato</td><td class="m">5</td><td>particolare</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Feticcio</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Orrore di Meridia</strong></td><td class="m">orrore_di_meridia</td><td class="m">5</td><td>particolare</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">6<span class="lib"> +0</span></td></tr>
+</tbody></table></div>
+<h3>Livelli 6-10</h3><div class="scroll"><table><thead><tr><th>Creatura</th><th>ID</th><th>Lv</th><th>Ruolo</th><th>Tipo</th><th>Specie</th><th>Mosse</th></tr></thead><tbody>
+<tr><td><strong>Il Divoratore</strong></td><td class="m">divoratore</td><td class="m">6</td><td>particolare</td><td><span class="tipo t-artificio">Artificio</span></td><td>Robot</td><td class="m">6<span class="lib"> +0</span></td></tr>
+<tr><td><strong>Rottami Erranti</strong></td><td class="m">ferraglia_urlante</td><td class="m">6</td><td>corazzato</td><td><span class="tipo t-artificio">Artificio</span></td><td>Robot</td><td class="m">6<span class="lib"> +0</span></td></tr>
+<tr><td><strong>Un goblin terribilmente arrabbiato</strong></td><td class="m">goblin_arrabbiato</td><td class="m">6</td><td>fonte</td><td><span class="tipo t-natura">Natura</span></td><td>Goblin</td><td class="m">5<span class="lib"> +1</span></td></tr>
+<tr><td><strong>Golem errante di rottami</strong></td><td class="m">golem_errante</td><td class="m">7</td><td>particolare</td><td><span class="tipo t-artificio">Artificio</span></td><td>Golem</td><td class="m">4<span class="lib"> +2</span></td></tr>
+<tr><td><strong>Ghoul</strong></td><td class="m">ghoul</td><td class="m">8</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>???</strong></td><td class="m">l_immortale</td><td class="m">8</td><td>particolare</td><td><span class="tipo t-tetro">Tetro</span></td><td>Indeterminato</td><td class="m">1<span class="lib"> +5</span></td></tr>
+<tr><td><strong>Madre in Lacrime</strong></td><td class="m">madre_in_lacrime</td><td class="m">8</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Teschio Errante</strong></td><td class="m">teschio_errante</td><td class="m">8</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Diabolo</strong></td><td class="m">diabolo</td><td class="m">9</td><td>comune</td><td><span class="tipo t-natura">Natura</span></td><td>Ferino</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Sadico</strong></td><td class="m">sadico</td><td class="m">9</td><td>comune</td><td><span class="tipo t-natura">Natura</span></td><td>Umano</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Stigma</strong></td><td class="m">stigma</td><td class="m">9</td><td>comune</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Abominio Marcio</strong></td><td class="m">abominio_marcio</td><td class="m">10</td><td>particolare</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Titano Zombie</strong></td><td class="m">titano_zombie</td><td class="m">10</td><td>particolare</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">2<span class="lib"> +4</span></td></tr>
+</tbody></table></div>
+<h3>Livelli 11-15</h3><div class="scroll"><table><thead><tr><th>Creatura</th><th>ID</th><th>Lv</th><th>Ruolo</th><th>Tipo</th><th>Specie</th><th>Mosse</th></tr></thead><tbody>
+<tr><td><strong>Divoratore di Carcasse</strong></td><td class="m">divoratore_di_carcasse</td><td class="m">11</td><td>comune</td><td><span class="tipo t-natura">Natura</span></td><td>Ferino</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Sacerdote Folle</strong></td><td class="m">sacerdote_folle</td><td class="m">11</td><td>comune</td><td><span class="tipo t-tetro">Tetro</span></td><td>Umano</td><td class="m">6<span class="lib"> +0</span></td></tr>
+<tr><td><strong>Jongo Dongo</strong></td><td class="m">jongo_dongo</td><td class="m">12</td><td>fonte</td><td><span class="tipo t-natura">Natura</span></td><td>Umano</td><td class="m">6<span class="lib"> +0</span></td></tr>
+<tr><td><strong>Donna Spinosa</strong></td><td class="m">donna_spinosa</td><td class="m">13</td><td>comune</td><td><span class="tipo t-natura">Natura</span></td><td>Flora</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Marionetta</strong></td><td class="m">marionetta</td><td class="m">13</td><td>comune</td><td><span class="tipo t-tetro">Tetro</span></td><td>Automa</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Jongo Dongo</strong></td><td class="m">jongo_dongo_risorto</td><td class="m">14</td><td>fonte</td><td><span class="tipo t-spirituale">Spirituale</span></td><td>Zombie</td><td class="m">3<span class="lib"> +3</span></td></tr>
+<tr><td><strong>Ombra del passato</strong></td><td class="m">ombra_del_passato</td><td class="m">14</td><td>comune</td><td><span class="tipo t-tetro">Tetro</span></td><td>Ombra</td><td class="m">2<span class="lib"> +4</span></td></tr>
+<tr><td><strong>Un tenero ricordo</strong></td><td class="m">tenero_ricordo</td><td class="m">15</td><td>fonte</td><td><span class="tipo t-tetro">Tetro</span></td><td>Automa</td><td class="m">5<span class="lib"> +1</span></td></tr>
+<tr><td><strong>Volto sulla parete</strong></td><td class="m">volto_sulla_parete</td><td class="m">15</td><td>miniboss</td><td><span class="tipo t-tetro">Tetro</span></td><td>Incarnazione</td><td class="m">3<span class="lib"> +3</span></td></tr>
+</tbody></table></div>
+<h3>Livelli 16+</h3><div class="scroll"><table><thead><tr><th>Creatura</th><th>ID</th><th>Lv</th><th>Ruolo</th><th>Tipo</th><th>Specie</th><th>Mosse</th></tr></thead><tbody>
+<tr><td><strong>L'ultimo spettacolo di Jerah</strong></td><td class="m">jerah</td><td class="m">18</td><td>fonte</td><td><span class="tipo t-natura">Natura</span></td><td>Umano</td><td class="m">5<span class="lib"> +1</span></td></tr>
+</tbody></table></div>
+
+</section>
+
+<section id="divergenze">
+  <h2><span class="n">8</span>Cosa va cambiato nel codice</h2>
+  <p class="sommario">Il lavoro che questa specifica comporta, in ordine di quanto costa.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Lavoro</th><th>Peso</th><th>Cosa comporta</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Rinominare Berserk → Rabbia</strong></td><td class="m">minimo</td><td>Solo il nome: la meccanica è già la tua</td></tr>
+      <tr><td><strong>Confusione → Frastornato</strong></td><td class="m">piccolo</td><td>Rinomina + aggiungere «solo attacchi»</td></tr>
+      <tr><td><strong>Sonno: tetto 3 e risveglio</strong></td><td class="m">piccolo</td><td>Tiro di risveglio dal secondo turno</td></tr>
+      <tr><td><strong>Veleno → Tossina</strong></td><td class="m">medio</td><td>Rinomina + da crescente a costante e leggero + indebolimento</td></tr>
+      <tr><td><strong>Fiamme come status</strong></td><td class="m">medio</td><td>Portare la combustione dentro <code>stati.json</code>: così si cura e si resiste</td></tr>
+      <tr><td><strong>Terrore: niente critici</strong></td><td class="m">medio</td><td>Aggiungere il blocco dei critici e l'indebolimento</td></tr>
+      <tr><td><strong>Provocato come status</strong></td><td class="m">medio</td><td>Oggi è solo un'abilità tua: va reso subibile</td></tr>
+      <tr><td><strong>I cinque tipi</strong></td><td class="m">grosso</td><td>Sostituire l'elemento su 39 creature, le armi e le abilità</td></tr>
+      <tr><td><strong>Maledizione a riserva</strong></td><td class="m">grosso</td><td>Da contatore di turni a riserva da 10 consumata dagli attacchi, col KO non rianimabile</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="box">
+    <b>Suggerimento sull'ordine:</b> i primi tre sono mezz'ora e si vedono subito. La Maledizione e i
+    tipi sono i due grossi, e conviene farli <b>dopo</b> la curva di crescita dei compagni — perché
+    quella tocca gli stessi file e farli in parallelo vuol dire risolvere conflitti a mano.
+  </div>
+</section>
+
+<footer>
+  Manuale dei personaggi · i 39 nemici e tutti gli schemi sono letti dai dati del ramo
+  <code>claude/inizio-progetto-dya2lr</code><br>
+  I tipi assegnati alle creature sono una proposta: correggi la tabella e la applico.
+</footer>
+
+</div>
