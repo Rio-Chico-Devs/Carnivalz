@@ -1,0 +1,575 @@
+<title>Carnivalz GDD</title>
+<style>
+  :root {
+    --paper:  #FFFFFF;
+    --board:  #F0EEEA;
+    --sunk:   #E7E4DE;
+    --line:   #D2CDC4;
+    --hair:   #E3DFD8;
+    --ink:    #14161A;
+    --ink2:   #4E545C;
+    --ink3:   #868D96;
+    --mark:   #A03514;
+    --sys:    #1B5A66;
+    --ok:     #2F6B45;
+    --warn:   #8A6210;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14161A; --board: #1A1D22; --sunk: #101216; --line: #313640;
+      --hair: #23272E; --ink: #E4E7EB; --ink2: #A3AAB4; --ink3: #6F7781;
+      --mark: #E07A4E; --sys: #6BB6C4; --ok: #6DB98A; --warn: #D2A445;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14161A; --board: #1A1D22; --sunk: #101216; --line: #313640;
+    --hair: #23272E; --ink: #E4E7EB; --ink2: #A3AAB4; --ink3: #6F7781;
+    --mark: #E07A4E; --sys: #6BB6C4; --ok: #6DB98A; --warn: #D2A445;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--board); color: var(--ink);
+    font-family: var(--serif); font-size: 16px; line-height: 1.62;
+    margin: 0; padding: 0 1rem 6rem; -webkit-font-smoothing: antialiased;
+  }
+  .sheet { max-width: 58rem; margin: 0 auto; background: var(--paper);
+           border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+           padding: 0 clamp(1.2rem, 4vw, 3.4rem) 4rem; }
+  .col { max-width: 38rem; }
+
+  header.cover { padding: 3.5rem 0 2rem; border-bottom: 2px solid var(--ink); }
+  .doctype { font-family: var(--mono); font-size: .68rem; letter-spacing: .18em;
+             text-transform: uppercase; color: var(--mark); }
+  h1 { font-family: var(--sans); font-weight: 700; font-size: clamp(2rem, 5.5vw, 3.2rem);
+       line-height: 1.02; letter-spacing: -.03em; margin: .7rem 0 .6rem; text-wrap: balance; }
+  .subtitle { font-size: 1.05rem; color: var(--ink2); margin: 0 0 1.4rem; max-width: 34rem; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+          gap: .1rem .4rem; font-family: var(--mono); font-size: .74rem; color: var(--ink2); }
+  .meta b { color: var(--ink3); font-weight: 400; }
+
+  nav.toc { margin: 2rem 0 0; padding: 1.1rem 0 0; border-top: 1px solid var(--hair);
+            columns: 2; column-gap: 2rem; font-family: var(--mono); font-size: .8rem; }
+  nav.toc a { display: block; color: var(--ink2); text-decoration: none; padding: .18rem 0;
+              break-inside: avoid; }
+  nav.toc a:hover, nav.toc a:focus { color: var(--mark); }
+  nav.toc a::before { content: attr(data-n) "  "; color: var(--ink3); }
+
+  section { padding-top: 3rem; }
+  h2 { font-family: var(--sans); font-weight: 700; font-size: 1.55rem; letter-spacing: -.02em;
+       margin: 0 0 .2rem; padding-bottom: .45rem; border-bottom: 1px solid var(--line);
+       text-wrap: balance; }
+  h2 .n { font-family: var(--mono); font-size: .78rem; color: var(--mark); font-weight: 400;
+          margin-right: .55rem; }
+  h3 { font-family: var(--sans); font-weight: 700; font-size: 1.02rem; margin: 1.9rem 0 .4rem;
+       letter-spacing: -.005em; }
+  h4 { font-family: var(--mono); font-weight: 400; font-size: .72rem; letter-spacing: .12em;
+       text-transform: uppercase; color: var(--ink3); margin: 1.5rem 0 .5rem; }
+  p { margin: 0 0 .9rem; }
+  code { font-family: var(--mono); font-size: .84em; background: var(--sunk);
+         padding: .08em .32em; border-radius: 2px; color: var(--ink2); }
+  strong { font-weight: 700; }
+
+  .scroll { overflow-x: auto; border: 1px solid var(--line); margin: 1rem 0 1.3rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .875rem; font-family: var(--sans); }
+  th, td { text-align: left; padding: .48rem .7rem; border-bottom: 1px solid var(--hair);
+           vertical-align: top; }
+  th { font-family: var(--mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase;
+       color: var(--ink3); font-weight: 400; background: var(--sunk); }
+  td.m { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+
+
+  .dia { width: 100%; height: auto; display: block; }
+  .dia rect.n, .dia rect.k, .dia rect.o, .dia rect.c { stroke-width: 1; }
+  .dia rect.n { fill: var(--paper); stroke: var(--line); }
+  .dia rect.k { fill: var(--sunk); stroke: var(--ink3); }
+  .dia rect.o { fill: none; stroke: var(--mark); stroke-width: 1.6; }
+  .dia rect.c { fill: none; stroke: var(--sys); stroke-width: 1.6; }
+  .dia rect.g { fill: none; stroke: var(--hair); stroke-dasharray: 3 3; }
+  .dia polygon.d { fill: var(--paper); stroke: var(--sys); stroke-width: 1.2; }
+  .dia line.a, .dia polyline.a { stroke: var(--ink3); stroke-width: 1.2; fill: none; }
+  .dia path.pt { fill: var(--ink3); }
+  .dia text { font-family: var(--sans); fill: var(--ink); }
+  .dia text.t { text-anchor: middle; }
+  .dia text.b { font-size: 11px; font-weight: 600; }
+  .dia text.s { font-size: 9px; fill: var(--ink3); font-weight: 400; }
+  .dia text.e { font-size: 9px; fill: var(--ink3); font-family: var(--mono); }
+  .dia text.g1 { text-anchor: start; font-family: var(--mono); font-size: 8.5px;
+                 letter-spacing: .1em; fill: var(--ink3); }
+  figure.fig { margin: 1.3rem 0 1.6rem; border: 1px solid var(--line);
+               background: var(--sunk); padding: 1rem .9rem .6rem; }
+  figure.fig figcaption { font-family: var(--mono); font-size: .68rem; color: var(--ink3);
+                          margin-top: .7rem; text-align: center; }
+
+  .box { border: 1px solid var(--line); border-left: 3px solid var(--sys);
+         background: var(--sunk); padding: .9rem 1.1rem; margin: 1.2rem 0; font-size: .93rem;
+         color: var(--ink2); }
+  .box b { color: var(--ink); }
+  .box.attenzione { border-left-color: var(--warn); }
+  .box.fatto { border-left-color: var(--ok); }
+
+  ul, ol { margin: 0 0 1rem; padding-left: 1.2rem; }
+  li { margin-bottom: .4rem; }
+
+  .stato { font-family: var(--mono); font-size: .64rem; letter-spacing: .08em;
+           text-transform: uppercase; padding: .1rem .4rem; border: 1px solid currentColor;
+           border-radius: 2px; white-space: nowrap; }
+  .s-ok { color: var(--ok); } .s-no { color: var(--mark); } .s-part { color: var(--warn); }
+
+  footer { margin-top: 3.5rem; padding-top: 1.1rem; border-top: 1px solid var(--line);
+           font-family: var(--mono); font-size: .72rem; color: var(--ink3); }
+
+  @media print {
+    body { background: #fff; font-size: 10.5pt; padding: 0; }
+    .sheet { border: 0; max-width: none; padding: 0; }
+    section { break-inside: auto; padding-top: 1.4rem; }
+    h2 { break-after: avoid; } h3 { break-after: avoid; }
+    figure.fig, .scroll, .box { break-inside: avoid; }
+    nav.toc { columns: 2; }
+  }
+</style>
+
+<div class="sheet">
+
+<header class="cover">
+  <div class="doctype">Game Design Document · v1 · documento di lavoro</div>
+  <h1>Carnivalz</h1>
+  <p class="subtitle">RPG a squadre con combattimento in tempo reale a ricariche. Documento
+  tecnico e di progetto: quello che è costruito, quello che è deciso, quello che manca.</p>
+  <div class="meta">
+    <div><b>Motore</b> Godot 4.7 · GDScript</div>
+    <div><b>Risoluzione</b> 1280×720</div>
+    <div><b>Codice</b> 12.345 righe</div>
+    <div><b>Dati</b> 22 file JSON + 8 zone</div>
+    <div><b>Verifiche</b> 25.344 su 70 prove</div>
+    <div><b>Ambito demo</b> Vuoto 1, fino a livello 18</div>
+  </div>
+
+  <nav class="toc">
+    <a data-n="1" href="#concept">Concept e obiettivi</a>
+    <a data-n="2" href="#loop">Il ciclo di gioco</a>
+    <a data-n="3" href="#combattimento">Combattimento</a>
+    <a data-n="4" href="#progressione">Progressione</a>
+    <a data-n="5" href="#classi">Classi e squadra</a>
+    <a data-n="6" href="#contenuti">Contenuti e struttura</a>
+    <a data-n="7" href="#architettura">Architettura tecnica</a>
+    <a data-n="8" href="#dati">Formato dei dati</a>
+    <a data-n="9" href="#qualita">Verifica e strumenti</a>
+    <a data-n="10" href="#stato">Stato e lavori aperti</a>
+  </nav>
+</header>
+
+<section id="concept">
+  <h2><span class="n">1</span>Concept e obiettivi</h2>
+  <div class="col">
+    <p><strong>High concept.</strong> Un guerriero dell'Organizzazione entra nelle fratture — i
+    <em>Vuoti</em> — dove un patogeno sorto tremila anni fa continua a deformare spazio, tempo e
+    corpi. Ogni frattura è un dungeon a nodi con creature da abbattere <em>o da capire</em>.</p>
+
+    <p><strong>Pilastri.</strong> Tre, e ogni decisione di progetto si misura su questi.</p>
+    <ol>
+      <li><strong>I numeri che salgono si vedono.</strong> Il piacere di base è leggibile e
+      immediato: colpisci, il numero esce, la barra si muove.</li>
+      <li><strong>Le creature si studiano.</strong> Non sono solo sacchi di punti vita: hanno una
+      scheda che si riempie osservandole, e alcune si possono risparmiare invece che abbattere —
+      e rende di più.</li>
+      <li><strong>Da uno scenario tetro si esce lo stesso.</strong> Il tono è cupo, la direzione
+      non è disperata.</li>
+    </ol>
+
+    <p><strong>Riferimenti dichiarati.</strong> Pokémon (guardia cumulativa a scatti, tabella dei
+    moltiplicatori), Final Fantasy XIII (progressione a punti su albero per personaggio), Digimon
+    e Medabots (creature che cambiano forma), Undertale (risparmiare invece di uccidere).</p>
+
+    <h3>Ambito</h3>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Prodotto</th><th>Contenuto</th><th>Livelli</th><th>Stato</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Demo</strong></td><td>Tutorial + Vuoto 1, fino a Jerah</td><td class="m">1 → 18</td><td><span class="stato s-part">in corso</span></td></tr>
+          <tr><td><strong>Carnivalz 1</strong></td><td>8 Vuoti. Finisce senza chiudere: compare l'organizzazione nemica</td><td class="m">1 → ~60</td><td><span class="stato s-no">da fare</span></td></tr>
+          <tr><td><strong>Multiplayer</strong></td><td>Gioco separato: fratture non collegate, co-op 4, narrazione a voti. Solo se la demo funziona</td><td class="m">riparte da 1</td><td><span class="stato s-no">rimandato</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="box">
+      <b>Regola di ambito:</b> nessuna decisione della demo va presa «perché poi ci sarà il
+      multiplayer». È un gioco a parte, con le sue regole, e si progetta quando esisterà.
+    </div>
+  </div>
+</section>
+
+<section id="loop">
+  <h2><span class="n">2</span>Il ciclo di gioco</h2>
+  <p class="col">Tre cicli annidati. Quello corto dà il piacere immediato, quello medio dà la
+  ragione per continuare, quello lungo dà la ragione per tornare.</p>
+
+<figure class="fig"><svg viewBox="0 0 760 480" class="dia" role="img" aria-label="Ciclo principale di gioco"><defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pt"/></marker></defs><rect x="300" y="16" width="160" height="44" rx="3" class="k"/><text x="380" y="35" class="t b">SEDE</text><text x="380" y="50" class="t s">salvi · compri · equipaggi</text><line x1="380" y1="60" x2="380" y2="82" class="a" marker-end="url(#p)"/><rect x="300" y="82" width="160" height="44" rx="3" class="k"/><text x="380" y="101" class="t b">MAPPA</text><text x="380" y="116" class="t s">scegli la frattura</text><line x1="380" y1="126" x2="380" y2="148" class="a" marker-end="url(#p)"/><rect x="300" y="148" width="160" height="44" rx="3" class="k"/><text x="380" y="167" class="t b">VUOTO</text><text x="380" y="182" class="t s">dungeon a nodi</text><line x1="380" y1="192" x2="380" y2="212" class="a" marker-end="url(#p)"/><polygon points="380,214 430,236 380,258 330,236" class="d"/><text x="380" y="240" class="t b">nodo</text><polyline points="330,236 170,236 170,268" class="a" marker-end="url(#p)" fill="none"/><text x="220" y="230" class="t e">scontro</text><rect x="80" y="268" width="180" height="44" rx="3" class="c"/><text x="170" y="294" class="t b">COMBATTIMENTO</text><polyline points="430,236 580,236 580,268" class="a" marker-end="url(#p)" fill="none"/><text x="530" y="230" class="t e">scelta</text><rect x="500" y="268" width="160" height="38" rx="3" class="n"/><text x="580" y="291" class="t b">evento narrativo</text><polyline points="380,258 380,268" class="a" marker-end="url(#p)" fill="none"/><text x="424" y="264" class="t e">bottino</text><rect x="300" y="268" width="160" height="38" rx="3" class="n"/><text x="380" y="291" class="t b">oggetto · Tazo</text><line x1="170" y1="312" x2="170" y2="344" class="a" marker-end="url(#p)"/><text x="208" y="332" class="t e">vittoria</text><rect x="60" y="344" width="220" height="48" rx="3" class="o"/><text x="170" y="365" class="t b">XP A TUTTO IL PARTY</text><text x="170" y="380" class="t s">Tazo · drop garantito</text><line x1="280" y1="368" x2="330" y2="368" class="a" marker-end="url(#p)"/><polygon points="380,346 430,368 380,390 330,368" class="d"/><text x="380" y="372" class="t b">livello?</text><line x1="430" y1="368" x2="500" y2="368" class="a" marker-end="url(#p)"/><text x="462" y="361" class="t e">sì</text><rect x="500" y="344" width="200" height="48" rx="3" class="o"/><text x="600" y="365" class="t b">punti statistica</text><text x="600" y="380" class="t s">+ punti abilità</text><polyline points="700,368 730,368 730,170 460,170" class="a" marker-end="url(#p)" fill="none"/><polyline points="380,390 380,440 288,440 288,170 300,170" class="a" marker-end="url(#p)" fill="none"/><text x="336" y="434" class="t e">no</text><polyline points="80,290 30,290 30,50 300,50" class="a" marker-end="url(#p)" fill="none"/><text x="52" y="308" class="t e">sconfitta</text><polyline points="300,170 70,170 70,26 300,26" class="a" marker-end="url(#p)" fill="none"/><text x="150" y="162" class="t e">frattura chiusa</text></svg><figcaption>Fig. 1 — Ciclo principale. Il ritorno alla Sede è l'unico punto di salvataggio.</figcaption></figure>
+
+  <div class="col">
+    <h4>Ciclo corto · 5-30 secondi</h4>
+    <p>Un colpo. La ricarica scorre, tocca a te, scegli, il numero esce, la barra di dominio si
+    riempie. <strong>È il piacere di base e deve reggere da solo</strong>: se questo non funziona,
+    niente di quello che c'è sopra lo salva.</p>
+
+    <h4>Ciclo medio · 2-10 minuti</h4>
+    <p>Uno scontro, o un nodo del dungeon. Finisce con qualcosa in mano: sempre un drop (garantito,
+    è il pavimento), esperienza per tutta la squadra, a volte un livello.</p>
+
+    <h4>Ciclo lungo · una sessione</h4>
+    <p>Una frattura chiusa, un personaggio nuovo, un ramo dell'albero aperto, una scheda di
+    bestiario completata. <strong>È il ciclo che oggi si vede meno</strong>, ed è il lavoro
+    principale che resta.</p>
+  </div>
+</section>
+
+<section id="combattimento">
+  <h2><span class="n">3</span>Combattimento</h2>
+  <div class="col">
+    <p>Tempo reale a <strong>ricariche indipendenti</strong>. Non ci sono turni: ogni combattente
+    ha una ricarica che scorre da sola, e quando finisce agisce. L'unità di tempo del gioco si
+    chiama <strong>battuta</strong> — un ciclo di ricarica di quel combattente.</p>
+    <div class="box fatto">
+      <b>Perché conta:</b> «per 3 battute» vuol dire <b>tre volte che tocca a lui</b>, non tre
+      secondi. Su una creatura lenta dura il doppio dei secondi che dura su una veloce, ed è
+      coerente — sono tre sue azioni in tutti e due i casi.
+    </div>
+  </div>
+
+<figure class="fig"><svg viewBox="0 0 820 600" class="dia" role="img" aria-label="La battuta di un combattente"><defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pt"/></marker></defs><rect x="250" y="14" width="200" height="44" rx="3" class="o"/><text x="350" y="33" class="t b">RICARICA FINITA</text><text x="350" y="48" class="t s">tocca a lui</text><line x1="350" y1="58" x2="350" y2="84" class="a" marker-end="url(#p)"/><rect x="250" y="84" width="200" height="34" rx="3" class="n"/><text x="350" y="105" class="t b">scala ricariche mosse</text><line x1="350" y1="118" x2="350" y2="140" class="a" marker-end="url(#p)"/><rect x="250" y="140" width="200" height="34" rx="3" class="n"/><text x="350" y="161" class="t b">scadenza potenziamenti</text><line x1="350" y1="174" x2="350" y2="196" class="a" marker-end="url(#p)"/><rect x="250" y="196" width="200" height="34" rx="3" class="n"/><text x="350" y="217" class="t b">modalità · trasformazione</text><line x1="350" y1="230" x2="350" y2="252" class="a" marker-end="url(#p)"/><rect x="250" y="252" width="200" height="34" rx="3" class="n"/><text x="350" y="273" class="t b">combustione · tormento</text><line x1="350" y1="286" x2="350" y2="312" class="a" marker-end="url(#p)"/><polygon points="350,311 445,336 350,361 255,336" class="d"/><text x="350" y="340" class="t b">stato bloccante?</text><polyline points="445,336 600,336" class="a" marker-end="url(#p)" fill="none"/><text x="520" y="330" class="t e">sì</text><rect x="600" y="314" width="90" height="44" rx="3" class="c"/><text x="645" y="333" class="t b">turno</text><text x="645" y="348" class="t s">saltato</text><line x1="350" y1="361" x2="350" y2="388" class="a" marker-end="url(#p)"/><text x="366" y="378" class="t e">no</text><polygon points="350,388 415,410 350,432 285,410" class="d"/><text x="350" y="414" class="t b">chi è?</text><polyline points="285,410 120,410 120,452" class="a" marker-end="url(#p)" fill="none"/><text x="100" y="404" class="t e">giocatore</text><rect x="30" y="452" width="180" height="44" rx="3" class="k"/><text x="120" y="478" class="t b">input o IA di squadra</text><polyline points="415,410 520,410 520,440" class="a" marker-end="url(#p)" fill="none"/><text x="556" y="404" class="t e">creatura</text><polygon points="520,440 615,462 520,484 425,462" class="d"/><text x="520" y="466" class="t b">vita sotto 30%?</text><polyline points="425,462 330,462 330,496" class="a" marker-end="url(#p)" fill="none"/><text x="356" y="456" class="t e">no</text><rect x="228" y="496" width="204" height="36" rx="3" class="n"/><text x="330" y="518" class="t b">sorteggio pesato</text><polyline points="615,462 690,462 690,496" class="a" marker-end="url(#p)" fill="none"/><text x="660" y="456" class="t e">sì</text><rect x="580" y="496" width="220" height="36" rx="3" class="o"/><text x="690" y="511" class="t b">SCEGLIE · priorità</text><text x="690" y="526" class="t s">+30% attacco</text><polyline points="330,532 330,560 490,560" class="a" marker-end="url(#p)" fill="none"/><polyline points="690,532 690,560 630,560" class="a" marker-end="url(#p)" fill="none"/><rect x="490" y="546" width="140" height="30" rx="3" class="c"/><text x="560" y="565" class="t b">esegui mossa</text><polyline points="120,496 120,560 490,560" class="a" marker-end="url(#p)" fill="none"/></svg><figcaption>Fig. 2 — La battuta di un combattente. Implementato in <code>battuta_di()</code>.</figcaption></figure>
+
+  <div class="col">
+    <h3>Le risorse</h3>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Risorsa</th><th>Come si riempie</th><th>Come si spende</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Barra di dominio</strong></td><td>Colpendo e incassando. 3 segmenti (verde · blu · rossa)</td><td>Attacchi speciali. A rossa piena si sblocca la <strong>Mattanza</strong>: la barra si svuota e finché si svuota batti a ripetizione</td></tr>
+        <tr><td><strong>Aura</strong></td><td>Rigenera lentamente a ogni battuta</td><td>Costo delle abilità e degli attacchi d'arma</td></tr>
+        <tr><td><strong>Fattore</strong></td><td>Statistica, parte da 15</td><td>Non si spende: alimenta critici e Slaughter. Si spegne sopra 80 di stress</td></tr>
+        <tr><td><strong>Stress</strong></td><td>Sale incassando e con certe mosse nemiche</td><td>Non si spende: sopra soglia spegne il Fattore e apre gli stati psichici</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Le azioni del giocatore</h3>
+    <p>Attacca · Difendi · Abilità · Oggetto · <strong>Studia</strong> · <strong>Risparmia</strong>
+    · Fuggi. Le ultime tre sono la personalità del gioco: studiare riempie il tecno log della
+    creatura e apre le sue debolezze; risparmiare chiude lo scontro senza uccidere e
+    <strong>rende più esperienza di un cadavere</strong>; fuggire è bloccato nelle boss fight.</p>
+
+    <h3>La guardia cumulativa</h3>
+    <p>Difendersi alza la guardia di uno scatto, e <strong>lo scatto resta fino a fine
+    scontro</strong>. Il moltiplicatore segue la tabella di Pokémon — <code>(2+n)/2</code> in su,
+    <code>2/(2-n)</code> in giù — con tetto a 6 scatti. Sotto c'è un pavimento: passa sempre almeno
+    il 10% del colpo, così non esiste una difesa che vince da sola.</p>
+
+    <h3>Repertorio delle creature</h3>
+    <p>Ogni creatura ha <strong>sei caselle</strong> di mossa, anche quando ne usa tre: le libere
+    sono spazio di progetto dichiarato, e il sorteggio non le pesca. I tipi di mossa supportati dal
+    motore:</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Tipo</th><th>Cosa fa</th><th>Tipo</th><th>Cosa fa</th></tr></thead>
+      <tbody>
+        <tr><td class="m">attacco_forte</td><td>colpo singolo</td><td class="m">potenziamento</td><td>più statistiche insieme, anche agli alleati</td></tr>
+        <tr><td class="m">attacco_tutti</td><td>tutta la squadra</td><td class="m">modalita</td><td>forma che lavora N battute (cura, buff, immunità)</td></tr>
+        <tr><td class="m">attacco_multiplo</td><td>N colpi a caso</td><td class="m">trasformazione</td><td>annuncia, e dopo N battute diventa un'altra creatura</td></tr>
+        <tr><td class="m">spezza_guardia</td><td>azzera gli scatti</td><td class="m">tormento</td><td>danno a tutti a ogni loro battuta finché non cade</td></tr>
+        <tr><td class="m">rubavita</td><td>colpisce e si cura</td><td class="m">evoca</td><td>chiama alleati, tetto 3 in campo</td></tr>
+        <tr><td class="m">meta_vita</td><td>metà della vita attuale</td><td class="m">stato</td><td>applica uno o più stati</td></tr>
+        <tr><td class="m">cura</td><td>quota della vita massima</td><td class="m">sacrificio</td><td>uccide un suo evocato per potenziarsi</td></tr>
+        <tr><td class="m">difendi</td><td>alza la guardia</td><td class="m">scena</td><td>non fa niente, ed è dichiarato</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box">
+    <b>Regola dell'IA:</b> una mossa che non può fare quello che dichiara <b>non parte</b> — la
+    creatura cade sul colpo normale. Un solo punto lo decide (<code>mossa_eseguibile</code>),
+    perché i modi di arrivare a una mossa sono cinque e finché il controllo stava dentro il
+    sorteggio gli altri quattro lo scavalcavano.
+  </div>
+</section>
+
+<section id="progressione">
+  <h2><span class="n">4</span>Progressione</h2>
+  <div class="col">
+    <p>Due binari separati, e la distinzione è la cosa più caratteristica del sistema.</p>
+  </div>
+
+<figure class="fig"><svg viewBox="0 0 760 330" class="dia" role="img" aria-label="I due binari della progressione"><defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pt"/></marker></defs><rect x="14" y="14" width="356" height="240" rx="4" class="g"/><text x="30" y="36" class="t g1">BINARIO 1 · QUELLO CHE FAI</text><rect x="30" y="50" width="150" height="30" rx="3" class="n"/><text x="105" y="69" class="t b">attacchi sferrati</text><rect x="30" y="88" width="150" height="30" rx="3" class="n"/><text x="105" y="107" class="t b">difese</text><rect x="30" y="126" width="150" height="30" rx="3" class="n"/><text x="105" y="145" class="t b">danni subiti</text><rect x="30" y="164" width="150" height="30" rx="3" class="n"/><text x="105" y="183" class="t b">studi · stanze · critici</text><line x1="180" y1="65" x2="234" y2="122" class="a" marker-end="url(#p)"/><line x1="180" y1="103" x2="234" y2="122" class="a" marker-end="url(#p)"/><line x1="180" y1="141" x2="234" y2="122" class="a" marker-end="url(#p)"/><line x1="180" y1="179" x2="234" y2="122" class="a" marker-end="url(#p)"/><rect x="234" y="100" width="120" height="44" rx="3" class="k"/><text x="294" y="126" class="t b">contatori</text><line x1="294" y1="144" x2="294" y2="200" class="a" marker-end="url(#p)"/><text x="294" y="176" class="t e">a ogni livello</text><rect x="204" y="200" width="150" height="44" rx="3" class="o"/><text x="279" y="226" class="t b">punti statistica</text><rect x="394" y="14" width="352" height="240" rx="4" class="g"/><text x="410" y="36" class="t g1">BINARIO 2 · IL LIVELLO</text><rect x="410" y="50" width="160" height="44" rx="3" class="k"/><text x="490" y="76" class="t b">XP dallo scontro</text><line x1="570" y1="72" x2="630" y2="72" class="a" marker-end="url(#p)"/><rect x="630" y="50" width="100" height="44" rx="3" class="o"/><text x="680" y="69" class="t b">a TUTTI</text><text x="680" y="84" class="t s">panchina inclusa</text><line x1="680" y1="94" x2="680" y2="126" class="a" marker-end="url(#p)"/><rect x="600" y="126" width="130" height="34" rx="3" class="n"/><text x="665" y="147" class="t b">livello</text><line x1="665" y1="160" x2="665" y2="190" class="a" marker-end="url(#p)"/><rect x="590" y="190" width="150" height="34" rx="3" class="n"/><text x="665" y="211" class="t b">punti abilità</text><line x1="590" y1="207" x2="530" y2="207" class="a" marker-end="url(#p)"/><rect x="400" y="190" width="130" height="34" rx="3" class="n"/><text x="465" y="211" class="t b">albero · linee</text><line x1="279" y1="244" x2="279" y2="282" class="a" marker-end="url(#p)"/><line x1="465" y1="224" x2="400" y2="282" class="a" marker-end="url(#p)"/><rect x="280" y="282" width="200" height="38" rx="3" class="c"/><text x="380" y="305" class="t b">STATISTICHE EFFETTIVE</text><rect x="560" y="282" width="170" height="34" rx="3" class="k"/><text x="645" y="303" class="t b">arma · accessori</text><line x1="560" y1="299" x2="484" y2="299" class="a" marker-end="url(#p)"/></svg><figcaption>Fig. 3 — I due binari della crescita. Le statistiche non salgono col livello: salgono con quello che hai fatto.</figcaption></figure>
+
+  <div class="col">
+    <h3>Binario 1 · la crescita per azioni</h3>
+    <p>Ogni azione riempie un contatore; a ogni livello i contatori diventano punti statistica e si
+    azzerano. <strong>È il premio del farming</strong>, ed è quello che il mondo non si riprende:
+    la scalatura delle creature segue il tuo <em>livello</em>, non le tue statistiche.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Azione</th><th class="m">Ogni</th><th>Dà</th><th class="m">Giocatore tipo, per livello</th></tr></thead>
+      <tbody>
+        <tr><td>Attacchi sferrati</td><td class="m">5</td><td>+1 attacco</td><td class="m">30 → +6</td></tr>
+        <tr><td>Difese</td><td class="m">3</td><td>+1 difesa</td><td class="m">4 → +1</td></tr>
+        <tr><td>Danni subiti</td><td class="m">24</td><td>+5 hp</td><td class="m">200 → +40</td></tr>
+        <tr><td>Oggetti usati</td><td class="m">2</td><td>+5 hp</td><td class="m">2 → +5</td></tr>
+        <tr><td>Studi</td><td class="m">4</td><td>+1 intelligenza</td><td class="m">3 → 0</td></tr>
+        <tr><td>Stanze esplorate</td><td class="m">10</td><td>+1 velocità</td><td class="m">8 → 0</td></tr>
+        <tr><td>Stress accumulato</td><td class="m">40</td><td>+1 forza mentale</td><td class="m">60 → +1</td></tr>
+        <tr><td>Critici inflitti</td><td class="m">5</td><td>+1 fattore</td><td class="m">2 → 0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Binario 2 · livello, punti e albero</h3>
+    <p>L'XP va a <strong>tutto il party, panchina compresa e a tasso pieno</strong>. I punti
+    abilità aprono nodi su linee: una linea è un'abilità che cresce di grado (Annichilazione I → II
+    → … → Totale) e <strong>si conosce un grado solo, il più alto sbloccato</strong>.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Linea</th><th>Gradi</th><th>Da livello</th><th>Ruolo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Annichilazione</strong></td><td class="m">6</td><td class="m">19</td><td>Bersaglio singolo, danno crescente</td></tr>
+        <tr><td><strong>Flagello</strong></td><td class="m">6</td><td class="m">11</td><td>Area, tutti insieme</td></tr>
+        <tr><td><strong>Mantra</strong></td><td class="m">6</td><td class="m">14</td><td>Difesa, cura, immunità</td></tr>
+        <tr><td>Sciolte</td><td class="m">9</td><td class="m">0-25</td><td>Provoca, Astio, Vendetta, Pietà, Mattanza, Studio…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box attenzione">
+    <b>Difetto noto e bloccante per la demo:</b> i punti abilità arrivano <b>dal livello 25</b>, uno
+    ogni 4. La demo finisce al <b>18</b>. Così com'è, nella demo l'albero non si vede mai — la cosa
+    che dovrebbe vendere il gioco è l'unica che non si prova. Va anticipato.
+  </div>
+
+  <div class="col">
+    <h3>Scalatura del mondo</h3>
+    <p>Nessuna creatura scende più di <strong>3 livelli</strong> sotto il giocatore:
+    <code>livello = max(livello_base, tuo_livello − 3)</code>. Chi non scala lo dichiara
+    (<code>scala_col_giocatore: false</code>, incontri scriptati). Non è livellamento
+    amministrativo: nella finzione il disallineamento si nutre del tuo Fattore, quindi più sei
+    forte più forte è ciò che ti viene incontro.</p>
+  </div>
+</section>
+
+<section id="classi">
+  <h2><span class="n">5</span>Classi e squadra</h2>
+  <div class="col">
+    <p>Quattro in campo: il protagonista più tre. Gli altri restano alla base <strong>e crescono lo
+    stesso</strong>. I compagni hanno una classe fissa — è la loro identità; il protagonista apre
+    le classi coi punti e può prenderne più di una.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Ruolo</th><th>Nome</th><th>Sistema su cui poggia</th><th>Chi lo è</th></tr></thead>
+      <tbody>
+        <tr><td class="m">Attacker</td><td><strong>Annichilatore</strong></td><td>Linea Annichilazione · Sovraccarico · Mattanza</td><td>Yhvina</td></tr>
+        <tr><td class="m">Defender</td><td><strong>Muro</strong></td><td>Provocazione · guardia cumulativa</td><td>Veronica</td></tr>
+        <tr><td class="m">Hexer</td><td><strong>Guastatore</strong></td><td><code>stati.json</code> — 12 stati</td><td>—</td></tr>
+        <tr><td class="m">Buffer</td><td><strong>Mantra</strong></td><td>Linea Mantra · potenziamento · cura</td><td>—</td></tr>
+        <tr><td class="m">Invoker</td><td><strong>Richiamo</strong></td><td>Tipo mossa <code>evoca</code></td><td>Yhvina (secondaria)</td></tr>
+        <tr><td class="m">Weaponer</td><td><strong>Armaiolo</strong></td><td>Attacchi sull'arma · classi d'arma</td><td>—</td></tr>
+        <tr><td class="m">Blaster</td><td><strong>Flagello</strong></td><td>Linea Flagello · attacco ad area</td><td>—</td></tr>
+        <tr><td class="m">Scholar</td><td><strong>Studioso</strong></td><td>Studia · Risparmia · tecno log</td><td>Protagonista (di base)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Ingressi nella demo</h3>
+    <p><strong>Tutorial</strong>: Veronica ti insegna e poi ti lascia. <strong>Casa Gigante</strong>:
+    entra Yhvina, la seconda lama. <strong>Jerah</strong>: Veronica torna, ed è l'unico punto della
+    demo in cui il giocatore vede una squadra da tre che funziona — un muro, una lama e te.</p>
+    <div class="box attenzione">
+      <b>Difetto noto e bloccante:</b> le statistiche dei compagni escono da
+      <code>classes.json</code> e <b>non rispondono al livello</b>. Yhvina ha 400 hp al livello 1 e
+      400 al livello 30; Sally ne ha 25 per sempre. Il livello sale, il numero accanto no. Serve una
+      curva unica con moltiplicatori per classe.
+    </div>
+  </div>
+</section>
+
+<section id="contenuti">
+  <h2><span class="n">6</span>Contenuti e struttura</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Elemento</th><th class="m">Quantità</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Creature che combattono</td><td class="m">39</td><td>Sei caselle mossa ciascuna, 124 mosse dichiarate</td></tr>
+        <tr><td>Zone (Vuoti)</td><td class="m">8</td><td>Dungeon a nodi, grafo di stanze</td></tr>
+        <tr><td>Classi giocabili</td><td class="m">12</td><td>3 attive nella demo</td></tr>
+        <tr><td>Oggetti</td><td class="m">72</td><td>29 consumabili · 6 accessori · <strong>2 armi</strong></td></tr>
+        <tr><td>Stati</td><td class="m">12</td><td>Veleno, terrore, lentezza, confusione, berserk, maledizione…</td></tr>
+        <tr><td>Abilità</td><td class="m">27</td><td>Su 4 linee</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Struttura di una zona</h3>
+    <p>Una zona è un grafo di nodi. Ogni nodo può portare: uno scontro, un evento narrativo con
+    scelte, un bottino, un checkpoint, un negozio, o un bivio. La mappa della zona si scopre
+    camminando — le stanze mai visitate non compaiono, e i collegamenti si disegnano man mano.</p>
+    <h3>Il tecno log</h3>
+    <p>Ogni creatura ha una scheda a <strong>10 campi su 3 strati</strong>: il primo studio dice chi
+    è e da dove viene, il secondo com'è fatta, il terzo come si comporta. Denominazione, Areale e
+    Metamorfosi <strong>non si scrivono a mano</strong>: il nome esce dalla creatura, l'areale da
+    dove compare davvero nei file delle zone, la metamorfosi dice «osservata» solo se hai incontrato
+    anche la forma in cui si trasforma.</p>
+  </div>
+</section>
+
+<section id="architettura">
+  <h2><span class="n">7</span>Architettura tecnica</h2>
+
+<figure class="fig"><svg viewBox="0 0 760 400" class="dia" role="img" aria-label="Architettura: scene, autoload e moduli"><defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="pt"/></marker></defs><rect x="14" y="14" width="200" height="230" rx="4" class="g"/><text x="30" y="36" class="t g1">AUTOLOAD</text><rect x="30" y="48" width="168" height="26" rx="3" class="o"/><text x="114" y="65" class="t b">GameState</text><rect x="30" y="79" width="168" height="26" rx="3" class="n"/><text x="114" y="96" class="t b">AudioManager</text><rect x="30" y="110" width="168" height="26" rx="3" class="n"/><text x="114" y="127" class="t b">Stile</text><rect x="30" y="141" width="168" height="26" rx="3" class="n"/><text x="114" y="158" class="t b">Impostazioni</text><rect x="30" y="172" width="168" height="26" rx="3" class="n"/><text x="114" y="189" class="t b">Transizioni</text><rect x="30" y="203" width="168" height="26" rx="3" class="n"/><text x="114" y="220" class="t b">Pausa</text><rect x="238" y="14" width="508" height="230" rx="4" class="g"/><text x="254" y="36" class="t g1">SCENE</text><rect x="254" y="48" width="84" height="28" rx="3" class="n"/><text x="296" y="66" class="t b">Splash</text><line x1="338" y1="62" x2="366" y2="62" class="a" marker-end="url(#p)"/><rect x="366" y="48" width="84" height="28" rx="3" class="n"/><text x="408" y="66" class="t b">Menu</text><line x1="450" y1="62" x2="478" y2="62" class="a" marker-end="url(#p)"/><rect x="478" y="48" width="84" height="28" rx="3" class="n"/><text x="520" y="66" class="t b">Intro</text><line x1="520" y1="76" x2="520" y2="96" class="a" marker-end="url(#p)"/><rect x="452" y="96" width="136" height="30" rx="3" class="k"/><text x="520" y="115" class="t b">Sede</text><line x1="452" y1="111" x2="380" y2="111" class="a" marker-end="url(#p)"/><rect x="254" y="96" width="126" height="30" rx="3" class="k"/><text x="317" y="115" class="t b">Mappa</text><line x1="317" y1="126" x2="317" y2="148" class="a" marker-end="url(#p)"/><rect x="254" y="148" width="126" height="30" rx="3" class="k"/><text x="317" y="167" class="t b">Vuoto</text><line x1="380" y1="163" x2="420" y2="163" class="a" marker-end="url(#p)"/><rect x="420" y="148" width="168" height="30" rx="3" class="k"/><text x="504" y="167" class="t b">Main · motore dei nodi</text><line x1="504" y1="178" x2="504" y2="200" class="a" marker-end="url(#p)"/><rect x="420" y="200" width="168" height="34" rx="3" class="c"/><text x="504" y="221" class="t b">COMBATTIMENTO</text><rect x="600" y="96" width="130" height="28" rx="3" class="n"/><text x="665" y="114" class="t b">Negozio</text><line x1="588" y1="111" x2="600" y2="111" class="a" marker-end="url(#p)"/><rect x="600" y="148" width="146" height="28" rx="3" class="n"/><text x="673" y="166" class="t b">Bestiario · Album</text><line x1="132" y1="234" x2="600" y2="162" class="a dash"/><rect x="14" y="262" width="732" height="112" rx="4" class="g"/><text x="30" y="284" class="t g1">MODULI DEL COMBATTIMENTO</text><rect x="30" y="296" width="168" height="46" rx="3" class="o"/><text x="114" y="316" class="t b">Regole</text><text x="114" y="331" class="t s">matematica pura · 433</text><rect x="210" y="296" width="168" height="46" rx="3" class="n"/><text x="294" y="316" class="t b">Campo</text><text x="294" y="331" class="t s">schede e posizioni</text><rect x="390" y="296" width="168" height="46" rx="3" class="n"/><text x="474" y="316" class="t b">Voce</text><text x="474" y="331" class="t s">coda degli effetti</text><rect x="570" y="296" width="168" height="46" rx="3" class="n"/><text x="654" y="316" class="t b">Menu</text><text x="654" y="331" class="t s">azioni</text><polyline points="504,234 504,252 114,252 114,296" class="a" marker-end="url(#p)" fill="none"/><line x1="198" y1="60" x2="452" y2="111" class="a dash" marker-end="url(#p)"/><line x1="198" y1="60" x2="504" y2="200" class="a dash" marker-end="url(#p)"/><text x="300" y="86" class="t e">dati e stato</text></svg><figcaption>Fig. 4 — Scene, autoload e moduli. Le frecce tratteggiate sono letture di stato.</figcaption></figure>
+
+  <div class="col">
+    <h3>Principi rispettati nel codice</h3>
+    <ul>
+      <li><strong><code>Regole.gd</code> non parla.</strong> Riceve numeri e restituisce numeri:
+      niente scritte, niente schede, nessuno muore. È la parte verificabile senza aprire una
+      finestra, ed è quella che il simulatore esegue centinaia di migliaia di volte.</li>
+      <li><strong>Tutto quello che si vede passa dalla coda</strong> (<code>Voce</code>). Il numero
+      volante esce insieme alla frase che lo racconta, mai prima e mai dopo.</li>
+      <li><strong>I numeri stanno nei dati, non nel codice.</strong> Ricalibrare il gioco è una riga
+      in <code>ruoli.json</code>; una statistica scritta a mano su una creatura è un'eccezione che
+      <strong>deve dichiarare il perché</strong> in un campo <code>fuori_curva</code>, e una prova
+      lo pretende.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="dati">
+  <h2><span class="n">8</span>Formato dei dati</h2>
+  <p class="col">Ventidue file JSON più otto zone. Chi si aggiunge al progetto lavora qui dentro il
+  90% del tempo.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>File</th><th>Contiene</th><th>Chi lo legge</th></tr></thead>
+      <tbody>
+        <tr><td class="m">personaggi.json</td><td>Creature e compagni: stat, mosse, bottino, studio</td><td>Combattimento, Bestiario</td></tr>
+        <tr><td class="m">ruoli.json</td><td><strong>La curva</strong>: quanto vale una creatura al suo livello, per ruolo</td><td>GameState</td></tr>
+        <tr><td class="m">regole.json</td><td>79 numeri di taratura: danno, critici, dominio, soglie</td><td>Tutto</td></tr>
+        <tr><td class="m">crescita.json</td><td>Conversione azioni → punti statistica, passive</td><td>GameState</td></tr>
+        <tr><td class="m">abilita.json</td><td>Linee, gradi, costi, classi d'arma</td><td>Combattimento, Pausa</td></tr>
+        <tr><td class="m">classes.json</td><td>Personaggi giocabili</td><td>GameState</td></tr>
+        <tr><td class="m">stati.json</td><td>Definizione generica dei 12 stati</td><td>Combattimento</td></tr>
+        <tr><td class="m">tecnolog.json</td><td>Schede di specie, vocabolari, dominatori</td><td>Bestiario</td></tr>
+        <tr><td class="m">oggetti.json</td><td>72 oggetti: consumabili, armi, accessori, chiavi</td><td>Negozio, Pausa</td></tr>
+        <tr><td class="m">vuoti/*.json</td><td>Le 8 zone: grafo dei nodi, scontri, eventi, bottino</td><td>Main</td></tr>
+        <tr><td class="m">events*.json</td><td>Narrazione a nodi: intro, tutorial, storia</td><td>Main</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Schema di una mossa</h3>
+    <p>Il formato più usato del progetto. Ogni creatura ne ha sei.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Campo</th><th>Tipo</th><th>Significato</th></tr></thead>
+      <tbody>
+        <tr><td class="m">id · nome · testo</td><td class="m">stringa</td><td>Identificativo, nome in tabella, <strong>frase che si legge in campo</strong></td></tr>
+        <tr><td class="m">tipo</td><td class="m">enum</td><td>Uno dei 20 tipi supportati dal motore</td></tr>
+        <tr><td class="m">quota</td><td class="m">float</td><td>Frazione dell'attacco <em>attuale</em>: resta calibrata a ogni livello</td></tr>
+        <tr><td class="m">valore</td><td class="m">int</td><td>Numero fisso — eccezione dichiarata, il documento la segnala</td></tr>
+        <tr><td class="m">quando</td><td class="m">oggetto</td><td>Condizione: <code>vita_sotto</code>, <code>alleati_almeno</code>, <code>dopo_mossa</code>…</td></tr>
+        <tr><td class="m">priorita</td><td class="m">int</td><td>&gt;0 = non si sorteggia, si <em>sceglie</em>. Richiede una condizione</td></tr>
+        <tr><td class="m">peso</td><td class="m">int</td><td>Peso nel sorteggio quando non ha priorità</td></tr>
+        <tr><td class="m">ricarica</td><td class="m">int</td><td>Battute di attesa prima di rifarla</td></tr>
+        <tr><td class="m">una_tantum · massimo_usi</td><td class="m">bool · int</td><td>Tetto di usi per scontro</td></tr>
+        <tr><td class="m">telegrafata</td><td class="m">bool</td><td>Si annuncia una battuta prima di partire</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="qualita">
+  <h2><span class="n">9</span>Verifica e strumenti</h2>
+  <div class="col">
+    <p>Tre strumenti, e nessun documento del progetto è scritto a mano — quindi nessun documento può
+    raccontare il gioco di ieri.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Comando</th><th>Cosa fa</th><th>Tempo</th></tr></thead>
+      <tbody>
+        <tr><td class="m">./prove/esegui.sh</td><td><strong>25.344 verifiche su 70 prove.</strong> Compila ogni script, carica ogni scena, valida ogni file di dati, esercita il motore di combattimento</td><td class="m">~2 min</td></tr>
+        <tr><td class="m">./prove/simula.sh</td><td><strong>187.200 partite</strong> giocate dal motore vero, 4 strategie × 8 fasce di livello × ogni creatura → <code>docs/bilanciamento.md</code></td><td class="m">~21 min</td></tr>
+        <tr><td class="m">./strumenti/nemici.sh</td><td>Rigenera <code>docs/nemici.md</code> — il bestiario coi numeri veri</td><td class="m">~10 s</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="box fatto">
+    <b>Regola di disciplina:</b> una prova nuova va verificata rompendo di proposito la meccanica
+    che misura. Una prova che passa anche col sistema rotto non è una prova — è una riga che dà
+    sicurezza senza darne.
+  </div>
+</section>
+
+<section id="stato">
+  <h2><span class="n">10</span>Stato e lavori aperti</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Sistema</th><th>Stato</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr><td>Motore di combattimento</td><td><span class="stato s-ok">fatto</span></td><td>Tempo reale, 20 tipi di mossa, IA che legge la propria condizione</td></tr>
+        <tr><td>Bestiario e tecno log</td><td><span class="stato s-ok">fatto</span></td><td>39 creature, schede a strati, generato</td></tr>
+        <tr><td>Salvataggi, mappa, negozi</td><td><span class="stato s-ok">fatto</span></td><td>5 slot manuali + 1 automatico</td></tr>
+        <tr><td>Crescita del protagonista</td><td><span class="stato s-ok">fatto</span></td><td>Per azioni, con schermata di riepilogo al livello</td></tr>
+        <tr><td><strong>Crescita dei compagni</strong></td><td><span class="stato s-no">manca</span></td><td>Non esiste: stat congelate a qualunque livello</td></tr>
+        <tr><td><strong>Punti e albero per personaggio</strong></td><td><span class="stato s-no">manca</span></td><td>Oggi solo il protagonista, e dal livello 25</td></tr>
+        <tr><td><strong>Le 8 classi nei dati</strong></td><td><span class="stato s-no">manca</span></td><td>Le ancore esistono tutte: è riordino, non invenzione</td></tr>
+        <tr><td><strong>Progresso visibile mentre farmi</strong></td><td><span class="stato s-part">parziale</span></td><td>Calcolato ma invisibile: i contatori si convertono in silenzio</td></tr>
+        <tr><td><strong>Armi</strong></td><td><span class="stato s-part">parziale</span></td><td>Sistema completo, ma solo 2 armi e nella stessa zona</td></tr>
+        <tr><td>Fratture che si aprono col livello</td><td><span class="stato s-no">manca</span></td><td>Con l'avviso «questa zona è troppo forte»</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <h3>Ordine dei lavori</h3>
+    <ol>
+      <li><strong>Curva di crescita per tutti.</strong> Sblocca il resto: senza, la squadra da
+      quattro non esiste.</li>
+      <li><strong>Punti e albero per personaggio</strong>, e punti anticipati sotto il 18.</li>
+      <li><strong>Le 8 classi nei dati.</strong></li>
+      <li><strong>Progresso visibile.</strong> Il pezzo che trasforma il macinare in soddisfazione.</li>
+      <li><strong>Armi sparse fino a Jerah.</strong> Non devono essere forti: devono essere diverse.</li>
+      <li><strong>Veronica che torna per Jerah.</strong> La scena che vende la demo.</li>
+    </ol>
+
+    <h3>Decisioni ancora aperte</h3>
+    <ul>
+      <li><strong>Palette dell'interfaccia</strong>: rosa o viola-nero. Ferma, e ogni schermata
+      nuova la rimanda.</li>
+      <li><strong>Lo Stadio del tecno log</strong> non è una scala ordinabile: un Orrore Stadio VI
+      si incontra a livello 5, prima di nove creature meno evolute.</li>
+      <li><strong>Tre zone senza una regione dietro</strong>: Teatro, Casa Gigante, Meridia.</li>
+      <li><strong>Bilanciamento</strong>: la guardia cumulativa porta due scontri comuni a 30 giri;
+      il Divoratore si cura del 145% della vita ed è imbattibile al primo incontro.</li>
+      <li><strong>Classi degli altri 9 compagni</strong>: hanno un nome, non un mestiere.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Carnivalz GDD v1 · generato dai dati e dal codice del ramo <code>claude/inizio-progetto-dya2lr</code><br>
+  I numeri di questo documento sono contati sul repository, non stimati. Le decisioni di progetto
+  stanno nella Carta; questo documento descrive come sono implementate.
+</footer>
+
+</div>
