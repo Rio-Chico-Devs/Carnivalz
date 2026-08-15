@@ -7,28 +7,56 @@
 		"ogni_livelli": 4,
 		"per_volta": 1
 	},
-	"_nota_armi": "OGNI ARMA PORTA I SUOI ATTACCHI. Un personaggio ha un attacco base; l'arma che impugna fa comparire una serie di attacchi suoi, e il danno di quegli attacchi e' l'attacco base del personaggio piu' il bonus che l'arma da' a QUELL'attacco. Cosi' cambiare arma non cambia solo un numero: cambia cosa puoi fare. Le classi d'arma dicono chi puo' impugnare cosa.",
+	"_nota_armi": "LE CLASSI D'ARMA DICONO CHI IMPUGNA COSA. Bru: gli artigli erano un errore, Yhvina usa talismani. Le classi senza 'usata_da' non sono ancora di nessuno: esistono perche' le armi che scriveremo devono poterci ricadere dentro, e perche' un'arma senza classe non si sa a chi darla.",
 	"classi_arma": {
 		"catalizzatore": {
 			"nome": "Catalizzatore",
-			"_cosa_e": "Il protagonista non combatte con l'arma: combatte attraverso l'arma. Qualunque cosa impugni diventa un catalizzatore per i suoi poteri oscuri e psichici, quindi puo' usarle tutte.",
+			"_cosa_e": "Il protagonista non combatte con l'arma: combatte ATTRAVERSO l'arma. Qualunque cosa impugni diventa un catalizzatore per i suoi poteri, quindi puo' usarle tutte.",
 			"usata_da": [
 				"anonimo"
 			]
 		},
 		"pesante": {
 			"nome": "Arma pesante",
-			"_cosa_e": "Martelli e cose che si portano con due mani. Lente, e non gliene importa niente della tua difesa.",
+			"_cosa_e": "Martelli, mannaie, cose che si portano con due mani. Lente, e non gliene importa niente della tua guardia.",
 			"usata_da": [
 				"veronica"
 			]
 		},
-		"artigli": {
-			"nome": "Artigli e glifi",
-			"_cosa_e": "Artigli per quello che va aperto, glifi di evocazione per quello che va chiamato.",
+		"talismani": {
+			"nome": "Talismani",
+			"_cosa_e": "Carte, sigilli, glifi da lanciare. Non colpiscono: mandano. E' l'arma di chi evoca.",
 			"usata_da": [
 				"yhvina"
 			]
+		},
+		"leggera": {
+			"nome": "Arma leggera",
+			"_cosa_e": "Lame corte e cose che si muovono prima di te. Poco danno per colpo, molti colpi."
+		},
+		"scudi": {
+			"nome": "Scudi",
+			"_cosa_e": "L'unica classe che da' piu' difesa che attacco. Chi la porta sta davanti."
+		},
+		"minerali": {
+			"nome": "Minerali",
+			"_cosa_e": "Colossite e le altre pietre del Vuoto: grezze, pesantissime, e reagiscono al disallineamento."
+		},
+		"fuoco": {
+			"nome": "Armi da fuoco",
+			"_cosa_e": "Colpiscono da lontano e non gli importa della corazza. Quello che sparano, pero', finisce."
+		},
+		"energetica": {
+			"nome": "Energetica",
+			"_cosa_e": "Spendono aura invece di ferro. Chi ne ha poca se le ritrova spente a meta' scontro."
+		},
+		"tecnologica": {
+			"nome": "Tecnologica",
+			"_cosa_e": "Roba dell'Organizzazione e roba trovata nei complessi: fa cose che le altre armi non fanno, e a volte si inceppa."
+		},
+		"divina": {
+			"nome": "Arma divina",
+			"_cosa_e": "Non se ne trovano. Se ne trovi una, quella e' la storia di quel Vuoto."
 		}
 	},
 	"abilita": {

@@ -90,7 +90,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "giocoliere",
@@ -195,7 +196,8 @@
 					"peso": 2,
 					"ricarica": 2
 				}
-			]
+			],
+			"tipo": "Speciale"
 		},
 		{
 			"id": "comparsa_di_ruggine",
@@ -278,7 +280,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "voce_registrata",
@@ -351,7 +354,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "operaio_posseduto",
@@ -445,7 +449,8 @@
 			"hp": 290,
 			"attacco": 16,
 			"difesa": 5,
-			"fuori_curva": "Bru ha chiesto 290/16/5; la curva del ruolo comune a livello 5 da' 245/15/6. Alzarlo di livello lo terrebbe sulla curva ma sposterebbe anche l'xp e il posto nella progressione, e il ruolo particolare a livello 5 darebbe 404/18/8: troppo. Scritte a mano e' l'unica delle tre strade che da' i suoi numeri senza cambiarne nessun altro."
+			"fuori_curva": "Bru ha chiesto 290/16/5; la curva del ruolo comune a livello 5 da' 245/15/6. Alzarlo di livello lo terrebbe sulla curva ma sposterebbe anche l'xp e il posto nella progressione, e il ruolo particolare a livello 5 darebbe 404/18/8: troppo. Scritte a mano e' l'unica delle tre strade che da' i suoi numeri senza cambiarne nessun altro.",
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "robo_pattuglia",
@@ -534,7 +539,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Artificio"
 		},
 		{
 			"id": "operaio_sfruttato",
@@ -629,7 +635,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "ferraglia_urlante",
@@ -735,7 +742,8 @@
 					"peso": 1,
 					"ricarica": 3
 				}
-			]
+			],
+			"tipo": "Artificio"
 		},
 		{
 			"id": "golem_errante",
@@ -819,7 +827,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Artificio"
 		},
 		{
 			"id": "divoratore",
@@ -941,7 +950,8 @@
 					"peso": 1,
 					"ricarica": 2
 				}
-			]
+			],
+			"tipo": "Artificio"
 		},
 		{
 			"id": "ghoul",
@@ -1010,7 +1020,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "teschio_errante",
@@ -1074,7 +1085,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "abominio_marcio",
@@ -1153,7 +1165,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "madre_in_lacrime",
@@ -1222,7 +1235,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "stigma",
@@ -1291,7 +1305,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "diabolo",
@@ -1361,7 +1376,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "sadico",
@@ -1435,7 +1451,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "jongo_dongo",
@@ -1553,7 +1570,8 @@
 					"domanda": "Del lungo viaggio?",
 					"risposta": "Un piccolo sacrificio per un grande risultato. Voi... non potete capire..."
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "jongo_dongo_risorto",
@@ -1628,7 +1646,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Speciale"
 		},
 		{
 			"id": "l_immortale",
@@ -1696,7 +1715,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "sacerdote_folle",
@@ -1777,7 +1797,8 @@
 				{
 					"risposta": "Continua a recitare, senza guardarti."
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "divoratore_di_carcasse",
@@ -1851,7 +1872,8 @@
 				{
 					"osservazione": "Inutile comunicarci, è una bestia senza intelletto."
 				}
-			]
+			],
+			"tipo": "Natura"
 		},
 		{
 			"id": "sopravvissuta",
@@ -1949,7 +1971,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "orrore_di_meridia",
@@ -2045,7 +2068,8 @@
 				"quota_vita": 0.25,
 				"testo": "[i]%s si rimescola, e si rialza.[/i]",
 				"nome": "Ancora qui"
-			}
+			},
+			"tipo": "Tetro"
 		},
 		{
 			"id": "titano_zombie",
@@ -2125,7 +2149,8 @@
 				{
 					"osservazione": "Le ferite che gli apri si richiudono mentre le guardi. Colpirlo più forte non serve: serve colpirlo più in fretta."
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "zombie_cittadino",
@@ -2195,7 +2220,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "infetto_rapido",
@@ -2267,7 +2293,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "nuvola_di_marciume",
@@ -2345,7 +2372,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "marionetta",
@@ -2417,7 +2445,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "ombra_del_passato",
@@ -2497,7 +2526,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "donna_spinosa",
@@ -2576,7 +2606,8 @@
 					"domanda": "(cerchi il cartellino della sua vasca)",
 					"risposta": "La specie dichiarata sul cartellino non ha niente a che vedere con quello che ti sta davanti."
 				}
-			]
+			],
+			"tipo": "Natura"
 		},
 		{
 			"id": "volto_sulla_parete",
@@ -2678,7 +2709,8 @@
 					"domanda": "(cerchi un appiglio, un rimorso, qualcosa)",
 					"risposta": "C'è solo malvagità in questo essere. Non hai alternative."
 				}
-			]
+			],
+			"tipo": "Tetro"
 		},
 		{
 			"id": "spirito_dei_giardini",
@@ -2823,7 +2855,8 @@
 					"Siate dannati... La mia Lylloh...",
 					"Grazie..."
 				]
-			}
+			},
+			"tipo": "Tetro"
 		},
 		{
 			"id": "jerah",
@@ -2956,7 +2989,8 @@
 					"domanda": "Vecchio Proprietario del teatro: È stato bello... lavorare con te, sai?...",
 					"risposta": "Grazie. Osservami, mentre cala il sipario per l'ultima volta, vecchio amico..."
 				}
-			]
+			],
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "goblin_tipico",
@@ -3039,7 +3073,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Natura"
 		},
 		{
 			"id": "slime_infimo",
@@ -3115,7 +3150,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Natura"
 		},
 		{
 			"id": "tartaruga_innocente",
@@ -3195,7 +3231,8 @@
 				"stress": -15,
 				"oggetto": "pietra_quieta",
 				"testo": "Decidi di lasciarla andare. Non c'era nessuna ragione di combatterla. Sul terreno, dove si trovava, resta una pietra liscia e fredda."
-			}
+			},
+			"tipo": "Natura"
 		},
 		{
 			"id": "manifestazione_di_un_sogno",
@@ -3291,7 +3328,8 @@
 					"tipo": "-",
 					"testo": "-"
 				}
-			]
+			],
+			"tipo": "Spirituale"
 		},
 		{
 			"id": "goblin_arrabbiato",
@@ -3393,7 +3431,8 @@
 					"domanda": "Non hai altro da dire?",
 					"risposta": "Nessuno mi ha mai ascoltato prima. Perché dovrei parlare adesso?"
 				}
-			]
+			],
+			"tipo": "Natura"
 		},
 		{
 			"id": "computer",
