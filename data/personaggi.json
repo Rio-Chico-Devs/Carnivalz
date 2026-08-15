@@ -1492,9 +1492,9 @@
 					"tipo": "attacco_forte",
 					"quota": 1.15,
 					"peso": 2,
-					"stato": "decomposizione",
+					"stato": "veleno",
 					"richiede_non_flag": "oss_yara_esplosa",
-					"testo": "Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, la carne comincia a cedere."
+					"testo": "Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, quello che resta comincia a cedere."
 				},
 				{
 					"id": "grido_del_raccolto",

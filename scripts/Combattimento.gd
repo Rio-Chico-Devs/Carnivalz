@@ -101,11 +101,10 @@ var bersaglio_extra_sbloccato := false
 var leve_bersaglio_comparse: Array[String] = []
 var leve_bersaglio_riscosse: Array[String] = []
 
-# Stati generici (veleno, congelamento, berserk, maledizione...): vedi
+# Stati generici (veleno, sonno, berserk, maledizione...): vedi
 # data/stati.json. Provocazione: un compagno forza i nemici a colpire lui.
 var bersaglio_provocazione: Dictionary = {}
 var turni_provocazione := 0
-var ultima_azione_offensiva := false
 
 # quanto passa fra un numero e il successivo in una raffica: abbastanza poco da
 # leggersi come una scarica sola, abbastanza da vederli tutti
@@ -843,8 +842,7 @@ func battuta_di(attaccante: Dictionary) -> void:
 		if attaccante.hp <= 0:
 			return  # bruciato prima di poter agire
 	if risolvi_stati_a_inizio_turno(attaccante):
-		return  # il turno salta per uno stato (congelamento, sonno, egocentrismo, demotivazione) o la maledizione lo uccide
-	ultima_azione_offensiva = false
+		return  # il turno salta per uno stato (sonno, egocentrismo, demotivazione) o la maledizione lo uccide
 	if attaccante.giocatore:
 		attaccante_corrente = attaccante
 		if RegoleCombattimento.ha_stato_attivo(attaccante, "berserk"):
@@ -911,7 +909,6 @@ func azione_automatica(chi: Dictionary) -> Dictionary:
 			"bersaglio": nemici[GameState.rng.randi_range(0, nemici.size() - 1)]}
 
 func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
-	ultima_azione_offensiva = false
 	if true:
 		if true:
 			var bersaglio_scelto: Dictionary = azione.get("bersaglio", {})
@@ -953,7 +950,6 @@ func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
 func coda_di_battuta(attaccante: Dictionary) -> void:
 	if giocatore_e_fuggito:
 		return  # il combattimento e' finito qui, niente altro da risolvere sul turno
-	risolvi_dot_condizionale(attaccante, ultima_azione_offensiva)
 	var passo := int(GameState.regole.get("stress_per_fattore", 25))
 	var costo := floori(attaccante.fattore / float(maxi(passo, 1)))
 	if costo > 0:
@@ -1462,7 +1458,6 @@ func annichilazione(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) ->
 	var basso := quota <= float(dati.get("soglia_hp", 0.25))
 	if basso and not bersaglio.get("invincibile", false) \
 			and GameState.rng.randf() < float(dati.get("probabilita_ko", 0.5)):
-		ultima_azione_offensiva = true
 		if chi.giocatore and chi.id == GameState.id_protagonista:
 			GameState.registra_azione("attacchi_sferrati")
 		bersaglio.hp = 0
@@ -1550,7 +1545,6 @@ func flagello(chi: Dictionary, dati: Dictionary) -> void:
 	var danno_colpo := maxi(int(round(totale_previsto / float(colpi))), 1)
 	scrivi(String(dati.get("testo_uso", "[i]Il buio si chiude su %s.[/i]"))
 			% (nemici[0].nome if nemici.size() == 1 else "loro"))
-	ultima_azione_offensiva = true
 	if chi.giocatore and chi.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
 	var elenco: Array = []
@@ -1644,7 +1638,6 @@ func mattanza(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) -> void:
 	var per_segmento := maxf(float(GameState.regole.get("dominio", {}).get("per_segmento", 100)), 1.0)
 	var durata := float(dati.get("secondi_per_segmento", 2.2)) * (float(serbatoio) / per_segmento)
 	scrivi(String(dati.get("testo_uso", "[i]%s non smette più.[/i]")) % chi.nome)
-	ultima_azione_offensiva = true
 	mattanza_chi = chi
 	mattanza_bersaglio = bersaglio
 	mattanza_dati = dati
@@ -1750,7 +1743,6 @@ func raffica(chi: Dictionary, dati: Dictionary) -> void:
 			int(dati.get("colpi_massimi", 99)))
 	var danno_colpo := maxi(int(round(RegoleCombattimento.attacco_di(chi)
 			* float(dati.get("frazione_danno", 0.25)))), 1)
-	ultima_azione_offensiva = true
 	if chi.giocatore and chi.id == GameState.id_protagonista:
 		GameState.registra_azione("attacchi_sferrati")
 	var elenco: Array = []
@@ -2972,7 +2964,7 @@ func applica_combustione(combattente: Dictionary) -> void:
 	if combattente.hp <= 0:
 		_su_ko(combattente)
 
-# --- stati generici (data/stati.json): veleno, congelamento, sonno,
+# --- stati generici (data/stati.json): veleno, sonno,
 # egocentrismo, demotivazione (contagiosa), berserk, confusione, rapidita'/
 # lentezza, maledizione. Ogni personaggio puo' dichiarare nei dati una chiave
 # "resistenze" (es. {"stress": "invertito", "oscuro": "ipersensibile"}):
@@ -3036,7 +3028,7 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			var attivo2: Dictionary = bersaglio.stati_attivi.get(id_stato, {})
 			var base := int(valore) * (2 if amplificato else 1)
 			bersaglio.stati_attivi[id_stato] = {"danno": int(attivo2.get("danno", 0)) + base}
-		"dot", "dot_condizionale":
+		"dot":
 			bersaglio.stati_attivi[id_stato] = {"danno": int(valore) * (2 if amplificato else 1)}
 		"velocita":
 			bersaglio.stati_attivi[id_stato] = {"valore": int(info_stato.get("valore", 0))}
@@ -3054,7 +3046,7 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 
 func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 	# esegue countdown/salta-turno/dot a inizio turno; ritorna true se il
-	# turno va saltato (congelamento, sonno, egocentrismo, demotivazione) o
+	# turno va saltato (sonno, egocentrismo, demotivazione) o
 	# se il personaggio muore prima di poter agire (maledizione, veleno)
 	var salta := false
 	for id_stato in combattente.stati_attivi.keys().duplicate():
@@ -3092,30 +3084,10 @@ func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 					return true
 	return salta
 
-func risolvi_dot_condizionale(combattente: Dictionary, azione_offensiva: bool) -> void:
-	# la decomposizione fa danno solo se il personaggio ha scelto un'azione
-	# offensiva quel turno; difendersi o studiare la evita
-	if combattente.hp <= 0 or not azione_offensiva:
-		return
-	for id_stato in combattente.stati_attivi.keys().duplicate():
-		var info_stato: Dictionary = GameState.stati.get(id_stato, {})
-		if String(info_stato.get("tipo", "")) != "dot_condizionale":
-			continue
-		var attivo: Dictionary = combattente.stati_attivi[id_stato]
-		var danno := int(attivo.get("danno", 1))
-		combattente.hp = maxi(combattente.hp - danno, 0)
-		scrivi_con_colpo("[i]%s: %s[/i]" % [combattente.nome,
-				String(info_stato.get("testo_turno", "Il male si fa sentire ancora."))],
-				combattente, danno, String(info_stato.get("elemento", "")))
-		if combattente.hp <= 0:
-			_su_ko(combattente)
-			return
-
 # --- risoluzione dei colpi ---
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
 		moltiplicatore := 1.0, elemento := "", bonus := 0) -> void:
-	ultima_azione_offensiva = true
 	if elemento == "":
 		elemento = elemento_di(attaccante)
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
