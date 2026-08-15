@@ -1,0 +1,527 @@
+<title>La carta di Carnivalz</title>
+<style>
+  :root {
+    --ground:    #EDE9E1;
+    --panel:     #F6F3EE;
+    --sunken:    #E2DDD3;
+    --rule:      #CFC8BB;
+    --rule-soft: #DFD9CE;
+    --ink:       #1A1815;
+    --ink-soft:  #57514A;
+    --ink-faint: #8A8177;
+    --ember:     #B5471B;
+    --ember-dim: #8E3A17;
+    --deep:      #1F5560;
+    --deep-dim:  #2C6E7B;
+    --seq: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --disp: "Helvetica Neue", Helvetica, "Arial Narrow", Arial, sans-serif;
+    --read: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #16150F;
+      --panel:     #1E1C16;
+      --sunken:    #100F0A;
+      --rule:      #35322A;
+      --rule-soft: #272419;
+      --ink:       #E8E2D6;
+      --ink-soft:  #A79E90;
+      --ink-faint: #776F63;
+      --ember:     #E0763F;
+      --ember-dim: #C4602D;
+      --deep:      #6FB4C0;
+      --deep-dim:  #5899A5;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:    #16150F;
+    --panel:     #1E1C16;
+    --sunken:    #100F0A;
+    --rule:      #35322A;
+    --rule-soft: #272419;
+    --ink:       #E8E2D6;
+    --ink-soft:  #A79E90;
+    --ink-faint: #776F63;
+    --ember:     #E0763F;
+    --ember-dim: #C4602D;
+    --deep:      #6FB4C0;
+    --deep-dim:  #5899A5;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: var(--read); font-size: 17px; line-height: 1.68;
+    margin: 0; padding: 0 1.25rem 7rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 62rem; margin: 0 auto; }
+  .col { max-width: 40rem; }
+
+  .eyebrow {
+    font-family: var(--disp); font-weight: 700; font-size: .7rem;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--ember);
+  }
+
+  header.top {
+    padding: 4.5rem 0 2.5rem; border-bottom: 3px double var(--ink);
+    display: flex; flex-direction: column; gap: 1.2rem;
+  }
+  h1 {
+    font-family: var(--disp); font-weight: 700;
+    font-size: clamp(2.5rem, 7vw, 4.6rem); line-height: .95;
+    letter-spacing: -.035em; margin: 0; text-wrap: balance;
+  }
+  .standfirst { color: var(--ink-soft); max-width: 36rem; margin: 0; font-size: 1.1rem; }
+
+  .coordinate {
+    display: grid; gap: 1px; background: var(--rule);
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    border: 1px solid var(--rule); margin-top: 1.6rem;
+  }
+  .coordinate div { background: var(--panel); padding: .8rem .9rem; }
+  .coordinate b {
+    display: block; font-family: var(--disp); font-weight: 700; font-size: 1.15rem;
+    letter-spacing: -.01em; margin-bottom: .1rem;
+  }
+  .coordinate span {
+    font-family: var(--seq); font-size: .66rem; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+
+  section { padding-top: 4rem; }
+  h2 {
+    font-family: var(--disp); font-weight: 700; font-size: clamp(1.5rem, 3vw, 2.1rem);
+    letter-spacing: -.022em; margin: 0 0 .3rem; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--disp); font-weight: 700; font-size: 1.12rem;
+    letter-spacing: -.01em; margin: 2.2rem 0 .5rem;
+  }
+  .sommario { color: var(--ink-soft); margin: 0 0 1.9rem; max-width: 38rem; }
+  p { margin: 0 0 1.05rem; }
+  strong { font-weight: 700; }
+  em.term { font-style: normal; color: var(--deep); font-weight: 700; }
+  code {
+    font-family: var(--seq); font-size: .85em; background: var(--sunken);
+    padding: .1em .35em; border-radius: 2px; color: var(--ink-soft);
+  }
+
+  /* decisione: il dispositivo strutturale della pagina — ogni blocco chiude una domanda */
+  .decisioni { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .decisione { background: var(--panel); padding: 1.5rem 1.6rem; display: flex; flex-direction: column; gap: .7rem; }
+  .domanda {
+    font-family: var(--disp); font-weight: 700; font-size: 1.05rem;
+    color: var(--ink); margin: 0; letter-spacing: -.01em;
+  }
+  .domanda::before {
+    content: "DOMANDA"; display: block; font-size: .62rem; letter-spacing: .18em;
+    color: var(--ink-faint); margin-bottom: .3rem; font-weight: 700;
+  }
+  .verdetto {
+    border-left: 3px solid var(--ember); padding: .1rem 0 .1rem .9rem;
+    font-weight: 700; color: var(--ink); margin: 0;
+  }
+  .verdetto::before {
+    content: "DECISO"; display: block; font-family: var(--disp); font-size: .62rem;
+    letter-spacing: .18em; color: var(--ember); margin-bottom: .25rem;
+  }
+  .perche { margin: 0; color: var(--ink-soft); font-size: .97rem; }
+  .perche b { color: var(--ink); }
+
+  /* le otto classi */
+  .classi {
+    display: grid; gap: 1px; background: var(--rule);
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    border: 1px solid var(--rule);
+  }
+  .classe { background: var(--panel); padding: 1.3rem 1.35rem; display: flex; flex-direction: column; gap: .5rem; }
+  .ruolo {
+    font-family: var(--seq); font-size: .64rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--deep);
+  }
+  .classe h4 {
+    font-family: var(--disp); font-weight: 700; font-size: 1.3rem;
+    margin: 0; letter-spacing: -.018em;
+  }
+  .classe p { margin: 0; font-size: .95rem; color: var(--ink-soft); }
+  .ancora {
+    font-family: var(--seq); font-size: .72rem; color: var(--ink-faint);
+    border-top: 1px solid var(--rule-soft); padding-top: .55rem; margin-top: auto;
+  }
+  .ancora b { color: var(--ember); font-weight: 400; }
+  .gia {
+    font-size: .88rem; color: var(--ink); background: var(--sunken);
+    padding: .35rem .55rem; border-radius: 2px;
+  }
+
+  .scorre { overflow-x: auto; border: 1px solid var(--rule); }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { text-align: left; padding: .55rem .8rem; border-bottom: 1px solid var(--rule-soft); background: var(--panel); }
+  th {
+    font-family: var(--seq); font-size: .64rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 400;
+  }
+  td.num { font-family: var(--seq); font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: 0; }
+
+  .fasi { display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule);
+          grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
+  .fase { background: var(--panel); padding: 1.1rem 1.2rem; }
+  .fase .n { font-family: var(--seq); font-size: .68rem; color: var(--ember); letter-spacing: .1em; }
+  .fase b { display: block; font-family: var(--disp); font-size: 1.02rem; margin: .3rem 0 .3rem; }
+  .fase span.t { font-size: .9rem; color: var(--ink-soft); }
+
+  .nota {
+    border-left: 3px solid var(--deep); padding: .2rem 0 .2rem 1rem;
+    color: var(--ink-soft); font-size: .97rem; margin: 1.4rem 0;
+  }
+  .nota b { color: var(--ink); }
+
+  ul.pulita { margin: 0 0 1.1rem; padding-left: 1.15rem; }
+  ul.pulita li { margin-bottom: .5rem; }
+
+  footer {
+    margin-top: 5rem; padding-top: 1.4rem; border-top: 1px solid var(--rule);
+    font-family: var(--seq); font-size: .76rem; color: var(--ink-faint);
+  }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Carta di progetto · Carnivalz 1 · demo fino a Jerah</div>
+  <h1>Cosa è<br>Carnivalz</h1>
+  <p class="standfirst">Le meccaniche decise una volta sola, e il motivo di ognuna. Ogni
+  domanda aperta qui si chiude: quello che resta indeciso è segnato come tale.</p>
+  <div class="coordinate">
+    <div><b>8</b><span>Vuoti nel gioco 1</span></div>
+    <div><b>1</b><span>Vuoto nella demo</span></div>
+    <div><b>18</b><span>livello a Jerah</span></div>
+    <div><b>4</b><span>in squadra</span></div>
+    <div><b>8</b><span>classi</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>Il vincolo che decide tutto il resto</h2>
+  <p class="sommario">Prima delle classi e prima dei numeri, c'è una cosa sola da fissare —
+  e da lì scendono quasi tutte le altre risposte.</p>
+  <div class="col">
+    <p><strong>Il multiplayer non è una cosa da fare dopo: è un vincolo da rispettare adesso.</strong>
+    Se un giorno quattro persone giocano insieme e ognuna sceglie il suo personaggio, allora
+    <strong>ogni compagno deve essere una cosa che una persona può guidare</strong> — non un
+    comportamento che l'automatico esegue.</p>
+
+    <p>Detta così sembra ovvia. Non lo è, perché ha una conseguenza immediata e costosa: significa
+    che <strong>l'automatico che muove i tuoi compagni in campagna non è un sistema separato</strong>.
+    È un sostituto che preme gli stessi tasti che premerà un umano. Un compagno non può avere «una
+    routine»: deve avere un <em class="term">kit</em> — mosse, risorse, decisioni — e l'automatico
+    lo gioca come lo giocheresti tu.</p>
+
+    <p>E da qui scende la risposta alla domanda che mi hai fatto sui punti, che smette di essere
+    una questione di gusto e diventa una questione di struttura: <strong>in multiplayer nessuno
+    accetta di essere quello senza albero.</strong> Se i punti sono solo del protagonista, tre
+    giocatori su quattro guardano il quarto crescere.</p>
+
+    <div class="nota">
+      <b>Il buon affare:</b> è anche la strada più corta. Un kit giocabile lo si scrive una volta e
+      serve in tutti e due i modi. Costruire prima «l'IA dei compagni» e poi «il multiplayer»
+      vuol dire scrivere due volte la stessa cosa, e la seconda volta buttare la prima.
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Le domande chiuse</h2>
+  <p class="sommario">Sei decisioni. Ognuna con il motivo, perché fra sei mesi il motivo è
+  l'unica cosa che permette di cambiare idea senza rompere niente.</p>
+
+  <div class="decisioni">
+
+    <article class="decisione">
+      <p class="domanda">XP e punti: a tutti, o solo a chi combatte?</p>
+      <p class="verdetto">A tutti, sempre, anche a chi resta sulla nave. Ma ognuno spende i suoi
+      sul suo albero.</p>
+      <p class="perche">Le altre due strade sono trappole conosciute. <b>Un pozzo comune da
+      distribuire</b> ha sempre una risposta ottima — concentrare tutto su uno — e quindi non è una
+      scelta: è una tassa su chi non ha letto una guida. <b>XP solo a chi combatte</b> si
+      autoalimenta: chi resta indietro lo schieri meno, e schierandolo meno resta più indietro.
+      Dopo dieci ore hai tre titolari e cinque comparse.</p>
+      <p class="perche">La forma giusta non è una torta da dividere, è <b>una trasmissione</b>: non
+      distribuisci cento punti fra quattro, ognuno dei quattro riceve cento punti. Non c'è niente
+      da ottimizzare, quindi non c'è modo di sbagliare, quindi cambiare squadra è gratis. E la
+      decisione interessante non sparisce: si sposta da «chi nutro» — che è contabilità — a «cosa
+      diventa Yhvina», che è un personaggio.</p>
+      <p class="perche"><b>Metà è già così:</b> <code>premia_vittoria</code> dà già l'XP pieno a
+      tutto il party, panchina compresa. Quella decisione era già presa, e presa bene.</p>
+    </article>
+
+    <article class="decisione">
+      <p class="domanda">I compagni crescono?</p>
+      <p class="verdetto">Sì, e oggi non lo fanno. È il buco più grosso del gioco.</p>
+      <p class="perche">Le statistiche dei compagni escono da <code>classes.json</code> e restano
+      quelle per sempre: <b>Yhvina ha 400 punti vita al livello 1 e 400 al livello 30. Sally ne ha
+      25 per sempre.</b> Il livello sale, il numero accanto no. Il protagonista invece cresce, e i
+      nemici seguono te. Quindi ogni ora che passa la squadra vale meno, fino a essere decorazione.</p>
+      <p class="perche">Serve <b>una curva sola per tutti</b>, con moltiplicatori per classe che
+      tengano le identità: Sally resta fragile e svelta, Bero resta un carro. Non è una rifinitura
+      — senza questo, «intercambiabili» non è vero e il multiplayer non sta in piedi.</p>
+    </article>
+
+    <article class="decisione">
+      <p class="domanda">Chi si unisce dopo entra debole?</p>
+      <p class="verdetto">Entra al passo della squadra. Sempre.</p>
+      <p class="perche">Un personaggio che arriva al Vuoto 5 e parte dal livello 1 non lo usa
+      nessuno, e allora tanto valeva non scriverlo. Con la curva unica la cosa si risolve da sola:
+      chi entra, entra al livello del gruppo. <b>Il costo di provare un personaggio nuovo deve
+      essere zero</b>, se no non lo prova nessuno e il lavoro fatto per scriverlo è sprecato.</p>
+    </article>
+
+    <article class="decisione">
+      <p class="domanda">Cosa fa restare incollati?</p>
+      <p class="verdetto">Avere sempre qualcosa che sta per completarsi, e vederlo.</p>
+      <p class="perche">Non è la quantità di ricompensa: è la <b>densità di traguardi visibili</b>.
+      Il gioco ha già quasi tutti i pezzi giusti — la crescita per azioni, il drop garantito che fa
+      da pavimento sotto la varianza, la maestria del dominio fino a 100, gli strati del bestiario,
+      la pila. Ma <b>i contatori si convertono in silenzio al passaggio di livello</b>: il
+      giocatore sta riempiendo cinque barre e non gliene mostriamo nessuna.</p>
+      <p class="perche">Il lavoro qui è quasi tutto <b>mostrare</b>, non inventare. «3 attacchi al
+      prossimo punto attacco» trasforma il macinare in una barra che si muove — ed è la differenza
+      fra farmare e aspettare.</p>
+    </article>
+
+    <article class="decisione">
+      <p class="domanda">Quanto è complicato il combattimento?</p>
+      <p class="verdetto">Semplice da usare, profondo da leggere. Il motore che c'è va bene così.</p>
+      <p class="perche">Le battute in tempo reale sono già la scelta giusta per quattro giocatori:
+      <b>nessun ordine di turno da coordinare</b>, ognuno agisce quando la sua ricarica finisce. In
+      multiplayer questo è oro — quattro persone che aspettano il turno l'una dell'altra è il modo
+      più veloce di far chiudere il gioco.</p>
+      <p class="perche">Hai detto una cosa giusta: molti giochi ti tengono perché <b>vedi dei numeri
+      salire</b>. Quello è già il caso. Quello che manca non è complessità, è <b>lettura</b>: capire
+      a colpo d'occhio perché quel numero è quello.</p>
+    </article>
+
+    <article class="decisione">
+      <p class="domanda">Il protagonista che classe è?</p>
+      <p class="verdetto">Nessuna all'inizio, quella che scegli tu dopo. Ed è coerente col
+      personaggio.</p>
+      <p class="perche">La sua classe si chiama <b>Anonimo</b> e la sua psiche è la
+      <b>concentrazione</b>: uno che non è niente in particolare e diventa quello che decide di
+      diventare. Non è una comodità di sistema, è chi è. Gli altri hanno una forma già presa —
+      Veronica l'esaltazione, Yhvina il suo modo storto di volere bene — e infatti hanno una classe
+      sola.</p>
+    </article>
+
+  </div>
+</section>
+
+<section>
+  <h2>Le otto classi</h2>
+  <p class="sommario">Ognuna è ancorata a un sistema che <strong>nel gioco esiste già e ha le sue
+  prove</strong>. Non è un elenco di desideri: è una mappa di quello che è costruito, riordinato in
+  otto modi di giocare. È il motivo per cui si può chiudere in fretta.</p>
+
+  <div class="classi">
+
+    <article class="classe">
+      <div class="ruolo">Attacker</div>
+      <h4>Annichilatore</h4>
+      <p>Toglie una cosa dal campo, in fretta. Bersaglio singolo, danno che cresce di grado in
+      grado. Il mestiere più leggibile del gioco: vedi il numero, il numero è grosso.</p>
+      <div class="gia">Yhvina è questo</div>
+      <div class="ancora">ancora: <b>linea Annichilazione</b> (6 gradi) · Sovraccarico · Mattanza</div>
+    </article>
+
+    <article class="classe">
+      <div class="ruolo">Defender</div>
+      <h4>Muro</h4>
+      <p>Si mette davanti e ci resta. Provoca — costringe i colpi su di sé — e la sua guardia sale
+      a scatti che non scendono più. Lento apposta: quello che regge non corre.</p>
+      <div class="gia">Veronica è questo</div>
+      <div class="ancora">ancora: <b>Provocazione</b> · difesa cumulativa a scatti</div>
+    </article>
+
+    <article class="classe">
+      <div class="ruolo">Hexer</div>
+      <h4>Guastatore</h4>
+      <p>Non fa male: rompe. Veleno, Terrore, Lentezza, Confusione, Berserk, Maledizione. Non
+      abbatte niente da solo, e senza di lui certe cose non si abbattono.</p>
+      <div class="ancora">ancora: <b>data/stati.json</b> · 9 stati già nel motore</div>
+    </article>
+
+    <article class="classe">
+      <div class="ruolo">Buffer</div>
+      <h4>Mantra</h4>
+      <p>Tiene in piedi gli altri. Cura, potenzia più statistiche insieme, e ai gradi alti rende
+      un compagno intoccabile per un giro. In squadra da quattro è quello che decide se la squadra
+      esiste.</p>
+      <div class="ancora">ancora: <b>linea Mantra</b> (6 gradi) · potenziamento · cura</div>
+    </article>
+
+    <article class="classe">
+      <div class="ruolo">Invoker</div>
+      <h4>Richiamo</h4>
+      <p>Non combatte da solo: porta gente. Le evocazioni occupano il campo, prendono colpi al
+      posto tuo e cambiano l'aritmetica dello scontro.</p>
+      <div class="gia">Yhvina lo fa già, come seconda natura</div>
+      <div class="ancora">ancora: <b>tipo di mossa «evoca»</b> · tetto di 3 in campo</div>
+    </article>
+
+    <article class="classe">
+      <div class="ruolo">Weaponer</div>
+      <h4>Armaiolo</h4>
+      <p>L'unico per cui l'arma è il centro e non un accessorio. Ogni arma porta i suoi attacchi:
+      lui li paga meno, li usa meglio, e cambia arma come gli altri cambiano mossa.</p>
+      <div class="ancora">ancora: <b>attacchi sull'arma</b> · classi d'arma · catalizzatore</div>
+    </article>
+
+    <article class="classe">
+      <div class="ruolo">Blaster</div>
+      <h4>Flagello</h4>
+      <p>Tutti insieme, tutte le volte. Dove l'Annichilatore toglie una cosa, lui ne toglie una
+      fetta a cinque. Serve contro le orde, ed è inutile contro un bersaglio solo: è la coppia che
+      rende sensato avere due attaccanti diversi.</p>
+      <div class="ancora">ancora: <b>linea Flagello</b> (6 gradi) · attacco ad area</div>
+    </article>
+
+    <article class="classe">
+      <div class="ruolo">Scholar</div>
+      <h4>Studioso</h4>
+      <p>Legge le creature invece di ammazzarle. Riempie il tecno log, apre le debolezze, e sblocca
+      il Risparmia — che rende più esperienza di un cadavere. È la classe che tiene insieme il
+      bestiario e la storia.</p>
+      <div class="gia">Il protagonista nasce con Studio e Anonimato</div>
+      <div class="ancora">ancora: <b>Studia</b> · <b>Risparmia</b> · tecno log a strati</div>
+    </article>
+
+  </div>
+
+  <div class="nota">
+    <b>Come si usano.</b> I compagni ne hanno una fissa: è la loro identità e non si discute.
+    Il protagonista le apre coi punti e può prenderne più di una — è l'unico a poterlo fare, ed è
+    quello che rende la sua partita diversa da quella di un altro. In multiplayer, chi sceglie il
+    protagonista sceglie anche <b>che pezzo di squadra vuole essere</b>.
+  </div>
+</section>
+
+<section>
+  <h2>La squadra da quattro</h2>
+  <div class="col">
+    <p>Quattro in campo, tu più tre. Gli altri aspettano sulla nave <strong>e crescono lo
+    stesso</strong> — è la decisione presa sopra, ed è quella che rende vero «intercambiabili».</p>
+    <p>Ogni personaggio è una meccanica, non un colore diverso: è quello che ti fa venire voglia di
+    portarli su tutti. Yhvina evoca, è immune al Sonno e picchia forte sull'oscuro. Veronica
+    provoca, carica, e va più piano di te. <strong>Se due personaggi si giocano allo stesso modo,
+    uno dei due è da riscrivere</strong> — è il controllo più utile da fare su ogni compagno nuovo.</p>
+  </div>
+
+  <h3>Chi entra, quando, e cosa insegna</h3>
+  <div class="scorre">
+    <table>
+      <thead><tr><th>Momento</th><th>Chi</th><th>Ruolo</th><th>A cosa serve nella demo</th></tr></thead>
+      <tbody>
+        <tr><td>Tutorial</td><td>Veronica</td><td>Defender</td><td>Ti insegna a giocare e poi ti lascia. La rivedi alla fine.</td></tr>
+        <tr><td>Casa Gigante</td><td>Yhvina</td><td>Attacker · Invoker</td><td>La seconda lama: da qui in poi il danno non è solo tuo.</td></tr>
+        <tr><td>Jerah</td><td>Veronica torna</td><td>Defender</td><td>Chiude il cerchio, e fa vedere in azione la classe che il tutorial ti aveva solo accennato.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="nota">
+    Far tornare Veronica per Jerah è una buona idea per un motivo in più di quello che hai detto:
+    è <b>l'unico posto della demo dove il giocatore vede una squadra da tre che funziona davvero</b>
+    — un muro, una lama e te. Se la demo deve vendere il gioco, quella scena è il momento in cui
+    lo vende.
+  </div>
+</section>
+
+<section>
+  <h2>Il gioco intero, e dove siamo</h2>
+  <p class="sommario">Serve saperlo per non costruire un sistema che al Vuoto 5 va rifatto.</p>
+  <div class="fasi">
+    <div class="fase"><span class="n">DEMO</span><b>Vuoto 1</b><span class="t">Fino a Jerah, livello 18. È dove siamo.</span></div>
+    <div class="fase"><span class="n">CARNIVALZ 1</span><b>Vuoti 1-8</b><span class="t">Finisce all'ottavo, lasciando in sospeso se sia finita. Compare l'organizzazione nemica.</span></div>
+    <div class="fase"><span class="n">SEGUITO</span><b>2 e 3</b><span class="t">Cosa causa davvero le fratture si rivela nel 3.</span></div>
+    <div class="fase"><span class="n">FINE</span><b>La chiamata del mare</b><span class="t">Il Grande Mare: caos puro, dove finisce tutto quello che si perde.</span></div>
+  </div>
+
+  <div class="col">
+    <h3>Cosa vuol dire per la demo</h3>
+    <p>Un ottavo del gioco 1 deve <strong>mostrare il sistema intero in piccolo</strong>, non un
+    pezzo di sistema. Vuol dire che nella demo il giocatore deve poter: salire di livello e vederlo,
+    spendere punti almeno due volte, cambiare arma e sentire la differenza, portare in campo tre
+    personaggi che si giocano in modo diverso, e trovare almeno una cosa che non era obbligato a
+    trovare.</p>
+    <p>E vuol dire una cosa scomoda sui numeri: <strong>i punti abilità oggi arrivano dal livello
+    25</strong>, e la demo finisce al 18. Così com'è, <strong>nella demo l'albero non si vede
+    mai.</strong> Va anticipato, se no la cosa che dovrebbe vendere il gioco è l'unica che non si
+    prova.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Rigiocabilità e segreti</h2>
+  <div class="col">
+    <p>Hai detto «molti segreti da scoprire». Vale la pena distinguerne due tipi, perché costano
+    diversamente e rendono diversamente.</p>
+    <ul class="pulita">
+      <li><strong>Segreti da trovare</strong> — una stanza, un oggetto, un dialogo. Costano poco e
+      si consumano in una partita: chi lo ha trovato non lo ritrova.</li>
+      <li><strong>Segreti da capire</strong> — che risparmiare una creatura rende più che ucciderla,
+      che bruciare le lettere apre un finale diverso, che una certa creatura si convince invece di
+      abbattersi. Costano di più e <strong>non si consumano</strong>: cambiano come giochi la
+      partita dopo.</li>
+    </ul>
+    <p>Il gioco ha già i secondi e sono la sua cosa migliore. La rigiocabilità vera esce da lì,
+    non dal numero di stanze nascoste — e la classe <strong>Studioso</strong> esiste apposta per
+    premiare chi gioca in quel modo.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Cosa manca, in ordine</h2>
+  <p class="sommario">Misurato sul codice di adesso, non sul desiderio.</p>
+  <div class="scorre">
+    <table>
+      <thead><tr><th>Lavoro</th><th class="num">Peso</th><th>Perché prima o dopo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Curva di crescita per tutti</strong></td><td class="num">grosso</td><td>Senza, «squadra intercambiabile» è falso e il multiplayer non regge. Tutto il resto poggia qui.</td></tr>
+        <tr><td><strong>Punti e albero per personaggio</strong></td><td class="num">grosso</td><td>Deriva dalla stessa decisione. Va fatto insieme al primo.</td></tr>
+        <tr><td><strong>Punti anticipati sotto il 18</strong></td><td class="num">piccolo</td><td>Una riga. Senza, nella demo l'albero non esiste.</td></tr>
+        <tr><td><strong>Le otto classi nei dati</strong></td><td class="num">medio</td><td>Le ancore ci sono già tutte: è riordinare, non inventare.</td></tr>
+        <tr><td><strong>Progresso visibile mentre farmi</strong></td><td class="num">medio</td><td>È il pezzo che trasforma il macinare in soddisfazione. Quasi tutto già calcolato, va mostrato.</td></tr>
+        <tr><td><strong>Armi sparse fino a Jerah</strong></td><td class="num">medio</td><td>Oggi sono 2, tutte e due nella stessa zona. Non devono essere forti: devono essere diverse.</td></tr>
+        <tr><td><strong>Veronica che torna per Jerah</strong></td><td class="num">piccolo</td><td>La scena che vende la demo.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2>Quello che resta aperto</h2>
+  <div class="col">
+    <p>Segnato qui perché una carta che finge di aver deciso tutto è peggio di una che dice cosa
+    non sa.</p>
+    <ul class="pulita">
+      <li><strong>Come si gioca in quattro davvero.</strong> Le battute in tempo reale reggono
+      quattro persone, ma restano da decidere: chi comanda le pause, cosa succede se uno esce a
+      metà, e se i quattro condividono il bottino o no. Non blocca la campagna, e non va deciso
+      adesso — va solo <em>non contraddetto</em>.</li>
+      <li><strong>Le classi degli altri compagni.</strong> Sally, Bero, Niru, Vega e gli altri
+      hanno una classe di nome ma non un mestiere. Vanno mappati sulle otto — o le otto vanno
+      allargate.</li>
+      <li><strong>Rosa o viola-nero.</strong> Ferma da settimane, e ogni schermata nuova la
+      rimanda.</li>
+      <li><strong>Lo Stadio del tecno log</strong> non è ancora una scala ordinabile, e le tre
+      zone senza una regione dietro (Teatro, Casa Gigante, Meridia).</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Carta di progetto · scritta sul codice del ramo claude/inizio-progetto-dya2lr · le decisioni qui
+  dentro vanno cambiate cambiando questo documento, non aggirandolo
+</footer>
+
+</div>
