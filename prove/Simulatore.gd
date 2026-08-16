@@ -213,15 +213,19 @@ func strategia_difendi(_scontro, _chi: Dictionary) -> Dictionary:
 
 func strategia_studia(scontro, chi: Dictionary) -> Dictionary:
 	# guarda la creatura finche' c'e' qualcosa da capire, poi alza le mani.
-	# Se e' risparmiabile insiste fino al numero di studi che serve: e' cosi'
-	# che si scopre se quella strada e' percorribile senza morire nel mentre
+	# Se e' mediabile insiste fino al numero di studi che serve e POI media: da
+	# quando la mediazione e' un bottone e non piu' una conseguenza automatica
+	# dello studio, un simulatore che studia e basta misurerebbe una meccanica
+	# che nessuno usa - e la colonna "risp." della tabella sarebbe zero ovunque
 	var bersaglio := primo_bersaglio(scontro)
 	if bersaglio.is_empty():
 		return {"tipo": "difendi"}
-	var dati: Dictionary = GameState.personaggi.get(bersaglio.id, {})
+	if scontro.mediabile(bersaglio):
+		return {"tipo": "media", "bersaglio": bersaglio}
+	var mediazione := GameState.mediazione_di(String(bersaglio.id))
 	var studi_fatti := int(bersaglio.get("volte_studiato", 0))
-	if dati.has("risparmio"):
-		var richiesti := maxi(int(dati["risparmio"].get("studi_richiesti", 1)), 1)
+	if not mediazione.is_empty():
+		var richiesti := maxi(int(mediazione.get("studi_richiesti", 1)), 1)
 		if studi_fatti < richiesti:
 			return {"tipo": "studia", "bersaglio": bersaglio}
 	elif studi_fatti < 3:

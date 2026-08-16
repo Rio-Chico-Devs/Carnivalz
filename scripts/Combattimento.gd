@@ -25,8 +25,9 @@ extends Control
 # (ricalcolata a ogni giro). Stats: hp, attacco, difesa, velocita', fattore. I
 # buff sono temporanei (n turni). I boss hanno "mosse" pesate nei dati (attacco
 # forte / a tutti / buff / evoca) che rendono ogni scontro unico. Menu azioni
-# del giocatore: Attacca, Difenditi, Abilita' (Studia sempre disponibile),
-# Oggetti (dalla sacca), Alleati (ospiti non combattenti). Esito eroe via
+# del giocatore, cinque fisse: Attacca, Difendi, Abilita' (Studia sempre
+# disponibile, e i colpi d'arma), Oggetti (dalla sacca), Fuggi. Due condizionali
+# in fondo: Aiutante (ospiti non combattenti) e Mediazione. Esito eroe via
 # speranza e cedimento. Numeri in data/regole.json, casualita' solo dall'RNG
 # seedato di GameState.
 
@@ -395,6 +396,15 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"gamba_rotta_turni": 0,
 		"gamba_gia_rotta": false,
 		"volte_studiato": 0,
+		# LA MEDIAZIONE SI DECIDE ALL'INGRESSO, non quando la chiedi. Bru: "in
+		# quelli che mediano e' randomico se vogliono o meno". Il tiro va fatto
+		# una volta sola, qui: se lo tirassimo alla pressione del bottone, il
+		# giocatore ripremerebbe finche' non passa e il caso diventerebbe una
+		# formalita' - due click invece di uno. Deciso adesso, invece, la stessa
+		# specie e' mediabile stasera e non domani, e questo lo scopri studiando.
+		# Chi non ha il campo "mediazione" non media MAI: e' la sua natura, non
+		# un tiro andato male
+		"vuole_mediare": tira_volonta_di_mediare(dati),
 		# l'aura e' quello che spendi per forzare il mondo: le abilita' costano,
 		# e torna piano da sola a ogni turno. I nemici non ne hanno bisogno
 		"aura": GameState.aura_massima(id_personaggio) if giocatore else 0,
@@ -928,6 +938,8 @@ func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
 					difendi(attaccante)
 				"studia":
 					studia(attaccante, bersaglio_scelto)
+				"media":
+					media(bersaglio_scelto)
 				"oggetto":
 					usa_oggetto(attaccante, azione.id)
 				"alleato":
@@ -1202,13 +1214,7 @@ func studia(chi: Dictionary, scelto: Dictionary = {}) -> void:
 	if bersaglio.id == fonte.get("id", ""):
 		aggiorna_speranza(int(GameState.regole.get("speranza_studio", 10)))
 	verifica_innesco_combustione(bersaglio)
-	if dati.has("risparmio") and bersaglio.hp > 0:
-		# certe creature cedono al primo sguardo, altre vanno ascoltate a lungo:
-		# "studi_richiesti" dice quante volte va studiata prima che si possa
-		# lasciarla andare (1 se non specificato)
-		var dati_risparmio: Dictionary = dati["risparmio"]
-		if int(bersaglio.volte_studiato) >= maxi(int(dati_risparmio.get("studi_richiesti", 1)), 1):
-			risparmia(bersaglio, dati_risparmio)
+	annuncia_mediazione(bersaglio)
 
 func rileva_tecnolog(bersaglio: Dictionary) -> void:
 	# QUELLO CHE LO STUDIO SCRIVE. Bru: "lo studio deve dare questi aspetti di
@@ -1233,14 +1239,80 @@ func rileva_tecnolog(bersaglio: Dictionary) -> void:
 	for riga in nuove:
 		scrivi("[i]%s[/i]" % riga)
 
-func risparmia(bersaglio: Dictionary, dati_risparmio: Dictionary) -> void:
-	# studiare certi nemici rivela che non meritano di essere uccisi: escono
-	# dal combattimento senza dare xp/tazo/drop, ma il legame sale e lo
-	# stress della squadra scende. Gli altri nemici del combattimento restano.
-	# risparmiare e' una decisione, non un'azione: si legge con calma, e si
-	# vede subito cosa comporta. Prima costava xp e Tazo in silenzio, e il
-	# giocatore non poteva sapere che scambio stesse facendo
-	scrivi_forte(String(dati_risparmio.get("testo", "Decidi di risparmiarlo.")))
+# --- la mediazione ---
+#
+# LA SESTA VOCE, quella che di solito non c'e'. Bru: "in alcuni casi rari
+# apparira' mediazione, solo dopo che dallo studio sei riuscito a capire che
+# quel determinato nemico vuole ascoltarti".
+#
+# Tre filtri in fila, e servono tutti e tre:
+#   1. la creatura ha un campo "mediazione"? Se no non media mai, per natura.
+#      Non e' sfortuna: certe cose non ti ascoltano e basta.
+#   2. stasera vuole? Tirato una volta all'ingresso (vedi "vuole_mediare").
+#   3. l'hai studiata abbastanza da accorgertene?
+# Solo quando passano tutti e tre il bottone compare. Un bottone che compare e
+# poi ti risponde "no" sarebbe un bottone che ha mentito - la stessa regola
+# della Mattanza spenta quando la barra non basta.
+
+static func tira_volonta_di_mediare(dati: Dictionary) -> bool:
+	var mediazione: Dictionary = dati.get("mediazione", dati.get("risparmio", {}))
+	if mediazione.is_empty():
+		return false
+	# le creature che non si possono lasciare andare per copione (i boss, gli
+	# scriptati) non mediano nemmeno se qualcuno gli scrive il campo per sbaglio
+	if dati.get("invincibile", false) or dati.has("incontro_scriptato"):
+		return false
+	# GameState.rng e non randf(): il simulatore gira con un seme, e una partita
+	# rigiocata con lo stesso seme deve dare lo stesso esito. Un randf() qui
+	# renderebbe irriproducibili le 187.200 partite di ./prove/simula.sh.
+	# Senza "probabilita" dichiarata media sempre: le creature scritte a mano
+	# prima che esistesse il tiro (la Tartaruga) devono continuare a funzionare
+	return GameState.rng.randf() < float(mediazione.get("probabilita", 1.0))
+
+func dati_mediazione(bersaglio: Dictionary) -> Dictionary:
+	return GameState.mediazione_di(String(bersaglio.get("id", "")))
+
+func mediabile(bersaglio: Dictionary) -> bool:
+	if int(bersaglio.get("hp", 0)) <= 0 or bersaglio.get("oggetto_scena", false):
+		return false
+	if not bool(bersaglio.get("vuole_mediare", false)):
+		return false
+	var mediazione := dati_mediazione(bersaglio)
+	if mediazione.is_empty():
+		return false
+	return int(bersaglio.get("volte_studiato", 0)) \
+			>= maxi(int(mediazione.get("studi_richiesti", 1)), 1)
+
+func bersagli_mediabili() -> Array[Dictionary]:
+	var risultato: Array[Dictionary] = []
+	for nemico in vivi(false):
+		if mediabile(nemico):
+			risultato.append(nemico)
+	return risultato
+
+func annuncia_mediazione(bersaglio: Dictionary) -> void:
+	# lo studio e' l'unico posto da cui puoi sapere che questa qui ti ascolta.
+	# Si dice una volta sola: ripeterlo a ogni studio successivo sarebbe
+	# rumore, e il bottone intanto e' li' a ricordarlo da solo
+	if bersaglio.get("mediazione_annunciata", false) or not mediabile(bersaglio):
+		return
+	bersaglio.mediazione_annunciata = true
+	var mediazione := dati_mediazione(bersaglio)
+	scrivi_forte("[i]%s[/i]" % String(mediazione.get("testo_apertura",
+			"%s ti sta ascoltando. Si può mediare." % String(bersaglio.nome))))
+
+func media(bersaglio: Dictionary) -> void:
+	# esce dal combattimento senza dare Tazo ne' drop, ma rende piu' xp di
+	# quanta ne renderebbe da morto, il legame sale e lo stress della squadra
+	# scende. Gli altri nemici in campo restano dove sono.
+	#
+	# Mediare e' una decisione, non un'azione: si legge con calma, e si vede
+	# subito cosa comporta. Prima costava xp e Tazo in silenzio, e il giocatore
+	# non poteva sapere che scambio stesse facendo
+	var dati_risparmio := dati_mediazione(bersaglio)
+	if dati_risparmio.is_empty():
+		return
+	scrivi_forte(String(dati_risparmio.get("testo", "Decidi di lasciarlo andare.")))
 	var conseguenze: Array[String] = []
 	if dati_risparmio.has("legame"):
 		GameState.modifica_legame(int(dati_risparmio.legame))

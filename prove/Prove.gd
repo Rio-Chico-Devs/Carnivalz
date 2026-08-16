@@ -66,6 +66,8 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
+	prova_mediazione()
+	prova_menu_cinque_voci_fisse()
 	prova_i_dominatori_non_sono_bestiario()
 	prova_modalita_e_trasformazione()
 	prova_tecnolog_completo()
@@ -291,10 +293,10 @@ func prova_riferimenti_oggetti() -> void:
 		if raro.has("oggetto"):
 			esigi(GameState.oggetti.has(String(raro["oggetto"])),
 					"%s: drop raro '%s' non esiste" % [id_creatura, raro["oggetto"]])
-		var risparmio: Dictionary = dati_creatura.get("risparmio", {})
-		if risparmio.has("oggetto"):
-			esigi(GameState.oggetti.has(String(risparmio["oggetto"])),
-					"%s: premio del risparmio '%s' non esiste" % [id_creatura, risparmio["oggetto"]])
+		var mediazione: Dictionary = GameState.mediazione_di(String(id_creatura))
+		if mediazione.has("oggetto"):
+			esigi(GameState.oggetti.has(String(mediazione["oggetto"])),
+					"%s: premio della mediazione '%s' non esiste" % [id_creatura, mediazione["oggetto"]])
 		for leva in dati_creatura.get("leve", []):
 			if String(leva.get("tipo", "")) == "oggetto":
 				esigi(GameState.oggetti.has(String(leva.get("id", ""))),
@@ -2864,6 +2866,132 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	scontro._su_ko(nemico)
 	esigi(int(nemico.hp) <= 0, "e' rinato una seconda volta: lo scontro non finisce piu'")
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
+	scontro.free()
+
+func prova_mediazione() -> void:
+	# Bru: "in alcuni casi rari apparira' mediazione, solo dopo che dallo studio
+	# sei riuscito a capire che quel determinato nemico vuole ascoltarti... non
+	# sempre se sono nemici comuni medieranno, alcuni per natura non lo faranno,
+	# quindi in quelli che mediano e' randomico se vogliono o meno".
+	#
+	# Tre cancelli in fila, e la prova li apre uno alla volta perche' se ne
+	# saltasse uno la meccanica sembrerebbe funzionare lo stesso: chi non ha il
+	# campo non media MAI (natura), chi ce l'ha ma stasera non vuole non media
+	# (il tiro), chi vuole ma non l'hai ancora guardato abbastanza non media
+	# ancora (lo studio). La parte piu' facile da rompere in silenzio e' la
+	# terza: se il bottone comparisse subito, la mediazione smetterebbe di
+	# essere una ricompensa dello studio e diventerebbe una scorciatoia.
+	titolo("la mediazione: natura, volonta', studio")
+	# lo script del combattimento non dichiara un class_name: per chiamarne le
+	# statiche senza montare una scena si carica la risorsa
+	var Scontro: GDScript = load("res://scripts/Combattimento.gd")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["tartaruga_innocente"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	# senza un limite l'orologio virtuale gira a vuoto per 4000 battute e
+	# Godot stampa un errore: qui lo scontro serve solo come impalcatura
+	scontro.limite_giri = 1
+	add_child(scontro)
+	var tartaruga: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if not combattente.giocatore:
+			tartaruga = combattente
+	esigi(not tartaruga.is_empty(), "lo scontro non si e' montato")
+
+	# CANCELLO 1 - la natura. Il Goblin non ha il campo: nessun tiro lo salva
+	esigi(GameState.mediazione_di("goblin_tipico").is_empty(),
+			"il goblin ha un campo mediazione che non dovrebbe avere")
+	esigi(not Scontro.tira_volonta_di_mediare(GameState.personaggi["goblin_tipico"]),
+			"una creatura senza campo mediazione ha comunque tirato per mediare")
+
+	# CANCELLO 3 - lo studio. La Tartaruga vuole (probabilita' 1.0) ma finche'
+	# non l'hai guardata il bottone non c'e'
+	esigi(bool(tartaruga.vuole_mediare), "la Tartaruga a probabilita' 1.0 non vuole mediare")
+	tartaruga.volte_studiato = 0
+	esigi(not scontro.mediabile(tartaruga),
+			"si media senza aver studiato: lo studio non serve piu' a niente")
+	esigi(scontro.bersagli_mediabili().is_empty(),
+			"il bottone Mediazione comparirebbe prima dello studio")
+	tartaruga.volte_studiato = 1
+	esigi(scontro.mediabile(tartaruga), "studiata quanto serve, non si riesce comunque a mediare")
+	esigi(scontro.bersagli_mediabili().size() == 1, "il bottone Mediazione non compare dopo lo studio")
+
+	# CANCELLO 2 - la volonta'. Stessa creatura, stessa scheda, ma stasera no
+	tartaruga.vuole_mediare = false
+	esigi(not scontro.mediabile(tartaruga),
+			"media anche quando ha tirato che non vuole: il caso non conta niente")
+	tartaruga.vuole_mediare = true
+
+	# e mediare deve valere piu' che ammazzare, o nessuno lo fara' mai
+	var xp_uccidendo := RegoleCombattimento.xp_effettiva(tartaruga)
+	var xp_mediando := RegoleCombattimento.xp_da_risparmio(tartaruga)
+	esigi(xp_mediando > xp_uccidendo,
+			"mediare rende %d e uccidere %d: conviene picchiare" % [xp_mediando, xp_uccidendo])
+	scontro.in_corso = true
+	scontro.media(tartaruga)
+	esigi(bool(tartaruga.get("risparmiato", false)), "mediata, ma non risulta risparmiata")
+	esigi(int(tartaruga.hp) <= 0, "mediata, ma resta in campo a combattere")
+	scontro.free()
+
+	# i boss non mediano nemmeno se qualcuno gli scrive il campo per sbaglio
+	var finto_boss := {"mediazione": {"probabilita": 1.0}, "invincibile": true}
+	esigi(not Scontro.tira_volonta_di_mediare(finto_boss),
+			"un invincibile si lascia mediare: lo scontro di copione si puo' saltare")
+	var finto_scriptato := {"mediazione": {"probabilita": 1.0}, "incontro_scriptato": {}}
+	esigi(not Scontro.tira_volonta_di_mediare(finto_scriptato),
+			"un incontro scriptato si lascia mediare")
+
+	# il tiro deve essere un tiro: su mille prove a 0.5 non puo' uscire
+	# sempre la stessa risposta, o "randomico" e' una parola scritta e basta
+	var meta := {"mediazione": {"probabilita": 0.5}}
+	var si := 0
+	for tentativo in 1000:
+		if Scontro.tira_volonta_di_mediare(meta):
+			si += 1
+	esigi(si > 400 and si < 600,
+			"probabilita' 0.5 ha dato %d si' su 1000: il tiro non e' un tiro" % si)
+	var mai := {"mediazione": {"probabilita": 0.0}}
+	for tentativo in 200:
+		esigi(not Scontro.tira_volonta_di_mediare(mai),
+				"probabilita' 0.0 ha comunque acconsentito")
+
+func prova_menu_cinque_voci_fisse() -> void:
+	# Bru: "tu hai un menu principale di combattimento: attacca, difendi,
+	# abilita', oggetti, fuggi".
+	#
+	# Le cinque devono esserci SEMPRE, anche quando sono spente, perche' un menu
+	# che cambia lunghezza e' un menu in cui il bottone che cercavi si e' spostato
+	# sotto il dito. Le condizionali - Aiutante e Mediazione - vanno in fondo e
+	# solo quando hanno qualcosa dietro.
+	titolo("il menu di combattimento ha sempre le sue cinque voci")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	scontro.in_corso = true
+	var contenitore := HBoxContainer.new()
+	add_child(contenitore)
+	var menu := MenuCombattimento.new(scontro, false)
+	menu.collega(contenitore)
+	menu.principale()
+	var etichette: Array[String] = []
+	for figlio in contenitore.get_children():
+		etichette.append(String(figlio.text))
+	for voce in ["Attacca", "Difendi", "Abilità", "Oggetti", "Fuggi"]:
+		esigi(voce in etichette, "manca la voce '%s' dal menu: c'e' %s" % [voce, etichette])
+	# contro un goblin, che non media e non porta aiutanti, le condizionali
+	# non devono esserci: se comparissero sempre non sarebbero condizionali
+	esigi(not ("Mediazione" in etichette),
+			"Mediazione compare contro un nemico che non media: %s" % [etichette])
+	esigi(not ("Aiutante" in etichette),
+			"Aiutante compare senza nessun aiutante: %s" % [etichette])
+	# e le cinque fisse stanno PRIMA delle condizionali, nell'ordine detto
+	esigi(etichette.slice(0, 5) == ["Attacca", "Difendi", "Abilità", "Oggetti", "Fuggi"],
+			"le cinque voci fisse non sono in testa nell'ordine giusto: %s" % [etichette])
+	contenitore.free()
 	scontro.free()
 
 func prova_i_dominatori_non_sono_bestiario() -> void:

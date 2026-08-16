@@ -196,13 +196,18 @@ func dettagli_di(combattente: Dictionary) -> String:
 
 func progresso_studio(combattente: Dictionary) -> String:
 	# Per le creature che si possono lasciare andare, quante volte le hai gia'
-	# guardate e quante ne servono. Senza questo il risparmio arriva dal nulla:
-	# studi, studi, e a un certo punto succede qualcosa. Con questo si vede
+	# guardate e quante ne servono. Senza questo la Mediazione arriva dal nulla:
+	# studi, studi, e a un certo punto compare un bottone. Con questo si vede
 	# arrivare, ed e' una cosa che si sceglie invece che una che capita.
-	var dati: Dictionary = GameState.personaggi.get(combattente.id, {})
-	if not dati.has("risparmio"):
+	#
+	# Il contatore lo vedi anche quando stasera quella creatura non ha voglia di
+	# ascoltare: sapere che era possibile, e non e' successo, e' il motivo per
+	# riprovarci al prossimo incontro. Nasconderlo farebbe sembrare la meccanica
+	# rotta invece che casuale
+	var mediazione := GameState.mediazione_di(String(combattente.id))
+	if mediazione.is_empty():
 		return ""
-	var richiesti := maxi(int(dati["risparmio"].get("studi_richiesti", 1)), 1)
+	var richiesti := maxi(int(mediazione.get("studi_richiesti", 1)), 1)
 	var fatti := mini(int(combattente.get("volte_studiato", 0)), richiesti)
 	if fatti >= richiesti:
 		return ""

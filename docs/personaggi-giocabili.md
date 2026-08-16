@@ -35,15 +35,27 @@ nodo». Le fasce della costellazione:
 
 ## Domande aperte, da rispondere qui
 
-**A. Quante voci nel menu di combattimento?** ✅ **DECISO.** Nessuna selezione: **ogni mossa
-imparata è sempre disponibile**, nella versione potenziata più alta che hai comprato. Non hai
-Annichilazione I *e* II: hai la II, e basta.
+**A. Quante voci nel menu di combattimento?** ✅ **DECISO, e avevo capito male io.** Il menu
+principale non c'entra con le mosse: è **fisso a cinque voci**, uguale per tutti e a ogni livello.
 
-Quindi il menu di un personaggio è sempre **kit (3-4) + una voce per linea (3) ≈ sette voci**, dal
-primo all'ultimo livello. Quello che cresce non è la lunghezza dell'elenco, è la forza di quello
-che c'è dentro.
+| Voce | Cosa fa |
+| --- | --- |
+| **Attacca** | Attacca, semplicemente |
+| **Difendi** | Alza la difesa. **Cumulativa fino a fine combattimento** (tetto: 6 scatti) |
+| **Abilità** | Tutti i tuoi attacchi speciali — kit, linee, colpi d'arma, Studia, il colpo da barra piena |
+| **Oggetti** | Gli oggetti utilizzabili |
+| **Fuggi** | Scappi |
 
-> **Conseguenza da tenere a mente quando riempiamo l'albero:** se il menu non si allunga mai, la
+Più due voci che **compaiono solo quando ci sono**: **Aiutante** (la ragazza dei Cunicoli) e
+**Mediazione** (rara — vedi `mediazione.md`).
+
+Le mosse di questo documento stanno **tutte dentro Abilità**, e lì vale la regola che avevamo
+deciso: **ogni mossa imparata è sempre disponibile**, nella versione potenziata più alta che hai
+comprato. Non hai Annichilazione I *e* II: hai la II, e basta. Quindi dentro Abilità ci sono
+sempre **kit (3) + una voce per linea (3) + Studia + il colpo da barra piena ≈ otto voci**, dal
+primo all'ultimo livello.
+
+> **Conseguenza da tenere a mente quando riempiamo l'albero:** se l'elenco non si allunga mai, la
 > sensazione di «ho qualcosa di nuovo» non può venire dalle mosse — diventano più forti, non più
 > numerose. Deve venire **dalle 24 passive**, che cambiano come giochi senza aggiungere voci da
 > leggere. È una buona divisione: il menu resta corto e leggibile, la varietà sta altrove.

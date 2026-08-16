@@ -3226,13 +3226,17 @@
 					"osservazione": "È solo una vecchia tartaruga, che ha avuto la sfortuna di avere un aspetto spaventoso."
 				}
 			],
-			"risparmio": {
+			"tipo": "Natura",
+			"mediazione": {
+				"condizioni": "Non ha mai attaccato nessuno. Basta guardarla una volta per accorgersene.",
+				"studi_richiesti": 1,
+				"probabilita": 1.0,
+				"testo_apertura": "La Tartaruga non si difende nemmeno. Si può mediare.",
 				"legame": 10,
 				"stress": -15,
 				"oggetto": "pietra_quieta",
 				"testo": "Decidi di lasciarla andare. Non c'era nessuna ragione di combatterla. Sul terreno, dove si trovava, resta una pietra liscia e fredda."
-			},
-			"tipo": "Natura"
+			}
 		},
 		{
 			"id": "manifestazione_di_un_sogno",

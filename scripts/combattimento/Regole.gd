@@ -301,7 +301,7 @@ static func puo_subire_slaughter(bersaglio: Dictionary) -> bool:
 	if categoria_di(dati) != "comune" or dati.has("incontro_scriptato") \
 			or dati.get("invincibile", false):
 		return false
-	if dati.has("risparmio") or dati.has("difesa_per_turno"):
+	if not GameState.mediazione_di(String(bersaglio.id)).is_empty() or dati.has("difesa_per_turno"):
 		# Una creatura che si puo' risparmiare, o che si chiude e non si abbatte,
 		# e' li' per insegnare che non tutto si risolve picchiando. Un colpo di
 		# fortuna all'1% che la liquida non e' una variazione: e' il gioco che

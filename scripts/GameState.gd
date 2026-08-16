@@ -815,6 +815,17 @@ func e_creatura(id_personaggio: String) -> bool:
 	var ruolo := String(personaggi.get(id_personaggio, {}).get("ruolo", ""))
 	return ruolo != "" and ruolo != "oggetto_scena"
 
+func mediazione_di(id_personaggio: String) -> Dictionary:
+	# CHI ASCOLTA, e a quali condizioni. Un dizionario vuoto vuol dire che questa
+	# creatura non media mai: e' la sua natura, non un tiro andato male.
+	#
+	# La lettura sta qui e non sparsa nei file perche' i posti che se lo chiedono
+	# sono cinque - il menu, il motore, la scheda in campo, il simulatore e le
+	# prove - e finche' esiste il vecchio nome "risparmio" nei dati, tutti e
+	# cinque devono ricadere sullo stesso ripiego o si contraddicono a vicenda
+	var dati: Dictionary = personaggi.get(id_personaggio, {})
+	return dati.get("mediazione", dati.get("risparmio", {}))
+
 func e_da_bestiario(id_personaggio: String) -> bool:
 	# COMBATTERE E FINIRE NEL BESTIARIO SONO DUE COSE DIVERSE, e le abbiamo
 	# scoperte separate il giorno in cui Veronica e' diventata una dominatrice.

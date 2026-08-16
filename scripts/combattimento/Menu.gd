@@ -63,10 +63,24 @@ func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := 
 # --- i menu ---
 
 func principale() -> void:
-	# IL COLPO NORMALE NON STA QUI. Si da' cliccando sul nemico: il menu e' per
-	# quello che una creatura non sa fare da sola - difendersi, gli speciali, gli
-	# oggetti, gli alleati, la fuga. Bru: "solo per gli attacchi speciali dovrebbe
-	# esserci il menu di scelta".
+	# CINQUE VOCI, SEMPRE LE STESSE. Bru: "tu hai un menu principale di
+	# combattimento: attacca, difendi, abilita', oggetti, fuggi. Attacca attacca
+	# semplicemente, difendi aumenta la tua difesa cumulativamente fino a fine
+	# combattimento, abilita' avra' tutti i tuoi attacchi speciali, oggetti ti fa
+	# usare gli oggetti utilizzabili, fuggi ti fa scappare".
+	#
+	# Prima "Attacca" non c'era: il colpo normale si dava cliccando sul nemico, e
+	# il menu conteneva solo il resto. Era una scorciatoia che andava scoperta -
+	# chi non ci provava non trovava da nessuna parte il modo di picchiare. Il
+	# click sul nemico resta come scorciatoia, ma la voce adesso c'e'.
+	#
+	# Nemmeno "Arma" sta piu' qui: i colpi d'arma SONO attacchi speciali e vanno
+	# sotto Abilita'. Una voce di primo livello che compare solo con certe armi
+	# in mano faceva un menu di lunghezza variabile per una cosa che non e' una
+	# categoria a se'.
+	#
+	# Le due voci che compaiono e spariscono - Aiutante e Mediazione - stanno in
+	# fondo apposta: le cinque fisse non si spostano mai sotto il cursore.
 	#
 	# E NON SPARISCE MENTRE RICARICHI: si spegne. I bottoni restano dove sono,
 	# grigi, e tornano vivi quando tocca a te. Cancellarli faceva vedere la stessa
@@ -85,29 +99,28 @@ func principale() -> void:
 		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
 		# sempre libero: guardare non e' mai un errore)
 		var richiesta := String(passo.get("azione", ""))
-		bottone("Difenditi", scegli.bind({"tipo": "difendi"}), fermo or richiesta != "difendi", richiesta == "difendi")
+		bottone("Attacca", bersagli, fermo or richiesta != "attacca", richiesta == "attacca")
+		bottone("Difendi", scegli.bind({"tipo": "difendi"}), fermo or richiesta != "difendi", richiesta == "difendi")
 		bottone("Abilità", abilita, fermo)
 		bottone("Oggetti", oggetti, fermo or richiesta != "oggetto", richiesta == "oggetto")
 		return
-	bottone("Difenditi", scegli.bind({"tipo": "difendi"}), fermo)
-	if not GameState.attacchi_arma(String(scontro.attaccante_corrente.get("id", ""))).is_empty():
-		# gli attacchi d'arma non sono il colpo normale: sono scelte, e le scelte
-		# stanno nel menu
-		bottone("Arma", bersagli, fermo)
+	bottone("Attacca", bersagli, fermo)
+	bottone("Difendi", scegli.bind({"tipo": "difendi"}), fermo)
 	bottone("Abilità", abilita, fermo)
 	bottone("Oggetti", oggetti, fermo or (GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty()))
-	bottone("Alleati", alleati, fermo or scontro.alleati_disponibili().is_empty())
 	bottone("Fuggi", scegli.bind({"tipo": "fuggi"}), fermo or not scontro.fuga_possibile())
+	# --- le due condizionali: compaiono solo quando ci sono davvero ---
+	if not scontro.alleati_disponibili().is_empty():
+		# Bru sull'incontro dei Cunicoli: "semplicemente fa apparire nel menu
+		# un'opzione aiutante con le sue mosse". Non e' un membro della squadra:
+		# e' una voce in piu' finche' ti accompagna
+		bottone("Aiutante", alleati, fermo)
+	if not scontro.bersagli_mediabili().is_empty():
+		bottone("Mediazione", mediazione, fermo)
 
 func bersagli() -> void:
-	# L'ARMA CHE HAI IN MANO CAMBIA COSA PUOI FARE, non solo un numero. Se ne
-	# porta con se' degli attacchi, "Attacca" diventa una scelta fra quelli;
-	# a mani nude (o con un'arma vecchia che non ne dichiara) resta il colpo
-	# normale, esattamente com'era
-	var attacchi := GameState.attacchi_arma(String(scontro.attaccante_corrente.get("id", "")))
-	if not attacchi.is_empty():
-		colpi_darma(attacchi)
-		return
+	# "Attacca attacca semplicemente": il colpo normale, e l'unica domanda e' su
+	# chi. Con un nemico solo in campo non si chiede nemmeno quello
 	var nemici: Array[Dictionary] = scontro.vivi(false)
 	if nemici.size() == 1:
 		scegli({"tipo": "attacca", "bersaglio": nemici[0]})
@@ -115,17 +128,6 @@ func bersagli() -> void:
 	pulisci()
 	for nemico in nemici:
 		bottone("Attacca %s" % nemico.nome, scegli.bind({"tipo": "attacca", "bersaglio": nemico}))
-
-func colpi_darma(attacchi: Array[Dictionary]) -> void:
-	pulisci()
-	var aura := int(scontro.attaccante_corrente.get("aura", 0))
-	bottone("Colpo normale", bersagli_di_attacco.bind({}))
-	for attacco in attacchi:
-		var costo := int(attacco.get("aura", 0))
-		var etichetta := "%s  (+%d)" % [String(attacco.get("nome", "?")), int(attacco.get("bonus", 0))]
-		if costo > 0:
-			etichetta += "  (%d aura)" % costo
-		bottone(etichetta, bersagli_di_attacco.bind(attacco), aura < costo)
 	bottone("Indietro", principale)
 
 func bersagli_di_attacco(attacco: Dictionary) -> void:
@@ -138,7 +140,23 @@ func bersagli_di_attacco(attacco: Dictionary) -> void:
 	for nemico in nemici:
 		bottone("%s su %s" % [nome, nemico.nome],
 				scegli.bind({"tipo": "attacca", "bersaglio": nemico, "arma": attacco}))
-	bottone("Indietro", bersagli)
+	# UNO SOLO. Ce n'erano due, tutti e due scritti "Indietro", che portavano in
+	# posti diversi: quello sopra tornava alla scelta dell'arma, quello sotto al
+	# menu. Due bottoni identici con due destini diversi non si scelgono, si
+	# indovinano
+	bottone("Indietro", abilita)
+
+func mediazione() -> void:
+	# la voce rara. Ci si arriva solo dopo che lo studio ha rivelato che questa
+	# creatura ascolta - e con un solo mediabile in campo non c'e' niente da
+	# scegliere: la si media e basta
+	var mediabili: Array[Dictionary] = scontro.bersagli_mediabili()
+	if mediabili.size() == 1:
+		scegli({"tipo": "media", "bersaglio": mediabili[0]})
+		return
+	pulisci()
+	for nemico in mediabili:
+		bottone("Media con %s" % nemico.nome, scegli.bind({"tipo": "media", "bersaglio": nemico}))
 	bottone("Indietro", principale)
 
 func studia() -> void:
@@ -163,6 +181,14 @@ func abilita() -> void:
 	# eseguire (regole.json). Una nuova abilita' compare da sola.
 	var attaccante: Dictionary = scontro.attaccante_corrente
 	var aura := int(attaccante.get("aura", 0))
+	# I COLPI D'ARMA STANNO QUI, non in una voce loro: sono attacchi speciali
+	# quanto gli altri, e l'arma che hai in mano cambia cosa sai fare
+	for attacco in GameState.attacchi_arma(String(attaccante.get("id", ""))):
+		var costo_arma := int(attacco.get("aura", 0))
+		var etichetta_arma := "%s  (+%d)" % [String(attacco.get("nome", "?")), int(attacco.get("bonus", 0))]
+		if costo_arma > 0:
+			etichetta_arma += "  (%d aura)" % costo_arma
+		bottone(etichetta_arma, bersagli_di_attacco.bind(attacco), aura < costo_arma)
 	# abilita_usabili tiene conto della progressione: di una linea passa un
 	# grado solo, il piu' alto. Terra bruciata prende il posto di Flagello
 	# invece di stargli accanto
