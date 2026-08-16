@@ -39,6 +39,36 @@ static func resistenza_di(combattente: Dictionary, chiave: String) -> String:
 static func ha_stato_attivo(combattente: Dictionary, id_stato: String) -> bool:
 	return combattente.stati_attivi.has(id_stato)
 
+static func quota_attacco_dagli_stati(combattente: Dictionary) -> float:
+	# quanto indeboliscono, sommati. Legge una chiave dei dati invece di
+	# elencare gli status a mano: aggiungerne uno che indebolisce non richiede
+	# di tornare qui
+	var totale := 0.0
+	for id_stato in combattente.get("stati_attivi", {}):
+		totale += float(GameState.stati.get(id_stato, {}).get("quota_attacco", 0.0))
+	return maxf(totale, -0.9)   # non si scende sotto un decimo: zero danni sarebbe un altro stato
+
+static func critico_bloccato(combattente: Dictionary) -> bool:
+	# Bru sul Terrore: "impossibilita' di fare critico"
+	for id_stato in combattente.get("stati_attivi", {}):
+		if bool(GameState.stati.get(id_stato, {}).get("blocca_critico", false)):
+			return true
+	return false
+
+static func solo_attacchi(combattente: Dictionary) -> bool:
+	# Rabbia e Frastornato: "attacchi soltanto, non puoi usare mosse"
+	for id_stato in combattente.get("stati_attivi", {}):
+		var tipo := String(GameState.stati.get(id_stato, {}).get("tipo", ""))
+		if tipo == "forza_attacco" or tipo == "frastornato":
+			return true
+	return false
+
+static func bersaglio_obbligato(combattente: Dictionary) -> String:
+	# Provocato: "puoi attaccare solo il nemico che ti ha provocato". Torna
+	# l'id del provocatore, o stringa vuota se sei libero di scegliere
+	var attivo: Dictionary = combattente.get("stati_attivi", {}).get("provocato", {})
+	return String(attivo.get("provocatore", ""))
+
 static func ha_stato_con_effetto(combattente: Dictionary, effetto: String) -> bool:
 	if combattente.psiche not in combattente.stati:
 		return false
@@ -352,12 +382,18 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	if fattore_attivo(attaccante) and GameState.rng.randf() < attaccante.fattore / 100.0:
 		danno += 1
 		esito.fattore = true
+	# GLI STATUS CHE INDEBOLISCONO agiscono qui, sul colpo intero. Terrore e
+	# Tossina dichiarano "quota_attacco" nei dati: chi ha paura e chi e'
+	# intossicato picchia meno, e non serve una riga di codice per ognuno
+	var fiacca := quota_attacco_dagli_stati(attaccante)
+	if fiacca != 0.0:
+		danno = int(round(danno * (1.0 + fiacca)))
 	var danno_pieno := danno   # quanto valeva il colpo prima che qualcuno lo fermasse
 	if danno_pieno <= 0:
 		esito.danno = 0
 		return esito   # chi ha 0 di attacco non fa male: la Tartaruga resta la Tartaruga
 	var difesa_bersaglio := float(difesa_di(bersaglio))
-	esito.critico = tenta_critico(bersaglio)
+	esito.critico = tenta_critico(bersaglio) and not critico_bloccato(attaccante)
 	if esito.critico:
 		danno = int(round(danno * float(GameState.regole.get("critico_moltiplicatore", 1.5))))
 		danno_pieno = danno

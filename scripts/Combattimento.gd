@@ -852,12 +852,16 @@ func battuta_di(attaccante: Dictionary) -> void:
 		if attaccante.hp <= 0:
 			return  # bruciato prima di poter agire
 	if risolvi_stati_a_inizio_turno(attaccante):
-		return  # il turno salta per uno stato (sonno, egocentrismo, demotivazione) o la maledizione lo uccide
+		return  # il turno salta (Sonno) o la maledizione arriva a zero e lo porta via
 	if attaccante.giocatore:
 		attaccante_corrente = attaccante
-		if RegoleCombattimento.ha_stato_attivo(attaccante, "berserk"):
+		if RegoleCombattimento.solo_attacchi(attaccante):
+			# Rabbia e Frastornato tolgono il menu, non solo una voce: chi ha
+			# perso la testa non sceglie. Il bersaglio lo decide chi ti ha
+			# provocato, se c'e' - altrimenti e' a caso, che e' il punto di
+			# tutti e due gli stati
 			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
-			var nemici := vivi(false)
+			var nemici := bersagli_ammessi(attaccante, vivi(false))
 			if not nemici.is_empty():
 				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)],
 						-1, consuma_carica(attaccante))
@@ -922,7 +926,7 @@ func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
 	if true:
 		if true:
 			var bersaglio_scelto: Dictionary = azione.get("bersaglio", {})
-			if azione.get("tipo", "") == "attacca" and RegoleCombattimento.ha_stato_attivo(attaccante, "confusione") \
+			if azione.get("tipo", "") == "attacca" and RegoleCombattimento.ha_stato_attivo(attaccante, "frastornato") \
 					and GameState.rng.randf() < 0.5:
 				var chiunque: Array[Dictionary] = []
 				for c in vivi(true) + vivi(false):
@@ -930,7 +934,17 @@ func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
 						chiunque.append(c)
 				if not chiunque.is_empty():
 					bersaglio_scelto = chiunque[GameState.rng.randi_range(0, chiunque.size() - 1)]
-					scrivi("[i]%s è confuso e colpisce %s per sbaglio![/i]" % [attaccante.nome, bersaglio_scelto.nome])
+					scrivi("[i]%s è frastornato e colpisce %s per sbaglio![/i]" % [attaccante.nome, bersaglio_scelto.nome])
+			var obbligato := RegoleCombattimento.bersaglio_obbligato(attaccante)
+			if azione.get("tipo", "") == "attacca" and obbligato != "" \
+					and String(bersaglio_scelto.get("id", "")) != obbligato:
+				# Provocato: il colpo va dove ha deciso chi ti ha provocato,
+				# non dove avevi puntato tu
+				for c in vivi(not attaccante.giocatore):
+					if String(c.id) == obbligato:
+						bersaglio_scelto = c
+						scrivi("[i]%s non riesce a colpire altri che %s.[/i]" % [attaccante.nome, c.nome])
+						break
 			match azione.get("tipo", ""):
 				"attacca":
 					colpo_darma(attaccante, bersaglio_scelto, azione.get("arma", {}))
@@ -1785,10 +1799,23 @@ func chiudi_mattanza() -> void:
 	if era_attiva and not muto and in_corso:
 		menu.principale()
 
-func provoca(chi: Dictionary) -> void:
+func provoca(chi: Dictionary, bersagli: Array[Dictionary] = []) -> void:
+	# LA PROVOCAZIONE ADESSO E' UNO STATO SUBITO, non solo una calamita globale.
+	# Bru: "puoi attaccare solo il nemico che ti ha provocato... togliamolo dal
+	# personaggio principale, sara' una mossa speciale di determinati
+	# personaggi" - cioe' la linea Richiamo di Veronica.
+	#
+	# Le due cose convivono: bersaglio_provocazione resta perche' la usa l'IA
+	# nemica per scegliere chi picchiare, e "provocato" e' quello che si vede
+	# addosso a chi l'ha subita, con la sua durata e il suo nome nella scheda.
 	bersaglio_provocazione = chi
-	turni_provocazione = int(GameState.regole.get("forza_azione_durata", 2))
+	turni_provocazione = int(GameState.stati.get("provocato", {}).get("durata", 3))
 	scrivi("[i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]" % chi.nome)
+	for vittima in (bersagli if not bersagli.is_empty() else vivi(not chi.giocatore)):
+		# chi l'ha provocata va scritto PRIMA di applicare lo stato: applica_stato
+		# legge id_provocatore per sapere a chi resti inchiodato
+		vittima.id_provocatore = String(chi.id)
+		applica_stato(vittima, "provocato")
 
 func attacco_area(chi: Dictionary, dati: Dictionary = {}) -> void:
 	scrivi("[i]%s scatena un colpo che si abbatte su tutti i nemici![/i]" % chi.nome)
@@ -2401,8 +2428,14 @@ func mossa_eseguibile(nemico: Dictionary, mossa: Dictionary) -> bool:
 					return true
 			return false
 		"incendia":
+			# da quando le Fiamme sono uno status, la domanda "c'e' qualcuno da
+			# incendiare" si fa agli stati e non piu' al vecchio in_fiamme, che
+			# nessuno accende piu'. Guardando il posto sbagliato la mossa
+			# risultava sempre disponibile e Jerah passava sette battute su
+			# ventiquattro a dare fuoco a chi bruciava gia'
 			for chiunque in vivi(true):
-				if not bool(chiunque.get("in_fiamme", false)):
+				if not RegoleCombattimento.ha_stato_attivo(chiunque, "fiamme") \
+						and RegoleCombattimento.resistenza_di(chiunque, "fiamme") != "immune":
 					return true
 			return false
 	return true
@@ -2850,17 +2883,18 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				bersaglio_tormento.in_fiamme = true
 				aggiorna_scheda(bersaglio_tormento)
 		"incendia":
-			# appicca il fuoco a un membro del party a caso: da qui in poi
-			# brucia a ogni suo turno, come la combustione dei nemici
+			# LE FIAMME SONO UNO STATUS, adesso. Prima appiccavano una combustione
+			# a mano: un danno che nessuno poteva curare, a cui nessuno poteva
+			# essere immune, e che non compariva nella scheda. Bru le voleva fra
+			# gli otto - "danno continuo ogni turno, e' il danno nel tempo piu'
+			# forte" - e da status prende tutto il resto gratis: durata, cura,
+			# resistenze, e il nome scritto addosso a chi brucia.
+			#
+			# La combustione resta dov'era, ma solo per chi brucia di suo
+			# (Fomentado): quella non e' una cosa che subisci, e' quello che sei
 			var possibili_bersagli := vivi(true)
 			if not possibili_bersagli.is_empty():
-				var bersaglio: Dictionary = possibili_bersagli[GameState.rng.randi_range(0, possibili_bersagli.size() - 1)]
-				bersaglio.combustione = {
-					"danno_per_turno": int(mossa.get("valore", 1)),
-					"testo_turno": String(mossa.get("testo_combustione", "Le fiamme ti divorano un altro po'.")),
-				}
-				bersaglio.in_fiamme = true
-				aggiorna_scheda(bersaglio)
+				applica_stato(possibili_bersagli[GameState.rng.randi_range(0, possibili_bersagli.size() - 1)], "fiamme")
 		"attacco_tutti":
 			if mossa.has("quota_vita_bersaglio"):
 				# UNA FRAZIONE DI QUELLO CHE TI RESTA, non del suo attacco: e' la
@@ -3037,8 +3071,9 @@ func applica_combustione(combattente: Dictionary) -> void:
 		_su_ko(combattente)
 
 # --- stati generici (data/stati.json): veleno, sonno,
-# egocentrismo, demotivazione (contagiosa), berserk, confusione, rapidita'/
-# lentezza, maledizione. Ogni personaggio puo' dichiarare nei dati una chiave
+# GLI OTTO STATUS: Terrore, Fiamme, Tossina, Sonno, Maledizione, Rabbia,
+# Provocato, Frastornato. Piu' Rapidita'/Lentezza, che non sono status subiti
+# ma modificatori di velocita' e servono alle armi. Ogni personaggio puo' dichiarare nei dati una chiave
 # "resistenze" (es. {"stress": "invertito", "oscuro": "ipersensibile"}):
 # "immune" annulla lo stato, "ipersensibile" lo amplifica, "invertito" (solo
 # per stress) ne capovolge l'effetto. Assente = "normale".
@@ -3066,46 +3101,85 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 	var info_stato: Dictionary = GameState.stati.get(id_stato, {})
 	var tipo := String(info_stato.get("tipo", ""))
 	match tipo:
-		"countdown":
+		"riserva":
+			# LA MALEDIZIONE NON E' PIU' UN CONTO ALLA ROVESCIA. Bru: "conto alla
+			# rovescia basato sulla resistenza. Parte da 10, un attacco che da' 3
+			# punti ti porta a 7. A zero vai KO e non puoi essere rianimato con
+			# oggetti fino alla fine del combattimento".
+			#
+			# Prima scendeva DA SOLA di un punto a turno: bastava aspettare e
+			# morivi, e i colpi maledetti erano decorazione. Adesso la riserva sta
+			# ferma finche' qualcuno non la morde: e' l'attacco che la consuma,
+			# e senza attacchi non succede niente.
 			var attivo: Dictionary = bersaglio.stati_attivi.get(id_stato, {})
+			var punti := maxi(int(valore), 1)
+			if amplificato:
+				punti *= 2
 			if attivo.is_empty():
-				# chi porta addosso una resistenza alla maledizione parte con
-				# qualche rintocco in piu': quando gli altri arrivano a zero lui
-				# e' ancora a uno, e serve un colpo in piu' per portarlo via
-				var iniziale := int(GameState.regole.get("maledizione_countdown_iniziale", 9)) \
+				# la resistenza alza il tetto, non riduce i punti: chi resiste ne
+				# incassa altrettanti ma parte da piu' in alto
+				var iniziale := int(info_stato.get("riserva_iniziale", 10)) \
 						+ int(bersaglio.get("resistenza_maledizione", 0))
-				bersaglio.stati_attivi[id_stato] = {"turni_rimasti": iniziale}
-				scrivi_forte("%s %s" % [bersaglio.nome, String(info_stato.get("testo_applicazione", "viene colpito da una forza oscura."))])
-			else:
-				var accelerazione := int(GameState.regole.get("maledizione_accelerazione_per_stack", 1))
-				if amplificato:
-					accelerazione *= 2
-				attivo.turni_rimasti = maxi(int(attivo.turni_rimasti) - accelerazione, 1)
-		"salta_turno", "forza_attacco", "colpisci_a_caso":
-			var durata: int
-			if tipo == "salta_turno":
-				durata = GameState.rng.randi_range(1, int(GameState.regole.get("salta_turno_durata_massima", 3)))
-			else:
-				durata = int(GameState.regole.get("forza_azione_durata", 2))
+				attivo = {"riserva": iniziale, "iniziale": iniziale}
+				bersaglio.stati_attivi[id_stato] = attivo
+				scrivi_forte("%s %s" % [bersaglio.nome, String(info_stato.get("testo_applicazione", "viene maledetto."))])
+			attivo.riserva = maxi(int(attivo.riserva) - punti, 0)
+			scrivi("[i]%s (%d/%d)[/i]" % [String(info_stato.get("testo_consumo", "La maledizione morde.")),
+					int(attivo.riserva), int(attivo.iniziale)])
+			if int(attivo.riserva) <= 0:
+				scrivi_forte("La maledizione si compie: %s non resiste oltre." % bersaglio.nome)
+				bersaglio.hp = 0
+				if bool(info_stato.get("ko_non_rianimabile", false)):
+					# e resta giu'. Nessun oggetto lo rimette in piedi fino alla
+					# fine dello scontro: e' quello che rende la maledizione una
+					# minaccia invece di un danno con un nome lungo
+					bersaglio.non_rianimabile = true
+				aggiorna_scheda(bersaglio)
+				_su_ko(bersaglio)
+				return
+		"sonno":
+			# Bru: "immobile per massimo 3 turni... piu' subisci attacchi piu'
+			# probabilita' hai di svegliarti". I colpi incassati mentre dorme si
+			# contano qui sotto (vedi risolvi_stati_a_inizio_turno) e alzano il
+			# tiro del risveglio: scuotere chi dorme funziona
+			bersaglio.stati_attivi[id_stato] = {
+				"turni_rimasti": int(info_stato.get("durata_massima", 3)) + (1 if amplificato else 0),
+				"colpi_nel_sonno": 0}
+			scrivi("[i]%s %s[/i]" % [bersaglio.nome, info_stato.get("testo_applicazione", "cade addormentato.")])
+		"forza_attacco", "frastornato", "provocato":
+			var durata := durata_dichiarata(info_stato)
 			if amplificato:
 				durata += 1
-			bersaglio.stati_attivi[id_stato] = {"turni_rimasti": durata}
+			var stato_nuovo := {"turni_rimasti": durata}
+			if tipo == "provocato":
+				# chi ti ha provocato: senza questo "solo lui" non vuol dire niente
+				stato_nuovo["provocatore"] = String(bersaglio.get("id_provocatore", ""))
+			bersaglio.stati_attivi[id_stato] = stato_nuovo
 			scrivi("[i]%s %s[/i]" % [bersaglio.nome, info_stato.get("testo_applicazione", "subisce uno stato.")])
-			if info_stato.get("contagiosa", false):
-				for altro in vivi(bersaglio.giocatore):
-					if altro.indice != bersaglio.indice and RegoleCombattimento.resistenza_di(altro, id_stato) != "immune":
-						altro.stati_attivi[id_stato] = {"turni_rimasti": durata}
-						scrivi("[i]%s ne è contagiato.[/i]" % altro.nome)
-		"dot_crescente":
-			var attivo2: Dictionary = bersaglio.stati_attivi.get(id_stato, {})
-			var base := int(valore) * (2 if amplificato else 1)
-			bersaglio.stati_attivi[id_stato] = {"danno": int(attivo2.get("danno", 0)) + base}
 		"dot":
-			bersaglio.stati_attivi[id_stato] = {"danno": int(valore) * (2 if amplificato else 1)}
+			# FIAMME E TOSSINA SONO LO STESSO MECCANISMO CON DUE TARATURE, non due
+			# meccanismi. Il danno e' una quota della vita massima e non un numero
+			# fisso: un 5 fisso e' letale al livello 1 e invisibile al 130.
+			# Durata 0 = fino a fine scontro (la Tossina: "guarisci solo a fine
+			# combattimento o se ti curi").
+			var quota := float(info_stato.get("quota_vita_massima", 0.05))
+			if amplificato:
+				quota *= 2.0
+			var danno_turno := maxi(int(round(int(bersaglio.get("hp_max", 1)) * quota)), 1)
+			bersaglio.stati_attivi[id_stato] = {
+				"danno": danno_turno,
+				"turni_rimasti": durata_dichiarata(info_stato)}
+			scrivi("[i]%s %s[/i]" % [bersaglio.nome, info_stato.get("testo_applicazione", "subisce uno stato.")])
 		"velocita":
 			bersaglio.stati_attivi[id_stato] = {"valore": int(info_stato.get("valore", 0))}
 		"terrore":
-			bersaglio.stati_attivi[id_stato] = {}
+			# Bru: "indebolimento temporaneo del personaggio e impossibilita' di
+			# fare critico". Prima faceva solo stress e legame - due numeri fuori
+			# dallo scontro - e in campo non cambiava niente
+			var durata_terrore := durata_dichiarata(info_stato)
+			if amplificato:
+				durata_terrore += 1
+			bersaglio.stati_attivi[id_stato] = {"turni_rimasti": durata_terrore}
 			var incremento_stress := int(GameState.regole.get("terrore_stress_incremento", 40))
 			var decremento_legame := int(GameState.regole.get("terrore_legame_decremento", -15))
 			if amplificato:
@@ -3116,44 +3190,81 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			scrivi_forte("%s %s" % [bersaglio.nome, String(info_stato.get("testo_applicazione", "è paralizzato dal terrore."))])
 	aggiorna_scheda(bersaglio)
 
+func bersagli_ammessi(chi: Dictionary, candidati: Array[Dictionary]) -> Array[Dictionary]:
+	# se qualcuno ti ha provocato, l'elenco si riduce a lui solo. Se e' caduto
+	# nel frattempo torni libero: restare inchiodato a un morto bloccherebbe il
+	# turno per tre battute
+	var obbligato := RegoleCombattimento.bersaglio_obbligato(chi)
+	if obbligato == "":
+		return candidati
+	var ristretto: Array[Dictionary] = []
+	for c in candidati:
+		if String(c.get("id", "")) == obbligato:
+			ristretto.append(c)
+	return ristretto if not ristretto.is_empty() else candidati
+
+static func durata_dichiarata(info_stato: Dictionary) -> int:
+	# uno stato dichiara "durata" fissa, oppure "durata_minima"/"durata_massima"
+	# e la si tira. Zero vuol dire fino alla fine dello scontro
+	if info_stato.has("durata"):
+		return int(info_stato["durata"])
+	var minimo := int(info_stato.get("durata_minima", 1))
+	var massimo := int(info_stato.get("durata_massima", minimo))
+	return GameState.rng.randi_range(minimo, maxi(massimo, minimo))
+
 func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 	# esegue countdown/salta-turno/dot a inizio turno; ritorna true se il
-	# turno va saltato (sonno, egocentrismo, demotivazione) o
-	# se il personaggio muore prima di poter agire (maledizione, veleno)
+	# turno va saltato (Sonno) o se il personaggio muore prima di poter agire
+	# (Fiamme e Tossina lo consumano, la Maledizione arriva a zero)
 	var salta := false
 	for id_stato in combattente.stati_attivi.keys().duplicate():
 		var attivo: Dictionary = combattente.stati_attivi[id_stato]
 		var info_stato: Dictionary = GameState.stati.get(id_stato, {})
 		match String(info_stato.get("tipo", "")):
-			"countdown":
-				attivo.turni_rimasti = int(attivo.turni_rimasti) - 1
-				if int(attivo.turni_rimasti) <= 0:
-					scrivi_forte("La maledizione si compie: %s non resiste oltre." % combattente.nome)
-					combattente.hp = 0
-					aggiorna_scheda(combattente)
-					_su_ko(combattente)
-					return true
-			"salta_turno":
-				scrivi("[i]%s non riesce ad agire: %s.[/i]" % [combattente.nome, String(info_stato.get("nome", id_stato))])
+			"riserva":
+				# non scende da sola: la consumano i colpi (vedi applica_stato).
+				# Qui non c'e' niente da fare, ed e' voluto
+				pass
+			"sonno":
+				# IL RISVEGLIO E' UN TIRO, e i colpi incassati lo alzano. Bru:
+				# "piu' subisci attacchi piu' probabilita' hai di svegliarti".
+				# Si tira PRIMA di saltare il turno: chi si sveglia adesso agisce
+				# subito, invece di perdere anche la battuta del risveglio
+				var soglia := float(info_stato.get("risveglio_base", 0.25)) \
+						+ int(attivo.get("colpi_nel_sonno", 0)) * float(info_stato.get("risveglio_per_colpo", 0.30))
+				if GameState.rng.randf() < soglia:
+					combattente.stati_attivi.erase(id_stato)
+					scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato.get("testo_fine", "si sveglia."))])
+					continue
+				scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato.get("testo_turno", "dorme."))])
 				salta = true
 				attivo.turni_rimasti = int(attivo.turni_rimasti) - 1
 				if int(attivo.turni_rimasti) <= 0:
 					combattente.stati_attivi.erase(id_stato)
-			"forza_attacco", "colpisci_a_caso":
+					scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato.get("testo_fine", "si sveglia."))])
+			"forza_attacco", "frastornato", "provocato", "terrore":
 				attivo.turni_rimasti = int(attivo.turni_rimasti) - 1
 				if int(attivo.turni_rimasti) <= 0:
 					combattente.stati_attivi.erase(id_stato)
-			"dot", "dot_crescente":
+					if info_stato.has("testo_fine"):
+						scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato["testo_fine"])])
+			"dot":
 				var danno := int(attivo.get("danno", 1))
 				combattente.hp = maxi(combattente.hp - danno, 0)
-				if String(info_stato.get("tipo", "")) == "dot_crescente":
-					attivo.danno = danno + 1
 				scrivi_con_colpo("[i]%s: %s[/i]" % [combattente.nome,
 						String(info_stato.get("testo_turno", "Il male si fa sentire ancora."))],
 						combattente, danno, String(info_stato.get("elemento", "")))
 				if combattente.hp <= 0:
 					_su_ko(combattente)
 					return true
+				# durata 0 = non scade: la Tossina resta finche' non ti curi o
+				# finche' lo scontro non finisce
+				if int(attivo.get("turni_rimasti", 0)) > 0:
+					attivo.turni_rimasti = int(attivo.turni_rimasti) - 1
+					if int(attivo.turni_rimasti) <= 0:
+						combattente.stati_attivi.erase(id_stato)
+						if info_stato.has("testo_fine"):
+							scrivi("[i]%s[/i]" % String(info_stato["testo_fine"]))
 	return salta
 
 # --- risoluzione dei colpi ---
@@ -3299,6 +3410,14 @@ func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 	if danno > 0:
 		bersaglio.ultimo_danno_subito = danno
 		bersaglio.colpi_incassati = int(bersaglio.colpi_incassati) + 1
+		# SCUOTERE CHI DORME FUNZIONA. Bru: "piu' subisci attacchi piu'
+		# probabilita' hai di svegliarti". Il conto sta qui e non dentro il
+		# Sonno perche' qui passa OGNI colpo incassato - attacco, veleno,
+		# raffica - e svegliarsi solo per certi tipi di danno sarebbe una regola
+		# che il giocatore non puo' vedere
+		var sonno_attivo: Dictionary = bersaglio.stati_attivi.get("sonno", {})
+		if not sonno_attivo.is_empty():
+			sonno_attivo.colpi_nel_sonno = int(sonno_attivo.get("colpi_nel_sonno", 0)) + 1
 		if bersaglio.giocatore and bersaglio.id == GameState.id_protagonista:
 			GameState.registra_azione("danni_subiti", danno)
 		# l'Astio si alimenta qui, e solo qui: un colpo incassato e' un colpo
@@ -3398,6 +3517,14 @@ func _su_ko(caduto: Dictionary) -> void:
 		caduto.hp = caduto.hp_max
 		aggiorna_scheda(caduto)
 		scrivi_forte("[i]%s si rialza, come se nulla fosse.[/i]" % caduto.nome)
+		return
+	if caduto.get("non_rianimabile", false):
+		# CHI CADE PER MALEDIZIONE RESTA GIU'. Bru: "a zero vai KO e non puoi
+		# essere rianimato con oggetti fino alla fine del combattimento". Il
+		# controllo sta prima dell'accessorio apposta: se stesse dopo, la
+		# resurrezione lo rimetterebbe in piedi e la maledizione sarebbe un
+		# modo lento di fare danno invece che una minaccia
+		scrivi_forte("[i]%s non si rialza: la maledizione lo tiene giù.[/i]" % caduto.nome)
 		return
 	if caduto.giocatore and String(caduto.get("resurrezione", "")) != "" and caduto.hp <= 0:
 		# l'accessorio addosso a lui si spezza al posto suo: torna in vita a

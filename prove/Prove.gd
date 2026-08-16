@@ -66,6 +66,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
+	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
 	prova_i_dominatori_non_sono_bestiario()
@@ -2868,6 +2869,119 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
 	scontro.free()
 
+func prova_gli_otto_status() -> void:
+	# Gli otto che ha definito Bru, uno per uno. I numeri sono miei e si possono
+	# cambiare senza toccare questa prova: qui non si misura QUANTO fa male una
+	# Fiamma, si misura che faccia quello che dice di fare. Una prova che si
+	# rompe quando Bru cambia un numero e' una prova che gli impedisce di
+	# cambiarlo.
+	titolo("gli otto status fanno quello che dicono")
+	esigi(GameState.stati.size() == 10,
+			"gli stati sono %d: dovrebbero essere gli otto piu' Rapidita' e Lentezza" % GameState.stati.size())
+	for id_atteso in ["terrore", "fiamme", "tossina", "sonno", "maledizione",
+			"rabbia", "provocato", "frastornato"]:
+		esigi(GameState.stati.has(id_atteso), "manca lo status '%s'" % id_atteso)
+	for id_vecchio in ["veleno", "berserk", "confusione", "egocentrismo", "demotivazione"]:
+		esigi(not GameState.stati.has(id_vecchio),
+				"lo status vecchio '%s' e' ancora li'" % id_vecchio)
+
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	scontro.in_corso = true
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for c in scontro.combattenti:
+		if c.giocatore and eroe.is_empty():
+			eroe = c
+		elif not c.giocatore and nemico.is_empty():
+			nemico = c
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+	eroe.hp_max = 1000
+	eroe.hp = 1000
+
+	# TERRORE — indebolisce e toglie il critico
+	eroe.stati_attivi = {}
+	var attacco_sano := RegoleCombattimento.calcola_danno(eroe, nemico, 100, 1.0, 0)
+	scontro.applica_stato(eroe, "terrore")
+	esigi(RegoleCombattimento.critico_bloccato(eroe), "col Terrore addosso si fanno ancora critici")
+	esigi(RegoleCombattimento.quota_attacco_dagli_stati(eroe) < 0.0,
+			"il Terrore non indebolisce: la quota di attacco e' %f" % RegoleCombattimento.quota_attacco_dagli_stati(eroe))
+	var attacco_atterrito := RegoleCombattimento.calcola_danno(eroe, nemico, 100, 1.0, 0)
+	esigi(int(attacco_atterrito.danno) < int(attacco_sano.danno),
+			"atterrito fa %d danni, sano ne faceva %d" % [int(attacco_atterrito.danno), int(attacco_sano.danno)])
+
+	# FIAMME e TOSSINA — la stessa macchina, due tarature. Le Fiamme fanno di piu'
+	eroe.stati_attivi = {}
+	scontro.applica_stato(eroe, "fiamme")
+	var danno_fiamme := int(eroe.stati_attivi["fiamme"].danno)
+	eroe.stati_attivi = {}
+	scontro.applica_stato(eroe, "tossina")
+	var danno_tossina := int(eroe.stati_attivi["tossina"].danno)
+	esigi(danno_fiamme > danno_tossina,
+			"le Fiamme fanno %d e la Tossina %d: le Fiamme devono essere il piu' forte"
+			% [danno_fiamme, danno_tossina])
+	esigi(int(eroe.stati_attivi["tossina"].get("turni_rimasti", -1)) == 0,
+			"la Tossina scade da sola: doveva restare fino a fine scontro o alla cura")
+	esigi(RegoleCombattimento.quota_attacco_dagli_stati(eroe) < 0.0, "la Tossina non indebolisce")
+	# e il danno scala con la vita massima, non e' un numero fisso
+	eroe.stati_attivi = {}
+	eroe.hp_max = 10000
+	scontro.applica_stato(eroe, "fiamme")
+	esigi(int(eroe.stati_attivi["fiamme"].danno) > danno_fiamme,
+			"il danno delle Fiamme non scala con la vita massima: resta un numero fisso")
+	eroe.hp_max = 1000
+
+	# SONNO — massimo tre turni, e i colpi incassati alzano il risveglio
+	eroe.stati_attivi = {}
+	scontro.applica_stato(eroe, "sonno")
+	esigi(int(eroe.stati_attivi["sonno"].turni_rimasti) <= 3, "il Sonno dura piu' di tre turni")
+	scontro.registra_danno_subito(eroe, 5)
+	scontro.registra_danno_subito(eroe, 5)
+	esigi(int(eroe.stati_attivi["sonno"].colpi_nel_sonno) == 2,
+			"i colpi incassati mentre dorme non vengono contati: scuoterlo non serve a niente")
+
+	# MALEDIZIONE — riserva da 10, la consumano i colpi, e chi cade non si rialza
+	eroe.stati_attivi = {}
+	eroe.non_rianimabile = false
+	scontro.applica_stato(eroe, "maledizione", 3)
+	esigi(int(eroe.stati_attivi["maledizione"].riserva) == 7,
+			"tre punti di maledizione su dieci hanno lasciato %d invece di 7"
+			% int(eroe.stati_attivi["maledizione"].riserva))
+	scontro.risolvi_stati_a_inizio_turno(eroe)
+	esigi(int(eroe.stati_attivi["maledizione"].riserva) == 7,
+			"la riserva e' scesa da sola passando un turno: doveva consumarla solo un colpo")
+	scontro.applica_stato(eroe, "maledizione", 7)
+	esigi(int(eroe.hp) <= 0, "la riserva e' arrivata a zero e non e' successo niente")
+	esigi(bool(eroe.get("non_rianimabile", false)),
+			"caduto per maledizione ma rianimabile: gli oggetti lo rimettono in piedi")
+
+	# RABBIA e FRASTORNATO — tolgono le mosse
+	eroe.hp = 1000
+	eroe.non_rianimabile = false
+	eroe.stati_attivi = {}
+	esigi(not RegoleCombattimento.solo_attacchi(eroe), "senza stati addosso non puo' gia' usare le mosse")
+	scontro.applica_stato(eroe, "rabbia")
+	esigi(RegoleCombattimento.solo_attacchi(eroe), "con la Rabbia addosso si usano ancora le mosse")
+	eroe.stati_attivi = {}
+	scontro.applica_stato(eroe, "frastornato")
+	esigi(RegoleCombattimento.solo_attacchi(eroe),
+			"Frastornato lascia usare le mosse: doveva permettere solo attacchi")
+
+	# PROVOCATO — puoi colpire solo chi ti ha provocato
+	eroe.stati_attivi = {}
+	eroe.id_provocatore = String(nemico.id)
+	scontro.applica_stato(eroe, "provocato")
+	esigi(RegoleCombattimento.bersaglio_obbligato(eroe) == String(nemico.id),
+			"Provocato non ricorda chi l'ha provocato: 'solo lui' non vuol dire niente")
+	var solo_lui: Array[Dictionary] = scontro.bersagli_ammessi(eroe, scontro.vivi(false))
+	esigi(solo_lui.size() == 1 and String(solo_lui[0].id) == String(nemico.id),
+			"provocato, ma puo' ancora scegliere fra %d bersagli" % solo_lui.size())
+	scontro.free()
+
 func prova_mediazione() -> void:
 	# Bru: "in alcuni casi rari apparira' mediazione, solo dopo che dallo studio
 	# sei riuscito a capire che quel determinato nemico vuole ascoltarti... non
@@ -3101,7 +3215,7 @@ func prova_modalita_e_trasformazione() -> void:
 	# 5. UNA MOSSA CHE NE LASCIA ADDOSSO DUE
 	eroe.stati_attivi = {}
 	scontro.esegui_mossa(nemico, {"id": "prova_assolo", "tipo": "stato", "testo": "-",
-			"stati": ["confusione", "berserk"]})
+			"stati": ["frastornato", "rabbia"]})
 	esigi(eroe.stati_attivi.size() >= 2,
 			"l'assolo ha lasciato addosso %d stati invece di due" % eroe.stati_attivi.size())
 

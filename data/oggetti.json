@@ -341,7 +341,7 @@
 			"descrizione": "Un fiore comune, usato per trattare lievi infezioni o avvelenamenti. Oltre a essere bello, può anche essere molto utile.",
 			"effetto": {
 				"hp": 20,
-				"cura_stato": "veleno"
+				"cura_stato": "tossina"
 			}
 		},
 		{
@@ -449,7 +449,7 @@
 			"tipo": "consumabile",
 			"descrizione": "Nero, gessoso, disgustoso. Assorbe il veleno prima che finisca il suo lavoro.",
 			"effetto": {
-				"cura_stato": "veleno"
+				"cura_stato": "tossina"
 			}
 		},
 		{

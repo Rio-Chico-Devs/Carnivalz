@@ -1,0 +1,40 @@
+{
+	"_nota": "I CINQUE TIPI, e chi pesa su chi. La tabella e' MIA e va corretta: Bru ha deciso i cinque tipi e che l'asse e' uno solo, non due, ma non ha mai scritto chi batte chi. Quello che ho messo qui sotto ha una ragione per ogni riga, cosi' si puo' discutere invece di indovinare.",
+
+	"_nota_efficacia": "Tre valori soli, come voleva Bru: normale (niente), ipersensibile (pesa di piu'), immune (non arriva). I moltiplicatori stanno in regole.json e si cambiano da li'.",
+
+	"_nota_da_dove_esce": "Il tipo dell'attacco lo da' l'arma che hai in mano; se l'arma non ne dichiara uno, lo da' il personaggio. Niente tipo = colpo neutro, che e' come funziona oggi ovunque finche' le armi non vengono scritte.",
+
+	"tipi": {
+		"Natura": {
+			"descrizione": "Quello che è nato così ed è rimasto vivo",
+			"colore": "#7bc86c",
+			"ipersensibile_a": ["Artificio"],
+			"_perche": "una macchina taglia quello che è vivo senza fatica"
+		},
+		"Artificio": {
+			"descrizione": "Costruito da qualcuno, e ancora acceso quando non serve più",
+			"colore": "#8fa9c9",
+			"ipersensibile_a": ["Spirituale"],
+			"_perche": "qualcosa entra dentro la macchina e la muove al posto suo"
+		},
+		"Spirituale": {
+			"descrizione": "Un corpo che regge qualcosa che non è più suo",
+			"colore": "#c9a0dc",
+			"ipersensibile_a": ["Natura", "Tetro"],
+			"_perche": "quello che è ancora vivo davvero, e il rancore, arrivano tutti e due dove il corpo non tiene"
+		},
+		"Speciale": {
+			"descrizione": "Non ha categoria e non ne vuole una",
+			"colore": "#f2c14e",
+			"ipersensibile_a": [],
+			"_perche": "sta fuori dalla ruota: non è debole a niente, e niente è debole a lui. Se lo vuoi dentro il gioco delle efficacie, è qui che si scrive"
+		},
+		"Tetro": {
+			"descrizione": "Nasce dal rancore e dal buio. È il tipo delle fonti",
+			"colore": "#6b6b83",
+			"ipersensibile_a": ["Tetro"],
+			"_perche": "solo il rancore arriva al rancore. E' il tipo di 19 creature su 39: se fosse debole a qualcosa di comune, meta' bestiario cadrebbe con la stessa arma"
+		}
+	}
+}

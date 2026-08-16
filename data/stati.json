@@ -1,68 +1,109 @@
 {
+	"_nota": "GLI OTTO STATUS, come li ha definiti Bru. I numeri sono miei e vanno corretti: ogni voce ha accanto la frase sua da cui esce. Lentezza e Rapidita' restano perche' servono alle armi, ma non sono status subiti: sono modificatori di velocita'.",
 	"stati": {
-		"veleno": {
-			"nome": "Veleno",
+		"terrore": {
+			"nome": "Terrore",
 			"categoria": "debuff",
-			"tipo": "dot_crescente",
+			"tipo": "terrore",
+			"_bru": "indebolimento temporaneo del personaggio e impossibilita' di fare critico. Lo stress e il legame contano solo dentro il combattimento",
+			"durata": 3,
+			"blocca_critico": true,
+			"quota_attacco": -0.2,
+			"testo_applicazione": "è paralizzato dal terrore: la mano non è più ferma.",
+			"testo_fine": "si scrolla di dosso il terrore."
+		},
+		"fiamme": {
+			"nome": "Fiamme",
+			"categoria": "debuff",
+			"tipo": "dot",
+			"_bru": "danno continuo ogni turno, e' il danno nel tempo piu' forte. Dura da 2 a 5 turni a caso",
+			"durata_minima": 2,
+			"durata_massima": 5,
+			"quota_vita_massima": 0.08,
+			"elemento": "fuoco",
+			"testo_applicazione": "prende fuoco.",
+			"testo_turno": "Il fuoco non si stacca: continua a bruciare.",
+			"testo_fine": "Le fiamme si spengono."
+		},
+		"tossina": {
+			"nome": "Tossina",
+			"categoria": "debuff",
+			"tipo": "dot",
+			"_bru": "indebolimento temporaneo e leggeri danni ogni turno, meno di Fiamme. Guarisci solo a fine combattimento o se ti curi",
+			"durata": 0,
+			"quota_vita_massima": 0.03,
+			"quota_attacco": -0.15,
 			"elemento": "veleno",
-			"testo_turno": "Il veleno si diffonde: peggiora ancora."
+			"testo_applicazione": "viene intossicato.",
+			"testo_turno": "La tossina lavora piano, e non smette.",
+			"testo_fine": "La tossina si esaurisce."
 		},
 		"sonno": {
 			"nome": "Sonno",
 			"categoria": "debuff",
-			"tipo": "salta_turno",
-			"testo_applicazione": "cade addormentato."
+			"tipo": "sonno",
+			"_bru": "immobile per massimo 3 turni. Piu' subisci attacchi piu' probabilita' hai di svegliarti",
+			"durata_massima": 3,
+			"risveglio_base": 0.25,
+			"risveglio_per_colpo": 0.3,
+			"testo_applicazione": "cade addormentato.",
+			"testo_turno": "dorme e non si accorge di niente.",
+			"testo_fine": "si sveglia di soprassalto."
 		},
-		"egocentrismo": {
-			"nome": "Egocentrismo",
+		"maledizione": {
+			"nome": "Maledizione",
 			"categoria": "debuff",
-			"tipo": "salta_turno",
-			"testo_applicazione": "è troppo preso da se stesso per agire."
+			"tipo": "riserva",
+			"_bru": "conto alla rovescia basato sulla resistenza. Parte da 10, un attacco che da' 3 punti ti porta a 7. A zero vai KO e non puoi essere rianimato con oggetti fino a fine combattimento. La resistenza alza il 10. Si resetta a fine combattimento o se ti esorcizzi",
+			"riserva_iniziale": 10,
+			"ko_non_rianimabile": true,
+			"elemento": "oscuro",
+			"testo_applicazione": "viene maledetto: qualcosa comincia a contare.",
+			"testo_consumo": "La maledizione morde ancora.",
+			"testo_fine": "La maledizione si scioglie."
 		},
-		"demotivazione": {
-			"nome": "Demotivazione",
-			"categoria": "debuff",
-			"tipo": "salta_turno",
-			"contagiosa": true,
-			"testo_applicazione": "perde ogni motivazione, e la sensazione si allarga al resto della squadra."
-		},
-		"berserk": {
-			"nome": "Berserk",
+		"rabbia": {
+			"nome": "Rabbia",
 			"categoria": "debuff",
 			"tipo": "forza_attacco",
-			"testo_applicazione": "perde il controllo: può solo attaccare."
+			"_bru": "attacchi soltanto, non puoi usare mosse. Due o tre turni",
+			"durata_minima": 2,
+			"durata_massima": 3,
+			"testo_applicazione": "perde il controllo: può solo attaccare.",
+			"testo_fine": "ritrova la testa."
 		},
-		"confusione": {
-			"nome": "Confusione",
+		"provocato": {
+			"nome": "Provocato",
 			"categoria": "debuff",
-			"tipo": "colpisci_a_caso",
-			"testo_applicazione": "è confuso: potrebbe colpire chiunque."
+			"tipo": "provocato",
+			"_bru": "puoi attaccare solo il nemico che ti ha provocato. Tre turni. Toglilo dal personaggio principale: sara' una mossa speciale di determinati personaggi",
+			"durata": 3,
+			"testo_applicazione": "non riesce a guardare nessun altro.",
+			"testo_fine": "torna a vedere il resto del campo."
+		},
+		"frastornato": {
+			"nome": "Frastornato",
+			"categoria": "debuff",
+			"tipo": "frastornato",
+			"_bru": "puoi solo attaccare, e i bersagli sono casuali. Da uno a quattro turni",
+			"durata_minima": 1,
+			"durata_massima": 4,
+			"testo_applicazione": "è frastornato: colpisce senza vedere chi.",
+			"testo_fine": "rimette a fuoco."
 		},
 		"rapidita": {
 			"nome": "Rapidità",
 			"categoria": "buff",
 			"tipo": "velocita",
+			"_nota": "non e' uno degli otto: e' un modificatore di velocita', e serve alle armi",
 			"valore": 2
 		},
 		"lentezza": {
 			"nome": "Lentezza",
 			"categoria": "debuff",
 			"tipo": "velocita",
+			"_nota": "non e' uno degli otto: e' un modificatore di velocita', e serve alle armi",
 			"valore": -2
-		},
-		"maledizione": {
-			"nome": "Maledizione",
-			"categoria": "debuff",
-			"tipo": "countdown",
-			"elemento": "oscuro",
-			"testo_applicazione": "viene maledetto."
-		},
-		"terrore": {
-			"nome": "Terrore",
-			"categoria": "debuff",
-			"tipo": "terrore",
-			"elemento": "psico",
-			"testo_applicazione": "è paralizzato dal terrore: lo stress esplode, il morale della squadra crolla."
 		}
 	}
 }

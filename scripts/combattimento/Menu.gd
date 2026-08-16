@@ -104,10 +104,16 @@ func principale() -> void:
 		bottone("Abilità", abilita, fermo)
 		bottone("Oggetti", oggetti, fermo or richiesta != "oggetto", richiesta == "oggetto")
 		return
+	# Rabbia e Frastornato: "attacchi soltanto, non puoi usare mosse". Le voci
+	# restano al loro posto, spente - il menu non si accorcia mai. Sparire
+	# avrebbe fatto saltare tutto quello che sta sotto proprio nel momento in
+	# cui il giocatore sta gia' subendo qualcosa che non capisce
+	var accecato := RegoleCombattimento.solo_attacchi(scontro.attaccante_corrente)
 	bottone("Attacca", bersagli, fermo)
-	bottone("Difendi", scegli.bind({"tipo": "difendi"}), fermo)
-	bottone("Abilità", abilita, fermo)
-	bottone("Oggetti", oggetti, fermo or (GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty()))
+	bottone("Difendi", scegli.bind({"tipo": "difendi"}), fermo or accecato)
+	bottone("Abilità", abilita, fermo or accecato)
+	bottone("Oggetti", oggetti, fermo or accecato \
+			or (GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty()))
 	bottone("Fuggi", scegli.bind({"tipo": "fuggi"}), fermo or not scontro.fuga_possibile())
 	# --- le due condizionali: compaiono solo quando ci sono davvero ---
 	if not scontro.alleati_disponibili().is_empty():
