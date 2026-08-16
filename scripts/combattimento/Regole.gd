@@ -63,6 +63,52 @@ static func solo_attacchi(combattente: Dictionary) -> bool:
 			return true
 	return false
 
+static func tipo_di(combattente: Dictionary) -> String:
+	# Il tipo di chi colpisce. Per una creatura lo dice il suo file; per un
+	# membro della squadra lo dice l'ARMA che ha in mano, e solo se non ne
+	# dichiara uno si ripiega sul personaggio.
+	#
+	# L'arma prima del personaggio non e' un dettaglio: e' il motivo per cui
+	# cambiare arma cambia contro chi sei forte. Un protagonista che si chiama
+	# Anonimo e "le puo' usare tutte" non ha un tipo suo - ce l'ha quello che
+	# impugna, ed e' esattamente il personaggio che Bru ha descritto.
+	if not bool(combattente.get("giocatore", false)):
+		return String(GameState.personaggi.get(combattente.get("id", ""), {}).get("tipo", ""))
+	var id_arma := GameState.equipaggiato_in(String(combattente.get("id", "")), "arma")
+	if id_arma != "":
+		# "tipo_colpo" e non "tipo": sugli oggetti "tipo" vuol gia' dire la
+		# categoria dell'oggetto (arma, consumabile, accessorio), e riusare la
+		# stessa chiave per due cose diverse avrebbe fatto risultare ogni arma
+		# di tipo "arma" - che non e' uno dei cinque, quindi neutra per sempre,
+		# in silenzio
+		var tipo_arma := String(GameState.dati_oggetto(id_arma).get("tipo_colpo", ""))
+		if tipo_arma != "":
+			return tipo_arma
+	return String(GameState.personaggi.get(combattente.get("id", ""), {}).get("tipo", ""))
+
+static func efficacia_tipo(attaccante: Dictionary, bersaglio: Dictionary) -> float:
+	# Quanto pesa questo colpo su questo bersaglio, per via del tipo. 1.0 =
+	# niente di speciale, ed e' il caso normale.
+	#
+	# Due strade, e la seconda vince sulla prima: la tabella generale in
+	# tipi.json dice che un Artificio pesa su tutta la Natura, e la singola
+	# creatura puo' smentirla dichiarando "sensibile" o "immune_a" nel suo file.
+	# Serve tutte e due: senza la tabella ogni creatura andrebbe scritta a mano,
+	# senza l'eccezione non si potrebbe mai fare una creatura che sfugge alla
+	# regola - e le creature interessanti sono quelle li'.
+	var tipo_colpo := tipo_di(attaccante)
+	if tipo_colpo == "":
+		return 1.0   # colpo senza tipo: passa liscio, com'e' sempre stato
+	var dati_bersaglio: Dictionary = GameState.personaggi.get(bersaglio.get("id", ""), {})
+	if tipo_colpo in dati_bersaglio.get("immune_a", []):
+		return 0.0
+	if tipo_colpo in dati_bersaglio.get("sensibile", []):
+		return float(GameState.regole.get("tipo_moltiplicatore_ipersensibile", 1.5))
+	var tipo_bersaglio := String(dati_bersaglio.get("tipo", ""))
+	if tipo_colpo in GameState.tipi.get(tipo_bersaglio, {}).get("ipersensibile_a", []):
+		return float(GameState.regole.get("tipo_moltiplicatore_ipersensibile", 1.5))
+	return 1.0
+
 static func bersaglio_obbligato(combattente: Dictionary) -> String:
 	# Provocato: "puoi attaccare solo il nemico che ti ha provocato". Torna
 	# l'id del provocatore, o stringa vuota se sei libero di scegliere
@@ -359,7 +405,7 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	#   critico  -> ha colto in pieno (danno x moltiplicatore, meta' difesa)
 	#   fattore  -> il disallineamento ha aggiunto il suo punto
 	#   schivato -> il livello del bersaglio ha annullato un colpo che passava
-	var esito := {"danno": 0, "critico": false, "fattore": false, "schivato": false}
+	var esito := {"danno": 0, "critico": false, "fattore": false, "schivato": false, "efficacia": 1.0}
 	var danno: int
 	if valore_attacco >= 0:
 		danno = valore_attacco  # mossa a valore fisso (es. faena, gran finale)
@@ -388,6 +434,16 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	var fiacca := quota_attacco_dagli_stati(attaccante)
 	if fiacca != 0.0:
 		danno = int(round(danno * (1.0 + fiacca)))
+	# L'EFFICACIA DEL TIPO agisce sul colpo pieno, prima della difesa: un colpo
+	# ipersensibile deve sentirsi anche contro chi para bene, e sarebbe la
+	# differenza fra "pesa di piu'" e "pesa di piu' quando il bersaglio e' nudo"
+	var efficacia := efficacia_tipo(attaccante, bersaglio)
+	esito.efficacia = efficacia
+	if efficacia != 1.0:
+		danno = int(round(danno * efficacia))
+		if danno <= 0:
+			esito.danno = 0
+			return esito   # immune: il colpo non arriva proprio
 	var danno_pieno := danno   # quanto valeva il colpo prima che qualcuno lo fermasse
 	if danno_pieno <= 0:
 		esito.danno = 0

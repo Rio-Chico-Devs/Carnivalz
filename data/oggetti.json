@@ -515,7 +515,8 @@
 					"testo": "[i]La lama di %s smette di essere una lama per un istante.[/i]",
 					"descrizione": "Il coltello fa da catalizzatore: quello che esce dall'altra parte non è acciaio."
 				}
-			]
+			],
+			"tipo_colpo": "Artificio"
 		},
 		{
 			"id": "mannaia_scheggiata",
@@ -545,7 +546,8 @@
 					"testo": "[i]%s apre un varco dove non ce n'era uno.[/i]",
 					"descrizione": "Costa aura, ma quello che apre resta aperto."
 				}
-			]
+			],
+			"tipo_colpo": "Artificio"
 		},
 		{
 			"id": "stigma_del_veglio",

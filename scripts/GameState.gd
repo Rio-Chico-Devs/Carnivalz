@@ -16,6 +16,7 @@ const PERCORSO_AUDIO := "res://data/audio.json"
 const PERCORSO_STUDIO := "res://data/studio.json"
 const PERCORSO_STATI := "res://data/stati.json"
 const PERCORSO_RUOLI := "res://data/ruoli.json"
+const PERCORSO_TIPI := "res://data/tipi.json"
 const PERCORSO_TECNOLOG := "res://data/tecnolog.json"
 const PERCORSO_ABILITA := "res://data/abilita.json"
 const PERCORSO_CRESCITA := "res://data/crescita.json"
@@ -62,6 +63,7 @@ var domande_studio_generiche: Array = []  # pool di domande per Studia sui nemic
 var stati: Dictionary = {}
                                           # id stato -> definizione generica (tipo, contagiosa, ...)
 var ruoli: Dictionary = {}   # data/ruoli.json: curva e ruoli da cui escono i numeri di una creatura
+var tipi: Dictionary = {}    # data/tipi.json: i cinque tipi e chi pesa su chi
 var tecnolog: Dictionary = {}      # data/tecnolog.json: la scheda di specie che lo Studio riempie
 var abilita: Dictionary = {}       # data/abilita.json: abilita', linee, punti, classi d'arma
 var nodi_abilita: Array[String] = []  # i nodi comprati coi punti (abilita' e potenziamenti)
@@ -226,6 +228,7 @@ func _ready() -> void:
 	carica_studio()
 	carica_stati()
 	carica_ruoli()
+	carica_tipi()
 	carica_tecnolog()
 	carica_abilita()
 	carica_crescita()
@@ -339,6 +342,10 @@ func carica_abilita() -> void:
 func carica_ruoli() -> void:
 	var dati: Variant = carica_json(PERCORSO_RUOLI)
 	ruoli = dati if dati is Dictionary else {}
+
+func carica_tipi() -> void:
+	var dati: Variant = carica_json(PERCORSO_TIPI)
+	tipi = dati.get("tipi", {}) if dati is Dictionary else {}
 
 func carica_tecnolog() -> void:
 	var dati: Variant = carica_json(PERCORSO_TECNOLOG)

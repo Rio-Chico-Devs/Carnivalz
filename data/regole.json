@@ -173,5 +173,6 @@
 		"apertura_secondi": 1.2,
 		"_battute_massime": "tetto di sicurezza dell'orologio virtuale: oltre, lo scontro si chiude e lo dice invece di girare a vuoto",
 		"battute_massime": 4000
-	}
+	},
+	"tipo_moltiplicatore_ipersensibile": 1.5
 }

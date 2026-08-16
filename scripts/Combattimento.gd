@@ -3323,6 +3323,15 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		RegoleCombattimento.riempi_dominio(attaccante, "per_critico")
 	if esito.fattore:
 		scrivi("Il dominio di %s arde!" % attaccante.nome)
+	# L'EFFICACIA VA DETTA, o il tipo resta una scritta sulla scheda. Un colpo
+	# che pesa il cinquanta per cento in piu' senza una riga che lo dica e' solo
+	# un numero piu' grande, e il giocatore non ha modo di capire che e' stata
+	# l'arma che ha in mano a farlo
+	var efficacia := float(esito.get("efficacia", 1.0))
+	if efficacia > 1.0:
+		scrivi("[i]È il colpo giusto: %s lo incassa male.[/i]" % bersaglio.nome)
+	elif efficacia <= 0.0:
+		scrivi("[i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]" % bersaglio.nome)
 	if danno <= 0:
 		# questo invece va detto: un colpo che non passa e' un'informazione,
 		# non un evento da guardare

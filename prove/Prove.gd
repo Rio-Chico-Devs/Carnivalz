@@ -66,6 +66,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
+	prova_i_cinque_tipi()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -2867,6 +2868,100 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	scontro._su_ko(nemico)
 	esigi(int(nemico.hp) <= 0, "e' rinato una seconda volta: lo scontro non finisce piu'")
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
+	scontro.free()
+
+func prova_i_cinque_tipi() -> void:
+	# Bru: "ora so definire anche i tipi: Natura, Artificio, Spirituale,
+	# Speciale, Tetro... l'asse che decide efficacia e resistenze, uno solo,
+	# non due. Tre valori soli: normale, ipersensibile, immune".
+	#
+	# ATTENZIONE A COSA MISURA QUESTA PROVA. Non la tabella - quella e' mia e
+	# Bru la cambiera' - ma il MECCANISMO: che il tipo dell'arma vinca su quello
+	# del personaggio, che l'eccezione scritta a mano vinca sulla tabella, che
+	# un immune incassi zero. Se misurasse "Artificio pesa su Natura",
+	# diventerebbe rossa il giorno in cui lui riscrive la tabella, ed e' proprio
+	# il giorno in cui deve restare verde.
+	titolo("i cinque tipi decidono quanto pesa un colpo")
+	esigi(GameState.tipi.size() == 5, "i tipi sono %d invece di cinque" % GameState.tipi.size())
+	for nome_tipo in ["Natura", "Artificio", "Spirituale", "Speciale", "Tetro"]:
+		esigi(GameState.tipi.has(nome_tipo), "manca il tipo '%s'" % nome_tipo)
+	# OGNI CREATURA DEL BESTIARIO ne ha uno, e uno dei cinque. Le persone no, ed
+	# e' voluto: Veronica, Yhvina e il protagonista non sono Natura ne' Tetro -
+	# il tipo del loro colpo lo da' l'arma che hanno in mano. Un tipo intrinseco
+	# addosso a loro vorrebbe dire che il protagonista e' forte contro qualcosa
+	# anche a mani nude, che e' l'opposto di un personaggio che si chiama Anonimo
+	for id_creatura in GameState.personaggi:
+		if not GameState.e_da_bestiario(String(id_creatura)):
+			continue
+		var suo := String(GameState.personaggi[id_creatura].get("tipo", ""))
+		esigi(GameState.tipi.has(suo), "%s ha tipo '%s', che non e' uno dei cinque" % [id_creatura, suo])
+
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for c in scontro.combattenti:
+		if c.giocatore and eroe.is_empty():
+			eroe = c
+		elif not c.giocatore and nemico.is_empty():
+			nemico = c
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+
+	# un colpo senza tipo passa liscio: e' com'e' sempre stato, e non deve cambiare
+	var senza_tipo := {"id": "nessuno_in_particolare", "giocatore": false}
+	esigi(is_equal_approx(RegoleCombattimento.efficacia_tipo(senza_tipo, nemico), 1.0),
+			"un attaccante senza tipo non fa piu' danno normale")
+
+	# LA TABELLA. Si costruisce qui una coppia apposta invece di fidarsi di due
+	# creature vere: cosi' la prova misura il meccanismo e non chi ha scritto
+	# cosa nei dati
+	var vecchio_tipo := String(GameState.personaggi["goblin_tipico"].get("tipo", ""))
+	GameState.tipi["Natura"]["ipersensibile_a"] = ["Artificio"]
+	GameState.personaggi["goblin_tipico"]["tipo"] = "Natura"
+	var attaccante_artificio := {"id": "robo_pattuglia", "giocatore": false}
+	esigi(RegoleCombattimento.efficacia_tipo(attaccante_artificio, nemico) > 1.0,
+			"la tabella non conta niente: Artificio su Natura pesa uguale al normale")
+
+	# L'ECCEZIONE SCRITTA A MANO VINCE SULLA TABELLA, in tutte e due i versi
+	GameState.personaggi["goblin_tipico"]["immune_a"] = ["Artificio"]
+	esigi(is_equal_approx(RegoleCombattimento.efficacia_tipo(attaccante_artificio, nemico), 0.0),
+			"immune_a non ferma il colpo: la tabella vince sull'eccezione")
+	GameState.personaggi["goblin_tipico"].erase("immune_a")
+	GameState.personaggi["goblin_tipico"]["sensibile"] = ["Tetro"]
+	var attaccante_tetro := {"id": "ghoul", "giocatore": false}
+	esigi(RegoleCombattimento.efficacia_tipo(attaccante_tetro, nemico) > 1.0,
+			"sensibile scritto a mano non conta: l'eccezione non arriva")
+	GameState.personaggi["goblin_tipico"].erase("sensibile")
+
+	# e in campo il danno cambia davvero, non solo il numero che torna la funzione
+	scontro.in_corso = true
+	nemico.hp_max = 100000
+	nemico.hp = 100000
+	GameState.personaggi["goblin_tipico"].erase("immune_a")
+	var colpo_normale := RegoleCombattimento.calcola_danno(
+			{"id": "ghoul", "giocatore": false, "attacco": 100, "buffs": [], "stati_attivi": {},
+			"fattore": 0, "stress": 0, "psiche": "", "stati": []}, nemico, 100, 1.0, 0)
+	GameState.personaggi["goblin_tipico"]["sensibile"] = ["Tetro"]
+	var colpo_giusto := RegoleCombattimento.calcola_danno(
+			{"id": "ghoul", "giocatore": false, "attacco": 100, "buffs": [], "stati_attivi": {},
+			"fattore": 0, "stress": 0, "psiche": "", "stati": []}, nemico, 100, 1.0, 0)
+	esigi(int(colpo_giusto.danno) > int(colpo_normale.danno),
+			"il colpo giusto fa %d, quello normale %d: l'efficacia non arriva al danno"
+			% [int(colpo_giusto.danno), int(colpo_normale.danno)])
+	GameState.personaggi["goblin_tipico"].erase("sensibile")
+	GameState.personaggi["goblin_tipico"]["tipo"] = vecchio_tipo
+
+	# L'ARMA VINCE SUL PERSONAGGIO. E' il protagonista Anonimo: non ha un tipo
+	# suo, ce l'ha quello che impugna
+	GameState.sacca.append("coltello_di_servizio")
+	GameState.equipaggia(String(eroe.id), "arma", "coltello_di_servizio")
+	esigi(RegoleCombattimento.tipo_di(eroe) == "Artificio",
+			"con un coltello in mano il tipo del colpo e' '%s' invece di quello dell'arma"
+			% RegoleCombattimento.tipo_di(eroe))
 	scontro.free()
 
 func prova_gli_otto_status() -> void:
