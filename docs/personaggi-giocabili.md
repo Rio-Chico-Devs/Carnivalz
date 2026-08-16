@@ -35,10 +35,18 @@ nodo». Le fasce della costellazione:
 
 ## Domande aperte, da rispondere qui
 
-**A. Quante voci nel menu di combattimento?** Oggi verrebbero ~7: il kit (3-4) più una voce per
-ogni linea (3), perché di una linea si vede solo il grado più alto. Va bene, oppure vuoi che il
-giocatore **scelga quali portarsi** come i nemici con le sei caselle?
-`>>` risposta:
+**A. Quante voci nel menu di combattimento?** ✅ **DECISO.** Nessuna selezione: **ogni mossa
+imparata è sempre disponibile**, nella versione potenziata più alta che hai comprato. Non hai
+Annichilazione I *e* II: hai la II, e basta.
+
+Quindi il menu di un personaggio è sempre **kit (3-4) + una voce per linea (3) ≈ sette voci**, dal
+primo all'ultimo livello. Quello che cresce non è la lunghezza dell'elenco, è la forza di quello
+che c'è dentro.
+
+> **Conseguenza da tenere a mente quando riempiamo l'albero:** se il menu non si allunga mai, la
+> sensazione di «ho qualcosa di nuovo» non può venire dalle mosse — diventano più forti, non più
+> numerose. Deve venire **dalle 24 passive**, che cambiano come giochi senza aggiungere voci da
+> leggere. È una buona divisione: il menu resta corto e leggibile, la varietà sta altrove.
 
 **B. Il colpo da barra piena.** Ognuno ha il suo: la Mattanza è del protagonista, gli altri due
 hanno il loro. Come si chiamano e cosa fanno?
