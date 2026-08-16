@@ -282,7 +282,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Travolgere | colpisce **tutta la squadra** | ×0.55 → 4 | sempre | sorteggio | — |
-| 2 | Spore | nessun danno: lascia addosso **Veleno** | — | sempre | sorteggio | 3 battute |
+| 2 | Spore | nessun danno: lascia addosso **Tossina** | — | sempre | sorteggio | 3 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
@@ -790,7 +790,7 @@ Dalla seconda volta muore come chiunque. È lì che lo scontro cambia faccia.
 | 1 | Valanga di rottami | colpisce **tutta la squadra** | ×0.85 → 12 | sempre | sorteggio | — |
 | 2 | Metallo pesante | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
 | 3 | Bis di rottami | **si rimette in piedi** (+60% della vita massima) | — | sotto il 30% di vita | priorità 7 | 4 battute |
-| 4 | Assolo metallico | nessun danno: lascia addosso **Confusione** e **Berserk** | — | sempre | sorteggio | 4 battute |
+| 4 | Assolo metallico | nessun danno: lascia addosso **Frastornato** e **Rabbia** | — | sempre | sorteggio | 4 battute |
 | 5 | Protocollo di estinzione | annuncia, e dopo **5 sue battute** diventa `golem_errante` | — | sotto il 50% di vita | priorità 6 | — |
 | 6 | Ritmo errante | si potenzia (velocita +2, per 3 battute) | — | sempre | sorteggio | 3 battute |
 
@@ -1067,7 +1067,7 @@ si esce in un altro modo.
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Forconata | 2 colpi su bersagli a caso | ×0.70 → 18 a colpo (36 totali) | sempre | sorteggio | — |
-| 2 | Sberleffo | nessun danno: lascia addosso **Confusione** | — | sempre | sorteggio | 5 battute |
+| 2 | Sberleffo | nessun danno: lascia addosso **Frastornato** | — | sempre | sorteggio | 5 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
@@ -1143,7 +1143,7 @@ si esce in un altro modo.
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Colpa altrui | un colpo pesante su uno solo | ×1.45 → 38 | sempre | sorteggio | — |
-| 2 | Marchio | nessun danno: lascia addosso **Veleno** | — | sempre | sorteggio | 4 battute |
+| 2 | Marchio | nessun danno: lascia addosso **Tossina** | — | sempre | sorteggio | 4 battute |
 | 3 | — | *casella libera* | — | — | — | — |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |

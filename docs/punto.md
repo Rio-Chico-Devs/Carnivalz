@@ -13,9 +13,11 @@
 | --- | --- | --- | --- |
 | **`punto.md`** | 📝 | Questo. L'indice e lo stato di tutto | ✅ aggiornato |
 | **`manuale.md`** | 📝 | Tipi · status · armi · crescita. **Il documento madre**: le decisioni di fondo stanno qui | ✅ tue risposte applicate |
-| **`personaggi-giocabili.md`** | 📝 | Protagonista, Veronica, Yhvina: 54 mosse con livello e costo, più le versioni scriptate | ⚠️ 4 buchi, sotto |
+| **`personaggi-giocabili.md`** | 📝 | Protagonista, Veronica, Yhvina: 54 mosse con livello e costo, più le versioni scriptate | ✅ ora sono anche nei dati |
 | **`mediazione.md`** | 📝 | I 39 nemici, con la colonna «a che condizioni ascolta» da riempire | ⚠️ 38 righe vuote |
 | **`storia.md`** | 📝 | La trama, i Vuoti, l'Organizzazione | 🕓 fermo a prima dell'hype |
+| **`tipi.json`** *(dati)* | 📝 | La tabella di chi pesa su chi. **È mia: correggila** | ⚠️ da rivedere |
+| **`stati.json`** *(dati)* | 📝 | Gli 8 status coi numeri. Ogni voce ha un campo `_bru` con la tua frase | ⚠️ numeri miei |
 | **`testi_da_correggere.md`** | 📝 | Ogni riga di dialogo del gioco, in un posto solo | 🕓 grande, mai riletto tutto |
 | **`nemici.md`** | ⚙️ | Il bestiario coi numeri veri: mosse, quote, danni. `./strumenti/nemici.sh` | ✅ rigenerato oggi |
 | **`bilanciamento.md`** | ⚙️ | 187.200 partite simulate: chi vince a che livello. `./prove/simula.sh` | 🕓 da rilanciare |
@@ -58,6 +60,10 @@ artwork, badge, titoli, dedizione.
 | Cosa | Dove sta |
 | --- | --- |
 | **Battute** — ricarica indipendente, niente turni | `Combattimento.gd` |
+| **L'hype** — due contatori, livello = nodi comprati, mondo sulla media | `GameState.aggiungi_hype` |
+| **Gli 8 status** — Terrore, Fiamme, Tossina, Sonno, Maledizione, Rabbia, Provocato, Frastornato | `data/stati.json` |
+| **I 5 tipi** — con tabella delle efficacie ed eccezioni per creatura | `data/tipi.json` |
+| **Veronica e Yhvina** — due classi, 36 mosse dichiarate ed eseguibili | `data/classes.json` |
 | **Menu a cinque voci** + Aiutante e Mediazione condizionali | `combattimento/Menu.gd` |
 | **Difendi cumulativa** fino a fine scontro, tetto 6 scatti | `Regole.alza_guardia` |
 | **Mediazione** — natura, voglia, studio | `Combattimento.media()` |
@@ -70,7 +76,7 @@ artwork, badge, titoli, dedizione.
 | **Armi con attacchi propri**, sotto Abilità | `GameState.attacchi_arma` |
 | **Salvataggio a 5 slot** + autosalvataggio | `GameState` |
 
-**Come si controlla che sia vero:** `./prove/esegui.sh` — **68 prove, 25.575 verifiche**, gira in
+**Come si controlla che sia vero:** `./prove/esegui.sh` — **72 prove, 26.227 verifiche**, gira in
 circa quattro minuti. Ogni prova nuova la valido rompendo apposta la meccanica che misura: se non
 diventa rossa, la prova non serve a niente e la riscrivo.
 
@@ -124,15 +130,20 @@ quando le armi e l'hype sono al loro posto — non prima.
 
 In ordine di quanto blocca il lavoro. I primi tre sono quelli senza cui non posso andare avanti.
 
-| | Cosa | Dove scriverlo |
+**Non ti aspetto più per andare avanti: ho messo numeri miei ovunque servisse.** Quello che segue
+è roba da *correggere*, non da sbloccare — tranne le prime due, che non posso inventare io.
+
+| | Cosa | Dove |
 | --: | --- | --- |
-| 1 | **Statistiche di partenza di Veronica e Yhvina** — senza non le posso montare né misurare | `personaggi-giocabili.md` |
-| 2 | **Cosa evoca Yhvina** — è la sua identità, e decide cosa va disegnato | `personaggi-giocabili.md` |
-| 3 | **Il disegno della costellazione** — 80 punti magenta `#FF00FF`. Il lettore è pronto | mandamelo e basta |
-| 4 | **Le condizioni di mediazione** dei 39 nemici, o anche solo dei comuni | `mediazione.md` |
-| 5 | **Un grado II** per ognuna delle tre linee del protagonista: gli altri quindici li propongo in scala | `personaggi-giocabili.md` |
-| 6 | **I numeri degli status** — quanti turni, quanto indebolisce, quanto fa male nel tempo | `manuale.md` |
-| 7 | **Le mosse delle versioni scriptate** (Yhvina della Casa Gigante, Veronica del tutorial) e dell'aiutante di Jondoh | `personaggi-giocabili.md` |
+| 1 | **Cosa evoca Yhvina** — non posso inventarla: è la sua identità e decide cosa va disegnato. Il Richiamo funziona ma chiama il vuoto | `personaggi-giocabili.md` |
+| 2 | **Il disegno della costellazione** — 80 punti magenta `#FF00FF`. Il lettore è pronto e provato | mandamelo e basta |
+| 3 | **La tabella dei tipi** — chi pesa su chi. L'ho scritta io con una ragione per riga | `data/tipi.json` |
+| 4 | **I numeri degli status** — durate, quote, probabilità. Tutti miei | `data/stati.json` |
+| 5 | **Le statistiche di Veronica** (♥160·5·4·2) **e Yhvina** (♥130·7·1·5) — proposte mie | `data/classes.json` |
+| 6 | **Il ritmo dell'hype** — ×100 per scontro, 1000 per punto | `data/regole.json` |
+| 7 | **Le condizioni di mediazione** dei 39 nemici | `mediazione.md` |
+| 8 | **Un grado II** per ognuna delle tre linee del protagonista: gli altri quindici li propongo in scala | `personaggi-giocabili.md` |
+| 9 | **Le mosse delle versioni scriptate** e dell'aiutante di Jondoh | `personaggi-giocabili.md` |
 
 ---
 
@@ -152,10 +163,10 @@ Tre comandi, e non serve sapere niente di programmazione per leggerne l'esito.
 
 | | |
 | --- | --: |
-| Righe di codice (GDScript) | 17.745 |
-| File di dati | 22 + 8 zone |
+| Righe di codice (GDScript) | 18.731 |
+| File di dati | 23 + 8 zone |
 | Creature | 39 |
-| Prove | 68, per 25.575 verifiche |
+| Prove | 72, per 26.227 verifiche |
 | Tipi di mossa che il motore esegue | 20 |
 | Livello massimo | 130 |
 | Nodi della costellazione | 80 disegnati, 60 comprabili |
