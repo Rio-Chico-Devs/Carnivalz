@@ -49,9 +49,8 @@ che c'è dentro.
 > leggere. È una buona divisione: il menu resta corto e leggibile, la varietà sta altrove.
 
 **B. Il colpo da barra piena.** Ognuno ha il suo: la Mattanza è del protagonista, gli altri due
-hanno il loro. Come si chiamano e cosa fanno?
-`>>` Veronica: `???`
-`>>` Yhvina: `???`
+hanno il loro. Le mie proposte sono nelle loro schede — **Rissa** per Veronica, **Processione** per
+Yhvina. Sono mie, non tue: riscrivile sopra se non ti suonano.
 
 **C. Le statistiche di partenza** di Veronica e Yhvina (livello 0, prima di comprare qualunque
 nodo). Le mie proposte sono nelle loro schede: correggile.
@@ -129,52 +128,50 @@ nodo). Le mie proposte sono nelle loro schede: correggile.
 > **Proposta:** ♥160 · attacco 5 · difesa 4 · velocità 2. Deve essere **più lenta del
 > protagonista** e reggere i colpi al posto suo. Correggi.
 
-## Kit di partenza
+## Kit di partenza — le sa sempre
 
 | Mossa | Aura | Cosa fa |
 | --- | --: | --- |
-| `???` | | |
-| `???` | | |
-| `???` | | |
+| **Guardia** | 0 | Uno scatto di guardia per questa battuta. Non è un colpo saltato: para e basta |
+| **Spallata** | 3 | Colpo leggero che lascia **Frastornato** |
+| **Incassa** | 0 | Costa una barra di dominio. Il prossimo colpo che prende **glielo restituisce** |
 
-**Colpo da barra piena:** `???`
+**Colpo da barra piena: Rissa.** Svuota tutta la barra: finché si svuota **tutti i nemici possono
+attaccare solo lei**, e ogni colpo che incassa si accumula. Quando la barra è vuota, lo ridà tutto
+insieme a chi l'ha colpita di più.
 
-## Linea A — `???`
-
-| Grado | Nome | Livello | Aura | Cosa fa |
-| --: | --- | --: | --: | --- |
-| I | `???` | | | |
-| II | `???` | | | |
-| III | `???` | | | |
-| IV | `???` | | | |
-| V | `???` | | | |
-| VI | `???` | | | |
-
-## Linea B — `???`
+## Linea A — **Richiamo** *(costringerli a guardare lei)*
 
 | Grado | Nome | Livello | Aura | Cosa fa |
 | --: | --- | --: | --: | --- |
-| I | `???` | | | |
-| II | `???` | | | |
-| III | `???` | | | |
-| IV | `???` | | | |
-| V | `???` | | | |
-| VI | `???` | | | |
+| I | **Provocazione** | 8 | 3 | Un nemico può attaccare **solo lei**, per 3 battute |
+| II | **Sfida aperta** | 21 | 4 | **Tutti** i nemici, per 3 battute |
+| III | **Non ti azzardare** | 33 | 5 | Come sopra, e chi la colpisce **perde la battuta successiva** |
+| IV | **Bersaglio grosso** | 42 | 5 | Mentre provoca, ogni colpo incassato le **alza la guardia di uno scatto** |
+| V | **Sono qui** | 50 | 6 | Provoca **e** cura la squadra del 20% |
+| VI | **Nessuno tocca i miei** | 56 | 8 | Per 3 battute **tutti i colpi alla squadra arrivano a lei**, dimezzati |
 
-## Linea C — `???`
+## Linea B — **Carica** *(il colpo che si prepara)*
 
 | Grado | Nome | Livello | Aura | Cosa fa |
 | --: | --- | --: | --: | --- |
-| I | `???` | | | |
-| II | `???` | | | |
-| III | `???` | | | |
-| IV | `???` | | | |
-| V | `???` | | | |
-| VI | `???` | | | |
+| I | **Colpo caricato** | 12 | 4 | Salta la battuta, la prossima vale **×2** |
+| II | **Slancio** | 26 | 4 | **×2,5** e **spezza la guardia** |
+| III | **Peso morto** | 36 | 5 | **×3**, e lascia **Frastornato** |
+| IV | **Tutto il peso** | 45 | 6 | **×3,5**. Se ha caricato **due** battute, **×5** |
+| V | **Uno solo, buono** | 52 | 7 | **×4**, e ignora la difesa |
+| VI | **Quello che sa fare** | 60 | 9 | **×6** su uno solo, una volta per scontro |
 
-> Se vuoi una traccia da correggere invece del foglio bianco, le tre linee che avevo proposto
-> erano: **Richiamo** (provocare), **Carica** (il colpo che si prepara), **Baluardo** (reggere per
-> gli altri). Dimmi e le riempio io e tu correggi.
+## Linea C — **Baluardo** *(reggere per gli altri)*
+
+| Grado | Nome | Livello | Aura | Cosa fa |
+| --: | --- | --: | --: | --- |
+| I | **Piantati** | 16 | 0 | Uno scatto di guardia, e **resta** fino a fine scontro |
+| II | **Copertura** | 30 | 3 | Un compagno prende **metà danno** per 3 battute: l'altra metà la prende lei |
+| III | **Muro** | 39 | 4 | **Due** scatti di guardia in una battuta |
+| IV | **Non passa niente** | 47 | 6 | Per 2 battute è **intoccabile** |
+| V | **Rialzati** | 54 | 7 | Rimette in piedi un compagno caduto al 30% |
+| VI | **Finché respiro** | 58 | 8 | Quando cadrebbe **resta a 1 punto vita**. Una volta per scontro |
 
 ---
 
@@ -199,51 +196,49 @@ attacker.
 `>>` **Cosa evoca?** Creature del bestiario che incontri anche come nemici, o cose sue che
 esistono solo come sue evocazioni? La seconda è più forte per il personaggio ma va disegnata. `???`
 
-## Kit di partenza
+## Kit di partenza — le sa sempre
 
 | Mossa | Aura | Cosa fa |
 | --- | --: | --- |
-| `???` | | |
-| `???` | | |
-| `???` | | |
+| **Sigillo** | 2 | Un talismano che colpisce: danno normale, ma **non manca mai** |
+| **Carta bianca** | 3 | Toglie uno stato a un compagno |
+| **Presenza** | 0 | Costa una barra di dominio. Un evocato arriva **subito**, per una battuta sola |
 
-**Colpo da barra piena:** `???`
+**Colpo da barra piena: Processione.** Svuota tutta la barra: tutto quello che ha evocato in questo
+scontro — anche chi è già caduto — **torna insieme e colpisce una volta sola**.
 
-## Linea A — `???`
-
-| Grado | Nome | Livello | Aura | Cosa fa |
-| --: | --- | --: | --: | --- |
-| I | `???` | | | |
-| II | `???` | | | |
-| III | `???` | | | |
-| IV | `???` | | | |
-| V | `???` | | | |
-| VI | `???` | | | |
-
-## Linea B — `???`
+## Linea A — **Lama** *(il bersaglio singolo)*
 
 | Grado | Nome | Livello | Aura | Cosa fa |
 | --: | --- | --: | --: | --- |
-| I | `???` | | | |
-| II | `???` | | | |
-| III | `???` | | | |
-| IV | `???` | | | |
-| V | `???` | | | |
-| VI | `???` | | | |
+| I | **Taglio corto** | 8 | 2 | Colpo singolo **×1,2**, costa poco |
+| II | **Doppio taglio** | 21 | 3 | **Due** colpi da ×0,8 |
+| III | **Sigillo affilato** | 33 | 4 | **×1,8**, e pesa di più sui **Tetri** |
+| IV | **Lama che non torna** | 42 | 5 | **×2,2**, ma le costa il 10% della vita |
+| V | **Recisione** | 50 | 6 | **×2,6**, e sotto il 30% **lo finisce** |
+| VI | **Ultimo foglio** | 56 | 8 | **×3,5** su uno solo, una volta per scontro |
 
-## Linea C — `???`
+## Linea B — **Richiamo** *(quello che chiama)*
 
 | Grado | Nome | Livello | Aura | Cosa fa |
 | --: | --- | --: | --: | --- |
-| I | `???` | | | |
-| II | `???` | | | |
-| III | `???` | | | |
-| IV | `???` | | | |
-| V | `???` | | | |
-| VI | `???` | | | |
+| I | **Piccolo richiamo** | 12 | 4 | Evoca **1** creatura al suo fianco |
+| II | **Non sei sola** | 26 | 4 | L'evocato dura di più e **para un colpo** per lei |
+| III | **Coro** | 36 | 5 | Evoca **2** |
+| IV | **Legame** | 45 | 5 | Gli evocati **prendono i suoi potenziamenti** |
+| V | **Non li lascio** | 52 | 7 | Quando un evocato cade **ne arriva un altro**, una volta |
+| VI | **Tutti quanti** | 60 | 9 | Riempie il campo e per 3 battute **colpiscono insieme a lei** |
 
-> Traccia che avevo proposto: **Lama** (bersaglio singolo), **Richiamo** (le evocazioni),
-> **Veglia** (chi non dorme mai — parte dall'immunità al Sonno). Dimmi e la riempio.
+## Linea C — **Veglia** *(chi non dorme mai)*
+
+| Grado | Nome | Livello | Aura | Cosa fa |
+| --: | --- | --: | --: | --- |
+| I | **Veglia** | 16 | 0 | Passiva: **immune al Sonno** |
+| II | **Occhi aperti** | 30 | 0 | Immune anche a **Frastornato** |
+| III | **Non chiudo occhio** | 39 | 3 | La prima volta che cadrebbe in uno stato, **lo respinge** |
+| IV | **Turno di guardia** | 47 | 0 | Ogni battuta senza essere colpita **recupera aura** |
+| V | **Insonnia** | 54 | 5 | Più dura lo scontro **più il suo attacco sale**. Non si ferma |
+| VI | **Quello che vede di notte** | 58 | 8 | Vede la mossa in arrivo, **e la squadra agisce prima** |
 
 ---
 
@@ -290,11 +285,15 @@ Non è un membro della squadra: fa comparire una voce **Aiutante** nel menu con 
 
 ## Cosa mi serve, in ordine di quanto blocca
 
+Le sei linee di Veronica e Yhvina — 36 mosse, kit e colpo da barra piena compresi — **le ho scritte
+io**. Non sono una domanda: sono una proposta da correggere. Cancella, riscrivi sopra, sposta i
+livelli. Quello che resta davvero aperto è poco:
+
 1. **Le statistiche di partenza** di Veronica e Yhvina — senza quelle non le posso montare né misurare.
-2. **Cosa evoca Yhvina** — è la sua identità, e decide cosa va disegnato.
-3. **I nomi delle tre linee** di ognuna, anche solo i nomi: il resto lo propongo io in scala.
-4. **Un grado II** per ognuna delle tre linee del protagonista.
-5. Le risposte alle domande **A**, **B**, **C** in cima.
+2. **Cosa evoca Yhvina** — è la sua identità, e decide cosa va disegnato. Metà della sua linea B
+   non la posso scrivere nei dati finché non lo so.
+3. **Un grado II** per ognuna delle tre linee del protagonista: gli altri quindici li propongo in scala.
+4. **Le mosse delle due versioni scriptate** e dell'aiutante, più in basso.
 
 ---
 
