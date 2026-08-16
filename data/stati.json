@@ -9,8 +9,8 @@
 			"durata": 3,
 			"blocca_critico": true,
 			"quota_attacco": -0.2,
-			"testo_applicazione": "è paralizzato dal terrore: la mano non è più ferma.",
-			"testo_fine": "si scrolla di dosso il terrore."
+			"testo_applicazione": "%s è paralizzato dal terrore: la mano non è più ferma.",
+			"testo_fine": "%s si scrolla di dosso il terrore."
 		},
 		"fiamme": {
 			"nome": "Fiamme",
@@ -21,8 +21,8 @@
 			"durata_massima": 5,
 			"quota_vita_massima": 0.08,
 			"elemento": "fuoco",
-			"testo_applicazione": "prende fuoco.",
-			"testo_turno": "Il fuoco non si stacca: continua a bruciare.",
+			"testo_applicazione": "%s prende fuoco.",
+			"testo_turno": "Il fuoco addosso a %s non si stacca: continua a bruciare.",
 			"testo_fine": "Le fiamme si spengono."
 		},
 		"tossina": {
@@ -34,8 +34,8 @@
 			"quota_vita_massima": 0.03,
 			"quota_attacco": -0.15,
 			"elemento": "veleno",
-			"testo_applicazione": "viene intossicato.",
-			"testo_turno": "La tossina lavora piano, e non smette.",
+			"testo_applicazione": "%s viene intossicato.",
+			"testo_turno": "La tossina lavora piano dentro %s, e non smette.",
 			"testo_fine": "La tossina si esaurisce."
 		},
 		"sonno": {
@@ -46,9 +46,9 @@
 			"durata_massima": 3,
 			"risveglio_base": 0.25,
 			"risveglio_per_colpo": 0.3,
-			"testo_applicazione": "cade addormentato.",
-			"testo_turno": "dorme e non si accorge di niente.",
-			"testo_fine": "si sveglia di soprassalto."
+			"testo_applicazione": "%s cade addormentato.",
+			"testo_turno": "%s dorme e non si accorge di niente.",
+			"testo_fine": "%s si sveglia di soprassalto."
 		},
 		"maledizione": {
 			"nome": "Maledizione",
@@ -58,7 +58,7 @@
 			"riserva_iniziale": 10,
 			"ko_non_rianimabile": true,
 			"elemento": "oscuro",
-			"testo_applicazione": "viene maledetto: qualcosa comincia a contare.",
+			"testo_applicazione": "%s viene maledetto: qualcosa comincia a contare.",
 			"testo_consumo": "La maledizione morde ancora.",
 			"testo_fine": "La maledizione si scioglie."
 		},
@@ -69,8 +69,8 @@
 			"_bru": "attacchi soltanto, non puoi usare mosse. Due o tre turni",
 			"durata_minima": 2,
 			"durata_massima": 3,
-			"testo_applicazione": "perde il controllo: può solo attaccare.",
-			"testo_fine": "ritrova la testa."
+			"testo_applicazione": "%s perde il controllo: può solo attaccare.",
+			"testo_fine": "%s ritrova la testa."
 		},
 		"provocato": {
 			"nome": "Provocato",
@@ -78,8 +78,8 @@
 			"tipo": "provocato",
 			"_bru": "puoi attaccare solo il nemico che ti ha provocato. Tre turni. Toglilo dal personaggio principale: sara' una mossa speciale di determinati personaggi",
 			"durata": 3,
-			"testo_applicazione": "non riesce a guardare nessun altro.",
-			"testo_fine": "torna a vedere il resto del campo."
+			"testo_applicazione": "%s non riesce a guardare nessun altro.",
+			"testo_fine": "%s torna a vedere il resto del campo."
 		},
 		"frastornato": {
 			"nome": "Frastornato",
@@ -88,8 +88,8 @@
 			"_bru": "puoi solo attaccare, e i bersagli sono casuali. Da uno a quattro turni",
 			"durata_minima": 1,
 			"durata_massima": 4,
-			"testo_applicazione": "è frastornato: colpisce senza vedere chi.",
-			"testo_fine": "rimette a fuoco."
+			"testo_applicazione": "%s è frastornato: colpisce senza vedere chi.",
+			"testo_fine": "%s rimette a fuoco."
 		},
 		"rapidita": {
 			"nome": "Rapidità",
@@ -105,5 +105,6 @@
 			"_nota": "non e' uno degli otto: e' un modificatore di velocita', e serve alle armi",
 			"valore": -2
 		}
-	}
+	},
+	"_nota_testi": "DOVE VA IL NOME LO DICI TU, con un %s dentro la frase. \"%s prende fuoco.\" esce \"Marco prende fuoco.\"; \"Le fiamme si spengono.\" esce esattamente cosi', senza nessun nome davanti. Una frase puo' avere UN solo %s. E' la stessa convenzione delle abilita' in abilita.json. Prima non era cosi' e non si poteva sapere: la stessa chiave testo_fine usciva col nome per il Sonno e senza per le Fiamme."
 }

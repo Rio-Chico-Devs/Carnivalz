@@ -3246,6 +3246,25 @@ func applica_combustione(combattente: Dictionary) -> void:
 # "immune" annulla lo stato, "ipersensibile" lo amplifica, "invertito" (solo
 # per stress) ne capovolge l'effetto. Assente = "normale".
 
+func frase_di_stato(chi: Dictionary, testo: String) -> String:
+	# DOVE VA IL NOME LO DICE IL TESTO, con un %s. Senza %s la frase esce
+	# esattamente come e' scritta.
+	#
+	# Prima non era cosi', e non era nemmeno sbagliato in un modo solo: la
+	# stessa chiave "testo_fine" veniva stampata col nome davanti per il Sonno,
+	# senza nome per le Fiamme, e "testo_turno" usciva "Nome: frase" per un dot
+	# e "Nome frase" per il Sonno. Tre significati per la stessa chiave, e
+	# leggendo stati.json non c'era modo di sapere quale ti sarebbe toccato:
+	# scrivevi "Le fiamme si spengono" e ti ritrovavi "Marco Le fiamme si
+	# spengono".
+	#
+	# E' la stessa convenzione che le abilita' usano da sempre in abilita.json,
+	# quindi non e' una regola nuova da imparare: e' quella che c'era gia',
+	# applicata anche qui.
+	if testo.count("%s") == 0:
+		return testo
+	return testo % String(chi.get("nome", ""))
+
 func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void:
 	var resistenza := RegoleCombattimento.resistenza_di(bersaglio, id_stato)
 	if resistenza == "immune":
@@ -3290,9 +3309,11 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 						+ int(bersaglio.get("resistenza_maledizione", 0))
 				attivo = {"riserva": iniziale, "iniziale": iniziale}
 				bersaglio.stati_attivi[id_stato] = attivo
-				scrivi_forte("%s %s" % [bersaglio.nome, String(info_stato.get("testo_applicazione", "viene maledetto."))])
+				scrivi_forte(frase_di_stato(bersaglio,
+						String(info_stato.get("testo_applicazione", "%s viene maledetto."))))
 			attivo.riserva = maxi(int(attivo.riserva) - punti, 0)
-			scrivi("[i]%s (%d/%d)[/i]" % [String(info_stato.get("testo_consumo", "La maledizione morde.")),
+			scrivi("[i]%s (%d/%d)[/i]" % [frase_di_stato(bersaglio,
+					String(info_stato.get("testo_consumo", "La maledizione morde."))),
 					int(attivo.riserva), int(attivo.iniziale)])
 			if int(attivo.riserva) <= 0:
 				scrivi_forte("La maledizione si compie: %s non resiste oltre." % bersaglio.nome)
@@ -3313,7 +3334,8 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			bersaglio.stati_attivi[id_stato] = {
 				"turni_rimasti": int(info_stato.get("durata_massima", 3)) + (1 if amplificato else 0),
 				"colpi_nel_sonno": 0}
-			scrivi("[i]%s %s[/i]" % [bersaglio.nome, info_stato.get("testo_applicazione", "cade addormentato.")])
+			scrivi("[i]%s[/i]" % frase_di_stato(bersaglio,
+					String(info_stato.get("testo_applicazione", "%s cade addormentato."))))
 		"forza_attacco", "frastornato", "provocato":
 			var durata := durata_dichiarata(info_stato)
 			if amplificato:
@@ -3323,7 +3345,8 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 				# chi ti ha provocato: senza questo "solo lui" non vuol dire niente
 				stato_nuovo["provocatore"] = String(bersaglio.get("id_provocatore", ""))
 			bersaglio.stati_attivi[id_stato] = stato_nuovo
-			scrivi("[i]%s %s[/i]" % [bersaglio.nome, info_stato.get("testo_applicazione", "subisce uno stato.")])
+			scrivi("[i]%s[/i]" % frase_di_stato(bersaglio,
+					String(info_stato.get("testo_applicazione", "%s subisce uno stato."))))
 		"dot":
 			# FIAMME E TOSSINA SONO LO STESSO MECCANISMO CON DUE TARATURE, non due
 			# meccanismi. Il danno e' una quota della vita massima e non un numero
@@ -3337,7 +3360,8 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 			bersaglio.stati_attivi[id_stato] = {
 				"danno": danno_turno,
 				"turni_rimasti": durata_dichiarata(info_stato)}
-			scrivi("[i]%s %s[/i]" % [bersaglio.nome, info_stato.get("testo_applicazione", "subisce uno stato.")])
+			scrivi("[i]%s[/i]" % frase_di_stato(bersaglio,
+					String(info_stato.get("testo_applicazione", "%s subisce uno stato."))))
 		"velocita":
 			bersaglio.stati_attivi[id_stato] = {"valore": int(info_stato.get("valore", 0))}
 		"terrore":
@@ -3355,7 +3379,8 @@ func applica_stato(bersaglio: Dictionary, id_stato: String, valore := 1) -> void
 				decremento_legame *= 2
 			aggiungi_stress(bersaglio, incremento_stress)
 			GameState.modifica_legame(decremento_legame)
-			scrivi_forte("%s %s" % [bersaglio.nome, String(info_stato.get("testo_applicazione", "è paralizzato dal terrore."))])
+			scrivi_forte(frase_di_stato(bersaglio,
+					String(info_stato.get("testo_applicazione", "%s è paralizzato dal terrore."))))
 	aggiorna_scheda(bersaglio)
 
 func bersagli_ammessi(chi: Dictionary, candidati: Array[Dictionary]) -> Array[Dictionary]:
@@ -3402,25 +3427,28 @@ func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 						+ int(attivo.get("colpi_nel_sonno", 0)) * float(info_stato.get("risveglio_per_colpo", 0.30))
 				if GameState.rng.randf() < soglia:
 					combattente.stati_attivi.erase(id_stato)
-					scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato.get("testo_fine", "si sveglia."))])
+					scrivi("[i]%s[/i]" % frase_di_stato(combattente,
+							String(info_stato.get("testo_fine", "%s si sveglia."))))
 					continue
-				scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato.get("testo_turno", "dorme."))])
+				scrivi("[i]%s[/i]" % frase_di_stato(combattente,
+						String(info_stato.get("testo_turno", "%s dorme."))))
 				salta = true
 				attivo.turni_rimasti = int(attivo.turni_rimasti) - 1
 				if int(attivo.turni_rimasti) <= 0:
 					combattente.stati_attivi.erase(id_stato)
-					scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato.get("testo_fine", "si sveglia."))])
+					scrivi("[i]%s[/i]" % frase_di_stato(combattente,
+							String(info_stato.get("testo_fine", "%s si sveglia."))))
 			"forza_attacco", "frastornato", "provocato", "terrore":
 				attivo.turni_rimasti = int(attivo.turni_rimasti) - 1
 				if int(attivo.turni_rimasti) <= 0:
 					combattente.stati_attivi.erase(id_stato)
 					if info_stato.has("testo_fine"):
-						scrivi("[i]%s %s[/i]" % [combattente.nome, String(info_stato["testo_fine"])])
+						scrivi("[i]%s[/i]" % frase_di_stato(combattente, String(info_stato["testo_fine"])))
 			"dot":
 				var danno := int(attivo.get("danno", 1))
 				combattente.hp = maxi(combattente.hp - danno, 0)
-				scrivi_con_colpo("[i]%s: %s[/i]" % [combattente.nome,
-						String(info_stato.get("testo_turno", "Il male si fa sentire ancora."))],
+				scrivi_con_colpo("[i]%s[/i]" % frase_di_stato(combattente,
+						String(info_stato.get("testo_turno", "Il male si fa sentire ancora."))),
 						combattente, danno, String(info_stato.get("elemento", "")))
 				if combattente.hp <= 0:
 					_su_ko(combattente)
@@ -3432,7 +3460,7 @@ func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 					if int(attivo.turni_rimasti) <= 0:
 						combattente.stati_attivi.erase(id_stato)
 						if info_stato.has("testo_fine"):
-							scrivi("[i]%s[/i]" % String(info_stato["testo_fine"]))
+							scrivi("[i]%s[/i]" % frase_di_stato(combattente, String(info_stato["testo_fine"])))
 	return salta
 
 # --- risoluzione dei colpi ---

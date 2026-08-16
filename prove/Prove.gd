@@ -3177,6 +3177,20 @@ func prova_gli_otto_status() -> void:
 	# rompe quando Bru cambia un numero e' una prova che gli impedisce di
 	# cambiarlo.
 	titolo("gli otto status fanno quello che dicono")
+
+	# DOVE VA IL NOME. Un %s di troppo in GDScript non e' un refuso: e' un
+	# errore a runtime, e un errore a runtime INTERROMPE la funzione dov'e'
+	# successo. Uno stato con due segnaposto smetterebbe di applicarsi a meta',
+	# e da fuori sembrerebbe solo uno stato che non fa niente. E' lo stesso
+	# controllo che le abilita' hanno da sempre, portato anche qui.
+	for id_stato in GameState.stati:
+		var info: Dictionary = GameState.stati[id_stato]
+		for chiave in ["testo_applicazione", "testo_turno", "testo_fine", "testo_consumo"]:
+			var testo := String(info.get(chiave, ""))
+			esigi(testo.count("%s") <= 1,
+					"%s: '%s' ha %d segnaposto e il motore ne passa uno: lo stato si interrompe lì"
+					% [id_stato, chiave, testo.count("%s")])
+
 	esigi(GameState.stati.size() == 10,
 			"gli stati sono %d: dovrebbero essere gli otto piu' Rapidita' e Lentezza" % GameState.stati.size())
 	for id_atteso in ["terrore", "fiamme", "tossina", "sonno", "maledizione",
@@ -3203,6 +3217,15 @@ func prova_gli_otto_status() -> void:
 	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
 	eroe.hp_max = 1000
 	eroe.hp = 1000
+
+	# IL NOME ENTRA DOVE C'E' IL %s, E SOLO LI'
+	var con_nome: String = scontro.frase_di_stato(eroe, "%s prende fuoco.")
+	esigi(con_nome.contains(String(eroe.nome)),
+			"una frase con %%s non ha ricevuto il nome: esce '%s'" % con_nome)
+	esigi(not con_nome.contains("%s"), "il segnaposto e' rimasto scritto a schermo: '%s'" % con_nome)
+	var senza_nome: String = scontro.frase_di_stato(eroe, "Le fiamme si spengono.")
+	esigi(senza_nome == "Le fiamme si spengono.",
+			"una frase senza %%s e' stata cambiata: esce '%s'" % senza_nome)
 
 	# TERRORE — indebolisce e toglie il critico
 	eroe.stati_attivi = {}

@@ -91,6 +91,37 @@ bestiario. Va bene così larga, o la restringiamo?
 
 Per ognuno: **la tua definizione**, e sotto **cosa fa oggi il motore**.
 
+### Come si scrivono le frasi degli status
+
+Ogni status ha fino a quattro frasi in `data/stati.json`, e **il nome del personaggio entra dove
+metti tu un `%s`**. Senza `%s`, la frase esce esatta com'è scritta.
+
+| Scrivi | Esce a schermo |
+| --- | --- |
+| `"%s prende fuoco."` | *Marco prende fuoco.* |
+| `"Le fiamme si spengono."` | *Le fiamme si spengono.* |
+| `"Il fuoco addosso a %s non si stacca."` | *Il fuoco addosso a Marco non si stacca.* |
+
+Il `%s` può andare **dove vuoi** nella frase, non solo in testa. Ma **uno solo per frase**: in
+GDScript due segnaposto con un valore solo non sono un refuso, sono un errore che *interrompe*
+lo status a metà — e da fuori sembrerebbe solo uno status che non fa niente. C'è una prova che
+lo controlla.
+
+Le quattro frasi:
+
+| Chiave | Quando esce |
+| --- | --- |
+| `testo_applicazione` | Quando lo status arriva addosso |
+| `testo_turno` | A ogni battuta di chi ce l'ha addosso (solo per Fiamme, Tossina, Sonno) |
+| `testo_fine` | Quando finisce |
+| `testo_consumo` | Solo la Maledizione: a ogni morso della riserva |
+
+> **Prima non era così, ed era il problema che hai visto tu.** La stessa chiave `testo_fine` usciva
+> col nome davanti per il Sonno e senza nome per le Fiamme, e `testo_turno` faceva «Nome: frase»
+> per un veleno e «Nome frase» per il Sonno. Tre significati per la stessa chiave, e leggendo il
+> file non c'era modo di sapere quale ti sarebbe toccato: scrivevi «Le fiamme si spengono» e ti
+> ritrovavi «Marco Le fiamme si spengono». Adesso lo decidi tu, e si vede leggendo.
+
 ### Terrore
 - **Tu:** indebolimento temporaneo del personaggio e impossibilità di fare critico.
 - **Oggi:** esiste ma fa un'altra cosa — alza lo stress di 40 e abbassa il legame di 15. Non blocca
