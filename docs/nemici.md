@@ -1351,7 +1351,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Jongo Dongo affonda l'artiglio marcio con tutto il suo peso.
-2. Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, la carne comincia a cedere.
+2. Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, quello che resta comincia a cedere.
 3. "IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!" Il grido vi si conficca dentro più delle unghie.
 4. Jongo Dongo si volta verso uno dei suoi ghoul, con la stessa calma di sempre: "Un piccolo sacrificio... per un grande risultato."
 5. Jongo Dongo batte il palmo marcio sull'ossidiana: la terra stessa gli restituisce un altro ghoul.
@@ -1865,7 +1865,7 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 **Jongo Dongo**
 
 1. Jongo Dongo affonda l'artiglio marcio con tutto il suo peso.
-2. Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, la carne comincia a cedere.
+2. Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, quello che resta comincia a cedere.
 3. "IL VIAGGIO RICHIEDE SEMPRE IL SUO PREZZO!" Il grido vi si conficca dentro più delle unghie.
 4. Jongo Dongo si volta verso uno dei suoi ghoul, con la stessa calma di sempre: "Un piccolo sacrificio... per un grande risultato."
 5. Jongo Dongo batte il palmo marcio sull'ossidiana: la terra stessa gli restituisce un altro ghoul.

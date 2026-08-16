@@ -12,6 +12,12 @@
 > Quando me lo rimandi lo leggo riga per riga e applico. Dove la tua correzione contraddice il
 > codice te lo dico invece di scegliere da solo.
 
+> **Cos'è cambiato da quando me l'hai rimandato annotato.** Tre decisioni grosse sono arrivate
+> dopo, e questo file le riporta già: **l'hype** al posto dei punti, **il livello che è il numero
+> di nodi comprati**, e il **menu a cinque voci fisse**. Le sezioni §5 e §6 le ho riscritte di
+> conseguenza — dove prima ti facevo una domanda, adesso c'è la tua risposta. Quello che aspetta
+> ancora te è raccolto in **`punto.md`**, che è l'indice di tutti i documenti.
+
 ---
 
 ## 1. I cinque tipi
@@ -29,15 +35,22 @@ L'asse che decide efficacia e resistenze. Uno solo, non due.
 **Come funziona in campo:** tre valori soli, come già funzionano le resistenze —
 `normale` · `ipersensibile` (pesa di più) · `immune` (non arriva).
 
-### Decisione che aspetta te
+### ✅ Deciso: i cinque tipi sostituiscono l'elemento
 
-Oggi il gioco ha **due** assi che fanno un lavoro simile: `elemento` (fuoco, veleno, oscuro,
-elettrico, psico — su 16 creature) e `filogenesi` nel tecno log (naturale, meccanica, umana…).
+C'erano **due** assi che facevano lo stesso lavoro: `elemento` (fuoco, veleno, oscuro, elettrico,
+psico — su 16 creature) e `filogenesi` nel tecno log (naturale, meccanica, umana…). I cinque tipi
+prendono il posto dell'elemento; **la filogenesi resta dov'è** perché è narrativa: dice da che
+corpo viene, non contro cosa è forte.
 
-La mia proposta: **i cinque tipi sostituiscono l'elemento**; la filogenesi resta dov'è perché è
-narrativa — dice da che corpo viene, non contro cosa è forte.
+**Tutte e 39 le creature hanno già il loro tipo scritto nei dati** — 19 Tetro, 8 Spirituale,
+6 Natura, 4 Artificio, 2 Speciale.
 
-`>>` scrivi qui se la vedi diversa:
+> ⚠️ **Metà lavoro.** I tipi sono nei dati ma **il motore calcola ancora sull'elemento**: in campo
+> le efficacie escono ancora da fuoco/veleno/oscuro. Finché non si sposta il calcolo, il tipo è
+> una scritta sulla scheda. Sta in `punto.md` §4.
+
+`>>` una cosa da decidere è rimasta: **Yhvina è forte contro i Tetri, che sono 19 su 39** — metà
+bestiario. Va bene così larga, o la restringiamo?
 
 ---
 
@@ -229,22 +242,41 @@ ne compare uno solo, il più alto sbloccato.
 }
 ```
 
-> **Difetto bloccante:** i punti arrivano dal livello **25**, uno ogni 4. La demo finisce a Jerah,
-> livello **18**. Così com'è nella demo l'albero non si vede mai. E i punti sono **solo del
-> protagonista**.
+> **Difetto che c'era qui, e che l'hype ha risolto:** i punti arrivavano dal livello **25**, uno
+> ogni 4, e la demo finisce a livello **18** — così com'era, nella demo l'albero non si vedeva mai.
+> Ed erano **solo del protagonista**.
 
-### Il percorso di crescita — da progettare insieme
+### Il percorso di crescita — ✅ deciso
 
-Deciso: le statistiche salgono spendendo, come nella Sferografia — **ma non facciamo una
-sferografia**. Serve un percorso nostro. Le domande da sciogliere, per quando ci ragioniamo:
+Non è una sferografia. È **una costellazione disegnata a mano**: 80 nodi, di cui **60 comprabili**.
 
-- **Che forma ha?** Linea, albero a rami, griglia, anelli concentrici?
-- **Si torna indietro?** Un ramo sbagliato si può ripensare, o la scelta pesa per sempre?
-- **Le otto classi sono otto rami** dello stesso percorso, o otto percorsi separati?
-- **I compagni hanno lo stesso percorso** con nodi diversi, o forme diverse?
-- **Quanti punti in tutto** fino a Jerah, e quanti nodi devono restare chiusi a fine demo?
+| Cosa | Come |
+| --- | --- |
+| **Che forma ha** | Una mappa di stelle disegnata da te. Il lettore che ne ricava i punti è pronto: bastano marcatori magenta `#FF00FF` sul disegno |
+| **Con cosa si compra** | **Hype** — è l'esperienza, chiamata col nome che fa numeri grossi. È **una sola per tutta la squadra**: scegli tu su chi spenderla |
+| **Cos'è il livello** | **Quanti nodi hai comprato.** Non un numero a parte: se non spendi, non sali |
+| **Come si regola il mondo** | Sulla **media della squadra**, non sul più forte. Chi porta avanti uno solo non spacca la difficoltà |
+| **Si torna indietro** | No, ma a **livello 130** puoi tornare sui bivi e prendere anche l'altro ramo. È lì che sta la rigiocabilità |
+| **Cosa c'è dentro i 60 nodi** | 38 statistiche · **18 mosse** (tre linee da sei) · 24 passive |
+| **I compagni** | Stessa forma, nodi diversi. Ognuno ha la sua costellazione |
 
-`>>` scrivi qui quello che hai in mente:
+Le fasce, e quanto costa un nodo secondo quanto è lontano dal tronco:
+
+| Fascia | Nodi | Costo |
+| --- | --- | --: |
+| **Tronco** | 1 → 20 | 1 |
+| **Braccia** | 21 → 38 | 2 |
+| **Punte** | 39 → 52 | 3 |
+| **Stelle esterne** | 53 → 60 | 4 |
+
+**La demo finisce al livello 18**, cioè a metà tronco: si vedono il kit di partenza e i primi due
+gradi di una o due linee. Il resto è promessa, ed è giusto che lo sia.
+
+> ⚠️ **Sulla carta, non nel motore.** Il gioco oggi usa ancora l'xp classica: l'hype non esiste nel
+> codice. È il divario più grosso fra quello che abbiamo deciso e quello che il gioco fa — sta
+> scritto in `punto.md` §4.
+
+`>>` se qualcosa qui sopra non è come lo intendevi, riscrivilo:
 
 ---
 
@@ -286,13 +318,27 @@ picchi, cambia cosa puoi fare.
 }
 ```
 
-### Le tre classi d'arma
+### Le dieci classi d'arma — ✅ le tue
 
-| Classe | Chi | Perché |
+Erano tre, e una era sbagliata: *«gli artigli sono un'arma non utilizzabile da Yhvina, ho sbagliato,
+lei usa talismani»*. Corretta, e aggiunte le sette che hai scritto. **Sono già nei dati**
+(`data/abilita.json`).
+
+| Classe | Chi la usa | Cos'è |
 | --- | --- | --- |
 | `catalizzatore` | Il protagonista | Non combatte *con* l'arma: combatte *attraverso* l'arma. **Le può usare tutte** |
 | `pesante` | Veronica | Martelli e cose a due mani. Lente, e non gliene importa della tua guardia |
-| `artigli` | Yhvina | Artigli e glifi: veloci |
+| `talismani` | Yhvina | Carte, sigilli, glifi. Non colpiscono: mandano |
+| `leggera` | — | Veloci, poco danno per colpo |
+| `scudi` | — | Difesa che si porta in mano |
+| `minerali` | — | `???` da definire |
+| `fuoco` | — | Armi da fuoco |
+| `energetica` | — | `???` da definire |
+| `tecnologica` | — | `???` da definire |
+| `divina` | — | `???` da definire |
+
+`>>` le quattro con `???` non hanno ancora una descrizione né un personaggio: scrivili qui se sai
+già a chi vanno.
 
 ### Stato attuale
 

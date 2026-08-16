@@ -74,8 +74,9 @@ nodo). Le mie proposte sono nelle loro schede: correggile.
 | | |
 | --- | --- |
 | **Classe** | Anonimo — diventa quello che scegli coi nodi |
+| **Ruolo fra gli otto** | Nessuno all'inizio. Li apre coi nodi, e può prenderne più di uno |
 | **Psiche** | Concentrazione |
-| **Arma** | Catalizzatore — le può usare tutte |
+| **Arma** | Catalizzatore — non combatte *con* l'arma, combatte *attraverso* l'arma. **Le può usare tutte** |
 | **Statistiche a livello 0** | ♥100 · attacco 3 · difesa 0 · velocità 3 · fattore 15 |
 
 ## Kit di partenza — le sa sempre
@@ -191,9 +192,9 @@ insieme a chi l'ha colpita di più.
 
 | | |
 | --- | --- |
-| **Ruolo** | Annichilatore (Attacker) + Richiamo (Invoker) |
+| **Ruolo** | Annichilatore (Attacker) + Richiamo (Invoker) come seconda natura |
 | **Psiche** | Depressione |
-| **Arma** | Talismani |
+| **Arma** | Talismani — carte, sigilli, glifi da lanciare. Non colpiscono: mandano |
 | **Statistiche a livello 0** | ♥`???` · attacco `???` · difesa `???` · velocità `???` |
 
 > **Oggi ha ♥400**, quattro volte il protagonista: era un numero scritto quando i compagni non
@@ -207,6 +208,9 @@ attacker.
 
 `>>` **Cosa evoca?** Creature del bestiario che incontri anche come nemici, o cose sue che
 esistono solo come sue evocazioni? La seconda è più forte per il personaggio ma va disegnata. `???`
+
+`>>` **Sesto senso** è nei suoi dati e lo usano già i dialoghi per aprire strade che gli altri non
+vedono. Resta un'abilità narrativa, o gli diamo anche una meccanica in combattimento? `???`
 
 ## Kit di partenza — le sa sempre
 
