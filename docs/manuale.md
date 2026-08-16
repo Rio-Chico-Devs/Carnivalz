@@ -272,9 +272,19 @@ Le fasce, e quanto costa un nodo secondo quanto è lontano dal tronco:
 **La demo finisce al livello 18**, cioè a metà tronco: si vedono il kit di partenza e i primi due
 gradi di una o due linee. Il resto è promessa, ed è giusto che lo sia.
 
-> ⚠️ **Sulla carta, non nel motore.** Il gioco oggi usa ancora l'xp classica: l'hype non esiste nel
-> codice. È il divario più grosso fra quello che abbiamo deciso e quello che il gioco fa — sta
-> scritto in `punto.md` §4.
+**Come funziona nel motore, adesso che c'è.** Due contatori: `hype_disponibile` è quello che puoi
+spendere e cala comprando, `hype_accumulato` è quanto ne hai guadagnato in tutto e **non cala mai**
+— è il quantificatore, quello che dice quanto hai giocato. Con un contatore solo, spendere avrebbe
+cancellato la prova di aver giocato.
+
+| Numero | Valore | Dove si cambia |
+| --- | --: | --- |
+| Quanto vale uno scontro | esperienza **× 100** | `regole.json` → `hype_moltiplicatore` |
+| Quanto costa un punto | **1000 hype** | `regole.json` → `hype_per_punto` |
+
+Quindi un nodo del tronco costa 1000 hype, uno delle braccia 2000, delle punte 3000, delle stelle
+esterne 4000. Un personaggio portato a fondo costa **13.000 hype**. `>>` sono numeri miei: se il
+ritmo ti sembra sbagliato si girano da `regole.json` senza toccare il codice.
 
 `>>` se qualcosa qui sopra non è come lo intendevi, riscrivilo:
 

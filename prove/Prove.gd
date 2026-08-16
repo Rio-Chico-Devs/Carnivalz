@@ -66,6 +66,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
+	prova_hype()
 	prova_abilita_di_veronica_e_yhvina()
 	prova_i_cinque_tipi()
 	prova_gli_otto_status()
@@ -658,11 +659,11 @@ func prova_slot_accessori() -> void:
 	var base := int(GameState.regole.get("slot_accessori_base", 1))
 	var soglie: Array = GameState.regole.get("slot_accessori_per_livello", [])
 	esigi(base >= 1, "senza almeno uno slot non si puo' equipaggiare niente")
-	GameState.livelli[eroe] = 1
+	GameState.porta_al_livello(eroe, 1)
 	esigi(GameState.slot_accessori_di(eroe) == base,
 			"al livello 1 gli slot dovrebbero essere %d, sono %d" % [base, GameState.slot_accessori_di(eroe)])
 	for i in range(soglie.size()):
-		GameState.livelli[eroe] = int(soglie[i])
+		GameState.porta_al_livello(eroe, int(soglie[i]))
 		esigi(GameState.slot_accessori_di(eroe) == base + i + 1,
 				"al livello %d gli slot dovrebbero essere %d" % [int(soglie[i]), base + i + 1])
 		esigi(GameState.livello_slot_accessorio(base + i) == int(soglie[i]),
@@ -679,7 +680,7 @@ func prova_slot_accessori() -> void:
 					"%s ha slot da talento ma la scheda non sa dire quale" % id_classe)
 	esigi(con_talento == 2, "i talenti che aprono slot dovrebbero essere su due classi, sono su %d" % con_talento)
 	# il tetto e' vero: oltre non si equipaggia, anche a forza
-	GameState.livelli[eroe] = 1
+	GameState.porta_al_livello(eroe, 1)
 	var accessori_veri: Array[String] = []
 	for dati in GameState.oggetti.values():
 		if dati is Dictionary and String(dati.get("tipo", "")) == "accessorio":
@@ -706,7 +707,7 @@ func prova_scheda_personaggio() -> void:
 	titolo("la scheda del personaggio si apre, e guardare non cambia niente")
 	GameState.nuova_partita()
 	var eroe := GameState.id_protagonista
-	GameState.livelli[eroe] = 40
+	GameState.porta_al_livello(eroe, 40)
 	for dati in GameState.oggetti.values():
 		if dati is Dictionary and String(dati.get("tipo", "")) in ["accessorio", "arma", "stigma"]:
 			GameState.aggiungi_oggetto(String(dati.get("id", "")))
@@ -811,7 +812,11 @@ func prova_salvataggio_vecchio() -> void:
 	esigi(GameState._leggi_salvataggio(percorso), "il salvataggio vecchio non si apre proprio")
 	esigi(GameState.tazo == 314, "Tazo persi aprendo un salvataggio vecchio")
 	esigi(GameState.legame == 55, "legame perso")
-	esigi(GameState.livello_di(eroe) == 7, "livello perso")
+	# IL LIVELLO NON STA PIU' NEL SALVATAGGIO, ci sta quello da cui esce: i
+	# nodi comprati. Un salvataggio del tempo in cui il livello era un numero a
+	# se' non puo' portarselo dietro, e va bene cosi' - quello che conta e' che
+	# si apra senza perdere Tazo, legame, sacca e flag
+	esigi(GameState.livello_di(eroe) >= 1, "il personaggio non esiste piu' aprendo un salvataggio vecchio")
 	esigi(GameState.sacca.size() == 2, "consumabili persi")
 	esigi("una_cosa_successa" in GameState.flags, "flag di progresso persi")
 	# gli oggetti si sono smistati da soli nei nuovi scomparti, senza sparire
@@ -1009,7 +1014,7 @@ func prova_livello_dei_nemici() -> void:
 	var attese := creature().size()
 	esigi(attese > 30, "l'elenco delle creature si e' svuotato: la prova non guarda piu' niente")
 	for livello_eroe in [1, 5, 12, 40]:
-		GameState.livelli[GameState.id_protagonista] = livello_eroe
+		GameState.porta_al_livello(GameState.id_protagonista, livello_eroe)
 		var esaminate := 0
 		for id_creatura in GameState.personaggi:
 			if not GameState.e_creatura(id_creatura):
@@ -1352,7 +1357,7 @@ func prova_ogni_abilita_gira_davvero() -> void:
 			continue  # non fanno danno per mestiere: le guarda prova_abilita_di_combattimento
 		esaminate += 1
 		GameState.nuova_partita()
-		GameState.livelli[GameState.id_protagonista] = 40
+		GameState.porta_al_livello(GameState.id_protagonista, 40)
 		GameState.nemici_combattimento = ["ghoul", "ghoul"]
 		var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 		scontro.muto = true
@@ -1495,7 +1500,7 @@ func prova_attacchi_darma() -> void:
 	var danno_di := func(usa_arma: bool) -> int:
 		GameState.nuova_partita()
 		GameState.imposta_seed(1234)
-		GameState.livelli[GameState.id_protagonista] = 10
+		GameState.porta_al_livello(GameState.id_protagonista, 10)
 		GameState.nemici_combattimento = ["ghoul"]
 		var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 		scontro.muto = true
@@ -1610,7 +1615,7 @@ func prova_linee_abilita() -> void:
 	# 3. nel menu ne compare uno solo. Si prova sul serio: si porta il
 	#    protagonista al livello, si comprano i gradi, si guarda il menu
 	GameState.nuova_partita()
-	GameState.livelli[GameState.id_protagonista] = 130
+	GameState.porta_al_livello(GameState.id_protagonista, 130)
 	for linea in linee:
 		var gradi: Dictionary = linee[linea]
 		for grado in range(2, gradi.size() + 1):
@@ -1657,9 +1662,13 @@ func prova_punti_abilita() -> void:
 	# 2. LA SCELTA CHE BRU HA DESCRITTO, provata come si gioca. Al 25 c'e' un
 	#    punto e ci sono due porte: Pieta' o Terra bruciata. Prenderne una deve
 	#    chiudere l'altra, altrimenti non e' una scelta, e' un elenco
-	GameState.livelli[GameState.id_protagonista] = 25
+	GameState.porta_al_livello(GameState.id_protagonista, 25)
+	# I PUNTI NON ARRIVANO PIU' COL LIVELLO: si comprano con l'hype. Qui se ne
+	# mette in tasca esattamente uno, che e' la condizione che questa prova
+	# vuole misurare - una porta sola aperta e due strade davanti
+	GameState.hype_disponibile = GameState.costo_in_hype(1)
 	esigi(GameState.punti_abilita_liberi() == 1,
-			"al livello 25 il protagonista ha %d punti invece di 1" % GameState.punti_abilita_liberi())
+			"con l'hype di un punto in tasca ne risultano %d" % GameState.punti_abilita_liberi())
 	esigi(GameState.nodo_disponibile("pieta"), "al livello 25 Pieta' non e' disponibile")
 	esigi(GameState.nodo_disponibile("terra_bruciata"),
 			"al livello 25 Terra bruciata non e' disponibile")
@@ -1671,8 +1680,9 @@ func prova_punti_abilita() -> void:
 	esigi(not GameState.sblocca_nodo("pieta"), "si e' comprato un nodo senza punti")
 
 	# 3. al 29 arriva il secondo punto, e le porte sono quelle giuste
-	GameState.livelli[GameState.id_protagonista] = 29
-	esigi(GameState.punti_abilita_liberi() == 1, "al livello 29 non arriva il secondo punto")
+	GameState.porta_al_livello(GameState.id_protagonista, 29)
+	GameState.hype_disponibile = GameState.costo_in_hype(1)
+	esigi(GameState.punti_abilita_liberi() == 1, "al livello 29 il secondo punto non si compra")
 	esigi(GameState.nodo_disponibile("pieta"), "al 29 Pieta' doveva essere ancora li'")
 	esigi(GameState.nodo_disponibile("annichilazione_ii"),
 			"al 29 Annichilazione II non e' disponibile")
@@ -1680,13 +1690,15 @@ func prova_punti_abilita() -> void:
 	# 4. non si salta un grado: Maelstrom vuole Terra bruciata, e il livello
 	esigi(not GameState.nodo_disponibile("maelstrom"),
 			"al livello 29 si puo' gia' comprare Maelstrom, che apre molto piu' avanti")
-	GameState.livelli[GameState.id_protagonista] = 130
+	GameState.porta_al_livello(GameState.id_protagonista, 130)
+	GameState.hype_disponibile = GameState.costo_in_hype(1)
 	esigi(GameState.nodo_disponibile("apocalisse") == false,
 			"si puo' comprare Apocalisse saltando i gradi in mezzo")
 	esigi(GameState.nodo_disponibile("maelstrom"),
 			"col livello alto e Terra bruciata in mano Maelstrom non si apre")
 
 	# 5. mai piu' di quello che hai guadagnato, comprando tutto quello che si puo'
+	GameState.hype_disponibile = GameState.costo_in_hype(200)
 	for giro in 60:
 		var comprato := false
 		for id_nodo in GameState.abilita.get("abilita", {}):
@@ -1697,10 +1709,12 @@ func prova_punti_abilita() -> void:
 				comprato = true
 		if not comprato:
 			break
-	esigi(GameState.punti_abilita_spesi() <= GameState.punti_abilita_guadagnati(130),
-			"spesi %d punti su %d guadagnati"
-			% [GameState.punti_abilita_spesi(), GameState.punti_abilita_guadagnati(130)])
+	# IL TETTO ADESSO E' L'HYPE, non i punti che il livello regalava. La regola
+	# vera e' una sola: non si compra piu' di quello che si ha in tasca
+	esigi(GameState.hype_disponibile >= 0, "l'hype e' andato sotto zero comprando")
 	esigi(GameState.punti_abilita_liberi() >= 0, "i punti liberi sono andati sotto zero")
+	esigi(GameState.costo_in_hype(GameState.punti_abilita_spesi()) <= GameState.costo_in_hype(200),
+			"spesi %d punti con l'hype di 200" % GameState.punti_abilita_spesi())
 	GameState.nuova_partita()
 
 func prova_abilita_arrivano_al_livello_giusto() -> void:
@@ -1712,10 +1726,10 @@ func prova_abilita_arrivano_al_livello_giusto() -> void:
 	for id_abilita in attese:
 		var livello := int(attese[id_abilita])
 		GameState.nuova_partita()
-		GameState.livelli[GameState.id_protagonista] = livello - 1
+		GameState.porta_al_livello(GameState.id_protagonista, livello - 1)
 		esigi(not id_abilita in GameState.abilita_del_protagonista(),
 				"al livello %d il protagonista sa gia' fare %s" % [livello - 1, id_abilita])
-		GameState.livelli[GameState.id_protagonista] = livello
+		GameState.porta_al_livello(GameState.id_protagonista, livello)
 		esigi(id_abilita in GameState.abilita_del_protagonista(),
 				"al livello %d il protagonista non ha imparato %s" % [livello, id_abilita])
 		esigi(int(GameState.abilita_combattimento(String(id_abilita)).get("costo", 0)) == 0,
@@ -1745,7 +1759,7 @@ func valore_di_curva(chiave: String, livello: int) -> int:
 func cresci_giocatore_fino_a(livello: int) -> void:
 	# la stessa stima che usa il giocatore automatico, dallo stesso posto
 	GameState.nuova_partita()
-	GameState.livelli[GameState.id_protagonista] = livello
+	GameState.porta_al_livello(GameState.id_protagonista, livello)
 	var profilo: Dictionary = GameState.crescita.get("profilo_giocatore_tipo", {})
 	for nome_azione: String in profilo:
 		GameState.contatori[nome_azione] = int(profilo[nome_azione]) * (livello - 1)
@@ -1870,7 +1884,7 @@ func prova_i_boss_non_si_superano_farmando() -> void:
 			comuni.append(id_creatura)
 	esigi(not fonti.is_empty(), "nessuna fonte riconosciuta: la regola non protegge niente")
 	for livello_eroe in [5, 12, 30, 60]:
-		GameState.livelli[GameState.id_protagonista] = livello_eroe
+		GameState.porta_al_livello(GameState.id_protagonista, livello_eroe)
 		for id_fonte in fonti:
 			esigi(GameState.livello_nemico(id_fonte) >= livello_eroe,
 					"la fonte %s e' lv %d contro un protagonista lv %d: si supera farmando"
@@ -1903,10 +1917,18 @@ func prova_salita_di_livello_si_racconta() -> void:
 	for nome_azione: String in profilo:
 		GameState.contatori[nome_azione] = int(profilo[nome_azione])
 	var prima_attacco := GameState.stat_di("attacco")
-	GameState.aggiungi_xp(GameState.id_protagonista,
-			GameState.fabbisogno_xp(GameState.livello_di(GameState.id_protagonista)))
+	# IL MOMENTO E' CAMBIATO: prima si saliva quando l'esperienza traboccava,
+	# adesso si sale comprando - perche' comprare E' salire di livello. Quello
+	# che la prova misura pero' e' lo stesso: che il momento venga raccontato
+	GameState.hype_disponibile = GameState.costo_in_hype(5)
+	var qualcosa_comprato := false
+	for id_nodo in GameState.abilita.get("abilita", {}):
+		if GameState.nodo_disponibile(String(id_nodo)):
+			qualcosa_comprato = GameState.sblocca_nodo(String(id_nodo))
+			break
+	esigi(qualcosa_comprato, "non si riesce a comprare niente pur avendo hype")
 	esigi(GameState.livello_di(GameState.id_protagonista) == 2,
-			"con l'esperienza esatta non si e' saliti di livello")
+			"comprato un nodo, non si e' saliti di livello")
 	esigi(GameState.salite_di_livello.size() == 1,
 			"la salita di livello non ha lasciato niente da raccontare")
 	var salita: Dictionary = GameState.salite_di_livello[0]
@@ -2870,6 +2892,94 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	esigi(int(nemico.hp) <= 0, "e' rinato una seconda volta: lo scontro non finisce piu'")
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
 	scontro.free()
+
+func prova_hype() -> void:
+	# Bru: "facciamo che spendi xp ma maschereremo l'xp con il termine hype...
+	# l'hype e' generico, scegli tu su quale personaggio spenderlo... ogni
+	# personaggio ha il suo livello in base a quanti potenziamenti ha
+	# acquistato... si possiamo fare la media, viva il gioco di squadra".
+	titolo("l'hype: uno per tutti, e il livello e' quello che hai comprato")
+	GameState.nuova_partita()
+	esigi(GameState.hype_disponibile == 0 and GameState.hype_accumulato == 0,
+			"una partita nuova comincia con dell'hype addosso")
+
+	# DUE CONTATORI: spendere svuota il primo e non tocca il secondo
+	var guadagnato := GameState.aggiungi_hype(50)
+	esigi(guadagnato > 50, "l'hype non fa numeri piu' grossi dell'xp: ne ha dati %d su 50" % guadagnato)
+	esigi(GameState.hype_disponibile == guadagnato, "l'hype guadagnato non e' spendibile")
+	esigi(GameState.hype_accumulato == guadagnato, "l'hype accumulato non conta quello guadagnato")
+
+	# IL LIVELLO E' QUANTI NODI HAI COMPRATO
+	var protagonista := GameState.id_protagonista
+	esigi(GameState.livello_di(protagonista) == 1, "un personaggio senza nodi non e' di livello 1")
+	GameState.hype_disponibile = GameState.costo_in_hype(50)
+	var accumulato_prima := GameState.hype_accumulato
+	# UN NODO CHE COSTA DAVVERO. I gradi I delle linee non hanno "costo": sono
+	# quelli che arrivano da soli col livello, e comprarli non spende niente.
+	# Cercando "il primo che si puo' comprare" si finiva su uno di quelli, e la
+	# verifica sulla spesa sarebbe passata misurando zero contro zero
+	GameState.porta_al_livello(protagonista, 60)
+	var livello_prima := GameState.livello_di(protagonista)
+	var comprato := false
+	for id_nodo in GameState.abilita.get("abilita", {}):
+		if GameState.costo_nodo(String(id_nodo)) > 0 and GameState.nodo_disponibile(String(id_nodo)):
+			comprato = GameState.sblocca_nodo(String(id_nodo))
+			break
+	esigi(comprato, "non si riesce a comprare nessun nodo pur avendo hype da spendere")
+	esigi(GameState.livello_di(protagonista) == livello_prima + 1,
+			"comprato un nodo, il livello e' %d invece di %d"
+			% [GameState.livello_di(protagonista), livello_prima + 1])
+	esigi(GameState.hype_disponibile < GameState.costo_in_hype(50),
+			"comprare un nodo non ha speso hype")
+	esigi(GameState.hype_accumulato == accumulato_prima,
+			"spendere ha abbassato l'accumulato: la prova di aver giocato si cancella spendendo")
+
+	# LO STESSO MUCCHIO PAGA PER CHIUNQUE, ed e' il senso dell'hype unico
+	GameState.hype_disponibile = GameState.costo_in_hype(50)
+	if not GameState.classi.has("brawler"):
+		esigi(false, "Veronica non esiste: non si puo' provare l'hype su un compagno")
+	else:
+		var hype_prima := GameState.hype_disponibile
+		GameState.porta_al_livello("brawler", 60)
+		var suo_livello_prima := GameState.livello_di("brawler")
+		var preso := false
+		for id_nodo in GameState.abilita.get("abilita", {}):
+			if GameState.costo_nodo(String(id_nodo)) > 0 \
+					and GameState.nodo_disponibile(String(id_nodo), "brawler"):
+				preso = GameState.sblocca_nodo(String(id_nodo), "brawler")
+				break
+		esigi(preso, "non si riesce a spendere hype su Veronica")
+		esigi(GameState.hype_disponibile < hype_prima,
+				"comprare per Veronica non ha toccato l'hype: non e' lo stesso mucchio")
+		esigi(GameState.livello_di("brawler") == suo_livello_prima + 1,
+				"comprato un nodo per Veronica, il suo livello non e' salito")
+		esigi(GameState.livello_di(protagonista) != GameState.livello_di("brawler")
+				or suo_livello_prima == livello_prima,
+				"i livelli dei due si muovono insieme: non sono separati")
+
+	# IL MONDO SI REGOLA SULLA MEDIA, non sul piu' forte
+	GameState.party = [protagonista, "brawler"]
+	GameState.nodi_abilita.clear()
+	GameState.nodi_per_personaggio.clear()
+	esigi(GameState.livello_squadra() == 1, "due personaggi a livello 1 non fanno media 1")
+	var finti: Array[String] = []
+	for numero in 10:
+		finti.append("nodo_finto_%d" % numero)
+	GameState.nodi_abilita.assign(finti)
+	esigi(GameState.livello_di(protagonista) == 11, "dieci nodi non fanno livello 11")
+	esigi(GameState.livello_squadra() == 6,
+			"uno a 11 e uno a 1 dovrebbero fare media 6, fanno %d" % GameState.livello_squadra())
+	esigi(GameState.livello_squadra() < GameState.livello_di(protagonista),
+			"la media segue il piu' forte: chi porta avanti uno solo spacca la difficolta'")
+	GameState.nodi_abilita.clear()
+
+	# LA MAESTRIA DEL DOMINIO E' DI CHI SE L'E' GUADAGNATA
+	var suo := GameState.maestria_dominio_di("brawler")
+	var mio := GameState.maestria_dominio_di(protagonista)
+	GameState.punti_stat["maestria_dominio"] = int(GameState.punti_stat.get("maestria_dominio", 0)) + 20
+	esigi(GameState.maestria_dominio_di(protagonista) > mio, "la maestria del protagonista non e' salita")
+	esigi(GameState.maestria_dominio_di("brawler") == suo,
+			"la maestria di Veronica e' salita insieme a quella del protagonista: usa la sua")
 
 func prova_abilita_di_veronica_e_yhvina() -> void:
 	# I SETTE TIPI NUOVI, eseguiti davvero. Che siano dichiarati con un tipo che

@@ -139,10 +139,14 @@ static func dominio_pieno() -> int:
 	return int(dati.get("segmenti", 3)) * int(dati.get("per_segmento", 100))
 
 static func maestria_di(combattente: Dictionary) -> int:
+	# LA MAESTRIA E' DI CHI SE L'E' GUADAGNATA. Prima leggeva sempre quella del
+	# protagonista, anche quando a chiedere era Veronica: la sua barra di
+	# dominio si riempiva col merito di un altro. Era passato inosservato
+	# finche' i compagni non hanno avuto una barra loro.
 	if not combattente.get("giocatore", false):
 		return 0
 	var tetto := int(GameState.regole.get("maestria_massima", 100))
-	return clampi(GameState.stat_di("maestria_dominio"), 0, tetto)
+	return clampi(GameState.maestria_dominio_di(String(combattente.get("id", ""))), 0, tetto)
 
 static func riempi_dominio(combattente: Dictionary, motivo: String) -> int:
 	# ritorna quanto e' entrato davvero. Il motivo e' una chiave di regole.json

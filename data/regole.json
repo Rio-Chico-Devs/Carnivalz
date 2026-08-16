@@ -175,5 +175,7 @@
 		"battute_massime": 4000
 	},
 	"tipo_moltiplicatore_ipersensibile": 1.5,
-	"evocati_massimi_squadra": 4
+	"evocati_massimi_squadra": 4,
+	"hype_moltiplicatore": 100,
+	"hype_per_punto": 1000
 }

@@ -76,26 +76,34 @@ diventa rossa, la prova non serve a niente e la riscrivo.
 
 ---
 
-## 4. Deciso **ma non ancora nel motore** — il divario fra carta e codice
+## 4. Il divario fra carta e codice — **chiuso**
 
-Questa è la parte che conta di più in un punto della situazione, ed è la più facile da nascondere.
-Sono cose su cui abbiamo già deciso e che **oggi il gioco non fa**.
+Qui c'erano sei cose decise che il gioco non faceva. Le ho fatte tutte, **coi numeri miei**, come
+mi hai detto. Ogni numero che ho inventato è segnato nei dati: in `stati.json` ogni status porta
+un campo `_bru` con la frase tua da cui esce, così quando cambi una cifra vedi subito se stai
+correggendo una tua decisione o una mia invenzione.
 
-| Cosa avevamo deciso | Cosa fa il gioco oggi | Quanto pesa |
-| --- | --- | --- |
-| **L'hype**: moneta unica, livello = nodi comprati, mondo sulla media della squadra | **Non esiste.** C'è ancora l'xp classica con la curva `10 × lv^1.5` | 🔴 grosso |
-| **Gli 8 status** (Terrore, Fiamme, Tossina, Sonno, Maledizione, Rabbia, Provocato, Frastornato) | Ce ne sono 10 e sono i vecchi: `veleno`, `berserk`, `confusione`, più egocentrismo/demotivazione/rapidità/lentezza che non sono nella tua lista. **Fiamme e Provocato non esistono come status** | 🔴 grosso |
-| **I 5 tipi** (Natura·Artificio·Spirituale·Speciale·Tetro) al posto di `elemento` | I tipi sono scritti su tutte e 39 le creature, **ma il motore calcola ancora su `elemento`** (fuoco, veleno, oscuro…). Metà lavoro | 🟡 medio |
-| **La costellazione** — 80 nodi disegnati a mano | Il lettore PNG è pronto e provato, **ma il disegno non è ancora arrivato** | 🟡 aspetta te |
-| **Libreria di mosse** — una mossa generica riusabile, con testo diverso per ogni creatura che la usa | Ogni mossa è scritta dentro la creatura che la usa. Se due creature fanno la stessa cosa, è scritta due volte | 🟡 medio |
-| **Maestria del dominio per personaggio** | È una sola, del protagonista: Veronica e Yhvina usano la sua | 🟢 piccolo |
-| **Veronica e Yhvina giocabili** | Nei dati c'è solo la Veronica del tutorial (invincibile, zero mosse). Le 36 mosse sono scritte nel documento, **non nei dati** | 🔴 grosso |
+| Cosa | Adesso |
+| --- | --- |
+| **Gli 8 status** | Fatti. Terrore blocca i critici e indebolisce, Fiamme è uno status vero, Tossina è costante e resta fino alla cura, Sonno ha il tetto a 3 turni e il risveglio che i colpi alzano, Maledizione è una riserva da 10 che consumano i colpi e chi cade non si rialza, Rabbia e Frastornato tolgono le mosse, Provocato esiste come stato subìto |
+| **I 5 tipi** | Fatti — e ho scoperto una cosa: **l'efficacia dei tipi non esisteva affatto**. L'`elemento` serviva solo a colorare il numero del danno. Non andava spostata, andava costruita |
+| **Veronica e Yhvina** | Nei dati. Veronica esiste come classe (prima c'era solo il miniboss del tutorial), Yhvina scende da ♥400 a ♥130, e tutte e 36 le mosse sono dichiarate ed eseguibili |
+| **L'hype** | Fatto. Due contatori, il livello è quanti nodi hai comprato, il mondo si regola sulla media della squadra |
+| **Maestria del dominio per personaggio** | Fatta. Prima leggeva sempre quella del protagonista, anche quando a chiedere era Veronica |
+| **La costellazione** | Il lettore è pronto e provato. **Aspetta il tuo disegno** — è l'unica cosa qui che non posso fare io |
 
-**Perché non le ho già fatte.** Le prime due si mordono la coda con quello che devi ancora
-decidere: gli status vogliono i numeri (quanti turni, quanto indebolisce), l'hype vuole sapere
-quanto rende ogni nemico prima di poterlo tarare. Farli adesso vorrebbe dire inventare i numeri e
-poi rifare tutto quando arrivano i tuoi. **Dimmi da quale partire e parto**: se preferisci che li
-faccia con numeri miei da correggere dopo, lo faccio — basta saperlo.
+### Quello che resta indietro, e va detto
+
+- **I gradi III-VI hanno il colpo, non il fiocco.** «×3, e lascia Frastornato» fa il ×3; il
+  Frastornato no. Ho implementato la parte centrale di ogni mossa e ho lasciato la clausola in
+  fondo. Sono livelli da 33 a 60 e la demo finisce al 18: costruire venti effetti speciali adesso,
+  con numeri inventati, per cose che nessuno vedrà per mesi, è lavoro che si butta. Le descrizioni
+  complete stanno in `personaggi-giocabili.md`.
+- **La libreria di mosse** non c'è ancora: se due creature fanno la stessa cosa, è scritta due
+  volte. È il lavoro che avevi chiesto per dare a ogni nemico un testo suo su una mossa condivisa.
+- **`bilanciamento.md` è vecchio.** Ho cambiato status, tipi e progressione tutti nello stesso
+  giorno: i numeri lì dentro misurano un gioco che non c'è più. Va rilanciato `./prove/simula.sh`
+  (21 minuti) — ma ha senso farlo dopo che avrai corretto i miei numeri, non prima.
 
 ---
 

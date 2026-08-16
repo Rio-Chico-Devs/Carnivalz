@@ -66,7 +66,22 @@ var ruoli: Dictionary = {}   # data/ruoli.json: curva e ruoli da cui escono i nu
 var tipi: Dictionary = {}    # data/tipi.json: i cinque tipi e chi pesa su chi
 var tecnolog: Dictionary = {}      # data/tecnolog.json: la scheda di specie che lo Studio riempie
 var abilita: Dictionary = {}       # data/abilita.json: abilita', linee, punti, classi d'arma
-var nodi_abilita: Array[String] = []  # i nodi comprati coi punti (abilita' e potenziamenti)
+var nodi_abilita: Array[String] = []  # i nodi del protagonista (abilita' e potenziamenti)
+# L'HYPE. Bru: "facciamo che spendi xp ma maschereremo l'xp con il termine
+# hype... l'hype deve fare grossi numeri... l'hype e' generico, scegli tu su
+# quale personaggio spenderlo".
+#
+# DUE CONTATORI, e servono tutti e due. "disponibile" e' quello che puoi
+# spendere e cala comprando; "accumulato" e' quanto ne hai guadagnato in tutto
+# e non cala MAI. Il secondo e' quello che Bru chiama il quantificatore: dice
+# quanto hai giocato, e serve a far vedere numeri grossi anche a chi ha appena
+# speso tutto. Con un contatore solo, spendere avrebbe cancellato la prova di
+# aver giocato.
+var hype_disponibile := 0
+var hype_accumulato := 0
+# id classe -> i nodi comprati per LUI. Il livello di un personaggio e' quanti
+# ne ha comprati: non esiste un livello separato da guadagnare
+var nodi_per_personaggio: Dictionary = {}
 var codici: Dictionary = {}               # codice (maiuscolo) -> {testo, effetto}, vedi Extra
 var codici_riscattati: Array[String] = []  # persiste da solo, fuori dagli slot di salvataggio
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
@@ -416,6 +431,9 @@ func nuova_partita() -> void:
 	studiati.clear()
 	punti_stat.clear()
 	nodi_abilita.clear()
+	nodi_per_personaggio.clear()
+	hype_disponibile = 0
+	hype_accumulato = 0
 	contatori.clear()
 	resistenze_stato.clear()
 	volte_stato_subito.clear()
@@ -623,66 +641,135 @@ func nodo_abilita(id_nodo: String) -> Dictionary:
 	return dati if dati is Dictionary else {}
 
 func punti_abilita_spesi() -> int:
+	# quanti punti sono stati spesi in tutto, su chiunque: serve alle schermate
+	# che vogliono dire "hai investito tanto", non a decidere cosa puoi comprare
 	var totale := 0
 	for id_nodo in nodi_abilita:
 		totale += costo_nodo(id_nodo)
+	for id_classe in nodi_per_personaggio:
+		for id_nodo in nodi_di(String(id_classe)):
+			totale += costo_nodo(String(id_nodo))
 	return totale
 
 func punti_abilita_liberi() -> int:
-	return punti_abilita_guadagnati(livello_di(id_protagonista)) - punti_abilita_spesi()
+	# I PUNTI NON ARRIVANO PIU' COL LIVELLO: si comprano con l'hype. Prima
+	# arrivavano dal livello 25, uno ogni quattro, e la demo finisce al 18:
+	# cosi' com'era, nella demo l'albero non si vedeva mai.
+	@warning_ignore("integer_division")
+	var comprabili := hype_disponibile / maxi(int(regole.get("hype_per_punto", 1000)), 1)
+	return comprabili
 
-func nodo_gia_preso(id_nodo: String) -> bool:
-	return id_nodo in nodi_abilita
+func nodo_gia_preso(id_nodo: String, id_classe := "") -> bool:
+	return id_nodo in nodi_di(id_classe if id_classe != "" else id_protagonista)
 
-func nodo_disponibile(id_nodo: String) -> bool:
-	# aperto dal livello, non gia' preso, alla portata dei punti che hai, e con
+func nodo_disponibile(id_nodo: String, id_classe := "") -> bool:
+	# aperto dal livello, non gia' preso, alla portata dell'hype che hai, e con
 	# il nodo che richiede gia' in mano
+	if id_classe == "":
+		id_classe = id_protagonista
 	var dati := nodo_abilita(id_nodo)
-	if dati.is_empty() or nodo_gia_preso(id_nodo):
+	if dati.is_empty() or nodo_gia_preso(id_nodo, id_classe):
 		return false
-	if livello_di(id_protagonista) < int(dati.get("livello", 999)):
+	if livello_di(id_classe) < int(dati.get("livello", 999)):
 		return false
 	var richiesto := String(dati.get("richiede", ""))
-	if richiesto != "" and not nodo_gia_preso(richiesto):
+	if richiesto != "" and not nodo_gia_preso(richiesto, id_classe):
 		return false
 	# di una linea si compra il grado successivo a quello che hai, non uno a caso
 	var linea := String(dati.get("linea", ""))
-	if linea != "" and int(dati.get("grado", 1)) != grado_di_linea(linea) + 1:
+	if linea != "" and int(dati.get("grado", 1)) != grado_di_linea(linea, id_classe) + 1:
 		return false
 	return costo_nodo(id_nodo) <= punti_abilita_liberi()
 
-func sblocca_nodo(id_nodo: String) -> bool:
-	if not nodo_disponibile(id_nodo):
+func sblocca_nodo(id_nodo: String, id_classe := "") -> bool:
+	# ID_CLASSE VUOTO = il protagonista, che e' il caso di gran lunga piu'
+	# frequente e l'unico che esisteva prima. L'hype pero' e' della squadra:
+	# lo stesso mucchio paga il nodo di chiunque, ed e' li' che sta la scelta
+	# che Bru voleva ("scegli tu su quale personaggio spenderlo")
+	if id_classe == "":
+		id_classe = id_protagonista
+	if not nodo_disponibile(id_nodo, id_classe):
 		return false
-	nodi_abilita.append(id_nodo)
+	hype_disponibile = maxi(hype_disponibile - costo_in_hype(costo_nodo(id_nodo)), 0)
+	if id_classe == id_protagonista:
+		nodi_abilita.append(id_nodo)
+	else:
+		var suoi: Array = nodi_per_personaggio.get(id_classe, [])
+		suoi.append(id_nodo)
+		nodi_per_personaggio[id_classe] = suoi
+	if id_classe == id_protagonista:
+		racconta_la_salita()
 	return true
 
-func grado_di_linea(linea: String) -> int:
+func racconta_la_salita() -> void:
+	# SALIRE DI LIVELLO SI DEVE VEDERE, e adesso il momento e' un altro: prima
+	# era quando l'esperienza traboccava, adesso e' quando compri un nodo -
+	# perche' comprare E' salire di livello. In Carnivalz le stat non salgono
+	# col livello, salgono con quello che hai fatto: quel momento e' l'unico in
+	# cui il giocatore scopre a cosa e' servito giocare come ha giocato
+	var prima := {}
+	for nome_stat in crescita.get("stat", {}):
+		prima[nome_stat] = stat_di(String(nome_stat))
+	applica_crescita_livello()
+	var cresciute: Array[Dictionary] = []
+	for nome_stat in prima:
+		var dopo := stat_di(String(nome_stat))
+		if dopo > int(prima[nome_stat]):
+			cresciute.append({
+				"stat": String(nome_stat),
+				"nome": String(crescita.get("stat", {}).get(nome_stat, {}).get("nome", nome_stat)),
+				"prima": int(prima[nome_stat]),
+				"dopo": dopo,
+			})
+	salite_di_livello.append({
+		"livello": livello_di(id_protagonista),
+		"stat": cresciute,
+		"punti_abilita": punti_abilita_liberi(),
+	})
+	verifica_passive(livello_di(id_protagonista))
+
+func grado_di_linea(linea: String, id_classe := "") -> int:
 	# a che punto sei di una linea. Zero vuol dire che non l'hai ancora aperta
+	if id_classe == "":
+		id_classe = id_protagonista
 	var massimo := 0
-	for id_nodo in abilita_del_protagonista():
+	for id_nodo in abilita_del_personaggio(id_classe):
 		var dati := abilita_combattimento(id_nodo)
 		if String(dati.get("linea", "")) == linea:
 			massimo = maxi(massimo, int(dati.get("grado", 1)))
 	return massimo
 
 func abilita_del_protagonista() -> Array[String]:
+	return abilita_del_personaggio(id_protagonista)
+
+func abilita_del_personaggio(id_classe: String) -> Array[String]:
 	# tutto quello che sa fare: quelle scritte nella sua classe, quelle che il
-	# livello gli ha dato da solo, e quelle che ha comprato coi punti
+	# livello gli ha dato da solo, e quelle che ha comprato con l'hype.
+	#
+	# VALE PER TUTTI, non solo per il protagonista. Prima era scritta solo per
+	# lui, e i compagni erano fermi all'elenco della loro classe: adesso che
+	# Veronica e Yhvina hanno tre linee da sei gradi ciascuna, un elenco fisso
+	# vorrebbe dire che comprare un nodo per loro non cambia niente
 	var elenco: Array[String] = []
-	for id_abilita in classi.get(id_protagonista, {}).get("abilita", []):
+	for id_abilita in classi.get(id_classe, {}).get("abilita", []):
 		if not String(id_abilita) in elenco:
 			elenco.append(String(id_abilita))
-	var livello := livello_di(id_protagonista)
+	var livello := livello_di(id_classe)
+	var suoi := nodi_di(id_classe)
 	for id_abilita in abilita.get("abilita", {}):
 		var dati := abilita_combattimento(String(id_abilita))
 		var suo_livello := int(dati.get("livello", 0))
 		if suo_livello <= 0 or String(id_abilita) in elenco:
 			continue
-		var arriva_da_sola := int(dati.get("costo", 0)) <= 0
-		if arriva_da_sola and livello >= suo_livello:
+		# solo le abilita' che stanno gia' nella sua classe, o che ha comprato:
+		# senza questo filtro Veronica imparerebbe da sola il Flagello del
+		# protagonista appena arriva al livello giusto
+		if String(id_abilita) in suoi:
 			elenco.append(String(id_abilita))
-		elif nodo_gia_preso(String(id_abilita)):
+			continue
+		if id_classe != id_protagonista:
+			continue
+		if int(dati.get("costo", 0)) <= 0 and livello >= suo_livello:
 			elenco.append(String(id_abilita))
 	return elenco
 
@@ -691,14 +778,9 @@ func abilita_usabili(id_classe: String) -> Array[String]:
 	# alto: Terra bruciata prende il posto di Flagello invece di stargli
 	# accanto, altrimenti dopo cinque potenziamenti il menu sarebbe una lista di
 	# sei versioni della stessa cosa
-	if id_classe != id_protagonista:
-		var altrui: Array[String] = []
-		for id_abilita in classi.get(id_classe, {}).get("abilita", []):
-			altrui.append(String(id_abilita))
-		return altrui
 	var migliore := {}   # linea -> [grado, id]
 	var senza_linea: Array[String] = []
-	for id_abilita in abilita_del_protagonista():
+	for id_abilita in abilita_del_personaggio(id_classe):
 		var dati := abilita_combattimento(id_abilita)
 		var linea := String(dati.get("linea", ""))
 		if linea == "":
@@ -760,7 +842,69 @@ func party_ha_abilita(cercata: String) -> bool:
 	return false
 
 func livello_di(id_classe: String) -> int:
-	return int(livelli.get(id_classe, 1))
+	# IL LIVELLO E' QUANTI NODI HAI COMPRATO PER LUI. Bru: "ogni personaggio ha
+	# il suo livello in base a quanti potenziamenti ha acquistato".
+	#
+	# Non c'e' piu' un livello che sale da solo e dei punti che arrivano dopo:
+	# sono la stessa cosa vista da due lati. Chi non spende non sale, ed e'
+	# voluto - "hai controllo solo se spendere o meno i punti".
+	#
+	# Parte da 1 e non da 0 perche' un personaggio appena reclutato e' di
+	# livello 1, non di livello zero: mezzo gioco fa i conti su quel numero
+	# (la curva dei ruoli, il disallineamento, il danno per livello) e uno zero
+	# li' dentro darebbe risultati che nessuno ha mai voluto.
+	return 1 + nodi_di(id_classe).size()
+
+func nodi_di(id_classe: String) -> Array:
+	# il protagonista tiene i suoi in nodi_abilita, che esisteva gia' ed e'
+	# salvato da sempre; gli altri in nodi_per_personaggio. Due posti per la
+	# stessa cosa e' brutto, ma spostare anche i suoi vorrebbe dire rompere
+	# tutti i salvataggi esistenti per un riordino
+	if id_classe == id_protagonista:
+		return nodi_abilita
+	var suoi: Variant = nodi_per_personaggio.get(id_classe, [])
+	return suoi if suoi is Array else []
+
+func porta_al_livello(id_classe: String, livello: int) -> void:
+	# L'UNICO MODO DI SCRIVERE UN LIVELLO. Il livello e' quanti nodi hai
+	# comprato, quindi "portalo al livello 12" vuol dire "fai in modo che ne
+	# abbia undici". I segnaposto non sono abilita' vere e nessuno li scambia
+	# per tali: abilita_del_personaggio guarda solo gli id che esistono davvero.
+	#
+	# Serve a chi ha bisogno di un personaggio gia' cresciuto senza fargli
+	# giocare venti ore: gli alleati scriptati (la Yhvina della Casa Gigante,
+	# sempre tre livelli sopra di te), le prove e il simulatore. In partita
+	# normale non lo chiama nessuno - li' si sale comprando.
+	# I NODI VERI NON SI TOCCANO. La prima versione riempiva l'elenco di
+	# segnaposto e basta, cioe' cancellava quello che avevi comprato: portare al
+	# livello 130 uno che aveva Terra bruciata in mano gliela toglieva, e
+	# Maelstrom - che la richiede - non si apriva piu'. Da fuori sembrava un
+	# problema di Maelstrom.
+	#
+	# Adesso i segnaposto sono solo il riempitivo fino al numero giusto.
+	var veri: Array[String] = []
+	for id_nodo in nodi_di(id_classe):
+		if not String(id_nodo).begins_with("livello_imposto_"):
+			veri.append(String(id_nodo))
+	var mancano := maxi(livello - 1 - veri.size(), 0)
+	for numero in mancano:
+		veri.append("livello_imposto_%d" % numero)
+	if id_classe == id_protagonista:
+		nodi_abilita.assign(veri)
+	else:
+		nodi_per_personaggio[id_classe] = veri
+
+func livello_squadra() -> int:
+	# LA MEDIA, non il piu' forte. Bru: "si possiamo fare la media, cosi'
+	# possiamo usare il modo, viva il gioco di squadra, i solitari non vanno
+	# lontano". E' quello su cui si regola il mondo: chi porta avanti un solo
+	# personaggio e lascia gli altri a zero non trova nemici da livello 60.
+	if party.is_empty():
+		return livello_di(id_protagonista)
+	var totale := 0
+	for id_classe in party:
+		totale += livello_di(String(id_classe))
+	return maxi(int(round(float(totale) / float(party.size()))), 1)
 
 # --- quanto e' forte una creatura ADESSO ---
 #
@@ -812,7 +956,7 @@ func livello_nemico(id_nemico: String) -> int:
 	var base := livello_base_nemico(id_nemico)
 	if not nemico_scala(id_nemico):
 		return base
-	var pavimento := livello_di(id_protagonista) - scarto_di(id_nemico)
+	var pavimento := livello_squadra() - scarto_di(id_nemico)
 	return clampi(maxi(base, pavimento), 1, int(regole.get("livello_massimo", 130)))
 
 func e_creatura(id_personaggio: String) -> bool:
@@ -1628,6 +1772,33 @@ func sblocca_negozio(id_negozio: String) -> void:
 	if negozi.has(id_negozio) and id_negozio not in negozi_sbloccati:
 		negozi_sbloccati.append(id_negozio)
 
+func aggiungi_hype(xp_grezza: int) -> int:
+	# QUANTO HYPE VALE QUESTO SCONTRO. Bru: "l'hype deve fare grossi numeri...
+	# e' meglio vedere hai guadagnato 100 hype invece di 1 hype". Quindi
+	# l'esperienza che il gioco calcolava gia' si moltiplica: la matematica del
+	# bilanciamento resta quella provata, cambia solo la scala di quello che
+	# leggi. Il moltiplicatore sta in regole.json e si gira da li'.
+	var quanto := int(round(xp_grezza * float(regole.get("hype_moltiplicatore", 100))))
+	hype_disponibile += quanto
+	hype_accumulato += quanto
+	return quanto
+
+func maestria_dominio_di(id_classe: String) -> int:
+	# Del protagonista la dicono i suoi punti stat, come sempre. Degli altri la
+	# dicono i potenziamenti che hai comprato per LORO: e' l'unico modo perche'
+	# la maestria di Veronica sia sua e non un prestito.
+	if id_classe == id_protagonista:
+		return stat_di("maestria_dominio")
+	var totale := int(classi.get(id_classe, {}).get("maestria_dominio", 0))
+	for id_nodo in nodi_di(id_classe):
+		var dati: Variant = abilita.get("potenziamenti", {}).get(id_nodo, {})
+		if dati is Dictionary and String(dati.get("stat", "")) == "maestria_dominio":
+			totale += int(dati.get("quanto", 0))
+	return totale
+
+func costo_in_hype(punti: int) -> int:
+	return punti * int(regole.get("hype_per_punto", 1000))
+
 func fabbisogno_xp(livello: int) -> int:
 	var richiesta := ceili(float(regole.get("xp_base", 10))
 			* pow(livello, float(regole.get("xp_esponente", 1.5))))
@@ -1636,42 +1807,13 @@ func fabbisogno_xp(livello: int) -> int:
 	return richiesta
 
 func aggiungi_xp(id_classe: String, quantita: int) -> void:
+	# NON FA PIU' SALIRE DI LIVELLO NESSUNO. Il livello adesso e' quanti nodi
+	# hai comprato, quindi l'unico modo di salire e' spendere. Questa resta
+	# come porta d'ingresso perche' la chiamano ancora in qualche posto, e
+	# quello che entra da qui e' hype come tutto il resto
 	if not classi.has(id_classe):
 		return
-	xp[id_classe] = int(xp.get(id_classe, 0)) + quantita
-	var massimo := int(regole.get("livello_massimo", 130))
-	while livello_di(id_classe) < massimo:
-		var necessario := fabbisogno_xp(livello_di(id_classe))
-		if xp[id_classe] < necessario:
-			break
-		xp[id_classe] -= necessario
-		livelli[id_classe] = livello_di(id_classe) + 1
-		if id_classe == id_protagonista:
-			# SALIRE DI LIVELLO SI DEVE VEDERE. In Carnivalz le stat non salgono
-			# col livello, salgono con quello che hai fatto: quindi il momento
-			# in cui diventano punti e' l'unico in cui il giocatore scopre a
-			# cosa e' servito giocare come ha giocato. Prima cambiavano dei
-			# numeri da qualche parte e nessuno lo diceva.
-			var prima := {}
-			for nome_stat in crescita.get("stat", {}):
-				prima[nome_stat] = stat_di(String(nome_stat))
-			applica_crescita_livello()
-			var cresciute: Array[Dictionary] = []
-			for nome_stat in prima:
-				var dopo := stat_di(String(nome_stat))
-				if dopo > int(prima[nome_stat]):
-					cresciute.append({
-						"stat": String(nome_stat),
-						"nome": String(crescita.get("stat", {}).get(nome_stat, {}).get("nome", nome_stat)),
-						"prima": int(prima[nome_stat]),
-						"dopo": dopo,
-					})
-			salite_di_livello.append({
-				"livello": livello_di(id_classe),
-				"stat": cresciute,
-				"punti_abilita": punti_abilita_liberi(),
-			})
-			verifica_passive(livello_di(id_classe))
+	aggiungi_hype(quantita)
 
 # --- crescita del protagonista: i contatori delle azioni diventano punti stat
 # a ogni passaggio di livello, poi si azzerano. Chi attacca cresce in attacco,
@@ -1777,7 +1919,7 @@ func recluta_temporaneo(id_classe: String, livello: int) -> void:
 	if id_classe not in alleati_temporanei:
 		alleati_temporanei.append(id_classe)
 	if livello > 0:
-		livelli[id_classe] = livello
+		porta_al_livello(id_classe, livello)
 
 func svuota_equipaggiamento(id_classe: String) -> void:
 	# Quando qualcuno lascia la squadra le sue cose non se ne vanno con lui:
@@ -1928,8 +2070,11 @@ func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: Strin
 	nodo_se_fuggi = se_fuggi
 
 func premia_vittoria(xp_totale: int, tazo_totale: int, fonte_estinta: bool) -> void:
-	for id_classe in party:
-		aggiungi_xp(id_classe, xp_totale)
+	# L'HYPE E' UNO SOLO PER TUTTA LA SQUADRA. Prima l'esperienza si dava a
+	# ognuno separatamente, e chi non combatteva restava indietro per sempre:
+	# era il problema che ha fatto nascere l'hype. Adesso entra in un mucchio
+	# solo e sei tu a decidere su chi spenderlo
+	aggiungi_hype(xp_totale)
 	modifica_tazo(tazo_totale)
 	if fonte_estinta:
 		fonti_estinte += 1
@@ -2059,6 +2204,9 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"pila": pila,
 		"punti_stat": punti_stat,
 		"nodi_abilita": nodi_abilita,
+		"nodi_per_personaggio": nodi_per_personaggio,
+		"hype_disponibile": hype_disponibile,
+		"hype_accumulato": hype_accumulato,
 		"contatori": contatori,
 		"resistenze_stato": resistenze_stato,
 		"volte_stato_subito": volte_stato_subito,
@@ -2136,6 +2284,9 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	pila = d.get("pila", {})
 	punti_stat = d.get("punti_stat", {})
 	nodi_abilita = _lista_str(d.get("nodi_abilita", []))
+	nodi_per_personaggio = d.get("nodi_per_personaggio", {})
+	hype_disponibile = int(d.get("hype_disponibile", 0))
+	hype_accumulato = int(d.get("hype_accumulato", 0))
 	contatori = d.get("contatori", {})
 	resistenze_stato = d.get("resistenze_stato", {})
 	volte_stato_subito = d.get("volte_stato_subito", {})

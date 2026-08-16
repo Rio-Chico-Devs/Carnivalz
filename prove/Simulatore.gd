@@ -112,7 +112,7 @@ func cresci_fino_a(livello: int) -> void:
 func gioca_una_volta(id_nemico: String, nome_strategia: String, livello: int, seme: int) -> Dictionary:
 	GameState.nuova_partita()
 	GameState.imposta_seed(seme)
-	GameState.livelli[GameState.id_protagonista] = livello
+	GameState.porta_al_livello(GameState.id_protagonista, livello)
 	cresci_fino_a(livello)
 	GameState.nemici_combattimento = [id_nemico]
 	var scontro := SCENA_COMBATTIMENTO.instantiate()
@@ -324,7 +324,7 @@ func curva_di_riferimento() -> String:
 	testo += "|--:|---|---|--:|--:|\n"
 	for livello: int in [1, 2, 3, 5, 8, 12, 16, 20, 25, 30]:
 		GameState.nuova_partita()
-		GameState.livelli[GameState.id_protagonista] = livello
+		GameState.porta_al_livello(GameState.id_protagonista, livello)
 		cresci_fino_a(livello)
 		testo += "| %d | %d hp, %d att, %d dif, %d vel | %d hp, %d att, %d dif, %d vel | %.1f | %d |\n" % [
 				livello, GameState.stat_di("hp"), GameState.stat_di("attacco"),
