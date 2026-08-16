@@ -11,21 +11,37 @@
 			"velocita": 3,
 			"psiche": "concentrazione",
 			"fattore_base": 15,
-			"abilita": ["anonimato", "studio", "colpo_caricato"],
-			"ritratto": "res://art/personaggi/anonimo.png"
+			"abilita": [
+				"anonimato",
+				"studio",
+				"colpo_caricato"
+			],
+			"ritratto": "res://art/personaggi/anonimo.png",
+			"classe_arma": "catalizzatore"
 		},
 		{
 			"id": "insonne",
 			"nome": "Yhvina",
 			"classe": "Insonne",
-			"hp": 400,
-			"attacco": 6,
-			"difesa": 0,
-			"velocita": 4,
+			"hp": 130,
+			"attacco": 7,
+			"difesa": 1,
+			"velocita": 5,
 			"psiche": "depressione",
 			"fattore_base": 15,
-			"abilita": ["veglia", "sesto_senso"],
-			"ritratto": "res://art/personaggi/yhvina.png"
+			"abilita": [
+				"veglia",
+				"sesto_senso",
+				"sigillo",
+				"carta_bianca",
+				"presenza",
+				"processione",
+				"taglio_corto",
+				"piccolo_richiamo"
+			],
+			"ritratto": "res://art/personaggi/yhvina.png",
+			"classe_arma": "talismani",
+			"_stat_da_confermare": "130/7/1/5 sono una proposta mia: fragile e svelta, l'opposto di Veronica. Prima erano 400 hp, quattro volte il protagonista"
 		},
 		{
 			"id": "sally",
@@ -37,8 +53,13 @@
 			"velocita": 2,
 			"psiche": "rabbia",
 			"fattore_base": 10,
-			"resistenze": { "stress": "invertito" },
-			"abilita": ["scasso", "trappole"],
+			"resistenze": {
+				"stress": "invertito"
+			},
+			"abilita": [
+				"scasso",
+				"trappole"
+			],
 			"ritratto": "res://art/personaggi/sally.png"
 		},
 		{
@@ -51,7 +72,11 @@
 			"velocita": 3,
 			"psiche": "concentrazione",
 			"fattore_base": 20,
-			"resistenze": { "stress": "ipersensibile", "maledizione": "ipersensibile", "oscuro": "ipersensibile" },
+			"resistenze": {
+				"stress": "ipersensibile",
+				"maledizione": "ipersensibile",
+				"oscuro": "ipersensibile"
+			},
 			"abilita": [],
 			"ritratto": "res://art/personaggi/vega.png"
 		},
@@ -65,7 +90,11 @@
 			"velocita": 5,
 			"psiche": "rabbia",
 			"fattore_base": 20,
-			"abilita": ["volo", "impatto", "colpo_caricato"],
+			"abilita": [
+				"volo",
+				"impatto",
+				"colpo_caricato"
+			],
 			"ritratto": "res://art/personaggi/niru.png"
 		},
 		{
@@ -91,7 +120,9 @@
 			"velocita": 3,
 			"psiche": "concentrazione",
 			"fattore_base": 15,
-			"abilita": ["collezione"],
+			"abilita": [
+				"collezione"
+			],
 			"ritratto": "res://art/personaggi/rio.png"
 		},
 		{
@@ -104,8 +135,13 @@
 			"velocita": 2,
 			"psiche": "rabbia",
 			"fattore_base": 10,
-			"resistenze": { "stress": "immune" },
-			"abilita": ["innesti", "bombardamento"],
+			"resistenze": {
+				"stress": "immune"
+			},
+			"abilita": [
+				"innesti",
+				"bombardamento"
+			],
 			"ritratto": "res://art/personaggi/bero.png"
 		},
 		{
@@ -119,8 +155,13 @@
 			"psiche": "concentrazione",
 			"fattore_base": 10,
 			"personalita": "inamovibile",
-			"resistenze": { "stress": "immune", "psico": "ipersensibile" },
-			"abilita": ["provocazione"],
+			"resistenze": {
+				"stress": "immune",
+				"psico": "ipersensibile"
+			},
+			"abilita": [
+				"provocazione"
+			],
 			"ritratto": "res://art/personaggi/mockingbear.png"
 		},
 		{
@@ -146,7 +187,9 @@
 			"difesa": 3,
 			"velocita": 3,
 			"fattore_base": 0,
-			"abilita": ["attacco_area"],
+			"abilita": [
+				"attacco_area"
+			],
 			"ritratto": "res://art/personaggi/yara.png"
 		},
 		{
@@ -159,8 +202,30 @@
 			"velocita": 2,
 			"fattore_base": 0,
 			"abilita": [],
-			"bottino_presenza": { "oggetto": "bottiglia_di_liquore", "chance": 1.0 },
+			"bottino_presenza": {
+				"oggetto": "bottiglia_di_liquore",
+				"chance": 1.0
+			},
 			"ritratto": "res://art/personaggi/vecchio_clown.png"
+		},
+		{
+			"id": "brawler",
+			"nome": "Veronica",
+			"hp": 160,
+			"attacco": 5,
+			"difesa": 4,
+			"velocita": 2,
+			"classe_arma": "pesante",
+			"abilita": [
+				"guardia_ferma",
+				"spallata",
+				"incassa",
+				"rissa",
+				"provocazione_veronica",
+				"colpo_caricato_veronica",
+				"piantati"
+			],
+			"_stat_da_confermare": "160/5/4/2 sono una proposta mia: piu' lenta del protagonista, regge i colpi al posto suo"
 		}
 	]
 }

@@ -66,6 +66,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
+	prova_abilita_di_veronica_e_yhvina()
 	prova_i_cinque_tipi()
 	prova_gli_otto_status()
 	prova_mediazione()
@@ -2870,6 +2871,101 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
 	scontro.free()
 
+func prova_abilita_di_veronica_e_yhvina() -> void:
+	# I SETTE TIPI NUOVI, eseguiti davvero. Che siano dichiarati con un tipo che
+	# il motore conosce lo verifica gia' un'altra prova; qui si guarda che
+	# succeda qualcosa quando partono, che e' un'altra domanda. Un tipo
+	# riconosciuto e implementato male passa il primo controllo e fallisce
+	# questo.
+	titolo("le abilita' di Veronica e Yhvina fanno qualcosa")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	scontro.in_corso = true
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for c in scontro.combattenti:
+		if c.giocatore and eroe.is_empty():
+			eroe = c
+		elif not c.giocatore and nemico.is_empty():
+			nemico = c
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+	eroe.hp_max = 1000
+	eroe.hp = 1000
+
+	# GUARDIA — uno o due scatti, e restano
+	eroe.scatti_difesa = 0
+	scontro.guardia(eroe, {"scatti": 2})
+	esigi(RegoleCombattimento.scatti_difesa(eroe) == 2,
+			"Muro ha alzato %d scatti invece di due" % RegoleCombattimento.scatti_difesa(eroe))
+
+	# IMMUNITA — per due battute non lo scalfiscono
+	eroe.turni_immune = 0
+	scontro.immunita(eroe, {"turni": 2})
+	esigi(int(eroe.turni_immune) == 2, "Non passa niente non ha reso nessuno intoccabile")
+	eroe.turni_immune = 0
+
+	# ULTIMA RESISTENZA — cadrebbe, e resta a 1
+	eroe.ultima_resistenza = false
+	scontro.ultima_resistenza(eroe, {})
+	esigi(bool(eroe.ultima_resistenza), "Finche' respiro non si e' acceso")
+	eroe.hp = 0
+	scontro.trattieni_a_un_punto(eroe)
+	esigi(int(eroe.hp) == 1, "cadrebbe e non e' rimasto a 1: e' a %d" % int(eroe.hp))
+	esigi(not bool(eroe.ultima_resistenza), "si e' consumata: vale una volta per scontro")
+	eroe.hp = 0
+	scontro.trattieni_a_un_punto(eroe)
+	esigi(int(eroe.hp) == 0, "ha trattenuto due volte in un solo scontro")
+	eroe.hp = 1000
+
+	# RIANIMA — rimette in piedi chi e' caduto, ma non chi e' caduto per maledizione
+	scontro.aggiungi_combattente("insonne", true)
+	var compagno: Dictionary = scontro.combattenti[scontro.combattenti.size() - 1]
+	if bool(compagno.get("giocatore", false)):
+		compagno.hp = 0
+		compagno.non_rianimabile = true
+		scontro.rianima(eroe, {"quota": 0.30})
+		esigi(int(compagno.hp) == 0,
+				"ha rianimato chi era caduto per maledizione: la maledizione non conta piu' niente")
+		compagno.non_rianimabile = false
+		scontro.rianima(eroe, {"quota": 0.30})
+		esigi(int(compagno.hp) > 0, "Rialzati non ha rimesso in piedi nessuno")
+
+		# COPERTURA — meta' del colpo va a chi copre
+		compagno.hp = compagno.hp_max
+		eroe.hp = eroe.hp_max
+		compagno.coperto_da = int(eroe.indice)
+		compagno.copertura_turni = 3
+		var vita_scudo_prima := int(eroe.hp)
+		var resta: int = scontro.smista_la_copertura(compagno, 40)
+		esigi(resta == 20, "al coperto ne restano %d invece di venti" % resta)
+		esigi(int(eroe.hp) == vita_scudo_prima - 20,
+				"chi copre non ha incassato la sua meta': era a %d, adesso e' a %d"
+				% [vita_scudo_prima, int(eroe.hp)])
+		compagno.copertura_turni = 0
+
+	# EVOCA_ALLEATO — senza sapere CHI evoca non deve arrivare nessuno, e non
+	# deve nemmeno rompersi: e' la domanda aperta piu' grossa su Yhvina
+	var quanti_prima: int = scontro.combattenti.size()
+	scontro.evoca_alleato(eroe, {"valore": "", "quantita": 1})
+	esigi(scontro.combattenti.size() == quanti_prima,
+			"ha evocato qualcuno pur non sapendo chi: il campo 'valore' e' vuoto")
+	scontro.evoca_alleato(eroe, {"valore": "slime_infimo", "quantita": 1})
+	esigi(scontro.combattenti.size() > quanti_prima, "il Richiamo non ha portato nessuno")
+
+	# e le due classi esistono con le loro armi
+	esigi(GameState.classi.has("brawler"), "Veronica non esiste come personaggio giocabile")
+	esigi(String(GameState.classi.get("brawler", {}).get("classe_arma", "")) == "pesante",
+			"Veronica non impugna un'arma pesante")
+	esigi(String(GameState.classi.get("insonne", {}).get("classe_arma", "")) == "talismani",
+			"Yhvina non impugna talismani: Bru aveva corretto gli artigli")
+	esigi(int(GameState.classi.get("insonne", {}).get("hp", 0)) < 200,
+			"Yhvina ha ancora i 400 punti vita di quando i compagni non crescevano")
+	scontro.free()
+
 func prova_i_cinque_tipi() -> void:
 	# Bru: "ora so definire anche i tipi: Natura, Artificio, Spirituale,
 	# Speciale, Tetro... l'asse che decide efficacia e resistenze, uno solo,
@@ -3844,7 +3940,12 @@ func prova_abilita_di_combattimento() -> void:
 	# succede niente: e' esattamente il genere di buco che si trova giocando.
 	titolo("le abilita' di combattimento sono tutte eseguibili")
 	var tipi_noti := ["provoca", "area", "raffica", "carica",
-			"astio", "vendetta", "annichilazione", "pieta", "mantra", "flagello", "mattanza"]
+			"astio", "vendetta", "annichilazione", "pieta", "mantra", "flagello", "mattanza",
+			# i sette che servono a Veronica e Yhvina. Sono pochi apposta: le
+			# loro trentasei mosse sono trentasei tarature di questi, non
+			# trentasei funzioni - e restano nove personaggi da scrivere
+			"guardia", "copertura", "immunita", "rianima", "ultima_resistenza",
+			"evoca_alleato", "passiva"]
 	var tabella: Dictionary = GameState.abilita.get("abilita", {})
 	esigi(not tabella.is_empty(), "nessuna abilita' di combattimento in data/abilita.json")
 	for id_abilita in tabella:

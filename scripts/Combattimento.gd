@@ -391,6 +391,15 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"astio_testo": "",
 		# Mantra IV in su: un turno in cui non ti scalfiscono
 		"turni_immune": 0,
+		# la Copertura di Veronica: chi ti para davanti, e per quante tue battute
+		"coperto_da": -1,
+		"copertura_turni": 0,
+		# "Finche' respiro": una sola volta, quando cadrebbe resta a 1
+		"ultima_resistenza": false,
+		# chi ti ha provocato, letto da applica_stato quando arriva "provocato"
+		"id_provocatore": "",
+		# chi cade per maledizione non si rialza fino a fine scontro
+		"non_rianimabile": false,
 		# Pieta': quanto in piu' lascera' cadere questo qui
 		"bonus_drop": 0.0,
 		"gamba_rotta_turni": 0,
@@ -844,6 +853,12 @@ func battuta_di(attaccante: Dictionary) -> void:
 		# l'immunita' di Mantra copre il giro fino al tuo turno successivo: si
 		# consuma qui, quando torni a muovere, non a fine giro
 		attaccante.turni_immune = int(attaccante.turni_immune) - 1
+	if int(attaccante.get("copertura_turni", 0)) > 0:
+		# stessa regola per la copertura di Veronica: "tre battute" vuol dire
+		# tre battute di CHI E' COPERTO, non tre di chi copre
+		attaccante.copertura_turni = int(attaccante.copertura_turni) - 1
+		if int(attaccante.copertura_turni) <= 0:
+			attaccante.coperto_da = -1
 	aggiorna_scheda(attaccante)
 	recupera_aura(attaccante)
 	campo.evidenzia(combattenti, attaccante)
@@ -1418,13 +1433,20 @@ func usa_abilita(chi: Dictionary, id_abilita: String) -> void:
 		return
 	spendi_aura(chi, int(dati.get("aura", 0)))
 	match String(dati.get("tipo", "")):
-		"provoca": provoca(chi)
+		"provoca": provoca(chi, [] if bool(dati.get("tutti", false)) else [primo_nemico()])
 		"area": attacco_area(chi, dati)
 		"raffica": raffica(chi, dati)
 		"carica": carica(chi, dati)
 		"astio": astio(chi, dati)
 		"mantra": mantra(chi, dati)
 		"flagello": flagello(chi, dati)
+		"guardia": guardia(chi, dati)
+		"copertura": copertura(chi, dati)
+		"immunita": immunita(chi, dati)
+		"rianima": rianima(chi, dati)
+		"ultima_resistenza": ultima_resistenza(chi, dati)
+		"evoca_alleato": evoca_alleato(chi, dati)
+		"passiva": passiva(chi, dati)
 
 func usa_abilita_su(chi: Dictionary, id_abilita: String, bersaglio: Dictionary) -> void:
 	# le abilita' che chiedono un bersaglio passano di qui: il menu le fa
@@ -1816,6 +1838,152 @@ func provoca(chi: Dictionary, bersagli: Array[Dictionary] = []) -> void:
 		# legge id_provocatore per sapere a chi resti inchiodato
 		vittima.id_provocatore = String(chi.id)
 		applica_stato(vittima, "provocato")
+
+# --- le abilita' di Veronica e Yhvina ---
+#
+# Sette tipi nuovi, e sono POCHI apposta: le trentasei mosse dei due personaggi
+# sono trentasei tarature di questi sette, non trentasei funzioni. Una mossa che
+# ha bisogno di una funzione sua e' una mossa che nessun'altra potra' mai
+# riusare, e ne restano ancora nove personaggi da scrivere.
+
+func smista_la_copertura(bersaglio: Dictionary, danno: int) -> int:
+	# Se qualcuno lo sta coprendo, meta' del colpo va a chi copre. Ritorna
+	# quanto ne resta per il bersaglio.
+	#
+	# Chi copre incassa DIRETTAMENTE, senza ripassare da attacca(): se ci
+	# ripassasse, la sua stessa copertura si applicherebbe di nuovo e due
+	# personaggi che si coprono a vicenda si rimpallerebbero il colpo per sempre
+	if int(bersaglio.get("copertura_turni", 0)) <= 0 or danno <= 1:
+		return danno
+	var indice_scudo := int(bersaglio.get("coperto_da", -1))
+	if indice_scudo < 0 or indice_scudo >= combattenti.size():
+		return danno
+	var scudo: Dictionary = combattenti[indice_scudo]
+	if int(scudo.hp) <= 0:
+		bersaglio.copertura_turni = 0
+		return danno
+	var quota := danno / 2
+	scudo.hp = maxi(int(scudo.hp) - quota, 0)
+	trattieni_a_un_punto(scudo)
+	registra_danno_subito(scudo, quota)
+	scrivi("[i]%s si prende metà del colpo al posto di %s.[/i]" % [scudo.nome, bersaglio.nome])
+	mostra_colpo(scudo, quota, "")
+	aggiorna_scheda(scudo)
+	if int(scudo.hp) <= 0:
+		_su_ko(scudo)
+	return danno - quota
+
+func trattieni_a_un_punto(chi: Dictionary) -> void:
+	# "Finche' respiro": quando cadrebbe resta a 1, una volta per scontro. Sta
+	# qui e non in _su_ko perche' deve agire PRIMA che il KO succeda: da _su_ko
+	# in poi ci sono gia' andati di mezzo il diario, i premi e la scheda
+	if int(chi.hp) > 0 or not bool(chi.get("ultima_resistenza", false)):
+		return
+	chi.ultima_resistenza = false
+	chi.hp = 1
+	scrivi_forte("[i]%s resta in piedi con un soffio di vita.[/i]" % chi.nome)
+	aggiorna_scheda(chi)
+
+func guardia(chi: Dictionary, dati: Dictionary) -> void:
+	# Il Baluardo di Veronica: alza la guardia di uno o piu' scatti, e gli
+	# scatti restano fino a fine scontro come tutti gli altri. Diverso da
+	# "Difendi" del menu solo per quanti ne alza in un colpo
+	var quanti := int(dati.get("scatti", 1))
+	var alzati := 0
+	for volta in range(quanti):
+		var tetto := int(GameState.regole.get("difesa_scatti_massimi", 6))
+		if RegoleCombattimento.scatti_difesa(chi) >= tetto:
+			break
+		RegoleCombattimento.alza_guardia(chi)
+		alzati += 1
+	if alzati == 0:
+		scrivi("[i]%s è già chiuso quanto può.[/i]" % chi.nome)
+		return
+	scrivi(String(dati.get("testo_uso", "[i]%s si pianta e non si sposta.[/i]")) % chi.nome)
+	scrivi("Guardia +%d (difesa ora %d)." % [alzati, RegoleCombattimento.difesa_di(chi)])
+	aggiorna_scheda(chi)
+
+func copertura(chi: Dictionary, dati: Dictionary) -> void:
+	# "un compagno prende meta' danno, l'altra meta' la prende lei". Si copre
+	# chi sta peggio: e' quello che farebbe qualsiasi giocatore, e chiederglielo
+	# ogni volta sarebbe una domanda con una risposta sola
+	var piu_malmesso: Dictionary = {}
+	for alleato in vivi(chi.giocatore):
+		if alleato.indice == chi.indice:
+			continue
+		if piu_malmesso.is_empty() \
+				or float(alleato.hp) / maxf(float(alleato.hp_max), 1.0) \
+					< float(piu_malmesso.hp) / maxf(float(piu_malmesso.hp_max), 1.0):
+			piu_malmesso = alleato
+	if piu_malmesso.is_empty():
+		scrivi("[i]%s non ha nessuno da coprire.[/i]" % chi.nome)
+		return
+	piu_malmesso.coperto_da = int(chi.indice)
+	piu_malmesso.copertura_turni = int(dati.get("turni", 3))
+	scrivi(String(dati.get("testo_uso", "[i]%s si mette davanti a %s.[/i]")) % piu_malmesso.nome)
+	aggiorna_scheda(piu_malmesso)
+
+func immunita(chi: Dictionary, dati: Dictionary) -> void:
+	# "per due battute e' intoccabile". Usa turni_immune, che e' la stessa
+	# macchina del Mantra IV: un colpo che si vede arrivare e non arriva
+	chi.turni_immune = int(dati.get("turni", 2))
+	scrivi(String(dati.get("testo_uso", "[i]Addosso a %s non passa piu' niente.[/i]")) % chi.nome)
+	aggiorna_scheda(chi)
+
+func rianima(chi: Dictionary, dati: Dictionary) -> void:
+	# rimette in piedi un compagno caduto. NON tocca chi e' caduto per
+	# maledizione: quello e' il senso della maledizione, e un'abilita' che la
+	# aggira la cancella
+	for alleato in combattenti:
+		if alleato.giocatore != chi.giocatore or int(alleato.hp) > 0:
+			continue
+		if alleato.get("non_rianimabile", false):
+			continue
+		alleato.hp = maxi(int(round(float(alleato.hp_max) * float(dati.get("quota", 0.30)))), 1)
+		scrivi(String(dati.get("testo_uso", "[i]%s rimette in piedi chi era caduto.[/i]")) % chi.nome)
+		scrivi("%s torna in piedi con %d punti vita." % [alleato.nome, int(alleato.hp)])
+		aggiorna_scheda(alleato)
+		return
+	scrivi("[i]Non c'è nessuno da rialzare.[/i]")
+
+func ultima_resistenza(chi: Dictionary, dati: Dictionary) -> void:
+	# "quando cadrebbe resta a 1 punto vita, una volta per scontro"
+	chi.ultima_resistenza = true
+	scrivi(String(dati.get("testo_uso", "[i]%s decide che non cade oggi.[/i]")) % chi.nome)
+	aggiorna_scheda(chi)
+
+func evoca_alleato(chi: Dictionary, dati: Dictionary) -> void:
+	# il Richiamo di Yhvina. Passa dalla stessa macchina che usano i nemici per
+	# evocare - aggiungi_combattente - solo dal lato della squadra.
+	#
+	# QUALE creatura evochi non e' deciso: e' la domanda aperta piu' grossa su
+	# Yhvina ("cosa evoca?"). Finche' non arriva la risposta il campo "valore"
+	# dice quale, e si cambia da li' senza toccare il motore
+	var chi_arriva := String(dati.get("valore", ""))
+	if chi_arriva == "" or not GameState.personaggi.has(chi_arriva):
+		scrivi("[i]%s chiama, ma non risponde nessuno.[/i]" % chi.nome)
+		return
+	var arrivati := 0
+	for volta in range(int(dati.get("quantita", 1))):
+		if vivi(chi.giocatore).size() >= int(GameState.regole.get("evocati_massimi_squadra", 4)):
+			break
+		aggiungi_combattente(chi_arriva, chi.giocatore)
+		arrivati += 1
+	if arrivati == 0:
+		scrivi("[i]...ma non c'è più posto.[/i]")
+		return
+	scrivi(String(dati.get("testo_uso", "[i]%s chiama, e qualcosa risponde.[/i]")) % chi.nome)
+
+func passiva(_chi: Dictionary, dati: Dictionary) -> void:
+	# LA VEGLIA DI YHVINA, e tutte quelle come lei. Una passiva non si "usa":
+	# vale sempre, e l'effetto lo legge chi di dovere (le immunita' le legge
+	# resistenza_di, il recupero d'aura la ricarica).
+	#
+	# Esiste come tipo lo stesso, invece di non essere niente, per una ragione
+	# sola: cosi' la prova che verifica che ogni abilita' dichiarata sia
+	# eseguibile continua a coprirla. Un'abilita' senza tipo sarebbe un'abilita'
+	# che nessuno controlla piu'
+	scrivi("[i]%s[/i]" % String(dati.get("descrizione", "Vale sempre, non si usa.")))
 
 func attacco_area(chi: Dictionary, dati: Dictionary = {}) -> void:
 	scrivi("[i]%s scatena un colpo che si abbatte su tutti i nemici![/i]" % chi.nome)
@@ -3339,7 +3507,9 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		if bersaglio.giocatore:
 			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
 		return
+	danno = smista_la_copertura(bersaglio, danno)
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
+	trattieni_a_un_punto(bersaglio)
 	registra_danno_subito(bersaglio, danno)
 	if critico:
 		if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
