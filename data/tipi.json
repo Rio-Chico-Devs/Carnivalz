@@ -1,40 +1,77 @@
 {
 	"_nota": "I CINQUE TIPI, e chi pesa su chi. La tabella e' MIA e va corretta: Bru ha deciso i cinque tipi e che l'asse e' uno solo, non due, ma non ha mai scritto chi batte chi. Quello che ho messo qui sotto ha una ragione per ogni riga, cosi' si puo' discutere invece di indovinare.",
-
 	"_nota_efficacia": "Tre valori soli, come voleva Bru: normale (niente), ipersensibile (pesa di piu'), immune (non arriva). I moltiplicatori stanno in regole.json e si cambiano da li'.",
-
 	"_nota_da_dove_esce": "Il tipo dell'attacco lo da' l'arma che hai in mano; se l'arma non ne dichiara uno, lo da' il personaggio. Niente tipo = colpo neutro, che e' come funziona oggi ovunque finche' le armi non vengono scritte.",
-
 	"tipi": {
 		"Natura": {
-			"descrizione": "Quello che è nato così ed è rimasto vivo",
+			"descrizione": "le creature che appartengono al regno della natura hanno origine biologica, appartengono al regno animale e sono strettamente connesse al piano fisico della realtà che conosciamo, hanno sensi sviluppati e un indole sanguigna",
+			"specie": [
+				"Goblin",
+				"Ferino",
+				"Flora",
+				"Tartaruga",
+				"Slime"
+			],
 			"colore": "#7bc86c",
-			"ipersensibile_a": ["Artificio"],
-			"_perche": "una macchina taglia quello che è vivo senza fatica"
+			"ipersensibile_a": [
+				"Artificio"
+			],
+			"_perche": "una macchina taglia quello che è vivo senza fatica",
+			"_dalla_descrizione": "\"sensi sviluppati\": suggerisce qualcosa sugli agguati o sullo studio, non sul danno. Non l'ho tradotta in niente."
 		},
 		"Artificio": {
-			"descrizione": "Costruito da qualcuno, e ancora acceso quando non serve più",
+			"descrizione": "Gli esseri che appartengono al regno artificiale sono stati creati da altri esseri, ma non per questo sono loro inferiore, anzi eccellono dove i loro creatori faticano ad arrivare, la loro percezione del mondo è logica e non nutrono alcun sentimento a noi conosciuto.",
+			"specie": [
+				"Robot",
+				"Automa",
+				"Golem"
+			],
 			"colore": "#8fa9c9",
-			"ipersensibile_a": ["Spirituale"],
-			"_perche": "qualcosa entra dentro la macchina e la muove al posto suo"
+			"ipersensibile_a": [
+				"Spirituale"
+			],
+			"_perche": "qualcosa entra dentro la macchina e la muove al posto suo",
+			"_dalla_descrizione": "\"non nutrono alcun sentimento a noi conosciuto\": un Artificio non dovrebbe poter provare Terrore. Sarebbe un immune scritto una volta sola qui invece che su ogni robot. Non l'ho messo perche' e' una regola nuova, non una taratura: dimmi se la vuoi."
 		},
 		"Spirituale": {
-			"descrizione": "Un corpo che regge qualcosa che non è più suo",
+			"descrizione": "Le manifestazioni che appartengono al regno spirituale sono incarnazioni benevole o malevole fatte di energia pura. hanno una forte componente nervosa e una spiccata sensibilità.",
+			"specie": [
+				"Zombie",
+				"Feticcio"
+			],
 			"colore": "#c9a0dc",
-			"ipersensibile_a": ["Natura", "Tetro"],
-			"_perche": "quello che è ancora vivo davvero, e il rancore, arrivano tutti e due dove il corpo non tiene"
+			"ipersensibile_a": [
+				"Natura",
+				"Tetro"
+			],
+			"_perche": "quello che è ancora vivo davvero, e il rancore, arrivano tutti e due dove il corpo non tiene",
+			"_dalla_descrizione": "\"forte componente nervosa e una spiccata sensibilita'\": e' il candidato naturale a subire gli stati piu' facilmente di tutti. Anche questa e' una regola in piu', non un numero da girare."
 		},
 		"Speciale": {
-			"descrizione": "Non ha categoria e non ne vuole una",
+			"descrizione": "Le creature che sfuggono alla logica e che eccellono oltre ogni aspetto dei piani vengono categorizzate come speciali, che siano di origine biologica o artificiale, hanno sempre una componente rara che li differenzia dai loro simili.",
+			"specie": [
+				"Onirico",
+				"Nimbo",
+				"Indeterminato"
+			],
 			"colore": "#f2c14e",
 			"ipersensibile_a": [],
-			"_perche": "sta fuori dalla ruota: non è debole a niente, e niente è debole a lui. Se lo vuoi dentro il gioco delle efficacie, è qui che si scrive"
+			"_perche": "sta fuori dalla ruota: non è debole a niente, e niente è debole a lui. Se lo vuoi dentro il gioco delle efficacie, è qui che si scrive",
+			"_dalla_descrizione": "QUI LA MIA TABELLA PROBABILMENTE SBAGLIA. Io ho scritto che lo Speciale sta fuori dalla ruota: non e' debole a niente e niente e' debole a lui. La tua descrizione pero' non dice neutro, dice \"eccellono oltre ogni aspetto dei piani\" - cioe' superiori, non estranei. Sono due cose diverse e ho scelto la piu' prudente. Correggi."
 		},
 		"Tetro": {
-			"descrizione": "Nasce dal rancore e dal buio. È il tipo delle fonti",
+			"descrizione": "gli esseri che hanno rinunciato a qualunque cosa li legasse alla loro originale essenza che sia per costrizione o per volontà, ricadono in questa categoria, sono esseri pericolosi che sfidano le leggi e l'ordine e cercano la loro strada a qualunque costo.",
+			"specie": [
+				"Ombra",
+				"Incarnazione"
+			],
 			"colore": "#6b6b83",
-			"ipersensibile_a": ["Tetro"],
-			"_perche": "solo il rancore arriva al rancore. E' il tipo di 19 creature su 39: se fosse debole a qualcosa di comune, meta' bestiario cadrebbe con la stessa arma"
+			"ipersensibile_a": [
+				"Tetro"
+			],
+			"_perche": "solo il rancore arriva al rancore. E' il tipo di 19 creature su 39: se fosse debole a qualcosa di comune, meta' bestiario cadrebbe con la stessa arma",
+			"_dalla_descrizione": "\"sfidano le leggi e l'ordine\": nel gioco e' gia' cosi', sono le fonti. Il Tetro pesa solo sul Tetro perche' e' il tipo di 19 creature su 39 e una debolezza comune farebbe cadere meta' bestiario con la stessa arma."
 		}
-	}
+	},
+	"_nota_descrizioni": "Le descrizioni sono di Bru, parola per parola. Nella prima stesura le avevo riassunte io in una riga: un riassunto di una cosa scritta da chi il gioco ce l'ha in testa e' sempre una perdita, e qui si vedeva - 'quello che e' nato cosi' ed e' rimasto vivo' non dice ne' i sensi sviluppati ne' l'indole sanguigna, che sono le due cose da cui esce il comportamento in campo."
 }

@@ -24,13 +24,46 @@
 
 L'asse che decide efficacia e resistenze. Uno solo, non due.
 
-| Tipo | Cosa ci sta dentro | Specie che ci ricadono |
+> Le descrizioni qui sotto sono **tue, parola per parola**. In una stesura precedente le avevo
+> riassunte io in una riga a testa: un riassunto di una cosa scritta da chi il gioco ce l'ha in
+> testa è sempre una perdita, e qui si vedeva — «quello che è nato così ed è rimasto vivo» non
+> dice né i sensi sviluppati né l'indole sanguigna, che sono le due cose da cui esce il
+> comportamento in campo.
+
+**Natura** — *Goblin, Ferino, Flora, Tartaruga, Slime*
+Le creature che appartengono al regno della natura hanno origine biologica, appartengono al regno
+animale e sono strettamente connesse al piano fisico della realtà che conosciamo, hanno sensi
+sviluppati e un'indole sanguigna.
+
+**Artificio** — *Robot, Automa, Golem*
+Gli esseri che appartengono al regno artificiale sono stati creati da altri esseri, ma non per
+questo sono loro inferiori, anzi eccellono dove i loro creatori faticano ad arrivare; la loro
+percezione del mondo è logica e non nutrono alcun sentimento a noi conosciuto.
+
+**Spirituale** — *Zombie, Feticcio*
+Le manifestazioni che appartengono al regno spirituale sono incarnazioni benevole o malevole fatte
+di energia pura. Hanno una forte componente nervosa e una spiccata sensibilità.
+
+**Speciale** — *Onirico, Nimbo, Indeterminato*
+Le creature che sfuggono alla logica e che eccellono oltre ogni aspetto dei piani vengono
+categorizzate come speciali: che siano di origine biologica o artificiale, hanno sempre una
+componente rara che le differenzia dai loro simili.
+
+**Tetro** — *Ombra, Incarnazione*
+Gli esseri che hanno rinunciato a qualunque cosa li legasse alla loro essenza originale — che sia
+per costrizione o per volontà — ricadono in questa categoria: sono esseri pericolosi che sfidano
+le leggi e l'ordine e cercano la loro strada a qualunque costo.
+
+### Cosa dicono queste descrizioni, e che il motore non fa ancora
+
+Rileggendole ci sono tre cose meccaniche che la tabella delle efficacie non riflette. Le segnalo
+invece di implementarle da solo, perché sono **regole nuove**, non numeri da girare.
+
+| | Dalla tua descrizione | Cosa vorrebbe dire |
 | --- | --- | --- |
-| **Natura** | Quello che è nato così ed è rimasto vivo | Goblin, Ferino, Flora, Tartaruga, Slime |
-| **Artificio** | Costruito da qualcuno, e ancora acceso quando non serve più | Robot, Automa, Golem |
-| **Spirituale** | Un corpo che regge qualcosa che non è più suo | Zombie, Feticcio |
-| **Speciale** | Non ha categoria e non ne vuole una | Onirico, Nimbo, Indeterminato |
-| **Tetro** | Nasce dal rancore e dal buio. È il tipo delle fonti | Ombra, Incarnazione |
+| **Artificio** | «non nutrono alcun sentimento a noi conosciuto» | Un Artificio non dovrebbe poter provare **Terrore**. Sarebbe un'immunità scritta una volta sola sul tipo invece che su ogni robot |
+| **Spirituale** | «forte componente nervosa e una spiccata sensibilità» | È il candidato naturale a **subire gli stati più facilmente di tutti** |
+| **Speciale** | «eccellono oltre ogni aspetto dei piani» | ⚠️ **Qui la mia tabella probabilmente sbaglia.** Io ho scritto che lo Speciale sta fuori dalla ruota: non è debole a niente e niente è debole a lui. Ma la tua frase non dice *neutro*, dice *superiore*. Sono due cose diverse e ho scelto la più prudente |
 
 **Come funziona in campo:** tre valori soli, come già funzionano le resistenze —
 `normale` · `ipersensibile` (pesa di più) · `immune` (non arriva).
