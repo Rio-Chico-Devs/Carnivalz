@@ -22,6 +22,7 @@
 | **`godot.md`** | 👁 | Studio sul motore: fondamenta, avanzato, cosa si rompe in produzione, chi ha spedito. E cosa ci riguarda | ✅ nuovo |
 | **`mestiere.md`** | 👁 | Studio sul mestiere: sensazione, transizioni, colore, testo, i maestri dell'RPG e le tecniche dei romanzieri. E cosa ci riguarda | ✅ nuovo |
 | **`lezioni.md`** | 👁 | Studio sui maestri: EarthBound, Fear & Hunger, Zelda, Metroid, Doom, Final Fantasy, e cosa ne ha detto la critica | ✅ nuovo |
+| **`critica.md`** | 👁 | Il gioco giudicato duro, voto per voto, con la prova sotto ogni voto | ✅ nuovo |
 | **`nemici.md`** | ⚙️ | Il bestiario coi numeri veri: mosse, quote, danni. `./strumenti/nemici.sh` | ✅ rigenerato oggi |
 | **`bilanciamento.md`** | ⚙️ | 187.200 partite simulate: chi vince a che livello. `./prove/simula.sh` | 🕓 da rilanciare |
 | **`mappe.md`** | ⚙️ | Le mappe delle zone disegnate | ✅ |
