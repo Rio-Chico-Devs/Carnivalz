@@ -136,6 +136,7 @@ di bilancio: era una regola che mancava, ed è un'altra cosa.
 | ~~**Il Divoratore**~~ | ~~Si rimette addosso il **145%** della sua vita massima~~ — **chiuso**, ma non limando lui: adesso è una regola di motore, nessuna creatura si cura di più della propria vita in tutto uno scontro. Continua a chiudersi su se stessa e a mangiarsi, solo che a un certo punto ha finito sé stessa, e lo dice |
 | **Oppresso · Robo Pattuglia** | Guardia cumulativa senza contrappeso: diventano scontri da **30 giri** |
 | **Fomentado** | La sua combustione lo uccide da sola. Vince chi aspetta |
+| ~~**Volto sulla parete**~~ | Comparso e chiuso nello stesso giro: era passato dal 99% di vittorie al **2%**, e sembrava rotto. Non lo era — vedi sotto |
 
 > **Perché una regola e non una correzione.** Limare il Divoratore avrebbe sistemato il Divoratore;
 > domani ne arriva un'altra scritta con lo stesso entusiasmo. Il tetto invece copre tutte e sei le
@@ -143,6 +144,47 @@ di bilancio: era una regola che mancava, ed è un'altra cosa.
 > rigenerazioni — e c'è una prova che legge il sorgente e pretende che non se ne apra una settima.
 > **Il tetto non vale per la tua squadra**: quelle cure le paghi tu, con oggetti comprati o aura
 > spesa, e un limite invisibile sulle fiale che fanno effetto sarebbe la cosa più crudele del gioco.
+
+### Il Volto sulla parete, e come il misuratore mi ha quasi fatto limare la creatura sbagliata
+
+Rilanciando il simulatore il Volto è passato **dal 99% di vittorie al 2%**. Sembrava una regressione
+del lavoro appena fatto. L'ho isolata invece di indovinare, ed è per questo che adesso esiste la
+sonda:
+
+| Esperimento | Risultato |
+| --- | --- |
+| Tolgo il tetto alla cura | **identico**: 2%, stesse battute, stesso danno. Non era quello |
+| Tolgo il morso alla Tossina | **2% → 100%**. Era quello |
+
+La Tossina toglieva il **3% della vita a ogni battuta e non scadeva mai**. La tua nota dice «leggeri
+danni ogni turno, **meno di Fiamme**»: al turno lo era (3% contro 8%), ma le Fiamme durano 2-5 turni
+e la Tossina no — in uno scontro da venti battute il totale arrivava al **60% della vita**, il
+doppio di quanto fanno le Fiamme in tutta la loro durata. Il 3% era **mio**, e sbagliato.
+
+**Ma la creatura non era rotta, e nemmeno del tutto la Tossina: era rotto il misuratore.** Nessuna
+delle quattro strategie del simulatore ha mai aperto la sacca. Finché gli status non mordevano non
+importava; dal giorno in cui la Tossina resta addosso *finché non ti curi*, un giocatore che non si
+cura misura una cosa sola — quanto fa male non curarsi. E il Volto lascia cadere il **Fiore di
+Luna**, che è esattamente l'antidoto: la contromossa c'era, e la tabella non sapeva vederla.
+
+Quindi due cose, non una:
+
+1. **Una quinta strategia, `si_cura`** — si porta dietro una sacca (`sacca_giocatore_tipo` in
+   `crescita.json`) e la usa: prima si toglie lo status, poi beve se è sotto il 45%, poi picchia.
+   Le altre quattro restano a mani vuote apposta, così le loro righe si confrontano ancora con le
+   misure vecchie e **la differenza fra `attacca` e `si_cura` è il valore di sapersi curare.**
+2. **Tossina dal 3% all'1,5%**, scelto misurando e non a occhio:
+
+| Tossina | vince andandoci dritto | vince curandosi |
+| --: | --: | --: |
+| 3% (com'era) | 2% | 15% |
+| 2% | 3% | 31% |
+| **1,5% (adesso)** | **21%** | **57%** |
+| 1% | 49% | 83% |
+
+L'1,5% è il punto in cui **curarsi conta e non curarsi non è una condanna**. È un numero mio: la
+misura sta dentro `stati.json` in un campo `_misura` accanto alla tua frase, e rifarla costa dieci
+secondi.
 
 ---
 
@@ -177,8 +219,17 @@ Tre comandi, e non serve sapere niente di programmazione per leggerne l'esito.
 | Comando | Quanto ci mette | Cosa dice |
 | --- | --: | --- |
 | `./prove/esegui.sh` | ~4 min | Se qualcosa si è rotto. Verde o rosso, senza sfumature |
-| `./prove/simula.sh` | ~21 min | 187.200 partite giocate da sole: chi vince a che livello. Scrive `bilanciamento.md` |
+| `./prove/simula.sh` | ~40 min | 234.000 partite giocate da sole: chi vince a che livello. Scrive `bilanciamento.md` |
+| **`./prove/sonda.sh <creatura>`** | **~10 secondi** | **Una creatura sola, subito.** Cambi un numero in un file di dati e vedi immediatamente se era quello |
 | `./strumenti/nemici.sh` | pochi secondi | Riscrive `nemici.md` coi numeri veri del bestiario |
+
+> **La sonda è nuova, e serve più di quanto sembri.** Il giro completo dice *com'è messo* il
+> bilanciamento; non può dire *per colpa di cosa*, perché a quella domanda si risponde cambiando una
+> cosa sola e rimisurando — e se ogni misura costa quaranta minuti, non la si fa e si tira a
+> indovinare. Non è un secondo simulatore: è quello, con un filtro. Stessa funzione, stesse
+> strategie, stessi semi, e non riscrive `bilanciamento.md`.
+>
+> `./prove/sonda.sh volto_sulla_parete attacca 18`
 
 ---
 

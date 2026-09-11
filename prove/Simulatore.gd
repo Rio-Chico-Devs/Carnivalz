@@ -29,6 +29,32 @@ extends Node
 #                il gioco vorrebbe insegnare. Dice se e' davvero percorribile
 #   casuale   -> chi non ha capito cosa sta facendo. E' il pavimento: sotto
 #                questo risultato non si scende
+#   si_cura   -> chi si porta dietro qualcosa e lo usa. E' l'ultima arrivata, e
+#                l'ha resa necessaria una misura sbagliata: vedi qui sotto
+#
+# PERCHE' ESISTE "si_cura", e perche' non c'era prima.
+#
+# Per mesi nessuna delle quattro strategie ha mai aperto la sacca. Non era una
+# dimenticanza: gli status quasi non esistevano, e un giocatore che non si cura
+# misurava bene quanto chiunque altro.
+#
+# Poi la Tossina e' diventata quello che doveva essere - costante, e ADDOSSO
+# FINCHE' NON TI CURI - e da quel giorno queste quattro strategie hanno smesso
+# di misurare il gioco. Il Volto sulla parete e' passato dal 99% di vittorie al
+# 2%, e sembrava una creatura rotta: non lo era. Lascia addosso Tossina, la
+# Tossina toglie il 3% della vita a ogni battuta e non se ne va da sola, e
+# nessuna delle quattro sapeva togliersela. La creatura lascia cadere il Fiore di
+# Luna, che e' esattamente l'antidoto. La contromossa c'era, e il misuratore non
+# sapeva vederla.
+#
+# Una tabella che dice "questa creatura e' imbattibile" quando in realta' dice
+# "chi non si cura perde" e' peggio di nessuna tabella, perche' ci si fida e si
+# va a limare una creatura che stava benissimo.
+#
+# "si_cura" gioca con una sacca addosso (sacca_giocatore_tipo in crescita.json).
+# Le altre quattro restano a mani vuote apposta: cosi' le loro righe si possono
+# ancora confrontare con le misure vecchie, e la differenza fra "attacca" e
+# "si_cura" e' esattamente il valore di sapersi curare.
 
 const SCENA_COMBATTIMENTO := preload("res://scenes/Combattimento.tscn")
 const RIPETIZIONI := 150      # per ogni coppia nemico/strategia
@@ -52,11 +78,17 @@ const LIVELLI := [1, 2, 3, 5, 8, 12, 18, 25]
 # (vedi cresci_fino_a): il livello e' un'abbreviazione per "uno che ha giocato
 # fin qui".
 
-const STRATEGIE := ["attacca", "difendi", "studia", "casuale"]
+const STRATEGIE := ["attacca", "difendi", "studia", "casuale", "si_cura"]
+# sotto questa quota di vita, chi si cura beve invece di picchiare
+const SOGLIA_BEVUTA := 0.45
 
 var righe: Array[Dictionary] = []
 
 func _ready() -> void:
+	var richiesta := OS.get_cmdline_user_args()
+	if not richiesta.is_empty():
+		await sonda(richiesta)
+		return
 	print("\n=== GIOCATORE AUTOMATICO ===\n")
 	var elenco := nemici_da_provare()
 	print("%d creature × %d strategie × %d livelli × %d partite = %d scontri\n"
@@ -71,6 +103,45 @@ func _ready() -> void:
 	stampa_tabella()
 	scrivi_documento(durata)
 	print("\nFatto in %.1f secondi. Tabella completa in docs/bilanciamento.md" % durata)
+	get_tree().quit(0)
+
+func sonda(richiesta: PackedStringArray) -> void:
+	# UNA SOLA RIGA, SUBITO.
+	#
+	#   ./prove/sonda.sh volto_sulla_parete            (tutte le strategie, tutti i livelli)
+	#   ./prove/sonda.sh volto_sulla_parete attacca 18 (una riga sola)
+	#
+	# Il giro completo ci mette quaranta minuti, e va benissimo per sapere com'e'
+	# messo il bilanciamento. Va malissimo per la domanda che viene dopo: "questa
+	# creatura e' peggiorata, per colpa di cosa?". A quella si risponde cambiando
+	# UNA cosa e rimisurando, e non si puo' fare se ogni misura costa quaranta
+	# minuti - quindi non la si fa, e si tira a indovinare.
+	#
+	# Non e' un secondo simulatore: e' questo, con un filtro. Stessa funzione,
+	# stesse strategie, stessi semi. Una riga letta qui e' ESATTAMENTE la riga
+	# che comparirebbe in bilanciamento.md - se fossero due codici diversi, prima
+	# o poi direbbero due cose diverse e non si saprebbe a quale credere.
+	#
+	# E NON RISCRIVE IL DOCUMENTO: una misura parziale che si spaccia per la
+	# tabella completa sarebbe il modo piu' rapido di rovinare l'unica fonte di
+	# verita' sul bilanciamento.
+	var id_nemico := String(richiesta[0])
+	if not GameState.personaggi.has(id_nemico):
+		print("creatura sconosciuta: %s" % id_nemico)
+		get_tree().quit(2)
+		return
+	var strategie := STRATEGIE if richiesta.size() < 2 else [String(richiesta[1])]
+	var livelli := LIVELLI if richiesta.size() < 3 else [int(richiesta[2])]
+	print("\n=== SONDA: %s ===\n" % String(GameState.personaggi[id_nemico].get("nome", id_nemico)))
+	print("| strategia | livello | vinte | perse | ∞ | giri | danno |")
+	print("|---|--:|--:|--:|--:|--:|")
+	for livello: int in livelli:
+		for nome_strategia: String in strategie:
+			var r := await gioca_molte_volte(id_nemico, nome_strategia, livello)
+			print("| %s | %d | %.0f%% | %.0f%% | %.0f%% | %.1f | %.1f |" % [
+					nome_strategia, livello, float(r.vittorie), float(r.sconfitte),
+					float(r.infiniti), float(r.giri), float(r.danno)])
+	print("\n(la sonda non riscrive bilanciamento.md: per quello serve il giro intero)")
 	get_tree().quit(0)
 
 func nemici_da_provare() -> Array[String]:
@@ -114,6 +185,8 @@ func gioca_una_volta(id_nemico: String, nome_strategia: String, livello: int, se
 	GameState.imposta_seed(seme)
 	GameState.porta_al_livello(GameState.id_protagonista, livello)
 	cresci_fino_a(livello)
+	if nome_strategia == "si_cura":
+		riempi_la_sacca()
 	GameState.nemici_combattimento = [id_nemico]
 	var scontro := SCENA_COMBATTIMENTO.instantiate()
 	# muto PRIMA di entrare nell'albero: e' _ready() a costruire i collaboratori
@@ -244,6 +317,57 @@ func strategia_casuale(scontro, _chi: Dictionary) -> Dictionary:
 			return {"tipo": "difendi"}
 		_:
 			return {"tipo": "studia", "bersaglio": bersaglio}
+
+func riempi_la_sacca() -> void:
+	# Quello che si porta dietro uno che gioca con attenzione. L'elenco sta in
+	# crescita.json e non qui, per la stessa ragione del profilo del giocatore:
+	# se una stima sta in due posti, prima o poi dice due cose diverse.
+	for voce in GameState.crescita.get("sacca_giocatore_tipo", []):
+		var quante := int(voce.get("quante", 1))
+		for _volta in quante:
+			GameState.aggiungi_oggetto(String(voce.get("oggetto", "")))
+
+func antidoto_per(id_stato: String) -> String:
+	# Il primo oggetto in sacca che toglie QUESTO status. Si guarda l'effetto
+	# dichiarato nei dati, non un elenco scritto a mano: un antidoto nuovo entra
+	# in gioco senza che nessuno debba ricordarsi di venirlo a scrivere qui
+	for id_oggetto in GameState.sacca:
+		var effetto: Dictionary = GameState.dati_oggetto(String(id_oggetto)).get("effetto", {})
+		if bool(effetto.get("cura_stati", false)):
+			return String(id_oggetto)
+		if String(effetto.get("cura_stato", "")) == id_stato:
+			return String(id_oggetto)
+	return ""
+
+func bevanda_in_sacca() -> String:
+	# il piu' generoso fra quelli che rimettono vita: chi si cura sul serio non
+	# spreca la battuta con la razione da 15 quando ha la fiala da 100
+	var scelto := ""
+	var meglio := 0
+	for id_oggetto in GameState.sacca:
+		var effetto: Dictionary = GameState.dati_oggetto(String(id_oggetto)).get("effetto", {})
+		var quanto := int(effetto.get("hp", 0))
+		if quanto > meglio:
+			meglio = quanto
+			scelto = String(id_oggetto)
+	return scelto
+
+func strategia_si_cura(scontro, chi: Dictionary) -> Dictionary:
+	# L'ordine e' quello di chi sta giocando davvero: prima ti togli di dosso
+	# quello che ti sta consumando, poi guardi la vita, poi pensi a picchiare.
+	#
+	# Prima lo status: una Tossina addosso costa il 3% della vita a ogni battuta
+	# e non se ne va mai, quindi bere per rimettersi cento punti mentre continui
+	# a perderne trenta e' il modo piu' lento di perdere.
+	for id_stato in chi.get("stati_attivi", {}):
+		var antidoto := antidoto_per(String(id_stato))
+		if antidoto != "":
+			return {"tipo": "oggetto", "id": antidoto}
+	if float(chi.get("hp", 0)) < float(chi.get("hp_max", 1)) * SOGLIA_BEVUTA:
+		var bevanda := bevanda_in_sacca()
+		if bevanda != "":
+			return {"tipo": "oggetto", "id": bevanda}
+	return strategia_attacca(scontro, chi)
 
 # --- il referto -------------------------------------------------------------
 

@@ -98,6 +98,21 @@
 		"stress_accumulato": 60,
 		"critici_inflitti": 2
 	},
+	"_nota_sacca": "Cosa si porta dietro, in combattimento, uno che gioca con attenzione. La usa SOLO la strategia 'si_cura' del giocatore automatico: le altre quattro giocano a mani vuote come hanno sempre fatto, cosi' le loro righe restano confrontabili con le misure vecchie. Serve perche' dal giorno in cui gli status mordono davvero, un simulatore che non puo' curarsi misura una cosa sola: quanto fa male non curarsi.",
+	"sacca_giocatore_tipo": [
+		{
+			"oggetto": "fiala_hp",
+			"quante": 4
+		},
+		{
+			"oggetto": "carbone_attivo",
+			"quante": 3
+		},
+		{
+			"oggetto": "sale_amaro",
+			"quante": 2
+		}
+	],
 	"_nota_resistenze": "Ogni volta che subisci uno stato, cresce la resistenza a QUELLO stato: convertita in punti al passaggio di livello (soglia_punto volte subito = +1).",
 	"resistenze": {
 		"soglia_punto": 3,
