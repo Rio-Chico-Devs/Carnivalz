@@ -311,4 +311,26 @@ disegni senza esitare** — e sono quello che i sistemi li scrive.
 
 ---
 
-*La critica · scritta l'11 settembre 2026 · ramo `claude/inizio-progetto-dya2lr`*
+## Poscritto, lo stesso giorno — e una cosa che avevo scritto male
+
+Dopo questa pagina Bru ha chiesto di migliorare codice, effetti e logica, e una parte di quello che
+sta qui sopra è già cambiata. Aggiorno le voci mosse invece di rifare i voti: un giudizio datato
+serve proprio perché resta datato.
+
+| Voce | Cosa dicevo che serviva | Cosa è successo |
+| --- | --- | --- |
+| Meccaniche **6,5** | «Hit-stop, colore del mancato, i tre problemi di bilancio» | Il fermo immagine c'è, insieme a scossa e scatto. Il tipo adesso si vede nel numero (colore + ▲ / ▼ / ✕). Uno dei tre problemi è chiuso — il Divoratore — e non limandolo, ma con una regola di motore |
+| Presentazione **2** | «**Solo disegni. Niente codice aiuta qui**» | **Qui avevo torto, ed è la riga peggiore del documento.** Il fondo dell'arena adesso prende il colore del tipo che hai davanti e i bordi si chiudono quando stai per cadere: è presentazione, è fatta di codice, e non ha richiesto nemmeno un disegno |
+
+Quella frase non era una svista di misura, era un errore di ragionamento: avevo contato la
+presentazione come se fosse **solo** figure, e da lì «niente codice aiuta» sembrava ovvio. Un gioco
+senza un disegno ha comunque colore, ritmo, peso e silenzi — e quelli si scrivono.
+
+**Non sposta i due numeri grossi.** Un fondo tinto e dei bordi che si chiudono non fanno un gioco
+vendibile: le due cose che sbloccano davvero restano **il disegno della costellazione** e **anche
+solo cinque ritratti**. Ma la Presentazione non è più a fondo scala per mancanza di strumenti: è
+bassa perché mancano i disegni, che è una frase diversa.
+
+---
+
+*La critica · scritta l'11 settembre 2026 · poscritto lo stesso giorno · ramo `claude/inizio-progetto-dya2lr`*

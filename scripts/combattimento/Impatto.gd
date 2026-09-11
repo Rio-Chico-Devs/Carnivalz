@@ -159,6 +159,24 @@ func colpo(scheda_attaccante: Control, scheda_bersaglio: Control,
 	scossa(ampiezza_scossa(grado, critico))
 	fermo(durata_fermo(grado, critico))
 
+# PERCHE' UNA SCHEDA NON SI PUO' SPOSTARE, e ci sono cascato scrivendo questo
+# file. La prima versione di scatto() e contraccolpo() animava "position": chi
+# colpisce si sporgeva di quattordici pixel verso il bersaglio e tornava. Sembra
+# la cosa piu' naturale del mondo, e in questo progetto NON FUNZIONA.
+#
+# Le schede dei combattenti stanno dentro degli HBoxContainer (vedi Campo.gd), e
+# un contenitore in Godot RISCRIVE posizione e dimensione dei suoi figli ogni
+# volta che si riordina. Non ogni frame - e per questo il guaio non si vede
+# subito - ma a ogni cambio di larghezza di un figlio: e la riga di dettaglio
+# sotto ogni scheda cambia testo praticamente a ogni colpo. Il risultato sarebbe
+# stato un'animazione che ogni tanto sparisce a meta', senza uno schema, e
+# nessuna prova avrebbe potuto dirlo perche' da muti i nodi non esistono.
+#
+# Quello che un contenitore NON tocca e' la scala e la rotazione. Quindi il
+# gesto e' fatto di quelle due: chi colpisce si ingrandisce un soffio e si
+# inclina verso il bersaglio, chi incassa si schiaccia e si inclina dall'altra
+# parte. Si legge come uno scatto, e non puo' essere smontato da un riordino.
+
 func scatto(scheda_attaccante: Control, scheda_bersaglio: Control) -> void:
 	# Chi colpisce si sporge verso chi sta colpendo e torna al suo posto. La
 	# direzione esce dalle posizioni vere delle due schede, non da "e' del
@@ -170,26 +188,36 @@ func scatto(scheda_attaccante: Control, scheda_bersaglio: Control) -> void:
 	if valido(scheda_bersaglio):
 		var differenza := scheda_bersaglio.global_position.x - scheda_attaccante.global_position.x
 		verso = verso_scatto(differenza >= 0.0)
-	sposta_e_torna(scheda_attaccante, verso * 14.0, 0.09, 0.13)
+	gesto_di_colpo(scheda_attaccante, Vector2(1.07, 1.07), verso.x * 0.055, 0.09, 0.14)
 
 func contraccolpo(scheda_bersaglio: Control, grado: float) -> void:
-	# Chi incassa viene spinto indietro. Poco: e' un cenno, non un volo. Il
-	# lampo di colore continua a farlo Voce.lampeggia - qui c'e' solo il
-	# movimento, cosi' le due cose restano separabili
+	# Chi incassa si schiaccia. Poco: e' un cenno, non un volo. Il lampo di
+	# colore continua a farlo Voce.lampeggia - qui c'e' solo il movimento, cosi'
+	# le due cose restano separabili
 	if muta or not valido(scheda_bersaglio) or grado <= 0.0:
 		return
-	sposta_e_torna(scheda_bersaglio, Vector2(0, 1) * (3.0 + grado * 7.0), 0.06, 0.16)
+	var schiacciata := Vector2(1.0 + grado * 0.10, 1.0 - grado * 0.09)
+	gesto_di_colpo(scheda_bersaglio, schiacciata, -grado * 0.045, 0.06, 0.18)
 
-func sposta_e_torna(nodo: Control, spostamento: Vector2, andata: float, ritorno: float) -> void:
-	# Va e torna AL PUNTO DA CUI E' PARTITO, letto adesso. Se due colpi si
-	# accavallano il secondo parte da dove si trova il nodo in quel momento e
-	# rimette le cose a posto da li': non esiste nessuna posizione "giusta"
-	# memorizzata che possa restare disallineata.
-	var partenza := nodo.position
+func gesto_di_colpo(nodo: Control, scala: Vector2, inclinazione: float,
+		andata: float, ritorno: float) -> void:
+	# Va e torna SEMPRE a scala 1 e rotazione 0, che e' lo stato di riposo di
+	# qualunque scheda: non c'e' nessun valore "giusto" da ricordarsi, quindi due
+	# colpi accavallati non possono lasciare una scheda storta per sempre.
+	#
+	# Il perno al centro va rimesso ogni volta: la scheda cambia larghezza quando
+	# cambia il testo che ha sotto, e un perno vecchio farebbe ruotare la
+	# creatura attorno a un punto che non e' piu' il suo centro.
+	nodo.pivot_offset = nodo.size * 0.5
 	var gesto := nodo.create_tween()
-	gesto.tween_property(nodo, "position", partenza + spostamento, andata) \
+	gesto.set_parallel(true)
+	gesto.tween_property(nodo, "scale", scala, andata) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	gesto.tween_property(nodo, "position", partenza, ritorno) \
+	gesto.tween_property(nodo, "rotation", inclinazione, andata) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	gesto.chain().tween_property(nodo, "scale", Vector2.ONE, ritorno) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	gesto.parallel().tween_property(nodo, "rotation", 0.0, ritorno) \
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func scossa(pixel: float) -> void:

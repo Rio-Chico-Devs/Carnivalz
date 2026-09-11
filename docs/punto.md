@@ -77,12 +77,20 @@ artwork, badge, titoli, dedizione.
 | **Disallineamento** — i nemici non restano indietro più di 3 livelli | `GameState.livello_nemico` |
 | **Sei caselle** — ogni creatura ha 6 slot mossa, i vuoti sono dichiarati | `data/personaggi.json` |
 | **20 tipi di mossa** eseguibili dal motore | `esegui_mossa()` |
+| **Il colpo si sente** — fermo immagine, scossa, scatto di chi colpisce | `combattimento/Impatto.gd` |
+| **Il tipo si vede** — colore del numero, e ▲ / ▼ / ✕ per l'efficacia | `Stile.colore_colpo` |
+| **L'arena reagisce** — fondo tinto dal tipo, bordi che si chiudono | `combattimento/Arena.gd` |
+| **Allarme vita bassa** — la scheda batte prima che tu cada | `Campo.allarme_vita` |
+| **Tetto alla cura di sé** — nessuna creatura si rimette addosso più della sua vita | `rimetti_in_piedi()` |
 | **Armi con attacchi propri**, sotto Abilità | `GameState.attacchi_arma` |
 | **Salvataggio a 5 slot** + autosalvataggio | `GameState` |
 
-**Come si controlla che sia vero:** `./prove/esegui.sh` — **72 prove, 26.227 verifiche**, gira in
+**Come si controlla che sia vero:** `./prove/esegui.sh` — **79 prove, 26.368 verifiche**, gira in
 circa quattro minuti. Ogni prova nuova la valido rompendo apposta la meccanica che misura: se non
-diventa rossa, la prova non serve a niente e la riscrivo.
+diventa rossa, la prova non serve a niente e la riscrivo. **Nell'ultimo giro il metodo si è
+ripagato due volte**: due prove che avevo appena scritto restavano verdi anche con la meccanica
+rotta — una confrontava il colore sbagliato, l'altra non arrivava mai al caso che diceva di
+misurare. Le ha trovate il sabotaggio, non io, e le ho riscritte.
 
 ---
 
@@ -117,16 +125,24 @@ correggendo una tua decisione o una mia invenzione.
 
 ---
 
-## 5. Problemi noti, misurati, **non toccati apposta**
+## 5. Problemi noti, misurati — **uno chiuso, due no**
 
-Li ha trovati il simulatore. Non li ho sistemati perché sono di bilancio, e il bilancio ha senso
-quando le armi e l'hype sono al loro posto — non prima.
+Li ha trovati il simulatore. Gli altri due non li ho sistemati perché sono di bilancio, e il
+bilancio ha senso quando le armi e l'hype sono al loro posto — non prima. Il primo invece non era
+di bilancio: era una regola che mancava, ed è un'altra cosa.
 
 | Chi | Cosa succede |
 | --- | --- |
-| **Il Divoratore** | Si cura del **145%** di quello che gli fai. Al primo incontro è imbattibile |
+| ~~**Il Divoratore**~~ | ~~Si rimette addosso il **145%** della sua vita massima~~ — **chiuso**, ma non limando lui: adesso è una regola di motore, nessuna creatura si cura di più della propria vita in tutto uno scontro. Continua a chiudersi su se stessa e a mangiarsi, solo che a un certo punto ha finito sé stessa, e lo dice |
 | **Oppresso · Robo Pattuglia** | Guardia cumulativa senza contrappeso: diventano scontri da **30 giri** |
 | **Fomentado** | La sua combustione lo uccide da sola. Vince chi aspetta |
+
+> **Perché una regola e non una correzione.** Limare il Divoratore avrebbe sistemato il Divoratore;
+> domani ne arriva un'altra scritta con lo stesso entusiasmo. Il tetto invece copre tutte e sei le
+> strade con cui una creatura può rimettersi in piedi — cura, furto di vita, modalità, e le due
+> rigenerazioni — e c'è una prova che legge il sorgente e pretende che non se ne apra una settima.
+> **Il tetto non vale per la tua squadra**: quelle cure le paghi tu, con oggetti comprati o aura
+> spesa, e un limite invisibile sulle fiale che fanno effetto sarebbe la cosa più crudele del gioco.
 
 ---
 
@@ -148,6 +164,9 @@ In ordine di quanto blocca il lavoro. I primi tre sono quelli senza cui non poss
 | 7 | **Le condizioni di mediazione** dei 39 nemici | `mediazione.md` |
 | 8 | **Un grado II** per ognuna delle tre linee del protagonista: gli altri quindici li propongo in scala | `personaggi-giocabili.md` |
 | 9 | **Le mosse delle versioni scriptate** e dell'aiutante di Jondoh | `personaggi-giocabili.md` |
+| 10 | **Il tetto alla cura di sé** (100% della vita massima) e la **soglia della vita bassa** (25%) | `data/regole.json` |
+| 11 | **Quanto si sente un colpo** — durate del fermo immagine, ampiezza della scossa | `combattimento/Impatto.gd` |
+| 12 | **Quanta tinta prende il fondo** (14%) e quanto sono spessi i bordi del velo (28%) | `combattimento/Arena.gd` |
 
 ---
 
@@ -167,10 +186,10 @@ Tre comandi, e non serve sapere niente di programmazione per leggerne l'esito.
 
 | | |
 | --- | --: |
-| Righe di codice (GDScript) | 18.731 |
+| Righe di codice (GDScript) | 19.905 |
 | File di dati | 23 + 8 zone |
 | Creature | 39 |
-| Prove | 72, per 26.227 verifiche |
+| Prove | 79, per 26.368 verifiche |
 | Tipi di mossa che il motore esegue | 20 |
 | Livello massimo | 130 |
 | Nodi della costellazione | 80 disegnati, 60 comprabili |
