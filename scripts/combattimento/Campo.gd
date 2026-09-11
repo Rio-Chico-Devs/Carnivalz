@@ -118,6 +118,7 @@ func aggiorna(combattente: Dictionary) -> void:
 		combattente["uscito"] = false
 		combattente.scheda.visible = true
 		combattente.scheda.modulate = Color.WHITE
+	allarme_vita(combattente)
 	if combattente.hp <= 0:
 		combattente.etichetta_vita.text = "KO"
 		combattente.scheda.modulate = Color(0.5, 0.4, 0.4, 0.5)
@@ -135,6 +136,51 @@ func aggiorna(combattente: Dictionary) -> void:
 		# gia' piena di un pezzo (base 15) a scontro appena cominciato
 		Stile.riempi_barra(combattente.barra_dominio,
 				float(combattente.get("dominio", 0)) / float(maxi(RegoleCombattimento.dominio_pieno(), 1)))
+
+static func in_pericolo(hp: int, hp_max: int) -> bool:
+	# Sotto che soglia un compagno sta per cadere. Statica e senza nodi apposta:
+	# e' la regola, e va potuta misurare senza costruire mezza schermata
+	if hp <= 0 or hp_max <= 0:
+		return false
+	return float(hp) / float(hp_max) <= float(GameState.regole.get("soglia_vita_bassa", 0.25))
+
+func allarme_vita(combattente: Dictionary) -> void:
+	# IL KO ARRIVAVA SENZA PREAVVISO. La vita era scritta in una riga di sei
+	# voci, in mezzo a Stress, Fattore e Dominio, dello stesso colore di tutto il
+	# resto: si passava da "sto giocando" a "è a terra" senza nessun momento in
+	# cui il gioco avesse detto "adesso". E un KO che non si vede arrivare non e'
+	# tensione, e' sfortuna.
+	#
+	# Adesso il numero della vita diventa rosso e comincia a battere quando
+	# scende sotto la soglia, e smette quando risale. Solo per la TUA squadra: di
+	# una creatura la vita e' una cosa che scopri studiandola, e un allarme
+	# addosso a lei ti direbbe gratis quello che dovevi guardare.
+	#
+	# Il battito si accende e si spegne una volta sola (allarme_acceso): senza
+	# quel promemoria ogni aggiornamento di scheda - e ce n'e' uno per colpo -
+	# farebbe ripartire il tween da capo, e il risultato sarebbe un numero che
+	# tremola invece di respirare.
+	if not bool(combattente.get("giocatore", false)):
+		return
+	var etichetta: Label = combattente.get("etichetta_vita", null)
+	if etichetta == null or not is_instance_valid(etichetta):
+		return
+	var pericolo := in_pericolo(int(combattente.hp), int(combattente.hp_max))
+	if pericolo == bool(combattente.get("allarme_acceso", false)):
+		return
+	combattente["allarme_acceso"] = pericolo
+	var battito: Tween = combattente.get("tween_allarme", null)
+	if battito != null and battito.is_valid():
+		battito.kill()
+	if pericolo:
+		etichetta.add_theme_color_override("font_color", Stile.colore_danno("normale"))
+		# piu' svelto del battito dell'indicatore "premi per continuare": quello
+		# e' un invito, questo e' un allarme, e devono avere due ritmi diversi
+		combattente["tween_allarme"] = Stile.pulsa(etichetta, Stile.tempo("battito_allarme"))
+	else:
+		etichetta.remove_theme_color_override("font_color")
+		etichetta.modulate.a = 1.0
+		combattente["tween_allarme"] = null
 
 func conosciuta(combattente: Dictionary, strato: int) -> bool:
 	# Studiare era una cosa che si LEGGEVA: premevi, usciva del testo, e sullo

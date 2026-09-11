@@ -177,5 +177,8 @@
 	"tipo_moltiplicatore_ipersensibile": 1.5,
 	"evocati_massimi_squadra": 4,
 	"hype_moltiplicatore": 100,
-	"hype_per_punto": 1000
+	"hype_per_punto": 1000,
+	"cura_di_se_massima_quota": 1.0,
+	"tipo_moltiplicatore_resistente": 0.5,
+	"soglia_vita_bassa": 0.25
 }

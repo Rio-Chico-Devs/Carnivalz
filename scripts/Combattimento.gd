@@ -13,6 +13,8 @@ extends Control
 #   Campo.gd          -> le schede dei combattenti: vita, aura, stati, chi
 #                        tocca adesso.
 #   Menu.gd           -> i bottoni delle azioni.
+#   Impatto.gd        -> quello che un colpo fa SENTIRE e non dice: il fermo
+#                        immagine, la scossa, lo scatto di chi colpisce.
 #
 # Non e' pulizia: e' una capacita'. Voce, Campo e Menu hanno una modalita'
 # MUTA in cui non creano niente e non aspettano niente, e allora questo stesso
@@ -36,6 +38,9 @@ const SCENA_EVENTI := "res://scenes/Main.tscn"
 const SCENA_SEDE := "res://scenes/Sede.tscn"
 
 @onready var sfondo: ColorRect = %Sfondo
+# il corpo della schermata: tutto tranne lo sfondo e i numeri che volano. E'
+# quello che sbanda quando arriva un colpo grosso (vedi Impatto.gd)
+@onready var corpo: MarginContainer = %Margini
 @onready var fila_party: HBoxContainer = %Party
 @onready var nemico_centro: HBoxContainer = %NemicoCentro
 @onready var nemici_sinistra: HBoxContainer = %NemiciSinistra
@@ -46,10 +51,11 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 @onready var volanti: Control = %Volanti
 @onready var area_avanza: Button = %AreaAvanza
 
-# I tre collaboratori. In modalita' muta non toccano nessun nodo.
+# I quattro collaboratori. In modalita' muta non toccano nessun nodo.
 var voce: VoceCombattimento
 var campo: CampoCombattimento
 var menu: MenuCombattimento
+var impatto: ImpattoCombattimento
 
 # Muto: nessuno guarda: niente box, niente schede, niente attese. Va impostato
 # PRIMA che la scena entri nell'albero (vedi Simulatore.gd).
@@ -165,14 +171,27 @@ var portatore_rabbia: Dictionary = {}
 # meta' vita invece di cadere). Entrambe si consumano, una volta sola.
 
 
+func _exit_tree() -> void:
+	# IL FERMO IMMAGINE ABBASSA UNA COSA GLOBALE. Engine.time_scale non
+	# appartiene a questa scena: se lo scontro finisce, o il giocatore esce,
+	# proprio mentre un colpo sta fermando il mondo, quel rallentamento se ne va
+	# in giro per tutto il resto del gioco e non c'e' niente a schermo che spieghi
+	# perche'. Qui si rimette a posto comunque sia andata
+	if impatto != null:
+		impatto.sblocca()
+
 func _ready() -> void:
 	voce = VoceCombattimento.new(get_tree(), muto)
 	campo = CampoCombattimento.new(muto)
 	menu = MenuCombattimento.new(self, muto)
+	impatto = ImpattoCombattimento.new(get_tree(), muto)
 	if not muto:
 		voce.collega(box, area_avanza, volanti)
 		campo.collega(fila_party, nemico_centro, nemici_sinistra, nemici_destra)
 		menu.collega(azioni)
+		# sbanda il corpo della schermata, non lo sfondo: altrimenti a ogni
+		# scossa si vedrebbero i bordi neri dello schermo
+		impatto.collega(corpo)
 		applica_stile()
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
@@ -433,6 +452,14 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"etichetta_extra": nodi["etichetta_extra"],
 		"barra_dominio": nodi.get("barra_dominio", null),
 		"bersaglio_cliccabile": nodi.get("bersaglio", null),
+		# l'allarme della vita bassa: acceso o spento, e il battito da fermare
+		# quando si spegne (vedi Campo.allarme_vita)
+		"allarme_acceso": false,
+		"tween_allarme": null,
+		# quanta vita si e' gia' rimessa addosso da sola in questo scontro: il
+		# tetto sta in regole.json, la ragione in rimetti_in_piedi()
+		"cura_di_se": 0,
+		"cura_esaurita_detta": false,
 	}
 	combattenti.append(combattente)
 	aggiorna_scheda(combattente)
@@ -2783,11 +2810,9 @@ func avanza_modalita(chi: Dictionary) -> void:
 				99, "modalita_%s" % String(modalita.get("id", "")))
 	var quota: float = float(modalita.get("cura_quota", 0.0))
 	if quota > 0.0 and int(chi.hp) > 0:
-		var quanto := maxi(int(round(float(chi.hp_max) * quota)), 1)
-		var prima := int(chi.hp)
-		chi.hp = mini(prima + quanto, int(chi.hp_max))
-		if int(chi.hp) > prima:
-			scrivi("[i]%s si rimette insieme: +%d.[/i]" % [chi.nome, int(chi.hp) - prima])
+		var rimesso := rimetti_in_piedi(chi, maxi(int(round(float(chi.hp_max) * quota)), 1))
+		if rimesso > 0:
+			scrivi("[i]%s si rimette insieme: +%d.[/i]" % [chi.nome, rimesso])
 	if String(modalita.get("testo_battuta", "")) != "":
 		scrivi("[i]%s[/i]" % String(modalita["testo_battuta"]))
 	modalita.passate = int(modalita.get("passate", 0)) + 1
@@ -3120,11 +3145,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 				curato = alleato_piu_ferito(nemico)
 			if curato.is_empty():
 				return
-			var quanto := maxi(int(round(float(curato.hp_max)
-					* float(mossa.get("quota_vita", 0.25)))), 1)
-			var prima_cura := int(curato.hp)
-			curato.hp = mini(prima_cura + quanto, int(curato.hp_max))
-			var rimesso := int(curato.hp) - prima_cura
+			var rimesso := rimetti_in_piedi(curato, maxi(int(round(float(curato.hp_max)
+					* float(mossa.get("quota_vita", 0.25)))), 1))
 			if rimesso > 0:
 				var scheda_curato: Control = curato.scheda
 				scrivi("[i]%s si rimette insieme: +%d.[/i]" % [curato.nome, rimesso])
@@ -3146,11 +3168,15 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 					* float(mossa.get("quota_furto", 0.5))))
 			if rubato > 0 and int(nemico.hp) > 0:
 				var scheda_ladro: Control = nemico.scheda
-				nemico.hp = mini(int(nemico.hp) + rubato, int(nemico.hp_max))
-				scrivi("[i]%s se ne nutre: +%d.[/i]" % [nemico.nome, rubato])
-				voce.accoda_effetto(func() -> void:
-					voce.numero_volante(scheda_ladro, "+%d" % rubato, Stile.colore("positivo"))
-					aggiorna_scheda(nemico))
+				# anche il furto di vita passa dal tetto: e' la strada piu' facile
+				# per aggirarlo - basta una mossa che picchia e si nutre, e la
+				# creatura si rimette addosso quanto vuole senza mai "curarsi"
+				var nutrito := rimetti_in_piedi(nemico, rubato)
+				if nutrito > 0:
+					scrivi("[i]%s se ne nutre: +%d.[/i]" % [nemico.nome, nutrito])
+					voce.accoda_effetto(func() -> void:
+						voce.numero_volante(scheda_ladro, "+%d" % nutrito, Stile.colore("positivo"))
+						aggiorna_scheda(nemico))
 		"stato":
 			# nessun danno: solo quello che ti lascia addosso. Una mossa che "fa
 			# cose" invece di fare male, ed e' meta' di quello che Bru ha chiesto
@@ -3503,7 +3529,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 		# ogni attacco vale sempre lo stesso, fisso, danno
 		var danno_forzato := int(dati_bersaglio["danno_fisso_su_attacco"])
 		bersaglio.hp = maxi(bersaglio.hp - danno_forzato, 0)
-		mostra_colpo(bersaglio, danno_forzato, elemento)
+		mostra_colpo(bersaglio, danno_forzato, elemento, false, attaccante)
 		if not bersaglio.giocatore:
 			verifica_innesco_frenesia(bersaglio)
 			verifica_dialogo_soglia(bersaglio)
@@ -3527,7 +3553,17 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 	if efficacia > 1.0:
 		scrivi("[i]È il colpo giusto: %s lo incassa male.[/i]" % bersaglio.nome)
 	elif efficacia <= 0.0:
+		# IMMUNE E "PARA IL COLPO" NON SONO LA STESSA COSA, e prima lo
+		# sembravano: il colpo immune scriveva questa riga e subito dopo anche
+		# "para il colpo di", perche' arrivava a danno zero come chiunque si sia
+		# difeso bene. Due messaggi che dicono due cose diverse sullo stesso
+		# colpo, e quello sbagliato per ultimo. Adesso l'immunita' si ferma qui e
+		# si vede addosso al bersaglio con un segno suo
 		scrivi("[i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]" % bersaglio.nome)
+		mostra_immunita(bersaglio, attaccante, elemento)
+		if bersaglio.giocatore:
+			aggiorna_speranza(int(GameState.regole.get("speranza_per_colpo_subito", 3)))
+		return
 	if danno <= 0:
 		# questo invece va detto: un colpo che non passa e' un'informazione,
 		# non un evento da guardare
@@ -3544,7 +3580,7 @@ func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1
 			GameState.registra_azione("critici_inflitti")
 		# un critico merita una parola: e' l'eccezione, non la regola
 		scrivi("[b]Colpo critico![/b] %s coglie %s in pieno." % [attaccante.nome, bersaglio.nome])
-	mostra_colpo(bersaglio, danno, elemento, critico)
+	mostra_colpo(bersaglio, danno, elemento, critico, attaccante, efficacia)
 	if not bersaglio.giocatore:
 		verifica_innesco_frenesia(bersaglio)
 		verifica_dialogo_soglia(bersaglio)
@@ -3670,30 +3706,105 @@ func elemento_di(combattente: Dictionary) -> String:
 		return ""
 	return String(GameState.dati_oggetto(id_arma).get("elemento", ""))
 
-func effetto_colpo(bersaglio: Dictionary, danno: int, elemento := "", critico := false) -> Callable:
-	# quello che si vede quando qualcuno incassa: il numero che sale dalla sua
-	# scheda, il lampo, la barra della vita che scende. Tutto insieme e al
-	# momento giusto della sequenza, non tre messaggi prima.
+func effetto_colpo(bersaglio: Dictionary, danno: int, elemento := "", critico := false,
+		attaccante: Dictionary = {}, efficacia := 1.0) -> Callable:
+	# quello che si vede E SI SENTE quando qualcuno incassa: il numero che sale
+	# dalla sua scheda, il lampo, la barra della vita che scende, il mondo che si
+	# ferma per un istante, lo schermo che sbanda, chi ha colpito che si sporge
+	# in avanti. Tutto insieme e al momento giusto della sequenza, non tre
+	# messaggi prima.
 	#
-	# Il numero ha un colore e una taglia, e vogliono dire qualcosa: rosso e'
-	# un colpo normale, oro e grosso e' un critico, arancione e' fuoco, verde
-	# acido e' veleno. Guardando lo scontro si capisce COSA sta succedendo senza
-	# leggere una riga (vedi colori_danno in stile.json).
+	# Il numero ha un colore, una taglia e un segno, e vogliono dire tre cose
+	# diverse: il COLORE e' l'elemento della mossa, o - se non ne ha - il tipo di
+	# chi colpisce (vedi Stile.colore_colpo); la TAGLIA dice se e' stato un
+	# critico; il SEGNO dice l'efficacia del tipo, ▲ se il bersaglio lo incassa
+	# male e ▼ se lo regge bene. Guardando lo scontro si capisce COSA sta
+	# succedendo senza leggere una riga.
 	var scheda: Control = bersaglio.scheda
+	var scheda_attaccante: Control = attaccante.get("scheda", null)
 	var vivo: bool = int(bersaglio.hp) > 0
-	var tinta := Stile.colore_danno("critico" if critico else elemento)
-	var testo := ("−%d!" % danno) if critico else ("−%d" % danno)
+	var tipo_colpo := ""
+	if not attaccante.is_empty():
+		tipo_colpo = RegoleCombattimento.tipo_di(attaccante)
+	var tinta := Stile.colore_colpo(elemento, tipo_colpo, critico)
+	var testo := ImpattoCombattimento.testo_del_numero(danno, critico, efficacia)
+	var vita_massima := int(bersaglio.get("hp_max", 1))
 	return func() -> void:
 		voce.suono("colpo")
 		voce.numero_volante(scheda, testo, tinta, critico)
 		if vivo:
 			voce.lampeggia(scheda, tinta)
+		impatto.colpo(scheda_attaccante, scheda, danno, vita_massima, critico)
 		aggiorna_scheda(bersaglio)
 
-func mostra_colpo(bersaglio: Dictionary, danno: int, elemento := "", critico := false) -> void:
+func rimetti_in_piedi(chi: Dictionary, quanto: int) -> int:
+	# TUTTA la vita che una creatura si rimette addosso passa di qui: la mossa
+	# "cura", il furto di vita, e ogni battuta di una modalita' che si ripara. Le
+	# tre strade facevano lo stesso identico gesto scritto tre volte, e il giorno
+	# che serviva una regola in mezzo bisognava ricordarsi di tutte e tre.
+	#
+	# IL TETTO, e perche' esiste. Il Divoratore ha due modalita' in fila:
+	# Simulazione Ouroboros (tre battute al 15%, e mentre gira e' pure
+	# irraggiungibile) e Autoriciclaggio (quattro battute al 25%). In tutto si
+	# rimette il CENTOQUARANTACINQUE PER CENTO della sua vita massima, piu' quello
+	# che ruba con la Presa. Non e' un boss difficile: e' uno scontro che il
+	# giocatore non puo' perdere ne' vincere, e finisce quando si stanca lui.
+	#
+	# La risposta non e' limare quella creatura - domani ne arriva un'altra
+	# scritta con lo stesso entusiasmo. E' una regola di motore: nessuna creatura
+	# puo' rimettersi addosso, in tutto uno scontro, piu' di una quota della sua
+	# vita massima. Il Divoratore continua a fare esattamente quello che fa - si
+	# chiude, gira, si mangia da sola - solo che a un certo punto ha finito se
+	# stessa, e lo dice. Una macchina che si ricicla e che si esaurisce e' piu'
+	# vera di una che si ricicla per sempre.
+	#
+	# Il tetto NON vale per la tua squadra: le cure del party le paghi tu, con
+	# oggetti comprati o aura spesa, e un limite invisibile sul numero di fiale
+	# che fanno effetto sarebbe la cosa piu' crudele e piu' incomprensibile del
+	# gioco.
+	if quanto <= 0 or int(chi.hp) <= 0:
+		return 0
+	var spazio := int(chi.hp_max) - int(chi.hp)
+	if spazio <= 0:
+		return 0
+	var concesso := quanto
+	var del_nemico := not bool(chi.get("giocatore", false))
+	if del_nemico:
+		var tetto := int(round(float(chi.hp_max)
+				* float(GameState.regole.get("cura_di_se_massima_quota", 1.0))))
+		concesso = clampi(tetto - int(chi.get("cura_di_se", 0)), 0, quanto)
+		if concesso <= 0:
+			if not bool(chi.get("cura_esaurita_detta", false)):
+				chi["cura_esaurita_detta"] = true
+				scrivi("[i]%s non ha più niente da darsi.[/i]" % chi.nome)
+			return 0
+	# si conta quello che E' ENTRATO, non quello che era concesso: una cura di
+	# ottanta punti su una creatura a cui ne mancano tre vale tre, e far pesare
+	# gli altri settantasette sul tetto lo svuoterebbe con un colpo solo
+	var rimesso := mini(concesso, spazio)
+	chi.hp = int(chi.hp) + rimesso
+	if del_nemico:
+		chi["cura_di_se"] = int(chi.get("cura_di_se", 0)) + rimesso
+	return rimesso
+
+func mostra_immunita(bersaglio: Dictionary, attaccante: Dictionary, elemento := "") -> void:
+	# Un colpo che non arriva proprio. Niente numero - non c'e' nessun numero da
+	# mostrare - ma il segno dell'immunita' sopra la scheda, dello stesso colore
+	# che avrebbe avuto il colpo: si vede che ci hai provato e che era la strada
+	# sbagliata. E niente scossa, niente fermo immagine: non ha incontrato niente
+	var scheda: Control = bersaglio.scheda
+	var tipo_colpo := ""
+	if not attaccante.is_empty():
+		tipo_colpo = RegoleCombattimento.tipo_di(attaccante)
+	var tinta := Stile.colore_colpo(elemento, tipo_colpo)
+	voce.accoda_effetto(func() -> void:
+		voce.numero_volante(scheda, ImpattoCombattimento.marchio_efficacia(0.0), tinta))
+
+func mostra_colpo(bersaglio: Dictionary, danno: int, elemento := "", critico := false,
+		attaccante: Dictionary = {}, efficacia := 1.0) -> void:
 	# un colpo normale non ha bisogno di parole: si vede e basta. Cosi' il box
 	# resta libero per le cose che vanno dette davvero
-	voce.accoda_effetto(effetto_colpo(bersaglio, danno, elemento, critico))
+	voce.accoda_effetto(effetto_colpo(bersaglio, danno, elemento, critico, attaccante, efficacia))
 	verifica_ultima_risorsa(bersaglio)
 
 func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int, elemento := "") -> void:

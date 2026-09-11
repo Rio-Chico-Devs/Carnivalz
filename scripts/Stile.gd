@@ -254,6 +254,42 @@ func colore_danno(elemento: String) -> Color:
 		return Color(1.0, 0.92, 0.2)
 	return Color.html(esadecimale)
 
+func colore_tipo(nome_tipo: String) -> Color:
+	# Il colore di uno dei cinque tipi, preso da data/tipi.json e non da qui.
+	# Una seconda copia delle tinte dentro stile.json sarebbe comoda e sbagliata:
+	# il giorno che Bru cambia il colore di Spirituale lo cambia dove i tipi sono
+	# descritti, e questo file non ne saprebbe niente.
+	var dati_tipo: Dictionary = GameState.tipi.get(nome_tipo, {})
+	var esadecimale := String(dati_tipo.get("colore", ""))
+	if esadecimale == "":
+		return colore_danno("normale")
+	if alto_contrasto:
+		return Color(1.0, 0.92, 0.2)
+	return Color.html(esadecimale)
+
+func colore_colpo(elemento: String, tipo_colpo: String, critico := false) -> Color:
+	# DI CHE COLORE E' QUESTO COLPO. Tre voci, in quest'ordine, e l'ordine e' il
+	# ragionamento:
+	#
+	#   1. un critico e' oro, sempre. E' l'eccezione piu' forte che ci sia e non
+	#      deve mai confondersi con nient'altro
+	#   2. l'ELEMENTO, se la mossa ne dichiara uno. Il fuoco e' arancione e il
+	#      veleno e' verde acido da prima che i tipi esistessero, sono colori che
+	#      funzionano, e cancellarli per far posto ai tipi sarebbe stato buttare
+	#      via una cosa buona per farne entrare un'altra
+	#   3. il TIPO di chi colpisce, per tutto il resto. Ed e' la novita': la
+	#      stragrande maggioranza dei colpi non dichiara nessun elemento, quindi
+	#      fino a ieri erano tutti dello stesso rosso. Adesso un colpo di
+	#      Artificio e uno di Natura si distinguono a occhio anche senza leggere
+	#      niente, e cambiare arma si VEDE
+	if critico:
+		return colore_danno("critico")
+	if elemento != "":
+		return colore_danno(elemento)
+	if tipo_colpo != "":
+		return colore_tipo(tipo_colpo)
+	return colore_danno("normale")
+
 # --- dove sei gia' stato ---
 #
 # Tre stati, tre colori, uguali in tutto il gioco: la mappa stellare, il Vuoto,
@@ -338,17 +374,22 @@ func lampeggia(nodo: CanvasItem, tinta: Color) -> void:
 	battito.tween_property(nodo, "modulate", tinta, durata * 0.35)
 	battito.tween_property(nodo, "modulate", Color.WHITE, durata * 0.65)
 
-func pulsa(nodo: CanvasItem) -> void:
+func pulsa(nodo: CanvasItem, durata_battito := 0.0) -> Tween:
 	# battito lento e infinito di opacita': l'invito a proseguire non deve
 	# mai restare immobile, o si perde tra tutto il resto che e' fermo a
 	# schermo. Il nodo deve gia' essere dentro l'albero quando si chiama
 	# questo (create_tween() lo richiede) - va chiamato dopo add_child().
+	#
+	# Restituisce il tween perche' un battito che non si puo' SPEGNERE e' meta'
+	# meccanica: l'allarme della vita bassa deve smettere quando ti curi, e senza
+	# un riferimento da fermare resterebbe acceso per tutto lo scontro.
 	if nodo == null or not is_instance_valid(nodo):
-		return
-	var durata := tempo("battito_indicatore")
+		return null
+	var durata := durata_battito if durata_battito > 0.0 else tempo("battito_indicatore")
 	var battito: Tween = nodo.create_tween().set_loops()
 	battito.tween_property(nodo, "modulate:a", 0.35, durata)
 	battito.tween_property(nodo, "modulate:a", 1.0, durata)
+	return battito
 
 func costruisci_prompt(testo: String) -> HBoxContainer:
 	# la riga "◆  premi per continuare  ◆": lo stesso identico invito a

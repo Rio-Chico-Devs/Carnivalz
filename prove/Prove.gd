@@ -69,6 +69,12 @@ func _ready() -> void:
 	prova_hype()
 	prova_abilita_di_veronica_e_yhvina()
 	prova_i_cinque_tipi()
+	prova_il_colpo_si_sente()
+	prova_il_fermo_immagine_non_resta_acceso()
+	prova_il_tipo_si_vede_sul_colpo()
+	prova_resistere_non_e_essere_immuni()
+	prova_il_tetto_alla_cura_di_se()
+	prova_la_vita_bassa_si_annuncia()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -3169,6 +3175,343 @@ func prova_i_cinque_tipi() -> void:
 			"con un coltello in mano il tipo del colpo e' '%s' invece di quello dell'arma"
 			% RegoleCombattimento.tipo_di(eroe))
 	scontro.free()
+
+func prova_il_colpo_si_sente() -> void:
+	# GLI EFFETTI DI COLPO, misurati dove si possono misurare.
+	#
+	# Un fermo immagine e una scossa non si possono provare guardando lo schermo:
+	# in queste prove lo schermo non c'e'. Per questo Impatto.gd e' scritto in
+	# due meta' - le funzioni che DECIDONO (quanto scuotere, quanto fermare, con
+	# che segno marcare un colpo) sono statiche e pure, e sono queste; la meta'
+	# che muove i nodi e' volutamente sottile e non decide niente.
+	#
+	# Quello che si misura qui e' il ragionamento, non i numeri: che la severita'
+	# guardi la PROPORZIONE e non il danno assoluto, che sotto soglia non succeda
+	# niente, che niente possa sfondare il tetto.
+	titolo("un colpo si sente: fermo immagine, scossa, scatto")
+
+	# LA REGOLA PIU' IMPORTANTE: trenta danni non vogliono dire niente da soli.
+	# Trenta a una creatura da quaranta punti vita sono la fine del mondo, trenta
+	# a un boss da milleduecento sono una zanzara. Un effetto che guardasse il
+	# numero scuoterebbe lo schermo per le zanzare
+	var sulla_piccola := ImpattoCombattimento.severita(30, 40)
+	var sul_bestione := ImpattoCombattimento.severita(30, 1200)
+	esigi(sulla_piccola > sul_bestione,
+			"trenta danni pesano uguale su 40 e su 1200 punti vita (%.2f contro %.2f): la severita' guarda il numero, non la proporzione"
+			% [sulla_piccola, sul_bestione])
+	esigi(is_equal_approx(ImpattoCombattimento.severita(0, 100), 0.0),
+			"un colpo da zero danni ha una severita' sopra zero")
+	esigi(is_equal_approx(ImpattoCombattimento.severita(50, 0), 0.0),
+			"un bersaglio senza vita massima non manda la severita' in divisione per zero")
+	esigi(ImpattoCombattimento.severita(99999, 100) <= 1.0,
+			"la severita' sfonda l'uno: un colpo enorme scuoterebbe fuori scala")
+
+	# IL FERMO NON SUCCEDE SEMPRE. Un fermo a ogni colpo non e' un fermo: e' un
+	# gioco che va a scatti, ed e' il modo piu' veloce di rendere insopportabile
+	# la tecnica piu' efficace che esista
+	var graffio := ImpattoCombattimento.severita(1, 300)
+	esigi(is_equal_approx(ImpattoCombattimento.durata_fermo(graffio), 0.0),
+			"un graffio ferma il mondo: sotto soglia il fermo deve valere zero")
+	esigi(is_equal_approx(ImpattoCombattimento.ampiezza_scossa(graffio), 0.0),
+			"un graffio scuote lo schermo")
+	var mazzata := ImpattoCombattimento.severita(120, 300)
+	esigi(ImpattoCombattimento.durata_fermo(mazzata) > 0.0,
+			"un colpo da 120 su 300 punti vita non ferma niente")
+	esigi(ImpattoCombattimento.ampiezza_scossa(mazzata) > 0.0,
+			"un colpo da 120 su 300 punti vita non scuote niente")
+
+	# un critico e' l'eccezione: si ferma e sbanda anche quando e' piccolo,
+	# esattamente come il suo numero e' grande anche quando e' piccolo
+	esigi(ImpattoCombattimento.durata_fermo(graffio, true) > 0.0,
+			"un critico che toglie poco non ferma niente: il critico deve sempre interrompere")
+	esigi(ImpattoCombattimento.ampiezza_scossa(graffio, true) > 0.0,
+			"un critico che toglie poco non scuote niente")
+
+	# E NIENTE PUO' SFONDARE IL TETTO, nemmeno un critico da un milione di danni:
+	# oltre un certo punto un fermo non e' piu' un colpo, e' il gioco bloccato,
+	# e una scossa non e' piu' emozione, e' nausea
+	var enorme := ImpattoCombattimento.severita(1000000, 10)
+	esigi(ImpattoCombattimento.durata_fermo(enorme, true) <= ImpattoCombattimento.FERMO_MASSIMO,
+			"il fermo sfonda il tetto: %.3fs" % ImpattoCombattimento.durata_fermo(enorme, true))
+	esigi(ImpattoCombattimento.ampiezza_scossa(enorme, true) <= 12.0,
+			"la scossa sfonda i dodici pixel: %.1f" % ImpattoCombattimento.ampiezza_scossa(enorme, true))
+
+	# IL SEGNO DELL'EFFICACIA. Un segno e non solo un colore, per la stessa
+	# ragione per cui i posti visitati hanno un pallino e non solo una tinta
+	esigi(ImpattoCombattimento.marchio_efficacia(1.0) == "",
+			"un colpo normale porta un segno addosso: solo l'eccezione va marcata")
+	esigi(ImpattoCombattimento.marchio_efficacia(1.5) != "",
+			"un colpo ipersensibile non si distingue da uno normale")
+	esigi(ImpattoCombattimento.marchio_efficacia(0.5) != "",
+			"un colpo resistito non si distingue da uno normale")
+	esigi(ImpattoCombattimento.marchio_efficacia(1.5) != ImpattoCombattimento.marchio_efficacia(0.5),
+			"ipersensibile e resistito portano lo stesso segno: sono due cose opposte")
+	esigi(ImpattoCombattimento.marchio_efficacia(0.0) != "",
+			"un colpo immune non lascia niente a schermo: il giocatore non sa di aver sbagliato strada")
+
+	# IL NUMERO SCRITTO PER INTERO. Non basta che il segno esista: deve arrivare
+	# dentro al numero che vola. Il posto dove si compone e' una funzione a
+	# parte apposta per questo - dentro il combattimento finirebbe in una
+	# Callable che da muti non viene mai guardata, e il giorno che qualcuno
+	# togliesse il segno non diventerebbe rosso niente
+	esigi(ImpattoCombattimento.testo_del_numero(42).contains("42"),
+			"il numero che vola non contiene il danno")
+	esigi(ImpattoCombattimento.testo_del_numero(42, true) != ImpattoCombattimento.testo_del_numero(42),
+			"un critico da 42 si scrive come un colpo normale da 42")
+	esigi(ImpattoCombattimento.testo_del_numero(42, false, 1.5)
+			!= ImpattoCombattimento.testo_del_numero(42),
+			"il segno dell'efficacia non arriva dentro il numero che vola")
+	esigi(ImpattoCombattimento.testo_del_numero(42, true, 1.5).contains("42"),
+			"un critico ipersensibile perde per strada il suo danno")
+
+	# lo scatto ha una direzione, e la direzione dipende da dove sta l'altro
+	esigi(ImpattoCombattimento.verso_scatto(true).x > 0.0,
+			"chi ha il bersaglio a destra si sporge a sinistra")
+	esigi(ImpattoCombattimento.verso_scatto(false).x < 0.0,
+			"chi ha il bersaglio a sinistra si sporge a destra")
+
+func prova_il_fermo_immagine_non_resta_acceso() -> void:
+	# LA COSA CHE PUO' ROVINARE L'INTERA PARTITA, e sta in una riga.
+	#
+	# Il fermo immagine abbassa Engine.time_scale, che e' GLOBALE e non
+	# appartiene a nessuna scena. Se si abbassa e qualcosa va storto prima di
+	# rialzarlo - lo scontro finisce, il giocatore esce, la scena viene liberata
+	# proprio in quel decimo di secondo - il gioco INTERO resta al rallentatore
+	# per sempre, e non c'e' niente a schermo che spieghi perche'. Non e' un bug
+	# che si nota subito: e' un gioco che "e' diventato lento".
+	titolo("il fermo immagine si rimette sempre a posto")
+
+	# 1. DA MUTI NON SI TOCCA NIENTE. Il giocatore automatico gioca migliaia di
+	# scontri: se toccasse time_scale anche una volta sola rallenterebbe tutte
+	# le prove, e nessuno capirebbe perche' ci mettono venti minuti
+	var muto := ImpattoCombattimento.new(get_tree(), true)
+	muto.fermo(0.1)
+	esigi(is_equal_approx(Engine.time_scale, 1.0),
+			"un Impatto muto ha abbassato il tempo del gioco a %.2f" % Engine.time_scale)
+	muto.scossa(10.0)
+	esigi(is_equal_approx(Engine.time_scale, 1.0), "un Impatto muto ha toccato il tempo con una scossa")
+
+	# 2. IL FERMO VERO FUNZIONA DAVVERO. Le prove girano tutte da mute, quindi
+	# senza questo pezzo la strada che il giocatore percorre davvero non la
+	# proverebbe mai nessuno - e li' dentro c'e' una chiamata a create_timer con
+	# quattro parametri che, se sbagliata, si scopre solo giocando
+	var vero := ImpattoCombattimento.new(get_tree(), false)
+	vero.fermo(0.05)
+	esigi(Engine.time_scale < 1.0,
+			"il fermo immagine non ha rallentato niente: il tempo e' rimasto a %.2f" % Engine.time_scale)
+
+	# 3. UN FERMO ALLA VOLTA. Due colpi ravvicinati non devono moltiplicare il
+	# rallentamento ne' rubarsi il ripristino a vicenda: il secondo trova il
+	# posto occupato e lascia perdere
+	var durante := Engine.time_scale
+	vero.fermo(0.05)
+	esigi(is_equal_approx(Engine.time_scale, durante),
+			"due fermi di fila si sono sommati: il tempo e' sceso da %.2f a %.2f" % [durante, Engine.time_scale])
+
+	# 4. LA RETE DI SICUREZZA. sblocca() viene chiamata da _exit_tree dello
+	# scontro, comunque sia finito: vinto, perso, fuggito, o perche' il giocatore
+	# ha chiuso tutto proprio in quel decimo di secondo
+	vero.sblocca()
+	esigi(is_equal_approx(Engine.time_scale, 1.0),
+			"dopo un fermo vero e sblocca() il tempo e' rimasto a %.2f" % Engine.time_scale)
+
+	# e lo rimette a posto anche partendo da un tempo sporcato da fuori: e'
+	# esattamente lo stato in cui resterebbe il gioco se la scena sparisse
+	Engine.time_scale = ImpattoCombattimento.SCALA_FERMO
+	vero.sblocca()
+	esigi(is_equal_approx(Engine.time_scale, 1.0),
+			"dopo sblocca() il tempo e' rimasto a %.2f: il gioco resterebbe al rallentatore per sempre"
+			% Engine.time_scale)
+	Engine.time_scale = 1.0
+
+func prova_il_tipo_si_vede_sul_colpo() -> void:
+	# IL TIPO ESISTEVA SOLO COME MOLTIPLICATORE. Il colpo ipersensibile faceva
+	# il cinquanta per cento in piu' e a schermo era un numero rosso come tutti
+	# gli altri, appena piu' grande: non c'era modo di collegarlo all'arma che
+	# avevi in mano. Adesso il colore del numero dice CON COSA hai colpito e il
+	# segno dice COM'E' ANDATA.
+	titolo("il tipo del colpo si vede nel numero che vola")
+
+	# un critico e' oro e vince su tutto: e' l'eccezione piu' forte del gioco e
+	# non deve mai confondersi con un elemento
+	esigi(Stile.colore_colpo("fuoco", "Natura", true) == Stile.colore_danno("critico"),
+			"un critico di fuoco non e' oro: il critico non vince sull'elemento")
+
+	# l'ELEMENTO vince sul tipo quando c'e': il fuoco e' arancione da prima che i
+	# tipi esistessero, e i tipi non devono cancellare una cosa che funziona
+	esigi(Stile.colore_colpo("fuoco", "Natura") == Stile.colore_danno("fuoco"),
+			"una mossa di fuoco non e' piu' arancione: il tipo ha mangiato l'elemento")
+
+	# e IL TIPO arriva dove prima c'era solo il rosso generico. E' la novita':
+	# quasi nessuna mossa dichiara un elemento, quindi fino a ieri erano tutte
+	# dello stesso colore
+	for nome_tipo in GameState.tipi:
+		var suo := Stile.colore_tipo(String(nome_tipo))
+		esigi(Stile.colore_colpo("", String(nome_tipo)) == suo,
+				"un colpo di %s senza elemento non prende il colore del suo tipo" % nome_tipo)
+	esigi(Stile.colore_tipo("Natura") != Stile.colore_tipo("Tetro"),
+			"due tipi diversi hanno lo stesso colore: a schermo non si distinguono")
+
+	# IL COLORE STA IN tipi.json, non qui. Una seconda copia delle tinte dentro
+	# stile.json sarebbe comoda e sbagliata: il giorno che Bru cambia il colore
+	# di Spirituale lo cambia dove i tipi sono descritti
+	var prima_tinta := Stile.colore_tipo("Spirituale")
+	var vecchio_colore := String(GameState.tipi["Spirituale"].get("colore", ""))
+	GameState.tipi["Spirituale"]["colore"] = "#123456"
+	esigi(Stile.colore_tipo("Spirituale") != prima_tinta,
+			"cambiare il colore in tipi.json non cambia niente a schermo: la tinta e' scritta due volte")
+	GameState.tipi["Spirituale"]["colore"] = vecchio_colore
+
+	# un tipo che non esiste non fa esplodere niente: torna il colore normale
+	esigi(Stile.colore_colpo("", "Marmellata") == Stile.colore_danno("normale"),
+			"un tipo inventato non ripiega sul colore normale")
+
+func prova_resistere_non_e_essere_immuni() -> void:
+	# LA TERZA VOCE CHE MANCAVA. Una creatura poteva dichiarare "questo mi fa
+	# male il doppio" e "questo non mi fa niente", ma non la cosa in mezzo -
+	# "questo lo reggo bene" - che e' la piu' comune di tutte. Senza, ogni
+	# eccezione al tipo doveva essere totale.
+	#
+	# Nessuna creatura la usa ancora: la voce c'e' perche' possa usarla Bru.
+	# Questa prova misura il meccanismo, e resta verde qualunque cosa lui scriva.
+	titolo("resistere a un tipo non e' essere immuni")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	var nemico: Dictionary = {}
+	for c in scontro.combattenti:
+		if not c.giocatore and nemico.is_empty():
+			nemico = c
+	esigi(not nemico.is_empty(), "lo scontro non si e' montato")
+	var picchiatore := {"id": "ghoul", "giocatore": false, "attacco": 100, "buffs": [],
+			"stati_attivi": {}, "fattore": 0, "stress": 0, "psiche": "", "stati": []}
+	var tipo_del_colpo := RegoleCombattimento.tipo_di(picchiatore)
+	nemico.hp_max = 100000
+	nemico.hp = 100000
+
+	var pieno: Dictionary = RegoleCombattimento.calcola_danno(picchiatore, nemico, 100, 1.0, 0)
+	GameState.personaggi["goblin_tipico"]["resiste_a"] = [tipo_del_colpo]
+	var retto: Dictionary = RegoleCombattimento.calcola_danno(picchiatore, nemico, 100, 1.0, 0)
+	esigi(int(retto.danno) < int(pieno.danno),
+			"resiste_a non toglie niente: il colpo fa %d contro %d" % [int(retto.danno), int(pieno.danno)])
+	esigi(int(retto.danno) > 0,
+			"resistere ha cancellato il colpo: resistere non e' essere immuni")
+
+	# E UN COLPO RIDOTTO NON SPARISCE MAI, per quanto lo si riduca. E' la stessa
+	# legge della corazza, scritta in Regole.gd: riduce, non cancella, mai zero.
+	# Senza il pavimento, un colpo che moltiplicato finisce sotto il mezzo punto
+	# si arrotonda a zero, e a schermo diventa indistinguibile da un'immunita'.
+	#
+	# La prima versione di questa prova non misurava niente: passava un attacco
+	# da 1 sperando che dimezzato finisse a zero, ma fra bonus di livello e
+	# arma il colpo arrivava alla riduzione gia' abbastanza grosso, e restava
+	# verde anche togliendo il pavimento. Se n'e' accorto il sabotaggio, non io.
+	# Cosi' invece si stringe la resistenza al punto che QUALUNQUE colpo, senza
+	# pavimento, sparirebbe - e la prova vale anche per il numero che scrivera'
+	# Bru, non solo per il mio
+	var moltiplicatore_vero := float(GameState.regole.get("tipo_moltiplicatore_resistente", 0.5))
+	GameState.regole["tipo_moltiplicatore_resistente"] = 0.001
+	var minuscolo: Dictionary = RegoleCombattimento.calcola_danno(picchiatore, nemico, 100, 1.0, 0)
+	esigi(int(minuscolo.danno) > 0,
+			"una resistenza fortissima ha cancellato il colpo: resistere non e' essere immuni")
+	GameState.regole["tipo_moltiplicatore_resistente"] = moltiplicatore_vero
+
+	# l'immunita' invece cancella davvero, e resta distinta
+	GameState.personaggi["goblin_tipico"].erase("resiste_a")
+	GameState.personaggi["goblin_tipico"]["immune_a"] = [tipo_del_colpo]
+	var nullo: Dictionary = RegoleCombattimento.calcola_danno(picchiatore, nemico, 100, 1.0, 0)
+	esigi(int(nullo.danno) == 0, "immune_a lascia passare %d danni" % int(nullo.danno))
+	GameState.personaggi["goblin_tipico"].erase("immune_a")
+	scontro.free()
+
+func prova_il_tetto_alla_cura_di_se() -> void:
+	# IL DIVORATORE SI RIMETTE ADDOSSO IL 145% DELLA SUA VITA. Simulazione
+	# Ouroboros: tre battute al 15%, e mentre gira e' pure irraggiungibile.
+	# Autoriciclaggio subito dopo: quattro battute al 25%. Piu' quello che ruba
+	# con la Presa. Non e' un boss difficile - e' uno scontro che non si puo' ne'
+	# vincere ne' perdere, e finisce quando si stanca il giocatore.
+	#
+	# La risposta non e' limare quella creatura: domani ne arriva un'altra
+	# scritta con lo stesso entusiasmo. E' una regola di motore, e questa prova
+	# misura la regola.
+	titolo("nessuna creatura si rimette addosso piu' vita di quanta ne abbia")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for c in scontro.combattenti:
+		if c.giocatore and eroe.is_empty():
+			eroe = c
+		elif not c.giocatore and nemico.is_empty():
+			nemico = c
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+
+	var quota := float(GameState.regole.get("cura_di_se_massima_quota", 1.0))
+	nemico.hp_max = 100
+	nemico.hp = 1
+	var totale := 0
+	# venti cure da mezza vita ciascuna: senza tetto sarebbero mille punti
+	for _giro in 20:
+		nemico.hp = 1
+		var rimesso: int = scontro.rimetti_in_piedi(nemico, 50)
+		totale += rimesso
+	var tetto := int(round(100.0 * quota))
+	esigi(totale <= tetto,
+			"la creatura si e' rimessa addosso %d punti su un tetto di %d" % [totale, tetto])
+	esigi(totale > 0, "il tetto ha bloccato anche la prima cura: non e' un tetto, e' un divieto")
+
+	# ARRIVATA AL TETTO SI FERMA, e da li' in poi non passa piu' niente
+	nemico.hp = 1
+	var dopo: int = scontro.rimetti_in_piedi(nemico, 50)
+	esigi(dopo == 0, "oltre il tetto sono passati altri %d punti" % dopo)
+
+	# LA TUA SQUADRA NON HA NESSUN TETTO. Le cure del party le paghi tu, con
+	# oggetti comprati o aura spesa: un limite invisibile sul numero di fiale che
+	# fanno effetto sarebbe la cosa piu' crudele e piu' incomprensibile del gioco
+	eroe.hp_max = 100
+	var totale_eroe := 0
+	for _giro in 20:
+		eroe.hp = 1
+		var rimesso_eroe: int = scontro.rimetti_in_piedi(eroe, 50)
+		totale_eroe += rimesso_eroe
+	esigi(totale_eroe > tetto,
+			"anche il party ha un tetto alle cure: ne ha ricevute %d" % totale_eroe)
+
+	# non si supera mai la vita massima, tetto o non tetto
+	eroe.hp = 95
+	var troppo: int = scontro.rimetti_in_piedi(eroe, 999)
+	esigi(int(eroe.hp) == int(eroe.hp_max),
+			"una cura enorme ha portato la vita a %d su un massimo di %d" % [int(eroe.hp), int(eroe.hp_max)])
+	esigi(troppo == 5, "la cura ha dichiarato %d punti rimessi invece dei 5 che ci stavano" % troppo)
+	scontro.free()
+
+func prova_la_vita_bassa_si_annuncia() -> void:
+	# IL KO ARRIVAVA SENZA PREAVVISO. La vita era un numero in una riga di sei
+	# voci, in mezzo a Stress, Fattore e Dominio, dello stesso colore di tutto il
+	# resto: si passava da "sto giocando" a "e' a terra" senza nessun momento in
+	# cui il gioco avesse detto "adesso". E un KO che non si vede arrivare non e'
+	# tensione, e' sfortuna.
+	titolo("una scheda in pericolo lo dice prima di cadere")
+	var soglia := float(GameState.regole.get("soglia_vita_bassa", 0.25))
+	esigi(soglia > 0.0 and soglia < 1.0,
+			"la soglia della vita bassa e' %.2f: fuori da li' l'allarme o non suona mai o suona sempre" % soglia)
+	var sotto := int(floor(100.0 * soglia))
+	esigi(CampoCombattimento.in_pericolo(sotto, 100),
+			"a %d punti su 100 l'allarme non suona" % sotto)
+	esigi(not CampoCombattimento.in_pericolo(100, 100),
+			"l'allarme suona a vita piena")
+	# chi e' gia' a terra non e' "in pericolo": e' un'altra cosa, e la scheda la
+	# dice gia' con il suo KO
+	esigi(not CampoCombattimento.in_pericolo(0, 100), "un KO risulta 'in pericolo'")
+	esigi(not CampoCombattimento.in_pericolo(10, 0),
+			"un bersaglio senza vita massima manda l'allarme in divisione per zero")
 
 func prova_gli_otto_status() -> void:
 	# Gli otto che ha definito Bru, uno per uno. I numeri sono miei e si possono

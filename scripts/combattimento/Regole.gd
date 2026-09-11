@@ -104,6 +104,14 @@ static func efficacia_tipo(attaccante: Dictionary, bersaglio: Dictionary) -> flo
 		return 0.0
 	if tipo_colpo in dati_bersaglio.get("sensibile", []):
 		return float(GameState.regole.get("tipo_moltiplicatore_ipersensibile", 1.5))
+	# LA TERZA VOCE CHE MANCAVA. Una creatura poteva dichiarare "questo mi fa
+	# male il doppio" (sensibile) e "questo non mi fa niente" (immune_a), ma non
+	# la cosa in mezzo - "questo lo reggo bene" - che e' la piu' comune di tutte.
+	# Senza, ogni eccezione al tipo doveva essere totale: o subisci di piu' o sei
+	# di pietra. Nessuna creatura la usa ancora: la voce c'e' perche' possa
+	# usarla Bru, non perche' serva a me
+	if tipo_colpo in dati_bersaglio.get("resiste_a", []):
+		return float(GameState.regole.get("tipo_moltiplicatore_resistente", 0.5))
 	var tipo_bersaglio := String(dati_bersaglio.get("tipo", ""))
 	if tipo_colpo in GameState.tipi.get(tipo_bersaglio, {}).get("ipersensibile_a", []):
 		return float(GameState.regole.get("tipo_moltiplicatore_ipersensibile", 1.5))
@@ -443,11 +451,14 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	# differenza fra "pesa di piu'" e "pesa di piu' quando il bersaglio e' nudo"
 	var efficacia := efficacia_tipo(attaccante, bersaglio)
 	esito.efficacia = efficacia
+	if efficacia <= 0.0:
+		esito.danno = 0
+		return esito   # immune: il colpo non arriva proprio
 	if efficacia != 1.0:
-		danno = int(round(danno * efficacia))
-		if danno <= 0:
-			esito.danno = 0
-			return esito   # immune: il colpo non arriva proprio
+		# Resistere non e' essere immuni. Un colpo dimezzato che finiva a zero
+		# per arrotondamento spariva del tutto, ed e' la stessa regola che vale
+		# per la corazza qui sotto: la resistenza RIDUCE, non cancella
+		danno = maxi(int(round(danno * efficacia)), 1)
 	var danno_pieno := danno   # quanto valeva il colpo prima che qualcuno lo fermasse
 	if danno_pieno <= 0:
 		esito.danno = 0

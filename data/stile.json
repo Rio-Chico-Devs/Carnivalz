@@ -105,7 +105,8 @@
 		"uscita_sconfitto": 0.4,
 		"carta_titolo": 0.7,
 		"battito_indicatore": 0.85,
-		"colpo_a_schermo": 0.45
+		"colpo_a_schermo": 0.45,
+		"battito_allarme": 0.42
 	},
 	"_nota_ritmo": "Le pause della macchina da scrivere sulla punteggiatura: il testo non scorre a velocita' costante, si ferma dove si fermerebbe una voce. In secondi, gia' divisi per la velocita' scelta dal giocatore.",
 	"ritmo": {
