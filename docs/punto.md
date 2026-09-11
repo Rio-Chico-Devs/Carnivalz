@@ -20,6 +20,7 @@
 | **`stati.json`** *(dati)* | 📝 | Gli 8 status coi numeri. Ogni voce ha un campo `_bru` con la tua frase | ⚠️ numeri miei |
 | **`testi_da_correggere.md`** | 📝 | Ogni riga di dialogo del gioco, in un posto solo | 🕓 grande, mai riletto tutto |
 | **`godot.md`** | 👁 | Studio sul motore: fondamenta, avanzato, cosa si rompe in produzione, chi ha spedito. E cosa ci riguarda | ✅ nuovo |
+| **`mestiere.md`** | 👁 | Studio sul mestiere: sensazione, transizioni, colore, testo, i maestri dell'RPG e le tecniche dei romanzieri. E cosa ci riguarda | ✅ nuovo |
 | **`nemici.md`** | ⚙️ | Il bestiario coi numeri veri: mosse, quote, danni. `./strumenti/nemici.sh` | ✅ rigenerato oggi |
 | **`bilanciamento.md`** | ⚙️ | 187.200 partite simulate: chi vince a che livello. `./prove/simula.sh` | 🕓 da rilanciare |
 | **`mappe.md`** | ⚙️ | Le mappe delle zone disegnate | ✅ |
