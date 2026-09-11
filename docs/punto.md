@@ -24,7 +24,7 @@
 | **`lezioni.md`** | 👁 | Studio sui maestri: EarthBound, Fear & Hunger, Zelda, Metroid, Doom, Final Fantasy, e cosa ne ha detto la critica | ✅ nuovo |
 | **`critica.md`** | 👁 | Il gioco giudicato duro, voto per voto, con la prova sotto ogni voto | ✅ nuovo |
 | **`nemici.md`** | ⚙️ | Il bestiario coi numeri veri: mosse, quote, danni. `./strumenti/nemici.sh` | ✅ rigenerato oggi |
-| **`bilanciamento.md`** | ⚙️ | 187.200 partite simulate: chi vince a che livello. `./prove/simula.sh` | 🕓 da rilanciare |
+| `bilanciamento.md` | ⚙️ | **234.000** partite simulate, cinque modi di giocare: chi vince a che livello. `./prove/simula.sh` | ✅ rilanciato oggi |
 | **`mappe.md`** | ⚙️ | Le mappe delle zone disegnate | ✅ |
 | **`immagini.md`** | ⚙️ | Che disegni servono e quali ci sono | ✅ |
 | **`gdd.html`** + PDF | 👁 | Il documento da far leggere a un game developer | 🕓 **stale**: sotto |
@@ -119,9 +119,8 @@ correggendo una tua decisione o una mia invenzione.
   complete stanno in `personaggi-giocabili.md`.
 - **La libreria di mosse** non c'è ancora: se due creature fanno la stessa cosa, è scritta due
   volte. È il lavoro che avevi chiesto per dare a ogni nemico un testo suo su una mossa condivisa.
-- **`bilanciamento.md` è vecchio.** Ho cambiato status, tipi e progressione tutti nello stesso
-  giorno: i numeri lì dentro misurano un gioco che non c'è più. Va rilanciato `./prove/simula.sh`
-  (21 minuti) — ma ha senso farlo dopo che avrai corretto i miei numeri, non prima.
+- **`bilanciamento.md` è stato rilanciato**, ed era ora: misurava un gioco di mesi fa. Adesso
+  copre 234.000 partite e cinque modi di giocare. Cosa dice, sotto.
 
 ---
 
@@ -186,6 +185,46 @@ L'1,5% è il punto in cui **curarsi conta e non curarsi non è una condanna**. �
 misura sta dentro `stati.json` in un campo `_misura` accanto alla tua frase, e rifarla costa dieci
 secondi.
 
+### Cosa dice il giro completo, adesso
+
+234.000 partite, 49 minuti. Le medie su tutte le 312 righe di ogni strategia:
+
+| Modo di giocare | Vittorie medie |
+| --- | --: |
+| **Curandosi** | **54,2%** |
+| Andandoci dritto | 50,3% |
+| Studiando prima | 49,9% |
+| A caso | 39,5% |
+| Solo difendendosi | 2,2% |
+
+**Il Divoratore: da 0% a 100% di vittorie** a livello 18 e 25. Il tetto alla cura ha fatto
+esattamente quello che doveva, e senza toccare una sola riga della creatura.
+
+**Il Volto sulla parete, a livello 18:** 21% andandoci dritto, 12% studiando, **57% curandosi.**
+Sapere cosa portarsi dietro quasi triplica le tue probabilità: è la forma che volevi tu.
+
+**Ma curarsi conta solo dove serve:** su 312 accoppiamenti, curarsi vince di più in **45**, uguale
+in 266, meno in **1**. Non è un bottone che risolve tutto — è la risposta a certe creature e a
+nessun'altra.
+
+> **Attenzione a come si legge `si_cura`:** la sacca è la stessa a tutti i livelli. A livello 18
+> quattro fiale su 1220 punti vita sono una scorta ragionevole; a livello 1 sono più vita di quanta
+> ne abbia il protagonista. Quelle righe vanno lette **ai livelli in cui la creatura si incontra
+> davvero**.
+
+### Due cose nuove che ho trovato e non ho toccato
+
+1. **Salire di livello può peggiorare uno scontro.** Il Volto sulla parete a livello 25 si vince il
+   4% curandosi, contro il 57% a livello 18. È il disallineamento che fa il suo mestiere (i nemici
+   non restano indietro più di 3 livelli), ma il risultato è che tornare più forti lo rende più
+   duro. Va deciso da te se è quello che vuoi.
+2. **«Solo difendendosi» adesso vince contro Diabolo** (a sette livelli) **e Rottami Erranti** (a
+   uno). Prima vinceva solo contro Fomentado, che si brucia da solo. **Ho verificato che non è il
+   tetto alla cura**: con e senza, la misura è identica al decimale. È nuovo rispetto a una tabella
+   che però precede *tutto* il lavoro di questi giorni, quindi la causa sta lì in mezzo. Si trova in
+   pochi minuti con `./prove/sonda.sh diabolo difendi 12` cambiando una cosa alla volta — non l'ho
+   fatto perché è una domanda di bilancio, ed è tua.
+
 ---
 
 ## 6. Cosa aspetta te
@@ -241,6 +280,7 @@ Tre comandi, e non serve sapere niente di programmazione per leggerne l'esito.
 | File di dati | 23 + 8 zone |
 | Creature | 39 |
 | Prove | 79, per 26.368 verifiche |
+| Partite simulate | 234.000, cinque modi di giocare |
 | Tipi di mossa che il motore esegue | 20 |
 | Livello massimo | 130 |
 | Nodi della costellazione | 80 disegnati, 60 comprabili |

@@ -55,6 +55,15 @@ extends Node
 # Le altre quattro restano a mani vuote apposta: cosi' le loro righe si possono
 # ancora confrontare con le misure vecchie, e la differenza fra "attacca" e
 # "si_cura" e' esattamente il valore di sapersi curare.
+#
+# IL LIMITE DI "si_cura", detto qui perche' non inganni chi legge la tabella: la
+# sacca e' la stessa a tutti i livelli. A livello 18, quattro fiale su 1220 punti
+# vita sono una scorta ragionevole; a livello 1 sono piu' vita di quanta ne abbia
+# il protagonista, e quella riga dice solo che con una farmacia in tasca si vince.
+# Le righe di "si_cura" vanno lette ai livelli in cui quella creatura si incontra
+# davvero. Farla crescere col livello si puo' - ma sarebbe un'altra stima
+# inventata sopra a quella del profilo, e due stime impilate non si controllano
+# piu'.
 
 const SCENA_COMBATTIMENTO := preload("res://scenes/Combattimento.tscn")
 const RIPETIZIONI := 150      # per ogni coppia nemico/strategia
