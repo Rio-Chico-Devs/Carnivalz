@@ -71,6 +71,7 @@ func _ready() -> void:
 	prova_i_cinque_tipi()
 	prova_il_colpo_si_sente()
 	prova_il_fermo_immagine_non_resta_acceso()
+	prova_larena_reagisce()
 	prova_il_tipo_si_vede_sul_colpo()
 	prova_resistere_non_e_essere_immuni()
 	prova_il_tetto_alla_cura_di_se()
@@ -3270,6 +3271,92 @@ func prova_il_colpo_si_sente() -> void:
 	esigi(ImpattoCombattimento.verso_scatto(false).x < 0.0,
 			"chi ha il bersaglio a sinistra si sporge a destra")
 
+func prova_larena_reagisce() -> void:
+	# LO SFONDO ERA UN RETTANGOLO DI UN COLORE SOLO, uguale per ogni creatura del
+	# gioco: il primo goblin e l'ultimo boss si combattevano dentro la stessa
+	# stanza vuota. In un gioco che non ha ancora un solo disegno quel rettangolo
+	# e' TUTTO lo sfondo che esiste, e sprecarlo su un grigio piatto e' buttare
+	# via l'unico spazio disponibile.
+	titolo("l'arena prende il colore di chi hai davanti, e si chiude quando stai per cadere")
+	var base := Stile.colore("sfondo_combattimento")
+
+	# uno scontro senza tipo resta com'era: non si rompe niente per chi il tipo
+	# non ce l'ha ancora
+	esigi(ArenaCombattimento.tinta_di_scontro(base, "") == base,
+			"un nemico senza tipo cambia lo sfondo lo stesso")
+	esigi(ArenaCombattimento.tinta_di_scontro(base, "Marmellata") == base,
+			"un tipo inventato cambia lo sfondo invece di lasciarlo stare")
+
+	# ogni tipo vero sposta il fondo, e lo sposta in un posto suo
+	var visti: Array[Color] = []
+	for nome_tipo in GameState.tipi:
+		var tinto := ArenaCombattimento.tinta_di_scontro(base, String(nome_tipo))
+		esigi(tinto != base, "combattere una cosa di %s ha lo stesso fondo di tutto il resto" % nome_tipo)
+		esigi(not visti.has(tinto),
+				"il fondo di %s e' identico a quello di un altro tipo" % nome_tipo)
+		visti.append(tinto)
+
+	# E RESTA POCA. E' una temperatura, non un cambio di scena: sopra una certa
+	# dose il fondo diventa il colore del nemico invece del colore del gioco, e
+	# le schermate smettono di sembrare lo stesso gioco.
+	#
+	# La prima versione di questa prova non misurava niente: confrontava il
+	# risultato con il colore del tipo COM'E' SCRITTO in tipi.json, mentre la
+	# tinta viene scurita prima di essere mescolata. Portando il dosaggio a 0.9
+	# - una vernice, non una temperatura - restava verde lo stesso. Se n'e'
+	# accorto il sabotaggio, non io. Adesso il punto d'arrivo ha un nome suo
+	# (tinta_piena) e si misura quanta strada ne ha fatta il fondo: meno di meta',
+	# o e' diventata la tinta del nemico
+	for nome_tipo in GameState.tipi:
+		var tinto := ArenaCombattimento.tinta_di_scontro(base, String(nome_tipo))
+		var arrivo := ArenaCombattimento.tinta_piena(String(nome_tipo), base)
+		var strada_fatta := Vector3(tinto.r - base.r, tinto.g - base.g, tinto.b - base.b).length()
+		var strada_intera := Vector3(arrivo.r - base.r, arrivo.g - base.g, arrivo.b - base.b).length()
+		esigi(strada_fatta < strada_intera * 0.5,
+				"il fondo di %s ha fatto %.0f%% della strada verso la tinta del tipo: non e' piu' una temperatura, e' una vernice"
+				% [nome_tipo, 100.0 * strada_fatta / maxf(strada_intera, 0.0001)])
+
+	# IL VELO AI BORDI. Il pericolo era un numero in una riga di sei voci, e si
+	# passava da "sto giocando" a "e' a terra" senza nessun momento in cui il
+	# gioco avesse alzato la voce
+	var sani: Array[Dictionary] = [
+		{"giocatore": true, "hp": 100, "hp_max": 100},
+		{"giocatore": true, "hp": 90, "hp_max": 100},
+	]
+	esigi(is_equal_approx(ArenaCombattimento.quota_di_pericolo(sani), 0.0),
+			"i bordi si chiudono con la squadra in salute")
+
+	# GUARDA IL PIU' FERITO, NON LA MEDIA. Con una media, tre compagni sani e uno
+	# in fin di vita darebbero "va tutto bene" - ed e' esattamente il momento in
+	# cui il gioco deve alzare la voce
+	var uno_solo_in_fin_di_vita: Array[Dictionary] = [
+		{"giocatore": true, "hp": 100, "hp_max": 100},
+		{"giocatore": true, "hp": 100, "hp_max": 100},
+		{"giocatore": true, "hp": 100, "hp_max": 100},
+		{"giocatore": true, "hp": 1, "hp_max": 100},
+	]
+	esigi(ArenaCombattimento.quota_di_pericolo(uno_solo_in_fin_di_vita) > 0.5,
+			"un compagno a un punto dalla morte in mezzo a tre sani non chiude niente: si sta guardando la media")
+
+	# chi e' gia' a terra non e' "in pericolo": quello non e' piu' pericolo, e'
+	# gia' successo, e la sua scheda lo dice gia' con il suo KO
+	var solo_ko: Array[Dictionary] = [{"giocatore": true, "hp": 0, "hp_max": 100}]
+	esigi(is_equal_approx(ArenaCombattimento.quota_di_pericolo(solo_ko), 0.0),
+			"un compagno gia' a terra tiene i bordi chiusi per sempre")
+
+	# e un nemico mezzo morto non chiude niente: il velo e' il TUO pericolo
+	var nemico_ferito: Array[Dictionary] = [
+		{"giocatore": false, "hp": 1, "hp_max": 100},
+		{"giocatore": true, "hp": 100, "hp_max": 100},
+	]
+	esigi(is_equal_approx(ArenaCombattimento.quota_di_pericolo(nemico_ferito), 0.0),
+			"i bordi si chiudono quando sta per cadere il NEMICO")
+
+	# non sfonda mai l'uno, o il velo diventerebbe un muro
+	var quasi_morto: Array[Dictionary] = [{"giocatore": true, "hp": 1, "hp_max": 100000}]
+	esigi(ArenaCombattimento.quota_di_pericolo(quasi_morto) <= 1.0,
+			"la quota di pericolo ha sfondato l'uno")
+
 func prova_il_fermo_immagine_non_resta_acceso() -> void:
 	# LA COSA CHE PUO' ROVINARE L'INTERA PARTITA, e sta in una riga.
 	#
@@ -3471,6 +3558,19 @@ func prova_il_tetto_alla_cura_di_se() -> void:
 	nemico.hp = 1
 	var dopo: int = scontro.rimetti_in_piedi(nemico, 50)
 	esigi(dopo == 0, "oltre il tetto sono passati altri %d punti" % dopo)
+
+	# E NESSUNA CURA DEVE POTER PASSARE DI LATO. Il tetto vale quanto vale la sua
+	# copertura: finche' anche una sola strada scrive "hp = mini(hp + x, hp_max)"
+	# per conto suo, la regola non e' una regola, e' un'abitudine. Ne erano
+	# rimaste due fuori - la rigenerazione del frammento e quella della carne che
+	# si richiude - e quest'ultima e' il caso limite: meta' del danno preso, a
+	# ogni turno, per sempre.
+	#
+	# Si guarda il sorgente e non il comportamento perche' e' l'unico modo di
+	# accorgersi della SESTA strada, quella che qualcuno aggiungera' domani.
+	var sorgente := FileAccess.get_file_as_string("res://scripts/Combattimento.gd")
+	esigi(not sorgente.contains("hp = mini("),
+			"c'e' ancora una cura che si scrive da sola invece di passare da rimetti_in_piedi(): il tetto non la vede")
 
 	# LA TUA SQUADRA NON HA NESSUN TETTO. Le cure del party le paghi tu, con
 	# oggetti comprati o aura spesa: un limite invisibile sul numero di fiale che

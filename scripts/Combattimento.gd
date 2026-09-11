@@ -15,6 +15,8 @@ extends Control
 #   Menu.gd           -> i bottoni delle azioni.
 #   Impatto.gd        -> quello che un colpo fa SENTIRE e non dice: il fermo
 #                        immagine, la scossa, lo scatto di chi colpisce.
+#   Arena.gd          -> lo spazio: il fondo tinto dal tipo di chi hai davanti,
+#                        e i bordi che si chiudono quando stai per cadere.
 #
 # Non e' pulizia: e' una capacita'. Voce, Campo e Menu hanno una modalita'
 # MUTA in cui non creano niente e non aspettano niente, e allora questo stesso
@@ -56,6 +58,7 @@ var voce: VoceCombattimento
 var campo: CampoCombattimento
 var menu: MenuCombattimento
 var impatto: ImpattoCombattimento
+var arena: ArenaCombattimento
 
 # Muto: nessuno guarda: niente box, niente schede, niente attese. Va impostato
 # PRIMA che la scena entri nell'albero (vedi Simulatore.gd).
@@ -185,6 +188,7 @@ func _ready() -> void:
 	campo = CampoCombattimento.new(muto)
 	menu = MenuCombattimento.new(self, muto)
 	impatto = ImpattoCombattimento.new(get_tree(), muto)
+	arena = ArenaCombattimento.new(muto)
 	if not muto:
 		voce.collega(box, area_avanza, volanti)
 		campo.collega(fila_party, nemico_centro, nemici_sinistra, nemici_destra)
@@ -192,6 +196,7 @@ func _ready() -> void:
 		# sbanda il corpo della schermata, non lo sfondo: altrimenti a ogni
 		# scossa si vedrebbero i bordi neri dello schermo
 		impatto.collega(corpo)
+		arena.collega(sfondo, self)
 		applica_stile()
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
@@ -237,10 +242,31 @@ func _ready() -> void:
 	applica_leve()
 	esegui_scontro()
 
+func tipo_dello_scontro() -> String:
+	# Di che tipo e' questo scontro: lo dice la prima creatura della lista, che
+	# e' anche quella che il campo mette al centro e disegna grande (vedi
+	# Campo.gd). Si legge dai dati e non dai combattenti perche' applica_stile()
+	# gira PRIMA che i combattenti esistano - il fondo deve essere gia' del
+	# colore giusto quando la schermata compare, non un istante dopo.
+	for id_nemico in GameState.nemici_combattimento:
+		var dati_creatura: Dictionary = GameState.personaggi.get(id_nemico, {})
+		var suo := String(dati_creatura.get("tipo", ""))
+		if suo != "":
+			return suo
+	return ""
+
 func applica_stile() -> void:
-	# il combattimento e' un'altra stanza dello stesso gioco: stessi colori,
-	# stesso font, stessi bordi della schermata eventi
-	sfondo.color = Stile.colore("sfondo_combattimento")
+	# il combattimento e' un'altra stanza dello stesso gioco: stesso font, stessi
+	# bordi e stesso box della schermata eventi. Il fondo e' l'unica cosa che
+	# cambia, e cambia poco
+	#
+	# IL FONDO PRENDE UNA TRACCIA DEL TIPO CHE HAI DAVANTI. Fino a ieri il primo
+	# goblin e l'ultimo boss si combattevano dentro lo stesso identico grigio: in
+	# un gioco che non ha ancora un solo disegno, quel rettangolo e' tutto lo
+	# sfondo che esiste, e sprecarlo e' buttare via l'unico spazio disponibile.
+	# Poca tinta: e' una temperatura, non un cambio di scena
+	sfondo.color = ArenaCombattimento.tinta_di_scontro(
+			Stile.colore("sfondo_combattimento"), tipo_dello_scontro())
 	etichetta_speranza.add_theme_color_override("font_color", Stile.colore("accento"))
 	etichetta_speranza.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
 	# il box e' lo stesso componente della schermata eventi: non c'e' niente da
@@ -838,10 +864,8 @@ func risolvi_rigenerazione_frammento(chi: Dictionary) -> void:
 	if int(chi.get("rigenerazione_battute", 0)) <= 0 or int(chi.hp) <= 0:
 		return
 	chi.rigenerazione_battute = int(chi.rigenerazione_battute) - 1
-	var quanto := maxi(int(round(int(chi.hp_max) * float(chi.get("rigenerazione_quota", 0.10)))), 1)
-	var prima := int(chi.hp)
-	chi.hp = mini(int(chi.hp) + quanto, int(chi.hp_max))
-	var recuperati := int(chi.hp) - prima
+	var recuperati := rimetti_in_piedi(chi,
+			maxi(int(round(int(chi.hp_max) * float(chi.get("rigenerazione_quota", 0.10)))), 1))
 	if recuperati > 0:
 		var scheda_curato: Control = chi.scheda
 		scrivi("[i]%s si rimette insieme: +%d.[/i]" % [chi.nome, recuperati])
@@ -2442,9 +2466,14 @@ func risolvi_rigenerazione(nemico: Dictionary) -> bool:
 	var dati: Dictionary = GameState.personaggi.get(nemico.id, {}).get("rigenerazione", {})
 	if dati.is_empty():
 		return false
-	var cura := int(floor(float(nemico.ultimo_danno_subito) / 2.0))
-	if cura > 0 and nemico.hp < nemico.hp_max:
-		nemico.hp = mini(nemico.hp + cura, nemico.hp_max)
+	# ANCHE LA RIGENERAZIONE PASSA DAL TETTO, ed e' la piu' importante di
+	# tutte: una creatura che si ricuce meta' del danno preso, a ogni turno,
+	# per sempre, e' il caso limite della cura senza fondo. La gamba che cede
+	# dopo qualche colpo resta la risposta vera dello scontro - il tetto e'
+	# solo la rete sotto, perche' una regola che vale per quattro strade su
+	# sei non e' una regola, e' un'abitudine
+	var cura := rimetti_in_piedi(nemico, int(floor(float(nemico.ultimo_danno_subito) / 2.0)))
+	if cura > 0:
 		aggiorna_scheda(nemico)
 		scrivi("[i]%s[/i]" % String(dati.get("testo_rigenera", "La carne si richiude su se stessa.")).replace("%d", str(cura)))
 	if int(nemico.gamba_rotta_turni) > 0:
@@ -4055,6 +4084,11 @@ func svuota_coda() -> void:
 
 func aggiorna_scheda(combattente: Dictionary) -> void:
 	campo.aggiorna(combattente)
+	# i bordi si chiudono quando la squadra sta per cadere. Sta qui e non in un
+	# posto suo perche' il pericolo cambia esattamente quando cambia una scheda:
+	# un colpo, una cura, uno stato che morde. Arena ridisegna solo se il valore
+	# e' cambiato davvero, quindi chiamarla a ogni aggiornamento non costa niente
+	arena.imposta_pericolo(ArenaCombattimento.quota_di_pericolo(combattenti))
 
 func _esci() -> void:
 	# lo stress accumulato resta addosso ai personaggi
