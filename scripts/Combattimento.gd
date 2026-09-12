@@ -826,6 +826,32 @@ func combattente_comandato() -> Dictionary:
 			return combattente
 	return {}
 
+func passa_il_comando(caduto: Dictionary) -> void:
+	# IL COMANDO NON MUORE CON CHI COMANDAVI.
+	#
+	# Prima cadeva il protagonista e finiva li': combattente_comandato() tornava
+	# vuoto, giocatore_pronto() restava falso per sempre, il menu grigio, e lo
+	# scontro andava avanti da solo davanti a te finche' non moriva anche il
+	# resto della squadra. Da dentro non si vedeva un bug, si vedeva questo:
+	# sono a terra e i nemici continuano a picchiare e io non posso fare niente.
+	#
+	# Passa a chi resta in piedi, e lo dice. Se poi chi e' caduto torna su con un
+	# accessorio il comando NON torna indietro da solo: stai giocando l'altro, e
+	# cambiarti il personaggio sotto le mani a meta' scontro e' peggio del male.
+	if strategia.is_valid():
+		return   # il giocatore automatico li muove tutti: non c'e' nessun comando da passare
+	var comandato := id_comandato if id_comandato != "" else GameState.id_protagonista
+	if String(caduto.get("id", "")) != comandato:
+		return
+	for compagno in in_piedi(true):
+		id_comandato = String(compagno.id)
+		scrivi_forte("%s raccoglie il comando." % compagno.nome)
+		attaccante_corrente = compagno
+		if menu != null:
+			menu.principale()
+			menu_acceso = giocatore_pronto()
+		return
+
 func agisci_ora(azione: Dictionary) -> void:
 	# L'AZIONE DEL GIOCATORE, presa quando la prende lui. Non c'e' piu' nessuno
 	# che aspetta: se la tua ricarica non e' finita, il click non fa niente -
@@ -3652,6 +3678,13 @@ func risolvi_stati_a_inizio_turno(combattente: Dictionary) -> bool:
 
 func attacca(attaccante: Dictionary, bersaglio: Dictionary, valore_attacco := -1,
 		moltiplicatore := 1.0, elemento := "", bonus := 0) -> void:
+	# SU CHI E' GIA' A TERRA NON SI INFIERISCE. Non e' una regola di gioco, e'
+	# un'invariante: chi sceglie i bersagli filtra gia' i vivi, quindi se un
+	# colpo arriva qui addosso a un corpo vuol dire che da qualche parte c'e' un
+	# elenco vecchio di una battuta. Meglio che non si veda a schermo mentre lo
+	# cerchiamo, e la prova qui sotto tiene la porta chiusa.
+	if int(bersaglio.get("hp", 0)) <= 0:
+		return
 	if elemento == "":
 		elemento = elemento_di(attaccante)
 	if attaccante.giocatore and attaccante.id == GameState.id_protagonista:
@@ -3973,6 +4006,32 @@ func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int, elemento 
 	verifica_ultima_risorsa(bersaglio)
 
 func _su_ko(caduto: Dictionary) -> void:
+	# DUE COSE, E LA SECONDA NON SI PUO' SALTARE.
+	#
+	# Raccontare un KO ha sei uscite anticipate (la rinascita, l'invincibile, la
+	# maledizione, l'accessorio...) e il controllo di fine scontro stava in
+	# fondo, dopo tutte quante. Bastava cadere per maledizione - che esce prima
+	# - e la fine non veniva mai chiesta: il party era a terra, lo scontro
+	# restava in_corso, e i nemici continuavano a colpire un corpo. Bru, giocando:
+	# "quando vengo messo ko i nemici continuano a colpirmi".
+	#
+	# Non si sistema aggiungendo il controllo anche a quell'uscita: si sistema
+	# togliendo alla funzione che racconta il potere di decidere se chiederlo.
+	# Qui sotto la fine si verifica sempre, comunque sia andata la narrazione.
+	_racconta_ko(caduto)
+	if int(caduto.hp) <= 0:
+		# abbattere qualcuno riempie la barra di chi resta in piedi dall'altra
+		# parte. Solo se e' rimasto giu' davvero: chi si e' rialzato (rinascita,
+		# invincibile, accessorio) non e' stato abbattuto da nessuno
+		for vincitore in vivi(not caduto.giocatore):
+			RegoleCombattimento.riempi_dominio(vincitore, "per_uccisione")
+		for alleato in vivi(caduto.giocatore):
+			reagisci(alleato)
+		if caduto.giocatore:
+			passa_il_comando(caduto)
+	verifica_fine_scontro()
+
+func _racconta_ko(caduto: Dictionary) -> void:
 	if not caduto.giocatore:
 		spegni_tormento_di(caduto)
 	var rinascita: Dictionary = GameState.personaggi.get(caduto.id, {}).get("rinascita", {})
@@ -4046,17 +4105,31 @@ func _su_ko(caduto: Dictionary) -> void:
 				AudioManager.verso(caduto.id, GameState.personaggi.get(caduto.id, {}), "morte")
 			verifica_rabbia_su_morte(caduto)
 			verifica_cura_su_morte(caduto)
-	# abbattere qualcuno riempie la barra di chi resta in piedi dall'altra parte.
+
+func in_piedi(giocatore: bool) -> Array[Dictionary]:
+	# CHI PUO' ANCORA DECIDERE LO SCONTRO. Non e' vivi(): un oggetto di scena
+	# sta nella fila dei nemici, ha punti vita, e non agisce mai.
 	#
+	# Contandolo fra i vivi succedeva questo: abbatti la bambola, le lettere
+	# sull'altare sono ancora intere, e dalla parte dei nemici "c'e' ancora
+	# qualcuno". Nessuno ha vinto, nessuno puo' muoversi - la bambola e' morta e
+	# le lettere non agiscono - e lo scontro resta li' per sempre. La vittoria
+	# la decide chi combatte, non l'arredamento.
+	var risultato: Array[Dictionary] = []
+	for combattente in vivi(giocatore):
+		if combattente.get("oggetto_scena", false):
+			continue
+		risultato.append(combattente)
+	return risultato
+
+func verifica_fine_scontro() -> void:
 	# La barra si alza e basta: NON si aggiorna la scheda qui. Farlo sembrava
 	# innocuo e invece riaccendeva i ritratti prima che il box avesse raccontato
 	# cosa era successo - il bug della bomba di Veronica, che una prova sorveglia
 	# da mesi. Quello che si vede passa sempre dalla coda, mai da qui.
-	for vincitore in vivi(not caduto.giocatore):
-		RegoleCombattimento.riempi_dominio(vincitore, "per_uccisione")
-	for alleato in vivi(caduto.giocatore):
-		reagisci(alleato)
-	if vivi(false).is_empty():
+	if not in_corso:
+		return
+	if in_piedi(false).is_empty():
 		giocatore_ha_vinto = true
 		in_corso = false
 		for combattente in combattenti:
@@ -4081,7 +4154,7 @@ func _su_ko(caduto: Dictionary) -> void:
 		if xp_bottino > 0 or tazo_bottino > 0:
 			scrivi_forte("%d esperienza · %d Tazo" % [xp_bottino, tazo_bottino], "notifica")
 		risolvi_drop()
-	elif vivi(true).is_empty():
+	elif in_piedi(true).is_empty():
 		in_corso = false
 		scrivi_forte("Il party è a terra. Il disallineamento ha vinto.", "notifica")
 

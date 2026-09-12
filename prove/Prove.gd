@@ -80,6 +80,7 @@ func _ready() -> void:
 	prova_il_tetto_alla_cura_di_se()
 	prova_la_vita_bassa_si_annuncia()
 	prova_i_sogni_di_yhvina()
+	prova_chi_e_a_terra_non_viene_piu_colpito()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -3889,6 +3890,151 @@ func prova_i_sogni_di_yhvina() -> void:
 	esigi(scontro.combattenti.size() == quanti_ora,
 			"un richiamo senza sogni validi ha portato in campo qualcosa")
 	scontro.free()
+
+func prova_chi_e_a_terra_non_viene_piu_colpito() -> void:
+	# Bru, giocando: «quando vengo messo ko i nemici continuano a colpirmi».
+	#
+	# Non era una cosa sola, erano tre, e hanno tutte la stessa forma: lo
+	# scontro non finisce quando dovrebbe, e finche' non finisce i nemici hanno
+	# tutto il diritto di picchiare. Qui si misura l'invariante, non le tre
+	# cause: SE LA SQUADRA E' A TERRA, LO SCONTRO E' FINITO. Comunque ci sia
+	# arrivata.
+	titolo("chi e' a terra non viene piu' colpito")
+
+	# 1. IL MODO NORMALE. Cadi per un colpo, e lo scontro si chiude.
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	scontro.in_corso = true
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for c in scontro.combattenti:
+		if c.giocatore and eroe.is_empty():
+			eroe = c
+		elif not c.giocatore and nemico.is_empty():
+			nemico = c
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+	eroe.resurrezione = ""
+	eroe.ultima_resistenza = false
+	nemico.attacco = 99999
+	scontro.attacca(nemico, eroe, 99999, 1.0, "")
+	esigi(int(eroe.hp) <= 0, "il colpo da 99999 non lo ha steso: e' a %d" % int(eroe.hp))
+	esigi(not bool(scontro.in_corso),
+			"la squadra e' a terra e lo scontro va ancora avanti")
+
+	# e da terra non si incassa piu' niente.
+	#
+	# I punti vita non lo direbbero: sono gia' a zero e a zero restano comunque,
+	# perche' il danno e' sempre limitato in basso. Misurarli qui sarebbe una
+	# verifica che non puo' fallire - ne ho gia' scritte due cosi', e le ho
+	# trovate solo rompendo apposta il codice che dovevano sorvegliare. Quello
+	# che si muove davvero e' il contatore dei colpi incassati.
+	var incassati_a_terra := int(eroe.colpi_incassati)
+	scontro.attacca(nemico, eroe, 99999, 1.0, "")
+	esigi(int(eroe.colpi_incassati) == incassati_a_terra,
+			"un corpo a terra ha incassato un altro colpo: da %d a %d"
+			% [incassati_a_terra, int(eroe.colpi_incassati)])
+	scontro.free()
+
+	# 2. LA MALEDIZIONE. E' l'uscita anticipata che nascondeva il guasto: chi
+	#    cade cosi' non si rialza, e _su_ko usciva prima di chiedere se lo
+	#    scontro fosse finito.
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var maledetto: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	maledetto.muto = true
+	maledetto.limite_giri = 1
+	add_child(maledetto)
+	maledetto.in_corso = true
+	var vittima: Dictionary = {}
+	for c in maledetto.combattenti:
+		if c.giocatore:
+			vittima = c
+			break
+	esigi(not vittima.is_empty(), "lo scontro maledetto non si e' montato")
+	maledetto.applica_stato(vittima, "maledizione", 10)
+	esigi(int(vittima.hp) <= 0, "la maledizione e' arrivata a zero e lui e' ancora in piedi")
+	esigi(bool(vittima.get("non_rianimabile", false)),
+			"caduto per maledizione ma rianimabile")
+	esigi(not bool(maledetto.in_corso),
+			"caduto per maledizione: la squadra e' a terra e lo scontro va ancora avanti")
+	maledetto.free()
+
+	# 3. L'ARREDAMENTO NON E' UN NEMICO. Le lettere sull'altare della bambola
+	#    stanno nella fila dei nemici, hanno punti vita e non agiscono mai:
+	#    contarle fra i vivi voleva dire che abbattere la bambola senza
+	#    distruggerle non era una vittoria - e nessuno poteva piu' muoversi.
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var altare: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	altare.muto = true
+	altare.limite_giri = 1
+	add_child(altare)
+	altare.in_corso = true
+	altare.crea_oggetto_scena("goblin_tipico", 30)
+	var bersaglio_fisso: Dictionary = altare.combattenti[altare.combattenti.size() - 1]
+	esigi(bool(bersaglio_fisso.get("oggetto_scena", false)),
+			"l'oggetto di scena non e' nato oggetto di scena")
+	var nemico_vero: Dictionary = {}
+	for c in altare.combattenti:
+		if not c.giocatore and not c.get("oggetto_scena", false):
+			nemico_vero = c
+			break
+	esigi(not nemico_vero.is_empty(), "non c'e' nessun nemico vero da abbattere")
+	var eroe_altare: Dictionary = {}
+	for c in altare.combattenti:
+		if c.giocatore:
+			eroe_altare = c
+			break
+	eroe_altare.attacco = 99999
+	altare.attacca(eroe_altare, nemico_vero, 99999, 1.0, "")
+	esigi(int(nemico_vero.hp) <= 0, "il nemico vero e' ancora in piedi")
+	esigi(int(bersaglio_fisso.hp) > 0, "l'oggetto di scena si e' rotto da solo")
+	esigi(not bool(altare.in_corso),
+			"i nemici sono tutti a terra ma le lettere sull'altare tengono aperto lo scontro")
+	esigi(bool(altare.giocatore_ha_vinto), "abbattuti tutti i nemici e non risulta una vittoria")
+	altare.free()
+
+	# 4. IL COMANDO PASSA. Cade chi stai giocando, la squadra e' ancora in
+	#    piedi: lo scontro deve continuare - quello e' giusto - ma tu devi
+	#    poter muovere qualcuno. Prima restavi a guardare.
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var squadra: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	squadra.muto = true
+	squadra.limite_giri = 1
+	add_child(squadra)
+	squadra.in_corso = true
+	var capo: Dictionary = {}
+	var avversario: Dictionary = {}
+	for c in squadra.combattenti:
+		if c.giocatore and capo.is_empty():
+			capo = c
+		elif not c.giocatore and avversario.is_empty():
+			avversario = c
+	squadra.aggiungi_combattente("nimbo_boy", true)
+	var compagno: Dictionary = squadra.combattenti[squadra.combattenti.size() - 1]
+	esigi(bool(compagno.giocatore), "il compagno non e' arrivato dalla parte della squadra")
+	var comandato_prima: Dictionary = squadra.combattente_comandato()
+	esigi(String(comandato_prima.get("id", "")) == String(capo.id),
+			"prima del KO non stavi comandando il protagonista")
+	capo.resurrezione = ""
+	capo.ultima_resistenza = false
+	avversario.attacco = 99999
+	squadra.attacca(avversario, capo, 99999, 1.0, "")
+	esigi(int(capo.hp) <= 0, "il protagonista non e' caduto")
+	esigi(bool(squadra.in_corso),
+			"e' caduto il protagonista ma il compagno e' vivo: lo scontro non doveva finire")
+	var comandato_dopo: Dictionary = squadra.combattente_comandato()
+	esigi(not comandato_dopo.is_empty(),
+			"caduto chi comandavi non comandi piu' nessuno: il menu resta grigio per tutto lo scontro")
+	esigi(String(comandato_dopo.get("id", "")) == String(compagno.id),
+			"il comando e' passato a '%s' invece che al compagno vivo"
+			% String(comandato_dopo.get("id", "")))
+	squadra.free()
 
 func prova_gli_otto_status() -> void:
 	# Gli otto che ha definito Bru, uno per uno. I numeri sono miei e si possono
