@@ -8,6 +8,8 @@
 			"nome": "Fomentado",
 			"ritratto": "res://art/personaggi/maschera_vuota.png",
 			"descrizione": "Un'anima irrequieta spinta al suo limite dalla sua stessa passione. Brucia forte, sempre! Finché non rimarrà che cenere.",
+			"hp": 205,
+			"fuori_curva": "Bru: «va bene cosi', aumenta i loro hp piuttosto leggermente, ma la meccanica va bene, segue la logica di essere consumati. Gli umani sono felici quando capiscono che possono avere altre strade di vittoria: questo e' il caso.» Da 164 a 205 (+25%). Misurato: difendendosi e basta si vince ancora il 100% delle volte, ma in 35 battute invece di 28; andandoci dritto si vince in 6. La strada alternativa resta aperta e costa sei volte il tempo, che e' esattamente quello che deve costare.",
 			"carta": {
 				"id": "carta_maschera_vuota",
 				"nome": "Fomentado",
@@ -1315,6 +1317,8 @@
 			"nome": "Diabolo",
 			"ritratto": "res://art/personaggi/diabolo.png",
 			"descrizione": "Un piccolo demone da baraccone, cresciuto storto tra le fiamme della Rocca.",
+			"hp": 445,
+			"fuori_curva": "Stessa decisione di Bru, ma con la mano piu' leggera: da 405 a 445 (+10%). A +25% la strada dell'attesa non spariva, si INCEPPAVA - il 71% delle partite superava le sessanta battute senza finire, che non e' una sconfitta ma e' peggio di una. A +10% difendersi e basta vince il 45% invece del 55%, e chi attacca chiude in 6 battute. Numeri miei: ./prove/sonda.sh diabolo difendi 12.",
 			"carta": {
 				"id": "carta_diabolo",
 				"nome": "Diabolo",
