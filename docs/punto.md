@@ -231,6 +231,48 @@ nessun'altra.
 
 ---
 
+## 5-bis. **L'obiettivo adesso: finire il primo Carnivalz, fino a Jerah**
+
+Deciso il 12 settembre: si chiude il **Vuoto Ardente** — tutto quello che sta fra il tutorial e
+Jerah — e poi si prende **uno dei suoi livelli** come demo. Niente altro, finché questo non è finito.
+
+**Cosa c'è dentro lo scopo:** il tutorial, le otto fratture (Squarcio Industriale, Meridia, Cunicoli
+di Jondoh, Qualcosa preme, Teatro del Passato, Casa Gigante, Kizako Ala, la Fontana), la campagna del
+Vuoto e lo scontro con Jerah.
+
+**La buona notizia, verificata:** la catena si percorre davvero. `tutorial_completato` →
+`industriale_esplorato` + `meridia_esplorata` + `quest_ossidiana` → il pianeta si apre → Jerah. La
+campagna finale ha 26 nodi, il boss, la vittoria, la vittoria da eroe e la sconfitta. **Non manca un
+pezzo di struttura: manca del contenuto dentro i pezzi.**
+
+### Chiuso il 12 settembre
+
+- ✅ **La Fontana non si poteva completare.** Chiedeva quattro pezzi e ne esisteva uno. Gli altri tre
+  adesso si raccolgono (Teatro, Rocca, Meridia) e c'è una prova che impedisce che riaccada
+- ✅ **La porta enorme della Casa Gigante** non è un guasto: il suo meccanismo è dichiarato «si trova
+  molto più avanti nel viaggio», e il tunnel dietro si raggiunge da un'altra strada
+
+### Quello che manca, e di chi è
+
+| | Cosa | Chi |
+| --- | --- | --- |
+| 1 | **Le condizioni di mediazione** — **1 creatura su 41** ce l'ha. È la meccanica che il gioco dichiara come sua, e oggi è spenta quasi ovunque | **tu** |
+| 2 | **Cosa evoca Yhvina** — il Piccolo richiamo ha `"valore": ""`: chiama, e non arriva niente | **tu** |
+| 3 | **La costellazione** — 80 punti magenta. Il lettore è pronto e provato | **tu** |
+| 4 | **77 risorse citate e assenti** (ritratti, musiche, illustrazioni). Il gioco gira lo stesso, ma è il muro della pagina del negozio | **tu** |
+| 5 | **Il ritmo degli scontri**: la Rocca ha 37 stanze e un tetto di **3** combattimenti; Teatro, Fontana e Qualcosa preme **zero** | io, coi tuoi numeri |
+| 6 | **101 stanze su 189 senza niente dentro** | tutti e due |
+| 7 | **I punti di riferimento** nelle altre sette zone (nella Casa Gigante ce ne sono 7) | io, tu li riscrivi |
+| 8 | **Tre creature ancora storte**: Oppresso e Robo Pattuglia da 30 giri, Fomentado che si batte da solo. E «difenditi e basta» adesso batte anche Diabolo | io |
+| 9 | **I gradi III-VI** hanno il colpo e non la clausola in fondo | io |
+| 10 | **Le mosse delle versioni scriptate** e l'aiutante di Jondoh | **tu** |
+
+**Fuori scopo per adesso** (li tengo scritti per non perderli): il sistema delle lingue, il secondo
+Carnivalz (`carnivalz_del_porto`, oggi `attivo: false`), la frattura `frattura_post_v5` che non ha
+ancora un file, e il taglio vero della demo — che si fa **dopo**, scegliendo il livello.
+
+---
+
 ## 6. Cosa aspetta te
 
 In ordine di quanto blocca il lavoro. I primi tre sono quelli senza cui non posso andare avanti.
