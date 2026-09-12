@@ -418,6 +418,25 @@ static func calcola_danno(attaccante: Dictionary, bersaglio: Dictionary, valore_
 	#   fattore  -> il disallineamento ha aggiunto il suo punto
 	#   schivato -> il livello del bersaglio ha annullato un colpo che passava
 	var esito := {"danno": 0, "critico": false, "fattore": false, "schivato": false, "efficacia": 1.0}
+	# CHI SI MISURA IN COLPI E NON IN PUNTI VITA.
+	#
+	# Bru, sul Nimbo Boy: "una creatura debole che resiste a 3 attacchi, non ha
+	# vita - 3 attacchi anche deboli e muore". Non e' una creatura con pochi punti
+	# vita: e' una creatura per cui i punti vita non contano. Un colpo e' un colpo,
+	# che sia un graffio o una cannonata.
+	#
+	# Sta qui, e prima di tutto il resto, perche' cosi' NIENTE puo' aggirarla: non
+	# il critico, non il tipo, non la carica, non il fattore. Chi regge tre colpi
+	# ne regge tre e basta, e chi legge il numero sulla sua scheda sa esattamente
+	# quanto le resta.
+	# Il campo sta nel FILE della creatura, non nel dizionario del combattente:
+	# quello si costruisce da un elenco fisso di chiavi in aggiungi_combattente, e
+	# una chiave nuova non ci finisce dentro da sola. Cercarla li' faceva passare
+	# la regola per non dichiarata, e una cannonata portava via il Nimbo Boy in un
+	# colpo - se n'e' accorta la prova, non io.
+	if int(GameState.personaggi.get(bersaglio.get("id", ""), {}).get("colpi_che_regge", 0)) > 0:
+		esito.danno = 1
+		return esito
 	var danno: int
 	if valore_attacco >= 0:
 		danno = valore_attacco  # mossa a valore fisso (es. faena, gran finale)

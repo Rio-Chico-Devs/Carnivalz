@@ -552,6 +552,30 @@
 			"morfologia": "Quello che i Rottami Erranti tenevano insieme a fatica, qui è saldato. Il nucleo di colossite non è più al centro: è in cima, dove starebbe una testa.",
 			"habitus": "Non pattuglia più niente. Sta fermo finché non ha deciso, e quando ha deciso non si ferma.",
 			"ecologia": "Non raccoglie e non ricondiziona: è il punto in cui la discarica smette di essere un magazzino e diventa una cosa sola."
+		},
+		"nimbo_boy": {
+			"classificazione": "rango base",
+			"filogenesi": "onirica",
+			"areale": [
+				"Nessuno: non esiste finché qualcuno non lo sogna"
+			],
+			"specie": "Nimbo",
+			"stadio": "I",
+			"morfologia": "Una nuvoletta compatta, alta quanto un bambino, con due gambe che non reggerebbero nessun peso vero. Non ha massa misurabile. Le rilevazioni danno una struttura che si disfa dopo tre sollecitazioni, sempre tre, indipendentemente dall'intensità.",
+			"habitus": "Si mette davanti. È l'unica cosa che fa, e la fa con una sicurezza che non è sua: se la prende in prestito da chi lo ha sognato.",
+			"ecologia": "Non si riproduce, non si nutre, non invecchia. Esiste per la durata di un pensiero altrui e poi non c'è più. Gli operatori che ne hanno visto uno dissolversi riferiscono una sensazione di imbarazzo, non di perdita."
+		},
+		"sogno_perduto": {
+			"classificazione": "rango base",
+			"filogenesi": "onirica",
+			"areale": [
+				"Nessuno: non esiste finché qualcuno non lo sogna"
+			],
+			"specie": "Onirico",
+			"stadio": "I",
+			"morfologia": "Forma incompleta e instabile: i contorni cambiano se non lo si guarda direttamente. La massa risulta proporzionale a quella di chi lo sogna - circa un quarto - e varia con lei.",
+			"habitus": "Combatte in anticipo di mezzo istante, come se la scena l'avesse già vissuta. Non guarda mai chi lo ha evocato.",
+			"ecologia": "Un sogno che il dormiente non è più riuscito a ritrovare e che continua a esistere dalla sua parte. Non si sa se sappia di essere perduto."
 		}
 	},
 	"_nota_specie": "SPECIE, non fenotipo. Bru: 'fenotipo verra' sostituito con specie'. E' il nome della cosa - Zombie, Slime, Robot - non un aggettivo su come e' venuta. E' il campo che lega creature diverse: Zombie Cittadino, Zombie Mostruoso e Orrore di Meridia sono la stessa specie a tre stadi. Per questo Specie e Stadio stanno vicini e si leggono insieme.",

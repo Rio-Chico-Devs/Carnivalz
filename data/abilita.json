@@ -818,9 +818,13 @@
 			"livello": 12,
 			"aura": 4,
 			"testo_uso": "[i]%s chiama, e qualcosa risponde.[/i]",
-			"descrizione": "Evoca 1 creatura al suo fianco.",
+			"descrizione": "Evoca al suo fianco un sogno: uno per volta, finché quello di prima resta in piedi.",
 			"quantita": 1,
-			"valore": ""
+			"valore": [
+				"nimbo_boy"
+			],
+			"_bru": "«Yhvina evoca creature dai suoi sogni. Nel primo incontro riuscira' a evocare solo dei Nimbo Boy. Lei puo' evocare un sogno per volta. I sogni che evoca appaiono come ally, cosi' come i personaggi che incontri nei livelli che possono diventare tuoi ally. Yhvina giocabile avra' piu' sogni da evocare piu' sale di livello, ma per ora nella demo questo e' inutile: basta la Yhvina scriptata.»",
+			"_mio": "«valore» e' una LISTA apposta: oggi contiene solo il Nimbo Boy - il primo incontro - e i gradi successivi del Richiamo ci aggiungeranno 'sogno_perduto' e quelli che verranno. Con un nome solo si comporta esattamente come prima. La regola dell'uno per volta sta nel motore, non qui: vale per qualunque sogno."
 		},
 		"non_sei_sola": {
 			"nome": "Non sei sola",

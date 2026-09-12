@@ -960,6 +960,30 @@ func battuta_di(attaccante: Dictionary) -> void:
 		turno_nemico(attaccante)
 	coda_di_battuta(attaccante)
 
+func mossa_da_creatura(chi: Dictionary) -> Dictionary:
+	# Traduce la prima mossa utile di una creatura che sta dalla parte della
+	# squadra nell'azione che esegui_azione sa gia' eseguire.
+	#
+	# Non e' un secondo motore delle mosse: e' un ponte, e copre apposta solo i
+	# tipi che dalla parte della squadra hanno un senso. Una creatura evocata con
+	# una mossa che non sta in questo elenco ricade sul comportamento generico -
+	# picchia - che e' la cosa giusta da fare e non ha bisogno di nessun caso
+	# particolare.
+	if String(chi.get("evocato_da", "")) == "":
+		return {}
+	for mossa in GameState.personaggi.get(chi.id, {}).get("mosse", []):
+		match String(mossa.get("tipo", "")):
+			"provoca":
+				return {"tipo": "provoca", "tutti": bool(mossa.get("tutti", false)),
+						"testo": String(mossa.get("testo", ""))}
+			"attacco_forte", "spezza_guardia":
+				var nemici := vivi(false)
+				if nemici.is_empty():
+					return {}
+				return {"tipo": "attacca",
+						"bersaglio": nemici[GameState.rng.randi_range(0, nemici.size() - 1)]}
+	return {}
+
 func azione_automatica(chi: Dictionary) -> Dictionary:
 	# UN COMPAGNO CHE NON STAI COMANDANDO SE LA CAVA DA SOLO. Non e' un'IA
 	# raffinata e non deve esserlo: deve fare la cosa ovvia in fretta, perche'
@@ -968,6 +992,17 @@ func azione_automatica(chi: Dictionary) -> Dictionary:
 	var nemici := vivi(false)
 	if nemici.is_empty():
 		return {"tipo": "difendi"}
+	# UN SOGNO EVOCATO NON E' UN COMPAGNO: E' UNA CREATURA.
+	#
+	# I compagni hanno delle "abilita'" (classes.json); una creatura ha delle
+	# "mosse" (personaggi.json), e sono due elenchi diversi in due file diversi.
+	# Senza questa riga un Nimbo Boy evocato cadeva nel ramo generico qui sotto -
+	# "picchia" - e siccome ha zero attacco restava in campo a non fare
+	# assolutamente niente per tutto lo scontro. Se n'e' accorta la prova che
+	# pretende che ogni creatura faccia qualcosa in ventiquattro battute.
+	var sua := mossa_da_creatura(chi)
+	if not sua.is_empty():
+		return sua
 	if float(chi.hp) / maxf(float(chi.get("hp_max", 1)), 1.0) < 0.3 \
 			and GameState.rng.randf() < 0.5:
 		return {"tipo": "difendi"}
@@ -1016,6 +1051,16 @@ func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
 					colpo_darma(attaccante, bersaglio_scelto, azione.get("arma", {}))
 				"difendi":
 					difendi(attaccante)
+				"provoca":
+					# la usa oggi solo un sogno evocato (vedi mossa_da_creatura),
+					# ma e' un'azione come le altre: chiunque stia dalla parte
+					# della squadra puo' mettersi in mezzo
+					if String(azione.get("testo", "")) != "":
+						scrivi("[i]%s[/i]" % String(azione["testo"]))
+					var da_provocare: Array[Dictionary] = []
+					if not bool(azione.get("tutti", false)):
+						da_provocare = uno_solo(bersaglio_opposto(attaccante))
+					provoca(attaccante, da_provocare)
 				"studia":
 					studia(attaccante, bersaglio_scelto)
 				"media":
@@ -2004,26 +2049,76 @@ func ultima_resistenza(chi: Dictionary, dati: Dictionary) -> void:
 	aggiorna_scheda(chi)
 
 func evoca_alleato(chi: Dictionary, dati: Dictionary) -> void:
-	# il Richiamo di Yhvina. Passa dalla stessa macchina che usano i nemici per
-	# evocare - aggiungi_combattente - solo dal lato della squadra.
+	# IL RICHIAMO DI YHVINA, e adesso si sa cosa chiama.
 	#
-	# QUALE creatura evochi non e' deciso: e' la domanda aperta piu' grossa su
-	# Yhvina ("cosa evoca?"). Finche' non arriva la risposta il campo "valore"
-	# dice quale, e si cambia da li' senza toccare il motore
-	var chi_arriva := String(dati.get("valore", ""))
-	if chi_arriva == "" or not GameState.personaggi.has(chi_arriva):
+	# Bru: "Yhvina evoca creature dai suoi sogni. Nel primo incontro riuscira' a
+	# evocare solo dei Nimbo Boy... oppure evoca un sogno perduto, una creatura
+	# con 1/4 degli hp di Yhvina. Lei puo' evocare un sogno per volta. I sogni
+	# che evoca appaiono come ally, cosi' come i personaggi che incontri nei
+	# livelli che possono diventare tuoi ally."
+	#
+	# Il campo "valore" dice quali sogni sa chiamare: una stringa sola, o una
+	# lista. La lista serve a quello che verra' dopo - "Yhvina giocabile avra'
+	# piu' sogni da evocare piu' sale di livello" - e nel frattempo non costa
+	# niente: con un nome solo si comporta esattamente come prima.
+	var sogni := sogni_di(dati)
+	if sogni.is_empty():
 		scrivi("[i]%s chiama, ma non risponde nessuno.[/i]" % chi.nome)
 		return
-	var arrivati := 0
-	for volta in range(int(dati.get("quantita", 1))):
-		if vivi(chi.giocatore).size() >= int(GameState.regole.get("evocati_massimi_squadra", 4)):
-			break
-		aggiungi_combattente(chi_arriva, chi.giocatore)
-		arrivati += 1
-	if arrivati == 0:
+	# UN SOGNO PER VOLTA. Non e' un limite di posti in squadra (quello c'e' gia',
+	# ed e' un'altra cosa): e' che Yhvina puo' tenerne aperto uno solo. Finche'
+	# quello di prima e' in piedi, il richiamo non porta niente di nuovo.
+	if sogno_gia_in_campo(chi):
+		scrivi("[i]%s chiama ancora, ma un sogno per volta e' tutto quello che riesce a tenere aperto.[/i]" % chi.nome)
+		return
+	if vivi(chi.giocatore).size() >= int(GameState.regole.get("evocati_massimi_squadra", 4)):
 		scrivi("[i]...ma non c'è più posto.[/i]")
 		return
+	var chi_arriva: String = sogni[GameState.rng.randi_range(0, sogni.size() - 1)]
+	aggiungi_combattente(chi_arriva, chi.giocatore)
+	var arrivato: Dictionary = combattenti[combattenti.size() - 1]
+	arrivato["evocato_da"] = String(chi.id)
+	adatta_all_evocatore(arrivato, chi)
+	aggiorna_scheda(arrivato)
 	scrivi(String(dati.get("testo_uso", "[i]%s chiama, e qualcosa risponde.[/i]")) % chi.nome)
+
+func sogni_di(dati: Dictionary) -> Array[String]:
+	# "valore" puo' essere un nome solo o una lista di nomi. Chi non esiste nel
+	# bestiario viene scartato in silenzio qui e non a meta' evocazione
+	var elenco: Array[String] = []
+	var valore: Variant = dati.get("valore", "")
+	if valore is String:
+		if String(valore) != "":
+			elenco.append(String(valore))
+	elif valore is Array:
+		for x in valore:
+			if x is String and String(x) != "":
+				elenco.append(String(x))
+	var buoni: Array[String] = []
+	for nome in elenco:
+		if GameState.personaggi.has(nome):
+			buoni.append(nome)
+	return buoni
+
+func sogno_gia_in_campo(chi: Dictionary) -> bool:
+	for combattente in combattenti:
+		if int(combattente.hp) <= 0:
+			continue
+		if String(combattente.get("evocato_da", "")) == String(chi.id):
+			return true
+	return false
+
+func adatta_all_evocatore(arrivato: Dictionary, chi: Dictionary) -> void:
+	# IL SOGNO PERDUTO HA UN QUARTO DELLA VITA DI CHI LO SOGNA. E' una statistica
+	# RELATIVA, non un numero: se domani Yhvina passa da 130 a 200 punti vita, il
+	# suo sogno la segue senza che nessuno debba ricordarsi di venirlo a
+	# correggere qui. Scritto nel file della creatura, non nel codice.
+	var quota := float(GameState.personaggi.get(arrivato.id, {}).get("hp_quota_evocatore", 0.0))
+	if quota <= 0.0:
+		return
+	var vita := maxi(int(round(float(chi.hp_max) * quota)), 1)
+	arrivato.hp_max = vita
+	arrivato.hp = vita
 
 func passiva(_chi: Dictionary, dati: Dictionary) -> void:
 	# LA VEGLIA DI YHVINA, e tutte quelle come lei. Una passiva non si "usa":
@@ -2151,9 +2246,33 @@ func fuggi(chi: Dictionary) -> void:
 	giocatore_e_fuggito = true
 	in_corso = false
 
+func uno_solo(chi: Dictionary) -> Array[Dictionary]:
+	# Una lista TIPATA di un elemento solo. In GDScript un letterale [x] e' un
+	# Array senza tipo, e passarlo dove si aspetta un Array[Dictionary] non e' un
+	# avvertimento: e' un errore a runtime che interrompe la funzione a meta' e
+	# non fa fallire niente. Costa una riga averlo scritto una volta sola.
+	var elenco: Array[Dictionary] = []
+	if not chi.is_empty():
+		elenco.append(chi)
+	return elenco
+
+func bersaglio_opposto(chi: Dictionary) -> Dictionary:
+	# uno a caso di quelli dall'altra parte del campo rispetto a chi agisce.
+	# Serve alle mosse che valgono da tutte e due le parti (vedi "provoca")
+	var possibili := vivi(not bool(chi.get("giocatore", false)))
+	return possibili[GameState.rng.randi_range(0, possibili.size() - 1)] if not possibili.is_empty() else {}
+
 func bersaglio_giocatore_casuale() -> Dictionary:
-	# la provocazione forza i nemici a colpire chi ha provocato, finche' dura
-	if not bersaglio_provocazione.is_empty() and turni_provocazione > 0 and bersaglio_provocazione.hp > 0:
+	# la provocazione forza i nemici a colpire chi ha provocato, finche' dura.
+	#
+	# "e di chi ha provocato" non e' pignoleria: questa funzione sceglie chi
+	# picchiano i NEMICI, e se a provocare fosse stato un nemico si ritroverebbero
+	# a menare uno dei loro. Finche' la provocazione e' stata solo roba della
+	# squadra non poteva succedere; adesso che anche una creatura puo' avere
+	# "provoca" fra le sue mosse, puo'.
+	if not bersaglio_provocazione.is_empty() and turni_provocazione > 0 \
+			and bool(bersaglio_provocazione.get("giocatore", false)) \
+			and int(bersaglio_provocazione.hp) > 0:
 		return bersaglio_provocazione
 	var possibili := vivi(true)
 	return possibili[GameState.rng.randi_range(0, possibili.size() - 1)] if not possibili.is_empty() else {}
@@ -2978,6 +3097,17 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	match mossa.get("tipo", ""):
 		"difendi":
 			difendi(nemico)
+		"provoca":
+			# SI METTE IN MEZZO. Vale da tutte e due le parti del campo: un Nimbo
+			# Boy evocato da Yhvina provoca i nemici, e una creatura che ce
+			# l'avesse provocherebbe la squadra. provoca() guarda da che parte sta
+			# chi la usa e sceglie l'altra, quindi non serve distinguere qui
+			# la lista va costruita tipata PRIMA: in un ternario il ramo "[]" e'
+			# un Array senza tipo, e il tipo del ternario diventa quello
+			var chi_provocare: Array[Dictionary] = []
+			if not bool(mossa.get("tutti", false)):
+				chi_provocare = uno_solo(bersaglio_opposto(nemico))
+			provoca(nemico, chi_provocare)
 		"attacco_forte":
 			var vittima_forte := bersaglio_giocatore_casuale()
 			attacca(nemico, vittima_forte, valore_mossa(nemico, mossa),

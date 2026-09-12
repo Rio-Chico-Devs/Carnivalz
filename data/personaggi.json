@@ -3645,6 +3645,122 @@
 			"id": "figura_misteriosa",
 			"nome": "??? (Organizzazione)",
 			"ritratto": ""
+		},
+		{
+			"id": "nimbo_boy",
+			"livello": 1,
+			"ruolo": "comune",
+			"nome": "Nimbo Boy",
+			"categoria": "evocazione",
+			"ritratto": "res://art/personaggi/nimbo_boy.png",
+			"descrizione": "Un sogno di Yhvina che non ha mai finito di prendere forma: una nuvoletta con due gambe e una faccia da schiaffi. Non sa combattere. Sa solo mettersi in mezzo e farsi notare, e lo fa con una convinzione che non gli appartiene.",
+			"_bru": "«Nel primo incontro riuscira' a evocare solo dei Nimbo Boy, una creatura debole che resiste a 3 attacchi - non ha vita, 3 attacchi anche deboli e muore. E' una creatura che sa solo provocare.»",
+			"hp": 3,
+			"attacco": 0,
+			"difesa": 0,
+			"velocita": 6,
+			"colpi_che_regge": 3,
+			"_colpi_che_regge": "I punti vita non contano: ogni colpo che prende ne toglie uno, che sia un graffio o una cannonata. Tre e se ne va. La regola sta in Regole.calcola_danno, prima di tutto il resto, cosi' non la aggira ne' un critico ne' un tipo.",
+			"fuori_curva": "Scritte a mano apposta: la curva del ruolo comune a livello 1 darebbe una creatura normale, e questa normale non e'. Tre punti vita perche' tre sono i colpi che regge, e zero attacco perche' non attacca mai.",
+			"mosse": [
+				{
+					"id": "mettiti_in_mezzo",
+					"nome": "Mettiti in mezzo",
+					"tipo": "provoca",
+					"testo": "Il Nimbo Boy si gonfia, si mette davanti a tutti e fa una faccia insopportabile. Funziona.",
+					"tutti": true,
+					"peso": 3
+				},
+				{
+					"id": "libera_2",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				}
+			],
+			"tipo": "Spirituale"
+		},
+		{
+			"id": "sogno_perduto",
+			"livello": 1,
+			"ruolo": "comune",
+			"nome": "Sogno perduto",
+			"categoria": "evocazione",
+			"ritratto": "res://art/personaggi/sogno_perduto.png",
+			"descrizione": "Qualcosa che Yhvina ha sognato una volta e poi non e' piu' riuscita a ritrovare. Sta al suo fianco senza parlare, e combatte come se ricordasse di averlo gia' fatto.",
+			"_bru": "«Oppure evoca un sogno perduto, una creatura con 1/4 degli hp di Yhvina. Lei puo' evocare un sogno per volta.»",
+			"hp_quota_evocatore": 0.25,
+			"_hp_quota_evocatore": "La vita non e' un numero: e' un quarto di quella di chi lo sogna, calcolata quando arriva in campo (vedi Combattimento.adatta_all_evocatore). Se Yhvina cambia, il suo sogno la segue.",
+			"hp": 33,
+			"attacco": 6,
+			"difesa": 1,
+			"velocita": 5,
+			"fuori_curva": "I punti vita qui sono solo il valore di ripiego se qualcuno lo mette in campo senza un evocatore: normalmente li prende da chi lo sogna. 33 e' un quarto dei 130 di Yhvina oggi. Attacco e difesa sono miei, da correggere.",
+			"mosse": [
+				{
+					"id": "colpo_ricordato",
+					"nome": "Colpo ricordato",
+					"tipo": "attacco_forte",
+					"testo": "Il sogno si muove in anticipo, come se la scena l'avesse gia' vissuta.",
+					"quota": 1.0,
+					"peso": 3
+				},
+				{
+					"id": "libera_2",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_3",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_4",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_5",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				},
+				{
+					"id": "libera_6",
+					"nome": "-",
+					"tipo": "-",
+					"testo": "-"
+				}
+			],
+			"tipo": "Spirituale"
 		}
 	]
 }

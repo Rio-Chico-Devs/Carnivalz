@@ -79,6 +79,7 @@ func _ready() -> void:
 	prova_resistere_non_e_essere_immuni()
 	prova_il_tetto_alla_cura_di_se()
 	prova_la_vita_bassa_si_annuncia()
+	prova_i_sogni_di_yhvina()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -2656,7 +2657,7 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
 			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
 			"cura", "rubavita", "stato", "potenziamento", "scena", "tormento",
-			"modalita", "trasformazione"]
+			"modalita", "trasformazione", "provoca"]
 	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione.
 	# Le sei caselle ce le hanno lo stesso, tutte libere
 	var senza_mosse_per_scelta := ["manifestazione_di_un_sogno", "veronica"]
@@ -2901,8 +2902,20 @@ func prova_nessuna_creatura_perde_la_battuta() -> void:
 	# ricariche scalino - cioe' nella condizione peggiore, con tutto quello che
 	# ha gia' speso - e a ognuna deve succedere qualcosa.
 	titolo("nessuna creatura passa una battuta a fare niente")
+	# CHI FA UNA COSA SOLA, E RIFARLA E' GIUSTO.
+	#
+	# Il Nimbo Boy e' un'esca: Bru lo descrive come «una creatura che sa solo
+	# provocare», e regge tre colpi. Provocare di nuovo quando la provocazione e'
+	# gia' in piedi non cambia lo stato del campo - lo stato c'e' gia' - quindi
+	# questa prova lo vedrebbe fermo per ventitre battute su ventiquattro. Non e'
+	# un difetto: e' il suo mestiere. E per giunta lo starebbe facendo in un
+	# ruolo che nel gioco non ricopre mai, visto che qui le creature vengono
+	# provate come NEMICI e lui nasce solo evocato dalla parte della squadra.
+	#
+	# Dichiarato invece di tolto: la prova resta severa con tutti gli altri.
 	var saltate := ["manifestazione_di_un_sogno", "veronica",  # copione
-			"tartaruga_innocente"]  # attacco 0: il suo mestiere e' non fare male
+			"tartaruga_innocente",  # attacco 0: il suo mestiere e' non fare male
+			"nimbo_boy"]  # un'esca: provoca, e riprovocare non cambia niente
 	var guardate := 0
 	for id_creatura in GameState.personaggi:
 		var dati: Dictionary = GameState.personaggi[id_creatura]
@@ -3805,6 +3818,77 @@ func prova_la_vita_bassa_si_annuncia() -> void:
 	esigi(not CampoCombattimento.in_pericolo(0, 100), "un KO risulta 'in pericolo'")
 	esigi(not CampoCombattimento.in_pericolo(10, 0),
 			"un bersaglio senza vita massima manda l'allarme in divisione per zero")
+
+func prova_i_sogni_di_yhvina() -> void:
+	# IL RICHIAMO, con le parole di Bru: «Yhvina evoca creature dai suoi sogni.
+	# Nel primo incontro riuscira' a evocare solo dei Nimbo Boy, una creatura
+	# debole che resiste a 3 attacchi - non ha vita, 3 attacchi anche deboli e
+	# muore. E' una creatura che sa solo provocare. Oppure evoca un sogno
+	# perduto, una creatura con 1/4 degli hp di Yhvina. Lei puo' evocare un sogno
+	# per volta. I sogni che evoca appaiono come ally.»
+	#
+	# Quattro cose da misurare, e sono tutte e quattro delle SUE frasi.
+	titolo("i sogni di Yhvina: tre colpi, un quarto di vita, uno per volta")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	var nemico: Dictionary = {}
+	for c in scontro.combattenti:
+		if c.giocatore and eroe.is_empty():
+			eroe = c
+		elif not c.giocatore and nemico.is_empty():
+			nemico = c
+	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro non si e' montato")
+	scontro.in_corso = true
+
+	# 1. TRE COLPI E SE NE VA, qualunque sia il colpo.
+	scontro.aggiungi_combattente("nimbo_boy", true)
+	var nimbo: Dictionary = scontro.combattenti[scontro.combattenti.size() - 1]
+	esigi(bool(nimbo.giocatore), "il Nimbo Boy non arriva dalla parte della squadra")
+	esigi(int(nimbo.hp) == 3, "il Nimbo Boy nasce con %d punti vita invece di 3" % int(nimbo.hp))
+	# un colpo enorme vale uno come un graffio: e' il punto di tutta la creatura
+	nemico.attacco = 9999
+	scontro.attacca(nemico, nimbo, 9999, 1.0, "")
+	esigi(int(nimbo.hp) == 2,
+			"una cannonata ha tolto al Nimbo Boy piu' di un colpo: e' a %d invece che a 2" % int(nimbo.hp))
+	scontro.attacca(nemico, nimbo, 1, 1.0, "")
+	scontro.attacca(nemico, nimbo, 1, 1.0, "")
+	esigi(int(nimbo.hp) <= 0, "dopo tre colpi il Nimbo Boy e' ancora in piedi con %d" % int(nimbo.hp))
+
+	# 2. UN QUARTO DELLA VITA DI CHI LO SOGNA, e non un numero scritto a mano
+	eroe.hp_max = 200
+	eroe.hp = 200
+	scontro.evoca_alleato(eroe, {"valore": ["sogno_perduto"], "testo_uso": "[i]%s chiama.[/i]"})
+	var sogno: Dictionary = scontro.combattenti[scontro.combattenti.size() - 1]
+	esigi(String(sogno.id) == "sogno_perduto", "il richiamo non ha portato il sogno perduto")
+	esigi(int(sogno.hp_max) == 50,
+			"il sogno perduto ha %d punti vita invece di un quarto dei 200 di chi lo sogna" % int(sogno.hp_max))
+	esigi(int(sogno.hp) == int(sogno.hp_max), "il sogno perduto arriva gia' ferito")
+
+	# 3. UNO PER VOLTA. Finche' quello di prima e' in piedi, il richiamo non
+	# porta niente di nuovo - e non e' il limite di posti in squadra, che e'
+	# un'altra cosa e sta piu' in alto
+	var quanti_prima: int = scontro.combattenti.size()
+	scontro.evoca_alleato(eroe, {"valore": ["sogno_perduto"]})
+	esigi(scontro.combattenti.size() == quanti_prima,
+			"il secondo richiamo ha portato un altro sogno mentre il primo era ancora in piedi")
+	# caduto quello, se ne puo' chiamare un altro
+	sogno.hp = 0
+	scontro.evoca_alleato(eroe, {"valore": ["sogno_perduto"]})
+	esigi(scontro.combattenti.size() == quanti_prima + 1,
+			"con il sogno precedente caduto, il richiamo non porta piu' niente")
+
+	# 4. UN RICHIAMO CHE NON SA CHI CHIAMARE non fa esplodere niente
+	var quanti_ora: int = scontro.combattenti.size()
+	scontro.evoca_alleato(eroe, {"valore": ""})
+	scontro.evoca_alleato(eroe, {"valore": ["una_creatura_che_non_esiste"]})
+	esigi(scontro.combattenti.size() == quanti_ora,
+			"un richiamo senza sogni validi ha portato in campo qualcosa")
+	scontro.free()
 
 func prova_gli_otto_status() -> void:
 	# Gli otto che ha definito Bru, uno per uno. I numeri sono miei e si possono
