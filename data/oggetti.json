@@ -178,13 +178,15 @@
 			"id": "anima_inquieta",
 			"nome": "Un'anima inquieta",
 			"tipo": "chiave",
-			"descrizione": "Non trova pace e non sa perché. Vibra piano, come se cercasse una direzione. Uno dei pezzi della Fontana."
+			"descrizione": "Non trova pace e non sa perché. Vibra piano, come se cercasse una direzione. Uno dei pezzi della Fontana.",
+			"_non_ancora_ottenibile": "VOLUTO, ed e' una decisione di Bru: «la Fontana e' la' per incuriosire, non troverai mai i pezzi necessari nella demo». Un pezzo che non si trova non e' un guasto: e' un gancio. Se nella demo vedi una cosa che verra' svelata in futuro, quella cosa ti resta in testa - ed e' esattamente il mestiere della Fontana. Questi tre pezzi NON vanno resi raccoglibili senza che lo decida lui. Dichiarato qui perche' la prova prova_ogni_oggetto_richiesto_si_trova non lo segnali come una svista: adesso l'intenzione sta scritta nei dati invece che nella testa di qualcuno."
 		},
 		{
 			"id": "ricordi_felici",
 			"nome": "Dei ricordi felici",
 			"tipo": "chiave",
-			"descrizione": "Piccoli, caldi, quasi imbarazzanti da quanto sono semplici. Uno dei pezzi della Fontana."
+			"descrizione": "Piccoli, caldi, quasi imbarazzanti da quanto sono semplici. Uno dei pezzi della Fontana.",
+			"_non_ancora_ottenibile": "VOLUTO, ed e' una decisione di Bru: «la Fontana e' la' per incuriosire, non troverai mai i pezzi necessari nella demo». Un pezzo che non si trova non e' un guasto: e' un gancio. Se nella demo vedi una cosa che verra' svelata in futuro, quella cosa ti resta in testa - ed e' esattamente il mestiere della Fontana. Questi tre pezzi NON vanno resi raccoglibili senza che lo decida lui. Dichiarato qui perche' la prova prova_ogni_oggetto_richiesto_si_trova non lo segnali come una svista: adesso l'intenzione sta scritta nei dati invece che nella testa di qualcuno."
 		},
 		{
 			"id": "volonta_di_un_fabbro",
@@ -196,7 +198,8 @@
 			"id": "cuore_di_carnivalz",
 			"nome": "Un cuore di disallineamento",
 			"tipo": "chiave",
-			"descrizione": "Batte ancora, di quel battito sbagliato che deforma i mondi. Uno dei pezzi della Fontana."
+			"descrizione": "Batte ancora, di quel battito sbagliato che deforma i mondi. Uno dei pezzi della Fontana.",
+			"_non_ancora_ottenibile": "VOLUTO, ed e' una decisione di Bru: «la Fontana e' la' per incuriosire, non troverai mai i pezzi necessari nella demo». Un pezzo che non si trova non e' un guasto: e' un gancio. Se nella demo vedi una cosa che verra' svelata in futuro, quella cosa ti resta in testa - ed e' esattamente il mestiere della Fontana. Questi tre pezzi NON vanno resi raccoglibili senza che lo decida lui. Dichiarato qui perche' la prova prova_ogni_oggetto_richiesto_si_trova non lo segnali come una svista: adesso l'intenzione sta scritta nei dati invece che nella testa di qualcuno."
 		},
 		{
 			"id": "lanterna_che_pulsa",

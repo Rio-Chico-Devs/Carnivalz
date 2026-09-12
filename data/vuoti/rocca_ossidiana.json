@@ -353,14 +353,6 @@
 					"oggetto": "pergamene_incomprensibili"
 				},
 				{
-					"testo": "Ascolta l'eco che non si decide a spegnersi",
-					"_mio": "Uno dei tre pezzi della Fontana che non si trovavano da nessuna parte: la Fontana ne chiede quattro e ne esisteva uno solo (la volonta' del fabbro, in Kizako). L'ho messo qui io, scegliendo il posto dal senso della sua descrizione - spostalo dove preferisci, basta che da qualche parte si raccolga.",
-					"richiede_flag": "oss_lamento_superato",
-					"vai": "sala_del_lamento",
-					"una_tantum": "oss_anima_inquieta",
-					"oggetto": "anima_inquieta"
-				},
-				{
 					"testo": "Affronta ciò che urla nel buio",
 					"richiede_non_flag": "oss_lamento_superato",
 					"vai": "lamento_imboscata"

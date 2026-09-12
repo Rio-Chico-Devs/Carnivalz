@@ -13,9 +13,7 @@
 		"platea": {
 			"testo": "In platea non c'è nessuno. Sul palco, un ragazzo si esibisce in acrobazie folli: salti che nessun corpo dovrebbe reggere, eppure atterra sempre. Si allena come se il mondo intero lo stesse guardando. Non lo guarda nessuno.",
 			"scelte": [
-				{ "_mio": "Uno dei tre pezzi della Fontana che non si trovavano da nessuna parte: la Fontana ne chiede quattro e ne esisteva uno solo (la volonta' del fabbro, in Kizako). L'ho messo qui io, scegliendo il posto dal senso della sua descrizione - i ricordi felici sono «piccoli, caldi, quasi imbarazzanti da quanto sono semplici», e guardare un ragazzo volare per nessuno e' esattamente quello. Spostalo dove preferisci, basta che da qualche parte si raccolga.",
-				  "testo": "Resta a guardare le acrobazie", "vai": "platea", "stress": -5, "una_tantum": "tea_ricordi_felici", "oggetto": "ricordi_felici" },
-				{ "testo": "Resta a guardare le acrobazie", "richiede_flag": "tea_ricordi_felici", "vai": "platea", "stress": -5 },
+				{ "testo": "Resta a guardare le acrobazie", "vai": "platea", "stress": -5 },
 				{ "testo": "Controlla sotto la poltrona numero 7", "vai": "platea", "una_tantum": "tea_tazo_2", "tazo": 25 },
 				{ "testo": "Sali sul palcoscenico", "vai": "palcoscenico" },
 				{ "testo": "Sali in galleria", "vai": "galleria" },
