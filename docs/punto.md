@@ -84,6 +84,7 @@ artwork, badge, titoli, dedizione.
 | **L'arena reagisce** — fondo tinto dal tipo, bordi che si chiudono | `combattimento/Arena.gd` |
 | **Allarme vita bassa** — la scheda batte prima che tu cada | `Campo.allarme_vita` |
 | **Tetto alla cura di sé** — nessuna creatura si rimette addosso più della sua vita | `rimetti_in_piedi()` |
+| **Punti di riferimento** — una stanza può dire cosa si vede da lì, e ci si deve poter arrivare | campo `vista` nelle zone |
 | **Armi con attacchi propri**, sotto Abilità | `GameState.attacchi_arma` |
 | **Salvataggio a 5 slot** + autosalvataggio | `GameState` |
 

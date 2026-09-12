@@ -32,6 +32,16 @@ e' gia' posto prima di noi (vedi docs/dedalo.md):
   cancelli      Le scelte chiuse da una condizione, e - quando si riesce a
                 capirlo - quanto dista la chiave dalla serratura. Una serratura
                 accanto alla sua chiave e' un dosso, non una porta chiusa.
+  scontri       Quanti agguati puo' dare una zona IN TUTTO, non quanti se ne
+                incontrano attraversandola una volta. La differenza non e' un
+                dettaglio: un agguato non "ripetibile" scatta una volta sola e
+                poi quella stanza resta pulita per sempre, ma se il tiro va a
+                vuoto la stanza resta armata e rientrandoci si ritira. Quindi
+                chi gira parecchio arriva al tetto, e il numero che conta e' il
+                tetto - non la somma delle probabilita' di un giro solo.
+  viste         Quante stanze dicono cosa si vede da li' (vedi il campo "vista").
+                E' la misura dell'orientamento: zero vuol dire che nessuna
+                stanza sa di avere un posto attorno.
 
 Una nota su cosa NON dice: niente di tutto questo parla della qualita' di
 quello che c'e' scritto dentro le stanze. Una zona puo' avere una topologia
@@ -176,6 +186,11 @@ def analizza(percorso):
 		else:
 			scorciatoie.append((a, b, salto))
 
+	agguati = [(k, v["agguato"]) for k, v in nodi.items() if isinstance(v.get("agguato"), dict)]
+	ripetibili = sum(1 for _, a in agguati if a.get("ripetibile"))
+	attesi_un_giro = sum(float(a.get("probabilita", 0.3)) for _, a in agguati)
+	viste = sum(len(v.get("vista", []) or []) for v in nodi.values())
+
 	bivi = Counter()
 	scelte_totali = ritorni = 0
 	for nodo in nodi.values():
@@ -225,7 +240,8 @@ def analizza(percorso):
 		"scorciatoie": scorciatoie, "sbalzi_da_sconfitta": da_sconfitta,
 		"bivi": bivi, "scelte": scelte_totali, "ritorni": ritorni,
 		"sostanza": sum(1 for n in nodi.values() if ha_sostanza(n)),
-		"agguati": sum(1 for n in nodi.values() if "agguato" in n),
+		"agguati": len(agguati), "ripetibili": ripetibili,
+		"attesi_un_giro": attesi_un_giro, "viste": viste,
 		"cancelli": cancelli,
 		"orfani": sorted(k for k in nodi if k not in distanza),
 	}
@@ -236,7 +252,8 @@ def scrivi(zone):
 	tot = Counter()
 	bivi_tot = Counter()
 	for z in zone:
-		for k in ("nodi", "lati", "anelli", "scelte", "ritorni", "sostanza", "agguati"):
+		for k in ("nodi", "lati", "anelli", "scelte", "ritorni", "sostanza", "agguati",
+				"ripetibili", "viste"):
 			tot[k] += z[k]
 		tot["scorciatoie"] += len(z["scorciatoie"])
 		tot["cappi"] += z["cappi"]
@@ -256,17 +273,37 @@ def scrivi(zone):
 	r.append("- **bivi** — stanze che offrono almeno due strade che non siano «torna indietro»")
 	r.append("- **sostanza** — stanze con qualcosa dentro. Le altre si attraversano e basta\n")
 	r.append("## Il quadro\n")
-	r.append("| zona | stanze | porte | anelli | scorciatoie | bivi | con sostanza | agguati | cancelli | profondita' |")
+	r.append("| zona | stanze | porte | anelli | scorciatoie | bivi | con sostanza | viste | cancelli | profondita' |")
 	r.append("|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|")
 	for z in zone:
 		veri_bivi = sum(v for k, v in z["bivi"].items() if k >= 2)
 		r.append("| %s | %d | %d | %d | %d | %d | %d | %d | %d | %d |" % (
 			z["nome"], z["nodi"], z["lati"], z["anelli"], len(z["scorciatoie"]),
-			veri_bivi, z["sostanza"], z["agguati"], len(z["cancelli"]), z["profondita"]))
+			veri_bivi, z["sostanza"], z["viste"], len(z["cancelli"]), z["profondita"]))
 	r.append("| **tutte** | **%d** | **%d** | **%d** | **%d** | **%d** | **%d** | **%d** | **%d** | |" % (
 		tot["nodi"], tot["lati"], tot["anelli"], tot["scorciatoie"],
 		sum(v for k, v in bivi_tot.items() if k >= 2), tot["sostanza"],
-		tot["agguati"], tot["cancelli"]))
+		tot["viste"], tot["cancelli"]))
+	r.append("")
+	r.append("## Il ritmo: quanti scontri puo' dare una zona\n")
+	r.append("Il **tetto** e' quello che conta: un agguato non ripetibile scatta una volta sola e poi")
+	r.append("quella stanza resta pulita per sempre. Se il tiro va a vuoto pero' la stanza resta armata,")
+	r.append("quindi chi gira parecchio ci arriva. La colonna «un giro solo» e' la somma delle")
+	r.append("probabilita' attraversando ogni stanza una volta: dice quanto e' rado il primo passaggio,")
+	r.append("non quanti scontri esistono.\n")
+	r.append("| zona | stanze | stanze con agguato | un giro solo | **tetto** |")
+	r.append("|---|--:|--:|--:|--:|")
+	for z in zone:
+		if z["agguati"] == 0:
+			continue
+		tetto = "senza fine" if z["ripetibili"] else str(z["agguati"])
+		r.append("| %s | %d | %d (%.0f%%) | %.1f | **%s** |" % (
+			z["nome"], z["nodi"], z["agguati"], 100.0 * z["agguati"] / max(z["nodi"], 1),
+			z["attesi_un_giro"], tetto))
+	senza = [z["nome"] for z in zone if z["agguati"] == 0]
+	if senza:
+		r.append("")
+		r.append("Zone senza nessun agguato: %s." % ", ".join(senza))
 	r.append("")
 	r.append("## Quante scelte offre una stanza\n")
 	r.append("Senza contare «torna indietro»: quelle non sono una strada nuova.\n")

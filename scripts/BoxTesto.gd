@@ -98,6 +98,18 @@ func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 			targhetta.text = ""
 			testo.text = "[center]%s[/center]" % contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("accento"))
+		"vista":
+			# QUELLO CHE SI VEDE DA QUI, e non e' la stanza in cui sei.
+			#
+			# Una riga di vista parla di un posto LONTANO: il vivaio in fondo al
+			# giardino, la torre oltre il ponte. Se avesse lo stesso colore della
+			# descrizione del posto in cui ti trovi, sarebbe solo un'altra frase
+			# di ambiente - e invece e' l'unica cosa in tutto il gioco che ti dice
+			# dove SEI rispetto al resto. Quindi ha un colore suo, e si impara a
+			# riconoscerlo: quando compare questo, stai guardando lontano.
+			targhetta.text = ""
+			testo.text = "[i]%s[/i]" % contenuto
+			testo.add_theme_color_override("default_color", Stile.colore("bordo_acceso"))
 		_:
 			targhetta.text = ""
 			testo.text = "[i]%s[/i]" % contenuto

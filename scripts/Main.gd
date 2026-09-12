@@ -198,7 +198,11 @@ func contenuto_nodo(nodo: Dictionary) -> Array[Dictionary]:
 	# prima visita: la scena si gioca per intero (dialoghi compresi). Dalla
 	# seconda in poi resta solo la descrizione del posto, cosi' tornare
 	# indietro non ti rifa' sentire le stesse battute
-	return messaggi_scena(nodo) if mostrando_scena else sequenza_di(nodo)
+	var base: Array[Dictionary] = messaggi_scena(nodo) if mostrando_scena else sequenza_di(nodo)
+	# e in fondo, sempre, quello che da qui si vede (vedi viste_di)
+	for vista in viste_di(nodo):
+		base.append(vista)
+	return base
 
 func messaggi_scena(nodo: Dictionary) -> Array[Dictionary]:
 	# "scena" puo' essere una stringa (una narrazione sola) o una sequenza
@@ -209,6 +213,38 @@ func messaggi_scena(nodo: Dictionary) -> Array[Dictionary]:
 			risultato.append(msg)
 	else:
 		risultato.append({"tipo": "narrazione", "testo": String(scena)})
+	return risultato
+
+func viste_di(nodo: Dictionary) -> Array[Dictionary]:
+	# I PUNTI DI RIFERIMENTO. Quello che da qui si VEDE, e che sta da un'altra
+	# parte.
+	#
+	# Fino a ieri nel gioco non esisteva un solo posto che si vedesse da un
+	# altro. Ogni stanza era un'isola: ci entravi, leggevi cos'era, sceglievi una
+	# porta. Nessuna frase diceva mai dove ti trovavi rispetto al resto - e senza
+	# quello nessuno si costruisce in testa la mappa di niente, per quanto bene
+	# siano collegate le stanze.
+	#
+	# E' la cosa piu' economica che ci sia, perche' e' solo testo: basta che una
+	# stanza ne nomini un'altra. «Dalla finestra del ballatoio si vede il vivaio,
+	# laggiu' in fondo al giardino» costa una riga e fa tre mestieri insieme:
+	# dice che quel posto esiste, dice dov'e', e la seconda volta che ci passi
+	# dice quanta strada hai fatto.
+	#
+	# PERCHE' UN CAMPO E NON SEMPLICE PROSA. Per una regola sola, che e' la
+	# quinta di Romero: se il giocatore lo vede, ci deve poter arrivare. Scritto
+	# dentro la descrizione, un posto nominato e mai raggiungibile e' una bugia
+	# che nessuno scopre; dichiarato qui col suo "verso", c'e' una prova che
+	# pretende che quella stanza esista e sia raggiungibile davvero.
+	#
+	# Arrivano SEMPRE in fondo alla scena, mai in mezzo: prima dov'e' che sei,
+	# poi cosa vedi da qui.
+	var risultato: Array[Dictionary] = []
+	for vista in nodo.get("vista", []):
+		var testo := String(vista.get("testo", ""))
+		if testo == "":
+			continue
+		risultato.append({"tipo": "vista", "testo": testo})
 	return risultato
 
 func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
@@ -620,7 +656,12 @@ func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
 func _su_osserva() -> void:
 	# guardarsi intorno non e' una scelta: non consuma niente, non muove il
 	# legame, non fa scattare agguati. Ridescrive e basta.
-	coda_messaggi = messaggi_scena(nodo_in_corso)
+	var da_mostrare: Array[Dictionary] = messaggi_scena(nodo_in_corso)
+	# guardarsi intorno vuol dire anche guardare LONTANO: se da qui si vede
+	# qualcosa, riguardarsi intorno deve farlo rivedere
+	for vista in viste_di(nodo_in_corso):
+		da_mostrare.append(vista)
+	coda_messaggi = da_mostrare
 	avanza_messaggio()
 
 func _su_scelta(scelta: Dictionary) -> void:

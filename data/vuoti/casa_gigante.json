@@ -1,4 +1,5 @@
 {
+	"_nota_vista": "I punti di riferimento: quello che da questa stanza si VEDE, e che sta da un'altra parte. Regola 5 di Romero: se il giocatore lo vede, ci deve poter arrivare - e c'e' una prova che lo pretende (vedi prova_i_punti_di_riferimento). Questi sette sono miei, scritti a partire da quello che le stanze gia' dicevano: riscrivili con le tue parole, sono un esempio di forma, non un testo definitivo.",
 	"nodo_iniziale": "soglia",
 	"mappa_dungeon": {
 		"nome": "La Casa Gigante",
@@ -354,6 +355,12 @@
 				}
 			],
 			"scena": "La facciata della grande casa ti sovrasta, storta, con tutte le finestre buie tranne una.",
+			"vista": [
+				{
+					"testo": "L'unica finestra accesa è in alto, sotto lo spiovente del tetto. Da qui sembra una candela lasciata a bruciare da sola.",
+					"verso": "attico"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Entra nella casa",
@@ -397,6 +404,12 @@
 				],
 				"se_perdi": "cacciata"
 			},
+			"vista": [
+				{
+					"testo": "In mezzo al salone la scala sale e si perde: da lì, in questa casa, si arriva ovunque.",
+					"verso": "scala"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Vai nella sala principale",
@@ -606,6 +619,12 @@
 				}
 			],
 			"scena": "La scala, e i suoi piani che non finiscono mai. Da qui si arriva ovunque, in questa casa.",
+			"vista": [
+				{
+					"testo": "Su, in cima, la luce fioca che filtra da sotto una porta chiusa non è mai cambiata da quando sei entrato.",
+					"verso": "attico"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Entra nella stanza dei giochi",
@@ -1230,6 +1249,12 @@
 				}
 			],
 			"scena": "Il vialetto che porta al giardino, sul fianco della casa.",
+			"vista": [
+				{
+					"testo": "Sopra di te, le finestre del piano alto. Una sola ha luce, e non è la stessa che si vedeva dalla strada — o forse sì, e sei tu che ti sei spostato.",
+					"verso": "attico"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Entra nel giardino",
@@ -1317,6 +1342,12 @@
 				"salta_se_flag": "casa_volto_battuto",
 				"se_perdi": "cacciata"
 			},
+			"vista": [
+				{
+					"testo": "L'albero grande sta al centro del giardino est, più alto di tutto il resto, e lo si vede da ogni angolo del prato.",
+					"verso": "spirito_hub"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Esplora il giardino est",
@@ -2281,6 +2312,12 @@
 				"salta_se_flag": "casa_volto_battuto",
 				"se_perdi": "cacciata"
 			},
+			"vista": [
+				{
+					"testo": "Oltre i rovi, il vetro del vivaio prende quel poco di luce che c'è e la tiene, come se dentro fosse ancora giorno.",
+					"verso": "vivaio_apertura"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Avvicinati ai rovi",
@@ -2408,6 +2445,12 @@
 				"salta_se_flag": "casa_volto_battuto",
 				"se_perdi": "cacciata"
 			},
+			"vista": [
+				{
+					"testo": "Le vasche continuano in fondo alla serra, sempre più fitte, fino a dove il vetro non si vede più.",
+					"verso": "vivaio_fondo"
+				}
+			],
 			"scelte": [
 				{
 					"testo": "Perlustra il piano",

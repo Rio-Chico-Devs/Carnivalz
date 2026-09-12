@@ -31,6 +31,8 @@ func _ready() -> void:
 	prova_riferimenti_eventi()
 	prova_nodi_raggiungibili()
 	prova_riferimenti_creature()
+	prova_i_punti_di_riferimento()
+	prova_ogni_cancello_ha_una_chiave()
 	prova_agguati()
 	prova_agguati_hanno_una_via_duscita()
 	prova_riferimenti_oggetti()
@@ -216,6 +218,127 @@ func prova_nodi_raggiungibili() -> void:
 		for id_nodo in nodi:
 			esigi(visti.has(id_nodo),
 					"%s: il nodo '%s' non e' raggiungibile da nessuna parte" % [percorso, id_nodo])
+
+func prova_i_punti_di_riferimento() -> void:
+	# LA QUINTA REGOLA DI ROMERO, e adesso e' una prova.
+	#
+	# «Se il giocatore vede fuori, deve poterci arrivare». E' la regola piu'
+	# vecchia del mestiere e la piu' facile da tradire scrivendo: nominare un
+	# posto in una descrizione costa una riga, e niente al mondo obbliga quel
+	# posto a esistere. Un giardino descritto dalla finestra e mai raggiungibile
+	# non e' atmosfera, e' una bugia - e il giocatore la scopre dopo aver girato
+	# venti minuti a cercare la porta.
+	#
+	# Per questo un punto di riferimento e' un CAMPO e non semplice prosa: il
+	# "verso" dichiara di quale stanza si sta parlando, e da li' in poi si puo'
+	# pretendere che quella stanza esista, che sia nella stessa zona, e che
+	# qualche strada ci porti davvero.
+	titolo("se da una stanza si vede un posto, quel posto esiste e ci si arriva")
+	var quante := 0
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		var nodi: Dictionary = dati.get("nodi", {})
+		if nodi.is_empty():
+			continue
+		# le stanze che si raggiungono davvero dall'ingresso, per non accettare
+		# un punto di riferimento che punta a un posto scollegato
+		var raggiungibili: Dictionary = {}
+		var da_visitare: Array[String] = [String(dati.get("nodo_iniziale", ""))]
+		while not da_visitare.is_empty():
+			var corrente: String = da_visitare.pop_back()
+			if corrente in raggiungibili or not nodi.has(corrente):
+				continue
+			raggiungibili[corrente] = true
+			for destinazione in destinazioni_di(nodi[corrente]):
+				da_visitare.append(destinazione)
+		for id_nodo in nodi:
+			var nodo: Dictionary = nodi[id_nodo]
+			for vista in nodo.get("vista", []):
+				quante += 1
+				var testo := String(vista.get("testo", ""))
+				var verso := String(vista.get("verso", ""))
+				esigi(testo.strip_edges() != "",
+						"%s/%s: un punto di riferimento senza testo non si vede" % [percorso, id_nodo])
+				esigi(verso != "",
+						"%s/%s: il punto di riferimento non dice di che posto parla" % [percorso, id_nodo])
+				esigi(nodi.has(verso),
+						"%s/%s: si vede '%s', che in questa zona non esiste" % [percorso, id_nodo, verso])
+				esigi(raggiungibili.has(verso),
+						"%s/%s: si vede '%s', ma non ci si arriva: e' la bugia che la regola 5 vieta"
+						% [percorso, id_nodo, verso])
+				esigi(verso != id_nodo,
+						"%s/%s: il punto di riferimento indica la stanza in cui sei gia'" % [percorso, id_nodo])
+	# non si pretende un numero minimo: e' materiale che si scrive, e si scrive
+	# piano. Ma se un giorno sparissero tutti, meglio saperlo
+	esigi(quante > 0, "non c'e' un solo punto di riferimento in tutto il gioco")
+
+func prova_ogni_cancello_ha_una_chiave() -> void:
+	# UNA PORTA CHE NON SI APRE MAI e' peggio di una porta che non c'e': il
+	# giocatore la vede, capisce che da qualche parte esiste il modo, e lo cerca.
+	#
+	# Una scelta con "richiede_flag" e' una serratura. Se in nessun punto dei
+	# dati quella bandierina si accende, quella serratura non ha chiave - e non
+	# se ne accorge nessuno, perche' il gioco non si rompe: semplicemente quella
+	# strada non compare, per sempre, e sembra che non sia mai esistita.
+	#
+	# Una serratura puo' essere in attesa apposta - il contenuto che la apre non
+	# e' ancora scritto - e va benissimo: basta DICHIARARLO, scrivendo accanto un
+	# campo "_chiave_non_ancora" con la ragione. Cosi' la differenza fra «lo so»
+	# e «mi e' sfuggito» resta scritta invece di stare nella testa di qualcuno.
+	titolo("ogni porta chiusa ha, da qualche parte, la sua chiave")
+	var accese: Dictionary = {}
+	var richieste: Dictionary = {}   # flag -> dove serve
+	var dichiarate: Dictionary = {}  # flag -> attesa dichiarata
+	for percorso in tutti_i_dati():
+		var dati: Variant = carica_json(percorso)
+		raccogli_bandierine(dati, percorso, accese, richieste, dichiarate)
+	for flag in richieste:
+		if dichiarate.has(flag):
+			continue
+		esigi(accese.has(flag),
+				"la condizione '%s' (%s) non viene accesa da nessuna parte: quella porta non si apre mai. Se e' voluto, scrivici accanto \"_chiave_non_ancora\"" 
+				% [flag, String(richieste[flag])])
+
+func tutti_i_dati() -> Array[String]:
+	# ogni file di dati del gioco, zone comprese
+	var elenco: Array[String] = []
+	for percorso in ["res://data", "res://data/vuoti"]:
+		var cartella := DirAccess.open(percorso)
+		if cartella == null:
+			continue
+		for nome in cartella.get_files():
+			if nome.ends_with(".json"):
+				elenco.append("%s/%s" % [percorso, nome])
+	return elenco
+
+func carica_json(percorso: String) -> Variant:
+	var testo := FileAccess.get_file_as_string(percorso)
+	if testo == "":
+		return {}
+	var lettore := JSON.new()
+	if lettore.parse(testo) != OK:
+		return {}
+	return lettore.data
+
+func raccogli_bandierine(o: Variant, dove: String, accese: Dictionary,
+		richieste: Dictionary, dichiarate: Dictionary) -> void:
+	if o is Dictionary:
+		var dizionario: Dictionary = o
+		for chiave in dizionario:
+			var valore: Variant = dizionario[chiave]
+			if valore is String:
+				var testo: String = valore
+				if chiave == "flag" or chiave == "una_tantum" or chiave == "sblocca_flag":
+					accese[testo] = true
+				elif chiave == "richiede_flag" or chiave == "richiede_non_flag":
+					if not richieste.has(testo):
+						richieste[testo] = dove
+			if chiave == "_chiave_non_ancora" and dizionario.has("richiede_flag"):
+				dichiarate[String(dizionario["richiede_flag"])] = true
+			raccogli_bandierine(valore, dove, accese, richieste, dichiarate)
+	elif o is Array:
+		for x in o:
+			raccogli_bandierine(x, dove, accese, richieste, dichiarate)
 
 func prova_riferimenti_creature() -> void:
 	titolo("ogni creatura evocata in un combattimento esiste")

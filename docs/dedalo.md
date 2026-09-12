@@ -568,40 +568,71 @@ ragione per cui gli scontri casuali sono quasi spariti dagli RPG moderni.
 
 Noi abbiamo il problema **opposto**, ed è più grave.
 
-| zona | stanze | con agguato | scontri attesi ad attraversarla tutta |
-| --- | --: | --: | --: |
-| Casa Gigante | 79 | 10 (13%) | **3,4** |
-| Rocca Ossidiana | 37 | 3 (8%) | **1,0** |
-| Meridia | 28 | 5 (18%) | 2,6 |
-| Squarcio Industriale | 27 | 6 (22%) | 2,0 |
-| Kizako Ala | 8 | 3 (38%) | 1,3 |
-| Teatro · Fontana · Qualcosa Preme | 10 | 0 | 0 |
+> **Prima di leggere i numeri, una correzione mia.** La versione che avevo scritto ieri diceva
+> «3,4 scontri nella Casa Gigante» e dava un'impressione sbagliata. Un agguato non *ripetibile*
+> scatta una volta sola e poi quella stanza resta pulita — ma **se il tiro va a vuoto la stanza
+> resta armata**, e rientrandoci si ritira. Quindi chi gira parecchio non si ferma a 3,4: arriva al
+> **tetto**, che è il numero di stanze con agguato. Il 3,4 dice quanto è rado il *primo passaggio*,
+> non quanti scontri quella zona contiene. Sotto ci sono tutti e due.
 
-**Settantanove stanze per tre combattimenti e mezzo.** La Rocca Ossidiana ne ha trentasette per
-**uno**. Non è un gioco che interrompe troppo: è un gioco in cui, fra un momento e l'altro, si
-cammina per venti stanze vuote.
+| zona | stanze | con agguato | primo passaggio | **tetto: scontri che quella zona può dare in tutto** |
+| --- | --: | --: | --: | --: |
+| Casa Gigante | 79 | 10 (13%) | 3,4 | **10** |
+| Rocca Ossidiana | 37 | 3 (8%) | 1,0 | **3** |
+| Squarcio Industriale | 27 | 6 (22%) | 2,0 | **6** |
+| Meridia | 28 | 5 (18%) | 2,6 | **senza fine** (tutti ripetibili) |
+| Kizako Ala | 8 | 3 (38%) | 1,3 | **3** |
+| Teatro · Fontana · Qualcosa Preme | 10 | 0 | 0 | **0** |
 
-E il combattimento è la parte del gioco che funziona meglio — è quella su cui c'è tutto il lavoro di
-questi giorni: il fermo immagine, i tipi che si vedono, il tetto alla cura. Lo stiamo usando **tre
-volte per zona.**
+Col numero giusto in mano il quadro cambia di forma ma non di sostanza:
 
-Le probabilità, fra l'altro, sono tutte strette fra 0,30 e 0,65 (media 0,38): non c'è nessuna zona
-che sia più pericolosa di un'altra, e nessuna stanza che sia più pericolosa delle sue vicine. Anche
-il pericolo è piatto.
+- **La Rocca Ossidiana ha trentasette stanze e può dare, in tutta la sua esistenza, tre
+  combattimenti.** Non tre a partita: tre. È la seconda zona più grande del gioco.
+- **Lo Squarcio Industriale: ventisette stanze, sei scontri.** Il Teatro, la Fontana e Qualcosa
+  Preme: zero.
+- **Meridia è l'unica zona dove si può combattere quanto si vuole**, perché tutti e cinque i suoi
+  agguati sono ripetibili. È una scelta che non somiglia a nessun'altra zona, e non è scritto da
+  nessuna parte che sia voluta.
+- La Casa Gigante, con dieci, è di gran lunga la meglio servita — e resta **una stanza su otto**.
+
+E il combattimento è la parte del gioco che funziona meglio: è quella su cui c'è tutto il lavoro di
+questi giorni — il fermo immagine, i tipi che si vedono, il tetto alla cura. Nella zona più grande
+lo si incontra dieci volte, in quella dopo tre.
+
+Le probabilità, fra l'altro, stanno tutte strette fra 0,30 e 0,65 (media 0,38): non c'è nessuna zona
+più pericolosa di un'altra, e nessuna stanza più pericolosa delle sue vicine. Anche il pericolo è
+piatto — e un pericolo piatto non è un'informazione, è rumore.
 
 - [Medium — Pacing and level design in JRPGs](https://medium.com/@MammonMachine/nobody-cares-about-it-but-it-s-the-only-thing-that-matters-pacing-and-level-design-3ed043dc3309)
 - [Random encounters, less is more](https://matthewmarchitto.substack.com/p/random-encounters-less-is-more)
 
 ### Cosa manca, in ordine di quanto costa poco
 
-**Punti di riferimento.** Nel senso di Lynch e di Romero: non ne abbiamo nessuno. Non esiste un
-posto che si veda da un'altra stanza, che venga nominato da lontano, che serva a orientarsi. È la
-cosa più economica di tutte da aggiungere, perché **è testo**: basta che una stanza nomini un'altra
-stanza. «Dalla finestra del ballatoio si vede il vivaio, laggiù in fondo al giardino». Quello è un
-punto di riferimento, e costa una riga.
+**Punti di riferimento.** ✅ **Fatto il meccanismo, scritti sette. Il resto è da scrivere.**
 
-E attenzione alla regola 5 di Romero, che a questo punto diventa un vincolo: **se lo nomini, ci si
-deve poter andare.**
+Non ne esisteva **nessuno**: non c'era un posto che si vedesse da un'altra stanza, che venisse
+nominato da lontano, che servisse a orientarsi. Adesso una stanza può dichiarare cosa si vede da lì:
+
+```json
+"vista": [
+  { "testo": "L'unica finestra accesa è in alto, sotto lo spiovente del tetto.",
+    "verso": "attico" }
+]
+```
+
+Compare in fondo alla descrizione — prima dov'è che sei, poi cosa vedi da qui — e ha un colore suo,
+diverso da quello della narrazione: si impara a riconoscerlo, e vuol dire «stai guardando lontano».
+Torna anche quando ci si guarda intorno.
+
+**Perché un campo e non semplice prosa.** Per la regola 5 di Romero, che così diventa un vincolo
+verificabile invece che una buona intenzione: **se lo nomini, ci si deve poter andare.** Il `verso`
+dichiara di quale stanza si sta parlando, e c'è una prova che pretende che esista, che sia nella
+stessa zona e che qualche strada ci porti davvero. Un posto descritto dalla finestra e mai
+raggiungibile non è atmosfera, è una bugia — e adesso non si può più scrivere per sbaglio.
+
+Sette sono nella Casa Gigante, scritti a partire da quello che le stanze **già dicevano** (la casa
+diceva «tutte le finestre buie tranne una», e quella finestra adesso è l'attico e ci si arriva). Sono
+miei: riscrivili. Sono un esempio di forma, non un testo definitivo.
 
 **Scorciatoie che si aprono e restano aperte.** Adesso le bandierine aprono *scelte*; nessuna apre
 una *porta permanente* verso un pezzo lontano. Una sola, alla Casa Gigante — «adesso dall'attico si
@@ -639,10 +670,13 @@ Se devo dare un voto alla mappa con la stessa durezza della critica generale:
 | --- | --: |
 | **Struttura** (c'è un traliccio, non è una fila) | **7** |
 | **Densità** (cosa c'è dentro le stanze) | **4** |
-| **Orientamento** (punti di riferimento, leggibilità) | **2** |
+| **Orientamento** (punti di riferimento, leggibilità) | **2** → **4** |
 | **Serrature e chiavi** (fanno il loro mestiere?) | **3** |
 | **La mappa come un oggetto solo** (scorciatoie, conoscenza) | **3** |
 | **Ritmo** (ogni quanto succede qualcosa) | **3** |
+
+*(L'Orientamento si è mosso da 2 a 4 il giorno stesso: il meccanismo c'è, la prova lo difende, e
+sette stanze su 189 hanno qualcosa da guardare. Diventa un 7 quando le altre zone ne hanno.)*
 
 Lo scheletro è migliore di quanto pensassi e la carne è meno di quanta pensassi. Che è, quasi parola
 per parola, la stessa cosa che è venuta fuori dalla critica di ieri: **i sistemi sono avanti, il

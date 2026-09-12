@@ -46,6 +46,7 @@
 			"descrizione": "Cavi, banchi, cose smontate che dovrebbero stare montate. Eto non ha nessun fattore: ha una testa, e quella gli basta per stare al passo con gente che piega la realtà. Dice che è solo una questione di strumenti. Non sta scherzando.",
 			"azione": "testo",
 			"richiede_flag": "eto_incontrato",
+			"_chiave_non_ancora": "Nessuno accende 'eto_incontrato': l'officina e' chiusa per sempre. Non e' un guasto, e' contenuto che non c'e' ancora - Eto va incontrato da qualche parte, e quella scena non e' scritta. Dichiarato qui perche' la prova prova_ogni_cancello_ha_una_chiave non lo segnali come una svista, e perche' resti scritto che lo sappiamo.",
 			"testo_chiusa": "La porta è chiusa. Sull'etichetta, un nome che non hai ancora avuto motivo di imparare."
 		}
 	]

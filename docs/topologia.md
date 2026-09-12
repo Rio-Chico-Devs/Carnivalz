@@ -13,17 +13,35 @@ cosa c'e' scritto dentro. Le domande che risponde, e da dove vengono, stanno in
 
 ## Il quadro
 
-| zona | stanze | porte | anelli | scorciatoie | bivi | con sostanza | agguati | cancelli | profondita' |
+| zona | stanze | porte | anelli | scorciatoie | bivi | con sostanza | viste | cancelli | profondita' |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| casa_gigante | 79 | 114 | 36 | 10 | 21 | 30 | 10 | 11 | 11 |
+| casa_gigante | 79 | 114 | 36 | 10 | 21 | 30 | 7 | 11 | 11 |
 | fontana | 3 | 2 | 0 | 0 | 1 | 1 | 0 | 0 | 1 |
-| kizako_ala | 8 | 10 | 3 | 0 | 4 | 4 | 3 | 0 | 4 |
-| meridia | 28 | 50 | 23 | 8 | 8 | 14 | 5 | 0 | 12 |
+| kizako_ala | 8 | 10 | 3 | 0 | 4 | 4 | 0 | 0 | 4 |
+| meridia | 28 | 50 | 23 | 8 | 8 | 14 | 0 | 0 | 12 |
 | qualcosa_preme | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| rocca_ossidiana | 37 | 58 | 22 | 3 | 13 | 21 | 3 | 8 | 16 |
-| squarcio_industriale | 27 | 49 | 23 | 3 | 9 | 12 | 6 | 0 | 11 |
+| rocca_ossidiana | 37 | 58 | 22 | 3 | 13 | 21 | 0 | 8 | 16 |
+| squarcio_industriale | 27 | 49 | 23 | 3 | 9 | 12 | 0 | 0 | 11 |
 | teatro_del_passato | 6 | 5 | 0 | 0 | 4 | 6 | 0 | 0 | 3 |
-| **tutte** | **189** | **288** | **107** | **24** | **60** | **88** | **27** | **19** | |
+| **tutte** | **189** | **288** | **107** | **24** | **60** | **88** | **7** | **19** | |
+
+## Il ritmo: quanti scontri puo' dare una zona
+
+Il **tetto** e' quello che conta: un agguato non ripetibile scatta una volta sola e poi
+quella stanza resta pulita per sempre. Se il tiro va a vuoto pero' la stanza resta armata,
+quindi chi gira parecchio ci arriva. La colonna «un giro solo» e' la somma delle
+probabilita' attraversando ogni stanza una volta: dice quanto e' rado il primo passaggio,
+non quanti scontri esistono.
+
+| zona | stanze | stanze con agguato | un giro solo | **tetto** |
+|---|--:|--:|--:|--:|
+| casa_gigante | 79 | 10 (13%) | 3.4 | **10** |
+| kizako_ala | 8 | 3 (38%) | 1.3 | **3** |
+| meridia | 28 | 5 (18%) | 2.6 | **senza fine** |
+| rocca_ossidiana | 37 | 3 (8%) | 1.0 | **3** |
+| squarcio_industriale | 27 | 6 (22%) | 2.0 | **6** |
+
+Zone senza nessun agguato: fontana, qualcosa_preme, teatro_del_passato.
 
 ## Quante scelte offre una stanza
 
@@ -51,20 +69,20 @@ Archi che saltano almeno tre stanze e che **non** sono l'espulsione dopo una sco
 | zona | da | a | salta |
 |---|---|---|--:|
 | casa_gigante | `albero_addio_buono` | `giardino_est` | 5 |
-| casa_gigante | `albero_addio` | `giardino_est` | 4 |
 | casa_gigante | `spirito_hub` | `spirito_storia_lasciata` | 4 |
 | casa_gigante | `spirito_hub` | `spirito_storia_buona` | 4 |
-| casa_gigante | `dopo_volto` | `vivaio_3` | 3 |
-| casa_gigante | `altare` | `congedo_yhvina` | 3 |
-| casa_gigante | `giardino_est` | `spirito_hub` | 3 |
+| casa_gigante | `albero_addio` | `giardino_est` | 4 |
 | casa_gigante | `attico` | `yhvina_si_dopo` | 3 |
 | casa_gigante | `id_card_trovata` | `vivaio_3` | 3 |
+| casa_gigante | `altare` | `congedo_yhvina` | 3 |
+| casa_gigante | `giardino_est` | `spirito_hub` | 3 |
 | casa_gigante | `giardino_nord` | `vivaio_apertura` | 3 |
+| casa_gigante | `dopo_volto` | `vivaio_3` | 3 |
 | meridia | `complessi` | `dopo_ondate` | 9 |
-| meridia | `dopo_ondate` | `struttura` | 8 |
 | meridia | `complessi` | `seconda_ondata` | 8 |
-| meridia | `complessi` | `dopo_infetto` | 7 |
+| meridia | `dopo_ondate` | `struttura` | 8 |
 | meridia | `complessi` | `fuori_struttura_dopo` | 7 |
+| meridia | `complessi` | `dopo_infetto` | 7 |
 | meridia | `complessi` | `fuori_struttura` | 6 |
 | meridia | `fuori_struttura_dopo` | `struttura` | 6 |
 | meridia | `complessi` | `dopo_nuvola` | 3 |
@@ -72,8 +90,8 @@ Archi che saltano almeno tre stanze e che **non** sono l'espulsione dopo una sco
 | rocca_ossidiana | `ponte_approccio` | `ponte_attacco` | 4 |
 | rocca_ossidiana | `cunicolo_2` | `piazza_con_yara` | 3 |
 | squarcio_industriale | `corridoio_tubi_aperto` | `varco` | 5 |
-| squarcio_industriale | `corridoio_tubi` | `dopo_operaio` | 4 |
 | squarcio_industriale | `corridoio_tubi` | `varco` | 4 |
+| squarcio_industriale | `corridoio_tubi` | `dopo_operaio` | 4 |
 
 In piu' ci sono **14** archi lunghi prodotti da una sconfitta, che portano fuori.
 Non contano come scorciatoie: non sono una cosa che trovi, sono una cosa che ti succede.
