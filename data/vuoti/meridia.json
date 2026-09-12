@@ -987,6 +987,13 @@
 			},
 			"scelte": [
 				{
+					"testo": "Cerca da dove viene quel battito",
+					"_mio": "Uno dei tre pezzi della Fontana che non si trovavano da nessuna parte: la Fontana ne chiede quattro e ne esisteva uno solo (la volonta' del fabbro, in Kizako). L'ho messo qui io, scegliendo il posto dal senso della sua descrizione - spostalo dove preferisci, basta che da qualche parte si raccolga.",
+					"vai": "quartieri_profondi",
+					"una_tantum": "mer_cuore",
+					"oggetto": "cuore_di_carnivalz"
+				},
+				{
 					"testo": "Continua a battere i quartieri profondi",
 					"vai": "quartieri_profondi"
 				},

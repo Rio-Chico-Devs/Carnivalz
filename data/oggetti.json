@@ -378,7 +378,8 @@
 			"id": "meccanismo_del_varco",
 			"nome": "Meccanismo del varco",
 			"tipo": "chiave",
-			"descrizione": "Ingranaggi antichi, delle stesse dimensioni esatte della serratura sulla porta enorme nella Casa Gigante. Non l'hai ancora trovato: si dice che esista solo molto più avanti, nel tuo viaggio."
+			"descrizione": "Ingranaggi antichi, delle stesse dimensioni esatte della serratura sulla porta enorme nella Casa Gigante. Non l'hai ancora trovato: si dice che esista solo molto più avanti, nel tuo viaggio.",
+			"_non_ancora_ottenibile": "Voluto: la sua descrizione dice che si trova 'solo molto piu' avanti nel viaggio', quindi oggi la porta enorme della Casa Gigante non si apre in nessun modo - e va bene cosi', il tunnel dietro si raggiunge da un'altra parte. Dichiarato qui perche' la prova prova_ogni_oggetto_richiesto_si_trova non lo segnali come una svista."
 		},
 		{
 			"id": "bottiglia_di_liquore",

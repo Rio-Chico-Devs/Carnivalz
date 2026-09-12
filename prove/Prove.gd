@@ -33,6 +33,7 @@ func _ready() -> void:
 	prova_riferimenti_creature()
 	prova_i_punti_di_riferimento()
 	prova_ogni_cancello_ha_una_chiave()
+	prova_ogni_oggetto_richiesto_si_trova()
 	prova_agguati()
 	prova_agguati_hanno_una_via_duscita()
 	prova_riferimenti_oggetti()
@@ -298,6 +299,75 @@ func prova_ogni_cancello_ha_una_chiave() -> void:
 		esigi(accese.has(flag),
 				"la condizione '%s' (%s) non viene accesa da nessuna parte: quella porta non si apre mai. Se e' voluto, scrivici accanto \"_chiave_non_ancora\"" 
 				% [flag, String(richieste[flag])])
+
+func prova_ogni_oggetto_richiesto_si_trova() -> void:
+	# LA STESSA COSA DEI CANCELLI, MA PER GLI OGGETTI - e qui ha gia' trovato un
+	# guasto vero.
+	#
+	# Una scelta con "richiede_oggetti" e' una serratura come le altre, solo che
+	# la chiave e' una cosa che si raccoglie. Se quell'oggetto non si trova in
+	# nessun posto del gioco, quella strada non compare mai: il giocatore legge
+	# la stanza, capisce che esiste un modo, e lo cerca per sempre.
+	#
+	# LA FONTANA. Chiede quattro pezzi e ne esisteva UNO. Gli altri tre - l'anima
+	# inquieta, i ricordi felici, il cuore di disallineamento - non erano
+	# raccoglibili in nessuna stanza, in nessun bottino, in nessun negozio. La
+	# Fontana non si poteva completare, e con lei il personaggio che ne esce.
+	# Nessuna prova se n'era accorta perche' il gioco non si rompe: semplicemente
+	# quella scelta non compare.
+	#
+	# Come per i cancelli, un oggetto puo' essere in attesa APPOSTA - il
+	# meccanismo del varco dice nella sua stessa descrizione che si trova "solo
+	# molto piu' avanti nel tuo viaggio" - e allora si dichiara con
+	# "_non_ancora_ottenibile" nel record dell'oggetto.
+	titolo("ogni oggetto che una porta chiede si trova da qualche parte")
+	var si_trova: Dictionary = {}
+	var richiesto: Dictionary = {}
+	for percorso in tutti_i_dati():
+		raccogli_oggetti(carica_json(percorso), percorso, si_trova, richiesto)
+	for id_oggetto in richiesto:
+		var dati_oggetto: Dictionary = GameState.dati_oggetto(String(id_oggetto))
+		if dati_oggetto.has("_non_ancora_ottenibile"):
+			continue
+		esigi(si_trova.has(id_oggetto),
+				"'%s' serve in %s e non si trova da nessuna parte: quella scelta non compare mai. Se e' voluto, scrivi \"_non_ancora_ottenibile\" nel suo record in oggetti.json"
+				% [id_oggetto, String(richiesto[id_oggetto])])
+
+func raccogli_oggetti(o: Variant, dove: String, si_trova: Dictionary, richiesto: Dictionary) -> void:
+	# Un oggetto si puo' dare in tanti modi e in tante forme: "oggetto" come
+	# stringa o come lista, "oggetti_forniti" del tutorial, il bottino comune di
+	# una creatura, il drop raro, la merce di un negozio. Cercarne solo una forma
+	# fa risultare irraggiungibili cose che si prendono benissimo - mi e' gia'
+	# successo scrivendo questa prova, e la controprova qui sotto serve a quello.
+	if o is Dictionary:
+		var dizionario: Dictionary = o
+		for chiave in dizionario:
+			var valore: Variant = dizionario[chiave]
+			if chiave in ["oggetto", "oggetti", "oggetti_forniti", "ricompensa_oggetto"]:
+				for id_oggetto in id_oggetti_in(valore):
+					si_trova[id_oggetto] = true
+			elif chiave in ["richiede_oggetto", "richiede_oggetti"]:
+				for id_oggetto in id_oggetti_in(valore):
+					if not richiesto.has(id_oggetto):
+						richiesto[id_oggetto] = dove
+			raccogli_oggetti(valore, dove, si_trova, richiesto)
+	elif o is Array:
+		for x in o:
+			raccogli_oggetti(x, dove, si_trova, richiesto)
+
+func id_oggetti_in(valore: Variant) -> Array[String]:
+	var elenco: Array[String] = []
+	if valore is String and String(valore) != "":
+		elenco.append(String(valore))
+	elif valore is Array:
+		for x in valore:
+			if x is String and String(x) != "":
+				elenco.append(String(x))
+	elif valore is Dictionary and (valore as Dictionary).has("oggetto"):
+		var dentro: Variant = (valore as Dictionary)["oggetto"]
+		if dentro is String:
+			elenco.append(String(dentro))
+	return elenco
 
 func tutti_i_dati() -> Array[String]:
 	# ogni file di dati del gioco, zone comprese
