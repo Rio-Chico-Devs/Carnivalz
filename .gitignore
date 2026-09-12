@@ -9,3 +9,6 @@
 
 # gli eseguibili prodotti da Progetto > Esporta
 build/
+
+# la cache di Python: la fa da sola ogni volta che si importa uno strumento
+__pycache__/

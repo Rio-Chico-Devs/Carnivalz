@@ -23,6 +23,8 @@
 | **`mestiere.md`** | 👁 | Studio sul mestiere: sensazione, transizioni, colore, testo, i maestri dell'RPG e le tecniche dei romanzieri. E cosa ci riguarda | ✅ nuovo |
 | **`lezioni.md`** | 👁 | Studio sui maestri: EarthBound, Fear & Hunger, Zelda, Metroid, Doom, Final Fantasy, e cosa ne ha detto la critica | ✅ nuovo |
 | **`critica.md`** | 👁 | Il gioco giudicato duro, voto per voto, con la prova sotto ogni voto | ✅ nuovo |
+| **`dedalo.md`** | 👁 | Studio sulla **mappa**: la grammatica del livello, Jaquays, Lynch, i libri-gioco — e la nostra mappa misurata | ✅ nuovo |
+| **`topologia.md`** | ⚙️ | La forma vera delle otto zone: anelli, scorciatoie, bivi, cancelli. `./strumenti/topologia.py` | ✅ nuovo |
 | **`nemici.md`** | ⚙️ | Il bestiario coi numeri veri: mosse, quote, danni. `./strumenti/nemici.sh` | ✅ rigenerato oggi |
 | `bilanciamento.md` | ⚙️ | **234.000** partite simulate, cinque modi di giocare: chi vince a che livello. `./prove/simula.sh` | ✅ rilanciato oggi |
 | **`mappe.md`** | ⚙️ | Le mappe delle zone disegnate | ✅ |
@@ -261,6 +263,7 @@ Tre comandi, e non serve sapere niente di programmazione per leggerne l'esito.
 | `./prove/simula.sh` | ~40 min | 234.000 partite giocate da sole: chi vince a che livello. Scrive `bilanciamento.md` |
 | **`./prove/sonda.sh <creatura>`** | **~10 secondi** | **Una creatura sola, subito.** Cambi un numero in un file di dati e vedi immediatamente se era quello |
 | `./strumenti/nemici.sh` | pochi secondi | Riscrive `nemici.md` coi numeri veri del bestiario |
+| **`./strumenti/topologia.py`** | **un secondo** | Riscrive `topologia.md`: la **forma** delle mappe, non il contenuto |
 
 > **La sonda è nuova, e serve più di quanto sembri.** Il giro completo dice *com'è messo* il
 > bilanciamento; non può dire *per colpa di cosa*, perché a quella domanda si risponde cambiando una
