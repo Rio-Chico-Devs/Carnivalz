@@ -24,6 +24,7 @@
 | **`lezioni.md`** | 👁 | Studio sui maestri: EarthBound, Fear & Hunger, Zelda, Metroid, Doom, Final Fantasy, e cosa ne ha detto la critica | ✅ nuovo |
 | **`critica.md`** | 👁 | Il gioco giudicato duro, voto per voto, con la prova sotto ogni voto | ✅ nuovo |
 | **`dedalo.md`** | 👁 | Studio sulla **mappa**: la grammatica del livello, Jaquays, Lynch, i libri-gioco — e la nostra mappa misurata | ✅ nuovo |
+| **`demo.md`** | 👁 | **Tutti i presupposti per la demo**: i numeri veri, quanto deve durare, chi mette i soldi, cosa vuole Steam — e i tre muri | ✅ nuovo |
 | **`topologia.md`** | ⚙️ | La forma vera delle otto zone: anelli, scorciatoie, bivi, cancelli. `./strumenti/topologia.py` | ✅ nuovo |
 | **`nemici.md`** | ⚙️ | Il bestiario coi numeri veri: mosse, quote, danni. `./strumenti/nemici.sh` | ✅ rigenerato oggi |
 | `bilanciamento.md` | ⚙️ | **234.000** partite simulate, cinque modi di giocare: chi vince a che livello. `./prove/simula.sh` | ✅ rilanciato oggi |
