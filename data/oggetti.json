@@ -557,7 +557,7 @@
 			"id": "stigma_del_veglio",
 			"nome": "Stigma del veglio",
 			"tipo": "stigma",
-			"descrizione": "Un marchio che non ti lascia dormire. L'aura si rigenera più in fretta, ma il corpo regge meno.",
+			"descrizione": "Un marchio che non ti lascia dormire. L'aura torna anche mentre combatti, ma il corpo regge meno.",
 			"effetto_equipaggiato": {
 				"aura_per_turno": 1,
 				"hp_max": -15

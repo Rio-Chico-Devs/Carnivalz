@@ -275,7 +275,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Bestiario.002`** · testo_extra
+**`UI.Bestiario.002`** · tecnolog
+> [ TECNO LOG — nessun rilevamento. Studiala in combattimento. ]
+>
+> →
+
+**`UI.Bestiario.003`** · testo_extra
 > » [voce nascosta — c'è ancora qualcosa da scoprire su di lui]
 >
 > →
@@ -301,17 +306,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.9 Introduzione
-
-<sub>`scripts/Intro.gd`</sub>
-
-**`UI.Intro.001`**
-> premi per continuare
->
-> →
-
-
-## 1.10 Mappa stellare
+## 1.9 Mappa stellare
 
 <sub>`scripts/Mappa.gd`</sub>
 
@@ -321,7 +316,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.11 Il Vuoto (mappa di una regione)
+## 1.10 Il Vuoto (mappa di una regione)
 
 <sub>`scripts/Vuoto.gd`</sub>
 
@@ -341,7 +336,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.12 Mappa di una zona
+## 1.11 Mappa di una zona
 
 <sub>`scripts/MappaZona.gd`</sub>
 
@@ -351,7 +346,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.MappaZona.002`** · _su_stanza
-> Da questa parte non si passa, per ora.
+> C'è un proiettore, ma per usarlo devi essere su un altro proiettore.
 >
 > →
 
@@ -361,72 +356,87 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.13 Schermata degli eventi
+## 1.12 Schermata degli eventi
 
 <sub>`scripts/Main.gd`</sub>
 
-**`UI.Main.001`** · scelte a schermo
+**`UI.Main.001`** · mostra_scritta_dal_buio
+> CARNIVALZ
+>
+> →
+
+**`UI.Main.002`** · scelte a schermo
 > Osserva la scena
 >
 > →
 
-**`UI.Main.002`** · quando il Diario si aggiorna
+**`UI.Main.003`** · quando il Diario si aggiorna
 > Il resto me lo sono segnato. Ci ripenso quando decido da dove cominciare.
 >
 > →
 
-**`UI.Main.003`** · quando sblocchi una passiva
+**`UI.Main.004`** · notifiche_salite_di_livello
+> [b]Livello %d.[/b]
+>
+> →
+
+**`UI.Main.005`** · notifiche_salite_di_livello
+> Nessuna statistica è cresciuta: crescono con quello che fai, e in quest'ultimo tratto non hai fatto abbastanza di niente.
+>
+> →
+
+**`UI.Main.006`** · notifiche_salite_di_livello
+> Hai %d %s da spendere sulle abilità.
+>
+> →
+
+**`UI.Main.007`** · quando sblocchi una passiva
 > Nuova abilità passiva: %s
 >
 > →
 
-**`UI.Main.004`** · quando raccogli un oggetto
+**`UI.Main.008`** · quando raccogli un oggetto
 > %s: la sacca è piena, non c'è posto per lui.
 >
 > →
 
-**`UI.Main.005`** · quando raccogli un oggetto
+**`UI.Main.009`** · quando raccogli un oggetto
 > Hai raccolto: %s (%s).
 >
 > →
 
-**`UI.Main.006`** · _su_scelta
+**`UI.Main.010`** · _su_scelta
 > Hai ottenuto %d Tazo.
 >
 > →
 
-**`UI.Main.007`** · menu «Parla con la squadra»
+**`UI.Main.011`** · menu «Parla con la squadra»
 > %s e %s stanno parlando...
 >
 > →
 
-**`UI.Main.008`** · quando intervieni in una discussione
+**`UI.Main.012`** · quando intervieni in una discussione
 > Puoi intervenire.
 >
 > →
 
-**`UI.Main.009`** · quando parli con un compagno
+**`UI.Main.013`** · quando parli con un compagno
 > %s non ha altro da dirti, qui.
 >
 > →
 
-**`UI.Main.010`** · barra di stato in alto
+**`UI.Main.014`** · barra di stato in alto
 > solo tu
 >
 > →
 
-**`UI.Main.011`** · barra di stato in alto
+**`UI.Main.015`** · barra di stato in alto
 > Lv %d   ·   Tazo %d   ·   Sacca %d/%d   ·   Legame %d
 >
 > →
 
-**`UI.Main.012`** · barra di stato in alto
-> HP %d   ATT %d   DIF %d   VEL %d   INT %d   MEN %d   FAT %d
->
-> →
 
-
-## 1.14 Combattimento
+## 1.13 Combattimento
 
 <sub>`scripts/Combattimento.gd`</sub>
 
@@ -445,173 +455,403 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.004`** · esegui_scontro
-> %s è in preda alla rabbia e attacca di nuovo!
->
-> →
-
-**`UI.Combattimento.005`** · mostra_continua_fine
+**`UI.Combattimento.004`** · mostra_continua_fine
 > ▸ Continua
 >
 > →
 
-**`UI.Combattimento.006`** · esegui_turno
+**`UI.Combattimento.005`** · risolvi_rigenerazione_frammento
+> [i]%s si rimette insieme: +%d.[/i]
+>
+> →
+
+**`UI.Combattimento.006`** · battuta_di
 > [i]%s ha perso il controllo: può solo attaccare.[/i]
 >
 > →
 
-**`UI.Combattimento.007`** · esegui_turno
-> [i]%s è confuso e colpisce %s per sbaglio![/i]
+**`UI.Combattimento.007`** · esegui_azione
+> [i]%s è frastornato e colpisce %s per sbaglio![/i]
 >
 > →
 
-**`UI.Combattimento.008`** · quando ci si difende
-> %s si mette in guardia (difesa +%d).
+**`UI.Combattimento.008`** · esegui_azione
+> [i]%s non riesce a colpire altri che %s.[/i]
 >
 > →
 
-**`UI.Combattimento.009`** · quando si usa un oggetto
+**`UI.Combattimento.009`** · quando ci si difende
+> [i]%s è già chiuso quanto può: la guardia non sale oltre.[/i]
+>
+> →
+
+**`UI.Combattimento.010`** · quando ci si difende
+> %s si mette in guardia (difesa +%d, ora %d).
+>
+> →
+
+**`UI.Combattimento.011`** · quando si usa un oggetto
 > %s usa: %s.
 >
 > →
 
-**`UI.Combattimento.010`** · applica_effetto
+**`UI.Combattimento.012`** · applica_effetto
+> [i]%s comincia a rimettersi insieme.[/i]
+>
+> →
+
+**`UI.Combattimento.013`** · applica_effetto
 > [i]%s si libera di %s.[/i]
 >
 > →
 
-**`UI.Combattimento.011`** · applica_effetto
+**`UI.Combattimento.014`** · applica_effetto
 > [i]%s non ne aveva bisogno: niente %s addosso.[/i]
 >
 > →
 
-**`UI.Combattimento.012`** · risparmia
-> Decidi di risparmiarlo.
+**`UI.Combattimento.015`** · rileva_tecnolog
+> [i]TECNO LOG — %s[/i]
 >
 > →
 
-**`UI.Combattimento.013`** · provocazione
+**`UI.Combattimento.016`** · media
+> Decidi di lasciarlo andare.
+>
+> →
+
+**`UI.Combattimento.017`** · paga_il_dominio
+> [i]%s non ha abbastanza dominio: serve almeno %d barra piena.[/i]
+>
+> →
+
+**`UI.Combattimento.018`** · paga_il_dominio
+> [i]%s non ha abbastanza dominio: servono %.1f barre.[/i]
+>
+> →
+
+**`UI.Combattimento.019`** · astio
+> [i]%s si incattivisce.[/i]
+>
+> →
+
+**`UI.Combattimento.020`** · alimenta_astio
+> L'astio di %s cresce: attacco +%d.
+>
+> →
+
+**`UI.Combattimento.021`** · scala_astio
+> [i]L'astio di %s si spegne. Resta quello che ha guadagnato.[/i]
+>
+> →
+
+**`UI.Combattimento.022`** · vendetta
+> [i]%s si scaglia su %s.[/i]
+>
+> →
+
+**`UI.Combattimento.023`** · annichilazione
+> [i]Attorno a %s l'aria si chiude.[/i]
+>
+> →
+
+**`UI.Combattimento.024`** · pieta
+> [i]%s è ancora troppo in piedi.[/i]
+>
+> →
+
+**`UI.Combattimento.025`** · pieta
+> [i]%s si ferma un attimo.[/i]
+>
+> →
+
+**`UI.Combattimento.026`** · mantra
+> [i]%s non ha niente da bruciare.[/i]
+>
+> →
+
+**`UI.Combattimento.027`** · mantra
+> [i]%s si ferma e respira.[/i]
+>
+> →
+
+**`UI.Combattimento.028`** · mantra
+> Difesa +%d, attacco +%d.
+>
+> →
+
+**`UI.Combattimento.029`** · mantra
+> Lo stress di %s cala di %d.
+>
+> →
+
+**`UI.Combattimento.030`** · mantra
+> [i]Chi gli sta intorno respira con lui.[/i]
+>
+> →
+
+**`UI.Combattimento.031`** · mantra
+> [i]Per un momento non c'è niente che possa toccarlo.[/i]
+>
+> →
+
+**`UI.Combattimento.032`** · mantra
+> [i]Tutto quello che gli avevano messo addosso scivola via.[/i]
+>
+> →
+
+**`UI.Combattimento.033`** · flagello
+> [i]Il buio si chiude su %s.[/i]
+>
+> →
+
+**`UI.Combattimento.034`** · mattanza
+> [i]%s non smette più.[/i]
+>
+> →
+
+**`UI.Combattimento.035`** · chiudi_mattanza
+> [i]%s si ferma: %d colpi.[/i]
+>
+> →
+
+**`UI.Combattimento.036`** · provocazione
 > [i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]
 >
 > →
 
-**`UI.Combattimento.014`** · colpo d'area
+**`UI.Combattimento.037`** · smista_la_copertura
+> [i]%s si prende metà del colpo al posto di %s.[/i]
+>
+> →
+
+**`UI.Combattimento.038`** · guardia
+> [i]%s è già chiuso quanto può.[/i]
+>
+> →
+
+**`UI.Combattimento.039`** · guardia
+> [i]%s si pianta e non si sposta.[/i]
+>
+> →
+
+**`UI.Combattimento.040`** · guardia
+> Guardia +%d (difesa ora %d).
+>
+> →
+
+**`UI.Combattimento.041`** · copertura
+> [i]%s non ha nessuno da coprire.[/i]
+>
+> →
+
+**`UI.Combattimento.042`** · copertura
+> [i]%s si mette davanti a %s.[/i]
+>
+> →
+
+**`UI.Combattimento.043`** · immunita
+> [i]Addosso a %s non passa piu' niente.[/i]
+>
+> →
+
+**`UI.Combattimento.044`** · rianima
+> [i]%s rimette in piedi chi era caduto.[/i]
+>
+> →
+
+**`UI.Combattimento.045`** · rianima
+> %s torna in piedi con %d punti vita.
+>
+> →
+
+**`UI.Combattimento.046`** · rianima
+> [i]Non c'è nessuno da rialzare.[/i]
+>
+> →
+
+**`UI.Combattimento.047`** · ultima_resistenza
+> [i]%s decide che non cade oggi.[/i]
+>
+> →
+
+**`UI.Combattimento.048`** · evoca_alleato
+> [i]%s chiama, ma non risponde nessuno.[/i]
+>
+> →
+
+**`UI.Combattimento.049`** · evoca_alleato
+> [i]%s chiama ancora, ma un sogno per volta e' tutto quello che riesce a tenere aperto.[/i]
+>
+> →
+
+**`UI.Combattimento.050`** · evoca_alleato
+> [i]...ma non c'è più posto.[/i]
+>
+> →
+
+**`UI.Combattimento.051`** · evoca_alleato
+> [i]%s chiama, e qualcosa risponde.[/i]
+>
+> →
+
+**`UI.Combattimento.052`** · passiva
+> Vale sempre, non si usa.
+>
+> →
+
+**`UI.Combattimento.053`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.015`** · consuma_carica
+**`UI.Combattimento.054`** · consuma_carica
 > [b]%s scarica tutto quello che ha accumulato.[/b]
 >
 > →
 
-**`UI.Combattimento.016`** · quando si prova a fuggire
+**`UI.Combattimento.055`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.017`** · verifica_rabbia_su_morte
+**`UI.Combattimento.056`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.018`** · verifica_cura_su_morte
+**`UI.Combattimento.057`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.019`** · risolvi_rigenerazione
+**`UI.Combattimento.058`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.020`** · risolvi_rigenerazione
+**`UI.Combattimento.059`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.021`** · esegui_mossa
+**`UI.Combattimento.060`** · apri_la_guardia
+> [i]La guardia di %s si apre.[/i]
+>
+> →
+
+**`UI.Combattimento.061`** · apri_la_guardia
+> Difesa −%d, ora %d.
+>
+> →
+
+**`UI.Combattimento.062`** · avanza_trasformazione
+> Non è più quello di prima.
+>
+> →
+
+**`UI.Combattimento.063`** · spegni_tormento_di
+> [i]Il vento si ferma.[/i]
+>
+> →
+
+**`UI.Combattimento.064`** · esegui_mossa
+> [i]%s se ne nutre: +%d.[/i]
+>
+> →
+
+**`UI.Combattimento.065`** · esegui_mossa
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.022`** · esegui_mossa
+**`UI.Combattimento.066`** · esegui_mossa
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.023`** · cedimento
+**`UI.Combattimento.067`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.024`** · applica_stato
-> [i]%s %s[/i]
+**`UI.Combattimento.068`** · applica_stato
+> [i]%s (%d/%d)[/i]
 >
 > →
 
-**`UI.Combattimento.025`** · applica_stato
-> subisce uno stato.
+**`UI.Combattimento.069`** · quando si attacca
+> [i]Il colpo su %s si ferma a un dito dalla pelle.[/i]
 >
 > →
 
-**`UI.Combattimento.026`** · applica_stato
-> [i]%s ne è contagiato.[/i]
+**`UI.Combattimento.070`** · quando si attacca
+> Il dominio di %s arde!
 >
 > →
 
-**`UI.Combattimento.027`** · risolvi_stati_a_inizio_turno
-> [i]%s non riesce ad agire: %s.[/i]
+**`UI.Combattimento.071`** · quando si attacca
+> [i]È il colpo giusto: %s lo incassa male.[/i]
 >
 > →
 
-**`UI.Combattimento.028`** · quando si attacca
-> Il fattore di disallineamento arde in %s!
+**`UI.Combattimento.072`** · quando si attacca
+> [i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]
 >
 > →
 
-**`UI.Combattimento.029`** · quando si attacca
+**`UI.Combattimento.073`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.030`** · quando si attacca
+**`UI.Combattimento.074`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.031`** · _su_ko
+**`UI.Combattimento.075`** · rimetti_in_piedi
+> [i]%s non ha più niente da darsi.[/i]
+>
+> →
+
+**`UI.Combattimento.076`** · _racconta_ko
+> [i]%s si rimette in piedi.[/i]
+>
+> →
+
+**`UI.Combattimento.077`** · verifica_fine_scontro
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.032`** · _su_ko
+**`UI.Combattimento.078`** · verifica_fine_scontro
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.033`** · _su_ko
+**`UI.Combattimento.079`** · verifica_fine_scontro
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.034`** · reagisci
+**`UI.Combattimento.080`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.035`** · reagisci
+**`UI.Combattimento.081`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.036`** · reagisci
-> %s si concentra: il fattore di disallineamento sale.
+**`UI.Combattimento.082`** · reagisci
+> %s si concentra: la barra di dominio sale.
 >
 > →
 
 
-## 1.15 Negozio
+## 1.14 Negozio
 
 <sub>`scripts/Negozio.gd`</sub>
 
@@ -671,7 +911,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.16 Pausa, storico e Diario
+## 1.15 Pausa, storico e Diario
 
 <sub>`scripts/Pausa.gd`</sub>
 
@@ -991,7 +1231,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.17 Ritratti
+## 1.16 Ritratti
 
 <sub>`scripts/Ritratto.gd`</sub>
 
@@ -1001,21 +1241,26 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.18 Varie
+## 1.17 Varie
 
 <sub>`scripts/GameState.gd`</sub>
 
-**`UI.GameState.001`** · anteprima_slot
-> Vuoto
+**`UI.GameState.001`** · metamorfosi_di
+> non osservata
 >
 > →
 
 **`UI.GameState.002`** · anteprima_slot
+> Vuoto
+>
+> →
+
+**`UI.GameState.003`** · anteprima_slot
 > Tazo %d · Fonti estinte %d · Legame %d
 >
 > →
 
-**`UI.GameState.003`** · nome_slot
+**`UI.GameState.004`** · nome_slot
 > %s · livello %d
 >
 > →
@@ -1029,70 +1274,369 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 <sub>`data/events_intro.json`</sub>
 
 
-### Introduzione › `monologo`
+### Introduzione › `introduzione`
 
-**`INT.monologo.1`** · battuta di Anonimo
+**`INT.introduzione.1`** · narrazione
+> Nell'universo... la vita prende varie forme e colori.
+>
+> →
+
+**`INT.introduzione.2`** · narrazione
+> Varie creature di varie dimensioni lottano per sopravvivere dove il caos regna...
+>
+> →
+
+**`INT.introduzione.3`** · narrazione
+> Anche il più piccolo essere cela un potenziale incredibile quando spinto al suo limite...
+>
+> →
+
+**`INT.introduzione.4`** · narrazione
+> E a volte quel potenziale può esplodere come un torrente che spacca le rocce sul letto di un fiume...
+>
+> →
+
+**`INT.introduzione.5`** · narrazione
+> Spinti dal primordiale desiderio di esistere e trovare una fine degna delle proprie memorie, questi esseri risvegliano poteri e qualità che esulano dalla logica come la conosciamo...
+>
+> →
+
+**`INT.introduzione.6`** · narrazione
+> Alcuni la chiamano evoluzione, altri adattamento alle circostanze, ma è chiaro che in fondo è semplicemente un continuo percorso di trasformazione della materia...
+>
+> →
+
+**`INT.introduzione.7`** · narrazione
+> In fondo ogni creatura è destinata ad un percorso ben definito che la spingerà a consumare se stessa nell'intento di trovare un senso alla sua esistenza...
+>
+> →
+
+**`INT.introduzione.8`** · narrazione
+> E quando nulla rimarrà di essa... quando ogni sforzo sarà vano e la fiamma lascerà solo che fumo...
+>
+> →
+
+**`INT.introduzione.9`** · narrazione
+> forse qualcosa che va ben oltre la nostra immaginazione, che è rimasta sepolta a lungo dentro ogni essere vivente... Si mostrerà pretendendo riavere indietro quel che ha sacrificato...
+>
+> →
+
+**`INT.introduzione.scelta1`** · bottone di scelta
+> …
+>
+> →
+
+
+### Introduzione › `sala_allenamento`
+
+**`INT.sala_allenamento.1`** · carta del titolo
+> Sala di allenamento
+>
+> →
+
+**`INT.sala_allenamento.2`** · battuta di Anonimo
+> Ormai ho perso il conto dei giorni trascorsi in queste stanze...
+>
+> →
+
+**`INT.sala_allenamento.3`** · battuta di Anonimo
+> L'organizzazione possiede tecnologie veramente avanzate e riesce a mantenere tutto questo in piedi grazie alle donazioni dei contribuenti e il duro lavoro dei suoi affiliati...
+>
+> →
+
+**`INT.sala_allenamento.4`** · battuta di Anonimo
+> Non ho mai visto nessuno dei capi di persona, non penso siano neanche mai venuti a visitare questo posto se devo essere onesto...
+>
+> →
+
+**`INT.sala_allenamento.5`** · battuta di ???
+> Hey! Finalmente sei qui! Non sembri essere al massimo della tua potenza però!
+>
+> →
+
+**`INT.sala_allenamento.6`** · battuta di Anonimo
+> Questa voce...
+>
+> →
+
+**`INT.sala_allenamento.7`** · battuta di Veronica
+> Allora! Cosa facciamo? Continuiamo a fissarci come una coppietta di innamorati?
+>
+> →
+
+**`INT.sala_allenamento.8`** · battuta di Veronica
+> Oppure ce le diamo di santa ragione al massimo della potenza?!
+>
+> →
+
+**`INT.sala_allenamento.9`** · battuta di Anonimo
+> Sigh...
+>
+> →
+
+**`INT.sala_allenamento.10`** · battuta di Anonimo
+> Non ci si può far niente vero? D'altronde questo è il nostro ultimo allenamento...
+>
+> →
+
+**`INT.sala_allenamento.11`** · battuta di Veronica
+> E non sei {emozionato|emozionata}? Finalmente potrai menare le mani su qualche cattivone fuori di testa!
+>
+> →
+
+**`INT.sala_allenamento.12`** · battuta di Veronica
+> Ricordo ancora la mia prima missione, evidentemente ero troppo forte, non rimase nulla di quella povera creatura...
+>
+> →
+
+**`INT.sala_allenamento.13`** · battuta di Veronica
+> D'altronde devi sempre dare il massimo, non importa chi tu abbia davanti giusto?
+>
+> →
+
+**`INT.sala_allenamento.14`** · battuta di Anonimo
+> Questo lo so fin troppo bene... ne porto i segni addosso...
+>
+> →
+
+**`INT.sala_allenamento.15`** · battuta di Veronica
+> Wahahaha! Su non te la prendere! Come si dice? Ciò che non ti uccide...
+>
+> →
+
+**`INT.sala_allenamento.16`** · battuta di Veronica
+> Ehm...
+>
+> →
+
+**`INT.sala_allenamento.17`** · battuta di Veronica
+> Non ti uccide no?
+>
+> →
+
+**`INT.sala_allenamento.18`** · battuta di Anonimo
 > ...
 >
 > →
 
-**`INT.monologo.2`** · battuta di Anonimo
+**`INT.sala_allenamento.19`** · battuta di Veronica
+> ...
+>
+> →
+
+**`INT.sala_allenamento.20`** · battuta di Veronica
+> Bene! Basta chiacchiere allora! Sei {pronto|pronta} a farmi vedere come bruci di passione?
+>
+> →
+
+**`INT.sala_allenamento.scelta1`** · bottone di scelta
+> Sì.
+>
+> →
+
+**`INT.sala_allenamento.scelta2`** · bottone di scelta
+> ...
+>
+> →
+
+**`INT.sala_allenamento.scelta3`** · bottone di scelta
+> Oggi mi fa male la testa...
+>
+> →
+
+
+### Introduzione › `veronica_carica`
+
+**`INT.veronica_carica.1`** · battuta di Veronica
+> Ovviamente! Sono già tutta carica!
+>
+> →
+
+
+### Introduzione › `veronica_animo`
+
+**`INT.veronica_animo.1`** · battuta di Veronica
+> Su! Su! Animo! Ci pensa la tua Veronica a scaldarti per bene!
+>
+> →
+
+
+### Introduzione › `veronica_maldiptesta`
+
+**`INT.veronica_maldiptesta.1`** · battuta di Veronica
+> Ottimo, nulla di meglio che un allenamento alla massima potenza per prendere a calci quell'odioso mal di testa!
+>
+> →
+
+
+### Introduzione › `dopo_allenamento`
+
+**`INT.dopo_allenamento.1`** · battuta di Veronica
+> Ecco! Questo sì che è bruciare! Adesso vai a farti proiettare, che ti aspettano.
+>
+> →
+
+**`INT.dopo_allenamento.2`** · battuta di Anonimo
+> ...Ci vediamo, Veronica.
+>
+> →
+
+**`INT.dopo_allenamento.scelta1`** · bottone di scelta
+> Vai alla sala di proiezione
+>
+> →
+
+
+### Introduzione › `monologo`
+
+**`INT.monologo.1`** · battuta di Anonimo
 > ... ...
 >
 > →
 
-**`INT.monologo.3`** · battuta di Anonimo
-> ... ... ...
->
-> →
-
-**`INT.monologo.4`** · battuta di Anonimo
+**`INT.monologo.2`** · battuta di Anonimo
 > Coordinate confermate, obiettivo localizzato, perimetro di azione calcolato...
 >
 > →
 
-**`INT.monologo.5`** · battuta di Anonimo
+**`INT.monologo.3`** · battuta di Anonimo
 > ...
 >
 > →
 
-**`INT.monologo.6`** · battuta di Anonimo
+**`INT.monologo.4`** · battuta di Anonimo
 > Computer... proiettami il più possibile vicino alla fonte.
 >
 > →
 
-**`INT.monologo.7`** · battuta di Computer
+**`INT.monologo.5`** · battuta di Computer
 > Autorizzazione confermata. Buona fortuna unità UJ-111
 >
 > →
 
-**`INT.monologo.8`** · battuta di Computer
+**`INT.monologo.6`** · battuta di Computer
 > lancio in...
 >
 > →
 
-**`INT.monologo.9`** · battuta di Computer
+**`INT.monologo.7`** · battuta di Computer
 > 3...
 >
 > →
 
-**`INT.monologo.10`** · battuta di Computer
+**`INT.monologo.8`** · battuta di Computer
 > 2...
 >
 > →
 
-**`INT.monologo.11`** · battuta di Computer
+**`INT.monologo.9`** · battuta di Computer
 > 1...
 >
 > →
 
-**`INT.monologo.12`** · battuta di Computer
+**`INT.monologo.10`** · battuta di Computer
 > Per aspera, ad astra.
 >
 > →
 
-**`INT.monologo.13`** · battuta di Anonimo
+**`INT.monologo.11`** · battuta di Anonimo
 > ...
+>
+> →
+
+
+### Introduzione › `alloggio`
+
+**`INT.alloggio.1`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.alloggio.2`** · battuta di Anonimo
+> Oggi è il mio ultimo giorno di addestramento prima della mia prima missione in solitaria...
+>
+> →
+
+**`INT.alloggio.3`** · battuta di Anonimo
+> ... cavolo, ho ancora mal di testa da ieri... tsk...
+>
+> →
+
+**`INT.alloggio.4`** · battuta di Altoparlante
+> Buongiorno! Buongiorno e ancora Buongiorno dominat{ore|rice}! Spero si sia {goduto|goduta} il suo periodo di riposo!
+>
+> →
+
+**`INT.alloggio.5`** · battuta di Altoparlante
+> Le ricordiamo il suo ultimo appuntamento nelle sale di allenamento con la signorina Veronica. Ci renda fieri come sempre, contiamo su di lei! Eventuali aggiornamenti le verranno comunicati direttamente sul suo diario. Buona giornata allora!
+>
+> →
+
+**`INT.alloggio.6`** · battuta di Anonimo
+> Che seccatura...
+>
+> →
+
+**`INT.alloggio.7`** · battuta di Anonimo
+> Ma va fatto quel che va fatto... immagino...
+>
+> →
+
+**`INT.alloggio.scena`** · quando ci torni («Osserva la scena»)
+> La tua stanza, come tutte le mattine. Fuori, il complesso è già sveglio da un pezzo.
+>
+> →
+
+**`INT.alloggio.scelta1`** · bottone di scelta
+> Esci dalla stanza
+>
+> →
+
+
+### Introduzione › `sala_riunioni`
+
+**`INT.sala_riunioni.1`** · narrazione
+> Le porte sono chiuse. Le riunioni si fanno quando lo dicono loro, non quando passi di li'.
+>
+> →
+
+
+### Introduzione › `infermeria`
+
+**`INT.infermeria.1`** · narrazione
+> Vuota a quest'ora. Ci finirai piu' tardi, probabilmente.
+>
+> →
+
+
+### Introduzione › `archivio`
+
+**`INT.archivio.1`** · narrazione
+> Serve un'autorizzazione che non hai. Non l'hai mai avuta.
+>
+> →
+
+
+### Introduzione › `mensa`
+
+**`INT.mensa.1`** · narrazione
+> Hai gia' mangiato. E comunque non e' per quello che ti hanno svegliato.
+>
+> →
+
+
+### Introduzione › `sala_proiezione`
+
+**`INT.sala_proiezione.1`** · narrazione
+> Non prima dell'allenamento. Le regole sono regole, anche quelle stupide.
+>
+> →
+
+
+### Introduzione › `hangar`
+
+**`INT.hangar.1`** · narrazione
+> Da quella parte non ci sei mai stato, e oggi non e' il giorno.
 >
 > →
 
@@ -7691,7 +8235,7 @@ carte collezionabili.
 > →
 
 **`CRE.maschera_vuota.descrizione`** · voce del bestiario
-> Un'anima irrequieta spinta al suo limite dalla sua stessa passione, brucia forte, sempre! Finché non rimarrà che cenere.
+> Un'anima irrequieta spinta al suo limite dalla sua stessa passione. Brucia forte, sempre! Finché non rimarrà che cenere.
 >
 > →
 
@@ -7720,6 +8264,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.maschera_vuota.mossa1.nome`** · nome di una mossa
+> Vampata
+>
+> →
+
+**`CRE.maschera_vuota.mossa1.testo`** · cosa si legge quando la usa
+> La maschera avvampa: per un istante ha di nuovo un volto.
+>
+> →
+
+**`CRE.maschera_vuota.mossa2.nome`** · nome di una mossa
+> Ultima fiammata
+>
+> →
+
+**`CRE.maschera_vuota.mossa2.testo`** · cosa si legge quando la usa
+> L'ultima fiammata se lo porta via insieme a te.
+>
+> →
+
+**`CRE.maschera_vuota.mossa3.nome`** · nome di una mossa
+> Esibizionista
+>
+> →
+
+**`CRE.maschera_vuota.mossa3.testo`** · cosa si legge quando la usa
+> Si sta... esibendo?
+>
+> →
+
+**`CRE.maschera_vuota.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.maschera_vuota.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.maschera_vuota.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.maschera_vuota.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.maschera_vuota.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.maschera_vuota.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.maschera_vuota.carta.nome`** · nome sulla carta collezionabile
 > Fomentado
 >
@@ -7739,7 +8343,7 @@ carte collezionabili.
 > →
 
 **`CRE.giocoliere.descrizione`** · voce del bestiario
-> Una rara bellezza, un campione nella recita, ma il talento a volte può farti uscire fuori di testa.
+> Vamos! Ammirate el Muy Bonito, y despues a morir!
 >
 > →
 
@@ -7768,6 +8372,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.giocoliere.mossa1.nome`** · nome di una mossa
+> Acrobazia folle
+>
+> →
+
+**`CRE.giocoliere.mossa1.testo`** · cosa si legge quando la usa
+> «Miren!» — e comincia a girare su se stesso con le torce accese.
+>
+> →
+
+**`CRE.giocoliere.mossa2.nome`** · nome di una mossa
+> Posa minacciosa
+>
+> →
+
+**`CRE.giocoliere.mossa2.testo`** · cosa si legge quando la usa
+> La sua presenza infiamma l'aria.
+>
+> →
+
+**`CRE.giocoliere.mossa3.nome`** · nome di una mossa
+> Gran finale
+>
+> →
+
+**`CRE.giocoliere.mossa3.testo`** · cosa si legge quando la usa
+> «Se e' l'ultimo, che sia il migliore!»
+>
+> →
+
+**`CRE.giocoliere.mossa4.nome`** · nome di una mossa
+> Vamos!
+>
+> →
+
+**`CRE.giocoliere.mossa4.testo`** · cosa si legge quando la usa
+> Vamos!
+>
+> →
+
+**`CRE.giocoliere.mossa5.nome`** · nome di una mossa
+> Flashy Punch
+>
+> →
+
+**`CRE.giocoliere.mossa5.testo`** · cosa si legge quando la usa
+> Flaaashy... Punch!
+>
+> →
+
+**`CRE.giocoliere.mossa6.nome`** · nome di una mossa
+> Flashy Kick
+>
+> →
+
+**`CRE.giocoliere.mossa6.testo`** · cosa si legge quando la usa
+> Flaaashy... Kick!
+>
+> →
+
 **`CRE.giocoliere.carta.nome`** · nome sulla carta collezionabile
 > El Muy Bonito
 >
@@ -7787,7 +8451,7 @@ carte collezionabili.
 > →
 
 **`CRE.comparsa_di_ruggine.descrizione`** · voce del bestiario
-> La ruggine ha preso il posto della pelle, sta ancora aspettando che il suo turno finisca...
+> Si tratta della manifestazione di un'anima perduta, con dei forti rancori legati al suo passato.
 >
 > →
 
@@ -7811,6 +8475,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.comparsa_di_ruggine.mossa1.nome`** · nome di una mossa
+> Vita di ruggine
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa1.testo`** · cosa si legge quando la usa
+> La ruggine si addensa e si stratifica addosso a quello che resta di lui.
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa2.nome`** · nome di una mossa
+> Colpo di ruggine
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa2.testo`** · cosa si legge quando la usa
+> Un accumulo di ruggine materializzata ti arriva addosso.
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa3.nome`** · nome di una mossa
+> Lamento
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa3.testo`** · cosa si legge quando la usa
+> Bastaaaaaaaa!
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.comparsa_di_ruggine.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.comparsa_di_ruggine.carta.nome`** · nome sulla carta collezionabile
 > Oppresso
 >
@@ -7830,7 +8554,7 @@ carte collezionabili.
 > →
 
 **`CRE.voce_registrata.descrizione`** · voce del bestiario
-> Gestire dieci... cento... no... mille operai insoddisfatti, non dà gratificazione alcuna.
+> Un'incarnazione delle figure di comando che gestivano i dipendenti del complesso.
 >
 > →
 
@@ -7841,6 +8565,66 @@ carte collezionabili.
 
 **`CRE.voce_registrata.studio2.risposta`** · Studia › cosa risponde
 > Lavorate! Lavorate!
+>
+> →
+
+**`CRE.voce_registrata.mossa1.nome`** · nome di una mossa
+> Richiamo disciplinare
+>
+> →
+
+**`CRE.voce_registrata.mossa1.testo`** · cosa si legge quando la usa
+> «Quello che stai facendo risulta in una nota.»
+>
+> →
+
+**`CRE.voce_registrata.mossa2.nome`** · nome di una mossa
+> Rabbia repressa
+>
+> →
+
+**`CRE.voce_registrata.mossa2.testo`** · cosa si legge quando la usa
+> «AL LAVORO!»
+>
+> →
+
+**`CRE.voce_registrata.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.voce_registrata.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.voce_registrata.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.voce_registrata.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.voce_registrata.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.voce_registrata.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.voce_registrata.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.voce_registrata.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -7863,7 +8647,7 @@ carte collezionabili.
 > →
 
 **`CRE.operaio_posseduto.descrizione`** · voce del bestiario
-> Ferraglia tenuta insieme dallo spirito di un lavoratore che non è mai tornato a casa.
+> Sembra che un cumulo di oggetti venga tenuto insieme da una manifestazione che si nutre della rabbia conservata nel complesso.
 >
 > →
 
@@ -7884,6 +8668,66 @@ carte collezionabili.
 
 **`CRE.operaio_posseduto.studio2.risposta`** · Studia › cosa risponde
 > I miei bambini... devo tornare a casa...
+>
+> →
+
+**`CRE.operaio_posseduto.mossa1.nome`** · nome di una mossa
+> Rabbia della macchina
+>
+> →
+
+**`CRE.operaio_posseduto.mossa1.testo`** · cosa si legge quando la usa
+> Sette colpi di ferraglia, uno dietro l'altro, senza mai fermarsi.
+>
+> →
+
+**`CRE.operaio_posseduto.mossa2.nome`** · nome di una mossa
+> A ritroso
+>
+> →
+
+**`CRE.operaio_posseduto.mossa2.testo`** · cosa si legge quando la usa
+> Si ferma, e per un attimo la ferraglia si rimette a posto da sola.
+>
+> →
+
+**`CRE.operaio_posseduto.mossa3.nome`** · nome di una mossa
+> Astio Infinito
+>
+> →
+
+**`CRE.operaio_posseduto.mossa3.testo`** · cosa si legge quando la usa
+> Un vento tagliente, colmo di malvagità, si alza e non cala più.
+>
+> →
+
+**`CRE.operaio_posseduto.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.operaio_posseduto.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.operaio_posseduto.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.operaio_posseduto.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.operaio_posseduto.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.operaio_posseduto.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -7911,7 +8755,7 @@ carte collezionabili.
 > →
 
 **`CRE.robo_pattuglia.descrizione`** · voce del bestiario
-> Una macchina di sorveglianza che non ha mai ricevuto l'ordine di smettere. Esegue un regolamento che nessuno applica più.
+> Questo macchinario sembra avere la funzione di tenere in ordine e pattugliare i corridoi della struttura che gli è stata affidata.
 >
 > →
 
@@ -7932,6 +8776,66 @@ carte collezionabili.
 
 **`CRE.robo_pattuglia.studio2.risposta`** · Studia › cosa risponde
 > Non sembra essere possibile comunicare con questa macchina...
+>
+> →
+
+**`CRE.robo_pattuglia.mossa1.nome`** · nome di una mossa
+> Scarica di avvertimento
+>
+> →
+
+**`CRE.robo_pattuglia.mossa1.testo`** · cosa si legge quando la usa
+> «Noi vogliamo solo il vostro bene!»
+>
+> →
+
+**`CRE.robo_pattuglia.mossa2.nome`** · nome di una mossa
+> Protocollo di contenimento
+>
+> →
+
+**`CRE.robo_pattuglia.mossa2.testo`** · cosa si legge quando la usa
+> «Soggetto pericoloso! Rafforzare le difese!»
+>
+> →
+
+**`CRE.robo_pattuglia.mossa3.nome`** · nome di una mossa
+> Riparazione d'emergenza
+>
+> →
+
+**`CRE.robo_pattuglia.mossa3.testo`** · cosa si legge quando la usa
+> «Vrrr... clank... riparazioni eseguite!»
+>
+> →
+
+**`CRE.robo_pattuglia.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.robo_pattuglia.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.robo_pattuglia.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.robo_pattuglia.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.robo_pattuglia.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.robo_pattuglia.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -7959,7 +8863,7 @@ carte collezionabili.
 > →
 
 **`CRE.operaio_sfruttato.descrizione`** · voce del bestiario
-> Non difende i file: difende le ore che ci ha lasciato dentro. Toccarli è toccare l'unica cosa che gli è rimasta.
+> Una manifestazione del rancore serbato a causa di anni di sfruttamento e violenze continue dei lavoratori del complesso.
 >
 > →
 
@@ -7983,6 +8887,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.operaio_sfruttato.mossa1.nome`** · nome di una mossa
+> Resisto ancora
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa1.testo`** · cosa si legge quando la usa
+> Tiene stretti i denti e non si sposta di un passo.
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa2.nome`** · nome di una mossa
+> Esplosione di rabbia
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa2.testo`** · cosa si legge quando la usa
+> Vent'anni tutti insieme, e non ne resta niente per dopo.
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa3.nome`** · nome di una mossa
+> Rivoluzione
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa3.testo`** · cosa si legge quando la usa
+> Un colpo di vento concentrato in un urlo.
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.operaio_sfruttato.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.operaio_sfruttato.carta.nome`** · nome sulla carta collezionabile
 > Operaio Sfruttato
 >
@@ -7994,15 +8958,15 @@ carte collezionabili.
 > →
 
 
-### Ferraglia Urlante  <sub>`ferraglia_urlante`</sub>
+### Rottami Erranti  <sub>`ferraglia_urlante`</sub>
 
 **`CRE.ferraglia_urlante.nome`** · nome a schermo
-> Ferraglia Urlante
+> Rottami Erranti
 >
 > →
 
 **`CRE.ferraglia_urlante.descrizione`** · voce del bestiario
-> Una montagna di rottami saldati dal dolore. Sembra di sentire le urla di una protesta.
+> Un ammasso di rottami errante. Sembra che al centro ci sia un nucleo di colossite che è sopravvissuto da solo, costruendosi la sua forma attuale.
 >
 > →
 
@@ -8026,6 +8990,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.ferraglia_urlante.mossa1.nome`** · nome di una mossa
+> Valanga di rottami
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa1.testo`** · cosa si legge quando la usa
+> Si scrolla, e mezza discarica vi arriva addosso.
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa2.nome`** · nome di una mossa
+> Metallo pesante
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa2.testo`** · cosa si legge quando la usa
+> La lamiera vibra su una nota che non finisce.
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa3.nome`** · nome di una mossa
+> Bis di rottami
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa3.testo`** · cosa si legge quando la usa
+> One... more... ti-ti time...
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa4.nome`** · nome di una mossa
+> Assolo metallico
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa4.testo`** · cosa si legge quando la usa
+> Una serie melodica di suoni metallici, e nessuno riesce più a pensare in fila.
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa5.nome`** · nome di una mossa
+> Protocollo di estinzione
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa5.testo`** · cosa si legge quando la usa
+> PROTOCOLLO DI ESTINZIONE. I rottami cominciano a cercarsi fra loro.
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa6.nome`** · nome di una mossa
+> Ritmo errante
+>
+> →
+
+**`CRE.ferraglia_urlante.mossa6.testo`** · cosa si legge quando la usa
+> Set... me... free...
+>
+> →
+
 **`CRE.ferraglia_urlante.carta.nome`** · nome sulla carta collezionabile
 > Ferraglia Urlante
 >
@@ -8033,6 +9057,89 @@ carte collezionabili.
 
 **`CRE.ferraglia_urlante.carta.testo`** · retro della carta collezionabile
 > Non un operaio: un intero reparto, compresso in una cosa sola.
+>
+> →
+
+
+### Golem errante di rottami  <sub>`golem_errante`</sub>
+
+**`CRE.golem_errante.nome`** · nome a schermo
+> Golem errante di rottami
+>
+> →
+
+**`CRE.golem_errante.descrizione`** · voce del bestiario
+> Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non e' piu' al centro: e' in cima.
+>
+> →
+
+**`CRE.golem_errante.mossa1.nome`** · nome di una mossa
+> Pugno saldato
+>
+> →
+
+**`CRE.golem_errante.mossa1.testo`** · cosa si legge quando la usa
+> Un braccio solo, fatto di tutto quello che era rimasto.
+>
+> →
+
+**`CRE.golem_errante.mossa2.nome`** · nome di una mossa
+> Onda di ferraglia
+>
+> →
+
+**`CRE.golem_errante.mossa2.testo`** · cosa si legge quando la usa
+> Si apre, e la discarica vi passa sopra un'altra volta.
+>
+> →
+
+**`CRE.golem_errante.mossa3.nome`** · nome di una mossa
+> Nucleo esposto
+>
+> →
+
+**`CRE.golem_errante.mossa3.testo`** · cosa si legge quando la usa
+> La colossite in cima si accende, e il resto del corpo si irrigidisce intorno.
+>
+> →
+
+**`CRE.golem_errante.mossa4.nome`** · nome di una mossa
+> Raccoglie ancora
+>
+> →
+
+**`CRE.golem_errante.mossa4.testo`** · cosa si legge quando la usa
+> Si china, e quello che aveva perso torna al suo posto.
+>
+> →
+
+**`CRE.golem_errante.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.golem_errante.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.golem_errante.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.golem_errante.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.golem_errante.carta.nome`** · nome sulla carta collezionabile
+> Golem errante di rottami
+>
+> →
+
+**`CRE.golem_errante.carta.testo`** · retro della carta collezionabile
+> Non l'hai battuto: l'hai lasciato finire.
 >
 > →
 
@@ -8045,7 +9152,7 @@ carte collezionabili.
 > →
 
 **`CRE.divoratore.descrizione`** · voce del bestiario
-> Una macchina che sembra uscita dai sogni di un pazzo, sembra divorare ogni cosa nel suo raggio d'azione, che sia viva o morta...
+> Una macchina gigantesca che divora e ricicla tutto quello che trova sul suo cammino. Sarebbe un ottimo macchinario, se non fosse che non sembra saper distinguere le forme di vita dal resto.
 >
 > →
 
@@ -8066,6 +9173,66 @@ carte collezionabili.
 
 **`CRE.divoratore.studio2.risposta`** · Studia › cosa risponde
 > *Rattle*
+>
+> →
+
+**`CRE.divoratore.mossa1.nome`** · nome di una mossa
+> Presa
+>
+> →
+
+**`CRE.divoratore.mossa1.testo`** · cosa si legge quando la usa
+> Le tenaglie si chiudono, e quello che prende non lo restituisce.
+>
+> →
+
+**`CRE.divoratore.mossa2.nome`** · nome di una mossa
+> Ciclo infinito
+>
+> →
+
+**`CRE.divoratore.mossa2.testo`** · cosa si legge quando la usa
+> Rotea su se stessa, e l'aspirazione prende tutto quello che c'è intorno.
+>
+> →
+
+**`CRE.divoratore.mossa3.nome`** · nome di una mossa
+> Ectoplasmer
+>
+> →
+
+**`CRE.divoratore.mossa3.testo`** · cosa si legge quando la usa
+> Il vetro nero si accende, e quello che ne esce non è luce.
+>
+> →
+
+**`CRE.divoratore.mossa4.nome`** · nome di una mossa
+> Simulazione Ouroboros
+>
+> →
+
+**`CRE.divoratore.mossa4.testo`** · cosa si legge quando la usa
+> Si chiude su se stessa con la parte anteriore, e comincia a girare.
+>
+> →
+
+**`CRE.divoratore.mossa5.nome`** · nome di una mossa
+> Autoriciclaggio
+>
+> →
+
+**`CRE.divoratore.mossa5.testo`** · cosa si legge quando la usa
+> Comincia a consumare se stessa.
+>
+> →
+
+**`CRE.divoratore.mossa6.nome`** · nome di una mossa
+> Tritatutto
+>
+> →
+
+**`CRE.divoratore.mossa6.testo`** · cosa si legge quando la usa
+> Ti afferra, e prova a farti passare tutto intero.
 >
 > →
 
@@ -8097,6 +9264,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.ghoul.mossa1.nome`** · nome di una mossa
+> Morso famelico
+>
+> →
+
+**`CRE.ghoul.mossa1.testo`** · cosa si legge quando la usa
+> Il ghoul morde e non lascia andare: quello che ti toglie se lo tiene.
+>
+> →
+
+**`CRE.ghoul.mossa2.nome`** · nome di una mossa
+> Artigliata
+>
+> →
+
+**`CRE.ghoul.mossa2.testo`** · cosa si legge quando la usa
+> Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.
+>
+> →
+
+**`CRE.ghoul.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ghoul.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.ghoul.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ghoul.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.ghoul.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ghoul.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.ghoul.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ghoul.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.ghoul.carta.nome`** · nome sulla carta collezionabile
 > Ghoul
 >
@@ -8125,6 +9352,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.teschio_errante.mossa1.nome`** · nome di una mossa
+> Carica a scatti
+>
+> →
+
+**`CRE.teschio_errante.mossa1.testo`** · cosa si legge quando la usa
+> Si avvicina a scatti, come una fotografia che si muove male.
+>
+> →
+
+**`CRE.teschio_errante.mossa2.nome`** · nome di una mossa
+> Sguardo vuoto
+>
+> →
+
+**`CRE.teschio_errante.mossa2.testo`** · cosa si legge quando la usa
+> Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.
+>
+> →
+
+**`CRE.teschio_errante.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.teschio_errante.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.teschio_errante.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.teschio_errante.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.teschio_errante.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.teschio_errante.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.teschio_errante.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.teschio_errante.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.teschio_errante.carta.nome`** · nome sulla carta collezionabile
 > Teschio Errante
 >
@@ -8145,6 +9432,66 @@ carte collezionabili.
 
 **`CRE.abominio_marcio.descrizione`** · voce del bestiario
 > Più corpi fusi insieme dal marciume, tenuti in piedi da qualcosa che non è più vita. Una delle tante forme che prende la maledizione della Rocca.
+>
+> →
+
+**`CRE.abominio_marcio.mossa1.nome`** · nome di una mossa
+> Sputo marcio
+>
+> →
+
+**`CRE.abominio_marcio.mossa1.testo`** · cosa si legge quando la usa
+> Qualcosa gli sale su dal petto e ti arriva addosso.
+>
+> →
+
+**`CRE.abominio_marcio.mossa2.nome`** · nome di una mossa
+> Abbraccio di carne
+>
+> →
+
+**`CRE.abominio_marcio.mossa2.testo`** · cosa si legge quando la usa
+> Ti stringe, e per un momento non si capisce piu' dove finisci tu.
+>
+> →
+
+**`CRE.abominio_marcio.mossa3.nome`** · nome di una mossa
+> Si ricuce
+>
+> →
+
+**`CRE.abominio_marcio.mossa3.testo`** · cosa si legge quando la usa
+> I corpi si rimescolano, e quello che era aperto adesso e' chiuso.
+>
+> →
+
+**`CRE.abominio_marcio.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.abominio_marcio.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.abominio_marcio.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.abominio_marcio.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.abominio_marcio.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.abominio_marcio.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8176,6 +9523,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.madre_in_lacrime.mossa1.nome`** · nome di una mossa
+> Lacrime di ossidiana
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa1.testo`** · cosa si legge quando la usa
+> Piange, e quello che cade taglia.
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa2.nome`** · nome di una mossa
+> Non avvicinarti
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa2.testo`** · cosa si legge quando la usa
+> «Non toccarli.» Non c'e' nessuno da toccare.
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.madre_in_lacrime.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.madre_in_lacrime.carta.nome`** · nome sulla carta collezionabile
 > Madre in Lacrime
 >
@@ -8201,6 +9608,66 @@ carte collezionabili.
 
 **`CRE.stigma.studio1.risposta`** · Studia › cosa risponde
 > Quel che non sai, quel che credi!
+>
+> →
+
+**`CRE.stigma.mossa1.nome`** · nome di una mossa
+> Colpa altrui
+>
+> →
+
+**`CRE.stigma.mossa1.testo`** · cosa si legge quando la usa
+> Ti addosso il peso di una cosa che non hai fatto.
+>
+> →
+
+**`CRE.stigma.mossa2.nome`** · nome di una mossa
+> Marchio
+>
+> →
+
+**`CRE.stigma.mossa2.testo`** · cosa si legge quando la usa
+> Un segno ti resta sulla pelle, e da li' comincia a fare male.
+>
+> →
+
+**`CRE.stigma.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.stigma.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.stigma.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.stigma.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.stigma.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.stigma.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.stigma.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.stigma.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8232,6 +9699,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.diabolo.mossa1.nome`** · nome di una mossa
+> Forconata
+>
+> →
+
+**`CRE.diabolo.mossa1.testo`** · cosa si legge quando la usa
+> Due colpi bassi, dati con troppo entusiasmo.
+>
+> →
+
+**`CRE.diabolo.mossa2.nome`** · nome di una mossa
+> Sberleffo
+>
+> →
+
+**`CRE.diabolo.mossa2.testo`** · cosa si legge quando la usa
+> Ti imita mentre ti muovi, e ti viene voglia solo di prenderlo.
+>
+> →
+
+**`CRE.diabolo.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.diabolo.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.diabolo.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.diabolo.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.diabolo.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.diabolo.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.diabolo.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.diabolo.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.diabolo.carta.nome`** · nome sulla carta collezionabile
 > Diabolo
 >
@@ -8257,6 +9784,66 @@ carte collezionabili.
 
 **`CRE.sadico.studio1.risposta`** · Studia › cosa risponde
 > Viooolenza!
+>
+> →
+
+**`CRE.sadico.mossa1.nome`** · nome di una mossa
+> Taglio lento
+>
+> →
+
+**`CRE.sadico.mossa1.testo`** · cosa si legge quando la usa
+> Non ha fretta. Non ne ha mai avuta.
+>
+> →
+
+**`CRE.sadico.mossa2.nome`** · nome di una mossa
+> Infierisce
+>
+> →
+
+**`CRE.sadico.mossa2.testo`** · cosa si legge quando la usa
+> Aspettava questo momento: si china su chi sta peggio.
+>
+> →
+
+**`CRE.sadico.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sadico.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.sadico.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sadico.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.sadico.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sadico.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.sadico.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sadico.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8333,13 +9920,28 @@ carte collezionabili.
 >
 > →
 
+**`CRE.jongo_dongo.mossa1.nome`** · nome di una mossa
+> Colpo marcio
+>
+> →
+
 **`CRE.jongo_dongo.mossa1.testo`** · cosa si legge quando la usa
 > Jongo Dongo affonda l'artiglio marcio con tutto il suo peso.
 >
 > →
 
+**`CRE.jongo_dongo.mossa2.nome`** · nome di una mossa
+> Bastone di pietra marcia
+>
+> →
+
 **`CRE.jongo_dongo.mossa2.testo`** · cosa si legge quando la usa
-> Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, la carne comincia a cedere.
+> Jongo Dongo cala il bastone dalla pietra marcia: dove tocca, quello che resta comincia a cedere.
+>
+> →
+
+**`CRE.jongo_dongo.mossa3.nome`** · nome di una mossa
+> Grido del raccolto
 >
 > →
 
@@ -8348,13 +9950,33 @@ carte collezionabili.
 >
 > →
 
+**`CRE.jongo_dongo.mossa4.nome`** · nome di una mossa
+> Un piccolo sacrificio
+>
+> →
+
 **`CRE.jongo_dongo.mossa4.testo`** · cosa si legge quando la usa
 > Jongo Dongo si volta verso uno dei suoi ghoul, con la stessa calma di sempre: "Un piccolo sacrificio... per un grande risultato."
 >
 > →
 
+**`CRE.jongo_dongo.mossa5.nome`** · nome di una mossa
+> Raccolto di carne
+>
+> →
+
 **`CRE.jongo_dongo.mossa5.testo`** · cosa si legge quando la usa
 > Jongo Dongo batte il palmo marcio sull'ossidiana: la terra stessa gli restituisce un altro ghoul.
+>
+> →
+
+**`CRE.jongo_dongo.mossa6.nome`** · nome di una mossa
+> Maledizione di chi muore
+>
+> →
+
+**`CRE.jongo_dongo.mossa6.testo`** · cosa si legge quando la usa
+> Quello che ha fatto marcire lui, adesso lo passa a voi.
 >
 > →
 
@@ -8386,6 +10008,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.jongo_dongo_risorto.mossa1.nome`** · nome di una mossa
+> Mano marcia
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa1.testo`** · cosa si legge quando la usa
+> La mano arriva piano, e non e' piu' una mano.
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa2.nome`** · nome di una mossa
+> Respiro di putredine
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa2.testo`** · cosa si legge quando la usa
+> Espira, e l'aria intorno smette di essere aria.
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa3.nome`** · nome di una mossa
+> Volonta' misteriosa
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa3.testo`** · cosa si legge quando la usa
+> Il corpo non dovrebbe reggere. Qualcosa lo tiene su lo stesso.
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.jongo_dongo_risorto.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.jongo_dongo_risorto.carta.nome`** · nome sulla carta collezionabile
 > Jongo Dongo
 >
@@ -8414,6 +10096,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.l_immortale.mossa1.nome`** · nome di una mossa
+> Non si ferma
+>
+> →
+
+**`CRE.l_immortale.mossa1.testo`** · cosa si legge quando la usa
+> Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
+>
+> →
+
+**`CRE.l_immortale.mossa2.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa2.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.l_immortale.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 
 ### Sacerdote Folle  <sub>`sacerdote_folle`</sub>
 
@@ -8432,8 +10174,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.sacerdote_folle.mossa1.nome`** · nome di una mossa
+> Litania: «Per il viaggio!»
+>
+> →
+
 **`CRE.sacerdote_folle.mossa1.testo`** · cosa si legge quando la usa
 > "Per il viaggio!" Il sacerdote colpisce recitando.
+>
+> →
+
+**`CRE.sacerdote_folle.mossa2.nome`** · nome di una mossa
+> Litania: «Unisciti al raccolto!»
 >
 > →
 
@@ -8442,8 +10194,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.sacerdote_folle.mossa3.nome`** · nome di una mossa
+> Litania: «Portatelo da me!»
+>
+> →
+
 **`CRE.sacerdote_folle.mossa3.testo`** · cosa si legge quando la usa
 > "Portatelo da me!" Il sacerdote colpisce recitando.
+>
+> →
+
+**`CRE.sacerdote_folle.mossa4.nome`** · nome di una mossa
+> Litania: «Non c'è altra strada!»
 >
 > →
 
@@ -8452,8 +10214,23 @@ carte collezionabili.
 >
 > →
 
+**`CRE.sacerdote_folle.mossa5.nome`** · nome di una mossa
+> Richiamo dei teschi
+>
+> →
+
 **`CRE.sacerdote_folle.mossa5.testo`** · cosa si legge quando la usa
 > Il sacerdote alza le braccia: un teschio errante risponde al richiamo.
+>
+> →
+
+**`CRE.sacerdote_folle.mossa6.nome`** · nome di una mossa
+> Litania che rimargina
+>
+> →
+
+**`CRE.sacerdote_folle.mossa6.testo`** · cosa si legge quando la usa
+> Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.
 >
 > →
 
@@ -8480,8 +10257,63 @@ carte collezionabili.
 >
 > →
 
+**`CRE.divoratore_di_carcasse.mossa1.nome`** · nome di una mossa
+> Morso multiplo
+>
+> →
+
 **`CRE.divoratore_di_carcasse.mossa1.testo`** · cosa si legge quando la usa
 > Il divoratore azzanna più volte, veloce.
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa2.nome`** · nome di una mossa
+> Si ingozza
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa2.testo`** · cosa si legge quando la usa
+> Si volta verso quello che il ponte ha lasciato cadere, e mangia.
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.divoratore_di_carcasse.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8517,12 +10349,72 @@ carte collezionabili.
 > →
 
 **`CRE.zombie_mostruoso.descrizione`** · voce del bestiario
-> Qualcosa, in questo, ha continuato a crescere anche dopo la morte. Le braccia non sono più della stessa lunghezza.
+> Questo esemplare ha subito deformazioni alle braccia e alle sue dimensioni. Ha uno sguardo assente, e condivide lo stato di demenza dei suoi simili.
 >
 > →
 
 **`CRE.zombie_mostruoso.studio1.risposta`** · Studia › cosa risponde
 > Un rantolo profondo, che sembra venire da più bocche insieme.
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa1.nome`** · nome di una mossa
+> Falciata
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa1.testo`** · cosa si legge quando la usa
+> Il braccio lungo arriva da dove non te lo aspetti, e passa su tutti e due.
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa2.nome`** · nome di una mossa
+> Tritatutto
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa2.testo`** · cosa si legge quando la usa
+> Fa girare le braccia lunghe come una macchina che nessuno ha spento.
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa3.nome`** · nome di una mossa
+> Moan
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa3.testo`** · cosa si legge quando la usa
+> Un rantolo indefinito, che dura troppo.
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa4.nome`** · nome di una mossa
+> Incitamento delle masse
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa4.testo`** · cosa si legge quando la usa
+> Ooooooouhh...
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa5.nome`** · nome di una mossa
+> Catastrofe
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa5.testo`** · cosa si legge quando la usa
+> Raccoglie mezzo isolato e lo tira addosso a tutti, un pezzo per volta.
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.zombie_mostruoso.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8549,13 +10441,63 @@ carte collezionabili.
 >
 > →
 
+**`CRE.orrore_di_meridia.mossa1.nome`** · nome di una mossa
+> Terremoto
+>
+> →
+
 **`CRE.orrore_di_meridia.mossa1.testo`** · cosa si legge quando la usa
-> L'orrore sferza con tutte le braccia insieme.
+> Appoggia il peso da un lato, e il pavimento risponde.
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa2.nome`** · nome di una mossa
+> Spazzata
 >
 > →
 
 **`CRE.orrore_di_meridia.mossa2.testo`** · cosa si legge quando la usa
-> Più bocche affondano contemporaneamente.
+> Un braccio solo, largo quanto la stanza, che passa sopra tutti.
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa3.nome`** · nome di una mossa
+> Si rimescola
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa3.testo`** · cosa si legge quando la usa
+> I corpi si rimescolano, e quello che mancava lo prendono da un altro.
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa4.nome`** · nome di una mossa
+> Presenza colossale
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa4.testo`** · cosa si legge quando la usa
+> Si ferma. Guarda il cielo. Non ti sta pensando.
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa5.nome`** · nome di una mossa
+> Discesa colossale
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa5.testo`** · cosa si legge quando la usa
+> Ricade a terra, e la terra non regge.
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa6.nome`** · nome di una mossa
+> Benedizione del colosso
+>
+> →
+
+**`CRE.orrore_di_meridia.mossa6.testo`** · cosa si legge quando la usa
+> Resta immobile, e quello che si era staccato torna al suo posto.
 >
 > →
 
@@ -8582,13 +10524,63 @@ carte collezionabili.
 >
 > →
 
+**`CRE.titano_zombie.mossa1.nome`** · nome di una mossa
+> Pugno devastante
+>
+> →
+
 **`CRE.titano_zombie.mossa1.testo`** · cosa si legge quando la usa
 > Pugno devastante: il colpo si abbatte con tutto il peso della città morta.
 >
 > →
 
+**`CRE.titano_zombie.mossa2.nome`** · nome di una mossa
+> Spazzata
+>
+> →
+
 **`CRE.titano_zombie.mossa2.testo`** · cosa si legge quando la usa
 > Il titano spazza l'aria davanti a sé: nessuno resta in piedi comodo.
+>
+> →
+
+**`CRE.titano_zombie.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.titano_zombie.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.titano_zombie.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.titano_zombie.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.titano_zombie.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.titano_zombie.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.titano_zombie.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.titano_zombie.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8611,7 +10603,67 @@ carte collezionabili.
 > →
 
 **`CRE.zombie_cittadino.descrizione`** · voce del bestiario
-> Era qualcuno, a Meridia, prima del coprifuoco. Ora cammina piano, verso niente in particolare, con tutti gli altri.
+> Questo esemplare sembra essere il più comune e debole della sua specie. Non sembra avere alcuna volontà.
+>
+> →
+
+**`CRE.zombie_cittadino.mossa1.nome`** · nome di una mossa
+> Agitazione
+>
+> →
+
+**`CRE.zombie_cittadino.mossa1.testo`** · cosa si legge quando la usa
+> Si agita tutto insieme e ti viene addosso.
+>
+> →
+
+**`CRE.zombie_cittadino.mossa2.nome`** · nome di una mossa
+> In mezzo agli altri
+>
+> →
+
+**`CRE.zombie_cittadino.mossa2.testo`** · cosa si legge quando la usa
+> Si infila fra i suoi, e i suoi si chiudono intorno.
+>
+> →
+
+**`CRE.zombie_cittadino.mossa3.nome`** · nome di una mossa
+> Zombie style
+>
+> →
+
+**`CRE.zombie_cittadino.mossa3.testo`** · cosa si legge quando la usa
+> Si guarda intorno senza alcuno scopo...
+>
+> →
+
+**`CRE.zombie_cittadino.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.zombie_cittadino.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.zombie_cittadino.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.zombie_cittadino.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.zombie_cittadino.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.zombie_cittadino.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8655,6 +10707,66 @@ carte collezionabili.
 
 **`CRE.infetto_rapido.studio2.risposta`** · Studia › cosa risponde
 > Corre lo stesso. Non ha mai smesso.
+>
+> →
+
+**`CRE.infetto_rapido.mossa1.nome`** · nome di una mossa
+> Raffica di unghiate
+>
+> →
+
+**`CRE.infetto_rapido.mossa1.testo`** · cosa si legge quando la usa
+> Arriva addosso prima che tu decida da che parte guardare.
+>
+> →
+
+**`CRE.infetto_rapido.mossa2.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa2.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.infetto_rapido.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8706,6 +10818,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.nuvola_di_marciume.mossa1.nome`** · nome di una mossa
+> Travolgere
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa1.testo`** · cosa si legge quando la usa
+> Scende tutta insieme e vi passa sopra.
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa2.nome`** · nome di una mossa
+> Spore
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa2.testo`** · cosa si legge quando la usa
+> Respiri, e te ne accorgi dopo.
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nuvola_di_marciume.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.nuvola_di_marciume.carta.nome`** · nome sulla carta collezionabile
 > Nuvola di Marciume
 >
@@ -8729,6 +10901,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.marionetta.mossa1.nome`** · nome di una mossa
+> Colpo di legno
+>
+> →
+
+**`CRE.marionetta.mossa1.testo`** · cosa si legge quando la usa
+> Un braccio di legno gira su un perno e arriva duro.
+>
+> →
+
+**`CRE.marionetta.mossa2.nome`** · nome di una mossa
+> Fili che stringono
+>
+> →
+
+**`CRE.marionetta.mossa2.testo`** · cosa si legge quando la usa
+> I fili non tengono su lei: tengono giu' te.
+>
+> →
+
+**`CRE.marionetta.mossa3.nome`** · nome di una mossa
+> Si rimette i fili
+>
+> →
+
+**`CRE.marionetta.mossa3.testo`** · cosa si legge quando la usa
+> Raccoglie i suoi fili da terra e se li riannoda addosso.
+>
+> →
+
+**`CRE.marionetta.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.marionetta.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.marionetta.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.marionetta.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.marionetta.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.marionetta.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.marionetta.carta.nome`** · nome sulla carta collezionabile
 > Marionetta
 >
@@ -8749,6 +10981,66 @@ carte collezionabili.
 
 **`CRE.ombra_del_passato.descrizione`** · voce del bestiario
 > Un'ombra del passato, vive grazie ai sentimenti repressi di qualcuno che ricorda la persona da cui prende forma con sentimenti negativi.
+>
+> →
+
+**`CRE.ombra_del_passato.mossa1.nome`** · nome di una mossa
+> Rinfaccia
+>
+> →
+
+**`CRE.ombra_del_passato.mossa1.testo`** · cosa si legge quando la usa
+> Ti dice una cosa vera, e detta da lei fa male il doppio.
+>
+> →
+
+**`CRE.ombra_del_passato.mossa2.nome`** · nome di una mossa
+> Si nutre del rancore
+>
+> →
+
+**`CRE.ombra_del_passato.mossa2.testo`** · cosa si legge quando la usa
+> Piu' le pensi contro, piu' si fa solida.
+>
+> →
+
+**`CRE.ombra_del_passato.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ombra_del_passato.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.ombra_del_passato.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ombra_del_passato.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.ombra_del_passato.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ombra_del_passato.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.ombra_del_passato.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.ombra_del_passato.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8800,8 +11092,63 @@ carte collezionabili.
 >
 > →
 
+**`CRE.donna_spinosa.mossa1.nome`** · nome di una mossa
+> Spine sottili
+>
+> →
+
 **`CRE.donna_spinosa.mossa1.testo`** · cosa si legge quando la usa
 > Le spine entrano piano, quasi con gentilezza. Il bruciore arriva dopo.
+>
+> →
+
+**`CRE.donna_spinosa.mossa2.nome`** · nome di una mossa
+> Spine a tappeto
+>
+> →
+
+**`CRE.donna_spinosa.mossa2.testo`** · cosa si legge quando la usa
+> Si apre tutta insieme, e per un metro intorno non si sta.
+>
+> →
+
+**`CRE.donna_spinosa.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.donna_spinosa.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.donna_spinosa.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.donna_spinosa.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.donna_spinosa.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.donna_spinosa.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.donna_spinosa.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.donna_spinosa.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8883,13 +11230,63 @@ carte collezionabili.
 >
 > →
 
+**`CRE.volto_sulla_parete.mossa1.nome`** · nome di una mossa
+> Radici che stringono
+>
+> →
+
 **`CRE.volto_sulla_parete.mossa1.testo`** · cosa si legge quando la usa
 > Le radici escono dal pavimento e stringono: dove toccano, la pelle cambia colore.
 >
 > →
 
+**`CRE.volto_sulla_parete.mossa2.nome`** · nome di una mossa
+> Sfogo di spore
+>
+> →
+
 **`CRE.volto_sulla_parete.mossa2.testo`** · cosa si legge quando la usa
 > La parete si apre e sputa una nube di spore su tutta la stanza.
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa3.nome`** · nome di una mossa
+> Assorbe dalla parete
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa3.testo`** · cosa si legge quando la usa
+> La parete si muove dietro di lei, e le rida' quello che le hai tolto.
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.volto_sulla_parete.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -8967,8 +11364,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.tenero_ricordo.mossa1.nome`** · nome di una mossa
+> Spilli
+>
+> →
+
 **`CRE.tenero_ricordo.mossa1.testo`** · cosa si legge quando la usa
 > La bambola spalanca le cuciture e lancia una manciata di spilli.
+>
+> →
+
+**`CRE.tenero_ricordo.mossa2.nome`** · nome di una mossa
+> Lamento
 >
 > →
 
@@ -8977,13 +11384,43 @@ carte collezionabili.
 >
 > →
 
+**`CRE.tenero_ricordo.mossa3.nome`** · nome di una mossa
+> Si strappa una cucitura
+>
+> →
+
 **`CRE.tenero_ricordo.mossa3.testo`** · cosa si legge quando la usa
 > La bambola si strappa una cucitura da sola, piano. Fa più male a voi che a lei.
 >
 > →
 
+**`CRE.tenero_ricordo.mossa4.nome`** · nome di una mossa
+> Richiamo delle marionette
+>
+> →
+
 **`CRE.tenero_ricordo.mossa4.testo`** · cosa si legge quando la usa
 > Dei fili scendono dal soffitto: una marionetta si alza da terra.
+>
+> →
+
+**`CRE.tenero_ricordo.mossa5.nome`** · nome di una mossa
+> Si ricuce le cuciture
+>
+> →
+
+**`CRE.tenero_ricordo.mossa5.testo`** · cosa si legge quando la usa
+> Il filo rientra da solo nei buchi, come se qualcuno la stesse ancora rammendando.
+>
+> →
+
+**`CRE.tenero_ricordo.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.tenero_ricordo.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -9100,8 +11537,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.jerah.mossa1.nome`** · nome di una mossa
+> ¡Gran finale!
+>
+> →
+
 **`CRE.jerah.mossa1.testo`** · cosa si legge quando la usa
 > ¡GRAN FINALE! Un muro di fiamme spazza tutta l'arena.
+>
+> →
+
+**`CRE.jerah.mossa2.nome`** · nome di una mossa
+> ¡Vamos!
 >
 > →
 
@@ -9110,13 +11557,43 @@ carte collezionabili.
 >
 > →
 
+**`CRE.jerah.mossa3.nome`** · nome di una mossa
+> Capote
+>
+> →
+
 **`CRE.jerah.mossa3.testo`** · cosa si legge quando la usa
 > Jerah schiva elegantemente tutti i tuoi colpi.
 >
 > →
 
+**`CRE.jerah.mossa4.nome`** · nome di una mossa
+> Llamada
+>
+> →
+
 **`CRE.jerah.mossa4.testo`** · cosa si legge quando la usa
 > Jerah batte il tacco tre volte: dal fumo sale un Fomentado.
+>
+> →
+
+**`CRE.jerah.mossa5.nome`** · nome di una mossa
+> Fiamma disperata
+>
+> →
+
+**`CRE.jerah.mossa5.testo`** · cosa si legge quando la usa
+> «Lo spettacolo non finisce finche' non lo decido io.»
+>
+> →
+
+**`CRE.jerah.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.jerah.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -9163,6 +11640,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.goblin_tipico.mossa1.nome`** · nome di una mossa
+> Bastonata
+>
+> →
+
+**`CRE.goblin_tipico.mossa1.testo`** · cosa si legge quando la usa
+> Il goblin stringe il bastone con tutte e due le mani e mena alla cieca.
+>
+> →
+
+**`CRE.goblin_tipico.mossa2.nome`** · nome di una mossa
+> Difesa Goblin!
+>
+> →
+
+**`CRE.goblin_tipico.mossa2.testo`** · cosa si legge quando la usa
+> «Difesa Goblin!» — e si copre la testa con le braccia.
+>
+> →
+
+**`CRE.goblin_tipico.mossa3.nome`** · nome di una mossa
+> Ultima risorsa
+>
+> →
+
+**`CRE.goblin_tipico.mossa3.testo`** · cosa si legge quando la usa
+> Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.
+>
+> →
+
+**`CRE.goblin_tipico.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.goblin_tipico.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.goblin_tipico.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.goblin_tipico.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.goblin_tipico.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.goblin_tipico.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.goblin_tipico.carta.nome`** · nome sulla carta collezionabile
 > Goblin Tipico
 >
@@ -9191,6 +11728,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.slime_infimo.mossa1.nome`** · nome di una mossa
+> Bava appiccicosa
+>
+> →
+
+**`CRE.slime_infimo.mossa1.testo`** · cosa si legge quando la usa
+> Lo slime si allunga e lascia una bava che rallenta ogni movimento.
+>
+> →
+
+**`CRE.slime_infimo.mossa2.nome`** · nome di una mossa
+> Si ricompone
+>
+> →
+
+**`CRE.slime_infimo.mossa2.testo`** · cosa si legge quando la usa
+> Lo slime si raccoglie su se stesso e torna tondo.
+>
+> →
+
+**`CRE.slime_infimo.mossa3.nome`** · nome di una mossa
+> Colpo dello slime
+>
+> →
+
+**`CRE.slime_infimo.mossa3.testo`** · cosa si legge quando la usa
+> Si raccoglie tutto da una parte e ti si getta contro.
+>
+> →
+
+**`CRE.slime_infimo.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.slime_infimo.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.slime_infimo.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.slime_infimo.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.slime_infimo.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.slime_infimo.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.slime_infimo.carta.nome`** · nome sulla carta collezionabile
 > Slime Infimo
 >
@@ -9214,13 +11811,63 @@ carte collezionabili.
 >
 > →
 
-**`CRE.tartaruga_innocente.risparmio.testo`** · quando lo risparmi
-> Decidi di lasciarla andare. Non c'era nessuna ragione di combatterla. Sul terreno, dove si trovava, resta una pietra liscia e fredda.
+**`CRE.tartaruga_innocente.mossa1.nome`** · nome di una mossa
+> Si ritira nel guscio
 >
 > →
 
 **`CRE.tartaruga_innocente.mossa1.testo`** · cosa si legge quando la usa
 > La tartaruga si ritira nel guscio.
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa2.nome`** · nome di una mossa
+> Dentro il guscio
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa2.testo`** · cosa si legge quando la usa
+> La tartaruga si tira dentro il guscio, e dentro il guscio si rimette.
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.tartaruga_innocente.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -9248,7 +11895,7 @@ carte collezionabili.
 > →
 
 **`CRE.manifestazione_di_un_sogno.descrizione`** · voce del bestiario
-> Una forma che non dovrebbe esistere ancora, presa in prestito da un sogno che qualcuno, su questo pianeta, sta ancora sognando.
+> Una manifestazione traslucida che sfida l'impossibile. Queste creature sembrano riflettere quel che scorgono nelle profondità dei rimpianti di chi incontrano.
 >
 > →
 
@@ -9277,6 +11924,66 @@ carte collezionabili.
 >
 > →
 
+**`CRE.manifestazione_di_un_sogno.mossa1.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa1.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa2.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa2.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.manifestazione_di_un_sogno.carta.nome`** · nome sulla carta collezionabile
 > Manifestazione di un sogno
 >
@@ -9301,7 +12008,7 @@ carte collezionabili.
 > →
 
 **`CRE.goblin_arrabbiato.descrizione`** · voce del bestiario
-> Non è mai stato bello, forte o rispettato, nemmeno tra i suoi. Il fattore di disallineamento gli ha dato l'unica cosa che gli mancava: qualcuno che lo temesse.
+> Questo goblin sembra soffrire molto. Non si sa per cosa o per chi, e non è possibile capirlo: conosce solo il linguaggio che parla la sua mazza.
 >
 > →
 
@@ -9340,8 +12047,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.goblin_arrabbiato.mossa1.nome`** · nome di una mossa
+> Richiamo dei suoi simili
+>
+> →
+
 **`CRE.goblin_arrabbiato.mossa1.testo`** · cosa si legge quando la usa
 > Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata.
+>
+> →
+
+**`CRE.goblin_arrabbiato.mossa2.nome`** · nome di una mossa
+> Furia di un goblin
 >
 > →
 
@@ -9350,8 +12067,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.goblin_arrabbiato.mossa3.nome`** · nome di una mossa
+> Mazzata
+>
+> →
+
 **`CRE.goblin_arrabbiato.mossa3.testo`** · cosa si legge quando la usa
-> Pugno del vile: un colpo sferrato senza il minimo onore.
+> La mazza scende, e il goblin non guarda nemmeno dove.
+>
+> →
+
+**`CRE.goblin_arrabbiato.mossa4.nome`** · nome di una mossa
+> Capriccio del goblin
 >
 > →
 
@@ -9360,8 +12087,23 @@ carte collezionabili.
 >
 > →
 
+**`CRE.goblin_arrabbiato.mossa5.nome`** · nome di una mossa
+> Cattiveria innata
+>
+> →
+
 **`CRE.goblin_arrabbiato.mossa5.testo`** · cosa si legge quando la usa
 > Cattiveria innata: ti sferra tre attacchi deboli di fila.
+>
+> →
+
+**`CRE.goblin_arrabbiato.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.goblin_arrabbiato.mossa6.testo`** · cosa si legge quando la usa
+> -
 >
 > →
 
@@ -9411,13 +12153,73 @@ carte collezionabili.
 >
 > →
 
+**`CRE.veronica.mossa1.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.veronica.mossa1.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.veronica.mossa2.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.veronica.mossa2.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.veronica.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.veronica.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.veronica.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.veronica.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.veronica.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.veronica.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.veronica.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.veronica.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
 **`CRE.veronica.allenamento1.prima1`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
 > Fammi vedere di cosa sei capace: colpiscimi al massimo della potenza.
 >
 > →
 
 **`CRE.veronica.allenamento1.prima2`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, narrazione
-> Scegli ATTACCA per colpire. È l'azione base: il danno dipende dal tuo attacco meno la difesa di chi hai davanti.
+> Clicca sulla creatura per colpirla: il colpo normale è lei, non una voce di menu. Il danno è il tuo attacco meno la sua difesa.
 >
 > →
 
@@ -9432,7 +12234,7 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento2.prima2`** · allenamento, passo 2 (DIFENDI) — prima che tu agisca, narrazione
-> Scegli DIFENDITI: alza la guardia per il turno. Usata di fila cresce, ma sempre di meno — e si perde appena fai altro.
+> Scegli DIFENDITI: alza la guardia, e la guardia resta fino alla fine dello scontro. Difendersi di fila vale ogni volta, ma ogni scatto conta un po' meno del precedente — e oltre un certo punto non si sale più.
 >
 > →
 
@@ -9519,6 +12321,168 @@ carte collezionabili.
 
 **`CRE.figura_misteriosa.nome`** · nome a schermo
 > ??? (Organizzazione)
+>
+> →
+
+
+### Nimbo Boy  <sub>`nimbo_boy`</sub>
+
+**`CRE.nimbo_boy.nome`** · nome a schermo
+> Nimbo Boy
+>
+> →
+
+**`CRE.nimbo_boy.descrizione`** · voce del bestiario
+> Un sogno di Yhvina che non ha mai finito di prendere forma: una nuvoletta con due gambe e una faccia da schiaffi. Non sa combattere. Sa solo mettersi in mezzo e farsi notare, e lo fa con una convinzione che non gli appartiene.
+>
+> →
+
+**`CRE.nimbo_boy.mossa1.nome`** · nome di una mossa
+> Mettiti in mezzo
+>
+> →
+
+**`CRE.nimbo_boy.mossa1.testo`** · cosa si legge quando la usa
+> Il Nimbo Boy si gonfia, si mette davanti a tutti e fa una faccia insopportabile. Funziona.
+>
+> →
+
+**`CRE.nimbo_boy.mossa2.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa2.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.nimbo_boy.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+
+### Sogno perduto  <sub>`sogno_perduto`</sub>
+
+**`CRE.sogno_perduto.nome`** · nome a schermo
+> Sogno perduto
+>
+> →
+
+**`CRE.sogno_perduto.descrizione`** · voce del bestiario
+> Qualcosa che Yhvina ha sognato una volta e poi non e' piu' riuscita a ritrovare. Sta al suo fianco senza parlare, e combatte come se ricordasse di averlo gia' fatto.
+>
+> →
+
+**`CRE.sogno_perduto.mossa1.nome`** · nome di una mossa
+> Colpo ricordato
+>
+> →
+
+**`CRE.sogno_perduto.mossa1.testo`** · cosa si legge quando la usa
+> Il sogno si muove in anticipo, come se la scena l'avesse gia' vissuta.
+>
+> →
+
+**`CRE.sogno_perduto.mossa2.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa2.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.sogno_perduto.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+
+### Altoparlante  <sub>`altoparlante`</sub>
+
+**`CRE.altoparlante.nome`** · nome a schermo
+> Altoparlante
+>
+> →
+
+
+### ???  <sub>`ignoto`</sub>
+
+**`CRE.ignoto.nome`** · nome a schermo
+> ???
 >
 > →
 
@@ -9620,6 +12584,14 @@ carte collezionabili.
 
 **`CLA.vecchio_clown.nome`** · nome a schermo
 > Il Vecchio Proprietario del teatro
+>
+> →
+
+
+### Veronica  <sub>`brawler`</sub>
+
+**`CLA.brawler.nome`** · nome a schermo
+> Veronica
 >
 > →
 
@@ -10482,7 +13454,7 @@ carte collezionabili.
 > →
 
 **`OGG.stigma_del_veglio.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
-> Un marchio che non ti lascia dormire. L'aura si rigenera più in fretta, ma il corpo regge meno.
+> Un marchio che non ti lascia dormire. L'aura torna anche mentre combatti, ma il corpo regge meno.
 >
 > →
 
@@ -10539,32 +13511,58 @@ carte collezionabili.
 > →
 
 
+### Cianfrusaglia  <sub>`cianfrusaglia`</sub>
+
+**`OGG.cianfrusaglia.nome`** · nome nella sacca e nei negozi
+> Cianfrusaglia
+>
+> →
+
+**`OGG.cianfrusaglia.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Roba. Un bottone, una vite, un dente. Non serve a niente e per questo se ne accumula tantissima: è l'unica cosa che tutti lasciano cadere, e l'unica che si vende senza pensarci.
+>
+> →
+
+
+### Frammento di vita  <sub>`frammento_di_vita`</sub>
+
+**`OGG.frammento_di_vita.nome`** · nome nella sacca e nei negozi
+> Frammento di vita
+>
+> →
+
+**`OGG.frammento_di_vita.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
+> Una scheggia tiepida. Si scioglie addosso e per tre battute rimette a posto un decimo di quello che avevi: poco, e proprio per questo va preso al momento giusto.
+>
+> →
+
+
 # 7. Gli stati
 
 <sub>`data/stati.json`</sub> — avvelenato, terrore, e compagnia.
 
-**`STA.veleno.nome`** · nome dello stato
-> Veleno
+**`STA.terrore.nome`** · nome dello stato
+> Terrore
 >
 > →
 
-**`STA.veleno.testo_turno`** · a ogni turno che dura
-> Il veleno si diffonde: peggiora ancora.
+**`STA.fiamme.nome`** · nome dello stato
+> Fiamme
 >
 > →
 
-**`STA.decomposizione.nome`** · nome dello stato
-> Decomposizione
+**`STA.fiamme.testo_turno`** · a ogni turno che dura
+> Il fuoco addosso a %s non si stacca: continua a bruciare.
 >
 > →
 
-**`STA.decomposizione.testo_turno`** · a ogni turno che dura
-> La decomposizione avanza, punita da ogni colpo sferrato.
+**`STA.tossina.nome`** · nome dello stato
+> Tossina
 >
 > →
 
-**`STA.congelamento.nome`** · nome dello stato
-> Congelamento
+**`STA.tossina.testo_turno`** · a ogni turno che dura
+> La tossina lavora piano dentro %s, e non smette.
 >
 > →
 
@@ -10573,23 +13571,28 @@ carte collezionabili.
 >
 > →
 
-**`STA.egocentrismo.nome`** · nome dello stato
-> Egocentrismo
+**`STA.sonno.testo_turno`** · a ogni turno che dura
+> %s dorme e non si accorge di niente.
 >
 > →
 
-**`STA.demotivazione.nome`** · nome dello stato
-> Demotivazione
+**`STA.maledizione.nome`** · nome dello stato
+> Maledizione
 >
 > →
 
-**`STA.berserk.nome`** · nome dello stato
-> Berserk
+**`STA.rabbia.nome`** · nome dello stato
+> Rabbia
 >
 > →
 
-**`STA.confusione.nome`** · nome dello stato
-> Confusione
+**`STA.provocato.nome`** · nome dello stato
+> Provocato
+>
+> →
+
+**`STA.frastornato.nome`** · nome dello stato
+> Frastornato
 >
 > →
 
@@ -10600,16 +13603,6 @@ carte collezionabili.
 
 **`STA.lentezza.nome`** · nome dello stato
 > Lentezza
->
-> →
-
-**`STA.maledizione.nome`** · nome dello stato
-> Maledizione
->
-> →
-
-**`STA.terrore.nome`** · nome dello stato
-> Terrore
 >
 > →
 
@@ -10664,7 +13657,17 @@ carte collezionabili.
 > →
 
 **`CRES.stat.fattore.desc`** · descrizione della statistica
-> Aumenta la probabilità di critici e di Slaughter.
+> Quanto il disallineamento arde in te: alimenta i critici e lo Slaughter. Non è la barra di dominio — quella è l'energia che spendi, questa è la brace.
+>
+> →
+
+**`CRES.stat.maestria_dominio`** · nome di una statistica
+> Maestria del dominio
+>
+> →
+
+**`CRES.stat.maestria_dominio.desc`** · descrizione della statistica
+> Quanto sai spremere la barra di dominio: si riempie prima e si consuma meno. Fino a 100.
 >
 > →
 
