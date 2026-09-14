@@ -24,7 +24,10 @@ func _ready() -> void:
 	var quale := String(argomenti[0]) if argomenti.size() > 0 else "dialogo"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
-	await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta
+	# fotogrammi qui vorrebbe dire fotografare il vetro quando e' gia' svanito
+	if quale != "rottura":
+		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(quale)
 	get_tree().quit()
 
@@ -40,6 +43,21 @@ func prepara(quale: String) -> void:
 			Pausa.apri()
 		"scelte":
 			await apri_dialogo(nodo_di_prova())
+		"rottura":
+			# il vetro a meta' caduta: e' l'unico modo di guardarlo, perche'
+			# dura poco piu' di un secondo e a occhio nudo non si ferma
+			await apri_dialogo(nodo_di_prova())
+			# LE SCELTE NON CI SONO FINCHE' IL TESTO NON HA FINITO DI SCRIVERSI.
+			# Aspettando poco si cercava un orologio che non era ancora nato, non
+			# si rompeva niente, e lo scatto veniva identico a quello di prima -
+			# una foto verde di una cosa che non era successa.
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			var orologio := cerca_orologio(self)
+			if orologio == null:
+				push_error("Scatto 'rottura': nessun orologio in campo, non c'e' niente da rompere")
+				return
+			orologio._process(99.0)
+			await attendi(22)   # a meta' caduta: i pezzi sono in aria e ancora visibili
 		_:
 			await apri_dialogo()
 
@@ -70,6 +88,15 @@ func apri_dialogo(finto: Dictionary = {}) -> void:
 	var scena: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(scena)
 	await attendi(2)
+
+func cerca_orologio(radice: Node) -> Node:
+	for figlio in radice.get_children():
+		if figlio.has_signal("scaduto"):
+			return figlio
+		var dentro := cerca_orologio(figlio)
+		if dentro != null:
+			return dentro
+	return null
 
 func salva(quale: String) -> void:
 	var immagine := get_viewport().get_texture().get_image()

@@ -3947,13 +3947,87 @@ func prova_le_scelte_a_tempo() -> void:
 	esigi(trovato_orologio != null, "la scelta con \"tempo\" non ha nessun orologio appeso")
 	if trovato_orologio != null:
 		trovato_orologio._process(1.0)     # il tempo scade
-		await get_tree().process_frame     # e la riga si libera
-		await get_tree().process_frame
+		# SCADUTA E' MORTA SUBITO, anche se il vetro sta ancora cadendo. Fra lo
+		# scadere e la rottura passano dei fotogrammi - la fotografia del pezzo
+		# che si rompe si prende alla fine di un disegno - e in quei fotogrammi
+		# la si poteva ancora cliccare.
+		var scaduto_ma_vivo := cerca_bottone_con_testo(schermata.contenitore_scelte, "Di corsa")
+		esigi(scaduto_ma_vivo != null and scaduto_ma_vivo.disabled,
+				"il tempo e' scaduto e la scelta si puo' ancora premere mentre si rompe")
+		# la rottura non e' istantanea: si aspetta che il vetro abbia finito,
+		# con un tetto, perche' un'attesa senza tetto in una prova e' un modo
+		# elegante di piantarsi
+		for i in 40:
+			if conta_bottoni(schermata.contenitore_scelte) <= 1:
+				break
+			await get_tree().process_frame
 	esigi(conta_bottoni(schermata.contenitore_scelte) == 1,
 			"scaduto il tempo restano %d scelte: doveva sparire solo quella a tempo"
 			% conta_bottoni(schermata.contenitore_scelte))
 	esigi(testo_dei_bottoni(schermata.contenitore_scelte).has("Con calma"),
 			"scaduta quella a tempo e' sparita anche la scelta normale")
+
+	# 2-bis. I PEZZI CADONO E SVANISCONO. Bru: «si frantumano come se fosse
+	#     vetro e scompaiono, i pezzi devono cadere e gradualmente svanire verso
+	#     il trasparente». Tre cose, e nessuna delle tre si vede in uno scatto:
+	#     che i pezzi siano piu' d'uno, che SCENDANO, e che il vetro se ne vada
+	#     da solo invece di restare li' per sempre.
+	var vetro: Control = load("res://scripts/Frantumi.gd").new()
+	add_child(vetro)
+	var finta := Control.new()
+	finta.size = Vector2(240, 60)
+	add_child(finta)
+	await vetro.frantuma(finta)
+	esigi(vetro.schegge.size() >= 8,
+			"il vetro si e' rotto in %d pezzi: troppo pochi per sembrare rotto"
+			% vetro.schegge.size())
+	esigi(is_equal_approx(vetro.opacita(), 1.0),
+			"appena rotto il vetro e' gia' a %f di opacita'" % vetro.opacita())
+	var altezze_prima: Array[float] = []
+	for scheggia in vetro.schegge:
+		altezze_prima.append((scheggia.posizione as Vector2).y)
+	# mezzo secondo di caduta: la gravita' deve aver vinto su qualunque spinta
+	for i in 30:
+		vetro._process(1.0 / 60.0)
+	var scesi := 0
+	for i in vetro.schegge.size():
+		if (vetro.schegge[i].posizione as Vector2).y > altezze_prima[i]:
+			scesi += 1
+	esigi(scesi == vetro.schegge.size(),
+			"dopo mezzo secondo solo %d pezzi su %d sono scesi: gli altri stanno per aria"
+			% [scesi, vetro.schegge.size()])
+	esigi(vetro.opacita() < 1.0 and vetro.opacita() > 0.0,
+			"a meta' caduta l'opacita' e' %f: doveva essere a meta' strada verso il trasparente"
+			% vetro.opacita())
+	var sparito := [false]
+	vetro.finito.connect(func() -> void: sparito[0] = true)
+	for i in 90:
+		if sparito[0]:
+			break
+		vetro._process(1.0 / 60.0)
+	esigi(sparito[0], "il vetro non se n'e' mai andato: resta a schermo per sempre")
+	finta.free()
+
+	# e il tempo, finche' i dialoghi non ce l'hanno scritto, se lo tira il dado
+	# dentro i secondi che ha detto Bru
+	var regola: Dictionary = GameState.regole.get("scelta_a_tempo", {})
+	var minimo := float(regola.get("secondi_minimo", 3.0))
+	var massimo := float(regola.get("secondi_massimo", 7.0))
+	esigi(is_equal_approx(minimo, 3.0) and is_equal_approx(massimo, 7.0),
+			"i secondi delle scelte a tempo sono %.1f-%.1f invece di 3-7" % [minimo, massimo])
+	var visti_diversi := {}
+	for i in 40:
+		var tirato: float = schermata.tempo_della_scelta({"genere": "eroe"})
+		esigi(tirato >= minimo and tirato <= massimo,
+				"una scelta a tempo ha tirato %.2f secondi, fuori da %.1f-%.1f"
+				% [tirato, minimo, massimo])
+		visti_diversi[snappedf(tirato, 0.01)] = true
+	esigi(visti_diversi.size() > 1,
+			"quaranta tiri hanno dato sempre lo stesso tempo: non e' randomizzato")
+	esigi(is_equal_approx(schermata.tempo_della_scelta({"genere": "eroe", "tempo": 5.5}), 5.5),
+			"una scelta che dichiara il suo tempo se l'e' visto tirare a caso lo stesso")
+	esigi(is_equal_approx(schermata.tempo_della_scelta({"testo": "normale"}), 0.0),
+			"una scelta normale ha preso un tempo: solo eroe e villain scadono")
 
 	# 3. SCEGLIERE LASCIA UN SEGNO, e i due conti non si annullano a vicenda.
 	esigi(GameState.scelte_eroe == 0 and GameState.scelte_malvagie == 0,
@@ -4003,6 +4077,15 @@ func testo_dei_bottoni(radice: Node) -> Array:
 		else:
 			righe.append_array(testo_dei_bottoni(figlio))
 	return righe
+
+func cerca_bottone_con_testo(radice: Node, quale: String) -> Button:
+	for figlio in radice.get_children():
+		if figlio is Button and (figlio as Button).text == quale:
+			return figlio
+		var dentro := cerca_bottone_con_testo(figlio, quale)
+		if dentro != null:
+			return dentro
+	return null
 
 func cerca_orologio(radice: Node) -> Control:
 	for figlio in radice.get_children():

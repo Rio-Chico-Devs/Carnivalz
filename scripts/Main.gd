@@ -608,9 +608,20 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 			continue  # gia' raccolto/fatto: la scelta non torna
 		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
 			continue  # non puoi pagare cio' che non hai
+		# IL KARMA DECIDE QUALE DELLE DUE TI COMPARE. Bru: «ci sara' magari solo
+		# 1 o l'altra, a seconda del tuo karma, e in alcune anche entrambe».
+		#
+		# Servono tutte e quattro le forme, non due. Con i soli minimi si puo'
+		# dire "questa la vede chi e' stato eroe almeno tre volte", ma non si
+		# puo' NASCONDERE niente a nessuno - e "solo l'opzione da villain,
+		# perche' ormai sei quello" e' esattamente una cosa da nascondere.
 		if scelta.has("richiede_eroe") and GameState.scelte_eroe < int(scelta["richiede_eroe"]):
 			continue  # la puo' dire solo chi si e' comportato da eroe abbastanza volte
 		if scelta.has("richiede_malvagio") and GameState.scelte_malvagie < int(scelta["richiede_malvagio"]):
+			continue
+		if scelta.has("richiede_eroe_max") and GameState.scelte_eroe > int(scelta["richiede_eroe_max"]):
+			continue  # chi e' stato troppo eroe questa non se la sente piu' dire
+		if scelta.has("richiede_malvagio_max") and GameState.scelte_malvagie > int(scelta["richiede_malvagio_max"]):
 			continue
 		var bottone := bottone_scelta(String(scelta.get("testo", "…")),
 				String(scelta.get("genere", "")))
@@ -637,6 +648,31 @@ func bottone_scelta(testo: String, genere := "") -> Button:
 	Stile.scelta(bottone, genere)
 	return bottone
 
+func tempo_della_scelta(scelta: Dictionary) -> float:
+	# QUANTO DURA UNA SCELTA A TEMPO.
+	#
+	# Bru: «il tempo dipende dal dialogo, quando vedro' tutti i dialoghi daro' io
+	# il tempo su un file come abbiamo fatto per tutto il resto. Per adesso
+	# randomizzalo, minimo 3 secondi massimo 7».
+	#
+	# Quindi: se la scena lo dice, vince la scena - sempre, e senza che io debba
+	# tornare qui il giorno in cui quel file esiste. Se non lo dice, e la scelta
+	# e' da eroe o da villain, il tempo se lo tira il dado. Il caso e' un
+	# ripiego dichiarato, non una regola: sta scritto in data/regole.json con
+	# dentro le sue parole, cosi' quando i tempi veri arrivano si vede subito
+	# cosa stava tappando il buco.
+	if scelta.has("tempo"):
+		return float(scelta["tempo"])
+	var genere := String(scelta.get("genere", ""))
+	if genere != "eroe" and genere != "malvagio":
+		return 0.0
+	var dati: Dictionary = GameState.regole.get("scelta_a_tempo", {})
+	# dal dado seedato della partita, non da randf(): due partite con lo stesso
+	# seme devono dare gli stessi secondi, o non si puo' riprodurre un guaio
+	return GameState.rng.randf_range(
+			float(dati.get("secondi_minimo", 3.0)),
+			float(dati.get("secondi_massimo", 7.0)))
+
 func riga_di_scelta(bottone: Button, scelta: Dictionary) -> Control:
 	# UNA SCELTA A TEMPO E' UNA SCELTA CON UN OROLOGIO ATTACCATO.
 	#
@@ -648,7 +684,7 @@ func riga_di_scelta(bottone: Button, scelta: Dictionary) -> Control:
 	# campi indipendenti perche' non e' detto che le due cose vadano sempre
 	# insieme - una decisione da villain puo' aspettare quanto vuole, e una
 	# scelta qualunque puo' scadere lo stesso ("scappa adesso o mai piu'").
-	var secondi := float(scelta.get("tempo", 0.0))
+	var secondi := tempo_della_scelta(scelta)
 	if secondi <= 0.0:
 		return bottone
 	var riga := HBoxContainer.new()
@@ -658,24 +694,51 @@ func riga_di_scelta(bottone: Button, scelta: Dictionary) -> Control:
 	var orologio: Control = load("res://scripts/Orologio.gd").new()
 	riga.add_child(orologio)
 	riga.add_child(bottone)
-	# scaduta: sparisce lei, e le altre restano. "Non recuperi" vuol dire che
+	# scaduta: si rompe LEI, e le altre restano. "Non recuperi" vuol dire che
 	# quella strada si e' chiusa, non che hai perso il turno - se sparisse tutto
 	# il giocatore non capirebbe di aver perso qualcosa, capirebbe di aver
 	# aspettato troppo e basta
-	orologio.scaduto.connect(func() -> void:
-		if not is_instance_valid(riga):
-			return
-		var era_selezionata: bool = is_instance_valid(bottone) and bottone.has_focus()
-		riga.queue_free()
-		if era_selezionata:
-			# il fuoco non deve restare su una cosa che non c'e' piu', o da
-			# tastiera si continua a premere invio nel vuoto
-			sposta_fuoco_sulla_prima_scelta())
+	orologio.scaduto.connect(func() -> void: rompi_la_scelta(riga, bottone))
 	# inclinazioni alternate: nel disegno le due cipolle pendono da due parti
 	var inclinazione := 12.0 if orologi_appesi % 2 == 0 else -14.0
 	orologi_appesi += 1
 	orologio.avvia(secondi, inclinazione)
 	return riga
+
+func rompi_la_scelta(riga: Control, bottone: Button) -> void:
+	# SCADUTA, SI FRANTUMA COME VETRO. Bru: «le opzioni hero o evil si frantumano
+	# come se fosse vetro e scompaiono, i pezzi devono cadere e gradualmente
+	# svanire verso il trasparente».
+	#
+	# L'ordine conta, ed e' controintuitivo: prima si mettono i frantumi al posto
+	# della riga, POI si toglie la riga. Facendo il contrario - via la riga e poi
+	# i frantumi - il contenitore riordinerebbe le scelte rimaste un fotogramma
+	# prima che il vetro compaia, e le schegge partirebbero da dove la scelta non
+	# e' piu': si romperebbe il posto sbagliato.
+	if not is_instance_valid(riga):
+		return
+	var era_selezionata: bool = is_instance_valid(bottone) and bottone.has_focus()
+	# MORTA SUBITO, ROTTA DOPO. Fra lo scadere del tempo e il vetro che si
+	# frantuma passano una manciata di fotogrammi - la fotografia del pezzo che
+	# si rompe si prende alla fine di un disegno, non a meta'. In quei fotogrammi
+	# l'opzione era ancora li' e ancora cliccabile: si poteva prendere una
+	# scelta scaduta, ed e' esattamente quello che "non recuperi" non deve
+	# permettere. Il tempo e' finito adesso, non quando l'animazione lo dice.
+	if is_instance_valid(bottone):
+		bottone.disabled = true
+		bottone.focus_mode = Control.FOCUS_NONE
+	var vetro: Control = load("res://scripts/Frantumi.gd").new()
+	# fuori dal contenitore delle scelte, o verrebbe messo in colonna con le
+	# altre e riordinato insieme a loro: i frantumi non sono una scelta, sono
+	# quello che resta di una
+	add_child(vetro)
+	await vetro.frantuma(riga)
+	if is_instance_valid(riga):
+		riga.queue_free()
+	if era_selezionata:
+		# il fuoco non deve restare su una cosa che non c'e' piu', o da tastiera
+		# si continua a premere invio nel vuoto
+		sposta_fuoco_sulla_prima_scelta()
 
 func sposta_fuoco_sulla_prima_scelta() -> void:
 	for figlio in contenitore_scelte.get_children():

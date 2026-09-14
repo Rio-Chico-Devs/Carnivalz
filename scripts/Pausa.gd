@@ -162,6 +162,13 @@ func sfoca_la_scena() -> void:
 	if sfocato == null:
 		return
 	sfocato.visible = false
+	# SENZA FINESTRA frame_post_draw NON ARRIVA MAI: l'attesa qui sotto resterebbe
+	# appesa per sempre, e ogni apertura del menu ne lascerebbe un'altra. Qui non
+	# pianta niente perche' nessuno aspetta questa funzione - ma e' la stessa
+	# trappola che ha piantato un'esecuzione intera delle prove dentro Frantumi,
+	# e vale la pena chiuderla in tutte e due i posti nello stesso momento.
+	if DisplayServer.get_name() == "headless":
+		return
 	await RenderingServer.frame_post_draw   # senza, si fotografa il fotogramma prima
 	if not aperta or sfocato == null or not is_instance_valid(sfocato):
 		return

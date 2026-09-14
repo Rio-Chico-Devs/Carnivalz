@@ -180,5 +180,11 @@
 	"hype_per_punto": 1000,
 	"cura_di_se_massima_quota": 1.0,
 	"tipo_moltiplicatore_resistente": 0.5,
-	"soglia_vita_bassa": 0.25
+	"soglia_vita_bassa": 0.25,
+	"scelta_a_tempo": {
+		"_bru": "«il tempo dipende dal dialogo, quando vedro' tutti i dialoghi daro' io il tempo su un file come abbiamo fatto per tutto il resto. Per adesso randomizzalo, minimo 3 secondi massimo 7 secondi».",
+		"_nota": "Vale SOLO per le scelte che non dichiarano il loro \"tempo\". Appena una scena scrive \"tempo\": 5.5 su una scelta, quel numero vince su questi due - il caso e' un ripiego finche' i dialoghi non ci sono, non una regola.",
+		"secondi_minimo": 3.0,
+		"secondi_massimo": 7.0
+	}
 }
