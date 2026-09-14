@@ -28,11 +28,14 @@ extends Control
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const CARTELLA_ICONE := "res://art/icone_mappa/"
+const DURATA_BATTITO := 1.1   # secondi di un salto completo del punto esclamativo
 
 const LATO_MINIMO := 30.0     # sotto questa misura un quadratino non si legge
 const LATO_MASSIMO := 104.0   # sopra, una zona piccola diventa ridicola
 const MARGINE_CELLA := 5.0    # aria fra il quadrato e il bordo della sua cella
 
+var battito := 0.0              # dove sta il punto esclamativo nel suo salto
+var obiettivo_in_vista := false  # se non c'e', questo strato non si ridisegna mai
 var stanze_per_id: Dictionary = {}
 var colonne := 1
 var righe := 1
@@ -60,8 +63,21 @@ func _ready() -> void:
 		righe = maxi(righe, int(cella.y + misura.y))
 
 	costruisci_intelaiatura()
+	# SI ASPETTA LA CORNICE, NON LO SCHERMO.
+	#
+	# Prima si stava in ascolto solo del ridimensionamento di QUESTA schermata.
+	# Ma quando la schermata nasce gia' della sua misura - e succede - il
+	# segnale non arriva mai, e l'unica ricostruzione e' quella qui sotto, che
+	# gira quando la cornice dentro il contenitore non ha ancora nessuna
+	# dimensione e quindi si arrende. Risultato: una mappa disegnata in un
+	# angolo, grande un quarto dello schermo, senza nessun errore da nessuna
+	# parte. La cornice invece il suo resized lo manda sempre, perche' e' il
+	# contenitore a dargli la misura, e quello succede sempre dopo.
+	cornice.resized.connect(ricostruisci)
 	resized.connect(ricostruisci)
 	ricostruisci()
+	obiettivo_in_vista = c_e_un_obiettivo()
+	set_process(obiettivo_in_vista)
 
 # --- lettura dei dati ----------------------------------------------------
 
@@ -81,10 +97,15 @@ func e_segreta(stanza: Dictionary) -> bool:
 # --- intelaiatura --------------------------------------------------------
 
 func costruisci_intelaiatura() -> void:
+	# i margini ci vogliono, se no il titolo tocca il bordo destro e ci esce
+	var margini := MarginContainer.new()
+	margini.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for lato_margine in ["left", "right", "top", "bottom"]:
+		margini.add_theme_constant_override("margin_" + lato_margine, Stile.forma("cornice"))
+	add_child(margini)
 	var colonna := VBoxContainer.new()
-	colonna.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	colonna.add_theme_constant_override("separation", 12)
-	add_child(colonna)
+	margini.add_child(colonna)
 
 	var barra := HBoxContainer.new()
 	barra.add_theme_constant_override("separation", 16)
@@ -222,9 +243,12 @@ func disegna_bottoni() -> void:
 		if visitata(id_stanza):
 			vesti_pieno(bottone, e_segreta(stanza), raggiungibile)
 		else:
-			# il punto di domanda: quello che invita ad andarci
-			bottone.text = "?"
-			bottone.add_theme_font_size_override("font_size", int(lato * 0.5))
+			# il punto di domanda: quello che invita ad andarci. NON dove c'e'
+			# gia' il punto esclamativo: quello dice "vai qui" molto meglio di
+			# un "?", e i due sovrapposti erano solo due segni uno sull'altro.
+			if String(stanza.get("icona", "")) != "obiettivo":
+				bottone.text = "?"
+				bottone.add_theme_font_size_override("font_size", int(lato * 0.5))
 			vesti_vuoto(bottone, noto, raggiungibile)
 		bottone.pressed.connect(_su_stanza.bind(id_stanza, noto, raggiungibile))
 		bottone.mouse_entered.connect(func() -> void:
@@ -246,7 +270,7 @@ func vesti_pieno(bottone: Button, segreta: bool, raggiungibile: bool) -> void:
 		bottone.add_theme_stylebox_override(stato, scatola)
 
 func vesti_vuoto(bottone: Button, noto: bool, raggiungibile: bool) -> void:
-	var tinta := Stile.colore("accento") if noto else Stile.colore("bordo")
+	var tinta := Stile.colore("accento") if noto else Stile.colore("tratto")
 	var forza := 0.95 if raggiungibile else (0.5 if noto else 0.4)
 	bottone.add_theme_color_override("font_color", Color(tinta, forza))
 	for stato in ["normal", "hover", "pressed", "focus"]:
@@ -272,7 +296,8 @@ func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
 # --- strato di sotto: la griglia e i collegamenti -----------------------
 
 func _disegna_sotto() -> void:
-	var reticolo := Color(Stile.colore("bordo"), 0.22)
+	# il reticolo si deve VEDERE sul buio: "bordo" e' il nero della cornice
+	var reticolo := Color(Stile.colore("tratto"), 0.30)
 	for c in colonne + 1:
 		var x := origine.x + c * lato
 		strato_sotto.draw_line(Vector2(x, origine.y),
@@ -293,7 +318,7 @@ func _disegna_sotto() -> void:
 			continue   # nessuno dei due capi e' noto: la linea non esiste
 		var pieno := visitata(a) and visitata(b)
 		strato_sotto.draw_line(centro_di(a), centro_di(b),
-				Color(Stile.colore("bordo"), 0.95 if pieno else 0.5),
+				Color(Stile.colore("tratto"), 0.95 if pieno else 0.5),
 				maxf(lato * 0.09, 3.0))
 
 # --- strato di sopra: icone e "sei qui" ---------------------------------
@@ -304,12 +329,63 @@ func _disegna_sopra() -> void:
 		if not si_vede(id_stanza):
 			continue
 		var rettangolo := rettangolo_di(stanza)
-		if visitata(id_stanza):
-			disegna_icona(String(stanza.get("icona", "")), rettangolo)
+		var icona := String(stanza.get("icona", ""))
+		# IL PUNTO ESCLAMATIVO E' L'ECCEZIONE, e per il motivo piu' ovvio: le
+		# altre icone raccontano cosa hai trovato in un posto, quindi si vedono
+		# solo dove sei gia' stato. Questa racconta dove DEVI andare, e un
+		# segnale che compare solo dopo che ci sei arrivato non e' un segnale.
+		if icona == "obiettivo":
+			disegna_obiettivo(rettangolo)
+		elif visitata(id_stanza):
+			disegna_icona(icona, rettangolo)
 		if id_stanza == GameState.proiettore_qui():
 			disegna_proiettore(rettangolo)
 		if id_stanza == GameState.nodo_corrente:
 			disegna_sei_qui(rettangolo)
+
+func disegna_obiettivo(rettangolo: Rect2) -> void:
+	# DOVE DEVI ANDARE, e si muove. Bru: «puoi andare solo nella sala
+	# allenamento che ha un punto esclamativo animato che si muove».
+	#
+	# Si muove perche' su una mappa ferma, fatta di quadrati tutti uguali, l'
+	# unica cosa che l'occhio trova da solo e' quella che si muove. Saltella e
+	# respira: due movimenti diversi insieme, perche' uno solo sembra un errore
+	# di disegno e due sembrano una cosa viva.
+	var centro := rettangolo.get_center()
+	var raggio := minf(rettangolo.size.x, rettangolo.size.y) * 0.5
+	var salto := sin(battito * TAU) * raggio * 0.14
+	var respiro := 1.0 + sin(battito * TAU * 2.0) * 0.06
+	centro.y += salto
+	var percorso := CARTELLA_ICONE + "obiettivo.png"
+	if ResourceLoader.exists(percorso):
+		var texture: Texture2D = load(percorso)
+		var misura := Vector2.ONE * raggio * 1.24 * respiro
+		strato_sopra.draw_texture_rect(texture, Rect2(centro - misura * 0.5, misura), false)
+		return
+	# il punto esclamativo disegnato a mano finche' non arriva quello vero:
+	# un'asta e un punto, che e' tutto quello che serve perche' si legga
+	var tinta := Stile.colore("accento")
+	var alto := raggio * 0.62 * respiro
+	var spessore := maxf(raggio * 0.17, 3.0)
+	strato_sopra.draw_line(centro + Vector2(0.0, -alto), centro + Vector2(0.0, alto * 0.25),
+			tinta, spessore)
+	strato_sopra.draw_circle(centro + Vector2(0.0, alto * 0.72), spessore * 0.58, tinta)
+
+func c_e_un_obiettivo() -> bool:
+	for stanza in GameState.mappa_zona.get("stanze", []):
+		if String(stanza.get("icona", "")) == "obiettivo" and si_vede(String(stanza.get("id", ""))):
+			return true
+	return false
+
+func _process(delta: float) -> void:
+	# IL TEMPO SCORRE SOLO SE C'E' QUALCOSA CHE SI MUOVE. Una mappa che si
+	# ridisegna sessanta volte al secondo per niente e' una ventola che gira
+	# per niente: qui di solito non si muove nulla, e quando non si muove nulla
+	# questo strato sta fermo.
+	if not obiettivo_in_vista:
+		return
+	battito = fmod(battito + delta / DURATA_BATTITO, 1.0)
+	strato_sopra.queue_redraw()
 
 func disegna_icona(icona: String, rettangolo: Rect2) -> void:
 	if icona == "":

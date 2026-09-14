@@ -384,7 +384,7 @@ func barra(larghezza := 120, altezza := 8) -> Control:
 			var piena := quota >= 0.999
 			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * quota, telaio.size.y)),
 					colore("accento") if piena else colore("bordo_acceso"))
-		telaio.draw_rect(dentro, colore("bordo"), false, 1.0))
+		telaio.draw_rect(dentro, colore("tratto"), false, 1.0))
 	return telaio
 
 func riempi_barra(telaio: Control, quota: float) -> void:

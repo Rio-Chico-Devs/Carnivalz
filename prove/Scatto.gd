@@ -56,6 +56,29 @@ func prepara(quale: String) -> void:
 			var argomenti := OS.get_cmdline_user_args()
 			var quando := int(argomenti[1]) if argomenti.size() > 1 else 11
 			await attendi(quando)
+		"intro":
+			# la vera introduzione, non un nodo finto: si guarda che il testo di
+			# Bru ci stia nel box e che lo sfondo non copra niente
+			await apri_dialogo()
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"complesso":
+			# la mappa del complesso: tutte le aree visibili, una sola aperta,
+			# e il punto esclamativo che salta
+			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+			GameState.nodo_corrente = "alloggio"
+			for id_stanza in ["alloggio", "sala_allenamento", "sala_riunioni",
+					"infermeria", "archivio", "mensa", "sala_proiezione", "hangar"]:
+				GameState.sblocca_stanza(id_stanza)
+			if not "alloggio" in GameState.nodi_visitati:
+				GameState.nodi_visitati.append("alloggio")
+			# SENZA DIRGLI QUANTO E' GRANDE, una schermata non si dispone: in
+			# gioco ci pensa Transizioni, che la mette come scena corrente. Qui
+			# no, e la prima foto usciva con la mappa schiacciata in un angolo -
+			# un difetto del fotografo scambiabile per un difetto della mappa.
+			var schermo: Control = load("res://scenes/MappaZona.tscn").instantiate()
+			schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			add_child(schermo)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 		"rottura":
 			# il vetro a meta' caduta: e' l'unico modo di guardarlo, perche'
 			# dura poco piu' di un secondo e a occhio nudo non si ferma

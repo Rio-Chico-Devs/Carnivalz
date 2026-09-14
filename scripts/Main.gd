@@ -95,6 +95,7 @@ var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la ca
 var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alterne
 var nome_sul_nastro := ""  # chi c'e' scritto adesso: il nastro rientra solo quando cambia
 var tween_nastro: Tween
+var tween_sfondo: Tween
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
@@ -191,17 +192,46 @@ func prepara_quadro() -> void:
 	palco.offset_right = -bordo * 3
 	palco.offset_bottom = -bordo * 0.75
 
-func mostra_scena_di(nodo: Dictionary) -> void:
-	# L'ILLUSTRAZIONE DEL POSTO, se c'e'. La dichiara il nodo con "sfondo", e
-	# vale finche' non ne arriva un'altra: le stanze di una stessa zona possono
-	# condividere lo stesso disegno senza ripeterlo in ogni nodo.
-	var percorso := String(nodo.get("sfondo", ""))
+func mostra_scena_di(contenitore: Dictionary) -> void:
+	# L'ILLUSTRAZIONE DEL POSTO, se c'e'.
+	#
+	# La dichiara col campo "sfondo" o il nodo o la singola battuta. Bru: «in
+	# ogni dialogo avremmo un'immagine che caricherà da una repo dove abbiamo
+	# tutte le nostre immagini, poi sceglierò con cura quali mettere e dove».
+	# Quindi il posto dove si dichiara deve essere la battuta, non solo la
+	# stanza: nell'introduzione l'immagine cambia in mezzo a una narrazione, e
+	# spezzarla in cinque nodi per cambiare disegno vorrebbe dire cinque nodi
+	# che non sono cinque posti.
+	#
+	# Vale finche' non ne arriva un'altra: le battute che non dicono niente
+	# tengono quella di prima, ed e' cosi' che tre frasi di fila condividono lo
+	# stesso disegno senza ripeterlo tre volte.
+	var percorso := String(contenitore.get("sfondo", ""))
 	if percorso == "":
 		return
 	if not ResourceLoader.exists(percorso):
+		# un disegno non ancora fatto non e' un errore: resta quello di prima e
+		# la scena si gioca lo stesso. E' la stessa regola dei ritratti.
 		push_warning("Sfondo di scena mancante: " + percorso)
 		return
-	scena_sfondo.texture = load(percorso)
+	var arrivata: Texture2D = load(percorso)
+	if scena_sfondo.texture == arrivata:
+		return
+	dissolvi_sfondo(arrivata)
+
+func dissolvi_sfondo(arrivata: Texture2D) -> void:
+	# UN'IMMAGINE NON SCATTA, SFUMA. Nell'introduzione i cambi di sfondo cadono
+	# in mezzo a un discorso: uno stacco netto li farebbe leggere come un taglio
+	# di montaggio, e quella narrazione non e' montata, scorre.
+	if scena_sfondo.texture == null:
+		scena_sfondo.texture = arrivata
+		return
+	if tween_sfondo != null and tween_sfondo.is_valid():
+		tween_sfondo.kill()
+	scena_sfondo.texture = arrivata
+	scena_sfondo.modulate.a = 0.0
+	tween_sfondo = create_tween()
+	tween_sfondo.tween_property(scena_sfondo, "modulate:a", 1.0, Stile.tempo("cambio_sfondo"))
 
 func prepara_nastro() -> void:
 	# IL NASTRO COL NOME. Un'etichetta rosa appiccicata storta sopra l'angolo
@@ -647,8 +677,12 @@ func mostra_messaggio(msg: Dictionary) -> void:
 		GameState.registra_storico("narrazione", "", contenuto)
 		mostra_carta_titolo(contenuto, String(msg.get("file", "")))
 		return
+	if tipo == "scritta":
+		mostra_scritta_dal_buio(String(msg.get("file", "")), float(msg.get("attesa", 2.0)))
+		return
 	carta_titolo.visible = false
 	box.visible = true
+	mostra_scena_di(msg)   # la battuta puo' portarsi dietro la sua immagine
 	var nome_parlante := ""
 	var id_parlante := ""
 	if tipo == "dialogo":
@@ -695,6 +729,51 @@ func mostra_carta_titolo(contenuto: String, percorso_immagine := "") -> void:
 	var comparsa := create_tween()
 	comparsa.tween_property(carta_titolo, "modulate:a", 1.0, Stile.tempo("carta_titolo"))
 
+func mostra_scritta_dal_buio(percorso: String, quanto_resta: float) -> void:
+	# LA SCRITTA DI CARNIVALZ. Bru: «apparirà la scritta che disegnerò di
+	# carnivalz, appare centrale dal buio, poi scompare piano piano e dal buio
+	# troviamo il primo dialog box».
+	#
+	# Non e' una carta del titolo, ed e' proprio la differenza che conta: la
+	# carta del titolo aspetta un click, questa NO. Un titolo di testa che
+	# chiede il permesso per andarsene non e' un titolo di testa, e' un
+	# messaggio. Compare, resta il tempo che deve, se ne va da sola.
+	#
+	# E dietro c'e' il nero, non la scena: "dal buio" vuol dire che prima di
+	# lei non c'e' niente e dopo di lei non c'e' niente, e la prima cosa che si
+	# rivede e' il box che parla.
+	azione_dopo_titolo = azione_a_fine_testo
+	azione_a_fine_testo = Callable()
+	box.visible = false
+	nastro.visible = false
+	nascondi_comandi()
+	area_avanza.visible = false
+	testo_titolo.text = ""
+	var c_e := percorso != "" and ResourceLoader.exists(percorso)
+	immagine_titolo.visible = c_e
+	if c_e:
+		immagine_titolo.texture = load(percorso)
+	else:
+		# finche' il disegno non c'e', il nome scritto: la scena esiste lo
+		# stesso e si puo' provare il ritmo, che e' l'unica cosa che conta qui
+		testo_titolo.text = "CARNIVALZ"
+		testo_titolo.custom_minimum_size = Vector2(760, 0)
+		testo_titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo") * 2)
+	carta_titolo.visible = true
+	carta_titolo.modulate.a = 0.0
+	var velo: ColorRect = carta_titolo.get_node("VeloTitolo")
+	velo.color = Color(Stile.colore("velo"), 1.0)   # buio pieno, non un velo
+	var durata := Stile.tempo("scritta_dal_buio")
+	var passaggio := create_tween()
+	passaggio.tween_property(carta_titolo, "modulate:a", 1.0, durata)
+	passaggio.tween_interval(maxf(quanto_resta, 0.0))
+	passaggio.tween_property(carta_titolo, "modulate:a", 0.0, durata)
+	passaggio.finished.connect(func() -> void:
+		if not is_instance_valid(self):
+			return
+		velo.color = Color(Stile.colore("velo"), 0.82)   # com'era per le altre carte
+		_dopo_carta_titolo())
+
 func chiudi_carta_titolo() -> void:
 	var uscita := create_tween()
 	uscita.tween_property(carta_titolo, "modulate:a", 0.0, Stile.tempo("carta_titolo") * 0.6)
@@ -713,10 +792,11 @@ func sostituisci_nome(testo: String) -> String:
 	# permette a narrazione/dialogo di citare il nome scelto dal giocatore
 	# per il protagonista, es. "Benvenuto, {nome}." (distinto dal "%s" di
 	# dialoghi.json, gia' risolto altrove per i nomi dei compagni)
-	if testo.find("{nome}") == -1:
-		return testo
-	var nome := String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "Anonimo"))
-	return testo.replace("{nome}", nome)
+	var risultato := testo
+	if risultato.find("{nome}") != -1:
+		var nome := String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "Anonimo"))
+		risultato = risultato.replace("{nome}", nome)
+	return Testi.accorda(risultato, GameState.sesso_protagonista)
 
 # --- scelte ---
 
@@ -1005,6 +1085,18 @@ func pickup(id_oggetto: String) -> Array[Dictionary]:
 # --- palco dei ritratti ---
 
 func aggiorna_palco(nodo: Dictionary) -> void:
+	# IL PALCO PUO' ESSERE VUOTO, e ci vuole un modo di dirlo.
+	#
+	# Di suo questa schermata mette sempre il protagonista a sinistra, perche'
+	# quasi sempre e' lui che sta vivendo la scena. Ma l'introduzione parla
+	# dell'universo e delle creature che lo abitano - lui li' dentro non c'e'
+	# ancora - e vederlo in piedi accanto a "nell'universo la vita prende varie
+	# forme" lo trasforma in uno che sta guardando un documentario.
+	if String(nodo.get("palco", "")) == "nessuno":
+		slot_sinistra.visible = false
+		slot_centro.visible = false
+		slot_destra.visible = false
+		return
 	if nodo.has("centro"):
 		slot_sinistra.visible = false
 		slot_destra.visible = false

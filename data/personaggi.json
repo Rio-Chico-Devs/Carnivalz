@@ -3765,6 +3765,20 @@
 				}
 			],
 			"tipo": "Spirituale"
+		},
+		{
+			"id": "altoparlante",
+			"nome": "Altoparlante",
+			"_nota": "Non e' qualcuno, e' la stanza che parla: l'annuncio del mattino nel complesso. Non ha ritratto apposta - una voce dagli altoparlanti non ha una faccia, e dargliene una la trasformerebbe in un personaggio.",
+			"voce": {
+				"altezza": 430.0,
+				"forma": "quadra"
+			}
+		},
+		{
+			"id": "ignoto",
+			"nome": "???",
+			"_nota": "Chi parla prima di essere riconosciuto. Veronica entra cosi': la voce arriva prima del nome, ed e' il protagonista a dire \"questa voce...\" un istante dopo."
 		}
 	]
 }

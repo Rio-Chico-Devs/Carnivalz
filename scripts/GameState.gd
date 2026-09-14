@@ -87,6 +87,15 @@ var codici_riscattati: Array[String] = []  # persiste da solo, fuori dagli slot 
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
 var id_protagonista: String = ""
 var nome_protagonista: String = ""     # vuoto = usa il nome di default ("Anonimo")
+# MASCHILE O FEMMINILE. Bru: "a seconda del sesso che si sceglie cambiamo i
+# dialoghi al femminile o maschile, anche se scrivo in maschile tieni in conto
+# questa cosa".
+#
+# Sta qui e non fra le statistiche perche' non e' una statistica: non cambia
+# niente di quello che il personaggio SA FARE, cambia come gli si parla. Si
+# sceglie insieme al nome, e da li' in poi ogni testo che ne ha bisogno lo
+# chiede. Vale "m" o "f"; qualunque altra cosa vale maschile.
+var sesso_protagonista: String = "m"
 var nome_anonimo_default: String = ""  # catturato da classes.json al primo caricamento
 
 var classi_sbloccate: Array[String] = []  # roster: persiste tra le campagne
@@ -478,6 +487,7 @@ func nuova_partita() -> void:
 	legame = int(regole.get("legame_iniziale", 20))
 	scelte_eroe = 0
 	scelte_malvagie = 0
+	sesso_protagonista = "m"
 	if id_protagonista != "":
 		classi_sbloccate.append(id_protagonista)
 		party.append(id_protagonista)
@@ -2195,6 +2205,7 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"tazo": tazo,
 		"fonti_estinte": fonti_estinte,
 		"legame": legame,
+		"sesso_protagonista": sesso_protagonista,
 		"scelte_eroe": scelte_eroe,
 		"scelte_malvagie": scelte_malvagie,
 		"classi_sbloccate": classi_sbloccate,
@@ -2254,6 +2265,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	tazo = int(d.get("tazo", 0))
 	fonti_estinte = int(d.get("fonti_estinte", 0))
 	legame = int(d.get("legame", int(regole.get("legame_iniziale", 20))))
+	sesso_protagonista = String(d.get("sesso_protagonista", "m"))
 	scelte_eroe = int(d.get("scelte_eroe", 0))
 	scelte_malvagie = int(d.get("scelte_malvagie", 0))
 	classi_sbloccate = _lista_str(d.get("classi_sbloccate", []))

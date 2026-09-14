@@ -49,6 +49,7 @@
 		"pannello": "#000000",
 		"pannello_chiaro": "#1c1c1c",
 		"bordo": "#000000",
+		"tratto": "#5b5470",
 		"bordo_acceso": "#ffffff",
 		"testo": "#ffffff",
 		"testo_smorzato": "#9c9c9c",
@@ -64,7 +65,8 @@
 		"eroe": "#1f3dc4",
 		"nastro": "#f2a7bd",
 		"nastro_testo": "#111111",
-		"quadro_vuoto": "#1d1830"
+		"quadro_vuoto": "#1d1830",
+		"_nota_bordo": "ATTENZIONE: 'bordo' e' il NERO DELLA CORNICE, e serve a delimitare cose chiare - il box bianco, i riquadri neri delle scelte. Non e' un colore con cui disegnare sul buio: su fondo scuro sparisce. Per un segno che si deve VEDERE sul buio (il reticolo della mappa, i collegamenti fra le stanze, la cornice di una barra) c'e' 'tratto'. Le due cose erano lo stesso colore finche' la palette era chiara; diventata nera, il reticolo della mappa e' sparito senza che nessuna prova potesse accorgersene."
 	},
 	"_nota_colori_danno": "Il colore dei numeri che volano addosso a chi incassa. Un colpo normale e' rosso; un critico e' oro e piu' grande; un attacco o uno stato con un elemento porta il colore del suo elemento, cosi' si vede a colpo d'occhio COSA ti ha fatto male e non solo quanto. Un'arma, una mossa o uno stato dichiarano il proprio elemento col campo \"elemento\".",
 	"colori_danno": {
@@ -130,7 +132,9 @@
 		"battito_indicatore": 0.85,
 		"colpo_a_schermo": 0.45,
 		"battito_allarme": 0.42,
-		"nastro": 0.46
+		"nastro": 0.46,
+		"cambio_sfondo": 0.9,
+		"scritta_dal_buio": 1.6
 	},
 	"_nota_ritmo": "Le pause della macchina da scrivere sulla punteggiatura: il testo non scorre a velocita' costante, si ferma dove si fermerebbe una voce. In secondi, gia' divisi per la velocita' scelta dal giocatore.",
 	"ritmo": {

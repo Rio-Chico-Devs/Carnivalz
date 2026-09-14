@@ -20,7 +20,7 @@ const ESPRESSIONI := [
 	"sorpresa", "sforzo", "cool", "decisa",
 ]
 
-const ICONE_MAPPA := ["boss", "miniboss", "forte", "uscita", "negozio", "personaggio", "chiave"]
+const ICONE_MAPPA := ["boss", "miniboss", "forte", "uscita", "negozio", "personaggio", "chiave", "obiettivo"]
 
 var fallimenti: Array[String] = []
 var conteggio := 0
@@ -83,6 +83,8 @@ func _ready() -> void:
 	prova_chi_e_a_terra_non_viene_piu_colpito()
 	await prova_le_scelte_a_tempo()
 	await prova_il_nastro_col_nome()
+	await prova_maschile_e_femminile()
+	prova_dall_introduzione_al_combattimento()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -211,6 +213,16 @@ func prova_nodi_raggiungibili() -> void:
 		var nodi: Dictionary = dati.get("nodi", {})
 		if nodi.is_empty():
 			continue
+		# SI CAMMINA ANCHE SULLA MAPPA, non solo per le porte scritte.
+		#
+		# Questo camminatore conosceva un modo solo di spostarsi: un nodo che
+		# ne nomina un altro. Ma da quando una zona ha una mappa, esiste una
+		# seconda strada - un nodo che dice "torna_a_mappa", e dalla mappa si
+		# va nelle stanze confinanti. Non se n'era mai accorto nessuno perche'
+		# finora ogni zona era anche tutta collegata a mano; il complesso
+		# dell'organizzazione e' la prima in cui la mappa E' il collegamento, e
+		# li' la prova ha dato per orfane sei stanze che si raggiungono benissimo.
+		var confinanti := confini_di_mappa(dati)
 		var visti: Dictionary = {}
 		var da_visitare: Array[String] = [String(dati.get("nodo_iniziale", ""))]
 		while not da_visitare.is_empty():
@@ -220,9 +232,44 @@ func prova_nodi_raggiungibili() -> void:
 			visti[corrente] = true
 			for destinazione in destinazioni_di(nodi[corrente]):
 				da_visitare.append(destinazione)
+			if apre_la_mappa(nodi[corrente]):
+				for vicina in confinanti.get(corrente, []):
+					da_visitare.append(String(vicina))
 		for id_nodo in nodi:
-			esigi(visti.has(id_nodo),
+			# UNA STANZA CHIUSA APPOSTA NON E' UN ORFANO. Bru: "ci sono varie
+			# aree, tutte non visitabili". Esistono perche' la mappa le mostri -
+			# vedere un posto e poterci arrivare sono due cose diverse, e in
+			# quella scena la differenza e' tutto il punto. Devono pero' dirlo:
+			# un nodo dimenticato e un nodo chiuso apposta si distinguono solo
+			# se il secondo lo dichiara.
+			var chiusa := String((nodi[id_nodo] as Dictionary).get("_chiusa_per_ora", ""))
+			esigi(visti.has(id_nodo) or chiusa != "",
 					"%s: il nodo '%s' non e' raggiungibile da nessuna parte" % [percorso, id_nodo])
+
+func apre_la_mappa(nodo: Dictionary) -> bool:
+	if nodo.get("torna_a_mappa", false):
+		return true
+	for scelta in nodo.get("scelte", []):
+		if scelta.get("torna_a_mappa", false):
+			return true
+	return false
+
+func confini_di_mappa(dati: Dictionary) -> Dictionary:
+	# chi confina con chi, secondo la mappa della zona: e' quello che
+	# MappaZona.si_puo_andare() usa per decidere dove si puo' cliccare
+	var vicini: Dictionary = {}
+	for coppia in dati.get("mappa_dungeon", {}).get("connessioni", []):
+		if coppia.size() < 2:
+			continue
+		var a := String(coppia[0])
+		var b := String(coppia[1])
+		if not vicini.has(a):
+			vicini[a] = []
+		if not vicini.has(b):
+			vicini[b] = []
+		vicini[a].append(b)
+		vicini[b].append(a)
+	return vicini
 
 func prova_i_punti_di_riferimento() -> void:
 	# LA QUINTA REGOLA DI ROMERO, e adesso e' una prova.
@@ -4102,6 +4149,133 @@ func cerca_orologio(radice: Node) -> Control:
 		if dentro != null:
 			return dentro
 	return null
+
+func prova_maschile_e_femminile() -> void:
+	# Bru: «a seconda del sesso che si sceglie cambiamo i dialoghi al femminile
+	# o maschile, anche se scrivo in maschile tieni in conto questa cosa».
+	titolo("maschile e femminile: l'accordo sta dentro la frase")
+
+	# 1. LA SOSTITUZIONE. Maschile prima, femminile dopo, sempre.
+	esigi(Testi.accorda("Sei {pronto|pronta}?", "m") == "Sei pronto?",
+			"il maschile esce '%s'" % Testi.accorda("Sei {pronto|pronta}?", "m"))
+	esigi(Testi.accorda("Sei {pronto|pronta}?", "f") == "Sei pronta?",
+			"il femminile esce '%s'" % Testi.accorda("Sei {pronto|pronta}?", "f"))
+	# piu' accordi nella stessa frase, che e' il caso normale
+	var lunga := "dominat{ore|rice}, si e' {goduto|goduta} il riposo?"
+	esigi(Testi.accorda(lunga, "f") == "dominatrice, si e' goduta il riposo?",
+			"due accordi nella stessa frase danno '%s'" % Testi.accorda(lunga, "f"))
+	# e un sesso non riconosciuto vale maschile, invece di cancellare la frase
+	esigi(Testi.accorda("Sei {pronto|pronta}?", "") == "Sei pronto?",
+			"senza sesso la frase esce '%s'" % Testi.accorda("Sei {pronto|pronta}?", ""))
+
+	# 2. LE ALTRE GRAFFE NON SI TOCCANO. {nome} usa le stesse parentesi, ed e'
+	#    la sostituzione piu' vecchia del gioco: mangiarsela qui vorrebbe dire
+	#    che ogni "Benvenuto, {nome}" diventa "Benvenuto, " senza dirlo.
+	esigi(Testi.accorda("Ciao {nome}, sei {pronto|pronta}?", "f") == "Ciao {nome}, sei pronta?",
+			"l'accordo si e' mangiato {nome}: esce '%s'"
+			% Testi.accorda("Ciao {nome}, sei {pronto|pronta}?", "f"))
+	# e una graffa mai chiusa non deve far sparire il resto della battuta
+	esigi(Testi.accorda("Testo con {graffa aperta", "m") == "Testo con {graffa aperta",
+			"una graffa mai chiusa ha mangiato la frase")
+
+	# 3. NIENTE ARRIVA A SCHERMO CON LE GRAFFE ADDOSSO. E' il guasto vero: un
+	#    accordo scritto storto ("{pronto/pronta}" con la barra sbagliata) non
+	#    da' nessun errore - si legge a schermo, dentro la battuta, e chi
+	#    gioca vede le parentesi.
+	GameState.nuova_partita()
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		for id_nodo in dati.get("nodi", {}):
+			var nodo: Dictionary = dati["nodi"][id_nodo]
+			for msg in nodo.get("sequenza", []):
+				var grezzo := String((msg as Dictionary).get("testo", ""))
+				for sesso in ["m", "f"]:
+					GameState.sesso_protagonista = sesso
+					var finito: String = schermata.sostituisci_nome(grezzo)
+					esigi(not finito.contains("|"),
+							"%s/%s: resta una barra a schermo, '%s'"
+							% [percorso, id_nodo, finito.substr(0, 70)])
+			for scelta in nodo.get("scelte", []):
+				var testo_scelta := String((scelta as Dictionary).get("testo", ""))
+				esigi(not schermata.sostituisci_nome(testo_scelta).contains("|"),
+						"%s/%s: una scelta mostra una barra: '%s'" % [percorso, id_nodo, testo_scelta])
+	GameState.sesso_protagonista = "m"
+	schermata.free()
+	GameState.nuova_partita()
+
+func prova_dall_introduzione_al_combattimento() -> void:
+	# LA STRADA CHE FA CHI COMINCIA A GIOCARE, camminata per intero.
+	#
+	# Non e' la stessa cosa della prova sui nodi orfani: quella dice che da
+	# qualche parte una strada esiste, questa dice che e' QUESTA - introduzione,
+	# alloggio, mappa, sala, scelta, combattimento. E' l'unico percorso che
+	# ogni giocatore fara' senza eccezioni, e se si spezza si spezza per tutti.
+	titolo("dall'introduzione al primo combattimento, passo per passo")
+	var dati := carica_eventi("res://data/events_intro.json")
+	var nodi: Dictionary = dati.get("nodi", {})
+	esigi(String(dati.get("nodo_iniziale", "")) == "introduzione",
+			"il gioco non comincia dall'introduzione ma da '%s'" % dati.get("nodo_iniziale", ""))
+
+	# l'introduzione: nove battute di narrazione e poi la scritta
+	var passi: Array = nodi["introduzione"]["sequenza"]
+	var narrazioni := 0
+	var scritte := 0
+	var cambi_sfondo := 0
+	for passo in passi:
+		match String((passo as Dictionary).get("tipo", "")):
+			"narrazione": narrazioni += 1
+			"scritta": scritte += 1
+		if (passo as Dictionary).has("sfondo"):
+			cambi_sfondo += 1
+	esigi(narrazioni == 9, "l'introduzione ha %d passi di narrazione invece dei 9 di Bru" % narrazioni)
+	esigi(scritte == 1, "la scritta di Carnivalz compare %d volte" % scritte)
+	esigi(cambi_sfondo == 5,
+			"gli sfondi dell'introduzione sono %d: Bru ne ha segnati cinque con ||" % cambi_sfondo)
+	esigi(String(passi[passi.size() - 1].get("tipo", "")) == "scritta",
+			"la scritta non e' l'ultima cosa dell'introduzione")
+
+	# la mappa del complesso: si vede tutto, si va in un posto solo
+	var mappa: Dictionary = dati.get("mappa_dungeon", {})
+	esigi(not mappa.is_empty(), "il complesso non ha nessuna mappa")
+	var collegamenti: Array = mappa.get("connessioni", [])
+	esigi(collegamenti.size() == 1,
+			"dal complesso si va in %d posti: Bru ne ha chiesto uno solo" % collegamenti.size())
+	esigi(collegamenti[0].has("alloggio") and collegamenti[0].has("sala_allenamento"),
+			"l'unico collegamento della mappa non e' alloggio-sala_allenamento")
+	var con_obiettivo: Array[String] = []
+	for stanza in mappa.get("stanze", []):
+		if String((stanza as Dictionary).get("icona", "")) == "obiettivo":
+			con_obiettivo.append(String(stanza.get("id", "")))
+	esigi(con_obiettivo.size() == 1 and con_obiettivo[0] == "sala_allenamento",
+			"il punto esclamativo sta su %s invece che sulla sala di allenamento" % str(con_obiettivo))
+	esigi(mappa.get("stanze", []).size() >= 6,
+			"il complesso ha %d aree: era \"varie aree\"" % mappa.get("stanze", []).size())
+
+	# l'alloggio apre la mappa invece di mandare dritto da qualche parte
+	var uscite: Array = nodi["alloggio"]["scelte"]
+	esigi(uscite.size() == 1 and bool(uscite[0].get("torna_a_mappa", false)),
+			"uscendo dall'alloggio non si apre la mappa del complesso")
+
+	# le tre risposte di Veronica sono tre, diverse, e portano tutte allo scontro
+	var scelte_sala: Array = nodi["sala_allenamento"]["scelte"]
+	esigi(scelte_sala.size() == 3, "nella sala ci sono %d scelte invece di 3" % scelte_sala.size())
+	var risposte: Dictionary = {}
+	for scelta in scelte_sala:
+		var dove := String((scelta as Dictionary).get("vai", ""))
+		esigi(nodi.has(dove), "una scelta della sala manda a '%s', che non esiste" % dove)
+		var risposta: Dictionary = nodi[dove]
+		var battuta := String(risposta.get("sequenza", [{}])[0].get("testo", ""))
+		esigi(not risposte.has(battuta),
+				"due scelte diverse ricevono la stessa risposta: '%s'" % battuta.substr(0, 40))
+		risposte[battuta] = true
+		var scontro: Dictionary = risposta.get("combattimento_automatico", {})
+		esigi(scontro.get("nemici", []) == ["veronica"],
+				"da '%s' non si finisce a combattere con Veronica" % dove)
+		esigi(String(scontro.get("se_vinci", "")) != "" and String(scontro.get("se_perdi", "")) != "",
+				"l'allenamento con Veronica non dice dove si va vincendo o perdendo")
 
 func prova_il_nastro_col_nome() -> void:
 	# Bru ha disegnato il nastro col nome in tre fotogrammi: fuori dal bordo

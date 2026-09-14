@@ -21,7 +21,7 @@ extends Control
 # Cinque partite, ognuna un file suo. Una riga vuota si comincia, una riga
 # piena si continua: nessun passaggio intermedio, nessuna domanda.
 
-const SCENA_INTRO := "res://scenes/Intro.tscn"
+const FILE_EVENTI_INTRO := "res://data/events_intro.json"
 const SCENA_SEDE := "res://scenes/Sede.tscn"
 const SCENA_OPZIONI := "res://scenes/Opzioni.tscn"
 const SCENA_EXTRA := "res://scenes/Extra.tscn"
@@ -152,12 +152,47 @@ func _su_nuova_partita(slot: int) -> void:
 	campo.placeholder_text = "Anonimo"
 	campo.custom_minimum_size = Vector2(0, 40)
 	colonna.add_child(campo)
+	# IL SESSO SI SCEGLIE QUI, insieme al nome, e per lo stesso motivo: sono le
+	# due cose che cambiano come il mondo ti parla, e si decidono una volta
+	# prima di cominciare invece di essere chieste in mezzo a una scena.
+	var riga_sesso := HBoxContainer.new()
+	riga_sesso.alignment = BoxContainer.ALIGNMENT_CENTER
+	riga_sesso.add_theme_constant_override("separation", 10)
+	colonna.add_child(riga_sesso)
+	var scelte_sesso := {"Lui": "m", "Lei": "f"}
+	var bottoni_sesso: Dictionary = {}
+	var aggiorna_sesso := func() -> void:
+		for chiave in bottoni_sesso:
+			var b: Button = bottoni_sesso[chiave]
+			b.modulate = Color.WHITE if GameState.sesso_protagonista == scelte_sesso[chiave] \
+					else Color(1, 1, 1, 0.45)
+	for etichetta in scelte_sesso:
+		var b := Button.new()
+		b.text = etichetta
+		b.custom_minimum_size = Vector2(110, 40)
+		b.pressed.connect(func() -> void:
+			GameState.sesso_protagonista = scelte_sesso[etichetta]
+			aggiorna_sesso.call())
+		riga_sesso.add_child(b)
+		bottoni_sesso[etichetta] = b
+	aggiorna_sesso.call()
 	var conferma := Button.new()
 	conferma.text = "Comincia"
 	conferma.custom_minimum_size = Vector2(0, 44)
 	conferma.pressed.connect(func() -> void:
 		GameState.imposta_nome_protagonista(campo.text)
-		Transizioni.vai(SCENA_INTRO))
+		# L'INTRODUZIONE ADESSO E' CONTENUTO, non una schermata a parte.
+		#
+		# Ce n'era una vecchia - cinque paragrafi su fondo nero, scritti in una
+		# costante dentro Intro.gd - e Bru ne ha scritta una nuova, di nove passi
+		# su cinque immagini, che vive in data/events_intro.json come tutto il
+		# resto. Tenere la vecchia voleva dire due introduzioni una dietro
+		# l'altra, e la prima raccontava la stessa cosa peggio.
+		#
+		# La musica la prendeva Intro.gd all'avvio: adesso la prende chi comincia.
+		AudioManager.musica_chiave("intro")
+		GameState.avvia_carnivalz("intro", FILE_EVENTI_INTRO)
+		IngressoNodo.vai_al_nodo(GameState.nodo_corrente))
 	colonna.add_child(conferma)
 	var annulla := Button.new()
 	annulla.text = "Indietro"

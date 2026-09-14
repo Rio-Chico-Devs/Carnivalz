@@ -1,24 +1,574 @@
 {
-	"nodo_iniziale": "monologo",
+	"_nota": "L'INIZIO DEL GIOCO, dalle parole di Bru. Introduzione narrata su cinque immagini, la scritta di Carnivalz dal buio, il protagonista che si prepara, la mappa del complesso, la sala di allenamento e Veronica. Da lì comincia il combattimento, che è il tutorial.",
+	"_sfondi": "I percorsi in \"sfondo\" puntano a res://art/scene/. I file non ci sono ancora: finché mancano resta il fondo scuro e la scena si gioca lo stesso — Bru sceglierà con calma quale immagine va dove. Un campo \"sfondo\" vale finché non ne arriva un altro, quindi tre battute di fila condividono lo stesso disegno senza ripeterlo.",
+	"_maschile_femminile": "Bru scrive in maschile, e i testi portano l'accordo dentro: {goduto|goduta}. Maschile prima, femminile dopo. Il sesso si sceglie col nome, all'inizio della partita.",
+	"nodo_iniziale": "introduzione",
 	"nodi": {
-		"monologo": {
+		"introduzione": {
+			"_nota": "I nove passi che ha scritto Bru. Il cambio di immagine cade dove lui ha messo ||, cioè dopo il terzo, il quinto, il settimo e l'ottavo.",
 			"sequenza": [
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... ..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "... ... ..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Coordinate confermate, obiettivo localizzato, perimetro di azione calcolato..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "Computer... proiettami il più possibile vicino alla fonte." },
-				{ "tipo": "dialogo", "chi": "computer", "testo": "Autorizzazione confermata. Buona fortuna unità UJ-111" },
-				{ "tipo": "dialogo", "chi": "computer", "testo": "lancio in...", "attesa": 0.8 },
-				{ "tipo": "dialogo", "chi": "computer", "testo": "3...", "attesa": 0.9 },
-				{ "tipo": "dialogo", "chi": "computer", "testo": "2...", "attesa": 0.9 },
-				{ "tipo": "dialogo", "chi": "computer", "testo": "1...", "attesa": 0.9 },
-				{ "tipo": "dialogo", "chi": "computer", "testo": "Per aspera, ad astra.", "attesa": 1.1 },
-				{ "tipo": "dialogo", "chi": "anonimo", "testo": "..." }
+				{
+					"tipo": "narrazione",
+					"sfondo": "res://art/scene/intro_1_universo.png",
+					"testo": "Nell'universo... la vita prende varie forme e colori."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Varie creature di varie dimensioni lottano per sopravvivere dove il caos regna..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Anche il più piccolo essere cela un potenziale incredibile quando spinto al suo limite..."
+				},
+				{
+					"tipo": "narrazione",
+					"sfondo": "res://art/scene/intro_2_torrente.png",
+					"testo": "E a volte quel potenziale può esplodere come un torrente che spacca le rocce sul letto di un fiume..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Spinti dal primordiale desiderio di esistere e trovare una fine degna delle proprie memorie, questi esseri risvegliano poteri e qualità che esulano dalla logica come la conosciamo..."
+				},
+				{
+					"tipo": "narrazione",
+					"sfondo": "res://art/scene/intro_3_trasformazione.png",
+					"testo": "Alcuni la chiamano evoluzione, altri adattamento alle circostanze, ma è chiaro che in fondo è semplicemente un continuo percorso di trasformazione della materia..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "In fondo ogni creatura è destinata ad un percorso ben definito che la spingerà a consumare se stessa nell'intento di trovare un senso alla sua esistenza..."
+				},
+				{
+					"tipo": "narrazione",
+					"sfondo": "res://art/scene/intro_4_fumo.png",
+					"testo": "E quando nulla rimarrà di essa... quando ogni sforzo sarà vano e la fiamma lascerà solo che fumo..."
+				},
+				{
+					"tipo": "narrazione",
+					"sfondo": "res://art/scene/intro_5_sepolto.png",
+					"testo": "forse qualcosa che va ben oltre la nostra immaginazione, che è rimasta sepolta a lungo dentro ogni essere vivente... Si mostrerà pretendendo riavere indietro quel che ha sacrificato..."
+				},
+				{
+					"tipo": "scritta",
+					"file": "res://art/interfaccia/carnivalz.png",
+					"attesa": 2.4
+				}
+			],
+			"scelte": [
+				{
+					"testo": "…",
+					"vai": "alloggio"
+				}
+			],
+			"palco": "nessuno"
+		},
+		"sala_allenamento": {
+			"_nota": "Il monologo sul complesso, poi Veronica. Lei entra come ??? - la si riconosce dalla voce prima che dal nome, ed è per questo che la sua prima battuta non porta ancora il suo.",
+			"sfondo": "res://art/scene/sala_allenamento.png",
+			"sequenza": [
+				{
+					"tipo": "titolo",
+					"testo": "Sala di allenamento"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Ormai ho perso il conto dei giorni trascorsi in queste stanze...",
+					"espr": "pensiero"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "L'organizzazione possiede tecnologie veramente avanzate e riesce a mantenere tutto questo in piedi grazie alle donazioni dei contribuenti e il duro lavoro dei suoi affiliati..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non ho mai visto nessuno dei capi di persona, non penso siano neanche mai venuti a visitare questo posto se devo essere onesto..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "ignoto",
+					"testo": "Hey! Finalmente sei qui! Non sembri essere al massimo della tua potenza però!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questa voce...",
+					"espr": "sorpresa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Allora! Cosa facciamo? Continuiamo a fissarci come una coppietta di innamorati?",
+					"espr": "felice"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Oppure ce le diamo di santa ragione al massimo della potenza?!",
+					"espr": "decisa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Sigh...",
+					"espr": "delusa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non ci si può far niente vero? D'altronde questo è il nostro ultimo allenamento..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "E non sei {emozionato|emozionata}? Finalmente potrai menare le mani su qualche cattivone fuori di testa!",
+					"espr": "felice"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ricordo ancora la mia prima missione, evidentemente ero troppo forte, non rimase nulla di quella povera creatura...",
+					"espr": "annoiata"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "D'altronde devi sempre dare il massimo, non importa chi tu abbia davanti giusto?",
+					"espr": "decisa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Questo lo so fin troppo bene... ne porto i segni addosso...",
+					"espr": "petrificata"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Wahahaha! Su non te la prendere! Come si dice? Ciò che non ti uccide...",
+					"espr": "felice"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ehm...",
+					"espr": "pensiero"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Non ti uccide no?",
+					"espr": "carina"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "...",
+					"espr": "petrificata"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "...",
+					"espr": "infastidita"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Bene! Basta chiacchiere allora! Sei {pronto|pronta} a farmi vedere come bruci di passione?",
+					"espr": "decisa"
+				}
+			],
+			"destra": "veronica",
+			"espr_destra": "decisa",
+			"scelte": [
+				{
+					"testo": "Sì.",
+					"vai": "veronica_carica"
+				},
+				{
+					"testo": "...",
+					"vai": "veronica_animo"
+				},
+				{
+					"testo": "Oggi mi fa male la testa...",
+					"vai": "veronica_maldiptesta"
+				}
+			]
+		},
+		"veronica_carica": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ovviamente! Sono già tutta carica!",
+					"espr": "decisa"
+				}
+			],
+			"destra": "veronica",
+			"espr_destra": "decisa",
+			"combattimento_automatico": {
+				"nemici": [
+					"veronica"
+				],
+				"se_vinci": "dopo_allenamento",
+				"se_perdi": "dopo_allenamento"
+			}
+		},
+		"veronica_animo": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Su! Su! Animo! Ci pensa la tua Veronica a scaldarti per bene!",
+					"espr": "felice"
+				}
+			],
+			"destra": "veronica",
+			"espr_destra": "felice",
+			"combattimento_automatico": {
+				"nemici": [
+					"veronica"
+				],
+				"se_vinci": "dopo_allenamento",
+				"se_perdi": "dopo_allenamento"
+			}
+		},
+		"veronica_maldiptesta": {
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ottimo, nulla di meglio che un allenamento alla massima potenza per prendere a calci quell'odioso mal di testa!",
+					"espr": "decisa"
+				}
+			],
+			"destra": "veronica",
+			"espr_destra": "decisa",
+			"combattimento_automatico": {
+				"nemici": [
+					"veronica"
+				],
+				"se_vinci": "dopo_allenamento",
+				"se_perdi": "dopo_allenamento"
+			}
+		},
+		"dopo_allenamento": {
+			"_nota": "Segnaposto: da qui si va al lancio e poi alla prima missione. Bru: «arriviamo fino a qui». L'allenamento non si vince e non si perde - è un allenamento - quindi le due strade arrivano nello stesso posto.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ecco! Questo sì che è bruciare! Adesso vai a farti proiettare, che ti aspettano.",
+					"espr": "felice"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "...Ci vediamo, Veronica.",
+					"espr": "neutra"
+				}
+			],
+			"destra": "veronica",
+			"espr_destra": "felice",
+			"scelte": [
+				{
+					"testo": "Vai alla sala di proiezione",
+					"vai": "monologo"
+				}
+			]
+		},
+		"monologo": {
+			"_nota": "Il lancio: era la prima cosa che si vedeva del gioco, adesso è quello che succede DOPO l'allenamento, quando si parte davvero.",
+			"sfondo": "res://art/scene/sala_proiezione.png",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... ..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Coordinate confermate, obiettivo localizzato, perimetro di azione calcolato..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Computer... proiettami il più possibile vicino alla fonte."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "computer",
+					"testo": "Autorizzazione confermata. Buona fortuna unità UJ-111"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "computer",
+					"testo": "lancio in...",
+					"attesa": 0.8
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "computer",
+					"testo": "3...",
+					"attesa": 0.9
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "computer",
+					"testo": "2...",
+					"attesa": 0.9
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "computer",
+					"testo": "1...",
+					"attesa": 0.9
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "computer",
+					"testo": "Per aspera, ad astra.",
+					"attesa": 1.1
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				}
 			],
 			"espr_sinistra": "pensiero",
-			"avvio_automatico": { "id_punto": "tutorial", "file_eventi": "res://data/events_tutorial.json" }
+			"avvio_automatico": {
+				"id_punto": "tutorial",
+				"file_eventi": "res://data/events_tutorial.json"
+			}
+		},
+		"alloggio": {
+			"_nota": "Dal buio, il primo box: il protagonista si sta preparando. L'altoparlante e' una voce senza volto - parla la stanza, non una persona. Uscendo si apre la mappa del complesso, e da li' si puo' andare in un posto solo.",
+			"sfondo": "res://art/scene/alloggio.png",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "...",
+					"espr": "annoiata"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Oggi è il mio ultimo giorno di addestramento prima della mia prima missione in solitaria...",
+					"espr": "pensiero"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... cavolo, ho ancora mal di testa da ieri... tsk...",
+					"espr": "infastidita"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "altoparlante",
+					"testo": "Buongiorno! Buongiorno e ancora Buongiorno dominat{ore|rice}! Spero si sia {goduto|goduta} il suo periodo di riposo!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "altoparlante",
+					"testo": "Le ricordiamo il suo ultimo appuntamento nelle sale di allenamento con la signorina Veronica. Ci renda fieri come sempre, contiamo su di lei! Eventuali aggiornamenti le verranno comunicati direttamente sul suo diario. Buona giornata allora!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Che seccatura...",
+					"espr": "delusa"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Ma va fatto quel che va fatto... immagino...",
+					"espr": "neutra"
+				}
+			],
+			"scena": "La tua stanza, come tutte le mattine. Fuori, il complesso è già sveglio da un pezzo.",
+			"sblocca_stanze": [
+				"alloggio",
+				"sala_allenamento",
+				"sala_riunioni",
+				"infermeria",
+				"archivio",
+				"mensa",
+				"sala_proiezione",
+				"hangar"
+			],
+			"scelte": [
+				{
+					"testo": "Esci dalla stanza",
+					"torna_a_mappa": true
+				}
+			]
+		},
+		"sala_riunioni": {
+			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Le porte sono chiuse. Le riunioni si fanno quando lo dicono loro, non quando passi di li'."
+				}
+			],
+			"_chiusa_per_ora": "Ci si entra nel tutorial, al ritorno dalla prima missione. Oggi e' solo un rettangolo sulla mappa."
+		},
+		"infermeria": {
+			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Vuota a quest'ora. Ci finirai piu' tardi, probabilmente."
+				}
+			],
+			"_chiusa_per_ora": "Aperta piu' avanti, quando ci finirai dentro."
+		},
+		"archivio": {
+			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Serve un'autorizzazione che non hai. Non l'hai mai avuta."
+				}
+			],
+			"_chiusa_per_ora": "Serve un'autorizzazione che il protagonista non ha ancora."
+		},
+		"mensa": {
+			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Hai gia' mangiato. E comunque non e' per quello che ti hanno svegliato."
+				}
+			],
+			"_chiusa_per_ora": "Arredamento del complesso: esiste perche' un posto dove si vive abbia anche dove si mangia."
+		},
+		"sala_proiezione": {
+			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Non prima dell'allenamento. Le regole sono regole, anche quelle stupide."
+				}
+			],
+			"_chiusa_per_ora": "Ci si va dopo l'allenamento, e allora ci si arriva per la sua strada, non dalla mappa."
+		},
+		"hangar": {
+			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Da quella parte non ci sei mai stato, e oggi non e' il giorno."
+				}
+			],
+			"_chiusa_per_ora": "Non e' mai stato aperto e per ora non lo sara'."
 		}
+	},
+	"mappa_dungeon": {
+		"nome": "Il complesso",
+		"_nota": "Bru: «qui si deve aprire la mappa che fa vedere come e' strutturato il complesso, ci sono varie aree, tutte non visitabili, puoi andare solo nella sala allenamento che ha un punto esclamativo animato». Le aree chiuse sono sbloccate (quindi SI VEDONO) ma non collegate a niente (quindi non ci si va): vedere un posto e poterci arrivare sono due cose diverse, e qui la differenza e' tutto il punto della scena.",
+		"stanze": [
+			{
+				"id": "alloggio",
+				"nome": "Il tuo alloggio",
+				"cella": [
+					1,
+					2
+				],
+				"icona": "personaggio"
+			},
+			{
+				"id": "sala_allenamento",
+				"nome": "Sala di allenamento",
+				"cella": [
+					3,
+					2
+				],
+				"dimensione": [
+					2,
+					1
+				],
+				"icona": "obiettivo"
+			},
+			{
+				"id": "mensa",
+				"nome": "Mensa",
+				"cella": [
+					1,
+					0
+				]
+			},
+			{
+				"id": "infermeria",
+				"nome": "Infermeria",
+				"cella": [
+					3,
+					0
+				]
+			},
+			{
+				"id": "archivio",
+				"nome": "Archivio",
+				"cella": [
+					0,
+					4
+				]
+			},
+			{
+				"id": "sala_riunioni",
+				"nome": "Sala riunioni",
+				"cella": [
+					2,
+					4
+				],
+				"dimensione": [
+					2,
+					1
+				]
+			},
+			{
+				"id": "sala_proiezione",
+				"nome": "Sala di proiezione",
+				"cella": [
+					5,
+					4
+				]
+			},
+			{
+				"id": "hangar",
+				"nome": "Hangar",
+				"cella": [
+					5,
+					0
+				],
+				"dimensione": [
+					1,
+					2
+				]
+			}
+		],
+		"connessioni": [
+			[
+				"alloggio",
+				"sala_allenamento"
+			]
+		]
 	}
 }
