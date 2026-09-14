@@ -483,84 +483,93 @@
 	},
 	"mappa_dungeon": {
 		"nome": "Il complesso",
-		"_nota": "Bru: «qui si deve aprire la mappa che fa vedere come e' strutturato il complesso, ci sono varie aree, tutte non visitabili, puoi andare solo nella sala allenamento che ha un punto esclamativo animato». Le aree chiuse sono sbloccate (quindi SI VEDONO) ma non collegate a niente (quindi non ci si va): vedere un posto e poterci arrivare sono due cose diverse, e qui la differenza e' tutto il punto della scena.",
+		"_nota": "Bru: «la mappa e' pessima, la dovro' disegnare io». Quindi non e' piu' una griglia: e' un DISEGNO con sopra dei riquadri cliccabili. Le coordinate sono in pixel del disegno dichiarato in \"misura_disegno\", e quelle che ci sono adesso sono solo una disposizione di partenza - vanno riscritte sul disegno vero. Le aree chiuse restano sbloccate (quindi si vedono) ma non collegate a niente (quindi non ci si va): vedere un posto e poterci arrivare sono due cose diverse, e in questa scena la differenza e' tutto il punto. Come si scrivono le coordinate: art/mappe/README.md.",
+		"disegno": "res://art/mappe/complesso.png",
+		"misura_disegno": [
+			1920,
+			1080
+		],
 		"stanze": [
 			{
 				"id": "alloggio",
 				"nome": "Il tuo alloggio",
-				"cella": [
-					1,
-					2
+				"riquadro": [
+					140,
+					430,
+					300,
+					220
 				],
 				"icona": "personaggio"
 			},
 			{
 				"id": "sala_allenamento",
 				"nome": "Sala di allenamento",
-				"cella": [
-					3,
-					2
-				],
-				"dimensione": [
-					2,
-					1
+				"riquadro": [
+					980,
+					400,
+					460,
+					280
 				],
 				"icona": "obiettivo"
 			},
 			{
 				"id": "mensa",
 				"nome": "Mensa",
-				"cella": [
-					1,
-					0
+				"riquadro": [
+					180,
+					120,
+					300,
+					200
 				]
 			},
 			{
 				"id": "infermeria",
 				"nome": "Infermeria",
-				"cella": [
-					3,
-					0
+				"riquadro": [
+					620,
+					120,
+					280,
+					200
 				]
 			},
 			{
 				"id": "archivio",
 				"nome": "Archivio",
-				"cella": [
-					0,
-					4
+				"riquadro": [
+					180,
+					760,
+					280,
+					190
 				]
 			},
 			{
 				"id": "sala_riunioni",
 				"nome": "Sala riunioni",
-				"cella": [
-					2,
-					4
-				],
-				"dimensione": [
-					2,
-					1
+				"riquadro": [
+					620,
+					760,
+					420,
+					190
 				]
 			},
 			{
 				"id": "sala_proiezione",
 				"nome": "Sala di proiezione",
-				"cella": [
-					5,
-					4
+				"riquadro": [
+					1300,
+					760,
+					320,
+					190
 				]
 			},
 			{
 				"id": "hangar",
 				"nome": "Hangar",
-				"cella": [
-					5,
-					0
-				],
-				"dimensione": [
-					1,
-					2
+				"riquadro": [
+					1520,
+					140,
+					280,
+					420
 				]
 			}
 		],

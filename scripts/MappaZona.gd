@@ -42,6 +42,10 @@ var righe := 1
 var lato := 64.0
 var origine := Vector2.ZERO
 
+var disegno: Texture2D = null      # la mappa disegnata da Bru, quando c'e'
+var misura_disegno := Vector2.ZERO # quanto e' grande quel disegno, dichiarato nei dati
+var riquadro_disegno := Rect2()    # e dove finisce a schermo, dopo averlo adattato
+
 var cornice: Control
 var strato_sotto: Control      # griglia e collegamenti
 var strato_sopra: Control      # icone e "sei qui"
@@ -55,6 +59,7 @@ func _ready() -> void:
 	sfondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(sfondo)
 
+	carica_disegno()
 	for stanza in GameState.mappa_zona.get("stanze", []):
 		stanze_per_id[String(stanza.get("id", ""))] = stanza
 		var cella := cella_di(stanza)
@@ -80,6 +85,47 @@ func _ready() -> void:
 	set_process(obiettivo_in_vista)
 
 # --- lettura dei dati ----------------------------------------------------
+
+func carica_disegno() -> void:
+	# LA MAPPA PUO' ESSERE UN DISEGNO, non una griglia di quadratini.
+	#
+	# Bru, guardando il complesso: «la mappa e' pessima, la dovro' disegnare
+	# io». Ed e' vero: una griglia va benissimo per un labirinto che si scopre
+	# camminando - e' anche il modo giusto di raccontarlo - ma il quartier
+	# generale dell'organizzazione non e' un labirinto, e' un edificio. Di un
+	# edificio esiste la pianta, e la pianta la disegna chi lo ha immaginato.
+	#
+	# Quindi due mappe possibili, e la scelta la fa il file dei dati:
+	#   con "disegno"  -> l'immagine di Bru, e le stanze sono riquadri sopra
+	#   senza          -> la griglia di sempre, per gli squarci e i dungeon
+	#
+	# LA MISURA DEL DISEGNO SI DICHIARA nei dati e non si chiede all'immagine.
+	# Sembra ridondante e non lo e': dichiarata, le prove possono controllare
+	# che i riquadri stiano dentro il foglio e non si accavallino SENZA aprire
+	# il file - e Bru puo' scrivere le coordinate mentre il disegno e' ancora
+	# in lavorazione, invece che dopo.
+	var percorso := String(GameState.mappa_zona.get("disegno", ""))
+	if percorso == "":
+		return
+	var misura: Array = GameState.mappa_zona.get("misura_disegno", [])
+	if misura.size() < 2:
+		push_warning("La mappa dichiara un disegno ma non la sua misura: " + percorso)
+		return
+	misura_disegno = Vector2(float(misura[0]), float(misura[1]))
+	if ResourceLoader.exists(percorso):
+		disegno = load(percorso)
+	# se il file non c'e' ancora si continua lo stesso: i riquadri si dispongono
+	# sulla misura dichiarata, e si vedono le stanze al posto giusto su un foglio
+	# vuoto. E' come provare un montaggio con le inquadrature ancora da girare.
+
+func c_e_un_disegno() -> bool:
+	return misura_disegno.x > 0.0 and misura_disegno.y > 0.0
+
+func riquadro_dichiarato(stanza: Dictionary) -> Rect2:
+	var r: Array = stanza.get("riquadro", [])
+	if r.size() < 4:
+		return Rect2()
+	return Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
 
 func cella_di(stanza: Dictionary) -> Vector2:
 	var cella: Array = stanza.get("cella", [0, 0])
@@ -165,14 +211,27 @@ func ricostruisci() -> void:
 	var spazio := cornice.size
 	if spazio.x <= 0.0 or spazio.y <= 0.0:
 		return
-	lato = clampf(minf(spazio.x / float(colonne), spazio.y / float(righe)),
-			LATO_MINIMO, LATO_MASSIMO)
-	origine = (spazio - Vector2(colonne, righe) * lato) * 0.5
+	if c_e_un_disegno():
+		# il foglio di Bru sta dentro la cornice intero, senza deformarsi: una
+		# pianta stiracchiata non e' piu' una pianta
+		var fattore := minf(spazio.x / misura_disegno.x, spazio.y / misura_disegno.y)
+		var grande := misura_disegno * fattore
+		riquadro_disegno = Rect2(((spazio - grande) * 0.5).floor(), grande)
+	else:
+		lato = clampf(minf(spazio.x / float(colonne), spazio.y / float(righe)),
+				LATO_MINIMO, LATO_MASSIMO)
+		origine = (spazio - Vector2(colonne, righe) * lato) * 0.5
 	disegna_bottoni()
 	strato_sotto.queue_redraw()
 	strato_sopra.queue_redraw()
 
 func rettangolo_di(stanza: Dictionary) -> Rect2:
+	if c_e_un_disegno():
+		# le coordinate sono quelle del disegno di Bru, in pixel del SUO file:
+		# qui si riportano alla misura a cui il foglio e' finito a schermo
+		var suo := riquadro_dichiarato(stanza)
+		var fattore := riquadro_disegno.size.x / misura_disegno.x
+		return Rect2(riquadro_disegno.position + suo.position * fattore, suo.size * fattore)
 	var alto_sinistra := origine + cella_di(stanza) * lato + Vector2.ONE * MARGINE_CELLA
 	var misura := dimensione_di(stanza) * lato - Vector2.ONE * MARGINE_CELLA * 2.0
 	return Rect2(alto_sinistra, misura)
@@ -296,6 +355,19 @@ func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
 # --- strato di sotto: la griglia e i collegamenti -----------------------
 
 func _disegna_sotto() -> void:
+	if c_e_un_disegno():
+		# SUL DISEGNO NON SI DISEGNA SOPRA. Niente reticolo e niente linee di
+		# collegamento: i corridoi in una pianta ci sono gia', ed erano proprio
+		# quello che le linee stavano cercando di dire. I collegamenti
+		# continuano a decidere DOVE si puo' andare - quella e' logica, non
+		# grafica - semplicemente non si vedono piu', perche' si vedono meglio.
+		if disegno != null:
+			strato_sotto.draw_texture_rect(disegno, riquadro_disegno, false)
+		else:
+			# il foglio in attesa: si vede dove starebbe la mappa
+			strato_sotto.draw_rect(riquadro_disegno, Color(Stile.colore("tratto"), 0.10))
+			strato_sotto.draw_rect(riquadro_disegno, Color(Stile.colore("tratto"), 0.45), false, 2.0)
+		return
 	# il reticolo si deve VEDERE sul buio: "bordo" e' il nero della cornice
 	var reticolo := Color(Stile.colore("tratto"), 0.30)
 	for c in colonne + 1:

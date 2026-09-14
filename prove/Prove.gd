@@ -654,8 +654,24 @@ func prova_mappe() -> void:
 		# stanza sotto diventa incliccabile. Qui si tiene il conto di ogni cella
 		# occupata, cosi' la sovrapposizione non e' improbabile: non passa.
 		var occupate: Dictionary = {}
+		var riquadri: Dictionary = {}
 		esigi(String(mappa_zona.get("nome", "")) != "",
 				"%s: la mappa della zona non ha nome" % percorso)
+		# il disegno, se c'e', e il foglio su cui Bru ha messo le coordinate
+		var percorso_disegno := String(mappa_zona.get("disegno", ""))
+		var misura_foglio: Array = mappa_zona.get("misura_disegno", [])
+		var disegnata := percorso_disegno != ""
+		var foglio := Vector2.ZERO
+		if disegnata:
+			esigi(misura_foglio.size() == 2 and float(misura_foglio[0]) > 0.0
+					and float(misura_foglio[1]) > 0.0,
+					"%s: la mappa dichiara un disegno ma non \"misura_disegno\": senza, i riquadri non si possono ne' disporre ne' controllare"
+					% percorso)
+			if misura_foglio.size() == 2:
+				foglio = Vector2(float(misura_foglio[0]), float(misura_foglio[1]))
+			esigi(percorso_disegno.begins_with("res://art/mappe/"),
+					"%s: il disegno della mappa sta in '%s': i disegni delle mappe vanno in res://art/mappe/"
+					% [percorso, percorso_disegno])
 		for stanza in mappa_zona.get("stanze", []):
 			var id_stanza := String(stanza.get("id", ""))
 			stanze[id_stanza] = true
@@ -663,6 +679,33 @@ func prova_mappe() -> void:
 					"%s: la mappa mostra la stanza '%s', che non e' un nodo" % [percorso, id_stanza])
 			esigi(String(stanza.get("nome", "")) != "",
 					"%s: la stanza '%s' non ha nome sulla mappa" % [percorso, id_stanza])
+			# UNA MAPPA DISEGNATA SI CONTROLLA DIVERSAMENTE. Bru: «la mappa e'
+			# pessima, la dovro' disegnare io». Quando una zona dichiara un
+			# "disegno", le stanze non stanno su una griglia: stanno dove dice
+			# lui, in pixel del suo file, e quello che puo' andare storto e'
+			# un altro paio di maniche - un riquadro fuori dal foglio, o due
+			# riquadri uno sull'altro con quello sotto diventato incliccabile.
+			if disegnata:
+				var r: Array = stanza.get("riquadro", [])
+				esigi(r.size() == 4,
+						"%s: la mappa e' disegnata ma la stanza '%s' non ha un \"riquadro\" [x, y, larghezza, altezza]"
+						% [percorso, id_stanza])
+				if r.size() != 4:
+					continue
+				var suo := Rect2(float(r[0]), float(r[1]), float(r[2]), float(r[3]))
+				esigi(suo.size.x > 0.0 and suo.size.y > 0.0,
+						"%s: il riquadro di '%s' non ha misura" % [percorso, id_stanza])
+				esigi(suo.position.x >= 0.0 and suo.position.y >= 0.0
+						and suo.end.x <= foglio.x and suo.end.y <= foglio.y,
+						"%s: il riquadro di '%s' (%s) esce dal disegno, che e' %dx%d"
+						% [percorso, id_stanza, str(suo), int(foglio.x), int(foglio.y)])
+				for altra_id in riquadri:
+					var altra: Rect2 = riquadri[altra_id]
+					esigi(not suo.intersects(altra),
+							"%s: i riquadri di '%s' e '%s' si accavallano: quello sotto non si puo' cliccare"
+							% [percorso, altra_id, id_stanza])
+				riquadri[id_stanza] = suo
+				continue
 			var cella: Array = stanza.get("cella", [])
 			esigi(cella.size() == 2 and int(cella[0]) >= 0 and int(cella[1]) >= 0,
 					"%s: la stanza '%s' non ha una cella valida sulla griglia" % [percorso, id_stanza])
