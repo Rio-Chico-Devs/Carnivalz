@@ -124,21 +124,41 @@ A destra, fra parentesi, cosa comporta:
 
 # Introduzione
 
-<sub>`data/events_intro.json` — 1 scene</sub>
+<sub>`data/events_intro.json` — 14 scene</sub>
 
-*Questa zona non ha ancora una `mappa_dungeon`: si gioca solo a scelte.*
+## La griglia
+
+
+**Mappa disegnata**: `res://art/mappe/complesso.png` — foglio 1920×1080
+
+| area | riquadro (x, y, l, a) | icona |
+|---|---|---|
+| **Il tuo alloggio** | `140, 430, 300, 220` | personaggio |
+| **Sala di allenamento** | `980, 400, 460, 280` | obiettivo |
+| **Mensa** | `180, 120, 300, 200` |  |
+| **Infermeria** | `620, 120, 280, 200` |  |
+| **Archivio** | `180, 760, 280, 190` |  |
+| **Sala riunioni** | `620, 760, 420, 190` |  |
+| **Sala di proiezione** | `1300, 760, 320, 190` |  |
+| **Hangar** | `1520, 140, 280, 420` |  |
+
+8 stanze sulla mappa, 1 collegamenti.
+
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `dopo_allenamento`, `introduzione`, `monologo`, `veronica_animo`, `veronica_carica`, `veronica_maldiptesta`.
 
 ## Il percorso
 
 ```
-monologo
+introduzione
+  · … → alloggio
+    · Esci dalla stanza
 ```
 
 ---
 
 # Pianure di Redenna (tutorial)
 
-<sub>`data/events_tutorial.json` — 28 scene</sub>
+<sub>`data/events_tutorial.json` — 26 scene</sub>
 
 ## La griglia
 
@@ -152,7 +172,7 @@ monologo
 
 6 stanze sulla mappa, 6 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `boss`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `dopo_pozze`, `dopo_primo_goblin`, `due_nemici`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_scontro_veronica`, `hq_training_grounds`, `hq_veronica_saluto`, `pozze_ripulite`, `primo_incontro`, `sconfitta`, `sconfitta_manifestazione`, `vittoria`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `boss`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `dopo_pozze`, `dopo_primo_goblin`, `due_nemici`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `pozze_ripulite`, `primo_incontro`, `sconfitta`, `sconfitta_manifestazione`, `vittoria`.
 
 ## Il percorso
 
@@ -173,28 +193,25 @@ inizio
                     vinci → vittoria
                       · Torna al quartier generale → hq_veronica_saluto
                         · Vai in sala riunioni → hq_sala_riunioni_1
-                          · Vai ai campi di addestramento → hq_training_grounds
-                            · Affronta l'allenamento → hq_scontro_veronica   (scontro! veronica)
-                              vinci → hq_infermeria
-                                · Vai in sala riunioni → hq_sala_riunioni_2
-                                  · Come mai mi trovo qui? → hq_domanda_perche
-                                    · Come mai mi trovo qui?
-                                    · Cosa sono i dominatori in realtà? → hq_domanda_dominatori
-                                      · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
-                                      · Cosa sono i dominatori in realtà?
-                                      · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando
-                                        · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
-                                        · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
-                                        · Da quanto tempo sta succedendo tutto questo?
-                                        · Nessuna domanda. Parto immediatamente. → hq_congedo   (flag tutorial_completato)
-                                          · Torna alla mappa stellare
-                                      · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
-                                    · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
-                                    · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
-                                  · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
-                                  · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
+                          · Passa in infermeria → hq_infermeria
+                            · Vai in sala riunioni → hq_sala_riunioni_2
+                              · Come mai mi trovo qui? → hq_domanda_perche
+                                · Come mai mi trovo qui?
+                                · Cosa sono i dominatori in realtà? → hq_domanda_dominatori
+                                  · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
+                                  · Cosa sono i dominatori in realtà?
+                                  · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando
+                                    · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
+                                    · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
+                                    · Da quanto tempo sta succedendo tutto questo?
+                                    · Nessuna domanda. Parto immediatamente. → hq_congedo   (flag tutorial_completato)
+                                      · Torna alla mappa stellare
                                   · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
-                              perdi → hq_infermeria [gia' visto]
+                                · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
+                                · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
+                              · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
+                              · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
+                              · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
                     perdi → sconfitta
                       · Rialzati e ricomincia
                   · Torna alla collina → collina   (flag tut_collina_vista; scontro! manifestazione_di_un_sogno)

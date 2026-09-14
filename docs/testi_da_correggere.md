@@ -1620,7 +1620,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Introduzione › `mensa`
 
 **`INT.mensa.1`** · narrazione
-> Hai gia' mangiato. E comunque non e' per quello che ti hanno svegliato.
+> Hai gia' mangiato. E comunque non e' per quello che ti hanno {svegliato|svegliata}.
 >
 > →
 
@@ -1636,7 +1636,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Introduzione › `hangar`
 
 **`INT.hangar.1`** · narrazione
-> Da quella parte non ci sei mai stato, e oggi non e' il giorno.
+> Da quella parte non ci sei mai {stato|stata}, e oggi non e' il giorno.
 >
 > →
 
@@ -1798,7 +1798,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `dopo_pozze`
 
 **`TUT.dopo_pozze.1`** · battuta di Anonimo
-> Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicuro di aver fatto tutto quello che era necessario fare prima di proseguire.
+> Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicur{o|a} di aver fatto tutto quello che era necessario fare prima di proseguire.
 >
 > →
 
@@ -2037,7 +2037,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `sconfitta`
 
 **`TUT.sconfitta.1`** · narrazione
-> Sconfitta totale, sei stato spazzato via.
+> Sconfitta totale, sei {stato spazzato|stata spazzata} via.
 >
 > →
 
@@ -2063,7 +2063,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `hq_veronica_saluto`
 
 **`TUT.hq_veronica_saluto.1`** · battuta di Veronica
-> Heilà, sei tornato! Com'è andata la tua prima missione da solo? Scommetto che l'hai completata al massimo della potenza!
+> Heilà, sei {tornato|tornata}! Com'è andata la tua prima missione da sol{o|a}? Scommetto che l'hai completata al massimo della potenza!
 >
 > →
 
@@ -2078,12 +2078,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_veronica_saluto.4`** · battuta di Anonimo
-> A proposito, oggi abbiamo un altro incontro vero?
+> È andata.
 >
 > →
 
 **`TUT.hq_veronica_saluto.5`** · battuta di Veronica
-> Yes Baby! Non vedo l'ora di dare il massimo!
+> "È andata". Sei tornat{o|a} inter{o|a}, hai chiuso una frattura da sol{o|a} e mi dici "è andata".
 >
 > →
 
@@ -2093,7 +2093,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_veronica_saluto.7`** · battuta di Veronica
-> Ma prima dovresti passare in sala riunioni, vogliono vederti per il rapporto...
+> Vabbè. Dovresti passare in sala riunioni, vogliono vederti per il rapporto...
 >
 > →
 
@@ -2103,7 +2103,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_veronica_saluto.9`** · battuta di Veronica
-> "NON PERDO ALTRO TEMPO"!? Che cattivo.
+> "NON PERDO ALTRO TEMPO"!? Che cattiv{o|a}.
 >
 > →
 
@@ -2123,12 +2123,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_veronica_saluto.13`** · battuta di Anonimo
-> Ci vediamo dopo per l'allenamento Veronica.
+> Allora vado. Ci vediamo dopo, Veronica.
 >
 > →
 
 **`TUT.hq_veronica_saluto.14`** · battuta di Veronica
-> Che antipatico...
+> Che antipatic{o|a}...
 >
 > →
 
@@ -2186,63 +2186,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_sala_riunioni_1.10`** · battuta di Anonimo
-> Adesso dovrei vedermi con Veronica per il mio ultimo allenamento... meglio non farla aspettare...
+> Adesso però mi conviene passare in infermeria. Non mi reggo in piedi da quando siamo tornati.
 >
 > →
 
 **`TUT.hq_sala_riunioni_1.scelta1`** · bottone di scelta
-> Vai ai campi di addestramento
->
-> →
-
-
-### Tutorial › `hq_training_grounds`
-
-**`TUT.hq_training_grounds.1`** · battuta di Veronica
-> Eccoti qui, al massimo della tua potenza spero. Sei pronto per un ultimo allenamento oltre ogni limite!?
->
-> →
-
-**`TUT.hq_training_grounds.2`** · battuta di Anonimo
-> ...
->
-> →
-
-**`TUT.hq_training_grounds.3`** · battuta di Veronica
-> Cos'è quella faccia, non mi sembri trasudare potenza...
->
-> →
-
-**`TUT.hq_training_grounds.4`** · battuta di Anonimo
-> Hai troppo entusiasmo, la cosa mi imbarazza.
->
-> →
-
-**`TUT.hq_training_grounds.5`** · battuta di Veronica
-> SEMPRE! Che senso ha vivere se non lo si fa superando ogni limite conosciuto ogni singolo giorno?
->
-> →
-
-**`TUT.hq_training_grounds.6`** · battuta di Anonimo
-> Sigh...
->
-> →
-
-**`TUT.hq_training_grounds.7`** · battuta di Veronica
-> Basta con le chiacchiere fai parlare i pugni adesso! Le cose si fanno serie. Preparati.
->
-> →
-
-**`TUT.hq_training_grounds.scelta1`** · bottone di scelta
-> Affronta l'allenamento
->
-> →
-
-
-### Tutorial › `hq_scontro_veronica`
-
-**`TUT.hq_scontro_veronica.1`** · narrazione
-> Veronica si mette in posizione. Questo non è un discorso: è un allenamento, e tocca a te muoverti.
+> Passa in infermeria
 >
 > →
 
@@ -2250,22 +2199,22 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `hq_infermeria`
 
 **`TUT.hq_infermeria.1`** · narrazione
-> Ti risvegli in infermeria.
+> L'infermeria è l'unica stanza del complesso che non fa rumore. Ti siedi prima ancora che Curie ti dica di farlo.
 >
 > →
 
 **`TUT.hq_infermeria.2`** · battuta di Dott.ssa Curie Heartlife
-> Ben svegliato, a pezzi come sempre vedo...
+> Bentornat{o|a}, a pezzi come sempre vedo...
 >
 > →
 
 **`TUT.hq_infermeria.3`** · battuta di Anonimo
-> Solito allenamento con Veronica...
+> Solita frattura, solito rientro.
 >
 > →
 
 **`TUT.hq_infermeria.4`** · battuta di Dott.ssa Curie Heartlife
-> Se non fossi un dominatore di limiti saresti già morto, lo sai?
+> Se non fossi {un dominatore|una dominatrice} di limiti saresti già {morto|morta}, lo sai?
 >
 > →
 

@@ -256,7 +256,7 @@
 			}
 		},
 		"dopo_allenamento": {
-			"_nota": "Segnaposto: da qui si va al lancio e poi alla prima missione. Bru: «arriviamo fino a qui». L'allenamento non si vince e non si perde - è un allenamento - quindi le due strade arrivano nello stesso posto.",
+			"_nota": "QUI FINISCE QUELLO CHE È SCRITTO. Bru: «fermati al dopo combattimento con veronica che ti narro io come proseguire». Da qui in poi è segnaposto: si va al lancio e poi alla vecchia prima missione, così il gioco resta giocabile da cima a fondo mentre si aspetta il testo vero. L'allenamento non si vince e non si perde - è un allenamento - quindi le tre scelte arrivano tutte qui.",
 			"sequenza": [
 				{
 					"tipo": "dialogo",
@@ -453,7 +453,7 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Hai gia' mangiato. E comunque non e' per quello che ti hanno svegliato."
+					"testo": "Hai gia' mangiato. E comunque non e' per quello che ti hanno {svegliato|svegliata}."
 				}
 			],
 			"_chiusa_per_ora": "Arredamento del complesso: esiste perche' un posto dove si vive abbia anche dove si mangia."
@@ -475,7 +475,7 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Da quella parte non ci sei mai stato, e oggi non e' il giorno."
+					"testo": "Da quella parte non ci sei mai {stato|stata}, e oggi non e' il giorno."
 				}
 			],
 			"_chiusa_per_ora": "Non e' mai stato aperto e per ora non lo sara'."

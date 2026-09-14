@@ -176,6 +176,8 @@ def griglia(mappa):
     colonne = righe = 0
     celle = {}
     for s in stanze:
+        if "cella" not in s:
+            return None   # mappa disegnata: non sta su una griglia (vedi disegnata())
         c, r = s["cella"]
         larghezza, altezza = s.get("dimensione", [1, 1])
         colonne = max(colonne, c + larghezza)
@@ -186,7 +188,33 @@ def griglia(mappa):
     return celle, colonne, righe
 
 
+def disegnata(mappa, id_iniziale):
+    """Le aree di una mappa DISEGNATA, con i loro rettangoli.
+
+    Una mappa disegnata non ha una griglia da stampare: ha un foglio di Bru e
+    sopra dei riquadri in pixel di quel foglio. Qui si stampano quelli - che
+    e' anche l'unico modo di rileggerli senza aprire l'immagine, ed e' il
+    motivo per cui "misura_disegno" va dichiarata anche prima che il disegno
+    esista (vedi art/mappe/README.md).
+    """
+    foglio = mappa.get("misura_disegno")
+    fuori = ["", "**Mappa disegnata**: `%s`%s" % (
+        mappa.get("disegno", "(ancora da disegnare)"),
+        " — foglio %d×%d" % tuple(foglio) if foglio else "")]
+    fuori += ["", "| area | riquadro (x, y, l, a) | icona |", "|---|---|---|"]
+    for s in mappa.get("stanze", []):
+        riquadro = s.get("riquadro")
+        segno = "▶ " if s["id"] == id_iniziale else ""
+        fuori.append("| %s**%s** | %s | %s |" % (
+            segno, s.get("nome", s["id"]),
+            "`%d, %d, %d, %d`" % tuple(riquadro) if riquadro else "—",
+            s.get("icona", "")))
+    return fuori
+
+
 def disegna_griglia(mappa, id_iniziale, nodi):
+    if mappa.get("disegno") or any("cella" not in s for s in mappa.get("stanze", [])):
+        return disegnata(mappa, id_iniziale)
     esito = griglia(mappa)
     if esito is None:
         return []

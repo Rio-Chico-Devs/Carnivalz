@@ -286,7 +286,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "anonimo",
-					"testo": "Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicuro di aver fatto tutto quello che era necessario fare prima di proseguire."
+					"testo": "Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicur{o|a} di aver fatto tutto quello che era necessario fare prima di proseguire."
 				}
 			],
 			"flag": "tut_pozze_fatte",
@@ -559,7 +559,7 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Sconfitta totale, sei stato spazzato via."
+					"testo": "Sconfitta totale, sei {stato spazzato|stata spazzata} via."
 				}
 			]
 		},
@@ -582,7 +582,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "veronica",
-					"testo": "Heilà, sei tornato! Com'è andata la tua prima missione da solo? Scommetto che l'hai completata al massimo della potenza!",
+					"testo": "Heilà, sei {tornato|tornata}! Com'è andata la tua prima missione da sol{o|a}? Scommetto che l'hai completata al massimo della potenza!",
 					"espr": "felice"
 				},
 				{
@@ -598,12 +598,12 @@
 				{
 					"tipo": "dialogo",
 					"chi": "anonimo",
-					"testo": "A proposito, oggi abbiamo un altro incontro vero?"
+					"testo": "È andata."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "veronica",
-					"testo": "Yes Baby! Non vedo l'ora di dare il massimo!",
+					"testo": "\"È andata\". Sei tornat{o|a} inter{o|a}, hai chiuso una frattura da sol{o|a} e mi dici \"è andata\".",
 					"espr": "decisa"
 				},
 				{
@@ -614,7 +614,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "veronica",
-					"testo": "Ma prima dovresti passare in sala riunioni, vogliono vederti per il rapporto..."
+					"testo": "Vabbè. Dovresti passare in sala riunioni, vogliono vederti per il rapporto..."
 				},
 				{
 					"tipo": "dialogo",
@@ -624,7 +624,7 @@
 				{
 					"tipo": "dialogo",
 					"chi": "veronica",
-					"testo": "\"NON PERDO ALTRO TEMPO\"!? Che cattivo."
+					"testo": "\"NON PERDO ALTRO TEMPO\"!? Che cattiv{o|a}."
 				},
 				{
 					"tipo": "dialogo",
@@ -644,12 +644,12 @@
 				{
 					"tipo": "dialogo",
 					"chi": "anonimo",
-					"testo": "Ci vediamo dopo per l'allenamento Veronica."
+					"testo": "Allora vado. Ci vediamo dopo, Veronica."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "veronica",
-					"testo": "Che antipatico..."
+					"testo": "Che antipatic{o|a}..."
 				}
 			],
 			"destra": "veronica",
@@ -708,101 +708,36 @@
 				{
 					"tipo": "dialogo",
 					"chi": "anonimo",
-					"testo": "Adesso dovrei vedermi con Veronica per il mio ultimo allenamento... meglio non farla aspettare..."
+					"testo": "Adesso però mi conviene passare in infermeria. Non mi reggo in piedi da quando siamo tornati."
 				}
 			],
 			"scelte": [
 				{
-					"testo": "Vai ai campi di addestramento",
-					"vai": "hq_training_grounds"
+					"testo": "Passa in infermeria",
+					"vai": "hq_infermeria"
 				}
 			]
-		},
-		"hq_training_grounds": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Eccoti qui, al massimo della tua potenza spero. Sei pronto per un ultimo allenamento oltre ogni limite!?",
-					"espr": "decisa"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Cos'è quella faccia, non mi sembri trasudare potenza..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Hai troppo entusiasmo, la cosa mi imbarazza."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "SEMPRE! Che senso ha vivere se non lo si fa superando ogni limite conosciuto ogni singolo giorno?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Sigh..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Basta con le chiacchiere fai parlare i pugni adesso! Le cose si fanno serie. Preparati."
-				}
-			],
-			"destra": "veronica",
-			"espr_destra": "decisa",
-			"scelte": [
-				{
-					"testo": "Affronta l'allenamento",
-					"vai": "hq_scontro_veronica"
-				}
-			]
-		},
-		"hq_scontro_veronica": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Veronica si mette in posizione. Questo non è un discorso: è un allenamento, e tocca a te muoverti."
-				}
-			],
-			"centro": "veronica",
-			"espr_centro": "decisa",
-			"combattimento_automatico": {
-				"nemici": [
-					"veronica"
-				],
-				"se_vinci": "hq_infermeria",
-				"se_perdi": "hq_infermeria"
-			}
 		},
 		"hq_infermeria": {
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Ti risvegli in infermeria."
+					"testo": "L'infermeria è l'unica stanza del complesso che non fa rumore. Ti siedi prima ancora che Curie ti dica di farlo."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "curie",
-					"testo": "Ben svegliato, a pezzi come sempre vedo..."
+					"testo": "Bentornat{o|a}, a pezzi come sempre vedo..."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "anonimo",
-					"testo": "Solito allenamento con Veronica..."
+					"testo": "Solita frattura, solito rientro."
 				},
 				{
 					"tipo": "dialogo",
 					"chi": "curie",
-					"testo": "Se non fossi un dominatore di limiti saresti già morto, lo sai?"
+					"testo": "Se non fossi {un dominatore|una dominatrice} di limiti saresti già {morto|morta}, lo sai?"
 				},
 				{
 					"tipo": "dialogo",
