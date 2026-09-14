@@ -4048,8 +4048,14 @@ func prova_le_scelte_a_tempo() -> void:
 			{"testo": "per veri eroi", "vai": "prova_a_tempo", "richiede_eroe": 9},
 		],
 	}
+	# NIENTE ATTESA QUI. I bottoni esistono appena add_child() li ha messi, e
+	# quelli vecchi sono gia' in coda di cancellazione (testo_dei_bottoni li
+	# salta): aspettare un fotogramma non serviva a vedere niente di piu', e
+	# rendeva la verifica dipendente da cosa altro girava in quel fotogramma.
+	# Con l'attesa questa riga e' fallita una volta su otto e non sono mai
+	# riuscito a rifarla fallire - il che e' esattamente il motivo per cui
+	# un'attesa che non serve non va lasciata in una prova.
 	schermata.ricostruisci_scelte(esigente)
-	await get_tree().process_frame
 	var visibili: Array = testo_dei_bottoni(schermata.contenitore_scelte)
 	esigi(visibili.has("solo per eroi"), "due scelte da eroe non bastano per un requisito da due")
 	esigi(not visibili.has("per veri eroi"), "un requisito da nove e' passato con due scelte da eroe")

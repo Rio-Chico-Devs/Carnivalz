@@ -109,5 +109,64 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			return tono(700.0, 0.16, "triangolo", 20.0, 0.24, 1050.0)
 		"errore":
 			return tono(220.0, 0.16, "quadra", 26.0, 0.22, 160.0)
+		"allarme":
+			# l'ultimo quarto di una scelta a tempo: due colpi secchi in alto,
+			# la stessa cosa che dice la lancetta diventata rossa
+			return tono(880.0, 0.09, "quadra", 55.0, 0.20, 1180.0)
+		"vetro":
+			return vetro()
 		_:
 			return tono(440.0, 0.08, "seno", 40.0, 0.2)
+
+static func vetro(durata := 0.40) -> AudioStreamWAV:
+	# IL VETRO CHE SI ROMPE, e non e' un tono: e' un rumore.
+	#
+	# Un suono intonato ha un'altezza sola, e per questo tono() non basta - una
+	# rottura riconoscibile e' fatta di due cose insieme:
+	#   1. lo SCHIANTO: una botta di rumore bianco che si spegne in fretta,
+	#      quello e' il momento in cui il vetro cede;
+	#   2. le SCHEGGE: una manciata di note altissime, corte, stonate fra loro
+	#      e sfalsate nel tempo - i pezzi che ricadono. Stonate apposta: se
+	#      fossero accordate suonerebbe un carillon, non una rottura.
+	#
+	# Tutto sommato campione per campione, come il resto. Resta un segnaposto:
+	# appena esiste res://audio/ui/vetro.wav vince quello.
+	var campioni := maxi(int(durata * CAMPIONAMENTO), 1)
+	var somma := PackedFloat32Array()
+	somma.resize(campioni)
+	# 1. lo schianto
+	for i in campioni:
+		var avanzamento := float(i) / float(campioni)
+		var inviluppo := exp(-avanzamento * 16.0)
+		somma[i] = randf_range(-1.0, 1.0) * inviluppo * 0.55
+	# 2. le schegge che ricadono
+	var dado := RandomNumberGenerator.new()
+	dado.seed = 20260914   # sempre la stessa rottura: un suono che cambia a ogni
+	                       # partita non si impara, e un suono che non si impara
+	                       # non vuol dire niente
+	for scheggia in 12:
+		var nota := dado.randf_range(1900.0, 5200.0)
+		var ritardo := int(dado.randf_range(0.012, 0.27) * CAMPIONAMENTO)
+		var lunghezza := int(dado.randf_range(0.03, 0.10) * CAMPIONAMENTO)
+		var forza := dado.randf_range(0.06, 0.17)
+		var fase := 0.0
+		for i in lunghezza:
+			var dove := ritardo + i
+			if dove >= campioni:
+				break
+			fase += nota / float(CAMPIONAMENTO)
+			var inviluppo := exp(-float(i) / float(lunghezza) * 6.0)
+			somma[dove] += sin(fase * TAU) * inviluppo * forza
+	var dati := PackedByteArray()
+	dati.resize(campioni * 2)
+	for i in campioni:
+		# i primi millesimi salgono, o la rottura comincia con un clic - lo
+		# stesso accorgimento di tono(), e serve anche qui
+		var attacco := minf(float(i) / maxf(CAMPIONAMENTO * 0.001, 1.0), 1.0)
+		dati.encode_s16(i * 2, int(clampf(somma[i] * attacco, -1.0, 1.0) * 32767.0))
+	var wav := AudioStreamWAV.new()
+	wav.format = AudioStreamWAV.FORMAT_16_BITS
+	wav.mix_rate = CAMPIONAMENTO
+	wav.stereo = false
+	wav.data = dati
+	return wav

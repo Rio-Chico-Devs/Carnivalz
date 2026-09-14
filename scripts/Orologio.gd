@@ -21,6 +21,9 @@ signal scaduto
 
 const LATO := 74
 const PERCORSO_DISEGNO := "res://art/interfaccia/orologio.png"
+# Sotto questa frazione la lancetta diventa rossa e suona l'allarme: sono la
+# stessa cosa detta in due modi, e vanno cambiate insieme.
+const QUOTA_ALLARME := 0.25
 
 var durata := 6.0
 var rimasto := 0.0
@@ -53,12 +56,23 @@ func quota_rimasta() -> float:
 func _process(delta: float) -> void:
 	if not acceso:
 		return
+	var quota_prima := quota_rimasta()
 	rimasto -= delta
 	if rimasto <= 0.0:
 		rimasto = 0.0
 		ferma()
 		scaduto.emit()
 		return
+	# L'ULTIMO QUARTO SI SENTE, e suona una volta sola.
+	#
+	# NIENTE TICCHETTIO A OGNI SECONDO, che sarebbe la scelta ovvia: sullo
+	# schermo possono esserci due orologi insieme (l'opzione da eroe e quella da
+	# villain), partiti in momenti diversi e con durate diverse. Due ticchettii
+	# sfasati non fanno tensione, fanno rumore - e non si capirebbe nemmeno
+	# quale dei due sta per scadere. Un colpo solo, quando la lancetta diventa
+	# rossa, dice la stessa cosa senza sovrapporsi a niente.
+	if quota_prima > QUOTA_ALLARME and quota_rimasta() <= QUOTA_ALLARME:
+		AudioManager.interfaccia("allarme")
 	queue_redraw()
 
 func _draw() -> void:
@@ -84,7 +98,7 @@ func _draw() -> void:
 	var angolo := TAU * (1.0 - quota)
 	var lancetta := Vector2.UP.rotated(angolo) * (raggio * 0.82)
 	# rossa sull'ultimo quarto: e' l'unico avviso che si e' quasi senza tempo
-	var tinta := Stile.colore("pericolo") if quota <= 0.25 else Stile.colore("bordo")
+	var tinta := Stile.colore("pericolo") if quota <= QUOTA_ALLARME else Stile.colore("bordo")
 	draw_line(centro, centro + lancetta, tinta, 5.0)
 	# e la fetta gia' persa, in trasparenza: il colpo d'occhio vale piu' della lancetta
 	if quota < 1.0:

@@ -57,6 +57,11 @@ func frantuma(sorgente: Control, seme: RandomNumberGenerator = null) -> void:
 	await fotografa(sorgente)
 	costruisci_schegge(dado)
 	trascorso = 0.0
+	# UNA ROTTURA MUTA E' MEZZA ROTTURA. Il suono arriva adesso e non prima:
+	# fra lo scadere del tempo e questo istante c'e' la fotografia, e far
+	# suonare il vetro mentre a schermo l'opzione e' ancora intera sarebbe
+	# peggio del silenzio.
+	AudioManager.interfaccia("vetro")
 	set_process(true)
 	queue_redraw()
 
