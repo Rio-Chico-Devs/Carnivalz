@@ -50,6 +50,7 @@ const EVENTI_DEBUG := "res://data/events.json"
 # Da che angolo entra il nastro col nome. Nel disegno di Bru il primo fotogramma
 # lo ha quasi in verticale, oltre il bordo sinistro.
 const ANGOLO_NASTRO_IN_ARRIVO := -58.0
+const CARTELLA_NASTRI := "res://art/nastri/"
 const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a voce prima di rimandare al Diario
 
 @onready var sfondo: ColorRect = %Sfondo
@@ -74,7 +75,9 @@ var immagine_titolo: TextureRect
 @onready var scena_sfondo: TextureRect = %Scena
 @onready var tinta_scena: ColorRect = %TintaScena
 @onready var palco: HBoxContainer = %Palco
-@onready var nastro: Label = %Targhetta
+@onready var nastro: Control = %Targhetta
+@onready var fondo_nastro: TextureRect = %FondoNastro
+@onready var nome_nastro: Label = %NomeNastro
 @onready var icona_menu: Button = %IconaMenu
 
 var nodo_in_corso: Dictionary = {}
@@ -208,19 +211,34 @@ func prepara_nastro() -> void:
 	# riscrivere posizione e rotazione a ogni riordino, e il nastro tornerebbe
 	# dritto da solo. E' lo stesso motivo per cui le carte del combattimento si
 	# animano di scala e non di posizione.
-	var stile_nastro := StyleBoxFlat.new()
-	stile_nastro.bg_color = Stile.colore("nastro")
-	stile_nastro.set_corner_radius_all(0)
-	stile_nastro.content_margin_left = 30
-	stile_nastro.content_margin_right = 30
-	stile_nastro.content_margin_top = 4
-	stile_nastro.content_margin_bottom = 6
-	nastro.add_theme_stylebox_override("normal", stile_nastro)
-	nastro.add_theme_color_override("font_color", Stile.colore("nastro_testo"))
-	nastro.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
+	#
+	# ED E' UN CONTENITORE, NON UNA SCRITTA, e non e' un dettaglio di struttura.
+	# Finche' era una Label, era la Label a decidere quanto fosse alto il
+	# nastro: l'altezza del carattere e' la sua misura minima e non si puo'
+	# scendere sotto, nemmeno svuotandola. Col disegno di Bru addosso veniva
+	# alto 98 pixel invece dei 78 chiesti, e il disegno ci ballava dentro.
+	# Adesso il nastro e' un riquadro che decide lui la propria misura, e dentro
+	# ci sta o il disegno o la scritta di ripiego.
+	nome_nastro.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	nome_nastro.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	nome_nastro.add_theme_stylebox_override("normal", stile_nastro_piatto())
+	nome_nastro.add_theme_color_override("font_color", Stile.colore("nastro_testo"))
+	nome_nastro.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
 	nastro.rotation = deg_to_rad(Stile.forma("inclinazione_nastro"))
 
-func aggiorna_nastro(nome: String) -> void:
+func stile_nastro_piatto() -> StyleBoxFlat:
+	# Il ripiego: il rettangolo rosa. Vive finche' il disegno di quel
+	# personaggio non c'e', e per qualcuno durera' a lungo.
+	var stile := StyleBoxFlat.new()
+	stile.bg_color = Stile.colore("nastro")
+	stile.set_corner_radius_all(0)
+	stile.content_margin_left = 30
+	stile.content_margin_right = 30
+	stile.content_margin_top = 4
+	stile.content_margin_bottom = 6
+	return stile
+
+func aggiorna_nastro(nome: String, id_chi := "") -> void:
 	nastro.visible = nome != ""
 	if nome == "":
 		nome_sul_nastro = ""
@@ -235,11 +253,63 @@ func aggiorna_nastro(nome: String) -> void:
 	nome_sul_nastro = nome
 	# minuscolo come nel disegno: "veronica", non "Veronica". E' una scelta di
 	# carattere, non un errore - il nastro e' scritto a mano, non stampato
-	nastro.text = nome.to_lower()
+	nome_nastro.text = nome.to_lower()
+	vesti_il_nastro(id_chi)
 	await get_tree().process_frame   # la misura giusta si sa dopo che il testo c'e'
-	if not is_instance_valid(nastro) or nastro.text != nome.to_lower():
+	# SI GUARDA nome_sul_nastro E NON IL TESTO DELLA LABEL. Sembrava lo stesso
+	# controllo e non lo e': quando il nastro e' un disegno di Bru la Label non
+	# ha nessun testo - il nome e' dentro l'immagine - e il confronto avrebbe
+	# detto "ha parlato qualcun altro" a ogni singola battuta, lasciando il
+	# nastro fermo fuori dallo schermo per sempre.
+	if not is_instance_valid(nastro) or nome_sul_nastro != nome:
 		return   # nel frattempo ha gia' parlato qualcun altro
 	lancia_il_nastro()
+
+func vesti_il_nastro(id_chi: String) -> void:
+	# IL NASTRO DI CHI PARLA, DISEGNATO DA BRU. Uno per personaggio, col nome
+	# gia' scritto dentro: «ogni personaggio avra' il suo, te li forniro' appena
+	# li avro' finiti».
+	#
+	#   res://art/nastri/<id>.png
+	#
+	# Quando c'e' non gli si scrive sopra niente - il lettering e' suo, e un
+	# nome stampato sopra un nome disegnato sarebbe due nomi. Quando non c'e'
+	# resta il rettangolo rosa col nome scritto dal gioco: sono quarantotto
+	# personaggi e arriveranno alla spicciolata, quindi il ripiego deve reggere
+	# per mesi, non per un pomeriggio.
+	#
+	# L'ALTEZZA LA DECIDE IL GIOCO, la larghezza il disegno. Cosi' non importa a
+	# che misura Bru lo disegna - piu' grande e' meglio e' - e due nastri
+	# disegnati in due giorni diversi restano alti uguali invece di ballare uno
+	# rispetto all'altro.
+	var disegno: Texture2D = null
+	if id_chi != "":
+		var percorso := "%s%s.png" % [CARTELLA_NASTRI, id_chi]
+		if ResourceLoader.exists(percorso):
+			disegno = load(percorso)
+	applica_nastro(disegno)
+
+func applica_nastro(disegno: Texture2D) -> void:
+	# CERCARE IL DISEGNO E METTERLO SONO DUE COSE, e stanno separate per un
+	# motivo pratico: la prima non si puo' provare e la seconda si'.
+	#
+	# Un .png scritto durante una prova dentro res:// non viene importato, e
+	# load() non lo vede - quindi "il file c'e' e si carica" non e' misurabile
+	# senza mettere un disegno finto nel repo. Tutto il resto pero' lo e'
+	# eccome: quanto diventa alto il nastro, se il disegno lo copre, se la
+	# scritta di ripiego si toglie di mezzo. Tenerle insieme voleva dire che
+	# quelle verifiche misuravano il mio finto al posto del codice - e
+	# infatti, rompendo apposta le due righe qui sotto, la prova restava verde.
+	fondo_nastro.texture = disegno
+	fondo_nastro.visible = disegno != null
+	nome_nastro.visible = disegno == null
+	if disegno == null:
+		nastro.custom_minimum_size = nome_nastro.get_combined_minimum_size()
+	else:
+		var alto := float(Stile.forma("altezza_nastro"))
+		var misura := disegno.get_size()
+		nastro.custom_minimum_size = Vector2(alto * (misura.x / maxf(misura.y, 1.0)), alto)
+	nastro.size = nastro.custom_minimum_size
 
 func posto_del_nastro() -> Vector2:
 	return Vector2(Stile.forma("cornice") * 0.6, box.position.y - nastro.size.y + 6)
@@ -580,17 +650,18 @@ func mostra_messaggio(msg: Dictionary) -> void:
 	carta_titolo.visible = false
 	box.visible = true
 	var nome_parlante := ""
+	var id_parlante := ""
 	if tipo == "dialogo":
-		var chi := String(msg.get("chi", GameState.id_protagonista))
-		nome_parlante = String(GameState.personaggi.get(chi, {}).get("nome", chi))
+		id_parlante = String(msg.get("chi", GameState.id_protagonista))
+		nome_parlante = String(GameState.personaggi.get(id_parlante, {}).get("nome", id_parlante))
 		if msg.has("espr"):
-			aggiorna_espressione(chi, String(msg["espr"]))
-		evidenzia_parlante(chi)
+			aggiorna_espressione(id_parlante, String(msg["espr"]))
+		evidenzia_parlante(id_parlante)
 	else:
 		evidenzia_parlante("")
 	GameState.registra_storico(tipo, nome_parlante, contenuto)
 	box.mostra(tipo, contenuto, nome_parlante)
-	aggiorna_nastro(nome_parlante)
+	aggiorna_nastro(nome_parlante, id_parlante)
 
 func mostra_carta_titolo(contenuto: String, percorso_immagine := "") -> void:
 	# il nome di un luogo non e' una riga di narrazione: si prende lo schermo,

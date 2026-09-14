@@ -4141,9 +4141,10 @@ func prova_il_nastro_col_nome() -> void:
 	schermata.aggiorna_nastro("Veronica")
 	await get_tree().process_frame
 	await get_tree().process_frame
-	var nastro: Label = schermata.nastro
+	var nastro: Control = schermata.nastro
 	esigi(nastro.visible, "il nastro non si e' acceso")
-	esigi(nastro.text == "veronica", "sul nastro c'e' scritto '%s'" % nastro.text)
+	esigi(schermata.nome_nastro.text == "veronica",
+			"sul nastro c'e' scritto '%s'" % schermata.nome_nastro.text)
 	esigi(nastro.position.x + nastro.size.x < 0.0,
 			"il nastro parte a x=%.1f, cioe' gia' dentro lo schermo" % nastro.position.x)
 	esigi(absf(nastro.rotation) > deg_to_rad(30.0),
@@ -4180,7 +4181,70 @@ func prova_il_nastro_col_nome() -> void:
 	await get_tree().process_frame
 	esigi(not nastro.position.is_equal_approx(fermo),
 			"ha parlato qualcun altro e il nastro e' rimasto dov'era")
-	esigi(nastro.text == "anonimo", "il nastro dice ancora '%s'" % nastro.text)
+	esigi(schermata.nome_nastro.text == "anonimo",
+			"il nastro dice ancora '%s'" % schermata.nome_nastro.text)
+
+	# 5. IL DISEGNO DI BRU VINCE SUL RIPIEGO. Bru: «ogni personaggio avra' il
+	#    suo, te li forniro' appena li avro' finiti». Finche' non arrivano c'e'
+	#    il rettangolo rosa col nome scritto dal gioco - ma il giorno che il
+	#    primo file compare deve prendere il suo posto da solo, senza che
+	#    nessuno tocchi niente. Qui si prova proprio quel passaggio, con un
+	#    nastro finto inventato adesso: se il meccanismo si rompe, ce ne
+	#    accorgiamo oggi e non fra sei mesi con i disegni veri in mano.
+	esigi(not schermata.fondo_nastro.visible,
+			"senza nessun disegno il nastro mostra gia' un'immagine")
+	esigi(schermata.nome_nastro.visible, "senza disegno il nome non si vede")
+	var alto_di_ripiego := nastro.size.y
+	# il disegno finto: largo tre volte quanto e' alto, come un pezzo di nastro
+	var finto := ImageTexture.create_from_image(
+			Image.create(600, 200, false, Image.FORMAT_RGBA8))
+	var alto := float(Stile.forma("altezza_nastro"))
+	schermata.applica_nastro(finto)
+	esigi(schermata.fondo_nastro.visible, "col disegno addosso il disegno non si vede")
+	esigi(not schermata.nome_nastro.visible,
+			"col disegno addosso si vede ancora il nome scritto dal gioco: due nomi sovrapposti")
+	esigi(is_equal_approx(nastro.size.x, alto * 3.0),
+			"il nastro e' largo %.1f: con un disegno tre volte piu' largo che alto doveva essere %.1f"
+			% [nastro.size.x, alto * 3.0])
+	esigi(is_equal_approx(nastro.size.y, alto),
+			"col disegno addosso il nastro e' alto %.1f invece di %d"
+			% [nastro.size.y, Stile.forma("altezza_nastro")])
+	esigi(not is_equal_approx(alto_di_ripiego, 0.0),
+			"il nastro di ripiego non aveva nessuna altezza: la prova sopra non misurava niente")
+	# e il disegno copre il nastro per intero, o si vedrebbe il rosa sotto i bordi
+	await get_tree().process_frame
+	esigi(schermata.fondo_nastro.size.is_equal_approx(nastro.size),
+			"il disegno e' %s e il nastro %s: non combaciano"
+			% [schermata.fondo_nastro.size, nastro.size])
+	# e tolto il disegno si torna al ripiego, senza restare grandi come il disegno
+	schermata.applica_nastro(null)
+	esigi(schermata.nome_nastro.visible and not schermata.fondo_nastro.visible,
+			"tolto il disegno il nastro non e' tornato alla scritta di ripiego")
+	esigi(is_equal_approx(nastro.size.y, alto_di_ripiego),
+			"tornato al ripiego il nastro e' alto %.1f invece di %.1f: si e' tenuto la misura del disegno"
+			% [nastro.size.y, alto_di_ripiego])
+
+	# 6. LA CARTELLA SCRITTA NEL CODICE E QUELLA SCRITTA A BRU SONO LA STESSA.
+	#
+	# Questo e' l'unico modo onesto che ho di provarla. Il percorso vero non si
+	# puo' esercitare in una prova: un .png scritto a runtime dentro res:// non
+	# e' importato, e load() non lo vede - quindi "il file c'e' e viene caricato"
+	# non e' misurabile da qui. Quello che invece si rompe davvero, e in
+	# silenzio, e' un altro: io cambio la cartella nel codice e il README
+	# continua a dire quella vecchia. Bru copia i disegni dove gli ho detto, non
+	# succede niente, e nessuno dei due sa perche'.
+	var istruzioni := ""
+	var apri := FileAccess.open("res://art/nastri/README.md", FileAccess.READ)
+	if apri != null:
+		istruzioni = apri.get_as_text()
+		apri.close()
+	esigi(istruzioni != "", "art/nastri/README.md non c'e': Bru non sa dove mettere i disegni")
+	var cartella_nel_codice := String(schermata.CARTELLA_NASTRI).replace("res://", "")
+	esigi(istruzioni.contains(cartella_nel_codice + "<id>.png"),
+			"il codice cerca i nastri in '%s<id>.png' ma il README dice un'altra cosa"
+			% cartella_nel_codice)
+	esigi(istruzioni.contains("altezza_nastro"),
+			"il README non dice che l'altezza la decide il gioco: Bru li disegnera' a caso")
 	schermata.free()
 	GameState.nuova_partita()
 
