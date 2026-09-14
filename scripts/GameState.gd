@@ -67,28 +67,18 @@ var tipi: Dictionary = {}    # data/tipi.json: i cinque tipi e chi pesa su chi
 var tecnolog: Dictionary = {}      # data/tecnolog.json: la scheda di specie che lo Studio riempie
 var abilita: Dictionary = {}       # data/abilita.json: abilita', linee, punti, classi d'arma
 var nodi_abilita: Array[String] = []  # i nodi del protagonista (abilita' e potenziamenti)
-# L'ESPERIENZA. Si spende per comprare i nodi, ed e' della squadra: Bru "e'
-# generico, scegli tu su quale personaggio spenderlo".
-#
-# SI CHIAMAVA HYPE, e non si chiama piu' cosi'. Per un po' "hype" era il nome
-# di copertina dell'esperienza - "maschereremo l'xp con il termine hype" - poi
-# Bru ha dato a quella parola un mestiere vero: «l'hype sara' tipo il mana, va
-# consumato per fare mosse fighe, piu' una mossa e' forte piu' hype ci vuole,
-# il sistema di livellaggio lo facciamo con xp». Due cose diverse non possono
-# avere lo stesso nome: l'hype adesso e' una risorsa dentro il combattimento
-# (vedi la barra in Regole.gd), e questa e' di nuovo, semplicemente, esperienza.
+# L'HYPE. Bru: "facciamo che spendi xp ma maschereremo l'xp con il termine
+# hype... l'hype deve fare grossi numeri... l'hype e' generico, scegli tu su
+# quale personaggio spenderlo".
 #
 # DUE CONTATORI, e servono tutti e due. "disponibile" e' quello che puoi
-# spendere e cala comprando; "accumulata" e' quanta ne hai guadagnata in tutto
-# e non cala MAI. Il secondo dice quanto hai giocato, e serve a far vedere
-# numeri grossi anche a chi ha appena speso tutto: con un contatore solo,
-# spendere avrebbe cancellato la prova di aver giocato.
-#
-# I NUMERI RESTANO GROSSI. Il moltiplicatore per cento c'era perche' "e' meglio
-# vedere hai guadagnato 100 invece di 1", e quella ragione non e' cambiata col
-# nome: si guadagna esperienza a centinaia, non a unita'.
-var xp_disponibile := 0
-var xp_accumulata := 0
+# spendere e cala comprando; "accumulato" e' quanto ne hai guadagnato in tutto
+# e non cala MAI. Il secondo e' quello che Bru chiama il quantificatore: dice
+# quanto hai giocato, e serve a far vedere numeri grossi anche a chi ha appena
+# speso tutto. Con un contatore solo, spendere avrebbe cancellato la prova di
+# aver giocato.
+var hype_disponibile := 0
+var hype_accumulato := 0
 # id classe -> i nodi comprati per LUI. Il livello di un personaggio e' quanti
 # ne ha comprati: non esiste un livello separato da guadagnare
 var nodi_per_personaggio: Dictionary = {}
@@ -463,8 +453,8 @@ func nuova_partita() -> void:
 	punti_stat.clear()
 	nodi_abilita.clear()
 	nodi_per_personaggio.clear()
-	xp_disponibile = 0
-	xp_accumulata = 0
+	hype_disponibile = 0
+	hype_accumulato = 0
 	contatori.clear()
 	resistenze_stato.clear()
 	volte_stato_subito.clear()
@@ -686,18 +676,18 @@ func punti_abilita_spesi() -> int:
 	return totale
 
 func punti_abilita_liberi() -> int:
-	# I PUNTI NON ARRIVANO PIU' COL LIVELLO: si comprano con l'esperienza. Prima
+	# I PUNTI NON ARRIVANO PIU' COL LIVELLO: si comprano con l'hype. Prima
 	# arrivavano dal livello 25, uno ogni quattro, e la demo finisce al 18:
 	# cosi' com'era, nella demo l'albero non si vedeva mai.
 	@warning_ignore("integer_division")
-	var comprabili := xp_disponibile / maxi(int(regole.get("xp_per_punto", 1000)), 1)
+	var comprabili := hype_disponibile / maxi(int(regole.get("hype_per_punto", 1000)), 1)
 	return comprabili
 
 func nodo_gia_preso(id_nodo: String, id_classe := "") -> bool:
 	return id_nodo in nodi_di(id_classe if id_classe != "" else id_protagonista)
 
 func nodo_disponibile(id_nodo: String, id_classe := "") -> bool:
-	# aperto dal livello, non gia' preso, alla portata dell'esperienza che hai, e con
+	# aperto dal livello, non gia' preso, alla portata dell'hype che hai, e con
 	# il nodo che richiede gia' in mano
 	if id_classe == "":
 		id_classe = id_protagonista
@@ -717,14 +707,14 @@ func nodo_disponibile(id_nodo: String, id_classe := "") -> bool:
 
 func sblocca_nodo(id_nodo: String, id_classe := "") -> bool:
 	# ID_CLASSE VUOTO = il protagonista, che e' il caso di gran lunga piu'
-	# frequente e l'unico che esisteva prima. L'esperienza pero' e' della squadra:
+	# frequente e l'unico che esisteva prima. L'hype pero' e' della squadra:
 	# lo stesso mucchio paga il nodo di chiunque, ed e' li' che sta la scelta
 	# che Bru voleva ("scegli tu su quale personaggio spenderlo")
 	if id_classe == "":
 		id_classe = id_protagonista
 	if not nodo_disponibile(id_nodo, id_classe):
 		return false
-	xp_disponibile = maxi(xp_disponibile - costo_in_xp(costo_nodo(id_nodo)), 0)
+	hype_disponibile = maxi(hype_disponibile - costo_in_hype(costo_nodo(id_nodo)), 0)
 	if id_classe == id_protagonista:
 		nodi_abilita.append(id_nodo)
 	else:
@@ -778,7 +768,7 @@ func abilita_del_protagonista() -> Array[String]:
 
 func abilita_del_personaggio(id_classe: String) -> Array[String]:
 	# tutto quello che sa fare: quelle scritte nella sua classe, quelle che il
-	# livello gli ha dato da solo, e quelle che ha comprato con l'esperienza.
+	# livello gli ha dato da solo, e quelle che ha comprato con l'hype.
 	#
 	# VALE PER TUTTI, non solo per il protagonista. Prima era scritta solo per
 	# lui, e i compagni erano fermi all'elenco della loro classe: adesso che
@@ -1806,15 +1796,15 @@ func sblocca_negozio(id_negozio: String) -> void:
 	if negozi.has(id_negozio) and id_negozio not in negozi_sbloccati:
 		negozi_sbloccati.append(id_negozio)
 
-func guadagna_esperienza(xp_grezza: int) -> int:
-	# QUANTA ESPERIENZA VALE QUESTO SCONTRO. Bru: "deve fare grossi numeri...
-	# e' meglio vedere hai guadagnato 100 invece di 1". Quindi
+func aggiungi_hype(xp_grezza: int) -> int:
+	# QUANTO HYPE VALE QUESTO SCONTRO. Bru: "l'hype deve fare grossi numeri...
+	# e' meglio vedere hai guadagnato 100 hype invece di 1 hype". Quindi
 	# l'esperienza che il gioco calcolava gia' si moltiplica: la matematica del
 	# bilanciamento resta quella provata, cambia solo la scala di quello che
 	# leggi. Il moltiplicatore sta in regole.json e si gira da li'.
-	var quanto := int(round(xp_grezza * float(regole.get("xp_moltiplicatore", 100))))
-	xp_disponibile += quanto
-	xp_accumulata += quanto
+	var quanto := int(round(xp_grezza * float(regole.get("hype_moltiplicatore", 100))))
+	hype_disponibile += quanto
+	hype_accumulato += quanto
 	return quanto
 
 func maestria_dominio_di(id_classe: String) -> int:
@@ -1830,8 +1820,8 @@ func maestria_dominio_di(id_classe: String) -> int:
 			totale += int(dati.get("quanto", 0))
 	return totale
 
-func costo_in_xp(punti: int) -> int:
-	return punti * int(regole.get("xp_per_punto", 1000))
+func costo_in_hype(punti: int) -> int:
+	return punti * int(regole.get("hype_per_punto", 1000))
 
 func fabbisogno_xp(livello: int) -> int:
 	var richiesta := ceili(float(regole.get("xp_base", 10))
@@ -1844,10 +1834,10 @@ func aggiungi_xp(id_classe: String, quantita: int) -> void:
 	# NON FA PIU' SALIRE DI LIVELLO NESSUNO. Il livello adesso e' quanti nodi
 	# hai comprato, quindi l'unico modo di salire e' spendere. Questa resta
 	# come porta d'ingresso perche' la chiamano ancora in qualche posto, e
-	# quello che entra da qui e' esperienza come tutto il resto
+	# quello che entra da qui e' hype come tutto il resto
 	if not classi.has(id_classe):
 		return
-	guadagna_esperienza(quantita)
+	aggiungi_hype(quantita)
 
 # --- crescita del protagonista: i contatori delle azioni diventano punti stat
 # a ogni passaggio di livello, poi si azzerano. Chi attacca cresce in attacco,
@@ -2106,9 +2096,9 @@ func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: Strin
 func premia_vittoria(xp_totale: int, tazo_totale: int, fonte_estinta: bool) -> void:
 	# L'HYPE E' UNO SOLO PER TUTTA LA SQUADRA. Prima l'esperienza si dava a
 	# ognuno separatamente, e chi non combatteva restava indietro per sempre:
-	# era il problema che ha fatto nascere i numeri grossi. Adesso entra in un mucchio
+	# era il problema che ha fatto nascere l'hype. Adesso entra in un mucchio
 	# solo e sei tu a decidere su chi spenderlo
-	guadagna_esperienza(xp_totale)
+	aggiungi_hype(xp_totale)
 	modifica_tazo(tazo_totale)
 	if fonte_estinta:
 		fonti_estinte += 1
@@ -2242,8 +2232,8 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"punti_stat": punti_stat,
 		"nodi_abilita": nodi_abilita,
 		"nodi_per_personaggio": nodi_per_personaggio,
-		"xp_disponibile": xp_disponibile,
-		"xp_accumulata": xp_accumulata,
+		"hype_disponibile": hype_disponibile,
+		"hype_accumulato": hype_accumulato,
 		"contatori": contatori,
 		"resistenze_stato": resistenze_stato,
 		"volte_stato_subito": volte_stato_subito,
@@ -2325,11 +2315,8 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	punti_stat = d.get("punti_stat", {})
 	nodi_abilita = _lista_str(d.get("nodi_abilita", []))
 	nodi_per_personaggio = d.get("nodi_per_personaggio", {})
-	# I SALVATAGGI VECCHI CHIAMANO QUESTE DUE COSE "hype". Chi sta giocando non
-	# deve accorgersi che abbiamo cambiato un nome: si legge la chiave nuova e,
-	# se non c'e', quella di prima. Costa due parole e vale una partita persa.
-	xp_disponibile = int(d.get("xp_disponibile", d.get("hype_disponibile", 0)))
-	xp_accumulata = int(d.get("xp_accumulata", d.get("hype_accumulato", 0)))
+	hype_disponibile = int(d.get("hype_disponibile", 0))
+	hype_accumulato = int(d.get("hype_accumulato", 0))
 	contatori = d.get("contatori", {})
 	resistenze_stato = d.get("resistenze_stato", {})
 	volte_stato_subito = d.get("volte_stato_subito", {})

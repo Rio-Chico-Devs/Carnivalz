@@ -69,7 +69,7 @@ func _ready() -> void:
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
-	prova_esperienza()
+	prova_hype()
 	prova_abilita_di_veronica_e_yhvina()
 	prova_i_cinque_tipi()
 	prova_il_colpo_si_sente()
@@ -1957,12 +1957,12 @@ func prova_punti_abilita() -> void:
 	#    punto e ci sono due porte: Pieta' o Terra bruciata. Prenderne una deve
 	#    chiudere l'altra, altrimenti non e' una scelta, e' un elenco
 	GameState.porta_al_livello(GameState.id_protagonista, 25)
-	# I PUNTI NON ARRIVANO PIU' COL LIVELLO: si comprano con l'esperienza. Qui se ne
+	# I PUNTI NON ARRIVANO PIU' COL LIVELLO: si comprano con l'hype. Qui se ne
 	# mette in tasca esattamente uno, che e' la condizione che questa prova
 	# vuole misurare - una porta sola aperta e due strade davanti
-	GameState.xp_disponibile = GameState.costo_in_xp(1)
+	GameState.hype_disponibile = GameState.costo_in_hype(1)
 	esigi(GameState.punti_abilita_liberi() == 1,
-			"con l'esperienza di un punto in tasca ne risultano %d" % GameState.punti_abilita_liberi())
+			"con l'hype di un punto in tasca ne risultano %d" % GameState.punti_abilita_liberi())
 	esigi(GameState.nodo_disponibile("pieta"), "al livello 25 Pieta' non e' disponibile")
 	esigi(GameState.nodo_disponibile("terra_bruciata"),
 			"al livello 25 Terra bruciata non e' disponibile")
@@ -1975,7 +1975,7 @@ func prova_punti_abilita() -> void:
 
 	# 3. al 29 arriva il secondo punto, e le porte sono quelle giuste
 	GameState.porta_al_livello(GameState.id_protagonista, 29)
-	GameState.xp_disponibile = GameState.costo_in_xp(1)
+	GameState.hype_disponibile = GameState.costo_in_hype(1)
 	esigi(GameState.punti_abilita_liberi() == 1, "al livello 29 il secondo punto non si compra")
 	esigi(GameState.nodo_disponibile("pieta"), "al 29 Pieta' doveva essere ancora li'")
 	esigi(GameState.nodo_disponibile("annichilazione_ii"),
@@ -1985,14 +1985,14 @@ func prova_punti_abilita() -> void:
 	esigi(not GameState.nodo_disponibile("maelstrom"),
 			"al livello 29 si puo' gia' comprare Maelstrom, che apre molto piu' avanti")
 	GameState.porta_al_livello(GameState.id_protagonista, 130)
-	GameState.xp_disponibile = GameState.costo_in_xp(1)
+	GameState.hype_disponibile = GameState.costo_in_hype(1)
 	esigi(GameState.nodo_disponibile("apocalisse") == false,
 			"si puo' comprare Apocalisse saltando i gradi in mezzo")
 	esigi(GameState.nodo_disponibile("maelstrom"),
 			"col livello alto e Terra bruciata in mano Maelstrom non si apre")
 
 	# 5. mai piu' di quello che hai guadagnato, comprando tutto quello che si puo'
-	GameState.xp_disponibile = GameState.costo_in_xp(200)
+	GameState.hype_disponibile = GameState.costo_in_hype(200)
 	for giro in 60:
 		var comprato := false
 		for id_nodo in GameState.abilita.get("abilita", {}):
@@ -2005,10 +2005,10 @@ func prova_punti_abilita() -> void:
 			break
 	# IL TETTO ADESSO E' L'HYPE, non i punti che il livello regalava. La regola
 	# vera e' una sola: non si compra piu' di quello che si ha in tasca
-	esigi(GameState.xp_disponibile >= 0, "l'esperienza e' andata sotto zero comprando")
+	esigi(GameState.hype_disponibile >= 0, "l'hype e' andato sotto zero comprando")
 	esigi(GameState.punti_abilita_liberi() >= 0, "i punti liberi sono andati sotto zero")
-	esigi(GameState.costo_in_xp(GameState.punti_abilita_spesi()) <= GameState.costo_in_xp(200),
-			"spesi %d punti con l'esperienza di 200" % GameState.punti_abilita_spesi())
+	esigi(GameState.costo_in_hype(GameState.punti_abilita_spesi()) <= GameState.costo_in_hype(200),
+			"spesi %d punti con l'hype di 200" % GameState.punti_abilita_spesi())
 	GameState.nuova_partita()
 
 func prova_abilita_arrivano_al_livello_giusto() -> void:
@@ -2214,13 +2214,13 @@ func prova_salita_di_livello_si_racconta() -> void:
 	# IL MOMENTO E' CAMBIATO: prima si saliva quando l'esperienza traboccava,
 	# adesso si sale comprando - perche' comprare E' salire di livello. Quello
 	# che la prova misura pero' e' lo stesso: che il momento venga raccontato
-	GameState.xp_disponibile = GameState.costo_in_xp(5)
+	GameState.hype_disponibile = GameState.costo_in_hype(5)
 	var qualcosa_comprato := false
 	for id_nodo in GameState.abilita.get("abilita", {}):
 		if GameState.nodo_disponibile(String(id_nodo)):
 			qualcosa_comprato = GameState.sblocca_nodo(String(id_nodo))
 			break
-	esigi(qualcosa_comprato, "non si riesce a comprare niente pur avendo esperienza")
+	esigi(qualcosa_comprato, "non si riesce a comprare niente pur avendo hype")
 	esigi(GameState.livello_di(GameState.id_protagonista) == 2,
 			"comprato un nodo, non si e' saliti di livello")
 	esigi(GameState.salite_di_livello.size() == 1,
@@ -3199,27 +3199,27 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
 	scontro.free()
 
-func prova_esperienza() -> void:
-	# L'ESPERIENZA E' DELLA SQUADRA. Bru: "e' generico, scegli tu su quale
-	# personaggio spenderlo... ogni
+func prova_hype() -> void:
+	# Bru: "facciamo che spendi xp ma maschereremo l'xp con il termine hype...
+	# l'hype e' generico, scegli tu su quale personaggio spenderlo... ogni
 	# personaggio ha il suo livello in base a quanti potenziamenti ha
 	# acquistato... si possiamo fare la media, viva il gioco di squadra".
-	titolo("l'esperienza: una per tutti, e il livello e' quello che hai comprato")
+	titolo("l'hype: uno per tutti, e il livello e' quello che hai comprato")
 	GameState.nuova_partita()
-	esigi(GameState.xp_disponibile == 0 and GameState.xp_accumulata == 0,
-			"una partita nuova comincia con dell'esperienza addosso")
+	esigi(GameState.hype_disponibile == 0 and GameState.hype_accumulato == 0,
+			"una partita nuova comincia con dell'hype addosso")
 
 	# DUE CONTATORI: spendere svuota il primo e non tocca il secondo
-	var guadagnato := GameState.guadagna_esperienza(50)
-	esigi(guadagnato > 50, "l'esperienza non fa numeri piu' grossi del grezzo: ne ha dati %d su 50" % guadagnato)
-	esigi(GameState.xp_disponibile == guadagnato, "l'esperienza guadagnata non e' spendibile")
-	esigi(GameState.xp_accumulata == guadagnato, "l'esperienza accumulata non conta quella guadagnata")
+	var guadagnato := GameState.aggiungi_hype(50)
+	esigi(guadagnato > 50, "l'hype non fa numeri piu' grossi dell'xp: ne ha dati %d su 50" % guadagnato)
+	esigi(GameState.hype_disponibile == guadagnato, "l'hype guadagnato non e' spendibile")
+	esigi(GameState.hype_accumulato == guadagnato, "l'hype accumulato non conta quello guadagnato")
 
 	# IL LIVELLO E' QUANTI NODI HAI COMPRATO
 	var protagonista := GameState.id_protagonista
 	esigi(GameState.livello_di(protagonista) == 1, "un personaggio senza nodi non e' di livello 1")
-	GameState.xp_disponibile = GameState.costo_in_xp(50)
-	var accumulato_prima := GameState.xp_accumulata
+	GameState.hype_disponibile = GameState.costo_in_hype(50)
+	var accumulato_prima := GameState.hype_accumulato
 	# UN NODO CHE COSTA DAVVERO. I gradi I delle linee non hanno "costo": sono
 	# quelli che arrivano da soli col livello, e comprarli non spende niente.
 	# Cercando "il primo che si puo' comprare" si finiva su uno di quelli, e la
@@ -3235,17 +3235,17 @@ func prova_esperienza() -> void:
 	esigi(GameState.livello_di(protagonista) == livello_prima + 1,
 			"comprato un nodo, il livello e' %d invece di %d"
 			% [GameState.livello_di(protagonista), livello_prima + 1])
-	esigi(GameState.xp_disponibile < GameState.costo_in_xp(50),
+	esigi(GameState.hype_disponibile < GameState.costo_in_hype(50),
 			"comprare un nodo non ha speso hype")
-	esigi(GameState.xp_accumulata == accumulato_prima,
+	esigi(GameState.hype_accumulato == accumulato_prima,
 			"spendere ha abbassato l'accumulato: la prova di aver giocato si cancella spendendo")
 
 	# LO STESSO MUCCHIO PAGA PER CHIUNQUE, ed e' il senso dell'hype unico
-	GameState.xp_disponibile = GameState.costo_in_xp(50)
+	GameState.hype_disponibile = GameState.costo_in_hype(50)
 	if not GameState.classi.has("brawler"):
 		esigi(false, "Veronica non esiste: non si puo' provare l'hype su un compagno")
 	else:
-		var hype_prima := GameState.xp_disponibile
+		var hype_prima := GameState.hype_disponibile
 		GameState.porta_al_livello("brawler", 60)
 		var suo_livello_prima := GameState.livello_di("brawler")
 		var preso := false
@@ -3255,7 +3255,7 @@ func prova_esperienza() -> void:
 				preso = GameState.sblocca_nodo(String(id_nodo), "brawler")
 				break
 		esigi(preso, "non si riesce a spendere hype su Veronica")
-		esigi(GameState.xp_disponibile < hype_prima,
+		esigi(GameState.hype_disponibile < hype_prima,
 				"comprare per Veronica non ha toccato l'hype: non e' lo stesso mucchio")
 		esigi(GameState.livello_di("brawler") == suo_livello_prima + 1,
 				"comprato un nodo per Veronica, il suo livello non e' salito")
