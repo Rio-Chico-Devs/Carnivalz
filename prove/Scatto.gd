@@ -61,6 +61,22 @@ func prepara(quale: String) -> void:
 			# Bru ci stia nel box e che lo sfondo non copra niente
 			await apri_dialogo()
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"collisioni":
+			# LA RAFFICA FERMATA A META'. I pugni durano mezzo secondo l'uno: a
+			# occhio nudo non si vede dove finiscono, e senza vederlo non si puo'
+			# dire se stanno dentro il quadrante o gli escono fuori.
+			GameState.nuova_partita()
+			GameState.nemici_combattimento = ["veronica"]
+			var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(scontro)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			scontro.minigioco.avvia({"quanti": 14, "intervallo": 0.34,
+					"durata": 0.52, "danno": 9})
+			var argomenti := OS.get_cmdline_user_args()
+			var quando := int(argomenti[1]) if argomenti.size() > 1 else 40
+			await attendi(quando)
+			if scontro.minigioco.pugni.is_empty():
+				push_error("nessun pugno a schermo: non c'e' niente da fotografare")
 		"complesso":
 			# la mappa del complesso: tutte le aree visibili, una sola aperta,
 			# e il punto esclamativo che salta

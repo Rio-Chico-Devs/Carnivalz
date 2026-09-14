@@ -52,6 +52,7 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 @onready var azioni: HBoxContainer = %Azioni
 @onready var volanti: Control = %Volanti
 @onready var area_avanza: Button = %AreaAvanza
+@onready var quadrante: Control = %Quadrante
 
 # I quattro collaboratori. In modalita' muta non toccano nessun nodo.
 var voce: VoceCombattimento
@@ -59,6 +60,7 @@ var campo: CampoCombattimento
 var menu: MenuCombattimento
 var impatto: ImpattoCombattimento
 var arena: ArenaCombattimento
+var minigioco: MinigiocoCombattimento
 
 # Muto: nessuno guarda: niente box, niente schede, niente attese. Va impostato
 # PRIMA che la scena entri nell'albero (vedi Simulatore.gd).
@@ -137,6 +139,7 @@ var tutorial_passo := 0
 var tutorial_finito := false
 var tutorial_passi_introdotti: Array[int] = []
 var tutorial_id := ""  # id del nemico che porta lo script del tutorial
+var rivitalizzanti_usati := 0  # quante volte Veronica ti ha rimesso in piedi
 
 var portatore_incontro: Dictionary = {}
 var incontro_apertura_mostrata := false
@@ -189,7 +192,11 @@ func _ready() -> void:
 	menu = MenuCombattimento.new(self, muto)
 	impatto = ImpattoCombattimento.new(get_tree(), muto)
 	arena = ArenaCombattimento.new(muto)
+	minigioco = MinigiocoCombattimento.new(muto)
+	minigioco.dado = GameState.rng
+	minigioco.finito.connect(_minigioco_finito)
 	if not muto:
+		minigioco.collega(quadrante, box)
 		voce.collega(box, area_avanza, volanti)
 		campo.collega(fila_party, nemico_centro, nemici_sinistra, nemici_destra)
 		menu.collega(azioni)
@@ -710,6 +717,10 @@ func _process(delta: float) -> void:
 		studio_in_corso = false
 		riprendi_il_tempo()
 	avanza_mattanza(delta)   # la barra si scarica anche mentre il mondo e' fermo
+	if minigioco != null and minigioco.attivo:
+		# mentre si para, lo scontro e' fermo: i pugni hanno un orologio loro
+		minigioco.passa(delta)
+		return
 	avanza_orologio(delta)
 	aggiorna_pronto_giocatore()
 
@@ -961,8 +972,15 @@ func battuta_di(attaccante: Dictionary) -> void:
 			var passo_corrente := passo_tutorial()
 			if not passo_corrente.is_empty() and tutorial_passo not in tutorial_passi_introdotti:
 				tutorial_passi_introdotti.append(tutorial_passo)
+				prepara_passo_tutorial(passo_corrente)
 				for msg in passo_corrente.get("prima", []):
 					scrivi_messaggio_tutorial(msg)
+			if String(passo_corrente.get("azione", "")) == "minigioco":
+				# QUESTO PASSO NON TE LO COMANDA IL MENU. Non e' una mossa che
+				# scegli: e' una che subisci, e l'unica risposta e' la tua mano.
+				# Il menu non si accende affatto - si accende il quadrante.
+				lancia_minigioco(passo_corrente, attaccante)
+				return
 			var azione: Dictionary = {}
 			if strategia.is_valid():
 				# nessuno sta guardando: decide il giocatore automatico
@@ -1132,6 +1150,53 @@ func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
 		_:
 			scrivi("[i]%s[/i]" % testo)
 
+var minigioco_bersaglio: Dictionary = {}
+
+func lancia_minigioco(passo: Dictionary, chi: Dictionary) -> void:
+	# LA RAFFICA. Veronica annuncia, e da li' in poi per qualche secondo il
+	# gioco non e' piu' a turni: sono pugni che arrivano e una mano che prova a
+	# prenderli.
+	#
+	# Si aspetta che il box abbia finito di parlare prima di coprirlo: la frase
+	# "preparati!" deve essere leggibile, se no il minigioco comincia sopra le
+	# parole che lo annunciano e non si capisce cosa sta succedendo.
+	minigioco_bersaglio = chi
+	ferma_il_tempo()
+	await svuota_coda()
+	if not in_corso:
+		riprendi_il_tempo()
+		return
+	minigioco.avvia(passo.get("minigioco", {}), float(passo.get("bravura_automatica", -1.0)))
+
+func _minigioco_finito(esito: Dictionary) -> void:
+	riprendi_il_tempo()
+	var passo := passo_tutorial()
+	var vittima := minigioco_bersaglio
+	minigioco_bersaglio = {}
+	if int(esito.get("parati", 0)) == int(esito.get("totali", 0)) and int(esito.get("totali", 0)) > 0:
+		scrivi_forte("[i]Non te ne arriva addosso nemmeno uno.[/i]")
+	else:
+		scrivi("[i]%d colpi su %d ti arrivano addosso.[/i]" % [
+				int(esito.get("totali", 0)) - int(esito.get("parati", 0)),
+				int(esito.get("totali", 0))])
+	var danno := int(esito.get("danno", 0))
+	if danno > 0 and not vittima.is_empty() and int(vittima.get("hp", 0)) > 0:
+		vittima.hp = maxi(int(vittima.hp) - danno, 0)
+		registra_danno_subito(vittima, danno)
+		mostra_colpo(vittima, danno, "")
+		if int(vittima.hp) <= 0:
+			_su_ko(vittima)
+			return   # da terra il passo non si chiude: lo riapre chi ti rialza
+	for msg in passo.get("dopo", []):
+		scrivi_messaggio_tutorial(msg)
+	applica_hp_scriptati(passo)
+	chiudi_passo_tutorial()
+
+func chiudi_passo_tutorial() -> void:
+	tutorial_passo += 1
+	if tutorial_passo >= tutorial.get("passi", []).size():
+		concludi_tutorial()
+
 func avanza_tutorial(azione: Dictionary) -> void:
 	# il passo si chiude solo se il giocatore ha fatto davvero quello che gli
 	# era stato chiesto (Studia non consuma il passo: e' sempre concesso)
@@ -1140,14 +1205,17 @@ func avanza_tutorial(azione: Dictionary) -> void:
 		return
 	if String(azione.get("tipo", "")) != String(passo.get("azione", "")):
 		return
-	if passo.has("oggetto") and String(azione.get("id", "")) != String(passo["oggetto"]):
+	# "oggetto" e "id" sono la stessa domanda - QUALE - fatta a due tipi di
+	# azione. Un passo che chiede una fiala dice "oggetto", uno che chiede
+	# Sovraccarico dice "id", e chi legge i dati capisce cosa gli viene chiesto
+	# senza sapere che il motore li tratta uguale.
+	var quale := String(passo.get("oggetto", passo.get("id", "")))
+	if quale != "" and String(azione.get("id", "")) != quale:
 		return
 	for msg in passo.get("dopo", []):
 		scrivi_messaggio_tutorial(msg)
 	applica_hp_scriptati(passo)
-	tutorial_passo += 1
-	if tutorial_passo >= tutorial.get("passi", []).size():
-		concludi_tutorial()
+	chiudi_passo_tutorial()
 
 func applica_hp_scriptati(passo: Dictionary) -> void:
 	# il tutorial e' una scena: certi colpi devono lasciare esattamente i punti
@@ -1162,6 +1230,27 @@ func applica_hp_scriptati(passo: Dictionary) -> void:
 			if not c.giocatore and c.id == tutorial_id:
 				c.hp = clampi(int(passo["hp_nemico"]), 1, int(c.hp_max))
 				aggiorna_scheda(c)
+
+func prepara_passo_tutorial(passo: Dictionary) -> void:
+	# ANCHE LE ALTRE DUE BARRE SONO COPIONE, e vanno messe a posto PRIMA della
+	# lezione, non dopo. Per insegnare la Mattanza la barra di dominio deve
+	# essere piena nel momento in cui si dice "adesso chiamala": aspettare che
+	# si riempia da sola vorrebbe dire che la lezione arriva quando capita, o
+	# non arriva. Stessa cosa per l'aura prima della lezione sull'aura.
+	#
+	# Gli hp invece restano dall'altra parte (vedi applica_hp_scriptati): quelli
+	# non preparano una lezione, raccontano come è finita.
+	if not passo.has("dominio_protagonista") and not passo.has("aura_protagonista"):
+		return
+	for c in combattenti:
+		if not (c.giocatore and c.id == GameState.id_protagonista):
+			continue
+		if passo.has("dominio_protagonista"):
+			c.dominio = clampi(int(passo["dominio_protagonista"]), 0,
+					RegoleCombattimento.dominio_pieno())
+		if passo.has("aura_protagonista"):
+			c.aura = clampi(int(passo["aura_protagonista"]), 0, int(c.get("aura_max", 0)))
+		aggiorna_scheda(c)
 
 func concludi_tutorial() -> void:
 	# lo scontro non si vince: finisce come deve finire, con la sua scena
@@ -4005,6 +4094,36 @@ func scrivi_con_colpo(riga: String, bersaglio: Dictionary, danno: int, elemento 
 	voce.accoda(riga, "narrazione", "", false, effetto_colpo(bersaglio, danno, elemento))
 	verifica_ultima_risorsa(bersaglio)
 
+func rivitalizza_durante_allenamento(caduto: Dictionary) -> bool:
+	# «se vai ko veronica dice: Hey... Ti sei per caso addormentato/a? Sveglia!
+	# e usa un rivitalizzante su di te che ti rida tutta la vita e fa proseguire
+	# il tutorial» (Bru).
+	#
+	# E' la cosa che rende l'allenamento un allenamento: da Veronica si va
+	# sotto, e andare sotto non e' perdere. Il tutorial non puo' finire a meta'
+	# perche' hai sbagliato a parare - quello che deve insegnare non l'ha ancora
+	# insegnato tutto.
+	#
+	# Finisce quando il copione arriva in fondo, e allora lei i rivitalizzanti
+	# li ha finiti (vedi il "finale" del tutorial): non e' una battuta, e' la
+	# stessa regola guardata dall'altra parte.
+	if tutorial.is_empty() or tutorial_finito:
+		return false
+	if not caduto.giocatore or int(caduto.get("hp", 0)) > 0:
+		return false
+	var rianimante: Dictionary = tutorial.get("rivitalizzante", {})
+	if rianimante.is_empty():
+		return false
+	caduto.hp = int(caduto.hp_max)
+	caduto.stati_attivi.clear()
+	aggiorna_scheda(caduto)
+	for msg in rianimante.get("messaggi", []):
+		scrivi_messaggio_tutorial(msg)
+	if not muto:
+		AudioManager.interfaccia("cura")
+	rivitalizzanti_usati += 1
+	return true
+
 func _su_ko(caduto: Dictionary) -> void:
 	# DUE COSE, E LA SECONDA NON SI PUO' SALTARE.
 	#
@@ -4018,6 +4137,8 @@ func _su_ko(caduto: Dictionary) -> void:
 	# Non si sistema aggiungendo il controllo anche a quell'uscita: si sistema
 	# togliendo alla funzione che racconta il potere di decidere se chiederlo.
 	# Qui sotto la fine si verifica sempre, comunque sia andata la narrazione.
+	if rivitalizza_durante_allenamento(caduto):
+		return
 	_racconta_ko(caduto)
 	if int(caduto.hp) <= 0:
 		# abbattere qualcuno riempie la barra di chi resta in piedi dall'altra

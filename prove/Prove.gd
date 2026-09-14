@@ -113,6 +113,9 @@ func _ready() -> void:
 	prova_illustrazioni()
 	prova_leva_bersaglio()
 	prova_mappa_a_quadratini()
+	prova_collisioni()
+	prova_tutorial_di_veronica()
+	prova_rivitalizzante_di_veronica()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -1216,7 +1219,8 @@ func prova_suoni() -> void:
 	# I suoni del gioco non sono file, sono numeri calcolati all'avvio
 	# (Sintesi.gd). Un'onda sbagliata non da' errore: da' silenzio, o un clic.
 	titolo("suoni sintetizzati")
-	for nome: String in ["conferma", "annulla", "colpo", "cura", "raccolta", "errore"]:
+	for nome: String in ["conferma", "annulla", "colpo", "cura", "raccolta", "errore",
+			"allarme", "vetro", "parata"]:
 		var suono := Sintesi.interfaccia(nome)
 		esigi(suono != null and suono.data.size() > 0, "il suono '%s' esce vuoto" % nome)
 		esigi(suono.mix_rate == Sintesi.CAMPIONAMENTO, "il suono '%s' ha il campionamento sbagliato" % nome)
@@ -4355,9 +4359,17 @@ func prova_il_nastro_col_nome() -> void:
 	# 2. PARTE DA FUORI DALLO SCHERMO. Se partisse da dentro non "entrerebbe":
 	#    comparirebbe e scivolerebbe, che e' un'altra cosa.
 	schermata.nome_sul_nastro = ""
-	schermata.aggiorna_nastro("Veronica")
-	await get_tree().process_frame
-	await get_tree().process_frame
+	# SI ASPETTA LA PARTENZA, POI SI FERMA IL VOLO.
+	#
+	# Prima si lanciava senza aspettare e si guardava due fotogrammi dopo: cosi'
+	# la prova non misurava "da dove parte il nastro" ma "dov'e' arrivato in due
+	# fotogrammi", e quanto dura un fotogramma non lo decide nessuno qui dentro.
+	# Su una macchina che tossiva il nastro aveva gia' fatto ottanta pixel e la
+	# prova diventava rossa senza che niente fosse rotto - una prova che mente
+	# una volta su otto e' peggio di una prova che non c'e'.
+	await schermata.aggiorna_nastro("Veronica")
+	if schermata.tween_nastro != null and schermata.tween_nastro.is_valid():
+		schermata.tween_nastro.pause()
 	var nastro: Control = schermata.nastro
 	esigi(nastro.visible, "il nastro non si e' acceso")
 	esigi(schermata.nome_nastro.text == "veronica",
@@ -4368,7 +4380,10 @@ func prova_il_nastro_col_nome() -> void:
 			"il nastro parte inclinato di %.1f gradi: doveva entrare quasi in verticale"
 			% rad_to_deg(nastro.rotation))
 
-	# 3. ARRIVA, E SI FERMA DOVE DEVE.
+	# 3. ARRIVA, E SI FERMA DOVE DEVE. Da qui in poi il volo deve riprendere:
+	# la pausa di sopra serviva a fotografare la partenza, non a bloccarlo.
+	if schermata.tween_nastro != null and schermata.tween_nastro.is_valid():
+		schermata.tween_nastro.play()
 	# SI ASPETTA CHE IL TWEEN ABBIA FINITO, non che la posizione sia "quasi"
 	# arrivata. Fermandosi al primo fotogramma entro un pixel si campionava un
 	# nastro ancora in movimento: il rimbalzo della rotazione stava ancora
@@ -6142,3 +6157,207 @@ func stampa_esito() -> void:
 		print("  ✗ " + problema)
 	print("")
 	get_tree().quit(1)
+
+# --- le Collisioni infinite: il primo minigioco -----------------------------
+
+func prova_collisioni() -> void:
+	# IL CALENDARIO DELLA RAFFICA, provato senza disegnare un pugno.
+	#
+	# Bru: «deve essere molto difficile pararli tutti senno sei invincibile, se
+	# non li pari vai ko». Sono due pretese opposte, ed e' qui che si controlla
+	# che valgano tutte e due: pararli tutti azzera il danno (quindi si PUO'),
+	# ma la finestra buona e' una frazione di quanto il pugno si vede (quindi
+	# costa).
+	titolo("le collisioni infinite: la finestra per parare, e cosa costa mancarla")
+	var dado := RandomNumberGenerator.new()
+	dado.seed = 20260914
+	var raffica := Collisioni.calendario(12, 0.35, 0.50, dado)
+	esigi(raffica.size() == 12, "la raffica doveva avere 12 pugni, ne ha %d" % raffica.size())
+
+	# la finestra buona e' piu' corta di quanto il pugno resta a schermo: e' la
+	# differenza fra "l'ho visto" e "l'ho preso"
+	for pugno in raffica:
+		var finestra := float(pugno.scade) - float(pugno.istante)
+		esigi(finestra < float(pugno.durata),
+				"un pugno si para per tutto il tempo che si vede: parare non costerebbe niente")
+		esigi(finestra > 0.0, "un pugno con la finestra chiusa non si para mai")
+
+	# dentro la finestra vale, dopo no. E' la regola intera del minigioco
+	var primo: Dictionary = raffica[0]
+	esigi(not Collisioni.para(raffica, 0, float(primo.istante) - 0.01),
+			"un pugno si para PRIMA che arrivi")
+	esigi(Collisioni.para(raffica, 0, float(primo.istante) + 0.001),
+			"un pugno non si para nemmeno nel momento in cui arriva")
+	esigi(not Collisioni.para(raffica, 0, float(primo.istante) + 0.002),
+			"lo stesso pugno si para due volte")
+	var secondo: Dictionary = raffica[1]
+	esigi(not Collisioni.para(raffica, 1, float(secondo.scade) + 0.01),
+			"un pugno si para dopo che ti ha gia' preso")
+
+	# il danno e' quello che NON hai fermato
+	var tutti := Collisioni.calendario(10, 0.3, 0.5, dado)
+	esigi(Collisioni.danno(tutti, 7) == 70,
+			"dieci pugni non parati da 7 dovevano fare 70, fanno %d" % Collisioni.danno(tutti, 7))
+	for i in tutti.size():
+		Collisioni.para(tutti, i, float(tutti[i].istante) + 0.001)
+	esigi(Collisioni.danno(tutti, 7) == 0,
+			"parare tutta la raffica deve azzerare il danno: e' il patto che la rende difficile")
+	esigi(bool(Collisioni.esito(tutti, 7).get("perfetto", false)),
+			"una raffica tutta parata non viene riconosciuta come perfetta")
+
+	# i pugni non arrivano a metronomo, e non si coprono a vicenda
+	var distanze: Array[float] = []
+	for i in range(1, raffica.size()):
+		distanze.append(float(raffica[i].istante) - float(raffica[i - 1].istante))
+	var uguali := true
+	for scarto in distanze:
+		if absf(scarto - distanze[0]) > 0.001:
+			uguali = false
+	esigi(not uguali, "i pugni arrivano a distanza regolare: si imparano a memoria in tre battute")
+	# DUE PUGNI DI FILA NON SI DEVONO SOVRAPPORRE, e "sovrapporsi" si misura in
+	# pixel con la misura vera del pugno - non in frazioni astratte.
+	#
+	# Il quadrante e' il box del combattimento: largo e basso, circa 1155 per
+	# 175. Un pugno e' 0.40 del lato corto, cioe' settanta pixel. La distanza
+	# minima era 0.22 del lato corto: trentotto pixel. Meta' del pugno. Si
+	# sovrapponevano, e il controllo diceva di no perche' confrontava la
+	# distanza con un numero che non aveva niente a che fare con quanto e'
+	# grosso un pugno. Adesso e' la misura del pugno a decidere.
+	var alto := 175.0
+	var largo := 1155.0
+	var proporzione := largo / alto
+	var lato_pixel := Collisioni.LATO_PUGNO * alto
+	var larga := Collisioni.calendario(14, 0.34, 0.52, dado, proporzione)
+	for i in range(1, larga.size()):
+		var qui := Vector2(float(larga[i].x) * largo, float(larga[i].y) * alto)
+		var prima := Vector2(float(larga[i - 1].x) * largo, float(larga[i - 1].y) * alto)
+		esigi(qui.distance_to(prima) >= lato_pixel,
+				("due pugni di fila distano %d pixel e un pugno ne e' largo %d: "
+				+ "il secondo nasce sotto la mano che ha appena parato il primo")
+				% [int(qui.distance_to(prima)), int(lato_pixel)])
+
+	# E LA RAFFICA DEVE RESTARE FITTA.
+	#
+	# Senza correggere la proporzione, chiedere la stessa distanza in frazioni
+	# diventa sei volte piu' severo per il lungo che per il corto: i pugni
+	# finiscono buttati mezzo schermo l'uno dall'altro e la raffica si
+	# sparpaglia.
+	#
+	# E' UN EFFETTO DI MEDIA, E VA MISURATO COME TALE. Su una raffica sola
+	# qualche coppia vicina capita comunque, e infatti la prima versione di
+	# questa prova restava verde anche togliendo la correzione: misurava il
+	# caso, non la regola. Misurato su quaranta raffiche il conto e' netto -
+	# con la correzione 5.8 coppie vicine su 13, senza 3.0 - e la soglia sta
+	# in mezzo.
+	var vicini := 0
+	var raffiche := 40
+	for prova in raffiche:
+		var altro_dado := RandomNumberGenerator.new()
+		altro_dado.seed = 4000 + prova
+		var una := Collisioni.calendario(14, 0.34, 0.52, altro_dado, proporzione)
+		for i in range(1, una.size()):
+			if absf(float(una[i].x) - float(una[i - 1].x)) < 0.25:
+				vicini += 1
+	var media := float(vicini) / float(raffiche)
+	esigi(media >= 4.0,
+			("i pugni nascono vicini solo %.1f volte su 13: la raffica e' sparpagliata "
+			+ "su tutta la larghezza invece di arrivare addosso") % media)
+
+func prova_tutorial_di_veronica() -> void:
+	# IL COPIONE DELL'ALLENAMENTO, letto come lo legge il motore.
+	#
+	# Un passo che chiede un'azione che non esiste, o un oggetto che nessuno ti
+	# ha dato, non fallisce: si pianta. Il tutorial aspetta per sempre una cosa
+	# che non puoi fare, e da fuori sembra che il gioco si sia bloccato.
+	titolo("l'allenamento con Veronica: ogni passo si puo' davvero eseguire")
+	var dati: Dictionary = GameState.personaggi.get("veronica", {})
+	var tutorial: Dictionary = dati.get("tutorial_combattimento", {})
+	esigi(not tutorial.is_empty(), "Veronica non porta piu' lo script del tutorial")
+	var passi: Array = tutorial.get("passi", [])
+	esigi(passi.size() >= 5, "l'allenamento ha solo %d passi: non insegna abbastanza" % passi.size())
+
+	var forniti: Array = tutorial.get("oggetti_forniti", [])
+	var azioni_note := ["attacca", "difendi", "studia", "oggetto", "abilita", "fuggi", "leva", "minigioco"]
+	var insegna_aura := false
+	var insegna_mattanza := false
+	var insegna_minigioco := false
+	for passo in passi:
+		var azione := String(passo.get("azione", ""))
+		esigi(azione in azioni_note,
+				"il passo chiede '%s', che non e' un'azione che il motore sa eseguire" % azione)
+		if azione == "oggetto":
+			var quale := String(passo.get("oggetto", ""))
+			esigi(quale in forniti,
+					"il passo chiede l'oggetto %s, che il tutorial non ti mette in tasca: si pianta li'" % quale)
+		if azione == "abilita":
+			var id_abilita := String(passo.get("id", passo.get("oggetto", "")))
+			var scheda := GameState.abilita_combattimento(id_abilita)
+			esigi(not scheda.is_empty(),
+					"il passo chiede l'abilita' %s, che non esiste" % id_abilita)
+			esigi(id_abilita in GameState.abilita_usabili(GameState.id_protagonista),
+					"il passo chiede %s, che il protagonista non ha nel menu: si pianta li'" % id_abilita)
+			if int(scheda.get("aura", 0)) > 0:
+				insegna_aura = true
+				esigi(int(passo.get("aura_protagonista", -1)) >= int(scheda.get("aura", 0)),
+						"il passo chiede %s ma non prepara abbastanza aura per pagarla" % id_abilita)
+			if String(scheda.get("tipo", "")) == "mattanza":
+				insegna_mattanza = true
+				esigi(int(passo.get("dominio_protagonista", 0)) >= RegoleCombattimento.dominio_pieno() / 3,
+						"il passo insegna la Mattanza senza riempire la barra: non si accende nemmeno")
+		if azione == "minigioco":
+			insegna_minigioco = true
+			var parametri: Dictionary = passo.get("minigioco", {})
+			esigi(int(parametri.get("quanti", 0)) > 0, "una raffica senza pugni")
+			esigi(int(parametri.get("danno", 0)) > 0,
+					"i pugni non fanno danno: non c'e' niente da parare")
+
+	# Bru: «il tutorial ti insegna come usare tutto nella ui ti spiega anche la
+	# mattanza, l'aura, l'uso di oggetti». Le tre lezioni si contano.
+	esigi(insegna_aura, "l'allenamento non insegna piu' l'aura")
+	esigi(insegna_mattanza, "l'allenamento non insegna piu' la Mattanza")
+	esigi(insegna_minigioco, "l'allenamento non ha piu' le Collisioni infinite")
+	esigi(not tutorial.get("rivitalizzante", {}).is_empty(),
+			"senza rivitalizzante, sbagliare a parare chiude il tutorial a meta'")
+
+func prova_rivitalizzante_di_veronica() -> void:
+	# «se vai ko veronica dice [...] e usa un rivitalizzante su di te che ti
+	# rida tutta la vita e fa proseguire il tutorial» (Bru).
+	#
+	# Cioe': durante l'allenamento andare sotto NON e' perdere. Qui si mette il
+	# protagonista a terra davvero e si guarda se si rialza.
+	titolo("durante l'allenamento andare KO non chiude niente")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["veronica"]
+	var scena: PackedScene = load("res://scenes/Combattimento.tscn")
+	var scontro: Node = scena.instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(scontro)
+	esigi(not scontro.tutorial.is_empty(), "lo scontro con Veronica non ha caricato il tutorial")
+	var eroe: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and combattente.id == GameState.id_protagonista:
+			eroe = combattente
+	esigi(not eroe.is_empty(), "nessun protagonista nello scontro")
+	if not eroe.is_empty():
+		# lo scontro muto si e' gia' giocato tutto dentro add_child: lo si
+		# riapre a mano, se no qui sotto si misurerebbe il suo finale invece del
+		# rivitalizzante
+		scontro.in_corso = true
+		eroe.hp = 0
+		var rialzate_prima: int = scontro.rivitalizzanti_usati
+		scontro._su_ko(eroe)
+		esigi(int(eroe.hp) == int(eroe.hp_max),
+				"il rivitalizzante non ha restituito tutta la vita: %d su %d" % [eroe.hp, eroe.hp_max])
+		esigi(scontro.rivitalizzanti_usati == rialzate_prima + 1,
+				"il rivitalizzante non e' stato contato")
+		esigi(scontro.in_corso, "andare KO durante l'allenamento ha chiuso lo scontro")
+		# e quando il copione e' finito, i rivitalizzanti sono finiti con lui
+		scontro.tutorial_finito = true
+		scontro.in_corso = true
+		eroe.hp = 0
+		scontro._su_ko(eroe)
+		esigi(int(eroe.hp) == 0,
+				"a tutorial finito Veronica ti rialza ancora: l'allenamento non finisce piu'")
+	scontro.free()

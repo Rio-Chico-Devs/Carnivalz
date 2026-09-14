@@ -3487,6 +3487,44 @@
 						]
 					},
 					{
+						"azione": "abilita",
+						"id": "colpo_caricato",
+						"aura_protagonista": 10,
+						"prima": [
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Il pugno da solo non basta. Adesso usa qualcosa che ti COSTI.",
+								"espr": "decisa"
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "Apri ABILITÀ e usa Sovraccarico. Sotto la vita hai l'AURA: è quella che si spende per le mosse, e ogni mossa ha il suo prezzo — più è grossa, più ne vuole."
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "L'aura non torna da sola mentre combatti. Quella con cui entri è quella che hai: si riempie dopo lo scontro, o con un oggetto, o con le abilità di chi ne sa una."
+							}
+						],
+						"dopo": [
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Ecco! Hai sentito? Quella è roba che si paga."
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "anonimo",
+								"testo": "Mi sento più leggero. Troppo più leggero."
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "È l'aura che se ne va. Impara a contarla, {nome}: quando finisce restano i pugni."
+							}
+						]
+					},
+					{
 						"azione": "difendi",
 						"hp_protagonista": 10,
 						"prima": [
@@ -3525,6 +3563,73 @@
 								"tipo": "dialogo",
 								"chi": "veronica",
 								"testo": "Ottimo, che tu sia rimasto in piedi mi fa bruciare di emozione! Vuol dire che sono stata un'insegnante incredibilmente efficiente."
+							}
+						]
+					},
+					{
+						"azione": "minigioco",
+						"minigioco": {
+							"quanti": 14,
+							"intervallo": 0.34,
+							"durata": 0.52,
+							"danno": 9
+						},
+						"bravura_automatica": 0.45,
+						"prima": [
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Questo combattimento è troppo eccitante... preparati!",
+								"espr": "decisa"
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "Collisioni infinite. I pugni arrivano uno addosso all'altro: CLICCA su ognuno per fermarlo. Quelli che non fermi ti arrivano addosso."
+							}
+						],
+						"dopo": [
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Bene! Vedo che le mani le sai ancora usare."
+							}
+						]
+					},
+					{
+						"azione": "abilita",
+						"id": "mattanza",
+						"dominio_protagonista": 300,
+						"prima": [
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Senti niente? Quella è la tua barra che si è riempita. Aprila.",
+								"espr": "decisa"
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "La terza barra è il DOMINIO: si riempie combattendo, colpo dopo colpo. Quando un segmento è pieno, nel menu si accende MATTANZA."
+							},
+							{
+								"tipo": "narrazione",
+								"testo": "La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti."
+							}
+						],
+						"dopo": [
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "ECCO COS'ERA! Ti si è aperto qualcosa dietro gli occhi!"
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "anonimo",
+								"testo": "..."
+							},
+							{
+								"tipo": "dialogo",
+								"chi": "veronica",
+								"testo": "Quella cosa lì è tua. Ricordati di che sapore ha."
 							}
 						]
 					},
@@ -3583,14 +3688,33 @@
 					},
 					{
 						"tipo": "notifica",
-						"testo": "Sei stato messo KO."
+						"testo": "Sei {stato|stata} {messo|messa} KO."
 					},
 					{
 						"tipo": "dialogo",
 						"chi": "veronica",
 						"testo": "... Ho esagerato di nuovo... Ma al massimo della potenza!"
+					},
+					{
+						"tipo": "dialogo",
+						"chi": "veronica",
+						"testo": "Oops, ho finito i rivitalizzanti... che disastro..."
 					}
-				]
+				],
+				"rivitalizzante": {
+					"messaggi": [
+						{
+							"tipo": "dialogo",
+							"chi": "veronica",
+							"testo": "Hey... Ti sei per caso {addormentato|addormentata}? Sveglia!",
+							"espr": "decisa"
+						},
+						{
+							"tipo": "narrazione",
+							"testo": "Ti versa in gola un rivitalizzante senza nemmeno guardare dove. Torni su tutto in una volta."
+						}
+					]
+				}
 			},
 			"studio": [
 				{

@@ -113,6 +113,12 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			# l'ultimo quarto di una scelta a tempo: due colpi secchi in alto,
 			# la stessa cosa che dice la lancetta diventata rossa
 			return tono(880.0, 0.09, "quadra", 55.0, 0.20, 1180.0)
+		"parata":
+			# un pugno delle Collisioni infinite preso al volo. Va sopra al
+			# fracasso della raffica e deve arrivare PRIMA che tu abbia il
+			# tempo di chiederti se l'hai preso: cortissimo, e sale - un colpo
+			# che scende suonerebbe come un errore
+			return tono(1240.0, 0.055, "triangolo", 70.0, 0.26, 1760.0)
 		"vetro":
 			return vetro()
 		_:
