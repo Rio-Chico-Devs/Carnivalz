@@ -87,7 +87,7 @@ const LIVELLI := [1, 2, 3, 5, 8, 12, 18, 25]
 # (vedi cresci_fino_a): il livello e' un'abbreviazione per "uno che ha giocato
 # fin qui".
 
-const STRATEGIE := ["attacca", "difendi", "studia", "casuale", "si_cura"]
+const STRATEGIE := ["attacca", "difendi", "studia", "casuale", "si_cura", "speciali"]
 # sotto questa quota di vita, chi si cura beve invece di picchiare
 const SOGLIA_BEVUTA := 0.45
 
@@ -326,6 +326,83 @@ func strategia_casuale(scontro, _chi: Dictionary) -> Dictionary:
 			return {"tipo": "difendi"}
 		_:
 			return {"tipo": "studia", "bersaglio": bersaglio}
+
+func strategia_speciali(scontro, chi: Dictionary) -> Dictionary:
+	# CHI LE ABILITA' LE USA DAVVERO, e senza di lei il simulatore era cieco.
+	#
+	# Per mesi nessuna delle cinque strategie ha mai chiamato un'abilita': si
+	# picchiava, si parava, si studiava, si beveva. Sessanta abilita' su
+	# settantuno - cioe' quasi tutto quello che un personaggio sa fare dopo i
+	# primi livelli - non entravano in una sola delle duecentomila partite
+	# simulate. E' lo stesso buco che aveva la sacca prima di "si_cura": non
+	# misurare una cosa non la rende neutra, la rende invisibile.
+	#
+	# Si e' visto quando Bru ha deciso che l'aura non si rigenera piu' dentro
+	# uno scontro: un cambiamento grosso all'economia delle mosse, e la tabella
+	# non si e' mossa di un decimale. Non perche' non cambiasse niente - perche'
+	# nessuno stava spendendo aura.
+	#
+	# COME GIOCA: la piu' cara che si puo' permettere, ogni volta che puo'. Non
+	# e' il modo ottimale di giocare (a volte conviene tenersi l'aura per dopo),
+	# ed e' apposta: e' il modo ESTREMO. Messa accanto ad "attacca", che le
+	# abilita' non le tocca mai, la differenza fra le due righe e' esattamente
+	# quanto valgono - e quanto pesa l'aura che le paga.
+	var bersaglio := primo_bersaglio(scontro)
+	if bersaglio.is_empty():
+		return {"tipo": "difendi"}
+	var scelta := migliore_abilita(scontro, chi)
+	if scelta.is_empty():
+		return strategia_attacca(scontro, chi)
+	if scontro.abilita_vuole_bersaglio(String(scelta.id)):
+		scelta["bersaglio"] = bersaglio
+	return scelta
+
+func migliore_abilita(scontro, chi: Dictionary) -> Dictionary:
+	# la piu' cara fra quelle che puo' pagare adesso: aura in tasca, e la barra
+	# di dominio dove serve. Cara = forte, ed e' la stessa scala che vede il
+	# giocatore nel menu.
+	#
+	# "Che puo' pagare" vuol dire che un prezzo ce l'ha. Fuori restano due cose,
+	# e tutte e due per la stessa ragione - non sono mosse:
+	#
+	# - LE PASSIVE. Il gioco lo dice gia' in Combattimento.passiva(): "una
+	#   passiva non si usa, vale sempre". Chiamarla brucia la battuta e stampa
+	#   una riga. Con l'aura a zero era sempre l'unica rimasta a costo zero, e
+	#   il giocatore automatico ci si incastrava dentro: al 18 - il livello in
+	#   cui arriva Veglia - il Divoratore passava da vinto sempre a ottantadue
+	#   partite su cento finite per esaurimento battute.
+	# - LE GRATIS. Guardia, Piantati: parare senza pagare niente. E' quello che
+	#   fa gia' "difendi", che e' una strategia per conto suo; qui dentro
+	#   servirebbe solo a non attaccare mai piu' appena l'aura e' finita.
+	#
+	# Quando non resta niente da pagare si torna a picchiare, che e' la cosa
+	# vera: l'aura e' finita, e senza aura si fa quello che si faceva prima.
+	var aura := int(chi.get("aura", 0))
+	var scelta: Dictionary = {}
+	var speso := -1
+	for id_abilita in GameState.abilita_usabili(String(chi.get("id", ""))):
+		var dati := GameState.abilita_combattimento(String(id_abilita))
+		if dati.is_empty():
+			continue   # abilita' narrativa: fuori dal combattimento
+		if String(dati.get("tipo", "")) == "passiva":
+			continue
+		var costo := int(dati.get("aura", 0))
+		if costo > aura or costo <= speso:
+			continue
+		if costo == 0 and not chiede_dominio(dati):
+			continue
+		if not scontro.dominio_sufficiente(chi, dati):
+			continue
+		speso = costo
+		scelta = {"tipo": "abilita", "id": String(id_abilita)}
+	return scelta
+
+func chiede_dominio(dati: Dictionary) -> bool:
+	# se la barra di dominio la tocca, in un modo o nell'altro: ne consuma dei
+	# segmenti, oppure li vuole tutti
+	return float(dati.get("dominio", 0.0)) > 0.0 \
+			or bool(dati.get("consuma_tutto", false)) \
+			or float(dati.get("dominio_minimo", 0.0)) > 0.0
 
 func riempi_la_sacca() -> void:
 	# Quello che si porta dietro uno che gioca con attenzione. L'elenco sta in
