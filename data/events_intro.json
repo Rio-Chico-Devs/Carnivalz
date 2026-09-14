@@ -213,8 +213,8 @@
 				"nemici": [
 					"veronica"
 				],
-				"se_vinci": "dopo_allenamento",
-				"se_perdi": "dopo_allenamento"
+				"se_vinci": "infermeria_risveglio",
+				"se_perdi": "infermeria_risveglio"
 			}
 		},
 		"veronica_animo": {
@@ -232,8 +232,8 @@
 				"nemici": [
 					"veronica"
 				],
-				"se_vinci": "dopo_allenamento",
-				"se_perdi": "dopo_allenamento"
+				"se_vinci": "infermeria_risveglio",
+				"se_perdi": "infermeria_risveglio"
 			}
 		},
 		"veronica_maldiptesta": {
@@ -251,37 +251,12 @@
 				"nemici": [
 					"veronica"
 				],
-				"se_vinci": "dopo_allenamento",
-				"se_perdi": "dopo_allenamento"
+				"se_vinci": "infermeria_risveglio",
+				"se_perdi": "infermeria_risveglio"
 			}
 		},
-		"dopo_allenamento": {
-			"_nota": "QUI FINISCE QUELLO CHE È SCRITTO. Bru: «fermati al dopo combattimento con veronica che ti narro io come proseguire». Da qui in poi è segnaposto: si va al lancio e poi alla vecchia prima missione, così il gioco resta giocabile da cima a fondo mentre si aspetta il testo vero. L'allenamento non si vince e non si perde - è un allenamento - quindi le tre scelte arrivano tutte qui.",
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Ecco! Questo sì che è bruciare! Adesso vai a farti proiettare, che ti aspettano.",
-					"espr": "felice"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "...Ci vediamo, Veronica.",
-					"espr": "neutra"
-				}
-			],
-			"destra": "veronica",
-			"espr_destra": "felice",
-			"scelte": [
-				{
-					"testo": "Vai alla sala di proiezione",
-					"vai": "monologo"
-				}
-			]
-		},
 		"monologo": {
-			"_nota": "Il lancio: era la prima cosa che si vedeva del gioco, adesso è quello che succede DOPO l'allenamento, quando si parte davvero.",
+			"_nota": "Il lancio. Da qui in poi e' quello che c'era prima - la vecchia prima missione - e resta attaccato apposta, cosi' il gioco si gioca da cima a fondo mentre si aspetta il resto della trama. Bru: «fermiamoci qui e quando hai finito proseguiamo col resto della trama».",
 			"sfondo": "res://art/scene/sala_proiezione.png",
 			"sequenza": [
 				{
@@ -400,7 +375,7 @@
 			"sblocca_stanze": [
 				"alloggio",
 				"sala_allenamento",
-				"sala_riunioni",
+				"sala_comunicazioni",
 				"infermeria",
 				"archivio",
 				"mensa",
@@ -414,17 +389,6 @@
 				}
 			]
 		},
-		"sala_riunioni": {
-			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
-			"espulsione_automatica": true,
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Le porte sono chiuse. Le riunioni si fanno quando lo dicono loro, non quando passi di li'."
-				}
-			],
-			"_chiusa_per_ora": "Ci si entra nel tutorial, al ritorno dalla prima missione. Oggi e' solo un rettangolo sulla mappa."
-		},
 		"infermeria": {
 			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
 			"espulsione_automatica": true,
@@ -434,7 +398,11 @@
 					"testo": "Vuota a quest'ora. Ci finirai piu' tardi, probabilmente."
 				}
 			],
-			"_chiusa_per_ora": "Aperta piu' avanti, quando ci finirai dentro."
+			"_chiusa_per_ora": "Aperta piu' avanti, quando ci finirai dentro.",
+			"vai_se_flag": {
+				"flag": "rientro_infermeria",
+				"vai": "punto_non_sbloccato"
+			}
 		},
 		"archivio": {
 			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
@@ -445,7 +413,11 @@
 					"testo": "Serve un'autorizzazione che non hai. Non l'hai mai avuta."
 				}
 			],
-			"_chiusa_per_ora": "Serve un'autorizzazione che il protagonista non ha ancora."
+			"_chiusa_per_ora": "Serve un'autorizzazione che il protagonista non ha ancora.",
+			"vai_se_flag": {
+				"flag": "rientro_infermeria",
+				"vai": "punto_non_sbloccato"
+			}
 		},
 		"mensa": {
 			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
@@ -456,7 +428,11 @@
 					"testo": "Hai gia' mangiato. E comunque non e' per quello che ti hanno {svegliato|svegliata}."
 				}
 			],
-			"_chiusa_per_ora": "Arredamento del complesso: esiste perche' un posto dove si vive abbia anche dove si mangia."
+			"_chiusa_per_ora": "Arredamento del complesso: esiste perche' un posto dove si vive abbia anche dove si mangia.",
+			"vai_se_flag": {
+				"flag": "rientro_infermeria",
+				"vai": "punto_non_sbloccato"
+			}
 		},
 		"sala_proiezione": {
 			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
@@ -467,7 +443,11 @@
 					"testo": "Non prima dell'allenamento. Le regole sono regole, anche quelle stupide."
 				}
 			],
-			"_chiusa_per_ora": "Ci si va dopo l'allenamento, e allora ci si arriva per la sua strada, non dalla mappa."
+			"_chiusa_per_ora": "Ci si va dopo l'allenamento, e allora ci si arriva per la sua strada, non dalla mappa.",
+			"vai_se_flag": {
+				"flag": "rientro_infermeria",
+				"vai": "punto_non_sbloccato"
+			}
 		},
 		"hangar": {
 			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
@@ -478,7 +458,186 @@
 					"testo": "Da quella parte non ci sei mai {stato|stata}, e oggi non e' il giorno."
 				}
 			],
-			"_chiusa_per_ora": "Non e' mai stato aperto e per ora non lo sara'."
+			"_chiusa_per_ora": "Non e' mai stato aperto e per ora non lo sara'.",
+			"vai_se_flag": {
+				"flag": "rientro_infermeria",
+				"vai": "punto_non_sbloccato"
+			}
+		},
+		"sala_comunicazioni": {
+			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Le porte sono chiuse. Le riunioni si fanno quando lo dicono loro, non quando passi di li'."
+				}
+			],
+			"_chiusa_per_ora": "Ci si entra nel tutorial, al ritorno dalla prima missione. Oggi e' solo un rettangolo sulla mappa.",
+			"vai_se_flag": {
+				"flag": "rientro_infermeria",
+				"vai": "comunicazioni_ordini"
+			}
+		},
+		"punto_non_sbloccato": {
+			"_nota": "Bru: «nei punti non sbloccati il protagonista dirà semplicemente: dovrei recarmi presso il prossimo punto d'interesse... sempre se ce ne sono». Una riga sola per tutte le porte chiuse: la mattina ogni stanza aveva la sua frase, adesso che la mappa è tutta aperta le frasi diverse suonerebbero come sette promesse invece che come sette porte chiuse.",
+			"espulsione_automatica": true,
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Dovrei recarmi presso il prossimo punto d'interesse... sempre se ce ne sono."
+				}
+			]
+		},
+		"infermeria_risveglio": {
+			"_nota": "Il testo è di Bru, parola per parola. Qui finisce l'allenamento e comincia la giornata vera: da qui la mappa è tutta visibile e il punto esclamativo si è spostato sulla sala comunicazioni.",
+			"sfondo": "res://art/scene/infermeria.png",
+			"flag": "rientro_infermeria",
+			"sblocca_stanze": [
+				"alloggio",
+				"sala_allenamento",
+				"mensa",
+				"infermeria",
+				"archivio",
+				"sala_comunicazioni",
+				"sala_proiezione",
+				"hangar"
+			],
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il soffitto dell'infermeria. Non ricordi di esserci arrivat{o|a}."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "curie",
+					"testo": "Ben {svegliato|svegliata}!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Adesso la testa mi fa ancora più male..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "curie",
+					"testo": "Su su, sai che gli allenamenti con Veronica sono sempre così, ormai preparo sempre il tuo letto quando so che dovete allenarvi!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Mi sento già in forze nonostante il mal di testa..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "curie",
+					"testo": "Ovviamente, con chi credi di avere a che fare, grazie alle mie amorevoli cure chiunque riesce a rimettersi in piedi in tempo record."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Le tue abilità sarebbero comodissime in combattimento."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "curie",
+					"testo": "Sai che non mi piace la violenza. Non ce la farei mai a fare il vostro lavoro... ma potete sempre venire a trovarmi qui per mettere qualche cerotto ben piazzato!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "curie",
+					"testo": "Comunque... dovresti andare nella sala di comunicazione, ho sentito dire che hanno già pronta la tua prima missione per quando ti sarai {finito|finita} di riprendere..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Immaginavo. Allora vado... grazie ancora per le cure."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "curie",
+					"testo": "Di nulla, mi trovi qui se hai bisogno!"
+				}
+			],
+			"destra": "curie",
+			"scelte": [
+				{
+					"testo": "Esci dall'infermeria",
+					"torna_a_mappa": true
+				}
+			],
+			"stanza": "infermeria"
+		},
+		"comunicazioni_ordini": {
+			"_nota": "Il testo è di Bru, parola per parola. La barra verticale nel suo messaggio separa due battute dello schermo, e qui sono due battute.",
+			"sfondo": "res://art/scene/sala_comunicazioni.png",
+			"flag": "ordini_ricevuti",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "In questa sala di solito mi vengono impartiti gli ordini, chissà che tipo di missione hanno scelto per me..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Lo schermo centrale si accende."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Bzzzz... zzz... Boop. Buongiorno dominat{ore|rice}."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Innanzitutto ci congratuliamo con lei per aver completato il suo addestramento, dai dati raccolti riponiamo molte speranze in lei, non sembra essere un soggetto nella norma..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "figura_misteriosa",
+					"testo": "Abbiamo deciso di affidarle una missione semplice, nulla di che in realtà... siamo sicuri che avrà molto successo nelle operazioni. Settore del confine del cielo terso, quadrante 3, abbiamo individuato insolite attività e deformazioni nella zona... si limiti ad esplorare le zone segnalate e nel caso vi fosse la presenza di... qualcosa di più grosso, le affiancheremo la sua collega per completare l'operazione... Confidiamo nel suo buonsenso e nelle sue capacità. Ci faccia avere buone notizie! Ci congediamo. Bzzzt. Bup."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Lo schermo si spegne."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Dovrei ricevere a breve tutto il necessario sul mio data pad..."
+				},
+				{
+					"tipo": "notifica",
+					"testo": "Data pad aggiornato: esplorare il settore del confine del cielo terso, quadrante 3, e le confluenze che vi si sono create. Fare rapporto."
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Vai alla sala di proiezione",
+					"vai": "monologo"
+				}
+			]
 		}
 	},
 	"mappa_dungeon": {
@@ -510,7 +669,8 @@
 					460,
 					280
 				],
-				"icona": "obiettivo"
+				"icona": "obiettivo",
+				"icona_fino_a": "rientro_infermeria"
 			},
 			{
 				"id": "mensa",
@@ -543,14 +703,16 @@
 				]
 			},
 			{
-				"id": "sala_riunioni",
-				"nome": "Sala riunioni",
+				"id": "sala_comunicazioni",
+				"nome": "Sala comunicazioni",
 				"riquadro": [
 					620,
 					760,
 					420,
 					190
-				]
+				],
+				"icona": "obiettivo",
+				"icona_da": "rientro_infermeria"
 			},
 			{
 				"id": "sala_proiezione",
@@ -578,6 +740,39 @@
 				"alloggio",
 				"sala_allenamento"
 			]
-		]
+		],
+		"_nota_corridoi": "Il complesso ha i suoi corridoi da sempre: e' che la mattina non ti ci lasciano passare. \"connessioni\" sono le porte aperte sempre - al mattino una sola, verso la palestra, com'era nel racconto di Bru. \"connessioni_da\" sono quelle che si aprono con un flag: quando torni in piedi dall'infermeria la giornata e' cominciata e il complesso e' tutto tuo.",
+		"connessioni_da": {
+			"rientro_infermeria": [
+				[
+					"alloggio",
+					"mensa"
+				],
+				[
+					"alloggio",
+					"infermeria"
+				],
+				[
+					"alloggio",
+					"archivio"
+				],
+				[
+					"infermeria",
+					"sala_comunicazioni"
+				],
+				[
+					"sala_comunicazioni",
+					"sala_proiezione"
+				],
+				[
+					"sala_allenamento",
+					"hangar"
+				],
+				[
+					"sala_comunicazioni",
+					"alloggio"
+				]
+			]
+		}
 	}
 }

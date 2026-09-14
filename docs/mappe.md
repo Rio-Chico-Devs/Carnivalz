@@ -124,7 +124,7 @@ A destra, fra parentesi, cosa comporta:
 
 # Introduzione
 
-<sub>`data/events_intro.json` — 14 scene</sub>
+<sub>`data/events_intro.json` — 16 scene</sub>
 
 ## La griglia
 
@@ -138,13 +138,13 @@ A destra, fra parentesi, cosa comporta:
 | **Mensa** | `180, 120, 300, 200` |  |
 | **Infermeria** | `620, 120, 280, 200` |  |
 | **Archivio** | `180, 760, 280, 190` |  |
-| **Sala riunioni** | `620, 760, 420, 190` |  |
+| **Sala comunicazioni** | `620, 760, 420, 190` | obiettivo |
 | **Sala di proiezione** | `1300, 760, 320, 190` |  |
 | **Hangar** | `1520, 140, 280, 420` |  |
 
 8 stanze sulla mappa, 1 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `dopo_allenamento`, `introduzione`, `monologo`, `veronica_animo`, `veronica_carica`, `veronica_maldiptesta`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `comunicazioni_ordini`, `infermeria_risveglio`, `introduzione`, `monologo`, `punto_non_sbloccato`, `veronica_animo`, `veronica_carica`, `veronica_maldiptesta`.
 
 ## Il percorso
 

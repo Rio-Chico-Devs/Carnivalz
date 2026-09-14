@@ -77,12 +77,25 @@ func prepara(quale: String) -> void:
 			await attendi(quando)
 			if scontro.minigioco.pugni.is_empty():
 				push_error("nessun pugno a schermo: non c'e' niente da fotografare")
+		"complesso_dopo":
+			# LA MAPPA DEL POMERIGGIO: tutta visibile, i corridoi aperti, e il
+			# punto esclamativo che si e' spostato sulla sala comunicazioni.
+			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+			GameState.imposta_flag("rientro_infermeria")
+			GameState.nodo_corrente = "infermeria"
+			for id_stanza in ["alloggio", "sala_allenamento", "sala_comunicazioni",
+					"infermeria", "archivio", "mensa", "sala_proiezione", "hangar"]:
+				GameState.sblocca_stanza(id_stanza)
+			var dopo: Control = load("res://scenes/MappaZona.tscn").instantiate()
+			dopo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			add_child(dopo)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 		"complesso":
 			# la mappa del complesso: tutte le aree visibili, una sola aperta,
 			# e il punto esclamativo che salta
 			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
 			GameState.nodo_corrente = "alloggio"
-			for id_stanza in ["alloggio", "sala_allenamento", "sala_riunioni",
+			for id_stanza in ["alloggio", "sala_allenamento", "sala_comunicazioni",
 					"infermeria", "archivio", "mensa", "sala_proiezione", "hangar"]:
 				GameState.sblocca_stanza(id_stanza)
 			if not "alloggio" in GameState.nodi_visitati:

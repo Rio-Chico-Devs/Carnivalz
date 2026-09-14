@@ -93,7 +93,15 @@ static func entra(id_nodo: String) -> Dictionary:
 	esito.id = id_vero
 	esito.nodo = nodo
 	esito.prima_visita = id_vero not in GameState.nodi_visitati
-	GameState.nodo_corrente = id_vero
+	# UNA SCENA PUO' SUCCEDERE IN UNA STANZA CHE NON PORTA IL SUO NOME.
+	#
+	# Di solito il nodo E' la stanza, e va benissimo. Ma "ti risvegli in
+	# infermeria" e' una scena sola, che capita una volta e arriva da un
+	# combattimento: chiamarla "infermeria" vorrebbe dire sovrascrivere la
+	# stanza vera, che sulla mappa c'e' tutti i giorni. Col campo "stanza" la
+	# scena dice dove sta, e la mappa sa dove sei: il "sei qui" finisce nel
+	# posto giusto e da li' si cammina verso i vicini di QUELLA stanza.
+	GameState.nodo_corrente = String(nodo.get("stanza", id_vero))
 	applica_effetti(id_vero, nodo, esito.prima_visita)
 	esito.agguato = tira_agguato(id_vero, nodo)
 	if esito.agguato:

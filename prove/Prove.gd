@@ -113,6 +113,8 @@ func _ready() -> void:
 	prova_illustrazioni()
 	prova_leva_bersaglio()
 	prova_mappa_a_quadratini()
+	prova_giornata_dopo_allenamento()
+	prova_nome_del_data_pad()
 	prova_collisioni()
 	prova_tutorial_di_veronica()
 	prova_rivitalizzante_di_veronica()
@@ -260,8 +262,20 @@ func apre_la_mappa(nodo: Dictionary) -> bool:
 func confini_di_mappa(dati: Dictionary) -> Dictionary:
 	# chi confina con chi, secondo la mappa della zona: e' quello che
 	# MappaZona.si_puo_andare() usa per decidere dove si puo' cliccare
+	# I CORRIDOI CHE SI APRONO PIU' TARDI SONO CORRIDOI LO STESSO.
+	#
+	# Il complesso al mattino ha una porta sola aperta e nel pomeriggio le ha
+	# tutte ("connessioni_da" in GameState.collegamenti_aperti). Per questa
+	# prova contano tutte quante: la domanda e' "esiste un giorno in cui ci si
+	# arriva?", non "ci si arriva subito". Guardando solo quelle sempre aperte,
+	# la sala comunicazioni - dove Bru manda il giocatore dopo l'infermeria -
+	# risultava orfana.
+	var mappa: Dictionary = dati.get("mappa_dungeon", {})
+	var tutte: Array = mappa.get("connessioni", []).duplicate()
+	for flag in mappa.get("connessioni_da", {}):
+		tutte.append_array(mappa["connessioni_da"][flag])
 	var vicini: Dictionary = {}
-	for coppia in dati.get("mappa_dungeon", {}).get("connessioni", []):
+	for coppia in tutte:
 		if coppia.size() < 2:
 			continue
 		var a := String(coppia[0])
@@ -4287,17 +4301,52 @@ func prova_dall_introduzione_al_combattimento() -> void:
 	# la mappa del complesso: si vede tutto, si va in un posto solo
 	var mappa: Dictionary = dati.get("mappa_dungeon", {})
 	esigi(not mappa.is_empty(), "il complesso non ha nessuna mappa")
+	# IL COMPLESSO HA DUE MOMENTI, e la mappa li racconta tutti e due.
+	#
+	# La mattina: si vede tutto, si va in un posto solo. «ci sono varie aree,
+	# tutte non visitabili, puoi andare solo nella sala allenamento che ha un
+	# punto esclamativo animato» (Bru).
+	#
+	# Dopo l'allenamento, quando ti rimetti in piedi in infermeria: «ti trovi
+	# nella mappa della struttura, stavolta tutta visibile [...] ci sarà il
+	# solito ! che si muove nel punto dove c'è la sala comunicazioni».
+	#
+	# Sono due stati diversi dello stesso posto, e una prova che ne guardi uno
+	# solo lascia l'altro senza nessuno che lo controlli.
 	var collegamenti: Array = mappa.get("connessioni", [])
 	esigi(collegamenti.size() == 1,
-			"dal complesso si va in %d posti: Bru ne ha chiesto uno solo" % collegamenti.size())
+			"la mattina dal complesso si va in %d posti: Bru ne ha chiesto uno solo" % collegamenti.size())
 	esigi(collegamenti[0].has("alloggio") and collegamenti[0].has("sala_allenamento"),
-			"l'unico collegamento della mappa non e' alloggio-sala_allenamento")
-	var con_obiettivo: Array[String] = []
+			"l'unico collegamento aperto la mattina non e' alloggio-sala_allenamento")
+	var dopo: Dictionary = mappa.get("connessioni_da", {})
+	esigi(dopo.has("rientro_infermeria"),
+			"dopo l'infermeria non si apre nessun corridoio: la sala comunicazioni resta irraggiungibile")
+	var raggiungibili: Array[String] = []
+	for coppia in collegamenti + Array(dopo.get("rientro_infermeria", [])):
+		for capo in coppia:
+			if String(capo) not in raggiungibili:
+				raggiungibili.append(String(capo))
+	esigi("sala_comunicazioni" in raggiungibili,
+			"nessun corridoio porta alla sala comunicazioni: il punto esclamativo indica un posto dove non si puo' andare")
+
+	# il punto esclamativo si sposta: la mattina in palestra, dopo in sala
+	# comunicazioni. Non e' un'icona fissa, e' quello che devi fare adesso
+	var obiettivo_prima: Array[String] = []
+	var obiettivo_dopo: Array[String] = []
 	for stanza in mappa.get("stanze", []):
-		if String((stanza as Dictionary).get("icona", "")) == "obiettivo":
-			con_obiettivo.append(String(stanza.get("id", "")))
-	esigi(con_obiettivo.size() == 1 and con_obiettivo[0] == "sala_allenamento",
-			"il punto esclamativo sta su %s invece che sulla sala di allenamento" % str(con_obiettivo))
+		var voce := stanza as Dictionary
+		if String(voce.get("icona", "")) != "obiettivo":
+			continue
+		var da := String(voce.get("icona_da", ""))
+		var fino_a := String(voce.get("icona_fino_a", ""))
+		if da == "":
+			obiettivo_prima.append(String(voce.get("id", "")))
+		if fino_a == "":
+			obiettivo_dopo.append(String(voce.get("id", "")))
+	esigi(obiettivo_prima.size() == 1 and obiettivo_prima[0] == "sala_allenamento",
+			"la mattina il punto esclamativo sta su %s invece che sulla sala di allenamento" % str(obiettivo_prima))
+	esigi(obiettivo_dopo.size() == 1 and obiettivo_dopo[0] == "sala_comunicazioni",
+			"dopo l'infermeria il punto esclamativo sta su %s invece che sulla sala comunicazioni" % str(obiettivo_dopo))
 	esigi(mappa.get("stanze", []).size() >= 6,
 			"il complesso ha %d aree: era \"varie aree\"" % mappa.get("stanze", []).size())
 
@@ -6361,3 +6410,77 @@ func prova_rivitalizzante_di_veronica() -> void:
 		esigi(int(eroe.hp) == 0,
 				"a tutorial finito Veronica ti rialza ancora: l'allenamento non finisce piu'")
 	scontro.free()
+
+func prova_giornata_dopo_allenamento() -> void:
+	# LA GIORNATA DOPO L'ALLENAMENTO, dal risveglio agli ordini.
+	#
+	# Bru l'ha raccontata tutta d'un fiato: ti sveglia la dottoressa, esci, la
+	# mappa stavolta e' tutta visibile, il punto esclamativo si e' spostato sulla
+	# sala comunicazioni, li' ti danno la prima missione e il diario diventa un
+	# data pad. Sono cinque cose incastrate: se ne salta una il giocatore resta
+	# fermo in un corridoio senza sapere dove andare.
+	titolo("dal risveglio in infermeria agli ordini, passo per passo")
+	var dati := carica_eventi("res://data/events_intro.json")
+	var nodi: Dictionary = dati.get("nodi", {})
+
+	var risveglio: Dictionary = nodi.get("infermeria_risveglio", {})
+	esigi(not risveglio.is_empty(), "manca il risveglio in infermeria")
+	esigi(String(risveglio.get("flag", "")) == "rientro_infermeria",
+			"il risveglio non alza il flag che apre la giornata: la mappa resta quella del mattino")
+	esigi(String(risveglio.get("stanza", "")) == "infermeria",
+			"il risveglio non dice in che stanza succede: sulla mappa il 'sei qui' finisce altrove "
+			+ "e da li' non si cammina da nessuna parte")
+	esigi(risveglio.get("sblocca_stanze", []).size() >= 8,
+			"dopo il risveglio la mappa non e' tutta visibile: Bru l'ha chiesta «stavolta tutta visibile»")
+
+	# tutti e tre gli esiti dell'allenamento portano li': un allenamento non si
+	# vince e non si perde
+	for id_nodo in ["veronica_carica", "veronica_animo", "veronica_maldiptesta"]:
+		var scontro: Dictionary = (nodi.get(id_nodo, {}) as Dictionary).get("combattimento_automatico", {})
+		esigi(String(scontro.get("se_vinci", "")) == "infermeria_risveglio"
+				and String(scontro.get("se_perdi", "")) == "infermeria_risveglio",
+				"%s non finisce in infermeria: l'allenamento con Veronica finisce sempre li'" % id_nodo)
+
+	# dall'infermeria si cammina fino alla sala comunicazioni
+	var mappa: Dictionary = dati.get("mappa_dungeon", {})
+	var aperti: Array = Array(mappa.get("connessioni_da", {}).get("rientro_infermeria", []))
+	var da_infermeria := false
+	for coppia in aperti:
+		if coppia.has("infermeria") and coppia.has("sala_comunicazioni"):
+			da_infermeria = true
+	esigi(da_infermeria,
+			"dall'infermeria non si arriva alla sala comunicazioni: si esce e si resta fermi li'")
+
+	# e le porte chiuse dicono tutte la stessa riga, quella di Bru
+	var chiuse := 0
+	for id_area in ["mensa", "infermeria", "archivio", "sala_proiezione", "hangar"]:
+		var salto: Dictionary = (nodi.get(id_area, {}) as Dictionary).get("vai_se_flag", {})
+		if String(salto.get("flag", "")) == "rientro_infermeria" \
+				and String(salto.get("vai", "")) == "punto_non_sbloccato":
+			chiuse += 1
+	esigi(chiuse == 5,
+			"solo %d aree chiuse su 5 dicono la riga del punto non sbloccato: le altre "
+			% chiuse + "raccontano ancora la mattina")
+
+	var ordini: Dictionary = nodi.get("comunicazioni_ordini", {})
+	esigi(not ordini.is_empty(), "manca la sala comunicazioni con gli ordini")
+	esigi(String(ordini.get("flag", "")) == "ordini_ricevuti",
+			"gli ordini non alzano il flag: il diario non diventa mai un data pad")
+	var compiti_accesi := 0
+	for compito in GameState.task_catalogo:
+		if "ordini_ricevuti" in (compito as Dictionary).get("richiede_flags", []):
+			compiti_accesi += 1
+	esigi(compiti_accesi == 2,
+			"il data pad si accende con %d compiti invece dei due di Bru "
+			% compiti_accesi + "(esplorare il settore, e fare rapporto)")
+
+func prova_nome_del_data_pad() -> void:
+	# «(il diario diventa data pad)» (Bru). Una riga sola nel suo messaggio, e
+	# cambia il nome di una schermata che il giocatore apre cento volte.
+	titolo("il diario diventa data pad quando arrivano gli ordini")
+	GameState.nuova_partita()
+	esigi(GameState.nome_diario() == "Diario",
+			"prima degli ordini si chiama gia' '%s'" % GameState.nome_diario())
+	GameState.imposta_flag("ordini_ricevuti")
+	esigi(GameState.nome_diario() == "Data pad",
+			"dopo gli ordini si chiama ancora '%s'" % GameState.nome_diario())

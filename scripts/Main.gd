@@ -999,9 +999,9 @@ func notifiche_task() -> Array[Dictionary]:
 	if GameState.task_da_notificare.is_empty():
 		return righe
 	var quanti := GameState.task_da_notificare.size()
-	var intestazione := "Il Diario si è aggiornato."
+	var intestazione := "%s si è aggiornato." % GameState.nome_diario()
 	if quanti > 1:
-		intestazione = "Il Diario si è aggiornato: %d nuovi appunti." % quanti
+		intestazione = "%s si è aggiornato: %d nuovi appunti." % [GameState.nome_diario(), quanti]
 	righe.append({"tipo": "notifica", "testo": intestazione})
 	# quando ne arrivano tanti insieme (la fine del tutorial ne apre quattro)
 	# non si scaricano tutti addosso al giocatore: due si leggono qui, il

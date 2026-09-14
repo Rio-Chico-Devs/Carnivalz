@@ -592,11 +592,24 @@ func proiettore_qui() -> String:
 	var elenco := proiettori_di_zona()
 	return elenco[0] if not elenco.is_empty() else ""
 
+func nome_diario() -> String:
+	# IL DIARIO DIVENTA DATA PAD. Bru, alla fine della sala comunicazioni: «(il
+	# diario diventa data pad)».
+	#
+	# Non e' un vezzo: fino a quel momento il protagonista e' in addestramento e
+	# quello che tiene e' un diario. Da quando l'Organizzazione gli affida una
+	# missione vera, la stessa cosa e' l'attrezzo con cui gli mandano gli
+	# ordini. Cambia il nome perche' e' cambiato a cosa serve.
+	#
+	# Sta qui e non in ogni schermata che lo nomina: il nome di una cosa deve
+	# stare in un posto solo, se no meta' del gioco la chiamera' ancora diario.
+	return "Data pad" if ha_flag("ordini_ricevuti") else "Diario"
+
 func stanze_confinanti(id_stanza: String) -> Array[String]:
 	# i vicini sulla mappa: sono gli unici posti in cui la mappa lascia andare,
 	# perche' muoversi vuol dire attraversare quello che c'e' in mezzo
 	var vicine: Array[String] = []
-	for coppia in mappa_zona.get("connessioni", []):
+	for coppia in collegamenti_aperti():
 		if coppia.size() < 2:
 			continue
 		var a := String(coppia[0])
@@ -606,6 +619,25 @@ func stanze_confinanti(id_stanza: String) -> Array[String]:
 		elif b == id_stanza and a not in vicine:
 			vicine.append(a)
 	return vicine
+
+func collegamenti_aperti() -> Array:
+	# I CORRIDOI DI UN EDIFICIO SI APRONO A ORARI.
+	#
+	# Il complesso al mattino ha una porta sola aperta: dall'alloggio si va in
+	# palestra e basta, e non e' una topologia - e' la giornata. Il posto ha i
+	# suoi corridoi da sempre; e' che oggi non ti ci lasciano passare.
+	#
+	# Senza questa distinzione le due cose finivano nello stesso elenco, e per
+	# aprire il pomeriggio bisognava mentire sulla pianta dell'edificio.
+	#
+	#   "connessioni":     quelli aperti sempre
+	#   "connessioni_da":  { "<flag>": [ ... ] }, aperti da quando il flag c'e'
+	var tutti: Array = mappa_zona.get("connessioni", []).duplicate()
+	var a_orario: Dictionary = mappa_zona.get("connessioni_da", {})
+	for flag in a_orario:
+		if ha_flag(String(flag)):
+			tutti.append_array(a_orario[flag])
+	return tutti
 
 # --- dove sei gia' stato ---
 #

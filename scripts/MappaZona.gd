@@ -246,7 +246,7 @@ func visitata(id_stanza: String) -> bool:
 
 func intravista(id_stanza: String) -> bool:
 	# confina con un posto in cui sei stato: sai che c'e' qualcosa, non cosa
-	for coppia in GameState.mappa_zona.get("connessioni", []):
+	for coppia in GameState.collegamenti_aperti():
 		if coppia.size() < 2:
 			continue
 		var a := String(coppia[0])
@@ -305,7 +305,7 @@ func disegna_bottoni() -> void:
 			# il punto di domanda: quello che invita ad andarci. NON dove c'e'
 			# gia' il punto esclamativo: quello dice "vai qui" molto meglio di
 			# un "?", e i due sovrapposti erano solo due segni uno sull'altro.
-			if String(stanza.get("icona", "")) != "obiettivo":
+			if icona_di(stanza) != "obiettivo":
 				bottone.text = "?"
 				bottone.add_theme_font_size_override("font_size", int(lato * 0.5))
 			vesti_vuoto(bottone, noto, raggiungibile)
@@ -379,7 +379,7 @@ func _disegna_sotto() -> void:
 		strato_sotto.draw_line(Vector2(origine.x, y),
 				Vector2(origine.x + colonne * lato, y), reticolo, 1.0)
 
-	for coppia in GameState.mappa_zona.get("connessioni", []):
+	for coppia in GameState.collegamenti_aperti():
 		if coppia.size() < 2:
 			continue
 		var a := String(coppia[0])
@@ -401,7 +401,7 @@ func _disegna_sopra() -> void:
 		if not si_vede(id_stanza):
 			continue
 		var rettangolo := rettangolo_di(stanza)
-		var icona := String(stanza.get("icona", ""))
+		var icona := icona_di(stanza)
 		# IL PUNTO ESCLAMATIVO E' L'ECCEZIONE, e per il motivo piu' ovvio: le
 		# altre icone raccontano cosa hai trovato in un posto, quindi si vedono
 		# solo dove sei gia' stato. Questa racconta dove DEVI andare, e un
@@ -443,9 +443,31 @@ func disegna_obiettivo(rettangolo: Rect2) -> void:
 			tinta, spessore)
 	strato_sopra.draw_circle(centro + Vector2(0.0, alto * 0.72), spessore * 0.58, tinta)
 
+func icona_di(stanza: Dictionary) -> String:
+	# L'ICONA DI UNA STANZA PUO' AVERE UN ORARIO.
+	#
+	# Il punto esclamativo dice dove devi andare ADESSO, e "adesso" cambia. La
+	# mattina sta sulla sala di allenamento; quando torni in piedi
+	# dall'infermeria quella lezione e' finita e il segnale sta da un'altra
+	# parte. Un'icona scritta fissa nei dati direbbe per sempre la stessa cosa,
+	# e dopo la prima volta sarebbe una bugia.
+	#
+	#   "icona_da":     compare solo DOPO che il flag c'e'
+	#   "icona_fino_a": smette di comparire APPENA il flag c'e'
+	#
+	# Vale per tutte le icone, non solo per l'obiettivo: anche un negozio apre
+	# un giorno e chiude un altro.
+	var da := String(stanza.get("icona_da", ""))
+	if da != "" and not GameState.ha_flag(da):
+		return ""
+	var fino_a := String(stanza.get("icona_fino_a", ""))
+	if fino_a != "" and GameState.ha_flag(fino_a):
+		return ""
+	return String(stanza.get("icona", ""))
+
 func c_e_un_obiettivo() -> bool:
 	for stanza in GameState.mappa_zona.get("stanze", []):
-		if String(stanza.get("icona", "")) == "obiettivo" and si_vede(String(stanza.get("id", ""))):
+		if icona_di(stanza) == "obiettivo" and si_vede(String(stanza.get("id", ""))):
 			return true
 	return false
 

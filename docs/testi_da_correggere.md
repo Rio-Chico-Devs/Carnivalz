@@ -480,372 +480,377 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.009`** · quando ci si difende
-> [i]%s è già chiuso quanto può: la guardia non sale oltre.[/i]
+**`UI.Combattimento.009`** · _minigioco_finito
+> [i]%d colpi su %d ti arrivano addosso.[/i]
 >
 > →
 
 **`UI.Combattimento.010`** · quando ci si difende
+> [i]%s è già chiuso quanto può: la guardia non sale oltre.[/i]
+>
+> →
+
+**`UI.Combattimento.011`** · quando ci si difende
 > %s si mette in guardia (difesa +%d, ora %d).
 >
 > →
 
-**`UI.Combattimento.011`** · quando si usa un oggetto
+**`UI.Combattimento.012`** · quando si usa un oggetto
 > %s usa: %s.
 >
 > →
 
-**`UI.Combattimento.012`** · applica_effetto
+**`UI.Combattimento.013`** · applica_effetto
 > [i]%s comincia a rimettersi insieme.[/i]
 >
 > →
 
-**`UI.Combattimento.013`** · applica_effetto
+**`UI.Combattimento.014`** · applica_effetto
 > [i]%s si libera di %s.[/i]
 >
 > →
 
-**`UI.Combattimento.014`** · applica_effetto
+**`UI.Combattimento.015`** · applica_effetto
 > [i]%s non ne aveva bisogno: niente %s addosso.[/i]
 >
 > →
 
-**`UI.Combattimento.015`** · rileva_tecnolog
+**`UI.Combattimento.016`** · rileva_tecnolog
 > [i]TECNO LOG — %s[/i]
 >
 > →
 
-**`UI.Combattimento.016`** · media
+**`UI.Combattimento.017`** · media
 > Decidi di lasciarlo andare.
 >
 > →
 
-**`UI.Combattimento.017`** · paga_il_dominio
+**`UI.Combattimento.018`** · paga_il_dominio
 > [i]%s non ha abbastanza dominio: serve almeno %d barra piena.[/i]
 >
 > →
 
-**`UI.Combattimento.018`** · paga_il_dominio
+**`UI.Combattimento.019`** · paga_il_dominio
 > [i]%s non ha abbastanza dominio: servono %.1f barre.[/i]
 >
 > →
 
-**`UI.Combattimento.019`** · astio
+**`UI.Combattimento.020`** · astio
 > [i]%s si incattivisce.[/i]
 >
 > →
 
-**`UI.Combattimento.020`** · alimenta_astio
+**`UI.Combattimento.021`** · alimenta_astio
 > L'astio di %s cresce: attacco +%d.
 >
 > →
 
-**`UI.Combattimento.021`** · scala_astio
+**`UI.Combattimento.022`** · scala_astio
 > [i]L'astio di %s si spegne. Resta quello che ha guadagnato.[/i]
 >
 > →
 
-**`UI.Combattimento.022`** · vendetta
+**`UI.Combattimento.023`** · vendetta
 > [i]%s si scaglia su %s.[/i]
 >
 > →
 
-**`UI.Combattimento.023`** · annichilazione
+**`UI.Combattimento.024`** · annichilazione
 > [i]Attorno a %s l'aria si chiude.[/i]
 >
 > →
 
-**`UI.Combattimento.024`** · pieta
+**`UI.Combattimento.025`** · pieta
 > [i]%s è ancora troppo in piedi.[/i]
 >
 > →
 
-**`UI.Combattimento.025`** · pieta
+**`UI.Combattimento.026`** · pieta
 > [i]%s si ferma un attimo.[/i]
 >
 > →
 
-**`UI.Combattimento.026`** · mantra
+**`UI.Combattimento.027`** · mantra
 > [i]%s non ha niente da bruciare.[/i]
 >
 > →
 
-**`UI.Combattimento.027`** · mantra
+**`UI.Combattimento.028`** · mantra
 > [i]%s si ferma e respira.[/i]
 >
 > →
 
-**`UI.Combattimento.028`** · mantra
+**`UI.Combattimento.029`** · mantra
 > Difesa +%d, attacco +%d.
 >
 > →
 
-**`UI.Combattimento.029`** · mantra
+**`UI.Combattimento.030`** · mantra
 > Lo stress di %s cala di %d.
 >
 > →
 
-**`UI.Combattimento.030`** · mantra
+**`UI.Combattimento.031`** · mantra
 > [i]Chi gli sta intorno respira con lui.[/i]
 >
 > →
 
-**`UI.Combattimento.031`** · mantra
+**`UI.Combattimento.032`** · mantra
 > [i]Per un momento non c'è niente che possa toccarlo.[/i]
 >
 > →
 
-**`UI.Combattimento.032`** · mantra
+**`UI.Combattimento.033`** · mantra
 > [i]Tutto quello che gli avevano messo addosso scivola via.[/i]
 >
 > →
 
-**`UI.Combattimento.033`** · flagello
+**`UI.Combattimento.034`** · flagello
 > [i]Il buio si chiude su %s.[/i]
 >
 > →
 
-**`UI.Combattimento.034`** · mattanza
+**`UI.Combattimento.035`** · mattanza
 > [i]%s non smette più.[/i]
 >
 > →
 
-**`UI.Combattimento.035`** · chiudi_mattanza
+**`UI.Combattimento.036`** · chiudi_mattanza
 > [i]%s si ferma: %d colpi.[/i]
 >
 > →
 
-**`UI.Combattimento.036`** · provocazione
+**`UI.Combattimento.037`** · provocazione
 > [i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]
 >
 > →
 
-**`UI.Combattimento.037`** · smista_la_copertura
+**`UI.Combattimento.038`** · smista_la_copertura
 > [i]%s si prende metà del colpo al posto di %s.[/i]
 >
 > →
 
-**`UI.Combattimento.038`** · guardia
+**`UI.Combattimento.039`** · guardia
 > [i]%s è già chiuso quanto può.[/i]
 >
 > →
 
-**`UI.Combattimento.039`** · guardia
+**`UI.Combattimento.040`** · guardia
 > [i]%s si pianta e non si sposta.[/i]
 >
 > →
 
-**`UI.Combattimento.040`** · guardia
+**`UI.Combattimento.041`** · guardia
 > Guardia +%d (difesa ora %d).
 >
 > →
 
-**`UI.Combattimento.041`** · copertura
+**`UI.Combattimento.042`** · copertura
 > [i]%s non ha nessuno da coprire.[/i]
 >
 > →
 
-**`UI.Combattimento.042`** · copertura
+**`UI.Combattimento.043`** · copertura
 > [i]%s si mette davanti a %s.[/i]
 >
 > →
 
-**`UI.Combattimento.043`** · immunita
+**`UI.Combattimento.044`** · immunita
 > [i]Addosso a %s non passa piu' niente.[/i]
 >
 > →
 
-**`UI.Combattimento.044`** · rianima
+**`UI.Combattimento.045`** · rianima
 > [i]%s rimette in piedi chi era caduto.[/i]
 >
 > →
 
-**`UI.Combattimento.045`** · rianima
+**`UI.Combattimento.046`** · rianima
 > %s torna in piedi con %d punti vita.
 >
 > →
 
-**`UI.Combattimento.046`** · rianima
+**`UI.Combattimento.047`** · rianima
 > [i]Non c'è nessuno da rialzare.[/i]
 >
 > →
 
-**`UI.Combattimento.047`** · ultima_resistenza
+**`UI.Combattimento.048`** · ultima_resistenza
 > [i]%s decide che non cade oggi.[/i]
 >
 > →
 
-**`UI.Combattimento.048`** · evoca_alleato
+**`UI.Combattimento.049`** · evoca_alleato
 > [i]%s chiama, ma non risponde nessuno.[/i]
 >
 > →
 
-**`UI.Combattimento.049`** · evoca_alleato
+**`UI.Combattimento.050`** · evoca_alleato
 > [i]%s chiama ancora, ma un sogno per volta e' tutto quello che riesce a tenere aperto.[/i]
 >
 > →
 
-**`UI.Combattimento.050`** · evoca_alleato
+**`UI.Combattimento.051`** · evoca_alleato
 > [i]...ma non c'è più posto.[/i]
 >
 > →
 
-**`UI.Combattimento.051`** · evoca_alleato
+**`UI.Combattimento.052`** · evoca_alleato
 > [i]%s chiama, e qualcosa risponde.[/i]
 >
 > →
 
-**`UI.Combattimento.052`** · passiva
+**`UI.Combattimento.053`** · passiva
 > Vale sempre, non si usa.
 >
 > →
 
-**`UI.Combattimento.053`** · colpo d'area
+**`UI.Combattimento.054`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.054`** · consuma_carica
+**`UI.Combattimento.055`** · consuma_carica
 > [b]%s scarica tutto quello che ha accumulato.[/b]
 >
 > →
 
-**`UI.Combattimento.055`** · quando si prova a fuggire
+**`UI.Combattimento.056`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.056`** · verifica_rabbia_su_morte
+**`UI.Combattimento.057`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.057`** · verifica_cura_su_morte
+**`UI.Combattimento.058`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.058`** · risolvi_rigenerazione
+**`UI.Combattimento.059`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.059`** · risolvi_rigenerazione
+**`UI.Combattimento.060`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.060`** · apri_la_guardia
+**`UI.Combattimento.061`** · apri_la_guardia
 > [i]La guardia di %s si apre.[/i]
 >
 > →
 
-**`UI.Combattimento.061`** · apri_la_guardia
+**`UI.Combattimento.062`** · apri_la_guardia
 > Difesa −%d, ora %d.
 >
 > →
 
-**`UI.Combattimento.062`** · avanza_trasformazione
+**`UI.Combattimento.063`** · avanza_trasformazione
 > Non è più quello di prima.
 >
 > →
 
-**`UI.Combattimento.063`** · spegni_tormento_di
+**`UI.Combattimento.064`** · spegni_tormento_di
 > [i]Il vento si ferma.[/i]
 >
 > →
 
-**`UI.Combattimento.064`** · esegui_mossa
+**`UI.Combattimento.065`** · esegui_mossa
 > [i]%s se ne nutre: +%d.[/i]
 >
 > →
 
-**`UI.Combattimento.065`** · esegui_mossa
+**`UI.Combattimento.066`** · esegui_mossa
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.066`** · esegui_mossa
+**`UI.Combattimento.067`** · esegui_mossa
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.067`** · cedimento
+**`UI.Combattimento.068`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.068`** · applica_stato
+**`UI.Combattimento.069`** · applica_stato
 > [i]%s (%d/%d)[/i]
 >
 > →
 
-**`UI.Combattimento.069`** · quando si attacca
+**`UI.Combattimento.070`** · quando si attacca
 > [i]Il colpo su %s si ferma a un dito dalla pelle.[/i]
 >
 > →
 
-**`UI.Combattimento.070`** · quando si attacca
+**`UI.Combattimento.071`** · quando si attacca
 > Il dominio di %s arde!
 >
 > →
 
-**`UI.Combattimento.071`** · quando si attacca
+**`UI.Combattimento.072`** · quando si attacca
 > [i]È il colpo giusto: %s lo incassa male.[/i]
 >
 > →
 
-**`UI.Combattimento.072`** · quando si attacca
+**`UI.Combattimento.073`** · quando si attacca
 > [i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]
 >
 > →
 
-**`UI.Combattimento.073`** · quando si attacca
+**`UI.Combattimento.074`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.074`** · quando si attacca
+**`UI.Combattimento.075`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.075`** · rimetti_in_piedi
+**`UI.Combattimento.076`** · rimetti_in_piedi
 > [i]%s non ha più niente da darsi.[/i]
 >
 > →
 
-**`UI.Combattimento.076`** · _racconta_ko
+**`UI.Combattimento.077`** · _racconta_ko
 > [i]%s si rimette in piedi.[/i]
 >
 > →
 
-**`UI.Combattimento.077`** · verifica_fine_scontro
+**`UI.Combattimento.078`** · verifica_fine_scontro
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.078`** · verifica_fine_scontro
+**`UI.Combattimento.079`** · verifica_fine_scontro
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.079`** · verifica_fine_scontro
+**`UI.Combattimento.080`** · verifica_fine_scontro
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.080`** · reagisci
+**`UI.Combattimento.081`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.081`** · reagisci
+**`UI.Combattimento.082`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.082`** · reagisci
+**`UI.Combattimento.083`** · reagisci
 > %s si concentra: la barra di dominio sale.
 >
 > →
@@ -936,296 +941,291 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.Pausa.005`** · menu di pausa
-> Diario
->
-> →
-
-**`UI.Pausa.006`** · menu di pausa
 > Personaggio e squadra
 >
 > →
 
-**`UI.Pausa.007`** · menu di pausa
+**`UI.Pausa.006`** · menu di pausa
 > Zaino
 >
 > →
 
-**`UI.Pausa.008`** · menu di pausa
+**`UI.Pausa.007`** · menu di pausa
 > Opzioni
 >
 > →
 
-**`UI.Pausa.009`** · menu di pausa
+**`UI.Pausa.008`** · menu di pausa
 > Torna al menu principale
 >
 > →
 
-**`UI.Pausa.010`** · mostra_opzioni
+**`UI.Pausa.009`** · mostra_opzioni
 > Indietro
 >
 > →
 
-**`UI.Pausa.011`** · conferma di uscita
+**`UI.Pausa.010`** · conferma di uscita
 > Tornare al menu?
 >
 > →
 
-**`UI.Pausa.012`** · conferma di uscita
+**`UI.Pausa.011`** · conferma di uscita
 > Il gioco si salva da solo quando rientri alla Sede: tutto quello che hai<br>fatto dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso.
 >
 > →
 
-**`UI.Pausa.013`** · conferma di uscita
+**`UI.Pausa.012`** · conferma di uscita
 > No, resto qui
 >
 > →
 
-**`UI.Pausa.014`** · conferma di uscita
+**`UI.Pausa.013`** · conferma di uscita
 > Sì, torna al menu principale
 >
 > →
 
-**`UI.Pausa.015`** · storico dei dialoghi
+**`UI.Pausa.014`** · storico dei dialoghi
 > Non hai ancora letto niente.
 >
 > →
 
-**`UI.Pausa.016`** · mostra_inventario
+**`UI.Pausa.015`** · mostra_inventario
 > %s  (%s)
 >
 > →
 
-**`UI.Pausa.017`** · capienza_testo
+**`UI.Pausa.016`** · capienza_testo
 > %d / %d
 >
 > →
 
-**`UI.Pausa.018`** · disegna_scomparto
+**`UI.Pausa.017`** · disegna_scomparto
 > Questo scomparto è vuoto.
 >
 > →
 
-**`UI.Pausa.019`** · riga_oggetto
+**`UI.Pausa.018`** · riga_oggetto
 > ×%d
 >
 > →
 
-**`UI.Pausa.020`** · riga_oggetto
+**`UI.Pausa.019`** · riga_oggetto
 > in uso — %s
 >
 > →
 
-**`UI.Pausa.021`** · riga_oggetto
+**`UI.Pausa.020`** · riga_oggetto
 > %s  —  %s
 >
 > →
 
-**`UI.Pausa.022`** · Diario › Appunti
+**`UI.Pausa.021`** · Diario › Appunti
 > Appunti
 >
 > →
 
-**`UI.Pausa.023`** · Diario › Appunti
+**`UI.Pausa.022`** · Diario › Appunti
 > Niente da segnare, per ora.
 >
 > →
 
-**`UI.Pausa.024`** · Diario › Appunti
+**`UI.Pausa.023`** · Diario › Appunti
 > Già risolti
 >
 > →
 
-**`UI.Pausa.025`** · Diario › riga di un appunto
+**`UI.Pausa.024`** · Diario › riga di un appunto
 > chiesto da
 >
 > →
 
-**`UI.Pausa.026`** · etichetta_bonus
+**`UI.Pausa.025`** · etichetta_bonus
 > velocità
 >
 > →
 
-**`UI.Pausa.027`** · etichetta_bonus
+**`UI.Pausa.026`** · etichetta_bonus
 > vita massima
 >
 > →
 
-**`UI.Pausa.028`** · etichetta_bonus
+**`UI.Pausa.027`** · etichetta_bonus
 > aura massima
 >
 > →
 
-**`UI.Pausa.029`** · etichetta_bonus
+**`UI.Pausa.028`** · etichetta_bonus
 > aura per turno
 >
 > →
 
-**`UI.Pausa.030`** · etichetta_bonus
+**`UI.Pausa.029`** · etichetta_bonus
 > rintocchi di maledizione
 >
 > →
 
-**`UI.Pausa.031`** · riassunto_effetto
+**`UI.Pausa.030`** · riassunto_effetto
 > nessun effetto
 >
 > →
 
-**`UI.Pausa.032`** · Diario › Stato
+**`UI.Pausa.031`** · Diario › Stato
 > Stato
 >
 > →
 
-**`UI.Pausa.033`** · Diario › Stato
+**`UI.Pausa.032`** · Diario › Stato
 > Livello
 >
 > →
 
-**`UI.Pausa.034`** · Diario › Stato
+**`UI.Pausa.033`** · Diario › Stato
 > %d  (%d / %d esperienza)
 >
 > →
 
-**`UI.Pausa.035`** · Diario › Cosa ti sta cambiando
+**`UI.Pausa.034`** · Diario › Cosa ti sta cambiando
 > Cosa ti sta cambiando
 >
 > →
 
-**`UI.Pausa.036`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.035`** · Diario › nomi delle azioni tracciate
 > Colpi che hai sferrato
 >
 > →
 
-**`UI.Pausa.037`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.036`** · Diario › nomi delle azioni tracciate
 > Danni che hai incassato
 >
 > →
 
-**`UI.Pausa.038`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.037`** · Diario › nomi delle azioni tracciate
 > Volte che hai tenuto la guardia
 >
 > →
 
-**`UI.Pausa.039`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.038`** · Diario › nomi delle azioni tracciate
 > Creature che hai studiato
 >
 > →
 
-**`UI.Pausa.040`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.039`** · Diario › nomi delle azioni tracciate
 > Volte che sei scappato
 >
 > →
 
-**`UI.Pausa.041`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.040`** · Diario › nomi delle azioni tracciate
 > Oggetti che hai usato
 >
 > →
 
-**`UI.Pausa.042`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.041`** · Diario › nomi delle azioni tracciate
 > Stanze che hai esplorato
 >
 > →
 
-**`UI.Pausa.043`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.042`** · Diario › nomi delle azioni tracciate
 > Stress che hai retto
 >
 > →
 
-**`UI.Pausa.044`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.043`** · Diario › nomi delle azioni tracciate
 > Colpi critici che hai messo a segno
 >
 > →
 
-**`UI.Pausa.045`** · Diario › Abilità passive
+**`UI.Pausa.044`** · Diario › Abilità passive
 > Abilità passive
 >
 > →
 
-**`UI.Pausa.046`** · Diario › Abilità passive
+**`UI.Pausa.045`** · Diario › Abilità passive
 > Nessuna, per ora.
 >
 > →
 
-**`UI.Pausa.047`** · Diario › Squadra
+**`UI.Pausa.046`** · Diario › Squadra
 > Squadra
 >
 > →
 
-**`UI.Pausa.048`** · Diario › Squadra
+**`UI.Pausa.047`** · Diario › Squadra
 > Legame
 >
 > →
 
-**`UI.Pausa.049`** · Diario › Squadra
+**`UI.Pausa.048`** · Diario › Squadra
 > %d / 100
 >
 > →
 
-**`UI.Pausa.050`** · Diario › Squadra
+**`UI.Pausa.049`** · Diario › Squadra
 > Lv %d   ·   stress %d
 >
 > →
 
-**`UI.Pausa.051`** · Diario › Osservazioni
+**`UI.Pausa.050`** · Diario › Osservazioni
 > Osservazioni
 >
 > →
 
-**`UI.Pausa.052`** · Diario › Osservazioni
+**`UI.Pausa.051`** · Diario › Osservazioni
 > Creature studiate
 >
 > →
 
-**`UI.Pausa.053`** · Diario › Osservazioni
+**`UI.Pausa.052`** · Diario › Osservazioni
 > Creature incontrate
 >
 > →
 
-**`UI.Pausa.054`** · Diario › Osservazioni
+**`UI.Pausa.053`** · Diario › Osservazioni
 > Oggetti catalogati
 >
 > →
 
-**`UI.Pausa.055`** · Diario › Osservazioni
+**`UI.Pausa.054`** · Diario › Osservazioni
 > Resistenza —
 >
 > →
 
-**`UI.Pausa.056`** · Diario › Organizzazione
+**`UI.Pausa.055`** · Diario › Organizzazione
 > Organizzazione
 >
 > →
 
-**`UI.Pausa.057`** · Diario › Organizzazione
+**`UI.Pausa.056`** · Diario › Organizzazione
 > Fonti estinte
 >
 > →
 
-**`UI.Pausa.058`** · Diario › Organizzazione
+**`UI.Pausa.057`** · Diario › Organizzazione
 > Valutazione
 >
 > →
 
-**`UI.Pausa.059`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.058`** · Diario › giudizio dell'Organizzazione
 > In osservazione.
 >
 > →
 
-**`UI.Pausa.060`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.059`** · Diario › giudizio dell'Organizzazione
 > Prestazione conforme alle attese.
 >
 > →
 
-**`UI.Pausa.061`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.060`** · Diario › giudizio dell'Organizzazione
 > Rendimento soddisfacente.
 >
 > →
 
-**`UI.Pausa.062`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.061`** · Diario › giudizio dell'Organizzazione
 > Elemento affidabile.
 >
 > →
 
-**`UI.Pausa.063`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.062`** · Diario › giudizio dell'Organizzazione
 > Elemento di valore. Aspettative in aumento.
 >
 > →
@@ -1245,22 +1245,32 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 <sub>`scripts/GameState.gd`</sub>
 
-**`UI.GameState.001`** · metamorfosi_di
+**`UI.GameState.001`** · nome_diario
+> Data pad
+>
+> →
+
+**`UI.GameState.002`** · nome_diario
+> Diario
+>
+> →
+
+**`UI.GameState.003`** · metamorfosi_di
 > non osservata
 >
 > →
 
-**`UI.GameState.002`** · anteprima_slot
+**`UI.GameState.004`** · anteprima_slot
 > Vuoto
 >
 > →
 
-**`UI.GameState.003`** · anteprima_slot
+**`UI.GameState.005`** · anteprima_slot
 > Tazo %d · Fonti estinte %d · Legame %d
 >
 > →
 
-**`UI.GameState.004`** · nome_slot
+**`UI.GameState.006`** · nome_slot
 > %s · livello %d
 >
 > →
@@ -1469,24 +1479,6 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-### Introduzione › `dopo_allenamento`
-
-**`INT.dopo_allenamento.1`** · battuta di Veronica
-> Ecco! Questo sì che è bruciare! Adesso vai a farti proiettare, che ti aspettano.
->
-> →
-
-**`INT.dopo_allenamento.2`** · battuta di Anonimo
-> ...Ci vediamo, Veronica.
->
-> →
-
-**`INT.dopo_allenamento.scelta1`** · bottone di scelta
-> Vai alla sala di proiezione
->
-> →
-
-
 ### Introduzione › `monologo`
 
 **`INT.monologo.1`** · battuta di Anonimo
@@ -1593,14 +1585,6 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-### Introduzione › `sala_riunioni`
-
-**`INT.sala_riunioni.1`** · narrazione
-> Le porte sono chiuse. Le riunioni si fanno quando lo dicono loro, non quando passi di li'.
->
-> →
-
-
 ### Introduzione › `infermeria`
 
 **`INT.infermeria.1`** · narrazione
@@ -1637,6 +1621,153 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`INT.hangar.1`** · narrazione
 > Da quella parte non ci sei mai {stato|stata}, e oggi non e' il giorno.
+>
+> →
+
+
+### Introduzione › `sala_comunicazioni`
+
+**`INT.sala_comunicazioni.1`** · narrazione
+> Le porte sono chiuse. Le riunioni si fanno quando lo dicono loro, non quando passi di li'.
+>
+> →
+
+
+### Introduzione › `punto_non_sbloccato`
+
+**`INT.punto_non_sbloccato.1`** · battuta di Anonimo
+> Dovrei recarmi presso il prossimo punto d'interesse... sempre se ce ne sono.
+>
+> →
+
+
+### Introduzione › `infermeria_risveglio`
+
+**`INT.infermeria_risveglio.1`** · narrazione
+> Il soffitto dell'infermeria. Non ricordi di esserci arrivat{o|a}.
+>
+> →
+
+**`INT.infermeria_risveglio.2`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.infermeria_risveglio.3`** · battuta di Dott.ssa Curie Heartlife
+> Ben {svegliato|svegliata}!
+>
+> →
+
+**`INT.infermeria_risveglio.4`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.infermeria_risveglio.5`** · battuta di Anonimo
+> Adesso la testa mi fa ancora più male...
+>
+> →
+
+**`INT.infermeria_risveglio.6`** · battuta di Dott.ssa Curie Heartlife
+> Su su, sai che gli allenamenti con Veronica sono sempre così, ormai preparo sempre il tuo letto quando so che dovete allenarvi!
+>
+> →
+
+**`INT.infermeria_risveglio.7`** · battuta di Anonimo
+> Mi sento già in forze nonostante il mal di testa...
+>
+> →
+
+**`INT.infermeria_risveglio.8`** · battuta di Dott.ssa Curie Heartlife
+> Ovviamente, con chi credi di avere a che fare, grazie alle mie amorevoli cure chiunque riesce a rimettersi in piedi in tempo record.
+>
+> →
+
+**`INT.infermeria_risveglio.9`** · battuta di Anonimo
+> Le tue abilità sarebbero comodissime in combattimento.
+>
+> →
+
+**`INT.infermeria_risveglio.10`** · battuta di Dott.ssa Curie Heartlife
+> Sai che non mi piace la violenza. Non ce la farei mai a fare il vostro lavoro... ma potete sempre venire a trovarmi qui per mettere qualche cerotto ben piazzato!
+>
+> →
+
+**`INT.infermeria_risveglio.11`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.infermeria_risveglio.12`** · battuta di Dott.ssa Curie Heartlife
+> Comunque... dovresti andare nella sala di comunicazione, ho sentito dire che hanno già pronta la tua prima missione per quando ti sarai {finito|finita} di riprendere...
+>
+> →
+
+**`INT.infermeria_risveglio.13`** · battuta di Anonimo
+> Immaginavo. Allora vado... grazie ancora per le cure.
+>
+> →
+
+**`INT.infermeria_risveglio.14`** · battuta di Dott.ssa Curie Heartlife
+> Di nulla, mi trovi qui se hai bisogno!
+>
+> →
+
+**`INT.infermeria_risveglio.scelta1`** · bottone di scelta
+> Esci dall'infermeria
+>
+> →
+
+
+### Introduzione › `comunicazioni_ordini`
+
+**`INT.comunicazioni_ordini.1`** · battuta di Anonimo
+> In questa sala di solito mi vengono impartiti gli ordini, chissà che tipo di missione hanno scelto per me...
+>
+> →
+
+**`INT.comunicazioni_ordini.2`** · narrazione
+> Lo schermo centrale si accende.
+>
+> →
+
+**`INT.comunicazioni_ordini.3`** · battuta di ??? (Organizzazione)
+> Bzzzz... zzz... Boop. Buongiorno dominat{ore|rice}.
+>
+> →
+
+**`INT.comunicazioni_ordini.4`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.comunicazioni_ordini.5`** · battuta di ??? (Organizzazione)
+> Innanzitutto ci congratuliamo con lei per aver completato il suo addestramento, dai dati raccolti riponiamo molte speranze in lei, non sembra essere un soggetto nella norma...
+>
+> →
+
+**`INT.comunicazioni_ordini.6`** · battuta di ??? (Organizzazione)
+> Abbiamo deciso di affidarle una missione semplice, nulla di che in realtà... siamo sicuri che avrà molto successo nelle operazioni. Settore del confine del cielo terso, quadrante 3, abbiamo individuato insolite attività e deformazioni nella zona... si limiti ad esplorare le zone segnalate e nel caso vi fosse la presenza di... qualcosa di più grosso, le affiancheremo la sua collega per completare l'operazione... Confidiamo nel suo buonsenso e nelle sue capacità. Ci faccia avere buone notizie! Ci congediamo. Bzzzt. Bup.
+>
+> →
+
+**`INT.comunicazioni_ordini.7`** · narrazione
+> Lo schermo si spegne.
+>
+> →
+
+**`INT.comunicazioni_ordini.8`** · battuta di Anonimo
+> ... Dovrei ricevere a breve tutto il necessario sul mio data pad...
+>
+> →
+
+**`INT.comunicazioni_ordini.9`** · notifica
+> Data pad aggiornato: esplorare il settore del confine del cielo terso, quadrante 3, e le confluenze che vi si sono create. Fare rapporto.
+>
+> →
+
+**`INT.comunicazioni_ordini.scelta1`** · bottone di scelta
+> Vai alla sala di proiezione
 >
 > →
 
@@ -12177,67 +12308,142 @@ carte collezionabili.
 >
 > →
 
-**`CRE.veronica.allenamento2.prima1`** · allenamento, passo 2 (DIFENDI) — prima che tu agisca, narrazione
+**`CRE.veronica.allenamento2.prima1`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, battuta di Veronica
+> Il pugno da solo non basta. Adesso usa qualcosa che ti COSTI.
+>
+> →
+
+**`CRE.veronica.allenamento2.prima2`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, narrazione
+> Apri ABILITÀ e usa Sovraccarico. Sotto la vita hai l'AURA: è quella che si spende per le mosse, e ogni mossa ha il suo prezzo — più è grossa, più ne vuole.
+>
+> →
+
+**`CRE.veronica.allenamento2.prima3`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, narrazione
+> L'aura non torna da sola mentre combatti. Quella con cui entri è quella che hai: si riempie dopo lo scontro, o con un oggetto, o con le abilità di chi ne sa una.
+>
+> →
+
+**`CRE.veronica.allenamento2.dopo1`** · allenamento, passo 2 (ABILITA) — dopo che hai agito, battuta di Veronica
+> Ecco! Hai sentito? Quella è roba che si paga.
+>
+> →
+
+**`CRE.veronica.allenamento2.dopo2`** · allenamento, passo 2 (ABILITA) — dopo che hai agito, battuta di Anonimo
+> Mi sento più leggero. Troppo più leggero.
+>
+> →
+
+**`CRE.veronica.allenamento2.dopo3`** · allenamento, passo 2 (ABILITA) — dopo che hai agito, battuta di Veronica
+> È l'aura che se ne va. Impara a contarla, {nome}: quando finisce restano i pugni.
+>
+> →
+
+**`CRE.veronica.allenamento3.prima1`** · allenamento, passo 3 (DIFENDI) — prima che tu agisca, narrazione
 > Veronica sembra caricare un pugno. È il momento di difendersi.
 >
 > →
 
-**`CRE.veronica.allenamento2.prima2`** · allenamento, passo 2 (DIFENDI) — prima che tu agisca, narrazione
+**`CRE.veronica.allenamento3.prima2`** · allenamento, passo 3 (DIFENDI) — prima che tu agisca, narrazione
 > Scegli DIFENDITI: alza la guardia, e la guardia resta fino alla fine dello scontro. Difendersi di fila vale ogni volta, ma ogni scatto conta un po' meno del precedente — e oltre un certo punto non si sale più.
 >
 > →
 
-**`CRE.veronica.allenamento2.dopo1`** · allenamento, passo 2 (DIFENDI) — dopo che hai agito, narrazione
+**`CRE.veronica.allenamento3.dopo1`** · allenamento, passo 3 (DIFENDI) — dopo che hai agito, narrazione
 > Ti difendi, ma il colpo è comunque enorme: finisci a un passo dal collasso.
 >
 > →
 
-**`CRE.veronica.allenamento3.prima1`** · allenamento, passo 3 (OGGETTO) — prima che tu agisca, battuta di Veronica
+**`CRE.veronica.allenamento4.prima1`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, battuta di Veronica
 > In piedi. E adesso curati con tutta la tua anima!
 >
 > →
 
-**`CRE.veronica.allenamento3.prima2`** · allenamento, passo 3 (OGGETTO) — prima che tu agisca, narrazione
+**`CRE.veronica.allenamento4.prima2`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, narrazione
 > Apri OGGETTI e usa la Fiala HP: i consumabili si spendono, ma possono salvarti il combattimento.
 >
 > →
 
-**`CRE.veronica.allenamento3.dopo1`** · allenamento, passo 3 (OGGETTO) — dopo che hai agito, battuta di Veronica
+**`CRE.veronica.allenamento4.dopo1`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Veronica
 > Ottimo, che tu sia rimasto in piedi mi fa bruciare di emozione! Vuol dire che sono stata un'insegnante incredibilmente efficiente.
 >
 > →
 
-**`CRE.veronica.allenamento4.prima1`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, battuta di Veronica
+**`CRE.veronica.allenamento5.prima1`** · allenamento, passo 5 (MINIGIOCO) — prima che tu agisca, battuta di Veronica
+> Questo combattimento è troppo eccitante... preparati!
+>
+> →
+
+**`CRE.veronica.allenamento5.prima2`** · allenamento, passo 5 (MINIGIOCO) — prima che tu agisca, narrazione
+> Collisioni infinite. I pugni arrivano uno addosso all'altro: CLICCA su ognuno per fermarlo. Quelli che non fermi ti arrivano addosso.
+>
+> →
+
+**`CRE.veronica.allenamento5.dopo1`** · allenamento, passo 5 (MINIGIOCO) — dopo che hai agito, battuta di Veronica
+> Bene! Vedo che le mani le sai ancora usare.
+>
+> →
+
+**`CRE.veronica.allenamento6.prima1`** · allenamento, passo 6 (ABILITA) — prima che tu agisca, battuta di Veronica
+> Senti niente? Quella è la tua barra che si è riempita. Aprila.
+>
+> →
+
+**`CRE.veronica.allenamento6.prima2`** · allenamento, passo 6 (ABILITA) — prima che tu agisca, narrazione
+> La terza barra è il DOMINIO: si riempie combattendo, colpo dopo colpo. Quando un segmento è pieno, nel menu si accende MATTANZA.
+>
+> →
+
+**`CRE.veronica.allenamento6.prima3`** · allenamento, passo 6 (ABILITA) — prima che tu agisca, narrazione
+> La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
+>
+> →
+
+**`CRE.veronica.allenamento6.dopo1`** · allenamento, passo 6 (ABILITA) — dopo che hai agito, battuta di Veronica
+> ECCO COS'ERA! Ti si è aperto qualcosa dietro gli occhi!
+>
+> →
+
+**`CRE.veronica.allenamento6.dopo2`** · allenamento, passo 6 (ABILITA) — dopo che hai agito, battuta di Anonimo
+> ...
+>
+> →
+
+**`CRE.veronica.allenamento6.dopo3`** · allenamento, passo 6 (ABILITA) — dopo che hai agito, battuta di Veronica
+> Quella cosa lì è tua. Ricordati di che sapore ha.
+>
+> →
+
+**`CRE.veronica.allenamento7.prima1`** · allenamento, passo 7 (OGGETTO) — prima che tu agisca, battuta di Veronica
 > Prova a colpirmi con un oggetto ora: scommetto che riuscirò a uscirne illesa alla massima potenza!
 >
 > →
 
-**`CRE.veronica.allenamento4.prima2`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, battuta di Anonimo
+**`CRE.veronica.allenamento7.prima2`** · allenamento, passo 7 (OGGETTO) — prima che tu agisca, battuta di Anonimo
 > Ehm, sei la solita esagerata... una bomba al nitro?
 >
 > →
 
-**`CRE.veronica.allenamento4.prima3`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, battuta di Veronica
+**`CRE.veronica.allenamento7.prima3`** · allenamento, passo 7 (OGGETTO) — prima che tu agisca, battuta di Veronica
 > Colpiscimi! Sto bruciando come mille soli!
 >
 > →
 
-**`CRE.veronica.allenamento4.dopo1`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, narrazione
+**`CRE.veronica.allenamento7.dopo1`** · allenamento, passo 7 (OGGETTO) — dopo che hai agito, narrazione
 > Le abilità passive si ottengono da oggetti equipaggiati, salendo di livello, o avendo in squadra un compagno con un forte legame.
 >
 > →
 
-**`CRE.veronica.allenamento4.dopo2`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Veronica
+**`CRE.veronica.allenamento7.dopo2`** · allenamento, passo 7 (OGGETTO) — dopo che hai agito, battuta di Veronica
 > Hai visto!? È così che si fa a superare ogni limite!!!
 >
 > →
 
-**`CRE.veronica.allenamento4.dopo3`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Anonimo
+**`CRE.veronica.allenamento7.dopo3`** · allenamento, passo 7 (OGGETTO) — dopo che hai agito, battuta di Anonimo
 > Forse dovresti curarti...
 >
 > →
 
-**`CRE.veronica.allenamento4.dopo4`** · allenamento, passo 4 (OGGETTO) — dopo che hai agito, battuta di Veronica
+**`CRE.veronica.allenamento7.dopo4`** · allenamento, passo 7 (OGGETTO) — dopo che hai agito, battuta di Veronica
 > Curarmi? E perché... piuttosto preparati...
 >
 > →
@@ -12248,12 +12454,17 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento_finale2`** · allenamento, la scena che lo chiude — notifica
-> Sei stato messo KO.
+> Sei {stato|stata} {messo|messa} KO.
 >
 > →
 
 **`CRE.veronica.allenamento_finale3`** · allenamento, la scena che lo chiude — battuta di Veronica
 > ... Ho esagerato di nuovo... Ma al massimo della potenza!
+>
+> →
+
+**`CRE.veronica.allenamento_finale4`** · allenamento, la scena che lo chiude — battuta di Veronica
+> Oops, ho finito i rivitalizzanti... che disastro...
 >
 > →
 
@@ -14032,6 +14243,26 @@ carte collezionabili.
 
 **`APP.fontana.testo`** · il pensiero per esteso
 > Un punto d'acqua in mezzo a un mondo che brucia. Non ha senso, e le cose che non hanno senso in questo posto di solito sono le uniche che valgono la pena di essere raggiunte.
+>
+> →
+
+**`APP.esplora_cielo_terso.titolo`** · titolo dell'appunto
+> Confine del cielo terso, quadrante 3
+>
+> →
+
+**`APP.esplora_cielo_terso.testo`** · il pensiero per esteso
+> «Insolite attività e deformazioni nella zona.» Mi limito a esplorare le zone segnalate — parole loro. Se dentro c'è qualcosa di più grosso mi affiancano la collega, e so già chi è.
+>
+> →
+
+**`APP.rapporto_cielo_terso.titolo`** · titolo dell'appunto
+> Fare rapporto
+>
+> →
+
+**`APP.rapporto_cielo_terso.testo`** · il pensiero per esteso
+> Le confluenze che si sono create vanno censite e riferite. L'Organizzazione vuole i numeri prima delle impressioni.
 >
 > →
 

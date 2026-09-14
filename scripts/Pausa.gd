@@ -282,7 +282,7 @@ func mostra_menu() -> void:
 	intestazione("Pausa")
 	var primo := bottone("Riprendi", chiudi)
 	bottone("Storico dei dialoghi", mostra_storico)
-	bottone("Diario", mostra_diario)
+	bottone(GameState.nome_diario(), mostra_diario)
 	bottone("Personaggio e squadra", mostra_equipaggiamento)
 	bottone("Zaino", mostra_inventario)
 	bottone("Opzioni", mostra_opzioni)
@@ -437,7 +437,7 @@ func mostra_diario() -> void:
 	# non e' un tabulato: e' un posto dove si va a cercare una cosa precisa.
 	nuova_colonna()
 	pannello = "diario"
-	intestazione("Diario")
+	intestazione(GameState.nome_diario())
 	var corpo := HBoxContainer.new()
 	corpo.add_theme_constant_override("separation", 24)
 	corpo.size_flags_vertical = Control.SIZE_EXPAND_FILL
