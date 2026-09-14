@@ -35,6 +35,11 @@ const SCENE_ESCLUSE := [
 	"res://scenes/Extra.tscn",
 ]
 const SCENA_MENU := "res://scenes/Menu.tscn"
+# Di quanto si rimpicciolisce l'istantanea prima di rimetterla a schermo: a un
+# decimo i contorni sono andati e la scena si riconosce ancora. Piu' in basso e'
+# una macchia, piu' in alto non e' sfocata, e' solo sporca.
+const RIDUZIONE_SFOCATURA := 10
+const QUANTO_OCCUPA_CHI_GIOCHI := 560   # quanta larghezza si prende il tuo personaggio, a destra
 
 # Le sezioni del Diario, in ordine. Prima erano impilate tutte in un unico
 # scorrevole: sette titoli uno sotto l'altro, e per arrivare all'ultimo si
@@ -60,6 +65,8 @@ const SCOMPARTI := [
 ]
 
 var velo: ColorRect
+var sfocato: TextureRect        # l'istantanea sfocata della scena rimasta sotto
+var chi_giochi: TextureRect     # il tuo personaggio, grande a destra, a fuoco
 var contenitore: MarginContainer
 var colonna: VBoxContainer
 var aperta := false
@@ -76,8 +83,21 @@ func _ready() -> void:
 	layer = LIVELLO
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	AudioManager.process_mode = Node.PROCESS_MODE_ALWAYS  # la musica non si interrompe in pausa
+	# LA SCENA RESTA DIETRO, SFOCATA. Nel disegno di Bru il menu non cancella il
+	# gioco: Veronica e' ancora li' dov'era, fuori fuoco, e davanti c'e' il
+	# personaggio che stai giocando. Vuol dire "ti sei fermato un attimo", non
+	# "sei uscito" - che e' quello che diceva il velo nero di prima.
+	sfocato = TextureRect.new()
+	sfocato.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	sfocato.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	sfocato.stretch_mode = TextureRect.STRETCH_SCALE
+	sfocato.visible = false
+	add_child(sfocato)
 	velo = ColorRect.new()
-	velo.color = Color(0, 0, 0, 0.86)
+	# appena scuro: la sfocatura fa gia' tutto il lavoro di mandare indietro la
+	# scena, e un velo pesante sopra la cancellerebbe di nuovo - rendendo inutile
+	# averla sfocata invece che coperta
+	velo.color = Color(0, 0, 0, 0.42)
 	velo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	velo.visible = false
 	add_child(velo)
@@ -124,6 +144,40 @@ func apri() -> void:
 	velo.visible = true
 	get_tree().paused = true
 	mostra_menu()
+	sfoca_la_scena()
+
+func sfoca_la_scena() -> void:
+	# SFOCARE SENZA UNO SHADER, e non per virtuosismo.
+	#
+	# Godot senza finestra non compila i frammenti, e in questo progetto le prove
+	# girano tutte cosi': uno shader qui vorrebbe dire una parte di interfaccia
+	# che nessuna prova puo' attraversare. Ci siamo gia' passati con la vignetta
+	# del combattimento, disegnata a poligoni per la stessa ragione.
+	#
+	# E comunque uno shader qui sarebbe lo strumento sbagliato: la scena sotto e'
+	# FERMA - il gioco e' in pausa - quindi non c'e' niente da sfocare sessanta
+	# volte al secondo. Si fa una fotografia, la si rimpicciolisce e la si
+	# ringrandisce: ridurre a un decimo e tornare su e' esattamente una sfocatura,
+	# costa una volta sola, e la fa la CPU senza chiedere niente a nessuno.
+	if sfocato == null:
+		return
+	sfocato.visible = false
+	await RenderingServer.frame_post_draw   # senza, si fotografa il fotogramma prima
+	if not aperta or sfocato == null or not is_instance_valid(sfocato):
+		return
+	var ritratto := get_viewport().get_texture()
+	if ritratto == null:
+		return
+	var immagine := ritratto.get_image()
+	# senza rendering (prove headless) non c'e' nessuna immagine da sfocare: il
+	# menu resta quello che era, col suo velo, e non si rompe niente
+	if immagine == null or immagine.is_empty():
+		return
+	var largo := maxi(immagine.get_width() / RIDUZIONE_SFOCATURA, 1)
+	var alto := maxi(immagine.get_height() / RIDUZIONE_SFOCATURA, 1)
+	immagine.resize(largo, alto, Image.INTERPOLATE_BILINEAR)
+	sfocato.texture = ImageTexture.create_from_image(immagine)
+	sfocato.visible = true
 
 func apri_su(quale: String) -> void:
 	# Aprire direttamente un pannello, senza passare dal menu di pausa. Serve
@@ -157,6 +211,9 @@ func chiudi() -> void:
 	aperta = false
 	modo_diretto = false
 	velo.visible = false
+	if sfocato != null:
+		sfocato.visible = false
+		sfocato.texture = null   # l'istantanea di una scena che non c'e' piu' e' solo memoria occupata
 	get_tree().paused = false
 	svuota()
 
@@ -164,6 +221,14 @@ func svuota() -> void:
 	if colonna != null and is_instance_valid(colonna):
 		colonna.queue_free()
 	colonna = null
+	# IL PERSONAGGIO GRANDE VALE SOLO PER IL MENU. Non e' un fondale della
+	# pausa: nel Diario, nello Zaino e nell'equipaggiamento quello spazio serve
+	# tutto, e una figura alta due terzi di schermo dietro un elenco di oggetti
+	# non e' un'atmosfera, e' un elenco che non si legge. Vive e muore col
+	# pannello che l'ha voluto.
+	if chi_giochi != null and is_instance_valid(chi_giochi):
+		chi_giochi.queue_free()
+	chi_giochi = null
 
 func nuova_colonna() -> VBoxContainer:
 	svuota()
@@ -215,7 +280,52 @@ func mostra_menu() -> void:
 	bottone("Zaino", mostra_inventario)
 	bottone("Opzioni", mostra_opzioni)
 	bottone("Torna al menu principale", conferma_uscita)
+	# LE VOCI STANNO A SINISTRA, IN ROSSO. E' cosi' nel disegno, e non e' un
+	# capriccio: le scelte di un dialogo stanno a destra, e se anche il menu
+	# stesse a destra e in bianco per un istante sarebbero la stessa cosa. Da
+	# che parte dello schermo guardi ti dice gia' se stai giocando o ti sei
+	# fermato.
+	allinea_a_sinistra(colonna)
+	mostra_chi_giochi()
 	primo.grab_focus()
+
+func allinea_a_sinistra(quale: VBoxContainer) -> void:
+	for figlio in quale.get_children():
+		if figlio is Button:
+			var b: Button = figlio
+			b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+			for stato in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+				b.add_theme_color_override(stato, Stile.colore("accento"))
+
+func mostra_chi_giochi() -> void:
+	# IL TUO PERSONAGGIO, GRANDE A DESTRA, A FUOCO. E' l'unica cosa nitida in
+	# tutta la schermata: la scena e' sfocata dietro, e lui no. E' anche a cosa
+	# serve l'iconcina in alto a sinistra - quella e' la sua faccia in piccolo, e
+	# il menu e' dove diventa grande.
+	if chi_giochi != null and is_instance_valid(chi_giochi):
+		chi_giochi.queue_free()
+	var percorso := ritratto_del_protagonista()
+	if percorso == "":
+		return
+	chi_giochi = TextureRect.new()
+	chi_giochi.texture = load(percorso)
+	chi_giochi.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	chi_giochi.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	chi_giochi.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chi_giochi.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
+	chi_giochi.offset_left = -QUANTO_OCCUPA_CHI_GIOCHI
+	chi_giochi.offset_top = 40
+	velo.add_child(chi_giochi)
+	# sotto i bottoni, o coprirebbe le voci quando la finestra e' stretta
+	velo.move_child(chi_giochi, 0)
+
+func ritratto_del_protagonista() -> String:
+	var id := GameState.id_protagonista
+	var espressione := "res://art/personaggi/%s/neutra.png" % id
+	if ResourceLoader.exists(espressione):
+		return espressione
+	var singolo := String(GameState.personaggi.get(id, {}).get("ritratto", ""))
+	return singolo if singolo != "" and ResourceLoader.exists(singolo) else ""
 
 # --- pannello: opzioni ---
 
