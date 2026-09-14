@@ -12,6 +12,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 QUALE="${1:-dialogo}"
+shift || true
 GODOT="${GODOT:-$(command -v godot || command -v godot4 || true)}"
 if [ -z "$GODOT" ]; then
 	echo "Godot non trovato. GODOT=/percorso/godot ./prove/scatto.sh $QUALE" >&2
@@ -27,5 +28,5 @@ if ! [ -n "${DISPLAY:-}" ]; then
 	fi
 fi
 # shellcheck disable=SC2086
-$LANCIA --path . --resolution 1280x720 prove/Scatto.tscn -- "$QUALE" 2>&1 \
+$LANCIA --path . --resolution 1280x720 prove/Scatto.tscn -- "$QUALE" "$@" 2>&1 \
 	| grep -vE "ALSA|audio_driver_alsa|All audio drivers failed|snd_pcm|snd_func|snd_config" || true

@@ -47,6 +47,9 @@ const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
+# Da che angolo entra il nastro col nome. Nel disegno di Bru il primo fotogramma
+# lo ha quasi in verticale, oltre il bordo sinistro.
+const ANGOLO_NASTRO_IN_ARRIVO := -58.0
 const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a voce prima di rimandare al Diario
 
 @onready var sfondo: ColorRect = %Sfondo
@@ -87,6 +90,8 @@ var azione_a_fine_testo: Callable = Callable()  # eseguita appena il box ha fini
 var mostrando_scena := false  # true quando il nodo sta mostrando la sua descrizione di ritorno
 var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la carta del titolo e' a schermo
 var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alterne
+var nome_sul_nastro := ""  # chi c'e' scritto adesso: il nastro rientra solo quando cambia
+var tween_nastro: Tween
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
@@ -214,20 +219,82 @@ func prepara_nastro() -> void:
 	nastro.add_theme_color_override("font_color", Stile.colore("nastro_testo"))
 	nastro.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
 	nastro.rotation = deg_to_rad(Stile.forma("inclinazione_nastro"))
-	nastro.pivot_offset = Vector2.ZERO
 
 func aggiorna_nastro(nome: String) -> void:
 	nastro.visible = nome != ""
 	if nome == "":
+		nome_sul_nastro = ""
 		return
+	# SOLO QUANDO CAMBIA CHI PARLA. Un dialogo e' fatto di dieci battute della
+	# stessa persona: rifare l'entrata a ognuna vorrebbe dire un nastro che
+	# entra e rientra dieci volte di fila, che dopo la seconda e' un tic. Il
+	# nastro si appiccica quando qualcuno prende la parola, e resta li' finche'
+	# non parla qualcun altro.
+	if nome == nome_sul_nastro:
+		return
+	nome_sul_nastro = nome
 	# minuscolo come nel disegno: "veronica", non "Veronica". E' una scelta di
 	# carattere, non un errore - il nastro e' scritto a mano, non stampato
 	nastro.text = nome.to_lower()
 	await get_tree().process_frame   # la misura giusta si sa dopo che il testo c'e'
-	if not is_instance_valid(nastro):
-		return
-	nastro.position = Vector2(Stile.forma("cornice") * 0.6,
-			box.position.y - nastro.size.y + 6)
+	if not is_instance_valid(nastro) or nastro.text != nome.to_lower():
+		return   # nel frattempo ha gia' parlato qualcun altro
+	lancia_il_nastro()
+
+func posto_del_nastro() -> Vector2:
+	return Vector2(Stile.forma("cornice") * 0.6, box.position.y - nastro.size.y + 6)
+
+func lancia_il_nastro() -> void:
+	# IL NASTRO ARRIVA DA FUORI, e non compare.
+	#
+	# Bru l'ha disegnato in tre fotogrammi: prima e' oltre il bordo sinistro,
+	# quasi in verticale; poi e' a meta' strada, ancora storto; poi e' al suo
+	# posto, quasi dritto. La freccia rossa che ha tracciato sopra e' una curva,
+	# non una retta - entra andando verso destra e poi piega in giu'.
+	#
+	# Quindi tre cose, e servono tutte e tre:
+	#   1. una CURVA e non una linea: una linea retta si legge come un pannello
+	#      che scorre, una curva come un oggetto lanciato;
+	#   2. la ROTAZIONE che si raddrizza strada facendo: e' quello che fa
+	#      leggere "pezzo di nastro appiccicato" invece di "etichetta";
+	#   3. un rimbalzo in coda sull'angolo: la carta che si posa non si ferma
+	#      di colpo. Mezzo grado di troppo e poi indietro, e si sente.
+	var arrivo := posto_del_nastro()
+	var angolo_finale := deg_to_rad(Stile.forma("inclinazione_nastro"))
+	# fuori dal bordo sinistro e piu' in alto: e' da li' che entra nel disegno
+	var partenza := arrivo + Vector2(-nastro.size.x - 60.0, -150.0)
+	var controllo := arrivo + Vector2(nastro.size.x * 0.25, -200.0)
+	# GIRA ATTORNO AL SUO LATO SINISTRO, non attorno allo spigolo in alto.
+	#
+	# Con il perno sull'angolo, a cinquantotto gradi il nastro schizzava su
+	# nell'angolo dello schermo: ruotando attorno a un vertice tutto il corpo
+	# gli si allontana. Perno a meta' del lato corto e il nastro pendola come
+	# un pezzo di carta tenuto per un capo - che e' quello che e'.
+	nastro.pivot_offset = Vector2(0.0, nastro.size.y * 0.5)
+	nastro.position = partenza
+	nastro.rotation = deg_to_rad(ANGOLO_NASTRO_IN_ARRIVO)
+	if tween_nastro != null and tween_nastro.is_valid():
+		tween_nastro.kill()
+	tween_nastro = create_tween()
+	tween_nastro.set_parallel(true)
+	tween_nastro.tween_method(
+			func(t: float) -> void: nastro.position = curva(partenza, controllo, arrivo, t),
+			0.0, 1.0, Stile.tempo("nastro")
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	# LA ROTAZIONE ARRIVA DOPO LA POSIZIONE, ed e' la differenza fra "entra
+	# storto" e "entra dritto". Con la stessa curva della posizione (veloce
+	# subito, lenta alla fine) a meta' volo era gia' quasi orizzontale: nei
+	# fotogrammi di Bru invece resta inclinato quasi fino a terra, e si
+	# raddrizza solo appoggiandosi. Quindi lenta all'inizio e con un rimbalzo in
+	# coda: il nastro si posa, non atterra.
+	tween_nastro.tween_property(nastro, "rotation", angolo_finale, Stile.tempo("nastro")) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN_OUT)
+
+func curva(da: Vector2, verso: Vector2, a: Vector2, t: float) -> Vector2:
+	# Bezier quadratica: due interpolazioni in fila, ed e' tutta la curva che
+	# serve. Il punto di controllo e' dove il nastro "punterebbe" se non dovesse
+	# atterrare - e' quello a dare l'arco della freccia disegnata da Bru.
+	return da.lerp(verso, t).lerp(verso.lerp(a, t), t)
 
 func prepara_icona_menu() -> void:
 	# L'ICONCINA IN ALTO A SINISTRA: la faccia di chi stai giocando, e si apre

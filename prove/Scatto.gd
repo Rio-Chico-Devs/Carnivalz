@@ -22,13 +22,14 @@ const FOTOGRAMMI_DI_ASSESTAMENTO := 45
 func _ready() -> void:
 	var argomenti := OS.get_cmdline_user_args()
 	var quale := String(argomenti[0]) if argomenti.size() > 0 else "dialogo"
+	var etichetta := quale if argomenti.size() < 2 else "%s_%s" % [quale, argomenti[1]]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta
 	# fotogrammi qui vorrebbe dire fotografare il vetro quando e' gia' svanito
-	if quale != "rottura":
+	if quale != "rottura" and quale != "nastro":
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
-	salva(quale)
+	salva(etichetta)
 	get_tree().quit()
 
 func attendi(quanti: int) -> void:
@@ -43,6 +44,18 @@ func prepara(quale: String) -> void:
 			Pausa.apri()
 		"scelte":
 			await apri_dialogo(nodo_di_prova())
+		"nastro":
+			# IL NASTRO A META' VOLO. Dura meno di mezzo secondo: a occhio nudo
+			# non si ferma, e senza fermarlo non si puo' dire se la curva e'
+			# quella che ha disegnato Bru o un'altra.
+			await apri_dialogo(nodo_di_prova())
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			var schermata := get_child(0)
+			schermata.nome_sul_nastro = ""
+			schermata.aggiorna_nastro("Veronica")
+			var argomenti := OS.get_cmdline_user_args()
+			var quando := int(argomenti[1]) if argomenti.size() > 1 else 11
+			await attendi(quando)
 		"rottura":
 			# il vetro a meta' caduta: e' l'unico modo di guardarlo, perche'
 			# dura poco piu' di un secondo e a occhio nudo non si ferma

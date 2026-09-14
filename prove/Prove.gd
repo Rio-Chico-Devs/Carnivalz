@@ -82,6 +82,7 @@ func _ready() -> void:
 	prova_i_sogni_di_yhvina()
 	prova_chi_e_a_terra_non_viene_piu_colpito()
 	await prova_le_scelte_a_tempo()
+	await prova_il_nastro_col_nome()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -4101,6 +4102,87 @@ func cerca_orologio(radice: Node) -> Control:
 		if dentro != null:
 			return dentro
 	return null
+
+func prova_il_nastro_col_nome() -> void:
+	# Bru ha disegnato il nastro col nome in tre fotogrammi: fuori dal bordo
+	# sinistro, poi a meta' strada ancora storto, poi al suo posto. «From outside
+	# it enters following the arrow until reaching the position».
+	#
+	# Un'animazione non si prova guardando - per quello ci sono gli scatti - ma
+	# tre cose sotto si possono misurare, e sono le tre che, se si rompono, non
+	# se ne accorge nessuno finche' non si sta giocando:
+	titolo("il nastro col nome entra da fuori, e rientra solo se cambia chi parla")
+	GameState.nuova_partita()
+	GameState.eventi["prova_nastro"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "."}],
+		"scelte": [{"testo": "avanti", "vai": "prova_nastro"}],
+	}
+	GameState.nodo_corrente = "prova_nastro"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+
+	# 1. LA CURVA E' UNA CURVA. Non ci si arriva per caso: una Bezier sbagliata
+	#    passa lo stesso per i due estremi, e a vederla sembra solo "un po'
+	#    storta". Quello che la distingue da una retta e' il punto di mezzo.
+	var da := Vector2(0.0, 0.0)
+	var verso := Vector2(100.0, -200.0)
+	var a := Vector2(200.0, 0.0)
+	esigi(schermata.curva(da, verso, a, 0.0).is_equal_approx(da), "la curva non parte da dove deve")
+	esigi(schermata.curva(da, verso, a, 1.0).is_equal_approx(a), "la curva non arriva dove deve")
+	var meta: Vector2 = schermata.curva(da, verso, a, 0.5)
+	esigi(meta.y < -40.0,
+			"a meta' strada la curva sta a y=%.1f: e' una retta, non un arco" % meta.y)
+
+	# 2. PARTE DA FUORI DALLO SCHERMO. Se partisse da dentro non "entrerebbe":
+	#    comparirebbe e scivolerebbe, che e' un'altra cosa.
+	schermata.nome_sul_nastro = ""
+	schermata.aggiorna_nastro("Veronica")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var nastro: Label = schermata.nastro
+	esigi(nastro.visible, "il nastro non si e' acceso")
+	esigi(nastro.text == "veronica", "sul nastro c'e' scritto '%s'" % nastro.text)
+	esigi(nastro.position.x + nastro.size.x < 0.0,
+			"il nastro parte a x=%.1f, cioe' gia' dentro lo schermo" % nastro.position.x)
+	esigi(absf(nastro.rotation) > deg_to_rad(30.0),
+			"il nastro parte inclinato di %.1f gradi: doveva entrare quasi in verticale"
+			% rad_to_deg(nastro.rotation))
+
+	# 3. ARRIVA, E SI FERMA DOVE DEVE.
+	# SI ASPETTA CHE IL TWEEN ABBIA FINITO, non che la posizione sia "quasi"
+	# arrivata. Fermandosi al primo fotogramma entro un pixel si campionava un
+	# nastro ancora in movimento: il rimbalzo della rotazione stava ancora
+	# assestandosi, e il confronto del punto 4 falliva per mezzo pixel dando la
+	# colpa alla cosa sbagliata.
+	var atteso: Vector2 = schermata.posto_del_nastro()
+	for i in 90:
+		var volo: Tween = schermata.tween_nastro
+		if volo == null or not volo.is_running():
+			break
+		await get_tree().process_frame
+	esigi(nastro.position.distance_to(atteso) < 1.0,
+			"il nastro si e' fermato a %s invece che a %s" % [nastro.position, atteso])
+	esigi(absf(nastro.rotation) < deg_to_rad(12.0),
+			"atterrato, il nastro e' ancora inclinato di %.1f gradi" % rad_to_deg(nastro.rotation))
+
+	# 4. NON RIENTRA A OGNI BATTUTA. Un dialogo e' dieci battute della stessa
+	#    persona: rifare l'entrata a ognuna e' un tic, non un'animazione.
+	var fermo := nastro.position
+	schermata.aggiorna_nastro("Veronica")
+	await get_tree().process_frame
+	esigi(nastro.position.is_equal_approx(fermo),
+			"la stessa persona ha parlato di nuovo e il nastro e' rientrato da capo")
+	# ...ma se parla qualcun altro, si'
+	schermata.aggiorna_nastro("Anonimo")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(not nastro.position.is_equal_approx(fermo),
+			"ha parlato qualcun altro e il nastro e' rimasto dov'era")
+	esigi(nastro.text == "anonimo", "il nastro dice ancora '%s'" % nastro.text)
+	schermata.free()
+	GameState.nuova_partita()
 
 func prova_chi_e_a_terra_non_viene_piu_colpito() -> void:
 	# Bru, giocando: «quando vengo messo ko i nemici continuano a colpirmi».
