@@ -56,8 +56,11 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", Stile.stile_box_testo())
 	targhetta.add_theme_color_override("font_color", Stile.colore("accento"))
 	targhetta.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	indicatore.add_theme_color_override("font_color", Stile.colore("accento"))
-	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
+	# IL TRIANGOLINO E' NERO PERCHE' IL BOX E' BIANCO. Sembra ovvio e non lo era:
+	# prendeva il colore d'accento, che su un fondo scuro si vedeva benissimo e
+	# su una pagina bianca era un rosso acceso che tirava l'occhio piu' del testo.
+	indicatore.add_theme_color_override("font_color", Stile.colore("box_testo"))
+	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
 	indicatore.visible = false
 	# la targhetta tiene la sua riga anche quando e' vuota: se collassasse, il
 	# testo salterebbe su di una riga passando da un dialogo a una narrazione
@@ -66,13 +69,25 @@ func _ready() -> void:
 		targhetta.custom_minimum_size = Vector2(0, font_targhetta.get_height(Stile.dimensione("nome")))
 	imposta_altezza(Stile.forma("altezza_box"))
 
+func nome_fuori_dal_box() -> void:
+	# IL NOME DI CHI PARLA ESCE DAL BOX. Nel disegno di Bru sta su un pezzo di
+	# nastro rosa appiccicato storto sopra l'angolo, fuori dalla pagina bianca -
+	# e allora dentro non deve restare ne' la targhetta ne' la riga vuota che le
+	# teneva il posto, o il box resterebbe alto per niente.
+	#
+	# Lo chiede chi usa il box, e non lo decide il box: il diario del
+	# combattimento e' lo stesso nodo e li' la targhetta serve dov'e'.
+	targhetta.visible = false
+	targhetta.custom_minimum_size = Vector2.ZERO
+	imposta_altezza(Stile.forma("altezza_box"))
+
 func imposta_altezza(altezza_testo: int) -> void:
 	# l'altezza del box si decide una volta e non cambia piu': testo + riga
 	# della targhetta + separazione + i margini della cornice. Il combattimento
 	# ne chiede una piu' bassa (messaggi corti, e il campo ha bisogno di spazio)
 	var altezza_nome := 0.0
 	var font_nome := targhetta.get_theme_font("font")
-	if font_nome != null:
+	if font_nome != null and targhetta.visible:
 		altezza_nome = font_nome.get_height(Stile.dimensione("nome"))
 	testo.custom_minimum_size = Vector2(0, altezza_testo)
 	var cornice := Stile.stile_box_testo()
@@ -89,11 +104,15 @@ func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 		# qualcosa in piu': ha un suono suo, e arriva prima delle parole
 		AudioManager.interfaccia("raccolta")
 	testo.scroll_to_line(0)  # nuovo messaggio: si riparte sempre dall'inizio del testo
+	# IL TESTO DEL BOX E' NERO, perche' il box e' una pagina bianca. Tutti i
+	# colori qui sotto sono quelli che si leggono SU BIANCO - e non sono gli
+	# stessi che si leggono sul nero delle scelte: il rosso di una notifica su
+	# fondo chiaro va scurito, o vibra.
 	match tipo:
 		"dialogo":
 			targhetta.text = nome_parlante
 			testo.text = contenuto
-			testo.add_theme_color_override("default_color", Stile.colore("testo"))
+			testo.add_theme_color_override("default_color", Stile.colore("box_testo"))
 		"notifica":
 			targhetta.text = ""
 			testo.text = "[center]%s[/center]" % contenuto
@@ -109,7 +128,7 @@ func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 			# riconoscerlo: quando compare questo, stai guardando lontano.
 			targhetta.text = ""
 			testo.text = "[i]%s[/i]" % contenuto
-			testo.add_theme_color_override("default_color", Stile.colore("bordo_acceso"))
+			testo.add_theme_color_override("default_color", Stile.colore("eroe"))
 		_:
 			targhetta.text = ""
 			testo.text = "[i]%s[/i]" % contenuto

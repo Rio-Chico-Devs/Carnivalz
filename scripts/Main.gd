@@ -67,6 +67,12 @@ const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a 
 @onready var testo_titolo: Label = %TestoTitolo
 var immagine_titolo: TextureRect
 @onready var area_avanza: Button = %AreaAvanza
+@onready var quadro: Control = %Quadro
+@onready var scena_sfondo: TextureRect = %Scena
+@onready var tinta_scena: ColorRect = %TintaScena
+@onready var palco: HBoxContainer = %Palco
+@onready var nastro: Label = %Targhetta
+@onready var icona_menu: Button = %IconaMenu
 
 var nodo_in_corso: Dictionary = {}
 var coda_messaggi: Array[Dictionary] = []
@@ -80,6 +86,7 @@ var azione_dopo_coda: Callable = Callable()     # eseguita a coda vuota al posto
 var azione_a_fine_testo: Callable = Callable()  # eseguita appena il box ha finito di scrivere
 var mostrando_scena := false  # true quando il nodo sta mostrando la sua descrizione di ritorno
 var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la carta del titolo e' a schermo
+var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alterne
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
@@ -102,11 +109,27 @@ func _ready() -> void:
 	disegna_nodo(IngressoNodo.raccogli(GameState.nodo_corrente), [])
 
 func applica_stile() -> void:
+	# LA CORNICE NERA. Non e' un bordo decorativo: e' quello che rende la scena
+	# un'inquadratura invece di uno sfondo, ed e' il motivo per cui chi parla
+	# puo' SBORDARE. Veronica esce dal quadro, passa sopra il nero e finisce
+	# dietro il box - e se non ci fosse un quadro da cui uscire, quel gesto non
+	# vorrebbe dire niente.
 	sfondo.color = Stile.colore("sfondo")
-	# la colonna delle scelte tiene sempre la sua larghezza, anche quando e'
-	# vuota: se comparisse solo al momento del bisogno, i ritratti si
-	# restringerebbero di colpo a ogni fine testo
-	colonna_azioni.custom_minimum_size = Vector2(Stile.forma("larghezza_scelte"), 0)
+	var bordo := Stile.forma("cornice")
+	quadro.offset_left = bordo
+	quadro.offset_top = bordo
+	quadro.offset_right = -bordo
+	quadro.offset_bottom = -bordo
+	# PRIMA SI TOGLIE LA TARGHETTA, POI SI MISURA IL BOX. In quest'ordine e non
+	# nell'altro: il box si calcola l'altezza da solo, e finche' dentro c'e' la
+	# riga del nome quell'altezza comprende anche quella. Misurarlo prima
+	# voleva dire inchiodarlo a un'altezza che un istante dopo non era piu' la
+	# sua, con una striscia di bianco in piu' in fondo allo schermo.
+	box.nome_fuori_dal_box()
+	prepara_quadro()
+	prepara_nastro()
+	prepara_icona_menu()
+	prepara_colonna_scelte()
 	Stile.etichetta_piccola(etichetta_party)
 	Stile.etichetta_piccola(etichetta_risorse)
 	# LE STATISTICHE NON STANNO QUI. Bru: "le stats sono consultabili nel diario,
@@ -130,6 +153,129 @@ func applica_stile() -> void:
 	var suggerimento_titolo := Stile.costruisci_prompt("continua")
 	colonna_titolo.add_child(suggerimento_titolo)
 	Stile.pulsa(suggerimento_titolo)
+
+func prepara_quadro() -> void:
+	# Dentro la cornice c'e' il posto in cui sei, disegnato. Finche' quel
+	# disegno non esiste resta un fondo scuro, e non si rompe niente: e' la
+	# stessa regola dei ritratti, che il gioco si gioca anche senza.
+	# FINCHE' IL DISEGNO DEL POSTO NON C'E', l'inquadratura ha un fondo suo -
+	# scuro, ma non nero come la cornice. Se fosse nero uguale non si vedrebbe
+	# che c'e' un'inquadratura, e tutto il disegno di Bru sta in quella
+	# differenza: una scena dentro una cornice, non uno sfondo.
+	tinta_scena.color = Stile.colore("quadro_vuoto")
+	# il box e' inchiodato in basso e largo quanto il quadro, meno un morso a
+	# destra: nel disegno non arriva a toccare il bordo, e quel vuoto e' quello
+	# che fa sembrare il box appoggiato sopra invece che incastrato dentro.
+	#
+	# L'ALTEZZA LA DICE IL BOX, non questo conto. Provando a ricostruirla qui -
+	# testo + margini + bordi - veniva sbagliata di sessanta pixel e il box
+	# usciva dallo schermo: il box sa gia' quanto e' alto, perche' se l'e'
+	# calcolata lui in imposta_altezza().
+	var bordo := Stile.forma("cornice")
+	box.offset_left = bordo
+	box.offset_right = -bordo * 3
+	box.offset_bottom = -bordo * 0.8
+	box.offset_top = box.offset_bottom - box.get_combined_minimum_size().y
+	# il palco dei ritratti arriva fin sotto il box: e' cosi' che chi parla
+	# risulta tagliato dal box invece che appoggiato sopra
+	palco.offset_left = bordo * 3
+	palco.offset_top = bordo
+	palco.offset_right = -bordo * 3
+	palco.offset_bottom = -bordo * 0.75
+
+func mostra_scena_di(nodo: Dictionary) -> void:
+	# L'ILLUSTRAZIONE DEL POSTO, se c'e'. La dichiara il nodo con "sfondo", e
+	# vale finche' non ne arriva un'altra: le stanze di una stessa zona possono
+	# condividere lo stesso disegno senza ripeterlo in ogni nodo.
+	var percorso := String(nodo.get("sfondo", ""))
+	if percorso == "":
+		return
+	if not ResourceLoader.exists(percorso):
+		push_warning("Sfondo di scena mancante: " + percorso)
+		return
+	scena_sfondo.texture = load(percorso)
+
+func prepara_nastro() -> void:
+	# IL NASTRO COL NOME. Un'etichetta rosa appiccicata storta sopra l'angolo
+	# del box - come un pezzo di scotch con su scritto a mano chi sta parlando.
+	#
+	# Sta FUORI dai contenitori apposta: un Control dentro un contenitore si fa
+	# riscrivere posizione e rotazione a ogni riordino, e il nastro tornerebbe
+	# dritto da solo. E' lo stesso motivo per cui le carte del combattimento si
+	# animano di scala e non di posizione.
+	var stile_nastro := StyleBoxFlat.new()
+	stile_nastro.bg_color = Stile.colore("nastro")
+	stile_nastro.set_corner_radius_all(0)
+	stile_nastro.content_margin_left = 30
+	stile_nastro.content_margin_right = 30
+	stile_nastro.content_margin_top = 4
+	stile_nastro.content_margin_bottom = 6
+	nastro.add_theme_stylebox_override("normal", stile_nastro)
+	nastro.add_theme_color_override("font_color", Stile.colore("nastro_testo"))
+	nastro.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
+	nastro.rotation = deg_to_rad(Stile.forma("inclinazione_nastro"))
+	nastro.pivot_offset = Vector2.ZERO
+
+func aggiorna_nastro(nome: String) -> void:
+	nastro.visible = nome != ""
+	if nome == "":
+		return
+	# minuscolo come nel disegno: "veronica", non "Veronica". E' una scelta di
+	# carattere, non un errore - il nastro e' scritto a mano, non stampato
+	nastro.text = nome.to_lower()
+	await get_tree().process_frame   # la misura giusta si sa dopo che il testo c'e'
+	if not is_instance_valid(nastro):
+		return
+	nastro.position = Vector2(Stile.forma("cornice") * 0.6,
+			box.position.y - nastro.size.y + 6)
+
+func prepara_icona_menu() -> void:
+	# L'ICONCINA IN ALTO A SINISTRA: la faccia di chi stai giocando, e si apre
+	# il menu. Bru l'ha disegnata come un quadrato rosso col muso dentro.
+	var lato := Stile.forma("icona_menu")
+	var bordo := Stile.forma("cornice")
+	icona_menu.position = Vector2(bordo * 1.8, bordo * 1.8)
+	icona_menu.custom_minimum_size = Vector2(lato, lato)
+	icona_menu.size = Vector2(lato, lato)
+	var fondo := StyleBoxFlat.new()
+	fondo.bg_color = Stile.colore("pericolo")
+	fondo.set_corner_radius_all(0)
+	fondo.set_border_width_all(3)
+	fondo.border_color = Stile.colore("bordo")
+	for stato in ["normal", "hover", "pressed", "focus", "disabled"]:
+		icona_menu.add_theme_stylebox_override(stato, fondo)
+	icona_menu.tooltip_text = "Menu"
+	var faccia := TextureRect.new()
+	faccia.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	faccia.offset_left = 4
+	faccia.offset_top = 4
+	faccia.offset_right = -4
+	faccia.offset_bottom = -4
+	faccia.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	faccia.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	faccia.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var ritratto := ritratto_del_giocato()
+	if ritratto != "":
+		faccia.texture = load(ritratto)
+	icona_menu.add_child(faccia)
+	icona_menu.pressed.connect(func() -> void: Pausa.apri())
+
+func ritratto_del_giocato() -> String:
+	var id := GameState.id_protagonista
+	var per_espressione := "res://art/personaggi/%s/neutra.png" % id
+	if ResourceLoader.exists(per_espressione):
+		return per_espressione
+	var singolo := String(GameState.personaggi.get(id, {}).get("ritratto", ""))
+	return singolo if singolo != "" and ResourceLoader.exists(singolo) else ""
+
+func prepara_colonna_scelte() -> void:
+	# Le scelte stanno appoggiate al bordo destro del quadro, sopra
+	# l'illustrazione. Nel disegno cominciano circa a un sesto dell'altezza.
+	var bordo := Stile.forma("cornice")
+	colonna_azioni.offset_left = -Stile.forma("larghezza_scelte")
+	colonna_azioni.offset_right = -bordo * 2
+	colonna_azioni.offset_top = bordo * 4
+	colonna_azioni.alignment = BoxContainer.ALIGNMENT_BEGIN
 
 func _unhandled_input(evento: InputEvent) -> void:
 	# la tastiera fa esattamente quello che fa il mouse: avanza
@@ -169,6 +315,7 @@ func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) ->
 		return
 	var nodo: Dictionary = esito.nodo
 	nodo_in_corso = nodo
+	mostra_scena_di(nodo)
 	aggiorna_palco(nodo)
 	aggiorna_stato()
 	# i dialoghi di un posto si sentono una volta sola: da li' in avanti il nodo
@@ -376,6 +523,7 @@ func mostra_messaggio(msg: Dictionary) -> void:
 		evidenzia_parlante("")
 	GameState.registra_storico(tipo, nome_parlante, contenuto)
 	box.mostra(tipo, contenuto, nome_parlante)
+	aggiorna_nastro(nome_parlante)
 
 func mostra_carta_titolo(contenuto: String, percorso_immagine := "") -> void:
 	# il nome di un luogo non e' una riga di narrazione: si prende lo schermo,
@@ -460,10 +608,15 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 			continue  # gia' raccolto/fatto: la scelta non torna
 		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
 			continue  # non puoi pagare cio' che non hai
-		var bottone := bottone_scelta(String(scelta.get("testo", "…")))
+		if scelta.has("richiede_eroe") and GameState.scelte_eroe < int(scelta["richiede_eroe"]):
+			continue  # la puo' dire solo chi si e' comportato da eroe abbastanza volte
+		if scelta.has("richiede_malvagio") and GameState.scelte_malvagie < int(scelta["richiede_malvagio"]):
+			continue
+		var bottone := bottone_scelta(String(scelta.get("testo", "…")),
+				String(scelta.get("genere", "")))
 		segna_destinazione(bottone, scelta)
 		bottone.pressed.connect(_su_scelta.bind(scelta))
-		contenitore_scelte.add_child(bottone)
+		contenitore_scelte.add_child(riga_di_scelta(bottone, scelta))
 		if primo == null:
 			primo = bottone
 	if mostrando_scena:
@@ -478,11 +631,67 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		# la prima scelta parte gia' selezionata: si puo' giocare da tastiera
 		primo.grab_focus()
 
-func bottone_scelta(testo: String) -> Button:
+func bottone_scelta(testo: String, genere := "") -> Button:
 	var bottone := Button.new()
 	bottone.text = testo
-	Stile.scelta(bottone)
+	Stile.scelta(bottone, genere)
 	return bottone
+
+func riga_di_scelta(bottone: Button, scelta: Dictionary) -> Control:
+	# UNA SCELTA A TEMPO E' UNA SCELTA CON UN OROLOGIO ATTACCATO.
+	#
+	# Bru: «quelle eroe e villain sono a tempo, manchi timing non recuperi». Nel
+	# disegno l'orologio e' appeso storto a sinistra del riquadro nero.
+	#
+	# Le due cose restano separate: il "genere" (eroe, malvagio) dice di che
+	# razza e' la scelta e quindi di che colore; "tempo" dice che scade. Sono
+	# campi indipendenti perche' non e' detto che le due cose vadano sempre
+	# insieme - una decisione da villain puo' aspettare quanto vuole, e una
+	# scelta qualunque puo' scadere lo stesso ("scappa adesso o mai piu'").
+	var secondi := float(scelta.get("tempo", 0.0))
+	if secondi <= 0.0:
+		return bottone
+	var riga := HBoxContainer.new()
+	riga.alignment = BoxContainer.ALIGNMENT_END
+	riga.size_flags_horizontal = Control.SIZE_SHRINK_END
+	riga.add_theme_constant_override("separation", 10)
+	var orologio: Control = load("res://scripts/Orologio.gd").new()
+	riga.add_child(orologio)
+	riga.add_child(bottone)
+	# scaduta: sparisce lei, e le altre restano. "Non recuperi" vuol dire che
+	# quella strada si e' chiusa, non che hai perso il turno - se sparisse tutto
+	# il giocatore non capirebbe di aver perso qualcosa, capirebbe di aver
+	# aspettato troppo e basta
+	orologio.scaduto.connect(func() -> void:
+		if not is_instance_valid(riga):
+			return
+		var era_selezionata: bool = is_instance_valid(bottone) and bottone.has_focus()
+		riga.queue_free()
+		if era_selezionata:
+			# il fuoco non deve restare su una cosa che non c'e' piu', o da
+			# tastiera si continua a premere invio nel vuoto
+			sposta_fuoco_sulla_prima_scelta())
+	# inclinazioni alternate: nel disegno le due cipolle pendono da due parti
+	var inclinazione := 12.0 if orologi_appesi % 2 == 0 else -14.0
+	orologi_appesi += 1
+	orologio.avvia(secondi, inclinazione)
+	return riga
+
+func sposta_fuoco_sulla_prima_scelta() -> void:
+	for figlio in contenitore_scelte.get_children():
+		var bottone := primo_bottone_in(figlio)
+		if bottone != null:
+			bottone.grab_focus()
+			return
+
+func primo_bottone_in(nodo: Node) -> Button:
+	if nodo is Button:
+		return nodo
+	for figlio in nodo.get_children():
+		var trovato := primo_bottone_in(figlio)
+		if trovato != null:
+			return trovato
+	return null
 
 func segna_destinazione(bottone: Button, scelta: Dictionary) -> void:
 	# Quando da una stanza si va in piu' posti, quelli dove non sei ancora stato
@@ -666,6 +875,13 @@ func _su_osserva() -> void:
 
 func _su_scelta(scelta: Dictionary) -> void:
 	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi
+	# IL CONTO DI CHI SEI. Due contatori separati, non un asse solo: qui c'e'
+	# soltanto quante volte hai scelto in un modo e quante nell'altro. Cosa
+	# voglia dire lo decidono le scene, chiedendo "richiede_eroe" o
+	# "richiede_malvagio" - qui non c'e' nessun giudizio scritto nel codice.
+	match String(scelta.get("genere", "")):
+		"eroe": GameState.scelte_eroe += 1
+		"malvagio": GameState.scelte_malvagie += 1
 	if scelta.has("flag"):
 		GameState.imposta_flag(scelta["flag"])
 	if scelta.has("una_tantum"):

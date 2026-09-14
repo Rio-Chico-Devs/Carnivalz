@@ -13,6 +13,10 @@ extends Node
 # variante di questo tema, non un tema che lo sostituisce.
 
 const PERCORSO := "res://data/stile.json"
+# Oltre queste lettere una scelta smette di stringersi sul testo e prende tutta
+# la colonna andando a capo. Trenta e' il punto in cui una scritta smette di
+# essere un'etichetta e diventa una frase.
+const LETTERE_SCELTA_CORTA := 30
 
 var dati: Dictionary = {}
 var tema: Theme
@@ -156,10 +160,14 @@ func stile_box_testo() -> StyleBox:
 		s.content_margin_top = float(config.get("padding_alto", s.texture_margin_top))
 		s.content_margin_bottom = float(config.get("padding_basso", s.texture_margin_bottom))
 		return s
+	# IL BOX E' BIANCO COL BORDO NERO SPESSO, come nel disegno di Bru. E' l'unica
+	# cosa chiara di tutta la schermata, ed e' apposta: dove si legge si guarda,
+	# e una pagina bianca in mezzo al nero non ha bisogno di nessun'altra
+	# indicazione per dire "qui c'e' da leggere".
 	var piatto := StyleBoxFlat.new()
-	piatto.bg_color = Color(colore("pannello"), 0.94)
+	piatto.bg_color = colore("box_fondo")
 	piatto.border_color = colore("bordo")
-	piatto.set_border_width_all(forma("bordo"))
+	piatto.set_border_width_all(forma("bordo_box"))
 	piatto.set_corner_radius_all(forma("raggio"))
 	piatto.content_margin_left = forma("padding_box_x")
 	piatto.content_margin_right = forma("padding_box_x")
@@ -232,16 +240,44 @@ func stile_bottone_texture(stato: String) -> StyleBoxTexture:
 
 # --- aiutanti per i controlli costruiti a mano ---
 
-func scelta(bottone: Button) -> void:
-	# le scelte di un dialogo si leggono come righe di un elenco, non come
-	# pulsanti da modulo: testo a sinistra, tutta la larghezza disponibile.
-	# Stanno nella colonna stretta di destra, quindi una scelta lunga va a
-	# capo da sola invece di essere tagliata a meta' parola.
+func scelta(bottone: Button, genere := "") -> void:
+	# LE SCELTE SONO RIQUADRI NERI CHE SI STRINGONO SUL LORO TESTO, appoggiati
+	# al bordo destro sopra l'illustrazione. Nel disegno di Bru non c'e' nessuna
+	# colonna: non e' una barra laterale, sono cartelli attaccati sulla scena, e
+	# ognuno e' largo quanto le sue parole.
+	#
+	# Prima invece riempivano una colonna riservata larga sempre uguale. Serviva
+	# a non far ballare i ritratti quando le scelte comparivano - problema che
+	# qui non esiste piu', perche' le scelte stanno SOPRA la scena e non di
+	# fianco: niente che compare puo' spostare niente.
 	bottone.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	bottone.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bottone.custom_minimum_size = Vector2(0, 44)
-	bottone.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bottone.clip_text = false
+	bottone.add_theme_font_size_override("font_size", dimensione("sezione"))
+	# QUANDO SI STRINGE E QUANDO VA A CAPO. Un Control in Godot non ha una
+	# larghezza massima: o fa la misura del suo contenuto, o riempie quello che
+	# gli danno. Quindi la decisione si prende qui, sulla lunghezza del testo -
+	# le scritte corte ("Choice 1", "Hero option") si stringono come nel
+	# disegno, una frase lunga prende tutta la colonna e va a capo invece di
+	# uscire dallo schermo.
+	if bottone.text.length() > LETTERE_SCELTA_CORTA:
+		bottone.size_flags_horizontal = Control.SIZE_FILL
+		bottone.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	else:
+		bottone.size_flags_horizontal = Control.SIZE_SHRINK_END
+		bottone.autowrap_mode = TextServer.AUTOWRAP_OFF
+	var tinta := colore_scelta(genere)
+	for stato in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		bottone.add_theme_color_override(stato, tinta)
+
+func colore_scelta(genere: String) -> Color:
+	# IL COLORE DICE CHE RAZZA DI SCELTA E'. Bru le ha disegnate cosi': il rosso
+	# e' quella da villain, il blu quella da eroe, il bianco tutte le altre. Non
+	# e' decorazione - sono le uniche due che scadono, e il colore e' come si
+	# riconoscono prima di leggerle.
+	match genere:
+		"malvagio": return colore("malvagio")
+		"eroe": return colore("eroe")
+		_: return colore("testo")
 
 func colore_danno(elemento: String) -> Color:
 	# Il colore di un numero che vola. "critico" e "cura" sono due elementi come

@@ -37,7 +37,11 @@ func _ready() -> void:
 	etichetta_nome.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
 	etichetta_extra.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
 	etichetta_extra.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
-	iniziale.add_theme_color_override("font_color", Stile.colore("bordo"))
+	# IL RIPIEGO DEVE VEDERSI. Prendeva il colore del bordo, che quando la
+	# palette era scura stava bene - poi il bordo e' diventato nero come la
+	# cornice, e l'iniziale di chi non ha ancora un disegno e' sparita: nero su
+	# nero, e a schermo sembrava semplicemente che non ci fosse nessuno.
+	iniziale.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
 
 func mostra(id_personaggio: String, livello: int = 0, espressione: String = "neutra") -> void:
 	var cambia_immagine := id_personaggio != id_mostrato or espressione != espressione_mostrata

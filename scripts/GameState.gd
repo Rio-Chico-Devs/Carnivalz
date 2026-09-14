@@ -95,6 +95,18 @@ var livelli: Dictionary = {}              # id classe -> livello (default 1)
 var xp: Dictionary = {}                   # id classe -> xp verso il prossimo livello
 var stress: Dictionary = {}               # id classe -> 0..100
 var legame: int = 0                       # 0..100, respira di continuo
+# QUANTE VOLTE HAI SCELTO DA EROE E QUANTE DA VILLAIN.
+#
+# Due conti separati e non un unico asse da -100 a +100. Un asse solo dice che
+# una crudelta' si cancella con una gentilezza, e non e' vero di nessuno: qui
+# chi ha fatto trenta scelte da eroe e dieci da villain non e' "venti buono",
+# e' uno che ha fatto entrambe le cose - e il gioco puo' chiedere l'una o
+# l'altra senza che si annullino.
+#
+# Qui c'e' solo il conto. Cosa voglia dire lo decide chi scrive le scene, con
+# "richiede_eroe" e "richiede_malvagio".
+var scelte_eroe: int = 0
+var scelte_malvagie: int = 0
 
 # Inventario a slot: solo la sacca ha un limite ed è spendibile in combattimento
 var sacca: Array[String] = []             # consumabili, max regole.sacca_massima
@@ -464,6 +476,8 @@ func nuova_partita() -> void:
 	negozi_sbloccati.clear()
 	negozi_sbloccati.append("organizzazione")
 	legame = int(regole.get("legame_iniziale", 20))
+	scelte_eroe = 0
+	scelte_malvagie = 0
 	if id_protagonista != "":
 		classi_sbloccate.append(id_protagonista)
 		party.append(id_protagonista)
@@ -2181,6 +2195,8 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"tazo": tazo,
 		"fonti_estinte": fonti_estinte,
 		"legame": legame,
+		"scelte_eroe": scelte_eroe,
+		"scelte_malvagie": scelte_malvagie,
 		"classi_sbloccate": classi_sbloccate,
 		"livelli": livelli,
 		"xp": xp,
@@ -2238,6 +2254,8 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	tazo = int(d.get("tazo", 0))
 	fonti_estinte = int(d.get("fonti_estinte", 0))
 	legame = int(d.get("legame", int(regole.get("legame_iniziale", 20))))
+	scelte_eroe = int(d.get("scelte_eroe", 0))
+	scelte_malvagie = int(d.get("scelte_malvagie", 0))
 	classi_sbloccate = _lista_str(d.get("classi_sbloccate", []))
 	livelli = d.get("livelli", {})
 	xp = d.get("xp", {})

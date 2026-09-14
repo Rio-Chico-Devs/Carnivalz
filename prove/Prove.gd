@@ -81,6 +81,7 @@ func _ready() -> void:
 	prova_la_vita_bassa_si_annuncia()
 	prova_i_sogni_di_yhvina()
 	prova_chi_e_a_terra_non_viene_piu_colpito()
+	await prova_le_scelte_a_tempo()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -3890,6 +3891,127 @@ func prova_i_sogni_di_yhvina() -> void:
 	esigi(scontro.combattenti.size() == quanti_ora,
 			"un richiamo senza sogni validi ha portato in campo qualcosa")
 	scontro.free()
+
+func prova_le_scelte_a_tempo() -> void:
+	# Bru: «quelle eroe e villain sono a tempo, manchi timing non recuperi».
+	#
+	# Tre cose da misurare, e sono tutte e tre cose che non si vedono in uno
+	# scatto: che l'orologio scada davvero, che a scadere sparisca SOLO lui, e
+	# che scegliere lasci un segno che resta.
+	titolo("le scelte a tempo: scadono, e scegliere lascia un segno")
+
+	# 1. L'OROLOGIO. Conta alla rovescia e lo dice quando e' finita.
+	var orologio: Control = load("res://scripts/Orologio.gd").new()
+	add_child(orologio)
+	var suonato := [false]
+	orologio.scaduto.connect(func() -> void: suonato[0] = true)
+	orologio.avvia(1.0, 0.0)
+	esigi(is_equal_approx(orologio.quota_rimasta(), 1.0),
+			"appena avviato l'orologio e' gia' a %f" % orologio.quota_rimasta())
+	orologio._process(0.4)
+	esigi(orologio.quota_rimasta() < 1.0 and orologio.quota_rimasta() > 0.0,
+			"dopo quattro decimi su un secondo la quota e' %f" % orologio.quota_rimasta())
+	esigi(not suonato[0], "l'orologio e' scaduto a meta' strada")
+	orologio._process(0.7)
+	esigi(suonato[0], "il tempo e' finito e l'orologio non l'ha detto")
+	esigi(is_equal_approx(orologio.quota_rimasta(), 0.0),
+			"scaduto, ma la quota rimasta e' %f" % orologio.quota_rimasta())
+	# e una volta scaduto sta fermo: senza questo continuerebbe a contare in
+	# negativo e a ripetere il segnale a ogni fotogramma
+	suonato[0] = false
+	orologio._process(1.0)
+	esigi(not suonato[0], "l'orologio ha suonato una seconda volta dopo essere gia' scaduto")
+	orologio.free()
+
+	# 2. SCADUTA SPARISCE LEI, E LE ALTRE RESTANO. "Non recuperi" vuol dire che
+	#    quella strada si chiude, non che hai perso il turno.
+	GameState.nuova_partita()
+	GameState.eventi["prova_a_tempo"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "Decidi."}],
+		"scelte": [
+			{"testo": "Di corsa", "genere": "malvagio", "tempo": 0.5, "vai": "prova_a_tempo"},
+			{"testo": "Con calma", "vai": "prova_a_tempo"},
+		],
+	}
+	GameState.nodo_corrente = "prova_a_tempo"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	schermata.ricostruisci_scelte(GameState.eventi["prova_a_tempo"])
+	await get_tree().process_frame
+	esigi(conta_bottoni(schermata.contenitore_scelte) == 2,
+			"le scelte montate sono %d invece di 2"
+			% conta_bottoni(schermata.contenitore_scelte))
+	var trovato_orologio := cerca_orologio(schermata.contenitore_scelte)
+	esigi(trovato_orologio != null, "la scelta con \"tempo\" non ha nessun orologio appeso")
+	if trovato_orologio != null:
+		trovato_orologio._process(1.0)     # il tempo scade
+		await get_tree().process_frame     # e la riga si libera
+		await get_tree().process_frame
+	esigi(conta_bottoni(schermata.contenitore_scelte) == 1,
+			"scaduto il tempo restano %d scelte: doveva sparire solo quella a tempo"
+			% conta_bottoni(schermata.contenitore_scelte))
+	esigi(testo_dei_bottoni(schermata.contenitore_scelte).has("Con calma"),
+			"scaduta quella a tempo e' sparita anche la scelta normale")
+
+	# 3. SCEGLIERE LASCIA UN SEGNO, e i due conti non si annullano a vicenda.
+	esigi(GameState.scelte_eroe == 0 and GameState.scelte_malvagie == 0,
+			"a partita nuova i conti di eroe/villain non sono a zero")
+	schermata._su_scelta({"testo": "x", "genere": "malvagio"})
+	esigi(GameState.scelte_malvagie == 1,
+			"una scelta da villain non e' stata contata: il conto e' %d" % GameState.scelte_malvagie)
+	schermata._su_scelta({"testo": "x", "genere": "eroe"})
+	schermata._su_scelta({"testo": "x", "genere": "eroe"})
+	esigi(GameState.scelte_eroe == 2,
+			"due scelte da eroe hanno lasciato %d" % GameState.scelte_eroe)
+	esigi(GameState.scelte_malvagie == 1,
+			"comportarsi da eroe ha cancellato la scelta da villain: i due conti sono separati apposta")
+	# e un requisito le sa leggere
+	var esigente: Dictionary = {
+		"scelte": [
+			{"testo": "solo per eroi", "vai": "prova_a_tempo", "richiede_eroe": 2},
+			{"testo": "per veri eroi", "vai": "prova_a_tempo", "richiede_eroe": 9},
+		],
+	}
+	schermata.ricostruisci_scelte(esigente)
+	await get_tree().process_frame
+	var visibili: Array = testo_dei_bottoni(schermata.contenitore_scelte)
+	esigi(visibili.has("solo per eroi"), "due scelte da eroe non bastano per un requisito da due")
+	esigi(not visibili.has("per veri eroi"), "un requisito da nove e' passato con due scelte da eroe")
+	schermata.free()
+	GameState.nuova_partita()
+
+func conta_bottoni(radice: Node) -> int:
+	var quanti := 0
+	for figlio in radice.get_children():
+		if figlio.is_queued_for_deletion():
+			continue
+		if figlio is Button:
+			quanti += 1
+		else:
+			quanti += conta_bottoni(figlio)
+	return quanti
+
+func testo_dei_bottoni(radice: Node) -> Array:
+	var righe: Array = []
+	for figlio in radice.get_children():
+		if figlio.is_queued_for_deletion():
+			continue
+		if figlio is Button:
+			righe.append((figlio as Button).text)
+		else:
+			righe.append_array(testo_dei_bottoni(figlio))
+	return righe
+
+func cerca_orologio(radice: Node) -> Control:
+	for figlio in radice.get_children():
+		if figlio is Control and (figlio as Control).has_signal("scaduto"):
+			return figlio
+		var dentro := cerca_orologio(figlio)
+		if dentro != null:
+			return dentro
+	return null
 
 func prova_chi_e_a_terra_non_viene_piu_colpito() -> void:
 	# Bru, giocando: «quando vengo messo ko i nemici continuano a colpirmi».

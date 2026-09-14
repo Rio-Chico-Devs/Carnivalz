@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://prove/Scatto.gd" id="1_scatto"]
+
+[node name="Scatto" type="Node"]
+script = ExtResource("1_scatto")
