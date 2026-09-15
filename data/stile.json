@@ -66,7 +66,11 @@
 		"nastro": "#f2a7bd",
 		"nastro_testo": "#111111",
 		"quadro_vuoto": "#1d1830",
-		"_nota_bordo": "ATTENZIONE: 'bordo' e' il NERO DELLA CORNICE, e serve a delimitare cose chiare - il box bianco, i riquadri neri delle scelte. Non e' un colore con cui disegnare sul buio: su fondo scuro sparisce. Per un segno che si deve VEDERE sul buio (il reticolo della mappa, i collegamenti fra le stanze, la cornice di una barra) c'e' 'tratto'. Le due cose erano lo stesso colore finche' la palette era chiara; diventata nera, il reticolo della mappa e' sparito senza che nessuna prova potesse accorgersene."
+		"_nota_bordo": "ATTENZIONE: 'bordo' e' il NERO DELLA CORNICE, e serve a delimitare cose chiare - il box bianco, i riquadri neri delle scelte. Non e' un colore con cui disegnare sul buio: su fondo scuro sparisce. Per un segno che si deve VEDERE sul buio (il reticolo della mappa, i collegamenti fra le stanze, la cornice di una barra) c'e' 'tratto'. Le due cose erano lo stesso colore finche' la palette era chiara; diventata nera, il reticolo della mappa e' sparito senza che nessuna prova potesse accorgersene.",
+		"_nota_ecg": "I tre colori dell'ECG, e sono soglie di vita non gusti: Bru «la linea è rossa quando ferito gravemente meno del 25% di hp, gialla sopra il 25% ma meno del 75% verde sopra il 75%». Stanno qui e non dentro il codice del tracciato perché il giorno in cui il verde di questo gioco cambia, deve cambiare in un posto solo.",
+		"ecg_verde": "#3fd67a",
+		"ecg_giallo": "#f2c53d",
+		"ecg_rosso": "#ed1c24"
 	},
 	"_nota_colori_danno": "Il colore dei numeri che volano addosso a chi incassa. Un colpo normale e' rosso; un critico e' oro e piu' grande; un attacco o uno stato con un elemento porta il colore del suo elemento, cosi' si vede a colpo d'occhio COSA ti ha fatto male e non solo quanto. Un'arma, una mossa o uno stato dichiarano il proprio elemento col campo \"elemento\".",
 	"colori_danno": {

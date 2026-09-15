@@ -115,6 +115,7 @@ func _ready() -> void:
 	prova_mappa_a_quadratini()
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
+	prova_ecg()
 	prova_collisioni()
 	prova_tutorial_di_veronica()
 	prova_rivitalizzante_di_veronica()
@@ -6484,3 +6485,109 @@ func prova_nome_del_data_pad() -> void:
 	GameState.imposta_flag("ordini_ricevuti")
 	esigi(GameState.nome_diario() == "Data pad",
 			"dopo gli ordini si chiama ancora '%s'" % GameState.nome_diario())
+
+func prova_ecg() -> void:
+	# L'ECG DICE DUE COSE CON UNA RIGA SOLA, e qui si controllano tutte e due.
+	#
+	# Bru: «la linea è rossa quando ferito gravemente meno del 25% di hp, gialla
+	# sopra il 25% ma meno del 75% verde sopra il 75%» e «se ha tanto stress ci
+	# vuole che sia nervoso con ecg irregolare e movimentato».
+	titolo("l'ecg: il colore dice la vita, il movimento dice lo stress")
+
+	# IL COLORE, con gli estremi dove li ha messi lui. "meno del 25%" e' rossa,
+	# quindi a un quarto esatto e' gia' gialla - e il quarto esatto capita di
+	# continuo, e' la stessa soglia con cui il gioco dice "vita bassa".
+	esigi(EcgCombattimento.colore_per(0.10) == "rosso", "a un decimo di vita la linea non e' rossa")
+	esigi(EcgCombattimento.colore_per(0.2499) == "rosso", "appena sotto il quarto la linea non e' rossa")
+	esigi(EcgCombattimento.colore_per(0.25) == "giallo",
+			"al 25%% esatto la linea e' '%s': Bru ha scritto rossa SOTTO il 25%%"
+			% EcgCombattimento.colore_per(0.25))
+	esigi(EcgCombattimento.colore_per(0.50) == "giallo", "a meta' vita la linea non e' gialla")
+	esigi(EcgCombattimento.colore_per(0.75) == "giallo",
+			"al 75%% esatto la linea e' '%s': Bru ha scritto verde SOPRA il 75%%"
+			% EcgCombattimento.colore_per(0.75))
+	esigi(EcgCombattimento.colore_per(0.7501) == "verde", "appena sopra i tre quarti la linea non e' verde")
+	esigi(EcgCombattimento.colore_per(1.0) == "verde", "a vita piena la linea non e' verde")
+
+	var dado := RandomNumberGenerator.new()
+	dado.seed = 20260915
+	var durata := 6.0
+	var campioni := 900
+
+	# CHI E' A TERRA FA UNA RIGA DRITTA
+	var morto := EcgCombattimento.traccia(durata, campioni, 0.0, 0, dado)
+	esigi(EcgCombattimento.picchi(morto) == 0,
+			"un combattente a terra ha ancora %d battiti" % EcgCombattimento.picchi(morto))
+
+	# PIU' STRESS, PIU' BATTITI. Contati nel tracciato, non creduti sulla parola.
+	#
+	# LO STESSO DADO, RIAVVOLTO. Prima i due tracciati si tiravano di seguito
+	# dallo stesso dado, quindi non avevano in comune solo lo stress: avevano
+	# anche due sequenze di numeri casuali diverse. La prova restava verde anche
+	# togliendo di mezzo l'accelerazione, perche' a fare la differenza bastava
+	# il rumore. Riavvolgendolo, fra i due tracciati cambia una cosa sola.
+	dado.seed = 20260915
+	var calmo := EcgCombattimento.traccia(durata, campioni, 1.0, 0, dado)
+	dado.seed = 20260915
+	var teso := EcgCombattimento.traccia(durata, campioni, 1.0, 100, dado)
+	var battiti_calmo := EcgCombattimento.picchi(calmo)
+	var battiti_teso := EcgCombattimento.picchi(teso)
+	esigi(battiti_calmo > 0, "un combattente sano e tranquillo non ha nessun battito")
+	# NON "UNO IN PIU'": MOLTI IN PIU'. Da 62 a 150 al minuto il tracciato deve
+	# raddoppiare abbondantemente, e chiedere solo "maggiore" non lo controlla:
+	# fra i due tracciati ballava comunque un battito di scarto per come cade il
+	# primo picco sul bordo, e la prova restava verde anche spegnendo del tutto
+	# l'accelerazione. Con il doppio come soglia, quello scarto non basta piu'.
+	esigi(battiti_teso >= battiti_calmo * 2,
+			"a stress pieno i battiti sono %d contro i %d di uno tranquillo: "
+			% [battiti_teso, battiti_calmo] + "il cuore non accelera abbastanza da vedersi")
+
+	# E PIU' IRREGOLARI. E' la meta' che conta: un cuore che accelera e basta
+	# sembra sforzo, uno che perde il tempo sembra paura
+	var regolarita := func(stress: int) -> float:
+		var quando := EcgCombattimento.istanti_dei_battiti(durata, stress, dado)
+		if quando.size() < 3:
+			return 0.0
+		var scarti: Array[float] = []
+		for i in range(1, quando.size()):
+			scarti.append(quando[i] - quando[i - 1])
+		var media := 0.0
+		for s in scarti:
+			media += s
+		media /= float(scarti.size())
+		var varianza := 0.0
+		for s in scarti:
+			varianza += (s - media) * (s - media)
+		return sqrt(varianza / float(scarti.size())) / maxf(media, 0.001)
+	var sbando_calmo: float = regolarita.call(0)
+	var sbando_teso: float = regolarita.call(100)
+	esigi(sbando_calmo < 0.02,
+			"da tranquillo il cuore sbanda gia' del %.0f%%: doveva essere un metronomo" % (sbando_calmo * 100.0))
+	esigi(sbando_teso > 0.10,
+			"a stress pieno il cuore sbanda solo del %.0f%%: e' piu' veloce ma non e' irregolare"
+			% (sbando_teso * 100.0))
+
+	# E LA LINEA DI BASE TREMA, che e' il "movimentato" di Bru.
+	#
+	# Si contano i campioni che valgono ESATTAMENTE zero. Fra un battito e
+	# l'altro l'onda ha dei tratti piatti, e senza tremore quei tratti sono
+	# zeri precisi: tanti. Col tremore addosso non ne resta praticamente
+	# nessuno, perche' ogni campione viene spostato di un pelo.
+	#
+	# Il primo tentativo cercava il valore piu' alto fra quelli piccoli, e
+	# restava verde anche azzerando il tremore: quei valori li faceva l'onda,
+	# non il rumore, e bastava che i battiti cadessero in punti diversi.
+	var zeri := func(punti: PackedFloat32Array) -> int:
+		var quanti := 0
+		for valore in punti:
+			if valore == 0.0:
+				quanti += 1
+		return quanti
+	var zeri_calmo: int = zeri.call(calmo)
+	var zeri_teso: int = zeri.call(teso)
+	esigi(zeri_calmo > campioni / 4,
+			"da tranquillo il tracciato ha solo %d campioni piatti su %d: non e' una linea che riposa"
+			% [zeri_calmo, campioni])
+	esigi(zeri_teso < zeri_calmo / 10,
+			"a stress pieno il tracciato ha ancora %d campioni perfettamente piatti (calmo: %d): "
+			% [zeri_teso, zeri_calmo] + "la linea di base non trema, e' solo piu' fitta")

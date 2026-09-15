@@ -77,6 +77,34 @@ func prepara(quale: String) -> void:
 			await attendi(quando)
 			if scontro.minigioco.pugni.is_empty():
 				push_error("nessun pugno a schermo: non c'e' niente da fotografare")
+		"ecg":
+			# I QUATTRO STATI DELLA LINEA, uno sotto l'altro. Il colore dice la
+			# vita, il movimento dice lo stress: sono due informazioni diverse
+			# nella stessa riga, e l'unico modo di controllare che si leggano
+			# davvero e' guardarle insieme.
+			GameState.nuova_partita()
+			var casi := [
+				["vita piena, sereno", 1.0, 0],
+				["mezza vita, teso", 0.5, 55],
+				["a pezzi, nel panico", 0.15, 100],
+				["a terra", 0.0, 0],
+			]
+			var colonna := VBoxContainer.new()
+			colonna.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			colonna.add_theme_constant_override("separation", 18)
+			add_child(colonna)
+			for caso in casi:
+				var etichetta := Label.new()
+				etichetta.text = String(caso[0])
+				etichetta.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+				colonna.add_child(etichetta)
+				var riga := TracciatoEcg.new()
+				riga.custom_minimum_size = Vector2(0, 110)
+				riga.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				riga.dado.seed = 20260915
+				riga.imposta(float(caso[1]), int(caso[2]))
+				colonna.add_child(riga)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 260)
 		"complesso_dopo":
 			# LA MAPPA DEL POMERIGGIO: tutta visibile, i corridoi aperti, e il
 			# punto esclamativo che si e' spostato sulla sala comunicazioni.
