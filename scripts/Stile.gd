@@ -427,6 +427,16 @@ func lampeggia(nodo: CanvasItem, tinta: Color) -> void:
 	if nodo == null or not is_instance_valid(nodo):
 		return
 	var durata := tempo("lampeggio_colpo")
+	# CON IL MOVIMENTO RIDOTTO IL COLPO NON LAMPEGGIA, TINGE. L'informazione
+	# resta tutta - hai preso un colpo, e di che elemento era - ma arriva senza
+	# un battito: e' il lampeggio, non il colore, quello che da' fastidio a chi
+	# soffre di emicrania o di epilessia fotosensibile.
+	if Impostazioni.movimento_ridotto:
+		var tinta_calma := Color.WHITE.lerp(tinta, 0.45)
+		var lento := nodo.create_tween()
+		lento.tween_property(nodo, "modulate", tinta_calma, durata * 0.6)
+		lento.tween_property(nodo, "modulate", Color.WHITE, durata * 1.4)
+		return
 	var battito := nodo.create_tween()
 	battito.tween_property(nodo, "modulate", tinta, durata * 0.35)
 	battito.tween_property(nodo, "modulate", Color.WHITE, durata * 0.65)

@@ -322,8 +322,85 @@ finestra. Non c'è niente da sistemare.
 | nome del nemico sulla fascia rossa | 3.94 | ✅ come testo grande |
 | voce di menu spenta | 3.08 | ✅ |
 
+---
+
+# Secondo giro: i bug dentro il codice
+
+Il primo giro guardava com'è fatta la schermata. Questo guarda **come si
+comporta mentre gira** — e qui i difetti si misurano col cronometro, non col
+righello.
+
+## 1. L'ECG rallentava sempre di più, e non smetteva
+
+Il tracciato teneva in memoria **ogni battito da quando lo scontro era
+cominciato**, e li rileggeva tutti per ogni campione, sessanta volte al secondo.
+Un battito più vecchio di un intervallo non contribuisce niente — `onda()` gli
+risponde zero — quindi erano riletture di roba morta.
+
+Misurato: in due minuti di scontro l'elenco passa da **11 a 196** battiti. Dopo
+cinque minuti sono settecento, riletti quarantamila volte al secondo. E il conto
+peggiora da solo più lo scontro dura: uno scontro lungo — cioè un boss —
+rallentava proprio quando conta.
+
+## 2. Il disco si interrogava a ogni colpo
+
+Misurato: cercare un ritratto lungo tutta la catena di ripiego costa **0.10 ms**,
+un controllo d'esistenza **0.024 ms**. Sembra niente finché non si guarda quante
+volte succedeva:
+
+- **il ritratto** si ricercava a ogni aggiornamento di scheda — uno per colpo,
+  per stato, per battuta, per tre compagni — anche quando la faccia non doveva
+  cambiare affatto;
+- **le icone di stato** chiedevano al disco *dentro il disegno*, cioè
+  potenzialmente a ogni fotogramma: nove domande per fotogramma con tre compagni.
+
+Il punto non è il millisecondo: è che quelle chiamate toccano il disco, e un
+disco che si sveglia in mezzo a uno scontro in tempo reale si sente. Adesso la
+faccia si cerca solo quando cambia la condizione, e i simboli si chiedono una
+volta sola.
+
+## 3. Tutto lo slot si rifaceva a ogni colpo
+
+`imposta_status` rimetteva in riga ritratto, tre barre e tre riquadri a ogni
+aggiornamento. Ma i riquadri si spostano solo quando cambia il **loro numero**.
+
+## 4. Il lampo di un colpo copriva le barre
+
+Trovato fotografando un colpo a metà volo: tingendo tutto lo slot, nell'istante
+in cui prendi un colpo — che è esattamente l'istante in cui guardi quanta vita ti
+resta — **HP, AURA e dominio diventavano tutti viola**. Adesso reagisce la
+faccia, che è la parte grande ed è quella che deve "reagire".
+
+## 5. Mancava l'opzione per ridurre il movimento
+
+[Le linee guida](https://gameaccessibilityguidelines.com/avoid-flickering-images-and-repetitive-patterns/)
+e la [guida Xbox 118](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/118)
+mettono "disattiva la scossa dello schermo" fra le opzioni **da offrire**, non
+fra quelle carine da avere: scossa e lampi sono fra i motivi per cui una persona
+con mal di movimento, emicrania o epilessia fotosensibile smette di giocare. Le
+linee guida segnalano anche che le combinazioni ad alto contrasto più rischiose
+sono proprio **rosso su nero** — che è metà della nostra palette.
+
+Il gioco aveva già testo grande, alto contrasto e velocità del testo. Questa
+mancava, e il combattimento trema a ogni colpo.
+
+**Riduci il movimento** toglie la scossa e trasforma il lampo in una tinta che
+arriva e se ne va piano. Non toglie nessuna informazione: il numero del danno, il
+colore dell'elemento e il suono restano.
+
+## Una cosa che non ho chiuso
+
+Le prove finiscono con `ObjectDB instances leaked at exit`. Ci ho provato: il
+riproduttore minimo — costruire e distruggere una plancia — **si pianta a sua
+volta**, e non sono arrivato in fondo. Resta aperto, e non è una cosa che si
+vede giocando: è roba che non viene liberata quando il gioco si chiude.
+
 ## Fonti
 
 - [Game Accessibility Guidelines — nessuna informazione da un colore solo](https://gameaccessibilityguidelines.com/ensure-no-essential-information-is-conveyed-by-a-fixed-colour-alone/)
 - [Xbox Accessibility Guideline 103](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/103)
 - [Designing a practical HUD](https://rocketbrush.com/blog/designing-practical-and-pretty-hud-in-video-games)
+- [Game Accessibility Guidelines — evitare immagini lampeggianti](https://gameaccessibilityguidelines.com/avoid-flickering-images-and-repetitive-patterns/)
+- [Xbox Accessibility Guideline 118 — fotosensibilità](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/118)
+- [Xbox Accessibility Guideline 117 — mal di movimento](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/117)
+- [Motion sickness accessibility in video games](https://madelinemiller.dev/blog/motion-sickness-accessibility/)

@@ -19,9 +19,34 @@ extends RefCounted
 
 const CARTELLA := "res://art/icone_stato/"
 
+# QUALE DISEGNO C'E', CHIESTO UNA VOLTA SOLA.
+#
+# disegna() gira dentro un _draw, cioe' potenzialmente a ogni fotogramma e per
+# ogni riquadro di stato: con tre compagni e tre riquadri a testa sono nove
+# domande al disco per fotogramma. Misurato, un controllo d'esistenza costa
+# 0.024 ms - moltiplicato per nove e per sessanta fa quattordici millisecondi al
+# secondo buttati a chiedere al disco una cosa che non cambia mai mentre il
+# gioco gira.
+#
+# Le risposte non scadono: dentro un gioco compilato i file non compaiono da
+# soli. Se un domani si aggiungessero a caldo, basta svuotare.
+static var disegni_trovati: Dictionary = {}
+
+static func percorso_di(id_stato: String) -> String:
+	var chiave := id_stato if id_stato != "" else "normale"
+	if disegni_trovati.has(chiave):
+		return String(disegni_trovati[chiave])
+	var percorso := CARTELLA + chiave + ".png"
+	var risposta := percorso if ResourceLoader.exists(percorso) else ""
+	disegni_trovati[chiave] = risposta
+	return risposta
+
+static func svuota_cache() -> void:
+	disegni_trovati.clear()
+
 static func disegna(dove: CanvasItem, id_stato: String, riquadro: Rect2) -> void:
-	var percorso := CARTELLA + (id_stato if id_stato != "" else "normale") + ".png"
-	if ResourceLoader.exists(percorso):
+	var percorso := percorso_di(id_stato)
+	if percorso != "":
 		var disegno: Texture2D = load(percorso)
 		dove.draw_texture_rect(disegno, riquadro, false)
 		return

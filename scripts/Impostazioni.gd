@@ -12,6 +12,16 @@ var volume_effetti := 1.0
 var schermo_intero := false
 var testo_grande := false
 var alto_contrasto := false
+# RIDUCI IL MOVIMENTO. Le linee guida sull'accessibilita' dei giochi lo mettono
+# fra le opzioni che vanno offerte, non fra quelle carine da avere: la scossa
+# dell'inquadratura e i lampi sono fra i motivi per cui una persona che soffre
+# di mal di movimento, di emicrania o di epilessia fotosensibile smette di
+# giocare. Il gioco aveva gia' testo grande, alto contrasto e velocita' del
+# testo; questa mancava, e il combattimento trema a ogni colpo.
+#
+# Non toglie l'informazione, toglie il MOVIMENTO: il lampo di un colpo diventa
+# un cambio di colore che resta, invece di un battito.
+var movimento_ridotto := false
 var velocita_testo := 1.0  # moltiplica i caratteri al secondo del box (0.5 lento, 3 = quasi istantaneo)
 
 func _ready() -> void:
@@ -29,6 +39,7 @@ func carica() -> void:
 	testo_grande = bool(cfg.get_value("accessibilita", "testo_grande", false))
 	alto_contrasto = bool(cfg.get_value("accessibilita", "alto_contrasto", false))
 	velocita_testo = float(cfg.get_value("accessibilita", "velocita_testo", 1.0))
+	movimento_ridotto = bool(cfg.get_value("accessibilita", "movimento_ridotto", false))
 
 func salva() -> void:
 	var cfg := ConfigFile.new()
@@ -38,6 +49,7 @@ func salva() -> void:
 	cfg.set_value("grafica", "schermo_intero", schermo_intero)
 	cfg.set_value("accessibilita", "testo_grande", testo_grande)
 	cfg.set_value("accessibilita", "alto_contrasto", alto_contrasto)
+	cfg.set_value("accessibilita", "movimento_ridotto", movimento_ridotto)
 	cfg.set_value("accessibilita", "velocita_testo", velocita_testo)
 	cfg.save(PERCORSO)
 

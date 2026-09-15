@@ -60,11 +60,18 @@ func valore_a(quando: float) -> float:
 		var sbando := EcgCombattimento.SBANDAMENTO_MASSIMO * EcgCombattimento.quota_stress(stress)
 		battiti.append(maxf(generati_fino_a + dado.randf_range(-sbando, sbando) * passo, 0.0))
 		generati_fino_a += passo
+	# SI BUTTANO VIA I BATTITI VECCHI, e non e' pulizia: e' una perdita.
+	#
+	# Un battito piu' vecchio di "passo" non contribuisce piu' niente - onda()
+	# gli risponde zero - ma restava nell'elenco per sempre, e l'elenco veniva
+	# riletto PER OGNI CAMPIONE, sessanta volte al secondo. Dopo cinque minuti
+	# di scontro erano settecento battiti morti riletti quarantamila volte al
+	# secondo: uno scontro lungo rallentava, e rallentava sempre di piu'.
+	while not battiti.is_empty() and quando - battiti[0] > passo:
+		battiti.remove_at(0)
 	var valore := 0.0
 	for istante in battiti:
 		if istante > quando:
-			continue
-		if quando - istante > passo:
 			continue
 		valore += EcgCombattimento.onda(quando - istante, passo)
 	var tremore := EcgCombattimento.TREMORE_MASSIMO * EcgCombattimento.quota_stress(stress)

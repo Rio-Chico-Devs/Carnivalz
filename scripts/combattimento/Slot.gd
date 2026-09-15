@@ -45,6 +45,8 @@ var simboli: Array[String] = []  # che status ha addosso, in ordine
 var id_dentro := ""              # chi ci sta, o "" se il posto e' libero
 var banda_adesso := ""           # quale faccia sta mostrando: serve all'isteresi
 var faccia: TextureRect          # il ritratto che cambia con le ferite
+var chiave_faccia := ""          # quale condizione sta gia' mostrando
+var ricerche := 0                # quante volte ha DAVVERO cercato un disegno su disco
 var iniziale: Label              # il ripiego quando non c'e' nessun disegno
 
 func _ready() -> void:
@@ -142,6 +144,7 @@ func abita(id_personaggio: String) -> void:
 	# sceglie la condizione, non chi chiama.
 	id_dentro = id_personaggio
 	banda_adesso = ""
+	chiave_faccia = ""
 	visible = true
 	for riga in RIGHE:
 		(barre[String(riga.chiave)] as Control).visible = true
@@ -153,6 +156,7 @@ func lascia_vuoto() -> void:
 	# disegno e spegne barre e status, che non misurano nessuno.
 	id_dentro = ""
 	banda_adesso = ""
+	chiave_faccia = ""
 	visible = true
 	for riga in RIGHE:
 		(barre[String(riga.chiave)] as Control).visible = false
@@ -163,10 +167,23 @@ func lascia_vuoto() -> void:
 	metti_disegno(RitrattiCombattimento.posto_vuoto(), "")
 
 func aggiorna_faccia(quota_hp: float, stati: Array[String]) -> void:
+	# SI CERCA UN DISEGNO SOLO QUANDO CAMBIA LA CONDIZIONE.
+	#
+	# Questa funzione viene chiamata a ogni aggiornamento di scheda - e ce n'e'
+	# uno per colpo, per stato, per battuta - e ogni volta rifaceva l'intera
+	# catena di ripiego: fino a sei domande al disco, misurate in 0.10 ms per
+	# giro, per tre compagni. Ma la faccia cambia solo quando cambia la banda o
+	# quello che ha addosso: il resto delle volte si stava cercando il file che
+	# era gia' appeso.
 	if id_dentro == "":
 		return
 	var prima := banda_adesso
 	banda_adesso = RitrattiCombattimento.banda(quota_hp, prima)
+	var chiave := banda_adesso + "|" + "|".join(stati)
+	if chiave == chiave_faccia:
+		return
+	chiave_faccia = chiave
+	ricerche += 1
 	var scheda: Dictionary = GameState.personaggi.get(id_dentro, {})
 	metti_disegno(RitrattiCombattimento.scegli(id_dentro, quota_hp, stati, prima,
 			String(scheda.get("ritratto", ""))), String(scheda.get("nome", id_dentro)))
@@ -202,11 +219,19 @@ func imposta_status(elenco: Array[String]) -> void:
 	# c'e' UN riquadro: «se stanno bene ci stara l'icona normale altrimenti ho
 	# fatto esempi per in fiamme, maledetto e paralisi». Tre riquadri sempre
 	# accesi direbbero che ha tre cose addosso anche quando non ha niente.
+	#
+	# E SI RIMETTE IN RIGA SOLO SE CAMBIA QUANTI SONO. Prima si rifaceva tutta la
+	# disposizione dello slot - ritratto, tre barre, tre riquadri - a ogni
+	# aggiornamento di scheda, cioe' a ogni colpo e a ogni battuta, per tre
+	# compagni. Ma i riquadri si spostano solo quando cambia il LORO NUMERO: se
+	# ne avevi uno addosso e ne hai ancora uno, stanno gia' dove devono.
+	var quanti_prima := maxi(simboli.size(), 1)
 	simboli = elenco
 	for i in status.size():
 		status[i].visible = i < maxi(elenco.size(), 1)
 		status[i].queue_redraw()
-	ridisponi()
+	if maxi(elenco.size(), 1) != quanti_prima:
+		ridisponi()
 
 # --- la disposizione, dal disegno --------------------------------------------
 

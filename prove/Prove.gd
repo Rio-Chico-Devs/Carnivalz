@@ -116,6 +116,10 @@ func _ready() -> void:
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
+	await prova_lampo_solo_sulla_faccia()
+	prova_riduci_il_movimento()
+	prova_niente_disco_a_ogni_colpo()
+	prova_ecg_non_accumula()
 	prova_menu_da_tastiera()
 	prova_ritratti_di_condizione()
 	prova_ecg()
@@ -6777,3 +6781,158 @@ func prova_menu_da_tastiera() -> void:
 	esigi(segno is StyleBoxFlat and (segno as StyleBoxFlat).border_width_left > 0,
 			"la voce col fuoco non ha nessun segno di forma: si distingue solo dal colore")
 	scontro.free()
+
+func prova_ecg_non_accumula() -> void:
+	# UNO SCONTRO LUNGO NON DEVE RALLENTARE.
+	#
+	# Il tracciato teneva in memoria ogni battito da quando lo scontro era
+	# cominciato, e li rileggeva tutti PER OGNI CAMPIONE - sessanta volte al
+	# secondo. Un battito piu' vecchio di un intervallo non contribuisce piu'
+	# niente, quindi erano riletture di roba morta: dopo cinque minuti sono
+	# settecento battiti riletti quarantamila volte al secondo, e il conto
+	# peggiora da solo piu' lo scontro dura.
+	titolo("l'ecg non accumula battiti per tutto lo scontro")
+	var riga := TracciatoEcg.new()
+	riga.size = Vector2(400, 110)
+	riga.imposta(0.6, 40)
+	var dopo_poco := 0
+	var dopo_molto := 0
+	# si chiama valore_a() direttamente: e' la funzione che accumula, e cosi' la
+	# prova non ha bisogno ne' di una finestra ne' di aspettare mezzo minuto
+	for i in 120:
+		riga.valore_a(float(i) * 0.05)
+	dopo_poco = riga.battiti.size()
+	for i in range(120, 2400):
+		riga.valore_a(float(i) * 0.05)
+	dopo_molto = riga.battiti.size()
+	esigi(dopo_poco > 0, "il tracciato non ha generato nessun battito")
+	esigi(dopo_molto <= dopo_poco + 2,
+			("dopo due minuti l'elenco dei battiti e' passato da %d a %d: "
+			+ "cresce senza fine, e ogni campione li rilegge tutti")
+			% [dopo_poco, dopo_molto])
+	riga.free()
+
+func prova_niente_disco_a_ogni_colpo() -> void:
+	# IL DISCO NON SI INTERROGA A OGNI COLPO.
+	#
+	# Misurato: cercare un ritratto lungo tutta la catena di ripiego costa 0.10
+	# ms, e un controllo d'esistenza 0.024 ms. Sembra niente finche' non si
+	# guarda QUANTE volte succedeva: la faccia si ricercava a ogni aggiornamento
+	# di scheda - uno per colpo, per stato, per battuta, per tre compagni - e le
+	# icone di stato addirittura dentro il disegno, cioe' potenzialmente a ogni
+	# fotogramma.
+	#
+	# Il punto non e' il millisecondo: e' che quelle chiamate toccano il disco, e
+	# un disco che si sveglia in mezzo a uno scontro in tempo reale si sente.
+	titolo("il disco non si interroga a ogni colpo")
+	var posto := SlotCompagno.new()
+	add_child(posto)
+	posto.size = Vector2(200, 320)
+	posto.abita("veronica")
+	# il PRIMO aggiornamento a 0.9 deve cercare davvero: abita() l'aveva messa a
+	# vita piena, e passare a "ferito_lieve" e' un cambio di faccia vero. Il
+	# conto di partenza si prende dopo, se no si misura anche quello
+	posto.aggiorna_faccia(0.9, [])
+	var dopo_il_primo := posto.ricerche
+	for _volta in 40:
+		posto.aggiorna_faccia(0.9, [])
+	esigi(posto.ricerche == dopo_il_primo,
+			"quaranta aggiornamenti con la stessa condizione hanno cercato %d volte un disegno"
+			% (posto.ricerche - dopo_il_primo))
+	# ma quando la condizione cambia davvero, la faccia deve cambiare
+	posto.aggiorna_faccia(0.1, [])
+	esigi(posto.ricerche > dopo_il_primo,
+			"il personaggio e' passato a un decimo di vita e la faccia non e' stata ricercata")
+	var dopo_la_ferita := posto.ricerche
+	posto.aggiorna_faccia(0.1, ["fiamme"])
+	esigi(posto.ricerche > dopo_la_ferita,
+			"gli e' andato addosso il fuoco e la faccia non e' stata ricercata")
+	posto.free()
+
+	# e le icone di stato chiedono al disco una volta per simbolo, non a ogni
+	# ridisegno
+	IconeStato.svuota_cache()
+	esigi(IconeStato.disegni_trovati.is_empty(), "la cache delle icone non si svuota")
+	IconeStato.percorso_di("fiamme")
+	IconeStato.percorso_di("fiamme")
+	IconeStato.percorso_di("maledizione")
+	esigi(IconeStato.disegni_trovati.size() == 2,
+			"due simboli chiesti tre volte hanno lasciato %d voci in cache"
+			% IconeStato.disegni_trovati.size())
+
+func prova_riduci_il_movimento() -> void:
+	# CHI NON PUO' REGGERE IL MOVIMENTO DEVE POTER GIOCARE LO STESSO.
+	#
+	# [Le linee guida sull'accessibilita' dei giochi] mettono "disattiva la
+	# scossa dello schermo" fra le opzioni da offrire, non fra quelle carine da
+	# avere: la scossa dell'inquadratura e i lampi sono fra i motivi per cui una
+	# persona che soffre di mal di movimento, di emicrania o di epilessia
+	# fotosensibile smette di giocare. Il gioco aveva gia' testo grande, alto
+	# contrasto e velocita' del testo; questa mancava, e il combattimento trema a
+	# ogni colpo.
+	#
+	# NON TOGLIE INFORMAZIONE. Il numero del danno, il colore dell'elemento e il
+	# suono restano: sparisce solo il movimento.
+	titolo("l'opzione che toglie scossa e lampi")
+	var prima := Impostazioni.movimento_ridotto
+	var corpo := Control.new()
+	add_child(corpo)
+	corpo.position = Vector2(10, 10)
+	var impatto := ImpattoCombattimento.new(get_tree(), false)
+	impatto.collega(corpo)
+
+	Impostazioni.movimento_ridotto = false
+	impatto.scossa(24.0)
+	esigi(impatto.tween_scossa != null and impatto.tween_scossa.is_valid(),
+			"senza l'opzione la scossa non parte nemmeno: e' rotta di suo")
+	impatto.tween_scossa.kill()
+	impatto.tween_scossa = null
+
+	Impostazioni.movimento_ridotto = true
+	impatto.scossa(24.0)
+	esigi(impatto.tween_scossa == null or not impatto.tween_scossa.is_valid(),
+			"con il movimento ridotto la schermata sbanda lo stesso")
+
+	# e l'opzione si ricorda fra una partita e l'altra
+	Impostazioni.salva()
+	Impostazioni.movimento_ridotto = false
+	Impostazioni.carica()
+	esigi(Impostazioni.movimento_ridotto,
+			"l'opzione non si salva: va rimessa a ogni avvio")
+	Impostazioni.movimento_ridotto = prima
+	Impostazioni.salva()
+	corpo.free()
+
+func prova_lampo_solo_sulla_faccia() -> void:
+	# IL LAMPO DI UN COLPO NON DEVE COPRIRE LE BARRE.
+	#
+	# Uno slot contiene il ritratto, le tre barre e i riquadri di stato. Tingendo
+	# tutto lo slot, nell'istante in cui prendi un colpo - che e' esattamente
+	# l'istante in cui guardi quanta vita ti resta - le barre diventano del
+	# colore dell'elemento e non si leggono piu'. Si e' visto fotografando un
+	# colpo a meta' volo: HP, AURA e dominio tutti viola.
+	titolo("il lampo di un colpo tinge la faccia, non le barre")
+	var posto := SlotCompagno.new()
+	add_child(posto)
+	posto.size = Vector2(200, 320)
+	posto.abita("veronica")
+	var voce := VoceCombattimento.new(get_tree(), false)
+	voce.lampeggia(posto, Color(0.6, 0.2, 0.9))
+	# SI ASPETTA CHE IL LAMPO SIA PARTITO. E' un'animazione: misurata nello
+	# stesso istante in cui la si accende, la tinta non si e' ancora mossa e
+	# tutto sembra a posto. La prima versione di questa prova restava verde
+	# anche rimettendo il lampo su tutto lo slot, perche' guardava troppo presto.
+	for _f in 8:
+		await get_tree().process_frame
+	# il ritratto reagisce...
+	esigi(not posto.ritratto.modulate.is_equal_approx(Color.WHITE),
+			"il ritratto non reagisce affatto al colpo: la tinta e' rimasta %s"
+			% posto.ritratto.modulate)
+	# ...e le barre restano del loro colore
+	esigi(posto.modulate.is_equal_approx(Color.WHITE),
+			"il colpo ha tinto tutto lo slot di %s: le barre non si leggono piu'" % posto.modulate)
+	for chiave in ["hp", "aura", "dominio"]:
+		var barra: Control = posto.barre[chiave]
+		esigi(barra.modulate.is_equal_approx(Color.WHITE),
+				"la barra %s si e' tinta col colpo" % chiave)
+	posto.free()

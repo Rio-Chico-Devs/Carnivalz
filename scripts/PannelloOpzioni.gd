@@ -54,6 +54,15 @@ static func costruisci(colonna: VBoxContainer, larghezza_etichetta := 150) -> vo
 				Impostazioni.alto_contrasto = attivo
 				Impostazioni.applica_alto_contrasto()
 				Impostazioni.salva())
+	# RIDUCI IL MOVIMENTO: la schermata smette di sbandare a ogni colpo e i lampi
+	# diventano tinte che restano. Non toglie nessuna informazione - il numero
+	# del danno, il colore dell'elemento e il suono ci sono lo stesso - toglie
+	# solo il movimento, che e' la parte che da' fastidio a chi soffre di mal di
+	# movimento, emicrania o epilessia fotosensibile.
+	interruttore(colonna, "Riduci il movimento", Impostazioni.movimento_ridotto,
+			func(attivo: bool) -> void:
+				Impostazioni.movimento_ridotto = attivo
+				Impostazioni.salva())
 	# 0 = si legge parola per parola, 1 = compare quasi tutto insieme
 	cursore(colonna, "Velocità del testo", (Impostazioni.velocita_testo - 0.4) / 2.6,
 			larghezza_etichetta,

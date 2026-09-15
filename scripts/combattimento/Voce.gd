@@ -199,4 +199,12 @@ func suono(nome: String) -> void:
 func lampeggia(scheda: Control, tinta: Color) -> void:
 	if muta or scheda == null or not is_instance_valid(scheda):
 		return
-	Stile.lampeggia(scheda, tinta)
+	# IL LAMPO VA SULLA FACCIA, NON SU TUTTA LA SCHEDA. Uno slot contiene il
+	# ritratto, le tre barre e i riquadri di stato: tingendo tutto, nel momento
+	# in cui prendi un colpo - cioe' l'istante in cui guardi la vita - le barre
+	# diventano viola e non si leggono piu'. Si e' visto fotografando un colpo a
+	# meta' volo. La faccia basta: e' la parte grande, ed e' quella che "reagisce".
+	var dove := scheda
+	if scheda is SlotCompagno:
+		dove = (scheda as SlotCompagno).ritratto
+	Stile.lampeggia(dove, tinta)

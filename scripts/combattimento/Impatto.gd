@@ -242,6 +242,11 @@ func scossa(pixel: float) -> void:
 	# non e' quella buona.
 	if muta or pixel <= 0.0 or not valido(nodo_scosso):
 		return
+	# CHI HA CHIESTO MENO MOVIMENTO NON LA VEDE. La scossa non porta nessuna
+	# informazione che non ci sia gia' - il numero del danno, il lampo, il suono
+	# - quindi toglierla non toglie niente a chi deve giocare senza.
+	if Impostazioni.movimento_ridotto:
+		return
 	var corpo := nodo_scosso as Control
 	if corpo == null:
 		return
