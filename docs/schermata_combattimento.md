@@ -417,6 +417,67 @@ Spostandoli ho preso in pieno la regola dei contenitori: appesi al
 rettangolo nero con BOND in mezzo, ECG e comandi scomparsi sotto. Ci vuole uno
 strato semplice in mezzo.
 
+## 10. Le liste di ATTACCHI, SKILL e OGGETTI
+
+Bru: «se premi su attacco vedi una lista degli attacchi disponibili, stessa cosa
+le skill, invece per difesa non ce lista, per fuga neanche, per oggetti invece
+la lista di oggetti utilizzabili».
+
+La colonna verticale e la griglia sono **due posti diversi dello stesso
+rettangolo**. Il menu non sa in quale sta: chiede «mi serve il posto per i
+comandi» oppure «per una lista» e riceve il contenitore giusto con la faccia già
+aperta. Le liste si riempiono per colonne, fino a tre.
+
+### Quello che ha trovato lo scatto, e le prove no
+
+Le prove dicevano che la lista c'era, che finiva nel posto giusto e che aveva le
+voci giuste. Poi ho guardato la fotografia: **MATTANZA e BOND stavano sopra le
+ultime due voci**. Con SKILL l'ultima voce è «Indietro» — cioè l'unico modo di
+uscire dalla lista, coperto da un tassello nero.
+
+I tasselli stanno sopra tutte le facce apposta (§9). «Sopra» voleva dire anche
+sopra le voci. Adesso la lista si ferma dove cominciano i tasselli, e il numero
+non è scritto nel codice: viene da dove i tasselli stanno davvero
+(`data/stile.json`), così se un giorno si spostano la lista li segue.
+
+Nello stesso scatto si vedeva **FUGA tagliata a metà** dal bordo del pannello: la
+colonna dei comandi partiva sotto il bordo di sopra e finiva esattamente su
+quello di sotto. Stesso difetto, dall'altra parte del quadrante.
+
+### Perché non è un GridContainer
+
+Ci ho provato, e ho perso tre giri. Un contenitore **non scende mai sotto la
+misura minima dei suoi figli**, e quella misura Godot la ricalcola al fotogramma
+dopo: gli chiedevo 122 pixel di altezza e se ne prendeva 242. Rimpicciolire il
+testo in un ciclo non serve — `get_combined_minimum_size()` durante il ciclo
+risponde ancora col numero vecchio.
+
+È la stessa regola scritta in cima a `Plancia.gd`, quella per cui qui non c'è
+nessun contenitore: l'avevo scritta io e l'ho violata io. Adesso le voci si
+piazzano a mano come tutto il resto della schermata.
+
+### Quanto è alta una riga lo decide il font
+
+Il numero che gli chiedi non è il numero che occupa. Misurato:
+
+| font | pixel per punto di corpo |
+|---|---|
+| quello di sistema | 2× |
+| quello di ripiego (nessun font di sistema: tutte le prove) | 3× |
+
+Con un rapporto scritto a mano le voci stavano dentro con un font e sbordavano
+con l'altro — ed è **esattamente** il difetto che si vedeva nello scatto. Adesso
+si chiede al font (`corpo_che_ci_sta`), e quante righe ci stanno si ricava dalla
+banda libera, non per decreto. Quando arriveranno i `.ttf` di Bru faranno un
+numero loro e non cambierà niente.
+
+### Una lista può essere più lunga del quadrante
+
+La sacca tiene venti scomparti e i consumabili del gioco sono ventinove: con la
+borsa piena la lista degli oggetti non ci sta. Tagliare le ultime voci vuol dire
+che quegli oggetti **in combattimento non esistono**, e niente a schermo lo dice.
+Quando non ci stanno tutte compare «Altro (1/2) ▸» e si volta pagina.
+
 ## Una cosa che non ho chiuso
 
 Le prove finiscono con `ObjectDB instances leaked at exit`. Ci ho provato: il

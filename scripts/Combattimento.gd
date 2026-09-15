@@ -202,7 +202,7 @@ func _ready() -> void:
 		minigioco.collega(quadrante, box)
 		voce.collega(box, area_avanza, volanti)
 		campo.collega_plancia(plancia)
-		menu.collega(plancia.comandi, plancia.adatta_comandi, plancia.mostra_comandi)
+		menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
 		# sbanda il corpo della schermata, non lo sfondo: altrimenti a ogni
 		# scossa si vedrebbero i bordi neri dello schermo
 		impatto.collega(corpo)

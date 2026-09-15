@@ -19,18 +19,20 @@ extends RefCounted
 
 var muta := false
 var scontro                    # il nodo Combattimento: il menu e' una sua vista
-var contenitore: Container
+var contenitore: Control
 # come si veste una voce: lo decide chi ospita il menu (vedi Plancia.vesti_comando)
 var vestaglia := Callable()
 # come si fa vedere il pannello che ospita il menu: lo sa la plancia, non il menu
 var apri_il_pannello := Callable()
+# "comandi" = la colonna verticale del disegno, "lista" = la griglia delle voci
+var modo := "comandi"
 var fuoco_gia_dato := false
 
 func _init(nodo_scontro, silenzioso := false) -> void:
 	scontro = nodo_scontro
 	muta = silenzioso
 
-func collega(nodo_azioni: Container, come_vestirle := Callable(),
+func collega(nodo_azioni: Control, come_vestirle := Callable(),
 		come_aprirlo := Callable()) -> void:
 	contenitore = nodo_azioni
 	vestaglia = come_vestirle
@@ -46,12 +48,24 @@ func pulisci() -> void:
 	# caso: la plancia nasceva sulla faccia del parlato e non la cambiava mai
 	# nessuno.
 	if apri_il_pannello.is_valid():
-		apri_il_pannello.call()
-	for figlio in contenitore.get_children():
+		# CHI OSPITA IL MENU APRE IL PANNELLO E DICE DOVE SCRIVERE. I comandi
+		# vanno nella colonna verticale, le liste nella griglia: sono due posti
+		# diversi dello stesso rettangolo, e il menu non ha bisogno di sapere
+		# quali.
+		var dove: Variant = apri_il_pannello.call(modo)
+		if dove is Control and dove != contenitore:
+			svuota(contenitore)
+			contenitore = dove
+	svuota(contenitore)
+
+func svuota(dove: Control) -> void:
+	if dove == null:
+		return
+	for figlio in dove.get_children():
 		# tolto SUBITO dall'albero, non solo messo in coda: queue_free() libera a
 		# fine frame, e finche' non succede il vecchio bottone sta ancora li'
 		# accanto al nuovo
-		contenitore.remove_child(figlio)
+		dove.remove_child(figlio)
 		figlio.queue_free()
 
 func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := false) -> void:
@@ -82,6 +96,7 @@ func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := 
 # --- i menu ---
 
 func principale() -> void:
+	modo = "comandi"
 	# CINQUE VOCI, SEMPRE LE STESSE. Bru: "tu hai un menu principale di
 	# combattimento: attacca, difendi, abilita', oggetti, fuggi. Attacca attacca
 	# semplicemente, difendi aumenta la tua difesa cumulativamente fino a fine
@@ -144,6 +159,7 @@ func principale() -> void:
 		bottone("Mediazione", mediazione, fermo)
 
 func bersagli() -> void:
+	modo = "lista"
 	# "Attacca attacca semplicemente": il colpo normale, e l'unica domanda e' su
 	# chi. Con un nemico solo in campo non si chiede nemmeno quello
 	var nemici: Array[Dictionary] = scontro.vivi(false)
@@ -156,6 +172,7 @@ func bersagli() -> void:
 	bottone("Indietro", principale)
 
 func bersagli_di_attacco(attacco: Dictionary) -> void:
+	modo = "lista"
 	var nemici: Array[Dictionary] = scontro.vivi(false)
 	if nemici.size() == 1:
 		scegli({"tipo": "attacca", "bersaglio": nemici[0], "arma": attacco})
@@ -172,6 +189,7 @@ func bersagli_di_attacco(attacco: Dictionary) -> void:
 	bottone("Indietro", abilita)
 
 func mediazione() -> void:
+	modo = "lista"
 	# la voce rara. Ci si arriva solo dopo che lo studio ha rivelato che questa
 	# creatura ascolta - e con un solo mediabile in campo non c'e' niente da
 	# scegliere: la si media e basta
@@ -185,6 +203,7 @@ func mediazione() -> void:
 	bottone("Indietro", principale)
 
 func studia() -> void:
+	modo = "lista"
 	# studiare e' un'azione mirata quanto attaccare: con piu' creature in campo
 	# si sceglie chi guardare, non si prende quella che capita per prima
 	var nemici: Array[Dictionary] = scontro.vivi(false)
@@ -197,6 +216,7 @@ func studia() -> void:
 	bottone("Indietro", abilita)
 
 func abilita() -> void:
+	modo = "lista"
 	pulisci()
 	# Studia non costa niente e non costera' mai niente: guardare una creatura
 	# e' il cuore del gioco, non una risorsa da amministrare
@@ -240,6 +260,7 @@ func abilita() -> void:
 	bottone("Indietro", principale)
 
 func bersagli_abilita(id_abilita: String) -> void:
+	modo = "lista"
 	# Vendetta, Annichilazione e Pieta' vogliono sapere su chi: si scelgono come
 	# un attacco normale, non come un'abilita' che parte da sola
 	var nemici: Array[Dictionary] = scontro.vivi(false)
@@ -254,6 +275,7 @@ func bersagli_abilita(id_abilita: String) -> void:
 	bottone("Indietro", abilita)
 
 func oggetti() -> void:
+	modo = "lista"
 	pulisci()
 	var conteggio := {}
 	for id_oggetto in GameState.sacca:
@@ -275,6 +297,7 @@ func oggetti() -> void:
 	bottone("Indietro", principale)
 
 func alleati() -> void:
+	modo = "lista"
 	pulisci()
 	for id_ospite in scontro.alleati_disponibili():
 		var nome: String = GameState.personaggi.get(id_ospite, {}).get("nome", id_ospite)

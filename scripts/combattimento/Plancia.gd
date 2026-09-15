@@ -34,6 +34,15 @@ extends RefCounted
 # il campo, il menu, la voce - riceve i nodi e non sa dove stanno.
 
 const COMANDI := ["ATTACCHI", "DIFESA", "SKILL", "OGGETTI", "FUGA"]
+# quante voci ci stanno in una colonna della lista prima di aprirne un'altra.
+# E' un tetto, non una promessa: se nella banda sopra MATTANZA e BOND non ce ne
+# stanno cinque leggibili, ne entrano meno (vedi adatta_lista)
+const RIGHE_LISTA := 5
+const COLONNE_LISTA := 3
+# sotto i nove punti una voce non si legge piu'; sopra i trentaquattro una lista
+# corta diventa un cartellone
+const CORPO_MINIMO := 9
+const CORPO_MASSIMO := 34
 
 var radice: Control
 
@@ -56,8 +65,13 @@ var tasto_mattanza: Button
 var tasto_bond: Button
 var strato_tasselli: Control     # MATTANZA e BOND, sopra tutte le facce
 var comandi: VBoxContainer
+var griglia_lista: Control   # le voci di attacchi, skill, oggetti
+var colonne_lista := 1       # quante ne ha adesso: lo decide adatta_lista
+var pagina_lista := 0        # quale pagina di una lista troppo lunga
+var tasto_altro: Button      # "Altro ▸": compare solo se non ci stanno tutte
 var corpo_comandi := 18
 # quali numeri stanno gia' scritti: per non riscriverli a ogni fotogramma
+var faccia_adesso := ""   # quale delle tre e' in mostra adesso
 var stress_scritto := -1
 var morale_scritto := -1
 
@@ -212,6 +226,21 @@ func costruisci_quadrante() -> Control:
 	faccia_lista.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	faccia_lista.visible = false
 	dentro.add_child(faccia_lista)
+	# LE VOCI DI UN COMANDO CHE NE HA UNA. Nel secondo disegno di Bru il
+	# quadrante si riempie di voci su piu' colonne: gli attacchi, le skill, gli
+	# oggetti. Quante colonne lo decide quante ne sono (vedi adatta_lista).
+	#
+	# E NON E' UN GridContainer, per lo stesso motivo per cui qui non c'e'
+	# nessun contenitore (vedi in cima al file). Un contenitore non scende mai
+	# sotto la misura minima dei suoi figli, e quella misura Godot la ricalcola
+	# al fotogramma dopo: gli si chiedevano 122 pixel di altezza e se ne
+	# prendeva 242, cioe' le ultime voci finivano sotto MATTANZA e BOND. Tenerle
+	# dentro si poteva fare solo litigando col contenitore a ogni voce
+	# aggiunta. Qui le voci si piazzano a mano, come tutto il resto della
+	# schermata, e stanno esattamente dove diciamo noi.
+	griglia_lista = Control.new()
+	griglia_lista.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	faccia_lista.add_child(griglia_lista)
 
 	faccia_parlato = Control.new()
 	faccia_parlato.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -292,7 +321,7 @@ func disponi_quadrante() -> void:
 		tasto.add_theme_font_size_override("font_size", maxi(int(tasto.size.y * 0.52), 10))
 	comandi.position = Vector2(dentro.x * Stile.quota("comandi_x"), dentro.y * Stile.quota("comandi_y"))
 	comandi.size = Vector2(dentro.x * (1.0 - Stile.quota("comandi_x")) - 8.0,
-			dentro.y * (1.0 - Stile.quota("comandi_y")))
+			dentro.y * (1.0 - Stile.quota("comandi_y") * 2.0))
 	adatta_comandi()
 
 func riquadro_dentro(nome: String, dentro: Vector2) -> Rect2:
@@ -314,15 +343,67 @@ func dai_il_fuoco() -> void:
 	if primo != null:
 		primo.grab_focus()
 
+func corpo_che_ci_sta(campione: Control, alto_riga: float) -> int:
+	# QUANTO PUO' ESSERE GRANDE IL TESTO PER STARE IN UNA RIGA ALTA COSI'.
+	#
+	# Non si ricava da una proporzione scritta a mano, e ci abbiamo sbattuto la
+	# testa: quanto e' alta una riga di testo lo decide IL FONT, non il numero
+	# che gli chiediamo. Misurato qui dentro: il font di sistema rende 2 pixel
+	# per ogni punto di corpo, quello di ripiego - che e' quello che si usa
+	# quando i font di sistema non ci sono, cioe' in tutte le prove - ne rende
+	# 3. Con un rapporto fisso le voci stavano dentro con un font e sbordavano
+	# sui tasselli con l'altro, e i .ttf che Bru deve ancora disegnare avrebbero
+	# fatto un numero loro ancora.
+	#
+	# Si chiede al font e basta.
+	if campione == null:
+		return CORPO_MINIMO
+	var font := campione.get_theme_font("font")
+	if font == null:
+		return CORPO_MINIMO
+	var corpo := CORPO_MASSIMO
+	while corpo > CORPO_MINIMO and font.get_height(corpo) > alto_riga:
+		corpo -= 1
+	return corpo
+
+func alto_riga_minima(campione: Control) -> float:
+	# quanto occupa una riga scritta col corpo piu' piccolo che accettiamo: e'
+	# il numero che dice quante voci ci stanno davvero in una banda
+	if campione == null:
+		return float(CORPO_MINIMO)
+	var font := campione.get_theme_font("font")
+	return font.get_height(CORPO_MINIMO) if font != null else float(CORPO_MINIMO)
+
+func vesti_le_voci() -> void:
+	# il menu ha finito di riempire: si rimettono in riga quelle del pannello che
+	# sta in mostra, che e' l'unico che ha voci dentro
+	if faccia_adesso == "lista":
+		adatta_lista()
+	else:
+		adatta_comandi()
+
 func adatta_comandi() -> void:
 	# LA LISTA SI RESTRINGE QUANDO LE VOCI SONO TANTE. Le fisse sono cinque, ma
 	# Aiutante e Mediazione compaiono quando ci sono: con un corpo fisso la
 	# sesta voce usciva dal pannello e la settima dallo schermo.
 	if comandi == null or quadrante == null:
 		return
-	var alto := interno_di(quadrante).size.y * (1.0 - Stile.quota("comandi_y"))
+	# LO STESSO RESPIRO SOPRA E SOTTO. La colonna partiva sotto il bordo e
+	# arrivava ESATTAMENTE al bordo di sotto: l'ultima voce - FUGA - restava
+	# tagliata a meta' dal bordo nero del pannello. Si vedeva nello scatto e
+	# nessuna prova la misurava.
+	var quota := Stile.quota("comandi_y")
+	var alto := interno_di(quadrante).size.y * (1.0 - quota * 2.0)
 	var quante := maxi(comandi.get_child_count(), 5)
-	corpo_comandi = clampi(int(alto / float(quante) * 0.62), 9, 44)
+	# STESSO CONTO DELLA LISTA, e per lo stesso motivo: quanto occupa una riga
+	# lo dice il font, non una proporzione scritta a mano. Qui il difetto non si
+	# vedeva perche' i comandi sono cinque e lo spazio abbonda - ma con
+	# Aiutante e Mediazione in campo diventano sette, ed era la stessa trappola
+	# che ha fatto uscire le voci della lista dal pannello.
+	var campione := comandi.get_child(0) as Control if comandi.get_child_count() > 0 else null
+	var per_riga := alto / float(quante)
+	corpo_comandi = corpo_che_ci_sta(campione, per_riga) if campione != null \
+			else clampi(int(per_riga * 0.62), CORPO_MINIMO, CORPO_MASSIMO)
 	comandi.add_theme_constant_override("separation", maxi(int(corpo_comandi * 0.12), 0))
 	for voce in comandi.get_children():
 		if voce is Control:
@@ -387,10 +468,154 @@ func ospita_box(box: Control) -> void:
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	faccia_parlato.add_child(box)
 
+func pannello_per_menu(modo: String) -> Control:
+	# IL MENU NON SA IN CHE PANNELLO STA, e non deve saperlo: chiede "mi serve
+	# il posto per i comandi" oppure "per una lista", e riceve il contenitore
+	# giusto con la sua faccia gia' aperta.
+	#
+	# Bru: «se premi su attacco vedi una lista degli attacchi disponibili,
+	# stessa cosa le skill [...] per oggetti invece la lista di oggetti
+	# utilizzabili». La colonna verticale e la griglia sono due posti diversi
+	# dello stesso rettangolo.
+	if modo == "comandi":
+		mostra_faccia("comandi")
+		return comandi
+	mostra_faccia("lista")
+	return griglia_lista
+
+func adatta_lista() -> void:
+	# QUANTE COLONNE, E QUANTO GRANDI. Una lista di tre voci su tre colonne
+	# sarebbe una riga sola sperduta in mezzo al pannello; una di venti su una
+	# colonna uscirebbe di sotto. Si riempie per colonne, fino a tre.
+	if griglia_lista == null or quadrante == null:
+		return
+	var quante := griglia_lista.get_child_count()
+	if quante == 0:
+		# il menu ha appena svuotato: si riparte dalla prima pagina
+		pagina_lista = 0
+		if tasto_altro != null:
+			tasto_altro.visible = false
+		return
+	var dentro := interno_di(quadrante).size
+	if dentro.x <= 0.0 or dentro.y <= 0.0:
+		return
+	var margine := float(maxi(int(dentro.y * 0.07), 2))
+	# LA LISTA SI FERMA DOVE COMINCIANO MATTANZA E BOND.
+	#
+	# I due tasselli stanno sopra tutte le facce apposta - sono l'unico avviso
+	# che arriva, e non devono sparire proprio mentre scegli da una lista. Ma
+	# "sopra" voleva dire anche SOPRA LE VOCI: la lista si prendeva tutto il
+	# pannello e le ultime finivano sotto i tasselli, illeggibili e non
+	# cliccabili. Con SKILL l'ultima voce e' "Indietro" - cioe' l'unico modo di
+	# uscire dalla lista, coperto da un tassello nero. Lo ha trovato uno scatto,
+	# non una prova.
+	#
+	# I tasselli sono il punto fermo, la lista e' quella che cambia: si stringe
+	# lei. Il numero non e' scritto qui - viene da dove stanno davvero
+	# (data/stile.json), cosi' se un giorno i tasselli si spostano la lista li
+	# segue da sola.
+	var alto := maxf(riquadro_dentro("mattanza", dentro).position.y - margine * 2.0,
+			dentro.y * 0.25)
+	var largo := dentro.x - margine * 2.0
+	griglia_lista.position = Vector2(margine, margine)
+	griglia_lista.size = Vector2(largo, alto)
+	var distacco := maxf(alto * 0.03, 2.0)
+
+	# QUANTE RIGHE CI STANNO DAVVERO. Non RIGHE_LISTA per decreto: quante ne
+	# entrano nella banda scrivendole col corpo piu' piccolo che accettiamo. A
+	# 720p col font di ripiego sono quattro, non cinque - e cinque righe finte
+	# sono esattamente il modo in cui l'ultima voce finisce fuori.
+	var campione := griglia_lista.get_child(0) as Control
+	var minima := alto_riga_minima(campione)
+	var righe_utili := clampi(int((alto + distacco) / (minima + distacco)), 1, RIGHE_LISTA)
+	var capienza := righe_utili * COLONNE_LISTA
+
+	# SE NON CI STANNO TUTTE, SI VOLTA PAGINA - non si nascondono le ultime.
+	# La sacca tiene venti scomparti e i consumabili del gioco sono ventinove:
+	# una lista di oggetti puo' benissimo essere piu' lunga di quello che il
+	# quadrante regge. Meglio una voce in piu' che dice "ce n'e' dell'altro" che
+	# tre oggetti spariti senza dirlo.
+	var a_pagine := quante > capienza
+	var per_pagina := (capienza - 1) if a_pagine else quante
+	var pagine := int(ceil(float(quante) / float(maxi(per_pagina, 1))))
+	pagina_lista = wrapi(pagina_lista, 0, maxi(pagine, 1))
+	var da := pagina_lista * per_pagina
+	var a := mini(da + per_pagina, quante)
+	var mostrate := a - da
+	var celle := mostrate + (1 if a_pagine else 0)
+
+	colonne_lista = clampi(int(ceil(float(celle) / float(righe_utili))), 1, COLONNE_LISTA)
+	var righe := maxi(int(ceil(float(celle) / float(colonne_lista))), 1)
+	var per_riga := (alto - distacco * float(righe - 1)) / float(righe)
+	var per_colonna := largo / float(colonne_lista)
+	var corpo := corpo_che_ci_sta(campione, per_riga)
+
+	var posto := 0
+	for i in quante:
+		var voce := griglia_lista.get_child(i) as Control
+		if voce == null:
+			continue
+		voce.visible = i >= da and i < a
+		if not voce.visible:
+			continue
+		vesti_voce_di_lista(voce, posto, righe, per_riga, per_colonna, distacco, corpo, margine)
+		posto += 1
+
+	prepara_tasto_altro(a_pagine, pagina_lista + 1, pagine)
+	if a_pagine:
+		vesti_voce_di_lista(tasto_altro, posto, righe, per_riga, per_colonna,
+				distacco, corpo, margine)
+		# "Altro" NON E' FIGLIO DELLA GRIGLIA, quindi le sue coordinate partono
+		# da un altro angolo: vive nella faccia, la griglia sta piu' dentro. Con
+		# la sola posizione della cella finiva mezzo margine piu' su e piu' a
+		# sinistra - cioe' addosso all'ultima voce.
+		tasto_altro.position += griglia_lista.position
+
+func vesti_voce_di_lista(voce: Control, posto: int, righe: int, per_riga: float,
+		per_colonna: float, distacco: float, corpo: int, margine: float) -> void:
+	vesti_comando(voce)
+	if voce is Button:
+		(voce as Button).add_theme_font_size_override("font_size", corpo)
+	# LA MISURA MINIMA VA DETTA, non lasciata a quella che c'era. Il menu da' a
+	# ogni voce 44 pixel di altezza minima - giusti per la colonna dei comandi,
+	# troppi per una lista: un Control non scende mai sotto il proprio minimo, e
+	# l'ultima voce restava alta 44 e sbordava sui tasselli anche dopo averle
+	# assegnato l'altezza giusta.
+	voce.custom_minimum_size = Vector2(0, per_riga)
+	# SI RIEMPIE PER COLONNE, non per righe: una lista si legge dall'alto in
+	# basso, e "Indietro" - che e' sempre l'ultima - deve stare in fondo a una
+	# colonna, non sparsa in mezzo alla prima riga
+	var colonna := posto / righe
+	var riga := posto % righe
+	voce.position = Vector2(float(colonna) * per_colonna,
+			float(riga) * (per_riga + distacco))
+	voce.size = Vector2(per_colonna - margine, per_riga)
+
+func prepara_tasto_altro(serve: bool, quale: int, quante_pagine: int) -> void:
+	# LA VOCE CHE NON VIENE DAL MENU. Le altre le mette lo scontro; questa la
+	# mette la schermata, perche' e' la schermata a sapere quanto ci sta. Vive
+	# fuori dalla griglia apposta: dentro sarebbe una voce da contare, e il
+	# conto delle voci e' quello che decide se serve.
+	if not serve:
+		if tasto_altro != null:
+			tasto_altro.visible = false
+		return
+	if tasto_altro == null:
+		tasto_altro = Button.new()
+		tasto_altro.pressed.connect(func() -> void:
+			pagina_lista += 1
+			adatta_lista())
+		faccia_lista.add_child(tasto_altro)
+	tasto_altro.text = "Altro  (%d/%d)  \u25b8" % [quale, quante_pagine]
+	tasto_altro.visible = true
+
 func mostra_comandi() -> void:
 	mostra_faccia("comandi")
 
 func mostra_faccia(quale: String) -> void:
+	if quale == faccia_adesso:
+		return
+	faccia_adesso = quale
 	faccia_comandi.visible = quale == "comandi"
 	faccia_lista.visible = quale == "lista"
 	faccia_parlato.visible = quale == "parlato"

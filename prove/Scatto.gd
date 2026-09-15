@@ -102,6 +102,39 @@ func prepara(quale: String) -> void:
 			scena.plancia.accendi(scena.plancia.tasto_bond, true)
 			scena.menu.principale()
 			await attendi(60)
+		"lista":
+			# LA SECONDA FACCIA DEL QUADRANTE. Bru: «se premi su attacco vedi una
+			# lista degli attacchi disponibili, stessa cosa le skill [...] per
+			# oggetti invece la lista di oggetti utilizzabili».
+			#
+			# SKILL e' la piu' affollata delle tre - Studia, i colpi d'arma, le
+			# abilita', Indietro - ed e' quella che dice se le colonne reggono.
+			GameState.nuova_partita()
+			GameState.party = ["anonimo", "veronica"]
+			GameState.nemici_combattimento = ["marionetta"]
+			var scontro_lista: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(scontro_lista)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			for c in scontro_lista.combattenti:
+				c.hp = c.hp_max
+				scontro_lista.campo.aggiorna(c)
+			scontro_lista.arena.imposta_pericolo(0.0)
+			scontro_lista.campo.evidenzia(scontro_lista.combattenti, scontro_lista.combattenti[0])
+			scontro_lista.plancia.aggiorna_condizione(0.62, 30, 68)
+			scontro_lista.plancia.accendi(scontro_lista.plancia.tasto_mattanza, true)
+			# LA LISTA SI APRE PER ULTIMA. Lo scontro gira in tempo reale e rifa'
+			# il menu principale quando torni pronto: aprendola prima
+			# dell'attesa, al momento dello scatto era gia' tornata la colonna
+			# dei comandi - ed e' esattamente quello che era successo.
+			scontro_lista.menu.principale()
+			await attendi(60)
+			scontro_lista.menu.abilita()
+			await attendi(3)
+			if scontro_lista.plancia.griglia_lista.get_child_count() == 0:
+				push_error("la griglia e' vuota: non c'e' nessuna lista da fotografare")
+			if scontro_lista.plancia.faccia_adesso != "lista":
+				push_error("al momento dello scatto il quadrante mostra '%s', non la lista"
+						% scontro_lista.plancia.faccia_adesso)
 		"ecg":
 			# I QUATTRO STATI DELLA LINEA, uno sotto l'altro. Il colore dice la
 			# vita, il movimento dice lo stress: sono due informazioni diverse

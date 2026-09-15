@@ -116,6 +116,7 @@ func _ready() -> void:
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
+	prova_le_liste_del_menu()
 	prova_condizione_di_chi_ha_il_turno()
 	prova_chi_tocca_si_accende()
 	prova_mattanza_e_bond_non_spariscono()
@@ -7036,3 +7037,261 @@ func prova_mattanza_e_bond_non_spariscono() -> void:
 	esigi(not plancia.tasto_mattanza.visible and not plancia.tasto_bond.visible,
 			"mentre il box parla i due tasselli gli stanno sopra")
 	radice.free()
+
+func voci_sovrapposte(plancia, dove: String) -> void:
+	# DUE VOCI NON SI CALPESTANO MAI.
+	#
+	# E' l'invariante che tiene in piedi il conto delle righe: la schermata
+	# decide quanto e' alta una riga, ma una voce non scende mai sotto la
+	# propria misura minima - se le righe sono piu' di quelle che ci stanno, il
+	# testo di una finisce addosso a quella dopo e si legge una riga doppia.
+	# Misurare solo "l'ultima voce sta sopra i tasselli" non basta: tra il fondo
+	# della lista e i tasselli c'e' aria, e le voci possono accavallarsi tutte
+	# senza sforare.
+	var rettangoli: Array[Rect2] = []
+	var nomi: Array[String] = []
+	for v in plancia.griglia_lista.get_children():
+		if v.visible:
+			rettangoli.append(Rect2(v.position, v.size))
+			nomi.append(String(v.text))
+	if plancia.tasto_altro != null and plancia.tasto_altro.visible:
+		rettangoli.append(Rect2(plancia.tasto_altro.position - plancia.griglia_lista.position,
+				plancia.tasto_altro.size))
+		nomi.append("Altro")
+	for i in rettangoli.size():
+		for j in range(i + 1, rettangoli.size()):
+			var uno: Rect2 = rettangoli[i].grow(-0.5)
+			var due: Rect2 = rettangoli[j].grow(-0.5)
+			esigi(not uno.intersects(due),
+					"%s: \"%s\" e \"%s\" si sovrappongono (%s e %s)"
+					% [dove, nomi[i], nomi[j], rettangoli[i], rettangoli[j]])
+
+func prova_le_liste_del_menu() -> void:
+	# «se premi su attacco vedi una lista degli attacchi disponibili, stessa cosa
+	# le skill, invece per difesa non ce lista, per fuga neanche, per oggetti
+	# invece la lista di oggetti utilizzabili» (Bru).
+	#
+	# La colonna verticale e la griglia sono due posti diversi dello stesso
+	# rettangolo: i comandi stanno nella colonna, le voci di un comando nella
+	# griglia. Se finiscono tutte nello stesso posto, la schermata dei comandi si
+	# allunga fino a uscire dal pannello e non somiglia piu' al disegno.
+	#
+	# NIENTE COMBATTIMENTO VERO QUI DENTRO. La prima versione di questa prova
+	# accendeva uno scontro intero per premere quattro voci di menu: lo scontro
+	# gira in tempo reale, non finiva piu', e la suite si piantava oltre i 600
+	# secondi. Serve la plancia e serve il menu - il resto e' un finto avversario
+	# che risponde alle sole domande che il menu gli fa.
+	titolo("le liste di attacchi, skill e oggetti vanno nella griglia")
+	GameState.nuova_partita()
+	var radice := Control.new()
+	radice.size = Vector2(1280, 720)
+	add_child(radice)
+	var plancia := PlanciaCombattimento.new()
+	plancia.costruisci(radice)
+	var finto := FintoScontro.new()
+	finto.attaccante_corrente = {
+		"id": GameState.id_protagonista,
+		"aura": 99,
+		"stati_attivi": {},
+	}
+	var menu := MenuCombattimento.new(finto)
+	menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
+	# con la sacca vuota OGGETTI mostrerebbe il solo "Indietro", e la prova
+	# passerebbe senza aver mai visto un oggetto
+	GameState.sacca.append("razione_del_circo")
+	GameState.sacca.append("razione_del_circo")
+
+	menu.principale()
+	esigi(plancia.faccia_adesso == "comandi",
+			"il menu principale non apre la faccia dei comandi")
+	esigi(plancia.comandi.get_child_count() >= 5,
+			"i comandi non sono finiti nella colonna verticale")
+	esigi(plancia.griglia_lista.get_child_count() == 0,
+			"i comandi sono finiti anche nella griglia")
+
+	# le tre voci che una lista ce l'hanno. DIFESA e FUGA no: partono e basta
+	# ognuna dice quante voci deve avere ALMENO: la sola "Indietro" non e' una
+	# lista, e una prova che si accontenta di "c'e' qualcosa dentro" passerebbe
+	# anche con la lista vuota
+	for coppia in [["ATTACCHI", menu.bersagli, 3], ["SKILL", menu.abilita, 3],
+			["OGGETTI", menu.oggetti, 2]]:
+		menu.principale()
+		var apri: Callable = coppia[1]
+		apri.call()
+		esigi(plancia.faccia_adesso == "lista",
+				"premendo %s il quadrante non passa alla faccia della lista" % coppia[0])
+		esigi(plancia.griglia_lista.get_child_count() >= int(coppia[2]),
+				"la lista di %s ha %d voci invece di %d" % [coppia[0],
+						plancia.griglia_lista.get_child_count(), int(coppia[2])])
+		esigi(plancia.comandi.get_child_count() == 0,
+				"premendo %s la colonna dei comandi non e' stata svuotata: le vecchie voci restano sotto" % coppia[0])
+
+	# e la griglia non sta su una colonna sola se le voci sono tante
+	for quante in [1, 7, 15]:
+		menu.principale()
+		menu.bersagli()
+		menu.svuota(plancia.griglia_lista)
+		for i in quante:
+			var finta := Button.new()
+			finta.text = "voce"
+			plancia.griglia_lista.add_child(finta)
+		plancia.adatta_lista()
+		var colonne := plancia.colonne_lista
+		var righe := int(ceil(float(quante) / float(colonne)))
+		esigi(righe <= PlanciaCombattimento.RIGHE_LISTA,
+				"con %d voci la griglia fa %d righe su %d colonne: esce dal pannello"
+				% [quante, righe, colonne])
+		esigi(colonne <= 3,
+				"con %d voci la griglia fa %d colonne: il pannello e' largo per tre"
+				% [quante, colonne])
+
+	# LA LISTA NON PASSA SOTTO MATTANZA E BOND.
+	#
+	# I due tasselli stanno sopra tutte le facce - e' voluto, sono l'unico avviso
+	# che arriva mentre scegli. "Sopra" pero' voleva dire anche sopra le voci: la
+	# griglia si prendeva tutto il pannello, e con SKILL l'ultima voce - che e'
+	# "Indietro", l'unico modo di uscire dalla lista - finiva sotto un tassello
+	# nero. Non si leggeva e non si cliccava. Lo ha trovato uno scatto, non una
+	# prova: questa e' la prova che mancava.
+	menu.principale()
+	menu.abilita()
+	# si misura VOCE PER VOCE, non il rettangolo della lista: e' la voce che
+	# finisce sotto il tassello, e una lista che dichiara di essere alta 122
+	# pixel puo' benissimo avere l'ultima riga a 240
+	var tetto_tasselli: float = minf(plancia.tasto_mattanza.position.y,
+			plancia.tasto_bond.position.y)
+	voci_sovrapposte(plancia, "la lista di SKILL")
+	for voce in plancia.griglia_lista.get_children():
+		var fondo: float = plancia.griglia_lista.position.y + voce.position.y + voce.size.y
+		esigi(fondo <= tetto_tasselli,
+				"la voce \"%s\" arriva a %d e i tasselli cominciano a %d: ci finisce sotto"
+				% [voce.text, int(fondo), int(tetto_tasselli)])
+
+	# E CI STA DAVVERO, con tutte le abilita' che un personaggio puo' imparare.
+	# Il numero non lo decido io: lo contano le classi giocabili. Se un giorno
+	# una impara la ventesima mossa, questa prova lo dice prima che la lista
+	# esca dal pannello.
+	var massimo := 0
+	var piu_carica := ""
+	for id_classe in GameState.classi:
+		var quante_voci := 2   # "Studia" e "Indietro" ci sono sempre
+		for id_abilita in GameState.abilita_usabili(String(id_classe)):
+			if not GameState.abilita_combattimento(String(id_abilita)).is_empty():
+				quante_voci += 1
+		quante_voci += GameState.attacchi_arma(String(id_classe)).size()
+		if quante_voci > massimo:
+			massimo = quante_voci
+			piu_carica = String(id_classe)
+	esigi(massimo <= 3 * PlanciaCombattimento.RIGHE_LISTA,
+			"%s arriva a %d voci di SKILL: la griglia ne tiene %d e il resto esce dal pannello"
+			% [piu_carica, massimo, 3 * PlanciaCombattimento.RIGHE_LISTA])
+
+	# UNA LISTA PIU' LUNGA DI QUELLO CHE CI STA NON PERDE PEZZI.
+	#
+	# La sacca tiene venti scomparti e i consumabili del gioco sono ventinove:
+	# con la borsa piena la lista degli oggetti e' piu' lunga del quadrante. Se
+	# le ultime voci vengono semplicemente tagliate, quegli oggetti in
+	# combattimento NON ESISTONO - e non c'e' niente a schermo che lo dica.
+	menu.principale()
+	menu.bersagli()
+	menu.svuota(plancia.griglia_lista)
+	for i in 25:
+		var lunga := Button.new()
+		lunga.text = "voce %d" % i
+		plancia.griglia_lista.add_child(lunga)
+	plancia.pagina_lista = 0
+	plancia.adatta_lista()
+	esigi(plancia.tasto_altro != null and plancia.tasto_altro.visible,
+			"con 25 voci non compare nessun modo di arrivare alle ultime")
+	var viste := {}
+	for giro in 12:
+		for v in plancia.griglia_lista.get_children():
+			if not v.visible:
+				continue
+			viste[v.text] = true
+			var giu: float = plancia.griglia_lista.position.y + v.position.y + v.size.y
+			esigi(giu <= tetto_tasselli,
+					"a pagina %d la voce \"%s\" arriva a %d: sotto i tasselli"
+					% [plancia.pagina_lista, v.text, int(giu)])
+		voci_sovrapposte(plancia, "pagina %d di una lista da 25" % plancia.pagina_lista)
+		var fondo_altro: float = plancia.tasto_altro.position.y + plancia.tasto_altro.size.y
+		esigi(fondo_altro <= tetto_tasselli,
+				"il tasto per voltare pagina arriva a %d: sotto i tasselli" % int(fondo_altro))
+		plancia.pagina_lista += 1
+		plancia.adatta_lista()
+	esigi(viste.size() == 25,
+			"girando le pagine si vedono %d voci su 25: le altre sono sparite" % viste.size())
+
+	# E LA COLONNA DEI COMANDI STA DENTRO IL PANNELLO.
+	#
+	# Stesso difetto della lista, dall'altra parte del quadrante: la colonna
+	# partiva sotto il bordo di sopra e finiva ESATTAMENTE sul bordo di sotto,
+	# quindi FUGA - l'ultima voce - restava tagliata a meta' dal bordo nero. Lo
+	# ha visto uno scatto. Le sette voci sono il caso peggiore: alle cinque
+	# fisse si aggiungono Aiutante e Mediazione quando ci sono.
+	for quante_voci in [5, 7]:
+		menu.principale()
+		while plancia.comandi.get_child_count() < quante_voci:
+			var extra := Button.new()
+			extra.text = "Aiutante"
+			plancia.comandi.add_child(extra)
+		plancia.adatta_comandi()
+		var interno: float = plancia.interno_di(plancia.quadrante).size.y
+		var giu_comandi: float = plancia.comandi.position.y \
+				+ plancia.comandi.get_combined_minimum_size().y
+		esigi(giu_comandi <= interno,
+				"con %d comandi la colonna arriva a %d dentro un pannello alto %d: l'ultima voce resta tagliata"
+				% [quante_voci, int(giu_comandi), int(interno)])
+
+	# "Indietro" riporta ai comandi, e la griglia resta pulita
+	menu.principale()
+	esigi(plancia.faccia_adesso == "comandi",
+			"tornando indietro il quadrante resta sulla lista")
+	esigi(plancia.griglia_lista.get_child_count() == 0,
+			"tornando ai comandi la griglia resta piena")
+	radice.free()
+
+class FintoScontro extends RefCounted:
+	# IL MINIMO CHE IL MENU CHIEDE AL COMBATTIMENTO, e niente di piu'.
+	#
+	# Il menu e' una vista sullo scontro: gli domanda se tocca a te, se la
+	# Mattanza e' accesa, chi e' vivo. Per provare DOVE finiscono le voci non
+	# serve uno scontro vero - serve qualcuno che risponda a quelle domande.
+	# Cosi' la prova misura il menu e la plancia, e non il tempo reale.
+	var mattanza_attiva := false
+	var in_corso := true
+	var attaccante_corrente := {}
+	var scelte: Array[Dictionary] = []
+
+	func giocatore_pronto() -> bool:
+		return true
+
+	func passo_tutorial() -> Dictionary:
+		return {}
+
+	func vivi(_amici: bool) -> Array[Dictionary]:
+		# DUE, non uno: con un nemico solo in campo il menu salta la lista e
+		# attacca subito («con un nemico solo non si chiede nemmeno quello»).
+		# Una prova sulle liste che ne mette uno solo non vedrebbe mai una lista.
+		return [{"nome": "Goblin"}, {"nome": "Slime"}]
+
+	func alleati_disponibili() -> Array:
+		return []
+
+	func bersagli_mediabili() -> Array[Dictionary]:
+		return []
+
+	func leve_utilizzabili() -> Array[Dictionary]:
+		return []
+
+	func fuga_possibile() -> bool:
+		return true
+
+	func dominio_sufficiente(_chi: Dictionary, _dati: Dictionary) -> bool:
+		return true
+
+	func abilita_vuole_bersaglio(_id: String) -> bool:
+		return false
+
+	func agisci_ora(azione: Dictionary) -> void:
+		scelte.append(azione)
