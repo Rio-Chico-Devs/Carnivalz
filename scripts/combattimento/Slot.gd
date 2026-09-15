@@ -42,6 +42,10 @@ var quote: Dictionary = {}       # chiave -> quanto e' piena, 0..1
 var etichette: Array[Control] = []
 var status: Array[Control] = []
 var simboli: Array[String] = []  # che status ha addosso, in ordine
+var id_dentro := ""              # chi ci sta, o "" se il posto e' libero
+var banda_adesso := ""           # quale faccia sta mostrando: serve all'isteresi
+var faccia: TextureRect          # il ritratto che cambia con le ferite
+var iniziale: Label              # il ripiego quando non c'e' nessun disegno
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -57,6 +61,24 @@ func costruisci() -> void:
 	ritratto = Control.new()
 	ritratto.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(ritratto)
+	var fondo_faccia := ColorRect.new()
+	fondo_faccia.color = Stile.colore("pannello_chiaro")
+	fondo_faccia.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	fondo_faccia.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ritratto.add_child(fondo_faccia)
+	faccia = TextureRect.new()
+	faccia.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	faccia.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	faccia.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	faccia.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ritratto.add_child(faccia)
+	iniziale = Label.new()
+	iniziale.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	iniziale.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	iniziale.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	iniziale.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+	iniziale.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ritratto.add_child(iniziale)
 	for riga in RIGHE:
 		# UNA PAROLA, O UN SEGNO. HP e AURA si scrivono; il dominio no - nel
 		# disegno quella riga porta un ricciolo rosso disegnato a mano, e un
@@ -115,19 +137,55 @@ func tassello_status(indice: int) -> Control:
 
 # --- quello che si vede ------------------------------------------------------
 
-func mostra_ritratto(nodo: Control) -> void:
-	for vecchio in ritratto.get_children():
-		vecchio.queue_free()
-	if nodo == null:
+func abita(id_personaggio: String) -> void:
+	# CHI CI STA DENTRO. Da qui in poi lo slot si disegna da solo: la faccia la
+	# sceglie la condizione, non chi chiama.
+	id_dentro = id_personaggio
+	banda_adesso = ""
+	visible = true
+	for riga in RIGHE:
+		(barre[String(riga.chiave)] as Control).visible = true
+	aggiorna_faccia(1.0, [])
+
+func lascia_vuoto() -> void:
+	# «finché non hai compagni quei riquadri in più per i compagni avranno
+	# un'immagine che ti darò». Uno slot libero non sparisce: mostra il suo
+	# disegno e spegne barre e status, che non misurano nessuno.
+	id_dentro = ""
+	banda_adesso = ""
+	visible = true
+	for riga in RIGHE:
+		(barre[String(riga.chiave)] as Control).visible = false
+	for etichetta in etichette:
+		etichetta.visible = false
+	for tassello in status:
+		tassello.visible = false
+	metti_disegno(RitrattiCombattimento.posto_vuoto(), "")
+
+func aggiorna_faccia(quota_hp: float, stati: Array[String]) -> void:
+	if id_dentro == "":
 		return
-	nodo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	ritratto.add_child(nodo)
-	# NEL DISEGNO SOTTO I RITRATTI NON C'E' NESSUN NOME: c'e' il ritratto, e
-	# subito sotto le tre barre. Il nome lo sai - e' la tua squadra - e una
-	# riga di testo in mezzo spingerebbe le barre fuori dallo slot.
-	var etichetta := nodo.get_node_or_null("%Nome")
-	if etichetta != null:
-		(etichetta as Control).visible = false
+	var prima := banda_adesso
+	banda_adesso = RitrattiCombattimento.banda(quota_hp, prima)
+	var scheda: Dictionary = GameState.personaggi.get(id_dentro, {})
+	metti_disegno(RitrattiCombattimento.scegli(id_dentro, quota_hp, stati, prima,
+			String(scheda.get("ritratto", ""))), String(scheda.get("nome", id_dentro)))
+
+func metti_disegno(percorso: String, nome: String) -> void:
+	if faccia == null:
+		return
+	if percorso != "" and ResourceLoader.exists(percorso):
+		faccia.texture = load(percorso)
+		faccia.visible = true
+		iniziale.visible = false
+		return
+	faccia.texture = null
+	faccia.visible = false
+	# IL RIPIEGO DEVE VEDERSI: l'iniziale su fondo scuro, come nella schermata
+	# dei dialoghi. Finche' i disegni non ci sono, uno slot vuoto e uno slot con
+	# dentro qualcuno devono restare distinguibili.
+	iniziale.text = nome.left(1).to_upper() if nome != "" else ""
+	iniziale.visible = true
 
 func imposta_barra(chiave: String, quanto: float) -> void:
 	quote[chiave] = clampf(quanto, 0.0, 1.0)
@@ -169,6 +227,8 @@ func ridisponi() -> void:
 	var bordo := float(Stile.forma("bordo_plancia"))
 	ritratto.position = Vector2(bordo, bordo)
 	ritratto.size = Vector2(lato - bordo * 2.0, lato - bordo * 2.0)
+	if iniziale != null:
+		iniziale.add_theme_font_size_override("font_size", maxi(int(lato * 0.42), 12))
 
 	var da_barre := size.y * QUOTA_BARRE_DA
 	var a_barre := size.y * QUOTA_BARRE_A

@@ -116,6 +116,7 @@ func _ready() -> void:
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
+	prova_ritratti_di_condizione()
 	prova_ecg()
 	prova_collisioni()
 	prova_tutorial_di_veronica()
@@ -6642,3 +6643,66 @@ func prova_velo_di_pericolo() -> void:
 			"la squadra e' guarita ma a schermo resta un pericolo di %.2f: i bordi restano rossi"
 			% arena.pericolo_disegnato)
 	sopra.free()
+
+func prova_ritratti_di_condizione() -> void:
+	# LA FACCIA CAMBIA CON LA CONDIZIONE.
+	#
+	# Bru: «quando subisci danno il portrait cambia con uno per low damage, mid
+	# damage heavy damage e ko, a seconda degli status disegnerò portrait per
+	# ogni personaggio [...] disegnerò anche un portrait generico per un
+	# personaggio ko».
+	titolo("il ritratto segue le ferite, gli status e il KO")
+
+	# LE SOGLIE SONO QUELLE DELL'ECG, e devono restarlo: se un giorno si
+	# separano, la faccia e la linea del cuore dicono due cose diverse nello
+	# stesso istante, e il giocatore non sa piu' a quale credere
+	esigi(RitrattiCombattimento.banda_nuda(1.0) == "sano",
+			"a vita piena la faccia non e' quella sana")
+	esigi(RitrattiCombattimento.banda_nuda(0.9) == "ferito_lieve",
+			"al 90%% la faccia e' '%s'" % RitrattiCombattimento.banda_nuda(0.9))
+	esigi(RitrattiCombattimento.banda_nuda(0.5) == "ferito_medio",
+			"a meta' vita la faccia e' '%s'" % RitrattiCombattimento.banda_nuda(0.5))
+	esigi(RitrattiCombattimento.banda_nuda(0.1) == "ferito_grave",
+			"a un decimo di vita la faccia e' '%s'" % RitrattiCombattimento.banda_nuda(0.1))
+	esigi(RitrattiCombattimento.banda_nuda(0.0) == "ko",
+			"a terra la faccia non e' quella del KO")
+	# gli estremi cadono dove cadono per l'ECG: al 25% esatto si e' gia' medio
+	esigi(RitrattiCombattimento.banda_nuda(EcgCombattimento.QUOTA_ROSSA) == "ferito_medio",
+			"al 25%% esatto la faccia e' '%s': la soglia non e' quella dell'ECG"
+			% RitrattiCombattimento.banda_nuda(EcgCombattimento.QUOTA_ROSSA))
+	esigi(RitrattiCombattimento.banda_nuda(EcgCombattimento.QUOTA_VERDE) == "ferito_medio",
+			"al 75%% esatto la faccia e' '%s': la soglia non e' quella dell'ECG"
+			% RitrattiCombattimento.banda_nuda(EcgCombattimento.QUOTA_VERDE))
+
+	# NON SFARFALLA. In tempo reale la vita passa e ripassa sopra una soglia di
+	# continuo: peggiorare e' immediato, migliorare chiede di risalire davvero
+	var appena_sotto := EcgCombattimento.QUOTA_ROSSA - 0.001
+	esigi(RitrattiCombattimento.banda(appena_sotto, "ferito_medio") == "ferito_grave",
+			"scendere sotto il quarto non peggiora subito la faccia")
+	var appena_sopra := EcgCombattimento.QUOTA_ROSSA + 0.001
+	esigi(RitrattiCombattimento.banda(appena_sopra, "ferito_grave") == "ferito_grave",
+			"basta risalire di un millesimo per cambiare faccia: sfarfalla a ogni colpo")
+	var ben_sopra := EcgCombattimento.QUOTA_ROSSA + RitrattiCombattimento.MARGINE + 0.01
+	esigi(RitrattiCombattimento.banda(ben_sopra, "ferito_grave") == "ferito_medio",
+			"una cura vera non rimette mai la faccia a posto")
+
+	# LA CATENA DI RIPIEGO. Bru i ritratti li sta disegnando adesso: ogni pezzo
+	# che manca deve scivolare su quello dopo, e in fondo ci deve essere sempre
+	# qualcosa. Qui si guarda l'ORDINE, che e' la cosa che si puo' sbagliare.
+	var a_terra := RitrattiCombattimento.candidati("veronica", 0.0, [])
+	esigi(a_terra[0].ends_with("veronica/ko.png"),
+			"a terra si cerca prima %s" % a_terra[0])
+	esigi(a_terra[1] == RitrattiCombattimento.CARTELLA + "ko.png",
+			"manca il KO generico subito dopo quello suo: %s" % a_terra[1])
+	var in_fiamme := RitrattiCombattimento.candidati("veronica", 0.5, ["fiamme"])
+	esigi(in_fiamme[0].ends_with("veronica/fiamme.png"),
+			"con uno status addosso si cerca prima %s" % in_fiamme[0])
+	esigi(in_fiamme[1].ends_with("veronica/ferito_medio.png"),
+			"se il ritratto dello status non c'e' non si ripiega sulla ferita: %s" % in_fiamme[1])
+	for elenco in [a_terra, in_fiamme]:
+		esigi(elenco[elenco.size() - 1].ends_with("neutra.png"),
+				"in fondo alla catena non c'e' la posa dei dialoghi: %s" % elenco[elenco.size() - 1])
+	# e un personaggio a terra non mostra mai la faccia di uno che sta bene
+	for percorso in a_terra.slice(0, 2):
+		esigi(not percorso.ends_with("sano.png"),
+				"a terra si puo' finire a mostrare la faccia sana")

@@ -237,6 +237,12 @@ func _ready() -> void:
 			combattente.scudo_stato = ""
 			combattente.resurrezione = ""
 			combattente.ultima_risorsa_usata = true
+	if plancia != null:
+		# I POSTI CHE AVANZANO NON SPARISCONO: portano il disegno del posto
+		# vuoto. Tre riquadri dicono quanto grande puo' diventare la squadra;
+		# uno che sparisce lo nasconde.
+		for i in range(campo.prossimo_slot, plancia.slot.size()):
+			plancia.slot[i].lascia_vuoto()
 	var categoria_apertura := categoria_migliore_presente()
 	if categoria_apertura == "boss" or categoria_apertura == "miniboss":
 		scrivi_forte("Il disallineamento fa spazio: si combatte.")

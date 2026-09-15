@@ -127,9 +127,11 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	if giocatore:
 		var posto: SlotCompagno = plancia.slot[mini(prossimo_slot, plancia.slot.size() - 1)]
 		prossimo_slot += 1
-		posto.visible = true
-		posto.mostra_ritratto(ritratto)
-		ritratto.mostra(id_personaggio, GameState.livello_di(id_personaggio))
+		# LO SLOT SI DISEGNA LA FACCIA DA SOLO. Non riceve piu' la scena Ritratto:
+		# quale ritratto mostrare dipende da quanto e' messo male e da cosa ha
+		# addosso, e quello lo sa lui - vedi Ritratti.gd
+		ritratto.queue_free()
+		posto.abita(id_personaggio)
 		posto.add_child(vita)
 		posto.add_child(extra)
 		vita.visible = false
@@ -206,6 +208,8 @@ func aggiorna(combattente: Dictionary) -> void:
 		for id_stato in combattente.get("stati_attivi", {}):
 			addosso.append(String(id_stato))
 		scheda_slot.imposta_status(addosso)
+		scheda_slot.aggiorna_faccia(
+				float(combattente.hp) / maxf(float(combattente.get("hp_max", 1)), 1.0), addosso)
 	if combattente.get("barra_dominio", null) != null:
 		# la barra e' il DOMINIO, non il Fattore: leggendo il fattore partiva
 		# gia' piena di un pezzo (base 15) a scontro appena cominciato

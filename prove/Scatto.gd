@@ -82,7 +82,7 @@ func prepara(quale: String) -> void:
 			# Non c'e' altro modo di controllare che sia quella: le prove sanno
 			# dire che i pezzi ci sono, non che il disegno e' quello.
 			GameState.nuova_partita()
-			GameState.party = ["anonimo", "veronica", "insonne"]
+			GameState.party = ["anonimo", "veronica"]
 			GameState.nemici_combattimento = ["marionetta"]
 			var scena: Node = load("res://scenes/Combattimento.tscn").instantiate()
 			add_child(scena)
