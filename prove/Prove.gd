@@ -116,6 +116,9 @@ func _ready() -> void:
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
+	prova_condizione_di_chi_ha_il_turno()
+	prova_chi_tocca_si_accende()
+	prova_mattanza_e_bond_non_spariscono()
 	await prova_lampo_solo_sulla_faccia()
 	prova_riduci_il_movimento()
 	prova_niente_disco_a_ogni_colpo()
@@ -6936,3 +6939,100 @@ func prova_lampo_solo_sulla_faccia() -> void:
 		esigi(barra.modulate.is_equal_approx(Color.WHITE),
 				"la barra %s si e' tinta col colpo" % chiave)
 	posto.free()
+
+func prova_condizione_di_chi_ha_il_turno() -> void:
+	# L'ECG, IL MORALE E LO STRESS SONO DI CHI HA IL TURNO - e non li aggiornava
+	# nessuno.
+	#
+	# Il tracciato era costruito, misurato, provato... e in partita raccontava la
+	# condizione di un personaggio immaginario, sempre la stessa, perche' la
+	# funzione che gli passa i dati veri non veniva chiamata da nessuna parte
+	# tranne che dal fotografo. I due numeri restavano vuoti.
+	titolo("l'ecg racconta la condizione di chi ha il turno, davvero")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.limite_giri = 1
+	add_child(scontro)
+	var eroe: Dictionary = {}
+	for combattente in scontro.combattenti:
+		if combattente.giocatore and eroe.is_empty():
+			eroe = combattente
+	esigi(not eroe.is_empty(), "nessun protagonista")
+	eroe.hp = int(eroe.hp_max) / 4      # un quarto di vita: la linea deve diventare rossa
+	GameState.stress[String(eroe.id)] = 80
+	eroe.stress = 80
+	scontro.aggiorna_pronto_giocatore()
+	esigi(is_equal_approx(scontro.plancia.ecg.quota_hp, 0.25),
+			"l'ecg segna una vita di %.2f invece di 0.25: non gli arriva quella vera"
+			% scontro.plancia.ecg.quota_hp)
+	esigi(scontro.plancia.ecg.stress == 80,
+			"l'ecg segna uno stress di %d invece di 80" % scontro.plancia.ecg.stress)
+	esigi(scontro.plancia.etichetta_stress.text.contains("80"),
+			"la riga dello stress dice '%s'" % scontro.plancia.etichetta_stress.text)
+	esigi(scontro.plancia.etichetta_morale.text != "",
+			"la riga del morale e' vuota")
+	scontro.free()
+
+func prova_chi_tocca_si_accende() -> void:
+	# DI CHI E' IL TURNO SI VEDE ACCENDENDO LUI, NON SPEGNENDO GLI ALTRI.
+	#
+	# Prima gli slot di chi non toccava si sbiadivano. Sul fondo nero della
+	# vecchia schermata voleva dire "piu' scuro"; sul bianco di questa vuol dire
+	# "piu' pallido", e pallido si legge DISATTIVATO - come se quel compagno
+	# fosse fuori combattimento invece che in attesa.
+	titolo("chi ha il turno si accende, gli altri non si spengono")
+	var posto := SlotCompagno.new()
+	add_child(posto)
+	posto.size = Vector2(200, 320)
+	posto.abita("veronica")
+	var spento: Color = posto.cornice.color
+	posto.imposta_turno(true)
+	esigi(posto.cornice.color != spento,
+			"la cornice non cambia quando tocca a lui: non si vede di chi e' il turno")
+	esigi(posto.modulate.is_equal_approx(Color.WHITE),
+			"lo slot di chi tocca e' stato sbiadito invece che acceso")
+	# e il numero dell'aura compare solo su di lui
+	esigi(posto.numero_aura != null, "non c'e' nessun numero dell'aura")
+	esigi(posto.numero_aura.visible, "a chi ha il turno non si vede quanta aura ha")
+	posto.mostra_aura(7, 12)
+	esigi(posto.numero_aura.text.contains("7"),
+			"il numero dell'aura dice '%s'" % posto.numero_aura.text)
+	# E L'ORDINE NON DEVE CONTARE. Se il valore arriva prima che il turno si
+	# accenda - e succede, perche' chi aggiorna le schede e chi marca il turno
+	# sono due strade diverse - il numero deve esserci lo stesso quando la
+	# cornice si accende. Prima restava vuoto.
+	posto.imposta_turno(false)
+	posto.mostra_aura(3, 12)
+	posto.imposta_turno(true)
+	esigi(posto.numero_aura.text.contains("3"),
+			"il valore arrivato prima del turno si e' perso: il numero dice '%s'"
+			% posto.numero_aura.text)
+	posto.imposta_turno(false)
+	esigi(not posto.numero_aura.visible,
+			"il numero dell'aura resta acceso anche su chi non tocca: tre numeri da leggere")
+	esigi(posto.modulate.is_equal_approx(Color.WHITE),
+			"chi non tocca viene sbiadito: su fondo bianco si legge 'fuori combattimento'")
+	posto.free()
+
+func prova_mattanza_e_bond_non_spariscono() -> void:
+	# I DUE TASSELLI SONO L'UNICO AVVISO CHE ARRIVA.
+	#
+	# Se vivono dentro la faccia dei comandi, spariscono proprio mentre scegli un
+	# attacco da una lista - cioe' nei secondi in cui stai guardando altrove e il
+	# segnale arriva. Li nasconde solo il parlato: mentre il box racconta non
+	# stai scegliendo niente, e sotto ci passa il testo.
+	titolo("MATTANZA e BOND non spariscono mentre scegli da una lista")
+	var radice := Control.new()
+	radice.size = Vector2(1280, 720)
+	add_child(radice)
+	var plancia := PlanciaCombattimento.new()
+	plancia.costruisci(radice)
+	for faccia in ["comandi", "lista"]:
+		plancia.mostra_faccia(faccia)
+		esigi(plancia.tasto_mattanza.visible and plancia.tasto_bond.visible,
+				"con la faccia '%s' i due tasselli sono spariti" % faccia)
+	plancia.mostra_faccia("parlato")
+	esigi(not plancia.tasto_mattanza.visible and not plancia.tasto_bond.visible,
+			"mentre il box parla i due tasselli gli stanno sopra")
+	radice.free()

@@ -35,7 +35,7 @@ const QUOTA_BARRE_DA := 0.658
 const QUOTA_BARRE_A := 0.801
 const QUOTA_STATUS_DA := 0.848
 
-var cornice: Control
+var cornice: ColorRect   # il bordo dello slot: si accende a chi ha il turno
 var ritratto: Control
 var barre: Dictionary = {}       # chiave -> Control che si disegna
 var quote: Dictionary = {}       # chiave -> quanto e' piena, 0..1
@@ -48,6 +48,8 @@ var faccia: TextureRect          # il ritratto che cambia con le ferite
 var chiave_faccia := ""          # quale condizione sta gia' mostrando
 var ricerche := 0                # quante volte ha DAVVERO cercato un disegno su disco
 var iniziale: Label              # il ripiego quando non c'e' nessun disegno
+var numero_aura: Label           # quanta aura ha, e si vede solo a chi tocca
+var tocca_a_lui := false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -107,6 +109,22 @@ func costruisci() -> void:
 		add_child(barra)
 		barre[String(riga.chiave)] = barra
 		quote[String(riga.chiave)] = 1.0
+	# IL NUMERO DELL'AURA, E SOLO SU CHI HA IL TURNO.
+	#
+	# Per gli HP la forma della barra basta: guardi quanto ne resta e sai come
+	# stai. Per l'aura no - una mossa costa CINQUE, e una barra a meta' non ti
+	# dice se cinque ce li hai. E' l'unica delle tre che serve contare, perche'
+	# e' l'unica che si spende a prezzo fisso.
+	#
+	# Su chi ha il turno e basta: tre numeri sarebbero tre cose da leggere quando
+	# ne serve una.
+	numero_aura = Label.new()
+	numero_aura.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	numero_aura.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	numero_aura.add_theme_color_override("font_color", Stile.colore("box_testo"))
+	numero_aura.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	numero_aura.visible = false
+	add_child(numero_aura)
 	for i in STATUS_VISIBILI:
 		var tassello := tassello_status(i)
 		add_child(tassello)
@@ -204,6 +222,37 @@ func metti_disegno(percorso: String, nome: String) -> void:
 	iniziale.text = nome.left(1).to_upper() if nome != "" else ""
 	iniziale.visible = true
 
+func imposta_turno(suo: bool) -> void:
+	# DI CHI E' IL TURNO SI VEDE ACCENDENDO LUI, non spegnendo gli altri.
+	#
+	# Prima gli slot di chi non toccava si sbiadivano. Sul fondo nero della
+	# vecchia schermata voleva dire "piu' scuro"; sul bianco di questa vuol dire
+	# "piu' pallido", e pallido si legge DISATTIVATO - come se quel compagno
+	# fosse fuori combattimento invece che semplicemente in attesa.
+	#
+	# Adesso tutti restano pieni e chi tocca porta la cornice accesa. E' anche
+	# la risposta a "di chi sono l'ECG, il morale e lo stress": di quello con la
+	# cornice accesa.
+	if suo == tocca_a_lui:
+		return
+	tocca_a_lui = suo
+	cornice.color = Stile.colore("accento") if suo else Stile.colore("bordo")
+	if numero_aura != null:
+		numero_aura.visible = suo and id_dentro != ""
+
+func mostra_aura(adesso: int, massimo: int) -> void:
+	# IL NUMERO SI SCRIVE SEMPRE, SI VEDE QUANDO TOCCA.
+	#
+	# Prima usciva subito se il numero non era ancora visibile, e l'ordine in cui
+	# arrivano le cose non e' garantito: se il valore passa PRIMA che il turno si
+	# accenda - e succede - la scritta restava vuota, il turno si accendeva su
+	# un'etichetta senza testo, e il numero non compariva affatto finche' non
+	# cambiava qualcos'altro. Chi decide se si vede e' imposta_turno; qui si
+	# tiene solo aggiornato quello che c'e' scritto.
+	if numero_aura == null:
+		return
+	numero_aura.text = "%d/%d" % [adesso, maxi(massimo, 1)]
+
 func imposta_barra(chiave: String, quanto: float) -> void:
 	quote[chiave] = clampf(quanto, 0.0, 1.0)
 	if barre.has(chiave):
@@ -277,6 +326,16 @@ func ridisponi() -> void:
 		barra.size = Vector2(size.x - largo_etichetta * 1.06, alto_riga)
 		barra.queue_redraw()
 		y += passo
+
+	if numero_aura != null:
+		# SOPRA LA BARRA DELL'AURA, in fondo a destra. Al primo tentativo lo
+		# mettevo sopra la riga e finiva addosso a quella degli HP: il numero
+		# c'era e non si vedeva. Sta dentro la sua barra, che e' lilla chiaro e
+		# regge bene una scritta nera.
+		var riga_aura := da_barre + passo
+		numero_aura.add_theme_font_size_override("font_size", maxi(int(alto_riga * 0.92), 8))
+		numero_aura.position = Vector2(0.0, riga_aura)
+		numero_aura.size = Vector2(size.x - alto_riga * 0.3, alto_riga)
 
 	# GLI STATUS, ALLINEATI A DESTRA come nel disegno
 	var da_status := size.y * QUOTA_STATUS_DA

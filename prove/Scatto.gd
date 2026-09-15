@@ -92,6 +92,11 @@ func prepara(quale: String) -> void:
 				c.hp = c.hp_max   # a riposo: il disegno di Bru e' una squadra intera
 				scena.campo.aggiorna(c)
 			scena.arena.imposta_pericolo(0.0)
+			# chi ha il turno: cornice accesa e numero dell'aura
+			scena.campo.evidenzia(scena.combattenti, scena.combattenti[0])
+			for c in scena.combattenti:
+				if c.giocatore:
+					scena.campo.aggiorna(c)
 			scena.plancia.aggiorna_condizione(0.18, 70, 68)
 			scena.plancia.accendi(scena.plancia.tasto_mattanza, true)
 			scena.plancia.accendi(scena.plancia.tasto_bond, true)

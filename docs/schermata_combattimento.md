@@ -286,25 +286,6 @@ mostra un numero diverso da quello giusto?"*.
 
 ## Quello che non ho toccato, e perché
 
-### Di chi sono ECG, Morale e Stress?
-
-Sono singolari, ma i personaggi sono tre. Si legge la condizione di **chi ha il
-turno** — e il turno si vede, perché gli altri slot si sbiadiscono. Ma su fondo
-bianco *sbiadire* fa sembrare gli altri **disattivati**, non "non tocca a loro":
-funzionava sul nero, non funziona sul bianco. Andrebbe girato — una cornice
-accesa su chi tocca invece di spegnere gli altri.
-
-### L'aura senza numero
-
-Per gli HP la forma basta. Per l'**aura** no: se una mossa costa 5 e devi
-decidere se puoi permettertela, una barra ti fa tirare a indovinare. Il numero
-servirebbe **solo su chi ha il turno** — uno da leggere, non tre.
-
-### MATTANZA e BOND spariscono quando apri una lista
-
-Il quadrante fa tre mestieri. Se scegli un attacco proprio mentre la mattanza
-diventa pronta, il segnale non lo vedi: è l'unico avviso che arriva.
-
 ### Il testo a finestre piccole — falso allarme
 
 Il progetto usa `stretch/mode = canvas_items` a 1280×720: la tela è sempre
@@ -387,6 +368,54 @@ mancava, e il combattimento trema a ogni colpo.
 **Riduci il movimento** toglie la scossa e trasforma il lampo in una tinta che
 arriva e se ne va piano. Non toglie nessuna informazione: il numero del danno, il
 colore dell'elemento e il suono restano.
+
+## 6. L'ECG non lo aggiornava nessuno
+
+Il più grosso, e l'ho trovato andando a sistemare gli altri tre.
+
+Il tracciato era costruito, misurato, provato con cinque sabotaggi... e **in
+partita raccontava la condizione di un personaggio immaginario**, sempre la
+stessa. La funzione che gli passa i dati veri non veniva chiamata da nessuna
+parte tranne che dal fotografo, e le righe di Morale e Stress restavano vuote.
+Tutto il lavoro sul tracciato non si vedeva affatto.
+
+Adesso l'ECG, il morale e lo stress sono quelli di **chi ha il turno**.
+
+Una nota: **"morale" non esiste come statistica**. La cosa più vicina è il
+**legame** della squadra (0..100), che è anche quello che accende il tasto BOND
+lì sotto. Se morale dev'essere altro, si cambia una riga.
+
+## 7. Di chi è il turno si vede accendendo lui
+
+Prima gli slot di chi non toccava si sbiadivano. Sul fondo nero della vecchia
+schermata voleva dire *più scuro*; sul bianco di questa vuol dire *più pallido*,
+e pallido si legge **disattivato** — come se quel compagno fosse fuori
+combattimento invece che in attesa. Adesso restano tutti pieni e chi tocca porta
+la **cornice accesa**.
+
+## 8. Il numero dell'aura, solo su chi ha il turno
+
+Per gli HP la forma della barra basta. Per l'aura no: una mossa costa **cinque**,
+e una barra a metà non ti dice se cinque ce li hai. È l'unica delle tre che serve
+contare, perché è l'unica che si spende a prezzo fisso. Su chi ha il turno e
+basta: tre numeri sarebbero tre cose da leggere quando ne serve una.
+
+*Scrivendolo ho fatto un difetto e l'ho preso con una prova*: il numero si
+scriveva solo se era già visibile, quindi se il valore arrivava **prima** che il
+turno si accendesse — e succede, perché sono due strade diverse — la scritta
+restava vuota.
+
+## 9. MATTANZA e BOND non spariscono più mentre scegli
+
+Sono l'unico avviso che arriva quando diventano pronti. Vivendo dentro la faccia
+dei comandi sparivano proprio mentre scegli un attacco da una lista, cioè nei
+secondi in cui stai guardando altrove. Adesso stanno un gradino più su: li
+nasconde solo il parlato.
+
+Spostandoli ho preso in pieno la regola dei contenitori: appesi al
+`MarginContainer` del pannello si sono presi **tutto il quadrante** — un
+rettangolo nero con BOND in mezzo, ECG e comandi scomparsi sotto. Ci vuole uno
+strato semplice in mezzo.
 
 ## Una cosa che non ho chiuso
 

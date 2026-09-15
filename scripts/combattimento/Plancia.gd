@@ -54,8 +54,12 @@ var etichetta_morale: Label
 var etichetta_stress: Label
 var tasto_mattanza: Button
 var tasto_bond: Button
+var strato_tasselli: Control     # MATTANZA e BOND, sopra tutte le facce
 var comandi: VBoxContainer
 var corpo_comandi := 18
+# quali numeri stanno gia' scritti: per non riscriverli a ogni fotogramma
+var stress_scritto := -1
+var morale_scritto := -1
 
 func costruisci(dentro: Control) -> void:
 	radice = dentro
@@ -175,10 +179,26 @@ func costruisci_quadrante() -> Control:
 	etichetta_stress.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	faccia_comandi.add_child(etichetta_stress)
 
+	# I DUE TASSELLI NON STANNO DENTRO UNA FACCIA SOLA.
+	#
+	# Sono l'unico avviso che il giocatore riceve quando la Mattanza o il Bond
+	# diventano pronti. Se vivono dentro la faccia dei comandi, spariscono
+	# proprio mentre scegli un attacco da una lista - cioe' nei secondi in cui
+	# stai guardando altrove e il segnale arriva. Stanno un gradino piu' su, e
+	# li nasconde solo il parlato: mentre il box racconta non stai scegliendo
+	# niente, e sotto ci passa il testo.
+	# NON DENTRO IL CONTENITORE: "Dentro" e' un MarginContainer, e un contenitore
+	# riposiziona e ridimensiona i suoi figli. Appesi li', i due tasselli si sono
+	# presi tutto il pannello - un rettangolo nero con BOND in mezzo, e l'ECG e i
+	# comandi scomparsi sotto. Ci vuole uno strato semplice in mezzo: il
+	# contenitore stira LUI, e i tasselli dentro restano dove li metti.
+	strato_tasselli = Control.new()
+	strato_tasselli.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dentro.add_child(strato_tasselli)
 	tasto_mattanza = tasto_acceso("MATTANZA", "mattanza")
-	faccia_comandi.add_child(tasto_mattanza)
+	strato_tasselli.add_child(tasto_mattanza)
 	tasto_bond = tasto_acceso("BOND", "bond")
-	faccia_comandi.add_child(tasto_bond)
+	strato_tasselli.add_child(tasto_bond)
 
 	# LA LISTA DEI COMANDI LA RIEMPIE IL MENU, non la plancia. Qui c'e' solo il
 	# posto dove va: quali voci ci stanno dentro lo decide lo scontro (Aiutante
@@ -374,8 +394,25 @@ func mostra_faccia(quale: String) -> void:
 	faccia_comandi.visible = quale == "comandi"
 	faccia_lista.visible = quale == "lista"
 	faccia_parlato.visible = quale == "parlato"
+	# i due tasselli seguono TUTTE le facce tranne il parlato (vedi sopra)
+	var si_vedono := quale != "parlato"
+	if tasto_mattanza != null:
+		tasto_mattanza.visible = si_vedono
+	if tasto_bond != null:
+		tasto_bond.visible = si_vedono
 
 func aggiorna_condizione(quota_hp: float, stress: int, morale: int) -> void:
+	# QUELLO CHE SI LEGGE E' LA CONDIZIONE DI CHI HA IL TURNO. L'ECG, il morale
+	# e lo stress sono uno solo mentre i personaggi sono tre: e' il cuore di chi
+	# sta per muoversi, ed e' il motivo per cui il suo slot deve essere marcato.
+	#
+	# SI SCRIVE SOLO QUANDO CAMBIA: queste due etichette venivano aggiornate a
+	# ogni fotogramma, e riscrivere il testo di una Label rifa' la disposizione
+	# anche quando il numero e' identico.
 	ecg.imposta(quota_hp, stress)
-	etichetta_morale.text = "Morale: %d" % morale
-	etichetta_stress.text = "Stress: %d" % stress
+	if stress != stress_scritto:
+		stress_scritto = stress
+		etichetta_stress.text = "Stress: %d" % stress
+	if morale != morale_scritto:
+		morale_scritto = morale
+		etichetta_morale.text = "Morale: %d" % morale

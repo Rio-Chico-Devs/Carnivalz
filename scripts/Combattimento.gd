@@ -841,6 +841,20 @@ func aggiorna_pronto_giocatore() -> void:
 	if menu == null:
 		return
 	var tu := combattente_comandato()
+	# L'ECG, IL MORALE E LO STRESS SONO DI CHI HA IL TURNO, e fino a ieri non li
+	# aggiornava NESSUNO: in partita la linea del cuore raccontava la condizione
+	# di un personaggio immaginario, sempre la stessa, e i due numeri restavano
+	# vuoti. Tutto il lavoro sul tracciato non si vedeva affatto.
+	#
+	# "Morale" non esiste come statistica: la cosa piu' vicina che c'e' e' il
+	# LEGAME della squadra, 0..100, ed e' anche quello che accende il tasto BOND
+	# che sta subito sotto nel disegno di Bru. Se morale dev'essere altro, si
+	# cambia questa riga.
+	if plancia != null and not tu.is_empty():
+		plancia.aggiorna_condizione(
+				float(tu.hp) / maxf(float(tu.get("hp_max", 1)), 1.0),
+				int(tu.get("stress", 0)),
+				GameState.legame)
 	var pronto := giocatore_pronto()
 	if pronto != menu_acceso:
 		menu_acceso = pronto

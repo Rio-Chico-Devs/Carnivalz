@@ -208,6 +208,7 @@ func aggiorna(combattente: Dictionary) -> void:
 		for id_stato in combattente.get("stati_attivi", {}):
 			addosso.append(String(id_stato))
 		scheda_slot.imposta_status(addosso)
+		scheda_slot.mostra_aura(int(combattente.get("aura", 0)), int(combattente.get("aura_max", 1)))
 		scheda_slot.aggiorna_faccia(
 				float(combattente.hp) / maxf(float(combattente.get("hp_max", 1)), 1.0), addosso)
 	if combattente.get("barra_dominio", null) != null:
@@ -346,6 +347,12 @@ func evidenzia(combattenti: Array[Dictionary], attivo: Dictionary) -> void:
 		if combattente.hp <= 0 or combattente.get("scheda", null) == null:
 			continue
 		var suo_turno: bool = combattente.indice == attivo.indice
+		var suo_slot: Variant = combattente.get("slot", null)
+		if suo_slot != null and is_instance_valid(suo_slot):
+			# SULLA PLANCIA DISEGNATA si accende chi tocca, non si spengono gli
+			# altri: sbiadire su fondo bianco si legge "fuori combattimento"
+			(suo_slot as SlotCompagno).imposta_turno(suo_turno)
+			continue
 		combattente.scheda.modulate = Color.WHITE if suo_turno else Color(1, 1, 1, 0.65)
 
 func congeda(scheda: Control) -> void:
