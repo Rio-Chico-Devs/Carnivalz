@@ -206,3 +206,124 @@ strato mentre studi, e all'inizio è quasi vuoto.
 ## Disposizione
 
 *(da riempire guardando il disegno)*
+
+
+---
+
+# Analisi, componente per componente
+
+Fatta dopo aver costruito la schermata, **misurando** invece di dare pareri: i
+contrasti sono rapporti WCAG calcolati sui colori veri di `data/stile.json`, le
+misure del testo vengono dai numeri della plancia. Dove ho consultato linee
+guida pubbliche l'ho scritto.
+
+Tre difetti erano reali e misurabili, e riguardavano proprio le cose più
+urgenti. Sono già sistemati. Il resto è elencato con la sua diagnosi.
+
+## Quello che è stato corretto
+
+### 1. La linea rossa dell'ECG era la meno visibile di tutte
+
+Contrasto misurato: **1.91**. Il rosso su quel bruno erano quasi lo stesso
+colore. È il segnale che dice *stai per morire*, ed era il meno leggibile della
+schermata — mentre il giallo stava a 5.13 e il verde a 4.44.
+
+Fondale portato da `#5a4a46` a `#1e1817`: il rosso passa a **4.00**, il giallo a
+10.5, il verde a 9.2. Resta un bruno scuro, come nel disegno.
+
+### 2. Di una barra non si capiva quanto fosse piena
+
+Contrasto fra il pieno e il vuoto: **HP 1.07, AURA 1.05**. Cioè il pieno e il
+vuoto avevano quasi la stessa luminosità: si distinguevano *solo* dalla tinta.
+Per una barra è il difetto peggiore possibile — la sua unica funzione è dire
+quanto ne resta.
+
+Traccia vuota da `#c9c9c9` a `#333333`: HP **7.16**, AURA **7.30**, dominio
+**3.19**.
+
+### 3. MATTANZA e BOND da spenti non si vedevano proprio
+
+Contrasto **1.85** sul tassello nero: non si capiva nemmeno che ci fosse un
+tasto. Nel disegno si vedono anche da spenti. Portato a **3.24**.
+
+### 4. Il colore non può essere l'unica cosa che dice la vita
+
+[Le linee guida sull'accessibilità dei giochi](https://gameaccessibilityguidelines.com/ensure-no-essential-information-is-conveyed-by-a-fixed-colour-alone/)
+sono esplicite: nessuna informazione essenziale deve passare da un colore solo.
+Fra l'8% e il 10% dei maschi non distingue bene rosso e verde, e un segnale
+costruito su *verde = tutto bene / rosso = stai per morire* per loro non esiste.
+
+Misurato sulla nostra palette: fra verde e giallo passano **0.086 di
+luminosità** — senza il colore sono lo stesso grigio.
+
+Adesso la linea lo dice due volte: **col colore e con lo spessore** (1.6 / 2.4 /
+3.4 px). Una linea grossa si vede anche in bianco e nero. Gli status erano già a
+posto: sono simboli diversi, non tre cerchi di tre colori.
+
+### 5. Il combattimento si giocava solo col mouse
+
+Ogni voce del menu aveva `focus_mode = NONE`. Il codice che dava il fuoco alla
+prima voce utile **c'era già** e non aveva mai funzionato, perché un bottone col
+fuoco spento il fuoco non lo prende. Adesso le frecce scorrono e INVIO sceglie,
+e la voce col fuoco porta una barretta rossa a sinistra — una forma, non solo un
+colore.
+
+Trovandolo sono venuti fuori altri due difetti che nessuno avrebbe visto:
+
+- **il menu si riempiva dentro una faccia nascosta.** La plancia nasceva sul
+  parlato e non la cambiava mai nessuno: le voci esistevano e non si vedevano.
+  Adesso il menu, accendendosi, chiede al pannello di mostrarsi.
+- **la voce col fuoco spariva.** Godot per un bottone col fuoco usa
+  `font_focus_color`, che veniva dal tema del resto del gioco — fatto per il
+  fondo scuro. Sul bianco del quadrante la parola non c'era più: restava la
+  barretta e basta.
+
+### 6. Il velo rosso del pericolo non si spegneva
+
+Trovato fotografando: quattro bordi rossi addosso a una squadra a vita piena. Si
+confrontava *"è cambiato il numero?"* quando l'invariante vera è *"lo schermo
+mostra un numero diverso da quello giusto?"*.
+
+## Quello che non ho toccato, e perché
+
+### Di chi sono ECG, Morale e Stress?
+
+Sono singolari, ma i personaggi sono tre. Si legge la condizione di **chi ha il
+turno** — e il turno si vede, perché gli altri slot si sbiadiscono. Ma su fondo
+bianco *sbiadire* fa sembrare gli altri **disattivati**, non "non tocca a loro":
+funzionava sul nero, non funziona sul bianco. Andrebbe girato — una cornice
+accesa su chi tocca invece di spegnere gli altri.
+
+### L'aura senza numero
+
+Per gli HP la forma basta. Per l'**aura** no: se una mossa costa 5 e devi
+decidere se puoi permettertela, una barra ti fa tirare a indovinare. Il numero
+servirebbe **solo su chi ha il turno** — uno da leggere, non tre.
+
+### MATTANZA e BOND spariscono quando apri una lista
+
+Il quadrante fa tre mestieri. Se scegli un attacco proprio mentre la mattanza
+diventa pronta, il segnale non lo vedi: è l'unico avviso che arriva.
+
+### Il testo a finestre piccole — falso allarme
+
+Il progetto usa `stretch/mode = canvas_items` a 1280×720: la tela è sempre
+quella e viene scalata. Un testo di 14px resta 14px logici a qualunque misura di
+finestra. Non c'è niente da sistemare.
+
+### Il resto della palette, misurato
+
+| | rapporto | |
+|---|--:|---|
+| testo delle barre, voci del menu, Morale/Stress | 16.87 | ✅ |
+| BOND acceso sul tassello | 10.36 | ✅ |
+| iniziale del ripiego | 6.21 | ✅ |
+| MATTANZA accesa sul tassello | 4.58 | ✅ |
+| nome del nemico sulla fascia rossa | 3.94 | ✅ come testo grande |
+| voce di menu spenta | 3.08 | ✅ |
+
+## Fonti
+
+- [Game Accessibility Guidelines — nessuna informazione da un colore solo](https://gameaccessibilityguidelines.com/ensure-no-essential-information-is-conveyed-by-a-fixed-colour-alone/)
+- [Xbox Accessibility Guideline 103](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/103)
+- [Designing a practical HUD](https://rocketbrush.com/blog/designing-practical-and-pretty-hud-in-video-games)

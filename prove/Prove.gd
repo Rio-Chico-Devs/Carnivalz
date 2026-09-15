@@ -116,6 +116,7 @@ func _ready() -> void:
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
+	prova_menu_da_tastiera()
 	prova_ritratti_di_condizione()
 	prova_ecg()
 	prova_collisioni()
@@ -6706,3 +6707,73 @@ func prova_ritratti_di_condizione() -> void:
 	for percorso in a_terra.slice(0, 2):
 		esigi(not percorso.ends_with("sano.png"),
 				"a terra si puo' finire a mostrare la faccia sana")
+
+func prova_menu_da_tastiera() -> void:
+	# IL COMBATTIMENTO SI DEVE POTER GIOCARE SENZA MOUSE.
+	#
+	# Il menu aveva il fuoco spento su ogni voce: cercava di darlo alla prima
+	# utile - il codice c'era - ma un bottone con focus_mode = NONE il fuoco non
+	# lo puo' prendere, quindi le frecce non facevano niente e da fuori sembrava
+	# che la tastiera non fosse mai stata prevista. In uno scontro in tempo reale
+	# spostare la mano sul mouse a ogni battuta e' una tassa, e per chi il mouse
+	# non lo usa bene e' un muro.
+	titolo("il menu di combattimento si usa anche da tastiera")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.limite_giri = 1
+	add_child(scontro)
+	# GLI SI DA' UN TURNO. Il menu spegne tutte le voci mentre ricarichi - e'
+	# giusto cosi' - ma per guardare se la tastiera funziona serve il momento in
+	# cui si puo' davvero scegliere qualcosa.
+	for combattente in scontro.combattenti:
+		if combattente.giocatore:
+			combattente.hp = combattente.hp_max
+			combattente.ricarica = 0.0
+	scontro.in_corso = true
+	scontro.menu.principale()
+	var voci: Array[Button] = []
+	for figlio in scontro.plancia.comandi.get_children():
+		if figlio is Button:
+			voci.append(figlio)
+	esigi(voci.size() >= 5, "il menu ha solo %d voci" % voci.size())
+	var raggiungibili := 0
+	for voce in voci:
+		if voce.focus_mode != Control.FOCUS_NONE:
+			raggiungibili += 1
+	esigi(raggiungibili == voci.size(),
+			"solo %d voci su %d possono prendere il fuoco: le altre da tastiera non esistono"
+			% [raggiungibili, voci.size()])
+	# LA FACCIA DEI COMANDI DEVE ESSERE APERTA. Il quadrante fa tre mestieri, e
+	# se il menu si riempie mentre e' in mostra il parlato non si vede niente -
+	# e nessuna voce puo' prendere il fuoco, perche' un nodo nascosto il fuoco
+	# non lo prende. Era esattamente cosi': la plancia nasceva sul parlato e non
+	# la cambiava mai nessuno.
+	esigi(scontro.plancia.faccia_comandi.is_visible_in_tree(),
+			"il menu si e' acceso ma il quadrante mostra un'altra faccia: le voci non si vedono")
+
+	# e il fuoco deve finire su una voce utile, se no la prima freccia premuta
+	# non fa niente e sembra che la tastiera sia rotta
+	var utili := 0
+	for voce in voci:
+		if not voce.disabled:
+			utili += 1
+	esigi(utili > 0, "tutte le voci del menu sono spente: non si puo' fare niente")
+	scontro.plancia.dai_il_fuoco()
+	var chi_ha_il_fuoco: Control = scontro.plancia.comandi.get_viewport().gui_get_focus_owner()
+	esigi(chi_ha_il_fuoco != null and chi_ha_il_fuoco in voci,
+			"il fuoco non finisce su nessuna voce: da tastiera il menu non si comanda")
+	# IL FUOCO SI DEVE VEDERE, e non con un colore soltanto: chi non distingue
+	# i colori deve poter dire su quale voce sta
+	# LA VOCE COL FUOCO DEVE RESTARE LEGGIBILE. Godot per un bottone col fuoco
+	# usa un colore suo - font_focus_color - che viene dal tema generale, fatto
+	# per il fondo scuro del resto del gioco. Sul bianco del quadrante la parola
+	# spariva del tutto: restava la barretta rossa e nient'altro.
+	for voce in voci:
+		var tinta: Color = voce.get_theme_color("font_focus_color")
+		esigi(tinta.a > 0.5 and tinta.v < 0.6,
+				"la voce col fuoco si scrive in %s sul bianco: non si legge piu'" % tinta)
+	var segno: StyleBox = voci[0].get_theme_stylebox("focus")
+	esigi(segno is StyleBoxFlat and (segno as StyleBoxFlat).border_width_left > 0,
+			"la voce col fuoco non ha nessun segno di forma: si distingue solo dal colore")
+	scontro.free()

@@ -22,20 +22,31 @@ var scontro                    # il nodo Combattimento: il menu e' una sua vista
 var contenitore: Container
 # come si veste una voce: lo decide chi ospita il menu (vedi Plancia.vesti_comando)
 var vestaglia := Callable()
+# come si fa vedere il pannello che ospita il menu: lo sa la plancia, non il menu
+var apri_il_pannello := Callable()
 var fuoco_gia_dato := false
 
 func _init(nodo_scontro, silenzioso := false) -> void:
 	scontro = nodo_scontro
 	muta = silenzioso
 
-func collega(nodo_azioni: Container, come_vestirle := Callable()) -> void:
+func collega(nodo_azioni: Container, come_vestirle := Callable(),
+		come_aprirlo := Callable()) -> void:
 	contenitore = nodo_azioni
 	vestaglia = come_vestirle
+	apri_il_pannello = come_aprirlo
 
 func pulisci() -> void:
 	fuoco_gia_dato = false
 	if muta:
 		return
+	# IL PANNELLO DEVE ESSERE QUELLO DEI COMANDI, se no il menu si riempie di
+	# voci dentro una faccia nascosta: non si vede niente, e - peggio - nessuna
+	# voce puo' prendere il fuoco, quindi nemmeno la tastiera funziona. Era il
+	# caso: la plancia nasceva sulla faccia del parlato e non la cambiava mai
+	# nessuno.
+	if apri_il_pannello.is_valid():
+		apri_il_pannello.call()
 	for figlio in contenitore.get_children():
 		# tolto SUBITO dall'albero, non solo messo in coda: queue_free() libera a
 		# fine frame, e finche' non succede il vecchio bottone sta ancora li'

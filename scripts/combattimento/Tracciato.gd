@@ -14,7 +14,7 @@ extends Control
 
 const SECONDI_A_SCHERMO := 4.0
 const CAMPIONI := 240
-const SPESSORE := 2.0
+const SPESSORE := 2.0   # lo spessore di riferimento, per un riquadro alto 110
 
 var quota_hp := 1.0
 var stress := 0
@@ -72,6 +72,11 @@ func valore_a(quando: float) -> float:
 		valore += dado.randf_range(-tremore, tremore)
 	return clampf(valore, -1.0, 1.0)
 
+func scala_spessore() -> float:
+	# una linea spessa due pixel dentro un riquadro alto trecento non si vede:
+	# lo spessore segue l'altezza del riquadro, come tutto il resto della plancia
+	return maxf(size.y / 110.0, 0.6)
+
 func _draw() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
@@ -81,4 +86,6 @@ func _draw() -> void:
 	for i in storia.size():
 		var x := size.x * float(i) / float(maxi(storia.size() - 1, 1))
 		punti.append(Vector2(x, mezzo - storia[i] * mezzo * 0.86))
-	draw_polyline(punti, tinta, SPESSORE, true)
+	# lo spessore dice la stessa cosa del colore: vedi Ecg.spessore_per()
+	var spessore := EcgCombattimento.spessore_per(quota_hp) * scala_spessore()
+	draw_polyline(punti, tinta, spessore, true)

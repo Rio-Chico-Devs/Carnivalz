@@ -62,6 +62,30 @@ static func colore_per(quota_hp: float) -> String:
 		return "verde"
 	return "giallo"
 
+static func spessore_per(quota_hp: float) -> float:
+	# IL COLORE NON PUO' ESSERE L'UNICA COSA CHE LO DICE.
+	#
+	# Otto o dieci maschi su cento non distinguono bene il rosso dal verde, e un
+	# segnale costruito su "verde = tutto bene / rosso = stai per morire" per
+	# loro non esiste. Misurato: fra il verde e il giallo di questa schermata
+	# passano 0.086 di luminosita' - cioe' senza il colore sono lo stesso grigio.
+	#
+	# Quindi la linea dice la stessa cosa DUE volte: col colore e con lo
+	# spessore. Piu' sei messo male, piu' e' grossa - e una linea grossa si vede
+	# anche in bianco e nero, anche con la coda dell'occhio, anche su uno schermo
+	# sbiadito. Non toglie niente a chi i colori li vede: li' dove il colore
+	# funziona, le due cose si sommano.
+	#
+	# Vale la stessa regola delle icone di stato, che sono simboli diversi e non
+	# tre cerchi di tre colori.
+	if quota_hp <= 0.0:
+		return 1.0
+	if quota_hp < QUOTA_ROSSA:
+		return 3.4
+	if quota_hp > QUOTA_VERDE:
+		return 1.6
+	return 2.4
+
 static func battiti_al_minuto(stress: int) -> float:
 	return lerpf(BATTITI_CALMO, BATTITI_IN_PANICO, quota_stress(stress))
 

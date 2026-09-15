@@ -280,6 +280,20 @@ func riquadro_dentro(nome: String, dentro: Vector2) -> Rect2:
 
 # --- quello che ci scrive sopra ----------------------------------------------
 
+func primo_comando_utile() -> Button:
+	for voce in comandi.get_children():
+		if voce is Button and not (voce as Button).disabled:
+			return voce
+	return null
+
+func dai_il_fuoco() -> void:
+	# QUANDO IL MENU SI ACCENDE, il fuoco va sulla prima voce che si puo' usare:
+	# se non ci va, premere una freccia non fa niente e da fuori sembra che la
+	# tastiera non funzioni affatto.
+	var primo := primo_comando_utile()
+	if primo != null:
+		primo.grab_focus()
+
 func adatta_comandi() -> void:
 	# LA LISTA SI RESTRINGE QUANDO LE VOCI SONO TANTE. Le fisse sono cinque, ma
 	# Aiutante e Mediazione compaiono quando ci sono: con un corpo fisso la
@@ -303,16 +317,45 @@ func vesti_comando(voce: Control) -> void:
 		return
 	var tasto := voce as Button
 	tasto.flat = true
-	tasto.focus_mode = Control.FOCUS_NONE
+	# SI GIOCA ANCHE DA TASTIERA. Prima ogni voce aveva il fuoco spento: il menu
+	# di combattimento si poteva usare SOLO col mouse, e in uno scontro in tempo
+	# reale spostare la mano sul mouse per ogni battuta e' una tassa. Adesso le
+	# frecce scorrono le voci e INVIO sceglie - e chi il mouse non lo puo' usare
+	# bene puo' giocare.
+	tasto.focus_mode = Control.FOCUS_ALL
 	tasto.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	tasto.custom_minimum_size = Vector2(0, 0)
 	tasto.add_theme_font_size_override("font_size", corpo_comandi)
 	tasto.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	tasto.add_theme_color_override("font_hover_color", Stile.colore("accento"))
 	tasto.add_theme_color_override("font_pressed_color", Stile.colore("accento"))
-	tasto.add_theme_color_override("font_disabled_color", Stile.colore("testo_smorzato"))
-	for stato in ["normal", "hover", "pressed", "disabled", "focus"]:
+	tasto.add_theme_color_override("font_disabled_color", Stile.colore("comando_spento"))
+	# E ANCHE QUELLO DEL FUOCO. Manca questo e la voce selezionata da tastiera
+	# sparisce: Godot per un bottone che ha il fuoco usa font_focus_color, che
+	# viene dal tema generale - fatto per il fondo scuro del resto del gioco, e
+	# qui il fondo e' bianco. Si vedeva solo la barretta rossa a sinistra, e la
+	# parola ATTACCHI non c'era piu'.
+	tasto.add_theme_color_override("font_focus_color", Stile.colore("box_testo"))
+	for stato in ["normal", "hover", "pressed", "disabled"]:
 		tasto.add_theme_stylebox_override(stato, StyleBoxEmpty.new())
+	# IL FUOCO SI DEVE VEDERE, e non puo' essere solo un cambio di colore del
+	# testo: sarebbe la stessa cosa che gia' fa il passaggio del mouse. E' una
+	# barretta accesa a sinistra della voce - una forma, che si vede anche da
+	# chi i colori non li distingue.
+	# SOLO LA BARRETTA, NIENTE RIQUADRO. Il primo tentativo dipingeva anche il
+	# fondo della voce col fuoco: il riquadro finiva sopra la scritta e la voce
+	# spariva - ATTACCHI diventava un trattino rosso e basta. Qui il fondo e'
+	# trasparente e i margini sono dichiarati tutti, cosi' Godot non ci mette i
+	# suoi: resta un segno a sinistra, che e' una forma e non un colore.
+	var segno := StyleBoxFlat.new()
+	segno.bg_color = Color(0, 0, 0, 0)
+	segno.border_color = Stile.colore("accento")
+	segno.border_width_left = maxi(int(corpo_comandi * 0.22), 3)
+	segno.content_margin_left = 0.0
+	segno.content_margin_right = 0.0
+	segno.content_margin_top = 0.0
+	segno.content_margin_bottom = 0.0
+	tasto.add_theme_stylebox_override("focus", segno)
 
 func ospita_box(box: Control) -> void:
 	# il box del testo viene dalla scena e va a vivere dentro il quadrante: e'
@@ -323,6 +366,9 @@ func ospita_box(box: Control) -> void:
 		box.get_parent().remove_child(box)
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	faccia_parlato.add_child(box)
+
+func mostra_comandi() -> void:
+	mostra_faccia("comandi")
 
 func mostra_faccia(quale: String) -> void:
 	faccia_comandi.visible = quale == "comandi"

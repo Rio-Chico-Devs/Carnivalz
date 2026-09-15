@@ -77,12 +77,14 @@
 		"barra_aura": "#d6bce0",
 		"barra_dominio": "#ee3b33",
 		"fascia_nemico": "#ee3b3b",
-		"ecg_fondo": "#5a4a46",
+		"ecg_fondo": "#1e1817",
 		"bond": "#f5a623",
 		"mattanza": "#e8123c",
-		"spento": "#3a3a3a",
+		"spento": "#5e5e5e",
 		"_nota_sfondo_combattimento": "Bianco, e non e' un ripensamento: nei tre disegni di Bru la schermata di combattimento sta su una pagina BIANCA, ed e' quella che fa esistere i bordi neri spessi dei pannelli. Provata su nero, i bordi sparivano e restavano quattro rettangoli che galleggiavano nel buio. Il riquadro del nemico resta nero dentro: e' l'unico, e ci sta la creatura.",
-		"barra_vuota": "#c9c9c9"
+		"barra_vuota": "#333333",
+		"_nota_contrasto": "I colori qui sotto sono stati MISURATI, non scelti a occhio: rapporto di contrasto WCAG fra quello che si vede e quello che ci sta dietro. Tre erano sotto la soglia e riguardavano proprio le cose piu' urgenti - la linea rossa dell'ECG (1.91: quando stai per morire era la meno visibile di tutte), il pieno delle barre contro il loro vuoto (1.07: di una barra non si capiva quanto fosse piena), e i tasti MATTANZA e BOND da spenti (1.85: non si vedeva nemmeno che ci fosse un tasto). Se cambi uno di questi valori, rimisura.",
+		"comando_spento": "#8a8a8a"
 	},
 	"_nota_colori_danno": "Il colore dei numeri che volano addosso a chi incassa. Un colpo normale e' rosso; un critico e' oro e piu' grande; un attacco o uno stato con un elemento porta il colore del suo elemento, cosi' si vede a colpo d'occhio COSA ti ha fatto male e non solo quanto. Un'arma, una mossa o uno stato dichiarano il proprio elemento col campo \"elemento\".",
 	"colori_danno": {
