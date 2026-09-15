@@ -19,15 +19,18 @@ extends RefCounted
 
 var muta := false
 var scontro                    # il nodo Combattimento: il menu e' una sua vista
-var contenitore: HBoxContainer
+var contenitore: Container
+# come si veste una voce: lo decide chi ospita il menu (vedi Plancia.vesti_comando)
+var vestaglia := Callable()
 var fuoco_gia_dato := false
 
 func _init(nodo_scontro, silenzioso := false) -> void:
 	scontro = nodo_scontro
 	muta = silenzioso
 
-func collega(nodo_azioni: HBoxContainer) -> void:
+func collega(nodo_azioni: Container, come_vestirle := Callable()) -> void:
 	contenitore = nodo_azioni
+	vestaglia = come_vestirle
 
 func pulisci() -> void:
 	fuoco_gia_dato = false
@@ -49,6 +52,11 @@ func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := 
 	pulsante.custom_minimum_size = Vector2(0, 44)
 	pulsante.pressed.connect(richiamo)
 	contenitore.add_child(pulsante)
+	# NEL DISEGNO DI BRU le voci sono scritte nere sul bianco, non bottoni: chi
+	# ospita il menu decide come si vestono, perche' e' lui che sa in che
+	# pannello stanno
+	if vestaglia.is_valid():
+		vestaglia.call()
 	if not spento and not fuoco_gia_dato:
 		# il primo bottone utile prende il fuoco: si gioca anche da tastiera
 		fuoco_gia_dato = true
@@ -69,7 +77,7 @@ func principale() -> void:
 	# combattimento, abilita' avra' tutti i tuoi attacchi speciali, oggetti ti fa
 	# usare gli oggetti utilizzabili, fuggi ti fa scappare".
 	#
-	# Prima "Attacca" non c'era: il colpo normale si dava cliccando sul nemico, e
+	# Prima "ATTACCHI" non c'era: il colpo normale si dava cliccando sul nemico, e
 	# il menu conteneva solo il resto. Era una scorciatoia che andava scoperta -
 	# chi non ci provava non trovava da nessuna parte il modo di picchiare. Il
 	# click sul nemico resta come scorciatoia, ma la voce adesso c'e'.
@@ -99,22 +107,22 @@ func principale() -> void:
 		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
 		# sempre libero: guardare non e' mai un errore)
 		var richiesta := String(passo.get("azione", ""))
-		bottone("Attacca", bersagli, fermo or richiesta != "attacca", richiesta == "attacca")
-		bottone("Difendi", scegli.bind({"tipo": "difendi"}), fermo or richiesta != "difendi", richiesta == "difendi")
-		bottone("Abilità", abilita, fermo)
-		bottone("Oggetti", oggetti, fermo or richiesta != "oggetto", richiesta == "oggetto")
+		bottone("ATTACCHI", bersagli, fermo or richiesta != "attacca", richiesta == "attacca")
+		bottone("DIFESA", scegli.bind({"tipo": "difendi"}), fermo or richiesta != "difendi", richiesta == "difendi")
+		bottone("SKILL", abilita, fermo)
+		bottone("OGGETTI", oggetti, fermo or richiesta != "oggetto", richiesta == "oggetto")
 		return
 	# Rabbia e Frastornato: "attacchi soltanto, non puoi usare mosse". Le voci
 	# restano al loro posto, spente - il menu non si accorcia mai. Sparire
 	# avrebbe fatto saltare tutto quello che sta sotto proprio nel momento in
 	# cui il giocatore sta gia' subendo qualcosa che non capisce
 	var accecato := RegoleCombattimento.solo_attacchi(scontro.attaccante_corrente)
-	bottone("Attacca", bersagli, fermo)
-	bottone("Difendi", scegli.bind({"tipo": "difendi"}), fermo or accecato)
-	bottone("Abilità", abilita, fermo or accecato)
-	bottone("Oggetti", oggetti, fermo or accecato \
+	bottone("ATTACCHI", bersagli, fermo)
+	bottone("DIFESA", scegli.bind({"tipo": "difendi"}), fermo or accecato)
+	bottone("SKILL", abilita, fermo or accecato)
+	bottone("OGGETTI", oggetti, fermo or accecato \
 			or (GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty()))
-	bottone("Fuggi", scegli.bind({"tipo": "fuggi"}), fermo or not scontro.fuga_possibile())
+	bottone("FUGA", scegli.bind({"tipo": "fuggi"}), fermo or not scontro.fuga_possibile())
 	# --- le due condizionali: compaiono solo quando ci sono davvero ---
 	if not scontro.alleati_disponibili().is_empty():
 		# Bru sull'incontro dei Cunicoli: "semplicemente fa apparire nel menu
@@ -142,7 +150,7 @@ func bersagli_di_attacco(attacco: Dictionary) -> void:
 		scegli({"tipo": "attacca", "bersaglio": nemici[0], "arma": attacco})
 		return
 	pulisci()
-	var nome := String(attacco.get("nome", "Attacca"))
+	var nome := String(attacco.get("nome", "ATTACCHI"))
 	for nemico in nemici:
 		bottone("%s su %s" % [nome, nemico.nome],
 				scegli.bind({"tipo": "attacca", "bersaglio": nemico, "arma": attacco}))

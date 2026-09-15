@@ -22,7 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Margini" type="MarginContainer" parent="."]
+[node name="Plancia" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -30,70 +30,22 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 56
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 56
-theme_override_constants/margin_bottom = 28
-
-[node name="Colonna" type="VBoxContainer" parent="Margini"]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Campo" type="HBoxContainer" parent="Margini/Colonna"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 24
-
-[node name="Party" type="HBoxContainer" parent="Margini/Colonna/Campo"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Spazio" type="Control" parent="Margini/Colonna/Campo"]
-layout_mode = 2
-size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Nemici" type="HBoxContainer" parent="Margini/Colonna/Campo"]
+[node name="Box" parent="." instance=ExtResource("2_box")]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 16
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="NemiciSinistra" type="HBoxContainer" parent="Margini/Colonna/Campo/Nemici"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="NemicoCentro" type="HBoxContainer" parent="Margini/Colonna/Campo/Nemici"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 16
-
-[node name="NemiciDestra" type="HBoxContainer" parent="Margini/Colonna/Campo/Nemici"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Speranza" type="Label" parent="Margini/Colonna"]
+[node name="Speranza" type="Label" parent="."]
 unique_name_in_owner = true
 visible = false
-layout_mode = 2
+layout_mode = 0
 horizontal_alignment = 1
-
-[node name="Box" parent="Margini/Colonna" instance=ExtResource("2_box")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 0
-
-[node name="Azioni" type="HBoxContainer" parent="Margini/Colonna"]
-unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(0, 52)
-alignment = 1
-theme_override_constants/separation = 10
 
 [node name="Volanti" type="Control" parent="."]
 unique_name_in_owner = true

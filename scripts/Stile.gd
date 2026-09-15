@@ -49,6 +49,27 @@ func dimensione(nome: String) -> int:
 func forma(nome: String) -> int:
 	return int(dati.get("forme", {}).get(nome, 0))
 
+func plancia(nome: String) -> Variant:
+	# UNA MISURA DELLA SCHERMATA DI COMBATTIMENTO, come l'ha disegnata Bru.
+	#
+	# Tutte in frazioni e non in pixel: i disegni sono 1920x1080, la finestra
+	# puo' essere di qualunque misura, e il disegno deve restare quello. Le
+	# voci con quattro numeri sono rettangoli [x, y, largo, alto].
+	return dati.get("plancia", {}).get(nome, null)
+
+func riquadro(nome: String, dentro: Vector2) -> Rect2:
+	# la stessa misura, ma gia' moltiplicata per il rettangolo che la contiene
+	var r: Variant = plancia(nome)
+	if not (r is Array) or (r as Array).size() < 4:
+		return Rect2()
+	var a: Array = r
+	return Rect2(dentro.x * float(a[0]), dentro.y * float(a[1]),
+			dentro.x * float(a[2]), dentro.y * float(a[3]))
+
+func quota(nome: String) -> float:
+	var v: Variant = plancia(nome)
+	return float(v) if v != null and not (v is Array) else 0.0
+
 func tempo(nome: String) -> float:
 	return float(dati.get("tempi", {}).get(nome, 0.3))
 

@@ -26,6 +26,8 @@ var nemico_centro: HBoxContainer
 var nemici_sinistra: HBoxContainer
 var nemici_destra: HBoxContainer
 
+var plancia: PlanciaCombattimento = null
+var prossimo_slot := 0
 var centrale_occupato := false
 var prossimo_lato := "destra"
 # quante volte e' stato chiesto di ridisegnare una scheda: lo contiamo anche da
@@ -35,6 +37,9 @@ var aggiornamenti := 0
 
 func _init(silenzioso := false) -> void:
 	muta = silenzioso
+
+func collega_plancia(la_plancia: PlanciaCombattimento) -> void:
+	plancia = la_plancia
 
 func collega(party: HBoxContainer, centro: HBoxContainer, sinistra: HBoxContainer, destra: HBoxContainer) -> void:
 	fila_party = party
@@ -47,6 +52,8 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 	# combattente si porta dietro. Vuoti (null) se il campo e' muto.
 	if muta:
 		return {"scheda": null, "etichetta_vita": null, "etichetta_extra": null}
+	if plancia != null:
+		return scheda_sulla_plancia(id_personaggio, giocatore)
 	var scheda := VBoxContainer.new()
 	var ritratto := SCENA_RITRATTO.instantiate()
 	scheda.add_child(ritratto)
@@ -103,6 +110,54 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 	return {"scheda": scheda, "etichetta_vita": vita, "etichetta_extra": extra,
 			"barra_dominio": dominio, "bersaglio": (null if giocatore else scheda)}
 
+func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary:
+	# LA SCHERMATA DISEGNATA DA BRU non ha schede tutte uguali messe in fila:
+	# ha TRE SLOT per la squadra, ognuno col suo ritratto quadrato e le sue tre
+	# barre, e UN SOLO posto per il nemico - il riquadro grande a sinistra, col
+	# suo nome su fascia rossa sotto. «non ci saranno più di un nemico».
+	#
+	# I numeri della squadra spariscono dalle schede: nel disegno ci sono le
+	# barre e basta. Le etichette restano come nodi (nascosti) perche' il resto
+	# del motore ci scrive sopra - il conteggio esatto, il "KO", i dettagli
+	# dello studio - e toglierle vorrebbe dire riscrivere mezzo combattimento
+	# per una cosa che non si vede.
+	var vita := Label.new()
+	var extra := Label.new()
+	var ritratto := SCENA_RITRATTO.instantiate()
+	if giocatore:
+		var posto: SlotCompagno = plancia.slot[mini(prossimo_slot, plancia.slot.size() - 1)]
+		prossimo_slot += 1
+		posto.visible = true
+		posto.mostra_ritratto(ritratto)
+		ritratto.mostra(id_personaggio, GameState.livello_di(id_personaggio))
+		posto.add_child(vita)
+		posto.add_child(extra)
+		vita.visible = false
+		extra.visible = false
+		return {"scheda": posto, "etichetta_vita": vita, "etichetta_extra": extra,
+				"slot": posto, "barra_dominio": null, "bersaglio": null}
+	# il nemico: il disegno nel riquadro grande, il nome sulla fascia rossa
+	plancia.posto_nemico.add_child(ritratto)
+	ritratto.imposta_grande(true)
+	ritratto.mostra(id_personaggio)
+	# IL NOME DEL NEMICO STA SULLA FASCIA ROSSA, non dentro il riquadro: nel
+	# disegno di Bru quel rettangolo nero contiene la creatura e nient'altro.
+	var suo_nome := ritratto.get_node_or_null("%Nome")
+	if suo_nome != null:
+		(suo_nome as Control).visible = false
+	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
+	plancia.fascia_nome.text = String(dati.get("nome", id_personaggio)).to_upper()
+	# «HP: ???» con i punti interrogativi rossi, come nel disegno: quello che
+	# non sai e' scritto col colore di quello che ti fara' male
+	vita.add_theme_color_override("font_color", Stile.colore("box_testo"))
+	extra.add_theme_color_override("font_color", Stile.colore("box_testo"))
+	vita.set_meta("scheda_nemico", true)
+	extra.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	plancia.righe_studio.add_child(vita)
+	plancia.righe_studio.add_child(extra)
+	return {"scheda": plancia.box_nemico, "etichetta_vita": vita, "etichetta_extra": extra,
+			"slot": null, "barra_dominio": null, "bersaglio": plancia.box_nemico}
+
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
 	# sbiadito. I compagni a terra restano visibili (sono tuoi, non sono usciti)
@@ -122,6 +177,13 @@ func aggiorna(combattente: Dictionary) -> void:
 	if combattente.hp <= 0:
 		combattente.etichetta_vita.text = "KO"
 		combattente.scheda.modulate = Color(0.5, 0.4, 0.4, 0.5)
+	elif plancia != null and not combattente.giocatore:
+		# nel riquadro disegnato da Bru la riga e' "HP: ???" finche' non studi,
+		# e "HP: 120/300" quando l'hai guardata abbastanza
+		var quanto := "???" if bool(combattente.get("hp_nascosti", false)) \
+				or not conosciuta(combattente, 1) \
+				else "%d/%d" % [combattente.hp, combattente.hp_max]
+		combattente.etichetta_vita.text = "HP: %s" % quanto
 	elif combattente.get("hp_nascosti", false):
 		# i boss (e i nemici scriptati come la manifestazione) non mostrano il
 		# conteggio esatto degli hp: mantiene l'incertezza sullo scontro
@@ -131,6 +193,19 @@ func aggiorna(combattente: Dictionary) -> void:
 	else:
 		combattente.etichetta_vita.text = "♥ %d/%d" % [combattente.hp, combattente.hp_max]
 	combattente.etichetta_extra.text = dettagli_di(combattente)
+	var posto: Variant = combattente.get("slot", null)
+	if posto != null and is_instance_valid(posto):
+		var scheda_slot: SlotCompagno = posto
+		scheda_slot.imposta_barra("hp",
+				float(combattente.hp) / maxf(float(combattente.get("hp_max", 1)), 1.0))
+		scheda_slot.imposta_barra("aura",
+				float(combattente.get("aura", 0)) / maxf(float(combattente.get("aura_max", 1)), 1.0))
+		scheda_slot.imposta_barra("dominio",
+				float(combattente.get("dominio", 0)) / maxf(float(RegoleCombattimento.dominio_pieno()), 1.0))
+		var addosso: Array[String] = []
+		for id_stato in combattente.get("stati_attivi", {}):
+			addosso.append(String(id_stato))
+		scheda_slot.imposta_status(addosso)
 	if combattente.get("barra_dominio", null) != null:
 		# la barra e' il DOMINIO, non il Fattore: leggendo il fattore partiva
 		# gia' piena di un pezzo (base 15) a scontro appena cominciato

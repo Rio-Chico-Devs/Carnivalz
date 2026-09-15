@@ -45,6 +45,8 @@ const SPESSORE_VELO := 0.28
 var muta := false
 var velo: Control
 var pericolo := 0.0
+# quanto pericolo sta DAVVERO a schermo adesso: -1 vuol dire "mai disegnato"
+var pericolo_disegnato := -1.0
 
 func _init(silenziosa := false) -> void:
 	muta = silenziosa
@@ -119,7 +121,10 @@ func collega(sfondo: ColorRect, sopra: Control) -> void:
 	sopra.move_child(velo, sfondo.get_index() + 1)
 
 func disegna_velo() -> void:
-	if velo == null or not is_instance_valid(velo) or pericolo <= 0.0:
+	if velo == null or not is_instance_valid(velo):
+		return
+	pericolo_disegnato = pericolo
+	if pericolo <= 0.0:
 		return
 	var larghezza := velo.size.x
 	var altezza := velo.size.y
@@ -154,7 +159,17 @@ func imposta_pericolo(quota: float) -> void:
 	if muta or velo == null or not is_instance_valid(velo):
 		return
 	var nuova := clampf(quota, 0.0, 1.0)
-	if is_equal_approx(nuova, pericolo):
-		return
 	pericolo = nuova
+	# SI CONFRONTA CON QUELLO CHE E' A SCHERMO, non con la variabile.
+	#
+	# Prima il confronto era "e' cambiato il numero?": e quando il numero
+	# cambiava senza che il disegno lo seguisse - una richiesta di ridisegno
+	# caduta mentre il nodo non era ancora in scena - il velo restava acceso per
+	# sempre. Si vedeva: una squadra tornata a vita piena con i bordi dello
+	# schermo ancora rossi, e nessun modo di farli passare.
+	#
+	# L'invariante giusta non e' "il numero e' cambiato", e' "lo schermo mostra
+	# un numero diverso da quello vero".
+	if is_equal_approx(nuova, pericolo_disegnato):
+		return
 	velo.queue_redraw()

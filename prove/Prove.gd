@@ -115,6 +115,7 @@ func _ready() -> void:
 	prova_mappa_a_quadratini()
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
+	await prova_velo_di_pericolo()
 	prova_ecg()
 	prova_collisioni()
 	prova_tutorial_di_veronica()
@@ -1630,9 +1631,14 @@ func prova_barra_di_dominio_sta_nel_combattimento() -> void:
 		if combattente.giocatore:
 			if eroe.is_empty():
 				eroe = combattente
-			if combattente.get("barra_dominio", null) != null:
+			# LA BARRA DI DOMINIO ADESSO E' LA TERZA DELLO SLOT DISEGNATO da Bru,
+			# quella col ricciolo rosso al posto del nome. Prima era una barra a
+			# se' appiccicata sotto la scheda: la schermata nuova non ha schede,
+			# ha tre slot con tre barre ciascuno.
+			var suo: Variant = combattente.get("slot", null)
+			if suo != null and is_instance_valid(suo) and (suo as SlotCompagno).barre.has("dominio"):
 				trovata = true
-	esigi(trovata, "in combattimento la scheda del party non ha la barra di dominio")
+	esigi(trovata, "nello slot del party non c'e' la barra di dominio")
 
 	# 3. E RIPARTE DA ZERO. Si carica combattendo, e il combattimento dopo
 	#    ricomincia da capo: non e' una risorsa che ci si porta per la mappa
@@ -2336,12 +2342,17 @@ func prova_scontro_vero_si_gioca() -> void:
 	#    vuota a inizio scontro" - leggeva il Fattore (base 15) invece del dominio
 	esigi(int(eroe.get("dominio", -1)) == 0,
 			"lo scontro comincia con %d di dominio in cassa" % int(eroe.get("dominio", -1)))
-	var barra = eroe.get("barra_dominio", null)
-	esigi(barra != null, "la scheda del protagonista non ha la barra")
+	var suo_slot: Variant = eroe.get("slot", null)
+	esigi(suo_slot != null and is_instance_valid(suo_slot),
+			"il protagonista non ha uno slot sulla plancia")
+	var barra = null
+	if suo_slot != null and is_instance_valid(suo_slot):
+		barra = (suo_slot as SlotCompagno).barre.get("dominio", null)
+	esigi(barra != null, "lo slot del protagonista non ha la barra di dominio")
 	if barra != null:
-		esigi(is_zero_approx(float(barra.get_meta("quota", -1.0))),
+		esigi(is_zero_approx((suo_slot as SlotCompagno).quanto("dominio")),
 				"a inizio scontro la barra e' gia' piena per un %d%%"
-				% int(float(barra.get_meta("quota", 0.0)) * 100))
+				% int((suo_slot as SlotCompagno).quanto("dominio") * 100))
 
 	# 1. SUL NEMICO SI CLICCA, e il click e' un colpo. Il bersaglio dev'essere
 	#    un Control che sente il mouse: la prima versione ci metteva un Button
@@ -4923,7 +4934,11 @@ func prova_menu_cinque_voci_fisse() -> void:
 	var etichette: Array[String] = []
 	for figlio in contenitore.get_children():
 		etichette.append(String(figlio.text))
-	for voce in ["Attacca", "Difendi", "Abilità", "Oggetti", "Fuggi"]:
+	# I NOMI SONO QUELLI DEL DISEGNO. Bru ha scritto ATTACCHI DIFESA SKILL
+	# OGGETTI FUGA sulla schermata, e sulla schermata vincono le sue parole:
+	# prima dicevano "Attacca, Difendi, Abilità, Oggetti, Fuggi", che sono le
+	# stesse cose chiamate in un altro modo.
+	for voce in ["ATTACCHI", "DIFESA", "SKILL", "OGGETTI", "FUGA"]:
 		esigi(voce in etichette, "manca la voce '%s' dal menu: c'e' %s" % [voce, etichette])
 	# contro un goblin, che non media e non porta aiutanti, le condizionali
 	# non devono esserci: se comparissero sempre non sarebbero condizionali
@@ -4932,7 +4947,7 @@ func prova_menu_cinque_voci_fisse() -> void:
 	esigi(not ("Aiutante" in etichette),
 			"Aiutante compare senza nessun aiutante: %s" % [etichette])
 	# e le cinque fisse stanno PRIMA delle condizionali, nell'ordine detto
-	esigi(etichette.slice(0, 5) == ["Attacca", "Difendi", "Abilità", "Oggetti", "Fuggi"],
+	esigi(etichette.slice(0, 5) == ["ATTACCHI", "DIFESA", "SKILL", "OGGETTI", "FUGA"],
 			"le cinque voci fisse non sono in testa nell'ordine giusto: %s" % [etichette])
 	contenitore.free()
 	scontro.free()
@@ -6591,3 +6606,39 @@ func prova_ecg() -> void:
 	esigi(zeri_teso < zeri_calmo / 10,
 			"a stress pieno il tracciato ha ancora %d campioni perfettamente piatti (calmo: %d): "
 			% [zeri_teso, zeri_calmo] + "la linea di base non trema, e' solo piu' fitta")
+
+
+func prova_velo_di_pericolo() -> void:
+	# IL VELO ROSSO SI DEVE POTER SPEGNERE.
+	#
+	# I bordi dello schermo si arrossano quando la squadra sta messa male. Se
+	# quando la squadra guarisce nessuno lo ridisegna, il rosso resta li' per
+	# sempre - e il giocatore vede il segnale di "stai per morire" addosso a una
+	# squadra a vita piena. Si e' visto fotografando la schermata nuova: tutto
+	# nero come nel disegno di Bru, e i quattro bordi accesi.
+	titolo("il velo del pericolo si spegne quando il pericolo passa")
+	var arena := ArenaCombattimento.new(false)
+	var sfondo := ColorRect.new()
+	var sopra := Control.new()
+	sopra.size = Vector2(320, 180)
+	add_child(sopra)
+	sopra.add_child(sfondo)
+	arena.collega(sfondo, sopra)
+	esigi(arena.velo != null, "l'arena non ha creato il velo")
+	# SI ASPETTA IL FOTOGRAMMA, non si chiama il disegno a mano: in Godot si puo'
+	# disegnare solo dentro un passaggio di disegno, e chiamarlo da fuori non
+	# fallisce - stampa un errore e non disegna niente. Una prova che lo facesse
+	# misurerebbe una cosa che a schermo non e' mai successa.
+	arena.imposta_pericolo(0.9)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(is_equal_approx(arena.pericolo_disegnato, 0.9),
+			"a schermo c'e' un pericolo di %.2f invece di 0.90" % arena.pericolo_disegnato)
+	# e adesso la squadra guarisce
+	arena.imposta_pericolo(0.0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(is_zero_approx(arena.pericolo_disegnato),
+			"la squadra e' guarita ma a schermo resta un pericolo di %.2f: i bordi restano rossi"
+			% arena.pericolo_disegnato)
+	sopra.free()

@@ -42,14 +42,9 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 @onready var sfondo: ColorRect = %Sfondo
 # il corpo della schermata: tutto tranne lo sfondo e i numeri che volano. E'
 # quello che sbanda quando arriva un colpo grosso (vedi Impatto.gd)
-@onready var corpo: MarginContainer = %Margini
-@onready var fila_party: HBoxContainer = %Party
-@onready var nemico_centro: HBoxContainer = %NemicoCentro
-@onready var nemici_sinistra: HBoxContainer = %NemiciSinistra
-@onready var nemici_destra: HBoxContainer = %NemiciDestra
+@onready var corpo: Control = %Plancia
 @onready var etichetta_speranza: Label = %Speranza
 @onready var box = %Box
-@onready var azioni: HBoxContainer = %Azioni
 @onready var volanti: Control = %Volanti
 @onready var area_avanza: Button = %AreaAvanza
 @onready var quadrante: Control = %Quadrante
@@ -61,6 +56,7 @@ var menu: MenuCombattimento
 var impatto: ImpattoCombattimento
 var arena: ArenaCombattimento
 var minigioco: MinigiocoCombattimento
+var plancia: PlanciaCombattimento
 
 # Muto: nessuno guarda: niente box, niente schede, niente attese. Va impostato
 # PRIMA che la scena entri nell'albero (vedi Simulatore.gd).
@@ -196,10 +192,17 @@ func _ready() -> void:
 	minigioco.dado = GameState.rng
 	minigioco.finito.connect(_minigioco_finito)
 	if not muto:
+		# LA PLANCIA PRIMA DI TUTTO: e' lei che crea i pannelli, i tre slot e il
+		# quadrante, e tutti gli altri ci scrivono dentro. Finche' non esiste non
+		# c'e' nessun posto dove mettere niente.
+		plancia = PlanciaCombattimento.new()
+		plancia.costruisci(corpo)
+		plancia.ospita_box(box)
+		plancia.mostra_faccia("parlato")
 		minigioco.collega(quadrante, box)
 		voce.collega(box, area_avanza, volanti)
-		campo.collega(fila_party, nemico_centro, nemici_sinistra, nemici_destra)
-		menu.collega(azioni)
+		campo.collega_plancia(plancia)
+		menu.collega(plancia.comandi, plancia.adatta_comandi)
 		# sbanda il corpo della schermata, non lo sfondo: altrimenti a ogni
 		# scossa si vedrebbero i bordi neri dello schermo
 		impatto.collega(corpo)
@@ -272,8 +275,13 @@ func applica_stile() -> void:
 	# un gioco che non ha ancora un solo disegno, quel rettangolo e' tutto lo
 	# sfondo che esiste, e sprecarlo e' buttare via l'unico spazio disponibile.
 	# Poca tinta: e' una temperatura, non un cambio di scena
-	sfondo.color = ArenaCombattimento.tinta_di_scontro(
-			Stile.colore("sfondo_combattimento"), tipo_dello_scontro())
+	# IL FONDO E' NERO, E BASTA. Bru l'ha disegnato nero tre volte su tre, e il
+	# nero e' quello che fa staccare i pannelli bianchi e il riquadro della
+	# creatura. La tinta per tipo che c'era prima - una traccia di colore sul
+	# fondo - addosso a questa schermata diventava una patina rossa su tutto:
+	# resta nel codice dell'arena, che la usa per i lampi, ma non colora piu' la
+	# stanza.
+	sfondo.color = Stile.colore("sfondo_combattimento")
 	etichetta_speranza.add_theme_color_override("font_color", Stile.colore("accento"))
 	etichetta_speranza.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
 	# il box e' lo stesso componente della schermata eventi: non c'e' niente da
@@ -484,6 +492,8 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		"etichetta_vita": nodi["etichetta_vita"],
 		"etichetta_extra": nodi["etichetta_extra"],
 		"barra_dominio": nodi.get("barra_dominio", null),
+		# lo slot disegnato da Bru: ritratto, tre barre e i riquadri degli status
+		"slot": nodi.get("slot", null),
 		"bersaglio_cliccabile": nodi.get("bersaglio", null),
 		# l'allarme della vita bassa: acceso o spento, e il battito da fermare
 		# quando si spegne (vedi Campo.allarme_vita)

@@ -13,18 +13,102 @@ combattimento, con le sue parole, **prima** di scrivere una riga di codice.
 
 ---
 
-## Stato: la disposizione manca ancora
+## La disposizione
 
-Quello che segue è il **comportamento**, ed è completo: viene dalle parole di
-Bru e si può costruire e provare così com'è.
+> ✅ **fatta** — `scripts/combattimento/Plancia.gd` costruisce tutto da queste misure
 
-Quello che **non** è scritto qui è dove stanno le cose nel rettangolo: quanto è
-grande il box del nemico, se i compagni stanno in fila sotto o di lato, dove
-cadono le barre rispetto al ritratto. Quello sta nel disegno, e il disegno va
-riguardato.
+Misurata sui tre disegni di Bru, che sono 1920×1080. **Tutto è in frazioni** di
+larghezza e altezza, non in pixel: la finestra può essere di qualunque misura e
+il disegno deve restare quello.
 
-> Da fare: rimettere il disegno del combattimento davanti, e riempire la
-> sezione **Disposizione** qui sotto prima di toccare `scenes/Combattimento.tscn`.
+I numeri stanno in `data/stile.json` sotto `combattimento`, non nel codice.
+
+```
+┌─────────────────┐  ┌───────┐ ┌───────┐ ┌───────┐
+│                 │  │ slot1 │ │ slot2 │ │ slot3 │
+│   BOX NEMICO    │  └───────┘ └───────┘ └───────┘
+│  (il disegno)   │   HP ▬▬▬    HP ▬▬▬    HP ▬▬▬
+│                 │   AURA ▬▬   AURA ▬▬   AURA ▬▬
+│                 │   ﹇ ▬▬▬     ﹇ ▬▬▬     ﹇ ▬▬▬
+│                 │      ▪          ▪          ▪    ← status
+└─────────────────┘  ┌────────────────────────────┐
+┌─────────────────┐  │ ┌──────────┐  ATTACCHI     │
+│ NOME SU ROSSO   │  │ │   ECG    │  DIFESA       │
+│ HP: ???         │  │ └──────────┘  SKILL        │
+└─────────────────┘  │ Morale  Stress OGGETTI     │
+                     │ [MATTANZA][BOND] FUGA      │
+                     └────────────────────────────┘
+```
+
+| | x | y | largh. | alt. |
+|---|--:|--:|--:|--:|
+| box nemico | 0.021 | 0.023 | 0.372 | 0.695 |
+| scheda nemico | 0.021 | 0.745 | 0.363 | 0.218 |
+| — la sua fascia rossa | | | | 0.30 della scheda |
+| slot compagni (fila) | 0.407 | 0.023 | 0.585 | 0.347 |
+| — un ritratto | | | 0.191 | |
+| — lo stacco fra due | | | 0.005 | |
+| barre | | 0.384 | | 0.079 |
+| status | | 0.489 | 0.083 | 0.083 |
+| quadrante | 0.409 | 0.606 | 0.573 | 0.357 |
+
+E dentro il quadrante, in frazioni **del quadrante**:
+
+| | x | y | largh. | alt. |
+|---|--:|--:|--:|--:|
+| ECG | 0.032 | 0.065 | 0.522 | 0.338 |
+| Morale / Stress | 0.036 | 0.470 | | |
+| MATTANZA | 0.032 | 0.610 | 0.236 | 0.234 |
+| BOND | 0.305 | 0.610 | 0.250 | 0.234 |
+| lista comandi | 0.582 | 0.100 | | |
+
+### Il linguaggio visivo
+
+È lo stesso della schermata di dialogo: **fondo nero**, pannelli col **bordo
+nero spesso** e l'interno **bianco**. Il colore acceso solo dove conta.
+
+| | |
+|---|---|
+| barra HP | arancio ambra |
+| barra AURA | lilla chiaro |
+| barra dominio | rosso, e la sua etichetta è un **ricciolo** rosso, non una parola |
+| fascia col nome del nemico | rossa, scritta bianca in maiuscoletto |
+| gli `???` dell'HP sconosciuto | rossi |
+| ECG | pannello scuro (grigio-bruno), linea del colore della vita |
+| MATTANZA | tassello nero, scritta rossa sgranata |
+| BOND | tassello nero, scritta arancio |
+| status | tassello nero quadrato, simbolo colorato |
+
+### Due cose decise leggendo il disegno
+
+**Lo sfondo è bianco.** Nei tre disegni la schermata sta su una pagina bianca, e
+non è un dettaglio del mockup: è quella pagina che fa *esistere* i bordi neri
+spessi dei pannelli. Provata su nero — che è il fondo della schermata di
+dialogo — i bordi sparivano e restavano quattro rettangoli che galleggiavano nel
+buio. Il riquadro del nemico resta nero dentro: è l'unico, e ci sta la creatura.
+
+Se il fondo deve essere nero è un valore solo in `data/stile.json`
+(`sfondo_combattimento`), ma allora i bordi vanno ripensati.
+
+### Una cosa che il disegno dice diversamente
+
+Nel disegno la seconda barra è etichettata **HYPE**. La decisione successiva di
+Bru la sposta: «hp è hp, la seconda sarà **aura** non hype, la terza sarà la
+barra dominio, e l'hype è l'xp come prima [...] e così è deciso definitivamente».
+
+Il disegno è più vecchio di quella frase, quindi vale la frase: sullo schermo
+c'è scritto **AURA**. Se invece deve restare HYPE, è una parola in
+`data/stile.json` e si cambia in un secondo.
+
+### Le tre facce del quadrante
+
+I tre disegni mostrano lo stesso rettangolo che fa tre cose diverse:
+
+1. **comandi** — ECG, Morale/Stress, MATTANZA e BOND, e la lista verticale
+   ATTACCHI · DIFESA · SKILL · OGGETTI · FUGA
+2. **lista** — le voci di un comando che ne ha una (gli attacchi, le skill, gli
+   oggetti), disposte su più colonne
+3. **parlato e minigiochi** — la narrazione, i dialoghi, e i minigiochi
 
 ---
 

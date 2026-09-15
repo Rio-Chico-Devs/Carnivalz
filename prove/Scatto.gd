@@ -77,6 +77,27 @@ func prepara(quale: String) -> void:
 			await attendi(quando)
 			if scontro.minigioco.pugni.is_empty():
 				push_error("nessun pugno a schermo: non c'e' niente da fotografare")
+		"plancia":
+			# LA SCHERMATA DI COMBATTIMENTO INTERA, come l'ha disegnata Bru.
+			# Non c'e' altro modo di controllare che sia quella: le prove sanno
+			# dire che i pezzi ci sono, non che il disegno e' quello.
+			GameState.nuova_partita()
+			GameState.party = ["anonimo", "veronica", "insonne"]
+			GameState.nemici_combattimento = ["marionetta"]
+			var scena: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(scena)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			# la faccia dei comandi: e' quella del terzo disegno di Bru
+			for c in scena.combattenti:
+				c.hp = c.hp_max   # a riposo: il disegno di Bru e' una squadra intera
+				scena.campo.aggiorna(c)
+			scena.arena.imposta_pericolo(0.0)
+			scena.plancia.mostra_faccia("comandi")
+			scena.plancia.aggiorna_condizione(0.62, 70, 68)
+			scena.plancia.accendi(scena.plancia.tasto_mattanza, true)
+			scena.plancia.accendi(scena.plancia.tasto_bond, true)
+			scena.menu.principale()
+			await attendi(60)
 		"ecg":
 			# I QUATTRO STATI DELLA LINEA, uno sotto l'altro. Il colore dice la
 			# vita, il movimento dice lo stress: sono due informazioni diverse
