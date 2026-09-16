@@ -375,62 +375,72 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Main.004`** · notifiche_salite_di_livello
-> [b]Livello %d.[/b]
+**`UI.Main.004`** · notifiche_messaggi
+> %s: nuovo messaggio — %s
 >
 > →
 
-**`UI.Main.005`** · notifiche_salite_di_livello
-> Nessuna statistica è cresciuta: crescono con quello che fai, e in quest'ultimo tratto non hai fatto abbastanza di niente.
+**`UI.Main.005`** · notifiche_messaggi
+> %s: %d nuovi messaggi.
 >
 > →
 
 **`UI.Main.006`** · notifiche_salite_di_livello
+> [b]Livello %d.[/b]
+>
+> →
+
+**`UI.Main.007`** · notifiche_salite_di_livello
+> Nessuna statistica è cresciuta: crescono con quello che fai, e in quest'ultimo tratto non hai fatto abbastanza di niente.
+>
+> →
+
+**`UI.Main.008`** · notifiche_salite_di_livello
 > Hai %d %s da spendere sulle abilità.
 >
 > →
 
-**`UI.Main.007`** · quando sblocchi una passiva
+**`UI.Main.009`** · quando sblocchi una passiva
 > Nuova abilità passiva: %s
 >
 > →
 
-**`UI.Main.008`** · quando raccogli un oggetto
+**`UI.Main.010`** · quando raccogli un oggetto
 > %s: la sacca è piena, non c'è posto per lui.
 >
 > →
 
-**`UI.Main.009`** · quando raccogli un oggetto
+**`UI.Main.011`** · quando raccogli un oggetto
 > Hai raccolto: %s (%s).
 >
 > →
 
-**`UI.Main.010`** · _su_scelta
+**`UI.Main.012`** · _su_scelta
 > Hai ottenuto %d Tazo.
 >
 > →
 
-**`UI.Main.011`** · menu «Parla con la squadra»
+**`UI.Main.013`** · menu «Parla con la squadra»
 > %s e %s stanno parlando...
 >
 > →
 
-**`UI.Main.012`** · quando intervieni in una discussione
+**`UI.Main.014`** · quando intervieni in una discussione
 > Puoi intervenire.
 >
 > →
 
-**`UI.Main.013`** · quando parli con un compagno
+**`UI.Main.015`** · quando parli con un compagno
 > %s non ha altro da dirti, qui.
 >
 > →
 
-**`UI.Main.014`** · barra di stato in alto
+**`UI.Main.016`** · barra di stato in alto
 > solo tu
 >
 > →
 
-**`UI.Main.015`** · barra di stato in alto
+**`UI.Main.017`** · barra di stato in alto
 > Lv %d   ·   Tazo %d   ·   Sacca %d/%d   ·   Legame %d
 >
 > →
@@ -705,152 +715,167 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.054`** · colpo d'area
+**`UI.Combattimento.054`** · aggiorna_orda
+> [i]L'orda si indebolisce.[/i]
+>
+> →
+
+**`UI.Combattimento.055`** · marea
+> L'orda si muove tutta insieme.
+>
+> →
+
+**`UI.Combattimento.056`** · marea
+> [i]Ti passano accanto tutti quanti, e nessuno ti prende.[/i]
+>
+> →
+
+**`UI.Combattimento.057`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.055`** · consuma_carica
+**`UI.Combattimento.058`** · consuma_carica
 > [b]%s scarica tutto quello che ha accumulato.[/b]
 >
 > →
 
-**`UI.Combattimento.056`** · quando si prova a fuggire
+**`UI.Combattimento.059`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.057`** · verifica_rabbia_su_morte
+**`UI.Combattimento.060`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.058`** · verifica_cura_su_morte
+**`UI.Combattimento.061`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.059`** · risolvi_rigenerazione
+**`UI.Combattimento.062`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.060`** · risolvi_rigenerazione
+**`UI.Combattimento.063`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.061`** · apri_la_guardia
+**`UI.Combattimento.064`** · apri_la_guardia
 > [i]La guardia di %s si apre.[/i]
 >
 > →
 
-**`UI.Combattimento.062`** · apri_la_guardia
+**`UI.Combattimento.065`** · apri_la_guardia
 > Difesa −%d, ora %d.
 >
 > →
 
-**`UI.Combattimento.063`** · avanza_trasformazione
+**`UI.Combattimento.066`** · avanza_trasformazione
 > Non è più quello di prima.
 >
 > →
 
-**`UI.Combattimento.064`** · spegni_tormento_di
+**`UI.Combattimento.067`** · spegni_tormento_di
 > [i]Il vento si ferma.[/i]
 >
 > →
 
-**`UI.Combattimento.065`** · esegui_mossa
+**`UI.Combattimento.068`** · esegui_mossa
 > [i]%s se ne nutre: +%d.[/i]
 >
 > →
 
-**`UI.Combattimento.066`** · esegui_mossa
+**`UI.Combattimento.069`** · esegui_mossa
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.067`** · esegui_mossa
+**`UI.Combattimento.070`** · esegui_mossa
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.068`** · cedimento
+**`UI.Combattimento.071`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.069`** · applica_stato
+**`UI.Combattimento.072`** · applica_stato
 > [i]%s (%d/%d)[/i]
 >
 > →
 
-**`UI.Combattimento.070`** · quando si attacca
+**`UI.Combattimento.073`** · quando si attacca
 > [i]Il colpo su %s si ferma a un dito dalla pelle.[/i]
 >
 > →
 
-**`UI.Combattimento.071`** · quando si attacca
+**`UI.Combattimento.074`** · quando si attacca
 > Il dominio di %s arde!
 >
 > →
 
-**`UI.Combattimento.072`** · quando si attacca
+**`UI.Combattimento.075`** · quando si attacca
 > [i]È il colpo giusto: %s lo incassa male.[/i]
 >
 > →
 
-**`UI.Combattimento.073`** · quando si attacca
+**`UI.Combattimento.076`** · quando si attacca
 > [i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]
 >
 > →
 
-**`UI.Combattimento.074`** · quando si attacca
+**`UI.Combattimento.077`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.075`** · quando si attacca
+**`UI.Combattimento.078`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.076`** · rimetti_in_piedi
+**`UI.Combattimento.079`** · rimetti_in_piedi
 > [i]%s non ha più niente da darsi.[/i]
 >
 > →
 
-**`UI.Combattimento.077`** · _racconta_ko
+**`UI.Combattimento.080`** · _racconta_ko
 > [i]%s si rimette in piedi.[/i]
 >
 > →
 
-**`UI.Combattimento.078`** · verifica_fine_scontro
+**`UI.Combattimento.081`** · verifica_fine_scontro
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.079`** · verifica_fine_scontro
+**`UI.Combattimento.082`** · verifica_fine_scontro
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.080`** · verifica_fine_scontro
+**`UI.Combattimento.083`** · verifica_fine_scontro
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.081`** · reagisci
+**`UI.Combattimento.084`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.082`** · reagisci
+**`UI.Combattimento.085`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.083`** · reagisci
+**`UI.Combattimento.086`** · reagisci
 > %s si concentra: la barra di dominio sale.
 >
 > →
@@ -990,242 +1015,262 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Pausa.015`** · mostra_inventario
+**`UI.Pausa.015`** · Diario
+> %s  (%d)
+>
+> →
+
+**`UI.Pausa.016`** · mostra_inventario
 > %s  (%s)
 >
 > →
 
-**`UI.Pausa.016`** · capienza_testo
+**`UI.Pausa.017`** · capienza_testo
 > %d / %d
 >
 > →
 
-**`UI.Pausa.017`** · disegna_scomparto
+**`UI.Pausa.018`** · disegna_scomparto
 > Questo scomparto è vuoto.
 >
 > →
 
-**`UI.Pausa.018`** · riga_oggetto
+**`UI.Pausa.019`** · riga_oggetto
 > ×%d
 >
 > →
 
-**`UI.Pausa.019`** · riga_oggetto
+**`UI.Pausa.020`** · riga_oggetto
 > in uso — %s
 >
 > →
 
-**`UI.Pausa.020`** · riga_oggetto
+**`UI.Pausa.021`** · riga_oggetto
 > %s  —  %s
 >
 > →
 
-**`UI.Pausa.021`** · Diario › Appunti
+**`UI.Pausa.022`** · sezione_messaggi
+> Messaggi
+>
+> →
+
+**`UI.Pausa.023`** · sezione_messaggi
+> Nessun messaggio.
+>
+> →
+
+**`UI.Pausa.024`** · sezione_messaggi
+> %s%s — %s
+>
+> →
+
+**`UI.Pausa.025`** · Diario › Appunti
 > Appunti
 >
 > →
 
-**`UI.Pausa.022`** · Diario › Appunti
+**`UI.Pausa.026`** · Diario › Appunti
 > Niente da segnare, per ora.
 >
 > →
 
-**`UI.Pausa.023`** · Diario › Appunti
+**`UI.Pausa.027`** · Diario › Appunti
 > Già risolti
 >
 > →
 
-**`UI.Pausa.024`** · Diario › riga di un appunto
+**`UI.Pausa.028`** · Diario › riga di un appunto
 > chiesto da
 >
 > →
 
-**`UI.Pausa.025`** · etichetta_bonus
+**`UI.Pausa.029`** · etichetta_bonus
 > velocità
 >
 > →
 
-**`UI.Pausa.026`** · etichetta_bonus
+**`UI.Pausa.030`** · etichetta_bonus
 > vita massima
 >
 > →
 
-**`UI.Pausa.027`** · etichetta_bonus
+**`UI.Pausa.031`** · etichetta_bonus
 > aura massima
 >
 > →
 
-**`UI.Pausa.028`** · etichetta_bonus
+**`UI.Pausa.032`** · etichetta_bonus
 > aura per turno
 >
 > →
 
-**`UI.Pausa.029`** · etichetta_bonus
+**`UI.Pausa.033`** · etichetta_bonus
 > rintocchi di maledizione
 >
 > →
 
-**`UI.Pausa.030`** · riassunto_effetto
+**`UI.Pausa.034`** · riassunto_effetto
 > nessun effetto
 >
 > →
 
-**`UI.Pausa.031`** · Diario › Stato
+**`UI.Pausa.035`** · Diario › Stato
 > Stato
 >
 > →
 
-**`UI.Pausa.032`** · Diario › Stato
+**`UI.Pausa.036`** · Diario › Stato
 > Livello
 >
 > →
 
-**`UI.Pausa.033`** · Diario › Stato
+**`UI.Pausa.037`** · Diario › Stato
 > %d  (%d / %d esperienza)
 >
 > →
 
-**`UI.Pausa.034`** · Diario › Cosa ti sta cambiando
+**`UI.Pausa.038`** · Diario › Cosa ti sta cambiando
 > Cosa ti sta cambiando
 >
 > →
 
-**`UI.Pausa.035`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.039`** · Diario › nomi delle azioni tracciate
 > Colpi che hai sferrato
 >
 > →
 
-**`UI.Pausa.036`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.040`** · Diario › nomi delle azioni tracciate
 > Danni che hai incassato
 >
 > →
 
-**`UI.Pausa.037`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.041`** · Diario › nomi delle azioni tracciate
 > Volte che hai tenuto la guardia
 >
 > →
 
-**`UI.Pausa.038`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.042`** · Diario › nomi delle azioni tracciate
 > Creature che hai studiato
 >
 > →
 
-**`UI.Pausa.039`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.043`** · Diario › nomi delle azioni tracciate
 > Volte che sei scappato
 >
 > →
 
-**`UI.Pausa.040`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.044`** · Diario › nomi delle azioni tracciate
 > Oggetti che hai usato
 >
 > →
 
-**`UI.Pausa.041`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.045`** · Diario › nomi delle azioni tracciate
 > Stanze che hai esplorato
 >
 > →
 
-**`UI.Pausa.042`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.046`** · Diario › nomi delle azioni tracciate
 > Stress che hai retto
 >
 > →
 
-**`UI.Pausa.043`** · Diario › nomi delle azioni tracciate
+**`UI.Pausa.047`** · Diario › nomi delle azioni tracciate
 > Colpi critici che hai messo a segno
 >
 > →
 
-**`UI.Pausa.044`** · Diario › Abilità passive
+**`UI.Pausa.048`** · Diario › Abilità passive
 > Abilità passive
 >
 > →
 
-**`UI.Pausa.045`** · Diario › Abilità passive
+**`UI.Pausa.049`** · Diario › Abilità passive
 > Nessuna, per ora.
 >
 > →
 
-**`UI.Pausa.046`** · Diario › Squadra
+**`UI.Pausa.050`** · Diario › Squadra
 > Squadra
 >
 > →
 
-**`UI.Pausa.047`** · Diario › Squadra
+**`UI.Pausa.051`** · Diario › Squadra
 > Legame
 >
 > →
 
-**`UI.Pausa.048`** · Diario › Squadra
+**`UI.Pausa.052`** · Diario › Squadra
 > %d / 100
 >
 > →
 
-**`UI.Pausa.049`** · Diario › Squadra
+**`UI.Pausa.053`** · Diario › Squadra
 > Lv %d   ·   stress %d
 >
 > →
 
-**`UI.Pausa.050`** · Diario › Osservazioni
+**`UI.Pausa.054`** · Diario › Osservazioni
 > Osservazioni
 >
 > →
 
-**`UI.Pausa.051`** · Diario › Osservazioni
+**`UI.Pausa.055`** · Diario › Osservazioni
 > Creature studiate
 >
 > →
 
-**`UI.Pausa.052`** · Diario › Osservazioni
+**`UI.Pausa.056`** · Diario › Osservazioni
 > Creature incontrate
 >
 > →
 
-**`UI.Pausa.053`** · Diario › Osservazioni
+**`UI.Pausa.057`** · Diario › Osservazioni
 > Oggetti catalogati
 >
 > →
 
-**`UI.Pausa.054`** · Diario › Osservazioni
+**`UI.Pausa.058`** · Diario › Osservazioni
 > Resistenza —
 >
 > →
 
-**`UI.Pausa.055`** · Diario › Organizzazione
+**`UI.Pausa.059`** · Diario › Organizzazione
 > Organizzazione
 >
 > →
 
-**`UI.Pausa.056`** · Diario › Organizzazione
+**`UI.Pausa.060`** · Diario › Organizzazione
 > Fonti estinte
 >
 > →
 
-**`UI.Pausa.057`** · Diario › Organizzazione
+**`UI.Pausa.061`** · Diario › Organizzazione
 > Valutazione
 >
 > →
 
-**`UI.Pausa.058`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.062`** · Diario › giudizio dell'Organizzazione
 > In osservazione.
 >
 > →
 
-**`UI.Pausa.059`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.063`** · Diario › giudizio dell'Organizzazione
 > Prestazione conforme alle attese.
 >
 > →
 
-**`UI.Pausa.060`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.064`** · Diario › giudizio dell'Organizzazione
 > Rendimento soddisfacente.
 >
 > →
 
-**`UI.Pausa.061`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.065`** · Diario › giudizio dell'Organizzazione
 > Elemento affidabile.
 >
 > →
 
-**`UI.Pausa.062`** · Diario › giudizio dell'Organizzazione
+**`UI.Pausa.066`** · Diario › giudizio dell'Organizzazione
 > Elemento di valore. Aspettative in aumento.
 >
 > →
@@ -1479,64 +1524,6 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-### Introduzione › `monologo`
-
-**`INT.monologo.1`** · battuta di Anonimo
-> ... ...
->
-> →
-
-**`INT.monologo.2`** · battuta di Anonimo
-> Coordinate confermate, obiettivo localizzato, perimetro di azione calcolato...
->
-> →
-
-**`INT.monologo.3`** · battuta di Anonimo
-> ...
->
-> →
-
-**`INT.monologo.4`** · battuta di Anonimo
-> Computer... proiettami il più possibile vicino alla fonte.
->
-> →
-
-**`INT.monologo.5`** · battuta di Computer
-> Autorizzazione confermata. Buona fortuna unità UJ-111
->
-> →
-
-**`INT.monologo.6`** · battuta di Computer
-> lancio in...
->
-> →
-
-**`INT.monologo.7`** · battuta di Computer
-> 3...
->
-> →
-
-**`INT.monologo.8`** · battuta di Computer
-> 2...
->
-> →
-
-**`INT.monologo.9`** · battuta di Computer
-> 1...
->
-> →
-
-**`INT.monologo.10`** · battuta di Computer
-> Per aspera, ad astra.
->
-> →
-
-**`INT.monologo.11`** · battuta di Anonimo
-> ...
->
-> →
-
-
 ### Introduzione › `alloggio`
 
 **`INT.alloggio.1`** · battuta di Anonimo
@@ -1588,7 +1575,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Introduzione › `infermeria`
 
 **`INT.infermeria.1`** · narrazione
-> Vuota a quest'ora. Ci finirai piu' tardi, probabilmente.
+> Vuota a quest'ora. Ci finirai più tardi, probabilmente.
 >
 > →
 
@@ -1604,7 +1591,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Introduzione › `mensa`
 
 **`INT.mensa.1`** · narrazione
-> Hai gia' mangiato. E comunque non e' per quello che ti hanno {svegliato|svegliata}.
+> Hai già mangiato. E comunque non è per quello che ti hanno {svegliato|svegliata}.
 >
 > →
 
@@ -1620,7 +1607,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Introduzione › `hangar`
 
 **`INT.hangar.1`** · narrazione
-> Da quella parte non ci sei mai {stato|stata}, e oggi non e' il giorno.
+> Da quella parte non ci sei mai {stato|stata}, e oggi non è il giorno.
 >
 > →
 
@@ -1767,7 +1754,313 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`INT.comunicazioni_ordini.scelta1`** · bottone di scelta
-> Vai alla sala di proiezione
+> Apri il data pad
+>
+> →
+
+
+### Introduzione › `data_pad_istruzioni`
+
+**`INT.data_pad_istruzioni.1`** · narrazione
+> Il diario si è aggiornato da solo. Adesso è un'altra cosa.
+>
+> →
+
+**`INT.data_pad_istruzioni.2`** · battuta di Anonimo
+> Data pad...
+>
+> →
+
+**`INT.data_pad_istruzioni.3`** · narrazione
+> La prima schermata sono gli [b]Appunti[/b]: quello che c'è da fare, scritto come lo penseresti tu.
+>
+> →
+
+**`INT.data_pad_istruzioni.4`** · narrazione
+> Sotto c'è lo [b]Stato[/b] — chi sei adesso, in numeri — e accanto [b]Cosa ti sta cambiando[/b]: il fattore Carnivalz non si legge in una statistica sola.
+>
+> →
+
+**`INT.data_pad_istruzioni.5`** · narrazione
+> Poi le [b]Abilità passive[/b], quelle che funzionano senza che tu le chiami. La [b]Squadra[/b], per ora corta. Le [b]Osservazioni[/b], dove finisce quello che studi guardando le creature.
+>
+> →
+
+**`INT.data_pad_istruzioni.6`** · narrazione
+> E l'[b]Organizzazione[/b], che tiene il conto di come ti stai comportando. Quello lo compilano loro.
+>
+> →
+
+**`INT.data_pad_istruzioni.7`** · battuta di Anonimo
+> E questa?
+>
+> →
+
+**`INT.data_pad_istruzioni.8`** · narrazione
+> [b]Messaggi[/b]. Ce n'è uno non letto.
+>
+> →
+
+**`INT.data_pad_istruzioni.9`** · battuta di Anonimo
+> Tremila tazo.
+>
+> →
+
+**`INT.data_pad_istruzioni.10`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.data_pad_istruzioni.11`** · battuta di Anonimo
+> Quota di benvenuto. Non me l'aveva detto nessuno.
+>
+> →
+
+**`INT.data_pad_istruzioni.12`** · narrazione
+> «L'Organizzazione non risponde dell'uso che ne verrà fatto.»
+>
+> →
+
+**`INT.data_pad_istruzioni.13`** · battuta di Anonimo
+> Che frase strana da scrivere su un accredito.
+>
+> →
+
+**`INT.data_pad_istruzioni.14`** · battuta di Anonimo
+> Comunque. La procedura di proiezione si fa in sala di proiezione...
+>
+> →
+
+**`INT.data_pad_istruzioni.15`** · notifica
+> Data pad aggiornato: recarsi alla sala di proiezione ed eseguire la procedura.
+>
+> →
+
+**`INT.data_pad_istruzioni.scelta1`** · bottone di scelta
+> Torna alla mappa del complesso
+>
+> →
+
+
+### Introduzione › `proiezione_veronica`
+
+**`INT.proiezione_veronica.1`** · battuta di Anonimo
+> !!!
+>
+> →
+
+**`INT.proiezione_veronica.2`** · battuta di Veronica
+> Heylà! Ci si rivede! Sei già {tornato|tornata} al massimo della tua potenza? Ottimo! Non mi deludi mai.
+>
+> →
+
+**`INT.proiezione_veronica.3`** · battuta di Veronica
+> Mi hanno mandata per assicurarmi che tu esegua la procedura di proiezione in modo impeccabile! Cominciamo?
+>
+> →
+
+**`INT.proiezione_veronica.4`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.5`** · battuta di Veronica
+> loquace come sempre, così mi piaci,
+>
+> →
+
+**`INT.proiezione_veronica.6`** · battuta di Veronica
+> Allora, dal tuo data pad dovresti collegarti a questo aggeggio qui... O forse era quest'altro?
+>
+> →
+
+**`INT.proiezione_veronica.7`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.8`** · battuta di Veronica
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.9`** · battuta di Anonimo
+> fatto.
+>
+> →
+
+**`INT.proiezione_veronica.10`** · battuta di Veronica
+> Sapevo ce l'avresti fatta! D'altronde si impara facendo no? Wahaha!
+>
+> →
+
+**`INT.proiezione_veronica.11`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.12`** · battuta di Veronica
+> Su su, allora, una volta connessi devi inizializzare la tua utenza... Ecco fatto! Vedi?
+>
+> →
+
+**`INT.proiezione_veronica.13`** · battuta di Guida
+> Buongiorno!
+>
+> →
+
+**`INT.proiezione_veronica.14`** · battuta di Anonimo
+> !
+>
+> →
+
+**`INT.proiezione_veronica.15`** · battuta di Guida
+> Ciao! Sono la tua guida! Procediamo con una rapida formazio...
+>
+> →
+
+**`INT.proiezione_veronica.16`** · battuta di Veronica
+> Skip... skip...
+>
+> →
+
+**`INT.proiezione_veronica.17`** · battuta di Anonimo
+> Ma... non dovrebbe essere skippabile, mi sembrano cose abbastanza serie...
+>
+> →
+
+**`INT.proiezione_veronica.18`** · battuta di Veronica
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.19`** · battuta di Veronica
+> skip... Oh! Ecco la mia parte preferita ❤️
+>
+> →
+
+**`INT.proiezione_veronica.20`** · battuta di Veronica
+> hm hm hm
+>
+> →
+
+**`INT.proiezione_veronica.21`** · battuta di Veronica
+> Ed ecco fatto! Che invidia, 2 anni fa non c'erano così tante opzioni di personalizzazione... che fortuna! Dovrò farmi dare un nuovo modello...
+>
+> →
+
+**`INT.proiezione_veronica.22`** · battuta di Anonimo
+> ... Cos'è... questo affare...
+>
+> →
+
+**`INT.proiezione_veronica.23`** · narrazione
+> [i]Veronica ti ha messo come skin quella della sua VTuber preferita.[/i]
+>
+> →
+
+**`INT.proiezione_veronica.24`** · battuta di Guida
+> Eccomi qui! Grazie per aver acquistato la nostra skin personalizzata di Bobo Bunny! Hop!
+>
+> →
+
+**`INT.proiezione_veronica.25`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.26`** · battuta di Anonimo
+> acquistato!?
+>
+> →
+
+**`INT.proiezione_veronica.27`** · battuta di Veronica
+> Lo stile si paga!
+>
+> →
+
+**`INT.proiezione_veronica.28`** · battuta di Anonimo
+> IL MIO CONTO È A ZERO...
+>
+> →
+
+**`INT.proiezione_veronica.29`** · battuta di Veronica
+> Ma il tuo stile è a mille!
+>
+> →
+
+**`INT.proiezione_veronica.30`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.31`** · battuta di Veronica
+> Vedrai che ti rifarai presto!
+>
+> →
+
+**`INT.proiezione_veronica.32`** · battuta di Anonimo
+> rivoglio i miei soldi...
+>
+> →
+
+**`INT.proiezione_veronica.33`** · battuta di Veronica
+> Non c'è tempo per pensare a queste cose... dai, è ora della tua prima missione, non sei {emozionato|emozionata}?
+>
+> →
+
+**`INT.proiezione_veronica.34`** · battuta di Anonimo
+> Non so cosa provare in questo momento...
+>
+> →
+
+**`INT.proiezione_veronica.35`** · battuta di Veronica
+> allora, vedi questa mappa? devi selezionare il punto d'interesse che appare su di essa, man mano che diventerai più forte, l'organizzazione aggiornerà la tua interfaccia con missioni più complesse.
+>
+> →
+
+**`INT.proiezione_veronica.36`** · battuta di Veronica
+> adesso hai a disposizione solo la tua prima missione, ecco vedi? selezioniamo la meta e voilà, ecco che il sistema di proiezione comincia a caricarsi!
+>
+> →
+
+**`INT.proiezione_veronica.37`** · narrazione
+> [i]Si esce dalla visuale di mappa.[/i]
+>
+> →
+
+**`INT.proiezione_veronica.38`** · battuta di Veronica
+> Bene! posizionati sulla piattaforma e semplicemente aspetta di essere proiettato, all'inizio è un po' strano, ma vedrai che ti abituerai
+>
+> →
+
+**`INT.proiezione_veronica.39`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`INT.proiezione_veronica.40`** · battuta di Veronica
+> allora ci vediamo presto, ne sono sicura... buon viaggio!
+>
+> →
+
+**`INT.proiezione_veronica.41`** · battuta di Anonimo
+> In un modo o nell'altro dovrai ripa....
+>
+> →
+
+**`INT.proiezione_veronica.42`** · narrazione
+> [b]FLASH.[/b]
+>
+> →
+
+**`INT.proiezione_veronica.43`** · narrazione
+> [i]Vieni {teletrasportato|teletrasportata}.[/i]
+>
+> →
+
+**`INT.proiezione_veronica.44`** · battuta di Veronica
+> Se la caverà benissimo, sono sicura!
 >
 > →
 
@@ -2160,7 +2453,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.vittoria.scelta1`** · bottone di scelta
-> Torna al quartier generale
+> Apri il data pad
 >
 > →
 
@@ -2596,6 +2889,183 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`TUT.hq_congedo.scelta1`** · bottone di scelta
 > Torna alla mappa stellare
+>
+> →
+
+
+### Tutorial › `ritorno_istruzioni`
+
+**`TUT.ritorno_istruzioni.1`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`TUT.ritorno_istruzioni.2`** · battuta di Anonimo
+> Beh, sicuramente ho capito come si parte... ma come ritorno?
+>
+> →
+
+**`TUT.ritorno_istruzioni.3`** · battuta di Data pad
+> Complimenti dominat{ore|rice}, sembra che la tua missione sia finita. Avvii pure la procedura di ritorno, come le è stata spiegata quando ha avviato la sua guida.
+>
+> →
+
+**`TUT.ritorno_istruzioni.4`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`TUT.ritorno_istruzioni.5`** · battuta di Anonimo
+> Quella maledetta ha saltato tutto e io non ci ho capito niente!
+>
+> →
+
+**`TUT.ritorno_istruzioni.6`** · battuta di Anonimo
+> ... E ora cosa faccio?
+>
+> →
+
+**`TUT.ritorno_istruzioni.7`** · battuta di Veronica
+> Bzzzz... boop. h-heeey zzz
+>
+> →
+
+**`TUT.ritorno_istruzioni.8`** · battuta di Veronica
+> Heylà! Ti stavo monitorando sai? Ho visto tutto! soprattutto quando hai spaccato di botte tutti quei nemici! Gli allenamenti ti sono serviti!
+>
+> →
+
+**`TUT.ritorno_istruzioni.9`** · battuta di Anonimo
+> Veronica... Come torno alla base...
+>
+> →
+
+**`TUT.ritorno_istruzioni.10`** · battuta di Veronica
+> Ah sì, certo! Ti spiego subito!
+>
+> →
+
+**`TUT.ritorno_istruzioni.11`** · battuta di Veronica
+> Devi sapere che ci sono 3 modi per entrare in quelle che chiamiamo fratture...
+>
+> →
+
+**`TUT.ritorno_istruzioni.12`** · battuta di Veronica
+> la prima: Avendo un proiettore... Non ci capisco molto di questi affari, ma riescono ad allinearti in qualche modo a qualcosa che in teoria è compatibile con quel qualcosa che ha causato il fenomeno della frattura...
+>
+> →
+
+**`TUT.ritorno_istruzioni.13`** · battuta di Veronica
+> la seconda: Alcuni individui particolari... nel nostro caso quelli che chiamiamo dominatori... Attirano queste anomalie che possono creare microfratture per accedere a questi mondi nelle loro vicinanze...
+>
+> →
+
+**`TUT.ritorno_istruzioni.14`** · battuta di Veronica
+> per quello non ci è permesso abbandonare la base... La nostra base è costruita con un materiale particolare che limita questi eventi, altrimenti potremmo generare delle microfratture attorno a noi che potrebbero inghiottire anche civili ignari della cosa... certo, è un evento molto raro dicono, ma l'organizzazione ci tiene ad evitare queste situazioni...
+>
+> →
+
+**`TUT.ritorno_istruzioni.15`** · battuta di Anonimo
+> e il terzo?
+>
+> →
+
+**`TUT.ritorno_istruzioni.16`** · battuta di Veronica
+> ... Non lo so! Dovresti chiedere ai cervelloni del settore ricerca, io quel che so l'ho imparato durante le mie missioni e l'organizzazione è molto riservata su queste cose...
+>
+> →
+
+**`TUT.ritorno_istruzioni.17`** · battuta di Anonimo
+> Eppure noi facciamo il lavoro sporco... dovremmo poter sapere un po' di più sulla cosa...
+>
+> →
+
+**`TUT.ritorno_istruzioni.18`** · battuta di Veronica
+> Come ti ho detto adesso che torni per fare rapporto prova a chiedere a loro, io non so dirti molto...
+>
+> →
+
+**`TUT.ritorno_istruzioni.19`** · battuta di Anonimo
+> Capito, proverò... Adesso, come faccio a tornare?
+>
+> →
+
+**`TUT.ritorno_istruzioni.20`** · battuta di Veronica
+> Prova ad aprire il tuo datapad e girare la rotella al fianco dal triangolo al cerchio,
+>
+> →
+
+**`TUT.ritorno_istruzioni.21`** · narrazione
+> [i]La rotella scatta sul cerchio.[/i]
+>
+> →
+
+**`TUT.ritorno_istruzioni.22`** · narrazione
+> Vuoi tornare indietro?
+>
+> →
+
+**`TUT.ritorno_istruzioni.scelta1`** · bottone di scelta
+> Sì, torno alla base
+>
+> →
+
+**`TUT.ritorno_istruzioni.scelta2`** · bottone di scelta
+> No, voglio dare ancora un'occhiata
+>
+> →
+
+
+### Tutorial › `ritorno_rimandato`
+
+**`TUT.ritorno_rimandato.1`** · battuta di Veronica
+> Dai non perdere tempo, torna indietro, è quasi ora di cena...
+>
+> →
+
+
+### Tutorial › `ritorno_disponibile`
+
+**`TUT.ritorno_disponibile.1`** · narrazione
+> [i]La rotella del data pad è ancora sul cerchio.[/i]
+>
+> →
+
+**`TUT.ritorno_disponibile.2`** · narrazione
+> Vuoi tornare indietro?
+>
+> →
+
+**`TUT.ritorno_disponibile.scelta1`** · bottone di scelta
+> Sì, torno alla base
+>
+> →
+
+**`TUT.ritorno_disponibile.scelta2`** · bottone di scelta
+> No, voglio dare ancora un'occhiata
+>
+> →
+
+
+### Tutorial › `ritorno_alla_base`
+
+**`TUT.ritorno_alla_base.1`** · narrazione
+> [b]FLASH.[/b]
+>
+> →
+
+**`TUT.ritorno_alla_base.2`** · narrazione
+> La piattaforma della sala di proiezione, e l'odore di metallo freddo che non avevi notato all'andata.
+>
+> →
+
+**`TUT.ritorno_alla_base.3`** · narrazione
+> [i]Veronica è appoggiata alla consolle, come se non si fosse mossa da lì.[/i]
+>
+> →
+
+**`TUT.ritorno_alla_base.scelta1`** · bottone di scelta
+> Scendi dalla piattaforma
 >
 > →
 
@@ -8478,7 +8948,7 @@ carte collezionabili.
 > →
 
 **`CRE.giocoliere.mossa3.testo`** · cosa si legge quando la usa
-> «Se e' l'ultimo, che sia il migliore!»
+> «Se è l'ultimo, che sia il migliore!»
 >
 > →
 
@@ -9149,7 +9619,7 @@ carte collezionabili.
 > →
 
 **`CRE.golem_errante.descrizione`** · voce del bestiario
-> Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non e' piu' al centro: e' in cima.
+> Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non è più al centro: è in cima.
 >
 > →
 
@@ -9360,7 +9830,7 @@ carte collezionabili.
 > →
 
 **`CRE.ghoul.mossa2.testo`** · cosa si legge quando la usa
-> Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.
+> Le unghie sono l'unica cosa che gli è cresciuta dopo la morte.
 >
 > →
 
@@ -9448,7 +9918,7 @@ carte collezionabili.
 > →
 
 **`CRE.teschio_errante.mossa2.testo`** · cosa si legge quando la usa
-> Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.
+> Le orbite ti guardano, e la cosa peggiore è che ci si vede dentro.
 >
 > →
 
@@ -9531,7 +10001,7 @@ carte collezionabili.
 > →
 
 **`CRE.abominio_marcio.mossa2.testo`** · cosa si legge quando la usa
-> Ti stringe, e per un momento non si capisce piu' dove finisci tu.
+> Ti stringe, e per un momento non si capisce più dove finisci tu.
 >
 > →
 
@@ -9541,7 +10011,7 @@ carte collezionabili.
 > →
 
 **`CRE.abominio_marcio.mossa3.testo`** · cosa si legge quando la usa
-> I corpi si rimescolano, e quello che era aperto adesso e' chiuso.
+> I corpi si rimescolano, e quello che era aperto adesso è chiuso.
 >
 > →
 
@@ -9619,7 +10089,7 @@ carte collezionabili.
 > →
 
 **`CRE.madre_in_lacrime.mossa2.testo`** · cosa si legge quando la usa
-> «Non toccarli.» Non c'e' nessuno da toccare.
+> «Non toccarli.» Non c'è nessuno da toccare.
 >
 > →
 
@@ -10094,7 +10564,7 @@ carte collezionabili.
 > →
 
 **`CRE.jongo_dongo_risorto.mossa1.testo`** · cosa si legge quando la usa
-> La mano arriva piano, e non e' piu' una mano.
+> La mano arriva piano, e non è più una mano.
 >
 > →
 
@@ -10182,7 +10652,7 @@ carte collezionabili.
 > →
 
 **`CRE.l_immortale.mossa1.testo`** · cosa si legge quando la usa
-> Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
+> Continua a camminare, e continua a colpire. Non è veloce. Non serve.
 >
 > →
 
@@ -10310,7 +10780,7 @@ carte collezionabili.
 > →
 
 **`CRE.sacerdote_folle.mossa6.testo`** · cosa si legge quando la usa
-> Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.
+> Recita più in fretta, e le ferite si chiudono al ritmo delle parole.
 >
 > →
 
@@ -10718,12 +11188,12 @@ carte collezionabili.
 > →
 
 **`CRE.zombie_cittadino.mossa4.nome`** · nome di una mossa
-> -
+> Marea
 >
 > →
 
 **`CRE.zombie_cittadino.mossa4.testo`** · cosa si legge quando la usa
-> -
+> Si muovono tutti insieme, e non c'è un davanti.
 >
 > →
 
@@ -11080,7 +11550,7 @@ carte collezionabili.
 > →
 
 **`CRE.ombra_del_passato.mossa2.testo`** · cosa si legge quando la usa
-> Piu' le pensi contro, piu' si fa solida.
+> Piu' le pensi contro, più si fa solida.
 >
 > →
 
@@ -11663,7 +12133,7 @@ carte collezionabili.
 > →
 
 **`CRE.jerah.mossa5.testo`** · cosa si legge quando la usa
-> «Lo spettacolo non finisce finche' non lo decido io.»
+> «Lo spettacolo non finisce finché non lo decido io.»
 >
 > →
 
@@ -12566,7 +13036,7 @@ carte collezionabili.
 > →
 
 **`CRE.sogno_perduto.descrizione`** · voce del bestiario
-> Qualcosa che Yhvina ha sognato una volta e poi non e' piu' riuscita a ritrovare. Sta al suo fianco senza parlare, e combatte come se ricordasse di averlo gia' fatto.
+> Qualcosa che Yhvina ha sognato una volta e poi non è più riuscita a ritrovare. Sta al suo fianco senza parlare, e combatte come se ricordasse di averlo già fatto.
 >
 > →
 
@@ -12576,7 +13046,7 @@ carte collezionabili.
 > →
 
 **`CRE.sogno_perduto.mossa1.testo`** · cosa si legge quando la usa
-> Il sogno si muove in anticipo, come se la scena l'avesse gia' vissuta.
+> Il sogno si muove in anticipo, come se la scena l'avesse già vissuta.
 >
 > →
 
@@ -12643,6 +13113,22 @@ carte collezionabili.
 
 **`CRE.ignoto.nome`** · nome a schermo
 > ???
+>
+> →
+
+
+### Guida  <sub>`guida`</sub>
+
+**`CRE.guida.nome`** · nome a schermo
+> Guida
+>
+> →
+
+
+### Data pad  <sub>`data_pad`</sub>
+
+**`CRE.data_pad.nome`** · nome a schermo
+> Data pad
 >
 > →
 
@@ -14035,6 +14521,16 @@ carte collezionabili.
 # 9. Appunti del Diario
 
 <sub>`data/task.json`</sub> — i pensieri del protagonista su dove andare.
+
+**`APP.prima_proiezione.titolo`** · titolo dell'appunto
+> La procedura di proiezione
+>
+> →
+
+**`APP.prima_proiezione.testo`** · il pensiero per esteso
+> Gli ordini sono arrivati: settore del confine del cielo terso, quadrante 3. Devo recarmi alla sala di proiezione ed eseguire la procedura. Non l'ho mai fatta da solo.
+>
+> →
 
 **`APP.vuoto_ardente.titolo`** · titolo dell'appunto
 > Il Vuoto Ardente

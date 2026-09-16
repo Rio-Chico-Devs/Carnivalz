@@ -717,13 +717,6 @@ func riga_appunto(voce: Dictionary) -> Control:
 # aggiustamenti, l'ultima risorsa e' la rete che scatta quando stai per cadere.
 # Ogni personaggio ha i suoi, e quello che porta vale solo per lui.
 
-const NOMI_SLOT := {
-	"arma": "Arma",
-	"stigma": "Stigma",
-	"accessori": "Accessori",
-	"ultima_risorsa": "Ultima risorsa",
-}
-
 func mostra_equipaggiamento() -> void:
 	# La scheda del personaggio: chi e', cosa porta addosso, quanto vale, e la
 	# stessa cosa per ogni compagno. Vive qui dentro invece che come schermata a
@@ -746,25 +739,6 @@ func etichetta_bonus(chiave: String) -> String:
 		"aura_per_turno": return "aura per turno"
 		"resistenza_maledizione": return "rintocchi di maledizione"
 		_: return chiave
-
-func oggetti_per(slot: String) -> Array[String]:
-	# cosa si puo' mettere in questo slot: del tipo giusto, posseduto, e non
-	# gia' addosso a qualcun altro
-	var risultato: Array[String] = []
-	var magazzino: Array = GameState.magazzino_per_slot(slot)
-	for id_oggetto in magazzino:
-		var id_stringa := String(id_oggetto)
-		if id_stringa in risultato or GameState.e_equipaggiato(id_stringa):
-			continue
-		var tipo := String(GameState.dati_oggetto(id_stringa).get("tipo", ""))
-		var atteso := "consumabile"
-		if slot == "accessori":
-			atteso = "accessorio"
-		elif slot != "ultima_risorsa":
-			atteso = slot
-		if tipo == atteso:
-			risultato.append(id_stringa)
-	return risultato
 
 func riassunto_effetto(dati: Dictionary) -> String:
 	# cosa fa davvero, in numeri: la descrizione poetica sta nel Compendio

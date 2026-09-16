@@ -120,6 +120,7 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	await prova_un_messaggio_si_annuncia()
 	await prova_flag_su_una_battuta()
 	prova_orde()
 	prova_orda_in_campo()
@@ -7288,6 +7289,56 @@ func prova_data_pad_e_proiezione() -> void:
 			"il data pad non ha la sezione Messaggi: i 3000 tazo non si possono leggere da nessuna parte")
 	esigi(not GameState.dati_task("prima_proiezione").is_empty(),
 			"manca la missione che ti porta in sala di proiezione")
+
+func prova_un_messaggio_si_annuncia() -> void:
+	# UN MESSAGGIO CHE ARRIVA IN SILENZIO NON E' ARRIVATO.
+	#
+	# messaggi_da_notificare esisteva e non lo leggeva nessuno: mezza funzione,
+	# cioe' una trappola. I 3000 tazo si vedevano solo perche' la scena del data
+	# pad se li scriveva a mano; qualunque altro messaggio sarebbe arrivato senza
+	# che niente lo dicesse, e il giocatore non ha nessun motivo di aprire una
+	# sezione che non lo ha mai chiamato.
+	titolo("un messaggio nuovo si annuncia da solo")
+	GameState.nuova_partita()
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	esigi(schermata.notifiche_messaggi().is_empty(),
+			"senza messaggi nuovi il gioco annuncia qualcosa lo stesso")
+	GameState.imposta_flag("ordini_ricevuti")
+	esigi(not GameState.messaggi_da_notificare.is_empty(),
+			"arrivata la quota di benvenuto non c'e' niente da annunciare")
+	var righe: Array[Dictionary] = schermata.notifiche_messaggi()
+	esigi(righe.size() >= 1,
+			"il messaggio e' arrivato e non lo annuncia nessuno: i 3000 tazo compaiono sul conto in silenzio")
+	var testo := String(righe[0].get("testo", ""))
+	esigi(String(righe[0].get("tipo", "")) == "notifica",
+			"l'annuncio non e' una notifica ma '%s'" % String(righe[0].get("tipo", "")))
+	esigi("Quota di benvenuto" in testo,
+			"l'annuncio non dice di che messaggio si tratta: «%s»" % testo)
+	# e non si annuncia due volte
+	esigi(schermata.notifiche_messaggi().is_empty(),
+			"lo stesso messaggio si annuncia di nuovo alla chiamata dopo")
+
+	# E L'ANNUNCIO DEV'ESSERE CUCITO AL PERCORSO VERO, non solo esistere.
+	#
+	# La prima versione di questa prova chiamava notifiche_messaggi() a mano e
+	# passava anche togliendo tutte e tre le cuciture da Main: misurava che la
+	# funzione funzionasse, non che qualcuno la chiamasse. E' il terzo caso
+	# identico in questa sessione, quindi qui si entra in un nodo per davvero e
+	# si guarda cosa finisce nella coda.
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	schermata.mostra_nodo("comunicazioni_ordini")
+	var annunciato := false
+	for msg in schermata.coda_messaggi:
+		if String((msg as Dictionary).get("tipo", "")) == "notifica" \
+				and "Quota di benvenuto" in String((msg as Dictionary).get("testo", "")):
+			annunciato = true
+	esigi(annunciato,
+			"entrando in sala comunicazioni i 3000 tazo arrivano sul conto e la coda non ne parla: %d righe"
+			% schermata.coda_messaggi.size())
+	schermata.queue_free()
 
 func prova_flag_su_una_battuta() -> void:
 	# IL DATO GIUSTO IN UN MOTORE CHE NON LO LEGGE. La scena ha il flag sulla

@@ -60,7 +60,3 @@ static func accorda(testo: String, sesso: String) -> String:
 		i = chiude + 1
 	return risultato
 
-static func ha_accordi(testo: String) -> bool:
-	# serve alle prove: dopo accorda() non deve restarne nemmeno uno a schermo
-	return accorda(testo, MASCHILE) != accorda(testo, FEMMINILE) \
-			or testo != accorda(testo, MASCHILE)

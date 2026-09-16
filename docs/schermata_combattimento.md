@@ -562,12 +562,46 @@ Tre incontri mettevano insieme due creature diverse: `ghoul + sacerdote folle`,
 disegno solo, e una prova gira su tutti i file di eventi perché non ne rientri
 uno per distrazione.
 
-## Una cosa che non ho chiuso
+## La perdita di oggetti: cos'era davvero
 
-Le prove finiscono con `ObjectDB instances leaked at exit`. Ci ho provato: il
-riproduttore minimo — costruire e distruggere una plancia — **si pianta a sua
-volta**, e non sono arrivato in fondo. Resta aperto, e non è una cosa che si
-vede giocando: è roba che non viene liberata quando il gioco si chiude.
+Per settimane le prove finivano con `ObjectDB instances leaked at exit` e lo
+guardavamo senza capirlo. Misurato:
+
+> **Il gioco, avviato da solo e lasciato girare, non perde nemmeno un oggetto.**
+
+A perdere è **la suite**, e sono `GDScriptFunctionState`: coroutine ferme su un
+`await` — `svuota_coda`, `attendi_lettura` — dentro combattimenti che una prova
+libera a metà volo. Circa due per ogni prova che accende uno scontro vero.
+
+Ci ho provato a farle srotolare prima di liberare il nodo, in due modi
+(spegnere la pompa, e zittire la voce perché `svuota_coda` non si sospenda): il
+conto **è salito**, perché la strada d'uscita della pompa a sua volta aspetta.
+In Godot 4 una coroutine sospesa non si può annullare, e l'unico modo di non
+lasciarla lì sarebbe far finire per davvero ogni scontro di prova — cioè
+aspettarlo.
+
+Quindi non si chiude, ma smette di essere rumore: `prove/esegui.sh` adesso
+**fallisce se a perdere è il gioco**, e lascia passare la suite. Zero all'avvio,
+e se un giorno quel numero si muove vuol dire che è cambiato qualcosa di vero.
+(Validato rompendo apposta: un `Node.new()` mai liberato in un autoload, e la
+sentinella scatta.)
+
+## Tre volte lo stesso errore mio, in una sessione
+
+Vale la pena scriverlo perché è un difetto di come scrivo le prove, non del
+codice. Tre volte ho scritto una prova che misurava **il dato** o **la
+funzione**, e passava lo stesso togliendo il pezzo che li fa funzionare:
+
+| cosa provavo | cosa non provavo |
+|---|---|
+| il flag scritto sulla battuta giusta | che il motore lo applicasse |
+| il suono dichiarato nella battuta | che il motore lo suonasse |
+| `notifiche_messaggi()` che costruisce la riga | che qualcuno la chiamasse |
+
+Tutte e tre trovate dal sabotaggio, non dalla prova. La regola che ne esce: dopo
+aver provato che una cosa **è scritta giusta**, serve sempre una seconda prova
+che entri dalla porta vera — un nodo davvero attraversato, la coda dei messaggi
+davvero riempita — se no si sta misurando il JSON.
 
 ## Fonti
 

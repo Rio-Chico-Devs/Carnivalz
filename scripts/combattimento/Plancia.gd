@@ -33,7 +33,6 @@ extends RefCounted
 # Qui dentro non succede niente: si costruisce e basta. Chi ci scrive sopra -
 # il campo, il menu, la voce - riceve i nodi e non sa dove stanno.
 
-const COMANDI := ["ATTACCHI", "DIFESA", "SKILL", "OGGETTI", "FUGA"]
 # quante voci ci stanno in una colonna della lista prima di aprirne un'altra.
 # E' un tetto, non una promessa: se nella banda sopra MATTANZA e BOND non ce ne
 # stanno cinque leggibili, ne entrano meno (vedi adatta_lista)
@@ -608,9 +607,6 @@ func prepara_tasto_altro(serve: bool, quale: int, quante_pagine: int) -> void:
 		faccia_lista.add_child(tasto_altro)
 	tasto_altro.text = "Altro  (%d/%d)  \u25b8" % [quale, quante_pagine]
 	tasto_altro.visible = true
-
-func mostra_comandi() -> void:
-	mostra_faccia("comandi")
 
 static func faccia_da_mostrare(puoi_agire: bool, da_leggere: bool, modo_menu: String) -> String:
 	# CHI SI PRENDE IL QUADRANTE, IN UNA REGOLA SOLA.

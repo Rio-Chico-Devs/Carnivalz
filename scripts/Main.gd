@@ -505,7 +505,7 @@ func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) ->
 	# la salita di livello viene PRIMA delle passive: e' la causa, quelle sono
 	# la conseguenza, e leggerle nell'ordine opposto non si capisce
 	coda_messaggi = notifiche_precedenti + notifiche_salite_di_livello() \
-			+ notifiche_passive() + contenuto_nodo(nodo) + notifiche_task()
+			+ notifiche_passive() + contenuto_nodo(nodo) + notifiche_task() + notifiche_messaggi()
 	avanza_messaggio()
 
 func contenuto_nodo(nodo: Dictionary) -> Array[Dictionary]:
@@ -1000,8 +1000,8 @@ func segna_destinazione(bottone: Button, scelta: Dictionary) -> void:
 	var destinazione := String(scelta["vai"])
 	if destinazione == "" or destinazione == GameState.nodo_corrente:
 		return
-	Stile.segna_visita(bottone,
-			"visto" if destinazione in GameState.nodi_visitati else "nuovo")
+	Stile.segna_visita(bottone, Stile.VISITA_VISTO \
+			if destinazione in GameState.nodi_visitati else Stile.VISITA_NUOVO)
 
 func notifiche_task() -> Array[Dictionary]:
 	# un appunto nuovo non e' una riga di sistema: e' il protagonista che si
@@ -1030,6 +1030,32 @@ func notifiche_task() -> Array[Dictionary]:
 			righe.append({"tipo": "narrazione", "testo": testo})
 			letti += 1
 	GameState.task_da_notificare.clear()
+	return righe
+
+func notifiche_messaggi() -> Array[Dictionary]:
+	# UN MESSAGGIO CHE ARRIVA IN SILENZIO NON E' ARRIVATO.
+	#
+	# messaggi_da_notificare esisteva gia' - lo riempivo a ogni messaggio nuovo -
+	# ma non lo leggeva nessuno: mezza funzione, cioe' una trappola. I 3000 tazo
+	# di benvenuto si vedevano solo perche' la scena del data pad se li scriveva
+	# a mano; qualunque altro messaggio sarebbe arrivato senza che niente lo
+	# dicesse, e il giocatore non ha nessun motivo di aprire una sezione che non
+	# lo ha mai chiamato.
+	#
+	# Qui non si legge il messaggio: si dice che c'e'. Leggerlo e' un gesto che
+	# spetta al giocatore, e la sezione Messaggi porta il conto dei non letti.
+	var righe: Array[Dictionary] = []
+	if GameState.messaggi_da_notificare.is_empty():
+		return righe
+	var quanti := GameState.messaggi_da_notificare.size()
+	if quanti == 1:
+		var voce := GameState.dati_messaggio(String(GameState.messaggi_da_notificare[0]))
+		righe.append({"tipo": "notifica", "testo": "%s: nuovo messaggio — %s"
+				% [GameState.nome_diario(), String(voce.get("oggetto", "senza oggetto"))]})
+	else:
+		righe.append({"tipo": "notifica", "testo": "%s: %d nuovi messaggi."
+				% [GameState.nome_diario(), quanti]})
+	GameState.messaggi_da_notificare.clear()
 	return righe
 
 func notifiche_salite_di_livello() -> Array[Dictionary]:
@@ -1309,7 +1335,7 @@ func _su_conversazione(conversazione: Dictionary) -> void:
 	if conversazione.has("una_tantum"):
 		GameState.imposta_flag(conversazione["una_tantum"])
 	IngressoNodo.applica_task_di(conversazione)
-	coda_messaggi = sequenza_di(conversazione) + notifiche_task()
+	coda_messaggi = sequenza_di(conversazione) + notifiche_task() + notifiche_messaggi()
 	azione_dopo_coda = _mostra_mediazione.bind(conversazione) if conversazione.has("mediazione") else Callable()
 	avanza_messaggio()
 
@@ -1379,7 +1405,7 @@ func _su_compagno(id_classe: String) -> void:
 		if voce.has("una_tantum"):
 			GameState.imposta_flag(voce["una_tantum"])
 		IngressoNodo.applica_task_di(voce)
-		coda_messaggi += notifiche_task()
+		coda_messaggi += notifiche_task() + notifiche_messaggi()
 	avanza_messaggio()
 	# la battuta puo' aver sbloccato una scelta gated da richiede_flag: la
 	# prossima volta che la coda si svuota, ricostruisci_scelte() la rilegge

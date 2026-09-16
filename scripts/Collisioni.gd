@@ -103,14 +103,6 @@ static func posizione_libera(raffica: Array[Dictionary],
 			return punto
 	return Vector2(dado.randf_range(0.08, 0.92), dado.randf_range(0.12, 0.88))
 
-static func distanza_vera(uno: Dictionary, altro: Dictionary, proporzione := 1.0) -> float:
-	# la distanza fra due pugni come la vede l'occhio, non come la vedono i
-	# numeri: serve alle prove, e a chi un domani vorra' cambiare la forma del
-	# quadrante senza riaprire questo file
-	var scala := Vector2(maxf(proporzione, 0.001), 1.0)
-	return (Vector2(float(uno.x), float(uno.y)) * scala).distance_to(
-			Vector2(float(altro.x), float(altro.y)) * scala)
-
 static func durata_totale(raffica: Array[Dictionary]) -> float:
 	# quanto vive la raffica per intero: serve a chi la suona per sapere quando
 	# ha finito, e alle prove per non aspettare a occhio

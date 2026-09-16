@@ -324,7 +324,7 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Vuota a quest'ora. Ci finirai piu' tardi, probabilmente."
+					"testo": "Vuota a quest'ora. Ci finirai più tardi, probabilmente."
 				}
 			],
 			"_chiusa_per_ora": "Aperta piu' avanti, quando ci finirai dentro.",
@@ -354,7 +354,7 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Hai gia' mangiato. E comunque non e' per quello che ti hanno {svegliato|svegliata}."
+					"testo": "Hai già mangiato. E comunque non è per quello che ti hanno {svegliato|svegliata}."
 				}
 			],
 			"_chiusa_per_ora": "Arredamento del complesso: esiste perche' un posto dove si vive abbia anche dove si mangia.",
@@ -390,7 +390,7 @@
 			"sequenza": [
 				{
 					"tipo": "narrazione",
-					"testo": "Da quella parte non ci sei mai {stato|stata}, e oggi non e' il giorno."
+					"testo": "Da quella parte non ci sei mai {stato|stata}, e oggi non è il giorno."
 				}
 			],
 			"_chiusa_per_ora": "Non e' mai stato aperto e per ora non lo sara'.",
@@ -636,10 +636,6 @@
 					"tipo": "dialogo",
 					"chi": "anonimo",
 					"testo": "Che frase strana da scrivere su un accredito."
-				},
-				{
-					"tipo": "notifica",
-					"testo": "Data pad: accreditati 3000 tazo — quota di benvenuto."
 				},
 				{
 					"tipo": "dialogo",

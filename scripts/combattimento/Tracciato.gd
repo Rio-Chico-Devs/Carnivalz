@@ -14,8 +14,6 @@ extends Control
 
 const SECONDI_A_SCHERMO := 4.0
 const CAMPIONI := 240
-const SPESSORE := 2.0   # lo spessore di riferimento, per un riquadro alto 110
-
 var quota_hp := 1.0
 var stress := 0
 var dado := RandomNumberGenerator.new()

@@ -258,35 +258,20 @@ func _ready() -> void:
 	applica_leve()
 	esegui_scontro()
 
-func tipo_dello_scontro() -> String:
-	# Di che tipo e' questo scontro: lo dice la prima creatura della lista, che
-	# e' anche quella che il campo mette al centro e disegna grande (vedi
-	# Campo.gd). Si legge dai dati e non dai combattenti perche' applica_stile()
-	# gira PRIMA che i combattenti esistano - il fondo deve essere gia' del
-	# colore giusto quando la schermata compare, non un istante dopo.
-	for id_nemico in GameState.nemici_combattimento:
-		var dati_creatura: Dictionary = GameState.personaggi.get(id_nemico, {})
-		var suo := String(dati_creatura.get("tipo", ""))
-		if suo != "":
-			return suo
-	return ""
-
 func applica_stile() -> void:
 	# il combattimento e' un'altra stanza dello stesso gioco: stesso font, stessi
 	# bordi e stesso box della schermata eventi. Il fondo e' l'unica cosa che
 	# cambia, e cambia poco
 	#
-	# IL FONDO PRENDE UNA TRACCIA DEL TIPO CHE HAI DAVANTI. Fino a ieri il primo
-	# goblin e l'ultimo boss si combattevano dentro lo stesso identico grigio: in
-	# un gioco che non ha ancora un solo disegno, quel rettangolo e' tutto lo
-	# sfondo che esiste, e sprecarlo e' buttare via l'unico spazio disponibile.
-	# Poca tinta: e' una temperatura, non un cambio di scena
-	# IL FONDO E' NERO, E BASTA. Bru l'ha disegnato nero tre volte su tre, e il
-	# nero e' quello che fa staccare i pannelli bianchi e il riquadro della
-	# creatura. La tinta per tipo che c'era prima - una traccia di colore sul
-	# fondo - addosso a questa schermata diventava una patina rossa su tutto:
-	# resta nel codice dell'arena, che la usa per i lampi, ma non colora piu' la
-	# stanza.
+	# IL FONDO E' BIANCO, E NON CAMBIA MAI. Nei tre disegni di Bru la schermata
+	# sta su una pagina bianca, ed e' quella che fa esistere i bordi neri spessi
+	# dei pannelli: provata su nero, i bordi sparivano e restavano quattro
+	# rettangoli che galleggiavano nel buio.
+	#
+	# C'era stata una tinta per tipo - il fondo che prendeva una traccia del
+	# colore di chi avevi davanti - e non c'e' piu': su questa schermata
+	# diventava una patina su tutto. Il tipo si legge lo stesso, ma sul numero
+	# del danno; e il colore per tipo resta nell'arena, che lo usa per i lampi.
 	sfondo.color = Stile.colore("sfondo_combattimento")
 	etichetta_speranza.add_theme_color_override("font_color", Stile.colore("accento"))
 	etichetta_speranza.add_theme_font_size_override("font_size", Stile.dimensione("nome"))

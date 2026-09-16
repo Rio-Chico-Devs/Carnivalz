@@ -1930,15 +1930,6 @@ func fabbisogno_xp(livello: int) -> int:
 		richiesta *= int(regole.get("moltiplicatore_ostico", 5))
 	return richiesta
 
-func aggiungi_xp(id_classe: String, quantita: int) -> void:
-	# NON FA PIU' SALIRE DI LIVELLO NESSUNO. Il livello adesso e' quanti nodi
-	# hai comprato, quindi l'unico modo di salire e' spendere. Questa resta
-	# come porta d'ingresso perche' la chiamano ancora in qualche posto, e
-	# quello che entra da qui e' hype come tutto il resto
-	if not classi.has(id_classe):
-		return
-	aggiungi_hype(quantita)
-
 # --- crescita del protagonista: i contatori delle azioni diventano punti stat
 # a ogni passaggio di livello, poi si azzerano. Chi attacca cresce in attacco,
 # chi studia in intelligenza, chi esplora in velocita', chi incassa in hp... ---
@@ -2068,12 +2059,6 @@ func congeda_tutti_temporanei() -> void:
 func possiede_tutti(lista: Array) -> bool:
 	for id_oggetto in lista:
 		if not possiede_oggetto(id_oggetto):
-			return false
-	return true
-
-func ha_tutti_flag(lista: Array) -> bool:
-	for nome_flag in lista:
-		if not ha_flag(nome_flag):
 			return false
 	return true
 

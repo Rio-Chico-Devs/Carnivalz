@@ -49,6 +49,15 @@ esegui_pulito() {
 		rm -f "$registro"
 		exit 1
 	fi
+	if [ -n "${CONTROLLA_PERDITE:-}" ] && grep -q "ObjectDB instances leaked at exit" "$registro"; then
+		echo ""
+		echo "✗ $titolo: il gioco ha lasciato indietro degli oggetti." >&2
+		echo "  Rilancia con --verbose per vedere quali: di solito e' un nodo tolto" >&2
+		echo "  dall'albero e mai liberato, oppure una coroutine ferma su un await" >&2
+		echo "  dentro qualcosa che nel frattempo e' stato liberato." >&2
+		rm -f "$registro"
+		exit 1
+	fi
 	if grep -qE '^(USER )?(SCRIPT ERROR|ERROR):' "$registro"; then
 		echo ""
 		echo "✗ $titolo: Godot ha segnalato degli errori (sopra). Non è verde." >&2
@@ -94,7 +103,21 @@ if grep -rnE '^[[:space:]]*var [a-z_0-9]+ :=[[:space:]]*([a-z_0-9]+\.call\(|(sch
 	echo "  Scrivi il tipo a mano: var x: int = qualcosa.call(...)" >&2
 	exit 1
 fi
+# IL GIOCO NON DEVE PERDERE NIENTE, LE PROVE POSSONO.
+#
+# "ObjectDB instances leaked at exit" ci stava in fondo a ogni esecuzione da
+# settimane e lo guardavamo senza capirlo. Misurato: chi perde e' LA SUITE, non
+# il gioco - e sono coroutine sospese (svuota_coda, attendi_lettura) dentro
+# combattimenti che una prova libera a meta' volo. In Godot 4 una coroutine
+# sospesa non si puo' annullare: l'unico modo di non lasciarla li' sarebbe far
+# finire ogni scontro di prova per davvero, che vuol dire aspettarlo.
+#
+# Avviato da solo, il gioco non ne perde NEMMENO UNA. Quindi l'avviso smette di
+# essere rumore e diventa una sentinella: qui dentro zero, e se un giorno il
+# numero si muove vuol dire che a perdere ha cominciato il gioco.
+CONTROLLA_PERDITE=1
 echo "→ il gioco si avvia"
 esegui_pulito "l'avvio del gioco" "$GODOT" --headless --path . --quit-after 240
+unset CONTROLLA_PERDITE
 echo "→ prove"
 esegui_pulito "le prove" "$GODOT" --headless --path . prove/Prove.tscn

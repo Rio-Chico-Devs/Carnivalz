@@ -154,7 +154,7 @@
 					"id": "gran_finale",
 					"nome": "Gran finale",
 					"tipo": "attacco_tutti",
-					"testo": "«Se e' l'ultimo, che sia il migliore!»",
+					"testo": "«Se è l'ultimo, che sia il migliore!»",
 					"quota": 1.1,
 					"elemento": "fuoco",
 					"quando": {
@@ -755,7 +755,7 @@
 			"categoria": "particolare",
 			"ritratto": "res://art/personaggi/ferraglia_urlante.png",
 			"_nota": "INVENTATO DA ME, DA CORREGGERE. Bru ha scritto solo il nome, nella Metamorfosi dei Rottami Erranti: 'Capace di diventare un Golem errante di rottami'. Livello 7 perche' era l'unica fascia del gioco senza nessuna creatura, e perche' e' quello che i Rottami (livello 6) diventano: deve essere un gradino sopra. Il ritratto e' quello dei Rottami finche' non ce n'e' uno suo.",
-			"descrizione": "Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non e' piu' al centro: e' in cima.",
+			"descrizione": "Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non è più al centro: è in cima.",
 			"carta": {
 				"id": "carta_golem_errante",
 				"nome": "Golem errante di rottami",
@@ -994,7 +994,7 @@
 					"id": "artigliata",
 					"nome": "Artigliata",
 					"tipo": "attacco_forte",
-					"testo": "Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.",
+					"testo": "Le unghie sono l'unica cosa che gli è cresciuta dopo la morte.",
 					"quota": 1.45,
 					"peso": 2
 				},
@@ -1058,7 +1058,7 @@
 					"id": "sguardo_vuoto",
 					"nome": "Sguardo vuoto",
 					"tipo": "stato",
-					"testo": "Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.",
+					"testo": "Le orbite ti guardano, e la cosa peggiore è che ci si vede dentro.",
 					"stato": "terrore",
 					"peso": 1,
 					"ricarica": 5
@@ -1132,7 +1132,7 @@
 					"id": "abbraccio_di_carne",
 					"nome": "Abbraccio di carne",
 					"tipo": "rubavita",
-					"testo": "Ti stringe, e per un momento non si capisce piu' dove finisci tu.",
+					"testo": "Ti stringe, e per un momento non si capisce più dove finisci tu.",
 					"quota": 1.4,
 					"quota_furto": 0.5,
 					"peso": 1
@@ -1141,7 +1141,7 @@
 					"id": "si_ricuce",
 					"nome": "Si ricuce",
 					"tipo": "cura",
-					"testo": "I corpi si rimescolano, e quello che era aperto adesso e' chiuso.",
+					"testo": "I corpi si rimescolano, e quello che era aperto adesso è chiuso.",
 					"quota_vita": 0.25,
 					"quando": {
 						"vita_sotto": 0.35
@@ -1209,7 +1209,7 @@
 					"id": "non_avvicinarti",
 					"nome": "Non avvicinarti",
 					"tipo": "attacco_forte",
-					"testo": "«Non toccarli.» Non c'e' nessuno da toccare.",
+					"testo": "«Non toccarli.» Non c'è nessuno da toccare.",
 					"quota": 1.5,
 					"peso": 2
 				},
@@ -1606,7 +1606,7 @@
 					"id": "mano_marcia",
 					"nome": "Mano marcia",
 					"tipo": "attacco_forte",
-					"testo": "La mano arriva piano, e non e' piu' una mano.",
+					"testo": "La mano arriva piano, e non è più una mano.",
 					"quota": 1.5,
 					"elemento": "veleno",
 					"peso": 2
@@ -1684,7 +1684,7 @@
 					"id": "non_si_ferma",
 					"nome": "Non si ferma",
 					"tipo": "attacco_forte",
-					"testo": "Continua a camminare, e continua a colpire. Non e' veloce. Non serve.",
+					"testo": "Continua a camminare, e continua a colpire. Non è veloce. Non serve.",
 					"quota": 1.0,
 					"elemento": "oscuro",
 					"peso": 2
@@ -1782,7 +1782,7 @@
 					"id": "litania_che_rimargina",
 					"nome": "Litania che rimargina",
 					"tipo": "cura",
-					"testo": "Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.",
+					"testo": "Recita più in fretta, e le ferite si chiudono al ritmo delle parole.",
 					"quota_vita": 0.2,
 					"quando": {
 						"vita_sotto": 0.35
@@ -2214,7 +2214,7 @@
 					"id": "marea",
 					"nome": "Marea",
 					"tipo": "orda",
-					"testo": "Si muovono tutti insieme, e non c'e' un davanti.",
+					"testo": "Si muovono tutti insieme, e non c'è un davanti.",
 					"quota": 0.5,
 					"peso": 3
 				},
@@ -2502,7 +2502,7 @@
 					"id": "si_nutre_del_rancore",
 					"nome": "Si nutre del rancore",
 					"tipo": "rubavita",
-					"testo": "Piu' le pensi contro, piu' si fa solida.",
+					"testo": "Piu' le pensi contro, più si fa solida.",
 					"quota": 1.2,
 					"elemento": "oscuro",
 					"quota_furto": 0.6,
@@ -2935,7 +2935,7 @@
 					"id": "fiamma_disperata",
 					"nome": "Fiamma disperata",
 					"tipo": "attacco_tutti",
-					"testo": "«Lo spettacolo non finisce finche' non lo decido io.»",
+					"testo": "«Lo spettacolo non finisce finché non lo decido io.»",
 					"quota": 1.3,
 					"elemento": "fuoco",
 					"quando": {
@@ -3845,7 +3845,7 @@
 			"nome": "Sogno perduto",
 			"categoria": "evocazione",
 			"ritratto": "res://art/personaggi/sogno_perduto.png",
-			"descrizione": "Qualcosa che Yhvina ha sognato una volta e poi non e' piu' riuscita a ritrovare. Sta al suo fianco senza parlare, e combatte come se ricordasse di averlo gia' fatto.",
+			"descrizione": "Qualcosa che Yhvina ha sognato una volta e poi non è più riuscita a ritrovare. Sta al suo fianco senza parlare, e combatte come se ricordasse di averlo già fatto.",
 			"_bru": "«Oppure evoca un sogno perduto, una creatura con 1/4 degli hp di Yhvina. Lei puo' evocare un sogno per volta.»",
 			"hp_quota_evocatore": 0.25,
 			"_hp_quota_evocatore": "La vita non e' un numero: e' un quarto di quella di chi lo sogna, calcolata quando arriva in campo (vedi Combattimento.adatta_all_evocatore). Se Yhvina cambia, il suo sogno la segue.",
@@ -3859,7 +3859,7 @@
 					"id": "colpo_ricordato",
 					"nome": "Colpo ricordato",
 					"tipo": "attacco_forte",
-					"testo": "Il sogno si muove in anticipo, come se la scena l'avesse gia' vissuta.",
+					"testo": "Il sogno si muove in anticipo, come se la scena l'avesse già vissuta.",
 					"quota": 1.0,
 					"peso": 3
 				},
