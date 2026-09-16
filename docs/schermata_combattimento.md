@@ -478,6 +478,90 @@ borsa piena la lista degli oggetti non ci sta. Tagliare le ultime voci vuol dire
 che quegli oggetti **in combattimento non esistono**, e niente a schermo lo dice.
 Quando non ci stanno tutte compare «Altro (1/2) ▸» e si volta pagina.
 
+## 11. Il box che racconta, e chi si prende il quadrante
+
+Il box della narrazione stava **già** dentro il quadrante — `ospita_box()` lo
+appende alla faccia del parlato — ma la plancia nasceva sul parlato e al primo
+menu passava ai comandi **senza tornarci mai più**. Tutto quello che il
+combattimento raccontava finiva in un pannello nascosto: in partita non
+arrivava a schermo una parola.
+
+Il pannello fa tre mestieri e ne può mostrare uno per volta, quindi serviva una
+regola su chi se lo prende. Il primo tentativo dava al racconto un lucchetto
+sulla faccia, e una prova che c'era già l'ha bocciato subito: bastava una
+ricarica che finiva nel momento sbagliato per restare chiusi fuori dal proprio
+turno — **un menu nascosto non si vede e non prende nemmeno il fuoco da
+tastiera**.
+
+La regola è una funzione pura, in un posto solo:
+
+| stato | chi si prende il quadrante |
+|---|---|
+| puoi agire | **il menu**, sempre |
+| c'è da leggere | **il box** (mentre ricarichi, che è quasi tutto il tempo) |
+| altrimenti | il menu, spento |
+
+## 12. Le orde
+
+> «non abbiamo più il nemico zombi ma orda di zombi che può presentarsi in varie
+> quantità, da 3 a 10 fino a rarissimamente 30 [...] è un singolo disegno, ogni
+> tot hp che perde esce un dialogo: l'orda si indebolisce» — Bru
+
+Un'orda **non** è trenta combattenti in fila: è una creatura sola, un disegno
+solo, una barra sola, e un numero di componenti che cala. È anche l'unico modo
+di stare dentro l'altro disegno di Bru, quello della schermata, dove nel box
+grande «non ci saranno più di un nemico».
+
+Il conto scende **a scalini**, e ogni scalino è una battuta. Quelli da trenta li
+ha scritti Bru:
+
+    30 — 22 — 17 — 11 — 5 — 3 — 1 — 0
+
+Gli altri si ricavano (`Orda.scalini_per`), e più l'orda è grossa più fasi ha —
+da tre ne ha due, da trenta sette. La scala di Bru vince sempre sul conto
+automatico: sta in `SCALINI_DICHIARATI`.
+
+**Come attacca.** «usano un attacco che colpisce ×il numero di componenti
+dell'orda, con un 50% di prob di fallire a colpo, colpisce i tuoi alleati
+indistintamente e randomicamente». Si tira per **ogni** componente, e ognuno
+sceglie la sua vittima: è la differenza fra un'orda che qualche volta ti sfiora
+e una che fa sempre esattamente metà danno alla stessa persona. Con trenta
+addosso la media è quindici, ma la coda esiste — ed è quella che fa paura.
+
+### I due numeri che si tengono
+
+| | |
+|---|---|
+| vita dell'orda | quella di uno **× i componenti** |
+| colpo ad area | la frazione (0.6) **× i componenti** |
+
+Messi insieme, un colpo ad area toglie **sempre la stessa fetta** di orda, che
+sia da tre o da trenta — mentre un colpo singolo, su un'orda grossa, è una
+puntura di spillo. È esattamente quello che Bru voleva: «l'attacco ad area è
+debole sul singolo ma forte su più nemici così diamo un senso ed evitiamo lo
+spam di attacchi ad area».
+
+    nemico solo   ->  0.6x   (peggio di un colpo normale: è quello il freno)
+    orda da 3     ->  1.8x
+    orda da 10    ->  6.0x
+    orda da 30    -> 18.0x
+
+**Quanti sono si vede subito**, senza studiare, sulla fascia rossa: `ORDA DI
+ZOMBI ×7`. Tutto il senso del colpo ad area sta nel capire che hai davanti una
+folla — se il numero fosse nascosto dietro lo studio come gli HP, la scelta
+giusta sarebbe invisibile e il giocatore starebbe indovinando.
+
+Nella demo escono da 3 a 10; quella da 30 è rara (3%). Le orde da 50 e da 99
+non ci sono ancora: per averle basta aggiungere una voce in `regole.json`, il
+codice non sa quanto sono grosse — lo legge.
+
+## 13. Niente più nemici misti
+
+Tre incontri mettevano insieme due creature diverse: `ghoul + sacerdote folle`,
+`goblin + slime`, `goblin + tartaruga`. Non ci sono più. Nel box grande ci va un
+disegno solo, e una prova gira su tutti i file di eventi perché non ne rientri
+uno per distrazione.
+
 ## Una cosa che non ho chiuso
 
 Le prove finiscono con `ObjectDB instances leaked at exit`. Ci ho provato: il

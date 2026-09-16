@@ -148,7 +148,8 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	if suo_nome != null:
 		(suo_nome as Control).visible = false
 	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
-	plancia.fascia_nome.text = String(dati.get("nome", id_personaggio)).to_upper()
+	plancia.fascia_nome.text = String(dati.get("orda", {}).get("nome",
+			dati.get("nome", id_personaggio))).to_upper()
 	# «HP: ???» con i punti interrogativi rossi, come nel disegno: quello che
 	# non sai e' scritto col colore di quello che ti fara' male
 	vita.add_theme_color_override("font_color", Stile.colore("box_testo"))
@@ -159,6 +160,11 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	plancia.righe_studio.add_child(extra)
 	return {"scheda": plancia.box_nemico, "etichetta_vita": vita, "etichetta_extra": extra,
 			"slot": null, "barra_dominio": null, "bersaglio": plancia.box_nemico}
+
+func nome_in_fascia(combattente: Dictionary) -> String:
+	var dati: Dictionary = GameState.personaggi.get(String(combattente.get("id", "")), {})
+	return String(dati.get("orda", {}).get("nome",
+			dati.get("nome", combattente.get("nome", "")))).to_upper()
 
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
@@ -186,6 +192,16 @@ func aggiorna(combattente: Dictionary) -> void:
 				or not conosciuta(combattente, 1) \
 				else "%d/%d" % [combattente.hp, combattente.hp_max]
 		combattente.etichetta_vita.text = "HP: %s" % quanto
+		# QUANTI SONO SI VEDE SUBITO, senza studiare.
+		#
+		# Bru: «se il giocatore capisce e' un nemico multi nemico usera' attacchi
+		# ad area». Tutto il senso del colpo ad area sta li' - se il numero fosse
+		# nascosto dietro lo studio come gli HP, la scelta giusta sarebbe
+		# invisibile e il giocatore starebbe indovinando. Una folla si vede che
+		# e' una folla.
+		var quanti := int(combattente.get("componenti", 0))
+		if quanti > 0:
+			plancia.fascia_nome.text = "%s  \u00d7%d" % [nome_in_fascia(combattente), quanti]
 	elif combattente.get("hp_nascosti", false):
 		# i boss (e i nemici scriptati come la manifestazione) non mostrano il
 		# conteggio esatto degli hp: mantiene l'incertezza sullo scontro

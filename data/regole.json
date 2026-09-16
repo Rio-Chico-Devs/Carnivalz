@@ -2,6 +2,16 @@
 	"hp_base": 25,
 	"danno_attacco": 3,
 	"moltiplicatore_attacco_area": 0.6,
+	"orde": {
+		"_bru": "«non abbiamo piu' il nemico zombi ma orda di zombi che puo' presentarsi in varie quantita', da 3 a 10 fino a rarissimamente 30 [...] le orde saranno di numero randomico da 3 a 10 nella demo, vuol dire che a volte saranno 3 a volte 5 a volte 4 a volte 8 etc, quella da 30 e' speciale e molto rara. [...] le orde quando attaccano usano un attacco che colpisce x il numero di componenti dell'orda, con un 50% di prob di fallire a colpo, colpisce i tuoi alleati indistintamente e randomicamente.»",
+		"_nota_cinquanta": "Bru: «poi faremo anche l'orda da 50 e l'orda da 99 che sara' l'orda piu' forte e miniboss a un certo punto, ma nel tutorial 50 e 100 non le avremo». Per averle basta aggiungere una voce qui: il codice non sa quanto sono grosse le orde, lo legge.",
+		"probabilita_mancare": 0.5,
+		"minimo": 3,
+		"massimo": 10,
+		"rara_componenti": 30,
+		"rara_probabilita": 0.03,
+		"testo_indebolimento": "[i]L'orda si indebolisce.[/i]"
+	},
 	"bonus_attacco_per_livello": 1.0,
 	"riduzione_danno_per_livello": 0.02,
 	"riduzione_danno_massima": 0.35,

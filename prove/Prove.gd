@@ -118,6 +118,9 @@ func _ready() -> void:
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
 	prova_il_box_racconta_nel_quadrante()
+	prova_orde()
+	prova_orda_in_campo()
+	prova_niente_nemici_misti()
 	prova_condizione_di_chi_ha_il_turno()
 	prova_chi_tocca_si_accende()
 	prova_mattanza_e_bond_non_spariscono()
@@ -2791,7 +2794,7 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
 			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
 			"cura", "rubavita", "stato", "potenziamento", "scena", "tormento",
-			"modalita", "trasformazione", "provoca"]
+			"modalita", "trasformazione", "provoca", "orda"]
 	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione.
 	# Le sei caselle ce le hanno lo stesso, tutte libere
 	var senza_mosse_per_scelta := ["manifestazione_di_un_sogno", "veronica"]
@@ -7038,6 +7041,268 @@ func prova_mattanza_e_bond_non_spariscono() -> void:
 	esigi(not plancia.tasto_mattanza.visible and not plancia.tasto_bond.visible,
 			"mentre il box parla i due tasselli gli stanno sopra")
 	radice.free()
+
+func prova_orde() -> void:
+	# «non abbiamo piu' il nemico zombi ma orda di zombi che puo' presentarsi in
+	# varie quantita', da 3 a 10 fino a rarissimamente 30 [...] e' un singolo
+	# disegno, ogni tot hp che perde esce un dialogo: l'orda si indebolisce» (Bru).
+	titolo("le orde: gli scalini, i colpi che arrivano, e il senso del colpo ad area")
+
+	# GLI SCALINI DA TRENTA SONO DI BRU, parola per parola. Se un giorno il conto
+	# automatico se li mangia, questa prova lo dice.
+	esigi(OrdaDiNemici.scalini_per(30) == [30, 22, 17, 11, 5, 3, 1, 0],
+			"l'orda da trenta non scende piu' come l'ha scritta Bru: %s"
+			% [OrdaDiNemici.scalini_per(30)])
+
+	# «a seconda di quanti componenti ha l'orda ci saranno piu' fasi di
+	# indebolimento»: piu' e' grossa, piu' volte la senti cedere
+	var fasi_prima := 0
+	for quanti in [3, 4, 5, 6, 7, 8, 9, 10, 30]:
+		var scala := OrdaDiNemici.scalini_per(quanti)
+		esigi(scala[0] == quanti,
+				"l'orda da %d non comincia da %d ma da %d" % [quanti, quanti, scala[0]])
+		esigi(scala[scala.size() - 1] == 0,
+				"l'orda da %d non arriva mai a zero: non si puo' abbattere" % quanti)
+		for i in range(1, scala.size()):
+			esigi(scala[i] < scala[i - 1],
+					"l'orda da %d ha due scalini che non scendono: %s" % [quanti, scala])
+		esigi(scala.size() - 1 >= fasi_prima,
+				"l'orda da %d ha MENO fasi di una piu' piccola (%d contro %d)"
+				% [quanti, scala.size() - 1, fasi_prima])
+		fasi_prima = scala.size() - 1
+	esigi(OrdaDiNemici.scalini_per(30).size() > OrdaDiNemici.scalini_per(3).size(),
+			"l'orda da trenta non ha piu' fasi di quella da tre")
+
+	# QUANTI NE RESTANO IN PIEDI: a vita piena tutti, a zero nessuno, e in mezzo
+	# non risale mai
+	for quanti in [3, 7, 10, 30]:
+		esigi(OrdaDiNemici.componenti_a(1.0, quanti) == quanti,
+				"a vita piena l'orda da %d non e' piu' intera" % quanti)
+		esigi(OrdaDiNemici.componenti_a(0.0, quanti) == 0,
+				"a vita zero l'orda da %d ha ancora qualcuno in piedi" % quanti)
+		var ultimo: int = quanti
+		var passi := 0
+		for centesimi in range(100, -1, -1):
+			var adesso := OrdaDiNemici.componenti_a(float(centesimi) / 100.0, quanti)
+			esigi(adesso <= ultimo,
+					"l'orda da %d RISALE da %d a %d mentre la picchi" % [quanti, ultimo, adesso])
+			if OrdaDiNemici.si_indebolisce(ultimo, adesso):
+				passi += 1
+			ultimo = adesso
+		esigi(passi == OrdaDiNemici.scalini_per(quanti).size() - 2,
+				"l'orda da %d annuncia %d indebolimenti invece di %d"
+				% [quanti, passi, OrdaDiNemici.scalini_per(quanti).size() - 2])
+	esigi(not OrdaDiNemici.si_indebolisce(1, 0),
+			"quando l'orda cade annuncia un indebolimento invece del KO")
+
+	# «usano un attacco che colpisce x il numero di componenti dell'orda, con un
+	# 50% di prob di fallire a colpo». Si tira per OGNI componente: la media e'
+	# meta', ma la coda esiste - ed e' quella che fa paura.
+	var dado := RandomNumberGenerator.new()
+	dado.seed = 20260916
+	esigi(OrdaDiNemici.colpi_a_segno(0, dado, 0.5) == 0,
+			"un'orda senza componenti colpisce lo stesso")
+	esigi(OrdaDiNemici.colpi_a_segno(12, dado, 1.0) == 0,
+			"con probabilita' di mancare piena qualche colpo arriva comunque")
+	esigi(OrdaDiNemici.colpi_a_segno(12, dado, 0.0) == 12,
+			"senza probabilita' di mancare non arrivano tutti e dodici")
+	var totale := 0
+	var volate := 400
+	var sempre_uguale := true
+	var primo := -1
+	for giro in volate:
+		var arrivati := OrdaDiNemici.colpi_a_segno(10, dado, 0.5)
+		esigi(arrivati >= 0 and arrivati <= 10,
+				"da un'orda da dieci sono arrivati %d colpi" % arrivati)
+		if primo < 0:
+			primo = arrivati
+		elif arrivati != primo:
+			sempre_uguale = false
+		totale += arrivati
+	var media := float(totale) / float(volate)
+	esigi(absf(media - 5.0) < 0.6,
+			"su %d raffiche da dieci la media e' %.2f invece di circa 5" % [volate, media])
+	esigi(not sempre_uguale,
+			"ogni raffica fa arrivare sempre lo stesso numero di colpi: non si tira per ognuno")
+
+	# IL COLPO AD AREA. «debole sul singolo ma forte su piu' nemici cosi' diamo
+	# un senso ed evitiamo lo spam».
+	var frazione := float(GameState.regole.get("moltiplicatore_attacco_area", 0.6))
+	esigi(OrdaDiNemici.moltiplicatore_area(frazione, 1) < 1.0,
+			"su un nemico solo il colpo ad area vale %.2f: non e' piu' debole di uno normale"
+			% OrdaDiNemici.moltiplicatore_area(frazione, 1))
+	var prima_area := 0.0
+	for quanti in [1, 3, 10, 30]:
+		var adesso := OrdaDiNemici.moltiplicatore_area(frazione, quanti)
+		esigi(adesso > prima_area,
+				"contro un'orda da %d il colpo ad area non vale piu' che contro una piu' piccola"
+				% quanti)
+		prima_area = adesso
+	esigi(OrdaDiNemici.moltiplicatore_area(frazione, 3) > 1.0,
+			"gia' contro tre il colpo ad area dovrebbe battere un colpo normale")
+
+	# E I DUE NUMERI SI TENGONO: la vita cresce coi componenti e il colpo ad area
+	# pure, quindi un colpo ad area toglie SEMPRE la stessa fetta d'orda - da tre
+	# o da trenta - mentre un colpo singolo su un'orda grossa e' uno spillo.
+	var attacco := 40.0
+	var hp_di_uno := 25
+	var fetta_prima := -1.0
+	var spillo_prima := 2.0
+	for quanti in [3, 10, 30]:
+		var vita := OrdaDiNemici.vita_per(hp_di_uno, quanti)
+		esigi(vita == hp_di_uno * quanti,
+				"la vita dell'orda da %d non e' quella di uno per quanti sono" % quanti)
+		var fetta := attacco * OrdaDiNemici.moltiplicatore_area(frazione, quanti) / float(vita)
+		if fetta_prima >= 0.0:
+			esigi(absf(fetta - fetta_prima) < 0.001,
+					"il colpo ad area toglie %.3f d'orda da %d e %.3f da una piu' piccola: non si tengono"
+					% [fetta, quanti, fetta_prima])
+		fetta_prima = fetta
+		var spillo := attacco / float(vita)
+		esigi(spillo < spillo_prima,
+				"su un'orda da %d un colpo singolo pesa quanto su una piu' piccola" % quanti)
+		spillo_prima = spillo
+
+func prova_orda_in_campo() -> void:
+	# LA LOGICA GIUSTA ATTACCATA A NIENTE E' IL DIFETTO DI SEMPRE. Orda.gd sa
+	# fare i conti; questa guarda che il combattimento li usi davvero.
+	titolo("un'orda scende in campo come un nemico solo che ne vale tanti")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["zombie_cittadino"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.limite_giri = 1
+	add_child(scontro)
+
+	var orda := {}
+	for combattente in scontro.combattenti:
+		if not combattente.giocatore:
+			orda = combattente
+	esigi(not orda.is_empty(), "nessun nemico in campo")
+	esigi(scontro.vivi(false).size() == 1,
+			"l'orda occupa %d posti invece di uno: nel box grande ci va un disegno solo"
+			% scontro.vivi(false).size())
+
+	var quanti := int(orda.get("componenti", 0))
+	var regole: Dictionary = GameState.regole.get("orde", {})
+	var minimo := int(regole.get("minimo", 3))
+	var massimo := int(regole.get("massimo", 10))
+	esigi(quanti >= minimo and (quanti <= massimo or quanti == int(regole.get("rara_componenti", 30))),
+			"l'orda e' comparsa in %d: fuori da %d-%d e non e' nemmeno quella rara"
+			% [quanti, minimo, massimo])
+	esigi(String(orda.get("nome", "")) == String(GameState.personaggi
+			.get("zombie_cittadino", {}).get("orda", {}).get("nome", "")),
+			"in campo l'orda si chiama ancora '%s'" % String(orda.get("nome", "")))
+
+	# la vita e' quella di uno per quanti sono: e' il numero che rende un colpo
+	# singolo una puntura di spillo
+	var uno := GameState.stat_nemico("zombie_cittadino", "hp",
+			int(GameState.regole.get("hp_base", 25)))
+	esigi(int(orda.hp_max) == OrdaDiNemici.vita_per(uno, quanti),
+			"l'orda da %d ha %d punti vita invece di %d"
+			% [quanti, int(orda.hp_max), OrdaDiNemici.vita_per(uno, quanti)])
+
+	# PICCHIANDOLA SI INDEBOLISCE, e lo dice. Senza questo il conto scenderebbe
+	# in silenzio e il giocatore non saprebbe mai di aver fatto progressi.
+	orda.componenti_iniziali = 30
+	orda.componenti = 30
+	orda.hp_max = OrdaDiNemici.vita_per(uno, 30)
+	orda.hp = orda.hp_max
+	var scalini_visti: Array[int] = [30]
+	var battute := 0
+	for passo in 40:
+		orda.hp = maxi(int(orda.hp) - int(float(orda.hp_max) / 40.0) - 1, 0)
+		var prima_della_coda: int = scontro.voce.coda.size()
+		scontro.aggiorna_orda(orda)
+		var adesso := int(orda.componenti)
+		if adesso != scalini_visti[scalini_visti.size() - 1]:
+			scalini_visti.append(adesso)
+			if adesso > 0:
+				battute += scontro.voce.coda.size() - prima_della_coda
+	esigi(scalini_visti == OrdaDiNemici.scalini_per(30),
+			"picchiandola l'orda da trenta e' scesa %s invece che %s"
+			% [scalini_visti, OrdaDiNemici.scalini_per(30)])
+	esigi(battute == scalini_visti.size() - 2,
+			"l'orda ha perso %d scalini e ha detto qualcosa %d volte"
+			% [scalini_visti.size() - 2, battute])
+	scontro.voce.coda.clear()
+
+	# E COLPISCE PER QUANTI E'. Con dodici addosso devono arrivare piu' colpi
+	# che con uno: e' tutto il motivo per cui un'orda fa paura.
+	var mossa := {}
+	for m in GameState.personaggi.get("zombie_cittadino", {}).get("mosse", []):
+		if String(m.get("tipo", "")) == "orda":
+			mossa = m
+	esigi(not mossa.is_empty(), "l'orda non ha una mossa da orda: attacca come un singolo")
+	var tu: Dictionary = scontro.combattente_comandato()
+	esigi(not tu.is_empty(), "nessuno da colpire")
+	var subiti := {}
+	for componenti in [1, 12]:
+		orda.componenti = componenti
+		orda.hp = orda.hp_max
+		var totale := 0
+		for giro in 30:
+			tu.hp = tu.hp_max
+			var prima_hp := int(tu.hp)
+			scontro.marea(orda, mossa)
+			totale += prima_hp - int(tu.hp)
+		subiti[componenti] = totale
+	esigi(int(subiti[12]) > int(subiti[1]) * 3,
+			"un'orda da dodici ha fatto %d di danno contro %d di una da uno: non colpisce per quanti e'"
+			% [int(subiti[12]), int(subiti[1])])
+	# IL COLPO AD AREA VALE PER QUANTI NE HA DAVANTI, in campo e non solo sulla
+	# carta. Bru: «l'attacco ad area e' debole sul singolo ma forte su piu'
+	# nemici cosi' diamo un senso ed evitiamo lo spam».
+	var colpitore := tu.duplicate()
+	colpitore.attacco = 200
+	var tolto := {}
+	for componenti in [1, 12]:
+		orda.componenti = componenti
+		orda.componenti_iniziali = 0   # niente scalini: qui si misura solo il colpo
+		orda.hp_max = 2000000
+		orda.hp = orda.hp_max
+		scontro.attacco_area(colpitore, {})
+		tolto[componenti] = orda.hp_max - int(orda.hp)
+	esigi(int(tolto[12]) > int(tolto[1]) * 5,
+			"il colpo ad area toglie %d a un'orda da dodici e %d a una da uno: non conta i componenti"
+			% [int(tolto[12]), int(tolto[1])])
+
+	# E QUANTI SONO SI LEGGE SULLA FASCIA. E' l'unico modo che ha il giocatore di
+	# capire che ha davanti un'orda - e senza capirlo, il colpo ad area non ha
+	# nessun senso da avere.
+	orda.componenti = 7
+	orda.hp = orda.hp_max
+	scontro.campo.aggiorna(orda)
+	esigi("7" in scontro.plancia.fascia_nome.text,
+			"la fascia dice '%s': quanti sono non si vede da nessuna parte"
+			% scontro.plancia.fascia_nome.text)
+	orda.componenti = 0
+	scontro.voce.coda.clear()
+	scontro.free()
+
+func prova_niente_nemici_misti() -> void:
+	# «niente piu' nemici misti» (Bru). Nel box grande ci va un disegno solo:
+	# un gruppo con due creature diverse non si potrebbe nemmeno disegnare.
+	titolo("niente piu' nemici misti: ogni incontro ha una creatura sola")
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		for gruppo in gruppi_di_nemici(dati):
+			var specie := {}
+			for id_nemico in gruppo:
+				specie[String(id_nemico)] = true
+			esigi(specie.size() <= 1,
+					"%s: un incontro mette insieme %s" % [percorso.get_file(), gruppo])
+
+func gruppi_di_nemici(dati: Variant, raccolta: Array = []) -> Array:
+	if dati is Dictionary:
+		var d: Dictionary = dati
+		if d.has("nemici") and d["nemici"] is Array:
+			raccolta.append(d["nemici"])
+		for chiave in d:
+			gruppi_di_nemici(d[chiave], raccolta)
+	elif dati is Array:
+		for voce in (dati as Array):
+			gruppi_di_nemici(voce, raccolta)
+	return raccolta
 
 func prova_il_box_racconta_nel_quadrante() -> void:
 	# «il suo dialogo appare dove mettiamo i minigiochi e cosi' anche quelli dei

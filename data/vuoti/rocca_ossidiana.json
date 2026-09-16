@@ -383,8 +383,7 @@
 			],
 			"combattimento_automatico": {
 				"nemici": [
-					"ghoul",
-					"sacerdote_folle"
+					"ghoul"
 				],
 				"se_vinci": "dopo_lamento",
 				"se_perdi": "espulso"

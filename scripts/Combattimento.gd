@@ -389,6 +389,17 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var hp_max: int = GameState.stat_di("hp") if e_protagonista \
 			else int(stat.call("hp", int(GameState.regole.get("hp_base", 25))))
 	hp_max = maxi(hp_max + eq.call("hp_max"), 1)
+	# UN'ORDA E' UN NEMICO SOLO CHE NE VALE TANTI. Bru: «non abbiamo piu' il
+	# nemico zombi ma orda di zombi che puo' presentarsi in varie quantita'».
+	# La creatura resta quella - stesso file, stesse mosse, stesso disegno - e
+	# quello che cambia e' quanti ne hai davanti: la vita e' quella di uno per
+	# quanti sono.
+	var componenti := 0
+	var nome_in_campo: String = dati.get("nome_breve", dati.get("nome", id_personaggio))
+	if not giocatore and dati.has("orda"):
+		componenti = quanti_nell_orda()
+		hp_max = OrdaDiNemici.vita_per(hp_max, componenti)
+		nome_in_campo = String(dati["orda"].get("nome", nome_in_campo))
 	var hp_iniziali := hp_max
 	if giocatore and GameState.hp_persistenti.has(id_personaggio):
 		# scontri incatenati: si riprende con i punti vita lasciati dal precedente
@@ -403,7 +414,9 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var combattente := {
 		"indice": combattenti.size(),
 		"id": id_personaggio,
-		"nome": dati.get("nome_breve", dati.get("nome", id_personaggio)),
+		"nome": nome_in_campo,
+		"componenti": componenti,             # 0 = non e' un'orda
+		"componenti_iniziali": componenti,
 		"hp": hp_iniziali,
 		"hp_max": hp_max,
 		"attacco": maxi((GameState.stat_di("attacco") if e_protagonista else int(stat.call("attacco", 1))) + eq.call("attacco"), 0),
@@ -2280,12 +2293,77 @@ func passiva(_chi: Dictionary, dati: Dictionary) -> void:
 	# che nessuno controlla piu'
 	scrivi("[i]%s[/i]" % String(dati.get("descrizione", "Vale sempre, non si usa.")))
 
+func regole_orde() -> Dictionary:
+	return GameState.regole.get("orde", {})
+
+func quanti_nell_orda() -> int:
+	# «le orde saranno di numero randomico da 3 a 10 nella demo, vuol dire che a
+	# volte saranno 3 a volte 5 a volte 4 a volte 8 etc, quella da 30 e' speciale
+	# e molto rara» (Bru). I numeri stanno in regole.json: quando arriveranno
+	# quella da 50 e quella da 99 non si tocca questa funzione.
+	var regole := regole_orde()
+	var rara := int(regole.get("rara_componenti", 30))
+	if rara > 0 and GameState.rng.randf() < float(regole.get("rara_probabilita", 0.03)):
+		return rara
+	return GameState.rng.randi_range(int(regole.get("minimo", 3)),
+			int(regole.get("massimo", 10)))
+
+func aggiorna_orda(chi: Dictionary) -> void:
+	# «ogni tot hp che perde esce un dialogo: l'orda si indebolisce» (Bru).
+	#
+	# Il conto non scende di uno alla volta: scende a scalini (vedi Orda.gd), e
+	# ogni scalino e' una battuta. Il KO non si annuncia qui - quello lo racconta
+	# gia' il combattimento come per qualunque altra creatura.
+	if int(chi.get("componenti_iniziali", 0)) <= 0:
+		return
+	var prima := int(chi.get("componenti", 0))
+	var adesso := OrdaDiNemici.componenti_a(
+			float(chi.hp) / maxf(float(chi.get("hp_max", 1)), 1.0),
+			int(chi.componenti_iniziali))
+	if adesso == prima:
+		return
+	chi.componenti = adesso
+	if OrdaDiNemici.si_indebolisce(prima, adesso):
+		scrivi(String(regole_orde().get("testo_indebolimento", "[i]L'orda si indebolisce.[/i]")))
+	campo.aggiorna(chi)
+
+func marea(chi: Dictionary, mossa: Dictionary) -> void:
+	# «le orde quando attaccano usano un attacco che colpisce x il numero di
+	# componenti dell'orda, con un 50% di prob di fallire a colpo, colpisce i
+	# tuoi alleati indistintamente e randomicamente» (Bru).
+	#
+	# Si tira per OGNI componente, e ognuno sceglie la sua vittima per conto suo:
+	# e' la differenza fra un'orda che qualche volta ti sfiora e una che fa
+	# sempre esattamente meta' danno alla stessa persona.
+	var quanti := int(chi.get("componenti", 0))
+	if quanti <= 0:
+		return
+	var arrivati := OrdaDiNemici.colpi_a_segno(quanti, GameState.rng,
+			float(regole_orde().get("probabilita_mancare", 0.5)))
+	scrivi("[i]%s[/i]" % String(mossa.get("testo", "L'orda si muove tutta insieme.")))
+	if arrivati <= 0:
+		scrivi("[i]Ti passano accanto tutti quanti, e nessuno ti prende.[/i]")
+		return
+	var valore := valore_mossa(chi, mossa)
+	for colpo in arrivati:
+		var vittima := bersaglio_giocatore_casuale()
+		if vittima.is_empty():
+			break
+		attacca(chi, vittima, valore, 1.0, String(mossa.get("elemento", "")))
+
 func attacco_area(chi: Dictionary, dati: Dictionary = {}) -> void:
 	scrivi("[i]%s scatena un colpo che si abbatte su tutti i nemici![/i]" % chi.nome)
 	var frazione := float(dati.get("moltiplicatore",
 			GameState.regole.get("moltiplicatore_attacco_area", 0.6)))
-	var valore := int(round(RegoleCombattimento.attacco_di(chi) * frazione))
 	for nemico in vivi(false):
+		# UN COLPO AD AREA VALE PER QUANTI NE HA DAVANTI. Bru: «l'attacco ad area
+		# e' debole sul singolo ma forte su piu' nemici cosi' diamo un senso ed
+		# evitiamo lo spam di attacchi ad area». Su un nemico solo vale meno di
+		# un colpo normale - ed e' quello il freno; su un'orda vale per tutti i
+		# componenti, e diventa l'unica risposta sensata.
+		var valore := int(round(RegoleCombattimento.attacco_di(chi)
+				* OrdaDiNemici.moltiplicatore_area(frazione,
+						maxi(int(nemico.get("componenti", 0)), 1))))
 		attacca(chi, nemico, valore, 1.0, String(dati.get("elemento", "")))
 
 func raffica(chi: Dictionary, dati: Dictionary) -> void:
@@ -3257,6 +3335,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			if not bool(mossa.get("tutti", false)):
 				chi_provocare = uno_solo(bersaglio_opposto(nemico))
 			provoca(nemico, chi_provocare)
+		"orda":
+			marea(nemico, mossa)
 		"attacco_forte":
 			var vittima_forte := bersaglio_giocatore_casuale()
 			attacca(nemico, vittima_forte, valore_mossa(nemico, mossa),
@@ -3968,6 +4048,9 @@ func registra_danno_subito(bersaglio: Dictionary, danno: int) -> void:
 	if danno > 0:
 		bersaglio.ultimo_danno_subito = danno
 		bersaglio.colpi_incassati = int(bersaglio.colpi_incassati) + 1
+		# QUI PASSA OGNI COLPO INCASSATO, qualunque sia: e' l'unico posto da cui
+		# un'orda non puo' perdere pezzi senza accorgersene
+		aggiorna_orda(bersaglio)
 		# SCUOTERE CHI DORME FUNZIONA. Bru: "piu' subisci attacchi piu'
 		# probabilita' hai di svegliarti". Il conto sta qui e non dentro il
 		# Sonno perche' qui passa OGNI colpo incassato - attacco, veleno,

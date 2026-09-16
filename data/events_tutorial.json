@@ -190,8 +190,7 @@
 			],
 			"combattimento_automatico": {
 				"nemici": [
-					"goblin_tipico",
-					"slime_infimo"
+					"goblin_tipico"
 				],
 				"se_vinci": "bivio",
 				"se_perdi": "sconfitta"
@@ -255,8 +254,7 @@
 			],
 			"combattimento_automatico": {
 				"nemici": [
-					"goblin_tipico",
-					"tartaruga_innocente"
+					"goblin_tipico"
 				],
 				"se_vinci": "dopo_pozze",
 				"se_perdi": "sconfitta",

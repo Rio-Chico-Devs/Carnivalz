@@ -497,8 +497,6 @@
 			],
 			"combattimento_automatico": {
 				"nemici": [
-					"zombie_cittadino",
-					"zombie_cittadino",
 					"zombie_cittadino"
 				],
 				"se_vinci": "seconda_ondata",
@@ -516,8 +514,6 @@
 			],
 			"combattimento_automatico": {
 				"nemici": [
-					"zombie_cittadino",
-					"zombie_cittadino",
 					"zombie_cittadino"
 				],
 				"se_vinci": "dopo_ondate",

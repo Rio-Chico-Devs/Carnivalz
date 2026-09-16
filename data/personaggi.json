@@ -2158,6 +2158,10 @@
 		},
 		{
 			"id": "zombie_cittadino",
+			"orda": {
+				"nome": "Orda di zombi",
+				"_bru": "«non abbiamo piu' il nemico zombi ma orda di zombi». Un disegno solo, una barra sola, e un numero di componenti che cala a scalini mentre la picchi."
+			},
 			"livello": 2,
 			"ruolo": "comune",
 			"nome": "Zombie Cittadino",
@@ -2207,10 +2211,12 @@
 					"ricarica": 3
 				},
 				{
-					"id": "libera_4",
-					"nome": "-",
-					"tipo": "-",
-					"testo": "-"
+					"id": "marea",
+					"nome": "Marea",
+					"tipo": "orda",
+					"testo": "Si muovono tutti insieme, e non c'e' un davanti.",
+					"quota": 0.5,
+					"peso": 3
 				},
 				{
 					"id": "libera_5",
