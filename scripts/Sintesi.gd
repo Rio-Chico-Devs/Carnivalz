@@ -109,6 +109,12 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			return tono(700.0, 0.16, "triangolo", 20.0, 0.24, 1050.0)
 		"errore":
 			return tono(220.0, 0.16, "quadra", 26.0, 0.22, 160.0)
+		"data_pad":
+			# L'AVVISO DEL DATA PAD. Bru lo registrera' («un suono che creo io
+			# tipo allert»); questo e' il segnaposto perche' la scena si possa
+			# giocare da subito. Due note in salita, corte: un apparecchio che
+			# ti chiama, non un pericolo - per quello c'e' "allarme"
+			return tono(740.0, 0.12, "quadra", 40.0, 0.22, 990.0)
 		"allarme":
 			# l'ultimo quarto di una scelta a tempo: due colpi secchi in alto,
 			# la stessa cosa che dice la lancetta diventata rossa

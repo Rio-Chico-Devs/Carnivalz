@@ -489,6 +489,12 @@
 					"testo": "Torna alle pozze",
 					"vai": "pozze"
 				}
+			],
+			"vai_se_flag": [
+				{
+					"flag": "pianure_compiute",
+					"vai": "ritorno_disponibile"
+				}
 			]
 		},
 		"boss": {
@@ -542,10 +548,11 @@
 			"espr_sinistra": "pensiero",
 			"scelte": [
 				{
-					"testo": "Torna al quartier generale",
-					"vai": "hq_veronica_saluto"
+					"testo": "Apri il data pad",
+					"vai": "ritorno_istruzioni"
 				}
-			]
+			],
+			"flag": "pianure_compiute"
 		},
 		"sconfitta": {
 			"scelte": [
@@ -985,6 +992,191 @@
 				{
 					"testo": "Torna alla mappa stellare",
 					"reset": true
+				}
+			]
+		},
+		"ritorno_istruzioni": {
+			"_nota": "Il testo è di Bru, parola per parola. Unici ritocchi: l'accordo maschile/femminile, quattro refusi (Bhe, sopratutto, Ah si, un po di più) e la frase del data pad, che nell'originale era grammaticalmente incompleta («come la spiegazioni quando avviato la sua guida») - qui è resa leggibile senza cambiare quello che dice.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Beh, sicuramente ho capito come si parte... ma come ritorno?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "data_pad",
+					"testo": "Complimenti dominat{ore|rice}, sembra che la tua missione sia finita. Avvii pure la procedura di ritorno, come le è stata spiegata quando ha avviato la sua guida.",
+					"suono": "data_pad"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Quella maledetta ha saltato tutto e io non ci ho capito niente!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... E ora cosa faccio?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Bzzzz... boop. h-heeey zzz"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Heylà! Ti stavo monitorando sai? Ho visto tutto! soprattutto quando hai spaccato di botte tutti quei nemici! Gli allenamenti ti sono serviti!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Veronica... Come torno alla base..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ah sì, certo! Ti spiego subito!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Devi sapere che ci sono 3 modi per entrare in quelle che chiamiamo fratture..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "la prima: Avendo un proiettore... Non ci capisco molto di questi affari, ma riescono ad allinearti in qualche modo a qualcosa che in teoria è compatibile con quel qualcosa che ha causato il fenomeno della frattura..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "la seconda: Alcuni individui particolari... nel nostro caso quelli che chiamiamo dominatori... Attirano queste anomalie che possono creare microfratture per accedere a questi mondi nelle loro vicinanze..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "per quello non ci è permesso abbandonare la base... La nostra base è costruita con un materiale particolare che limita questi eventi, altrimenti potremmo generare delle microfratture attorno a noi che potrebbero inghiottire anche civili ignari della cosa... certo, è un evento molto raro dicono, ma l'organizzazione ci tiene ad evitare queste situazioni..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "e il terzo?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "... Non lo so! Dovresti chiedere ai cervelloni del settore ricerca, io quel che so l'ho imparato durante le mie missioni e l'organizzazione è molto riservata su queste cose..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Eppure noi facciamo il lavoro sporco... dovremmo poter sapere un po' di più sulla cosa..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Come ti ho detto adesso che torni per fare rapporto prova a chiedere a loro, io non so dirti molto..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Capito, proverò... Adesso, come faccio a tornare?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Prova ad aprire il tuo datapad e girare la rotella al fianco dal triangolo al cerchio,"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "[i]La rotella scatta sul cerchio.[/i]"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Vuoi tornare indietro?"
+				}
+			],
+			"espr_sinistra": "pensiero",
+			"scelte": [
+				{
+					"testo": "Sì, torno alla base",
+					"vai": "ritorno_alla_base"
+				},
+				{
+					"testo": "No, voglio dare ancora un'occhiata",
+					"vai": "ritorno_rimandato"
+				}
+			],
+			"flag": "sa_tornare"
+		},
+		"ritorno_rimandato": {
+			"_nota": "Bru: «altrimenti scatta il dialogo di veronica: Dai non perdere tempo, torna indietro, è quasi ora di cena...». Non è un muro: la mappa resta aperta e ci si può girare ancora.",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Dai non perdere tempo, torna indietro, è quasi ora di cena..."
+				}
+			],
+			"torna_a_mappa": true
+		},
+		"ritorno_disponibile": {
+			"_nota": "Bru: «a ogni fine missione avrai l'opzione di tornare alla base nell'ultima zona della mappa altrimenti potrai ancora rivisitare la mappa se pensi di aver dimenticato qualcosa». La convenzione: l'ultima stanza di una zona si tiene un vai_se_flag verso un nodo come questo, e da lì si torna.",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "[i]La rotella del data pad è ancora sul cerchio.[/i]"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Vuoi tornare indietro?"
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Sì, torno alla base",
+					"vai": "ritorno_alla_base"
+				},
+				{
+					"testo": "No, voglio dare ancora un'occhiata",
+					"vai": "ritorno_rimandato"
+				}
+			]
+		},
+		"ritorno_alla_base": {
+			"_nota": "Bru: «scegliendo si torni indietro da veronica nella sala proiezione». L'arrivo è solo narrazione: cosa si dicono lì lo scrive Bru, e per ora si prosegue col rientro che c'era già.",
+			"sfondo": "res://art/scene/sala_proiezione.png",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "[b]FLASH.[/b]",
+					"attesa": 0.6
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "La piattaforma della sala di proiezione, e l'odore di metallo freddo che non avevi notato all'andata."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "[i]Veronica è appoggiata alla consolle, come se non si fosse mossa da lì.[/i]"
+				}
+			],
+			"scelte": [
+				{
+					"testo": "Scendi dalla piattaforma",
+					"vai": "hq_veronica_saluto"
 				}
 			]
 		}

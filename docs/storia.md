@@ -501,3 +501,44 @@ andrebbe a cercare dove sono finiti i soldi.
 - **`vai_se_flag` accetta una lista di regole**, vince la prima che trova il suo
   flag. La sala di proiezione vuol dire tre cose in tre momenti della giornata,
   e con una regola sola se ne potevano dire due.
+
+## Il ritorno, e come si impara
+
+Finita la missione — il boss delle Pianure di Redenna a terra — il data pad
+suona e si congratula, e **nessuno ha spiegato come si torna**: Veronica aveva
+saltato tutta la formazione della guida. Chiama lei, e ne approfitta per
+raccontare i **tre modi di entrare in una frattura**:
+
+1. **il proiettore** — ti allinea a qualcosa di compatibile con ciò che ha
+   causato la frattura. Lei non ci capisce molto, e lo dice;
+2. **i dominatori stessi** — attirano le anomalie e possono aprire microfratture
+   intorno a sé. È il motivo per cui **non è permesso lasciare la base**: la
+   base è costruita con un materiale che limita il fenomeno, e fuori si
+   rischierebbe di inghiottire dei civili;
+3. **il terzo non lo sa.** «Dovresti chiedere ai cervelloni del settore
+   ricerca.» Il protagonista fa notare che il lavoro sporco lo fanno loro.
+
+Non è una dimenticanza: è un filo lasciato in mano al giocatore per il rientro.
+
+### La meccanica
+
+A fine dialogo compare **«Vuoi tornare indietro?»**:
+
+- **Sì** → si torna da Veronica, nella sala di proiezione;
+- **No** → *«Dai non perdere tempo, torna indietro, è quasi ora di cena...»*, e la
+  mappa resta aperta: si può ancora girare, se si pensa di aver dimenticato
+  qualcosa.
+
+E la scelta **non si perde**. La convenzione, da qui in avanti: l'ultima stanza
+di una zona si tiene un `vai_se_flag` verso un nodo di rientro, acceso dal flag
+che la vittoria mette. Chi dice di no può tornarci quando vuole.
+
+### Due cose piccole aggiunte al motore
+
+- **Una battuta può suonare.** Bru sull'avviso del data pad: «qui metteremo un
+  suono che creo io tipo allert». Il nome è quello del file in
+  `res://audio/ui/`; finché non c'è, `Sintesi` ne fa uno provvisorio
+  (`data_pad`: due note corte in salita — un apparecchio che ti chiama, non un
+  pericolo).
+- Nuovo interlocutore: **`data_pad`**, che parla come un modulo prestampato e
+  non ha una faccia. Stessa famiglia di `computer`.

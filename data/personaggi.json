@@ -3915,6 +3915,12 @@
 			"nome": "Guida",
 			"ritratto": "res://art/personaggi/guida.png",
 			"_nota": "L'assistente del sistema di proiezione. Veronica le mette addosso la skin della sua VTuber preferita prima ancora che il protagonista capisca cosa sta succedendo: da quel momento in poi e' Bobo Bunny, e serve un secondo ritratto."
+		},
+		{
+			"id": "data_pad",
+			"nome": "Data pad",
+			"ritratto": "",
+			"_nota": "La voce dell'apparecchio, non una persona: parla come un modulo prestampato e non ha una faccia. Stessa famiglia di 'computer'."
 		}
 	]
 }

@@ -575,6 +575,12 @@ func avanza_messaggio() -> void:
 	contatore_messaggi += 1
 	if not coda_messaggi.is_empty():
 		var msg: Dictionary = coda_messaggi.pop_front()
+		if msg.has("suono"):
+			# UNA BATTUTA PUO' SUONARE. Bru, sull'avviso del data pad: «qui
+			# metteremo un suono che creo io tipo allert». Il nome e' quello del
+			# file in res://audio/ui/: finche' non c'e', Sintesi ne fa uno
+			# provvisorio, e il giorno che Bru lo registra basta copiarlo li'.
+			AudioManager.interfaccia(String(msg["suono"]))
 		if msg.has("flag"):
 			# UN FLAG A META' SCENA. Fino a ieri una scena poteva cambiare il
 			# mondo solo entrando o uscendo; una battuta no. Ma il momento in cui

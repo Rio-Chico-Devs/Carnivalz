@@ -119,6 +119,7 @@ func _ready() -> void:
 	prova_le_liste_del_menu()
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
+	prova_ritorno_dalla_missione()
 	await prova_flag_su_una_battuta()
 	prova_orde()
 	prova_orda_in_campo()
@@ -7098,6 +7099,92 @@ func prova_mattanza_e_bond_non_spariscono() -> void:
 			"mentre il box parla i due tasselli gli stanno sopra")
 	radice.free()
 
+func prova_ritorno_dalla_missione() -> void:
+	# «dopo finita la missione, va spiegato come si torna indietro [...] appare
+	# una scelta a fine dialogo, vuoi tornare indietro? si no, a ogni fine
+	# missione avrai l'opzione di tornare alla base nell'ultima zona della mappa
+	# altrimenti potrai ancora rivisitare la mappa se pensi di aver dimenticato
+	# qualcosa» (Bru).
+	titolo("finita la missione si impara a tornare, e la scelta resta li\'")
+	var dati := carica_eventi("res://data/events_tutorial.json")
+	var nodi: Dictionary = dati.get("nodi", {})
+	for id_nodo in ["ritorno_istruzioni", "ritorno_rimandato", "ritorno_disponibile",
+			"ritorno_alla_base"]:
+		esigi(nodi.has(id_nodo), "manca il nodo '%s' del ritorno" % id_nodo)
+
+	# la vittoria non manda piu' dritti al quartier generale: prima si impara
+	esigi("ritorno_istruzioni" in destinazioni_di(nodi.get("vittoria", {})),
+			"vinto il boss si torna alla base senza che nessuno abbia spiegato come: %s"
+			% [destinazioni_di(nodi.get("vittoria", {}))])
+
+	# LE BATTUTE CI SONO TUTTE, E IN ORDINE
+	var battute: Array[String] = []
+	for voce in nodi["ritorno_istruzioni"].get("sequenza", []):
+		battute.append(String((voce as Dictionary).get("testo", "")))
+	var attese := [
+		"Beh, sicuramente ho capito come si parte... ma come ritorno?",
+		"Quella maledetta ha saltato tutto e io non ci ho capito niente!",
+		"Bzzzz... boop. h-heeey zzz",
+		"Veronica... Come torno alla base...",
+		"Devi sapere che ci sono 3 modi per entrare in quelle che chiamiamo fratture...",
+		"e il terzo?",
+		"Capito, proverò... Adesso, come faccio a tornare?",
+	]
+	var ultimo := -1
+	for frase in attese:
+		var dove := battute.find(String(frase))
+		esigi(dove >= 0, "la battuta «%s» non c\'e\' piu\'" % frase)
+		esigi(dove > ultimo, "la battuta «%s» e\' finita fuori ordine" % frase)
+		ultimo = maxi(dove, ultimo)
+
+	# I TRE MODI SONO TRE, e il terzo Veronica non lo sa: e' il filo che porta
+	# al settore ricerca, non una dimenticanza
+	var parlato := "\n".join(battute)
+	for pezzo in ["la prima:", "la seconda:", "Non lo so!", "settore ricerca"]:
+		esigi(pezzo in parlato, "dalla spiegazione delle fratture e\' sparito «%s»" % pezzo)
+
+	# IL SUONO DEL DATA PAD. Bru: «qui metteremo un suono che creo io tipo
+	# allert». Se la battuta non lo chiede, il giorno che il file arriva non
+	# suonera\' da nessuna parte.
+	var suona := ""
+	for voce in nodi["ritorno_istruzioni"].get("sequenza", []):
+		if (voce as Dictionary).has("suono"):
+			suona = String((voce as Dictionary).get("chi", ""))
+	esigi(suona == "data_pad",
+			"l\'avviso del data pad non fa suonare niente (suono su '%s')" % suona)
+
+	# LA SCELTA: SI\' TORNA, NO RESTA. E il no non e\' un muro: la mappa resta
+	# aperta, «potrai ancora rivisitare la mappa se pensi di aver dimenticato
+	# qualcosa».
+	for id_nodo in ["ritorno_istruzioni", "ritorno_disponibile"]:
+		var uscite := destinazioni_di(nodi[id_nodo])
+		esigi("ritorno_alla_base" in uscite and "ritorno_rimandato" in uscite,
+				"'%s' non offre tutte e due le strade: %s" % [id_nodo, uscite])
+		var testo_scelte: Array[String] = []
+		for scelta in nodi[id_nodo].get("scelte", []):
+			testo_scelte.append(String((scelta as Dictionary).get("testo", "")))
+		esigi(testo_scelte.size() == 2, "'%s' ha %d scelte invece di due" % [id_nodo, testo_scelte.size()])
+	esigi(bool(nodi["ritorno_rimandato"].get("torna_a_mappa", false)),
+			"dicendo di no si resta piantati: la mappa non si riapre")
+	var nudge: Array[String] = []
+	for voce in nodi["ritorno_rimandato"].get("sequenza", []):
+		nudge.append(String((voce as Dictionary).get("testo", "")))
+	esigi("Dai non perdere tempo, torna indietro, è quasi ora di cena..." in nudge,
+			"manca la battuta di Veronica quando rimandi: %s" % [nudge])
+
+	# LA SCELTA RESTA NELL\'ULTIMA ZONA, non solo subito dopo il boss
+	var regole: Array = nodi.get("convergenza", {}).get("vai_se_flag", [])
+	var prima: Dictionary = regole[0] if not regole.is_empty() else {}
+	esigi(String(prima.get("flag", "")) == "pianure_compiute"
+			and String(prima.get("vai", "")) == "ritorno_disponibile",
+			"tornando nell\'ultima zona non si ritrova l\'opzione di rientrare: %s" % [prima])
+	esigi(String(nodi.get("vittoria", {}).get("flag", "")) == "pianure_compiute",
+			"la vittoria non segna la missione come compiuta: l\'opzione non comparirebbe mai")
+
+	# e il ritorno finisce da Veronica, non da nessuna parte
+	esigi("hq_veronica_saluto" in destinazioni_di(nodi["ritorno_alla_base"]),
+			"tornando alla base non si arriva da Veronica")
+
 func prova_data_pad_e_proiezione() -> void:
 	# «dopo che si spiega come usare il data pad in tutte le sue parti, c'e'
 	# anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo
@@ -7217,15 +7304,23 @@ func prova_flag_su_una_battuta() -> void:
 	var coda: Array[Dictionary] = [
 		{"tipo": "narrazione", "testo": "Una riga qualunque."},
 		{"tipo": "narrazione", "testo": "La riga che cambia le cose.",
-				"flag": "prova_flag_di_battuta"},
+				"flag": "prova_flag_di_battuta", "suono": "data_pad"},
 	]
 	schermata.coda_messaggi = coda
+	AudioManager.lettore_sfx.stream = null
 	schermata.avanza_messaggio()
 	esigi(not GameState.ha_flag("prova_flag_di_battuta"),
 			"il flag e' arrivato con la battuta SBAGLIATA: una riga prima del suo momento")
 	schermata.avanza_messaggio()
 	esigi(GameState.ha_flag("prova_flag_di_battuta"),
 			"la battuta porta un flag e il motore non lo applica: la ricevuta non arriverebbe mai")
+	# E PUO' ANCHE SUONARE. Bru, sull'avviso del data pad: «qui metteremo un
+	# suono che creo io tipo allert». Se il motore non legge la chiave, il
+	# giorno che il file arriva non suonera' da nessuna parte - e la prova che
+	# guarda solo il JSON direbbe che va tutto bene. (E' successo: questo pezzo
+	# nasce da un sabotaggio passato.)
+	esigi(AudioManager.lettore_sfx.stream != null,
+			"la battuta chiede un suono e non parte niente")
 	schermata.queue_free()
 
 func prova_orde() -> void:

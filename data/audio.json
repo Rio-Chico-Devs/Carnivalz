@@ -20,7 +20,8 @@
 		"raccolta": "un oggetto, dei Tazo, una notifica. Piccolo e contento.",
 		"errore": "un'azione che non si può fare. Basso e chiuso.",
 		"allarme": "a un quarto del tempo rimasto su una scelta a tempo, quando la lancetta dell'orologio diventa rossa. Suona UNA volta sola per orologio. Deve dire «adesso o mai più» in un decimo di secondo.",
-		"vetro": "una scelta a tempo è scaduta e si frantuma. Lo schianto deve stare davanti a tutto, e la coda possono essere i pezzi che ricadono. È l'unico suono del gioco che racconta una perdita: se suona come un premio, sbaglia."
+		"vetro": "una scelta a tempo è scaduta e si frantuma. Lo schianto deve stare davanti a tutto, e la coda possono essere i pezzi che ricadono. È l'unico suono del gioco che racconta una perdita: se suona come un premio, sbaglia.",
+		"data_pad": "l'avviso del data pad a fine missione. Bru: «qui metteremo un suono che creo io tipo allert». Due note corte in salita: un apparecchio che ti chiama, non un pericolo."
 	},
 	"_versi": {
 		"_dove": "res://audio/versi/<id>.wav (comparsa) e res://audio/versi/<id>_morte.wav (morte, facoltativo)",
