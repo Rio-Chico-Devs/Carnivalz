@@ -860,6 +860,10 @@ func aggiorna_pronto_giocatore() -> void:
 		menu_acceso = pronto
 		attaccante_corrente = tu
 		menu.principale()
+	# a OGNI fotogramma, non solo quando la ricarica cambia: mentre il box
+	# racconta la coda si svuota da sola, e il quadrante deve tornare al menu
+	# nel momento in cui non c'e' piu' niente da leggere
+	decidi_faccia()
 
 func combattente_comandato() -> Dictionary:
 	for combattente in combattenti:
@@ -4434,7 +4438,45 @@ func scrivi_forte(riga: String, tipo := "narrazione", chi := "") -> void:
 	voce.scrivi_forte(riga, tipo, chi)
 
 func svuota_coda() -> void:
+	# IL BOX RACCONTA NEL QUADRANTE, e fino a ieri non lo faceva vedere nessuno.
+	#
+	# Bru: «il suo dialogo appare dove mettiamo i minigiochi e cosi' anche quelli
+	# dei nemici e protagonisti piu' la narrazione del combattimento».
+	#
+	# Il box ci stava gia' dentro - ospita_box() lo appende alla faccia del
+	# parlato - ma la plancia nasceva sul parlato e AL PRIMO MENU passava ai
+	# comandi senza tornarci mai piu'. Tutto quello che il combattimento
+	# raccontava finiva in un pannello nascosto: in partita non arrivava a
+	# schermo una parola.
+	#
+	# Adesso: c'e' qualcosa da leggere, si legge; finito, torna la faccia che il
+	# menu stava usando - se stavi scegliendo da una lista, ci ritrovi la lista.
+	# MA QUANDO PUOI AGIRE IL MENU VINCE SUL RACCONTO. Il quadrante fa tre
+	# mestieri e ne puo' mostrare uno solo: il box se lo prende mentre ricarichi
+	# - che e' quasi tutto il tempo - e lo lascia nel momento in cui potresti
+	# premere qualcosa. Un menu nascosto non si vede E non prende il fuoco da
+	# tastiera, quindi tenercelo sopra mentre sei pronto non sarebbe una scelta
+	# di stile: sarebbe togliere il turno.
+	decidi_faccia()
 	await voce.svuota_coda()
+	decidi_faccia()
+
+func decidi_faccia() -> void:
+	# la regola sta tutta in PlanciaCombattimento.faccia_da_mostrare: qui si
+	# raccolgono solo i tre fatti che le servono. Si chiama a ogni fotogramma -
+	# mostra_faccia non fa niente se la faccia e' gia' quella
+	if not puo_cambiare_faccia():
+		return
+	plancia.mostra_faccia(PlanciaCombattimento.faccia_da_mostrare(
+			menu_acceso and in_corso,
+			not voce.coda.is_empty(),
+			menu.modo if menu != null else "comandi"))
+
+func puo_cambiare_faccia() -> bool:
+	# mentre si para non si tocca niente: il minigioco si prende il quadrante
+	# con un pannello suo, e cambiargli la faccia sotto i piedi non serve a
+	# nessuno
+	return plancia != null and (minigioco == null or not minigioco.attivo)
 
 func aggiorna_scheda(combattente: Dictionary) -> void:
 	campo.aggiorna(combattente)

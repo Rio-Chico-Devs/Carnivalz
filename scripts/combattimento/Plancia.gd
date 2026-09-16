@@ -612,6 +612,28 @@ func prepara_tasto_altro(serve: bool, quale: int, quante_pagine: int) -> void:
 func mostra_comandi() -> void:
 	mostra_faccia("comandi")
 
+static func faccia_da_mostrare(puoi_agire: bool, da_leggere: bool, modo_menu: String) -> String:
+	# CHI SI PRENDE IL QUADRANTE, IN UNA REGOLA SOLA.
+	#
+	# Il pannello fa tre mestieri e ne puo' mostrare uno per volta. Chi decide
+	# non puo' essere ne' il menu ne' il box: lo vogliono tutti e due e nessuno
+	# dei due sa cosa sta facendo l'altro. Il primo tentativo dava al racconto un
+	# lucchetto sulla faccia, e bastava una ricarica che finiva nel momento
+	# sbagliato per restare chiusi fuori dal proprio turno.
+	#
+	#   puoi agire      -> IL MENU, sempre. Un menu nascosto non si vede e non
+	#                      prende il fuoco da tastiera: tenerlo sotto una frase
+	#                      non e' una scelta di stile, e' toglierti il turno.
+	#   c'e' da leggere -> IL BOX. Bru: «il suo dialogo appare dove mettiamo i
+	#                      minigiochi e cosi' anche quelli dei nemici e
+	#                      protagonisti piu' la narrazione del combattimento».
+	#                      Mentre ricarichi non stai scegliendo niente, ed e'
+	#                      quasi tutto il tempo.
+	#   altrimenti      -> il menu, spento.
+	if puoi_agire:
+		return modo_menu
+	return "parlato" if da_leggere else modo_menu
+
 func mostra_faccia(quale: String) -> void:
 	if quale == faccia_adesso:
 		return

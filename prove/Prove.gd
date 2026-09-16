@@ -117,6 +117,7 @@ func _ready() -> void:
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
+	prova_il_box_racconta_nel_quadrante()
 	prova_condizione_di_chi_ha_il_turno()
 	prova_chi_tocca_si_accende()
 	prova_mattanza_e_bond_non_spariscono()
@@ -7037,6 +7038,74 @@ func prova_mattanza_e_bond_non_spariscono() -> void:
 	esigi(not plancia.tasto_mattanza.visible and not plancia.tasto_bond.visible,
 			"mentre il box parla i due tasselli gli stanno sopra")
 	radice.free()
+
+func prova_il_box_racconta_nel_quadrante() -> void:
+	# «il suo dialogo appare dove mettiamo i minigiochi e cosi' anche quelli dei
+	# nemici e protagonisti piu' la narrazione del combattimento» (Bru).
+	#
+	# Il box ci stava gia' dentro, ma la plancia nasceva sul parlato e AL PRIMO
+	# MENU passava ai comandi senza tornarci mai piu'. Tutto quello che il
+	# combattimento raccontava finiva in un pannello nascosto: in partita non
+	# arrivava a schermo una parola.
+	titolo("il box racconta nel quadrante, e ridA' il posto al menu quando tocca a te")
+	var P := PlanciaCombattimento
+
+	# mentre ricarichi e c'e' da leggere, si legge
+	esigi(P.faccia_da_mostrare(false, true, "comandi") == "parlato",
+			"mentre ricarichi il box non si prende il quadrante: la narrazione non si vede")
+	esigi(P.faccia_da_mostrare(false, true, "lista") == "parlato",
+			"il box non si prende il quadrante nemmeno con una lista aperta")
+
+	# MA SE PUOI AGIRE VINCE IL MENU, anche con la coda piena. Un menu nascosto
+	# non si vede E non prende il fuoco da tastiera: lasciarlo sotto una frase
+	# non e' una scelta di stile, e' toglierti il turno.
+	esigi(P.faccia_da_mostrare(true, true, "comandi") == "comandi",
+			"il racconto tiene il quadrante mentre potresti agire: il turno e' perso")
+	esigi(P.faccia_da_mostrare(true, true, "lista") == "lista",
+			"potendo agire non ti ritrovi la lista che stavi guardando")
+
+	# e senza niente da leggere comanda sempre il menu, acceso o spento
+	for puoi in [true, false]:
+		for modo in ["comandi", "lista"]:
+			esigi(P.faccia_da_mostrare(puoi, false, modo) == modo,
+					"senza niente da leggere il quadrante non torna a '%s'" % modo)
+
+	# e la faccia si vede davvero: la regola dice un nome, il pannello lo apre
+	var radice := Control.new()
+	radice.size = Vector2(1280, 720)
+	add_child(radice)
+	var plancia := PlanciaCombattimento.new()
+	plancia.costruisci(radice)
+	for caso in [["parlato", plancia.faccia_parlato], ["comandi", plancia.faccia_comandi],
+			["lista", plancia.faccia_lista]]:
+		plancia.mostra_faccia(String(caso[0]))
+		esigi((caso[1] as Control).visible,
+				"il quadrante dice di essere su '%s' ma quel pannello resta nascosto" % caso[0])
+	radice.free()
+
+	# E LA REGOLA DEV'ESSERE ATTACCATA A QUALCOSA. Una regola giusta che non
+	# chiama nessuno e' esattamente il difetto di prima: il box raccontava in un
+	# pannello nascosto e le prove dicevano che andava tutto bene.
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.limite_giri = 1
+	add_child(scontro)
+	scontro.in_corso = true
+	scontro.menu_acceso = false        # stai ricaricando: non puoi scegliere niente
+	scontro.voce.coda.append({"tipo": "narrazione", "chi": "", "testo": "L'orda si indebolisce.",
+			"forte": false, "effetto": Callable()})
+	scontro.decidi_faccia()
+	esigi(scontro.plancia.faccia_adesso == "parlato",
+			"c'e' una battuta da leggere e nessuno accende il parlato: il quadrante mostra '%s'"
+			% scontro.plancia.faccia_adesso)
+	scontro.menu_acceso = true          # la ricarica e' finita: tocca a te
+	scontro.decidi_faccia()
+	esigi(scontro.plancia.faccia_adesso == "comandi",
+			"la ricarica e' finita e il quadrante resta su '%s': il turno non si puo' giocare"
+			% scontro.plancia.faccia_adesso)
+	scontro.voce.coda.clear()
+	scontro.free()
 
 func voci_sovrapposte(plancia, dove: String) -> void:
 	# DUE VOCI NON SI CALPESTANO MAI.
