@@ -1,0 +1,31 @@
+{
+	"_nota": "LA SEZIONE MESSAGGI DEL DATA PAD. Bru: «c'è anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo come quota di benvenuto». Funziona come gli appunti (data/task.json): qui c'è il catalogo, quali siano arrivati lo decidono i flag. Un messaggio può portare qualcosa con sé - l'effetto si applica UNA VOLTA SOLA, quando arriva.",
+	"_effetti": "tazo: quanti se ne accreditano. azzera_tazo: svuota il conto (serve alla battuta «IL MIO CONTO E' A ZERO...»). oggetto: un id da data/oggetti.json.",
+	"messaggi": [
+		{
+			"id": "benvenuto_quota",
+			"mittente": "Organizzazione — Amministrazione",
+			"oggetto": "Quota di benvenuto",
+			"testo": "Gentile dominat{ore|rice},<br>a seguito del completamento dell'addestramento le è stata accreditata la quota di benvenuto prevista dal regolamento interno, pari a [b]3000 tazo[/b].<br>La somma è a sua completa disposizione e non è soggetta a rendicontazione.<br>Le ricordiamo che l'Organizzazione non risponde dell'uso che ne verrà fatto.",
+			"richiede_flags": [
+				"ordini_ricevuti"
+			],
+			"effetto": {
+				"tazo": 3000
+			}
+		},
+		{
+			"id": "ricevuta_bobo_bunny",
+			"_nota": "Questa non me l'ha chiesta Bru: è dove vanno a finire i soldi. La battuta «acquistato!?» chiede che da qualche parte ci sia una ricevuta, e il data pad è il posto dove uno la andrebbe a cercare.",
+			"mittente": "Servizio Guide — Fatturazione",
+			"oggetto": "Ricevuta d'acquisto",
+			"testo": "Grazie per il suo acquisto!<br>[b]Skin personalizzata «Bobo Bunny» — pacchetto completo[/b]<br>Importo: 3000 tazo. Saldo residuo: 0 tazo.<br>L'acquisto è stato autorizzato dall'utenza collegata al momento dell'inizializzazione.<br>Le skin acquistate non sono rimborsabili.",
+			"richiede_flags": [
+				"skin_bobo_bunny"
+			],
+			"effetto": {
+				"azzera_tazo": true
+			}
+		}
+	]
+}

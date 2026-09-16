@@ -2,6 +2,14 @@
 	"_nota": "Gli appunti del Diario. Non sono una lista di obiettivi con le spunte: sono quello che il protagonista pensa fra sé quando capisce che c'è un posto dove deve andare o una cosa che deve fare. Un task compare quando TUTTE le sue 'richiede_flags' sono alzate (oppure quando un nodo lo attiva a mano con \"task\": \"id\") e si segna come fatto quando TUTTE le sue 'chiuso_da' lo sono. 'chiuso_da' vuoto = resta aperto (semi che germoglieranno nei mondi successivi). 'da' e' l'id del personaggio che l'ha chiesto, se e' stato qualcuno a chiederlo.",
 	"task": [
 		{
+			"id": "prima_proiezione",
+			"titolo": "La procedura di proiezione",
+			"testo": "Gli ordini sono arrivati: settore del confine del cielo terso, quadrante 3. Devo recarmi alla sala di proiezione ed eseguire la procedura. Non l'ho mai fatta da solo.",
+			"chiuso_da": [
+				"proiezione_spiegata"
+			]
+		},
+		{
 			"id": "vuoto_ardente",
 			"titolo": "Il Vuoto Ardente",
 			"testo": "L'Organizzazione l'ha segnato sulle mie planimetrie come «punto anomalo, allineamento fuori controllo ma non in modo preoccupante». Quando parlano così vuol dire che non hanno idea di cosa ci sia dentro. Ho notato degli strani cambiamenti in quella regione... forse dovrei dare un'occhiata.",

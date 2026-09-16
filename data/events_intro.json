@@ -255,77 +255,6 @@
 				"se_perdi": "infermeria_risveglio"
 			}
 		},
-		"monologo": {
-			"_nota": "Il lancio. Da qui in poi e' quello che c'era prima - la vecchia prima missione - e resta attaccato apposta, cosi' il gioco si gioca da cima a fondo mentre si aspetta il resto della trama. Bru: «fermiamoci qui e quando hai finito proseguiamo col resto della trama».",
-			"sfondo": "res://art/scene/sala_proiezione.png",
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "... ..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Coordinate confermate, obiettivo localizzato, perimetro di azione calcolato..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Computer... proiettami il più possibile vicino alla fonte."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "computer",
-					"testo": "Autorizzazione confermata. Buona fortuna unità UJ-111"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "computer",
-					"testo": "lancio in...",
-					"attesa": 0.8
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "computer",
-					"testo": "3...",
-					"attesa": 0.9
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "computer",
-					"testo": "2...",
-					"attesa": 0.9
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "computer",
-					"testo": "1...",
-					"attesa": 0.9
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "computer",
-					"testo": "Per aspera, ad astra.",
-					"attesa": 1.1
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "..."
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"avvio_automatico": {
-				"id_punto": "tutorial",
-				"file_eventi": "res://data/events_tutorial.json"
-			}
-		},
 		"alloggio": {
 			"_nota": "Dal buio, il primo box: il protagonista si sta preparando. L'altoparlante e' una voce senza volto - parla la stanza, non una persona. Uscendo si apre la mappa del complesso, e da li' si puo' andare in un posto solo.",
 			"sfondo": "res://art/scene/alloggio.png",
@@ -444,10 +373,16 @@
 				}
 			],
 			"_chiusa_per_ora": "Ci si va dopo l'allenamento, e allora ci si arriva per la sua strada, non dalla mappa.",
-			"vai_se_flag": {
-				"flag": "rientro_infermeria",
-				"vai": "punto_non_sbloccato"
-			}
+			"vai_se_flag": [
+				{
+					"flag": "data_pad_spiegato",
+					"vai": "proiezione_veronica"
+				},
+				{
+					"flag": "rientro_infermeria",
+					"vai": "punto_non_sbloccato"
+				}
+			]
 		},
 		"hangar": {
 			"_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
@@ -634,10 +569,325 @@
 			],
 			"scelte": [
 				{
-					"testo": "Vai alla sala di proiezione",
-					"vai": "monologo"
+					"testo": "Apri il data pad",
+					"vai": "data_pad_istruzioni"
 				}
 			]
+		},
+		"data_pad_istruzioni": {
+			"_nota": "Bru: «dopo che si spiega come usare il data pad in tutte le sue parti, c'è anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo come quota di benvenuto, ci sarà la missione che ti porta nella sala proiezione». Le sezioni nominate qui sono quelle vere del menu di pausa: se un giorno se ne aggiunge una, va nominata anche qui.",
+			"sfondo": "res://art/scene/sala_comunicazioni.png",
+			"flag": "data_pad_spiegato",
+			"sequenza": [
+				{
+					"tipo": "narrazione",
+					"testo": "Il diario si è aggiornato da solo. Adesso è un'altra cosa."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Data pad..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "La prima schermata sono gli [b]Appunti[/b]: quello che c'è da fare, scritto come lo penseresti tu."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Sotto c'è lo [b]Stato[/b] — chi sei adesso, in numeri — e accanto [b]Cosa ti sta cambiando[/b]: il fattore Carnivalz non si legge in una statistica sola."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "Poi le [b]Abilità passive[/b], quelle che funzionano senza che tu le chiami. La [b]Squadra[/b], per ora corta. Le [b]Osservazioni[/b], dove finisce quello che studi guardando le creature."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "E l'[b]Organizzazione[/b], che tiene il conto di come ti stai comportando. Quello lo compilano loro."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "E questa?"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "[b]Messaggi[/b]. Ce n'è uno non letto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Tremila tazo."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Quota di benvenuto. Non me l'aveva detto nessuno."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "«L'Organizzazione non risponde dell'uso che ne verrà fatto.»"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Che frase strana da scrivere su un accredito."
+				},
+				{
+					"tipo": "notifica",
+					"testo": "Data pad: accreditati 3000 tazo — quota di benvenuto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Comunque. La procedura di proiezione si fa in sala di proiezione..."
+				},
+				{
+					"tipo": "notifica",
+					"testo": "Data pad aggiornato: recarsi alla sala di proiezione ed eseguire la procedura."
+				}
+			],
+			"task": "prima_proiezione",
+			"scelte": [
+				{
+					"testo": "Torna alla mappa del complesso",
+					"vai": "infermeria"
+				}
+			]
+		},
+		"proiezione_veronica": {
+			"_nota": "Il testo è di Bru, parola per parola. Unici ritocchi: l'accordo maschile/femminile dove serviva, e quattro refusi (Comiciamo, cosi, un pò, nel altro). Le minuscole a inizio battuta di Veronica sono sue e restano: è come parla.",
+			"sfondo": "res://art/scene/sala_proiezione.png",
+			"flag": "proiezione_spiegata",
+			"sequenza": [
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "!!!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Heylà! Ci si rivede! Sei già {tornato|tornata} al massimo della tua potenza? Ottimo! Non mi deludi mai."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Mi hanno mandata per assicurarmi che tu esegua la procedura di proiezione in modo impeccabile! Cominciamo?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "loquace come sempre, così mi piaci,"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Allora, dal tuo data pad dovresti collegarti a questo aggeggio qui... O forse era quest'altro?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "fatto."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Sapevo ce l'avresti fatta! D'altronde si impara facendo no? Wahaha!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Su su, allora, una volta connessi devi inizializzare la tua utenza... Ecco fatto! Vedi?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "guida",
+					"testo": "Buongiorno!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "guida",
+					"testo": "Ciao! Sono la tua guida! Procediamo con una rapida formazio..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Skip... skip..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Ma... non dovrebbe essere skippabile, mi sembrano cose abbastanza serie..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "skip... Oh! Ecco la mia parte preferita ❤️"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "hm hm hm"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ed ecco fatto! Che invidia, 2 anni fa non c'erano così tante opzioni di personalizzazione... che fortuna! Dovrò farmi dare un nuovo modello..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "... Cos'è... questo affare..."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "[i]Veronica ti ha messo come skin quella della sua VTuber preferita.[/i]"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "guida",
+					"testo": "Eccomi qui! Grazie per aver acquistato la nostra skin personalizzata di Bobo Bunny! Hop!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "acquistato!?",
+					"flag": "skin_bobo_bunny"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Lo stile si paga!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "IL MIO CONTO È A ZERO..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Ma il tuo stile è a mille!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Vedrai che ti rifarai presto!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "rivoglio i miei soldi..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Non c'è tempo per pensare a queste cose... dai, è ora della tua prima missione, non sei {emozionato|emozionata}?"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "Non so cosa provare in questo momento..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "allora, vedi questa mappa? devi selezionare il punto d'interesse che appare su di essa, man mano che diventerai più forte, l'organizzazione aggiornerà la tua interfaccia con missioni più complesse."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "adesso hai a disposizione solo la tua prima missione, ecco vedi? selezioniamo la meta e voilà, ecco che il sistema di proiezione comincia a caricarsi!"
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "[i]Si esce dalla visuale di mappa.[/i]"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Bene! posizionati sulla piattaforma e semplicemente aspetta di essere proiettato, all'inizio è un po' strano, ma vedrai che ti abituerai"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "..."
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "allora ci vediamo presto, ne sono sicura... buon viaggio!"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "anonimo",
+					"testo": "In un modo o nell'altro dovrai ripa...."
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "[b]FLASH.[/b]",
+					"attesa": 0.6
+				},
+				{
+					"tipo": "narrazione",
+					"testo": "[i]Vieni {teletrasportato|teletrasportata}.[/i]"
+				},
+				{
+					"tipo": "dialogo",
+					"chi": "veronica",
+					"testo": "Se la caverà benissimo, sono sicura!"
+				}
+			],
+			"espr_sinistra": "pensiero",
+			"avvio_automatico": {
+				"id_punto": "tutorial",
+				"file_eventi": "res://data/events_tutorial.json"
+			}
 		}
 	},
 	"mappa_dungeon": {
@@ -712,7 +962,8 @@
 					190
 				],
 				"icona": "obiettivo",
-				"icona_da": "rientro_infermeria"
+				"icona_da": "rientro_infermeria",
+				"icona_fino_a": "data_pad_spiegato"
 			},
 			{
 				"id": "sala_proiezione",
@@ -722,7 +973,9 @@
 					760,
 					320,
 					190
-				]
+				],
+				"icona": "obiettivo",
+				"icona_da": "data_pad_spiegato"
 			},
 			{
 				"id": "hangar",

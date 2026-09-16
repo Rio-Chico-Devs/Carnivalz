@@ -118,6 +118,8 @@ func _ready() -> void:
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
 	prova_il_box_racconta_nel_quadrante()
+	prova_data_pad_e_proiezione()
+	await prova_flag_su_una_battuta()
 	prova_orde()
 	prova_orda_in_campo()
 	prova_niente_nemici_misti()
@@ -197,9 +199,16 @@ func destinazioni_di(nodo: Dictionary) -> Array[String]:
 	for chiave in ["vai"]:
 		if nodo.has(chiave):
 			uscite.append(String(nodo[chiave]))
-	var salto: Dictionary = nodo.get("vai_se_flag", {})
-	if salto.has("vai"):
-		uscite.append(String(salto["vai"]))
+	# "vai_se_flag" e' una regola sola oppure una lista di regole (vince la
+	# prima che ha il suo flag): una stanza puo' voler dire cose diverse in
+	# momenti diversi della giornata
+	var salto: Variant = nodo.get("vai_se_flag", {})
+	if salto is Dictionary and (salto as Dictionary).has("vai"):
+		uscite.append(String((salto as Dictionary)["vai"]))
+	elif salto is Array:
+		for regola in (salto as Array):
+			if regola is Dictionary and (regola as Dictionary).has("vai"):
+				uscite.append(String((regola as Dictionary)["vai"]))
 	for blocco_nome in ["combattimento_automatico", "agguato"]:
 		var blocco: Dictionary = nodo.get(blocco_nome, {})
 		for chiave in ["se_vinci", "se_vinci_eroe", "se_perdi", "se_fuggi"]:
@@ -269,6 +278,15 @@ func prova_nodi_raggiungibili() -> void:
 
 func apre_la_mappa(nodo: Dictionary) -> bool:
 	if nodo.get("torna_a_mappa", false):
+		return true
+	# ANCHE UNA STANZA CHE TI SPUTA FUORI RIPORTA ALLA MAPPA. Le porte chiuse
+	# del complesso hanno "espulsione_automatica": dici una riga e sei di nuovo
+	# sulla planimetria. Il camminatore non lo sapeva, quindi da una porta chiusa
+	# non proseguiva - e hangar e sala di proiezione non le aveva MAI percorse.
+	# Passavano lo stesso perche' dichiarano "_chiusa_per_ora", che e' il
+	# permesso di non essere raggiunte: due scuse diverse che insieme facevano
+	# sparire un pezzo di mappa dal controllo.
+	if nodo.get("espulsione_automatica", false):
 		return true
 	for scelta in nodo.get("scelte", []):
 		if scelta.get("torna_a_mappa", false):
@@ -4371,8 +4389,37 @@ func prova_dall_introduzione_al_combattimento() -> void:
 			obiettivo_dopo.append(String(voce.get("id", "")))
 	esigi(obiettivo_prima.size() == 1 and obiettivo_prima[0] == "sala_allenamento",
 			"la mattina il punto esclamativo sta su %s invece che sulla sala di allenamento" % str(obiettivo_prima))
-	esigi(obiettivo_dopo.size() == 1 and obiettivo_dopo[0] == "sala_comunicazioni",
-			"dopo l'infermeria il punto esclamativo sta su %s invece che sulla sala comunicazioni" % str(obiettivo_dopo))
+	esigi(obiettivo_dopo.size() == 1 and obiettivo_dopo[0] == "sala_proiezione",
+			"alla fine della giornata il punto esclamativo sta su %s invece che sulla sala di proiezione" % str(obiettivo_dopo))
+
+	# TRE TAPPE, NON DUE. Il punto esclamativo e' l'unica cosa che dice dove
+	# andare adesso, e la giornata ha tre momenti: la palestra la mattina, la
+	# sala comunicazioni al risveglio in infermeria, la sala di proiezione
+	# quando il data pad ha finito di spiegarsi. In ogni momento dev'essercene
+	# UNO SOLO: due punti esclamativi insieme non sono un indizio, sono un bivio
+	# che nessuno ha voluto.
+	var tappe := [
+		[[], "sala_allenamento"],
+		[["rientro_infermeria"], "sala_comunicazioni"],
+		[["rientro_infermeria", "data_pad_spiegato"], "sala_proiezione"],
+	]
+	for tappa in tappe:
+		var flag_adesso: Array = tappa[0]
+		var accesi: Array[String] = []
+		for stanza in mappa.get("stanze", []):
+			var st := stanza as Dictionary
+			if String(st.get("icona", "")) != "obiettivo":
+				continue
+			var da := String(st.get("icona_da", ""))
+			var fino_a := String(st.get("icona_fino_a", ""))
+			if da != "" and da not in flag_adesso:
+				continue
+			if fino_a != "" and fino_a in flag_adesso:
+				continue
+			accesi.append(String(st.get("id", "")))
+		esigi(accesi == [String(tappa[1])],
+				"con i flag %s il punto esclamativo sta su %s invece che su '%s'"
+				% [flag_adesso, accesi, String(tappa[1])])
 	esigi(mappa.get("stanze", []).size() >= 6,
 			"il complesso ha %d aree: era \"varie aree\"" % mappa.get("stanze", []).size())
 
@@ -6484,10 +6531,19 @@ func prova_giornata_dopo_allenamento() -> void:
 	# e le porte chiuse dicono tutte la stessa riga, quella di Bru
 	var chiuse := 0
 	for id_area in ["mensa", "infermeria", "archivio", "sala_proiezione", "hangar"]:
-		var salto: Dictionary = (nodi.get(id_area, {}) as Dictionary).get("vai_se_flag", {})
-		if String(salto.get("flag", "")) == "rientro_infermeria" \
-				and String(salto.get("vai", "")) == "punto_non_sbloccato":
-			chiuse += 1
+		# la sala di proiezione ha due regole: prima di aver letto il data pad
+		# e' una porta chiusa come le altre, dopo e' la scena della proiezione.
+		# Qui si guarda che la regola della porta chiusa ci sia ancora.
+		var regole: Variant = (nodi.get(id_area, {}) as Dictionary).get("vai_se_flag", {})
+		var elenco: Array = [regole] if regole is Dictionary else (regole as Array)
+		for regola in elenco:
+			if not (regola is Dictionary):
+				continue
+			var r: Dictionary = regola
+			if String(r.get("flag", "")) == "rientro_infermeria" \
+					and String(r.get("vai", "")) == "punto_non_sbloccato":
+				chiuse += 1
+				break
 	esigi(chiuse == 5,
 			"solo %d aree chiuse su 5 dicono la riga del punto non sbloccato: le altre "
 			% chiuse + "raccontano ancora la mattina")
@@ -7041,6 +7097,136 @@ func prova_mattanza_e_bond_non_spariscono() -> void:
 	esigi(not plancia.tasto_mattanza.visible and not plancia.tasto_bond.visible,
 			"mentre il box parla i due tasselli gli stanno sopra")
 	radice.free()
+
+func prova_data_pad_e_proiezione() -> void:
+	# «dopo che si spiega come usare il data pad in tutte le sue parti, c'e'
+	# anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo
+	# come quota di benvenuto, ci sara' la missione che ti porta nella sala
+	# proiezione» (Bru).
+	titolo("il data pad, i 3000 tazo, e la procedura di proiezione")
+	var dati := carica_eventi("res://data/events_intro.json")
+	var nodi: Dictionary = dati.get("nodi", {})
+
+	# LA CATENA. Gli ordini aprono il data pad, il data pad rimanda alla mappa,
+	# e la sala di proiezione - solo da li' in poi - e' la scena con Veronica.
+	esigi(nodi.has("data_pad_istruzioni"), "manca il nodo che spiega il data pad")
+	esigi(nodi.has("proiezione_veronica"), "manca la scena della proiezione")
+	esigi(not nodi.has("monologo"),
+			"il vecchio lancio in solitaria e' ancora attaccato: adesso la procedura la insegna Veronica")
+	var uscite_ordini := destinazioni_di(nodi.get("comunicazioni_ordini", {}))
+	esigi("data_pad_istruzioni" in uscite_ordini,
+			"dopo gli ordini non si apre il data pad: si va in %s" % [uscite_ordini])
+	var regole_proiezione: Array = nodi.get("sala_proiezione", {}).get("vai_se_flag", [])
+	var prima_regola: Dictionary = regole_proiezione[0] if not regole_proiezione.is_empty() else {}
+	esigi(String(prima_regola.get("flag", "")) == "data_pad_spiegato"
+			and String(prima_regola.get("vai", "")) == "proiezione_veronica",
+			"la sala di proiezione non si apre col data pad spiegato: la prima regola e' %s"
+			% [prima_regola])
+	var scena: Dictionary = nodi.get("proiezione_veronica", {})
+	esigi(String(scena.get("avvio_automatico", {}).get("file_eventi", "")).ends_with("events_tutorial.json"),
+			"finita la procedura non parte la prima missione")
+
+	# LE BATTUTE DI BRU CI SONO TUTTE, e nell'ordine. Una scena lunga si accorcia
+	# per sbaglio piu' facilmente di quanto sembri.
+	var battute: Array[String] = []
+	for voce in scena.get("sequenza", []):
+		battute.append(String((voce as Dictionary).get("testo", "")))
+	var attese := [
+		"!!!",
+		"loquace come sempre, così mi piaci,",
+		"Buongiorno!",
+		"Skip... skip...",
+		"acquistato!?",
+		"Lo stile si paga!",
+		"IL MIO CONTO È A ZERO...",
+		"Ma il tuo stile è a mille!",
+		"rivoglio i miei soldi...",
+		"Se la caverà benissimo, sono sicura!",
+	]
+	var ultimo := -1
+	for frase in attese:
+		var dove := battute.find(String(frase))
+		esigi(dove >= 0, "la battuta «%s» non c'e' piu'" % frase)
+		esigi(dove > ultimo, "la battuta «%s» e' finita fuori ordine" % frase)
+		ultimo = maxi(dove, ultimo)
+	esigi(battute.find("Se la caverà benissimo, sono sicura!") == battute.size() - 1,
+			"l'ultima battuta non e' quella di Veronica rimasta sola")
+
+	# IL FLAG STA SULLA BATTUTA GIUSTA. La ricevuta deve arrivare quando il
+	# protagonista scopre di aver pagato, non venti righe prima.
+	var flag_su := ""
+	for voce in scena.get("sequenza", []):
+		if (voce as Dictionary).has("flag"):
+			flag_su = String((voce as Dictionary).get("testo", ""))
+	esigi(flag_su == "acquistato!?",
+			"il flag della skin sta sulla battuta «%s» invece che su «acquistato!?»" % flag_su)
+
+	# --- i messaggi -------------------------------------------------------
+	GameState.nuova_partita()
+	esigi(not GameState.messaggi_catalogo.is_empty(), "messaggi.json non caricato")
+	esigi(GameState.messaggi_ricevuti.is_empty(),
+			"a partita nuova ci sono gia' %d messaggi" % GameState.messaggi_ricevuti.size())
+	var prima_tazo := GameState.tazo
+	GameState.imposta_flag("ordini_ricevuti")
+	esigi("benvenuto_quota" in GameState.messaggi_ricevuti,
+			"ricevuti gli ordini, la quota di benvenuto non arriva")
+	esigi(GameState.tazo == prima_tazo + 3000,
+			"la quota di benvenuto ha portato %d tazo invece di 3000" % (GameState.tazo - prima_tazo))
+	esigi(GameState.messaggi_non_letti() == 1,
+			"il data pad non segnala %d messaggi non letti" % GameState.messaggi_non_letti())
+
+	# UN MESSAGGIO ARRIVA UNA VOLTA SOLA. Senza questo, ogni flag rimesso - o
+	# ogni caricamento - riaccrediterebbe i 3000 tazo.
+	var soldi := GameState.tazo
+	GameState.aggiorna_messaggi()
+	GameState.aggiorna_messaggi()
+	esigi(GameState.tazo == soldi,
+			"chiamando due volte l'aggiornamento i tazo sono passati da %d a %d"
+			% [soldi, GameState.tazo])
+
+	# E LA SKIN SVUOTA IL CONTO. «IL MIO CONTO E' A ZERO...»: a zero, non meno
+	# tremila - con una sottrazione resterebbero i trenta di partenza e la
+	# battuta sarebbe una bugia.
+	GameState.imposta_flag("skin_bobo_bunny")
+	esigi("ricevuta_bobo_bunny" in GameState.messaggi_ricevuti,
+			"comprata la skin non arriva nessuna ricevuta")
+	esigi(GameState.tazo == 0,
+			"dopo la skin sul conto restano %d tazo: la battuta dice zero" % GameState.tazo)
+
+	# la sezione c'e' davvero nel data pad, e la missione pure
+	var sezioni: Array[String] = []
+	for voce in Pausa.SEZIONI_DIARIO:
+		sezioni.append(String(voce[0]))
+	esigi("messaggi" in sezioni,
+			"il data pad non ha la sezione Messaggi: i 3000 tazo non si possono leggere da nessuna parte")
+	esigi(not GameState.dati_task("prima_proiezione").is_empty(),
+			"manca la missione che ti porta in sala di proiezione")
+
+func prova_flag_su_una_battuta() -> void:
+	# IL DATO GIUSTO IN UN MOTORE CHE NON LO LEGGE. La scena ha il flag sulla
+	# battuta «acquistato!?», ma finche' nessuno lo applica la ricevuta non
+	# arriva mai - e una prova che guarda solo il JSON direbbe che va tutto bene.
+	# (E' successo: questa prova nasce da un sabotaggio passato.)
+	titolo("una battuta puo' cambiare il mondo nel momento in cui la leggi")
+	GameState.nuova_partita()
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	esigi(not GameState.ha_flag("prova_flag_di_battuta"),
+			"il flag c'era gia' prima di cominciare: la prova non misura niente")
+	var coda: Array[Dictionary] = [
+		{"tipo": "narrazione", "testo": "Una riga qualunque."},
+		{"tipo": "narrazione", "testo": "La riga che cambia le cose.",
+				"flag": "prova_flag_di_battuta"},
+	]
+	schermata.coda_messaggi = coda
+	schermata.avanza_messaggio()
+	esigi(not GameState.ha_flag("prova_flag_di_battuta"),
+			"il flag e' arrivato con la battuta SBAGLIATA: una riga prima del suo momento")
+	schermata.avanza_messaggio()
+	esigi(GameState.ha_flag("prova_flag_di_battuta"),
+			"la battuta porta un flag e il motore non lo applica: la ricevuta non arriverebbe mai")
+	schermata.queue_free()
 
 func prova_orde() -> void:
 	# «non abbiamo piu' il nemico zombi ma orda di zombi che puo' presentarsi in

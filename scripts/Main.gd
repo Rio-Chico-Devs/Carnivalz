@@ -575,6 +575,12 @@ func avanza_messaggio() -> void:
 	contatore_messaggi += 1
 	if not coda_messaggi.is_empty():
 		var msg: Dictionary = coda_messaggi.pop_front()
+		if msg.has("flag"):
+			# UN FLAG A META' SCENA. Fino a ieri una scena poteva cambiare il
+			# mondo solo entrando o uscendo; una battuta no. Ma il momento in cui
+			# il mondo cambia e' spesso UNA battuta precisa - «acquistato!?» - e
+			# far arrivare la ricevuta venti righe prima rovina la scoperta.
+			GameState.imposta_flag(String(msg["flag"]))
 		attesa_messaggio = float(msg.get("attesa", 0.0))
 		nascondi_comandi()
 		# se questo e' l'ultimo messaggio e non c'e' nessuna transizione in

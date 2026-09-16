@@ -125,12 +125,33 @@ static func risolvi(id_nodo: String) -> String:
 		var nodo: Dictionary = GameState.eventi[id_corrente]
 		if not nodo.has("vai_se_flag"):
 			return id_corrente
-		var salto_dati: Dictionary = nodo["vai_se_flag"]
-		if not GameState.ha_flag(String(salto_dati.get("flag", ""))):
+		# UNA REGOLA SOLA NON BASTA PIU'. La sala di proiezione vuol dire tre
+		# cose in tre momenti della giornata: chiusa la mattina, "prossimo punto
+		# d'interesse" dopo l'infermeria, e la procedura di proiezione quando il
+		# data pad l'ha spiegata. Con un salto solo se ne potevano dire due.
+		# Adesso "vai_se_flag" accetta anche una lista: vince la prima regola
+		# che trova il suo flag, quindi si scrivono dalla piu' recente alla piu'
+		# vecchia.
+		var dove := dove_manda(nodo["vai_se_flag"])
+		if dove == "":
 			return id_corrente
-		id_corrente = String(salto_dati.get("vai", ""))
+		id_corrente = dove
 	push_error("vai_se_flag: %d salti di fila da '%s', due nodi si rimandano a vicenda"
 			% [SALTI_MASSIMI, id_nodo])
+	return ""
+
+static func dove_manda(regole: Variant) -> String:
+	# "" vuol dire "resta dove sei". Accetta sia una regola sola (com'era) sia
+	# una lista di regole (vince la prima che ha il suo flag).
+	if regole is Dictionary:
+		var una: Dictionary = regole
+		if GameState.ha_flag(String(una.get("flag", ""))):
+			return String(una.get("vai", ""))
+		return ""
+	if regole is Array:
+		for voce in (regole as Array):
+			if voce is Dictionary and GameState.ha_flag(String((voce as Dictionary).get("flag", ""))):
+				return String((voce as Dictionary).get("vai", ""))
 	return ""
 
 static func applica_effetti(id_nodo: String, nodo: Dictionary, prima_visita: bool) -> void:

@@ -21,6 +21,7 @@ const PERCORSO_TECNOLOG := "res://data/tecnolog.json"
 const PERCORSO_ABILITA := "res://data/abilita.json"
 const PERCORSO_CRESCITA := "res://data/crescita.json"
 const PERCORSO_TASK := "res://data/task.json"
+const PERCORSO_MESSAGGI := "res://data/messaggi.json"
 const PERCORSO_CODICI := "res://data/codici.json"  # extra: sblocchi via codice
 const PERCORSO_CODICI_RISCATTATI := "user://codici_riscattati.cfg"
 const PERCORSO_SALVATAGGIO_VECCHIO := "user://salvataggio.json"  # autosalvataggio di prima
@@ -216,6 +217,15 @@ var task_attivi: Array[String] = []         # aperti, nell'ordine in cui sono co
 var task_chiusi: Array[String] = []         # gia' risolti
 var task_da_notificare: Array[String] = []  # svuotato da chi li annuncia a schermo
 
+# LA SEZIONE MESSAGGI DEL DATA PAD. Bru: «c'e' anche una sezione messaggi dove
+# l'organizzazione ti ha versato 3000 tazo come quota di benvenuto». Stessa
+# forma degli appunti - catalogo fuori, stato dentro - con una differenza: un
+# messaggio puo' PORTARE qualcosa, e quel qualcosa si applica una volta sola.
+var messaggi_catalogo: Array[Dictionary] = []   # definizioni, da data/messaggi.json
+var messaggi_ricevuti: Array[String] = []       # arrivati, nell'ordine in cui sono arrivati
+var messaggi_letti: Array[String] = []          # gia' aperti: il resto fa numero sul data pad
+var messaggi_da_notificare: Array[String] = []  # svuotato da chi li annuncia a schermo
+
 # hp che il party si porta dietro da uno scontro al successivo, finche' gli
 # scontri si incatenano senza respiro (ondate di agguati, fasi di un boss).
 # Si azzera appena si mette piede in una stanza in pace: li' si recupera tutto.
@@ -269,6 +279,7 @@ func _ready() -> void:
 	carica_abilita()
 	carica_crescita()
 	carica_task()
+	carica_messaggi()
 	carica_codici()
 	nuova_partita()
 
@@ -388,6 +399,60 @@ func carica_tecnolog() -> void:
 	if dati is Dictionary:
 		tecnolog = dati
 
+func carica_messaggi() -> void:
+	messaggi_catalogo.clear()
+	var dati: Variant = carica_json(PERCORSO_MESSAGGI)
+	if not (dati is Dictionary):
+		return
+	for voce in (dati as Dictionary).get("messaggi", []):
+		if voce is Dictionary:
+			messaggi_catalogo.append(voce)
+
+func dati_messaggio(id_messaggio: String) -> Dictionary:
+	for voce in messaggi_catalogo:
+		if String(voce.get("id", "")) == id_messaggio:
+			return voce
+	return {}
+
+func aggiorna_messaggi() -> void:
+	# UN MESSAGGIO ARRIVA UNA VOLTA SOLA, e quello che porta si applica quando
+	# arriva - non quando lo apri. I 3000 tazo sono sul conto anche se il data
+	# pad non lo guardi mai: e' un accredito, non un regalo da scartare.
+	for voce in messaggi_catalogo:
+		var id_messaggio := String(voce.get("id", ""))
+		if id_messaggio == "" or id_messaggio in messaggi_ricevuti:
+			continue
+		var richiesti: Array = voce.get("richiede_flags", [])
+		if richiesti.is_empty() or not _tutti_i_flag(richiesti):
+			continue
+		messaggi_ricevuti.append(id_messaggio)
+		messaggi_da_notificare.append(id_messaggio)
+		applica_effetto_messaggio(voce.get("effetto", {}))
+
+func applica_effetto_messaggio(effetto: Dictionary) -> void:
+	if effetto.is_empty():
+		return
+	if bool(effetto.get("azzera_tazo", false)):
+		# «IL MIO CONTO E' A ZERO...». Non si sottrae una cifra: si svuota. Con
+		# una sottrazione il conto finirebbe a trenta - quelli con cui si comincia
+		# la partita - e la battuta sarebbe una bugia di trenta tazo.
+		tazo = 0
+	if effetto.has("tazo"):
+		modifica_tazo(int(effetto["tazo"]))
+	if effetto.has("oggetto"):
+		aggiungi_oggetto(String(effetto["oggetto"]))
+
+func messaggi_non_letti() -> int:
+	var quanti := 0
+	for id_messaggio in messaggi_ricevuti:
+		if id_messaggio not in messaggi_letti:
+			quanti += 1
+	return quanti
+
+func segna_messaggio_letto(id_messaggio: String) -> void:
+	if id_messaggio in messaggi_ricevuti and id_messaggio not in messaggi_letti:
+		messaggi_letti.append(id_messaggio)
+
 func carica_task() -> void:
 	task_catalogo.clear()
 	var dati: Variant = carica_json(PERCORSO_TASK)
@@ -468,6 +533,9 @@ func nuova_partita() -> void:
 	task_attivi.clear()
 	task_chiusi.clear()
 	task_da_notificare.clear()
+	messaggi_ricevuti.clear()
+	messaggi_letti.clear()
+	messaggi_da_notificare.clear()
 	hp_persistenti.clear()
 	sacca.clear()
 	collezionabili.clear()
@@ -2043,6 +2111,7 @@ func imposta_flag(nome_flag: String) -> void:
 		# gli appunti del Diario vivono sui flag: appena il mondo cambia, il
 		# protagonista se ne accorge senza che ogni singolo nodo debba dirglielo
 		aggiorna_task()
+		aggiorna_messaggi()
 
 func ha_flag(nome_flag: String) -> bool:
 	return nome_flag in flags
@@ -2275,6 +2344,8 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"zone_visitate": zone_visitate,
 		"task_attivi": task_attivi,
 		"task_chiusi": task_chiusi,
+		"messaggi_ricevuti": messaggi_ricevuti,
+		"messaggi_letti": messaggi_letti,
 		"nome_protagonista": nome_protagonista,
 	}
 	var f := FileAccess.open(percorso, FileAccess.WRITE)
@@ -2368,11 +2439,19 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	task_attivi = _lista_str(d.get("task_attivi", []))
 	task_chiusi = _lista_str(d.get("task_chiusi", []))
 	task_da_notificare.clear()
+	# I MESSAGGI GIA' ARRIVATI NON RIARRIVANO. Si ricaricano prima di
+	# aggiorna_messaggi(), se no una partita ripresa riapplicherebbe gli effetti
+	# - cioe' riaccrediterebbe i 3000 tazo a ogni caricamento.
+	messaggi_ricevuti = _lista_str(d.get("messaggi_ricevuti", []))
+	messaggi_letti = _lista_str(d.get("messaggi_letti", []))
+	messaggi_da_notificare.clear()
 	# una partita salvata prima che un appunto esistesse (o prima che il
 	# catalogo lo prevedesse) lo recupera qui dai flag che ha gia' in mano,
 	# senza annunciarlo come se fosse appena successo
 	aggiorna_task()
+	aggiorna_messaggi()
 	task_da_notificare.clear()
+	messaggi_da_notificare.clear()
 	passive_da_notificare.clear()
 	imposta_nome_protagonista(String(d.get("nome_protagonista", "")))
 	# si riparte da uno stato "overworld" pulito: fuori da campagne e squarci

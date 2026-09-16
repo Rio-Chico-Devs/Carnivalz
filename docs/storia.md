@@ -459,3 +459,45 @@ solo le proprie eccezioni esplicite, tutto il resto resta neutro):
   prolungato? evento narrativo? (il canone c'è, manca la regola)
 - Le tre nature del rapporto con lo stress (resiliente / convertitore /
   divoratore): legarle alle classi o alle psichi come tratto nei dati?
+
+## La giornata alla base, passo per passo (stato di fatto)
+
+```
+introduzione
+ └─ sala_allenamento ─ Veronica ─ combattimento ─ «Collisioni infinite»
+     └─ infermeria_risveglio          la dottoressa; da qui la mappa è tutta visibile
+         └─ sala_comunicazioni → comunicazioni_ordini      gli ordini, il data pad
+             └─ data_pad_istruzioni   le sue parti, una per una
+                 │                    Messaggi: 3000 tazo di quota di benvenuto
+                 └─ missione: «recarsi alla sala di proiezione»
+                     └─ sala_proiezione → proiezione_veronica
+                         │   Veronica insegna la procedura, la guida si presenta,
+                         │   Veronica le mette la skin di Bobo Bunny e il conto va a zero
+                         └─ FLASH → prima missione (events_tutorial.json)
+```
+
+Il **punto esclamativo** ha tre tappe, ed è l'unica cosa che dice dove andare:
+palestra la mattina → sala comunicazioni al risveglio → sala di proiezione
+quando il data pad ha finito di spiegarsi.
+
+### I 3000 tazo
+
+L'Organizzazione li accredita con un messaggio (`data/messaggi.json`), e la
+quota **arriva sul conto quando arriva il messaggio** — non quando lo apri: è un
+accredito, non un regalo da scartare. Poi Veronica li spende tutti in una skin,
+e il conto va **a zero** — non «meno tremila»: con una sottrazione resterebbero
+i trenta di partenza e la battuta «IL MIO CONTO È A ZERO...» sarebbe una bugia
+di trenta tazo.
+
+La ricevuta arriva nella stessa sezione Messaggi, ed è l'unico posto dove uno
+andrebbe a cercare dove sono finiti i soldi.
+
+### Due cose piccole aggiunte al motore
+
+- **Una battuta può portare un flag.** Prima una scena poteva cambiare il mondo
+  solo entrando o uscendo; ma il momento in cui il mondo cambia è spesso *una*
+  battuta precisa — «acquistato!?» — e far arrivare la ricevuta venti righe
+  prima rovina la scoperta.
+- **`vai_se_flag` accetta una lista di regole**, vince la prima che trova il suo
+  flag. La sala di proiezione vuol dire tre cose in tre momenti della giornata,
+  e con una regola sola se ne potevano dire due.

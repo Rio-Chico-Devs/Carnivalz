@@ -3909,6 +3909,12 @@
 			"id": "ignoto",
 			"nome": "???",
 			"_nota": "Chi parla prima di essere riconosciuto. Veronica entra cosi': la voce arriva prima del nome, ed e' il protagonista a dire \"questa voce...\" un istante dopo."
+		},
+		{
+			"id": "guida",
+			"nome": "Guida",
+			"ritratto": "res://art/personaggi/guida.png",
+			"_nota": "L'assistente del sistema di proiezione. Veronica le mette addosso la skin della sua VTuber preferita prima ancora che il protagonista capisca cosa sta succedendo: da quel momento in poi e' Bobo Bunny, e serve un secondo ritratto."
 		}
 	]
 }

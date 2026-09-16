@@ -46,6 +46,7 @@ const QUANTO_OCCUPA_CHI_GIOCHI := 560   # quanta larghezza si prende il tuo pers
 # rotolava per due schermate. Adesso una alla volta, con l'indice a sinistra.
 const SEZIONI_DIARIO := [
 	["appunti", "Appunti"],
+	["messaggi", "Messaggi"],
 	["stato", "Stato"],
 	["crescita", "Cosa ti sta cambiando"],
 	["passive", "Abilità passive"],
@@ -452,6 +453,13 @@ func mostra_diario() -> void:
 		var chiave := String(voce[0])
 		var b := Button.new()
 		b.text = String(voce[1])
+		# QUANTI NON NE HAI ANCORA LETTI, sull'indice. Una sezione che non dice
+		# se dentro c'e' qualcosa di nuovo e' una sezione che non si apre: i 3000
+		# tazo di benvenuto resterebbero una riga che nessuno va a cercare.
+		if chiave == "messaggi":
+			var non_letti := GameState.messaggi_non_letti()
+			if non_letti > 0:
+				b.text = "%s  (%d)" % [b.text, non_letti]
 		Stile.scelta(b)
 		if chiave == sezione_diario:
 			# dove sei si vede: senza questo l'indice e' sette bottoni uguali
@@ -475,6 +483,7 @@ func mostra_diario() -> void:
 	scorrevole.add_child(dentro)
 	match sezione_diario:
 		"appunti": sezione_appunti(dentro)
+		"messaggi": sezione_messaggi(dentro)
 		"stato": sezione_stato(dentro)
 		"crescita": sezione_crescita(dentro)
 		"passive": sezione_passive(dentro)
@@ -600,6 +609,45 @@ func nome_di_classe(id_classe: String) -> String:
 	if not definizione.is_empty():
 		return String(definizione.get("nome", id_classe))
 	return String(GameState.personaggi.get(id_classe, {}).get("nome", id_classe))
+
+func sezione_messaggi(genitore: VBoxContainer) -> void:
+	# «c'e' anche una sezione messaggi dove l'organizzazione ti ha versato 3000
+	# tazo come quota di benvenuto» (Bru).
+	#
+	# Non sono gli appunti: quelli sono pensieri del protagonista, questi sono
+	# voci di altri - e si vede. Mittente e oggetto in testa, il corpo sotto, e
+	# aprendo la sezione si considerano letti tutti.
+	titolo_sezione(genitore, "Messaggi")
+	if GameState.messaggi_ricevuti.is_empty():
+		var vuoto := Label.new()
+		vuoto.text = "Nessun messaggio."
+		Stile.etichetta_piccola(vuoto)
+		genitore.add_child(vuoto)
+		return
+	# i piu' recenti in cima: un messaggio vecchio non deve coprire quello nuovo
+	var ordine := GameState.messaggi_ricevuti.duplicate()
+	ordine.reverse()
+	for id_messaggio in ordine:
+		var dati := GameState.dati_messaggio(String(id_messaggio))
+		if dati.is_empty():
+			continue
+		var nuovo := String(id_messaggio) not in GameState.messaggi_letti
+		var intestazione := Label.new()
+		intestazione.text = "%s%s — %s" % ["● " if nuovo else "",
+				String(dati.get("mittente", "?")), String(dati.get("oggetto", ""))]
+		if nuovo:
+			intestazione.add_theme_color_override("font_color", Stile.colore("accento"))
+		genitore.add_child(intestazione)
+		var corpo := RichTextLabel.new()
+		corpo.bbcode_enabled = true
+		corpo.fit_content = true
+		corpo.scroll_active = false
+		corpo.text = Testi.accorda(String(dati.get("testo", "")), GameState.sesso_protagonista)
+		genitore.add_child(corpo)
+		var spazio := Control.new()
+		spazio.custom_minimum_size = Vector2(0, 12)
+		genitore.add_child(spazio)
+		GameState.segna_messaggio_letto(String(id_messaggio))
 
 func sezione_appunti(genitore: VBoxContainer) -> void:
 	# la prima cosa che si legge aprendo il Diario: dove devo andare adesso.
