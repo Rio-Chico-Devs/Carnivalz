@@ -120,6 +120,9 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	await prova_due_svuotamenti_non_si_pestano()
+	prova_svuotare_svuota_subito()
+	await prova_le_scelte_non_raddoppiano()
 	await prova_un_messaggio_si_annuncia()
 	await prova_flag_su_una_battuta()
 	prova_orde()
@@ -7290,6 +7293,127 @@ func prova_data_pad_e_proiezione() -> void:
 	esigi(not GameState.dati_task("prima_proiezione").is_empty(),
 			"manca la missione che ti porta in sala di proiezione")
 
+func prova_due_svuotamenti_non_si_pestano() -> void:
+	# IN TEMPO REALE LA CODA HA DUE PADRONI: la pompa dei messaggi, che gira per
+	# tutto lo scontro, e chi ogni tanto aspetta che si sia letto tutto - il
+	# lancio di un minigioco parte da _process, cioe' MENTRE la pompa sta gia'
+	# leggendo.
+	#
+	# Senza guardia due cicli pescano dalla stessa coda: il secondo chiama
+	# box.mostra() sopra la battuta che il primo sta facendo leggere, e quella
+	# sparisce senza essere mai stata letta. E' la riga di Veronica prima delle
+	# Collisioni infinite.
+	titolo("due svuotamenti insieme non si rubano le battute")
+	GameState.nuova_partita()
+	var finto := FintoBox.new()
+	add_child(finto)
+	var zona := Button.new()
+	add_child(zona)
+	var volanti := Control.new()
+	add_child(volanti)
+	var voce := VoceCombattimento.new(get_tree())
+	voce.collega(finto, zona, volanti)
+	voce.tempo_reale = true   # niente attese di click: si misura la coda, non il polso
+	var battute := ["prima", "seconda", "terza", "quarta"]
+	for testo in battute:
+		voce.scrivi(String(testo))
+	esigi(voce.coda.size() == battute.size(), "la coda di partenza non ha quattro battute")
+
+	# DUE SVUOTAMENTI AVVIATI INSIEME, come succede in partita: la pompa gira
+	# per conto suo (chiamata e basta, senza await - e' cosi' che parte davvero
+	# in Combattimento), e subito dopo qualcuno si ferma ad aspettare che si sia
+	# letto tutto. Con la guardia il secondo torna solo quando il primo ha
+	# finito, quindi questo await basta per tutti e due.
+	voce.svuota_coda()
+	await voce.svuota_coda()
+
+	esigi(voce.coda.is_empty(), "la coda non si e' svuotata: restano %d battute" % voce.coda.size())
+	esigi(finto.mostrate.size() == battute.size(),
+			"a schermo sono arrivate %d battute su %d: %s"
+			% [finto.mostrate.size(), battute.size(), finto.mostrate])
+	for i in battute.size():
+		esigi(i < finto.mostrate.size() and finto.mostrate[i] == String(battute[i]),
+				"la battuta %d doveva essere «%s», e' arrivata «%s»"
+				% [i, String(battute[i]),
+						finto.mostrate[i] if i < finto.mostrate.size() else "(niente)"])
+	esigi(not voce.sta_svuotando,
+			"finito di leggere, la voce si crede ancora occupata: il prossimo svuotamento aspetterebbe per sempre")
+
+	# E OGNUNA DEVE ESSERE RESTATA A SCHERMO IL SUO TEMPO.
+	#
+	# E' qui che si vede il difetto vero, e la prima versione di questa prova non
+	# lo vedeva: con due svuotamenti in parallelo le quattro battute arrivano
+	# tutte e quattro lo stesso - solo che la seconda copre la prima nello stesso
+	# fotogramma. Contarle non bastava; bisogna guardare quanto sono distanti.
+	var minimo := 999999
+	for i in range(1, finto.quando.size()):
+		minimo = mini(minimo, finto.quando[i] - finto.quando[i - 1])
+	esigi(finto.quando.size() >= 2, "sono arrivate meno di due battute: non c'e' distanza da misurare")
+	esigi(minimo >= 80,
+			"fra due battute sono passati %d millesimi: la seconda ha coperto la prima prima che si leggesse"
+			% minimo)
+	finto.queue_free()
+	zona.queue_free()
+	volanti.queue_free()
+
+func prova_svuotare_svuota_subito() -> void:
+	# queue_free() NON LIBERA ADESSO: mette in coda, e libera a fine fotogramma.
+	# Finche' non succede i figli vecchi sono ancora figli - stanno nell'albero,
+	# contano, e un contenitore li dispone insieme a quelli nuovi. Chi svuota E
+	# RIEMPIE nella stessa chiamata, per un fotogramma ne ha il doppio.
+	titolo("svuotare un contenitore lo svuota subito, non a fine fotogramma")
+	var scatola := VBoxContainer.new()
+	add_child(scatola)
+	for i in 4:
+		var b := Button.new()
+		b.text = "voce %d" % i
+		scatola.add_child(b)
+	esigi(scatola.get_child_count() == 4, "la scatola di partenza non ha quattro figli")
+	Albero.svuota(scatola)
+	esigi(scatola.get_child_count() == 0,
+			"dopo averlo svuotato il contenitore ha ancora %d figli: sono in coda, non tolti"
+			% scatola.get_child_count())
+	# e riempiendolo subito dopo non se ne trovano di vecchi in mezzo
+	for i in 2:
+		var b := Button.new()
+		b.text = "nuova %d" % i
+		scatola.add_child(b)
+	esigi(scatola.get_child_count() == 2,
+			"svuotato e riempito, il contenitore ha %d figli invece di due"
+			% scatola.get_child_count())
+	Albero.svuota(scatola)
+	scatola.free()
+
+func prova_le_scelte_non_raddoppiano() -> void:
+	# E LA REGOLA DEV'ESSERE ATTACCATA ALLA PORTA VERA. I bottoni delle scelte
+	# sono quello che il giocatore clicca: se per un fotogramma ce ne sono il
+	# doppio, il contenitore li mette in fila tutti e il fuoco da tastiera puo'
+	# finire su uno che sta morendo.
+	titolo("le scelte non raddoppiano quando la schermata si rifa'")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	# un nodo con piu' di una scelta: il ritorno dalla missione ne ha due
+	var nodo := {"scelte": [
+		{"testo": "Sì, torno alla base", "vai": "alloggio"},
+		{"testo": "No, voglio dare ancora un'occhiata", "vai": "alloggio"},
+	]}
+	schermata.ricostruisci_scelte(nodo)
+	var dopo_una: int = schermata.contenitore_scelte.get_child_count()
+	esigi(dopo_una == 2, "due scelte hanno prodotto %d righe" % dopo_una)
+	# rifatta subito, nello stesso fotogramma: e' quello che succede quando la
+	# coda dei messaggi si svuota e le scelte si riaprono
+	schermata.ricostruisci_scelte(nodo)
+	var dopo_due: int = schermata.contenitore_scelte.get_child_count()
+	esigi(dopo_due == 2,
+			"rifacendo le scelte nello stesso fotogramma ce ne sono %d invece di due" % dopo_due)
+	schermata.ricostruisci_scelte(nodo)
+	esigi(schermata.contenitore_scelte.get_child_count() == 2,
+			"alla terza volta le scelte sono %d" % schermata.contenitore_scelte.get_child_count())
+	schermata.queue_free()
+
 func prova_un_messaggio_si_annuncia() -> void:
 	# UN MESSAGGIO CHE ARRIVA IN SILENZIO NON E' ARRIVATO.
 	#
@@ -7916,6 +8040,26 @@ func prova_le_liste_del_menu() -> void:
 	esigi(plancia.griglia_lista.get_child_count() == 0,
 			"tornando ai comandi la griglia resta piena")
 	radice.free()
+
+class FintoBox extends Control:
+	# UN BOX CHE NON DISEGNA NIENTE E SI RICORDA TUTTO. Serve a chiedere una cosa
+	# sola: quali battute sono arrivate a schermo, e quante volte.
+	var mostrate: Array[String] = []
+	# QUANDO e' arrivata ognuna. Contare le battute non basta: il danno di due
+	# svuotamenti in parallelo non e' che se ne perdano, e' che la seconda copra
+	# la prima PRIMA CHE SIA STATA LETTA. Quello si vede solo nel tempo.
+	var quando: Array[int] = []
+	var sta_scrivendo := false
+
+	func mostra(_tipo: String, contenuto: String, _chi: String) -> void:
+		mostrate.append(contenuto)
+		quando.append(Time.get_ticks_msec())
+
+	func nascondi_indicatore() -> void:
+		pass
+
+	func completa() -> void:
+		sta_scrivendo = false
 
 class FintoScontro extends RefCounted:
 	# IL MINIMO CHE IL MENU CHIEDE AL COMBATTIMENTO, e niente di piu'.

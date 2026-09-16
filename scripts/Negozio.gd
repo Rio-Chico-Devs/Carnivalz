@@ -51,8 +51,7 @@ func _ready() -> void:
 func costruisci() -> void:
 	etichetta_tazo.text = "Tazo: %d   •   Sacca %d/%d" % [
 		GameState.tazo, GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20))]
-	for figlio in lista.get_children():
-		figlio.queue_free()
+	Albero.svuota(lista)
 	for id_negozio in GameState.negozi_sbloccati:
 		var negozio: Dictionary = GameState.negozi.get(id_negozio, {})
 		if negozio.is_empty():

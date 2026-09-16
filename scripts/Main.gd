@@ -656,12 +656,10 @@ func _apri_scelte() -> void:
 
 func nascondi_comandi() -> void:
 	# mentre si legge non c'e' niente da premere: i comandi tornano a coda vuota
-	for figlio in contenitore_scelte.get_children():
-		figlio.queue_free()
+	Albero.svuota(contenitore_scelte)
 	bottone_dialoga.visible = false
 	bottone_mappa.visible = false
-	for figlio in menu_compagni.get_children():
-		figlio.queue_free()
+	Albero.svuota(menu_compagni)
 
 func avvia_combattimento_automatico(dati: Dictionary) -> void:
 	if dati.has("salta_se_flag") and GameState.ha_flag(String(dati["salta_se_flag"])):
@@ -813,8 +811,7 @@ func sostituisci_nome(testo: String) -> String:
 # --- scelte ---
 
 func ricostruisci_scelte(nodo: Dictionary) -> void:
-	for figlio in contenitore_scelte.get_children():
-		figlio.queue_free()
+	Albero.svuota(contenitore_scelte)
 	var primo: Button = null
 	for scelta in nodo.get("scelte", []):
 		if scelta.has("richiede") and not GameState.party_ha_abilita(scelta["richiede"]):
@@ -1296,12 +1293,10 @@ func aggiorna_dialoga() -> void:
 	bottone_dialoga.visible = GameState.party.size() > 1
 	# "Mappa" compare solo dentro la sezione esplorabile della zona
 	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente)
-	for figlio in menu_compagni.get_children():
-		figlio.queue_free()
+	Albero.svuota(menu_compagni)
 
 func _su_dialoga() -> void:
-	for figlio in menu_compagni.get_children():
-		figlio.queue_free()
+	Albero.svuota(menu_compagni)
 	# se due compagni presenti stanno discutendo tra loro in questo punto,
 	# l'opzione per assistere (e mediare) compare prima delle chiacchiere singole
 	var conversazione: Dictionary = GameState.conversazioni.get(GameState.nodo_corrente, {})
@@ -1322,8 +1317,7 @@ func _su_dialoga() -> void:
 		menu_compagni.add_child(bottone)
 
 func _su_conversazione(conversazione: Dictionary) -> void:
-	for figlio in menu_compagni.get_children():
-		figlio.queue_free()
+	Albero.svuota(menu_compagni)
 	var tra: Array = conversazione.get("tra", [])
 	slot_centro.visible = false
 	slot_sinistra.visible = true
@@ -1363,8 +1357,7 @@ func _opzioni_mediazione(mediazione: Dictionary) -> void:
 		primo.grab_focus()
 
 func _su_mediazione(opzione: Dictionary) -> void:
-	for figlio in contenitore_scelte.get_children():
-		figlio.queue_free()
+	Albero.svuota(contenitore_scelte)
 	if opzione.has("legame"):
 		GameState.modifica_legame(int(opzione["legame"]))
 	coda_messaggi = []
@@ -1378,8 +1371,7 @@ func _su_mediazione(opzione: Dictionary) -> void:
 	avanza_messaggio()
 
 func _su_compagno(id_classe: String) -> void:
-	for figlio in menu_compagni.get_children():
-		figlio.queue_free()
+	Albero.svuota(menu_compagni)
 	slot_sinistra.visible = false
 	slot_destra.visible = false
 	slot_centro.visible = true

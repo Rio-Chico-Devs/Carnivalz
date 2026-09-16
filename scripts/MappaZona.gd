@@ -284,8 +284,7 @@ func si_puo_andare(id_stanza: String) -> bool:
 # --- i quadratini --------------------------------------------------------
 
 func disegna_bottoni() -> void:
-	for figlio in strato_bottoni.get_children():
-		figlio.queue_free()
+	Albero.svuota(strato_bottoni)
 	for stanza in GameState.mappa_zona.get("stanze", []):
 		var id_stanza := String(stanza.get("id", ""))
 		if not si_vede(id_stanza):

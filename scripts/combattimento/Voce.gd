@@ -44,6 +44,7 @@ var muta := false
 
 var coda: Array[Dictionary] = []   # {tipo, chi, testo, forte, effetto}
 var salta_messaggio := false       # un click chiede di passare avanti
+var sta_svuotando := false         # c'e' gia' qualcuno che sta facendo leggere
 # In tempo reale nessun messaggio puo' fermare il mondo aspettando un click:
 # anche quelli "forti" scorrono da soli, solo con piu' calma
 var tempo_reale := false
@@ -88,7 +89,31 @@ func accoda(riga: String, tipo: String, chi: String, forte: bool, effetto := Cal
 func svuota_coda() -> void:
 	# un messaggio alla volta, nell'ordine in cui e' successo. Il box e' lo
 	# stesso dei dialoghi: stesso corpo del testo, stessa macchina da scrivere,
-	# stesse pause sulla punteggiatura
+	# stesse pause sulla punteggiatura.
+	#
+	# E UNO ALLA VOLTA VALE ANCHE PER CHI SVUOTA.
+	#
+	# In tempo reale la coda ha due padroni: la pompa dei messaggi, che gira per
+	# tutto lo scontro, e chi ogni tanto si ferma ad aspettare che si sia letto
+	# tutto - il lancio di un minigioco, la fine di uno studio. Quelli partono da
+	# _process, cioe' MENTRE la pompa sta gia' leggendo.
+	#
+	# Se capitano insieme, due cicli pescano dalla stessa coda: il secondo chiama
+	# box.mostra() sopra la battuta che il primo sta ancora facendo leggere, e
+	# quella battuta sparisce senza essere mai stata letta. E' esattamente il
+	# caso della riga di Veronica prima delle Collisioni infinite.
+	#
+	# E c'e' di peggio: salta_messaggio e area_avanza sono UNO SOLO. Due attese
+	# in parallelo se li rubano a vicenda - un click ne salta due, e la prima
+	# smette di essere cliccabile quando la seconda finisce.
+	#
+	# Chi arriva secondo quindi non legge niente: aspetta che il primo abbia
+	# finito, che e' esattamente quello che aveva chiesto.
+	if sta_svuotando:
+		while sta_svuotando and albero != null:
+			await albero.process_frame
+		return
+	sta_svuotando = true
 	while not coda.is_empty():
 		var msg: Dictionary = coda.pop_front()
 		var testo := String(msg.testo)
@@ -105,6 +130,7 @@ func svuota_coda() -> void:
 		await attendi_lettura(testo, bool(msg.forte))
 	if not muta:
 		box.nascondi_indicatore()
+	sta_svuotando = false
 
 func attendi_lettura(testo: String, forte: bool) -> void:
 	salta_messaggio = false

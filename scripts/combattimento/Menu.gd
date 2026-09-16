@@ -59,14 +59,9 @@ func pulisci() -> void:
 	svuota(contenitore)
 
 func svuota(dove: Control) -> void:
-	if dove == null:
-		return
-	for figlio in dove.get_children():
-		# tolto SUBITO dall'albero, non solo messo in coda: queue_free() libera a
-		# fine frame, e finche' non succede il vecchio bottone sta ancora li'
-		# accanto al nuovo
-		dove.remove_child(figlio)
-		figlio.queue_free()
+	# la versione giusta sta in Albero.svuota, ed e' la stessa per tutti: questo
+	# difetto l'avevamo corretto qui e solo qui, mentre era in altri nove posti
+	Albero.svuota(dove)
 
 func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := false) -> void:
 	if muta:
