@@ -45,9 +45,10 @@ static func svuota_cache() -> void:
 	disegni_trovati.clear()
 
 static func disegna(dove: CanvasItem, id_stato: String, riquadro: Rect2) -> void:
-	var percorso := percorso_di(id_stato)
-	if percorso != "":
-		var disegno: Texture2D = load(percorso)
+	# percorso_di ricordava se il file c'era, e poi lo si ricaricava lo stesso a
+	# ogni disegno: mezza cache. Adesso la risposta e' il disegno, non il nome
+	var disegno := Disegni.texture(percorso_di(id_stato))
+	if disegno != null:
 		dove.draw_texture_rect(disegno, riquadro, false)
 		return
 	var centro := riquadro.position + riquadro.size * 0.5

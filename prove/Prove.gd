@@ -120,6 +120,9 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	await prova_ecg_anello_e_riposo()
+	prova_niente_disco_dentro_un_disegno()
+	await prova_il_disco_si_interroga_una_volta()
 	await prova_due_svuotamenti_non_si_pestano()
 	prova_svuotare_svuota_subito()
 	await prova_le_scelte_non_raddoppiano()
@@ -7292,6 +7295,162 @@ func prova_data_pad_e_proiezione() -> void:
 			"il data pad non ha la sezione Messaggi: i 3000 tazo non si possono leggere da nessuna parte")
 	esigi(not GameState.dati_task("prima_proiezione").is_empty(),
 			"manca la missione che ti porta in sala di proiezione")
+
+func prova_il_disco_si_interroga_una_volta() -> void:
+	# «se il disegno c'e' vince lui» e' una buona regola, ma era scritta dentro
+	# il DISEGNO:
+	#
+	#     if ResourceLoader.exists(percorso): load(percorso)
+	#
+	# Sulla mappa quel disegno si rifa' a ogni fotogramma finche' il punto
+	# esclamativo pulsa: sessanta controlli sul filesystem al secondo per un file
+	# che c'e' o non c'e' da quando il gioco e' partito.
+	titolo("un disegno si chiede al disco una volta sola, non a ogni fotogramma")
+	Disegni.svuota_cache()
+	esigi(Disegni.ricerche == 0, "la cache dei disegni non si svuota")
+	var finto := "res://art/che_non_esiste_di_sicuro.png"
+	for giro in 50:
+		Disegni.texture(finto)
+	esigi(Disegni.ricerche == 1,
+			"cinquanta richieste dello stesso disegno hanno interrogato il disco %d volte"
+			% Disegni.ricerche)
+	# ANCHE IL "NON C'E'" E' UNA RISPOSTA: e' quella che capita piu' spesso
+	# finche' i disegni di Bru non ci sono, ed e' proprio quella che non veniva
+	# ricordata
+	esigi(Disegni.texture(finto) == null, "un disegno che non esiste non torna nullo")
+	esigi(Disegni.ricerche == 1, "il 'non c'e'' non viene ricordato: si richiede ogni volta")
+	Disegni.texture("res://art/nemmeno_questo.png")
+	esigi(Disegni.ricerche == 2, "un secondo disegno diverso non viene cercato")
+
+	# E DALLA PORTA VERA: la mappa che si ridisegna cento volte.
+	#
+	# PRIMA PERO' BISOGNA DIMOSTRARE CHE QUEL CODICE VIENE PERCORSO. La prima
+	# versione di questa prova ridisegnava una mappa senza punto esclamativo in
+	# vista: i cento ridisegni non toccavano mai il disegno dell'icona, e la
+	# prova restava verde anche rimettendoci dentro la ricerca sul disco.
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.imposta_flag("rientro_infermeria")   # mappa tutta visibile, "!" sulla sala comunicazioni
+	GameState.nodo_corrente = "infermeria"
+	for id_stanza in ["alloggio", "sala_allenamento", "sala_comunicazioni",
+			"infermeria", "archivio", "mensa", "sala_proiezione", "hangar"]:
+		GameState.sblocca_stanza(String(id_stanza))
+	var mappa: Node = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	await get_tree().process_frame
+	# SI DISEGNA PER DAVVERO, con queue_redraw e un fotogramma: chiamare a mano
+	# _disegna_sopra() sembra piu' diretto ma Godot non lo permette - disegnare
+	# fuori dal proprio _draw e' un errore, e una prova che lo fa sporca il
+	# registro anche quando passa.
+	Disegni.svuota_cache()
+	mappa.strato_sopra.queue_redraw()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var dopo_il_primo := Disegni.ricerche
+	esigi(dopo_il_primo > 0,
+			"disegnando la mappa non si e' chiesto nessun disegno: questa prova non sta misurando niente")
+	for giro in 30:
+		mappa.strato_sopra.queue_redraw()
+		await get_tree().process_frame
+	esigi(Disegni.ricerche == dopo_il_primo,
+			"trenta ridisegni della mappa hanno interrogato il disco altre %d volte"
+			% (Disegni.ricerche - dopo_il_primo))
+	mappa.queue_free()
+
+func prova_ecg_anello_e_riposo() -> void:
+	# DUE COSE, TUTTE E DUE MISURATE.
+	#
+	# 1. La storia del tracciato e' un ANELLO: prima ogni campione faceva
+	#    scorrere l'array di un posto - 239 scritture per campione, sessanta
+	#    campioni al secondo, per tutta la durata di ogni scontro. Muovere il
+	#    punto di partenza fa la stessa identica cosa.
+	# 2. Se nessuno lo guarda, non campiona: il quadrante mostra un mestiere per
+	#    volta, e mentre scegli da una lista l'ecg non e' a schermo.
+	titolo("l'ecg: la storia e' un anello, e a riposo non campiona")
+	var riga := TracciatoEcg.new()
+	add_child(riga)
+	await get_tree().process_frame
+
+	# L'ORDINE E' QUELLO GIUSTO: dal piu' vecchio al piu' recente, che e' come
+	# si disegna. Un anello scritto male si accorge solo guardando l'ordine.
+	for i in TracciatoEcg.CAMPIONI:
+		riga.spingi(float(i) / 1000.0)
+	for i in TracciatoEcg.CAMPIONI:
+		esigi(is_equal_approx(riga.campione(i), float(i) / 1000.0),
+				"il campione %d vale %.4f invece di %.4f"
+				% [i, riga.campione(i), float(i) / 1000.0])
+	# e continuando a spingere, il piu' vecchio esce e il resto scala di uno
+	riga.spingi(9.0)
+	esigi(is_equal_approx(riga.campione(TracciatoEcg.CAMPIONI - 1), 9.0),
+			"l'ultimo campione non e' quello appena spinto")
+	esigi(is_equal_approx(riga.campione(0), 1.0 / 1000.0),
+			"il piu' vecchio non e' uscito: campione(0) vale %.4f" % riga.campione(0))
+
+	# A RIPOSO NON CAMPIONA. Si guarda col contatore, non a occhio.
+	riga.visible = false
+	var fermi := riga.campioni_presi
+	for giro in 60:
+		riga._process(1.0 / 60.0)
+	esigi(riga.campioni_presi == fermi,
+			"nascosto, l'ecg ha preso altri %d campioni" % (riga.campioni_presi - fermi))
+	riga.visible = true
+	for giro in 60:
+		riga._process(1.0 / 60.0)
+	esigi(riga.campioni_presi > fermi,
+			"tornato visibile, l'ecg non ha ripreso a campionare")
+	riga.queue_free()
+
+func prova_niente_disco_dentro_un_disegno() -> void:
+	# LA REGOLA, NON SOLO IL CASO. Il contatore di Disegni dice che la cache
+	# funziona; non dice che qualcuno, un domani, non riscriva
+	#
+	#     if ResourceLoader.exists(percorso): load(percorso)
+	#
+	# dentro un _draw. E' com'era, ed e' facile che ritorni: e' la riga piu'
+	# naturale da scrivere. Un disegno si rifa' a ogni fotogramma, quindi li'
+	# dentro al disco non si chiede niente - si chiede a Disegni, che ricorda.
+	titolo("dentro un disegno non si interroga il disco")
+	var cartelle := ["res://scripts"]
+	var da_guardare: Array[String] = []
+	while not cartelle.is_empty():
+		var qui: String = cartelle.pop_back()
+		var dir := DirAccess.open(qui)
+		if dir == null:
+			continue
+		for nome in dir.get_directories():
+			cartelle.append(qui + "/" + nome)
+		for nome in dir.get_files():
+			if nome.ends_with(".gd"):
+				da_guardare.append(qui + "/" + nome)
+	esigi(da_guardare.size() > 20,
+			"ho trovato solo %d script da guardare: il giro delle cartelle non funziona"
+			% da_guardare.size())
+	var guardati := 0
+	for percorso in da_guardare:
+		if percorso.ends_with("/Disegni.gd"):
+			continue   # e' lui il posto dove si chiede al disco, una volta sola
+		var testo := FileAccess.get_file_as_string(percorso)
+		var dentro_un_disegno := false
+		var nome_funzione := ""
+		for riga in testo.split("\n"):
+			var pulita := String(riga).strip_edges()
+			if pulita.begins_with("func ") or pulita.begins_with("static func "):
+				nome_funzione = pulita.split("(")[0].replace("static func ", "").replace("func ", "")
+				dentro_un_disegno = nome_funzione == "_draw" or nome_funzione == "_process" \
+						or nome_funzione.begins_with("disegna")
+				if dentro_un_disegno:
+					guardati += 1
+				continue
+			if not dentro_un_disegno or pulita.begins_with("#"):
+				continue
+			var chiede := pulita.contains("ResourceLoader.exists") \
+					or pulita.contains("load(") and not pulita.contains("preload(")
+			esigi(not chiede,
+					"%s / %s() chiede al disco dentro un disegno: «%s»"
+					% [percorso.get_file(), nome_funzione, pulita.substr(0, 60)])
+	esigi(guardati >= 6,
+			"ho controllato solo %d funzioni di disegno: la prova non sta guardando abbastanza"
+			% guardati)
 
 func prova_due_svuotamenti_non_si_pestano() -> void:
 	# IN TEMPO REALE LA CODA HA DUE PADRONI: la pompa dei messaggi, che gira per

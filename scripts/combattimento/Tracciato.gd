@@ -19,6 +19,12 @@ var stress := 0
 var dado := RandomNumberGenerator.new()
 
 var storia := PackedFloat32Array()
+# dove va il PROSSIMO campione, e quindi anche dov'e' il piu' vecchio: la
+# storia e' un anello, non una fila che scorre (vedi spingi)
+var testa := 0
+# quanti campioni sono stati presi davvero. Serve alle prove: e' l'unico modo
+# di dire "non sta campionando mentre nessuno lo guarda" con un numero
+var campioni_presi := 0
 var tempo := 0.0
 var prossimo_campione := 0.0
 var battiti: Array[float] = []
@@ -33,6 +39,15 @@ func imposta(vita: float, tensione: int) -> void:
 	stress = clampi(tensione, 0, 100)
 
 func _process(delta: float) -> void:
+	# NESSUNO LO STA GUARDANDO, NESSUNO LO DISEGNA.
+	#
+	# Il quadrante fa tre mestieri e ne mostra uno per volta: mentre scegli da
+	# una lista, o mentre il box racconta, l'ecg non si vede. Continuava a
+	# campionare lo stesso - sessanta volte al secondo, per una linea che non
+	# era a schermo. Quando torna visibile riprende da dov'era, che e' anche
+	# piu' onesto di un salto.
+	if not is_visible_in_tree():
+		return
 	var passo_campione := SECONDI_A_SCHERMO / float(CAMPIONI)
 	tempo += delta
 	while prossimo_campione <= tempo:
@@ -41,10 +56,25 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func spingi(valore: float) -> void:
-	# il piu' vecchio esce da sinistra, il nuovo entra da destra
-	for i in range(storia.size() - 1):
-		storia[i] = storia[i + 1]
-	storia[storia.size() - 1] = valore
+	# IL PIU' VECCHIO ESCE DA SINISTRA, IL NUOVO ENTRA DA DESTRA - ma senza
+	# spostare niente.
+	#
+	# Prima questa riga faceva scorrere tutto l'array di un posto: 239 scritture
+	# per campione, sessanta campioni al secondo, per tutta la durata di ogni
+	# scontro. Fa la stessa identica cosa muovere il punto di partenza invece
+	# dei dati: la storia e' un anello, e "il piu' vecchio" e' semplicemente
+	# quello dove scriveremo il prossimo.
+	if storia.is_empty():
+		return
+	storia[testa] = valore
+	testa = (testa + 1) % storia.size()
+	campioni_presi += 1
+
+func campione(indice: int) -> float:
+	# dal piu' vecchio al piu' recente, che e' l'ordine in cui si disegna
+	if storia.is_empty():
+		return 0.0
+	return storia[(testa + indice) % storia.size()]
 
 func valore_a(quando: float) -> float:
 	# CHI E' A TERRA FA UNA RIGA DRITTA: la stessa regola del modulo, e vale
@@ -90,7 +120,7 @@ func _draw() -> void:
 	var punti := PackedVector2Array()
 	for i in storia.size():
 		var x := size.x * float(i) / float(maxi(storia.size() - 1, 1))
-		punti.append(Vector2(x, mezzo - storia[i] * mezzo * 0.86))
+		punti.append(Vector2(x, mezzo - campione(i) * mezzo * 0.86))
 	# lo spessore dice la stessa cosa del colore: vedi Ecg.spessore_per()
 	var spessore := EcgCombattimento.spessore_per(quota_hp) * scala_spessore()
 	draw_polyline(punti, tinta, spessore, true)

@@ -427,9 +427,10 @@ func disegna_obiettivo(rettangolo: Rect2) -> void:
 	var salto := sin(battito * TAU) * raggio * 0.14
 	var respiro := 1.0 + sin(battito * TAU * 2.0) * 0.06
 	centro.y += salto
-	var percorso := CARTELLA_ICONE + "obiettivo.png"
-	if ResourceLoader.exists(percorso):
-		var texture: Texture2D = load(percorso)
+	# il disco si interroga una volta sola, non a ogni fotogramma: questo
+	# disegno si rifa' sessanta volte al secondo finche' il punto pulsa
+	var texture := Disegni.texture(CARTELLA_ICONE + "obiettivo.png")
+	if texture != null:
 		var misura := Vector2.ONE * raggio * 1.24 * respiro
 		strato_sopra.draw_texture_rect(texture, Rect2(centro - misura * 0.5, misura), false)
 		return
@@ -484,9 +485,8 @@ func disegna_icona(icona: String, rettangolo: Rect2) -> void:
 	if icona == "":
 		return
 	# se il disegno c'e' vince lui: aggiungere un'icona e' aggiungere un file
-	var percorso := CARTELLA_ICONE + icona + ".png"
-	if ResourceLoader.exists(percorso):
-		var texture: Texture2D = load(percorso)
+	var texture := Disegni.texture(CARTELLA_ICONE + icona + ".png")
+	if texture != null:
 		var misura := Vector2.ONE * minf(rettangolo.size.x, rettangolo.size.y) * 0.62
 		strato_sopra.draw_texture_rect(texture,
 				Rect2(rettangolo.get_center() - misura * 0.5, misura), false)
@@ -510,11 +510,11 @@ func disegna_icona(icona: String, rettangolo: Rect2) -> void:
 func disegna_proiettore(rettangolo: Rect2) -> void:
 	# il proiettore piantato: un anello nell'angolo, per non coprire l'icona
 	# della stanza e per non farsi confondere con la freccia
-	var percorso := CARTELLA_ICONE + "proiettore.png"
 	var misura := minf(rettangolo.size.x, rettangolo.size.y) * 0.3
 	var angolo := rettangolo.position + Vector2(rettangolo.size.x - misura * 1.2, misura * 0.2)
-	if ResourceLoader.exists(percorso):
-		strato_sopra.draw_texture_rect(load(percorso), Rect2(angolo, Vector2.ONE * misura), false)
+	var disegno := Disegni.texture(CARTELLA_ICONE + "proiettore.png")
+	if disegno != null:
+		strato_sopra.draw_texture_rect(disegno, Rect2(angolo, Vector2.ONE * misura), false)
 		return
 	var centro := angolo + Vector2.ONE * misura * 0.5
 	var tinta := Stile.colore("accento")
