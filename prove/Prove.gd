@@ -120,6 +120,9 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	await prova_la_scena_cambia_mentre_si_legge()
+	prova_si_salva_solo_fuori_dalle_fratture()
+	prova_il_checkpoint_non_ti_lascia_dentro()
 	await prova_ecg_anello_e_riposo()
 	prova_niente_disco_dentro_un_disegno()
 	await prova_il_disco_si_interroga_una_volta()
@@ -7356,6 +7359,126 @@ func prova_il_disco_si_interroga_una_volta() -> void:
 			"trenta ridisegni della mappa hanno interrogato il disco altre %d volte"
 			% (Disegni.ricerche - dopo_il_primo))
 	mappa.queue_free()
+
+func prova_la_scena_cambia_mentre_si_legge() -> void:
+	# LA SCENA PUO' CAMBIARE MENTRE IL BOX PARLA: lo scontro finisce, il
+	# giocatore torna al menu, una stanza lo manda altrove.
+	# change_scene_to_file libera la vecchia scena - e con lei il box e la zona
+	# cliccabile - ma l'albero sopravvive, quindi la coroutine si risveglia lo
+	# stesso al fotogramma dopo e va a scrivere su roba che non c'e' piu'.
+	# Godot lo segnala, e chi sta giocando vede degli errori proprio mentre esce.
+	titolo("se la scena cambia mentre il box parla, la voce smette in silenzio")
+	GameState.nuova_partita()
+	var finto := FintoBox.new()
+	add_child(finto)
+	var zona := Button.new()
+	add_child(zona)
+	var volanti := Control.new()
+	add_child(volanti)
+	var voce := VoceCombattimento.new(get_tree())
+	voce.collega(finto, zona, volanti)
+	voce.tempo_reale = true
+	for testo in ["prima", "seconda", "terza"]:
+		voce.scrivi(String(testo))
+
+	voce.svuota_coda()          # parte e si mette ad aspettare la lettura
+	await get_tree().process_frame
+	esigi(voce.sta_svuotando, "la voce non ha nemmeno cominciato: la prova non misura niente")
+	esigi(finto.mostrate.size() == 1, "la prima battuta non e' arrivata a schermo")
+
+	# LA SCENA SPARISCE SOTTO, come fa change_scene_to_file: i nodi vecchi
+	# vengono liberati in differita, non strappati via a meta' fotogramma.
+	finto.queue_free()
+	zona.queue_free()
+	for giro in 20:
+		await get_tree().process_frame
+	# se non ci fossero le guardie, qui Godot avrebbe gia' stampato
+	# "previously freed instance" e la suite sarebbe rossa per gli errori
+	esigi(not voce.sta_svuotando,
+			"la voce si crede ancora occupata dopo che la scena e' sparita: il prossimo svuotamento aspetterebbe per sempre")
+	esigi(not voce.viva(), "la voce si crede ancora viva con il box liberato")
+	# e riprovare a farla parlare non fa danni
+	voce.scrivi("dopo la fine")
+	await voce.svuota_coda()
+	esigi(true, "far parlare una voce senza box non deve far esplodere niente")
+	volanti.queue_free()
+
+func prova_si_salva_solo_fuori_dalle_fratture() -> void:
+	# «non puoi salvare a meta\' scontro, il salvataggio solo fuori dalle
+	# fratture, nelle fratture al massimo ci sono checkpoint» (Bru).
+	#
+	# Oggi la regola e\' rispettata perche\' il salvataggio si chiama da due posti
+	# soli. Niente pero\' la difende: basta una riga in piu\' da qualche parte -
+	# un bottone "salva" nella pausa, un salvataggio a fine scontro "per comodita\'"
+	# - e la regola cade senza che nessuno se ne accorga.
+	titolo("il gioco si salva in due posti soli, e nessuno dei due e' dentro una frattura")
+	var permessi := {
+		"scripts/Sede.gd": "rientrare alla Sede E' il salvataggio: fuori dalle fratture",
+		"scripts/IngressoNodo.gd": "il checkpoint di una zona lunga, dietro salva_checkpoint",
+	}
+	var cartelle := ["res://scripts"]
+	var trovati := 0
+	while not cartelle.is_empty():
+		var qui: String = cartelle.pop_back()
+		var dir := DirAccess.open(qui)
+		if dir == null:
+			continue
+		for nome in dir.get_directories():
+			cartelle.append(qui + "/" + nome)
+		for nome in dir.get_files():
+			if not nome.ends_with(".gd"):
+				continue
+			var percorso := qui + "/" + nome
+			var corto := percorso.replace("res://", "")
+			var testo := FileAccess.get_file_as_string(percorso)
+			for riga in testo.split("\n"):
+				var pulita := String(riga).strip_edges()
+				if pulita.begins_with("#") or not pulita.contains("GameState.salva"):
+					continue
+				trovati += 1
+				esigi(permessi.has(corto),
+						"%s salva la partita: il salvataggio sta solo alla Sede e nei checkpoint («%s»)"
+						% [corto, pulita.substr(0, 50)])
+	esigi(trovati >= 2,
+			"ho trovato %d punti di salvataggio: la prova non sta guardando abbastanza" % trovati)
+	# e il checkpoint dev'essere dietro la sua chiave, non incondizionato
+	var ingresso := FileAccess.get_file_as_string("res://scripts/IngressoNodo.gd")
+	esigi(ingresso.contains("salva_checkpoint"),
+			"il salvataggio in IngressoNodo non e' piu' dietro salva_checkpoint: salverebbe in ogni stanza")
+
+func prova_il_checkpoint_non_ti_lascia_dentro() -> void:
+	# UN CHECKPOINT NON E' UN PUNTO DA CUI SI RIPARTE. Bru: «nelle fratture al
+	# massimo ci sono checkpoint». Protegge quello che hai raccolto, non la tua
+	# posizione: ricaricando si torna fuori, con il bottino in mano.
+	titolo("un checkpoint tiene il bottino, non ti lascia dentro la frattura")
+	GameState.nuova_partita()
+	var slot_prova := 1
+	GameState.imposta_slot(slot_prova)
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.nodo_corrente = "bivio"
+	GameState.imposta_flag("prova_bottino")
+	GameState.modifica_tazo(250)
+	GameState.stanze_ripulite.append("masso")
+	esigi(GameState.nodo_corrente == "bivio", "la preparazione non ci ha messo dentro la zona")
+	esigi(not GameState.mappa_zona.is_empty(), "la zona non ha una mappa: la prova non misura niente")
+	GameState.salva()
+
+	# adesso si muore, e si riprende
+	var tazo_prima := GameState.tazo
+	GameState.nuova_partita()
+	GameState.imposta_slot(slot_prova)
+	esigi(GameState.carica(), "il salvataggio del checkpoint non si ricarica")
+	esigi(GameState.ha_flag("prova_bottino"), "il checkpoint non ha tenuto i flag raccolti")
+	esigi(GameState.tazo == tazo_prima,
+			"il checkpoint ha tenuto %d tazo invece di %d" % [GameState.tazo, tazo_prima])
+	# ...ma FUORI dalla frattura
+	esigi(GameState.nodo_corrente == "",
+			"ricaricando si riparte da dentro la frattura, dal nodo '%s'" % GameState.nodo_corrente)
+	esigi(GameState.mappa_zona.is_empty(), "ricaricando la mappa della zona e' ancora addosso")
+	esigi(GameState.eventi.is_empty(), "ricaricando i nodi della zona sono ancora caricati")
+	esigi(GameState.stanze_ripulite.is_empty(),
+			"ricaricando le stanze gia' ripulite restano ripulite: la zona sarebbe mezza vuota")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(GameState.percorso_slot(slot_prova)))
 
 func prova_ecg_anello_e_riposo() -> void:
 	# DUE COSE, TUTTE E DUE MISURATE.

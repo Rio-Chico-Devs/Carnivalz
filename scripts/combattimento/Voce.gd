@@ -86,6 +86,20 @@ func accoda(riga: String, tipo: String, chi: String, forte: bool, effetto := Cal
 
 # --- far leggere ---
 
+func viva() -> bool:
+	# I NODI CHE USO ESISTONO ANCORA?
+	#
+	# Ogni attesa qui dentro passa da await, e durante un await la scena puo'
+	# CAMBIARE: lo scontro finisce, il giocatore torna al menu, una stanza
+	# manda altrove. change_scene_to_file libera la vecchia scena - e con lei il
+	# box e la zona cliccabile - ma l'albero sopravvive, quindi la coroutine si
+	# risveglia lo stesso al fotogramma dopo e va a scrivere su roba che non
+	# c'e' piu'. Godot lo segnala, e il giocatore vede degli errori mentre esce.
+	#
+	# Quindi dopo ogni attesa si chiede se si e' ancora vivi, e se no si smette
+	# in silenzio: non c'e' piu' nessuno a cui far leggere niente.
+	return not muta and is_instance_valid(box) and is_instance_valid(area_avanza)
+
 func svuota_coda() -> void:
 	# un messaggio alla volta, nell'ordine in cui e' successo. Il box e' lo
 	# stesso dei dialoghi: stesso corpo del testo, stessa macchina da scrivere,
@@ -117,26 +131,34 @@ func svuota_coda() -> void:
 	while not coda.is_empty():
 		var msg: Dictionary = coda.pop_front()
 		var testo := String(msg.testo)
-		if not muta and testo != "":
+		# "viva()" e non "not muta": la scena puo' essere sparita mentre si
+		# leggeva la battuta prima, e allora il box e' un riferimento a qualcosa
+		# che non c'e' piu'. Gli effetti invece si applicano lo stesso - sono
+		# cose che succedono nel mondo, non a schermo
+		if viva() and testo != "":
 			box.mostra(String(msg.tipo), testo, String(msg.chi))
 		var effetto: Callable = msg.get("effetto", Callable())
 		if effetto.is_valid():
 			effetto.call()
-		if muta:
-			continue   # niente da guardare e niente da aspettare
+		if not viva():
+			continue   # muta, o senza piu' schermo: niente da guardare e niente da aspettare
 		if testo == "":
 			await attendi_colpo()   # solo il colpo: il tempo di vederlo
-			continue
-		await attendi_lettura(testo, bool(msg.forte))
-	if not muta:
+		else:
+			await attendi_lettura(testo, bool(msg.forte))
+		if not viva():
+			break   # la scena e' cambiata mentre si leggeva: non c'e' piu' nessuno
+	if viva():
 		box.nascondi_indicatore()
 	sta_svuotando = false
 
 func attendi_lettura(testo: String, forte: bool) -> void:
+	if not viva():
+		return
 	salta_messaggio = false
 	area_avanza.visible = true
 	# 1. finche' scrive, un click completa il testo invece di saltarlo
-	while box.sta_scrivendo:
+	while viva() and box.sta_scrivendo:
 		if salta_messaggio:
 			salta_messaggio = false
 			box.completa()
@@ -145,26 +167,34 @@ func attendi_lettura(testo: String, forte: bool) -> void:
 	# 2. poi: i messaggi forti aspettano il click, gli altri il tempo di lettura.
 	# Il triangolino resta acceso solo sui forti, cosi' vuol dire una cosa sola:
 	# "questo sta aspettando te"
+	if not viva():
+		return
 	if forte and not tempo_reale:
-		while not salta_messaggio:
+		while viva() and not salta_messaggio:
 			await albero.process_frame
 	else:
 		box.nascondi_indicatore()
 		# process_always = false: il conto si ferma se apri la pausa
 		var attesa := albero.create_timer(tempo_di_lettura(testo), false)
-		while attesa.time_left > 0.0 and not salta_messaggio:
+		while viva() and attesa.time_left > 0.0 and not salta_messaggio:
 			await albero.process_frame
+	if not viva():
+		return
 	salta_messaggio = false
 	area_avanza.visible = false
 
 func attendi_colpo() -> void:
 	# il tempo di vedere il numero salire, saltabile con un click come il resto
+	if not viva():
+		return
 	salta_messaggio = false
 	area_avanza.visible = true
 	var attesa := albero.create_timer(
 			Stile.tempo("colpo_a_schermo") / maxf(Impostazioni.velocita_testo, 0.1), false)
-	while attesa.time_left > 0.0 and not salta_messaggio:
+	while viva() and attesa.time_left > 0.0 and not salta_messaggio:
 		await albero.process_frame
+	if not viva():
+		return
 	salta_messaggio = false
 	area_avanza.visible = false
 
