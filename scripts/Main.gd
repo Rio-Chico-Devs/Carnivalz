@@ -109,7 +109,8 @@ func _ready() -> void:
 	area_avanza.focus_mode = Control.FOCUS_NONE
 	area_avanza.pressed.connect(_su_avanza)
 	bottone_dialoga.pressed.connect(_su_dialoga)
-	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente)
+	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente) \
+			and GameState.mappa_consultabile()
 	bottone_mappa.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_MAPPA_ZONA))
 	# Alla nascita non si decide piu' niente: chi ci ha mandati qui e' gia'
@@ -857,9 +858,20 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		contenitore_scelte.add_child(riga_di_scelta(bottone, scelta))
 		if primo == null:
 			primo = bottone
-	if mostrando_scena:
-		# la descrizione del posto resta sempre a portata di mano: dopo qualche
-		# scelta il box ha gia' cambiato testo, e riguardarsi intorno e' gratis
+	if nodo.has("scena"):
+		# LA DESCRIZIONE DEL POSTO RESTA SEMPRE A PORTATA DI MANO: dopo qualche
+		# scelta il box ha gia' cambiato testo, e riguardarsi intorno e' gratis.
+		#
+		# La condizione era "mostrando_scena", e quella variabile fa un altro
+		# mestiere: dice se il nodo sta SUONANDO la scena invece dei dialoghi, ed
+		# e' falsa alla prima visita. Il risultato era che "Osserva la scena"
+		# compariva solo tornandoci una seconda volta - Bru se n'e' accorto
+		# uscendo dalla mappa e vedendosela spuntare dal nulla.
+		#
+		# Qui la domanda giusta e' un'altra e non c'entra la visita: questo posto
+		# ha una descrizione? Allora si puo' guardare. Le scelte si disegnano solo
+		# a coda vuota (vedi _apri_scelte), quindi "adesso" vuol dire gia'
+		# "finiti i dialoghi", che e' esattamente quando deve esserci.
 		var bottone_osserva := bottone_scelta("Osserva la scena")
 		bottone_osserva.pressed.connect(_su_osserva)
 		contenitore_scelte.add_child(bottone_osserva)
@@ -1277,9 +1289,7 @@ func _su_scelta(scelta: Dictionary) -> void:
 			_: Transizioni.vai(SCENA_SEDE)
 		return
 	if scelta.get("torna_a_mappa", false):
-		# mappa dungeon di zona: si torna li' a scegliere la prossima stanza,
-		# invece di proseguire dritti verso un altro nodo
-		Transizioni.vai(SCENA_MAPPA_ZONA)
+		apri_la_mappa_di_zona(scelta)
 		return
 	if scelta.has("vai"):
 		mostra_nodo(scelta["vai"], notifiche)
@@ -1288,11 +1298,33 @@ func _su_scelta(scelta: Dictionary) -> void:
 		coda_messaggi = notifiche
 		avanza_messaggio()
 
+func apri_la_mappa_di_zona(scelta: Dictionary) -> void:
+	# mappa dungeon di zona: si torna li' a scegliere la prossima stanza, invece
+	# di proseguire dritti verso un altro nodo.
+	#
+	# DA QUALE STANZA SI ESCE, quando il nodo non e' una stanza.
+	#
+	# La mappa lascia andare solo nei posti che confinano con quello in cui sei,
+	# e "dove sei" per lei e' nodo_corrente. Ma non tutti i nodi sono stanze: il
+	# risveglio in infermeria e' un nodo a se', e la stanza sulla planimetria si
+	# chiama "infermeria". Uscendo di li' la mappa si apriva con ZERO vicini -
+	# aperta, disegnata, e senza niente da premere - proprio nel momento in cui
+	# il complesso si apre al giocatore.
+	#
+	# Non era un caso solo: la prova che lo cerca ne ha trovati cinque, fra le
+	# Pianure (dopo_pozze, dopo_collina) e la Rocca d'Ossidiana (le tre scene
+	# della piazza sotterranea). Erano tutti li' da prima, e nessuno li aveva
+	# mai percorsi.
+	if scelta.has("stanza"):
+		GameState.nodo_corrente = String(scelta["stanza"])
+	Transizioni.vai(SCENA_MAPPA_ZONA)
+
 func aggiorna_dialoga() -> void:
 	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce
 	bottone_dialoga.visible = GameState.party.size() > 1
 	# "Mappa" compare solo dentro la sezione esplorabile della zona
-	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente)
+	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente) \
+			and GameState.mappa_consultabile()
 	Albero.svuota(menu_compagni)
 
 func _su_dialoga() -> void:

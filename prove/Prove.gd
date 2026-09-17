@@ -120,6 +120,8 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
+	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	prova_il_tetto_alla_struttura()
 	prova_il_dispatch_delle_mosse_e_cablato_bene()
 	prova_ogni_tipo_di_mossa_ce_l_ha_qualcuno()
@@ -283,7 +285,12 @@ func prova_nodi_raggiungibili() -> void:
 			for destinazione in destinazioni_di(nodi[corrente]):
 				da_visitare.append(destinazione)
 			if apre_la_mappa(nodi[corrente]):
-				for vicina in confinanti.get(corrente, []):
+				# DA QUALE STANZA SI ESCE. Non tutti i nodi che aprono la mappa
+				# sono stanze: il risveglio in infermeria e' un nodo a se', e la
+				# stanza si chiama "infermeria". Chiedendo i vicini col nome del
+				# nodo si otteneva un elenco vuoto - qui il camminatore si
+				# fermava, e nel gioco la mappa si apriva senza niente da premere
+				for vicina in confinanti.get(stanza_di_uscita(nodi[corrente], corrente), []):
 					da_visitare.append(String(vicina))
 		for id_nodo in nodi:
 			# UNA STANZA CHIUSA APPOSTA NON E' UN ORFANO. Bru: "ci sono varie
@@ -312,6 +319,15 @@ func apre_la_mappa(nodo: Dictionary) -> bool:
 		if scelta.get("torna_a_mappa", false):
 			return true
 	return false
+
+func stanza_di_uscita(nodo: Dictionary, id_nodo: String) -> String:
+	# in che punto della planimetria ti lascia questo nodo quando apre la mappa:
+	# se stesso, o la stanza che la scelta dichiara con "stanza"
+	for scelta in nodo.get("scelte", []):
+		var s := scelta as Dictionary
+		if bool(s.get("torna_a_mappa", false)) and s.has("stanza"):
+			return String(s["stanza"])
+	return id_nodo
 
 func confini_di_mappa(dati: Dictionary) -> Dictionary:
 	# chi confina con chi, secondo la mappa della zona: e' quello che
@@ -4443,10 +4459,19 @@ func prova_dall_introduzione_al_combattimento() -> void:
 	esigi(mappa.get("stanze", []).size() >= 6,
 			"il complesso ha %d aree: era \"varie aree\"" % mappa.get("stanze", []).size())
 
-	# l'alloggio apre la mappa invece di mandare dritto da qualche parte
+	# LA PRIMA MATTINA E' UN CORRIDOIO, NON UNA SCELTA, e questa prova diceva il
+	# contrario: pretendeva che dall'alloggio si uscisse SULLA MAPPA.
+	#
+	# Era la mia lettura, non quella di Bru, e provando il gioco l'ha corretta:
+	# quella era la prima schermata di mappa della partita - un attrezzo mai
+	# presentato, con sopra un punto esclamativo che ti teletrasporta in palestra
+	# saltando il racconto. «La mappa deve essere consultabile dopo la
+	# spiegazione di come si usa non prima».
 	var uscite: Array = nodi["alloggio"]["scelte"]
-	esigi(uscite.size() == 1 and bool(uscite[0].get("torna_a_mappa", false)),
-			"uscendo dall'alloggio non si apre la mappa del complesso")
+	esigi(uscite.size() == 1 and String(uscite[0].get("vai", "")) == "sala_allenamento",
+			"uscendo dall'alloggio non si va dritti in palestra: la mattina non e' ancora una scelta")
+	esigi(not bool(uscite[0].get("torna_a_mappa", false)),
+			"uscendo dall'alloggio si apre ancora la mappa, prima che il gioco l'abbia spiegata")
 
 	# le tre risposte di Veronica sono tre, diverse, e portano tutte allo scontro
 	var scelte_sala: Array = nodi["sala_allenamento"]["scelte"]
@@ -7696,12 +7721,12 @@ const FILE_GRANDI := {
 		"motore, quindi staccarli non farebbe un modulo, farebbe lo stesso " +
 		"codice con 'scontro.' davanti e senza controllo dei tipi. Misurato " +
 		"in docs/processi.md"},
-	"GameState.gd": {"misura": 2512, "perche":
+	"GameState.gd": {"misura": 2530, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
 		"combattimento qui i pezzi sono davvero separabili: i file di dati " +
 		"non c'entrano niente con gli slot di salvataggio"},
-	"Main.gd": {"misura": 1416, "perche":
+	"Main.gd": {"misura": 1459, "perche":
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
 		"adesso vuol dire spezzarlo di nuovo fra un mese"},
@@ -7938,6 +7963,133 @@ func prova_il_tetto_alla_struttura() -> void:
 	for chiave in FUNZIONI_INGARBUGLIATE:
 		esigi(String(chiave) in viste_funzioni,
 				"fra le eccezioni sul garbuglio c'e' '%s', che non esiste piu'" % chiave)
+
+func prova_osserva_la_scena_c_e_gia_alla_prima_visita() -> void:
+	# Bru, provando: «uscito dalla mappa è spuntata anche osserva scena, osserva
+	# scena deve già essere disponibile finiti i dialoghi».
+	#
+	# Compariva solo dalla SECONDA visita, perche' la condizione era
+	# "mostrando_scena" - una variabile che fa un altro mestiere: dice se il nodo
+	# sta suonando la descrizione invece dei dialoghi, e alla prima visita e'
+	# falsa. Il bottone non c'entra con la visita: c'entra col fatto che questo
+	# posto abbia qualcosa da guardare.
+	titolo("«Osserva la scena» c'e' gia' la prima volta, finiti i dialoghi")
+	GameState.nuova_partita()
+	GameState.eventi["prova_osserva"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "Entri."}],
+		"scena": "Il posto, adesso.",
+		"scelte": [{"testo": "Vai via", "vai": "prova_osserva"}],
+	}
+	GameState.nodo_corrente = "prova_osserva"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	# prima visita: mostrando_scena e' falsa, ed e' giusto che lo sia
+	schermata.mostrando_scena = false
+	schermata.ricostruisci_scelte(GameState.eventi["prova_osserva"])
+	await get_tree().process_frame
+	esigi(cerca_bottone_con_testo(schermata.contenitore_scelte, "Osserva la scena") != null,
+			"alla prima visita «Osserva la scena» non c'e': si vedeva solo tornandoci una seconda volta")
+	# E UN POSTO SENZA DESCRIZIONE NON LO OFFRE. Senza questa meta', la
+	# correzione piu' pigra - mostrarlo sempre - passerebbe la prova, e
+	# regalerebbe un bottone che apre il vuoto
+	GameState.eventi["prova_senza_scena"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "Entri."}],
+		"scelte": [{"testo": "Vai via", "vai": "prova_senza_scena"}],
+	}
+	schermata.ricostruisci_scelte(GameState.eventi["prova_senza_scena"])
+	await get_tree().process_frame
+	esigi(cerca_bottone_con_testo(schermata.contenitore_scelte, "Osserva la scena") == null,
+			"un posto che non ha nessuna 'scena' offre lo stesso di osservarla")
+	schermata.queue_free()
+
+func prova_la_mappa_non_si_apre_prima_di_essere_spiegata() -> void:
+	# Bru: «sulla mappa ho cliccato sul punto esclamativo e mi ha portato subito
+	# nella sala allenamento, non va bene, la mappa deve essere consultabile dopo
+	# la spiegazione di come si usa non prima».
+	titolo("la mappa non si consulta prima che il gioco l'abbia spiegata")
+
+	# 1. IL CANCELLO, SUL MOTORE.
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("introduzione", "res://data/events_intro.json")
+	var chiave := String(GameState.mappa_zona.get("richiede_flag", ""))
+	esigi(chiave != "",
+			"la mappa del complesso non dichiara nessun 'richiede_flag': si aprirebbe dalla prima schermata")
+	esigi(not GameState.mappa_consultabile(),
+			"a partita appena cominciata la mappa del complesso e' gia' consultabile")
+	GameState.imposta_flag(chiave)
+	esigi(GameState.mappa_consultabile(),
+			"acceso '%s' la mappa dovrebbe aprirsi, e resta chiusa" % chiave)
+
+	# 2. E NESSUNA SCELTA CI PUO' MANDARE PRIMA.
+	#
+	# Il cancello sul bottone da solo non bastava, ed e' il difetto vero che Bru
+	# ha trovato: la prima mattina "Esci dalla stanza" usciva PASSANDO dalla
+	# mappa. Quella strada il bottone non la vede nemmeno, e portava il giocatore
+	# sulla sua prima schermata di mappa - un attrezzo mai presentato, con sopra
+	# un punto esclamativo che teletrasporta - prima di qualunque riga che
+	# spiegasse cos'e'.
+	#
+	# Si cammina il grafo dal nodo iniziale e ci si FERMA su chi accende il
+	# flag: tutto quello che si tocca strada facendo e' roba che il giocatore
+	# puo' vedere prima, e li' dentro non ci deve stare nessun ritorno a mappa.
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		var cancello := String(dati.get("mappa_dungeon", {}).get("richiede_flag", ""))
+		if cancello == "":
+			continue  # mappa sempre aperta: nelle Pianure e' giusto cosi'
+		var nodi: Dictionary = dati.get("nodi", {})
+		var da_vedere: Array[String] = [String(dati.get("nodo_iniziale", ""))]
+		var visti: Array[String] = []
+		while not da_vedere.is_empty():
+			var id_nodo: String = da_vedere.pop_front()
+			if id_nodo == "" or id_nodo in visti or not nodi.has(id_nodo):
+				continue
+			visti.append(id_nodo)
+			var nodo: Dictionary = nodi[id_nodo]
+			if String(nodo.get("flag", "")) == cancello:
+				# QUESTO nodo accende il cancello, e lo accende ENTRANDO: le sue
+				# scelte si leggono a flag gia' acceso, quindi puo' rimandare
+				# alla mappa e da qui in poi non si cammina piu'
+				continue
+			for scelta in nodo.get("scelte", []):
+				esigi(not bool((scelta as Dictionary).get("torna_a_mappa", false)),
+						"%s: da '%s' la scelta «%s» rimanda alla mappa, ma li' '%s' non e' ancora acceso"
+						% [percorso.get_file(), id_nodo,
+						String((scelta as Dictionary).get("testo", "")), cancello])
+			for dove in destinazioni_di(nodo):
+				da_vedere.append(dove)
+		esigi(visti.size() > 1,
+				"%s: camminando dal nodo iniziale ho toccato %d nodi: il grafo non si sta percorrendo"
+				% [percorso.get_file(), visti.size()])
+
+	# 3. E CHI APRE LA MAPPA DEVE LASCIARTI DENTRO UNA STANZA.
+	#
+	# Difetto trovato mentre correggevo gli altri due, e c'era gia': la mappa
+	# lascia andare solo nei posti che confinano con quello in cui sei, e "dove
+	# sei" per lei e' nodo_corrente. Il risveglio in infermeria NON e' una stanza
+	# della planimetria - la stanza si chiama "infermeria" - quindi uscendo di li'
+	# la mappa si apriva con zero vicini: aperta, disegnata, e senza niente da
+	# premere. Proprio nel punto in cui il complesso si apre al giocatore.
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		var mappa: Dictionary = dati.get("mappa_dungeon", {})
+		if mappa.is_empty():
+			continue
+		var stanze: Array[String] = []
+		for stanza in mappa.get("stanze", []):
+			stanze.append(String((stanza as Dictionary).get("id", "")))
+		var nodi: Dictionary = dati.get("nodi", {})
+		for id_nodo in nodi:
+			for scelta in (nodi[id_nodo] as Dictionary).get("scelte", []):
+				var s := scelta as Dictionary
+				if not bool(s.get("torna_a_mappa", false)):
+					continue
+				var dove := String(s.get("stanza", String(id_nodo)))
+				esigi(dove in stanze,
+						"%s: da '%s' la scelta «%s» apre la mappa lasciandoti in '%s', che non e' una stanza: la mappa non avrebbe niente da premere"
+						% [percorso.get_file(), id_nodo, String(s.get("testo", "")), dove])
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.

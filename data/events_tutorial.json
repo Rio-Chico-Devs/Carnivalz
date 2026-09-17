@@ -1,1184 +1,1188 @@
 {
-	"nodo_iniziale": "inizio",
-	"mappa_dungeon": {
-		"nome": "Pianure di Redenna",
-		"stanze": [
-			{
-				"id": "inizio",
-				"nome": "Punto d'atterraggio",
-				"cella": [
-					1,
-					4
-				]
-			},
-			{
-				"id": "masso",
-				"nome": "Il masso e il ruscello",
-				"cella": [
-					1,
-					3
-				]
-			},
-			{
-				"id": "bivio",
-				"nome": "Il bivio",
-				"cella": [
-					1,
-					2
-				]
-			},
-			{
-				"id": "pozze",
-				"nome": "Le pozze d'acqua",
-				"cella": [
-					0,
-					1
-				]
-			},
-			{
-				"id": "collina",
-				"nome": "La collina",
-				"cella": [
-					2,
-					1
-				],
-				"icona": "forte"
-			},
-			{
-				"id": "convergenza",
-				"nome": "Verso le urla",
-				"cella": [
-					1,
-					0
-				]
-			}
-		],
-		"connessioni": [
-			[
-				"inizio",
-				"masso"
-			],
-			[
-				"masso",
-				"bivio"
-			],
-			[
-				"bivio",
-				"pozze"
-			],
-			[
-				"bivio",
-				"collina"
-			],
-			[
-				"pozze",
-				"convergenza"
-			],
-			[
-				"collina",
-				"convergenza"
-			]
-		]
-	},
-	"nodi": {
-		"inizio": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "In queste pianure il vento soffia gentile.\n\nPiccole pozze d'acqua salutano il cielo con i loro riflessi mentre le foglie cambiano colore nel tempo...\n\nPiccole creature primitive vivono spensierate in queste radure lontane, aspettando che quello stesso vento che soffia incessante li porti via..."
-				},
-				{
-					"tipo": "titolo",
-					"testo": "Pianure di Redenna"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Dunque sarebbe questa la mia prima missione autonoma? Sembra un posto molto tranquillo, forse siamo in tempo per salvare queste pianure..."
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"scena": "Le pianure di Redenna si aprono davanti a te, tranquille come sembravano da lassù.",
-			"scelte": [
-				{
-					"testo": "Fatti largo tra le pianure",
-					"vai": "primo_incontro"
-				}
-			]
-		},
-		"primo_incontro": {
-			"vai_se_flag": {
-				"flag": "tut_primo_goblin",
-				"vai": "dopo_primo_goblin"
-			},
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Tra le felci, qualcosa ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Vediamo di finire presto: non ho tempo da perdere."
-				}
-			],
-			"espr_sinistra": "decisa",
-			"combattimento_automatico": {
-				"nemici": [
-					"goblin_tipico"
-				],
-				"se_vinci": "dopo_primo_goblin",
-				"se_perdi": "sconfitta"
-			}
-		},
-		"dopo_primo_goblin": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Alcune creature sono malvage di natura, è tuo compito decidere il loro destino."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Le creature qui sembrano molto deboli... Qualunque cosa stia causando questa anomalia non deve essere molto forte..."
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"flag": "tut_primo_goblin",
-			"scelte": [
-				{
-					"testo": "Continua per la tua strada",
-					"vai": "masso"
-				}
-			]
-		},
-		"masso": {
-			"testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.",
-			"espr_sinistra": "sorpresa",
-			"scelte": [
-				{
-					"testo": "Ispeziona l'acqua che luccica",
-					"vai": "due_nemici",
-					"una_tantum": "tut_masso",
-					"oggetti": [
-						"fiala_hp",
-						"fiala_hp"
-					]
-				},
-				{
-					"testo": "Prosegui senza fermarti",
-					"vai": "due_nemici"
-				}
-			],
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa."
-				}
-			]
-		},
-		"due_nemici": {
-			"vai_se_flag": {
-				"flag": "tut_radura_superata",
-				"vai": "bivio"
-			},
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Ti ritrovi in mezzo a una piccola radura fangosa. Le acque cristalline che emergono dai cumuli di fango umido creano un luccichio meraviglioso..."
-				}
-			],
-			"combattimento_automatico": {
-				"nemici": [
-					"goblin_tipico"
-				],
-				"se_vinci": "bivio",
-				"se_perdi": "sconfitta"
-			}
-		},
-		"bivio": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Hm... sembra che io possa proseguire sia dalla parte bassa che alta di questo bivio..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Forse sarebbe meglio proseguire dalla parte bassa, posso sempre tornare indietro..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Anche se... Ho un brutto presentimento... qualcosa mi turba... e proviene dalla collina. Forse sarebbe meglio investigare cosa c'è sopra la collina...",
-					"espr": "pensiero"
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone \"Mappa\"). Da qui puoi controllare la tua posizione, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi."
-				}
-			],
-			"flag": "tut_radura_superata",
-			"sblocca_stanze": [
-				"inizio",
-				"masso",
-				"bivio",
-				"pozze",
-				"collina"
-			],
-			"scena": "Il terreno sembra innalzarsi creando una piccola collina... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.",
-			"scelte": [
-				{
-					"testo": "Procedi verso le pozze d'acqua",
-					"vai": "pozze"
-				},
-				{
-					"testo": "Sali sulla collina",
-					"vai": "collina"
-				}
-			]
-		},
-		"pozze": {
-			"vai_se_flag": {
-				"flag": "tut_pozze_fatte",
-				"vai": "pozze_ripulite"
-			},
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Un altro Goblin... e quella... cos'è? È enorme...",
-					"espr": "sorpresa"
-				}
-			],
-			"combattimento_automatico": {
-				"nemici": [
-					"goblin_tipico"
-				],
-				"se_vinci": "dopo_pozze",
-				"se_perdi": "sconfitta",
-				"se_fuggi": "bivio"
-			}
-		},
-		"pozze_ripulite": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Le pozze riflettono il cielo, immobili. C'è una particolare calma in questo posto."
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Attraversa gli arbusti",
-					"vai": "convergenza"
-				},
-				{
-					"testo": "Torna al bivio",
-					"vai": "bivio"
-				}
-			]
-		},
-		"dopo_pozze": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicur{o|a} di aver fatto tutto quello che era necessario fare prima di proseguire."
-				}
-			],
-			"flag": "tut_pozze_fatte",
-			"scena": "Le pozze riflettono il cielo, immobili. Da qui il sentiero è interrotto da un mucchio di arbusti.",
-			"sblocca_stanze": [
-				"convergenza"
-			],
-			"scelte": [
-				{
-					"testo": "Oltrepassa gli arbusti",
-					"vai": "convergenza"
-				},
-				{
-					"testo": "Apri la mappa",
-					"torna_a_mappa": true
-				}
-			]
-		},
-		"collina": {
-			"vai_se_flag": {
-				"flag": "tut_collina_vista",
-				"vai": "collina_ritorno"
-			},
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Ho davvero un brutto presentimento..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Cos'è questo odore dolce... è molto piacevole..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Non sembrerebbe esserci niente qui sopra..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "*sniff* L'odore sembra essersi fatto più forte... cos'è questa stanchezza improvvisa..."
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Piccole particelle di luce cominciano a concentrarsi davanti a te, roteando e creando un gioco di movimenti ipnotici..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Cosa sta succedendo? ...",
-					"espr": "sorpresa"
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Una creatura appare dal nulla, cammina intorno a te osservandoti da vicino, senti una stanchezza travolgente che ti impedisce di reagire..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Devo... riprendermi..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "!!! È ora di porre fine a tutto questo!",
-					"espr": "decisa"
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "La creatura si allontana leggermente avvolgendoti in un velo iridescente."
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "La manifestazione ti osserva e prova ad avvicinarsi di nuovo. Hai un terribile presentimento..."
-				}
-			],
-			"espr_sinistra": "sorpresa",
-			"flag": "tut_collina_vista",
-			"combattimento_automatico": {
-				"nemici": [
-					"manifestazione_di_un_sogno"
-				],
-				"se_vinci": "dopo_collina",
-				"se_perdi": "sconfitta_manifestazione",
-				"se_fuggi": "bivio"
-			}
-		},
-		"collina_ritorno": {
-			"vai_se_flag": {
-				"flag": "tut_collina_fatta",
-				"vai": "collina_vuota"
-			},
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Devo scoprire di più su quella creatura."
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Proprio al centro della collina la strana creatura volteggia, ignorando tutto il resto..."
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"scena": "La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
-			"scelte": [
-				{
-					"testo": "Combatti",
-					"richiede_non_flag": "tut_collina_fatta",
-					"combatti": [
-						"manifestazione_di_un_sogno"
-					],
-					"se_vinci": "dopo_collina",
-					"se_perdi": "sconfitta_manifestazione",
-					"se_fuggi": "bivio"
-				},
-				{
-					"testo": "Torna al bivio",
-					"vai": "bivio"
-				}
-			]
-		},
-		"collina_vuota": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "La cima della collina è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"espr": "pensiero",
-					"testo": "Qui ho già finito."
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"scena": "La cima della collina è vuota. Resta il cerchio schiacciato nell'erba.",
-			"scelte": [
-				{
-					"testo": "Attraversa gli arbusti",
-					"vai": "convergenza"
-				},
-				{
-					"testo": "Torna al bivio",
-					"vai": "bivio"
-				}
-			]
-		},
-		"dopo_collina": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Non so cosa fosse... ma la collina è silenziosa, adesso."
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"flag": "tut_collina_fatta",
-			"scena": "La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
-			"sblocca_stanze": [
-				"convergenza"
-			],
-			"scelte": [
-				{
-					"testo": "Attraversa gli arbusti",
-					"vai": "convergenza"
-				},
-				{
-					"testo": "Apri la mappa",
-					"torna_a_mappa": true
-				}
-			]
-		},
-		"convergenza": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Le urla si fanno sempre più forti, devo essere vicino..."
-				}
-			],
-			"espr_sinistra": "decisa",
-			"flag": "tut_strada_aperta",
-			"scena": "Sono vicino. Lo sento.",
-			"scelte": [
-				{
-					"testo": "Scatta verso i rumori",
-					"vai": "boss"
-				},
-				{
-					"testo": "Torna alla collina",
-					"vai": "collina"
-				},
-				{
-					"testo": "Torna alle pozze",
-					"vai": "pozze"
-				}
-			],
-			"vai_se_flag": [
-				{
-					"flag": "pianure_compiute",
-					"vai": "ritorno_disponibile"
-				}
-			]
-		},
-		"boss": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato ti aspetta, i pugni già stretti."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "goblin_arrabbiato",
-					"testo": "?! ^?%&$!!"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Eccoti, facciamola finita."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "goblin_arrabbiato",
-					"testo": "Ah?! Ti carica a testa bassa!"
-				}
-			],
-			"centro": "goblin_arrabbiato",
-			"espr_centro": "decisa",
-			"combattimento_automatico": {
-				"nemici": [
-					"goblin_arrabbiato"
-				],
-				"se_vinci": "vittoria",
-				"se_perdi": "sconfitta"
-			}
-		},
-		"vittoria": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Dopo lo scontro, il vento si placa e l'atmosfera sembra essere meno tesa: i livelli di disallineamento sono normali."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Sembra essere tutto finito..."
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "È ora di lasciare questo posto, altri compiti ti attendono."
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"scelte": [
-				{
-					"testo": "Apri il data pad",
-					"vai": "ritorno_istruzioni"
-				}
-			],
-			"flag": "pianure_compiute"
-		},
-		"sconfitta": {
-			"scelte": [
-				{
-					"testo": "Rialzati e ricomincia",
-					"game_over": true
-				}
-			],
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "Sconfitta totale, sei {stato spazzato|stata spazzata} via."
-				}
-			]
-		},
-		"sconfitta_manifestazione": {
-			"scelte": [
-				{
-					"testo": "Rialzati e ricomincia",
-					"game_over": true
-				}
-			],
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "È ora di dormire, nei sogni ogni tuo desiderio diventa realtà..."
-				}
-			]
-		},
-		"hq_veronica_saluto": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Heilà, sei {tornato|tornata}! Com'è andata la tua prima missione da sol{o|a}? Scommetto che l'hai completata al massimo della potenza!",
-					"espr": "felice"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Tutto come previsto."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "BAHAHA! Certamente! Non c'era da aspettarsi di meno da te avendo un'allenatrice esplosiva come me, giusto?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "È andata."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "\"È andata\". Sei tornat{o|a} inter{o|a}, hai chiuso una frattura da sol{o|a} e mi dici \"è andata\".",
-					"espr": "decisa"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Vabbè. Dovresti passare in sala riunioni, vogliono vederti per il rapporto..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Immaginavo. Allora non perdo altro tempo."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "\"NON PERDO ALTRO TEMPO\"!? Che cattiv{o|a}."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Come puoi trattarmi in questo modo?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Hey, mi stai ascoltando?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Allora vado. Ci vediamo dopo, Veronica."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Che antipatic{o|a}..."
-				}
-			],
-			"destra": "veronica",
-			"espr_destra": "felice",
-			"scelte": [
-				{
-					"testo": "Vai in sala riunioni",
-					"vai": "hq_sala_riunioni_1"
-				}
-			]
-		},
-		"hq_sala_riunioni_1": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Eccomi. Unità UJ-111 a rapporto. Ho inoltrato la mia analisi sulla frattura e le osservazioni fatte sul campo come sempre."
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Uno schermo oscurato si accende con un ronzio elettrico."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Buongiorno unità UJ-111, ci rallegriamo di ritrovarti operativo e in ottima salute. Proseguiamo a renderti grazie per i tuoi sforzi e ti confermiamo il successo dell'operazione."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo diario gli eventi che vanno completati nell'arco della giornata."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Le ricordiamo che il suo Diario è sempre consultabile: in cima vi troverà gli appunti sui luoghi dove deve recarsi e su ciò che le viene chiesto strada facendo, e sotto le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato."
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Puoi aprire il Diario in qualunque momento premendo ESC: da lì passi anche allo storico di tutto quello che hai letto finora."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Bene unità UJ-111, la nostra attuale istanza si ritira per deliberare. Complimenti per il suo recente successo, ci aspettiamo grandi cose da lei. Per aspera ad astra!"
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Lo schermo si spegne con un ronzio elettrico."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Burocrazia..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Adesso però mi conviene passare in infermeria. Non mi reggo in piedi da quando siamo tornati."
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Passa in infermeria",
-					"vai": "hq_infermeria"
-				}
-			]
-		},
-		"hq_infermeria": {
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "L'infermeria è l'unica stanza del complesso che non fa rumore. Ti siedi prima ancora che Curie ti dica di farlo."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "Bentornat{o|a}, a pezzi come sempre vedo..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Solita frattura, solito rientro."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "Se non fossi {un dominatore|una dominatrice} di limiti saresti già {morto|morta}, lo sai?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Non ho mai capito perché io e Veronica abbiamo questa... fortuna?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "Beh dovresti saperlo... solo individui con una forte forza di volontà e una fortunata costituzione diventano dominatori... Non è una fortuna, è un destino."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Anche lei è una dominatrice se ricordo bene..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "Sì, ma non tutti i dominatori sono fatti per il combattimento: io sono specializzata nelle cure e nella conoscenza. Non mi sognerei mai di andarmene a zonzo per l'universo a... beh... lo sai... io non sono molto a favore della violenza..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Qualcuno purtroppo deve farlo..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "Apprezzo quel che fate..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "Ah! Dimenticavo, devi recarti nella sala riunioni: ti hanno affidato un bell'incarico..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "Spero di non rivederti presto da queste parti <3",
-					"espr": "carina"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Un bell'incarico... Penso che siamo destinati a rivederci."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "curie",
-					"testo": "È inevitabile..."
-				}
-			],
-			"destra": "curie",
-			"espr_destra": "carina",
-			"scelte": [
-				{
-					"testo": "Vai in sala riunioni",
-					"vai": "hq_sala_riunioni_2"
-				}
-			]
-		},
-		"hq_sala_riunioni_2": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Salve candidato, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Come ben sa, il numero di dominatori è calato drasticamente di questi tempi e sempre più mondi e realtà vengono compromessi a causa delle anomalie che stiamo studiando..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Non vogliamo compromettere la sua salute e la sua integrità, ma allo stesso tempo abbiamo bisogno che lei affini le sue abilità con alcuni casi di minore entità."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Abbiamo aggiornato nelle sue planimetrie i luoghi d'interesse dove ci sarebbe bisogno di effettuare dei rilevamenti importanti, così come un punto anomalo dove i livelli di allineamento sono fuori controllo ma non in modo preoccupante: siamo sicuri che saprà gestire la situazione. Ha qualcosa da riferire?"
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Come mai mi trovo qui?",
-					"vai": "hq_domanda_perche"
-				},
-				{
-					"testo": "Cosa sono i dominatori in realtà?",
-					"vai": "hq_domanda_dominatori"
-				},
-				{
-					"testo": "Da quanto tempo sta succedendo tutto questo?",
-					"vai": "hq_domanda_quando"
-				},
-				{
-					"testo": "Nessuna domanda. Parto immediatamente.",
-					"vai": "hq_congedo"
-				}
-			],
-			"scena": "Lo schermo oscurato aspetta. Non ha fretta."
-		},
-		"hq_domanda_perche": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Lei è qui per essere studiato e per compiere il suo dovere in quanto dominatore, ovviamente. Senza di lei sarebbe impossibile tornare a quella che un tempo veniva chiamata \"normalità\". Insieme a lei altre unità sono attualmente accolte dalle nostre strutture sparse lungo tutto il cosmo. Non deve sentirsi solo."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Ha altro che le preme chiedere?"
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Come mai mi trovo qui?",
-					"vai": "hq_domanda_perche"
-				},
-				{
-					"testo": "Cosa sono i dominatori in realtà?",
-					"vai": "hq_domanda_dominatori"
-				},
-				{
-					"testo": "Da quanto tempo sta succedendo tutto questo?",
-					"vai": "hq_domanda_quando"
-				},
-				{
-					"testo": "Nessuna domanda. Parto immediatamente.",
-					"vai": "hq_congedo"
-				}
-			]
-		},
-		"hq_domanda_dominatori": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Quello che noi definiamo come \"Dominatore\" è un soggetto con particolari capacità di resilienza, capace di adattarsi a diverse situazioni grazie a quello che noi pensiamo essere stato \"un vissuto particolarmente travagliato\"."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Vi contraddistinguono ottime doti di resistenza allo stress e una strana energia che nasce dai vostri sentimenti negativi, che solo voi siete capaci di dominare e trasformare in forza. Per questo vi chiamiamo \"Dominatori\"."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Ha altro che le preme chiedere?"
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Come mai mi trovo qui?",
-					"vai": "hq_domanda_perche"
-				},
-				{
-					"testo": "Cosa sono i dominatori in realtà?",
-					"vai": "hq_domanda_dominatori"
-				},
-				{
-					"testo": "Da quanto tempo sta succedendo tutto questo?",
-					"vai": "hq_domanda_quando"
-				},
-				{
-					"testo": "Nessuna domanda. Parto immediatamente.",
-					"vai": "hq_congedo"
-				}
-			]
-		},
-		"hq_domanda_quando": {
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Secondo i nostri registri, basandoci su un primitivo calendario di un pianeta chiamato \"Terra\" che fu il primo caso di disallineamento nella storia... si parla di ormai più di qualche migliaio di anni..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Calcolando stima..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "... ... ..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Esattamente 3696 anni su base terrestre, 245 giorni, 22 ore, 31 minuti e 59 secondi."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Ha altro che le preme chiedere?"
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Come mai mi trovo qui?",
-					"vai": "hq_domanda_perche"
-				},
-				{
-					"testo": "Cosa sono i dominatori in realtà?",
-					"vai": "hq_domanda_dominatori"
-				},
-				{
-					"testo": "Da quanto tempo sta succedendo tutto questo?",
-					"vai": "hq_domanda_quando"
-				},
-				{
-					"testo": "Nessuna domanda. Parto immediatamente.",
-					"vai": "hq_congedo"
-				}
-			]
-		},
-		"hq_congedo": {
-			"flag": "tutorial_completato",
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "No, non ho altre domande... Parto immediatamente."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "figura_misteriosa",
-					"testo": "Ottimo, sapevamo di poter contare su di lei, candidato. Per aspera ad astra!"
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Torna alla mappa stellare",
-					"reset": true
-				}
-			]
-		},
-		"ritorno_istruzioni": {
-			"_nota": "Il testo è di Bru, parola per parola. Unici ritocchi: l'accordo maschile/femminile, quattro refusi (Bhe, sopratutto, Ah si, un po di più) e la frase del data pad, che nell'originale era grammaticalmente incompleta («come la spiegazioni quando avviato la sua guida») - qui è resa leggibile senza cambiare quello che dice.",
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Beh, sicuramente ho capito come si parte... ma come ritorno?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "data_pad",
-					"testo": "Complimenti dominat{ore|rice}, sembra che la tua missione sia finita. Avvii pure la procedura di ritorno, come le è stata spiegata quando ha avviato la sua guida.",
-					"suono": "data_pad"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Quella maledetta ha saltato tutto e io non ci ho capito niente!"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "... E ora cosa faccio?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Bzzzz... boop. h-heeey zzz"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Heylà! Ti stavo monitorando sai? Ho visto tutto! soprattutto quando hai spaccato di botte tutti quei nemici! Gli allenamenti ti sono serviti!"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Veronica... Come torno alla base..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Ah sì, certo! Ti spiego subito!"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Devi sapere che ci sono 3 modi per entrare in quelle che chiamiamo fratture..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "la prima: Avendo un proiettore... Non ci capisco molto di questi affari, ma riescono ad allinearti in qualche modo a qualcosa che in teoria è compatibile con quel qualcosa che ha causato il fenomeno della frattura..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "la seconda: Alcuni individui particolari... nel nostro caso quelli che chiamiamo dominatori... Attirano queste anomalie che possono creare microfratture per accedere a questi mondi nelle loro vicinanze..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "per quello non ci è permesso abbandonare la base... La nostra base è costruita con un materiale particolare che limita questi eventi, altrimenti potremmo generare delle microfratture attorno a noi che potrebbero inghiottire anche civili ignari della cosa... certo, è un evento molto raro dicono, ma l'organizzazione ci tiene ad evitare queste situazioni..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "e il terzo?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "... Non lo so! Dovresti chiedere ai cervelloni del settore ricerca, io quel che so l'ho imparato durante le mie missioni e l'organizzazione è molto riservata su queste cose..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Eppure noi facciamo il lavoro sporco... dovremmo poter sapere un po' di più sulla cosa..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Come ti ho detto adesso che torni per fare rapporto prova a chiedere a loro, io non so dirti molto..."
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "anonimo",
-					"testo": "Capito, proverò... Adesso, come faccio a tornare?"
-				},
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Prova ad aprire il tuo datapad e girare la rotella al fianco dal triangolo al cerchio,"
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "[i]La rotella scatta sul cerchio.[/i]"
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Vuoi tornare indietro?"
-				}
-			],
-			"espr_sinistra": "pensiero",
-			"scelte": [
-				{
-					"testo": "Sì, torno alla base",
-					"vai": "ritorno_alla_base"
-				},
-				{
-					"testo": "No, voglio dare ancora un'occhiata",
-					"vai": "ritorno_rimandato"
-				}
-			],
-			"flag": "sa_tornare"
-		},
-		"ritorno_rimandato": {
-			"_nota": "Bru: «altrimenti scatta il dialogo di veronica: Dai non perdere tempo, torna indietro, è quasi ora di cena...». Non è un muro: la mappa resta aperta e ci si può girare ancora.",
-			"sequenza": [
-				{
-					"tipo": "dialogo",
-					"chi": "veronica",
-					"testo": "Dai non perdere tempo, torna indietro, è quasi ora di cena..."
-				}
-			],
-			"torna_a_mappa": true
-		},
-		"ritorno_disponibile": {
-			"_nota": "Bru: «a ogni fine missione avrai l'opzione di tornare alla base nell'ultima zona della mappa altrimenti potrai ancora rivisitare la mappa se pensi di aver dimenticato qualcosa». La convenzione: l'ultima stanza di una zona si tiene un vai_se_flag verso un nodo come questo, e da lì si torna.",
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "[i]La rotella del data pad è ancora sul cerchio.[/i]"
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "Vuoi tornare indietro?"
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Sì, torno alla base",
-					"vai": "ritorno_alla_base"
-				},
-				{
-					"testo": "No, voglio dare ancora un'occhiata",
-					"vai": "ritorno_rimandato"
-				}
-			]
-		},
-		"ritorno_alla_base": {
-			"_nota": "Bru: «scegliendo si torni indietro da veronica nella sala proiezione». L'arrivo è solo narrazione: cosa si dicono lì lo scrive Bru, e per ora si prosegue col rientro che c'era già.",
-			"sfondo": "res://art/scene/sala_proiezione.png",
-			"sequenza": [
-				{
-					"tipo": "narrazione",
-					"testo": "[b]FLASH.[/b]",
-					"attesa": 0.6
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "La piattaforma della sala di proiezione, e l'odore di metallo freddo che non avevi notato all'andata."
-				},
-				{
-					"tipo": "narrazione",
-					"testo": "[i]Veronica è appoggiata alla consolle, come se non si fosse mossa da lì.[/i]"
-				}
-			],
-			"scelte": [
-				{
-					"testo": "Scendi dalla piattaforma",
-					"vai": "hq_veronica_saluto"
-				}
-			]
-		}
-	}
+  "nodo_iniziale": "inizio",
+  "mappa_dungeon": {
+    "nome": "Pianure di Redenna",
+    "stanze": [
+      {
+        "id": "inizio",
+        "nome": "Punto d'atterraggio",
+        "cella": [
+          1,
+          4
+        ]
+      },
+      {
+        "id": "masso",
+        "nome": "Il masso e il ruscello",
+        "cella": [
+          1,
+          3
+        ]
+      },
+      {
+        "id": "bivio",
+        "nome": "Il bivio",
+        "cella": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "pozze",
+        "nome": "Le pozze d'acqua",
+        "cella": [
+          0,
+          1
+        ]
+      },
+      {
+        "id": "collina",
+        "nome": "La collina",
+        "cella": [
+          2,
+          1
+        ],
+        "icona": "forte"
+      },
+      {
+        "id": "convergenza",
+        "nome": "Verso le urla",
+        "cella": [
+          1,
+          0
+        ]
+      }
+    ],
+    "connessioni": [
+      [
+        "inizio",
+        "masso"
+      ],
+      [
+        "masso",
+        "bivio"
+      ],
+      [
+        "bivio",
+        "pozze"
+      ],
+      [
+        "bivio",
+        "collina"
+      ],
+      [
+        "pozze",
+        "convergenza"
+      ],
+      [
+        "collina",
+        "convergenza"
+      ]
+    ]
+  },
+  "nodi": {
+    "inizio": {
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "In queste pianure il vento soffia gentile.\n\nPiccole pozze d'acqua salutano il cielo con i loro riflessi mentre le foglie cambiano colore nel tempo...\n\nPiccole creature primitive vivono spensierate in queste radure lontane, aspettando che quello stesso vento che soffia incessante li porti via..."
+        },
+        {
+          "tipo": "titolo",
+          "testo": "Pianure di Redenna"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Dunque sarebbe questa la mia prima missione autonoma? Sembra un posto molto tranquillo, forse siamo in tempo per salvare queste pianure..."
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "scena": "Le pianure di Redenna si aprono davanti a te, tranquille come sembravano da lassù.",
+      "scelte": [
+        {
+          "testo": "Fatti largo tra le pianure",
+          "vai": "primo_incontro"
+        }
+      ]
+    },
+    "primo_incontro": {
+      "vai_se_flag": {
+        "flag": "tut_primo_goblin",
+        "vai": "dopo_primo_goblin"
+      },
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Tra le felci, qualcosa ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Vediamo di finire presto: non ho tempo da perdere."
+        }
+      ],
+      "espr_sinistra": "decisa",
+      "combattimento_automatico": {
+        "nemici": [
+          "goblin_tipico"
+        ],
+        "se_vinci": "dopo_primo_goblin",
+        "se_perdi": "sconfitta"
+      }
+    },
+    "dopo_primo_goblin": {
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Alcune creature sono malvage di natura, è tuo compito decidere il loro destino."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Le creature qui sembrano molto deboli... Qualunque cosa stia causando questa anomalia non deve essere molto forte..."
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "flag": "tut_primo_goblin",
+      "scelte": [
+        {
+          "testo": "Continua per la tua strada",
+          "vai": "masso"
+        }
+      ]
+    },
+    "masso": {
+      "testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.",
+      "espr_sinistra": "sorpresa",
+      "scelte": [
+        {
+          "testo": "Ispeziona l'acqua che luccica",
+          "vai": "due_nemici",
+          "una_tantum": "tut_masso",
+          "oggetti": [
+            "fiala_hp",
+            "fiala_hp"
+          ]
+        },
+        {
+          "testo": "Prosegui senza fermarti",
+          "vai": "due_nemici"
+        }
+      ],
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa."
+        }
+      ]
+    },
+    "due_nemici": {
+      "vai_se_flag": {
+        "flag": "tut_radura_superata",
+        "vai": "bivio"
+      },
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Ti ritrovi in mezzo a una piccola radura fangosa. Le acque cristalline che emergono dai cumuli di fango umido creano un luccichio meraviglioso..."
+        }
+      ],
+      "combattimento_automatico": {
+        "nemici": [
+          "goblin_tipico"
+        ],
+        "se_vinci": "bivio",
+        "se_perdi": "sconfitta"
+      }
+    },
+    "bivio": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Hm... sembra che io possa proseguire sia dalla parte bassa che alta di questo bivio..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Forse sarebbe meglio proseguire dalla parte bassa, posso sempre tornare indietro..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Anche se... Ho un brutto presentimento... qualcosa mi turba... e proviene dalla collina. Forse sarebbe meglio investigare cosa c'è sopra la collina...",
+          "espr": "pensiero"
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone \"Mappa\"). Da qui puoi controllare la tua posizione, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi."
+        }
+      ],
+      "flag": "tut_radura_superata",
+      "sblocca_stanze": [
+        "inizio",
+        "masso",
+        "bivio",
+        "pozze",
+        "collina"
+      ],
+      "scena": "Il terreno sembra innalzarsi creando una piccola collina... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.",
+      "scelte": [
+        {
+          "testo": "Procedi verso le pozze d'acqua",
+          "vai": "pozze"
+        },
+        {
+          "testo": "Sali sulla collina",
+          "vai": "collina"
+        }
+      ]
+    },
+    "pozze": {
+      "vai_se_flag": {
+        "flag": "tut_pozze_fatte",
+        "vai": "pozze_ripulite"
+      },
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Un altro Goblin... e quella... cos'è? È enorme...",
+          "espr": "sorpresa"
+        }
+      ],
+      "combattimento_automatico": {
+        "nemici": [
+          "goblin_tipico"
+        ],
+        "se_vinci": "dopo_pozze",
+        "se_perdi": "sconfitta",
+        "se_fuggi": "bivio"
+      }
+    },
+    "pozze_ripulite": {
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Le pozze riflettono il cielo, immobili. C'è una particolare calma in questo posto."
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Attraversa gli arbusti",
+          "vai": "convergenza"
+        },
+        {
+          "testo": "Torna al bivio",
+          "vai": "bivio"
+        }
+      ]
+    },
+    "dopo_pozze": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicur{o|a} di aver fatto tutto quello che era necessario fare prima di proseguire."
+        }
+      ],
+      "flag": "tut_pozze_fatte",
+      "scena": "Le pozze riflettono il cielo, immobili. Da qui il sentiero è interrotto da un mucchio di arbusti.",
+      "sblocca_stanze": [
+        "convergenza"
+      ],
+      "scelte": [
+        {
+          "testo": "Oltrepassa gli arbusti",
+          "vai": "convergenza"
+        },
+        {
+          "testo": "Apri la mappa",
+          "torna_a_mappa": true,
+          "stanza": "pozze"
+        }
+      ],
+      "_nota_stanza": "Sta dentro 'pozze', ma non e' quella stanza: e' una scena che ci succede. Senza 'stanza' la mappa si apre chiedendo i vicini di 'dopo_pozze', che vicini non ne ha - e resta li' disegnata, senza niente da premere."
+    },
+    "collina": {
+      "vai_se_flag": {
+        "flag": "tut_collina_vista",
+        "vai": "collina_ritorno"
+      },
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Ho davvero un brutto presentimento..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Cos'è questo odore dolce... è molto piacevole..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Non sembrerebbe esserci niente qui sopra..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "*sniff* L'odore sembra essersi fatto più forte... cos'è questa stanchezza improvvisa..."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Piccole particelle di luce cominciano a concentrarsi davanti a te, roteando e creando un gioco di movimenti ipnotici..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Cosa sta succedendo? ...",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Una creatura appare dal nulla, cammina intorno a te osservandoti da vicino, senti una stanchezza travolgente che ti impedisce di reagire..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Devo... riprendermi..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "!!! È ora di porre fine a tutto questo!",
+          "espr": "decisa"
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "La creatura si allontana leggermente avvolgendoti in un velo iridescente."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "La manifestazione ti osserva e prova ad avvicinarsi di nuovo. Hai un terribile presentimento..."
+        }
+      ],
+      "espr_sinistra": "sorpresa",
+      "flag": "tut_collina_vista",
+      "combattimento_automatico": {
+        "nemici": [
+          "manifestazione_di_un_sogno"
+        ],
+        "se_vinci": "dopo_collina",
+        "se_perdi": "sconfitta_manifestazione",
+        "se_fuggi": "bivio"
+      }
+    },
+    "collina_ritorno": {
+      "vai_se_flag": {
+        "flag": "tut_collina_fatta",
+        "vai": "collina_vuota"
+      },
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Devo scoprire di più su quella creatura."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Proprio al centro della collina la strana creatura volteggia, ignorando tutto il resto..."
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "scena": "La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
+      "scelte": [
+        {
+          "testo": "Combatti",
+          "richiede_non_flag": "tut_collina_fatta",
+          "combatti": [
+            "manifestazione_di_un_sogno"
+          ],
+          "se_vinci": "dopo_collina",
+          "se_perdi": "sconfitta_manifestazione",
+          "se_fuggi": "bivio"
+        },
+        {
+          "testo": "Torna al bivio",
+          "vai": "bivio"
+        }
+      ]
+    },
+    "collina_vuota": {
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "La cima della collina è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "espr": "pensiero",
+          "testo": "Qui ho già finito."
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "scena": "La cima della collina è vuota. Resta il cerchio schiacciato nell'erba.",
+      "scelte": [
+        {
+          "testo": "Attraversa gli arbusti",
+          "vai": "convergenza"
+        },
+        {
+          "testo": "Torna al bivio",
+          "vai": "bivio"
+        }
+      ]
+    },
+    "dopo_collina": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Non so cosa fosse... ma la collina è silenziosa, adesso."
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "flag": "tut_collina_fatta",
+      "scena": "La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
+      "sblocca_stanze": [
+        "convergenza"
+      ],
+      "scelte": [
+        {
+          "testo": "Attraversa gli arbusti",
+          "vai": "convergenza"
+        },
+        {
+          "testo": "Apri la mappa",
+          "torna_a_mappa": true,
+          "stanza": "collina"
+        }
+      ],
+      "_nota_stanza": "Sta dentro 'collina', ma non e' quella stanza: e' una scena che ci succede. Senza 'stanza' la mappa si apre chiedendo i vicini di 'dopo_collina', che vicini non ne ha - e resta li' disegnata, senza niente da premere."
+    },
+    "convergenza": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Le urla si fanno sempre più forti, devo essere vicino..."
+        }
+      ],
+      "espr_sinistra": "decisa",
+      "flag": "tut_strada_aperta",
+      "scena": "Sono vicino. Lo sento.",
+      "scelte": [
+        {
+          "testo": "Scatta verso i rumori",
+          "vai": "boss"
+        },
+        {
+          "testo": "Torna alla collina",
+          "vai": "collina"
+        },
+        {
+          "testo": "Torna alle pozze",
+          "vai": "pozze"
+        }
+      ],
+      "vai_se_flag": [
+        {
+          "flag": "pianure_compiute",
+          "vai": "ritorno_disponibile"
+        }
+      ]
+    },
+    "boss": {
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Al centro di una piccola arena di pietra e fango, un goblin terribilmente arrabbiato ti aspetta, i pugni già stretti."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "goblin_arrabbiato",
+          "testo": "?! ^?%&$!!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Eccoti, facciamola finita."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "goblin_arrabbiato",
+          "testo": "Ah?! Ti carica a testa bassa!"
+        }
+      ],
+      "centro": "goblin_arrabbiato",
+      "espr_centro": "decisa",
+      "combattimento_automatico": {
+        "nemici": [
+          "goblin_arrabbiato"
+        ],
+        "se_vinci": "vittoria",
+        "se_perdi": "sconfitta"
+      }
+    },
+    "vittoria": {
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Dopo lo scontro, il vento si placa e l'atmosfera sembra essere meno tesa: i livelli di disallineamento sono normali."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Sembra essere tutto finito..."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "È ora di lasciare questo posto, altri compiti ti attendono."
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "scelte": [
+        {
+          "testo": "Apri il data pad",
+          "vai": "ritorno_istruzioni"
+        }
+      ],
+      "flag": "pianure_compiute"
+    },
+    "sconfitta": {
+      "scelte": [
+        {
+          "testo": "Rialzati e ricomincia",
+          "game_over": true
+        }
+      ],
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Sconfitta totale, sei {stato spazzato|stata spazzata} via."
+        }
+      ]
+    },
+    "sconfitta_manifestazione": {
+      "scelte": [
+        {
+          "testo": "Rialzati e ricomincia",
+          "game_over": true
+        }
+      ],
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "È ora di dormire, nei sogni ogni tuo desiderio diventa realtà..."
+        }
+      ]
+    },
+    "hq_veronica_saluto": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Heilà, sei {tornato|tornata}! Com'è andata la tua prima missione da sol{o|a}? Scommetto che l'hai completata al massimo della potenza!",
+          "espr": "felice"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Tutto come previsto."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "BAHAHA! Certamente! Non c'era da aspettarsi di meno da te avendo un'allenatrice esplosiva come me, giusto?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "È andata."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "\"È andata\". Sei tornat{o|a} inter{o|a}, hai chiuso una frattura da sol{o|a} e mi dici \"è andata\".",
+          "espr": "decisa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Vabbè. Dovresti passare in sala riunioni, vogliono vederti per il rapporto..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Immaginavo. Allora non perdo altro tempo."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "\"NON PERDO ALTRO TEMPO\"!? Che cattiv{o|a}."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Come puoi trattarmi in questo modo?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Hey, mi stai ascoltando?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Allora vado. Ci vediamo dopo, Veronica."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Che antipatic{o|a}..."
+        }
+      ],
+      "destra": "veronica",
+      "espr_destra": "felice",
+      "scelte": [
+        {
+          "testo": "Vai in sala riunioni",
+          "vai": "hq_sala_riunioni_1"
+        }
+      ]
+    },
+    "hq_sala_riunioni_1": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Eccomi. Unità UJ-111 a rapporto. Ho inoltrato la mia analisi sulla frattura e le osservazioni fatte sul campo come sempre."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Uno schermo oscurato si accende con un ronzio elettrico."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Buongiorno unità UJ-111, ci rallegriamo di ritrovarti operativo e in ottima salute. Proseguiamo a renderti grazie per i tuoi sforzi e ti confermiamo il successo dell'operazione."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo diario gli eventi che vanno completati nell'arco della giornata."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Le ricordiamo che il suo Diario è sempre consultabile: in cima vi troverà gli appunti sui luoghi dove deve recarsi e su ciò che le viene chiesto strada facendo, e sotto le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Puoi aprire il Diario in qualunque momento premendo ESC: da lì passi anche allo storico di tutto quello che hai letto finora."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Bene unità UJ-111, la nostra attuale istanza si ritira per deliberare. Complimenti per il suo recente successo, ci aspettiamo grandi cose da lei. Per aspera ad astra!"
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Lo schermo si spegne con un ronzio elettrico."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Burocrazia..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Adesso però mi conviene passare in infermeria. Non mi reggo in piedi da quando siamo tornati."
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Passa in infermeria",
+          "vai": "hq_infermeria"
+        }
+      ]
+    },
+    "hq_infermeria": {
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "L'infermeria è l'unica stanza del complesso che non fa rumore. Ti siedi prima ancora che Curie ti dica di farlo."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "Bentornat{o|a}, a pezzi come sempre vedo..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Solita frattura, solito rientro."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "Se non fossi {un dominatore|una dominatrice} di limiti saresti già {morto|morta}, lo sai?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Non ho mai capito perché io e Veronica abbiamo questa... fortuna?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "Beh dovresti saperlo... solo individui con una forte forza di volontà e una fortunata costituzione diventano dominatori... Non è una fortuna, è un destino."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Anche lei è una dominatrice se ricordo bene..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "Sì, ma non tutti i dominatori sono fatti per il combattimento: io sono specializzata nelle cure e nella conoscenza. Non mi sognerei mai di andarmene a zonzo per l'universo a... beh... lo sai... io non sono molto a favore della violenza..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Qualcuno purtroppo deve farlo..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "Apprezzo quel che fate..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "Ah! Dimenticavo, devi recarti nella sala riunioni: ti hanno affidato un bell'incarico..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "Spero di non rivederti presto da queste parti <3",
+          "espr": "carina"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Un bell'incarico... Penso che siamo destinati a rivederci."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "curie",
+          "testo": "È inevitabile..."
+        }
+      ],
+      "destra": "curie",
+      "espr_destra": "carina",
+      "scelte": [
+        {
+          "testo": "Vai in sala riunioni",
+          "vai": "hq_sala_riunioni_2"
+        }
+      ]
+    },
+    "hq_sala_riunioni_2": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Salve candidato, abbiamo analizzato i suoi dati, e siamo sicuri, oltre una certa soglia, che lei sia un candidato affidabile e adatto a farsi carico di alcune questioni abbastanza importanti..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Come ben sa, il numero di dominatori è calato drasticamente di questi tempi e sempre più mondi e realtà vengono compromessi a causa delle anomalie che stiamo studiando..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Non vogliamo compromettere la sua salute e la sua integrità, ma allo stesso tempo abbiamo bisogno che lei affini le sue abilità con alcuni casi di minore entità."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Abbiamo aggiornato nelle sue planimetrie i luoghi d'interesse dove ci sarebbe bisogno di effettuare dei rilevamenti importanti, così come un punto anomalo dove i livelli di allineamento sono fuori controllo ma non in modo preoccupante: siamo sicuri che saprà gestire la situazione. Ha qualcosa da riferire?"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Come mai mi trovo qui?",
+          "vai": "hq_domanda_perche"
+        },
+        {
+          "testo": "Cosa sono i dominatori in realtà?",
+          "vai": "hq_domanda_dominatori"
+        },
+        {
+          "testo": "Da quanto tempo sta succedendo tutto questo?",
+          "vai": "hq_domanda_quando"
+        },
+        {
+          "testo": "Nessuna domanda. Parto immediatamente.",
+          "vai": "hq_congedo"
+        }
+      ],
+      "scena": "Lo schermo oscurato aspetta. Non ha fretta."
+    },
+    "hq_domanda_perche": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Lei è qui per essere studiato e per compiere il suo dovere in quanto dominatore, ovviamente. Senza di lei sarebbe impossibile tornare a quella che un tempo veniva chiamata \"normalità\". Insieme a lei altre unità sono attualmente accolte dalle nostre strutture sparse lungo tutto il cosmo. Non deve sentirsi solo."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Ha altro che le preme chiedere?"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Come mai mi trovo qui?",
+          "vai": "hq_domanda_perche"
+        },
+        {
+          "testo": "Cosa sono i dominatori in realtà?",
+          "vai": "hq_domanda_dominatori"
+        },
+        {
+          "testo": "Da quanto tempo sta succedendo tutto questo?",
+          "vai": "hq_domanda_quando"
+        },
+        {
+          "testo": "Nessuna domanda. Parto immediatamente.",
+          "vai": "hq_congedo"
+        }
+      ]
+    },
+    "hq_domanda_dominatori": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Quello che noi definiamo come \"Dominatore\" è un soggetto con particolari capacità di resilienza, capace di adattarsi a diverse situazioni grazie a quello che noi pensiamo essere stato \"un vissuto particolarmente travagliato\"."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Vi contraddistinguono ottime doti di resistenza allo stress e una strana energia che nasce dai vostri sentimenti negativi, che solo voi siete capaci di dominare e trasformare in forza. Per questo vi chiamiamo \"Dominatori\"."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Ha altro che le preme chiedere?"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Come mai mi trovo qui?",
+          "vai": "hq_domanda_perche"
+        },
+        {
+          "testo": "Cosa sono i dominatori in realtà?",
+          "vai": "hq_domanda_dominatori"
+        },
+        {
+          "testo": "Da quanto tempo sta succedendo tutto questo?",
+          "vai": "hq_domanda_quando"
+        },
+        {
+          "testo": "Nessuna domanda. Parto immediatamente.",
+          "vai": "hq_congedo"
+        }
+      ]
+    },
+    "hq_domanda_quando": {
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Secondo i nostri registri, basandoci su un primitivo calendario di un pianeta chiamato \"Terra\" che fu il primo caso di disallineamento nella storia... si parla di ormai più di qualche migliaio di anni..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Calcolando stima..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "... ... ..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Esattamente 3696 anni su base terrestre, 245 giorni, 22 ore, 31 minuti e 59 secondi."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Ha altro che le preme chiedere?"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Come mai mi trovo qui?",
+          "vai": "hq_domanda_perche"
+        },
+        {
+          "testo": "Cosa sono i dominatori in realtà?",
+          "vai": "hq_domanda_dominatori"
+        },
+        {
+          "testo": "Da quanto tempo sta succedendo tutto questo?",
+          "vai": "hq_domanda_quando"
+        },
+        {
+          "testo": "Nessuna domanda. Parto immediatamente.",
+          "vai": "hq_congedo"
+        }
+      ]
+    },
+    "hq_congedo": {
+      "flag": "tutorial_completato",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "No, non ho altre domande... Parto immediatamente."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Ottimo, sapevamo di poter contare su di lei, candidato. Per aspera ad astra!"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Torna alla mappa stellare",
+          "reset": true
+        }
+      ]
+    },
+    "ritorno_istruzioni": {
+      "_nota": "Il testo è di Bru, parola per parola. Unici ritocchi: l'accordo maschile/femminile, quattro refusi (Bhe, sopratutto, Ah si, un po di più) e la frase del data pad, che nell'originale era grammaticalmente incompleta («come la spiegazioni quando avviato la sua guida») - qui è resa leggibile senza cambiare quello che dice.",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Beh, sicuramente ho capito come si parte... ma come ritorno?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "data_pad",
+          "testo": "Complimenti dominat{ore|rice}, sembra che la tua missione sia finita. Avvii pure la procedura di ritorno, come le è stata spiegata quando ha avviato la sua guida.",
+          "suono": "data_pad"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Quella maledetta ha saltato tutto e io non ci ho capito niente!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "... E ora cosa faccio?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Bzzzz... boop. h-heeey zzz"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Heylà! Ti stavo monitorando sai? Ho visto tutto! soprattutto quando hai spaccato di botte tutti quei nemici! Gli allenamenti ti sono serviti!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Veronica... Come torno alla base..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Ah sì, certo! Ti spiego subito!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Devi sapere che ci sono 3 modi per entrare in quelle che chiamiamo fratture..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "la prima: Avendo un proiettore... Non ci capisco molto di questi affari, ma riescono ad allinearti in qualche modo a qualcosa che in teoria è compatibile con quel qualcosa che ha causato il fenomeno della frattura..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "la seconda: Alcuni individui particolari... nel nostro caso quelli che chiamiamo dominatori... Attirano queste anomalie che possono creare microfratture per accedere a questi mondi nelle loro vicinanze..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "per quello non ci è permesso abbandonare la base... La nostra base è costruita con un materiale particolare che limita questi eventi, altrimenti potremmo generare delle microfratture attorno a noi che potrebbero inghiottire anche civili ignari della cosa... certo, è un evento molto raro dicono, ma l'organizzazione ci tiene ad evitare queste situazioni..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "e il terzo?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "... Non lo so! Dovresti chiedere ai cervelloni del settore ricerca, io quel che so l'ho imparato durante le mie missioni e l'organizzazione è molto riservata su queste cose..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Eppure noi facciamo il lavoro sporco... dovremmo poter sapere un po' di più sulla cosa..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Come ti ho detto adesso che torni per fare rapporto prova a chiedere a loro, io non so dirti molto..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Capito, proverò... Adesso, come faccio a tornare?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Prova ad aprire il tuo datapad e girare la rotella al fianco dal triangolo al cerchio,"
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "[i]La rotella scatta sul cerchio.[/i]"
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Vuoi tornare indietro?"
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "scelte": [
+        {
+          "testo": "Sì, torno alla base",
+          "vai": "ritorno_alla_base"
+        },
+        {
+          "testo": "No, voglio dare ancora un'occhiata",
+          "vai": "ritorno_rimandato"
+        }
+      ],
+      "flag": "sa_tornare"
+    },
+    "ritorno_rimandato": {
+      "_nota": "Bru: «altrimenti scatta il dialogo di veronica: Dai non perdere tempo, torna indietro, è quasi ora di cena...». Non è un muro: la mappa resta aperta e ci si può girare ancora.",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "veronica",
+          "testo": "Dai non perdere tempo, torna indietro, è quasi ora di cena..."
+        }
+      ],
+      "torna_a_mappa": true
+    },
+    "ritorno_disponibile": {
+      "_nota": "Bru: «a ogni fine missione avrai l'opzione di tornare alla base nell'ultima zona della mappa altrimenti potrai ancora rivisitare la mappa se pensi di aver dimenticato qualcosa». La convenzione: l'ultima stanza di una zona si tiene un vai_se_flag verso un nodo come questo, e da lì si torna.",
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "[i]La rotella del data pad è ancora sul cerchio.[/i]"
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Vuoi tornare indietro?"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Sì, torno alla base",
+          "vai": "ritorno_alla_base"
+        },
+        {
+          "testo": "No, voglio dare ancora un'occhiata",
+          "vai": "ritorno_rimandato"
+        }
+      ]
+    },
+    "ritorno_alla_base": {
+      "_nota": "Bru: «scegliendo si torni indietro da veronica nella sala proiezione». L'arrivo è solo narrazione: cosa si dicono lì lo scrive Bru, e per ora si prosegue col rientro che c'era già.",
+      "sfondo": "res://art/scene/sala_proiezione.png",
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "[b]FLASH.[/b]",
+          "attesa": 0.6
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "La piattaforma della sala di proiezione, e l'odore di metallo freddo che non avevi notato all'andata."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "[i]Veronica è appoggiata alla consolle, come se non si fosse mossa da lì.[/i]"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Scendi dalla piattaforma",
+          "vai": "hq_veronica_saluto"
+        }
+      ]
+    }
+  }
 }

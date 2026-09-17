@@ -594,6 +594,24 @@ func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
 # altra scoperta permanente, ma con nome namespaced per zona (carnivalz_corrente)
 # cosi' zone diverse possono riusare gli stessi id di stanza senza scontrarsi.
 
+func mappa_consultabile() -> bool:
+	# LA MAPPA SI APRE QUANDO IL GIOCO TE L'HA SPIEGATA, non prima.
+	#
+	# Bru, provando: «sulla mappa ho cliccato sul punto esclamativo e mi ha
+	# portato subito nella sala allenamento, non va bene, la mappa deve essere
+	# consultabile dopo la spiegazione di come si usa non prima». Aveva ragione
+	# due volte: il bottone c'era dalla prima schermata, e la prima mattina
+	# usciva PER FORZA dalla mappa - "Esci dalla stanza" ci passava attraverso.
+	# Cosi' il primo contatto con la mappa era una scorciatoia che saltava il
+	# racconto, e arrivava prima di qualunque riga che spiegasse cos'e'.
+	#
+	# Quando si apre non lo decide questo file: lo dichiara la mappa stessa, con
+	# "richiede_flag" accanto alle sue stanze. Senza quella chiave e' sempre
+	# consultabile - nelle Pianure la mappa c'e' da subito, ed e' giusto cosi':
+	# li' il giocatore sa gia' cos'e'.
+	var chiave := String(mappa_zona.get("richiede_flag", ""))
+	return chiave == "" or ha_flag(chiave)
+
 func stanza_nella_mappa(id_stanza: String) -> bool:
 	# la mappa vale per la sezione esplorabile della zona, non per tutto il
 	# file: fuori da quelle stanze (prologhi, scene al quartier generale...)
