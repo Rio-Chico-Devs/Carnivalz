@@ -53,6 +53,21 @@ func collega(dove: Control, riferimento: Control) -> void:
 
 func avvia(parametri: Dictionary, bravura := -1.0) -> void:
 	# parametri: quanti, intervallo, durata, danno
+	#
+	# UNA RAFFICA ALLA VOLTA, E CHI L'HA CHIESTA DEVE SAPERE COM'E' FINITA.
+	#
+	# Chi lancia il minigioco aspetta il segnale "finito": e' li' che il
+	# combattimento riprende, si applica il danno e si va avanti col tutorial.
+	# Avviando una seconda raffica sopra la prima, quel segnale per la prima non
+	# arriverebbe MAI - e chi la stava aspettando resterebbe fermo per sempre.
+	#
+	# Oggi non succede: chi lancia ferma prima l'orologio, quindi nessuno arriva
+	# a chiederne un'altra. Ma e' una garanzia di chi chiama, non di questo
+	# modulo, e il tutorial e' destinato a crescere. Qui si chiude la prima -
+	# cosi' chi aspettava riceve il suo esito - e si dice forte che e' successo.
+	if attivo:
+		push_error("Minigioco: una raffica e' stata avviata mentre la precedente era ancora in volo. La prima viene chiusa adesso, se no chi la aspettava resterebbe fermo.")
+		concludi()
 	tempo = 0.0
 	danno_per_colpo = int(parametri.get("danno", 0))
 	raffica = Collisioni.calendario(
@@ -104,9 +119,9 @@ func costruisci_pugni() -> void:
 		if is_instance_valid(vecchio):
 			vecchio.queue_free()
 	pugni.clear()
-	var disegno: Texture2D = null
-	if ResourceLoader.exists(DISEGNO_PUGNO):
-		disegno = load(DISEGNO_PUGNO)
+	# il disco si chiede una volta sola, come dappertutto: qui non e' un disegno
+	# per fotogramma, ma e' lo stesso file a ogni raffica
+	var disegno := Disegni.texture(DISEGNO_PUGNO)
 	for pugno in raffica:
 		var bottone := crea_pugno(pugno, disegno)
 		quadrante.add_child(bottone)

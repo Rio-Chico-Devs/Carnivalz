@@ -1100,64 +1100,62 @@ func azione_automatica(chi: Dictionary) -> Dictionary:
 			"bersaglio": nemici[GameState.rng.randi_range(0, nemici.size() - 1)]}
 
 func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
-	if true:
-		if true:
-			var bersaglio_scelto: Dictionary = azione.get("bersaglio", {})
-			if azione.get("tipo", "") == "attacca" and RegoleCombattimento.ha_stato_attivo(attaccante, "frastornato") \
-					and GameState.rng.randf() < 0.5:
-				var chiunque: Array[Dictionary] = []
-				for c in vivi(true) + vivi(false):
-					if c.indice != attaccante.indice:
-						chiunque.append(c)
-				if not chiunque.is_empty():
-					bersaglio_scelto = chiunque[GameState.rng.randi_range(0, chiunque.size() - 1)]
-					scrivi("[i]%s è frastornato e colpisce %s per sbaglio![/i]" % [attaccante.nome, bersaglio_scelto.nome])
-			var obbligato := RegoleCombattimento.bersaglio_obbligato(attaccante)
-			if azione.get("tipo", "") == "attacca" and obbligato != "" \
-					and String(bersaglio_scelto.get("id", "")) != obbligato:
-				# Provocato: il colpo va dove ha deciso chi ti ha provocato,
-				# non dove avevi puntato tu
-				for c in vivi(not attaccante.giocatore):
-					if String(c.id) == obbligato:
-						bersaglio_scelto = c
-						scrivi("[i]%s non riesce a colpire altri che %s.[/i]" % [attaccante.nome, c.nome])
-						break
-			match azione.get("tipo", ""):
-				"attacca":
-					colpo_darma(attaccante, bersaglio_scelto, azione.get("arma", {}))
-				"difendi":
-					difendi(attaccante)
-				"provoca":
-					# la usa oggi solo un sogno evocato (vedi mossa_da_creatura),
-					# ma e' un'azione come le altre: chiunque stia dalla parte
-					# della squadra puo' mettersi in mezzo
-					if String(azione.get("testo", "")) != "":
-						scrivi("[i]%s[/i]" % String(azione["testo"]))
-					var da_provocare: Array[Dictionary] = []
-					if not bool(azione.get("tutti", false)):
-						da_provocare = uno_solo(bersaglio_opposto(attaccante))
-					provoca(attaccante, da_provocare)
-				"studia":
-					studia(attaccante, bersaglio_scelto)
-				"media":
-					media(bersaglio_scelto)
-				"oggetto":
-					usa_oggetto(attaccante, azione.id)
-				"alleato":
-					usa_alleato(azione.id)
-				"abilita":
-					var su: Dictionary = azione.get("bersaglio", {})
-					if su.is_empty():
-						usa_abilita(attaccante, String(azione.get("id", "")))
-					else:
-						usa_abilita_su(attaccante, String(azione.get("id", "")), su)
-				"fuggi":
-					fuggi(attaccante)
-				"leva":
-					usa_leva(attaccante, String(azione.get("id", "")))
-			# il passo del tutorial si chiude solo a azione risolta: cosi' le
-			# battute "dopo" commentano quel che e' appena successo, non lo anticipano
-			avanza_tutorial(azione)
+	var bersaglio_scelto: Dictionary = azione.get("bersaglio", {})
+	if azione.get("tipo", "") == "attacca" and RegoleCombattimento.ha_stato_attivo(attaccante, "frastornato") \
+			and GameState.rng.randf() < 0.5:
+		var chiunque: Array[Dictionary] = []
+		for c in vivi(true) + vivi(false):
+			if c.indice != attaccante.indice:
+				chiunque.append(c)
+		if not chiunque.is_empty():
+			bersaglio_scelto = chiunque[GameState.rng.randi_range(0, chiunque.size() - 1)]
+			scrivi("[i]%s è frastornato e colpisce %s per sbaglio![/i]" % [attaccante.nome, bersaglio_scelto.nome])
+	var obbligato := RegoleCombattimento.bersaglio_obbligato(attaccante)
+	if azione.get("tipo", "") == "attacca" and obbligato != "" \
+			and String(bersaglio_scelto.get("id", "")) != obbligato:
+		# Provocato: il colpo va dove ha deciso chi ti ha provocato,
+		# non dove avevi puntato tu
+		for c in vivi(not attaccante.giocatore):
+			if String(c.id) == obbligato:
+				bersaglio_scelto = c
+				scrivi("[i]%s non riesce a colpire altri che %s.[/i]" % [attaccante.nome, c.nome])
+				break
+	match azione.get("tipo", ""):
+		"attacca":
+			colpo_darma(attaccante, bersaglio_scelto, azione.get("arma", {}))
+		"difendi":
+			difendi(attaccante)
+		"provoca":
+			# la usa oggi solo un sogno evocato (vedi mossa_da_creatura),
+			# ma e' un'azione come le altre: chiunque stia dalla parte
+			# della squadra puo' mettersi in mezzo
+			if String(azione.get("testo", "")) != "":
+				scrivi("[i]%s[/i]" % String(azione["testo"]))
+			var da_provocare: Array[Dictionary] = []
+			if not bool(azione.get("tutti", false)):
+				da_provocare = uno_solo(bersaglio_opposto(attaccante))
+			provoca(attaccante, da_provocare)
+		"studia":
+			studia(attaccante, bersaglio_scelto)
+		"media":
+			media(bersaglio_scelto)
+		"oggetto":
+			usa_oggetto(attaccante, azione.id)
+		"alleato":
+			usa_alleato(azione.id)
+		"abilita":
+			var su: Dictionary = azione.get("bersaglio", {})
+			if su.is_empty():
+				usa_abilita(attaccante, String(azione.get("id", "")))
+			else:
+				usa_abilita_su(attaccante, String(azione.get("id", "")), su)
+		"fuggi":
+			fuggi(attaccante)
+		"leva":
+			usa_leva(attaccante, String(azione.get("id", "")))
+	# il passo del tutorial si chiude solo a azione risolta: cosi' le
+	# battute "dopo" commentano quel che e' appena successo, non lo anticipano
+	avanza_tutorial(azione)
 	coda_di_battuta(attaccante)
 
 func coda_di_battuta(attaccante: Dictionary) -> void:

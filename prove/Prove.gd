@@ -120,6 +120,8 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	prova_minigioco_ai_bordi()
+	prova_combattimento_sotto_stress()
 	await prova_la_giornata_passo_per_passo()
 	await prova_la_scena_cambia_mentre_si_legge()
 	prova_si_salva_solo_fuori_dalle_fratture()
@@ -7360,6 +7362,168 @@ func prova_il_disco_si_interroga_una_volta() -> void:
 			"trenta ridisegni della mappa hanno interrogato il disco altre %d volte"
 			% (Disegni.ricerche - dopo_il_primo))
 	mappa.queue_free()
+
+func prova_minigioco_ai_bordi() -> void:
+	# IL SEGNALE "FINITO" E' TUTTO. E' li' che il combattimento riprende, si
+	# applica il danno e il tutorial va avanti: se non arriva, o arriva due
+	# volte, il gioco resta fermo o conta il danno due volte.
+	titolo("il minigioco ai bordi: il segnale arriva sempre, e una volta sola")
+	GameState.nuova_partita()
+	var quadrante := Control.new()
+	quadrante.size = Vector2(700, 260)
+	add_child(quadrante)
+	var scatola := Control.new()
+	scatola.size = Vector2(700, 260)
+	add_child(scatola)
+
+	var gioco := MinigiocoCombattimento.new()
+	gioco.collega(quadrante, scatola)
+	var esiti: Array[Dictionary] = []
+	gioco.finito.connect(func(esito: Dictionary) -> void: esiti.append(esito))
+
+	# 1. UNA RAFFICA NORMALE FINISCE UNA VOLTA SOLA
+	gioco.avvia({"quanti": 5, "intervallo": 0.2, "durata": 0.3, "danno": 4})
+	esigi(gioco.attivo, "la raffica non e' partita")
+	esigi(esiti.is_empty(), "la raffica ha gia' detto di essere finita appena partita")
+	for passo in 200:
+		gioco.passa(0.05)
+		if not gioco.attivo:
+			break
+	esigi(not gioco.attivo, "la raffica non finisce mai da sola")
+	esigi(esiti.size() == 1, "la raffica ha detto di essere finita %d volte" % esiti.size())
+	esigi(int(esiti[0].get("totali", 0)) == 5,
+			"l'esito parla di %d pugni invece di cinque" % int(esiti[0].get("totali", 0)))
+
+	# 2. CONTINUARE A FAR SCORRERE IL TEMPO DOPO LA FINE NON RIPETE NIENTE
+	for passo in 50:
+		gioco.passa(0.05)
+	esigi(esiti.size() == 1, "dopo la fine la raffica ha detto di essere finita altre volte")
+
+	# 3. CLICCARE DOPO LA FINE NON FA NIENTE, e non esplode
+	for indice in 8:
+		gioco.colpisci(indice)
+	esigi(esiti.size() == 1, "cliccando a raffica finita e' arrivato un altro esito")
+
+	# 4. PARARE TUTTO VUOL DIRE ZERO DANNO. E' la promessa del minigioco:
+	#    «cliccando su di esse annulli il danno».
+	#    Si para SOLO DENTRO LA FINESTRA del pugno - e' il cuore del minigioco,
+	#    e infatti cliccare tutto a tempo zero non para niente. Qui si simula
+	#    una mano perfetta: a ogni passo si preme quello che in quel momento e'
+	#    a schermo.
+	esiti.clear()
+	gioco.avvia({"quanti": 4, "intervallo": 0.2, "durata": 0.5, "danno": 7})
+	for passo in 400:
+		for pugno in gioco.raffica:
+			var da := float(pugno.istante)
+			var a_quando := da + float(pugno.durata)
+			if gioco.tempo >= da and gioco.tempo <= a_quando:
+				gioco.colpisci(int(pugno.indice))
+		gioco.passa(0.05)
+		if not gioco.attivo:
+			break
+	esigi(esiti.size() == 1, "la raffica parata tutta ha dato %d esiti" % esiti.size())
+	esigi(int(esiti[0].get("parati", 0)) == 4,
+			"parati %d pugni su quattro pur avendoli cliccati tutti" % int(esiti[0].get("parati", 0)))
+	esigi(int(esiti[0].get("danno", 0)) == 0,
+			"parandoli tutti arrivano lo stesso %d di danno" % int(esiti[0].get("danno", 0)))
+
+	# 5. NON PARARNE NESSUNO COSTA TUTTO
+	esiti.clear()
+	gioco.avvia({"quanti": 4, "intervallo": 0.2, "durata": 0.3, "danno": 7})
+	for passo in 400:
+		gioco.passa(0.05)
+		if not gioco.attivo:
+			break
+	esigi(int(esiti[0].get("parati", 0)) == 0, "senza cliccare qualcosa si e' parato da solo")
+	esigi(int(esiti[0].get("danno", 0)) == 28,
+			"quattro pugni da sette fanno %d di danno" % int(esiti[0].get("danno", 0)))
+
+	# 6. DA MUTO SI RISOLVE SUBITO. E' la strada del giocatore automatico: non
+	#    c'e' nessun rettangolo e nessuna mano, ma l'esito deve arrivare uguale.
+	var muto := MinigiocoCombattimento.new(true)
+	var esiti_muti: Array[Dictionary] = []
+	muto.finito.connect(func(esito: Dictionary) -> void: esiti_muti.append(esito))
+	muto.avvia({"quanti": 6, "intervallo": 0.2, "durata": 0.3, "danno": 3}, 1.0)
+	esigi(esiti_muti.size() == 1, "da muto l'esito non arriva subito")
+	esigi(not muto.attivo, "da muto la raffica resta attiva")
+	esigi(int(esiti_muti[0].get("danno", 0)) == 0,
+			"con bravura piena il giocatore automatico incassa %d" % int(esiti_muti[0].get("danno", 0)))
+	quadrante.queue_free()
+	scatola.queue_free()
+
+func prova_combattimento_sotto_stress() -> void:
+	# QUELLO CHE FA CHI PROVA UN GIOCO DAVVERO: clicca due volte, clicca quando
+	# non tocca a lui, clicca dopo che e' finita, apre la pausa a meta' colpo.
+	# In un combattimento a turni queste cose non esistono; in tempo reale sono
+	# la normalita', e ognuna e' un modo di far succedere due volte una cosa che
+	# doveva succedere una volta sola.
+	titolo("il combattimento sotto le dita di chi lo prova")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.limite_giri = 99
+	add_child(scontro)
+	scontro.in_corso = true
+	var tu: Dictionary = scontro.combattente_comandato()
+	var nemico: Dictionary = scontro.vivi(false)[0]
+	esigi(not tu.is_empty() and not nemico.is_empty(), "il campo non ha due combattenti")
+
+	# 1. DUE CLICK NELLO STESSO FOTOGRAMMA, UN COLPO SOLO. Il conto dei colpi
+	#    incassati e' il testimone: il danno e' casuale, il numero di colpi no.
+	tu.hp = tu.hp_max
+	tu.ricarica = 0.0
+	nemico.hp = nemico.hp_max
+	nemico["colpi_incassati"] = 0
+	scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
+	scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
+	scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
+	esigi(int(nemico.colpi_incassati) == 1,
+			"tre click nello stesso fotogramma hanno fatto arrivare %d colpi"
+			% int(nemico.colpi_incassati))
+	esigi(float(tu.ricarica) > 0.0,
+			"dopo aver agito la ricarica non e' ripartita: si potrebbe agire all'infinito")
+
+	# 2. CLICCARE MENTRE RICARICHI NON FA NIENTE
+	nemico["colpi_incassati"] = 0
+	for volta in 10:
+		scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
+	esigi(int(nemico.colpi_incassati) == 0,
+			"martellando durante la ricarica sono arrivati %d colpi" % int(nemico.colpi_incassati))
+
+	# 3. E NEMMENO DUE AZIONI DIVERSE INSIEME. Attacco e fuga nello stesso
+	#    fotogramma: passa il primo, il secondo trova la ricarica gia' azzerata.
+	tu.ricarica = 0.0
+	nemico["colpi_incassati"] = 0
+	var in_corso_prima: bool = scontro.in_corso
+	scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
+	scontro.agisci_ora({"tipo": "fuggi"})
+	esigi(int(nemico.colpi_incassati) == 1,
+			"attacco e fuga insieme hanno fatto arrivare %d colpi" % int(nemico.colpi_incassati))
+	esigi(scontro.in_corso == in_corso_prima,
+			"la fuga e' partita lo stesso pur non essendo il proprio momento")
+
+	# 4. A SCONTRO FINITO NON SI AGISCE PIU'. E' il caso di chi clicca mentre
+	#    compare la schermata di fine: il colpo non deve arrivare a un nemico
+	#    che non c'e' piu'.
+	scontro.in_corso = false
+	tu.ricarica = 0.0
+	nemico["colpi_incassati"] = 0
+	for volta in 5:
+		scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
+	esigi(int(nemico.colpi_incassati) == 0,
+			"a scontro finito sono ancora arrivati %d colpi" % int(nemico.colpi_incassati))
+	scontro.in_corso = true
+
+	# 5. LA PAUSA FERMA IL MONDO. In tempo reale una pausa che non ferma
+	#    l'orologio vuol dire prendere botte mentre si legge il menu.
+	esigi(scontro.can_process(), "lo scontro non gira nemmeno a gioco acceso")
+	get_tree().paused = true
+	esigi(not scontro.can_process(),
+			"con la pausa aperta lo scontro continua a girare: si prendono colpi mentre si legge")
+	get_tree().paused = false
+	esigi(scontro.can_process(), "tolta la pausa lo scontro non riparte")
+	scontro.voce.coda.clear()
+	scontro.free()
 
 func prova_la_giornata_passo_per_passo() -> void:
 	# LA GIORNATA ALLA BASE CAMMINATA PER DAVVERO, guardando lo stato dopo OGNI
