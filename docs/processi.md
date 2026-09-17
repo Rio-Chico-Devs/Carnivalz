@@ -327,3 +327,54 @@ otto livelli di annidamento in `GameState.cerca_creature`. E dentro
 `Combattimento.gd` i tre blocchi pesanti — il tempo (705), la scelta delle mosse
 (687), la risoluzione dei colpi (631) — che per ora **non conviene staccare**, e
 adesso c'è la tabella che dice perché.
+
+## Il tetto, e come si comporta la rete
+
+Le due estrazioni qui sopra hanno rimesso a posto quello che c'era. Non
+impediscono a niente di ricrescere: fra sei mesi `esegui_mossa` può tornare a
+trecento righe e la suite resterebbe verde, perché il gioco non sarebbe rotto.
+
+Adesso c'è un tetto, e **le soglie sono misurate, non scelte**:
+
+| | mediana | 90° | 99° | tetto | eccezioni |
+|---|---|---|---|---|---|
+| 964 funzioni, in righe | 11 | 32 | 86 | **100** | 7 |
+| 49 file, in righe | 182 | 662 | — | **700** | 4 |
+| annidamento | 1 | 2 | 4 | **4** | 4 |
+
+Cento righe per funzione sta **sopra** il 99° percentile: non è una regola presa
+da un libro, è quello che questo codice già fa da solo 957 volte su 964.
+
+L'annidamento conta solo le righe che **aprono un blocco** (`if`, `for`,
+`while`, `match`). Contare l'indentazione di tutte le righe sembrava più
+semplice e misurava un'altra cosa: una condizione spezzata su due righe con la
+barra, o un `Dictionary` scritto su più righe, stanno rientrati di tre tab senza
+essere annidati per niente, e il numero veniva su gonfiato — 8 livelli invece
+dei 7 veri, e undici funzioni "colpevoli" invece di quattro.
+
+**Come si comporta la rete:**
+
+- una cosa nuova sopra il tetto → fallisce: il codice non peggiora;
+- un'eccezione che cresce → fallisce: quelle che ci sono non si allargano;
+- un'eccezione che scende sotto il tetto → fallisce, e chiede di togliersi
+  dall'elenco: la rete si stringe, non si allenta;
+- un'eccezione per una cosa che non esiste più → fallisce;
+- un'eccezione senza una motivazione vera → fallisce. Un elenco senza perché è
+  solo un modo lento di spegnere il controllo.
+
+Quello che **non** fa: stringersi da sola quando una cosa cala restando sopra il
+tetto. Se `Combattimento.gd` scende da 4421 a 3000 righe, nell'elenco resta
+scritto 4421 finché qualcuno non aggiorna il numero. È un compromesso voluto —
+se ogni miglioramento facesse fallire la suite, la prima cosa che si impara è a
+spegnerla.
+
+E quello che non misura: `prove/`. Questo file è oltre settemila righe e non
+passerebbe nessuno dei tre tetti. Non è una svista: un file di prove cresce di
+una funzione ogni volta che si prova una cosa in più, quindi un tetto lì
+fallirebbe a ogni prova nuova, e si imparerebbe ad alzare il numero senza
+guardare. Una rete che si impara a disinnescare non protegge più niente.
+
+**Validata rompendola sei volte**: una funzione lunga nuova, una funzione
+annidata nuova, un'eccezione cresciuta, un'eccezione scesa sotto il tetto,
+un'eccezione per un file che non esiste, un'eccezione con `"perche": "boh"`.
+Tutte e sei nominate per nome, con la misura vera nel messaggio.

@@ -120,6 +120,7 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	prova_il_tetto_alla_struttura()
 	prova_il_dispatch_delle_mosse_e_cablato_bene()
 	prova_ogni_tipo_di_mossa_ce_l_ha_qualcuno()
 	prova_ogni_mossa_si_esegue_davvero()
@@ -7561,6 +7562,221 @@ func prova_ogni_mossa_si_esegue_davvero() -> void:
 	esigi(eseguiti == rami.size(),
 			"ho eseguito %d rami su %d: gli altri non sono stati provati"
 			% [eseguiti, rami.size()])
+
+# --- IL TETTO ALLA STRUTTURA -------------------------------------------------
+#
+# Bru: "non passera' mai un controllo qualita' codice e struttura". Aveva
+# ragione, e la parte scomoda e' che un audit sul COMPORTAMENTO non se ne
+# accorge mai: il gioco funziona, le prove sono verdi, e intanto un file cresce
+# fino a quattromila righe e una funzione fino a trecento. Nessuna prova del
+# gioco puo' fallire per questo, perche' non e' il gioco a essere rotto.
+#
+# LE SOGLIE NON SONO INVENTATE, sono misurate su questo codice:
+#
+#   964 funzioni -> mediana 11 righe, 90mo percentile 32, 99mo percentile 86
+#   49 file      -> mediana 182 righe, solo cinque sopra le 600
+#   annidamento  -> mediana 1 livello, 99mo percentile 4, dieci funzioni sopra
+#
+# Cento righe per funzione sta sopra il 99mo percentile: non e' una regola presa
+# da un libro, e' quello che questo codice gia' fa da solo novecentocinquanta
+# volte su novecentosessantaquattro. Le eccezioni di oggi stanno qui sotto una
+# per una, col numero misurato e col perche'.
+#
+# COME SI COMPORTA LA RETE:
+#   - una cosa NUOVA sopra il tetto            -> fallisce: non si peggiora
+#   - un'eccezione che CRESCE                  -> fallisce: non si allarga
+#   - un'eccezione che scende SOTTO il tetto   -> fallisce, e chiede di
+#     togliersi dall'elenco: la rete si stringe, non si allenta
+#
+# NON si stringe da sola quando una cosa cala restando sopra il tetto: se
+# Combattimento.gd passa da 4421 a 3000 righe qui resta scritto 4421 finche'
+# qualcuno non aggiorna il numero. E' un compromesso voluto - se ogni
+# miglioramento facesse fallire la suite, la prima cosa che si impara e' a
+# spegnerla - ed e' il motivo per cui il messaggio stampa sempre la misura vera.
+#
+# I numeri delle righe sono quelli di split("\n"), cioe' uno in piu' di `wc -l`
+# per un file che finisce con un a capo. Non importa quale delle due convenzioni
+# sia "giusta", importa che sia la stessa che usa la prova.
+#
+# COSA NON MISURA, E PERCHE' LO DICO. Guarda scripts/, non prove/. Questo file
+# e' oltre settemila righe e non passerebbe nessuno dei tre tetti - non e' una
+# svista, ed e' giusto saperlo leggendo. Un file di prove cresce di una funzione
+# ogni volta che si prova una cosa in piu', quindi un tetto qui fallirebbe a
+# ogni prova nuova, e la cosa che si impara in fretta e' ad alzare il numero
+# senza guardare. Una rete che si impara a disinnescare non protegge piu'
+# niente, nemmeno i file per cui era stata tesa.
+
+const TETTO_RIGHE_FILE := 700
+const TETTO_RIGHE_FUNZIONE := 100
+const TETTO_ANNIDAMENTO := 4
+
+const FILE_GRANDI := {
+	"Combattimento.gd": {"misura": 4421, "perche":
+		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
+		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
+		"pesanti che restano - il tempo, la scelta delle mosse, la " +
+		"risoluzione dei colpi - chiamano ognuno decine di funzioni del " +
+		"motore, quindi staccarli non farebbe un modulo, farebbe lo stesso " +
+		"codice con 'scontro.' davanti e senza controllo dei tipi. Misurato " +
+		"in docs/processi.md"},
+	"GameState.gd": {"misura": 2512, "perche":
+		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
+		"salvataggi. E' il prossimo da guardare, e a differenza del " +
+		"combattimento qui i pezzi sono davvero separabili: i file di dati " +
+		"non c'entrano niente con gli slot di salvataggio"},
+	"Main.gd": {"misura": 1416, "perche":
+		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
+		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
+		"adesso vuol dire spezzarlo di nuovo fra un mese"},
+	"Pausa.gd": {"misura": 894, "perche":
+		"il data pad: sette schermate diverse (squadra, sacca, missioni, " +
+		"messaggi, mappa, opzioni, salvataggio) che non si parlano fra loro. " +
+		"E' il taglio piu' facile di tutto il progetto, ed e' in coda solo " +
+		"perche' non e' ancora costato niente a nessuno"},
+}
+
+const FUNZIONI_LUNGHE := {
+	"Combattimento.gd:aggiungi_combattente": {"misura": 163, "perche":
+		"costruisce la scheda di un combattente campo per campo: e' lunga " +
+		"perche' i campi sono tanti, non perche' faccia piu' di una cosa. " +
+		"Spezzarla darebbe tre funzioni che si passano lo stesso Dictionary"},
+	"Regole.gd:calcola_danno": {"misura": 124, "perche":
+		"la formula del danno, tutta di seguito: tipo, critico, carica, " +
+		"fattore, difesa, scatti, disperazione. E' il punto in cui si va a " +
+		"leggere 'perche' ho fatto 47', e volerla in un posto solo e' una " +
+		"scelta, non una pigrizia"},
+	"Combattimento.gd:mossa_eseguibile": {"misura": 123, "perche":
+		"tutte le condizioni che una mossa puo' dichiarare nei dati (quando, " +
+		"priorita', ricarica, massimo_usi, dopo_mossa, alleati vivi). Da " +
+		"guardare insieme a risolvi_drop: e' una delle due funzioni sopra il " +
+		"tetto ANCHE per annidamento, e quello si', e' un difetto"},
+	"GameState.gd:_leggi_salvataggio": {"misura": 119, "perche":
+		"legge un salvataggio campo per campo con un ripiego per ognuno, " +
+		"perche' un file vecchio non ha i campi nuovi. Ogni riga e' una " +
+		"compatibilita' all'indietro"},
+	"Stati.gd:applica_stato": {"misura": 117, "perche":
+		"un ramo per tipo di status (riserva, sonno, dot, velocita', " +
+		"terrore, forza_attacco). E' lo stesso caso di esegui_mossa, e si " +
+		"spezza allo stesso modo: e' il prossimo della lista"},
+	"Combattimento.gd:attacca": {"misura": 104, "perche":
+		"la sequenza intera di un colpo: bersaglio a terra, schivata, danno, " +
+		"impatto, stati, KO. E' l'ordine dei fatti, ed e' il mestiere " +
+		"dichiarato di questo file"},
+	"Combattimento.gd:flagello": {"misura": 102, "perche":
+		"venti o venticinque colpi tirati uno per uno, ognuno col suo " +
+		"bersaglio, il suo fallimento e il suo critico, piu' il riepilogo. E' " +
+		"un'abilita' sola e sta tutta qui"},
+}
+
+const FUNZIONI_ANNIDATE := {
+	"GameState.gd:cerca_creature": {"misura": 7, "perche":
+		"sette livelli, ed e' il peggiore del progetto: cerca dentro zone " +
+		"dentro nodi dentro gruppi dentro elenchi. Un difetto vero, non una " +
+		"scelta - il rimedio e' voltare i cicli, non aggiungere un tetto"},
+	"Stati.gd:risolvi_stati_a_inizio_turno": {"misura": 6, "perche":
+		"un ciclo sugli stati addosso, un match sul tipo, e dentro il sonno " +
+		"il tiro di risveglio con le sue uscite. Si appiattisce quando " +
+		"applica_stato si spezza per tipo, e con lo stesso lavoro"},
+	"Combattimento.gd:risolvi_drop": {"misura": 5, "perche":
+		"nemici per oggetti per condizioni. Difetto vero: aspetta lo stesso " +
+		"rimedio di cerca_creature"},
+	"Combattimento.gd:mossa_eseguibile": {"misura": 5, "perche":
+		"difetto vero, vedi sopra: e' lunga E annidata, ed e' la prima da " +
+		"riscrivere quando si torna sul motore"},
+}
+
+const INIZI_DI_BLOCCO := ["if ", "elif ", "else:", "for ", "while ", "match "]
+
+func misura_funzioni(percorso: String) -> Array[Dictionary]:
+	# Ogni funzione del file: quanto e' lunga e quanto scende in profondita'.
+	#
+	# L'annidamento conta SOLO le righe che aprono un blocco (if, for, while,
+	# match). Contare l'indentazione di tutte le righe sembrava piu' semplice e
+	# misurava un'altra cosa: una condizione spezzata su due righe con la
+	# barra, o un Dictionary scritto su piu' righe, stanno rientrati di tre tab
+	# senza essere annidati per niente, e il numero veniva su gonfiato.
+	var righe := testo_script(percorso).split("\n")
+	var inizi: Array[int] = []
+	var nomi: Array[String] = []
+	for i in righe.size():
+		var riga := String(righe[i])
+		if riga.begins_with("func ") or riga.begins_with("static func "):
+			inizi.append(i)
+			nomi.append(riga.trim_prefix("static ").trim_prefix("func ").get_slice("(", 0))
+	var trovate: Array[Dictionary] = []
+	for k in inizi.size():
+		var da: int = inizi[k]
+		var a: int = righe.size()
+		if k + 1 < inizi.size():
+			a = inizi[k + 1]
+		# via le righe vuote in coda: sono lo spazio fra una funzione e l'altra,
+		# non fanno parte di nessuna delle due
+		while a > da + 1 and String(righe[a - 1]).strip_edges() == "":
+			a -= 1
+		var profondo := 0
+		for i in range(da + 1, a):
+			var riga := String(righe[i])
+			var nuda := riga.strip_edges()
+			var apre := false
+			for chiave in INIZI_DI_BLOCCO:
+				if nuda.begins_with(String(chiave)):
+					apre = true
+					break
+			if apre:
+				profondo = maxi(profondo, riga.length() - riga.lstrip("\t").length())
+		trovate.append({"nome": nomi[k], "righe": a - da, "annidamento": profondo})
+	return trovate
+
+func controlla_tetto(chiave: String, misura: int, tetto: int, eccezioni: Dictionary,
+		cosa: String) -> void:
+	# la stessa regola per i file, per la lunghezza e per l'annidamento: scritta
+	# tre volte sarebbe diventata tre regole diverse al primo ritocco
+	if not eccezioni.has(chiave):
+		esigi(misura <= tetto,
+				"%s: %s e' %d, il tetto e' %d. O lo riduci, o lo metti fra le eccezioni col perche'"
+				% [chiave, cosa, misura, tetto])
+		return
+	var concesso := int(eccezioni[chiave]["misura"])
+	esigi(misura <= concesso,
+			"%s: %s e' cresciuto da %d a %d. Le eccezioni non si allargano"
+			% [chiave, cosa, concesso, misura])
+	esigi(misura > tetto,
+			"%s: %s e' sceso a %d, sotto il tetto di %d. Toglilo dalle eccezioni"
+			% [chiave, cosa, misura, tetto])
+	esigi(String(eccezioni[chiave].get("perche", "")).length() > 40,
+			"%s sta fra le eccezioni senza una motivazione vera: un elenco senza perche' e' solo un modo lento di spegnere il controllo"
+			% chiave)
+
+func prova_il_tetto_alla_struttura() -> void:
+	titolo("nessun file e nessuna funzione cresce oltre il tetto misurato")
+	var visti_file: Array[String] = []
+	var viste_funzioni: Array[String] = []
+	var viste_annidate: Array[String] = []
+	for percorso in script_del_gioco():
+		var nome_file := percorso.get_file()
+		visti_file.append(nome_file)
+		controlla_tetto(nome_file, testo_script(percorso).split("\n").size(),
+				TETTO_RIGHE_FILE, FILE_GRANDI, "il file")
+		for f in misura_funzioni(percorso):
+			var chiave := "%s:%s" % [nome_file, String(f["nome"])]
+			viste_funzioni.append(chiave)
+			viste_annidate.append(chiave)
+			controlla_tetto(chiave, int(f["righe"]), TETTO_RIGHE_FUNZIONE,
+					FUNZIONI_LUNGHE, "la funzione")
+			controlla_tetto(chiave, int(f["annidamento"]), TETTO_ANNIDAMENTO,
+					FUNZIONI_ANNIDATE, "l'annidamento")
+	# UN'ECCEZIONE PER UNA COSA CHE NON ESISTE PIU' e' peggio di nessuna
+	# eccezione: resta li' a dare il permesso a un nome che un giorno qualcuno
+	# riusa per un'altra cosa
+	for chiave in FILE_GRANDI:
+		esigi(String(chiave) in visti_file,
+				"fra le eccezioni c'e' il file '%s', che non esiste piu'" % chiave)
+	for chiave in FUNZIONI_LUNGHE:
+		esigi(String(chiave) in viste_funzioni,
+				"fra le eccezioni sulla lunghezza c'e' '%s', che non esiste piu'" % chiave)
+	for chiave in FUNZIONI_ANNIDATE:
+		esigi(String(chiave) in viste_annidate,
+				"fra le eccezioni sull'annidamento c'e' '%s', che non esiste piu'" % chiave)
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.
