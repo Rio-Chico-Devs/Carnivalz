@@ -97,6 +97,25 @@ E campionava anche da nascosto. Il quadrante fa tre mestieri e ne mostra uno per
 volta: mentre scegli da una lista, o mentre il box racconta, l'ECG non è a
 schermo — e ora non lavora.
 
+### 5. Il crash: la scena cambia mentre il box parla
+
+Il più serio di tutti, e non dava un errore — dava un **crash del motore**.
+
+Ogni attesa della voce passa da `await`, e durante un `await` la scena può
+cambiare: lo scontro finisce, il giocatore torna al menu, una stanza lo manda
+altrove. `change_scene_to_file` libera la vecchia scena — e con lei il box e la
+zona cliccabile — ma **l'albero sopravvive**, quindi la coroutine si risveglia lo
+stesso al fotogramma dopo e va a scrivere su roba che non c'è più.
+
+Adesso dopo ogni attesa la voce si chiede se è ancora viva, e se no smette in
+silenzio. Gli effetti in coda si applicano comunque: sono cose che succedono nel
+mondo, non a schermo.
+
+> **La prova ha trovato da sola un secondo punto scoperto** che non avevo visto:
+> `svuota_coda` mostrava la battuta controllando solo `muta`, non se il box
+> esistesse ancora. E col sabotaggio rimesso dentro la suite non fallisce:
+> **crasha, signal 11**. È la dimostrazione più netta che si potesse avere.
+
 ## I passi usciti puliti
 
 Vale la pena scriverli, perché "ho guardato e non c'era niente" è un risultato:
@@ -111,6 +130,42 @@ Vale la pena scriverli, perché "ho guardato e non c'era niente" è un risultato
   Un sospetto sul box del testo era **sbagliato**: `ferma_tween()` c'era già.
 - **Costruire stringhe o nodi a ogni fotogramma.** Due `_draw` allocano un RNG,
   ma girano solo al ridimensionamento.
+
+## Dove si salva
+
+> «non puoi salvare a metà scontro, il salvataggio solo fuori dalle fratture,
+> nelle fratture al massimo ci sono checkpoint» — Bru
+
+La regola era già rispettata, ma **niente la difendeva**: il salvataggio si chiama
+da due posti soli, e bastava una riga in più da qualche parte — un bottone
+«salva» nella pausa, un salvataggio a fine scontro «per comodità» — perché
+cadesse in silenzio.
+
+| dove | perché è lecito |
+|---|---|
+| `Sede._ready` | rientrare alla Sede **è** il salvataggio: fuori dalle fratture |
+| `IngressoNodo`, dietro `salva_checkpoint` | il checkpoint di una zona lunga |
+
+Adesso una prova gira su tutti gli script e boccia qualunque terzo punto. E un
+checkpoint **non è un punto da cui si riparte**: tiene il bottino — flag, tazo,
+oggetti — ma ricaricando si torna fuori, con `nodo_corrente` vuoto, la mappa
+della zona scaricata e le stanze ripulite di nuovo da ripulire.
+
+## Una giornata camminata per davvero
+
+C'era già una prova «passo per passo», ma cammina i **dati**: questo nodo porta a
+quello. Adesso ce n'è una che cammina il **mondo** — dopo ogni tappa, quali flag
+ci sono, quanti tazo, quali appunti, quali messaggi.
+
+Con due domande che nessuno faceva:
+
+- **nessun flag del futuro.** Dopo il risveglio in infermeria, `ordini_ricevuti`
+  non deve esserci ancora: una tappa che si accende da sola è un pezzo di storia
+  saltato;
+- **entrare due volte non conta due volte.** Un nodo si può rivisitare — la mappa
+  lo permette apposta — e gli effetti di una seconda visita sono la classe di
+  difetto che nessuno prova mai. Sabotato: i 3000 tazo di benvenuto diventano
+  **15030**.
 
 ## La perdita di oggetti
 

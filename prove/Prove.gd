@@ -120,6 +120,7 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	await prova_la_giornata_passo_per_passo()
 	await prova_la_scena_cambia_mentre_si_legge()
 	prova_si_salva_solo_fuori_dalle_fratture()
 	prova_il_checkpoint_non_ti_lascia_dentro()
@@ -7359,6 +7360,77 @@ func prova_il_disco_si_interroga_una_volta() -> void:
 			"trenta ridisegni della mappa hanno interrogato il disco altre %d volte"
 			% (Disegni.ricerche - dopo_il_primo))
 	mappa.queue_free()
+
+func prova_la_giornata_passo_per_passo() -> void:
+	# LA GIORNATA ALLA BASE CAMMINATA PER DAVVERO, guardando lo stato dopo OGNI
+	# passo invece che a campione.
+	#
+	# La prova che c'era gia' cammina i DATI - questo nodo porta a quello. Questa
+	# cammina il MONDO: dopo ogni tappa, quali flag ci sono, quanti tazo, quali
+	# appunti, quali messaggi. Un effetto che si applica al momento sbagliato, o
+	# due volte, qui si vede.
+	titolo("la giornata alla base, tappa per tappa, guardando il mondo")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+
+	var tazo_di_partenza := GameState.tazo
+	# [nodo, flag che DEVE esserci dopo, flag che NON deve esserci ancora]
+	var tappe := [
+		["infermeria_risveglio", "rientro_infermeria", "ordini_ricevuti"],
+		["sala_comunicazioni", "ordini_ricevuti", "data_pad_spiegato"],
+		["data_pad_istruzioni", "data_pad_spiegato", "proiezione_spiegata"],
+		["sala_proiezione", "proiezione_spiegata", ""],
+	]
+	for tappa in tappe:
+		var id_nodo := String(tappa[0])
+		var deve := String(tappa[1])
+		var non_ancora := String(tappa[2])
+		esigi(not GameState.ha_flag(deve),
+				"prima di entrare in '%s' il flag '%s' c'e' gia': qualcuno lo ha acceso in anticipo"
+				% [id_nodo, deve])
+		schermata.mostra_nodo(id_nodo)
+		esigi(GameState.ha_flag(deve),
+				"dopo '%s' manca il flag '%s'" % [id_nodo, deve])
+		if non_ancora != "":
+			esigi(not GameState.ha_flag(non_ancora),
+					"dopo '%s' c'e' gia' il flag '%s': una tappa piu' avanti si e' accesa da sola"
+					% [id_nodo, non_ancora])
+
+	# i 3000 tazo sono arrivati UNA volta, e la missione pure
+	esigi(GameState.tazo == tazo_di_partenza + 3000,
+			"a fine giornata i tazo sono %d invece di %d" % [GameState.tazo, tazo_di_partenza + 3000])
+	esigi("benvenuto_quota" in GameState.messaggi_ricevuti, "la quota di benvenuto non e' mai arrivata")
+	esigi("prima_proiezione" in GameState.task_attivi or "prima_proiezione" in GameState.task_chiusi,
+			"la missione della sala di proiezione non e' mai comparsa")
+
+	# ENTRARE DUE VOLTE NON DEVE CONTARE DUE VOLTE.
+	#
+	# Un nodo si puo' rivisitare - la mappa lo permette apposta - e gli effetti
+	# di una seconda visita sono la classe di difetto che nessuno prova mai: i
+	# 3000 tazo accreditati un'altra volta, un appunto riaperto, una scena
+	# rigiocata. Qui si ripassa da tutte le tappe e si guarda che il mondo non
+	# si muova piu'.
+	var tazo_prima := GameState.tazo
+	var flag_prima := GameState.flags.size()
+	var messaggi_prima := GameState.messaggi_ricevuti.size()
+	var sacca_prima := GameState.sacca.size()
+	for tappa in tappe:
+		schermata.mostra_nodo(String(tappa[0]))
+	esigi(GameState.tazo == tazo_prima,
+			"ripassando dalle stesse stanze i tazo sono passati da %d a %d"
+			% [tazo_prima, GameState.tazo])
+	esigi(GameState.messaggi_ricevuti.size() == messaggi_prima,
+			"ripassando sono arrivati altri %d messaggi"
+			% (GameState.messaggi_ricevuti.size() - messaggi_prima))
+	esigi(GameState.sacca.size() == sacca_prima,
+			"ripassando la sacca e' cresciuta di %d oggetti"
+			% (GameState.sacca.size() - sacca_prima))
+	esigi(GameState.flags.size() == flag_prima,
+			"ripassando sono comparsi altri %d flag" % (GameState.flags.size() - flag_prima))
+	schermata.queue_free()
 
 func prova_la_scena_cambia_mentre_si_legge() -> void:
 	# LA SCENA PUO' CAMBIARE MENTRE IL BOX PARLA: lo scontro finisce, il
