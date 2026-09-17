@@ -3316,299 +3316,368 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 		nemico.ricariche_mosse = ricariche
 	match mossa.get("tipo", ""):
 		"difendi":
-			difendi(nemico)
+			mossa_difendi(nemico, mossa)
 		"provoca":
-			# SI METTE IN MEZZO. Vale da tutte e due le parti del campo: un Nimbo
-			# Boy evocato da Yhvina provoca i nemici, e una creatura che ce
-			# l'avesse provocherebbe la squadra. provoca() guarda da che parte sta
-			# chi la usa e sceglie l'altra, quindi non serve distinguere qui
-			# la lista va costruita tipata PRIMA: in un ternario il ramo "[]" e'
-			# un Array senza tipo, e il tipo del ternario diventa quello
-			var chi_provocare: Array[Dictionary] = []
-			if not bool(mossa.get("tutti", false)):
-				chi_provocare = uno_solo(bersaglio_opposto(nemico))
-			provoca(nemico, chi_provocare)
+			mossa_provoca(nemico, mossa)
 		"orda":
-			marea(nemico, mossa)
+			mossa_orda(nemico, mossa)
 		"attacco_forte":
-			var vittima_forte := bersaglio_giocatore_casuale()
-			attacca(nemico, vittima_forte, valore_mossa(nemico, mossa),
-					1.0, String(mossa.get("elemento", "")))
-			if mossa.has("stato") and not vittima_forte.is_empty() and vittima_forte.hp > 0:
-				applica_stato(vittima_forte, String(mossa["stato"]))
-			apri_la_guardia(vittima_forte, mossa)
-			paga_di_persona(nemico, mossa)
+			mossa_attacco_forte(nemico, mossa)
 		"spezza_guardia":
-			# un colpo che non fa piu' male degli altri, ma ti apre: e' la
-			# risposta del gioco a chi si chiude e non si muove piu'
-			var vittima_guardia := bersaglio_giocatore_casuale()
-			attacca(nemico, vittima_guardia, valore_mossa(nemico, mossa),
-					1.0, String(mossa.get("elemento", "")))
-			apri_la_guardia(vittima_guardia, mossa)
+			mossa_spezza_guardia(nemico, mossa)
 		"meta_vita":
-			# toglie sempre meta' dei punti vita attuali del bersaglio, ignorando
-			# difese e livello; sotto una soglia minima e' invece un KO secco
-			var vittima := bersaglio_giocatore_casuale()
-			if not vittima.is_empty():
-				var soglia_ko := int(mossa.get("hp_soglia_ko", 5))
-				if vittima.hp < soglia_ko:
-					scrivi_forte("%s non regge il colpo." % vittima.nome)
-					vittima.hp = 0
-				else:
-					var meta := int(floor(float(vittima.hp) / 2.0))
-					vittima.hp = maxi(vittima.hp - meta, 1)
-					voce.accoda_effetto(effetto_colpo(vittima, meta))
-				aggiorna_scheda(vittima)
-				if vittima.hp <= 0:
-					_su_ko(vittima)
+			mossa_meta_vita(nemico, mossa)
 		"attacco_multiplo":
-			for volta in range(int(mossa.get("colpi", 2))):
-				if vivi(true).is_empty():
-					break
-				attacca(nemico, bersaglio_giocatore_casuale(), valore_mossa(nemico, mossa),
-						1.0, String(mossa.get("elemento", "")))
+			mossa_attacco_multiplo(nemico, mossa)
 		"buff_attacco":
-			RegoleCombattimento.applica_buff(nemico, "attacco", int(mossa.get("valore", 1)),
-					int(mossa.get("turni", 2)), chiave_mossa(mossa))
-			aggiorna_scheda(nemico)
+			mossa_buff_attacco(nemico, mossa)
 		"potenziamento":
-			# UN POTENZIAMENTO CHE TOCCA PIU' COSE INSIEME, e puo' anche togliere.
-			# buff_attacco e buff_difesa sanno alzare una statistica sola, e le
-			# mosse che Bru ha scritto ne muovono due o tre per volta ("Ultima
-			# risorsa: aumenta velocita' difesa attacco", "Moan: aumenta attacco
-			# considerevolmente, diminuisce leggermente la velocita'"). Spezzarle
-			# in tre mosse avrebbe voluto dire tre battute per fare una cosa sola.
-			#
-			# Puo' anche potenziare GLI ALTRI ("Incitamento delle masse: aumenta
-			# la velocita' degli altri suoi compagni"), ed e' la prima mossa del
-			# bestiario che guarda la squadra invece di se' stessa
-			for chi in bersagli_del_potenziamento(nemico, mossa):
-				for stat in mossa.get("stat", {}):
-					RegoleCombattimento.applica_buff(chi, String(stat),
-							int(mossa["stat"][stat]), int(mossa.get("turni", 3)),
-							chiave_mossa(mossa))
-				aggiorna_scheda(chi)
+			mossa_potenziamento(nemico, mossa)
 		"modalita":
-			# SI CHIUDE IN UNA FORMA, E PER QUALCHE BATTUTA E' UN'ALTRA COSA.
-			# Bru, sulla Simulazione Ouroboros: "immune per 3 turni, ogni turno
-			# aumenta attacco e difesa, diminuisce velocita' e ripristina il 15%
-			# di vita". E sull'Autoriciclaggio, che e' la stessa macchina al
-			# contrario: "per quattro turni comincia a perdere attacco e difesa
-			# ma recupera il 25% di vita".
-			#
-			# Non e' un potenziamento, che si applica una volta e scade: e' uno
-			# STATO CHE LAVORA, una battuta per volta. Il conto scorre in
-			# avanza_modalita, all'inizio di ogni sua battuta
-			nemico.modalita = {
-				"id": chiave_mossa(mossa),
-				"nome": String(mossa.get("nome", "")),
-				"battute": int(mossa.get("durata", 3)),
-				"stat": mossa.get("per_battuta", {}).get("stat", {}),
-				"cura_quota": float(mossa.get("per_battuta", {}).get("cura_quota", 0.0)),
-				"testo_battuta": String(mossa.get("testo_battuta", "")),
-				"testo_fine": String(mossa.get("testo_fine", "")),
-			}
-			if bool(mossa.get("immune", false)):
-				# ESATTAMENTE quanto dura la forma, non una battuta di piu'.
-				# Modalita' e immunita' scorrono nella stessa battuta - prima
-				# avanza_modalita, subito dopo il conto dell'immunita' - quindi
-				# con "durata" tutte e due finiscono insieme. Con "durata + 1"
-				# restava intoccabile per una battuta dopo essersi riaperta, e a
-				# schermo era solo un colpo che spariva senza motivo
-				nemico.turni_immune = int(mossa.get("durata", 3))
-			aggiorna_scheda(nemico)
+			mossa_modalita(nemico, mossa)
 		"trasformazione":
-			# NON DIVENTA SUBITO: annuncia, e il conto parte. "Hai 5 turni prima
-			# che si trasformi in un altro nemico" - cinque battute per decidere
-			# se abbatterlo prima o prepararsi a un'altra cosa
-			nemico.trasformazione = {
-				"diventa": String(mossa.get("diventa", "")),
-				"battute": int(mossa.get("battute", 5)),
-				"testo": String(mossa.get("testo_trasforma", "Non è più quello di prima.")),
-			}
-			aggiorna_scheda(nemico)
+			mossa_trasformazione(nemico, mossa)
 		"scena":
-			# NON FA NIENTE, E LO FA APPOSTA. Una casella che esiste solo per il
-			# suo motto: lo Zombie Cittadino che si guarda intorno senza scopo,
-			# l'Orrore che si ferma a guardare il cielo. E' l'unico modo che ha
-			# il gioco di dire "questa cosa non ti sta pensando".
-			#
-			# Non e' la battuta sprecata da cui ci si guardava: quella era una
-			# mossa che PROMETTEVA un effetto e non riusciva a farlo. Questa non
-			# promette niente. Ma alle strette non si sceglie mai - vedi
-			# mossa_eseguibile - perche' una creatura che sta per morire e si
-			# guarda intorno smentisce la regola che la fa diventare pericolosa
-			pass
+			mossa_scena(nemico, mossa)
 		"tormento":
-			# Colpisce tutta la squadra a ogni loro battuta, e NON SMETTE finche'
-			# non cade chi l'ha lanciata: e' quello che Bru ha chiesto per l'Astio
-			# Infinito. Passa per la combustione, che e' la macchina che gia'
-			# esisteva per "qualcosa ti fa male a ogni tuo turno": non ne serviva
-			# una seconda, serviva solo dirle chi la tiene accesa
-			var quanto_tormento := maxi(int(round(RegoleCombattimento.attacco_di(nemico)
-					* float(mossa.get("quota_per_turno", 0.25)))), 1)
-			for bersaglio_tormento in vivi(true):
-				bersaglio_tormento.combustione = {
-					"danno_per_turno": quanto_tormento,
-					"testo_turno": String(mossa.get("testo_turno", "Il vento tagliente non passa.")),
-					"elemento": String(mossa.get("elemento", "oscuro")),
-					"fonte": String(nemico.get("id", "")),
-				}
-				bersaglio_tormento.in_fiamme = true
-				aggiorna_scheda(bersaglio_tormento)
+			mossa_tormento(nemico, mossa)
 		"incendia":
-			# LE FIAMME SONO UNO STATUS, adesso. Prima appiccavano una combustione
-			# a mano: un danno che nessuno poteva curare, a cui nessuno poteva
-			# essere immune, e che non compariva nella scheda. Bru le voleva fra
-			# gli otto - "danno continuo ogni turno, e' il danno nel tempo piu'
-			# forte" - e da status prende tutto il resto gratis: durata, cura,
-			# resistenze, e il nome scritto addosso a chi brucia.
-			#
-			# La combustione resta dov'era, ma solo per chi brucia di suo
-			# (Fomentado): quella non e' una cosa che subisci, e' quello che sei
-			var possibili_bersagli := vivi(true)
-			if not possibili_bersagli.is_empty():
-				applica_stato(possibili_bersagli[GameState.rng.randi_range(0, possibili_bersagli.size() - 1)], "fiamme")
+			mossa_incendia(nemico, mossa)
 		"attacco_tutti":
-			if mossa.has("quota_vita_bersaglio"):
-				# UNA FRAZIONE DI QUELLO CHE TI RESTA, non del suo attacco: e' la
-				# Discesa colossale, che si annuncia una battuta prima e poi si
-				# porta via quasi tutto. Non passa dalla difesa - contro un colpo
-				# grosso quanto una casa la corazza non c'entra - ma non uccide:
-				# lascia sempre un punto, perche' un colpo che azzera la squadra
-				# senza che tu possa farci niente non e' una boss fight, e' un
-				# filmato
-				var frazione := clampf(float(mossa["quota_vita_bersaglio"]), 0.0, 0.99)
-				for bersaglio_vita in vivi(true):
-					var tolto := maxi(int(round(float(bersaglio_vita.hp) * frazione)), 1)
-					bersaglio_vita.hp = maxi(int(bersaglio_vita.hp) - tolto, 1)
-					scrivi_con_colpo("[i]%s viene travolto.[/i]" % bersaglio_vita.nome,
-							bersaglio_vita, tolto, String(mossa.get("elemento", "")))
-					aggiorna_scheda(bersaglio_vita)
-				paga_di_persona(nemico, mossa)
-				return
-			for bersaglio in vivi(true):
-				attacca(nemico, bersaglio, valore_mossa(nemico, mossa),
-						1.0, String(mossa.get("elemento", "")))
-			if mossa.has("stress"):
-				for bersaglio in vivi(true):
-					aggiungi_stress(bersaglio, int(mossa.stress))
-			if mossa.has("legame"):
-				GameState.modifica_legame(int(mossa.legame))
-			if mossa.has("maledizione"):
-				for bersaglio in vivi(true):
-					applica_stato(bersaglio, "maledizione", int(mossa.maledizione))
-			if mossa.get("terrore", false):
-				for bersaglio in vivi(true):
-					applica_stato(bersaglio, "terrore")
+			mossa_attacco_tutti(nemico, mossa)
 		"autolesione":
-			# si ferisce da sola: il dolore riverbera sullo stress della squadra
-			var male := int(mossa.get("valore", 1))
-			nemico.hp = maxi(nemico.hp - male, 0)
-			voce.accoda_effetto(effetto_colpo(nemico, male))
-			for bersaglio in vivi(true):
-				aggiungi_stress(bersaglio, int(mossa.get("stress", 10)))
-			if mossa.has("legame"):
-				GameState.modifica_legame(int(mossa.legame))
-			if mossa.has("maledizione"):
-				for bersaglio in vivi(true):
-					applica_stato(bersaglio, "maledizione", int(mossa.maledizione))
-			if nemico.hp <= 0:
-				_su_ko(nemico)
+			mossa_autolesione(nemico, mossa)
 		"cura":
-			# SE SA CURARSI, QUANDO STA PER CADERE SI CURA. Bru: "se hanno pochi
-			# punti vita devono capirlo, e se hanno attacchi che li curano o
-			# abilita' le attivano". Il capirlo sta in "quando" e "priorita";
-			# qui c'e' solo il gesto. Cura una quota della vita MASSIMA di chi
-			# la riceve, non un numero fisso: cosi' vale uguale a ogni livello
-			var curato := nemico
-			if String(mossa.get("bersaglio", "se_stesso")) == "alleato":
-				curato = alleato_piu_ferito(nemico)
-			if curato.is_empty():
-				return
-			var rimesso := rimetti_in_piedi(curato, maxi(int(round(float(curato.hp_max)
-					* float(mossa.get("quota_vita", 0.25)))), 1))
-			if rimesso > 0:
-				var scheda_curato: Control = curato.scheda
-				scrivi("[i]%s si rimette insieme: +%d.[/i]" % [curato.nome, rimesso])
-				voce.accoda_effetto(func() -> void:
-					voce.suono("cura")
-					voce.numero_volante(scheda_curato, "+%d" % rimesso, Stile.colore("positivo"))
-					aggiorna_scheda(curato))
+			mossa_cura(nemico, mossa)
 		"rubavita":
-			# colpisce e si rimette in piedi con quello che ha tolto: e' la mossa
-			# che rende davvero pericolosa una creatura ferita, perche' picchiarla
-			# e basta smette di bastare
-			var vittima_furto := bersaglio_giocatore_casuale()
-			if vittima_furto.is_empty():
-				return
-			var vita_prima := int(vittima_furto.hp)
-			attacca(nemico, vittima_furto, valore_mossa(nemico, mossa),
-					1.0, String(mossa.get("elemento", "")))
-			var rubato := int(round((vita_prima - int(vittima_furto.hp))
-					* float(mossa.get("quota_furto", 0.5))))
-			if rubato > 0 and int(nemico.hp) > 0:
-				var scheda_ladro: Control = nemico.scheda
-				# anche il furto di vita passa dal tetto: e' la strada piu' facile
-				# per aggirarlo - basta una mossa che picchia e si nutre, e la
-				# creatura si rimette addosso quanto vuole senza mai "curarsi"
-				var nutrito := rimetti_in_piedi(nemico, rubato)
-				if nutrito > 0:
-					scrivi("[i]%s se ne nutre: +%d.[/i]" % [nemico.nome, nutrito])
-					voce.accoda_effetto(func() -> void:
-						voce.numero_volante(scheda_ladro, "+%d" % nutrito, Stile.colore("positivo"))
-						aggiorna_scheda(nemico))
+			mossa_rubavita(nemico, mossa)
 		"stato":
-			# nessun danno: solo quello che ti lascia addosso. Una mossa che "fa
-			# cose" invece di fare male, ed e' meta' di quello che Bru ha chiesto
-			var vittima_stato := bersaglio_giocatore_casuale()
-			if not vittima_stato.is_empty():
-				# UNA MOSSA PUO' LASCIARE PIU' DI UNA COSA ADDOSSO. L'Assolo
-				# metallico "infligge confusione E berserk": due mosse separate
-				# sarebbero due battute per fare una cosa sola, e a schermo due
-				# righe per un suono solo
-				for id_stato in stati_di(mossa):
-					applica_stato(vittima_stato, id_stato,
-							int(mossa.get("valore_stato", 1)))
-			if mossa.has("stress"):
-				for chiunque in vivi(true):
-					aggiungi_stress(chiunque, int(mossa.stress))
+			mossa_stato(nemico, mossa)
 		"buff_difesa":
-			RegoleCombattimento.applica_buff(nemico, "difesa", int(mossa.get("valore", 1)),
-					int(mossa.get("turni", 2)), chiave_mossa(mossa))
-			aggiorna_scheda(nemico)
+			mossa_buff_difesa(nemico, mossa)
 		"buff_fattore":
-			nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 10)), 0, 100)
-			aggiorna_scheda(nemico)
+			mossa_buff_fattore(nemico, mossa)
 		"evoca":
-			var evocati := 0
-			for volta in range(int(mossa.get("quantita", 1))):
-				if vivi(false).size() >= 3:
-					break
-				aggiungi_combattente(String(mossa.get("valore", "")), false)
-				evocati += 1
-			if evocati == 0:
-				scrivi("[i]...ma nessuno risponde al richiamo.[/i]")
+			mossa_evoca(nemico, mossa)
 		"sacrificio":
-			# "un piccolo sacrificio per un grande risultato": si potenzia
-			# uccidendo un suo stesso alleato evocato.
-			#
-			# Se non ne ha, NON LA FA. Qui c'era un ripiego - "non ha nessuno da
-			# sacrificare, colpisce lui stesso" - che raccontava una scena che
-			# non doveva esistere: uno che annuncia un rito e poi tira un pugno.
-			# Adesso e' esegui_turno a non sceglierla mai senza alleati (vedi
-			# turno_nemico_normale e mossa_eseguibile), e questo ramo non puo'
-			# piu' essere raggiunto a mani vuote.
-			var alleati := vivi_alleati_di(nemico)
-			if alleati.is_empty():
-				return
-			var vittima: Dictionary = alleati[GameState.rng.randi_range(0, alleati.size() - 1)]
-			scrivi("[i]%s lo colpisce lui stesso, senza esitare.[/i]" % nemico.nome)
+			mossa_sacrificio(nemico, mossa)
+
+func mossa_difendi(nemico: Dictionary, _mossa: Dictionary) -> void:
+	difendi(nemico)
+
+func mossa_provoca(nemico: Dictionary, mossa: Dictionary) -> void:
+	# SI METTE IN MEZZO. Vale da tutte e due le parti del campo: un Nimbo
+	# Boy evocato da Yhvina provoca i nemici, e una creatura che ce
+	# l'avesse provocherebbe la squadra. provoca() guarda da che parte sta
+	# chi la usa e sceglie l'altra, quindi non serve distinguere qui
+	# la lista va costruita tipata PRIMA: in un ternario il ramo "[]" e'
+	# un Array senza tipo, e il tipo del ternario diventa quello
+	var chi_provocare: Array[Dictionary] = []
+	if not bool(mossa.get("tutti", false)):
+		chi_provocare = uno_solo(bersaglio_opposto(nemico))
+	provoca(nemico, chi_provocare)
+
+func mossa_orda(nemico: Dictionary, mossa: Dictionary) -> void:
+	marea(nemico, mossa)
+
+func mossa_attacco_forte(nemico: Dictionary, mossa: Dictionary) -> void:
+	var vittima_forte := bersaglio_giocatore_casuale()
+	attacca(nemico, vittima_forte, valore_mossa(nemico, mossa),
+			1.0, String(mossa.get("elemento", "")))
+	if mossa.has("stato") and not vittima_forte.is_empty() and vittima_forte.hp > 0:
+		applica_stato(vittima_forte, String(mossa["stato"]))
+	apri_la_guardia(vittima_forte, mossa)
+	paga_di_persona(nemico, mossa)
+
+func mossa_spezza_guardia(nemico: Dictionary, mossa: Dictionary) -> void:
+	# un colpo che non fa piu' male degli altri, ma ti apre: e' la
+	# risposta del gioco a chi si chiude e non si muove piu'
+	var vittima_guardia := bersaglio_giocatore_casuale()
+	attacca(nemico, vittima_guardia, valore_mossa(nemico, mossa),
+			1.0, String(mossa.get("elemento", "")))
+	apri_la_guardia(vittima_guardia, mossa)
+
+func mossa_meta_vita(_nemico: Dictionary, mossa: Dictionary) -> void:
+	# toglie sempre meta' dei punti vita attuali del bersaglio, ignorando
+	# difese e livello; sotto una soglia minima e' invece un KO secco
+	var vittima := bersaglio_giocatore_casuale()
+	if not vittima.is_empty():
+		var soglia_ko := int(mossa.get("hp_soglia_ko", 5))
+		if vittima.hp < soglia_ko:
+			scrivi_forte("%s non regge il colpo." % vittima.nome)
 			vittima.hp = 0
-			aggiorna_scheda(vittima)
-			nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 15)), 0, 100)
-			aggiorna_scheda(nemico)
+		else:
+			var meta := int(floor(float(vittima.hp) / 2.0))
+			vittima.hp = maxi(vittima.hp - meta, 1)
+			voce.accoda_effetto(effetto_colpo(vittima, meta))
+		aggiorna_scheda(vittima)
+		if vittima.hp <= 0:
 			_su_ko(vittima)
+
+func mossa_attacco_multiplo(nemico: Dictionary, mossa: Dictionary) -> void:
+	for volta in range(int(mossa.get("colpi", 2))):
+		if vivi(true).is_empty():
+			break
+		attacca(nemico, bersaglio_giocatore_casuale(), valore_mossa(nemico, mossa),
+				1.0, String(mossa.get("elemento", "")))
+
+func mossa_buff_attacco(nemico: Dictionary, mossa: Dictionary) -> void:
+	RegoleCombattimento.applica_buff(nemico, "attacco", int(mossa.get("valore", 1)),
+			int(mossa.get("turni", 2)), chiave_mossa(mossa))
+	aggiorna_scheda(nemico)
+
+func mossa_potenziamento(nemico: Dictionary, mossa: Dictionary) -> void:
+	# UN POTENZIAMENTO CHE TOCCA PIU' COSE INSIEME, e puo' anche togliere.
+	# buff_attacco e buff_difesa sanno alzare una statistica sola, e le
+	# mosse che Bru ha scritto ne muovono due o tre per volta ("Ultima
+	# risorsa: aumenta velocita' difesa attacco", "Moan: aumenta attacco
+	# considerevolmente, diminuisce leggermente la velocita'"). Spezzarle
+	# in tre mosse avrebbe voluto dire tre battute per fare una cosa sola.
+	#
+	# Puo' anche potenziare GLI ALTRI ("Incitamento delle masse: aumenta
+	# la velocita' degli altri suoi compagni"), ed e' la prima mossa del
+	# bestiario che guarda la squadra invece di se' stessa
+	for chi in bersagli_del_potenziamento(nemico, mossa):
+		for stat in mossa.get("stat", {}):
+			RegoleCombattimento.applica_buff(chi, String(stat),
+					int(mossa["stat"][stat]), int(mossa.get("turni", 3)),
+					chiave_mossa(mossa))
+		aggiorna_scheda(chi)
+
+func mossa_modalita(nemico: Dictionary, mossa: Dictionary) -> void:
+	# SI CHIUDE IN UNA FORMA, E PER QUALCHE BATTUTA E' UN'ALTRA COSA.
+	# Bru, sulla Simulazione Ouroboros: "immune per 3 turni, ogni turno
+	# aumenta attacco e difesa, diminuisce velocita' e ripristina il 15%
+	# di vita". E sull'Autoriciclaggio, che e' la stessa macchina al
+	# contrario: "per quattro turni comincia a perdere attacco e difesa
+	# ma recupera il 25% di vita".
+	#
+	# Non e' un potenziamento, che si applica una volta e scade: e' uno
+	# STATO CHE LAVORA, una battuta per volta. Il conto scorre in
+	# avanza_modalita, all'inizio di ogni sua battuta
+	nemico.modalita = {
+		"id": chiave_mossa(mossa),
+		"nome": String(mossa.get("nome", "")),
+		"battute": int(mossa.get("durata", 3)),
+		"stat": mossa.get("per_battuta", {}).get("stat", {}),
+		"cura_quota": float(mossa.get("per_battuta", {}).get("cura_quota", 0.0)),
+		"testo_battuta": String(mossa.get("testo_battuta", "")),
+		"testo_fine": String(mossa.get("testo_fine", "")),
+	}
+	if bool(mossa.get("immune", false)):
+		# ESATTAMENTE quanto dura la forma, non una battuta di piu'.
+		# Modalita' e immunita' scorrono nella stessa battuta - prima
+		# avanza_modalita, subito dopo il conto dell'immunita' - quindi
+		# con "durata" tutte e due finiscono insieme. Con "durata + 1"
+		# restava intoccabile per una battuta dopo essersi riaperta, e a
+		# schermo era solo un colpo che spariva senza motivo
+		nemico.turni_immune = int(mossa.get("durata", 3))
+	aggiorna_scheda(nemico)
+
+func mossa_trasformazione(nemico: Dictionary, mossa: Dictionary) -> void:
+	# NON DIVENTA SUBITO: annuncia, e il conto parte. "Hai 5 turni prima
+	# che si trasformi in un altro nemico" - cinque battute per decidere
+	# se abbatterlo prima o prepararsi a un'altra cosa
+	nemico.trasformazione = {
+		"diventa": String(mossa.get("diventa", "")),
+		"battute": int(mossa.get("battute", 5)),
+		"testo": String(mossa.get("testo_trasforma", "Non è più quello di prima.")),
+	}
+	aggiorna_scheda(nemico)
+
+func mossa_scena(_nemico: Dictionary, mossa: Dictionary) -> void:
+	# NON FA NIENTE, E LO FA APPOSTA. Una casella che esiste solo per il
+	# suo motto: lo Zombie Cittadino che si guarda intorno senza scopo,
+	# l'Orrore che si ferma a guardare il cielo. E' l'unico modo che ha
+	# il gioco di dire "questa cosa non ti sta pensando".
+	#
+	# Non e' la battuta sprecata da cui ci si guardava: quella era una
+	# mossa che PROMETTEVA un effetto e non riusciva a farlo. Questa non
+	# promette niente. Ma alle strette non si sceglie mai - vedi
+	# mossa_eseguibile - perche' una creatura che sta per morire e si
+	# guarda intorno smentisce la regola che la fa diventare pericolosa
+	pass
+
+func mossa_tormento(nemico: Dictionary, mossa: Dictionary) -> void:
+	# Colpisce tutta la squadra a ogni loro battuta, e NON SMETTE finche'
+	# non cade chi l'ha lanciata: e' quello che Bru ha chiesto per l'Astio
+	# Infinito. Passa per la combustione, che e' la macchina che gia'
+	# esisteva per "qualcosa ti fa male a ogni tuo turno": non ne serviva
+	# una seconda, serviva solo dirle chi la tiene accesa
+	var quanto_tormento := maxi(int(round(RegoleCombattimento.attacco_di(nemico)
+			* float(mossa.get("quota_per_turno", 0.25)))), 1)
+	for bersaglio_tormento in vivi(true):
+		bersaglio_tormento.combustione = {
+			"danno_per_turno": quanto_tormento,
+			"testo_turno": String(mossa.get("testo_turno", "Il vento tagliente non passa.")),
+			"elemento": String(mossa.get("elemento", "oscuro")),
+			"fonte": String(nemico.get("id", "")),
+		}
+		bersaglio_tormento.in_fiamme = true
+		aggiorna_scheda(bersaglio_tormento)
+
+func mossa_incendia(_nemico: Dictionary, _mossa: Dictionary) -> void:
+	# LE FIAMME SONO UNO STATUS, adesso. Prima appiccavano una combustione
+	# a mano: un danno che nessuno poteva curare, a cui nessuno poteva
+	# essere immune, e che non compariva nella scheda. Bru le voleva fra
+	# gli otto - "danno continuo ogni turno, e' il danno nel tempo piu'
+	# forte" - e da status prende tutto il resto gratis: durata, cura,
+	# resistenze, e il nome scritto addosso a chi brucia.
+	#
+	# La combustione resta dov'era, ma solo per chi brucia di suo
+	# (Fomentado): quella non e' una cosa che subisci, e' quello che sei
+	var possibili_bersagli := vivi(true)
+	if not possibili_bersagli.is_empty():
+		applica_stato(possibili_bersagli[GameState.rng.randi_range(0, possibili_bersagli.size() - 1)], "fiamme")
+
+func mossa_attacco_tutti(nemico: Dictionary, mossa: Dictionary) -> void:
+	if mossa.has("quota_vita_bersaglio"):
+		# UNA FRAZIONE DI QUELLO CHE TI RESTA, non del suo attacco: e' la
+		# Discesa colossale, che si annuncia una battuta prima e poi si
+		# porta via quasi tutto. Non passa dalla difesa - contro un colpo
+		# grosso quanto una casa la corazza non c'entra - ma non uccide:
+		# lascia sempre un punto, perche' un colpo che azzera la squadra
+		# senza che tu possa farci niente non e' una boss fight, e' un
+		# filmato
+		var frazione := clampf(float(mossa["quota_vita_bersaglio"]), 0.0, 0.99)
+		for bersaglio_vita in vivi(true):
+			var tolto := maxi(int(round(float(bersaglio_vita.hp) * frazione)), 1)
+			bersaglio_vita.hp = maxi(int(bersaglio_vita.hp) - tolto, 1)
+			scrivi_con_colpo("[i]%s viene travolto.[/i]" % bersaglio_vita.nome,
+					bersaglio_vita, tolto, String(mossa.get("elemento", "")))
+			aggiorna_scheda(bersaglio_vita)
+		paga_di_persona(nemico, mossa)
+		return
+	for bersaglio in vivi(true):
+		attacca(nemico, bersaglio, valore_mossa(nemico, mossa),
+				1.0, String(mossa.get("elemento", "")))
+	if mossa.has("stress"):
+		for bersaglio in vivi(true):
+			aggiungi_stress(bersaglio, int(mossa.stress))
+	if mossa.has("legame"):
+		GameState.modifica_legame(int(mossa.legame))
+	if mossa.has("maledizione"):
+		for bersaglio in vivi(true):
+			applica_stato(bersaglio, "maledizione", int(mossa.maledizione))
+	if mossa.get("terrore", false):
+		for bersaglio in vivi(true):
+			applica_stato(bersaglio, "terrore")
+
+func mossa_autolesione(nemico: Dictionary, mossa: Dictionary) -> void:
+	# si ferisce da sola: il dolore riverbera sullo stress della squadra
+	var male := int(mossa.get("valore", 1))
+	nemico.hp = maxi(nemico.hp - male, 0)
+	voce.accoda_effetto(effetto_colpo(nemico, male))
+	for bersaglio in vivi(true):
+		aggiungi_stress(bersaglio, int(mossa.get("stress", 10)))
+	if mossa.has("legame"):
+		GameState.modifica_legame(int(mossa.legame))
+	if mossa.has("maledizione"):
+		for bersaglio in vivi(true):
+			applica_stato(bersaglio, "maledizione", int(mossa.maledizione))
+	if nemico.hp <= 0:
+		_su_ko(nemico)
+
+func mossa_cura(nemico: Dictionary, mossa: Dictionary) -> void:
+	# SE SA CURARSI, QUANDO STA PER CADERE SI CURA. Bru: "se hanno pochi
+	# punti vita devono capirlo, e se hanno attacchi che li curano o
+	# abilita' le attivano". Il capirlo sta in "quando" e "priorita";
+	# qui c'e' solo il gesto. Cura una quota della vita MASSIMA di chi
+	# la riceve, non un numero fisso: cosi' vale uguale a ogni livello
+	var curato := nemico
+	if String(mossa.get("bersaglio", "se_stesso")) == "alleato":
+		curato = alleato_piu_ferito(nemico)
+	if curato.is_empty():
+		return
+	var rimesso := rimetti_in_piedi(curato, maxi(int(round(float(curato.hp_max)
+			* float(mossa.get("quota_vita", 0.25)))), 1))
+	if rimesso > 0:
+		var scheda_curato: Control = curato.scheda
+		scrivi("[i]%s si rimette insieme: +%d.[/i]" % [curato.nome, rimesso])
+		voce.accoda_effetto(func() -> void:
+			voce.suono("cura")
+			voce.numero_volante(scheda_curato, "+%d" % rimesso, Stile.colore("positivo"))
+			aggiorna_scheda(curato))
+
+func mossa_rubavita(nemico: Dictionary, mossa: Dictionary) -> void:
+	# colpisce e si rimette in piedi con quello che ha tolto: e' la mossa
+	# che rende davvero pericolosa una creatura ferita, perche' picchiarla
+	# e basta smette di bastare
+	var vittima_furto := bersaglio_giocatore_casuale()
+	if vittima_furto.is_empty():
+		return
+	var vita_prima := int(vittima_furto.hp)
+	attacca(nemico, vittima_furto, valore_mossa(nemico, mossa),
+			1.0, String(mossa.get("elemento", "")))
+	var rubato := int(round((vita_prima - int(vittima_furto.hp))
+			* float(mossa.get("quota_furto", 0.5))))
+	if rubato > 0 and int(nemico.hp) > 0:
+		var scheda_ladro: Control = nemico.scheda
+		# anche il furto di vita passa dal tetto: e' la strada piu' facile
+		# per aggirarlo - basta una mossa che picchia e si nutre, e la
+		# creatura si rimette addosso quanto vuole senza mai "curarsi"
+		var nutrito := rimetti_in_piedi(nemico, rubato)
+		if nutrito > 0:
+			scrivi("[i]%s se ne nutre: +%d.[/i]" % [nemico.nome, nutrito])
+			voce.accoda_effetto(func() -> void:
+				voce.numero_volante(scheda_ladro, "+%d" % nutrito, Stile.colore("positivo"))
+				aggiorna_scheda(nemico))
+
+func mossa_stato(_nemico: Dictionary, mossa: Dictionary) -> void:
+	# nessun danno: solo quello che ti lascia addosso. Una mossa che "fa
+	# cose" invece di fare male, ed e' meta' di quello che Bru ha chiesto
+	var vittima_stato := bersaglio_giocatore_casuale()
+	if not vittima_stato.is_empty():
+		# UNA MOSSA PUO' LASCIARE PIU' DI UNA COSA ADDOSSO. L'Assolo
+		# metallico "infligge confusione E berserk": due mosse separate
+		# sarebbero due battute per fare una cosa sola, e a schermo due
+		# righe per un suono solo
+		for id_stato in stati_di(mossa):
+			applica_stato(vittima_stato, id_stato,
+					int(mossa.get("valore_stato", 1)))
+	if mossa.has("stress"):
+		for chiunque in vivi(true):
+			aggiungi_stress(chiunque, int(mossa.stress))
+
+func mossa_buff_difesa(nemico: Dictionary, mossa: Dictionary) -> void:
+	RegoleCombattimento.applica_buff(nemico, "difesa", int(mossa.get("valore", 1)),
+			int(mossa.get("turni", 2)), chiave_mossa(mossa))
+	aggiorna_scheda(nemico)
+
+func mossa_buff_fattore(nemico: Dictionary, mossa: Dictionary) -> void:
+	nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 10)), 0, 100)
+	aggiorna_scheda(nemico)
+
+func mossa_evoca(_nemico: Dictionary, mossa: Dictionary) -> void:
+	var evocati := 0
+	for volta in range(int(mossa.get("quantita", 1))):
+		if vivi(false).size() >= 3:
+			break
+		aggiungi_combattente(String(mossa.get("valore", "")), false)
+		evocati += 1
+	if evocati == 0:
+		scrivi("[i]...ma nessuno risponde al richiamo.[/i]")
+
+func mossa_sacrificio(nemico: Dictionary, mossa: Dictionary) -> void:
+	# "un piccolo sacrificio per un grande risultato": si potenzia
+	# uccidendo un suo stesso alleato evocato.
+	#
+	# Se non ne ha, NON LA FA. Qui c'era un ripiego - "non ha nessuno da
+	# sacrificare, colpisce lui stesso" - che raccontava una scena che
+	# non doveva esistere: uno che annuncia un rito e poi tira un pugno.
+	# Adesso e' esegui_turno a non sceglierla mai senza alleati (vedi
+	# turno_nemico_normale e mossa_eseguibile), e questo ramo non puo'
+	# piu' essere raggiunto a mani vuote.
+	var alleati := vivi_alleati_di(nemico)
+	if alleati.is_empty():
+		return
+	var vittima: Dictionary = alleati[GameState.rng.randi_range(0, alleati.size() - 1)]
+	scrivi("[i]%s lo colpisce lui stesso, senza esitare.[/i]" % nemico.nome)
+	vittima.hp = 0
+	aggiorna_scheda(vittima)
+	nemico.fattore = clampi(nemico.fattore + int(mossa.get("valore", 15)), 0, 100)
+	aggiorna_scheda(nemico)
+	_su_ko(vittima)
 
 func cedimento(combattente: Dictionary) -> void:
 	# la fonte convinta perde pezzi di spettacolo: statistiche giu', fino alla fine

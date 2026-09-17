@@ -120,6 +120,9 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	prova_il_dispatch_delle_mosse_e_cablato_bene()
+	prova_ogni_tipo_di_mossa_ce_l_ha_qualcuno()
+	prova_ogni_mossa_si_esegue_davvero()
 	prova_la_rete_dei_dati_non_ha_buchi()
 	await prova_orologio_delle_scelte()
 	prova_minigioco_ai_bordi()
@@ -7364,6 +7367,200 @@ func prova_il_disco_si_interroga_una_volta() -> void:
 			"trenta ridisegni della mappa hanno interrogato il disco altre %d volte"
 			% (Disegni.ricerche - dopo_il_primo))
 	mappa.queue_free()
+
+func dispatch_di_esegui_mossa() -> Dictionary:
+	# I rami del match di esegui_mossa, letti DAL SORGENTE: etichetta -> nome
+	# della funzione che il ramo chiama.
+	#
+	# Scritti a mano qui si scollerebbero dal codice al primo ramo aggiunto, e
+	# una prova che si e' scollata e' peggio di nessuna prova: dice di guardare
+	# una cosa e ne guarda un'altra.
+	var testo := FileAccess.get_file_as_string("res://scripts/Combattimento.gd")
+	var dentro := false
+	var rami: Dictionary = {}
+	var etichetta := ""
+	for riga in testo.split("\n"):
+		if riga.begins_with("func esegui_mossa("):
+			dentro = true
+			continue
+		if dentro and riga.begins_with("func "):
+			break
+		if not dentro:
+			continue
+		var pulita := String(riga)
+		if pulita.begins_with("\t\t\"") and pulita.ends_with("\":"):
+			etichetta = pulita.strip_edges().trim_prefix("\"").trim_suffix("\":")
+			# un ramo senza corpo resta a mano vuota, e si vede
+			rami[etichetta] = ""
+			continue
+		if etichetta != "" and pulita.begins_with("\t\t\t"):
+			var corpo := pulita.strip_edges()
+			if rami[etichetta] == "" and corpo.contains("("):
+				rami[etichetta] = corpo.get_slice("(", 0)
+	return rami
+
+func funzioni_mossa_dichiarate() -> Array[String]:
+	# LE FUNZIONI CHE FANNO UN RAMO, e solo quelle.
+	#
+	# "comincia per mossa_" non basta: con quel prefisso ci sono anche le domande
+	# che si fanno PRIMA di eseguire - mossa_eseguibile, mossa_disponibile,
+	# mossa_saggia, mossa_da_creatura - che scelgono una mossa e non ne fanno
+	# nessuna. Quelle nel match non ci devono stare, e prenderle avrebbe fatto
+	# gridare la prova contro quattro funzioni sanissime.
+	#
+	# La forma di un ramo estratto e' precisa: prende (chi, la mossa) e non
+	# risponde niente. Le quattro domande rispondono tutte qualcosa - un
+	# Dictionary, un bool - e cosi' si distinguono da sole.
+	var testo := FileAccess.get_file_as_string("res://scripts/Combattimento.gd")
+	var nomi: Array[String] = []
+	for riga in testo.split("\n"):
+		if riga.begins_with("func mossa_") and riga.ends_with("Dictionary) -> void:"):
+			nomi.append(String(riga).trim_prefix("func ").get_slice("(", 0))
+	return nomi
+
+# I RAMI CHE NESSUNA CREATURA USA, E IL PERCHE'.
+#
+# Non e' un permesso generico: chi aggiunge un ramo al match e non lo da' a
+# nessuno deve passare di qui e scrivere perche', altrimenti la prova lo boccia.
+# Una lista di eccezioni senza motivazione e' solo un modo lento di spegnere un
+# controllo.
+const RAMI_SENZA_CREATURA := {
+	"buff_fattore":
+		"alza il Fattore Carnivalz, ed e' l'UNICO tipo di mossa che sappia " +
+		"farlo: potenziamento passa dai buff, e un buff di stat 'fattore' non " +
+		"lo legge nessuno (Regole.gd guarda solo attacco, difesa, velocita'). " +
+		"E' documentato nel README e sa descriversi nella scheda nemici, ma " +
+		"nel bestiario non lo dichiara nessuna creatura: e' contenuto che " +
+		"manca, non codice morto. Toglierlo o darlo a qualcuno e' di Bru.",
+}
+
+func prova_il_dispatch_delle_mosse_e_cablato_bene() -> void:
+	# IL RISCHIO VERO DI UN'ESTRAZIONE MECCANICA A VENTITRE MANI.
+	#
+	# Spezzare un match di 318 righe in ventitre funzioni si fa a copia e
+	# incolla, e il modo in cui si sbaglia e' sempre lo stesso: il ramo "cura"
+	# che finisce per chiamare mossa_rubavita. A schermo non si vede - una
+	# creatura fa una cosa diversa da quella che il suo bestiario prometteva - e
+	# nessuna prova di comportamento lo nota, perche' una mossa sbagliata e'
+	# comunque una mossa che funziona.
+	#
+	# Qui il patto e' esplicito e verificabile: il ramo "X" chiama mossa_X, e
+	# basta. Letto dal sorgente, quindi non si scolla.
+	titolo("ogni ramo di esegui_mossa chiama la funzione che porta il suo nome")
+	var rami := dispatch_di_esegui_mossa()
+	esigi(rami.size() >= 20,
+			"dal sorgente ho letto solo %d rami: la lettura del match non funziona" % rami.size())
+	var dichiarate := funzioni_mossa_dichiarate()
+	var usate: Array[String] = []
+	for etichetta in rami:
+		var chiamata := String(rami[etichetta])
+		esigi(chiamata != "",
+				"il ramo '%s' di esegui_mossa non chiama niente: e' una casella vuota" % etichetta)
+		esigi(chiamata == "mossa_%s" % etichetta,
+				"il ramo '%s' chiama '%s': deve chiamare 'mossa_%s'" % [etichetta, chiamata, etichetta])
+		esigi(chiamata in dichiarate,
+				"il ramo '%s' chiama '%s', che in Combattimento.gd non esiste" % [etichetta, chiamata])
+		usate.append(chiamata)
+	# e il verso opposto: una funzione estratta che nessun ramo chiama e' un
+	# pezzo di combattimento che il gioco non puo' piu' raggiungere
+	for nome in dichiarate:
+		esigi(nome in usate,
+				"%s() esiste ma nessun ramo di esegui_mossa la chiama: e' irraggiungibile" % nome)
+
+func prova_ogni_tipo_di_mossa_ce_l_ha_qualcuno() -> void:
+	# UNA DOMANDA SUI CONTENUTI, NON SUL CODICE: un tipo di mossa che il
+	# combattimento sa fare e che nessuna creatura dichiara e' o un ramo morto da
+	# togliere, o una creatura che manca. Tutte e due le risposte sono di Bru -
+	# la prova serve a non lasciargliela scoprire in partita.
+	titolo("ogni tipo di mossa che il combattimento sa fare ce l'ha qualcuno")
+	var rami := dispatch_di_esegui_mossa()
+	var usati: Dictionary = {}
+	for id_creatura in creature():
+		for mossa in GameState.personaggi.get(id_creatura, {}).get("mosse", []):
+			usati[String((mossa as Dictionary).get("tipo", ""))] = true
+	for etichetta in rami:
+		if usati.has(etichetta):
+			esigi(not RAMI_SENZA_CREATURA.has(etichetta),
+					"'%s' e' fra i rami elencati come senza creatura, ma adesso qualcuno lo usa: togli l'eccezione" % etichetta)
+			continue
+		esigi(RAMI_SENZA_CREATURA.has(etichetta),
+				"il ramo '%s' di esegui_mossa non lo usa nessuna creatura. O e' morto, o manca chi lo usa: decidi, e se resta scrivilo in RAMI_SENZA_CREATURA col perche'" % etichetta)
+
+func prova_ogni_mossa_si_esegue_davvero() -> void:
+	# QUESTA PROVA NASCE DA UN REFACTORING, e dal dubbio giusto su di esso.
+	#
+	# esegui_mossa era una funzione da 318 righe con ventitre rami. Spezzarla in
+	# ventitre funzioni con un nome ha lasciato la suite verde e identica - ma
+	# "identica" non vuol dire "verificata": se le prove percorrevano cinque
+	# rami su ventitre, diciotto estrazioni erano state fatte alla cieca.
+	#
+	# Quindi si percorrono tutti, uno per uno, con una mossa vera presa dai dati
+	# quando c'e' e una fatta a mano quando nel bestiario non c'e' nessuno.
+	#
+	# COSA MISURA DAVVERO, perche' da sola non basta: che il ramo si percorre
+	# senza spaccarsi - argomenti giusti, niente null, niente tipo sbagliato. Che
+	# il ramo giusto chiami la funzione giusta lo tiene
+	# prova_il_dispatch_delle_mosse_e_cablato_bene, e non e' un doppione: qui
+	# ultima_mossa_tipo lo scrive esegui_mossa PRIMA del match, quindi
+	# leggerlo direbbe "sono entrata nel match", non "ho eseguito il ramo".
+	titolo("ogni tipo di mossa si esegue davvero, e non solo sulla carta")
+	var rami := dispatch_di_esegui_mossa()
+	esigi(rami.size() >= 20,
+			"dal sorgente ho letto solo %d rami: la lettura del match non funziona" % rami.size())
+
+	# per ogni tipo, una mossa VERA dal bestiario se esiste
+	var esempio: Dictionary = {}
+	for id_creatura in creature():
+		for mossa in GameState.personaggi.get(id_creatura, {}).get("mosse", []):
+			var tipo := String((mossa as Dictionary).get("tipo", ""))
+			if rami.has(tipo) and not esempio.has(tipo):
+				esempio[tipo] = {"chi": id_creatura, "mossa": mossa}
+	# e per i rami che nessuno usa, una mossa finta: il ramo va percorso lo
+	# stesso, se no l'estrazione di quella funzione non l'ha verificata nessuno
+	for etichetta in RAMI_SENZA_CREATURA:
+		if not rami.has(etichetta) or esempio.has(etichetta):
+			continue
+		esempio[etichetta] = {
+			"chi": creature()[0],
+			"mossa": {"tipo": etichetta, "testo": "prova", "valore": 30},
+		}
+
+	var eseguiti := 0
+	for etichetta in rami:
+		esigi(esempio.has(etichetta),
+				"del ramo '%s' non ho nessuna mossa con cui provarlo" % etichetta)
+		if not esempio.has(etichetta):
+			continue
+		GameState.nuova_partita()
+		GameState.nemici_combattimento = [String(esempio[etichetta]["chi"])]
+		var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+		scontro.limite_giri = 1
+		add_child(scontro)
+		scontro.in_corso = true
+		var nemici: Array[Dictionary] = scontro.vivi(false)
+		if nemici.is_empty():
+			scontro.free()
+			continue
+		var chi: Dictionary = nemici[0]
+		chi.ultima_mossa_tipo = ""
+		if etichetta == "buff_fattore":
+			# da zero, se no il tetto a 100 renderebbe la somma indistinguibile
+			chi.fattore = 0
+		scontro.esegui_mossa(chi, esempio[etichetta]["mossa"])
+		esigi(String(chi.ultima_mossa_tipo) == String(etichetta),
+				"eseguendo una mossa di tipo '%s' il combattimento ha segnato '%s'"
+				% [etichetta, String(chi.ultima_mossa_tipo)])
+		if etichetta == "buff_fattore":
+			# l'unico ramo senza creatura: qui l'effetto lo si guarda davvero,
+			# se no resterebbe l'unico dei ventitre mai visto funzionare
+			esigi(int(chi.fattore) == 30,
+					"buff_fattore da 30 ha lasciato il Fattore a %d" % int(chi.fattore))
+		eseguiti += 1
+		scontro.voce.coda.clear()
+		scontro.free()
+	esigi(eseguiti == rami.size(),
+			"ho eseguito %d rami su %d: gli altri non sono stati provati"
+			% [eseguiti, rami.size()])
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.
