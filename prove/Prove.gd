@@ -122,6 +122,7 @@ func _ready() -> void:
 	prova_ritorno_dalla_missione()
 	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
+	await prova_un_solo_artwork_quello_di_chi_parla()
 	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
 	prova_il_tetto_alla_struttura()
 	prova_il_dispatch_delle_mosse_e_cablato_bene()
@@ -6487,6 +6488,26 @@ func prova_tutorial_di_veronica() -> void:
 	# mattanza, l'aura, l'uso di oggetti». Le tre lezioni si contano.
 	esigi(insegna_aura, "l'allenamento non insegna piu' l'aura")
 	esigi(insegna_mattanza, "l'allenamento non insegna piu' la Mattanza")
+
+	# LA LEZIONE SULLA SCHERMATA VIENE PRIMA DI TUTTO. Bru: «la prima cosa e'
+	# educare il giocatore sulla schermata, guidando e spiegando ogni singolo
+	# componente e come funziona, lo fara' veronica, poi finito di spiegare
+	# tutto comincia il combattimento scriptato».
+	#
+	# Sta nel "prima" del primo passo, che e' l'unico punto in cui il giocatore
+	# non puo' ancora fare niente. Qui si controlla che i pezzi ci siano tutti:
+	# uno tolto per sbaglio non lo noterebbe nessuno finche' qualcuno non gioca.
+	var lezione := ""
+	for msg in (passi[0] as Dictionary).get("prima", []):
+		lezione += String((msg as Dictionary).get("testo", "")) + " "
+	for pezzo in ["Studia", "HP", "AURA", "dominio", "stress", "Morale",
+			"DIFESA", "MATTANZA", "ricarica", "turno"]:
+		esigi(lezione.findn(String(pezzo)) != -1,
+				"la lezione di Veronica non nomina piu' '%s': un pezzo della schermata resta senza spiegazione"
+				% pezzo)
+	esigi((passi[0] as Dictionary).get("prima", []).size() >= 12,
+			"la lezione e' scesa a %d battute: non spiega piu' la schermata, la annuncia"
+			% (passi[0] as Dictionary).get("prima", []).size())
 	esigi(insegna_minigioco, "l'allenamento non ha piu' le Collisioni infinite")
 	esigi(not tutorial.get("rivitalizzante", {}).is_empty(),
 			"senza rivitalizzante, sbagliare a parare chiude il tutorial a meta'")
@@ -7727,7 +7748,7 @@ const FILE_GRANDI := {
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
 		"combattimento qui i pezzi sono davvero separabili: i file di dati " +
 		"non c'entrano niente con gli slot di salvataggio"},
-	"Main.gd": {"misura": 1459, "perche":
+	"Main.gd": {"misura": 1474, "perche":
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
 		"adesso vuol dire spezzarlo di nuovo fra un mese"},
@@ -8162,6 +8183,53 @@ func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
 	scontro.voce.coda.clear()
 	scontro.queue_free()
 	await get_tree().process_frame
+
+func prova_un_solo_artwork_quello_di_chi_parla() -> void:
+	# Bru: «nei dialoghi se ci sono piu' personaggi coinvolti, ci deve sempre
+	# essere solo 1 artwork, che e' quello del personaggio che parla. Io invece
+	# nel dialogo iniziale con veronica ho visto subito il box con la v».
+	titolo("nel dialogo c'e' un artwork solo, e e' di chi sta parlando")
+	GameState.nuova_partita()
+	GameState.eventi["prova_palco"] = {
+		"destra": "veronica",
+		"sequenza": [
+			{"tipo": "dialogo", "chi": "veronica", "testo": "Parlo io."},
+			{"tipo": "narrazione", "testo": "Silenzio."},
+			{"tipo": "dialogo", "chi": GameState.id_protagonista, "testo": "Adesso io."},
+		],
+		"scelte": [{"testo": "Fine", "vai": "prova_palco"}],
+	}
+	GameState.nodo_corrente = "prova_palco"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+
+	schermata.aggiorna_palco(GameState.eventi["prova_palco"])
+	schermata.evidenzia_parlante("veronica")
+	await get_tree().process_frame
+	esigi(schermata.slot_destra.visible and not schermata.slot_sinistra.visible,
+			"parla Veronica e in scena ci sono ancora tutti e due")
+
+	# LA NARRAZIONE NON SVUOTA IL PALCO: fra due battute della stessa persona
+	# c'e' quasi sempre una riga di racconto, e farla sparire e ricomparire
+	# sarebbe un lampeggio
+	schermata.evidenzia_parlante("")
+	await get_tree().process_frame
+	esigi(schermata.slot_destra.visible,
+			"una riga di narrazione ha fatto sparire chi stava parlando")
+
+	schermata.evidenzia_parlante(GameState.id_protagonista)
+	await get_tree().process_frame
+	esigi(schermata.slot_sinistra.visible and not schermata.slot_destra.visible,
+			"passata la voce al protagonista, Veronica e' rimasta in scena")
+
+	# e rifare il palco - lo fanno le scelte, a ogni giro - non li rimette tutti
+	schermata.aggiorna_palco(GameState.eventi["prova_palco"])
+	await get_tree().process_frame
+	esigi(not schermata.slot_destra.visible,
+			"ricostruendo il palco tornano in scena tutti: le scelte lo rifanno a ogni giro")
+	schermata.queue_free()
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.

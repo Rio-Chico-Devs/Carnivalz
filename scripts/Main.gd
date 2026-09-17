@@ -90,6 +90,7 @@ var attesa_messaggio := 0.0
 var contatore_messaggi := 0
 var azione_dopo_coda: Callable = Callable()     # eseguita a coda vuota al posto delle scelte normali (es. mediazione)
 var azione_a_fine_testo: Callable = Callable()  # eseguita appena il box ha finito di scrivere
+var ultimo_parlante := ""   # di chi e' l'unico artwork in scena adesso
 var mostrando_scena := false  # true quando il nodo sta mostrando la sua descrizione di ritorno
 var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la carta del titolo e' a schermo
 var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alterne
@@ -483,6 +484,7 @@ func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) ->
 		return
 	var nodo: Dictionary = esito.nodo
 	nodo_in_corso = nodo
+	ultimo_parlante = ""   # scena nuova: il palco riparte da chi lo dichiara
 	mostra_scena_di(nodo)
 	aggiorna_palco(nodo)
 	aggiorna_stato()
@@ -1156,15 +1158,34 @@ func aggiorna_palco(nodo: Dictionary) -> void:
 	slot_destra.visible = nodo.has("destra")
 	if nodo.has("destra"):
 		mostra_slot(slot_destra, nodo["destra"], nodo.get("espr_destra", ""))
+	# e subito si torna a uno solo: questa funzione mette in scena chi il nodo
+	# dichiara, ma chi si VEDE resta l'ultimo che ha parlato
+	evidenzia_parlante("")
 
 func evidenzia_parlante(id_personaggio: String) -> void:
-	# chi parla resta pieno, gli altri si attenuano: si capisce a colpo d'occhio
-	# di chi e' la voce nel box, senza doverne leggere il nome
+	# UN ARTWORK SOLO, E CHE SIA QUELLO DI CHI PARLA.
+	#
+	# Bru: «nei dialoghi se ci sono piu' personaggi coinvolti, ci deve sempre
+	# essere solo 1 artwork, che e' quello del personaggio che parla».
+	#
+	# Prima restavano in scena tutti, e chi non parlava si attenuava. Due figure
+	# ferme una di fronte all'altra per tutta la conversazione sono un fondale,
+	# non una scena: chi parla si capiva dal colore, che e' meno di quanto quel
+	# fondale costa in attenzione.
+	#
+	# La narrazione NON svuota il palco: fra due battute della stessa persona
+	# c'e' quasi sempre una riga di racconto, e far sparire e ricomparire la
+	# stessa faccia a ogni riga sarebbe un lampeggio, non una regia. Resta chi
+	# c'era, e cambia solo quando cambia la voce.
+	if id_personaggio != "":
+		ultimo_parlante = id_personaggio
+	if ultimo_parlante == "":
+		return
 	for slot in [slot_sinistra, slot_centro, slot_destra]:
-		if not slot.visible:
-			continue
-		var suo: bool = id_personaggio == "" or String(slot.id_mostrato) == id_personaggio
-		slot.imposta_attenuato(not suo)
+		var suo: bool = String(slot.id_mostrato) == ultimo_parlante
+		slot.visible = suo and String(slot.id_mostrato) != ""
+		if suo:
+			slot.imposta_attenuato(false)
 
 func aggiorna_espressione(id_personaggio: String, espressione: String) -> void:
 	# OGNI BATTUTA PUO' AVERE LA SUA FACCIA.
@@ -1182,8 +1203,13 @@ func aggiorna_espressione(id_personaggio: String, espressione: String) -> void:
 	# qualcuno non la cambia, come in scena.
 	if id_personaggio == "" or espressione == "":
 		return
+	# NON SI CHIEDE SE E' IN SCENA, si chiede se e' quel personaggio. Da quando
+	# l'artwork e' uno solo, chi non parla NON e' a schermo - e un'espressione
+	# data a chi ascolta ("il protagonista sgrana gli occhi") veniva buttata
+	# via. L'espressione dura finche' qualcuno non la cambia: deve essere gia'
+	# quella giusta nel momento in cui quella faccia torna in scena.
 	for slot in [slot_sinistra, slot_centro, slot_destra]:
-		if slot.visible and String(slot.id_mostrato) == id_personaggio:
+		if String(slot.id_mostrato) == id_personaggio:
 			slot.mostra(id_personaggio, 0, espressione)
 
 func mostra_slot(slot, valore: Variant, espr_nodo: String) -> void:
