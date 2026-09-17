@@ -120,6 +120,8 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	prova_la_rete_dei_dati_non_ha_buchi()
+	await prova_orologio_delle_scelte()
 	prova_minigioco_ai_bordi()
 	prova_combattimento_sotto_stress()
 	await prova_la_giornata_passo_per_passo()
@@ -7362,6 +7364,181 @@ func prova_il_disco_si_interroga_una_volta() -> void:
 			"trenta ridisegni della mappa hanno interrogato il disco altre %d volte"
 			% (Disegni.ricerche - dopo_il_primo))
 	mappa.queue_free()
+
+func prova_la_rete_dei_dati_non_ha_buchi() -> void:
+	# CHI CONTROLLA I CONTROLLI.
+	#
+	# Le prove sui dati leggono i file che ci sono e dicono "va tutto bene".
+	# Ma Bru scrivera' file nuovi, e la domanda vera e' un'altra: se sbaglia,
+	# QUESTE prove se ne accorgono? Una rete che non e' mai stata provata con un
+	# sasso e' un disegno di una rete.
+	#
+	# Qui si danno ai raccoglitori dei dati sbagliati apposta - un flag che
+	# nessuno accende, un oggetto che nessuno lascia cadere - e si guarda che li
+	# vedano. Non tocca nessun file: e' lo stesso codice, su dati finti.
+	titolo("i controlli sui dati vedono davvero un dato sbagliato")
+
+	# 1. UN FLAG CHIESTO E MAI ACCESO. E' la porta che non si apre mai.
+	var accese: Dictionary = {}
+	var richieste: Dictionary = {}
+	var dichiarate: Dictionary = {}
+	var finto_buono := {"nodi": {
+		"uno": {"flag": "porta_aperta"},
+		"due": {"scelte": [{"testo": "entra", "richiede_flag": "porta_aperta"}]},
+	}}
+	raccogli_bandierine(finto_buono, "finto", accese, richieste, dichiarate)
+	esigi(accese.has("porta_aperta"), "un flag acceso da un nodo non viene visto come acceso")
+	esigi(richieste.has("porta_aperta"), "un flag richiesto da una scelta non viene visto come richiesto")
+
+	accese = {}
+	richieste = {}
+	dichiarate = {}
+	var finto_rotto := {"nodi": {
+		"due": {"scelte": [{"testo": "entra", "richiede_flag": "porta_che_nessuno_apre"}]},
+	}}
+	raccogli_bandierine(finto_rotto, "finto", accese, richieste, dichiarate)
+	esigi(richieste.has("porta_che_nessuno_apre"),
+			"un flag richiesto non viene nemmeno notato: la prova delle porte chiuse guarda nel vuoto")
+	esigi(not accese.has("porta_che_nessuno_apre"),
+			"un flag che nessuno accende risulta acceso: la prova direbbe che va tutto bene")
+
+	# 2. UN OGGETTO CHIESTO E MAI TROVATO. E' la Fontana che non si completa.
+	var si_trova: Dictionary = {}
+	var richiesto: Dictionary = {}
+	raccogli_oggetti({"nodi": {
+		"tre": {"scelte": [{"testo": "apri", "richiede_oggetti": ["chiave_fantasma"]}]},
+	}}, "finto", si_trova, richiesto)
+	esigi(richiesto.has("chiave_fantasma"),
+			"un oggetto richiesto da una scelta non viene notato")
+	esigi(not si_trova.has("chiave_fantasma"),
+			"un oggetto che non si trova da nessuna parte risulta trovabile")
+
+	# 3. UNA DESTINAZIONE CHE NON ESISTE. E' il vicolo cieco.
+	var uscite := destinazioni_di({"scelte": [{"testo": "vai", "vai": "nodo_inventato"}]})
+	esigi("nodo_inventato" in uscite,
+			"una destinazione dentro una scelta non viene nemmeno letta: %s" % [uscite])
+	var uscite_flag := destinazioni_di({"vai_se_flag": [{"flag": "x", "vai": "altro_inventato"}]})
+	esigi("altro_inventato" in uscite_flag,
+			"una destinazione dentro un vai_se_flag a lista non viene letta: %s" % [uscite_flag])
+
+	# 4. UN GRUPPO DI NEMICI MISTO. E' quello che Bru non vuole piu'.
+	var gruppi := gruppi_di_nemici({"nodi": {"quattro": {
+		"combattimento_automatico": {"nemici": ["goblin_tipico", "slime_infimo"]}}}})
+	esigi(gruppi.size() == 1 and gruppi[0].size() == 2,
+			"un gruppo di nemici dentro un combattimento automatico non viene raccolto: %s" % [gruppi])
+
+func prova_orologio_delle_scelte() -> void:
+	# «quelle eroe e villain sono a tempo, manchi timing non recuperi» (Bru).
+	#
+	# L'orologio e' fatto apposta per essere provato da solo: non sa cosa sia la
+	# scelta a cui e' appeso, conta e dice quando e' finita. Quindi qui si conta.
+	titolo("l'orologio di una scelta a tempo")
+	# UNA LISTA E NON UN CONTATORE, e non e' pignoleria: in GDScript una lambda
+	# cattura le variabili locali PER VALORE, quindi "quante += 1" dentro il
+	# richiamo aumenta una copia e il conto qui fuori resta a zero. Un Array e'
+	# un riferimento, e append() arriva davvero.
+	var scadenze: Array[String] = []
+	var orologio: Control = load("res://scripts/Orologio.gd").new()
+	add_child(orologio)
+	orologio.scaduto.connect(func() -> void: scadenze.append("scaduto"))
+
+	# 1. SCADE UNA VOLTA SOLA, e poi smette di contare. Un orologio che continua
+	#    a emettere dopo la scadenza romperebbe la stessa scelta due volte.
+	orologio.avvia(1.0, 0.0)
+	esigi(orologio.acceso, "l'orologio non e' partito")
+	for passo in 30:
+		orologio._process(0.1)
+	esigi(scadenze.size() == 1, "l'orologio e' scaduto %d volte" % scadenze.size())
+	esigi(not orologio.acceso, "dopo la scadenza l'orologio e' ancora acceso")
+	esigi(is_equal_approx(orologio.quota_rimasta(), 0.0),
+			"scaduto, la lancetta segna ancora %.2f" % orologio.quota_rimasta())
+
+	# 2. FERMARLO PRIMA VUOL DIRE CHE NON SCADE. E' quello che succede quando
+	#    scegli: la strada che hai preso non deve anche frantumarsi.
+	scadenze.clear()
+	orologio.avvia(1.0, 0.0)
+	for passo in 5:
+		orologio._process(0.1)
+	orologio.ferma()
+	for passo in 30:
+		orologio._process(0.1)
+	esigi(scadenze.is_empty(),
+			"un orologio fermato e' scaduto lo stesso %d volte" % scadenze.size())
+
+	# 3. LA LANCETTA DICE IL TEMPO CHE RESTA, e scende sempre
+	orologio.avvia(2.0, 0.0)
+	var prima: float = orologio.quota_rimasta()
+	esigi(is_equal_approx(prima, 1.0), "appena partito segna %.2f invece di pieno" % prima)
+	for passo in 10:
+		orologio._process(0.1)
+		var adesso: float = orologio.quota_rimasta()
+		esigi(adesso <= prima, "la lancetta e' RISALITA da %.2f a %.2f" % [prima, adesso])
+		prima = adesso
+	esigi(prima < 1.0, "dopo un secondo la lancetta segna ancora pieno")
+	orologio.ferma()
+
+	# 4. DUE OROLOGI INSIEME NON SI DISTURBANO. Nel disegno di Bru l'opzione da
+	#    eroe e quella da villain hanno ognuna la sua cipolla, partite in momenti
+	#    diversi e con durate diverse: deve scadere prima quella corta.
+	var ordine: Array[String] = []
+	var corto: Control = load("res://scripts/Orologio.gd").new()
+	var lungo: Control = load("res://scripts/Orologio.gd").new()
+	add_child(corto)
+	add_child(lungo)
+	corto.scaduto.connect(func() -> void: ordine.append("corto"))
+	lungo.scaduto.connect(func() -> void: ordine.append("lungo"))
+	corto.avvia(1.0, -8.0)
+	lungo.avvia(3.0, 8.0)
+	for passo in 60:
+		corto._process(0.1)
+		lungo._process(0.1)
+	esigi(ordine == ["corto", "lungo"],
+			"i due orologi sono scaduti in quest'ordine: %s" % [ordine])
+
+	# 5. SI FERMANO CON LA PAUSA. Senza, aprire l'inventario per controllare se
+	#    hai l'oggetto giusto ti farebbe perdere la scelta mentre guardi.
+	orologio.avvia(5.0, 0.0)
+	esigi(orologio.can_process(), "l'orologio non conta nemmeno a gioco acceso")
+	get_tree().paused = true
+	esigi(not orologio.can_process(),
+			"con la pausa aperta l'orologio continua a contare: si perde la scelta mentre si guarda l'inventario")
+	get_tree().paused = false
+	orologio.ferma()
+	orologio.queue_free()
+	corto.queue_free()
+	lungo.queue_free()
+	await prova_orologio_disegnato_per_intero()
+
+func prova_orologio_disegnato_per_intero() -> void:
+	# E DEV'ESSERE DISEGNATO PER DAVVERO, da pieno a zero.
+	#
+	# Qui non c'e' un esigi(): l'assertore e' esegui.sh, che boccia la suite se
+	# Godot stampa un ERROR. E ne stampava: la "fetta gia' persa" dell'orologio,
+	# appena parte, e' larga quasi zero e i suoi tre punti sono quasi allineati.
+	# Non e' un triangolo, e Godot lo diceva - "triangulation failed" - a ogni
+	# fotogramma finche' la lancetta non si era mossa abbastanza. Con una scelta
+	# a tempo a schermo la console si riempiva, e un errore vero sarebbe finito
+	# in mezzo a quelli.
+	titolo("l'orologio si disegna da pieno a zero senza lamentarsi")
+	var visibile: Control = load("res://scripts/Orologio.gd").new()
+	visibile.custom_minimum_size = Vector2(74, 74)
+	visibile.size = Vector2(74, 74)
+	add_child(visibile)
+	visibile.avvia(0.2, -8.0)
+	# fotogrammi VERI, non _process chiamati a mano: e' il disegno che
+	# interessa. Headless gira piu' veloce del tempo reale, quindi il tetto e'
+	# largo: quello che conta e' che l'orologio percorra tutto l'arco.
+	var passati := 0
+	while passati < 2000 and visibile.acceso:
+		await get_tree().process_frame
+		passati += 1
+	esigi(passati > 1, "l'orologio e' scaduto prima ancora di essere disegnato una volta")
+	# e anche da fermo, a lancetta a zero, un ridisegno non deve lamentarsi
+	visibile.queue_redraw()
+	await get_tree().process_frame
+	esigi(not visibile.acceso,
+			"dopo %d fotogrammi un orologio da due decimi va ancora" % passati)
+	visibile.queue_free()
 
 func prova_minigioco_ai_bordi() -> void:
 	# IL SEGNALE "FINITO" E' TUTTO. E' li' che il combattimento riprende, si

@@ -167,6 +167,71 @@ Con due domande che nessuno faceva:
   difetto che nessuno prova mai. Sabotato: i 3000 tazo di benvenuto diventano
   **15030**.
 
+## Sotto le dita di chi prova
+
+### Il combattimento
+
+Le difese c'erano già ed erano giuste — `riarma()` scatta **prima** di eseguire,
+quindi il secondo click trova la ricarica azzerata — ma niente le congelava.
+Adesso: tre click nello stesso fotogramma fanno arrivare un colpo solo,
+martellare durante la ricarica non fa niente, attacco e fuga insieme ne passa
+uno, a scontro finito non si agisce più, e **la pausa ferma il mondo** (in tempo
+reale una pausa che non ferma l'orologio vuol dire prendere botte mentre leggi).
+
+> Il primo sabotaggio che ho provato — spostare `riarma()` *dopo* l'azione — non
+> ha rotto niente, e aveva ragione lui: `esegui_azione` non aspetta mai, quindi
+> lì l'ordine non cambia nulla. Quello che la prova difende è `riarma` in sé:
+> toltolo, **tre click fanno tre colpi**.
+
+### Il minigioco
+
+Il segnale `finito` è tutto: è lì che il combattimento riprende, si applica il
+danno e il tutorial va avanti. Sei prove lo inchiodano — una raffica finisce una
+volta sola, il tempo che scorre dopo la fine non ripete niente, cliccare a
+raffica finita non fa danni, pararli tutti costa zero, non pararne nessuno costa
+tutto, e da muto l'esito arriva subito.
+
+> Una mia prova era sbagliata e **il gioco aveva ragione**: cliccare tutti i
+> pugni a tempo zero non para niente, perché si para *solo dentro la finestra* —
+> ed è il cuore del minigioco. Riscritta come una mano perfetta.
+
+### L'orologio delle scelte a tempo
+
+Cinque prove: scade una volta sola, fermarlo vuol dire che non scade, la lancetta
+non risale mai, due orologi insieme scadono nell'ordine giusto, e si fermano con
+la pausa.
+
+E una **sesta che non ha un `esigi()`**: disegna l'orologio da pieno a zero con
+fotogrammi veri, e l'assertore è `esegui.sh`, che boccia la suite se Godot stampa
+un errore. Ne stampava cinque.
+
+**Il difetto**: quando il tempo finisce la quota è zero e l'angolo è TAU, quindi
+l'ultimo punto dell'arco torna esattamente sul primo — e un poligono chiuso su se
+stesso non si può tagliare in triangoli. Con una scelta a tempo a schermo la
+console si riempiva di `triangulation failed`, tanto che un errore vero ci sarebbe
+finito in mezzo senza farsi notare.
+
+> Trovato **per esclusione**, e vale la pena dirlo: la mia prima ipotesi era la
+> fetta troppo sottile appena parte. Provate una per una, né una soglia
+> sull'angolo minimo né un punto in più sull'arco cambiavano niente. Era solo il
+> giro intero. La correzione è un `minf(angolo, TAU - 0.01)`.
+
+## Chi controlla i controlli
+
+Le prove sui dati leggono i file che ci sono e dicono che va tutto bene. Ma la
+domanda vera è un'altra: **se Bru sbaglia scrivendo un file nuovo, queste prove
+se ne accorgono?** Una rete mai provata con un sasso è il disegno di una rete.
+
+Adesso ai raccoglitori si danno dati sbagliati apposta — un flag che nessuno
+accende, un oggetto che nessuno lascia cadere, una destinazione inventata, un
+gruppo misto — e si guarda che li vedano. Sabotando il raccoglitore dei flag, la
+prova delle porte chiuse «guarda nel vuoto»: ed è esattamente quello che avrebbe
+fatto in silenzio.
+
+E una cosa che taceva: **un nemico inventato scendeva in campo lo stesso**, con
+statistiche di ripiego e il suo id come nome. Si combatteva contro
+`goblin_tipco` senza che niente lo dicesse. Adesso lo dice.
+
 ## La perdita di oggetti
 
 Misurata a parte, e vale la pena ripeterla qui: **il gioco avviato da solo non

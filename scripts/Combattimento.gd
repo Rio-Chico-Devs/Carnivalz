@@ -359,6 +359,16 @@ func avvia_musica_e_voce() -> void:
 
 func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
+	# UN NOME SBAGLIATO NON DEVE PASSARE IN SILENZIO.
+	#
+	# Senza questa riga una creatura inventata - un id scritto male in un file di
+	# eventi - scendeva in campo lo stesso: statistiche di ripiego, e come nome
+	# l'id cosi' com'e'. Si combatteva contro "goblin_tipco" senza che niente
+	# dicesse cosa fosse andato storto. Le prove controllano i file che ci sono
+	# gia'; questo serve a chi ne scrive di nuovi.
+	if dati.is_empty() and not GameState.classi.has(id_personaggio):
+		push_error("Combattimento: '%s' non esiste ne' in personaggi.json ne' in classes.json. Scende in campo con statistiche di ripiego e il suo id come nome."
+				% id_personaggio)
 	var e_protagonista := giocatore and id_personaggio == GameState.id_protagonista
 	# quello che ha addosso questo personaggio: vale solo per lui
 	var eq := func(chiave: String) -> int:

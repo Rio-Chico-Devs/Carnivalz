@@ -34,8 +34,9 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(LATO, LATO)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pivot_offset = Vector2(LATO, LATO) * 0.5
-	if ResourceLoader.exists(PERCORSO_DISEGNO):
-		disegno = load(PERCORSO_DISEGNO)
+	# una volta sola al disco, come dappertutto: di orologi ne compaiono due per
+	# scelta a tempo, e il file e' sempre lo stesso
+	disegno = Disegni.texture(PERCORSO_DISEGNO)
 	set_process(false)
 
 func avvia(secondi: float, inclinazione_gradi: float) -> void:
@@ -100,10 +101,23 @@ func _draw() -> void:
 	# rossa sull'ultimo quarto: e' l'unico avviso che si e' quasi senza tempo
 	var tinta := Stile.colore("pericolo") if quota <= QUOTA_ALLARME else Stile.colore("bordo")
 	draw_line(centro, centro + lancetta, tinta, 5.0)
-	# e la fetta gia' persa, in trasparenza: il colpo d'occhio vale piu' della lancetta
+	# E LA FETTA GIA' PERSA, in trasparenza: il colpo d'occhio vale piu' della
+	# lancetta.
+	#
+	# L'ARCO NON ARRIVA MAI AL GIRO INTERO. Quando il tempo finisce la quota e'
+	# zero e l'angolo e' TAU: l'ultimo punto dell'arco torna esattamente sul
+	# primo, e un poligono che si chiude su se stesso non si puo' tagliare in
+	# triangoli. Godot lo diceva - "Invalid polygon data, triangulation failed" -
+	# e con una scelta a tempo a schermo la console si riempiva, tanto che un
+	# errore vero ci sarebbe finito in mezzo senza farsi notare.
+	#
+	# Un centesimo di radiante in meno e il cerchio resta aperto di un capello
+	# che nessuno vede. (Cercato per esclusione: ne' una soglia sull'angolo
+	# minimo ne' un punto in piu' sull'arco cambiavano niente - era solo questo.)
 	if quota < 1.0:
 		var punti := PackedVector2Array([centro])
 		var passi := maxi(int(48.0 * (1.0 - quota)), 1)
+		var spicchio := minf(angolo, TAU - 0.01)
 		for i in passi + 1:
-			punti.append(centro + Vector2.UP.rotated(angolo * float(i) / float(passi)) * raggio)
+			punti.append(centro + Vector2.UP.rotated(spicchio * float(i) / float(passi)) * raggio)
 		draw_colored_polygon(punti, Color(Stile.colore("pericolo"), 0.22))
