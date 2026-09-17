@@ -7735,7 +7735,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4413, "perche":
+	"Combattimento.gd": {"misura": 4431, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
 		"pesanti che restano - il tempo, la scelta delle mosse, la " +
@@ -8158,6 +8158,47 @@ func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
 		await get_tree().process_frame
 	esigi(scontro.menu_acceso,
 			"in venti secondi lo scontro non ha mai passato il comando al giocatore")
+
+	# IL QUADRANTE E' DI CHI PARLA, finche' c'e' da leggere.
+	#
+	# Bru: «dopo aver attaccato il dialogo non si vede, dovrebbe apparire nel
+	# riquadro dove abbiamo attacco eccetera no? invece sento solo il rumore del
+	# testo, non c'e' stata alcuna spiegazione dell'interfaccia».
+	#
+	# Non erano due difetti: era uno solo, e spiega tutti e due. Il menu si
+	# prendeva il pannello ogni volta che "puoi agire", e durante una lezione
+	# menu_acceso resta vero tutto il tempo - cosi' le ventuno battute di
+	# Veronica scorrevano DIETRO al menu. Si sentiva il rumore del testo e non
+	# si leggeva una riga.
+	esigi(PlanciaCombattimento.faccia_da_mostrare(false, true, "comandi") == "parlato",
+			"la regola: con qualcosa da leggere e nessun turno da giocare il quadrante non passa al box")
+	# NON SI ASPETTA IL MOMENTO GIUSTO: lo si costruisce. Legare la misura a
+	# "quando il tutorial parla" l'ha resa una corsa contro la coda che si
+	# svuota, e una prova che a volte guarda e a volte no non e' una prova.
+	# Qui si mette il testo in coda e si ferma il tempo a mano: e' esattamente
+	# lo stato in cui il gioco si trovava, e il difetto sta tutto li'.
+	scontro.voce.scrivi("Veronica sta spiegando qualcosa.")
+	scontro.ferma_il_tempo()
+	scontro.decidi_faccia()
+	await get_tree().process_frame
+	esigi(String(scontro.plancia.faccia_adesso) == "parlato",
+			"col tempo fermo e del testo in coda il quadrante mostra '%s' invece del box: il testo scorre dietro al menu"
+			% String(scontro.plancia.faccia_adesso))
+	scontro.riprendi_il_tempo()
+	scontro.voce.coda.clear()
+
+	# e la lezione FERMA DAVVERO IL MONDO: senza, il quadrante resterebbe al
+	# menu e le battute scorrerebbero dietro, che e' il difetto di partenza
+	scontro.lezione_in_corso = false
+	scontro.scrivi_messaggio_tutorial({"tipo": "narrazione", "testo": "Una spiegazione."})
+	esigi(not scontro.il_tempo_scorre(),
+			"il tutorial ha parlato e il mondo non si e' fermato: la lezione diventa un turno perso")
+	esigi(scontro.lezione_in_corso, "la lezione non si e' segnata come in corso: non ripartira' mai")
+	scontro.voce.coda.clear()
+	await get_tree().process_frame
+	esigi(scontro.il_tempo_scorre(),
+			"finita la lezione il mondo non e' ripartito: lo scontro resta fermo per sempre")
+
 	esigi(not scontro.tutorial.is_empty(),
 			"lo scontro con Veronica non ha caricato nessun tutorial")
 	var primo: Dictionary = scontro.passo_tutorial()

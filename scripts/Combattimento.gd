@@ -139,6 +139,7 @@ var tutorial_passo := 0
 var tutorial_finito := false
 var tutorial_passi_introdotti: Array[int] = []
 var tutorial_id := ""  # id del nemico che porta lo script del tutorial
+var lezione_in_corso := false   # il tutorial sta parlando: il mondo aspetta
 var rivitalizzanti_usati := 0  # quante volte Veronica ti ha rimesso in piedi
 
 var portatore_incontro: Dictionary = {}
@@ -745,6 +746,12 @@ func _process(delta: float) -> void:
 	if studio_in_corso and voce != null and voce.coda.is_empty():
 		studio_in_corso = false
 		riprendi_il_tempo()
+	# LA LEZIONE NON E' UN TURNO CHE SI PERDE: finche' Veronica spiega, il mondo
+	# sta fermo e il quadrante e' suo. Si sblocca allo stesso modo dello studio -
+	# guardando se c'e' ancora qualcosa da leggere, non ricordandosene a mano
+	if lezione_in_corso and voce != null and voce.coda.is_empty():
+		lezione_in_corso = false
+		riprendi_il_tempo()
 	avanza_mattanza(delta)   # la barra si scarica anche mentre il mondo e' fermo
 	if minigioco != null and minigioco.attivo:
 		# mentre si para, lo scontro e' fermo: i pugni hanno un orologio loro
@@ -1182,6 +1189,11 @@ func coda_di_battuta(attaccante: Dictionary) -> void:
 		aggiungi_stress(attaccante, costo)
 
 func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
+	# il primo messaggio della lezione ferma il mondo; _process lo fa ripartire
+	# quando non c'e' piu' niente da leggere
+	if not lezione_in_corso:
+		lezione_in_corso = true
+		ferma_il_tempo()
 	var testo := String(msg.get("testo", ""))
 	if testo.find("{nome}") != -1:
 		testo = testo.replace("{nome}", String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "")))
@@ -4359,8 +4371,14 @@ func decidi_faccia() -> void:
 	# mostra_faccia non fa niente se la faccia e' gia' quella
 	if not puo_cambiare_faccia():
 		return
+	# "puoi agire" vuol dire che il mondo sta girando: col tempo fermo il click
+	# sulla creatura non fa niente (vedi _su_click_nemico), quindi il menu non ha
+	# nessun turno da difendere e il quadrante spetta a chi parla. Era da qui che
+	# passava il difetto: durante la lezione di Veronica menu_acceso resta vero
+	# per tutto il tempo, e le ventuno battute scorrevano DIETRO al menu - si
+	# sentiva il rumore del testo e non si leggeva una riga
 	plancia.mostra_faccia(PlanciaCombattimento.faccia_da_mostrare(
-			menu_acceso and in_corso,
+			menu_acceso and il_tempo_scorre(),
 			not voce.coda.is_empty(),
 			menu.modo if menu != null else "comandi"))
 
