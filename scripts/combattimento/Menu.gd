@@ -242,6 +242,20 @@ func abilita() -> void:
 	# eseguire (regole.json). Una nuova abilita' compare da sola.
 	var attaccante: Dictionary = scontro.attaccante_corrente
 	var aura := int(attaccante.get("aura", 0))
+	# DURANTE UNA LEZIONE SI FA SOLO QUELLO CHE VERONICA CHIEDE.
+	#
+	# Il menu principale gia' spegne ATTACCHI, DIFESA e OGGETTI quando il passo
+	# chiede altro - ma SKILL restava aperto, e dentro c'era tutto. Bru,
+	# provando: «ho notato che posso girare a zonzo, sono andato nelle skill e
+	# consumato tutta l'aura, poi ho studiato veronica e in tutto questo ancora
+	# non attaccavo». Arrivava alla lezione sull'aura con l'aura gia' spesa.
+	#
+	# SKILL deve restare APRIBILE perche' Studia sta qui dentro, e guardare una
+	# creatura non e' mai un errore. A chiudersi e' il contenuto, non la porta.
+	var passo: Dictionary = scontro.passo_tutorial()
+	var lezione := not passo.is_empty()
+	# passo vuoto -> "" da solo: il ternario era un ramo in piu' per niente
+	var solo_questa := String(passo.get("id", ""))
 	# I COLPI D'ARMA STANNO QUI, non in una voce loro: sono attacchi speciali
 	# quanto gli altri, e l'arma che hai in mano cambia cosa sai fare
 	for attacco in GameState.attacchi_arma(String(attaccante.get("id", ""))):
@@ -249,7 +263,7 @@ func abilita() -> void:
 		var etichetta_arma := "%s  (+%d)" % [String(attacco.get("nome", "?")), int(attacco.get("bonus", 0))]
 		if costo_arma > 0:
 			etichetta_arma += "  (%d aura)" % costo_arma
-		bottone(etichetta_arma, bersagli_di_attacco.bind(attacco), aura < costo_arma)
+		bottone(etichetta_arma, bersagli_di_attacco.bind(attacco), aura < costo_arma or lezione)
 	# abilita_usabili tiene conto della progressione: di una linea passa un
 	# grado solo, il piu' alto. Terra bruciata prende il posto di Flagello
 	# invece di stargli accanto
@@ -268,12 +282,22 @@ func abilita() -> void:
 			etichetta = "%s  (tutta la barra)" % String(dati.get("nome", id_abilita))
 		elif float(dati.get("dominio", 0.0)) > 0.0:
 			etichetta += "  (%.1f barre)" % float(dati.get("dominio", 0.0))
+		# nessuna abilita' si chiama "", quindi fuori da una lezione questo e'
+		# falso da solo: il guardiano su solo_questa era un ramo per niente
+		var richiesta: bool = solo_questa == String(id_abilita)
+		var spenta: bool = aura < costo or senza_barra or spenta_dalla_lezione(
+				String(id_abilita), lezione, solo_questa)
 		if scontro.abilita_vuole_bersaglio(String(id_abilita)):
-			bottone(etichetta, bersagli_abilita.bind(String(id_abilita)), aura < costo or senza_barra)
+			bottone(etichetta, bersagli_abilita.bind(String(id_abilita)), spenta, richiesta)
 		else:
 			bottone(etichetta, scegli.bind({"tipo": "abilita", "id": String(id_abilita)}),
-					aura < costo or senza_barra)
+					spenta, richiesta)
 	bottone("Indietro", principale)
+
+func spenta_dalla_lezione(id_abilita: String, lezione: bool, solo_questa: String) -> bool:
+	# durante una lezione del tutorial si accende solo quello che e' stato
+	# chiesto: il resto resta li', grigio, cosi' il menu non cambia forma
+	return lezione and id_abilita != solo_questa
 
 func bersagli_abilita(id_abilita: String) -> void:
 	modo = "lista"

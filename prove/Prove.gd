@@ -122,6 +122,7 @@ func _ready() -> void:
 	prova_ritorno_dalla_missione()
 	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
+	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
 	prova_il_tetto_alla_struttura()
 	prova_il_dispatch_delle_mosse_e_cablato_bene()
 	prova_ogni_tipo_di_mossa_ce_l_ha_qualcuno()
@@ -8064,6 +8065,24 @@ func prova_la_mappa_non_si_apre_prima_di_essere_spiegata() -> void:
 				"%s: camminando dal nodo iniziale ho toccato %d nodi: il grafo non si sta percorrendo"
 				% [percorso.get_file(), visti.size()])
 
+	# 2b. DURANTE L'ALLENAMENTO NON SI ESCE. Bru: «non si deve ne' poter aprire
+	#     la mappa ne' tornare indietro». Uscendo e rientrando i dialoghi
+	#     ricominciavano da capo, come se non fossero mai stati.
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("introduzione", "res://data/events_intro.json")
+	GameState.nodo_corrente = "sala_allenamento"
+	esigi(not GameState.mappa_consultabile(),
+			"in sala di allenamento la mappa si puo' ancora aprire: da li' si esce e i dialoghi ripartono")
+	var palestra: Dictionary = carica_eventi("res://data/events_intro.json").get("nodi", {}).get("sala_allenamento", {})
+	esigi(not palestra.is_empty(), "la sala di allenamento non esiste piu'")
+	for scelta in palestra.get("scelte", []):
+		var s := scelta as Dictionary
+		esigi(not bool(s.get("torna_a_mappa", false)),
+				"dalla sala di allenamento la scelta «%s» apre la mappa" % String(s.get("testo", "")))
+		esigi(String(s.get("vai", "")) != "alloggio",
+				"dalla sala di allenamento la scelta «%s» torna nell'alloggio: l'allenamento si puo' rimandare"
+				% String(s.get("testo", "")))
+
 	# 3. E CHI APRE LA MAPPA DEVE LASCIARTI DENTRO UNA STANZA.
 	#
 	# Difetto trovato mentre correggevo gli altri due, e c'era gia': la mappa
@@ -8090,6 +8109,59 @@ func prova_la_mappa_non_si_apre_prima_di_essere_spiegata() -> void:
 				esigi(dove in stanze,
 						"%s: da '%s' la scelta «%s» apre la mappa lasciandoti in '%s', che non e' una stanza: la mappa non avrebbe niente da premere"
 						% [percorso.get_file(), id_nodo, String(s.get("testo", "")), dove])
+
+func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
+	# Bru, provando: «dopo aver attaccato veronica ho sentito il rumore del testo
+	# ma la schermata non mi ha fatto vedere alcun testo, e cosi' dopo il mio
+	# primo attacco sono bloccato».
+	#
+	# La prova che c'era guardava i DATI del tutorial - i passi esistono, le
+	# azioni sono note, l'aura basta a pagare l'abilita'. Nessuna faceva partire
+	# lo scontro e poi TIRAVA IL PUGNO.
+	#
+	# E NON SI PUO' FARE IN MODALITA' MUTA, che e' il primo modo in cui ho
+	# sbagliato questa prova: muto senza strategia fa girare l'orologio virtuale
+	# a vuoto finche' non scatta il tetto di sicurezza, e lo scontro e' gia'
+	# finito prima che tu possa colpire. Il tutorial vive nel tempo reale, e solo
+	# li' si puo' guardare.
+	titolo("l'allenamento con Veronica avanza davvero quando colpisci")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["veronica"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	# il menu si accende quando tocca a te: e' il segnale che lo scontro e' vivo
+	# SI ASPETTA A TEMPO VERO, non a fotogrammi: l'apertura dello scontro usa dei
+	# timer, e in headless i fotogrammi scorrono molto piu' in fretta dei secondi
+	var scadenza: int = Time.get_ticks_msec() + 20000
+	while not scontro.menu_acceso and Time.get_ticks_msec() < scadenza:
+		await get_tree().process_frame
+	esigi(scontro.menu_acceso,
+			"in venti secondi lo scontro non ha mai passato il comando al giocatore")
+	esigi(not scontro.tutorial.is_empty(),
+			"lo scontro con Veronica non ha caricato nessun tutorial")
+	var primo: Dictionary = scontro.passo_tutorial()
+	esigi(String(primo.get("azione", "")) == "attacca",
+			"il primo passo chiede '%s': questa prova tira un pugno"
+			% String(primo.get("azione", "")))
+
+	var nemici: Array[Dictionary] = scontro.vivi(false)
+	esigi(not nemici.is_empty(), "Veronica non e' scesa in campo")
+	var tu: Dictionary = scontro.combattente_comandato()
+	esigi(not tu.is_empty() and scontro.puo_agire(tu),
+			"il menu e' acceso ma il protagonista non puo' agire")
+	# IL PUGNO, DALLA STESSA PORTA DA CUI PASSA IL GIOCATORE: agisci_ora e'
+	# quello che chiama il click sulla creatura (vedi _su_click_nemico)
+	scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemici[0]})
+	var scadenza_passo: int = Time.get_ticks_msec() + 20000
+	while scontro.tutorial_passo == 0 and Time.get_ticks_msec() < scadenza_passo:
+		await get_tree().process_frame
+	esigi(scontro.tutorial_passo == 1,
+			"tirato il pugno che il primo passo chiedeva, il tutorial e' ancora al passo %d: si pianta li'"
+			% scontro.tutorial_passo)
+	scontro.in_corso = false
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	await get_tree().process_frame
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.
