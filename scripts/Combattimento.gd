@@ -1,3 +1,4 @@
+class_name Combattimento
 extends Control
 
 # Combattimento in tempo reale: il MOTORE, e solo quello.
@@ -3320,11 +3321,11 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 		nemico.ricariche_mosse = ricariche
 	match mossa.get("tipo", ""):
 		"difendi":
-			mossa_difendi(nemico, mossa)
+			difendi(nemico)
 		"provoca":
 			mossa_provoca(nemico, mossa)
 		"orda":
-			mossa_orda(nemico, mossa)
+			marea(nemico, mossa)
 		"attacco_forte":
 			mossa_attacco_forte(nemico, mossa)
 		"spezza_guardia":
@@ -3342,7 +3343,17 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 		"trasformazione":
 			mossa_trasformazione(nemico, mossa)
 		"scena":
-			mossa_scena(nemico, mossa)
+			# NON FA NIENTE, E LO FA APPOSTA. Una casella che esiste solo per il
+			# suo motto: lo Zombie Cittadino che si guarda intorno senza scopo,
+			# l'Orrore che si ferma a guardare il cielo. E' l'unico modo che ha
+			# il gioco di dire "questa cosa non ti sta pensando".
+			#
+			# Non e' la battuta sprecata da cui ci si guardava: quella era una
+			# mossa che PROMETTEVA un effetto e non riusciva a farlo. Questa non
+			# promette niente. Ma alle strette non si sceglie mai - vedi
+			# mossa_eseguibile - perche' una creatura che sta per morire e si
+			# guarda intorno smentisce la regola che la fa diventare pericolosa
+			pass
 		"tormento":
 			mossa_tormento(nemico, mossa)
 		"incendia":
@@ -3366,9 +3377,6 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 		"sacrificio":
 			mossa_sacrificio(nemico, mossa)
 
-func mossa_difendi(nemico: Dictionary, _mossa: Dictionary) -> void:
-	difendi(nemico)
-
 func mossa_provoca(nemico: Dictionary, mossa: Dictionary) -> void:
 	# SI METTE IN MEZZO. Vale da tutte e due le parti del campo: un Nimbo
 	# Boy evocato da Yhvina provoca i nemici, e una creatura che ce
@@ -3380,9 +3388,6 @@ func mossa_provoca(nemico: Dictionary, mossa: Dictionary) -> void:
 	if not bool(mossa.get("tutti", false)):
 		chi_provocare = uno_solo(bersaglio_opposto(nemico))
 	provoca(nemico, chi_provocare)
-
-func mossa_orda(nemico: Dictionary, mossa: Dictionary) -> void:
-	marea(nemico, mossa)
 
 func mossa_attacco_forte(nemico: Dictionary, mossa: Dictionary) -> void:
 	var vittima_forte := bersaglio_giocatore_casuale()
@@ -3488,19 +3493,6 @@ func mossa_trasformazione(nemico: Dictionary, mossa: Dictionary) -> void:
 		"testo": String(mossa.get("testo_trasforma", "Non è più quello di prima.")),
 	}
 	aggiorna_scheda(nemico)
-
-func mossa_scena(_nemico: Dictionary, mossa: Dictionary) -> void:
-	# NON FA NIENTE, E LO FA APPOSTA. Una casella che esiste solo per il
-	# suo motto: lo Zombie Cittadino che si guarda intorno senza scopo,
-	# l'Orrore che si ferma a guardare il cielo. E' l'unico modo che ha
-	# il gioco di dire "questa cosa non ti sta pensando".
-	#
-	# Non e' la battuta sprecata da cui ci si guardava: quella era una
-	# mossa che PROMETTEVA un effetto e non riusciva a farlo. Questa non
-	# promette niente. Ma alle strette non si sceglie mai - vedi
-	# mossa_eseguibile - perche' una creatura che sta per morire e si
-	# guarda intorno smentisce la regola che la fa diventare pericolosa
-	pass
 
 func mossa_tormento(nemico: Dictionary, mossa: Dictionary) -> void:
 	# Colpisce tutta la squadra a ogni loro battuta, e NON SMETTE finche'

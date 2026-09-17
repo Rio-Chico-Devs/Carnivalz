@@ -7391,11 +7391,14 @@ func dispatch_di_esegui_mossa() -> Dictionary:
 		var pulita := String(riga)
 		if pulita.begins_with("\t\t\"") and pulita.ends_with("\":"):
 			etichetta = pulita.strip_edges().trim_prefix("\"").trim_suffix("\":")
-			# un ramo senza corpo resta a mano vuota, e si vede
+			# un ramo che non chiama niente resta a mano vuota, e si vede
 			rami[etichetta] = ""
 			continue
 		if etichetta != "" and pulita.begins_with("\t\t\t"):
 			var corpo := pulita.strip_edges()
+			# i commenti stanno dentro il ramo e non sono quello che il ramo fa
+			if corpo.begins_with("#"):
+				continue
 			if rami[etichetta] == "" and corpo.contains("("):
 				rami[etichetta] = corpo.get_slice("(", 0)
 	return rami
@@ -7435,6 +7438,42 @@ const RAMI_SENZA_CREATURA := {
 		"manca, non codice morto. Toglierlo o darlo a qualcuno e' di Bru.",
 }
 
+# I RAMI CHE NON CHIAMANO UNA FUNZIONE COL LORO NOME, E PERCHE'.
+#
+# La prima versione di questa regola diceva "il ramo X chiama mossa_X, punto", e
+# mi ha fatto scrivere tre funzioni che non servivano a niente:
+#
+#   func mossa_difendi(nemico, _mossa) -> void:   difendi(nemico)
+#   func mossa_orda(nemico, mossa) -> void:       marea(nemico, mossa)
+#   func mossa_scena(_nemico, mossa) -> void:     pass
+#
+# Un salto in piu', un nome in piu', zero complessita' nascosta - e l'ultima e'
+# una funzione VUOTA nata solo per far contenta una prova. E' esattamente la
+# bandiera rossa che Ousterhout chiama passacarte, ed e' il difetto che Google
+# mette per primo dopo il progetto: codice piu' complicato del necessario.
+#
+# La regola giusta non e' "niente eccezioni", e' "le eccezioni si dichiarano".
+# Adesso il ramo chiama la funzione che fa la cosa, anche quando si chiama
+# diversamente, e qui sta scritto quale e perche'. La protezione contro il
+# cablaggio sbagliato - il ramo "cura" che finisce su mossa_rubavita - resta
+# intera: un ramo che cambia funzione senza passare di qui fallisce lo stesso.
+const RAMI_CABLATI_ALTROVE := {
+	"difendi": {"chiama": "difendi", "perche":
+		"difendi() esisteva gia' ed e' la stessa cosa che fa il bottone " +
+		"DIFENDI del giocatore: una creatura che si difende e un giocatore " +
+		"che si difende devono alzare la guardia allo stesso modo, e due " +
+		"strade separate sarebbero diventate due regole diverse"},
+	"orda": {"chiama": "marea", "perche":
+		"un'orda che attacca e' una marea: il nome e' quello del fatto che " +
+		"si vede a schermo, non quello del campo nei dati. marea() la usa " +
+		"anche l'orda che avanza da sola, quindi la mossa non la possiede"},
+	"scena": {"chiama": "", "perche":
+		"non fa niente, e lo fa apposta: e' la creatura che si guarda " +
+		"intorno senza scopo. Una funzione vuota chiamata da un ramo per " +
+		"non fare niente e' un giro largo per dire pass, e il commento che " +
+		"spiega la scelta serve nel ramo, dove la scelta si legge"},
+}
+
 func prova_il_dispatch_delle_mosse_e_cablato_bene() -> void:
 	# IL RISCHIO VERO DI UN'ESTRAZIONE MECCANICA A VENTITRE MANI.
 	#
@@ -7455,6 +7494,14 @@ func prova_il_dispatch_delle_mosse_e_cablato_bene() -> void:
 	var usate: Array[String] = []
 	for etichetta in rami:
 		var chiamata := String(rami[etichetta])
+		if RAMI_CABLATI_ALTROVE.has(etichetta):
+			var patto: Dictionary = RAMI_CABLATI_ALTROVE[etichetta]
+			esigi(chiamata == String(patto["chiama"]),
+					"il ramo '%s' e' dichiarato cablato su '%s' e invece chiama '%s'"
+					% [etichetta, String(patto["chiama"]), chiamata])
+			esigi(String(patto.get("perche", "")).length() > 40,
+					"il ramo '%s' e' fra le eccezioni senza una motivazione vera" % etichetta)
+			continue
 		esigi(chiamata != "",
 				"il ramo '%s' di esegui_mossa non chiama niente: e' una casella vuota" % etichetta)
 		esigi(chiamata == "mossa_%s" % etichetta,
@@ -7462,6 +7509,9 @@ func prova_il_dispatch_delle_mosse_e_cablato_bene() -> void:
 		esigi(chiamata in dichiarate,
 				"il ramo '%s' chiama '%s', che in Combattimento.gd non esiste" % [etichetta, chiamata])
 		usate.append(chiamata)
+	for etichetta in RAMI_CABLATI_ALTROVE:
+		esigi(rami.has(etichetta),
+				"fra i rami cablati altrove c'e' '%s', che nel match non esiste piu'" % etichetta)
 	# e il verso opposto: una funzione estratta che nessun ramo chiama e' un
 	# pezzo di combattimento che il gioco non puo' piu' raggiungere
 	for nome in dichiarate:
@@ -7571,16 +7621,43 @@ func prova_ogni_mossa_si_esegue_davvero() -> void:
 # fino a quattromila righe e una funzione fino a trecento. Nessuna prova del
 # gioco puo' fallire per questo, perche' non e' il gioco a essere rotto.
 #
-# LE SOGLIE NON SONO INVENTATE, sono misurate su questo codice:
+# CHE COSA SI MISURA, E PERCHE' LA PRIMA VERSIONE MISURAVA MALE.
 #
-#   964 funzioni -> mediana 11 righe, 90mo percentile 32, 99mo percentile 86
-#   49 file      -> mediana 182 righe, solo cinque sopra le 600
-#   annidamento  -> mediana 1 livello, 99mo percentile 4, dieci funzioni sopra
+# All'inizio i tetti erano tre: righe per file, righe per funzione, profondita'
+# dell'annidamento. Sono andata a leggere come si misura la leggibilita' fuori
+# di qui, e il primo tetto ad andare giu' e' stato il mio.
 #
-# Cento righe per funzione sta sopra il 99mo percentile: non e' una regola presa
-# da un libro, e' quello che questo codice gia' fa da solo novecentocinquanta
-# volte su novecentosessantaquattro. Le eccezioni di oggi stanno qui sotto una
-# per una, col numero misurato e col perche'.
+# Sulla LUNGHEZZA la ricerca e' contro l'intuizione: McConnell, in Code
+# Complete, cita sei studi in cui le funzioni piu' lunghe non avevano piu'
+# difetti - e in diversi casi costavano meno e si leggevano meglio. Il numero di
+# righe non e' una misura di quanto una funzione e' difficile: e' una misura di
+# quanto e' grande, che non e' la stessa cosa.
+#
+# Sull'ANNIDAMENTO il difetto era mio: misuravo il punto PIU' PROFONDO, e cosi'
+# una funzione con un solo se dentro due cicli e una che e' tutta annidata dalla
+# prima riga all'ultima prendevano lo stesso voto.
+#
+# Adesso il garbuglio si misura con la COMPLESSITA' COGNITIVA (vedi
+# complessita_cognitiva() qui sotto), che e' la metrica nata apposta perche' la
+# ciclomatica misurava bene la testabilita' e male la leggibilita'. Somma invece
+# di prendere il massimo, e fa pagare la profondita' a ogni punto.
+#
+# LA PROVA CHE LA METRICA VECCHIA GUARDAVA ALTROVE: fra le quattro funzioni piu'
+# ingarbugliate del progetto, DUE non erano mai comparse - Main.ricostruisci_scelte
+# (48) e Combattimento._ready (41). Non sono lunghe e non sono profonde: sono
+# catene di condizioni piatte, e i tetti di prima non le vedevano.
+#
+# LE SOGLIE, misurate su questo codice:
+#
+#   961 funzioni -> garbuglio: mediana 2, 90mo 8, 95mo 12, 99mo 31
+#   961 funzioni -> righe: mediana 11, 90mo 32, 99mo 86
+#   49 file      -> righe: mediana 182, solo cinque sopra le 600
+#
+# Quindici di garbuglio e' la soglia predefinita di Sonar, ed e' anche il 95mo
+# percentile di qui: le due cose cadono nello stesso punto, il che e' il
+# migliore argomento possibile per una soglia. Cento righe per funzione resta,
+# ma DECLASSATO: non e' piu' il controllo principale, e' una rete grossolana
+# contro la funzione che diventa un file.
 #
 # COME SI COMPORTA LA RETE:
 #   - una cosa NUOVA sopra il tetto            -> fallisce: non si peggiora
@@ -7599,7 +7676,7 @@ func prova_ogni_mossa_si_esegue_davvero() -> void:
 # sia "giusta", importa che sia la stessa che usa la prova.
 #
 # COSA NON MISURA, E PERCHE' LO DICO. Guarda scripts/, non prove/. Questo file
-# e' oltre settemila righe e non passerebbe nessuno dei tre tetti - non e' una
+# e' oltre settemila righe e non passerebbe nessuno dei tetti - non e' una
 # svista, ed e' giusto saperlo leggendo. Un file di prove cresce di una funzione
 # ogni volta che si prova una cosa in piu', quindi un tetto qui fallirebbe a
 # ogni prova nuova, e la cosa che si impara in fretta e' ad alzare il numero
@@ -7608,10 +7685,10 @@ func prova_ogni_mossa_si_esegue_davvero() -> void:
 
 const TETTO_RIGHE_FILE := 700
 const TETTO_RIGHE_FUNZIONE := 100
-const TETTO_ANNIDAMENTO := 4
+const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4421, "perche":
+	"Combattimento.gd": {"misura": 4413, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
 		"pesanti che restano - il tempo, la scelta delle mosse, la " +
@@ -7649,7 +7726,7 @@ const FUNZIONI_LUNGHE := {
 		"tutte le condizioni che una mossa puo' dichiarare nei dati (quando, " +
 		"priorita', ricarica, massimo_usi, dopo_mossa, alleati vivi). Da " +
 		"guardare insieme a risolvi_drop: e' una delle due funzioni sopra il " +
-		"tetto ANCHE per annidamento, e quello si', e' un difetto"},
+		"tetto ANCHE per garbuglio, a quota 52, e quello si', e' un difetto"},
 	"GameState.gd:_leggi_salvataggio": {"misura": 119, "perche":
 		"legge un salvataggio campo per campo con un ripiego per ognuno, " +
 		"perche' un file vecchio non ha i campi nuovi. Ogni riga e' una " +
@@ -7668,33 +7745,121 @@ const FUNZIONI_LUNGHE := {
 		"un'abilita' sola e sta tutta qui"},
 }
 
-const FUNZIONI_ANNIDATE := {
-	"GameState.gd:cerca_creature": {"misura": 7, "perche":
-		"sette livelli, ed e' il peggiore del progetto: cerca dentro zone " +
-		"dentro nodi dentro gruppi dentro elenchi. Un difetto vero, non una " +
-		"scelta - il rimedio e' voltare i cicli, non aggiungere un tetto"},
-	"Stati.gd:risolvi_stati_a_inizio_turno": {"misura": 6, "perche":
+# LE FUNZIONI INGARBUGLIATE, col loro punteggio di oggi.
+#
+# Sopra la soglia della motivazione c'e' scritto anche PERCHE': sotto, il numero
+# e' gia' tutta la storia - e' debito che si sta tenendo d'occhio. Sopra, non e'
+# piu' debito, e' un difetto, e un difetto va chiamato per nome.
+const MOTIVAZIONE_SOPRA := 30
+
+const FUNZIONI_INGARBUGLIATE := {
+	"Combattimento.gd:risolvi_drop": {"misura": 63, "perche":
+		"la peggiore del progetto: nemici per oggetti per condizioni, tre " +
+		"cicli annidati con un if dentro ognuno. Il tetto non serve a " +
+		"proteggerla, serve a ricordare che e' la prima da voltare"},
+	"Combattimento.gd:mossa_eseguibile": {"misura": 52, "perche":
+		"tutte le condizioni che una mossa puo' dichiarare nei dati messe " +
+		"una dietro l'altra. Si spezza per condizione - una funzione per " +
+		"'quando', una per 'ricarica' - e cade sotto il tetto da sola"},
+	"Main.gd:ricostruisci_scelte": {"misura": 48, "perche":
+		"NON L'AVEVO MAI VISTA. Non e' lunga e non e' annidata: e' una " +
+		"catena di condizioni piatte, e con i tetti di prima - righe e " +
+		"profondita' - era invisibile. E' la prova che la metrica vecchia " +
+		"guardava dalla parte sbagliata"},
+	"GameState.gd:cerca_creature": {"misura": 44, "perche":
+		"cerca dentro zone dentro nodi dentro gruppi dentro elenchi. " +
+		"Difetto vero: il rimedio e' voltare i cicli e uscire prima"},
+	"Combattimento.gd:_ready": {"misura": 41, "perche":
+		"NEMMENO QUESTA L'AVEVO VISTA. Costruisce otto collaboratori e ogni " +
+		"costruzione ha il suo se: e' il punto in cui lo scontro decide cosa " +
+		"esiste, e si spezza in 'costruisci i moduli' e 'accendi la scena'"},
+	"Stati.gd:risolvi_stati_a_inizio_turno": {"misura": 39, "perche":
 		"un ciclo sugli stati addosso, un match sul tipo, e dentro il sonno " +
 		"il tiro di risveglio con le sue uscite. Si appiattisce quando " +
 		"applica_stato si spezza per tipo, e con lo stesso lavoro"},
-	"Combattimento.gd:risolvi_drop": {"misura": 5, "perche":
-		"nemici per oggetti per condizioni. Difetto vero: aspetta lo stesso " +
-		"rimedio di cerca_creature"},
-	"Combattimento.gd:mossa_eseguibile": {"misura": 5, "perche":
-		"difetto vero, vedi sopra: e' lunga E annidata, ed e' la prima da " +
-		"riscrivere quando si torna sul motore"},
+	"Combattimento.gd:battuta_di": {"misura": 38, "perche":
+		"sceglie la frase giusta per il fatto giusto e le condizioni sono " +
+		"tante quante i fatti. Candidata a diventare una tabella nei dati " +
+		"invece che una scala di se"},
+	"Combattimento.gd:attacca": {"misura": 35, "perche":
+		"la sequenza intera di un colpo: a terra, schivata, danno, impatto, " +
+		"stati, KO. E' l'ordine dei fatti, ed e' il mestiere dichiarato di " +
+		"questo file - qui la complessita' e' del problema, non del codice"},
+	"Stati.gd:applica_stato": {"misura": 34, "perche":
+		"un ramo per tipo di status. E' lo stesso caso di esegui_mossa e si " +
+		"spezza allo stesso modo: e' il prossimo della lista"},
+	"Main.gd:_su_scelta": {"misura": 31, "perche":
+		"tutto quello che una scelta di dialogo puo' innescare. Cresce con " +
+		"la trama, che e' ancora in scrittura"},
+	"BoxTesto.gd:respiri": {"misura": 27},
+	"Combattimento.gd:_racconta_ko": {"misura": 27},
+	"Combattimento.gd:esegui_azione": {"misura": 27},
+	"Combattimento.gd:studia": {"misura": 27},
+	"Combattimento.gd:applica_effetto": {"misura": 26},
+	"Combattimento.gd:turno_nemico_normale": {"misura": 25},
+	"GameState.gd:_leggi_salvataggio": {"misura": 25},
+	"GameState.gd:verifica_passive": {"misura": 25},
+	"Campo.gd:aggiorna": {"misura": 21},
+	"Combattimento.gd:condizioni_mossa": {"misura": 21},
+	"GameState.gd:aggiungi_oggetto": {"misura": 21},
+	"Campo.gd:dettagli_di": {"misura": 20},
+	"Combattimento.gd:flagello": {"misura": 20},
+	"Regole.gd:calcola_danno": {"misura": 20},
+	"Combattimento.gd:avanza_orologio": {"misura": 19},
+	"Combattimento.gd:mantra": {"misura": 19},
+	"Combattimento.gd:verifica_fine_scontro": {"misura": 19},
+	"Combattimento.gd:azione_automatica": {"misura": 18},
+	"Combattimento.gd:esegui_scontro": {"misura": 18},
+	"Voce.gd:svuota_coda": {"misura": 18},
+	"Combattimento.gd:aggiungi_combattente": {"misura": 17},
+	"GameState.gd:aggiorna_task": {"misura": 17},
+	"MappaZona.gd:_disegna_sotto": {"misura": 16},
+	"Negozio.gd:costruisci": {"misura": 16},
+	"Voce.gd:attendi_lettura": {"misura": 16},
 }
 
-const INIZI_DI_BLOCCO := ["if ", "elif ", "else:", "for ", "while ", "match "]
+func complessita_cognitiva(corpo: Array[String]) -> int:
+	# LA COMPLESSITA' COGNITIVA, nelle tre regole di Sonar.
+	#
+	#   1. niente punti per le scorciatoie di scrittura;
+	#   2. un punto per ogni rottura del flusso lineare (if, elif, else, for,
+	#      while, match, e ogni sequenza di operatori logici);
+	#   3. e in piu' TANTI PUNTI QUANTO E' PROFONDO il punto in cui succede -
+	#      un if dentro un for dentro un for costa tre, non uno.
+	#
+	# La terza regola e' tutta la differenza. Un metodo con dieci se in fila e
+	# uno con un se dentro due cicli hanno la stessa complessita' ciclomatica e
+	# non si leggono per niente allo stesso modo.
+	#
+	# else ed elif prendono il punto ma NON la profondita': stanno alla stessa
+	# altezza del se che continuano, e farglielo pagare due volte punirebbe una
+	# scala di casi - che si legge bene - come se fosse un annidamento.
+	#
+	# COSA APPROSSIMA, detto qui e non nascosto: le sequenze di operatori logici
+	# si contano per riga, una per "and" e una per "or". Una condizione lunga
+	# spezzata su tre righe con la barra conta tre volte invece di una. Va bene
+	# cosi' - conta piu' del vero una cosa che e' davvero faticosa da leggere -
+	# ma non e' la definizione esatta, e chi legge un numero deve sapere come
+	# e' fatto.
+	var totale := 0
+	for riga in corpo:
+		var nuda := riga.strip_edges()
+		if nuda == "" or nuda.begins_with("#"):
+			continue
+		var profondita := maxi(riga.length() - riga.lstrip("\t").length() - 1, 0)
+		if nuda.begins_with("if ") or nuda.begins_with("for ") \
+				or nuda.begins_with("while ") or nuda.begins_with("match "):
+			totale += 1 + profondita
+		elif nuda.begins_with("elif ") or nuda.begins_with("else:") or nuda.begins_with("else "):
+			totale += 1
+		if nuda.contains(" and "):
+			totale += 1
+		if nuda.contains(" or "):
+			totale += 1
+	return totale
 
 func misura_funzioni(percorso: String) -> Array[Dictionary]:
-	# Ogni funzione del file: quanto e' lunga e quanto scende in profondita'.
-	#
-	# L'annidamento conta SOLO le righe che aprono un blocco (if, for, while,
-	# match). Contare l'indentazione di tutte le righe sembrava piu' semplice e
-	# misurava un'altra cosa: una condizione spezzata su due righe con la
-	# barra, o un Dictionary scritto su piu' righe, stanno rientrati di tre tab
-	# senza essere annidati per niente, e il numero veniva su gonfiato.
+	# Ogni funzione del file: quanto e' lunga e quanto e' ingarbugliata.
 	var righe := testo_script(percorso).split("\n")
 	var inizi: Array[int] = []
 	var nomi: Array[String] = []
@@ -7713,23 +7878,19 @@ func misura_funzioni(percorso: String) -> Array[Dictionary]:
 		# non fanno parte di nessuna delle due
 		while a > da + 1 and String(righe[a - 1]).strip_edges() == "":
 			a -= 1
-		var profondo := 0
+		var corpo: Array[String] = []
 		for i in range(da + 1, a):
-			var riga := String(righe[i])
-			var nuda := riga.strip_edges()
-			var apre := false
-			for chiave in INIZI_DI_BLOCCO:
-				if nuda.begins_with(String(chiave)):
-					apre = true
-					break
-			if apre:
-				profondo = maxi(profondo, riga.length() - riga.lstrip("\t").length())
-		trovate.append({"nome": nomi[k], "righe": a - da, "annidamento": profondo})
+			corpo.append(String(righe[i]))
+		trovate.append({
+			"nome": nomi[k],
+			"righe": a - da,
+			"cognitiva": complessita_cognitiva(corpo),
+		})
 	return trovate
 
 func controlla_tetto(chiave: String, misura: int, tetto: int, eccezioni: Dictionary,
-		cosa: String) -> void:
-	# la stessa regola per i file, per la lunghezza e per l'annidamento: scritta
+		cosa: String, motivazione_sopra := 0) -> void:
+	# la stessa regola per i file, per la lunghezza e per il garbuglio: scritta
 	# tre volte sarebbe diventata tre regole diverse al primo ritocco
 	if not eccezioni.has(chiave):
 		esigi(misura <= tetto,
@@ -7743,15 +7904,16 @@ func controlla_tetto(chiave: String, misura: int, tetto: int, eccezioni: Diction
 	esigi(misura > tetto,
 			"%s: %s e' sceso a %d, sotto il tetto di %d. Toglilo dalle eccezioni"
 			% [chiave, cosa, misura, tetto])
+	if misura < motivazione_sopra:
+		return
 	esigi(String(eccezioni[chiave].get("perche", "")).length() > 40,
-			"%s sta fra le eccezioni senza una motivazione vera: un elenco senza perche' e' solo un modo lento di spegnere il controllo"
-			% chiave)
+			"%s sta fra le eccezioni a quota %d senza una motivazione vera: un elenco senza perche' e' solo un modo lento di spegnere il controllo"
+			% [chiave, misura])
 
 func prova_il_tetto_alla_struttura() -> void:
 	titolo("nessun file e nessuna funzione cresce oltre il tetto misurato")
 	var visti_file: Array[String] = []
 	var viste_funzioni: Array[String] = []
-	var viste_annidate: Array[String] = []
 	for percorso in script_del_gioco():
 		var nome_file := percorso.get_file()
 		visti_file.append(nome_file)
@@ -7760,11 +7922,10 @@ func prova_il_tetto_alla_struttura() -> void:
 		for f in misura_funzioni(percorso):
 			var chiave := "%s:%s" % [nome_file, String(f["nome"])]
 			viste_funzioni.append(chiave)
-			viste_annidate.append(chiave)
 			controlla_tetto(chiave, int(f["righe"]), TETTO_RIGHE_FUNZIONE,
 					FUNZIONI_LUNGHE, "la funzione")
-			controlla_tetto(chiave, int(f["annidamento"]), TETTO_ANNIDAMENTO,
-					FUNZIONI_ANNIDATE, "l'annidamento")
+			controlla_tetto(chiave, int(f["cognitiva"]), TETTO_COGNITIVA,
+					FUNZIONI_INGARBUGLIATE, "il garbuglio", MOTIVAZIONE_SOPRA)
 	# UN'ECCEZIONE PER UNA COSA CHE NON ESISTE PIU' e' peggio di nessuna
 	# eccezione: resta li' a dare il permesso a un nome che un giorno qualcuno
 	# riusa per un'altra cosa
@@ -7774,9 +7935,9 @@ func prova_il_tetto_alla_struttura() -> void:
 	for chiave in FUNZIONI_LUNGHE:
 		esigi(String(chiave) in viste_funzioni,
 				"fra le eccezioni sulla lunghezza c'e' '%s', che non esiste piu'" % chiave)
-	for chiave in FUNZIONI_ANNIDATE:
-		esigi(String(chiave) in viste_annidate,
-				"fra le eccezioni sull'annidamento c'e' '%s', che non esiste piu'" % chiave)
+	for chiave in FUNZIONI_INGARBUGLIATE:
+		esigi(String(chiave) in viste_funzioni,
+				"fra le eccezioni sul garbuglio c'e' '%s', che non esiste piu'" % chiave)
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.

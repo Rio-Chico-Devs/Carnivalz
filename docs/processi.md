@@ -378,3 +378,123 @@ guardare. Una rete che si impara a disinnescare non protegge più niente.
 annidata nuova, un'eccezione cresciuta, un'eccezione scesa sotto il tetto,
 un'eccezione per un file che non esiste, un'eccezione con `"perche": "boh"`.
 Tutte e sei nominate per nome, con la misura vera nel messaggio.
+
+## La revisione della revisione
+
+Bru: «documentati su controllo qualità, ordine e leggibilità, modularità e
+product engineering, e poi rivedi il tuo lavoro così capisci». Fatto in
+quest'ordine, e il primo tetto ad andare giù è stato il mio.
+
+### 1. La metrica era quella debole
+
+Avevo messo tre tetti: righe per file, righe per funzione, profondità
+dell'annidamento. Due su tre misurano male, e la letteratura lo dice da anni.
+
+Sulla **lunghezza**: McConnell, in *Code Complete*, cita sei studi in cui le
+funzioni più lunghe non avevano più difetti — e in diversi casi costavano meno e
+si leggevano meglio. Il numero di righe misura quanto una funzione è *grande*,
+non quanto è *difficile*.
+
+Sull'**annidamento**: il difetto era mio. Misuravo il punto più profondo, quindi
+una funzione con un solo `if` dentro due cicli e una annidata dalla prima riga
+all'ultima prendevano lo stesso voto.
+
+Adesso il garbuglio si misura con la **complessità cognitiva** — la metrica che
+SonarSource ha inventato proprio perché la ciclomatica misura bene la
+testabilità e male la leggibilità. Somma invece di prendere il massimo, e fa
+pagare la profondità a ogni punto in cui succede.
+
+**La prova che la metrica vecchia guardava altrove**: fra le quattro funzioni più
+ingarbugliate del progetto, **due non erano mai comparse**.
+
+| funzione | garbuglio | righe | annidamento | la vedeva il tetto vecchio? |
+|---|---|---|---|---|
+| `Combattimento.risolvi_drop` | 63 | 47 | 5 | solo per l'annidamento |
+| `Combattimento.mossa_eseguibile` | 52 | 123 | 5 | sì |
+| `Main.ricostruisci_scelte` | **48** | 58 | 3 | **no** |
+| `GameState.cerca_creature` | 44 | 44 | 7 | sì |
+| `Combattimento._ready` | **41** | 61 | 2 | **no** |
+
+Non sono lunghe e non sono profonde: sono catene di condizioni piatte.
+
+La soglia è **15**, che è insieme il predefinito di Sonar e il 95° percentile di
+questo codice — le due cose cadono nello stesso punto, ed è il miglior argomento
+possibile per una soglia. Le 35 eccezioni portano il numero misurato; **sopra 30
+serve anche il perché**, perché sotto è debito che si tiene d'occhio e sopra è un
+difetto, che va chiamato per nome. Il tetto sulle righe resta ma **declassato**:
+non è più il controllo principale, è una rete grossolana contro la funzione che
+diventa un file.
+
+Validata rompendola con la forma esatta che il tetto vecchio non vedeva: venti
+`if` in fila, 43 righe, due livelli di profondità. Garbuglio 20 → bocciata.
+
+### 2. Tre passacarte, e una funzione vuota nata da una mia regola
+
+La regola del Passo 15 diceva: «il ramo X chiama `mossa_X`, punto». Mi ha fatto
+scrivere tre funzioni che non servivano a niente:
+
+```gdscript
+func mossa_difendi(nemico, _mossa) -> void:   difendi(nemico)
+func mossa_orda(nemico, mossa) -> void:       marea(nemico, mossa)
+func mossa_scena(_nemico, mossa) -> void:     pass
+```
+
+Un salto in più, un nome in più, zero complessità nascosta — ed è precisamente la
+bandiera rossa che Ousterhout chiama **passacarte**, e il difetto che Google mette
+per primo dopo il progetto: *codice più complicato del necessario*. L'ultima è
+peggio delle altre: una funzione **vuota**, nata solo per far contenta una prova
+che avevo scritto io.
+
+La regola giusta non è «niente eccezioni», è «le eccezioni si dichiarano». Ora il
+ramo chiama la funzione che fa la cosa anche quando si chiama diversamente, e
+`RAMI_CABLATI_ALTROVE` dice quale e perché. La protezione contro il cablaggio
+sbagliato resta intera.
+
+### 3. Il tipo che si può mettere, e quello che non si deve
+
+La guida di stile di Godot è netta: tipare tutto quello che si può — gli errori
+si prendono al parse invece che in partita, e il bytecode è più veloce. I moduli
+del combattimento tenevano un `var scontro` **senza tipo**: 44 chiamate che
+nessuno controllava.
+
+Ho provato se un riferimento ciclico fra `class_name` regge in Godot 4.4 — regge.
+`Combattimento` ha un `class_name`, e `Stati.gd` dichiara
+`var scontro: Combattimento`: **23 chiamate dinamiche diventate statiche**.
+
+Su `Menu.gd` la stessa cosa fa cadere la suite in sei punti, e tipando anche il
+parametro di `_init` **la pianta oltre i seicento secondi dentro il parser**. Il
+motivo non è un bug: lì passa anche un `FintoScontro`, un oggetto che risponde
+alle sole cinque domande che il menu fa davvero, e serve perché uno scontro vero
+gira in tempo reale e non finisce — la prima versione di quella prova accendeva un
+combattimento intero per premere quattro voci di menu, e la suite si piantava.
+
+Quindi: **tipi statici** contro **sostituibilità**, che l'ISO 25010 chiama
+testabilità e mette dentro la manutenibilità esattamente come la modularità.
+Vince la seconda, perché il menu non usa il combattimento: gli fa cinque domande,
+e dipendere da cinque domande invece che da una classe da quattromila righe è la
+dipendenza più stretta possibile, non la più larga. Il difetto vero non era il
+tipo mancante: era che **non c'era scritto perché mancava**. Adesso c'è.
+
+### 4. Quello che ho trovato e NON ho toccato
+
+La guida di stile di Godot fissa l'ordine delle dichiarazioni: costanti, statiche,
+`@export`, `var`, `@onready`. Sei file non lo rispettano, 84 dichiarazioni in
+tutto — quasi sempre `@onready` prima dei `var` normali.
+
+Non l'ho sistemato, e la ragione è la stessa che vale per tutto il resto: in
+`Combattimento.gd` i nodi `@onready` stanno raggruppati in cima **con un commento
+che dice cosa sono**, e sotto c'è «i quattro collaboratori». Riordinare per
+soddisfare la convenzione spezzerebbe un raggruppamento che serve a chi legge — e
+lo scopo della convenzione è servire chi legge. Sta scritto qui perché sia una
+scelta e non una svista; se Bru preferisce l'ordine canonico, è mezz'ora di
+lavoro meccanico.
+
+### 5. Quello che so di non avere
+
+Le sabotature funzionano — ne ho fatte sedici in questi passi, e ogni volta ho
+guardato che il messaggio nominasse la cosa giusta. Ma è **mutation testing fatto
+a mano**: Google lo fa girare su ogni modifica per 6000 ingegneri, io lo faccio
+quando me ne ricordo. I mutanti che scelgo sono probabilmente migliori dei loro
+(li scelgo sapendo dove fa male), ma non sono ripetibili: fra sei mesi nessuno
+saprà quali erano. Registrarli in modo che si rigiochino da soli è il pezzo che
+manca, ed è il prossimo lavoro serio sulle prove.

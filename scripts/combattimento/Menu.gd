@@ -18,7 +18,28 @@ extends RefCounted
 # bottoni, sceglie da solo (vedi "strategia" in Combattimento.gd).
 
 var muta := false
-var scontro                    # il nodo Combattimento: il menu e' una sua vista
+# IL NODO COMBATTIMENTO, E QUESTO E' L'UNICO SENZA TIPO DI TUTTO IL FILE.
+#
+# Non e' una dimenticanza, e l'ho provato: scrivendo "var scontro: Combattimento"
+# la suite cade in sei punti, e tipando anche il parametro di _init non cade -
+# si pianta, oltre i seicento secondi, dentro il parser.
+#
+# Il motivo e' che qui dentro passa anche un FintoScontro (vedi prove/Prove.gd):
+# un oggetto che risponde alle sole cinque domande che il menu fa davvero -
+# tocca a te, la Mattanza e' accesa, chi e' vivo, il passo del tutorial, la
+# scelta. Serve perche' uno scontro vero gira in tempo reale e non finisce: la
+# prima versione di quella prova accendeva un combattimento intero per premere
+# quattro voci di menu, e la suite si piantava.
+#
+# Quindi la scelta e' fra due cose che valgono tutte e due - i tipi statici, che
+# in GDScript prendono gli errori al parse invece che in partita, e la
+# sostituibilita', che qui e' la sola ragione per cui questa prova esiste. Vince
+# la seconda, perche' il menu non usa il combattimento: gli fa cinque domande, e
+# dipendere da cinque domande invece che da una classe da quattromila righe e'
+# la dipendenza piu' stretta possibile, non la piu' larga.
+#
+# Stati.gd, che nessuno sostituisce, e' tipato: li' il tipo e' guadagno netto.
+var scontro                    # il menu e' una sua vista
 var contenitore: Control
 # come si veste una voce: lo decide chi ospita il menu (vedi Plancia.vesti_comando)
 var vestaglia := Callable()

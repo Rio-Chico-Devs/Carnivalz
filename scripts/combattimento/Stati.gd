@@ -28,9 +28,9 @@ extends RefCounted
 # restringe l'elenco a uno solo, quindi e' una conseguenza di uno status, non
 # una regola di mira.
 
-var scontro                    # il nodo Combattimento: gli stati sono sue cose
+var scontro: Combattimento     # gli stati sono cose sue
 
-func _init(nodo_scontro) -> void:
+func _init(nodo_scontro: Combattimento) -> void:
 	scontro = nodo_scontro
 
 # --- combustione: alcuni nemici bruciano a ogni loro turno (danno, a volte
