@@ -238,3 +238,92 @@ Misurata a parte, e vale la pena ripeterla qui: **il gioco avviato da solo non
 perde niente**. A perdere è la suite — coroutine ferme su un `await` dentro
 combattimenti che una prova libera a metà volo, e in Godot 4 una coroutine
 sospesa non si annulla. `prove/esegui.sh` fallisce se a perdere è il gioco.
+
+## La struttura, misurata
+
+Fin qui l'audit aveva guardato **il comportamento**: chi gira, chi si accavalla,
+chi perde oggetti. Non aveva mai guardato **la forma del codice**, ed è una cosa
+diversa: un gioco può funzionare benissimo e restare impossibile da mantenere.
+
+I numeri di partenza:
+
+| | |
+|---|---|
+| `scripts/` in tutto | 18 183 righe in 940 funzioni |
+| `Combattimento.gd` | **4 596 righe — un quarto di tutto il codice** |
+| `GameState.gd` | 2 511 |
+| `Main.gd` | 1 415 |
+| la funzione più lunga (`esegui_mossa`) | 318 righe |
+| annidamento massimo (`GameState.cerca_creature`) | 8 livelli |
+| mestieri dichiarati da `Combattimento.gd` nei suoi stessi commenti | 14 |
+
+### `esegui_mossa`: 318 righe → 69
+
+Una battuta in cima e poi un `match` con ventitré rami che facevano ventitré
+mestieri diversi — curare, evocare, trasformarsi, incendiare — dentro la stessa
+graffa. Adesso sono ventitré funzioni con un nome, e `esegui_mossa` fa una cosa
+sola: la contabilità della mossa, e poi smistare.
+
+La suite è rimasta **verde e identica**, e non basta. «Identica» non vuol dire
+«verificata»: se le prove percorrevano cinque rami su ventitré, diciotto
+estrazioni erano state fatte alla cieca. Le due prove che mancavano:
+
+- **il ramo «X» chiama `mossa_X`, e basta** — letto dal sorgente, più il verso
+  opposto (una funzione estratta che nessun ramo chiama è irraggiungibile). È il
+  modo in cui un'estrazione a ventitré mani si sbaglia davvero: il ramo `cura`
+  che finisce per chiamare `mossa_rubavita`. A schermo non si vede, e nessuna
+  prova di comportamento lo nota — una mossa sbagliata è comunque una mossa che
+  funziona. Sabotato apposta: **solo questa prova se n'è accorta**.
+- **ogni ramo si percorre per davvero**, con una mossa vera dal bestiario o una
+  fatta a mano quando nessuno la usa.
+
+La prima versione della seconda prova misurava la cosa sbagliata — leggeva
+`ultima_mossa_tipo`, che `esegui_mossa` scrive **prima** del `match`: svuotando
+un ramo sarebbe passata lo stesso. Terzo errore della stessa famiglia in questo
+audit, preso prima di consegnarlo.
+
+### `buff_fattore`: nessuno ce l'ha
+
+Ventidue rami su ventitré li dichiara qualche creatura. Quello no. Non è codice
+morto: è **l'unico tipo di mossa che sappia alzare il Fattore Carnivalz**, perché
+`potenziamento` passa dai buff e un buff di stat `fattore` non lo legge nessuno
+(`Regole.gd` guarda solo attacco, difesa e velocità). Sta nel README e sa
+descriversi nella scheda nemici. È **contenuto che manca, non codice da
+togliere**, e la scelta è di Bru. Intanto è scritto col perché in
+`RAMI_SENZA_CREATURA`, il ramo viene percorso lo stesso, e se domani qualcuno lo
+usa la prova chiede di togliere l'eccezione.
+
+### Quale pezzo staccare: misurato, non scelto a occhio
+
+Il piano era di portare fuori **le abilità**. Prima di spostare quattrocento
+righe ho misurato quanto costa staccare ogni blocco — quante funzioni del motore
+continuerebbe a chiamare da fuori, e quante variabili del nodo:
+
+| blocco | righe | funzioni del motore | variabili del nodo |
+|---|---|---|---|
+| abilità (Astio, Vendetta, Mantra, Flagello, Mattanza…) | 422 | **25** | **7** |
+| stati + combustione | 249 | **6** | 0 |
+| abilità di Veronica e Yhvina | 440 | 26 | — |
+
+Le abilità **non sono un modulo**: sono codice che vive dentro il motore. Le
+venticinque chiamate sarebbero diventate altrettante `scontro.qualcosa()`
+dinamiche, perdendo il controllo dei tipi su tutte, per guadagnare un file in
+più e niente altro. E il blocco non è nemmeno completo: metà delle abilità che
+`usa_abilita` smista (`attacco_area`, `carica`, `guardia`, `copertura`…) stanno
+altrove nel file. **Piano cambiato sui numeri.**
+
+`Stati.gd` invece è un taglio pulito: 249 righe, un mestiere solo, e delle sei
+funzioni del motore che continua a chiamare **quattro servono solo a dire una
+frase**. Qui dentro non si decide chi attacca chi, non si calcola un danno, non
+si tocca la plancia: si legge `stati.json` e si applica.
+
+`Combattimento.gd`: **4 596 → 4 420 righe**, e un mestiere in meno dei quattordici.
+
+### Cosa resta aperto
+
+`GameState.gd` (2 511 righe), `Main.gd` (1 415), `aggiungi_combattente` (164),
+`mossa_eseguibile` (124), `applica_stato` (118), `_leggi_salvataggio` (120), gli
+otto livelli di annidamento in `GameState.cerca_creature`. E dentro
+`Combattimento.gd` i tre blocchi pesanti — il tempo (705), la scelta delle mosse
+(687), la risoluzione dei colpi (631) — che per ora **non conviene staccare**, e
+adesso c'è la tabella che dice perché.
