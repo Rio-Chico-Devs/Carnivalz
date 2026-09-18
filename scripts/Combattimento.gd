@@ -751,6 +751,7 @@ func _process(delta: float) -> void:
 	# guardando se c'e' ancora qualcosa da leggere, non ricordandosene a mano
 	if lezione_in_corso and voce != null and voce.coda.is_empty():
 		lezione_in_corso = false
+		voce.attende_il_click = false
 		riprendi_il_tempo()
 	avanza_mattanza(delta)   # la barra si scarica anche mentre il mondo e' fermo
 	if minigioco != null and minigioco.attivo:
@@ -877,6 +878,11 @@ func aggiorna_pronto_giocatore() -> void:
 				GameState.legame)
 	var pronto := giocatore_pronto()
 	if pronto != menu_acceso:
+		if pronto:
+			# prima si sente cosa c'e' da fare, poi si accende il menu: e' questo
+			# il momento in cui il passo del tutorial comincia per il giocatore
+			attaccante_corrente = tu
+			introduci_passo_tutorial()
 		menu_acceso = pronto
 		attaccante_corrente = tu
 		menu.principale()
@@ -1023,12 +1029,8 @@ func battuta_di(attaccante: Dictionary) -> void:
 				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)],
 						-1, consuma_carica(attaccante))
 		else:
+			introduci_passo_tutorial()
 			var passo_corrente := passo_tutorial()
-			if not passo_corrente.is_empty() and tutorial_passo not in tutorial_passi_introdotti:
-				tutorial_passi_introdotti.append(tutorial_passo)
-				prepara_passo_tutorial(passo_corrente)
-				for msg in passo_corrente.get("prima", []):
-					scrivi_messaggio_tutorial(msg)
 			if String(passo_corrente.get("azione", "")) == "minigioco":
 				# QUESTO PASSO NON TE LO COMANDA IL MENU. Non e' una mossa che
 				# scegli: e' una che subisci, e l'unica risposta e' la tua mano.
@@ -1194,6 +1196,9 @@ func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
 	if not lezione_in_corso:
 		lezione_in_corso = true
 		ferma_il_tempo()
+		# e si legge al proprio passo: una lezione si avanza col click, non col
+		# cronometro (vedi VoceCombattimento.attende_il_click)
+		voce.attende_il_click = true
 	var testo := String(msg.get("testo", ""))
 	if testo.find("{nome}") != -1:
 		testo = testo.replace("{nome}", String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "")))
@@ -1253,6 +1258,28 @@ func chiudi_passo_tutorial() -> void:
 	tutorial_passo += 1
 	if tutorial_passo >= tutorial.get("passi", []).size():
 		concludi_tutorial()
+
+func introduci_passo_tutorial() -> bool:
+	# LE BATTUTE DI UN PASSO SI DICONO QUANDO IL PASSO COMINCIA - e per il
+	# giocatore quel momento NON passa da battuta_di.
+	#
+	# In tempo reale chi comandi tu e' escluso apposta dai "pronti" (vedi
+	# avanza_orologio): il turno non te lo da' il giro delle battute, te lo da'
+	# aggiorna_pronto_giocatore accendendo il menu. Finche' l'introduzione e'
+	# stata scritta dentro battuta_di, per il protagonista non e' MAI partita:
+	# niente lezione, niente barre preparate, niente istruzioni. Le mosse si
+	# chiudevano lo stesso - avanza_tutorial sta in esegui_azione - quindi il
+	# tutorial "funzionava" senza aver mai detto una parola.
+	#
+	# Bru, provando: «non c'e' stata alcuna spiegazione dell'interfaccia».
+	var passo := passo_tutorial()
+	if passo.is_empty() or tutorial_passo in tutorial_passi_introdotti:
+		return false
+	tutorial_passi_introdotti.append(tutorial_passo)
+	prepara_passo_tutorial(passo)
+	for msg in passo.get("prima", []):
+		scrivi_messaggio_tutorial(msg)
+	return true
 
 func avanza_tutorial(azione: Dictionary) -> void:
 	# il passo si chiude solo se il giocatore ha fatto davvero quello che gli

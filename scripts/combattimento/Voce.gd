@@ -44,6 +44,14 @@ var muta := false
 
 var coda: Array[Dictionary] = []   # {tipo, chi, testo, forte, effetto}
 var salta_messaggio := false       # un click chiede di passare avanti
+# QUANDO IL MONDO E' FERMO, LE PAROLE ASPETTANO TE.
+#
+# In tempo reale nessun messaggio aspetta il click: scorrono a tempo, perche'
+# mentre leggi i nemici continuano e fermarli a ogni frase sarebbe un altro
+# gioco. Giusto in combattimento, sbagliato in una LEZIONE: li' il mondo e'
+# fermo apposta, e ventuno battute che ti passano davanti da sole non sono una
+# spiegazione, sono un rumore. Chi ferma il tempo alza anche questa.
+var attende_il_click := false
 var sta_svuotando := false         # c'e' gia' qualcuno che sta facendo leggere
 # In tempo reale nessun messaggio puo' fermare il mondo aspettando un click:
 # anche quelli "forti" scorrono da soli, solo con piu' calma
@@ -152,6 +160,11 @@ func svuota_coda() -> void:
 		box.nascondi_indicatore()
 	sta_svuotando = false
 
+func aspetta_un_click(forte: bool) -> bool:
+	# chi decide se questa battuta si ferma ad aspettare te: una lezione sempre,
+	# e fuori dal tempo reale i messaggi che pesano
+	return attende_il_click or (forte and not tempo_reale)
+
 func attendi_lettura(testo: String, forte: bool) -> void:
 	if not viva():
 		return
@@ -169,7 +182,7 @@ func attendi_lettura(testo: String, forte: bool) -> void:
 	# "questo sta aspettando te"
 	if not viva():
 		return
-	if forte and not tempo_reale:
+	if aspetta_un_click(forte):
 		while viva() and not salta_messaggio:
 			await albero.process_frame
 	else:

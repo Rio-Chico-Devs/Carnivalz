@@ -7735,7 +7735,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4431, "perche":
+	"Combattimento.gd": {"misura": 4458, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
 		"pesanti che restano - il tempo, la scelta delle mosse, la " +
@@ -7862,7 +7862,6 @@ const FUNZIONI_INGARBUGLIATE := {
 	"GameState.gd:aggiorna_task": {"misura": 17},
 	"MappaZona.gd:_disegna_sotto": {"misura": 16},
 	"Negozio.gd:costruisci": {"misura": 16},
-	"Voce.gd:attendi_lettura": {"misura": 16},
 }
 
 func complessita_cognitiva(corpo: Array[String]) -> int:
@@ -8159,6 +8158,25 @@ func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
 	esigi(scontro.menu_acceso,
 			"in venti secondi lo scontro non ha mai passato il comando al giocatore")
 
+	# LA LEZIONE E' PARTITA? E' la domanda che non faceva nessuno, ed e' la
+	# causa vera di «non c'e' stata alcuna spiegazione dell'interfaccia».
+	#
+	# In tempo reale chi comandi tu e' escluso apposta dai "pronti" (vedi
+	# avanza_orologio): il turno non te lo da' il giro delle battute, te lo da'
+	# aggiorna_pronto_giocatore accendendo il menu. L'introduzione del passo -
+	# le battute, e la preparazione di aura e dominio - stava solo dentro
+	# battuta_di, quindi per il protagonista non partiva MAI. I passi si
+	# chiudevano lo stesso, perche' quello lo fa esegui_azione: il tutorial
+	# sembrava funzionare e non aveva mai detto una parola.
+	esigi(not scontro.tutorial_passi_introdotti.is_empty(),
+			"il menu si e' acceso e il primo passo del tutorial non e' mai stato introdotto: nessuna spiegazione")
+	esigi(not scontro.voce.coda.is_empty(),
+			"il passo e' stato introdotto ma non ha lasciato niente da leggere")
+	esigi(not scontro.il_tempo_scorre(),
+			"la lezione parla e il mondo continua a girare: le battute scorrono via da sole")
+	esigi(scontro.voce.attende_il_click,
+			"le battute della lezione non aspettano il click: ventuno di fila passerebbero da sole")
+
 	# IL QUADRANTE E' DI CHI PARLA, finche' c'e' da leggere.
 	#
 	# Bru: «dopo aver attaccato il dialogo non si vede, dovrebbe apparire nel
@@ -8189,15 +8207,26 @@ func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
 
 	# e la lezione FERMA DAVVERO IL MONDO: senza, il quadrante resterebbe al
 	# menu e le battute scorrerebbero dietro, che e' il difetto di partenza
-	scontro.lezione_in_corso = false
+	# il tempo e' fermo a incastro (ferma/riprendi si contano): la lezione vera
+	# l'ha gia' fermato una volta, e per misurarne una finta va pareggiato prima
+	if scontro.lezione_in_corso:
+		scontro.lezione_in_corso = false
+		scontro.voce.attende_il_click = false
+		scontro.riprendi_il_tempo()
+	esigi(scontro.il_tempo_scorre(), "il tempo non e' ripartito: la misura che segue non varrebbe niente")
 	scontro.scrivi_messaggio_tutorial({"tipo": "narrazione", "testo": "Una spiegazione."})
 	esigi(not scontro.il_tempo_scorre(),
 			"il tutorial ha parlato e il mondo non si e' fermato: la lezione diventa un turno perso")
 	esigi(scontro.lezione_in_corso, "la lezione non si e' segnata come in corso: non ripartira' mai")
 	scontro.voce.coda.clear()
-	await get_tree().process_frame
+	for giro in 20:
+		if scontro.il_tempo_scorre():
+			break
+		await get_tree().process_frame
 	esigi(scontro.il_tempo_scorre(),
 			"finita la lezione il mondo non e' ripartito: lo scontro resta fermo per sempre")
+	esigi(not scontro.voce.attende_il_click,
+			"finita la lezione le battute normali aspettano ancora il click: il combattimento si ferma a ogni frase")
 
 	esigi(not scontro.tutorial.is_empty(),
 			"lo scontro con Veronica non ha caricato nessun tutorial")

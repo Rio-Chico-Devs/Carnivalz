@@ -135,6 +135,30 @@ func prepara(quale: String) -> void:
 			if scontro_lista.plancia.faccia_adesso != "lista":
 				push_error("al momento dello scatto il quadrante mostra '%s', non la lista"
 						% scontro_lista.plancia.faccia_adesso)
+		"lezione":
+			# LA LEZIONE DI VERONICA, FOTOGRAFATA MENTRE PARLA.
+			#
+			# E' la cosa che Bru non riusciva a vedere: il testo del tutorial
+			# finiva dietro al menu e si sentiva solo il rumore. Una prova puo'
+			# dire che il pannello mostra la faccia "parlato"; solo uno scatto
+			# dice se quel testo si LEGGE davvero.
+			#
+			# Adesso e' anche uno scatto stabile: mentre il tutorial parla il
+			# mondo e' fermo, quindi non c'e' nessuna corsa contro la ricarica.
+			GameState.nuova_partita()
+			GameState.nemici_combattimento = ["veronica"]
+			var lezione: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(lezione)
+			var attesa := 0
+			while attesa < 900 and (lezione.voce.coda.is_empty() or lezione.il_tempo_scorre()):
+				await attendi(1)
+				attesa += 1
+			if lezione.voce.coda.is_empty():
+				push_error("il tutorial non ha messo in coda nessuna battuta: non c'e' niente da fotografare")
+			if lezione.plancia.faccia_adesso != "parlato":
+				push_error("il quadrante mostra '%s' invece del box: il testo starebbe ancora dietro al menu"
+						% lezione.plancia.faccia_adesso)
+			await attendi(45)
 		"ecg":
 			# I QUATTRO STATI DELLA LINEA, uno sotto l'altro. Il colore dice la
 			# vita, il movimento dice lo stress: sono due informazioni diverse
