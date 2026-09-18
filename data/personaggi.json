@@ -3663,35 +3663,6 @@
             ]
           },
           {
-            "azione": "minigioco",
-            "minigioco": {
-              "quanti": 14,
-              "intervallo": 0.34,
-              "durata": 0.52,
-              "danno": 9
-            },
-            "bravura_automatica": 0.45,
-            "prima": [
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Questo combattimento è troppo eccitante... preparati!",
-                "espr": "decisa"
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "Collisioni infinite. I pugni arrivano uno addosso all'altro: CLICCA su ognuno per fermarlo. Quelli che non fermi ti arrivano addosso."
-              }
-            ],
-            "dopo": [
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Bene! Vedo che le mani le sai ancora usare."
-              }
-            ]
-          },
-          {
             "azione": "abilita",
             "id": "mattanza",
             "dominio_protagonista": 300,
@@ -3771,6 +3742,49 @@
                 "testo": "Curarmi? E perché... piuttosto preparati..."
               }
             ]
+          },
+          {
+            "azione": "minigioco",
+            "minigioco": {
+              "quanti": 12,
+              "intervallo": 0.46,
+              "intervallo_finale": 0.22,
+              "durata": 0.5,
+              "danno": 9
+            },
+            "bravura_automatica": 0.45,
+            "prima": [
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Ultima cosa, e questa non te la spiego: te la faccio provare.",
+                "espr": "decisa"
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Questo combattimento è troppo eccitante... preparati!",
+                "espr": "decisa"
+              },
+              {
+                "tipo": "narrazione",
+                "testo": "Collisioni infinite. Dodici pugni, e verso la fine arrivano più fitti: CLICCA su ognuno per fermarlo. Quelli che non fermi ti arrivano addosso."
+              }
+            ],
+            "dopo": [
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Cavolo, ci sai proprio fare!",
+                "espr": "decisa"
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Non riesco a trattenermi!",
+                "espr": "decisa"
+              }
+            ]
           }
         ],
         "oggetti_forniti": [
@@ -3778,6 +3792,10 @@
           "bomba_al_nitro"
         ],
         "finale": [
+          {
+            "tipo": "narrazione",
+            "testo": "La barra di Veronica è piena, e non si ferma: va in MATTANZA."
+          },
           {
             "tipo": "narrazione",
             "testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla."
@@ -3811,7 +3829,8 @@
             }
           ]
         },
-        "_nota_lezione": "LA LEZIONE STA NEL 'prima' DEL PRIMO PASSO, e non serviva un meccanismo nuovo: quelle battute si leggono prima che il giocatore possa fare qualunque cosa, e il menu durante un passo accende solo quello che il passo chiede. Bru: «la prima cosa e' educare il giocatore sulla schermata, guidando e spiegando ogni singolo componente e come funziona, lo fara' veronica, poi finito di spiegare tutto comincia il combattimento scriptato». Il tasto BOND non viene spiegato apposta: e' disegnato ma non fa ancora niente, e raccontarlo sarebbe una bugia - Veronica lo rimanda."
+        "_nota_lezione": "LA LEZIONE STA NEL 'prima' DEL PRIMO PASSO, e non serviva un meccanismo nuovo: quelle battute si leggono prima che il giocatore possa fare qualunque cosa, e il menu durante un passo accende solo quello che il passo chiede. Bru: «la prima cosa e' educare il giocatore sulla schermata, guidando e spiegando ogni singolo componente e come funziona, lo fara' veronica, poi finito di spiegare tutto comincia il combattimento scriptato». Il tasto BOND non viene spiegato apposta: e' disegnato ma non fa ancora niente, e raccontarlo sarebbe una bugia - Veronica lo rimanda.",
+        "_nota_finale": "Bru: «superato questo veronica dira': cavolo ci sai proprio fare! non riesco a trattenermi! veronica va in mattanza e ti sferra il colpo che ti manda ko facendo finire l'allenamento». Quindi la raffica non sta piu' in mezzo: e' l'ULTIMA prova, e il colpo che chiude l'allenamento e' la conseguenza di averla superata - non una punizione, un complimento che le sfugge di mano."
       },
       "studio": [
         {

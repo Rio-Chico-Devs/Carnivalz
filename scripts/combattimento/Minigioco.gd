@@ -52,7 +52,7 @@ func collega(dove: Control, riferimento: Control) -> void:
 		quadrante.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func avvia(parametri: Dictionary, bravura := -1.0) -> void:
-	# parametri: quanti, intervallo, durata, danno
+	# parametri: quanti, intervallo, durata, danno, intervallo_finale
 	#
 	# UNA RAFFICA ALLA VOLTA, E CHI L'HA CHIESTA DEVE SAPERE COM'E' FINITA.
 	#
@@ -74,7 +74,8 @@ func avvia(parametri: Dictionary, bravura := -1.0) -> void:
 			int(parametri.get("quanti", 10)),
 			float(parametri.get("intervallo", 0.42)),
 			float(parametri.get("durata", 0.55)),
-			dado, proporzione_quadrante())
+			dado, proporzione_quadrante(),
+			float(parametri.get("intervallo_finale", -1.0)))
 	suonate += 1
 	if muto or quadrante == null:
 		risolvi_da_solo(bravura)

@@ -878,11 +878,8 @@ func aggiorna_pronto_giocatore() -> void:
 				GameState.legame)
 	var pronto := giocatore_pronto()
 	if pronto != menu_acceso:
-		if pronto:
-			# prima si sente cosa c'e' da fare, poi si accende il menu: e' questo
-			# il momento in cui il passo del tutorial comincia per il giocatore
-			attaccante_corrente = tu
-			introduci_passo_tutorial()
+		if pronto and comincia_il_tuo_turno(tu):
+			return   # il passo si e' preso il turno da solo: niente menu
 		menu_acceso = pronto
 		attaccante_corrente = tu
 		menu.principale()
@@ -1258,6 +1255,28 @@ func chiudi_passo_tutorial() -> void:
 	tutorial_passo += 1
 	if tutorial_passo >= tutorial.get("passi", []).size():
 		concludi_tutorial()
+
+func comincia_il_tuo_turno(tu: Dictionary) -> bool:
+	# IL TURNO DEL GIOCATORE COMINCIA QUI, e non sempre col menu.
+	#
+	# Ritorna true quando il passo del tutorial si prende il turno da solo e il
+	# menu NON deve accendersi. Oggi capita a un passo solo: la raffica.
+	#
+	# Era il difetto che bloccava l'allenamento. Le battute "preparati!" si
+	# sentivano - quelle le scrive introduci_passo_tutorial - ma il LANCIO della
+	# raffica stava solo dentro battuta_di, che per il giocatore non viene mai
+	# chiamata (vedi avanza_orologio: chi comandi tu e' escluso dai pronti).
+	# Quindi Veronica annunciava i pugni e i pugni non arrivavano mai. Bru:
+	# «quando ti dice preparati non procede oltre».
+	attaccante_corrente = tu
+	introduci_passo_tutorial()
+	var passo := passo_tutorial()
+	if String(passo.get("azione", "")) != "minigioco":
+		return false
+	# QUESTO PASSO NON TE LO COMANDA IL MENU: non e' una mossa che scegli, e' una
+	# che subisci, e l'unica risposta e' la tua mano
+	lancia_minigioco(passo, tu)
+	return true
 
 func introduci_passo_tutorial() -> bool:
 	# LE BATTUTE DI UN PASSO SI DICONO QUANDO IL PASSO COMINCIA - e per il

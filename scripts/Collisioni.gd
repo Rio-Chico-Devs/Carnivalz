@@ -46,7 +46,14 @@ const DISTANZA_MINIMA := LATO_PUGNO * 1.15
 const TENTATIVI_POSIZIONE := 24
 
 static func calendario(quanti: int, intervallo: float, durata: float,
-		dado: RandomNumberGenerator, proporzione := 1.0) -> Array[Dictionary]:
+		dado: RandomNumberGenerator, proporzione := 1.0,
+		intervallo_finale := -1.0) -> Array[Dictionary]:
+	# LA RAFFICA PUO' STRINGERSI ANDANDO AVANTI. Bru: «la velocita' aumenta
+	# verso la fine». Con "intervallo_finale" il tempo fra un pugno e l'altro
+	# scivola da "intervallo" a quello, in modo lineare: i primi danno il tempo
+	# di capire cosa sta succedendo, gli ultimi no. Sotto zero vuol dire "resta
+	# costante", che e' come si comportava prima e come si comportano le
+	# raffiche degli scontri veri.
 	# Il calendario della raffica. Ogni voce:
 	#   istante  quando compare, in secondi dall'inizio
 	#   durata   per quanto resta a schermo
@@ -54,8 +61,15 @@ static func calendario(quanti: int, intervallo: float, durata: float,
 	#   x, y     dove, in frazione del quadrante (0..1)
 	var raffica: Array[Dictionary] = []
 	var quando := 0.0
-	for i in maxi(quanti, 0):
-		var scarto := dado.randf_range(-SBANDAMENTO, SBANDAMENTO) * intervallo
+	var totale := maxi(quanti, 0)
+	for i in totale:
+		# quanto dura QUESTO passo: all'inizio "intervallo", alla fine
+		# "intervallo_finale". Con un pugno solo non c'e' nessuna corsa da fare
+		var avanzamento := float(i) / float(maxi(totale - 1, 1))
+		var passo_adesso := intervallo
+		if intervallo_finale >= 0.0:
+			passo_adesso = lerpf(intervallo, intervallo_finale, avanzamento)
+		var scarto := dado.randf_range(-SBANDAMENTO, SBANDAMENTO) * passo_adesso
 		var istante := maxf(quando + scarto, 0.0)
 		var punto := posizione_libera(raffica, dado, proporzione)
 		raffica.append({
@@ -67,7 +81,7 @@ static func calendario(quanti: int, intervallo: float, durata: float,
 			"y": punto.y,
 			"parato": false,
 		})
-		quando += intervallo
+		quando += passo_adesso
 	return raffica
 
 static func posizione_libera(raffica: Array[Dictionary],

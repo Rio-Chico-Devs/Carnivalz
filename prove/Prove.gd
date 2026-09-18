@@ -123,6 +123,8 @@ func _ready() -> void:
 	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	await prova_un_solo_artwork_quello_di_chi_parla()
+	await prova_la_raffica_del_tutorial_parte_davvero()
+	prova_la_raffica_accelera_verso_la_fine()
 	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
 	prova_il_tetto_alla_struttura()
 	prova_il_dispatch_delle_mosse_e_cablato_bene()
@@ -7735,7 +7737,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4458, "perche":
+	"Combattimento.gd": {"misura": 4477, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
 		"pesanti che restano - il tempo, la scelta delle mosse, la " +
@@ -8300,6 +8302,85 @@ func prova_un_solo_artwork_quello_di_chi_parla() -> void:
 	esigi(not schermata.slot_destra.visible,
 			"ricostruendo il palco tornano in scena tutti: le scelte lo rifanno a ogni giro")
 	schermata.queue_free()
+
+func prova_la_raffica_del_tutorial_parte_davvero() -> void:
+	# Bru: «quando ti dice preparati non procede oltre».
+	#
+	# Le battute "preparati!" si sentivano - quelle le scrive
+	# introduci_passo_tutorial - ma il LANCIO della raffica stava solo dentro
+	# battuta_di, che per il giocatore non viene mai chiamata: chi comandi tu e'
+	# escluso apposta dai pronti (vedi avanza_orologio). Veronica annunciava i
+	# pugni, e i pugni non arrivavano mai.
+	#
+	# E' la stessa famiglia del difetto di ieri - un pezzo di turno scritto in
+	# un punto per cui il giocatore non passa - il che dice che il vero rimedio
+	# e' rendere quel passaggio uno solo, non correggerlo un caso per volta.
+	titolo("la raffica del tutorial parte quando tocca a te")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["veronica"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	var limite: int = Time.get_ticks_msec() + 20000
+	while not scontro.menu_acceso and Time.get_ticks_msec() < limite:
+		await get_tree().process_frame
+	esigi(scontro.menu_acceso, "lo scontro non ha mai passato il comando al giocatore")
+
+	# ci si porta al passo della raffica come farebbe il gioco: e' l'ultimo
+	var passi: Array = scontro.tutorial.get("passi", [])
+	var quale := -1
+	for i in passi.size():
+		if String((passi[i] as Dictionary).get("azione", "")) == "minigioco":
+			quale = i
+	esigi(quale >= 0, "il tutorial non ha piu' nessun passo con la raffica")
+	esigi(quale == passi.size() - 1,
+			"la raffica sta al passo %d di %d: deve essere l'ultima prova prima del colpo finale"
+			% [quale, passi.size()])
+	scontro.tutorial_passo = quale
+	scontro.tutorial_passi_introdotti.clear()
+	scontro.voce.coda.clear()
+	var tu: Dictionary = scontro.combattente_comandato()
+	tu.ricarica = 0.0
+	var preso: bool = scontro.comincia_il_tuo_turno(tu)
+	esigi(preso,
+			"il passo della raffica non si e' preso il turno: il menu si accende e i pugni non arrivano mai")
+	# LA RAFFICA ASPETTA CHE IL BOX ABBIA FINITO DI PARLARE - "preparati!" deve
+	# essere leggibile prima che i pugni ci vadano sopra - e da quando la lezione
+	# aspetta il click, quel "finito" lo decide il giocatore. Qui si clicca al
+	# posto suo, che e' la simulazione onesta: se invece si svuotasse la coda a
+	# mano si proverebbe un percorso che nel gioco non esiste.
+	var scadenza_pugni: int = Time.get_ticks_msec() + 20000
+	while Time.get_ticks_msec() < scadenza_pugni:
+		if scontro.minigioco.attivo or scontro.minigioco.suonate > 0:
+			break
+		scontro.voce.salta_messaggio = true
+		await get_tree().process_frame
+	esigi(scontro.minigioco.attivo or scontro.minigioco.suonate > 0,
+			"annunciata la raffica, non e' partita nessuna raffica: e' il blocco su «preparati»")
+	scontro.in_corso = false
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	await get_tree().process_frame
+
+func prova_la_raffica_accelera_verso_la_fine() -> void:
+	# Bru: «la velocita' aumenta verso la fine, 12 pugni su cui cliccare».
+	titolo("i pugni della raffica si stringono andando avanti")
+	var dado := RandomNumberGenerator.new()
+	dado.seed = 7
+	var raffica := Collisioni.calendario(12, 0.46, 0.5, dado, 1.0, 0.22)
+	esigi(raffica.size() == 12, "la raffica ha %d pugni invece di 12" % raffica.size())
+	# si misurano i distacchi fra i primi tre e fra gli ultimi tre: lo
+	# sbandamento casuale sposta il singolo pugno, non la tendenza
+	var primi := float(raffica[2]["istante"]) - float(raffica[0]["istante"])
+	var ultimi := float(raffica[11]["istante"]) - float(raffica[9]["istante"])
+	esigi(ultimi < primi * 0.75,
+			"gli ultimi pugni distano %.2fs e i primi %.2fs: la raffica non accelera" % [ultimi, primi])
+	# e senza il parametro resta com'era: gli scontri veri non devono cambiare
+	dado.seed = 7
+	var piatta := Collisioni.calendario(12, 0.46, 0.5, dado, 1.0)
+	var p_primi := float(piatta[2]["istante"]) - float(piatta[0]["istante"])
+	var p_ultimi := float(piatta[11]["istante"]) - float(piatta[9]["istante"])
+	esigi(absf(p_ultimi - p_primi) < p_primi * 0.5,
+			"senza intervallo_finale la raffica accelera lo stesso: cambierebbe tutti gli scontri")
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.
