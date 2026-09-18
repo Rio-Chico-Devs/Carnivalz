@@ -158,7 +158,16 @@ func prepara(quale: String) -> void:
 			if lezione.plancia.faccia_adesso != "parlato":
 				push_error("il quadrante mostra '%s' invece del box: il testo starebbe ancora dietro al menu"
 						% lezione.plancia.faccia_adesso)
-			await attendi(45)
+			# si avanza fino alla battuta che indica un pezzo: l'evidenziazione
+			# si fotografa solo mentre e' accesa
+			var avanzate := 0
+			while avanzate < 12 and lezione.plancia.evidenziato == null:
+				lezione.voce.salta_messaggio = true
+				await attendi(6)
+				avanzate += 1
+			if lezione.plancia.evidenziato == null:
+				push_error("in dodici battute non si e' acceso nessun pezzo dello schermo")
+			await attendi(20)
 		"ecg":
 			# I QUATTRO STATI DELLA LINEA, uno sotto l'altro. Il colore dice la
 			# vita, il movimento dice lo stress: sono due informazioni diverse

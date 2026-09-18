@@ -752,6 +752,8 @@ func _process(delta: float) -> void:
 	if lezione_in_corso and voce != null and voce.coda.is_empty():
 		lezione_in_corso = false
 		voce.attende_il_click = false
+		if plancia != null:
+			plancia.spegni_evidenza()   # finita la lezione non resta niente acceso
 		riprendi_il_tempo()
 	avanza_mattanza(delta)   # la barra si scarica anche mentre il mondo e' fermo
 	if minigioco != null and minigioco.attivo:
@@ -1199,15 +1201,24 @@ func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
 	var testo := String(msg.get("testo", ""))
 	if testo.find("{nome}") != -1:
 		testo = testo.replace("{nome}", String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "")))
+	# IL PEZZO DI SCHERMO DI CUI SI STA PARLANDO pulsa mentre se ne parla, e
+	# smette quando si passa ad altro. L'accensione viaggia DENTRO la battuta
+	# (vedi VoceCombattimento.scrivi_con_effetto): accodarla accanto la farebbe
+	# partire quando la battuta entra in coda, cioe' venti righe troppo presto.
+	var acceso := Callable()
+	if plancia != null:
+		var da_evidenziare := String(msg.get("evidenzia", ""))
+		acceso = func() -> void: plancia.evidenzia_pezzo(da_evidenziare)
 	match String(msg.get("tipo", "narrazione")):
 		"dialogo":
 			var chi := String(msg.get("chi", GameState.id_protagonista))
 			var scheda_chi: Dictionary = GameState.personaggi.get(chi, {})
-			scrivi_forte(testo, "dialogo", String(scheda_chi.get("nome", chi)))
+			voce.scrivi_con_effetto(testo, "dialogo",
+					String(scheda_chi.get("nome", chi)), true, acceso)
 		"notifica":
-			scrivi_forte(testo, "notifica")
+			voce.scrivi_con_effetto(testo, "notifica", "", true, acceso)
 		_:
-			scrivi("[i]%s[/i]" % testo)
+			voce.scrivi_con_effetto("[i]%s[/i]" % testo, "narrazione", "", false, acceso)
 
 var minigioco_bersaglio: Dictionary = {}
 

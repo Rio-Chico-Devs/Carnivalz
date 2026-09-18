@@ -123,6 +123,7 @@ func _ready() -> void:
 	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	await prova_un_solo_artwork_quello_di_chi_parla()
+	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	prova_la_raffica_accelera_verso_la_fine()
 	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
@@ -7737,7 +7738,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4477, "perche":
+	"Combattimento.gd": {"misura": 4488, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
 		"pesanti che restano - il tempo, la scelta delle mosse, la " +
@@ -7754,6 +7755,13 @@ const FILE_GRANDI := {
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
 		"adesso vuol dire spezzarlo di nuovo fra un mese"},
+	"Plancia.gd": {"misura": 715, "perche":
+		"la schermata di combattimento intera, come l'ha disegnata Bru: il " +
+		"riquadro della creatura, i tre della squadra, le tre barre, l'ECG, " +
+		"i due tasti, e le tre facce del quadrante. Ha passato le 700 righe " +
+		"aggiungendo l'evidenziazione dei pezzi, e quella parte NON si stacca: " +
+		"pezzo() esiste proprio perche' e' la plancia a sapere com'e' fatta - " +
+		"portarla fuori darebbe un file che non sa niente e chiede tutto"},
 	"Pausa.gd": {"misura": 894, "perche":
 		"il data pad: sette schermate diverse (squadra, sacca, missioni, " +
 		"messaggi, mappa, opzioni, salvataggio) che non si parlano fra loro. " +
@@ -8381,6 +8389,56 @@ func prova_la_raffica_accelera_verso_la_fine() -> void:
 	var p_ultimi := float(piatta[11]["istante"]) - float(piatta[9]["istante"])
 	esigi(absf(p_ultimi - p_primi) < p_primi * 0.5,
 			"senza intervallo_finale la raffica accelera lo stesso: cambierebbe tutti gli scontri")
+
+func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
+	# Bru: «bisogna rendere piu' accattivante la segnalazione degli elementi
+	# dell'interfaccia evidenziandoli con animazioni».
+	#
+	# Il rischio di questa cosa non e' che non funzioni: e' che un nome scritto
+	# male nei dati non evidenzi NIENTE, e che un'evidenziazione che non si vede
+	# sia indistinguibile da una che non e' stata chiesta. Chi scrive i dialoghi
+	# non ha modo di accorgersene se non guardando lo schermo.
+	titolo("ogni «evidenzia» dei dialoghi indica un pezzo che esiste davvero")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["veronica"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	var limite: int = Time.get_ticks_msec() + 20000
+	while scontro.plancia == null and Time.get_ticks_msec() < limite:
+		await get_tree().process_frame
+	esigi(scontro.plancia != null, "la plancia non e' mai nata")
+
+	# 1. tutti i nomi usati nei dati sono pezzi veri
+	var usati: Array[String] = []
+	for creatura in GameState.personaggi.values():
+		for passo in (creatura as Dictionary).get("tutorial_combattimento", {}).get("passi", []):
+			for dove in ["prima", "dopo"]:
+				for msg in (passo as Dictionary).get(dove, []):
+					var nome := String((msg as Dictionary).get("evidenzia", ""))
+					if nome != "" and nome not in usati:
+						usati.append(nome)
+	esigi(usati.size() >= 5,
+			"i dialoghi del tutorial indicano solo %d pezzi dello schermo: quasi niente si evidenzia" % usati.size())
+	for nome in usati:
+		esigi(scontro.plancia.pezzo(nome) != null,
+			"un dialogo chiede di evidenziare '%s', che non e' un pezzo dello schermo: non si vedrebbe niente" % nome)
+
+	# 2. e accenderlo accende DAVVERO qualcosa, uno alla volta
+	scontro.plancia.evidenzia_pezzo("ecg")
+	esigi(scontro.plancia.evidenziato == scontro.plancia.fondale_ecg,
+			"chiesto di evidenziare l'ECG, non si e' acceso l'ECG")
+	scontro.plancia.evidenzia_pezzo("mattanza")
+	esigi(scontro.plancia.evidenziato == scontro.plancia.tasto_mattanza,
+			"passando a MATTANZA l'evidenza non si e' spostata")
+	esigi(scontro.plancia.fondale_ecg.modulate == Color.WHITE,
+			"l'ECG e' rimasto acceso mentre pulsa un altro pezzo: due cose che lampeggiano non indicano niente")
+	scontro.plancia.spegni_evidenza()
+	esigi(scontro.plancia.evidenziato == null and scontro.plancia.tasto_mattanza.modulate == Color.WHITE,
+			"spenta l'evidenza, qualcosa continua a pulsare")
+	scontro.in_corso = false
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	await get_tree().process_frame
 
 func prova_la_rete_dei_dati_non_ha_buchi() -> void:
 	# CHI CONTROLLA I CONTROLLI.

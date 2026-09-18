@@ -76,6 +76,14 @@ func scrivi_forte(riga: String, tipo := "narrazione", chi := "") -> void:
 	# messaggio che cambia le cose: aspetta un click, non scorre via
 	accoda(riga, tipo, chi, true)
 
+func scrivi_con_effetto(riga: String, tipo: String, chi: String, forte: bool,
+		effetto: Callable) -> void:
+	# una battuta che, nel momento in cui compare, fa anche succedere qualcosa:
+	# oggi serve al tutorial per accendere il pezzo di schermo di cui parla.
+	# L'effetto viaggia NELLA battuta e non accanto, se no partirebbe quando e'
+	# stato accodato invece che quando si legge
+	accoda(riga, tipo, chi, forte, effetto)
+
 func accoda_effetto(effetto: Callable) -> void:
 	# un battito senza parole: il numero che vola, il lampo sulla scheda. Sta
 	# nella coda come tutto il resto, cosi' succede al momento giusto e non tre

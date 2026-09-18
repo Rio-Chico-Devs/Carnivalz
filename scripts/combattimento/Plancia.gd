@@ -71,6 +71,10 @@ var tasto_altro: Button      # "Altro ▸": compare solo se non ci stanno tutte
 var corpo_comandi := 18
 # quali numeri stanno gia' scritti: per non riscriverli a ogni fotogramma
 var faccia_adesso := ""   # quale delle tre e' in mostra adesso
+# CHI STA PULSANDO ADESSO, e il suo battito. Uno alla volta: due pezzi che
+# lampeggiano insieme non indicano niente, indicano "guarda lo schermo"
+var evidenziato: CanvasItem = null
+var battito_evidenza: Tween = null
 var stress_scritto := -1
 var morale_scritto := -1
 
@@ -659,3 +663,52 @@ func aggiorna_condizione(quota_hp: float, stress: int, morale: int) -> void:
 	if morale != morale_scritto:
 		morale_scritto = morale
 		etichetta_morale.text = "Morale: %d" % morale
+
+# --- indicare un pezzo dello schermo ----------------------------------------
+#
+# Bru: «bisogna rendere piu' accattivante la segnalazione degli elementi
+# dell'interfaccia evidenziandoli con animazioni».
+#
+# Una battuta del tutorial puo' dire QUALE pezzo sta nominando, e quel pezzo
+# pulsa finche' si parla di lui. Non e' decorazione: e' la differenza fra "le
+# barre, dall'alto: HP e' quanto reggi" letto nel vuoto, e la stessa frase con
+# la barra che batte sotto gli occhi. Chi legge non deve cercare.
+
+func pezzo(nome: String) -> CanvasItem:
+	# il nome che si scrive nei dati -> il nodo che pulsa. Sta qui e non nel
+	# motore: e' la plancia a sapere com'e' fatta
+	match nome:
+		"nemico": return box_nemico
+		"scheda": return scheda_nemico
+		"squadra": return slot[0] if not slot.is_empty() else null
+		"ecg": return fondale_ecg
+		"morale": return etichetta_morale
+		"stress": return etichetta_stress
+		"mattanza": return tasto_mattanza
+		"bond": return tasto_bond
+		"menu": return faccia_comandi
+	return null
+
+func evidenzia_pezzo(nome: String) -> void:
+	spegni_evidenza()
+	if nome == "":
+		return
+	var nodo := pezzo(nome)
+	if nodo == null or not is_instance_valid(nodo):
+		# UN NOME SBAGLIATO NEI DATI DEVE DIRLO. Un'evidenziazione che non si
+		# vede e' indistinguibile da una che non e' stata chiesta, e chi scrive
+		# i dialoghi non ha modo di accorgersene se non guardando
+		push_error("Plancia: la battuta chiede di evidenziare '%s', che non e' un pezzo dello schermo" % nome)
+		return
+	evidenziato = nodo
+	battito_evidenza = nodo.create_tween().set_loops()
+	battito_evidenza.tween_property(nodo, "modulate", Stile.colore("accento"), 0.45)
+	battito_evidenza.tween_property(nodo, "modulate", Color.WHITE, 0.45)
+
+func spegni_evidenza() -> void:
+	if battito_evidenza != null and battito_evidenza.is_valid():
+		battito_evidenza.kill()
+	battito_evidenza = null
+	if evidenziato != null and is_instance_valid(evidenziato):
+		evidenziato.modulate = Color.WHITE
+	evidenziato = null

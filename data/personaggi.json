@@ -3486,69 +3486,83 @@
               },
               {
                 "tipo": "narrazione",
-                "testo": "Il riquadro grande, quello nero: è chi hai davanti. In questo caso sono io, quindi guardami bene."
+                "testo": "Il riquadro grande, quello nero: è chi hai davanti. In questo caso sono io, quindi guardami bene.",
+                "evidenzia": "nemico"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Sotto c'è la mia scheda. Vedi i punti interrogativi? Vuol dire che non sai niente di me."
+                "testo": "Sotto c'è la mia scheda. Vedi i punti interrogativi? Vuol dire che non sai niente di me.",
+                "evidenzia": "scheda"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Si toglie guardando. [b]Studia[/b] sta dentro SKILL e non costa nulla — non costerà mai nulla."
+                "testo": "Si toglie guardando. [b]Studia[/b] sta dentro SKILL e non costa nulla — non costerà mai nulla.",
+                "evidenzia": "menu"
               },
               {
                 "tipo": "narrazione",
-                "testo": "In alto i riquadri siete voi. Quello acceso è chi stai comandando."
+                "testo": "In alto i riquadri siete voi. Quello acceso è chi stai comandando.",
+                "evidenzia": "squadra"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Le barre, dall'alto: [b]HP[/b] è quanto reggi. Finiti quelli sei per terra."
+                "testo": "Le barre, dall'alto: [b]HP[/b] è quanto reggi. Finiti quelli sei per terra.",
+                "evidenzia": "squadra"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "[b]AURA[/b] è quello che paga le skill. Non torna in fretta, quindi non buttarla via."
+                "testo": "[b]AURA[/b] è quello che paga le skill. Non torna in fretta, quindi non buttarla via.",
+                "evidenzia": "squadra"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "La terza è il [b]dominio[/b]. Si riempie prendendo e dando: è lo spettacolo che stai facendo."
+                "testo": "La terza è il [b]dominio[/b]. Si riempie prendendo e dando: è lo spettacolo che stai facendo.",
+                "evidenzia": "squadra"
               },
               {
                 "tipo": "narrazione",
-                "testo": "Al centro la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%."
+                "testo": "Al centro la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%.",
+                "evidenzia": "ecg"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Il movimento invece è lo [b]stress[/b]. Se quella impazzisce, stai per fare qualcosa di stupido."
+                "testo": "Il movimento invece è lo [b]stress[/b]. Se quella impazzisce, stai per fare qualcosa di stupido.",
+                "evidenzia": "ecg"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "[b]Morale[/b] e [b]Stress[/b] sono scritti sotto in chiaro. Tienili d'occhio più della mia faccia."
+                "testo": "[b]Morale[/b] e [b]Stress[/b] sono scritti sotto in chiaro. Tienili d'occhio più della mia faccia.",
+                "evidenzia": "morale"
               },
               {
                 "tipo": "narrazione",
-                "testo": "A destra il menu: ATTACCHI, DIFESA, SKILL, OGGETTI, FUGA."
+                "testo": "A destra il menu: ATTACCHI, DIFESA, SKILL, OGGETTI, FUGA.",
+                "evidenzia": "menu"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "[b]DIFESA[/b] si accumula e resta fino alla fine. Difendersi cinque volte serve davvero, non è una battuta buttata."
+                "testo": "[b]DIFESA[/b] si accumula e resta fino alla fine. Difendersi cinque volte serve davvero, non è una battuta buttata.",
+                "evidenzia": "menu"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "[b]MATTANZA[/b] si accende solo con almeno una barra piena, e quando la chiami te la consuma tutta."
+                "testo": "[b]MATTANZA[/b] si accende solo con almeno una barra piena, e quando la chiami te la consuma tutta.",
+                "evidenzia": "mattanza"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Quel tasto lì accanto lascialo stare, per oggi. Te lo spiego un'altra volta."
+                "testo": "Quel tasto lì accanto lascialo stare, per oggi. Te lo spiego un'altra volta.",
+                "evidenzia": "bond"
               },
               {
                 "tipo": "dialogo",
@@ -3558,11 +3572,13 @@
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Ognuno ha la sua ricarica. Quando la tua è finita puoi muoverti, e finché stai fermo il mondo va avanti lo stesso."
+                "testo": "Ognuno ha la sua ricarica. Quando la tua è finita puoi muoverti, e finché stai fermo il mondo va avanti lo stesso.",
+                "evidenzia": "squadra"
               },
               {
                 "tipo": "narrazione",
-                "testo": "La barra sotto il tuo riquadro è quella: quando è piena, tocca a te."
+                "testo": "La barra sotto il tuo riquadro è quella: quando è piena, tocca a te.",
+                "evidenzia": "squadra"
               },
               {
                 "tipo": "dialogo",
