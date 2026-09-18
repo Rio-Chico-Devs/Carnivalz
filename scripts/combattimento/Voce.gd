@@ -53,6 +53,14 @@ var salta_messaggio := false       # un click chiede di passare avanti
 # spiegazione, sono un rumore. Chi ferma il tempo alza anche questa.
 var attende_il_click := false
 var sta_svuotando := false         # c'e' gia' qualcuno che sta facendo leggere
+# C'E' DEL TESTO SOTTO GLI OCCHI ADESSO?
+#
+# Non e' la stessa domanda di "la coda e' vuota": la battuta che si sta leggendo
+# e' gia' stata tolta dalla coda. E non e' nemmeno sta_svuotando, che dice solo
+# che un drenatore e' in piedi - resta vero anche nei buchi fra un messaggio e
+# l'altro. Chi deve decidere se il mondo aspetta ha bisogno di questa, e di
+# nessun'altra.
+var sta_facendo_leggere := false
 # In tempo reale nessun messaggio puo' fermare il mondo aspettando un click:
 # anche quelli "forti" scorrono da soli, solo con piu' calma
 var tempo_reale := false

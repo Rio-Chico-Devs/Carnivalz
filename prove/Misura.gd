@@ -33,6 +33,10 @@ var somma_fotogrammi := 0.0
 var menu_prima := 0
 var schede_prima := 0
 var disegni_prima := 0
+var hp_prima := 0
+var hp_dopo := 0
+var fasi: Dictionary = {}
+var azioni_nemico := 0
 
 func _ready() -> void:
 	var argomenti := OS.get_cmdline_user_args()
@@ -45,12 +49,19 @@ func _ready() -> void:
 	menu_prima = 0
 	schede_prima = int(scontro.campo.aggiornamenti)
 	disegni_prima = int(Disegni.ricerche)
+	for c in scontro.combattenti:
+		if c.giocatore:
+			hp_prima += int(c.hp)
 	var fine := Time.get_ticks_msec() + int(SECONDI * 1000.0)
 	while Time.get_ticks_msec() < fine and is_instance_valid(scontro):
 		await get_tree().process_frame
 		campiona(scontro)
 	if is_instance_valid(scontro):
 		schede_fatte = int(scontro.campo.aggiornamenti) - schede_prima
+		for c in scontro.combattenti:
+			if c.giocatore:
+				hp_dopo += int(c.hp)
+		azioni_nemico = int(scontro.giro_corrente)
 	disegni_fatti = int(Disegni.ricerche) - disegni_prima
 	stampa(chi)
 	get_tree().quit()
@@ -70,16 +81,24 @@ func campiona(scontro: Node) -> void:
 	var comandabile := faccia == "comandi" or faccia == "lista"
 	if comandabile:
 		con_menu_a_schermo += 1
-	# IL NUMERO CHE CONTA. Il giocatore e' pronto ad agire, e il pannello dei
-	# comandi non c'e': quello che vede e' un menu che non risponde, e il primo
-	# click lo mangia il box del testo. Bru: «il primo click e' andato a vuoto
-	# il secondo no, e' come se fosse lento a ripristinare l'interfaccia».
-	if bool(scontro.menu_acceso) and not comandabile:
+	# IL NUMERO CHE CONTA, e la sua prima versione era sbagliata: guardava
+	# menu_acceso, che e' uno dei booleani stantii che il sequenziatore ha
+	# sostituito - restava vero mentre il giocatore NON poteva agire, e contava
+	# come click a vuoto una cosa che era solo lettura.
+	#
+	# La domanda giusta e' un'altra: la FASE dice che tocca a te, e il pannello
+	# mostra altro? Li' un click va a vuoto per davvero. Col sequenziatore deve
+	# essere zero per costruzione, e se non lo e' e' un difetto.
+	if scontro.has_method("fase_adesso") and String(scontro.fase_adesso()) == "comandi" \
+			and not comandabile:
 		menu_acceso_ma_coperto += 1
 	if not scontro.voce.coda.is_empty():
 		con_testo_in_coda += 1
 	if not scontro.il_tempo_scorre():
 		tempo_fermo += 1
+	if scontro.has_method("fase_adesso"):
+		var f := String(scontro.fase_adesso())
+		fasi[f] = int(fasi.get(f, 0)) + 1
 
 func quota(quanti: int) -> String:
 	if campioni <= 0:
@@ -106,3 +125,7 @@ func stampa(chi: String) -> void:
 	print("  schede ridisegnate    %d   (%.1f al secondo)" % [
 			schede_fatte, float(schede_fatte) / SECONDI])
 	print("  disegni chiesti al disco  %d" % disegni_fatti)
+	print("  LO SCONTRO PROGREDISCE?   hp della squadra %d -> %d   (giri: %d)" % [
+			hp_prima, hp_dopo, azioni_nemico])
+	for f in fasi:
+		print("    fase '%-10s'    %s" % [f, quota(int(fasi[f]))])

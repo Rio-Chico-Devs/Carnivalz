@@ -123,6 +123,7 @@ func _ready() -> void:
 	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	await prova_un_solo_artwork_quello_di_chi_parla()
+	await prova_una_fase_alla_volta_e_niente_click_a_vuoto()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	prova_la_raffica_accelera_verso_la_fine()
@@ -2478,6 +2479,14 @@ func prova_scontro_vero_si_gioca() -> void:
 	#    niente e il protagonista deve incassare
 	var vita_eroe := int(eroe.hp)
 	for battito in 300:
+		# SI LEGGE FRA UN BATTITO E L'ALTRO, e non e' una scorciatoia: da quando
+		# il racconto ferma il mondo (Bru: «mentre ci sono i dialoghi tutto si
+		# incentra nella lettura»), un orologio fatto girare senza nessuno che
+		# legga si pianta al primo messaggio - ed e' giusto che si pianti. Qui
+		# si simula il giocatore che legge, che e' la condizione vera
+		scontro.voce.coda.clear()
+		scontro.voce.salta_messaggio = true   # il giocatore che legge e va avanti
+		scontro.voce.sta_facendo_leggere = false
 		scontro.avanza_orologio(0.1)
 		if int(eroe.hp) < vita_eroe:
 			break
@@ -7738,7 +7747,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4488, "perche":
+	"Combattimento.gd": {"misura": 4544, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
 		"pesanti che restano - il tempo, la scelta delle mosse, la " +
@@ -7862,7 +7871,11 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Campo.gd:dettagli_di": {"misura": 20},
 	"Combattimento.gd:flagello": {"misura": 20},
 	"Regole.gd:calcola_danno": {"misura": 20},
-	"Combattimento.gd:avanza_orologio": {"misura": 19},
+	"Combattimento.gd:avanza_orologio": {"misura": 20, "perche":
+		"e' cresciuta di uno, ed e' un guardiano solo: «finche' c'e' da " +
+		"leggere, non avanza niente». E' la regola che Bru ha chiesto " +
+		"(«ogni cosa a suo tempo e in modo organizzato») e il punto in cui il " +
+		"mondo si ferma non puo' stare altrove che nel battito del mondo"},
 	"Combattimento.gd:mantra": {"misura": 19},
 	"Combattimento.gd:verifica_fine_scontro": {"misura": 19},
 	"Combattimento.gd:azione_automatica": {"misura": 18},
@@ -8450,6 +8463,63 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 	scontro.plancia.spegni_evidenza()
 	esigi(scontro.plancia.evidenziato == null and scontro.plancia.tasto_mattanza.modulate == Color.WHITE,
 			"spenta l'evidenza, qualcosa continua a pulsare")
+	scontro.in_corso = false
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	await get_tree().process_frame
+
+func prova_una_fase_alla_volta_e_niente_click_a_vuoto() -> void:
+	# L'INVARIANTE CHE RENDE IMPOSSIBILE IL CLICK A VUOTO.
+	#
+	# Bru, provando: «quando dovevo premere su difesa ci ho cliccato e il primo
+	# click e' andato a vuoto il secondo no, e' come se fosse lento a
+	# ripristinare l'interfaccia interagibile». Misurato: per il 76% del
+	# tutorial il giocatore risultava "pronto" e il pannello dei comandi non era
+	# a schermo. Non era lentezza: erano cinque booleani - menu_acceso,
+	# tempo_fermo, lezione_in_corso, minigioco.attivo, coda vuota - che
+	# potevano dire cose diverse insieme.
+	#
+	# Adesso la fase e' UNA, e non si tiene in una variabile: si chiede ai
+	# fatti. Questa prova fissa il patto in due righe:
+	#   fase "comandi"  -> il quadrante mostra il menu, sempre
+	#   fase "racconto" -> il mondo non avanza, sempre
+	titolo("una fase alla volta, e il pannello e' sempre quello della fase")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	scontro.in_corso = true
+
+	# 1. c'e' da leggere -> si legge, e il mondo aspetta
+	scontro.menu_acceso = true          # "pronto" puo' anche essere vero: non conta piu'
+	scontro.voce.coda.append({"tipo": "narrazione", "chi": "", "testo": "Qualcuno parla.",
+			"forte": false, "effetto": Callable()})
+	esigi(String(scontro.fase_adesso()) == "racconto",
+			"c'e' una battuta in coda e la fase e' '%s'" % String(scontro.fase_adesso()))
+	esigi(scontro.il_mondo_aspetta_che_si_legga(),
+			"si sta raccontando e il mondo continua ad avanzare: le ricariche corrono sotto il testo")
+	scontro.decidi_faccia()
+	esigi(String(scontro.plancia.faccia_adesso) == "parlato",
+			"fase racconto e quadrante su '%s'" % String(scontro.plancia.faccia_adesso))
+
+	# 2. finito di leggere -> torna il menu, e il mondo riparte
+	scontro.voce.coda.clear()
+	scontro.voce.sta_facendo_leggere = false
+	esigi(String(scontro.fase_adesso()) == "comandi",
+			"non c'e' piu' niente da leggere e la fase e' '%s'" % String(scontro.fase_adesso()))
+	esigi(not scontro.il_mondo_aspetta_che_si_legga(),
+			"finito il racconto il mondo continua ad aspettare: lo scontro si pianta")
+	scontro.decidi_faccia()
+	esigi(String(scontro.plancia.faccia_adesso) == "comandi",
+			"fase comandi e quadrante su '%s': ecco il click che va a vuoto"
+			% String(scontro.plancia.faccia_adesso))
+
+	# 3. E LA FASE NON SI TIENE IN UNA VARIABILE. Se fosse salvata potrebbe
+	#    restare indietro rispetto ai fatti, ed e' esattamente cosi' che questa
+	#    roba si rompe: il pannello dice una cosa e il motore un'altra
+	esigi(not ("var fase" in testo_script("res://scripts/Combattimento.gd")),
+			"la fase e' finita in una variabile: una fase salvata puo' restare indietro rispetto ai fatti")
 	scontro.in_corso = false
 	scontro.voce.coda.clear()
 	scontro.queue_free()
@@ -9605,10 +9675,21 @@ func prova_il_box_racconta_nel_quadrante() -> void:
 	esigi(scontro.plancia.faccia_adesso == "parlato",
 			"c'e' una battuta da leggere e nessuno accende il parlato: il quadrante mostra '%s'"
 			% scontro.plancia.faccia_adesso)
-	scontro.menu_acceso = true          # la ricarica e' finita: tocca a te
+	# IL CONTRATTO E' CAMBIATO, ed e' una decisione di Bru: «ogni cosa a suo
+	# tempo e in modo organizzato». Prima, potendo agire, il menu vinceva SUL
+	# racconto - e cosi' una battuta poteva sparire senza essere letta. Adesso
+	# le due cose non si contendono piu' niente: finche' c'e' da leggere si
+	# legge e il mondo aspetta, poi torna il menu. Quindi accendere menu_acceso
+	# con una battuta ancora in coda NON deve piu' scoprire il menu.
+	scontro.menu_acceso = true          # la ricarica e' finita, ma c'e' ancora da leggere
+	scontro.decidi_faccia()
+	esigi(scontro.plancia.faccia_adesso == "parlato",
+			"c'e' ancora una battuta in coda e il quadrante e' gia' passato a '%s': quella battuta sparisce senza essere letta"
+			% scontro.plancia.faccia_adesso)
+	scontro.voce.coda.clear()           # letta: adesso tocca a te davvero
 	scontro.decidi_faccia()
 	esigi(scontro.plancia.faccia_adesso == "comandi",
-			"la ricarica e' finita e il quadrante resta su '%s': il turno non si puo' giocare"
+			"finito il racconto il quadrante resta su '%s': il turno non si puo' giocare"
 			% scontro.plancia.faccia_adesso)
 	scontro.voce.coda.clear()
 	scontro.free()

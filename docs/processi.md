@@ -498,3 +498,65 @@ quando me ne ricordo. I mutanti che scelgo sono probabilmente migliori dei loro
 (li scelgo sapendo dove fa male), ma non sono ripetibili: fra sei mesi nessuno
 saprà quali erano. Registrarli in modo che si rigiochino da soli è il pezzo che
 manca, ed è il prossimo lavoro serio sulle prove.
+
+## Il sequenziatore: una fase alla volta
+
+Bru, provando: *«non è reattivo […] quando dovevo premere su difesa ci ho
+cliccato e il primo click è andato a vuoto»*. E: **«tutto deve essere misurato»**.
+
+Quindi prima lo strumento — `./prove/misura.sh` fa girare uno scontro **vero**
+per dodici secondi campionando a ogni fotogramma — e il primo numero ha
+ribaltato la diagnosi.
+
+| | prima | dopo |
+|---|---|---|
+| menu a schermo (scontro normale) | 44% | **71%** |
+| **pronto ma coperto** (scontro normale) | — | **0,2%** |
+| **pronto ma coperto** (tutorial) | **76%** | **0,0%** |
+| ridisegni di scheda in 12s | 6 | 8 |
+| letture dal disco in 12s | 0 | 0 |
+
+«Pronto ma coperto» è la quota di tempo in cui il giocatore può agire e il
+pannello dei comandi **non è a schermo**: lì ogni click lo mangia il box del
+testo. Nel tutorial era tre quarti del tempo.
+
+**E la parola «performance» non reggeva.** Il costo per fotogramma era già
+minimo — otto ridisegni in dodici secondi, **zero** letture dal disco. Il gioco
+non sprecava lavoro: rendeva le cose disponibili al momento sbagliato. Sono due
+difetti diversi, e chiamare «lentezza» il secondo avrebbe mandato a ottimizzare
+codice già a posto.
+
+### La causa: cinque booleani per una cosa sola
+
+Le fasi c'erano già, ma non avevano un nome: erano sparse in `menu_acceso`,
+`tempo_fermo`, `lezione_in_corso`, `minigioco.attivo`, `coda.is_empty()`. Cinque
+booleani che potevano dire cose diverse insieme — e lo dicevano.
+
+Bru: *«basta creare una lista di priorità: quando scatta un evento il box fa una
+cosa, finisce l'evento e non ci sono altri dialoghi? torna il menu […] ogni cosa
+a suo tempo e in modo organizzato»*. È alla lettera quello che la letteratura
+chiama macchina a stati: *«un combattimento JRPG è una sequenza di fasi distinte,
+un candidato perfetto per una FSM»*.
+
+Cinque fasi: `chiuso`, `minigioco`, `racconto`, `comandi`, `attesa`. Due regole:
+
+- **fase `comandi` → il quadrante mostra il menu, sempre**;
+- **fase `racconto` → il mondo non avanza, sempre.** Bru: *«mentre ci sono i
+  dialoghi tutto si incentra nella lettura […] se il nemico dice "adesso il mio
+  colpo migliore!", il dialogo prima e poi colpisce»*.
+
+**La fase non si tiene in una variabile: si chiede ai fatti.** Una fase salvata
+può restare indietro, ed è esattamente così che questa roba si rompe — il
+pannello dice una cosa e il motore un'altra. Una prova verifica anche questo,
+leggendo il sorgente.
+
+### Due cose che resto a dire invece di nasconderle
+
+**Lo 0,2% che resta** è il fotogramma fra il cambio di fase e il ridisegno del
+pannello. Un click che arriva proprio lì si perde ancora: un caso su cinquecento,
+non la causa di quello che Bru ha sentito, ma esiste.
+
+**Il metro era sbagliato la prima volta.** Misuravo `menu_acceso`, che è uno dei
+booleani stantii che il sequenziatore ha sostituito: restava vero mentre il
+giocatore *non* poteva agire, e contava come click a vuoto quella che era solo
+lettura. Uno strumento va tarato come il codice che misura.

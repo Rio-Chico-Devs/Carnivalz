@@ -649,6 +649,48 @@ func ferma_il_tempo() -> void:
 func riprendi_il_tempo() -> void:
 	tempo_fermo = maxi(tempo_fermo - 1, 0)
 
+# --- LE FASI DELLO SCONTRO ---------------------------------------------------
+#
+# Bru: «organizzando gli eventi? basta creare una lista di priorita': quando
+# scatta un evento il box fa una cosa, finisce l'evento e non ci sono altri
+# dialoghi? torna il menu per attaccare o eseguire mosse, scatta un minigioco?
+# il minigioco viene eseguito, alla fine degli eventi si torna al menu di
+# combattimento normale». E: «ogni cosa a suo tempo e in modo organizzato».
+#
+# E' esattamente quello che la letteratura chiama macchina a stati: un
+# combattimento e' una sequenza di fasi distinte, e in ogni istante se ne vive
+# UNA sola. Prima le fasi c'erano lo stesso, ma non avevano un nome: erano
+# sparse in menu_acceso, tempo_fermo, lezione_in_corso, minigioco.attivo,
+# coda.is_empty(). Cinque booleani che potevano dire cose diverse insieme - e
+# lo dicevano: il 76% del tutorial il giocatore era "pronto" e il pannello dei
+# comandi non c'era, quindi ogni click andava a vuoto.
+#
+# LA FASE NON SI TIENE IN UNA VARIABILE, SI CHIEDE. Una fase salvata puo'
+# restare indietro rispetto ai fatti, ed e' il modo in cui questa roba si rompe:
+# il pannello dice una cosa e il motore un'altra. Qui si guarda com'e' il mondo
+# adesso, e la risposta e' sempre vera per costruzione.
+func fase_adesso() -> String:
+	if not in_corso:
+		return "chiuso"
+	if minigioco != null and minigioco.attivo:
+		return "minigioco"
+	if voce != null and (not voce.coda.is_empty() or voce.sta_facendo_leggere):
+		return "racconto"
+	if menu_acceso:
+		return "comandi"
+	return "attesa"
+
+func il_mondo_aspetta_che_si_legga() -> bool:
+	# la regola di Bru in una riga: finche' c'e' da leggere, non avanza niente.
+	# Sta qui e non dentro avanza_orologio perche' e' una REGOLA, e una regola
+	# con un nome si puo' chiedere anche da fuori - per esempio da una prova
+	return fase_governa_il_tempo() and fase_adesso() == "racconto"
+
+func fase_governa_il_tempo() -> bool:
+	# il sequenziatore vale per la partita vera. Il giocatore automatico gira su
+	# un orologio virtuale che deve poter correre senza nessuno che legga
+	return tempo_reale and not muto
+
 func il_tempo_scorre() -> bool:
 	return in_corso and tempo_fermo <= 0
 
@@ -693,6 +735,14 @@ func prossimo_evento() -> float:
 func avanza_orologio(delta: float) -> void:
 	# IL BATTITO DEL MONDO. Scorre per tutti insieme; chi arriva a zero agisce.
 	if not il_tempo_scorre():
+		return
+	# MENTRE SI LEGGE, IL MONDO ASPETTA. Bru: «mentre ci sono i dialoghi tutto si
+	# incentra nella lettura, non serve che altro vada avanti - se il nemico dice
+	# qualcosa tipo "adesso il mio colpo migliore!", il dialogo prima e poi
+	# colpisce». Era il difetto di fondo: le ricariche correvano sotto il testo,
+	# quindi quando finivi di leggere il tuo turno era gia' passato, o era
+	# arrivato mentre il menu era coperto
+	if il_mondo_aspetta_che_si_legga():
 		return
 	orologio += delta
 	for combattente in combattenti:
@@ -4434,6 +4484,12 @@ func decidi_faccia() -> void:
 	# passava il difetto: durante la lezione di Veronica menu_acceso resta vero
 	# per tutto il tempo, e le ventuno battute scorrevano DIETRO al menu - si
 	# sentiva il rumore del testo e non si leggeva una riga
+	if fase_governa_il_tempo():
+		# una fase sola alla volta, e il pannello e' suo: il box quando si
+		# racconta, il menu quando tocca a te. Niente piu' due padroni
+		plancia.mostra_faccia("parlato" if fase_adesso() == "racconto"
+				else (menu.modo if menu != null else "comandi"))
+		return
 	plancia.mostra_faccia(PlanciaCombattimento.faccia_da_mostrare(
 			menu_acceso and il_tempo_scorre(),
 			not voce.coda.is_empty(),
