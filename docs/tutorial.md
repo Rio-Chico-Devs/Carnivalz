@@ -6,49 +6,65 @@ si evitano errori»), e poi applicata al tutorial che c'è.
 
 La prima cosa che ha bocciato è il lavoro di ieri.
 
-## 1. Quello che dice la ricerca
+## 0. Come mi sono sbagliato, e come me ne sono accorto
 
-**Si impara facendo, non leggendo.** *«Se il tutorial non è molto corto e
-semplice, i giocatori faticano a capire e ricordare concetti che non hanno
-applicato.»* La lezione conta quando il giocatore la mette in pratica subito.
+Bru: «approfondisci le ricerche mai essere sicuri di se stessi». Aveva ragione a
+dirlo su questo documento, perché la prima versione conteneva tre errori miei.
 
-**Una cosa per volta, in un posto senza rischio.** Il manuale dell'onboarding:
-insegnare *il minimo insieme di controlli, un meccanismo alla volta*, e lasciare
-che il giocatore lo provi a bassa posta prima di alzare la pressione.
+**Ho generalizzato da ricerca sbagliata.** Quasi tutte le regole che avevo citato
+— «gameplay entro 60 secondi», «i modali sono un anti-pattern», «7 utenti su 10
+abbandonano nella prima settimana» — vengono da **onboarding mobile e SaaS**,
+dove l'economia è opposta: utenti gratuiti che se ne vanno con un tap, e la
+metrica è la ritenzione a un giorno. Carnivalz è un RPG narrativo, con un
+personaggio che parla: chi lo apre ha già deciso di leggere.
 
-**Presto, e poco.** *«Gameplay entro 60 secondi, il momento "ah ecco" entro 90,
-un giro introduttivo di due passi o meno.»* E: *«se insegni troppo troppo
-presto, la ritenzione cala, perché il giocatore si sente esaminato prima di
-sentirsi ricompensato.»*
+**Ho letto uno studio al contrario.** Avevo citato Andersen et al. (CHI 2012,
+**oltre 45.000 giocatori**) come argomento contro i tutorial. Dice l'opposto: i
+tutorial aumentano il tempo di gioco **fino al 29% nel gioco più complesso**, e
+non servono nei giochi le cui meccaniche *«si possono scoprire
+sperimentando»*. Carnivalz ha aura, dominio, ECG, stress, otto status, Mattanza
+e una ricarica in tempo reale: non si scopre sperimentando.
 
-**I modali sono un anti-pattern.** Una finestra che impedisce di interagire
-finché non la chiudi interrompe e costringe. *«Un onboarding obbligatorio è
-l'affermazione che tu sai meglio del giocatore come deve imparare.»*
+**Ho preso uno studio pilota per una prova.** Lo studio sui tutorial impliciti su
+cui mi appoggiavo ha **47 partecipanti**, ed è gli autori stessi a scrivere che
+*«c'erano solo tre giocatori inesperti nella versione esplicita, il che potrebbe
+aver reso certi risultati accidentali»*. L'ho citato come se fosse assodato.
 
-**Mario 1-1 insegna senza una parola.** Niente testo: spazio negativo, segnali
-visivi, cicli di tentativi corti. La regola non è «scrivi meglio le istruzioni»,
-è **«fai in modo che non servano»**.
+## 1. Quello che dice la ricerca, con le sue misure
 
-**E misurare non è «quanti hanno finito».** *«"Il tutorial lo completa il 70%"
-dice meno di "il 12% se ne va al passo tre" — il secondo ti dice cosa
-aggiustare.»* Bastano **3-7 giocatori** per vedere l'80% dei problemi.
+**A favore dell'istruzione esplicita.** «Show or Tell?» (FDG 2024, **75
+giocatori**, su *Baba Is You*): i giocatori della versione con tutorial diretto
+*«hanno fatto meno errori, hanno percepito una difficoltà minore, hanno dovuto
+ricominciare meno spesso e avevano più probabilità di finire tutti i livelli in
+venti minuti»*. Conclusione degli autori: **l'istruzione diretta all'inizio porta
+a una comprensione pari al learn-by-doing più in fretta, con meno errori, e senza
+sacrificare il coinvolgimento.**
 
-### Il linguaggio
+**A favore, se il gioco è complesso.** Andersen et al., sopra: +29% di tempo di
+gioco nel gioco più complesso, nulla nei due semplici.
 
-- **Spezzare invece di stipare**: non schiacciare tutti i vincoli in un
-  suggerimento solo.
-- **Rivelazione progressiva**: il contesto essenziale subito, il resto a
-  richiesta.
-- **Verbo + oggetto**: «Colpisci la creatura», non «È possibile colpire».
-- Il lettore **scorre**, non legge, e **non processa più idee insieme**.
+**Contro, ma in un altro dominio.** Il MIT ha trovato che l'istruzione esplicita
+riduce l'esplorazione spontanea — **in bambini che giocano con un giocattolo**.
+È scoperta aperta, non un'interfaccia con una barra di dominio: il transfer non è
+scontato.
 
-## 2. Il verdetto sul tutorial di Carnivalz
+**Il vincolo che regge davvero** è il carico cognitivo: spezzare invece di
+stipare, rivelazione progressiva, e il lettore **scorre e non processa più idee
+insieme**. Questo vale in ogni dominio, e non dipende da quale studio si cita.
 
-La struttura è **già quella giusta**: sette passi, ognuno chiede un'azione e la
-commenta dopo. È esattamente «una cosa per volta, provandola».
+**Sui JRPG**, che è il parente vero: l'insofferenza dei giocatori è verso *«15-20
+minuti di conversazioni statiche una dietro l'altra»*, non verso battute brevi. E
+il rimedio che i giocatori citano come buono — Persona — è **poter avanzare a
+mano**, cioè esattamente il click che il tutorial di Carnivalz adesso ha.
 
-Poi ieri ci ho messo la lezione sulla schermata, e l'ho messa tutta nel primo
-passo:
+**Misurare quanto basta.** Avevo scritto «3-7 persone trovano l'80% dei
+problemi». È la regola di Nielsen, ed è **contestata**: Faulkner ha mostrato che
+cinque persone possono trovarne il 95% *oppure il 55%*, e la varianza è troppo
+alta per deciderci qualcosa. Con **10** il minimo sale a 80%, con **20** a 95%.
+
+## 2. Il verdetto sul tutorial di Carnivalz, corretto
+
+La struttura è giusta: sette passi, ognuno chiede un'azione e la commenta.
 
 | passo | azione | battute prima | battute dopo |
 |---|---|---|---|
@@ -60,30 +76,27 @@ passo:
 | 5 | abilita | 3 | 3 |
 | 6 | oggetto | 3 | 4 |
 
-**328 parole e undici concetti prima che il giocatore possa premere qualunque
-cosa** — HP, aura, dominio, ECG, morale, stress, cinque voci di menu, la difesa
-cumulativa, la Mattanza, il tempo reale. Nessuno di quegli undici è applicabile
-mentre lo si sente. E il mondo è fermo: è un modale, cioè l'anti-pattern.
+Ieri avevo scritto che le 21 battute del passo 0 erano «l'anti-pattern da
+manuale». **Non regge.** Lo studio più recente e più pertinente dice che
+l'istruzione diretta all'inizio funziona, e quello più grande dice che serve
+proprio nei giochi complessi come questo. 328 parole sono circa **due minuti** di
+lettura: lontanissime dai 15-20 minuti che fanno arrabbiare i giocatori di JRPG,
+e si avanzano col click.
 
-Gli altri sei passi sono **ben tarati**: 2-3 battute, un'azione, un commento.
-Il difetto è tutto e solo nel passo 0, e l'ho introdotto io.
+**Quello che resta in piedi della critica**, più stretto e meglio fondato:
 
-### La proposta
+1. **Undici concetti in un blocco solo** sono tanti per la memoria di lavoro, e
+   questo il carico cognitivo lo dice a prescindere dal dominio. Non «troppe
+   battute»: **troppe idee diverse senza niente in mezzo**.
+2. **Le battute più deboli sono quelle non applicabili lì**: il colore dell'ECG e
+   lo stress non si possono guardare mentre non succede niente. Quelle tre o
+   quattro stanno meglio agganciate al momento in cui accadono.
+3. **Va saltabile**, per chi rigioca. Su questo la ricerca è concorde e non
+   dipende dal genere.
 
-Non buttare niente — Bru ha chiesto che **ogni componente venga spiegato**, e
-resta giusto. Cambiare **quando**:
-
-1. **Prima del primo pugno restano 3-4 battute**: chi hai davanti, che la sua
-   scheda è coperta, e che si colpisce cliccandola. Il resto no.
-2. **Ogni pezzo si spiega nel passo in cui serve.** L'aura nel passo
-   dell'abilità (c'è già). La difesa cumulativa nel passo della difesa (c'è
-   già). La Mattanza quando la barra è piena (c'è già). **I passi esistono
-   già: le battute vanno spostate lì dentro.**
-3. **Quello che non ha un passo** — ECG, morale, stress, ricarica — si dice
-   **quando succede**: la prima volta che la linea diventa gialla, la prima
-   volta che la ricarica ti ferma. Sono agganci nuovi, ma piccoli.
-4. **Saltabile.** Un tutorial che non si può saltare è una mancanza di rispetto
-   verso chi rigioca.
+Quindi: **non spostare tutto**. Spostare le tre o quattro battute che parlano di
+cose che in quel momento non si vedono, lasciare il resto, e aggiungere un modo
+di saltare. È un intervento molto più piccolo di quello che avevo proposto ieri.
 
 ## 3. Come è programmato, e cosa lo rende fragile
 
@@ -118,7 +131,14 @@ passo seguente*) quella porta non esisterebbe.
 Le prove guardano lo stato. Ieri lo scatto ha visto in un colpo quello che
 34.000 verifiche non vedevano, perché **nessuna guardava il pannello**.
 
-E manca la cosa che la ricerca mette per prima: **guardare qualcuno giocare**.
-Bastano 3-7 persone per l'80% dei problemi di prima esperienza — e finora
-l'unico che gioca è Bru, che è anche l'autore, cioè la persona al mondo che ha
-meno bisogno del tutorial.
+E manca la cosa che conta di più: **guardare qualcuno giocare**. Non «3-7
+persone», che era la cifra ottimista di ieri: **dieci** per avere almeno l'80%
+dei problemi, venti per il 95%. Finora l'unico che gioca è Bru — che è anche
+l'autore, cioè la persona al mondo che ha meno bisogno del tutorial, e quindi
+l'unica che non può misurarlo.
+
+E una cosa su come ho lavorato, che vale più delle altre. La prima versione di
+questo documento era sicura di sé e sbagliata in tre punti, e non se n'è accorta
+nessuna prova: se n'è accorto **il fatto di andare a rileggere le fonti invece
+che le sintesi**. Lo studio da 45.000 giocatori diceva il contrario di come
+l'avevo citato, e per saperlo bastava aprirlo.
