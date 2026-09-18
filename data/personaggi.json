@@ -3763,9 +3763,9 @@
             "azione": "minigioco",
             "minigioco": {
               "quanti": 12,
-              "intervallo": 0.46,
-              "intervallo_finale": 0.22,
-              "durata": 0.5,
+              "intervallo": 0.55,
+              "intervallo_finale": 0.3,
+              "durata": 0.75,
               "danno": 9
             },
             "bravura_automatica": 0.45,

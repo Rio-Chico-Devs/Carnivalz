@@ -26,7 +26,18 @@ extends RefCounted
 # pugno resta a schermo tutta la sua durata, ma si para solo mentre ARRIVA: la
 # coda e' il pugno che ti ha gia' preso e sta rientrando. Senza questo si
 # parerebbe tutto cliccando in ritardo.
-const QUOTA_PARABILE := 0.62
+# QUANTA PARTE DELLA VITA DI UN PUGNO E' ANCORA PARABILE.
+#
+# Era 0.62, e con una durata di mezzo secondo voleva dire 0.31 secondi per
+# vedere il pugno, portarci sopra il mouse e premere. Bru, provando: «i pugni
+# che sferra veronica scompaiono troppo velocemente, dai un po' piu' di tempo al
+# giocatore per cliccarci sopra». Misurato: 0.31s e' sotto il tempo di reazione
+# comodo di una mano che deve anche MIRARE, non solo reagire.
+#
+# A 0.80, con la durata di 0.75 che usa il tutorial, la finestra e' 0.60s. Il
+# pugno resta a schermo ancora un po' dopo - si vede che e' passato, e che
+# quello e' colpa tua - ma la parte in cui vale ancora premere e' quasi doppia.
+const QUOTA_PARABILE := 0.80
 
 # I pugni non arrivano a distanza regolare: un metronomo si impara in tre
 # battute e poi non sbagli piu'. Questo e' quanto puo' scostarsi un pugno dal

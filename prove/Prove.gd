@@ -8390,6 +8390,21 @@ func prova_la_raffica_accelera_verso_la_fine() -> void:
 	esigi(absf(p_ultimi - p_primi) < p_primi * 0.5,
 			"senza intervallo_finale la raffica accelera lo stesso: cambierebbe tutti gli scontri")
 
+	# LA FINESTRA PER PARARE, IN SECONDI. E' il numero che Bru ha sentito come
+	# "troppo veloce": quanto tempo hai per vedere un pugno, portarci sopra il
+	# mouse e premere. Misurato e non a occhio, cosi' non puo' restringersi di
+	# nascosto quando qualcuno ritocca una durata.
+	var passo_raffica: Dictionary = {}
+	for creatura in GameState.personaggi.values():
+		for passo in (creatura as Dictionary).get("tutorial_combattimento", {}).get("passi", []):
+			if String((passo as Dictionary).get("azione", "")) == "minigioco":
+				passo_raffica = (passo as Dictionary).get("minigioco", {})
+	esigi(not passo_raffica.is_empty(), "il tutorial non ha piu' nessuna raffica")
+	var finestra := float(passo_raffica.get("durata", 0.0)) * Collisioni.QUOTA_PARABILE
+	esigi(finestra >= 0.55,
+			"hai %.2fs per vedere un pugno, mirarlo e premere: sotto i 0.55s non e' una prova di riflessi, e' una lotteria"
+			% finestra)
+
 func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 	# Bru: «bisogna rendere piu' accattivante la segnalazione degli elementi
 	# dell'interfaccia evidenziandoli con animazioni».
