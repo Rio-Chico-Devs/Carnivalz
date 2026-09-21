@@ -37,6 +37,17 @@ var hp_prima := 0
 var hp_dopo := 0
 var fasi: Dictionary = {}
 var azioni_nemico := 0
+# LA MISURA CHE CONTA DAVVERO: quanti click vanno a segno.
+#
+# Le altre dicono cosa c'e' a schermo. Questa preme. Ogni tanto si manda un
+# click VERO - parse_input_event, la stessa porta da cui passa il mouse di Bru -
+# sul primo bottone del menu, e si guarda se e' successo qualcosa. E' l'unico
+# modo di rispondere a "il primo click e' andato a vuoto" con un numero.
+var click_tentati := 0
+var click_a_segno := 0
+var battute_prima_del_click := 0
+var click_in_volo := false
+var modo_prima_del_click := ""
 
 func _ready() -> void:
 	var argomenti := OS.get_cmdline_user_args()
@@ -99,6 +110,48 @@ func campiona(scontro: Node) -> void:
 	if scontro.has_method("fase_adesso"):
 		var f := String(scontro.fase_adesso())
 		fasi[f] = int(fasi.get(f, 0)) + 1
+	prova_un_click(scontro)
+
+func prova_un_click(scontro: Node) -> void:
+	# il fotogramma dopo un click si guarda se ha prodotto una battuta
+	if click_in_volo:
+		click_in_volo = false
+		# "a segno" non vuol dire "ha attaccato": premere ATTACCHI apre una
+		# lista, e quella e' una risposta buona quanto un colpo. Va a vuoto solo
+		# un click a cui NON e' seguito niente
+		if int(scontro.battute_del_giocatore) > battute_prima_del_click \
+				or String(scontro.menu.modo) != modo_prima_del_click:
+			click_a_segno += 1
+		return
+	# si preme solo quando un giocatore vero premerebbe: quando il menu c'e'
+	if campioni % 8 != 0 or scontro.plancia == null:
+		return
+	var bottone := primo_bottone(scontro.plancia.comandi)
+	if bottone == null or not bottone.is_visible_in_tree() or bottone.disabled:
+		return
+	click_tentati += 1
+	battute_prima_del_click = int(scontro.battute_del_giocatore)
+	modo_prima_del_click = String(scontro.menu.modo)
+	click_in_volo = true
+	var dove := bottone.get_global_rect().get_center()
+	for premuto in [true, false]:
+		var evento := InputEventMouseButton.new()
+		evento.button_index = MOUSE_BUTTON_LEFT
+		evento.pressed = premuto
+		evento.position = dove
+		evento.global_position = dove
+		Input.parse_input_event(evento)
+
+func primo_bottone(dove: Node) -> Button:
+	if dove == null:
+		return null
+	for figlio in dove.get_children():
+		if figlio is Button:
+			return figlio
+		var dentro := primo_bottone(figlio)
+		if dentro != null:
+			return dentro
+	return null
 
 func quota(quanti: int) -> String:
 	if campioni <= 0:
@@ -109,6 +162,13 @@ var schede_fatte := 0
 var disegni_fatti := 0
 
 func stampa(chi: String) -> void:
+	# ATTENZIONE, E STA SCRITTO QUI PERCHE' NON SI USI UN NUMERO DI CUI NON CI
+	# SI FIDA: la riga dei click e' ANCORA DA TARARE. Non so se un click finto
+	# mandato con parse_input_event raggiunga davvero il bottone sotto xvfb, e
+	# finche' non lo so "0 su 2" puo' voler dire "il gioco perde i click" oppure
+	# "il mio click non e' mai partito". Collegare un ascoltatore al bottone per
+	# scoprirlo pianta la misura, e non ho ancora capito perche'. Le altre righe
+	# sono tarate e si possono usare.
 	print("\n=== INTERFACCIA DI COMBATTIMENTO, %s (%d fotogrammi in %.0fs) ===" % [
 			chi, campioni, SECONDI])
 	print("  fotogramma medio      %6.2f ms   (il piu' lento: %.1f ms)" % [
@@ -129,3 +189,9 @@ func stampa(chi: String) -> void:
 			hp_prima, hp_dopo, azioni_nemico])
 	for f in fasi:
 		print("    fase '%-10s'    %s" % [f, quota(int(fasi[f]))])
+	if click_tentati > 0:
+		print("  CLICK ANDATI A SEGNO  %d su %d   (%.0f%%)" % [
+				click_a_segno, click_tentati,
+				100.0 * float(click_a_segno) / float(click_tentati)])
+	else:
+		print("  CLICK ANDATI A SEGNO  nessun tentativo: il menu non e' mai stato premibile")
