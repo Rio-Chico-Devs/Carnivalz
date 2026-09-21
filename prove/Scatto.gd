@@ -115,8 +115,14 @@ func prepara(quale: String) -> void:
 			# rimette il parlato appena arriva una battuta: senza questa riga lo
 			# scatto dell'ecg fotografa il box del testo, che e' esattamente
 			# quello che e' successo al primo tentativo.
-			malmesso.plancia.mostra_faccia("comandi")
+			# E POI SI FERMA IL MOTORE. Forzare la faccia non basta: _process
+			# gira a ogni fotogramma e decidi_faccia la rimette sul parlato
+			# appena arriva una battuta. Spegnendo il process il quadrante
+			# resta dove l'ho messo, e l'ecg - che ha un process suo - continua
+			# a disegnarsi. Tre tentativi prima di capirlo.
 			malmesso.voce.coda.clear()
+			malmesso.set_process(false)
+			malmesso.plancia.mostra_faccia("comandi")
 		"plancia":
 			# LA SCHERMATA DI COMBATTIMENTO INTERA, come l'ha disegnata Bru.
 			# Non c'e' altro modo di controllare che sia quella: le prove sanno
