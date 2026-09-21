@@ -48,6 +48,7 @@ var apri_il_pannello := Callable()
 # "comandi" = la colonna verticale del disegno, "lista" = la griglia delle voci
 var modo := "comandi"
 var fuoco_gia_dato := false
+var ricostruzioni := 0
 
 func _init(nodo_scontro, silenzioso := false) -> void:
 	scontro = nodo_scontro
@@ -151,6 +152,7 @@ func voce_in_coda(nome: String) -> void:
 # --- i menu ---
 
 func principale() -> void:
+	ricostruzioni += 1
 	modo = "comandi"
 	# CINQUE VOCI, SEMPRE LE STESSE. Bru: "tu hai un menu principale di
 	# combattimento: attacca, difendi, abilita', oggetti, fuggi. Attacca attacca

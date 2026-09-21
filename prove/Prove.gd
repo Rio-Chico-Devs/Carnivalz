@@ -134,6 +134,7 @@ func _ready() -> void:
 	prova_la_raffica_accelera_verso_la_fine()
 	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
 	prova_il_metro_del_garbuglio_e_quello_giusto()
+	prova_nessuna_bandiera_letta_e_mai_scritta()
 	prova_il_tetto_alla_struttura()
 	prova_il_dispatch_delle_mosse_e_cablato_bene()
 	prova_ogni_tipo_di_mossa_ce_l_ha_qualcuno()
@@ -7933,7 +7934,7 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Combattimento.gd:verifica_fine_scontro": {"misura": 19},
 	"Combattimento.gd:azione_automatica": {"misura": 19},
 	"Combattimento.gd:esegui_scontro": {"misura": 18},
-	"Voce.gd:svuota_coda": {"misura": 18},
+	"Voce.gd:svuota_coda": {"misura": 19},
 	"Combattimento.gd:aggiungi_combattente": {"misura": 17},
 	"GameState.gd:aggiorna_task": {"misura": 17},
 	"MappaZona.gd:_disegna_sotto": {"misura": 16},
@@ -8633,8 +8634,19 @@ func prova_una_fase_alla_volta_e_niente_click_a_vuoto() -> void:
 			"fase racconto e quadrante su '%s'" % String(scontro.plancia.faccia_adesso))
 
 	# 2. finito di leggere -> torna il menu, e il mondo riparte
+	#
+	# QUI SCRIVEVO UNA BUGIA. Svuotavo la coda e spegnevo sta_facendo_leggere a
+	# mano, come se fossero due cose indipendenti. Non lo sono: la bandiera la
+	# accende e la spegne chi svuota, e fingere di poterla mettere a posto da
+	# fuori voleva dire provare un mondo che non esiste. Adesso si aspetta che
+	# lo svuotamento sia finito per davvero, che e' quello che fa il gioco.
 	scontro.voce.coda.clear()
-	scontro.voce.sta_facendo_leggere = false
+	var scadenza := Time.get_ticks_msec() + 3000
+	while (scontro.voce.sta_svuotando or scontro.voce.sta_facendo_leggere) \
+			and Time.get_ticks_msec() < scadenza:
+		await get_tree().process_frame
+	esigi(not scontro.voce.sta_facendo_leggere,
+			"lo svuotamento non si e' chiuso entro tre secondi: la fase resterebbe 'racconto' per sempre")
 	esigi(String(scontro.fase_adesso()) == "comandi",
 			"non c'e' piu' niente da leggere e la fase e' '%s'" % String(scontro.fase_adesso()))
 	esigi(not scontro.il_mondo_aspetta_che_si_legga(),
@@ -9964,10 +9976,26 @@ func prova_il_box_racconta_nel_quadrante() -> void:
 	esigi(scontro.plancia.faccia_adesso == "parlato",
 			"c'e' ancora una battuta in coda e il quadrante e' gia' passato a '%s': quella battuta sparisce senza essere letta"
 			% scontro.plancia.faccia_adesso)
-	scontro.voce.coda.clear()           # letta: adesso tocca a te davvero
-	scontro.decidi_faccia()
-	esigi(scontro.plancia.faccia_adesso == "comandi",
-			"finito il racconto il quadrante resta su '%s': il turno non si puo' giocare"
+	# LETTA: ADESSO TOCCA A TE DAVVERO.
+	#
+	# Qui prima svuotavo la coda e guardavo subito, come se il mondo stesse
+	# fermo. Non sta fermo: lo scontro e' vivo e produce battute nuove, e la
+	# bandiera sta_facendo_leggere - che prima era sempre falsa, ed era il
+	# difetto - adesso resta accesa finche' quella battuta e' stata letta
+	# davvero. Quindi la domanda giusta non e' «in questo istante il quadrante
+	# e' sui comandi?» ma «arriva un momento, quando non c'e' piu' niente da
+	# leggere, in cui il menu torna?». Se non arriva mai, lo scontro e' piantato.
+	scontro.voce.coda.clear()
+	var torna_il_menu := false
+	var scadenza_menu := Time.get_ticks_msec() + 4000
+	while Time.get_ticks_msec() < scadenza_menu:
+		scontro.decidi_faccia()
+		if scontro.plancia.faccia_adesso == "comandi":
+			torna_il_menu = true
+			break
+		await get_tree().process_frame
+	esigi(torna_il_menu,
+			"finito il racconto il quadrante non torna mai ai comandi (resta su '%s'): il turno non si puo' giocare"
 			% scontro.plancia.faccia_adesso)
 	scontro.voce.coda.clear()
 	scontro.free()
@@ -10393,4 +10421,68 @@ func menu_contiene(dove: Control, pezzo: String) -> bool:
 	for figlio in dove.get_children():
 		if figlio is Button and String((figlio as Button).text).findn(pezzo) != -1:
 			return true
+	return false
+
+func prova_nessuna_bandiera_letta_e_mai_scritta() -> void:
+	# IL DIFETTO PIU' CARO DI TUTTA LA SESSIONE ERA UNA RIGA CHE NON C'ERA.
+	#
+	# `sta_facendo_leggere` era dichiarata in Voce.gd, LETTA in
+	# Combattimento.fase_adesso per decidere se il mondo deve aspettare che si
+	# legga, e MAI ASSEGNATA da nessuna parte: sempre falsa. Tutto il
+	# sequenziatore delle fasi si appoggiava a una condizione morta, e il
+	# risultato l'ha sentito Bru: «clicco su attacca o skill e non succede
+	# niente, aspetto poco e riprovo, adesso si apre».
+	#
+	# Nessuna delle 34.000 verifiche poteva prenderlo, perche' guardavano tutte
+	# il comportamento - e il comportamento era coerente con una bandiera
+	# sempre spenta. Un controllo sul TESTO lo prende in un secondo.
+	#
+	# LA REGOLA, e i due modi in cui la prima versione sbagliava: si guardano
+	# solo le variabili di CLASSE (dichiarate a inizio riga, non le locali
+	# dentro una funzione), e si cerca chi le assegna in TUTTO il progetto, non
+	# solo nel loro file - perche' "muto" e "tempo_reale" si accendono da fuori
+	# apposta, e quello e' un uso giusto, non un difetto.
+	titolo("nessuna bandiera di classe resta senza nessuno che la scriva")
+	# SOLO IL GIOCO, NON LE PROVE. Qui avevo incluso anche Prove.gd, e il
+	# controllo e' passato sopra al difetto che esisteva per davvero: le mie
+	# prove scrivevano `scontro.voce.sta_facendo_leggere = false` a mano, quindi
+	# la bandiera risultava "assegnata" mentre nel gioco non la toccava nessuno.
+	# Una bandiera che solo i test scrivono e' morta dove conta.
+	var tutto := ""
+	for percorso in script_del_gioco():
+		tutto += testo_script(percorso) + "\n"
+	var righe_tutte := tutto.split("\n")
+	for percorso in script_del_gioco():
+		for riga in testo_script(percorso).split("\n"):
+			var nuda := String(riga)
+			if not nuda.begins_with("var "):
+				continue   # indentata = locale di una funzione: non e' una bandiera
+			if not (nuda.contains(":= false") or nuda.contains(":= true") \
+					or nuda.contains(": bool")):
+				continue
+			var nome := nuda.trim_prefix("var ").get_slice(" ", 0) \
+					.get_slice(":", 0).get_slice("=", 0).strip_edges()
+			if nome == "" or nome.begins_with("_"):
+				continue
+			esigi(qualcuno_la_scrive(righe_tutte, nome),
+					"%s: la bandiera '%s' non viene assegnata da NESSUNA parte dentro scripts/: chi la legge sta leggendo una costante (le prove non contano - una bandiera che solo i test scrivono e' morta dove conta)"
+					% [percorso.get_file(), nome])
+
+func qualcuno_la_scrive(righe: PackedStringArray, nome: String) -> bool:
+	# un'assegnazione e' "nome =" o "qualcosa.nome =", e non "nome ==".
+	# Le dichiarazioni non contano: quello e' il valore di partenza
+	for riga in righe:
+		var nuda := String(riga).strip_edges()
+		if nuda == "" or nuda.begins_with("#") or nuda.begins_with("var ") \
+				or nuda.begins_with("const "):
+			continue
+		var dove := nuda.find(nome + " =")
+		while dove != -1:
+			var dopo := nuda.substr(dove + nome.length() + 2, 1)
+			var prima := "" if dove == 0 else nuda.substr(dove - 1, 1)
+			var attaccata_a_altro := prima != "" and prima != "." and prima != "\t" \
+					and prima != " " and prima != "(" and prima != ","
+			if dopo != "=" and not attaccata_a_altro:
+				return true
+			dove = nuda.find(nome + " =", dove + 1)
 	return false

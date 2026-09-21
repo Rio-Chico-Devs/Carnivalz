@@ -979,3 +979,70 @@ battute non cambia la *forma* di quello che senti, e lo strumento lo dice —
 nello scontro del tutorial si legge per il **63%** del tempo e in dodici
 secondi la partita avanza di **un giro**. Quello è il problema che Bru sente, e
 sei battute in meno su ventuno non lo toccano.
+
+## Una riga che non c'era: `sta_facendo_leggere`
+
+Bru, dopo aver provato: *«veronica spiega, sparisce il dialogo e torna
+l'interfaccia di scelte, clicco su attacca o skill e non succede niente,
+aspetto poco e riprovo, adesso si apre»*. E, separatamente: *«non può essere
+che rimane visibile la schermata di combattimento mentre in sottofondo il testo
+è già partito»*.
+
+**Erano lo stesso difetto**, e stava in una riga che non esisteva.
+
+`sta_facendo_leggere` era dichiarata in `Voce.gd`, **letta** in
+`Combattimento.fase_adesso()` per decidere se il mondo deve aspettare che si
+legga, e **mai assegnata da nessuna parte**. Sempre falsa.
+
+Quindi `fase_adesso()` era in pratica *«racconto se la coda non è vuota»* — e
+`svuota_coda` fa `coda.pop_front()` **prima** di `box.mostra()`. Nell'istante
+del pop la coda si svuota, la fase smette di essere `racconto`, il pannello
+passa al menu, e il testo di quella battuta parte **sotto**. Poi
+`attendi_lettura` accende `area_avanza`, che copre tutto lo schermo.
+
+La sequenza vissuta: il menu compare → clicchi SKILL → il click lo prende
+`area_avanza` e **avanza il testo invisibile** → finita la lettura
+`area_avanza` sparisce → il secondo click arriva al bottone. *«Aspetto poco e
+riprovo, adesso si apre.»*
+
+Tutto il sequenziatore delle fasi — quello di cui avevo scritto due pagine —
+poggiava su una condizione morta.
+
+### La correzione, e il prezzo che ha chiesto
+
+La bandiera si accende all'inizio dello svuotamento e si spegne su **ogni**
+uscita, anche quella col `break`. E prima di far vedere il testo si aspetta un
+fotogramma, così `decidi_faccia` mette il pannello del parlato **prima** che
+esca il primo carattere: Bru, *«prima si prepara la schermata dialogo poi fai
+vedere il testo, ci vuole ordine»*.
+
+Solo dove c'è uno schermo, però: da muti un fotogramma in più per ogni
+svuotamento cambia la partita all'orologio virtuale — **sei prove rotte**,
+misurate, non immaginate.
+
+E ha smascherato una bugia in una mia prova: svuotavo la coda e spegnevo la
+bandiera **a mano**, come se fossero due cose indipendenti. Non lo sono. Quella
+prova provava un mondo che non esiste; adesso aspetta che lo svuotamento
+finisca per davvero, e chiede la cosa giusta — non *«in questo istante il
+quadrante è sui comandi?»* ma *«arriva un momento in cui il menu torna?»*.
+
+### Il controllo che mancava, e come l'ho sbagliato due volte
+
+Una bandiera **letta e mai scritta** non è un caso isolato: è una classe di
+difetto, e nessuna prova sul comportamento la può prendere — il comportamento
+è perfettamente coerente con una bandiera sempre spenta.
+
+Adesso c'è un controllo sul testo. L'ho sbagliato due volte prima che
+funzionasse:
+
+1. **Guardava anche le variabili locali** dentro le funzioni: venti falsi
+   allarmi. Solo le variabili di classe sono bandiere.
+2. **Contava anche le assegnazioni fatte dalle prove.** E questa è la più
+   istruttiva: le mie prove scrivevano `scontro.voce.sta_facendo_leggere =
+   false` a mano, quindi il controllo passava sopra al difetto che c'era per
+   davvero. **Una bandiera che solo i test scrivono è morta dove conta.**
+
+Sabotaggio, e anche qui ho sbagliato il primo tentativo: togliendo solo
+`= true` la bandiera restava assegnata altrove e il controllo taceva
+giustamente. Riprodotto il difetto **com'era** — nessuna assegnazione — la rete
+lo prende.

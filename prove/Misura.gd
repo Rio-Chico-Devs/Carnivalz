@@ -30,6 +30,7 @@ var ultima_faccia := ""
 var fotogramma_piu_lento := 0.0
 const SOGLIA_SCATTO := 0.050   # 50 ms: due volte e mezzo un fotogramma a 60
 var scatti: Array[Dictionary] = []
+var rifacimenti: Array[String] = []
 var chiuso_prima := false
 var secondi_misurati := 0.0
 var somma_fotogrammi := 0.0
@@ -146,6 +147,15 @@ func campiona(scontro: Node) -> void:
 	if scontro.has_method("fase_adesso"):
 		var f := String(scontro.fase_adesso())
 		fasi[f] = int(fasi.get(f, 0)) + 1
+	# quante volte al secondo il menu si RICOSTRUISCE, e quando. Un bottone
+	# rifatto fra la pressione e il rilascio non emette mai "pressed": il click
+	# sparisce, ed e' esattamente «clicco e non succede niente»
+	var ora: int = scontro.menu.ricostruzioni
+	if ora != menu_prima:
+		rifacimenti.append("%4.1fs  x%d  fase=%s  coda=%d" % [
+				float(campioni) / 60.0, ora - menu_prima,
+				String(scontro.fase_adesso()), scontro.voce.coda.size()])
+		menu_prima = ora
 	prova_un_click(scontro)
 
 func prova_un_click(scontro: Node) -> void:
@@ -257,6 +267,9 @@ func stampa(chi: String) -> void:
 				100.0 * float(click_a_segno) / float(click_tentati)])
 	else:
 		print("  CLICK ANDATI A SEGNO  nessun tentativo: il menu non e' mai stato premibile")
+	print("  RICOSTRUZIONI DEL MENU: %d" % rifacimenti.size())
+	for r in rifacimenti:
+		print("    " + r)
 	if scatti.is_empty():
 		print("  nessuno scatto sopra %d ms" % int(1000.0 * SOGLIA_SCATTO))
 	else:

@@ -152,6 +152,33 @@ func svuota_coda() -> void:
 			await albero.process_frame
 		return
 	sta_svuotando = true
+	# LA FASE RESTA "RACCONTO" FINCHE' C'E' DA LEGGERE, non finche' la coda e'
+	# piena. Sono due cose diverse, e la differenza e' un difetto che Bru ha
+	# sentito e io no.
+	#
+	# sta_facendo_leggere era DICHIARATA, LETTA in Combattimento.fase_adesso, e
+	# MAI ASSEGNATA: sempre falsa. Quindi nell'istante in cui pop_front svuota
+	# la coda la fase smetteva di essere "racconto" - mentre il testo di quella
+	# battuta doveva ancora essere scritto. Il pannello passava al menu, il
+	# testo partiva sotto, e area_avanza (che copre tutto lo schermo) si
+	# mangiava il click: il primo click avanzava il testo invisibile, il secondo
+	# arrivava al bottone.
+	#
+	# Bru: «clicco su attacca o skill e non succede niente, aspetto poco e
+	# riprovo, adesso si apre», e «non puo' essere che rimane visibile la
+	# schermata di combattimento mentre in sottofondo il testo e' gia' partito».
+	# Un difetto solo, tutti e due i sintomi.
+	# SOLO DOVE C'E' UNO SCHERMO. Da muti non c'e' nessun pannello da ordinare e
+	# nessun click da proteggere: il giocatore automatico gira su un orologio
+	# virtuale, e un fotogramma in piu' per ogni svuotamento gli cambia la
+	# partita sotto i piedi - misurato, sei prove rotte.
+	if viva():
+		sta_facendo_leggere = true
+		# E PRIMA SI PREPARA LA SCHERMATA, POI SI FA VEDERE IL TESTO. Un
+		# fotogramma basta: decidi_faccia gira a ogni giro, e con la fase gia'
+		# su "racconto" mette il pannello del parlato prima che esca il primo
+		# carattere. Bru: «ci vuole ordine».
+		await albero.process_frame
 	while not coda.is_empty():
 		var msg: Dictionary = coda.pop_front()
 		var testo := String(msg.testo)
@@ -174,6 +201,9 @@ func svuota_coda() -> void:
 			break   # la scena e' cambiata mentre si leggeva: non c'e' piu' nessuno
 	if viva():
 		box.nascondi_indicatore()
+	# si spegne su OGNI uscita, anche quella col break: se restasse accesa la
+	# fase non tornerebbe mai ai comandi e lo scontro sembrerebbe piantato
+	sta_facendo_leggere = false
 	sta_svuotando = false
 
 func aspetta_un_click(forte: bool) -> bool:
