@@ -892,9 +892,11 @@ func _su_input_nemico(evento: InputEvent, bersaglio: Dictionary) -> void:
 		_su_click_nemico(bersaglio)
 
 func _su_click_nemico(bersaglio: Dictionary) -> void:
-	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu. Si martella li'
-	# sopra: se la ricarica non e' pronta il click non fa niente, e la scheda
-	# del protagonista lo dice gia' con la sua barra
+	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu: si martella li' sopra.
+	# Il commento qui diceva «se la ricarica non e' pronta il click non fa
+	# niente»: non e' piu' vero da quando c'e' Intenzione.gd - adesso aspetta il
+	# suo momento e parte da solo. Lasciato com'era, avrebbe raccontato una
+	# regola che il codice non ha piu'.
 	if int(bersaglio.get("hp", 0)) <= 0 or not il_tempo_scorre():
 		return
 	agisci_ora({"tipo": "attacca", "bersaglio": bersaglio})

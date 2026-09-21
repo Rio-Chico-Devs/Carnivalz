@@ -814,3 +814,67 @@ un giorno si rompe in silenzio.
 `Button` con `disabled = true` si mangi il click invece di lasciarlo passare.
 È l'affermazione su cui poggia tutta la correzione del click perso, e la so
 per averla vista, non per averla letta. Serve `Control.mouse_filter`.
+
+## Lo strumento mentiva, e dentro la bugia c'era un difetto vero
+
+`prove/misura.sh` stampava **«CLICK ANDATI A SEGNO 0 su 8 (0%)»**, e io ci
+avevo scritto accanto *«non fidarsi, non è tarato»*. Ci ho convissuto per
+giorni. Tarandolo sono venute fuori due cose rotte, una mia e una del gioco.
+
+**La mia.** Mandavo la pressione del mouse **senza prima muovere il cursore**.
+Godot decide quale `Control` riceve un click dal controllo sotto il mouse, e
+quello si aggiorna col *movimento*: senza un `InputEventMouseMotion` il click
+non arrivava a nessuno. `gui_get_hovered_control()` tornava `null`.
+
+**Quella del gioco, che senza la prima non avrei mai visto.** Rimesso a posto
+il cursore, i click continuavano a sparire — e la diagnostica diceva perché:
+
+```
+premo '▶ ATTACCHI'  fase=attesa  pronto=false  passo_lezione=true  chiede='attacca'
+perso: modo=comandi battute=0 coda=''
+```
+
+Veronica chiede ATTACCA. Il giocatore preme ATTACCA. La ricarica non è
+finita. E **non succede niente**: `Intenzione.ricorda` rifiutava *qualunque*
+comando durante un passo del tutorial.
+
+Era lo stesso difetto che Bru aveva segnalato — «il primo click non fa niente»
+— **sopravvissuto dentro la lezione**, cioè esattamente dove fa più danno: è lì
+che il giocatore sta imparando se i suoi comandi contano.
+
+### La regola era giusta, ma troppo larga
+
+Avevo spento il buffer durante la lezione per una ragione buona: un comando
+messo in coda mentre Veronica parla partirebbe da solo appena lei finisce, e
+vedresti succedere una cosa che non hai appena chiesto.
+
+Ma quella preoccupazione riguarda la fase **`racconto`**, e da quella ci
+difende già `momento_buono()`. La regola giusta è più stretta: durante la
+lezione si tiene da parte **solo l'azione che il passo chiede**. La lezione
+resta una cosa per volta, e il click sull'azione richiesta smette di morire.
+
+### Cosa è cambiato, misurato
+
+| | prima | dopo |
+|---|---:|---:|
+| click andati a segno | **0 su 8 (0%)** | **8 su 8 (100%)** |
+| menu a schermo | 13,9% | **28,2%** |
+| testo in coda | 78,3% | **63,5%** |
+| fase `racconto` | 78,3% | **63,5%** |
+| schede ridisegnate | 1 | 5 |
+
+La lezione scorre più in fretta perché i comandi adesso arrivano. Una regola
+di tre righe.
+
+### La cosa da ricordare
+
+**Uno strumento che stampa un numero di cui non ti fidi non è inutile: è
+pericoloso.** L'avevo marcato «non tarato» e ci ho convissuto, e dentro quel
+numero c'era un difetto del gioco che nessuna delle 34.000 verifiche vedeva —
+perché nessuna prova preme un bottone vero con un mouse vero.
+
+**Nota sul costo per fotogramma, che NON ho usato.** Lo strumento dice 27 ms di
+media e 85 ms nel peggiore. Non ne concludo niente sulle prestazioni vere: qui
+gira su `llvmpipe`, cioè rasterizzazione software sotto `xvfb`. È il caso di
+cui avverte la documentazione di Godot — profila una build esportata. Quel
+numero serve solo a confrontare un prima e un dopo sulla stessa macchina.

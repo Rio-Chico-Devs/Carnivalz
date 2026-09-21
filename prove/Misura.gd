@@ -43,6 +43,13 @@ var azioni_nemico := 0
 # click VERO - parse_input_event, la stessa porta da cui passa il mouse di Bru -
 # sul primo bottone del menu, e si guarda se e' successo qualcosa. E' l'unico
 # modo di rispondere a "il primo click e' andato a vuoto" con un numero.
+# QUANTI FOTOGRAMMI ASPETTARE UNA RISPOSTA. Prima era uno solo, e "0 su 8"
+# poteva voler dire sia "il gioco perde i click" sia "ho guardato troppo
+# presto". Input.parse_input_event passa dal viewport e la risposta puo'
+# arrivare uno o due fotogrammi dopo; dieci sono larghi ma onesti - se dopo
+# dieci fotogrammi non e' successo niente, quel click e' perso davvero.
+const FOTOGRAMMI_DI_GRAZIA := 10
+var attesa_del_click := 0
 var click_tentati := 0
 var click_a_segno := 0
 var battute_prima_del_click := 0
@@ -115,13 +122,17 @@ func campiona(scontro: Node) -> void:
 func prova_un_click(scontro: Node) -> void:
 	# il fotogramma dopo un click si guarda se ha prodotto una battuta
 	if click_in_volo:
-		click_in_volo = false
+		attesa_del_click -= 1
+		if attesa_del_click <= 0:
+			click_in_volo = false
 		# "a segno" non vuol dire "ha attaccato": premere ATTACCHI apre una
 		# lista, e quella e' una risposta buona quanto un colpo. Va a vuoto solo
 		# un click a cui NON e' seguito niente
 		if int(scontro.battute_del_giocatore) > battute_prima_del_click \
-				or String(scontro.menu.modo) != modo_prima_del_click:
+				or String(scontro.menu.modo) != modo_prima_del_click \
+				or String(scontro.nome_azione_in_coda()) != "":
 			click_a_segno += 1
+			click_in_volo = false
 		return
 	# si preme solo quando un giocatore vero premerebbe: quando il menu c'e'
 	if campioni % 8 != 0 or scontro.plancia == null:
@@ -133,7 +144,18 @@ func prova_un_click(scontro: Node) -> void:
 	battute_prima_del_click = int(scontro.battute_del_giocatore)
 	modo_prima_del_click = String(scontro.menu.modo)
 	click_in_volo = true
+	attesa_del_click = FOTOGRAMMI_DI_GRAZIA
 	var dove := bottone.get_global_rect().get_center()
+	# PRIMA SI MUOVE IL CURSORE. Qui stava il difetto dello strumento: mandavo
+	# solo la pressione, e Godot decide QUALE Control riceve un click dal
+	# controllo sotto il mouse - che si aggiorna con il MOVIMENTO, non con la
+	# pressione. Senza questa riga gui_get_hovered_control() e' nullo, il click
+	# non arriva a nessuno, e lo strumento stampava "0 su 8" come se a perderli
+	# fosse il gioco. Era lo strumento.
+	var spostamento := InputEventMouseMotion.new()
+	spostamento.position = dove
+	spostamento.global_position = dove
+	Input.parse_input_event(spostamento)
 	for premuto in [true, false]:
 		var evento := InputEventMouseButton.new()
 		evento.button_index = MOUSE_BUTTON_LEFT
@@ -165,10 +187,20 @@ func stampa(chi: String) -> void:
 	# ATTENZIONE, E STA SCRITTO QUI PERCHE' NON SI USI UN NUMERO DI CUI NON CI
 	# SI FIDA: la riga dei click e' ANCORA DA TARARE. Non so se un click finto
 	# mandato con parse_input_event raggiunga davvero il bottone sotto xvfb, e
-	# finche' non lo so "0 su 2" puo' voler dire "il gioco perde i click" oppure
-	# "il mio click non e' mai partito". Collegare un ascoltatore al bottone per
-	# scoprirlo pianta la misura, e non ho ancora capito perche'. Le altre righe
-	# sono tarate e si possono usare.
+	# ADESSO E' TARATO, e come lo so: tarandolo ho trovato un difetto vero.
+	# Lo strumento stampava "0 su 8" e io l'avevo marcato "non fidarsi". Due
+	# cose erano rotte, una mia e una del gioco.
+	#   1. Mandavo la pressione senza prima MUOVERE il cursore. Godot decide chi
+	#      riceve un click dal controllo sotto il mouse, che si aggiorna col
+	#      movimento: senza quello il click non arrivava a nessuno.
+	#   2. Rimesso a posto quello, i click continuavano a sparire - e non per
+	#      colpa dello strumento. Durante la lezione il buffer dei comandi era
+	#      spento del tutto, quindi premere l'azione che Veronica chiede un
+	#      attimo prima della ricarica non faceva niente. Corretto in
+	#      Intenzione.azione_ammessa_dalla_lezione.
+	# Morale: uno strumento che stampa un numero di cui non ti fidi non e'
+	# inutile, e' pericoloso - l'avevo marcato "non tarato" e ci ho convissuto
+	# per giorni con dentro un difetto del gioco.
 	print("\n=== INTERFACCIA DI COMBATTIMENTO, %s (%d fotogrammi in %.0fs) ===" % [
 			chi, campioni, SECONDI])
 	print("  fotogramma medio      %6.2f ms   (il piu' lento: %.1f ms)" % [

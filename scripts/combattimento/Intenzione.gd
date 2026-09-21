@@ -52,19 +52,39 @@ func ricorda(comando: Dictionary) -> void:
 	# UN CLICK DATO PRESTO E' UNA DECISIONE, NON UN ERRORE.
 	if not scontro.in_corso or comando.is_empty():
 		return
-	# DURANTE LA LEZIONE NO. Veronica chiede una cosa per volta: tenere da parte
-	# un comando dato mentre lei parla lo farebbe partire da solo appena lei
-	# finisce, e il giocatore vedrebbe succedere una cosa che non ha appena
-	# chiesto. Ellison, fra le tecniche avanzate: «Input contestuale: cambia il
-	# comportamento del sistema di input a seconda del contesto - per esempio
-	# puoi disattivare l'input buffering durante le scene di intermezzo»
-	if not scontro.passo_tutorial().is_empty():
+	# DURANTE LA LEZIONE, SOLO QUELLO CHE VERONICA CHIEDE.
+	#
+	# Qui prima c'era un rifiuto secco: durante un passo del tutorial non si
+	# teneva da parte NIENTE. La ragione era buona - un comando messo in coda
+	# mentre lei parla partirebbe da solo appena finisce, e vedresti succedere
+	# una cosa che non hai appena chiesto (Ellison chiama «input contestuale»
+	# lo spegnere il buffer durante le scene di intermezzo).
+	#
+	# Ma la regola era TROPPO LARGA, e lo strumento di misura l'ha beccata:
+	# Veronica chiede ATTACCA, tu premi ATTACCA un attimo prima che la ricarica
+	# finisca, e non succede niente. E' lo stesso difetto che Bru aveva
+	# segnalato - «il primo click non fa niente» - sopravvissuto dentro la
+	# lezione, cioe' esattamente dove fa piu' danno: e' li' che il giocatore
+	# sta imparando se i suoi comandi contano.
+	#
+	# La regola giusta e' piu' stretta: si tiene da parte SOLO l'azione che il
+	# passo chiede. Non puoi accodare altro (la lezione resta una cosa per
+	# volta), e che non parta mentre lei parla lo garantisce gia'
+	# momento_buono(), che rifiuta la fase "racconto".
+	if not azione_ammessa_dalla_lezione(comando):
 		return
 	# DI CHI ERA. Fra il click e il momento in cui parte, chi comandi puo'
 	# cambiare: se cadi e ne comandi un altro, l'abilita' che avevi scelto non e'
 	# piu' sua, e fargliela fare lo stesso sarebbe peggio che perdere il click
 	azione = comando.duplicate(true)
 	di = String(scontro.combattente_comandato().get("id", ""))
+
+func azione_ammessa_dalla_lezione(comando: Dictionary) -> bool:
+	# fuori dalla lezione tutto e' ammesso; dentro, solo cio' che il passo chiede
+	var passo: Dictionary = scontro.passo_tutorial()
+	if passo.is_empty():
+		return true
+	return String(passo.get("azione", "")) == String(comando.get("tipo", ""))
 
 func scorda() -> void:
 	azione = {}
@@ -107,7 +127,9 @@ func smaltisci() -> void:
 	# invoca». Qui il flusso e' lungo uno, e il consumo e' il battito del mondo.
 	if azione.is_empty():
 		return
-	if not scontro.in_corso or not scontro.passo_tutorial().is_empty():
+	# si butta via solo se lo scontro e' finito, o se nel frattempo la lezione
+	# ha cambiato passo e quello che aspettava non e' piu' cio' che viene chiesto
+	if not scontro.in_corso or not azione_ammessa_dalla_lezione(azione):
 		scorda()
 		return
 	if not momento_buono():

@@ -7750,7 +7750,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4575, "perche":
+	"Combattimento.gd": {"misura": 4577, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -8733,15 +8733,38 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 	# quel ramo non entrava MAI e la verifica dentro non veniva mai fatta.
 	# Rompendo apposta la regola la suite restava verde: una prova che salta se
 	# stessa in silenzio e' peggio di una prova che manca, perche' si conta.
+	# DURANTE LA LEZIONE, SOLO QUELLO CHE VERONICA CHIEDE - ma QUELLO si'.
+	#
+	# All'inizio qui avevo scritto la regola larga: durante un passo del
+	# tutorial non si tiene da parte niente. Sembrava prudente. L'ha bocciata
+	# lo strumento di misura (prove/misura.sh): Veronica chiede ATTACCA, il
+	# giocatore preme ATTACCA un attimo prima che la ricarica finisca, e non
+	# succedeva niente - lo stesso difetto che Bru aveva segnalato, sopravvissuto
+	# proprio dentro la lezione, cioe' dove il giocatore sta imparando se i suoi
+	# comandi contano. Misurato: 0 click su 8 andavano a segno; adesso 8 su 8.
 	scontro.tutorial = {"passi": [{"azione": "attacca"}]}
 	scontro.tutorial_passo = 0
 	scontro.tutorial_finito = false
 	esigi(not scontro.passo_tutorial().is_empty(),
-			"il passo di lezione non si e' acceso: la verifica qui sotto non proverebbe niente")
+			"il passo di lezione non si e' acceso: le verifiche qui sotto non proverebbero niente")
+
+	# quello che NON viene chiesto resta fuori: la lezione e' una cosa per volta
 	tu.ricarica = 0.8
 	scontro.agisci_ora({"tipo": "difendi"})
 	esigi(scontro.nome_azione_in_coda() == "",
-			"durante la lezione un comando e' finito in coda: partirebbe da solo dopo la battuta")
+			"durante la lezione e' finito in coda un comando che il passo non chiede")
+
+	# quello che VIENE chiesto si tiene, anche se dato presto
+	scontro.agisci_ora({"tipo": "attacca", "bersaglio": scontro.vivi(false)[0]})
+	esigi(scontro.nome_azione_in_coda() == "Attacco",
+			"premere l'azione che la lezione chiede, un attimo troppo presto, non lascia traccia: in coda c'e' '%s'"
+			% scontro.nome_azione_in_coda())
+
+	# e se il passo cambia, quello che aspettava non vale piu'
+	scontro.tutorial = {"passi": [{"azione": "difendi"}]}
+	scontro.aggiorna_pronto_giocatore()
+	esigi(scontro.nome_azione_in_coda() == "",
+			"cambiato il passo, in coda resta un'azione che adesso non e' piu' quella chiesta")
 	scontro.tutorial = {}
 
 	scontro.in_corso = false
