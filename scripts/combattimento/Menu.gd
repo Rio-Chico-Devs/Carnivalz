@@ -149,6 +149,44 @@ func voce_in_coda(nome: String) -> void:
 	battito.tween_property(riga, "modulate:a", 0.5, 0.45)
 	battito.tween_property(riga, "modulate:a", 1.0, 0.45)
 
+func voci_della_lezione(passo: Dictionary) -> void:
+	# DURANTE LA LEZIONE SI PUO' FARE SOLO QUELLO CHE VERONICA CHIEDE.
+	#
+	# Sta in una funzione sua perche' principale() ha sfondato il tetto delle
+	# cento righe quando ho aggiunto il guardiano qui sotto - e il tetto aveva
+	# ragione: il menu della lezione e quello dello scontro normale hanno regole
+	# diverse, e l'unica cosa che avevano in comune era il bordo dell'if.
+	#
+	# FINCHE' NON HA PARLATO, NON SI TOCCA NIENTE. Il passo esiste gia' (l'indice
+	# e' avanzato appena hai finito il precedente) ma Veronica non l'ha ancora
+	# annunciato: in quella finestra il menu non deve offrire l'azione del passo
+	# nuovo, se no si anticipa la lezione. Bru: «sono stato veloce e avevo gia'
+	# aperto skills, ma solo perche' il dialogo era in ritardo».
+	var spiegato: bool = scontro.passo_gia_spiegato()
+	var richiesta := String(passo.get("azione", "")) if spiegato else ""
+	# E ANCHE QUI SI VEDE COSA ASPETTA. Anzi: soprattutto qui. La lezione e' il
+	# posto dove il giocatore sta imparando se i suoi comandi contano
+	var in_coda_lezione: String = scontro.nome_azione_in_coda()
+	if in_coda_lezione != "":
+		voce_in_coda(in_coda_lezione)
+	bottone("ATTACCHI", bersagli, richiesta != "attacca", richiesta == "attacca")
+	bottone("DIFESA", scegli.bind({"tipo": "difendi"}), richiesta != "difendi",
+			richiesta == "difendi")
+	# SKILL resta aperta per Studia - guardare non e' mai un errore - ma non
+	# prima che la lezione sia cominciata: era da li' che si anticipava.
+	#
+	# E PULSA QUANDO IL PASSO CHIEDE UN'ABILITA'. Non lo faceva: due dei sette
+	# passi chiedono "abilita", e in quei due non pulsava NIENTE nel menu
+	# principale - l'evidenziazione stava solo dentro la lista, cioe' dopo che
+	# avevi gia' indovinato dove andare. Trovato da una prova che chiedeva
+	# «dopo l'annuncio, qualcosa pulsa?».
+	bottone("SKILL", abilita, not spiegato, richiesta == "abilita")
+	bottone("OGGETTI", oggetti, richiesta != "oggetto", richiesta == "oggetto")
+	# IN FONDO, E SOLO A CHI L'HA GIA' FATTA: in fondo perche' le voci fisse non
+	# si devono spostare sotto il cursore di chi la lezione la sta seguendo
+	if bool(scontro.si_puo_saltare_la_lezione()):
+		bottone("\u21b7  Salta la lezione", scontro.salta_la_lezione)
+
 # --- i menu ---
 
 func principale() -> void:
@@ -197,24 +235,7 @@ func principale() -> void:
 	# che il tutorial non ha ancora sbloccato.
 	var passo: Dictionary = scontro.passo_tutorial()
 	if not passo.is_empty():
-		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
-		# sempre libero: guardare non e' mai un errore)
-		var richiesta := String(passo.get("azione", ""))
-		# E ANCHE QUI SI VEDE COSA ASPETTA. Anzi: soprattutto qui. La lezione e'
-		# il posto dove il giocatore sta imparando se i suoi comandi contano
-		var in_coda_lezione: String = scontro.nome_azione_in_coda()
-		if in_coda_lezione != "":
-			voce_in_coda(in_coda_lezione)
-		bottone("ATTACCHI", bersagli, richiesta != "attacca", richiesta == "attacca")
-		bottone("DIFESA", scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
-		bottone("SKILL", abilita)
-		bottone("OGGETTI", oggetti, richiesta != "oggetto", richiesta == "oggetto")
-		# IN FONDO, E SOLO A CHI L'HA GIA' FATTA. In fondo perche' le voci fisse
-		# non si devono spostare sotto il cursore di chi la lezione la sta
-		# seguendo; e solo a chi rigioca perche' la prima volta la lezione di
-		# Veronica e' anche una scena (vedi Combattimento.si_puo_saltare_la_lezione)
-		if bool(scontro.si_puo_saltare_la_lezione()):
-			bottone("↷  Salta la lezione", scontro.salta_la_lezione)
+		voci_della_lezione(passo)
 		return
 	# Rabbia e Frastornato: "attacchi soltanto, non puoi usare mosse". Le voci
 	# restano al loro posto, spente - il menu non si accorcia mai. Sparire

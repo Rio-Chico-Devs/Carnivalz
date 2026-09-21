@@ -84,6 +84,10 @@ func azione_ammessa_dalla_lezione(comando: Dictionary) -> bool:
 	var passo: Dictionary = scontro.passo_tutorial()
 	if passo.is_empty():
 		return true
+	# e nemmeno si tiene da parte, se lei non ha ancora parlato: accodare
+	# adesso vorrebbe dire far partire l'azione appena finisce di annunciarla
+	if not scontro.passo_gia_spiegato():
+		return false
 	return String(passo.get("azione", "")) == String(comando.get("tipo", ""))
 
 func scorda() -> void:

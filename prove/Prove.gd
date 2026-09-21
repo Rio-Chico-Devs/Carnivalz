@@ -131,6 +131,7 @@ func _ready() -> void:
 	await prova_il_click_dato_presto_non_si_perde()
 	await prova_la_lezione_si_salta_solo_a_chi_l_ha_gia_fatta()
 	await prova_l_azione_in_attesa_si_vede_a_schermo()
+	await prova_non_si_puo_anticipare_la_lezione()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	prova_la_raffica_accelera_verso_la_fine()
@@ -7784,7 +7785,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4610, "perche":
+	"Combattimento.gd": {"misura": 4628, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -8790,8 +8791,15 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 	scontro.tutorial = {"passi": [{"azione": "attacca"}]}
 	scontro.tutorial_passo = 0
 	scontro.tutorial_finito = false
+	# IL PASSO VA ANCHE ANNUNCIATO, non solo acceso: finche' Veronica non ha
+	# parlato il menu non offre niente e il buffer non tiene niente - e' la
+	# regola che impedisce di anticipare la lezione (passo_gia_spiegato)
+	scontro.tutorial_passi_introdotti.clear()
+	scontro.tutorial_passi_introdotti.append(0)
 	esigi(not scontro.passo_tutorial().is_empty(),
 			"il passo di lezione non si e' acceso: le verifiche qui sotto non proverebbero niente")
+	esigi(scontro.passo_gia_spiegato(),
+			"il passo risulta non ancora spiegato: le verifiche qui sotto non proverebbero niente")
 
 	# quello che NON viene chiesto resta fuori: la lezione e' una cosa per volta
 	tu.ricarica = 0.8
@@ -8807,6 +8815,8 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 
 	# e se il passo cambia, quello che aspettava non vale piu'
 	scontro.tutorial = {"passi": [{"azione": "difendi"}]}
+	scontro.tutorial_passi_introdotti.clear()
+	scontro.tutorial_passi_introdotti.append(0)
 	scontro.aggiorna_pronto_giocatore()
 	esigi(scontro.nome_azione_in_coda() == "",
 			"cambiato il passo, in coda resta un'azione che adesso non e' piu' quella chiesta")
@@ -10263,6 +10273,14 @@ class FintoScontro extends RefCounted:
 	func si_puo_saltare_la_lezione() -> bool:
 		return false
 
+	# la lezione ha gia' parlato? Di solito si' - le prove sul menu guardano
+	# dove finiscono le voci - ma prova_non_si_puo_anticipare_la_lezione lo
+	# spegne apposta, perche' e' proprio quella finestra che vuole misurare
+	var spiegato := true
+
+	func passo_gia_spiegato() -> bool:
+		return spiegato
+
 	func vivi(_amici: bool) -> Array[Dictionary]:
 		# DUE, non uno: con un nemico solo in campo il menu salta la lista e
 		# attacca subito («con un nemico solo non si chiede nemmeno quello»).
@@ -10578,3 +10596,56 @@ func prova_la_vita_scende_animata_e_lascia_la_scia() -> void:
 	Impostazioni.movimento_ridotto = movimento_prima
 	slot.queue_free()
 	await get_tree().process_frame
+
+func prova_non_si_puo_anticipare_la_lezione() -> void:
+	# «SONO STATO VELOCE E AVEVO GIA' APERTO SKILLS, ma solo perche' il dialogo
+	# era in ritardo, mi ha permesso di cliccare subito su skills e anticipare
+	# il tutorial» (Bru).
+	#
+	# chiudi_passo_tutorial fa avanzare l'indice SUBITO, appena finisci l'azione
+	# richiesta. Le battute del passo nuovo pero' le scrive
+	# introduci_passo_tutorial, che parte piu' tardi - quando torni pronto. In
+	# mezzo passo_tutorial() risponde gia' col passo NUOVO: il menu accendeva e
+	# faceva pulsare l'azione che Veronica non aveva ancora chiesto.
+	titolo("finche' Veronica non ha parlato, il menu della lezione non offre niente")
+	GameState.nuova_partita()
+	var radice := Control.new()
+	radice.size = Vector2(1280, 720)
+	add_child(radice)
+	var plancia := PlanciaCombattimento.new()
+	plancia.costruisci(radice)
+	var finto := FintoScontro.new()
+	finto.attaccante_corrente = {"id": GameState.id_protagonista, "aura": 99, "stati_attivi": {}}
+	finto.passo_finto = {"azione": "abilita"}
+	var menu := MenuCombattimento.new(finto)
+	menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
+
+	# PRIMA che il passo sia stato annunciato: tutto spento, niente pulsa
+	finto.spiegato = false
+	menu.principale()
+	esigi(tutte_spente(plancia.comandi),
+			"la lezione non ha ancora parlato e il menu offre gia' qualcosa: si puo' anticipare")
+	esigi(not menu_contiene(plancia.comandi, "▶"),
+			"una voce pulsa prima che Veronica l'abbia chiesta")
+
+	# DOPO: quello che chiede si accende e pulsa, il resto no
+	finto.spiegato = true
+	menu.principale()
+	esigi(not tutte_spente(plancia.comandi),
+			"la lezione ha parlato e il menu resta tutto spento: non si puo' piu' fare niente")
+	esigi(menu_contiene(plancia.comandi, "▶"),
+			"dopo l'annuncio nessuna voce pulsa: non si sa cosa chiede")
+
+	radice.queue_free()
+	await get_tree().process_frame
+
+func tutte_spente(dove: Control) -> bool:
+	if dove == null:
+		return false
+	var viste := 0
+	for figlio in dove.get_children():
+		if figlio is Button:
+			viste += 1
+			if not (figlio as Button).disabled:
+				return false
+	return viste > 0

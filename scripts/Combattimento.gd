@@ -1403,6 +1403,24 @@ func introduci_passo_tutorial() -> bool:
 		scrivi_messaggio_tutorial(msg)
 	return true
 
+func passo_gia_spiegato() -> bool:
+	# VERONICA PRIMA PARLA, POI TI LASCIA FARE.
+	#
+	# chiudi_passo_tutorial fa avanzare l'indice SUBITO, ma le battute del passo
+	# nuovo le scrive introduci_passo_tutorial, che parte piu' tardi - quando
+	# torni pronto. In mezzo c'e' una finestra in cui passo_tutorial() risponde
+	# gia' col passo NUOVO, quindi il menu accende e fa pulsare l'azione che lei
+	# non ha ancora chiesto.
+	#
+	# Bru: «io sono stato veloce e avevo gia' aperto skills, ma solo perche' il
+	# dialogo era in ritardo, mi ha permesso di cliccare subito su skills e
+	# anticipare il tutorial».
+	#
+	# La bandiera giusta c'era gia' - e' quella che impedisce di rileggere due
+	# volte la stessa introduzione. Qui serve la stessa domanda dall'altro lato:
+	# questo passo l'ha gia' spiegato?
+	return tutorial_passo in tutorial_passi_introdotti
+
 func avanza_tutorial(azione: Dictionary) -> void:
 	# il passo si chiude solo se il giocatore ha fatto davvero quello che gli
 	# era stato chiesto (Studia non consuma il passo: e' sempre concesso)
