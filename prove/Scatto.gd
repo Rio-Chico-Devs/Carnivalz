@@ -122,7 +122,23 @@ func prepara(quale: String) -> void:
 			# a disegnarsi. Tre tentativi prima di capirlo.
 			malmesso.voce.coda.clear()
 			malmesso.set_process(false)
+			# E LA VITA SI RIMETTE DOVE L'AVEVO CHIESTA. Nei novanta fotogrammi
+			# qui sopra lo scontro e' VIVO: la marionetta picchia, e chiedendo
+			# giallo mi sono ritrovato 13/100 e un tracciato rosso. Adesso che
+			# il motore e' fermo nessuno la riscrive piu': si rimette il numero
+			# e si aggiorna la condizione una volta sola.
+			for c in malmesso.combattenti:
+				if c.giocatore:
+					c.hp = maxi(int(float(c.hp_max) * quota), 1)
+					malmesso.campo.aggiorna(c)
+			malmesso.aggiorna_pronto_giocatore()
 			malmesso.plancia.mostra_faccia("comandi")
+			# E DUE FOTOGRAMMI PER RIDISEGNARE. mostra_faccia cambia solo
+			# .visible: chi guarda subito dopo vede ancora il fotogramma di
+			# prima, cioe' il box del testo. Col motore fermo aspettare non
+			# costa piu' niente - e' il motivo per cui tre scatti di fila
+			# hanno fotografato il parlato invece del quadrante.
+			await attendi(2)
 		"plancia":
 			# LA SCHERMATA DI COMBATTIMENTO INTERA, come l'ha disegnata Bru.
 			# Non c'e' altro modo di controllare che sia quella: le prove sanno

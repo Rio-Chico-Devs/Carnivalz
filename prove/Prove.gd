@@ -151,6 +151,7 @@ func _ready() -> void:
 	prova_si_salva_solo_fuori_dalle_fratture()
 	prova_il_checkpoint_non_ti_lascia_dentro()
 	await prova_ecg_anello_e_riposo()
+	await prova_l_ecg_non_si_apre_su_una_riga_piatta()
 	prova_niente_disco_dentro_un_disegno()
 	await prova_il_disco_si_interroga_una_volta()
 	await prova_due_svuotamenti_non_si_pestano()
@@ -9354,6 +9355,61 @@ func prova_il_checkpoint_non_ti_lascia_dentro() -> void:
 	esigi(GameState.stanze_ripulite.is_empty(),
 			"ricaricando le stanze gia' ripulite restano ripulite: la zona sarebbe mezza vuota")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(GameState.percorso_slot(slot_prova)))
+
+func prova_l_ecg_non_si_apre_su_una_riga_piatta() -> void:
+	# LA LINEA PIATTA VUOL DIRE MORTO, E LO DICEVA A OGNI APERTURA.
+	#
+	# La storia nasce piena di zeri e uno zero si disegna in mezzo al quadrante:
+	# per i primi quattro secondi di ogni scontro il tracciato era per meta' una
+	# riga dritta che arretrava mentre l'onda vera entrava da destra. Nessuna
+	# prova lo vedeva perche' nessuna guardava il quadrante APPENA APERTO - si
+	# guardava sempre dopo, a schermo gia' pieno.
+	#
+	# Si misura contando quanti campioni sono fermi sullo zero al primo
+	# fotogramma. Non "e' bello": e' "la memoria e' piena di segnale vero".
+	titolo("l'ecg non si apre su una riga piatta")
+	var riga := TracciatoEcg.new()
+	riga.custom_minimum_size = Vector2(300.0, 90.0)
+	add_child(riga)
+	riga.imposta(0.55, 30)
+	await get_tree().process_frame
+
+	var fermi := 0
+	for i in TracciatoEcg.CAMPIONI:
+		if is_zero_approx(riga.campione(i)):
+			fermi += 1
+	esigi(fermi < TracciatoEcg.CAMPIONI / 4,
+			"al primo fotogramma %d campioni su %d sono piatti: il quadrante " %
+			[fermi, TracciatoEcg.CAMPIONI] +
+			"si apre su una riga dritta, che su un monitor vuol dire morto")
+	esigi(riga.campioni_presi >= TracciatoEcg.CAMPIONI,
+			"la memoria non e' stata riempita: %d campioni invece di %d"
+			% [riga.campioni_presi, TracciatoEcg.CAMPIONI])
+
+	# E IL RIEMPIMENTO SUCCEDE UNA VOLTA SOLA. Rifarlo a ogni fotogramma
+	# vorrebbe dire duecentoquaranta campioni per fotogramma invece di uno.
+	var dopo_il_primo := riga.campioni_presi
+	for giro in 10:
+		riga._process(1.0 / 60.0)
+	esigi(riga.campioni_presi - dopo_il_primo <= 20,
+			"in dieci fotogrammi ha preso %d campioni: si sta riempiendo ogni volta"
+			% (riga.campioni_presi - dopo_il_primo))
+
+	# CHI E' A TERRA LA RIGA DRITTA CE L'HA DAVVERO, ed e' l'unico caso.
+	var spento := TracciatoEcg.new()
+	spento.custom_minimum_size = Vector2(300.0, 90.0)
+	add_child(spento)
+	spento.imposta(0.0, 0)
+	await get_tree().process_frame
+	var piatti := 0
+	for i in TracciatoEcg.CAMPIONI:
+		if is_zero_approx(spento.campione(i)):
+			piatti += 1
+	esigi(piatti == TracciatoEcg.CAMPIONI,
+			"a terra il tracciato non e' piatto: %d campioni su %d si muovono"
+			% [TracciatoEcg.CAMPIONI - piatti, TracciatoEcg.CAMPIONI])
+	riga.queue_free()
+	spento.queue_free()
 
 func prova_ecg_anello_e_riposo() -> void:
 	# DUE COSE, TUTTE E DUE MISURATE.

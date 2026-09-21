@@ -27,6 +27,8 @@ var testa := 0
 var campioni_presi := 0
 var tempo := 0.0
 var prossimo_campione := 0.0
+# il monitor era gia' acceso prima che lo guardassi: vedi riempi_lo_schermo
+var riempito := false
 var battiti: Array[float] = []
 var generati_fino_a := 0.0
 
@@ -69,6 +71,8 @@ func _process(delta: float) -> void:
 	# piu' onesto di un salto.
 	if not is_visible_in_tree():
 		return
+	if not riempito:
+		riempi_lo_schermo()
 	var passo_campione := SECONDI_A_SCHERMO / float(CAMPIONI)
 	tempo += delta
 	aggiorna_guasto()
@@ -76,6 +80,28 @@ func _process(delta: float) -> void:
 		spingi(valore_a(prossimo_campione))
 		prossimo_campione += passo_campione
 	queue_redraw()
+
+func riempi_lo_schermo() -> void:
+	# IL MONITOR ERA GIA' ACCESO PRIMA CHE LO GUARDASSI.
+	#
+	# La storia nasce piena di zeri, e uno zero si disegna come una riga dritta:
+	# per i primi quattro secondi di ogni scontro meta' quadrante era una linea
+	# PIATTA che arretrava mentre il tracciato vero entrava da destra. Su un
+	# monitor una linea piatta vuol dire una cosa sola, ed e' il contrario di
+	# quello che l'ecg deve dire quando lo scontro comincia. Si vedeva in ogni
+	# scatto e non l'avevo mai guardato.
+	#
+	# Si riempie facendo girare il SEGNALE VERO per i quattro secondi
+	# precedenti, non disegnando una finta onda: quello che si vede all'apertura
+	# e' esattamente la linea che ci sarebbe stata se qualcuno avesse guardato
+	# prima. Una volta sola, al primo fotogramma in cui il quadrante e' a
+	# schermo - cioe' quando imposta() ha gia' detto vita e stress veri.
+	riempito = true
+	var passo_campione := SECONDI_A_SCHERMO / float(CAMPIONI)
+	tempo = SECONDI_A_SCHERMO
+	while prossimo_campione <= tempo:
+		spingi(valore_a(prossimo_campione))
+		prossimo_campione += passo_campione
 
 func aggiorna_guasto() -> void:
 	# L'IRREGOLARITA' SI E' RIDOTTA A UNA COSA SOLA: il battito.
