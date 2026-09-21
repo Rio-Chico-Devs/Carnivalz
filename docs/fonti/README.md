@@ -38,6 +38,7 @@ I PDF non hanno una prima riga dove mettere il link, quindi stanno qui.
 | `show-or-tell-fdg2024.pdf` | Anderson, Carpenter, Hussein, DeLiema — *Show or Tell?*, FDG 2024 | https://doi.org/10.1145/3649921.3650021 |
 | `gdscript-guida-di-stile.pdf` | *GDScript style guide*, documentazione ufficiale di Godot | https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html |
 | `complessita-cognitiva-sonar.pdf` | G. Ann Campbell — *Cognitive Complexity: a new way of measuring understandability*, SonarSource | https://www.sonarsource.com/resources/cognitive-complexity/ |
+| `celeste-player.cs` + `celeste-player-readme.md` | Noel Berry e Maddy Thorson — il codice del movimento di Celeste, pubblicato dagli autori | https://github.com/NoelFB/Celeste/tree/master/Source/Player |
 
 ## Perché non le committiamo e basta
 
@@ -82,16 +83,30 @@ sicuramente altri punti morti che non ho trovato.
 
 ### 2. I numeri che il giocatore SENTE, e che oggi non hanno nessuna fonte
 
-**Le finestre di input: la parata e la raffica.** `QUOTA_PARABILE = 0.80`, e
-la raffica di Veronica con `intervallo` da 0.55 a 0.30 e `durata` 0.75. Avevo
-citato «6-8 fotogrammi per gli attacchi, 3-4 per le schivate» da una sintesi;
-quando hai mandato l'articolo di Ellison ho controllato e **quei numeri lì
-dentro non ci sono**. Quindi oggi sono numeri scelti a occhio da me.
-- La cosa più utile in assoluto: **il sorgente di Celeste** (Maddy Thorson ha
-  pubblicato `Player.cs`), che ha le costanti vere di jump grace e input
-  buffer di un gioco spedito. Numeri veri, non consigli.
-- In alternativa: un riferimento di frame data di un picchiaduro, o il post
-  di Maddy Thorson sul perdono nei controlli.
+**Le finestre di input: la parata e la raffica.** ~~Serve il sorgente di
+Celeste~~ — **preso**, sta qui in `celeste-player.cs` (GitHub non passa dal
+proxy che blocca tutto il resto). Le costanti vere di un gioco spedito e
+famoso per i controlli stretti:
+
+| costante | valore | cos'è |
+|---|---:|---|
+| `JumpGraceTime` | **0,10 s** | il *coyote time*: salti ancora per 100 ms dopo essere uscito dalla piattaforma |
+| `CeilingVarJumpGrace` | 0,05 s | |
+| `WallSpeedRetentionTime` | 0,06 s | |
+| `DashTime` | 0,15 s | quanto dura lo scatto |
+| `DashCooldown` | 0,20 s | |
+| `DashAttackTime` | 0,30 s | quanto resta "offensivo" lo scatto |
+
+**Il metro che mancava:** in Celeste le finestre di *perdono* stanno fra 0,05
+e 0,10 s, quelle di *azione* fra 0,15 e 0,35 s. La raffica di Veronica dà
+**0,75 s per pugno**: sette volte la finestra di perdono più larga di Celeste.
+Il che va benissimo — si clicca col mouse un bersaglio che si sposta, non si
+preme un tasto sapendo già dove — ma adesso è un numero con un riferimento
+accanto invece di un numero scelto a sentimento.
+
+**Quello che NON c'è**: la costante del buffer d'input vero. Sta in
+`VirtualButton` del motore Monocle, che non è nel sorgente pubblicato. Se la
+trovi, è l'ultimo pezzo.
 
 **Godot: prestazioni e profiling.** Ho citato «l'editor aggiunge overhead a
 ogni fotogramma, profila una build esportata». Tutta la tornata
