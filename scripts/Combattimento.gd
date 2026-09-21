@@ -157,6 +157,11 @@ var battute_del_giocatore := 0   # quante volte hai mosso: il "limite_giri" cont
 var id_comandato := ""           # chi stai giocando adesso; vuoto = il protagonista
 var menu_acceso := false         # la tua ricarica e' finita e il menu e' aperto
 var studio_in_corso := false     # il tempo e' fermo perche' stai studiando
+
+# IL COMANDO DATO PRESTO ASPETTA IL SUO MOMENTO, non si perde: il perche' e il
+# come stanno tutti in Intenzione.gd. Qui c'e' solo il posto dove vive
+var intenzione: IntenzioneCombattimento
+
 var portatore_fuga_bloccata: Dictionary = {}
 var avviso_fuga_mostrato := false
 
@@ -193,6 +198,7 @@ func _ready() -> void:
 	menu = MenuCombattimento.new(self, muto)
 	impatto = ImpattoCombattimento.new(get_tree(), muto)
 	stati = StatiCombattimento.new(self)
+	intenzione = IntenzioneCombattimento.new(self)
 	arena = ArenaCombattimento.new(muto)
 	minigioco = MinigiocoCombattimento.new(muto)
 	minigioco.dado = GameState.rng
@@ -905,6 +911,14 @@ func giocatore_pronto() -> bool:
 	var tu := combattente_comandato()
 	return not tu.is_empty() and puo_agire(tu)
 
+func nome_azione_in_coda() -> String:
+	# UNA RIGA SOLA CHE DELEGA, e non e' un passaggio a vuoto: tiene il menu
+	# lontano dal sapere che esiste un oggetto separato. Serve perche' il menu si
+	# prova con FintoScontro - uno stub che risponde alle domande del menu senza
+	# essere un combattimento - e uno stub sa rispondere a una domanda, non
+	# costruire un IntenzioneCombattimento che vorrebbe a sua volta uno scontro
+	return intenzione.nome()
+
 func aggiorna_pronto_giocatore() -> void:
 	# IL MENU NON SPARISCE MAI, SI SPEGNE. Prima si cancellava mentre ricaricavi
 	# e si ricostruiva quando eri pronto: per meta' dello scontro, sotto, non
@@ -928,7 +942,15 @@ func aggiorna_pronto_giocatore() -> void:
 				float(tu.hp) / maxf(float(tu.get("hp_max", 1)), 1.0),
 				int(tu.get("stress", 0)),
 				GameState.legame)
+	# PRIMA DI TUTTO, QUELLO CHE IL GIOCATORE HA GIA' CHIESTO. Sta qui e non piu'
+	# in fondo perche' il punto e' proprio non perdere un fotogramma: appena la
+	# ricarica scade, l'azione che aspettava parte nello stesso giro
+	intenzione.smaltisci()
 	var pronto := giocatore_pronto()
+	# SOLO A SCONTRO VIVO. A scontro chiuso "pronto" e' falso per definizione -
+	# puo_agire chiede in_corso - e senza questo il pannello della fine, quello
+	# con "Continua", resterebbe scolorito come se ci fosse ancora da aspettare
+	menu.mostra_ricarica(in_corso and not pronto)
 	if pronto != menu_acceso:
 		if pronto and comincia_il_tuo_turno(tu):
 			return   # il passo si e' preso il turno da solo: niente menu
@@ -973,12 +995,17 @@ func passa_il_comando(caduto: Dictionary) -> void:
 		return
 
 func agisci_ora(azione: Dictionary) -> void:
-	# L'AZIONE DEL GIOCATORE, presa quando la prende lui. Non c'e' piu' nessuno
-	# che aspetta: se la tua ricarica non e' finita, il click non fa niente -
-	# e il menu spento lo dice gia'
+	# L'AZIONE DEL GIOCATORE, presa quando la prende lui. Se la ricarica non e'
+	# finita NON si butta via: si mette in attesa e parte da sola appena tocca a
+	# te (vedi Intenzione.gd). Prima qui c'era un return muto, ed era il
+	# "primo click morto" che Bru segnalava
 	var tu := combattente_comandato()
-	if tu.is_empty() or not puo_agire(tu):
+	if tu.is_empty():
 		return
+	if not puo_agire(tu):
+		intenzione.ricorda(azione)
+		return
+	intenzione.scorda()
 	riarma(tu)
 	attaccante_corrente = tu
 	esegui_azione(tu, azione)
@@ -1005,6 +1032,9 @@ func mostra_continua_fine() -> void:
 	# la schermata di fine combattimento
 	menu.pulisci()
 	menu.bottone("▸ Continua", _esci)
+	# e il pannello torna pieno: a scontro finito aggiorna_pronto_giocatore puo'
+	# non girare piu', quindi lo scolorimento della ricarica va tolto qui
+	menu.mostra_ricarica(false)
 
 func risolvi_rigenerazione_frammento(chi: Dictionary) -> void:
 	if int(chi.get("rigenerazione_battute", 0)) <= 0 or int(chi.hp) <= 0:
@@ -1019,11 +1049,6 @@ func risolvi_rigenerazione_frammento(chi: Dictionary) -> void:
 			voce.suono("cura")
 			voce.numero_volante(scheda_curato, "+%d" % recuperati, Stile.colore("positivo"))
 			aggiorna_scheda(chi))
-
-func esegui_turno(attaccante: Dictionary) -> void:
-	# resta per l'orologio virtuale e per chi la chiamava: una battuta e' quello
-	# che prima era un turno
-	battuta_di(attaccante)
 
 func battuta_di(attaccante: Dictionary) -> void:
 	# TOCCA A LUI. La ricarica e' finita: prima si paga quello che si paga a
@@ -3780,7 +3805,7 @@ func mossa_sacrificio(nemico: Dictionary, mossa: Dictionary) -> void:
 	# Se non ne ha, NON LA FA. Qui c'era un ripiego - "non ha nessuno da
 	# sacrificare, colpisce lui stesso" - che raccontava una scena che
 	# non doveva esistere: uno che annuncia un rito e poi tira un pugno.
-	# Adesso e' esegui_turno a non sceglierla mai senza alleati (vedi
+	# Adesso e' battuta_di a non sceglierla mai senza alleati (vedi
 	# turno_nemico_normale e mossa_eseguibile), e questo ramo non puo'
 	# piu' essere raggiunto a mani vuote.
 	var alleati := vivi_alleati_di(nemico)

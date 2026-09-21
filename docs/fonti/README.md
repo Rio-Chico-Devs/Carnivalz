@@ -25,6 +25,16 @@ cambia la conclusione.
 **Metti il link in cima al file**, una riga sola. Serve a sapere cosa stiamo
 citando quando lo citiamo, e a ritrovarlo fra sei mesi.
 
+## Cosa c'è qui dentro
+
+I PDF non hanno una prima riga dove mettere il link, quindi stanno qui.
+
+| file | cos'è | link |
+|---|---|---|
+| `chi2012-tutorial-complessita.pdf` | Andersen, O'Rourke, Liu, Snider, Lowdermilk, Truong, Cooper, Popović — *The Impact of Tutorials on Games of Varying Complexity*, CHI 2012 | https://grail.cs.washington.edu/projects/gameplay-analytics/chi2012-tutorial.pdf |
+| `command-pattern-nystrom.pdf` | Robert Nystrom — *Command*, in *Game Programming Patterns* | https://gameprogrammingpatterns.com/command.html |
+| `input-buffering-wayline.md` | Gemma Ellison — *Input Buffering: The Key to Responsive Game Feel* | https://www.wayline.io/blog/input-buffering-responsive-game-feel |
+
 ## Perché non le committiamo e basta
 
 Le committiamo eccome — stanno qui dentro apposta. Questa cartella non è

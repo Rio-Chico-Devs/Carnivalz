@@ -560,3 +560,88 @@ non la causa di quello che Bru ha sentito, ma esiste.
 booleani stantii che il sequenziatore ha sostituito: restava vero mentre il
 giocatore *non* poteva agire, e contava come click a vuoto quella che era solo
 lettura. Uno strumento va tarato come il codice che misura.
+
+## Il comando dato presto: `Intenzione.gd`
+
+Lo 0,2% qui sopra non era lo 0,2%. Il conto della fase guardava dove finiva il
+click, non se l'azione partiva: e l'azione poteva non partire anche a pannello
+acceso, perché **`agisci_ora` usciva in silenzio quando la ricarica non era
+finita**. Bru lo aveva detto in una riga — «la prima volta che clicco su difesa
+non fa niente» — e io avevo letto "il pannello non c'era".
+
+### La cosa che nessuno guardava: un bottone spento mangia il click
+
+In Godot un `Button` con `disabled = true` **non emette `pressed`**, e siccome
+il suo `mouse_filter` resta `STOP` **si prende lo stesso l'evento**. Il menu
+spegneva le voci mentre ricaricavi (`fermo or ...`, dieci volte in
+`Menu.principale`), quindi il click non veniva né servito né sentito: spariva
+dentro un bottone grigio. Non c'era nessun punto del codice in cui potesse
+essere ricordato.
+
+### Cosa dicono le fonti (e cosa non dicono)
+
+Ellison, *Input Buffering* (`docs/fonti/input-buffering-wayline.md`): «se quella
+pressione cade anche solo pochi millisecondi prima che si apra la finestra, è
+semplicemente persa». Il rimedio è «una coda che tiene gli input, pronta a
+eseguirli appena lo stato del gioco lo permette».
+
+Nystrom, *Command* (`docs/fonti/command-pattern-nystrom.pdf`): l'azione qui è
+già un oggetto — `{"tipo": "difendi"}` — quindi *«è qui che sfruttiamo il fatto
+che il comando è una chiamata reificata: possiamo **ritardare** il momento in
+cui viene eseguita»*. E il pezzo che è servito di più: *«del codice produce
+comandi e li mette nel flusso, altro codice li consuma e li invoca. Mettendo
+quella coda in mezzo abbiamo disaccoppiato il produttore dal consumatore.»*
+
+**Quello che NON ho preso.** Nystrom scrive che «in un certo senso il Command
+pattern è un modo di emulare le closure nei linguaggi che non ce l'hanno» —
+GDScript le ha. Quindi niente ventitré classi comando: l'azione resta il
+Dictionary che era già, e il pattern qui vale per **dove** il comando aspetta,
+non per come è fatto.
+
+### Le due decisioni che potevano andare storte
+
+**Una casella sola, non una coda.** Ellison elenca fra le trappole il
+«sovraccarico della coda» e prescrive di «dare priorità agli input più
+recenti». Se clicchi ATTACCA e poi DIFESA volevi DIFESA: accodarli entrambi li
+eseguirebbe entrambi, ed è il «controllo appiccicoso» che lo stesso articolo
+descrive come il rovescio della medaglia.
+
+**Nessuna scadenza a tempo — ma si vede.** L'articolo propone 0.2s, misura da
+picchiaduro. Qui la ricarica va da 0.45s a 4s: 0.2s lascerebbe morto lo stesso
+il click dato a metà ricarica. Quindi l'intenzione resta finché non parte, non
+la sostituisci, o non la annulla un fatto (scontro chiuso, lezione in corso,
+comando passato a un altro) — e **il menu la scrive in cima**: `⏳ in coda:
+Difesa`. Il rimedio all'appiccicoso è farlo vedere, non accorciarlo di nascosto.
+
+### E resta la regola di Bru
+
+«Mentre ci sono i dialoghi tutto si incentra nella lettura.» Vale anche per un
+comando già dato: `momento_buono()` rifiuta le fasi `racconto`, `minigioco` e
+`chiuso`. Durante la lezione di Veronica il buffer è **spento del tutto** —
+Ellison, fra le tecniche avanzate: «input contestuale: puoi disattivare l'input
+buffering durante le scene di intermezzo».
+
+### Il conto della struttura
+
+Il blocco valeva 115 righe dentro `Combattimento.gd`. Novantasette sono uscite
+in `Intenzione.gd` — stessa misura fatta per `Stati.gd`: **sette chiamate al
+motore, un mestiere solo**, e un confine netto (qui non si esegue niente, si
+decide *se e quando*). In più è sparito `esegui_turno`, un passacarte a
+`battuta_di` che non chiamava più nessuno. Netto: **+24 righe**, e il tetto è
+stato alzato da 4544 a 4569 **scrivendo il conto per intero** nella riga
+dell'eccezione, non ritoccando il numero.
+
+### Il buco che il sabotaggio ha trovato nella mia prova
+
+Quattro sabotaggi su `Intenzione.gd`. Tre presi. Il quarto — *la lezione non
+ferma più il buffer* — **è passato verde**, perché la verifica stava dentro un
+`if not passo_tutorial().is_empty():` e in quello scontro (un goblin, non
+l'allenamento) il tutorial è vuoto: il ramo non entrava mai. Una prova che
+salta se stessa in silenzio è peggio di una prova che manca, perché **si conta
+lo stesso**. Adesso il passo si mette a mano e c'è una verifica che controlla
+di averlo acceso davvero.
+
+Il quinto sabotaggio è stato inutile in modo interessante: togliere `scorda()`
+da `smaltisci()` non rompe niente, perché `agisci_ora` lo rifà. Le due righe
+restano — eseguire un'azione può rientrare nello stesso giro — ma adesso il
+codice dice che sono doppie apposta.

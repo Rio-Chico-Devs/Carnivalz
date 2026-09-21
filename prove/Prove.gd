@@ -124,6 +124,7 @@ func _ready() -> void:
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	await prova_un_solo_artwork_quello_di_chi_parla()
 	await prova_una_fase_alla_volta_e_niente_click_a_vuoto()
+	await prova_il_click_dato_presto_non_si_perde()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	prova_la_raffica_accelera_verso_la_fine()
@@ -7747,14 +7748,19 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4544, "perche":
+	"Combattimento.gd": {"misura": 4569, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
-		"stessi commenti. Ne sono usciti gli stati (Stati.gd); i tre blocchi " +
-		"pesanti che restano - il tempo, la scelta delle mosse, la " +
-		"risoluzione dei colpi - chiamano ognuno decine di funzioni del " +
-		"motore, quindi staccarli non farebbe un modulo, farebbe lo stesso " +
-		"codice con 'scontro.' davanti e senza controllo dei tipi. Misurato " +
-		"in docs/processi.md"},
+		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
+		"dei comandi (Intenzione.gd); i tre blocchi pesanti che restano - il " +
+		"tempo, la scelta delle mosse, la risoluzione dei colpi - chiamano " +
+		"ognuno decine di funzioni del motore, quindi staccarli non farebbe " +
+		"un modulo, farebbe lo stesso codice con 'scontro.' davanti e senza " +
+		"controllo dei tipi. Misurato in docs/processi.md. " +
+		"IL NUMERO E' SALITO DA 4544, e il conto va detto per intero: il " +
+		"buffer degli input valeva 115 righe, 97 sono finite in " +
+		"Intenzione.gd, esegui_turno - un passa-carte che non chiamava piu' " +
+		"nessuno - e' sparito, e restano 24 righe nette. Alzare la misura e' " +
+		"una decisione, non una svista: si scrive qui cosa si e' comprato"},
 	"GameState.gd": {"misura": 2530, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
@@ -8520,6 +8526,99 @@ func prova_una_fase_alla_volta_e_niente_click_a_vuoto() -> void:
 	#    roba si rompe: il pannello dice una cosa e il motore un'altra
 	esigi(not ("var fase" in testo_script("res://scripts/Combattimento.gd")),
 			"la fase e' finita in una variabile: una fase salvata puo' restare indietro rispetto ai fatti")
+	scontro.in_corso = false
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	await get_tree().process_frame
+
+func prova_il_click_dato_presto_non_si_perde() -> void:
+	# IL PRIMO CLICK SU DIFESA. Bru: «la prima volta che clicco su difesa non fa
+	# niente». Era vero: agisci_ora usciva in silenzio se la ricarica non era
+	# finita, e il comando spariva senza lasciare traccia.
+	#
+	# QUESTA PROVA MISURA LA COSA GIUSTA, e vale la pena dire come faccio a
+	# saperlo: la prima versione guardava solo che intenzione.azione si
+	# riempisse. Sarebbe passata anche con un buffer che non fa MAI partire
+	# niente - cioe' con il difetto intatto, piu' una variabile. Quello che
+	# conta e' che l'azione ESCA: qui si guardano gli scatti di guardia, che li
+	# alza soltanto difendi() - cioe' chi esegue davvero la mossa.
+	titolo("un comando dato prima del tempo aspetta, poi parte da solo")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	# NIENTE MODO MUTO QUI. Mutato, lo scontro gira sull'orologio virtuale, che
+	# senza una strategia macina quattromila battute e chiude da solo prima che
+	# la prova possa cliccare qualcosa. Serve lo scontro vero, fermo.
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	scontro.in_corso = true
+
+	var tu: Dictionary = scontro.combattente_comandato()
+	esigi(not tu.is_empty(), "nessuno comandato: la prova non puo' partire")
+	# la ricarica NON e' finita: e' esattamente il momento in cui il click moriva
+	tu.ricarica = 0.8
+	esigi(not scontro.giocatore_pronto(),
+			"con la ricarica a 0.8 il giocatore risulta gia' pronto: la prova non proverebbe niente")
+	var guardia_prima: int = RegoleCombattimento.scatti_difesa(tu)
+	scontro.agisci_ora({"tipo": "difendi"})
+	esigi(RegoleCombattimento.scatti_difesa(tu) == guardia_prima,
+			"la difesa e' partita mentre la ricarica non era finita: il turno non vale piu' niente")
+	esigi(scontro.nome_azione_in_coda() == "Difesa",
+			"il click dato presto non e' stato tenuto da parte: in coda c'e' '%s'"
+			% scontro.nome_azione_in_coda())
+
+	# VINCE L'ULTIMO. Ellison: «limitare la dimensione della coda e dare
+	# priorita' agli input piu' recenti». Se clicchi difesa e poi fuga, volevi
+	# fuga - non tutte e due
+	scontro.agisci_ora({"tipo": "fuggi"})
+	esigi(scontro.nome_azione_in_coda() == "Fuga",
+			"il secondo click non ha sostituito il primo: in coda c'e' '%s'"
+			% scontro.nome_azione_in_coda())
+	scontro.agisci_ora({"tipo": "difendi"})
+
+	# MA NON MENTRE C'E' DA LEGGERE. Bru: «mentre ci sono i dialoghi tutto si
+	# incentra nella lettura, non serve che altro vada avanti». Un comando in
+	# attesa non fa eccezione: aspetta come tutto il resto
+	tu.ricarica = 0.0
+	scontro.voce.coda.append({"tipo": "narrazione", "chi": "", "testo": "Qualcuno parla.",
+			"forte": false, "effetto": Callable()})
+	scontro.aggiorna_pronto_giocatore()
+	esigi(RegoleCombattimento.scatti_difesa(tu) == guardia_prima,
+			"il comando in attesa e' partito mentre c'era ancora da leggere")
+	esigi(scontro.nome_azione_in_coda() == "Difesa",
+			"il comando si e' perso durante la battuta invece di aspettarla")
+
+	# finito di leggere, tocca a te: l'intenzione parte da sola, senza altri click
+	scontro.voce.coda.clear()
+	scontro.voce.sta_facendo_leggere = false
+	scontro.aggiorna_pronto_giocatore()
+	esigi(RegoleCombattimento.scatti_difesa(tu) > guardia_prima,
+			"finita la ricarica il comando in attesa non e' partito: la guardia e' ferma a %d"
+			% RegoleCombattimento.scatti_difesa(tu))
+	esigi(scontro.nome_azione_in_coda() == "",
+			"il comando e' partito ma e' rimasto anche in coda: partirebbe due volte")
+
+	# DURANTE LA LEZIONE NO. Veronica chiede una cosa per volta: un comando
+	# tenuto da parte partirebbe da solo appena lei finisce di parlare, e il
+	# giocatore vedrebbe succedere una cosa che non ha appena chiesto.
+	#
+	# IL PASSO SI METTE A MANO, e non e' una scorciatoia: la prima versione
+	# scriveva `if not passo_tutorial().is_empty():` e si fidava. In questo
+	# scontro - un goblin, non l'allenamento - il tutorial e' vuoto, quindi
+	# quel ramo non entrava MAI e la verifica dentro non veniva mai fatta.
+	# Rompendo apposta la regola la suite restava verde: una prova che salta se
+	# stessa in silenzio e' peggio di una prova che manca, perche' si conta.
+	scontro.tutorial = {"passi": [{"azione": "attacca"}]}
+	scontro.tutorial_passo = 0
+	scontro.tutorial_finito = false
+	esigi(not scontro.passo_tutorial().is_empty(),
+			"il passo di lezione non si e' acceso: la verifica qui sotto non proverebbe niente")
+	tu.ricarica = 0.8
+	scontro.agisci_ora({"tipo": "difendi"})
+	esigi(scontro.nome_azione_in_coda() == "",
+			"durante la lezione un comando e' finito in coda: partirebbe da solo dopo la battuta")
+	scontro.tutorial = {}
+
 	scontro.in_corso = false
 	scontro.voce.coda.clear()
 	scontro.queue_free()
@@ -9944,6 +10043,10 @@ class FintoScontro extends RefCounted:
 
 	func passo_tutorial() -> Dictionary:
 		return {}
+
+	func nome_azione_in_coda() -> String:
+		# qui non c'e' ricarica, quindi non c'e' mai niente in attesa
+		return ""
 
 	func vivi(_amici: bool) -> Array[Dictionary]:
 		# DUE, non uno: con un nemico solo in campo il menu salta la lista e

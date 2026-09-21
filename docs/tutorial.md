@@ -30,6 +30,63 @@ cui mi appoggiavo ha **47 partecipanti**, ed è gli autori stessi a scrivere che
 *«c'erano solo tre giocatori inesperti nella versione esplicita, il che potrebbe
 aver reso certi risultati accidentali»*. L'ho citato come se fosse assodato.
 
+## 0-bis. Il quarto errore, che è dentro la correzione del secondo
+
+Bru mi ha procurato il PDF (`docs/fonti/chi2012-tutorial-complessita.pdf`),
+perché da qui quel dominio risponde 403. L'ho letto tutto, non la sintesi.
+
+La correzione che avevo scritto sopra — «dice l'opposto, i tutorial aumentano il
+tempo di gioco fino al 29%» — **è giusta**. Ma nel farla ho fatto lo stesso
+sbaglio in direzione opposta: ho usato quello studio come se autorizzasse la
+lezione di Veronica. **Gli autori dicono espressamente di no.**
+
+**Loro scrivono, in conclusione:** *«i nostri giochi non sono rappresentativi
+dei giochi commerciali, e di conseguenza non possiamo trarre alcuna conclusione
+sull'efficacia dei tutorial nei giochi che i giocatori devono comprare.»* I tre
+giochi (Refraction, Hello Worlds, Foldit) sono gratuiti e si aprono in un
+browser o si scaricano: chi li prova non ha investito niente. Carnivalz sì.
+
+**E c'è di peggio, per il tutorial che ho scritto.** La loro Ipotesi 3 era che
+togliere libertà al giocatore per concentrare l'attenzione su un elemento
+dell'interfaccia migliorasse l'apprendimento — la tecnica *stenciling* di
+Kelleher e Pausch, usata da Plants vs. Zombies, SimCity 4, CityVille. Risultato:
+
+> *«Non abbiamo trovato prove a sostegno della pratica di limitare la libertà
+> del giocatore allo scopo di concentrare la sua attenzione su determinati
+> oggetti dell'interfaccia. […] Può anche essere che ai giocatori non piaccia
+> vedersi limitare la libertà, e che questo annulli gli effetti positivi
+> sull'apprendimento.»*
+
+**La lezione di Veronica fa esattamente quello**: blocca il menu sull'azione
+richiesta e illumina un pezzo solo dello schermo per volta.
+
+Tre cose vanno dette, e nessuna cancella il colpo:
+
+1. **Misurano un'altra cosa.** Le loro variabili sono livelli completati, tempo
+   di gioco e tasso di ritorno: **coinvolgimento**, non comprensione. Kelleher e
+   Pausch, che misuravano l'apprendimento, hanno trovato il contrario — con gli
+   Stencils gli utenti finivano *«più in fretta e con meno errori»*. I due studi
+   non si contraddicono: rispondono a domande diverse.
+2. **Hanno provato solo testo e figure.** Lo scrivono: *«anche se i tutorial dei
+   videogiochi includono spesso audio, animazioni e video, noi abbiamo esaminato
+   soltanto tutorial fatti di immagini e testo.»* La lezione di Veronica è un
+   personaggio che parla e un'interfaccia che pulsa. È fuori dal loro campione.
+3. **Il blocco qui è anche narrativo.** Veronica non è un cartello: è un
+   personaggio che ti dà ordini in una sala di allenamento. — Questa terza però
+   **è una mia giustificazione, non una prova**: non ho nessuno studio che la
+   sostenga, e va trattata come un'ipotesi da verificare guardando qualcuno
+   giocare.
+
+**Cosa cambio, concretamente:** niente, per ora, nel codice — ma la lezione non
+si appoggia più a questo studio. Si appoggia a «Show or Tell?» (§1) e al carico
+cognitivo. E il blocco del menu passa da «scelta fondata» a **scelta da
+verificare**, prima nella lista delle cose da guardare in un playtest vero.
+
+**Un'ultima riga dallo stesso studio**, che vale come avvertimento generale: il
+pulsante di aiuto su richiesta — la cosa che sembra sempre gratis da aggiungere —
+in Refraction ha **ridotto i progressi del 12% e il tempo di gioco del 15%**.
+Aggiungere un modo di chiedere aiuto non è neutro.
+
 ## 1. Quello che dice la ricerca, con le sue misure
 
 **A favore dell'istruzione esplicita.** «Show or Tell?» (FDG 2024, **75
@@ -40,8 +97,12 @@ venti minuti»*. Conclusione degli autori: **l'istruzione diretta all'inizio por
 a una comprensione pari al learn-by-doing più in fretta, con meno errori, e senza
 sacrificare il coinvolgimento.**
 
-**A favore, se il gioco è complesso.** Andersen et al., sopra: +29% di tempo di
-gioco nel gioco più complesso, nulla nei due semplici.
+**A favore, se il gioco è complesso** — ma vale per i giochi gratuiti. Andersen
+et al., sopra: +29% di tempo di gioco nel gioco più complesso, nulla nei due
+semplici; e **+40% di livelli completati** quando l'informazione arriva nel
+momento in cui serve invece che in un manuale all'inizio. Il transfer ai giochi
+a pagamento lo escludono loro (§0-bis), quindi qui tengo solo la parte che non
+dipende dal prezzo: **l'informazione va data attaccata al momento in cui si usa**.
 
 **Contro, ma in un altro dominio.** Il MIT ha trovato che l'istruzione esplicita
 riduce l'esplorazione spontanea — **in bambini che giocano con un giocattolo**.
@@ -78,10 +139,16 @@ La struttura è giusta: sette passi, ognuno chiede un'azione e la commenta.
 
 Ieri avevo scritto che le 21 battute del passo 0 erano «l'anti-pattern da
 manuale». **Non regge.** Lo studio più recente e più pertinente dice che
-l'istruzione diretta all'inizio funziona, e quello più grande dice che serve
-proprio nei giochi complessi come questo. 328 parole sono circa **due minuti** di
+l'istruzione diretta all'inizio funziona. 328 parole sono circa **due minuti** di
 lettura: lontanissime dai 15-20 minuti che fanno arrabbiare i giocatori di JRPG,
-e si avanzano col click.
+e si avanzano col click. (Quello più grande — Andersen — **non** lo posso più
+usare come sostegno: vedi §0-bis. Restano «Show or Tell?» e il carico cognitivo.)
+
+**Ma il punto 2 qui sotto adesso pesa il doppio.** Andersen misura +40% di
+livelli quando l'informazione arriva in contesto invece che in un blocco
+iniziale, e quella è l'unica parte del suo risultato che non dipende dal fatto
+che i suoi giochi siano gratuiti. Le battute del passo 0 che parlano di cose che
+in quel momento non succedono sono proprio il caso che quello studio punisce.
 
 **Quello che resta in piedi della critica**, più stretto e meglio fondato:
 
@@ -93,6 +160,9 @@ e si avanzano col click.
    quattro stanno meglio agganciate al momento in cui accadono.
 3. **Va saltabile**, per chi rigioca. Su questo la ricerca è concorde e non
    dipende dal genere.
+4. **Il blocco del menu è da verificare, non da dare per buono** (§0-bis). È la
+   prima cosa da guardare quando qualcuno che non è Bru proverà il tutorial: se
+   la gente lo subisce invece di seguirlo, si toglie.
 
 Quindi: **non spostare tutto**. Spostare le tre o quattro battute che parlano di
 cose che in quel momento non si vedono, lasciare il resto, e aggiungere un modo

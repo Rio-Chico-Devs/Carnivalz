@@ -79,6 +79,15 @@ func pulisci() -> void:
 			contenitore = dove
 	svuota(contenitore)
 
+func mostra_ricarica(non_ancora: bool) -> void:
+	# CHE NON SIA ANCORA IL TUO TURNO SI VEDE, MA NON TOGLIE NIENTE. Prima lo
+	# diceva il grigio dei bottoni spenti, che pero' si mangiavano il click.
+	# Adesso lo dice il pannello intero, che resta premibile: il comando dato
+	# presto viene sentito e aspetta il suo momento.
+	if muta or contenitore == null or not is_instance_valid(contenitore):
+		return
+	contenitore.modulate.a = 0.55 if non_ancora else 1.0
+
 func svuota(dove: Control) -> void:
 	# la versione giusta sta in Albero.svuota, ed e' la stessa per tutti: questo
 	# difetto l'avevamo corretto qui e solo qui, mentre era in altri nove posti
@@ -143,36 +152,56 @@ func principale() -> void:
 		# succede niente
 		bottone("␣  MARTELLA  ␣", principale, true)
 		return
-	var fermo := not bool(scontro.giocatore_pronto())
+	# LA RICARICA NON SPEGNE PIU' I BOTTONI. Un bottone `disabled` in Godot non
+	# emette `pressed` e si mangia lo stesso il click: chi premeva DIFESA mentre
+	# la ricarica finiva non veniva ne' servito ne' sentito, ed era il "primo
+	# click morto". Adesso le voci restano premibili e il comando dato presto
+	# aspetta il suo momento (Combattimento.metti_in_coda). Che non sia ancora il
+	# tuo turno si vede lo stesso: l'intero pannello si scolorisce (ricarica()),
+	# e l'azione in attesa e' scritta.
+	#
+	# `spento` resta, ma adesso vuol dire una cosa sola e vera: QUESTO NON SI PUO'
+	# FARE. Non "non ancora" - proprio no, come una mossa sotto Rabbia o una voce
+	# che il tutorial non ha ancora sbloccato.
 	var passo: Dictionary = scontro.passo_tutorial()
 	if not passo.is_empty():
 		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
 		# sempre libero: guardare non e' mai un errore)
 		var richiesta := String(passo.get("azione", ""))
-		bottone("ATTACCHI", bersagli, fermo or richiesta != "attacca", richiesta == "attacca")
-		bottone("DIFESA", scegli.bind({"tipo": "difendi"}), fermo or richiesta != "difendi", richiesta == "difendi")
-		bottone("SKILL", abilita, fermo)
-		bottone("OGGETTI", oggetti, fermo or richiesta != "oggetto", richiesta == "oggetto")
+		bottone("ATTACCHI", bersagli, richiesta != "attacca", richiesta == "attacca")
+		bottone("DIFESA", scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
+		bottone("SKILL", abilita)
+		bottone("OGGETTI", oggetti, richiesta != "oggetto", richiesta == "oggetto")
 		return
 	# Rabbia e Frastornato: "attacchi soltanto, non puoi usare mosse". Le voci
 	# restano al loro posto, spente - il menu non si accorcia mai. Sparire
 	# avrebbe fatto saltare tutto quello che sta sotto proprio nel momento in
 	# cui il giocatore sta gia' subendo qualcosa che non capisce
 	var accecato := RegoleCombattimento.solo_attacchi(scontro.attaccante_corrente)
-	bottone("ATTACCHI", bersagli, fermo)
-	bottone("DIFESA", scegli.bind({"tipo": "difendi"}), fermo or accecato)
-	bottone("SKILL", abilita, fermo or accecato)
-	bottone("OGGETTI", oggetti, fermo or accecato \
+	# L'AZIONE CHE ASPETTA SI VEDE. Un comando tenuto da parte di nascosto e'
+	# proprio il "controllo appiccicoso" di cui avverte Ellison: parte qualcosa
+	# che non ricordi di aver chiesto. Scritta in cima, invece, e' una promessa -
+	# e cliccare qualsiasi altra voce la sostituisce, quindi si disdice da sola
+	# il tipo si scrive a mano: scontro e' Variant apposta (vedi la nota sulla
+	# sua dichiarazione), e dedurre da un Variant qui e' un errore, non un avviso
+	var in_attesa: String = scontro.nome_azione_in_coda()
+	if in_attesa != "":
+		bottone("⏳  in coda: %s" % in_attesa, principale, true)
+	bottone("ATTACCHI", bersagli)
+	bottone("DIFESA", scegli.bind({"tipo": "difendi"}), accecato)
+	bottone("SKILL", abilita, accecato)
+	bottone("OGGETTI", oggetti, accecato \
 			or (GameState.sacca.is_empty() and scontro.leve_utilizzabili().is_empty()))
-	bottone("FUGA", scegli.bind({"tipo": "fuggi"}), fermo or not scontro.fuga_possibile())
+	bottone("FUGA", scegli.bind({"tipo": "fuggi"}), not scontro.fuga_possibile())
 	# --- le due condizionali: compaiono solo quando ci sono davvero ---
 	if not scontro.alleati_disponibili().is_empty():
+		# la voce dell'aiutante resta com'era: e' un sottomenu, non un'azione
 		# Bru sull'incontro dei Cunicoli: "semplicemente fa apparire nel menu
 		# un'opzione aiutante con le sue mosse". Non e' un membro della squadra:
 		# e' una voce in piu' finche' ti accompagna
-		bottone("Aiutante", alleati, fermo)
+		bottone("Aiutante", alleati)
 	if not scontro.bersagli_mediabili().is_empty():
-		bottone("Mediazione", mediazione, fermo)
+		bottone("Mediazione", mediazione)
 
 func bersagli() -> void:
 	modo = "lista"
