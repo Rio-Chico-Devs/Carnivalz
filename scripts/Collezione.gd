@@ -1,5 +1,5 @@
-extends Control
 class_name Collezione
+extends Control
 
 # Base riusabile per le schermate-collezione (album, bestiario, compendio):
 # sfondo, titolo, lista scorrevole di schede, bottone indietro al menu.

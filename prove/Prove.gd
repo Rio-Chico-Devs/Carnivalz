@@ -129,6 +129,7 @@ func _ready() -> void:
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	prova_la_raffica_accelera_verso_la_fine()
 	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
+	prova_il_metro_del_garbuglio_e_quello_giusto()
 	prova_il_tetto_alla_struttura()
 	prova_il_dispatch_delle_mosse_e_cablato_bene()
 	prova_ogni_tipo_di_mossa_ce_l_ha_qualcuno()
@@ -7829,11 +7830,11 @@ const FUNZIONI_INGARBUGLIATE := {
 		"la peggiore del progetto: nemici per oggetti per condizioni, tre " +
 		"cicli annidati con un if dentro ognuno. Il tetto non serve a " +
 		"proteggerla, serve a ricordare che e' la prima da voltare"},
-	"Combattimento.gd:mossa_eseguibile": {"misura": 52, "perche":
+	"Combattimento.gd:mossa_eseguibile": {"misura": 54, "perche":
 		"tutte le condizioni che una mossa puo' dichiarare nei dati messe " +
 		"una dietro l'altra. Si spezza per condizione - una funzione per " +
 		"'quando', una per 'ricarica' - e cade sotto il tetto da sola"},
-	"Main.gd:ricostruisci_scelte": {"misura": 48, "perche":
+	"Main.gd:ricostruisci_scelte": {"misura": 49, "perche":
 		"NON L'AVEVO MAI VISTA. Non e' lunga e non e' annidata: e' una " +
 		"catena di condizioni piatte, e con i tetti di prima - righe e " +
 		"profondita' - era invisibile. E' la prova che la metrica vecchia " +
@@ -7849,10 +7850,12 @@ const FUNZIONI_INGARBUGLIATE := {
 		"un ciclo sugli stati addosso, un match sul tipo, e dentro il sonno " +
 		"il tiro di risveglio con le sue uscite. Si appiattisce quando " +
 		"applica_stato si spezza per tipo, e con lo stesso lavoro"},
-	"Combattimento.gd:battuta_di": {"misura": 38, "perche":
+	"Combattimento.gd:battuta_di": {"misura": 30, "perche":
 		"sceglie la frase giusta per il fatto giusto e le condizioni sono " +
 		"tante quante i fatti. Candidata a diventare una tabella nei dati " +
-		"invece che una scala di se"},
+		"invece che una scala di se. ERA SEGNATA 38 e misurava 30: era gia' " +
+		"calata e la rete non se n'era accorta, perche' un calo che resta " +
+		"sopra il tetto passa in silenzio apposta (vedi sopra). Ritarata"},
 	"Combattimento.gd:attacca": {"misura": 35, "perche":
 		"la sequenza intera di un colpo: a terra, schivata, danno, impatto, " +
 		"stati, KO. E' l'ordine dei fatti, ed e' il mestiere dichiarato di " +
@@ -7864,18 +7867,18 @@ const FUNZIONI_INGARBUGLIATE := {
 		"tutto quello che una scelta di dialogo puo' innescare. Cresce con " +
 		"la trama, che e' ancora in scrittura"},
 	"BoxTesto.gd:respiri": {"misura": 27},
-	"Combattimento.gd:_racconta_ko": {"misura": 27},
-	"Combattimento.gd:esegui_azione": {"misura": 27},
+	"Combattimento.gd:_racconta_ko": {"misura": 29},
+	"Combattimento.gd:esegui_azione": {"misura": 29},
 	"Combattimento.gd:studia": {"misura": 27},
 	"Combattimento.gd:applica_effetto": {"misura": 26},
-	"Combattimento.gd:turno_nemico_normale": {"misura": 25},
+	"Combattimento.gd:turno_nemico_normale": {"misura": 26},
 	"GameState.gd:_leggi_salvataggio": {"misura": 25},
-	"GameState.gd:verifica_passive": {"misura": 25},
-	"Campo.gd:aggiorna": {"misura": 21},
-	"Combattimento.gd:condizioni_mossa": {"misura": 21},
+	"GameState.gd:verifica_passive": {"misura": 26},
+	"Campo.gd:aggiorna": {"misura": 22},
+	"Combattimento.gd:condizioni_mossa": {"misura": 25},
 	"GameState.gd:aggiungi_oggetto": {"misura": 21},
 	"Campo.gd:dettagli_di": {"misura": 20},
-	"Combattimento.gd:flagello": {"misura": 20},
+	"Combattimento.gd:flagello": {"misura": 22},
 	"Regole.gd:calcola_danno": {"misura": 20},
 	"Combattimento.gd:avanza_orologio": {"misura": 20, "perche":
 		"e' cresciuta di uno, ed e' un guardiano solo: «finche' c'e' da " +
@@ -7884,7 +7887,7 @@ const FUNZIONI_INGARBUGLIATE := {
 		"mondo si ferma non puo' stare altrove che nel battito del mondo"},
 	"Combattimento.gd:mantra": {"misura": 19},
 	"Combattimento.gd:verifica_fine_scontro": {"misura": 19},
-	"Combattimento.gd:azione_automatica": {"misura": 18},
+	"Combattimento.gd:azione_automatica": {"misura": 19},
 	"Combattimento.gd:esegui_scontro": {"misura": 18},
 	"Voce.gd:svuota_coda": {"misura": 18},
 	"Combattimento.gd:aggiungi_combattente": {"misura": 17},
@@ -7910,12 +7913,26 @@ func complessita_cognitiva(corpo: Array[String]) -> int:
 	# altezza del se che continuano, e farglielo pagare due volte punirebbe una
 	# scala di casi - che si legge bene - come se fosse un annidamento.
 	#
-	# COSA APPROSSIMA, detto qui e non nascosto: le sequenze di operatori logici
-	# si contano per riga, una per "and" e una per "or". Una condizione lunga
-	# spezzata su tre righe con la barra conta tre volte invece di una. Va bene
-	# cosi' - conta piu' del vero una cosa che e' davvero faticosa da leggere -
-	# ma non e' la definizione esatta, e chi legge un numero deve sapere come
-	# e' fatto.
+	# GLI OPERATORI LOGICI: UNA SEQUENZA, UN PUNTO. Questa riga l'avevo scritta
+	# sbagliata, e me ne sono accorto solo leggendo la specifica di Campbell
+	# (docs/fonti/complessita-cognitiva-sonar.pdf) invece della sua sintesi.
+	# Contavo "c'e' un and? +1; c'e' un or? +1", per riga. La regola vera e':
+	#
+	#   «La complessita' cognitiva NON incrementa per ogni operatore logico
+	#   binario. [...] Capire la seconda riga di ogni coppia non e' molto piu'
+	#   difficile della prima.»   a and b   vs   a and b and c and d
+	#
+	# Cioe': una SEQUENZA di operatori uguali vale UNO. Si paga solo quando
+	# l'operatore CAMBIA - `a and b or c and d` vale tre, perche' sono tre
+	# sequenze. Il mio conto dava due, e su `a and b and c` dava uno per caso.
+	#
+	# COSA RESTA APPROSSIMATO, detto qui e non nascosto: la specifica conta
+	# anche le sotto-sequenze fra parentesi come sequenze a se'
+	# (`a and !(b and c)` vale tre), e per farlo servirebbe un parser vero.
+	# Qui le parentesi non si guardano. E una condizione spezzata su piu' righe
+	# con la barra si conta riga per riga, quindi puo' pagare piu' del dovuto:
+	# e' la stessa cosa che la guida di stile di Godot sconsiglia di scrivere,
+	# quindi l'approssimazione punisce esattamente cio' che andrebbe evitato.
 	var totale := 0
 	for riga in corpo:
 		var nuda := riga.strip_edges()
@@ -7927,11 +7944,23 @@ func complessita_cognitiva(corpo: Array[String]) -> int:
 			totale += 1 + profondita
 		elif nuda.begins_with("elif ") or nuda.begins_with("else:") or nuda.begins_with("else "):
 			totale += 1
-		if nuda.contains(" and "):
-			totale += 1
-		if nuda.contains(" or "):
-			totale += 1
+		totale += sequenze_logiche(nuda)
 	return totale
+
+func sequenze_logiche(riga: String) -> int:
+	# Quante SEQUENZE di operatori logici uguali ci sono in fila: `a and b and c`
+	# e' una, `a and b or c` sono due. E' il conto che chiede Campbell, e si fa
+	# scorrendo gli operatori in ordine e contando quante volte cambiano.
+	var quante := 0
+	var precedente := ""
+	var pezzi := riga.split(" ")
+	for pezzo in pezzi:
+		if pezzo != "and" and pezzo != "or":
+			continue
+		if pezzo != precedente:
+			quante += 1
+			precedente = pezzo
+	return quante
 
 func misura_funzioni(percorso: String) -> Array[Dictionary]:
 	# Ogni funzione del file: quanto e' lunga e quanto e' ingarbugliata.
@@ -7984,6 +8013,56 @@ func controlla_tetto(chiave: String, misura: int, tetto: int, eccezioni: Diction
 	esigi(String(eccezioni[chiave].get("perche", "")).length() > 40,
 			"%s sta fra le eccezioni a quota %d senza una motivazione vera: un elenco senza perche' e' solo un modo lento di spegnere il controllo"
 			% [chiave, misura])
+
+func prova_il_metro_del_garbuglio_e_quello_giusto() -> void:
+	# CHI MISURA IL METRO. Il tetto strutturale si fida di complessita_cognitiva,
+	# e quella funzione l'avevo scritta a memoria da una sintesi: contava "c'e'
+	# un and? +1; c'e' un or? +1", per riga. Leggendo la specifica di Campbell
+	# (docs/fonti/complessita-cognitiva-sonar.pdf) la regola e' un'altra: una
+	# SEQUENZA di operatori uguali vale UNO, e si paga solo quando l'operatore
+	# cambia.
+	#
+	# Gli esempi qui sotto sono quelli che la specifica porta scritti, tradotti
+	# da && e || in and e or. Non li ho inventati io: e' il modo di non
+	# rifidarmi della mia memoria una seconda volta.
+	titolo("le sequenze di operatori logici si contano come dice la specifica")
+	var casi := {
+		"a and b": 1,
+		"a and b and c and d": 1,
+		"a or b": 1,
+		"a or b or c or d": 1,
+		"a or b and c or d": 3,
+		"a": 0,
+		"a and b and c or d or e and f": 3,
+	}
+	for espressione in casi:
+		var atteso: int = casi[espressione]
+		var avuto := sequenze_logiche(String(espressione))
+		esigi(avuto == atteso,
+				"«%s» vale %d sequenze, la specifica ne conta %d"
+				% [espressione, avuto, atteso])
+
+	# E L'ESEMPIO INTERO DELLA SPECIFICA, quello con l'if:
+	#   if (a && b && c || d || e && f)   -> +1 per l'if, +3 per le sequenze
+	var corpo: Array[String] = ["\tif a and b and c or d or e and f:", "\t\tpass"]
+	esigi(complessita_cognitiva(corpo) == 4,
+			"l'esempio della specifica vale %d invece di 4" % complessita_cognitiva(corpo))
+
+	# UN MATCH VALE UNO, non uno per ramo. E' l'altra regola che distingue la
+	# complessita' cognitiva da quella ciclomatica, ed e' quella per cui
+	# esegui_azione non e' punita per avere ventitre casi
+	var con_match: Array[String] = ["\tmatch tipo:", "\t\t\"a\":", "\t\t\t pass",
+			"\t\t\"b\":", "\t\t\t pass", "\t\t\"c\":", "\t\t\t pass"]
+	esigi(complessita_cognitiva(con_match) == 1,
+			"un match con tre rami vale %d: la specifica ne conta uno solo"
+			% complessita_cognitiva(con_match))
+
+	# else ed elif prendono il punto ma NON la profondita': «il costo mentale
+	# e' gia' stato pagato leggendo l'if»
+	var scala: Array[String] = ["\tif a:", "\t\tpass", "\telif b:", "\t\tpass",
+			"\telse:", "\t\tpass"]
+	esigi(complessita_cognitiva(scala) == 3,
+			"una scala if/elif/else vale %d invece di 3" % complessita_cognitiva(scala))
 
 func prova_il_tetto_alla_struttura() -> void:
 	titolo("nessun file e nessuna funzione cresce oltre il tetto misurato")

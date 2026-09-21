@@ -78,24 +78,94 @@ Tre cose vanno dette, e nessuna cancella il colpo:
    giocare.
 
 **Cosa cambio, concretamente:** niente, per ora, nel codice — ma la lezione non
-si appoggia più a questo studio. Si appoggia a «Show or Tell?» (§1) e al carico
-cognitivo. E il blocco del menu passa da «scelta fondata» a **scelta da
-verificare**, prima nella lista delle cose da guardare in un playtest vero.
+si appoggia più a questo studio. E il blocco del menu passa da «scelta fondata»
+a **scelta da verificare**, prima nella lista delle cose da guardare in un
+playtest vero.
+
+*(Quando ho scritto questa riga pensavo che restasse «Show or Tell?» a reggere.
+Poi ho letto anche quello: §0-ter.)*
 
 **Un'ultima riga dallo stesso studio**, che vale come avvertimento generale: il
 pulsante di aiuto su richiesta — la cosa che sembra sempre gratis da aggiungere —
 in Refraction ha **ridotto i progressi del 12% e il tempo di gioco del 15%**.
 Aggiungere un modo di chiedere aiuto non è neutro.
 
+## 0-ter. E poi è caduto anche l'altro puntello
+
+Bru ha procurato anche «Show or Tell?» e Faulkner — le due fonti su cui, tolto
+Andersen, reggeva tutto il resto. Lette per intero, tolgono altro.
+
+### «Show or Tell?» non dice quello che gli ho fatto dire
+
+Avevo scritto che è «lo studio più recente e più pertinente» e che dice che
+«l'istruzione diretta all'inizio funziona». Gli autori dicono una cosa più
+stretta, e in un punto dicono l'opposto:
+
+> *«Non vediamo alcuna differenza fra i gruppi nella comprensione delle
+> meccaniche di base del gioco, indipendentemente dal metodo usato per
+> trasmetterla.»*
+
+E, sulla raccomandazione:
+
+> *«Non stiamo suggerendo che questo sia l'approccio migliore, dato che i
+> giocatori hanno capito le meccaniche altrettanto bene in tutte le versioni.»*
+
+> *«Questo suggerisce che il modo in cui i designer costruiscono i livelli
+> iniziali di un gioco può essere fatto **in qualunque maniera desiderino**,
+> senza alcuna alterazione dell'esperienza che i giocatori avranno.»*
+
+**Quello che lo studio mostra davvero** è più modesto e resta in piedi: con il
+tutorial esplicito i giocatori hanno avuto *«una vita più facile»* nei primi
+sette livelli — difficoltà percepita più bassa, meno annullamenti e riavvii,
+più probabilità di finire in venti minuti. **Non** hanno imparato meglio, e
+**non** si sono annoiati di più.
+
+**Due cose che gli autori stessi mettono nel conto.** Primo, una randomizzazione
+andata storta: *«i giocatori della versione con tutorial hanno incidentalmente
+ottenuto punteggi più bassi sull'esperienza di gioco generale, nonostante le
+condizioni fossero assegnate a caso»* — cioè il gruppo favorito era anche quello
+meno esperto. Secondo, e per Carnivalz è quello che conta:
+
+> *«Questo studio non mostra, tuttavia, che i giocatori del tutorial siano più
+> preparati ad affrontare contenuti più impegnativi senza una guida esplicita.»*
+
+**È esattamente la promessa che fa la lezione di Veronica.** Non è smentita: non
+è misurata, da nessuno dei due studi che avevo citato.
+
+### Faulkner: avevo sbagliato un numero, e avevo perso quello importante
+
+Avevo scritto «cinque persone possono trovarne il **95%** oppure il 55%». Il 95%
+non è di lì: è il *minimo* a venti utenti. La Tabella 2 dello studio — 60 utenti
+veri, campionati a caso in gruppi da 100:
+
+| utenti | minimo trovato | media | dev. std. |
+|---:|---:|---:|---:|
+| 5 | **55%** | 85,55% | 9,30 |
+| 10 | 82% | 94,69% | 3,22 |
+| 15 | 90% | 97,05% | 2,12 |
+| 20 | **95%** | 98,40% | 1,61 |
+| 30 | 97% | 99,00% | 1,13 |
+| 50 | 98% | 100% | 0 |
+
+Il numero che avevo perso è **la media a cinque: 85,55%**. Cioè in media cinque
+persone bastano davvero. Il problema non è la media, è **il pavimento**: la
+stessa procedura può darti il 99% o il 55%, e **non c'è modo di sapere quale
+delle due ti è capitata**. Con dieci il pavimento sale a 82%, con venti a 95%.
+
+Faulkner chiude con una riga che vale per come lavoriamo qui: *«l'argomento più
+forte per fare test di usabilità non è che si può fare a poco prezzo con cinque
+utenti, ma che le conseguenze di non trovare i problemi sono abbastanza gravi da
+giustificare l'investimento».*
+
 ## 1. Quello che dice la ricerca, con le sue misure
 
-**A favore dell'istruzione esplicita.** «Show or Tell?» (FDG 2024, **75
-giocatori**, su *Baba Is You*): i giocatori della versione con tutorial diretto
-*«hanno fatto meno errori, hanno percepito una difficoltà minore, hanno dovuto
-ricominciare meno spesso e avevano più probabilità di finire tutti i livelli in
-venti minuti»*. Conclusione degli autori: **l'istruzione diretta all'inizio porta
-a una comprensione pari al learn-by-doing più in fretta, con meno errori, e senza
-sacrificare il coinvolgimento.**
+**L'istruzione esplicita non costa niente, e leviga l'inizio.** «Show or Tell?»
+(FDG 2024, **75 giocatori**, su *Baba Is You*): con il tutorial diretto i
+giocatori hanno percepito una difficoltà minore, hanno dovuto annullare o
+ricominciare meno spesso, e avevano più probabilità di finire tutti i livelli in
+venti minuti. **Ma hanno capito le meccaniche esattamente quanto gli altri**, e
+gli altri non si sono annoiati di più (§0-ter). Quindi non è un argomento «a
+favore»: è un argomento che dice **che la scelta è quasi gratis**.
 
 **A favore, se il gioco è complesso** — ma vale per i giochi gratuiti. Andersen
 et al., sopra: +29% di tempo di gioco nel gioco più complesso, nulla nei due
@@ -119,9 +189,12 @@ il rimedio che i giocatori citano come buono — Persona — è **poter avanzare
 mano**, cioè esattamente il click che il tutorial di Carnivalz adesso ha.
 
 **Misurare quanto basta.** Avevo scritto «3-7 persone trovano l'80% dei
-problemi». È la regola di Nielsen, ed è **contestata**: Faulkner ha mostrato che
-cinque persone possono trovarne il 95% *oppure il 55%*, e la varianza è troppo
-alta per deciderci qualcosa. Con **10** il minimo sale a 80%, con **20** a 95%.
+problemi». È la regola di Nielsen, ed è **contestata**: Faulkner (60 utenti) ha
+mostrato che cinque persone ne trovano **in media l'85,5%** — quindi la regola
+non è sbagliata *in media* — ma che la stessa procedura può dare il **99%
+oppure il 55%**, e non si può sapere quale delle due è capitata. Il rimedio non
+è diffidare della media, è **alzare il pavimento**: con dieci persone il caso
+peggiore sale a 82%, con venti a 95% (tabella in §0-ter).
 
 ## 2. Il verdetto sul tutorial di Carnivalz, corretto
 
@@ -138,11 +211,20 @@ La struttura è giusta: sette passi, ognuno chiede un'azione e la commenta.
 | 6 | oggetto | 3 | 4 |
 
 Ieri avevo scritto che le 21 battute del passo 0 erano «l'anti-pattern da
-manuale». **Non regge.** Lo studio più recente e più pertinente dice che
-l'istruzione diretta all'inizio funziona. 328 parole sono circa **due minuti** di
-lettura: lontanissime dai 15-20 minuti che fanno arrabbiare i giocatori di JRPG,
-e si avanzano col click. (Quello più grande — Andersen — **non** lo posso più
-usare come sostegno: vedi §0-bis. Restano «Show or Tell?» e il carico cognitivo.)
+manuale». **Non regge lo stesso**, ma non per le ragioni che avevo dato: 328
+parole sono circa **due minuti** di lettura, lontanissime dai 15-20 minuti che
+fanno arrabbiare i giocatori di JRPG, e si avanzano col click.
+
+**Tutti e due i puntelli sono caduti.** Andersen non si può generalizzare a un
+gioco che si compra (§0-bis); «Show or Tell?» dice che la comprensione è uguale
+comunque e che i livelli iniziali *«si possono fare in qualunque maniera si
+desideri»* (§0-ter). Resta in piedi una cosa sola, ed è di peso: **il carico
+cognitivo**, che non dipende da quale studio si cita.
+
+E resta una conclusione pratica che vale più di quelle che ho perso: **se la
+scelta è quasi gratis in termini di apprendimento e coinvolgimento, allora va
+decisa sul FEEL del gioco** — cioè è una scelta tua, non una domanda di
+ricerca. La ricerca dice solo che non stai pagando niente a farla a modo tuo.
 
 **Ma il punto 2 qui sotto adesso pesa il doppio.** Andersen misura +40% di
 livelli quando l'informazione arriva in contesto invece che in un blocco
@@ -202,8 +284,8 @@ Le prove guardano lo stato. Ieri lo scatto ha visto in un colpo quello che
 34.000 verifiche non vedevano, perché **nessuna guardava il pannello**.
 
 E manca la cosa che conta di più: **guardare qualcuno giocare**. Non «3-7
-persone», che era la cifra ottimista di ieri: **dieci** per avere almeno l'80%
-dei problemi, venti per il 95%. Finora l'unico che gioca è Bru — che è anche
+persone», che era la cifra ottimista di ieri: **dieci** perché anche il caso
+peggiore trovi l'82% dei problemi, venti per il 95%. Finora l'unico che gioca è Bru — che è anche
 l'autore, cioè la persona al mondo che ha meno bisogno del tutorial, e quindi
 l'unica che non può misurarlo.
 

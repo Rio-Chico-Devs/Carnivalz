@@ -645,3 +645,78 @@ Il quinto sabotaggio è stato inutile in modo interessante: togliere `scorda()`
 da `smaltisci()` non rompe niente, perché `agisci_ora` lo rifà. Le due righe
 restano — eseguire un'azione può rientrare nello stesso giro — ma adesso il
 codice dice che sono doppie apposta.
+
+## Il metro era sbagliato: la complessità cognitiva, letta dalla specifica
+
+Il cancello strutturale si fida di `complessita_cognitiva()`, e quella funzione
+l'avevo scritta **a memoria da una sintesi**. Con la specifica di Campbell in
+mano (`docs/fonti/complessita-cognitiva-sonar.pdf`) una delle quattro regole
+era sbagliata.
+
+**Come la contavo:** «la riga contiene un `and`? +1. Contiene un `or`? +1.»
+
+**Come si conta:**
+
+> *«La complessità cognitiva non incrementa per ogni operatore logico binario.
+> […] Capire la seconda riga di ogni coppia non è molto più difficile della
+> prima»* — `a and b` contro `a and b and c and d`.
+
+Cioè: una **sequenza** di operatori uguali vale **uno**. Si paga solo quando
+l'operatore **cambia**. `a and b or c and d` vale tre, non due.
+
+**Cosa è cambiato misurando.** Undici funzioni si sono spostate — dieci in su
+(la più colpita, `condizioni_mossa`, da 21 a 25) e una in giù. Il numero non
+scendeva quasi mai perché il mio conto *sottostimava* le condizioni alternate,
+che sono proprio quelle faticose da leggere.
+
+**E il calo ha trovato altro.** `battuta_di` era registrata a 38 e misurava 30:
+era calata da sola in qualche rifacimento precedente, e la rete non se n'era
+accorta perché **un calo che resta sopra il tetto passa in silenzio, per
+scelta** (se ogni miglioramento facesse fallire la suite, la prima cosa che si
+impara è a spegnerla). Ho ritarato tutte e trentaquattro le voci sulla misura
+vera: la rete si stringe.
+
+**Adesso il metro ha una prova sua** (`prova_il_metro_del_garbuglio_e_quello_giusto`),
+e i casi non me li sono inventati: sono **gli esempi che la specifica porta
+scritti**, tradotti da `&&`/`||` a `and`/`or`, più l'esempio completo con l'`if`
+che vale 4. Più due regole che distinguono questa metrica da quella ciclomatica
+e che *non* avevo sbagliato: un `match` vale **uno** per tutto il blocco (è il
+motivo per cui `esegui_azione` non è punita per avere ventitré casi), e
+`else`/`elif` prendono il punto ma **non** la profondità. Sabotata tornando alla
+regola vecchia: quattro verifiche rosse sul metro, più nove sui tetti.
+
+**Cosa resta approssimato, e lo dico qui.** La specifica conta anche le
+sotto-sequenze fra parentesi come sequenze a sé (`a and !(b and c)` vale tre):
+per farlo servirebbe un parser. E una condizione spezzata su più righe con la
+barra si conta riga per riga, quindi può pagare più del dovuto.
+
+## La guida di stile ufficiale di Godot, misurata
+
+`docs/fonti/gdscript-guida-di-stile.pdf`. Misurato invece che ricordato:
+
+**Quello che era già a posto.** Zero violazioni della regola sugli operatori a
+capo — *«quando si spezza un'espressione condizionale su più righe, le parole
+chiave `and`/`or` vanno messe all'inizio della riga di continuazione, non in
+fondo alla precedente»*: 92 continuazioni, 92 conformi. I segnali sono tutti al
+passato (`finito`, `scaduto`, `scrittura_finita`). Nessuna costante fuori da
+`CONSTANT_CASE`.
+
+**Una violazione vera, e l'ho corretta.** `Collezione.gd` aveva `extends` prima
+di `class_name`. L'ordine della guida è: `@tool`, `class_name`, `extends`,
+doc comment, segnali, enum, costanti, variabili, `_init`, `_ready`, `_process`,
+il resto. Una riga.
+
+**Due scarti che NON correggo, e il perché.**
+
+*Le parentesi invece della barra.* La guida preferisce `(...)` a `\` perché
+*«con le barre devi assicurarti che l'ultima riga non finisca con una barra»*.
+Qui ci sono 92 continuazioni con la barra. Cambiarle tutte è un rumore enorme
+in `git blame` per zero cambiamenti di comportamento, e la trappola che la
+guida cita — la barra finale — non si è mai verificata. Se un giorno si tocca un
+file per altro, si convertono quelle.
+
+*I nomi dei file.* La guida vuole `snake_case` per i nomi dei file
+(`combattimento.gd`), noi abbiamo `Combattimento.gd` in **103 file**.
+Rinominarli rompe ogni percorso `res://`, ogni `preload` e ogni riferimento di
+scena. È uno scarto dichiarato, non una svista: il nome del file segue il nome
+della classe, che è la convenzione opposta ma coerente dentro il progetto.
