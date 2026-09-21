@@ -43,3 +43,93 @@ I PDF non hanno una prima riga dove mettere il link, quindi stanno qui.
 
 Le committiamo eccome — stanno qui dentro apposta. Questa cartella non è
 codice e non entra in nessun tetto strutturale: è la biblioteca del progetto.
+
+## Quello che mi manca ancora (in ordine di quanto cambia il gioco)
+
+Bru: «fammi un elenco del resto delle fonti che non hai potuto vedere per
+intero». Questa è la lista, ricavata rileggendo cosa i documenti citano
+davvero, non a memoria.
+
+### 1. Le cose su cui poggiano decisioni GIÀ PRESE
+
+**Il carico cognitivo — Sweller.** Dopo che Andersen, «Show or Tell?» e
+Faulkner hanno smontato quello che ci avevo costruito sopra, **questo è
+l'unico puntello rimasto** di tutto il verdetto sul tutorial
+(`docs/tutorial.md` §1, §2). Non ho mai letto una fonte primaria: lo cito da
+sintesi. Se dice una cosa diversa, §2 resta senza fondamenta.
+- Sweller, *Cognitive Load During Problem Solving: Effects on Learning*,
+  Cognitive Science 12(2), 1988 — l'originale
+- **Più utile ancora:** Kalyuga, Ayres, Chandler, Sweller, *The Expertise
+  Reversal Effect*, Educational Psychologist 38(1), 2003. Dice che
+  l'istruzione esplicita aiuta i principianti e **danneggia** gli esperti: è
+  esattamente la domanda «il tutorial va saltabile?», e nessuno degli studi
+  che ho letto la tocca.
+
+**Kelleher e Pausch — gli Stencils.** *Stencils-based tutorials: design and
+evaluation*, CHI 2005. È **l'unico studio che sostiene il blocco del menu**,
+e lo conosco solo dalla frase con cui lo descrive Andersen. Il blocco è codice
+già spedito (`Menu.principale`, il parametro `spento`). Se Stencils non dice
+quello che Andersen riporta, il menu va sbloccato.
+
+**Godot: `InputEvent`, `mouse_filter`, propagazione dell'input.** Ho spedito
+una correzione costruita sull'affermazione «un `Button` con `disabled = true`
+non emette `pressed` ma si prende lo stesso il click». Ci credo per averlo
+visto, ma **non ho mai letto la pagina**. Se le regole di propagazione sono
+diverse c'è forse un rimedio migliore (`mouse_filter = PASS`), e quasi
+sicuramente altri punti morti che non ho trovato.
+- `docs.godotengine.org` → *Using InputEvent*, *InputEvent* (class reference),
+  *Control.mouse_filter*
+
+### 2. I numeri che il giocatore SENTE, e che oggi non hanno nessuna fonte
+
+**Le finestre di input: la parata e la raffica.** `QUOTA_PARABILE = 0.80`, e
+la raffica di Veronica con `intervallo` da 0.55 a 0.30 e `durata` 0.75. Avevo
+citato «6-8 fotogrammi per gli attacchi, 3-4 per le schivate» da una sintesi;
+quando hai mandato l'articolo di Ellison ho controllato e **quei numeri lì
+dentro non ci sono**. Quindi oggi sono numeri scelti a occhio da me.
+- La cosa più utile in assoluto: **il sorgente di Celeste** (Maddy Thorson ha
+  pubblicato `Player.cs`), che ha le costanti vere di jump grace e input
+  buffer di un gioco spedito. Numeri veri, non consigli.
+- In alternativa: un riferimento di frame data di un picchiaduro, o il post
+  di Maddy Thorson sul perdono nei controlli.
+
+**Godot: prestazioni e profiling.** Ho citato «l'editor aggiunge overhead a
+ogni fotogramma, profila una build esportata». Tutta la tornata
+sull'«ingiocabile» è misurata con `prove/misura.sh`, che gira in headless. Se
+quella frase ha eccezioni, i numeri di `Misura.gd` possono essere fuorvianti.
+- `docs.godotengine.org` → sezione *Optimization*, e *Overview of debugging
+  tools* / il profiler
+
+**Un teardown serio di un tutorial JRPG.** L'avevi offerto e non è mai
+arrivato. Sto disegnando la lezione di Veronica contro **quello che immagino
+faccia Yu-Gi-Oh GX**, non contro qualcosa di misurato. Va bene qualsiasi cosa
+battuta per battuta: GX, Persona, un Final Fantasy.
+
+### 3. Le regole di struttura che applico a ogni commit
+
+**Ousterhout, *A Philosophy of Software Design*.** «Moduli profondi contro
+moduli sottili», «un passacarte è una bandiera rossa», «la lunghezza da sola
+è raramente una ragione per spezzare». Le uso come **regole** in ogni
+decisione strutturale — hanno prodotto `Stati.gd`, `Intenzione.gd`, e la
+rimozione di tre passacarte. Non ho mai letto il libro. (Se non si trova:
+vanno benissimo le slide del suo talk o del corso di Stanford.)
+
+**Parnas, *On the Criteria To Be Used in Decomposing Systems into Modules*,
+1972.** «Nascondi la decisione di progetto che cambierà». È il criterio con
+cui scelgo cosa estrarre. PDF libero, si trova facilmente.
+
+**Sonar, *Clean as You Code*.** Il cancello strutturale È questa idea
+(cricchetto sul codice nuovo). Ho il paper sulla complessità cognitiva, non
+questo.
+
+**Connascenza — Page-Jones, o il talk di Jim Weirich.** Citata una volta
+sola: la più bassa della lista.
+
+### Quello che NON serve procurare
+
+- **Lo studio del MIT sull'istruzione esplicita e i bambini col giocattolo.**
+  È un'analogia fra psicologia dello sviluppo e un'interfaccia di
+  combattimento. Anche se è accurato, il transfer non c'è: **lo tolgo invece
+  di verificarlo.**
+- **Nielsen 1993 e Virzi 1992**, gli originali della regola dei cinque
+  utenti: superati per il nostro scopo da Faulkner, che adesso ho per intero.

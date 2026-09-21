@@ -174,10 +174,10 @@ momento in cui serve invece che in un manuale all'inizio. Il transfer ai giochi
 a pagamento lo escludono loro (§0-bis), quindi qui tengo solo la parte che non
 dipende dal prezzo: **l'informazione va data attaccata al momento in cui si usa**.
 
-**Contro, ma in un altro dominio.** Il MIT ha trovato che l'istruzione esplicita
-riduce l'esplorazione spontanea — **in bambini che giocano con un giocattolo**.
-È scoperta aperta, non un'interfaccia con una barra di dominio: il transfer non è
-scontato.
+*(Qui c'era uno studio del MIT sull'istruzione esplicita che riduce
+l'esplorazione in bambini che giocano con un giocattolo. L'ho tolto: fra la
+psicologia dello sviluppo e una barra di dominio non c'è nessun transfer, e
+tenerlo era solo un modo di sembrare più documentata di quanto fossi.)*
 
 **Il vincolo che regge davvero** è il carico cognitivo: spezzare invece di
 stipare, rivelazione progressiva, e il lettore **scorre e non processa più idee
