@@ -225,6 +225,7 @@ func aggiorna(combattente: Dictionary) -> void:
 			addosso.append(String(id_stato))
 		scheda_slot.imposta_status(addosso)
 		scheda_slot.mostra_aura(int(combattente.get("aura", 0)), int(combattente.get("aura_max", 1)))
+		scheda_slot.mostra_vita(int(combattente.hp), int(combattente.get("hp_max", 1)))
 		scheda_slot.aggiorna_faccia(
 				float(combattente.hp) / maxf(float(combattente.get("hp_max", 1)), 1.0), addosso)
 	if combattente.get("barra_dominio", null) != null:

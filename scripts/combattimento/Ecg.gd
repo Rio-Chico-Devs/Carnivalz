@@ -86,6 +86,37 @@ static func spessore_per(quota_hp: float) -> float:
 		return 1.6
 	return 2.4
 
+# QUANDO IL COMPUTER SI STA ROMPENDO. Bru: «se rossa diamogli un effetto
+# pulsante rosso, tipo cuore che batte, ogni secondo batte, ed e' leggermente
+# distorto ed irregolare, diamo anche un effetto lag e glitch; quando e' gialla
+# attenuiamo gli effetti [...] metteremo solo un leggero glitch, come se il
+# computer si stesse rompendo».
+#
+# Due stati, non una scala continua: rosso e' il guasto, giallo e' il
+# cedimento. Il verde non fa niente - un'interfaccia che glitcha quando stai
+# bene non racconta niente, fa solo rumore.
+const GLITCH_ROSSO := 1.0
+# MISURATO SU UNO SCATTO, non scelto a occhio: a 0.32 il giallo non strappava
+# mai abbastanza da vedersi, e "attenuato" era diventato "assente"
+const GLITCH_GIALLO := 0.46
+
+static func forza_glitch(quota_hp: float) -> float:
+	# quanto forte e' il guasto, 0..1. A terra niente: una riga dritta e' gia'
+	# tutto quello che c'e' da dire
+	if quota_hp <= 0.0:
+		return 0.0
+	if quota_hp < QUOTA_ROSSA:
+		return GLITCH_ROSSO
+	if quota_hp > QUOTA_VERDE:
+		return 0.0
+	return GLITCH_GIALLO
+
+static func batte_il_cuore(quota_hp: float) -> bool:
+	# il lampo rosso dietro la linea lo fa SOLO il rosso. In giallo Bru chiede
+	# di attenuare, e attenuare un battito vuol dire toglierlo: un cuore che
+	# pulsa poco non si legge come "meno grave", si legge come un difetto
+	return quota_hp > 0.0 and quota_hp < QUOTA_ROSSA
+
 static func battiti_al_minuto(stress: int) -> float:
 	return lerpf(BATTITI_CALMO, BATTITI_IN_PANICO, quota_stress(stress))
 

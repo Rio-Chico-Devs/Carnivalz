@@ -1046,3 +1046,77 @@ Sabotaggio, e anche qui ho sbagliato il primo tentativo: togliendo solo
 `= true` la bandiera restava assegnata altrove e il controllo taceva
 giustamente. Riprodotto il difetto **com'era** — nessuna assegnazione — la rete
 lo prende.
+
+## Il colpo si sente: barre animate, numeri, e l'ECG che si rompe
+
+Quattro richieste di Bru, tutte sul *feel*. Tre cose meritano di essere scritte
+perché sono andate storte prima di andare bene.
+
+### La barra che scende, e il valore che significa due cose
+
+Prima `imposta_barra` scriveva il valore e ridisegnava: la barra si
+**teleportava**. Non è solo brutto — è informazione persa: *quanto* hai perso
+non si vede da nessuna parte, si vede solo dove sei arrivato.
+
+Adesso ci sono tre valori per barra: dove deve arrivare, quanto si vede in
+questo istante, e **la scia** — quanto c'era prima, che resta indietro e si
+richiude dopo. La scia è il pezzo che ti hanno appena tolto.
+
+**E questo ha spaccato in due il significato di `quanto()`.** Una prova
+esistente chiedeva *«a inizio scontro la barra è già piena?»* e ha cominciato a
+fallire: leggeva il valore **animato**, che a quel punto stava ancora scendendo
+da 1.0. Chi chiede quanto è piena una barra vuole **la meta**, sempre; il
+disegno è un dettaglio del movimento. `quanto()` adesso risponde la meta.
+
+Stessa prova ha rivelato la seconda: **la prima volta non si anima.** Senza
+quella regola la barra del dominio parte piena (il valore di costruzione) e si
+svuota a vista a ogni inizio di scontro.
+
+E chi ha scelto *«riduci il movimento»* nelle opzioni non vede muoversi niente:
+è una voce di accessibilità, non un vezzo.
+
+### I numeri, e il fondo che cambia colore
+
+Un numero sopra una barra ha un problema solo: il fondo. Sulla parte piena è
+arancione, su quella vuota è quasi nero, e **un colore fisso è illeggibile su
+uno dei due**. L'ho visto in uno scatto: `568/600` si leggeva a metà.
+
+Il contorno risolve senza dover scegliere — chiaro dentro, scuro intorno — e
+vale identico per i numeri di danno, che escono sopra il ritratto di qualcuno e
+quel ritratto può essere di qualunque colore.
+
+### L'ECG, e due cose che ho tarato guardando invece che ragionando
+
+Il guasto ha due stati, non una scala: **rosso è il guasto, giallo è il
+cedimento, verde non fa niente** — un'interfaccia che glitcha quando stai bene
+non racconta niente, fa rumore.
+
+Due tarature sono venute da uno scatto, non da un ragionamento:
+
+**Il giallo non strappava mai.** A forza 0.32, con anche l'ampiezza
+proporzionale, gli strappi erano larghi un pixel: *«attenuato»* era diventato
+*«assente»*. Adesso **quante** strisce sbandano dipende dal guasto, **di
+quanto** molto meno: il giallo strappa di rado, ma quando strappa si vede.
+
+**Il lampo del battito non si accendeva mai.** Cercavo un battito dentro una
+finestra larga un `delta`; con i battiti che sbandano apposta, quella finestra
+la mancava quasi sempre. Adesso si guarda **quanto è vecchio l'ultimo battito**,
+che è deterministico.
+
+E tutto sta dentro il quadrante per costruzione: `clip_contents = true`. Le
+strisce sono disegnate apposta più larghe del riquadro — una striscia che
+finisce esattamente sul bordo non sembra spostata — ed è il ritaglio a tenerle
+a casa loro.
+
+### Il tetto ha bocciato il mio codice, e aveva ragione
+
+`aggiorna_guasto` è uscita a **18 di garbuglio su 15**. Erano tre mestieri in
+una funzione — il battito, le strisce, il lag — che non avevano niente in
+comune tranne il fotogramma in cui succedono. Spezzata in tre.
+
+**E nello spezzarla ho cancellato quattro funzioni** che stavano in mezzo
+(`spingi`, `campione`, `valore_a`, `scala_spessore`): un taglio fatto per
+posizione invece che per contenuto. Il segnale non è stato il rosso delle
+prove — è stato che **il totale delle verifiche è CALATO**, da 34.746 a 33.772.
+Un errore di parse non fa fallire le prove: le fa non eseguire. Il conteggio
+che scende è l'unica spia.

@@ -282,27 +282,53 @@ func numero_volante(scheda: Control, testo: String, tinta: Color, grande := fals
 	# uno sopra l'altro sarebbero una colonna illeggibile.
 	if muta or scheda == null or not is_instance_valid(scheda):
 		return
+	# SPESSO, E CON UN CONTORNO. Bru: «i numeri di danno devono essere piu' belli
+	# da vedere e spessi, piu' dinamici e coinvolgenti».
+	#
+	# Il contorno nero non e' decorazione: questo numero esce SOPRA il ritratto
+	# di qualcuno, e un ritratto puo' essere di qualunque colore. Senza contorno
+	# il numero si legge su certi personaggi e sparisce su altri - ed e' lo
+	# stesso motivo per cui i numeri sulle barre ce l'hanno.
 	var etichetta := Label.new()
 	etichetta.text = testo
 	etichetta.add_theme_color_override("font_color", tinta)
-	etichetta.add_theme_font_size_override("font_size",
-			Stile.dimensione("titolo") if grande else Stile.dimensione("sezione"))
+	etichetta.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.92))
+	etichetta.add_theme_constant_override("outline_size", 10 if grande else 7)
+	etichetta.add_theme_font_size_override("font_size", int(
+			Stile.dimensione("titolo") * 1.35 if grande
+			else Stile.dimensione("sezione") * 1.25))
 	etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	volanti.add_child(etichetta)
 	var centro := scheda.global_position + scheda.size * Vector2(0.5, 0.25)
 	etichetta.global_position = centro - Vector2(etichetta.size.x * 0.5 - sbandata, 0)
+	etichetta.pivot_offset = etichetta.size * 0.5
 	var durata := 1.15 if grande else 0.75
 	var salita := etichetta.create_tween()
 	salita.set_parallel(true)
+	# L'ARCO, non la colonna. Prima salivano dritti per dritti: venti numeri in
+	# una raffica erano una scala verticale. Adesso salgono e scartano di lato -
+	# e la salita frena, invece di essere lineare, cosi' il numero "sboccia"
+	# all'inizio e si posa alla fine
 	salita.tween_property(etichetta, "global_position:y",
-			centro.y - (86.0 if grande else 54.0), durata)
-	salita.tween_property(etichetta, "modulate:a", 0.0, durata).set_delay(0.2)
+			centro.y - (96.0 if grande else 62.0), durata) \
+			.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	salita.tween_property(etichetta, "global_position:x",
+			etichetta.global_position.x + (sbandata * 0.35 + (10.0 if sbandata >= 0.0 else -10.0)),
+			durata).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	salita.tween_property(etichetta, "modulate:a", 0.0, durata * 0.55) \
+			.set_delay(durata * 0.45)
+	# IL RIMBALZO CE L'HANNO TUTTI, non solo i critici. Un colpo normale che
+	# compare e basta non si sente; uno che scatta fuori e si assesta si'. Il
+	# critico resta piu' grosso e piu' violento, cosi' la differenza rimane
+	etichetta.scale = Vector2(0.45, 0.45) if grande else Vector2(0.7, 0.7)
+	salita.tween_property(etichetta, "scale",
+			Vector2(1.18, 1.18) if grande else Vector2.ONE, 0.16) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if grande:
-		# il critico entra con uno scatto: si vede che e' successo qualcosa
-		etichetta.pivot_offset = etichetta.size * 0.5
-		etichetta.scale = Vector2(0.6, 0.6)
-		salita.tween_property(etichetta, "scale", Vector2.ONE, 0.18) \
-				.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		# il critico rientra: scatta oltre e poi si posa. E' lo scarto in piu'
+		# che lo distingue da un colpo qualunque
+		salita.chain().tween_property(etichetta, "scale", Vector2.ONE, 0.12) \
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	salita.chain().tween_callback(etichetta.queue_free)
 
 func suono(nome: String) -> void:

@@ -126,6 +126,8 @@ func _ready() -> void:
 	await prova_una_fase_alla_volta_e_niente_click_a_vuoto()
 	prova_tenere_premuto_non_e_martellare()
 	prova_la_raffica_si_para_anche_da_tastiera()
+	prova_il_guasto_dell_ecg_segue_la_vita()
+	await prova_la_vita_scende_animata_e_lascia_la_scia()
 	await prova_il_click_dato_presto_non_si_perde()
 	await prova_la_lezione_si_salta_solo_a_chi_l_ha_gia_fatta()
 	await prova_l_azione_in_attesa_si_vede_a_schermo()
@@ -10486,3 +10488,93 @@ func qualcuno_la_scrive(righe: PackedStringArray, nome: String) -> bool:
 				return true
 			dove = nuda.find(nome + " =", dove + 1)
 	return false
+
+func prova_il_guasto_dell_ecg_segue_la_vita() -> void:
+	# «SE ROSSA DIAMOGLI UN EFFETTO PULSANTE ROSSO, TIPO CUORE CHE BATTE [...]
+	# quando e' gialla attenuiamo gli effetti [...] metteremo solo un leggero
+	# glitch, come se il computer si stesse rompendo» (Bru).
+	#
+	# Due stati, non una scala: il rosso e' il guasto, il giallo e' il
+	# cedimento, il verde non fa niente. Un'interfaccia che glitcha quando stai
+	# bene non racconta niente, fa rumore.
+	titolo("il guasto dell'ecg c'e' in rosso, e' attenuato in giallo, non c'e' in verde")
+	esigi(is_zero_approx(EcgCombattimento.forza_glitch(1.0)),
+			"a vita piena l'ecg glitcha: non c'e' niente che si stia rompendo")
+	esigi(is_zero_approx(EcgCombattimento.forza_glitch(0.0)),
+			"a terra l'ecg glitcha: chi e' a terra fa una riga dritta e basta")
+	var giallo := EcgCombattimento.forza_glitch(0.5)
+	var rosso := EcgCombattimento.forza_glitch(0.1)
+	esigi(giallo > 0.0, "in giallo non si rompe niente: Bru ne vuole un po'")
+	esigi(rosso > giallo,
+			"il rosso (%.2f) non e' peggio del giallo (%.2f): l'attenuazione non attenua niente"
+			% [rosso, giallo])
+
+	# IL BATTITO SOLO IN ROSSO. In giallo Bru chiede di attenuare, e attenuare
+	# un battito vuol dire toglierlo: un cuore che pulsa poco non si legge come
+	# "meno grave", si legge come un difetto
+	esigi(EcgCombattimento.batte_il_cuore(0.1),
+			"sotto la soglia rossa il cuore non batte: manca il pezzo piu' chiesto")
+	esigi(not EcgCombattimento.batte_il_cuore(0.5),
+			"il cuore batte anche in giallo: li' gli effetti vanno attenuati, non ripetuti")
+	esigi(not EcgCombattimento.batte_il_cuore(1.0), "il cuore batte a vita piena")
+	esigi(not EcgCombattimento.batte_il_cuore(0.0), "il cuore batte a chi e' a terra")
+
+	# E LE SOGLIE SONO LE STESSE DEL COLORE, non due regole che possono divergere
+	esigi(EcgCombattimento.forza_glitch(EcgCombattimento.QUOTA_ROSSA - 0.001)
+			> EcgCombattimento.forza_glitch(EcgCombattimento.QUOTA_ROSSA),
+			"la soglia del guasto non cade dove cade quella del colore rosso")
+	esigi(is_zero_approx(EcgCombattimento.forza_glitch(EcgCombattimento.QUOTA_VERDE + 0.001)),
+			"appena sopra la soglia verde l'ecg si rompe ancora")
+
+func prova_la_vita_scende_animata_e_lascia_la_scia() -> void:
+	# «QUANDO RICEVI DANNO LA LINEA CHE SCENDE DEVE ESSERE ANIMATA, stessa cosa
+	# se si recupera hp» (Bru).
+	#
+	# Prima la barra si teleportava, e non e' solo brutto: e' informazione
+	# persa. QUANTO hai perso non si vedeva da nessuna parte, si vedeva solo
+	# dove sei arrivato. Adesso dietro la barra resta una scia - il pezzo che ti
+	# hanno appena tolto - che si richiude dopo.
+	#
+	# E QUANTO() DEVE DIRE IL VALORE VERO, non quello che si sta ancora
+	# disegnando: questa distinzione l'ha trovata una prova esistente, che
+	# chiedeva «a inizio scontro la barra e' gia' piena?» e col valore animato
+	# diceva di si'.
+	titolo("la vita scende animata, e la scia dice quanto se n'e' andata")
+	var slot := SlotCompagno.new()
+	slot.size = Vector2(160, 300)
+	add_child(slot)
+	await get_tree().process_frame
+	slot.abita("anonimo")
+
+	# LA PRIMA VOLTA NON SI ANIMA: non c'e' nessun "prima" da raccontare
+	slot.imposta_barra("hp", 1.0)
+	esigi(is_equal_approx(slot.quanto("hp"), 1.0), "la barra non ha preso il valore di partenza")
+	esigi(is_equal_approx(float(slot.quote.get("hp", -1.0)), 1.0),
+			"alla prima impostazione la barra si anima: partirebbe da un valore che non e' mai esistito")
+
+	# POI SI': il valore vero e' subito quello nuovo, il disegno ci arriva dopo
+	var movimento_prima: bool = Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	slot.imposta_barra("hp", 0.3)
+	esigi(is_equal_approx(slot.quanto("hp"), 0.3),
+			"quanto() non dice il valore impostato: chi lo chiede vuole la meta', non il fotogramma")
+	esigi(float(slot.quote.get("hp", 0.0)) > 0.3,
+			"il disegno e' gia' arrivato a destinazione: la discesa non si vede")
+	# LA SCIA SI GUARDA DOPO QUALCHE FOTOGRAMMA, non nello stesso istante: e'
+	# fatta apposta per restare INDIETRO, quindi nell'attimo del colpo sta
+	# ancora esattamente dove sta la barra. Guardarla subito era chiedere di
+	# vedere il ritardo prima che ci fosse un ritardo.
+	for _i in 8:
+		await get_tree().process_frame
+	esigi(float(slot.scie.get("hp", 0.0)) > float(slot.quote.get("hp", 0.0)) + 0.01,
+			"la scia non sporge dietro la barra (scia %.3f, barra %.3f): il pezzo perso non si vede da nessuna parte"
+			% [float(slot.scie.get("hp", 0.0)), float(slot.quote.get("hp", 0.0))])
+
+	# E CHI HA SCELTO "RIDUCI IL MOVIMENTO" NON VEDE MUOVERSI NIENTE
+	Impostazioni.movimento_ridotto = true
+	slot.imposta_barra("hp", 0.9)
+	esigi(is_equal_approx(float(slot.quote.get("hp", 0.0)), 0.9),
+			"con «riduci il movimento» la barra si anima lo stesso")
+	Impostazioni.movimento_ridotto = movimento_prima
+	slot.queue_free()
+	await get_tree().process_frame

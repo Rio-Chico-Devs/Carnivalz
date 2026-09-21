@@ -30,8 +30,27 @@ var prossimo_campione := 0.0
 var battiti: Array[float] = []
 var generati_fino_a := 0.0
 
+# --- IL GUASTO. La regola sta in EcgCombattimento.forza_glitch; qui c'e' solo
+# come si vede. Tutto sta DENTRO questo Control, e clip_contents lo garantisce:
+# Bru, «limita l'animazione al quadrante del ecg».
+const LAG_OGNI := 1.7        # ogni quanto, circa, la linea si impianta
+const LAG_QUANTO := 0.16     # e per quanto resta impiantata
+const FETTE := 5             # in quante strisce si spezza quando sbanda
+const DURATA_LAMPO := 0.32   # quanto ci mette a spegnersi il rosso di un battito
+var prossimo_lag := 0.0
+var fine_lag := 0.0
+var sbandi := PackedFloat32Array()   # di quanto e' spostata ogni striscia
+var prossimo_sbando := 0.0
+var lampo := 0.0             # quanto e' acceso il battito dietro la linea
+
 func _ready() -> void:
 	storia.resize(CAMPIONI)
+	# NIENTE ESCE DAL QUADRANTE. Le strisce sbandate e il lampo del battito
+	# sono disegnati apposta piu' larghi del riquadro, perche' una striscia che
+	# finisce esattamente sul bordo non sembra spostata: il ritaglio e' cio' che
+	# li tiene a casa loro
+	clip_contents = true
+	sbandi.resize(FETTE)
 	set_process(true)
 
 func imposta(vita: float, tensione: int) -> void:
@@ -50,10 +69,78 @@ func _process(delta: float) -> void:
 		return
 	var passo_campione := SECONDI_A_SCHERMO / float(CAMPIONI)
 	tempo += delta
-	while prossimo_campione <= tempo:
-		spingi(valore_a(prossimo_campione))
-		prossimo_campione += passo_campione
+	aggiorna_guasto()
+	# IL LAG E' UNA RIGA SOLA: mentre e' impiantata non si campiona. La linea
+	# resta ferma e poi recupera di colpo, che e' come si comporta uno schermo
+	# che perde i fotogrammi - non un rallentamento, un buco.
+	if tempo >= fine_lag:
+		while prossimo_campione <= tempo:
+			spingi(valore_a(prossimo_campione))
+			prossimo_campione += passo_campione
 	queue_redraw()
+
+func aggiorna_guasto() -> void:
+	# TRE COSE SEPARATE, e le tengo separate: il battito dietro la linea, le
+	# strisce che sbandano, e la linea che si impianta. Erano una funzione sola
+	# e il tetto sul garbuglio l'ha bocciata a 18 su 15 - aveva ragione: non
+	# avevano niente in comune tranne il fotogramma in cui succedono.
+	var forza := EcgCombattimento.forza_glitch(quota_hp)
+	if forza <= 0.0:
+		spegni_il_guasto()
+		return
+	aggiorna_lampo()
+	aggiorna_sbandi(forza)
+	aggiorna_lag(forza)
+
+func spegni_il_guasto() -> void:
+	lampo = 0.0
+	fine_lag = 0.0
+	for i in sbandi.size():
+		sbandi[i] = 0.0
+
+func aggiorna_lampo() -> void:
+	# IL BATTITO. Non e' un timer da un secondo: e' agganciato ai battiti veri
+	# che genera il modulo, quindi il lampo e la punta della linea succedono
+	# NELLO STESSO ISTANTE. A riposo sono 62 al minuto, cioe' circa uno al
+	# secondo come chiede Bru; sotto stress accelerano insieme al cuore.
+	#
+	# Si guarda QUANTO E' VECCHIO l'ultimo battito, non se ne e' successo uno in
+	# questo fotogramma: la prima versione cercava dentro una finestra larga un
+	# delta, e coi battiti che sbandano quella finestra la mancava quasi sempre -
+	# il lampo non si accendeva mai.
+	lampo = 0.0
+	if not EcgCombattimento.batte_il_cuore(quota_hp):
+		return
+	var ultimo := -1.0
+	for istante in battiti:
+		if istante <= tempo and istante > ultimo:
+			ultimo = istante
+	if ultimo >= 0.0:
+		lampo = clampf(1.0 - (tempo - ultimo) / DURATA_LAMPO, 0.0, 1.0)
+
+func aggiorna_sbandi(forza: float) -> void:
+	# LE STRISCE CAMBIANO A SCATTI, non di continuo: una distorsione che scivola
+	# sembra un'onda, una che salta sembra un guasto.
+	#
+	# QUANTE strisce sbandano dipende dal guasto; DI QUANTO, molto meno. Tenendo
+	# anche l'ampiezza proporzionale il giallo faceva strappi larghi un pixel,
+	# invisibili: "attenuato" era diventato "assente". Misurato su uno scatto.
+	if tempo < prossimo_sbando:
+		return
+	prossimo_sbando = tempo + dado.randf_range(0.08, 0.30) / forza
+	for i in sbandi.size():
+		sbandi[i] = 0.0 if dado.randf() > forza * 0.6 \
+				else dado.randf_range(-1.0, 1.0) * size.x * 0.05 \
+						* lerpf(0.55, 1.0, forza)
+
+func aggiorna_lag(forza: float) -> void:
+	# E LA LINEA CHE SI IMPIANTA, ogni tanto.
+	if prossimo_lag <= 0.0:
+		prossimo_lag = tempo + LAG_OGNI / forza
+	if tempo < prossimo_lag:
+		return
+	fine_lag = tempo + LAG_QUANTO * forza
+	prossimo_lag = tempo + dado.randf_range(LAG_OGNI * 0.6, LAG_OGNI * 1.6) / forza
 
 func spingi(valore: float) -> void:
 	# IL PIU' VECCHIO ESCE DA SINISTRA, IL NUOVO ENTRA DA DESTRA - ma senza
@@ -117,10 +204,41 @@ func _draw() -> void:
 		return
 	var tinta := Stile.colore("ecg_" + EcgCombattimento.colore_per(quota_hp))
 	var mezzo := size.y * 0.5
-	var punti := PackedVector2Array()
-	for i in storia.size():
-		var x := size.x * float(i) / float(maxi(storia.size() - 1, 1))
-		punti.append(Vector2(x, mezzo - campione(i) * mezzo * 0.86))
 	# lo spessore dice la stessa cosa del colore: vedi Ecg.spessore_per()
 	var spessore := EcgCombattimento.spessore_per(quota_hp) * scala_spessore()
-	draw_polyline(punti, tinta, spessore, true)
+	var forza := EcgCombattimento.forza_glitch(quota_hp)
+	# IL BATTITO DIETRO LA LINEA: un lampo rosso su tutto il riquadro, che
+	# svanisce. Sta SOTTO al tracciato - davanti lo sporcherebbe invece di
+	# accompagnarlo
+	if lampo > 0.0:
+		draw_rect(Rect2(Vector2.ZERO, size),
+				Color(tinta.r, tinta.g, tinta.b, 0.20 * lampo))
+	if forza <= 0.0:
+		draw_polyline(linea(0, storia.size(), mezzo, 0.0), tinta, spessore, true)
+		return
+	# A STRISCE, E OGNUNA SBANDA PER CONTO SUO: la stessa immagine tagliata e
+	# rimessa insieme storta
+	var per_striscia := int(ceil(float(storia.size()) / float(FETTE)))
+	for f in FETTE:
+		var da := f * per_striscia
+		var a := mini(da + per_striscia + 1, storia.size())
+		if a - da < 2:
+			continue
+		var scarto := float(sbandi[f]) if f < sbandi.size() else 0.0
+		var punti := linea(da, a, mezzo, scarto)
+		# LO SDOPPIAMENTO DI COLORE, solo dove il guasto e' forte: una copia
+		# sbiadita spostata di poco, come un segnale che perde la sincronia
+		if forza > 0.5 and not is_zero_approx(scarto):
+			var fantasma := PackedVector2Array()
+			for punto in punti:
+				fantasma.append(punto + Vector2(-scarto * 0.6, 0.0))
+			draw_polyline(fantasma, Color(tinta.r, tinta.g, tinta.b, 0.35),
+					spessore * 0.8, true)
+		draw_polyline(punti, tinta, spessore, true)
+
+func linea(da: int, a: int, mezzo: float, scarto: float) -> PackedVector2Array:
+	var punti := PackedVector2Array()
+	for i in range(da, a):
+		var x := size.x * float(i) / float(maxi(storia.size() - 1, 1))
+		punti.append(Vector2(x + scarto, mezzo - campione(i) * mezzo * 0.86))
+	return punti

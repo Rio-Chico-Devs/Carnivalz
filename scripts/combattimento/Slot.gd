@@ -38,7 +38,24 @@ const QUOTA_STATUS_DA := 0.848
 var cornice: ColorRect   # il bordo dello slot: si accende a chi ha il turno
 var ritratto: Control
 var barre: Dictionary = {}       # chiave -> Control che si disegna
-var quote: Dictionary = {}       # chiave -> quanto e' piena, 0..1
+var quote: Dictionary = {}       # chiave -> quanto si VEDE adesso, 0..1
+# LA VITA NON SALTA, SCENDE. Bru: «quando ricevi danno la linea che scende deve
+# essere animata, stessa cosa se si recupera hp».
+#
+# Prima imposta_barra scriveva il valore nuovo e ridisegnava: la barra si
+# teleportava. Non e' solo brutto - e' informazione persa, perche' QUANTO hai
+# perso non si vede da nessuna parte, si vede solo dove sei arrivato.
+#
+# Adesso ci sono tre valori per barra: dove si e' arrivati (mete), quanto si
+# vede in questo istante (quote, che insegue), e LA SCIA - quanto c'era prima,
+# che resta indietro e collassa dopo. La scia e' il pezzo che hai appena perso,
+# e si vede come un lampo chiaro dietro la barra: e' il modo standard di
+# raccontare un colpo senza scrivere niente.
+var mete: Dictionary = {}        # chiave -> dove deve arrivare
+var scie: Dictionary = {}        # chiave -> la coda che insegue, 0..1
+var tweens: Dictionary = {}      # chiave -> il tween in volo, da fermare
+var mai_impostate: Dictionary = {}   # chiave -> l'ha gia' ricevuta un valore vero?
+var numero_vita: Label           # quanti HP, in chiaro, sempre
 var etichette: Array[Control] = []
 var status: Array[Control] = []
 var simboli: Array[String] = []  # che status ha addosso, in ordine
@@ -121,14 +138,30 @@ func costruisci() -> void:
 	numero_aura = Label.new()
 	numero_aura.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	numero_aura.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	numero_aura.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	numero_aura.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vesti_numero(numero_aura)
 	numero_aura.visible = false
 	add_child(numero_aura)
+	numero_vita = Label.new()
+	numero_vita.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	numero_vita.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	numero_vita.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vesti_numero(numero_vita)
+	add_child(numero_vita)
 	for i in STATUS_VISIBILI:
 		var tassello := tassello_status(i)
 		add_child(tassello)
 		status.append(tassello)
+
+func vesti_numero(etichetta: Label) -> void:
+	# UN NUMERO SOPRA UNA BARRA CHE CAMBIA COLORE HA UN PROBLEMA SOLO: il fondo.
+	# Sulla parte piena e' arancione, su quella vuota e' quasi nero, e un colore
+	# fisso e' illeggibile su uno dei due - visto in uno scatto, "568/600" si
+	# leggeva a meta'. Il contorno risolve senza dover scegliere: chiaro dentro,
+	# scuro intorno, e si stacca da qualunque cosa ci sia sotto.
+	etichetta.add_theme_color_override("font_color", Color.WHITE)
+	etichetta.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	etichetta.add_theme_constant_override("outline_size", 5)
 
 func barra_colorata(chiave: String, nome_colore: String) -> Control:
 	# Piena e squadrata, senza bordo: nel disegno e' un rettangolo di colore
@@ -137,7 +170,15 @@ func barra_colorata(chiave: String, nome_colore: String) -> Control:
 	telaio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	telaio.draw.connect(func() -> void:
 		var quanto := clampf(float(quote.get(chiave, 0.0)), 0.0, 1.0)
+		var coda := clampf(float(scie.get(chiave, quanto)), 0.0, 1.0)
 		telaio.draw_rect(Rect2(Vector2.ZERO, telaio.size), Stile.colore("pannello_chiaro"))
+		# LA SCIA STA SOTTO E SI VEDE SOLO SE SPORGE. Perdendo sporge a destra
+		# (quello che hai appena perso), curando sporge la barra e la scia e'
+		# gia' arrivata: in quel caso non si disegna niente in piu'
+		if coda > quanto:
+			telaio.draw_rect(Rect2(Vector2(telaio.size.x * quanto, 0.0),
+					Vector2(telaio.size.x * (coda - quanto), telaio.size.y)),
+					Stile.colore("negativo"))
 		if quanto > 0.0:
 			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * quanto, telaio.size.y)),
 					Stile.colore(nome_colore)))
@@ -161,6 +202,13 @@ func abita(id_personaggio: String) -> void:
 	# CHI CI STA DENTRO. Da qui in poi lo slot si disegna da solo: la faccia la
 	# sceglie la condizione, non chi chiama.
 	id_dentro = id_personaggio
+	# CHI ARRIVA NON EREDITA IL MOVIMENTO DI CHI C'ERA PRIMA: se lo slot cambia
+	# inquilino, le barre del nuovo non devono animarsi dai valori del vecchio
+	mai_impostate.clear()
+	for chiave_tween in tweens:
+		if is_instance_valid(tweens[chiave_tween]):
+			(tweens[chiave_tween] as Tween).kill()
+	tweens.clear()
 	banda_adesso = ""
 	chiave_faccia = ""
 	visible = true
@@ -253,15 +301,72 @@ func mostra_aura(adesso: int, massimo: int) -> void:
 		return
 	numero_aura.text = "%d/%d" % [adesso, maxi(massimo, 1)]
 
+const DISCESA := 0.30     # quanto ci mette la barra a raggiungere il valore nuovo
+const CODA := 0.55        # e quanto ci mette la scia a richiudersi dietro
+
 func imposta_barra(chiave: String, quanto: float) -> void:
-	quote[chiave] = clampf(quanto, 0.0, 1.0)
-	if barre.has(chiave):
-		(barre[chiave] as Control).queue_redraw()
+	var obiettivo := clampf(quanto, 0.0, 1.0)
+	var prima := float(quote.get(chiave, obiettivo))
+	mete[chiave] = obiettivo
+	if not barre.has(chiave):
+		quote[chiave] = obiettivo
+		return
+	var barra: Control = barre[chiave]
+	# LA PRIMA VOLTA NON SI ANIMA. Non c'e' nessun "prima" da raccontare: senza
+	# questo, la barra del dominio parte piena (il valore di costruzione) e si
+	# svuota a vista a ogni inizio di scontro - misurato da una prova che
+	# chiedeva giustamente «a inizio scontro la barra e' gia' piena?»
+	if not mai_impostate.has(chiave):
+		mai_impostate[chiave] = true
+		quote[chiave] = obiettivo
+		scie[chiave] = obiettivo
+		barra.queue_redraw()
+		return
+	# SENZA MOVIMENTO, SUBITO. Chi ha scelto "riduci il movimento" nelle opzioni
+	# non deve vedere niente muoversi: e' una delle voci di accessibilita' che
+	# le linee guida mettono fra quelle da offrire, non fra quelle carine
+	if Impostazioni.movimento_ridotto or is_equal_approx(prima, obiettivo):
+		quote[chiave] = obiettivo
+		scie[chiave] = obiettivo
+		barra.queue_redraw()
+		return
+	if tweens.has(chiave) and is_instance_valid(tweens[chiave]):
+		(tweens[chiave] as Tween).kill()
+	var t := barra.create_tween()
+	tweens[chiave] = t
+	# la barra vera si muove per prima, con la frenata: e' il colpo
+	t.tween_method(func(v: float) -> void:
+			quote[chiave] = v
+			barra.queue_redraw(),
+			prima, obiettivo, DISCESA).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if obiettivo < prima:
+		# PERDENDO: la scia resta dov'era e si richiude dopo, piu' lenta. E'
+		# quella che fa vedere QUANTO e' stato tolto
+		scie[chiave] = prima
+		t.tween_method(func(v: float) -> void:
+				scie[chiave] = v
+				barra.queue_redraw(),
+				prima, obiettivo, CODA).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	else:
+		# CURANDO: la scia va AVANTI e la barra la raggiunge, cosi' il guadagno
+		# si legge come una luce che arriva invece che come un buco che si chiude
+		scie[chiave] = obiettivo
+		barra.queue_redraw()
+
+func mostra_vita(adesso: int, massimo: int) -> void:
+	# I NUMERI CI VOGLIONO. Bru: «quantifichiamo anche i valori, non ci sono
+	# numeri per ora». Una barra dice "quanto ne resta in proporzione"; senza
+	# cifre non si puo' decidere se una cura da 30 ti serve adesso o fra un turno
+	if numero_vita == null:
+		return
+	numero_vita.text = "%d/%d" % [maxi(adesso, 0), maxi(massimo, 1)]
 
 func quanto(chiave: String) -> float:
-	# quanto e' piena una delle tre barre, 0..1. Serve a chi guarda da fuori -
-	# le prove - per non dover frugare dentro il dizionario
-	return float(quote.get(chiave, -1.0))
+	# QUANTO E' PIENA: il valore VERO, non quello che si sta ancora disegnando.
+	# Da quando le barre si animano, "quote" e' dove e' arrivato il disegno in
+	# questo istante e "mete" e' dove deve arrivare: chi chiede quanto e' piena
+	# una barra vuole il secondo, sempre. Il primo e' un dettaglio del movimento
+	return float(mete.get(chiave, quote.get(chiave, -1.0)))
 
 func imposta_status(elenco: Array[String]) -> void:
 	# UNO SOLO, quando sta bene. Nel disegno di Bru accanto a ogni personaggio
@@ -327,6 +432,13 @@ func ridisponi() -> void:
 		barra.queue_redraw()
 		y += passo
 
+	if numero_vita != null:
+		# SOPRA LA BARRA DEGLI HP, in fondo a destra: stesso posto del numero
+		# dell'aura ma una riga piu' su, cosi' i due si leggono in colonna
+		var riga_vita := da_barre
+		numero_vita.add_theme_font_size_override("font_size", maxi(int(alto_riga * 0.92), 8))
+		numero_vita.position = Vector2(0.0, riga_vita)
+		numero_vita.size = Vector2(size.x - alto_riga * 0.55, alto_riga)
 	if numero_aura != null:
 		# SOPRA LA BARRA DELL'AURA, in fondo a destra. Al primo tentativo lo
 		# mettevo sopra la riga e finiva addosso a quella degli HP: il numero
@@ -335,7 +447,7 @@ func ridisponi() -> void:
 		var riga_aura := da_barre + passo
 		numero_aura.add_theme_font_size_override("font_size", maxi(int(alto_riga * 0.92), 8))
 		numero_aura.position = Vector2(0.0, riga_aura)
-		numero_aura.size = Vector2(size.x - alto_riga * 0.3, alto_riga)
+		numero_aura.size = Vector2(size.x - alto_riga * 0.55, alto_riga)
 
 	# GLI STATUS, ALLINEATI A DESTRA come nel disegno
 	var da_status := size.y * QUOTA_STATUS_DA

@@ -27,7 +27,10 @@ func _ready() -> void:
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta
 	# fotogrammi qui vorrebbe dire fotografare il vetro quando e' gia' svanito
-	if quale != "rottura" and quale != "nastro":
+	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
+	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
+	# fotografare il box del testo. Successo due volte prima che lo capissi.
+	if quale != "rottura" and quale != "nastro" and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -77,6 +80,43 @@ func prepara(quale: String) -> void:
 			await attendi(quando)
 			if scontro.minigioco.pugni.is_empty():
 				push_error("nessun pugno a schermo: non c'e' niente da fotografare")
+		"ecgrosso", "ecggiallo":
+			# L'ECG IN AVARIA. Un tracciato a occhio non si giudica da fermo:
+			# serve vederlo col guasto acceso, e per vederlo bisogna portare il
+			# protagonista sotto la soglia rossa o in mezzo a quella gialla.
+			GameState.nuova_partita()
+			GameState.party = ["anonimo", "veronica"]
+			GameState.nemici_combattimento = ["marionetta"]
+			var malmesso: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(malmesso)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			for c in malmesso.combattenti:
+				c.hp = c.hp_max
+				malmesso.campo.aggiorna(c)
+			malmesso.arena.imposta_pericolo(0.0)
+			malmesso.campo.evidenzia(malmesso.combattenti, malmesso.combattenti[0])
+			# LA VITA SI ABBASSA DAVVERO, non si racconta alla plancia. Lo
+			# scontro gira e aggiorna_pronto_giocatore riscrive la condizione
+			# con gli hp VERI di chi ha il turno a ogni fotogramma: chiamare
+			# aggiorna_condizione a mano dura un fotogramma e poi viene
+			# sovrascritto. Successo: chiedevo rosso e fotografavo giallo.
+			var quota := 0.12 if quale == "ecgrosso" else 0.50
+			for c in malmesso.combattenti:
+				if c.giocatore:
+					c.hp = maxi(int(float(c.hp_max) * quota), 1)
+					c.stress = 70 if quale == "ecgrosso" else 25
+					malmesso.campo.aggiorna(c)
+			malmesso.aggiorna_pronto_giocatore()
+			malmesso.menu.principale()
+			# tanti fotogrammi: il guasto va a scatti, e va beccato acceso
+			var argomenti_ecg := OS.get_cmdline_user_args()
+			await attendi(int(argomenti_ecg[1]) if argomenti_ecg.size() > 1 else 90)
+			# LA FACCIA SI FORZA PER ULTIMA. Lo scontro gira in tempo reale e
+			# rimette il parlato appena arriva una battuta: senza questa riga lo
+			# scatto dell'ecg fotografa il box del testo, che e' esattamente
+			# quello che e' successo al primo tentativo.
+			malmesso.plancia.mostra_faccia("comandi")
+			malmesso.voce.coda.clear()
 		"plancia":
 			# LA SCHERMATA DI COMBATTIMENTO INTERA, come l'ha disegnata Bru.
 			# Non c'e' altro modo di controllare che sia quella: le prove sanno
