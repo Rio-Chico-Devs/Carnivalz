@@ -39,6 +39,8 @@ I PDF non hanno una prima riga dove mettere il link, quindi stanno qui.
 | `gdscript-guida-di-stile.pdf` | *GDScript style guide*, documentazione ufficiale di Godot | https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html |
 | `complessita-cognitiva-sonar.pdf` | G. Ann Campbell — *Cognitive Complexity: a new way of measuring understandability*, SonarSource | https://www.sonarsource.com/resources/cognitive-complexity/ |
 | `celeste-player.cs` + `celeste-player-readme.md` | Noel Berry e Maddy Thorson — il codice del movimento di Celeste, pubblicato dagli autori | https://github.com/NoelFB/Celeste/tree/master/Source/Player |
+| `parnas-decomposizione-moduli.pdf` | D.L. Parnas — *On the Criteria To Be Used in Decomposing Systems into Modules*, CACM 15(12), 1972 | https://dl.acm.org/doi/10.1145/361598.361623 |
+| `godot-inputevent-classe.pdf` | *InputEvent*, riferimento di classe di Godot | https://docs.godotengine.org/en/stable/classes/class_inputevent.html |
 
 ## Perché non le committiamo e basta
 
@@ -72,14 +74,18 @@ e lo conosco solo dalla frase con cui lo descrive Andersen. Il blocco è codice
 già spedito (`Menu.principale`, il parametro `spento`). Se Stencils non dice
 quello che Andersen riporta, il menu va sbloccato.
 
-**Godot: `InputEvent`, `mouse_filter`, propagazione dell'input.** Ho spedito
-una correzione costruita sull'affermazione «un `Button` con `disabled = true`
-non emette `pressed` ma si prende lo stesso il click». Ci credo per averlo
-visto, ma **non ho mai letto la pagina**. Se le regole di propagazione sono
-diverse c'è forse un rimedio migliore (`mouse_filter = PASS`), e quasi
+**Godot: `mouse_filter` e la propagazione dell'input — ANCORA APERTO.** Bru ha
+procurato il riferimento di classe di `InputEvent`: utile (ha già fatto
+togliere una guardia ridondante dal codice della Mattanza), ma **non è la
+pagina che serviva**. L'affermazione da verificare resta: «un `Button` con
+`disabled = true` non emette `pressed` ma si prende lo stesso il click». Ci
+credo per averlo visto, non per averlo letto. Se le regole di propagazione
+sono diverse c'è forse un rimedio migliore (`mouse_filter = PASS`), e quasi
 sicuramente altri punti morti che non ho trovato.
-- `docs.godotengine.org` → *Using InputEvent*, *InputEvent* (class reference),
-  *Control.mouse_filter*
+- Manca: **`Control` (riferimento di classe), la proprietà `mouse_filter`** —
+  https://docs.godotengine.org/en/stable/classes/class_control.html
+- Manca: *Using InputEvent*, il tutorial (diverso dal riferimento di classe) —
+  https://docs.godotengine.org/en/stable/tutorials/inputs/inputevent.html
 
 ### 2. I numeri che il giocatore SENTE, e che oggi non hanno nessuna fonte
 
@@ -128,10 +134,6 @@ moduli sottili», «un passacarte è una bandiera rossa», «la lunghezza da sol
 decisione strutturale — hanno prodotto `Stati.gd`, `Intenzione.gd`, e la
 rimozione di tre passacarte. Non ho mai letto il libro. (Se non si trova:
 vanno benissimo le slide del suo talk o del corso di Stanford.)
-
-**Parnas, *On the Criteria To Be Used in Decomposing Systems into Modules*,
-1972.** «Nascondi la decisione di progetto che cambierà». È il criterio con
-cui scelgo cosa estrarre. PDF libero, si trova facilmente.
 
 **Sonar, *Clean as You Code*.** Il cancello strutturale È questa idea
 (cricchetto sul codice nuovo). Ho il paper sulla complessità cognitiva, non

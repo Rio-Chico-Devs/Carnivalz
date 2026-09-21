@@ -124,6 +124,7 @@ func _ready() -> void:
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	await prova_un_solo_artwork_quello_di_chi_parla()
 	await prova_una_fase_alla_volta_e_niente_click_a_vuoto()
+	prova_tenere_premuto_non_e_martellare()
 	await prova_il_click_dato_presto_non_si_perde()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
@@ -7749,18 +7750,30 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4569, "perche":
+	"Combattimento.gd": {"misura": 4575, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
-		"dei comandi (Intenzione.gd); i tre blocchi pesanti che restano - il " +
-		"tempo, la scelta delle mosse, la risoluzione dei colpi - chiamano " +
-		"ognuno decine di funzioni del motore, quindi staccarli non farebbe " +
-		"un modulo, farebbe lo stesso codice con 'scontro.' davanti e senza " +
-		"controllo dei tipi. Misurato in docs/processi.md. " +
+		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
+		"altri: NASCONDONO UNA DECISIONE. Parnas: «si comincia da un elenco " +
+		"di decisioni di progetto difficili, o che cambieranno; ogni modulo " +
+		"e' poi disegnato per nascondere una di quelle decisioni». Stati.gd " +
+		"nasconde cosa fa stati.json addosso a un combattente, Intenzione.gd " +
+		"nasconde quando un comando dato presto puo' partire - e quella " +
+		"politica (una casella, vince l'ultimo, nessuna scadenza) e' proprio " +
+		"cio' che cambiera' dopo il primo playtest. " +
+		"I tre blocchi che restano - il tempo, la scelta delle mosse, la " +
+		"risoluzione dei colpi - NON sono decisioni nascoste: sono passi del " +
+		"processo, ed e' esattamente la decomposizione che Parnas chiama " +
+		"'quasi sempre sbagliata'. Non li stacco lo stesso, ma la ragione " +
+		"buona non e' la mia (chiamano decine di funzioni del motore): e' " +
+		"quella dei due programmatori di Celeste, che sullo stesso problema " +
+		"scrivono di tenere il codice sequenziale in un file solo perche' " +
+		"«il comportamento va ordinato e tarato molto strettamente». Le due " +
+		"fonti si contraddicono e stanno tutte e due in docs/fonti. " +
 		"IL NUMERO E' SALITO DA 4544, e il conto va detto per intero: il " +
 		"buffer degli input valeva 115 righe, 97 sono finite in " +
 		"Intenzione.gd, esegui_turno - un passa-carte che non chiamava piu' " +
-		"nessuno - e' sparito, e restano 24 righe nette. Alzare la misura e' " +
+		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante). Alzare la misura e' " +
 		"una decisione, non una svista: si scrive qui cosa si e' comprato"},
 	"GameState.gd": {"misura": 2530, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
@@ -8609,6 +8622,39 @@ func prova_una_fase_alla_volta_e_niente_click_a_vuoto() -> void:
 	scontro.voce.coda.clear()
 	scontro.queue_free()
 	await get_tree().process_frame
+
+func prova_tenere_premuto_non_e_martellare() -> void:
+	# LA MATTANZA SI PESTA, NON SI TIENE PREMUTO. Se la ripetizione automatica
+	# della tastiera contasse come colpi, la finestra la vincerebbe il sistema
+	# operativo invece del giocatore.
+	#
+	# PERCHE' QUESTA PROVA ESISTE. Nel codice c'era un `and not evento.is_echo()`
+	# esplicito. La documentazione di InputEvent dice che non serve -
+	# `is_action_pressed(azione, allow_echo)` ha gia' allow_echo a false - e
+	# togliendolo il comportamento resta giusto. Ma resta giusto **per via di un
+	# valore predefinito dell'API**, che nel codice non si vede piu': esattamente
+	# il tipo di dipendenza invisibile che un giorno si rompe in silenzio.
+	#
+	# E non mi sono fidata del PDF: questo lo chiede al motore.
+	titolo("tenere premuto lo spazio non vale come martellare")
+	var normale := InputEventKey.new()
+	normale.keycode = KEY_ENTER
+	normale.physical_keycode = KEY_ENTER
+	normale.pressed = true
+	normale.echo = false
+	esigi(normale.is_action_pressed("ui_accept"),
+			"una pressione vera non conta come azione: la Mattanza non partirebbe mai")
+
+	var eco := InputEventKey.new()
+	eco.keycode = KEY_ENTER
+	eco.physical_keycode = KEY_ENTER
+	eco.pressed = true
+	eco.echo = true
+	esigi(eco.is_echo(), "l'evento costruito per la prova non risulta un'eco")
+	esigi(not eco.is_action_pressed("ui_accept"),
+			"la ripetizione automatica conta come colpo: chi tiene premuto vince la Mattanza senza giocarla")
+	esigi(eco.is_action_pressed("ui_accept", true),
+			"con allow_echo l'eco non passa: allora non e' quel parametro a filtrarla, e il codice si regge su altro")
 
 func prova_il_click_dato_presto_non_si_perde() -> void:
 	# IL PRIMO CLICK SU DIFESA. Bru: «la prima volta che clicco su difesa non fa

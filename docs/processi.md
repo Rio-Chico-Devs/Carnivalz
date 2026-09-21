@@ -720,3 +720,97 @@ file per altro, si convertono quelle.
 Rinominarli rompe ogni percorso `res://`, ogni `preload` e ogni riferimento di
 scena. È uno scarto dichiarato, non una svista: il nome del file segue il nome
 della classe, che è la convenzione opposta ma coerente dentro il progetto.
+
+## Parnas, e perché la mia giustificazione era della forma sbagliata
+
+`docs/fonti/parnas-decomposizione-moduli.pdf`. Il criterio con cui ho deciso
+cosa estrarre l'avevo riassunto così: «nascondi la decisione di progetto che
+cambierà». Il paper lo dice quasi uguale, quindi il riassunto reggeva:
+
+> *«Proponiamo invece che si cominci da un elenco di decisioni di progetto
+> difficili, o di decisioni che è probabile cambino. Ogni modulo è poi
+> disegnato per nascondere una di quelle decisioni dalle altre.»*
+
+Ma la frase dopo è quella che non avevo, e mi riguarda:
+
+> *«Poiché, nella maggior parte dei casi, le decisioni di progetto trascendono
+> il tempo di esecuzione, **i moduli non corrisponderanno ai passi del
+> processo**.»*
+
+E prima, più netta: *«l'ordine nel tempo in cui ci si aspetta che il
+processamento avvenga non dovrebbe essere usato nel decomporre in moduli»*, e
+*«è quasi sempre scorretto cominciare la decomposizione di un sistema in moduli
+sulla base di un diagramma di flusso»*.
+
+### Cosa ne esce per Carnivalz
+
+**Le due estrazioni fatte passano, e adesso so perché.** Non perché chiamavano
+«solo sei» o «solo sette» funzioni del motore — quella era una misura di
+accoppiamento, utile ma non il criterio. Passano perché **nascondono una
+decisione**: `Stati.gd` nasconde cosa fa `stati.json` addosso a un
+combattente, `Intenzione.gd` nasconde *quando* un comando dato presto può
+partire. E la politica di quest'ultimo — una casella sola, vince l'ultimo,
+nessuna scadenza a tempo — è esattamente il genere di cosa che cambierà dopo il
+primo playtest vero. È un modulo di Parnas per il motivo di Parnas.
+
+**La giustificazione del file grosso, invece, era della forma sbagliata.**
+Avevo scritto che i tre blocchi che restano sono «il tempo, la scelta delle
+mosse, la risoluzione dei colpi». Sono **passi del processo**: è letteralmente
+il diagramma di flusso che Parnas chiama quasi sempre scorretto come punto di
+partenza. Non li stacco lo stesso — ma la ragione che avevo dato (chiamano
+decine di funzioni del motore) è una conseguenza, non una causa.
+
+### Due fonti che si contraddicono, e le tengo tutte e due
+
+La ragione *buona* per non staccarli non è mia: è dei due programmatori di
+Celeste (`docs/fonti/celeste-player-readme.md`), che sullo stesso problema
+scrivono l'opposto di Parnas:
+
+> *«Non avremmo spostato gli stati in classi separate. [...] Uno dei motivi per
+> cui ci piace avere un file grosso con qualche metodo enorme è che ci piace
+> tenere il codice sequenziale per la manutenibilità. [...] In un platform come
+> Celeste il comportamento del giocatore va ordinato e tarato molto
+> strettamente, e questo stile di codice è stata una scelta consapevole.»*
+
+Parnas parla di un sistema dove le decisioni trascendono il tempo di
+esecuzione. Celeste parla di codice dove **il tempo di esecuzione È la cosa da
+tarare**. La risoluzione di un colpo in Carnivalz — a terra, schivata, danno,
+impatto, stati, KO — è il secondo caso, non il primo.
+
+Non scelgo fra le due e non fingo che dicano la stessa cosa: sono scritte
+tutte e due nella riga dell'eccezione, così chi la legge fra sei mesi vede il
+disaccordo invece di una regola inventata da me.
+
+## La pagina di Godot ha trovato una guardia che non serviva
+
+`docs/fonti/godot-inputevent-classe.pdf`. **Non è la pagina che avevo chiesto**
+— serviva `Control.mouse_filter`, questo è il riferimento di `InputEvent` — ma
+ha trovato lo stesso qualcosa.
+
+In `_unhandled_input` c'era:
+
+```gdscript
+if mattanza_attiva and evento.is_action_pressed("ui_accept") and not evento.is_echo():
+```
+
+con un commento che diceva che `is_echo()` era «esclusa apposta», perché tenere
+premuto lo spazio non deve valere come martellare. La firma vera è
+`is_action_pressed(action, allow_echo := false, exact_match := false)`, e la
+documentazione dice che il metodo torna vero *«se l'azione corrisponde a questo
+evento, è premuta, e non è un evento di eco [...] a meno che allow_echo sia
+vero»*. Cioè **la guardia era ridondante**, e il commento accanto diceva che
+stava facendo un lavoro che non faceva — che è la cosa peggiore delle due.
+
+**Non mi sono fidata del PDF**: l'ho chiesto al motore, costruendo un
+`InputEventKey` con `echo = true`. Risultato: `is_action_pressed("ui_accept")`
+→ `false`, con `allow_echo = true` → `true`. Confermato.
+
+Tolta la riga, e al suo posto c'è `prova_tenere_premuto_non_e_martellare`.
+Perché il comportamento adesso dipende da **un valore predefinito dell'API che
+nel codice non si vede più**: esattamente il tipo di dipendenza invisibile che
+un giorno si rompe in silenzio.
+
+**Quello che resta aperto** è ciò per cui avevo chiesto la pagina: se un
+`Button` con `disabled = true` si mangi il click invece di lasciarlo passare.
+È l'affermazione su cui poggia tutta la correzione del click perso, e la so
+per averla vista, non per averla letta. Serve `Control.mouse_filter`.

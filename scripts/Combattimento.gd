@@ -299,9 +299,15 @@ func applica_stile() -> void:
 func _unhandled_input(evento: InputEvent) -> void:
 	# MENTRE E' MATTANZA, SPAZIO E' UN COLPO. Viene prima di tutto il resto: in
 	# quei secondi la barra spaziatrice non fa scorrere il testo, pesta.
-	# is_echo() esclusa apposta - tenere premuto non deve valere come martellare,
-	# se no la finestra la vince la ripetizione automatica della tastiera
-	if mattanza_attiva and evento.is_action_pressed("ui_accept") and not evento.is_echo():
+	#
+	# TENERE PREMUTO NON VALE COME MARTELLARE, se no la finestra la vince la
+	# ripetizione automatica della tastiera invece del giocatore. Qui c'era un
+	# "and not evento.is_echo()" in piu': la documentazione di InputEvent dice
+	# che is_action_pressed ha gia' allow_echo a false per conto suo, e l'ho
+	# verificato nel motore (vedi prova_tenere_premuto_non_e_martellare). La
+	# guardia non serviva; il commento che aveva accanto diceva che serviva, ed
+	# e' la cosa peggiore delle due.
+	if mattanza_attiva and evento.is_action_pressed("ui_accept"):
 		colpo_di_mattanza()
 		get_viewport().set_input_as_handled()
 		return
