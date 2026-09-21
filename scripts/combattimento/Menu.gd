@@ -172,6 +172,12 @@ func principale() -> void:
 		bottone("DIFESA", scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
 		bottone("SKILL", abilita)
 		bottone("OGGETTI", oggetti, richiesta != "oggetto", richiesta == "oggetto")
+		# IN FONDO, E SOLO A CHI L'HA GIA' FATTA. In fondo perche' le voci fisse
+		# non si devono spostare sotto il cursore di chi la lezione la sta
+		# seguendo; e solo a chi rigioca perche' la prima volta la lezione di
+		# Veronica e' anche una scena (vedi Combattimento.si_puo_saltare_la_lezione)
+		if bool(scontro.si_puo_saltare_la_lezione()):
+			bottone("↷  Salta la lezione", scontro.salta_la_lezione)
 		return
 	# Rabbia e Frastornato: "attacchi soltanto, non puoi usare mosse". Le voci
 	# restano al loro posto, spente - il menu non si accorcia mai. Sparire

@@ -24,6 +24,20 @@ var alto_contrasto := false
 var movimento_ridotto := false
 var velocita_testo := 1.0  # moltiplica i caratteri al secondo del box (0.5 lento, 3 = quasi istantaneo)
 
+# HAI GIA' FATTO L'ALLENAMENTO, ALMENO UNA VOLTA.
+#
+# Sta qui e non nei flag della partita per una ragione precisa: dentro una
+# partita l'allenamento si fa UNA volta sola, quindi un flag di salvataggio non
+# comparirebbe mai a nessuno. La domanda e' «l'hai gia' visto, in qualunque
+# partita?», e quella sopravvive alla partita nuova - come il volume.
+#
+# Serve a far comparire "Salta la lezione" a chi rigioca, e a nessun altro.
+# NON e' un pulsante di aiuto: Andersen (docs/fonti/chi2012-tutorial-
+# complessita.pdf) ha misurato che aggiungerne uno in Refraction ha RIDOTTO i
+# progressi del 12% e il tempo di gioco del 15%. Saltare e' un'altra cosa -
+# e' la stessa lezione, non piu' offerta a chi l'ha gia' avuta.
+var allenamento_gia_fatto := false
+
 func _ready() -> void:
 	carica()
 	applica_tutto()
@@ -40,6 +54,7 @@ func carica() -> void:
 	alto_contrasto = bool(cfg.get_value("accessibilita", "alto_contrasto", false))
 	velocita_testo = float(cfg.get_value("accessibilita", "velocita_testo", 1.0))
 	movimento_ridotto = bool(cfg.get_value("accessibilita", "movimento_ridotto", false))
+	allenamento_gia_fatto = bool(cfg.get_value("progressi", "allenamento_gia_fatto", false))
 
 func salva() -> void:
 	var cfg := ConfigFile.new()
@@ -51,6 +66,7 @@ func salva() -> void:
 	cfg.set_value("accessibilita", "alto_contrasto", alto_contrasto)
 	cfg.set_value("accessibilita", "movimento_ridotto", movimento_ridotto)
 	cfg.set_value("accessibilita", "velocita_testo", velocita_testo)
+	cfg.set_value("progressi", "allenamento_gia_fatto", allenamento_gia_fatto)
 	cfg.save(PERCORSO)
 
 func applica_tutto() -> void:

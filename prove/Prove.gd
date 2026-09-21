@@ -127,6 +127,7 @@ func _ready() -> void:
 	prova_tenere_premuto_non_e_martellare()
 	prova_la_raffica_si_para_anche_da_tastiera()
 	await prova_il_click_dato_presto_non_si_perde()
+	await prova_la_lezione_si_salta_solo_a_chi_l_ha_gia_fatta()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	prova_la_raffica_accelera_verso_la_fine()
@@ -7779,7 +7780,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4586, "perche":
+	"Combattimento.gd": {"misura": 4610, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -7802,7 +7803,7 @@ const FILE_GRANDI := {
 		"IL NUMERO E' SALITO DA 4544, e il conto va detto per intero: il " +
 		"buffer degli input valeva 115 righe, 97 sono finite in " +
 		"Intenzione.gd, esegui_turno - un passa-carte che non chiamava piu' " +
-		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante), e 9 per far parare la raffica anche da tastiera - era l'unico pezzo del combattimento che pretendeva un mouse. Alzare la misura e' " +
+		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante), e 9 per far parare la raffica anche da tastiera - era l'unico pezzo del combattimento che pretendeva un mouse. E 24 per «Salta la lezione», offerta solo a chi l'allenamento l'ha gia' fatto in una partita precedente. Alzare la misura e' " +
 		"una decisione, non una svista: si scrive qui cosa si e' comprato"},
 	"GameState.gd": {"misura": 2530, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
@@ -10283,3 +10284,49 @@ func prova_la_raffica_si_para_anche_da_tastiera() -> void:
 			"il tasto premuto a vuoto prende un pugno che non e' ancora arrivato")
 	esigi(Collisioni.piu_urgente(vuota, 8.0) == -1,
 			"il tasto prende un pugno gia' scaduto: la finestra non conta piu' niente")
+
+func prova_la_lezione_si_salta_solo_a_chi_l_ha_gia_fatta() -> void:
+	# CHI RIGIOCA NON E' PIU' UN PRINCIPIANTE. Su questo la ricerca e' concorde
+	# e non dipende dal genere. Ma alla PRIMA volta non si offre: la lezione di
+	# Veronica e' anche una scena, e saltarla la prima volta vuol dire saltare
+	# un pezzo di storia, non un pezzo di manuale.
+	#
+	# E NON E' UN PULSANTE DI AIUTO. Andersen ha misurato che aggiungerne uno in
+	# Refraction ha RIDOTTO i progressi del 12% e il tempo di gioco del 15%
+	# (docs/fonti/chi2012-tutorial-complessita.pdf). Saltare e' un'altra cosa:
+	# e' la stessa lezione, non piu' offerta a chi l'ha gia' avuta.
+	titolo("«Salta la lezione» compare solo a chi l'allenamento l'ha gia' fatto")
+	var com_era: bool = Impostazioni.allenamento_gia_fatto
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	scontro.in_corso = true
+	scontro.tutorial = {"passi": [{"azione": "attacca"}], "finale": []}
+	scontro.tutorial_passo = 0
+	scontro.tutorial_finito = false
+
+	# LA PRIMA VOLTA: NON SI OFFRE
+	Impostazioni.allenamento_gia_fatto = false
+	esigi(not scontro.si_puo_saltare_la_lezione(),
+			"la lezione si puo' saltare alla prima partita: e' anche una scena, non solo un manuale")
+	scontro.salta_la_lezione()
+	esigi(not scontro.tutorial_finito,
+			"salta_la_lezione ha funzionato lo stesso: il guardiano non guarda niente")
+
+	# CHI L'HA GIA' FATTA: SI OFFRE
+	Impostazioni.allenamento_gia_fatto = true
+	esigi(scontro.si_puo_saltare_la_lezione(),
+			"chi ha gia' fatto l'allenamento non puo' saltarlo: il motivo per cui esiste questa voce")
+
+	# E FUORI DA UNA LEZIONE NON COMPARE MAI
+	scontro.tutorial = {}
+	esigi(not scontro.si_puo_saltare_la_lezione(),
+			"«Salta la lezione» compare anche dove non c'e' nessuna lezione")
+
+	Impostazioni.allenamento_gia_fatto = com_era
+	scontro.in_corso = false
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	await get_tree().process_frame

@@ -878,3 +878,61 @@ media e 85 ms nel peggiore. Non ne concludo niente sulle prestazioni vere: qui
 gira su `llvmpipe`, cioè rasterizzazione software sotto `xvfb`. È il caso di
 cui avverte la documentazione di Godot — profila una build esportata. Quel
 numero serve solo a confrontare un prima e un dopo sulla stessa macchina.
+
+## Il resto del giro: raffica da tastiera, «salta la lezione», e un non-risultato
+
+### Quello che pretendeva davvero un mouse era uno solo
+
+Avevo detto a Bru «non si gioca senza mouse». Era troppo forte, e l'ho
+corretto misurando: l'attacco normale **è** raggiungibile da tastiera —
+ATTACCHI apre la lista dei bersagli e il primo bottone utile prende il fuoco.
+Il click sul nemico è una scorciatoia, non l'unica strada.
+
+L'unico pezzo che il mouse lo pretendeva è **la raffica**. I pugni sono
+`Button`, quindi in teoria il Tab li raggiunge — ma cercare col Tab durante
+una raffica non è giocare, è un'altra cosa.
+
+Adesso il tasto para, e la domanda vera è *quale*. La risposta è l'unica che
+non tradisce il giocatore: **quello che sta per scadere**, perché è quello che
+punterebbe col mouse — gli altri hanno ancora tempo. A vuoto non prende
+niente: un tasto premuto fuori tempo non ruba un pugno non ancora arrivato né
+uno già scaduto.
+
+### «Salta la lezione»: solo a chi l'ha già fatta, e non è un pulsante di aiuto
+
+La bandiera non poteva stare nei flag della partita: dentro una partita
+l'allenamento si fa **una volta sola**, quindi non sarebbe comparsa mai a
+nessuno. La domanda è «l'hai già visto, in qualunque partita?», e quella
+sopravvive alla partita nuova — come il volume. Sta in `Impostazioni`.
+
+Alla prima volta non si offre, e non per paternalismo: la lezione di Veronica
+è **anche una scena**, e saltarla la prima volta vuol dire saltare un pezzo di
+storia. E chi salta passa comunque dal `finale` e dalla sconfitta scriptata —
+si salta l'insegnamento, non la storia, perché quello che succede dopo dipende
+da come è finita.
+
+Non è un pulsante di aiuto, ed è una distinzione che costa: Andersen ha
+misurato che aggiungerne uno in Refraction ha **ridotto i progressi del 12% e
+il tempo di gioco del 15%**. Saltare è un'altra cosa — è la stessa lezione,
+non più offerta a chi l'ha già avuta.
+
+### Il non-risultato sulle prestazioni, detto invece che nascosto
+
+Lo strumento adesso dice **dove** scatta e non solo quanto: fase, faccia, coda,
+minigioco, per ogni fotogramma sopra i 50 ms.
+
+E la prima cosa che ha trovato è un difetto suo: misurava a tempo fisso, quindi
+uno scontro che finisce presto lasciava il post mortem dentro le medie. La
+marionetta uccide il protagonista in **2,6 secondi**, e lo strumento contava
+altri nove secondi di fase `chiuso` come se fossero gioco — sessanta «scatti»
+che erano una schermata di fine partita. Adesso si misura finché si gioca.
+
+Tolto quello, restano 58 scatti in 2,6 secondi veri e 51 ms di media. **Non ne
+deduco che il gioco sia lento.** Qui gira su `llvmpipe`, rasterizzazione
+software sotto `xvfb`, e separare il costo del disegno da quello della logica
+da qui non si può — è esattamente il caso di cui avverte la documentazione di
+Godot (profila una build esportata).
+
+L'unica cosa che i numeri sostengono: sulla **stessa** macchina lo scontro del
+tutorial costa circa **la metà** per fotogramma di quello con la marionetta.
+Quella differenza è reale e vale la pena che Bru la guardi su hardware vero.

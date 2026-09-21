@@ -1461,9 +1461,33 @@ func prepara_passo_tutorial(passo: Dictionary) -> void:
 func concludi_tutorial() -> void:
 	# lo scontro non si vince: finisce come deve finire, con la sua scena
 	tutorial_finito = true
+	# e da adesso, a chi ricomincia, la lezione si puo' saltare
+	Impostazioni.allenamento_gia_fatto = true
+	Impostazioni.salva()
 	for msg in tutorial.get("finale", []):
 		scrivi_messaggio_tutorial(msg)
 	sconfitta_scriptata()
+
+func si_puo_saltare_la_lezione() -> bool:
+	# SOLO A CHI L'HA GIA' FATTA. Su questo la ricerca e' concorde e non dipende
+	# dal genere: chi rigioca non e' piu' un principiante. E' anche il caso in
+	# cui l'expertise reversal sarebbe l'argomento giusto - l'istruzione
+	# esplicita aiuta chi non sa e pesa a chi sa - ma quella fonte non ce
+	# l'abbiamo ancora letta, quindi qui non la cito come se l'avessi.
+	#
+	# Alla PRIMA volta non si offre. Non per paternalismo: perche' la lezione di
+	# Veronica e' anche una scena, e saltarla la prima volta vuol dire saltare
+	# un pezzo di storia, non un pezzo di manuale.
+	return not passo_tutorial().is_empty() and Impostazioni.allenamento_gia_fatto
+
+func salta_la_lezione() -> void:
+	# SI SALTA L'INSEGNAMENTO, NON LA STORIA. concludi_tutorial fa partire il
+	# "finale" e la sconfitta scriptata: l'allenamento finisce come deve finire
+	# comunque, perche' quello che succede dopo dipende da come e' finito.
+	if not si_puo_saltare_la_lezione():
+		return
+	scrivi_forte("[i]Salti l'allenamento: questa lezione la sai già.[/i]")
+	concludi_tutorial()
 
 func passo_tutorial() -> Dictionary:
 	if tutorial.is_empty() or tutorial_finito:
