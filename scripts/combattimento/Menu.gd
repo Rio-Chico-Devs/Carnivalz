@@ -118,6 +118,36 @@ func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := 
 		battito.tween_property(pulsante, "modulate:a", 0.45, 0.5)
 		battito.tween_property(pulsante, "modulate:a", 1.0, 0.5)
 
+func voce_in_coda(nome: String) -> void:
+	# QUELLO CHE ASPETTA DEVE VEDERSI, O IL BUFFER E' SOLO RITARDO.
+	#
+	# Qui avevo sbagliato due volte. La prima: avevo messo questa riga DOPO il
+	# return del tutorial, cioe' nell'unico combattimento che Bru gioca non
+	# compariva mai. La seconda, peggiore: l'avevo fatta con un bottone spento,
+	# grigio, su un pannello che mentre ricarichi e' gia' scolorito al 55% -
+	# invisibile sopra invisibile.
+	#
+	# Ellison scrive che lo scopo del buffer e' «la PERCEZIONE di un gioco
+	# reattivo». Io avevo costruito il meccanismo e saltato la percezione: premi,
+	# non vedi niente, e un secondo dopo parte da solo. Indistinguibile dal lag,
+	# che e' esattamente il difetto che volevo togliere.
+	if muta:
+		return
+	var riga := Button.new()
+	riga.text = "⏳  parte appena tocca a te:  %s" % nome
+	riga.disabled = true
+	riga.focus_mode = Control.FOCUS_NONE
+	riga.custom_minimum_size = Vector2(0, 44)
+	contenitore.add_child(riga)
+	if vestaglia.is_valid():
+		vestaglia.call()
+	# il colore d'accento e il battito servono a farla NOTARE nell'istante in cui
+	# compare: e' la risposta immediata al click, l'azione arriva dopo
+	riga.modulate = Stile.colore("accento")
+	var battito: Tween = riga.create_tween().set_loops()
+	battito.tween_property(riga, "modulate:a", 0.5, 0.45)
+	battito.tween_property(riga, "modulate:a", 1.0, 0.45)
+
 # --- i menu ---
 
 func principale() -> void:
@@ -168,6 +198,11 @@ func principale() -> void:
 		# tutorial: si puo' fare solo quello che ti viene chiesto (e Studia,
 		# sempre libero: guardare non e' mai un errore)
 		var richiesta := String(passo.get("azione", ""))
+		# E ANCHE QUI SI VEDE COSA ASPETTA. Anzi: soprattutto qui. La lezione e'
+		# il posto dove il giocatore sta imparando se i suoi comandi contano
+		var in_coda_lezione: String = scontro.nome_azione_in_coda()
+		if in_coda_lezione != "":
+			voce_in_coda(in_coda_lezione)
 		bottone("ATTACCHI", bersagli, richiesta != "attacca", richiesta == "attacca")
 		bottone("DIFESA", scegli.bind({"tipo": "difendi"}), richiesta != "difendi", richiesta == "difendi")
 		bottone("SKILL", abilita)
@@ -192,7 +227,7 @@ func principale() -> void:
 	# sua dichiarazione), e dedurre da un Variant qui e' un errore, non un avviso
 	var in_attesa: String = scontro.nome_azione_in_coda()
 	if in_attesa != "":
-		bottone("⏳  in coda: %s" % in_attesa, principale, true)
+		voce_in_coda(in_attesa)
 	bottone("ATTACCHI", bersagli)
 	bottone("DIFESA", scegli.bind({"tipo": "difendi"}), accecato)
 	bottone("SKILL", abilita, accecato)

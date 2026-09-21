@@ -936,3 +936,46 @@ Godot (profila una build esportata).
 L'unica cosa che i numeri sostengono: sulla **stessa** macchina lo scontro del
 tutorial costa circa **la metà** per fotogramma di quello con la marionetta.
 Quella differenza è reale e vale la pena che Bru la guardi su hardware vero.
+
+## «Non noto alcun cambiamento»
+
+Bru, dopo aver provato lo zip. Aveva ragione, e la prima cosa che ho fatto è
+stata verificare che lo zip contenesse davvero le modifiche: le conteneva
+tutte. Quindi il problema era mio.
+
+**Il difetto.** La riga che dice cosa sta aspettando — `⏳ parte appena tocca a
+te: Attacco` — l'avevo messa **dopo il `return` del tutorial** in
+`Menu.principale`. Cioè: nell'unico combattimento che si gioca, non compariva
+mai. E c'era un secondo strato: l'avevo fatta con un bottone spento, grigio,
+sopra un pannello che mentre ricarichi è già scolorito al 55%.
+
+Quindi l'esperienza vera era: **premi, non succede niente, e un secondo dopo
+parte da sola.** Che è indistinguibile dal lag — cioè precisamente il difetto
+che volevo togliere.
+
+Ellison scrive che lo scopo del buffer è «la **percezione** di un gioco
+reattivo». Avevo costruito il meccanismo e saltato la percezione.
+
+### Perché 34.000 verifiche non l'hanno preso
+
+Perché **guardavano tutte lo stato, e nessuna lo schermo**. `intenzione.azione`
+si riempie? Parte al momento giusto? Si scorda dopo? Tutto verde, tutto vero, e
+niente di tutto questo tocca la domanda «il giocatore lo vede?».
+
+È lo stesso buco di quando uno scatto aveva fatto vedere in un colpo quello che
+34.000 verifiche non vedevano, perché nessuna guardava il pannello. L'avevo già
+scritto in §5 di `docs/tutorial.md` e l'ho rifatto lo stesso.
+
+**Adesso c'è una prova che preme dove fa male**: costruisce il menu davvero, con
+la plancia vera, e ci cerca dentro la riga — fuori dalla lezione e, soprattutto,
+DENTRO. Sabotata rimettendo il difetto esatto: rossa, con il messaggio che
+descrive l'esperienza di Bru parola per parola.
+
+### Quello che questo NON spiega
+
+Le altre modifiche di ieri restano poco percettibili, e non è un difetto da
+correggere: è una scelta che ho fatto male. Tagliare l'apertura da 21 a 15
+battute non cambia la *forma* di quello che senti, e lo strumento lo dice —
+nello scontro del tutorial si legge per il **63%** del tempo e in dodici
+secondi la partita avanza di **un giro**. Quello è il problema che Bru sente, e
+sei battute in meno su ventuno non lo toccano.

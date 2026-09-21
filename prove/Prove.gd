@@ -128,6 +128,7 @@ func _ready() -> void:
 	prova_la_raffica_si_para_anche_da_tastiera()
 	await prova_il_click_dato_presto_non_si_perde()
 	await prova_la_lezione_si_salta_solo_a_chi_l_ha_gia_fatta()
+	await prova_l_azione_in_attesa_si_vede_a_schermo()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	prova_la_raffica_accelera_verso_la_fine()
@@ -10219,12 +10220,18 @@ class FintoScontro extends RefCounted:
 	func giocatore_pronto() -> bool:
 		return true
 
+	# si possono accendere dall'esterno: servono alla prova sulla voce in coda
+	var passo_finto: Dictionary = {}
+	var coda_finta := ""
+
 	func passo_tutorial() -> Dictionary:
-		return {}
+		return passo_finto
 
 	func nome_azione_in_coda() -> String:
-		# qui non c'e' ricarica, quindi non c'e' mai niente in attesa
-		return ""
+		return coda_finta
+
+	func si_puo_saltare_la_lezione() -> bool:
+		return false
 
 	func vivi(_amici: bool) -> Array[Dictionary]:
 		# DUE, non uno: con un nemico solo in campo il menu salta la lista e
@@ -10330,3 +10337,60 @@ func prova_la_lezione_si_salta_solo_a_chi_l_ha_gia_fatta() -> void:
 	scontro.voce.coda.clear()
 	scontro.queue_free()
 	await get_tree().process_frame
+
+func prova_l_azione_in_attesa_si_vede_a_schermo() -> void:
+	# LA PROVA CHE MANCAVA, e si vede da come e' andata.
+	#
+	# Bru, dopo aver provato: «non noto alcun cambiamento». Aveva ragione. Il
+	# buffer dei comandi funzionava - 34.000 verifiche verdi - ma la riga che
+	# dice cosa sta aspettando l'avevo messa DOPO il return del tutorial: cioe'
+	# nell'unico combattimento che si gioca, non compariva mai.
+	#
+	# Nessuna prova se n'era accorta perche' tutte guardavano lo STATO
+	# (intenzione.azione si riempie? parte al momento giusto?) e nessuna
+	# guardava LO SCHERMO. Un comando tenuto da parte di nascosto non e' un
+	# buffer: e' ritardo, che e' il difetto che volevo togliere.
+	#
+	# Questa preme dove fa male: costruisce il menu davvero e ci cerca dentro
+	# la riga.
+	titolo("l'azione che aspetta si vede nel menu, lezione o non lezione")
+	GameState.nuova_partita()
+	var radice := Control.new()
+	radice.size = Vector2(1280, 720)
+	add_child(radice)
+	var plancia := PlanciaCombattimento.new()
+	plancia.costruisci(radice)
+	var finto := FintoScontro.new()
+	finto.attaccante_corrente = {"id": GameState.id_protagonista, "aura": 99, "stati_attivi": {}}
+	var menu := MenuCombattimento.new(finto)
+	menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
+
+	# 1. FUORI DALLA LEZIONE
+	finto.coda_finta = "Difesa"
+	menu.principale()
+	esigi(menu_contiene(plancia.comandi, "Difesa"),
+			"fuori dalla lezione l'azione in attesa non si vede nel menu")
+
+	# 2. DENTRO LA LEZIONE - ed e' il caso che mi era sfuggito
+	finto.passo_finto = {"azione": "attacca"}
+	finto.coda_finta = "Attacco"
+	menu.principale()
+	esigi(menu_contiene(plancia.comandi, "Attacco"),
+			"DURANTE LA LEZIONE l'azione in attesa non si vede: premi, non succede niente, e un secondo dopo parte da sola")
+
+	# 3. e quando non c'e' niente in attesa, la riga non c'e'
+	finto.coda_finta = ""
+	menu.principale()
+	esigi(not menu_contiene(plancia.comandi, "parte appena tocca a te"),
+			"la riga dell'attesa resta a schermo anche senza niente in attesa")
+
+	radice.queue_free()
+	await get_tree().process_frame
+
+func menu_contiene(dove: Control, pezzo: String) -> bool:
+	if dove == null:
+		return false
+	for figlio in dove.get_children():
+		if figlio is Button and String((figlio as Button).text).findn(pezzo) != -1:
+			return true
+	return false
