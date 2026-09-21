@@ -166,6 +166,21 @@ func colpisci(indice: int) -> void:
 			pugni[indice].visible = false
 		AudioManager.interfaccia("parata")
 
+func para_col_tasto() -> bool:
+	# LA RAFFICA SI GIOCA ANCHE SENZA MOUSE. Era l'unico pezzo del combattimento
+	# che un mouse lo pretendeva davvero: i pugni sono bottoni, ma cercarli col
+	# Tab durante una raffica non e' giocare, e' un'altra cosa.
+	#
+	# Torna false se il tasto e' stato premuto a vuoto - cosi' chi chiama sa se
+	# l'evento e' stato consumato o deve passare oltre.
+	if not attivo:
+		return false
+	var quale := Collisioni.piu_urgente(raffica, tempo)
+	if quale < 0:
+		return false
+	colpisci(quale)
+	return true
+
 func passa(delta: float) -> void:
 	# il minigioco ha un orologio suo: mentre gira, quello dello scontro e' fermo
 	if not attivo:

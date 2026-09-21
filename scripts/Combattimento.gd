@@ -311,6 +311,15 @@ func _unhandled_input(evento: InputEvent) -> void:
 		colpo_di_mattanza()
 		get_viewport().set_input_as_handled()
 		return
+	# MENTRE C'E' LA RAFFICA, IL TASTO PARA. Viene prima del "salta avanti"
+	# perche' durante il minigioco non c'e' niente da far scorrere: il
+	# sequenziatore dice fase "minigioco", e in quei secondi l'unica cosa che il
+	# giocatore puo' fare e' parare. Se non c'e' nessun pugno da prendere in
+	# questo istante l'evento non si consuma e passa a chi viene dopo.
+	if minigioco != null and minigioco.attivo and evento.is_action_pressed("ui_accept"):
+		if minigioco.para_col_tasto():
+			get_viewport().set_input_as_handled()
+			return
 	# da tastiera si salta avanti come col mouse
 	if area_avanza.visible and evento.is_action_pressed("ui_accept"):
 		voce.avanza()

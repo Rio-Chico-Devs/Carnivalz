@@ -149,6 +149,27 @@ static func para(raffica: Array[Dictionary], indice: int, adesso: float) -> bool
 	pugno.parato = true
 	return true
 
+static func piu_urgente(raffica: Array[Dictionary], adesso: float) -> int:
+	# QUALE PUGNO PARA UN TASTO. Col mouse scegli tu quale colpire; da tastiera
+	# no, quindi bisogna decidere per conto del giocatore - e l'unica scelta che
+	# non lo tradisce e' QUELLO CHE STA PER SCADERE. E' quello che un giocatore
+	# col mouse punterebbe: gli altri hanno ancora tempo.
+	#
+	# Torna -1 se in questo istante non c'e' nessun pugno parabile: un tasto
+	# premuto a vuoto non deve prendere il pugno sbagliato.
+	var scelto := -1
+	var scadenza := INF
+	for i in raffica.size():
+		var pugno: Dictionary = raffica[i]
+		if bool(pugno.parato):
+			continue
+		if adesso < float(pugno.istante) or adesso > float(pugno.scade):
+			continue
+		if float(pugno.scade) < scadenza:
+			scadenza = float(pugno.scade)
+			scelto = i
+	return scelto
+
 static func parati(raffica: Array[Dictionary]) -> int:
 	var quanti := 0
 	for pugno in raffica:

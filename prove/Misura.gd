@@ -28,6 +28,10 @@ var facce: Dictionary = {}
 var cambi_di_faccia := 0
 var ultima_faccia := ""
 var fotogramma_piu_lento := 0.0
+const SOGLIA_SCATTO := 0.050   # 50 ms: due volte e mezzo un fotogramma a 60
+var scatti: Array[Dictionary] = []
+var chiuso_prima := false
+var secondi_misurati := 0.0
 var somma_fotogrammi := 0.0
 # quante volte al secondo si rifanno le cose costose
 var menu_prima := 0
@@ -70,10 +74,20 @@ func _ready() -> void:
 	for c in scontro.combattenti:
 		if c.giocatore:
 			hp_prima += int(c.hp)
+	# SI MISURA FINCHE' SI GIOCA. Misurando a tempo fisso, uno scontro che
+	# finisce presto lasciava nove secondi di post mortem dentro le medie: la
+	# marionetta uccideva il protagonista in tre secondi e poi lo strumento
+	# contava altri nove secondi di fase "chiuso" come se fossero gioco - con
+	# sessanta "scatti" che non erano lentezza dell'interfaccia, erano una
+	# schermata di fine partita misurata come se fosse un combattimento.
 	var fine := Time.get_ticks_msec() + int(SECONDI * 1000.0)
-	while Time.get_ticks_msec() < fine and is_instance_valid(scontro):
+	while Time.get_ticks_msec() < fine and is_instance_valid(scontro) \
+			and bool(scontro.in_corso):
 		await get_tree().process_frame
 		campiona(scontro)
+	secondi_misurati = float(campioni) / 60.0
+	if is_instance_valid(scontro) and not bool(scontro.in_corso):
+		chiuso_prima = true
 	if is_instance_valid(scontro):
 		schede_fatte = int(scontro.campo.aggiornamenti) - schede_prima
 		for c in scontro.combattenti:
@@ -88,7 +102,22 @@ func campiona(scontro: Node) -> void:
 	campioni += 1
 	var quanto := get_process_delta_time()
 	somma_fotogrammi += quanto
-	fotogramma_piu_lento = maxf(fotogramma_piu_lento, quanto)
+	# DOVE SCATTA, non solo quanto. Un massimo da solo non si puo' correggere:
+	# dice che c'e' uno scatto, non cosa lo ha causato. Qui si tiene il ritratto
+	# del mondo nel fotogramma piu' caro, e i piu' cari si stampano in fondo.
+	if quanto > fotogramma_piu_lento:
+		fotogramma_piu_lento = quanto
+	if quanto > SOGLIA_SCATTO and scontro.plancia != null:
+		scatti.append({
+			"ms": 1000.0 * quanto,
+			"al_secondo": float(campioni) / 60.0,
+			"fase": String(scontro.fase_adesso()),
+			"faccia": String(scontro.plancia.faccia_adesso),
+			"in_coda": scontro.voce.coda.size(),
+			"scrive": bool(scontro.voce.box.sta_scrivendo) if scontro.voce.box != null else false,
+			"minigioco": bool(scontro.minigioco.attivo) if scontro.minigioco != null else false,
+			"pugni": (scontro.minigioco.pugni.size() if scontro.minigioco != null else 0),
+		})
 	if scontro.plancia == null:
 		return
 	var faccia := String(scontro.plancia.faccia_adesso)
@@ -201,8 +230,9 @@ func stampa(chi: String) -> void:
 	# Morale: uno strumento che stampa un numero di cui non ti fidi non e'
 	# inutile, e' pericoloso - l'avevo marcato "non tarato" e ci ho convissuto
 	# per giorni con dentro un difetto del gioco.
-	print("\n=== INTERFACCIA DI COMBATTIMENTO, %s (%d fotogrammi in %.0fs) ===" % [
-			chi, campioni, SECONDI])
+	print("\n=== INTERFACCIA DI COMBATTIMENTO, %s (%d fotogrammi) ===" % [chi, campioni])
+	if chiuso_prima:
+		print("  lo scontro e' finito dopo ~%.1fs: da li' in poi non si misura" % secondi_misurati)
 	print("  fotogramma medio      %6.2f ms   (il piu' lento: %.1f ms)" % [
 			1000.0 * somma_fotogrammi / maxf(float(campioni), 1.0),
 			1000.0 * fotogramma_piu_lento])
@@ -227,3 +257,13 @@ func stampa(chi: String) -> void:
 				100.0 * float(click_a_segno) / float(click_tentati)])
 	else:
 		print("  CLICK ANDATI A SEGNO  nessun tentativo: il menu non e' mai stato premibile")
+	if scatti.is_empty():
+		print("  nessuno scatto sopra %d ms" % int(1000.0 * SOGLIA_SCATTO))
+	else:
+		scatti.sort_custom(func(a, b): return float(a["ms"]) > float(b["ms"]))
+		print("  SCATTI sopra %d ms: %d" % [int(1000.0 * SOGLIA_SCATTO), scatti.size()])
+		for i in mini(scatti.size(), 6):
+			var sc: Dictionary = scatti[i]
+			print("    %6.1f ms  a %4.1fs  fase=%-9s faccia=%-8s coda=%d scrive=%s minigioco=%s pugni=%d" % [
+					sc["ms"], sc["al_secondo"], sc["fase"], sc["faccia"],
+					sc["in_coda"], sc["scrive"], sc["minigioco"], sc["pugni"]])

@@ -125,6 +125,7 @@ func _ready() -> void:
 	await prova_un_solo_artwork_quello_di_chi_parla()
 	await prova_una_fase_alla_volta_e_niente_click_a_vuoto()
 	prova_tenere_premuto_non_e_martellare()
+	prova_la_raffica_si_para_anche_da_tastiera()
 	await prova_il_click_dato_presto_non_si_perde()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
@@ -7778,7 +7779,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4577, "perche":
+	"Combattimento.gd": {"misura": 4586, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -7801,7 +7802,7 @@ const FILE_GRANDI := {
 		"IL NUMERO E' SALITO DA 4544, e il conto va detto per intero: il " +
 		"buffer degli input valeva 115 righe, 97 sono finite in " +
 		"Intenzione.gd, esegui_turno - un passa-carte che non chiamava piu' " +
-		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante). Alzare la misura e' " +
+		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante), e 9 per far parare la raffica anche da tastiera - era l'unico pezzo del combattimento che pretendeva un mouse. Alzare la misura e' " +
 		"una decisione, non una svista: si scrive qui cosa si e' comprato"},
 	"GameState.gd": {"misura": 2530, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
@@ -10250,3 +10251,35 @@ class FintoScontro extends RefCounted:
 
 	func agisci_ora(azione: Dictionary) -> void:
 		scelte.append(azione)
+
+func prova_la_raffica_si_para_anche_da_tastiera() -> void:
+	# ERA L'UNICO PEZZO CHE PRETENDEVA UN MOUSE. I pugni sono bottoni, quindi in
+	# teoria il Tab li raggiunge - ma cercare col Tab durante una raffica non e'
+	# giocare, e' un'altra cosa. Adesso il tasto para, e sceglie da solo.
+	#
+	# QUALE sceglie e' la domanda vera, e la risposta e' l'unica che non tradisce
+	# il giocatore: QUELLO CHE STA PER SCADERE. E' quello che punterebbe col
+	# mouse - gli altri hanno ancora tempo.
+	titolo("la raffica si para anche senza mouse")
+	var raffica: Array[Dictionary] = [
+		{"indice": 0, "istante": 0.0, "scade": 9.0, "parato": false, "x": 0.0, "y": 0.0},
+		{"indice": 1, "istante": 0.0, "scade": 2.0, "parato": false, "x": 0.0, "y": 0.0},
+		{"indice": 2, "istante": 5.0, "scade": 6.0, "parato": false, "x": 0.0, "y": 0.0},
+	]
+	# a 1s: il 2 non e' ancora arrivato, il piu' urgente fra 0 e 1 e' l'1
+	esigi(Collisioni.piu_urgente(raffica, 1.0) == 1,
+			"a tastiera para il pugno sbagliato: prende il %d invece di quello che scade prima"
+			% Collisioni.piu_urgente(raffica, 1.0))
+	# parato quello, resta il it 0
+	raffica[1].parato = true
+	esigi(Collisioni.piu_urgente(raffica, 1.0) == 0,
+			"dopo aver parato il piu' urgente non passa al successivo")
+	# A VUOTO NON PRENDE NIENTE. Un tasto premuto quando non c'e' niente da
+	# parare non deve rubare un pugno che non e' ancora arrivato
+	var vuota: Array[Dictionary] = [
+		{"indice": 0, "istante": 5.0, "scade": 6.0, "parato": false, "x": 0.0, "y": 0.0},
+	]
+	esigi(Collisioni.piu_urgente(vuota, 1.0) == -1,
+			"il tasto premuto a vuoto prende un pugno che non e' ancora arrivato")
+	esigi(Collisioni.piu_urgente(vuota, 8.0) == -1,
+			"il tasto prende un pugno gia' scaduto: la finestra non conta piu' niente")
