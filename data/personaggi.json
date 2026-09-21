@@ -3519,44 +3519,9 @@
                 "evidenzia": "squadra"
               },
               {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "La terza è il [b]dominio[/b]. Si riempie prendendo e dando: è lo spettacolo che stai facendo.",
-                "evidenzia": "squadra"
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "Al centro la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%.",
-                "evidenzia": "ecg"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Il movimento invece è lo [b]stress[/b]. Se quella impazzisce, stai per fare qualcosa di stupido.",
-                "evidenzia": "ecg"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "[b]Morale[/b] e [b]Stress[/b] sono scritti sotto in chiaro. Tienili d'occhio più della mia faccia.",
-                "evidenzia": "morale"
-              },
-              {
                 "tipo": "narrazione",
                 "testo": "A destra il menu: ATTACCHI, DIFESA, SKILL, OGGETTI, FUGA.",
                 "evidenzia": "menu"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "[b]DIFESA[/b] si accumula e resta fino alla fine. Difendersi cinque volte serve davvero, non è una battuta buttata.",
-                "evidenzia": "menu"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "[b]MATTANZA[/b] si accende solo con almeno una barra piena, e quando la chiami te la consuma tutta.",
-                "evidenzia": "mattanza"
               },
               {
                 "tipo": "dialogo",
@@ -3653,6 +3618,23 @@
               {
                 "tipo": "narrazione",
                 "testo": "Ti difendi, ma il colpo è comunque enorme: finisci a un passo dal collasso."
+              },
+              {
+                "tipo": "narrazione",
+                "testo": "Al centro la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%.",
+                "evidenzia": "ecg"
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Il movimento invece è lo [b]stress[/b]. Se quella impazzisce, stai per fare qualcosa di stupido.",
+                "evidenzia": "ecg"
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "[b]Morale[/b] e [b]Stress[/b] sono scritti sotto in chiaro. Tienili d'occhio più della mia faccia.",
+                "evidenzia": "morale"
               }
             ]
           },

@@ -6504,17 +6504,22 @@ func prova_tutorial_di_veronica() -> void:
 	esigi(insegna_aura, "l'allenamento non insegna piu' l'aura")
 	esigi(insegna_mattanza, "l'allenamento non insegna piu' la Mattanza")
 
-	# LA LEZIONE SULLA SCHERMATA VIENE PRIMA DI TUTTO. Bru: «la prima cosa e'
-	# educare il giocatore sulla schermata, guidando e spiegando ogni singolo
-	# componente e come funziona, lo fara' veronica, poi finito di spiegare
-	# tutto comincia il combattimento scriptato».
+	# OGNI PEZZO DELLA SCHERMATA VIENE SPIEGATO. Bru: «la prima cosa e' educare
+	# il giocatore sulla schermata, guidando e spiegando ogni singolo componente
+	# e come funziona, lo fara' veronica».
 	#
-	# Sta nel "prima" del primo passo, che e' l'unico punto in cui il giocatore
-	# non puo' ancora fare niente. Qui si controlla che i pezzi ci siano tutti:
-	# uno tolto per sbaglio non lo noterebbe nessuno finche' qualcuno non gioca.
+	# Questa prova prima guardava solo il "prima" del passo 0, perche' li' stava
+	# tutta la spiegazione: ventuno battute di fila. Adesso ne stanno quindici,
+	# e sei sono andate dove la cosa di cui parlano si vede davvero - quindi il
+	# controllo guarda LA LEZIONE INTERA, prima e dopo di ogni passo.
+	#
+	# Non e' un allentamento: prende ancora un pezzo tolto per sbaglio, che e' il
+	# suo mestiere. Ed e' accompagnato dalla regola nuova, qui sotto.
 	var lezione := ""
-	for msg in (passi[0] as Dictionary).get("prima", []):
-		lezione += String((msg as Dictionary).get("testo", "")) + " "
+	for passo_qualsiasi in passi:
+		for campo in ["prima", "dopo"]:
+			for msg in (passo_qualsiasi as Dictionary).get(campo, []):
+				lezione += String((msg as Dictionary).get("testo", "")) + " "
 	for pezzo in ["Studia", "HP", "AURA", "dominio", "stress", "Morale",
 			"DIFESA", "MATTANZA", "ricarica", "turno"]:
 		esigi(lezione.findn(String(pezzo)) != -1,
@@ -6526,6 +6531,29 @@ func prova_tutorial_di_veronica() -> void:
 	esigi(insegna_minigioco, "l'allenamento non ha piu' le Collisioni infinite")
 	esigi(not tutorial.get("rivitalizzante", {}).is_empty(),
 			"senza rivitalizzante, sbagliare a parare chiude il tutorial a meta'")
+
+	# E NON SI TORNA INDIETRO. Le battute che parlano di una cosa che allo
+	# START DELLO SCONTRO non e' ancora successa non possono stare nel "prima"
+	# del passo 0: li' gli HP sono pieni, lo stress e' a zero, il dominio e'
+	# vuoto. Il giocatore vedrebbe un valore solo e gliene verrebbero raccontati
+	# tre - ed e' l'unico risultato di Andersen che sopravvive alla lettura del
+	# paper intero: +40% di livelli completati con l'informazione data nel
+	# momento in cui serve invece che in un blocco iniziale
+	# (docs/tutorial.md 0-bis, docs/fonti/chi2012-tutorial-complessita.pdf).
+	#
+	# Le tre sull'ECG e sullo stress stanno adesso nel "dopo" del passo 2, che
+	# porta il protagonista a 10 HP su 100: sotto QUOTA_ROSSA, quindi la linea
+	# e' davvero rossa mentre Veronica ne parla.
+	var apertura := ""
+	for msg in (passi[0] as Dictionary).get("prima", []):
+		apertura += String((msg as Dictionary).get("testo", "")) + " "
+	for troppo_presto in ["verde sopra", "rossa sotto", "impazzisce"]:
+		esigi(apertura.findn(String(troppo_presto)) == -1,
+				"'%s' e' tornata nell'apertura: allo start non c'e' niente da guardare, la linea e' verde e lo stress a zero"
+				% troppo_presto)
+	esigi((passi[0] as Dictionary).get("prima", []).size() <= 16,
+			"l'apertura e' risalita a %d battute: era 21, l'abbiamo portata a 15 apposta"
+			% (passi[0] as Dictionary).get("prima", []).size())
 
 func prova_rivitalizzante_di_veronica() -> void:
 	# «se vai ko veronica dice [...] e usa un rivitalizzante su di te che ti
