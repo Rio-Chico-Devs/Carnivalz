@@ -74,7 +74,7 @@ var faccia_adesso := ""   # quale delle tre e' in mostra adesso
 # CHI STA PULSANDO ADESSO, e il suo battito. Uno alla volta: due pezzi che
 # lampeggiano insieme non indicano niente, indicano "guarda lo schermo"
 var evidenziato: CanvasItem = null
-var battito_evidenza: Tween = null
+var alone_evidenza: Bagliore = null
 var stress_scritto := -1
 var morale_scritto := -1
 
@@ -701,14 +701,14 @@ func evidenzia_pezzo(nome: String) -> void:
 		push_error("Plancia: la battuta chiede di evidenziare '%s', che non e' un pezzo dello schermo" % nome)
 		return
 	evidenziato = nodo
-	battito_evidenza = nodo.create_tween().set_loops()
-	battito_evidenza.tween_property(nodo, "modulate", Stile.colore("accento"), 0.45)
-	battito_evidenza.tween_property(nodo, "modulate", Color.WHITE, 0.45)
+	# l'alone sta INTORNO, non sopra: il perche' sta in Bagliore.gd
+	if nodo is Control:
+		alone_evidenza = Bagliore.intorno_a(nodo as Control, Stile.colore("accento"))
+		alone_evidenza.respira()
 
 func spegni_evidenza() -> void:
-	if battito_evidenza != null and battito_evidenza.is_valid():
-		battito_evidenza.kill()
-	battito_evidenza = null
-	if evidenziato != null and is_instance_valid(evidenziato):
-		evidenziato.modulate = Color.WHITE
-	evidenziato = null
+	if alone_evidenza != null and is_instance_valid(alone_evidenza):
+		alone_evidenza.ferma()
+		alone_evidenza.queue_free()
+	alone_evidenza = null
+	evidenziato = null   # modulate non lo tocca piu' nessuno: niente da rimettere

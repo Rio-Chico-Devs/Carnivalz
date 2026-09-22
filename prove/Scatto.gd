@@ -289,6 +289,31 @@ func prepara(quale: String) -> void:
 			schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			add_child(schermo)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"evidenza":
+			# L'ALONE CHE INDICA UN PEZZO, fermato sul colmo del respiro.
+			#
+			# E' l'unico modo di giudicarlo: dal vivo sale e scende in due
+			# secondi, e a occhio nudo non si ferma. Qui si mette a mano
+			# modulate.a a 1.0 dopo averlo acceso, cosi' la foto e' sempre lo
+			# stesso istante e due scatti si possono confrontare.
+			GameState.nuova_partita()
+			GameState.party = ["anonimo", "veronica"]
+			GameState.nemici_combattimento = ["marionetta"]
+			var indicato: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(indicato)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			indicato.voce.coda.clear()
+			indicato.set_process(false)
+			indicato.plancia.mostra_faccia("comandi")
+			var quale_pezzo := "mattanza"
+			var argomenti_alone := OS.get_cmdline_user_args()
+			if argomenti_alone.size() > 1:
+				quale_pezzo = String(argomenti_alone[1])
+			indicato.plancia.evidenzia_pezzo(quale_pezzo)
+			if indicato.plancia.alone_evidenza != null:
+				indicato.plancia.alone_evidenza.ferma()
+				indicato.plancia.alone_evidenza.modulate.a = 1.0
+			await attendi(2)
 		"zona":
 			# LA MAPPA A QUADRETTI, quella che non aspetta nessun disegno.
 			#

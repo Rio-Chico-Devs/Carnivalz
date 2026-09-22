@@ -8772,9 +8772,57 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 			"passando a MATTANZA l'evidenza non si e' spostata")
 	esigi(scontro.plancia.fondale_ecg.modulate == Color.WHITE,
 			"l'ECG e' rimasto acceso mentre pulsa un altro pezzo: due cose che lampeggiano non indicano niente")
+	# 3. L'ALONE STA INTORNO, NON SOPRA.
+	#
+	# Prima l'evidenza era un tween su modulate: il pezzo indicato diventava
+	# rosso e tornava bianco. modulate MOLTIPLICA, quindi il testo bianco
+	# diventava rosso, il riquadro si scuriva e la traccia verde dell'ECG si
+	# sporcava - il pezzo che stiamo indicando si leggeva PEGGIO proprio mentre
+	# lo indicavamo. Adesso la luce e' un nodo suo, dietro.
+	esigi(scontro.plancia.tasto_mattanza.modulate == Color.WHITE,
+			"il pezzo evidenziato e' stato tinto: modulate vale %s invece di bianco"
+			% scontro.plancia.tasto_mattanza.modulate)
+	var alone: Bagliore = scontro.plancia.alone_evidenza
+	esigi(alone != null, "non c'e' nessun alone intorno al pezzo evidenziato")
+	esigi(alone.get_parent() == scontro.plancia.tasto_mattanza,
+			"l'alone non e' attaccato al pezzo: non lo seguirebbe se si sposta")
+	esigi(alone.show_behind_parent,
+			"l'alone si disegna SOPRA il pezzo: lo coprirebbe invece di illuminarlo")
+	esigi(alone.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+			"l'alone intercetta il mouse: si mangerebbe i click sul pezzo che indica")
+
+	# 4. LA LUCE SFUMA A ZERO, e non finisce con un gradino.
+	#
+	# La campana va troncata all'orlo: senza, l'ultima passata arriva al bordo
+	# con un nove per cento di rosso ancora addosso e si vede un anello netto
+	# tutto intorno - che si legge come un bordo colorato, non come luce.
+	esigi(is_zero_approx(alone.forza_a(1.0)),
+			"all'orlo l'alone vale ancora %.3f: si vedrebbe l'anello dell'ultima passata"
+			% alone.forza_a(1.0))
+	var prima_forza := 2.0
+	for passo in 20:
+		var quanto := float(passo) / 19.0
+		var adesso := alone.forza_a(quanto)
+		esigi(adesso <= prima_forza + 0.0001,
+				"l'alone risale andando in fuori: a %.2f vale %.3f dopo %.3f"
+				% [quanto, adesso, prima_forza])
+		prima_forza = adesso
+	esigi(alone.forza_a(0.0) > 0.25,
+			"contro il bordo del pezzo l'alone vale %.3f: non si vedrebbe" % alone.forza_a(0.0))
+
+	# 5. IL RESPIRO NON SI SPEGNE MAI DEL TUTTO. Un invito che sparisce e torna
+	# e' un lampeggio, e un lampeggio a schermo per minuti da' fastidio.
+	esigi(Bagliore.MINIMO > 0.2,
+			"il respiro scende a %.2f: il pezzo si spegne e l'invito lampeggia" % Bagliore.MINIMO)
+	esigi(Bagliore.RESPIRO >= 0.8,
+			"mezzo respiro dura %.2fs: era 0,45 e Bru l'ha trovato troppo rapido"
+			% Bagliore.RESPIRO)
+
 	scontro.plancia.spegni_evidenza()
 	esigi(scontro.plancia.evidenziato == null and scontro.plancia.tasto_mattanza.modulate == Color.WHITE,
 			"spenta l'evidenza, qualcosa continua a pulsare")
+	esigi(scontro.plancia.alone_evidenza == null,
+			"spenta l'evidenza, l'alone e' ancora li'")
 	scontro.in_corso = false
 	scontro.voce.coda.clear()
 	scontro.queue_free()
