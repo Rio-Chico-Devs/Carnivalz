@@ -506,7 +506,7 @@ func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) ->
 	# ha fatti nascere, poi il protagonista ci ragiona sopra
 	# la salita di livello viene PRIMA delle passive: e' la causa, quelle sono
 	# la conseguenza, e leggerle nell'ordine opposto non si capisce
-	coda_messaggi = notifiche_precedenti + notifiche_salite_di_livello() \
+	coda_messaggi = notifiche_precedenti + Resoconto.salite_di_livello() \
 			+ notifiche_passive() + contenuto_nodo(nodo) + notifiche_task() + notifiche_messaggi()
 	avanza_messaggio()
 
@@ -1072,38 +1072,6 @@ func notifiche_messaggi() -> Array[Dictionary]:
 		righe.append({"tipo": "notifica", "testo": "%s: %d nuovi messaggi."
 				% [GameState.nome_diario(), quanti]})
 	GameState.messaggi_da_notificare.clear()
-	return righe
-
-func notifiche_salite_di_livello() -> Array[Dictionary]:
-	# SALIRE DI LIVELLO SI DEVE VEDERE, e si deve capire cosa e' cambiato.
-	#
-	# In Carnivalz le statistiche non salgono col livello: salgono con quello
-	# che hai fatto, e diventano punti proprio qui. Quindi questo e' l'unico
-	# momento in cui il giocatore scopre a cosa e' servito giocare come ha
-	# giocato - se ha incassato molto, se ha parato, se ha studiato. Prima dei
-	# numeri cambiavano da qualche parte e nessuno lo diceva: il livello saliva
-	# e il gioco taceva.
-	var righe: Array[Dictionary] = []
-	for salita in GameState.salite_di_livello:
-		righe.append({"tipo": "notifica",
-				"testo": "[b]Livello %d.[/b]" % int(salita.get("livello", 0))})
-		var cresciute: Array = salita.get("stat", [])
-		if cresciute.is_empty():
-			righe.append({"tipo": "notifica",
-					"testo": "Nessuna statistica è cresciuta: crescono con quello che fai, e in quest'ultimo tratto non hai fatto abbastanza di niente."})
-		else:
-			var pezzi: Array[String] = []
-			for voce in cresciute:
-				pezzi.append("%s %d → %d (+%d)" % [String(voce.get("nome", "")),
-						int(voce.get("prima", 0)), int(voce.get("dopo", 0)),
-						int(voce.get("dopo", 0)) - int(voce.get("prima", 0))])
-			righe.append({"tipo": "notifica", "testo": "\n".join(pezzi)})
-		var punti := int(salita.get("punti_abilita", 0))
-		if punti > 0:
-			righe.append({"tipo": "notifica",
-					"testo": "Hai %d %s da spendere sulle abilità." % [punti,
-					"punto" if punti == 1 else "punti"]})
-	GameState.salite_di_livello.clear()
 	return righe
 
 func notifiche_passive() -> Array[Dictionary]:

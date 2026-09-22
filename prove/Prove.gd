@@ -2363,10 +2363,11 @@ func prova_salita_di_livello_si_racconta() -> void:
 	# appena si torna agli eventi), quindi si apre PRIMA e si sale di livello
 	# DOPO - come succede giocando, dove si sale in combattimento e si legge
 	# tornando alla stanza
-	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
-	add_child(schermata)
+	# IL RACCONTO NON STA PIU' DENTRO Main.gd: sta in Resoconto.gd, che e' il
+	# suo mestiere. Main e' il direttore della storia, non il posto dove si
+	# decide come si formatta una riga di statistica.
 	GameState.salite_di_livello.append(salita)
-	var righe: Array = schermata.notifiche_salite_di_livello()
+	var righe: Array = Resoconto.salite_di_livello()
 	esigi(righe.size() >= 2,
 			"la salita di livello produce %d messaggi: non basta a spiegare cos'e' successo" % righe.size())
 	var tutto := ""
@@ -2374,11 +2375,25 @@ func prova_salita_di_livello_si_racconta() -> void:
 		tutto += String(riga.get("testo", "")) + "\n"
 	esigi(tutto.contains("Livello 2"), "il messaggio non dice a che livello sei arrivato")
 	esigi(tutto.contains("→"), "il messaggio non mostra il prima e il dopo delle statistiche")
+
+	# E DICE IL PERCHE', che e' la meta' che mancava. In Carnivalz le stat non
+	# salgono col livello: salgono con quello che hai fatto, e questo e' l'unico
+	# momento in cui il giocatore lo scopre. Il dato c'era gia' - la crescita
+	# sapeva per quale azione stava dando quei punti - e veniva buttato via un
+	# istante dopo averlo calcolato.
+	esigi(tutto.contains("per "),
+			"il messaggio dice quanto sei cresciuto ma non per cosa:\n%s" % tutto)
+	var un_racconto := String(GameState.crescita.get("crescita", {})
+			.get("attacchi_sferrati", {}).get("racconto", ""))
+	esigi(un_racconto != "", "le azioni della crescita non hanno un racconto nei dati")
+	esigi(tutto.contains(un_racconto),
+			"il messaggio non nomina l'azione che ha fatto crescere l'attacco ('%s'):\n%s"
+			% [un_racconto, tutto])
+
 	esigi(GameState.salite_di_livello.is_empty(),
 			"dopo averla mostrata la salita e' ancora in coda: si ripeterebbe a ogni stanza")
-	esigi(schermata.notifiche_salite_di_livello().is_empty(),
+	esigi(Resoconto.salite_di_livello().is_empty(),
 			"la salita si racconta due volte")
-	schermata.free()
 
 	# e la Manifestazione lascia la pietra per rivivere, come ha chiesto Bru:
 	# e' un incontro unico, quindi il premio non puo' dipendere da un tiro di
@@ -8140,11 +8155,19 @@ const FILE_GRANDI := {
 		"Intenzione.gd, esegui_turno - un passa-carte che non chiamava piu' " +
 		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante), e 9 per far parare la raffica anche da tastiera - era l'unico pezzo del combattimento che pretendeva un mouse. E 24 per «Salta la lezione», offerta solo a chi l'allenamento l'ha gia' fatto in una partita precedente. Alzare la misura e' " +
 		"una decisione, non una svista: si scrive qui cosa si e' comprato"},
-	"GameState.gd": {"misura": 2530, "perche":
+	"GameState.gd": {"misura": 2537, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
 		"combattimento qui i pezzi sono davvero separabili: i file di dati " +
-		"non c'entrano niente con gli slot di salvataggio"},
+		"non c'entrano niente con gli slot di salvataggio. " +
+		"ALLARGATA DA 2530 A 2537: applica_crescita_livello() sapeva gia' per " +
+		"quale azione stava dando quei punti, e lo buttava via un istante " +
+		"dopo averlo calcolato - per questo la salita di livello diceva " +
+		"'forza 12 -> 14' senza il perche', che in un gioco dove le stat " +
+		"salgono con quello che FAI e' meta' di quello che conta. Sette " +
+		"righe per far sopravvivere il dato fino a chi lo racconta. Il " +
+		"racconto invece non e' entrato qui: sta in Resoconto.gd, e in " +
+		"cambio ha tolto quarantanove righe di presentazione da Main.gd"},
 	"Main.gd": {"misura": 1476, "perche":
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +

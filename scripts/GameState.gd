@@ -852,7 +852,7 @@ func racconta_la_salita() -> void:
 	var prima := {}
 	for nome_stat in crescita.get("stat", {}):
 		prima[nome_stat] = stat_di(String(nome_stat))
-	applica_crescita_livello()
+	var motivi := applica_crescita_livello()
 	var cresciute: Array[Dictionary] = []
 	for nome_stat in prima:
 		var dopo := stat_di(String(nome_stat))
@@ -866,6 +866,7 @@ func racconta_la_salita() -> void:
 	salite_di_livello.append({
 		"livello": livello_di(id_protagonista),
 		"stat": cresciute,
+		"motivi": motivi,   # il perche' di ognuna: lo filtra chi lo racconta
 		"punti_abilita": punti_abilita_liberi(),
 	})
 	verifica_passive(livello_di(id_protagonista))
@@ -1971,7 +1972,9 @@ func stat_di(nome_stat: String) -> int:
 func resistenza_stato_di(id_stato: String) -> int:
 	return int(resistenze_stato.get(id_stato, 0))
 
-func applica_crescita_livello() -> void:
+func applica_crescita_livello() -> Array[Dictionary]:
+	# RESTITUISCE ANCHE IL PERCHE', che prima buttava via: vedi Resoconto.gd
+	var motivi: Array[Dictionary] = []
 	for nome_azione in crescita.get("crescita", {}):
 		var regola: Dictionary = crescita["crescita"][nome_azione]
 		var ogni := maxi(int(regola.get("ogni", 1)), 1)
@@ -1980,6 +1983,9 @@ func applica_crescita_livello() -> void:
 		if guadagno > 0:
 			var nome_stat := String(regola.get("stat", ""))
 			punti_stat[nome_stat] = int(punti_stat.get(nome_stat, 0)) + guadagno
+			# "quante" sono quelle DAVVERO convertite, non il resto che avanza
+			motivi.append({"stat": nome_stat, "punti": guadagno, "racconto":
+					String(regola.get("racconto", "")), "quante": fatte - (fatte % ogni)})
 			contatori[nome_azione] = fatte % ogni  # il resto vale per il prossimo livello
 	var soglia := maxi(int(crescita.get("resistenze", {}).get("soglia_punto", 3)), 1)
 	var tetto := int(crescita.get("resistenze", {}).get("massimo", 100))
@@ -1989,6 +1995,7 @@ func applica_crescita_livello() -> void:
 		if punti > 0:
 			resistenze_stato[id_stato] = mini(resistenza_stato_di(id_stato) + punti, tetto)
 			volte_stato_subito[id_stato] = volte % soglia
+	return motivi
 
 func ha_passiva(id_passiva: String) -> bool:
 	return id_passiva in passive_sbloccate
