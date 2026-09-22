@@ -15,6 +15,14 @@
 
 ---
 
+## L'altra metà: come si disegna
+
+Questo documento parla di come si progetta lo **spazio**. Di come si disegna il
+**diagramma leggibile** di quello spazio — le variabili visive, figura-sfondo,
+il contrasto misurato, dove va il nome di una stanza — parla `docs/segni.md`,
+che è nato dopo, quando si è scoperto che la mappa a quadretti disegnava le
+stanze visitate come niente e nessuno se n'era accorto.
+
 ## Perché proprio la mappa
 
 Perché è la cosa che decide tutto il resto e non se ne accorge nessuno. Il combattimento lo giudichi

@@ -40,7 +40,35 @@ I PDF non hanno una prima riga dove mettere il link, quindi stanno qui.
 | `complessita-cognitiva-sonar.pdf` | G. Ann Campbell — *Cognitive Complexity: a new way of measuring understandability*, SonarSource | https://www.sonarsource.com/resources/cognitive-complexity/ |
 | `celeste-player.cs` + `celeste-player-readme.md` | Noel Berry e Maddy Thorson — il codice del movimento di Celeste, pubblicato dagli autori | https://github.com/NoelFB/Celeste/tree/master/Source/Player |
 | `parnas-decomposizione-moduli.pdf` | D.L. Parnas — *On the Criteria To Be Used in Decomposing Systems into Modules*, CACM 15(12), 1972 | https://dl.acm.org/doi/10.1145/361598.361623 |
+| `variabili-visive-bertin.md` | Axis Maps, *Cartography Guide* — le sette variabili visive di Bertin e le loro quattro proprietà | https://www.axismaps.com/guide/visual-variables |
+| `principi-cartografia-esri.md` | Aileen Buckley (Esri) — *Primary Design Principles for Cartography*, da *Map Use*, nona edizione | https://www.esri.com/arcgis-blog/products/arcgis-pro/mapping/primary-design-principles-for-cartography |
+| `godot-control-classe.md` | *Control*, riferimento di classe di Godot | https://docs.godotengine.org/en/stable/classes/class_control.html |
+| `godot-zoom-e-trascinamento.md` | thygrrr — *Godot Zoom and Pan, smooth & cursor-centric Camera2D motion* (Unlicense/CC0), coi commenti | https://gist.github.com/thygrrr/8288cabeb5cd25031ce6132c4a886311 |
 | `godot-inputevent-classe.pdf` | *InputEvent*, riferimento di classe di Godot | https://docs.godotengine.org/en/stable/classes/class_inputevent.html |
+
+## I PDF adesso si leggono da soli
+
+`strumenti/sfoglia.py` tira fuori il testo da un PDF con la sola zlib — niente
+librerie, niente rete, che da qui non esce comunque.
+
+```
+python3 strumenti/sfoglia.py docs/fonti/qualcosa.pdf > docs/fonti/qualcosa.md
+```
+
+Non è banale come sembra, e le due trappole valgono scritte perché tutte e due
+producono **testo leggibile e sbagliato**, che è il modo più facile di citare
+male una fonte:
+
+- un PDF stampato dal browser incorpora font **sottoinsieme**, e ogni font ha
+  la sua tabella `ToUnicode`. Fondendole tutte in una sola esce «The defaut
+  curs+r shape f+r this c+ntr+»: la «o» diventa «+» e la «l» sparisce, senza
+  nessun errore da nessuna parte;
+- certe tabelle non traducono affatto alcuni glifi e li mandano nell'**area a
+  uso privato**, che non è un carattere, è un buco. La «l» della documentazione
+  di Godot finiva in `U+E050`, duemila volte.
+
+Quando restano glifi che non sa tradurre, lo strumento li segna con `�`
+e lo dice su stderr, invece di consegnare un testo che sembra a posto.
 
 ## Perché non le committiamo e basta
 
@@ -63,41 +91,42 @@ variabili visive, figura-sfondo, contrasto, daltonismo. Ed è esattamente dove
 stava il difetto: le stanze visitate non si vedevano, e nessuno se n'era
 accorto perché nessuno aveva mai guardato la mappa *come diagramma*.
 
-Le tre cose in cima **non sono documenti, sono immagini**: con l'ECG il salto
-l'ha fatto la foto, non i paper.
+**Arrivate il 22 settembre** (Bru: «ti passo quelle che ho reputato valide»),
+lette per intero e studiate in `docs/segni.md`:
+
+- ✅ **Bertin / variabili visive** → `variabili-visive-bertin.md`
+- ✅ **I cinque principi della cartografia** → `principi-cartografia-esri.md`
+- ✅ **Godot `Control`** → `godot-control-classe.md`
+- ✅ **Zoom e trascinamento** → `godot-zoom-e-trascinamento.md`
+- ⛔ **Game UI Database, Hollow Knight** — è fatto di **sole immagini**, e in
+  fondo a ogni pagina c'è scritto che il contenuto del sito non può essere
+  usato per addestrare o alimentare sistemi di apprendimento automatico. Non
+  l'ho letto e non lo leggerò. Per quegli esempi servono **tue schermate** di
+  un gioco che hai, o una fonte senza quella clausola.
+
+**Quello che resta da procurare**, in ordine:
 
 | # | cosa | perché a noi | link |
 |---|---|---|---|
-| **1** | **Schermate-mappa vere, come immagini.** Hollow Knight, Metroid, Etrian, Dead Cells — quelle che ti piacciono | Devo vedere come segnano *stato* (visitato / intravisto / ignoto), dove mettono i nomi, come si legge il "sei qui". Descritto non basta | https://www.gameuidatabase.com/gameData.php?id=113 |
+| **1** | **Schermate-mappa, come immagini** — ma non da Game UI Database (vedi sopra) | Devo vedere come segnano *stato* (visitato / intravisto / ignoto), dove mettono i nomi, come si legge il «sei qui» | — |
 | **2** | **La tua pianta del complesso**, anche a matita fotografata | Le coordinate me le prendo da quella. Non serve finita: il PNG buono lo infili dopo senza toccare niente | — |
-| **3** | **Bertin, *Sémiologie graphique* (1967)** — o la sintesi di Axis Maps, che è bloccata | Le sette variabili visive e quale porta quale tipo di informazione. Noi codifichiamo tre stati con tinta + chiaroscuro: è la scelta giusta o no? Va deciso su una regola, non a occhio | https://www.axismaps.com/guide/visual-variables — https://karlsluis.medium.com/before-tufte-there-was-bertin-63af71ceaa62 |
-| **4** | **Figura-sfondo e gerarchia visiva in cartografia** | I cinque principi (leggibilità, contrasto, figura-sfondo, gerarchia, proporzione) con le regole pratiche e le misure minime dei simboli | https://www.esri.com/arcgis-blog/products/arcgis-pro/mapping/primary-design-principles-for-cartography — https://en.wikipedia.org/wiki/Figure-ground_(cartography) |
-| **5** | **Krygier & Wood, *Making Maps*** (libero, testo intero) | È il manuale: processo cartografico, generalizzazione, cosa si toglie quando la scala scende | https://colorado.pressbooks.pub/makingmaps/chapter/cartographic-design-process/ |
-| **6** | **Dove si mette il nome di una stanza** — posizionamento delle etichette | Oggi i nomi si vedono solo passandoci sopra col mouse. Su una pianta è un problema studiato, non una questione di gusto | https://en.wikipedia.org/wiki/Typography_(cartography) — https://arxiv.org/pdf/2507.22952 |
-| **7** | **Game Accessibility Guidelines** — «nessuna informazione essenziale affidata al solo colore» | La nostra mappa **è rossa su nero** e distingue raggiungibile da lontano col chiaro-scuro dello stesso rosso. Il chiaroscuro regge al daltonismo, la tinta no: va verificato, non sperato | https://gameaccessibilityguidelines.com/ensure-no-essential-information-is-conveyed-by-a-fixed-colour-alone/ |
-| **8** | **WCAG 1.4.11, contrasto del non-testo** | La regola è 3:1 fra un elemento d'interfaccia e quello che ha accanto. I nostri quadratini spenti su nero non so se ci arrivano | https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html |
-| **9** | **Godot: `Control`, `Button`, `StyleBox`** — le pagine di classe | La trappola di ieri (`flat` che butta via lo StyleBox) è **documentata come bug del motore**: issue #45823. Mi serve il testo vero di quelle pagine, non il riassunto | https://docs.godotengine.org/en/stable/classes/class_control.html — https://docs.godotengine.org/en/stable/classes/class_button.html — https://github.com/godotengine/godot/issues/45823 |
-| **10** | **Zoom e trascinamento su una tela in Godot** | È uno dei buchi dichiarati in `docs/mappe.md`. Tutto quello che si trova parla di `Camera2D`; noi siamo su `Control`, che si trasforma in un altro modo | https://gist.github.com/thygrrr/8288cabeb5cd25031ce6132c4a886311 — https://www.gdquest.com/tutorial/godot/2d/camera-zoom/ |
+| **3** | **Krygier & Wood, *Making Maps*** (libero, testo intero) | Generalizzazione: cosa si toglie quando la scala scende. È la domanda che si pone **appena** mettiamo lo zoom | https://colorado.pressbooks.pub/makingmaps/chapter/cartographic-design-process/ |
+| **4** | **Dove si mette il nome di una stanza** — posizionamento delle etichette | Appena i nomi si disegnano davvero, diventa il problema numero uno: non coprire un corridoio, non accavallarsi col nome accanto | https://en.wikipedia.org/wiki/Typography_(cartography) — https://arxiv.org/pdf/2507.22952 |
+| **5** | **WCAG 1.4.11, testo del criterio** | La soglia 3:1 ce l'ho e i rapporti li ho **calcolati** (`docs/segni.md`). Manca il testo per le eccezioni: cosa conta come «decorativo» | https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html |
+| **6** | **Game Accessibility Guidelines**, la pagina sul colore | La regola la conosco; serve la formulazione esatta e gli esempi | https://gameaccessibilityguidelines.com/ensure-no-essential-information-is-conveyed-by-a-fixed-colour-alone/ |
 
-**Quello che ho già capito dalle sintesi, e che va confermato sul testo vero**
-(lo segno perché di seconda mano mi sono già sbagliata):
+**Le previsioni che avevo fatto sulle sintesi, verificate sul testo vero:**
 
-- Bertin: *posizione* e *dimensione* sarebbero le uniche due variabili che
-  comunicano bene una quantità; per l'**ordine** il chiaroscuro batterebbe la
-  tinta; tinta, forma e orientamento servirebbero a raggruppare, non a ordinare.
-  Se è vero, i nostri tre stati sono codificati bene (pieno/vuoto = forma,
-  chiaro/scuro = ordine) e male allo stesso tempo (rosso/verde per segreta =
-  sola tinta).
-- Hollow Knight: le zone inesplorate sarebbero **a contorno**, le esplorate
-  piene, e le ignote assenti del tutto — cioè i nostri stessi tre stati. Ma la
-  mappa lì è *diegetica*: la compri da Cornifer e si aggiorna solo sulle panchine.
-- Etrian Odyssey: il passo del giocatore colora la casella, e le icone (porte,
-  passaggi nascosti, casse) le mette il giocatore a mano, con un limite per piano.
-- WCAG 1.4.11: 3:1, e vale **anche per gli stati** di un elemento, non solo per
-  l'elemento a riposo.
-- Godot `mouse_filter`: `STOP` consuma, `PASS` consuma *e* passa al genitore,
-  `IGNORE` scarta. Per far funzionare un bottone, tutto ciò che gli sta sopra
-  nell'albero dovrebbe essere su `IGNORE`.
+- ✅ «posizione e dimensione sono le uniche che comunicano una quantità» — **giusto**
+- ✅ «per l'ordine il chiaroscuro batte la tinta» — **giusto**: valore è ordinato, tinta no
+- ❌ «tinta, forma e orientamento servono a raggruppare, non a ordinare» —
+  **impreciso**: avevo confuso due proprietà diverse. La tinta è *sia* selettiva
+  *sia* associativa; la **forma** è associativa ma secondo Bertin non è **mai**
+  selettiva. È una distinzione che cambia cosa possiamo chiedere alle icone.
+- ❌ «PASS consuma l'evento e lo passa anche al genitore» — **sbagliato**: il
+  manuale dice che passa **solo se il controllo non l'ha gestito**.
+
+Due su quattro. È il motivo per cui le sintesi non bastano.
 
 **Una nota sul proxy**, perché è cambiato: ieri GitHub passava (è così che ho
 letto il sorgente di Celeste). Oggi **WebFetch è bloccato su tutto** — ho
