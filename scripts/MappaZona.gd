@@ -11,8 +11,9 @@ extends Control
 #
 # I TRE STATI DI UN QUADRATINO, e sono l'unica cosa che conta qui dentro:
 #
-#   pieno       ci sei stato. Rosso se e' percorso normale, verde se e' una
-#               zona segreta (campo "tipo": "segreta")
+#   pieno       ci sei stato. Rosso se e' percorso normale; se e' una zona
+#               segreta (campo "tipo": "segreta") verde chiaro E tratteggiato,
+#               perche' il verde da solo non basta - vedi tinta_stanza()
 #   punto di    lo sai raggiungibile ma non ci sei mai andato: e' il "?" che
 #   domanda     invita ad andarci. Cliccabile: ci si va
 #   spento      sai solo che li' c'e' qualcosa, perche' confina con un posto in
@@ -33,6 +34,17 @@ const DURATA_BATTITO := 1.1   # secondi di un salto completo del punto esclamati
 const LATO_MINIMO := 30.0     # sotto questa misura un quadratino non si legge
 const LATO_MASSIMO := 104.0   # sopra, una zona piccola diventa ridicola
 const MARGINE_CELLA := 5.0    # aria fra il quadrato e il bordo della sua cella
+
+# QUANTO SI SPEGNE UN POSTO DOVE NON SI ARRIVA. Era 0,45, e portava il rosso a
+# 2,03:1 sul nero: sotto la soglia, cioe' un quadrato che c'e' ma non si vede.
+# A 0,20 sta a 3,32:1 e resta comunque piu' spento di quello vicino (1,44:1
+# fra i due). La differenza fra "ci arrivo" e "non ci arrivo" non la porta piu'
+# solo lo spegnimento: la porta anche il bordo, acceso di accento soltanto
+# dove si puo' andare. Due variabili invece di una.
+const SPENTO_LONTANO := 0.20
+# E quanto si schiarisce il verde delle segrete: vedi tinta_stanza()
+const SCHIARITA_SEGRETA := 0.40
+const SCHIARITA_TRATTEGGIO := 0.45
 
 var battito := 0.0              # dove sta il punto esclamativo nel suo salto
 var obiettivo_in_vista := false  # se non c'e', questo strato non si ridisegna mai
@@ -139,6 +151,81 @@ func dimensione_di(stanza: Dictionary) -> Vector2:
 
 func e_segreta(stanza: Dictionary) -> bool:
 	return String(stanza.get("tipo", "normale")) == "segreta"
+
+# --- la tavolozza della mappa -------------------------------------------
+#
+# STA TUTTA QUI, IN TRE FUNZIONI CHE NON TOCCANO NIENTE, per un motivo solo:
+# cosi' una prova puo' chiederle tutte e misurarle, senza aprire la schermata
+# e senza guardare un pixel. Ogni segno che porta un'informazione - un posto
+# dove sei stato, un "?" che invita, un corridoio - deve stare sopra 3:1
+# contro lo sfondo, e adesso c'e' scritto dove chiederlo.
+#
+# IL DIFETTO CHE E' COSTATO DI PIU' NON ERA IL BUIO, ERA IL ROSSO E IL VERDE.
+# Stanza normale rossa, stanza segreta verde: l'una dall'altra stanno a
+# 1,07:1. Due tinte diversissime alla stessa identica luminosita', cioe' lo
+# stesso quadrato per chi non distingue le due tinte - e sono circa otto
+# uomini su cento. La tinta da sola non ha mai potuto portare una distinzione
+# che conta; e' esattamente quello che Bertin classifica come variabile
+# associativa ma non ordinata, buona per dire "diverso", inutile per dire
+# "quale".
+#
+# Quindi due variabili anche li':
+#   1. il verde si schiarisce - 1,98:1 di stacco dal rosso, che in bianco e
+#      nero e' due grigi diversi e non uno solo
+#   2. e sopra ci va un tratteggio, che e' TESSITURA: si vede a colori, in
+#      bianco e nero, e con qualunque daltonismo
+#
+# Nessuna delle due da sola basterebbe. Insieme, la segreta si riconosce
+# anche in una fotografia sbiadita.
+
+func tinta_stanza(segreta: bool, raggiungibile: bool) -> Color:
+	var tinta: Color = Stile.colore("positivo").lightened(SCHIARITA_SEGRETA) \
+			if segreta else Stile.colore("pericolo")
+	return tinta if raggiungibile else tinta.darkened(SPENTO_LONTANO)
+
+func tinta_domanda(noto: bool, raggiungibile: bool) -> Color:
+	# il "?" e' il segno che INVITA ad andare da qualche parte: era la cosa
+	# piu' spenta della mappa (1,34:1 per un posto solo intravisto, 1,80:1 per
+	# uno noto ma lontano). Un invito che non si vede non e' un invito.
+	if not noto:
+		return Stile.colore("tratto").lightened(0.08)   # 3,62:1
+	return Stile.colore("accento") if raggiungibile \
+			else Stile.colore("accento").darkened(0.15)
+
+func tinta_corridoio(percorso: bool) -> Color:
+	# "tratto" pieno sta a 2,95:1: mancava per un pelo, e col velo di 0,95 che
+	# ci stava sopra scendeva a 2,75:1. Adesso quello percorso sta a 5,44:1 e
+	# quello soltanto noto a 3,79:1, e non si distinguono piu' per opacita' -
+	# che e' l'unica variabile che spegnendosi scompare - ma per SPESSORE
+	# (vedi larghezza_corridoio) oltre che per chiarezza.
+	return Stile.colore("tratto").lightened(0.25 if percorso else 0.10)
+
+func larghezza_corridoio(percorso: bool) -> float:
+	return maxf(lato * (0.09 if percorso else 0.055), 3.0 if percorso else 2.0)
+
+# --- i segni che stanno SOPRA una stanza --------------------------------
+#
+# Un segno sopra un quadrato non si misura contro lo sfondo della pagina: si
+# misura contro il quadrato. Come si fa perche' regga su tutti e quattro i
+# pieni sta in Fascia.gd, insieme al difetto da cui e' nato.
+
+func tinta_segno() -> Color:
+	return Stile.colore("testo")
+
+func tinta_fascia() -> Color:
+	return Stile.colore("sfondo")
+
+func linea_fasciata(da: Vector2, a: Vector2, spessore: float, tinta: Color) -> void:
+	Fascia.linea(strato_sopra, da, a, spessore, tinta, tinta_fascia())
+
+func cerchio_fasciato(centro: Vector2, raggio: float, tinta: Color) -> void:
+	Fascia.cerchio(strato_sopra, centro, raggio, tinta, tinta_fascia())
+
+func arco_fasciato(centro: Vector2, raggio: float, spessore: float, tinta: Color) -> void:
+	Fascia.arco(strato_sopra, centro, raggio, spessore, tinta, tinta_fascia())
+
+func poligono_fasciato(punti: PackedVector2Array, spessore: float, tinta: Color) -> void:
+	Fascia.poligono(strato_sopra, punti, spessore, tinta, tinta_fascia())
 
 # --- intelaiatura --------------------------------------------------------
 
@@ -324,9 +411,7 @@ func disegna_bottoni() -> void:
 func vesti_pieno(bottone: Button, segreta: bool, raggiungibile: bool) -> void:
 	# un posto dove sei stato ma da cui sei lontano resta rosso, ma spento: si
 	# vede che c'e' e si vede che non ci si salta
-	var tinta := Stile.colore("positivo") if segreta else Stile.colore("pericolo")
-	if not raggiungibile:
-		tinta = tinta.darkened(0.45)
+	var tinta := tinta_stanza(segreta, raggiungibile)
 	# SOPRA UN DISEGNO NON SI SPALMA. Su una griglia il quadrato pieno E' la
 	# stanza, e deve essere pieno; sopra la pianta disegnata da Bru la stessa
 	# tinta opaca coprirebbe proprio quello che si e' andati a disegnare. La
@@ -338,19 +423,26 @@ func vesti_pieno(bottone: Button, segreta: bool, raggiungibile: bool) -> void:
 		scatola.bg_color = Color(fondo, velo)
 		scatola.set_corner_radius_all(3)
 		scatola.set_border_width_all(2)
-		scatola.border_color = Stile.colore("accento") if raggiungibile else tinta.darkened(0.3)
+		# IL BORDO NON SI SPEGNE PIU' SOTTO IL FONDO. Era tinta.darkened(0.3)
+		# sopra una tinta gia' spenta: un filo a 1,4:1, cioe' niente. Dove non
+		# si arriva il bordo e' il fondo stesso - un blocco solo, spento - e
+		# dove si arriva e' accento, che e' un'altra tinta e si vede.
+		scatola.border_color = Stile.colore("accento") if raggiungibile else tinta
 		bottone.add_theme_stylebox_override(stato, scatola)
 
 func vesti_vuoto(bottone: Button, noto: bool, raggiungibile: bool) -> void:
-	var tinta := Stile.colore("accento") if noto else Stile.colore("tratto")
-	var forza := 0.95 if raggiungibile else (0.5 if noto else 0.4)
-	bottone.add_theme_color_override("font_color", Color(tinta, forza))
+	# IL SEGNO E' OPACO, IL FONDO NO. Il "?" e il bordo portano l'informazione
+	# e stanno sopra la soglia; il velo dentro al riquadro e' soltanto lo
+	# sfondo su cui si appoggiano, e quello puo' e deve restare quasi niente -
+	# e' figura contro fondo, e il fondo non deve competere.
+	var tinta := tinta_domanda(noto, raggiungibile)
+	bottone.add_theme_color_override("font_color", tinta)
 	for stato in ["normal", "hover", "pressed", "focus"]:
 		var scatola := StyleBoxFlat.new()
 		scatola.bg_color = Color(tinta, 0.10 if stato == "normal" else 0.20)
 		scatola.set_corner_radius_all(3)
 		scatola.set_border_width_all(2)
-		scatola.border_color = Color(tinta, 0.9 if raggiungibile else 0.35)
+		scatola.border_color = tinta
 		bottone.add_theme_stylebox_override(stato, scatola)
 
 func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
@@ -403,8 +495,7 @@ func _disegna_sotto() -> void:
 			continue   # nessuno dei due capi e' noto: la linea non esiste
 		var pieno := visitata(a) and visitata(b)
 		strato_sotto.draw_line(centro_di(a), centro_di(b),
-				Color(Stile.colore("tratto"), 0.95 if pieno else 0.5),
-				maxf(lato * 0.09, 3.0))
+				tinta_corridoio(pieno), larghezza_corridoio(pieno))
 
 # --- strato di sopra: icone e "sei qui" ---------------------------------
 
@@ -419,6 +510,8 @@ func _disegna_sopra() -> void:
 		# altre icone raccontano cosa hai trovato in un posto, quindi si vedono
 		# solo dove sei gia' stato. Questa racconta dove DEVI andare, e un
 		# segnale che compare solo dopo che ci sei arrivato non e' un segnale.
+		if visitata(id_stanza) and e_segreta(stanza):
+			tratteggia(rettangolo, si_puo_andare(id_stanza))
 		if icona == "obiettivo":
 			disegna_obiettivo(rettangolo)
 		elif visitata(id_stanza):
@@ -427,6 +520,45 @@ func _disegna_sopra() -> void:
 			disegna_proiettore(rettangolo)
 		if id_stanza == GameState.nodo_corrente:
 			disegna_sei_qui(rettangolo)
+
+func tratteggia(rettangolo: Rect2, raggiungibile: bool) -> void:
+	# LE RIGHE OBLIQUE SULLE STANZE SEGRETE. Tessitura, nella lista di Bertin:
+	# e' una delle poche variabili che si vede a colpo d'occhio su tutta la
+	# mappa insieme - guardi e sai subito quante segrete hai trovato - e
+	# soprattutto non dipende da quale tinta sia, quindi regge dove la tinta
+	# non regge.
+	#
+	# Il passo e' proporzionale al quadratino perche' alla misura minima (30
+	# pixel) tre righe sono una tessitura e otto sono una macchia.
+	var tinta := tinta_stanza(true, raggiungibile).lightened(SCHIARITA_TRATTEGGIO)
+	var corto := minf(rettangolo.size.x, rettangolo.size.y)
+	var passo := maxf(corto * 0.26, 6.0)
+	var spessore := maxf(passo * 0.22, 1.5)
+	var k := rettangolo.position.x + rettangolo.position.y + passo * 0.5
+	var fine := rettangolo.end.x + rettangolo.end.y
+	while k < fine:
+		var estremi := taglio_obliquo(rettangolo, k)
+		if estremi.size() == 2:
+			strato_sopra.draw_line(estremi[0], estremi[1], tinta, spessore)
+		k += passo
+
+static func taglio_obliquo(r: Rect2, k: float) -> PackedVector2Array:
+	# la retta x + y = k tagliata sui quattro lati: i punti buoni sono al
+	# massimo due, e stanno agli estremi in x perche' la retta scende sempre
+	var dentro: Array[Vector2] = []
+	var allargato := r.grow(0.01)
+	for p in [Vector2(r.position.x, k - r.position.x), Vector2(r.end.x, k - r.end.x),
+			Vector2(k - r.position.y, r.position.y), Vector2(k - r.end.y, r.end.y)]:
+		if allargato.has_point(p):
+			dentro.append(p)
+	if dentro.size() < 2:
+		return PackedVector2Array()
+	dentro.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
+	var primo: Vector2 = dentro[0]
+	var ultimo: Vector2 = dentro[dentro.size() - 1]
+	if primo.distance_to(ultimo) < 1.0:
+		return PackedVector2Array()   # ha toccato solo un angolo
+	return PackedVector2Array([primo, ultimo])
 
 func disegna_obiettivo(rettangolo: Rect2) -> void:
 	# DOVE DEVI ANDARE, e si muove. Bru: «puoi andare solo nella sala
@@ -450,12 +582,20 @@ func disegna_obiettivo(rettangolo: Rect2) -> void:
 		return
 	# il punto esclamativo disegnato a mano finche' non arriva quello vero:
 	# un'asta e un punto, che e' tutto quello che serve perche' si legga
-	var tinta := Stile.colore("accento")
+	# BIANCO E NON ACCENTO, e ci e' voluto un sabotaggio per capirlo. Il punto
+	# esclamativo e' il richiamo, quindi la tentazione era dargli la tinta dei
+	# richiami; ma l'obiettivo puo' stare benissimo su una stanza gia'
+	# visitata - la sala di allenamento in cui torni - e li' accento e rosso
+	# pieno sono la stessa cosa. Restava in piedi solo grazie alla fascia
+	# scura, cioe' si leggeva come un contorno vuoto invece che come un segno.
+	# Del resto questo e' l'unico segno della mappa CHE SI MUOVE, e il
+	# movimento lo trova l'occhio da solo: non gli serviva anche il rosso.
+	var tinta := tinta_segno()
 	var alto := raggio * 0.62 * respiro
 	var spessore := maxf(raggio * 0.17, 3.0)
-	strato_sopra.draw_line(centro + Vector2(0.0, -alto), centro + Vector2(0.0, alto * 0.25),
-			tinta, spessore)
-	strato_sopra.draw_circle(centro + Vector2(0.0, alto * 0.72), spessore * 0.58, tinta)
+	linea_fasciata(centro + Vector2(0.0, -alto), centro + Vector2(0.0, alto * 0.25),
+			spessore, tinta)
+	cerchio_fasciato(centro + Vector2(0.0, alto * 0.72), spessore * 0.58, tinta)
 
 func icona_di(stanza: Dictionary) -> String:
 	# L'ICONA DI UNA STANZA PUO' AVERE UN ORARIO.
@@ -507,19 +647,19 @@ func disegna_icona(icona: String, rettangolo: Rect2) -> void:
 		return
 	var centro := rettangolo.get_center()
 	var raggio := minf(rettangolo.size.x, rettangolo.size.y) * 0.5
-	var tinta := Stile.colore("testo")
+	var tinta := tinta_segno()
 	match icona:
 		"boss":
-			strato_sopra.draw_arc(centro, raggio * 0.58, 0.0, TAU, 24, tinta, maxf(raggio * 0.14, 2.0))
+			arco_fasciato(centro, raggio * 0.58, maxf(raggio * 0.14, 2.0), tinta)
 		"forte":
-			strato_sopra.draw_circle(centro, raggio * 0.26, tinta)
+			cerchio_fasciato(centro, raggio * 0.26, tinta)
 		"uscita":
 			var d := raggio * 0.44
 			var spessore := maxf(raggio * 0.16, 2.0)
-			strato_sopra.draw_line(centro - Vector2(d, d), centro + Vector2(d, d), tinta, spessore)
-			strato_sopra.draw_line(centro + Vector2(d, -d), centro - Vector2(d, -d), tinta, spessore)
+			linea_fasciata(centro - Vector2(d, d), centro + Vector2(d, d), spessore, tinta)
+			linea_fasciata(centro + Vector2(d, -d), centro - Vector2(d, -d), spessore, tinta)
 		_:
-			strato_sopra.draw_arc(centro, raggio * 0.4, 0.0, TAU, 16, tinta, 2.0)
+			arco_fasciato(centro, raggio * 0.4, 2.0, tinta)
 
 func disegna_proiettore(rettangolo: Rect2) -> void:
 	# il proiettore piantato: un anello nell'angolo, per non coprire l'icona
@@ -531,9 +671,9 @@ func disegna_proiettore(rettangolo: Rect2) -> void:
 		strato_sopra.draw_texture_rect(disegno, Rect2(angolo, Vector2.ONE * misura), false)
 		return
 	var centro := angolo + Vector2.ONE * misura * 0.5
-	var tinta := Stile.colore("accento")
-	strato_sopra.draw_arc(centro, misura * 0.45, 0.0, TAU, 20, tinta, maxf(misura * 0.16, 2.0))
-	strato_sopra.draw_circle(centro, misura * 0.13, tinta)
+	var tinta := tinta_segno()
+	arco_fasciato(centro, misura * 0.45, maxf(misura * 0.16, 2.0), tinta)
+	cerchio_fasciato(centro, misura * 0.13, tinta)
 
 func disegna_sei_qui(rettangolo: Rect2) -> void:
 	# la freccia: dove sei adesso. Sta sopra il quadrato, non dentro, cosi' non
@@ -543,8 +683,7 @@ func disegna_sei_qui(rettangolo: Rect2) -> void:
 	var punta := centro + Vector2(0, misura * 0.16)
 	var larghezza := misura * 0.20
 	var altezza := misura * 0.24
-	var tinta := Stile.colore("accento")
-	strato_sopra.draw_colored_polygon(PackedVector2Array([
+	poligono_fasciato(PackedVector2Array([
 		punta,
 		punta + Vector2(-larghezza, -altezza),
 		punta + Vector2(-larghezza * 0.45, -altezza),
@@ -552,4 +691,4 @@ func disegna_sei_qui(rettangolo: Rect2) -> void:
 		punta + Vector2(larghezza * 0.45, -altezza - misura * 0.22),
 		punta + Vector2(larghezza * 0.45, -altezza),
 		punta + Vector2(larghezza, -altezza),
-	]), tinta)
+	]), maxf(misura * 0.05, 2.0), tinta_segno())

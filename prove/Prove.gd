@@ -114,6 +114,7 @@ func _ready() -> void:
 	prova_leva_bersaglio()
 	prova_mappa_a_quadratini()
 	prova_i_quadratini_della_mappa_si_vedono_davvero()
+	prova_ogni_segno_della_mappa_si_vede()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
 	await prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare()
 	await prova_la_forma_del_testo()
@@ -6412,6 +6413,168 @@ func prova_i_quadratini_della_mappa_si_vedono_davvero() -> void:
 	esigi(pieni >= 2,
 			"solo %d quadratini pieni su %d: le stanze visitate non si distinguono"
 			% [pieni, visti])
+	mappa.queue_free()
+
+func prova_ogni_segno_della_mappa_si_vede() -> void:
+	# UNA MAPPA SI GUARDA, E I SEGNI SPENTI NON SI GUARDANO.
+	#
+	# Misurata prima di toccarla, la mappa aveva cinque segni sotto la soglia
+	# delle WCAG 1.4.11 (3:1 per un comando o uno stato di un comando):
+	#
+	#   stanza visitata ma lontana     2,03:1
+	#   corridoio percorso             2,75:1
+	#   "?" di un posto noto e lontano 1,80:1
+	#   "?" di un posto intravisto     1,34:1
+	#   bordo di un posto intravisto   1,27:1
+	#
+	# Un "?" a 1,34:1 su nero e' un segno che invita ad andare da qualche parte
+	# e che, letteralmente, non si vede. E niente lo segnalava: a schermo
+	# c'era, il codice girava, le prove passavano.
+	#
+	# QUESTA NON GUARDA UN CASO, LI GUARDA TUTTI. Le tinte della mappa stanno
+	# in tre funzioni pure - tinta_stanza, tinta_domanda, tinta_corridoio - e
+	# qui si enumerano tutte le combinazioni dei loro argomenti. Uno stato
+	# nuovo aggiunto domani ci finisce dentro senza che nessuno scriva una
+	# riga, che e' l'unico modo perche' una regola cosi' regga nel tempo.
+	titolo("sulla mappa ogni segno che dice qualcosa si vede davvero")
+	GameState.nuova_partita()
+	GameState.entra_squarcio("prova_contrasto", "res://data/vuoti/meridia.json")
+	var mappa: Control = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	var sfondo: Color = Stile.colore("sfondo")
+	var segni: Array = []
+	for raggiungibile in [true, false]:
+		for segreta in [true, false]:
+			segni.append(["la stanza %s %s" % ["segreta" if segreta else "normale",
+					"dove si arriva" if raggiungibile else "lontana"],
+					mappa.tinta_stanza(segreta, raggiungibile)])
+		for noto in [true, false]:
+			segni.append(["il '?' di un posto %s %s" % ["noto" if noto else "intravisto",
+					"dove si arriva" if raggiungibile else "lontano"],
+					mappa.tinta_domanda(noto, raggiungibile)])
+	for percorso in [true, false]:
+		segni.append(["il corridoio %s" % ["percorso" if percorso else "solo noto"],
+				mappa.tinta_corridoio(percorso)])
+	for segno in segni:
+		# SI MISURA IL COLORE COMPOSTO, non quello scritto: era proprio l'alfa
+		# a spegnere i "?" (accento a 0,4 di opacita' sul nero fa 1,80:1, ma
+		# l'accento da solo ne farebbe 4,58) e una prova che guarda il colore
+		# nudo passerebbe su una schermata illeggibile
+		var quanto: float = Stile.contrasto_su_sfondo(segno[1])
+		esigi(quanto >= Stile.CONTRASTO_MINIMO,
+				"%s sta a %.2f:1 sullo sfondo: sotto %.1f:1 non si vede"
+				% [segno[0], quanto, Stile.CONTRASTO_MINIMO])
+
+	# --- IL ROSSO E IL VERDE NON POSSONO ESSERE LO STESSO GRIGIO ---
+	#
+	# Il difetto piu' grave non era il buio: era che stanza normale e stanza
+	# segreta si distinguevano SOLO per tinta, a 1,07:1 di luminosita' l'una
+	# dall'altra. Per chi non distingue il rosso dal verde - circa otto uomini
+	# su cento - erano lo stesso identico quadrato.
+	for raggiungibile in [true, false]:
+		var normale: Color = mappa.tinta_stanza(false, raggiungibile)
+		var segreta: Color = mappa.tinta_stanza(true, raggiungibile)
+		var fra_loro: float = Stile.contrasto(normale, segreta)
+		esigi(fra_loro >= 1.6,
+				("stanza normale e segreta (%s) stanno a %.2f:1 fra loro: e' la stessa " +
+				"luminosita', e chi non distingue le tinte vede due quadrati uguali")
+				% ["vicine" if raggiungibile else "lontane", fra_loro])
+
+	# ...e nemmeno la chiarezza da sola basta: sopra la segreta ci va il
+	# tratteggio, che e' l'unica variabile che sopravvive a qualunque tinta
+	var righe: PackedVector2Array = mappa.taglio_obliquo(Rect2(0, 0, 40, 40), 40.0)
+	esigi(righe.size() == 2,
+			"il tratteggio non taglia il quadrato: la stanza segreta resta liscia")
+	esigi(mappa.taglio_obliquo(Rect2(0, 0, 40, 40), 500.0).is_empty(),
+			"il tratteggio disegna righe fuori dalla stanza")
+
+	# e un posto lontano resta comunque PIU' SPENTO di uno dove si arriva: la
+	# soglia si rispetta senza appiattire quello che la mappa deve raccontare
+	var vicina: Color = mappa.tinta_stanza(false, true)
+	var lontana: Color = mappa.tinta_stanza(false, false)
+	esigi(Stile.luminanza(vicina) > Stile.luminanza(lontana),
+			"una stanza lontana non e' piu' spenta di una vicina: la distanza non si legge")
+
+	# --- UN SEGNO SOPRA UNA STANZA SI MISURA CONTRO LA STANZA ---
+	#
+	# Questo non l'aveva preso nessun numero, l'ha preso uno scatto: la
+	# freccia "sei qui" era accento (#e8123c) sopra il pieno rosso di una
+	# stanza (#ed1c24), cioe' 1,05:1. Il segno che dice al giocatore dove si
+	# trova - l'unica cosa che su una mappa non si puo' sbagliare - non si
+	# vedeva, e tutte le misure di prima guardavano il nero della pagina e
+	# dicevano che andava benissimo.
+	#
+	# LA PRIMA VERSIONE DI QUESTA PROVA ERA TROPPO BUONA, e l'ha detto un
+	# sabotaggio: rimettendo la freccia in accento la prova passava lo stesso,
+	# perche' chiedeva solo che il corpo O la fascia arrivassero a 3:1 - e la
+	# fascia nera sul rosso ci arriva. Lo scatto pero' mostrava un segno che
+	# si leggeva come un contorno vuoto, non come un simbolo: corpo e fascia
+	# erano tutti e due PIU' SCURI del fondo, e quello che si vedeva era solo
+	# il filo scuro.
+	#
+	# La regola giusta e' che il fondo dev'essere preso IN MEZZO: uno dei due
+	# piu' chiaro, l'altro piu' scuro. Cosi' una meta' del segno stacca
+	# sempre, qualunque sia il pieno sotto. Bianco e nero ce l'hanno per
+	# costruzione, ed e' per questo che i segni della mappa sono bianchi anche
+	# quando la tentazione era di farli rossi.
+	var fascia: Color = mappa.tinta_fascia()
+	var corpo: Color = mappa.tinta_segno()
+	var stacco: float = Stile.contrasto(corpo, fascia)
+	esigi(stacco >= Stile.CONTRASTO_MINIMO,
+			"corpo e fascia di un segno stanno a %.2f:1: diventa una macchia sola" % stacco)
+	for raggiungibile in [true, false]:
+		for segreta in [true, false]:
+			var pieno: Color = mappa.tinta_stanza(segreta, raggiungibile)
+			var dove := "sopra la stanza %s %s" % ["segreta" if segreta else "normale",
+					"vicina" if raggiungibile else "lontana"]
+			var quanto: float = maxf(Stile.contrasto(corpo, pieno),
+					Stile.contrasto(fascia, pieno))
+			esigi(quanto >= Stile.CONTRASTO_MINIMO,
+					"un segno %s: ne' corpo ne' fascia arrivano a %.1f:1 (il meglio e' %.2f:1)"
+					% [dove, Stile.CONTRASTO_MINIMO, quanto])
+			var sotto: float = minf(Stile.luminanza(corpo), Stile.luminanza(fascia))
+			var sopra: float = maxf(Stile.luminanza(corpo), Stile.luminanza(fascia))
+			esigi(sotto < Stile.luminanza(pieno) and Stile.luminanza(pieno) < sopra,
+					("un segno %s ha corpo e fascia dalla stessa parte del fondo: " +
+					"si legge come un contorno vuoto, non come un simbolo") % dove)
+
+	# --- E POI I BOTTONI VERI, NON SOLO LE FUNZIONI ---
+	#
+	# Le tre funzioni possono restituire colori giusti e chi le chiama
+	# rimetterci sopra un velo: e' esattamente com'era prima, con la tinta
+	# buona avvolta in un Color(tinta, 0.35). Qui si guarda quello che il
+	# bottone porta davvero addosso, dopo che la mappa e' stata costruita.
+	GameState.nodi_visitati = ["varco", "periferia"] as Array[String]
+	GameState.nodo_corrente = "varco"
+	mappa.cornice.size = Vector2(900, 700)
+	mappa.ricostruisci()
+	var controllati := 0
+	for figlio in mappa.strato_bottoni.get_children():
+		var quadratino := figlio as Button
+		if quadratino == null:
+			continue
+		var scatola := quadratino.get_theme_stylebox("normal") as StyleBoxFlat
+		if scatola == null:
+			continue
+		controllati += 1
+		var bordo: float = Stile.contrasto_su_sfondo(scatola.border_color)
+		esigi(bordo >= Stile.CONTRASTO_MINIMO,
+				"il bordo di '%s' sta a %.2f:1: il quadratino non ha contorno"
+				% [quadratino.tooltip_text, bordo])
+		# il pieno si misura dove c'e' un pieno; il velo dietro a un "?" e'
+		# fondo, non figura, e li' l'informazione la portano glifo e bordo
+		if scatola.bg_color.a > 0.6:
+			var pieno: float = Stile.contrasto_su_sfondo(scatola.bg_color)
+			esigi(pieno >= Stile.CONTRASTO_MINIMO,
+					"il pieno di '%s' sta a %.2f:1: la stanza dove sei stato non si vede"
+					% [quadratino.tooltip_text, pieno])
+		if quadratino.text != "":
+			var glifo: float = Stile.contrasto_su_sfondo(
+					quadratino.get_theme_color("font_color"))
+			esigi(glifo >= Stile.CONTRASTO_MINIMO,
+					"il '?' di '%s' sta a %.2f:1: l'invito ad andarci non si vede"
+					% [quadratino.tooltip_text, glifo])
+	esigi(controllati >= 2, "non c'era nessun quadratino vero da misurare")
 	mappa.queue_free()
 
 func prova_mappa_a_quadratini() -> void:

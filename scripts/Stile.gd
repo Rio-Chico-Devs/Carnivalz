@@ -53,6 +53,50 @@ func colore(nome: String) -> Color:
 func dimensione(nome: String) -> int:
 	return int(dati.get("dimensioni", {}).get(nome, 20))
 
+# --- quanto si stacca un colore da quello che ha dietro --------------------
+#
+# SE UN SEGNO PORTA UN'INFORMAZIONE, SI DEVE VEDERE. Non "si vede se guardi
+# bene": si deve vedere. La soglia e' quella delle WCAG 1.4.11, che riguarda
+# proprio i comandi e i loro stati - non il testo, i SEGNI - e dice 3:1.
+#
+# Il conto non e' "quanto e' chiaro" a occhio: e' la luminanza relativa,
+# che pesa il verde piu' del rosso e il rosso piu' del blu perche' l'occhio
+# fa cosi'. Ed e' per quello che il rosso #ed1c24 e il verde #2a8f4a della
+# nostra tavolozza - che sembrano lontanissimi - stanno a 1,07:1 l'uno
+# dall'altro: due tinte diverse alla STESSA luminosita'. Su una foto in
+# bianco e nero sono lo stesso grigio, e per chi non distingue il rosso dal
+# verde lo sono sempre.
+#
+# Da qui non si ricava un colore: si ricava un numero da mettere in una
+# prova. Il colore lo sceglie chi disegna, il numero dice se ha funzionato.
+
+const CONTRASTO_MINIMO := 3.0   # WCAG 1.4.11, comandi e stati
+
+func luminanza(c: Color) -> float:
+	return 0.2126 * canale_lineare(c.r) + 0.7152 * canale_lineare(c.g) \
+			+ 0.0722 * canale_lineare(c.b)
+
+func canale_lineare(v: float) -> float:
+	return v / 12.92 if v <= 0.04045 else pow((v + 0.055) / 1.055, 2.4)
+
+func contrasto(a: Color, b: Color) -> float:
+	var la := luminanza(a)
+	var lb := luminanza(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
+
+func sopra(c: Color, fondo: Color) -> Color:
+	# UN COLORE TRASPARENTE NON E' IL COLORE CHE SI VEDE, e misurare quello
+	# scritto invece di quello composto e' il modo piu' facile per avere una
+	# prova che passa su una schermata illeggibile: l'accento a 0,4 di opacita'
+	# sul nero da' 1,80:1, ma se guardi l'accento e basta leggi 4,58:1. Qui si
+	# spegne l'alfa mettendo il colore davvero sopra il suo fondo.
+	return Color(lerpf(fondo.r, c.r, c.a), lerpf(fondo.g, c.g, c.a),
+			lerpf(fondo.b, c.b, c.a))
+
+func contrasto_su_sfondo(c: Color) -> float:
+	var fondo := colore("sfondo")
+	return contrasto(sopra(c, fondo), fondo)
+
 func forma(nome: String) -> int:
 	return int(dati.get("forme", {}).get(nome, 0))
 
