@@ -53,6 +53,57 @@ Bru: «fammi un elenco del resto delle fonti che non hai potuto vedere per
 intero». Questa è la lista, ricavata rileggendo cosa i documenti citano
 davvero, non a memoria.
 
+### 0. LA MAPPA — quello che serve adesso
+
+Il buco l'ho trovato rileggendo `docs/dedalo.md`: Romero, Jaquays, il diagramma
+di Melan, Lynch, la tassonomia di Ashwell, Boss Keys, Etrian, Hollow Knight —
+**tutta progettazione dello spazio**. Di come si disegna il *diagramma
+leggibile* di quello spazio non c'è una riga. Zero occorrenze di Bertin,
+variabili visive, figura-sfondo, contrasto, daltonismo. Ed è esattamente dove
+stava il difetto: le stanze visitate non si vedevano, e nessuno se n'era
+accorto perché nessuno aveva mai guardato la mappa *come diagramma*.
+
+Le tre cose in cima **non sono documenti, sono immagini**: con l'ECG il salto
+l'ha fatto la foto, non i paper.
+
+| # | cosa | perché a noi | link |
+|---|---|---|---|
+| **1** | **Schermate-mappa vere, come immagini.** Hollow Knight, Metroid, Etrian, Dead Cells — quelle che ti piacciono | Devo vedere come segnano *stato* (visitato / intravisto / ignoto), dove mettono i nomi, come si legge il "sei qui". Descritto non basta | https://www.gameuidatabase.com/gameData.php?id=113 |
+| **2** | **La tua pianta del complesso**, anche a matita fotografata | Le coordinate me le prendo da quella. Non serve finita: il PNG buono lo infili dopo senza toccare niente | — |
+| **3** | **Bertin, *Sémiologie graphique* (1967)** — o la sintesi di Axis Maps, che è bloccata | Le sette variabili visive e quale porta quale tipo di informazione. Noi codifichiamo tre stati con tinta + chiaroscuro: è la scelta giusta o no? Va deciso su una regola, non a occhio | https://www.axismaps.com/guide/visual-variables — https://karlsluis.medium.com/before-tufte-there-was-bertin-63af71ceaa62 |
+| **4** | **Figura-sfondo e gerarchia visiva in cartografia** | I cinque principi (leggibilità, contrasto, figura-sfondo, gerarchia, proporzione) con le regole pratiche e le misure minime dei simboli | https://www.esri.com/arcgis-blog/products/arcgis-pro/mapping/primary-design-principles-for-cartography — https://en.wikipedia.org/wiki/Figure-ground_(cartography) |
+| **5** | **Krygier & Wood, *Making Maps*** (libero, testo intero) | È il manuale: processo cartografico, generalizzazione, cosa si toglie quando la scala scende | https://colorado.pressbooks.pub/makingmaps/chapter/cartographic-design-process/ |
+| **6** | **Dove si mette il nome di una stanza** — posizionamento delle etichette | Oggi i nomi si vedono solo passandoci sopra col mouse. Su una pianta è un problema studiato, non una questione di gusto | https://en.wikipedia.org/wiki/Typography_(cartography) — https://arxiv.org/pdf/2507.22952 |
+| **7** | **Game Accessibility Guidelines** — «nessuna informazione essenziale affidata al solo colore» | La nostra mappa **è rossa su nero** e distingue raggiungibile da lontano col chiaro-scuro dello stesso rosso. Il chiaroscuro regge al daltonismo, la tinta no: va verificato, non sperato | https://gameaccessibilityguidelines.com/ensure-no-essential-information-is-conveyed-by-a-fixed-colour-alone/ |
+| **8** | **WCAG 1.4.11, contrasto del non-testo** | La regola è 3:1 fra un elemento d'interfaccia e quello che ha accanto. I nostri quadratini spenti su nero non so se ci arrivano | https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html |
+| **9** | **Godot: `Control`, `Button`, `StyleBox`** — le pagine di classe | La trappola di ieri (`flat` che butta via lo StyleBox) è **documentata come bug del motore**: issue #45823. Mi serve il testo vero di quelle pagine, non il riassunto | https://docs.godotengine.org/en/stable/classes/class_control.html — https://docs.godotengine.org/en/stable/classes/class_button.html — https://github.com/godotengine/godot/issues/45823 |
+| **10** | **Zoom e trascinamento su una tela in Godot** | È uno dei buchi dichiarati in `docs/mappe.md`. Tutto quello che si trova parla di `Camera2D`; noi siamo su `Control`, che si trasforma in un altro modo | https://gist.github.com/thygrrr/8288cabeb5cd25031ce6132c4a886311 — https://www.gdquest.com/tutorial/godot/2d/camera-zoom/ |
+
+**Quello che ho già capito dalle sintesi, e che va confermato sul testo vero**
+(lo segno perché di seconda mano mi sono già sbagliata):
+
+- Bertin: *posizione* e *dimensione* sarebbero le uniche due variabili che
+  comunicano bene una quantità; per l'**ordine** il chiaroscuro batterebbe la
+  tinta; tinta, forma e orientamento servirebbero a raggruppare, non a ordinare.
+  Se è vero, i nostri tre stati sono codificati bene (pieno/vuoto = forma,
+  chiaro/scuro = ordine) e male allo stesso tempo (rosso/verde per segreta =
+  sola tinta).
+- Hollow Knight: le zone inesplorate sarebbero **a contorno**, le esplorate
+  piene, e le ignote assenti del tutto — cioè i nostri stessi tre stati. Ma la
+  mappa lì è *diegetica*: la compri da Cornifer e si aggiorna solo sulle panchine.
+- Etrian Odyssey: il passo del giocatore colora la casella, e le icone (porte,
+  passaggi nascosti, casse) le mette il giocatore a mano, con un limite per piano.
+- WCAG 1.4.11: 3:1, e vale **anche per gli stati** di un elemento, non solo per
+  l'elemento a riposo.
+- Godot `mouse_filter`: `STOP` consuma, `PASS` consuma *e* passa al genitore,
+  `IGNORE` scarta. Per far funzionare un bottone, tutto ciò che gli sta sopra
+  nell'albero dovrebbe essere su `IGNORE`.
+
+**Una nota sul proxy**, perché è cambiato: ieri GitHub passava (è così che ho
+letto il sorgente di Celeste). Oggi **WebFetch è bloccato su tutto** — ho
+provato anche `anthropic.com` — e `curl` non esce proprio. Resta solo la
+ricerca, che dà sintesi.
+
 ### 1. Le cose su cui poggiano decisioni GIÀ PRESE
 
 **Il carico cognitivo — Sweller.** Dopo che Andersen, «Show or Tell?» e
