@@ -62,6 +62,11 @@ func _ready() -> void:
 	indicatore.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
 	indicatore.visible = false
+	# IL TESTO DA LEGGERE VUOLE ARIA FRA LE RIGHE. Il box tiene paragrafi, non
+	# una riga sola, e finche' nessuno decideva l'interlinea la decideva il font
+	# DI SISTEMA - quindi diversa su ogni macchina, e non c'era modo di
+	# accorgersene provando su una sola
+	Stile.interlinea(testo, "lettura", Stile.dimensione("corpo"))
 	# la targhetta tiene la sua riga anche quando e' vuota: se collassasse, il
 	# testo salterebbe su di una riga passando da un dialogo a una narrazione
 	var font_targhetta := targhetta.get_theme_font("font")

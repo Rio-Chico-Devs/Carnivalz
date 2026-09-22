@@ -49,6 +49,46 @@ func dimensione(nome: String) -> int:
 func forma(nome: String) -> int:
 	return int(dati.get("forme", {}).get(nome, 0))
 
+func interlinea(etichetta: Control, quale: String, corpo: int) -> void:
+	# QUANTO SPAZIO C'E' FRA UNA RIGA E L'ALTRA, e prima non lo decideva nessuno.
+	#
+	# Non c'era una sola riga in tutto il progetto che impostasse l'interlinea:
+	# ogni etichetta si teneva quella del font, e il font e' quello di SISTEMA -
+	# quindi lo stesso dialogo si leggeva diverso su Windows, su Mac e su Linux,
+	# e non c'era modo di accorgersene provando su una macchina sola.
+	#
+	# La regola di mestiere: 1,4-1,6 per il testo da leggere, 1,5 va bene quasi
+	# sempre; righe piu' lunghe vogliono piu' aria, e - questa e' quella che si
+	# sbaglia - piu' il testo e' GRANDE meno spazio vuole fra le righe, non di
+	# piu'. Per questo "titolo" sta a 1,1.
+	#
+	# SI CALCOLA SULLE METRICHE VERE, non a occhio. In Godot line_spacing e'
+	# quanto si AGGIUNGE all'altezza naturale della riga, non l'altezza totale:
+	# scriverci dentro 1,5 * corpo darebbe righe larghe il doppio. Si chiede al
+	# font quanto e' alta una riga a questo corpo e si mette la differenza.
+	# IL CORPO SI PASSA, NON SI CHIEDE AL TEMA. Chiederlo qui vuol dire
+	# fotografare quello che c'e' in questo istante: l'interlinea resta poi
+	# scritta addosso all'etichetta, e se il tema cambia - succede, l'alto
+	# contrasto lo ricostruisce - lo spazio fra le righe resta quello di prima,
+	# calcolato su un corpo che non c'e' piu'. Misurato: calcolata su 26 e letta
+	# su 16, la riga risultava alta tre volte il carattere.
+	var quanto := float(dati.get("interlinee", {}).get(quale, 1.5))
+	# E I DUE NODI NON CHIAMANO LE STESSE COSE CON LO STESSO NOME. Una Label ha
+	# "font" e aggiunge spazio con "line_spacing"; una RichTextLabel ha
+	# "normal_font" e usa "line_separation". Chiedendo "font" a una
+	# RichTextLabel si riceve null, si esce di qui, e non si imposta NIENTE -
+	# senza nessun errore. E' successo: l'interlinea del dialogo era ancora
+	# quella che capitava al font di sistema.
+	var ricco := etichetta is RichTextLabel
+	var carattere := etichetta.get_theme_font("normal_font" if ricco else "font")
+	if carattere == null:
+		push_warning("Stile.interlinea: nessun carattere su %s, l'interlinea resta quella del font" % etichetta.name)
+		return
+	var naturale := carattere.get_height(corpo)
+	var voluta := float(corpo) * quanto
+	etichetta.add_theme_constant_override("line_separation" if ricco else "line_spacing",
+			int(round(maxf(voluta - naturale, 0.0))))
+
 func plancia(nome: String) -> Variant:
 	# UNA MISURA DELLA SCHERMATA DI COMBATTIMENTO, come l'ha disegnata Bru.
 	#

@@ -115,6 +115,7 @@ func _ready() -> void:
 	prova_mappa_a_quadratini()
 	prova_i_quadratini_della_mappa_si_vedono_davvero()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
+	await prova_la_forma_del_testo()
 	await prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo()
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
@@ -6112,6 +6113,77 @@ func prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo() -> void:
 				"chi clicca resta dentro")
 	schermata.free()
 	GameState.nuova_partita()
+
+func prova_la_forma_del_testo() -> void:
+	# LA SCALA, LA GRIGLIA, L'INTERLINEA E LA LUNGHEZZA DELLA RIGA.
+	#
+	# Quattro regole di mestiere, tutte e quattro misurabili, e tutte e quattro
+	# erano violate prima di guardarle con un numero in mano.
+	titolo("la forma del testo: scala, griglia, interlinea, lunghezza di riga")
+
+	# 1. LA SCALA E' MODULARE. Prima i rapporti facevano 1,250 - 1,733 - 1,038 -
+	#    1,259 - 1,294: corpo 26 e sezione 27 differivano di UN PIXEL, che non e'
+	#    un gradino di gerarchia, e' rumore. Due misure che l'occhio non
+	#    distingue sono una misura sola scritta due volte.
+	var scala: Array[int] = []
+	for nome in ["minuscolo", "piccolo", "corpo", "sezione", "nome", "titolo"]:
+		scala.append(Stile.dimensione(nome))
+	for i in range(1, scala.size()):
+		var rapporto := float(scala[i]) / float(scala[i - 1])
+		esigi(rapporto > 1.12 and rapporto < 1.30,
+				"fra %d e %d il rapporto e' %.3f: fuori dalla scala modulare"
+				% [scala[i - 1], scala[i], rapporto])
+
+	# 2. GLI SPAZI STANNO SU UNA GRIGLIA DA 8. Prima: 7, 9, 14, 18, 22, 26, 30,
+	#    34 - massimo comun divisore 1, nemmeno multipli di quattro.
+	for nome in ["bordo_box", "padding_bottone_x", "padding_bottone_y",
+			"padding_box_x", "padding_box_y", "separazione", "cornice",
+			"bordo_plancia", "altezza_box"]:
+		var misura := Stile.forma(nome)
+		esigi(misura % 8 == 0,
+				"'%s' vale %d: non sta sulla griglia da 8" % [nome, misura])
+
+	# 3. L'INTERLINEA E' DICHIARATA, e sta nell'intervallo giusto.
+	#
+	#    Qui si controllano i NUMERI, non i pixel, e c'e' un perche'. La prima
+	#    versione di questa prova chiedeva a Stile.font_da("corpo") l'altezza
+	#    reale di una riga: quello costruisce un SystemFont e misurarlo lo
+	#    costringe a risolvere e rasterizzare i glifi, che senza finestra puo'
+	#    non tornare piu' - la suite e' rimasta appesa due volte, seicento
+	#    secondi ognuna. Le prove devono restare veloci e sempre uguali: i pixel
+	#    si guardano con scatto.sh, qui si guarda la regola.
+	var interlinee: Dictionary = Stile.dati.get("interlinee", {})
+	esigi(not interlinee.is_empty(),
+			"nessuna interlinea dichiarata: la decide il font di sistema, " +
+			"cioe' cambia da macchina a macchina")
+	var lettura := float(interlinee.get("lettura", 0.0))
+	esigi(lettura >= 1.4 and lettura <= 1.6,
+			"l'interlinea del testo da leggere e' %.2f: la regola dice 1,4-1,6" % lettura)
+	# E PIU' IL TESTO E' GRANDE, MENO ARIA VUOLE FRA LE RIGHE. E' la regola che
+	# si sbaglia piu' spesso - viene da pensare il contrario
+	esigi(float(interlinee.get("titolo", 9.0)) < lettura,
+			"il titolo ha piu' interlinea del testo da leggere: e' il contrario")
+
+	# 4. LA RIGA NON E' PIU' LUNGA DI QUANTO L'OCCHIO REGGA: 50-75 caratteri,
+	#    66 l'ottimo. Oltre, si perde il capo della riga dopo e ci si rilegge.
+	var box: Control = load("res://scenes/BoxTesto.tscn").instantiate()
+	add_child(box)
+	box.size = Vector2(900.0, 200.0)
+	await get_tree().process_frame
+	var scritta: RichTextLabel = box.testo
+	var lunga := ("Nell'universo la vita prende forme che nessuno aveva previsto, " +
+			"e ognuna di loro si porta dietro una fame che non sa di avere.")
+	scritta.text = lunga
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var righe := scritta.get_line_count()
+	if righe >= 2:
+		var per_riga := float(lunga.length()) / float(righe)
+		titolo("  %d caratteri su %d righe = %.0f per riga" % [lunga.length(), righe, per_riga])
+		esigi(per_riga >= 40.0 and per_riga <= 85.0,
+				"la riga del dialogo tiene %.0f caratteri: la misura buona sta fra 50 e 75"
+				% per_riga)
+	box.queue_free()
 
 func prova_un_numero_che_si_anima_non_fa_mai_aspettare() -> void:
 	# ANIMARE SI', SBARRARE MAI.

@@ -289,6 +289,21 @@ func prepara(quale: String) -> void:
 			schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			add_child(schermo)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"paragrafo":
+			# UN PARAGRAFO VERO, per guardare la forma del testo: l'interlinea,
+			# la lunghezza della riga, i margini del box. Su una battuta di
+			# quattro parole non si giudica niente - e le schermate che
+			# avevamo mostravano tutte una riga sola.
+			await apri_dialogo(nodo_di_prova())
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			var pagina := get_child(0)
+			pagina.box.mostra("narrazione",
+					"Nell'universo la vita prende forme che nessuno aveva " +
+					"previsto, e ognuna di loro si porta dietro una fame che " +
+					"non sa di avere. Le Fratture si aprono dove quella fame " +
+					"diventa piu' forte del posto che la contiene.", "")
+			pagina.box.completa()
+			await attendi(4)
 		"evidenza":
 			# L'ALONE CHE INDICA UN PEZZO, fermato sul colmo del respiro.
 			#

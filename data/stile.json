@@ -36,12 +36,13 @@
   },
   "_nota_dimensioni": "Scala tipografica: pochi gradini, sempre gli stessi. Niente font_size a occhio dentro le scene.",
   "dimensioni": {
-    "titolo": 44,
-    "sezione": 27,
+    "titolo": 45,
+    "sezione": 31,
     "corpo": 26,
-    "nome": 34,
-    "piccolo": 15,
-    "minuscolo": 12
+    "nome": 37,
+    "piccolo": 22,
+    "minuscolo": 18,
+    "_nota": "SCALA MODULARE, rapporto 1,2 (terza minore), ancorata su corpo=26. Non e' un rapporto scelto a gusto: fra i due valori che Bru aveva gia' deciso - corpo 26 e titolo 44 - ci stanno 2,89 gradini da 1,2, cioe' tre. Il rapporto era gia' dentro i suoi numeri, mancava solo di essere rispettato in mezzo. Prima la scala faceva 1,250 - 1,733 - 1,038 - 1,259 - 1,294: corpo 26 e sezione 27 differivano di UN PIXEL, che non e' un gradino di gerarchia, e' rumore. Se tocchi un valore, ricalcola gli altri: 26 * 1.2^n."
   },
   "_nota_colori": "Viola-nero da sottosuolo, un solo accento caldo (ottone). Il rosso e il verde servono solo a danno e cure: non decorano.",
   "colori": {
@@ -106,30 +107,31 @@
     "raggio": 0,
     "bordo": 0,
     "bordo_acceso": 4,
-    "padding_box_x": 34,
-    "padding_box_y": 18,
-    "padding_bottone_x": 26,
-    "padding_bottone_y": 9,
-    "altezza_box": 92,
+    "padding_box_x": 32,
+    "padding_box_y": 16,
+    "padding_bottone_x": 24,
+    "padding_bottone_y": 8,
+    "altezza_box": 96,
     "altezza_box_combattimento": 96,
-    "separazione": 14,
+    "separazione": 16,
     "larghezza_scelte": 640,
     "_nota": "cornice = quanti pixel di nero stanno attorno all'inquadratura. altezza_box e' piu' alto del disegno apposta: nel disegno il box tiene una riga, ma la narrazione vera e' fatta di paragrafi - abbassalo qui se lo vuoi sottile, non serve toccare codice.",
-    "cornice": 26,
-    "bordo_box": 7,
-    "icona_menu": 74,
+    "cornice": 24,
+    "bordo_box": 8,
+    "icona_menu": 72,
     "inclinazione_nastro": -3.5,
-    "altezza_nastro": 78,
-    "bordo_plancia": 9
+    "altezza_nastro": 80,
+    "bordo_plancia": 8,
+    "_nota_griglia": "TUTTI GLI SPAZI STANNO SU UNA GRIGLIA DA 8, e prima non ne stava dentro nemmeno uno: 7, 9, 14, 18, 22, 26, 30, 34 - massimo comun divisore 1, nemmeno multipli di 4. Otto perche' e' la griglia che usano Material e quasi tutti: divide le misure degli schermi, copre sia gli spazietti che i vuoti grandi senza rompere il ritmo, e toglie sette scelte su otto - che e' il punto. Valori ammessi: 8, 16, 24, 32, 40, 48, 56, 64..."
   },
   "_nota_box": "Il box del testo (dialogo/narrazione/notifica) e il diario di combattimento: 'usa_texture' a true + un'immagine in 'texture' sostituisce il box piatto con un'immagine a nove riquadri disegnata a mano (vedi le proposte in Cinque cornici per lo stesso buio). I margini sono i pixel di bordo che NON si allungano quando il box cambia dimensione; senza immagine questa sezione non ha alcun effetto e resta il box piatto qui sotto in 'colori'/'forme'.",
   "box": {
     "usa_texture": false,
     "texture": "",
-    "margine_sinistro": 30,
-    "margine_destro": 30,
-    "margine_alto": 22,
-    "margine_basso": 22
+    "margine_sinistro": 32,
+    "margine_destro": 32,
+    "margine_alto": 24,
+    "margine_basso": 24
   },
   "_nota_bottone_texture": "Stessa idea del box, per i bottoni: UN SOLO frame disegnato (il bottone 'normale') basta per tutti gli stati - sopra/premuto/spento/a fuoco si ottengono ricolorando quella stessa immagine (piu' chiara, piu' scura, semitrasparente, calda), non disegnandone cinque copie.",
   "bottone_texture": {
@@ -137,8 +139,8 @@
     "texture": "",
     "margine_sinistro": 16,
     "margine_destro": 16,
-    "margine_alto": 10,
-    "margine_basso": 10
+    "margine_alto": 8,
+    "margine_basso": 8
   },
   "_nota_tempi": "Tutte le durate delle animazioni, in secondi. caratteri_al_secondo è la velocità base della macchina da scrivere: le Opzioni la moltiplicano.",
   "tempi": {
@@ -214,5 +216,11 @@
     ],
     "comandi_x": 0.582,
     "comandi_y": 0.1
+  },
+  "interlinee": {
+    "_nota": "Quanto e' alta una riga rispetto al corpo del carattere. Non c'era: ogni etichetta usava l'interlinea che capitava al font di sistema, e il font di sistema cambia da macchina a macchina. La regola: 1,4-1,6 per il testo da leggere, 1,5 va bene quasi sempre; e piu' il testo e' GRANDE meno spazio vuole fra le righe, non di piu' - vale doppio per il maiuscolo.",
+    "lettura": 1.5,
+    "compatta": 1.35,
+    "titolo": 1.1
   }
 }
