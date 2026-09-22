@@ -292,11 +292,12 @@ func numero_volante(scheda: Control, testo: String, tinta: Color, grande := fals
 	var etichetta := Label.new()
 	etichetta.text = testo
 	etichetta.add_theme_color_override("font_color", tinta)
-	etichetta.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.92))
-	etichetta.add_theme_constant_override("outline_size", 10 if grande else 7)
-	etichetta.add_theme_font_size_override("font_size", int(
-			Stile.dimensione("titolo") * 1.35 if grande
-			else Stile.dimensione("sezione") * 1.25))
+	var corpo := int(Stile.dimensione("titolo") * 1.35 if grande
+			else Stile.dimensione("sezione") * 1.25)
+	etichetta.add_theme_font_size_override("font_size", corpo)
+	# il contorno in proporzione al corpo, non a occhio: vedi Stile.contorno
+	Stile.contorno(etichetta, corpo)
+	Stile.crenatura(etichetta, corpo)
 	etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	volanti.add_child(etichetta)
 	var centro := scheda.global_position + scheda.size * Vector2(0.5, 0.25)

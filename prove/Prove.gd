@@ -6164,7 +6164,49 @@ func prova_la_forma_del_testo() -> void:
 	esigi(float(interlinee.get("titolo", 9.0)) < lettura,
 			"il titolo ha piu' interlinea del testo da leggere: e' il contrario")
 
-	# 4. LA RIGA NON E' PIU' LUNGA DI QUANTO L'OCCHIO REGGA: 50-75 caratteri,
+	# 4. IL CONTORNO DEL TESTO E' UNA REGOLA SOLA, in un posto solo.
+	#
+	#    Era scelto a occhio in tre file diversi: 5, 7 e 10. Messi in rapporto
+	#    ai corpi su cui stavano facevano 0,167 e 0,184 - proporzionali PER
+	#    CASO. Il primo corpo che avessimo cambiato avrebbe rotto il rapporto
+	#    senza che nessuno se ne accorgesse, ed e' esattamente quello che e'
+	#    successo oggi: la scala e' cambiata tutta.
+	for cartella_nome: String in ["res://scripts", "res://scripts/combattimento"]:
+		var cartella := DirAccess.open(cartella_nome)
+		if cartella == null:
+			continue
+		for nome in cartella.get_files():
+			if not nome.ends_with(".gd") or nome == "Stile.gd":
+				continue
+			var sorgente := FileAccess.get_file_as_string(cartella_nome + "/" + nome)
+			esigi(not sorgente.contains("\"outline_size\""),
+					"%s si sceglie il contorno da solo: deve chiedere Stile.contorno" % nome)
+
+	# e la regola proporziona davvero, invece di mettere sempre lo stesso numero
+	var campione := Label.new()
+	add_child(campione)
+	Stile.contorno(campione, 60)
+	var grosso := campione.get_theme_constant("outline_size")
+	Stile.contorno(campione, 26)
+	var sottile := campione.get_theme_constant("outline_size")
+	esigi(grosso > sottile,
+			"il contorno non segue il corpo: %d a 60 e %d a 26" % [grosso, sottile])
+	Stile.contorno(campione, 4)
+	esigi(campione.get_theme_constant("outline_size") >= 2,
+			"su un corpo minuscolo il contorno sparisce: sotto i due pixel non si vede")
+
+	# 5. LE LETTERE SI STRINGONO SOLO DA GRANDI. Stringere il testo da leggere
+	#    lo rende solo piu' difficile; e' il corpo da manifesto che, ingrandito,
+	#    si sfilaccia se non lo si stringe.
+	esigi(Stile.CORPO_DA_STRINGERE >= 30,
+			"si stringono le lettere gia' da corpo %d: cosi' si tocca anche il testo da leggere"
+			% Stile.CORPO_DA_STRINGERE)
+	esigi(Stile.dimensione("corpo") < Stile.CORPO_DA_STRINGERE,
+			"il corpo del testo da leggere (%d) finisce dentro la crenatura"
+			% Stile.dimensione("corpo"))
+	campione.queue_free()
+
+	# 6. LA RIGA NON E' PIU' LUNGA DI QUANTO L'OCCHIO REGGA: 50-75 caratteri,
 	#    66 l'ottimo. Oltre, si perde il capo della riga dopo e ci si rilegge.
 	var box: Control = load("res://scenes/BoxTesto.tscn").instantiate()
 	add_child(box)

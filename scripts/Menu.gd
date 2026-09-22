@@ -51,7 +51,7 @@ func _ready() -> void:
 	var titolo := Label.new()
 	titolo.text = "CARNIVALZ"
 	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
+	Stile.imposta_corpo(titolo, Stile.dimensione("titolo"))
 	titolo.add_theme_color_override("font_color", Stile.colore("accento"))
 	colonna.add_child(titolo)
 

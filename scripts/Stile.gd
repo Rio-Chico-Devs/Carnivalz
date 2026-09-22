@@ -17,6 +17,13 @@ const PERCORSO := "res://data/stile.json"
 # la colonna andando a capo. Trenta e' il punto in cui una scritta smette di
 # essere un'etichetta e diventa una frase.
 const LETTERE_SCELTA_CORTA := 30
+# Un sesto del corpo: e' il rapporto che i tre contorni scelti a occhio avevano
+# gia', misurato. Vedi contorno()
+const QUOTA_CONTORNO := 0.167
+# Sopra questo corpo le lettere vanno strette, e di questa frazione: -0,02 em,
+# che e' il valore di partenza per le intestazioni. Vedi crenatura()
+const CORPO_DA_STRINGERE := 36
+const QUOTA_CRENATURA := 0.02
 
 var dati: Dictionary = {}
 var tema: Theme
@@ -88,6 +95,53 @@ func interlinea(etichetta: Control, quale: String, corpo: int) -> void:
 	var voluta := float(corpo) * quanto
 	etichetta.add_theme_constant_override("line_separation" if ricco else "line_spacing",
 			int(round(maxf(voluta - naturale, 0.0))))
+
+func contorno(etichetta: Label, corpo: int) -> void:
+	# IL CONTORNO NERO INTORNO A UN NUMERO CHE ESCE SOPRA QUALUNQUE COSA.
+	#
+	# Serve dove il fondo non si sa: un numero di danno esce sopra il ritratto di
+	# qualcuno e un ritratto puo' essere di qualunque colore; il numero di una
+	# barra sta meta' sull'arancione e meta' sul nero. Chiaro dentro, scuro
+	# intorno, e si stacca da tutto.
+	#
+	# ERA SCELTO A OCCHIO, tre volte: 5, 7 e 10, in tre file diversi. Messi in
+	# rapporto ai corpi su cui stavano facevano 0,167 e 0,184 - cioe' erano
+	# proporzionali PER CASO, e il primo corpo che avessimo cambiato avrebbe
+	# rotto il rapporto senza che nessuno se ne accorgesse. Adesso e' una regola
+	# sola: un sesto del corpo, e mai meno di due pixel, che sotto i due non si
+	# vede piu' niente.
+	etichetta.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.92))
+	etichetta.add_theme_constant_override("outline_size", maxi(2, int(round(float(corpo) * QUOTA_CONTORNO))))
+
+func imposta_corpo(etichetta: Control, corpo: int) -> void:
+	# IL CORPO E LA CRENATURA INSIEME, perche' l'una dipende dall'altro e
+	# tenerle separate vuol dire prima o poi cambiarne una sola
+	etichetta.add_theme_font_size_override(
+			"normal_font_size" if etichetta is RichTextLabel else "font_size", corpo)
+	crenatura(etichetta, corpo)
+
+func crenatura(etichetta: Control, corpo: int) -> void:
+	# LO SPAZIO FRA LE LETTERE, e serve solo ai corpi grandi.
+	#
+	# La regola di mestiere: piu' il corpo e' grande, MENO spazio vuole fra una
+	# lettera e l'altra. Un carattere e' disegnato per essere letto a corpo di
+	# testo; ingrandito, quello stesso spazio diventa sciolto e la parola si
+	# sfilaccia. Sopra i sessanta pixel si parte da -0,02/-0,03 em, e sulle
+	# intestazioni da -0,01/-0,02. Sotto, non si tocca: stringere il testo da
+	# leggere lo rende solo piu' difficile.
+	#
+	# In Godot non c'e' una costante di tema per questo: si avvolge il carattere
+	# in una FontVariation e le si dice quanto togliere fra un glifo e l'altro.
+	if corpo < CORPO_DA_STRINGERE:
+		return
+	var ricco := etichetta is RichTextLabel
+	var base: Font = etichetta.get_theme_font("normal_font" if ricco else "font")
+	if base == null:
+		return
+	var stretta := FontVariation.new()
+	stretta.base_font = base
+	stretta.spacing_glyph = -maxi(1, int(round(float(corpo) * QUOTA_CRENATURA)))
+	etichetta.add_theme_font_override("normal_font" if ricco else "font", stretta)
 
 func plancia(nome: String) -> Variant:
 	# UNA MISURA DELLA SCHERMATA DI COMBATTIMENTO, come l'ha disegnata Bru.

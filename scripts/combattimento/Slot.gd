@@ -160,8 +160,7 @@ func vesti_numero(etichetta: Label) -> void:
 	# leggeva a meta'. Il contorno risolve senza dover scegliere: chiaro dentro,
 	# scuro intorno, e si stacca da qualunque cosa ci sia sotto.
 	etichetta.add_theme_color_override("font_color", Color.WHITE)
-	etichetta.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-	etichetta.add_theme_constant_override("outline_size", 5)
+	Stile.contorno(etichetta, etichetta.get_theme_font_size("font_size"))
 
 func barra_colorata(chiave: String, nome_colore: String) -> Control:
 	# Piena e squadrata, senza bordo: nel disegno e' un rettangolo di colore

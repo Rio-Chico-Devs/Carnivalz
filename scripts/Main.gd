@@ -149,7 +149,7 @@ func applica_stile() -> void:
 	# li' e si azzera a ogni scontro. Tenerla in vista mentre parli con qualcuno
 	# raccontava una risorsa che in quel momento non esiste.
 	etichetta_stat.visible = false
-	testo_titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
+	Stile.imposta_corpo(testo_titolo, Stile.dimensione("titolo"))
 	testo_titolo.add_theme_color_override("font_color", Stile.colore("accento"))
 	# Una scena puo' fermarsi su un'illustrazione: usa lo stesso velo a schermo
 	# intero della carta del titolo, perche' fa la stessa cosa - prende lo
@@ -776,7 +776,7 @@ func mostra_scritta_dal_buio(percorso: String, quanto_resta: float) -> void:
 		# stesso e si puo' provare il ritmo, che e' l'unica cosa che conta qui
 		testo_titolo.text = "CARNIVALZ"
 		testo_titolo.custom_minimum_size = Vector2(760, 0)
-		testo_titolo.add_theme_font_size_override("font_size", Stile.dimensione("titolo") * 2)
+		Stile.imposta_corpo(testo_titolo, Stile.dimensione("titolo") * 2)
 	carta_titolo.visible = true
 	carta_titolo.modulate.a = 0.0
 	var velo: ColorRect = carta_titolo.get_node("VeloTitolo")
