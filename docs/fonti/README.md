@@ -44,6 +44,9 @@ I PDF non hanno una prima riga dove mettere il link, quindi stanno qui.
 | `principi-cartografia-esri.md` | Aileen Buckley (Esri) — *Primary Design Principles for Cartography*, da *Map Use*, nona edizione | https://www.esri.com/arcgis-blog/products/arcgis-pro/mapping/primary-design-principles-for-cartography |
 | `godot-control-classe.md` | *Control*, riferimento di classe di Godot | https://docs.godotengine.org/en/stable/classes/class_control.html |
 | `godot-zoom-e-trascinamento.md` | thygrrr — *Godot Zoom and Pan, smooth & cursor-centric Camera2D motion* (Unlicense/CC0), coi commenti | https://gist.github.com/thygrrr/8288cabeb5cd25031ce6132c4a886311 |
+| `euristiche-giocabilita-play.md` | Desurvire e Wiberg — *Game Usability Heuristics (PLAY)*, il seguito di HEP (CHI 2004) | https://ocw.metu.edu.tr/pluginfile.php/4129/mod_resource/content/0/ceit706_2/10/game_usability-_heuristics.pdf |
+| `persona5-intervista-interfaccia.md` | Masayoshi Sutou (art director, Atlus) intervistato da *Famitsu* #1449, traduzione Play-Asia | https://personacentral.com/persona-5-interview-ui-design-sound-music/ |
+| `ffxvi-interfaccia-durczok.md` | Paweł Durczok — *The Final Fantasy XVI interface: a Cabinet of Curiosities* | https://medium.com/@I_am_PD/the-final-fantasy-xvi-interface-a-cabinet-of-curiosities-c0fc7fc554b1 |
 | `godot-inputevent-classe.pdf` | *InputEvent*, riferimento di classe di Godot | https://docs.godotengine.org/en/stable/classes/class_inputevent.html |
 
 ## I PDF adesso si leggono da soli
@@ -66,6 +69,12 @@ male una fonte:
 - certe tabelle non traducono affatto alcuni glifi e li mandano nell'**area a
   uso privato**, che non è un carattere, è un buco. La «l» della documentazione
   di Godot finiva in `U+E050`, duemila volte.
+
+E una terza, scoperta col documento delle euristiche: certi PDF — quelli fatti
+da LaTeX o da Word — **non hanno nessuna tabella ToUnicode**, perche' usano font
+veri con codifica standard e i codici SONO gia' i caratteri. Arrendersi li'
+vuol dire consegnare un file vuoto per dieci pagine piene di testo: e' successo,
+un byte in uscita.
 
 Quando restano glifi che non sa tradurre, lo strumento li segna con `�`
 e lo dice su stderr, invece di consegnare un testo che sembra a posto.
@@ -172,6 +181,17 @@ giocatore spende**, e **come si organizza un menu che ha già sei sezioni**.
 | **9** | **Paweł Durczok — *The Final Fantasy XVI interface: a Cabinet of Curiosities*** | Una demolizione seria, schermata per schermata, di un menu di Final Fantasy moderno — fatta da un progettista, non da un recensore | https://medium.com/@I_am_PD/the-final-fantasy-xvi-interface-a-cabinet-of-curiosities-c0fc7fc554b1 |
 | **10** | **Jonasson & Purho — *Juice it or lose it*** (Nordic Game Jam 2012), e **Swink, *Game Feel*** | Per i contatori: Tazo e hype sono numeri che **si spendono**, e il momento della spesa è quello che deve dare soddisfazione | https://www.youtube.com/watch?v=Fy0aCDmgnxg |
 | **11** | **River City Girls** — accrediti e interviste sull'interfaccia (WayForward, UI di Nick Bozic) | L'hai nominato tu ed è il caso più vicino a noi per tono: pixel, negozio, mosse comprate al dojo. Non ho trovato una demolizione seria — se ne conosci una, è quella che manca | — |
+
+**Arrivate il 22 settembre** (Bru: «questi sono quelli per cui vale la pena
+spendere tempo»), lette per intero e studiate in `docs/menu.md`:
+
+- ✅ **PLAY, le euristiche misurate** → `euristiche-giocabilita-play.md`
+- ✅ **Persona 5, l'intervista a Sutou** → `persona5-intervista-interfaccia.md`
+- ✅ **FFXVI demolito da Durczok** → `ffxvi-interfaccia-durczok.md`
+
+Resta da procurare: Hodent, Fagerholt & Lorentzon, Cain su griglia contro
+lista, e una demolizione seria di River City Girls, che non esiste o non
+l'ho trovata.
 
 **Quello che ho già ricavato dalle sintesi, e che NON è ancora una fonte:**
 

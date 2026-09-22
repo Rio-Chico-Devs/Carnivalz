@@ -116,8 +116,43 @@ def font_della_pagina(oggetti, corpo_pagina):
             n_disc = riferimento(corpo, '/DescendantFonts')
             if n_disc is not None and n_disc in oggetti:
                 n_uni = riferimento(oggetti[n_disc], '/ToUnicode')
-        if n_uni is not None and n_uni in oggetti:
-            fuori[nome.decode('latin-1')] = tabella(flusso_di(oggetti[n_uni]))
+        mappa = tabella(flusso_di(oggetti[n_uni])) if (n_uni is not None and n_uni in oggetti) else {}
+        if not mappa:
+            # NIENTE TABELLA: NON VUOL DIRE NIENTE TESTO.
+            #
+            # I PDF fatti da LaTeX o da Word usano font veri con codifica
+            # standard (WinAnsi), e la tabella ToUnicode non serve perche' i
+            # codici SONO gia' i caratteri. Arrendersi qui vuol dire consegnare
+            # un file vuoto per un documento pieno di testo - e' successo con
+            # le euristiche di giocabilita': dieci pagine, un byte in uscita.
+            mappa = {i: chr(i) for i in range(32, 256)}
+            mappa.update(differenze(oggetti, corpo))
+        fuori[nome.decode('latin-1')] = mappa
+    return fuori
+
+
+def differenze(oggetti, corpo_font):
+    # /Encoding puo' rimappare singoli codici: "/Differences [ 65 /Aacute ]".
+    # Si tiene solo quello che si sa tradurre senza tabella dei nomi dei glifi.
+    n = riferimento(corpo_font, '/Encoding')
+    dentro = oggetti.get(n, b'') if n is not None else corpo_font
+    m = re.search(rb'/Differences\s*\[(.*?)\]', dentro, re.S)
+    if not m:
+        return {}
+    fuori, codice = {}, 0
+    for pezzo in re.findall(rb'\d+|/[A-Za-z0-9.]+', m.group(1)):
+        if pezzo.isdigit():
+            codice = int(pezzo)
+            continue
+        nome = pezzo[1:].decode('latin-1')
+        if len(nome) == 1:
+            fuori[codice] = nome
+        elif nome.startswith('uni') and len(nome) == 7:
+            try:
+                fuori[codice] = chr(int(nome[3:], 16))
+            except ValueError:
+                pass
+        codice += 1
     return fuori
 
 
