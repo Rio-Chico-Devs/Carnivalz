@@ -39,6 +39,10 @@ const SCENA_MENU := "res://scenes/Menu.tscn"
 # decimo i contorni sono andati e la scena si riconosce ancora. Piu' in basso e'
 # una macchia, piu' in alto non e' sfocata, e' solo sporca.
 const RIDUZIONE_SFOCATURA := 10
+const LARGO_SEGNO := 30.0   # quanto spazio lascia una voce al suo segno
+const STACCO := 1.0         # l'aria IN PIU' fra un blocco di voci e il prossimo:
+                            # il contenitore ci mette gia' la sua spaziatura ai due
+                            # lati, quindi qui bastano pochi pixel
 const QUANTO_OCCUPA_CHI_GIOCHI := 560   # quanta larghezza si prende il tuo personaggio, a destra
 
 # Le sezioni del Diario, in ordine. Prima erano impilate tutte in un unico
@@ -278,32 +282,51 @@ func bottone(testo: String, richiamo: Callable) -> Button:
 # --- pannello: menu ---
 
 func mostra_menu() -> void:
-	nuova_colonna()
-	pannello = "menu"
-	intestazione("Pausa")
-	var primo := bottone("Riprendi", chiudi)
-	bottone("Storico dei dialoghi", mostra_storico)
-	bottone(GameState.nome_diario(), mostra_diario)
-	bottone("Personaggio e squadra", mostra_equipaggiamento)
-	bottone("Zaino", mostra_inventario)
-	bottone("Opzioni", mostra_opzioni)
-	bottone("Torna al menu principale", conferma_uscita)
+	# SETTE VOCI PIATTE NON SONO UN MENU, SONO UN ELENCO. PLAY, euristica G1:
+	# «Navigation is consistent, logical and minimalist». Adesso sono tre
+	# blocchi separati - quello che si consulta, quello che si amministra,
+	# quello che esce - e ogni voce ha un segno accanto (F4, «Art is
+	# recognizable to the player and speaks to its function»). Vedi docs/menu.md.
+	#
 	# LE VOCI STANNO A SINISTRA, IN ROSSO. E' cosi' nel disegno, e non e' un
 	# capriccio: le scelte di un dialogo stanno a destra, e se anche il menu
 	# stesse a destra e in bianco per un istante sarebbero la stessa cosa. Da
 	# che parte dello schermo guardi ti dice gia' se stai giocando o ti sei
 	# fermato.
-	allinea_a_sinistra(colonna)
+	nuova_colonna()
+	pannello = "menu"
+	intestazione("Pausa")
+	var primo := voce("riprendi", "Riprendi", chiudi)
+	stacco()
+	voce("storico", "Storico dei dialoghi", mostra_storico)
+	voce("diario", GameState.nome_diario(), mostra_diario)
+	voce("zaino", "Zaino", mostra_inventario)
+	stacco()
+	voce("squadra", "Personaggio e squadra", mostra_equipaggiamento)
+	voce("opzioni", "Opzioni", mostra_opzioni)
+	stacco()
+	voce("uscita", "Torna al menu principale", conferma_uscita)
 	mostra_chi_giochi()
 	primo.grab_focus()
 
-func allinea_a_sinistra(quale: VBoxContainer) -> void:
-	for figlio in quale.get_children():
-		if figlio is Button:
-			var b: Button = figlio
-			b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-			for stato in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-				b.add_theme_color_override(stato, Stile.colore("accento"))
+func voce(segno: String, testo: String, richiamo: Callable) -> Button:
+	var b := bottone("      " + testo, richiamo)
+	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	for stato in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		b.add_theme_color_override(stato, Stile.colore("accento"))
+	var s := Segno.nuovo(segno, Stile.colore("accento"), LARGO_SEGNO)
+	s.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
+	s.position.x = 6.0
+	b.add_child(s)
+	return b
+
+func stacco() -> void:
+	# lo spazio che separa un blocco dall'altro: e' la POSIZIONE a raggruppare,
+	# e la posizione e' l'unica variabile che l'occhio isola a colpo d'occhio
+	var vuoto := Control.new()
+	vuoto.custom_minimum_size = Vector2(0.0, STACCO)
+	vuoto.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	colonna.add_child(vuoto)
 
 func mostra_chi_giochi() -> void:
 	# IL TUO PERSONAGGIO, GRANDE A DESTRA, A FUOCO. E' l'unica cosa nitida in
@@ -568,47 +591,8 @@ func disegna_scomparto(genitore: VBoxContainer, chiave: String) -> void:
 			ordine.append(id_stringa)
 		conteggio[id_stringa] = int(conteggio[id_stringa]) + 1
 	for id_oggetto in ordine:
-		genitore.add_child(riga_oggetto(id_oggetto, int(conteggio[id_oggetto])))
-
-func riga_oggetto(id_oggetto: String, quanti: int) -> Control:
-	var dati := GameState.dati_oggetto(id_oggetto)
-	var blocco := VBoxContainer.new()
-	blocco.add_theme_constant_override("separation", 2)
-	var riga := HBoxContainer.new()
-	riga.add_theme_constant_override("separation", 10)
-	blocco.add_child(riga)
-	var nome := Label.new()
-	nome.text = String(dati.get("nome", id_oggetto))
-	if quanti > 1:
-		nome.text += "  ×%d" % quanti
-	nome.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	nome.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	riga.add_child(nome)
-	# un'arma equipaggiata resta nello zaino, segnata: e' una regola dello zaino,
-	# e qui e' l'unico posto dove si vede
-	var portatore := GameState.portatore_di(id_oggetto)
-	if portatore != "":
-		var uso := Label.new()
-		uso.text = "in uso — %s" % nome_di_classe(portatore)
-		uso.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
-		uso.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
-		riga.add_child(uso)
-	var effetto := riassunto_effetto(dati)
-	var descrizione := String(dati.get("descrizione", ""))
-	var sotto := Label.new()
-	sotto.text = descrizione if descrizione != "" else effetto
-	if descrizione != "" and effetto != "" and effetto != "nessun effetto":
-		sotto.text = "%s  —  %s" % [descrizione, effetto]
-	sotto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Stile.etichetta_piccola(sotto)
-	blocco.add_child(sotto)
-	return blocco
-
-func nome_di_classe(id_classe: String) -> String:
-	var definizione: Dictionary = GameState.classi.get(id_classe, {})
-	if not definizione.is_empty():
-		return String(definizione.get("nome", id_classe))
-	return String(GameState.personaggi.get(id_classe, {}).get("nome", id_classe))
+		genitore.add_child(SchedaOggetto.riga(id_oggetto, int(conteggio[id_oggetto]),
+				riassunto_effetto(GameState.dati_oggetto(id_oggetto))))
 
 func sezione_messaggi(genitore: VBoxContainer) -> void:
 	# «c'e' anche una sezione messaggi dove l'organizzazione ti ha versato 3000

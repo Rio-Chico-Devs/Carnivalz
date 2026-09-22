@@ -8002,11 +8002,14 @@ const FILE_GRANDI := {
 		"aggiungendo l'evidenziazione dei pezzi, e quella parte NON si stacca: " +
 		"pezzo() esiste proprio perche' e' la plancia a sapere com'e' fatta - " +
 		"portarla fuori darebbe un file che non sa niente e chiede tutto"},
-	"Pausa.gd": {"misura": 894, "perche":
+	"Pausa.gd": {"misura": 878, "perche":
 		"il data pad: sette schermate diverse (squadra, sacca, missioni, " +
 		"messaggi, mappa, opzioni, salvataggio) che non si parlano fra loro. " +
-		"E' il taglio piu' facile di tutto il progetto, ed e' in coda solo " +
-		"perche' non e' ancora costato niente a nessuno"},
+		"E' il taglio piu' facile di tutto il progetto. STRETTA DA 894 A 878: " +
+		"la scheda di un oggetto - nome, quanti, chi lo usa, cosa fa - se n'e' " +
+		"andata in SchedaOggetto.gd, dove serve anche al negozio. Il primo " +
+		"pezzo staccato, e il file e' sceso anche AVENDO aggiunto i segni e i " +
+		"blocchi al menu di pausa"},
 }
 
 const FUNZIONI_LUNGHE := {
