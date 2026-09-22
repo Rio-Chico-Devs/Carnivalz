@@ -133,6 +133,62 @@ letto il sorgente di Celeste). Oggi **WebFetch è bloccato su tutto** — ho
 provato anche `anthropic.com` — e `curl` non esce proprio. Resta solo la
 ricerca, che dà sintesi.
 
+### 0-bis. I MENU — la prossima tornata
+
+Bru: «creazione di menu, inventory, weapons, money counter, xp counter e
+organizzazione menu vari». Prima di cercare ho guardato cosa abbiamo davvero,
+se no la ricerca esce generica:
+
+- **la pausa è una lista di sette voci di solo testo**, allineate a sinistra,
+  con «Tazo 30» e «Lv 1» in alto a destra e metà schermo vuoto (`scatti/menu.png`);
+- `scripts/Pausa.gd` è **893 righe** e contiene già diario, storico, zaino a
+  **scomparti con capienza**, equipaggiamento, squadra;
+- la valuta si chiama **Tazo**, e l'XP è mascherato da **hype** — Bru:
+  «facciamo che spendi xp ma maschereremo l'xp con il termine hype»;
+- il livello **non esiste separato**: è quanti nodi hai comprato. Quindi la
+  schermata dei nodi *è* la schermata di livello, e sono la stessa cosa.
+
+Questo cambia cosa serve: non «come si fa un inventario», ma **come si presenta
+un inventario a capienza limitata**, **come si anima un contatore che il
+giocatore spende**, e **come si organizza un menu che ha già sei sezioni**.
+
+#### Le immagini — e qui c'è un problema di licenza da sciogliere tu
+
+| # | cosa | link |
+|---|---|---|
+| **1** | **Interface In Game** — 16.214 schermate catalogate per *Inventory, Menu, Progress, Stats, Store, Skill tree*. È l'alternativa a Game UI Database. **Controlla tu i termini d'uso prima di mandarmi roba da lì**: non riesco ad aprirlo e non voglio ripetere il caso qui sotto | https://interfaceingame.com/screenshots/ |
+| **2** | ⛔ **Game UI Database** — continua a uscire per ogni gioco che hai nominato (Persona 5, River City Girls 1 e 2, FFXVI). **Non lo uso**: dichiara che il contenuto non può alimentare sistemi di apprendimento automatico | — |
+| **3** | **Il manuale ufficiale di Yu-Gi-Oh GX: Duel Academy** (GBA), in PDF. È una **fonte primaria**: descrive il PDA, l'editor del mazzo e come sono organizzate le voci su uno schermo minuscolo | https://www.videogamemanual.com/gba/Yu-Gi-Oh!%20GX%20-%20Duel%20Academy%20(USA).pdf |
+
+#### I testi, in ordine di quanto cambiano la nostra interfaccia
+
+| # | cosa | a cosa ci serve | link |
+|---|---|---|---|
+| **4** | **Desurvire, Kaplan, Toth — *Heuristic Evaluation for Playability* (CHI 2004)**, e il seguito **PLAY** | È l'unica lista di euristiche fatta **per i giochi** invece che per i siti. Serve come cancello: una schermata o le passa o no. Il PDF di PLAY sembra scaricabile libero | https://dl.acm.org/doi/10.1145/985921.986102 — https://ocw.metu.edu.tr/pluginfile.php/4129/mod_resource/content/0/ceit706_2/10/game_usability-_heuristics.pdf |
+| **5** | **Celia Hodent — *The Gamer's Brain*** | Carico cognitivo applicato ai menu. La riga che ho già visto citata: «the workload in a game must be dedicated to the core experience you want to offer, **not in figuring out menus**». Va letta per esteso, non citata così | https://celiahodent.com/video-game-ux-psychology/ |
+| **6** | **Fagerholt & Lorentzon — *Beyond the HUD*** (tesi di laurea, Chalmers) | È da qui che vengono i quattro termini che tutto il mestiere usa: **diegetico, meta, spaziale, non-diegetico**. Ci serve per decidere cosa sono Tazo e hype: numeri sullo schermo o cose del mondo. *Nota: le citazioni danno 2008 in un posto e 2009 in un altro — da verificare sul documento* | https://www.semanticscholar.org/paper/16ee02a8839923752c6bc93f294bec67d73a586e |
+| **7** | **Intervista agli autori dell'interfaccia di Persona 5** — Masayoshi Sutoh (art director e capo UI) e Kazuhisa Wada, da CEDEC+KYUSHU 2017 | È il menu di JRPG più celebrato degli ultimi dieci anni e la nostra tavolozza è **la sua**: rosso cremisi su nero, testo bianco. Ci serve il ragionamento, non le schermate | https://personacentral.com/persona-5-interview-ui-design-sound-music/ |
+| **8** | **Timothy Cain — *Inventory UI: Grid vs. List*** | Cain è l'autore del primo Fallout. Noi abbiamo una **lista a scomparti con capienza**, cioè esattamente il caso di mezzo fra i due | https://rpgwatch.com/show/newsbit?newsbit=56159 |
+| **9** | **Paweł Durczok — *The Final Fantasy XVI interface: a Cabinet of Curiosities*** | Una demolizione seria, schermata per schermata, di un menu di Final Fantasy moderno — fatta da un progettista, non da un recensore | https://medium.com/@I_am_PD/the-final-fantasy-xvi-interface-a-cabinet-of-curiosities-c0fc7fc554b1 |
+| **10** | **Jonasson & Purho — *Juice it or lose it*** (Nordic Game Jam 2012), e **Swink, *Game Feel*** | Per i contatori: Tazo e hype sono numeri che **si spendono**, e il momento della spesa è quello che deve dare soddisfazione | https://www.youtube.com/watch?v=Fy0aCDmgnxg |
+| **11** | **River City Girls** — accrediti e interviste sull'interfaccia (WayForward, UI di Nick Bozic) | L'hai nominato tu ed è il caso più vicino a noi per tono: pixel, negozio, mosse comprate al dojo. Non ho trovato una demolizione seria — se ne conosci una, è quella che manca | — |
+
+**Quello che ho già ricavato dalle sintesi, e che NON è ancora una fonte:**
+
+- Fitts: su un menu lineare il tempo per arrivare a una voce dipende da distanza
+  e dimensione del bersaglio, quindi le voci lontane costano più delle vicine;
+  su un menu radiale il tempo è uniforme. La nostra pausa è lineare e lunga sette.
+- Heuristic Evaluation for Playability nasce nel 2004 da Desurvire, Kaplan e
+  Toth; PLAY è la versione rifatta con gente di Activision, THQ, Relic e altri.
+- Resident Evil originale: **6 caselle** con Chris, **8** con Jill, e le casse
+  nelle stanze sicure. È il precedente esatto del nostro zaino a capienza.
+- Persona 5: ogni voce del menu è animata, e i dati della GUI stanno già in
+  memoria così il menu si apre **senza attesa**. Se è vero, è una regola
+  implementativa, non estetica.
+
+Tutto questo è **di seconda mano**. Sulla mappa, due previsioni su quattro
+fatte così si sono rivelate sbagliate.
+
 ### 1. Le cose su cui poggiano decisioni GIÀ PRESE
 
 **Il carico cognitivo — Sweller.** Dopo che Andersen, «Show or Tell?» e
