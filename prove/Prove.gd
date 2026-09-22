@@ -115,6 +115,7 @@ func _ready() -> void:
 	prova_mappa_a_quadratini()
 	prova_i_quadratini_della_mappa_si_vedono_davvero()
 	prova_ogni_segno_della_mappa_si_vede()
+	prova_i_nomi_delle_stanze_si_leggono_senza_mouse()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
 	await prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare()
 	await prova_la_forma_del_testo()
@@ -6482,10 +6483,10 @@ func prova_ogni_segno_della_mappa_si_vede() -> void:
 
 	# ...e nemmeno la chiarezza da sola basta: sopra la segreta ci va il
 	# tratteggio, che e' l'unica variabile che sopravvive a qualunque tinta
-	var righe: PackedVector2Array = mappa.taglio_obliquo(Rect2(0, 0, 40, 40), 40.0)
+	var righe: PackedVector2Array = Tratteggio.taglio_obliquo(Rect2(0, 0, 40, 40), 40.0)
 	esigi(righe.size() == 2,
 			"il tratteggio non taglia il quadrato: la stanza segreta resta liscia")
-	esigi(mappa.taglio_obliquo(Rect2(0, 0, 40, 40), 500.0).is_empty(),
+	esigi(Tratteggio.taglio_obliquo(Rect2(0, 0, 40, 40), 500.0).is_empty(),
 			"il tratteggio disegna righe fuori dalla stanza")
 
 	# e un posto lontano resta comunque PIU' SPENTO di uno dove si arriva: la
@@ -6575,6 +6576,105 @@ func prova_ogni_segno_della_mappa_si_vede() -> void:
 					"il '?' di '%s' sta a %.2f:1: l'invito ad andarci non si vede"
 					% [quadratino.tooltip_text, glifo])
 	esigi(controllati >= 2, "non c'era nessun quadratino vero da misurare")
+	mappa.queue_free()
+
+func prova_i_nomi_delle_stanze_si_leggono_senza_mouse() -> void:
+	# UNA MAPPA SU CUI DEVI STRISCIARE IL CURSORE E' UN INDOVINELLO.
+	#
+	# Il nome di una stanza si leggeva in un modo solo: passandoci sopra col
+	# mouse, uno alla volta. E solo col mouse, perche' in Godot il
+	# suggerimento non compare quando un bottone prende il fuoco da tastiera -
+	# chi gira la mappa senza mouse passava da un quadrato all'altro senza che
+	# nessuno gli dicesse mai cosa stava guardando.
+	#
+	# Dentro i quadratini i nomi non ci stanno: arrivano a 27 caratteri
+	# ("Vecchio centro di controllo") contro quadratini da 30 a 104 pixel, e
+	# ci vorrebbe un corpo di quattro pixel. Quindi la legenda di fianco, che
+	# e' quello che fa la cartografia da secoli quando le etichette non
+	# entrano.
+	titolo("i nomi delle stanze si leggono senza passarci sopra col mouse")
+	GameState.nuova_partita()
+	GameState.entra_squarcio("prova_nomi", "res://data/vuoti/meridia.json")
+	GameState.nodi_visitati = ["varco", "periferia"] as Array[String]
+	for id_stanza in GameState.nodi_visitati:
+		GameState.sblocca_stanza(id_stanza)
+	GameState.nodo_corrente = "varco"
+
+	var mappa: Control = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	mappa.cornice.size = Vector2(700, 600)
+	mappa.ricostruisci()
+
+	# SENZA TOCCARE NIENTE, la schermata dice gia' dove sei
+	esigi(mappa.etichetta_stato.text.contains("Il varco"),
+			"appena aperta, la mappa non dice dove sei: dice '%s'" % mappa.etichetta_stato.text)
+
+	# e i nomi che conosci sono scritti per esteso, senza mouse
+	var scritti: Array[String] = []
+	for figlio in mappa.elenco.colonna.get_children():
+		if figlio is Button:
+			scritti.append(String((figlio as Button).text).strip_edges())
+	esigi("Il varco" in scritti,
+			"il posto dove sei non e' nella legenda: ci sono %s" % str(scritti))
+	esigi("Strade di periferia" in scritti,
+			"un posto che conosci non e' nella legenda: ci sono %s" % str(scritti))
+
+	# I POSTI DI CUI NON SAI IL NOME NON CI SONO. Un "?" in una lista di nomi
+	# sarebbe una riga vuota che occupa un posto: quelli si scoprono
+	# camminando, e sulla mappa restano un "?"
+	for nome in scritti:
+		esigi(nome != "?" and nome != "",
+				"nella legenda c'e' una riga senza nome: %s" % str(scritti))
+
+	# --- IL LEGAME, CHE E' LA PARTE CHE CONTA ---
+	#
+	# Una legenda che non si lega alla figura e' una tabella: leggi un nome e
+	# poi devi cercartelo fra ventisette quadrati uguali.
+	mappa._indica_stanza("periferia")
+	esigi(mappa.indicata == "periferia",
+			"indicando una riga della legenda, sulla mappa non si accende niente")
+	esigi(mappa.etichetta_stato.text.contains("Strade di periferia"),
+			"indicando una riga, la riga di stato non dice di cosa si tratta")
+	var accesa := 0
+	for id_riga in mappa.elenco.righe_per_id:
+		var riga: Button = mappa.elenco.righe_per_id[id_riga]
+		if riga.modulate.a > 0.9:
+			accesa += 1
+	esigi(accesa == 1,
+			"indicando una stanza si accendono %d righe della legenda invece di una" % accesa)
+
+	# e quando si smette si torna a dire dove sei, non al vuoto
+	mappa._smetti_di_indicare()
+	esigi(mappa.indicata == "", "l'anello resta acceso su una stanza che non indichi piu'")
+	esigi(mappa.etichetta_stato.text.contains("Il varco"),
+			"smettendo di indicare, la riga di stato resta muta: '%s'"
+			% mappa.etichetta_stato.text)
+
+	# --- E DALLA LEGENDA SI CAMMINA, ESATTAMENTE COME DAL QUADRATO ---
+	#
+	# Non e' una comodita' in piu': e' l'unico modo di girare la mappa senza
+	# mouse. La cosa da non sbagliare e' che i due non decidano in modo
+	# diverso - una riga che offre un viaggio che il quadrato rifiuta, o il
+	# contrario - e quello si controlla senza muovere nessuno, confrontando
+	# quello con cui la riga e' stata costruita con quello che dice la mappa.
+	#
+	# NON SI PROVA TIRANDO IL GRILLETTO. Andare davvero cambia la scena
+	# corrente, e qui dentro vuol dire segare il ramo su cui sta seduta tutta
+	# la suite: la prima versione di questa prova lo faceva, e le venti prove
+	# dopo fallivano una dietro l'altra senza nessun rapporto col motivo.
+	for posto in mappa.posti_da_elencare():
+		var id_posto := String(posto.get("id", ""))
+		esigi(bool(posto.get("raggiungibile", false)) == mappa.si_puo_andare(id_posto),
+				("la legenda e la mappa non sono d'accordo su '%s': una delle due " +
+				"offre un viaggio che l'altra rifiuta") % id_posto)
+
+	# e scegliendo un posto troppo lontano non ci si va, ma si sa perche'
+	mappa.etichetta_stato.text = " "
+	mappa._su_stanza_per_id("quartieri_profondi")
+	esigi(GameState.nodo_corrente == "varco",
+			"scegliendo dalla legenda un posto irraggiungibile ci si e' andati lo stesso")
+	esigi(mappa.etichetta_stato.text != " ",
+			"scegliendo dalla legenda un posto irraggiungibile non si e' saputo perche'")
 	mappa.queue_free()
 
 func prova_mappa_a_quadratini() -> void:

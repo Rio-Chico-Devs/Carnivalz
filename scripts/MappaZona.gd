@@ -23,12 +23,11 @@ extends Control
 # Una stanza che non confina con niente di noto non viene disegnata affatto:
 # la mappa si costruisce camminando, non si consegna gia' fatta.
 #
-# Le icone (boss, uscita, scontro duro) sono disegnate a mano qui sotto finche'
-# non arrivano i disegni: basta mettere art/icone_mappa/<icona>.png e quello
-# vince, senza toccare il codice.
+# Le icone (boss, uscita, "sei qui", il punto esclamativo) stanno in
+# SegniMappa.gd; i nomi delle stanze non ci stanno dentro e si leggono nella
+# legenda di fianco, che e' ElencoPosti.gd.
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
-const CARTELLA_ICONE := "res://art/icone_mappa/"
 const DURATA_BATTITO := 1.1   # secondi di un salto completo del punto esclamativo
 
 const LATO_MINIMO := 30.0     # sotto questa misura un quadratino non si legge
@@ -58,7 +57,10 @@ var disegno: Texture2D = null      # la mappa disegnata da Bru, quando c'e'
 var misura_disegno := Vector2.ZERO # quanto e' grande quel disegno, dichiarato nei dati
 var riquadro_disegno := Rect2()    # e dove finisce a schermo, dopo averlo adattato
 
+var indicata := ""             # la stanza che l'anello sta cerchiando, se c'e'
+
 var cornice: Control
+var elenco: ElencoPosti
 var strato_sotto: Control      # griglia e collegamenti
 var strato_sopra: Control      # icone e "sei qui"
 var strato_bottoni: Control
@@ -93,6 +95,15 @@ func _ready() -> void:
 	cornice.resized.connect(ricostruisci)
 	resized.connect(ricostruisci)
 	ricostruisci()
+	# LA LEGENDA SI RIEMPIE QUI E NON DENTRO ricostruisci(), e non e' un
+	# dettaglio: ricostruisci() e' agganciata al ridimensionamento della
+	# cornice, e aggiungere righe alla legenda cambia la larghezza che la
+	# cornice si prende. Chiamandola di li' si innescava un anello infinito -
+	# riempi, cambia misura, resized, ricostruisci, riempi - e le prove si
+	# piantavano senza stampare niente. I nomi dei posti dipendono da quello
+	# che sai, non da quanto e' larga la finestra.
+	elenco.riempi(posti_da_elencare())
+	_smetti_di_indicare()
 	obiettivo_in_vista = c_e_un_obiettivo()
 	set_process(obiettivo_in_vista)
 
@@ -215,18 +226,6 @@ func tinta_segno() -> Color:
 func tinta_fascia() -> Color:
 	return Stile.colore("sfondo")
 
-func linea_fasciata(da: Vector2, a: Vector2, spessore: float, tinta: Color) -> void:
-	Fascia.linea(strato_sopra, da, a, spessore, tinta, tinta_fascia())
-
-func cerchio_fasciato(centro: Vector2, raggio: float, tinta: Color) -> void:
-	Fascia.cerchio(strato_sopra, centro, raggio, tinta, tinta_fascia())
-
-func arco_fasciato(centro: Vector2, raggio: float, spessore: float, tinta: Color) -> void:
-	Fascia.arco(strato_sopra, centro, raggio, spessore, tinta, tinta_fascia())
-
-func poligono_fasciato(punti: PackedVector2Array, spessore: float, tinta: Color) -> void:
-	Fascia.poligono(strato_sopra, punti, spessore, tinta, tinta_fascia())
-
 # --- intelaiatura --------------------------------------------------------
 
 func costruisci_intelaiatura() -> void:
@@ -259,12 +258,27 @@ func costruisci_intelaiatura() -> void:
 	titolo.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
 	barra.add_child(titolo)
 
+	# LA FIGURA E LA SUA CHIAVE, una di fianco all'altra. I nomi delle stanze
+	# arrivano a 27 caratteri e i quadratini a 104 pixel: dentro non ci stanno
+	# e sotto nemmeno, quindi vanno letti qui di fianco. Vedi ElencoPosti.gd.
+	var fianco := HBoxContainer.new()
+	fianco.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	fianco.add_theme_constant_override("separation", Stile.forma("separazione"))
+	colonna.add_child(fianco)
+
 	# la cornice del disegno di Bru: la porzione di mappa che stai guardando
 	cornice = Control.new()
 	cornice.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	cornice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cornice.clip_contents = true
-	colonna.add_child(cornice)
+	fianco.add_child(cornice)
+
+	elenco = ElencoPosti.new()
+	elenco.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	elenco.indicato.connect(_indica_stanza)
+	elenco.lasciato.connect(_smetti_di_indicare)
+	elenco.scelto.connect(_su_stanza_per_id)
+	fianco.add_child(elenco)
 
 	strato_sotto = Control.new()
 	strato_sotto.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -283,10 +297,14 @@ func costruisci_intelaiatura() -> void:
 	strato_sopra.draw.connect(_disegna_sopra)
 	cornice.add_child(strato_sopra)
 
+	# LA RIGA CHE DICE SEMPRE DOVE SEI. Era a corpo 37 - piu' grande della
+	# legenda e quasi quanto il nome della zona - e da sola rovesciava la
+	# gerarchia: una riga di stato in fondo e' la voce piu' bassa della
+	# schermata, non la piu' alta. A 26 si legge da lontano e non grida.
 	etichetta_stato = Label.new()
 	etichetta_stato.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	etichetta_stato.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
-	etichetta_stato.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
+	Stile.imposta_corpo(etichetta_stato, Stile.dimensione("corpo"))
 	etichetta_stato.text = " "
 	colonna.add_child(etichetta_stato)
 
@@ -404,8 +422,14 @@ func disegna_bottoni() -> void:
 				bottone.add_theme_font_size_override("font_size", int(lato * 0.5))
 			vesti_vuoto(bottone, noto, raggiungibile)
 		bottone.pressed.connect(_su_stanza.bind(id_stanza, noto, raggiungibile))
-		bottone.mouse_entered.connect(func() -> void:
-			etichetta_stato.text = String(stanza.get("nome", id_stanza)) if noto or visitata(id_stanza) else "?")
+		# ANCHE COL TASTO, NON SOLO COL MOUSE. In Godot il suggerimento non
+		# compare quando un bottone prende il fuoco da tastiera: chi gira la
+		# mappa senza mouse passava da un quadrato all'altro senza che nessuno
+		# gli dicesse mai cosa stava guardando.
+		bottone.mouse_entered.connect(_indica_stanza.bind(id_stanza))
+		bottone.focus_entered.connect(_indica_stanza.bind(id_stanza))
+		bottone.mouse_exited.connect(_smetti_di_indicare)
+		bottone.focus_exited.connect(_smetti_di_indicare)
 		strato_bottoni.add_child(bottone)
 
 func vesti_pieno(bottone: Button, segreta: bool, raggiungibile: bool) -> void:
@@ -444,6 +468,59 @@ func vesti_vuoto(bottone: Button, noto: bool, raggiungibile: bool) -> void:
 		scatola.set_border_width_all(2)
 		scatola.border_color = tinta
 		bottone.add_theme_stylebox_override(stato, scatola)
+
+func _indica_stanza(id_stanza: String) -> void:
+	indicata = id_stanza
+	etichetta_stato.text = nome_di(id_stanza)
+	elenco.evidenzia(id_stanza)
+	strato_sopra.queue_redraw()
+
+func _smetti_di_indicare() -> void:
+	# SI TORNA A DIRE DOVE SEI, non si torna al vuoto. Prima qui restava una
+	# riga bianca, e la schermata smetteva di rispondere alla sola domanda a
+	# cui una mappa deve rispondere sempre.
+	indicata = ""
+	etichetta_stato.text = dove_sei()
+	elenco.evidenzia("")
+	strato_sopra.queue_redraw()
+
+func dove_sei() -> String:
+	var nome := nome_di(GameState.nodo_corrente)
+	return "" if nome == "" else "Sei in: %s" % nome
+
+func nome_di(id_stanza: String) -> String:
+	# il nome si sa se ci sei stato o se la storia te l'ha nominato; se no e'
+	# un "?", ed e' giusto che resti un "?"
+	if not stanze_per_id.has(id_stanza):
+		return ""
+	if not (visitata(id_stanza) or GameState.stanza_sbloccata(id_stanza)):
+		return "?"
+	return String(stanze_per_id[id_stanza].get("nome", id_stanza))
+
+func posti_da_elencare() -> Array:
+	# LA LEGENDA LA COMPILA LA MAPPA, non se la costruisce da se'. Chi decide
+	# cosa si sa e dove si arriva dev'essere uno solo: due posti che decidono
+	# la stessa cosa prima o poi la decidono in modo diverso.
+	var posti: Array = []
+	for stanza in GameState.mappa_zona.get("stanze", []):
+		var id_stanza := String(stanza.get("id", ""))
+		if not si_vede(id_stanza):
+			continue
+		if not (visitata(id_stanza) or GameState.stanza_sbloccata(id_stanza)):
+			continue   # di questo non sai nemmeno il nome: sulla mappa e' un "?"
+		var raggiungibile := si_puo_andare(id_stanza)
+		posti.append({
+			"id": id_stanza,
+			"nome": String(stanza.get("nome", id_stanza)),
+			"visitata": visitata(id_stanza),
+			"segreta": e_segreta(stanza),
+			"raggiungibile": raggiungibile,
+			"tinta": tinta_stanza(e_segreta(stanza), raggiungibile),
+		})
+	return posti
+
+func _su_stanza_per_id(id_stanza: String) -> void:
+	_su_stanza(id_stanza, GameState.stanza_sbloccata(id_stanza), si_puo_andare(id_stanza))
 
 func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
 	# un click che non porta da nessuna parte deve comunque dire perche': il
@@ -513,89 +590,33 @@ func _disegna_sopra() -> void:
 		if visitata(id_stanza) and e_segreta(stanza):
 			tratteggia(rettangolo, si_puo_andare(id_stanza))
 		if icona == "obiettivo":
-			disegna_obiettivo(rettangolo)
+			SegniMappa.obiettivo(strato_sopra, rettangolo, battito,
+					tinta_segno(), tinta_fascia())
 		elif visitata(id_stanza):
-			disegna_icona(icona, rettangolo)
+			SegniMappa.icona(strato_sopra, icona, rettangolo,
+					tinta_segno(), tinta_fascia())
 		if id_stanza == GameState.proiettore_qui():
-			disegna_proiettore(rettangolo)
+			SegniMappa.proiettore(strato_sopra, rettangolo, tinta_segno(), tinta_fascia())
 		if id_stanza == GameState.nodo_corrente:
-			disegna_sei_qui(rettangolo)
+			SegniMappa.sei_qui(strato_sopra, rettangolo, tinta_segno(), tinta_fascia())
+		if id_stanza == indicata:
+			disegna_anello(rettangolo)
 
 func tratteggia(rettangolo: Rect2, raggiungibile: bool) -> void:
-	# LE RIGHE OBLIQUE SULLE STANZE SEGRETE. Tessitura, nella lista di Bertin:
-	# e' una delle poche variabili che si vede a colpo d'occhio su tutta la
-	# mappa insieme - guardi e sai subito quante segrete hai trovato - e
-	# soprattutto non dipende da quale tinta sia, quindi regge dove la tinta
-	# non regge.
-	#
-	# Il passo e' proporzionale al quadratino perche' alla misura minima (30
-	# pixel) tre righe sono una tessitura e otto sono una macchia.
-	var tinta := tinta_stanza(true, raggiungibile).lightened(SCHIARITA_TRATTEGGIO)
-	var corto := minf(rettangolo.size.x, rettangolo.size.y)
-	var passo := maxf(corto * 0.26, 6.0)
-	var spessore := maxf(passo * 0.22, 1.5)
-	var k := rettangolo.position.x + rettangolo.position.y + passo * 0.5
-	var fine := rettangolo.end.x + rettangolo.end.y
-	while k < fine:
-		var estremi := taglio_obliquo(rettangolo, k)
-		if estremi.size() == 2:
-			strato_sopra.draw_line(estremi[0], estremi[1], tinta, spessore)
-		k += passo
+	# le righe oblique delle stanze segrete: come si tracciano e perche' sta
+	# in Tratteggio.gd, che disegna anche il quadratino della legenda - se i
+	# due segni non fossero identici la legenda direbbe un'altra cosa
+	Tratteggio.dentro(strato_sopra, rettangolo,
+			tinta_stanza(true, raggiungibile).lightened(SCHIARITA_TRATTEGGIO))
 
-static func taglio_obliquo(r: Rect2, k: float) -> PackedVector2Array:
-	# la retta x + y = k tagliata sui quattro lati: i punti buoni sono al
-	# massimo due, e stanno agli estremi in x perche' la retta scende sempre
-	var dentro: Array[Vector2] = []
-	var allargato := r.grow(0.01)
-	for p in [Vector2(r.position.x, k - r.position.x), Vector2(r.end.x, k - r.end.x),
-			Vector2(k - r.position.y, r.position.y), Vector2(k - r.end.y, r.end.y)]:
-		if allargato.has_point(p):
-			dentro.append(p)
-	if dentro.size() < 2:
-		return PackedVector2Array()
-	dentro.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
-	var primo: Vector2 = dentro[0]
-	var ultimo: Vector2 = dentro[dentro.size() - 1]
-	if primo.distance_to(ultimo) < 1.0:
-		return PackedVector2Array()   # ha toccato solo un angolo
-	return PackedVector2Array([primo, ultimo])
+func disegna_anello(rettangolo: Rect2) -> void:
+	# L'ANELLO E' IL FILO CHE LEGA LA LEGENDA ALLA MAPPA. Senza, un elenco di
+	# nomi di fianco e' una tabella: leggi "Sala del lamento" e poi devi
+	# andartela a cercare fra ventisette quadrati uguali.
+	var fuori := rettangolo.grow(maxf(lato * 0.06, 3.0))
+	strato_sopra.draw_rect(fuori, tinta_fascia(), false, maxf(lato * 0.09, 5.0))
+	strato_sopra.draw_rect(fuori, Stile.colore("accento"), false, maxf(lato * 0.05, 3.0))
 
-func disegna_obiettivo(rettangolo: Rect2) -> void:
-	# DOVE DEVI ANDARE, e si muove. Bru: «puoi andare solo nella sala
-	# allenamento che ha un punto esclamativo animato che si muove».
-	#
-	# Si muove perche' su una mappa ferma, fatta di quadrati tutti uguali, l'
-	# unica cosa che l'occhio trova da solo e' quella che si muove. Saltella e
-	# respira: due movimenti diversi insieme, perche' uno solo sembra un errore
-	# di disegno e due sembrano una cosa viva.
-	var centro := rettangolo.get_center()
-	var raggio := minf(rettangolo.size.x, rettangolo.size.y) * 0.5
-	var salto := sin(battito * TAU) * raggio * 0.14
-	var respiro := 1.0 + sin(battito * TAU * 2.0) * 0.06
-	centro.y += salto
-	# il disco si interroga una volta sola, non a ogni fotogramma: questo
-	# disegno si rifa' sessanta volte al secondo finche' il punto pulsa
-	var texture := Disegni.texture(CARTELLA_ICONE + "obiettivo.png")
-	if texture != null:
-		var misura := Vector2.ONE * raggio * 1.24 * respiro
-		strato_sopra.draw_texture_rect(texture, Rect2(centro - misura * 0.5, misura), false)
-		return
-	# il punto esclamativo disegnato a mano finche' non arriva quello vero:
-	# un'asta e un punto, che e' tutto quello che serve perche' si legga
-	# BIANCO E NON ACCENTO, e ci e' voluto un sabotaggio per capirlo. Il punto
-	# esclamativo e' il richiamo, quindi la tentazione era dargli la tinta dei
-	# richiami; ma l'obiettivo puo' stare benissimo su una stanza gia'
-	# visitata - la sala di allenamento in cui torni - e li' accento e rosso
-	# pieno sono la stessa cosa. Restava in piedi solo grazie alla fascia
-	# scura, cioe' si leggeva come un contorno vuoto invece che come un segno.
-	# Del resto questo e' l'unico segno della mappa CHE SI MUOVE, e il
-	# movimento lo trova l'occhio da solo: non gli serviva anche il rosso.
-	var tinta := tinta_segno()
-	var alto := raggio * 0.62 * respiro
-	var spessore := maxf(raggio * 0.17, 3.0)
-	linea_fasciata(centro + Vector2(0.0, -alto), centro + Vector2(0.0, alto * 0.25),
-			spessore, tinta)
-	cerchio_fasciato(centro + Vector2(0.0, alto * 0.72), spessore * 0.58, tinta)
 
 func icona_di(stanza: Dictionary) -> String:
 	# L'ICONA DI UNA STANZA PUO' AVERE UN ORARIO.
@@ -635,60 +656,5 @@ func _process(delta: float) -> void:
 	battito = fmod(battito + delta / DURATA_BATTITO, 1.0)
 	strato_sopra.queue_redraw()
 
-func disegna_icona(icona: String, rettangolo: Rect2) -> void:
-	if icona == "":
-		return
-	# se il disegno c'e' vince lui: aggiungere un'icona e' aggiungere un file
-	var texture := Disegni.texture(CARTELLA_ICONE + icona + ".png")
-	if texture != null:
-		var misura := Vector2.ONE * minf(rettangolo.size.x, rettangolo.size.y) * 0.62
-		strato_sopra.draw_texture_rect(texture,
-				Rect2(rettangolo.get_center() - misura * 0.5, misura), false)
-		return
-	var centro := rettangolo.get_center()
-	var raggio := minf(rettangolo.size.x, rettangolo.size.y) * 0.5
-	var tinta := tinta_segno()
-	match icona:
-		"boss":
-			arco_fasciato(centro, raggio * 0.58, maxf(raggio * 0.14, 2.0), tinta)
-		"forte":
-			cerchio_fasciato(centro, raggio * 0.26, tinta)
-		"uscita":
-			var d := raggio * 0.44
-			var spessore := maxf(raggio * 0.16, 2.0)
-			linea_fasciata(centro - Vector2(d, d), centro + Vector2(d, d), spessore, tinta)
-			linea_fasciata(centro + Vector2(d, -d), centro - Vector2(d, -d), spessore, tinta)
-		_:
-			arco_fasciato(centro, raggio * 0.4, 2.0, tinta)
 
-func disegna_proiettore(rettangolo: Rect2) -> void:
-	# il proiettore piantato: un anello nell'angolo, per non coprire l'icona
-	# della stanza e per non farsi confondere con la freccia
-	var misura := minf(rettangolo.size.x, rettangolo.size.y) * 0.3
-	var angolo := rettangolo.position + Vector2(rettangolo.size.x - misura * 1.2, misura * 0.2)
-	var disegno := Disegni.texture(CARTELLA_ICONE + "proiettore.png")
-	if disegno != null:
-		strato_sopra.draw_texture_rect(disegno, Rect2(angolo, Vector2.ONE * misura), false)
-		return
-	var centro := angolo + Vector2.ONE * misura * 0.5
-	var tinta := tinta_segno()
-	arco_fasciato(centro, misura * 0.45, maxf(misura * 0.16, 2.0), tinta)
-	cerchio_fasciato(centro, misura * 0.13, tinta)
 
-func disegna_sei_qui(rettangolo: Rect2) -> void:
-	# la freccia: dove sei adesso. Sta sopra il quadrato, non dentro, cosi' non
-	# copre la sua icona
-	var centro := rettangolo.get_center()
-	var misura := minf(rettangolo.size.x, rettangolo.size.y)
-	var punta := centro + Vector2(0, misura * 0.16)
-	var larghezza := misura * 0.20
-	var altezza := misura * 0.24
-	poligono_fasciato(PackedVector2Array([
-		punta,
-		punta + Vector2(-larghezza, -altezza),
-		punta + Vector2(-larghezza * 0.45, -altezza),
-		punta + Vector2(-larghezza * 0.45, -altezza - misura * 0.22),
-		punta + Vector2(larghezza * 0.45, -altezza - misura * 0.22),
-		punta + Vector2(larghezza * 0.45, -altezza),
-		punta + Vector2(larghezza, -altezza),
-	]), maxf(misura * 0.05, 2.0), tinta_segno())
