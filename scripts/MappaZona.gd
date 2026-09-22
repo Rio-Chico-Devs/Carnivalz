@@ -291,7 +291,15 @@ func disegna_bottoni() -> void:
 			continue   # non se ne conosce nemmeno l'esistenza
 		var rettangolo := rettangolo_di(stanza)
 		var bottone := Button.new()
-		bottone.flat = true
+		# NON PIATTO, MAI. Un Button con flat = true in Godot NON DISEGNA il suo
+		# StyleBox: salta il fondo e disegna solo il testo. Qui sotto ci sono
+		# quaranta righe che costruiscono una scatola per ogni stato - fondo,
+		# bordo, angoli, il rosso spento per i posti lontani - e questa riga le
+		# buttava via tutte, in silenzio. La mappa veniva fuori come una manciata
+		# di "?" e di trattini sul nero: le stanze VISITATE, quelle che dovevano
+		# essere quadrati rossi pieni, non si vedevano proprio. Bru, guardandola:
+		# «la mappa e' pessima». Non era il disegno che mancava, era questo.
+		bottone.flat = false
 		bottone.position = rettangolo.position
 		bottone.size = rettangolo.size
 		bottone.tooltip_text = String(stanza.get("nome", id_stanza))
@@ -319,9 +327,15 @@ func vesti_pieno(bottone: Button, segreta: bool, raggiungibile: bool) -> void:
 	var tinta := Stile.colore("positivo") if segreta else Stile.colore("pericolo")
 	if not raggiungibile:
 		tinta = tinta.darkened(0.45)
+	# SOPRA UN DISEGNO NON SI SPALMA. Su una griglia il quadrato pieno E' la
+	# stanza, e deve essere pieno; sopra la pianta disegnata da Bru la stessa
+	# tinta opaca coprirebbe proprio quello che si e' andati a disegnare. La
+	# stanza resta segnata, ma si vede attraverso.
+	var velo := 0.42 if c_e_un_disegno() else 1.0
 	for stato in ["normal", "hover", "pressed", "focus"]:
 		var scatola := StyleBoxFlat.new()
-		scatola.bg_color = tinta.lightened(0.12) if stato != "normal" and raggiungibile else tinta
+		var fondo := tinta.lightened(0.12) if stato != "normal" and raggiungibile else tinta
+		scatola.bg_color = Color(fondo, velo)
 		scatola.set_corner_radius_all(3)
 		scatola.set_border_width_all(2)
 		scatola.border_color = Stile.colore("accento") if raggiungibile else tinta.darkened(0.3)

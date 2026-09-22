@@ -113,6 +113,7 @@ func _ready() -> void:
 	prova_illustrazioni()
 	prova_leva_bersaglio()
 	prova_mappa_a_quadratini()
+	prova_i_quadratini_della_mappa_si_vedono_davvero()
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
@@ -6069,6 +6070,59 @@ func prova_leva_bersaglio() -> void:
 	esigi(not scontro.frenesia_attiva,
 			"la frenesia parte anche senza le lettere: il giocatore non puo' piu' fermarla")
 	scontro.queue_free()
+
+func prova_i_quadratini_della_mappa_si_vedono_davvero() -> void:
+	# QUELLO CHE VESTIAMO DEVE ARRIVARE A SCHERMO.
+	#
+	# vesti_pieno e vesti_vuoto costruiscono una scatola per ogni stato del
+	# bottone: fondo, bordo, angoli, il rosso spento per i posti lontani. Tutte
+	# e due venivano buttate via da una riga sola - bottone.flat = true - perche'
+	# un Button piatto in Godot NON DISEGNA il suo StyleBox. Risultato: le stanze
+	# visitate, che dovevano essere quadrati rossi pieni, non si vedevano; della
+	# mappa restavano i "?" e i trattini dei corridoi. Bru: «la mappa e' pessima».
+	#
+	# Nessuna prova poteva accorgersene, perche' tutte guardavano il testo e la
+	# posizione dei bottoni - cioe' le cose che flat NON tocca. Questa guarda se
+	# il fondo che abbiamo calcolato verra' disegnato.
+	titolo("i quadratini della mappa si vedono davvero")
+	GameState.nuova_partita()
+	GameState.entra_squarcio("prova_vestito", "res://data/vuoti/meridia.json")
+	GameState.nodi_visitati = ["varco", "periferia"] as Array[String]
+	for id_stanza in GameState.nodi_visitati:
+		GameState.sblocca_stanza(id_stanza)
+	GameState.nodo_corrente = "varco"
+
+	var mappa: Control = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	mappa.cornice.size = Vector2(900, 700)
+	mappa.ricostruisci()
+
+	var visti := 0
+	var pieni := 0
+	for figlio in mappa.strato_bottoni.get_children():
+		if not figlio is Button:
+			continue
+		var quadratino := figlio as Button
+		visti += 1
+		esigi(not quadratino.flat,
+				"'%s' e' un bottone piatto: il fondo che gli abbiamo dato non verra' disegnato"
+				% quadratino.tooltip_text)
+		esigi(quadratino.has_theme_stylebox_override("normal"),
+				"'%s' non ha nessuna scatola: sarebbe un rettangolo trasparente"
+				% quadratino.tooltip_text)
+		var scatola := quadratino.get_theme_stylebox("normal") as StyleBoxFlat
+		esigi(scatola != null and scatola.bg_color.a > 0.0,
+				"'%s' ha il fondo trasparente: sulla mappa non si vede niente"
+				% quadratino.tooltip_text)
+		# UNA STANZA DOVE SEI STATO E' PIENA, non un contorno: e' l'unico segno
+		# che distingue "ci sono passato" da "l'ho solo intravisto"
+		if quadratino.text == "" and scatola != null and scatola.bg_color.a > 0.6:
+			pieni += 1
+	esigi(visti >= 2, "sulla mappa non c'e' nessun quadratino da controllare")
+	esigi(pieni >= 2,
+			"solo %d quadratini pieni su %d: le stanze visitate non si distinguono"
+			% [pieni, visti])
+	mappa.queue_free()
 
 func prova_mappa_a_quadratini() -> void:
 	# LA MAPPA NON DEVE RACCONTARE PIU' DI QUELLO CHE SAI.

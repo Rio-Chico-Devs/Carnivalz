@@ -289,6 +289,34 @@ func prepara(quale: String) -> void:
 			schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			add_child(schermo)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"zona":
+			# LA MAPPA A QUADRETTI, quella che non aspetta nessun disegno.
+			#
+			# Il complesso e' una pianta e la pianta la disegna Bru; una zona
+			# invece si costruisce da se', e quindi e' l'unica delle due che si
+			# puo' guardare adesso. Casa Gigante e' la piu' grande che abbiamo -
+			# ventisette stanze - ed e' il caso in cui una mappa o regge o non
+			# regge: su sei stanze qualunque disposizione sembra buona.
+			GameState.nuova_partita()
+			GameState.avvia_carnivalz("casa_gigante",
+					"res://data/vuoti/casa_gigante.json")
+			# MEZZA ESPLORATA, non tutta: una mappa tutta accesa non dice niente
+			# di come si legge mentre ci stai dentro. Si sbloccano tutte (cosi'
+			# si vedono) ma se ne visitano solo le prime, che e' la situazione
+			# vera di chi ci sta girando.
+			var stanze_zona: Array = GameState.mappa_zona.get("stanze", [])
+			for stanza in stanze_zona:
+				GameState.sblocca_stanza(String(stanza.get("id", "")))
+			for i in mini(stanze_zona.size() / 2, stanze_zona.size()):
+				var id_visitata := String(stanze_zona[i].get("id", ""))
+				if not id_visitata in GameState.nodi_visitati:
+					GameState.nodi_visitati.append(id_visitata)
+			if not stanze_zona.is_empty():
+				GameState.nodo_corrente = String(stanze_zona[2].get("id", ""))
+			var quadretti: Control = load("res://scenes/MappaZona.tscn").instantiate()
+			quadretti.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			add_child(quadretti)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 		"rottura":
 			# il vetro a meta' caduta: e' l'unico modo di guardarlo, perche'
 			# dura poco piu' di un secondo e a occhio nudo non si ferma
