@@ -114,6 +114,8 @@ func _ready() -> void:
 	prova_leva_bersaglio()
 	prova_mappa_a_quadratini()
 	prova_i_quadratini_della_mappa_si_vedono_davvero()
+	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
+	await prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo()
 	prova_giornata_dopo_allenamento()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
@@ -6071,6 +6073,119 @@ func prova_leva_bersaglio() -> void:
 			"la frenesia parte anche senza le lettere: il giocatore non puo' piu' fermarla")
 	scontro.queue_free()
 
+func prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo() -> void:
+	# LE AREE CHIUSE DEL COMPLESSO dicono una riga e ti rimandano fuori. Prima
+	# nascondevano il comando per avanzare e aspettavano 2,2 secondi fissi: chi
+	# legge in fretta guardava il muro, e non c'era niente da premere.
+	#
+	# E' il difetto che Durczok segnala su Final Fantasy XVI - le schermate «on
+	# a timer that needs to elapse», «very disruptive behaviour from the UI».
+	# Adesso quei secondi sono una cortesia per chi resta fermo: il comando
+	# resta a schermo e chi clicca esce subito.
+	#
+	# Si misura sul comando, non sul tempo: se e' a schermo il giocatore ha una
+	# via d'uscita, se non c'e' e' in gabbia per 2,2 secondi.
+	titolo("chi ti rigetta fuori non ti tiene fermo")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+
+	var chiuse: Array[String] = []
+	for id_nodo in GameState.eventi:
+		if bool((GameState.eventi[id_nodo] as Dictionary).get("espulsione_automatica", false)):
+			chiuse.append(String(id_nodo))
+	esigi(chiuse.size() >= 2,
+			"non ci sono aree a espulsione automatica da controllare: ne ho trovate %d"
+			% chiuse.size())
+
+	for id_nodo in chiuse:
+		GameState.nodo_corrente = id_nodo
+		schermata.mostra_nodo(id_nodo)
+		await get_tree().process_frame
+		esigi(schermata.area_avanza.visible,
+				"'%s' ti rigetta fuori col comando per avanzare nascosto: " % id_nodo +
+				"2,2 secondi in cui non si puo' premere niente")
+		esigi(schermata.azione_dopo_coda.is_valid(),
+				"'%s': finita la coda non c'e' nessuna uscita - " % id_nodo +
+				"chi clicca resta dentro")
+	schermata.free()
+	GameState.nuova_partita()
+
+func prova_un_numero_che_si_anima_non_fa_mai_aspettare() -> void:
+	# ANIMARE SI', SBARRARE MAI.
+	#
+	# Paweł Durczok, smontando Final Fantasy XVI, chiama «peccato capitale» una
+	# schermata che non si chiude finche' l'animazione non e' finita, e l'esempio
+	# e' proprio un contatore: esperienza, punti, soldi e fama che salgono con
+	# l'ammorbidimento, e solo dopo si puo' chiudere. «You'll be seeing hundreds
+	# of those screens during the course of the game.»
+	#
+	# Qui si misura la separazione: l'animazione e' un regalo, non un pedaggio.
+	# Chi salta trova SUBITO il numero giusto, nello stesso fotogramma, e non
+	# deve aspettare niente.
+	titolo("un numero che si anima non fa mai aspettare")
+	var etichetta := Label.new()
+	add_child(etichetta)
+	var conto := Conto.su(etichetta, "Tazo %d")
+
+	# il valore di partenza si scrive e basta: un contatore che risale da zero a
+	# ogni apertura del menu non racconta niente, fa solo aspettare
+	conto.scrivi(30)
+	esigi(etichetta.text == "Tazo 30",
+			"il valore di partenza non e' stato scritto: c'e' '%s'" % etichetta.text)
+	esigi(not conto.in_corso(), "scrivere il valore di partenza ha avviato un'animazione")
+
+	# adesso si spende, e il numero parte
+	conto.vai_a(12)
+	await get_tree().process_frame
+	esigi(conto.in_corso(), "il numero non si sta muovendo: nessuna animazione")
+	esigi(conto.mostrato != 12,
+			"l'animazione e' gia' finita al primo fotogramma: non si vedrebbe niente")
+
+	# IL GIOCATORE HA FRETTA. Salta, e da quell'istante il numero e' quello vero.
+	conto.subito()
+	esigi(conto.mostrato == 12,
+			"dopo aver saltato il numero e' %d invece di 12" % conto.mostrato)
+	esigi(etichetta.text == "Tazo 12",
+			"dopo aver saltato a schermo c'e' '%s'" % etichetta.text)
+	esigi(not conto.in_corso(), "dopo aver saltato l'animazione e' ancora in corso")
+
+	# E NON TORNA INDIETRO. Se saltare scrivesse il numero senza spegnere
+	# l'animazione, al fotogramma dopo il tween riscriverebbe un valore di
+	# mezzo: il giocatore vedrebbe il numero risalire dopo averlo saltato.
+	for giro in 5:
+		await get_tree().process_frame
+	esigi(conto.mostrato == 12,
+			"un fotogramma dopo il salto il numero e' tornato a %d" % conto.mostrato)
+	esigi(etichetta.text == "Tazo 12",
+			"un fotogramma dopo il salto a schermo c'e' '%s'" % etichetta.text)
+
+	# CHI RIDUCE IL MOVIMENTO non vede nessuna animazione, e il numero e' giusto
+	# dal primo istante
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	conto.vai_a(99)
+	esigi(conto.mostrato == 99,
+			"con il movimento ridotto il numero e' %d invece di 99" % conto.mostrato)
+	esigi(not conto.in_corso(), "con il movimento ridotto c'e' comunque un'animazione")
+	Impostazioni.movimento_ridotto = prima
+
+	# e saltare piu' contatori insieme e' quello che fa chi riceve un tasto
+	var altra := Label.new()
+	add_child(altra)
+	var secondo := Conto.su(altra, "%d")
+	secondo.scrivi(0)
+	conto.scrivi(0)
+	conto.vai_a(500)
+	secondo.vai_a(800)
+	Conto.salta([conto, secondo])
+	esigi(conto.mostrato == 500 and secondo.mostrato == 800,
+			"saltandoli insieme sono rimasti a %d e %d" % [conto.mostrato, secondo.mostrato])
+	etichetta.queue_free()
+	altra.queue_free()
+
 func prova_i_quadratini_della_mappa_si_vedono_davvero() -> void:
 	# QUELLO CHE VESTIAMO DEVE ARRIVARE A SCHERMO.
 	#
@@ -7870,10 +7985,16 @@ const FILE_GRANDI := {
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
 		"combattimento qui i pezzi sono davvero separabili: i file di dati " +
 		"non c'entrano niente con gli slot di salvataggio"},
-	"Main.gd": {"misura": 1474, "perche":
+	"Main.gd": {"misura": 1476, "perche":
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
-		"adesso vuol dire spezzarlo di nuovo fra un mese"},
+		"adesso vuol dire spezzarlo di nuovo fra un mese. " +
+		"ALLARGATA DA 1474 A 1476, e vale la pena dire perche': l'attesa " +
+		"fissa di 2,2 secondi dell'espulsione automatica e' diventata " +
+		"saltabile, ed e' nata esci_dal_posto - che in cambio ha tolto una " +
+		"duplicazione. Per stare dentro il numero stavo cancellando i " +
+		"commenti che spiegano la correzione: il cricchetto serve a fermare " +
+		"la deriva, non a farmi peggiorare il codice per due righe"},
 	"Plancia.gd": {"misura": 715, "perche":
 		"la schermata di combattimento intera, come l'ha disegnata Bru: il " +
 		"riquadro della creatura, i tre della squadra, le tre barre, l'ECG, " +

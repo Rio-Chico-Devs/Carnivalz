@@ -492,16 +492,15 @@ func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) ->
 	# mostra la sua "scena", cioe' com'e' quel posto adesso
 	mostrando_scena = not bool(esito.prima_visita) and nodo.has("scena")
 	if nodo.get("espulsione_automatica", false):
-		# non c'e' niente da scegliere: il posto stesso ti rigetta fuori. Il testo
-		# si legge lo stesso - questa non e' un'uscita muta, e' una scena corta
+		# IL POSTO TI RIGETTA FUORI, MA NON TI TIENE FERMO. Il testo si legge lo
+		# stesso - non e' un'uscita muta, e' una scena corta - e prima erano 2,2
+		# secondi fissi col comando per avanzare nascosto (docs/menu.md, pila 3)
 		var seq := contenuto_nodo(nodo)
-		azione_a_fine_testo = Callable()
-		nascondi_comandi()
-		mostra_messaggio(seq[0] if not seq.is_empty() else {"tipo": "narrazione", "testo": ""})
-		area_avanza.visible = false
-		await get_tree().create_timer(2.2, false).timeout  # false = rispetta la pausa
-		GameState.congeda_tutti_temporanei()
-		Transizioni.vai(SCENA_VUOTO)
+		coda_messaggi = [seq[0] if not seq.is_empty() else
+				{"tipo": "narrazione", "testo": ""}] as Array[Dictionary]
+		azione_dopo_coda = esci_dal_posto
+		avanza_messaggio()
+		_avanza_fra(2.2, contatore_messaggi)   # cortesia per chi resta fermo
 		return
 	# gli appunti chiudono la coda, non la aprono: prima si vive la scena che li
 	# ha fatti nascere, poi il protagonista ci ragiona sopra
@@ -640,6 +639,12 @@ func _su_testo_pronto() -> void:
 		var richiamo := azione_a_fine_testo
 		azione_a_fine_testo = Callable()
 		richiamo.call()
+
+func esci_dal_posto() -> void:
+	# USCIRE DA UNO SQUARCIO: lo stato resta, gli alleati temporanei no. Tre
+	# strade - la scelta, il click, la cortesia scaduta - e devono finire uguali.
+	GameState.congeda_tutti_temporanei()
+	Transizioni.vai(SCENA_VUOTO)
 
 func _avanza_fra(secondi: float, atteso: int) -> void:
 	# false = il timer rispetta la pausa: aprendo ESC il conto si ferma
@@ -1295,10 +1300,7 @@ func _su_scelta(scelta: Dictionary) -> void:
 		Transizioni.vai(SCENA_COMBATTIMENTO)
 		return
 	if scelta.get("torna_vuoto", false):
-		# uscita da uno squarcio: lo stato resta, ma gli alleati temporanei
-		# non ti seguono fuori
-		GameState.congeda_tutti_temporanei()
-		Transizioni.vai(SCENA_VUOTO)
+		esci_dal_posto()
 		return
 	if scelta.get("reset", false):
 		# fine campagna: si rientra alla Sede, che e' anche dove il gioco salva
