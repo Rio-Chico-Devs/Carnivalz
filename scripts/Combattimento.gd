@@ -1319,6 +1319,8 @@ func lancia_minigioco(passo: Dictionary, chi: Dictionary) -> void:
 	# gioco non e' piu' a turni: sono pugni che arrivano e una mano che prova a
 	# prenderli.
 	#
+	if not minigioco.prenota():
+		return   # ce n'e' gia' una in volo, e il perche' sta in prenota()
 	# Si aspetta che il box abbia finito di parlare prima di coprirlo: la frase
 	# "preparati!" deve essere leggibile, se no il minigioco comincia sopra le
 	# parole che lo annunciano e non si capisce cosa sta succedendo.
@@ -1326,6 +1328,7 @@ func lancia_minigioco(passo: Dictionary, chi: Dictionary) -> void:
 	ferma_il_tempo()
 	await svuota_coda()
 	if not in_corso:
+		minigioco.rinuncia()
 		riprendi_il_tempo()
 		return
 	minigioco.avvia(passo.get("minigioco", {}), float(passo.get("bravura_automatica", -1.0)))
@@ -1335,12 +1338,9 @@ func _minigioco_finito(esito: Dictionary) -> void:
 	var passo := passo_tutorial()
 	var vittima := minigioco_bersaglio
 	minigioco_bersaglio = {}
-	if int(esito.get("parati", 0)) == int(esito.get("totali", 0)) and int(esito.get("totali", 0)) > 0:
-		scrivi_forte("[i]Non te ne arriva addosso nemmeno uno.[/i]")
-	else:
-		scrivi("[i]%d colpi su %d ti arrivano addosso.[/i]" % [
-				int(esito.get("totali", 0)) - int(esito.get("parati", 0)),
-				int(esito.get("totali", 0))])
+	var detto := MinigiocoCombattimento.racconto(esito)
+	voce.accoda(String(detto.get("testo", "")), "narrazione", "",
+			bool(detto.get("forte", false)))
 	var danno := int(esito.get("danno", 0))
 	if danno > 0 and not vittima.is_empty() and int(vittima.get("hp", 0)) > 0:
 		vittima.hp = maxi(int(vittima.hp) - danno, 0)
@@ -2121,10 +2121,10 @@ func flagello(chi: Dictionary, dati: Dictionary) -> void:
 	var prob_fallimento := float(GameState.regole.get("flagello_probabilita_fallimento", 0.12))
 	var prob_terrore := float(dati.get("probabilita_terrore", 0.0))
 	for colpo in colpi:
-		var in_piedi := vivi(false)
-		if in_piedi.is_empty():
+		var bersagli := vivi(false)
+		if bersagli.is_empty():
 			break
-		var bersaglio: Dictionary = in_piedi[GameState.rng.randi_range(0, in_piedi.size() - 1)]
+		var bersaglio: Dictionary = bersagli[GameState.rng.randi_range(0, bersagli.size() - 1)]
 		# ogni ago per conto suo: puo' andare a vuoto o entrare male. Il critico
 		# si chiede alla stessa funzione del resto del gioco, non a una regola
 		# scritta qui: se un giorno lo stress smette di far male, smette di far
@@ -2321,7 +2321,7 @@ func smista_la_copertura(bersaglio: Dictionary, danno: int) -> int:
 	if int(scudo.hp) <= 0:
 		bersaglio.copertura_turni = 0
 		return danno
-	var quota := danno / 2
+	var quota := int(danno / 2.0)   # meta' per difetto, e scritto perche' si veda
 	scudo.hp = maxi(int(scudo.hp) - quota, 0)
 	trattieni_a_un_punto(scudo)
 	registra_danno_subito(scudo, quota)
@@ -2589,10 +2589,10 @@ func raffica(chi: Dictionary, dati: Dictionary) -> void:
 	var elenco: Array = []
 	var totale := 0
 	for colpo in colpi:
-		var in_piedi := vivi(false)
-		if in_piedi.is_empty():
+		var bersagli := vivi(false)
+		if bersagli.is_empty():
 			break
-		var bersaglio: Dictionary = in_piedi[GameState.rng.randi_range(0, in_piedi.size() - 1)]
+		var bersaglio: Dictionary = bersagli[GameState.rng.randi_range(0, bersagli.size() - 1)]
 		# la raffica passa le difese: sono schegge, non un fendente da parare
 		var passato := mini(danno_colpo, int(bersaglio.hp))
 		bersaglio.hp = maxi(int(bersaglio.hp) - danno_colpo, 0)
@@ -3359,9 +3359,9 @@ func stati_di(mossa: Dictionary) -> Array[String]:
 	# convivono perche' riscrivere trenta mosse per farne funzionare una sarebbe
 	# stato un modo di introdurre difetti dove non ce n'erano
 	var elenco: Array[String] = []
-	for voce in mossa.get("stati", []):
-		if String(voce) != "":
-			elenco.append(String(voce))
+	for id_stato in mossa.get("stati", []):   # non "voce": copre quella vera
+		if String(id_stato) != "":
+			elenco.append(String(id_stato))
 	if elenco.is_empty() and String(mossa.get("stato", "")) != "":
 		elenco.append(String(mossa["stato"]))
 	return elenco
@@ -3461,12 +3461,12 @@ func spegni_tormento_di(chi: Dictionary) -> void:
 	# Senza questo, il vento tagliente dell'Emblema restava addosso alla squadra
 	# per tutto il resto dello scontro - e nello scontro dopo sarebbe sembrato
 	# un bug del veleno
-	var fonte := String(chi.get("id", ""))
-	if fonte == "":
+	var id_fonte := String(chi.get("id", ""))
+	if id_fonte == "":
 		return
 	for combattente in combattenti:
 		var comb: Dictionary = combattente.get("combustione", {})
-		if String(comb.get("fonte", "")) != fonte:
+		if String(comb.get("fonte", "")) != id_fonte:
 			continue
 		combattente.combustione = {}
 		combattente.in_fiamme = false

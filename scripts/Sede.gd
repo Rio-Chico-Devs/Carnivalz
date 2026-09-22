@@ -21,8 +21,11 @@ const SCENA_NEGOZIO := "res://scenes/Negozio.tscn"
 const SCENA_MENU := "res://scenes/Menu.tscn"
 const PERCORSO_SEDE := "res://data/sede.json"
 
+const GUTTER := 34   # la corsia del marcatore: i nomi partono tutti da qui
+
 var dati: Dictionary = {}
 var colonna_stanze: VBoxContainer
+var etichetta_titolo_scheda: Label
 var etichetta_descrizione: Label
 var etichetta_stato: Label
 
@@ -50,19 +53,38 @@ func _ready() -> void:
 
 	var margini := MarginContainer.new()
 	margini.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for lato in ["left", "right"]:
-		margini.add_theme_constant_override("margin_" + lato, 70)
-	for lato in ["top", "bottom"]:
-		margini.add_theme_constant_override("margin_" + lato, 40)
+	# tutti e quattro i lati sulla stessa misura della griglia, non 70 e 40 a
+	# occhio: e' la cornice che usano le altre schermate
+	for lato in ["left", "right", "top", "bottom"]:
+		margini.add_theme_constant_override("margin_" + lato, Stile.forma("cornice"))
 	add_child(margini)
+
+	var tutto := VBoxContainer.new()
+	tutto.add_theme_constant_override("separation", 24)
+	margini.add_child(tutto)
+
+	# L'USCITA STA IN ALTO, e non e' un gusto: e' dov'e' sulla mappa di zona,
+	# ed era l'unica cosa fuori inquadratura. In fondo alla colonna delle
+	# stanze, con un'etichetta di trentuno lettere, andava a capo su due righe
+	# e la seconda finiva sotto il bordo dello schermo. Bru: «altre fuori
+	# inquadratura». Una via d'uscita che esce dallo schermo e' la sola che non
+	# puoi permetterti di perdere.
+	var barra := HBoxContainer.new()
+	tutto.add_child(barra)
+	var uscita := Button.new()
+	uscita.text = "Torna alla schermata principale"
+	Stile.ritorno(uscita)
+	uscita.pressed.connect(_su_uscita)
+	barra.add_child(uscita)
 
 	var riga := HBoxContainer.new()
 	riga.add_theme_constant_override("separation", 40)
-	margini.add_child(riga)
+	riga.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	tutto.add_child(riga)
 
 	var sinistra := VBoxContainer.new()
-	sinistra.add_theme_constant_override("separation", 10)
-	sinistra.custom_minimum_size = Vector2(380, 0)
+	sinistra.add_theme_constant_override("separation", 8)
+	sinistra.custom_minimum_size = Vector2(420, 0)
 	riga.add_child(sinistra)
 	var titolo := Label.new()
 	titolo.text = String(dati.get("nome", "Sede"))
@@ -72,18 +94,22 @@ func _ready() -> void:
 	sottotitolo.text = String(dati.get("sottotitolo", ""))
 	Stile.etichetta_piccola(sottotitolo)
 	sinistra.add_child(sottotitolo)
-	sinistra.add_child(spazio(14))
+	sinistra.add_child(spazio(16))
+
+	# LE STANZE SCORRONO. Oggi sono sei e ci stanno; ma aggiungerne una e' una
+	# voce in sede.json, e il giorno che diventano dodici la colonna uscirebbe
+	# dallo schermo in silenzio - che e' esattamente com'e' uscito il bottone.
+	var scorrevole := ScrollContainer.new()
+	scorrevole.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	sinistra.add_child(scorrevole)
 	colonna_stanze = VBoxContainer.new()
-	colonna_stanze.add_theme_constant_override("separation", 10)
-	sinistra.add_child(colonna_stanze)
-	sinistra.add_child(spazio(10))
+	colonna_stanze.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	colonna_stanze.add_theme_constant_override("separation", 8)
+	scorrevole.add_child(colonna_stanze)
+
+	sinistra.add_child(spazio(16))
 	sinistra.add_child(Stile.legenda_visite())
-	sinistra.add_child(spazio(10))
-	var uscita := Button.new()
-	uscita.text = "Torna alla schermata principale"
-	Stile.scelta(uscita)
-	uscita.pressed.connect(_su_uscita)
-	sinistra.add_child(uscita)
 
 	costruisci_pannello(riga)
 	riempi_stanze()
@@ -107,21 +133,50 @@ func riempi_stanze() -> void:
 
 func costruisci_stanza(stanza: Dictionary) -> Button:
 	var bottone := Button.new()
-	Stile.scelta(bottone)
+	Stile.voce_di_elenco(bottone, GUTTER)
 	var aperta := not stanza.has("richiede_flag") or GameState.ha_flag(String(stanza["richiede_flag"]))
 	if not aperta:
 		bottone.text = "— chiuso —"
 		bottone.disabled = true
-		bottone.tooltip_text = String(stanza.get("testo_chiusa", ""))
+		bottone.add_theme_color_override("font_disabled_color", Stile.colore("testo_smorzato"))
+		# IL PERCHE' NON STA PIU' SOLO NEL SUGGERIMENTO. Il testo della porta
+		# chiusa era in tooltip_text, cioe' visibile soltanto tenendoci sopra
+		# il mouse - e un bottone disabilitato in Godot non prende nemmeno il
+		# fuoco da tastiera. Adesso si legge nel pannello, come tutto il resto.
+		bottone.mouse_entered.connect(_su_sguardo.bind(stanza))
 		return bottone
 	bottone.text = String(stanza.get("nome", "?"))
-	# le stanze in cui non hai ancora messo piede si fanno notare: e' lo stesso
-	# linguaggio della mappa stellare, non un'invenzione di questa schermata
-	Stile.segna_visita(bottone, GameState.stato_visita(id_stanza(stanza)))
+	var stato := GameState.stato_visita(id_stanza(stanza))
+	bottone.add_theme_color_override("font_color", Stile.colore("testo"))
+	for acceso in ["font_hover_color", "font_focus_color", "font_pressed_color"]:
+		bottone.add_theme_color_override(acceso, Stile.colore("accento"))
+	# IL MARCATORE VA NELLA SUA CORSIA, non davanti al nome. Stile.segna_visita
+	# lo infila nel testo ("•  Alloggi"), e allora i nomi delle stanze in cui
+	# sei gia' stato partono da un'altra x: sei righe, tre margini sinistri
+	# diversi, e nessuna linea che l'occhio possa seguire.
+	if stato != Stile.VISITA_VISTO:
+		metti_marcatore(bottone, "•" if stato == Stile.VISITA_NUOVO else "✓",
+				Stile.colore_visita(stato))
 	bottone.pressed.connect(_su_stanza.bind(stanza))
 	bottone.focus_entered.connect(_su_sguardo.bind(stanza))
 	bottone.mouse_entered.connect(_su_sguardo.bind(stanza))
 	return bottone
+
+func metti_marcatore(bottone: Button, segno: String, tinta: Color) -> void:
+	var marchio := Label.new()
+	marchio.text = segno
+	marchio.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	marchio.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	marchio.add_theme_color_override("font_color", tinta)
+	Stile.imposta_corpo(marchio, Stile.dimensione("corpo"))
+	marchio.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# un Button non e' un contenitore e non sistema i figli: le misure gliele
+	# si danno per intero, ancorate all'altezza della riga
+	marchio.anchor_top = 0.0
+	marchio.anchor_bottom = 1.0
+	marchio.offset_left = 10.0
+	marchio.offset_right = float(GUTTER)
+	bottone.add_child(marchio)
 
 func id_stanza(stanza: Dictionary) -> String:
 	return "sede__" + String(stanza.get("id", ""))
@@ -134,12 +189,55 @@ func costruisci_pannello(riga: HBoxContainer) -> void:
 	colonna.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	riga.add_child(colonna)
 
+	# LA SCHEDA: un riquadro, non del testo appeso al buio. Prima la
+	# descrizione galleggiava in alto a destra senza intestazione, e sotto
+	# restavano cinquecento pixel di nero: non si sapeva nemmeno di cosa si
+	# stesse leggendo. Adesso ha un titolo - il nome della stanza che stai
+	# guardando - e un bordo che dice dove comincia e dove finisce.
+	var scheda := PanelContainer.new()
+	# SI STRINGE SUL TESTO, non riempie mezzo schermo. Espandendola, quattro
+	# righe di descrizione si portavano dietro cinquecento pixel di riquadro
+	# vuoto: non e' una scheda, e' una parete con una frase sopra.
+	scheda.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	var vestito := StyleBoxFlat.new()
+	vestito.bg_color = Color(Stile.colore("tratto"), 0.14)
+	vestito.border_width_left = 3
+	vestito.border_color = Stile.colore("accento")
+	vestito.content_margin_left = 24
+	vestito.content_margin_right = 24
+	vestito.content_margin_top = 20
+	vestito.content_margin_bottom = 20
+	scheda.add_theme_stylebox_override("panel", vestito)
+	colonna.add_child(scheda)
+
+	var dentro := VBoxContainer.new()
+	dentro.add_theme_constant_override("separation", 16)
+	scheda.add_child(dentro)
+
+	etichetta_titolo_scheda = Label.new()
+	etichetta_titolo_scheda.text = String(dati.get("nome", ""))
+	etichetta_titolo_scheda.add_theme_color_override("font_color", Stile.colore("testo"))
+	Stile.imposta_corpo(etichetta_titolo_scheda, Stile.dimensione("sezione"))
+	dentro.add_child(etichetta_titolo_scheda)
+
 	etichetta_descrizione = Label.new()
 	etichetta_descrizione.text = String(dati.get("descrizione", ""))
 	etichetta_descrizione.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	etichetta_descrizione.add_theme_color_override("font_color", Stile.colore("narrazione"))
-	etichetta_descrizione.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	colonna.add_child(etichetta_descrizione)
+	# ERA "narrazione", CIOE' #1a1a1a SUL NERO: 1,21:1, invisibile. Quel colore
+	# e' fatto per il testo scuro dentro il box chiaro dei dialoghi, e qui
+	# finiva dritto sul fondo della schermata. Bru: «alcune cose sono
+	# illeggibili» - e non era un modo di dire, era letteralmente nero su nero.
+	# "testo_smorzato" sta a 7,65:1: si legge, e resta un gradino sotto il
+	# titolo della scheda, che e' quello che deve fare un testo di contorno.
+	etichetta_descrizione.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+	Stile.imposta_corpo(etichetta_descrizione, Stile.dimensione("corpo"))
+	Stile.interlinea(etichetta_descrizione, "lettura", Stile.dimensione("corpo"))
+	dentro.add_child(etichetta_descrizione)
+
+	# e la riga di stato resta in fondo: in mezzo ci va il vuoto, non la scheda
+	var respiro := Control.new()
+	respiro.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	colonna.add_child(respiro)
 
 	etichetta_stato = Label.new()
 	etichetta_stato.text = riga_di_stato()
@@ -161,8 +259,12 @@ func riga_di_stato() -> String:
 # --- interazione ---
 
 func _su_sguardo(stanza: Dictionary) -> void:
-	if is_instance_valid(etichetta_descrizione):
-		etichetta_descrizione.text = String(stanza.get("descrizione", ""))
+	if not is_instance_valid(etichetta_descrizione):
+		return
+	var aperta := not stanza.has("richiede_flag") or GameState.ha_flag(String(stanza["richiede_flag"]))
+	etichetta_titolo_scheda.text = String(stanza.get("nome", "?")) if aperta else "Una porta chiusa"
+	etichetta_descrizione.text = String(stanza.get("descrizione", "")) if aperta \
+			else String(stanza.get("testo_chiusa", "Non si apre."))
 
 func _su_stanza(stanza: Dictionary) -> void:
 	GameState.segna_visitata(id_stanza(stanza))

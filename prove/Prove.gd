@@ -116,6 +116,8 @@ func _ready() -> void:
 	prova_i_quadratini_della_mappa_si_vedono_davvero()
 	prova_ogni_segno_della_mappa_si_vede()
 	prova_i_nomi_delle_stanze_si_leggono_senza_mouse()
+	await prova_la_sede_si_legge_e_ci_sta_nello_schermo()
+	prova_una_raffica_alla_volta()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
 	await prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare()
 	await prova_la_forma_del_testo()
@@ -6676,6 +6678,102 @@ func prova_i_nomi_delle_stanze_si_leggono_senza_mouse() -> void:
 	esigi(mappa.etichetta_stato.text != " ",
 			"scegliendo dalla legenda un posto irraggiungibile non si e' saputo perche'")
 	mappa.queue_free()
+
+func prova_la_sede_si_legge_e_ci_sta_nello_schermo() -> void:
+	# DUE DIFETTI CHE HA VISTO BRU E NON AVEVA VISTO NESSUNA PROVA.
+	#
+	# «alcune cose sono illeggibili»: la descrizione della stanza era scritta
+	# in "narrazione", cioe' #1a1a1a, direttamente sul fondo nero. 1,21:1.
+	# Quel colore e' fatto per il testo scuro DENTRO il box chiaro dei
+	# dialoghi, e qui finiva sul nero della schermata - non poco leggibile:
+	# invisibile. Quello che si vedeva nel suo scatto era compressione.
+	#
+	# «altre fuori inquadratura»: il bottone per uscire stava in fondo alla
+	# colonna, con un'etichetta di trentuno lettere che andava a capo, e la
+	# seconda riga finiva sotto il bordo dello schermo. La via d'uscita e' la
+	# sola cosa che non ti puoi permettere di perdere.
+	titolo("la Sede si legge, e ci sta dentro lo schermo")
+	GameState.nuova_partita()
+	var casa: Control = load("res://scenes/Sede.tscn").instantiate()
+	casa.custom_minimum_size = Vector2(1280, 720)
+	add_child(casa)
+	casa.size = Vector2(1280, 720)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	# --- SI LEGGE ---
+	var guardati := 0
+	for etichetta in etichette_dentro(casa):
+		if etichetta.text.strip_edges() == "":
+			continue
+		guardati += 1
+		var quanto: float = Stile.contrasto_su_sfondo(etichetta.get_theme_color("font_color"))
+		esigi(quanto >= Stile.CONTRASTO_MINIMO,
+				"«%s» sta a %.2f:1 sul fondo: non si legge"
+				% [etichetta.text.substr(0, 40), quanto])
+	esigi(guardati >= 4, "non c'era niente da leggere nella Sede: %d etichette" % guardati)
+
+	# --- E CI STA DENTRO ---
+	#
+	# Quello che scorre puo' uscire: e' il suo mestiere. Tutto il resto no.
+	for figlio in bottoni_fermi(casa):
+		var sotto: float = figlio.global_position.y + figlio.size.y
+		esigi(sotto <= 720.0 + 1.0,
+				"«%s» finisce a %d pixel, cioe' %d sotto il bordo dello schermo"
+				% [figlio.text, int(sotto), int(sotto - 720.0)])
+		esigi(figlio.global_position.x >= -1.0 and
+				figlio.global_position.x + figlio.size.x <= 1280.0 + 1.0,
+				"«%s» esce dai lati dello schermo" % figlio.text)
+	casa.queue_free()
+
+func bottoni_fermi(nodo: Node) -> Array[Button]:
+	# tutti i bottoni TRANNE quelli dentro a una cosa che scorre: li' uscire
+	# dal bordo e' il mestiere del contenitore, non un difetto
+	var trovati: Array[Button] = []
+	for figlio in nodo.get_children():
+		if figlio is ScrollContainer:
+			continue
+		if figlio is Button:
+			trovati.append(figlio as Button)
+		trovati.append_array(bottoni_fermi(figlio))
+	return trovati
+
+func etichette_dentro(nodo: Node) -> Array[Label]:
+	var trovate: Array[Label] = []
+	for figlio in nodo.get_children():
+		if figlio is Label:
+			trovate.append(figlio as Label)
+		trovate.append_array(etichette_dentro(figlio))
+	return trovate
+
+func prova_una_raffica_alla_volta() -> void:
+	# DUE RAFFICHE A SEI MILLESIMI L'UNA DALL'ALTRA, nel registro di Bru.
+	#
+	# Allo stesso passo del tutorial ci arrivano due strade che non si
+	# conoscono - il giro dei turni e la via del giocatore - e fra il momento
+	# in cui una chiede la raffica e quello in cui parte c'e' un'attesa: il box
+	# deve finire di dire "preparati!". In quell'attesa entra l'altra.
+	#
+	# Il guardiano dentro avvia() se ne accorgeva e chiudeva la prima, ma e'
+	# una rete e basta: chi l'aspettava riceve un esito inventato, e il
+	# bersaglio nel frattempo e' gia' cambiato - il danno va addosso a chi non
+	# c'entra. Adesso la seconda non parte proprio.
+	titolo("una raffica alla volta, anche se la chiedono in due")
+	var raffica := MinigiocoCombattimento.new()
+	esigi(raffica.prenota(), "la prima raffica non e' riuscita nemmeno a prenotarsi")
+	esigi(not raffica.prenota(),
+			"due raffiche insieme: la seconda si e' prenotata sopra la prima")
+	raffica.rinuncia()
+	esigi(raffica.prenota(),
+			"dopo che la prima ha rinunciato, non se ne puo' piu' lanciare nessuna")
+
+	# e il racconto di com'e' finita lo fa chi ha contato i pugni
+	var tutti: Dictionary = MinigiocoCombattimento.racconto({"parati": 5, "totali": 5})
+	esigi(bool(tutti.get("forte", false)),
+			"pararli tutti scorre via senza farsi leggere")
+	var qualcuno: Dictionary = MinigiocoCombattimento.racconto({"parati": 2, "totali": 5})
+	esigi(String(qualcuno.get("testo", "")).contains("3 colpi su 5"),
+			"il conto dei colpi passati e' sbagliato: %s" % qualcuno.get("testo", ""))
 
 func prova_mappa_a_quadratini() -> void:
 	# LA MAPPA NON DEVE RACCONTARE PIU' DI QUELLO CHE SAI.

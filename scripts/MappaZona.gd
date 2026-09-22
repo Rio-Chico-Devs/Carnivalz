@@ -245,6 +245,7 @@ func costruisci_intelaiatura() -> void:
 
 	var indietro := Button.new()
 	indietro.text = "Torna alla stanza corrente"
+	Stile.ritorno(indietro)
 	indietro.pressed.connect(func() -> void: IngressoNodo.vai_al_nodo(GameState.nodo_corrente))
 	barra.add_child(indietro)
 

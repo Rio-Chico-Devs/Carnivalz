@@ -37,6 +37,7 @@ var raffica: Array[Dictionary] = []
 var pugni: Array[Control] = []
 var tempo := 0.0
 var attivo := false
+var in_partenza := false   # chiesta, ma il box sta ancora finendo di parlare
 var danno_per_colpo := 0
 # quante raffiche sono state suonate: le prove contano queste, non i pixel
 var suonate := 0
@@ -68,6 +69,7 @@ func avvia(parametri: Dictionary, bravura := -1.0) -> void:
 	if attivo:
 		push_error("Minigioco: una raffica e' stata avviata mentre la precedente era ancora in volo. La prima viene chiusa adesso, se no chi la aspettava resterebbe fermo.")
 		concludi()
+	in_partenza = false
 	tempo = 0.0
 	danno_per_colpo = int(parametri.get("danno", 0))
 	raffica = Collisioni.calendario(
@@ -207,3 +209,46 @@ func concludi() -> void:
 		quadrante.visible = false
 		quadrante.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	finito.emit(Collisioni.esito(raffica, danno_per_colpo))
+
+
+static func racconto(esito: Dictionary) -> Dictionary:
+	# COME SI RACCONTA UNA RAFFICA FINITA. "parati" e "totali" sono parole di
+	# qui: chi conta i pugni sa anche come si dicono. Nel motore dello scontro
+	# erano sei righe di formattazione in mezzo alla logica del danno.
+	# "forte" vuol dire che il messaggio aspetta un click invece di scorrere
+	# via: pararli tutti e' una cosa che merita di essere letta
+	var totali := int(esito.get("totali", 0))
+	var parati := int(esito.get("parati", 0))
+	if totali > 0 and parati == totali:
+		return {"forte": true, "testo": "[i]Non te ne arriva addosso nemmeno uno.[/i]"}
+	return {"forte": false,
+			"testo": "[i]%d colpi su %d ti arrivano addosso.[/i]" % [totali - parati, totali]}
+
+
+func prenota() -> bool:
+	# LA GUARDIA CHE CHIUDE IL BUCO, e sta qui perche' e' una politica di questo
+	# modulo - quale raffica vince quando due la chiedono insieme - non un
+	# dettaglio di chi la lancia. E' lo stesso motivo per cui Intenzione.gd
+	# esiste: nasconde una decisione che cambiera' dopo il primo playtest.
+	#
+	# Il buco e' l'attesa che chi lancia fa prima di avviare, per lasciar
+	# finire la frase "preparati!". Allo stesso passo del tutorial ci arrivano
+	# due strade che non si conoscono - il giro dei turni e la via del
+	# giocatore - e dentro quell'attesa la seconda entra: nel registro di Bru
+	# sono due raffiche a sei millesimi l'una dall'altra.
+	#
+	# Il guardiano dentro avvia() se ne accorge e chiude la prima, ma e' una
+	# rete e basta: chiuderla vuol dire che chi l'aspettava riceve un esito
+	# inventato, e il bersaglio nel frattempo e' gia' cambiato - cioe' il danno
+	# va addosso a chi non c'entra. Qui invece la seconda non parte proprio.
+	#
+	# false vuol dire "ce n'e' gia' una": chi la riceve se ne va senza fare
+	# niente, che e' esattamente quello che deve fare.
+	if attivo or in_partenza:
+		return false
+	in_partenza = true
+	return true
+
+
+func rinuncia() -> void:
+	in_partenza = false

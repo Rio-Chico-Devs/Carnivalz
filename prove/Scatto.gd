@@ -357,6 +357,22 @@ func prepara(quale: String) -> void:
 			quadretti.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			add_child(quadretti)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"sede":
+			# LA SEDE, che e' la schermata su cui si torna piu' volte di tutte:
+			# ci si passa dopo ogni Carnivalz, ed e' li' che si salva. Bru:
+			# «siamo ancora disordinati e l'interfaccia non e' accattivante,
+			# alcune cose sono illeggibili, altre fuori inquadratura».
+			GameState.nuova_partita()
+			# con le stanze aperte, se no meta' schermata dice "— chiuso —" e
+			# non si vede quello che c'e' da guardare
+			for stanza in GameState.carica_json("res://data/sede.json").get("stanze", []):
+				var flag := String(stanza.get("richiede_flag", ""))
+				if flag != "":
+					GameState.imposta_flag(flag)
+			var casa: Control = load("res://scenes/Sede.tscn").instantiate()
+			casa.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			add_child(casa)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 		"rottura":
 			# il vetro a meta' caduta: e' l'unico modo di guardarlo, perche'
 			# dura poco piu' di un secondo e a occhio nudo non si ferma

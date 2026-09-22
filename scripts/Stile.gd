@@ -428,6 +428,72 @@ func scelta(bottone: Button, genere := "") -> void:
 	for stato in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		bottone.add_theme_color_override(stato, tinta)
 
+func ritorno(bottone: Button) -> void:
+	# LA VIA D'USCITA, E DEV'ESSERE LA STESSA OVUNQUE. La Sede e la mappa di
+	# zona hanno tutt'e due un bottone per tornare indietro, e fino a ieri erano
+	# due bottoni diversi: uno grande in fondo a una colonna, uno piccolo e
+	# grigio del tema di serie. Non e' un dettaglio di gusto - una cosa che fa
+	# sempre lo stesso mestiere deve avere sempre la stessa faccia, se no
+	# ognuna va riconosciuta da capo. Qui e' quieta: e' l'uscita, non l'invito.
+	bottone.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	bottone.clip_text = false
+	bottone.autowrap_mode = TextServer.AUTOWRAP_OFF
+	bottone.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	imposta_corpo(bottone, dimensione("piccolo"))
+	bottone.add_theme_color_override("font_color", colore("testo_smorzato"))
+	for acceso in ["font_hover_color", "font_focus_color", "font_pressed_color"]:
+		bottone.add_theme_color_override(acceso, colore("accento"))
+	for stato in ["normal", "hover", "pressed", "focus"]:
+		var scatola := StyleBoxFlat.new()
+		scatola.bg_color = Color(colore("tratto"), 0.0 if stato == "normal" else 0.30)
+		scatola.set_border_width_all(1)
+		scatola.border_color = colore("accento") if stato != "normal" \
+				else Color(colore("tratto"), 0.8)
+		scatola.set_corner_radius_all(3)
+		scatola.content_margin_left = 16
+		scatola.content_margin_right = 16
+		scatola.content_margin_top = 8
+		scatola.content_margin_bottom = 8
+		bottone.add_theme_stylebox_override(stato, scatola)
+
+func voce_di_elenco(bottone: Button, gutter: int) -> void:
+	# UNA RIGA DI ELENCO, E NON E' UNA SCELTA DI DIALOGO.
+	#
+	# scelta() qui sopra mette SIZE_SHRINK_END, ed e' giusto per quello che fa:
+	# nel disegno di Bru le scelte sono cartelli appoggiati al bordo destro
+	# sopra l'illustrazione, ognuno largo quanto le sue parole. Ma la Sede la
+	# riusava per una COLONNA A SINISTRA, e allora quello stesso SHRINK_END
+	# diventa il difetto che si vede subito: sei riquadri di sei larghezze
+	# diverse, incolonnati a destra, con il margine sinistro a zigzag. Bru:
+	# «siamo ancora disordinati».
+	#
+	# Una riga di elenco vuole il contrario di una scelta: tutte della stessa
+	# larghezza, testo a filo a sinistra, e IL MARCATORE IN UNA CORSIA SUA. Se
+	# il pallino sta dentro al testo - "•  Alloggi" contro "Archivio" - i nomi
+	# partono da due x diverse a seconda che tu ci sia gia' stato o no, e
+	# l'occhio non ha piu' nessuna linea da seguire. Il "gutter" e' quella
+	# corsia: il testo comincia sempre dopo, il marcatore ci sta dentro.
+	bottone.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	bottone.clip_text = false
+	bottone.autowrap_mode = TextServer.AUTOWRAP_OFF
+	bottone.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	imposta_corpo(bottone, dimensione("corpo"))
+	for stato in ["normal", "hover", "pressed", "focus", "disabled"]:
+		var scatola := StyleBoxFlat.new()
+		scatola.bg_color = Color(colore("tratto"), 0.0 if stato == "normal"
+				or stato == "disabled" else 0.32)
+		scatola.content_margin_left = gutter
+		scatola.content_margin_right = 12
+		scatola.content_margin_top = 6
+		scatola.content_margin_bottom = 6
+		# il filetto acceso a sinistra: dice dove sei nell'elenco senza spostare
+		# niente, che e' la ragione per cui non e' un bordo su tutti e quattro i
+		# lati - un bordo che compare sposterebbe il testo di due pixel
+		scatola.border_width_left = 3
+		scatola.border_color = colore("accento") if stato == "hover" \
+				or stato == "focus" or stato == "pressed" else Color(colore("tratto"), 0.5)
+		bottone.add_theme_stylebox_override(stato, scatola)
+
 func colore_scelta(genere: String) -> Color:
 	# IL COLORE DICE CHE RAZZA DI SCELTA E'. Bru le ha disegnate cosi': il rosso
 	# e' quella da villain, il blu quella da eroe, il bianco tutte le altre. Non
