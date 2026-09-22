@@ -115,6 +115,7 @@ func _ready() -> void:
 	prova_mappa_a_quadratini()
 	prova_i_quadratini_della_mappa_si_vedono_davvero()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
+	await prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare()
 	await prova_la_forma_del_testo()
 	await prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo()
 	prova_giornata_dopo_allenamento()
@@ -6226,6 +6227,51 @@ func prova_la_forma_del_testo() -> void:
 				"la riga del dialogo tiene %.0f caratteri: la misura buona sta fra 50 e 75"
 				% per_riga)
 	box.queue_free()
+
+func prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare() -> void:
+	# IL NEGOZIO E' L'UNICO POSTO DOVE IL GIOCATORE SPENDE, e un numero che
+	# salta da 30 a 12 non racconta la spesa, la registra. Adesso scende sotto
+	# gli occhi - ma l'acquisto succede SUBITO: e' il numero che arriva dopo,
+	# non il contrario. Durczok su Final Fantasy XVI: il peccato capitale e'
+	# la schermata che aspetta il contatore.
+	titolo("i Tazo si vedono scendere, e non fanno aspettare nessuno")
+	GameState.nuova_partita()
+	GameState.tazo = 500
+	GameState.negozi_sbloccati = ["organizzazione"] as Array[String]
+	var bottega: Node = load("res://scenes/Negozio.tscn").instantiate()
+	add_child(bottega)
+	await get_tree().process_frame
+
+	# all'apertura il numero c'e' gia': non risale da zero ogni volta che entri
+	var conto: Conto = bottega.conto_tazo
+	esigi(conto != null, "il negozio non ha nessun contatore dei Tazo")
+	esigi(conto.mostrato == 500,
+			"aprendo il negozio il numero parte da %d invece che da 500" % conto.mostrato)
+	esigi(not conto.in_corso(), "aprendo il negozio il numero si mette ad animarsi")
+	esigi(bottega.etichetta_tazo.text.contains("500"),
+			"a schermo non c'e' il numero vero: '%s'" % bottega.etichetta_tazo.text)
+
+	# SI COMPRA. I soldi se ne vanno adesso, il numero ci arriva dopo.
+	esigi(GameState.compra("razione_del_circo", 10), "l'acquisto di prova non e' riuscito")
+	bottega.costruisci()
+	esigi(GameState.tazo == 490, "i Tazo non sono scesi: %d" % GameState.tazo)
+	esigi(conto.meta == 490, "il contatore punta a %d invece che a 490" % conto.meta)
+	await get_tree().process_frame
+	esigi(conto.in_corso(), "il numero non si sta muovendo: nessuna animazione")
+
+	# E SI RICOMPRA SUBITO, mentre il numero e' ancora per aria. Se comprare
+	# dovesse aspettare la fine dell'animazione, qui si romperebbe qualcosa.
+	esigi(GameState.compra("razione_del_circo", 10), "non si e' potuto ricomprare subito")
+	bottega.costruisci()
+	esigi(GameState.tazo == 480, "il secondo acquisto non e' passato: %d" % GameState.tazo)
+	esigi(conto.meta == 480, "il contatore non ha seguito il secondo acquisto: %d" % conto.meta)
+	conto.subito()
+	esigi(conto.mostrato == 480,
+			"saltando l'animazione il numero e' %d invece di 480" % conto.mostrato)
+	esigi(bottega.etichetta_tazo.text.contains("480"),
+			"a schermo resta '%s'" % bottega.etichetta_tazo.text)
+	bottega.free()
+	GameState.nuova_partita()
 
 func prova_un_numero_che_si_anima_non_fa_mai_aspettare() -> void:
 	# ANIMARE SI', SBARRARE MAI.

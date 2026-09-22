@@ -54,6 +54,9 @@ func scrivi(valore: int) -> void:
 
 func vai_a(valore: int) -> void:
 	if valore == meta:
+		# il numero non cambia, ma quello che gli sta intorno puo' essere
+		# cambiato lo stesso: si riscrive senza animare niente
+		ridisegna()
 		return
 	meta = valore
 	if Impostazioni.movimento_ridotto or not vivo():

@@ -44,13 +44,29 @@ const CATEGORIE := [
 @onready var lista: VBoxContainer = %Lista
 @onready var bottone_mappa: Button = %BottoneMappa
 
+# I TAZO SI VEDONO SCENDERE. Il negozio e' l'unico posto dove il giocatore
+# SPENDE, e un numero che salta da 30 a 12 non racconta la spesa: la registra.
+# Vedi Conto.gd - e la regola che ci sta scritta sopra vale qui piu' che
+# altrove: l'acquisto succede SUBITO, e' il numero che arriva dopo. Comprare
+# due volte di fila non aspetta niente.
+var conto_tazo: Conto = null
+
 func _ready() -> void:
 	bottone_mappa.pressed.connect(_su_mappa)
+	conto_tazo = Conto.su(etichetta_tazo, intestazione_tazo())
+	conto_tazo.scrivi(GameState.tazo)   # all'apertura il numero c'e' gia', non risale da zero
 	costruisci()
 
+func intestazione_tazo() -> String:
+	# il %%d resta per il contatore: la sacca invece si scrive adesso, perche'
+	# e' un conto di posti - o il posto c'e' o non c'e', non ha una via di mezzo
+	# da percorrere sotto gli occhi
+	return "Tazo: %%d   •   Sacca %d/%d" % [GameState.sacca.size(),
+			int(GameState.regole.get("sacca_massima", 20))]
+
 func costruisci() -> void:
-	etichetta_tazo.text = "Tazo: %d   •   Sacca %d/%d" % [
-		GameState.tazo, GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20))]
+	conto_tazo.formato = intestazione_tazo()
+	conto_tazo.vai_a(GameState.tazo)
 	Albero.svuota(lista)
 	for id_negozio in GameState.negozi_sbloccati:
 		var negozio: Dictionary = GameState.negozi.get(id_negozio, {})
