@@ -37,8 +37,6 @@ extends Control
 
 const FILE_EVENTI_INTRO := "res://data/events_intro.json"
 const SCENA_SEDE := "res://scenes/Sede.tscn"
-const SCENA_OPZIONI := "res://scenes/Opzioni.tscn"
-const SCENA_EXTRA := "res://scenes/Extra.tscn"
 const SCENA_ALBUM := "res://scenes/Album.tscn"
 const SCENA_BESTIARIO := "res://scenes/Bestiario.tscn"
 const SCENA_COMPENDIO := "res://scenes/Compendio.tscn"
@@ -47,8 +45,17 @@ const SCENA_COMPENDIO := "res://scenes/Compendio.tscn"
 const X_TESTO := 0.078
 const Y_TESTATA := 0.08
 const Y_VOCI := 0.125
-const Y_DESCRIZIONE := 0.83
-const X_PANNELLO := 0.713
+const Y_DESCRIZIONE := 0.83       # dove comincia nel riferimento, con due righe
+# LO SPAZIO DELLA DESCRIZIONE: e' appesa al fondo (FINE_DESCRIZIONE) e cresce
+# verso l'alto, dentro una zona tutta sua che comincia a ZONA_DESCRIZIONE. Le
+# voci devono finire prima; la descrizione al massimo fa un titolo e tre
+# righe, e ci sta anche col testo piu' grande (le prove contano le righe)
+const ZONA_DESCRIZIONE := 0.74
+const FINE_DESCRIZIONE := 0.965
+const RIGHE_DESCRIZIONE := 3
+const X_PANNELLO := 0.713       # dove comincia nel riferimento; qui conta dove FINISCE:
+const X_FINE_PANNELLO := 0.94   # il pannello e' largo 300 pixel e cresce verso sinistra da qui,
+                                # cosi' non esce dallo schermo nemmeno col testo piu' grande
 const Y_PANNELLO := 0.10
 const X_COMANDI := 0.935
 const Y_COMANDI := 0.895
@@ -56,8 +63,18 @@ const LARGO_DESCRIZIONE := 0.46
 const TESTATA_DOPO := 0.0
 const CASCATA_DOPO := 0.10
 const PANNELLO_DOPO := 0.12
+const SPAZIO_DAL_PANNELLO := 48.0   # fra le righe delle opzioni e il pannello
+# cosa dicono le voci di EXTRA (erano in Extra.gd, che adesso e' una pagina di
+# questo menu). Da confermare con Bru
+const INSTAGRAM := "@iltuohandle (da confermare)"
+const SITO := "iltuosito.it (da confermare)"
+const RINGRAZIAMENTI := "I ringraziamenti arriveranno con una prossima versione della demo."
 
 static var titolo_visto := false
+# DOVE TORNARE quando si rientra da una schermata a parte (le collezioni): la
+# pagina e la voce da cui si era usciti. «Torna al menu» che ti rimette in cima
+# al menu principale e' un indietro che ti fa rifare la strada
+static var ritorno: Dictionary = {}
 
 var fondale: LunaPark
 var insegna: Control             # il titolo: CARNIVALZ, «premi un tasto»
@@ -72,6 +89,7 @@ var voci: Array[VoceMenu] = []
 var pagina := ""
 var indietro_da_qui := Callable()
 var campo_nome: LineEdit
+var campo_codice: LineEdit
 
 
 func _ready() -> void:
@@ -102,12 +120,17 @@ func costruisci_menu() -> void:
 	testata = Testata.new()
 	ancora(testata, X_TESTO, Y_TESTATA)
 	menu.add_child(testata)
+	# LE MISURE SONO FRAZIONI DELLO SPAZIO VERO, non pixel su 1280x720: con
+	# «testo piu' grande» l'interfaccia e' ingrandita del 25% e lo spazio che
+	# resta e' 1024x576. Una larghezza scritta in pixel li' esce dallo schermo
 	descrizione = Descrizione.new()
-	ancora(descrizione, X_TESTO, Y_DESCRIZIONE)
-	descrizione.custom_minimum_size = Vector2(1280.0 * LARGO_DESCRIZIONE, 0.0)
+	ancora(descrizione, X_TESTO, FINE_DESCRIZIONE)
+	descrizione.anchor_right = X_TESTO + LARGO_DESCRIZIONE
+	descrizione.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	menu.add_child(descrizione)
 	pannello = PannelloPartite.new()
-	ancora(pannello, X_PANNELLO, Y_PANNELLO)
+	ancora(pannello, X_FINE_PANNELLO, Y_PANNELLO)
+	pannello.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	menu.add_child(pannello)
 	comandi = HBoxContainer.new()
 	comandi.add_theme_constant_override("separation", 24)
@@ -205,7 +228,12 @@ func apri_menu() -> void:
 	Movimento.verso(menu.create_tween(), menu, "modulate:a", 1.0, "entrata", Movimento.durata("entrata"))
 	pannello.aggiorna()
 	pannello.entra(PANNELLO_DOPO)
-	pagina_principale()
+	var da_dove := ritorno
+	ritorno = {}
+	if String(da_dove.get("pagina", "")) == "collezioni":
+		pagina_collezioni(String(da_dove.get("fuoco", "")))
+	else:
+		pagina_principale()
 
 
 func centra(nodo: Control, spostamento: Vector2) -> void:
@@ -238,6 +266,15 @@ func etichetta(testo: String, carattere: Font, corpo: int, colore: Color) -> Lab
 
 static func voce(testo: String, titolo: String, corpo: String, azione: Callable, inerte := false) -> Dictionary:
 	return {"testo": testo, "titolo": titolo, "corpo": corpo, "azione": azione, "inerte": inerte}
+
+
+static func indice_di(elenco: Array[Dictionary], testo: String, altrimenti := 0) -> int:
+	# TORNANDO INDIETRO SI RITROVA LA VOCE DA CUI SI ERA PARTITI: e' lei la
+	# principale del passo (col fuoco, e ultima nella cascata)
+	for i in elenco.size():
+		if String(elenco[i].testo) == testo:
+			return i
+	return altrimenti
 
 
 func mostra_pagina(nome: String, titolo: String, elenco: Array[Dictionary], principale: int,
@@ -280,8 +317,13 @@ func metti_comandi(con_indietro: bool) -> void:
 
 
 func premi_voce_col_fuoco() -> void:
+	# INVIO cliccato col mouse: fa quello che farebbe il tasto sulla cosa che ha
+	# il fuoco. Una casella delle opzioni si accende o si spegne (emettere
+	# "pressed" non la cambierebbe), una voce si sceglie
 	var fuoco := get_viewport().gui_get_focus_owner()
-	if fuoco is Button:
+	if fuoco is BaseButton and (fuoco as BaseButton).toggle_mode:
+		(fuoco as BaseButton).button_pressed = not (fuoco as BaseButton).button_pressed
+	elif fuoco is Button:
 		(fuoco as Button).pressed.emit()
 
 
@@ -294,7 +336,7 @@ func voce_col_fuoco() -> VoceMenu:
 
 # --- i passi ------------------------------------------------------------------------
 
-func pagina_principale() -> void:
+func pagina_principale(fuoco := "") -> void:
 	var recente := Partite.piu_recente()
 	var elenco: Array[Dictionary] = []
 	if recente > 0:
@@ -312,14 +354,13 @@ func pagina_principale() -> void:
 	elenco.append(voce("COLLEZIONI", "Quello che hai trovato",
 			"Le carte, le creature che hai studiato, gli oggetti che hai visto.", pagina_collezioni))
 	elenco.append(voce("OPZIONI", "Come lo senti, come lo leggi",
-			"Volume, schermo, testo più grande, alto contrasto, movimento ridotto.",
-			func() -> void: Transizioni.vai(SCENA_OPZIONI)))
+			"Volume, schermo, testo più grande, alto contrasto, movimento ridotto.", pagina_opzioni))
 	elenco.append(voce("EXTRA", "Fuori dal gioco", "I codici della demo, i ringraziamenti, dove seguirci.",
-			func() -> void: Transizioni.vai(SCENA_EXTRA)))
+			pagina_extra))
 	elenco.append(voce("ESCI", "Alla prossima",
 			"Non si perde niente: il gioco si è già salvato l'ultima volta che sei rientrato alla Sede.",
 			func() -> void: get_tree().quit()))
-	mostra_pagina("principale", "MENU PRINCIPALE", elenco, 0, torna_al_titolo)
+	mostra_pagina("principale", "MENU PRINCIPALE", elenco, indice_di(elenco, fuoco), torna_al_titolo)
 
 
 func torna_al_titolo() -> void:
@@ -342,7 +383,7 @@ func pagina_nuova() -> void:
 				principale = elenco.size()
 			elenco.append(voce(Partite.etichetta(slot), "Una partita libera",
 					"Qui non c'è niente: si comincia dall'inizio.", pagina_chi_sei.bind(slot)))
-	mostra_pagina("nuova", "NUOVA PARTITA", elenco, maxi(principale, 0), pagina_principale)
+	mostra_pagina("nuova", "NUOVA PARTITA", elenco, maxi(principale, 0), pagina_principale.bind("NUOVA PARTITA"))
 
 
 func pagina_sovrascrivi(slot: int) -> void:
@@ -385,12 +426,12 @@ func scegli_sesso(sesso: String) -> void:
 	mostra_chi_sei(campo_nome.text)
 
 
-func campo(testo: String) -> LineEdit:
+func campo(testo: String, segnaposto := "ANONIMO") -> LineEdit:
 	# il nome si scrive in una riga come quelle del pannello delle partite:
 	# stesso fondo, stesso bordo, e le lettere delle voci
 	var riga := LineEdit.new()
 	riga.text = testo
-	riga.placeholder_text = "ANONIMO"
+	riga.placeholder_text = segnaposto
 	riga.max_length = 24
 	riga.custom_minimum_size = Vector2(360, 44)
 	riga.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
@@ -430,7 +471,7 @@ func continua(slot: int) -> void:
 	Transizioni.vai(SCENA_SEDE)
 
 
-func pagina_carica() -> void:
+func pagina_carica(fuoco := "") -> void:
 	var elenco: Array[Dictionary] = []
 	var principale := 0
 	for slot in range(1, GameState.SLOT_MASSIMO + 1):
@@ -444,7 +485,8 @@ func pagina_carica() -> void:
 				continua.bind(slot), not piena))
 	elenco.append(voce("CANCELLA UNA PARTITA", "Fare spazio", "Scegli quale partita cancellare. Te lo richiede prima di farlo.",
 			pagina_cancella, Partite.occupate().is_empty()))
-	mostra_pagina("carica", "CARICA PARTITA", elenco, principale, pagina_principale)
+	mostra_pagina("carica", "CARICA PARTITA", elenco, indice_di(elenco, fuoco, principale),
+			pagina_principale.bind("CARICA PARTITA"))
 
 
 func pagina_cancella() -> void:
@@ -456,7 +498,7 @@ func pagina_cancella() -> void:
 				pagina_conferma_cancella.bind(slot), not piena))
 	var occupate := Partite.occupate()
 	mostra_pagina("cancella", "CANCELLA UNA PARTITA", elenco, occupate[0] - 1 if not occupate.is_empty() else 0,
-			pagina_carica)
+			pagina_carica.bind("CANCELLA UNA PARTITA"))
 
 
 func pagina_conferma_cancella(slot: int) -> void:
@@ -477,16 +519,24 @@ func cancella(slot: int) -> void:
 		pagina_carica()
 
 
-func pagina_collezioni() -> void:
+func pagina_collezioni(fuoco := "") -> void:
 	var elenco: Array[Dictionary] = [
 		voce("ALBUM DELLE CARTE", "Le carte", "Quelle che hai raccolto, e i posti vuoti di quelle che mancano.",
-				func() -> void: Transizioni.vai(SCENA_ALBUM)),
+				vai_a_collezione.bind(SCENA_ALBUM, "ALBUM DELLE CARTE")),
 		voce("BESTIARIO", "Le creature", "Tutto quello che sai di chi hai incontrato, e di chi hai studiato.",
-				func() -> void: Transizioni.vai(SCENA_BESTIARIO)),
+				vai_a_collezione.bind(SCENA_BESTIARIO, "BESTIARIO")),
 		voce("OGGETTI", "Gli oggetti", "Ogni oggetto che ti è passato fra le mani, e cosa fa davvero.",
-				func() -> void: Transizioni.vai(SCENA_COMPENDIO)),
+				vai_a_collezione.bind(SCENA_COMPENDIO, "OGGETTI")),
 	]
-	mostra_pagina("collezioni", "COLLEZIONI", elenco, 0, pagina_principale)
+	mostra_pagina("collezioni", "COLLEZIONI", elenco, indice_di(elenco, fuoco),
+			pagina_principale.bind("COLLEZIONI"))
+
+
+func vai_a_collezione(scena: String, da_voce: String) -> void:
+	# la collezione e' una schermata a parte (e' lunga, scorre): uscendo ci si
+	# segna da dove, e il suo «Indietro» riporta qui, su questa voce
+	ritorno = {"pagina": "collezioni", "fuoco": da_voce}
+	Transizioni.vai(scena)
 
 
 func pagina_come_si_gioca() -> void:
@@ -504,4 +554,82 @@ func pagina_come_si_gioca() -> void:
 		voce("LE COLLISIONI", "Clicca quando il cerchio si chiude",
 				"In pieno il pugno non ti fa niente, di striscio ti fa metà. Invio para il pugno più vicino.", leggi),
 	]
-	mostra_pagina("come_si_gioca", "COME SI GIOCA", elenco, 0, pagina_principale)
+	mostra_pagina("come_si_gioca", "COME SI GIOCA", elenco, 0, pagina_principale.bind("COME SI GIOCA"))
+
+
+# --- opzioni ed extra: pagine di questo menu, non schermate a parte ----------------
+#
+# ERANO DUE SCENE, e in tutte e due tornare indietro era un problema: nelle
+# Opzioni il bottone stava contro il bordo in basso, e bastava un carattere un
+# po' piu' alto (o «testo piu' grande») per mandarlo fuori dallo schermo; ESC non
+# faceva niente; e «Indietro» ti rimetteva in cima al menu. Come pagine di
+# questo menu hanno lo stesso indietro di tutto il resto: ESC, o «ESC Indietro»
+# in basso a destra, e si torna sulla voce da cui si era partiti.
+
+func pagina_opzioni(fuoco := "") -> void:
+	# LE OPZIONI SONO UN PASSO COME GLI ALTRI, e ogni sezione e' un passo suo,
+	# come nel riferimento di Bru. Tutte insieme non ci stavano: a testo normale
+	# l'ultima finiva sotto la descrizione e ci si arrivava solo scorrendo
+	var elenco: Array[Dictionary] = []
+	for quale: String in PannelloOpzioni.SEZIONI:
+		var detto: Array = PannelloOpzioni.SEZIONI[quale]
+		elenco.append(voce(quale.to_upper(), String(detto[0]), String(detto[1]),
+				pagina_opzioni_di.bind(quale)))
+	mostra_pagina("opzioni", "OPZIONI", elenco, indice_di(elenco, fuoco), pagina_principale.bind("OPZIONI"))
+
+
+func pagina_opzioni_di(quale: String) -> void:
+	# le righe di una sezione, sotto la testata che ne dice il nome. La colonna
+	# arriva fino al pannello delle partite con le ancore, non con una misura:
+	# se «testo piu' grande» si accende da qui, si stringe da sola
+	var margine := MarginContainer.new()
+	margine.add_theme_constant_override("margin_left", VoceMenu.SPAZIO_SEGNO)
+	var dentro := VBoxContainer.new()
+	dentro.add_theme_constant_override("separation", 10)
+	margine.add_child(dentro)
+	PannelloOpzioni.costruisci_sezione(dentro, quale, 220, Stile.colore("menu_chiaro"), false)
+	var nessuna: Array[Dictionary] = []
+	mostra_pagina("opzioni " + quale, quale.to_upper(), nessuna, 0, pagina_opzioni.bind(quale.to_upper()), margine)
+	colonna.anchor_right = X_FINE_PANNELLO
+	colonna.offset_right = -(PannelloPartite.LARGO + SPAZIO_DAL_PANNELLO)
+	descrizione.mostra("Valgono anche in gioco", "Le ritrovi nel menu di pausa (ESC), e si salvano da sole.")
+	for figlio in dentro.find_children("*", "Control", true, false):
+		if (figlio as Control).focus_mode != Control.FOCUS_NONE:
+			(figlio as Control).grab_focus()
+			break
+
+
+func pagina_extra(fuoco := "") -> void:
+	var leggi := func() -> void: descrizione.sottolinea()
+	var elenco: Array[Dictionary] = [
+		voce("CARICA UN CODICE", "Un regalo per chi ha il codice",
+				"Alcuni codici della demo sbloccano qualcosa. Si scrive nella pagina dopo.", pagina_codice),
+		voce("RINGRAZIAMENTI", "Grazie", RINGRAZIAMENTI, leggi),
+		voce("INSTAGRAM", "Seguici", INSTAGRAM, leggi),
+		voce("IL SITO", "Il sito", SITO, leggi),
+	]
+	mostra_pagina("extra", "EXTRA", elenco, indice_di(elenco, fuoco), pagina_principale.bind("EXTRA"))
+
+
+func pagina_codice() -> void:
+	campo_codice = campo("", "IL CODICE")
+	var elenco: Array[Dictionary] = [
+		voce("CONFERMA", "Riscatta il codice", "Scrivilo qui sopra e premi Invio.", riscatta),
+	]
+	mostra_pagina("codice", "CARICA UN CODICE", elenco, 0, pagina_extra.bind("CARICA UN CODICE"), campo_codice)
+	campo_codice.text_submitted.connect(func(_testo: String) -> void: riscatta())
+	campo_codice.grab_focus()
+
+
+func riscatta() -> void:
+	# l'esito si legge nella descrizione, dove si legge tutto il resto
+	var risultato := GameState.riscatta_codice(campo_codice.text)
+	if not bool(risultato.get("trovato", false)):
+		descrizione.mostra("Codice non riconosciuto", "Controlla di averlo scritto giusto, e riprova.")
+		if not voci.is_empty():
+			voci[0].rifiuta()
+	elif bool(risultato.get("gia_riscattato", false)):
+		descrizione.mostra("Già riscattato", "Questo codice l'hai già usato in precedenza.")
+	else:
+		descrizione.mostra("Codice riscattato", String(risultato.get("testo", "Fatto.")))
+

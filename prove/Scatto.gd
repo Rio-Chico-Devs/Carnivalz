@@ -97,6 +97,12 @@ func prepara(quale: String) -> void:
 				var voci := Pausa.colonna.get_children().filter(
 						func(n: Node) -> bool: return n is VoceMenu)
 				(voci[2] as VoceMenu).bottone.grab_focus()
+		"scena":
+			# una schermata qualunque di scenes/, com'e' appena aperta:
+			# "scena Compendio", "scena Album"...
+			var argomenti := OS.get_cmdline_user_args()
+			var nome_scena := String(argomenti[1]) if argomenti.size() > 1 else "Compendio"
+			add_child(load("res://scenes/%s.tscn" % nome_scena).instantiate())
 		"principale":
 			# IL MENU PRINCIPALE: "principale titolo", "principale menu", e i passi
 			# "nuova", "carica", "chi_sei", "come", "film" (la pellicola
@@ -105,6 +111,10 @@ func prepara(quale: String) -> void:
 			var argomenti := OS.get_cmdline_user_args()
 			var passo := String(argomenti[1]) if argomenti.size() > 1 else "titolo"
 			var con_partite := "partite" in argomenti
+			if "grande" in argomenti:
+				# il caso peggiore per lo spazio: «testo piu' grande» acceso
+				Impostazioni.testo_grande = true
+				Impostazioni.applica_scala_testo()
 			if con_partite:
 				partite_finte()
 			var schermo: Control = load("res://scenes/Menu.tscn").instantiate()
@@ -117,6 +127,13 @@ func prepara(quale: String) -> void:
 				"carica": schermo.pagina_carica()
 				"chi_sei": schermo.pagina_chi_sei(1)
 				"come": schermo.pagina_come_si_gioca()
+				"opzioni": schermo.pagina_opzioni()
+				"audio": schermo.pagina_opzioni_di("Audio")
+				"grafica": schermo.pagina_opzioni_di("Grafica")
+				"accessibilita": schermo.pagina_opzioni_di("Accessibilità")
+				"extra": schermo.pagina_extra()
+				"codice": schermo.pagina_codice()
+				"collezioni": schermo.pagina_collezioni()
 				"film": await pellicola("res://scatti/principale_pellicola.png")
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 			if passo == "menu" and con_partite:

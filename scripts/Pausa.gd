@@ -31,8 +31,12 @@ const LIVELLO := 100
 const SCENE_ESCLUSE := [
 	"res://scenes/Splash.tscn",
 	"res://scenes/Menu.tscn",
-	"res://scenes/Opzioni.tscn",
-	"res://scenes/Extra.tscn",
+	# le collezioni si aprono dal menu principale, fuori da una partita: li' ESC
+	# vuol dire «torna indietro», non «pausa» (che aprirebbe un menu di pausa su
+	# una partita che non c'e')
+	"res://scenes/Album.tscn",
+	"res://scenes/Bestiario.tscn",
+	"res://scenes/Compendio.tscn",
 ]
 const SCENA_MENU := "res://scenes/Menu.tscn"
 # Di quanto si rimpicciolisce l'istantanea prima di rimetterla a schermo: a un
@@ -483,7 +487,7 @@ func mostra_opzioni() -> void:
 	var dentro := VBoxContainer.new()
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.add_child(dentro)
-	PannelloOpzioni.costruisci(dentro, 200)
+	PannelloOpzioni.costruisci(dentro, 200, Stile.colore("accento"))
 	ritorno()
 
 func conferma_uscita() -> void:

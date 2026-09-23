@@ -132,8 +132,6 @@ CLASSI_GODOT = {
 SCHERMATE = [
     ("Splash.gd", "Loghi d'apertura"),
     ("Menu.gd", "Menu principale"),
-    ("Opzioni.gd", "Opzioni"),
-    ("Extra.gd", "Extra"),
     ("Collezione.gd", "Collezioni (album, bestiario, compendio)"),
     ("Album.gd", "Album delle carte"),
     ("Bestiario.gd", "Bestiario"),

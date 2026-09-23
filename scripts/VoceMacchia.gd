@@ -26,6 +26,12 @@ const PUNTI := 28
 const SPORGE_MACCHIA := 34.0         # la macchia comincia a sinistra del segno
 const QUOTA_TESTO_COPERTO := 0.72    # e copre il segno e quasi tre quarti della scritta
 const OPACITA_MACCHIA := 0.9
+# IL PASSO FRA LE VOCI E' FISSO: 40 pixel, il 5,6% dello schermo come nel
+# riferimento. Non lo decide l'altezza del carattere - che fra un sistema e
+# l'altro cambia, e senza finestra Godot la sbaglia del tutto (Anton risulta
+# alto 93 invece di 48) - quindi l'elenco occupa sempre lo stesso spazio, e la
+# prova che misura se ci sta dice il vero
+const PASSO := 40.0
 
 var forma: PackedVector2Array = PackedVector2Array()   # in frazioni: x 0..1, y -0.5..0.5
 var schizzi: Array[Vector3] = []                      # x, y (frazioni), raggio (pixel)
@@ -57,6 +63,10 @@ func vesti() -> void:
 	forma = macchia(seme, PUNTI)
 	schizzi = spruzzi(seme, 7)
 	update_minimum_size()
+
+
+func _get_minimum_size() -> Vector2:
+	return Vector2(super._get_minimum_size().x, PASSO)
 
 
 func colora(quanto: float) -> void:

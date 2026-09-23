@@ -479,7 +479,7 @@ e più organizzazione. L'immagine è sua; qui c'è solo quello che se n'è misur
 | testata «MAIN MENU», piccola e tonda, su una scia di luce | 7,7% da sinistra, ~9% dall'alto | «MENU PRINCIPALE», stesso posto |
 | voci, maiuscole strette, una sotto l'altra | dal 12% al 54%, passo 5,65% | passo di 40 pixel a 720 |
 | la voce scelta: gialla, col simbolo a sinistra e una macchia d'inchiostro nera dietro | — | cremisi, col rombo di Carnivalz, macchia quasi nera |
-| descrizione della voce, con una pennellata chiara dietro l'inizio del titolo | in basso a sinistra, dall'83% | uguale |
+| descrizione della voce, con una pennellata chiara dietro l'inizio del titolo | in basso a sinistra, dall'83% | appesa al 96,5% e cresce verso l'alto: al massimo titolo e tre righe |
 | la squadra: titolo con contatore, quattro righe, la prima accesa | in alto a destra, dal 71% | le cinque partite, la più recente accesa |
 | i comandi | in basso a destra | INVIO Seleziona, ESC Indietro, cliccabili |
 
@@ -516,7 +516,61 @@ e la parallasse col mouse. Aspetta un disegno vero: `art/menu/sfondo.png`
 prende il suo posto senza toccare il codice.
 
 **Una trappola trovata strada facendo**: senza finestra (`--headless`) Godot non
-sa l'altezza vera di un carattere importato — Anton risulta alto 93 pixel a
-corpo 31 invece di 48. Le prove del menu quindi misurano posizioni e ancore,
-mai altezze di testo.
+sa l'altezza vera di un carattere — Anton risulta alto 93 pixel a corpo 31
+invece di 48, e succede anche caricandolo dal file. Le larghezze invece sono
+giuste. Quando una prova ha bisogno di un'altezza la legge dalle tabelle del
+file TTF (`head` e `hhea`: salita e discesa sulle unità del quadrato), e prima
+controlla il metodo su due valori noti: Anton 31 → 48, Nunito 18 → 26.
+
+## 9. Ogni percorso torna indietro, ogni cosa ha il suo spazio
+
+Bru, esplorando il menu: da OGGETTI c'era solo «torna al menu», da OPZIONI non
+c'era modo di tornare indietro. La regola adesso è una sola, e una prova la
+cammina tutta: **da ogni posto si torna al passo prima, e il cursore si ritrova
+sulla voce da cui si era partiti.**
+
+- **OPZIONI ed EXTRA non sono più scene a parte**: sono passi del menu, con la
+  loro testata, la descrizione, i comandi e ESC. Dentro EXTRA, CARICA UN CODICE
+  è un passo anche lui; l'esito del codice si legge nella descrizione.
+- **OPZIONI è un elenco di sezioni** (AUDIO, GRAFICA, ACCESSIBILITÀ), e ogni
+  sezione è un passo suo, come nel riferimento. Tutte insieme non ci stavano: a
+  testo normale «Velocità del testo» finiva sotto la descrizione e ci si
+  arrivava solo con una barra grigia che tagliava la luna. L'elenco resta uno
+  solo (`PannelloOpzioni.SEZIONI`): la pausa le mostra tutte, il menu una alla
+  volta, e una prova conta che la somma sia la stessa.
+- **La riga col fuoco si vede**: una banda scura come la macchia d'inchiostro
+  e un filo cremisi a sinistra, sulle caselle e sui cursori (che il loro fuoco
+  non lo disegnano: la banda la prende la riga). Prima era il riquadro bianco
+  di serie sulle caselle, e niente sui cursori.
+- **ALBUM, BESTIARIO e OGGETTI** restano scene loro (sono lunghe), ma col telaio
+  del menu: stesso fondale velato, testata, comandi con «ESC Indietro».
+  Tornando, il menu riapre COLLEZIONI con la voce da cui si era entrati
+  (`MenuPrincipale.ritorno`, che si consuma una volta). Le frecce e pagina
+  su/giù scorrono l'elenco.
+- **Tornare è un legame, non un salto**: ogni «indietro» porta con sé il nome
+  della voce da riaccendere (`pagina_carica.bind("CANCELLA UNA PARTITA")`).
+- **Le opzioni si leggono**: le sezioni erano grigie a metà trasparenza (circa
+  2,3:1); adesso prendono il colore del posto in cui stanno (chiaro nel menu,
+  cremisi nella pausa), e caselle e cursori hanno un disegno visibile.
+
+**Lo spazio** si controlla a scala 1 e a 1,25 («Testo più grande», che porta lo
+spazio logico a 1024×576), su ogni passo:
+
+| cosa | regola |
+|---|---|
+| la colonna delle voci | finisce sopra la zona della descrizione (74%) e non tocca il pannello |
+| il pannello a destra | ancorato al bordo destro (94%), cresce verso sinistra: non esce mai |
+| la descrizione | appesa in basso, cresce in su; titolo su una riga, corpo al massimo tre, e non tocca i comandi |
+| le opzioni | una sezione per passo: ci stanno senza scorrere; la colonna arriva fino al pannello con le ancore, e se «testo più grande» si accende da lì si stringe da sola |
+| le collezioni | l'elenco che scorre e i comandi stanno dentro lo schermo; la barra è sottile, azzurra, e l'elenco le lascia 24 pixel |
+
+Le prove sono state messe alla prova rompendo apposta il codice, un pezzo alla
+volta (diciassette sabotaggi: una sezione fuori dal menu, le righe di una
+sezione perse, tutte le opzioni di nuovo in un passo, le opzioni fin dentro il
+pannello, un indietro senza la voce - dal menu e da una sezione -, il pannello
+ancorato a sinistra, una collezione senza ESC, l'elenco attaccato alla barra,
+il ritorno ignorato o mai consumato, quattro righe di descrizione, la
+descrizione non appesa in basso, le frecce che non scorrono, la pausa sopra
+OGGETTI, l'altezza letta dal font): ognuno fa fallire una prova, con una frase
+che dice cosa si è rotto.
 

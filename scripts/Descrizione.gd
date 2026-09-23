@@ -46,10 +46,6 @@ func _init() -> void:
 	macchia = VoceMacchia.macchia(20260923, 24)
 
 
-func _ready() -> void:
-	(get_child(0) as Control).custom_minimum_size.x = custom_minimum_size.x
-
-
 func mostra(nuovo_titolo: String, nuovo_corpo: String) -> void:
 	if nuovo_titolo == titolo.text and nuovo_corpo == corpo.text:
 		return
@@ -75,7 +71,15 @@ func mostra(nuovo_titolo: String, nuovo_corpo: String) -> void:
 func scrivi(nuovo_titolo: String, nuovo_corpo: String) -> void:
 	titolo.text = nuovo_titolo
 	corpo.text = nuovo_corpo
+	update_minimum_size()
 	queue_redraw()
+
+
+func _get_minimum_size() -> Vector2:
+	# alta quanto le sue righe: e' appesa al fondo dello schermo e cresce verso
+	# l'alto, quindi una riga in piu' la alza invece di mandarla fuori
+	var righe := get_child(0) as Control
+	return Vector2(0.0, righe.get_combined_minimum_size().y) if righe != null else Vector2.ZERO
 
 
 func sottolinea() -> void:

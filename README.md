@@ -15,8 +15,8 @@ benvenuto di Jerah).
 ## Come si avvia
 Aprire `project.godot` con Godot 4.7+ (versione standard). Main scene: `scenes/Splash.tscn`.
 Flusso completo:
-**loghi d'apertura** (studio + personale, saltabili con un clic) → **menu principale** (Start /
-Opzioni / Extra) → Start → **Nuova partita** (nome del protagonista) → **introduzione** (crawl di
+**loghi d'apertura** (studio + personale, saltabili con un clic) → **menu principale** (un
+titolo, poi le voci) → NUOVA PARTITA (dove, poi il nome del protagonista) → **introduzione** (crawl di
 lore a schermo nero + monologo del protagonista) → il **tutorial parte da solo** (nessuna
 selezione del punto, vedi `avvio_automatico` sotto) → da lì in poi, il normale giro
 **mappa stellare** ("!" dove un Carnivalz sta avendo luogo) → click → **selezione del party**
@@ -40,12 +40,13 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 ## Struttura
 - `scenes/Splash.tscn` + `scripts/Splash.gd` — loghi d'apertura (studio/personale, placeholder
   testuali finché mancano le immagini in `art/branding/`), poi il menu
-- `scenes/Menu.tscn` + `scripts/Menu.gd` — **la schermata principale**: le cinque partite in
-  chiaro (una riga vuota si comincia, una piena si continua, la ✕ la cancella) / Opzioni /
-  Extra / Esci. Non c'è più nessun passaggio "Start → cosa vuoi fare?" (vedi *Gerarchia*)
-- `scenes/Opzioni.tscn` + `scripts/Opzioni.gd` — audio, grafica, accessibilità (vedi sotto)
-- `scenes/Extra.tscn` + `scripts/Extra.gd` — collezioni (album/bestiario/oggetti), carica
-  codice, social e ringraziamenti
+- `scenes/Menu.tscn` + `scripts/Menu.gd` — **la schermata principale**, a passi come nel
+  riferimento di Bru (vedi `docs/animazione.md` §8 e §9): CONTINUA, NUOVA PARTITA, CARICA
+  PARTITA, COLLEZIONI, OPZIONI, EXTRA (carica codice, ringraziamenti, social), COME SI GIOCA,
+  ESCI. Ogni passo torna al precedente con ESC, e il cursore ritrova la voce da cui si era
+  partiti
+- `scripts/Collezione.gd` — il telaio comune di Album, Bestiario e Compendio degli oggetti:
+  fondale del menu, elenco che scorre con le frecce, ESC che torna a COLLEZIONI
 - `scenes/Intro.tscn` + `scripts/Intro.gd` — crawl introduttivo (solo per una nuova partita)
 - `scenes/Sede.tscn` + `scripts/Sede.gd` — **la Sede**: l'unità dell'Organizzazione in cui sei
   di stanza, e il posto sicuro del gioco (qui si salva, da solo). Stanze data-driven da
@@ -77,7 +78,7 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `data/events.json` — campagna di prova
 - `data/events_intro.json` — l'introduzione (monologo prima del tutorial)
 - `data/task.json` — gli appunti del Diario: dove andare e cosa qualcuno ti ha chiesto (vedi sotto)
-- `data/codici.json` — codici riscattabili da Extra (vuoto per ora: `{codice, testo, effetto}`)
+- `data/codici.json` — codici riscattabili da EXTRA nel menu (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
 - `data/sede.json` — la Sede: nome, descrizione, presidio richiesto e stanze
 - `scripts/PannelloOpzioni.gd` — l'elenco delle opzioni, definito una volta sola e usato sia
@@ -276,8 +277,8 @@ leggere più in fretta o più lentamente della macchina da scrivere di base). Tu
 salvato subito a ogni modifica in `user://impostazioni.cfg`, **indipendente dagli slot di
 salvataggio** della partita (persiste tra una partita e l'altra).
 
-L'**elenco** delle opzioni sta in `scripts/PannelloOpzioni.gd` e non altrove: sia la schermata
-`Opzioni.tscn` sia il pannello *Opzioni* della pausa lo chiedono a lui. Prima la pausa ne
+L'**elenco** delle opzioni sta in `scripts/PannelloOpzioni.gd` e non altrove: sia il passo
+OPZIONI del menu principale sia il pannello *Opzioni* della pausa lo chiedono a lui. Prima la pausa ne
 mostrava due su sei (i volumi), e chi alzava il contrasto in gioco non lo trovava; adesso
 aggiungerne una la fa comparire in tutti e due i posti, perché non c'è nessun altro posto dove
 metterla.
@@ -287,7 +288,7 @@ metterla.
 un codice riscattato sblocca un `effetto` (`oggetto` e/o `tazo`, riusando `aggiungi_oggetto()`/
 `modifica_tazo()`) una sola volta, ricordato in `user://codici_riscattati.cfg` — fuori dagli slot
 di salvataggio, cosa persiste come l'album delle carte anche a nuova partita. Per ora la lista
-codici è vuota: la schermata Extra è pronta, i codici veri arriveranno dopo.
+codici è vuota: il passo EXTRA › CARICA UN CODICE del menu è pronto, i codici veri arriveranno dopo.
 
 ## Introduzione e avvio automatico di una campagna (`avvio_automatico`)
 Un nodo evento può avere `"avvio_automatico": {"id_punto", "file_eventi"}`: a fine sequenza,
@@ -356,9 +357,9 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
 Una regola sola, e vale in tutte e due le direzioni.
 
 **La schermata principale** decide *quale partita* e *se cominciarla o continuarla*. Lì e solo
-lì si carica, si comincia, si cancella. Cinque righe, una per partita: vuota → nuova partita
-(chiede il nome, poi l'introduzione), piena → si continua, la ✕ la cancella con una conferma
-davanti. Nessun "Start" che apre un sotto-menu che chiede cos'altro volevi fare.
+lì si carica, si comincia, si cancella. CONTINUA riprende la più recente; NUOVA PARTITA chiede
+dove (una delle cinque) e poi il nome; CARICA PARTITA mostra le cinque, e da lì si cancella con
+una conferma davanti. Ogni passo torna indietro con ESC sulla voce da cui si era partiti.
 
 **Dentro il gioco** si gioca. Le opzioni si possono guardare (ESC → Opzioni: sono le stesse
 della schermata principale, perché l'elenco è uno solo — `PannelloOpzioni`), ma di salvataggi

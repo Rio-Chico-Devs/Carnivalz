@@ -132,6 +132,9 @@ func _ready() -> void:
 	await prova_il_menu_principale_sta_dove_sta_nel_riferimento()
 	prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda()
 	await prova_la_voce_col_segno_e_la_macchia()
+	await prova_ogni_passo_del_menu_torna_indietro()
+	await prova_le_collezioni_tornano_indietro()
+	await prova_ogni_cosa_ha_il_suo_spazio()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
 	await prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare()
 	await prova_la_forma_del_testo()
@@ -6461,7 +6464,6 @@ func prova_ogni_segno_della_mappa_si_vede() -> void:
 	GameState.entra_squarcio("prova_contrasto", "res://data/vuoti/meridia.json")
 	var mappa: Control = load("res://scenes/MappaZona.tscn").instantiate()
 	add_child(mappa)
-	var sfondo: Color = Stile.colore("sfondo")
 	var segni: Array = []
 	for raggiungibile in [true, false]:
 		for segreta in [true, false]:
@@ -7458,9 +7460,10 @@ func prova_il_menu_principale_sta_dove_sta_nel_riferimento() -> void:
 	esigi(absf(testo_voci - testata.x) < 0.003,
 			"le voci cominciano a %.3f e la testata a %.3f: nel riferimento sono sulla stessa riga verticale"
 			% [testo_voci, testata.x])
-	esigi(schermo.descrizione.global_position.y / schermata.y >= 0.8,
-			"la descrizione comincia al %.0f%% dell'altezza: nel riferimento sta in fondo"
-			% (schermo.descrizione.global_position.y / schermata.y * 100.0))
+	# la descrizione sta in fondo: appesa al fondo e cresce verso l'alto (la sua
+	# altezza, senza finestra, non si puo' misurare - vedi sopra)
+	esigi(schermo.descrizione.anchor_bottom >= 0.9 and schermo.descrizione.grow_vertical == Control.GROW_DIRECTION_BEGIN,
+			"la descrizione non e' appesa al fondo dello schermo: nel riferimento sta in fondo")
 	var pannello := Rect2(schermo.pannello.global_position, schermo.pannello.size)
 	esigi(pannello.position.x / schermata.x > 0.69 and pannello.position.y / schermata.y < 0.15
 			and pannello.end.x <= schermata.x - 32.0,
@@ -7537,6 +7540,251 @@ func prova_la_voce_col_segno_e_la_macchia() -> void:
 	esigi(Geometry2D.triangulate_polygon(v.forma).size() > 0, "la macchia e' un poligono che si incrocia: non si disegna")
 	v.queue_free()
 	Impostazioni.movimento_ridotto = prima
+
+func tasto_esc_dentro(comandi: Control, schermo: Rect2) -> bool:
+	# «ESC Indietro» c'e', si vede ed e' tutto dentro lo schermo
+	for figlio in comandi.get_children():
+		if figlio is Tasto and figlio.is_visible_in_tree():
+			var bottone := (figlio as Tasto).get_child(0) as Button
+			if bottone.text == "ESC":
+				return schermo.encloses(Rect2(figlio.global_position, figlio.size))
+	return false
+
+func prova_ogni_passo_del_menu_torna_indietro() -> void:
+	# BRU: «vado su oggetti per tornare indietro ho solo torna a menu, dovrei
+	# poter tornare indietro, se entro in opzioni non c'e' modo di tornare
+	# indietro... assicuriamoci che tutti i percorsi abbiano modo di tornare
+	# indietro». Qui ogni passo del menu: ha un indietro, «ESC Indietro» si vede,
+	# ESC riporta al passo di prima, e ci si ritrova sulla voce da cui si era
+	# partiti - non in cima.
+	titolo("ogni passo del menu principale torna indietro, sulla voce giusta")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	MenuPrincipale.titolo_visto = true
+	MenuPrincipale.ritorno = {}
+	# con una partita salvata la prima voce e' CONTINUA: solo cosi' si vede la
+	# differenza fra «torna sulla voce da cui eri partito» e «torna in cima»
+	var scritta := partita_di_prova()
+	var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(schermo)
+	await get_tree().process_frame
+	esigi(schermo.voci[0].bottone.text == "CONTINUA", "la prova e' sbagliata: senza CONTINUA in cima non misura niente")
+	var intero := Rect2(Vector2.ZERO, schermo.size)
+	# le opzioni del menu, una sezione per passo, sono tutte quelle della pausa:
+	# dividerle in passi non ne deve lasciare fuori nessuna
+	var regolabili := func(nodo: Node) -> int:
+		var quanti := 0
+		for figlio in nodo.find_children("*", "", true, false):
+			if figlio is Range or figlio is BaseButton:
+				quanti += 1
+		return quanti
+	var tutte := VBoxContainer.new()
+	PannelloOpzioni.costruisci(tutte)
+	var nel_menu := 0
+	for quale: String in PannelloOpzioni.SEZIONI:
+		schermo.pagina_opzioni_di(quale)
+		nel_menu += int(regolabili.call(schermo.colonna))
+	esigi(nel_menu == int(regolabili.call(tutte)) and nel_menu > 0,
+			"nel menu, sezione per sezione, ci sono %d opzioni e nella pausa %d: qualcuna e' rimasta fuori"
+			% [nel_menu, regolabili.call(tutte)])
+	tutte.free()
+	schermo.pagina_opzioni()
+	esigi(schermo.voci.size() == PannelloOpzioni.SEZIONI.size(),
+			"OPZIONI ha %d voci per %d sezioni" % [schermo.voci.size(), PannelloOpzioni.SEZIONI.size()])
+	var passi: Array[Array] = [
+		[schermo.pagina_nuova, "principale", "NUOVA PARTITA"],
+		[schermo.pagina_carica, "principale", "CARICA PARTITA"],
+		[schermo.pagina_cancella, "carica", "CANCELLA UNA PARTITA"],
+		[schermo.pagina_come_si_gioca, "principale", "COME SI GIOCA"],
+		[schermo.pagina_collezioni, "principale", "COLLEZIONI"],
+		[schermo.pagina_opzioni, "principale", "OPZIONI"],
+		[schermo.pagina_opzioni_di.bind("Audio"), "opzioni", "AUDIO"],
+		[schermo.pagina_opzioni_di.bind("Grafica"), "opzioni", "GRAFICA"],
+		[schermo.pagina_opzioni_di.bind("Accessibilità"), "opzioni", "ACCESSIBILITÀ"],
+		[schermo.pagina_extra, "principale", "EXTRA"],
+		[schermo.pagina_codice, "extra", "CARICA UN CODICE"],
+	]
+	for passo in passi:
+		(passo[0] as Callable).call()
+		var nome := schermo.pagina
+		await get_tree().process_frame
+		esigi(schermo.indietro_da_qui.is_valid(), "dal passo '%s' non si torna indietro" % nome)
+		esigi(tasto_esc_dentro(schermo.comandi, intero),
+				"nel passo '%s' «ESC Indietro» non c'e' o esce dallo schermo" % nome)
+		schermo._unhandled_input(esc_premuto())
+		var col_fuoco := schermo.voce_col_fuoco()
+		esigi(schermo.pagina == String(passo[1]),
+				"ESC dal passo '%s' porta a '%s', e doveva portare a '%s'" % [nome, schermo.pagina, passo[1]])
+		esigi(col_fuoco != null and col_fuoco.bottone.text == String(passo[2]),
+				"tornando da '%s' il fuoco e' su '%s', e doveva tornare su %s: si ricomincia da capo invece che da dove si era"
+				% [nome, col_fuoco.bottone.text if col_fuoco != null else "niente", passo[2]])
+	# e dalla collezione (una schermata a parte) si torna su COLLEZIONI, sulla
+	# voce da cui si era usciti
+	MenuPrincipale.ritorno = {"pagina": "collezioni", "fuoco": "OGGETTI"}
+	var rientro: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(rientro)
+	await get_tree().process_frame
+	var su := rientro.voce_col_fuoco()
+	esigi(rientro.pagina == "collezioni" and su != null and su.bottone.text == "OGGETTI",
+			"tornando dagli Oggetti si ritrova '%s' invece di COLLEZIONI su OGGETTI" % rientro.pagina)
+	esigi(MenuPrincipale.ritorno.is_empty(), "il ritorno resta segnato: la prossima volta si tornerebbe li' di nuovo")
+	schermo.queue_free()
+	rientro.queue_free()
+	if scritta > 0:
+		GameState.elimina_slot(scritta)
+	MenuPrincipale.titolo_visto = false
+	GameState.nuova_partita()
+	Impostazioni.movimento_ridotto = prima
+
+func prova_le_collezioni_tornano_indietro() -> void:
+	# ALBUM, BESTIARIO, OGGETTI: si esce con ESC o con «ESC Indietro» (che si
+	# vede), si scorre con le frecce, e ESC li' non apre la pausa - non c'e'
+	# nessuna partita da mettere in pausa.
+	titolo("le collezioni hanno il loro indietro, e si scorrono con i tasti")
+	for nome_scena: String in ["Album", "Bestiario", "Compendio"]:
+		var percorso := "res://scenes/%s.tscn" % nome_scena
+		esigi(percorso in Pausa.SCENE_ESCLUSE, "ESC nella schermata %s apre la pausa invece di tornare indietro" % nome_scena)
+		var schermo: Collezione = load(percorso).instantiate()
+		var tornato := [0]
+		schermo.torna = func() -> void: tornato[0] += 1
+		add_child(schermo)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var intero := Rect2(Vector2.ZERO, schermo.size)
+		esigi(tasto_esc_dentro(schermo.comandi, intero), "in %s «ESC Indietro» non c'e' o esce dallo schermo" % nome_scena)
+		schermo._unhandled_input(esc_premuto())
+		esigi(tornato[0] == 1, "ESC in %s non torna indietro" % nome_scena)
+		var giu := InputEventAction.new()
+		giu.action = "ui_down"
+		giu.pressed = true
+		var prima_riga := schermo.scorri.scroll_vertical
+		schermo._unhandled_input(giu)
+		var si_puo := schermo.lista.get_combined_minimum_size().y > schermo.scorri.size.y
+		esigi(not si_puo or schermo.scorri.scroll_vertical > prima_riga,
+				"in %s la freccia giu' non fa scorrere l'elenco: senza mouse non si arriva in fondo" % nome_scena)
+		schermo.queue_free()
+
+func righe_di(testo: String, carattere: Font, corpo: int, largo: float) -> int:
+	# quante righe fa un testo a questa larghezza. Le larghezze delle lettere
+	# Godot le sa anche senza finestra; le altezze no - per questo si contano
+	# le righe e non i pixel
+	var paragrafo := TextParagraph.new()
+	paragrafo.add_string(testo, carattere, corpo)
+	paragrafo.width = largo
+	paragrafo.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	return paragrafo.get_line_count()
+
+func prova_ogni_cosa_ha_il_suo_spazio() -> void:
+	# «CHE OGNI COSA ABBIA IL SUO SPAZIO NECESSARIO» (Bru). Ogni passo del menu
+	# e ogni collezione, col testo normale e con «testo piu' grande» - che
+	# ingrandisce l'interfaccia del 25% e lascia 1024x576: le voci finiscono
+	# prima della zona della descrizione e non toccano il pannello; il pannello,
+	# la testata e i comandi stanno dentro lo schermo; ogni descrizione fa al
+	# massimo un titolo e tre righe, e titolo e righe - alte come sono davvero,
+	# lette dal file del carattere - stanno nella loro zona.
+	titolo("ogni cosa del menu ha il suo spazio, anche col testo piu' grande")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	# le altezze vere delle righe: senza finestra Godot le sbaglia (in questo
+	# progetto anche leggendo il file), quindi si leggono dalle tabelle del
+	# carattere, che sono quello che Godot usa in una finestra vera
+	# il conto torna con quello misurato in una finestra vera: se leggesse male
+	# il file direbbe zero, e ogni cosa «ci starebbe»
+	esigi(altezza_vera("res://art/font/titolo.ttf", 31) == 48.0 and altezza_vera("res://art/font/arrotondato.ttf", 18) == 26.0,
+			"l'altezza letta dal file del carattere non e' quella vera (Anton 31: %.0f invece di 48; Nunito 18: %.0f invece di 26)"
+			% [altezza_vera("res://art/font/titolo.ttf", 31), altezza_vera("res://art/font/arrotondato.ttf", 18)])
+	var alta_descrizione := altezza_vera("res://art/font/titolo.ttf", Stile.dimensione("corpo")) \
+			+ MenuPrincipale.RIGHE_DESCRIZIONE * altezza_vera("res://art/font/arrotondato.ttf", Stile.dimensione("minuscolo"))
+	for scala in [1.0, 1.25]:
+		get_tree().root.content_scale_factor = scala
+		MenuPrincipale.titolo_visto = true
+		var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+		add_child(schermo)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var intero := Rect2(Vector2.ZERO, schermo.size)
+		var zona := (MenuPrincipale.FINE_DESCRIZIONE - MenuPrincipale.ZONA_DESCRIZIONE) * intero.size.y
+		esigi(alta_descrizione <= zona, "a scala %.2f la descrizione (%.0f pixel) non sta nella sua zona (%.0f)"
+				% [scala, alta_descrizione, zona])
+		var largo_descrizione := MenuPrincipale.LARGO_DESCRIZIONE * intero.size.x
+		for passo: Callable in [schermo.pagina_principale, schermo.pagina_nuova, schermo.pagina_carica,
+				schermo.pagina_cancella, schermo.pagina_come_si_gioca, schermo.pagina_collezioni,
+				schermo.pagina_opzioni, schermo.pagina_opzioni_di.bind("Audio"), schermo.pagina_opzioni_di.bind("Grafica"),
+				schermo.pagina_opzioni_di.bind("Accessibilità"), schermo.pagina_extra, schermo.pagina_codice,
+				schermo.pagina_chi_sei.bind(1)]:
+			passo.call()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			controlla_lo_spazio(schermo, intero, scala)
+			for v in schermo.voci:
+				v.sfiorata()
+				var titolo_scritto := schermo.descrizione.titolo.text
+				var corpo_scritto := schermo.descrizione.corpo.text
+				esigi(righe_di(titolo_scritto, Caratteri.titolo(), Stile.dimensione("corpo"), largo_descrizione) == 1,
+						"a scala %.2f il titolo «%s» va a capo" % [scala, titolo_scritto])
+				var righe := righe_di(corpo_scritto, Caratteri.tondo(650), Stile.dimensione("minuscolo"), largo_descrizione)
+				esigi(righe <= MenuPrincipale.RIGHE_DESCRIZIONE,
+						"a scala %.2f la descrizione di '%s' fa %d righe: esce dalla sua zona" % [scala, v.bottone.text, righe])
+		schermo.queue_free()
+		for nome_scena: String in ["Album", "Bestiario", "Compendio"]:
+			var collezione: Collezione = load("res://scenes/%s.tscn" % nome_scena).instantiate()
+			add_child(collezione)
+			await get_tree().process_frame
+			await get_tree().process_frame
+			var elenco := Rect2(collezione.scorri.global_position, collezione.scorri.size)
+			var tasti := Rect2(collezione.comandi.global_position, collezione.comandi.size)
+			esigi(intero.encloses(elenco) and elenco.end.y <= tasti.position.y,
+					"a scala %.2f l'elenco di %s esce dallo schermo o finisce sotto i comandi" % [scala, nome_scena])
+			esigi(intero.encloses(tasti), "a scala %.2f i comandi di %s escono dallo schermo" % [scala, nome_scena])
+			var barra := collezione.scorri.get_v_scroll_bar()
+			var fine_lista := collezione.lista.global_position.x + collezione.lista.size.x
+			esigi(not barra.visible or fine_lista <= barra.global_position.x - 12.0,
+					"a scala %.2f l'elenco di %s finisce a %.0f, attaccato alla barra che scorre (%.0f)"
+					% [scala, nome_scena, fine_lista, barra.global_position.x])
+			collezione.queue_free()
+	get_tree().root.content_scale_factor = 1.0
+	MenuPrincipale.titolo_visto = false
+	GameState.nuova_partita()
+	Impostazioni.movimento_ridotto = prima
+
+func altezza_vera(percorso: String, corpo: int) -> float:
+	# L'ALTEZZA DI UNA RIGA, DAL FILE DEL CARATTERE: la tabella 'head' dice in
+	# quante unita' e' diviso un em, la 'hhea' quanto sale e quanto scende. Godot
+	# in una finestra vera fa esattamente questo conto, arrotondando per eccesso
+	# la salita e la discesa (Anton a corpo 31: 37 + 11 = 48, misurato)
+	var dati := FileAccess.get_file_as_bytes(percorso)
+	dati.reverse()   # decode_* legge in little endian, il TTF e' big endian
+	var lungo := dati.size()
+	var leggi_u16 := func(da: int) -> int: return dati.decode_u16(lungo - da - 2)
+	var leggi_u32 := func(da: int) -> int: return dati.decode_u32(lungo - da - 4)
+	var tabelle := {}
+	for i in int(leggi_u16.call(4)):
+		var dove := 12 + 16 * i
+		var nome := PackedByteArray([dati[lungo - dove - 1], dati[lungo - dove - 2],
+				dati[lungo - dove - 3], dati[lungo - dove - 4]]).get_string_from_ascii()
+		tabelle[nome] = int(leggi_u32.call(dove + 8))
+	var unita := float(leggi_u16.call(int(tabelle["head"]) + 18))
+	var sale := float(leggi_u16.call(int(tabelle["hhea"]) + 4))
+	var scende := float(65536 - int(leggi_u16.call(int(tabelle["hhea"]) + 6)))
+	return ceilf(sale * corpo / unita) + ceilf(scende * corpo / unita)
+
+func controlla_lo_spazio(schermo: MenuPrincipale, intero: Rect2, scala: float) -> void:
+	var nome := schermo.pagina
+	var voci := Rect2(schermo.colonna.global_position, schermo.colonna.size)
+	var pannello := Rect2(schermo.pannello.global_position, schermo.pannello.size)
+	var tasti := Rect2(schermo.comandi.global_position, schermo.comandi.size)
+	var testata := Rect2(schermo.testata.global_position, schermo.testata.size)
+	esigi(voci.end.y <= MenuPrincipale.ZONA_DESCRIZIONE * intero.size.y + 1.0,
+			"a scala %.2f le voci di '%s' finiscono a %.0f, dentro la zona della descrizione (%.0f)"
+			% [scala, nome, voci.end.y, MenuPrincipale.ZONA_DESCRIZIONE * intero.size.y])
+	esigi(voci.end.x <= pannello.position.x - 8.0,
+			"a scala %.2f le voci di '%s' arrivano a %.0f e il pannello comincia a %.0f" % [scala, nome, voci.end.x, pannello.position.x])
+	for parte: Array in [[pannello, "il pannello delle partite"], [tasti, "i comandi"], [testata, "la testata"]]:
+		esigi(intero.encloses(parte[0]), "a scala %.2f, nel passo '%s', %s esce dallo schermo: %s"
+				% [scala, nome, parte[1], parte[0]])
+	var fine_descrizione := MenuPrincipale.X_TESTO + MenuPrincipale.LARGO_DESCRIZIONE
+	esigi(fine_descrizione * intero.size.x <= tasti.position.x - 8.0,
+			"a scala %.2f la descrizione arriva sotto i comandi" % scala)
 
 func prova_mappa_a_quadratini() -> void:
 	# LA MAPPA NON DEVE RACCONTARE PIU' DI QUELLO CHE SAI.
