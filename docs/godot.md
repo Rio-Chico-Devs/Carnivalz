@@ -413,6 +413,12 @@ Offset*, che agiscono sopra il layout normale), e la nostra UI è tutta Control.
 **Non è un problema oggi, ma è una cosa che sai tu e non sapeva il documento.** Quando giri
 `./prove/esegui.sh` sulla tua macchina con la 4.7 vera, quello è il verde che conta.
 
+**Aggiornato il 23 settembre: adesso le prove girano sulla 4.7**, che da qui si scarica. Ed era un
+problema, altro che «quasi certamente nulla»: la 4.4.1 senza finestra misura ogni riga di testo alta
+tre volte il corpo, quindi tutte le prove che guardavano se un testo ci sta in altezza misuravano un
+testo finto. La 4.7 misura giusto. `esegui.sh` avvisa se il Godot usato è più vecchio di quello del
+progetto. I numeri sono in `docs/caccia.md`.
+
 ---
 
 ## Fonti

@@ -321,3 +321,20 @@ sola: la più bassa della lista.
   di verificarlo.**
 - **Nielsen 1993 e Virzi 1992**, gli originali della regola dei cinque
   utenti: superati per il nostro scopo da Faulkner, che adesso ho per intero.
+
+## Arrivate dalla caccia ai difetti (23 settembre)
+
+Lette alla fonte, con `git clone --sparse`, e salvate qui con il link in cima:
+
+| file | cos'è |
+|---|---|
+| `godot-4.7-scrivere-e-copiare.md` | dal sorgente di Godot 4.7: `FileAccess` (WRITE azzera il file, `store_string` dice se è riuscita), `OS.set_use_file_access_save_and_swap`, `Dictionary.duplicate` (la copia profonda copia anche i dizionari dentro), e il codice dei driver che fa lo scambio su Linux e Windows |
+| `wcag-1.4.4-ridimensionare-il-testo.md` | WCAG 2.2, criterio 1.4.4, dal repository del W3C |
+
+**E quelle che NON ho letto**, dette qui perché nessuno le trovi citate come
+lette: la *Xbox Accessibility Guideline 101* (testo a schermo) la conosco solo
+dalla sintesi di una ricerca web — «ridimensionare il testo fino al 200% senza
+perdere contenuto» — perché `learn.microsoft.com` risponde 403; le *Game
+Accessibility Guidelines* sono bloccate anche loro; e i paper sul test
+automatico dei giochi stanno su arXiv, che da qui non si apre. L'automa
+(`prove/automa.sh`) è costruito senza di loro, e `docs/caccia.md` lo dice.

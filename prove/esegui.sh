@@ -70,6 +70,22 @@ esegui_pulito() {
 	fi
 }
 
+# LA VERSIONE GIUSTA, O IL VERDE NON VALE.
+#
+# Per settimane le prove sono girate su Godot 4.4.1 mentre il progetto dichiara
+# 4.7, e 4.4.1 senza finestra MISURA I CARATTERI FINTI: una riga alta tre volte
+# il corpo (a 16 punti, 48 pixel invece di 23). Ogni prova che guardava se un
+# testo ci sta in altezza misurava un testo che non esiste. La 4.7 senza
+# finestra misura giusto. Quindi: se il Godot qui e' piu' vecchio di quello
+# del progetto, lo si dice prima di cominciare.
+dichiarata="$(sed -nE 's/^config\/features=PackedStringArray\("([0-9]+\.[0-9]+)".*/\1/p' project.godot)"
+usata="$("$GODOT" --version 2>/dev/null | grep -oE '^[0-9]+\.[0-9]+' | head -1)"
+if [ -n "$dichiarata" ] && [ -n "$usata" ] \
+		&& [ "$(printf '%s\n%s\n' "$usata" "$dichiarata" | sort -V | head -1)" != "$dichiarata" ]; then
+	echo "⚠ Godot $usata, ma il progetto e' fatto per $dichiarata: il verde di qui non" >&2
+	echo "  e' quello che conta. Sotto la 4.5 senza finestra le altezze del testo sono finte." >&2
+fi
+
 echo "→ importo le risorse"
 "$GODOT" --headless --path . --import >/dev/null
 

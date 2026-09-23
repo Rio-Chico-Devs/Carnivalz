@@ -68,9 +68,21 @@ static func raccogli(id_atteso: String) -> Dictionary:
 	# Main chiama questa alla nascita. Se qualcuno e' gia' entrato per lei
 	# (vai_al_nodo) prende il verdetto pronto; altrimenti - scena aperta a mano
 	# dall'editor, o un flusso che non passa dal router - entra adesso.
+	#
+	# Main la chiama con GameState.nodo_corrente, e entra() li' scrive la
+	# STANZA del nodo, non il suo nome: il risveglio in infermeria lascia
+	# "infermeria", la partenza dalla sala di proiezione "sala_proiezione".
+	# Confrontando solo il nome il verdetto pronto veniva buttato e si
+	# rientrava nella stanza, la cui regola mandava altrove: dopo l'allenamento
+	# si saltava il risveglio con la Dr. Reika («hai dimenticato qualcosa?»), e
+	# scelta la prima missione sulla mappa ricominciava la scena di Veronica,
+	# all'infinito. Le prove guardavano il verdetto in partenza, non cosa
+	# arrivava a schermo; l'ha trovato l'automa (prove/automa.sh), girando in
+	# tondo per ventisette minuti di gioco.
 	var esito := ultimo_esito
 	ultimo_esito = {}
-	if not esito.is_empty() and String(esito.get("id", "")) == id_atteso:
+	if not esito.is_empty() and id_atteso in [String(esito.get("id", "")),
+			String((esito.get("nodo", {}) as Dictionary).get("stanza", ""))]:
 		return esito
 	return entra(id_atteso)
 

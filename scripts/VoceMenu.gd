@@ -132,6 +132,18 @@ func costruisci(nome_segno: String, testo: String, corpo: int) -> void:
 	set_process(false)
 
 
+func stringi(margine: int) -> void:
+	# meno aria sopra e sotto la scritta: per le colonne che, col testo grande,
+	# non ci starebbero (vedi Pausa.stringi_se_serve). Le lettere restano come
+	# sono - l'opzione esiste proprio per quelle
+	for stato in ["normal", "hover", "pressed", "focus", "disabled", "hover_pressed"]:
+		var scatola := bottone.get_theme_stylebox(stato) as StyleBoxEmpty
+		if scatola != null:
+			scatola.content_margin_top = margine
+			scatola.content_margin_bottom = margine
+	bottone.update_minimum_size()
+
+
 func _get_minimum_size() -> Vector2:
 	if bottone == null:
 		return Vector2.ZERO

@@ -2245,10 +2245,7 @@ func ha_salvataggio_slot(slot: int) -> bool:
 
 func dati_slot(slot: int) -> Dictionary:
 	# legge la testata di un salvataggio senza toccare la partita in corso
-	var percorso := percorso_slot(slot)
-	if not FileAccess.file_exists(percorso):
-		return {}
-	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
+	var d: Variant = FileSicuro.leggi_dizionario(percorso_slot(slot))
 	return d if d is Dictionary else {}
 
 func anteprima_slot(slot: int) -> String:
@@ -2272,11 +2269,11 @@ func nome_slot(slot: int) -> String:
 
 func elimina_slot(slot: int) -> void:
 	var percorso := percorso_slot(slot)
-	if FileAccess.file_exists(percorso):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
-		# su alcune piattaforme user:// non si globalizza: si riprova diretto
-		if FileAccess.file_exists(percorso):
-			DirAccess.open("user://").remove(percorso.get_file())
+	FileSicuro.cancella(percorso)
+	# su alcune piattaforme user:// non si globalizza: si riprova diretto
+	for quale in [percorso, percorso + FileSicuro.RISERVA]:
+		if FileAccess.file_exists(quale):
+			DirAccess.open("user://").remove(quale.get_file())
 
 func recupera_salvataggio_vecchio() -> void:
 	# Le partite giocate prima che "una partita = uno slot" esistesse stavano
@@ -2287,15 +2284,10 @@ func recupera_salvataggio_vecchio() -> void:
 		return
 	if ha_salvataggio():
 		return  # c'e' gia' almeno una partita nel nuovo formato: non si tocca niente
-	var contenuto := FileAccess.get_file_as_string(PERCORSO_SALVATAGGIO_VECCHIO)
-	var f := FileAccess.open(percorso_slot(1), FileAccess.WRITE)
-	if f == null:
-		return
-	f.store_string(contenuto)
-	f.close()
+	FileSicuro.scrivi(percorso_slot(1), FileAccess.get_file_as_string(PERCORSO_SALVATAGGIO_VECCHIO))
 
-func salva() -> void:
-	_scrivi_salvataggio(percorso_slot(slot_corrente))
+func salva() -> bool:
+	return _scrivi_salvataggio(percorso_slot(slot_corrente))
 
 func salva_slot(slot: int) -> void:
 	_scrivi_salvataggio(percorso_slot(slot))
@@ -2309,7 +2301,7 @@ func carica_slot(slot: int) -> bool:
 	imposta_slot(slot)
 	return true
 
-func _scrivi_salvataggio(percorso: String) -> void:
+func _scrivi_salvataggio(percorso: String) -> bool:
 	var dati := {
 		"versione": 1,
 		"seed": seed_partita,
@@ -2358,18 +2350,19 @@ func _scrivi_salvataggio(percorso: String) -> void:
 		"messaggi_letti": messaggi_letti,
 		"nome_protagonista": nome_protagonista,
 	}
-	var f := FileAccess.open(percorso, FileAccess.WRITE)
-	if f == null:
-		push_error("Salvataggio non riuscito: " + str(FileAccess.get_open_error()))
-		return
-	f.store_string(JSON.stringify(dati, "\t"))
-	f.close()
+	# accanto e poi scambiato, controllato, con la riserva: vedi FileSicuro
+	# non e' un errore del programma, e' un disco che non scrive: lo dice la
+	# Sede al giocatore (vedi Sede.riga_di_stato)
+	if not FileSicuro.scrivi(percorso, JSON.stringify(dati, "\t")):
+		push_warning("Salvataggio non riuscito: " + percorso)
+		return false
 	partita_su_file = true
+	return true
 
 func _leggi_salvataggio(percorso: String) -> bool:
-	if not FileAccess.file_exists(percorso):
+	if not FileSicuro.esiste(percorso):
 		return false
-	var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
+	var d: Variant = FileSicuro.leggi_dizionario(percorso)
 	if not d is Dictionary:
 		push_error("Salvataggio corrotto: " + percorso)
 		return false

@@ -43,6 +43,7 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_una_partita_rovinata_si_riprende()
 	prova_zaino()
 	prova_compagni_temporanei()
 	prova_carte()
@@ -143,6 +144,8 @@ func _ready() -> void:
 	await prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo()
 	prova_giornata_dopo_allenamento()
 	await prova_la_prima_missione_si_sceglie_sulla_mappa()
+	await prova_da_un_altra_schermata_arriva_il_nodo_giusto()
+	await prova_l_icona_del_menu_si_preme_anche_mentre_si_legge()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -979,6 +982,47 @@ func prova_salvataggio() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
 	GameState.nuova_partita()
 
+func prova_una_partita_rovinata_si_riprende() -> void:
+	# UN FILE ROVINATO NON E' UNA PARTITA PERSA. Aprire in scrittura azzerava
+	# il file prima di scriverci: un gioco chiuso in quell'istante lasciava un
+	# file vuoto o a meta', e nel menu la partita diventava «Anonimo, livello
+	# 1», che premuta scuoteva la testa. Adesso si scrive accanto e si scambia,
+	# e la versione di prima resta come riserva (vedi FileSicuro).
+	titolo("una partita col file rovinato si riprende dalla riserva")
+	var percorso := "user://prova_rovinata.json"
+	FileSicuro.cancella(percorso)
+	GameState.nuova_partita()
+	GameState.tazo = 111
+	GameState._scrivi_salvataggio(percorso)
+	GameState.tazo = 222
+	GameState._scrivi_salvataggio(percorso)
+	esigi(FileAccess.file_exists(percorso + FileSicuro.RISERVA),
+			"al secondo salvataggio la versione di prima non e' rimasta da parte")
+	# il file si rovina a meta', come dopo una chiusura sbagliata
+	var intero := FileAccess.get_file_as_string(percorso)
+	var rovinato := FileAccess.open(percorso, FileAccess.WRITE)
+	rovinato.store_string(intero.left(intero.length() / 2))
+	rovinato.close()
+	GameState.nuova_partita()
+	esigi(GameState._leggi_salvataggio(percorso),
+			"col file principale rovinato la partita non si carica piu': la riserva non serve a niente")
+	esigi(GameState.tazo == 111,
+			"col file rovinato si riprende %d Tazo invece dei 111 della riserva" % GameState.tazo)
+	# e nessun file temporaneo dimenticato accanto: lo scambio si chiude sempre
+	for nome in DirAccess.get_files_at("user://"):
+		esigi(not nome.begins_with("prova_rovinata.json-"),
+				"lo scambio ha lasciato indietro un file temporaneo: %s" % nome)
+	# UN DISCO CHE NON SCRIVE NON DICE «SALVATO». Prima l'esito si buttava, e
+	# la partita risultava su file anche quando il file non c'era
+	GameState.nuova_partita()
+	esigi(not FileSicuro.scrivi("user://non_esiste_questa_cartella/partita.json", "{}"),
+			"scrivere dove non si puo' risulta riuscito")
+	GameState._scrivi_salvataggio("user://non_esiste_questa_cartella/partita.json")
+	esigi(not GameState.partita_su_file,
+			"un salvataggio fallito fa credere al gioco di avere la partita su file")
+	FileSicuro.cancella(percorso)
+	GameState.nuova_partita()
+
 func prova_zaino() -> void:
 	# Lo zaino e' diviso per categoria e ogni categoria ha il suo tetto, che si
 	# alza comprando spazio. Le tabelle in regole.json sono la capacita' TOTALE
@@ -1124,6 +1168,9 @@ func prova_slot_accessori() -> void:
 				messi += 1
 		esigi(GameState.slot_di(eroe)["accessori"].size() <= base,
 				"si riescono a mettere piu' accessori degli slot aperti")
+		# e fino al tetto si arriva: «messi» si contava e non lo guardava
+		# nessuno, quindi un tetto a zero sarebbe passato per giusto
+		esigi(messi == base, "con %d slot aperti se ne riempiono %d" % [base, messi])
 
 func prova_scheda_personaggio() -> void:
 	# La scheda si costruisce tutta in codice: un errore qui non si vede finche'
@@ -8730,6 +8777,116 @@ func prova_la_prima_missione_si_sceglie_sulla_mappa() -> void:
 	Transizioni.in_corso = stato_prima
 	GameState.nuova_partita()
 
+func prova_da_un_altra_schermata_arriva_il_nodo_giusto() -> void:
+	# CHI ARRIVA DA UN'ALTRA SCHERMATA VEDE IL NODO IN CUI E' ENTRATO.
+	#
+	# Dal combattimento, dalla mappa stellare, dal menu si entra in un nodo con
+	# IngressoNodo.vai_al_nodo, e Main, appena nasce, raccoglie il verdetto
+	# chiedendolo per GameState.nodo_corrente - che per un nodo dentro una
+	# stanza e' la STANZA. Il verdetto veniva buttato perche' il nome non
+	# coincideva, si rientrava nella stanza, e la sua regola mandava altrove:
+	# dopo l'allenamento non si vedeva il risveglio con la Dr. Reika ma «hai
+	# dimenticato qualcosa?», e scelta la prima missione la scena di Veronica
+	# ricominciava all'infinito. prova_la_prima_missione_si_sceglie_sulla_mappa
+	# guardava il verdetto in partenza e passava: qui si apre la schermata vera
+	# e si guarda cosa ci arriva.
+	#
+	# Per ogni nodo che sta in una stanza non sua, con tutti i flag della
+	# stanza accesi: e' il caso in cui la stanza manda altrove, cioe' quello in
+	# cui l'errore si vede.
+	titolo("chi arriva da un'altra schermata vede il suo nodo, non la sua stanza")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true   # i cambi di scena si mettono in fila e basta
+	var provati := 0
+	for file: String in ["res://data/events_intro.json", "res://data/events_tutorial.json"]:
+		var nodi: Dictionary = (GameState.carica_json(file) as Dictionary).get("nodi", {})
+		for id_nodo: String in nodi:
+			var stanza := String((nodi[id_nodo] as Dictionary).get("stanza", id_nodo))
+			if stanza == id_nodo:
+				continue
+			GameState.nuova_partita()
+			GameState.avvia_carnivalz("prova", file)
+			var regole: Variant = (GameState.eventi.get(stanza, {}) as Dictionary).get("vai_se_flag", [])
+			for regola: Variant in (regole if regole is Array else [regole]):
+				if regola is Dictionary and (regola as Dictionary).has("flag"):
+					GameState.imposta_flag(String((regola as Dictionary)["flag"]))
+			Transizioni.prossima = ""
+			IngressoNodo.vai_al_nodo(id_nodo)
+			if Transizioni.prossima != IngressoNodo.SCENA_EVENTI:
+				continue   # un agguato, o un nodo che manda altrove: Main non c'entra
+			var atteso: Dictionary = IngressoNodo.ultimo_esito.get("nodo", {})
+			var schermata: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
+			add_child(schermata)
+			await get_tree().process_frame
+			esigi(schermata.nodo_in_corso == atteso,
+					"entrando in '%s' da un'altra schermata si vede un altro nodo: la stanza '%s' l'ha mandato altrove"
+					% [id_nodo, stanza])
+			provati += 1
+			schermata.queue_free()
+			await get_tree().process_frame
+	esigi(provati >= 10, "provati solo %d nodi dentro una stanza: il filtro si e' ristretto" % provati)
+	Transizioni.in_corso = stato_prima
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	GameState.nuova_partita()
+
+func sotto_il_mouse(c: Control) -> Control:
+	# chi prende davvero un clic dato al centro di c: il mouse ci va come ci
+	# andrebbe una mano, e si chiede alla finestra chi ha sotto. Senza finestra
+	# Godot ne apre una da 64x64, e un clic li' finisce in un altro posto:
+	# la si porta alla misura del gioco
+	get_window().size = Vector2i(1280, 720)
+	var centro := c.get_viewport().get_final_transform() \
+			* (c.get_global_transform_with_canvas() * (c.size * 0.5))
+	var mossa := InputEventMouseMotion.new()
+	mossa.position = centro
+	mossa.global_position = centro
+	Input.parse_input_event(mossa)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	return get_viewport().gui_get_hovered_control()
+
+func prova_l_icona_del_menu_si_preme_anche_mentre_si_legge() -> void:
+	# LA FACCIA IN ALTO A SINISTRA APRE IL MENU, SEMPRE. Stava sotto AreaAvanza,
+	# il bottone grande quanto lo schermo che fa andare avanti il testo: mentre
+	# un dialogo scorreva, cliccarla mandava avanti la battuta. E subito dopo
+	# aver chiuso la pausa, per 150 ms, il primo clic se lo prendeva il
+	# contenitore della pausa che si stava dissolvendo. Le ha trovate tutte e
+	# due l'automa; qui il mouse ci va per davvero e si chiede chi c'e' sotto.
+	titolo("l'icona del menu si preme anche mentre si legge, e anche appena chiusa la pausa")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	schermata.mostra_nodo("infermeria_reika")
+	for i in 30:
+		await get_tree().process_frame
+	var icona: Button = schermata.icona_menu
+	esigi(schermata.area_avanza.visible, "la prova non sta guardando un dialogo che scorre")
+	var sotto: Control = await sotto_il_mouse(icona)
+	esigi(sotto == icona or icona.is_ancestor_of(sotto),
+			"mentre il dialogo scorre, un clic sull'icona del menu lo prende «%s»: manda avanti la battuta invece di aprire il menu"
+			% (sotto.name if sotto != null else "nessuno"))
+	Pausa.apri()
+	for i in 20:
+		await get_tree().process_frame
+	Pausa.chiudi()
+	await get_tree().process_frame
+	sotto = await sotto_il_mouse(icona)
+	esigi(sotto == icona or icona.is_ancestor_of(sotto),
+			"appena chiusa la pausa, un clic sull'icona lo prende «%s»: la pausa che si dissolve ruba il primo clic"
+			% (sotto.name if sotto != null else "nessuno"))
+	for i in 20:
+		await get_tree().process_frame
+	schermata.queue_free()
+	Transizioni.in_corso = stato_prima
+	Transizioni.prossima = ""
+	get_window().size = Vector2i(64, 64)
+	await get_tree().process_frame
+
 func prova_nome_del_data_pad() -> void:
 	# «(il diario diventa data pad)» (Bru). Una riga sola nel suo messaggio, e
 	# cambia il nome di una schermata che il giocatore apre cento volte.
@@ -11043,6 +11200,26 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 			% RegoleCombattimento.scatti_difesa(tu))
 	esigi(scontro.nome_azione_in_coda() == "",
 			"il comando e' partito ma e' rimasto anche in coda: partirebbe due volte")
+
+	# E UN ATTACCO TENUTO DA PARTE COLPISCE LA CREATURA VERA. La difesa qui
+	# sopra non ha bersaglio, e per questo la prova non vedeva che il comando
+	# si copiava in profondita' - creatura compresa: l'attacco partiva contro
+	# un doppione, e il goblin in campo non perdeva un punto
+	var goblin: Dictionary = {}
+	for c: Dictionary in scontro.combattenti:
+		if not bool(c.get("giocatore", false)):
+			goblin = c
+	var vita_prima := int(goblin.get("hp", 0))
+	tu.ricarica = 0.8
+	scontro.agisci_ora({"tipo": "attacca", "bersaglio": goblin})
+	esigi(int(goblin.hp) == vita_prima, "l'attacco e' partito prima che la ricarica finisse")
+	tu.ricarica = 0.0
+	scontro.voce.coda.clear()
+	scontro.voce.sta_facendo_leggere = false
+	scontro.aggiorna_pronto_giocatore()
+	esigi(int(goblin.hp) < vita_prima,
+			"l'attacco dato durante la ricarica e' partito, ma il goblin in campo e' ancora a %d su %d: ha colpito una copia"
+			% [int(goblin.hp), vita_prima])
 
 	# DURANTE LA LEZIONE NO. Veronica chiede una cosa per volta: un comando
 	# tenuto da parte partirebbe da solo appena lei finisce di parlare, e il

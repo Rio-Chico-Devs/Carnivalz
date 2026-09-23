@@ -429,6 +429,11 @@ func prepara_icona_menu() -> void:
 		faccia.texture = load(ritratto)
 	icona_menu.add_child(faccia)
 	icona_menu.pressed.connect(func() -> void: Pausa.apri())
+	# SOPRA L'AREA CHE FA AVANZARE IL TESTO. Stava in Interfaccia, e AreaAvanza
+	# - un bottone grande quanto lo schermo, messo per ultimo - la copriva:
+	# mentre un dialogo scorreva, cliccare la faccia mandava avanti la battuta
+	# invece di aprire il menu. L'ha trovato l'automa (prove/automa.sh)
+	icona_menu.reparent(self)
 
 func ritratto_del_giocato() -> String:
 	var id := GameState.id_protagonista
@@ -759,6 +764,7 @@ func mostra_carta_titolo(contenuto: String, percorso_immagine := "") -> void:
 	# (760), senza no: e la carta del titolo senza immagine e' il caso normale.
 	testo_titolo.custom_minimum_size = Vector2(760, 0)
 	carta_titolo.visible = true
+	icona_menu.visible = false   # la carta si prende lo schermo: l'icona, che sta sopra, no
 	carta_titolo.modulate.a = 0.0
 	var comparsa := create_tween()
 	comparsa.tween_property(carta_titolo, "modulate:a", 1.0, Stile.tempo("carta_titolo"))
@@ -794,6 +800,7 @@ func mostra_scritta_dal_buio(percorso: String, quanto_resta: float) -> void:
 		testo_titolo.custom_minimum_size = Vector2(760, 0)
 		Stile.imposta_corpo(testo_titolo, Stile.dimensione("titolo") * 2)
 	carta_titolo.visible = true
+	icona_menu.visible = false
 	carta_titolo.modulate.a = 0.0
 	var velo: ColorRect = carta_titolo.get_node("VeloTitolo")
 	velo.color = Color(Stile.colore("velo"), 1.0)   # buio pieno, non un velo
@@ -815,6 +822,7 @@ func chiudi_carta_titolo() -> void:
 
 func _dopo_carta_titolo() -> void:
 	carta_titolo.visible = false
+	icona_menu.visible = true
 	if azione_dopo_titolo.is_valid():
 		var richiamo := azione_dopo_titolo
 		azione_dopo_titolo = Callable()

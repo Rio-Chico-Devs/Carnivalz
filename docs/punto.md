@@ -299,7 +299,7 @@ In ordine di quanto blocca il lavoro. I primi tre sono quelli senza cui non poss
 
 ## 7. Come si controlla il progetto da soli
 
-Tre comandi, e non serve sapere niente di programmazione per leggerne l'esito.
+Pochi comandi, e non serve sapere niente di programmazione per leggerne l'esito.
 
 | Comando | Quanto ci mette | Cosa dice |
 | --- | --: | --- |
@@ -308,6 +308,7 @@ Tre comandi, e non serve sapere niente di programmazione per leggerne l'esito.
 | **`./prove/sonda.sh <creatura>`** | **~10 secondi** | **Una creatura sola, subito.** Cambi un numero in un file di dati e vedi immediatamente se era quello |
 | `./strumenti/nemici.sh` | pochi secondi | Riscrive `nemici.md` coi numeri veri del bestiario |
 | **`./strumenti/topologia.py`** | **un secondo** | Riscrive `topologia.md`: la **forma** delle mappe, non il contenuto |
+| **`./prove/automa.sh`** | **pochi minuti** | **Un giocatore finto che gioca con clic veri**, dal menu in avanti: segnala errori, blocchi, bottoni che non si lasciano premere. Serve Godot 4.5+. Ha trovato i due difetti gravi della caccia del 23 settembre (`docs/caccia.md`) |
 
 > **La sonda è nuova, e serve più di quanto sembri.** Il giro completo dice *com'è messo* il
 > bilanciamento; non può dire *per colpa di cosa*, perché a quella domanda si risponde cambiando una

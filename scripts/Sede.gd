@@ -28,13 +28,14 @@ var colonna_stanze: VBoxContainer
 var etichetta_titolo_scheda: Label
 var etichetta_descrizione: Label
 var etichetta_stato: Label
+var salvata := true   # com'e' andato il salvataggio di quando sei rientrato
 
 func _ready() -> void:
 	AudioManager.musica_chiave("mappa")
 	# Il salvataggio sta qui e in nessun altro posto. Rientrare alla Sede E' il
 	# salvataggio: non c'e' un bottone, non c'e' una domanda, non c'e' un modo di
 	# scrivere sul file sbagliato.
-	GameState.salva()
+	salvata = GameState.salva()
 	var letto: Variant = GameState.carica_json(PERCORSO_SEDE)
 	dati = letto if letto is Dictionary else {}
 
@@ -216,6 +217,7 @@ func costruisci_pannello(riga: HBoxContainer) -> void:
 
 	etichetta_titolo_scheda = Label.new()
 	etichetta_titolo_scheda.text = String(dati.get("nome", ""))
+	etichetta_titolo_scheda.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	etichetta_titolo_scheda.add_theme_color_override("font_color", Stile.colore("testo"))
 	Stile.imposta_corpo(etichetta_titolo_scheda, Stile.dimensione("sezione"))
 	dentro.add_child(etichetta_titolo_scheda)
@@ -241,6 +243,10 @@ func costruisci_pannello(riga: HBoxContainer) -> void:
 
 	etichetta_stato = Label.new()
 	etichetta_stato.text = riga_di_stato()
+	# VA A CAPO. Con «testo piu' grande» lo schermo utile scende a 1024 pixel,
+	# e questa riga lunga, che non andava a capo, allargava la colonna oltre il
+	# bordo: si trascinava fuori anche la scheda, titolo e descrizione tagliati
+	etichetta_stato.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	Stile.etichetta_piccola(etichetta_stato)
 	colonna.add_child(etichetta_stato)
 
@@ -254,6 +260,10 @@ func riga_di_stato() -> String:
 	if in_forza < richiesti:
 		testo += "  —  l'unità è sotto organico."
 	testo += "\nTazo: %d  ·  Fonti estinte: %d" % [GameState.tazo, GameState.fonti_estinte]
+	# se il disco non ha scritto, lo si dice qui, dove il gioco promette di
+	# salvare: tacerlo vorrebbe dire lasciar credere che la partita sia al sicuro
+	if not salvata:
+		testo += "\nSalvataggio non riuscito: la partita di adesso non è su disco."
 	return testo
 
 # --- interazione ---

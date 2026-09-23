@@ -47,6 +47,9 @@ const STACCO := 1.0         # l'aria IN PIU' fra un blocco di voci e il prossimo
                             # il contenitore ci mette gia' la sua spaziatura ai due
                             # lati, quindi qui bastano pochi pixel
 const STACCO_TESTATA := 8.0
+const MARGINE_DAL_FONDO := 12.0   # la colonna si ferma prima del bordo, non sul bordo
+const SPAZIATURA_MINIMA := 2
+const MARGINE_STRETTO := 2
 const QUANTO_OCCUPA_CHI_GIOCHI := 560   # quanta larghezza si prende il tuo personaggio, a destra
 # QUANTO SCHERMO COPRE IL FOGLIO NERO delle quinte. Nel menu meno della meta':
 # a destra resta il mondo sfocato, e il tuo personaggio. Negli altri pannelli
@@ -117,6 +120,13 @@ func _ready() -> void:
 	sfocato.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	sfocato.stretch_mode = TextureRect.STRETCH_SCALE
 	sfocato.visible = false
+	# NIENTE CHE STA SOTTO LE VOCI PRENDE CLIC: a chiuderli fuori dal gioco
+	# mentre sei in pausa ci pensa il velo, e il velo smette nell'istante in cui
+	# chiudi. Il contenitore e l'istantanea sfocata invece, lasciati come nascono
+	# (i contenitori e le TextureRect lasciano passare), durante i 150 ms della
+	# dissolvenza si prendevano il primo clic dato al gioco - proprio quello
+	# che «chiudi» prometteva di non rubare. L'ha trovato l'automa
+	sfocato.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(sfocato)
 	velo = ColorRect.new()
 	# appena scuro: la sfocatura fa gia' tutto il lavoro di mandare indietro la
@@ -127,6 +137,7 @@ func _ready() -> void:
 	velo.visible = false
 	add_child(velo)
 	contenitore = MarginContainer.new()
+	contenitore.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	contenitore.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	contenitore.add_theme_constant_override("margin_left", 90)
 	contenitore.add_theme_constant_override("margin_right", 90)
@@ -323,7 +334,33 @@ func nuova_colonna(entra := true) -> VBoxContainer:
 	colonna.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if entra:
 		Movimento.entra_pannello(colonna)
+	# a pannello finito: chi chiama la riempie adesso, e la misura vera c'e'
+	# solo dopo. Differita vuol dire prima del disegno, quindi non si vede
+	stringi_se_serve.call_deferred(colonna)
 	return colonna
+
+func stringi_se_serve(quale: VBoxContainer) -> void:
+	# LA COLONNA NON ESCE DI SOTTO. Con «testo piu' grande» tutto cresce del
+	# 25% e lo schermo utile scende a 576 pixel: il menu perdeva «Opzioni» e
+	# «Torna al menu principale» - cioe' proprio il posto dove il testo grande
+	# si spegne - e il Diario le sue ultime sezioni e «Indietro». Anche a scala
+	# normale l'ultima voce sporgeva di cinque pixel. Si stringe l'aria, non le
+	# lettere: prima quanto basta della spaziatura fra le voci, poi, se non
+	# basta ancora, il margine dentro ogni voce. Trovato dalla sonda dei bordi.
+	if quale != colonna or not is_instance_valid(quale):
+		return
+	var posto := get_viewport().get_visible_rect().size.y - palco.get_global_rect().position.y - MARGINE_DAL_FONDO
+	var troppo := quale.get_combined_minimum_size().y - posto
+	if troppo <= 0.0:
+		return
+	var spazi := maxi(quale.get_child_count() - 1, 1)
+	var passo := quale.get_theme_constant("separation")
+	var nuovo := maxi(passo - ceili(troppo / spazi), SPAZIATURA_MINIMA)
+	quale.add_theme_constant_override("separation", nuovo)
+	if troppo - (passo - nuovo) * spazi <= 0.0:
+		return
+	for voce in quale.find_children("*", "VoceMenu", true, false):
+		(voce as VoceMenu).stringi(MARGINE_STRETTO)
 
 func intestazione(testo: String) -> void:
 	# Titolo a sinistra, Tazo e livello a destra. Sempre: sono le due cose che si
@@ -355,7 +392,11 @@ func intestazione(testo: String) -> void:
 	aria.custom_minimum_size = Vector2(0.0, STACCO_TESTATA)
 	aria.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	colonna.add_child(aria)
-	quinte.copri(COPRE_MENU if pannello == "menu" else COPRE_PANNELLO, testo.to_upper())
+	# col testo grande le voci sono piu' larghe del 25%, e il foglio le deve
+	# coprire lo stesso: altrimenti «Torna al menu principale» finisce sulla
+	# striscia rossa. Si allarga della stessa scala
+	var scala := get_tree().root.content_scale_factor
+	quinte.copri(COPRE_MENU * scala if pannello == "menu" else COPRE_PANNELLO, testo.to_upper())
 
 # --- pannello: menu ---
 

@@ -76,7 +76,15 @@ func ricorda(comando: Dictionary) -> void:
 	# DI CHI ERA. Fra il click e il momento in cui parte, chi comandi puo'
 	# cambiare: se cadi e ne comandi un altro, l'abilita' che avevi scelto non e'
 	# piu' sua, e fargliela fare lo stesso sarebbe peggio che perdere il click
-	azione = comando.duplicate(true)
+	#
+	# E SI COPIA IL COMANDO, NON QUELLO A CUI PUNTA. Qui c'era duplicate(true),
+	# la copia profonda: con il comando si copiava anche la creatura bersaglio,
+	# e l'attacco partiva contro un suo doppione. «Colpo critico! Anonimo coglie
+	# Goblin Tipico in pieno», e il goblin restava a 86 su 86: ogni colpo dato
+	# durante la ricarica - cioe' quasi tutti, per chi martella la creatura come
+	# il gioco chiede - finiva nel vuoto. L'ha trovato l'automa: perdeva il
+	# primo goblin trentasei volte su trentasei.
+	azione = comando.duplicate()
 	di = String(scontro.combattente_comandato().get("id", ""))
 
 func azione_ammessa_dalla_lezione(comando: Dictionary) -> bool:
