@@ -731,11 +731,11 @@
       "sequenza": [
         {
           "tipo": "narrazione",
-          "testo": "L'infermeria è l'unica stanza del complesso che non fa rumore. Ti siedi prima ancora che Curie ti dica di farlo."
+          "testo": "L'infermeria è l'unica stanza del complesso che non fa rumore. Ti siedi prima ancora che la Dr. Reika ti dica di farlo."
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "Bentornat{o|a}, a pezzi come sempre vedo..."
         },
         {
@@ -745,7 +745,7 @@
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "Se non fossi {un dominatore|una dominatrice} di limiti saresti già {morto|morta}, lo sai?"
         },
         {
@@ -760,7 +760,7 @@
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "Beh dovresti saperlo... solo individui con una forte forza di volontà e una fortunata costituzione diventano dominatori... Non è una fortuna, è un destino."
         },
         {
@@ -770,7 +770,7 @@
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "Sì, ma non tutti i dominatori sono fatti per il combattimento: io sono specializzata nelle cure e nella conoscenza. Non mi sognerei mai di andarmene a zonzo per l'universo a... beh... lo sai... io non sono molto a favore della violenza..."
         },
         {
@@ -780,17 +780,17 @@
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "Apprezzo quel che fate..."
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "Ah! Dimenticavo, devi recarti nella sala riunioni: ti hanno affidato un bell'incarico..."
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "Spero di non rivederti presto da queste parti <3",
           "espr": "carina"
         },
@@ -801,11 +801,11 @@
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
+          "chi": "reika",
           "testo": "È inevitabile..."
         }
       ],
-      "destra": "curie",
+      "destra": "reika",
       "espr_destra": "carina",
       "scelte": [
         {

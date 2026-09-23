@@ -3882,15 +3882,10 @@
       "_nota_dominatore": "Bru: 'veronica non necessita di un entry nel bestiario ma di un entry nella sezione dei dominatori'. Combatte ancora - il tutorial la usa - ma non e' una creatura da studiare: la sua scheda sta in tecnolog.dominatori, con campi suoi."
     },
     {
-      "id": "curie",
-      "nome": "Dott.ssa Curie Heartlife",
-      "ritratto": "res://art/personaggi/curie.png"
-    },
-    {
       "id": "reika",
       "nome": "Dr. Reika",
       "ritratto": "res://art/personaggi/reika.png",
-      "_nota": "La dottoressa dell'infermeria, dal testo di Bru: ti rimette in piedi dopo l'allenamento con Veronica, e ti ci ritrovi se torni a trovarla. Nel risveglio parla prima come ??? (ignoto): la voce arriva prima del nome, come per Veronica. Il ritratto non c'e' ancora: finche' manca, l'iniziale."
+      "_nota": "La dottoressa dell'infermeria. Si chiamava Curie Heartlife: Bru le ha cambiato nome, e adesso e' la Dr. Reika ovunque - nel risveglio dopo l'allenamento, nelle domande del pomeriggio e nell'infermeria del ritorno dalla missione. Nel risveglio parla prima come ??? (ignoto): la voce arriva prima del nome, come per Veronica. Il ritratto non c'e' ancora: finche' manca, l'iniziale."
     },
     {
       "id": "soldato_uno",

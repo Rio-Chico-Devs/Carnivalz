@@ -31,7 +31,7 @@ chiedere `"espr": "sotto_la_pioggia"` e basta disegnare quel file.
 Non 16 espressioni per 48 personaggi (768 disegni, che non li fa nessuno).
 Questo e' quello che i dialoghi scritti finora chiedono davvero.
 
-### 1. Il ritratto singolo — 53 da fare
+### 1. Il ritratto singolo — 56 da fare
 
 Basta questo perche' nessuno sia piu' un segnaposto. Le creature da
 combattimento si fermano qui: non parlano, non gli serve altro.
@@ -41,7 +41,6 @@ art/personaggi/abominio_marcio.png
 art/personaggi/anonimo.png
 art/personaggi/bero.png
 art/personaggi/comparsa_di_ruggine.png
-art/personaggi/curie.png
 art/personaggi/diabolo.png
 art/personaggi/divoratore.png
 art/personaggi/divoratore_di_carcasse.png
@@ -52,6 +51,7 @@ art/personaggi/ghoul.png
 art/personaggi/giocoliere.png
 art/personaggi/goblin_arrabbiato.png
 art/personaggi/goblin_tipico.png
+art/personaggi/guida.png
 art/personaggi/infetto_rapido.png
 art/personaggi/jerah.png
 art/personaggi/jongo_dongo.png
@@ -63,18 +63,21 @@ art/personaggi/marionetta.png
 art/personaggi/maschera_vuota.png
 art/personaggi/mockingbear.png
 art/personaggi/mr_eto.png
+art/personaggi/nimbo_boy.png
 art/personaggi/niru.png
 art/personaggi/nuvola_di_marciume.png
 art/personaggi/ombra_del_passato.png
 art/personaggi/operaio_posseduto.png
 art/personaggi/operaio_sfruttato.png
 art/personaggi/orrore_di_meridia.png
+art/personaggi/reika.png
 art/personaggi/rio.png
 art/personaggi/robo_pattuglia.png
 art/personaggi/sacerdote_folle.png
 art/personaggi/sadico.png
 art/personaggi/sally.png
 art/personaggi/slime_infimo.png
+art/personaggi/sogno_perduto.png
 art/personaggi/spirito_dei_giardini.png
 art/personaggi/stigma.png
 art/personaggi/tartaruga_innocente.png
@@ -92,27 +95,33 @@ art/personaggi/zombie_cittadino.png
 art/personaggi/zombie_mostruoso.png
 ```
 
-### 2. Le espressioni dei dialoghi — 40 da fare
+### 2. Le espressioni dei dialoghi — 54 da fare
 
 Solo per chi ha delle battute, e solo le facce che le battute nominano.
 Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto
 singolo: si puo' fare in qualunque ordine.
 
 ```
+art/personaggi/altoparlante/neutra.png
+art/personaggi/anonimo/annoiata.png
 art/personaggi/anonimo/decisa.png
+art/personaggi/anonimo/delusa.png
+art/personaggi/anonimo/infastidita.png
 art/personaggi/anonimo/neutra.png
 art/personaggi/anonimo/pensiero.png
+art/personaggi/anonimo/petrificata.png
 art/personaggi/anonimo/sforzo.png
 art/personaggi/anonimo/sorpresa.png
 art/personaggi/computer/neutra.png
-art/personaggi/curie/carina.png
-art/personaggi/curie/neutra.png
+art/personaggi/data_pad/neutra.png
 art/personaggi/figura_misteriosa/neutra.png
 art/personaggi/giocoliere/arrabbiata.png
 art/personaggi/giocoliere/cool.png
 art/personaggi/giocoliere/neutra.png
 art/personaggi/goblin_arrabbiato/decisa.png
 art/personaggi/goblin_arrabbiato/neutra.png
+art/personaggi/guida/neutra.png
+art/personaggi/ignoto/neutra.png
 art/personaggi/infetto_rapido/neutra.png
 art/personaggi/insonne/annoiata.png
 art/personaggi/insonne/carina.png
@@ -129,35 +138,49 @@ art/personaggi/jongo_dongo/neutra.png
 art/personaggi/jongo_dongo/petrificata.png
 art/personaggi/l_immortale/neutra.png
 art/personaggi/nuvola_di_marciume/neutra.png
+art/personaggi/reika/carina.png
+art/personaggi/reika/neutra.png
 art/personaggi/robo_pattuglia/neutra.png
+art/personaggi/soldato_due/neutra.png
+art/personaggi/soldato_uno/neutra.png
 art/personaggi/sopravvissuta/neutra.png
 art/personaggi/spirito_dei_giardini/neutra.png
 art/personaggi/tenero_ricordo/neutra.png
 art/personaggi/vecchio_clown/neutra.png
 art/personaggi/vecchio_clown/pensiero.png
+art/personaggi/veronica/annoiata.png
+art/personaggi/veronica/carina.png
 art/personaggi/veronica/decisa.png
 art/personaggi/veronica/felice.png
+art/personaggi/veronica/infastidita.png
 art/personaggi/veronica/neutra.png
+art/personaggi/veronica/pensiero.png
 art/personaggi/volto_sulla_parete/neutra.png
 ```
 
 | chi | quante | quali |
 |---|--:|---|
+| Anonimo (`anonimo`) | 9 | `annoiata` · `decisa` · `delusa` · `infastidita` · `neutra` · `pensiero` · `petrificata` · `sforzo` · `sorpresa` |
+| Veronica (`veronica`) | 7 | `annoiata` · `carina` · `decisa` · `felice` · `infastidita` · `neutra` · `pensiero` |
 | Yhvina (`insonne`) | 6 | `annoiata` · `carina` · `decisa` · `delusa` · `infastidita` · `neutra` |
-| Anonimo (`anonimo`) | 5 | `decisa` · `neutra` · `pensiero` · `sforzo` · `sorpresa` |
 | L'ultimo spettacolo di Jerah (`jerah`) | 4 | `decisa` · `delusa` · `neutra` · `speciale` |
 | El Muy Bonito (`giocoliere`) | 3 | `arrabbiata` · `cool` · `neutra` |
 | Jongo Dongo (`jongo_dongo`) | 3 | `decisa` · `neutra` · `petrificata` |
-| Veronica (`veronica`) | 3 | `decisa` · `felice` · `neutra` |
-| Dott.ssa Curie Heartlife (`curie`) | 2 | `carina` · `neutra` |
 | Un goblin terribilmente arrabbiato (`goblin_arrabbiato`) | 2 | `decisa` · `neutra` |
+| Dr. Reika (`reika`) | 2 | `carina` · `neutra` |
 | Il Vecchio Proprietario del teatro (`vecchio_clown`) | 2 | `neutra` · `pensiero` |
+| altoparlante (`altoparlante`) | 1 | `neutra` |
 | computer (`computer`) | 1 | `neutra` |
+| data_pad (`data_pad`) | 1 | `neutra` |
 | figura_misteriosa (`figura_misteriosa`) | 1 | `neutra` |
+| Guida (`guida`) | 1 | `neutra` |
+| ignoto (`ignoto`) | 1 | `neutra` |
 | Infetto Rapido (`infetto_rapido`) | 1 | `neutra` |
 | ??? (`l_immortale`) | 1 | `neutra` |
 | Nuvola di Marciume (`nuvola_di_marciume`) | 1 | `neutra` |
 | Robo Pattuglia (`robo_pattuglia`) | 1 | `neutra` |
+| soldato_due (`soldato_due`) | 1 | `neutra` |
+| soldato_uno (`soldato_uno`) | 1 | `neutra` |
 | Yara (`sopravvissuta`) | 1 | `neutra` |
 | Spirito dei giardini (`spirito_dei_giardini`) | 1 | `neutra` |
 | Un tenero ricordo (`tenero_ricordo`) | 1 | `neutra` |
@@ -184,53 +207,57 @@ art/personaggi/volto_sulla_parete/neutra.png
 
 | creatura | lv | file | espressioni | c'è |
 |---|--:|---|---|:-:|
-| Goblin Tipico | 1 | `art/personaggi/goblin_tipico.png` | — |  |
-| Slime Infimo | 1 | `art/personaggi/slime_infimo.png` | — |  |
+| Nimbo Boy | 1 | `art/personaggi/nimbo_boy.png` | — |  |
+| Sogno perduto | 1 | `art/personaggi/sogno_perduto.png` | — |  |
 | Tartaruga Innocente | 1 | `art/personaggi/tartaruga_innocente.png` | — |  |
-| Infetto Rapido | 2 | `art/personaggi/infetto_rapido.png` | — |  |
-| Nuvola di Marciume | 2 | `art/personaggi/nuvola_di_marciume.png` | — |  |
-| Zombie Cittadino | 2 | `art/personaggi/zombie_cittadino.png` | — |  |
 | Fomentado | 3 | `art/personaggi/maschera_vuota.png` | — |  |
-| Manifestazione di un sogno | 3 | `art/personaggi/manifestazione_di_un_sogno.png` | — |  |
-| Zombie Mostruoso | 3 | `art/personaggi/zombie_mostruoso.png` | — |  |
-| Capocantiere | 4 | `art/personaggi/voce_registrata.png` | — |  |
-| El Muy Bonito | 4 | `art/personaggi/giocoliere.png` | — |  |
-| Oppresso | 4 | `art/personaggi/comparsa_di_ruggine.png` | — |  |
-| Robo Pattuglia | 4 | `art/personaggi/robo_pattuglia.png` | — |  |
 | Emblema dell'oppressione | 5 | `art/personaggi/operaio_posseduto.png` | — |  |
-| Operaio Sfruttato | 5 | `art/personaggi/operaio_sfruttato.png` | — |  |
-| Orrore di Meridia | 5 | `art/personaggi/orrore_di_meridia.png` | — |  |
 | Veronica | 5 | `art/personaggi/veronica.png` | — |  |
-| Ferraglia Urlante | 6 | `art/personaggi/ferraglia_urlante.png` | — |  |
-| Il Divoratore | 6 | `art/personaggi/divoratore.png` | — |  |
 | Un goblin terribilmente arrabbiato | 6 | `art/personaggi/goblin_arrabbiato.png` | — |  |
 | ??? | 8 | `art/personaggi/l_immortale.png` | — |  |
-| Ghoul | 8 | `art/personaggi/ghoul.png` | — |  |
-| Madre in Lacrime | 8 | `art/personaggi/madre_in_lacrime.png` | — |  |
-| Teschio Errante | 8 | `art/personaggi/teschio_errante.png` | — |  |
 | Diabolo | 9 | `art/personaggi/diabolo.png` | — |  |
-| Sadico | 9 | `art/personaggi/sadico.png` | — |  |
-| Stigma | 9 | `art/personaggi/stigma.png` | — |  |
-| Abominio Marcio | 10 | `art/personaggi/abominio_marcio.png` | — |  |
-| Titano Zombie | 10 | `art/personaggi/titano_zombie.png` | — |  |
-| Divoratore di Carcasse | 11 | `art/personaggi/divoratore_di_carcasse.png` | — |  |
-| Sacerdote Folle | 11 | `art/personaggi/sacerdote_folle.png` | — |  |
-| Jongo Dongo | 12 | `art/personaggi/jongo_dongo.png` | — |  |
-| Donna Spinosa | 13 | `art/personaggi/donna_spinosa.png` | — |  |
-| Marionetta | 13 | `art/personaggi/marionetta.png` | — |  |
-| Jongo Dongo | 14 | `art/personaggi/jongo_dongo.png` | — |  |
-| Ombra del passato | 14 | `art/personaggi/ombra_del_passato.png` | — |  |
 | Un tenero ricordo | 15 | `art/personaggi/tenero_ricordo.png` | — |  |
-| Volto sulla parete | 15 | `art/personaggi/volto_sulla_parete.png` | — |  |
-| L'ultimo spettacolo di Jerah | 18 | `art/personaggi/jerah.png` | — |  |
 
 ## Personaggi
 
 | chi | file | espressioni | c'è |
 |---|---|---|:-:|
-| Dott.ssa Curie Heartlife | `art/personaggi/curie.png` | `art/personaggi/curie/` |  |
+| Dr. Reika | `art/personaggi/reika.png` | `art/personaggi/reika/` |  |
+| Guida | `art/personaggi/guida.png` | `art/personaggi/guida/` |  |
 | Le lettere sull'altare | `art/personaggi/lettere_altare.png` | `art/personaggi/lettere_altare/` |  |
 | Spirito dei giardini | `art/personaggi/spirito_dei_giardini.png` | `art/personaggi/spirito_dei_giardini/` |  |
+| Goblin Tipico | `art/personaggi/goblin_tipico.png` | `art/personaggi/goblin_tipico/` |  |
+| Slime Infimo | `art/personaggi/slime_infimo.png` | `art/personaggi/slime_infimo/` |  |
+| Infetto Rapido | `art/personaggi/infetto_rapido.png` | `art/personaggi/infetto_rapido/` |  |
+| Nuvola di Marciume | `art/personaggi/nuvola_di_marciume.png` | `art/personaggi/nuvola_di_marciume/` |  |
+| Zombie Cittadino | `art/personaggi/zombie_cittadino.png` | `art/personaggi/zombie_cittadino/` |  |
+| Manifestazione di un sogno | `art/personaggi/manifestazione_di_un_sogno.png` | `art/personaggi/manifestazione_di_un_sogno/` |  |
+| Zombie Mostruoso | `art/personaggi/zombie_mostruoso.png` | `art/personaggi/zombie_mostruoso/` |  |
+| Capocantiere | `art/personaggi/voce_registrata.png` | `art/personaggi/voce_registrata/` |  |
+| El Muy Bonito | `art/personaggi/giocoliere.png` | `art/personaggi/giocoliere/` |  |
+| Oppresso | `art/personaggi/comparsa_di_ruggine.png` | `art/personaggi/comparsa_di_ruggine/` |  |
+| Robo Pattuglia | `art/personaggi/robo_pattuglia.png` | `art/personaggi/robo_pattuglia/` |  |
+| Operaio Sfruttato | `art/personaggi/operaio_sfruttato.png` | `art/personaggi/operaio_sfruttato/` |  |
+| Orrore di Meridia | `art/personaggi/orrore_di_meridia.png` | `art/personaggi/orrore_di_meridia/` |  |
+| Il Divoratore | `art/personaggi/divoratore.png` | `art/personaggi/divoratore/` |  |
+| Rottami Erranti | `art/personaggi/ferraglia_urlante.png` | `art/personaggi/ferraglia_urlante/` |  |
+| Golem errante di rottami | `art/personaggi/ferraglia_urlante.png` | `art/personaggi/golem_errante/` |  |
+| Ghoul | `art/personaggi/ghoul.png` | `art/personaggi/ghoul/` |  |
+| Madre in Lacrime | `art/personaggi/madre_in_lacrime.png` | `art/personaggi/madre_in_lacrime/` |  |
+| Teschio Errante | `art/personaggi/teschio_errante.png` | `art/personaggi/teschio_errante/` |  |
+| Sadico | `art/personaggi/sadico.png` | `art/personaggi/sadico/` |  |
+| Stigma | `art/personaggi/stigma.png` | `art/personaggi/stigma/` |  |
+| Abominio Marcio | `art/personaggi/abominio_marcio.png` | `art/personaggi/abominio_marcio/` |  |
+| Titano Zombie | `art/personaggi/titano_zombie.png` | `art/personaggi/titano_zombie/` |  |
+| Divoratore di Carcasse | `art/personaggi/divoratore_di_carcasse.png` | `art/personaggi/divoratore_di_carcasse/` |  |
+| Sacerdote Folle | `art/personaggi/sacerdote_folle.png` | `art/personaggi/sacerdote_folle/` |  |
+| Jongo Dongo | `art/personaggi/jongo_dongo.png` | `art/personaggi/jongo_dongo/` |  |
+| Donna Spinosa | `art/personaggi/donna_spinosa.png` | `art/personaggi/donna_spinosa/` |  |
+| Marionetta | `art/personaggi/marionetta.png` | `art/personaggi/marionetta/` |  |
+| Jongo Dongo | `art/personaggi/jongo_dongo.png` | `art/personaggi/jongo_dongo_risorto/` |  |
+| Ombra del passato | `art/personaggi/ombra_del_passato.png` | `art/personaggi/ombra_del_passato/` |  |
+| Volto sulla parete | `art/personaggi/volto_sulla_parete.png` | `art/personaggi/volto_sulla_parete/` |  |
+| L'ultimo spettacolo di Jerah | `art/personaggi/jerah.png` | `art/personaggi/jerah/` |  |
 
 ## Le illustrazioni delle scene
 
@@ -256,4 +283,4 @@ quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
 
 ---
 
-Ritratti presenti: **0 su 54**.
+Ritratti presenti: **0 su 58**.

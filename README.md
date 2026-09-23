@@ -244,7 +244,7 @@ stessa voce con cui il gioco racconta, non un'interfaccia che dà ordini.
 `GameState.imposta_flag()` chiama `aggiorna_task()` e il mondo si aggiorna da solo, ovunque sia
 successa la cosa — dentro uno squarcio, in un dialogo, a fine combattimento. `chiuso_da` vuoto
 significa "non si chiude": è un seme lasciato lì per i mondi che verranno (le pergamene da far
-leggere a Curie, la pressione senza nome dietro *Qualcosa preme*).
+leggere alla Dr. Reika, la pressione senza nome dietro *Qualcosa preme*).
 
 Per gli appunti che nascono da una conversazione e non da uno stato del mondo, un nodo, una
 scelta o una battuta di un compagno possono anche aprirli a mano con `"task": "id"` (o una
@@ -2067,7 +2067,7 @@ pavimento di livello e il calo di xp quando torni indietro. **Sono numeri miei, 
     (`richiede_flag` sui punti). Insegna Studio/risparmio (Tartaruga Innocente) e Fuggi (Manifestazione di
     un sogno, `incontro_scriptato`); boss finale (goblin arrabbiato) non convincibile, con
     mosse pesate + `dialogo_soglia_hp` + `mossa_disperazione`. Dopo la vittoria segue un
-    intermezzo al quartier generale dell'Organizzazione (Veronica, Dott.ssa Curie, una
+    intermezzo al quartier generale dell'Organizzazione (Veronica, la Dr. Reika, una
     figura misteriosa dietro uno schermo oscurato) — un secondo "combattimento" contro
     Veronica, interamente narrato (non un vero Combattimento.tscn: è scriptato e
     invincibile, serve solo a ripassare i comandi), prima di sbloccare Jerah per davvero.
