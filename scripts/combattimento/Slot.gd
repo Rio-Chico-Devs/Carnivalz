@@ -168,18 +168,18 @@ func barra_colorata(chiave: String, nome_colore: String) -> Control:
 	var telaio := Control.new()
 	telaio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	telaio.draw.connect(func() -> void:
-		var quanto := clampf(float(quote.get(chiave, 0.0)), 0.0, 1.0)
-		var coda := clampf(float(scie.get(chiave, quanto)), 0.0, 1.0)
+		var pieno := clampf(float(quote.get(chiave, 0.0)), 0.0, 1.0)
+		var coda := clampf(float(scie.get(chiave, pieno)), 0.0, 1.0)
 		telaio.draw_rect(Rect2(Vector2.ZERO, telaio.size), Stile.colore("pannello_chiaro"))
 		# LA SCIA STA SOTTO E SI VEDE SOLO SE SPORGE. Perdendo sporge a destra
 		# (quello che hai appena perso), curando sporge la barra e la scia e'
 		# gia' arrivata: in quel caso non si disegna niente in piu'
-		if coda > quanto:
-			telaio.draw_rect(Rect2(Vector2(telaio.size.x * quanto, 0.0),
-					Vector2(telaio.size.x * (coda - quanto), telaio.size.y)),
+		if coda > pieno:
+			telaio.draw_rect(Rect2(Vector2(telaio.size.x * pieno, 0.0),
+					Vector2(telaio.size.x * (coda - pieno), telaio.size.y)),
 					Stile.colore("negativo"))
-		if quanto > 0.0:
-			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * quanto, telaio.size.y)),
+		if pieno > 0.0:
+			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * pieno, telaio.size.y)),
 					Stile.colore(nome_colore)))
 	return telaio
 
@@ -303,8 +303,8 @@ func mostra_aura(adesso: int, massimo: int) -> void:
 const DISCESA := 0.30     # quanto ci mette la barra a raggiungere il valore nuovo
 const CODA := 0.55        # e quanto ci mette la scia a richiudersi dietro
 
-func imposta_barra(chiave: String, quanto: float) -> void:
-	var obiettivo := clampf(quanto, 0.0, 1.0)
+func imposta_barra(chiave: String, valore: float) -> void:
+	var obiettivo := clampf(valore, 0.0, 1.0)
 	var prima := float(quote.get(chiave, obiettivo))
 	mete[chiave] = obiettivo
 	if not barre.has(chiave):

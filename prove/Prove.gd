@@ -120,6 +120,14 @@ func _ready() -> void:
 	prova_una_raffica_alla_volta()
 	await prova_la_raffica_ha_un_riquadro_suo()
 	await prova_il_pugno_si_para_quando_premi()
+	prova_le_curve_del_movimento()
+	prova_le_molle_di_material()
+	prova_la_cascata_chiude_con_l_azione_principale()
+	prova_la_gelatina_e_la_scossa()
+	await prova_il_contenitore_raddrizza_i_figli()
+	prova_il_menu_di_pausa_si_muove_ma_non_fa_aspettare()
+	prova_il_movimento_ridotto_toglie_i_movimenti_non_le_voci()
+	await prova_la_voce_inerte_dice_di_no()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
 	await prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare()
 	await prova_la_forma_del_testo()
@@ -1332,7 +1340,7 @@ func prova_suoni() -> void:
 	# (Sintesi.gd). Un'onda sbagliata non da' errore: da' silenzio, o un clic.
 	titolo("suoni sintetizzati")
 	for nome: String in ["conferma", "annulla", "colpo", "cura", "raccolta", "errore",
-			"allarme", "vetro", "parata"]:
+			"allarme", "vetro", "parata", "sfiora", "apertura", "chiusura"]:
 		var suono := Sintesi.interfaccia(nome)
 		esigi(suono != null and suono.data.size() > 0, "il suono '%s' esce vuoto" % nome)
 		esigi(suono.mix_rate == Sintesi.CAMPIONAMENTO, "il suono '%s' ha il campionamento sbagliato" % nome)
@@ -6920,6 +6928,381 @@ func prova_il_pugno_si_para_quando_premi() -> void:
 	gioco.concludi()
 	faccia.queue_free()
 
+func prova_le_curve_del_movimento() -> void:
+	# LE CURVE SONO QUELLE DI MATERIAL, E SI MISURANO. Una cubica di Bezier si
+	# risolve cercando il parametro che da' la x voluta: se la ricerca sbaglia,
+	# la curva resta "una curva" e nessuno se ne accorge guardando - si vede
+	# solo un menu che entra un po' strano. Qui la si confronta con una ricerca
+	# lenta e sicura (la bisezione fino in fondo), punto per punto.
+	titolo("le curve del movimento sono le cubiche di Material")
+	var dati: Dictionary = Movimento.dati().get("curve", {})
+	for nome: String in ["entrata", "uscita", "standard"]:
+		var c: Array = dati.get(nome, [])
+		esigi(c.size() == 4, "la curva '%s' non ha i suoi quattro numeri in stile.json" % nome)
+		if c.size() != 4:
+			continue
+		esigi(is_zero_approx(Movimento.curva(nome, 0.0)) and is_equal_approx(Movimento.curva(nome, 1.0), 1.0),
+				"la curva '%s' non parte da 0 o non arriva a 1" % nome)
+		var prima := 0.0
+		for passo in range(1, 100):
+			var u := float(passo) / 100.0
+			var y := Movimento.curva(nome, u)
+			esigi(y >= prima - 1e-6, "la curva '%s' torna indietro a %.2f" % [nome, u])
+			prima = y
+			var attesa := bezier_lenta(float(c[0]), float(c[1]), float(c[2]), float(c[3]), u)
+			if absf(y - attesa) > 1e-3:
+				esigi(false, "la curva '%s' a %.2f da' %.4f, e deve dare %.4f" % [nome, u, y, attesa])
+				break
+	# E DICONO QUELLO CHE DEVONO DIRE: l'entrata e' quasi arrivata a meta' del
+	# tempo (decelera: si posa), l'uscita a meta' del tempo e' appena partita
+	# (accelera: se ne va). Se si scambiano, il menu entra come se uscisse
+	esigi(Movimento.curva("entrata", 0.5) > 0.9,
+			"a meta' del tempo l'entrata e' solo a %.2f: non decelera" % Movimento.curva("entrata", 0.5))
+	esigi(Movimento.curva("uscita", 0.5) < 0.2,
+			"a meta' del tempo l'uscita e' gia' a %.2f: non accelera" % Movimento.curva("uscita", 0.5))
+
+func bezier_lenta(x1: float, y1: float, x2: float, y2: float, u: float) -> float:
+	var basso := 0.0
+	var alto := 1.0
+	var t := 0.5
+	for i in 60:
+		t = (basso + alto) * 0.5
+		var x := 3.0 * x1 * t * (1.0 - t) * (1.0 - t) + 3.0 * x2 * t * t * (1.0 - t) + t * t * t
+		if x < u:
+			basso = t
+		else:
+			alto = t
+	return 3.0 * y1 * t * (1.0 - t) * (1.0 - t) + 3.0 * y2 * t * t * (1.0 - t) + t * t * t
+
+func prova_le_molle_di_material() -> void:
+	# LE MOLLE: QUANTO CI METTONO, QUANTO SUPERANO, E CHE NON DIPENDANO DAI
+	# FOTOGRAMMI. Una molla scritta un passo alla volta (Eulero) fa strade
+	# diverse a 30 e a 240 fotogrammi al secondo: su un computer lento il menu
+	# si muoverebbe in un altro modo. Questa e' la soluzione esatta, e deve
+	# arrivare nello stesso punto comunque la si tagli.
+	titolo("le molle di Material, esatte a ogni frequenza di fotogrammi")
+	# 1. quanto ci mettono ad assestarsi entro l'1%, e quanto superano
+	for caso: Array in [["forma", 0.10, 0.20], ["colore", 0.07, 0.15], ["quinte", 0.22, 0.40]]:
+		var m := Movimento.molla(String(caso[0]), 0.0)
+		m.obiettivo = 1.0
+		var tempo := 0.0
+		var assestata := 0.0
+		var massimo := 0.0
+		while tempo < 1.5:
+			m.passo(1.0 / 1000.0)
+			tempo += 1.0 / 1000.0
+			massimo = maxf(massimo, m.valore)
+			if absf(m.valore - 1.0) > 0.01:
+				assestata = tempo
+		esigi(assestata >= float(caso[1]) and assestata <= float(caso[2]),
+				"la molla '%s' si assesta in %.0f ms, e deve stare fra %.0f e %.0f"
+				% [caso[0], assestata * 1000.0, float(caso[1]) * 1000.0, float(caso[2]) * 1000.0])
+		# lo smorzamento di Material (0,9 e 1) non si vede rimbalzare: il
+		# rimbalzo, dove serve, e' la gelatina
+		esigi(massimo < 1.005, "la molla '%s' supera l'arrivo del %.1f%%: rimbalza"
+				% [caso[0], (massimo - 1.0) * 100.0])
+	# 2. a 30 e a 240 fotogrammi al secondo arriva nello stesso punto
+	var lenta := Movimento.molla("forma", 0.0)
+	var veloce := Movimento.molla("forma", 0.0)
+	lenta.obiettivo = 1.0
+	veloce.obiettivo = 1.0
+	for i in 3:
+		lenta.passo(1.0 / 30.0)
+	for i in 24:
+		veloce.passo(1.0 / 240.0)
+	esigi(absf(lenta.valore - veloce.valore) < 1e-4,
+			"dopo 100 ms la molla e' a %.4f a 30 fps e a %.4f a 240 fps: dipende dai fotogrammi"
+			% [lenta.valore, veloce.valore])
+	# 3. cambiare obiettivo a meta' strada non fa saltare niente: riparte da
+	#    dov'e', con la velocita' che ha (il mouse che entra ed esce di corsa)
+	var a_meta := Movimento.molla("forma", 0.0)
+	a_meta.obiettivo = 1.0
+	for i in 4:
+		a_meta.passo(1.0 / 60.0)
+	var li := a_meta.valore
+	var velocita := a_meta.velocita
+	a_meta.obiettivo = 0.0
+	esigi(a_meta.valore == li and a_meta.velocita == velocita,
+			"cambiando obiettivo la molla salta da %.3f a %.3f" % [li, a_meta.valore])
+	# 4. anche sovrasmorzata arriva, senza superare
+	var pesante := Movimento.molla("forma", 0.0)
+	pesante.smorzamento = 1.6
+	pesante.obiettivo = 1.0
+	var oltre := 0.0
+	for i in 600:
+		pesante.passo(1.0 / 120.0)
+		oltre = maxf(oltre, pesante.valore)
+	esigi(pesante.ferma() and oltre <= 1.0 + 1e-6,
+			"una molla sovrasmorzata non arriva (%.3f) o supera l'arrivo (%.3f)" % [pesante.valore, oltre])
+
+func prova_la_cascata_chiude_con_l_azione_principale() -> void:
+	# LA REGOLA DI BRU, SCRITTA COME UN NUMERO. «Gli elementi secondari appaiono
+	# con leggeri ritardi, mentre i pulsanti d'azione principale chiudono la
+	# sequenza». IBM Carbon: 20 ms fra un elemento e l'altro, «end with the most
+	# important information, such as the primary button». E tutto entro mezzo
+	# secondo: un menu che finisce di entrare dopo un secondo e' un menu lento.
+	titolo("la cascata: i secondari in ordine, la principale per ultima")
+	var tetto := float(Movimento.dati().get("cascata", {}).get("tetto", 0.5))
+	var durata_voce := Movimento.durata("voce")
+	var ritardi := Movimento.ritardi_cascata(7, 0, 0.10)
+	esigi(ritardi.size() == 7, "sette voci, %d ritardi" % ritardi.size())
+	for i in range(1, 7):
+		esigi(ritardi[0] > ritardi[i],
+				"la voce principale entra a %.0f ms, prima della voce %d (%.0f ms): non chiude la sequenza"
+				% [ritardi[0] * 1000.0, i, ritardi[i] * 1000.0])
+	for i in range(2, 7):
+		var passo := ritardi[i] - ritardi[i - 1]
+		esigi(passo >= 0.02 - 1e-6 and passo <= 0.04 + 1e-6,
+				"fra la voce %d e la %d passano %.0f ms: la cascata vuole 20-40" % [i - 1, i, passo * 1000.0])
+	esigi(ritardi[0] + durata_voce <= tetto + 1e-6,
+			"il menu finisce di entrare a %.0f ms: oltre il mezzo secondo" % ((ritardi[0] + durata_voce) * 1000.0))
+	# un elenco lungo stringe il passo invece di sforare
+	var lungo := Movimento.ritardi_cascata(30, 5)
+	esigi(lungo.max() + durata_voce <= tetto + 1e-6,
+			"trenta voci finiscono di entrare a %.0f ms" % ((lungo.max() + durata_voce) * 1000.0))
+	esigi(lungo.max() == lungo[5], "in un elenco lungo la principale non e' piu' l'ultima")
+	esigi(Movimento.ritardi_cascata(0).is_empty(), "un elenco vuoto ha dei ritardi")
+	var sola := Movimento.ritardi_cascata(1, 0, 0.1)
+	esigi(sola.size() == 1 and is_equal_approx(sola[0], 0.1),
+			"una voce sola non parte subito dopo l'intestazione: %s" % [sola])
+	# e i tempi del vocabolario stanno sotto il tetto, con l'uscita piu' corta
+	# dell'entrata (Material: le cose che se ne vanno non devono farsi guardare)
+	for nome: String in Movimento.dati().get("durate", {}):
+		esigi(Movimento.durata(nome) <= tetto, "la durata '%s' e' %.2f s: sopra il mezzo secondo"
+				% [nome, Movimento.durata(nome)])
+	esigi(Movimento.durata("uscita") < Movimento.durata("entrata"),
+			"l'uscita dura quanto l'entrata, o di piu'")
+
+func prova_la_gelatina_e_la_scossa() -> void:
+	# LA PRESSIONE E IL RIFIUTO, come numeri. La gelatina: la X si gonfia prima,
+	# la Y dopo (e' lo sfasamento a farla molle), e poi tutto torna a posto -
+	# una voce che resta deformata e' una voce rotta. La scossa: comincia da
+	# ferma, non esce dalla sua ampiezza, e finisce ferma.
+	titolo("la gelatina della pressione e la scossa del rifiuto")
+	esigi(Movimento.gelatina(0.0) == Vector2.ZERO, "la gelatina deforma la voce prima della pressione")
+	var g: Dictionary = Movimento.dati().get("gelatina", {})
+	var salita := float(g.get("salita", 0.05))
+	var al_colmo := Movimento.gelatina(salita)
+	esigi(absf(al_colmo.x - float(g.get("quanto", 0.08))) < 1e-4 and is_zero_approx(al_colmo.y),
+			"al colmo della X (%.3f) la Y (%.3f) deve ancora partire: senza sfasamento non e' una gelatina"
+			% [al_colmo.x, al_colmo.y])
+	esigi(Movimento.gelatina(Movimento.durata_gelatina() + 0.01) == Vector2.ZERO,
+			"finita la gelatina la voce resta deformata")
+	esigi(Movimento.durata_gelatina() <= 0.55, "la gelatina dura %.2f s" % Movimento.durata_gelatina())
+	var ampiezza := float(Movimento.dati().get("rifiuto", {}).get("ampiezza", 8))
+	var picco := 0.0
+	for i in 400:
+		picco = maxf(picco, absf(Movimento.scossa(float(i) / 1000.0)))
+	esigi(picco > ampiezza * 0.3 and picco <= ampiezza,
+			"la scossa arriva a %.1f px: deve vedersi e non uscire dai %.0f" % [picco, ampiezza])
+	esigi(Movimento.scossa(0.0) == 0.0 and Movimento.scossa(Movimento.durata_scossa()) == 0.0,
+			"la scossa non parte o non finisce da ferma")
+
+func prova_il_contenitore_raddrizza_i_figli() -> void:
+	# LA TRAPPOLA CHE HA DECISO COM'E' FATTA UNA VOCE DI MENU. Un contenitore
+	# di Godot, a ogni riordino, rimette a posto i figli: la posizione, ma
+	# anche la scala e la rotazione (Container::fit_child_in_rect nel sorgente
+	# 4.4 chiama set_rotation(0) e set_scale(1, 1)). Qui si guarda succedere,
+	# e si guarda che il bottone di una VoceMenu - che sta sul suo binario - si
+	# tenga la sua scala.
+	titolo("un contenitore raddrizza i figli, il binario della voce no")
+	var colonna := VBoxContainer.new()
+	add_child(colonna)
+	var nudo := Button.new()
+	nudo.text = "nudo"
+	colonna.add_child(nudo)
+	var voce := VoceMenu.nuova("", "sul binario")
+	colonna.add_child(voce)
+	await get_tree().process_frame
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	# la voce premuta, fermata al colmo della gelatina
+	voce.giu()
+	voce.avanza(float(Movimento.dati().get("gelatina", {}).get("salita", 0.05)))
+	voce.set_process(false)
+	var al_colmo := voce.bottone.scale
+	nudo.scale = al_colmo
+	# e a meta' gelatina la scritta cambia (succede: un contatore, un "(3)" dei
+	# messaggi non letti), che e' quello che fa riordinare un contenitore
+	voce.bottone.text = "sul binario, e adesso piu' lunga"
+	nudo.text = "nudo, e adesso piu' lungo"
+	colonna.queue_sort()
+	await get_tree().process_frame
+	esigi(al_colmo.x > 1.05, "la prova e' sbagliata: la voce non e' al colmo della gelatina (%s)" % al_colmo)
+	esigi(nudo.scale == Vector2.ONE,
+			"il contenitore non ha raddrizzato il bottone nudo: la trappola non c'e' piu', e il binario si puo' togliere")
+	esigi(voce.bottone.scale.is_equal_approx(al_colmo),
+			"il contenitore ha raddrizzato anche il bottone della voce (%s invece di %s): la gelatina verrebbe cancellata a meta'"
+			% [voce.bottone.scale, al_colmo])
+	Impostazioni.movimento_ridotto = prima
+	colonna.queue_free()
+
+func voci_della_pausa() -> Array[VoceMenu]:
+	var voci: Array[VoceMenu] = []
+	for figlio in Pausa.colonna.get_children():
+		if figlio is VoceMenu:
+			voci.append(figlio)
+	return voci
+
+func prova_il_menu_di_pausa_si_muove_ma_non_fa_aspettare() -> void:
+	# IL MENU DI PAUSA, CON LA SUA COREOGRAFIA. Tre cose, e sono le regole di
+	# docs/animazione.md: la cascata ha l'ordine giusto (Riprendi, l'azione
+	# principale, per ultima), un clic durante l'entrata fa subito quello che
+	# deve (animare si', sbarrare mai), e chiudere rimette in moto il gioco
+	# nell'istante in cui chiudi, non quando il velo ha finito di sparire.
+	titolo("il menu di pausa si muove, ma non fa mai aspettare")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	Pausa.apri()
+	esigi(get_tree().paused, "aperto il menu il gioco non si e' fermato")
+	esigi(Movimento.ultimo_suono == "apertura",
+			"il menu si apre in silenzio, o col tocco della voce che ha il fuoco (%s)" % Movimento.ultimo_suono)
+	var voci := voci_della_pausa()
+	esigi(voci.size() == 7, "il menu ha %d voci animate, e deve averne sette" % voci.size())
+	if voci.size() != 7:
+		Pausa.chiudi()
+		Impostazioni.movimento_ridotto = prima
+		return
+	var riprendi := voci[0]
+	esigi(riprendi.bottone.has_focus(), "Riprendi non ha il fuoco appena il menu si apre")
+	# 1. al primo istante non si vede niente, ma si puo' gia' cliccare tutto
+	for voce in voci:
+		esigi(voce.quota_visibile() < 0.01, "'%s' e' gia' visibile prima di entrare" % voce.bottone.text)
+		esigi(voce.bottone.mouse_filter == Control.MOUSE_FILTER_STOP and not voce.bottone.disabled
+				and voce.bottone.is_visible_in_tree(),
+				"'%s' non si puo' cliccare mentre entra: l'animazione sbarra" % voce.bottone.text)
+	# 2. l'ordine: ogni voce e' tutta dentro in un istante, e Riprendi per ultima
+	var arrivate: Array[float] = []
+	arrivate.resize(voci.size())
+	arrivate.fill(-1.0)
+	var tempo := 0.0
+	var costi: Array[int] = []
+	while tempo < 1.0:
+		var inizio := Time.get_ticks_usec()
+		for voce in voci:
+			voce.avanza(1.0 / 60.0)
+		Pausa.quinte.avanza(1.0 / 60.0)
+		costi.append(Time.get_ticks_usec() - inizio)
+		tempo += 1.0 / 60.0
+		for i in voci.size():
+			if arrivate[i] < 0.0 and voci[i].quota_visibile() >= 0.999:
+				arrivate[i] = tempo
+	for i in range(1, voci.size()):
+		esigi(arrivate[i] > 0.0 and arrivate[i] < arrivate[0],
+				"'%s' e' entrata a %.0f ms, Riprendi a %.0f: la principale non chiude la sequenza"
+				% [voci[i].bottone.text, arrivate[i] * 1000.0, arrivate[0] * 1000.0])
+	for i in range(2, voci.size()):
+		esigi(arrivate[i] >= arrivate[i - 1], "le voci secondarie non entrano dall'alto in basso")
+	esigi(arrivate[0] <= 0.5 + 1.0 / 60.0, "il menu finisce di entrare a %.0f ms" % (arrivate[0] * 1000.0))
+	esigi(riprendi.accesa.valore > 0.99 and voci[3].accesa.valore < 0.01,
+			"la lastra non sta sotto la voce che ha il fuoco")
+	# IL COSTO DI UN FOTOGRAMMA. Senza finestra non si disegna, quindi questo e'
+	# solo il conto delle voci e delle quinte - ma e' la parte che scriviamo
+	# noi. Il fotogramma tipico (la mediana) deve stare in un sedicesimo dei
+	# 16 ms che ha a 60 Hz; il peggiore, che su una macchina condivisa puo'
+	# prendersi una pausa del sistema, in meta'
+	costi.sort()
+	var mediana := costi[floori(costi.size() / 2.0)]
+	esigi(mediana < 1000, "un fotogramma tipico dell'entrata costa %d microsecondi di conti" % mediana)
+	esigi(costi.back() < 8000, "il fotogramma peggiore dell'entrata costa %d microsecondi" % costi.back())
+	# 3. sfiorare col mouse sposta il fuoco, e fa il suo tocco
+	voci[3].sfiorata()
+	esigi(voci[3].bottone.has_focus() and riprendi.accesa.obiettivo == 0.0,
+			"passare col mouse su una voce non la accende, o ne lascia accese due")
+	esigi(Movimento.ultimo_suono == "sfioro", "sfiorare una voce non fa il suo tocco")
+	# 4. riaperto da capo, un clic su Opzioni PRIMA che il menu sia entrato
+	Pausa.chiudi()
+	Pausa.apri()
+	var opzioni := voci_della_pausa()[5]
+	esigi(opzioni.quota_visibile() < 0.01, "la prova e' sbagliata: Opzioni e' gia' entrata")
+	opzioni.bottone.pressed.emit()
+	esigi(Pausa.pannello == "opzioni",
+			"un clic su Opzioni mentre il menu entrava non ha aperto le Opzioni (pannello: %s)" % Pausa.pannello)
+	# il pannello che se ne va si vede ancora, ma non si tocca piu'
+	esigi(opzioni.bottone.mouse_filter == Control.MOUSE_FILTER_IGNORE
+			and opzioni.bottone.focus_mode == Control.FOCUS_NONE,
+			"il pannello vecchio, mentre si dissolve, prende ancora clic o fuoco")
+	# 5. chiudere: il gioco riparte subito, e il velo non ruba clic mentre sparisce
+	Pausa.chiudi()
+	esigi(not get_tree().paused, "chiuso il menu il gioco resta fermo finche' il velo non sparisce")
+	esigi(Pausa.velo.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+			"il velo che si dissolve prende ancora i clic: per 150 ms il gioco non risponde")
+	esigi(Movimento.ultimo_suono == "chiusura", "il menu si chiude senza il suo suono")
+	Pausa.dissolvenza.custom_step(1.0)
+	esigi(not Pausa.velo.visible, "finita l'uscita il velo e' ancora li'")
+	# 6. E SI LEGGE. Il bianco sulla lastra, il rosso sul foglio nero, il nero
+	#    sul cartellino dei Tazo: 4,5:1, la soglia WCAG del testo normale, anche
+	#    se queste scritte sono grandi e ne basterebbe 3
+	for coppia: Array in [["testo", "accento"], ["accento", "sfondo"], ["box_testo", "bordo_acceso"]]:
+		var rapporto := Stile.contrasto(Stile.colore(String(coppia[0])), Stile.colore(String(coppia[1])))
+		esigi(rapporto >= 4.5, "'%s' su '%s' sta a %.2f:1: non si legge" % [coppia[0], coppia[1], rapporto])
+	Impostazioni.movimento_ridotto = prima
+
+func prova_il_movimento_ridotto_toglie_i_movimenti_non_le_voci() -> void:
+	# CON IL MOVIMENTO RIDOTTO NIENTE CORRE, MA TUTTO C'E'. Le voci si
+	# dissolvono sul posto invece di scivolare; la lastra della voce col fuoco
+	# c'e' subito; la parallasse sta ferma; le schegge non scoppiano; il rifiuto
+	# non scuote ma suona e lampeggia. Nessuna informazione persa.
+	titolo("il movimento ridotto toglie i movimenti, non le voci")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	Pausa.apri()
+	var voci := voci_della_pausa()
+	var storico := voci[1]
+	storico.avanza(storico.ritardo + 0.03)
+	esigi(storico.bottone.position.x == 0.0,
+			"con il movimento ridotto la voce scivola lo stesso (x = %.1f)" % storico.bottone.position.x)
+	for voce in voci:
+		voce.avanza(0.6)
+	for voce in voci:
+		esigi(voce.quota_visibile() >= 0.999, "con il movimento ridotto '%s' non compare" % voce.bottone.text)
+	esigi(voci[0].accesa.valore == 1.0, "con il movimento ridotto la voce col fuoco non ha la lastra")
+	voci[2].giu()
+	esigi(voci[2].premuta < 0.0, "con il movimento ridotto la voce premuta fa la gelatina")
+	var in_volo := Pausa.schegge.pezzi.size()   # quelle della prova prima, ancora per aria
+	Pausa.schegge.scoppia(Vector2(100, 100))
+	esigi(Pausa.schegge.pezzi.size() == in_volo, "con il movimento ridotto scoppiano le schegge")
+	Pausa.quinte.puntatore_finto = Vector2(0, 0)
+	esigi(Pausa.quinte.dove_mira() == Vector2.ZERO, "con il movimento ridotto le quinte seguono il mouse")
+	Pausa.quinte.puntatore_finto = Vector2(-1, -1)
+	voci[2].rifiuta()
+	esigi(voci[2].rifiutata < 0.0 and voci[2].lampo > 0.0 and Movimento.ultimo_suono == "rifiuto",
+			"con il movimento ridotto il rifiuto scuote, o non lampeggia, o non suona")
+	Pausa.chiudi()
+	Pausa.dissolvenza.custom_step(1.0)
+	Impostazioni.movimento_ridotto = prima
+
+func prova_la_voce_inerte_dice_di_no() -> void:
+	# UNA VOCE CHE NON FA NIENTE NON DEVE FINGERE DI AVER FATTO QUALCOSA. La
+	# sezione del Diario in cui sei gia': premerla non riapre la pagina, e il
+	# riscontro e' il rifiuto - la scossa e il suono dell'errore - non la
+	# conferma con le schegge, che direbbe "fatto" quando non e' successo niente.
+	titolo("la voce inerte dice di no, quella viva conferma")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	var viva := VoceMenu.nuova("diario", "viva")
+	var inerte := VoceMenu.nuova("", "inerte")
+	inerte.inerte = true
+	add_child(viva)
+	add_child(inerte)
+	var scoppi := [0, 0]
+	viva.scoppio.connect(func(_dove: Vector2) -> void: scoppi[0] += 1)
+	inerte.scoppio.connect(func(_dove: Vector2) -> void: scoppi[1] += 1)
+	await get_tree().process_frame
+	viva.giu()
+	viva.bottone.pressed.emit()
+	esigi(Movimento.ultimo_suono == "pressione" and scoppi[0] == 1 and viva.premuta >= 0.0,
+			"premere una voce viva non da' la conferma, le schegge e la gelatina")
+	inerte.giu()
+	inerte.bottone.pressed.emit()
+	esigi(Movimento.ultimo_suono == "rifiuto" and scoppi[1] == 0 and inerte.premuta < 0.0,
+			"premere una voce inerte finge una conferma invece di dire di no")
+	inerte.avanza(0.02)
+	esigi(absf(inerte.bottone.position.x) > 0.5, "la voce inerte dice di no senza scuotersi")
+	viva.queue_free()
+	inerte.queue_free()
+	Impostazioni.movimento_ridotto = prima
+
 func prova_mappa_a_quadratini() -> void:
 	# LA MAPPA NON DEVE RACCONTARE PIU' DI QUELLO CHE SAI.
 	#
@@ -8724,14 +9107,6 @@ const FILE_GRANDI := {
 		"aggiungendo l'evidenziazione dei pezzi, e quella parte NON si stacca: " +
 		"pezzo() esiste proprio perche' e' la plancia a sapere com'e' fatta - " +
 		"portarla fuori darebbe un file che non sa niente e chiede tutto"},
-	"Pausa.gd": {"misura": 878, "perche":
-		"il data pad: sette schermate diverse (squadra, sacca, missioni, " +
-		"messaggi, mappa, opzioni, salvataggio) che non si parlano fra loro. " +
-		"E' il taglio piu' facile di tutto il progetto. STRETTA DA 894 A 878: " +
-		"la scheda di un oggetto - nome, quanti, chi lo usa, cosa fa - se n'e' " +
-		"andata in SchedaOggetto.gd, dove serve anche al negozio. Il primo " +
-		"pezzo staccato, e il file e' sceso anche AVENDO aggiunto i segni e i " +
-		"blocchi al menu di pausa"},
 }
 
 const FUNZIONI_LUNGHE := {

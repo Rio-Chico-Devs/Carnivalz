@@ -100,6 +100,13 @@ func contrasto_su_sfondo(c: Color) -> float:
 func forma(nome: String) -> int:
 	return int(dati.get("forme", {}).get(nome, 0))
 
+func angolo(nome: String) -> float:
+	# UN ANGOLO DELLE FORME, in radianti e CON I DECIMALI. forma() qui sopra
+	# restituisce un intero, ed e' giusto per i pixel: ma l'inclinazione del
+	# nastro e' -3,5 gradi, e passata da forma() diventava -3 - mezzo grado perso
+	# senza che nessuno se ne accorgesse, proprio sull'unica diagonale del gioco
+	return deg_to_rad(float(dati.get("forme", {}).get(nome, 0.0)))
+
 func interlinea(etichetta: Control, quale: String, corpo: int) -> void:
 	# QUANTO SPAZIO C'E' FRA UNA RIGA E L'ALTRA, e prima non lo decideva nessuno.
 	#
@@ -602,20 +609,20 @@ func barra(larghezza := 120, altezza := 8) -> Control:
 	telaio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	telaio.set_meta("quota", 0.0)
 	telaio.draw.connect(func() -> void:
-		var quota := clampf(float(telaio.get_meta("quota", 0.0)), 0.0, 1.0)
+		var riempita := clampf(float(telaio.get_meta("quota", 0.0)), 0.0, 1.0)
 		var dentro := Rect2(Vector2.ZERO, telaio.size)
 		telaio.draw_rect(dentro, colore("pannello"))
-		if quota > 0.0:
-			var piena := quota >= 0.999
-			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * quota, telaio.size.y)),
+		if riempita > 0.0:
+			var piena := riempita >= 0.999
+			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * riempita, telaio.size.y)),
 					colore("accento") if piena else colore("bordo_acceso"))
 		telaio.draw_rect(dentro, colore("tratto"), false, 1.0))
 	return telaio
 
-func riempi_barra(telaio: Control, quota: float) -> void:
+func riempi_barra(telaio: Control, riempita: float) -> void:
 	if telaio == null or not is_instance_valid(telaio):
 		return
-	telaio.set_meta("quota", clampf(quota, 0.0, 1.0))
+	telaio.set_meta("quota", clampf(riempita, 0.0, 1.0))
 	telaio.queue_redraw()
 
 func etichetta_piccola(etichetta: Label) -> void:

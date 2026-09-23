@@ -9,7 +9,7 @@ extends RefCounted
 #
 # L'EFFETTO ARRIVA GIA' SCRITTO, non lo calcola questa scheda. Non e' pigrizia:
 # in questo momento il riassunto dell'effetto esiste in DUE versioni diverse -
-# una in Pausa.gd e una in Negozio.gd - e lo stesso oggetto si racconta in modi
+# una in PaginePausa.gd e una in Negozio.gd - e lo stesso oggetto si racconta in modi
 # diversi a seconda di dove lo guardi. PLAY, euristica F2: «The player
 # experiences the user interface as consistent». Unificarle cambia il testo che
 # il giocatore legge in uno dei due posti, quindi e' un lavoro suo, con le sue
@@ -19,16 +19,16 @@ static func riga(id_oggetto: String, quanti: int, effetto: String) -> Control:
 	var dati := GameState.dati_oggetto(id_oggetto)
 	var blocco := VBoxContainer.new()
 	blocco.add_theme_constant_override("separation", 2)
-	var riga := HBoxContainer.new()
-	riga.add_theme_constant_override("separation", 10)
-	blocco.add_child(riga)
+	var testata := HBoxContainer.new()
+	testata.add_theme_constant_override("separation", 10)
+	blocco.add_child(testata)
 	var nome := Label.new()
 	nome.text = String(dati.get("nome", id_oggetto))
 	if quanti > 1:
 		nome.text += "  ×%d" % quanti
 	nome.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	nome.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	riga.add_child(nome)
+	testata.add_child(nome)
 	# un'arma equipaggiata resta nello zaino, segnata: e' una regola dello zaino,
 	# e qui e' l'unico posto dove si vede
 	var portatore := GameState.portatore_di(id_oggetto)
@@ -37,7 +37,7 @@ static func riga(id_oggetto: String, quanti: int, effetto: String) -> Control:
 		uso.text = "in uso — %s" % nome_di_classe(portatore)
 		uso.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
 		uso.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
-		riga.add_child(uso)
+		testata.add_child(uso)
 	var descrizione := String(dati.get("descrizione", ""))
 	var sotto := Label.new()
 	sotto.text = descrizione if descrizione != "" else effetto

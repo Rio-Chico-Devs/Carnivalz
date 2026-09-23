@@ -35,6 +35,31 @@ func _ready() -> void:
 	salva(etichetta)
 	get_tree().quit()
 
+func pellicola(dove: String) -> void:
+	# LA COREOGRAFIA IN UN FOGLIO SOLO: dodici fotogrammi, uno ogni tre (50 ms
+	# con --fixed-fps 60, che rende il tempo del gioco esatto anche se la
+	# finestra finta disegna lenta), in una griglia quattro per tre. Si legge
+	# da sinistra a destra e dall'alto in basso.
+	var foglio := Image.create(1280, 540, false, Image.FORMAT_RGBA8)
+	for i in 12:
+		await RenderingServer.frame_post_draw
+		var fotogramma := get_viewport().get_texture().get_image()
+		fotogramma.convert(Image.FORMAT_RGBA8)
+		fotogramma.resize(320, 180, Image.INTERPOLATE_BILINEAR)
+		foglio.blit_rect(fotogramma, Rect2i(0, 0, 320, 180), Vector2i((i % 4) * 320, floori(i / 4.0) * 180))
+		await attendi(2)
+	foglio.save_png(ProjectSettings.globalize_path(dove))
+	print("pellicola salvata: %s" % dove)
+
+func ferma_dopo(millesimi: int) -> void:
+	# il tempo del gioco si ferma quando ne sono passati tanti: i tween e le
+	# molle restano dove sono, e lo scatto prende quell'istante. Preciso a un
+	# fotogramma, che per guardare una coreografia basta
+	var partenza := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - partenza < millesimi:
+		await get_tree().process_frame
+	Engine.time_scale = 0.0
+
 func attendi(quanti: int) -> void:
 	for i in quanti:
 		await get_tree().process_frame
@@ -42,9 +67,39 @@ func attendi(quanti: int) -> void:
 func prepara(quale: String) -> void:
 	match quale:
 		"menu":
+			# IL MENU DI PAUSA, e con un secondo argomento anche a meta' della sua
+			# entrata: "menu 120" lo ferma 120 millesimi dopo l'apertura, "menu
+			# sopra" lo lascia assestare con il fuoco sul Diario e il mouse in
+			# alto a destra (la parallasse e l'estrusione della parola)
 			await apri_dialogo()
 			await attendi(10)
 			Pausa.apri()
+			var argomenti := OS.get_cmdline_user_args()
+			var quando := String(argomenti[1]) if argomenti.size() > 1 else ""
+			if quando.is_valid_int():
+				await ferma_dopo(int(quando))
+			elif quando == "film":
+				await pellicola("res://scatti/menu_pellicola.png")
+			elif quando == "sopra":
+				Pausa.quinte.puntatore_finto = Vector2(1240.0, 60.0)
+				await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+				var voci := Pausa.colonna.get_children().filter(
+						func(n: Node) -> bool: return n is VoceMenu)
+				(voci[2] as VoceMenu).bottone.grab_focus()
+		"pausa":
+			# un pannello della pausa: "pausa diario", "pausa zaino", "pausa
+			# opzioni", "pausa storico", "pausa uscita"
+			await apri_dialogo()
+			await attendi(10)
+			Pausa.apri()
+			await attendi(5)
+			var argomenti := OS.get_cmdline_user_args()
+			match String(argomenti[1]) if argomenti.size() > 1 else "diario":
+				"zaino": Pausa.mostra_inventario()
+				"opzioni": Pausa.mostra_opzioni()
+				"storico": Pausa.mostra_storico()
+				"uscita": Pausa.conferma_uscita()
+				_: Pausa.mostra_diario()
 		"scelte":
 			await apri_dialogo(nodo_di_prova())
 		"nastro":
@@ -368,7 +423,7 @@ func prepara(quale: String) -> void:
 			var stanze_zona: Array = GameState.mappa_zona.get("stanze", [])
 			for stanza in stanze_zona:
 				GameState.sblocca_stanza(String(stanza.get("id", "")))
-			for i in mini(stanze_zona.size() / 2, stanze_zona.size()):
+			for i in mini(floori(stanze_zona.size() / 2.0), stanze_zona.size()):
 				var id_visitata := String(stanze_zona[i].get("id", ""))
 				if not id_visitata in GameState.nodi_visitati:
 					GameState.nodi_visitati.append(id_visitata)

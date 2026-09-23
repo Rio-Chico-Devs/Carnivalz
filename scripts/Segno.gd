@@ -61,6 +61,8 @@ func _draw() -> void:
 			traccia_leva(centro, raggio, spessore)
 		"uscita":
 			traccia_uscita(centro, raggio, spessore)
+		"indietro":
+			traccia_indietro(centro, raggio, spessore)
 		_:
 			draw_arc(centro, raggio, 0.0, TAU, 20, tinta, spessore)
 
@@ -119,4 +121,14 @@ func traccia_uscita(centro: Vector2, raggio: float, spessore: float) -> void:
 	draw_line(centro + Vector2(raggio * 0.45, -raggio * 0.5), centro + Vector2(raggio, 0.0),
 			tinta, spessore)
 	draw_line(centro + Vector2(raggio * 0.45, raggio * 0.5), centro + Vector2(raggio, 0.0),
+			tinta, spessore)
+
+
+func traccia_indietro(centro: Vector2, raggio: float, spessore: float) -> void:
+	# la freccia che torna: la stessa punta dell'uscita, girata, e senza la
+	# parentesi - non esci da niente, torni un passo indietro
+	draw_line(centro + Vector2(raggio, 0.0), centro + Vector2(-raggio, 0.0), tinta, spessore)
+	draw_line(centro + Vector2(-raggio * 0.45, -raggio * 0.55), centro + Vector2(-raggio, 0.0),
+			tinta, spessore)
+	draw_line(centro + Vector2(-raggio * 0.45, raggio * 0.55), centro + Vector2(-raggio, 0.0),
 			tinta, spessore)

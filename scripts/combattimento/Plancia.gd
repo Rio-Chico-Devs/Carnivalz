@@ -588,7 +588,7 @@ func vesti_voce_di_lista(voce: Control, posto: int, righe: int, per_riga: float,
 	# SI RIEMPIE PER COLONNE, non per righe: una lista si legge dall'alto in
 	# basso, e "Indietro" - che e' sempre l'ultima - deve stare in fondo a una
 	# colonna, non sparsa in mezzo alla prima riga
-	var colonna := posto / righe
+	var colonna := floori(float(posto) / righe)
 	var riga := posto % righe
 	voce.position = Vector2(float(colonna) * per_colonna,
 			float(riga) * (per_riga + distacco))

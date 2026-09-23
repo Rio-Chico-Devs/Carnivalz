@@ -1149,7 +1149,7 @@ func stat_eroe_tipo(chiave: String, livello: int) -> float:
 			continue
 		var ogni := maxi(int(regola.get("ogni", 1)), 1)
 		var fatte := int(profilo.get(nome_azione, 0)) * maxi(livello - 1, 0)
-		punti += (fatte / ogni) * int(regola.get("punti", 1))
+		punti += floori(float(fatte) / ogni) * int(regola.get("punti", 1))
 	return float(stat_base_di(chiave) + punti)
 
 func scontri_per_livello(livello: int) -> float:
@@ -1979,7 +1979,7 @@ func applica_crescita_livello() -> Array[Dictionary]:
 		var regola: Dictionary = crescita["crescita"][nome_azione]
 		var ogni := maxi(int(regola.get("ogni", 1)), 1)
 		var fatte := int(contatori.get(nome_azione, 0))
-		var guadagno := (fatte / ogni) * int(regola.get("punti", 1))
+		var guadagno := floori(float(fatte) / ogni) * int(regola.get("punti", 1))
 		if guadagno > 0:
 			var nome_stat := String(regola.get("stat", ""))
 			punti_stat[nome_stat] = int(punti_stat.get(nome_stat, 0)) + guadagno
@@ -1991,7 +1991,7 @@ func applica_crescita_livello() -> Array[Dictionary]:
 	var tetto := int(crescita.get("resistenze", {}).get("massimo", 100))
 	for id_stato in volte_stato_subito.keys():
 		var volte := int(volte_stato_subito[id_stato])
-		var punti := volte / soglia
+		var punti := floori(float(volte) / soglia)
 		if punti > 0:
 			resistenze_stato[id_stato] = mini(resistenza_stato_di(id_stato) + punti, tetto)
 			volte_stato_subito[id_stato] = volte % soglia

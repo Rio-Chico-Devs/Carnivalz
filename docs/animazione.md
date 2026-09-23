@@ -16,7 +16,8 @@ Bru:
 E prima, sulla raffica: «non rallentiamo niente». Vale anche qui: niente di
 quello che segue deve far aspettare il giocatore.
 
-Questo è lo studio. Non tocca il gioco: prima si decide, poi si costruisce.
+Questo è lo studio. Prima si è deciso, poi si è costruito: quello che è già nel
+gioco sta al §7.
 
 ---
 
@@ -274,6 +275,24 @@ Il vantaggio: `scale`, `rotation` e `modulate` **non cambiano l'impaginazione**,
 quindi animarli non costringe il contenitore a ridisporre tutto a ogni
 fotogramma. Animare `position` o `size` dentro un contenitore sì.
 
+**Ma c'è una terza trappola, e l'ho trovata solo nel sorgente.** Un contenitore,
+a ogni riordino, non rimette a posto soltanto posizione e misura dei figli:
+rimette a posto **anche la scala e la rotazione**. In `scene/gui/container.cpp`
+(4.4.1), alla fine di `fit_child_in_rect`:
+
+```cpp
+p_child->set_rect(r);
+p_child->set_rotation(0);
+p_child->set_scale(Vector2(1, 1));
+```
+
+Quindi un bottone che fa la gelatina dentro una colonna viene raddrizzato a metà
+strada ogni volta che la colonna si riordina (un'etichetta che va a capo, un
+testo che cambia). Per questo ogni voce di menu sta su un **binario suo**: un
+`Control` semplice che la colonna misura, con il bottone appoggiato sopra
+libero. C'è una prova che guarda succedere la trappola e guarda il binario
+resisterle.
+
 ### Le curve e le catene: `Tween`
 
 `Tween.xml` (sorgente 4.4): ci sono `TRANS_BACK` (esce un po' oltre e rientra),
@@ -379,3 +398,67 @@ Non riesco nemmeno a vedere i video: se trovi i talk con la trascrizione, o
 schermate di Persona 5 e Hollow Knight **da una fonte senza divieto di uso per
 l'apprendimento automatico** (Game UI Database lo vieta, quindi quelle non le
 uso), sono la cosa che servirebbe di più per la parte "come si vede".
+
+---
+
+## 7. Cosa è stato costruito (il menu di pausa)
+
+**Il vocabolario** — `scripts/Movimento.gd`, con i tempi in `data/stile.json`
+sotto `movimento`:
+
+| gesto | cosa fa | tempi |
+|---|---|---|
+| entrata | arriva in fretta e si posa | 240 ms, *emphasized decelerate* |
+| uscita | parte piano e se ne va | 150 ms, *emphasized accelerate* |
+| cascata | secondari dall'alto, principale per ultima | 30 ms fra l'una e l'altra, tutto entro 500 ms |
+| sfioro | la lastra si srotola, la voce avanza di 16 px | due molle: forma (FastSpatial) e colore (FastEffects) |
+| pressione | gelatina: X +8% in 50 ms, Y 50 ms dopo, ritorno elastico | 0,55 s in tutto |
+| rifiuto | scossa smorzata di 8 px | 0,3 s |
+| cambio di pannello | il vecchio si dissolve, poi entra il nuovo | *fade through*, soglia 0,35 |
+
+Ogni gesto ha il suo suono (Tsuchiya: «If it moves, it'll make a sound»):
+sfioro → un tic cortissimo su un lettore suo, pressione → conferma, rifiuto →
+errore, apertura e chiusura → una spazzata in su e una in giù. Sono in
+`Sintesi.gd` e si sostituiscono copiando un `.wav` in `audio/ui/`.
+
+**I pezzi**, ognuno riusabile nelle prossime schermate:
+
+- `VoceMenu.gd` — la voce: testo rosso sul nero da spenta, bianco su una
+  **lastra** cremisi storta di −3,5° quando ha il fuoco, con una sfoglia bianca
+  sotto che sporge (carta ritagliata a strati). Il mouse e la tastiera sono la
+  stessa cosa: passarci sopra le dà il fuoco, quindi c'è sempre una voce accesa
+  sola. Una voce **inerte** (la pagina in cui sei già, l'oggetto che non puoi
+  comprare) premuta dice di no invece di fingere una conferma.
+- `Cartiglio.gd` — la fascia storta con una scritta: il titolo (cremisi, scritta
+  bianca) e il cartellino dei Tazo (bianco, scritta nera). Entra srotolandosi.
+- `Quinte.gd` — dietro le voci, tre fogli tagliati in obliquo (bianco, cremisi,
+  nero) che arrivano uno dopo l'altro, e la **parola grande** del pannello in
+  cinque copie a strati. Col mouse gli strati si spostano di quantità diverse
+  (parallasse) e le copie della parola si aprono come una scritta scolpita: è
+  il finto 3D, ricavato dalla parallasse, senza shader e senza 3D.
+- `Schegge.gd` — alla pressione, sette triangoli di carta volano via lungo la
+  diagonale e spariscono in un terzo di secondo.
+
+**Le regole, ognuna con la sua prova** (tutte verificate rompendo apposta il
+codice e guardando la prova fallire):
+
+- le curve coincidono con le cubiche di Material punto per punto;
+- le molle si assestano nei tempi di Material, non rimbalzano, e fanno la stessa
+  strada a 30 e a 240 fotogrammi al secondo;
+- nella cascata Riprendi entra per ultima, le altre dall'alto, tutto entro
+  mezzo secondo;
+- un clic su una voce ancora trasparente fa subito quello che deve;
+- chiudendo, il gioco riparte nell'istante del clic e il velo che sfuma non
+  prende clic;
+- il pannello che se ne va non prende né clic né fuoco;
+- col movimento ridotto le voci compaiono sul posto, la lastra c'è subito, la
+  parallasse sta ferma, le schegge non scoppiano, il rifiuto lampeggia invece di
+  scuotere;
+- i conti di un fotogramma dell'entrata stanno sotto i 2 ms (senza finestra non
+  si misura il disegno: questa è solo la parte che scriviamo noi).
+
+**Quello che manca, in ordine:** menu principale, Sede, Negozio (dove la voce
+inerte serve davvero: l'oggetto che non ti puoi permettere), Opzioni (le
+intestazioni grigie e le caselle quasi invisibili vanno rifatte), mappe, e per
+ultimo il menu dello scontro.
+

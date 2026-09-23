@@ -15,6 +15,7 @@ extends Node
 var lettore_musica: AudioStreamPlayer
 var lettore_sfx: AudioStreamPlayer
 var lettore_voce: AudioStreamPlayer   # i blip: hanno un lettore loro, o taglierebbero i versi
+var lettore_tocco: AudioStreamPlayer  # lo sfioro delle voci di menu: vedi tocco()
 var traccia_corrente: String = ""
 var suoni_pronti: Dictionary = {}     # chiave -> AudioStream gia' costruito
 
@@ -30,6 +31,9 @@ func _ready() -> void:
 	lettore_voce = AudioStreamPlayer.new()
 	lettore_voce.bus = "Effetti"
 	add_child(lettore_voce)
+	lettore_tocco = AudioStreamPlayer.new()
+	lettore_tocco.bus = "Effetti"
+	add_child(lettore_tocco)
 
 func _assicura_bus(nome: String) -> void:
 	# "Musica" ed "Effetti" sono bus separati (figli di "Master") cosi' le
@@ -125,6 +129,14 @@ func interfaccia(nome: String) -> void:
 			func() -> AudioStream: return Sintesi.interfaccia(nome))
 	lettore_sfx.stream = suono
 	lettore_sfx.play()
+
+func tocco(nome: String) -> void:
+	# IL TOCCO DI UNA VOCE SFIORATA, su un lettore suo. Passando col mouse da
+	# una voce all'altra se ne suonano parecchi in fila: sullo stesso lettore di
+	# interfaccia() ognuno taglierebbe il suono della conferma appena data.
+	lettore_tocco.stream = _suono("ui:" + nome, "res://audio/ui/%s.wav" % nome,
+			func() -> AudioStream: return Sintesi.interfaccia(nome))
+	lettore_tocco.play()
 
 func blip(nome_parlante: String, tipo := "dialogo") -> void:
 	# Un colpetto di voce per gruppo di lettere, mentre la macchina da scrivere

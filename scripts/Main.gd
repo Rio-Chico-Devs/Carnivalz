@@ -256,7 +256,7 @@ func prepara_nastro() -> void:
 	nome_nastro.add_theme_stylebox_override("normal", stile_nastro_piatto())
 	nome_nastro.add_theme_color_override("font_color", Stile.colore("nastro_testo"))
 	nome_nastro.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
-	nastro.rotation = deg_to_rad(Stile.forma("inclinazione_nastro"))
+	nastro.rotation = Stile.angolo("inclinazione_nastro")
 
 func stile_nastro_piatto() -> StyleBoxFlat:
 	# Il ripiego: il rettangolo rosa. Vive finche' il disegno di quel
@@ -362,7 +362,7 @@ func lancia_il_nastro() -> void:
 	#   3. un rimbalzo in coda sull'angolo: la carta che si posa non si ferma
 	#      di colpo. Mezzo grado di troppo e poi indietro, e si sente.
 	var arrivo := posto_del_nastro()
-	var angolo_finale := deg_to_rad(Stile.forma("inclinazione_nastro"))
+	var angolo_finale := Stile.angolo("inclinazione_nastro")
 	# fuori dal bordo sinistro e piu' in alto: e' da li' che entra nel disegno
 	var partenza := arrivo + Vector2(-nastro.size.x - 60.0, -150.0)
 	var controllo := arrivo + Vector2(nastro.size.x * 0.25, -200.0)

@@ -158,6 +158,71 @@
     "cambio_sfondo": 0.9,
     "scritta_dal_buio": 1.6
   },
+  "_nota_movimento": "IL VOCABOLARIO DEL MOVIMENTO (docs/animazione.md, scripts/Movimento.gd). Pochi gesti con un nome, e i loro tempi stanno qui: chi anima qualcosa chiede Movimento.durata(\"entrata\"), non scrive 0.24 a mano. Le durate sono i gradini di IBM Carbon (70, 110, 150, 240, 400 ms). Le curve sono quelle di Material 3: 'entrata' e' emphasized decelerate (arriva in fretta e si posa), 'uscita' e' emphasized accelerate (parte piano e se ne va), 'standard' per le cose che cambiano senza entrare ne' uscire. Le molle sono le SpringForce di Material (smorzamento, rigidita'): 'forma' e' FastSpatial, 'colore' e' FastEffects, 'quinte' e' SlowSpatial - la forma e il colore su due molle diverse, come chiede Material. Nessuna durata passa i 500 ms, e la cascata intera nemmeno: sopra, un menu non e' piu' vivo, e' lento. L'uscita e' sempre piu' breve dell'entrata.",
+  "movimento": {
+    "durate": {
+      "colore": 0.07,
+      "sfioro": 0.11,
+      "uscita": 0.15,
+      "voce": 0.15,
+      "entrata": 0.24,
+      "quinta": 0.4
+    },
+    "cascata": {
+      "passo": 0.03,
+      "passo_minimo": 0.02,
+      "passo_massimo": 0.04,
+      "tetto": 0.5
+    },
+    "curve": {
+      "entrata": [
+        0.05,
+        0.7,
+        0.1,
+        1.0
+      ],
+      "uscita": [
+        0.3,
+        0.0,
+        0.8,
+        0.15
+      ],
+      "standard": [
+        0.2,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "molle": {
+      "forma": {
+        "smorzamento": 0.9,
+        "rigidita": 1400
+      },
+      "colore": {
+        "smorzamento": 1.0,
+        "rigidita": 3800
+      },
+      "quinte": {
+        "smorzamento": 0.9,
+        "rigidita": 300
+      }
+    },
+    "_nota_gelatina": "Juice it or lose it (Jonasson e Purho, sorgente di juicy-breakout): la X si gonfia del 20% in 50 ms e torna elastica in 0,6 s, la Y fa lo stesso 50 ms dopo. Qui e' un tasto premuto, non un mattone colpito: l'8%, la Y che si schiaccia invece di gonfiarsi, e il ritorno in 0,45 s per stare sotto il mezzo secondo.",
+    "gelatina": {
+      "quanto": 0.08,
+      "salita": 0.05,
+      "ritardo_y": 0.05,
+      "ritorno": 0.45
+    },
+    "rifiuto": {
+      "ampiezza": 8,
+      "frequenza": 18,
+      "durata": 0.3
+    },
+    "scivolo": 16,
+    "parallasse": 16
+  },
   "_nota_ritmo": "Le pause della macchina da scrivere sulla punteggiatura: il testo non scorre a velocita' costante, si ferma dove si fermerebbe una voce. In secondi, gia' divisi per la velocita' scelta dal giocatore.",
   "ritmo": {
     "pausa_virgola": 0.1,

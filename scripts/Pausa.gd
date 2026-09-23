@@ -39,11 +39,23 @@ const SCENA_MENU := "res://scenes/Menu.tscn"
 # decimo i contorni sono andati e la scena si riconosce ancora. Piu' in basso e'
 # una macchia, piu' in alto non e' sfocata, e' solo sporca.
 const RIDUZIONE_SFOCATURA := 10
-const LARGO_SEGNO := 30.0   # quanto spazio lascia una voce al suo segno
 const STACCO := 1.0         # l'aria IN PIU' fra un blocco di voci e il prossimo:
                             # il contenitore ci mette gia' la sua spaziatura ai due
                             # lati, quindi qui bastano pochi pixel
+const STACCO_TESTATA := 8.0
 const QUANTO_OCCUPA_CHI_GIOCHI := 560   # quanta larghezza si prende il tuo personaggio, a destra
+# QUANTO SCHERMO COPRE IL FOGLIO NERO delle quinte. Nel menu meno della meta':
+# a destra resta il mondo sfocato, e il tuo personaggio. Negli altri pannelli
+# tutto, e oltre - il bordo obliquo esce dallo schermo - perche' li' lo spazio
+# serve al contenuto (vedi Quinte.gd)
+const COPRE_MENU := 0.5
+const COPRE_PANNELLO := 1.25
+# l'intestazione entra prima delle voci: il titolo, poi il cartellino, poi la
+# cascata. E' l'ordine di Carbon: prima il guscio, poi il contenuto, per
+# ultima l'azione principale
+const TITOLO_DOPO := 0.04
+const CARTELLINO_DOPO := 0.08
+const CASCATA_DOPO := 0.10
 
 # Le sezioni del Diario, in ordine. Prima erano impilate tutte in un unico
 # scorrevole: sette titoli uno sotto l'altro, e per arrivare all'ultimo si
@@ -73,7 +85,11 @@ var velo: ColorRect
 var sfocato: TextureRect        # l'istantanea sfocata della scena rimasta sotto
 var chi_giochi: TextureRect     # il tuo personaggio, grande a destra, a fuoco
 var contenitore: MarginContainer
+var palco: Control              # dove stanno le colonne: un Control semplice, non un contenitore (vedi nuova_colonna)
 var colonna: VBoxContainer
+var quinte: Quinte              # i fogli dietro le voci, e la parola grande
+var schegge: Schegge            # i ritagli che saltano via da una voce premuta
+var dissolvenza: Tween          # l'entrata o l'uscita del velo: una sola alla volta
 var aperta := false
 var pannello := "menu"  # menu | storico | diario | inventario | equipaggiamento | opzioni | uscita
 var sezione_diario := "appunti"
@@ -112,7 +128,18 @@ func _ready() -> void:
 	contenitore.add_theme_constant_override("margin_right", 90)
 	contenitore.add_theme_constant_override("margin_top", 50)
 	contenitore.add_theme_constant_override("margin_bottom", 50)
+	quinte = Quinte.new()
+	quinte.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	velo.add_child(quinte)
 	velo.add_child(contenitore)
+	palco = Control.new()
+	palco.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	contenitore.add_child(palco)
+	# le schegge sopra tutto: devono volare anche sopra il pannello che la voce
+	# premuta ha appena aperto
+	schegge = Schegge.new()
+	schegge.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(schegge)
 
 func _unhandled_input(evento: InputEvent) -> void:
 	if not evento.is_action_pressed("ui_cancel"):
@@ -146,10 +173,31 @@ func pausabile() -> bool:
 func apri() -> void:
 	aperta = true
 	modo_diretto = false
-	velo.visible = true
+	mostra_velo(COPRE_MENU)
 	get_tree().paused = true
 	mostra_menu()
 	sfoca_la_scena()
+
+func mostra_velo(copre: float) -> void:
+	# IL VELO ENTRA IN FRETTA E LE QUINTE GLI CORRONO DIETRO. Il velo e la
+	# sfocatura sono il guscio (Carbon: «static shell» per primo): 110 ms, il
+	# tempo di un tocco. Il gioco si ferma subito, non quando il menu ha finito
+	# di entrare - l'animazione non tiene fermo niente
+	if dissolvenza != null:
+		dissolvenza.kill()
+	# nascosto, oppure a meta' dell'uscita (ESC premuto due volte di fila): in
+	# tutti e due i casi le quinte devono rientrare da capo
+	var era_nascosto := not velo.visible or quinte.uscendo
+	velo.visible = true
+	velo.mouse_filter = Control.MOUSE_FILTER_STOP
+	if era_nascosto:
+		Movimento.suona("apertura")
+		quinte.entra(copre, "")
+		velo.modulate.a = 0.0
+		sfocato.modulate.a = 0.0
+	dissolvenza = create_tween().set_parallel()
+	Movimento.verso(dissolvenza, velo, "modulate:a", 1.0, "entrata", Movimento.durata("sfioro"))
+	Movimento.verso(dissolvenza, sfocato, "modulate:a", 1.0, "entrata", Movimento.durata("sfioro"))
 
 func sfoca_la_scena() -> void:
 	# SFOCARE SENZA UNO SHADER, e non per virtuosismo.
@@ -185,8 +233,8 @@ func sfoca_la_scena() -> void:
 	# menu resta quello che era, col suo velo, e non si rompe niente
 	if immagine == null or immagine.is_empty():
 		return
-	var largo := maxi(immagine.get_width() / RIDUZIONE_SFOCATURA, 1)
-	var alto := maxi(immagine.get_height() / RIDUZIONE_SFOCATURA, 1)
+	var largo := maxi(floori(float(immagine.get_width()) / RIDUZIONE_SFOCATURA), 1)
+	var alto := maxi(floori(float(immagine.get_height()) / RIDUZIONE_SFOCATURA), 1)
 	immagine.resize(largo, alto, Image.INTERPOLATE_BILINEAR)
 	sfocato.texture = ImageTexture.create_from_image(immagine)
 	sfocato.visible = true
@@ -201,7 +249,7 @@ func apri_su(quale: String) -> void:
 	# esce alla stanza, non al menu di pausa (che non si e' mai aperto).
 	aperta = true
 	modo_diretto = true
-	velo.visible = true
+	mostra_velo(COPRE_PANNELLO)
 	get_tree().paused = true
 	match quale:
 		"diario": mostra_diario()
@@ -220,33 +268,57 @@ func indietro() -> Callable:
 	return chiudi if modo_diretto else mostra_menu
 
 func chiudi() -> void:
+	# IL GIOCO RIPARTE SUBITO, il menu se ne va dopo. Per 150 ms le quinte
+	# escono e il velo si dissolve mentre sotto si gioca gia': il velo smette di
+	# prendere i clic nell'istante in cui chiudi, quindi uscire non costa niente
+	# - e' l'uscita piu' breve dell'entrata, come dice Material
 	aperta = false
 	modo_diretto = false
-	velo.visible = false
-	if sfocato != null:
-		sfocato.visible = false
-		sfocato.texture = null   # l'istantanea di una scena che non c'e' piu' e' solo memoria occupata
 	get_tree().paused = false
+	Movimento.suona("chiusura")
+	velo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	quinte.esci()
 	svuota()
+	if dissolvenza != null:
+		dissolvenza.kill()
+	dissolvenza = create_tween().set_parallel()
+	Movimento.verso(dissolvenza, velo, "modulate:a", 0.0, "uscita", Movimento.durata("uscita"))
+	Movimento.verso(dissolvenza, sfocato, "modulate:a", 0.0, "uscita", Movimento.durata("uscita"))
+	dissolvenza.chain().tween_callback(sparisci)
+
+func sparisci() -> void:
+	velo.visible = false
+	sfocato.visible = false
+	sfocato.texture = null   # l'istantanea di una scena che non c'e' piu' e' solo memoria occupata
 
 func svuota() -> void:
-	if colonna != null and is_instance_valid(colonna):
-		colonna.queue_free()
+	# IL PANNELLO VECCHIO NON SPARISCE DI COLPO, SI DISSOLVE - ma nell'istante
+	# in cui lo lasci non risponde piu' a niente: niente clic, niente fuoco.
+	# Per una frazione di secondo si vede ancora, e non si tocca gia' piu'
+	Movimento.congeda(colonna, Movimento.durata("entrata") * Movimento.SOGLIA_CAMBIO)
 	colonna = null
 	# IL PERSONAGGIO GRANDE VALE SOLO PER IL MENU. Non e' un fondale della
 	# pausa: nel Diario, nello Zaino e nell'equipaggiamento quello spazio serve
 	# tutto, e una figura alta due terzi di schermo dietro un elenco di oggetti
 	# non e' un'atmosfera, e' un elenco che non si legge. Vive e muore col
 	# pannello che l'ha voluto.
-	if chi_giochi != null and is_instance_valid(chi_giochi):
-		chi_giochi.queue_free()
+	Movimento.congeda(chi_giochi, Movimento.durata("uscita"))
 	chi_giochi = null
 
-func nuova_colonna() -> VBoxContainer:
+func nuova_colonna(entra := true) -> VBoxContainer:
+	# LA COLONNA STA SUL PALCO, NON DENTRO IL CONTENITORE. Un contenitore di
+	# Godot, a ogni riordino, rimette a posto la posizione dei figli e anche la
+	# loro scala (Container::fit_child_in_rect): una colonna che scivola dentro
+	# verrebbe rimessa al suo posto a meta' strada. Il palco e' un Control
+	# semplice, e la colonna ci sta appesa con le ancore - che rispettano uno
+	# spostamento invece di cancellarlo.
 	svuota()
 	colonna = VBoxContainer.new()
 	colonna.add_theme_constant_override("separation", 14)
-	contenitore.add_child(colonna)
+	palco.add_child(colonna)
+	colonna.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if entra:
+		Movimento.entra_pannello(colonna)
 	return colonna
 
 func intestazione(testo: String) -> void:
@@ -254,30 +326,32 @@ func intestazione(testo: String) -> void:
 	# guardano piu' spesso, e finche' erano sepolte dentro una sezione del Diario
 	# bisognava navigare per sapere quanti soldi si avevano. Stanno qui dentro e
 	# non in ogni pannello proprio perche' nessuno se le possa dimenticare.
+	#
+	# Sono due cartigli, fasce storte come il nastro dei nomi: il titolo e' una
+	# fascia cremisi con la scritta bianca, il cartellino una fascia bianca con
+	# la scritta nera - il box del dialogo in piccolo. Entrano srotolandosi, il
+	# titolo per primo.
 	var riga := HBoxContainer.new()
-	riga.add_theme_constant_override("separation", 20)
+	riga.add_theme_constant_override("separation", 24)
 	colonna.add_child(riga)
-	var titolo := Label.new()
-	titolo.text = testo
-	titolo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	titolo.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
-	titolo.add_theme_color_override("font_color", Stile.colore("accento"))
+	var titolo := Cartiglio.nuovo(testo.to_upper(), Stile.colore("accento"),
+			Stile.colore("testo"), Stile.colore("bordo_acceso"), Stile.dimensione("titolo"))
+	titolo.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_BEGIN
 	riga.add_child(titolo)
-	var risorse := Label.new()
-	risorse.text = "Tazo %d     Lv %d" % [
-			GameState.tazo, GameState.livello_di(GameState.id_protagonista)]
-	risorse.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	risorse.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	risorse.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
+	var risorse := Cartiglio.nuovo("TAZO %d   ·   LV %d" % [GameState.tazo,
+			GameState.livello_di(GameState.id_protagonista)], Stile.colore("bordo_acceso"),
+			Stile.colore("box_testo"), Stile.colore("accento"), Stile.dimensione("corpo"))
+	risorse.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	riga.add_child(risorse)
-
-func bottone(testo: String, richiamo: Callable) -> Button:
-	var b := Button.new()
-	b.text = testo
-	Stile.scelta(b)
-	b.pressed.connect(richiamo)
-	colonna.add_child(b)
-	return b
+	titolo.svela(TITOLO_DOPO)
+	risorse.svela(CARTELLINO_DOPO)
+	# un po' d'aria sotto: la prima lastra e' storta, e senza toccherebbe la
+	# sfoglia del titolo
+	var aria := Control.new()
+	aria.custom_minimum_size = Vector2(0.0, STACCO_TESTATA)
+	aria.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	colonna.add_child(aria)
+	quinte.copri(COPRE_MENU if pannello == "menu" else COPRE_PANNELLO, testo.to_upper())
 
 # --- pannello: menu ---
 
@@ -293,32 +367,55 @@ func mostra_menu() -> void:
 	# stesse a destra e in bianco per un istante sarebbero la stessa cosa. Da
 	# che parte dello schermo guardi ti dice gia' se stai giocando o ti sei
 	# fermato.
-	nuova_colonna()
+	#
+	# E ENTRANO IN CASCATA, CON RIPRENDI PER ULTIMA. Sta in cima ed e' quella
+	# che ha il fuoco, ma arriva dopo tutte le altre: Bru, «i pulsanti d'azione
+	# principale chiudono la sequenza per guidare l'occhio del giocatore».
+	# L'occhio scende con la cascata e risale dove deve cliccare.
+	nuova_colonna(false)
 	pannello = "menu"
 	intestazione("Pausa")
-	var primo := voce("riprendi", "Riprendi", chiudi)
+	var voci: Array[VoceMenu] = []
+	voci.append(voce("riprendi", "Riprendi", chiudi))
 	stacco()
-	voce("storico", "Storico dei dialoghi", mostra_storico)
-	voce("diario", GameState.nome_diario(), mostra_diario)
-	voce("zaino", "Zaino", mostra_inventario)
+	voci.append(voce("storico", "Storico dei dialoghi", mostra_storico))
+	voci.append(voce("diario", GameState.nome_diario(), mostra_diario))
+	voci.append(voce("zaino", "Zaino", mostra_inventario))
 	stacco()
-	voce("squadra", "Personaggio e squadra", mostra_equipaggiamento)
-	voce("opzioni", "Opzioni", mostra_opzioni)
+	voci.append(voce("squadra", "Personaggio e squadra", mostra_equipaggiamento))
+	voci.append(voce("opzioni", "Opzioni", mostra_opzioni))
 	stacco()
-	voce("uscita", "Torna al menu principale", conferma_uscita)
+	voci.append(voce("uscita", "Torna al menu principale", conferma_uscita))
 	mostra_chi_giochi()
-	primo.grab_focus()
+	cascata(voci, 0)
 
-func voce(segno: String, testo: String, richiamo: Callable) -> Button:
-	var b := bottone("      " + testo, richiamo)
-	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	for stato in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		b.add_theme_color_override(stato, Stile.colore("accento"))
-	var s := Segno.nuovo(segno, Stile.colore("accento"), LARGO_SEGNO)
-	s.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
-	s.position.x = 6.0
-	b.add_child(s)
-	return b
+func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null,
+		corpo := 0) -> VoceMenu:
+	var v := VoceMenu.nuova(segno, testo, corpo)
+	# prima le schegge, poi quello che la voce fa: se apre un altro pannello,
+	# questa voce sta per sparire, e le schegge devono essere gia' partite
+	v.scoppio.connect(schegge.scoppia)
+	v.bottone.pressed.connect(richiamo)
+	(dove if dove != null else colonna).add_child(v)
+	return v
+
+func voce_d_indice(dove: Control, testo: String, attuale: bool, richiamo: Callable) -> VoceMenu:
+	# UNA VOCE DELL'INDICE del Diario o dello Zaino. Quella in cui sei ha il
+	# segno davanti ed e' inerte: premerla non riapre la stessa pagina, dice di no
+	var v := voce("riprendi" if attuale else "", testo, richiamo, dove, Stile.dimensione("corpo"))
+	v.inerte = attuale
+	return v
+
+func cascata(voci: Array[VoceMenu], principale: int) -> void:
+	Movimento.cascata(voci, principale, CASCATA_DOPO)
+
+func ritorno(col_fuoco := true) -> void:
+	# «Indietro», in fondo a ogni pannello: e' una voce come le altre, con la
+	# sua freccia, e ha il fuoco appena il pannello si apre - tranne dove c'e'
+	# un indice, che il fuoco lo tiene sulla pagina aperta
+	var v := voce("indietro", "Indietro", indietro())
+	if col_fuoco:
+		v.prendi_il_fuoco_in_silenzio()
 
 func stacco() -> void:
 	# lo spazio che separa un blocco dall'altro: e' la POSIZIONE a raggruppare,
@@ -347,8 +444,17 @@ func mostra_chi_giochi() -> void:
 	chi_giochi.offset_left = -QUANTO_OCCUPA_CHI_GIOCHI
 	chi_giochi.offset_top = 40
 	velo.add_child(chi_giochi)
-	# sotto i bottoni, o coprirebbe le voci quando la finestra e' stretta
-	velo.move_child(chi_giochi, 0)
+	# davanti alle quinte (e' a fuoco, la parola grande sta dietro di lui) ma
+	# sotto le voci, o le coprirebbe quando la finestra e' stretta
+	velo.move_child(chi_giochi, quinte.get_index() + 1)
+	# arriva da destra, piu' lento delle voci: e' la cosa piu' pesante a schermo
+	chi_giochi.modulate.a = 0.0
+	var arrivo := chi_giochi.create_tween().set_parallel()
+	Movimento.verso(arrivo, chi_giochi, "modulate:a", 1.0, "entrata", Movimento.durata("quinta"))
+	if not Movimento.ridotto():
+		chi_giochi.position.x += 32.0
+		Movimento.verso(arrivo, chi_giochi, "position:x", chi_giochi.position.x - 32.0,
+				"entrata", Movimento.durata("quinta"))
 
 func ritratto_del_protagonista() -> String:
 	var id := GameState.id_protagonista
@@ -368,8 +474,17 @@ func mostra_opzioni() -> void:
 	nuova_colonna()
 	pannello = "opzioni"
 	intestazione("Opzioni")
-	PannelloOpzioni.costruisci(colonna, 200)
-	bottone("Indietro", indietro()).grab_focus()
+	# dentro uno scorrevole: le opzioni sono tante, e senza «Indietro» finiva
+	# sotto il bordo dello schermo
+	var scorrevole := ScrollContainer.new()
+	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scorrevole.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	colonna.add_child(scorrevole)
+	var dentro := VBoxContainer.new()
+	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scorrevole.add_child(dentro)
+	PannelloOpzioni.costruisci(dentro, 200)
+	ritorno()
 
 func conferma_uscita() -> void:
 	# uscire da qui butta via i progressi della zona in corso: si salva solo
@@ -381,12 +496,14 @@ func conferma_uscita() -> void:
 	avviso.text = "Il gioco si salva da solo quando rientri alla Sede: tutto quello che hai\nfatto dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso."
 	avviso.add_theme_color_override("font_color", Stile.colore("pericolo"))
 	colonna.add_child(avviso)
-	var primo := bottone("No, resto qui", mostra_menu if not modo_diretto else chiudi)
-	bottone("Sì, torna al menu principale", func() -> void:
+	var voci: Array[VoceMenu] = []
+	voci.append(voce("riprendi", "No, resto qui", mostra_menu if not modo_diretto else chiudi))
+	voci.append(voce("uscita", "Sì, torna al menu principale", func() -> void:
 		chiudi()
 		GameState.reset_campagna()
-		Transizioni.vai(SCENA_MENU))
-	primo.grab_focus()
+		Transizioni.vai(SCENA_MENU)))
+	# la scelta sicura e' quella principale: ha il fuoco, e chiude la sequenza
+	cascata(voci, 0)
 
 # --- pannello: storico ---
 
@@ -406,49 +523,13 @@ func mostra_storico() -> void:
 		vuoto.text = "Non hai ancora letto niente."
 		Stile.etichetta_piccola(vuoto)
 		righe.add_child(vuoto)
-	for voce in GameState.storico:
-		righe.add_child(riga_storico(voce))
-	bottone("Indietro", indietro()).grab_focus()
+	for letta in GameState.storico:
+		righe.add_child(PaginePausa.riga_storico(letta))
+	ritorno()
 	# si apre gia' in fondo: l'ultima cosa letta e' quella che interessa di piu'
 	await get_tree().process_frame
 	if is_instance_valid(scorrevole):
 		scorrevole.scroll_vertical = int(scorrevole.get_v_scroll_bar().max_value)
-
-func riga_storico(voce: Dictionary) -> Control:
-	var tipo := String(voce.get("tipo", "narrazione"))
-	var chi := String(voce.get("chi", ""))
-	var testo := String(voce.get("testo", ""))
-	var blocco := VBoxContainer.new()
-	blocco.add_theme_constant_override("separation", 2)
-	if chi != "":
-		var nome := Label.new()
-		nome.text = chi
-		nome.add_theme_color_override("font_color", Stile.colore("accento"))
-		nome.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
-		blocco.add_child(nome)
-	var corpo := RichTextLabel.new()
-	corpo.bbcode_enabled = true
-	corpo.fit_content = true
-	corpo.scroll_active = false
-	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	corpo.add_theme_font_size_override("normal_font_size", Stile.dimensione("piccolo"))
-	corpo.add_theme_font_size_override("italics_font_size", Stile.dimensione("piccolo"))
-	corpo.add_theme_font_size_override("bold_font_size", Stile.dimensione("piccolo"))
-	match tipo:
-		"dialogo":
-			corpo.text = testo
-			corpo.add_theme_color_override("default_color", Stile.colore("testo"))
-		"notifica":
-			corpo.text = testo
-			corpo.add_theme_color_override("default_color", Stile.colore("accento"))
-		"titolo":
-			corpo.text = "[b]%s[/b]" % testo
-			corpo.add_theme_color_override("default_color", Stile.colore("accento"))
-		_:
-			corpo.text = "[i]%s[/i]" % testo
-			corpo.add_theme_color_override("default_color", Stile.colore("narrazione"))
-	blocco.add_child(corpo)
-	return blocco
 
 # --- pannello: diario ---
 
@@ -468,33 +549,25 @@ func mostra_diario() -> void:
 	colonna.add_child(corpo)
 
 	var indice := VBoxContainer.new()
-	indice.add_theme_constant_override("separation", 6)
+	indice.add_theme_constant_override("separation", 0)
 	indice.custom_minimum_size = Vector2(280, 0)
 	corpo.add_child(indice)
-	var primo: Button = null
-	for voce in SEZIONI_DIARIO:
-		var chiave := String(voce[0])
-		var b := Button.new()
-		b.text = String(voce[1])
+	var voci: Array[VoceMenu] = []
+	var qui := 0
+	for sezione in SEZIONI_DIARIO:
+		var chiave := String(sezione[0])
+		var testo := String(sezione[1])
 		# QUANTI NON NE HAI ANCORA LETTI, sull'indice. Una sezione che non dice
 		# se dentro c'e' qualcosa di nuovo e' una sezione che non si apre: i 3000
 		# tazo di benvenuto resterebbero una riga che nessuno va a cercare.
-		if chiave == "messaggi":
-			var non_letti := GameState.messaggi_non_letti()
-			if non_letti > 0:
-				b.text = "%s  (%d)" % [b.text, non_letti]
-		Stile.scelta(b)
+		if chiave == "messaggi" and GameState.messaggi_non_letti() > 0:
+			testo = "%s  (%d)" % [testo, GameState.messaggi_non_letti()]
+		# dove sei si vede: senza il segno l'indice e' sette voci uguali
 		if chiave == sezione_diario:
-			# dove sei si vede: senza questo l'indice e' sette bottoni uguali
-			b.add_theme_color_override("font_color", Stile.colore("accento"))
-			b.text = "▸  " + b.text
-		else:
-			b.pressed.connect(func() -> void:
-				sezione_diario = chiave
-				mostra_diario())
-			if primo == null:
-				primo = b
-		indice.add_child(b)
+			qui = voci.size()
+		voci.append(voce_d_indice(indice, testo, chiave == sezione_diario, func() -> void:
+			sezione_diario = chiave
+			mostra_diario()))
 
 	var scorrevole := ScrollContainer.new()
 	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -504,16 +577,9 @@ func mostra_diario() -> void:
 	dentro.add_theme_constant_override("separation", 10)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.add_child(dentro)
-	match sezione_diario:
-		"appunti": sezione_appunti(dentro)
-		"messaggi": sezione_messaggi(dentro)
-		"stato": sezione_stato(dentro)
-		"crescita": sezione_crescita(dentro)
-		"passive": sezione_passive(dentro)
-		"squadra": sezione_squadra(dentro)
-		"osservazioni": sezione_osservazioni(dentro)
-		"organizzazione": sezione_organizzazione(dentro)
-	bottone("Indietro", indietro()).grab_focus()
+	PaginePausa.riempi(dentro, sezione_diario)
+	ritorno(false)
+	cascata(voci, qui)
 
 # --- pannello: inventario ---
 
@@ -531,23 +597,21 @@ func mostra_inventario() -> void:
 	colonna.add_child(corpo)
 
 	var indice := VBoxContainer.new()
-	indice.add_theme_constant_override("separation", 6)
+	indice.add_theme_constant_override("separation", 0)
 	indice.custom_minimum_size = Vector2(280, 0)
 	corpo.add_child(indice)
-	for voce in SCOMPARTI:
-		var chiave := String(voce[0])
-		var quanti := contenuto_scomparto(chiave).size()
-		var b := Button.new()
-		b.text = "%s  (%s)" % [String(voce[1]), capienza_testo(chiave, quanti)]
-		Stile.scelta(b)
+	var voci: Array[VoceMenu] = []
+	var qui := 0
+	for scomparto in SCOMPARTI:
+		var chiave := String(scomparto[0])
+		var quanti := PaginePausa.contenuto_scomparto(chiave).size()
 		if chiave == scomparto_aperto:
-			b.add_theme_color_override("font_color", Stile.colore("accento"))
-			b.text = "▸  " + b.text
-		else:
-			b.pressed.connect(func() -> void:
-				scomparto_aperto = chiave
-				mostra_inventario())
-		indice.add_child(b)
+			qui = voci.size()
+		voci.append(voce_d_indice(indice, "%s  (%s)" % [String(scomparto[1]),
+				PaginePausa.capienza_testo(chiave, quanti)], chiave == scomparto_aperto,
+				func() -> void:
+					scomparto_aperto = chiave
+					mostra_inventario()))
 
 	var scorrevole := ScrollContainer.new()
 	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -557,142 +621,9 @@ func mostra_inventario() -> void:
 	dentro.add_theme_constant_override("separation", 12)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.add_child(dentro)
-	disegna_scomparto(dentro, scomparto_aperto)
-	bottone("Indietro", indietro()).grab_focus()
-
-func contenuto_scomparto(chiave: String) -> Array:
-	if chiave == "collezionabili":
-		return GameState.collezionabili + GameState.chiavi
-	return GameState.contenuto_zaino(chiave)
-
-func capienza_testo(chiave: String, quanti: int) -> String:
-	# gli scomparti senza tetto non devono mostrarne uno finto: gli oggetti
-	# speciali sono la storia che ti porti dietro, non zavorra da amministrare
-	if chiave in ["speciali", "collezionabili"]:
-		return "%d" % quanti
-	return "%d / %d" % [quanti, GameState.capacita_zaino(chiave)]
-
-func disegna_scomparto(genitore: VBoxContainer, chiave: String) -> void:
-	var elenco := contenuto_scomparto(chiave)
-	if elenco.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "Questo scomparto è vuoto."
-		Stile.etichetta_piccola(vuoto)
-		genitore.add_child(vuoto)
-		return
-	# quanti ne hai dello stesso tipo: tre fiale sono una riga con un x3, non tre
-	# righe uguali una sotto l'altra
-	var conteggio := {}
-	var ordine: Array[String] = []
-	for id_oggetto in elenco:
-		var id_stringa := String(id_oggetto)
-		if not conteggio.has(id_stringa):
-			conteggio[id_stringa] = 0
-			ordine.append(id_stringa)
-		conteggio[id_stringa] = int(conteggio[id_stringa]) + 1
-	for id_oggetto in ordine:
-		genitore.add_child(SchedaOggetto.riga(id_oggetto, int(conteggio[id_oggetto]),
-				riassunto_effetto(GameState.dati_oggetto(id_oggetto))))
-
-func sezione_messaggi(genitore: VBoxContainer) -> void:
-	# «c'e' anche una sezione messaggi dove l'organizzazione ti ha versato 3000
-	# tazo come quota di benvenuto» (Bru).
-	#
-	# Non sono gli appunti: quelli sono pensieri del protagonista, questi sono
-	# voci di altri - e si vede. Mittente e oggetto in testa, il corpo sotto, e
-	# aprendo la sezione si considerano letti tutti.
-	titolo_sezione(genitore, "Messaggi")
-	if GameState.messaggi_ricevuti.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "Nessun messaggio."
-		Stile.etichetta_piccola(vuoto)
-		genitore.add_child(vuoto)
-		return
-	# i piu' recenti in cima: un messaggio vecchio non deve coprire quello nuovo
-	var ordine := GameState.messaggi_ricevuti.duplicate()
-	ordine.reverse()
-	for id_messaggio in ordine:
-		var dati := GameState.dati_messaggio(String(id_messaggio))
-		if dati.is_empty():
-			continue
-		var nuovo := String(id_messaggio) not in GameState.messaggi_letti
-		var intestazione := Label.new()
-		intestazione.text = "%s%s — %s" % ["● " if nuovo else "",
-				String(dati.get("mittente", "?")), String(dati.get("oggetto", ""))]
-		if nuovo:
-			intestazione.add_theme_color_override("font_color", Stile.colore("accento"))
-		genitore.add_child(intestazione)
-		var corpo := RichTextLabel.new()
-		corpo.bbcode_enabled = true
-		corpo.fit_content = true
-		corpo.scroll_active = false
-		corpo.text = Testi.accorda(String(dati.get("testo", "")), GameState.sesso_protagonista)
-		genitore.add_child(corpo)
-		var spazio := Control.new()
-		spazio.custom_minimum_size = Vector2(0, 12)
-		genitore.add_child(spazio)
-		GameState.segna_messaggio_letto(String(id_messaggio))
-
-func sezione_appunti(genitore: VBoxContainer) -> void:
-	# la prima cosa che si legge aprendo il Diario: dove devo andare adesso.
-	# Non sono obiettivi con la spunta, sono pensieri del protagonista, quindi
-	# stanno in corsivo e per esteso — la spunta e' solo un promemoria di
-	# quello che ha gia' risolto
-	titolo_sezione(genitore, "Appunti")
-	if GameState.task_attivi.is_empty() and GameState.task_chiusi.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "Niente da segnare, per ora."
-		Stile.etichetta_piccola(vuoto)
-		genitore.add_child(vuoto)
-		return
-	for id_task in GameState.task_attivi:
-		genitore.add_child(riga_appunto(GameState.dati_task(id_task)))
-	if GameState.task_chiusi.is_empty():
-		return
-	var separatore := Label.new()
-	separatore.text = "Già risolti"
-	Stile.etichetta_piccola(separatore)
-	genitore.add_child(separatore)
-	for id_task in GameState.task_chiusi:
-		var voce := GameState.dati_task(id_task)
-		var fatto := Label.new()
-		fatto.text = "✓  " + String(voce.get("titolo", id_task))
-		Stile.etichetta_piccola(fatto)
-		fatto.modulate = Color(1, 1, 1, 0.55)
-		genitore.add_child(fatto)
-
-func riga_appunto(voce: Dictionary) -> Control:
-	var blocco := VBoxContainer.new()
-	blocco.add_theme_constant_override("separation", 4)
-	var intestazione_riga := Label.new()
-	intestazione_riga.text = "◆  " + String(voce.get("titolo", ""))
-	intestazione_riga.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	intestazione_riga.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
-	blocco.add_child(intestazione_riga)
-	var chi := String(voce.get("da", ""))
-	if chi != "":
-		# chi ha chiesto la cosa puo' essere un png (personaggi.json) o un
-		# compagno giocabile (classes.json): si guarda in tutt'e due
-		var scheda: Dictionary = GameState.personaggi.get(chi, {})
-		var nome := String(scheda.get("nome", ""))
-		if nome == "":
-			var classe: Dictionary = GameState.classi.get(chi, {})
-			nome = String(classe.get("nome", chi))
-		var firma := Label.new()
-		firma.text = "chiesto da " + nome
-		Stile.etichetta_piccola(firma)
-		blocco.add_child(firma)
-	var corpo := RichTextLabel.new()
-	corpo.bbcode_enabled = true
-	corpo.fit_content = true
-	corpo.scroll_active = false
-	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	corpo.text = "[i]%s[/i]" % String(voce.get("testo", ""))
-	corpo.add_theme_color_override("default_color", Stile.colore("narrazione"))
-	corpo.add_theme_font_size_override("normal_font_size", Stile.dimensione("piccolo"))
-	corpo.add_theme_font_size_override("italics_font_size", Stile.dimensione("piccolo"))
-	blocco.add_child(corpo)
-	return blocco
+	PaginePausa.disegna_scomparto(dentro, scomparto_aperto)
+	ritorno(false)
+	cascata(voci, qui)
 
 # --- pannello: equipaggiamento ---
 #
@@ -712,166 +643,3 @@ func mostra_equipaggiamento() -> void:
 	var scheda := SchedaPersonaggio.new()
 	colonna.add_child(scheda)
 	scheda.apri(indietro(), mostra_diario)
-
-func etichetta_bonus(chiave: String) -> String:
-	match chiave:
-		"attacco": return "attacco"
-		"difesa": return "difesa"
-		"velocita": return "velocità"
-		"hp_max": return "vita massima"
-		"aura_max": return "aura massima"
-		"aura_per_turno": return "aura per turno"
-		"resistenza_maledizione": return "rintocchi di maledizione"
-		_: return chiave
-
-func riassunto_effetto(dati: Dictionary) -> String:
-	# cosa fa davvero, in numeri: la descrizione poetica sta nel Compendio
-	var effetto: Dictionary = dati.get("effetto_equipaggiato", dati.get("effetto", {}))
-	var voci: Array[String] = []
-	for chiave in effetto:
-		var nome_chiave := String(chiave)
-		match nome_chiave:
-			"tipo":
-				continue
-			"cura_stato":
-				var definizione: Dictionary = GameState.stati.get(effetto[chiave], {})
-				voci.append("toglie " + String(definizione.get("nome", effetto[chiave])).to_lower())
-			"cura_stati":
-				voci.append("toglie ogni male")
-			"hp":
-				voci.append("+%d vita" % int(effetto[chiave]))
-			"aura":
-				voci.append("+%d aura" % int(effetto[chiave]))
-			"danno":
-				voci.append("%d danni al nemico" % int(effetto[chiave]))
-			_:
-				voci.append("%s %+d" % [etichetta_bonus(nome_chiave), int(effetto[chiave])])
-	if String(effetto.get("tipo", "")) == "scudo_primo_stato":
-		voci.append("respinge il primo male che ti prende")
-	if String(effetto.get("tipo", "")) == "resurrezione_dimezzata":
-		voci.append("ti rimette in piedi una volta")
-	return ", ".join(voci) if not voci.is_empty() else "nessun effetto"
-
-func titolo_sezione(genitore: VBoxContainer, testo: String) -> void:
-	var t := Label.new()
-	t.text = testo
-	t.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	t.add_theme_color_override("font_color", Stile.colore("accento"))
-	genitore.add_child(t)
-
-func voce_diario(genitore: VBoxContainer, etichetta: String, valore: String) -> void:
-	var riga := HBoxContainer.new()
-	riga.add_theme_constant_override("separation", 12)
-	genitore.add_child(riga)
-	var sinistra := Label.new()
-	sinistra.text = etichetta
-	sinistra.custom_minimum_size = Vector2(280, 0)
-	Stile.etichetta_piccola(sinistra)
-	riga.add_child(sinistra)
-	var destra := Label.new()
-	destra.text = valore
-	destra.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
-	riga.add_child(destra)
-
-func sezione_stato(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Stato")
-	var livello := GameState.livello_di(GameState.id_protagonista)
-	var xp_ora := int(GameState.xp.get(GameState.id_protagonista, 0))
-	voce_diario(genitore, "Livello", "%d  (%d / %d esperienza)" % [livello, xp_ora, GameState.fabbisogno_xp(livello)])
-	var tabella_stat: Dictionary = GameState.crescita.get("stat", {})
-	for chiave in tabella_stat:
-		var nome_stat := String(chiave)
-		var info: Dictionary = tabella_stat[chiave]
-		var guadagnati := int(GameState.punti_stat.get(nome_stat, 0))
-		var testo := str(GameState.stat_di(nome_stat))
-		if guadagnati > 0:
-			testo += "   (base %d + %d guadagnati)" % [GameState.stat_base_di(nome_stat), guadagnati]
-		voce_diario(genitore, String(info.get("nome", nome_stat)), testo)
-
-func sezione_crescita(genitore: VBoxContainer) -> void:
-	# la parte piu' utile del diario: non "quanto vali", ma COSA ti sta facendo
-	# crescere. Ogni riga dice quanto manca al prossimo punto di quella stat.
-	titolo_sezione(genitore, "Cosa ti sta cambiando")
-	var regole_crescita: Dictionary = GameState.crescita.get("crescita", {})
-	if regole_crescita.is_empty():
-		return
-	var tabella_stat: Dictionary = GameState.crescita.get("stat", {})
-	for chiave in regole_crescita:
-		var nome_azione := String(chiave)
-		var regola: Dictionary = regole_crescita[chiave]
-		var ogni := maxi(int(regola.get("ogni", 1)), 1)
-		var fatte := int(GameState.contatori.get(nome_azione, 0))
-		var nome_stat := String(regola.get("stat", ""))
-		var info_stat: Dictionary = tabella_stat.get(nome_stat, {})
-		var nome_leggibile := String(info_stat.get("nome", nome_stat))
-		voce_diario(genitore, etichetta_azione(nome_azione),
-				"%d / %d verso +%d %s" % [fatte % ogni, ogni, int(regola.get("punti", 1)), nome_leggibile])
-
-func etichetta_azione(nome_azione: String) -> String:
-	match nome_azione:
-		"attacchi_sferrati": return "Colpi che hai sferrato"
-		"danni_subiti": return "Danni che hai incassato"
-		"difese": return "Volte che hai tenuto la guardia"
-		"studi": return "Creature che hai studiato"
-		"fughe": return "Volte che sei scappato"
-		"oggetti_usati": return "Oggetti che hai usato"
-		"stanze_esplorate": return "Stanze che hai esplorato"
-		"stress_accumulato": return "Stress che hai retto"
-		"critici_inflitti": return "Colpi critici che hai messo a segno"
-		_: return nome_azione
-
-func sezione_passive(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Abilità passive")
-	if GameState.passive_sbloccate.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "Nessuna, per ora."
-		Stile.etichetta_piccola(vuoto)
-		genitore.add_child(vuoto)
-		return
-	for gruppo in ["passive_livello", "passive_soglia", "passive_rare"]:
-		var elenco: Array = GameState.crescita.get(gruppo, [])
-		for elemento in elenco:
-			var voce: Dictionary = elemento
-			if not GameState.ha_passiva(String(voce.get("id", ""))):
-				continue
-			voce_diario(genitore, String(voce.get("nome", "")), String(voce.get("descrizione", "")))
-
-func sezione_squadra(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Squadra")
-	voce_diario(genitore, "Legame", "%d / 100" % GameState.legame)
-	for id_classe in GameState.party:
-		if id_classe == GameState.id_protagonista:
-			continue
-		var definizione: Dictionary = GameState.classi.get(id_classe, {})
-		var nome := String(definizione.get("nome", id_classe))
-		var temporaneo := " (temporaneo)" if id_classe in GameState.alleati_temporanei else ""
-		voce_diario(genitore, nome + temporaneo, "Lv %d   ·   stress %d" % [
-			GameState.livello_di(id_classe), GameState.stress_di(id_classe)])
-
-func sezione_osservazioni(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Osservazioni")
-	voce_diario(genitore, "Creature studiate", "%d" % GameState.studiati.size())
-	voce_diario(genitore, "Creature incontrate", "%d" % GameState.bestiario.size())
-	voce_diario(genitore, "Oggetti catalogati", "%d / %d" % [
-		GameState.oggetti_catalogo.size(), GameState.oggetti.size()])
-	if GameState.resistenze_stato.is_empty():
-		return
-	for chiave in GameState.resistenze_stato:
-		var definizione: Dictionary = GameState.stati.get(chiave, {})
-		var nome := String(definizione.get("nome", chiave))
-		voce_diario(genitore, "Resistenza — " + nome, "+%d" % int(GameState.resistenze_stato[chiave]))
-
-func sezione_organizzazione(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Organizzazione")
-	voce_diario(genitore, "Fonti estinte", "%d" % GameState.fonti_estinte)
-	voce_diario(genitore, "Valutazione", valutazione_organizzazione())
-
-func valutazione_organizzazione() -> String:
-	# l'Organizzazione parla per gradi, non per percentuali: e' un giudizio,
-	# non una barra. Sale con le fonti estinte
-	match GameState.fonti_estinte:
-		0: return "In osservazione."
-		1: return "Prestazione conforme alle attese."
-		2: return "Rendimento soddisfacente."
-		3: return "Elemento affidabile."
-		_: return "Elemento di valore. Aspettative in aumento."

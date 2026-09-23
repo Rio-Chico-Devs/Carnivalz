@@ -173,7 +173,7 @@ static func riempi_dominio(combattente: Dictionary, motivo: String) -> int:
 
 static func segmenti_pieni(combattente: Dictionary) -> int:
 	var per_segmento := maxi(int(GameState.regole.get("dominio", {}).get("per_segmento", 100)), 1)
-	return int(combattente.get("dominio", 0)) / per_segmento
+	return floori(float(combattente.get("dominio", 0)) / per_segmento)
 
 static func colore_dominio(combattente: Dictionary) -> String:
 	var colori: Array = GameState.regole.get("dominio", {}).get("_colori", ["verde", "blu", "rossa"])

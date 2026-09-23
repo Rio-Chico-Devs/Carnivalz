@@ -78,7 +78,7 @@ static func voce_da_nome(nome: String) -> Dictionary:
 		# poco piu' di un'ottava e mezza di scelta: sotto diventa un rutto,
 		# sopra un fischio
 		"altezza": 200.0 + float(impronta % 26) * 14.0,
-		"forma": forme[(impronta / 26) % forme.size()],
+		"forma": forme[floori(impronta / 26.0) % forme.size()],
 	}
 
 static func blip(nome: String, dati_voce: Dictionary = {}) -> AudioStreamWAV:
@@ -125,6 +125,19 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			# tempo di chiederti se l'hai preso: cortissimo, e sale - un colpo
 			# che scende suonerebbe come un errore
 			return tono(1240.0, 0.055, "triangolo", 70.0, 0.26, 1760.0)
+		"sfiora":
+			# LA VOCE DI MENU SFIORATA: un tic, non una nota. Si sente decine di
+			# volte di fila, quindi e' il piu' corto e il piu' piano di tutti -
+			# un suono che si nota a ogni passaggio diventa un fastidio al decimo
+			return tono(1500.0, 0.028, "quadra", 110.0, 0.08, 1900.0)
+		"apertura":
+			# il menu che si apre: una spazzata in salita, come il pannello che
+			# arriva di lato
+			return tono(240.0, 0.16, "sega", 16.0, 0.16, 780.0)
+		"chiusura":
+			# la stessa spazzata al contrario, e piu' corta: l'uscita dura meno
+			# dell'entrata anche per l'orecchio
+			return tono(700.0, 0.11, "sega", 22.0, 0.14, 220.0)
 		"vetro":
 			return vetro()
 		_:

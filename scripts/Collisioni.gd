@@ -179,10 +179,10 @@ static func giudica(raffica: Array[Dictionary], indice: int, adesso: float) -> S
 		return ""
 	if adesso < float(pugno.istante) or adesso > float(pugno.scade):
 		return ""
-	var esito := "piena" if adesso >= float(pugno.get("piena_da", pugno.istante)) else "striscio"
+	var giudizio := "piena" if adesso >= float(pugno.get("piena_da", pugno.istante)) else "striscio"
 	pugno.parato = true
-	pugno.esito = esito
-	return esito
+	pugno.esito = giudizio
+	return giudizio
 
 static func para(raffica: Array[Dictionary], indice: int, adesso: float) -> bool:
 	# fermato, in un modo o nell'altro
@@ -217,10 +217,10 @@ static func parati(raffica: Array[Dictionary]) -> int:
 			quanti += 1
 	return quanti
 
-static func conta(raffica: Array[Dictionary], esito: String) -> int:
+static func conta(raffica: Array[Dictionary], quale: String) -> int:
 	var quanti := 0
 	for pugno in raffica:
-		if String(pugno.get("esito", "")) == esito:
+		if String(pugno.get("esito", "")) == quale:
 			quanti += 1
 	return quanti
 
