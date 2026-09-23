@@ -3751,6 +3751,8 @@
               "danno": 9
             },
             "bravura_automatica": 0.45,
+            "vita_minima": 1,
+            "_nota_vita_minima": "Bru: «finito il minigioco dovresti rimanere minimo con 1 di vita, poi parte il dialogo del colpo finale di Veronica che ti abbatte e si conclude tutto». Dodici pugni da 9 fanno 108 su 100: senza questo numero chi non ne parava abbastanza andava KO, Veronica lo rialzava, e la raffica ripartiva da capo.",
             "prima": [
               {
                 "tipo": "dialogo",
@@ -3796,7 +3798,8 @@
           },
           {
             "tipo": "narrazione",
-            "testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla."
+            "testo": "Veronica scatena il suo attacco speciale: Meteora di Atlante. Non c'è modo di schivarla.",
+            "abbatte": true
           },
           {
             "tipo": "notifica",
@@ -3882,6 +3885,27 @@
       "id": "curie",
       "nome": "Dott.ssa Curie Heartlife",
       "ritratto": "res://art/personaggi/curie.png"
+    },
+    {
+      "id": "reika",
+      "nome": "Dr. Reika",
+      "ritratto": "res://art/personaggi/reika.png",
+      "_nota": "La dottoressa dell'infermeria, dal testo di Bru: ti rimette in piedi dopo l'allenamento con Veronica, e ti ci ritrovi se torni a trovarla. Nel risveglio parla prima come ??? (ignoto): la voce arriva prima del nome, come per Veronica. Il ritratto non c'e' ancora: finche' manca, l'iniziale."
+    },
+    {
+      "id": "soldato_uno",
+      "nome": "Primo soldato",
+      "_nota": "Uno dei due soldati che chiacchierano in sala di allenamento il pomeriggio dopo l'infermeria. Bru li chiama «soldato 1» e «soldato 2». Niente ritratto: sono comparse, e la conversazione si ascolta una volta sola."
+    },
+    {
+      "id": "soldato_due",
+      "nome": "Secondo soldato",
+      "_nota": "Il secondo dei due soldati della sala di allenamento (vedi soldato_uno)."
+    },
+    {
+      "id": "computer",
+      "nome": "Computer",
+      "_nota": "Il canale della sala comunicazioni che si apre: prima di chi parla, ronza. Come l'altoparlante non ha ritratto - e' la macchina, non qualcuno."
     },
     {
       "id": "figura_misteriosa",

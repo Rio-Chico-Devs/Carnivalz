@@ -465,20 +465,36 @@ solo le proprie eccezioni esplicite, tutto il resto resta neutro):
 ```
 introduzione
  └─ sala_allenamento ─ Veronica ─ combattimento ─ «Collisioni infinite»
-     └─ infermeria_risveglio          la dottoressa; da qui la mappa è tutta visibile
-         └─ sala_comunicazioni → comunicazioni_ordini      gli ordini, il data pad
-             └─ data_pad_istruzioni   le sue parti, una per una
-                 │                    Messaggi: 3000 tazo di quota di benvenuto
-                 └─ missione: «recarsi alla sala di proiezione»
-                     └─ sala_proiezione → proiezione_veronica
-                         │   Veronica insegna la procedura, la guida si presenta,
-                         │   Veronica le mette la skin di Bobo Bunny e il conto va a zero
-                         └─ FLASH → prima missione (events_tutorial.json)
+     │                 la raffica ti lascia almeno a 1; la Meteora di Atlante ti abbatte
+     └─ infermeria_risveglio          la Dr. Reika; da qui la mappa è tutta visibile
+         │
+         │  il pomeriggio, stanza per stanza (ognuna ha la sua scena "_pomeriggio"):
+         │    infermeria        la Dr. Reika di nuovo: tre domande (infermeria_reika)
+         │    sala allenamento  due soldati: «vuoi ascoltare?» — una volta sola,
+         │                      e solo prima della convocazione (Tetra Gamma, la squadra Kilo)
+         │    alloggio          «Niente di nuovo...»
+         │    mensa, archivio, hangar, sala di proiezione: solo «Osserva la scena»
+         │
+         └─ sala_comunicazioni → comunicazioni_convocazione   «Aprire il canale?» sì / no
+             └─ comunicazioni_ordini   il computer, la figura della prima volta, gli ordini
+                 └─ data_pad_istruzioni   le sue parti, una per una
+                     │                    Messaggi: 3000 tazo di quota di benvenuto
+                     └─ missione: «recarsi alla sala di proiezione»
+                         └─ sala_proiezione → proiezione_veronica
+                             │   Veronica insegna la procedura, la guida si presenta,
+                             │   Veronica le mette la skin di Bobo Bunny e il conto va a zero
+                             ├─ la mappa stellare, con sopra una frattura sola:
+                             │  le Pianure di Redenna. La scegli tu
+                             └─ proiezione_partenza → FLASH → prima missione (events_tutorial.json)
 ```
 
 Il **punto esclamativo** ha tre tappe, ed è l'unica cosa che dice dove andare:
 palestra la mattina → sala comunicazioni al risveglio → sala di proiezione
 quando il data pad ha finito di spiegarsi.
+
+Le **descrizioni delle stanze del pomeriggio** (mensa, archivio, hangar, sala di
+proiezione, la sala vuota dopo i soldati) sono mie e provvisorie: Bru ha chiesto
+«solo osserva la scena», il testo della scena va scritto da lui.
 
 ### I 3000 tazo
 

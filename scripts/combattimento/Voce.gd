@@ -101,6 +101,10 @@ func accoda_effetto(effetto: Callable) -> void:
 func accoda(riga: String, tipo: String, chi: String, forte: bool, effetto := Callable()) -> void:
 	if riga.strip_edges() == "":
 		return
+	# MASCHILE O FEMMINILE ANCHE QUI. Tutto quello che lo scontro dice passa da
+	# questa porta, e fino a ieri era l'unica che non accordava: il box scriveva
+	# «Ti sei per caso {addormentato|addormentata}?» cosi', graffe comprese
+	riga = Testi.accorda(riga, GameState.sesso_protagonista)
 	coda.append({
 		"tipo": tipo, "chi": chi, "testo": riga, "forte": forte, "effetto": effetto,
 	})

@@ -115,7 +115,8 @@ static func riga_appunto(voce: Dictionary) -> Control:
 	corpo.fit_content = true
 	corpo.scroll_active = false
 	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	corpo.text = "[i]%s[/i]" % String(voce.get("testo", ""))
+	# gli appunti li pensa il protagonista: si accordano come le sue battute
+	corpo.text = "[i]%s[/i]" % Testi.accorda(String(voce.get("testo", "")), GameState.sesso_protagonista)
 	corpo.add_theme_color_override("default_color", Stile.colore("narrazione"))
 	corpo.add_theme_font_size_override("normal_font_size", Stile.dimensione("piccolo"))
 	corpo.add_theme_font_size_override("italics_font_size", Stile.dimensione("piccolo"))

@@ -126,7 +126,16 @@ func prepara(quale: String) -> void:
 				"nuova": schermo.pagina_nuova()
 				"carica": schermo.pagina_carica()
 				"chi_sei": schermo.pagina_chi_sei(1)
+				"anonimo":
+					# la domanda sul nome vuoto, aperta come la apre COMINCIA
+					schermo.pagina_chi_sei(1)
+					schermo.al_via = func() -> void: pass
+					await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+					schermo.comincia()
 				"come": schermo.pagina_come_si_gioca()
+				"come_storia": schermo.pagina_come_si_gioca("STORIA")
+				"come_scontro": schermo.pagina_come_si_gioca("COMBATTIMENTO")
+				"come_mosse": schermo.pagina_come_si_gioca("MOSSE SPECIALI")
 				"opzioni": schermo.pagina_opzioni()
 				"audio": schermo.pagina_opzioni_di("Audio")
 				"grafica": schermo.pagina_opzioni_di("Grafica")
@@ -158,6 +167,34 @@ func prepara(quale: String) -> void:
 				"storico": Pausa.mostra_storico()
 				"uscita": Pausa.conferma_uscita()
 				_: Pausa.mostra_diario()
+		"nodo":
+			# UN NODO VERO DI events_intro, portato avanti di N clic: "nodo
+			# infermeria_risveglio 12" fotografa la dodicesima battuta. Con
+			# "fine" al posto del numero si clicca finche' non ci sono le scelte
+			var argomenti_nodo := OS.get_cmdline_user_args()
+			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+			GameState.imposta_flag("rientro_infermeria")
+			GameState.nodo_corrente = String(argomenti_nodo[1]) if argomenti_nodo.size() > 1 else "infermeria_risveglio"
+			IngressoNodo.ultimo_esito = {}
+			var dialogo: Node = load("res://scenes/Main.tscn").instantiate()
+			add_child(dialogo)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			var quanti := String(argomenti_nodo[2]) if argomenti_nodo.size() > 2 else "0"
+			var clic := 0
+			while clic < (400 if quanti == "fine" else int(quanti)):
+				if quanti == "fine" and dialogo.contenitore_scelte.get_child_count() > 0 \
+						and dialogo.coda_messaggi.is_empty():
+					break
+				# un clic completa la frase, il secondo va avanti: come un giocatore
+				dialogo._su_avanza()
+				await attendi(2)
+				dialogo._su_avanza()
+				await attendi(2)
+				clic += 1
+		"mappa_prima":
+			# la mappa stellare aperta da Veronica: solo la prima missione
+			MappaStellare.missione_da_scegliere = "proiezione_partenza"
+			add_child(load("res://scenes/Mappa.tscn").instantiate())
 		"scelte":
 			await apri_dialogo(nodo_di_prova())
 		"nastro":

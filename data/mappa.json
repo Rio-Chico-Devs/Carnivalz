@@ -2,6 +2,14 @@
 	"sfondo": "res://art/mappa.png",
 	"punti": [
 		{
+			"id": "tutorial",
+			"nome": "Pianure di Redenna",
+			"_nota": "La prima missione, e la sola frattura sulla mappa quando la apre Veronica in sala di proiezione. Bru: «nella mappa dovrebbe essere presente solo quella frattura». Non si vede in nessun altro momento: la sceglie la proiezione, e dopo e' storia (vedi Mappa.gd).",
+			"pos": [520, 360],
+			"attivo": true,
+			"prima_missione": true
+		},
+		{
 			"id": "carnivalz_del_bosco",
 			"nome": "Il Vuoto Ardente",
 			"tema": "fama e spettacolo — passione, corrida, fiamme",

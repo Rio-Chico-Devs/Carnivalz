@@ -1342,9 +1342,14 @@ func _minigioco_finito(esito: Dictionary) -> void:
 			bool(detto.get("forte", false)))
 	var danno := int(esito.get("danno", 0))
 	if danno > 0 and not vittima.is_empty() and int(vittima.get("hp", 0)) > 0:
+		# un passo puo' dire quanto ti lascia in piedi: senza, 108 su 100 era un
+		# KO, Veronica ti rialzava e la raffica ripartiva da capo, senza uscita
+		if passo.has("vita_minima"):
+			danno = mini(danno, maxi(int(vittima.hp) - int(passo["vita_minima"]), 0))
 		vittima.hp = maxi(int(vittima.hp) - danno, 0)
-		registra_danno_subito(vittima, danno)
-		mostra_colpo(vittima, danno, "")
+		if danno > 0:
+			registra_danno_subito(vittima, danno)
+			mostra_colpo(vittima, danno, "")
 		if int(vittima.hp) <= 0:
 			_su_ko(vittima)
 			return   # da terra il passo non si chiude: lo riapre chi ti rialza
@@ -1481,9 +1486,15 @@ func concludi_tutorial() -> void:
 	# e da adesso, a chi ricomincia, la lezione si puo' saltare
 	Impostazioni.allenamento_gia_fatto = true
 	Impostazioni.salva()
+	# il colpo cade sulla battuta che lo racconta ("abbatte"), non in fondo
+	var abbattuto := false
 	for msg in tutorial.get("finale", []):
 		scrivi_messaggio_tutorial(msg)
-	sconfitta_scriptata()
+		if bool((msg as Dictionary).get("abbatte", false)) and not abbattuto:
+			abbattuto = true
+			sconfitta_scriptata()
+	if not abbattuto:
+		sconfitta_scriptata()
 
 func si_puo_saltare_la_lezione() -> bool:
 	# SOLO A CHI L'HA GIA' FATTA. Su questo la ricerca e' concorde e non dipende
@@ -2862,7 +2873,12 @@ func sconfitta_scriptata() -> void:
 	for vittima in vittime:
 		var caduta := vittima
 		voce.accoda_effetto(func() -> void: aggiorna_scheda(caduta))
-	if not vittime.is_empty():
+	if not tutorial.is_empty() and tutorial_finito:
+		# L'ALLENAMENTO FINISCE CON LE PAROLE DEL SUO COPIONE: «Anonimo e' a terra»
+		# e «Il disallineamento ha vinto» ripetevano il KO appena detto, e con la
+		# voce di una partita persa
+		in_corso = false
+	elif not vittime.is_empty():
 		_su_ko(vittime[0])
 
 func gestisci_turno_frenesia(nemico: Dictionary) -> void:
@@ -4138,13 +4154,23 @@ func effetto_colpo(bersaglio: Dictionary, danno: int, elemento := "", critico :=
 	var tinta := Stile.colore_colpo(elemento, tipo_colpo, critico)
 	var testo := ImpattoCombattimento.testo_del_numero(danno, critico, efficacia)
 	var vita_massima := int(bersaglio.get("hp_max", 1))
+	var vita_allora := int(bersaglio.hp)
 	return func() -> void:
 		voce.suono("colpo")
 		voce.numero_volante(scheda, testo, tinta, critico)
 		if vivo:
 			voce.lampeggia(scheda, tinta)
 		impatto.colpo(scheda_attaccante, scheda, danno, vita_massima, critico)
-		aggiorna_scheda(bersaglio)
+		mostra_vita_di_allora(bersaglio, vita_allora)
+
+func mostra_vita_di_allora(chi: Dictionary, vita_allora: int) -> void:
+	# LA BARRA DICE LA VITA DI QUEL COLPO, non quella di adesso: dopo la raffica
+	# segnava 0 invece di 1, perche' la Meteora raccontata dopo l'aveva gia'
+	# tolta. Scambio e ripristino nello stesso istante: nessuno vede il valore
+	var adesso := int(chi.hp)
+	chi.hp = vita_allora
+	aggiorna_scheda(chi)
+	chi.hp = adesso
 
 func rimetti_in_piedi(chi: Dictionary, quanto: int) -> int:
 	# TUTTA la vita che una creatura si rimette addosso passa di qui: la mossa
@@ -4569,8 +4595,12 @@ func decidi_faccia() -> void:
 	# sentiva il rumore del testo e non si leggeva una riga
 	if fase_governa_il_tempo():
 		# una fase sola alla volta, e il pannello e' suo: il box quando si
-		# racconta, il menu quando tocca a te. Niente piu' due padroni
-		plancia.mostra_faccia("parlato" if fase_adesso() == "racconto"
+		# racconta, il menu quando tocca a te. E a scontro CHIUSO si racconta lo
+		# stesso: la Meteora e «Vittoria.» scorrevano dietro al menu, e Bru
+		# cliccava «a caso» un testo che non vedeva
+		var racconta := fase_adesso() == "racconto" or (fase_adesso() == "chiuso"
+				and (not voce.coda.is_empty() or voce.sta_facendo_leggere))
+		plancia.mostra_faccia("parlato" if racconta
 				else (menu.modo if menu != null else "comandi"))
 		return
 	plancia.mostra_faccia(PlanciaCombattimento.faccia_da_mostrare(

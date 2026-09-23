@@ -124,7 +124,7 @@ A destra, fra parentesi, cosa comporta:
 
 # Introduzione
 
-<sub>`data/events_intro.json` — 16 scene</sub>
+<sub>`data/events_intro.json` — 31 scene</sub>
 
 ## La griglia
 
@@ -139,26 +139,49 @@ A destra, fra parentesi, cosa comporta:
 | **Infermeria** | `620, 120, 280, 200` |  |
 | **Archivio** | `180, 760, 280, 190` |  |
 | **Sala comunicazioni** | `620, 760, 420, 190` | obiettivo |
-| **Sala di proiezione** | `1300, 760, 320, 190` |  |
+| **Sala di proiezione** | `1300, 760, 320, 190` | obiettivo |
 | **Hangar** | `1520, 140, 280, 420` |  |
 
 8 stanze sulla mappa, 1 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `comunicazioni_ordini`, `infermeria_risveglio`, `introduzione`, `monologo`, `punto_non_sbloccato`, `veronica_animo`, `veronica_carica`, `veronica_maldiptesta`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `alloggio_pomeriggio`, `archivio_pomeriggio`, `comunicazioni_convocazione`, `comunicazioni_ordini`, `data_pad_istruzioni`, `hangar_pomeriggio`, `infermeria_reika`, `infermeria_risveglio`, `introduzione`, `mensa_pomeriggio`, `proiezione_partenza`, `proiezione_veronica`, `reika_congedo`, `reika_missione`, `reika_organizzazione`, `sala_allenamento_soldati`, `sala_allenamento_vuota`, `sala_comunicazioni_dopo`, `sala_proiezione_pomeriggio`, `soldati_conversazione`, `veronica_animo`, `veronica_carica`, `veronica_maldiptesta`.
 
 ## Il percorso
 
 ```
 introduzione
   · … → alloggio
-    · Esci dalla stanza
+    ⟳ con rientro_infermeria diventa alloggio_pomeriggio
+    alloggio_pomeriggio
+      · Esci dalla stanza
+    · Esci dalla stanza → sala_allenamento
+      ⟳ con soldati_passati diventa sala_allenamento_vuota
+      sala_allenamento_vuota
+        · Torna alla mappa
+      ⟳ con ordini_ricevuti diventa sala_allenamento_vuota
+       → sala_allenamento_vuota [gia' visto]
+      ⟳ con rientro_infermeria diventa sala_allenamento_soldati
+      sala_allenamento_soldati   (flag soldati_passati)
+        · Sì → soldati_conversazione   (flag tetra_gamma_sentito)
+          · Torna alla mappa
+        · No
+      · Sì. → veronica_carica   (scontro! veronica)
+        vinci → infermeria_risveglio   (flag rientro_infermeria)
+          · Esci dall'infermeria
+        perdi → infermeria_risveglio [gia' visto]
+      · ... → veronica_animo   (scontro! veronica)
+        vinci → infermeria_risveglio [gia' visto]
+        perdi → infermeria_risveglio [gia' visto]
+      · Oggi mi fa male la testa... → veronica_maldiptesta   (scontro! veronica)
+        vinci → infermeria_risveglio [gia' visto]
+        perdi → infermeria_risveglio [gia' visto]
 ```
 
 ---
 
 # Pianure di Redenna (tutorial)
 
-<sub>`data/events_tutorial.json` — 26 scene</sub>
+<sub>`data/events_tutorial.json` — 30 scene</sub>
 
 ## La griglia
 
@@ -172,7 +195,7 @@ introduzione
 
 6 stanze sulla mappa, 6 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `boss`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `dopo_pozze`, `dopo_primo_goblin`, `due_nemici`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `pozze_ripulite`, `primo_incontro`, `sconfitta`, `sconfitta_manifestazione`, `vittoria`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `boss`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `dopo_pozze`, `dopo_primo_goblin`, `due_nemici`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `pozze_ripulite`, `primo_incontro`, `ritorno_alla_base`, `ritorno_disponibile`, `ritorno_istruzioni`, `ritorno_rimandato`, `sconfitta`, `sconfitta_manifestazione`, `vittoria`.
 
 ## Il percorso
 
@@ -182,16 +205,17 @@ inizio
     ⟳ con tut_primo_goblin diventa dopo_primo_goblin
     dopo_primo_goblin   (flag tut_primo_goblin)
       · Continua per la tua strada → masso
-        · Ispeziona l'acqua che luccica → due_nemici   (+fiala_hp, fiala_hp; scontro! goblin_tipico, slime_infimo)
+        · Ispeziona l'acqua che luccica → due_nemici   (+fiala_hp, fiala_hp; scontro! goblin_tipico)
           ⟳ con tut_radura_superata diventa bivio
           bivio   (flag tut_radura_superata)
-            · Procedi verso le pozze d'acqua → pozze   (scontro! goblin_tipico, tartaruga_innocente)
+            · Procedi verso le pozze d'acqua → pozze   (scontro! goblin_tipico)
               ⟳ con tut_pozze_fatte diventa pozze_ripulite
               pozze_ripulite
                 · Attraversa gli arbusti → convergenza   (flag tut_strada_aperta)
-                  · Scatta verso i rumori → boss   (scontro! goblin_arrabbiato)
-                    vinci → vittoria
-                      · Torna al quartier generale → hq_veronica_saluto
+                  ⟳ con pianure_compiute diventa ritorno_disponibile
+                  ritorno_disponibile
+                    · Sì, torno alla base → ritorno_alla_base
+                      · Scendi dalla piattaforma → hq_veronica_saluto
                         · Vai in sala riunioni → hq_sala_riunioni_1
                           · Passa in infermeria → hq_infermeria
                             · Vai in sala riunioni → hq_sala_riunioni_2
@@ -212,6 +236,12 @@ inizio
                               · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
                               · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
                               · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
+                    · No, voglio dare ancora un'occhiata → ritorno_rimandato
+                  · Scatta verso i rumori → boss   (scontro! goblin_arrabbiato)
+                    vinci → vittoria   (flag pianure_compiute)
+                      · Apri il data pad → ritorno_istruzioni   (flag sa_tornare)
+                        · Sì, torno alla base → ritorno_alla_base [gia' visto]
+                        · No, voglio dare ancora un'occhiata → ritorno_rimandato [gia' visto]
                     perdi → sconfitta
                       · Rialzati e ricomincia
                   · Torna alla collina → collina   (flag tut_collina_vista; scontro! manifestazione_di_un_sogno)
@@ -645,8 +675,8 @@ varco
                           fuori_struttura_dopo
                             · Torna ai complessi di edifici → complessi [gia' visto]
                             · Rientra nella struttura → struttura [gia' visto]
-                          vinci → dopo_infetto   (scontro! zombie_cittadino, zombie_cittadino, zombie_cittadino)
-                            vinci → seconda_ondata   (scontro! zombie_cittadino, zombie_cittadino, zombie_cittadino)
+                          vinci → dopo_infetto   (scontro! zombie_cittadino)
+                            vinci → seconda_ondata   (scontro! zombie_cittadino)
                               vinci → dopo_ondate   (flag mer_agguato_battuto)
                                 · Torna ai complessi di edifici → complessi [gia' visto]
                                 · Rientra nella struttura → struttura [gia' visto]
@@ -727,7 +757,7 @@ varco
       · Fruga tra i sacchi marci   (+25 Tazo)
       · Recupera una fiala intatta tra le macerie   (+fiala_hp)
       · Scendi verso la sala del lamento → sala_del_lamento
-        · Raccogli le pergamene → lamento_imboscata   (+pergamene_incomprensibili; solo se non oss_lamento_superato; scontro! ghoul, sacerdote_folle)
+        · Raccogli le pergamene → lamento_imboscata   (+pergamene_incomprensibili; solo se non oss_lamento_superato; scontro! ghoul)
           vinci → dopo_lamento   (flag oss_lamento_superato; checkpoint)
             · Prendi il ciondolo strappato al sacerdote   (+ciondolo_del_grande_viaggio)
             · Prosegui più a fondo nei cunicoli → cunicolo_1

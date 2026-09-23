@@ -196,7 +196,22 @@
           "testo": "Oggi mi fa male la testa...",
           "vai": "veronica_maldiptesta"
         }
-      ]
+      ],
+      "vai_se_flag": [
+        {
+          "flag": "soldati_passati",
+          "vai": "sala_allenamento_vuota"
+        },
+        {
+          "flag": "ordini_ricevuti",
+          "vai": "sala_allenamento_vuota"
+        },
+        {
+          "flag": "rientro_infermeria",
+          "vai": "sala_allenamento_soldati"
+        }
+      ],
+      "_nota_pomeriggio": "Il pomeriggio la sala non e' piu' l'allenamento: prima questa stanza non aveva nessuna regola, e rientrandoci dalla mappa si rigiocava tutta la scena di Veronica - combattimento compreso."
     },
     "veronica_carica": {
       "sequenza": [
@@ -317,7 +332,11 @@
           "vai": "sala_allenamento"
         }
       ],
-      "_nota_uscita": "Usciva sulla MAPPA, e quella era la prima schermata di mappa della partita: un attrezzo mai presentato, con sopra un punto esclamativo che ti teletrasporta. Adesso esce dove esce il racconto - in palestra - e la mappa arriva quando ha un senso averla."
+      "_nota_uscita": "Usciva sulla MAPPA, e quella era la prima schermata di mappa della partita: un attrezzo mai presentato, con sopra un punto esclamativo che ti teletrasporta. Adesso esce dove esce il racconto - in palestra - e la mappa arriva quando ha un senso averla.",
+      "vai_se_flag": {
+        "flag": "rientro_infermeria",
+        "vai": "alloggio_pomeriggio"
+      }
     },
     "infermeria": {
       "_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
@@ -331,7 +350,7 @@
       "_chiusa_per_ora": "Aperta piu' avanti, quando ci finirai dentro.",
       "vai_se_flag": {
         "flag": "rientro_infermeria",
-        "vai": "punto_non_sbloccato"
+        "vai": "infermeria_reika"
       }
     },
     "archivio": {
@@ -346,7 +365,7 @@
       "_chiusa_per_ora": "Serve un'autorizzazione che il protagonista non ha ancora.",
       "vai_se_flag": {
         "flag": "rientro_infermeria",
-        "vai": "punto_non_sbloccato"
+        "vai": "archivio_pomeriggio"
       }
     },
     "mensa": {
@@ -361,7 +380,7 @@
       "_chiusa_per_ora": "Arredamento del complesso: esiste perche' un posto dove si vive abbia anche dove si mangia.",
       "vai_se_flag": {
         "flag": "rientro_infermeria",
-        "vai": "punto_non_sbloccato"
+        "vai": "mensa_pomeriggio"
       }
     },
     "sala_proiezione": {
@@ -381,7 +400,7 @@
         },
         {
           "flag": "rientro_infermeria",
-          "vai": "punto_non_sbloccato"
+          "vai": "sala_proiezione_pomeriggio"
         }
       ]
     },
@@ -397,7 +416,7 @@
       "_chiusa_per_ora": "Non e' mai stato aperto e per ora non lo sara'.",
       "vai_se_flag": {
         "flag": "rientro_infermeria",
-        "vai": "punto_non_sbloccato"
+        "vai": "hangar_pomeriggio"
       }
     },
     "sala_comunicazioni": {
@@ -410,24 +429,19 @@
         }
       ],
       "_chiusa_per_ora": "Ci si entra nel tutorial, al ritorno dalla prima missione. Oggi e' solo un rettangolo sulla mappa.",
-      "vai_se_flag": {
-        "flag": "rientro_infermeria",
-        "vai": "comunicazioni_ordini"
-      }
-    },
-    "punto_non_sbloccato": {
-      "_nota": "Bru: «nei punti non sbloccati il protagonista dirà semplicemente: dovrei recarmi presso il prossimo punto d'interesse... sempre se ce ne sono». Una riga sola per tutte le porte chiuse: la mattina ogni stanza aveva la sua frase, adesso che la mappa è tutta aperta le frasi diverse suonerebbero come sette promesse invece che come sette porte chiuse.",
-      "espulsione_automatica": true,
-      "sequenza": [
+      "vai_se_flag": [
         {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Dovrei recarmi presso il prossimo punto d'interesse... sempre se ce ne sono."
+          "flag": "ordini_ricevuti",
+          "vai": "sala_comunicazioni_dopo"
+        },
+        {
+          "flag": "rientro_infermeria",
+          "vai": "comunicazioni_convocazione"
         }
       ]
     },
     "infermeria_risveglio": {
-      "_nota": "Il testo è di Bru, parola per parola. Qui finisce l'allenamento e comincia la giornata vera: da qui la mappa è tutta visibile e il punto esclamativo si è spostato sulla sala comunicazioni.",
+      "_nota": "Il testo è di Bru, parola per parola: il risveglio con la Dr. Reika. Ritocchi: l'accordo maschile/femminile («Ben svegliato caro», «conciato», «signorino», «ridotto», «convocato»), le maiuscole a inizio battuta e due refusi (rindontante, perchè). La dottoressa parla prima come ??? - la voce arriva prima del nome, come per Veronica - e diventa lei quando il protagonista la riconosce. Da qui la mappa è tutta visibile e il punto esclamativo si è spostato sulla sala comunicazioni.",
       "sfondo": "res://art/scene/infermeria.png",
       "flag": "rientro_infermeria",
       "sblocca_stanze": [
@@ -442,8 +456,85 @@
       ],
       "sequenza": [
         {
-          "tipo": "narrazione",
-          "testo": "Il soffitto dell'infermeria. Non ricordi di esserci arrivat{o|a}."
+          "tipo": "titolo",
+          "testo": "Infermeria"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "... hnn..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "ignoto",
+          "testo": "Hm?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "ignoto",
+          "testo": "Ben {svegliato caro|svegliata cara}!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "... Dr. Reika?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "La sola e unica!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Sono {stato conciato|stata conciata} parecchio male eh?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Tipico di Veronica... quella ragazza deve imparare a contenere il suo spirito o uno di questi giorni potrei non essere in grado di curare le vostre ferite completamente..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Mi raccomando! Andateci sempre piano con gli allenamenti! Capisco che le tute d'allenamento attutiscano i danni e vi aiutino a dare il massimo in sicurezza, ma gli eccessi sono pur sempre eccessi!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Ma io..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Non voglio sentire scuse {signorino|signorina}, la prossima volta che ti vedo {ridotto|ridotta} così vi dovrò fare una bella lavata di capo!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "(Ma non me la sta facendo già ora?)",
+          "espr": "pensiero"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "(Ma poi perché devo subirmela io la ramanzina, è Veronica che non si sa trattenere...)",
+          "espr": "pensiero"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Senti, parlando di cose più serie... Mi hanno comunicato di avvisarti che sei {stato convocato|stata convocata} nella sala dai piani alti... penso che abbiano pronta la tua prima missione..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "... Non perdono certo tempo..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Sai, forse rischio di sembrarti ridondante... Ma per favore... fai attenzione."
         },
         {
           "tipo": "dialogo",
@@ -452,66 +543,21 @@
         },
         {
           "tipo": "dialogo",
-          "chi": "curie",
-          "testo": "Ben {svegliato|svegliata}!"
+          "chi": "reika",
+          "testo": "Non sempre le cose vanno per il verso giusto in missione... a volte, quello che sembra essere un pericolo di basso livello può rivelarsi molto peggio di quanto tu ti possa aspettare..."
         },
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "..."
+          "testo": "Ti ringrazio, farò attenzione."
         },
         {
           "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Adesso la testa mi fa ancora più male..."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "curie",
-          "testo": "Su su, sai che gli allenamenti con Veronica sono sempre così, ormai preparo sempre il tuo letto quando so che dovete allenarvi!"
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Mi sento già in forze nonostante il mal di testa..."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "curie",
-          "testo": "Ovviamente, con chi credi di avere a che fare, grazie alle mie amorevoli cure chiunque riesce a rimettersi in piedi in tempo record."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Le tue abilità sarebbero comodissime in combattimento."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "curie",
-          "testo": "Sai che non mi piace la violenza. Non ce la farei mai a fare il vostro lavoro... ma potete sempre venire a trovarmi qui per mettere qualche cerotto ben piazzato!"
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "..."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "curie",
-          "testo": "Comunque... dovresti andare nella sala di comunicazione, ho sentito dire che hanno già pronta la tua prima missione per quando ti sarai {finito|finita} di riprendere..."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Immaginavo. Allora vado... grazie ancora per le cure."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "curie",
-          "testo": "Di nulla, mi trovi qui se hai bisogno!"
+          "chi": "reika",
+          "testo": "Buona fortuna..."
         }
       ],
-      "destra": "curie",
+      "destra": "reika",
       "scelte": [
         {
           "testo": "Esci dall'infermeria",
@@ -522,24 +568,334 @@
       "stanza": "infermeria",
       "_nota_stanza": "La scelta dichiara 'stanza': \"infermeria\" perche' questo nodo NON e' una stanza della planimetria - la stanza si chiama 'infermeria', questo e' il risveglio dentro di essa. Senza, la mappa si apriva con zero vicini: disegnata, aperta, e con niente da premere, proprio nel momento in cui il complesso si apre al giocatore."
     },
+    "infermeria_reika": {
+      "_nota": "Il testo è di Bru: «nell'infermeria ritroverai la dr, se ci parli rientri una seconda volta». Tre domande: le prime due tornano alle domande, la terza saluta. Si puo' tornare quante volte si vuole: lei chiede ogni volta se hai dimenticato qualcosa.",
+      "sfondo": "res://art/scene/infermeria.png",
+      "stanza": "infermeria",
+      "destra": "reika",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Hey ciao di nuovo, hai dimenticato qualcosa?"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Volevo chiederti cosa ne pensi dell'organizzazione",
+          "vai": "reika_organizzazione"
+        },
+        {
+          "testo": "Sei mai andata in missione?",
+          "vai": "reika_missione"
+        },
+        {
+          "testo": "Mi sono {sbagliato|sbagliata}, vado.",
+          "vai": "reika_congedo"
+        }
+      ]
+    },
+    "reika_organizzazione": {
+      "sfondo": "res://art/scene/infermeria.png",
+      "stanza": "infermeria",
+      "destra": "reika",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "... In realtà non mi ci sono mai soffermata molto... qui c'è sempre del lavoro da fare, quindi sono piuttosto occupata per poter pensarci su... hmm..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "No, non saprei proprio cosa risponderti!"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Volevo chiederti cosa ne pensi dell'organizzazione",
+          "vai": "reika_organizzazione"
+        },
+        {
+          "testo": "Sei mai andata in missione?",
+          "vai": "reika_missione"
+        },
+        {
+          "testo": "Mi sono {sbagliato|sbagliata}, vado.",
+          "vai": "reika_congedo"
+        }
+      ]
+    },
+    "reika_missione": {
+      "sfondo": "res://art/scene/infermeria.png",
+      "stanza": "infermeria",
+      "destra": "reika",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "... Sì..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Però forse questo non è il momento migliore per parlarne hoho, sono piuttosto occupata!"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Volevo chiederti cosa ne pensi dell'organizzazione",
+          "vai": "reika_organizzazione"
+        },
+        {
+          "testo": "Sei mai andata in missione?",
+          "vai": "reika_missione"
+        },
+        {
+          "testo": "Mi sono {sbagliato|sbagliata}, vado.",
+          "vai": "reika_congedo"
+        }
+      ]
+    },
+    "reika_congedo": {
+      "sfondo": "res://art/scene/infermeria.png",
+      "stanza": "infermeria",
+      "destra": "reika",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "reika",
+          "testo": "Prenditi cura di te tesoro!"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Esci dall'infermeria",
+          "torna_a_mappa": true,
+          "stanza": "infermeria"
+        }
+      ]
+    },
+    "alloggio_pomeriggio": {
+      "_nota": "Bru: «se vai nella tua stanza niente di nuovo». La descrizione della scena e' mia, provvisoria.",
+      "sfondo": "res://art/scene/alloggio.png",
+      "stanza": "alloggio",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Niente di nuovo..."
+        }
+      ],
+      "scena": "La tua stanza, come l'hai lasciata stamattina.",
+      "scelte": [
+        {
+          "testo": "Esci dalla stanza",
+          "torna_a_mappa": true,
+          "stanza": "alloggio"
+        }
+      ]
+    },
+    "sala_allenamento_soldati": {
+      "_nota": "Bru: «se vai in sala di allenamento troverai due soldati che parlano fra di loro: vuoi ascoltare la conversazione? si no, se non la ascolti perdi l'occasione, questa conversazione è valida solo in questo frangente». L'occasione si chiude ENTRANDO ('soldati_passati' sul nodo, non sulle risposte): anche uscire dalla mappa senza rispondere vuol dire non averla ascoltata. E la finestra si chiude pure con la convocazione ('ordini_ricevuti'): dopo, i due non ci sono piu'.",
+      "sfondo": "res://art/scene/sala_allenamento.png",
+      "stanza": "sala_allenamento",
+      "flag": "soldati_passati",
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Due soldati stanno parlando fra di loro."
+        },
+        {
+          "tipo": "narrazione",
+          "testo": "Vuoi ascoltare la conversazione?"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Sì",
+          "vai": "soldati_conversazione"
+        },
+        {
+          "testo": "No",
+          "torna_a_mappa": true,
+          "stanza": "sala_allenamento"
+        }
+      ]
+    },
+    "soldati_conversazione": {
+      "_nota": "Il testo è di Bru. Ritocchi: le maiuscole dei nomi (Tetra Gamma, la squadra Kilo), «commandante», e il «Si» che risponde è «Sì». Alza 'tetra_gamma_sentito': la storia della squadra Kilo tornera'.",
+      "sfondo": "res://art/scene/sala_allenamento.png",
+      "stanza": "sala_allenamento",
+      "flag": "tetra_gamma_sentito",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "soldato_uno",
+          "testo": "Hai sentito cosa è successo in Tetra Gamma?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "soldato_due",
+          "testo": "Sì, è incredibile che si sia perso il contatto con la squadra Kilo, il loro comandante è una leggenda da queste parti..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "soldato_uno",
+          "testo": "Dicono che la frattura si sia chiusa all'improvviso e sia impossibile riallinearsi... non era mai successo prima..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "soldato_due",
+          "testo": "L'organizzazione se ne sta occupando, sono sicuro che li ritroveranno e poi sono sicuro che ce la faranno."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "soldato_uno",
+          "testo": "Hai ragione haha, d'altronde sono una delle squadre migliori!"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Torna alla mappa",
+          "torna_a_mappa": true,
+          "stanza": "sala_allenamento"
+        }
+      ]
+    },
+    "sala_allenamento_vuota": {
+      "_nota": "Il complesso il pomeriggio, dopo l'infermeria. Bru: «nelle altre stanze ci sarà disponibile solo osserva la scena». La descrizione è mia, provvisoria: va riscritta da Bru. Un nodo che ha solo la scena la mostra entrando (vedi Main.sequenza_di).",
+      "sfondo": "res://art/scene/sala_allenamento.png",
+      "stanza": "sala_allenamento",
+      "scena": "La sala è vuota. Sul pavimento restano i segni dell'allenamento di stamattina.",
+      "scelte": [
+        {
+          "testo": "Torna alla mappa",
+          "torna_a_mappa": true,
+          "stanza": "sala_allenamento"
+        }
+      ]
+    },
+    "mensa_pomeriggio": {
+      "_nota": "Il complesso il pomeriggio, dopo l'infermeria. Bru: «nelle altre stanze ci sarà disponibile solo osserva la scena». La descrizione è mia, provvisoria: va riscritta da Bru. Un nodo che ha solo la scena la mostra entrando (vedi Main.sequenza_di).",
+      "stanza": "mensa",
+      "scena": "La mensa a metà pomeriggio: tavoli vuoti, un vassoio dimenticato, l'odore del pranzo che non se ne va.",
+      "scelte": [
+        {
+          "testo": "Torna alla mappa",
+          "torna_a_mappa": true,
+          "stanza": "mensa"
+        }
+      ]
+    },
+    "archivio_pomeriggio": {
+      "_nota": "Il complesso il pomeriggio, dopo l'infermeria. Bru: «nelle altre stanze ci sarà disponibile solo osserva la scena». La descrizione è mia, provvisoria: va riscritta da Bru. Un nodo che ha solo la scena la mostra entrando (vedi Main.sequenza_di).",
+      "stanza": "archivio",
+      "scena": "Il lettore di tessere lampeggia rosso: la tua autorizzazione non basta. Oltre il vetro, file di schedari.",
+      "scelte": [
+        {
+          "testo": "Torna alla mappa",
+          "torna_a_mappa": true,
+          "stanza": "archivio"
+        }
+      ]
+    },
+    "hangar_pomeriggio": {
+      "_nota": "Il complesso il pomeriggio, dopo l'infermeria. Bru: «nelle altre stanze ci sarà disponibile solo osserva la scena». La descrizione è mia, provvisoria: va riscritta da Bru. Un nodo che ha solo la scena la mostra entrando (vedi Main.sequenza_di).",
+      "stanza": "hangar",
+      "scena": "L'hangar è enorme e mezzo vuoto. In fondo qualcuno lavora su un velivolo, e non alza nemmeno la testa.",
+      "scelte": [
+        {
+          "testo": "Torna alla mappa",
+          "torna_a_mappa": true,
+          "stanza": "hangar"
+        }
+      ]
+    },
+    "sala_proiezione_pomeriggio": {
+      "_nota": "Il complesso il pomeriggio, dopo l'infermeria. Bru: «nelle altre stanze ci sarà disponibile solo osserva la scena». La descrizione è mia, provvisoria: va riscritta da Bru. Un nodo che ha solo la scena la mostra entrando (vedi Main.sequenza_di).",
+      "stanza": "sala_proiezione",
+      "scena": "La piattaforma di proiezione è spenta. Senza ordini, qui non c'è niente da fare.",
+      "scelte": [
+        {
+          "testo": "Torna alla mappa",
+          "torna_a_mappa": true,
+          "stanza": "sala_proiezione"
+        }
+      ]
+    },
+    "comunicazioni_convocazione": {
+      "_nota": "Bru: «protagonista: Hai una nuova convocazione aprire il canale? si no». E' il terminale che lo chiede, quindi e' un avviso e non una battuta. Col no si torna alla mappa e la convocazione resta li': il punto esclamativo non si sposta.",
+      "sfondo": "res://art/scene/sala_comunicazioni.png",
+      "stanza": "sala_comunicazioni",
+      "sequenza": [
+        {
+          "tipo": "notifica",
+          "testo": "Hai una nuova convocazione. Aprire il canale?",
+          "suono": "data_pad"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Sì",
+          "vai": "comunicazioni_ordini"
+        },
+        {
+          "testo": "No",
+          "torna_a_mappa": true,
+          "stanza": "sala_comunicazioni"
+        }
+      ]
+    },
     "comunicazioni_ordini": {
-      "_nota": "Il testo è di Bru, parola per parola. La barra verticale nel suo messaggio separa due battute dello schermo, e qui sono due battute.",
+      "_nota": "Il testo è di Bru, parola per parola: il canale si apre, ronza, e parla la stessa figura della prima volta. Ritocchi: «dominatore» accordato, «missiona», e le maiuscole a inizio battuta.",
       "sfondo": "res://art/scene/sala_comunicazioni.png",
       "flag": "ordini_ricevuti",
       "sequenza": [
         {
           "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "In questa sala di solito mi vengono impartiti gli ordini, chissà che tipo di missione hanno scelto per me..."
+          "chi": "computer",
+          "testo": "Zzzzz..."
         },
         {
-          "tipo": "narrazione",
-          "testo": "Lo schermo centrale si accende."
+          "tipo": "dialogo",
+          "chi": "computer",
+          "testo": "Zzzt."
         },
         {
           "tipo": "dialogo",
           "chi": "figura_misteriosa",
-          "testo": "Bzzzz... zzz... Boop. Buongiorno dominat{ore|rice}."
+          "testo": "Buongiorno dominat{ore|rice}, siamo lieti di riceverla ancora una volta."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Abbiamo pronta per lei una missione di basso livello. Ma faccia attenzione, qui non si parla più di allenamenti o nemici simulati..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "La situazione non è mai stata così movimentata come in questi anni dominat{ore|rice}... Non possiamo permetterci di perdere altri validi compagni."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Abbiamo perso qualcuno di recente?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Non in questo avamposto. Dobbiamo onorare il loro sacrificio e non dimenticarci mai di chi lotta al nostro fianco... E questo comprende anche lei."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Farò attenzione, non dovete preoccuparvi."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "A volte tutta questa sicurezza può essere sintomo di una grave sventura dominat{ore|rice}... non sottovaluti il nemico..."
         },
         {
           "tipo": "dialogo",
@@ -549,31 +905,46 @@
         {
           "tipo": "dialogo",
           "chi": "figura_misteriosa",
-          "testo": "Innanzitutto ci congratuliamo con lei per aver completato il suo addestramento, dai dati raccolti riponiamo molte speranze in lei, non sembra essere un soggetto nella norma..."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "figura_misteriosa",
-          "testo": "Abbiamo deciso di affidarle una missione semplice, nulla di che in realtà... siamo sicuri che avrà molto successo nelle operazioni. Settore del confine del cielo terso, quadrante 3, abbiamo individuato insolite attività e deformazioni nella zona... si limiti ad esplorare le zone segnalate e nel caso vi fosse la presenza di... qualcosa di più grosso, le affiancheremo la sua collega per completare l'operazione... Confidiamo nel suo buonsenso e nelle sue capacità. Ci faccia avere buone notizie! Ci congediamo. Bzzzt. Bup."
-        },
-        {
-          "tipo": "narrazione",
-          "testo": "Lo schermo si spegne."
+          "testo": "Comunque... la sua missione secondo i nostri calcoli non dovrebbe causarle alcun problema, si tratta di una piccola ricognizione in una zona tranquilla dove le creature non sono molto intelligenti. Esplori anche le zone limitrofe se ne ha tempo e raccolga dati per noi. Si ricordi che è in gioco il nostro futuro."
         },
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "... Dovrei ricevere a breve tutto il necessario sul mio data pad..."
+          "testo": "Sarà fatto."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "figura_misteriosa",
+          "testo": "Bene, la aggiorneremo sul suo data pad con i dettagli, ci renda fieri. Zzzt. Bop."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
         },
         {
           "tipo": "notifica",
-          "testo": "Data pad aggiornato: esplorare il settore del confine del cielo terso, quadrante 3, e le confluenze che vi si sono create. Fare rapporto."
+          "testo": "Data pad aggiornato: una piccola ricognizione in una zona tranquilla. Esplorare anche le zone limitrofe e raccogliere dati."
         }
       ],
       "scelte": [
         {
           "testo": "Apri il data pad",
           "vai": "data_pad_istruzioni"
+        }
+      ],
+      "stanza": "sala_comunicazioni"
+    },
+    "sala_comunicazioni_dopo": {
+      "_nota": "Il complesso il pomeriggio, dopo l'infermeria. Bru: «nelle altre stanze ci sarà disponibile solo osserva la scena». La descrizione è mia, provvisoria: va riscritta da Bru. Un nodo che ha solo la scena la mostra entrando (vedi Main.sequenza_di).",
+      "sfondo": "res://art/scene/sala_comunicazioni.png",
+      "stanza": "sala_comunicazioni",
+      "scena": "Lo schermo centrale è spento. Gli ordini ormai sono sul data pad.",
+      "scelte": [
+        {
+          "testo": "Torna alla mappa",
+          "torna_a_mappa": true,
+          "stanza": "sala_comunicazioni"
         }
       ]
     },
@@ -654,9 +1025,11 @@
       "scelte": [
         {
           "testo": "Torna alla mappa del complesso",
-          "vai": "infermeria"
+          "torna_a_mappa": true,
+          "stanza": "sala_comunicazioni"
         }
-      ]
+      ],
+      "stanza": "sala_comunicazioni"
     },
     "proiezione_veronica": {
       "_nota": "Il testo è di Bru, parola per parola. Unici ritocchi: l'accordo maschile/femminile dove serviva, e quattro refusi (Comiciamo, cosi, un pò, nel altro). Le minuscole a inizio battuta di Veronica sono sue e restano: è come parla.",
@@ -842,11 +1215,17 @@
           "tipo": "dialogo",
           "chi": "veronica",
           "testo": "adesso hai a disposizione solo la tua prima missione, ecco vedi? selezioniamo la meta e voilà, ecco che il sistema di proiezione comincia a caricarsi!"
-        },
-        {
-          "tipo": "narrazione",
-          "testo": "[i]Si esce dalla visuale di mappa.[/i]"
-        },
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "apri_mappa_stellare": "proiezione_partenza",
+      "_nota_mappa": "Bru: «nella mappa dovrebbe essere presente solo quella frattura, ti manderà in missione Veronica». La battuta «[i]Si esce dalla visuale di mappa.[/i]» era una didascalia: adesso la mappa stellare si apre davvero, con sopra solo le Pianure di Redenna, e la scelta la fai tu. Scelta la meta, si torna qui per la partenza (proiezione_partenza)."
+    },
+    "proiezione_partenza": {
+      "_nota": "Il seguito della scena di Veronica, dopo che hai scelto la meta sulla mappa stellare. Il testo è di Bru, come prima.",
+      "sfondo": "res://art/scene/sala_proiezione.png",
+      "stanza": "sala_proiezione",
+      "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "veronica",

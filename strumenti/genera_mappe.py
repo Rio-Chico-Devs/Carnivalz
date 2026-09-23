@@ -306,10 +306,16 @@ def percorso(nodi, id_iniziale):
         visti.add(id_nodo)
         testa = "%s%s%s" % (indenti, etichetta, "" if etichetta == "" else " → ")
         righe.append("%s%s%s" % (testa, id_nodo, ("   (%s)" % "; ".join(coda)) if coda else ""))
+        # "vai_se_flag" e' una regola sola o una lista di regole (vince la prima
+        # che ha il suo flag): la sala di proiezione dice tre cose in tre momenti
         salto = nodo.get("vai_se_flag")
-        if salto:
-            righe.append("%s  ⟳ con %s diventa %s" % (indenti, salto.get("flag"), salto.get("vai")))
-            scendi(str(salto.get("vai")), profondita + 1, "", [])
+        regole = salto if isinstance(salto, list) else ([salto] if salto else [])
+        for regola in regole:
+            righe.append("%s  ⟳ con %s diventa %s" % (indenti, regola.get("flag"), regola.get("vai")))
+            scendi(str(regola.get("vai")), profondita + 1, "", [])
+        if nodo.get("apri_mappa_stellare"):
+            righe.append("%s  ⟳ mappa stellare, scelta la meta" % indenti)
+            scendi(str(nodo["apri_mappa_stellare"]), profondita + 1, "", [])
         if nodo.get("combattimento_automatico"):
             esito = nodo["combattimento_automatico"]
             for chiave, come in [("se_vinci", "vinci"), ("se_perdi", "perdi"), ("se_fuggi", "fuggi")]:

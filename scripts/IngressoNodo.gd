@@ -165,7 +165,12 @@ static func applica_effetti(id_nodo: String, nodo: Dictionary, prima_visita: boo
 		# "sbloccata" solo se un evento la nominava per nome, quindi si poteva
 		# stare in una stanza che per la mappa non era ancora aperta - ed era
 		# meta' della ragione per cui dalla mappa non si esplorava.
-		GameState.sblocca_stanza(id_nodo)
+		#
+		# E si sblocca LA STANZA, non la scena: «la sala comunicazioni dopo gli
+		# ordini» e' un nodo, ma sulla planimetria e' sempre la sala comunicazioni
+		# (vedi il campo "stanza" in entra). Sbloccare l'id del nodo segnava come
+		# stanza una cosa che sulla mappa non c'e'.
+		GameState.sblocca_stanza(String(nodo.get("stanza", id_nodo)))
 	if nodo.has("flag"):
 		GameState.imposta_flag(nodo["flag"])
 	if nodo.has("sblocca_stanze"):

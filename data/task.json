@@ -4,7 +4,7 @@
 		{
 			"id": "prima_proiezione",
 			"titolo": "La procedura di proiezione",
-			"testo": "Gli ordini sono arrivati: settore del confine del cielo terso, quadrante 3. Devo recarmi alla sala di proiezione ed eseguire la procedura. Non l'ho mai fatta da solo.",
+			"testo": "Gli ordini sono arrivati: una piccola ricognizione, in una zona tranquilla. Devo recarmi alla sala di proiezione ed eseguire la procedura. Non l'ho mai fatta da {solo|sola}.",
 			"chiuso_da": [
 				"proiezione_spiegata"
 			]
@@ -245,16 +245,16 @@
 		},
 		{
 			"id": "esplora_cielo_terso",
-			"titolo": "Confine del cielo terso, quadrante 3",
-			"testo": "«Insolite attività e deformazioni nella zona.» Mi limito a esplorare le zone segnalate — parole loro. Se dentro c'è qualcosa di più grosso mi affiancano la collega, e so già chi è.",
+			"titolo": "Una ricognizione tranquilla",
+			"testo": "«Una zona tranquilla, dove le creature non sono molto intelligenti.» Parole loro. Se ho tempo esploro anche le zone limitrofe.",
 			"richiede_flags": [
 				"ordini_ricevuti"
 			]
 		},
 		{
 			"id": "rapporto_cielo_terso",
-			"titolo": "Fare rapporto",
-			"testo": "Le confluenze che si sono create vanno censite e riferite. L'Organizzazione vuole i numeri prima delle impressioni.",
+			"titolo": "Raccogliere dati",
+			"testo": "Vogliono dati da quella zona. «Si ricordi che è in gioco il nostro futuro»: per una ricognizione tranquilla, è una frase pesante.",
 			"richiede_flags": [
 				"ordini_ricevuti"
 			]

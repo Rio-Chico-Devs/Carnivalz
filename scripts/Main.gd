@@ -45,6 +45,7 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
+const SCENA_MAPPA := "res://scenes/Mappa.tscn"
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const EVENTI_DEBUG := "res://data/events.json"
 # Da che angolo entra il nastro col nome. Nel disegno di Bru il primo fotogramma
@@ -564,6 +565,12 @@ func viste_di(nodo: Dictionary) -> Array[Dictionary]:
 	return risultato
 
 func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
+	# UN POSTO CHE HA SOLO LA SUA SCENA la mostra entrando. Bru, sul complesso
+	# del pomeriggio: «nelle altre stanze ci sara' disponibile solo osserva la
+	# scena». Scriverla due volte - una per entrare, una per «Osserva» - vorrebbe
+	# dire due copie che si separano al primo ritocco
+	if not nodo.has("sequenza") and not nodo.has("testo") and nodo.has("scena"):
+		return messaggi_scena(nodo)
 	if nodo.has("sequenza"):
 		var seq: Array[Dictionary] = []
 		for msg in nodo["sequenza"]:
@@ -595,7 +602,8 @@ func avanza_messaggio() -> void:
 		# sospeso, appena finisce di scriversi compaiono le scelte vere
 		var ultimo: bool = coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() \
 				and not nodo_in_corso.has("combattimento_automatico") \
-				and not nodo_in_corso.has("avvio_automatico")
+				and not nodo_in_corso.has("avvio_automatico") \
+				and not nodo_in_corso.has("apri_mappa_stellare")
 		azione_a_fine_testo = _apri_scelte if ultimo else Callable()
 		mostra_messaggio(msg)
 		area_avanza.visible = true
@@ -613,6 +621,14 @@ func avanza_messaggio() -> void:
 		# fine di un mini-evento (es. l'introduzione): parte in automatico una
 		# nuova campagna, senza che il giocatore debba scegliere nulla
 		avvia_automatico(nodo_in_corso["avvio_automatico"])
+		return
+	if nodo_in_corso.has("apri_mappa_stellare"):
+		# LA META LA SCEGLI TU. Veronica: «vedi questa mappa? devi selezionare il
+		# punto d'interesse che appare su di essa». Si apre la mappa stellare con
+		# sopra solo la prima missione, e scelta quella si torna qui, al nodo
+		# che il campo nomina (vedi Mappa.gd)
+		MappaStellare.missione_da_scegliere = String(nodo_in_corso["apri_mappa_stellare"])
+		Transizioni.vai(SCENA_MAPPA)
 		return
 	_apri_scelte()
 
@@ -890,7 +906,8 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 
 func bottone_scelta(testo: String, genere := "") -> Button:
 	var bottone := Button.new()
-	bottone.text = testo
+	# anche le risposte si accordano: «Mi sono {sbagliato|sbagliata}, vado.»
+	bottone.text = sostituisci_nome(testo)
 	Stile.scelta(bottone, genere)
 	return bottone
 

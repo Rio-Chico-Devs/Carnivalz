@@ -133,6 +133,8 @@ func _ready() -> void:
 	prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda()
 	await prova_la_voce_col_segno_e_la_macchia()
 	await prova_ogni_passo_del_menu_torna_indietro()
+	await prova_senza_nome_si_chiede_se_restare_anonimo()
+	await prova_come_si_gioca_disegna_i_tasti_veri()
 	await prova_le_collezioni_tornano_indietro()
 	await prova_ogni_cosa_ha_il_suo_spazio()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
@@ -140,6 +142,7 @@ func _ready() -> void:
 	await prova_la_forma_del_testo()
 	await prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo()
 	prova_giornata_dopo_allenamento()
+	await prova_la_prima_missione_si_sceglie_sulla_mappa()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -160,6 +163,7 @@ func _ready() -> void:
 	await prova_non_si_puo_anticipare_la_lezione()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
 	await prova_la_raffica_del_tutorial_parte_davvero()
+	await prova_dopo_la_raffica_resti_in_piedi_e_il_finale_si_legge()
 	prova_la_raffica_accelera_verso_la_fine()
 	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
 	prova_il_metro_del_garbuglio_e_quello_giusto()
@@ -261,7 +265,9 @@ func carica_eventi(percorso: String) -> Dictionary:
 func destinazioni_di(nodo: Dictionary) -> Array[String]:
 	# ogni posto in cui un nodo puo' mandare il giocatore
 	var uscite: Array[String] = []
-	for chiave in ["vai"]:
+	# "apri_mappa_stellare": scelta la meta sulla mappa stellare, si riprende da
+	# quel nodo (la proiezione con Veronica)
+	for chiave in ["vai", "apri_mappa_stellare"]:
 		if nodo.has(chiave):
 			uscite.append(String(nodo[chiave]))
 	# "vai_se_flag" e' una regola sola oppure una lista di regole (vince la
@@ -7636,6 +7642,146 @@ func prova_ogni_passo_del_menu_torna_indietro() -> void:
 	GameState.nuova_partita()
 	Impostazioni.movimento_ridotto = prima
 
+func prova_senza_nome_si_chiede_se_restare_anonimo() -> void:
+	# Bru: «nella scelta del personaggio in nuova partita, se non e' immesso un
+	# nome deve esserci un pop up che chiede: vuoi rimanere anonimo?»
+	titolo("senza un nome, prima di cominciare si chiede se restare anonimi")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	MenuPrincipale.titolo_visto = true
+	var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	var partenze := [0]
+	schermo.al_via = func() -> void: partenze[0] += 1
+	add_child(schermo)
+	await get_tree().process_frame
+	schermo.pagina_chi_sei(1)
+	GameState.sesso_protagonista = Testi.FEMMINILE
+	schermo.mostra_chi_sei("")
+	await get_tree().process_frame
+	schermo.campo_nome.text = "   "
+	schermo.comincia()
+	await get_tree().process_frame
+	var aperta := schermo.domanda
+	esigi(partenze[0] == 0, "col nome vuoto la partita e' cominciata senza chiedere niente")
+	esigi(aperta != null and is_instance_valid(aperta) and aperta.is_inside_tree(),
+			"col nome vuoto non si e' aperta nessuna domanda")
+	if aperta != null and is_instance_valid(aperta):
+		var detto := ""
+		for etichetta in aperta.find_children("*", "Label", true, false):
+			detto += (etichetta as Label).text + " "
+		esigi(detto.findn("anonima") != -1,
+				"la domanda non chiede se restare anonima (per lei): dice «%s»" % detto.strip_edges())
+		esigi(aperta.voci.size() == 2 and aperta.voci[0].bottone.has_focus(),
+				"la domanda non ha il fuoco sul si': da tastiera non si risponde")
+		# il fuoco non scappa sotto il velo
+		var giu := NodePath(aperta.voci[0].bottone.focus_neighbor_bottom)
+		esigi(aperta.voci[0].bottone.get_node_or_null(giu) == aperta.voci[1].bottone,
+				"dalla prima risposta la freccia giu' porta fuori dalla domanda")
+		# un secondo COMINCIA non ne apre un'altra sopra
+		schermo.comincia()
+		var quante := 0
+		for figlio in schermo.get_children():
+			if figlio is Domanda:
+				quante += 1
+		esigi(quante == 1, "premendo di nuovo COMINCIA si sono aperte %d domande una sopra l'altra" % quante)
+		# ESC vuol dire no: si resta sulla pagina, col fuoco sul nome
+		aperta._unhandled_input(esc_premuto())
+		await get_tree().process_frame
+		esigi(partenze[0] == 0, "rispondendo no la partita e' cominciata lo stesso")
+		esigi(schermo.pagina == "chi_sei", "rispondendo no si e' finiti in '%s'" % schermo.pagina)
+		esigi(schermo.campo_nome.has_focus(), "rispondendo no il fuoco non torna sul nome da scrivere")
+	# si': si parte, anonimi
+	schermo.comincia()
+	await get_tree().process_frame
+	if schermo.domanda != null and is_instance_valid(schermo.domanda):
+		schermo.domanda.voci[0].scelta.emit()
+	esigi(partenze[0] == 1, "rispondendo si' la partita non e' cominciata")
+	# e col nome scritto non si chiede niente
+	schermo.campo_nome.text = "Bru"
+	schermo.comincia()
+	esigi(partenze[0] == 2, "col nome scritto la partita non parte al primo COMINCIA")
+	schermo.queue_free()
+	GameState.sesso_protagonista = Testi.MASCHILE
+	GameState.nuova_partita()
+	MenuPrincipale.titolo_visto = false
+	Impostazioni.movimento_ridotto = prima
+
+func prova_come_si_gioca_disegna_i_tasti_veri() -> void:
+	# Bru: «il come si gioca non deve essere cosi' ma avere una spiegazione
+	# grafica con i tasti da tastiera o mouse sui comandi come in un gioco
+	# professionale». Tre cose da tenere: la tavola c'e' e segue la voce accesa;
+	# ogni tasto che disegna e' DAVVERO quello che fa quella cosa; e se ne va
+	# quando si cambia passo, restituendo il posto alle partite.
+	titolo("come si gioca: i tasti disegnati sono quelli veri")
+	var mouse := ["CLIC", "ROTELLA"]
+	for nome in TavolaComandi.tasti_usati():
+		if nome in mouse:
+			continue
+		esigi(TavolaComandi.AZIONE_DI.has(nome),
+				"la tavola disegna il tasto «%s», che non corrisponde a nessun comando del gioco" % nome)
+		if not TavolaComandi.AZIONE_DI.has(nome):
+			continue
+		var azione := String(TavolaComandi.AZIONE_DI[nome][0])
+		var tasto := int(TavolaComandi.AZIONE_DI[nome][1])
+		var legato := false
+		for evento in InputMap.action_get_events(azione):
+			if evento is InputEventKey and (int((evento as InputEventKey).keycode) == tasto
+					or int((evento as InputEventKey).physical_keycode) == tasto):
+				legato = true
+		esigi(legato, "la tavola dice che «%s» serve a '%s', ma quel tasto non e' legato a quell'azione"
+				% [nome, azione])
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	MenuPrincipale.titolo_visto = true
+	var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(schermo)
+	await get_tree().process_frame
+	schermo.pagina_come_si_gioca()
+	await get_tree().process_frame
+	esigi(schermo.quadro != null and is_instance_valid(schermo.quadro) and schermo.quadro.visible,
+			"in COME SI GIOCA non c'e' nessuna tavola dei comandi")
+	esigi(not schermo.pannello.visible, "in COME SI GIOCA le partite restano a schermo, sotto la tavola")
+	if schermo.quadro != null and is_instance_valid(schermo.quadro):
+		for v in schermo.voci:
+			v.bottone.grab_focus()
+			await get_tree().process_frame
+			var quale := String(v.bottone.text)
+			esigi(schermo.quadro.categoria == quale,
+					"accesa la voce %s, la tavola mostra ancora '%s'" % [quale, schermo.quadro.categoria])
+			var attese: Array = (TavolaComandi.CATEGORIE.get(quale, {}) as Dictionary).get("righe", [])
+			esigi(schermo.quadro.righe.get_child_count() == attese.size(),
+					"la tavola di %s ha %d righe invece di %d" % [quale, schermo.quadro.righe.get_child_count(), attese.size()])
+			var tappi := schermo.quadro.find_children("*", "Control", true, false).filter(
+					func(n: Node) -> bool: return n is TappoTasto)
+			esigi(tappi.size() >= attese.size(),
+					"la tavola di %s ha %d tasti disegnati per %d righe: qualche riga e' solo testo"
+					% [quale, tappi.size(), attese.size()])
+	schermo._unhandled_input(esc_premuto())
+	await get_tree().process_frame
+	esigi(schermo.quadro == null, "tornando indietro la tavola dei comandi resta a schermo")
+	esigi(schermo.pannello.visible, "tornando indietro le partite non tornano al loro posto")
+	schermo.queue_free()
+	MenuPrincipale.titolo_visto = false
+	Impostazioni.movimento_ridotto = prima
+
+func altezza_vera_della_tavola(tavola: TavolaComandi) -> float:
+	# LA TAVOLA ALTA COME SAREBBE IN UNA FINESTRA VERA. Senza finestra Godot
+	# sbaglia le altezze dei caratteri (vedi altezza_vera), quindi la si
+	# ricostruisce: la testata, e per ogni riga le righe di testo - contate alla
+	# larghezza vera, che invece e' giusta - o l'altezza dei tasti, la piu' alta.
+	var riga_testo := altezza_vera("res://art/font/arrotondato.ttf", Stile.dimensione("minuscolo"))
+	var alta := altezza_vera("res://art/font/titolo.ttf", 20) + 12.0 + float(TavolaComandi.MARGINE) + 6.0
+	var righe := tavola.righe.get_children()
+	for riga in righe:
+		var azione: Label = null
+		for etichetta in (riga as Node).find_children("*", "Label", true, false):
+			if (etichetta as Label).autowrap_mode != TextServer.AUTOWRAP_OFF:
+				azione = etichetta
+		var quante := righe_di(azione.text, Caratteri.tondo(700), Stile.dimensione("minuscolo"),
+				azione.size.x) if azione != null else 1
+		alta += maxf(TavolaComandi.ALTA_RIGA - 10.0, quante * riga_testo) + 10.0
+	return alta + 6.0 * maxf(righe.size() - 1, 0)
+
 func prova_le_collezioni_tornano_indietro() -> void:
 	# ALBUM, BESTIARIO, OGGETTI: si esce con ESC o con «ESC Indietro» (che si
 	# vede), si scorre con le frecce, e ESC li' non apre la pausa - non c'e'
@@ -7728,6 +7874,7 @@ func prova_ogni_cosa_ha_il_suo_spazio() -> void:
 			for v in schermo.voci:
 				v.sfiorata()
 				await get_tree().process_frame
+				controlla_la_tavola(schermo, intero, scala)
 				var titolo_scritto := schermo.descrizione.titolo.text
 				var corpo_scritto := schermo.descrizione.corpo.text
 				esigi(righe_di(titolo_scritto, Caratteri.titolo(), Stile.dimensione("corpo"), largo_descrizione) == 1,
@@ -7784,6 +7931,18 @@ func altezza_vera(percorso: String, corpo: int) -> float:
 	var sale := float(leggi_u16.call(int(tabelle["hhea"]) + 4))
 	var scende := float(65536 - int(leggi_u16.call(int(tabelle["hhea"]) + 6)))
 	return ceilf(sale * corpo / unita) + ceilf(scende * corpo / unita)
+
+func controlla_la_tavola(schermo: MenuPrincipale, intero: Rect2, scala: float) -> void:
+	if schermo.quadro != null and is_instance_valid(schermo.quadro):
+		var tavola := Rect2(schermo.quadro.global_position, schermo.quadro.size)
+		var colonna_voci := Rect2(schermo.colonna.global_position, schermo.colonna.size)
+		esigi(tavola.position.x >= colonna_voci.end.x + 8.0 and tavola.end.x <= intero.end.x,
+				"a scala %.2f la tavola dei comandi (%.0f..%.0f) tocca le voci (fino a %.0f) o esce dallo schermo"
+				% [scala, tavola.position.x, tavola.end.x, colonna_voci.end.x])
+		var fondo := tavola.position.y + altezza_vera_della_tavola(schermo.quadro)
+		esigi(fondo <= MenuPrincipale.ZONA_DESCRIZIONE * intero.size.y,
+				"a scala %.2f la tavola dei comandi di %s finisce a %.0f, dentro la zona della descrizione (%.0f)"
+				% [scala, schermo.quadro.categoria, fondo, MenuPrincipale.ZONA_DESCRIZIONE * intero.size.y])
 
 func controlla_lo_spazio(schermo: MenuPrincipale, intero: Rect2, scala: float) -> void:
 	var nome := schermo.pagina
@@ -8412,25 +8571,83 @@ func prova_giornata_dopo_allenamento() -> void:
 	esigi(da_infermeria,
 			"dall'infermeria non si arriva alla sala comunicazioni: si esce e si resta fermi li'")
 
-	# e le porte chiuse dicono tutte la stessa riga, quella di Bru
-	var chiuse := 0
-	for id_area in ["mensa", "infermeria", "archivio", "sala_proiezione", "hangar"]:
-		# la sala di proiezione ha due regole: prima di aver letto il data pad
-		# e' una porta chiusa come le altre, dopo e' la scena della proiezione.
-		# Qui si guarda che la regola della porta chiusa ci sia ancora.
-		var regole: Variant = (nodi.get(id_area, {}) as Dictionary).get("vai_se_flag", {})
-		var elenco: Array = [regole] if regole is Dictionary else (regole as Array)
-		for regola in elenco:
-			if not (regola is Dictionary):
-				continue
-			var r: Dictionary = regola
-			if String(r.get("flag", "")) == "rientro_infermeria" \
-					and String(r.get("vai", "")) == "punto_non_sbloccato":
-				chiuse += 1
-				break
-	esigi(chiuse == 5,
-			"solo %d aree chiuse su 5 dicono la riga del punto non sbloccato: le altre "
-			% chiuse + "raccontano ancora la mattina")
+	# IL POMERIGGIO OGNI STANZA E' LA SUA. Si chiede al motore dove porta ogni
+	# stanza con i flag del pomeriggio accesi, come farebbe il gioco.
+	#
+	# Il difetto che c'era: la sala di allenamento non aveva nessuna regola, e
+	# rientrandoci dalla mappa si rigiocava tutto l'allenamento del mattino -
+	# Veronica, lo scontro, di nuovo il risveglio. E dall'alloggio «Esci dalla
+	# stanza» riportava li'.
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.imposta_flag("rientro_infermeria")
+	var attese := {
+		"alloggio": "alloggio_pomeriggio", "mensa": "mensa_pomeriggio",
+		"archivio": "archivio_pomeriggio", "hangar": "hangar_pomeriggio",
+		"sala_proiezione": "sala_proiezione_pomeriggio",
+		"sala_allenamento": "sala_allenamento_soldati",
+		"infermeria": "infermeria_reika",
+		"sala_comunicazioni": "comunicazioni_convocazione",
+	}
+	for id_area: String in attese:
+		var dove := IngressoNodo.risolvi(id_area)
+		esigi(dove == String(attese[id_area]),
+				"il pomeriggio '%s' porta a '%s' invece che a '%s'" % [id_area, dove, attese[id_area]])
+		var pomeriggio: Dictionary = nodi.get(dove, {})
+		esigi(not pomeriggio.has("combattimento_automatico"),
+				"il pomeriggio '%s' fa ripartire uno scontro: e' la scena del mattino" % id_area)
+		esigi(String(pomeriggio.get("stanza", dove)) == id_area,
+				"'%s' non dice che succede in '%s': sulla mappa il «sei qui» finisce altrove" % [dove, id_area])
+	# dove non c'e' storia c'e' solo da guardare - Bru: «nelle altre stanze ci
+	# sara' disponibile solo osserva la scena» - e da li' si torna alla mappa
+	for id_area in ["alloggio", "mensa", "archivio", "hangar", "sala_proiezione"]:
+		var solo_scena: Dictionary = nodi.get(String(attese[id_area]), {})
+		esigi(solo_scena.has("scena"), "nel pomeriggio '%s' non c'e' niente da osservare" % id_area)
+		var alla_mappa := false
+		for scelta in solo_scena.get("scelte", []):
+			alla_mappa = alla_mappa or bool((scelta as Dictionary).get("torna_a_mappa", false))
+		esigi(alla_mappa, "dal pomeriggio '%s' non si torna alla mappa" % id_area)
+	# I SOLDATI, UNA VOLTA SOLA. «Se non la ascolti perdi l'occasione, questa
+	# conversazione e' valida solo in questo frangente»: l'occasione si chiude
+	# ENTRANDO - rispondere no, o uscire dalla mappa senza rispondere, e' non
+	# averla ascoltata - e la chiude anche la convocazione
+	esigi(String(nodi.get("sala_allenamento_soldati", {}).get("flag", "")) == "soldati_passati",
+			"vedere i soldati non chiude l'occasione: uscendo dalla mappa senza rispondere li si ritrova")
+	var ascolto := destinazioni_di(nodi.get("sala_allenamento_soldati", {}))
+	esigi("soldati_conversazione" in ascolto, "dicendo si' ai soldati non si sente la conversazione")
+	GameState.imposta_flag("soldati_passati")
+	esigi(IngressoNodo.risolvi("sala_allenamento") == "sala_allenamento_vuota",
+			"passati i soldati, la sala di allenamento li mostra ancora")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.imposta_flag("rientro_infermeria")
+	GameState.imposta_flag("ordini_ricevuti")
+	esigi(IngressoNodo.risolvi("sala_allenamento") == "sala_allenamento_vuota",
+			"ricevuti gli ordini, i soldati sono ancora li': la conversazione valeva solo prima")
+	esigi(IngressoNodo.risolvi("sala_comunicazioni") == "sala_comunicazioni_dopo",
+			"ricevuti gli ordini, la sala comunicazioni ti convoca di nuovo")
+	# LA DR. REIKA, SECONDA VOLTA: tre domande, due tornano alle domande, la
+	# terza saluta e ti rimanda alla mappa
+	var domande: Array = nodi.get("infermeria_reika", {}).get("scelte", [])
+	esigi(domande.size() == 3, "la Dr. Reika offre %d scelte invece delle tre di Bru" % domande.size())
+	for risposta in ["reika_organizzazione", "reika_missione"]:
+		esigi(nodi.get(risposta, {}).get("scelte", []) == domande,
+				"dopo '%s' non si torna alle domande" % risposta)
+	var saluto_alla_mappa := false
+	for scelta in nodi.get("reika_congedo", {}).get("scelte", []):
+		saluto_alla_mappa = saluto_alla_mappa or bool((scelta as Dictionary).get("torna_a_mappa", false))
+	esigi(saluto_alla_mappa, "salutata la Dr. Reika non si esce dall'infermeria")
+	# LA CONVOCAZIONE SI ACCETTA O SI RIMANDA
+	var convocazione := destinazioni_di(nodi.get("comunicazioni_convocazione", {}))
+	esigi("comunicazioni_ordini" in convocazione, "dicendo si' alla convocazione non si apre il canale")
+	var rimandabile := false
+	for scelta in nodi.get("comunicazioni_convocazione", {}).get("scelte", []):
+		rimandabile = rimandabile or bool((scelta as Dictionary).get("torna_a_mappa", false))
+	esigi(rimandabile, "alla convocazione non si puo' dire di no")
+	# e il data pad si chiude sulla mappa, non addosso alla Dr. Reika
+	esigi(not "infermeria" in destinazioni_di(nodi.get("data_pad_istruzioni", {})),
+			"chiuso il data pad si finisce in infermeria, cioe' da capo col dialogo della Dr. Reika")
+	GameState.nuova_partita()
 
 	var ordini: Dictionary = nodi.get("comunicazioni_ordini", {})
 	esigi(not ordini.is_empty(), "manca la sala comunicazioni con gli ordini")
@@ -8443,6 +8660,75 @@ func prova_giornata_dopo_allenamento() -> void:
 	esigi(compiti_accesi == 2,
 			"il data pad si accende con %d compiti invece dei due di Bru "
 			% compiti_accesi + "(esplorare il settore, e fare rapporto)")
+
+func prova_la_prima_missione_si_sceglie_sulla_mappa() -> void:
+	# Bru: «da qui sara' possibile procedere nel livello che avevamo gia'
+	# creato, quello con il goblin arrabbiato: nella mappa dovrebbe essere
+	# presente solo quella frattura, ti manderà in missione Veronica». Prima la
+	# mappa era una didascalia - «Si esce dalla visuale di mappa» - e la
+	# missione partiva da sola. Adesso Veronica la apre, sopra c'e' solo quella
+	# frattura, e la scegli tu.
+	titolo("la prima missione si sceglie sulla mappa stellare, e c'e' solo lei")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true   # i cambi di scena si mettono in fila e basta
+	Transizioni.prossima = ""
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	schermata.mostra_nodo("proiezione_veronica")
+	# finite le battute della scena
+	schermata.coda_messaggi.clear()
+	schermata.avanza_messaggio()
+	esigi(Transizioni.prossima == "res://scenes/Mappa.tscn",
+			"finita la scena di Veronica non si apre la mappa stellare (si va a '%s')" % Transizioni.prossima)
+	esigi(MappaStellare.missione_da_scegliere == "proiezione_partenza",
+			"la mappa non sa a chi tornare scelta la meta: '%s'" % MappaStellare.missione_da_scegliere)
+	schermata.queue_free()
+	Transizioni.prossima = ""
+	var mappa: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(mappa)
+	await get_tree().process_frame
+	esigi(not mappa.bottone_sede.visible,
+			"scegliendo la prima missione si puo' andare alla Sede: dalla sala di proiezione non ci si va")
+	var segni: Array[Button] = []
+	for figlio in mappa.strato_punti.get_children():
+		if figlio is Button:
+			segni.append(figlio)
+	esigi(segni.size() == 1, "sulla mappa della prima missione ci sono %d fratture invece di una" % segni.size())
+	if segni.size() == 1:
+		esigi(segni[0].tooltip_text == "Pianure di Redenna",
+				"la sola frattura della mappa e' «%s», non le Pianure di Redenna" % segni[0].tooltip_text)
+		segni[0].pressed.emit()
+		esigi(MappaStellare.missione_da_scegliere == "",
+				"scelta la meta la mappa resta in modo «prima missione»: la prossima volta mostrerebbe ancora solo lei")
+		esigi(Transizioni.prossima == "res://scenes/Main.tscn"
+				and String(IngressoNodo.ultimo_esito.get("id", "")) == "proiezione_partenza",
+				"scelta la meta non si torna da Veronica per partire (%s, %s)"
+				% [Transizioni.prossima, IngressoNodo.ultimo_esito.get("id", "")])
+		var partenza: Dictionary = GameState.eventi.get("proiezione_partenza", {})
+		esigi(String(partenza.get("avvio_automatico", {}).get("id_punto", "")) == "tutorial",
+				"dopo la scelta non parte la missione delle Pianure")
+	mappa.queue_free()
+	IngressoNodo.ultimo_esito = {}
+	# e la mappa di sempre, dopo, quella frattura non la mostra piu'
+	Transizioni.prossima = ""
+	GameState.imposta_flag("tutorial_completato")
+	var dopo: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(dopo)
+	await get_tree().process_frame
+	var nomi: Array[String] = []
+	for figlio in dopo.strato_punti.get_children():
+		if figlio is Button:
+			nomi.append((figlio as Button).tooltip_text)
+	esigi(not "Pianure di Redenna" in nomi, "la prima missione resta sulla mappa anche dopo: %s" % [nomi])
+	esigi(not nomi.is_empty(), "dopo la prima missione la mappa e' vuota")
+	esigi(dopo.bottone_sede.visible, "sulla mappa di sempre non si torna alla Sede")
+	dopo.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
 
 func prova_nome_del_data_pad() -> void:
 	# «(il diario diventa data pad)» (Bru). Una riga sola nel suo messaggio, e
@@ -9093,13 +9379,30 @@ func prova_data_pad_e_proiezione() -> void:
 			"la sala di proiezione non si apre col data pad spiegato: la prima regola e' %s"
 			% [prima_regola])
 	var scena: Dictionary = nodi.get("proiezione_veronica", {})
-	esigi(String(scena.get("avvio_automatico", {}).get("file_eventi", "")).ends_with("events_tutorial.json"),
-			"finita la procedura non parte la prima missione")
+	# IN MEZZO ALLA SCENA SI SCEGLIE LA META. Bru: «nella mappa dovrebbe essere
+	# presente solo quella frattura, ti manderà in missione Veronica». La scena
+	# apre la mappa stellare, e scelta la meta riprende da proiezione_partenza
+	var ripresa := String(scena.get("apri_mappa_stellare", ""))
+	esigi(ripresa != "" and nodi.has(ripresa),
+			"Veronica dice «vedi questa mappa?» e nessuna mappa si apre: 'apri_mappa_stellare' e' '%s'" % ripresa)
+	var partenza: Dictionary = nodi.get(ripresa, {})
+	esigi(String(partenza.get("avvio_automatico", {}).get("file_eventi", "")).ends_with("events_tutorial.json"),
+			"scelta la meta non parte la prima missione")
+	var prime: Array = []
+	for punto in GameState.carica_mappa().get("punti", []):
+		if bool((punto as Dictionary).get("prima_missione", false)):
+			prime.append(punto)
+	esigi(prime.size() == 1,
+			"sulla mappa della prima missione ci sono %d fratture: Bru ne vuole una sola" % prime.size())
+	for didascalia in scena.get("sequenza", []):
+		esigi(String((didascalia as Dictionary).get("testo", "")).find("visuale di mappa") == -1,
+				"la didascalia «si esce dalla visuale di mappa» e' rimasta: adesso la mappa si apre davvero")
 
-	# LE BATTUTE DI BRU CI SONO TUTTE, e nell'ordine. Una scena lunga si accorcia
-	# per sbaglio piu' facilmente di quanto sembri.
+	# LE BATTUTE DI BRU CI SONO TUTTE, e nell'ordine - sui due pezzi della
+	# scena. Una scena lunga si accorcia per sbaglio piu' facilmente di quanto
+	# sembri.
 	var battute: Array[String] = []
-	for voce in scena.get("sequenza", []):
+	for voce in scena.get("sequenza", []) + partenza.get("sequenza", []):
 		battute.append(String((voce as Dictionary).get("testo", "")))
 	var attese := [
 		"!!!",
@@ -9552,7 +9855,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4628, "perche":
+	"Combattimento.gd": {"misura": 4657, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -9575,7 +9878,13 @@ const FILE_GRANDI := {
 		"IL NUMERO E' SALITO DA 4544, e il conto va detto per intero: il " +
 		"buffer degli input valeva 115 righe, 97 sono finite in " +
 		"Intenzione.gd, esegui_turno - un passa-carte che non chiamava piu' " +
-		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante), e 9 per far parare la raffica anche da tastiera - era l'unico pezzo del combattimento che pretendeva un mouse. E 24 per «Salta la lezione», offerta solo a chi l'allenamento l'ha gia' fatto in una partita precedente. Alzare la misura e' " +
+		"nessuno - e' sparito, e restano 24 righe nette. Poi altre 6 per spiegare perche' una guardia sull'eco della tastiera NON c'e' piu' (la documentazione di InputEvent dice che era ridondante), e 9 per far parare la raffica anche da tastiera - era l'unico pezzo del combattimento che pretendeva un mouse. E 24 per «Salta la lezione», offerta solo a chi l'allenamento l'ha gia' fatto in una partita precedente. " +
+			"E 29 per la fine dell'allenamento, che Bru giocando descriveva cosi': «fa fatica a rimettersi in " +
+			"carreggiata, cliccando a caso va avanti». Erano quattro difetti: a scontro chiuso il box " +
+			"raccontava DIETRO al menu (decidi_faccia), la raffica poteva mandarti KO e ripartire da capo " +
+			"(vita_minima), la barra della vita segnava 0 coi pugni invece che con la Meteora " +
+			"(mostra_vita_di_allora), e il ritratto si spegneva dopo le scuse di Veronica invece che sul " +
+			"colpo (abbatte). I commenti li ho accorciati prima di alzare il numero, non dopo. Alzare la misura e' " +
 		"una decisione, non una svista: si scrive qui cosa si e' comprato"},
 	"GameState.gd": {"misura": 2537, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
@@ -9957,6 +10266,51 @@ func prova_osserva_la_scena_c_e_gia_alla_prima_visita() -> void:
 			"un posto che non ha nessuna 'scena' offre lo stesso di osservarla")
 	schermata.queue_free()
 
+func prima_del_cancello(dati: Dictionary, cancello: String, accesi_prima: Array[String]) -> Array[String]:
+	# i nodi che si possono vedere prima che il cancello si accenda, camminando
+	# dal nodo iniziale. Ci si ferma su chi lo accende (entrando: da li' in poi
+	# il cancello e' aperto). Strada facendo si annotano in accesi_prima i flag
+	# che si possono accendere, e le regole "vai_se_flag" si seguono solo se il
+	# loro flag e' fra quelli
+	var nodi: Dictionary = dati.get("nodi", {})
+	var visti: Array[String] = []
+	var da_vedere: Array[String] = [String(dati.get("nodo_iniziale", ""))]
+	while not da_vedere.is_empty():
+		var id_nodo: String = da_vedere.pop_front()
+		if id_nodo == "" or id_nodo in visti or not nodi.has(id_nodo):
+			continue
+		visti.append(id_nodo)
+		var nodo: Dictionary = nodi[id_nodo]
+		if String(nodo.get("flag", "")) == cancello:
+			continue
+		for acceso in flag_accesi_da(nodo):
+			if acceso != cancello and acceso not in accesi_prima:
+				accesi_prima.append(acceso)
+		var senza_regole := nodo.duplicate()
+		senza_regole.erase("vai_se_flag")
+		for dove in destinazioni_di(senza_regole):
+			da_vedere.append(dove)
+		var regole: Variant = nodo.get("vai_se_flag", [])
+		for regola in ([regole] if regole is Dictionary else regole as Array):
+			if String((regola as Dictionary).get("flag", "")) in accesi_prima:
+				da_vedere.append(String((regola as Dictionary).get("vai", "")))
+	return visti
+
+func flag_accesi_da(nodo: Dictionary) -> Array[String]:
+	# ogni flag che passare da questo nodo puo' accendere: entrando, con una
+	# scelta, a meta' di una battuta
+	var accesi: Array[String] = []
+	if nodo.has("flag"):
+		accesi.append(String(nodo["flag"]))
+	for scelta in nodo.get("scelte", []):
+		for chiave in ["flag", "una_tantum"]:
+			if (scelta as Dictionary).has(chiave):
+				accesi.append(String((scelta as Dictionary)[chiave]))
+	for msg in nodo.get("sequenza", []):
+		if (msg as Dictionary).has("flag"):
+			accesi.append(String((msg as Dictionary)["flag"]))
+	return accesi
+
 func prova_la_mappa_non_si_apre_prima_di_essere_spiegata() -> void:
 	# Bru: «sulla mappa ho cliccato sul punto esclamativo e mi ha portato subito
 	# nella sala allenamento, non va bene, la mappa deve essere consultabile dopo
@@ -9993,26 +10347,29 @@ func prova_la_mappa_non_si_apre_prima_di_essere_spiegata() -> void:
 		if cancello == "":
 			continue  # mappa sempre aperta: nelle Pianure e' giusto cosi'
 		var nodi: Dictionary = dati.get("nodi", {})
-		var da_vedere: Array[String] = [String(dati.get("nodo_iniziale", ""))]
+		# UNA REGOLA "vai_se_flag" SCATTA SOLO COL SUO FLAG. Il pomeriggio del
+		# complesso sta tutto dietro regole che chiedono il cancello stesso
+		# (rientro_infermeria): prima che si accenda non ci si arriva, e contarle
+		# come strade del mattino vorrebbe dire vietare al pomeriggio di tornare
+		# alla mappa. Si seguono quindi solo le regole il cui flag si puo'
+		# accendere PRIMA del cancello, e si ricammina finche' quell'elenco
+		# smette di crescere (un flag acceso piu' avanti puo' aprire la regola di
+		# un nodo gia' passato)
+		var accesi_prima: Array[String] = []
 		var visti: Array[String] = []
-		while not da_vedere.is_empty():
-			var id_nodo: String = da_vedere.pop_front()
-			if id_nodo == "" or id_nodo in visti or not nodi.has(id_nodo):
-				continue
-			visti.append(id_nodo)
+		var quanti := -1
+		while accesi_prima.size() != quanti:
+			quanti = accesi_prima.size()
+			visti = prima_del_cancello(dati, cancello, accesi_prima)
+		for id_nodo in visti:
 			var nodo: Dictionary = nodi[id_nodo]
 			if String(nodo.get("flag", "")) == cancello:
-				# QUESTO nodo accende il cancello, e lo accende ENTRANDO: le sue
-				# scelte si leggono a flag gia' acceso, quindi puo' rimandare
-				# alla mappa e da qui in poi non si cammina piu'
-				continue
+				continue   # le sue scelte si leggono a cancello gia' acceso
 			for scelta in nodo.get("scelte", []):
 				esigi(not bool((scelta as Dictionary).get("torna_a_mappa", false)),
 						"%s: da '%s' la scelta «%s» rimanda alla mappa, ma li' '%s' non e' ancora acceso"
 						% [percorso.get_file(), id_nodo,
 						String((scelta as Dictionary).get("testo", "")), cancello])
-			for dove in destinazioni_di(nodo):
-				da_vedere.append(dove)
 		esigi(visti.size() > 1,
 				"%s: camminando dal nodo iniziale ho toccato %d nodi: il grafo non si sta percorrendo"
 				% [percorso.get_file(), visti.size()])
@@ -10289,6 +10646,90 @@ func prova_la_raffica_del_tutorial_parte_davvero() -> void:
 	scontro.in_corso = false
 	scontro.voce.coda.clear()
 	scontro.queue_free()
+	await get_tree().process_frame
+
+func prova_dopo_la_raffica_resti_in_piedi_e_il_finale_si_legge() -> void:
+	# Bru: «dopo il minigioco, fa fatica a rimettersi in carreggiata, cliccando a
+	# caso va avanti, ma finito il minigioco dovresti rimanere minimo con 1 di
+	# vita, poi parte il dialogo del colpo finale di veronica che ti abbatte e si
+	# conclude tutto».
+	#
+	# Giocandolo erano quattro difetti, e qui si guardano uno per uno:
+	#   - dodici pugni presi facevano 108 su 100: KO, Veronica ti rialzava, e la
+	#     raffica ripartiva da capo - un giro senza uscita;
+	#   - a scontro chiuso il quadrante tornava ai comandi, e il finale scorreva
+	#     DIETRO al menu: si cliccava un testo che non si vedeva;
+	#   - la barra della vita andava a zero coi pugni, non con la Meteora;
+	#   - nel box dello scontro «{addormentato|addormentata}» restava cosi'.
+	titolo("dopo la raffica di Veronica resti in piedi, e il finale si legge")
+	GameState.nuova_partita()
+	GameState.sesso_protagonista = Testi.FEMMINILE
+	GameState.nemici_combattimento = ["veronica"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	var limite: int = Time.get_ticks_msec() + 20000
+	while not scontro.menu_acceso and Time.get_ticks_msec() < limite:
+		await get_tree().process_frame
+	var passi: Array = scontro.tutorial.get("passi", [])
+	scontro.tutorial_passo = passi.size() - 1
+	var passo: Dictionary = scontro.passo_tutorial()
+	esigi(String(passo.get("azione", "")) == "minigioco", "l'ultimo passo non e' piu' la raffica")
+	esigi(int(passo.get("vita_minima", 0)) >= 1,
+			"la raffica dell'allenamento non dice quanta vita ti lascia: puo' mandarti KO e ripartire da capo")
+	var eroe: Dictionary = scontro.combattente_comandato()
+	eroe.hp = int(eroe.hp_max)
+	scontro.voce.coda.clear()
+	var rialzate: int = scontro.rivitalizzanti_usati
+	# nessun pugno fermato: il caso di chi prova la raffica per la prima volta
+	scontro.minigioco_bersaglio = eroe
+	scontro._minigioco_finito({"totali": 12, "parati": 0, "piene": 0, "striscio": 0,
+			"danno": int(eroe.hp_max) + 8, "perfetto": false})
+	esigi(scontro.rivitalizzanti_usati == rialzate,
+			"dopo la raffica Veronica ha dovuto rialzarti: i pugni ti hanno mandato KO")
+	esigi(scontro.tutorial_finito,
+			"finita la raffica l'allenamento non e' andato al colpo finale: il passo e' rimasto aperto")
+	# cosa c'e' da leggere, nell'ordine in cui lo si legge
+	var righe: Array[String] = []
+	var dopo_meteora := ""
+	var colpo_dei_pugni := Callable()
+	var coda: Array = scontro.voce.coda
+	for i in coda.size():
+		var voce_coda: Dictionary = coda[i]
+		var testo := String(voce_coda.testo)
+		righe.append(testo)
+		if testo == "" and not colpo_dei_pugni.is_valid():
+			colpo_dei_pugni = voce_coda.get("effetto", Callable())
+		if "Meteora" in testo and i + 1 < coda.size():
+			dopo_meteora = "effetto" if String((coda[i + 1] as Dictionary).testo) == "" \
+					else String((coda[i + 1] as Dictionary).testo)
+	var tutto := " | ".join(righe)
+	esigi(tutto.find("{") == -1,
+			"nel box dello scontro resta un accordo non risolto: %s" % tutto.left(200))
+	esigi("Sei stata messa KO" in tutto,
+			"il finale non si accorda al femminile: %s" % tutto.left(200))
+	esigi(dopo_meteora == "effetto",
+			"il ritratto non si spegne sulla Meteora di Atlante: dopo c'e' «%s»" % dopo_meteora)
+	esigi(not "Il disallineamento ha vinto" in tutto and not "è a terra" in tutto,
+			"l'allenamento finisce con le righe di una partita persa, dopo il suo finale")
+	# la barra dei pugni dice la vita dei pugni, anche se la Meteora l'ha gia'
+	# tolta tutta
+	esigi(int(eroe.hp) == 0, "il colpo finale non ti ha messo a terra")
+	if colpo_dei_pugni.is_valid():
+		colpo_dei_pugni.call()
+		var scritta := String(eroe.etichetta_vita.text) if eroe.get("etichetta_vita") != null else ""
+		esigi(scritta.contains("1/"),
+				"subito dopo i pugni la scheda dice «%s»: doveva dire 1 punto di vita" % scritta)
+	else:
+		esigi(false, "i pugni presi non mostrano nessun colpo")
+	# e il finale si legge nel box, non dietro al menu
+	esigi(not scontro.in_corso, "lo scontro non si e' chiuso")
+	scontro.decidi_faccia()
+	esigi(String(scontro.plancia.faccia_adesso) == "parlato",
+			"a scontro chiuso con il finale ancora da leggere il quadrante mostra '%s': il testo scorre dietro al menu"
+			% String(scontro.plancia.faccia_adesso))
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	GameState.sesso_protagonista = Testi.MASCHILE
 	await get_tree().process_frame
 
 func prova_la_raffica_accelera_verso_la_fine() -> void:
@@ -11008,9 +11449,12 @@ func prova_la_giornata_passo_per_passo() -> void:
 
 	var tazo_di_partenza := GameState.tazo
 	# [nodo, flag che DEVE esserci dopo, flag che NON deve esserci ancora]
+	# la sala comunicazioni prima chiede (la convocazione), e gli ordini arrivano
+	# solo aprendo il canale: entrarci non accende niente
 	var tappe := [
 		["infermeria_risveglio", "rientro_infermeria", "ordini_ricevuti"],
-		["sala_comunicazioni", "ordini_ricevuti", "data_pad_spiegato"],
+		["sala_comunicazioni", "", "ordini_ricevuti"],
+		["comunicazioni_ordini", "ordini_ricevuti", "data_pad_spiegato"],
 		["data_pad_istruzioni", "data_pad_spiegato", "proiezione_spiegata"],
 		["sala_proiezione", "proiezione_spiegata", ""],
 	]
@@ -11018,11 +11462,11 @@ func prova_la_giornata_passo_per_passo() -> void:
 		var id_nodo := String(tappa[0])
 		var deve := String(tappa[1])
 		var non_ancora := String(tappa[2])
-		esigi(not GameState.ha_flag(deve),
+		esigi(deve == "" or not GameState.ha_flag(deve),
 				"prima di entrare in '%s' il flag '%s' c'e' gia': qualcuno lo ha acceso in anticipo"
 				% [id_nodo, deve])
 		schermata.mostra_nodo(id_nodo)
-		esigi(GameState.ha_flag(deve),
+		esigi(deve == "" or GameState.ha_flag(deve),
 				"dopo '%s' manca il flag '%s'" % [id_nodo, deve])
 		if non_ancora != "":
 			esigi(not GameState.ha_flag(non_ancora),

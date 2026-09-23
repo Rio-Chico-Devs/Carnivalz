@@ -64,6 +64,7 @@ const TESTATA_DOPO := 0.0
 const CASCATA_DOPO := 0.10
 const PANNELLO_DOPO := 0.12
 const SPAZIO_DAL_PANNELLO := 48.0   # fra le righe delle opzioni e il pannello
+const X_TAVOLA := 0.36             # dove comincia la tavola dei comandi; finisce dove il pannello
 # cosa dicono le voci di EXTRA (erano in Extra.gd, che adesso e' una pagina di
 # questo menu). Da confermare con Bru
 const INSTAGRAM := "@iltuohandle (da confermare)"
@@ -90,6 +91,11 @@ var pagina := ""
 var indietro_da_qui := Callable()
 var campo_nome: LineEdit
 var campo_codice: LineEdit
+var domanda: Domanda             # «vuoi rimanere anonimo?», finche' e' aperta
+var quadro: TavolaComandi        # i comandi disegnati, solo in COME SI GIOCA
+# si parte da qui: le prove lo sostituiscono, perche' partire davvero cambierebbe
+# scena in mezzo alle prove
+var al_via := func() -> void: parti()
 
 
 func _ready() -> void:
@@ -284,6 +290,12 @@ func mostra_pagina(nome: String, titolo: String, elenco: Array[Dictionary], prin
 	# si dissolve e non prende piu' clic dall'istante in cui la lasci
 	pagina = nome
 	indietro_da_qui = indietro
+	# la tavola dei comandi e' di COME SI GIOCA soltanto: cambiando passo se ne
+	# va, e tornano le partite al loro posto
+	if quadro != null and is_instance_valid(quadro):
+		quadro.queue_free()
+	quadro = null
+	pannello.visible = true
 	Movimento.congeda(colonna, Movimento.durata("entrata") * Movimento.SOGLIA_CAMBIO)
 	colonna = VBoxContainer.new()
 	colonna.add_theme_constant_override("separation", 0)
@@ -350,7 +362,7 @@ func pagina_principale(fuoco := "") -> void:
 			"Riprendi una partita qualsiasi, o cancellane una." if recente > 0
 			else "Qui arrivano le partite, la prima volta che rientri alla Sede.", pagina_carica, recente <= 0))
 	elenco.append(voce("COME SI GIOCA", "Prima di scendere",
-			"Il menu di pausa, dove si salva, come si combatte e come si parano i pugni.", pagina_come_si_gioca))
+			"I comandi di tastiera e mouse, disegnati: nei menu, nella storia, negli scontri.", pagina_come_si_gioca))
 	elenco.append(voce("COLLEZIONI", "Quello che hai trovato",
 			"Le carte, le creature che hai studiato, gli oggetti che hai visto.", pagina_collezioni))
 	elenco.append(voce("OPZIONI", "Come lo senti, come lo leggi",
@@ -454,6 +466,29 @@ func campo(testo: String, segnaposto := "ANONIMO") -> LineEdit:
 
 
 func comincia() -> void:
+	# SENZA NOME SI CHIEDE. Bru: «se non è immesso un nome deve esserci un pop up
+	# che chiede: vuoi rimanere anonimo?». Lasciare vuoto il campo puo' essere
+	# una scelta o una svista, e solo chi gioca sa quale delle due
+	if campo_nome.text.strip_edges() == "":
+		if domanda == null or not is_instance_valid(domanda):
+			chiedi_se_anonimo()
+		return
+	al_via.call()
+
+
+func chiedi_se_anonimo() -> void:
+	var accordo := GameState.sesso_protagonista
+	domanda = Domanda.apri(self, Testi.accorda("Vuoi rimanere {anonimo|anonima}?", accordo),
+			"Senza un nome, nel gioco ti chiameranno %s." % GameState.nome_anonimo_default,
+			Testi.accorda("SÌ, RESTO {ANONIMO|ANONIMA}", accordo), "NO, SCRIVO UN NOME")
+	domanda.risposta.connect(func(si: bool) -> void:
+		if si:
+			al_via.call()
+		elif is_instance_valid(campo_nome):
+			campo_nome.grab_focus())
+
+
+func parti() -> void:
 	GameState.imposta_nome_protagonista(campo_nome.text)
 	# L'INTRODUZIONE E' CONTENUTO, non una schermata a parte: vive in
 	# data/events_intro.json come tutto il resto. La musica la prende chi comincia
@@ -539,22 +574,29 @@ func vai_a_collezione(scena: String, da_voce: String) -> void:
 	Transizioni.vai(scena)
 
 
-func pagina_come_si_gioca() -> void:
-	# I CONSIGLI SONO LE DESCRIZIONI. Ogni voce e' un argomento, e la
-	# spiegazione e' la descrizione in basso: passandoci sopra si legge, e
-	# premendo la descrizione si fa avanti. Non serve un'altra schermata
+func pagina_come_si_gioca(fuoco := "") -> void:
+	# I COMANDI SI GUARDANO. Bru: «il come si gioca non deve essere cosi' ma
+	# avere una spiegazione grafica con i tasti da tastiera o mouse sui comandi
+	# come in un gioco professionale». A sinistra le categorie, a destra - al
+	# posto delle partite, che qui non servono - la tavola coi tasti disegnati
+	# della categoria accesa; in basso, per ognuna, quello che non e' un tasto
 	var leggi := func() -> void: descrizione.sottolinea()
-	var elenco: Array[Dictionary] = [
-		voce("IL MENU DI PAUSA", "ESC, in qualunque momento",
-				"Storico dei dialoghi, Diario, zaino, squadra e opzioni. Il gioco si ferma finché non riprendi.", leggi),
-		voce("SI SALVA ALLA SEDE", "Da solo, ogni volta che rientri",
-				"Dentro una zona no: se esci dal gioco a metà, quello che hai fatto lì dentro va perso.", leggi),
-		voce("LO SCONTRO", "Non ti aspetta",
-				"Il nemico agisce mentre tu scegli. Quando la linea dell'ECG diventa rossa sei sotto un quarto della vita.", leggi),
-		voce("LE COLLISIONI", "Clicca quando il cerchio si chiude",
-				"In pieno il pugno non ti fa niente, di striscio ti fa metà. Invio para il pugno più vicino.", leggi),
-	]
-	mostra_pagina("come_si_gioca", "COME SI GIOCA", elenco, 0, pagina_principale.bind("COME SI GIOCA"))
+	var elenco: Array[Dictionary] = []
+	for quale: String in TavolaComandi.CATEGORIE:
+		var dati: Dictionary = TavolaComandi.CATEGORIE[quale]
+		elenco.append(voce(quale, String(dati.titolo), String(dati.corpo), leggi))
+	mostra_pagina("come_si_gioca", "COME SI GIOCA", elenco, indice_di(elenco, fuoco),
+			pagina_principale.bind("COME SI GIOCA"))
+	pannello.visible = false
+	quadro = TavolaComandi.new()
+	quadro.anchor_left = X_TAVOLA
+	quadro.anchor_right = X_FINE_PANNELLO
+	quadro.anchor_top = Y_PANNELLO
+	quadro.anchor_bottom = Y_PANNELLO
+	menu.add_child(quadro)
+	for i in voci.size():
+		voci[i].bottone.focus_entered.connect(quadro.mostra.bind(String(elenco[i].testo)))
+	quadro.mostra(String(elenco[indice_di(elenco, fuoco)].testo))
 
 
 # --- opzioni ed extra: pagine di questo menu, non schermate a parte ----------------
