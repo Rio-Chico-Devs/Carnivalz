@@ -65,21 +65,42 @@ func prepara(quale: String) -> void:
 			await apri_dialogo()
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 		"collisioni":
-			# LA RAFFICA FERMATA A META'. I pugni durano mezzo secondo l'uno: a
-			# occhio nudo non si vede dove finiscono, e senza vederlo non si puo'
-			# dire se stanno dentro il quadrante o gli escono fuori.
+			# LA RAFFICA FERMATA IN UN MOMENTO PRECISO. Il secondo argomento dice
+			# quale: "apertura", "chiusura", oppure i secondi dall'inizio dei
+			# pugni (di serie 2.3: un pugno appena parato, uno a meta' strada,
+			# uno appena comparso - le tre cose che si devono leggere insieme).
+			#
+			# L'orologio del minigioco si muove a mano, a passi di un
+			# fotogramma: aspettare fotogrammi veri sotto xvfb vuol dire
+			# fotografare un istante diverso a ogni prova.
 			GameState.nuova_partita()
 			GameState.nemici_combattimento = ["veronica"]
 			var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 			add_child(scontro)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
-			scontro.minigioco.avvia({"quanti": 14, "intervallo": 0.34,
-					"durata": 0.52, "danno": 9})
+			scontro.voce.coda.clear()
+			scontro.set_process(false)
+			var gioco: MinigiocoCombattimento = scontro.minigioco
+			gioco.avvia({"nome": "Collisioni infinite", "quanti": 12,
+					"intervallo": 1.0, "durata": 2.0, "danno": 9})
 			var argomenti := OS.get_cmdline_user_args()
-			var quando := int(argomenti[1]) if argomenti.size() > 1 else 40
-			await attendi(quando)
-			if scontro.minigioco.pugni.is_empty():
-				push_error("nessun pugno a schermo: non c'e' niente da fotografare")
+			var quando := String(argomenti[1]) if argomenti.size() > 1 else "2.3"
+			if quando != "apertura":
+				gioco.salta()
+				var fino_a := 99.0 if quando == "chiusura" else float(quando)
+				var parato := false
+				while gioco.fase == "raffica" and gioco.tempo < fino_a:
+					gioco.passa(1.0 / 60.0)
+					# una mano che prende il primo pugno quando il cerchio si chiude
+					if not parato and gioco.tempo >= 1.95:
+						gioco.colpisci(0)
+						parato = true
+			# alla chiusura il conto compare quando l'ultimo riscontro e' svanito
+			for i in (50 if quando == "chiusura" else 1):
+				gioco.passa(1.0 / 60.0)
+			await attendi(3)
+			if not gioco.attivo:
+				push_error("la raffica non e' a schermo: non c'e' niente da fotografare")
 		"ecgrosso", "ecggiallo":
 			# L'ECG IN AVARIA. Un tracciato a occhio non si giudica da fermo:
 			# serve vederlo col guasto acceso, e per vederlo bisogna portare il

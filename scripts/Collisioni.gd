@@ -14,35 +14,57 @@ extends RefCounted
 #
 # QUI NON C'E' NESSUN NODO. Entrano dei parametri e un dado, esce un CALENDARIO:
 # quando compare ogni pugno, dove, e per quanto resta parabile. Il disegno, il
-# clic e l'orologio stanno nel nodo che lo suona (vedi scripts/combattimento/
-# QuadranteMinigioco.gd). La separazione non e' pignoleria: un calendario si
+# clic e l'orologio stanno in chi lo suona (scripts/combattimento/Minigioco.gd
+# e RiquadroRaffica.gd). La separazione non e' pignoleria: un calendario si
 # prova a mano, in un millesimo di secondo e senza aprire una finestra, mentre
 # di una raffica che vive dentro _process non si puo' provare niente.
 #
 # La stessa struttura serve a tutti i minigiochi che verranno: cambia chi
 # genera il calendario, non chi lo suona.
 
-# Quanto dura la finestra buona rispetto a quella in cui il pugno si vede. Un
-# pugno resta a schermo tutta la sua durata, ma si para solo mentre ARRIVA: la
-# coda e' il pugno che ti ha gia' preso e sta rientrando. Senza questo si
-# parerebbe tutto cliccando in ritardo.
-# QUANTA PARTE DELLA VITA DI UN PUGNO E' ANCORA PARABILE.
+# LEGGERE E PARARE SONO DUE NUMERI DIVERSI, e fino a ieri erano uno.
 #
-# Era 0.62, e con una durata di mezzo secondo voleva dire 0.31 secondi per
-# vedere il pugno, portarci sopra il mouse e premere. Bru, provando: «i pugni
-# che sferra veronica scompaiono troppo velocemente, dai un po' piu' di tempo al
-# giocatore per cliccarci sopra». Misurato: 0.31s e' sotto il tempo di reazione
-# comodo di una mano che deve anche MIRARE, non solo reagire.
+# Il pugno si parava per l'80% del tempo in cui si vedeva: allungare il tempo
+# per leggerlo voleva dire allungare anche quello per pararlo, e l'unico modo
+# di renderlo difficile era farlo sparire in fretta. Bru, provando: «i pugni
+# scompaiono troppo velocemente». Quindi o leggibile e facile, o difficile e
+# illeggibile.
 #
-# A 0.80, con la durata di 0.75 che usa il tutorial, la finestra e' 0.60s. Il
-# pugno resta a schermo ancora un po' dopo - si vede che e' passato, e che
-# quello e' colpa tua - ma la parte in cui vale ancora premere e' quasi doppia.
-const QUOTA_PARABILE := 0.80
-
-# I pugni non arrivano a distanza regolare: un metronomo si impara in tre
-# battute e poi non sbagli piu'. Questo e' quanto puo' scostarsi un pugno dal
-# suo posto nel ritmo, in frazione dell'intervallo.
-const SBANDAMENTO := 0.35
+# osu! ha risolto esattamente questo quasi vent'anni fa, e lo tiene in due
+# impostazioni separate (dalla loro wiki, Beatmap/Approach_rate e
+# Beatmap/Overall_difficulty, e dal sorgente, OsuHitObject.cs e
+# OsuHitWindows.cs):
+#
+#   APPROACH RATE  quanto si vede un cerchio prima del momento giusto: da 1800
+#                  ms (AR0) a 450 ms (AR10). E' il tempo per LEGGERE.
+#   OVERALL        quanto puoi sbagliare quel momento: la finestra piu' larga
+#   DIFFICULTY     e' +/-200 ms a OD0, la piu' stretta +/-20 ms a OD10. E' il
+#                  tempo per PARARE.
+#
+# E fra i due c'e' il cerchio di avvicinamento, che parte a quattro volte il
+# bersaglio e ci si stringe sopra in esattamente il tempo di lettura: quando
+# si chiude, e' il momento. Non devi indovinarlo, lo vedi arrivare.
+#
+# Qui adesso e' uguale. Bru: «ogni pugno deve rimanere visibile per 2 secondi,
+# e ne deve apparire un altro ogni secondo» - due secondi e' piu' di AR0, cioe'
+# piu' leggibile di qualunque mappa di osu!. E la difficolta' non sta piu'
+# nella fretta: sta nel prenderlo QUANDO ARRIVA.
+#
+#   prima della finestra   lo fermi, ma di striscio: meta' danno
+#   dentro la finestra     parata piena: zero danno
+#   dopo                   ti ha preso
+#
+# Cosi' cliccare un pugno fa SEMPRE qualcosa - non esiste il clic che non
+# succede niente - e pararli tutti senza un graffio resta difficile, che e' il
+# «senno sei invincibile» di Bru.
+#
+# LA FINESTRA NON E' SIMMETRICA, e il perche' sta nella documentazione di
+# Godot (Sync the gameplay with audio and music): «Graphics APIs display two
+# or three frames late». Quello che vedi e' gia' vecchio di 33-50 ms, quindi
+# chi preme quando VEDE il cerchio chiudersi preme sempre un po' tardi.
+# Dopo l'impatto si concede quel tanto, non di piu'.
+const FINESTRA_PRIMA := 0.20   # il "meh" di OD0, la finestra piu' larga di osu!
+const FINESTRA_DOPO := 0.12    # due-tre fotogrammi di schermo, piu' uno di input
 
 # QUANTO E' GROSSO UN PUGNO, in frazione del lato corto del quadrante. Sta qui
 # e non nel nodo che lo disegna perche' non e' una scelta grafica: e' la misura
@@ -58,42 +80,52 @@ const TENTATIVI_POSIZIONE := 24
 
 static func calendario(quanti: int, intervallo: float, durata: float,
 		dado: RandomNumberGenerator, proporzione := 1.0,
-		intervallo_finale := -1.0) -> Array[Dictionary]:
-	# LA RAFFICA PUO' STRINGERSI ANDANDO AVANTI. Bru: «la velocita' aumenta
-	# verso la fine». Con "intervallo_finale" il tempo fra un pugno e l'altro
-	# scivola da "intervallo" a quello, in modo lineare: i primi danno il tempo
-	# di capire cosa sta succedendo, gli ultimi no. Sotto zero vuol dire "resta
-	# costante", che e' come si comportava prima e come si comportano le
-	# raffiche degli scontri veri.
+		intervallo_finale := -1.0, sbandamento := 0.0) -> Array[Dictionary]:
 	# Il calendario della raffica. Ogni voce:
-	#   istante  quando compare, in secondi dall'inizio
-	#   durata   per quanto resta a schermo
-	#   scade    l'ultimo istante in cui pararlo vale ancora
-	#   x, y     dove, in frazione del quadrante (0..1)
+	#   istante   quando compare, in secondi dall'inizio
+	#   durata    quanto ci mette ad arrivare: il cerchio si chiude in questo tempo
+	#   impatto   quando arriva, cioe' istante + durata
+	#   piena_da  da quando la parata e' piena (impatto - FINESTRA_PRIMA)
+	#   scade     l'ultimo istante in cui fermarlo vale ancora
+	#   x, y      dove, in frazione del riquadro (0..1)
+	#   esito     "" finche' non e' giudicato, poi "piena" / "striscio"
+	#
+	# UN PUGNO OGNI "intervallo", E BASTA. Prima i pugni sbandavano sempre del
+	# 35% dal loro posto, perche' «un metronomo si impara in tre battute». Ma
+	# Bru adesso chiede il metronomo: «ne deve apparire un altro ogni secondo»
+	# - e ha ragione, col cerchio di avvicinamento il ritmo non si deve
+	# indovinare, si vede. Lo sbandamento resta, ma e' un parametro della
+	# raffica: chi lo vuole lo chiede, di serie e' zero.
+	#
+	# LA RAFFICA PUO' STRINGERSI ANDANDO AVANTI: con "intervallo_finale" il
+	# tempo fra un pugno e l'altro scivola da "intervallo" a quello.
 	var raffica: Array[Dictionary] = []
 	var quando := 0.0
 	var totale := maxi(quanti, 0)
 	for i in totale:
-		# quanto dura QUESTO passo: all'inizio "intervallo", alla fine
-		# "intervallo_finale". Con un pugno solo non c'e' nessuna corsa da fare
 		var avanzamento := float(i) / float(maxi(totale - 1, 1))
 		var passo_adesso := intervallo
 		if intervallo_finale >= 0.0:
 			passo_adesso = lerpf(intervallo, intervallo_finale, avanzamento)
-		var scarto := dado.randf_range(-SBANDAMENTO, SBANDAMENTO) * passo_adesso
+		var scarto := dado.randf_range(-sbandamento, sbandamento) * passo_adesso
 		var istante := maxf(quando + scarto, 0.0)
 		var punto := posizione_libera(raffica, dado, proporzione)
-		raffica.append({
-			"indice": i,
-			"istante": istante,
-			"durata": durata,
-			"scade": istante + durata * QUOTA_PARABILE,
-			"x": punto.x,
-			"y": punto.y,
-			"parato": false,
-		})
+		var pugno := {"indice": i, "istante": istante, "durata": durata,
+				"x": punto.x, "y": punto.y, "parato": false, "esito": ""}
+		raffica.append(pugno)
 		quando += passo_adesso
+	imposta_finestre(raffica, FINESTRA_PRIMA, FINESTRA_DOPO)
 	return raffica
+
+static func imposta_finestre(raffica: Array[Dictionary], prima: float, dopo: float) -> void:
+	# le finestre si scrivono dentro ogni pugno, non si rileggono dalle costanti
+	# al momento del clic: cosi' una raffica di un boss puo' chiederle piu'
+	# strette dai dati, e chi giudica non deve sapere chi l'ha lanciata
+	for pugno in raffica:
+		var impatto := float(pugno.istante) + float(pugno.durata)
+		pugno["impatto"] = impatto
+		pugno["piena_da"] = impatto - maxf(prima, 0.0)
+		pugno["scade"] = impatto + maxf(dopo, 0.0)
 
 static func posizione_libera(raffica: Array[Dictionary],
 		dado: RandomNumberGenerator, proporzione := 1.0) -> Vector2:
@@ -129,25 +161,32 @@ static func posizione_libera(raffica: Array[Dictionary],
 	return Vector2(dado.randf_range(0.08, 0.92), dado.randf_range(0.12, 0.88))
 
 static func durata_totale(raffica: Array[Dictionary]) -> float:
-	# quanto vive la raffica per intero: serve a chi la suona per sapere quando
-	# ha finito, e alle prove per non aspettare a occhio
+	# quanto vive la raffica per intero: fino all'ultima finestra che si chiude
 	var fine := 0.0
 	for pugno in raffica:
-		fine = maxf(fine, float(pugno.istante) + float(pugno.durata))
+		fine = maxf(fine, float(pugno.get("scade", float(pugno.istante) + float(pugno.durata))))
 	return fine
 
-static func para(raffica: Array[Dictionary], indice: int, adesso: float) -> bool:
-	# Un clic su un pugno. Vale solo se arriva entro la sua finestra: dopo
-	# "scade" il pugno si vede ancora ma ti ha gia' preso.
+static func giudica(raffica: Array[Dictionary], indice: int, adesso: float) -> String:
+	# UN CLIC SU UN PUGNO, e cosa vale. "" vuol dire che non conta: non e'
+	# ancora comparso, ti ha gia' preso, o e' gia' stato giudicato. Un pugno si
+	# giudica UNA volta sola - e' la regola che rende inutile cliccare a
+	# ripetizione sperando di cadere nella finestra.
 	if indice < 0 or indice >= raffica.size():
-		return false
+		return ""
 	var pugno: Dictionary = raffica[indice]
 	if bool(pugno.parato):
-		return false
+		return ""
 	if adesso < float(pugno.istante) or adesso > float(pugno.scade):
-		return false
+		return ""
+	var esito := "piena" if adesso >= float(pugno.get("piena_da", pugno.istante)) else "striscio"
 	pugno.parato = true
-	return true
+	pugno.esito = esito
+	return esito
+
+static func para(raffica: Array[Dictionary], indice: int, adesso: float) -> bool:
+	# fermato, in un modo o nell'altro
+	return giudica(raffica, indice, adesso) != ""
 
 static func piu_urgente(raffica: Array[Dictionary], adesso: float) -> int:
 	# QUALE PUGNO PARA UN TASTO. Col mouse scegli tu quale colpire; da tastiera
@@ -171,22 +210,37 @@ static func piu_urgente(raffica: Array[Dictionary], adesso: float) -> int:
 	return scelto
 
 static func parati(raffica: Array[Dictionary]) -> int:
+	# fermati, in pieno o di striscio: quelli che NON ti sono arrivati addosso
 	var quanti := 0
 	for pugno in raffica:
 		if bool(pugno.parato):
 			quanti += 1
 	return quanti
 
+static func conta(raffica: Array[Dictionary], esito: String) -> int:
+	var quanti := 0
+	for pugno in raffica:
+		if String(pugno.get("esito", "")) == esito:
+			quanti += 1
+	return quanti
+
 static func danno(raffica: Array[Dictionary], danno_per_colpo: int) -> int:
-	# Ogni pugno non parato picchia. Pararli tutti azzera il danno, ed e'
-	# esattamente il "senno sei invincibile" di Bru: e' concesso, ma la finestra
-	# e' cosi' stretta che riuscirci e' l'eccezione.
-	return maxi(raffica.size() - parati(raffica), 0) * maxi(danno_per_colpo, 0)
+	# Ogni pugno che passa picchia per intero, ogni pugno fermato di striscio
+	# per meta' (arrotondata per eccesso: di striscio fa male lo stesso).
+	# Pararli tutti in pieno azzera il danno, ed e' esattamente il «senno sei
+	# invincibile» di Bru: e' concesso, ma chiede di prenderli tutti quando
+	# arrivano, non quando compaiono.
+	var colpo := maxi(danno_per_colpo, 0)
+	var passati := maxi(raffica.size() - parati(raffica), 0)
+	return passati * colpo + conta(raffica, "striscio") * int(ceil(colpo / 2.0))
 
 static func esito(raffica: Array[Dictionary], danno_per_colpo: int) -> Dictionary:
+	var piene := conta(raffica, "piena")
 	return {
 		"totali": raffica.size(),
 		"parati": parati(raffica),
+		"piene": piene,
+		"striscio": conta(raffica, "striscio"),
 		"danno": danno(raffica, danno_per_colpo),
-		"perfetto": raffica.size() > 0 and parati(raffica) == raffica.size(),
+		"perfetto": raffica.size() > 0 and piene == raffica.size(),
 	}

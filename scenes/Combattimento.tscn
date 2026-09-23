@@ -57,13 +57,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Quadrante" type="Control" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-anchors_preset = 0
-mouse_filter = 2
-
 [node name="AreaAvanza" type="Button" parent="."]
 unique_name_in_owner = true
 visible = false

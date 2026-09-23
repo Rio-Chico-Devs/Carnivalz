@@ -641,8 +641,8 @@ func mostra_faccia(quale: String) -> void:
 	faccia_comandi.visible = quale == "comandi"
 	faccia_lista.visible = quale == "lista"
 	faccia_parlato.visible = quale == "parlato"
-	# i due tasselli seguono TUTTE le facce tranne il parlato (vedi sopra)
-	var si_vedono := quale != "parlato"
+	# i tasselli stanno coi comandi e con la lista; col parlato e con la raffica no
+	var si_vedono := quale == "comandi" or quale == "lista"
 	if tasto_mattanza != null:
 		tasto_mattanza.visible = si_vedono
 	if tasto_bond != null:

@@ -7,6 +7,21 @@ uno studio da 45.000 giocatori (vedi `docs/tutorial.md`, sezione 0).
 
 Quindi: Bru le scarica, io le leggo qui.
 
+**Con un'eccezione, trovata studiando la raffica** (vedi `docs/raffica.md`):
+`git clone` da GitHub passa. Tutto quello che vive in un repository pubblico
+lo leggo alla fonte senza chiedere niente a nessuno — con `--sparse` si prende
+solo la pagina che serve:
+
+| repository | cosa c'è dentro |
+|---|---|
+| `godotengine/godot-docs` | la documentazione di Godot, in `.rst` |
+| `godotengine/godot` | il motore: `doc/classes/*.xml` sono le schede delle classi, `scene/` il codice |
+| `ppy/osu-wiki` | la wiki di osu! |
+| `ppy/osu` | il codice di osu!(lazer): i numeri veri, non riassunti |
+
+Restano bloccati i siti senza repository: le linee guida di accessibilità, i
+paper, i blog.
+
 ## Come metterle
 
 Un file per fonte, con un nome che dica cos'è:

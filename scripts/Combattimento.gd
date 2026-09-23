@@ -50,7 +50,6 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 @onready var box = %Box
 @onready var volanti: Control = %Volanti
 @onready var area_avanza: Button = %AreaAvanza
-@onready var quadrante: Control = %Quadrante
 
 # I quattro collaboratori. In modalita' muta non toccano nessun nodo.
 var voce: VoceCombattimento
@@ -211,7 +210,7 @@ func _ready() -> void:
 		plancia.costruisci(corpo)
 		plancia.ospita_box(box)
 		plancia.mostra_faccia("parlato")
-		minigioco.collega(quadrante, box)
+		minigioco.collega(plancia.interno_di(plancia.quadrante), plancia)
 		voce.collega(box, area_avanza, volanti)
 		campo.collega_plancia(plancia)
 		menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
