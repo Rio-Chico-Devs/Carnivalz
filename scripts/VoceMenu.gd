@@ -45,6 +45,10 @@ extends Control
 # srotolarsi; il rifiuto non scuote, lampeggia di rosso e suona.
 
 signal scoppio(dove: Vector2)
+# LA VOCE E' STATA SCELTA: e' a questo che si collega quello che la voce fa, non
+# a bottone.pressed. Una voce inerte premuta dice di no e NON emette scelta -
+# collegandosi al bottone, l'azione partirebbe lo stesso sotto il rifiuto
+signal scelta
 
 const SPAZIO_SEGNO := 48       # la corsia del segno: il testo parte sempre da qui
 const LATO_SEGNO := 30.0
@@ -74,6 +78,12 @@ var silenzio := false
 # Premuta, non finge una conferma: dice di no (rifiuta)
 var inerte := false
 var ultima_tinta := Color(0, 0, 0, 0)
+# i due colori del testo e di quanto avanza la voce accesa: qui quelli della
+# pausa (rosso che diventa bianco sulla lastra), le voci del menu principale
+# (VoceMacchia) ne hanno altri
+var tinta_spenta := Color.WHITE
+var tinta_accesa := Color.WHITE
+var scivolo := 0.0
 
 
 static func nuova(nome_segno: String, testo: String, corpo := 0) -> VoceMenu:
@@ -87,6 +97,9 @@ static func nuova(nome_segno: String, testo: String, corpo := 0) -> VoceMenu:
 func costruisci(nome_segno: String, testo: String, corpo: int) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	tinta_spenta = Stile.colore("accento")
+	tinta_accesa = Stile.colore("testo")
+	scivolo = Movimento.misura("scivolo")
 	accesa = Movimento.molla("forma")
 	tinta = Movimento.molla("colore")
 	bottone = Button.new()
@@ -123,7 +136,7 @@ func _get_minimum_size() -> Vector2:
 	if bottone == null:
 		return Vector2.ZERO
 	var m := bottone.get_combined_minimum_size()
-	return Vector2(m.x + Movimento.misura("scivolo") + SFOGLIA.x, m.y)
+	return Vector2(m.x + scivolo + SFOGLIA.x, m.y)
 
 
 func _notification(cosa: int) -> void:
@@ -207,6 +220,7 @@ func premi() -> void:
 	lampo = LAMPO
 	scoppio.emit(segno.get_global_rect().get_center())
 	sveglia()
+	scelta.emit()
 
 
 func rifiuta() -> void:
@@ -260,7 +274,7 @@ func applica() -> void:
 		return
 	var arrivo := 0.0 if Movimento.ridotto() else ENTRA_DA * (1.0 - entrata)
 	var scossa := Movimento.scossa(rifiutata) if rifiutata >= 0.0 else 0.0
-	bottone.position.x = arrivo + Movimento.misura("scivolo") * accesa.valore + scossa
+	bottone.position.x = arrivo + scivolo * accesa.valore + scossa
 	bottone.modulate.a = entrata
 	bottone.scale = Vector2.ONE + (Movimento.gelatina(premuta) if premuta >= 0.0 else Vector2.ZERO)
 	colora(tinta.valore)
@@ -270,9 +284,9 @@ func applica() -> void:
 func colora(quanto: float) -> void:
 	# durante il lampo la lastra diventa bianca: il testo torna rosso, se no per
 	# settanta millesimi sarebbe bianco su bianco
-	var c := Stile.colore("accento").lerp(Stile.colore("testo"), clampf(quanto, 0.0, 1.0))
+	var c := tinta_spenta.lerp(tinta_accesa, clampf(quanto, 0.0, 1.0))
 	if lampo > 0.0:
-		c = Stile.colore("accento")
+		c = colore_del_lampo()
 	if c == ultima_tinta:
 		return
 	ultima_tinta = c
@@ -280,6 +294,10 @@ func colora(quanto: float) -> void:
 		bottone.add_theme_color_override(stato, c)
 	segno.tinta = c
 	segno.queue_redraw()
+
+
+func colore_del_lampo() -> Color:
+	return Stile.colore("accento")
 
 
 # --- il disegno -------------------------------------------------------------------

@@ -395,7 +395,7 @@ func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null
 	# prima le schegge, poi quello che la voce fa: se apre un altro pannello,
 	# questa voce sta per sparire, e le schegge devono essere gia' partite
 	v.scoppio.connect(schegge.scoppia)
-	v.bottone.pressed.connect(richiamo)
+	v.scelta.connect(richiamo)
 	(dove if dove != null else colonna).add_child(v)
 	return v
 

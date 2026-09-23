@@ -5,6 +5,7 @@
     "usa_font_di_sistema": true,
     "file_corpo": "res://art/font/corpo.ttf",
     "file_titolo": "res://art/font/titolo.ttf",
+    "file_arrotondato": "res://art/font/arrotondato.ttf",
     "corpo": [
       "Inter",
       "Segoe UI",
@@ -30,9 +31,17 @@
       "DejaVu Sans",
       "sans-serif"
     ],
+    "arrotondato": [
+      "Nunito",
+      "Varela Round",
+      "Quicksand",
+      "DejaVu Sans",
+      "sans-serif"
+    ],
     "_nota": "Il disegno di Bru ha un carattere pesante, squadrato, senza grazie - niente a che vedere con le grazie di prima. Se metti un .ttf in art/font/ e scrivi il percorso in file_corpo/file_titolo, quello vince su tutto: l'elenco qui sotto e' il ripiego di sistema fino ad allora, scelto per somigliargli il piu' possibile su Windows, Mac e Linux.",
     "_nota_corpo": "IL CORPO NON E' IL TITOLO, e per un po' lo e' stato: queste due liste erano identiche, tutte e due in testa con Haettenschweiler e Impact. Sono caratteri da manifesto - condensatissimi, occhielli piccoli, nessuno spazio fra le lettere - e vanno benissimo per CARNIVALZ a quarantaquattro, e malissimo per tre righe di dialogo a ventisei. Non si vedeva provando su Linux, dove nessuno dei due c'e' e si ripiegava su Liberation Sans: si vedeva solo su Windows, che ce li ha tutti e due.",
-    "_nota_licenza": "Impact e Haettenschweiler sono di Microsoft e NON si possono incorporare in un gioco: il permesso di incorporare vale per i documenti, non per le applicazioni, e nemmeno convertendoli. Finche' si pescano dal sistema va bene, ma vuol dire che il gioco si legge diverso su ogni macchina. Per spedirlo serve un .ttf con licenza aperta (OFL) dentro art/font/, e allora file_corpo/file_titolo vincono su tutto."
+    "_nota_licenza": "Impact e Haettenschweiler sono di Microsoft e NON si possono incorporare in un gioco: il permesso di incorporare vale per i documenti, non per le applicazioni, e nemmeno convertendoli. Finche' si pescano dal sistema va bene, ma vuol dire che il gioco si legge diverso su ogni macchina. Per spedirlo serve un .ttf con licenza aperta (OFL) dentro art/font/, e allora file_corpo/file_titolo vincono su tutto.",
+    "_nota_ofl": "DENTRO art/font/ CI SONO DUE CARATTERI VERI, e vincono sull'elenco di sistema: Anton per i titoli (pesante e condensato, il piu' vicino fra quelli liberi al carattere del menu di Borderlands 2 che Bru ha preso come riferimento) e Nunito, arrotondato, per le scritte piccole del menu principale. Tutti e due con licenza SIL OFL: si possono incorporare e distribuire col gioco. Vedi art/font/LEGGIMI.md."
   },
   "_nota_dimensioni": "Scala tipografica: pochi gradini, sempre gli stessi. Niente font_size a occhio dentro le scene.",
   "dimensioni": {
@@ -86,7 +95,27 @@
     "_nota_sfondo_combattimento": "Bianco, e non e' un ripensamento: nei tre disegni di Bru la schermata di combattimento sta su una pagina BIANCA, ed e' quella che fa esistere i bordi neri spessi dei pannelli. Provata su nero, i bordi sparivano e restavano quattro rettangoli che galleggiavano nel buio. Il riquadro del nemico resta nero dentro: e' l'unico, e ci sta la creatura.",
     "barra_vuota": "#333333",
     "_nota_contrasto": "I colori qui sotto sono stati MISURATI, non scelti a occhio: rapporto di contrasto WCAG fra quello che si vede e quello che ci sta dietro. Tre erano sotto la soglia e riguardavano proprio le cose piu' urgenti - la linea rossa dell'ECG (1.91: quando stai per morire era la meno visibile di tutte), il pieno delle barre contro il loro vuoto (1.07: di una barra non si capiva quanto fosse piena), e i tasti MATTANZA e BOND da spenti (1.85: non si vedeva nemmeno che ci fosse un tasto). Se cambi uno di questi valori, rimisura.",
-    "comando_spento": "#8a8a8a"
+    "comando_spento": "#8a8a8a",
+    "_nota_menu": "IL MENU PRINCIPALE E' NOTTE, E LA SCELTA E' L'UNICA COSA CALDA. E' la lezione del riferimento di Bru (il menu di Borderlands 2): tutto quello che non e' scelto sta in una famiglia sola di blu freddi e smorzati, e la voce scelta e' dell'unico colore caldo, dalla parte opposta del cerchio dei colori - li' il giallo sul blu, qui il cremisi di Carnivalz sul blu notte. Le voci spente sono volutamente poco contrastate (restano sopra il 3:1 del testo grande): se si staccassero tutte, non se ne staccherebbe nessuna. La scelta ha dietro una macchia d'inchiostro quasi nera, che le da' il contrasto che il cremisi da solo sul blu non avrebbe.",
+    "menu_notte_alto": "#0c2336",
+    "menu_notte_basso": "#2d5c7c",
+    "menu_lontano": "#1f4763",
+    "menu_sagoma": "#0f2b40",
+    "menu_sagoma_chiara": "#173c57",
+    "menu_primo_piano": "#06121c",
+    "menu_luna": "#bcd9e6",
+    "menu_nebbia": "#3b7292",
+    "menu_lampadina": "#e8f4ff",
+    "menu_voce": "#6f93ad",
+    "menu_chiaro": "#a9cfd8",
+    "menu_scia": "#5fb3d1",
+    "menu_macchia": "#05080c",
+    "menu_spruzzo": "#6f86c4",
+    "menu_descrizione": "#dbe8ef",
+    "menu_riga": "#0c1e2c",
+    "menu_riga_bordo": "#3d6f8f",
+    "menu_riga_accesa": "#1a4a6b",
+    "menu_riga_accesa_bordo": "#8fc6e0"
   },
   "_nota_colori_danno": "Il colore dei numeri che volano addosso a chi incassa. Un colpo normale e' rosso; un critico e' oro e piu' grande; un attacco o uno stato con un elemento porta il colore del suo elemento, cosi' si vede a colpo d'occhio COSA ti ha fatto male e non solo quanto. Un'arma, una mossa o uno stato dichiarano il proprio elemento col campo \"elemento\".",
   "colori_danno": {

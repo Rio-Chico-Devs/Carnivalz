@@ -63,6 +63,8 @@ func _draw() -> void:
 			traccia_uscita(centro, raggio, spessore)
 		"indietro":
 			traccia_indietro(centro, raggio, spessore)
+		"emblema":
+			traccia_emblema(centro, raggio, spessore)
 		_:
 			draw_arc(centro, raggio, 0.0, TAU, 20, tinta, spessore)
 
@@ -132,3 +134,20 @@ func traccia_indietro(centro: Vector2, raggio: float, spessore: float) -> void:
 			tinta, spessore)
 	draw_line(centro + Vector2(-raggio * 0.45, raggio * 0.55), centro + Vector2(-raggio, 0.0),
 			tinta, spessore)
+
+
+func traccia_emblema(centro: Vector2, raggio: float, spessore: float) -> void:
+	# IL SEGNO DI CARNIVALZ accanto alla voce scelta del menu principale, dove
+	# Borderlands mette il simbolo della Cripta: un rombo pieno col bordo nero
+	# e una Z dentro. Il rombo e' lo stesso del «◆ premi per continuare ◆»
+	var nero := Stile.colore("menu_macchia")
+	var rombo := PackedVector2Array([centro + Vector2(0.0, -raggio * 1.1),
+			centro + Vector2(raggio * 1.1, 0.0), centro + Vector2(0.0, raggio * 1.1),
+			centro + Vector2(-raggio * 1.1, 0.0)])
+	draw_colored_polygon(rombo, tinta)
+	var chiuso := rombo.duplicate()
+	chiuso.append(rombo[0])
+	draw_polyline(chiuso, Color(nero, tinta.a), spessore * 0.8, true)
+	var z := raggio * 0.36
+	draw_polyline(PackedVector2Array([centro + Vector2(-z, -z), centro + Vector2(z, -z),
+			centro + Vector2(-z, z), centro + Vector2(z, z)]), Color(nero, tinta.a), spessore * 0.75)

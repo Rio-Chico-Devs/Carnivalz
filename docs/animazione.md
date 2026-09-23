@@ -457,8 +457,66 @@ codice e guardando la prova fallire):
 - i conti di un fotogramma dell'entrata stanno sotto i 2 ms (senza finestra non
   si misura il disegno: questa è solo la parte che scriviamo noi).
 
-**Quello che manca, in ordine:** menu principale, Sede, Negozio (dove la voce
-inerte serve davvero: l'oggetto che non ti puoi permettere), Opzioni (le
-intestazioni grigie e le caselle quasi invisibili vanno rifatte), mappe, e per
-ultimo il menu dello scontro.
+**Quello che manca, in ordine:** Sede, Negozio (dove la voce inerte serve
+davvero: l'oggetto che non ti puoi permettere), Opzioni (le intestazioni grigie
+e le caselle quasi invisibili vanno rifatte), mappe, e per ultimo il menu dello
+scontro. Il menu principale è al §8.
+
+---
+
+## 8. Il menu principale, sul riferimento di Bru
+
+Bru ha mandato il menu principale di Borderlands 2 come riferimento («la nostra
+è 2/10, questa è 9/10»), chiedendo di guardarne il layout preciso, il carattere,
+gli effetti dietro il testo e la teoria del colore, e di dare al menu più passi
+e più organizzazione. L'immagine è sua; qui c'è solo quello che se n'è misurato
+(ingrandendola e campionando i colori).
+
+**Il layout**, in frazioni dello schermo (su 736×414):
+
+| cosa | dove | qui |
+|---|---|---|
+| testata «MAIN MENU», piccola e tonda, su una scia di luce | 7,7% da sinistra, ~9% dall'alto | «MENU PRINCIPALE», stesso posto |
+| voci, maiuscole strette, una sotto l'altra | dal 12% al 54%, passo 5,65% | passo di 40 pixel a 720 |
+| la voce scelta: gialla, col simbolo a sinistra e una macchia d'inchiostro nera dietro | — | cremisi, col rombo di Carnivalz, macchia quasi nera |
+| descrizione della voce, con una pennellata chiara dietro l'inizio del titolo | in basso a sinistra, dall'83% | uguale |
+| la squadra: titolo con contatore, quattro righe, la prima accesa | in alto a destra, dal 71% | le cinque partite, la più recente accesa |
+| i comandi | in basso a destra | INVIO Seleziona, ESC Indietro, cliccabili |
+
+**Il colore.** Nel riferimento tutto quello che non è scelto sta in una
+famiglia sola di blu (la scena, le voci spente `#527690`, la testata
+`#a5c4c9`); la scelta è l'unico colore caldo, dall'altra parte del cerchio. Qui
+la notte del luna park e le voci spente sono blu, la scelta è il cremisi di
+Carnivalz. Una prova misura che ogni colore del menu stia fra 180° e 260° di
+tinta e a più di 120° dal cremisi.
+
+**La macchia fa un lavoro.** Il cremisi dritto sul cielo sta fra 2,6 e 3,5:1 a
+seconda della riga: nelle righe basse sotto il 3:1 del testo grande. Sulla
+macchia sta a 4,3:1 su tutte. È la ragione per cui nel riferimento il giallo ha
+il nero dietro. (Il primo tentativo scuriva la sinistra dello schermo quasi al
+nero, e la macchia spariva: nero su nero. Nel riferimento la sinistra è ancora
+blu, `#2c465f`.)
+
+**I caratteri.** Anton per le voci (pesante e stretto, il più vicino fra quelli
+liberi al carattere del riferimento) e Nunito, tondo, per le scritte piccole:
+due caratteri per due mestieri, come nel riferimento. Tutti e due OFL, dentro
+`art/font/` con le licenze. Anton a corpo 31 ha una riga di 48 pixel; le voci
+sono tutte maiuscole, quindi si toglie l'aria sopra e sotto (una FontVariation
+con le spaziature negative) e il passo torna a 40.
+
+**I passi.** Un titolo («premi un tasto»), poi il menu, che le partite non le
+mostra: stanno dietro CONTINUA (la più recente), NUOVA PARTITA (dove, poi chi
+sei), CARICA PARTITA (quale, o quale cancellare). ESC torna indietro di un passo.
+Il titolo si vede una volta per sessione. I consigli che stavano sotto il menu
+sono diventati una voce, COME SI GIOCA, e si leggono nella descrizione.
+
+**Il fondale** è un luna park disegnato a sagome (la ruota che gira in due
+minuti, il tendone, i fili di lampadine, la nebbia), con la prospettiva aerea
+e la parallasse col mouse. Aspetta un disegno vero: `art/menu/sfondo.png`
+prende il suo posto senza toccare il codice.
+
+**Una trappola trovata strada facendo**: senza finestra (`--headless`) Godot non
+sa l'altezza vera di un carattere importato — Anton risulta alto 93 pixel a
+corpo 31 invece di 48. Le prove del menu quindi misurano posizioni e ancore,
+mai altezze di testo.
 

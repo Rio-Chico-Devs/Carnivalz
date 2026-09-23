@@ -147,7 +147,7 @@ func interlinea(etichetta: Control, quale: String, corpo: int) -> void:
 	etichetta.add_theme_constant_override("line_separation" if ricco else "line_spacing",
 			int(round(maxf(voluta - naturale, 0.0))))
 
-func contorno(etichetta: Label, corpo: int) -> void:
+func contorno(etichetta: Control, corpo: int) -> void:
 	# IL CONTORNO NERO INTORNO A UN NUMERO CHE ESCE SOPRA QUALUNQUE COSA.
 	#
 	# Serve dove il fondo non si sa: un numero di danno esce sopra il ritratto di

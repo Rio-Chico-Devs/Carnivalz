@@ -128,6 +128,10 @@ func _ready() -> void:
 	prova_il_menu_di_pausa_si_muove_ma_non_fa_aspettare()
 	prova_il_movimento_ridotto_toglie_i_movimenti_non_le_voci()
 	await prova_la_voce_inerte_dice_di_no()
+	await prova_il_menu_principale_ha_piu_passi()
+	await prova_il_menu_principale_sta_dove_sta_nel_riferimento()
+	prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda()
+	await prova_la_voce_col_segno_e_la_macchia()
 	await prova_un_numero_che_si_anima_non_fa_mai_aspettare()
 	await prova_i_tazo_si_vedono_scendere_ma_non_fanno_aspettare()
 	await prova_la_forma_del_testo()
@@ -1383,13 +1387,16 @@ func prova_gerarchia_schermate() -> void:
 	# Chi puo' nominare la gestione dei salvataggi:
 	#   GameState  - ce l'ha dentro, e' lui che scrive i file
 	#   Menu       - E' la schermata principale
+	#   Partite    - e' la schermata principale anche lui: legge le testate dei
+	#                file per il menu (la piu' recente, la data, il nome), e il
+	#                pannello «Le tue partite» passa da qui invece che da GameState
 	# Chi puo' chiamare salva():
 	#   Sede         - rientrare alla Sede E' il salvataggio
 	#   IngressoNodo - i checkpoint di meta' dungeon, deliberati e documentati
 	titolo("la gerarchia: i salvataggi stanno solo dove devono")
 	var gestione := ["carica_slot(", "salva_slot(", "elimina_slot(", "anteprima_slot(",
 			"ha_salvataggio_slot(", "nome_slot(", "imposta_slot(", "percorso_slot("]
-	var puo_gestire := ["res://scripts/GameState.gd", "res://scripts/Menu.gd"]
+	var puo_gestire := ["res://scripts/GameState.gd", "res://scripts/Menu.gd", "res://scripts/Partite.gd"]
 	var puo_salvare := ["res://scripts/GameState.gd", "res://scripts/Sede.gd",
 			"res://scripts/IngressoNodo.gd"]
 	for percorso in script_del_gioco():
@@ -7205,7 +7212,10 @@ func prova_il_menu_di_pausa_si_muove_ma_non_fa_aspettare() -> void:
 	var mediana := costi[floori(costi.size() / 2.0)]
 	esigi(mediana < 1000, "un fotogramma tipico dell'entrata costa %d microsecondi di conti" % mediana)
 	esigi(costi.back() < 8000, "il fotogramma peggiore dell'entrata costa %d microsecondi" % costi.back())
-	# 3. sfiorare col mouse sposta il fuoco, e fa il suo tocco
+	# 3. sfiorare col mouse sposta il fuoco, e fa il suo tocco (l'orologio
+	#    dei tocchi si azzera: due tocchi a meno di 30 ms sono uno solo, e la
+	#    prova prima potrebbe averne appena fatto uno)
+	Movimento.ultimo_sfioro = -1.0
 	voci[3].sfiorata()
 	esigi(voci[3].bottone.has_focus() and riprendi.accesa.obiettivo == 0.0,
 			"passare col mouse su una voce non la accende, o ne lascia accese due")
@@ -7301,6 +7311,231 @@ func prova_la_voce_inerte_dice_di_no() -> void:
 	esigi(absf(inerte.bottone.position.x) > 0.5, "la voce inerte dice di no senza scuotersi")
 	viva.queue_free()
 	inerte.queue_free()
+	Impostazioni.movimento_ridotto = prima
+
+func tasto_premuto(codice: Key) -> InputEventKey:
+	var evento := InputEventKey.new()
+	evento.keycode = codice
+	evento.physical_keycode = codice
+	evento.pressed = true
+	return evento
+
+func esc_premuto() -> InputEventAction:
+	var evento := InputEventAction.new()
+	evento.action = "ui_cancel"
+	evento.pressed = true
+	return evento
+
+func testi_delle_voci(schermo: MenuPrincipale) -> Array[String]:
+	var testi: Array[String] = []
+	for v in schermo.voci:
+		testi.append(v.bottone.text)
+	return testi
+
+func partita_di_prova() -> int:
+	# una partita vera, scritta dal gioco, in uno slot libero: la prova la
+	# cancella alla fine. Se sono tutti pieni non ne scrive (e lo dice)
+	for slot in range(GameState.SLOT_MASSIMO, 0, -1):
+		if not GameState.ha_salvataggio_slot(slot):
+			GameState.nuova_partita()
+			GameState.imposta_nome_protagonista("Prova")
+			GameState.salva_slot(slot)
+			return slot
+	return 0
+
+func prova_il_menu_principale_ha_piu_passi() -> void:
+	# «NON CHE TI SBATTE SUBITO GLI SLOT O LA PARTITA SALVATA, ci vuole piu'
+	# steps e organizzazione nella ui» (Bru). Qui si cammina il menu come lo
+	# camminerebbe un giocatore: il titolo, poi il menu - dove le partite non
+	# ci sono - poi le partite dietro le voci giuste, e ESC che torna indietro
+	# di un passo alla volta.
+	titolo("il menu principale ha piu' passi, e le partite stanno dietro le voci")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true   # la descrizione cambia subito, senza aspettare i tween
+	MenuPrincipale.titolo_visto = false
+	var scritta := partita_di_prova()
+	esigi(scritta > 0, "non c'e' uno slot libero per la partita di prova")
+	var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(schermo)
+	await get_tree().process_frame
+	# 1. il titolo per primo, e il menu no
+	esigi(schermo.insegna != null and not schermo.menu.visible,
+			"la schermata principale non comincia dal titolo: il menu arriva addosso")
+	schermo._unhandled_input(tasto_premuto(KEY_ENTER))
+	esigi(schermo.insegna == null and schermo.menu.visible and schermo.pagina == "principale",
+			"premuto un tasto sul titolo, il menu non si apre")
+	# 2. le voci del menu, e nessuna partita fra loro
+	var testi := testi_delle_voci(schermo)
+	esigi(testi[0] == "CONTINUA", "con una partita salvata la prima voce e' '%s', non CONTINUA" % testi[0])
+	for voce_menu in ["NUOVA PARTITA", "CARICA PARTITA", "COME SI GIOCA", "COLLEZIONI", "OPZIONI", "EXTRA", "ESCI"]:
+		esigi(voce_menu in testi, "nel menu principale manca %s" % voce_menu)
+	for testo in testi:
+		esigi(not testo.begins_with("PARTITA "), "il menu principale elenca le partite: '%s'" % testo)
+	# 3. ogni voce ha la sua descrizione, e la descrizione segue il fuoco
+	var titoli: Array[String] = []
+	for v in schermo.voci:
+		v.sfiorata()
+		esigi(schermo.descrizione.titolo.text != "" and schermo.descrizione.corpo.text != "",
+				"la voce '%s' non ha una descrizione" % v.bottone.text)
+		titoli.append(schermo.descrizione.titolo.text)
+	esigi(titoli.size() == 8 and titoli[1] != titoli[2], "la descrizione non cambia passando da una voce all'altra")
+	# 4. la principale chiude la cascata
+	var ultima := 0.0
+	for v in schermo.voci:
+		ultima = maxf(ultima, v.ritardo)
+	esigi(is_equal_approx(schermo.voci[0].ritardo, ultima), "CONTINUA non entra per ultima")
+	# 5. i passi: NUOVA PARTITA elenca le cinque partite; ESC torna al menu
+	schermo.pagina_nuova()
+	esigi(testi_delle_voci(schermo).size() == GameState.SLOT_MASSIMO and schermo.pagina == "nuova",
+			"NUOVA PARTITA non elenca le %d partite" % GameState.SLOT_MASSIMO)
+	schermo.voci[scritta - 1].bottone.pressed.emit()
+	esigi(schermo.pagina == "sovrascrivi",
+			"scegliere per una partita nuova uno slot pieno non chiede niente: la vecchia sparirebbe in silenzio")
+	schermo._unhandled_input(esc_premuto())
+	esigi(schermo.pagina == "nuova", "ESC dalla conferma non torna alle partite (pagina: %s)" % schermo.pagina)
+	schermo._unhandled_input(esc_premuto())
+	esigi(schermo.pagina == "principale", "ESC dalle partite non torna al menu (pagina: %s)" % schermo.pagina)
+	# 6. CARICA: una partita libera e' inerte - dice di no e resta li'
+	schermo.pagina_carica()
+	var libera := 1 if scritta != 1 else 2
+	if not GameState.ha_salvataggio_slot(libera):
+		schermo.voci[libera - 1].bottone.pressed.emit()
+		esigi(schermo.pagina == "carica" and Movimento.ultimo_suono == "rifiuto",
+				"caricare una partita libera non dice di no (pagina: %s)" % schermo.pagina)
+	# 7. CANCELLA: si chiede, e poi si cancella davvero
+	schermo.pagina_cancella()
+	schermo.voci[scritta - 1].bottone.pressed.emit()
+	esigi(schermo.pagina == "conferma_cancella", "cancellare una partita non chiede conferma")
+	schermo.voci[1].bottone.pressed.emit()
+	esigi(not GameState.ha_salvataggio_slot(scritta), "confermata la cancellazione, la partita %d c'e' ancora" % scritta)
+	# 8. ESC dal menu torna al titolo; e il titolo si vede una volta sola
+	schermo.pagina_principale()
+	schermo._unhandled_input(esc_premuto())
+	esigi(schermo.insegna != null, "ESC dal menu principale non torna al titolo")
+	schermo._unhandled_input(tasto_premuto(KEY_SPACE))
+	var di_nuovo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(di_nuovo)
+	await get_tree().process_frame
+	esigi(di_nuovo.insegna == null and di_nuovo.pagina == "principale",
+			"tornando al menu (dalle Opzioni) si rivede il titolo: il passo in piu' diventa un ostacolo")
+	# 9. senza partite: CONTINUA non c'e', e CARICA dice di no
+	if Partite.occupate().is_empty():
+		di_nuovo.pagina_principale()
+		esigi(testi_delle_voci(di_nuovo)[0] == "NUOVA PARTITA" and di_nuovo.voci[1].inerte,
+				"senza partite il menu offre CONTINUA, o CARICA non dice di no")
+		# e dire di no vuol dire NON andarci: una voce inerte che scuote la
+		# testa e poi apre la pagina lo stesso e' peggio di una voce normale
+		di_nuovo.voci[1].bottone.pressed.emit()
+		esigi(di_nuovo.pagina == "principale",
+				"CARICA senza partite dice di no e poi apre lo stesso la pagina '%s'" % di_nuovo.pagina)
+	schermo.queue_free()
+	di_nuovo.queue_free()
+	MenuPrincipale.titolo_visto = false
+	GameState.nuova_partita()
+	Impostazioni.movimento_ridotto = prima
+
+func prova_il_menu_principale_sta_dove_sta_nel_riferimento() -> void:
+	# IL LAYOUT DEL RIFERIMENTO, in frazioni dello schermo. Bru: «guarda
+	# attentamente il layout PRECISO di questa schermata». Misurato sul menu di
+	# Borderlands 2 (736x414): le voci e la testata allineate al 7,8% da
+	# sinistra, la testata all'8% dall'alto, la descrizione sotto l'80%, il
+	# pannello in alto a destra dal 71%, i comandi in basso a destra.
+	#
+	# Solo misure orizzontali e ancore: senza finestra Godot non sa l'altezza
+	# vera di un carattere importato (Anton risulta alto 93 pixel a corpo 31,
+	# in una finestra vera 48), quindi le altezze qui mentirebbero.
+	titolo("il menu principale sta dove sta nel riferimento")
+	MenuPrincipale.titolo_visto = true
+	var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(schermo)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var schermata := schermo.size
+	var testata := schermo.testata.global_position / schermata
+	esigi(absf(testata.x - 0.078) < 0.01 and absf(testata.y - 0.08) < 0.01,
+			"la testata sta a %s dello schermo, nel riferimento a (0.078, 0.08)" % testata)
+	var testo_voci := (schermo.colonna.global_position.x + VoceMenu.SPAZIO_SEGNO) / schermata.x
+	esigi(absf(testo_voci - testata.x) < 0.003,
+			"le voci cominciano a %.3f e la testata a %.3f: nel riferimento sono sulla stessa riga verticale"
+			% [testo_voci, testata.x])
+	esigi(schermo.descrizione.global_position.y / schermata.y >= 0.8,
+			"la descrizione comincia al %.0f%% dell'altezza: nel riferimento sta in fondo"
+			% (schermo.descrizione.global_position.y / schermata.y * 100.0))
+	var pannello := Rect2(schermo.pannello.global_position, schermo.pannello.size)
+	esigi(pannello.position.x / schermata.x > 0.69 and pannello.position.y / schermata.y < 0.15
+			and pannello.end.x <= schermata.x - 32.0,
+			"il pannello delle partite non sta in alto a destra dentro lo schermo: %s" % pannello)
+	var comandi := Rect2(schermo.comandi.global_position, schermo.comandi.size)
+	esigi(comandi.end.x / schermata.x <= 0.95 and comandi.end.x / schermata.x >= 0.9
+			and comandi.position.y / schermata.y > 0.85,
+			"i comandi non stanno in basso a destra: %s" % comandi)
+	schermo.queue_free()
+	MenuPrincipale.titolo_visto = false
+
+func prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda() -> void:
+	# LA TEORIA DEL COLORE DEL RIFERIMENTO, come numeri. Bru: «vedi che spazza
+	# il giallo dell'opzione selezionata con lo sfondo?». Tutto quello che non e'
+	# scelto sta nei blu; la scelta e' dell'unico colore caldo, dall'altra parte
+	# del cerchio. E tutto si legge: le voci spente sopra il 3:1 (testo grande)
+	# nel punto esatto in cui stanno sul luna park, la scelta sopra il 4,5:1 sulla
+	# sua macchia, la testata e la descrizione sopra il 4,5:1.
+	titolo("nel menu principale la scelta e' l'unica cosa calda, e tutto si legge")
+	var scena := LunaPark.new()
+	var calda := Stile.colore("accento").h * 360.0
+	esigi(calda < 30.0 or calda > 330.0, "il colore della scelta non e' caldo (tinta %.0f)" % calda)
+	for nome: String in ["menu_notte_alto", "menu_notte_basso", "menu_lontano", "menu_sagoma", "menu_voce",
+			"menu_chiaro", "menu_scia", "menu_nebbia", "menu_riga", "menu_riga_accesa", "menu_spruzzo"]:
+		var tinta := Stile.colore(nome).h * 360.0
+		esigi(tinta > 180.0 and tinta < 260.0, "'%s' non sta nei blu (tinta %.0f): la scelta non sarebbe l'unica cosa calda"
+				% [nome, tinta])
+		var distanza := absf(tinta - calda)
+		distanza = minf(distanza, 360.0 - distanza)
+		esigi(distanza >= 120.0, "'%s' e la scelta distano %.0f gradi: non stanno da parti opposte" % [nome, distanza])
+	for riga in 8:
+		var dove := Vector2(100.0, 90.0 + 40.0 * float(riga) + 20.0)
+		var fondo := scena.fondo_a(dove)
+		var rapporto := Stile.contrasto(Stile.colore("menu_voce"), fondo)
+		esigi(rapporto >= 3.0, "la voce %d sta a %.2f:1 sul luna park: non si legge" % [riga + 1, rapporto])
+		# la scelta, in quella stessa riga: sulla macchia (quasi nera, al 90%)
+		# deve stare ben sopra il 3:1 del testo grande - a 4. Il cremisi da solo
+		# sul luna park nelle righe basse ci sta sotto: e' per questo che la
+		# macchia c'e'
+		var macchia := fondo.lerp(Stile.colore("menu_macchia"), VoceMacchia.OPACITA_MACCHIA)
+		var sulla_macchia := Stile.contrasto(Stile.colore("accento"), macchia)
+		esigi(sulla_macchia >= 4.0, "la voce %d scelta sta a %.2f:1 sulla sua macchia" % [riga + 1, sulla_macchia])
+	esigi(Stile.contrasto(Stile.colore("menu_chiaro"), scena.fondo_a(Vector2(110, 70))) >= 4.5,
+			"la testata non si legge sul cielo")
+	esigi(Stile.contrasto(Stile.colore("menu_descrizione"), scena.fondo_a(Vector2(110, 640))) >= 4.5,
+			"la descrizione non si legge in fondo allo schermo")
+	scena.free()
+
+func prova_la_voce_col_segno_e_la_macchia() -> void:
+	# LA VOCE DEL MENU PRINCIPALE: spenta e' blu, senza segno e senza macchia;
+	# scelta e' cremisi, col segno, con la macchia - e NON si sposta, perche'
+	# nel riferimento non si sposta.
+	titolo("la voce del menu principale: il segno e la macchia solo quando e' scelta")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	var v := VoceMacchia.crea("COLLEZIONI")
+	add_child(v)
+	await get_tree().process_frame
+	esigi(v.segno.tinta.a < 0.01, "la voce spenta ha il segno")
+	esigi(v.ultima_tinta.is_equal_approx(Stile.colore("menu_voce")), "la voce spenta non e' del blu delle voci")
+	v.accendi()
+	for i in 30:
+		v.avanza(1.0 / 60.0)
+	esigi(v.segno.tinta.a > 0.99, "la voce scelta non ha il segno")
+	esigi(v.ultima_tinta.is_equal_approx(Stile.colore("accento")), "la voce scelta non e' cremisi")
+	esigi(is_zero_approx(v.bottone.position.x), "la voce scelta si sposta di %.0f pixel: nel riferimento resta dov'e'"
+			% v.bottone.position.x)
+	# la macchia copre il segno e piu' di meta' della scritta: e' lei che da'
+	# al cremisi il contrasto che sul blu non ha
+	var testo := v.bottone.size.x - VoceMenu.SPAZIO_SEGNO - VoceMenu.MARGINE_DESTRO
+	var fino_a := -VoceMacchia.SPORGE_MACCHIA + (VoceMacchia.SPORGE_MACCHIA + VoceMenu.SPAZIO_SEGNO
+			+ testo * VoceMacchia.QUOTA_TESTO_COPERTO)
+	esigi(fino_a >= VoceMenu.SPAZIO_SEGNO + testo * 0.5, "la macchia si ferma prima di meta' della scritta")
+	esigi(Geometry2D.triangulate_polygon(v.forma).size() > 0, "la macchia e' un poligono che si incrocia: non si disegna")
+	v.queue_free()
 	Impostazioni.movimento_ridotto = prima
 
 func prova_mappa_a_quadratini() -> void:

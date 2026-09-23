@@ -35,6 +35,17 @@ func _ready() -> void:
 	salva(etichetta)
 	get_tree().quit()
 
+func partite_finte() -> void:
+	# due partite vere, scritte come le scrive il gioco, per vedere il menu
+	# com'e' dopo qualche ora di gioco invece che la prima volta
+	for dati: Array in [[2, "Bru", 4, 3030], [4, "Veronica", 2, 450]]:
+		GameState.nuova_partita()
+		GameState.imposta_nome_protagonista(String(dati[1]))
+		GameState.livelli[GameState.id_protagonista] = int(dati[2])
+		GameState.tazo = int(dati[3])
+		GameState.salva_slot(int(dati[0]))
+	GameState.nuova_partita()
+
 func pellicola(dove: String) -> void:
 	# LA COREOGRAFIA IN UN FOGLIO SOLO: dodici fotogrammi, uno ogni tre (50 ms
 	# con --fixed-fps 60, che rende il tempo del gioco esatto anche se la
@@ -86,6 +97,36 @@ func prepara(quale: String) -> void:
 				var voci := Pausa.colonna.get_children().filter(
 						func(n: Node) -> bool: return n is VoceMenu)
 				(voci[2] as VoceMenu).bottone.grab_focus()
+		"principale":
+			# IL MENU PRINCIPALE: "principale titolo", "principale menu", e i passi
+			# "nuova", "carica", "chi_sei", "come", "film" (la pellicola
+			# dell'entrata). Con "partite" in fondo ci sono due partite salvate,
+			# che alla fine si cancellano
+			var argomenti := OS.get_cmdline_user_args()
+			var passo := String(argomenti[1]) if argomenti.size() > 1 else "titolo"
+			var con_partite := "partite" in argomenti
+			if con_partite:
+				partite_finte()
+			var schermo: Control = load("res://scenes/Menu.tscn").instantiate()
+			add_child(schermo)
+			await attendi(3)
+			if passo != "titolo":
+				schermo.entra_dal_titolo()
+			match passo:
+				"nuova": schermo.pagina_nuova()
+				"carica": schermo.pagina_carica()
+				"chi_sei": schermo.pagina_chi_sei(1)
+				"come": schermo.pagina_come_si_gioca()
+				"film": await pellicola("res://scatti/principale_pellicola.png")
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			if passo == "menu" and con_partite:
+				# e una voce scelta a meta' elenco, come EXTRAS nel riferimento
+				(schermo.voci[4] as VoceMenu).bottone.grab_focus()
+				await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			if con_partite:
+				salva("principale_%s_partite" % passo)
+				for slot in [2, 4]:
+					GameState.elimina_slot(slot)
 		"pausa":
 			# un pannello della pausa: "pausa diario", "pausa zaino", "pausa
 			# opzioni", "pausa storico", "pausa uscita"
