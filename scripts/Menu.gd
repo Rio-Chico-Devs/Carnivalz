@@ -302,7 +302,7 @@ func pagina_principale() -> void:
 				"Partita %d, salvata %s. Si riparte dalla Sede.\n%s" % [recente, Partite.data(recente),
 				GameState.anteprima_slot(recente)], continua.bind(recente)))
 	elenco.append(voce("NUOVA PARTITA", "Un'altra festa",
-			"Prima scegli dove scriverla - le partite sono cinque, ognuna col suo file - poi chi sei.",
+			"Prima scegli dove scriverla - le partite sono cinque - poi chi sei.",
 			pagina_nuova))
 	elenco.append(voce("CARICA PARTITA", "Le tue partite" if recente > 0 else "Ancora niente da caricare",
 			"Riprendi una partita qualsiasi, o cancellane una." if recente > 0
