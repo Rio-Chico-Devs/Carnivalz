@@ -603,7 +603,7 @@ func pagina_extra(fuoco := "") -> void:
 	var leggi := func() -> void: descrizione.sottolinea()
 	var elenco: Array[Dictionary] = [
 		voce("CARICA UN CODICE", "Un regalo per chi ha il codice",
-				"Alcuni codici della demo sbloccano qualcosa. Si scrive nella pagina dopo.", pagina_codice),
+				"Se ne hai uno, lo scrivi nel passo dopo.", pagina_codice),
 		voce("RINGRAZIAMENTI", "Grazie", RINGRAZIAMENTI, leggi),
 		voce("INSTAGRAM", "Seguici", INSTAGRAM, leggi),
 		voce("IL SITO", "Il sito", SITO, leggi),

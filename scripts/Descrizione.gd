@@ -13,6 +13,7 @@ extends Control
 # quando serve.
 
 const SALITA := 8.0
+const STRETTA_AL_PIU := 0.5   # bilanciando, il corpo non si stringe oltre meta'
 
 var titolo: Label
 var corpo: Label
@@ -71,8 +72,49 @@ func mostra(nuovo_titolo: String, nuovo_corpo: String) -> void:
 func scrivi(nuovo_titolo: String, nuovo_corpo: String) -> void:
 	titolo.text = nuovo_titolo
 	corpo.text = nuovo_corpo
+	bilancia()
 	update_minimum_size()
 	queue_redraw()
+
+
+func _notification(cosa: int) -> void:
+	if cosa == NOTIFICATION_RESIZED:
+		bilancia()
+
+
+func bilancia() -> void:
+	# LE RIGHE SI BILANCIANO. Un corpo che va a capo per una parola la lascia
+	# da sola sotto («pugni.»), e col testo piu' grande succedeva in meta' delle
+	# voci. Si cerca la larghezza piu' stretta che tiene lo stesso numero di
+	# righe: le righe vengono pari, e l'ultima non resta con una parola sola
+	# (e' quello che fa text-wrap: balance sul web)
+	corpo.custom_minimum_size.x = 0.0
+	corpo.size_flags_horizontal = Control.SIZE_FILL
+	if size.x <= 0.0 or corpo.text == "":
+		return
+	var righe := righe_a(size.x)
+	if righe <= 1:
+		return
+	var stretto := size.x * STRETTA_AL_PIU
+	var giusto := size.x
+	for i in 10:
+		var mezzo := (stretto + giusto) * 0.5
+		if righe_a(mezzo) > righe:
+			stretto = mezzo
+		else:
+			giusto = mezzo
+	corpo.custom_minimum_size.x = ceilf(giusto)
+	corpo.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+
+
+func righe_a(largo: float) -> int:
+	# quante righe fa il corpo a questa larghezza: le larghezze delle lettere
+	# Godot le sa anche senza finestra, quindi il conto vale anche nelle prove
+	var paragrafo := TextParagraph.new()
+	paragrafo.add_string(corpo.text, corpo.get_theme_font("font"), corpo.get_theme_font_size("font_size"))
+	paragrafo.width = largo
+	paragrafo.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	return paragrafo.get_line_count()
 
 
 func _get_minimum_size() -> Vector2:

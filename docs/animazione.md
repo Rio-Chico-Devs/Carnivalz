@@ -560,12 +560,13 @@ spazio logico a 1024×576), su ogni passo:
 |---|---|
 | la colonna delle voci | finisce sopra la zona della descrizione (74%) e non tocca il pannello |
 | il pannello a destra | ancorato al bordo destro (94%), cresce verso sinistra: non esce mai |
-| la descrizione | appesa in basso, cresce in su; titolo su una riga, corpo al massimo tre, e non tocca i comandi |
+| la descrizione | appesa in basso, cresce in su; titolo su una riga, corpo al massimo tre, e non tocca i comandi; le righe si bilanciano (la larghezza più stretta che tiene lo stesso numero di righe), così l'ultima non resta con una parola sola - prima succedeva in sedici voci, quasi tutte col testo più grande |
 | le opzioni | una sezione per passo: ci stanno senza scorrere; la colonna arriva fino al pannello con le ancore, e se «testo più grande» si accende da lì si stringe da sola |
 | le collezioni | l'elenco che scorre e i comandi stanno dentro lo schermo; la barra è sottile, azzurra, e l'elenco le lascia 24 pixel |
 
 Le prove sono state messe alla prova rompendo apposta il codice, un pezzo alla
-volta (diciassette sabotaggi: una sezione fuori dal menu, le righe di una
+volta (venti sabotaggi: le righe non bilanciate, bilanciate e non usate o
+strette oltre il numero di righe, una sezione fuori dal menu, le righe di una
 sezione perse, tutte le opzioni di nuovo in un passo, le opzioni fin dentro il
 pannello, un indietro senza la voce - dal menu e da una sezione -, il pannello
 ancorato a sinistra, una collezione senza ESC, l'elenco attaccato alla barra,

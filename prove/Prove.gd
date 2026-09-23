@@ -7674,6 +7674,15 @@ func righe_di(testo: String, carattere: Font, corpo: int, largo: float) -> int:
 	paragrafo.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 	return paragrafo.get_line_count()
 
+func ultima_riga_di(testo: String, carattere: Font, corpo: int, largo: float) -> String:
+	# l'ultima riga dell'ultimo capoverso, com'e' andata a capo
+	var paragrafo := TextParagraph.new()
+	paragrafo.add_string(testo, carattere, corpo)
+	paragrafo.width = largo
+	paragrafo.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	var dove := paragrafo.get_line_range(paragrafo.get_line_count() - 1)
+	return testo.substr(dove.x, dove.y - dove.x).strip_edges()
+
 func prova_ogni_cosa_ha_il_suo_spazio() -> void:
 	# «CHE OGNI COSA ABBIA IL SUO SPAZIO NECESSARIO» (Bru). Ogni passo del menu
 	# e ogni collezione, col testo normale e con «testo piu' grande» - che
@@ -7718,13 +7727,21 @@ func prova_ogni_cosa_ha_il_suo_spazio() -> void:
 			controlla_lo_spazio(schermo, intero, scala)
 			for v in schermo.voci:
 				v.sfiorata()
+				await get_tree().process_frame
 				var titolo_scritto := schermo.descrizione.titolo.text
 				var corpo_scritto := schermo.descrizione.corpo.text
 				esigi(righe_di(titolo_scritto, Caratteri.titolo(), Stile.dimensione("corpo"), largo_descrizione) == 1,
 						"a scala %.2f il titolo «%s» va a capo" % [scala, titolo_scritto])
-				var righe := righe_di(corpo_scritto, Caratteri.tondo(650), Stile.dimensione("minuscolo"), largo_descrizione)
+				# il corpo si misura largo com'e' davvero: bilanciato, e' piu'
+				# stretto della sua zona
+				var largo_corpo := schermo.descrizione.corpo.size.x
+				var righe := righe_di(corpo_scritto, Caratteri.tondo(650), Stile.dimensione("minuscolo"), largo_corpo)
 				esigi(righe <= MenuPrincipale.RIGHE_DESCRIZIONE,
 						"a scala %.2f la descrizione di '%s' fa %d righe: esce dalla sua zona" % [scala, v.bottone.text, righe])
+				var ultima := ultima_riga_di(corpo_scritto, Caratteri.tondo(650), Stile.dimensione("minuscolo"), largo_corpo)
+				esigi(righe <= 1 or " " in ultima,
+						"a scala %.2f la descrizione di '%s' lascia «%s» da sola sull'ultima riga"
+						% [scala, v.bottone.text, ultima])
 		schermo.queue_free()
 		for nome_scena: String in ["Album", "Bestiario", "Compendio"]:
 			var collezione: Collezione = load("res://scenes/%s.tscn" % nome_scena).instantiate()
