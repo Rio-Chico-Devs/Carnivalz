@@ -180,10 +180,9 @@ Con il movimento ridotto restano le parole, spariscono gli anelli.
 
 ## 6. Quello che resta, e che decide Bru
 
-- **Un'opzione di velocità dei minigiochi** (§4). Le manopole ci sono già nei
-  dati (`durata`, `intervallo`, `finestra_prima`, `finestra_dopo`); manca la
-  voce nelle Opzioni che le moltiplichi. È il prossimo passo per
-  l'accessibilità.
+- **Niente opzione per rallentare.** Le linee guida del §4 la raccomandano, e
+  Bru ha deciso di no: «non rallentiamo niente». La difficoltà resta quella
+  scritta nei dati.
 - **La parata piena ha un premio?** Oggi toglie tutto il danno e basta. Potrebbe
   caricare la Mattanza, o l'hype. È una scelta di bilanciamento, non tecnica.
 - **L'accelerazione verso la fine** non c'è più: Bru ha chiesto «uno al
