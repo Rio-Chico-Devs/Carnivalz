@@ -394,7 +394,7 @@ func avvia_musica_e_voce() -> void:
 		var dati: Dictionary = GameState.personaggi.get(id_nemico, {})
 		if RegoleCombattimento.categoria_di(dati) == categoria and principale.is_empty():
 			principale = dati
-	AudioManager.musica_chiave("combattimento_" + categoria)
+	AudioManager.musica_combattimento(categoria, not tutorial.is_empty())
 	if (categoria == "boss" or categoria == "miniboss") and not principale.is_empty():
 		AudioManager.voce_boss(String(principale.get("id", "")), principale, "inizio")
 

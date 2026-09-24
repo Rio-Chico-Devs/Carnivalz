@@ -586,6 +586,7 @@ func avvia_carnivalz(id_punto: String, file_eventi: String) -> bool:
 	nodo_corrente = dati.get("nodo_iniziale", "")
 	stanza_iniziale_zona = nodo_corrente
 	mappa_zona = dati.get("mappa_dungeon", {})
+	musica_ambiente = String(dati.get("musica", ""))   # la musica del livello: un Vuoto puo' cambiarla dopo
 	return not eventi.is_empty() and nodo_corrente != ""
 
 # --- mappa dungeon di una zona (data/events_*.json, campo "mappa_dungeon"):

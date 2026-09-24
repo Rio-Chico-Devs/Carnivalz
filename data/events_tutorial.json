@@ -1,4 +1,6 @@
 {
+  "musica": "res://audio/musica/livello_pianure.ogg",
+  "_musica": "La musica di questo livello: le Pianure di Redenna. Suona in ogni stanza; negli scontri cede il posto a quella di combattimento e torna quando si esce.",
   "nodo_iniziale": "inizio",
   "mappa_dungeon": {
     "nome": "Pianure di Redenna",

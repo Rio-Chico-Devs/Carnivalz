@@ -63,6 +63,27 @@ func musica(percorso: String) -> void:
 func musica_chiave(chiave: String) -> void:
 	musica(String(GameState.audio.get("musica", {}).get(chiave, "")))
 
+func musica_combattimento(categoria: String, allenamento: bool) -> void:
+	musica_chiave(chiave_combattimento(categoria, allenamento))
+
+static func chiave_combattimento(categoria: String, allenamento: bool) -> String:
+	# UNA MUSICA PER TIPO DI SCONTRO. Bru: «per i nemici comuni una musica, per i
+	# nemici speciali un'altra, per i boss un'altra, per l'allenamento un'altra».
+	# La categoria la decide il nemico piu' "alto" in campo (vedi
+	# Combattimento.categoria_migliore_presente); l'allenamento con Veronica
+	# passa davanti a tutto. E CHI NON HA ANCORA IL SUO FILE PRENDE QUELLO VICINO:
+	# l'allenamento senza traccia sua suona quella della sua categoria, il
+	# miniboss senza la sua quella del boss. Un file che manca non deve voler
+	# dire silenzio a meta' partita
+	var tracce: Dictionary = GameState.audio.get("musica", {})
+	var c_e := func(chiave: String) -> bool:
+		return ResourceLoader.exists(String(tracce.get(chiave, "")))
+	if allenamento and c_e.call("combattimento_allenamento"):
+		return "combattimento_allenamento"
+	if categoria == "miniboss" and not c_e.call("combattimento_miniboss"):
+		return "combattimento_boss"
+	return "combattimento_" + categoria
+
 func _imposta_loop(stream: AudioStream) -> void:
 	# loop robusto sia per .ogg che per .wav
 	if stream is AudioStreamWAV:

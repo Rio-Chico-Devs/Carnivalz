@@ -1,6 +1,7 @@
 {
 	"_nota": "DOVE VANNO I FILE, E COSA SUCCEDE FINCHÉ NON CI SONO. Ogni suono del gioco ha un percorso file suo e una versione sintetizzata di ripiego (scripts/Sintesi.gd, costruita campione per campione all'avvio). Finché il file non c'è si sente il segnaposto; appena il file esiste vince lui, e non c'è niente da ricablare né da dichiarare qui dentro. Un file che manca non è mai un errore: è solo un suono non ancora fatto.",
 	"_formati": "Musica in .ogg (va in loop da sola). Tutto il resto in .wav, mono, 44100 o 22050 Hz, 16 bit. Effetti corti: sotto il secondo, e senza silenzio davanti — un decimo di secondo di vuoto all'inizio si sente come ritardo.",
+	"_musica": "Combattimento: la categoria la decide il nemico più «alto» in campo (boss > miniboss > particolare > comune); l'allenamento con Veronica ha la sua. Se un file manca si sente quello vicino: l'allenamento senza la sua traccia suona quella della sua categoria, il miniboss senza la sua quella del boss. La musica di ogni LIVELLO non sta qui: sta in cima al file del livello, campo \"musica\" (events_intro.json per la base, events_tutorial.json per le Pianure), e per Vuoti e fratture in data/mappa.json.",
 	"musica": {
 		"menu": "res://audio/musica/menu.ogg",
 		"intro": "res://audio/musica/intro.ogg",
@@ -8,7 +9,8 @@
 		"combattimento_comune": "res://audio/musica/battle_comune.ogg",
 		"combattimento_particolare": "res://audio/musica/battle_particolare.ogg",
 		"combattimento_miniboss": "res://audio/musica/battle_miniboss.ogg",
-		"combattimento_boss": "res://audio/musica/battle_boss.ogg"
+		"combattimento_boss": "res://audio/musica/battle_boss.ogg",
+		"combattimento_allenamento": "res://audio/musica/battle_allenamento.ogg"
 	},
 	"_interfaccia": {
 		"_dove": "res://audio/ui/<nome>.wav",

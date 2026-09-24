@@ -2,6 +2,8 @@
   "_nota": "L'INIZIO DEL GIOCO, dalle parole di Bru. Introduzione narrata su cinque immagini, la scritta di Carnivalz dal buio, il protagonista che si prepara, la mappa del complesso, la sala di allenamento e Veronica. Da lì comincia il combattimento, che è il tutorial.",
   "_sfondi": "I percorsi in \"sfondo\" puntano a res://art/scene/. I file non ci sono ancora: finché mancano resta il fondo scuro e la scena si gioca lo stesso — Bru sceglierà con calma quale immagine va dove. Un campo \"sfondo\" vale finché non ne arriva un altro, quindi tre battute di fila condividono lo stesso disegno senza ripeterlo.",
   "_maschile_femminile": "Bru scrive in maschile, e i testi portano l'accordo dentro: {goduto|goduta}. Maschile prima, femminile dopo. Il sesso si sceglie col nome, all'inizio della partita.",
+  "musica": "res://audio/musica/intro.ogg",
+  "_musica": "La musica di questo livello: l'introduzione e la base (sveglia, allenamento, infermeria, comunicazioni). È la stessa traccia che il menu fa partire su «Nuova partita», così non si interrompe entrando.",
   "nodo_iniziale": "introduzione",
   "nodi": {
     "introduzione": {

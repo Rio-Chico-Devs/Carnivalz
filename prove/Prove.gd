@@ -163,6 +163,7 @@ func _ready() -> void:
 	await prova_la_mazzata_dal_vivo_si_prende_la_barra_spaziatrice()
 	await prova_gli_evocati_hanno_un_quadratino_loro()
 	prova_il_goblin_arrabbiato_e_lungo_ma_battibile()
+	prova_la_musica_giusta_per_ogni_scontro_e_livello()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -14036,3 +14037,49 @@ func prova_il_goblin_arrabbiato_e_lungo_ma_battibile() -> void:
 	esigi(int(premendo.vinte) > int(lasciando.vinte),
 			"senza fiale chi preme vince %d volte e chi non preme %d: la mazzata non conta niente"
 			% [int(premendo.vinte), int(lasciando.vinte)])
+
+func prova_la_musica_giusta_per_ogni_scontro_e_livello() -> void:
+	# Bru: «per i nemici comuni una musica, per i nemici speciali un'altra, per
+	# i boss un'altra, per l'allenamento un'altra, e ogni livello ha la sua bg
+	# music». I file li mette lui; qui si controlla che il gioco li vada a
+	# cercare nel posto giusto, e che uno che manca non diventi silenzio
+	titolo("ogni scontro e ogni livello cercano la loro musica, e un file che manca ripiega")
+	var tracce: Dictionary = GameState.audio.get("musica", {})
+	for chiave in ["combattimento_comune", "combattimento_particolare", "combattimento_miniboss",
+			"combattimento_boss", "combattimento_allenamento"]:
+		var percorso := String(tracce.get(chiave, ""))
+		esigi(percorso.begins_with("res://audio/musica/") and percorso.ends_with(".ogg"),
+				"audio.json: '%s' non punta a un .ogg in audio/musica ('%s')" % [chiave, percorso])
+	for categoria in ["comune", "particolare", "boss"]:
+		esigi(AudioManager.chiave_combattimento(categoria, false) == "combattimento_" + categoria,
+				"uno scontro '%s' cerca '%s'" % [categoria, AudioManager.chiave_combattimento(categoria, false)])
+	# il file finto e' un file che esiste davvero: basta per chiedere "c'e'?"
+	var vero := "res://icon.svg"
+	var allenamento := String(tracce.get("combattimento_allenamento", ""))
+	var miniboss := String(tracce.get("combattimento_miniboss", ""))
+	tracce["combattimento_allenamento"] = "res://audio/musica/non_ce.ogg"
+	tracce["combattimento_miniboss"] = "res://audio/musica/non_ce.ogg"
+	esigi(AudioManager.chiave_combattimento("comune", true) == "combattimento_comune",
+			"senza il suo file, l'allenamento resta in silenzio invece di prendere la musica della categoria")
+	esigi(AudioManager.chiave_combattimento("miniboss", false) == "combattimento_boss",
+			"senza il suo file, il miniboss non prende la musica del boss")
+	tracce["combattimento_allenamento"] = vero
+	tracce["combattimento_miniboss"] = vero
+	esigi(AudioManager.chiave_combattimento("comune", true) == "combattimento_allenamento",
+			"col suo file, l'allenamento non suona la sua musica")
+	esigi(AudioManager.chiave_combattimento("miniboss", false) == "combattimento_miniboss",
+			"col suo file, il miniboss suona quella del boss")
+	tracce["combattimento_allenamento"] = allenamento
+	tracce["combattimento_miniboss"] = miniboss
+	# ogni livello porta la sua in cima al file, e la base continua quella del
+	# menu: «Nuova partita» fa partire intro.ogg, e entrando non si deve spezzare
+	for livello in [["intro", "res://data/events_intro.json"], ["tutorial", "res://data/events_tutorial.json"]]:
+		GameState.nuova_partita()
+		GameState.avvia_carnivalz(String(livello[0]), String(livello[1]))
+		var sua := GameState.musica_ambiente
+		esigi(sua.begins_with("res://audio/musica/") and sua.ends_with(".ogg"),
+				"il livello '%s' non ha una musica sua ('%s')" % [String(livello[0]), sua])
+		if String(livello[0]) == "intro":
+			esigi(sua == String(tracce.get("intro", "")),
+					"la base suona '%s' e il menu parte con '%s': entrando la musica si spezza" % [sua, String(tracce.get("intro", ""))])
+	GameState.nuova_partita()
