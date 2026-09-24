@@ -571,7 +571,7 @@ Testo di Bru (24 settembre), dall'«Addentrati nelle pianure» alla tartaruga;
 5. **Il masso gigante.** È una capsula da trasporto precipitata dallo spazio:
    dentro, due fiale. «Lucky!»
 6. **Il bivio.** Una pressione assurda oltre il promontorio: un'anomalia, non la
-   fonte. Sopra c'è l'apparizione (la collina di prima); sotto, le pozze.
+   fonte. Sopra c'è l'apparizione (vedi il punto 9); sotto, le pozze.
 7. **Le pozze: la prima orda.** Cinque rane folli. Le orde **annunciano la
    mossa**: «l'orda di rane sembra gracchiare ferocemente...» è l'assalto,
    «...forma un fronte compatto» la difesa, che non fa danni. La strategia
@@ -582,6 +582,19 @@ Testo di Bru (24 settembre), dall'«Addentrati nelle pianure» alla tartaruga;
    accende **BOND**: premendolo la lasci andare — «sembrerebbe in qualche modo
    offesa». Perché certe creature restano sane? Età, esperienza, doti
    intellettuali, talento: come i dominatori.
+9. **Il promontorio.** La pressione cresce a ogni passo, e la Guida misura
+   «livelli di disallineamento oltre la media»: eppure in cima non sembra
+   esserci niente. Che tu vada avanti o provi a tornare indietro, «qualsiasi
+   cosa sia non vuole farti andare via»: un tepore, un «hm?» che non viene da
+   nessuno, e poi lei. «Sei tu?» — e quella voce il protagonista la conosce.
+   «Scappa. Presto!» Senza la Pietra Quieta, o scappi o la Chiamata di Morfeo
+   ti addormenta per sempre; con la pietra la regge, e la creatura si sfalda.
+   Battuta: la Guida la trova nei database, una forma di vita corrotta
+   estremamente pericolosa — ma cosa ci fa in questa zona? — e si prosegue
+   verso le urla. Scappato: sei alle pozze, «se ne occuperà l'organizzazione»,
+   e il promontorio non ti fa più salire. Finché la pietra non ce l'hai: allora
+   ci riprovi («Sei un folle! Ti farai ammazzare!»), e lei ti aspetta.
+   «Sei... tornato...»
 
 **In tutte le Pianure non si scappa**, tranne che dall'apparizione: la Guida ti
 ferma («Hey, non vorrai mica scappare dai tuoi primi combattimenti, vero?»).

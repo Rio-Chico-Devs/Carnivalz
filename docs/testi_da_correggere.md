@@ -2721,90 +2721,220 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `collina`
 
 **`TUT.collina.1`** · battuta di Anonimo
-> Ho davvero un brutto presentimento...
+> La pressione si fa sempre più forte...
 >
 > →
 
-**`TUT.collina.2`** · battuta di Anonimo
-> Cos'è questo odore dolce... è molto piacevole...
+**`TUT.collina.2`** · battuta di Guida
+> Livelli di disallineamento oltre la media, consiglio la massima attenzione, {Dominatore|Dominatrice}.
 >
 > →
 
 **`TUT.collina.3`** · battuta di Anonimo
-> Non sembrerebbe esserci niente qui sopra...
+> Qualunque cosa sia è più avanti... anche se... non sembra esserci niente?
 >
 > →
 
-**`TUT.collina.4`** · battuta di Anonimo
+**`TUT.collina.scelta1`** · bottone di scelta
+> Prosegui
+>
+> →
+
+
+### Tutorial › `collina_cima`
+
+**`TUT.collina_cima.1`** · battuta di Anonimo
 > ...
 >
 > →
 
-**`TUT.collina.5`** · battuta di Anonimo
-> *sniff* L'odore sembra essersi fatto più forte... cos'è questa stanchezza improvvisa...
+**`TUT.collina_cima.2`** · battuta di Guida
+> {Attento|Attenta} {Dominatore|Dominatrice}, la situazione richiede la massima prudenza.
 >
 > →
 
-**`TUT.collina.6`** · narrazione
-> Piccole particelle di luce cominciano a concentrarsi davanti a te, roteando e creando un gioco di movimenti ipnotici...
+**`TUT.collina_cima.3`** · battuta di Anonimo
+> Non sembra esserci niente... eppure non capisco da dove venga questa enorme pressione...
 >
 > →
 
-**`TUT.collina.7`** · battuta di Anonimo
-> Cosa sta succedendo? ...
+**`TUT.collina_cima.scelta1`** · bottone di scelta
+> Prosegui
 >
 > →
 
-**`TUT.collina.8`** · narrazione
-> Una creatura appare dal nulla, cammina intorno a te osservandoti da vicino, senti una stanchezza travolgente che ti impedisce di reagire...
+**`TUT.collina_cima.scelta2`** · bottone di scelta
+> Torna indietro
 >
 > →
 
-**`TUT.collina.9`** · battuta di Anonimo
-> Devo... riprendermi...
+
+### Tutorial › `collina_apparizione`
+
+**`TUT.collina_apparizione.1`** · battuta di Guida
+> I livelli sono massimi! Qualsiasi cosa sia non vuole farti andare via!
 >
 > →
 
-**`TUT.collina.10`** · battuta di Anonimo
-> !!! È ora di porre fine a tutto questo!
+**`TUT.collina_apparizione.2`** · battuta di ???
+> Hm?
 >
 > →
 
-**`TUT.collina.11`** · narrazione
-> La creatura si allontana leggermente avvolgendoti in un velo iridescente.
+**`TUT.collina_apparizione.3`** · battuta di Anonimo
+> Cos'è questo tepore...
 >
 > →
 
-**`TUT.collina.12`** · narrazione
-> La manifestazione ti osserva e prova ad avvicinarsi di nuovo. Hai un terribile presentimento...
+**`TUT.collina_apparizione.4`** · battuta di ???
+> Hm.
+>
+> →
+
+**`TUT.collina_apparizione.5`** · battuta di Anonimo
+> ??? Chi ha emesso quel suono?
+>
+> →
+
+**`TUT.collina_apparizione.6`** · battuta di Manifestazione di un sogno
+> Sei tu?
+>
+> →
+
+**`TUT.collina_apparizione.7`** · battuta di Anonimo
+> Quella voce... Non è possibile... Cos'è quell'abominio...
+>
+> →
+
+**`TUT.collina_apparizione.8`** · battuta di Guida
+> Scappa. Presto!
+>
+> →
+
+**`TUT.collina_apparizione.scontro.dopo_il_nemico5.1`** · durante lo scontro, dopo la mossa n. 5 del nemico — battuta di Guida
+> Devi scappare! Non ce la puoi fare ora!
+>
+> →
+
+**`TUT.collina_apparizione.scontro.dopo_il_nemico5.2`** · durante lo scontro, dopo la mossa n. 5 del nemico — battuta di Anonimo
+> Non... posso...
+>
+> →
+
+**`TUT.collina_apparizione.scontro.dopo_il_nemico5.3`** · durante lo scontro, dopo la mossa n. 5 del nemico — battuta di Manifestazione di un sogno
+> ...
+>
+> →
+
+
+### Tutorial › `collina_fuga`
+
+**`TUT.collina_fuga.1`** · battuta di Guida
+> C'è mancato poco, quell'essere è catalogato come una forma di vita corrotta di alto livello, cosa ci fa una creatura simile in questa zona?
+>
+> →
+
+**`TUT.collina_fuga.2`** · battuta di Anonimo
+> Non saprei... Ma non immaginavo esistessero abomini simili.
+>
+> →
+
+**`TUT.collina_fuga.3`** · battuta di Anonimo
+> (Per di più, quella voce...)
+>
+> →
+
+**`TUT.collina_fuga.4`** · battuta di Guida
+> Proseguiamo con la missione, se ne occuperà l'organizzazione quando faremo ritorno... per ora, evitiamo quella zona.
+>
+> →
+
+**`TUT.collina_fuga.scelta1`** · bottone di scelta
+> Attraversa le pozze d'acqua
+>
+> →
+
+**`TUT.collina_fuga.scelta2`** · bottone di scelta
+> Prosegui
+>
+> →
+
+
+### Tutorial › `collina_negata`
+
+**`TUT.collina_negata.1`** · battuta di Anonimo
+> Se ne occuperà l'organizzazione di quella creatura.
+>
+> →
+
+**`TUT.collina_negata.scelta1`** · bottone di scelta
+> Torna indietro
+>
+> →
+
+
+### Tutorial › `collina_riprova`
+
+**`TUT.collina_riprova.1`** · battuta di Guida
+> Cosa fai? Vuoi forse fare una brutta fine?
+>
+> →
+
+**`TUT.collina_riprova.2`** · battuta di Anonimo
+> Devo almeno riprovarci, una creatura simile non può rimanere in giro più a lungo...
+>
+> →
+
+**`TUT.collina_riprova.3`** · battuta di Guida
+> Sei {un|una} folle! Ti farai ammazzare!
+>
+> →
+
+**`TUT.collina_riprova.scena1`** · quando ci torni — battuta di Anonimo
+> Devo farcela... Non posso farmi sconfiggere così presto...
+>
+> →
+
+**`TUT.collina_riprova.scelta1`** · bottone di scelta
+> Prosegui
+>
+> →
+
+**`TUT.collina_riprova.scelta2`** · bottone di scelta
+> Torna indietro
 >
 > →
 
 
 ### Tutorial › `collina_ritorno`
 
-**`TUT.collina_ritorno.1`** · battuta di Anonimo
-> Devo scoprire di più su quella creatura.
+**`TUT.collina_ritorno.1`** · battuta di Manifestazione di un sogno
+> Sei... {tornato|tornata}...
 >
 > →
 
-**`TUT.collina_ritorno.2`** · narrazione
-> Proprio sulla cima del promontorio la strana creatura volteggia, ignorando tutto il resto...
+**`TUT.collina_ritorno.2`** · battuta di Anonimo
+> (Quella voce!)
 >
 > →
 
-**`TUT.collina_ritorno.scena`** · quando ci torni («Osserva la scena»)
-> Il promontorio è silenzioso, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...
+**`TUT.collina_ritorno.3`** · battuta di Anonimo
+> Cosa sei?!
 >
 > →
 
-**`TUT.collina_ritorno.scelta1`** · bottone di scelta (porta a un combattimento)
-> Combatti
+**`TUT.collina_ritorno.scontro.dopo_il_nemico5.1`** · durante lo scontro, dopo la mossa n. 5 del nemico — battuta di Guida
+> Devi scappare! Non ce la puoi fare ora!
 >
 > →
 
-**`TUT.collina_ritorno.scelta2`** · bottone di scelta
-> Torna al bivio
+**`TUT.collina_ritorno.scontro.dopo_il_nemico5.2`** · durante lo scontro, dopo la mossa n. 5 del nemico — battuta di Anonimo
+> Non... posso...
+>
+> →
+
+**`TUT.collina_ritorno.scontro.dopo_il_nemico5.3`** · durante lo scontro, dopo la mossa n. 5 del nemico — battuta di Manifestazione di un sogno
+> ...
 >
 > →
 
@@ -2840,7 +2970,32 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `dopo_collina`
 
 **`TUT.dopo_collina.1`** · battuta di Anonimo
-> Non so cosa fosse... ma il promontorio è silenzioso, adesso.
+> Cos'era quell'affare?!
+>
+> →
+
+**`TUT.dopo_collina.2`** · battuta di Guida
+> Sei {stato fortunato|stata fortunata}, nei nostri database quell'essere è catalogato come una forma di vita corrotta estremamente pericolosa... Ma cosa ci faceva un corrotto di quel livello in questa zona?
+>
+> →
+
+**`TUT.dopo_collina.3`** · battuta di Anonimo
+> Questi dati saranno sicuramente utili all'organizzazione...
+>
+> →
+
+**`TUT.dopo_collina.4`** · battuta di Guida
+> Ottimo lavoro {Dominatore|Dominatrice}, ce la siamo vista brutta, ma direi che è ora di proseguire sulla nostra strada.
+>
+> →
+
+**`TUT.dopo_collina.5`** · battuta di Anonimo
+> Già...
+>
+> →
+
+**`TUT.dopo_collina.6`** · battuta di Anonimo
+> (Eppure quella voce...)
 >
 > →
 
@@ -2850,7 +3005,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.dopo_collina.scelta1`** · bottone di scelta
-> Attraversa gli arbusti
+> Prosegui
 >
 > →
 
@@ -13298,7 +13453,7 @@ carte collezionabili.
 > →
 
 **`CRE.manifestazione_di_un_sogno.apertura`** · appena comincia lo scontro
-> Non dice niente. Ti guarda, e sorride come se ti conoscesse.
+> Ti guarda, e sorride come se ti conoscesse.
 >
 > →
 

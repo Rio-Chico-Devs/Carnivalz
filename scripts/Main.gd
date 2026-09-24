@@ -1316,8 +1316,9 @@ func _su_scelta(scelta: Dictionary) -> void:
 	if scelta.get("torna_a_mappa", false):
 		apri_la_mappa_di_zona(scelta)
 		return
-	if scelta.has("vai"):
-		mostra_nodo(scelta["vai"], notifiche)
+	var dove := IngressoNodo.destinazione(scelta)
+	if dove != "":
+		mostra_nodo(dove, notifiche)
 	elif not notifiche.is_empty():
 		# si resta sullo stesso nodo: si mostrano solo le notifiche in coda
 		coda_messaggi = notifiche
@@ -1349,7 +1350,7 @@ func aggiorna_dialoga() -> void:
 	bottone_dialoga.visible = GameState.party.size() > 1
 	# "Mappa" compare solo dentro la sezione esplorabile della zona
 	bottone_mappa.visible = GameState.stanza_nella_mappa(GameState.nodo_corrente) \
-			and GameState.mappa_consultabile()
+			and GameState.mappa_consultabile() and not IngressoNodo.trattiene(nodo_in_corso)
 	Albero.svuota(menu_compagni)
 
 func _su_dialoga() -> void:

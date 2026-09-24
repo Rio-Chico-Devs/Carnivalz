@@ -561,7 +561,12 @@ func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
 		else:
 			etichetta_stato.text = "Troppo lontano. Da qui si va solo dove si arriva a piedi."
 		return
-	GameState.nodo_corrente = id_stanza
+	# DOVE SEI LO DECIDE CHI ENTRA, non chi clicca. Qui si scriveva la stanza
+	# cliccata in nodo_corrente prima di entrarci; IngressoNodo.entra lo fa
+	# comunque, e meglio (sa quale stanza e' davvero). Ma c'e' una scena che non
+	# ti sposta - il promontorio dopo la fuga, «Se ne occupera'
+	# l'organizzazione» - e con la stanza gia' scritta qui ti ritrovavi in cima
+	# a un posto in cui ti eri appena rifiutato di salire
 	IngressoNodo.vai_al_nodo(id_stanza)
 
 # --- strato di sotto: la griglia e i collegamenti -----------------------

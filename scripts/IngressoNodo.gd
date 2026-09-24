@@ -21,7 +21,7 @@ extends RefCounted
 # nessuna scena, nessun nodo dell'albero, nessun await: entrano un id e lo stato
 # del gioco, esce un verdetto.
 #
-#   {"id": String, "nodo": Dictionary, "scena": String,
+#   {"id": String, "nodo": Dictionary, "scena": String, "stanza": String,
 #    "prima_visita": bool, "agguato": bool}
 #
 #   scena == ""  ->  si resta, e "nodo" è quello che c'è da mostrare
@@ -82,14 +82,15 @@ static func raccogli(id_atteso: String) -> Dictionary:
 	var esito := ultimo_esito
 	ultimo_esito = {}
 	if not esito.is_empty() and id_atteso in [String(esito.get("id", "")),
-			String((esito.get("nodo", {}) as Dictionary).get("stanza", ""))]:
+			String((esito.get("nodo", {}) as Dictionary).get("stanza", "")),
+			String(esito.get("stanza", ""))]:
 		return esito
 	return entra(id_atteso)
 
 
 static func entra(id_nodo: String) -> Dictionary:
 	var esito := {
-		"id": id_nodo, "nodo": {}, "scena": "",
+		"id": id_nodo, "nodo": {}, "scena": "", "stanza": "",
 		"prima_visita": false, "agguato": false,
 	}
 	var id_vero := risolvi(id_nodo)
@@ -113,7 +114,17 @@ static func entra(id_nodo: String) -> Dictionary:
 	# stanza vera, che sulla mappa c'e' tutti i giorni. Col campo "stanza" la
 	# scena dice dove sta, e la mappa sa dove sei: il "sei qui" finisce nel
 	# posto giusto e da li' si cammina verso i vicini di QUELLA stanza.
-	GameState.nodo_corrente = String(nodo.get("stanza", id_vero))
+	#
+	# E UNA SCENA PUO' NON SPOSTARTI AFFATTO: "resta_dove_sei". Bru, sul
+	# promontorio dopo la fuga: «se provi ad andare sul promontorio: Se ne
+	# occupera' l'organizzazione di quella creatura». Ci provi, ti fermi, e sei
+	# ancora dov'eri - al bivio o dall'altra parte, verso le urla. Nessuna delle
+	# due stanze si puo' scrivere nei dati, perche' dipende da dove arrivi: la
+	# stanza resta quella in cui gia' eri, e il verdetto se la porta dietro
+	# ("stanza") perche' Main la riconosca nascendo.
+	if not nodo.get("resta_dove_sei", false):
+		GameState.nodo_corrente = String(nodo.get("stanza", id_vero))
+	esito.stanza = GameState.nodo_corrente
 	applica_effetti(id_vero, nodo, esito.prima_visita)
 	esito.agguato = tira_agguato(id_vero, nodo)
 	if esito.agguato:
@@ -181,8 +192,10 @@ static func applica_effetti(id_nodo: String, nodo: Dictionary, prima_visita: boo
 		# E si sblocca LA STANZA, non la scena: «la sala comunicazioni dopo gli
 		# ordini» e' un nodo, ma sulla planimetria e' sempre la sala comunicazioni
 		# (vedi il campo "stanza" in entra). Sbloccare l'id del nodo segnava come
-		# stanza una cosa che sulla mappa non c'e'.
-		GameState.sblocca_stanza(String(nodo.get("stanza", id_nodo)))
+		# stanza una cosa che sulla mappa non c'e'. E una scena che non ti sposta
+		# ("resta_dove_sei") non ti ha portato da nessuna parte da scoprire
+		if not nodo.get("resta_dove_sei", false):
+			GameState.sblocca_stanza(String(nodo.get("stanza", id_nodo)))
 	if nodo.has("flag"):
 		GameState.imposta_flag(nodo["flag"])
 	if nodo.has("sblocca_stanze"):
@@ -224,6 +237,25 @@ static func tira_agguato(id_nodo: String, nodo: Dictionary) -> bool:
 	GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo,
 			{"precedenza": "nemici"})
 	return true
+
+static func destinazione(scelta: Dictionary) -> String:
+	# dove porta una scelta: il nodo che nomina ("vai"), oppure la stanza in
+	# cui sei ("torna_dove_eri"). La seconda serve dopo una scena che non ti ha
+	# spostato ("resta_dove_sei"): al promontorio si prova a salire dal bivio o
+	# da verso le urla, e «Torna indietro» deve rimetterti in quella delle due
+	# da cui ci hai provato - che nei dati non si puo' scrivere. "" = nessuna
+	if scelta.get("torna_dove_eri", false):
+		return GameState.nodo_corrente
+	return String(scelta.get("vai", ""))
+
+static func trattiene(nodo: Dictionary) -> bool:
+	# UNA SCENA CHE NON TI LASCIA ANDARE. Bru, in cima al promontorio: «qui due
+	# opzioni, prosegui o torna indietro, qualunque cosa scegli triggera
+	# l'apparizione». La mappa sarebbe stata la terza, l'unica che non fa
+	# scattare niente: con "senza_mappa" il nodo toglie il bottone della mappa
+	# (Main.aggiorna_dialoga) e spegne l'icona della Guida, che la riapre
+	# (IconaGuida.aggiorna)
+	return bool(nodo.get("senza_mappa", false))
 
 static func applica_task_di(contenitore: Dictionary) -> void:
 	# Gli appunti del Diario si aprono e si chiudono allo stesso modo da un nodo,

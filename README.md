@@ -366,7 +366,11 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
   suo corridoio sta in `connessioni_da` e si apre solo quando la scena dell'albero l'ha fatta
   vedere. In fondo alla caverna un goblin tiene la **Pietra Quieta**, e battendolo la lascia:
   è la pietra che più avanti ti salva dall'apparizione e ti lascia batterla invece di
-  scappare. Ogni scontro ha la sua stanza «dopo» (`banchetto_vinto`, `pozze_vinte`...) con
+  scappare. Il **promontorio** (Bru, 24 settembre) è una salita in due tempi, e in cima
+  «prosegui» e «torna indietro» fanno scattare tutti e due l'apparizione; da lì tre uscite:
+  la batti con la pietra (e si prosegue verso il goblin), scappi (e sei alle pozze, e il
+  promontorio ti ferma finché la pietra non ce l'hai: allora ci riprovi), o dormi per sempre.
+  Ogni scontro ha la sua stanza «dopo» (`banchetto_vinto`, `pozze_vinte`...) con
   `"stanza"` dichiarata, e `vai_se_flag` ti ci riporta a scontro fatto
 - Non usa (per ora) `"salta_se_flag"`/`combattimento_automatico`: Jondoh usa solo `"combatti"`
   sulle scelte, che non ha un equivalente diretto. Il boss finale (Jongo Dongo) è identico in
@@ -1431,8 +1435,10 @@ bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scon
   corso. Le sconfitte comuni, dove non serve, restano un `se_perdi` qualsiasi
 - **`vai_se_flag`** su un nodo: `{flag, vai}` — se quel flag è impostato, entrando in quel nodo
   se ne mostra un altro al suo posto (`Main.mostra_nodo()`, prima di qualunque altro effetto).
-  Serve alle stanze che cambiano alla seconda visita: la collina del tutorial mostra l'agguato
-  della manifestazione solo la prima volta, poi una scena diversa con la scelta se affrontarla
+  Serve alle stanze che cambiano alla seconda visita. Accetta anche una lista di regole (vince la
+  prima che trova il suo flag) e le regole si concatenano: il promontorio del tutorial
+  (`collina`) manda a `collina_vuota` se l'apparizione è battuta, a `collina_negata` se sei
+  scappato — che a sua volta manda a `collina_riprova` se hai la Pietra Quieta
 - **`scena`** su un nodo: la descrizione del posto *com'è adesso* (stringa, o una sequenza di
   messaggi). Alla **prima visita** il nodo gioca la sua `sequenza`/`testo` per intero, dialoghi
   compresi; da lì in avanti mostra la `scena` al suo posto (`Main.contenuto_nodo()`, che legge
@@ -1442,6 +1448,19 @@ bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scon
   ridescrive senza costare niente (non muove il legame, non fa scattare agguati). I nodi che
   sono già una pura descrizione di stanza non hanno bisogno di `scena`: il loro `testo` è
   giusto che si rilegga ogni volta
+- **`resta_dove_sei`** su un nodo: la scena succede **senza spostarti**. `IngressoNodo.entra()`
+  non tocca `nodo_corrente` e non sblocca nessuna stanza, e il verdetto porta con sé la stanza
+  in cui sei (`esito.stanza`) perché `Main` la riconosca nascendo. È il promontorio dopo la
+  fuga: ci provi dal bivio o da «Verso le urla», il protagonista dice «Se ne occuperà
+  l'organizzazione di quella creatura», e sei ancora lì. Per questo la mappa non scrive più la
+  stanza cliccata in `nodo_corrente` prima di entrarci: lo decide chi entra
+- **`torna_dove_eri`** su una scelta: rientra nella stanza in cui sei (`GameState.nodo_corrente`,
+  vedi `IngressoNodo.destinazione()`), che dai dati non si può sapere. Va con `resta_dove_sei`:
+  è il «Torna indietro» del promontorio
+- **`senza_mappa`** su un nodo: niente bottone «Mappa» e l'icona della Guida spenta, perché
+  riaprirebbe la mappa (`IngressoNodo.trattiene()`). In cima al promontorio «qualunque cosa
+  scegli triggera l'apparizione» (Bru): la mappa sarebbe stata una terza scelta, l'unica che
+  non fa scattare niente
 - **`combattimento_automatico`** su un nodo: `{nemici, se_vinci, se_perdi, se_fuggi}` — a fine
   sequenza il combattimento parte da solo, senza mostrare scelte (`Main.avvia_combattimento_
   automatico()`). Usato quando non c'è davvero nulla da scegliere: lo scontro è inevitabile

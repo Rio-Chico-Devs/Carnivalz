@@ -1060,26 +1060,51 @@
       ]
     },
     "collina": {
-      "vai_se_flag": {
-        "flag": "tut_collina_vista",
-        "vai": "collina_ritorno"
-      },
+      "_nota": "Testo di Bru (24 settembre: «sviluppiamo la scena sopra la collina»). Prende il posto della salita di prima (l'odore dolce, le particelle di luce). Sono tre tempi: la salita (qui), la cima (collina_cima) e l'apparizione (collina_apparizione). Ritocchi: gli accordi ({Dominatore|Dominatrice}), le maiuscole.",
+      "_nota_mappa": "senza_mappa: mentre sali non c'e' la mappa, ne' l'icona della Guida che la riapre. «Prosegui o torna indietro, qualunque cosa scegli triggera l'apparizione»: la mappa sarebbe stata una terza scelta, l'unica che non fa scattare niente.",
+      "_nota_ritorni": "Tornandoci: battuta l'apparizione, la cima e' vuota (collina_vuota). Scappato, il promontorio ti ferma (collina_negata), a meno che tu non abbia la Pietra Quieta: allora ci si riprova (collina_riprova).",
+      "vai_se_flag": [
+        {
+          "flag": "tut_collina_fatta",
+          "vai": "collina_vuota"
+        },
+        {
+          "flag": "tut_manifestazione_fuggita",
+          "vai": "collina_negata"
+        }
+      ],
+      "espr_sinistra": "pensiero",
+      "senza_mappa": true,
       "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Ho davvero un brutto presentimento..."
+          "testo": "La pressione si fa sempre più forte..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Livelli di disallineamento oltre la media, consiglio la massima attenzione, {Dominatore|Dominatrice}."
         },
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Cos'è questo odore dolce... è molto piacevole..."
-        },
+          "testo": "Qualunque cosa sia è più avanti... anche se... non sembra esserci niente?"
+        }
+      ],
+      "scelte": [
         {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Non sembrerebbe esserci niente qui sopra..."
-        },
+          "testo": "Prosegui",
+          "vai": "collina_cima"
+        }
+      ]
+    },
+    "collina_cima": {
+      "_nota": "Testo di Bru. Le due scelte portano tutte e due all'apparizione: «qualunque cosa scegli triggera l'apparizione».",
+      "stanza": "collina",
+      "espr_sinistra": "pensiero",
+      "senza_mappa": true,
+      "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "anonimo",
@@ -1087,88 +1112,274 @@
         },
         {
           "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "*sniff* L'odore sembra essersi fatto più forte... cos'è questa stanchezza improvvisa..."
-        },
-        {
-          "tipo": "narrazione",
-          "testo": "Piccole particelle di luce cominciano a concentrarsi davanti a te, roteando e creando un gioco di movimenti ipnotici..."
+          "chi": "guida",
+          "testo": "{Attento|Attenta} {Dominatore|Dominatrice}, la situazione richiede la massima prudenza."
         },
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Cosa sta succedendo? ...",
+          "testo": "Non sembra esserci niente... eppure non capisco da dove venga questa enorme pressione..."
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Prosegui",
+          "vai": "collina_apparizione"
+        },
+        {
+          "testo": "Torna indietro",
+          "vai": "collina_apparizione"
+        }
+      ]
+    },
+    "collina_apparizione": {
+      "_nota": "Testo di Bru. «???» e' la voce che ancora non si vede (ignoto); dalla battuta «Sei tu?» parla la manifestazione col suo nome (Bru la chiama «holo», ma il nome resta quello di prima), e li' compare il suo ritratto. Lo scontro e' quello scriptato: senza la Pietra Quieta, o scappi (la prima fuga fallisce sempre) o la Chiamata di Morfeo ti addormenta per sempre.",
+      "stanza": "collina",
+      "espr_sinistra": "sorpresa",
+      "destra": "manifestazione_di_un_sogno",
+      "senza_mappa": true,
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "I livelli sono massimi! Qualsiasi cosa sia non vuole farti andare via!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "ignoto",
+          "testo": "Hm?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Cos'è questo tepore...",
+          "espr": "pensiero"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "ignoto",
+          "testo": "Hm."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "??? Chi ha emesso quel suono?",
           "espr": "sorpresa"
         },
         {
-          "tipo": "narrazione",
-          "testo": "Una creatura appare dal nulla, cammina intorno a te osservandoti da vicino, senti una stanchezza travolgente che ti impedisce di reagire..."
+          "tipo": "dialogo",
+          "chi": "manifestazione_di_un_sogno",
+          "testo": "Sei tu?"
         },
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Devo... riprendermi..."
+          "testo": "Quella voce... Non è possibile... Cos'è quell'abominio...",
+          "espr": "sorpresa"
         },
         {
           "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "!!! È ora di porre fine a tutto questo!",
-          "espr": "decisa"
-        },
-        {
-          "tipo": "narrazione",
-          "testo": "La creatura si allontana leggermente avvolgendoti in un velo iridescente."
-        },
-        {
-          "tipo": "narrazione",
-          "testo": "La manifestazione ti osserva e prova ad avvicinarsi di nuovo. Hai un terribile presentimento..."
+          "chi": "guida",
+          "testo": "Scappa. Presto!"
         }
       ],
-      "espr_sinistra": "sorpresa",
-      "flag": "tut_collina_vista",
       "combattimento_automatico": {
         "nemici": [
           "manifestazione_di_un_sogno"
         ],
         "se_vinci": "dopo_collina",
         "se_perdi": "sconfitta_manifestazione",
-        "se_fuggi": "bivio"
+        "se_fuggi": "collina_fuga",
+        "regia": {
+          "_quando": "«Appena si avvicina la sconfitta» (Bru): dopo la sua quinta mossa. La prima e' la paralisi, le quattro dopo sono i suoi gesti (testi_inerti, l'ultimo e' «Senti che la fine e' vicina...»), e la sesta e' la Chiamata di Morfeo: queste tre battute stanno proprio nel mezzo.",
+          "battute": [
+            {
+              "quando": "dopo_il_nemico",
+              "volta": 5,
+              "righe": [
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Devi scappare! Non ce la puoi fare ora!"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Non... posso..."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "manifestazione_di_un_sogno",
+                  "testo": "..."
+                }
+              ]
+            }
+          ]
+        }
       }
     },
-    "collina_ritorno": {
+    "collina_fuga": {
+      "_nota": "Testo di Bru: «nel caso invece tu riesca a scappare sarai costretto ad attraversare le pozze d'acqua, e scattera' il seguente dialogo». Si arriva alle pozze, e da li' si va avanti: in cima non si torna (collina_negata). Ritocchi: la frase fra parentesi e' un pensiero, e sta in una battuta sua come gli altri pensieri del gioco. Le scelte sono mie: attraversare le pozze se l'orda di rane c'e' ancora, proseguire se l'hai gia' battuta.",
+      "stanza": "pozze",
+      "flag": "tut_manifestazione_fuggita",
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "C'è mancato poco, quell'essere è catalogato come una forma di vita corrotta di alto livello, cosa ci fa una creatura simile in questa zona?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Non saprei... Ma non immaginavo esistessero abomini simili."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "(Per di più, quella voce...)",
+          "espr": "pensiero"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Proseguiamo con la missione, se ne occuperà l'organizzazione quando faremo ritorno... per ora, evitiamo quella zona."
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Attraversa le pozze d'acqua",
+          "vai": "pozze",
+          "richiede_non_flag": "tut_pozze_fatte"
+        },
+        {
+          "testo": "Prosegui",
+          "vai": "tartaruga",
+          "richiede_flag": "tut_pozze_fatte"
+        }
+      ]
+    },
+    "collina_negata": {
+      "_nota": "Testo di Bru: «d'ora in avanti, a meno che non scopri la grotta e ottieni l'oggetto, se provi ad andare sul promontorio». Ci provi e ti fermi: resta_dove_sei lascia la stanza quella da cui ci hai provato (il bivio, o verso le urla), e «Torna indietro» (mia) ti rimette li'. Con la Pietra Quieta invece si va a collina_riprova.",
       "vai_se_flag": {
-        "flag": "tut_collina_fatta",
-        "vai": "collina_vuota"
+        "flag": "tut_pietra_presa",
+        "vai": "collina_riprova"
       },
+      "resta_dove_sei": true,
+      "espr_sinistra": "decisa",
       "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Devo scoprire di più su quella creatura."
-        },
-        {
-          "tipo": "narrazione",
-          "testo": "Proprio sulla cima del promontorio la strana creatura volteggia, ignorando tutto il resto..."
+          "testo": "Se ne occuperà l'organizzazione di quella creatura."
         }
       ],
-      "espr_sinistra": "pensiero",
-      "scena": "Il promontorio è silenzioso, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
       "scelte": [
         {
-          "testo": "Combatti",
-          "richiede_non_flag": "tut_collina_fatta",
-          "combatti": [
-            "manifestazione_di_un_sogno"
-          ],
-          "se_vinci": "dopo_collina",
-          "se_perdi": "sconfitta_manifestazione",
-          "se_fuggi": "bivio"
-        },
-        {
-          "testo": "Torna al bivio",
-          "vai": "bivio"
+          "testo": "Torna indietro",
+          "torna_dove_eri": true
         }
       ]
+    },
+    "collina_riprova": {
+      "_nota": "Testo di Bru: «quando avrai l'oggetto», e poi «quando ti ritrovi nella stessa scena di quella precedente, se osservi la scena». La scena e' la cima di prima: le stesse due scelte, e tutte e due fanno tornare l'apparizione (collina_ritorno). Ritocchi: gli accordi ({un|una} folle), le maiuscole, «cosi'» accentato.",
+      "stanza": "collina",
+      "espr_sinistra": "decisa",
+      "senza_mappa": true,
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Cosa fai? Vuoi forse fare una brutta fine?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Devo almeno riprovarci, una creatura simile non può rimanere in giro più a lungo..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sei {un|una} folle! Ti farai ammazzare!"
+        }
+      ],
+      "scena": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Devo farcela... Non posso farmi sconfiggere così presto..."
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Prosegui",
+          "vai": "collina_ritorno"
+        },
+        {
+          "testo": "Torna indietro",
+          "vai": "collina_ritorno"
+        }
+      ]
+    },
+    "collina_ritorno": {
+      "_nota": "Testo di Bru («poi ritornando»). Lo scontro e' lo stesso della prima volta, con le stesse battute quando la sconfitta si avvicina; stavolta pero' hai la pietra.",
+      "stanza": "collina",
+      "espr_sinistra": "sorpresa",
+      "destra": "manifestazione_di_un_sogno",
+      "senza_mappa": true,
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "manifestazione_di_un_sogno",
+          "testo": "Sei... {tornato|tornata}..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "(Quella voce!)",
+          "espr": "pensiero"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Cosa sei?!",
+          "espr": "sorpresa"
+        }
+      ],
+      "combattimento_automatico": {
+        "nemici": [
+          "manifestazione_di_un_sogno"
+        ],
+        "se_vinci": "dopo_collina",
+        "se_perdi": "sconfitta_manifestazione",
+        "se_fuggi": "collina_fuga",
+        "regia": {
+          "_quando": "«Appena si avvicina la sconfitta» (Bru): dopo la sua quinta mossa. La prima e' la paralisi, le quattro dopo sono i suoi gesti (testi_inerti, l'ultimo e' «Senti che la fine e' vicina...»), e la sesta e' la Chiamata di Morfeo: queste tre battute stanno proprio nel mezzo.",
+          "battute": [
+            {
+              "quando": "dopo_il_nemico",
+              "volta": 5,
+              "righe": [
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Devi scappare! Non ce la puoi fare ora!"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Non... posso..."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "manifestazione_di_un_sogno",
+                  "testo": "..."
+                }
+              ]
+            }
+          ]
+        }
+      }
     },
     "collina_vuota": {
       "sequenza": [
@@ -1194,25 +1405,55 @@
           "testo": "Torna al bivio",
           "vai": "bivio"
         }
-      ]
+      ],
+      "stanza": "collina"
     },
     "dopo_collina": {
+      "_nota": "Testo di Bru («quando sconfitta cambieremo i dialoghi»): prende il posto di «Non so cosa fosse... ma il promontorio e' silenzioso, adesso.». Ritocchi: gli accordi ({stato fortunato|stata fortunata}, {Dominatore|Dominatrice}), e il pensiero fra parentesi in una battuta sua. «Prosegui» porta verso le urla, e da li' al goblin molto arrabbiato.",
+      "stanza": "collina",
+      "espr_sinistra": "pensiero",
+      "flag": "tut_collina_fatta",
       "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Non so cosa fosse... ma il promontorio è silenzioso, adesso."
+          "testo": "Cos'era quell'affare?!",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sei {stato fortunato|stata fortunata}, nei nostri database quell'essere è catalogato come una forma di vita corrotta estremamente pericolosa... Ma cosa ci faceva un corrotto di quel livello in questa zona?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Questi dati saranno sicuramente utili all'organizzazione..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Ottimo lavoro {Dominatore|Dominatrice}, ce la siamo vista brutta, ma direi che è ora di proseguire sulla nostra strada."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Già..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "(Eppure quella voce...)",
+          "espr": "pensiero"
         }
       ],
-      "espr_sinistra": "pensiero",
-      "flag": "tut_collina_fatta",
       "scena": "Il promontorio è silenzioso, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
       "sblocca_stanze": [
         "convergenza"
       ],
       "scelte": [
         {
-          "testo": "Attraversa gli arbusti",
+          "testo": "Prosegui",
           "vai": "convergenza"
         },
         {
@@ -1220,8 +1461,7 @@
           "torna_a_mappa": true,
           "stanza": "collina"
         }
-      ],
-      "_nota_stanza": "Sta dentro 'collina', ma non e' quella stanza: e' una scena che ci succede. Senza 'stanza' la mappa si apre chiedendo i vicini di 'dopo_collina', che vicini non ne ha - e resta li' disegnata, senza niente da premere."
+      ]
     },
     "convergenza": {
       "sequenza": [

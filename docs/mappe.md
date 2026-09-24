@@ -181,7 +181,7 @@ introduzione
 
 # Pianure di Redenna (tutorial)
 
-<sub>`data/events_tutorial.json` — 38 scene</sub>
+<sub>`data/events_tutorial.json` — 43 scene</sub>
 
 ## La griglia
 
@@ -198,7 +198,7 @@ introduzione
 
 12 stanze sulla mappa, 11 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `albero_vinto`, `banchetto_vinto`, `boss`, `caverna_pietra`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `inizio_guida`, `masso_fiale`, `pozze_vinte`, `ritorno_alla_base`, `ritorno_disponibile`, `ritorno_istruzioni`, `ritorno_rimandato`, `sconfitta`, `sconfitta_manifestazione`, `tartaruga_dopo`, `vittoria`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `albero_vinto`, `banchetto_vinto`, `boss`, `caverna_pietra`, `collina_apparizione`, `collina_cima`, `collina_fuga`, `collina_negata`, `collina_riprova`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `inizio_guida`, `masso_fiale`, `pozze_vinte`, `ritorno_alla_base`, `ritorno_disponibile`, `ritorno_istruzioni`, `ritorno_rimandato`, `sconfitta`, `sconfitta_manifestazione`, `tartaruga_dopo`, `vittoria`.
 
 ## Il percorso
 
@@ -263,21 +263,32 @@ inizio
                                     · Sì, torno alla base → ritorno_alla_base [gia' visto]
                                     · No, voglio dare ancora un'occhiata → ritorno_rimandato [gia' visto]
                                 perdi → sconfitta [gia' visto]
-                              · Torna al promontorio → collina   (flag tut_collina_vista; scontro! manifestazione_di_un_sogno)
-                                ⟳ con tut_collina_vista diventa collina_ritorno
-                                collina_ritorno
-                                  ⟳ con tut_collina_fatta diventa collina_vuota
-                                  collina_vuota
-                                    · Attraversa gli arbusti → convergenza [gia' visto]
-                                    · Torna al bivio → bivio [gia' visto]
-                                  · Combatti   (solo se non tut_collina_fatta)
-                                  · Torna al bivio → bivio [gia' visto]
-                                vinci → dopo_collina   (flag tut_collina_fatta)
+                              · Torna al promontorio → collina   (niente mappa)
+                                ⟳ con tut_collina_fatta diventa collina_vuota
+                                collina_vuota
                                   · Attraversa gli arbusti → convergenza [gia' visto]
-                                  · Apri la mappa
-                                perdi → sconfitta_manifestazione
-                                  · Rialzati e ricomincia
-                                fuggi → bivio [gia' visto]
+                                  · Torna al bivio → bivio [gia' visto]
+                                ⟳ con tut_manifestazione_fuggita diventa collina_negata
+                                collina_negata   (non ti sposta)
+                                  ⟳ con tut_pietra_presa diventa collina_riprova
+                                  collina_riprova   (niente mappa)
+                                    · Prosegui → collina_ritorno   (scontro! manifestazione_di_un_sogno; niente mappa)
+                                      vinci → dopo_collina   (flag tut_collina_fatta)
+                                        · Prosegui → convergenza [gia' visto]
+                                        · Apri la mappa
+                                      perdi → sconfitta_manifestazione
+                                        · Rialzati e ricomincia
+                                      fuggi → collina_fuga   (flag tut_manifestazione_fuggita)
+                                        · Attraversa le pozze d'acqua → pozze [gia' visto]
+                                        · Prosegui → tartaruga [gia' visto]
+                                    · Torna indietro → collina_ritorno [gia' visto]
+                                  · Torna indietro   (torna nella stanza da cui ci hai provato)
+                                · Prosegui → collina_cima   (niente mappa)
+                                  · Prosegui → collina_apparizione   (scontro! manifestazione_di_un_sogno; niente mappa)
+                                    vinci → dopo_collina [gia' visto]
+                                    perdi → sconfitta_manifestazione [gia' visto]
+                                    fuggi → collina_fuga [gia' visto]
+                                  · Torna indietro → collina_apparizione [gia' visto]
                               · Torna dalla tartaruga → tartaruga [gia' visto]
                             · Torna alle pozze → pozze [gia' visto]
                           vinci → tartaruga_dopo [gia' visto]

@@ -269,6 +269,8 @@ def note_di(id_nodo, nodo, scelta):
         note.append("serve " + ", ".join(scelta["richiede_oggetti"]))
     if scelta.get("torna_vuoto"):
         note.append("esce dalla zona")
+    if scelta.get("torna_dove_eri"):
+        note.append("torna nella stanza da cui ci hai provato")
     return note
 
 
@@ -285,6 +287,10 @@ def note_stanza(nodo):
         note.append("scontro! " + ", ".join(automatico.get("nemici", [])))
     if "salva_checkpoint" in nodo:
         note.append("checkpoint")
+    if nodo.get("senza_mappa"):
+        note.append("niente mappa")
+    if nodo.get("resta_dove_sei"):
+        note.append("non ti sposta")
     return note
 
 

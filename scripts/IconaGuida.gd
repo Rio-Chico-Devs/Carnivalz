@@ -65,4 +65,8 @@ func aggiorna() -> void:
 	visible = GameState.ha_flag(FLAG)
 	var area: Variant = schermata.get("area_avanza") if schermata != null else null
 	var si_legge: bool = area is Control and (area as Control).visible
-	modulate.a = SPENTA if si_legge else 1.0
+	# e dove la scena non ti lascia andare (IngressoNodo.trattiene) resta spenta
+	# anche a testo finito: riaprirebbe la mappa, e dalla mappa si esce
+	var nodo: Variant = schermata.get("nodo_in_corso") if schermata != null else null
+	disabled = nodo is Dictionary and IngressoNodo.trattiene(nodo)
+	modulate.a = SPENTA if si_legge or disabled else 1.0

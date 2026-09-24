@@ -158,6 +158,9 @@ func _ready() -> void:
 	prova_il_bond_con_la_tartaruga()
 	await prova_bond_si_preme()
 	prova_la_caverna_si_apre_guardando()
+	prova_il_promontorio_come_lo_ha_scritto_bru()
+	prova_l_apparizione_si_batte_solo_con_la_pietra()
+	await prova_il_promontorio_non_ti_lascia_andare_e_poi_ti_ferma()
 	await prova_la_guida_ferma_il_mondo_mentre_parla()
 	await prova_il_goblin_del_pasto_si_gioca_a_turni_dallo_schermo()
 	await prova_osservando_la_scena_si_trova_la_caverna()
@@ -13909,6 +13912,182 @@ func corridoio_aperto(a: String, b: String) -> bool:
 		if a in coppia and b in coppia:
 			return true
 	return false
+
+func prova_il_promontorio_come_lo_ha_scritto_bru() -> void:
+	# Bru, 24 settembre: «sviluppiamo la scena sopra la collina». Una salita in
+	# due tempi, una scelta che comunque fa scattare l'apparizione, e tre modi di
+	# uscirne: la batti con la pietra, scappi (e allora il promontorio ti ferma
+	# finche' la pietra non ce l'hai), o dormi per sempre.
+	titolo("il promontorio va come l'ha scritto Bru: salita, apparizione, e le tre uscite")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	# LA SALITA: «prosegui», poi due scelte che portano tutte e due all'apparizione
+	esigi(destinazioni_di(nodi["collina"]).has("collina_cima"), "dalla salita non si prosegue verso la cima")
+	var dalla_cima: Array[String] = []
+	for scelta in nodi["collina_cima"].get("scelte", []):
+		dalla_cima.append(String(scelta.get("vai", "")))
+	esigi(dalla_cima.size() == 2 and dalla_cima.count("collina_apparizione") == 2,
+			"in cima non ci sono le due scelte che fanno scattare comunque l'apparizione: %s" % [dalla_cima])
+	for id_nodo in ["collina", "collina_cima", "collina_apparizione", "collina_riprova", "collina_ritorno"]:
+		esigi(bool(nodi[id_nodo].get("senza_mappa", false)),
+				"'%s' lascia aprire la mappa: e' la terza scelta, quella che non fa scattare niente" % id_nodo)
+	# CHI PARLA: «???» prima di vedersi, poi lei col suo nome
+	var chi_dice := {}
+	for msg in nodi["collina_apparizione"].get("sequenza", []):
+		chi_dice[String(msg.get("testo", ""))] = String(msg.get("chi", ""))
+	esigi(chi_dice.get("Hm?", "") == "ignoto" and chi_dice.get("Hm.", "") == "ignoto",
+			"i due «hm» non sono di una voce che ancora non si vede: %s" % chi_dice)
+	esigi(chi_dice.get("Sei tu?", "") == "manifestazione_di_un_sogno" and chi_dice.get("Scappa. Presto!", "") == "guida",
+			"l'apparizione non parla col suo nome, o la Guida non ti dice di scappare: %s" % chi_dice)
+	# LE TRE USCITE, uguali per il primo scontro e per quello in cui ci riprovi
+	for id_nodo in ["collina_apparizione", "collina_ritorno"]:
+		var scontro: Dictionary = nodi[id_nodo].get("combattimento_automatico", {})
+		esigi(scontro.get("nemici", []) == ["manifestazione_di_un_sogno"]
+				and String(scontro.get("se_vinci", "")) == "dopo_collina"
+				and String(scontro.get("se_fuggi", "")) == "collina_fuga"
+				and String(scontro.get("se_perdi", "")) == "sconfitta_manifestazione",
+				"'%s': lo scontro non esce dove deve: %s" % [id_nodo, scontro])
+	var battuta_fuga: Dictionary = {}
+	for scelta in nodi["collina_fuga"].get("scelte", []):
+		if String(scelta.get("vai", "")) == "pozze":
+			battuta_fuga = scelta
+	esigi(String(nodi["collina_fuga"].get("stanza", "")) == "pozze" and not battuta_fuga.is_empty(),
+			"scappando non ti ritrovi alle pozze, costretto ad attraversarle")
+	esigi(String(nodi["collina_fuga"].get("flag", "")) == "tut_manifestazione_fuggita",
+			"scappare non lo ricorda nessuno: il promontorio non ti fermera' mai")
+	var vinta: Array = nodi["dopo_collina"].get("sequenza", [])
+	esigi(not vinta.is_empty() and String(vinta[0].get("testo", "")) == "Cos'era quell'affare?!",
+			"battuta l'apparizione, i dialoghi non sono quelli nuovi di Bru")
+	esigi("convergenza" in destinazioni_di(nodi["dopo_collina"]), "dopo l'apparizione non si prosegue verso il goblin")
+
+	# DOVE TI PORTA IL PROMONTORIO, a seconda di com'e' andata
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.nodo_corrente = "bivio"
+	esigi(String(IngressoNodo.entra("collina").id) == "collina", "la prima volta non si sale sul promontorio")
+	GameState.imposta_flag("tut_manifestazione_fuggita")
+	for da_dove in ["bivio", "convergenza"]:
+		GameState.nodo_corrente = da_dove
+		var esito := IngressoNodo.entra("collina")
+		esigi(String(esito.id) == "collina_negata" and GameState.nodo_corrente == da_dove
+				and String(esito.stanza) == da_dove,
+				"scappato e senza pietra, provando a salire da '%s' si finisce in '%s' con la stanza '%s'"
+				% [da_dove, esito.id, GameState.nodo_corrente])
+	esigi(not GameState.stanza_sbloccata("collina_negata"), "il rifiuto di salire e' finito sulla mappa come una stanza")
+	GameState.imposta_flag("tut_pietra_presa")
+	var riprova := IngressoNodo.entra("collina")
+	esigi(String(riprova.id) == "collina_riprova" and GameState.nodo_corrente == "collina",
+			"con la pietra non ci si riprova: si finisce in '%s'" % riprova.id)
+	GameState.imposta_flag("tut_collina_fatta")
+	esigi(String(IngressoNodo.entra("collina").id) == "collina_vuota", "battuta l'apparizione, la cima non e' vuota")
+	GameState.nuova_partita()
+
+func prova_l_apparizione_si_batte_solo_con_la_pietra() -> void:
+	# «ti salvi solo con pietra», e «appena si avvicina la sconfitta» tre battute:
+	# la Guida che ti dice di scappare, tu che non ci riesci, lei che tace
+	titolo("l'apparizione: senza pietra dormi, con la pietra la batti, e prima parla la Guida")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	var regia: Dictionary = nodi["collina_apparizione"]["combattimento_automatico"].get("regia", {})
+	var aspetta := func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	for con_la_pietra in [false, true]:
+		GameState.nuova_partita()
+		GameState.imposta_seed(21)
+		if con_la_pietra:
+			GameState.aggiungi_oggetto("pietra_quieta")
+		var scontro := scontro_muto_contro(["manifestazione_di_un_sogno"], regia, aspetta, 30)
+		esigi(bool(scontro.giocatore_ha_vinto) == con_la_pietra and not bool(scontro.giocatore_e_fuggito),
+				("con la pietra l'apparizione non si batte" if con_la_pietra
+				else "senza pietra e senza scappare l'apparizione non ti addormenta"))
+		var fine_vicina := nello_storico("Senti che la fine è vicina")
+		var scappa := nello_storico("Non ce la puoi fare ora!")
+		var non_posso := nello_storico("Non... posso...")
+		var morfeo := nello_storico("ti ricorda una persona di un lontano passato")
+		esigi(fine_vicina >= 0 and scappa > fine_vicina and non_posso > scappa and morfeo > non_posso,
+				"le battute di quando la sconfitta si avvicina non stanno fra l'ultimo gesto e la Chiamata di Morfeo "
+				+ "(gesto %d, Guida %d, tu %d, Morfeo %d)" % [fine_vicina, scappa, non_posso, morfeo])
+		if con_la_pietra:
+			esigi(nello_storico("si spacca in mille pezzi") > morfeo and nello_storico("vortice di rabbia") > morfeo,
+					"con la pietra il sonno non si spezza, o lei non si disperde")
+		scontro.free()
+	# E SI PUO' SCAPPARE, ma non al primo tentativo: «non vuole lasciarti»
+	var scappato := 0
+	for seme in 8:
+		GameState.nuova_partita()
+		GameState.imposta_seed(100 + seme)
+		var scontro := scontro_muto_contro(["manifestazione_di_un_sogno"], regia,
+				func(_s, _c) -> Dictionary: return {"tipo": "fuggi"}, 30)
+		esigi(nello_storico("non vuole lasciarti") >= 0, "il primo tentativo di fuga dall'apparizione riesce")
+		if bool(scontro.giocatore_e_fuggito):
+			scappato += 1
+		scontro.free()
+	esigi(scappato > 0, "in otto partite dall'apparizione non si e' mai riusciti a scappare")
+	GameState.nuova_partita()
+
+func prova_il_promontorio_non_ti_lascia_andare_e_poi_ti_ferma() -> void:
+	# A SCHERMO. In cima la mappa non c'e', e nemmeno l'icona della Guida che la
+	# riapre: «qualunque cosa scegli triggera l'apparizione». E dopo la fuga il
+	# promontorio ti ferma dove sei - anche se ci provi dalla mappa - e «Torna
+	# indietro» ti rimette li'
+	titolo("in cima al promontorio non si esce dalla mappa; dopo la fuga ti ferma dove sei")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.imposta_flag("guida_conosciuta")
+	GameState.nodo_corrente = "bivio"
+	IngressoNodo.ultimo_esito = IngressoNodo.entra("collina_cima")
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	schermata.aggiorna_dialoga()
+	var icona: Button = null
+	for figlio in schermata.get_node("Interfaccia").get_children():
+		if figlio is IconaGuida:
+			icona = figlio
+	esigi(icona != null, "nelle Pianure l'icona della Guida non c'e': la prova non misurerebbe niente")
+	if icona != null:
+		icona.aggiorna()
+		esigi(icona.disabled, "in cima al promontorio l'icona della Guida riapre la mappa, e dalla mappa si scappa")
+	esigi(not schermata.bottone_mappa.visible, "in cima al promontorio c'e' il bottone della mappa")
+	# e al bivio, che non trattiene nessuno, tutto torna com'era
+	schermata.mostra_nodo("bivio")
+	schermata.aggiorna_dialoga()
+	esigi(schermata.bottone_mappa.visible, "al bivio la mappa non c'e' piu': la trattenuta del promontorio e' rimasta addosso")
+	if icona != null:
+		icona.aggiorna()
+		esigi(not icona.disabled, "al bivio l'icona della Guida resta spenta")
+	schermata.queue_free()
+	await get_tree().process_frame
+
+	# DOPO LA FUGA, DALLA MAPPA: da verso le urla ci provi, e resti verso le urla
+	GameState.imposta_flag("tut_manifestazione_fuggita")
+	GameState.nodo_corrente = "convergenza"
+	var mappa: Control = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	var transizione_prima: bool = Transizioni.in_corso
+	Transizioni.in_corso = true   # la navigazione si mette in fila e non parte
+	mappa._su_stanza("collina", true, true)
+	Transizioni.prossima = ""
+	Transizioni.in_corso = transizione_prima
+	var esito: Dictionary = IngressoNodo.ultimo_esito
+	esigi(String(esito.get("id", "")) == "collina_negata" and GameState.nodo_corrente == "convergenza",
+			"provando a salire dalla mappa ti ritrovi in '%s', sul '%s'" % [esito.get("id", ""), GameState.nodo_corrente])
+	mappa.queue_free()
+	# e la schermata che nasce di li' mostra il rifiuto, e «Torna indietro» ti
+	# rimette verso le urla
+	schermata = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	esigi(schermata.nodo_in_corso == GameState.eventi["collina_negata"],
+			"la schermata non mostra il promontorio che ti ferma")
+	schermata.ricostruisci_scelte(schermata.nodo_in_corso)
+	var indietro := cerca_bottone_con_testo(schermata.contenitore_scelte, "Torna indietro")
+	esigi(indietro != null, "fermato sul promontorio non c'e' «Torna indietro»")
+	if indietro != null:
+		indietro.pressed.emit()
+		esigi(schermata.nodo_in_corso == GameState.eventi["convergenza"] and GameState.nodo_corrente == "convergenza",
+				"«Torna indietro» non ti rimette verso le urla, da dove ci avevi provato")
+	schermata.queue_free()
+	await get_tree().process_frame
+	IngressoNodo.ultimo_esito = {}
+	GameState.nuova_partita()
 
 func prova_il_goblin_del_pasto_si_gioca_a_turni_dallo_schermo() -> void:
 	# LO SCONTRO CHE BRU HA GIOCATO, GIOCATO DALLO SCHERMO. «Il goblin mi attacca
