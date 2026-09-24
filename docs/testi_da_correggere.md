@@ -10,7 +10,7 @@ Ogni voce è fatta così:
 
 ```
 **`ESEMPIO.1`** · Tutorial › inizio › battuta di Anonimo
-> Dunque sarebbe questa la mia prima missione autonoma?
+> Aggiornami sulla missione.
 >
 > →
 ```
@@ -201,21 +201,31 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 <sub>`scripts/MappaZona.gd`</sub>
 
 **`UI.MappaZona.001`** · costruisci_intelaiatura
+> Chiudi la mappa
+>
+> →
+
+**`UI.MappaZona.002`** · costruisci_intelaiatura
 > Torna alla stanza corrente
 >
 > →
 
-**`UI.MappaZona.002`** · dove_sei
+**`UI.MappaZona.003`** · dove_sei
 > Sei in: %s
 >
 > →
 
-**`UI.MappaZona.003`** · _su_stanza
+**`UI.MappaZona.004`** · _su_stanza
+> La Guida sta ancora parlando.
+>
+> →
+
+**`UI.MappaZona.005`** · _su_stanza
 > C'è un proiettore, ma per usarlo devi essere su un altro proiettore.
 >
 > →
 
-**`UI.MappaZona.004`** · _su_stanza
+**`UI.MappaZona.006`** · _su_stanza
 > Troppo lontano. Da qui si va solo dove si arriva a piedi.
 >
 > →
@@ -1940,7 +1950,52 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.inizio.3`** · battuta di Anonimo
-> Dunque sarebbe questa la mia prima missione autonoma? Sembra un posto molto tranquillo, forse siamo in tempo per salvare queste pianure...
+> !
+>
+> →
+
+**`TUT.inizio.4`** · battuta di Anonimo
+> Incredibile...
+>
+> →
+
+**`TUT.inizio.5`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`TUT.inizio.6`** · battuta di Anonimo
+> E ora cosa dovrei fare?
+>
+> →
+
+**`TUT.inizio.7`** · battuta di ???
+> beep! Beep!
+>
+> →
+
+**`TUT.inizio.8`** · battuta di Anonimo
+> ???
+>
+> →
+
+**`TUT.inizio.9`** · battuta di Anonimo
+> Sembra provenire dal mio data pad...
+>
+> →
+
+**`TUT.inizio.10`** · battuta di Guida
+> Buongiorno {Dominatore|Dominatrice}! Sembra che siamo arrivati a destinazione! Fantastico!
+>
+> →
+
+**`TUT.inizio.11`** · battuta di Anonimo
+> Aggiornami sulla missione.
+>
+> →
+
+**`TUT.inizio.12`** · battuta di Guida
+> Dritti al punto eh? Subito!
 >
 > →
 
@@ -1950,6 +2005,54 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.inizio.scelta1`** · bottone di scelta
+> Fatti largo tra le pianure
+>
+> →
+
+
+### Tutorial › `inizio_guida`
+
+**`TUT.inizio_guida.1`** · battuta di Guida
+> bzzzt... Heeeeey! Ma che maniere sono! Guarda che posso sempre esserti utile durante l'esplorazione!
+>
+> →
+
+**`TUT.inizio_guida.2`** · battuta di Anonimo
+> Come si abbassa il volume di questo coso...
+>
+> →
+
+**`TUT.inizio_guida.3`** · battuta di Guida
+> Io non sono un coso!
+>
+> →
+
+**`TUT.inizio_guida.4`** · battuta di Guida
+> Sono la tua super guida fatta su misura per te!
+>
+> →
+
+**`TUT.inizio_guida.5`** · battuta di Anonimo
+> Guarda che non ti ho configurato io... Non c'è modo di disinstallarti o almeno renderti meno chiassosa?
+>
+> →
+
+**`TUT.inizio_guida.6`** · battuta di Guida
+> ...
+>
+> →
+
+**`TUT.inizio_guida.7`** · battuta di Guida
+> Sei terribile. E va bene. Se hai bisogno puoi premere sulla mia icona. Addio.
+>
+> →
+
+**`TUT.inizio_guida.8`** · battuta di Anonimo
+> (finalmente)
+>
+> →
+
+**`TUT.inizio_guida.scelta1`** · bottone di scelta
 > Fatti largo tra le pianure
 >
 > →
@@ -2923,6 +3026,29 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`TUT.ritorno_alla_base.scelta1`** · bottone di scelta
 > Scendi dalla piattaforma
+>
+> →
+
+
+### Tutorial › sulla mappa, la Guida
+
+**`TUT.mappa.guida.1`** · battuta di Guida
+> Ti trovi nel settore delle Pianure di Redenna, vedi?
+>
+> →
+
+**`TUT.mappa.guida.2`** · battuta di Guida
+> Dobbiamo muoverci verso il nostro obiettivo, purtroppo nella zona i livelli di disallineamento sono sempre ambigui, verrai sempre {trasportato|trasportata} vicino al punto dove i livelli sono più forti, ma dovrai essere tu ad esplorare e ad individuare la fonte.
+>
+> →
+
+**`TUT.mappa.guida.3`** · battuta di Guida
+> La mappa estrarrà dati dalla conformazione della zona e rivelerà più dettagli man mano che proseguiamo!
+>
+> →
+
+**`TUT.mappa.guida.4`** · battuta di Guida
+> Che ne dici? Vogliamo provare ad avventurarci io e te? :3
 >
 > →
 

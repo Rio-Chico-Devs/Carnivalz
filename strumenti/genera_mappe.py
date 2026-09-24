@@ -316,6 +316,10 @@ def percorso(nodi, id_iniziale):
         if nodo.get("apri_mappa_stellare"):
             righe.append("%s  ⟳ mappa stellare, scelta la meta" % indenti)
             scendi(str(nodo["apri_mappa_stellare"]), profondita + 1, "", [])
+        guida = nodo.get("apri_mappa_zona")
+        if isinstance(guida, dict) and guida.get("ritorno"):
+            righe.append("%s  ⟳ mappa di zona con la Guida, chiusa la mappa" % indenti)
+            scendi(str(guida["ritorno"]), profondita + 1, "", [])
         if nodo.get("combattimento_automatico"):
             esito = nodo["combattimento_automatico"]
             for chiave, come in [("se_vinci", "vinci"), ("se_perdi", "perdi"), ("se_fuggi", "fuggi")]:

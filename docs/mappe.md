@@ -181,7 +181,7 @@ introduzione
 
 # Pianure di Redenna (tutorial)
 
-<sub>`data/events_tutorial.json` — 30 scene</sub>
+<sub>`data/events_tutorial.json` — 31 scene</sub>
 
 ## La griglia
 
@@ -195,83 +195,86 @@ introduzione
 
 6 stanze sulla mappa, 6 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `boss`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `dopo_pozze`, `dopo_primo_goblin`, `due_nemici`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `pozze_ripulite`, `primo_incontro`, `ritorno_alla_base`, `ritorno_disponibile`, `ritorno_istruzioni`, `ritorno_rimandato`, `sconfitta`, `sconfitta_manifestazione`, `vittoria`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `boss`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `dopo_pozze`, `dopo_primo_goblin`, `due_nemici`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `inizio_guida`, `pozze_ripulite`, `primo_incontro`, `ritorno_alla_base`, `ritorno_disponibile`, `ritorno_istruzioni`, `ritorno_rimandato`, `sconfitta`, `sconfitta_manifestazione`, `vittoria`.
 
 ## Il percorso
 
 ```
 inizio
-  · Fatti largo tra le pianure → primo_incontro   (scontro! goblin_tipico)
-    ⟳ con tut_primo_goblin diventa dopo_primo_goblin
-    dopo_primo_goblin   (flag tut_primo_goblin)
-      · Continua per la tua strada → masso
-        · Ispeziona l'acqua che luccica → due_nemici   (+fiala_hp, fiala_hp; scontro! goblin_tipico)
-          ⟳ con tut_radura_superata diventa bivio
-          bivio   (flag tut_radura_superata)
-            · Procedi verso le pozze d'acqua → pozze   (scontro! goblin_tipico)
-              ⟳ con tut_pozze_fatte diventa pozze_ripulite
-              pozze_ripulite
-                · Attraversa gli arbusti → convergenza   (flag tut_strada_aperta)
-                  ⟳ con pianure_compiute diventa ritorno_disponibile
-                  ritorno_disponibile
-                    · Sì, torno alla base → ritorno_alla_base
-                      · Scendi dalla piattaforma → hq_veronica_saluto
-                        · Vai in sala riunioni → hq_sala_riunioni_1
-                          · Passa in infermeria → hq_infermeria
-                            · Vai in sala riunioni → hq_sala_riunioni_2
-                              · Come mai mi trovo qui? → hq_domanda_perche
-                                · Come mai mi trovo qui?
-                                · Cosa sono i dominatori in realtà? → hq_domanda_dominatori
-                                  · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
-                                  · Cosa sono i dominatori in realtà?
-                                  · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando
+  ⟳ mappa di zona con la Guida, chiusa la mappa
+  inizio_guida
+    · Fatti largo tra le pianure → primo_incontro   (scontro! goblin_tipico)
+      ⟳ con tut_primo_goblin diventa dopo_primo_goblin
+      dopo_primo_goblin   (flag tut_primo_goblin)
+        · Continua per la tua strada → masso
+          · Ispeziona l'acqua che luccica → due_nemici   (+fiala_hp, fiala_hp; scontro! goblin_tipico)
+            ⟳ con tut_radura_superata diventa bivio
+            bivio   (flag tut_radura_superata)
+              · Procedi verso le pozze d'acqua → pozze   (scontro! goblin_tipico)
+                ⟳ con tut_pozze_fatte diventa pozze_ripulite
+                pozze_ripulite
+                  · Attraversa gli arbusti → convergenza   (flag tut_strada_aperta)
+                    ⟳ con pianure_compiute diventa ritorno_disponibile
+                    ritorno_disponibile
+                      · Sì, torno alla base → ritorno_alla_base
+                        · Scendi dalla piattaforma → hq_veronica_saluto
+                          · Vai in sala riunioni → hq_sala_riunioni_1
+                            · Passa in infermeria → hq_infermeria
+                              · Vai in sala riunioni → hq_sala_riunioni_2
+                                · Come mai mi trovo qui? → hq_domanda_perche
+                                  · Come mai mi trovo qui?
+                                  · Cosa sono i dominatori in realtà? → hq_domanda_dominatori
                                     · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
-                                    · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
-                                    · Da quanto tempo sta succedendo tutto questo?
-                                    · Nessuna domanda. Parto immediatamente. → hq_congedo   (flag tutorial_completato)
-                                      · Torna alla mappa stellare
+                                    · Cosa sono i dominatori in realtà?
+                                    · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando
+                                      · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
+                                      · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
+                                      · Da quanto tempo sta succedendo tutto questo?
+                                      · Nessuna domanda. Parto immediatamente. → hq_congedo   (flag tutorial_completato)
+                                        · Torna alla mappa stellare
+                                    · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
+                                  · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
                                   · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
+                                · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
                                 · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
                                 · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
-                              · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
-                              · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
-                              · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
-                    · No, voglio dare ancora un'occhiata → ritorno_rimandato
-                  · Scatta verso i rumori → boss   (scontro! goblin_arrabbiato)
-                    vinci → vittoria   (flag pianure_compiute)
-                      · Apri il data pad → ritorno_istruzioni   (flag sa_tornare)
-                        · Sì, torno alla base → ritorno_alla_base [gia' visto]
-                        · No, voglio dare ancora un'occhiata → ritorno_rimandato [gia' visto]
-                    perdi → sconfitta
-                      · Rialzati e ricomincia
-                  · Torna alla collina → collina   (flag tut_collina_vista; scontro! manifestazione_di_un_sogno)
-                    ⟳ con tut_collina_vista diventa collina_ritorno
-                    collina_ritorno
-                      ⟳ con tut_collina_fatta diventa collina_vuota
-                      collina_vuota
-                        · Attraversa gli arbusti → convergenza [gia' visto]
+                      · No, voglio dare ancora un'occhiata → ritorno_rimandato
+                    · Scatta verso i rumori → boss   (scontro! goblin_arrabbiato)
+                      vinci → vittoria   (flag pianure_compiute)
+                        · Apri il data pad → ritorno_istruzioni   (flag sa_tornare)
+                          · Sì, torno alla base → ritorno_alla_base [gia' visto]
+                          · No, voglio dare ancora un'occhiata → ritorno_rimandato [gia' visto]
+                      perdi → sconfitta
+                        · Rialzati e ricomincia
+                    · Torna alla collina → collina   (flag tut_collina_vista; scontro! manifestazione_di_un_sogno)
+                      ⟳ con tut_collina_vista diventa collina_ritorno
+                      collina_ritorno
+                        ⟳ con tut_collina_fatta diventa collina_vuota
+                        collina_vuota
+                          · Attraversa gli arbusti → convergenza [gia' visto]
+                          · Torna al bivio → bivio [gia' visto]
+                        · Combatti   (solo se non tut_collina_fatta)
                         · Torna al bivio → bivio [gia' visto]
-                      · Combatti   (solo se non tut_collina_fatta)
-                      · Torna al bivio → bivio [gia' visto]
-                    vinci → dopo_collina   (flag tut_collina_fatta)
-                      · Attraversa gli arbusti → convergenza [gia' visto]
-                      · Apri la mappa
-                    perdi → sconfitta_manifestazione
-                      · Rialzati e ricomincia
-                    fuggi → bivio [gia' visto]
-                  · Torna alle pozze → pozze [gia' visto]
-                · Torna al bivio → bivio [gia' visto]
-              vinci → dopo_pozze   (flag tut_pozze_fatte)
-                · Oltrepassa gli arbusti → convergenza [gia' visto]
-                · Apri la mappa
-              perdi → sconfitta [gia' visto]
-              fuggi → bivio [gia' visto]
-            · Sali sulla collina → collina [gia' visto]
-          vinci → bivio [gia' visto]
-          perdi → sconfitta [gia' visto]
-        · Prosegui senza fermarti → due_nemici [gia' visto]
-    vinci → dopo_primo_goblin [gia' visto]
-    perdi → sconfitta [gia' visto]
+                      vinci → dopo_collina   (flag tut_collina_fatta)
+                        · Attraversa gli arbusti → convergenza [gia' visto]
+                        · Apri la mappa
+                      perdi → sconfitta_manifestazione
+                        · Rialzati e ricomincia
+                      fuggi → bivio [gia' visto]
+                    · Torna alle pozze → pozze [gia' visto]
+                  · Torna al bivio → bivio [gia' visto]
+                vinci → dopo_pozze   (flag tut_pozze_fatte)
+                  · Oltrepassa gli arbusti → convergenza [gia' visto]
+                  · Apri la mappa
+                perdi → sconfitta [gia' visto]
+                fuggi → bivio [gia' visto]
+              · Sali sulla collina → collina [gia' visto]
+            vinci → bivio [gia' visto]
+            perdi → sconfitta [gia' visto]
+          · Prosegui senza fermarti → due_nemici [gia' visto]
+      vinci → dopo_primo_goblin [gia' visto]
+      perdi → sconfitta [gia' visto]
+  · Fatti largo tra le pianure → primo_incontro [gia' visto]
 ```
 
 ---

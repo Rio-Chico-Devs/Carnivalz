@@ -78,7 +78,31 @@
         "collina",
         "convergenza"
       ]
-    ]
+    ],
+    "guida": [
+      {
+        "tipo": "dialogo",
+        "chi": "guida",
+        "testo": "Ti trovi nel settore delle Pianure di Redenna, vedi?",
+        "indica": "qui"
+      },
+      {
+        "tipo": "dialogo",
+        "chi": "guida",
+        "testo": "Dobbiamo muoverci verso il nostro obiettivo, purtroppo nella zona i livelli di disallineamento sono sempre ambigui, verrai sempre {trasportato|trasportata} vicino al punto dove i livelli sono più forti, ma dovrai essere tu ad esplorare e ad individuare la fonte."
+      },
+      {
+        "tipo": "dialogo",
+        "chi": "guida",
+        "testo": "La mappa estrarrà dati dalla conformazione della zona e rivelerà più dettagli man mano che proseguiamo!"
+      },
+      {
+        "tipo": "dialogo",
+        "chi": "guida",
+        "testo": "Che ne dici? Vogliamo provare ad avventurarci io e te? :3"
+      }
+    ],
+    "_nota_guida": "Quello che la Guida dice sulla mappa (testo di Bru). Lo dice all'arrivo, e lo ridice ogni volta che premi la sua icona. «indica: qui» accende l'anello sulla stanza in cui sei, mentre dice «vedi?». La sua battuta lunga e' spezzata in tre dove finiscono le frasi, perche' intera non stava nel box."
   },
   "nodi": {
     "inizio": {
@@ -94,11 +118,122 @@
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Dunque sarebbe questa la mia prima missione autonoma? Sembra un posto molto tranquillo, forse siamo in tempo per salvare queste pianure..."
+          "testo": "!",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Incredibile...",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "E ora cosa dovrei fare?",
+          "espr": "pensiero"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "ignoto",
+          "testo": "beep! Beep!",
+          "suono": "data_pad"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "???",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Sembra provenire dal mio data pad..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Buongiorno {Dominatore|Dominatrice}! Sembra che siamo arrivati a destinazione! Fantastico!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Aggiornami sulla missione."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Dritti al punto eh? Subito!"
         }
       ],
       "espr_sinistra": "pensiero",
       "scena": "Le pianure di Redenna si aprono davanti a te, tranquille come sembravano da lassù.",
+      "scelte": [
+        {
+          "testo": "Fatti largo tra le pianure",
+          "vai": "primo_incontro"
+        }
+      ],
+      "apri_mappa_zona": {
+        "ritorno": "inizio_guida",
+        "solo_chiudere": true
+      },
+      "_nota_testo": "Il testo dopo la narrazione d'entrata e' di Bru (23 settembre), e sostituisce la battuta «Dunque sarebbe questa la mia prima missione autonoma?». Ritocchi: gli accordi ({Dominatore|Dominatrice}, {trasportato|trasportata}), tre refusi (provvenire, dive, piu'), i puntini «…» scritti «...» come nel resto del gioco perche' il box fa la pausa solo su quelli, e «(nome del luogo in cui sei)» riempito con le Pianure di Redenna.",
+      "_nota_mappa": "Bru: «qui si apre la mappa e si spiega come funziona il livello e le fratture». Finita la battuta «Dritti al punto eh? Subito!» si apre la mappa di zona vera, e la Guida parla li' sopra (mappa_dungeon.guida). «Protagonista: preme sul tasto di chiusura» lo fa il giocatore: il tasto per chiudere la mappa. Premerlo porta a inizio_guida, dove lei protesta. Con solo_chiudere le stanze non si raggiungono finche' lei parla: andandosene di li' si salterebbe il resto della scena."
+    },
+    "inizio_guida": {
+      "_nota": "Il seguito dell'arrivo, dopo che hai chiuso la mappa mentre la Guida parlava: il «tasto di chiusura» del testo di Bru e' quello vero, e lo hai premuto tu. Sta nella stanza del punto d'atterraggio. Alla battuta dell'icona si accende guida_conosciuta, e l'icona compare in quel momento.",
+      "stanza": "inizio",
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "bzzzt... Heeeeey! Ma che maniere sono! Guarda che posso sempre esserti utile durante l'esplorazione!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Come si abbassa il volume di questo coso..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Io non sono un coso!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sono la tua super guida fatta su misura per te!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Guarda che non ti ho configurato io... Non c'è modo di disinstallarti o almeno renderti meno chiassosa?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sei terribile. E va bene. Se hai bisogno puoi premere sulla mia icona. Addio.",
+          "flag": "guida_conosciuta"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "(finalmente)",
+          "espr": "pensiero"
+        }
+      ],
       "scelte": [
         {
           "testo": "Fatti largo tra le pianure",

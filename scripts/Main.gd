@@ -434,6 +434,7 @@ func prepara_icona_menu() -> void:
 	# mentre un dialogo scorreva, cliccare la faccia mandava avanti la battuta
 	# invece di aprire il menu. L'ha trovato l'automa (prove/automa.sh)
 	icona_menu.reparent(self)
+	IconaGuida.metti(self, $Interfaccia, icona_menu)
 
 func ritratto_del_giocato() -> String:
 	var id := GameState.id_protagonista
@@ -512,6 +513,8 @@ func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) ->
 	# ha fatti nascere, poi il protagonista ci ragiona sopra
 	# la salita di livello viene PRIMA delle passive: e' la causa, quelle sono
 	# la conseguenza, e leggerle nell'ordine opposto non si capisce
+	if nodo.has("apri_mappa_zona") and not mostrando_scena:
+		azione_dopo_coda = GuidaSullaMappa.apri.bind(nodo["apri_mappa_zona"])   # la Guida sulla mappa
 	coda_messaggi = notifiche_precedenti + Resoconto.salite_di_livello() \
 			+ notifiche_passive() + contenuto_nodo(nodo) + notifiche_task() + notifiche_messaggi()
 	avanza_messaggio()

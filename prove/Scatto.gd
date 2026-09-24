@@ -175,6 +175,11 @@ func prepara(quale: String) -> void:
 			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
 			GameState.imposta_flag("rientro_infermeria")
 			GameState.nodo_corrente = String(argomenti_nodo[1]) if argomenti_nodo.size() > 1 else "infermeria_risveglio"
+			# un nodo che non e' dell'introduzione e' del livello dei goblin
+			if not GameState.eventi.has(GameState.nodo_corrente):
+				var cercato := GameState.nodo_corrente
+				GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+				GameState.nodo_corrente = cercato
 			IngressoNodo.ultimo_esito = {}
 			var dialogo: Node = load("res://scenes/Main.tscn").instantiate()
 			add_child(dialogo)
@@ -191,6 +196,24 @@ func prepara(quale: String) -> void:
 				dialogo._su_avanza()
 				await attendi(2)
 				clic += 1
+		"guida_mappa":
+			# la Guida che parla sopra la mappa delle Pianure, all'arrivo:
+			# "guida_mappa 2" fotografa la seconda battuta
+			GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+			GameState.nodi_visitati.append("inizio")
+			GuidaSullaMappa.in_corso = {"zona": GameState.carnivalz_corrente,
+					"righe": GameState.mappa_zona.get("guida", []), "ritorno": "inizio_guida", "solo_chiudere": true}
+			var mappa: Node = load(GuidaSullaMappa.SCENA_MAPPA_ZONA).instantiate()
+			add_child(mappa)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			var argomenti_guida := OS.get_cmdline_user_args()
+			var battute := int(argomenti_guida[1]) if argomenti_guida.size() > 1 else 1
+			var guida: GuidaSullaMappa = mappa.find_children("*", "GuidaSullaMappa", true, false)[0] as GuidaSullaMappa
+			for i in battute - 1:
+				guida._su_clic()
+				await attendi(2)
+				guida._su_clic()
+				await attendi(2)
 		"mappa_prima":
 			# la mappa stellare aperta da Veronica: solo la prima missione
 			MappaStellare.missione_da_scegliere = "proiezione_partenza"

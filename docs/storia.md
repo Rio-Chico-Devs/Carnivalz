@@ -518,6 +518,27 @@ andrebbe a cercare dove sono finiti i soldi.
   flag. La sala di proiezione vuol dire tre cose in tre momenti della giornata,
   e con una regola sola se ne potevano dire due.
 
+## L'arrivo nelle Pianure di Redenna
+
+La narrazione d'entrata resta quella di prima; dopo, il testo è di Bru (23
+settembre). Il protagonista si guarda intorno — «Incredibile...», «E ora cosa
+dovrei fare?» — e il data pad suona. È la **Guida**, entusiasta: «Buongiorno
+Dominatore! Sembra che siamo arrivati a destinazione!». Alla richiesta
+«Aggiornami sulla missione» **si apre la mappa di zona**, quella vera, e lei ci
+parla sopra: il settore in cui sei (un anello sul punto d'atterraggio, «vedi?»),
+i livelli di disallineamento sempre ambigui, il fatto che il proiettore ti lascia
+*vicino* alla fonte e che a trovarla devi essere tu, la mappa che si completa
+man mano. E chiude con «Vogliamo provare ad avventurarci io e te? :3».
+
+**Il tasto di chiusura lo preme chi gioca.** Nel testo di Bru il protagonista
+«preme sul tasto di chiusura»: è il tasto «Chiudi la mappa», e la Guida protesta
+comunque lo premi, alla fine o a metà della spiegazione — «Ma che maniere
+sono!». Il protagonista cerca come abbassarle il volume, lei si offende, dice
+che se serve si può premere sulla sua icona, e se ne va. «(finalmente)».
+
+Da quel momento l'**icona della Guida** sta accanto a quella del menu. Per ora
+ridice la spiegazione della mappa: è l'unico aiuto che ha scritto.
+
 ## Il ritorno, e come si impara
 
 Finita la missione — il boss delle Pianure di Redenna a terra — il data pad

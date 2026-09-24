@@ -75,7 +75,7 @@ righe += [
     "",
     "```",
     "**`ESEMPIO.1`** · Tutorial › inizio › battuta di Anonimo",
-    "> Dunque sarebbe questa la mia prima missione autonoma?",
+    "> Aggiornami sulla missione.",
     ">",
     "> →",
     "```",
@@ -312,6 +312,13 @@ def sezione_eventi(sigla, nome_umano, percorso):
                 dettagli.append("esce dallo squarcio")
             coda = " (" + ", ".join(dettagli) + ")" if dettagli else ""
             voce(f"{sigla}.{id_nodo}.scelta{i}", "bottone di scelta" + coda, s.get("testo", ""))
+    # quello che la Guida dice sopra la mappa della zona: non sta in un nodo,
+    # sta nella mappa, e si legge all'arrivo e ogni volta che premi la sua icona
+    guida = dati.get("mappa_dungeon", {}).get("guida", [])
+    if guida:
+        titolo(3, f"{nome_umano} › sulla mappa, la Guida")
+        for i, msg in enumerate(guida, 1):
+            voce(f"{sigla}.mappa.guida.{i}", sigla_messaggio(msg), msg.get("testo", ""))
 
 titolo(1, "2. La storia")
 

@@ -146,6 +146,7 @@ func _ready() -> void:
 	await prova_la_prima_missione_si_sceglie_sulla_mappa()
 	await prova_da_un_altra_schermata_arriva_il_nodo_giusto()
 	await prova_l_icona_del_menu_si_preme_anche_mentre_si_legge()
+	await prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -273,6 +274,11 @@ func destinazioni_di(nodo: Dictionary) -> Array[String]:
 	for chiave in ["vai", "apri_mappa_stellare"]:
 		if nodo.has(chiave):
 			uscite.append(String(nodo[chiave]))
+	# "apri_mappa_zona": la Guida parla sopra la mappa, e chiudendola si va al
+	# suo "ritorno" (l'arrivo nelle Pianure: la protesta, inizio_guida)
+	var guida: Variant = nodo.get("apri_mappa_zona", {})
+	if guida is Dictionary and (guida as Dictionary).has("ritorno"):
+		uscite.append(String((guida as Dictionary)["ritorno"]))
 	# "vai_se_flag" e' una regola sola oppure una lista di regole (vince la
 	# prima che ha il suo flag): una stanza puo' voler dire cose diverse in
 	# momenti diversi della giornata
@@ -8885,6 +8891,127 @@ func prova_l_icona_del_menu_si_preme_anche_mentre_si_legge() -> void:
 	Transizioni.in_corso = stato_prima
 	Transizioni.prossima = ""
 	get_window().size = Vector2i(64, 64)
+	await get_tree().process_frame
+
+func figlio_di_tipo(radice: Node, tipo: String) -> Node:
+	for n in radice.find_children("*", tipo, true, false):
+		return n
+	return null
+
+func prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa() -> void:
+	# BRU, IL NUOVO ARRIVO: stupore, un beep dal data pad, la Guida. «Qui si apre
+	# la mappa e si spiega come funziona il livello e le fratture»: si apre la
+	# mappa di zona VERA, lei parla li' sopra, e il «tasto di chiusura» che nel
+	# testo preme il protagonista lo premi tu. Lei protesta, e da li' c'e' la sua
+	# icona. Si guarda cosa arriva a schermo, non solo cosa c'e' nei dati.
+	titolo("arrivando nelle Pianure la Guida spiega la mappa, e il tasto di chiusura lo premi tu")
+	GameState.nuova_partita()
+	GameState.sesso_protagonista = "f"
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	var sequenza: Array = GameState.eventi["inizio"]["sequenza"]
+	var chi: Array[String] = []
+	for msg: Dictionary in sequenza.slice(2):
+		chi.append(String(msg.get("chi", "")))
+	esigi(chi == ["anonimo", "anonimo", "anonimo", "anonimo", "ignoto", "anonimo", "anonimo", "guida", "anonimo", "guida"],
+			"all'arrivo parlano, nell'ordine, %s: non e' il testo di Bru" % str(chi))
+	esigi(String(sequenza[6].get("suono", "")) == "data_pad", "il «beep! Beep!» non suona come il data pad")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	IngressoNodo.vai_al_nodo("inizio")
+	var arrivo: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
+	add_child(arrivo)
+	await get_tree().process_frame
+	esigi("Dominatrice" in arrivo.sostituisci_nome(String(sequenza[9]["testo"])),
+			"la Guida saluta una protagonista come «Dominatore»")
+	arrivo.coda_messaggi.clear()
+	arrivo.avanza_messaggio()
+	esigi(Transizioni.prossima == GuidaSullaMappa.SCENA_MAPPA_ZONA,
+			"finito «Dritti al punto eh? Subito!» non si apre la mappa (si va a '%s')" % Transizioni.prossima)
+	esigi(String(GuidaSullaMappa.in_corso.get("ritorno", "")) == "inizio_guida" and GuidaSullaMappa.solo_chiudere(),
+			"la mappa non sa che chiudendola si torna dalla Guida: %s" % str(GuidaSullaMappa.in_corso))
+	arrivo.queue_free()
+	await sulla_mappa_parla_la_guida()
+	await chiusa_la_mappa_la_guida_protesta()
+	Transizioni.in_corso = stato_prima
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	GuidaSullaMappa.in_corso = {}
+	GameState.nuova_partita()
+
+func sulla_mappa_parla_la_guida() -> void:
+	var mappa: Node = load(GuidaSullaMappa.SCENA_MAPPA_ZONA).instantiate()
+	add_child(mappa)
+	await get_tree().process_frame
+	var guida := figlio_di_tipo(mappa, "GuidaSullaMappa") as GuidaSullaMappa
+	esigi(guida != null, "la mappa si apre senza la Guida sopra")
+	if guida == null:
+		mappa.queue_free()
+		return
+	var detto := (guida.box.get("testo") as RichTextLabel).get_parsed_text()
+	esigi("Pianure di Redenna" in detto and "vedi?" in detto, "sulla mappa la Guida non dice dove sei: «%s»" % detto)
+	esigi(String(mappa.get("indicata")) == GameState.nodo_corrente,
+			"su «vedi?» la mappa non cerchia il posto in cui sei")
+	# le stanze sono spente finche' lei parla: andandosene si salterebbe la scena
+	mappa.call("_su_stanza", "masso", true, true)
+	esigi(Transizioni.prossima == GuidaSullaMappa.SCENA_MAPPA_ZONA,
+			"mentre la Guida parla si puo' andare in un'altra stanza, e il resto dell'arrivo si perde")
+	for i in 12:
+		guida._su_clic()
+	detto = (guida.box.get("testo") as RichTextLabel).get_parsed_text()
+	esigi("trasportata" not in detto and "io e te? :3" in detto,
+			"dopo tutte le battute la Guida non e' ferma sulla sua domanda: «%s»" % detto)
+	esigi(String(mappa.get("indicata")) == "", "l'anello resta acceso dopo «vedi?»")
+	var accordata := false
+	for voce: Dictionary in GameState.storico:
+		# la frase intera, non la parola: il segno grezzo {trasportato|trasportata}
+		# la parola ce l'ha dentro, e con quella la prova passava ad accordo rotto
+		accordata = accordata or "sempre trasportata vicino" in String(voce.get("testo", ""))
+	esigi(accordata, "sulla mappa la Guida parla a una protagonista al maschile, o non finisce nello storico")
+	var chiudi: Button = null
+	for b: Button in mappa.find_children("*", "Button", true, false):
+		if b.text == "Chiudi la mappa":
+			chiudi = b
+	esigi(chiudi != null, "con la Guida sopra non c'e' il tasto «Chiudi la mappa»")
+	if chiudi != null:
+		chiudi.pressed.emit()
+	esigi(String(IngressoNodo.ultimo_esito.get("id", "")) == "inizio_guida",
+			"chiusa la mappa non si torna dalla Guida, che deve protestare")
+	esigi(not GuidaSullaMappa.sta_parlando(), "chiusa la mappa, la Guida resta «in corso»: la prossima mappa la ripeterebbe")
+	mappa.queue_free()
+	await get_tree().process_frame
+
+func chiusa_la_mappa_la_guida_protesta() -> void:
+	var dopo: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
+	add_child(dopo)
+	await get_tree().process_frame
+	esigi(dopo.nodo_in_corso == GameState.eventi.get("inizio_guida", {}),
+			"chiusa la mappa non arriva la protesta della Guida")
+	var icona := figlio_di_tipo(dopo, "IconaGuida") as IconaGuida
+	esigi(icona != null and not icona.visible, "l'icona della Guida c'e' gia' prima che lei la nomini")
+	while not dopo.coda_messaggi.is_empty():
+		dopo.avanza_messaggio()
+	await get_tree().process_frame
+	esigi(GameState.ha_flag("guida_conosciuta") and icona != null and icona.visible,
+			"«Se hai bisogno puoi premere sulla mia icona» e l'icona non c'e'")
+	dopo.queue_free()
+	await get_tree().process_frame
+	# e tornando al punto d'atterraggio la mappa non si riapre: lo ha gia' fatto
+	Transizioni.prossima = ""
+	IngressoNodo.vai_al_nodo("inizio")
+	var ritorno: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
+	add_child(ritorno)
+	await get_tree().process_frame
+	Transizioni.prossima = ""
+	ritorno.coda_messaggi.clear()
+	ritorno.avanza_messaggio()
+	esigi(Transizioni.prossima == "", "tornando al punto d'atterraggio la Guida riapre la mappa ogni volta")
+	ritorno.queue_free()
+	# l'icona la riapre, senza spegnere le stanze, e chiudendo si resta dove sei
+	GuidaSullaMappa.apri({})
+	esigi(GuidaSullaMappa.sta_parlando() and not GuidaSullaMappa.solo_chiudere()
+			and GuidaSullaMappa.dove_tornare() == GameState.nodo_corrente,
+			"l'icona della Guida non riapre la mappa com'e' giusto")
 	await get_tree().process_frame
 
 func prova_nome_del_data_pad() -> void:

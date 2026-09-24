@@ -1077,6 +1077,18 @@ mappa su cui non si può esplorare non è una mappa, è un disegno.
 - **I proiettori sono una rete, non un ritorno alla base**: se ne piantano più d'uno per zona,
   e si salta da uno all'altro **solo stando su un proiettore**, e solo verso un proiettore in
   un posto dove sei già stato. Se sei in mezzo al niente, cammini
+- **La Guida ci parla sopra.** Un nodo con `"apri_mappa_zona": {"ritorno", "solo_chiudere"}`
+  apre la mappa di zona quando le sue battute finiscono (solo alla prima visita: tornandoci si
+  «osserva la scena»), e sulla mappa la Guida dice le battute di `mappa_dungeon.guida`, in un
+  box uguale a quello del dialogo. Una battuta con `"indica": "qui"` accende l'anello sul posto
+  in cui sei. Chiudendo la mappa si va al nodo `"ritorno"`; `"solo_chiudere"` spegne le stanze
+  finché lei parla, perché andarsene di lì salterebbe il resto della scena
+  (`GuidaSullaMappa.gd`). Nelle Pianure di Redenna la chiusura è la battuta del protagonista
+  «preme sul tasto di chiusura», e la Guida risponde nel nodo `inizio_guida`
+- **L'icona della Guida** (`IconaGuida.gd`) compare accanto a quella del menu dal flag
+  `guida_conosciuta`, solo nelle zone che hanno `mappa_dungeon.guida`, e riapre la mappa con la
+  spiegazione. Porta via dalla scena, quindi finché il testo scorre è spenta e non si preme.
+  Senza `art/personaggi/guida.png` mostra un «?»
 
 ## La guardia a scatti (come in Pokémon)
 Difendersi alza la difesa di **uno scatto**, e lo scatto **resta fino alla fine dello
@@ -1561,13 +1573,13 @@ nomi degli oggetti, voci del bestiario, appunti del Diario — compare una volta
 identificatore stabile e una freccia sotto dove scrivere la versione giusta:
 
 ```
-**`TUT.inizio.3`** · battuta di Anonimo
-> Dunque sarebbe questa la mia prima missione autonoma?
+**`TUT.inizio.11`** · battuta di Anonimo
+> Aggiornami sulla missione.
 >
 > →
 ```
 
-Riconsegnato, le correzioni si applicano cercando l'ID: `TUT.inizio.3` è il terzo messaggio del
+Riconsegnato, le correzioni si applicano cercando l'ID: `TUT.inizio.11` è l'undicesimo messaggio del
 nodo `inizio` di `events_tutorial.json`, `UI.Combattimento.042` è la quarantaduesima scritta di
 `Combattimento.gd`. **Copre anche le scritte scritte a mano dentro gli script** (menu, bottoni,
 diario di combattimento), che non erano mai passate sotto gli occhi di nessuno. In fondo

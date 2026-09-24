@@ -106,6 +106,8 @@ func _ready() -> void:
 	_smetti_di_indicare()
 	obiettivo_in_vista = c_e_un_obiettivo()
 	set_process(obiettivo_in_vista)
+	if GuidaSullaMappa.sta_parlando():
+		GuidaSullaMappa.accompagna(self)
 
 # --- lettura dei dati ----------------------------------------------------
 
@@ -244,9 +246,11 @@ func costruisci_intelaiatura() -> void:
 	colonna.add_child(barra)
 
 	var indietro := Button.new()
-	indietro.text = "Torna alla stanza corrente"
+	# con la Guida sopra, questo e' il «tasto di chiusura» del testo di Bru: si
+	# torna dove dice lei (vedi GuidaSullaMappa.dove_tornare)
+	indietro.text = "Chiudi la mappa" if GuidaSullaMappa.sta_parlando() else "Torna alla stanza corrente"
 	Stile.ritorno(indietro)
-	indietro.pressed.connect(func() -> void: IngressoNodo.vai_al_nodo(GameState.nodo_corrente))
+	indietro.pressed.connect(func() -> void: IngressoNodo.vai_al_nodo(GuidaSullaMappa.dove_tornare()))
 	barra.add_child(indietro)
 
 	var spazio := Control.new()
@@ -526,6 +530,9 @@ func _su_stanza_per_id(id_stanza: String) -> void:
 func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
 	# un click che non porta da nessuna parte deve comunque dire perche': il
 	# silenzio si legge come un bottone rotto
+	if GuidaSullaMappa.solo_chiudere():
+		etichetta_stato.text = "La Guida sta ancora parlando."
+		return
 	if not raggiungibile:
 		if GameState.ce_un_proiettore(id_stanza):
 			etichetta_stato.text = "C'è un proiettore, ma per usarlo devi essere su un altro proiettore."
