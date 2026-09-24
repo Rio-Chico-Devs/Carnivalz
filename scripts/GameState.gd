@@ -289,6 +289,18 @@ func imposta_seed(nuovo_seed: int) -> void:
 	seed_partita = nuovo_seed
 	rng.seed = nuovo_seed
 
+func riprendi_il_dado(salvato: Dictionary) -> void:
+	# IL DADO RIPRENDE DA DOVE ERA, non dall'inizio della partita. Prima si
+	# salvava solo il seme, e a ogni caricamento il dado ricominciava da capo:
+	# il primo tiro dopo OGNI caricamento era il primo tiro della partita. Godot
+	# lo dice di RandomNumberGenerator.state: «Save and restore this property to
+	# restore the generator to a previous state» (doc/classes, Godot 4.7). Si
+	# salva come testo perche' e' un intero a 64 bit, e JSON lo farebbe float.
+	# Un salvataggio vecchio non ce l'ha: riparte dal seme, come prima
+	imposta_seed(int(salvato.get("seed", seed_partita)))
+	if salvato.has("dado"):
+		rng.state = String(salvato["dado"]).to_int()
+
 func carica_json(percorso: String) -> Variant:
 	if not FileAccess.file_exists(percorso):
 		push_error("File dati mancante: " + percorso)
@@ -2311,6 +2323,7 @@ func _scrivi_salvataggio(percorso: String) -> bool:
 	var dati := {
 		"versione": 1,
 		"seed": seed_partita,
+		"dado": str(rng.state),   # dove era arrivato il dado: vedi riprendi_il_dado
 		"tazo": tazo,
 		"fonti_estinte": fonti_estinte,
 		"legame": legame,
@@ -2368,12 +2381,12 @@ func _scrivi_salvataggio(percorso: String) -> bool:
 func _leggi_salvataggio(percorso: String) -> bool:
 	if not FileSicuro.esiste(percorso):
 		return false
-	var d: Variant = FileSicuro.leggi_dizionario(percorso)
+	var d: Variant = FileSicuro.interi(FileSicuro.leggi_dizionario(percorso))
 	if not d is Dictionary:
 		push_error("Salvataggio corrotto: " + percorso)
 		return false
 	partita_su_file = true
-	imposta_seed(int(d.get("seed", seed_partita)))
+	riprendi_il_dado(d)
 	tazo = int(d.get("tazo", 0))
 	fonti_estinte = int(d.get("fonti_estinte", 0))
 	legame = int(d.get("legame", int(regole.get("legame_iniziale", 20))))

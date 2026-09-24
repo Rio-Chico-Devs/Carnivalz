@@ -446,6 +446,15 @@ roba, non cinque righe vuote.
 **Nuova partita** azzera il progresso di storia (le collezioni album/bestiario/oggetti restano,
 sono meta). Non si salva a metà campagna/squarcio: si riparte sempre dallo stato "overworld".
 
+**Una partita ricaricata è la stessa partita**, anche sotto (vedi `docs/basso_livello.md`):
+- **i numeri tornano interi.** JSON non distingue interi e float, e Godot ricarica ogni numero
+  come float: il livello 3 tornava 3.0. Dentro un array o un dizionario il tipo conta
+  (`[3] == [3.0]` è falso, un 5.0 non entra in `match 5`), quindi `FileSicuro.interi()`
+  rimette interi i numeri senza decimali prima che la partita li legga
+- **il dado riprende da dove era.** Si salva lo stato del dado (`"dado"`), non solo il seme: prima
+  a ogni caricamento ripartiva dal primo tiro della partita. `riprendi_il_dado()`; un
+  salvataggio vecchio senza il dado riparte dal seme come prima
+
 ### Il game over ricarica davvero
 
 *"Riprendi dall'ultimo salvataggio"* non lo faceva: rifaceva la zona tenendo lo stato che c'era

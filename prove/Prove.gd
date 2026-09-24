@@ -43,6 +43,8 @@ func _ready() -> void:
 	prova_equipaggiamento()
 	prova_crescita()
 	prova_salvataggio()
+	prova_il_salvataggio_rende_i_numeri_e_il_dado_come_erano()
+	await prova_il_motore_si_comporta_come_il_codice_crede()
 	prova_una_partita_rovinata_si_riprende()
 	prova_zaino()
 	prova_compagni_temporanei()
@@ -965,6 +967,113 @@ func prova_crescita() -> void:
 
 func nome_action_sicuro(valore: Variant) -> String:
 	return String(valore)
+
+class Lavoratore extends RefCounted:
+	# per la prova qui sotto: un RefCounted che lavora dentro un await
+	var albero: SceneTree
+	var fatti := [0]
+	func _init(t: SceneTree, contatore: Array) -> void:
+		albero = t
+		fatti = contatore
+	func lavora() -> void:
+		for giro in 3:
+			await albero.process_frame
+			fatti[0] += 1
+
+func prova_il_motore_si_comporta_come_il_codice_crede() -> void:
+	# IL CONTROLLO A BASSO LIVELLO, FISSATO. Il codice si appoggia a regole del
+	# motore che non sono scritte da nessuna parte nel progetto: queste righe le
+	# scrivono, verificate sul Godot che fa girare il gioco. Le fonti sono il
+	# riferimento delle classi di Godot 4.7 (estratto dall'eseguibile: e' lo
+	# stesso testo della guida dell'editor) e, dove il riferimento tace, il
+	# motore stesso. Se un aggiornamento di Godot ne cambia una, lo si sa qui e
+	# non giocando. Vedi docs/basso_livello.md
+	titolo("il motore si comporta come il codice crede")
+	# 1. i dizionari si confrontano per contenuto, l'identita' la dice is_same
+	#    (i combattenti sono dizionari: Turni.gd usa is_same, mai ==)
+	var a := {"indice": 1, "hp": 10}
+	var b := {"indice": 1, "hp": 10}
+	esigi(a == b and not is_same(a, b), "== fra dizionari non confronta piu' il contenuto, o is_same non l'identita'")
+	esigi([a].has(b), "Array.has non usa piu' l'uguaglianza per contenuto")
+	# 2. JSON restituisce solo float, e dentro i contenitori il tipo conta
+	#    (per questo FileSicuro.interi rimette gli interi al caricamento)
+	var da_json: Variant = JSON.parse_string("[[3, 2], 7]")
+	esigi(typeof(da_json[1]) == TYPE_FLOAT, "JSON restituisce gli interi come interi: FileSicuro.interi non serve piu'")
+	esigi(7 == 7.0 and not ([3, 2] == da_json[0]) and not da_json.has(7),
+			"int e float si confrontano diversamente da come e' scritto in FileSicuro.interi")
+	# 3. un RefCounted che nessuno tiene muore anche a meta' di un await, in
+	#    silenzio: ogni modulo dello scontro con un await deve avere un padrone
+	var fatti := [0]
+	var lavoratore := Lavoratore.new(get_tree(), fatti)
+	lavoratore.lavora()
+	lavoratore = null
+	for giro in 4:
+		await get_tree().process_frame
+	esigi(fatti[0] == 0, "un RefCounted senza padrone ha finito il suo await (%d giri): le guardie viva() vanno ripensate" % fatti[0])
+	# 4. il dado espone il suo stato, e lo stato e' quello che si salva (vedi
+	#    GameState.riprendi_il_dado). Non si prova qui, perche' non si prova in
+	#    una riga: sort_custom non e' stabile (doc di Array.sort_custom), quindi
+	#    chi ordina deve spareggiare da solo - Turni spareggia fino all'indice
+	esigi(ClassDB.class_exists("RandomNumberGenerator") and GameState.rng.state != 0,
+			"il dado non espone piu' il suo stato: riprendi_il_dado non puo' funzionare")
+
+func prova_il_salvataggio_rende_i_numeri_e_il_dado_come_erano() -> void:
+	# IL CONTROLLO A BASSO LIVELLO, sui salvataggi. Due cose che una prova che
+	# gioca da zero non vede, perche' succedono solo DOPO un caricamento:
+	#
+	# 1. JSON non distingue gli interi dai float («converting a Variant to JSON
+	#    text will convert all numerical values to [float] types», JSON.xml,
+	#    Godot 4.7). Misurato: tutti e nove i numeri di una partita tornavano
+	#    float. Dentro a un array o a un dizionario il tipo conta - [3] == [3.0]
+	#    e' falso, un 5.0 non entra in «match 5» - quindi devono tornare interi.
+	# 2. Il dado ricominciava dal seme, cioe' dall'inizio della partita, a ogni
+	#    caricamento. Deve riprendere da dove era (RandomNumberGenerator.state).
+	titolo("un salvataggio rende i numeri interi, e il dado da dove era")
+	GameState.nuova_partita()
+	GameState.imposta_seed(4242)
+	var eroe := GameState.id_protagonista
+	GameState.livelli[eroe] = 3
+	GameState.stress[eroe] = 12
+	GameState.registra_azione("attacchi_sferrati", 7)
+	GameState.carte_copie["carta_prova"] = {"normale": 2}
+	for tiro in 25:
+		GameState.rng.randf()   # la partita ha gia' tirato: il dado non e' piu' al seme
+	var percorso := "user://prova_numeri_e_dado.json"
+	esigi(GameState._scrivi_salvataggio(percorso), "il salvataggio di prova non si scrive")
+	var dopo_il_salvataggio: Array[float] = []
+	for tiro in 5:
+		dopo_il_salvataggio.append(GameState.rng.randf())
+	GameState.nuova_partita()
+	esigi(GameState._leggi_salvataggio(percorso), "il salvataggio di prova non si rilegge")
+	var dopo_il_caricamento: Array[float] = []
+	for tiro in 5:
+		dopo_il_caricamento.append(GameState.rng.randf())
+	esigi(dopo_il_caricamento == dopo_il_salvataggio,
+			"caricata la partita, il dado non riprende da dove era: %s invece di %s"
+			% [dopo_il_caricamento, dopo_il_salvataggio])
+	for valore in [GameState.livelli.get(eroe), GameState.stress.get(eroe),
+			GameState.contatori.get("attacchi_sferrati"), GameState.carte_copie["carta_prova"]["normale"]]:
+		esigi(typeof(valore) == TYPE_INT,
+				"dopo il caricamento un numero intero e' tornato %s (%s): [3] == [3.0] e' falso"
+				% [type_string(typeof(valore)), valore])
+	esigi([GameState.livelli.get(eroe)] == [3], "il livello ricaricato non e' piu' uguale a 3 dentro un array")
+	# e i decimali veri restano decimali: si rimette il tipo, non si arrotonda
+	var misto: Dictionary = FileSicuro.interi({"a": 2.5, "b": [3.0, 1.25], "c": {"d": -4.0}, "e": 1.0e17})
+	esigi(typeof(misto.a) == TYPE_FLOAT and is_equal_approx(float(misto.a), 2.5),
+			"interi() ha toccato un decimale vero: 2.5 e' diventato %s" % misto.a)
+	esigi(typeof(misto.b[0]) == TYPE_INT and typeof(misto.b[1]) == TYPE_FLOAT,
+			"dentro un array interi() sbaglia: %s" % [misto.b])
+	esigi(typeof(misto.c.d) == TYPE_INT and int(misto.c.d) == -4, "dentro un dizionario annidato interi() sbaglia: %s" % misto.c)
+	esigi(typeof(misto.e) == TYPE_FLOAT, "oltre 2^53 un float non e' esatto, e interi() lo ha fatto intero lo stesso")
+	# e un salvataggio vecchio, senza il dado, riparte dal seme come prima
+	var vecchio := {"seed": 4242}
+	GameState.riprendi_il_dado(vecchio)
+	var dal_seme := GameState.rng.randf()
+	GameState.imposta_seed(4242)
+	esigi(is_equal_approx(dal_seme, GameState.rng.randf()),
+			"un salvataggio senza il dado non riparte dal seme")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
+	GameState.nuova_partita()
 
 func prova_salvataggio() -> void:
 	# il salvataggio e' l'unico posto dove un errore costa al giocatore ore di
@@ -10316,8 +10425,13 @@ const FILE_GRANDI := {
 		"bersaglio di chi viene evocato a scontro avviato, che prima non si poteva cliccare. Il braccio di " +
 		"ferro, il suo riquadro e chi lo lancia stanno in file loro (Contrasto.gd, " +
 		"RiquadroContrasto.gd, Mazzata.gd), i quadratini dei gregari in Gregari.gd"},
-	"GameState.gd": {"misura": 2537, "perche":
+	"GameState.gd": {"misura": 2549, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
+		"salvataggi. ALLARGATA DA 2537 A 2549 col controllo a basso livello: " +
+		"riprendi_il_dado() rimette lo stato del dado salvato invece di " +
+		"ripartire dal seme (RandomNumberGenerator.state, doc Godot 4.7). " +
+		"Dodici righe, quasi tutte il perche': la funzione vera e' di tre. " +
+		"Prima: " +
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
 		"combattimento qui i pezzi sono davvero separabili: i file di dati " +
 		"non c'entrano niente con gli slot di salvataggio. " +

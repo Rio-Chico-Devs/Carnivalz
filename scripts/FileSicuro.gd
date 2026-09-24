@@ -78,3 +78,37 @@ static func cancella(percorso: String) -> void:
 
 static func vero(percorso: String) -> String:
 	return ProjectSettings.globalize_path(percorso)
+
+
+static func interi(valore: Variant) -> Variant:
+	# UN INTERO SALVATO TORNA INTERO.
+	#
+	# JSON non distingue gli interi dai float, e Godot lo dice: «converting a
+	# Variant to JSON text will convert all numerical values to [float] types»
+	# (JSON.stringify, doc/classes/JSON.xml, Godot 4.7). Quindi una partita
+	# salvata con il livello 3 si ricarica col livello 3.0. Il codice di oggi
+	# regge, perche' legge quei numeri passando da int(); ma dentro a un array o
+	# a un dizionario il tipo conta, e l'ho misurato sul motore: [3, 2] == [3.0,
+	# 2.0] e' falso, {"a": 5} == {"a": 5.0} e' falso, un 5.0 non entra in
+	# «match 5», non si trova fra le chiavi intere di un dizionario, e str() lo
+	# scrive «5.0». Tutto questo succederebbe solo DOPO un caricamento - cioe'
+	# proprio dove una prova che gioca da zero non guarda.
+	#
+	# Qui si rimette il tipo che aveva: un numero senza parte decimale torna
+	# intero, fino a 2^53, oltre il quale un float non e' piu' esatto. Il
+	# salvataggio della partita contiene solo interi; le impostazioni, che hanno
+	# float veri (il volume, la velocita' del testo), non passano di qui.
+	if valore is Dictionary:
+		var dizionario := {}
+		for chiave in valore:
+			dizionario[chiave] = interi(valore[chiave])
+		return dizionario
+	if valore is Array:
+		var elenco := []
+		for elemento in valore:
+			elenco.append(interi(elemento))
+		return elenco
+	if typeof(valore) == TYPE_FLOAT and is_finite(valore) and valore == floorf(valore) \
+			and absf(valore) < 9007199254740992.0:
+		return int(valore)
+	return valore
