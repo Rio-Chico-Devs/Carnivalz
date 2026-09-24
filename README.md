@@ -167,6 +167,29 @@ contenitore, sovrapposto in basso a destra — se stesse nella colonna, il box c
 volta che compare) e la **targhetta col nome non si nasconde mai**: quando non parla nessuno
 resta lì vuota, tenendo la sua riga.
 
+### Un testo lungo si divide in pagine (`Impaginatore.gd`)
+Bru: «alcuni dialoghi sforano il container di testo, bisogna dividere i testi più lunghi
+affinché entrino sempre nel box». Il box ha un'altezza fissa, e quello che non ci stava
+scorreva sotto il bordo, dove non si leggeva. Adesso **ogni battuta che non ci sta si divide in
+pagine**, e si va avanti di pagina col click come fra una battuta e l'altra; nel combattimento
+le pagine scorrono da sole, ognuna col suo tempo di lettura.
+
+- **Si misura il box vero, adesso** (un doppione nascosto del testo, stessi caratteri e stessa
+  interlinea), non si taglia nei dati: la stessa battuta sta in una pagina nel box degli eventi
+  e in tre nel quadrante del combattimento col testo ingrandito. Se la finestra cambia misura,
+  la pagina in corso si rimisura
+- **Dove si taglia**, in ordine: dove Bru è andato a capo (un paragrafo nuovo è una pagina
+  nuova), alla fine di una frase — ma solo se dopo si ricomincia con la maiuscola: «non è
+  recisa... finché ogni porcellana» è una frase sola che prende fiato —, dopo una virgola, fra
+  due parole. Sempre il taglio più lontano che entra, al livello più alto che ne ha uno
+- **Il bbcode resta chiuso**: un corsivo tagliato a metà si richiude a fine pagina e si riapre
+  su quella dopo
+- **Le scelte aspettano l'ultima pagina**: il box dice di aver finito (`scrittura_finita`)
+  solo quando ha scritto tutta la battuta, quindi niente compare sotto un testo a metà
+- Misurato su tutti i 1867 testi dei dati, nei due box, a testo normale e ingrandito: nessuna
+  pagina esce dal box, e nessuna parola si perde. Le pagine più lunghe sono cinque (la soglia
+  della Casa Gigante, nel combattimento col testo grande)
+
 ### Il ritmo della macchina da scrivere
 Il testo non scorre a velocità costante: si ferma dove si fermerebbe una voce. Una virgola è un
 respiro corto, un punto una pausa vera, i puntini di sospensione un silenzio — il giocatore

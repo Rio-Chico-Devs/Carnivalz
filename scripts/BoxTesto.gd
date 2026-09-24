@@ -23,9 +23,13 @@ extends PanelContainer
 #
 # Altezza SEMPRE fissa (Stile.forma("altezza_box")): "fit_content" e' spento
 # apposta. Un messaggio piu' lungo di un altro non deve far crescere il box
-# e spingere su/giu' tutto il resto della schermata (i ritratti sopra) - se
-# un testo non ci sta, scorre dentro il box (scroll_active), il box stesso
-# non si muove mai. Per lo stesso motivo:
+# e spingere su/giu' tutto il resto della schermata (i ritratti sopra). E UN
+# TESTO CHE NON CI STA SI DIVIDE IN PAGINE (Impaginatore.gd): prima scorreva
+# sotto il bordo, dove nessuno poteva leggerlo - Bru: «alcuni dialoghi sforano
+# il container di testo». Si misura il box vero, adesso: la stessa battuta puo'
+# stare in una pagina a finestra grande e in due col testo ingrandito. Chi usa
+# il box va avanti di pagina con pagina_seguente() prima di passare alla
+# battuta dopo. Per lo stesso motivo dell'altezza fissa:
 #   - il triangolino "vai avanti" NON sta nella colonna: e' un fratello del
 #     contenitore, sovrapposto in basso a destra. Se stesse nel flusso, il
 #     box crescerebbe di una riga ogni volta che compare.
@@ -51,6 +55,11 @@ var tween_indicatore: Tween
 var tipo_corrente := "narrazione"
 var nome_corrente := ""
 var lettere_al_blip := 0
+# le pagine della battuta in corso, e a quale si e'. Una battuta corta e' una
+# pagina sola, ed e' il caso di quasi tutte
+var pagine: Array[String] = []
+var pagina := 0
+var misuratore: RichTextLabel = null   # un doppione nascosto del testo, per misurare
 
 func _ready() -> void:
 	add_theme_stylebox_override("panel", Stile.stile_box_testo())
@@ -73,6 +82,9 @@ func _ready() -> void:
 	if font_targhetta != null:
 		targhetta.custom_minimum_size = Vector2(0, font_targhetta.get_height(Stile.dimensione("nome")))
 	imposta_altezza(Stile.forma("altezza_box"))
+	# la misura vera arriva col primo giro di impaginazione dei contenitori, e
+	# puo' cambiare (finestra, testo piu' grande): a ogni cambio si rimisura
+	testo.resized.connect(_al_cambio_di_misura)
 
 func nome_fuori_dal_box() -> void:
 	# IL NOME DI CHI PARLA ESCE DAL BOX. Nel disegno di Bru sta su un pezzo di
@@ -103,24 +115,96 @@ func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 	visible = true
 	tipo_corrente = tipo
 	nome_corrente = nome_parlante
-	lettere_al_blip = 0
 	if tipo == "notifica":
 		# la notifica non e' qualcuno che parla, e' il gioco che ti dice che hai
 		# qualcosa in piu': ha un suono suo, e arriva prima delle parole
 		AudioManager.interfaccia("raccolta")
-	testo.scroll_to_line(0)  # nuovo messaggio: si riparte sempre dall'inizio del testo
+	targhetta.text = nome_parlante if tipo == "dialogo" else ""
+	pagine = impagina(contenuto)
+	pagina = 0
+	scrivi_pagina()
+
+func ha_altre_pagine() -> bool:
+	return pagina < pagine.size() - 1
+
+func consuma_click() -> bool:
+	# IL CLICK CHE RESTA DENTRO LA BATTUTA: completa il testo che si sta
+	# scrivendo, o gira pagina. false = la battuta e' finita tutta, e il click
+	# e' di chi usa il box (la battuta dopo, le scelte)
+	if sta_scrivendo:
+		completa()
+		return true
+	return pagina_seguente()
+
+func pagina_seguente() -> bool:
+	# true = si e' girata pagina, e chi chiama non deve passare alla battuta dopo
+	if sta_scrivendo or not ha_altre_pagine():
+		return false
+	pagina += 1
+	scrivi_pagina()
+	return true
+
+func impagina(contenuto: String) -> Array[String]:
+	var misura := spazio_per_il_testo()
+	if misura.x < 2.0 or misura.y < 2.0:
+		# non si sa ancora quanto e' grande (il primo messaggio arriva prima che
+		# i contenitori abbiano dato le misure): si rimisura appena si sa
+		var intera: Array[String] = [contenuto]
+		return intera
+	return Impaginatore.dividi(contenuto, func(pezzo: String) -> bool: return entra(pezzo, misura))
+
+func spazio_per_il_testo() -> Vector2:
+	return Vector2(testo.size.x, testo.size.y if testo.size.y > 0.0 else testo.custom_minimum_size.y)
+
+func entra(pezzo: String, misura: Vector2) -> bool:
+	if misuratore == null:
+		# IL DOPPIONE MISURA COME L'ORIGINALE: stessi caratteri, stessa interlinea,
+		# stesso bbcode. Resta nascosto, fuori dal giro dei contenitori
+		# duplicate(0): proprieta' e basta. Coi segnali il doppione si porterebbe
+		# dietro anche "resized", e misurare lo farebbe rimisurare all'infinito
+		misuratore = testo.duplicate(0) as RichTextLabel
+		misuratore.visible = false
+		misuratore.fit_content = false
+		add_child(misuratore)
+	misuratore.size = misura
+	misuratore.text = formattato(tipo_corrente, pezzo)
+	return misuratore.get_content_height() <= misura.y + 0.5
+
+func _al_cambio_di_misura() -> void:
+	# la pagina che si sta mostrando non ci sta piu' (o non era mai stata
+	# misurata): la si divide adesso, e si riscrive da capo
+	if pagine.is_empty() or not visible:
+		return
+	var misura := spazio_per_il_testo()
+	if misura.x < 2.0 or entra(pagine[pagina], misura):
+		return
+	var nuove := impagina(pagine[pagina])
+	pagine.remove_at(pagina)
+	for k in nuove.size():
+		pagine.insert(pagina + k, nuove[k])
+	scrivi_pagina()
+
+func formattato(tipo: String, contenuto: String) -> String:
+	match tipo:
+		"notifica":
+			return "[center]%s[/center]" % contenuto
+		"dialogo":
+			return contenuto
+	return "[i]%s[/i]" % contenuto
+
+func scrivi_pagina() -> void:
+	lettere_al_blip = 0
+	var contenuto := pagine[pagina]
+	testo.scroll_to_line(0)  # pagina nuova: si riparte sempre dall'inizio del testo
+	testo.text = formattato(tipo_corrente, contenuto)
 	# IL TESTO DEL BOX E' NERO, perche' il box e' una pagina bianca. Tutti i
 	# colori qui sotto sono quelli che si leggono SU BIANCO - e non sono gli
 	# stessi che si leggono sul nero delle scelte: il rosso di una notifica su
 	# fondo chiaro va scurito, o vibra.
-	match tipo:
+	match tipo_corrente:
 		"dialogo":
-			targhetta.text = nome_parlante
-			testo.text = contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("box_testo"))
 		"notifica":
-			targhetta.text = ""
-			testo.text = "[center]%s[/center]" % contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("accento"))
 		"vista":
 			# QUELLO CHE SI VEDE DA QUI, e non e' la stanza in cui sei.
@@ -131,12 +215,8 @@ func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 			# di ambiente - e invece e' l'unica cosa in tutto il gioco che ti dice
 			# dove SEI rispetto al resto. Quindi ha un colore suo, e si impara a
 			# riconoscerlo: quando compare questo, stai guardando lontano.
-			targhetta.text = ""
-			testo.text = "[i]%s[/i]" % contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("eroe"))
 		_:
-			targhetta.text = ""
-			testo.text = "[i]%s[/i]" % contenuto
 			testo.add_theme_color_override("default_color", Stile.colore("narrazione"))
 	scrivi_a_macchina()
 
@@ -237,7 +317,10 @@ func conclusione() -> void:
 	tween_indicatore = create_tween().set_loops()
 	tween_indicatore.tween_property(indicatore, "modulate:a", 0.15, battito)
 	tween_indicatore.tween_property(indicatore, "modulate:a", 1.0, battito)
-	scrittura_finita.emit()
+	# "finita" vuol dire la battuta, non la pagina: chi aspetta la fine del
+	# testo (le scelte, l'andare avanti da soli) aspetta l'ultima
+	if not ha_altre_pagine():
+		scrittura_finita.emit()
 
 func nascondi_indicatore() -> void:
 	# a coda finita non c'e' piu' niente da far avanzare: comandano le scelte

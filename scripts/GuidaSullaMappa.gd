@@ -116,8 +116,7 @@ func _su_input_box(evento: InputEvent) -> void:
 
 func _su_clic() -> void:
 	# come nel dialogo: il primo clic completa la frase, il secondo va avanti
-	if box.sta_scrivendo:
-		box.completa()
+	if box.consuma_click():
 		return
 	avanti()
 

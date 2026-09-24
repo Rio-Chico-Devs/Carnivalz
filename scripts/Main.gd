@@ -641,9 +641,8 @@ func avanza_messaggio() -> void:
 	_apri_scelte()
 
 func _su_avanza() -> void:
-	# primo click: il testo si completa subito. Secondo click: si va avanti.
-	if box.sta_scrivendo:
-		box.completa()
+	# primo click: il testo si completa, o si gira pagina. Poi si va avanti
+	if box.consuma_click():
 		return
 	if carta_titolo.visible:
 		chiudi_carta_titolo()
@@ -1398,9 +1397,10 @@ func _mostra_mediazione(conversazione: Dictionary) -> void:
 	nascondi_comandi()
 	azione_a_fine_testo = _opzioni_mediazione.bind(mediazione)
 	box.mostra("narrazione", String(mediazione.get("testo", "Puoi intervenire.")), "")
-	area_avanza.visible = false
+	area_avanza.visible = box.ha_altre_pagine()   # se e' lunga, le pagine si girano col click
 
 func _opzioni_mediazione(mediazione: Dictionary) -> void:
+	area_avanza.visible = false
 	box.nascondi_indicatore()
 	var primo: Button = null
 	for opzione in mediazione.get("opzioni", []):

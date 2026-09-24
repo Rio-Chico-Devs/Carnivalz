@@ -200,7 +200,7 @@ func svuota_coda() -> void:
 		if testo == "":
 			await attendi_colpo()   # solo il colpo: il tempo di vederlo
 		else:
-			await attendi_lettura(testo, bool(msg.forte))
+			await attendi_ogni_pagina(testo, bool(msg.forte))
 		if not viva():
 			break   # la scena e' cambiata mentre si leggeva: non c'e' piu' nessuno
 	if viva():
@@ -209,6 +209,13 @@ func svuota_coda() -> void:
 	# fase non tornerebbe mai ai comandi e lo scontro sembrerebbe piantato
 	sta_facendo_leggere = false
 	sta_svuotando = false
+
+func attendi_ogni_pagina(testo: String, forte: bool) -> void:
+	# UNA BATTUTA LUNGA E' PIU' PAGINE (vedi BoxTesto): ognuna ha il suo tempo
+	# di lettura, o il suo click
+	await attendi_lettura(testo, forte)
+	while viva() and box.pagina_seguente():
+		await attendi_lettura(box.pagine[box.pagina], forte)
 
 func aspetta_un_click(forte: bool) -> bool:
 	# chi decide se questa battuta si ferma ad aspettare te: una lezione sempre,

@@ -601,6 +601,37 @@ func prepara(quale: String) -> void:
 					"diventa piu' forte del posto che la contiene.", "")
 			pagina.box.completa()
 			await attendi(4)
+		"pagine":
+			# UN TESTO LUNGO DIVISO IN PAGINE (vedi Impaginatore.gd): "pagine
+			# eventi 1" e' la seconda pagina nel box degli eventi, "pagine
+			# combattimento 0" la prima nel quadrante dello scontro. Il testo e'
+			# la soglia della Casa Gigante, il piu' lungo del gioco
+			var argomenti_p := OS.get_cmdline_user_args()
+			var dove := String(argomenti_p[1]) if argomenti_p.size() > 1 else "eventi"
+			var quale_pagina := int(argomenti_p[2]) if argomenti_p.size() > 2 else 0
+			var casa: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/vuoti/casa_gigante.json"))
+			var lungo := String(casa["nodi"]["soglia"]["sequenza"][0]["testo"])
+			var con_box: Node
+			if dove == "combattimento":
+				GameState.nuova_partita()
+				GameState.nemici_combattimento = ["goblin_tipico"]
+				con_box = load("res://scenes/Combattimento.tscn").instantiate()
+				add_child(con_box)
+				await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+				con_box.set_process(false)
+				con_box.voce.coda.clear()
+				con_box.plancia.mostra_faccia("parlato")
+			else:
+				await apri_dialogo(nodo_di_prova())
+				con_box = get_child(0)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			con_box.box.mostra("narrazione", lungo, "")
+			for volta in quale_pagina + 1:
+				con_box.box.completa()
+				if volta < quale_pagina:
+					con_box.box.pagina_seguente()
+			await attendi(4)
+			print("pagina %d di %d" % [con_box.box.pagina + 1, con_box.box.pagine.size()])
 		"evidenza":
 			# L'ALONE CHE INDICA UN PEZZO, fermato sul colmo del respiro.
 			#

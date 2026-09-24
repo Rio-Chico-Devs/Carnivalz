@@ -165,6 +165,9 @@ func _ready() -> void:
 	prova_il_goblin_arrabbiato_e_lungo_ma_battibile()
 	prova_la_musica_giusta_per_ogni_scontro_e_livello()
 	await prova_nel_complesso_si_va_dritti()
+	prova_l_impaginatore_taglia_dove_si_legge()
+	await prova_ogni_testo_entra_nel_box()
+	await prova_le_pagine_si_girano_col_click()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -12904,10 +12907,18 @@ class FintoBox extends Control:
 	# la prima PRIMA CHE SIA STATA LETTA. Quello si vede solo nel tempo.
 	var quando: Array[int] = []
 	var sta_scrivendo := false
+	# una battuta e' sempre una pagina sola: qui non si misura niente
+	var pagine: Array[String] = []
+	var pagina := 0
 
 	func mostra(_tipo: String, contenuto: String, _chi: String) -> void:
 		mostrate.append(contenuto)
 		quando.append(Time.get_ticks_msec())
+		pagine = [contenuto]
+		pagina = 0
+
+	func pagina_seguente() -> bool:
+		return false
 
 	func nascondi_indicatore() -> void:
 		pass
@@ -14134,5 +14145,196 @@ func prova_nel_complesso_si_va_dritti() -> void:
 	esigi(pianure.si_puo_andare("pianura") and not pianure.si_puo_andare("albero"),
 			"nelle Pianure si salta di due stanze: la frattura non si scopre piu' camminando")
 	pianure.queue_free()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
+# --- I TESTI LUNGHI SI DIVIDONO IN PAGINE --------------------------------------
+#
+# Bru: «alcuni dialoghi sforano il container di testo, bisogna dividere i testi
+# piu' lunghi affinche' entrino sempre nel box». Il box ha un'altezza fissa, e
+# quello che non ci stava scorreva sotto il bordo, dove non si leggeva.
+
+func testo_piano(pezzo: String) -> String:
+	# senza tag e con gli spazi normalizzati: quello che si legge, e basta
+	var senza := RegEx.create_from_string("\\[[^\\]]*\\]").sub(pezzo, "", true)
+	var parole: Array[String] = []
+	for riga in senza.split("\n", false):
+		for parola in riga.split(" ", false):
+			parole.append(parola)
+	return " ".join(parole)
+
+func prova_l_impaginatore_taglia_dove_si_legge() -> void:
+	titolo("un testo lungo si divide dove si legge, e non si perde niente")
+	# un misuratore finto: ci stanno "quanti" caratteri leggibili
+	var fino_a := func(quanti: int) -> Callable:
+		return func(pezzo: String) -> bool: return testo_piano(pezzo).length() <= quanti
+	var tre_frasi := "Uno due tre. Quattro cinque sei. Sette otto nove."
+	var pagine := Impaginatore.dividi(tre_frasi, fino_a.call(33))
+	esigi(pagine == ["Uno due tre. Quattro cinque sei.", "Sette otto nove."],
+			"tre frasi si dividono male: %s" % str(pagine))
+	# i puntini seguiti dalla minuscola non chiudono la frase: e' la stessa frase
+	# che prende fiato, e il taglio buono e' il punto vero che viene dopo
+	var fiato := "Prima frase. Non e' recisa... finche' ogni filo non viene tirato."
+	pagine = Impaginatore.dividi(fiato, fino_a.call(40))
+	esigi(not pagine.is_empty() and String(pagine[0]) == "Prima frase.",
+			"la pagina finisce sui puntini a meta' frase invece che sul punto vero: %s" % str(pagine))
+	# un a capo di Bru e' il taglio migliore di tutti
+	var paragrafi := "Primo paragrafo, corto.\n\nSecondo paragrafo. Con due frasi."
+	pagine = Impaginatore.dividi(paragrafi, fino_a.call(45))
+	esigi(pagine.size() == 2 and String(pagine[0]) == "Primo paragrafo, corto.",
+			"il paragrafo non e' diventato una pagina: %s" % str(pagine))
+	# il bbcode resta chiuso su ogni pagina, e si riapre sulla dopo
+	pagine = Impaginatore.dividi("[i]Uno due tre. Quattro cinque sei.[/i]", fino_a.call(20))
+	esigi(pagine == ["[i]Uno due tre.[/i]", "[i]Quattro cinque sei.[/i]"],
+			"il corsivo si perde o resta aperto fra le pagine: %s" % str(pagine))
+	# una frase sola troppo lunga si taglia sulle virgole, poi fra le parole
+	var lunga := "Una frase lunga, piena di pezzi, che non finisce mai e continua ancora"
+	pagine = Impaginatore.dividi(lunga, fino_a.call(20))
+	for pagina in pagine:
+		esigi(testo_piano(pagina).length() <= 20, "una pagina non entra: «%s»" % pagina)
+	esigi(testo_piano(" ".join(pagine)) == testo_piano(lunga), "tagliando fra le parole si e' perso del testo")
+	# e una parola piu' lunga di tutto il box non blocca niente: resta intera
+	pagine = Impaginatore.dividi("Supercalifragilistichespiralidoso e basta", fino_a.call(10))
+	esigi(pagine.size() >= 2 and testo_piano(" ".join(pagine)) == "Supercalifragilistichespiralidoso e basta",
+			"una parola che non ci sta da sola ha rotto l'impaginazione: %s" % str(pagine))
+
+func tutti_i_testi_da_leggere() -> Array[String]:
+	# ogni "testo" e ogni "scena" dei dati che il gioco puo' mettere nel box
+	var trovati: Array[String] = []
+	var file: Array[String] = ["res://data/events.json", "res://data/events_intro.json",
+			"res://data/events_tutorial.json", "res://data/personaggi.json", "res://data/dialoghi.json"]
+	for nome in DirAccess.get_files_at("res://data/vuoti"):
+		if nome.ends_with(".json"):
+			file.append("res://data/vuoti/" + nome)
+	for percorso in file:
+		raccogli_testi(JSON.parse_string(FileAccess.get_file_as_string(percorso)), trovati)
+	return trovati
+
+func raccogli_testi(dato: Variant, dentro: Array[String]) -> void:
+	if dato is Dictionary:
+		for chiave in dato:
+			var valore: Variant = dato[chiave]
+			if valore is String and String(chiave) in ["testo", "scena"] and String(valore) != "":
+				dentro.append(String(valore))
+			else:
+				raccogli_testi(valore, dentro)
+	elif dato is Array:
+		for valore in dato:
+			raccogli_testi(valore, dentro)
+
+func giro_di_pagine(box: Node, testi: Array[String], dove: String) -> int:
+	# ogni testo, come narrazione e come dialogo, pagina per pagina SUL TESTO
+	# VERO del box: e' quello che si vede, non il doppione che misura
+	var divisi := 0
+	for testo in testi:
+		for tipo in ["narrazione", "dialogo"]:
+			box.mostra(tipo, testo, "Veronica" if tipo == "dialogo" else "")
+			if box.pagine.size() > 1:
+				divisi += 1
+			var letto := ""
+			while true:
+				box.completa()
+				var vero: RichTextLabel = box.testo
+				esigi(vero.get_content_height() <= vero.size.y + 0.5,
+						"%s: una pagina esce dal box (%.0f su %.0f): «%s»"
+						% [dove, vero.get_content_height(), vero.size.y, String(box.pagine[box.pagina]).left(60)])
+				letto += String(box.pagine[box.pagina]) + " "
+				if not box.pagina_seguente():
+					break
+			esigi(testo_piano(letto) == testo_piano(testo),
+					"%s: dividendo in pagine si e' perso del testo: «%s»" % [dove, testo.left(60)])
+	return divisi
+
+func prova_ogni_testo_entra_nel_box() -> void:
+	titolo("ogni testo del gioco entra nel box, pagina per pagina, anche col testo grande")
+	var testi := tutti_i_testi_da_leggere()
+	esigi(testi.size() > 1000, "ho trovato solo %d testi: la raccolta non funziona" % testi.size())
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	scontro.set_process(false)
+	scontro.voce.coda.clear()
+	scontro.plancia.mostra_faccia("parlato")
+	schermata.box.scrittura_finita.disconnect(schermata._su_testo_pronto)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	giro_di_pagine(schermata.box, testi, "eventi")
+	giro_di_pagine(scontro.box, testi, "combattimento")
+	# «Testo piu' grande» ingrandisce tutto: il box resta alto uguale ma ci
+	# stanno meno parole per riga, ed e' li' che si sforava di piu'
+	var larghezza_prima: float = scontro.box.testo.size.x
+	get_tree().root.content_scale_factor = 1.25
+	Impostazioni.testo_grande = true
+	for volta in 3:
+		await get_tree().process_frame
+	esigi(scontro.box.testo.size.x < larghezza_prima,
+			"col testo grande il box del combattimento non si e' ristretto: la prova non misura niente")
+	var divisi := giro_di_pagine(scontro.box, testi, "combattimento, testo grande")
+	giro_di_pagine(schermata.box, testi, "eventi, testo grande")
+	esigi(divisi > 50, "col testo grande solo %d testi hanno avuto bisogno di pagine: il box non si ristringe davvero" % divisi)
+	get_tree().root.content_scale_factor = 1.0
+	Impostazioni.testo_grande = false
+	schermata.queue_free()
+	scontro.queue_free()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
+func prova_le_pagine_si_girano_col_click() -> void:
+	titolo("le pagine si girano col click, e si va avanti solo dopo l'ultima")
+	var lungo := ""
+	for volta in 6:
+		lungo += "Una frase che occupa un bel pezzo di riga, e poi continua ancora un poco. \n\n"
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var box: Node = schermata.box
+	var finite: Array[int] = [0]
+	box.scrittura_finita.disconnect(schermata._su_testo_pronto)
+	box.scrittura_finita.connect(func() -> void: finite[0] += 1)
+	box.mostra("narrazione", lungo, "")
+	var quante: int = box.pagine.size()
+	esigi(quante >= 2, "un testo di sei paragrafi sta in una pagina sola: la prova non prova niente")
+	for pagina in quante:
+		schermata._su_avanza()   # il primo click completa la pagina
+		esigi(int(box.pagina) == pagina and not bool(box.sta_scrivendo),
+				"il click a meta' pagina non l'ha completata")
+		esigi(finite[0] == (1 if pagina == quante - 1 else 0),
+				"alla pagina %d di %d la battuta risulta gia' finita: le scelte arriverebbero sotto il testo"
+				% [pagina + 1, quante])
+		if pagina < quante - 1:
+			schermata._su_avanza()   # il secondo gira pagina, non passa alla battuta dopo
+			esigi(int(box.pagina) == pagina + 1, "il click non gira pagina")
+	schermata.queue_free()
+	await get_tree().process_frame
+	# NEL COMBATTIMENTO le pagine scorrono da sole, ognuna col suo tempo
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	scontro.set_process(false)
+	scontro.voce.coda.clear()
+	scontro.plancia.mostra_faccia("parlato")
+	await get_tree().process_frame
+	scontro.scrivi(lungo)
+	var viste: Dictionary = {}
+	var giri := 0
+	while giri < 600 and (not scontro.voce.coda.is_empty() or scontro.voce.sta_facendo_leggere):
+		viste[int(scontro.box.pagina)] = true
+		scontro.voce.salta_messaggio = true
+		await get_tree().process_frame
+		giri += 1
+	var tutte: int = scontro.box.pagine.size()
+	esigi(tutte >= 2 and viste.size() == tutte,
+			"nel combattimento si sono viste %d pagine su %d" % [viste.size(), tutte])
+	scontro.queue_free()
 	await get_tree().process_frame
 	GameState.nuova_partita()
