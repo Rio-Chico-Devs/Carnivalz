@@ -312,6 +312,21 @@ def sezione_eventi(sigla, nome_umano, percorso):
                 dettagli.append("esce dallo squarcio")
             coda = " (" + ", ".join(dettagli) + ")" if dettagli else ""
             voce(f"{sigla}.{id_nodo}.scelta{i}", "bottone di scelta" + coda, s.get("testo", ""))
+        # chi parla DENTRO lo scontro che questo nodo apre (la regia: la Guida
+        # al posto di Veronica). Senza questo le sue battute non comparivano da
+        # nessuna parte, e sono proprio quelle scritte da Bru
+        regie = [nodo.get("combattimento_automatico", {}).get("regia", {})]
+        regie += [s.get("regia", {}) for s in nodo.get("scelte", [])]
+        for regia in regie:
+            for battuta in regia.get("battute", []):
+                momento = {"inizio": "appena comincia",
+                           "dopo_il_nemico": f"dopo la mossa n. {battuta.get('volta', 1)} del nemico",
+                           "dopo_di_te": f"dopo la tua azione n. {battuta.get('volta', 1)}"}.get(
+                               battuta.get("quando", ""), battuta.get("quando", ""))
+                chiave = f"{battuta.get('quando', '')}{battuta.get('volta', '')}"
+                for j, msg in enumerate(battuta.get("righe", []), 1):
+                    voce(f"{sigla}.{id_nodo}.scontro.{chiave}.{j}",
+                         f"durante lo scontro, {momento} — " + sigla_messaggio(msg), msg.get("testo", ""))
     # quello che la Guida dice sopra la mappa della zona: non sta in un nodo,
     # sta nella mappa, e si legge all'arrivo e ogni volta che premi la sua icona
     guida = dati.get("mappa_dungeon", {}).get("guida", [])
@@ -319,6 +334,11 @@ def sezione_eventi(sigla, nome_umano, percorso):
         titolo(3, f"{nome_umano} › sulla mappa, la Guida")
         for i, msg in enumerate(guida, 1):
             voce(f"{sigla}.mappa.guida.{i}", sigla_messaggio(msg), msg.get("testo", ""))
+    fuga = dati.get("mappa_dungeon", {}).get("fuga_negata", {})
+    if fuga:
+        titolo(3, f"{nome_umano} › se provi a scappare")
+        voce(f"{sigla}.mappa.fuga", "in qualunque scontro della zona, se premi FUGA — battuta di "
+             + nome_di(fuga.get("chi", "guida")), fuga.get("testo", ""))
 
 titolo(1, "2. La storia")
 
@@ -381,10 +401,16 @@ for id_p, p in personaggi.items():
     voce(f"CRE.{id_p}.nome_breve", "nome corto (schede in combattimento)", p.get("nome_breve"))
     voce(f"CRE.{id_p}.descrizione", "voce del bestiario", p.get("descrizione"))
     voce(f"CRE.{id_p}.descrizione_extra", "voce del bestiario, dopo averla studiata", p.get("descrizione_extra"))
+    apertura = p.get("apertura")
+    if isinstance(apertura, dict):
+        apertura = apertura.get("testo")
+    voce(f"CRE.{id_p}.apertura", "appena comincia lo scontro", apertura)
+    voce(f"CRE.{id_p}.orda", "nome dell'orda (sulla fascia)", p.get("orda", {}).get("nome"))
     for i, d in enumerate(p.get("studio", []), 1):
         voce(f"CRE.{id_p}.studio{i}.domanda",
              "Studia › domanda (vuota = ne pesca una a caso dalle generiche)", d.get("domanda"))
         voce(f"CRE.{id_p}.studio{i}.risposta", "Studia › cosa risponde", d.get("risposta"))
+        voce(f"CRE.{id_p}.studio{i}.osservazione", "Studia › cosa noti", d.get("osservazione"))
     voce(f"CRE.{id_p}.studio_esaurito", "Studia › quando non ha più niente da dire",
          p.get("testo_studio_esaurito"))
     sc = p.get("studio_cedimento", {})
@@ -420,7 +446,12 @@ for id_p, p in personaggi.items():
         if isinstance(mossa, dict):
             voce(f"CRE.{id_p}.mossa{i}.nome", "nome di una mossa", mossa.get("nome"))
             voce(f"CRE.{id_p}.mossa{i}.testo", "cosa si legge quando la usa", mossa.get("testo"))
-            voce(f"CRE.{id_p}.mossa{i}.annuncio", "annuncio un turno prima", mossa.get("annuncio"))
+            voce(f"CRE.{id_p}.mossa{i}.annuncio", "annuncio un turno prima",
+                 mossa.get("testo_annuncio") or mossa.get("annuncio"))
+    media = p.get("mediazione", {})
+    if isinstance(media, dict):
+        voce(f"CRE.{id_p}.mediazione.apertura", "quando capisci che si puo' mediare", media.get("testo_apertura"))
+        voce(f"CRE.{id_p}.mediazione.testo", "quando la lasci andare (BOND)", media.get("testo"))
     for i, leva in enumerate(p.get("leve", []), 1):
         if isinstance(leva, dict):
             voce(f"CRE.{id_p}.leva{i}.testo", "quando le mostri l'oggetto giusto", leva.get("testo"))
@@ -453,6 +484,14 @@ for id_c, c in classi.items():
     voce(f"CLA.{id_c}.nome", "nome a schermo", c.get("nome"))
     voce(f"CLA.{id_c}.descrizione", "descrizione nella scelta della squadra", c.get("descrizione"))
     voce(f"CLA.{id_c}.frase", "frase di presentazione", c.get("frase"))
+
+abilita = carica("data/abilita.json").get("abilita", {})
+titolo(2, "Le abilità")
+nota("<sub>`data/abilita.json`</sub> — nome e descrizione nel menu SKILL, e cosa si legge usandole.")
+for id_a, a in abilita.items():
+    voce(f"ABI.{id_a}.nome", "nome nel menu SKILL", a.get("nome"))
+    voce(f"ABI.{id_a}.descrizione", "descrizione", a.get("descrizione"))
+    voce(f"ABI.{id_a}.testo_uso", "quando la usi (%s = chi la usa)", a.get("testo_uso"))
 
 # ------------------------------------------------------------- 6. oggetti
 

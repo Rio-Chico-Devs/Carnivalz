@@ -3087,6 +3087,91 @@
       "tipo": "Natura"
     },
     {
+      "id": "goblin_possessivo",
+      "livello": 1,
+      "ruolo": "comune",
+      "nome": "Goblin Possessivo",
+      "apertura": {
+        "tipo": "dialogo",
+        "testo": "Lei è mia! Mia, mia, mia!"
+      },
+      "ritratto": "res://art/personaggi/goblin_possessivo.png",
+      "descrizione": "Un goblin come tutti gli altri, tranne per una cosa: stringe al petto una pietra che brilla, e per difenderla farebbe qualunque cosa.",
+      "carta": {
+        "id": "carta_goblin_possessivo",
+        "nome": "Goblin Possessivo",
+        "rarita": "comune",
+        "chance": 0.03,
+        "testo": "Ha trovato una cosa bella una volta sola nella vita. Non la mollerà."
+      },
+      "drop_garantito": {
+        "oggetto": "pietra_quieta"
+      },
+      "_drop_garantito": "Bru: «vedrai un goblin con una cosa scintillante fra le mani che sarà la pietra per salvarti dall'apparizione più tardi [...] una volta battuto dropperà la pietra». Prima la lasciava la tartaruga risparmiata.",
+      "studio": [
+        {
+          "risposta": "«Scintilla! Morbida! Mia!»"
+        }
+      ],
+      "mosse": [
+        {
+          "id": "sassata",
+          "nome": "Bastonata",
+          "tipo": "attacco_forte",
+          "testo": "Il goblin si stringe la pietra al petto con una mano e mena con l'altra.",
+          "quota": 1.3,
+          "peso": 2
+        },
+        {
+          "id": "si_copre_la_testa",
+          "nome": "Difesa Goblin!",
+          "tipo": "difendi",
+          "testo": "«Difesa Goblin!» — e si copre la testa con le braccia.",
+          "quando": {
+            "vita_sotto": 0.35
+          },
+          "priorita": 5,
+          "ricarica": 2
+        },
+        {
+          "id": "ultima_risorsa",
+          "nome": "Ultima risorsa",
+          "tipo": "potenziamento",
+          "testo": "Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.",
+          "stat": {
+            "attacco": 3,
+            "difesa": 2,
+            "velocita": 2
+          },
+          "turni": 3,
+          "quando": {
+            "vita_sotto": 0.35
+          },
+          "priorita": 6,
+          "ricarica": 1
+        },
+        {
+          "id": "libera_4",
+          "nome": "-",
+          "tipo": "-",
+          "testo": "-"
+        },
+        {
+          "id": "libera_5",
+          "nome": "-",
+          "tipo": "-",
+          "testo": "-"
+        },
+        {
+          "id": "libera_6",
+          "nome": "-",
+          "tipo": "-",
+          "testo": "-"
+        }
+      ],
+      "tipo": "Natura"
+    },
+    {
       "id": "slime_infimo",
       "livello": 1,
       "ruolo": "comune",
@@ -3164,6 +3249,89 @@
       "tipo": "Natura"
     },
     {
+      "id": "rana_folle",
+      "orda": {
+        "nome": "Orda di rane folli",
+        "componenti": 5,
+        "preannuncia": true,
+        "_bru": "«è un orda da 5 [...] nelle orde puoi osservare i comportamenti, prima di compiere la mossa e che tu scelga cosa fare appare sempre un testo collegato alla mossa che farà, ogni orda avrà i suoi testi»"
+      },
+      "livello": 1,
+      "ruolo": "comune",
+      "nome": "Rana Folle",
+      "apertura": "Cinque rane saltano fuori dalle pozze tutte insieme, e nessuna sembra avere tutte le rotelle a posto.",
+      "hp": 34,
+      "attacco": 7,
+      "fuori_curva": "Orda della prima missione. Da comune al livello 1 una rana avrebbe la vita di un goblin intero, e cinque rane sarebbero cinque goblin: la vita di un'orda e' quella di una per quante sono. Numeri misurati sulla strategia di Bru (concentrarsi quando fanno fronte compatto, poi l'onda psichica).",
+      "peso_attacco_normale": 0,
+      "ritratto": "res://art/personaggi/rana_folle.png",
+      "descrizione": "Una rana di pozza gonfiata dal disallineamento fino alla taglia di un cane. Da sola non fa paura; il guaio è che non sono mai da sole.",
+      "carta": {
+        "id": "carta_rana_folle",
+        "nome": "Rana Folle",
+        "rarita": "comune",
+        "chance": 0.03,
+        "testo": "Nessuno ha mai visto una rana folle da sola. Forse non esiste."
+      },
+      "bottino_comune": [
+        {
+          "oggetto": "fiala_hp",
+          "chance": 0.15
+        }
+      ],
+      "studio": [
+        {
+          "osservazione": "Gracidano tutte insieme prima di muoversi: quello che stanno per fare, lo annunciano."
+        }
+      ],
+      "mosse": [
+        {
+          "id": "gracidio_feroce",
+          "nome": "Gracidio feroce",
+          "tipo": "orda",
+          "testo": "Le rane ti saltano addosso da ogni parte!",
+          "testo_annuncio": "L'orda di rane sembra gracchiare ferocemente...",
+          "quota": 1.0,
+          "peso": 2
+        },
+        {
+          "id": "fronte_compatto",
+          "nome": "Fronte compatto",
+          "tipo": "buff_difesa",
+          "testo": "Le rane si stringono l'una all'altra: davanti hai un muro di pelle viscida.",
+          "testo_annuncio": "L'orda di rane forma un fronte compatto...",
+          "valore": 1,
+          "turni": 2,
+          "peso": 1
+        },
+        {
+          "id": "libera_3",
+          "nome": "-",
+          "tipo": "-",
+          "testo": "-"
+        },
+        {
+          "id": "libera_4",
+          "nome": "-",
+          "tipo": "-",
+          "testo": "-"
+        },
+        {
+          "id": "libera_5",
+          "nome": "-",
+          "tipo": "-",
+          "testo": "-"
+        },
+        {
+          "id": "libera_6",
+          "nome": "-",
+          "tipo": "-",
+          "testo": "-"
+        }
+      ],
+      "tipo": "Natura"
+    },
+    {
       "id": "tartaruga_innocente",
       "difesa_per_turno": 3,
       "testo_corazza": "%s si ritira un altro po' dentro il guscio. Il tuo colpo ha sempre meno posto dove entrare.",
@@ -3171,7 +3339,7 @@
       "ruolo": "corazzato",
       "fuori_curva": "Non e' uno scontro, e' un indovinello: non attacca mai e non si batte a colpi. La sua riserva enorme serve a far capire che la strada e' un'altra.",
       "scala_col_giocatore": false,
-      "nome": "Tartaruga Innocente",
+      "nome": "Tartaruga Gigante",
       "apertura": "Ritira la testa nel guscio prima ancora che tu faccia un passo. Non attacca. Aspetta.",
       "hp": 555,
       "attacco": 0,
@@ -3181,7 +3349,7 @@
       "descrizione": "Un guscio enorme e un aspetto che mette paura. Non ha mai fatto del male a nessuno.",
       "carta": {
         "id": "carta_tartaruga_innocente",
-        "nome": "Tartaruga Innocente",
+        "nome": "Tartaruga Gigante",
         "rarita": "non_comune",
         "chance": 0.05,
         "testo": "Vecchia, lenta, spaventosa da guardare. Nient'altro."
@@ -3244,9 +3412,10 @@
         "testo_apertura": "La Tartaruga non si difende nemmeno. Si può mediare.",
         "legame": 10,
         "stress": -15,
-        "oggetto": "pietra_quieta",
-        "testo": "Decidi di lasciarla andare. Non c'era nessuna ragione di combatterla. Sul terreno, dove si trovava, resta una pietra liscia e fredda."
-      }
+        "testo": "Alla fine capisci che la povera tartaruga era lì per puro caso. La creatura si allontana piano piano... sembrerebbe in qualche modo offesa...",
+        "_oggetto": "Non lascia piu' la Pietra Quieta: adesso la tiene stretta un goblin, in fondo alla caverna segreta (goblin_possessivo)."
+      },
+      "_nome": "Bru la chiama «tartaruga gigante»: e' il nome che si legge quando parla, e «Innocente» sul cartellino avrebbe detto prima del tempo quello che la scena ti fa scoprire. L'id resta quello di prima."
     },
     {
       "id": "manifestazione_di_un_sogno",

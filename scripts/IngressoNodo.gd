@@ -218,8 +218,11 @@ static func tira_agguato(id_nodo: String, nodo: Dictionary) -> bool:
 	if not agguato.get("ripetibile", false):
 		GameState.stanze_ripulite.append(id_nodo)
 	var gruppo: Array = gruppi[GameState.rng.randi_range(0, gruppi.size() - 1)]
-	# fuggire da un agguato non ha penalità: si torna semplicemente qui
-	GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo)
+	# fuggire da un agguato non ha penalità: si torna semplicemente qui. E chi
+	# lo tende muove per primo: «se i nemici tendono imboscate o ti colgono di
+	# sorpresa hanno la precedenza come turno» (Bru)
+	GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo,
+			{"precedenza": "nemici"})
 	return true
 
 static func applica_task_di(contenitore: Dictionary) -> void:

@@ -214,6 +214,49 @@ func prepara(quale: String) -> void:
 				await attendi(2)
 				guida._su_clic()
 				await attendi(2)
+		"pianure_scontro":
+			# UNO SCONTRO DELLE PIANURE CON LA SUA REGIA, fermato sulla battuta
+			# che si vuole guardare: "pianure_scontro banchetto precedenza" e' la
+			# Guida che spiega la precedenza, "pianure_scontro pozze gracchiare"
+			# l'annuncio dell'orda, "pianure_scontro tartaruga bond" BOND acceso
+			var argomenti_s := OS.get_cmdline_user_args()
+			var id_nodo := String(argomenti_s[1]) if argomenti_s.size() > 1 else "banchetto"
+			var cercato := String(argomenti_s[2]) if argomenti_s.size() > 2 else ""
+			GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+			var dati_scontro: Dictionary = GameState.eventi[id_nodo]["combattimento_automatico"]
+			GameState.prepara_combattimento(dati_scontro["nemici"], "", "", "", "", dati_scontro.get("regia", {}))
+			var scontro_p: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(scontro_p)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			var giri := 0
+			if cercato == "bond":
+				scontro_p.regia.apri_il_bond()
+				while giri < 600 and (not scontro_p.voce.coda.is_empty() or scontro_p.voce.sta_facendo_leggere):
+					scontro_p.voce.salta_messaggio = true
+					await attendi(4)
+					giri += 1
+				scontro_p.combattente_comandato().ricarica = 0.0
+				await attendi(30)
+			else:
+				var testo_box: RichTextLabel = scontro_p.box.get("testo")
+				while giri < 600 and not cercato in testo_box.get_parsed_text():
+					scontro_p.voce.salta_messaggio = true
+					await attendi(4)
+					giri += 1
+				await attendi(20)
+		"zona_pianure":
+			# la mappa delle Pianure a meta' strada: sei al bivio, la caverna
+			# l'hai vista e visitata, le pozze e il promontorio no
+			GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+			GameState.imposta_flag("tut_caverna_vista")
+			for id_stanza in ["inizio", "banchetto", "pianura", "albero", "caverna", "masso", "bivio"]:
+				GameState.nodi_visitati.append(id_stanza)
+				GameState.sblocca_stanza(id_stanza)
+			GameState.nodo_corrente = "bivio"
+			var pianure: Control = load("res://scenes/MappaZona.tscn").instantiate()
+			pianure.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			add_child(pianure)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 		"mappa_prima":
 			# la mappa stellare aperta da Veronica: solo la prima missione
 			MappaStellare.missione_da_scegliere = "proiezione_partenza"

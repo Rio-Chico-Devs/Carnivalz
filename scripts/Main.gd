@@ -699,7 +699,8 @@ func avvia_combattimento_automatico(dati: Dictionary) -> void:
 		mostra_nodo(String(dati.get("se_vinci", "")))
 		return
 	GameState.prepara_combattimento(dati.get("nemici", []), dati.get("se_vinci", ""),
-			dati.get("se_vinci_eroe", ""), dati.get("se_perdi", ""), dati.get("se_fuggi", ""))
+			dati.get("se_vinci_eroe", ""), dati.get("se_perdi", ""), dati.get("se_fuggi", ""),
+			dati.get("regia", {}))   # chi parla e chi muove per primo
 	Transizioni.vai(SCENA_COMBATTIMENTO)
 
 func avvia_automatico(dati: Dictionary) -> void:
@@ -1292,7 +1293,8 @@ func _su_scelta(scelta: Dictionary) -> void:
 		GameState.modifica_legame(int(scelta["legame"]))
 	if scelta.has("combatti"):
 		GameState.prepara_combattimento(scelta["combatti"], scelta.get("se_vinci", ""),
-				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""), scelta.get("se_fuggi", ""))
+				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""), scelta.get("se_fuggi", ""),
+				scelta.get("regia", {}))
 		Transizioni.vai(SCENA_COMBATTIMENTO)
 		return
 	if scelta.get("torna_vuoto", false):

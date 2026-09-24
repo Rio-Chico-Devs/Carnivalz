@@ -397,7 +397,7 @@
 			"id": "pietra_quieta",
 			"nome": "Pietra Quieta",
 			"tipo": "accessorio",
-			"descrizione": "Una pietra liscia e fredda, lasciata cadere da una tartaruga che hai scelto di risparmiare. Sembra assorbire la prima cosa brutta che ti capita, in ogni scontro.",
+			"descrizione": "Un minerale raro che un goblin stringeva come un tesoro, nel fondo di una caverna delle Pianure di Redenna. Condiziona le biomasse e ne esalta certe qualità: assorbe la prima cosa brutta che ti capita, in ogni scontro.",
 			"effetto_equipaggiato": {
 				"tipo": "scudo_primo_stato"
 			}

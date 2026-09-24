@@ -590,142 +590,152 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.057`** · consuma_carica
+**`UI.Combattimento.057`** · onda
+> [i]Su %d, %d vanno a vuoto.[/i]
+>
+> →
+
+**`UI.Combattimento.058`** · potenziati
+> %s si concentra.
+>
+> →
+
+**`UI.Combattimento.059`** · consuma_carica
 > [b]%s scarica tutto quello che ha accumulato.[/b]
 >
 > →
 
-**`UI.Combattimento.058`** · quando si prova a fuggire
+**`UI.Combattimento.060`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.059`** · verifica_rabbia_su_morte
+**`UI.Combattimento.061`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.060`** · verifica_cura_su_morte
+**`UI.Combattimento.062`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.061`** · risolvi_rigenerazione
+**`UI.Combattimento.063`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.062`** · risolvi_rigenerazione
+**`UI.Combattimento.064`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.063`** · apri_la_guardia
+**`UI.Combattimento.065`** · apri_la_guardia
 > [i]La guardia di %s si apre.[/i]
 >
 > →
 
-**`UI.Combattimento.064`** · apri_la_guardia
+**`UI.Combattimento.066`** · apri_la_guardia
 > Difesa −%d, ora %d.
 >
 > →
 
-**`UI.Combattimento.065`** · avanza_trasformazione
+**`UI.Combattimento.067`** · avanza_trasformazione
 > Non è più quello di prima.
 >
 > →
 
-**`UI.Combattimento.066`** · spegni_tormento_di
+**`UI.Combattimento.068`** · spegni_tormento_di
 > [i]Il vento si ferma.[/i]
 >
 > →
 
-**`UI.Combattimento.067`** · mossa_rubavita
+**`UI.Combattimento.069`** · mossa_rubavita
 > [i]%s se ne nutre: +%d.[/i]
 >
 > →
 
-**`UI.Combattimento.068`** · mossa_evoca
+**`UI.Combattimento.070`** · mossa_evoca
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.069`** · mossa_sacrificio
+**`UI.Combattimento.071`** · mossa_sacrificio
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.070`** · cedimento
+**`UI.Combattimento.072`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.071`** · quando si attacca
+**`UI.Combattimento.073`** · quando si attacca
 > [i]Il colpo su %s si ferma a un dito dalla pelle.[/i]
 >
 > →
 
-**`UI.Combattimento.072`** · quando si attacca
+**`UI.Combattimento.074`** · quando si attacca
 > Il dominio di %s arde!
 >
 > →
 
-**`UI.Combattimento.073`** · quando si attacca
+**`UI.Combattimento.075`** · quando si attacca
 > [i]È il colpo giusto: %s lo incassa male.[/i]
 >
 > →
 
-**`UI.Combattimento.074`** · quando si attacca
+**`UI.Combattimento.076`** · quando si attacca
 > [i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]
 >
 > →
 
-**`UI.Combattimento.075`** · quando si attacca
+**`UI.Combattimento.077`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.076`** · quando si attacca
+**`UI.Combattimento.078`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.077`** · rimetti_in_piedi
+**`UI.Combattimento.079`** · rimetti_in_piedi
 > [i]%s non ha più niente da darsi.[/i]
 >
 > →
 
-**`UI.Combattimento.078`** · _racconta_ko
+**`UI.Combattimento.080`** · _racconta_ko
 > [i]%s si rimette in piedi.[/i]
 >
 > →
 
-**`UI.Combattimento.079`** · verifica_fine_scontro
+**`UI.Combattimento.081`** · verifica_fine_scontro
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.080`** · verifica_fine_scontro
+**`UI.Combattimento.082`** · verifica_fine_scontro
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.081`** · verifica_fine_scontro
+**`UI.Combattimento.083`** · verifica_fine_scontro
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.082`** · reagisci
+**`UI.Combattimento.084`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.083`** · reagisci
+**`UI.Combattimento.085`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.084`** · reagisci
+**`UI.Combattimento.086`** · reagisci
 > %s si concentra: la barra di dominio sale.
 >
 > →
@@ -2005,7 +2015,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.inizio.scelta1`** · bottone di scelta
-> Fatti largo tra le pianure
+> Addentrati nelle pianure
 >
 > →
 
@@ -2053,64 +2063,387 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.inizio_guida.scelta1`** · bottone di scelta
-> Fatti largo tra le pianure
+> Addentrati nelle pianure
 >
 > →
 
 
-### Tutorial › `primo_incontro`
+### Tutorial › `banchetto`
 
-**`TUT.primo_incontro.1`** · narrazione
-> Tra le felci, qualcosa ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce.
+**`TUT.banchetto.1`** · battuta di Anonimo
+> Sento una strana pressione... tuttavia questo posto sembra essere molto tranquillo...
 >
 > →
 
-**`TUT.primo_incontro.2`** · battuta di Anonimo
-> Vediamo di finire presto: non ho tempo da perdere.
+**`TUT.banchetto.2`** · battuta di Anonimo
+> D'altronde è una missione di bassissimo livello, non dovrei aspettarmi molto... hm?
+>
+> →
+
+**`TUT.banchetto.3`** · battuta di ???
+> Gnarl... barf, crunch...
+>
+> →
+
+**`TUT.banchetto.4`** · battuta di Anonimo
+> C'è una creatura più avanti... secondo l'organizzazione alcune creature potrebbero ancora essere sane...
+>
+> →
+
+**`TUT.banchetto.5`** · battuta di Anonimo
+> Meglio non essere avventati, rischiando conflitti inutili...
+>
+> →
+
+**`TUT.banchetto.6`** · battuta di Anonimo
+> Hey tu... riesci a capirmi?
+>
+> →
+
+**`TUT.banchetto.7`** · battuta di Goblin Tipico
+> Gna?!
+>
+> →
+
+**`TUT.banchetto.8`** · battuta di Anonimo
+> !!!
+>
+> →
+
+**`TUT.banchetto.scontro.inizio.1`** · durante lo scontro, appena comincia — battuta di Guida
+> Ti sei {fatto|fatta} fregare! Ecco cosa ottieni a disturbare chi sta mangiando!
+>
+> →
+
+**`TUT.banchetto.scontro.inizio.2`** · durante lo scontro, appena comincia — battuta di Guida
+> A volte potrai tendere delle imboscate ai nemici, o loro potranno tenderle a te.
+>
+> →
+
+**`TUT.banchetto.scontro.inizio.3`** · durante lo scontro, appena comincia — battuta di Guida
+> In questo caso il nemico ha la precedenza.
+>
+> →
+
+**`TUT.banchetto.scontro.dopo_il_nemico1.1`** · durante lo scontro, dopo la mossa n. 1 del nemico — battuta di Anonimo
+> Chi ti ha detto che potevi accenderti? Non eri in stato disattivato?
+>
+> →
+
+**`TUT.banchetto.scontro.dopo_il_nemico1.2`** · durante lo scontro, dopo la mossa n. 1 del nemico — battuta di Guida
+> Hey! Guarda che i miei protocolli mi obbligano ad intervenire in caso di necessità, che tu lo voglia o no! Hmpf.
+>
+> →
+
+**`TUT.banchetto.scontro.dopo_il_nemico1.3`** · durante lo scontro, dopo la mossa n. 1 del nemico — battuta di Guida
+> Certo che hai un caratterino...
+>
+> →
+
+**`TUT.banchetto.scontro.dopo_il_nemico1.4`** · durante lo scontro, dopo la mossa n. 1 del nemico — battuta di Anonimo
+> Adesso non è il momento di parlare, ho un nemico di cui occuparmi!
 >
 > →
 
 
-### Tutorial › `dopo_primo_goblin`
+### Tutorial › `banchetto_vinto`
 
-**`TUT.dopo_primo_goblin.1`** · narrazione
-> Alcune creature sono malvage di natura, è tuo compito decidere il loro destino.
+**`TUT.banchetto_vinto.1`** · battuta di Anonimo
+> Tch... Avrei dovuto aspettarmelo: nei mondi in cui il disallineamento è così alto, è molto difficile trovare degli esseri che siano ancora sani...
 >
 > →
 
-**`TUT.dopo_primo_goblin.2`** · battuta di Anonimo
-> Le creature qui sembrano molto deboli... Qualunque cosa stia causando questa anomalia non deve essere molto forte...
+**`TUT.banchetto_vinto.2`** · battuta di Guida
+> Esatto! Dovresti prestare molta più attenzione a quello che ti circonda!
 >
 > →
 
-**`TUT.dopo_primo_goblin.scelta1`** · bottone di scelta
-> Continua per la tua strada
+**`TUT.banchetto_vinto.3`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`TUT.banchetto_vinto.4`** · battuta di Guida
+> Ti faccio presente che ti sei {fatto|fatta} notare... fai attenzione mentre esplori, qualcuno potrebbe già averti messo nel suo mirino...
+>
+> →
+
+**`TUT.banchetto_vinto.5`** · battuta di Anonimo
+> Deve solo farsi avanti. Se tutti i nemici sono come quello di prima, non avremo problemi.
+>
+> →
+
+**`TUT.banchetto_vinto.6`** · battuta di Guida
+> Certo che sei {presuntuoso|presuntuosa}...
+>
+> →
+
+**`TUT.banchetto_vinto.7`** · battuta di Anonimo
+> Bisogna avere fiducia in se stessi. A volte le situazioni vanno risolte e basta, tanto vale avere un atteggiamento positivo.
+>
+> →
+
+**`TUT.banchetto_vinto.8`** · battuta di Guida
+> Non posso darti torto. Comunque ti attivo il nostro traduttore di frequenze: lavora su determinate frequenze di comunicazione, rendendo traducibili anche linguaggi animali o intenzioni.
+>
+> →
+
+**`TUT.banchetto_vinto.9`** · battuta di Anonimo
+> Certo che la tecnologia al giorno d'oggi mi spaventa...
+>
+> →
+
+**`TUT.banchetto_vinto.10`** · battuta di Guida
+> Non si ferma il progresso!
+>
+> →
+
+**`TUT.banchetto_vinto.scena`** · quando ci torni («Osserva la scena»)
+> Del pasto del goblin restano solo gli avanzi, sparsi nell'erba.
+>
+> →
+
+**`TUT.banchetto_vinto.scelta1`** · bottone di scelta
+> Prosegui
+>
+> →
+
+
+### Tutorial › `pianura`
+
+**`TUT.pianura.1`** · battuta di Anonimo
+> Sembra tutto tranquillo... per ora...
+>
+> →
+
+**`TUT.pianura.scena`** · quando ci torni («Osserva la scena»)
+> Le pianure si stendono a perdita d'occhio... il loro disegno viene interrotto da vari ruscelli e brevi macchie di fitte foreste...
+>
+> →
+
+**`TUT.pianura.scelta1`** · bottone di scelta
+> Prosegui
+>
+> →
+
+
+### Tutorial › `albero`
+
+**`TUT.albero.1`** · battuta di Anonimo
+> C'è un'altra creatura più avanti, sembra distratta da dei piccoli animali su un albero...
+>
+> →
+
+**`TUT.albero.2`** · battuta di Slime Infimo
+> Booooaaah!
+>
+> →
+
+**`TUT.albero.3`** · battuta di Guida
+> È la tua occasione, tendigli un'imboscata!
+>
+> →
+
+**`TUT.albero.4`** · battuta di Slime Infimo
+> Boah?
+>
+> →
+
+**`TUT.albero.5`** · battuta di Anonimo
+> Shhhhhh! Ci ha notati!
+>
+> →
+
+**`TUT.albero.6`** · battuta di Guida
+> Ops! Colpa mia ;P
+>
+> →
+
+**`TUT.albero.scontro.inizio.1`** · durante lo scontro, appena comincia — battuta di Guida
+> In questo caso non ci sono state imboscate: dovresti essere più veloce tu di quell'affare, quindi hai la prima mossa!
+>
+> →
+
+**`TUT.albero.scontro.inizio.2`** · durante lo scontro, appena comincia — battuta di Anonimo
+> Non me lo faccio dire due volte.
+>
+> →
+
+
+### Tutorial › `albero_vinto`
+
+**`TUT.albero_vinto.1`** · battuta di Anonimo
+> Anche questa è fatta... Ci sto prendendo la mano.
+>
+> →
+
+**`TUT.albero_vinto.scena1`** · quando ci torni — narrazione
+> Dietro l'albero, proprio dove guardava lo slime, si apre l'ingresso di una piccola caverna.
+>
+> →
+
+**`TUT.albero_vinto.scelta1`** · bottone di scelta
+> Entra nella piccola caverna
+>
+> →
+
+**`TUT.albero_vinto.scelta2`** · bottone di scelta
+> Prosegui
+>
+> →
+
+
+### Tutorial › `caverna`
+
+**`TUT.caverna.1`** · battuta di Guida
+> Complimenti! Sembra un posto promettente! Tipo quelle aree segrete nei videogiochi! Misterioooose!
+>
+> →
+
+**`TUT.caverna.2`** · battuta di Anonimo
+> Non ti stanchi mai di parlare eh...
+>
+> →
+
+**`TUT.caverna.3`** · battuta di Guida
+> ...
+>
+> →
+
+**`TUT.caverna.scena`** · quando ci torni («Osserva la scena»)
+> Una piccola caverna umida. Il passaggio continua più in fondo, verso un luccichio.
+>
+> →
+
+**`TUT.caverna.scelta1`** · bottone di scelta
+> Prosegui nella caverna
+>
+> →
+
+**`TUT.caverna.scelta2`** · bottone di scelta
+> Torna all'albero
+>
+> →
+
+
+### Tutorial › `caverna_fondo`
+
+**`TUT.caverna_fondo.1`** · battuta di Goblin Possessivo
+> Gnaaa! Siiii, siiiii, scintilla! È soffice! Mi rende feeelicee!
+>
+> →
+
+**`TUT.caverna_fondo.2`** · battuta di Anonimo
+> Cosa sta facendo quel goblin?
+>
+> →
+
+**`TUT.caverna_fondo.3`** · battuta di Guida
+> Sembra avere qualcosa fra le mani...
+>
+> →
+
+**`TUT.caverna_fondo.4`** · battuta di Anonimo
+> Penso ci abbia notati... certo che non siamo proprio il massimo a non farci notare...
+>
+> →
+
+**`TUT.caverna_fondo.5`** · battuta di Goblin Possessivo
+> Maledetti! Volete lei! Ma io mai darei lei a voi!
+>
+> →
+
+
+### Tutorial › `caverna_pietra`
+
+**`TUT.caverna_pietra.1`** · battuta di Anonimo
+> E questa cos'è? Hai informazioni?
+>
+> →
+
+**`TUT.caverna_pietra.2`** · battuta di Guida
+> Sembrerebbe essere un minerale raro in grado di condizionare le biomasse e aumentarne determinate qualità.
+>
+> →
+
+**`TUT.caverna_pietra.3`** · battuta di Guida
+> Sembrerebbe avere dei poteri curativi, ma non a livello energetico...
+>
+> →
+
+**`TUT.caverna_pietra.4`** · battuta di Anonimo
+> Adesso sì che sei utile!
+>
+> →
+
+**`TUT.caverna_pietra.5`** · battuta di Guida
+> Una canna da pesca diventa molto utile se nelle mani di un pescatore...
+>
+> →
+
+**`TUT.caverna_pietra.6`** · battuta di Anonimo
+> Cosa vorresti dire?
+>
+> →
+
+**`TUT.caverna_pietra.7`** · battuta di Guida
+> Niente...
+>
+> →
+
+**`TUT.caverna_pietra.scena`** · quando ci torni («Osserva la scena»)
+> Il fondo della caverna. Da qui non si prosegue: si può solo tornare indietro.
+>
+> →
+
+**`TUT.caverna_pietra.scelta1`** · bottone di scelta
+> Torna indietro
 >
 > →
 
 
 ### Tutorial › `masso`
 
-**`TUT.masso.1`** · narrazione
-> Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.
+**`TUT.masso.1`** · battuta di Guida
+> Hey, sembra che qui sia precipitato qualcosa...
+>
+> →
+
+**`TUT.masso.2`** · battuta di Anonimo
+> Sembrerebbe una di quelle capsule che viaggiano nello spazio per portare beni alle persone...
+>
+> →
+
+**`TUT.masso.3`** · battuta di Anonimo
+> Non penso qualcuno reclamerà mai questo...
+>
+> →
+
+**`TUT.masso.scena`** · quando ci torni («Osserva la scena»)
+> Un masso gigante, annerito: da vicino è una capsula da trasporto precipitata dallo spazio, sfondata nell'impatto.
 >
 > →
 
 **`TUT.masso.scelta1`** · bottone di scelta (fa raccogliere Fiala HP, Fiala HP)
-> Ispeziona l'acqua che luccica
+> Prendi le fiale
 >
 > →
 
 **`TUT.masso.scelta2`** · bottone di scelta
-> Prosegui senza fermarti
+> Prosegui
 >
 > →
 
 
-### Tutorial › `due_nemici`
+### Tutorial › `masso_fiale`
 
-**`TUT.due_nemici.1`** · narrazione
-> Ti ritrovi in mezzo a una piccola radura fangosa. Le acque cristalline che emergono dai cumuli di fango umido creano un luccichio meraviglioso...
+**`TUT.masso_fiale.1`** · battuta di Guida
+> Lucky!
+>
+> →
+
+**`TUT.masso_fiale.scelta1`** · bottone di scelta
+> Prosegui
 >
 > →
 
@@ -2118,86 +2451,199 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `bivio`
 
 **`TUT.bivio.1`** · battuta di Anonimo
-> Hm... sembra che io possa proseguire sia dalla parte bassa che alta di questo bivio...
+> Cos'è questa pressione assurda?!
 >
 > →
 
-**`TUT.bivio.2`** · battuta di Anonimo
-> Forse sarebbe meglio proseguire dalla parte bassa, posso sempre tornare indietro...
+**`TUT.bivio.2`** · battuta di Guida
+> Sembra che ci siano alti livelli di disallineamento oltre questo promontorio... non ti consiglio di andarci, {Dominatore|Dominatrice}...
 >
 > →
 
 **`TUT.bivio.3`** · battuta di Anonimo
-> Anche se... Ho un brutto presentimento... qualcosa mi turba... e proviene dalla collina. Forse sarebbe meglio investigare cosa c'è sopra la collina...
+> Forse faremmo meglio a passare di sotto, attraverso queste pozze d'acqua...
 >
 > →
 
-**`TUT.bivio.4`** · narrazione
-> Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone "Mappa"). Da qui puoi controllare la tua posizione, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi.
+**`TUT.bivio.4`** · battuta di Guida
+> Posso confermarti che non si tratta della fonte, ma di un'anomalia che può essere ignorata...
+>
+> →
+
+**`TUT.bivio.5`** · battuta di Anonimo
+> Sarebbe il caso di dare un'occhiata per raccogliere dati... ma non dovrei rischiare la missione...
 >
 > →
 
 **`TUT.bivio.scena`** · quando ci torni («Osserva la scena»)
-> Il terreno sembra innalzarsi creando una piccola collina... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.
+> Il terreno sembra innalzarsi creando un promontorio... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.
 >
 > →
 
 **`TUT.bivio.scelta1`** · bottone di scelta
-> Procedi verso le pozze d'acqua
+> Passa per le pozze d'acqua
 >
 > →
 
 **`TUT.bivio.scelta2`** · bottone di scelta
-> Sali sulla collina
+> Sali sulla cima del promontorio
 >
 > →
 
 
 ### Tutorial › `pozze`
 
-**`TUT.pozze.1`** · battuta di Anonimo
-> Un altro Goblin... e quella... cos'è? È enorme...
+**`TUT.pozze.1`** · narrazione
+> Le pozze cominciano a gracidare, tutte insieme.
+>
+> →
+
+**`TUT.pozze.scontro.inizio.1`** · durante lo scontro, appena comincia — battuta di Guida
+> Questi non sono nemici comuni, si tratta di un'orda!
+>
+> →
+
+**`TUT.pozze.scontro.inizio.2`** · durante lo scontro, appena comincia — battuta di Anonimo
+> Non fa alcuna differenza, le spazzerò via.
+>
+> →
+
+**`TUT.pozze.scontro.inizio.3`** · durante lo scontro, appena comincia — battuta di Guida
+> L'orda si indebolisce man mano che riduci i suoi punti vita.
+>
+> →
+
+**`TUT.pozze.scontro.inizio.4`** · durante lo scontro, appena comincia — battuta di Guida
+> {Attento|Attenta} però: le orde causano sempre danni multipli. Osserva bene quando è il momento ideale per un attacco ad ampio raggio.
 >
 > →
 
 
-### Tutorial › `pozze_ripulite`
+### Tutorial › `pozze_vinte`
 
-**`TUT.pozze_ripulite.1`** · narrazione
+**`TUT.pozze_vinte.1`** · battuta di Anonimo
+> È stata più tosta del previsto...
+>
+> →
+
+**`TUT.pozze_vinte.2`** · battuta di Guida
+> Ma te la sei cavata perfettamente! Sei forte, {Dominatore|Dominatrice}!
+>
+> →
+
+**`TUT.pozze_vinte.3`** · battuta di Anonimo
+> ...
+>
+> →
+
+**`TUT.pozze_vinte.scena`** · quando ci torni («Osserva la scena»)
 > Le pozze riflettono il cielo, immobili. C'è una particolare calma in questo posto.
 >
 > →
 
-**`TUT.pozze_ripulite.scelta1`** · bottone di scelta
-> Attraversa gli arbusti
+**`TUT.pozze_vinte.scelta1`** · bottone di scelta
+> Prosegui
 >
 > →
 
-**`TUT.pozze_ripulite.scelta2`** · bottone di scelta
+**`TUT.pozze_vinte.scelta2`** · bottone di scelta
 > Torna al bivio
 >
 > →
 
 
-### Tutorial › `dopo_pozze`
+### Tutorial › `tartaruga`
 
-**`TUT.dopo_pozze.1`** · battuta di Anonimo
-> Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicur{o|a} di aver fatto tutto quello che era necessario fare prima di proseguire.
+**`TUT.tartaruga.1`** · battuta di Anonimo
+> Hm?
 >
 > →
 
-**`TUT.dopo_pozze.scena`** · quando ci torni («Osserva la scena»)
-> Le pozze riflettono il cielo, immobili. Da qui il sentiero è interrotto da un mucchio di arbusti.
+**`TUT.tartaruga.2`** · battuta di Anonimo
+> E quella cos'è... è enorme...
 >
 > →
 
-**`TUT.dopo_pozze.scelta1`** · bottone di scelta
-> Oltrepassa gli arbusti
+**`TUT.tartaruga.3`** · battuta di Guida
+> Forse conviene andare avanti senza farsi notare...
 >
 > →
 
-**`TUT.dopo_pozze.scelta2`** · bottone di scelta
-> Apri la mappa
+**`TUT.tartaruga.4`** · battuta di Tartaruga Gigante
+> ?
+>
+> →
+
+**`TUT.tartaruga.5`** · battuta di Anonimo
+> Ormai ci ha notati...
+>
+> →
+
+**`TUT.tartaruga.scontro.dopo_di_te2.1`** · durante lo scontro, dopo la tua azione n. 2 — battuta di Guida
+> Sembra che i tuoi attacchi non facciano molto effetto... ma sinceramente non noto ostilità da parte della tartaruga...
+>
+> →
+
+**`TUT.tartaruga.scontro.dopo_di_te2.2`** · durante lo scontro, dopo la tua azione n. 2 — battuta di Tartaruga Gigante
+> Ruuu...
+>
+> →
+
+**`TUT.tartaruga.scontro.dopo_di_te2.3`** · durante lo scontro, dopo la tua azione n. 2 — battuta di Anonimo
+> Effettivamente non ha provato neanche una volta ad attaccare...
+>
+> →
+
+**`TUT.tartaruga.scontro.dopo_di_te2.4`** · durante lo scontro, dopo la tua azione n. 2 — battuta di Tartaruga Gigante
+> Ruuu!
+>
+> →
+
+**`TUT.tartaruga.scontro.dopo_di_te2.5`** · durante lo scontro, dopo la tua azione n. 2 — battuta di Guida
+> Sembra che non abbia mai avuto cattive intenzioni, ha solo un aspetto abominevole!
+>
+> →
+
+**`TUT.tartaruga.scontro.dopo_di_te2.6`** · durante lo scontro, dopo la tua azione n. 2 — battuta di Anonimo
+> Sembrerebbe proprio così...
+>
+> →
+
+
+### Tutorial › `tartaruga_dopo`
+
+**`TUT.tartaruga_dopo.1`** · battuta di Guida
+> Povera tartaruga, meno male che aveva un guscio bello resistente...
+>
+> →
+
+**`TUT.tartaruga_dopo.2`** · battuta di Anonimo
+> Allora è vero che alcune creature non vengono influenzate dal disallineamento... chissà per quale motivo...
+>
+> →
+
+**`TUT.tartaruga_dopo.3`** · battuta di Guida
+> Pensiamo sia dovuto a particolari qualità di determinati esseri viventi, quali età, esperienza, doti intellettuali o talento.
+>
+> →
+
+**`TUT.tartaruga_dopo.4`** · battuta di Guida
+> Come voi dominatori, in fondo: queste qualità possono presentarsi anche nella fauna.
+>
+> →
+
+**`TUT.tartaruga_dopo.scena`** · quando ci torni («Osserva la scena»)
+> Nell'erba resta l'impronta enorme della tartaruga, e una scia che si allontana piano piano.
+>
+> →
+
+**`TUT.tartaruga_dopo.scelta1`** · bottone di scelta
+> Prosegui
+>
+> →
+
+**`TUT.tartaruga_dopo.scelta2`** · bottone di scelta
+> Torna alle pozze
 >
 > →
 
@@ -2273,12 +2719,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.collina_ritorno.2`** · narrazione
-> Proprio al centro della collina la strana creatura volteggia, ignorando tutto il resto...
+> Proprio sulla cima del promontorio la strana creatura volteggia, ignorando tutto il resto...
 >
 > →
 
 **`TUT.collina_ritorno.scena`** · quando ci torni («Osserva la scena»)
-> La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...
+> Il promontorio è silenzioso, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...
 >
 > →
 
@@ -2296,7 +2742,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `collina_vuota`
 
 **`TUT.collina_vuota.1`** · narrazione
-> La cima della collina è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo.
+> La cima del promontorio è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo.
 >
 > →
 
@@ -2306,7 +2752,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.collina_vuota.scena`** · quando ci torni («Osserva la scena»)
-> La cima della collina è vuota. Resta il cerchio schiacciato nell'erba.
+> La cima del promontorio è vuota. Resta il cerchio schiacciato nell'erba.
 >
 > →
 
@@ -2324,12 +2770,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `dopo_collina`
 
 **`TUT.dopo_collina.1`** · battuta di Anonimo
-> Non so cosa fosse... ma la collina è silenziosa, adesso.
+> Non so cosa fosse... ma il promontorio è silenzioso, adesso.
 >
 > →
 
 **`TUT.dopo_collina.scena`** · quando ci torni («Osserva la scena»)
-> La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...
+> Il promontorio è silenzioso, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...
 >
 > →
 
@@ -2362,12 +2808,12 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.convergenza.scelta2`** · bottone di scelta
-> Torna alla collina
+> Torna al promontorio
 >
 > →
 
 **`TUT.convergenza.scelta3`** · bottone di scelta
-> Torna alle pozze
+> Torna dalla tartaruga
 >
 > →
 
@@ -3049,6 +3495,14 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`TUT.mappa.guida.4`** · battuta di Guida
 > Che ne dici? Vogliamo provare ad avventurarci io e te? :3
+>
+> →
+
+
+### Tutorial › se provi a scappare
+
+**`TUT.mappa.fuga`** · in qualunque scontro della zona, se premi FUGA — battuta di Guida
+> Hey, non vorrai mica scappare dai tuoi primi combattimenti, vero?
 >
 > →
 
@@ -9292,6 +9746,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.robo_pattuglia.apertura`** · appena comincia lo scontro
+> Scende dalla botola senza fretta, come chi ha tutto il tempo del mondo.
+>
+> →
+
 **`CRE.robo_pattuglia.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
 > Cos'è questo posto.
 >
@@ -9397,6 +9856,11 @@ carte collezionabili.
 
 **`CRE.operaio_sfruttato.descrizione`** · voce del bestiario
 > Una manifestazione del rancore serbato a causa di anni di sfruttamento e violenze continue dei lavoratori del complesso.
+>
+> →
+
+**`CRE.operaio_sfruttato.apertura`** · appena comincia lo scontro
+> Non rovinare il mio lavoro!
 >
 > →
 
@@ -9968,6 +10432,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.abominio_marcio.studio1.osservazione`** · Studia › cosa noti
+> ... Cosa è successo in questo posto?
+>
+> →
+
 **`CRE.abominio_marcio.mossa1.nome`** · nome di una mossa
 > Sputo marcio
 >
@@ -10463,6 +10932,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.jongo_dongo.mossa1.annuncio`** · annuncio un turno prima
+> Jongo Dongo solleva l'artiglio marcio, immobile: sta per colpire con tutto il suo peso.
+>
+> →
+
 **`CRE.jongo_dongo.mossa2.nome`** · nome di una mossa
 > Bastone di pietra marcia
 >
@@ -10533,6 +11007,11 @@ carte collezionabili.
 
 **`CRE.jongo_dongo_risorto.descrizione`** · voce del bestiario
 > Ormai non rimane altro di lui che un corpo marcito che si muove solo grazie a una volontà misteriosa.
+>
+> →
+
+**`CRE.jongo_dongo_risorto.studio1.osservazione`** · Studia › cosa noti
+> Qualcosa sembra risiedere dentro di lui...
 >
 > →
 
@@ -10621,6 +11100,11 @@ carte collezionabili.
 
 **`CRE.l_immortale.descrizione`** · voce del bestiario
 > Qualcosa che cammina nella cripta, e non si ferma per quanto lo si colpisca. Il suo vero nome è ancora un mistero.
+>
+> →
+
+**`CRE.l_immortale.studio1.osservazione`** · Studia › cosa noti
+> Non sembra reagire... non sembra avere alcuna volontà...
 >
 > →
 
@@ -10787,6 +11271,11 @@ carte collezionabili.
 
 **`CRE.divoratore_di_carcasse.descrizione`** · voce del bestiario
 > Vive sotto il grande ponte marcio, nutrendosi di ciò che il ponte stesso lascia cadere. La puzza lo tradisce molto prima che si mostri.
+>
+> →
+
+**`CRE.divoratore_di_carcasse.studio1.osservazione`** · Studia › cosa noti
+> Inutile comunicarci, è una bestia senza intelletto.
 >
 > →
 
@@ -10974,6 +11463,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.orrore_di_meridia.studio1.osservazione`** · Studia › cosa noti
+> Non risponde: le sue bocche parlano tutte insieme, e nessuna dice niente.
+>
+> →
+
 **`CRE.orrore_di_meridia.mossa1.nome`** · nome di una mossa
 > Terremoto
 >
@@ -11024,6 +11518,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.orrore_di_meridia.mossa5.annuncio`** · annuncio un turno prima
+> Salta. È in alto, e sta per tornare giù.
+>
+> →
+
 **`CRE.orrore_di_meridia.mossa6.nome`** · nome di una mossa
 > Benedizione del colosso
 >
@@ -11057,6 +11556,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.titano_zombie.studio1.osservazione`** · Studia › cosa noti
+> Le ferite che gli apri si richiudono mentre le guardi. Colpirlo più forte non serve: serve colpirlo più in fretta.
+>
+> →
+
 **`CRE.titano_zombie.mossa1.nome`** · nome di una mossa
 > Pugno devastante
 >
@@ -11064,6 +11568,11 @@ carte collezionabili.
 
 **`CRE.titano_zombie.mossa1.testo`** · cosa si legge quando la usa
 > Pugno devastante: il colpo si abbatte con tutto il peso della città morta.
+>
+> →
+
+**`CRE.titano_zombie.mossa1.annuncio`** · annuncio un turno prima
+> Il titano solleva lentamente il pugno sopra la testa. Qualunque cosa stia per succedere, succederà al prossimo colpo.
 >
 > →
 
@@ -11137,6 +11646,11 @@ carte collezionabili.
 
 **`CRE.zombie_cittadino.descrizione`** · voce del bestiario
 > Questo esemplare sembra essere il più comune e debole della sua specie. Non sembra avere alcuna volontà.
+>
+> →
+
+**`CRE.zombie_cittadino.orda`** · nome dell'orda (sulla fascia)
+> Orda di zombi
 >
 > →
 
@@ -11331,6 +11845,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.nuvola_di_marciume.apertura`** · appena comincia lo scontro
+> Si sgonfia e si rigonfia piano, come se respirasse.
+>
+> →
+
 **`CRE.nuvola_di_marciume.studio1.domanda`** · Studia › domanda (vuota = ne pesca una a caso dalle generiche)
 > (la osservi mentre si addensa)
 >
@@ -11517,6 +12036,26 @@ carte collezionabili.
 >
 > →
 
+**`CRE.ombra_del_passato.studio1.osservazione`** · Studia › cosa noti
+> "Signorina, si sente bene?"
+>
+> →
+
+**`CRE.ombra_del_passato.studio2.osservazione`** · Studia › cosa noti
+> "Ormai è cresciuta, non può più giocare con le bambole."
+>
+> →
+
+**`CRE.ombra_del_passato.studio3.osservazione`** · Studia › cosa noti
+> "Oggi passerai il resto della giornata nella tua camera per colpa della tua disubbidienza."
+>
+> →
+
+**`CRE.ombra_del_passato.studio4.osservazione`** · Studia › cosa noti
+> "Sei come tuo padre, troppo sensibile per gestire gli affari di famiglia."
+>
+> →
+
 **`CRE.ombra_del_passato.mossa1.nome`** · nome di una mossa
 > Rinfaccia
 >
@@ -11602,6 +12141,11 @@ carte collezionabili.
 
 **`CRE.donna_spinosa.descrizione`** · voce del bestiario
 > Cresciuta in una vasca con un cartellino che diceva un'altra cosa. Sta ferma finché non le passi accanto, e allora si ricorda di essere stata progettata.
+>
+> →
+
+**`CRE.donna_spinosa.apertura`** · appena comincia lo scontro
+> Si stacca dal tronco a cui sembrava appartenere, senza rumore.
 >
 > →
 
@@ -11710,6 +12254,11 @@ carte collezionabili.
 
 **`CRE.volto_sulla_parete.descrizione`** · voce del bestiario
 > Quello che è rimasto della capofamiglia, cresciuto dentro la parete insieme a tutto il resto. Difende ancora i risultati di ricerche che non servono più a nessuno.
+>
+> →
+
+**`CRE.volto_sulla_parete.apertura`** · appena comincia lo scontro
+> Chi siete... Siete venuti a rubare i risultati delle mie ricerche, vero? Schifosi...
 >
 > →
 
@@ -11887,6 +12436,21 @@ carte collezionabili.
 >
 > →
 
+**`CRE.tenero_ricordo.studio1.osservazione`** · Studia › cosa noti
+> È coperta di polvere, le cuciture sono tutte consumate. Trasuda un'energia oscura indescrivibile.
+>
+> →
+
+**`CRE.tenero_ricordo.studio2.osservazione`** · Studia › cosa noti
+> Sembra quasi di sentire un pianto provenire dalle cuciture.
+>
+> →
+
+**`CRE.tenero_ricordo.studio3.osservazione`** · Studia › cosa noti
+> Le lettere sull'altare tremano ogni volta che la guardi. Non è la bambola a tenerle: sono loro a tenere lei.
+>
+> →
+
 **`CRE.tenero_ricordo.testo_cedimento`** · quando cede
 > Qualcosa, nella bambola, si ammorbidisce. Non è più solo dolore, quello che trema tra le sue cuciture.
 >
@@ -12002,6 +12566,11 @@ carte collezionabili.
 
 **`CRE.jerah.descrizione_extra`** · voce del bestiario, dopo averla studiata
 > {'richiede_oggetto': 'biglietto_strano', 'testo': "Sembrerebbe che il suo egoismo vacillasse di fronte all'unica prova di affetto sincero che abbia mai ricevuto. Anche una sola persona può cambiare il destino di un intero mondo grazie a un gesto di affetto."}
+>
+> →
+
+**`CRE.jerah.apertura`** · appena comincia lo scontro
+> Sei arrivato fino a qui. Allora meriti l'ultimo spettacolo.
 >
 > →
 
@@ -12168,6 +12737,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.goblin_tipico.apertura`** · appena comincia lo scontro
+> Ringhia qualcosa che non è una parola, e si mette in mezzo.
+>
+> →
+
 **`CRE.goblin_tipico.studio1.risposta`** · Studia › cosa risponde
 > Grugnisce, e nemmeno troppo convinto.
 >
@@ -12240,6 +12814,99 @@ carte collezionabili.
 
 **`CRE.goblin_tipico.carta.testo`** · retro della carta collezionabile
 > Ce ne sono a centinaia su questo pianeta. Nessuno li conta più.
+>
+> →
+
+
+### Goblin Possessivo  <sub>`goblin_possessivo`</sub>
+
+**`CRE.goblin_possessivo.nome`** · nome a schermo
+> Goblin Possessivo
+>
+> →
+
+**`CRE.goblin_possessivo.descrizione`** · voce del bestiario
+> Un goblin come tutti gli altri, tranne per una cosa: stringe al petto una pietra che brilla, e per difenderla farebbe qualunque cosa.
+>
+> →
+
+**`CRE.goblin_possessivo.apertura`** · appena comincia lo scontro
+> Lei è mia! Mia, mia, mia!
+>
+> →
+
+**`CRE.goblin_possessivo.studio1.risposta`** · Studia › cosa risponde
+> «Scintilla! Morbida! Mia!»
+>
+> →
+
+**`CRE.goblin_possessivo.mossa1.nome`** · nome di una mossa
+> Bastonata
+>
+> →
+
+**`CRE.goblin_possessivo.mossa1.testo`** · cosa si legge quando la usa
+> Il goblin si stringe la pietra al petto con una mano e mena con l'altra.
+>
+> →
+
+**`CRE.goblin_possessivo.mossa2.nome`** · nome di una mossa
+> Difesa Goblin!
+>
+> →
+
+**`CRE.goblin_possessivo.mossa2.testo`** · cosa si legge quando la usa
+> «Difesa Goblin!» — e si copre la testa con le braccia.
+>
+> →
+
+**`CRE.goblin_possessivo.mossa3.nome`** · nome di una mossa
+> Ultima risorsa
+>
+> →
+
+**`CRE.goblin_possessivo.mossa3.testo`** · cosa si legge quando la usa
+> Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.
+>
+> →
+
+**`CRE.goblin_possessivo.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.goblin_possessivo.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.goblin_possessivo.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.goblin_possessivo.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.goblin_possessivo.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.goblin_possessivo.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.goblin_possessivo.carta.nome`** · nome sulla carta collezionabile
+> Goblin Possessivo
+>
+> →
+
+**`CRE.goblin_possessivo.carta.testo`** · retro della carta collezionabile
+> Ha trovato una cosa bella una volta sola nella vita. Non la mollerà.
 >
 > →
 
@@ -12332,15 +12999,133 @@ carte collezionabili.
 > →
 
 
-### Tartaruga Innocente  <sub>`tartaruga_innocente`</sub>
+### Rana Folle  <sub>`rana_folle`</sub>
+
+**`CRE.rana_folle.nome`** · nome a schermo
+> Rana Folle
+>
+> →
+
+**`CRE.rana_folle.descrizione`** · voce del bestiario
+> Una rana di pozza gonfiata dal disallineamento fino alla taglia di un cane. Da sola non fa paura; il guaio è che non sono mai da sole.
+>
+> →
+
+**`CRE.rana_folle.apertura`** · appena comincia lo scontro
+> Cinque rane saltano fuori dalle pozze tutte insieme, e nessuna sembra avere tutte le rotelle a posto.
+>
+> →
+
+**`CRE.rana_folle.orda`** · nome dell'orda (sulla fascia)
+> Orda di rane folli
+>
+> →
+
+**`CRE.rana_folle.studio1.osservazione`** · Studia › cosa noti
+> Gracidano tutte insieme prima di muoversi: quello che stanno per fare, lo annunciano.
+>
+> →
+
+**`CRE.rana_folle.mossa1.nome`** · nome di una mossa
+> Gracidio feroce
+>
+> →
+
+**`CRE.rana_folle.mossa1.testo`** · cosa si legge quando la usa
+> Le rane ti saltano addosso da ogni parte!
+>
+> →
+
+**`CRE.rana_folle.mossa1.annuncio`** · annuncio un turno prima
+> L'orda di rane sembra gracchiare ferocemente...
+>
+> →
+
+**`CRE.rana_folle.mossa2.nome`** · nome di una mossa
+> Fronte compatto
+>
+> →
+
+**`CRE.rana_folle.mossa2.testo`** · cosa si legge quando la usa
+> Le rane si stringono l'una all'altra: davanti hai un muro di pelle viscida.
+>
+> →
+
+**`CRE.rana_folle.mossa2.annuncio`** · annuncio un turno prima
+> L'orda di rane forma un fronte compatto...
+>
+> →
+
+**`CRE.rana_folle.mossa3.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.rana_folle.mossa3.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.rana_folle.mossa4.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.rana_folle.mossa4.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.rana_folle.mossa5.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.rana_folle.mossa5.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.rana_folle.mossa6.nome`** · nome di una mossa
+> -
+>
+> →
+
+**`CRE.rana_folle.mossa6.testo`** · cosa si legge quando la usa
+> -
+>
+> →
+
+**`CRE.rana_folle.carta.nome`** · nome sulla carta collezionabile
+> Rana Folle
+>
+> →
+
+**`CRE.rana_folle.carta.testo`** · retro della carta collezionabile
+> Nessuno ha mai visto una rana folle da sola. Forse non esiste.
+>
+> →
+
+
+### Tartaruga Gigante  <sub>`tartaruga_innocente`</sub>
 
 **`CRE.tartaruga_innocente.nome`** · nome a schermo
-> Tartaruga Innocente
+> Tartaruga Gigante
 >
 > →
 
 **`CRE.tartaruga_innocente.descrizione`** · voce del bestiario
 > Un guscio enorme e un aspetto che mette paura. Non ha mai fatto del male a nessuno.
+>
+> →
+
+**`CRE.tartaruga_innocente.apertura`** · appena comincia lo scontro
+> Ritira la testa nel guscio prima ancora che tu faccia un passo. Non attacca. Aspetta.
+>
+> →
+
+**`CRE.tartaruga_innocente.studio1.osservazione`** · Studia › cosa noti
+> È solo una vecchia tartaruga, che ha avuto la sfortuna di avere un aspetto spaventoso.
 >
 > →
 
@@ -12404,8 +13189,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.tartaruga_innocente.mediazione.apertura`** · quando capisci che si puo' mediare
+> La Tartaruga non si difende nemmeno. Si può mediare.
+>
+> →
+
+**`CRE.tartaruga_innocente.mediazione.testo`** · quando la lasci andare (BOND)
+> Alla fine capisci che la povera tartaruga era lì per puro caso. La creatura si allontana piano piano... sembrerebbe in qualche modo offesa...
+>
+> →
+
 **`CRE.tartaruga_innocente.carta.nome`** · nome sulla carta collezionabile
-> Tartaruga Innocente
+> Tartaruga Gigante
 >
 > →
 
@@ -12429,6 +13224,11 @@ carte collezionabili.
 
 **`CRE.manifestazione_di_un_sogno.descrizione`** · voce del bestiario
 > Una manifestazione traslucida che sfida l'impossibile. Queste creature sembrano riflettere quel che scorgono nelle profondità dei rimpianti di chi incontrano.
+>
+> →
+
+**`CRE.manifestazione_di_un_sogno.apertura`** · appena comincia lo scontro
+> Non dice niente. Ti guarda, e sorride come se ti conoscesse.
 >
 > →
 
@@ -12542,6 +13342,11 @@ carte collezionabili.
 
 **`CRE.goblin_arrabbiato.descrizione`** · voce del bestiario
 > Questo goblin sembra soffrire molto. Non si sa per cosa o per chi, e non è possibile capirlo: conosce solo il linguaggio che parla la sua mazza.
+>
+> →
+
+**`CRE.goblin_arrabbiato.apertura`** · appena comincia lo scontro
+> Un altro. Sempre un altro. Non finite mai di arrivare.
 >
 > →
 
@@ -13336,6 +14141,1021 @@ carte collezionabili.
 > →
 
 
+## Le abilità
+
+<sub>`data/abilita.json`</sub> — nome e descrizione nel menu SKILL, e cosa si legge usandole.
+
+**`ABI.provocazione.nome`** · nome nel menu SKILL
+> Provoca
+>
+> →
+
+**`ABI.provocazione.descrizione`** · descrizione
+> I nemici prendono di mira te e nessun altro, finché reggi.
+>
+> →
+
+**`ABI.attacco_area.nome`** · nome nel menu SKILL
+> Colpo d'area
+>
+> →
+
+**`ABI.attacco_area.descrizione`** · descrizione
+> Un colpo solo, su tutto quello che hai davanti.
+>
+> →
+
+**`ABI.bombardamento.nome`** · nome nel menu SKILL
+> Bombardamento
+>
+> →
+
+**`ABI.bombardamento.descrizione`** · descrizione
+> Tanti colpi piccoli, distribuiti a caso su chi hai davanti. Fa un macello.
+>
+> →
+
+**`ABI.colpo_caricato.nome`** · nome nel menu SKILL
+> Sovraccarico
+>
+> →
+
+**`ABI.colpo_caricato.descrizione`** · descrizione
+> Questo turno non fai niente. Il prossimo colpo vale quattro volte tanto.
+>
+> →
+
+**`ABI.onda_psichica.nome`** · nome nel menu SKILL
+> Onda psichica
+>
+> →
+
+**`ABI.onda_psichica.descrizione`** · descrizione
+> Pochi danni, ma su tutto quello che hai davanti: contro un'orda fa un tentativo per ogni componente, e ognuno può andare a vuoto, colpire o fare critico.
+>
+> →
+
+**`ABI.onda_psichica.testo_uso`** · quando la usi (%s = chi la usa)
+> %s libera un'onda psichica che si allarga su tutto quello che ha davanti.
+>
+> →
+
+**`ABI.concentrazione.nome`** · nome nel menu SKILL
+> Concentrazione
+>
+> →
+
+**`ABI.concentrazione.descrizione`** · descrizione
+> Attacco e difesa salgono leggermente per le tue prossime tre azioni.
+>
+> →
+
+**`ABI.concentrazione.testo_uso`** · quando la usi (%s = chi la usa)
+> %s si concentra: il respiro rallenta, i colpi si fanno più precisi.
+>
+> →
+
+**`ABI.astio.nome`** · nome nel menu SKILL
+> Astio
+>
+> →
+
+**`ABI.astio.descrizione`** · descrizione
+> Per tre turni, ogni colpo che subisci alza il tuo attacco. Più ti fanno male, più fai male.
+>
+> →
+
+**`ABI.astio.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s smette di difendersi. Da adesso ogni colpo che incassa è un debito.[/i]
+>
+> →
+
+**`ABI.vendetta.nome`** · nome nel menu SKILL
+> Vendetta
+>
+> →
+
+**`ABI.vendetta.descrizione`** · descrizione
+> Colpisci un nemico solo. Più sei ridotto male, più il colpo pesa.
+>
+> →
+
+**`ABI.vendetta.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si scaglia su %s con tutto quello che gli è rimasto.[/i]
+>
+> →
+
+**`ABI.pieta.nome`** · nome nel menu SKILL
+> Pietà
+>
+> →
+
+**`ABI.pieta.descrizione`** · descrizione
+> Perdi il turno. Se il nemico è quasi finito, lascerà molto più di quanto avrebbe lasciato.
+>
+> →
+
+**`ABI.pieta.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si ferma un attimo. Non è misericordia: è che a un moribondo si cava di più.[/i]
+>
+> →
+
+**`ABI.flagello.nome`** · nome nel menu SKILL
+> Flagello
+>
+> →
+
+**`ABI.flagello.descrizione`** · descrizione
+> Il danno di un attacco normale, spezzato in venti aghi oscuri distribuiti a caso su tutti i nemici. Ogni ago può fare critico o andare a vuoto.
+>
+> →
+
+**`ABI.flagello.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Il buio sopra %s si chiude in una pioggia di aghi.[/i]
+>
+> →
+
+**`ABI.terra_bruciata.nome`** · nome nel menu SKILL
+> Terra bruciata
+>
+> →
+
+**`ABI.terra_bruciata.descrizione`** · descrizione
+> Come Flagello, ma il danno cresce con quanto è piena la barra di dominio.
+>
+> →
+
+**`ABI.terra_bruciata.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Il buio sopra %s si chiude, e questa volta non lascia niente sotto.[/i]
+>
+> →
+
+**`ABI.maelstrom.nome`** · nome nel menu SKILL
+> Maelstrom
+>
+> →
+
+**`ABI.maelstrom.descrizione`** · descrizione
+> Come Terra bruciata, ma venticinque colpi e il 5% di danno in più.
+>
+> →
+
+**`ABI.maelstrom.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Non è più una pioggia: è una corrente, e %s ci è dentro.[/i]
+>
+> →
+
+**`ABI.devastazione.nome`** · nome nel menu SKILL
+> Devastazione
+>
+> →
+
+**`ABI.devastazione.descrizione`** · descrizione
+> Come Maelstrom, ma l'8% di danno in più.
+>
+> →
+
+**`ABI.devastazione.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Il buio non cade su %s: lo prende e lo smonta.[/i]
+>
+> →
+
+**`ABI.apocalisse.nome`** · nome nel menu SKILL
+> Apocalisse
+>
+> →
+
+**`ABI.apocalisse.descrizione`** · descrizione
+> Il 10% di danno in più, e ogni colpo può far terrorizzare chi non è un boss.
+>
+> →
+
+**`ABI.apocalisse.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s smette di essere un posto dove si può stare.[/i]
+>
+> →
+
+**`ABI.fine_karmica.nome`** · nome nel menu SKILL
+> Fine karmica
+>
+> →
+
+**`ABI.fine_karmica.descrizione`** · descrizione
+> Il 12% di danno in più, e ogni volta che lo usi tutte le tue statistiche salgono di 1 fino alla fine dello scontro. Si accumula.
+>
+> →
+
+**`ABI.fine_karmica.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Il conto di %s era aperto da un pezzo, e adesso si chiude.[/i]
+>
+> →
+
+**`ABI.annichilazione.nome`** · nome nel menu SKILL
+> Annichilazione
+>
+> →
+
+**`ABI.annichilazione.descrizione`** · descrizione
+> Meno danno di un colpo normale. Ma se il nemico è già a terra, metà delle volte non si rialza.
+>
+> →
+
+**`ABI.annichilazione.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Attorno a %s l'aria si chiude in anelli: verde acqua, nero, bianco.[/i]
+>
+> →
+
+**`ABI.annichilazione_ii.nome`** · nome nel menu SKILL
+> Annichilazione II
+>
+> →
+
+**`ABI.annichilazione_ii.descrizione`** · descrizione
+> Come Annichilazione, ma il vuoto tiene meglio: 55%.
+>
+> →
+
+**`ABI.annichilazione_ii.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Attorno a %s l'aria si chiude in anelli: verde acqua, nero, bianco.[/i]
+>
+> →
+
+**`ABI.annichilazione_iii.nome`** · nome nel menu SKILL
+> Annichilazione III
+>
+> →
+
+**`ABI.annichilazione_iii.descrizione`** · descrizione
+> 58%.
+>
+> →
+
+**`ABI.annichilazione_iii.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Attorno a %s l'aria si chiude in anelli: verde acqua, nero, bianco.[/i]
+>
+> →
+
+**`ABI.annichilazione_iv.nome`** · nome nel menu SKILL
+> Annichilazione IV
+>
+> →
+
+**`ABI.annichilazione_iv.descrizione`** · descrizione
+> 62%.
+>
+> →
+
+**`ABI.annichilazione_iv.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Attorno a %s l'aria si chiude in anelli: verde acqua, nero, bianco.[/i]
+>
+> →
+
+**`ABI.annichilazione_v.nome`** · nome nel menu SKILL
+> Annichilazione V
+>
+> →
+
+**`ABI.annichilazione_v.descrizione`** · descrizione
+> 65%.
+>
+> →
+
+**`ABI.annichilazione_v.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Attorno a %s l'aria si chiude in anelli: verde acqua, nero, bianco.[/i]
+>
+> →
+
+**`ABI.annichilazione_totale.nome`** · nome nel menu SKILL
+> Annichilazione totale
+>
+> →
+
+**`ABI.annichilazione_totale.descrizione`** · descrizione
+> 70%: più in là di così il vuoto non va.
+>
+> →
+
+**`ABI.annichilazione_totale.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]Attorno a %s non si chiude l'aria: si chiude il posto dove stava.[/i]
+>
+> →
+
+**`ABI.mantra.nome`** · nome nel menu SKILL
+> Mantra
+>
+> →
+
+**`ABI.mantra.descrizione`** · descrizione
+> Svuoti la barra di dominio e la spendi su di te: difesa e attacco salgono, lo stress cala. Quanto? Quanto era piena.
+>
+> →
+
+**`ABI.mantra.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si ferma e respira. La barra di dominio si svuota tutta in una volta.[/i]
+>
+> →
+
+**`ABI.mantra_ii.nome`** · nome nel menu SKILL
+> Mantra II
+>
+> →
+
+**`ABI.mantra_ii.descrizione`** · descrizione
+> Come Mantra, e il legame con la squadra cresce un poco.
+>
+> →
+
+**`ABI.mantra_ii.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si ferma e respira, e chi gli sta intorno respira con lui.[/i]
+>
+> →
+
+**`ABI.mantra_iii.nome`** · nome nel menu SKILL
+> Mantra III
+>
+> →
+
+**`ABI.mantra_iii.descrizione`** · descrizione
+> Come Mantra II, e i nemici non vedono altro che te.
+>
+> →
+
+**`ABI.mantra_iii.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si ferma e respira, e diventa l'unica cosa che i nemici riescono a guardare.[/i]
+>
+> →
+
+**`ABI.mantra_iv.nome`** · nome nel menu SKILL
+> Mantra IV
+>
+> →
+
+**`ABI.mantra_iv.descrizione`** · descrizione
+> Come Mantra III, e per un turno non ti scalfiscono.
+>
+> →
+
+**`ABI.mantra_iv.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si ferma e respira. Per un momento non c'è niente che possa toccarlo.[/i]
+>
+> →
+
+**`ABI.mantra_v.nome`** · nome nel menu SKILL
+> Mantra V
+>
+> →
+
+**`ABI.mantra_v.descrizione`** · descrizione
+> Come Mantra IV, e ti muovi più in fretta.
+>
+> →
+
+**`ABI.mantra_v.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si ferma e respira, e quando riparte è già altrove.[/i]
+>
+> →
+
+**`ABI.pace_assoluta.nome`** · nome nel menu SKILL
+> Pace assoluta
+>
+> →
+
+**`ABI.pace_assoluta.descrizione`** · descrizione
+> Come Mantra V, e ti togli di dosso ogni stato. Tranne la maledizione: quella non se ne va respirando.
+>
+> →
+
+**`ABI.pace_assoluta.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si ferma, e tutto quello che gli avevano messo addosso scivola via.[/i]
+>
+> →
+
+**`ABI.spezza_spazio.nome`** · nome nel menu SKILL
+> Spezza spazio
+>
+> →
+
+**`ABI.spezza_spazio.descrizione`** · descrizione
+> Costa una barra intera di dominio. Un colpo solo, pesante, e se il bersaglio è già a terra può non rialzarsi.
+>
+> →
+
+**`ABI.spezza_spazio.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s apre uno strappo dove non c'era niente da aprire.[/i]
+>
+> →
+
+**`ABI.mattanza.nome`** · nome nel menu SKILL
+> Mattanza
+>
+> →
+
+**`ABI.mattanza.descrizione`** · descrizione
+> Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice è un colpo da un decimo del tuo attacco, che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
+>
+> →
+
+**`ABI.mattanza.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s non smette più. Pesta finché ha fiato.[/i]
+>
+> →
+
+**`ABI.guardia_ferma.nome`** · nome nel menu SKILL
+> Guardia
+>
+> →
+
+**`ABI.guardia_ferma.descrizione`** · descrizione
+> Uno scatto di guardia per questa battuta. Non è un colpo saltato: para e basta.
+>
+> →
+
+**`ABI.guardia_ferma.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si pianta e alza la guardia.[/i]
+>
+> →
+
+**`ABI.spallata.nome`** · nome nel menu SKILL
+> Spallata
+>
+> →
+
+**`ABI.spallata.descrizione`** · descrizione
+> Colpo leggero che lascia Frastornato.
+>
+> →
+
+**`ABI.spallata.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s carica di spalla contro %s.[/i]
+>
+> →
+
+**`ABI.incassa.nome`** · nome nel menu SKILL
+> Incassa
+>
+> →
+
+**`ABI.incassa.descrizione`** · descrizione
+> Costa una barra di dominio. Ogni colpo che incassa le alza l'attacco.
+>
+> →
+
+**`ABI.incassa.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s apre le braccia: che venga pure.[/i]
+>
+> →
+
+**`ABI.rissa.nome`** · nome nel menu SKILL
+> Rissa
+>
+> →
+
+**`ABI.rissa.descrizione`** · descrizione
+> Colpo da barra piena. Svuota tutta la barra: finché si svuota tutti i nemici possono attaccare solo lei.
+>
+> →
+
+**`ABI.rissa.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette in mezzo e li chiama tutti.[/i]
+>
+> →
+
+**`ABI.provocazione_veronica.nome`** · nome nel menu SKILL
+> Provocazione
+>
+> →
+
+**`ABI.provocazione_veronica.descrizione`** · descrizione
+> Un nemico può attaccare solo lei, per 3 battute.
+>
+> →
+
+**`ABI.provocazione_veronica.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette in mostra: non riescono a guardare altro.[/i]
+>
+> →
+
+**`ABI.sfida_aperta.nome`** · nome nel menu SKILL
+> Sfida aperta
+>
+> →
+
+**`ABI.sfida_aperta.descrizione`** · descrizione
+> Tutti i nemici, per 3 battute.
+>
+> →
+
+**`ABI.sfida_aperta.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette in mostra: non riescono a guardare altro.[/i]
+>
+> →
+
+**`ABI.non_ti_azzardare.nome`** · nome nel menu SKILL
+> Non ti azzardare
+>
+> →
+
+**`ABI.non_ti_azzardare.descrizione`** · descrizione
+> Come sopra, e chi la colpisce perde la battuta successiva.
+>
+> →
+
+**`ABI.non_ti_azzardare.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette in mostra: non riescono a guardare altro.[/i]
+>
+> →
+
+**`ABI.bersaglio_grosso.nome`** · nome nel menu SKILL
+> Bersaglio grosso
+>
+> →
+
+**`ABI.bersaglio_grosso.descrizione`** · descrizione
+> Mentre provoca, ogni colpo incassato le alza la guardia di uno scatto.
+>
+> →
+
+**`ABI.bersaglio_grosso.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette in mostra: non riescono a guardare altro.[/i]
+>
+> →
+
+**`ABI.sono_qui.nome`** · nome nel menu SKILL
+> Sono qui
+>
+> →
+
+**`ABI.sono_qui.descrizione`** · descrizione
+> Provoca, e cura la squadra del 20%.
+>
+> →
+
+**`ABI.sono_qui.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette in mostra: non riescono a guardare altro.[/i]
+>
+> →
+
+**`ABI.nessuno_tocca_i_miei.nome`** · nome nel menu SKILL
+> Nessuno tocca i miei
+>
+> →
+
+**`ABI.nessuno_tocca_i_miei.descrizione`** · descrizione
+> Per 3 battute tutti i colpi alla squadra arrivano a lei, dimezzati.
+>
+> →
+
+**`ABI.nessuno_tocca_i_miei.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette in mostra: non riescono a guardare altro.[/i]
+>
+> →
+
+**`ABI.colpo_caricato_veronica.nome`** · nome nel menu SKILL
+> Colpo caricato
+>
+> →
+
+**`ABI.colpo_caricato_veronica.descrizione`** · descrizione
+> Salta la battuta, la prossima vale ×2.
+>
+> →
+
+**`ABI.slancio.nome`** · nome nel menu SKILL
+> Slancio
+>
+> →
+
+**`ABI.slancio.descrizione`** · descrizione
+> ×2,5 e spezza la guardia.
+>
+> →
+
+**`ABI.peso_morto.nome`** · nome nel menu SKILL
+> Peso morto
+>
+> →
+
+**`ABI.peso_morto.descrizione`** · descrizione
+> ×3, e lascia Frastornato.
+>
+> →
+
+**`ABI.tutto_il_peso.nome`** · nome nel menu SKILL
+> Tutto il peso
+>
+> →
+
+**`ABI.tutto_il_peso.descrizione`** · descrizione
+> ×3,5. Se ha caricato due battute, ×5.
+>
+> →
+
+**`ABI.uno_solo_buono.nome`** · nome nel menu SKILL
+> Uno solo, buono
+>
+> →
+
+**`ABI.uno_solo_buono.descrizione`** · descrizione
+> ×4, e ignora la difesa.
+>
+> →
+
+**`ABI.quello_che_sa_fare.nome`** · nome nel menu SKILL
+> Quello che sa fare
+>
+> →
+
+**`ABI.quello_che_sa_fare.descrizione`** · descrizione
+> ×6 su uno solo, una volta per scontro.
+>
+> →
+
+**`ABI.piantati.nome`** · nome nel menu SKILL
+> Piantati
+>
+> →
+
+**`ABI.piantati.descrizione`** · descrizione
+> Uno scatto di guardia, e resta fino a fine scontro.
+>
+> →
+
+**`ABI.piantati.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette davanti.[/i]
+>
+> →
+
+**`ABI.copertura.nome`** · nome nel menu SKILL
+> Copertura
+>
+> →
+
+**`ABI.copertura.descrizione`** · descrizione
+> Un compagno prende metà danno per 3 battute: l'altra metà la prende lei.
+>
+> →
+
+**`ABI.copertura.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette davanti.[/i]
+>
+> →
+
+**`ABI.muro.nome`** · nome nel menu SKILL
+> Muro
+>
+> →
+
+**`ABI.muro.descrizione`** · descrizione
+> Due scatti di guardia in una battuta.
+>
+> →
+
+**`ABI.muro.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette davanti.[/i]
+>
+> →
+
+**`ABI.non_passa_niente.nome`** · nome nel menu SKILL
+> Non passa niente
+>
+> →
+
+**`ABI.non_passa_niente.descrizione`** · descrizione
+> Per 2 battute è intoccabile.
+>
+> →
+
+**`ABI.non_passa_niente.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette davanti.[/i]
+>
+> →
+
+**`ABI.rialzati.nome`** · nome nel menu SKILL
+> Rialzati
+>
+> →
+
+**`ABI.rialzati.descrizione`** · descrizione
+> Rimette in piedi un compagno caduto al 30%.
+>
+> →
+
+**`ABI.rialzati.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette davanti.[/i]
+>
+> →
+
+**`ABI.finche_respiro.nome`** · nome nel menu SKILL
+> Finché respiro
+>
+> →
+
+**`ABI.finche_respiro.descrizione`** · descrizione
+> Quando cadrebbe resta a 1 punto vita. Una volta per scontro.
+>
+> →
+
+**`ABI.finche_respiro.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s si mette davanti.[/i]
+>
+> →
+
+**`ABI.sigillo.nome`** · nome nel menu SKILL
+> Sigillo
+>
+> →
+
+**`ABI.sigillo.descrizione`** · descrizione
+> Un talismano che colpisce: danno normale, ma non manca mai.
+>
+> →
+
+**`ABI.sigillo.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s posa un sigillo su %s.[/i]
+>
+> →
+
+**`ABI.carta_bianca.nome`** · nome nel menu SKILL
+> Carta bianca
+>
+> →
+
+**`ABI.carta_bianca.descrizione`** · descrizione
+> Toglie uno stato a un compagno.
+>
+> →
+
+**`ABI.presenza.nome`** · nome nel menu SKILL
+> Presenza
+>
+> →
+
+**`ABI.presenza.descrizione`** · descrizione
+> Costa una barra di dominio. Un evocato arriva subito, per una battuta sola.
+>
+> →
+
+**`ABI.presenza.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s chiama, e per un attimo qualcosa c'è.[/i]
+>
+> →
+
+**`ABI.processione.nome`** · nome nel menu SKILL
+> Processione
+>
+> →
+
+**`ABI.processione.descrizione`** · descrizione
+> Colpo da barra piena. Tutto quello che ha evocato in questo scontro torna insieme e colpisce una volta sola.
+>
+> →
+
+**`ABI.processione.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s apre le braccia, e tornano tutti.[/i]
+>
+> →
+
+**`ABI.taglio_corto.nome`** · nome nel menu SKILL
+> Taglio corto
+>
+> →
+
+**`ABI.taglio_corto.descrizione`** · descrizione
+> Colpo singolo ×1,2, costa poco.
+>
+> →
+
+**`ABI.taglio_corto.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s taglia l'aria fra sé e %s.[/i]
+>
+> →
+
+**`ABI.doppio_taglio.nome`** · nome nel menu SKILL
+> Doppio taglio
+>
+> →
+
+**`ABI.doppio_taglio.descrizione`** · descrizione
+> Due colpi da ×0,8.
+>
+> →
+
+**`ABI.doppio_taglio.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s taglia l'aria fra sé e %s.[/i]
+>
+> →
+
+**`ABI.sigillo_affilato.nome`** · nome nel menu SKILL
+> Sigillo affilato
+>
+> →
+
+**`ABI.sigillo_affilato.descrizione`** · descrizione
+> ×1,8, e pesa di più sui Tetri.
+>
+> →
+
+**`ABI.sigillo_affilato.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s taglia l'aria fra sé e %s.[/i]
+>
+> →
+
+**`ABI.lama_che_non_torna.nome`** · nome nel menu SKILL
+> Lama che non torna
+>
+> →
+
+**`ABI.lama_che_non_torna.descrizione`** · descrizione
+> ×2,2, ma le costa il 10% della vita.
+>
+> →
+
+**`ABI.lama_che_non_torna.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s taglia l'aria fra sé e %s.[/i]
+>
+> →
+
+**`ABI.recisione.nome`** · nome nel menu SKILL
+> Recisione
+>
+> →
+
+**`ABI.recisione.descrizione`** · descrizione
+> ×2,6, e sotto il 30% lo finisce.
+>
+> →
+
+**`ABI.recisione.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s taglia l'aria fra sé e %s.[/i]
+>
+> →
+
+**`ABI.ultimo_foglio.nome`** · nome nel menu SKILL
+> Ultimo foglio
+>
+> →
+
+**`ABI.ultimo_foglio.descrizione`** · descrizione
+> ×3,5 su uno solo, una volta per scontro.
+>
+> →
+
+**`ABI.ultimo_foglio.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s taglia l'aria fra sé e %s.[/i]
+>
+> →
+
+**`ABI.piccolo_richiamo.nome`** · nome nel menu SKILL
+> Piccolo richiamo
+>
+> →
+
+**`ABI.piccolo_richiamo.descrizione`** · descrizione
+> Evoca al suo fianco un sogno: uno per volta, finché quello di prima resta in piedi.
+>
+> →
+
+**`ABI.piccolo_richiamo.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s chiama, e qualcosa risponde.[/i]
+>
+> →
+
+**`ABI.non_sei_sola.nome`** · nome nel menu SKILL
+> Non sei sola
+>
+> →
+
+**`ABI.non_sei_sola.descrizione`** · descrizione
+> L'evocato dura di più e para un colpo per lei.
+>
+> →
+
+**`ABI.non_sei_sola.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s chiama, e qualcosa risponde.[/i]
+>
+> →
+
+**`ABI.coro.nome`** · nome nel menu SKILL
+> Coro
+>
+> →
+
+**`ABI.coro.descrizione`** · descrizione
+> Evoca 2.
+>
+> →
+
+**`ABI.coro.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s chiama, e qualcosa risponde.[/i]
+>
+> →
+
+**`ABI.legame.nome`** · nome nel menu SKILL
+> Legame
+>
+> →
+
+**`ABI.legame.descrizione`** · descrizione
+> Gli evocati prendono i suoi potenziamenti.
+>
+> →
+
+**`ABI.legame.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s chiama, e qualcosa risponde.[/i]
+>
+> →
+
+**`ABI.non_li_lascio.nome`** · nome nel menu SKILL
+> Non li lascio
+>
+> →
+
+**`ABI.non_li_lascio.descrizione`** · descrizione
+> Quando un evocato cade ne arriva un altro, una volta.
+>
+> →
+
+**`ABI.non_li_lascio.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s chiama, e qualcosa risponde.[/i]
+>
+> →
+
+**`ABI.tutti_quanti.nome`** · nome nel menu SKILL
+> Tutti quanti
+>
+> →
+
+**`ABI.tutti_quanti.descrizione`** · descrizione
+> Riempie il campo e per 3 battute colpiscono insieme a lei.
+>
+> →
+
+**`ABI.tutti_quanti.testo_uso`** · quando la usi (%s = chi la usa)
+> [i]%s chiama, e qualcosa risponde.[/i]
+>
+> →
+
+**`ABI.veglia_i.nome`** · nome nel menu SKILL
+> Veglia
+>
+> →
+
+**`ABI.veglia_i.descrizione`** · descrizione
+> Passiva: immune al Sonno.
+>
+> →
+
+**`ABI.occhi_aperti.nome`** · nome nel menu SKILL
+> Occhi aperti
+>
+> →
+
+**`ABI.occhi_aperti.descrizione`** · descrizione
+> Immune anche a Frastornato.
+>
+> →
+
+**`ABI.non_chiudo_occhio.nome`** · nome nel menu SKILL
+> Non chiudo occhio
+>
+> →
+
+**`ABI.non_chiudo_occhio.descrizione`** · descrizione
+> La prima volta che cadrebbe in uno stato, lo respinge.
+>
+> →
+
+**`ABI.turno_di_guardia.nome`** · nome nel menu SKILL
+> Turno di guardia
+>
+> →
+
+**`ABI.turno_di_guardia.descrizione`** · descrizione
+> Ogni battuta senza essere colpita recupera aura.
+>
+> →
+
+**`ABI.insonnia.nome`** · nome nel menu SKILL
+> Insonnia
+>
+> →
+
+**`ABI.insonnia.descrizione`** · descrizione
+> Più dura lo scontro più il suo attacco sale. Non si ferma.
+>
+> →
+
+**`ABI.quello_che_vede_di_notte.nome`** · nome nel menu SKILL
+> Quello che vede di notte
+>
+> →
+
+**`ABI.quello_che_vede_di_notte.descrizione`** · descrizione
+> Vede la mossa in arrivo, e la squadra agisce prima.
+>
+> →
+
+
 # 6. Gli oggetti
 
 <sub>`data/oggetti.json`</sub>
@@ -14025,7 +15845,7 @@ carte collezionabili.
 > →
 
 **`OGG.pietra_quieta.descrizione`** · descrizione (per gli oggetti chiave si legge raccogliendoli)
-> Una pietra liscia e fredda, lasciata cadere da una tartaruga che hai scelto di risparmiare. Sembra assorbire la prima cosa brutta che ti capita, in ogni scontro.
+> Un minerale raro che un goblin stringeva come un tesoro, nel fondo di una caverna delle Pianure di Redenna. Condiziona le biomasse e ne esalta certe qualità: assorbe la prima cosa brutta che ti capita, in ogni scontro.
 >
 > →
 
@@ -14931,8 +16751,33 @@ carte collezionabili.
 >
 > →
 
+**`LUO.TUT.banchetto`** · nome di una stanza sulla mappa della zona
+> Il pasto del goblin
+>
+> →
+
+**`LUO.TUT.pianura`** · nome di una stanza sulla mappa della zona
+> La pianura aperta
+>
+> →
+
+**`LUO.TUT.albero`** · nome di una stanza sulla mappa della zona
+> L'albero
+>
+> →
+
+**`LUO.TUT.caverna`** · nome di una stanza sulla mappa della zona
+> La piccola caverna
+>
+> →
+
+**`LUO.TUT.caverna_fondo`** · nome di una stanza sulla mappa della zona
+> Il fondo della caverna
+>
+> →
+
 **`LUO.TUT.masso`** · nome di una stanza sulla mappa della zona
-> Il masso e il ruscello
+> Il masso gigante
 >
 > →
 
@@ -14947,7 +16792,12 @@ carte collezionabili.
 > →
 
 **`LUO.TUT.collina`** · nome di una stanza sulla mappa della zona
-> La collina
+> La cima del promontorio
+>
+> →
+
+**`LUO.TUT.tartaruga`** · nome di una stanza sulla mappa della zona
+> La tartaruga gigante
 >
 > →
 

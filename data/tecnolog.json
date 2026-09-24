@@ -98,7 +98,8 @@
 			"Umano",
 			"Onirico",
 			"Indeterminato",
-			"Golem"
+			"Golem",
+			"Anfibio"
 		],
 		"stadio": [
 			"I",
@@ -576,6 +577,24 @@
 			"morfologia": "Forma incompleta e instabile: i contorni cambiano se non lo si guarda direttamente. La massa risulta proporzionale a quella di chi lo sogna - circa un quarto - e varia con lei.",
 			"habitus": "Combatte in anticipo di mezzo istante, come se la scena l'avesse già vissuta. Non guarda mai chi lo ha evocato.",
 			"ecologia": "Un sogno che il dormiente non è più riuscito a ritrovare e che continua a esistere dalla sua parte. Non si sa se sappia di essere perduto."
+		},
+		"goblin_possessivo": {
+			"classificazione": "rango base",
+			"filogenesi": "naturale",
+			"specie": "Goblin",
+			"stadio": "I",
+			"morfologia": "Identico a un goblin comune, con le dita della mano sinistra irrigidite a pugno: tiene chiuso qualcosa da tanto tempo da non riuscire piu' ad aprirla del tutto.",
+			"habitus": "Non volta mai le spalle all'ingresso. Parla da solo, e parla a quello che stringe.",
+			"ecologia": "Si separa dal gruppo per nascondere il suo tesoro, e da solo non dura: il tesoro lo tiene in vita e lo espone."
+		},
+		"rana_folle": {
+			"classificazione": "rango base",
+			"filogenesi": "naturale",
+			"specie": "Anfibio",
+			"stadio": "I",
+			"morfologia": "Rana di pozza cresciuta fino alla taglia di un cane di media stazza. Pelle viscida e maculata, arti posteriori sproporzionati, occhi che non si fermano mai sulla stessa cosa.",
+			"habitus": "Si muove solo in gruppo e solo tutte insieme: prima di ogni salto il gruppo gracida, e il verso cambia a seconda di quello che sta per fare.",
+			"ecologia": "Occupa le pozze in colonie di pochi individui. Da sola non caccia; in gruppo attacca tutto quello che si avvicina all'acqua."
 		}
 	},
 	"_nota_specie": "SPECIE, non fenotipo. Bru: 'fenotipo verra' sostituito con specie'. E' il nome della cosa - Zombie, Slime, Robot - non un aggettivo su come e' venuta. E' il campo che lega creature diverse: Zombie Cittadino, Zombie Mostruoso e Orrore di Meridia sono la stessa specie a tre stadi. Per questo Specie e Stadio stanno vicini e si leggono insieme.",

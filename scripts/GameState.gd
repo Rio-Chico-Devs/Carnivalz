@@ -260,6 +260,8 @@ var nodo_se_vinci: String = ""
 var nodo_se_vinci_eroe: String = ""
 var nodo_se_perdi: String = ""
 var nodo_se_fuggi: String = ""
+# chi parla sopra lo scontro e chi muove per primo (vedi RegiaCombattimento)
+var regia_combattimento: Dictionary = {}
 
 func _ready() -> void:
 	imposta_seed(int(Time.get_unix_time_from_system()))
@@ -2197,8 +2199,10 @@ func entra_squarcio(id_squarcio: String, file_eventi: String) -> bool:
 	congeda_tutti_temporanei()
 	return avvia_carnivalz(id_squarcio, file_eventi)
 
-func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String, se_fuggi := "") -> void:
+func prepara_combattimento(nemici: Array, se_vinci: String, se_vinci_eroe: String, se_perdi: String, se_fuggi := "",
+		regia: Dictionary = {}) -> void:
 	nemici_combattimento = nemici.duplicate()
+	regia_combattimento = regia.duplicate(true)
 	nodo_se_vinci = se_vinci
 	nodo_se_vinci_eroe = se_vinci_eroe
 	nodo_se_perdi = se_perdi
@@ -2221,6 +2225,7 @@ func annulla_combattimento() -> void:
 	nodo_se_vinci_eroe = ""
 	nodo_se_perdi = ""
 	nodo_se_fuggi = ""
+	regia_combattimento = {}
 
 # --- salvataggio: una partita per slot, scritto da solo.
 #

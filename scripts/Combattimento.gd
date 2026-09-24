@@ -160,6 +160,8 @@ var studio_in_corso := false     # il tempo e' fermo perche' stai studiando
 # IL COMANDO DATO PRESTO ASPETTA IL SUO MOMENTO, non si perde: il perche' e il
 # come stanno tutti in Intenzione.gd. Qui c'e' solo il posto dove vive
 var intenzione: IntenzioneCombattimento
+# chi muove per primo e chi parla sopra lo scontro, se il nodo lo dice: Regia.gd
+var regia: RegiaCombattimento
 
 var portatore_fuga_bloccata: Dictionary = {}
 var avviso_fuga_mostrato := false
@@ -198,6 +200,7 @@ func _ready() -> void:
 	impatto = ImpattoCombattimento.new(get_tree(), muto)
 	stati = StatiCombattimento.new(self)
 	intenzione = IntenzioneCombattimento.new(self)
+	regia = RegiaCombattimento.new(self, GameState.regia_combattimento)
 	arena = ArenaCombattimento.new(muto)
 	minigioco = MinigiocoCombattimento.new(muto)
 	minigioco.dado = GameState.rng
@@ -214,6 +217,9 @@ func _ready() -> void:
 		voce.collega(box, area_avanza, volanti)
 		campo.collega_plancia(plancia)
 		menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
+		# BOND e' la mediazione: «quando uno dei personaggi e' pronto per legare
+		# col nemico il tasto bond si illumina» (Bru). Spento, non si preme
+		plancia.tasto_bond.pressed.connect(menu.mediazione)
 		# sbanda il corpo della schermata, non lo sfondo: altrimenti a ogni
 		# scossa si vedrebbero i bordi neri dello schermo
 		impatto.collega(corpo)
@@ -260,6 +266,8 @@ func _ready() -> void:
 	else:
 		scrivi("Ora di combattere.")
 	mostra_apertura()
+	regia.all_inizio()
+	preannuncia_tutti()   # l'orda dice la sua prima mossa prima che tu scelga la tua
 	if not muto:
 		avvia_musica_e_voce()
 	if fonte.get("convincibile", false):
@@ -418,7 +426,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	var componenti := 0
 	var nome_in_campo: String = dati.get("nome_breve", dati.get("nome", id_personaggio))
 	if not giocatore and dati.has("orda"):
-		componenti = quanti_nell_orda()
+		componenti = quanti_nell_orda(dati["orda"])
 		hp_max = OrdaDiNemici.vita_per(hp_max, componenti)
 		nome_in_campo = String(dati["orda"].get("nome", nome_in_campo))
 	var hp_iniziali := hp_max
@@ -839,6 +847,7 @@ func esegui_scontro() -> void:
 	var apertura := float(GameState.regole.get("tempo", {}).get("apertura_secondi", 1.2))
 	for combattente in combattenti:
 		combattente.ricarica = ricarica_di(combattente) * 0.5 + apertura
+	regia.dai_la_precedenza(apertura)   # un'imboscata ribalta la velocita'
 	scontro_avviato = true
 	if tempo_reale and not muto:
 		# da qui in poi comanda _process per il tempo, e la pompa per le parole.
@@ -967,6 +976,9 @@ func aggiorna_pronto_giocatore() -> void:
 	# puo_agire chiede in_corso - e senza questo il pannello della fine, quello
 	# con "Continua", resterebbe scolorito come se ci fosse ancora da aspettare
 	menu.mostra_ricarica(in_corso and not pronto)
+	var bond := in_corso and not bersagli_mediabili().is_empty()
+	if plancia != null and plancia.tasto_bond.disabled == bond:
+		plancia.accendi(plancia.tasto_bond, bond)   # si riscrive solo quando cambia
 	if pronto != menu_acceso:
 		if pronto and comincia_il_tuo_turno(tu):
 			return   # il passo si e' preso il turno da solo: niente menu
@@ -1022,8 +1034,19 @@ func agisci_ora(azione: Dictionary) -> void:
 		intenzione.ricorda(azione)
 		return
 	intenzione.scorda()
+	# LA TUA BATTUTA SI APRIVA SOLO PER GLI ALTRI. Chi comandi tu non passa da
+	# battuta_di (e' escluso apposta dai "pronti", vedi avanza_orologio), e con
+	# lei saltava tutto quello che si paga a ogni battuta: il veleno non
+	# mordeva, il sonno non toglieva il turno, i potenziamenti non scadevano
+	# mai. Le prove non lo vedevano perche' l'orologio virtuale passa di la'.
+	# Si apre qui, una volta sola: se l'ha gia' aperta battuta_di, non di nuovo
+	var gia_aperta := bool(tu.get("battuta_aperta", false))
+	tu.battuta_aperta = false
 	riarma(tu)
 	attaccante_corrente = tu
+	if not gia_aperta and not apri_la_battuta(tu):
+		menu_acceso = false
+		return   # addormentato, o bruciato prima di muoversi: il turno se ne va cosi'
 	esegui_azione(tu, azione)
 	# il menu resta a schermo e si spegne: lo ricostruisce chi ha chiamato (vedi
 	# MenuCombattimento.scegli), e aggiorna_pronto_giocatore lo riaccende quando
@@ -1069,6 +1092,61 @@ func risolvi_rigenerazione_frammento(chi: Dictionary) -> void:
 func battuta_di(attaccante: Dictionary) -> void:
 	# TOCCA A LUI. La ricarica e' finita: prima si paga quello che si paga a
 	# ogni battuta (stati, fuoco addosso, aura che torna), poi si agisce.
+	if not apri_la_battuta(attaccante):
+		return
+	if attaccante.giocatore:
+		attaccante_corrente = attaccante
+		if RegoleCombattimento.solo_attacchi(attaccante):
+			# Rabbia e Frastornato tolgono il menu, non solo una voce: chi ha
+			# perso la testa non sceglie. Il bersaglio lo decide chi ti ha
+			# provocato, se c'e' - altrimenti e' a caso, che e' il punto di
+			# tutti e due gli stati
+			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
+			var nemici := stati.bersagli_ammessi(attaccante, vivi(false))
+			if not nemici.is_empty():
+				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)],
+						-1, consuma_carica(attaccante))
+		else:
+			introduci_passo_tutorial()
+			var passo_corrente := passo_tutorial()
+			if String(passo_corrente.get("azione", "")) == "minigioco":
+				# QUESTO PASSO NON TE LO COMANDA IL MENU. Non e' una mossa che
+				# scegli: e' una che subisci, e l'unica risposta e' la tua mano.
+				# Il menu non si accende affatto - si accende il quadrante.
+				lancia_minigioco(passo_corrente, attaccante)
+				return
+			var azione: Dictionary = {}
+			if strategia.is_valid():
+				# nessuno sta guardando: decide il giocatore automatico
+				azione = strategia.call(self, attaccante)
+			elif comandi_tu(attaccante):
+				# LO DECIDI TU, E NON ADESSO. In tempo reale la battuta non
+				# aspetta nessuno: il menu si accende e il mondo continua a
+				# girare finche' non clicchi (vedi agisci_ora)
+				menu_acceso = true
+				attaccante_corrente = attaccante
+				attaccante.ricarica = 0.0   # resta pronto finche' non agisce
+				attaccante.battuta_aperta = true   # agisci_ora non la riapre
+				if not muto:
+					menu.principale()
+				return
+			else:
+				# un compagno che non stai comandando se la cava da solo
+				azione = azione_automatica(attaccante)
+			esegui_azione(attaccante, azione)
+			return
+	else:
+		turno_nemico(attaccante)
+		regia.dopo_il_nemico()
+		preannuncia(attaccante)   # e subito dice la prossima, se e' un'orda che lo fa
+	coda_di_battuta(attaccante)
+
+func apri_la_battuta(attaccante: Dictionary) -> bool:
+	# QUELLO CHE SI PAGA A OGNI BATTUTA, prima di agire: stati, fuoco addosso,
+	# aura che torna, i conti alla rovescia. Sta qui e non dentro battuta_di
+	# perche' la battuta di chi comandi tu comincia da un'altra porta (vedi
+	# agisci_ora). false = il turno se ne va senza agire
+	#
 	# LE BATTUTE DEL PROTAGONISTA SI CONTANO SEMPRE, chiunque lo muova.
 	#
 	# QUI STAVA IL CICLO INFINITO. Contarle solo quando lo comanda una persona
@@ -1103,52 +1181,9 @@ func battuta_di(attaccante: Dictionary) -> void:
 	if attaccante.in_fiamme:
 		stati.applica_combustione(attaccante)
 		if attaccante.hp <= 0:
-			return  # bruciato prima di poter agire
-	if stati.risolvi_stati_a_inizio_turno(attaccante):
-		return  # il turno salta (Sonno) o la maledizione arriva a zero e lo porta via
-	if attaccante.giocatore:
-		attaccante_corrente = attaccante
-		if RegoleCombattimento.solo_attacchi(attaccante):
-			# Rabbia e Frastornato tolgono il menu, non solo una voce: chi ha
-			# perso la testa non sceglie. Il bersaglio lo decide chi ti ha
-			# provocato, se c'e' - altrimenti e' a caso, che e' il punto di
-			# tutti e due gli stati
-			scrivi("[i]%s ha perso il controllo: può solo attaccare.[/i]" % attaccante.nome)
-			var nemici := stati.bersagli_ammessi(attaccante, vivi(false))
-			if not nemici.is_empty():
-				attacca(attaccante, nemici[GameState.rng.randi_range(0, nemici.size() - 1)],
-						-1, consuma_carica(attaccante))
-		else:
-			introduci_passo_tutorial()
-			var passo_corrente := passo_tutorial()
-			if String(passo_corrente.get("azione", "")) == "minigioco":
-				# QUESTO PASSO NON TE LO COMANDA IL MENU. Non e' una mossa che
-				# scegli: e' una che subisci, e l'unica risposta e' la tua mano.
-				# Il menu non si accende affatto - si accende il quadrante.
-				lancia_minigioco(passo_corrente, attaccante)
-				return
-			var azione: Dictionary = {}
-			if strategia.is_valid():
-				# nessuno sta guardando: decide il giocatore automatico
-				azione = strategia.call(self, attaccante)
-			elif comandi_tu(attaccante):
-				# LO DECIDI TU, E NON ADESSO. In tempo reale la battuta non
-				# aspetta nessuno: il menu si accende e il mondo continua a
-				# girare finche' non clicchi (vedi agisci_ora)
-				menu_acceso = true
-				attaccante_corrente = attaccante
-				attaccante.ricarica = 0.0   # resta pronto finche' non agisce
-				if not muto:
-					menu.principale()
-				return
-			else:
-				# un compagno che non stai comandando se la cava da solo
-				azione = azione_automatica(attaccante)
-			esegui_azione(attaccante, azione)
-			return
-	else:
-		turno_nemico(attaccante)
-	coda_di_battuta(attaccante)
+			return false  # bruciato prima di poter agire
+	# il turno salta (Sonno) o la maledizione arriva a zero e lo porta via
+	return not stati.risolvi_stati_a_inizio_turno(attaccante)
 
 func mossa_da_creatura(chi: Dictionary) -> Dictionary:
 	# Traduce la prima mossa utile di una creatura che sta dalla parte della
@@ -1270,6 +1305,7 @@ func esegui_azione(attaccante: Dictionary, azione: Dictionary) -> void:
 	# il passo del tutorial si chiude solo a azione risolta: cosi' le
 	# battute "dopo" commentano quel che e' appena successo, non lo anticipano
 	avanza_tutorial(azione)
+	regia.dopo_di_te(attaccante)
 	coda_di_battuta(attaccante)
 
 func coda_di_battuta(attaccante: Dictionary) -> void:
@@ -1778,7 +1814,8 @@ func mediabile(bersaglio: Dictionary) -> bool:
 	var mediazione := dati_mediazione(bersaglio)
 	if mediazione.is_empty():
 		return false
-	return int(bersaglio.get("volte_studiato", 0)) \
+	# o l'hai capita studiandola, o te l'ha fatta capire la scena (Regia.gd)
+	return bool(bersaglio.get("bond_aperto", false)) or int(bersaglio.get("volte_studiato", 0)) \
 			>= maxi(int(mediazione.get("studi_richiesti", 1)), 1)
 
 func bersagli_mediabili() -> Array[Dictionary]:
@@ -1916,6 +1953,8 @@ func usa_abilita(chi: Dictionary, id_abilita: String) -> void:
 		"ultima_resistenza": ultima_resistenza(chi, dati)
 		"evoca_alleato": evoca_alleato(chi, dati)
 		"passiva": passiva(chi, dati)
+		"onda": onda(chi, dati)
+		"potenziamento": potenziati(chi, dati)
 
 func usa_abilita_su(chi: Dictionary, id_abilita: String, bersaglio: Dictionary) -> void:
 	# le abilita' che chiedono un bersaglio passano di qui: il menu le fa
@@ -2507,11 +2546,14 @@ func passiva(_chi: Dictionary, dati: Dictionary) -> void:
 func regole_orde() -> Dictionary:
 	return GameState.regole.get("orde", {})
 
-func quanti_nell_orda() -> int:
+func quanti_nell_orda(orda: Dictionary = {}) -> int:
 	# «le orde saranno di numero randomico da 3 a 10 nella demo, vuol dire che a
 	# volte saranno 3 a volte 5 a volte 4 a volte 8 etc, quella da 30 e' speciale
 	# e molto rara» (Bru). I numeri stanno in regole.json: quando arriveranno
 	# quella da 50 e quella da 99 non si tocca questa funzione.
+	# Un'orda scritta per una scena ha il suo numero: «e' un'orda da 5»
+	if int(orda.get("componenti", 0)) > 0:
+		return int(orda["componenti"])
 	var regole := regole_orde()
 	var rara := int(regole.get("rara_componenti", 30))
 	if rara > 0 and GameState.rng.randf() < float(regole.get("rara_probabilita", 0.03)):
@@ -2643,6 +2685,40 @@ func effetto_raffica(colpi: Array, elemento := "") -> Callable:
 			else:
 				get_tree().create_timer(indice * PASSO_RAFFICA, false).timeout.connect(mostra)
 
+func onda(chi: Dictionary, dati: Dictionary) -> void:
+	# ONDA PSICHICA. Bru: «a raggio, infligge pochi danni ma a multipli
+	# bersagli: sull'orda fa per esempio 5 colpi siccome l'orda e' composta da
+	# 5; a seconda del numero fa tot tentativi che possono fare critico,
+	# missare o colpire normale».
+	#
+	# E' lo specchio della marea (vedi sopra): un tentativo per componente, e
+	# ognuno tira per conto suo. Su un nemico solo e' un colpo piccolo e basta,
+	# ed e' li' il freno
+	var valore := maxi(int(round(RegoleCombattimento.attacco_di(chi) * float(dati.get("frazione_danno", 0.7)))), 1)
+	scrivi_forte("[i]%s[/i]" % (String(dati.get("testo_uso", "%s libera un'onda.")) % chi.nome))
+	for nemico in vivi(false):
+		var tentativi := maxi(int(nemico.get("componenti", 0)), 1)
+		var a_vuoto := 0
+		for tentativo in tentativi:
+			if int(nemico.hp) <= 0:
+				break
+			if GameState.rng.randf() < float(dati.get("probabilita_mancare", 0.25)):
+				a_vuoto += 1
+			else:
+				attacca(chi, nemico, valore, 1.0, String(dati.get("elemento", "")))
+		if a_vuoto > 0:
+			scrivi("[i]Su %d, %d vanno a vuoto.[/i]" % [tentativi, a_vuoto])
+
+func potenziati(chi: Dictionary, dati: Dictionary) -> void:
+	# CONCENTRAZIONE: «ti da' leggermente piu' attacco e difesa» (Bru). E' lo
+	# stesso potenziamento che le creature usano su se' stesse, dalla parte
+	# della squadra: scade con le TUE battute, e rifarlo lo rinnova
+	for stat in dati.get("stat", {}):
+		RegoleCombattimento.applica_buff(chi, String(stat), int(dati["stat"][stat]),
+				int(dati.get("turni", 3)), "abilita:" + String(dati.get("nome", "")))
+	scrivi("[i]%s[/i]" % (String(dati.get("testo_uso", "%s si concentra.")) % chi.nome))
+	aggiorna_scheda(chi)
+
 func carica(chi: Dictionary, dati: Dictionary) -> void:
 	# Un turno buttato via per farne valere quattro. E' una scommessa: mentre
 	# carichi incassi, e se cadi prima di scaricare non hai fatto niente.
@@ -2662,6 +2738,8 @@ func consuma_carica(chi: Dictionary) -> float:
 	return moltiplicatore_carica
 
 func fuggi(chi: Dictionary) -> void:
+	if regia.ferma_la_fuga():
+		return   # la zona non la concede, e la Guida te lo dice
 	if not portatore_incontro.is_empty():
 		var dati_incontro: Dictionary = portatore_incontro.get("incontro_scriptato", {})
 		if dati_incontro.get("prima_fuga_fallisce", false) and incontro_tentativi_fuga == 0:
@@ -3081,28 +3159,58 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 	if not dati_disperazione.is_empty() and nemico.hp <= int(dati_disperazione.get("hp_soglia", 0)):
 		esegui_mossa_disperazione(nemico, dati_disperazione)
 		return
+	var scelta := scegli_mossa(nemico)
+	if not scelta.is_empty():
+		lancia_mossa(nemico, scelta)
+		return
+	attacca(nemico, bersaglio_giocatore_casuale())
+
+func scegli_mossa(nemico: Dictionary) -> Dictionary:
+	# QUALE MOSSA, senza farla. Vuoto = il colpo normale. E' una funzione sua
+	# perche' la chiede anche chi la dice prima di farla (vedi preannuncia).
+	#
 	# PRIMA IL GIUDIZIO, POI IL CASO. Una creatura ferita che ha di che curarsi
 	# si cura: non e' una possibilita' fra le altre, e' quello che fa
 	var scelta := mossa_saggia(nemico)
 	if not scelta.is_empty():
-		lancia_mossa(nemico, scelta)
-		return
+		return scelta
 	var mosse: Array = []
 	for mossa in nemico.mosse:
-		if not mossa_disponibile(nemico, mossa):
-			continue
-		mosse.append(mossa)
-	if not mosse.is_empty():
-		var totale: int = int(nemico.peso_attacco_normale)
-		for mossa in mosse:
-			totale += int(mossa.get("peso", 1))
-		var estratto := GameState.rng.randi_range(1, maxi(totale, 1))
-		for mossa in mosse:
-			estratto -= int(mossa.get("peso", 1))
-			if estratto <= 0:
-				lancia_mossa(nemico, mossa)
-				return
-	attacca(nemico, bersaglio_giocatore_casuale())
+		if mossa_disponibile(nemico, mossa):
+			mosse.append(mossa)
+	if mosse.is_empty():
+		return {}   # e niente dado: tirarlo cambierebbe tutte le partite col seme
+	var totale: int = int(nemico.peso_attacco_normale)
+	for mossa in mosse:
+		totale += int(mossa.get("peso", 1))
+	var estratto := GameState.rng.randi_range(1, maxi(totale, 1))
+	for mossa in mosse:
+		estratto -= int(mossa.get("peso", 1))
+		if estratto <= 0:
+			return mossa
+	return {}
+
+func preannuncia_tutti() -> void:
+	for combattente in combattenti:
+		preannuncia(combattente)
+
+func preannuncia(nemico: Dictionary) -> void:
+	# L'ORDA DICE COSA STA PER FARE. Bru: «nelle orde puoi osservare i
+	# comportamenti: prima di compiere la mossa e che tu scelga cosa fare
+	# appare sempre un testo collegato alla mossa che fara'».
+	#
+	# E' la mossa telegrafata (vedi lancia_mossa) diventata un'abitudine: la
+	# prossima si sceglie appena finita questa e si dice subito, cosi' tutta la
+	# sua ricarica e' tempo tuo per rispondere. Vale per chi lo dichiara nel
+	# suo "orda": gli zombi di Meridia i loro annunci non li hanno ancora
+	var dati: Dictionary = GameState.personaggi.get(String(nemico.get("id", "")), {})
+	if nemico.giocatore or int(nemico.hp) <= 0 or not in_corso \
+			or not bool(dati.get("orda", {}).get("preannuncia", false)):
+		return
+	var prossima := scegli_mossa(nemico)
+	if not prossima.is_empty():
+		nemico.mossa_in_carica = prossima
+		scrivi_forte("[i]%s[/i]" % String(prossima.get("testo_annuncio", prossima.get("testo", ""))))
 
 func lancia_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	# una mossa telegrafata non parte adesso: si annuncia e arriva al prossimo

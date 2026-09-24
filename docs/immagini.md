@@ -31,7 +31,7 @@ chiedere `"espr": "sotto_la_pioggia"` e basta disegnare quel file.
 Non 16 espressioni per 48 personaggi (768 disegni, che non li fa nessuno).
 Questo e' quello che i dialoghi scritti finora chiedono davvero.
 
-### 1. Il ritratto singolo — 56 da fare
+### 1. Il ritratto singolo — 58 da fare
 
 Basta questo perche' nessuno sia piu' un segnaposto. Le creature da
 combattimento si fermano qui: non parlano, non gli serve altro.
@@ -50,6 +50,7 @@ art/personaggi/fio.png
 art/personaggi/ghoul.png
 art/personaggi/giocoliere.png
 art/personaggi/goblin_arrabbiato.png
+art/personaggi/goblin_possessivo.png
 art/personaggi/goblin_tipico.png
 art/personaggi/guida.png
 art/personaggi/infetto_rapido.png
@@ -70,6 +71,7 @@ art/personaggi/ombra_del_passato.png
 art/personaggi/operaio_posseduto.png
 art/personaggi/operaio_sfruttato.png
 art/personaggi/orrore_di_meridia.png
+art/personaggi/rana_folle.png
 art/personaggi/reika.png
 art/personaggi/rio.png
 art/personaggi/robo_pattuglia.png
@@ -95,7 +97,7 @@ art/personaggi/zombie_cittadino.png
 art/personaggi/zombie_mostruoso.png
 ```
 
-### 2. Le espressioni dei dialoghi — 54 da fare
+### 2. Le espressioni dei dialoghi — 58 da fare
 
 Solo per chi ha delle battute, e solo le facce che le battute nominano.
 Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto
@@ -120,6 +122,8 @@ art/personaggi/giocoliere/cool.png
 art/personaggi/giocoliere/neutra.png
 art/personaggi/goblin_arrabbiato/decisa.png
 art/personaggi/goblin_arrabbiato/neutra.png
+art/personaggi/goblin_possessivo/neutra.png
+art/personaggi/goblin_tipico/neutra.png
 art/personaggi/guida/neutra.png
 art/personaggi/ignoto/neutra.png
 art/personaggi/infetto_rapido/neutra.png
@@ -141,10 +145,12 @@ art/personaggi/nuvola_di_marciume/neutra.png
 art/personaggi/reika/carina.png
 art/personaggi/reika/neutra.png
 art/personaggi/robo_pattuglia/neutra.png
+art/personaggi/slime_infimo/neutra.png
 art/personaggi/soldato_due/neutra.png
 art/personaggi/soldato_uno/neutra.png
 art/personaggi/sopravvissuta/neutra.png
 art/personaggi/spirito_dei_giardini/neutra.png
+art/personaggi/tartaruga_innocente/neutra.png
 art/personaggi/tenero_ricordo/neutra.png
 art/personaggi/vecchio_clown/neutra.png
 art/personaggi/vecchio_clown/pensiero.png
@@ -173,16 +179,20 @@ art/personaggi/volto_sulla_parete/neutra.png
 | computer (`computer`) | 1 | `neutra` |
 | data_pad (`data_pad`) | 1 | `neutra` |
 | figura_misteriosa (`figura_misteriosa`) | 1 | `neutra` |
+| Goblin Possessivo (`goblin_possessivo`) | 1 | `neutra` |
+| Goblin Tipico (`goblin_tipico`) | 1 | `neutra` |
 | Guida (`guida`) | 1 | `neutra` |
 | ignoto (`ignoto`) | 1 | `neutra` |
 | Infetto Rapido (`infetto_rapido`) | 1 | `neutra` |
 | ??? (`l_immortale`) | 1 | `neutra` |
 | Nuvola di Marciume (`nuvola_di_marciume`) | 1 | `neutra` |
 | Robo Pattuglia (`robo_pattuglia`) | 1 | `neutra` |
+| Slime Infimo (`slime_infimo`) | 1 | `neutra` |
 | soldato_due (`soldato_due`) | 1 | `neutra` |
 | soldato_uno (`soldato_uno`) | 1 | `neutra` |
 | Yara (`sopravvissuta`) | 1 | `neutra` |
 | Spirito dei giardini (`spirito_dei_giardini`) | 1 | `neutra` |
+| Tartaruga Gigante (`tartaruga_innocente`) | 1 | `neutra` |
 | Un tenero ricordo (`tenero_ricordo`) | 1 | `neutra` |
 | Volto sulla parete (`volto_sulla_parete`) | 1 | `neutra` |
 
@@ -208,8 +218,9 @@ art/personaggi/volto_sulla_parete/neutra.png
 | creatura | lv | file | espressioni | c'è |
 |---|--:|---|---|:-:|
 | Nimbo Boy | 1 | `art/personaggi/nimbo_boy.png` | — |  |
+| Rana Folle | 1 | `art/personaggi/rana_folle.png` | — |  |
 | Sogno perduto | 1 | `art/personaggi/sogno_perduto.png` | — |  |
-| Tartaruga Innocente | 1 | `art/personaggi/tartaruga_innocente.png` | — |  |
+| Tartaruga Gigante | 1 | `art/personaggi/tartaruga_innocente.png` | — |  |
 | Fomentado | 3 | `art/personaggi/maschera_vuota.png` | — |  |
 | Emblema dell'oppressione | 5 | `art/personaggi/operaio_posseduto.png` | — |  |
 | Veronica | 5 | `art/personaggi/veronica.png` | — |  |
@@ -226,6 +237,7 @@ art/personaggi/volto_sulla_parete/neutra.png
 | Guida | `art/personaggi/guida.png` | `art/personaggi/guida/` |  |
 | Le lettere sull'altare | `art/personaggi/lettere_altare.png` | `art/personaggi/lettere_altare/` |  |
 | Spirito dei giardini | `art/personaggi/spirito_dei_giardini.png` | `art/personaggi/spirito_dei_giardini/` |  |
+| Goblin Possessivo | `art/personaggi/goblin_possessivo.png` | `art/personaggi/goblin_possessivo/` |  |
 | Goblin Tipico | `art/personaggi/goblin_tipico.png` | `art/personaggi/goblin_tipico/` |  |
 | Slime Infimo | `art/personaggi/slime_infimo.png` | `art/personaggi/slime_infimo/` |  |
 | Infetto Rapido | `art/personaggi/infetto_rapido.png` | `art/personaggi/infetto_rapido/` |  |
@@ -283,4 +295,4 @@ quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
 
 ---
 
-Ritratti presenti: **0 su 58**.
+Ritratti presenti: **0 su 60**.

@@ -119,6 +119,45 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 ## Livelli 1-5 — il tutorial e le prime crepe
 
+### Goblin Possessivo — livello 1, comune
+*Un goblin come tutti gli altri, tranne per una cosa: stringe al petto una pietra che brilla, e per difenderla farebbe qualunque cosa.*
+
+`goblin_possessivo` · ♥ 86 · attacco 6 · difesa 1 · velocità 2 · xp 2
+
+**Mosse: 3 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Bastonata | un colpo pesante su uno solo | ×1.30 → 8 | sempre | sorteggio | — |
+| 2 | Difesa Goblin! | alza la guardia | — | sotto il 35% di vita | priorità 5 | 2 battute |
+| 3 | Ultima risorsa | si potenzia (attacco +3, difesa +2, velocita +2, per 3 battute) | — | sotto il 35% di vita | priorità 6 | 1 battute |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
+
+**Motto** — quello che si legge in campo quando la mossa parte:
+
+1. Il goblin si stringe la pietra al petto con una mano e mena con l'altra.
+2. «Difesa Goblin!» — e si copre la testa con le braccia.
+3. Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.
+
+**Tecno log**
+
+| Campo | Rilevamento |
+| --- | --- |
+| Denominazione | Goblin Possessivo |
+| Classificazione | rango base |
+| Filogenesi | naturale |
+| Areale | Il pianeta del risveglio |
+| Specie | Goblin |
+| Stadio | I |
+| Morfologia | Identico a un goblin comune, con le dita della mano sinistra irrigidite a pugno: tiene chiuso qualcosa da tanto tempo da non riuscire piu' ad aprirla del tutto. |
+| Habitus | Non volta mai le spalle all'ingresso. Parla da solo, e parla a quello che stringe. |
+| Metamorfosi | non osservata |
+| Ecologia | Si separa dal gruppo per nascondere il suo tesoro, e da solo non dura: il tesoro lo tiene in vita e lo espone. |
+
+*Studi necessari per la pagina intera: 3.*
+
 ### Goblin Tipico — livello 1, comune
 *Verde, spelacchiato, armato di un bastone che ha trovato per terra. Non ha mai vinto una rissa in vita sua.*
 
@@ -155,6 +194,81 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 | Habitus | Sta curvo anche da fermo, con il peso su una gamba sola. Guarda in basso e di lato, mai davanti. |
 | Metamorfosi | non osservata |
 | Ecologia | Vive ai margini di gruppi piu' grandi, dai quali viene tollerato e derubato. Non forma legami stabili. |
+
+*Studi necessari per la pagina intera: 3.*
+
+### Nimbo Boy — livello 1, comune
+*Un sogno di Yhvina che non ha mai finito di prendere forma: una nuvoletta con due gambe e una faccia da schiaffi. Non sa combattere. Sa solo mettersi in mezzo e farsi notare, e lo fa con una convinzione che non gli appartiene.*
+
+`nimbo_boy` · ♥ 3 · attacco 0 · difesa 0 · velocità 6 · xp 2
+
+**Mosse: 1 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Mettiti in mezzo | provoca | come il suo colpo normale | sempre | sorteggio | — |
+| 2 | — | *casella libera* | — | — | — | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
+
+**Motto** — quello che si legge in campo quando la mossa parte:
+
+1. Il Nimbo Boy si gonfia, si mette davanti a tutti e fa una faccia insopportabile. Funziona.
+
+**Tecno log**
+
+| Campo | Rilevamento |
+| --- | --- |
+| Denominazione | Nimbo Boy |
+| Classificazione | rango base |
+| Filogenesi | onirica |
+| Areale | Nessuno: non esiste finché qualcuno non lo sogna |
+| Specie | Nimbo |
+| Stadio | I |
+| Morfologia | Una nuvoletta compatta, alta quanto un bambino, con due gambe che non reggerebbero nessun peso vero. Non ha massa misurabile. Le rilevazioni danno una struttura che si disfa dopo tre sollecitazioni, sempre tre, indipendentemente dall'intensità. |
+| Habitus | Si mette davanti. È l'unica cosa che fa, e la fa con una sicurezza che non è sua: se la prende in prestito da chi lo ha sognato. |
+| Metamorfosi | non osservata |
+| Ecologia | Non si riproduce, non si nutre, non invecchia. Esiste per la durata di un pensiero altrui e poi non c'è più. Gli operatori che ne hanno visto uno dissolversi riferiscono una sensazione di imbarazzo, non di perdita. |
+
+*Studi necessari per la pagina intera: 3.*
+
+### Rana Folle — livello 1, comune
+*Una rana di pozza gonfiata dal disallineamento fino alla taglia di un cane. Da sola non fa paura; il guaio è che non sono mai da sole.*
+
+`rana_folle` · ♥ 34 · attacco 7 · difesa 1 · velocità 2 · xp 2
+
+**Mosse: 2 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Gracidio feroce | orda | ×1.00 → 7 | sempre | sorteggio | — |
+| 2 | Fronte compatto | si chiude (difesa +1 per 2 battute) | — | sempre | sorteggio | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
+
+**Motto** — quello che si legge in campo quando la mossa parte:
+
+1. Le rane ti saltano addosso da ogni parte!
+2. Le rane si stringono l'una all'altra: davanti hai un muro di pelle viscida.
+
+**Tecno log**
+
+| Campo | Rilevamento |
+| --- | --- |
+| Denominazione | Rana Folle |
+| Classificazione | rango base |
+| Filogenesi | naturale |
+| Areale | Il pianeta del risveglio |
+| Specie | Anfibio |
+| Stadio | I |
+| Morfologia | Rana di pozza cresciuta fino alla taglia di un cane di media stazza. Pelle viscida e maculata, arti posteriori sproporzionati, occhi che non si fermano mai sulla stessa cosa. |
+| Habitus | Si muove solo in gruppo e solo tutte insieme: prima di ogni salto il gruppo gracida, e il verso cambia a seconda di quello che sta per fare. |
+| Metamorfosi | non osservata |
+| Ecologia | Occupa le pozze in colonie di pochi individui. Da sola non caccia; in gruppo attacca tutto quello che si avvicina all'acqua. |
 
 *Studi necessari per la pagina intera: 3.*
 
@@ -197,7 +311,44 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 *Studi necessari per la pagina intera: 3.*
 
-### Tartaruga Innocente — livello 1, corazzato
+### Sogno perduto — livello 1, comune
+*Qualcosa che Yhvina ha sognato una volta e poi non è più riuscita a ritrovare. Sta al suo fianco senza parlare, e combatte come se ricordasse di averlo già fatto.*
+
+`sogno_perduto` · ♥ 33 · attacco 6 · difesa 1 · velocità 5 · xp 2
+
+**Mosse: 1 su 6 caselle.**
+
+| # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | Colpo ricordato | un colpo pesante su uno solo | ×1.00 → 6 | sempre | sorteggio | — |
+| 2 | — | *casella libera* | — | — | — | — |
+| 3 | — | *casella libera* | — | — | — | — |
+| 4 | — | *casella libera* | — | — | — | — |
+| 5 | — | *casella libera* | — | — | — | — |
+| 6 | — | *casella libera* | — | — | — | — |
+
+**Motto** — quello che si legge in campo quando la mossa parte:
+
+1. Il sogno si muove in anticipo, come se la scena l'avesse già vissuta.
+
+**Tecno log**
+
+| Campo | Rilevamento |
+| --- | --- |
+| Denominazione | Sogno perduto |
+| Classificazione | rango base |
+| Filogenesi | onirica |
+| Areale | Nessuno: non esiste finché qualcuno non lo sogna |
+| Specie | Onirico |
+| Stadio | I |
+| Morfologia | Forma incompleta e instabile: i contorni cambiano se non lo si guarda direttamente. La massa risulta proporzionale a quella di chi lo sogna - circa un quarto - e varia con lei. |
+| Habitus | Combatte in anticipo di mezzo istante, come se la scena l'avesse già vissuta. Non guarda mai chi lo ha evocato. |
+| Metamorfosi | non osservata |
+| Ecologia | Un sogno che il dormiente non è più riuscito a ritrovare e che continua a esistere dalla sua parte. Non si sa se sappia di essere perduto. |
+
+*Studi necessari per la pagina intera: 3.*
+
+### Tartaruga Gigante — livello 1, corazzato
 *Un guscio enorme e un aspetto che mette paura. Non ha mai fatto del male a nessuno.*
 
 `tartaruga_innocente` · ♥ 555 · attacco 0 · difesa 6 · velocità 2 · xp 2
@@ -222,7 +373,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 | Campo | Rilevamento |
 | --- | --- |
-| Denominazione | Tartaruga Innocente |
+| Denominazione | Tartaruga Gigante |
 | Classificazione | rango superiore |
 | Filogenesi | ferina |
 | Areale | Il pianeta del risveglio |
@@ -315,14 +466,14 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 
 `zombie_cittadino` · ♥ 125 · attacco 8 · difesa 2 · velocità 2 · xp 5
 
-**Mosse: 3 su 6 caselle.**
+**Mosse: 4 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Agitazione | un colpo pesante su uno solo | ×1.20 → 10 | sempre | sorteggio | — |
 | 2 | In mezzo agli altri | si chiude (difesa +2 per 3 battute) | — | con almeno 1 alleati in piedi | sorteggio | 4 battute |
 | 3 | Zombie style | **non fa niente**: è solo il suo motto | — | sempre | sorteggio | 3 battute |
-| 4 | — | *casella libera* | — | — | — | — |
+| 4 | Marea | orda | ×0.50 → 4 | sempre | sorteggio | — |
 | 5 | — | *casella libera* | — | — | — | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
@@ -331,6 +482,7 @@ ultimo colpo in canna lo tira. Non è scritto creatura per creatura: è una riga
 1. Si agita tutto insieme e ti viene addosso.
 2. Si infila fra i suoi, e i suoi si chiudono intorno.
 3. Si guarda intorno senza alcuno scopo...
+4. Si muovono tutti insieme, e non c'è un davanti.
 
 **Tecno log**
 
@@ -376,7 +528,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 ### Fomentado — livello 3, comune
 *Un'anima irrequieta spinta al suo limite dalla sua stessa passione. Brucia forte, sempre! Finché non rimarrà che cenere.*
 
-`maschera_vuota` · ♥ 164 · attacco 10 · difesa 3 · velocità 3 · xp 9 · elemento fuoco
+`maschera_vuota` · ♥ 205 · attacco 10 · difesa 3 · velocità 3 · xp 9 · elemento fuoco
 
 **Mosse: 3 su 6 caselle.**
 
@@ -512,7 +664,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 
 1. «Miren!» — e comincia a girare su se stesso con le torce accese.
 2. La sua presenza infiamma l'aria.
-3. «Se e' l'ultimo, che sia il migliore!»
+3. «Se è l'ultimo, che sia il migliore!»
 4. Vamos!
 5. Flaaashy... Punch!
 6. Flaaashy... Kick!
@@ -864,7 +1016,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 *Studi necessari per la pagina intera: 3.*
 
 ### Golem errante di rottami — livello 7, particolare
-*Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non e' piu' al centro: e' in cima.*
+*Quando i rottami hanno smesso di cercarsi, si sono trovati. Il nucleo di colossite non è più al centro: è in cima.*
 
 `golem_errante` · ♥ 539 · attacco 25 · difesa 13 · velocità 6 · xp 58
 
@@ -922,7 +1074,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Il ghoul morde e non lascia andare: quello che ti toglie se lo tiene.
-2. Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.
+2. Le unghie sono l'unica cosa che gli è cresciuta dopo la morte.
 
 **Tecno log**
 
@@ -959,7 +1111,7 @@ Ha anche **mossa_disperazione** (scritta a mano nei suoi dati, non nella tabella
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
-1. Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
+1. Continua a camminare, e continua a colpire. Non è veloce. Non serve.
 
 **Non muore mai.** Abbatterlo non serve: si rialza sempre, e da questo scontro
 si esce in un altro modo.
@@ -1000,7 +1152,7 @@ si esce in un altro modo.
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Piange, e quello che cade taglia.
-2. «Non toccarli.» Non c'e' nessuno da toccare.
+2. «Non toccarli.» Non c'è nessuno da toccare.
 
 **Tecno log**
 
@@ -1038,7 +1190,7 @@ si esce in un altro modo.
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Si avvicina a scatti, come una fotografia che si muove male.
-2. Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.
+2. Le orbite ti guardano, e la cosa peggiore è che ci si vede dentro.
 
 **Tecno log**
 
@@ -1060,7 +1212,7 @@ si esce in un altro modo.
 ### Diabolo — livello 9, comune
 *Un piccolo demone da baraccone, cresciuto storto tra le fiamme della Rocca.*
 
-`diabolo` · ♥ 405 · attacco 26 · difesa 11 · velocità 7 · xp 35
+`diabolo` · ♥ 445 · attacco 26 · difesa 11 · velocità 7 · xp 35
 
 **Mosse: 2 su 6 caselle.**
 
@@ -1190,8 +1342,8 @@ si esce in un altro modo.
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Qualcosa gli sale su dal petto e ti arriva addosso.
-2. Ti stringe, e per un momento non si capisce piu' dove finisci tu.
-3. I corpi si rimescolano, e quello che era aperto adesso e' chiuso.
+2. Ti stringe, e per un momento non si capisce più dove finisci tu.
+3. I corpi si rimescolano, e quello che era aperto adesso è chiuso.
 
 **Tecno log**
 
@@ -1313,7 +1465,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 3. "Portatelo da me!" Il sacerdote colpisce recitando.
 4. "Non c'è altra strada!" Il sacerdote colpisce recitando.
 5. Il sacerdote alza le braccia: un teschio errante risponde al richiamo.
-6. Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.
+6. Recita più in fretta, e le ferite si chiudono al ritmo delle parole.
 
 **Tecno log**
 
@@ -1322,7 +1474,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | Denominazione | Sacerdote Folle |
 | Classificazione | rango base |
 | Filogenesi | umana |
-| Areale | Jondoh |
+| Areale | — non ancora rilevato |
 | Specie | Umano |
 | Stadio | II |
 | Morfologia | Adulto in paramenti, conservato. Nessuna alterazione fisica: la deformazione e' nel calendario che continua a seguire. |
@@ -1471,7 +1623,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
-1. La mano arriva piano, e non e' piu' una mano.
+1. La mano arriva piano, e non è più una mano.
 2. Espira, e l'aria intorno smette di essere aria.
 3. Il corpo non dovrebbe reggere. Qualcosa lo tiene su lo stesso.
 
@@ -1511,7 +1663,7 @@ Ha anche **mossa_soglia_hp** (scritta a mano nei suoi dati, non nella tabella).
 **Motto** — quello che si legge in campo quando la mossa parte:
 
 1. Ti dice una cosa vera, e detta da lei fa male il doppio.
-2. Piu' le pensi contro, piu' si fa solida.
+2. Piu' le pensi contro, più si fa solida.
 
 **Tecno log**
 
@@ -1636,7 +1788,7 @@ Ha anche **frenesia** (scritta a mano nei suoi dati, non nella tabella).
 2. ¡Vamos! ... Una folata di vento ardente ti infligge lo status in fiamme.
 3. Jerah schiva elegantemente tutti i tuoi colpi.
 4. Jerah batte il tacco tre volte: dal fumo sale un Fomentado.
-5. «Lo spettacolo non finisce finche' non lo decido io.»
+5. «Lo spettacolo non finisce finché non lo decido io.»
 
 **Tecno log**
 
@@ -1677,11 +1829,26 @@ Non sono creature e non si studiano: la loro scheda ha campi suoi. Nel testo,
 Ogni frase che una creatura dice in campo, tutte di fila. È la pagina su cui si sente se
 parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 
+**Goblin Possessivo**
+
+1. Il goblin si stringe la pietra al petto con una mano e mena con l'altra.
+2. «Difesa Goblin!» — e si copre la testa con le braccia.
+3. Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.
+
 **Goblin Tipico**
 
 1. Il goblin stringe il bastone con tutte e due le mani e mena alla cieca.
 2. «Difesa Goblin!» — e si copre la testa con le braccia.
 3. Il goblin capisce che non c'è più niente da perdere, e smette di ragionare.
+
+**Nimbo Boy**
+
+1. Il Nimbo Boy si gonfia, si mette davanti a tutti e fa una faccia insopportabile. Funziona.
+
+**Rana Folle**
+
+1. Le rane ti saltano addosso da ogni parte!
+2. Le rane si stringono l'una all'altra: davanti hai un muro di pelle viscida.
 
 **Slime Infimo**
 
@@ -1689,7 +1856,11 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 2. Lo slime si raccoglie su se stesso e torna tondo.
 3. Si raccoglie tutto da una parte e ti si getta contro.
 
-**Tartaruga Innocente**
+**Sogno perduto**
+
+1. Il sogno si muove in anticipo, come se la scena l'avesse già vissuta.
+
+**Tartaruga Gigante**
 
 1. La tartaruga si ritira nel guscio.
 2. La tartaruga si tira dentro il guscio, e dentro il guscio si rimette.
@@ -1708,6 +1879,7 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 1. Si agita tutto insieme e ti viene addosso.
 2. Si infila fra i suoi, e i suoi si chiudono intorno.
 3. Si guarda intorno senza alcuno scopo...
+4. Si muovono tutti insieme, e non c'è un davanti.
 
 **Fomentado**
 
@@ -1733,7 +1905,7 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 
 1. «Miren!» — e comincia a girare su se stesso con le torce accese.
 2. La sua presenza infiamma l'aria.
-3. «Se e' l'ultimo, che sia il migliore!»
+3. «Se è l'ultimo, che sia il migliore!»
 4. Vamos!
 5. Flaaashy... Punch!
 6. Flaaashy... Kick!
@@ -1806,21 +1978,21 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 **Ghoul**
 
 1. Il ghoul morde e non lascia andare: quello che ti toglie se lo tiene.
-2. Le unghie sono l'unica cosa che gli e' cresciuta dopo la morte.
+2. Le unghie sono l'unica cosa che gli è cresciuta dopo la morte.
 
 **???**
 
-1. Continua a camminare, e continua a colpire. Non e' veloce. Non serve.
+1. Continua a camminare, e continua a colpire. Non è veloce. Non serve.
 
 **Madre in Lacrime**
 
 1. Piange, e quello che cade taglia.
-2. «Non toccarli.» Non c'e' nessuno da toccare.
+2. «Non toccarli.» Non c'è nessuno da toccare.
 
 **Teschio Errante**
 
 1. Si avvicina a scatti, come una fotografia che si muove male.
-2. Le orbite ti guardano, e la cosa peggiore e' che ci si vede dentro.
+2. Le orbite ti guardano, e la cosa peggiore è che ci si vede dentro.
 
 **Diabolo**
 
@@ -1840,8 +2012,8 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 **Abominio Marcio**
 
 1. Qualcosa gli sale su dal petto e ti arriva addosso.
-2. Ti stringe, e per un momento non si capisce piu' dove finisci tu.
-3. I corpi si rimescolano, e quello che era aperto adesso e' chiuso.
+2. Ti stringe, e per un momento non si capisce più dove finisci tu.
+3. I corpi si rimescolano, e quello che era aperto adesso è chiuso.
 
 **Titano Zombie**
 
@@ -1860,7 +2032,7 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 3. "Portatelo da me!" Il sacerdote colpisce recitando.
 4. "Non c'è altra strada!" Il sacerdote colpisce recitando.
 5. Il sacerdote alza le braccia: un teschio errante risponde al richiamo.
-6. Recita piu' in fretta, e le ferite si chiudono al ritmo delle parole.
+6. Recita più in fretta, e le ferite si chiudono al ritmo delle parole.
 
 **Jongo Dongo**
 
@@ -1884,14 +2056,14 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 
 **Jongo Dongo**
 
-1. La mano arriva piano, e non e' piu' una mano.
+1. La mano arriva piano, e non è più una mano.
 2. Espira, e l'aria intorno smette di essere aria.
 3. Il corpo non dovrebbe reggere. Qualcosa lo tiene su lo stesso.
 
 **Ombra del passato**
 
 1. Ti dice una cosa vera, e detta da lei fa male il doppio.
-2. Piu' le pensi contro, piu' si fa solida.
+2. Piu' le pensi contro, più si fa solida.
 
 **Un tenero ricordo**
 
@@ -1913,5 +2085,5 @@ parlano con voci diverse — e quali creature non hanno ancora niente da dire.
 2. ¡Vamos! ... Una folata di vento ardente ti infligge lo status in fiamme.
 3. Jerah schiva elegantemente tutti i tuoi colpi.
 4. Jerah batte il tacco tre volte: dal fumo sale un Fomentado.
-5. «Lo spettacolo non finisce finche' non lo decido io.»
+5. «Lo spettacolo non finisce finché non lo decido io.»
 

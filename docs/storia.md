@@ -334,13 +334,16 @@ Prima ancora di Jerah, il gioco apre su un pianeta primitivo corrotto da una
 fonte debolissima: un tutorial vero e proprio, non solo una schermata di
 istruzioni. Creature primitive (goblin, slime), un "piccolo carnival" — il
 boss finale è forte quanto un nemico normale, non una vera trasformazione da
-fonte. Qui si insegnano le meccaniche mentre si gioca: il primo goblin cade
-in un colpo, la Tartaruga Innocente insegna che **studiare può risparmiare**
-un nemico (sale il legame, cala lo stress, niente bottino — gli altri nemici
-dello scontro restano), la Manifestazione di un sogno (320 HP) insegna che si
-può **fuggire** da un combattimento troppo pericoloso, senza penalità. Chi
-invece regge il suo colpo fatale — la pietra quieta in tasca che si spacca
-al posto tuo — ottiene la **vittoria alternativa**: la creatura si sfalda in
+fonte. Qui si insegnano le meccaniche mentre si gioca, e a spiegarle è la
+Guida (vedi «Nelle Pianure, un passo alla volta» qui sotto): il goblin che
+mangia insegna le **imboscate**, lo slime la **precedenza** di chi è più
+veloce, l'orda di rane le **orde**, la tartaruga gigante che **certe creature
+non vanno battute** e il tasto **BOND**. La Manifestazione di un sogno (320 HP)
+insegna che si può **fuggire** da un combattimento troppo pericoloso, senza
+penalità — ed è l'unico scontro delle Pianure da cui la Guida ti lascia
+scappare. Chi invece regge il suo colpo fatale — la Pietra Quieta, strappata
+al goblin della caverna segreta, che si spacca al posto tuo — ottiene la
+**vittoria alternativa**: la creatura si sfalda in
 un vortice di rabbia e lascia il **Ricordo del Passato** (40 XP), la pietra
 che riporta in vita una volta sola. È l'unico modo di averla nel tutorial:
 se compare nella sacca, è perché quella sera lì è andata così. Il
@@ -538,6 +541,45 @@ che se serve si può premere sulla sua icona, e se ne va. «(finalmente)».
 
 Da quel momento l'**icona della Guida** sta accanto a quella del menu. Per ora
 ridice la spiegazione della mappa: è l'unico aiuto che ha scritto.
+
+## Nelle Pianure, un passo alla volta
+
+Testo di Bru (24 settembre), dall'«Addentrati nelle pianure» alla tartaruga;
+«per ora completiamo fino a qui». Dopo viene «Verso le urla», com'era.
+
+1. **Il pasto del goblin.** Una pressione strana, un posto tranquillo, poi
+   «gnarl... barf, crunch...». Il protagonista prova a parlargli — «Hey tu...
+   riesci a capirmi?» — e il goblin, disturbato mentre mangia, **ti tende
+   un'imboscata**: ha la precedenza. La Guida si riaccende da sola («i miei
+   protocolli mi obbligano ad intervenire») e da qui in poi, negli scontri,
+   parla lei al posto di Veronica. Dopo: gli esseri ancora sani sono rari dove
+   il disallineamento è alto, e la Guida attiva il **traduttore di frequenze**.
+2. **La pianura aperta.** «Sembra tutto tranquillo... per ora...»
+3. **L'albero.** Uno slime distratto da piccoli animali: l'imboscata la potresti
+   tendere tu, ma la Guida parla troppo forte e lo slime ti nota. Scontro
+   normale: muove per primo il più veloce, cioè tu.
+4. **La caverna segreta.** Dietro l'albero, dove guardava lo slime: la vede
+   solo chi **osserva la scena**. Due stanze; nella seconda un goblin stringe
+   una pietra che brilla — «volete lei! Ma io mai darei lei a voi!» — e battuto
+   la lascia cadere: è la **Pietra Quieta**, un minerale raro che condiziona le
+   biomasse. È la pietra che più avanti ti salva dall'apparizione.
+5. **Il masso gigante.** È una capsula da trasporto precipitata dallo spazio:
+   dentro, due fiale. «Lucky!»
+6. **Il bivio.** Una pressione assurda oltre il promontorio: un'anomalia, non la
+   fonte. Sopra c'è l'apparizione (la collina di prima); sotto, le pozze.
+7. **Le pozze: la prima orda.** Cinque rane folli. Le orde **annunciano la
+   mossa**: «l'orda di rane sembra gracchiare ferocemente...» è l'assalto,
+   «...forma un fronte compatto» la difesa, che non fa danni. La strategia
+   giusta è concentrarsi mentre fanno fronte e poi colpirle tutte con
+   l'**onda psichica**.
+8. **La tartaruga gigante.** Enorme, spaventosa, e non attacca mai: i colpi le
+   rimbalzano sul guscio. Alla seconda mossa la Guida se ne accorge, e si
+   accende **BOND**: premendolo la lasci andare — «sembrerebbe in qualche modo
+   offesa». Perché certe creature restano sane? Età, esperienza, doti
+   intellettuali, talento: come i dominatori.
+
+**In tutte le Pianure non si scappa**, tranne che dall'apparizione: la Guida ti
+ferma («Hey, non vorrai mica scappare dai tuoi primi combattimenti, vero?»).
 
 ## Il ritorno, e come si impara
 

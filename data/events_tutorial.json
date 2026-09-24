@@ -7,15 +7,57 @@
         "id": "inizio",
         "nome": "Punto d'atterraggio",
         "cella": [
-          1,
+          2,
+          7
+        ]
+      },
+      {
+        "id": "banchetto",
+        "nome": "Il pasto del goblin",
+        "cella": [
+          2,
+          6
+        ]
+      },
+      {
+        "id": "pianura",
+        "nome": "La pianura aperta",
+        "cella": [
+          2,
+          5
+        ]
+      },
+      {
+        "id": "albero",
+        "nome": "L'albero",
+        "cella": [
+          2,
           4
         ]
       },
       {
-        "id": "masso",
-        "nome": "Il masso e il ruscello",
+        "id": "caverna",
+        "nome": "La piccola caverna",
         "cella": [
           1,
+          4
+        ],
+        "tipo": "segreta"
+      },
+      {
+        "id": "caverna_fondo",
+        "nome": "Il fondo della caverna",
+        "cella": [
+          0,
+          4
+        ],
+        "tipo": "segreta"
+      },
+      {
+        "id": "masso",
+        "nome": "Il masso gigante",
+        "cella": [
+          2,
           3
         ]
       },
@@ -23,7 +65,7 @@
         "id": "bivio",
         "nome": "Il bivio",
         "cella": [
-          1,
+          2,
           2
         ]
       },
@@ -31,24 +73,32 @@
         "id": "pozze",
         "nome": "Le pozze d'acqua",
         "cella": [
-          0,
+          1,
           1
         ]
       },
       {
         "id": "collina",
-        "nome": "La collina",
+        "nome": "La cima del promontorio",
         "cella": [
-          2,
+          3,
           1
         ],
         "icona": "forte"
       },
       {
+        "id": "tartaruga",
+        "nome": "La tartaruga gigante",
+        "cella": [
+          1,
+          0
+        ]
+      },
+      {
         "id": "convergenza",
         "nome": "Verso le urla",
         "cella": [
-          1,
+          2,
           0
         ]
       }
@@ -56,7 +106,23 @@
     "connessioni": [
       [
         "inizio",
+        "banchetto"
+      ],
+      [
+        "banchetto",
+        "pianura"
+      ],
+      [
+        "pianura",
+        "albero"
+      ],
+      [
+        "albero",
         "masso"
+      ],
+      [
+        "caverna",
+        "caverna_fondo"
       ],
       [
         "masso",
@@ -72,6 +138,10 @@
       ],
       [
         "pozze",
+        "tartaruga"
+      ],
+      [
+        "tartaruga",
         "convergenza"
       ],
       [
@@ -102,7 +172,24 @@
         "testo": "Che ne dici? Vogliamo provare ad avventurarci io e te? :3"
       }
     ],
-    "_nota_guida": "Quello che la Guida dice sulla mappa (testo di Bru). Lo dice all'arrivo, e lo ridice ogni volta che premi la sua icona. «indica: qui» accende l'anello sulla stanza in cui sei, mentre dice «vedi?». La sua battuta lunga e' spezzata in tre dove finiscono le frasi, perche' intera non stava nel box."
+    "_nota_guida": "Quello che la Guida dice sulla mappa (testo di Bru). Lo dice all'arrivo, e lo ridice ogni volta che premi la sua icona. «indica: qui» accende l'anello sulla stanza in cui sei, mentre dice «vedi?». La sua battuta lunga e' spezzata in tre dove finiscono le frasi, perche' intera non stava nel box.",
+    "connessioni_da": {
+      "tut_caverna_vista": [
+        [
+          "albero",
+          "caverna"
+        ]
+      ]
+    },
+    "_nota_caverna": "La caverna e' un'area segreta (Bru: «se osservi la scena vedrai che dietro a dove guardava il blob, c'è una piccola caverna»). Il corridoio che ci porta si apre solo quando la scena dell'albero l'ha fatta vedere (connessioni_da): prima, sulla mappa, non c'e' nemmeno un punto di domanda.",
+    "fuga_negata": {
+      "chi": "guida",
+      "testo": "Hey, non vorrai mica scappare dai tuoi primi combattimenti, vero?",
+      "tranne": [
+        "manifestazione_di_un_sogno"
+      ],
+      "_bru": "«in questo livello l'opzione fuga non deve funzionare se non contro l'apparizione la guida ti ferma dicendo: hey, non vorrai mica scappare dai tuoi primi combattimenti vero?»"
+    }
   },
   "nodi": {
     "inizio": {
@@ -175,8 +262,8 @@
       "scena": "Le pianure di Redenna si aprono davanti a te, tranquille come sembravano da lassù.",
       "scelte": [
         {
-          "testo": "Fatti largo tra le pianure",
-          "vai": "primo_incontro"
+          "testo": "Addentrati nelle pianure",
+          "vai": "banchetto"
         }
       ],
       "apri_mappa_zona": {
@@ -236,154 +323,58 @@
       ],
       "scelte": [
         {
-          "testo": "Fatti largo tra le pianure",
-          "vai": "primo_incontro"
+          "testo": "Addentrati nelle pianure",
+          "vai": "banchetto"
         }
       ]
     },
-    "primo_incontro": {
+    "banchetto": {
+      "_nota": "Testo di Bru (24 settembre). La battuta lunga d'apertura e' spezzata dove finiscono le frasi; «Goblin:» parla col nome della creatura. Nello scontro il goblin ha la precedenza (l'hai disturbato mentre mangiava) e la Guida parla al posto di Veronica: prima della sua mossa e subito dopo.",
       "vai_se_flag": {
-        "flag": "tut_primo_goblin",
-        "vai": "dopo_primo_goblin"
+        "flag": "tut_goblin_banchetto",
+        "vai": "banchetto_vinto"
       },
-      "sequenza": [
-        {
-          "tipo": "narrazione",
-          "testo": "Tra le felci, qualcosa ti nota e si fa avanti, saltando fuori dal suo nascondiglio, ti aggredisce."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Vediamo di finire presto: non ho tempo da perdere."
-        }
-      ],
-      "espr_sinistra": "decisa",
-      "combattimento_automatico": {
-        "nemici": [
-          "goblin_tipico"
-        ],
-        "se_vinci": "dopo_primo_goblin",
-        "se_perdi": "sconfitta"
-      }
-    },
-    "dopo_primo_goblin": {
-      "sequenza": [
-        {
-          "tipo": "narrazione",
-          "testo": "Alcune creature sono malvage di natura, è tuo compito decidere il loro destino."
-        },
-        {
-          "tipo": "dialogo",
-          "chi": "anonimo",
-          "testo": "Le creature qui sembrano molto deboli... Qualunque cosa stia causando questa anomalia non deve essere molto forte..."
-        }
-      ],
       "espr_sinistra": "pensiero",
-      "flag": "tut_primo_goblin",
-      "scelte": [
-        {
-          "testo": "Continua per la tua strada",
-          "vai": "masso"
-        }
-      ]
-    },
-    "masso": {
-      "testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa.",
-      "espr_sinistra": "sorpresa",
-      "scelte": [
-        {
-          "testo": "Ispeziona l'acqua che luccica",
-          "vai": "due_nemici",
-          "una_tantum": "tut_masso",
-          "oggetti": [
-            "fiala_hp",
-            "fiala_hp"
-          ]
-        },
-        {
-          "testo": "Prosegui senza fermarti",
-          "vai": "due_nemici"
-        }
-      ],
-      "sequenza": [
-        {
-          "tipo": "narrazione",
-          "testo": "Il sentiero costeggia un masso coperto di muschio, accanto si trova un ruscello poco profondo. Sembra esserci qualcosa, nell'acqua bassa."
-        }
-      ]
-    },
-    "due_nemici": {
-      "vai_se_flag": {
-        "flag": "tut_radura_superata",
-        "vai": "bivio"
-      },
-      "sequenza": [
-        {
-          "tipo": "narrazione",
-          "testo": "Ti ritrovi in mezzo a una piccola radura fangosa. Le acque cristalline che emergono dai cumuli di fango umido creano un luccichio meraviglioso..."
-        }
-      ],
-      "combattimento_automatico": {
-        "nemici": [
-          "goblin_tipico"
-        ],
-        "se_vinci": "bivio",
-        "se_perdi": "sconfitta"
-      }
-    },
-    "bivio": {
       "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Hm... sembra che io possa proseguire sia dalla parte bassa che alta di questo bivio..."
+          "testo": "Sento una strana pressione... tuttavia questo posto sembra essere molto tranquillo..."
         },
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Forse sarebbe meglio proseguire dalla parte bassa, posso sempre tornare indietro..."
+          "testo": "D'altronde è una missione di bassissimo livello, non dovrei aspettarmi molto... hm?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "ignoto",
+          "testo": "Gnarl... barf, crunch..."
         },
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Anche se... Ho un brutto presentimento... qualcosa mi turba... e proviene dalla collina. Forse sarebbe meglio investigare cosa c'è sopra la collina...",
-          "espr": "pensiero"
+          "testo": "C'è una creatura più avanti... secondo l'organizzazione alcune creature potrebbero ancora essere sane..."
         },
-        {
-          "tipo": "narrazione",
-          "testo": "Il sentiero si dirama: da qui in poi conviene tenere d'occhio la mappa (bottone \"Mappa\"). Da qui puoi controllare la tua posizione, e ti riporta nei posti che hai già visto senza doverli riattraversare a piedi."
-        }
-      ],
-      "flag": "tut_radura_superata",
-      "sblocca_stanze": [
-        "inizio",
-        "masso",
-        "bivio",
-        "pozze",
-        "collina"
-      ],
-      "scena": "Il terreno sembra innalzarsi creando una piccola collina... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.",
-      "scelte": [
-        {
-          "testo": "Procedi verso le pozze d'acqua",
-          "vai": "pozze"
-        },
-        {
-          "testo": "Sali sulla collina",
-          "vai": "collina"
-        }
-      ]
-    },
-    "pozze": {
-      "vai_se_flag": {
-        "flag": "tut_pozze_fatte",
-        "vai": "pozze_ripulite"
-      },
-      "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Un altro Goblin... e quella... cos'è? È enorme...",
+          "testo": "Meglio non essere avventati, rischiando conflitti inutili..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Hey tu... riesci a capirmi?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "goblin_tipico",
+          "testo": "Gna?!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "!!!",
           "espr": "sorpresa"
         }
       ],
@@ -391,22 +382,547 @@
         "nemici": [
           "goblin_tipico"
         ],
-        "se_vinci": "dopo_pozze",
+        "se_vinci": "banchetto_vinto",
         "se_perdi": "sconfitta",
-        "se_fuggi": "bivio"
+        "regia": {
+          "precedenza": "nemici",
+          "battute": [
+            {
+              "quando": "inizio",
+              "righe": [
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Ti sei {fatto|fatta} fregare! Ecco cosa ottieni a disturbare chi sta mangiando!"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "A volte potrai tendere delle imboscate ai nemici, o loro potranno tenderle a te."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "In questo caso il nemico ha la precedenza.",
+                  "evidenzia": "nemico"
+                }
+              ]
+            },
+            {
+              "quando": "dopo_il_nemico",
+              "volta": 1,
+              "righe": [
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Chi ti ha detto che potevi accenderti? Non eri in stato disattivato?"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Hey! Guarda che i miei protocolli mi obbligano ad intervenire in caso di necessità, che tu lo voglia o no! Hmpf."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Certo che hai un caratterino..."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Adesso non è il momento di parlare, ho un nemico di cui occuparmi!"
+                }
+              ]
+            }
+          ]
+        }
       }
     },
-    "pozze_ripulite": {
+    "banchetto_vinto": {
+      "stanza": "banchetto",
+      "espr_sinistra": "pensiero",
+      "flag": "tut_goblin_banchetto",
       "sequenza": [
         {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Tch... Avrei dovuto aspettarmelo: nei mondi in cui il disallineamento è così alto, è molto difficile trovare degli esseri che siano ancora sani..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Esatto! Dovresti prestare molta più attenzione a quello che ti circonda!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Ti faccio presente che ti sei {fatto|fatta} notare... fai attenzione mentre esplori, qualcuno potrebbe già averti messo nel suo mirino..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Deve solo farsi avanti. Se tutti i nemici sono come quello di prima, non avremo problemi.",
+          "espr": "decisa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Certo che sei {presuntuoso|presuntuosa}..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Bisogna avere fiducia in se stessi. A volte le situazioni vanno risolte e basta, tanto vale avere un atteggiamento positivo."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Non posso darti torto. Comunque ti attivo il nostro traduttore di frequenze: lavora su determinate frequenze di comunicazione, rendendo traducibili anche linguaggi animali o intenzioni."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Certo che la tecnologia al giorno d'oggi mi spaventa..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Non si ferma il progresso!"
+        }
+      ],
+      "scena": "Del pasto del goblin restano solo gli avanzi, sparsi nell'erba.",
+      "_nota_scena": "La scena per quando ci torni e' mia, provvisoria: Bru non l'ha scritta.",
+      "scelte": [
+        {
+          "testo": "Prosegui",
+          "vai": "pianura"
+        }
+      ]
+    },
+    "pianura": {
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Sembra tutto tranquillo... per ora..."
+        }
+      ],
+      "scena": "Le pianure si stendono a perdita d'occhio... il loro disegno viene interrotto da vari ruscelli e brevi macchie di fitte foreste...",
+      "scelte": [
+        {
+          "testo": "Prosegui",
+          "vai": "albero"
+        }
+      ]
+    },
+    "albero": {
+      "_nota": "Testo di Bru. Qui l'imboscata la potresti tendere tu, ma lo slime se ne accorge: e' uno scontro normale, e muove per primo il piu' veloce (tu). Lo spiega la Guida appena comincia.",
+      "vai_se_flag": {
+        "flag": "tut_slime_battuto",
+        "vai": "albero_vinto"
+      },
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "C'è un'altra creatura più avanti, sembra distratta da dei piccoli animali su un albero..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "slime_infimo",
+          "testo": "Booooaaah!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "È la tua occasione, tendigli un'imboscata!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "slime_infimo",
+          "testo": "Boah?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Shhhhhh! Ci ha notati!",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Ops! Colpa mia ;P"
+        }
+      ],
+      "combattimento_automatico": {
+        "nemici": [
+          "slime_infimo"
+        ],
+        "se_vinci": "albero_vinto",
+        "se_perdi": "sconfitta",
+        "regia": {
+          "battute": [
+            {
+              "quando": "inizio",
+              "righe": [
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "In questo caso non ci sono state imboscate: dovresti essere più veloce tu di quell'affare, quindi hai la prima mossa!",
+                  "evidenzia": "squadra"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Non me lo faccio dire due volte."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "albero_vinto": {
+      "stanza": "albero",
+      "_nota": "La caverna e' un'area segreta: la vede solo chi osserva la scena (o chi ripassa di qui). La battuta della scena alza tut_caverna_vista, che fa comparire la scelta e apre il corridoio sulla mappa. La frase della scena e' mia: Bru ha scritto cosa si vede, non come dirlo.",
+      "espr_sinistra": "decisa",
+      "flag": "tut_slime_battuto",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Anche questa è fatta... Ci sto prendendo la mano."
+        }
+      ],
+      "scena": [
+        {
           "tipo": "narrazione",
-          "testo": "Le pozze riflettono il cielo, immobili. C'è una particolare calma in questo posto."
+          "testo": "Dietro l'albero, proprio dove guardava lo slime, si apre l'ingresso di una piccola caverna.",
+          "flag": "tut_caverna_vista"
         }
       ],
       "scelte": [
         {
-          "testo": "Attraversa gli arbusti",
-          "vai": "convergenza"
+          "testo": "Entra nella piccola caverna",
+          "vai": "caverna",
+          "richiede_flag": "tut_caverna_vista"
+        },
+        {
+          "testo": "Prosegui",
+          "vai": "masso"
+        }
+      ]
+    },
+    "caverna": {
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Complimenti! Sembra un posto promettente! Tipo quelle aree segrete nei videogiochi! Misterioooose!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Non ti stanchi mai di parlare eh..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "..."
+        }
+      ],
+      "scena": "Una piccola caverna umida. Il passaggio continua più in fondo, verso un luccichio.",
+      "_nota_scena": "La scena e' mia, provvisoria.",
+      "scelte": [
+        {
+          "testo": "Prosegui nella caverna",
+          "vai": "caverna_fondo"
+        },
+        {
+          "testo": "Torna all'albero",
+          "vai": "albero"
+        }
+      ]
+    },
+    "caverna_fondo": {
+      "_nota": "Testo di Bru. Il goblin tiene la Pietra Quieta, e battuto la lascia cadere (drop_garantito): e' la pietra che piu' avanti ti salva dall'apparizione, e ti lascia batterla invece di scappare.",
+      "vai_se_flag": {
+        "flag": "tut_pietra_presa",
+        "vai": "caverna_pietra"
+      },
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "goblin_possessivo",
+          "testo": "Gnaaa! Siiii, siiiii, scintilla! È soffice! Mi rende feeelicee!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Cosa sta facendo quel goblin?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sembra avere qualcosa fra le mani..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Penso ci abbia notati... certo che non siamo proprio il massimo a non farci notare..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "goblin_possessivo",
+          "testo": "Maledetti! Volete lei! Ma io mai darei lei a voi!"
+        }
+      ],
+      "combattimento_automatico": {
+        "nemici": [
+          "goblin_possessivo"
+        ],
+        "se_vinci": "caverna_pietra",
+        "se_perdi": "sconfitta"
+      }
+    },
+    "caverna_pietra": {
+      "stanza": "caverna_fondo",
+      "espr_sinistra": "pensiero",
+      "flag": "tut_pietra_presa",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "E questa cos'è? Hai informazioni?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sembrerebbe essere un minerale raro in grado di condizionare le biomasse e aumentarne determinate qualità."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sembrerebbe avere dei poteri curativi, ma non a livello energetico..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Adesso sì che sei utile!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Una canna da pesca diventa molto utile se nelle mani di un pescatore..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Cosa vorresti dire?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Niente..."
+        }
+      ],
+      "scena": "Il fondo della caverna. Da qui non si prosegue: si può solo tornare indietro.",
+      "_nota_scena": "La scena e' mia, provvisoria. «Da qui puoi tornare indietro, non puoi proseguire oltre» (Bru).",
+      "scelte": [
+        {
+          "testo": "Torna indietro",
+          "vai": "caverna"
+        }
+      ]
+    },
+    "masso": {
+      "_nota": "Testo di Bru: il masso gigante e le due fiale. Le fiale si prendono con una scelta (una volta sola), e la Guida commenta dopo. La scena per quando ci torni e' mia.",
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Hey, sembra che qui sia precipitato qualcosa..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Sembrerebbe una di quelle capsule che viaggiano nello spazio per portare beni alle persone..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Non penso qualcuno reclamerà mai questo..."
+        }
+      ],
+      "scena": "Un masso gigante, annerito: da vicino è una capsula da trasporto precipitata dallo spazio, sfondata nell'impatto.",
+      "scelte": [
+        {
+          "testo": "Prendi le fiale",
+          "una_tantum": "tut_masso",
+          "oggetti": [
+            "fiala_hp",
+            "fiala_hp"
+          ],
+          "vai": "masso_fiale"
+        },
+        {
+          "testo": "Prosegui",
+          "vai": "bivio"
+        }
+      ]
+    },
+    "masso_fiale": {
+      "stanza": "masso",
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Lucky!"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Prosegui",
+          "vai": "bivio"
+        }
+      ]
+    },
+    "bivio": {
+      "_nota": "Testo di Bru. Sopra il promontorio c'e' l'apparizione (la collina di prima): non e' la fonte, ma un'anomalia che si puo' ignorare. Sotto, le pozze e l'orda di rane.",
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Cos'è questa pressione assurda?!",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Sembra che ci siano alti livelli di disallineamento oltre questo promontorio... non ti consiglio di andarci, {Dominatore|Dominatrice}..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Forse faremmo meglio a passare di sotto, attraverso queste pozze d'acqua..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Posso confermarti che non si tratta della fonte, ma di un'anomalia che può essere ignorata..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Sarebbe il caso di dare un'occhiata per raccogliere dati... ma non dovrei rischiare la missione..."
+        }
+      ],
+      "scena": "Il terreno sembra innalzarsi creando un promontorio... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.",
+      "sblocca_stanze": [
+        "pozze",
+        "collina"
+      ],
+      "scelte": [
+        {
+          "testo": "Passa per le pozze d'acqua",
+          "vai": "pozze"
+        },
+        {
+          "testo": "Sali sulla cima del promontorio",
+          "vai": "collina"
+        }
+      ]
+    },
+    "pozze": {
+      "_nota": "La prima orda: cinque rane folli. Le orde annunciano la mossa prima di farla («L'orda di rane sembra gracchiare ferocemente...» e' l'attacco, «...forma un fronte compatto» la difesa, che non fa danni). La strategia di Bru: concentrarsi mentre fanno fronte, poi l'onda psichica. La riga prima dello scontro e' mia.",
+      "vai_se_flag": {
+        "flag": "tut_pozze_fatte",
+        "vai": "pozze_vinte"
+      },
+      "espr_sinistra": "decisa",
+      "sequenza": [
+        {
+          "tipo": "narrazione",
+          "testo": "Le pozze cominciano a gracidare, tutte insieme."
+        }
+      ],
+      "combattimento_automatico": {
+        "nemici": [
+          "rana_folle"
+        ],
+        "se_vinci": "pozze_vinte",
+        "se_perdi": "sconfitta",
+        "regia": {
+          "battute": [
+            {
+              "quando": "inizio",
+              "righe": [
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Questi non sono nemici comuni, si tratta di un'orda!",
+                  "evidenzia": "nemico"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Non fa alcuna differenza, le spazzerò via."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "L'orda si indebolisce man mano che riduci i suoi punti vita.",
+                  "evidenzia": "scheda"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "{Attento|Attenta} però: le orde causano sempre danni multipli. Osserva bene quando è il momento ideale per un attacco ad ampio raggio."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "pozze_vinte": {
+      "stanza": "pozze",
+      "espr_sinistra": "pensiero",
+      "flag": "tut_pozze_fatte",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "È stata più tosta del previsto..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Ma te la sei cavata perfettamente! Sei forte, {Dominatore|Dominatrice}!"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "..."
+        }
+      ],
+      "scena": "Le pozze riflettono il cielo, immobili. C'è una particolare calma in questo posto.",
+      "scelte": [
+        {
+          "testo": "Prosegui",
+          "vai": "tartaruga"
         },
         {
           "testo": "Torna al bivio",
@@ -414,31 +930,133 @@
         }
       ]
     },
-    "dopo_pozze": {
+    "tartaruga": {
+      "_nota": "Testo di Bru. La tartaruga non si batte (alza la difesa a ogni turno) e non attacca mai. Alla tua seconda azione la Guida si accorge che non e' ostile: da li' si accende BOND, e premendolo la lasci andare. Bru la chiama «tartaruga gigante»: e' il nome che ha adesso.",
+      "vai_se_flag": {
+        "flag": "tut_tartaruga_fatta",
+        "vai": "tartaruga_dopo"
+      },
+      "espr_sinistra": "sorpresa",
       "sequenza": [
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Qualcuno sembra urlare oltre questi arbusti... sento che la fonte è vicina... devo essere sicur{o|a} di aver fatto tutto quello che era necessario fare prima di proseguire."
+          "testo": "Hm?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "E quella cos'è... è enorme...",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Forse conviene andare avanti senza farsi notare..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "tartaruga_innocente",
+          "testo": "?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Ormai ci ha notati...",
+          "espr": "decisa"
         }
       ],
-      "flag": "tut_pozze_fatte",
-      "scena": "Le pozze riflettono il cielo, immobili. Da qui il sentiero è interrotto da un mucchio di arbusti.",
+      "combattimento_automatico": {
+        "nemici": [
+          "tartaruga_innocente"
+        ],
+        "se_vinci": "tartaruga_dopo",
+        "se_perdi": "sconfitta",
+        "regia": {
+          "battute": [
+            {
+              "quando": "dopo_di_te",
+              "volta": 2,
+              "apre_bond": true,
+              "righe": [
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Sembra che i tuoi attacchi non facciano molto effetto... ma sinceramente non noto ostilità da parte della tartaruga..."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "tartaruga_innocente",
+                  "testo": "Ruuu..."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Effettivamente non ha provato neanche una volta ad attaccare..."
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "tartaruga_innocente",
+                  "testo": "Ruuu!"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "guida",
+                  "testo": "Sembra che non abbia mai avuto cattive intenzioni, ha solo un aspetto abominevole!"
+                },
+                {
+                  "tipo": "dialogo",
+                  "chi": "anonimo",
+                  "testo": "Sembrerebbe proprio così...",
+                  "evidenzia": "bond"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "tartaruga_dopo": {
+      "stanza": "tartaruga",
+      "espr_sinistra": "pensiero",
+      "flag": "tut_tartaruga_fatta",
       "sblocca_stanze": [
         "convergenza"
       ],
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Povera tartaruga, meno male che aveva un guscio bello resistente..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Allora è vero che alcune creature non vengono influenzate dal disallineamento... chissà per quale motivo..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Pensiamo sia dovuto a particolari qualità di determinati esseri viventi, quali età, esperienza, doti intellettuali o talento."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Come voi dominatori, in fondo: queste qualità possono presentarsi anche nella fauna."
+        }
+      ],
+      "scena": "Nell'erba resta l'impronta enorme della tartaruga, e una scia che si allontana piano piano.",
+      "_nota_scena": "La scena e' mia, provvisoria.",
       "scelte": [
         {
-          "testo": "Oltrepassa gli arbusti",
+          "testo": "Prosegui",
           "vai": "convergenza"
         },
         {
-          "testo": "Apri la mappa",
-          "torna_a_mappa": true,
-          "stanza": "pozze"
+          "testo": "Torna alle pozze",
+          "vai": "pozze"
         }
-      ],
-      "_nota_stanza": "Sta dentro 'pozze', ma non e' quella stanza: e' una scena che ci succede. Senza 'stanza' la mappa si apre chiedendo i vicini di 'dopo_pozze', che vicini non ne ha - e resta li' disegnata, senza niente da premere."
+      ]
     },
     "collina": {
       "vai_se_flag": {
@@ -529,11 +1147,11 @@
         },
         {
           "tipo": "narrazione",
-          "testo": "Proprio al centro della collina la strana creatura volteggia, ignorando tutto il resto..."
+          "testo": "Proprio sulla cima del promontorio la strana creatura volteggia, ignorando tutto il resto..."
         }
       ],
       "espr_sinistra": "pensiero",
-      "scena": "La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
+      "scena": "Il promontorio è silenzioso, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
       "scelte": [
         {
           "testo": "Combatti",
@@ -555,7 +1173,7 @@
       "sequenza": [
         {
           "tipo": "narrazione",
-          "testo": "La cima della collina è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo."
+          "testo": "La cima del promontorio è vuota. Nell'erba resta solo il cerchio schiacciato dove qualcosa volteggiava, e l'odore dolce che si sta dissolvendo."
         },
         {
           "tipo": "dialogo",
@@ -565,7 +1183,7 @@
         }
       ],
       "espr_sinistra": "pensiero",
-      "scena": "La cima della collina è vuota. Resta il cerchio schiacciato nell'erba.",
+      "scena": "La cima del promontorio è vuota. Resta il cerchio schiacciato nell'erba.",
       "scelte": [
         {
           "testo": "Attraversa gli arbusti",
@@ -582,12 +1200,12 @@
         {
           "tipo": "dialogo",
           "chi": "anonimo",
-          "testo": "Non so cosa fosse... ma la collina è silenziosa, adesso."
+          "testo": "Non so cosa fosse... ma il promontorio è silenzioso, adesso."
         }
       ],
       "espr_sinistra": "pensiero",
       "flag": "tut_collina_fatta",
-      "scena": "La collina è silenziosa, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
+      "scena": "Il promontorio è silenzioso, sembra essere tutto tornato alla normalità, ma la fonte è ancora da qualche parte...",
       "sblocca_stanze": [
         "convergenza"
       ],
@@ -621,12 +1239,12 @@
           "vai": "boss"
         },
         {
-          "testo": "Torna alla collina",
+          "testo": "Torna al promontorio",
           "vai": "collina"
         },
         {
-          "testo": "Torna alle pozze",
-          "vai": "pozze"
+          "testo": "Torna dalla tartaruga",
+          "vai": "tartaruga"
         }
       ],
       "vai_se_flag": [

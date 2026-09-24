@@ -335,12 +335,16 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
   abbandonato, l'approccio al ponte marcio) è su `mappa_dungeon`; l'ingresso lineare (varco →
   corridoio → fossa → sala del raccolto → sala del lamento) e la parte finale forzata (ponte →
   cripta → altare → trono) restano scelte dirette come nel resto del gioco
-- **In uso anche nel tutorial** (`data/events_tutorial.json`), dove serve a *insegnare* la
-  mappa: dal bivio in poi (bivio, pozze, collina, convergenza) si esplora liberamente. Prima
-  era un bivio esclusivo — scelto un ramo si finiva dritti al boss — e quindi era impossibile
-  prendere la Pietra Quieta dalla tartaruga (pozze) e poi usarla contro la manifestazione
-  (collina). I due scontri usano `"salta_se_flag"` così una stanza già ripulita non li rilancia
-  a ogni rivisita
+- **In uso anche nel tutorial** (`data/events_tutorial.json`), dove la mappa te la spiega la
+  Guida all'arrivo. Dodici stanze in fila e un bivio: il pasto del goblin, la pianura aperta,
+  l'albero dello slime, il masso con le fiale, il bivio fra le pozze (l'orda di rane, poi la
+  tartaruga gigante) e la cima del promontorio (l'apparizione), e in cima «Verso le urla».
+  Dietro l'albero c'è **un'area segreta**, la caverna, in due stanze (`"tipo": "segreta"`): il
+  suo corridoio sta in `connessioni_da` e si apre solo quando la scena dell'albero l'ha fatta
+  vedere. In fondo alla caverna un goblin tiene la **Pietra Quieta**, e battendolo la lascia:
+  è la pietra che più avanti ti salva dall'apparizione e ti lascia batterla invece di
+  scappare. Ogni scontro ha la sua stanza «dopo» (`banchetto_vinto`, `pozze_vinte`...) con
+  `"stanza"` dichiarata, e `vai_se_flag` ti ci riporta a scontro fatto
 - Non usa (per ora) `"salta_se_flag"`/`combattimento_automatico`: Jondoh usa solo `"combatti"`
   sulle scelte, che non ha un equivalente diretto. Il boss finale (Jongo Dongo) è identico in
   entrambi i casi: con/senza l'alleata cambia solo la scena (il suo sacrificio, narrato e
@@ -918,6 +922,49 @@ frenetico pur restando una schermata ferma.
   altri se la cavano con `azione_automatica()`
 - I nemici di livello basso fanno **meno male** di prima: in tempo reale i colpi arrivano più
   spesso, e la difficoltà la fa la fretta con cui devi decidere, non la cifra del danno
+
+## Chi muove per primo, e chi parla sopra lo scontro (`combattimento/Regia.gd`)
+Bru, sulle Pianure: «inizia il combattimento col goblin che ha la precedenza, se i nemici
+tendono imboscate o ti colgono di sorpresa hanno la precedenza come turno, in questo caso
+durante il combattimento invece di veronica avremo la guida che parla».
+- **La regia sta nel nodo che apre lo scontro**, non nella creatura: lo stesso goblin in
+  un'altra stanza non ha nessuno che gli parla sopra. `"combattimento_automatico"` (e una
+  scelta con `"combatti"`) accetta `"regia": {"precedenza", "battute"}`, e arriva allo scontro
+  con il resto della preparazione (`GameState.prepara_combattimento`)
+- **`"precedenza"`**: `"nemici"` (ti hanno colto di sorpresa: muovono quasi subito, tu aspetti
+  la tua ricarica intera), `"squadra"` (l'imboscata l'hai tesa tu), o niente — e allora vale la
+  regola di sempre, **muove per primo il più veloce**. Ogni **agguato** delle stanze
+  (`"agguato"`) dà da solo la precedenza a chi l'ha teso
+- **`"battute"`**: `{"quando": "inizio" | "dopo_il_nemico" | "dopo_di_te", "volta": n,
+  "righe": [...]}`. Le righe sono battute come quelle dell'allenamento di Veronica (`tipo`,
+  `chi`, `testo`, `evidenzia`): mentre si leggono il mondo è fermo, e si va avanti col click.
+  Nel goblin del pasto la Guida parla appena comincia, poi il goblin colpisce, poi il
+  battibecco — e solo allora il menu diventa tuo. `"apre_bond": true` su una battuta rende
+  mediabile subito chi ha una `"mediazione"`, senza aspettare lo studio
+- **La fuga negata è una regola della zona**: `mappa_dungeon.fuga_negata` = `{chi, testo,
+  tranne}`. Nelle Pianure la Guida ti ferma («Hey, non vorrai mica scappare dai tuoi primi
+  combattimenti, vero?») in tutti gli scontri tranne quello con l'apparizione, che è proprio
+  quello in cui si impara a scappare
+- **Il tasto BOND è la mediazione.** Era disegnato nella plancia e non era collegato a niente:
+  adesso si accende (colorato) quando qualcuno in campo si può lasciare andare, e premerlo è
+  come scegliere Mediazione dal menu. «Quando uno dei personaggi è pronto per legare col
+  nemico il tasto bond si illumina» (Bru). La prima volta succede con la tartaruga gigante
+- **Le orde dicono cosa stanno per fare** (`"orda": {"preannuncia": true}`): la prossima mossa
+  si sceglie appena finita questa e si annuncia subito col suo `testo_annuncio` («L'orda di
+  rane sembra gracchiare ferocemente...»), così tutta la sua ricarica è tempo tuo per
+  rispondere. `"componenti"` fissa quante sono (le rane: cinque); senza, restano da 3 a 10
+- **Onda psichica** (tipo `onda`) e **Concentrazione** (tipo `potenziamento`), del
+  protagonista fin dall'inizio. L'onda fa **un tentativo per ogni componente** di un'orda, e
+  ognuno va a vuoto, colpisce o fa critico per conto suo; su un nemico solo è un colpo piccolo
+  e basta. La concentrazione alza attacco e difesa di 2 per le tue tre azioni successive —
+  contro un'orda la difesa conta per ogni colpo che arriva, ed è per questo che la strategia
+  di Bru («boostarti mentre fanno fronte compatto, poi l'attacco a raggio») funziona.
+  Misurate: a colpi normali l'orda di rane ti costa in media 34 punti vita, con l'onda 19-20
+- **La tua battuta si apre anche dal menu.** Era un difetto: chi comandi tu non passa da
+  `battuta_di` (è escluso apposta dai «pronti»), e con lei saltava tutto quello che si paga a
+  ogni battuta — il veleno non mordeva, il sonno non toglieva il turno, i potenziamenti non
+  scadevano. Le prove non lo vedevano perché l'orologio virtuale passa di là. Adesso
+  `apri_la_battuta()` la apre quando agisci, una volta sola
 
 ## La Mattanza: la barra si svuota, e finché si svuota tu batti (`abilita.json` → `mattanza`)
 È la cosa che la barra di dominio serve a comprare, e l'unico momento del gioco in cui il

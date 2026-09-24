@@ -147,6 +147,15 @@ func _ready() -> void:
 	await prova_da_un_altra_schermata_arriva_il_nodo_giusto()
 	await prova_l_icona_del_menu_si_preme_anche_mentre_si_legge()
 	await prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa()
+	prova_le_pianure_si_esplorano_fino_alla_tartaruga()
+	prova_chi_tende_l_imboscata_muove_per_primo()
+	prova_l_orda_dice_cosa_sta_per_fare()
+	prova_l_onda_psichica_tira_per_ogni_componente()
+	await prova_la_tua_battuta_si_apre_anche_dal_menu()
+	prova_nelle_pianure_non_si_scappa()
+	prova_il_bond_con_la_tartaruga()
+	await prova_bond_si_preme()
+	prova_la_caverna_si_apre_guardando()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -3288,6 +3297,12 @@ func prova_nessuna_creatura_perde_la_battuta() -> void:
 			# fallire su una regia voluta, oppure - togliendola - smettere di
 			# vedere le mosse che promettono un effetto e non lo fanno, che e'
 			# il difetto per cui era stata scritta
+			# E UN'ORDA CHE TI MANCA CON TUTTI I SUOI COLPI non e' ferma: ha
+			# tirato i dadi. «50% di prob di fallire a colpo» (Bru), quindi con
+			# cinque rane succede una volta su trentadue - e lo dice
+			if String(nemico.get("ultima_mossa_tipo", "")) == "orda" and not GameState.storico.is_empty() \
+					and "nessuno ti prende" in String(GameState.storico.back().get("testo", "")):
+				continue
 			if String(nemico.get("ultima_mossa_tipo", "")) != "scena":
 				ferme += 1
 		esigi(ferme == 0,
@@ -5826,7 +5841,7 @@ func prova_abilita_di_combattimento() -> void:
 	# qualcuno ne scrive una di tipo "fiammata" il menu la mostra e poi non
 	# succede niente: e' esattamente il genere di buco che si trova giocando.
 	titolo("le abilita' di combattimento sono tutte eseguibili")
-	var tipi_noti := ["provoca", "area", "raffica", "carica",
+	var tipi_noti := ["provoca", "area", "raffica", "carica", "onda", "potenziamento",
 			"astio", "vendetta", "annichilazione", "pieta", "mantra", "flagello", "mattanza",
 			# i sette che servono a Veronica e Yhvina. Sono pochi apposta: le
 			# loro trentasei mosse sono trentasei tarature di questi, non
@@ -10139,7 +10154,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4657, "perche":
+	"Combattimento.gd": {"misura": 4765, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -10169,7 +10184,14 @@ const FILE_GRANDI := {
 			"(vita_minima), la barra della vita segnava 0 coi pugni invece che con la Meteora " +
 			"(mostra_vita_di_allora), e il ritratto si spegneva dopo le scuse di Veronica invece che sul " +
 			"colpo (abbatte). I commenti li ho accorciati prima di alzare il numero, non dopo. Alzare la misura e' " +
-		"una decisione, non una svista: si scrive qui cosa si e' comprato"},
+		"una decisione, non una svista: si scrive qui cosa si e' comprato. " +
+		"DA 4657 A 4765 per le Pianure di Redenna (24 settembre), e il conto intero: 26 righe per " +
+		"un DIFETTO - in tempo reale la battuta di chi comandi tu non si apriva mai (niente veleno, " +
+		"niente sonno, potenziamenti eterni), adesso apri_la_battuta la apre anche da agisci_ora; " +
+		"29 per le orde che annunciano la mossa (scegli_mossa staccata da turno_nemico_normale, che " +
+		"in cambio e' uscita dall'elenco delle ingarbugliate, e preannuncia); 33 per le due abilita' " +
+		"nuove (onda, potenziati); il resto sono gli agganci della regia (Regia.gd, un file suo) e il " +
+		"tasto BOND, che era disegnato e non era collegato a niente"},
 	"GameState.gd": {"misura": 2537, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
@@ -10288,7 +10310,6 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Combattimento.gd:esegui_azione": {"misura": 29},
 	"Combattimento.gd:studia": {"misura": 27},
 	"Combattimento.gd:applica_effetto": {"misura": 26},
-	"Combattimento.gd:turno_nemico_normale": {"misura": 26},
 	"GameState.gd:_leggi_salvataggio": {"misura": 25},
 	"GameState.gd:verifica_passive": {"misura": 26},
 	"Campo.gd:aggiorna": {"misura": 22},
@@ -13279,3 +13300,335 @@ func tutte_spente(dove: Control) -> bool:
 			if not (figlio as Button).disabled:
 				return false
 	return viste > 0
+
+# --- le Pianure di Redenna, dal goblin che mangia alla tartaruga -------------
+
+var ricordo_scontro := {}   # quello che le strategie di queste prove si annotano
+
+func scontro_muto_contro(nemici: Array, regia: Dictionary, strategia: Callable, giri := 60) -> Node:
+	# uno scontro intero senza schermo: in modalita' muta si gioca tutto dentro
+	# add_child, e quando torna e' gia' finito
+	GameState.prepara_combattimento(nemici, "", "", "", "", regia)
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = giri
+	scontro.strategia = strategia
+	add_child(scontro)
+	return scontro
+
+func nello_storico(pezzo: String) -> int:
+	# dove sta, nello storico, la prima riga che contiene quel pezzo (-1: mai)
+	for i in GameState.storico.size():
+		if pezzo in String(GameState.storico[i].get("testo", "")):
+			return i
+	return -1
+
+func prova_le_pianure_si_esplorano_fino_alla_tartaruga() -> void:
+	# Bru, 24 settembre: «dopo aver parlato con la guida ci sarà l'opzione
+	# addentrati nelle pianure» - e da li' il goblin che mangia, la pianura
+	# tranquilla, lo slime, la caverna segreta, il masso con le fiale, il
+	# bivio, l'orda di rane, la tartaruga. «Per ora completiamo fino a qui».
+	titolo("le Pianure si esplorano come le ha scritte Bru, fino alla tartaruga")
+	var dati := carica_eventi("res://data/events_tutorial.json")
+	var nodi: Dictionary = dati.get("nodi", {})
+	for id_nodo in ["inizio", "inizio_guida"]:
+		var scelta: Dictionary = (nodi[id_nodo].get("scelte", [{}]) as Array)[0]
+		esigi(String(scelta.get("testo", "")) == "Addentrati nelle pianure" and String(scelta.get("vai", "")) == "banchetto",
+				"da '%s' non ci si addentra nelle pianure verso il goblin: %s" % [id_nodo, scelta])
+	# LA STRADA, un passo per volta: ogni tappa deve portare alla successiva
+	var strada := [["banchetto", "banchetto_vinto"], ["banchetto_vinto", "pianura"], ["pianura", "albero"],
+			["albero", "albero_vinto"], ["albero_vinto", "caverna"], ["caverna", "caverna_fondo"],
+			["caverna_fondo", "caverna_pietra"], ["caverna_pietra", "caverna"], ["albero_vinto", "masso"],
+			["masso", "masso_fiale"], ["masso", "bivio"], ["bivio", "pozze"], ["bivio", "collina"],
+			["pozze", "pozze_vinte"], ["pozze_vinte", "tartaruga"], ["tartaruga", "tartaruga_dopo"],
+			["tartaruga_dopo", "convergenza"]]
+	for tappa in strada:
+		esigi(nodi.has(tappa[0]) and String(tappa[1]) in destinazioni_di(nodi[tappa[0]]),
+				"da '%s' non si arriva a '%s'" % [tappa[0], tappa[1]])
+	# CHI PARLA, dove Bru l'ha scritto: il goblin col suo nome, il «???»
+	var sequenza: Array = nodi["banchetto"].get("sequenza", [])
+	var chi_dice := {}
+	for msg in sequenza:
+		chi_dice[String(msg.get("testo", ""))] = String(msg.get("chi", ""))
+	esigi(chi_dice.get("Gnarl... barf, crunch...", "") == "ignoto" and chi_dice.get("Gna?!", "") == "goblin_tipico",
+			"il goblin del pasto non parla come nel testo di Bru: %s" % chi_dice)
+	# LE DUE FIALE nel masso, una volta sola
+	var fiale: Dictionary = {}
+	for scelta in nodi["masso"].get("scelte", []):
+		if String(scelta.get("vai", "")) == "masso_fiale":
+			fiale = scelta
+	esigi(fiale.get("oggetti", []) == ["fiala_hp", "fiala_hp"] and fiale.has("una_tantum"),
+			"il masso non da' le due fiale, o le da' ogni volta: %s" % fiale)
+	# LA PIETRA ADESSO LA TIENE IL GOBLIN DELLA CAVERNA, non la tartaruga
+	esigi(String(GameState.drop_garantito_di("goblin_possessivo").get("oggetto", "")) == "pietra_quieta",
+			"il goblin della caverna non lascia la Pietra Quieta")
+	esigi(not GameState.mediazione_di("tartaruga_innocente").has("oggetto"),
+			"la tartaruga lascia ancora la pietra: adesso la tiene il goblin della caverna")
+	esigi(String(GameState.personaggi.get("tartaruga_innocente", {}).get("nome", "")) == "Tartaruga Gigante",
+			"la tartaruga non si chiama come la chiama Bru")
+	# L'ORDA E' DA CINQUE e annuncia le mosse
+	var orda: Dictionary = GameState.personaggi.get("rana_folle", {}).get("orda", {})
+	esigi(int(orda.get("componenti", 0)) == 5 and bool(orda.get("preannuncia", false)),
+			"l'orda di rane non e' da cinque, o non annuncia le mosse: %s" % orda)
+
+func prova_chi_tende_l_imboscata_muove_per_primo() -> void:
+	# «inizia il combattimento col goblin che ha la precedenza, se i nemici
+	# tendono imboscate o ti colgono di sorpresa hanno la precedenza come turno»
+	# e, per lo slime, «la precedenza la ha chi ha la velocita' maggiore» (Bru)
+	titolo("chi tende l'imboscata muove per primo; altrimenti il piu' veloce")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	var regia: Dictionary = nodi["banchetto"]["combattimento_automatico"].get("regia", {})
+	esigi(String(regia.get("precedenza", "")) == "nemici", "al goblin che mangia non va la precedenza: %s" % regia)
+	for sorpresa in [true, false]:
+		GameState.nuova_partita()
+		GameState.imposta_seed(77)
+		ricordo_scontro = {}
+		var guarda_prima := func(sc, chi: Dictionary) -> Dictionary:
+			if not ricordo_scontro.has("colpito_prima"):
+				ricordo_scontro["colpito_prima"] = int(chi.hp) < int(chi.hp_max)
+			return {"tipo": "attacca", "bersaglio": sc.vivi(false)[0]}
+		var scontro := scontro_muto_contro(["goblin_tipico"], regia if sorpresa else {}, guarda_prima)
+		esigi(bool(ricordo_scontro.get("colpito_prima", false)) == sorpresa,
+				("colto di sorpresa, alla tua prima mossa il goblin non ti ha ancora toccato" if sorpresa
+				else "senza imboscata il goblin, piu' lento, ti colpisce prima che tu possa muovere"))
+		if sorpresa:
+			# la Guida parla prima, e il battibecco arriva DOPO il suo colpo
+			var spiega := nello_storico("il nemico ha la precedenza")
+			var colpo := nello_storico("Goblin Tipico")
+			var battibecco := nello_storico("Chi ti ha detto che potevi accenderti?")
+			esigi(spiega >= 0 and battibecco > spiega, "la Guida non spiega la precedenza, o il battibecco arriva prima")
+			esigi(nello_storico("Adesso non è il momento di parlare") > battibecco,
+					"il battibecco non finisce con «Adesso non è il momento di parlare»")
+			esigi(colpo >= 0, "nello storico non c'e' traccia del goblin")
+		scontro.free()
+	# E UN AGGUATO QUALUNQUE da' la precedenza a chi l'ha teso
+	GameState.nuova_partita()
+	var teso := IngressoNodo.tira_agguato("prova_agguato",
+			{"agguato": {"probabilita": 1.0, "ripetibile": true, "gruppi": [["goblin_tipico"]]}})
+	esigi(teso and String(GameState.regia_combattimento.get("precedenza", "")) == "nemici",
+			"un agguato non da' la precedenza a chi l'ha teso")
+	GameState.nuova_partita()
+	esigi(GameState.regia_combattimento.is_empty(), "la regia di uno scontro sopravvive a una partita nuova")
+
+func prova_l_orda_dice_cosa_sta_per_fare() -> void:
+	# «nelle orde puoi osservare i comportamenti, prima di compiere la mossa e
+	# che tu scelga cosa fare appare sempre un testo collegato alla mossa che
+	# fara'» (Bru)
+	titolo("l'orda annuncia la mossa prima di farla, e prima che tu scelga")
+	GameState.nuova_partita()
+	GameState.imposta_seed(31)
+	ricordo_scontro = {"scelte": 0, "senza_annuncio": 0, "componenti": 0}
+	var guarda_annuncio := func(sc, _chi: Dictionary) -> Dictionary:
+		var orda: Dictionary = sc.vivi(false)[0]
+		ricordo_scontro["scelte"] += 1
+		ricordo_scontro["componenti"] = maxi(int(ricordo_scontro["componenti"]), int(orda.componenti_iniziali))
+		if Dictionary(orda.get("mossa_in_carica", {})).is_empty():
+			ricordo_scontro["senza_annuncio"] += 1
+		return {"tipo": "attacca", "bersaglio": orda}
+	var scontro := scontro_muto_contro(["rana_folle"], {}, guarda_annuncio)
+	esigi(int(ricordo_scontro["componenti"]) == 5, "l'orda di rane non e' da cinque: %d" % int(ricordo_scontro["componenti"]))
+	esigi(int(ricordo_scontro["scelte"]) > 3 and int(ricordo_scontro["senza_annuncio"]) == 0,
+			"%d volte su %d hai dovuto scegliere senza sapere cosa stava per fare l'orda"
+			% [int(ricordo_scontro["senza_annuncio"]), int(ricordo_scontro["scelte"])])
+	var annuncio := nello_storico("gracchiare ferocemente")
+	var assalto := nello_storico("ti saltano addosso da ogni parte")
+	esigi(annuncio >= 0 and assalto > annuncio, "l'assalto delle rane arriva senza il gracidio che lo annuncia")
+	esigi(bool(scontro.giocatore_ha_vinto), "a colpi normali, al livello 1, l'orda di rane non si batte")
+	scontro.free()
+	# e chi non lo dichiara non annuncia niente: gli zombi i testi non li hanno
+	esigi(not bool(GameState.personaggi.get("zombie_cittadino", {}).get("orda", {}).get("preannuncia", false)),
+			"gli zombi annunciano le mosse senza averne i testi")
+
+func prova_l_onda_psichica_tira_per_ogni_componente() -> void:
+	# «sull'orda fa per esempio 5 colpi siccome l'orda e' composta da 5 [...]
+	# tot tentativi che possono fare critico missare o colpire normale» (Bru)
+	titolo("l'onda psichica tira un colpo per ogni componente dell'orda")
+	GameState.nuova_partita()
+	var mie := GameState.abilita_usabili(GameState.id_protagonista)
+	esigi("onda_psichica" in mie and "concentrazione" in mie,
+			"al livello 1 non hai l'onda psichica e la concentrazione: %s" % [mie])
+	var dati := GameState.abilita_combattimento("onda_psichica")
+	var scontro := scontro_muto_contro(["rana_folle"], {}, func(_s, _c) -> Dictionary: return {"tipo": "difendi"}, 1)
+	var eroe: Dictionary = scontro.combattenti[0]
+	var orda: Dictionary = scontro.combattenti[1]
+	scontro.in_corso = true
+	for caso in [[0.0, 5], [1.0, 0]]:
+		orda.hp = orda.hp_max
+		orda.componenti = 5
+		orda.colpi_incassati = 0
+		var prova_dati := dati.duplicate()
+		prova_dati["probabilita_mancare"] = caso[0]
+		scontro.onda(eroe, prova_dati)
+		esigi(int(orda.colpi_incassati) == int(caso[1]),
+				"con %d%% di colpi a vuoto l'onda ne ha fatti arrivare %d invece di %d"
+				% [int(float(caso[0]) * 100), int(orda.colpi_incassati), int(caso[1])])
+	esigi(nello_storico("Su 5, 5 vanno a vuoto") >= 0, "i colpi a vuoto dell'onda non si dicono")
+	scontro.free()
+	# su un nemico solo, un tentativo solo: e' li' il freno
+	GameState.nuova_partita()
+	scontro = scontro_muto_contro(["goblin_tipico"], {}, func(_s, _c) -> Dictionary: return {"tipo": "difendi"}, 1)
+	eroe = scontro.combattenti[0]
+	var goblin: Dictionary = scontro.combattenti[1]
+	scontro.in_corso = true
+	goblin.hp = goblin.hp_max
+	goblin.colpi_incassati = 0
+	var sicura := dati.duplicate()
+	sicura["probabilita_mancare"] = 0.0
+	scontro.onda(eroe, sicura)
+	esigi(int(goblin.colpi_incassati) == 1, "su un goblin solo l'onda ha tirato %d colpi" % int(goblin.colpi_incassati))
+	scontro.free()
+
+func prova_la_tua_battuta_si_apre_anche_dal_menu() -> void:
+	# IL DIFETTO: in tempo reale chi comandi tu non passava da battuta_di, e con
+	# lei saltava tutto quello che si paga a ogni battuta - i potenziamenti non
+	# scadevano mai, il veleno non mordeva. Concentrazione l'ha fatto vedere:
+	# «leggermente piu' attacco e difesa» per sempre non e' leggermente
+	titolo("la tua battuta si apre anche quando agisci dal menu: Concentrazione scade")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	scontro.set_process(false)   # il mondo fermo: qui si guarda solo la clessidra
+	await get_tree().process_frame
+	scontro.in_corso = true
+	var tu: Dictionary = scontro.combattente_comandato()
+	var battute_prima := int(scontro.battute_del_giocatore)
+	tu.ricarica = 0.0
+	scontro.agisci_ora({"tipo": "abilita", "id": "concentrazione"})
+	var attacco_su := RegoleCombattimento.attacco_di(tu)
+	esigi(not tu.buffs.is_empty(), "Concentrazione non ti ha dato niente")
+	var turni := int(GameState.abilita_combattimento("concentrazione").get("turni", 4))
+	for volta in turni:
+		tu.ricarica = 0.0
+		scontro.agisci_ora({"tipo": "difendi"})
+		if volta < turni - 2:
+			esigi(not tu.buffs.is_empty(), "Concentrazione e' gia' finita dopo %d azioni" % (volta + 1))
+	esigi(tu.buffs.is_empty(), "dopo %d tue azioni Concentrazione e' ancora su: le tue battute non scorrono" % turni)
+	esigi(RegoleCombattimento.attacco_di(tu) < attacco_su, "scaduta la Concentrazione l'attacco non torna com'era")
+	esigi(int(scontro.battute_del_giocatore) == battute_prima + turni + 1,
+			"le tue battute dal menu non si contano: %d invece di %d"
+			% [int(scontro.battute_del_giocatore) - battute_prima, turni + 1])
+	scontro.queue_free()
+	await get_tree().process_frame
+
+func prova_nelle_pianure_non_si_scappa() -> void:
+	# «in questo livello l'opzione fuga non deve funzionare se non contro
+	# l'apparizione la guida ti ferma dicendo: hey, non vorrai mica scappare
+	# dai tuoi primi combattimenti vero?» (Bru)
+	titolo("nelle Pianure la Guida non ti lascia scappare, tranne dall'apparizione")
+	var sempre_fuga := func(_s, _c) -> Dictionary: return {"tipo": "fuggi"}
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.imposta_seed(5)
+	var scontro := scontro_muto_contro(["goblin_tipico"], {}, sempre_fuga, 12)
+	esigi(not bool(scontro.giocatore_e_fuggito), "nelle Pianure si scappa da un goblin")
+	esigi(nello_storico("non vorrai mica scappare") >= 0, "la Guida non dice niente mentre ti ferma")
+	scontro.free()
+	GameState.nemici_combattimento = ["manifestazione_di_un_sogno"]
+	var apparizione: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	apparizione.muto = true
+	apparizione.limite_giri = 1
+	apparizione.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	add_child(apparizione)
+	esigi(apparizione.regia.fuga_negata().is_empty(), "dall'apparizione la Guida non ti lascia scappare")
+	apparizione.free()
+	# fuori dalle Pianure la regola non vale
+	GameState.nuova_partita()
+	GameState.imposta_seed(5)
+	scontro = scontro_muto_contro(["goblin_tipico"], {}, sempre_fuga, 30)
+	esigi(bool(scontro.giocatore_e_fuggito), "fuori dalle Pianure non si scappa piu' da nessuna parte")
+	scontro.free()
+	GameState.nuova_partita()
+
+func prova_il_bond_con_la_tartaruga() -> void:
+	# «la tartaruga non potrai batterla siccome alza la difesa [...] adesso si
+	# accende l'opzione bond, cliccandola il dialogo parte» (Bru)
+	titolo("con la tartaruga si accende BOND, e premendolo la lasci andare")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	var regia: Dictionary = nodi["tartaruga"]["combattimento_automatico"].get("regia", {})
+	GameState.nuova_partita()
+	GameState.imposta_seed(9)
+	ricordo_scontro = {"mosse": 0, "mediabile_a": -1}
+	var aspetta_il_bond := func(sc, _chi: Dictionary) -> Dictionary:
+		ricordo_scontro["mosse"] += 1
+		var tartaruga: Dictionary = sc.vivi(false)[0]
+		if sc.mediabile(tartaruga):
+			if int(ricordo_scontro["mediabile_a"]) < 0:
+				ricordo_scontro["mediabile_a"] = int(ricordo_scontro["mosse"])
+			return {"tipo": "media", "bersaglio": tartaruga}
+		return {"tipo": "attacca", "bersaglio": tartaruga}
+	var scontro := scontro_muto_contro(["tartaruga_innocente"], regia, aspetta_il_bond, 20)
+	esigi(int(ricordo_scontro["mediabile_a"]) == 3,
+			"BOND si accende alla mossa %d invece che dopo le tue prime due" % int(ricordo_scontro["mediabile_a"]))
+	esigi(bool(scontro.giocatore_ha_vinto) and bool(scontro.combattenti[1].get("risparmiato", false)),
+			"lasciandola andare lo scontro non finisce, o la tartaruga non risulta risparmiata")
+	esigi(nello_storico("non noto ostilità da parte della tartaruga") >= 0 and nello_storico("era lì per puro caso") >= 0,
+			"mancano le battute di Bru sulla tartaruga")
+	esigi(not GameState.possiede_oggetto("pietra_quieta"), "la tartaruga lascia ancora la pietra")
+	scontro.free()
+
+func prova_bond_si_preme() -> void:
+	# il tasto BOND c'era, disegnato, e non era collegato a niente
+	titolo("il tasto BOND si accende e si preme")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["tartaruga_innocente"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	scontro.set_process(false)
+	await get_tree().process_frame
+	scontro.in_corso = true
+	var bond: Button = scontro.plancia.tasto_bond
+	scontro.aggiorna_pronto_giocatore()
+	esigi(bond.disabled, "BOND e' acceso prima che ci sia qualcuno con cui legare")
+	scontro.regia.apri_il_bond()
+	scontro.aggiorna_pronto_giocatore()
+	esigi(not bond.disabled, "la tartaruga si puo' lasciare andare e BOND resta spento")
+	scontro.combattente_comandato().ricarica = 0.0
+	bond.pressed.emit()
+	var tartaruga: Dictionary = scontro.combattenti[1]
+	esigi(bool(tartaruga.get("risparmiato", false)), "premendo BOND la tartaruga non viene lasciata andare")
+	scontro.queue_free()
+	await get_tree().process_frame
+
+func prova_la_caverna_si_apre_guardando() -> void:
+	# «se osservi la scena vedrai che dietro a dove guardava il blob, c'è una
+	# piccola caverna altrimenti puoi proseguire, la caverna è un area
+	# segreta» (Bru)
+	titolo("la caverna segreta si apre solo a chi osserva la scena")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	var dopo: Dictionary = nodi.get("albero_vinto", {})
+	var nella_sequenza := false
+	for msg in dopo.get("sequenza", []):
+		nella_sequenza = nella_sequenza or String(msg.get("flag", "")) == "tut_caverna_vista"
+	var nella_scena := false
+	for msg in dopo.get("scena", []):
+		nella_scena = nella_scena or String(msg.get("flag", "")) == "tut_caverna_vista"
+	esigi(nella_scena and not nella_sequenza, "la caverna la scopre chi non ha guardato, o non la scopre nessuno")
+	var entra: Dictionary = {}
+	for scelta in dopo.get("scelte", []):
+		if String(scelta.get("vai", "")) == "caverna":
+			entra = scelta
+	esigi(String(entra.get("richiede_flag", "")) == "tut_caverna_vista", "la scelta della caverna c'e' anche senza averla vista")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	esigi(not corridoio_aperto("albero", "caverna"), "sulla mappa il corridoio della caverna c'e' prima di averla vista")
+	GameState.imposta_flag("tut_caverna_vista")
+	esigi(corridoio_aperto("albero", "caverna"), "vista la caverna, sulla mappa il corridoio non si apre")
+	for stanza in GameState.mappa_zona.get("stanze", []):
+		if String(stanza.get("id", "")) in ["caverna", "caverna_fondo"]:
+			esigi(String(stanza.get("tipo", "")) == "segreta", "%s non e' segnata come area segreta" % stanza.id)
+	GameState.nuova_partita()
+	# e battere il goblin della caverna da' la pietra
+	GameState.imposta_seed(3)
+	var picchia := func(sc, _c) -> Dictionary: return {"tipo": "attacca", "bersaglio": sc.vivi(false)[0]}
+	var scontro := scontro_muto_contro(["goblin_possessivo"], {}, picchia)
+	esigi(bool(scontro.giocatore_ha_vinto) and GameState.possiede_oggetto("pietra_quieta"),
+			"battuto il goblin della caverna, la Pietra Quieta non arriva")
+	scontro.free()
+	GameState.nuova_partita()
+
+func corridoio_aperto(a: String, b: String) -> bool:
+	for coppia in GameState.collegamenti_aperti():
+		if a in coppia and b in coppia:
+			return true
+	return false

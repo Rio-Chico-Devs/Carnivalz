@@ -14,7 +14,9 @@
 			"abilita": [
 				"anonimato",
 				"studio",
-				"colpo_caricato"
+				"colpo_caricato",
+				"onda_psichica",
+				"concentrazione"
 			],
 			"ritratto": "res://art/personaggi/anonimo.png",
 			"classe_arma": "catalizzatore"

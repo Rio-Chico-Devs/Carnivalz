@@ -1,5 +1,5 @@
 {
-	"_nota": "LE ABILITA' DEI PERSONAGGI GIOCABILI. Prima stavano in regole.json, in mezzo ai numeri di bilanciamento, ed erano quattro. Adesso sono un file loro perche' sono diventate una progressione: non solo cosa sa fare un personaggio, ma quando lo impara e cosa puo' diventare. Il motore di combattimento conosce dei TIPI (astio, vendetta, flagello, annichilazione, mantra, pieta, provoca, area, raffica, carica); tutto il resto - nomi, numeri, testi, livelli, costi - sta qui.",
+	"_nota": "LE ABILITA' DEI PERSONAGGI GIOCABILI. Prima stavano in regole.json, in mezzo ai numeri di bilanciamento, ed erano quattro. Adesso sono un file loro perche' sono diventate una progressione: non solo cosa sa fare un personaggio, ma quando lo impara e cosa puo' diventare. Il motore di combattimento conosce dei TIPI (astio, vendetta, flagello, annichilazione, mantra, pieta, provoca, area, raffica, carica, onda, potenziamento); tutto il resto - nomi, numeri, testi, livelli, costi - sta qui.",
 	"_nota_linee": "UNA LINEA E' UN'ABILITA' CHE CRESCE. Annichilazione I diventa II, II diventa III, fino alla mastery. Chi conosce un grado non conosce gli altri: nel menu ne compare uno solo, il piu' alto che hai sbloccato. Questo non e' un accordo fra chi scrive i dati e chi scrive il codice - e' come e' fatto il sistema, e prova_linee_abilita fallisce se due gradi della stessa linea risultano noti insieme.",
 	"_nota_punti": "COME SI IMPARA. Fino al livello 24 le abilita' arrivano da sole ai livelli scritti qui sotto: sono il mestiere di base, non una scelta. Dal 25 in poi arrivano PUNTI, uno ogni quattro livelli, e li spendi su quello che vuoi fra i nodi che il tuo livello ha aperto. Le due scelte che Bru ha descritto escono da sole da questa regola: al 25 hai un punto e davanti Pieta' o Terra bruciata, al 29 ne hai un altro e davanti quello che non hai preso piu' Annichilazione II. Nessuna delle due e' scritta come caso particolare: sono la conseguenza di avere un punto e piu' di una porta.",
 	"punti": {
@@ -91,6 +91,30 @@
 			"moltiplicatore": 4.0,
 			"testo_carica": "%s si carica. Il prossimo colpo sarà un altro discorso.",
 			"descrizione": "Questo turno non fai niente. Il prossimo colpo vale quattro volte tanto."
+		},
+		"onda_psichica": {
+			"nome": "Onda psichica",
+			"tipo": "onda",
+			"aura": 3,
+			"frazione_danno": 0.7,
+			"probabilita_mancare": 0.25,
+			"testo_uso": "%s libera un'onda psichica che si allarga su tutto quello che ha davanti.",
+			"_bru": "«onda psichica che e' a raggio infligge pochi danni ma a multipli bersagli, sull'orda fa per esempio 5 colpi siccome l'orda e' composta da 5, a seconda del numero fa tot tentativi che possono fare critico missare o colpire normale»",
+			"descrizione": "Pochi danni, ma su tutto quello che hai davanti: contro un'orda fa un tentativo per ogni componente, e ognuno può andare a vuoto, colpire o fare critico."
+		},
+		"concentrazione": {
+			"nome": "Concentrazione",
+			"tipo": "potenziamento",
+			"aura": 1,
+			"stat": {
+				"attacco": 2,
+				"difesa": 2
+			},
+			"turni": 4,
+			"testo_uso": "%s si concentra: il respiro rallenta, i colpi si fanno più precisi.",
+			"_bru": "«concentrazione che ti da leggermente piu' attacco e difesa»",
+			"_turni": "si contano sulle TUE battute, all'inizio di ognuna: 4 vuol dire che vale per le tre azioni dopo quella in cui la usi",
+			"descrizione": "Attacco e difesa salgono leggermente per le tue prossime tre azioni."
 		},
 		"astio": {
 			"nome": "Astio",
