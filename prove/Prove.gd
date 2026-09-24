@@ -164,6 +164,7 @@ func _ready() -> void:
 	await prova_gli_evocati_hanno_un_quadratino_loro()
 	prova_il_goblin_arrabbiato_e_lungo_ma_battibile()
 	prova_la_musica_giusta_per_ogni_scontro_e_livello()
+	await prova_nel_complesso_si_va_dritti()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -14082,4 +14083,56 @@ func prova_la_musica_giusta_per_ogni_scontro_e_livello() -> void:
 		if String(livello[0]) == "intro":
 			esigi(sua == String(tracce.get("intro", "")),
 					"la base suona '%s' e il menu parte con '%s': entrando la musica si spezza" % [sua, String(tracce.get("intro", ""))])
+	GameState.nuova_partita()
+
+func prova_nel_complesso_si_va_dritti() -> void:
+	# Bru, dopo l'allenamento con Veronica: «dovrei poter accedere a sala
+	# allenamento, la mia stanza, infermeria e sala comunicazioni, per di piu'
+	# dopo il dialogo in sala non riesco ad andare avanti». La mappa lasciava
+	# andare solo nelle stanze confinanti: al risveglio la palestra era
+	# «troppo lontano», e dopo i soldati lo era la sala comunicazioni col punto
+	# esclamativo. Nel complesso adesso si va dritti lungo i corridoi aperti;
+	# nelle fratture si cammina ancora una stanza alla volta
+	titolo("nel complesso si va dritti in ogni stanza, nelle fratture si cammina")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	for id_nodo in ["introduzione", "alloggio", "sala_allenamento"]:
+		IngressoNodo.entra(id_nodo)
+	var mappa: Node = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(mappa)
+	await get_tree().process_frame
+	# la mattina resta un corridoio solo: dall'alloggio si va in palestra e basta
+	GameState.nodo_corrente = "alloggio"
+	esigi(mappa.si_puo_andare("sala_allenamento") and not mappa.si_puo_andare("infermeria"),
+			"la mattina il complesso e' gia' aperto: il racconto non ti porta piu' in palestra")
+	IngressoNodo.entra("infermeria_risveglio")
+	var quattro := ["sala_allenamento", "alloggio", "infermeria", "sala_comunicazioni"]
+	for da in ["infermeria", "sala_allenamento", "alloggio", "sala_comunicazioni", "mensa", "hangar"]:
+		GameState.nodo_corrente = da
+		for dove in quattro:
+			esigi(mappa.si_puo_andare(dove),
+					"nel pomeriggio, da '%s' non si arriva a '%s'" % [da, dove])
+	# e il prossimo punto esclamativo si raggiunge da dove finisce il dialogo
+	IngressoNodo.entra("sala_allenamento")
+	IngressoNodo.entra("soldati_conversazione")
+	GameState.nodo_corrente = "sala_allenamento"
+	esigi(mappa.si_puo_andare("sala_comunicazioni"),
+			"dopo i soldati la sala comunicazioni e' «troppo lontano»: non si va avanti")
+	for id_nodo in ["sala_comunicazioni", "comunicazioni_ordini", "data_pad_istruzioni"]:
+		IngressoNodo.entra(id_nodo)
+	GameState.nodo_corrente = "sala_comunicazioni"
+	esigi(mappa.si_puo_andare("sala_proiezione"), "dopo il data pad la sala di proiezione non si raggiunge")
+	mappa.queue_free()
+	await get_tree().process_frame
+	# nelle Pianure invece si cammina: due stanze piu' in la' non ci si salta
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	var pianure: Node = load("res://scenes/MappaZona.tscn").instantiate()
+	add_child(pianure)
+	await get_tree().process_frame
+	GameState.nodo_corrente = "banchetto"
+	esigi(pianure.si_puo_andare("pianura") and not pianure.si_puo_andare("albero"),
+			"nelle Pianure si salta di due stanze: la frattura non si scopre piu' camminando")
+	pianure.queue_free()
+	await get_tree().process_frame
 	GameState.nuova_partita()

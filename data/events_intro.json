@@ -1408,6 +1408,8 @@
           "alloggio"
         ]
       ]
-    }
+    },
+    "corridoi_liberi": true,
+    "_nota_corridoi_liberi": "Il complesso e' casa tua: dalla mappa si va dritti in ogni stanza a cui porta un corridoio aperto, senza fermarsi in quelle in mezzo. Bru: «dovrei poter accedere a sala allenamento, la mia stanza, infermeria e sala comunicazioni» e «dopo il dialogo in sala non riesco ad andare avanti» - dalla palestra la sala comunicazioni era 'troppo lontano'. Nelle fratture invece si cammina una stanza alla volta: li' scoprire la strada e' il gioco."
   }
 }

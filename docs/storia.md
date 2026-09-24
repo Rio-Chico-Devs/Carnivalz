@@ -491,6 +491,11 @@ introduzione
                              └─ proiezione_partenza → FLASH → prima missione (events_tutorial.json)
 ```
 
+Dal risveglio in poi, **dalla mappa si va dritti in ogni stanza del complesso**:
+è casa tua, i corridoi li conosci. Prima si poteva andare solo nelle stanze
+accanto, e dalla palestra, finiti i soldati, la sala comunicazioni era «troppo
+lontano».
+
 Il **punto esclamativo** ha tre tappe, ed è l'unica cosa che dice dove andare:
 palestra la mattina → sala comunicazioni al risveglio → sala di proiezione
 quando il data pad ha finito di spiegarsi.

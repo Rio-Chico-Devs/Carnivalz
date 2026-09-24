@@ -349,6 +349,15 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
   sulle scelte, che non ha un equivalente diretto. Il boss finale (Jongo Dongo) è identico in
   entrambi i casi: con/senza l'alleata cambia solo la scena (il suo sacrificio, narrato e
   senza effetto meccanico sul boss — vedi "Il Vuoto" più sotto), non la difficoltà
+- **Dove si arriva a piedi.** Di serie la mappa lascia andare solo nelle stanze **confinanti**
+  con quella in cui sei: in una frattura scoprire la strada è il gioco, una stanza alla volta.
+  Con **`"corridoi_liberi": true`** si va invece dritti in **ogni stanza a cui porta un corridoio
+  aperto**, quante che siano in mezzo (`MappaZona.raggiungibili_a_piedi()`). Ce l'ha il
+  complesso, che è casa tua: Bru, dopo l'allenamento, «dovrei poter accedere a sala
+  allenamento, la mia stanza, infermeria e sala comunicazioni» e «dopo il dialogo in sala non
+  riesco ad andare avanti» — dalla palestra la sala comunicazioni col punto esclamativo
+  rispondeva «troppo lontano», e si passava solo facendo tappa in camera. I corridoi chiusi
+  restano chiusi: la mattina dall'alloggio si va solo in palestra
 - **`"flag_completamento"`** in `mappa_dungeon`: una volta impostato quel flag (di solito lo
   stesso della vittoria sul boss), `GameState.stanza_sbloccata()` ritorna sempre true per
   quella zona — **tutte** le sue stanze restano liberamente visitabili da quel momento, anche

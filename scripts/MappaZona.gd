@@ -386,10 +386,32 @@ func si_puo_andare(id_stanza: String) -> bool:
 		return true
 	if id_stanza in GameState.stanze_confinanti(GameState.nodo_corrente):
 		return true
+	# IN CASA TUA SI VA DRITTI. Una frattura si scopre un passo alla volta, e li'
+	# il passo e' il gioco. Il complesso no: e' dove vivi, i corridoi li conosci,
+	# e dopo i soldati in palestra la sala comunicazioni col punto esclamativo
+	# rispondeva «troppo lontano» - si passava solo facendo tappa in camera, e
+	# niente lo diceva. Bru: «dopo il dialogo in sala non riesco ad andare
+	# avanti». Con "corridoi_liberi" si arriva in ogni stanza a cui porta un
+	# corridoio aperto, quante che siano in mezzo; i corridoi chiusi restano
+	# chiusi (la mattina dall'alloggio si va solo in palestra)
+	if bool(GameState.mappa_zona.get("corridoi_liberi", false)) \
+			and id_stanza in raggiungibili_a_piedi(GameState.nodo_corrente):
+		return true
 	# I PROIETTORI SONO UNA RETE, non un ritorno alla base: si salta da uno
 	# all'altro, e solo stando su uno. Se sei in mezzo al niente, cammini.
 	return GameState.su_un_proiettore() and GameState.ce_un_proiettore(id_stanza) \
 			and visitata(id_stanza)
+
+func raggiungibili_a_piedi(da: String) -> Array[String]:
+	# tutte le stanze in fondo a un corridoio aperto, anche passando per altre
+	var viste: Array[String] = [da]
+	var da_guardare: Array[String] = [da]
+	while not da_guardare.is_empty():
+		for vicina in GameState.stanze_confinanti(da_guardare.pop_front()):
+			if vicina not in viste:
+				viste.append(vicina)
+				da_guardare.append(vicina)
+	return viste
 
 # --- i quadratini --------------------------------------------------------
 
