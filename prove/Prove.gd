@@ -63,7 +63,7 @@ func _ready() -> void:
 	prova_i_boss_non_si_superano_farmando()
 	prova_salita_di_livello_si_racconta()
 	await prova_scontro_vero_si_gioca()
-	prova_il_nemico_non_ti_aspetta()
+	prova_a_turni_ognuno_agisce_una_volta_per_giro()
 	prova_barra_di_dominio_come_energia()
 	await prova_mattanza_svuota_la_barra()
 	prova_ogni_creatura_ha_un_set_di_mosse()
@@ -157,6 +157,7 @@ func _ready() -> void:
 	await prova_bond_si_preme()
 	prova_la_caverna_si_apre_guardando()
 	await prova_la_guida_ferma_il_mondo_mentre_parla()
+	await prova_il_goblin_del_pasto_si_gioca_a_turni_dallo_schermo()
 	await prova_osservando_la_scena_si_trova_la_caverna()
 	prova_il_contrasto_si_vince_premendo()
 	prova_la_mazzata_pesa_come_ha_detto_bru()
@@ -1896,7 +1897,7 @@ func prova_ogni_abilita_gira_davvero() -> void:
 		# partono affatto (che e' giusto, ma qui si sta misurando altro)
 		eroe.dominio = RegoleCombattimento.dominio_pieno()
 		# LO SCONTRO VA RIMESSO IN PIEDI, E IL PROTAGONISTA ANCHE. Con
-		# limite_giri = 1 l'orologio virtuale ha gia' chiuso tutto dentro _ready,
+		# limite_giri = 1 lo scontro senza schermo ha gia' chiuso tutto dentro _ready,
 		# e i due ghoul possono averlo steso: un'abilita' che - giustamente - non
 		# parte da morto o a scontro finito qui non partirebbe affatto, e
 		# sembrerebbe rotta. E' successo con la Mattanza, che al contrario delle
@@ -2579,17 +2580,19 @@ func prova_scontro_vero_si_gioca() -> void:
 	esigi(eroe.get("bersaglio_cliccabile", null) == null,
 			"anche il protagonista e' cliccabile come bersaglio")
 	var vita_nemico := int(nemico.hp)
-	eroe.ricarica = 0.0          # la ricarica e' pronta, come dopo qualche istante
+	scontro.turni.passa_a(eroe)   # tocca a te
 	scontro._su_click_nemico(nemico)
 	esigi(int(nemico.hp) < vita_nemico,
 			"cliccando sul nemico non gli e' successo niente: il colpo normale non arriva")
 
-	# 2. e non si martella a vuoto: finche' ricarichi, il click non conta
+	# 2. e fuori dal tuo turno il click non colpisce: si mette da parte e
+	#    aspetta il tuo turno (Intenzione.gd), non arriva adesso
 	var dopo_il_colpo := int(nemico.hp)
 	scontro._su_click_nemico(nemico)
 	scontro._su_click_nemico(nemico)
 	esigi(int(nemico.hp) == dopo_il_colpo,
-			"cliccando durante la ricarica si colpisce lo stesso: la ricarica non serve a niente")
+			"fuori dal tuo turno il click colpisce lo stesso: i turni non valgono niente")
+	scontro.intenzione.scorda()   # qui si misurano i turni, non il click messo da parte
 
 	# 2-bis. LA BARRA SI RIEMPIE COLPENDO E INCASSANDO
 	esigi(int(eroe.get("dominio", 0)) > 0,
@@ -2599,38 +2602,80 @@ func prova_scontro_vero_si_gioca() -> void:
 	esigi(int(eroe.get("dominio", 0)) > dominio_prima,
 			"incassando un colpo la barra non si e' mossa: restare in mezzo non paga niente")
 
-	# 2-ter. OGNI CREATURA HA LA SUA RAPIDITA': i ruoli si devono sentire
-	var ricarica_eroe: float = scontro.ricarica_di(eroe)
-	var lento_finto := {"velocita": maxi(int(eroe.velocita / 2.0), 1), "stati_attivi": {}}
-	var svelto_finto := {"velocita": int(eroe.velocita) * 2, "stati_attivi": {}}
-	esigi(scontro.ricarica_di(svelto_finto) < ricarica_eroe,
-			"chi e' il doppio piu' veloce di te ricarica in %.2fs contro i tuoi %.2fs: la velocita' non si sente"
-			% [scontro.ricarica_di(svelto_finto), ricarica_eroe])
-	esigi(scontro.ricarica_di(lento_finto) > ricarica_eroe,
-			"chi e' la meta' piu' lento di te ricarica in %.2fs contro i tuoi %.2fs: la velocita' non si sente"
-			% [scontro.ricarica_di(lento_finto), ricarica_eroe])
+	# 2-ter. LA VELOCITA' DECIDE CHI MUOVE PRIMA, non quante volte
+	var lento_finto := {"velocita": maxi(int(eroe.velocita / 2.0), 1), "stati_attivi": {},
+			"giocatore": false, "indice": 90}
+	var svelto_finto := {"velocita": int(eroe.velocita) * 2, "stati_attivi": {},
+			"giocatore": false, "indice": 91}
+	esigi(scontro.turni.viene_prima(svelto_finto, eroe),
+			"chi e' il doppio piu' veloce di te non muove prima di te: la velocita' non si sente")
+	esigi(scontro.turni.viene_prima(eroe, lento_finto),
+			"chi e' la meta' piu' lento di te muove prima di te: la velocita' non si sente")
 
-	# 3. IL MONDO VA AVANTI DA SOLO: si lascia scorrere il tempo senza toccare
-	#    niente e il protagonista deve incassare
-	var vita_eroe := int(eroe.hp)
-	for battito in 300:
-		# SI LEGGE FRA UN BATTITO E L'ALTRO, e non e' una scorciatoia: da quando
-		# il racconto ferma il mondo (Bru: «mentre ci sono i dialoghi tutto si
-		# incentra nella lettura»), un orologio fatto girare senza nessuno che
-		# legga si pianta al primo messaggio - ed e' giusto che si pianti. Qui
-		# si simula il giocatore che legge, che e' la condizione vera
+	# 3. A TURNI. Fra un tuo turno e l'altro gli altri si muovono una volta
+	#    ciascuno. Si fanno passare i turni leggendo tutto quello che c'e' da
+	#    leggere (e' la condizione vera: finche' si legge il turno non passa).
+	#    Il goblin va veloce quanto te, cosi' non salta nessun giro, e la misura
+	#    si fa fra due tuoi turni veri: il colpo di prima te l'ha dato la prova,
+	#    fuori dalla fila
+	nemico.velocita = eroe.velocita
+	for passo in 300:
 		scontro.voce.coda.clear()
-		scontro.voce.salta_messaggio = true   # il giocatore che legge e va avanti
 		scontro.voce.sta_facendo_leggere = false
-		scontro.avanza_orologio(0.1)
+		if scontro.puo_agire(eroe):
+			break
+		scontro.avanza_turni()
+	esigi(scontro.puo_agire(eroe), "passando i turni non tocca mai a te")
+	var sue_prima := int(nemico.get("battute", 0))
+	var tue_prima := int(eroe.get("battute", 0))
+	scontro.agisci_ora({"tipo": "difendi"})
+	for passo in 300:
+		scontro.voce.coda.clear()
+		scontro.voce.sta_facendo_leggere = false
+		if scontro.puo_agire(eroe):
+			break
+		scontro.avanza_turni()
+	esigi(scontro.puo_agire(eroe), "dopo la tua mossa il turno non e' piu' tornato a te")
+	esigi(int(nemico.get("battute", 0)) == sue_prima + 1,
+			"fra un tuo turno e l'altro il nemico si e' mosso %d volte: a turni si muove una volta"
+			% (int(nemico.get("battute", 0)) - sue_prima))
+	esigi(int(eroe.get("battute", 0)) == tue_prima + 1,
+			"il tuo turno non si e' aperto quando e' tornato a te")
+
+	# 3-bis. E QUANDO TOCCA A TE, IL MONDO ASPETTA. Bru: «non ci sono i turni il
+	#    goblin mi attacca di continuo». Si lascia girare il mondo senza
+	#    scegliere niente, e non deve muoversi nessuno
+	var vita_ferma := int(eroe.hp)
+	var sue_ferme := int(nemico.get("battute", 0))
+	for passo in 200:
+		scontro.voce.coda.clear()
+		scontro.voce.sta_facendo_leggere = false
+		scontro.avanza_turni()
+	esigi(int(nemico.get("battute", 0)) == sue_ferme and int(eroe.hp) == vita_ferma,
+			"mentre toccava a te il nemico si e' mosso %d volte e ti ha tolto %d vita: il mondo non ti aspetta"
+			% [int(nemico.get("battute", 0)) - sue_ferme, vita_ferma - int(eroe.hp)])
+	esigi(scontro.puo_agire(eroe), "a forza di aspettare il turno ti e' stato tolto")
+
+	# 3-ter. E SI VIENE COLPITI: giocando qualche giro, il nemico picchia. Il
+	#    goblin si fa durare, se no cade prima di aver mostrato niente
+	nemico.hp = 9999
+	var vita_eroe := int(eroe.hp)
+	for passo in 600:
+		scontro.voce.coda.clear()
+		scontro.voce.sta_facendo_leggere = false
 		if int(eroe.hp) < vita_eroe:
 			break
+		if scontro.puo_agire(eroe):
+			scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
+			continue
+		scontro.avanza_turni()
 	esigi(int(eroe.hp) < vita_eroe,
-			"trenta secondi senza fare niente e il protagonista e' intatto: i nemici non si muovono")
+			"giri interi e il protagonista e' intatto: i nemici non si muovono")
 
 	# 4. E FINISCE. Si abbatte il nemico e lo scontro deve chiudersi
 	nemico.hp = 1
-	eroe.ricarica = 0.0
+	scontro.turni.passa_a(eroe)
+	eroe.battuta_aperta = false
 	scontro._su_click_nemico(nemico)
 	esigi(int(nemico.hp) <= 0, "il colpo di grazia non ha abbattuto il nemico")
 	esigi(not scontro.in_corso,
@@ -2654,23 +2699,20 @@ func prova_scontro_vero_si_gioca() -> void:
 	scontro.free()
 	GameState.nuova_partita()
 
-func prova_il_nemico_non_ti_aspetta() -> void:
-	# LA PROVA DEL CAMBIO D'IMPIANTO. Bru: "eliminiamo i turni, i nemici non
-	# aspetteranno che tu scelga la tua mossa, continueranno ad attaccare".
-	#
-	# E' l'unica cosa che distingue davvero il gioco nuovo dal vecchio, e si
-	# misura in un modo solo: si sta fermi e si guarda se si viene colpiti. Un
-	# motore che sembra in tempo reale ma aspetta comunque il giocatore passa
-	# tutte le altre prove del mondo.
-	titolo("i nemici non aspettano che tu scelga")
+func prova_a_turni_ognuno_agisce_una_volta_per_giro() -> void:
+	# LA PROVA DEL CAMBIO D'IMPIANTO, rifatta al contrario. Qui c'era «i nemici
+	# non aspettano che tu scelga»: era la regola del motore in tempo reale, e
+	# questa prova la difendeva. Bru, giocandolo: «non ci sono i turni il goblin
+	# mi attacca di continuo, lo scontro con le rane diventa un casino ci
+	# vogliono i turni». Adesso si difende l'opposto: in ogni giro ognuno agisce
+	# una volta, in ordine di velocita', e quando tocca a te il mondo aspetta.
+	titolo("a turni: ognuno agisce una volta per giro, e il tuo turno ti aspetta")
 	GameState.nuova_partita()
+	GameState.imposta_seed(77)
 	GameState.nemici_combattimento = ["ghoul"]
 	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 	scontro.muto = true
-	# una battuta sola, se no l'orologio virtuale gioca tutto lo scontro qui
-	# dentro e quando si torna non c'e' piu' niente da guardare (e' successo:
-	# la prima versione misurava un protagonista gia' morto e concludeva che il
-	# nemico non lo aveva toccato)
+	# una battuta sola: e' gia' un risultato che lo scontro si chiuda da solo
 	scontro.limite_giri = 1
 	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
 	add_child(scontro)
@@ -2682,44 +2724,86 @@ func prova_il_nemico_non_ti_aspetta() -> void:
 		elif not combattente.giocatore and nemico.is_empty():
 			nemico = combattente
 	esigi(not eroe.is_empty() and not nemico.is_empty(), "lo scontro di prova non si e' montato")
-
-	# LO SCONTRO E' FINITO DA SOLO, e questo e' gia' un risultato: con la prima
-	# versione del motore l'orologio virtuale girava a vuoto per sempre, perche'
-	# le battute del protagonista si contavano solo se le comandava una persona
 	esigi(not scontro.in_corso,
 			"con limite_giri = 1 lo scontro non si e' chiuso: la fine non scatta piu'")
 	esigi(scontro.battute_del_giocatore >= 1,
 			"il protagonista ha mosso %d volte: il contatore delle battute non sale"
 			% scontro.battute_del_giocatore)
 
-	# si riapre lo scontro: da qui in poi il giocatore non fa NIENTE
+	# 1. LA FILA DEL GIRO: prima il piu' veloce, e al primo giro un'imboscata
+	#    la ribalta. Il ghoul si fa lento apposta, cosi' le due regole dicono
+	#    cose diverse
 	scontro.in_corso = true
 	scontro.limite_giri = 0
-	scontro.strategia = Callable()
-	scontro.id_comandato = GameState.id_protagonista
+	nemico.velocita = 1
+	eroe.velocita = 9
+	scontro.turni.giro = 0
+	scontro.turni.precedenza = "nemici"
+	scontro.turni.nuovo_giro()
+	esigi(not scontro.turni.da_muovere.is_empty() and is_same(scontro.turni.da_muovere[0], nemico),
+			"con l'imboscata dei nemici il primo giro non lo apre il ghoul")
+	scontro.turni.nuovo_giro()
+	esigi(not scontro.turni.da_muovere.is_empty() and is_same(scontro.turni.da_muovere[0], eroe),
+			"dal secondo giro l'imboscata vale ancora: il ghoul lento muove prima di te")
+	esigi(scontro.giro_corrente == scontro.turni.giro,
+			"il giro dei turni e' %d ma lo scontro crede di essere al %d (l'Immortale ne ha bisogno)"
+			% [scontro.turni.giro, scontro.giro_corrente])
+
+	# 2. OGNUNO UNA VOLTA PER GIRO, qualunque sia la velocita'. Il ghoul adesso
+	#    e' il triplo piu' veloce di te: col motore vecchio si muoveva tre volte
+	#    per ogni tua mossa
+	nemico.velocita = 27
+	var sue_prima := int(nemico.get("battute", 0))
+	var tue_prima := int(eroe.get("battute", 0))
 	for combattente in scontro.combattenti:
-		combattente.hp = int(combattente.hp_max)
-		combattente.ricarica = scontro.ricarica_di(combattente)
+		combattente.hp = 9999
+	scontro.strategia = func(_s, _c) -> Dictionary: return {"tipo": "difendi"}
+	for passo in 30:
+		scontro.avanza_turni()
+		scontro.turni.fine_turno()
+	var sue := int(nemico.get("battute", 0)) - sue_prima
+	var tue := int(eroe.get("battute", 0)) - tue_prima
+	esigi(sue > 0 and absi(sue - tue) <= 1,
+			"in trenta turni il ghoul ha agito %d volte e tu %d: a turni si agisce una volta per giro"
+			% [sue, tue])
 
-	# la ricarica e' una ricarica: piu' sei veloce, meno aspetti
-	var lento := {"velocita": 2, "stati_attivi": {}}
-	var svelto := {"velocita": 20, "stati_attivi": {}}
-	esigi(scontro.ricarica_di(svelto) < scontro.ricarica_di(lento),
-			"chi e' piu' veloce non ricarica prima: la velocita' non conta piu' niente")
-	esigi(scontro.ricarica_di(lento) > 0.0, "la ricarica e' zero: tutti agirebbero a ogni fotogramma")
+	# 2-bis. MA CHI E' MOLTO PIU' LENTO SALTA DEI GIRI: il goblin arrabbiato e'
+	#    stato scritto lento perche' non picchiasse a ogni tuo colpo. Un ghoul a
+	#    velocita' 1 contro il tuo 9 va al ritmo minimo, due giri su cinque
+	nemico.velocita = 1
+	var minimo := float(GameState.regole.get("tempo", {}).get("ritmo_minimo", 0.4))
+	esigi(is_equal_approx(scontro.turni.ritmo_di(nemico), minimo),
+			"un ghoul nove volte piu' lento di te ha ritmo %.2f invece del minimo %.2f"
+			% [scontro.turni.ritmo_di(nemico), minimo])
+	esigi(is_equal_approx(scontro.turni.ritmo_di(eroe), 1.0), "il protagonista non muove a ogni giro")
+	var giro_prima: int = scontro.turni.giro
+	sue_prima = int(nemico.get("battute", 0))
+	tue_prima = int(eroe.get("battute", 0))
+	for passo in 200:
+		if scontro.turni.giro >= giro_prima + 11:
+			break
+		scontro.avanza_turni()
+		scontro.turni.fine_turno()
+	sue = int(nemico.get("battute", 0)) - sue_prima
+	tue = int(eroe.get("battute", 0)) - tue_prima
+	esigi(tue >= 9 and sue >= 3 and sue <= 5,
+			"in dieci giri il ghoul lento ha agito %d volte e tu %d: al ritmo minimo muove quattro volte su dieci"
+			% [sue, tue])
+	esigi(nello_storico("non riesce a muoversi a ogni giro") >= 0,
+			"il ghoul salta i giri e nessuno lo dice: sembra un difetto")
 
-	# IL TEMPO SI FERMA solo quando il gioco ha qualcosa da dirti. Si controlla
-	# adesso, a scontro vivo: piu' avanti il protagonista sara' caduto (sta
-	# fermo mentre lo picchiano) e a scontro chiuso il tempo e' fermo per un
-	# altro motivo - la prima versione di questa prova ci si e' fatta ingannare
+	# 3. IL TEMPO SI FERMA solo quando il gioco ha qualcosa da dirti (lo
+	#    studio, lo script di un boss, la lezione): fermo vuol dire che il turno
+	#    non passa a nessuno
 	esigi(scontro.il_tempo_scorre(), "il tempo e' gia' fermo senza nessuna ragione")
 	scontro.ferma_il_tempo()
 	esigi(not scontro.il_tempo_scorre(), "fermare il tempo non lo ferma")
-	var vita_ferma := int(eroe.hp)
-	for battito in 100:
-		scontro.avanza_orologio(0.1)
-	esigi(int(eroe.hp) == vita_ferma,
-			"col tempo fermo il protagonista ha perso vita: gli script dei boss e lo studio non proteggono niente")
+	var ferme := int(nemico.get("battute", 0))
+	for passo in 50:
+		scontro.avanza_turni()
+		scontro.turni.fine_turno()
+	esigi(int(nemico.get("battute", 0)) == ferme,
+			"col tempo fermo il ghoul si e' mosso: gli script dei boss e lo studio non proteggono niente")
 	scontro.riprendi_il_tempo()
 	esigi(scontro.il_tempo_scorre(), "il tempo non riparte")
 	# e si annida: due cose che fermano il tempo insieme non si scavalcano
@@ -2731,13 +2815,29 @@ func prova_il_nemico_non_ti_aspetta() -> void:
 	scontro.riprendi_il_tempo()
 	esigi(scontro.il_tempo_scorre(), "dopo due riprese il tempo e' ancora fermo")
 
-	# E ADESSO LA COSA CHE CONTA: si sta fermi e si guarda se il mondo va avanti
+	# 4. E QUANDO TOCCA A TE, NESSUNO SI MUOVE. Senza il giocatore automatico il
+	#    protagonista e' tuo: si fanno passare i turni finche' non arriva a te, e
+	#    da li' in poi il mondo deve stare fermo
+	scontro.strategia = Callable()
+	scontro.id_comandato = GameState.id_protagonista
+	for passo in 10:
+		if scontro.puo_agire(eroe):
+			break
+		scontro.avanza_turni()
+	esigi(scontro.puo_agire(eroe), "passando i turni non e' mai toccato a te")
 	var vita_prima := int(eroe.hp)
-	for battito in 200:
-		scontro.avanza_orologio(0.1)
-	esigi(int(eroe.hp) < vita_prima,
-			"venti secondi di immobilita' e il protagonista ha ancora %d vita su %d: il nemico sta aspettando il tuo turno"
-			% [int(eroe.hp), vita_prima])
+	var sue_ferme := int(nemico.get("battute", 0))
+	for passo in 200:
+		scontro.avanza_turni()
+	esigi(int(nemico.get("battute", 0)) == sue_ferme and int(eroe.hp) == vita_prima,
+			"mentre toccava a te il ghoul si e' mosso %d volte: il nemico non aspetta il tuo turno"
+			% (int(nemico.get("battute", 0)) - sue_ferme))
+	# e quando hai scelto, il turno passa
+	scontro.agisci_ora({"tipo": "difendi"})
+	esigi(not scontro.puo_agire(eroe), "dopo aver agito tocca ancora a te: si agirebbe all'infinito")
+	scontro.avanza_turni()
+	esigi(int(nemico.get("battute", 0)) == sue_ferme + 1,
+			"dopo la tua mossa il ghoul non ha preso il suo turno")
 	scontro.free()
 	GameState.nuova_partita()
 
@@ -2867,7 +2967,7 @@ func prova_mattanza_svuota_la_barra() -> void:
 	var per_segmento := maxi(int(GameState.regole.get("dominio", {}).get("per_segmento", 100)), 1)
 	nemico.hp_max = 1000000
 	nemico.hp = 1000000   # un sacco da boxe: qui si conta, non si vince
-	# e lo scontro va rimesso in piedi: con limite_giri = 1 l'orologio virtuale
+	# e lo scontro va rimesso in piedi: con limite_giri = 1 lo scontro muto
 	# l'ha gia' chiuso dentro _ready, e la Mattanza - giustamente - non martella
 	# un combattimento finito
 	scontro.in_corso = true
@@ -3359,16 +3459,18 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	esigi(RegoleCombattimento.velocita_effettiva(nemico) == velocita_prima - 1,
 			"il potenziamento non ha abbassato la velocita': un valore negativo non morde")
 
-	# 2. E LA VELOCITA' SI SENTE NELLA RICARICA. Qui stava il difetto vero:
+	# 2. E LA VELOCITA' SI SENTE NELLA FILA DEL GIRO. Qui stava il difetto vero:
 	# applica_buff accetta qualunque statistica, quindi il buff esisteva e si
-	# vedeva - ma velocita_effettiva non guardava i buff, e la ricarica non
-	# cambiava di un millesimo
-	var ricarica_rallentato: float = scontro.ricarica_di(nemico)
+	# vedeva - ma velocita_effettiva non guardava i buff, e chi muoveva prima
+	# non cambiava. Il confronto e' con uno veloce quanto lui prima del buff:
+	# rallentato gli passa dietro, pulito torna davanti
+	var pari := {"velocita": velocita_prima, "stati_attivi": {}, "giocatore": false, "indice": 999}
+	var rallentato_davanti: bool = scontro.turni.viene_prima(nemico, pari)
 	nemico.buffs = []
-	var ricarica_pulita: float = scontro.ricarica_di(nemico)
-	esigi(ricarica_rallentato > ricarica_pulita,
-			"con la velocita' abbassata ricarica in %.2fs invece che in %.2fs: il potenziamento di velocita' non arriva all'orologio"
-			% [ricarica_rallentato, ricarica_pulita])
+	var pulito_davanti: bool = scontro.turni.viene_prima(nemico, pari)
+	esigi(not rallentato_davanti and pulito_davanti,
+			"col buff muove prima: %s, senza: %s. Il potenziamento di velocita' non arriva ai turni"
+			% [rallentato_davanti, pulito_davanti])
 
 	# 3. IL POTENZIAMENTO AGLI ALLEATI tocca gli altri e non se stesso
 	scontro.aggiungi_combattente("zombie_cittadino", false)
@@ -5104,7 +5206,7 @@ func prova_mediazione() -> void:
 	GameState.nemici_combattimento = ["tartaruga_innocente"]
 	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 	scontro.muto = true
-	# senza un limite l'orologio virtuale gira a vuoto per 4000 battute e
+	# senza un limite lo scontro muto passa i turni a vuoto per 4000 volte e
 	# Godot stampa un errore: qui lo scontro serve solo come impalcatura
 	scontro.limite_giri = 1
 	add_child(scontro)
@@ -8534,7 +8636,7 @@ func prova_tutorial_di_veronica() -> void:
 			for msg in (passo_qualsiasi as Dictionary).get(campo, []):
 				lezione += String((msg as Dictionary).get("testo", "")) + " "
 	for pezzo in ["Studia", "HP", "AURA", "dominio", "stress", "Morale",
-			"DIFESA", "MATTANZA", "ricarica", "turno"]:
+			"DIFESA", "MATTANZA", "turni", "veloce"]:
 		esigi(lezione.findn(String(pezzo)) != -1,
 				"la lezione di Veronica non nomina piu' '%s': un pezzo della schermata resta senza spiegazione"
 				% pezzo)
@@ -9272,13 +9374,13 @@ func prova_menu_da_tastiera() -> void:
 	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
 	scontro.limite_giri = 1
 	add_child(scontro)
-	# GLI SI DA' UN TURNO. Il menu spegne tutte le voci mentre ricarichi - e'
-	# giusto cosi' - ma per guardare se la tastiera funziona serve il momento in
-	# cui si puo' davvero scegliere qualcosa.
+	# GLI SI DA' UN TURNO. Fuori dal tuo turno il menu e' scolorito, e per
+	# guardare se la tastiera funziona serve il momento in cui si puo' davvero
+	# scegliere qualcosa.
 	for combattente in scontro.combattenti:
 		if combattente.giocatore:
 			combattente.hp = combattente.hp_max
-			combattente.ricarica = 0.0
+			dai_il_turno(scontro, combattente)
 	scontro.in_corso = true
 	scontro.menu.principale()
 	var voci: Array[Button] = []
@@ -10340,15 +10442,9 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Campo.gd:dettagli_di": {"misura": 20},
 	"Combattimento.gd:flagello": {"misura": 22},
 	"Regole.gd:calcola_danno": {"misura": 20},
-	"Combattimento.gd:avanza_orologio": {"misura": 20, "perche":
-		"e' cresciuta di uno, ed e' un guardiano solo: «finche' c'e' da " +
-		"leggere, non avanza niente». E' la regola che Bru ha chiesto " +
-		"(«ogni cosa a suo tempo e in modo organizzato») e il punto in cui il " +
-		"mondo si ferma non puo' stare altrove che nel battito del mondo"},
 	"Combattimento.gd:mantra": {"misura": 19},
 	"Combattimento.gd:verifica_fine_scontro": {"misura": 19},
 	"Combattimento.gd:azione_automatica": {"misura": 19},
-	"Combattimento.gd:esegui_scontro": {"misura": 18},
 	"Voce.gd:svuota_coda": {"misura": 19},
 	"Combattimento.gd:aggiungi_combattente": {"misura": 17},
 	"GameState.gd:aggiorna_task": {"misura": 17},
@@ -10756,10 +10852,10 @@ func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
 	# lo scontro e poi TIRAVA IL PUGNO.
 	#
 	# E NON SI PUO' FARE IN MODALITA' MUTA, che e' il primo modo in cui ho
-	# sbagliato questa prova: muto senza strategia fa girare l'orologio virtuale
-	# a vuoto finche' non scatta il tetto di sicurezza, e lo scontro e' gia'
-	# finito prima che tu possa colpire. Il tutorial vive nel tempo reale, e solo
-	# li' si puo' guardare.
+	# sbagliato questa prova: muto senza strategia fa passare i turni a vuoto
+	# finche' non scatta il tetto di sicurezza, e lo scontro e' gia' finito
+	# prima che tu possa colpire. Il tutorial vive sullo schermo, e solo li' si
+	# puo' guardare.
 	titolo("l'allenamento con Veronica avanza davvero quando colpisci")
 	GameState.nuova_partita()
 	GameState.nemici_combattimento = ["veronica"]
@@ -10777,11 +10873,11 @@ func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
 	# LA LEZIONE E' PARTITA? E' la domanda che non faceva nessuno, ed e' la
 	# causa vera di «non c'e' stata alcuna spiegazione dell'interfaccia».
 	#
-	# In tempo reale chi comandi tu e' escluso apposta dai "pronti" (vedi
-	# avanza_orologio): il turno non te lo da' il giro delle battute, te lo da'
-	# aggiorna_pronto_giocatore accendendo il menu. L'introduzione del passo -
-	# le battute, e la preparazione di aura e dominio - stava solo dentro
-	# battuta_di, quindi per il protagonista non partiva MAI. I passi si
+	# Col motore in tempo reale il turno di chi comandi tu non passava dal giro
+	# delle battute: te lo dava aggiorna_pronto_giocatore accendendo il menu.
+	# L'introduzione del passo - le battute, e la preparazione di aura e
+	# dominio - stava solo dentro battuta_di, quindi per il protagonista non
+	# partiva MAI. A turni ci passa anche il tuo. I passi si
 	# chiudevano lo stesso, perche' quello lo fa esegui_azione: il tutorial
 	# sembrava funzionare e non aveva mai detto una parola.
 	esigi(not scontro.tutorial_passi_introdotti.is_empty(),
@@ -10922,13 +11018,11 @@ func prova_la_raffica_del_tutorial_parte_davvero() -> void:
 	#
 	# Le battute "preparati!" si sentivano - quelle le scrive
 	# introduci_passo_tutorial - ma il LANCIO della raffica stava solo dentro
-	# battuta_di, che per il giocatore non viene mai chiamata: chi comandi tu e'
-	# escluso apposta dai pronti (vedi avanza_orologio). Veronica annunciava i
-	# pugni, e i pugni non arrivavano mai.
+	# battuta_di, che col motore in tempo reale per il giocatore non veniva mai
+	# chiamata. Veronica annunciava i pugni, e i pugni non arrivavano mai.
 	#
-	# E' la stessa famiglia del difetto di ieri - un pezzo di turno scritto in
-	# un punto per cui il giocatore non passa - il che dice che il vero rimedio
-	# e' rendere quel passaggio uno solo, non correggerlo un caso per volta.
+	# Il rimedio vero era rendere quel passaggio uno solo, ed e' quello che
+	# hanno fatto i turni: adesso anche il tuo turno passa da battuta_di.
 	titolo("la raffica del tutorial parte quando tocca a te")
 	GameState.nuova_partita()
 	GameState.nemici_combattimento = ["veronica"]
@@ -10953,10 +11047,12 @@ func prova_la_raffica_del_tutorial_parte_davvero() -> void:
 	scontro.tutorial_passi_introdotti.clear()
 	scontro.voce.coda.clear()
 	var tu: Dictionary = scontro.combattente_comandato()
-	tu.ricarica = 0.0
-	var preso: bool = scontro.comincia_il_tuo_turno(tu)
-	esigi(preso,
-			"il passo della raffica non si e' preso il turno: il menu si accende e i pugni non arrivano mai")
+	# IL TURNO DOPO E' TUO, e te lo porta il giro come in partita: si chiude
+	# quello che hai in mano e ti si mette in cima alla fila. La raffica deve
+	# partire da li', dalla porta da cui passa ogni turno
+	scontro.turni.fine_turno()
+	tu.battuta_aperta = false
+	scontro.turni.da_muovere.assign([tu])
 	# LA RAFFICA ASPETTA CHE IL BOX ABBIA FINITO DI PARLARE - "preparati!" deve
 	# essere leggibile prima che i pugni ci vadano sopra - e da quando la lezione
 	# aspetta il click, quel "finito" lo decide il giocatore. Qui si clicca al
@@ -10970,6 +11066,8 @@ func prova_la_raffica_del_tutorial_parte_davvero() -> void:
 		await get_tree().process_frame
 	esigi(scontro.minigioco.attivo or scontro.minigioco.suonate > 0,
 			"annunciata la raffica, non e' partita nessuna raffica: e' il blocco su «preparati»")
+	esigi(not scontro.menu_acceso,
+			"il passo della raffica ha acceso il menu: non e' una mossa che scegli, e' una che subisci")
 	scontro.in_corso = false
 	scontro.voce.coda.clear()
 	scontro.queue_free()
@@ -11318,7 +11416,7 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 	titolo("un comando dato prima del tempo aspetta, poi parte da solo")
 	GameState.nuova_partita()
 	GameState.nemici_combattimento = ["goblin_tipico"]
-	# NIENTE MODO MUTO QUI. Mutato, lo scontro gira sull'orologio virtuale, che
+	# NIENTE MODO MUTO QUI. Mutato, lo scontro passa i turni da solo, e
 	# senza una strategia macina quattromila battute e chiude da solo prima che
 	# la prova possa cliccare qualcosa. Serve lo scontro vero, fermo.
 	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
@@ -11328,14 +11426,14 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 
 	var tu: Dictionary = scontro.combattente_comandato()
 	esigi(not tu.is_empty(), "nessuno comandato: la prova non puo' partire")
-	# la ricarica NON e' finita: e' esattamente il momento in cui il click moriva
-	tu.ricarica = 0.8
+	# NON E' IL TUO TURNO: e' esattamente il momento in cui il click moriva
+	togli_il_turno(scontro)
 	esigi(not scontro.giocatore_pronto(),
-			"con la ricarica a 0.8 il giocatore risulta gia' pronto: la prova non proverebbe niente")
+			"fuori dal suo turno il giocatore risulta gia' pronto: la prova non proverebbe niente")
 	var guardia_prima: int = RegoleCombattimento.scatti_difesa(tu)
 	scontro.agisci_ora({"tipo": "difendi"})
 	esigi(RegoleCombattimento.scatti_difesa(tu) == guardia_prima,
-			"la difesa e' partita mentre la ricarica non era finita: il turno non vale piu' niente")
+			"la difesa e' partita fuori dal tuo turno: il turno non vale piu' niente")
 	esigi(scontro.nome_azione_in_coda() == "Difesa",
 			"il click dato presto non e' stato tenuto da parte: in coda c'e' '%s'"
 			% scontro.nome_azione_in_coda())
@@ -11352,7 +11450,7 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 	# MA NON MENTRE C'E' DA LEGGERE. Bru: «mentre ci sono i dialoghi tutto si
 	# incentra nella lettura, non serve che altro vada avanti». Un comando in
 	# attesa non fa eccezione: aspetta come tutto il resto
-	tu.ricarica = 0.0
+	dai_il_turno(scontro, tu)
 	scontro.voce.coda.append({"tipo": "narrazione", "chi": "", "testo": "Qualcuno parla.",
 			"forte": false, "effetto": Callable()})
 	scontro.aggiorna_pronto_giocatore()
@@ -11366,7 +11464,7 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 	scontro.voce.sta_facendo_leggere = false
 	scontro.aggiorna_pronto_giocatore()
 	esigi(RegoleCombattimento.scatti_difesa(tu) > guardia_prima,
-			"finita la ricarica il comando in attesa non e' partito: la guardia e' ferma a %d"
+			"arrivato il tuo turno il comando in attesa non e' partito: la guardia e' ferma a %d"
 			% RegoleCombattimento.scatti_difesa(tu))
 	esigi(scontro.nome_azione_in_coda() == "",
 			"il comando e' partito ma e' rimasto anche in coda: partirebbe due volte")
@@ -11380,15 +11478,15 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 		if not bool(c.get("giocatore", false)):
 			goblin = c
 	var vita_prima := int(goblin.get("hp", 0))
-	tu.ricarica = 0.8
+	togli_il_turno(scontro)
 	scontro.agisci_ora({"tipo": "attacca", "bersaglio": goblin})
-	esigi(int(goblin.hp) == vita_prima, "l'attacco e' partito prima che la ricarica finisse")
-	tu.ricarica = 0.0
+	esigi(int(goblin.hp) == vita_prima, "l'attacco e' partito prima del tuo turno")
+	dai_il_turno(scontro, tu)
 	scontro.voce.coda.clear()
 	scontro.voce.sta_facendo_leggere = false
 	scontro.aggiorna_pronto_giocatore()
 	esigi(int(goblin.hp) < vita_prima,
-			"l'attacco dato durante la ricarica e' partito, ma il goblin in campo e' ancora a %d su %d: ha colpito una copia"
+			"l'attacco dato prima del tuo turno e' partito, ma il goblin in campo e' ancora a %d su %d: ha colpito una copia"
 			% [int(goblin.hp), vita_prima])
 
 	# DURANTE LA LEZIONE NO. Veronica chiede una cosa per volta: un comando
@@ -11424,7 +11522,7 @@ func prova_il_click_dato_presto_non_si_perde() -> void:
 			"il passo risulta non ancora spiegato: le verifiche qui sotto non proverebbero niente")
 
 	# quello che NON viene chiesto resta fuori: la lezione e' una cosa per volta
-	tu.ricarica = 0.8
+	togli_il_turno(scontro)
 	scontro.agisci_ora({"tipo": "difendi"})
 	esigi(scontro.nome_azione_in_coda() == "",
 			"durante la lezione e' finito in coda un comando che il passo non chiede")
@@ -11725,7 +11823,7 @@ func prova_combattimento_sotto_stress() -> void:
 	# 1. DUE CLICK NELLO STESSO FOTOGRAMMA, UN COLPO SOLO. Il conto dei colpi
 	#    incassati e' il testimone: il danno e' casuale, il numero di colpi no.
 	tu.hp = tu.hp_max
-	tu.ricarica = 0.0
+	dai_il_turno(scontro, tu)
 	nemico.hp = nemico.hp_max
 	nemico["colpi_incassati"] = 0
 	scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
@@ -11734,19 +11832,19 @@ func prova_combattimento_sotto_stress() -> void:
 	esigi(int(nemico.colpi_incassati) == 1,
 			"tre click nello stesso fotogramma hanno fatto arrivare %d colpi"
 			% int(nemico.colpi_incassati))
-	esigi(float(tu.ricarica) > 0.0,
-			"dopo aver agito la ricarica non e' ripartita: si potrebbe agire all'infinito")
+	esigi(not scontro.puo_agire(tu),
+			"dopo aver agito tocca ancora a te: si potrebbe agire all'infinito")
 
-	# 2. CLICCARE MENTRE RICARICHI NON FA NIENTE
+	# 2. CLICCARE FUORI DAL TUO TURNO NON COLPISCE ADESSO
 	nemico["colpi_incassati"] = 0
 	for volta in 10:
 		scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
 	esigi(int(nemico.colpi_incassati) == 0,
-			"martellando durante la ricarica sono arrivati %d colpi" % int(nemico.colpi_incassati))
+			"martellando fuori dal tuo turno sono arrivati %d colpi" % int(nemico.colpi_incassati))
 
 	# 3. E NEMMENO DUE AZIONI DIVERSE INSIEME. Attacco e fuga nello stesso
-	#    fotogramma: passa il primo, il secondo trova la ricarica gia' azzerata.
-	tu.ricarica = 0.0
+	#    fotogramma: passa il primo, il secondo trova il turno gia' passato.
+	dai_il_turno(scontro, tu)
 	nemico["colpi_incassati"] = 0
 	var in_corso_prima: bool = scontro.in_corso
 	scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
@@ -11760,7 +11858,7 @@ func prova_combattimento_sotto_stress() -> void:
 	#    compare la schermata di fine: il colpo non deve arrivare a un nemico
 	#    che non c'e' piu'.
 	scontro.in_corso = false
-	tu.ricarica = 0.0
+	dai_il_turno(scontro, tu)
 	nemico["colpi_incassati"] = 0
 	for volta in 5:
 		scontro.agisci_ora({"tipo": "attacca", "bersaglio": nemico})
@@ -13335,6 +13433,17 @@ func tutte_spente(dove: Control) -> bool:
 
 var ricordo_scontro := {}   # quello che le strategie di queste prove si annotano
 
+func dai_il_turno(scontro: Node, chi: Dictionary) -> void:
+	# TOCCA A LUI, adesso: il turno dato a mano, come se la fila del giro fosse
+	# arrivata a lui. La battuta la apre agisci_ora, come quando il turno ti
+	# arriva per una strada che non passa da battuta_di
+	scontro.turni.passa_a(chi)
+	chi.battuta_aperta = false
+
+func togli_il_turno(scontro: Node) -> void:
+	# NON TOCCA A TE: e' il turno di qualcun altro, o sta passando
+	scontro.turni.fine_turno()
+
 func scontro_muto_contro(nemici: Array, regia: Dictionary, strategia: Callable, giri := 60) -> Node:
 	# uno scontro intero senza schermo: in modalita' muta si gioca tutto dentro
 	# add_child, e quando torna e' gia' finito
@@ -13512,7 +13621,8 @@ func prova_l_onda_psichica_tira_per_ogni_componente() -> void:
 	scontro.free()
 
 func prova_la_tua_battuta_si_apre_anche_dal_menu() -> void:
-	# IL DIFETTO: in tempo reale chi comandi tu non passava da battuta_di, e con
+	# IL DIFETTO: col motore in tempo reale chi comandi tu non passava da
+	# battuta_di, e con
 	# lei saltava tutto quello che si paga a ogni battuta - i potenziamenti non
 	# scadevano mai, il veleno non mordeva. Concentrazione l'ha fatto vedere:
 	# «leggermente piu' attacco e difesa» per sempre non e' leggermente
@@ -13526,13 +13636,13 @@ func prova_la_tua_battuta_si_apre_anche_dal_menu() -> void:
 	scontro.in_corso = true
 	var tu: Dictionary = scontro.combattente_comandato()
 	var battute_prima := int(scontro.battute_del_giocatore)
-	tu.ricarica = 0.0
+	dai_il_turno(scontro, tu)
 	scontro.agisci_ora({"tipo": "abilita", "id": "concentrazione"})
 	var attacco_su := RegoleCombattimento.attacco_di(tu)
 	esigi(not tu.buffs.is_empty(), "Concentrazione non ti ha dato niente")
 	var turni := int(GameState.abilita_combattimento("concentrazione").get("turni", 4))
 	for volta in turni:
-		tu.ricarica = 0.0
+		dai_il_turno(scontro, tu)
 		scontro.agisci_ora({"tipo": "difendi"})
 		if volta < turni - 2:
 			esigi(not tu.buffs.is_empty(), "Concentrazione e' gia' finita dopo %d azioni" % (volta + 1))
@@ -13556,16 +13666,17 @@ func prova_nelle_pianure_non_si_scappa() -> void:
 	var scontro := scontro_muto_contro(["goblin_tipico"], {}, sempre_fuga, 12)
 	esigi(not bool(scontro.giocatore_e_fuggito), "nelle Pianure si scappa da un goblin")
 	esigi(nello_storico("non vorrai mica scappare") >= 0, "la Guida non dice niente mentre ti ferma")
-	# E FERMARTI NON TI COSTA IL TURNO: premi FUGA, la Guida parla, e la tua
-	# ricarica resta dov'era
+	# E FERMARTI NON TI COSTA IL TURNO: premi FUGA, la Guida parla, e il turno
+	# resta tuo
 	scontro.in_corso = true
 	scontro.strategia = Callable()   # adesso lo comandi tu: senza, "chi comandi" e' nessuno
 	var tu: Dictionary = scontro.combattente_comandato()
 	esigi(not tu.is_empty(), "nello scontro della prova non comandi nessuno: la prova non misurerebbe niente")
-	tu.ricarica = 0.0
+	dai_il_turno(scontro, tu)
 	scontro.agisci_ora({"tipo": "fuggi"})
-	esigi(float(tu.ricarica) == 0.0 and bool(scontro.in_corso),
-			"premendo FUGA nelle Pianure hai perso il turno (ricarica %.2f), o sei scappato" % float(tu.ricarica))
+	esigi(scontro.puo_agire(tu) and bool(scontro.in_corso),
+			"premendo FUGA nelle Pianure hai perso il turno (tocca ancora a te: %s), o sei scappato"
+			% scontro.puo_agire(tu))
 	scontro.free()
 	GameState.nemici_combattimento = ["manifestazione_di_un_sogno"]
 	var apparizione: Node = load("res://scenes/Combattimento.tscn").instantiate()
@@ -13633,7 +13744,7 @@ func prova_bond_si_preme() -> void:
 	scontro.lezione_in_corso = false
 	scontro.aggiorna_pronto_giocatore()
 	esigi(scontro.plancia.evidenziato == bond, "finita la scena BOND si accende ma non pulsa: non ti dice di premerlo")
-	scontro.combattente_comandato().ricarica = 0.0
+	dai_il_turno(scontro, scontro.combattente_comandato())
 	bond.pressed.emit()
 	var tartaruga: Dictionary = scontro.combattenti[1]
 	esigi(bool(tartaruga.get("risparmiato", false)), "premendo BOND la tartaruga non viene lasciata andare")
@@ -13685,6 +13796,59 @@ func corridoio_aperto(a: String, b: String) -> bool:
 			return true
 	return false
 
+func prova_il_goblin_del_pasto_si_gioca_a_turni_dallo_schermo() -> void:
+	# LO SCONTRO CHE BRU HA GIOCATO, GIOCATO DALLO SCHERMO. «Il goblin mi attacca
+	# di continuo»: era questo, il goblin del pasto, con l'imboscata e la Guida
+	# che parla. Qui si monta com'e' in partita e lo si gioca come un giocatore:
+	# si clicca il testo per andare avanti, e quando tocca a te si clicca il
+	# goblin. Deve finire, e in nessun giro il goblin deve muoversi due volte.
+	#
+	# LA MISURA E' PER GIRO, NON FRA DUE TUOI TURNI. La prima versione contava
+	# le mosse del goblin fra un tuo turno e l'altro, e ne ha trovate due: alle
+	# strette il goblin «smette di ragionare» e passa da velocita' 2 a 4, quindi
+	# al giro dopo muove prima di te - tu, goblin | goblin, tu. E' giusto, ed e'
+	# come va in ogni gioco a turni: la regola e' che nessuno agisce due volte
+	# nello STESSO giro
+	titolo("il goblin del pasto si gioca a turni dallo schermo, fino in fondo")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	GameState.nuova_partita()
+	GameState.imposta_seed(11)
+	GameState.prepara_combattimento(["goblin_tipico"], "", "", "", "",
+			nodi["banchetto"]["combattimento_automatico"].get("regia", {}))
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	var tu: Dictionary = scontro.combattente_comandato()
+	var goblin: Dictionary = scontro.vivi(false)[0]
+	var mosse: Array[String] = []   # "giro:chi", una per battuta, nell'ordine in cui arrivano
+	var tue := 0
+	var sue := 0
+	var scadenza: int = Time.get_ticks_msec() + 60000
+	while scontro.in_corso and Time.get_ticks_msec() < scadenza:
+		if int(goblin.get("battute", 0)) != sue:
+			sue = int(goblin.get("battute", 0))
+			mosse.append("%d:goblin" % scontro.turni.giro)
+		if int(tu.get("battute", 0)) != tue:
+			tue = int(tu.get("battute", 0))
+			mosse.append("%d:tu" % scontro.turni.giro)
+		if scontro.area_avanza.visible:
+			scontro.voce.avanza()   # il clic che fa andare avanti il testo
+		elif scontro.puo_agire(tu) and scontro.fase_adesso() == "comandi":
+			scontro._su_click_nemico(goblin)   # tocca a te: si clicca il goblin
+		await get_tree().process_frame
+	esigi(not scontro.in_corso, "in un minuto lo scontro col goblin del pasto non e' finito: i turni si sono piantati")
+	esigi(not mosse.is_empty() and mosse[0].ends_with("goblin"),
+			"c'era l'imboscata e il primo a muovere non e' stato il goblin: %s" % [mosse.slice(0, 3)])
+	esigi(tue >= 3, "hai avuto il turno solo %d volte" % tue)
+	var doppie: Array[String] = []
+	for k in mosse.size():
+		if mosse.find(mosse[k]) != k:
+			doppie.append(mosse[k])
+	esigi(doppie.is_empty(), "nello stesso giro si e' mosso due volte: %s (%s)" % [doppie, mosse])
+	scontro.queue_free()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
 func prova_la_guida_ferma_il_mondo_mentre_parla() -> void:
 	# NELLA PARTITA VERA la Guida parla come Veronica: il mondo sta fermo e si
 	# va avanti col click. Le prove dello scontro girano mute, dove il tempo non
@@ -13700,15 +13864,18 @@ func prova_la_guida_ferma_il_mondo_mentre_parla() -> void:
 	esigi(bool(scontro.lezione_in_corso) and not scontro.il_tempo_scorre(),
 			"la Guida parla e intanto il goblin puo' gia' muoversi")
 	esigi(bool(scontro.voce.attende_il_click), "le battute della Guida scorrono da sole invece di aspettare il click")
-	# si legge tutto, e il mondo riparte da solo
+	# si legge tutto, e il mondo riparte da solo. Si guarda il goblin e non il
+	# tempo: con l'imboscata il turno e' suo, lo prende nel fotogramma dopo
+	# l'ultima riga, e subito la Guida torna a parlare («Ti sei fatto
+	# fregare!») e il tempo si ferma di nuovo - com'e' giusto
+	var goblin: Dictionary = scontro.vivi(false)[0]
 	var giri := 0
-	while giri < 400 and (not scontro.voce.coda.is_empty() or scontro.voce.sta_facendo_leggere or not scontro.scontro_avviato):
+	while giri < 600 and int(goblin.get("battute", 0)) == 0:
 		scontro.voce.salta_messaggio = true
 		await get_tree().process_frame
 		giri += 1
-	await get_tree().process_frame
-	esigi(not bool(scontro.lezione_in_corso) and scontro.il_tempo_scorre(),
-			"finite le battute della Guida il mondo resta fermo")
+	esigi(int(goblin.get("battute", 0)) >= 1,
+			"finite le battute della Guida il mondo resta fermo: il goblin non prende mai il suo turno")
 	scontro.queue_free()
 	await get_tree().process_frame
 	GameState.nuova_partita()
@@ -14042,7 +14209,7 @@ func prova_il_goblin_arrabbiato_e_lungo_ma_battibile() -> void:
 	var premendo := contro_il_goblin_arrabbiato(0, 5.0, partite)
 	var lasciando := contro_il_goblin_arrabbiato(0, -1.0, partite)
 	# «non difficile» anche per chi le fiale non le ha raccolte: chi preme se
-	# la gioca (misurate 55 su 100)
+	# la gioca (misurate a turni 46 su 100; col tempo reale erano 55)
 	esigi(int(premendo.vinte) * 4 >= partite,
 			"senza fiale, premendo, si vince %d volte su %d: senza scorte e' diventato un muro"
 			% [int(premendo.vinte), partite])

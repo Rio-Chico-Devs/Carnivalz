@@ -270,8 +270,20 @@ func prepara(quale: String) -> void:
 					scontro_p.voce.salta_messaggio = true
 					await attendi(4)
 					giri += 1
-				scontro_p.combattente_comandato().ricarica = 0.0
+				scontro_p.turni.passa_a(scontro_p.combattente_comandato())
 				await attendi(30)
+			elif cercato == "turno":
+				# IL TUO TURNO, arrivato giocando: si legge tutto quello che c'e' da
+				# leggere (l'imboscata, la Guida, il colpo del goblin) finche' il
+				# giro non arriva a te e il menu si accende
+				var tu_p: Dictionary = scontro_p.combattente_comandato()
+				while giri < 900 and not (scontro_p.puo_agire(tu_p) and scontro_p.fase_adesso() == "comandi"):
+					if scontro_p.area_avanza.visible:
+						scontro_p.voce.avanza()
+					await attendi(2)
+					giri += 1
+				await attendi(30)
+				print("giro %d, tocca a te" % scontro_p.turni.giro)
 			else:
 				var testo_box: RichTextLabel = scontro_p.box.get("testo")
 				while giri < 600 and not cercato in testo_box.get_parsed_text():

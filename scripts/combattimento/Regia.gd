@@ -35,10 +35,6 @@ extends RefCounted
 # e con il resto si scorda: la regia di questo scontro non deve finire nel
 # prossimo, che magari e' un agguato in un'altra stanza.
 
-# quanto aspetta chi ha la precedenza: abbastanza poco da muovere per primo,
-# abbastanza da lasciar leggere l'apertura
-const SCATTO := 0.05
-
 var scontro: Combattimento
 var dati: Dictionary = {}
 var dette: Array[int] = []    # le battute gia' dette: ognuna una volta sola
@@ -51,17 +47,13 @@ func _init(nodo_scontro: Combattimento, regia: Dictionary) -> void:
 
 # --- chi muove per primo ---------------------------------------------------
 
-func dai_la_precedenza(apertura: float) -> void:
+func precedenza() -> String:
 	# «la precedenza la ha chi ha la velocita' maggiore»: quando i dati non
-	# dicono niente resta com'era, e decide la ricarica. Un'imboscata la
-	# ribalta: chi l'ha tesa parte quasi subito, gli altri aspettano
-	# l'apertura intera
+	# dicono niente la risposta e' vuota, e il primo giro lo ordina la
+	# velocita'. Un'imboscata lo ribalta: chi l'ha tesa muove tutto per primo
+	# (vedi Turni.gd)
 	var prima := String(dati.get("precedenza", ""))
-	if prima != "nemici" and prima != "squadra":
-		return
-	for combattente in scontro.combattenti:
-		var sua := bool(combattente.giocatore) == (prima == "squadra")
-		combattente.ricarica = SCATTO if sua else scontro.ricarica_di(combattente) + apertura
+	return prima if prima == "nemici" or prima == "squadra" else ""
 
 # --- chi parla quando ------------------------------------------------------
 
@@ -102,8 +94,8 @@ func parla(righe: Array) -> void:
 			scontro.scrivi_messaggio_tutorial(riga)
 			continue
 		# SENZA NESSUNO CHE LEGGE IL MONDO NON SI FERMA. Nelle prove e col
-		# giocatore automatico l'orologio e' virtuale e _process non gira: un
-		# tempo fermato qui non ripartirebbe mai piu'
+		# giocatore automatico _process non gira: un tempo fermato qui non
+		# ripartirebbe mai piu'
 		var msg: Dictionary = riga
 		var testo := String(msg.get("testo", "")).replace("{nome}",
 				String(GameState.personaggi.get(GameState.id_protagonista, {}).get("nome", "")))

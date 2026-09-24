@@ -605,7 +605,7 @@ func scrivi_documento(durata: float) -> void:
 	testo += "`profilo_giocatore_tipo` di crescita.json prima di ogni scontro. Se quella stima e'\n"
 	testo += "sbagliata, tutta questa tabella e' sbagliata: e' il numero piu' importante del file.\n\n"
 	testo += "- **vinte / perse / ∞** — percentuale di partite. `∞` = non finisce entro %d giri\n" % LIMITE_GIRI
-	testo += "- **giri** — durata media in BATTUTE del protagonista (una battuta = un suo ciclo di ricarica)\n"
+	testo += "- **giri** — durata media in BATTUTE del protagonista (una battuta = un suo turno)\n"
 	testo += "- **danno** — punti vita persi in media dal protagonista (ne ha %d)\n" % int(GameState.stat_di("hp"))
 	testo += "- **risp.** — percentuale di partite in cui la creatura e' stata risparmiata\n\n"
 	testo += "## A che livello ogni scontro diventa giusto\n\n"

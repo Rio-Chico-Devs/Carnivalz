@@ -294,8 +294,8 @@ static func velocita_effettiva(combattente: Dictionary) -> int:
 			totale += int(GameState.stati.get(id_stato, {}).get("valore", 0))
 	# E I POTENZIAMENTI. Mancavano, e non se ne accorgeva nessuno: applica_buff
 	# accetta qualunque statistica, quindi una mossa poteva dichiarare "velocita"
-	# +2, la scheda lo mostrava, il buff scadeva a tempo debito - e la ricarica
-	# restava identica. Un potenziamento che si vede e non fa niente e' peggio
+	# +2, la scheda lo mostrava, il buff scadeva a tempo debito - e il posto nei
+	# turni restava identico. Un potenziamento che si vede e non fa niente e' peggio
 	# di un potenziamento che non c'e'
 	# get() e non l'accesso diretto: questa funzione la chiama anche chi ha in
 	# mano un combattente parziale (le prove ne montano di finti con la sola
@@ -310,9 +310,7 @@ static func velocita_effettiva(combattente: Dictionary) -> int:
 static func scadenza_buff(combattente: Dictionary) -> void:
 	# UN GIRO DI CLESSIDRA, ALL'INIZIO DELLA SUA BATTUTA. Non e' un tempo
 	# globale: e' il SUO ritmo. "Difesa +3 per 3 battute" vuol dire tre suoi
-	# cicli di ricarica, quindi su una creatura lenta dura il doppio dei secondi
-	# che dura su una veloce - ed e' giusto cosi', perche' e' anche il doppio
-	# del tempo in cui quella creatura agisce.
+	# turni.
 	var rimasti: Array = []
 	for buff in combattente.buffs:
 		buff.turni = int(buff.turni) - 1

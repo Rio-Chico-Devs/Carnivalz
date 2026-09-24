@@ -18,7 +18,7 @@ extends RefCounted
 # command-pattern-nystrom.pdf): l'azione qui e' gia' un oggetto - un Dictionary
 # {"tipo": ..., "id": ...} - e «e' qui che sfruttiamo il fatto che il comando e'
 # una chiamata reificata: possiamo RITARDARE il momento in cui viene eseguita».
-# Chi produce il comando (il menu) e chi lo consuma (l'orologio) non si parlano:
+# Chi produce il comando (il menu) e chi lo consuma (il turno) non si parlano:
 # si parlano attraverso questo posto, che e' l'unico a sapere quando si puo'.
 #
 # UNA CASELLA SOLA, NON UNA CODA, E VINCE L'ULTIMO. Ellison elenca fra le
@@ -28,10 +28,12 @@ extends RefCounted
 # esattamente il "controllo appiccicoso" che lo stesso articolo descrive come il
 # rovescio della medaglia.
 #
-# NESSUNA SCADENZA A TEMPO, MA SI VEDE. Un timer qui non ha un valore giusto: la
-# ricarica va da 0.45s a 4s, e una finestra da 0.2s come quella dell'articolo -
-# pensata per i picchiaduro - lascerebbe morto lo stesso il click dato a meta'
-# ricarica. L'intenzione quindi resta finche' non parte, non la sostituisci, o
+# NESSUNA SCADENZA A TEMPO, MA SI VEDE. Un timer qui non ha un valore giusto: il
+# turno degli altri puo' durare un colpo o tre nemici che parlano, e una
+# finestra da 0.2s come quella dell'articolo - pensata per i picchiaduro -
+# lascerebbe morto lo stesso il click dato mentre il goblin finisce di colpire.
+# (Era scritta per le ricariche del motore in tempo reale; coi turni vale
+# uguale.) L'intenzione quindi resta finche' non parte, non la sostituisci, o
 # non la annulla un fatto: scontro chiuso, lezione in corso, comando passato a
 # un altro. E il menu la SCRIVE in cima, cosi' non e' mai una sorpresa: il
 # rimedio all'appiccicoso e' farlo vedere, non accorciarlo di nascosto.
@@ -128,7 +130,7 @@ func nome() -> String:
 func momento_buono() -> bool:
 	# OGNI COSA A SUO TEMPO. Mentre c'e' da leggere, o mentre si sta cliccando
 	# sui pugni, l'intenzione aspetta: e' la stessa regola del sequenziatore,
-	# detta dalla parte del giocatore invece che da quella dell'orologio
+	# detta dalla parte del giocatore invece che da quella dei turni
 	if scontro.fase_adesso() in ["racconto", "minigioco", "chiuso"]:
 		return false
 	return scontro.giocatore_pronto()

@@ -97,7 +97,7 @@ func rinuncia() -> void:
 
 func avvia(parametri: Dictionary, al_secondo := -1.0, dal_vivo := true) -> void:
 	# "dal_vivo" false: c'e' un riquadro, ma nessuno che guardi l'orologio (le
-	# prove a orologio virtuale). Si gioca da solo come da muti
+	# prove senza schermo). Si gioca da solo come da muti
 	in_partenza = false
 	var regole: Dictionary = GameState.regole.get("contrasto", {})
 	fisica = {}

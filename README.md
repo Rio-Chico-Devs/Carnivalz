@@ -58,7 +58,7 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `scenes/Selezione.tscn` + `scripts/Selezione.gd` — menu del party: mostra solo le classi
   sbloccate e si riadatta man mano che i personaggi entrano o escono dai disponibili
 - `scenes/Main.tscn` + `scripts/Main.gd` — motore eventi + palco dialoghi
-- `scenes/Combattimento.tscn` + `scripts/Combattimento.gd` — combattimento in tempo reale
+- `scenes/Combattimento.tscn` + `scripts/Combattimento.gd` — combattimento a turni (chi muove quando: `combattimento/Turni.gd`)
 - `scenes/Ritratto.tscn` + `scripts/Ritratto.gd` — ritratto riusabile (immagine o placeholder)
 - `scripts/GameState.gd` — autoload: roster, party, inventario, livelli, RNG seedato, JSON
 - `scripts/Stile.gd` — autoload: il linguaggio visivo del gioco, letto da `data/stile.json` e
@@ -921,39 +921,51 @@ avanza al livello dopo.
   **Le altre passive sono dichiarate e si sbloccano, ma il loro effetto non è ancora
   implementato**: sono elencate qui e in `crescita.json` come contratto da riempire
 
-## Via i turni: il combattimento in tempo reale
-I nemici non aspettano che tu scelga. Ognuno ha una **ricarica** che scorre da sola; quando
-finisce, agisce. Se stai fermo, ti arrivano addosso lo stesso — è questo che rende il gioco
-frenetico pur restando una schermata ferma.
-- **Una battuta è un ciclo di ricarica tuo**, non un tempo globale. Così «tre turni di veleno»
-  vuol dire tre tue battute, esattamente come prima, e tutto quello che contava i turni —
-  stati, Astio, guardia a scatti, rigenerazione — continua a funzionare senza sapere che il
-  mondo è cambiato sotto. Era la traduzione giusta: un turno *è* sempre stato «la prossima
-  volta che tocca a te»
-- **Il tempo si ferma solo quando il gioco ha qualcosa da dirti**: mentre **studi** una
-  creatura e mentre un **boss esegue uno script**. Senza, studiare sarebbe una punizione —
-  apri una pagina di testo e intanto ti picchiano in tre — e lo Studio è il cuore del gioco.
-  `ferma_il_tempo()` si annida, e riparte da solo quando non c'è più niente da leggere
-- **Un motore, due orologi.** In gioco il tempo lo dà `_process(delta)`. Nelle prove e nel
-  giocatore automatico c'è un orologio virtuale che *salta* al prossimo momento in cui
-  qualcuno agisce: non misura un gioco diverso, perché l'ordine delle azioni esce dalle stesse
-  ricariche — cambia solo se il tempo lo conta un cronometro o l'aritmetica
-- **Sul nemico si clicca**: il colpo normale non è una voce di menu, è la creatura stessa —
-  ci si martella sopra, e se la ricarica non è pronta il click non conta. Il menu resta per
-  quello che non si fa colpendo: difendersi, gli attacchi d'arma, gli speciali, gli oggetti,
-  gli alleati, la fuga
-- **Il menu non sparisce mai, si spegne**: mentre ricarichi i bottoni restano al loro posto
-  in grigio invece di essere cancellati. Si vede lo stesso che non è il tuo momento, e si
-  continua a leggere cosa si potrà fare — prima, per metà dello scontro, sotto non c'era
-  niente. Dopo ogni scelta il menu torna al principale da solo
-- **Le parole scorrono, il mondo non si ferma**: `pompa_messaggi()` svuota la coda in
-  parallelo al tempo, e i messaggi «forti» in tempo reale non aspettano più un click. Senza
-  quella pompa non arrivava a schermo un solo numero di danno e lo scontro non si chiudeva
-  mai — nel motore a turni erano il ciclo a fare tutte e due le cose
+## Il combattimento a turni (`combattimento/Turni.gd`)
+Bru, giocando le Pianure: «non ci sono i turni il goblin mi attacca di continuo, lo scontro con
+le rane diventa un casino ci vogliono i turni». Per un periodo lo scontro era stato in tempo
+reale, su sua richiesta («i nemici non aspetteranno che tu scelga»): ognuno aveva una ricarica
+che scorreva da sola, e chi era più veloce di te colpiva due volte per ogni tua mossa. Adesso
+si combatte **a giri**.
+- **In ogni giro ognuno agisce una volta, in ordine di velocità.** «La precedenza la ha chi ha
+  la velocità maggiore» (Bru). A pari velocità va prima la squadra. La fila di un giro si fa
+  all'inizio del giro e non cambia a metà: un rallentamento preso adesso conta dal giro dopo,
+  un goblin evocato entra nel giro dopo, chi cade prima del suo turno lo salta
+- **Quando tocca a te, il mondo aspetta.** Senza tempo: finché non scegli non si muove niente.
+  Chi comandi tu tiene il turno finché non agisce (`agisci_ora`), e solo allora passa al
+  prossimo
+- **Nessuno agisce due volte nello stesso giro, ma chi è molto più lento di te può saltarne
+  uno.** Ognuno ha un *ritmo* — la sua velocità rispetto al protagonista, fra 0,4 e 1 — e lo
+  accumula giro dopo giro: quando arriva a un turno intero, muove. Chi va veloce quanto te o
+  di più muove sempre; il goblin arrabbiato (velocità 1 contro il tuo 3) muove due giri su
+  cinque. È la regola che tiene in piedi il bilanciamento: il boss era stato scritto «lento»
+  apposta, e a turno pieno picchiava due volte e mezzo quello per cui era stato misurato —
+  0 vittorie su 24 anche con le fiale. Con il ritmo: 24 su 24 con le due fiale, in 47 battute.
+  La prima volta che una creatura salta un giro lo si dice («... è lento: non riesce a
+  muoversi a ogni giro»), poi basta. Al primo giro muovono tutti
+- **Un'imboscata ribalta il primo giro**: chi l'ha tesa muove tutto prima degli altri (vedi
+  sotto, la regia)
+- **Il turno passa solo quando il mondo è fermo davanti a nessuno**: niente da leggere,
+  nessuno che para una mazzata o una raffica, nessuna Mattanza in corso
+  (`si_puo_passare_il_turno`). Il tempo si ferma anche quando il gioco ha qualcosa da dirti —
+  mentre **studi** una creatura, mentre un **boss esegue uno script**, mentre parla una
+  lezione: `ferma_il_tempo()` si annida, e riparte da solo quando non c'è più niente da leggere
+- **Una battuta è un tuo turno**: «tre turni di veleno» sono tre volte che tocca a chi lo porta.
+  Stati, Astio, guardia a scatti, rigenerazione contano lì, in `apri_la_battuta()` — che ora
+  si apre per tutti dalla stessa porta, `battuta_di`, anche per il tuo turno
+- **Due modi di far girare i turni.** In gioco li fa passare `_process` (`avanza_turni()`);
+  nelle prove e nel giocatore automatico nessuno legge, e si passano uno dietro l'altro. La
+  fila è la stessa nei due casi
+- **Sul nemico si clicca**: il colpo normale è la creatura stessa. Il menu resta per quello
+  che non si fa colpendo: difendersi, gli attacchi d'arma, gli speciali, gli oggetti, gli
+  alleati, la fuga
+- **Il menu non sparisce mai, si scolorisce**: quando non è il tuo turno i bottoni restano al
+  loro posto e il pannello sbiadisce (`non_e_il_tuo_turno()`). Un comando dato prima del tuo
+  turno non si perde: aspetta il tuo turno e parte da solo (`Intenzione.gd`)
 - **Il party agisce da solo**; tu comandi un personaggio alla volta (`id_comandato`) e gli
-  altri se la cavano con `azione_automatica()`
-- I nemici di livello basso fanno **meno male** di prima: in tempo reale i colpi arrivano più
-  spesso, e la difficoltà la fa la fretta con cui devi decidere, non la cifra del danno
+  altri se la cavano con `azione_automatica()` quando tocca a loro
+- **L'Immortale adesso ti lascia scappare** dopo i suoi cinque turni: `giro_corrente` col
+  motore in tempo reale non lo alzava più nessuno, e restava fermo a 1
 
 ## Chi muove per primo, e chi parla sopra lo scontro (`combattimento/Regia.gd`)
 Bru, sulle Pianure: «inizia il combattimento col goblin che ha la precedenza, se i nemici
@@ -963,9 +975,9 @@ durante il combattimento invece di veronica avremo la guida che parla».
   un'altra stanza non ha nessuno che gli parla sopra. `"combattimento_automatico"` (e una
   scelta con `"combatti"`) accetta `"regia": {"precedenza", "battute"}`, e arriva allo scontro
   con il resto della preparazione (`GameState.prepara_combattimento`)
-- **`"precedenza"`**: `"nemici"` (ti hanno colto di sorpresa: muovono quasi subito, tu aspetti
-  la tua ricarica intera), `"squadra"` (l'imboscata l'hai tesa tu), o niente — e allora vale la
-  regola di sempre, **muove per primo il più veloce**. Ogni **agguato** delle stanze
+- **`"precedenza"`**: `"nemici"` (ti hanno colto di sorpresa: al primo giro muovono tutti loro
+  prima di te), `"squadra"` (l'imboscata l'hai tesa tu), o niente — e allora vale la regola di
+  sempre, **muove per primo il più veloce**. Ogni **agguato** delle stanze
   (`"agguato"`) dà da solo la precedenza a chi l'ha teso
 - **`"battute"`**: `{"quando": "inizio" | "dopo_il_nemico" | "dopo_di_te", "volta": n,
   "righe": [...]}`. Le righe sono battute come quelle dell'allenamento di Veronica (`tipo`,
@@ -976,8 +988,7 @@ durante il combattimento invece di veronica avremo la guida che parla».
 - **La fuga negata è una regola della zona**: `mappa_dungeon.fuga_negata` = `{chi, testo,
   tranne}`. Nelle Pianure la Guida ti ferma («Hey, non vorrai mica scappare dai tuoi primi
   combattimenti, vero?») in tutti gli scontri tranne quello con l'apparizione, che è proprio
-  quello in cui si impara a scappare. Fermarti non ti costa il turno: la tua ricarica resta
-  dov'era
+  quello in cui si impara a scappare. Fermarti non ti costa il turno: resta tuo
 - **Il tasto BOND è la mediazione.** Era disegnato nella plancia e non era collegato a niente:
   adesso si accende (colorato) quando qualcuno in campo si può lasciare andare, e premerlo è
   come scegliere Mediazione dal menu. «Quando uno dei personaggi è pronto per legare col
@@ -988,7 +999,7 @@ durante il combattimento invece di veronica avremo la guida che parla».
   scena, non il tiro fatto all'ingresso
 - **Le orde dicono cosa stanno per fare** (`"orda": {"preannuncia": true}`): la prossima mossa
   si sceglie appena finita questa e si annuncia subito col suo `testo_annuncio` («L'orda di
-  rane sembra gracchiare ferocemente...»), così tutta la sua ricarica è tempo tuo per
+  rane sembra gracchiare ferocemente...»), così quando tocca a te sai già a cosa
   rispondere. E **l'annuncio resta scritto sulla sua scheda** («» L'orda di rane...») finché la
   mossa non arriva: nel box si legge e se ne va, e quando tocca a te il box mostra già il
   menu — cioè proprio quando serve, non c'era più. Vale anche per le mosse telegrafate dei
@@ -1000,11 +1011,11 @@ durante il combattimento invece di veronica avremo la guida che parla».
   contro un'orda la difesa conta per ogni colpo che arriva, ed è per questo che la strategia
   di Bru («boostarti mentre fanno fronte compatto, poi l'attacco a raggio») funziona.
   Misurate: a colpi normali l'orda di rane ti costa in media 34 punti vita, con l'onda 19-20
-- **La tua battuta si apre anche dal menu.** Era un difetto: chi comandi tu non passa da
-  `battuta_di` (è escluso apposta dai «pronti»), e con lei saltava tutto quello che si paga a
-  ogni battuta — il veleno non mordeva, il sonno non toglieva il turno, i potenziamenti non
-  scadevano. Le prove non lo vedevano perché l'orologio virtuale passa di là. Adesso
-  `apri_la_battuta()` la apre quando agisci, una volta sola
+- **La tua battuta si apre sempre.** Era un difetto del motore in tempo reale: chi comandavi
+  tu non passava da `battuta_di`, e con lei saltava tutto quello che si paga a ogni battuta —
+  il veleno non mordeva, il sonno non toglieva il turno, i potenziamenti non scadevano. A
+  turni il tuo turno passa di lì come quello di tutti; se ti arriva per un'altra porta,
+  `agisci_ora` la apre una volta sola
 
 ## Il goblin arrabbiato: la Mazzata, i suoi goblin, e uno scontro lungo
 Bru: «rendilo battibile, ma fai in modo che il combattimento sia lungo e interessante, calcola
@@ -1035,12 +1046,14 @@ protagonista che ne fa 15, cioè 2 a colpo, per circa 560 colpi.
   `massimo_usi: 2`: **due goblin in tutto**, dal momento in cui scende sotto il 60%
 - **I numeri** (`personaggi.json`, scritti a mano e non dal ruolo): 500 punti vita e 3 di
   difesa, così ogni tuo colpo si vede (12-13) e ne servono una quarantina; 3 di attacco e
-  velocità 1, un colpo ogni 4 secondi. A fare paura sono la Mazzata e i goblin che chiama. La
+  velocità 1: a turni muove due giri su cinque (vedi sopra, il ritmo). A fare paura sono la
+  Mazzata e i goblin che chiama. La
   fascia rossa usa `nome_breve` («GOBLIN ARRABBIATO»): il nome intero usciva dal pannello
-- **Misurato** (livello 1, le due fiale del masso, prima i goblin e poi il boss, si beve sotto
-  metà vita): vince **100 su 100**, in circa **48 azioni tue** (80 secondi di scontro più la
-  lettura), con 3-4 Mazzate e una fiala bevuta, e finisce con ~72 punti vita. Senza fiale vince
-  55 su 100 chi preme, 8 chi lascia calare la mazza: il minigioco conta
+- **Misurato a turni** (livello 1, le due fiale del masso, prima i goblin e poi il boss, si
+  beve sotto metà vita): vince **100 su 100**, in circa **47 azioni tue**, con 3-4 Mazzate e
+  una fiala e mezza bevuta, e finisce con ~74 punti vita. Senza fiale vince 46 su 100 chi
+  preme, 3 chi lascia calare la mazza: il minigioco conta. Col motore in tempo reale erano
+  100, 48 azioni, 55 e 8
 
 ## La Mattanza: la barra si svuota, e finché si svuota tu batti (`abilita.json` → `mattanza`)
 È la cosa che la barra di dominio serve a comprare, e l'unico momento del gioco in cui il

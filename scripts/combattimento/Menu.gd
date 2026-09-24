@@ -80,7 +80,7 @@ func pulisci() -> void:
 			contenitore = dove
 	svuota(contenitore)
 
-func mostra_ricarica(non_ancora: bool) -> void:
+func non_e_il_tuo_turno(non_ancora: bool) -> void:
 	# CHE NON SIA ANCORA IL TUO TURNO SI VEDE, MA NON TOGLIE NIENTE. Prima lo
 	# diceva il grigio dei bottoni spenti, che pero' si mangiavano il click.
 	# Adesso lo dice il pannello intero, che resta premibile: il comando dato
@@ -222,13 +222,13 @@ func principale() -> void:
 		# succede niente
 		bottone("␣  MARTELLA  ␣", principale, true)
 		return
-	# LA RICARICA NON SPEGNE PIU' I BOTTONI. Un bottone `disabled` in Godot non
-	# emette `pressed` e si mangia lo stesso il click: chi premeva DIFESA mentre
-	# la ricarica finiva non veniva ne' servito ne' sentito, ed era il "primo
-	# click morto". Adesso le voci restano premibili e il comando dato presto
-	# aspetta il suo momento (Combattimento.metti_in_coda). Che non sia ancora il
-	# tuo turno si vede lo stesso: l'intero pannello si scolorisce (ricarica()),
-	# e l'azione in attesa e' scritta.
+	# IL TURNO DEGLI ALTRI NON SPEGNE I BOTTONI. Un bottone `disabled` in Godot
+	# non emette `pressed` e si mangia lo stesso il click: chi premeva DIFESA un
+	# attimo prima del suo turno non veniva ne' servito ne' sentito, ed era il
+	# "primo click morto". Adesso le voci restano premibili e il comando dato
+	# presto aspetta il tuo turno (Intenzione.gd). Che non sia ancora il tuo
+	# turno si vede lo stesso: l'intero pannello si scolorisce
+	# (non_e_il_tuo_turno()), e l'azione in attesa e' scritta.
 	#
 	# `spento` resta, ma adesso vuol dire una cosa sola e vera: QUESTO NON SI PUO'
 	# FARE. Non "non ancora" - proprio no, come una mossa sotto Rabbia o una voce
@@ -440,10 +440,10 @@ func alleati() -> void:
 func scegli(azione: Dictionary) -> void:
 	if not muta:
 		AudioManager.interfaccia("conferma")
-	# IL BLOCCO ERA QUI. Il menu emetteva un segnale che, tolti i turni, non
-	# ascoltava piu' nessuno: l'azione non partiva, il menu restava chiuso e il
-	# gioco sembrava piantato. In tempo reale l'azione si esegue subito, e chi
-	# decide se la tua ricarica e' pronta e' agisci_ora
+	# IL BLOCCO ERA QUI. Il menu emetteva un segnale che, col motore in tempo
+	# reale, non ascoltava piu' nessuno: l'azione non partiva, il menu restava
+	# chiuso e il gioco sembrava piantato. L'azione va dritta ad agisci_ora, e
+	# chi decide se e' il tuo turno e' lui
 	scontro.agisci_ora(azione)
 	# e si torna subito al menu principale: se restasse dov'era, chi ha scelto
 	# dentro un sottomenu ci resterebbe dentro senza un modo di uscirne

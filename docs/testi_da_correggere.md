@@ -13682,12 +13682,12 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento1.prima11`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> E l'ultima cosa, che è la più importante: [b]qui non si aspetta il proprio turno[/b].
+> E l'ultima cosa, che è la più importante: [b]qui si combatte a turni[/b].
 >
 > →
 
 **`CRE.veronica.allenamento1.prima12`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Ognuno ha la sua ricarica. Quando la tua è finita puoi muoverti, e finché stai fermo il mondo va avanti lo stesso.
+> In ogni giro ognuno muove una volta, e chi è più veloce muove prima. Quando tocca a te, il mondo aspetta la tua scelta.
 >
 > →
 

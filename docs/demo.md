@@ -252,7 +252,7 @@ Questa parte non viene dalla ricerca: viene dai nostri file.
 
 | | |
 | --- | --- |
-| Motore | Combattimento in tempo reale completo, 8 status, 5 tipi, mediazione, hype |
+| Motore | Combattimento a turni completo, 8 status, 5 tipi, mediazione, hype |
 | Contenuto | **8 zone, 189 stanze, 39 creature, 23.428 parole** |
 | Tenuta | **26.417 verifiche automatiche**, tutte verdi |
 | Bilanciamento | **234.000 partite simulate**, cinque modi di giocare |

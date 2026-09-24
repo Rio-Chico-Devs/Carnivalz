@@ -73,7 +73,7 @@ func cala(nemico: Dictionary, dati: Dictionary) -> void:
 	mossa = dati
 	var parametri: Dictionary = dati.get("contrasto", {})
 	if not scontro.fase_governa_il_tempo():
-		# orologio virtuale: nessuno legge e nessuno guarda, si gioca subito
+		# senza schermo: nessuno legge e nessuno guarda, si gioca subito
 		contrasto.avvia(parametri, mano_automatica(), false)
 		return
 	# la riga che la annuncia si legge prima che il riquadro copra il box: e'

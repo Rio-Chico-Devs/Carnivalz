@@ -151,11 +151,15 @@ var incontro_tentativi_morfeo := 0
 # blocca_fuga_turni: un nemico puo' impedire di fuggire per i suoi primi N
 # turni (es. l'Immortale, debole ma non lo si puo' davvero sconfiggere:
 # l'unica via d'uscita e' resistere e poi scappare). avviso_fuga mostra un
-# testo una tantum al turno indicato, se il compagno richiesto e' in squadra
+# testo una tantum al turno indicato, se il compagno richiesto e' in squadra.
+#
+# giro_corrente e' il giro dei turni (Turni.gd lo alza a ogni giro nuovo). Col
+# motore in tempo reale non lo alzava piu' nessuno: restava 1, e l'Immortale
+# non ti lasciava scappare mai, nemmeno dopo i suoi cinque turni
 var giro_corrente := 1
 var battute_del_giocatore := 0   # quante volte hai mosso: il "limite_giri" conta queste
 var id_comandato := ""           # chi stai giocando adesso; vuoto = il protagonista
-var menu_acceso := false         # la tua ricarica e' finita e il menu e' aperto
+var menu_acceso := false         # tocca a te e il menu e' aperto
 var studio_in_corso := false     # il tempo e' fermo perche' stai studiando
 
 # IL COMANDO DATO PRESTO ASPETTA IL SUO MOMENTO, non si perde: il perche' e il
@@ -202,6 +206,7 @@ func _ready() -> void:
 	impatto = ImpattoCombattimento.new(get_tree(), muto)
 	stati = StatiCombattimento.new(self)
 	intenzione = IntenzioneCombattimento.new(self)
+	turni = TurniCombattimento.new(self)
 	regia = RegiaCombattimento.new(self, GameState.regia_combattimento)
 	arena = ArenaCombattimento.new(muto)
 	minigioco = MinigiocoCombattimento.new(muto)
@@ -648,35 +653,36 @@ func aggiorna_speranza(quantita: int) -> void:
 		if not muto:
 			AudioManager.voce_boss(String(fonte.get("id", "")), fonte, "cedimento")
 
-# --- IL TEMPO: UN MOTORE, DUE OROLOGI ----------------------------------------
+# --- IL TEMPO: A TURNI -------------------------------------------------------
 #
-# Via i turni. Ogni combattente ha una RICARICA che scorre da sola: quando
-# finisce, quello agisce, e la ricarica riparte. I nemici non aspettano che tu
-# scelga - se stai fermo, ti arrivano addosso lo stesso. E' questo che rende il
-# gioco frenetico pur restando una schermata ferma.
+# Bru: «non ci sono i turni il goblin mi attacca di continuo, lo scontro con le
+# rane diventa un casino ci vogliono i turni».
 #
-# UNA BATTUTA E' UN CICLO DI RICARICA TUO. Non un tempo globale: il tuo. Cosi'
-# "tre turni di veleno" vuol dire tre tue battute, esattamente come prima, e
-# tutto quello che contava i turni - stati, Astio, guardia, rigenerazione -
-# continua a funzionare senza sapere che il mondo e' cambiato sotto. Era la
-# traduzione giusta: un turno E' sempre stato "la prossima volta che tocca a te".
+# C'erano stati, i turni, e li avevamo tolti su sua richiesta («i nemici non
+# aspetteranno che tu scelga»): ognuno aveva una ricarica che scorreva da sola,
+# e chi era il doppio piu' veloce di te colpiva due volte per ogni tua mossa.
+# Giocandolo, e' diventato rumore. Adesso lo scontro va a GIRI: in ogni giro
+# ognuno agisce una volta, in ordine di velocita', e quando tocca a te il mondo
+# aspetta. Chi decide l'ordine sta in Turni.gd.
 #
-# I DUE OROLOGI. In gioco il tempo lo da' _process(delta). Nelle prove e nel
-# giocatore automatico non si puo' aspettare quarantamila secondi veri, quindi
-# c'e' un orologio virtuale che SALTA al prossimo momento in cui qualcuno
-# agisce. Non e' una scorciatoia che misura un gioco diverso: l'ordine delle
-# azioni e' lo stesso, perche' e' calcolato dalle stesse ricariche. Cambia solo
-# se il tempo lo conta un cronometro o l'aritmetica.
+# UNA BATTUTA E' UN TUO TURNO. "Tre turni di veleno" vuol dire tre tue battute:
+# stati, Astio, guardia, rigenerazione contano come hanno sempre contato, a
+# ogni volta che tocca a chi li porta (vedi apri_la_battuta).
 #
-# IL TEMPO SI FERMA quando il gioco ha qualcosa da dirti, e solo allora: mentre
-# studi una creatura, e mentre un boss esegue uno script. Bru: "se un nemico
-# viene colpito da studio, il combattimento si ferma solo mentre i dialoghi di
-# studio avvengono".
+# DUE MODI DI FAR GIRARE I TURNI. In gioco li fa girare _process: un turno
+# passa al prossimo solo quando non c'e' piu' niente da leggere e nessuno sta
+# parando. Nelle prove e col giocatore automatico nessuno legge, e i turni si
+# passano uno dietro l'altro (esegui_scontro). L'ordine e' lo stesso nei due
+# casi, perche' lo decide la stessa fila.
+#
+# IL TEMPO SI FERMA quando il gioco ha qualcosa da dirti: mentre studi una
+# creatura, mentre un boss esegue uno script, mentre parla una lezione. Fermo
+# vuol dire che il turno non passa a nessuno.
 
-var tempo_reale := true      # false nelle prove e nel simulatore: orologio virtuale
-var tempo_fermo := 0         # > 0 il tempo non scorre (studio, script di boss)
-var orologio := 0.0          # secondi trascorsi nello scontro
+var tempo_reale := true      # false nelle prove e nel simulatore: i turni si passano senza nessuno che legge
+var tempo_fermo := 0         # > 0 il turno non passa (studio, script di boss, lezione)
 var scontro_avviato := false
+var turni: TurniCombattimento
 
 func ferma_il_tempo() -> void:
 	tempo_fermo += 1
@@ -717,96 +723,63 @@ func fase_adesso() -> String:
 
 func il_mondo_aspetta_che_si_legga() -> bool:
 	# la regola di Bru in una riga: finche' c'e' da leggere, non avanza niente.
-	# Sta qui e non dentro avanza_orologio perche' e' una REGOLA, e una regola
+	# Sta qui e non dentro si_puo_passare_il_turno perche' e' una REGOLA, e una regola
 	# con un nome si puo' chiedere anche da fuori - per esempio da una prova
 	return fase_governa_il_tempo() and fase_adesso() == "racconto"
 
 func fase_governa_il_tempo() -> bool:
-	# il sequenziatore vale per la partita vera. Il giocatore automatico gira su
-	# un orologio virtuale che deve poter correre senza nessuno che legga
+	# il sequenziatore vale per la partita vera. Il giocatore automatico passa i
+	# turni uno dietro l'altro, e deve poterlo fare senza nessuno che legga
 	return tempo_reale and not muto
 
 func il_tempo_scorre() -> bool:
 	return in_corso and tempo_fermo <= 0
 
-func ricarica_di(combattente: Dictionary) -> float:
-	# quanto ci mette a rimuoversi. Piu' sei veloce, meno aspetti
-	# IL RIFERIMENTO E' IL PROTAGONISTA, non un numero fisso.
-	#
-	# Con un riferimento fisso (6) al livello 1 le velocita' vere sono 2 o 3, e
-	# tutte le ricariche finivano schiacciate contro il limite lento: ogni
-	# creatura si muoveva uguale, e i ruoli - il veloce, il corazzato - non si
-	# sentivano affatto. Rapportandola a chi giochi tu, un "veloce" e' sempre il
-	# doppio di te e un "corazzato" sempre la meta', al livello 1 come al 30.
-	var dati: Dictionary = GameState.regole.get("tempo", {})
-	var riferimento := float(dati.get("velocita_riferimento", 6))
-	for altro in combattenti:
-		if altro.giocatore and String(altro.get("id", "")) == GameState.id_protagonista:
-			riferimento = float(RegoleCombattimento.velocita_effettiva(altro))
-			break
-	riferimento = maxf(riferimento, 1.0)
-	var mia := maxf(float(RegoleCombattimento.velocita_effettiva(combattente)), 1.0)
-	var secondi := float(dati.get("ricarica_base", 1.6)) * (riferimento / mia)
-	return clampf(secondi, float(dati.get("ricarica_minima", 0.45)),
-			float(dati.get("ricarica_massima", 4.0)))
-
 func puo_agire(combattente: Dictionary) -> bool:
+	# puo' agire chi ha il turno, e solo lui
 	return in_corso and int(combattente.hp) > 0 \
 			and not combattente.get("oggetto_scena", false) \
-			and float(combattente.get("ricarica", 1.0)) <= 0.0
+			and turni.tocca_a(combattente)
 
-func riarma(combattente: Dictionary) -> void:
-	combattente.ricarica = ricarica_di(combattente)
-
-func prossimo_evento() -> float:
-	# fra quanti secondi qualcuno si muove. INF se non si muove piu' nessuno
-	var minimo := INF
-	for combattente in combattenti:
-		if int(combattente.hp) <= 0 or combattente.get("oggetto_scena", false):
-			continue
-		minimo = minf(minimo, maxf(float(combattente.get("ricarica", 0.0)), 0.0))
-	return minimo
-
-func avanza_orologio(delta: float) -> void:
-	# IL BATTITO DEL MONDO. Scorre per tutti insieme; chi arriva a zero agisce.
+func si_puo_passare_il_turno() -> bool:
+	# OGNI COSA A SUO TEMPO. Il turno passa al prossimo solo quando il mondo e'
+	# fermo davanti a nessuno: niente da leggere, nessuno che para, e nessuno
+	# che abbia il turno in mano senza averlo ancora giocato
 	if not il_tempo_scorre():
-		return
+		return false
 	# MENTRE SI LEGGE, IL MONDO ASPETTA. Bru: «mentre ci sono i dialoghi tutto si
 	# incentra nella lettura, non serve che altro vada avanti - se il nemico dice
 	# qualcosa tipo "adesso il mio colpo migliore!", il dialogo prima e poi
-	# colpisce». Era il difetto di fondo: le ricariche correvano sotto il testo,
-	# quindi quando finivi di leggere il tuo turno era gia' passato, o era
-	# arrivato mentre il menu era coperto
+	# colpisce»
 	if il_mondo_aspetta_che_si_legga():
-		return
-	orologio += delta
-	for combattente in combattenti:
-		if int(combattente.hp) <= 0 or combattente.get("oggetto_scena", false):
-			continue
-		combattente.ricarica = float(combattente.get("ricarica", 0.0)) - delta
-	# agisce chi e' piu' in ritardo: se due ricariche scadono insieme, decide la
-	# velocita', come faceva l'iniziativa
-	var pronti: Array[Dictionary] = []
-	for combattente in combattenti:
-		if puo_agire(combattente) and not (combattente.giocatore and comandi_tu(combattente)):
-			pronti.append(combattente)
-	pronti.sort_custom(func(a, b):
-		var ra := float(a.get("ricarica", 0.0))
-		var rb := float(b.get("ricarica", 0.0))
-		if not is_equal_approx(ra, rb):
-			return ra < rb
-		return RegoleCombattimento.velocita_effettiva(a) > RegoleCombattimento.velocita_effettiva(b))
-	for combattente in pronti:
-		if not in_corso or int(combattente.hp) <= 0:
-			continue
-		riarma(combattente)
-		battuta_di(combattente)
-		if not tempo_reale:
-			# orologio virtuale: la coda si legge subito, non c'e' nessuno che guarda
-			continue
+		return false
+	# la mazza, la raffica, la Mattanza: finche' la mano e' occupata, nessun
+	# altro si muove
+	if gioco_con_la_mano() or mattanza_attiva:
+		return false
+	# QUANDO TOCCA A TE, IL MONDO ASPETTA TE. E' tutto qui: chi comandi tu tiene
+	# il turno finche' non sceglie (vedi agisci_ora), e intanto non passa a
+	# nessuno
+	return turni.di_turno.is_empty() or not puo_agire(turni.di_turno)
+
+func avanza_turni() -> bool:
+	# UN TURNO IN AVANTI, se e' il momento. true = qualcuno l'ha preso
+	if not si_puo_passare_il_turno():
+		return false
+	var chi := turni.prossimo()
+	if chi.is_empty():
+		return false
+	# un turno aperto e mai giocato non deve far credere che questo lo sia
+	chi.battuta_aperta = false
+	battuta_di(chi)
+	if not bool(chi.get("battuta_aperta", false)):
+		# ha gia' fatto (o ha perso il turno, o dorme): tocca al prossimo. Chi
+		# comandi tu invece il turno lo tiene aperto, e lo chiude agisci_ora
+		turni.fine_turno()
 	verifica_avviso_fuga()
 	if limite_giri > 0 and battute_del_giocatore >= limite_giri:
 		in_corso = false
+	return true
 
 func comandi_tu(combattente: Dictionary) -> bool:
 	# CHI GIOCHI TU. Bru: "il party agira' da solo come i nemici, ma tu avrai la
@@ -847,25 +820,21 @@ func _process(delta: float) -> void:
 		# mentre si para, lo scontro e' fermo: i pugni hanno un orologio loro
 		minigioco.passa(delta)
 		return
-	avanza_orologio(delta)
+	avanza_turni()
 	aggiorna_pronto_giocatore()
 
 func esegui_scontro() -> void:
 	await svuota_coda()   # l'apertura si legge prima che qualcuno si muova
-	# nessuno parte a ricarica zero: c'e' il tempo di guardare chi hai davanti
-	var apertura := float(GameState.regole.get("tempo", {}).get("apertura_secondi", 1.2))
-	for combattente in combattenti:
-		combattente.ricarica = ricarica_di(combattente) * 0.5 + apertura
-	regia.dai_la_precedenza(apertura)   # un'imboscata ribalta la velocita'
+	# chi apre il primo giro: un'imboscata lo dice nei dati, se no la velocita'
+	turni.precedenza = regia.precedenza()
 	scontro_avviato = true
 	if tempo_reale and not muto:
-		# da qui in poi comanda _process per il tempo, e la pompa per le parole.
+		# da qui in poi comanda _process per i turni, e la pompa per le parole.
 		#
-		# SENZA LA POMPA NON SI VEDEVA NIENTE. Nel motore a turni era il ciclo a
-		# svuotare la coda dopo ogni azione; togliendolo, i messaggi si
-		# accumulavano e non arrivava a schermo un solo numero di danno - e lo
-		# scontro non si chiudeva mai, perche' anche la fine stava li'. Bru:
-		# "non sto subendo danni ne' riesco ad infliggerli, il primo
+		# SENZA LA POMPA NON SI VEDEVA NIENTE. Le parole si leggono una alla
+		# volta mentre il resto aspetta: e' la pompa a farle arrivare a schermo,
+		# e a chiudere lo scontro con "Continua" quando e' finito. Bru, quando
+		# mancava: "non sto subendo danni ne' riesco ad infliggerli, il primo
 		# combattimento blocca tutto". Succedeva tutto: non si vedeva.
 		for combattente in combattenti:
 			collega_bersaglio(combattente)
@@ -875,7 +844,7 @@ func esegui_scontro() -> void:
 		menu.principale()
 		pompa_messaggi()
 		return
-	# --- orologio virtuale: le prove e il giocatore automatico ---
+	# --- senza nessuno che legge: le prove e il giocatore automatico ---
 	#
 	# IL TETTO NON E' PRUDENZA, E' LA DIAGNOSI. Un ciclo che fa girare il mondo
 	# non deve poter girare a vuoto: se la condizione d'uscita si rompe, senza
@@ -887,20 +856,14 @@ func esegui_scontro() -> void:
 	while in_corso:
 		giri += 1
 		if giri > giri_di_sicurezza:
-			push_error("Combattimento: l'orologio virtuale ha fatto %d giri senza che lo scontro finisse (battute del protagonista: %d, limite: %d). Qualcosa non fa piu' scattare la fine."
+			push_error("Combattimento: i turni sono passati %d volte senza che lo scontro finisse (battute del protagonista: %d, limite: %d). Qualcosa non fa piu' scattare la fine."
 					% [giri, battute_del_giocatore, limite_giri])
 			in_corso = false
 			break
-		var salto := prossimo_evento()
-		if salto == INF:
-			break
-		avanza_orologio(maxf(salto, 0.0001))
-		if not in_corso:
-			break
-		for combattente in combattenti:
-			if puo_agire(combattente) and combattente.giocatore and comandi_tu(combattente):
-				riarma(combattente)
-				battuta_di(combattente)
+		if not avanza_turni() and turni.fila().is_empty():
+			break   # non c'e' piu' nessuno che possa muoversi
+		# qui nessuno sceglie per chi comandi tu: se il turno era suo, passa
+		turni.fine_turno()
 		await svuota_coda()
 	await svuota_coda()
 	mostra_continua_fine()
@@ -918,11 +881,9 @@ func _su_input_nemico(evento: InputEvent, bersaglio: Dictionary) -> void:
 		_su_click_nemico(bersaglio)
 
 func _su_click_nemico(bersaglio: Dictionary) -> void:
-	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu: si martella li' sopra.
-	# Il commento qui diceva «se la ricarica non e' pronta il click non fa
-	# niente»: non e' piu' vero da quando c'e' Intenzione.gd - adesso aspetta il
-	# suo momento e parte da solo. Lasciato com'era, avrebbe raccontato una
-	# regola che il codice non ha piu'.
+	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu: ci si clicca sopra.
+	# Se non e' ancora il tuo turno il click non si perde: aspetta il tuo turno
+	# e parte da solo (vedi Intenzione.gd).
 	if int(bersaglio.get("hp", 0)) <= 0 or not il_tempo_scorre():
 		return
 	agisci_ora({"tipo": "attacca", "bersaglio": bersaglio})
@@ -954,11 +915,11 @@ func nome_azione_in_coda() -> String:
 	return intenzione.nome()
 
 func aggiorna_pronto_giocatore() -> void:
-	# IL MENU NON SPARISCE MAI, SI SPEGNE. Prima si cancellava mentre ricaricavi
-	# e si ricostruiva quando eri pronto: per meta' dello scontro, sotto, non
-	# c'era niente. Bru: "il menu sotto non e' sempre consultabile". Adesso i
-	# bottoni restano al loro posto e diventano grigi - si vede lo stesso che la
-	# ricarica non e' finita, ma si legge sempre cosa si potra' fare
+	# IL MENU NON SPARISCE MAI, SI SPEGNE. Prima si cancellava quando non
+	# toccava a te e si ricostruiva al tuo turno: per meta' dello scontro, sotto,
+	# non c'era niente. Bru: "il menu sotto non e' sempre consultabile". Adesso i
+	# bottoni restano al loro posto e si scoloriscono - si vede che non e' il tuo
+	# turno, ma si legge sempre cosa si potra' fare
 	if menu == null:
 		return
 	var tu := combattente_comandato()
@@ -977,22 +938,20 @@ func aggiorna_pronto_giocatore() -> void:
 				int(tu.get("stress", 0)),
 				GameState.legame)
 	# PRIMA DI TUTTO, QUELLO CHE IL GIOCATORE HA GIA' CHIESTO. Sta qui e non piu'
-	# in fondo perche' il punto e' proprio non perdere un fotogramma: appena la
-	# ricarica scade, l'azione che aspettava parte nello stesso giro
+	# in fondo perche' il punto e' proprio non perdere un fotogramma: appena
+	# tocca a te, l'azione che aspettava parte nello stesso giro
 	intenzione.smaltisci()
 	var pronto := giocatore_pronto()
 	# SOLO A SCONTRO VIVO. A scontro chiuso "pronto" e' falso per definizione -
 	# puo_agire chiede in_corso - e senza questo il pannello della fine, quello
 	# con "Continua", resterebbe scolorito come se ci fosse ancora da aspettare
-	menu.mostra_ricarica(in_corso and not pronto)
+	menu.non_e_il_tuo_turno(in_corso and not pronto)
 	aggiorna_bond()
 	if pronto != menu_acceso:
-		if pronto and comincia_il_tuo_turno(tu):
-			return   # il passo si e' preso il turno da solo: niente menu
 		menu_acceso = pronto
 		attaccante_corrente = tu
 		menu.principale()
-	# a OGNI fotogramma, non solo quando la ricarica cambia: mentre il box
+	# a OGNI fotogramma, non solo quando cambia il turno: mentre il box
 	# racconta la coda si svuota da sola, e il quadrante deve tornare al menu
 	# nel momento in cui non c'e' piu' niente da leggere
 	decidi_faccia()
@@ -1047,8 +1006,8 @@ func passa_il_comando(caduto: Dictionary) -> void:
 		return
 
 func agisci_ora(azione: Dictionary) -> void:
-	# L'AZIONE DEL GIOCATORE, presa quando la prende lui. Se la ricarica non e'
-	# finita NON si butta via: si mette in attesa e parte da sola appena tocca a
+	# L'AZIONE DEL GIOCATORE, presa quando la prende lui. Se non e' ancora il suo
+	# turno NON si butta via: si mette in attesa e parte da sola appena tocca a
 	# te (vedi Intenzione.gd). Prima qui c'era un return muto, ed era il
 	# "primo click morto" che Bru segnalava
 	var tu := combattente_comandato()
@@ -1060,24 +1019,23 @@ func agisci_ora(azione: Dictionary) -> void:
 		intenzione.ricorda(azione)
 		return
 	intenzione.scorda()
-	# LA TUA BATTUTA SI APRIVA SOLO PER GLI ALTRI. Chi comandi tu non passa da
-	# battuta_di (e' escluso apposta dai "pronti", vedi avanza_orologio), e con
-	# lei saltava tutto quello che si paga a ogni battuta: il veleno non
-	# mordeva, il sonno non toglieva il turno, i potenziamenti non scadevano
-	# mai. Le prove non lo vedevano perche' l'orologio virtuale passa di la'.
-	# Si apre qui, una volta sola: se l'ha gia' aperta battuta_di, non di nuovo
+	# LA TUA BATTUTA SI APRE UNA VOLTA SOLA. Di solito l'ha gia' aperta
+	# battuta_di quando ti ha dato il turno (il veleno che morde, il sonno che
+	# te lo toglie, i potenziamenti che scadono); se il turno ti e' arrivato
+	# per un'altra porta, si apre qui
 	var gia_aperta := bool(tu.get("battuta_aperta", false))
 	tu.battuta_aperta = false
-	riarma(tu)
 	attaccante_corrente = tu
 	if not gia_aperta and not apri_la_battuta(tu):
 		menu_acceso = false
+		turni.fine_turno()
 		return   # addormentato, o bruciato prima di muoversi: il turno se ne va cosi'
 	esegui_azione(tu, azione)
-	# il menu resta a schermo e si spegne: lo ricostruisce chi ha chiamato (vedi
-	# MenuCombattimento.scegli), e aggiorna_pronto_giocatore lo riaccende quando
-	# la ricarica e' di nuovo finita
+	# FATTO: IL TURNO PASSA. Il menu resta a schermo e si spegne: lo ricostruisce
+	# chi ha chiamato (vedi MenuCombattimento.scegli), e aggiorna_pronto_giocatore
+	# lo riaccende quando tocca di nuovo a te
 	menu_acceso = false
+	turni.fine_turno()
 
 func verifica_avviso_fuga() -> void:
 	if portatore_fuga_bloccata.is_empty() or avviso_fuga_mostrato:
@@ -1098,8 +1056,8 @@ func mostra_continua_fine() -> void:
 	menu.pulisci()
 	menu.bottone("▸ Continua", _esci)
 	# e il pannello torna pieno: a scontro finito aggiorna_pronto_giocatore puo'
-	# non girare piu', quindi lo scolorimento della ricarica va tolto qui
-	menu.mostra_ricarica(false)
+	# non girare piu', quindi lo scolorimento di "non tocca a te" va tolto qui
+	menu.non_e_il_tuo_turno(false)
 
 func risolvi_rigenerazione_frammento(chi: Dictionary) -> void:
 	if int(chi.get("rigenerazione_battute", 0)) <= 0 or int(chi.hp) <= 0:
@@ -1116,8 +1074,8 @@ func risolvi_rigenerazione_frammento(chi: Dictionary) -> void:
 			aggiorna_scheda(chi))
 
 func battuta_di(attaccante: Dictionary) -> void:
-	# TOCCA A LUI. La ricarica e' finita: prima si paga quello che si paga a
-	# ogni battuta (stati, fuoco addosso, aura che torna), poi si agisce.
+	# TOCCA A LUI. Prima si paga quello che si paga a ogni battuta (stati, fuoco
+	# addosso, aura che torna), poi si agisce.
 	if not apri_la_battuta(attaccante):
 		return
 	if attaccante.giocatore:
@@ -1146,12 +1104,11 @@ func battuta_di(attaccante: Dictionary) -> void:
 				# nessuno sta guardando: decide il giocatore automatico
 				azione = strategia.call(self, attaccante)
 			elif comandi_tu(attaccante):
-				# LO DECIDI TU, E NON ADESSO. In tempo reale la battuta non
-				# aspetta nessuno: il menu si accende e il mondo continua a
-				# girare finche' non clicchi (vedi agisci_ora)
+				# LO DECIDI TU, CON CALMA. Il menu si accende e il turno resta
+				# tuo finche' non scegli: nessuno si muove nel frattempo (vedi
+				# si_puo_passare_il_turno), e a chiuderlo e' agisci_ora
 				menu_acceso = true
 				attaccante_corrente = attaccante
-				attaccante.ricarica = 0.0   # resta pronto finche' non agisce
 				attaccante.battuta_aperta = true   # agisci_ora non la riapre
 				if not muto:
 					menu.principale()
@@ -1178,10 +1135,9 @@ func apri_la_battuta(attaccante: Dictionary) -> bool:
 	# QUI STAVA IL CICLO INFINITO. Contarle solo quando lo comanda una persona
 	# sembrava equivalente - e' il giocatore in tutti e due i casi - ma col
 	# giocatore automatico "comandi_tu" e' falso per definizione: il contatore
-	# restava a zero, "limite_giri" non scattava mai, e l'orologio virtuale
-	# girava a vuoto per sempre. Il gioco non si rompeva: semplicemente non
-	# tornava. E' la sostituzione di quello che prima faceva "giro_corrente",
-	# che si alzava a ogni giro senza chiedere niente a nessuno.
+	# restava a zero, "limite_giri" non scattava mai, e lo scontro senza
+	# schermo girava a vuoto per sempre. Il gioco non si rompeva: semplicemente
+	# non tornava.
 	if attaccante.giocatore and String(attaccante.get("id", "")) == GameState.id_protagonista:
 		battute_del_giocatore += 1
 	attaccante.battute = int(attaccante.get("battute", 0)) + 1
@@ -1425,41 +1381,17 @@ func chiudi_passo_tutorial() -> void:
 	if tutorial_passo >= tutorial.get("passi", []).size():
 		concludi_tutorial()
 
-func comincia_il_tuo_turno(tu: Dictionary) -> bool:
-	# IL TURNO DEL GIOCATORE COMINCIA QUI, e non sempre col menu.
-	#
-	# Ritorna true quando il passo del tutorial si prende il turno da solo e il
-	# menu NON deve accendersi. Oggi capita a un passo solo: la raffica.
-	#
-	# Era il difetto che bloccava l'allenamento. Le battute "preparati!" si
-	# sentivano - quelle le scrive introduci_passo_tutorial - ma il LANCIO della
-	# raffica stava solo dentro battuta_di, che per il giocatore non viene mai
-	# chiamata (vedi avanza_orologio: chi comandi tu e' escluso dai pronti).
-	# Quindi Veronica annunciava i pugni e i pugni non arrivavano mai. Bru:
-	# «quando ti dice preparati non procede oltre».
-	attaccante_corrente = tu
-	introduci_passo_tutorial()
-	var passo := passo_tutorial()
-	if String(passo.get("azione", "")) != "minigioco":
-		return false
-	# QUESTO PASSO NON TE LO COMANDA IL MENU: non e' una mossa che scegli, e' una
-	# che subisci, e l'unica risposta e' la tua mano
-	lancia_minigioco(passo, tu)
-	return true
-
 func introduci_passo_tutorial() -> bool:
-	# LE BATTUTE DI UN PASSO SI DICONO QUANDO IL PASSO COMINCIA - e per il
-	# giocatore quel momento NON passa da battuta_di.
+	# LE BATTUTE DI UN PASSO SI DICONO QUANDO IL PASSO COMINCIA: quando tocca a
+	# te, in battuta_di, prima che il menu si accenda.
 	#
-	# In tempo reale chi comandi tu e' escluso apposta dai "pronti" (vedi
-	# avanza_orologio): il turno non te lo da' il giro delle battute, te lo da'
-	# aggiorna_pronto_giocatore accendendo il menu. Finche' l'introduzione e'
-	# stata scritta dentro battuta_di, per il protagonista non e' MAI partita:
-	# niente lezione, niente barre preparate, niente istruzioni. Le mosse si
-	# chiudevano lo stesso - avanza_tutorial sta in esegui_azione - quindi il
-	# tutorial "funzionava" senza aver mai detto una parola.
-	#
-	# Bru, provando: «non c'e' stata alcuna spiegazione dell'interfaccia».
+	# Col motore in tempo reale il tuo turno non passava da battuta_di, e per un
+	# po' l'introduzione non e' MAI partita: niente lezione, niente barre
+	# preparate, niente istruzioni. Le mosse si chiudevano lo stesso -
+	# avanza_tutorial sta in esegui_azione - quindi il tutorial "funzionava"
+	# senza aver mai detto una parola. Bru, provando: «non c'e' stata alcuna
+	# spiegazione dell'interfaccia». A turni, il tuo turno e' un turno come gli
+	# altri e passa di li' per forza.
 	var passo := passo_tutorial()
 	if passo.is_empty() or tutorial_passo in tutorial_passi_introdotti:
 		return false
@@ -2289,7 +2221,7 @@ func mattanza(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) -> void:
 	chi.dominio = serbatoio
 	aggiorna_scheda(chi)
 	if not tempo_reale or muto:
-		# NESSUNA MANO DA QUESTA PARTE. Nell'orologio virtuale non esiste una
+		# NESSUNA MANO DA QUESTA PARTE. Senza schermo non esiste una
 		# barra spaziatrice e non esiste un frame: la finestra si risolve tutta
 		# adesso, con le battute che ci batterebbe una persona. Se qui non
 		# succedesse niente, il simulatore direbbe che la Mattanza non fa danno -
@@ -3227,8 +3159,8 @@ func preannuncia(nemico: Dictionary) -> void:
 	# appare sempre un testo collegato alla mossa che fara'».
 	#
 	# E' la mossa telegrafata (vedi lancia_mossa) diventata un'abitudine: la
-	# prossima si sceglie appena finita questa e si dice subito, cosi' tutta la
-	# sua ricarica e' tempo tuo per rispondere. Vale per chi lo dichiara nel
+	# prossima si sceglie appena finita questa e si dice subito, cosi' quando
+	# tocca a te sai gia' a cosa rispondere. Vale per chi lo dichiara nel
 	# suo "orda": gli zombi di Meridia i loro annunci non li hanno ancora
 	var dati: Dictionary = GameState.personaggi.get(String(nemico.get("id", "")), {})
 	if nemico.giocatore or int(nemico.hp) <= 0 or not in_corso \

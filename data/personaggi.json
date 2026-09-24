@@ -3716,12 +3716,14 @@
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "E l'ultima cosa, che è la più importante: [b]qui non si aspetta il proprio turno[/b]."
+                "testo": "E l'ultima cosa, che è la più importante: [b]qui si combatte a turni[/b].",
+                "_nota": "battuta mia (Claude), da correggere: prima diceva il contrario, «qui non si aspetta il proprio turno». Bru ha chiesto i turni il 24 settembre"
               },
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Ognuno ha la sua ricarica. Quando la tua è finita puoi muoverti, e finché stai fermo il mondo va avanti lo stesso.",
+                "testo": "In ogni giro ognuno muove una volta, e chi è più veloce muove prima. Quando tocca a te, il mondo aspetta la tua scelta.",
+                "_nota": "battuta mia (Claude), da correggere: sostituisce quella sulla ricarica, che col motore a turni non esiste piu'",
                 "evidenzia": "squadra"
               },
               {

@@ -7,6 +7,11 @@
 > Questo documento è la mappa che ne è uscita, più i difetti trovati. Ogni
 > correzione ha una prova, e ogni prova è stata validata rompendo apposta quello
 > che misura.
+>
+> **Dal 24 settembre il combattimento è di nuovo a turni** (`combattimento/Turni.gd`,
+> vedi il README). Dove qui sotto si parla di ricarica, di `riarma()` o di orologio
+> virtuale si racconta il motore in tempo reale di allora: i difetti e le prove
+> restano, ma adesso «non è il tuo momento» vuol dire «non è il tuo turno».
 
 ## La mappa
 
@@ -19,7 +24,7 @@ Sei cose girano da sole, e nessun'altra:
 | `MappaZona._process` | solo se il `!` è in vista | sì, `set_process(obiettivo_in_vista)` |
 | `Orologio._process` | solo a orologio acceso | sì, esce subito se spento |
 | `Tracciato._process` | mentre l'ECG **si vede** | sì, esce se non è in vista |
-| `Combattimento._process` | durante uno scontro in tempo reale | sì, esce se non è avviato |
+| `Combattimento._process` | durante uno scontro sullo schermo (passa i turni) | sì, esce se non è avviato |
 
 E una coroutine sola che vive quanto lo scontro: **`pompa_messaggi`**, avviata una
 volta da `esegui_scontro` (l'orologio virtuale delle prove è il ramo *else*: o
