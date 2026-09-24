@@ -581,6 +581,31 @@ Testo di Bru (24 settembre), dall'«Addentrati nelle pianure» alla tartaruga;
 **In tutte le Pianure non si scappa**, tranne che dall'apparizione: la Guida ti
 ferma («Hey, non vorrai mica scappare dai tuoi primi combattimenti, vero?»).
 
+## Il goblin arrabbiato: uno scontro lungo, che si vince
+
+La fonte delle Pianure. Bru: «rendilo battibile, ma fai in modo che il
+combattimento sia lungo e interessante [...] deve essere time consuming non
+difficile e imbattibile». Stesse mosse di prima; cambia come pesano.
+
+- **Tanta vita, poca corazza.** Ogni tuo colpo si vede e ne servono una
+  quarantina. Lui è lento e picchia piano: un colpo ogni quattro secondi.
+- **La Mazzata.** Arriva senza avviso: il riquadro diventa rosso, **MAZZATA!**, e
+  si preme SPAZIO a raffica. La barra parte a metà e il goblin spinge sempre più
+  forte: se la respingi ti arriva solo di striscio (da 1 a 5, meno quanto più
+  sei stato svelto), se ti batte passa il colpo pesante.
+- **I suoi simili.** Sotto il 60% urla e un goblin tipico risponde, fino a due
+  in tutto. Stanno in un quadratino loro, in basso a sinistra nel riquadro del
+  boss, e si colpiscono cliccandoci sopra. Ogni goblin che cade lo fa infuriare
+  un po' di più.
+- **Il finale.** Sotto i 60 punti vita non accetta il suo destino («Il cuore di
+  un perdente non vacilla mai. Preparati.») e da lì ogni suo colpo passa uguale,
+  guardia o no; sotto i 30 arriva l'ultima risorsa del perdente.
+
+Chi ci arriva con le due fiale del masso e le usa lo batte: una quarantina di
+colpi, un'ottantina di secondi di scontro senza contare le pause per leggere.
+Chi le fiale non le ha se la gioca: vince più o meno una volta su due se preme,
+quasi mai se lascia calare la mazza.
+
 ## Il ritorno, e come si impara
 
 Finita la missione — il boss delle Pianure di Redenna a terra — il data pad

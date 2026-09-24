@@ -974,6 +974,42 @@ durante il combattimento invece di veronica avremo la guida che parla».
   scadevano. Le prove non lo vedevano perché l'orologio virtuale passa di là. Adesso
   `apri_la_battuta()` la apre quando agisci, una volta sola
 
+## Il goblin arrabbiato: la Mazzata, i suoi goblin, e uno scontro lungo
+Bru: «rendilo battibile, ma fai in modo che il combattimento sia lungo e interessante, calcola
+molte hit, gioca coi punti vita, deve essere time consuming non difficile e imbattibile». Prima
+si vinceva **0 volte su 150 a ogni livello**: 1125 punti vita e 14 di difesa contro un
+protagonista che ne fa 15, cioè 2 a colpo, per circa 560 colpi.
+- **La Mazzata è un minigioco** (tipo di mossa `"mazzata"`, `combattimento/Mazzata.gd` e
+  `Contrasto.gd`). Arriva senza preavviso: la riga che la racconta, poi il riquadro in basso a
+  destra diventa rosso con **MAZZATA!**, e si preme SPAZIO a raffica (anche INVIO, anche un
+  clic sul riquadro). La barra parte a metà: verde è tua, rossa è della mazza. Ogni pressione
+  sposta il confine verso destra, il goblin lo riporta indietro spingendo **sempre più forte**,
+  così ogni contrasto si chiude. Verde fino in fondo: **la pari**, e passano da 1 a 5 punti,
+  **meno quanto prima l'hai respinta**. Rossa fino in fondo, o finito il tempo (5 secondi):
+  **passa il colpo pesante** (5 volte il suo attacco, ~14). Mentre si spinge il mondo è fermo,
+  e SPAZIO è della mazza anche con la Mattanza accesa
+- **Quanto premere**, stima mia da provare col dito vero: si vince oltre circa 3,5 pressioni al
+  secondo, a 6 in poco più di un secondo. I numeri stanno in `regole.json` → `"contrasto"`
+  (`per_pressione`, `spinta`, `rincaro`, `durata`), e una mossa può cambiarli nei suoi dati. Il
+  simulatore preme `mano_automatica` volte al secondo (di serie 5): `MANO=3 ./prove/sonda.sh
+  goblin_arrabbiato` misura chi è più lento
+- **I suoi goblin hanno un quadratino loro** (`combattimento/Gregari.gd`). «In basso a sinistra
+  dentro il riquadro del boss [...] piccoli quadrati 1:1 con la pic dei nemici comuni». Prima
+  ogni creatura in più finiva dentro il riquadro del boss, col suo nome sulla fascia rossa — e
+  quando cadeva sfumava via il riquadro del boss, perché la «scheda» era la stessa. Adesso chi
+  arriva dopo il primo ha un quadratino con la sua faccia e una barra della vita (una scelta
+  mia: niente numeri, solo quanto ne resta), **ci si clicca per colpirlo**, e quando cade gli
+  altri scorrono a riempire il posto. Vale per qualunque scontro con più nemici. Il richiamo ha
+  `massimo_usi: 2`: **due goblin in tutto**, dal momento in cui scende sotto il 60%
+- **I numeri** (`personaggi.json`, scritti a mano e non dal ruolo): 500 punti vita e 3 di
+  difesa, così ogni tuo colpo si vede (12-13) e ne servono una quarantina; 3 di attacco e
+  velocità 1, un colpo ogni 4 secondi. A fare paura sono la Mazzata e i goblin che chiama. La
+  fascia rossa usa `nome_breve` («GOBLIN ARRABBIATO»): il nome intero usciva dal pannello
+- **Misurato** (livello 1, le due fiale del masso, prima i goblin e poi il boss, si beve sotto
+  metà vita): vince **100 su 100**, in circa **48 azioni tue** (80 secondi di scontro più la
+  lettura), con 3-4 Mazzate e una fiala bevuta, e finisce con ~72 punti vita. Senza fiale vince
+  55 su 100 chi preme, 8 chi lascia calare la mazza: il minigioco conta
+
 ## La Mattanza: la barra si svuota, e finché si svuota tu batti (`abilita.json` → `mattanza`)
 È la cosa che la barra di dominio serve a comprare, e l'unico momento del gioco in cui il
 combattimento passa dalle mani invece che dalle scelte. Bru: «quando riempi almeno una barra
@@ -1374,8 +1410,8 @@ bambola, i Cunicoli di Jondoh con Jongo Dongo), dove il flag è legato allo scon
   `attacco_tutti` e `autolesione` accettano anche i campi `legame` (modifica il
   legame di squadra, un solo valore globale) e `maledizione` (infligge lo stato
   Maledizione, vedi sotto, a tutto il party vivo)
-- `evoca` accetta anche `quantita` (default 1, es. il goblin arrabbiato ne evoca 2 in un
-  colpo solo) e `una_tantum` su qualunque mossa (non solo `evoca`): una mossa `una_tantum`
+- `evoca` accetta anche `quantita` (default 1) e, come ogni mossa, `massimo_usi` (il goblin
+  arrabbiato chiama un goblin alla volta, due in tutto) e `una_tantum` su qualunque mossa (non solo `evoca`): una mossa `una_tantum`
   esce dal pool pesato del nemico non appena eseguita una volta, per il resto del combattimento
   (`nemico.mosse_usate`, popolato in `Combattimento.esegui_mossa()` e filtrato in
   `turno_nemico_normale()` — i dati originali non vengono mai mutati, così l'elenco mosse
@@ -1522,11 +1558,12 @@ qualsiasi (xp normale, Tazo e carta inclusi).
 in più `danno_fisso_dopo`, da quel momento **ogni suo attacco infligge esattamente quel danno**:
 niente difesa sottratta, niente critico, niente riduzione da livello, niente schivata. Alzare la
 guardia smette di servire. Il gioco non lo dice: il giocatore se ne accorge dai numeri, ed è
-esattamente il senso di quel "Preparati". Usato dal goblin arrabbiato del tutorial (5 danni
-fissi sotto i 5 hp).
+esattamente il senso di quel "Preparati". Usato dal goblin arrabbiato del tutorial (7 danni
+fissi sotto i 60 hp: gli ultimi cinque o sei colpi che gli dai).
 
 Attenzione a chi ha mosse multi-colpo: il danno fisso vale **per ogni colpo**, quindi la
-"Cattiveria innata" del goblin (3 colpi) fa 15 su un protagonista che ne ha 20.
+"Cattiveria innata" del goblin (3 colpi) fa 21. Vale anche per la Mazzata che ti batte: da lì in
+poi il colpo pesante è anche lui di 7.
 
 ### Fuggi
 Azione disponibile nel menu (bottone disabilitato se non si può fuggire): esce dal

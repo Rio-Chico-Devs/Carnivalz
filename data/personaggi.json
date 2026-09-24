@@ -3518,14 +3518,17 @@
       "id": "goblin_arrabbiato",
       "livello": 6,
       "ruolo": "fonte",
-      "fuori_curva": "Prima fonte del gioco, e primo boss vero: sta sopra la curva apposta, perche' il tutorial deve finire con uno scontro che si ricorda.",
+      "fuori_curva": "Prima fonte del gioco, e primo boss vero. Le statistiche sono scritte a mano e non escono dal ruolo: Bru lo vuole «lungo e interessante, time consuming, non difficile e imbattibile». Tanta vita e poca difesa, cosi' ogni tuo colpo si vede e ne servono tanti; un attacco basso e lento, cosi' a fare paura sono la Mazzata e i goblin che chiama, non il colpo normale.",
       "nome": "Un goblin terribilmente arrabbiato",
       "apertura": {
         "tipo": "dialogo",
         "testo": "Un altro. Sempre un altro. Non finite mai di arrivare."
       },
       "nome_breve": "Goblin Arrabbiato",
-      "hp": 1125,
+      "hp": 500,
+      "attacco": 3,
+      "difesa": 3,
+      "velocita": 1,
       "ritratto": "res://art/personaggi/goblin_arrabbiato.png",
       "descrizione": "Questo goblin sembra soffrire molto. Non si sa per cosa o per chi, e non è possibile capirlo: conosce solo il linguaggio che parla la sua mazza.",
       "carta": {
@@ -3538,7 +3541,7 @@
       "convincibile": false,
       "rabbia_su_morte_alleato": {
         "id_alleato": "goblin_tipico",
-        "valore_attacco": 5,
+        "valore_attacco": 2,
         "testo": "Il goblin arrabbiato ringhia: la morte del suo simile lo fa infuriare ancora di più. Il suo attacco cresce."
       },
       "mosse": [
@@ -3548,9 +3551,13 @@
           "tipo": "evoca",
           "valore": "goblin_tipico",
           "quantita": 1,
-          "una_tantum": true,
           "peso": 2,
-          "testo": "Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata."
+          "testo": "Richiamo dei suoi simili: urla nella notte, e un goblin tipico risponde alla chiamata.",
+          "massimo_usi": 2,
+          "ricarica": 8,
+          "quando": {
+            "vita_sotto": 0.6
+          }
         },
         {
           "id": "furia_di_un_goblin",
@@ -3563,16 +3570,24 @@
         {
           "id": "pugno_del_vile",
           "nome": "Mazzata",
-          "tipo": "attacco_forte",
-          "quota": 1.2,
-          "peso": 2,
-          "testo": "La mazza scende, e il goblin non guarda nemmeno dove."
+          "tipo": "mazzata",
+          "quota": 5.0,
+          "danno_parato": [
+            1,
+            5
+          ],
+          "peso": 3,
+          "ricarica": 2,
+          "testo": "La mazza scende, e il goblin non guarda nemmeno dove.",
+          "testo_parata": "Gli blocchi il braccio a mezz'aria: la mazza ti arriva addosso solo di striscio.",
+          "testo_colpo": "Non basta: la mazza ti arriva addosso con tutto il suo peso.",
+          "_nota": "testo_parata e testo_colpo li ho scritti io, provvisori: da rivedere con Bru."
         },
         {
           "id": "capriccio_del_goblin",
           "nome": "Capriccio del goblin",
           "tipo": "buff_attacco",
-          "valore": 9,
+          "valore": 2,
           "turni": 3,
           "peso": 1,
           "testo": "Capriccio del goblin: si mette a battere i piedi e se la prende con tutto quello che ha intorno. Il suo attacco aumenta."
@@ -3594,15 +3609,15 @@
         }
       ],
       "dialogo_soglia_hp": {
-        "hp_soglia": 50,
-        "danno_fisso_dopo": 23,
+        "hp_soglia": 60,
+        "danno_fisso_dopo": 7,
         "testo": "Il goblin non accetta il suo destino: con le lacrime agli occhi, tenendo la sua mazza con le dita consunte, ti guarda con un odio indescrivibile. Il cuore di un perdente non vacilla mai. Preparati."
       },
       "mossa_disperazione": {
         "hp_soglia": 30,
         "id": "ultima_risorsa_del_perdente",
-        "valore_alto": 18,
-        "valore_normale": 9,
+        "valore_alto": 12,
+        "valore_normale": 6,
         "testo": "Ultima risorsa del perdente: un attacco suicida, colmo di rabbia."
       },
       "studio": [

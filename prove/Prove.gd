@@ -158,6 +158,11 @@ func _ready() -> void:
 	prova_la_caverna_si_apre_guardando()
 	await prova_la_guida_ferma_il_mondo_mentre_parla()
 	await prova_osservando_la_scena_si_trova_la_caverna()
+	prova_il_contrasto_si_vince_premendo()
+	prova_la_mazzata_pesa_come_ha_detto_bru()
+	await prova_la_mazzata_dal_vivo_si_prende_la_barra_spaziatrice()
+	await prova_gli_evocati_hanno_un_quadratino_loro()
+	prova_il_goblin_arrabbiato_e_lungo_ma_battibile()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -2987,7 +2992,7 @@ func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
 			"attacco_multiplo", "buff_attacco", "incendia", "attacco_tutti",
 			"autolesione", "buff_difesa", "buff_fattore", "evoca", "sacrificio",
 			"cura", "rubavita", "stato", "potenziamento", "scena", "tormento",
-			"modalita", "trasformazione", "provoca", "orda"]
+			"modalita", "trasformazione", "provoca", "orda", "mazzata"]
 	# gli scriptati non hanno mosse per scelta: il loro turno lo detta un copione.
 	# Le sei caselle ce le hanno lo stesso, tutte libere
 	var senza_mosse_per_scelta := ["manifestazione_di_un_sogno", "veronica"]
@@ -10156,7 +10161,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4787, "perche":
+	"Combattimento.gd": {"misura": 4806, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -10196,7 +10201,14 @@ const FILE_GRANDI := {
 		"tasto BOND, che era disegnato e non era collegato a niente. " +
 		"POI 22 NEL GIRO DI REVISIONE: aggiorna_bond (BOND pulsa a scena finita, non sotto il testo), " +
 		"l'annuncio che resta sulla scheda (tre righe, una per ogni momento in cui cambia) e la fuga " +
-		"negata che non costa il turno"},
+		"negata che non costa il turno. " +
+		"DA 4787 A 4806 per il goblin arrabbiato: 18 righe per la Mazzata - il ramo del match e " +
+		"mossa_mazzata, la creazione e il collegamento, SPAZIO che le spetta prima della Mattanza, il " +
+		"fotogramma che si prende, e gioco_con_la_mano, che mette raffica e mazza sotto le stesse tre " +
+		"domande (la fase, la faccia, il process) invece di ripeterle due volte; 1 per collegare il " +
+		"bersaglio di chi viene evocato a scontro avviato, che prima non si poteva cliccare. Il braccio di " +
+		"ferro, il suo riquadro e chi lo lancia stanno in file loro (Contrasto.gd, " +
+		"RiquadroContrasto.gd, Mazzata.gd), i quadratini dei gregari in Gregari.gd"},
 	"GameState.gd": {"misura": 2537, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
@@ -13734,3 +13746,293 @@ func bottone_che_dice(radice: Node, pezzo: String) -> Button:
 		if dentro != null:
 			return dentro
 	return null
+
+# --- IL GOBLIN ARRABBIATO: la mazzata, i suoi goblin, e quanto dura -----------
+
+func mossa_di(id_creatura: String, tipo: String) -> Dictionary:
+	for mossa in GameState.personaggi.get(id_creatura, {}).get("mosse", []):
+		if String((mossa as Dictionary).get("tipo", "")) == tipo:
+			return mossa
+	return {}
+
+func esito_del_contrasto(al_secondo: float) -> Dictionary:
+	# un contrasto muto giocato da una mano che preme "al_secondo" volte al
+	# secondo: si gioca tutto dentro avvia(), e il segnale arriva subito
+	var contrasto := ContrastoCombattimento.new(true)
+	var arrivati: Array[Dictionary] = []
+	contrasto.finito.connect(func(esito: Dictionary) -> void: arrivati.append(esito))
+	contrasto.avvia({}, al_secondo)
+	return arrivati[0] if arrivati.size() == 1 else {}
+
+func prova_il_contrasto_si_vince_premendo() -> void:
+	# Bru: «devi premere a raffica la barra spaziatrice per combattere, se ti
+	# batte passa un colpo pesante, altrimenti lo pari e subisci pochissimi danni
+	# a seconda di quanto ci hai messo». Tre cose da tenere: chi non preme perde,
+	# chi preme abbastanza vince, e chi preme piu' svelto vince prima e paga meno
+	titolo("la mazzata si respinge premendo: piu' svelto, prima e meno male")
+	var nessuna := esito_del_contrasto(-1.0)
+	var lenta := esito_del_contrasto(2.0)
+	var tre := esito_del_contrasto(3.0)
+	var media := esito_del_contrasto(5.0)
+	var svelta := esito_del_contrasto(8.0)
+	for esito: Dictionary in [nessuna, lenta, media, svelta]:
+		esigi(not esito.is_empty(), "un contrasto si e' giocato senza dire com'e' finito")
+	esigi(not bool(nessuna.get("vinto", true)), "senza premere niente la mazza e' stata respinta lo stesso")
+	esigi(not bool(lenta.get("vinto", true)),
+			"due pressioni al secondo bastano a respingerla: non e' piu' una raffica")
+	# LA MAZZA SI FA PIU' PESANTE. A tre pressioni al secondo contro una spinta
+	# fissa si vincerebbe in poco piu' di tre secondi; e' il rincaro a fare la
+	# soglia (~3,5 al secondo) e a premiare chi comincia subito
+	esigi(not bool(tre.get("vinto", true)),
+			"tre pressioni al secondo bastano: la spinta del goblin non cresce piu'")
+	esigi(bool(media.get("vinto", false)),
+			"cinque pressioni al secondo non bastano: e' piu' difficile di quanto ha chiesto Bru")
+	esigi(bool(svelta.get("vinto", false)), "otto pressioni al secondo non bastano a respingerla")
+	esigi(float(svelta.get("secondi", 99.0)) < float(media.get("secondi", 0.0)),
+			"premendo piu' svelto non si vince prima (%.2f contro %.2f secondi)"
+			% [float(svelta.get("secondi", 0.0)), float(media.get("secondi", 0.0))])
+	var mossa := mossa_di("goblin_arrabbiato", "mazzata")
+	esigi(not mossa.is_empty(), "il goblin arrabbiato non ha piu' la sua Mazzata")
+	esigi(MazzataCombattimento.danno_parato(mossa, float(svelta.get("quota", 1.0)))
+			< MazzataCombattimento.danno_parato(mossa, float(nessuna.get("quota", 1.0))),
+			"chi la respinge subito paga quanto chi ci mette tutto il tempo")
+	# e ogni contrasto finisce: al piu' dopo la reazione e la durata concessa
+	var tetto := ContrastoCombattimento.REAZIONE \
+			+ float(GameState.regole.get("contrasto", {}).get("durata", 5.0)) + 0.05
+	esigi(float(nessuna.get("secondi", 99.0)) <= tetto,
+			"il contrasto e' durato %.2f secondi: doveva chiudersi entro %.2f"
+			% [float(nessuna.get("secondi", 0.0)), tetto])
+
+func attacca_il_primo(scontro, _chi: Dictionary) -> Dictionary:
+	var nemici: Array[Dictionary] = scontro.vivi(false)
+	return {"tipo": "difendi"} if nemici.is_empty() else {"tipo": "attacca", "bersaglio": nemici[0]}
+
+func una_mazzata_con_la_mano(mano: float) -> int:
+	# quanto toglie UNA mazzata, a vita piena, con una mano che preme "mano"
+	# volte al secondo. Lo scontro muto si gioca una battuta e si ferma; poi si
+	# rimette il protagonista com'era e gli si cala addosso la mazza
+	var regole: Dictionary = GameState.regole["contrasto"]
+	var di_serie := float(regole.get("mano_automatica", 5.0))
+	regole["mano_automatica"] = mano
+	GameState.nuova_partita()
+	GameState.imposta_seed(7)
+	var scontro := scontro_muto_contro(["goblin_arrabbiato"], {}, Callable(self, "attacca_il_primo"), 1)
+	scontro.in_corso = true
+	var tu: Dictionary = scontro.vivi(true)[0]
+	tu.hp = tu.hp_max
+	tu.scatti_difesa = 0
+	tu.buffs = []
+	var goblin: Dictionary = scontro.vivi(false)[0]
+	scontro.esegui_mossa(goblin, mossa_di("goblin_arrabbiato", "mazzata"))
+	var tolto := int(tu.hp_max) - int(tu.hp)
+	scontro.free()
+	regole["mano_automatica"] = di_serie
+	return tolto
+
+func prova_la_mazzata_pesa_come_ha_detto_bru() -> void:
+	titolo("la mazzata respinta passa appena, quella che ti batte e' un colpo pesante")
+	var mossa := mossa_di("goblin_arrabbiato", "mazzata")
+	var forbice: Array = mossa.get("danno_parato", [1, 5])
+	var parata := una_mazzata_con_la_mano(8.0)
+	esigi(nello_storico(String(mossa.get("testo_parata", "?"))) >= 0,
+			"respinta la mazza, il box non dice che l'hai parata")
+	esigi(parata >= int(forbice[0]) and parata <= int(forbice[1]),
+			"respinta la mazza ne sono passati %d: dovevano essere fra %d e %d"
+			% [parata, int(forbice[0]), int(forbice[1])])
+	var piena := una_mazzata_con_la_mano(-1.0)
+	esigi(nello_storico(String(mossa.get("testo_colpo", "?"))) >= 0,
+			"la mazza ti batte e il box non lo dice")
+	# «un colpo pesante»: almeno il doppio di quanto passa respingendola al
+	# peggio, e almeno il triplo di un suo colpo normale
+	var normale := GameState.stat_nemico("goblin_arrabbiato", "attacco")
+	esigi(piena >= 2 * int(forbice[1]) and piena >= 3 * normale,
+			"la mazza che ti batte toglie %d: non e' un colpo pesante (parata al peggio %d, colpo normale %d)"
+			% [piena, int(forbice[1]), normale])
+	GameState.nuova_partita()
+
+func prova_la_mazzata_dal_vivo_si_prende_la_barra_spaziatrice() -> void:
+	# NELLA PARTITA VERA: la riga che la annuncia si legge, poi il riquadro si
+	# prende il quadrante, il mondo si ferma, e SPAZIO spinge - anche con la
+	# Mattanza accesa, che col suo SPAZIO pesterebbe il goblin invece di parare
+	titolo("dal vivo la mazzata ferma il mondo, e SPAZIO spinge la mazza")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_arrabbiato"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	var giri := 0
+	while giri < 400 and (not scontro.voce.coda.is_empty() or scontro.voce.sta_facendo_leggere or not scontro.scontro_avviato):
+		scontro.voce.salta_messaggio = true
+		await get_tree().process_frame
+		giri += 1
+	var goblin: Dictionary = scontro.vivi(false)[0]
+	var tu: Dictionary = scontro.combattente_comandato()
+	goblin.hp_max = 1000000
+	goblin.hp = 1000000
+	tu.hp = tu.hp_max
+	var fermo_prima: int = scontro.tempo_fermo
+	scontro.mossa_mazzata(goblin, mossa_di("goblin_arrabbiato", "mazzata"))
+	giri = 0
+	while giri < 400 and not scontro.mazzata.in_corso():
+		scontro.voce.salta_messaggio = true
+		await get_tree().process_frame
+		giri += 1
+	esigi(scontro.mazzata.in_corso(), "la mazzata e' partita e il contrasto non e' mai comparso")
+	esigi(scontro.fase_adesso() == "minigioco",
+			"sotto la mazza lo scontro e' in fase '%s' invece che nel minigioco" % scontro.fase_adesso())
+	esigi(not scontro.il_tempo_scorre(), "mentre la mazza spinge il mondo va avanti")
+	var riquadro: Control = scontro.mazzata.contrasto.riquadro
+	esigi(riquadro != null and riquadro.is_visible_in_tree(), "il riquadro della mazzata non si vede")
+	# la Mattanza accesa: SPAZIO e' della mazza, e il goblin non perde niente
+	tu.dominio = RegoleCombattimento.dominio_pieno()
+	scontro.usa_abilita_su(tu, "mattanza", goblin)
+	var vita_goblin := int(goblin.hp)
+	var spazio := InputEventKey.new()
+	spazio.keycode = KEY_SPACE
+	spazio.physical_keycode = KEY_SPACE
+	spazio.pressed = true
+	var prima: int = scontro.mazzata.contrasto.pressioni
+	for volta in 3:
+		scontro._unhandled_input(spazio)
+	esigi(int(scontro.mazzata.contrasto.pressioni) == prima + 3,
+			"tre SPAZIO sotto la mazza ne hanno spinte %d" % (int(scontro.mazzata.contrasto.pressioni) - prima))
+	esigi(int(goblin.hp) == vita_goblin, "sotto la mazza SPAZIO e' andato alla Mattanza")
+	scontro.chiudi_mattanza()
+	# si finisce premendo: respinta, poco danno, e il mondo riparte
+	giri = 0
+	while giri < 600 and scontro.mazzata.in_corso():
+		scontro._unhandled_input(spazio)
+		await get_tree().process_frame
+		giri += 1
+	var tolto := int(tu.hp_max) - int(tu.hp)
+	esigi(not scontro.mazzata.in_corso(), "premendo a raffica la mazzata non si chiude")
+	esigi(int(scontro.tempo_fermo) == fermo_prima,
+			"finita la mazzata il mondo resta fermo (tempo fermo %d, prima %d)"
+			% [int(scontro.tempo_fermo), fermo_prima])
+	esigi(tolto >= 1 and tolto <= 5, "respinta la mazza ne sono passati %d: dovevano essere pochissimi" % tolto)
+	scontro.queue_free()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
+func prova_gli_evocati_hanno_un_quadratino_loro() -> void:
+	# Bru: «in basso a sinistra dentro il riquadro del boss [...] dei piccoli
+	# quadrati 1:1 con la pic dei nemici comuni, ne puo' evocare massimo due».
+	# Prima i goblin chiamati finivano DENTRO il riquadro del boss, col loro nome
+	# sulla sua fascia; e la loro "scheda" era il suo pannello, quindi quando
+	# cadevano sfumava via lui
+	titolo("chi chiama il boss sta in un quadratino suo, al massimo due, e il riquadro resta del boss")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_arrabbiato"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	scontro.set_process(false)
+	var boss: Dictionary = scontro.vivi(false)[0]
+	var fascia: String = scontro.plancia.fascia_nome.text
+	var richiamo := mossa_di("goblin_arrabbiato", "evoca")
+	boss.hp = int(boss.hp_max * 0.3)   # quando lo fa: sotto una certa vita
+	for volta in 2:
+		esigi(scontro.mossa_disponibile(boss, richiamo),
+				"alla chiamata numero %d il richiamo non e' disponibile" % (volta + 1))
+		scontro.esegui_mossa(boss, richiamo)
+		boss.ricariche_mosse = {}
+	esigi(not scontro.mossa_disponibile(boss, richiamo), "il goblin arrabbiato puo' chiamarne un terzo")
+	var goblin: Array[Dictionary] = []
+	for chi in scontro.vivi(false):
+		if String(chi.id) == "goblin_tipico":
+			goblin.append(chi)
+	esigi(goblin.size() == 2, "chiamati due goblin, in campo ce ne sono %d" % goblin.size())
+	esigi(scontro.plancia.fascia_nome.text == fascia,
+			"arrivati i goblin la fascia dice '%s' invece di '%s'" % [scontro.plancia.fascia_nome.text, fascia])
+	esigi(boss.scheda == scontro.plancia.box_nemico, "il boss non ha piu' il riquadro grande")
+	var gregari: GregariNemici = scontro.campo.gregari
+	esigi(gregari != null and gregari.fila.size() == 2,
+			"i quadratini sono %d invece di due" % (0 if gregari == null else gregari.fila.size()))
+	for chi in goblin:
+		var suo: Control = chi.scheda
+		esigi(suo is GregariNemici.QuadrettoNemico and gregari.is_ancestor_of(suo),
+				"un goblin chiamato non sta nel suo quadratino")
+		esigi(chi.bersaglio_cliccabile == suo and not suo.gui_input.get_connections().is_empty(),
+				"il quadratino di un goblin non si clicca: non lo si puo' colpire")
+		esigi(is_equal_approx(suo.size.x, suo.size.y) and suo.size.x > 0.0,
+				"il quadratino non e' quadrato: %s" % str(suo.size))
+	# il primo cade: sfuma lui, non il boss, e l'altro scorre al suo posto
+	var primo: Control = goblin[0].scheda
+	var secondo: Control = goblin[1].scheda
+	goblin[0].hp = 0
+	scontro.aggiorna_scheda(goblin[0])
+	await get_tree().create_timer(Stile.tempo("uscita_sconfitto") + 0.2).timeout
+	esigi(not primo.visible, "il goblin caduto resta nel suo quadratino")
+	# e caduto uno non ne arriva un terzo: due in tutto, non due alla volta
+	boss.ricariche_mosse = {}
+	esigi(not scontro.mossa_disponibile(boss, richiamo),
+			"caduto un goblin, il boss ne puo' chiamare un terzo: dovevano essere due in tutto")
+	esigi(scontro.plancia.box_nemico.visible and is_equal_approx(scontro.plancia.box_nemico.modulate.a, 1.0),
+			"e' caduto un goblin ed e' sfumato il riquadro del boss")
+	esigi(is_equal_approx(secondo.position.x, GregariNemici.MARGINE),
+			"caduto il primo, il secondo non scorre al suo posto")
+	scontro.queue_free()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
+func ripulisci_e_bevi(scontro, chi: Dictionary) -> Dictionary:
+	# COME SI GIOCA DAVVERO uno scontro con dei gregari: prima si tolgono di
+	# mezzo i piu' deboli, e sotto meta' vita si beve una fiala se c'e'
+	var nemici: Array[Dictionary] = scontro.vivi(false)
+	if nemici.is_empty():
+		return {"tipo": "difendi"}
+	if float(chi.hp) < float(chi.hp_max) * 0.45 and "fiala_hp" in GameState.sacca:
+		return {"tipo": "oggetto", "id": "fiala_hp"}
+	var bersaglio: Dictionary = nemici[0]
+	for nemico in nemici:
+		if int(nemico.hp) < int(bersaglio.hp):
+			bersaglio = nemico
+	return {"tipo": "attacca", "bersaglio": bersaglio}
+
+func contro_il_goblin_arrabbiato(fiale: int, mano: float, partite: int) -> Dictionary:
+	var regole: Dictionary = GameState.regole["contrasto"]
+	var di_serie := float(regole.get("mano_automatica", 5.0))
+	regole["mano_automatica"] = mano
+	var vinte := 0
+	var battute := 0
+	for seme in partite:
+		GameState.nuova_partita()
+		GameState.imposta_seed(2000 + seme)
+		for volta in fiale:
+			GameState.aggiungi_oggetto("fiala_hp")
+		var scontro := scontro_muto_contro(["goblin_arrabbiato"], {}, Callable(self, "ripulisci_e_bevi"), 150)
+		if scontro.giocatore_ha_vinto:
+			vinte += 1
+		battute += int(scontro.battute_del_giocatore)
+		scontro.free()
+	regole["mano_automatica"] = di_serie
+	GameState.nuova_partita()
+	return {"vinte": vinte, "battute": float(battute) / maxf(float(partite), 1.0)}
+
+func prova_il_goblin_arrabbiato_e_lungo_ma_battibile() -> void:
+	# Bru: «rendilo battibile, ma fai in modo che il combattimento sia lungo e
+	# interessante, calcola molte hit [...] deve essere time consuming non
+	# difficile e imbattibile». Prima era 0 vittorie su 150 a ogni livello.
+	#
+	# Il giocatore misurato e' quello che arriva li' dalla strada di Bru: livello
+	# 1, le due fiale del masso, e gioca come si gioca - prima i goblin chiamati,
+	# poi il boss, e beve sotto meta' vita
+	titolo("il goblin arrabbiato si batte, ci vuole tanto, e la mazzata conta")
+	var partite := 12
+	var di_serie := contro_il_goblin_arrabbiato(2, 5.0, partite)
+	esigi(int(di_serie.vinte) >= partite - 1,
+			"col giocatore di serie si vince %d volte su %d: non e' piu' «non difficile»"
+			% [int(di_serie.vinte), partite])
+	esigi(float(di_serie.battute) >= 35.0,
+			"si vince in %.1f tue battute: non e' piu' uno scontro lungo" % float(di_serie.battute))
+	# e il minigioco non e' decorazione: senza fiale, chi preme vince piu' spesso
+	# di chi la mazza la lascia calare
+	var premendo := contro_il_goblin_arrabbiato(0, 5.0, partite)
+	var lasciando := contro_il_goblin_arrabbiato(0, -1.0, partite)
+	# «non difficile» anche per chi le fiale non le ha raccolte: chi preme se
+	# la gioca (misurate 55 su 100)
+	esigi(int(premendo.vinte) * 4 >= partite,
+			"senza fiale, premendo, si vince %d volte su %d: senza scorte e' diventato un muro"
+			% [int(premendo.vinte), partite])
+	esigi(int(premendo.vinte) > int(lasciando.vinte),
+			"senza fiale chi preme vince %d volte e chi non preme %d: la mazzata non conta niente"
+			% [int(premendo.vinte), int(lasciando.vinte)])

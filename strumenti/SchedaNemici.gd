@@ -347,7 +347,7 @@ func scheda(id_creatura: String) -> Array[String]:
 			casella,
 			String(mossa.get("nome", mossa.get("id", "?"))),
 			("**si annuncia una battuta prima**, poi " if mossa.get("telegrafata", false)
-					else "") + effetto_di(mossa),
+					else "") + effetto_di(mossa) + quante_volte(mossa),
 			valore_di(id_creatura, mossa),
 			condizione_di(mossa),
 			("priorità %d" % int(mossa["priorita"])) if int(mossa.get("priorita", 0)) > 0 else "sorteggio",
@@ -512,11 +512,24 @@ func stat_di(id_creatura: String, chiave: String, difetto: int) -> int:
 			GameState.livello_base_nemico(id_creatura))
 	return da_curva if da_curva > 0 else difetto
 
+func quante_volte(mossa: Dictionary) -> String:
+	# un limite che cambia lo scontro e non si vedeva: il goblin arrabbiato
+	# chiama due goblin in tutto, non due alla volta
+	if mossa.get("una_tantum", false):
+		return " — **una volta sola**"
+	if mossa.has("massimo_usi"):
+		return " — **al massimo %d volte**" % int(mossa["massimo_usi"])
+	return ""
+
 func effetto_di(mossa: Dictionary) -> String:
 	var tipo := String(mossa.get("tipo", ""))
 	match tipo:
 		"difendi": return "alza la guardia"
 		"attacco_forte": return "un colpo pesante su uno solo"
+		"mazzata":
+			var forbice: Array = mossa.get("danno_parato", [1, 5])
+			return "**si contrasta premendo SPAZIO a raffica**: respinta ne passano %d–%d, se ti batte il colpo pieno" % [
+					int(forbice[0]), int(forbice[-1])]
 		"spezza_guardia": return "colpisce e **apre la guardia**"
 		"meta_vita": return "toglie **metà** della vita che ti resta"
 		"attacco_multiplo": return "%d colpi su bersagli a caso" % int(mossa.get("colpi", 2))

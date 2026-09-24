@@ -27,6 +27,7 @@ var nemici_sinistra: HBoxContainer
 var nemici_destra: HBoxContainer
 
 var plancia: PlanciaCombattimento = null
+var gregari: GregariNemici = null   # i quadratini di chi arriva dopo il primo
 var prossimo_slot := 0
 var centrale_occupato := false
 var prossimo_lato := "destra"
@@ -138,6 +139,12 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 		extra.visible = false
 		return {"scheda": posto, "etichetta_vita": vita, "etichetta_extra": extra,
 				"slot": posto, "barra_dominio": null, "bersaglio": null}
+	if centrale_occupato:
+		# il riquadro grande e' gia' di qualcuno: chi arriva dopo - un evocato, il
+		# secondo di un'imboscata - prende un quadratino suo (vedi Gregari.gd)
+		ritratto.queue_free()
+		return scheda_da_gregario(id_personaggio, vita, extra)
+	centrale_occupato = true
 	# il nemico: il disegno nel riquadro grande, il nome sulla fascia rossa
 	plancia.posto_nemico.add_child(ritratto)
 	ritratto.imposta_grande(true)
@@ -147,9 +154,8 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	var suo_nome := ritratto.get_node_or_null("%Nome")
 	if suo_nome != null:
 		(suo_nome as Control).visible = false
-	var dati: Dictionary = GameState.personaggi.get(id_personaggio, {})
-	plancia.fascia_nome.text = String(dati.get("orda", {}).get("nome",
-			dati.get("nome", id_personaggio))).to_upper()
+	plancia.fascia_nome.text = nome_in_fascia({"id": id_personaggio, "nome": id_personaggio})
+	plancia.fascia_nome.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS   # mai fuori dal pannello
 	# «HP: ???» con i punti interrogativi rossi, come nel disegno: quello che
 	# non sai e' scritto col colore di quello che ti fara' male
 	vita.add_theme_color_override("font_color", Stile.colore("box_testo"))
@@ -161,10 +167,28 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	return {"scheda": plancia.box_nemico, "etichetta_vita": vita, "etichetta_extra": extra,
 			"slot": null, "barra_dominio": null, "bersaglio": plancia.box_nemico}
 
+func scheda_da_gregario(id_personaggio: String, vita: Label, extra: Label) -> Dictionary:
+	if gregari == null:
+		gregari = GregariNemici.new()
+		plancia.interno_di(plancia.box_nemico).add_child(gregari)
+	var quadretto := gregari.aggiungi(id_personaggio)
+	# le due righe il motore le scrive lo stesso (la vita esatta, lo studio), ma
+	# non sulla scheda del boss: restano col quadratino, nascoste
+	vita.visible = false
+	extra.visible = false
+	quadretto.add_child(vita)
+	quadretto.add_child(extra)
+	return {"scheda": quadretto, "etichetta_vita": vita, "etichetta_extra": extra,
+			"slot": null, "barra_dominio": null, "bersaglio": quadretto}
+
 func nome_in_fascia(combattente: Dictionary) -> String:
+	# IL NOME BREVE, SE C'E'. La fascia e' larga quanto il riquadro e il corpo
+	# del testo lo decide la sua altezza: "UN GOBLIN TERRIBILMENTE ARRABBIATO"
+	# usciva dal pannello e finiva tagliato sotto quello accanto. nome_breve
+	# esiste proprio per i posti stretti
 	var dati: Dictionary = GameState.personaggi.get(String(combattente.get("id", "")), {})
-	return String(dati.get("orda", {}).get("nome",
-			dati.get("nome", combattente.get("nome", "")))).to_upper()
+	return String(dati.get("orda", {}).get("nome", dati.get("nome_breve",
+			dati.get("nome", combattente.get("nome", ""))))).to_upper()
 
 func aggiorna(combattente: Dictionary) -> void:
 	# un nemico battuto lascia il campo: si dissolve e sparisce, non resta li'
@@ -192,16 +216,7 @@ func aggiorna(combattente: Dictionary) -> void:
 				or not conosciuta(combattente, 1) \
 				else "%d/%d" % [combattente.hp, combattente.hp_max]
 		combattente.etichetta_vita.text = "HP: %s" % quanto
-		# QUANTI SONO SI VEDE SUBITO, senza studiare.
-		#
-		# Bru: «se il giocatore capisce e' un nemico multi nemico usera' attacchi
-		# ad area». Tutto il senso del colpo ad area sta li' - se il numero fosse
-		# nascosto dietro lo studio come gli HP, la scelta giusta sarebbe
-		# invisibile e il giocatore starebbe indovinando. Una folla si vede che
-		# e' una folla.
-		var quanti := int(combattente.get("componenti", 0))
-		if quanti > 0:
-			plancia.fascia_nome.text = "%s  \u00d7%d" % [nome_in_fascia(combattente), quanti]
+		scrivi_quanti_in_fascia(combattente)
 	elif combattente.get("hp_nascosti", false):
 		# i boss (e i nemici scriptati come la manifestazione) non mostrano il
 		# conteggio esatto degli hp: mantiene l'incertezza sullo scontro
@@ -228,11 +243,30 @@ func aggiorna(combattente: Dictionary) -> void:
 		scheda_slot.mostra_vita(int(combattente.hp), int(combattente.get("hp_max", 1)))
 		scheda_slot.aggiorna_faccia(
 				float(combattente.hp) / maxf(float(combattente.get("hp_max", 1)), 1.0), addosso)
+	aggiorna_quadretto(combattente)
 	if combattente.get("barra_dominio", null) != null:
 		# la barra e' il DOMINIO, non il Fattore: leggendo il fattore partiva
 		# gia' piena di un pezzo (base 15) a scontro appena cominciato
 		Stile.riempi_barra(combattente.barra_dominio,
 				float(combattente.get("dominio", 0)) / float(maxi(RegoleCombattimento.dominio_pieno(), 1)))
+
+func scrivi_quanti_in_fascia(combattente: Dictionary) -> void:
+	# QUANTI SONO SI VEDE SUBITO, senza studiare.
+	#
+	# Bru: «se il giocatore capisce e' un nemico multi nemico usera' attacchi
+	# ad area». Tutto il senso del colpo ad area sta li' - se il numero fosse
+	# nascosto dietro lo studio come gli HP, la scelta giusta sarebbe
+	# invisibile e il giocatore starebbe indovinando. Una folla si vede che
+	# e' una folla. Sulla fascia pero' scrive solo chi ce l'ha: un'orda chiamata
+	# in un quadratino non si prende il nome del boss
+	var quanti := int(combattente.get("componenti", 0))
+	if quanti > 0 and combattente.scheda == plancia.box_nemico:
+		plancia.fascia_nome.text = "%s  \u00d7%d" % [nome_in_fascia(combattente), quanti]
+
+func aggiorna_quadretto(combattente: Dictionary) -> void:
+	var quadretto := combattente.scheda as GregariNemici.QuadrettoNemico
+	if quadretto != null:
+		quadretto.imposta_vita(float(combattente.hp) / maxf(float(combattente.get("hp_max", 1)), 1.0))
 
 static func in_pericolo(hp: int, hp_max: int) -> bool:
 	# Sotto che soglia un compagno sta per cadere. Statica e senza nodi apposta:

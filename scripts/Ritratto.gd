@@ -81,7 +81,7 @@ func imposta_attenuato(spento: bool) -> void:
 	tween_attenuazione.tween_property(self, "modulate:a",
 			OPACITA_ATTENUATA if spento else 1.0, Stile.tempo("dissolvenza_ritratto"))
 
-func percorso_immagine(id_personaggio: String, personaggio: Dictionary, espressione: String) -> String:
+static func percorso_immagine(id_personaggio: String, personaggio: Dictionary, espressione: String) -> String:
 	var cartella := "res://art/personaggi/%s" % id_personaggio
 	var per_espressione := "%s/%s.png" % [cartella, espressione]
 	if ResourceLoader.exists(per_espressione):

@@ -75,6 +75,26 @@ func attendi(quanti: int) -> void:
 	for i in quanti:
 		await get_tree().process_frame
 
+func fotografa_la_mazzata(contrasto: ContrastoCombattimento, momento: String) -> void:
+	# una mano che preme sei volte al secondo (o nessuna, per "colpo"), a passi
+	# di un fotogramma: "spinta" si ferma a meta' gara, le altre alla fine
+	contrasto.avvia({})
+	var passo := 1.0 / 60.0
+	var fotogramma := 0
+	while contrasto.fase == "reazione" or contrasto.fase == "spinta":
+		if momento == "reazione" and contrasto.secondi >= 0.12:
+			break
+		if momento == "spinta" and contrasto.secondi >= 1.0:
+			break
+		if momento != "colpo" and fotogramma % 10 == 0:
+			contrasto.premi_col_tasto()
+		contrasto.passa(passo)
+		fotogramma += 1
+	contrasto.passa(passo)
+	await attendi(2)
+	if not contrasto.attivo:
+		push_error("la mazzata non e' a schermo: non c'e' niente da fotografare")
+
 func prepara(quale: String) -> void:
 	match quale:
 		"menu":
@@ -332,6 +352,31 @@ func prepara(quale: String) -> void:
 			await attendi(3)
 			if not gioco.attivo:
 				push_error("la raffica non e' a schermo: non c'e' niente da fotografare")
+		"mazzata", "gregari":
+			# IL GOBLIN ARRABBIATO. "mazzata <momento>" ferma il contrasto in uno
+			# dei suoi istanti ("reazione", "spinta", "parata", "colpo");
+			# "gregari" mostra i due goblin che ha chiamato, nei quadratini in
+			# basso a sinistra del suo riquadro. Anche qui l'orologio si muove a
+			# mano, come per la raffica
+			GameState.nuova_partita()
+			GameState.nemici_combattimento = ["goblin_arrabbiato"]
+			var boss: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(boss)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			for volta in 2:
+				boss.aggiungi_combattente("goblin_tipico", false)
+			var ferito: Dictionary = boss.combattenti[boss.combattenti.size() - 1]
+			ferito.hp = int(ferito.hp_max * 0.4)
+			boss.aggiorna_scheda(ferito)
+			boss.voce.coda.clear()
+			boss.set_process(false)
+			if quale == "gregari":
+				boss.plancia.mostra_faccia("comandi")
+			else:
+				var argomenti_m := OS.get_cmdline_user_args()
+				await fotografa_la_mazzata(boss.mazzata.contrasto,
+						String(argomenti_m[1]) if argomenti_m.size() > 1 else "spinta")
+			await attendi(3)
 		"ecgrosso", "ecggiallo":
 			# L'ECG IN AVARIA. Un tracciato a occhio non si giudica da fermo:
 			# serve vederlo col guasto acceso, e per vederlo bisogna portare il

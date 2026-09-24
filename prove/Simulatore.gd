@@ -94,6 +94,13 @@ const SOGLIA_BEVUTA := 0.45
 var righe: Array[Dictionary] = []
 
 func _ready() -> void:
+	# LA MANO DELLA MAZZATA si cambia da fuori: MANO=3 ./prove/sonda.sh ...
+	# misura lo stesso scontro per chi preme tre volte al secondo. Di serie e'
+	# quella di regole.json ("contrasto", "mano_automatica")
+	if OS.has_environment("MANO"):
+		var contrasto: Dictionary = GameState.regole.get("contrasto", {})
+		contrasto["mano_automatica"] = float(OS.get_environment("MANO"))
+		GameState.regole["contrasto"] = contrasto
 	var richiesta := OS.get_cmdline_user_args()
 	if not richiesta.is_empty():
 		await sonda(richiesta)

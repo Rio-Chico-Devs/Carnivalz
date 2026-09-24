@@ -535,7 +535,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Vampata | un colpo pesante su uno solo | ×1.40 → 14 | sempre | sorteggio | — |
-| 2 | Ultima fiammata | un colpo pesante su uno solo | ×2.30 → 23 | sotto il 30% di vita | priorità 7 | — |
+| 2 | Ultima fiammata | un colpo pesante su uno solo — **una volta sola** | ×2.30 → 23 | sotto il 30% di vita | priorità 7 | — |
 | 3 | Esibizionista | si potenzia (attacco +3, velocita +2, per 3 battute) | — | sempre | sorteggio | 1 battute |
 | 4 | — | *casella libera* | — | — | — | — |
 | 5 | — | *casella libera* | — | — | — | — |
@@ -655,7 +655,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Acrobazia folle | 2 colpi su bersagli a caso | ×0.75 → 11 a colpo (22 totali) | sempre | sorteggio | — |
 | 2 | Posa minacciosa | nessun danno: lascia addosso **Lentezza** | — | sempre | sorteggio | 2 battute |
-| 3 | Gran finale | colpisce **tutta la squadra** | ×1.10 → 17 | sotto il 35% di vita | priorità 7 | — |
+| 3 | Gran finale | colpisce **tutta la squadra** — **una volta sola** | ×1.10 → 17 | sotto il 35% di vita | priorità 7 | — |
 | 4 | Vamos! | 25 colpi su bersagli a caso | ×0.04 → 1 a colpo (25 totali) | sotto il 50% di vita | sorteggio | 4 battute |
 | 5 | Flashy Punch | colpisce e **apre la guardia** | ×1.30 → 20 | sempre | sorteggio | 2 battute |
 | 6 | Flashy Kick | un colpo pesante su uno solo | ×1.15 → 17 | sempre | sorteggio | 2 battute |
@@ -855,7 +855,7 @@ Sei caselle, tutte libere: il suo turno lo detta un copione (tutorial o incontro
 | 3 | Si rimescola | **si rimette in piedi** (+20% della vita massima) | — | sotto il 30% di vita | priorità 7 | 5 battute |
 | 4 | Presenza colossale | **non fa niente**: è solo il suo motto | — | sempre | sorteggio | 3 battute |
 | 5 | Discesa colossale | **si annuncia una battuta prima**, poi colpisce **tutta la squadra** | **l'80% della vita che ti resta** | sotto il 15% di vita | priorità 8 | 2 battute |
-| 6 | Benedizione del colosso | **si rimette in piedi** (+50% della vita massima) | — | dopo essere rinata | priorità 9 | — |
+| 6 | Benedizione del colosso | **si rimette in piedi** (+50% della vita massima) — **una volta sola** | — | dopo essere rinata | priorità 9 | — |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 
@@ -900,8 +900,8 @@ Dalla seconda volta muore come chiunque. È lì che lo scontro cambia faccia.
 | 1 | Presa | colpisce e **si nutre** (il 60% del danno torna a lei) | ×1.30 → 27 | sempre | sorteggio | — |
 | 2 | Ciclo infinito | colpisce **tutta la squadra** | ×0.75 → 16 | sempre | sorteggio | — |
 | 3 | Ectoplasmer | un colpo pesante su uno solo | ×1.65 → 35 | sempre | sorteggio | 3 battute |
-| 4 | Simulazione Ouroboros | **si chiude per 3 sue battute** — **intoccabile** finché dura, e a ogni battuta attacco +3, difesa +3, velocita -1, +15% di vita | — | sotto il 30% di vita | priorità 8 | — |
-| 5 | Autoriciclaggio | **si chiude per 4 sue battute**, e a ogni battuta attacco -2, difesa -2, +25% di vita | — | sotto il 20% di vita | priorità 7 | — |
+| 4 | Simulazione Ouroboros | **si chiude per 3 sue battute** — **intoccabile** finché dura, e a ogni battuta attacco +3, difesa +3, velocita -1, +15% di vita — **una volta sola** | — | sotto il 30% di vita | priorità 8 | — |
+| 5 | Autoriciclaggio | **si chiude per 4 sue battute**, e a ogni battuta attacco -2, difesa -2, +25% di vita — **una volta sola** | — | sotto il 20% di vita | priorità 7 | — |
 | 6 | Tritatutto | 3 colpi su bersagli a caso | ×0.50 → 11 a colpo (33 totali) | sempre | sorteggio | 2 battute |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
@@ -941,9 +941,9 @@ Dalla seconda volta muore come chiunque. È lì che lo scontro cambia faccia.
 | --: | --- | --- | --- | --- | --- | --- |
 | 1 | Valanga di rottami | colpisce **tutta la squadra** | ×0.85 → 12 | sempre | sorteggio | — |
 | 2 | Metallo pesante | nessun danno: lascia addosso **Terrore** | — | sempre | sorteggio | 5 battute |
-| 3 | Bis di rottami | **si rimette in piedi** (+60% della vita massima) | — | sotto il 30% di vita | priorità 7 | 4 battute |
+| 3 | Bis di rottami | **si rimette in piedi** (+60% della vita massima) — **al massimo 2 volte** | — | sotto il 30% di vita | priorità 7 | 4 battute |
 | 4 | Assolo metallico | nessun danno: lascia addosso **Frastornato** e **Rabbia** | — | sempre | sorteggio | 4 battute |
-| 5 | Protocollo di estinzione | annuncia, e dopo **5 sue battute** diventa `golem_errante` | — | sotto il 50% di vita | priorità 6 | — |
+| 5 | Protocollo di estinzione | annuncia, e dopo **5 sue battute** diventa `golem_errante` — **una volta sola** | — | sotto il 50% di vita | priorità 6 | — |
 | 6 | Ritmo errante | si potenzia (velocita +2, per 3 battute) | — | sempre | sorteggio | 3 battute |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
@@ -975,17 +975,17 @@ Dalla seconda volta muore come chiunque. È lì che lo scontro cambia faccia.
 ### Un goblin terribilmente arrabbiato — livello 6, fonte
 *Questo goblin sembra soffrire molto. Non si sa per cosa o per chi, e non è possibile capirlo: conosce solo il linguaggio che parla la sua mazza.*
 
-`goblin_arrabbiato` · ♥ 1125 · attacco 25 · difesa 14 · velocità 6 · xp 152
+`goblin_arrabbiato` · ♥ 500 · attacco 3 · difesa 3 · velocità 1 · xp 152
 
 **Mosse: 5 su 6 caselle.**
 
 | # | Mossa | Cosa fa | Valore | Quando | Scelta | Ricarica |
 | --: | --- | --- | --- | --- | --- | --- |
-| 1 | Richiamo dei suoi simili | chiama 1 × `goblin_tipico` | — | sempre | sorteggio | — |
-| 2 | Furia di un goblin | un colpo pesante su uno solo | ×1.30 → 33 | sempre | sorteggio | — |
-| 3 | Mazzata | un colpo pesante su uno solo | ×1.20 → 30 | sempre | sorteggio | — |
-| 4 | Capriccio del goblin | si potenzia l'attacco (+9 per 3 battute) | — | sempre | sorteggio | — |
-| 5 | Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 13 a colpo (39 totali) | sempre | sorteggio | — |
+| 1 | Richiamo dei suoi simili | chiama 1 × `goblin_tipico` — **al massimo 2 volte** | — | sotto il 60% di vita | sorteggio | 8 battute |
+| 2 | Furia di un goblin | un colpo pesante su uno solo | ×1.30 → 4 | sempre | sorteggio | — |
+| 3 | Mazzata | **si contrasta premendo SPAZIO a raffica**: respinta ne passano 1–5, se ti batte il colpo pieno | ×5.00 → 15 | sempre | sorteggio | 2 battute |
+| 4 | Capriccio del goblin | si potenzia l'attacco (+2 per 3 battute) | — | sempre | sorteggio | — |
+| 5 | Cattiveria innata | 3 colpi su bersagli a caso | ×0.50 → 2 a colpo (6 totali) | sempre | sorteggio | — |
 | 6 | — | *casella libera* | — | — | — | — |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
@@ -1498,7 +1498,7 @@ Ha anche **rigenerazione** (scritta a mano nei suoi dati, non nella tabella).
 | 3 | Grido del raccolto | colpisce **tutta la squadra** | ×0.70 → 34 | sempre | sorteggio | — |
 | 4 | Un piccolo sacrificio | uccide un suo alleato per farsi più forte | — | sempre | sorteggio | — |
 | 5 | Raccolto di carne | chiama 1 × `ghoul` | — | sempre | sorteggio | — |
-| 6 | Maledizione di chi muore | colpisce **tutta la squadra** | ×1.00 → 48 | sotto il 25% di vita | priorità 7 | — |
+| 6 | Maledizione di chi muore | colpisce **tutta la squadra** — **una volta sola** | ×1.00 → 48 | sotto il 25% di vita | priorità 7 | — |
 
 **Motto** — quello che si legge in campo quando la mossa parte:
 

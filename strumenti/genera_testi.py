@@ -143,6 +143,9 @@ SCHERMATE = [
     ("MappaZona.gd", "Mappa di una zona"),
     ("Main.gd", "Schermata degli eventi"),
     ("Combattimento.gd", "Combattimento"),
+    ("combattimento/RiquadroRaffica.gd", "Combattimento, la raffica di pugni"),
+    ("combattimento/RiquadroContrasto.gd", "Combattimento, la Mazzata (il contrasto)"),
+    ("combattimento/Mazzata.gd", "Combattimento, com'e' finita la Mazzata"),
     ("Negozio.gd", "Negozio"),
     ("Pausa.gd", "Pausa, storico e Diario"),
     ("Ritratto.gd", "Ritratti"),
@@ -249,7 +252,7 @@ for file_script, nome_schermata in SCHERMATE:
     numero_schermata += 1
     titolo(2, f"1.{numero_schermata} {nome_schermata}")
     nota(f"<sub>`{percorso}`</sub>")
-    sigla = file_script.replace(".gd", "")
+    sigla = os.path.basename(file_script).replace(".gd", "")
     visti = set()
     contatore = 0
     for funzione, testo in trovate:
@@ -448,6 +451,9 @@ for id_p, p in personaggi.items():
             voce(f"CRE.{id_p}.mossa{i}.testo", "cosa si legge quando la usa", mossa.get("testo"))
             voce(f"CRE.{id_p}.mossa{i}.annuncio", "annuncio un turno prima",
                  mossa.get("testo_annuncio") or mossa.get("annuncio"))
+            # la Mazzata: come va a finire il contrasto (Mazzata.gd)
+            voce(f"CRE.{id_p}.mossa{i}.parata", "quando la respingi premendo", mossa.get("testo_parata"))
+            voce(f"CRE.{id_p}.mossa{i}.colpo", "quando ti batte e passa il colpo pesante", mossa.get("testo_colpo"))
     media = p.get("mediazione", {})
     if isinstance(media, dict):
         voce(f"CRE.{id_p}.mediazione.apertura", "quando capisci che si puo' mediare", media.get("testo_apertura"))

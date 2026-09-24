@@ -741,7 +741,77 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.12 Negozio
+## 1.12 Combattimento, la raffica di pugni
+
+<sub>`scripts/combattimento/RiquadroRaffica.gd`</sub>
+
+**`UI.RiquadroRaffica.001`** · comincia
+> Clicca ogni pugno quando il cerchio si chiude su di lui.
+>
+> →
+
+**`UI.RiquadroRaffica.002`** · aggiorna
+> %d / %d
+>
+> →
+
+**`UI.RiquadroRaffica.003`** · metti_scritte
+> PARATA
+>
+> →
+
+**`UI.RiquadroRaffica.004`** · metti_scritte
+> DI STRISCIO
+>
+> →
+
+**`UI.RiquadroRaffica.005`** · metti_scritte
+> COLPITO
+>
+> →
+
+
+## 1.13 Combattimento, la Mazzata (il contrasto)
+
+<sub>`scripts/combattimento/RiquadroContrasto.gd`</sub>
+
+**`UI.RiquadroContrasto.001`** · comincia
+> Premi SPAZIO a raffica!
+>
+> →
+
+**`UI.RiquadroContrasto.002`** · chiudi
+> PARATA!<br>%d colpi in %s secondi
+>
+> →
+
+**`UI.RiquadroContrasto.003`** · chiudi
+> TI HA BATTUTO<br>La mazza cala.
+>
+> →
+
+**`UI.RiquadroContrasto.004`** · aggiorna
+> × %d
+>
+> →
+
+
+## 1.14 Combattimento, com'e' finita la Mazzata
+
+<sub>`scripts/combattimento/Mazzata.gd`</sub>
+
+**`UI.Mazzata.001`** · parata
+> La respingi.
+>
+> →
+
+**`UI.Mazzata.002`** · colpo_pieno
+> La mazza cala.
+>
+> →
+
+
+## 1.15 Negozio
 
 <sub>`scripts/Negozio.gd`</sub>
 
@@ -801,7 +871,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.13 Pausa, storico e Diario
+## 1.16 Pausa, storico e Diario
 
 <sub>`scripts/Pausa.gd`</sub>
 
@@ -841,7 +911,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.14 Ritratti
+## 1.17 Ritratti
 
 <sub>`scripts/Ritratto.gd`</sub>
 
@@ -851,7 +921,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.15 Varie
+## 1.18 Varie
 
 <sub>`scripts/GameState.gd`</sub>
 
@@ -13412,6 +13482,16 @@ carte collezionabili.
 
 **`CRE.goblin_arrabbiato.mossa3.testo`** · cosa si legge quando la usa
 > La mazza scende, e il goblin non guarda nemmeno dove.
+>
+> →
+
+**`CRE.goblin_arrabbiato.mossa3.parata`** · quando la respingi premendo
+> Gli blocchi il braccio a mezz'aria: la mazza ti arriva addosso solo di striscio.
+>
+> →
+
+**`CRE.goblin_arrabbiato.mossa3.colpo`** · quando ti batte e passa il colpo pesante
+> Non basta: la mazza ti arriva addosso con tutto il suo peso.
 >
 > →
 

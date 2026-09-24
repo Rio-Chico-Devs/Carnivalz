@@ -58,6 +58,7 @@ var menu: MenuCombattimento
 var impatto: ImpattoCombattimento
 var arena: ArenaCombattimento
 var minigioco: MinigiocoCombattimento
+var mazzata: MazzataCombattimento
 var plancia: PlanciaCombattimento
 var stati: StatiCombattimento
 
@@ -206,6 +207,7 @@ func _ready() -> void:
 	minigioco = MinigiocoCombattimento.new(muto)
 	minigioco.dado = GameState.rng
 	minigioco.finito.connect(_minigioco_finito)
+	mazzata = MazzataCombattimento.new(self, muto)
 	if not muto:
 		# LA PLANCIA PRIMA DI TUTTO: e' lei che crea i pannelli, i tre slot e il
 		# quadrante, e tutti gli altri ci scrivono dentro. Finche' non esiste non
@@ -215,6 +217,7 @@ func _ready() -> void:
 		plancia.ospita_box(box)
 		plancia.mostra_faccia("parlato")
 		minigioco.collega(plancia.interno_di(plancia.quadrante), plancia)
+		mazzata.collega(plancia.interno_di(plancia.quadrante), plancia)
 		voce.collega(box, area_avanza, volanti)
 		campo.collega_plancia(plancia)
 		menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
@@ -314,7 +317,10 @@ func _unhandled_input(evento: InputEvent) -> void:
 	# che is_action_pressed ha gia' allow_echo a false per conto suo, e l'ho
 	# verificato nel motore (vedi prova_tenere_premuto_non_e_martellare). La
 	# guardia non serviva; il commento che aveva accanto diceva che serviva, ed
-	# e' la cosa peggiore delle due.
+	# e' la cosa peggiore delle due. Tranne che sotto la mazza: li' SPAZIO spinge
+	if mazzata.prende(evento):
+		get_viewport().set_input_as_handled()
+		return
 	if mattanza_attiva and evento.is_action_pressed("ui_accept"):
 		colpo_di_mattanza()
 		get_viewport().set_input_as_handled()
@@ -701,7 +707,7 @@ func riprendi_il_tempo() -> void:
 func fase_adesso() -> String:
 	if not in_corso:
 		return "chiuso"
-	if minigioco != null and minigioco.attivo:
+	if gioco_con_la_mano():
 		return "minigioco"
 	if voce != null and (not voce.coda.is_empty() or voce.sta_facendo_leggere):
 		return "racconto"
@@ -834,6 +840,8 @@ func _process(delta: float) -> void:
 		if plancia != null:
 			plancia.spegni_evidenza()   # finita la lezione non resta niente acceso
 		riprendi_il_tempo()
+	if mazzata.passa(delta):
+		return   # sotto la mazza si ferma tutto, anche la barra della Mattanza
 	avanza_mattanza(delta)   # la barra si scarica anche mentre il mondo e' fermo
 	if minigioco != null and minigioco.attivo:
 		# mentre si para, lo scontro e' fermo: i pugni hanno un orologio loro
@@ -3722,6 +3730,8 @@ func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 			mossa_buff_fattore(nemico, mossa)
 		"evoca":
 			mossa_evoca(nemico, mossa)
+		"mazzata":
+			mossa_mazzata(nemico, mossa)
 		"sacrificio":
 			mossa_sacrificio(nemico, mossa)
 
@@ -3998,9 +4008,14 @@ func mossa_evoca(_nemico: Dictionary, mossa: Dictionary) -> void:
 		if vivi(false).size() >= 3:
 			break
 		aggiungi_combattente(String(mossa.get("valore", "")), false)
+		collega_bersaglio(combattenti.back())   # si clicca come gli altri
 		evocati += 1
 	if evocati == 0:
 		scrivi("[i]...ma nessuno risponde al richiamo.[/i]")
+
+func mossa_mazzata(nemico: Dictionary, mossa: Dictionary) -> void:
+	# si contrasta con la mano: vedi Mazzata.gd e Contrasto.gd
+	mazzata.cala(nemico, mossa)
 
 func mossa_sacrificio(nemico: Dictionary, mossa: Dictionary) -> void:
 	# "un piccolo sacrificio per un grande risultato": si potenzia
@@ -4742,7 +4757,11 @@ func puo_cambiare_faccia() -> bool:
 	# mentre si para non si tocca niente: il minigioco si prende il quadrante
 	# con un pannello suo, e cambiargli la faccia sotto i piedi non serve a
 	# nessuno
-	return plancia != null and (minigioco == null or not minigioco.attivo)
+	return plancia != null and not gioco_con_la_mano()
+
+func gioco_con_la_mano() -> bool:
+	# la raffica o la mazza: in quei secondi il quadrante e la mano sono loro
+	return (minigioco != null and minigioco.attivo) or (mazzata != null and mazzata.in_corso())
 
 func aggiorna_scheda(combattente: Dictionary) -> void:
 	campo.aggiorna(combattente)

@@ -185,6 +185,16 @@
 		"_battute_massime": "tetto di sicurezza dell'orologio virtuale: oltre, lo scontro si chiude e lo dice invece di girare a vuoto",
 		"battute_massime": 4000
 	},
+	"contrasto": {
+		"_bru": "«il minigioco sara' una mazzata che arriva all'improvviso appare la mazzata, devi premere a raffica la barra spazziatrice per combattere, se ti batte passa un colpo pesante, altrimenti lo pari e subisci pochissimi danni a seconda di quanto ci hai messo per vincere lo scontro»",
+		"_nota": "Il braccio di ferro della Mazzata (Contrasto.gd). Si parte a meta' barra: ogni pressione sale di 'per_pressione', il goblin spinge giu' di 'spinta' al secondo, e la spinta cresce di 'rincaro' ogni secondo. 'durata' e' quanto concede prima di calare comunque. Con questi numeri si vince premendo piu' di circa 3,5 volte al secondo, e a 6 si vince in poco piu' di un secondo: sono stime mie, da provare col dito vero.",
+		"per_pressione": 0.08,
+		"spinta": 0.12,
+		"rincaro": 0.04,
+		"durata": 5.0,
+		"_mano_automatica": "quante volte al secondo preme il giocatore automatico (simulatore e prove). Sotto zero non preme mai.",
+		"mano_automatica": 5.0
+	},
 	"tipo_moltiplicatore_ipersensibile": 1.5,
 	"evocati_massimi_squadra": 4,
 	"hype_moltiplicatore": 100,
