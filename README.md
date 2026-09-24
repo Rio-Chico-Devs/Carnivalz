@@ -1710,6 +1710,13 @@ accorgersene, perché il codice che dovrebbe accorgersene è proprio quello che 
 eseguito — se ne accorge chi guarda da fuori, e `esegui.sh` fallisce se Godot ha stampato
 anche un solo errore.
 
+**E anche gli avvisi, come li vede l'editor.** Senza `--debug` Godot gli avvisi di GDScript
+non li stampa, quindi per settimane il verde non li ha visti — li vedeva Bru, in giallo,
+aprendo il progetto («la variabile `voce` del ciclo copre la funzione `voce()` della riga
+437», in `Pausa.gd`, più altri trenta fra prove e strumenti). Adesso un passo prima delle
+prove carica ogni script del progetto con `--debug` (`prove/Avvisi.tscn`) e **un solo avviso
+ferma tutto**: si correggono, non si spengono.
+
 | Cosa controlla | Perché |
 |---|---|
 | dati caricati | i JSON esistono, si leggono, non sono vuoti |

@@ -260,7 +260,7 @@ func candidati() -> Array[Control]:
 	# con la pausa aperta si guarda solo la pausa: quello che sta sotto il velo
 	# non si puo' premere per costruzione, e contarlo «coperto» era rumore
 	var trovati: Array[Control] = []
-	raccogli(Pausa if Pausa.aperta else get_tree().root, trovati)
+	raccogli((Pausa as Node) if Pausa.aperta else (get_tree().root as Node), trovati)
 	return trovati
 
 
@@ -625,7 +625,7 @@ func racconta() -> void:
 
 func orologio() -> String:
 	var s := int(fotogrammi / float(FPS))
-	return "%d:%02d" % [s / 60, s % 60]
+	return "%d:%02d" % [int(s / 60.0), s % 60]
 
 
 func chiudi(perche: String) -> void:

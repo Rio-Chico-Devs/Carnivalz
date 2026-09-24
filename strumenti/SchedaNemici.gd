@@ -422,7 +422,7 @@ func sezione_dominatori() -> Array[String]:
 		"`{protagonista}` è il nome che hai scelto tu all'inizio.",
 	]
 	for id_dominatore in elenco:
-		var scheda: Dictionary = elenco[id_dominatore]
+		var sua: Dictionary = elenco[id_dominatore]
 		var dati: Dictionary = GameState.personaggi.get(String(id_dominatore), {})
 		righe.append("")
 		righe.append("### %s" % String(dati.get("nome", id_dominatore)))
@@ -439,7 +439,7 @@ func sezione_dominatori() -> Array[String]:
 		for campo in GameState.tecnolog.get("campi_dominatore", []):
 			var id_campo := String(campo.get("id", ""))
 			var valore := String(dati.get("nome", id_dominatore)) if id_campo == "nome" \
-					else String(scheda.get(id_campo, "—"))
+					else String(sua.get(id_campo, "—"))
 			righe.append("| %s | %s |" % [String(campo.get("etichetta", id_campo)), valore])
 	return righe
 
@@ -610,9 +610,9 @@ func valore_di(id_creatura: String, mossa: Dictionary) -> String:
 	if mossa.has("quota"):
 		var attacco := stat_di(id_creatura, "attacco", 1)
 		var colpo := maxi(int(round(attacco * float(mossa["quota"]))), 1)
-		var quante := maxi(int(mossa.get("colpi", 1)), 1)
-		if quante > 1:
-			return "×%.2f → %d a colpo (%d totali)" % [float(mossa["quota"]), colpo, colpo * quante]
+		var colpi := maxi(int(mossa.get("colpi", 1)), 1)
+		if colpi > 1:
+			return "×%.2f → %d a colpo (%d totali)" % [float(mossa["quota"]), colpo, colpo * colpi]
 		return "×%.2f → %d" % [float(mossa["quota"]), colpo]
 	return "come il suo colpo normale"
 

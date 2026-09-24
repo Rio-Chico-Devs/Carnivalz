@@ -131,6 +131,25 @@ fi
 # Avviato da solo, il gioco non ne perde NEMMENO UNA. Quindi l'avviso smette di
 # essere rumore e diventa una sentinella: qui dentro zero, e se un giorno il
 # numero si muove vuol dire che a perdere ha cominciato il gioco.
+# NIENTE AVVISI DI GDSCRIPT, come nell'editor. Senza --debug Godot non li
+# stampa, e quindi nessuna prova li vedeva: li vedeva Bru, in giallo, aprendo il
+# progetto. Qui si caricano tutti gli script con --debug e un solo avviso ferma
+# tutto (vedi prove/Avvisi.gd)
+echo "→ nessun avviso di GDScript"
+registro_avvisi="$(mktemp)"
+timeout --foreground "$LIMITE_SECONDI" "$GODOT" --headless --path . --debug prove/Avvisi.tscn > "$registro_avvisi" 2>&1 || true
+grep -E '^Avvisi: ' "$registro_avvisi" || true
+if ! grep -qE '^Avvisi: [0-9]+ script caricati' "$registro_avvisi" \
+		|| grep -qE '^(WARNING|USER WARNING|SCRIPT ERROR|ERROR):' "$registro_avvisi"; then
+	grep -A1 -E '^(WARNING|USER WARNING|SCRIPT ERROR|ERROR):' "$registro_avvisi" >&2 || true
+	echo "" >&2
+	echo "✗ GDScript ha degli avvisi (sopra): l'editor li mostra in giallo a chi apre" >&2
+	echo "  il progetto. Si correggono, non si spengono." >&2
+	rm -f "$registro_avvisi"
+	exit 1
+fi
+rm -f "$registro_avvisi"
+
 CONTROLLA_PERDITE=1
 echo "→ il gioco si avvia"
 esegui_pulito "l'avvio del gioco" "$GODOT" --headless --path . --quit-after 240

@@ -1024,7 +1024,7 @@ func prova_una_partita_rovinata_si_riprende() -> void:
 	# il file si rovina a meta', come dopo una chiusura sbagliata
 	var intero := FileAccess.get_file_as_string(percorso)
 	var rovinato := FileAccess.open(percorso, FileAccess.WRITE)
-	rovinato.store_string(intero.left(intero.length() / 2))
+	rovinato.store_string(intero.left(int(intero.length() / 2.0)))
 	rovinato.close()
 	GameState.nuova_partita()
 	esigi(GameState._leggi_salvataggio(percorso),
@@ -1935,7 +1935,7 @@ func prova_ogni_abilita_gira_davvero() -> void:
 				esigi(is_zero_approx(float(nemico.get("bonus_drop", 0.0))),
 						"%s ha funzionato su un nemico ancora in piedi" % id_abilita)
 				# ...e su uno quasi finito deve alzare il drop
-				nemico.hp = maxi(int(nemico.hp_max) / 10, 1)
+				nemico.hp = maxi(int(nemico.hp_max / 10.0), 1)
 				scontro.usa_abilita_su(eroe, String(id_abilita), nemico)
 				esigi(float(nemico.get("bonus_drop", 0.0)) > 0.0,
 						"%s su un moribondo non ha alzato il drop: costa un turno e non compra niente" % id_abilita)
@@ -2597,7 +2597,7 @@ func prova_scontro_vero_si_gioca() -> void:
 
 	# 2-ter. OGNI CREATURA HA LA SUA RAPIDITA': i ruoli si devono sentire
 	var ricarica_eroe: float = scontro.ricarica_di(eroe)
-	var lento_finto := {"velocita": maxi(int(eroe.velocita) / 2, 1), "stati_attivi": {}}
+	var lento_finto := {"velocita": maxi(int(eroe.velocita / 2.0), 1), "stati_attivi": {}}
 	var svelto_finto := {"velocita": int(eroe.velocita) * 2, "stati_attivi": {}}
 	esigi(scontro.ricarica_di(svelto_finto) < ricarica_eroe,
 			"chi e' il doppio piu' veloce di te ricarica in %.2fs contro i tuoi %.2fs: la velocita' non si sente"
@@ -2801,7 +2801,7 @@ func prova_barra_di_dominio_come_energia() -> void:
 	# e non arriva mai a gratis: al massimo della maestria uno speciale deve
 	# costare ancora piu' di meta' barra, altrimenti la barra smette di essere
 	# una risorsa e diventa un contatore da guardare
-	esigi(con_maestria >= senza_maestria / 2,
+	esigi(con_maestria >= int(senza_maestria / 2.0),
 			"al massimo della maestria uno speciale costa %d invece di %d: quasi gratis"
 			% [con_maestria, senza_maestria])
 	eroe.dominio = 0
@@ -2871,13 +2871,13 @@ func prova_mattanza_svuota_la_barra() -> void:
 	# 1. MEZZA BARRA NON APRE NIENTE. E' la promessa piu' facile da perdere:
 	#    basta scrivere il costo come tutti gli altri e la Mattanza diventa
 	#    un'abilita' che si chiama quando capita
-	eroe.dominio = per_segmento / 2
+	eroe.dominio = int(per_segmento / 2.0)
 	esigi(not bool(scontro.dominio_sufficiente(eroe, dati)),
 			"il menu accenderebbe la Mattanza con mezza barra")
 	var vita := int(nemico.hp)
 	scontro.usa_abilita_su(eroe, "mattanza", nemico)
 	esigi(int(nemico.hp) == vita, "con mezza barra la Mattanza e' partita lo stesso")
-	esigi(int(eroe.dominio) == per_segmento / 2,
+	esigi(int(eroe.dominio) == int(per_segmento / 2.0),
 			"una Mattanza che non e' partita ha svuotato la barra lo stesso")
 
 	# 2. UNA BARRA PIENA LA APRE, E SE LA PORTA VIA TUTTA
@@ -3140,7 +3140,7 @@ func prova_le_creature_capiscono_come_stanno() -> void:
 			"a vita piena la creatura sceglie gia' una mossa da disperata")
 
 	# 2. FERITA, SI CURA - e non "puo' capitare che si curi": lo fa
-	nemico.hp = maxi(int(nemico.hp_max) / 5, 1)
+	nemico.hp = maxi(int(nemico.hp_max / 5.0), 1)
 	esigi(bool(scontro.mossa_disponibile(nemico, cura)),
 			"ferita a un quinto, la creatura non ha la riparazione fra le cose che puo' fare")
 	esigi(String(scontro.mossa_saggia(nemico).get("id", "")) == String(cura.get("id", "")),
@@ -3157,7 +3157,7 @@ func prova_le_creature_capiscono_come_stanno() -> void:
 	#    non finisce
 	esigi(not bool(scontro.mossa_disponibile(nemico, cura)),
 			"la cura e' subito di nuovo pronta: la creatura si rimette in piedi piu' in fretta di quanto la si abbatta")
-	nemico.hp = maxi(int(nemico.hp_max) / 5, 1)
+	nemico.hp = maxi(int(nemico.hp_max / 5.0), 1)
 	var dopo_la_ricarica := int(nemico.hp)
 	scontro.turno_nemico_normale(nemico)
 	esigi(int(nemico.hp) <= dopo_la_ricarica,
@@ -3168,7 +3168,7 @@ func prova_le_creature_capiscono_come_stanno() -> void:
 	nemico.hp = nemico.hp_max
 	var attacco_intero := RegoleCombattimento.attacco_di(nemico)
 	esigi(not RegoleCombattimento.e_disperata(nemico), "a vita piena risulta gia' disperata")
-	nemico.hp = maxi(int(nemico.hp_max) / 10, 1)
+	nemico.hp = maxi(int(nemico.hp_max / 10.0), 1)
 	esigi(RegoleCombattimento.e_disperata(nemico), "a un decimo di vita non risulta disperata")
 	var attacco_alle_strette := RegoleCombattimento.attacco_di(nemico)
 	esigi(attacco_alle_strette > attacco_intero,
@@ -3418,7 +3418,7 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	var vita_eroe := int(eroe.hp)
 	scontro.esegui_mossa(nemico, {"id": "prova_discesa", "tipo": "attacco_tutti",
 			"testo": "-", "quota_vita_bersaglio": 0.8})
-	esigi(int(eroe.hp) < vita_eroe / 2,
+	esigi(int(eroe.hp) < int(vita_eroe / 2.0),
 			"la discesa ha tolto solo %d di %d: non e' una frazione della vita rimasta"
 			% [vita_eroe - int(eroe.hp), vita_eroe])
 	esigi(int(eroe.hp) >= 1, "la discesa ha steso la squadra: un colpo a cui non puoi fare niente non e' uno scontro")
@@ -5464,7 +5464,7 @@ func prova_tecnolog_completo() -> void:
 			continue
 		if GameState.areale_di(String(id_creatura)) != vuoto:
 			con_casa += 1
-	esigi(con_casa >= guardate * 3 / 4,
+	esigi(con_casa >= int(guardate * 3 / 4.0),
 			"solo %d creature su %d hanno un areale: il conto non sta leggendo tutte le chiavi con cui una zona elenca le sue creature"
 			% [con_casa, guardate])
 
@@ -5683,14 +5683,14 @@ func prova_il_drop_c_e_sempre() -> void:
 	for combattente in scontro.combattenti:
 		if combattente.giocatore and eroe.is_empty():
 			eroe = combattente
-	eroe.hp = int(eroe.hp_max) / 2
+	eroe.hp = int(eroe.hp_max / 2.0)
 	scontro.applica_effetto(eroe, effetto)
 	esigi(int(eroe.get("rigenerazione_battute", 0)) == 3,
 			"il frammento non ha aperto nessuna rigenerazione")
 	var vita_prima := int(eroe.hp)
 	scontro.risolvi_rigenerazione_frammento(eroe)
 	esigi(int(eroe.hp) > vita_prima, "la prima battuta di rigenerazione non ha curato niente")
-	esigi(int(eroe.hp) - vita_prima <= int(eroe.hp_max) / 5,
+	esigi(int(eroe.hp) - vita_prima <= int(eroe.hp_max / 5.0),
 			"una battuta ha rimesso a posto piu' di un quinto della vita: non e' 'poca'")
 	for battuta in 5:
 		scontro.risolvi_rigenerazione_frammento(eroe)
@@ -8499,7 +8499,7 @@ func prova_tutorial_di_veronica() -> void:
 						"il passo chiede %s ma non prepara abbastanza aura per pagarla" % id_abilita)
 			if String(scheda.get("tipo", "")) == "mattanza":
 				insegna_mattanza = true
-				esigi(int(passo.get("dominio_protagonista", 0)) >= RegoleCombattimento.dominio_pieno() / 3,
+				esigi(int(passo.get("dominio_protagonista", 0)) >= int(RegoleCombattimento.dominio_pieno() / 3.0),
 						"il passo insegna la Mattanza senza riempire la barra: non si accende nemmeno")
 		if azione == "minigioco":
 			insegna_minigioco = true
@@ -8898,7 +8898,7 @@ func prova_l_icona_del_menu_si_preme_anche_mentre_si_legge() -> void:
 	var sotto: Control = await sotto_il_mouse(icona)
 	esigi(sotto == icona or icona.is_ancestor_of(sotto),
 			"mentre il dialogo scorre, un clic sull'icona del menu lo prende «%s»: manda avanti la battuta invece di aprire il menu"
-			% (sotto.name if sotto != null else "nessuno"))
+			% (String(sotto.name) if sotto != null else "nessuno"))
 	Pausa.apri()
 	for i in 20:
 		await get_tree().process_frame
@@ -8907,7 +8907,7 @@ func prova_l_icona_del_menu_si_preme_anche_mentre_si_legge() -> void:
 	sotto = await sotto_il_mouse(icona)
 	esigi(sotto == icona or icona.is_ancestor_of(sotto),
 			"appena chiusa la pausa, un clic sull'icona lo prende «%s»: la pausa che si dissolve ruba il primo clic"
-			% (sotto.name if sotto != null else "nessuno"))
+			% (String(sotto.name) if sotto != null else "nessuno"))
 	for i in 20:
 		await get_tree().process_frame
 	schermata.queue_free()
@@ -9147,10 +9147,10 @@ func prova_ecg() -> void:
 		return quanti
 	var zeri_calmo: int = zeri.call(calmo)
 	var zeri_teso: int = zeri.call(teso)
-	esigi(zeri_calmo > campioni / 4,
+	esigi(zeri_calmo > int(campioni / 4.0),
 			"da tranquillo il tracciato ha solo %d campioni piatti su %d: non e' una linea che riposa"
 			% [zeri_calmo, campioni])
-	esigi(zeri_teso < zeri_calmo / 10,
+	esigi(zeri_teso < int(zeri_calmo / 10.0),
 			"a stress pieno il tracciato ha ancora %d campioni perfettamente piatti (calmo: %d): "
 			% [zeri_teso, zeri_calmo] + "la linea di base non trema, e' solo piu' fitta")
 
@@ -9497,7 +9497,7 @@ func prova_condizione_di_chi_ha_il_turno() -> void:
 		if combattente.giocatore and eroe.is_empty():
 			eroe = combattente
 	esigi(not eroe.is_empty(), "nessun protagonista")
-	eroe.hp = int(eroe.hp_max) / 4      # un quarto di vita: la linea deve diventare rossa
+	eroe.hp = int(eroe.hp_max / 4.0)      # un quarto di vita: la linea deve diventare rossa
 	GameState.stress[String(eroe.id)] = 80
 	eroe.stress = 80
 	scontro.aggiorna_pronto_giocatore()
@@ -11991,7 +11991,7 @@ func prova_l_ecg_non_si_apre_su_una_riga_piatta() -> void:
 	for i in TracciatoEcg.CAMPIONI:
 		if is_zero_approx(riga.campione(i)):
 			fermi += 1
-	esigi(fermi < TracciatoEcg.CAMPIONI / 4,
+	esigi(fermi < int(TracciatoEcg.CAMPIONI / 4.0),
 			"al primo fotogramma %d campioni su %d sono piatti: il quadrante " %
 			[fermi, TracciatoEcg.CAMPIONI] +
 			"si apre su una riga dritta, che su un monitor vuol dire morto")

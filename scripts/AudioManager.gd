@@ -66,7 +66,7 @@ func musica_chiave(chiave: String) -> void:
 func musica_combattimento(categoria: String, allenamento: bool) -> void:
 	musica_chiave(chiave_combattimento(categoria, allenamento))
 
-static func chiave_combattimento(categoria: String, allenamento: bool) -> String:
+func chiave_combattimento(categoria: String, allenamento: bool) -> String:
 	# UNA MUSICA PER TIPO DI SCONTRO. Bru: «per i nemici comuni una musica, per i
 	# nemici speciali un'altra, per i boss un'altra, per l'allenamento un'altra».
 	# La categoria la decide il nemico piu' "alto" in campo (vedi

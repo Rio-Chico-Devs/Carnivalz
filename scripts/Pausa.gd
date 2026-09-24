@@ -359,8 +359,8 @@ func stringi_se_serve(quale: VBoxContainer) -> void:
 	quale.add_theme_constant_override("separation", nuovo)
 	if troppo - (passo - nuovo) * spazi <= 0.0:
 		return
-	for voce in quale.find_children("*", "VoceMenu", true, false):
-		(voce as VoceMenu).stringi(MARGINE_STRETTO)
+	for riga in quale.find_children("*", "VoceMenu", true, false):
+		(riga as VoceMenu).stringi(MARGINE_STRETTO)
 
 func intestazione(testo: String) -> void:
 	# Titolo a sinistra, Tazo e livello a destra. Sempre: sono le due cose che si
