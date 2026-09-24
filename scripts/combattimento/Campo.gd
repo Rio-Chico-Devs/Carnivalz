@@ -297,9 +297,10 @@ func conosciuta(combattente: Dictionary, strato: int) -> bool:
 	return int(combattente.get("volte_studiato", 0)) >= strato
 
 func dettagli_di(combattente: Dictionary) -> String:
+	var annuncio := annuncio_di(combattente)
 	if not conosciuta(combattente, 1):
-		return "non l'hai ancora guardata"
-	var dettagli := ""
+		return annuncio + "non l'hai ancora guardata"
+	var dettagli := annuncio
 	if not combattente.giocatore:
 		dettagli += progresso_studio(combattente)
 	if int(combattente.get("aura_max", 0)) > 0:
@@ -336,6 +337,18 @@ func dettagli_di(combattente: Dictionary) -> String:
 	if combattente.psiche in combattente.stati:
 		dettagli += " · " + String(GameState.psichi.get(combattente.psiche, {}).get("nome", combattente.psiche))
 	return dettagli
+
+func annuncio_di(combattente: Dictionary) -> String:
+	# LA MOSSA ANNUNCIATA RESTA SCRITTA FINCHE' NON ARRIVA. Nel box l'annuncio
+	# si legge e se ne va, e quando tocca a te - che e' il momento in cui serve -
+	# il box mostra gia' il menu: sulla scheda dell'orda non restava niente.
+	# «prima di compiere la mossa e che tu scelga cosa fare appare sempre un
+	# testo collegato alla mossa che fara'» (Bru): deve esserci ANCHE mentre
+	# scegli. Si sa senza studiarla, perche' l'ha appena detto lei
+	var prossima: Dictionary = combattente.get("mossa_in_carica", {})
+	if bool(combattente.get("giocatore", false)) or prossima.is_empty():
+		return ""
+	return "» %s\n" % String(prossima.get("testo_annuncio", prossima.get("testo", "")))
 
 func progresso_studio(combattente: Dictionary) -> String:
 	# Per le creature che si possono lasciare andare, quante volte le hai gia'

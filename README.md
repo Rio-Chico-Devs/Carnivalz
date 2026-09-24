@@ -944,15 +944,23 @@ durante il combattimento invece di veronica avremo la guida che parla».
 - **La fuga negata è una regola della zona**: `mappa_dungeon.fuga_negata` = `{chi, testo,
   tranne}`. Nelle Pianure la Guida ti ferma («Hey, non vorrai mica scappare dai tuoi primi
   combattimenti, vero?») in tutti gli scontri tranne quello con l'apparizione, che è proprio
-  quello in cui si impara a scappare
+  quello in cui si impara a scappare. Fermarti non ti costa il turno: la tua ricarica resta
+  dov'era
 - **Il tasto BOND è la mediazione.** Era disegnato nella plancia e non era collegato a niente:
   adesso si accende (colorato) quando qualcuno in campo si può lasciare andare, e premerlo è
   come scegliere Mediazione dal menu. «Quando uno dei personaggi è pronto per legare col
-  nemico il tasto bond si illumina» (Bru). La prima volta succede con la tartaruga gigante
+  nemico il tasto bond si illumina» (Bru). La prima volta succede con la tartaruga gigante, e
+  **la prima volta in ogni scontro pulsa** finché non lo premi — ma solo a scena finita:
+  mentre la Guida parla il tasto sta sotto il testo, e un alone su un tasto coperto indica il
+  vuoto. `"apre_bond"` decide anche che la creatura stasera vuole ascoltare: a deciderlo è la
+  scena, non il tiro fatto all'ingresso
 - **Le orde dicono cosa stanno per fare** (`"orda": {"preannuncia": true}`): la prossima mossa
   si sceglie appena finita questa e si annuncia subito col suo `testo_annuncio` («L'orda di
   rane sembra gracchiare ferocemente...»), così tutta la sua ricarica è tempo tuo per
-  rispondere. `"componenti"` fissa quante sono (le rane: cinque); senza, restano da 3 a 10
+  rispondere. E **l'annuncio resta scritto sulla sua scheda** («» L'orda di rane...») finché la
+  mossa non arriva: nel box si legge e se ne va, e quando tocca a te il box mostra già il
+  menu — cioè proprio quando serve, non c'era più. Vale anche per le mosse telegrafate dei
+  boss. `"componenti"` fissa quante sono (le rane: cinque); senza, restano da 3 a 10
 - **Onda psichica** (tipo `onda`) e **Concentrazione** (tipo `potenziamento`), del
   protagonista fin dall'inizio. L'onda fa **un tentativo per ogni componente** di un'orda, e
   ognuno va a vuoto, colpisce o fa critico per conto suo; su un nemico solo è un colpo piccolo

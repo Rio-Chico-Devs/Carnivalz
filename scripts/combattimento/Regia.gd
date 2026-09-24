@@ -122,6 +122,11 @@ func apri_il_bond() -> void:
 	for nemico in scontro.vivi(false):
 		if not scontro.dati_mediazione(nemico).is_empty():
 			nemico.bond_aperto = true
+			# e stasera vuole: la mediazione si tira a sorte all'ingresso (vedi
+			# tira_volonta_di_mediare), ma qui a decidere e' la scena. Senza
+			# questa riga una creatura con meno del 100% di voglia lascerebbe la
+			# Guida a dire «si puo'» davanti a un BOND che resta spento
+			nemico.vuole_mediare = true
 			nemico.mediazione_annunciata = true
 
 # --- la fuga che la zona non concede ---------------------------------------

@@ -3340,7 +3340,7 @@
       "fuori_curva": "Non e' uno scontro, e' un indovinello: non attacca mai e non si batte a colpi. La sua riserva enorme serve a far capire che la strada e' un'altra.",
       "scala_col_giocatore": false,
       "nome": "Tartaruga Gigante",
-      "apertura": "Ritira la testa nel guscio prima ancora che tu faccia un passo. Non attacca. Aspetta.",
+      "apertura": "Ritira la testa nel guscio prima ancora che tu faccia un passo.",
       "hp": 555,
       "attacco": 0,
       "difesa": 6,

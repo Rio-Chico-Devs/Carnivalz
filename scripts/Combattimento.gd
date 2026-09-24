@@ -162,6 +162,7 @@ var studio_in_corso := false     # il tempo e' fermo perche' stai studiando
 var intenzione: IntenzioneCombattimento
 # chi muove per primo e chi parla sopra lo scontro, se il nodo lo dice: Regia.gd
 var regia: RegiaCombattimento
+var bond_indicato := false   # BOND ha gia' pulsato una volta in questo scontro
 
 var portatore_fuga_bloccata: Dictionary = {}
 var avviso_fuga_mostrato := false
@@ -976,9 +977,7 @@ func aggiorna_pronto_giocatore() -> void:
 	# puo_agire chiede in_corso - e senza questo il pannello della fine, quello
 	# con "Continua", resterebbe scolorito come se ci fosse ancora da aspettare
 	menu.mostra_ricarica(in_corso and not pronto)
-	var bond := in_corso and not bersagli_mediabili().is_empty()
-	if plancia != null and plancia.tasto_bond.disabled == bond:
-		plancia.accendi(plancia.tasto_bond, bond)   # si riscrive solo quando cambia
+	aggiorna_bond()
 	if pronto != menu_acceso:
 		if pronto and comincia_il_tuo_turno(tu):
 			return   # il passo si e' preso il turno da solo: niente menu
@@ -989,6 +988,23 @@ func aggiorna_pronto_giocatore() -> void:
 	# racconta la coda si svuota da sola, e il quadrante deve tornare al menu
 	# nel momento in cui non c'e' piu' niente da leggere
 	decidi_faccia()
+
+func aggiorna_bond() -> void:
+	# BOND si accende quando qualcuno si puo' lasciare andare, e la prima volta
+	# PULSA: e' un tasto che non hai mai premuto, e Veronica ti aveva detto di
+	# lasciarlo stare. Aspetta che la scena abbia finito di parlare: sotto il
+	# testo il tasto non si vede, e l'alone con lui - la battuta che lo
+	# indicava mentre era coperto indicava il vuoto
+	if plancia == null:
+		return
+	var bond := in_corso and not bersagli_mediabili().is_empty()
+	if plancia.tasto_bond.disabled == bond:
+		plancia.accendi(plancia.tasto_bond, bond)   # si riscrive solo quando cambia
+		if not bond and plancia.evidenziato == plancia.tasto_bond:
+			plancia.spegni_evidenza()
+	if bond and not bond_indicato and not lezione_in_corso:
+		bond_indicato = true
+		plancia.evidenzia_pezzo("bond")
 
 func combattente_comandato() -> Dictionary:
 	for combattente in combattenti:
@@ -1030,6 +1046,8 @@ func agisci_ora(azione: Dictionary) -> void:
 	var tu := combattente_comandato()
 	if tu.is_empty():
 		return
+	if String(azione.get("tipo", "")) == "fuggi" and regia.ferma_la_fuga():
+		return   # la Guida ti ferma, e fermarti non ti costa il turno
 	if not puo_agire(tu):
 		intenzione.ricorda(azione)
 		return
@@ -3148,6 +3166,7 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 		# avuto l'avviso ha avuto anche il tempo di reagire
 		var mossa_pronta: Dictionary = nemico.mossa_in_carica
 		nemico.mossa_in_carica = {}
+		voce.accoda_effetto(func() -> void: aggiorna_scheda(nemico))   # l'annuncio lascia la scheda
 		if mossa_eseguibile(nemico, mossa_pronta):
 			esegui_mossa(nemico, mossa_pronta)
 		else:
@@ -3211,6 +3230,8 @@ func preannuncia(nemico: Dictionary) -> void:
 	if not prossima.is_empty():
 		nemico.mossa_in_carica = prossima
 		scrivi_forte("[i]%s[/i]" % String(prossima.get("testo_annuncio", prossima.get("testo", ""))))
+		# e sulla sua scheda, quando lo leggi: vedi Campo.annuncio_di
+		voce.accoda_effetto(func() -> void: aggiorna_scheda(nemico))
 
 func lancia_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	# una mossa telegrafata non parte adesso: si annuncia e arriva al prossimo
@@ -3220,6 +3241,7 @@ func lancia_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	if mossa.get("telegrafata", false):
 		nemico.mossa_in_carica = mossa
 		scrivi_forte(String(mossa.get("testo_annuncio", "Qualcosa si sta caricando...")))
+		voce.accoda_effetto(func() -> void: aggiorna_scheda(nemico))   # resta sulla scheda
 		return
 	esegui_mossa(nemico, mossa)
 

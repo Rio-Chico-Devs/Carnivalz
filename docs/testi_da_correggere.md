@@ -13120,7 +13120,7 @@ carte collezionabili.
 > →
 
 **`CRE.tartaruga_innocente.apertura`** · appena comincia lo scontro
-> Ritira la testa nel guscio prima ancora che tu faccia un passo. Non attacca. Aspetta.
+> Ritira la testa nel guscio prima ancora che tu faccia un passo.
 >
 > →
 

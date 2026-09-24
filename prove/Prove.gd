@@ -156,6 +156,8 @@ func _ready() -> void:
 	prova_il_bond_con_la_tartaruga()
 	await prova_bond_si_preme()
 	prova_la_caverna_si_apre_guardando()
+	await prova_la_guida_ferma_il_mondo_mentre_parla()
+	await prova_osservando_la_scena_si_trova_la_caverna()
 	prova_nome_del_data_pad()
 	await prova_velo_di_pericolo()
 	prova_le_liste_del_menu()
@@ -10154,7 +10156,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4765, "perche":
+	"Combattimento.gd": {"misura": 4787, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -10191,7 +10193,10 @@ const FILE_GRANDI := {
 		"29 per le orde che annunciano la mossa (scegli_mossa staccata da turno_nemico_normale, che " +
 		"in cambio e' uscita dall'elenco delle ingarbugliate, e preannuncia); 33 per le due abilita' " +
 		"nuove (onda, potenziati); il resto sono gli agganci della regia (Regia.gd, un file suo) e il " +
-		"tasto BOND, che era disegnato e non era collegato a niente"},
+		"tasto BOND, che era disegnato e non era collegato a niente. " +
+		"POI 22 NEL GIRO DI REVISIONE: aggiorna_bond (BOND pulsa a scena finita, non sotto il testo), " +
+		"l'annuncio che resta sulla scheda (tre righe, una per ogni momento in cui cambia) e la fuga " +
+		"negata che non costa il turno"},
 	"GameState.gd": {"misura": 2537, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. E' il prossimo da guardare, e a differenza del " +
@@ -13422,13 +13427,16 @@ func prova_l_orda_dice_cosa_sta_per_fare() -> void:
 		var orda: Dictionary = sc.vivi(false)[0]
 		ricordo_scontro["scelte"] += 1
 		ricordo_scontro["componenti"] = maxi(int(ricordo_scontro["componenti"]), int(orda.componenti_iniziali))
-		if Dictionary(orda.get("mossa_in_carica", {})).is_empty():
+		var prossima: Dictionary = orda.get("mossa_in_carica", {})
+		# e mentre scegli, l'annuncio sta scritto sulla sua scheda: nel box e'
+		# gia' passato, ed e' adesso che serve
+		if prossima.is_empty() or not String(prossima.get("testo_annuncio", "")) in sc.campo.dettagli_di(orda):
 			ricordo_scontro["senza_annuncio"] += 1
 		return {"tipo": "attacca", "bersaglio": orda}
 	var scontro := scontro_muto_contro(["rana_folle"], {}, guarda_annuncio)
 	esigi(int(ricordo_scontro["componenti"]) == 5, "l'orda di rane non e' da cinque: %d" % int(ricordo_scontro["componenti"]))
 	esigi(int(ricordo_scontro["scelte"]) > 3 and int(ricordo_scontro["senza_annuncio"]) == 0,
-			"%d volte su %d hai dovuto scegliere senza sapere cosa stava per fare l'orda"
+			"%d volte su %d hai dovuto scegliere senza sapere cosa stava per fare l'orda, o senza leggerlo sulla sua scheda"
 			% [int(ricordo_scontro["senza_annuncio"]), int(ricordo_scontro["scelte"])])
 	var annuncio := nello_storico("gracchiare ferocemente")
 	var assalto := nello_storico("ti saltano addosso da ogni parte")
@@ -13523,6 +13531,16 @@ func prova_nelle_pianure_non_si_scappa() -> void:
 	var scontro := scontro_muto_contro(["goblin_tipico"], {}, sempre_fuga, 12)
 	esigi(not bool(scontro.giocatore_e_fuggito), "nelle Pianure si scappa da un goblin")
 	esigi(nello_storico("non vorrai mica scappare") >= 0, "la Guida non dice niente mentre ti ferma")
+	# E FERMARTI NON TI COSTA IL TURNO: premi FUGA, la Guida parla, e la tua
+	# ricarica resta dov'era
+	scontro.in_corso = true
+	scontro.strategia = Callable()   # adesso lo comandi tu: senza, "chi comandi" e' nessuno
+	var tu: Dictionary = scontro.combattente_comandato()
+	esigi(not tu.is_empty(), "nello scontro della prova non comandi nessuno: la prova non misurerebbe niente")
+	tu.ricarica = 0.0
+	scontro.agisci_ora({"tipo": "fuggi"})
+	esigi(float(tu.ricarica) == 0.0 and bool(scontro.in_corso),
+			"premendo FUGA nelle Pianure hai perso il turno (ricarica %.2f), o sei scappato" % float(tu.ricarica))
 	scontro.free()
 	GameState.nemici_combattimento = ["manifestazione_di_un_sogno"]
 	var apparizione: Node = load("res://scenes/Combattimento.tscn").instantiate()
@@ -13580,13 +13598,22 @@ func prova_bond_si_preme() -> void:
 	var bond: Button = scontro.plancia.tasto_bond
 	scontro.aggiorna_pronto_giocatore()
 	esigi(bond.disabled, "BOND e' acceso prima che ci sia qualcuno con cui legare")
+	var tartaruga_ora: Dictionary = scontro.combattenti[1]
+	tartaruga_ora.vuole_mediare = false   # la sera storta: la scena decide lo stesso
+	scontro.lezione_in_corso = true       # la Guida sta ancora parlando
 	scontro.regia.apri_il_bond()
 	scontro.aggiorna_pronto_giocatore()
-	esigi(not bond.disabled, "la tartaruga si puo' lasciare andare e BOND resta spento")
+	esigi(not bond.disabled, "la scena apre il BOND ma il tiro della sera lo tiene spento")
+	esigi(scontro.plancia.evidenziato != bond, "BOND pulsa mentre sta sotto il testo della Guida, dove non si vede")
+	scontro.lezione_in_corso = false
+	scontro.aggiorna_pronto_giocatore()
+	esigi(scontro.plancia.evidenziato == bond, "finita la scena BOND si accende ma non pulsa: non ti dice di premerlo")
 	scontro.combattente_comandato().ricarica = 0.0
 	bond.pressed.emit()
 	var tartaruga: Dictionary = scontro.combattenti[1]
 	esigi(bool(tartaruga.get("risparmiato", false)), "premendo BOND la tartaruga non viene lasciata andare")
+	scontro.aggiorna_pronto_giocatore()
+	esigi(scontro.plancia.evidenziato != bond, "a scontro finito BOND pulsa ancora")
 	scontro.queue_free()
 	await get_tree().process_frame
 
@@ -13632,3 +13659,78 @@ func corridoio_aperto(a: String, b: String) -> bool:
 		if a in coppia and b in coppia:
 			return true
 	return false
+
+func prova_la_guida_ferma_il_mondo_mentre_parla() -> void:
+	# NELLA PARTITA VERA la Guida parla come Veronica: il mondo sta fermo e si
+	# va avanti col click. Le prove dello scontro girano mute, dove il tempo non
+	# si ferma mai; questa guarda lo scontro vero, quello con lo schermo
+	titolo("mentre la Guida parla, nello scontro vero il mondo e' fermo")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	GameState.nuova_partita()
+	GameState.prepara_combattimento(["goblin_tipico"], "", "", "", "",
+			nodi["banchetto"]["combattimento_automatico"].get("regia", {}))
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	await get_tree().process_frame
+	esigi(bool(scontro.lezione_in_corso) and not scontro.il_tempo_scorre(),
+			"la Guida parla e intanto il goblin puo' gia' muoversi")
+	esigi(bool(scontro.voce.attende_il_click), "le battute della Guida scorrono da sole invece di aspettare il click")
+	# si legge tutto, e il mondo riparte da solo
+	var giri := 0
+	while giri < 400 and (not scontro.voce.coda.is_empty() or scontro.voce.sta_facendo_leggere or not scontro.scontro_avviato):
+		scontro.voce.salta_messaggio = true
+		await get_tree().process_frame
+		giri += 1
+	await get_tree().process_frame
+	esigi(not bool(scontro.lezione_in_corso) and scontro.il_tempo_scorre(),
+			"finite le battute della Guida il mondo resta fermo")
+	scontro.queue_free()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
+func prova_osservando_la_scena_si_trova_la_caverna() -> void:
+	# LA STESSA COSA, PREMUTA DAVVERO: dopo lo slime, all'albero, la caverna
+	# non c'e'; si preme «Osserva la scena», e la scelta per entrarci compare
+	titolo("premendo «Osserva la scena» all'albero compare la caverna")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.nodo_corrente = "albero_vinto"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	var giri := 0
+	while giri < 60 and not schermata.coda_messaggi.is_empty():
+		schermata.avanza_messaggio()
+		giri += 1
+	schermata._apri_scelte()
+	await get_tree().process_frame
+	esigi(bottone_che_dice(schermata.contenitore_scelte, "Prosegui") != null,
+			"all'albero, dopo lo slime, non si puo' proseguire")
+	esigi(bottone_che_dice(schermata.contenitore_scelte, "Entra nella piccola caverna") == null,
+			"la caverna si vede senza aver guardato: non e' piu' un'area segreta")
+	schermata._su_osserva()
+	giri = 0
+	while giri < 20 and not schermata.coda_messaggi.is_empty():
+		schermata.avanza_messaggio()
+		giri += 1
+	schermata.avanza_messaggio()
+	schermata._apri_scelte()
+	await get_tree().process_frame
+	esigi(GameState.ha_flag("tut_caverna_vista"), "osservata la scena, il gioco non sa che hai visto la caverna")
+	esigi(bottone_che_dice(schermata.contenitore_scelte, "Entra nella piccola caverna") != null,
+			"osservata la scena, la scelta per entrare nella caverna non compare")
+	schermata.queue_free()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
+func bottone_che_dice(radice: Node, pezzo: String) -> Button:
+	# come cerca_bottone_con_testo, ma la scelta col fuoco porta un pallino
+	# davanti («•  Prosegui»): qui conta cosa dice, non come e' vestita
+	for figlio in radice.get_children():
+		if figlio is Button and pezzo in (figlio as Button).text:
+			return figlio
+		var dentro := bottone_che_dice(figlio, pezzo)
+		if dentro != null:
+			return dentro
+	return null

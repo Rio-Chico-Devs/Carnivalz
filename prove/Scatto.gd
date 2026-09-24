@@ -229,7 +229,22 @@ func prepara(quale: String) -> void:
 			add_child(scontro_p)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 			var giri := 0
-			if cercato == "bond":
+			if id_nodo == "tartaruga" and cercato != "bond":
+				# la scena della tartaruga parte alla tua seconda azione
+				for azione in 2:
+					scontro_p.regia.dopo_di_te(scontro_p.combattente_comandato())
+			if cercato == "skill":
+				# la lista SKILL di chi comincia, col mondo fermo: e' quella che
+				# deve reggere Onda psichica e Concentrazione accanto al resto
+				while giri < 600 and (not scontro_p.voce.coda.is_empty() or scontro_p.voce.sta_facendo_leggere):
+					scontro_p.voce.salta_messaggio = true
+					await attendi(4)
+					giri += 1
+				scontro_p.set_process(false)
+				scontro_p.attaccante_corrente = scontro_p.combattente_comandato()
+				scontro_p.menu.abilita()
+				await attendi(10)
+			elif cercato == "bond":
 				scontro_p.regia.apri_il_bond()
 				while giri < 600 and (not scontro_p.voce.coda.is_empty() or scontro_p.voce.sta_facendo_leggere):
 					scontro_p.voce.salta_messaggio = true
