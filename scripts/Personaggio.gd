@@ -25,15 +25,14 @@ extends Control
 #      chiuso sta nel carosello col lucchetto e il livello a cui si apre.
 #
 # Vive dentro la Pausa (ESC) come un foglio intero sopra tutto: cosi' si apre
-# da ovunque - mappa, stanza, Vuoto - senza cambiare scena.
+# da ovunque - mappa, stanza, Vuoto - senza cambiare scena. I conti (quanto
+# vale, cosa cambierebbe) stanno in Corredo.gd; qui si disegna e si risponde.
+#
+# LA TASTIERA sta tutta sul carosello: destra e sinistra girano gli slot, su e
+# giu' cambiano compagno, INVIO apre lo slot al centro, ESC chiude la scelta e
+# poi la scheda. Col mouse: clic sulle carte, rotella sulla fila per vedere
+# gli altri, clic sulle caselle laterali per girare.
 
-const STATISTICHE := [
-	["hp", "Punti vita"],
-	["attacco", "Attacco"],
-	["difesa", "Difesa"],
-	["velocita", "Velocità"],
-	["aura", "Aura"],
-]
 const CARTE := Rect2(1002, 119, 249, 84)
 const PASSO_CARTE := 107.0
 const QUANTE_CARTE := 3
@@ -70,11 +69,14 @@ var dove_sei: Label
 var solo_un_tratto: Label
 var quante_carte: Label
 var titolo_dettaglio: Label
-var testo_dettaglio: RichTextLabel
+var testo_dettaglio: TestoCheScorre
 var scorri: ScrollContainer
 var elenco: VBoxContainer
 var togli: TastoObliquo
 var chiudi_scelta: TastoObliquo
+var su_carte: TastoObliquo
+var giu_carte: TastoObliquo
+var giro: Tween
 
 
 func apri(indietro: Callable, diario: Callable) -> void:
@@ -84,15 +86,18 @@ func apri(indietro: Callable, diario: Callable) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP     # il foglio copre: sotto non si clicca niente
 	costruisci_tavola()
 	id_scelto = GameState.party[0] if not GameState.party.is_empty() else GameState.id_protagonista
+	inizio_carte = 0
 	ridisegna()
 	entra()
-	if not caselle.is_empty() and caselle[1].visible:
-		Tavola.fuoco.call_deferred(caselle[1])
+	Tavola.fuoco.call_deferred(caselle[1] as Control if caselle[1].visible else carte[0] as Control)
 
 
 func _unhandled_input(evento: InputEvent) -> void:
 	# ESC mentre scegli cosa mettere chiude la scelta, non la scheda: prima si
-	# torna indietro di un passo, poi di una schermata
+	# torna indietro di un passo, poi di una schermata. Una scheda che se ne
+	# sta andando (Movimento.congeda la fa sorda) non risponde piu'
+	if mouse_filter == Control.MOUSE_FILTER_IGNORE:
+		return
 	if slot_aperto != "" and evento.is_action_pressed("ui_cancel"):
 		chiudi_la_scelta()
 		get_viewport().set_input_as_handled()
@@ -171,7 +176,7 @@ func costruisci_identita() -> void:
 	scritta(sinistra, Rect2(60, 243, 240, 26), 20, Stile.colore("testo"), Caratteri.titolo()).text = "STATISTICHE"
 	statistiche = StatisticheScheda.new()
 	sinistra.add_child(statistiche)
-	Tavola.metti(statistiche, Rect2(45, 272, 440, StatisticheScheda.MARGINE * 2.0 + StatisticheScheda.PASSO * STATISTICHE.size()))
+	Tavola.metti(statistiche, Rect2(45, 272, 440, StatisticheScheda.MARGINE * 2.0 + StatisticheScheda.PASSO * Corredo.STATISTICHE.size()))
 
 
 func costruisci_carosello() -> void:
@@ -181,6 +186,7 @@ func costruisci_carosello() -> void:
 		Tavola.metti(casella, CASELLE[i])
 		casella.presa.connect(_su_casella)
 		casella.gira.connect(gira)
+		casella.compagno.connect(cambia_compagno_di)
 		caselle.append(casella)
 	dove_sei = scritta(carosello, Rect2(150, 690, 242, 20), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER)
 	solo_un_tratto = scritta(carosello, Rect2(44, 540, 450, 60), 16, Stile.colore("testo_smorzato"), Caratteri.tondo(700))
@@ -195,22 +201,32 @@ func costruisci_destra() -> void:
 		destra.add_child(carta)
 		Tavola.metti(carta, Rect2(CARTE.position + Vector2(0, PASSO_CARTE * i), CARTE.size))
 		carta.presa.connect(func(c: CartaSquadra) -> void: cambia_compagno(c.id_classe))
+		# come sullo scaffale del negozio: dove sta il fuoco, sta la scelta
+		carta.focus_entered.connect(func() -> void: cambia_compagno(carta.id_classe))
+		carta.sposta.connect(cambia_compagno_di)
+		carta.focus_neighbor_left = carta.get_path_to(caselle[1])
 		carte.append(carta)
-	quante_carte = scritta(destra, Rect2(1002, 420, 249, 16), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_RIGHT)
+	# QUANDO LA SQUADRA NON CI STA IN TRE CARTE: due frecce e il conto sopra
+	# la fila, e la fila segue chi scegli. Senza, il quarto compagno non si
+	# raggiungeva ne' col mouse ne' con la tastiera
+	su_carte = TastoObliquo.nuovo("SU", "chiaro", 12)
+	giu_carte = TastoObliquo.nuovo("GIÙ", "chiaro", 12)
+	su_carte.freccia = Vector2.UP
+	giu_carte.freccia = Vector2.DOWN
+	su_carte.scelto.connect(cambia_compagno_di.bind(-1))
+	giu_carte.scelto.connect(cambia_compagno_di.bind(1))
+	for k in 2:
+		var freccia: TastoObliquo = [su_carte, giu_carte][k]
+		destra.add_child(freccia)
+		freccia.position = Vector2(CARTE.position.x + 40.0 * k, 80.0)
+	quante_carte = scritta(destra, Rect2(1100, 86, 151, 22), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_RIGHT)
 	titolo_dettaglio = scritta(destra, Rect2(DETTAGLIO.position, Vector2(DETTAGLIO.size.x, 30)), 22, Stile.colore("testo"), Caratteri.titolo())
-	testo_dettaglio = RichTextLabel.new()
-	testo_dettaglio.bbcode_enabled = true
-	testo_dettaglio.scroll_active = false
-	testo_dettaglio.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	testo_dettaglio.add_theme_font_override("normal_font", Caratteri.tondo(600))
-	testo_dettaglio.add_theme_font_override("bold_font", Caratteri.tondo(900))
-	testo_dettaglio.add_theme_font_size_override("normal_font_size", 14)
-	testo_dettaglio.add_theme_font_size_override("bold_font_size", 14)
-	testo_dettaglio.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
+	testo_dettaglio = TestoCheScorre.nuovo(14, Stile.colore("testo_smorzato"), Stile.colore("sfondo"))
 	destra.add_child(testo_dettaglio)
 	Tavola.metti(testo_dettaglio, Rect2(DETTAGLIO.position + Vector2(0, 34), DETTAGLIO.size - Vector2(0, 34)))
 	scorri = ScrollContainer.new()
 	scorri.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scorri.follow_focus = true    # la freccia porta sotto il bordo: l'elenco la segue
 	destra.add_child(scorri)
 	Tavola.metti(scorri, Rect2(DETTAGLIO.position + Vector2(0, 34), Vector2(DETTAGLIO.size.x, 172)))
 	elenco = VBoxContainer.new()
@@ -232,6 +248,7 @@ func costruisci_destra() -> void:
 func ridisegna() -> void:
 	var slot := slot_elenco()
 	allinea_al_centro(slot)
+	mostra_nella_fila(id_scelto)
 	disegna_carte()
 	disegna_identita()
 	disegna_statistiche()
@@ -281,26 +298,38 @@ func allinea_al_centro(slot: Array[Dictionary]) -> void:
 
 func disegna_carte() -> void:
 	var squadra := GameState.party
-	var dove := squadra.find(id_scelto)
-	if dove >= 0:
-		inizio_carte = clampi(inizio_carte, maxi(dove - QUANTE_CARTE + 1, 0), dove)
+	inizio_carte = clampi(inizio_carte, 0, maxi(squadra.size() - QUANTE_CARTE, 0))
 	for i in QUANTE_CARTE:
 		var indice := inizio_carte + i
 		var id := String(squadra[indice]) if indice < squadra.size() else ""
 		carte[i].carica(id, id == id_scelto)
+	var troppi := squadra.size() > QUANTE_CARTE
 	quante_carte.text = "%d–%d DI %d" % [inizio_carte + 1, mini(inizio_carte + QUANTE_CARTE, squadra.size()),
-			squadra.size()] if squadra.size() > QUANTE_CARTE else ""
+			squadra.size()] if troppi else ""
+	for k in 2:
+		var freccia: TastoObliquo = [su_carte, giu_carte][k]
+		freccia.visible = troppi
+		var dove := squadra.find(id_scelto)
+		freccia.inerte = dove <= 0 if k == 0 else dove >= squadra.size() - 1
+		freccia.queue_redraw()
+
+
+func mostra_nella_fila(id: String) -> void:
+	# la finestra delle carte si sposta quel tanto che basta a far vedere id
+	var dove := GameState.party.find(id)
+	if dove >= 0:
+		inizio_carte = clampi(inizio_carte, maxi(dove - QUANTE_CARTE + 1, 0), dove)
 
 
 func disegna_identita() -> void:
 	figura.mostra(id_scelto)
 	emblema.id_classe = id_scelto
 	emblema.queue_redraw()
-	nome.text = nome_di(id_scelto).to_upper()
+	nome.text = Corredo.nome_di(id_scelto).to_upper()
 	Tavola.stringi(nome, 44, 26)
 	livello.text = "%d" % GameState.livello_di(id_scelto)
 	var dati_classe: Dictionary = GameState.classi.get(id_scelto, {})
-	classe.text = String(dati_classe.get("classe", dati_classe.get("nome", ""))).to_upper()
+	classe.text = Corredo.classe_di(id_scelto).to_upper() if Corredo.classe_di(id_scelto) != "" else "—"
 	var id_psiche := String(GameState.personaggi.get(id_scelto, dati_classe).get("psiche", dati_classe.get("psiche", "")))
 	psiche.text = "PSICHE · %s" % String(GameState.psichi.get(id_psiche, {}).get("nome", id_psiche)).to_upper() if id_psiche != "" else ""
 	legame.text = "LEGAME DELLA SQUADRA %d" % GameState.legame
@@ -309,12 +338,7 @@ func disegna_identita() -> void:
 
 
 func disegna_statistiche() -> void:
-	var righe: Array[Dictionary] = []
-	for voce in STATISTICHE:
-		var chiave := String(voce[0])
-		righe.append({"chiave": chiave, "nome": String(voce[1]),
-				"base": statistica_base(id_scelto, chiave), "bonus": bonus_di(id_scelto, chiave)})
-	statistiche.imposta(righe)
+	statistiche.imposta(Corredo.righe(id_scelto))
 
 
 func disegna_carosello(slot: Array[Dictionary]) -> void:
@@ -346,8 +370,9 @@ func disegna_dettaglio(slot: Array[Dictionary]) -> void:
 		return
 	var d: Dictionary = slot[slot_centro] if not slot.is_empty() else {}
 	var id_oggetto := String(d.get("oggetto", ""))
-	titolo_dettaglio.text = nome_oggetto(id_oggetto).to_upper() if id_oggetto != "" else String(d.get("etichetta", "PROTEZIONI"))
-	testo_dettaglio.text = testo_del_dettaglio(d)
+	titolo_dettaglio.text = Merce.nome_di(id_oggetto).to_upper() if id_oggetto != "" \
+			else String(d.get("etichetta", "DI PASSAGGIO"))
+	testo_dettaglio.scrivi(testo_del_dettaglio(d))
 
 
 func testo_del_dettaglio(d: Dictionary) -> String:
@@ -355,7 +380,7 @@ func testo_del_dettaglio(d: Dictionary) -> String:
 	var bianco := Stile.colore("testo").to_html(false)
 	var id_oggetto := String(d.get("oggetto", ""))
 	if d.is_empty():
-		righe.append("Le cose si affidano a chi resta.")
+		righe.append("Quando resterà con te, qui vedrai cosa porta addosso.")
 	elif not bool(d.get("aperto", true)):
 		righe.append("[b][color=#%s]Si apre al livello %d.[/color][/b]" % [bianco, int(d.get("livello", 0))])
 	elif id_oggetto == "":
@@ -367,7 +392,7 @@ func testo_del_dettaglio(d: Dictionary) -> String:
 		# uno slot aperto da un talento lo dice: un premio che non sai di aver
 		# vinto non e' un premio
 		righe.append("Aperto grazie al tuo talento: %s" % String(d["talento"]))
-	for protezione in elenco_protezioni():
+	for protezione in Corredo.elenco_protezioni(id_scelto):
 		righe.append("[color=#%s]· %s[/color]" % [Stile.colore("accento").to_html(false), protezione])
 	return "\n".join(righe)
 
@@ -377,22 +402,57 @@ func riempi_scelta() -> void:
 	# che porti adesso in quello slot, non il suo valore assoluto
 	var attuale := GameState.equipaggiato_in(id_scelto, slot_aperto, indice_aperto)
 	togli.visible = attuale != ""
-	var candidati := oggetti_per_slot(slot_aperto)
+	var candidati := Corredo.oggetti_per_slot(slot_aperto)
 	if candidati.is_empty():
 		var niente := Tavola.scritta("Non hai niente da mettere qui.", 14, Stile.colore("testo_smorzato"), Caratteri.tondo(700))
 		elenco.add_child(niente)
 	var prima: VoceCandidato = null
 	for id_oggetto in candidati:
-		var scarti := scarti_di(id_oggetto, attuale)
-		var voce := VoceCandidato.nuova(id_oggetto, nome_oggetto(id_oggetto), nota_di(id_oggetto),
-				differenza_testo(id_oggetto, attuale), verso_di(scarti))
+		var scarti := Corredo.scarti_di(id_oggetto, attuale)
+		var voce := VoceCandidato.nuova(id_oggetto, Merce.nome_di(id_oggetto), nota_di(id_oggetto),
+				Corredo.differenza_testo(id_oggetto, attuale), Corredo.verso_di(scarti))
 		voce.sopra.connect(func(_v: VoceCandidato) -> void: statistiche.mostra_anteprima(scarti))
+		voce.lascia.connect(func(_v: VoceCandidato) -> void: anteprima_di_chi_resta())
 		voce.presa.connect(func(v: VoceCandidato) -> void: metti(v.id_oggetto, attuale))
 		elenco.add_child(voce)
 		if prima == null:
 			prima = voce
+	tieni_il_fuoco_nella_scelta()
 	if prima != null:
 		Tavola.fuoco.call_deferred(prima)
+
+
+func tieni_il_fuoco_nella_scelta() -> void:
+	# MENTRE SI SCEGLIE, LE FRECCE RESTANO NELLA SCELTA: su dal primo candidato
+	# finiva sulla carta di sopra - che cambiava compagno e chiudeva tutto. Si
+	# esce con CHIUDI, con ESC o col mouse
+	var voci: Array[Control] = []
+	for figlio in elenco.get_children():
+		if figlio is VoceCandidato:
+			voci.append(figlio)
+	var tasti: Array[Control] = [chiudi_scelta]
+	if togli.visible:
+		tasti.push_front(togli)
+	for i in voci.size():
+		var voce := voci[i]
+		voce.focus_neighbor_left = voce.get_path_to(voce)
+		voce.focus_neighbor_right = voce.get_path_to(voce)
+		voce.focus_neighbor_top = voce.get_path_to(voci[i - 1] if i > 0 else voce)
+		voce.focus_neighbor_bottom = voce.get_path_to(voci[i + 1] if i < voci.size() - 1 else tasti[0])
+	for tasto in tasti:
+		tasto.focus_neighbor_top = tasto.get_path_to(voci[-1] if not voci.is_empty() else tasto)
+		tasto.focus_neighbor_bottom = tasto.get_path_to(tasto)
+	tasti[0].focus_neighbor_left = tasti[0].get_path_to(tasti[0])
+	tasti[-1].focus_neighbor_right = tasti[-1].get_path_to(tasti[-1])
+
+
+func anteprima_di_chi_resta() -> void:
+	# il mouse ha lasciato un candidato: l'anteprima torna a quello che ha il
+	# fuoco, o sparisce. Restava quella dell'ultimo sfiorato, e le statistiche
+	# dicevano "→ 24" di un oggetto che non stavi piu' guardando
+	var chi := get_viewport().gui_get_focus_owner() as VoceCandidato
+	statistiche.mostra_anteprima(Corredo.scarti_di(chi.id_oggetto,
+			GameState.equipaggiato_in(id_scelto, slot_aperto, indice_aperto)) if chi != null else {})
 
 
 func nota_di(id_oggetto: String) -> String:
@@ -401,7 +461,7 @@ func nota_di(id_oggetto: String) -> String:
 		# le armi non escono dallo zaino quando le impugni: restano li', segnate
 		return "in uso"
 	if portatore != "":
-		return "addosso a %s" % nome_di(portatore)
+		return "addosso a %s" % Corredo.nome_di(portatore)
 	return ""
 
 
@@ -414,6 +474,27 @@ func cambia_compagno(id: String) -> void:
 	slot_aperto = ""
 	slot_centro = 0
 	ridisegna()
+
+
+func cambia_compagno_di(verso: int) -> void:
+	# IL COMPAGNO PRIMA O DOPO NELLA FILA: su e giu' dal carosello o da una
+	# carta, la rotella sulla fila, le due frecce. In cima e in fondo dice di
+	# no, come lo scaffale del negozio.
+	#
+	# Il fuoco resta dov'era, se c'e' ancora. Due casi in cui non c'e': era su
+	# una carta (la carta giusta adesso e' un'altra), o era sul carosello e il
+	# compagno nuovo e' di passaggio - il carosello sparisce, e senza un fuoco
+	# la tastiera non avrebbe piu' da dove tornare indietro
+	var dove := GameState.party.find(id_scelto) + verso
+	if dove < 0 or dove >= GameState.party.size():
+		Movimento.suona("rifiuto")
+		return
+	var prima := get_viewport().gui_get_focus_owner()
+	Movimento.suona("sfioro")
+	cambia_compagno(String(GameState.party[dove]))
+	var adesso := get_viewport().gui_get_focus_owner()
+	if prima is CartaSquadra or adesso == null or not adesso.is_visible_in_tree():
+		carte[dove - inizio_carte].grab_focus()
 
 
 func _su_casella(casella: SlotScheda) -> void:
@@ -435,21 +516,34 @@ func _su_casella(casella: SlotScheda) -> void:
 func gira(verso: int) -> void:
 	var slot := slot_elenco()
 	if slot.size() < 2:
+		Movimento.suona("rifiuto")
 		return
 	slot_centro = posmod(slot_centro + verso, slot.size())
 	slot_aperto = ""
+	Movimento.suona("sfioro")
 	ridisegna()
 	caselle[1].grab_focus()
-	if not Movimento.ridotto():
-		carosello.position.x = 36.0 * float(verso)
-		Movimento.verso(carosello.create_tween(), carosello, "position:x", 0.0, "entrata", Movimento.durata("voce"))
+	if Movimento.ridotto():
+		return
+	# una scivolata alla volta: tenendo giu' la freccia ogni giro ferma quello
+	# prima (e l'entrata, se la scheda si sta ancora aprendo)
+	Tavola.ferma_entrata(carosello)
+	if giro != null and giro.is_valid():
+		giro.kill()
+	carosello.position.x = 36.0 * float(verso)
+	giro = carosello.create_tween()
+	Movimento.verso(giro, carosello, "position:x", 0.0, "entrata", Movimento.durata("voce"))
 
 
 func metti(id_oggetto: String, attuale: String) -> void:
 	if attuale != "":
 		GameState.togli_oggetto_equipaggiato(attuale)
-	GameState.equipaggia(id_scelto, slot_aperto, id_oggetto)
-	chiudi_la_scelta()
+	# AL POSTO DI QUELLO CHE C'ERA, non in fondo alla fila: gli accessori sono
+	# una fila senza buchi, e chi cambia il primo lo vuole ancora primo
+	if not GameState.equipaggia(id_scelto, slot_aperto, id_oggetto, indice_aperto) and attuale != "":
+		# non e' entrato: quello di prima torna dov'era, invece di sparire
+		GameState.equipaggia(id_scelto, slot_aperto, attuale, indice_aperto)
+	chiudi_la_scelta(id_oggetto)
 
 
 func togli_attuale() -> void:
@@ -459,8 +553,15 @@ func togli_attuale() -> void:
 	chiudi_la_scelta()
 
 
-func chiudi_la_scelta() -> void:
+func chiudi_la_scelta(appena_messo := "") -> void:
 	slot_aperto = ""
+	# il carosello va dove l'oggetto e' finito davvero: aperto il terzo
+	# accessorio con uno solo addosso, il nuovo diventa il secondo, e restare
+	# sul terzo vuoto direbbe che non e' successo niente
+	var slot := slot_elenco()
+	for i in slot.size():
+		if appena_messo != "" and String(slot[i]["oggetto"]) == appena_messo:
+			slot_centro = i
 	ridisegna()
 	caselle[1].grab_focus()
 
@@ -470,115 +571,6 @@ func entra() -> void:
 	Tavola.entra(sinistra, 0.03, Vector2(-24, 0))
 	Tavola.entra(destra, 0.06, Vector2(24, 0))
 	Tavola.entra(carosello, 0.1, Vector2(0, 24))
-
-
-# --- conti ------------------------------------------------------------------------
-
-func statistica_base(id_classe: String, chiave: String) -> int:
-	# il protagonista cresce con quello che fa (crescita.json); i compagni hanno
-	# le loro statistiche scritte nei dati
-	if chiave == "aura":
-		return GameState.aura_massima(id_classe) - GameState.bonus_equipaggiamento(id_classe, "aura_max")
-	if id_classe == GameState.id_protagonista:
-		return GameState.stat_di(chiave)
-	var dati: Dictionary = GameState.personaggi.get(id_classe, {})
-	return int(dati.get(chiave, 0))
-
-
-func bonus_di(id_classe: String, chiave: String) -> int:
-	return GameState.bonus_equipaggiamento(id_classe, chiave_interna(chiave))
-
-
-static func chiave_interna(chiave: String) -> String:
-	if chiave == "hp":
-		return "hp_max"
-	return "aura_max" if chiave == "aura" else chiave
-
-
-func scarti_di(id_candidato: String, id_attuale: String) -> Dictionary:
-	# Il conto e' PURO: si sottrae quello che dava il vecchio e si somma quello
-	# che da' il nuovo, senza mettere niente addosso a nessuno. La prima
-	# versione equipaggiava davvero e poi rimetteva a posto - e non lo rimetteva
-	# a posto: bastava SCORRERE l'elenco per spogliare un compagno. Le prove
-	# l'hanno preso al primo giro (prova_scheda_personaggio).
-	var scarti := {}
-	for voce in STATISTICHE:
-		var chiave := String(voce[0])
-		var scarto := GameState.bonus_oggetto(id_candidato, chiave_interna(chiave)) \
-				- GameState.bonus_oggetto(id_attuale, chiave_interna(chiave))
-		if scarto != 0:
-			scarti[chiave] = scarto
-	return scarti
-
-
-static func verso_di(scarti: Dictionary) -> int:
-	var su := false
-	var giu := false
-	for scarto in scarti.values():
-		su = su or int(scarto) > 0
-		giu = giu or int(scarto) < 0
-	return 0 if su == giu else (1 if su else -1)
-
-
-func differenza_testo(id_candidato: String, id_attuale: String) -> String:
-	var scarti := scarti_di(id_candidato, id_attuale)
-	var pezzi: Array[String] = []
-	for voce in STATISTICHE:
-		if scarti.has(String(voce[0])):
-			pezzi.append("%s %+d" % [String(voce[1]).to_lower(), int(scarti[String(voce[0])])])
-	if pezzi.is_empty():
-		return "nessun cambiamento nelle statistiche"
-	return ", ".join(pezzi)
-
-
-func oggetti_per_slot(slot: String) -> Array[String]:
-	var risultato: Array[String] = []
-	var visti := {}
-	for id_oggetto in GameState.magazzino_per_slot(slot):
-		var chiave := String(id_oggetto)
-		if visti.has(chiave):
-			continue
-		visti[chiave] = true
-		var tipo := String(GameState.dati_oggetto(chiave).get("tipo", ""))
-		var va_bene := tipo == "consumabile" if slot == "ultima_risorsa" \
-				else (tipo == "accessorio" if slot == "accessori" else tipo == slot)
-		if va_bene:
-			risultato.append(chiave)
-	return risultato
-
-
-func elenco_protezioni() -> Array[String]:
-	# le protezioni non sono numeri e sparirebbero dalla tabella: si dicono a parole
-	var risultato: Array[String] = []
-	var slots := GameState.slot_di(id_scelto)
-	var addosso: Array[String] = []
-	for slot in ["arma", "stigma", "ultima_risorsa"]:
-		if String(slots.get(slot, "")) != "":
-			addosso.append(String(slots[slot]))
-	for id_oggetto in slots.get("accessori", []):
-		addosso.append(String(id_oggetto))
-	for id_oggetto in addosso:
-		var effetto: Dictionary = GameState.dati_oggetto(id_oggetto).get("effetto_equipaggiato", {})
-		match String(effetto.get("tipo", "")):
-			"scudo_primo_stato":
-				risultato.append("%s respinge il primo stato che subisci" % nome_oggetto(id_oggetto))
-			"resurrezione_dimezzata":
-				risultato.append("%s ti rimette in piedi una volta sola" % nome_oggetto(id_oggetto))
-	var maledizione := GameState.bonus_equipaggiamento(id_scelto, "resistenza_maledizione")
-	if maledizione > 0:
-		risultato.append("il conto della maledizione parte da %d rintocchi più in alto" % maledizione)
-	return risultato
-
-
-# --- utilità -----------------------------------------------------------------
-
-func nome_di(id_classe: String) -> String:
-	return String(GameState.personaggi.get(id_classe, {}).get("nome",
-			GameState.classi.get(id_classe, {}).get("nome", id_classe)))
-
-
-func nome_oggetto(id_oggetto: String) -> String:
-	return String(GameState.dati_oggetto(id_oggetto).get("nome", id_oggetto))
 
 
 # --- i pezzi disegnati ---------------------------------------------------------
@@ -614,9 +606,9 @@ class Emblema extends Control:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		var disegno := Disegni.texture("res://art/personaggi/%s/emblema.png" % id_classe)
+		var disegno := Corredo.disegno(id_classe, "emblema")
 		if disegno != null:
-			draw_texture_rect(disegno, Rect2(Vector2.ZERO, size), false)
+			Sagome.disegna_dentro(self, disegno, Rect2(Vector2.ZERO, size))
 			return
 		var centro := size * 0.5
 		Sagome.emblema(self, centro + Vector2(4, 4), size.y, Stile.colore("accento").darkened(0.5), Stile.colore("sfondo"))

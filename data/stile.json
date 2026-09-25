@@ -250,7 +250,12 @@
       "durata": 0.3
     },
     "scivolo": 16,
-    "parallasse": 16
+    "parallasse": 16,
+    "_nota_lettura": "I TEMPI DI UN TESTO CHE SCORRE DA SOLO (scripts/TestoCheScorre.gd: la descrizione del negozio, il dettaglio della scheda). Sono MIEI, da provare a occhio: 'riga' e' quanto ci vuole a leggere una riga di descrizione - una decina di parole, a circa quattro al secondo - e da li' vengono la velocita' e l'attesa. 'sosta' e' quanto resta fermo in fondo prima di tornare in cima. Queste non sono durate di un gesto (quelle stanno sotto il mezzo secondo): sono il tempo di chi legge.",
+    "lettura": {
+      "riga": 2.5,
+      "sosta": 3.0
+    }
   },
   "_nota_ritmo": "Le pause della macchina da scrivere sulla punteggiatura: il testo non scorre a velocita' costante, si ferma dove si fermerebbe una voce. In secondi, gia' divisi per la velocita' scelta dal giocatore.",
   "ritmo": {

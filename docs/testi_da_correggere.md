@@ -805,63 +805,198 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 <sub>`scripts/Negozio.gd`</sub>
 
-**`UI.Negozio.001`** · intestazione_tazo
-> Tazo: %%d   •   Sacca %d/%d
+**`UI.Negozio.001`** · costruisci_sinistra
+> TAZO IN TASCA
 >
 > →
 
-**`UI.Negozio.002`** · aggiungi_voce_vendita
-> Compra — %d Tazo
+**`UI.Negozio.002`** · testo_descrizione
+> Qui oggi non c'è niente da comprare.
 >
 > →
 
-**`UI.Negozio.003`** · aggiungi_voce_vendita
-> la sacca è piena
+**`UI.Negozio.003`** · testo_descrizione
+> [b][color=#%s]In cambio di: %s[/color][/b]
 >
 > →
 
-**`UI.Negozio.004`** · aggiungi_voce_vendita
-> ti mancano %d Tazo
+**`UI.Negozio.004`** · testo_posizione
+> %s   ·   %d DI %d
 >
 > →
 
-**`UI.Negozio.005`** · aggiungi_voce_vendita
-> te ne restano %d
+
+## 1.16 Negozio, cosa si dice di un oggetto e perche' non si puo' prendere
+
+<sub>`scripts/Merce.gd`</sub>
+
+**`UI.Merce.001`**
+> SI PUÒ FARE
 >
 > →
 
-**`UI.Negozio.006`** · quanti_ne_hai
+**`UI.Merce.002`**
+> IN SACCA ×%d
+>
+> →
+
+**`UI.Merce.003`**
 > ne hai già %d in sacca
 >
 > →
 
-**`UI.Negozio.007`** · quanti_ne_hai
+**`UI.Merce.004`**
 > ne hai già uno, nell'armadio
 >
 > →
 
-**`UI.Negozio.008`** · quanti_ne_hai
+**`UI.Merce.005`**
 > ne hai già uno, addosso a %s
 >
 > →
 
-**`UI.Negozio.009`** · aggiungi_voce_baratto
-> in cambio di:
+**`UI.Merce.006`**
+> toglie %s
 >
 > →
 
-**`UI.Negozio.010`** · aggiungi_voce_baratto
-> Baratta
+**`UI.Merce.007`**
+> toglie ogni male
 >
 > →
 
-**`UI.Negozio.011`** · aggiungi_voce_baratto
-> ti manca:
+**`UI.Merce.008`**
+> rigenera il %d%% della vita a battuta, per %d battute
+>
+> →
+
+**`UI.Merce.009`**
+> %s %+d
 >
 > →
 
 
-## 1.16 Pausa, storico e Diario
+## 1.17 Negozio, la vetrina cremisi
+
+<sub>`scripts/Vetrina.gd`</sub>
+
+**`UI.Vetrina.001`** · mostra
+> BARATTO
+>
+> →
+
+**`UI.Vetrina.002`** · mostra
+> IN CAMBIO DI
+>
+> →
+
+**`UI.Vetrina.003`** · mostra
+> TAZO
+>
+> →
+
+**`UI.Vetrina.004`** · mostra
+> BARATTA
+>
+> →
+
+**`UI.Vetrina.005`** · mostra
+> COMPRA
+>
+> →
+
+**`UI.Vetrina.006`** · riempi_conti
+> MATERIALI
+>
+> →
+
+**`UI.Vetrina.007`** · riempi_conti
+> TI RESTANO
+>
+> →
+
+**`UI.Vetrina.008`** · riempi_conti
+> TI MANCANO
+>
+> →
+
+
+## 1.18 Scheda della squadra
+
+<sub>`scripts/Personaggio.gd`</sub>
+
+**`UI.Personaggio.001`** · costruisci_barra
+> SQUADRA
+>
+> →
+
+**`UI.Personaggio.002`** · costruisci_identita
+> CLASSE
+>
+> →
+
+**`UI.Personaggio.003`** · costruisci_identita
+> LIVELLO
+>
+> →
+
+**`UI.Personaggio.004`** · costruisci_identita
+> STATISTICHE
+>
+> →
+
+**`UI.Personaggio.005`** · costruisci_carosello
+> È con te solo per un tratto: non gli si affida ancora niente.
+>
+> →
+
+**`UI.Personaggio.006`** · disegna_carte
+> %d–%d DI %d
+>
+> →
+
+**`UI.Personaggio.007`** · disegna_identita
+> PSICHE · %s
+>
+> →
+
+**`UI.Personaggio.008`** · disegna_identita
+> LEGAME DELLA SQUADRA %d
+>
+> →
+
+**`UI.Personaggio.009`** · disegna_carosello
+> %s   ·   %d DI %d
+>
+> →
+
+**`UI.Personaggio.010`** · disegna_dettaglio
+> COSA METTERCI
+>
+> →
+
+**`UI.Personaggio.011`** · nota_di
+> in uso
+>
+> →
+
+**`UI.Personaggio.012`** · nota_di
+> addosso a %s
+>
+> →
+
+
+## 1.19 Scheda della squadra, i conti
+
+<sub>`scripts/Corredo.gd`</sub>
+
+**`UI.Corredo.001`**
+> nessun cambiamento nelle statistiche
+>
+> →
+
+
+## 1.20 Pausa, storico e Diario
 
 <sub>`scripts/Pausa.gd`</sub>
 
@@ -901,7 +1036,217 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.17 Ritratti
+## 1.21 Pausa, le pagine (zaino, opzioni)
+
+<sub>`scripts/PaginePausa.gd`</sub>
+
+**`UI.PaginePausa.001`**
+> Messaggi
+>
+> →
+
+**`UI.PaginePausa.002`**
+> Nessun messaggio.
+>
+> →
+
+**`UI.PaginePausa.003`**
+> %s%s — %s
+>
+> →
+
+**`UI.PaginePausa.004`**
+> Appunti
+>
+> →
+
+**`UI.PaginePausa.005`**
+> Niente da segnare, per ora.
+>
+> →
+
+**`UI.PaginePausa.006`**
+> Già risolti
+>
+> →
+
+**`UI.PaginePausa.007`**
+> chiesto da
+>
+> →
+
+**`UI.PaginePausa.008`**
+> Stato
+>
+> →
+
+**`UI.PaginePausa.009`**
+> Livello
+>
+> →
+
+**`UI.PaginePausa.010`**
+> %d  (%d / %d esperienza)
+>
+> →
+
+**`UI.PaginePausa.011`**
+> Cosa ti sta cambiando
+>
+> →
+
+**`UI.PaginePausa.012`**
+> Colpi che hai sferrato
+>
+> →
+
+**`UI.PaginePausa.013`**
+> Danni che hai incassato
+>
+> →
+
+**`UI.PaginePausa.014`**
+> Volte che hai tenuto la guardia
+>
+> →
+
+**`UI.PaginePausa.015`**
+> Creature che hai studiato
+>
+> →
+
+**`UI.PaginePausa.016`**
+> Volte che sei scappato
+>
+> →
+
+**`UI.PaginePausa.017`**
+> Oggetti che hai usato
+>
+> →
+
+**`UI.PaginePausa.018`**
+> Stanze che hai esplorato
+>
+> →
+
+**`UI.PaginePausa.019`**
+> Stress che hai retto
+>
+> →
+
+**`UI.PaginePausa.020`**
+> Colpi critici che hai messo a segno
+>
+> →
+
+**`UI.PaginePausa.021`**
+> Abilità passive
+>
+> →
+
+**`UI.PaginePausa.022`**
+> Nessuna, per ora.
+>
+> →
+
+**`UI.PaginePausa.023`**
+> Squadra
+>
+> →
+
+**`UI.PaginePausa.024`**
+> Legame
+>
+> →
+
+**`UI.PaginePausa.025`**
+> %d / 100
+>
+> →
+
+**`UI.PaginePausa.026`**
+> Lv %d   ·   stress %d
+>
+> →
+
+**`UI.PaginePausa.027`**
+> Osservazioni
+>
+> →
+
+**`UI.PaginePausa.028`**
+> Creature studiate
+>
+> →
+
+**`UI.PaginePausa.029`**
+> Creature incontrate
+>
+> →
+
+**`UI.PaginePausa.030`**
+> Oggetti catalogati
+>
+> →
+
+**`UI.PaginePausa.031`**
+> %d / %d
+>
+> →
+
+**`UI.PaginePausa.032`**
+> Resistenza —
+>
+> →
+
+**`UI.PaginePausa.033`**
+> Organizzazione
+>
+> →
+
+**`UI.PaginePausa.034`**
+> Fonti estinte
+>
+> →
+
+**`UI.PaginePausa.035`**
+> Valutazione
+>
+> →
+
+**`UI.PaginePausa.036`**
+> In osservazione.
+>
+> →
+
+**`UI.PaginePausa.037`**
+> Prestazione conforme alle attese.
+>
+> →
+
+**`UI.PaginePausa.038`**
+> Rendimento soddisfacente.
+>
+> →
+
+**`UI.PaginePausa.039`**
+> Elemento affidabile.
+>
+> →
+
+**`UI.PaginePausa.040`**
+> Elemento di valore. Aspettative in aumento.
+>
+> →
+
+**`UI.PaginePausa.041`**
+> Questo scomparto è vuoto.
+>
+> →
+
+
+## 1.22 Ritratti
 
 <sub>`scripts/Ritratto.gd`</sub>
 
@@ -911,7 +1256,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.18 Varie
+## 1.23 Varie
 
 <sub>`scripts/GameState.gd`</sub>
 

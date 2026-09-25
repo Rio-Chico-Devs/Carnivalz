@@ -1517,7 +1517,7 @@ func e_definitivo(id_classe: String) -> bool:
 	# tue cose gliele affidi solo quando resta.
 	return id_classe not in alleati_temporanei
 
-func equipaggia(id_classe: String, slot: String, id_oggetto: String) -> bool:
+func equipaggia(id_classe: String, slot: String, id_oggetto: String, indice := -1) -> bool:
 	# il tipo dell'oggetto deve combaciare con lo slot, e lo stesso oggetto non
 	# puo' stare addosso a due persone: prima si toglie da dove sta
 	if not e_definitivo(id_classe):
@@ -1541,7 +1541,7 @@ func equipaggia(id_classe: String, slot: String, id_oggetto: String) -> bool:
 		var elenco: Array = slots["accessori"]
 		if elenco.size() >= slot_accessori_di(id_classe):
 			return false
-		elenco.append(id_oggetto)
+		elenco.insert(clampi(indice, 0, elenco.size()) if indice >= 0 else elenco.size(), id_oggetto)
 	else:
 		slots[slot] = id_oggetto
 	return true

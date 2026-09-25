@@ -31,6 +31,7 @@ const LATO_ICONA := 84.0
 const CORPO_PREZZO := 34
 const CORPO_NOME := 13
 const CORPO_STATO := 12
+const LARGO_STATO := 118.0    # il passo dello scaffale (Negozio.PASSO_CARTA) meno il respiro
 const SPENTA := 0.42           # quanto si vede il contenuto di una carta che non puoi prendere
 
 var voce: Dictionary = {}
@@ -45,6 +46,7 @@ func _init() -> void:
 	accesa = Movimento.molla("colore")
 	alzata = Movimento.molla("forma")
 	flat = true
+	clip_text = true      # la misura la decide la tavola, non la scritta nel carattere del tema
 	focus_mode = Control.FOCUS_ALL
 	size = Vector2(LARGO + SPOSTA_BASSO, ALTO)
 	for stato in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
@@ -195,7 +197,7 @@ func disegna_icona(su: float, velo: float) -> void:
 	var disegno := Sagome.immagine_oggetto(id_oggetto)
 	if disegno != null:
 		var lato := LATO_ICONA * 1.15
-		draw_texture_rect(disegno, Rect2(centro - Vector2(lato, lato) * 0.5, Vector2(lato, lato)), false,
+		Sagome.disegna_dentro(self, disegno, Rect2(centro - Vector2(lato, lato) * 0.5, Vector2(lato, lato)),
 				Color(1, 1, 1, velo))
 	else:
 		var fondo := Stile.colore("accento") if scelta else Stile.colore("pannello_chiaro")
@@ -214,5 +216,9 @@ func disegna_stato() -> void:
 	if f == null or String(stato["testo"]) == "":
 		return
 	var colore := Stile.colore("accento") if bool(stato["problema"]) else Stile.colore("testo_smorzato")
-	draw_string(f, Vector2(LARGO * 0.5 - 80.0, ALTO + 32.0), String(stato["testo"]),
-			HORIZONTAL_ALIGNMENT_CENTER, 160.0, CORPO_STATO, colore)
+	# largo quanto il passo dello scaffale, non di piu': sotto la carta accanto
+	# c'e' la sua riga, e due righe che si toccano non si leggono
+	var testo := String(stato["testo"])
+	var corpo := Tavola.corpo_che_entra(f, testo, LARGO_STATO, CORPO_STATO, CORPO_STATO - 2)
+	draw_string(f, Vector2(LARGO * 0.5 - LARGO_STATO * 0.5, ALTO + 32.0), testo,
+			HORIZONTAL_ALIGNMENT_CENTER, LARGO_STATO, corpo, colore)

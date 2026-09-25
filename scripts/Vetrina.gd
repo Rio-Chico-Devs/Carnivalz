@@ -59,8 +59,13 @@ func _ready() -> void:
 		var x := PRIMO_RIQUADRO.x + PASSO_RIQUADRO * i
 		valori.append(aggiungi(Tavola.scritta("", 26, bianco, Caratteri.titolo(), HORIZONTAL_ALIGNMENT_CENTER),
 				Rect2(x, PRIMO_RIQUADRO.y + 8, RIQUADRO.x, 44)))
-		etichette.append(aggiungi(Tavola.scritta("", 12, bianco, Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER),
-				Rect2(x - 4, PRIMO_RIQUADRO.y + RIQUADRO.y + 6, RIQUADRO.x + 8, 16)))
+		# la parola sotto va a capo (ROTTAME DI / METALLO) e non esce dal suo
+		# passo: prima usciva di 4 pixel per parte e si mangiava la vicina
+		var sotto := aggiungi(Tavola.scritta("", 12, bianco, Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER),
+				Rect2(x - 2, PRIMO_RIQUADRO.y + RIQUADRO.y + 5, RIQUADRO.x + 4, 30))
+		sotto.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		a_capo(sotto)
+		etichette.append(sotto)
 	restano = aggiungi(Tavola.scritta("", 44, bianco, Caratteri.titolo(), HORIZONTAL_ALIGNMENT_RIGHT), Rect2(1070, 372, 180, 56))
 	restano_cosa = aggiungi(Tavola.scritta("", 13, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_RIGHT), Rect2(1070, 428, 180, 18))
 	quanti = aggiungi(Tavola.scritta("", 30, bianco, Caratteri.titolo()), Rect2(1154, 484, 110, 36))
@@ -68,7 +73,9 @@ func _ready() -> void:
 	compra = TastoObliquo.nuovo("COMPRA", "chiaro", 26)
 	add_child(compra)
 	Tavola.metti(compra, Rect2(1030, 566, 240, 50))
-	motivo = aggiungi(Tavola.scritta("", 12, Stile.colore("accento"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER), Rect2(1020, 620, 250, 18))
+	motivo = aggiungi(Tavola.scritta("", 12, Stile.colore("accento"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER), Rect2(1010, 622, 262, 34))
+	motivo.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	a_capo(motivo)
 
 
 func aggiungi(etichetta: Label, dove: Rect2) -> Label:
@@ -76,6 +83,12 @@ func aggiungi(etichetta: Label, dove: Rect2) -> Label:
 	Tavola.metti(etichetta, dove)
 	etichetta.clip_text = true
 	return etichetta
+
+
+func a_capo(etichetta: Label) -> void:
+	etichetta.clip_text = false
+	etichetta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	etichetta.max_lines_visible = 2
 
 
 # --- cosa c'e' in vetrina -----------------------------------------------------
@@ -101,6 +114,7 @@ func mostra(nuova: Dictionary, entra := true) -> void:
 	compra.adatta_misura()
 	compra.queue_redraw()
 	motivo.text = no.to_upper()
+	Tavola.stringi_a_capo(motivo, 12, 10)
 	if cambia and entra:
 		arrivo = 0.0
 		orologio = 0.0
@@ -117,28 +131,27 @@ func riempi_riquadri(baratto: bool) -> void:
 	for i in 3:
 		var presente := i < pezzi.size()
 		valori[i].text = String(pezzi[i]["valore"]) if presente else ""
+		valori[i].add_theme_color_override("font_color", Stile.colore("accento")
+				if presente and bool(pezzi[i].get("manca", false)) else Stile.colore("testo"))
 		etichette[i].text = String(pezzi[i]["nome"]) if presente else ""
-		Tavola.stringi(etichette[i], 12, 9)
+		Tavola.stringi_a_capo(etichette[i], 12, 9)
 
 
 func pezzi_del_baratto() -> Array[Dictionary]:
-	# i materiali che chiede, uno per riquadro: segnato se ce l'hai
+	# un riquadro per materiale, coi doppioni insieme: "1/2" sopra ROTTAME DI
+	# METALLO, in cremisi finche' non li hai tutti. Prima erano tre SI'/NO, uno
+	# per pezzo, e due rottami erano due riquadri uguali
 	var pezzi: Array[Dictionary] = []
-	var disponibili: Array = GameState.collezionabili.duplicate()
-	for materiale in (voce.get("richiede", []) as Array).slice(0, 3):
-		var ce := String(materiale) in disponibili
-		if ce:
-			disponibili.erase(String(materiale))
-		# SI' e NO, non segni: il carattere dei titoli ha le lettere, non i simboli
-		pezzi.append({"valore": "SÌ" if ce else "NO", "nome": Merce.nome_di(String(materiale)).to_upper()})
+	for riga in Merce.materiali(voce.get("richiede", [])).slice(0, 3):
+		pezzi.append({"valore": "%d/%d" % [int(riga["hai"]), int(riga["servono"])],
+				"nome": String(riga["nome"]).to_upper(), "manca": int(riga["hai"]) < int(riga["servono"])})
 	return pezzi
 
 
 func riempi_conti(baratto: bool, id_oggetto: String) -> void:
 	if baratto:
 		var richiesti: Array = voce.get("richiede", [])
-		var hai := richiesti.size() - Merce.mancanti(richiesti).size()
-		restano.text = "%d/%d" % [clampi(hai, 0, richiesti.size()), richiesti.size()]
+		restano.text = "%d/%d" % [richiesti.size() - Merce.pezzi_mancanti(richiesti), richiesti.size()]
 		restano_cosa.text = "MATERIALI"
 	else:
 		var dopo := GameState.tazo - int(voce.get("prezzo", 0))
@@ -146,13 +159,9 @@ func riempi_conti(baratto: bool, id_oggetto: String) -> void:
 		restano_cosa.text = "TI RESTANO" if dopo >= 0 else "TI MANCANO"
 	restano.add_theme_color_override("font_color",
 			Stile.colore("accento") if restano_cosa.text == "TI MANCANO" else Stile.colore("testo"))
-	var consumabile := String(GameState.dati_oggetto(id_oggetto).get("tipo", "consumabile")) == "consumabile"
-	if consumabile:
-		quanti.text = "×%d" % Merce.quanti_in_sacca(id_oggetto)
-		quanti_cosa.text = "IN SACCA"
-	else:
-		quanti.text = "×%d" % (1 if GameState.posseduto_equipaggiabile(id_oggetto) else 0)
-		quanti_cosa.text = "GIÀ TUOI"
+	var quanti_e_cosa := Merce.quanti_ne_possiedi(id_oggetto)
+	quanti.text = quanti_e_cosa[0]
+	quanti_cosa.text = quanti_e_cosa[1]
 
 
 # --- il movimento -------------------------------------------------------------
@@ -170,6 +179,12 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+func scivolo() -> float:
+	# quanto il disegno e' ancora lontano da casa. Col movimento ridotto non
+	# scivola: si dissolve e basta
+	return 0.0 if Movimento.ridotto() else SCIVOLO * (1.0 - arrivo)
+
+
 # --- il disegno ---------------------------------------------------------------
 
 func _draw() -> void:
@@ -184,7 +199,7 @@ func _draw() -> void:
 	disegna_riquadri()
 	if voce.is_empty():
 		return
-	disegna_oggetto(IMMAGINE, LATO_SAGOMA, Vector2(SCIVOLO * (1.0 - arrivo), 0.0), arrivo, Vector2(8, 8))
+	disegna_oggetto(IMMAGINE, LATO_SAGOMA, Vector2(scivolo(), 0.0), arrivo, Vector2(8, 8))
 	disegna_oggetto(MINIATURA, MINIATURA.size.x * 0.8, Vector2.ZERO, 1.0, Vector2(4, 4))
 
 
@@ -202,10 +217,7 @@ func disegna_oggetto(dove: Rect2, lato: float, spostato: Vector2, alfa: float, o
 	var disegno := Sagome.immagine_oggetto(id_oggetto)
 	var r := Rect2(dove.position + spostato, dove.size)
 	if disegno != null:
-		var misura := disegno.get_size()
-		var quanto := minf(r.size.x / misura.x, r.size.y / misura.y)
-		var dentro := Rect2(r.get_center() - misura * quanto * 0.5, misura * quanto)
-		draw_texture_rect(disegno, dentro, false, Color(1, 1, 1, alfa))
+		Sagome.disegna_dentro(self, disegno, r, Color(1, 1, 1, alfa))
 		return
 	# la sagoma ha la sua sfoglia nera sotto: sulla fascia cremisi e sul nero
 	# della pagina si legge lo stesso

@@ -15,6 +15,9 @@ extends Node
 #   ./prove/automa.sh                     esplora dal menu alla Sede, seme 1
 #   ./prove/automa.sh esplora 7           stessa cosa, un altro giro di dadi
 #   ./prove/automa.sh scimmia 3 300       clic e tasti a caso per 300 secondi di gioco
+#   ./prove/automa.sh scimmia 3 300 negozio
+#                                         parte dal negozio, con soldi e una squadra:
+#                                         per il negozio e la scheda della squadra
 #   ./prove/automa.sh esplora 1 300 veronica_animo
 #                                         parte da quel punto della storia, partita
 #                                         nuova: per tornare dritti dove si e' rotto
@@ -131,7 +134,10 @@ func _ready() -> void:
 	# l'automa non resta la scena corrente: se lo restasse, il primo cambio di
 	# scena lo libererebbe. Resta accanto agli autoload, e la scena corrente
 	# diventa lo splash - come quando il gioco si apre
-	if nodo_di_partenza != "":
+	if nodo_di_partenza == "negozio":
+		fino_a = ""   # dal negozio si gira finche' c'e' tempo
+		parti_dal_negozio.call_deferred()
+	elif nodo_di_partenza != "":
 		parti_da.call_deferred(nodo_di_partenza)
 	else:
 		var prima := (load(SCENA_INIZIALE) as PackedScene).instantiate()
@@ -208,6 +214,27 @@ func parti_da(nodo: String) -> void:
 			IngressoNodo.vai_al_nodo(nodo)
 			return
 	push_error("AUTOMA: il nodo \"%s\" non c'e' in nessun file della storia" % nodo)
+
+
+func parti_dal_negozio() -> void:
+	# IL NEGOZIO E LA SCHEDA DELLA SQUADRA, con qualcosa da farci: Tazo, i
+	# materiali di un baratto, quattro compagni (uno di passaggio, uno oltre la
+	# terza carta) e roba da mettersi addosso. Da qui Indietro porta alla Sede,
+	# e ESC alla pausa, da cui si apre la scheda
+	#   ./prove/automa.sh scimmia 3 300 negozio
+	var segnaposto := Node.new()
+	get_tree().root.add_child(segnaposto)
+	get_tree().current_scene = segnaposto
+	GameState.nuova_partita()
+	GameState.tazo = 400
+	GameState.negozi_sbloccati = ["organizzazione", "nyu", "artigiano"] as Array[String]
+	for id_compagno: String in ["sally", "vega"]:
+		GameState.recluta(id_compagno)
+	GameState.recluta_temporaneo("niru", 3)
+	for id_oggetto: String in ["coltello_di_servizio", "mannaia_scheggiata", "amuleto_di_pietra",
+			"amuleto_di_ferro", "rottame_di_metallo", "rottame_di_metallo", "convertitore"]:
+		GameState.aggiungi_oggetto(id_oggetto)
+	Transizioni.vai("res://scenes/Negozio.tscn")
 
 
 func gira() -> void:

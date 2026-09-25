@@ -13,6 +13,7 @@ extends Button
 
 signal presa(voce: VoceCandidato)
 signal sopra(voce: VoceCandidato)
+signal lascia(voce: VoceCandidato)   # ne' mouse ne' fuoco: l'anteprima non e' piu' sua
 
 const ALTO := 50.0
 
@@ -26,6 +27,7 @@ var accesa: Movimento.Molla
 func _init() -> void:
 	accesa = Movimento.molla("colore")
 	flat = true
+	clip_text = true      # la misura la decide la tavola, non la scritta nel carattere del tema
 	focus_mode = Control.FOCUS_ALL
 	custom_minimum_size = Vector2(0, ALTO)
 	for stato in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
@@ -70,6 +72,7 @@ func accendi() -> void:
 func spegni_se_libera() -> void:
 	if has_focus() or is_hovered():
 		return
+	lascia.emit(self)
 	accesa.obiettivo = 0.0
 	if Movimento.ridotto():
 		accesa.salta_a(0.0)

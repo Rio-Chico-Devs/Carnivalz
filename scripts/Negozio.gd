@@ -26,12 +26,13 @@ const VISIBILI := 5
 const PRIMA_CARTA := Vector2(40, 400)
 const PASSO_CARTA := 129.0
 const INIZIO_LINGUETTE := Vector2(180, 10)
+const FINE_LINGUETTE := 940.0       # dove comincia la vetrina, in cima
 
 var tavola: Tavola
 var vetrina: Vetrina
 var etichetta_tazo: Label
 var conto_tazo: Conto
-var descrizione: RichTextLabel
+var descrizione: TestoCheScorre
 var sacca: Cartiglio
 var barra: Control
 var scaffale: Control
@@ -42,6 +43,7 @@ var prima: TastoObliquo
 var dopo: TastoObliquo
 var posizione: Label
 var schegge: Schegge
+var scivolata: Tween
 var negozio_aperto := ""
 var fila: Array[Dictionary] = []
 var scelta := 0
@@ -53,10 +55,12 @@ func _ready() -> void:
 	conto_tazo = Conto.su(etichetta_tazo, "%d")
 	conto_tazo.scrivi(GameState.tazo)   # all'apertura il numero c'e' gia', non risale da zero
 	negozio_aperto = String(GameState.negozi_sbloccati[0]) if not GameState.negozi_sbloccati.is_empty() else ""
+	costruisci_linguette()
 	costruisci()
 	entra()
-	if not carte.is_empty() and carte[0].visible:
-		Tavola.fuoco.call_deferred(carte[0])
+	# il fuoco alla prima carta; in un negozio vuoto a Indietro, che senza un
+	# fuoco la tastiera non ha da dove partire
+	Tavola.fuoco.call_deferred(carte[0] as Control if carte[0].visible else indietro as Control)
 
 
 # --- la tavola ----------------------------------------------------------------
@@ -98,15 +102,7 @@ func costruisci_sinistra() -> void:
 	var sotto := Tavola.scritta("TAZO IN TASCA", 18, Stile.colore("testo"), Caratteri.tondo(900))
 	tavola.add_child(sotto)
 	Tavola.metti(sotto, Rect2(148, 234, 320, 28))
-	descrizione = RichTextLabel.new()
-	descrizione.bbcode_enabled = true
-	descrizione.scroll_active = false
-	descrizione.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	descrizione.add_theme_font_override("normal_font", Caratteri.tondo(600))
-	descrizione.add_theme_font_override("bold_font", Caratteri.tondo(900))
-	descrizione.add_theme_font_size_override("normal_font_size", 16)
-	descrizione.add_theme_font_size_override("bold_font_size", 16)
-	descrizione.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
+	descrizione = TestoCheScorre.nuovo(16, Stile.colore("testo_smorzato"), Stile.colore("sfondo"))
 	tavola.add_child(descrizione)
 	Tavola.metti(descrizione, Rect2(115, 276, 460, 100))
 
@@ -126,15 +122,19 @@ func costruisci_scaffale() -> void:
 		carte.append(carta)
 	prima = TastoObliquo.nuovo("<", "chiaro", 22)
 	dopo = TastoObliquo.nuovo(">", "chiaro", 22)
+	prima.freccia = Vector2.LEFT
+	dopo.freccia = Vector2.RIGHT
 	prima.scelto.connect(func() -> void: sposta(-VISIBILI))
 	dopo.scelto.connect(func() -> void: sposta(VISIBILI))
 	for i in 2:
 		var freccia: TastoObliquo = [prima, dopo][i]
 		tavola.add_child(freccia)
-		freccia.position = Vector2(40 + 58 * i, 640)
+		# una accanto all'altra, e la scritta dopo: dalla misura vera, non a occhio
+		freccia.position = Vector2(40.0 if i == 0 else 44.0 + prima.misura_voluta().x, 640.0)
 	posizione = Tavola.scritta("", 13, Stile.colore("testo_smorzato"), Caratteri.tondo(900))
 	tavola.add_child(posizione)
-	Tavola.metti(posizione, Rect2(166, 642, 480, 36))
+	var dopo_le_frecce := dopo.position.x + dopo.misura_voluta().x + 10.0
+	Tavola.metti(posizione, Rect2(dopo_le_frecce, 642, 600.0 - dopo_le_frecce, 36))
 
 
 # --- cosa si vede ---------------------------------------------------------------
@@ -152,24 +152,40 @@ func costruisci() -> void:
 	mostra_scelta(false)
 
 
+func costruisci_linguette() -> void:
+	# UNA VOLTA SOLA, all'apertura: i negozi aperti non cambiano mentre sei
+	# dentro. Rifatte a ogni acquisto, la linguetta appena premuta spariva
+	# sotto il dito - con la sua gelatina a meta' e il fuoco della tastiera
+	# con lei, che non tornava piu' da nessuna parte.
+	#
+	# Stanno tra Indietro e la vetrina: se i nomi non ci stanno, si stringono
+	# tutte insieme dello stesso tanto
+	for corpo in range(20, 13, -1):
+		for vecchia in linguette:
+			vecchia.free()
+		linguette.clear()
+		var x := INIZIO_LINGUETTE.x
+		for id_negozio in GameState.negozi_sbloccati:
+			var nome := String(GameState.negozi.get(id_negozio, {}).get("nome", id_negozio)).to_upper()
+			var linguetta := TastoObliquo.nuovo(nome, "spoglio", corpo)
+			linguetta.scelto.connect(apri_negozio.bind(String(id_negozio)))
+			linguetta.set_meta("negozio", String(id_negozio))
+			barra.add_child(linguetta)
+			linguetta.position = Vector2(x, INIZIO_LINGUETTE.y)
+			x += linguetta.misura_voluta().x + 8.0
+			linguette.append(linguetta)
+		if x <= FINE_LINGUETTE:
+			return
+
+
 func aggiorna_linguette() -> void:
-	for vecchia in linguette:
-		vecchia.queue_free()
-	linguette.clear()
-	var x := INIZIO_LINGUETTE.x
-	for id_negozio in GameState.negozi_sbloccati:
-		var nome := String(GameState.negozi.get(id_negozio, {}).get("nome", id_negozio)).to_upper()
-		var aperto := String(id_negozio) == negozio_aperto
-		var linguetta := TastoObliquo.nuovo(nome, "accento" if aperto else "spoglio", 20)
-		linguetta.scelto.connect(apri_negozio.bind(String(id_negozio)))
-		barra.add_child(linguetta)
-		linguetta.position = Vector2(x, INIZIO_LINGUETTE.y)
-		x += linguetta.misura_voluta().x + 8.0
-		linguette.append(linguetta)
+	for linguetta in linguette:
+		linguetta.stile = "accento" if String(linguetta.get_meta("negozio")) == negozio_aperto else "spoglio"
+		linguetta.queue_redraw()
 
 
 func aggiorna_sacca() -> void:
-	sacca.testo = "SACCA %d/%d" % [GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20))]
+	sacca.testo = "SACCA %d/%d" % [GameState.sacca.size(), Merce.capienza_sacca()]
 	sacca.update_minimum_size()
 	sacca.size = sacca.get_combined_minimum_size()
 	sacca.position = Vector2(Tavola.LARGO - sacca.size.x - 18.0, 12.0)
@@ -183,12 +199,29 @@ func mostra_scelta(entra_il_disegno := true) -> void:
 	var voce: Dictionary = fila[scelta] if scelta < fila.size() else {}
 	vetrina.visible = not voce.is_empty()
 	vetrina.mostra(voce, entra_il_disegno)
-	descrizione.text = testo_descrizione(voce)
+	descrizione.scrivi(testo_descrizione(voce))
 	prima.inerte = inizio <= 0
 	dopo.inerte = inizio + VISIBILI >= fila.size()
+	punta_alla_scelta()
 	prima.queue_redraw()
 	dopo.queue_redraw()
 	posizione.text = testo_posizione(voce)
+
+
+func punta_alla_scelta() -> void:
+	# DA FUORI DELLO SCAFFALE SI TORNA ALLA CARTA SCELTA: da COMPRA con la
+	# freccia a sinistra, dalle linguette e da Indietro con quella in giu',
+	# dalle frecce di pagina con quella in su. La carta piu' vicina a occhio e'
+	# un'altra, e arrivarci col fuoco la sceglieva - cambiando l'oggetto sotto
+	# il dito
+	if scelta - inizio < 0 or scelta - inizio >= VISIBILI:
+		return
+	var carta := carte[scelta - inizio]
+	vetrina.compra.focus_neighbor_left = vetrina.compra.get_path_to(carta)
+	for sopra: Control in linguette + [indietro]:
+		sopra.focus_neighbor_bottom = sopra.get_path_to(carta)
+	for sotto: Control in [prima, dopo]:
+		sotto.focus_neighbor_top = sotto.get_path_to(carta)
 
 
 func testo_descrizione(voce: Dictionary) -> String:
@@ -250,12 +283,16 @@ func sposta(quanto: int) -> void:
 
 func scorri_scaffale(verso: int) -> void:
 	# lo scaffale scivola di una carta: il contenuto cambia subito, e la fila
-	# arriva al suo posto da dove stava. Non si aspetta la fine per premere
+	# arriva al suo posto da dove stava. Non si aspetta la fine per premere:
+	# tenendo giu' la freccia ogni scivolata ferma quella prima, se no due
+	# tween si contendono la stessa x
 	if Movimento.ridotto():
 		return
+	if scivolata != null and scivolata.is_valid():
+		scivolata.kill()
 	scaffale.position.x = PASSO_CARTA * 0.5 * float(verso)
-	var t := scaffale.create_tween()
-	Movimento.verso(t, scaffale, "position:x", 0.0, "entrata", Movimento.durata("voce"))
+	scivolata = scaffale.create_tween()
+	Movimento.verso(scivolata, scaffale, "position:x", 0.0, "entrata", Movimento.durata("voce"))
 
 
 func _su_carta_presa(carta: CartaNegozio, da_tastiera: bool) -> void:
@@ -279,7 +316,9 @@ func apri_negozio(id_negozio: String) -> void:
 func acquista() -> void:
 	if scelta >= fila.size():
 		return
-	if not Merce.prendi(fila[scelta]):
+	# il tasto spento non arriva qui (dice di no da solo), ma chi chiama
+	# acquista() da fuori - l'automa, una prova - trova la stessa regola
+	if Merce.perche_no(fila[scelta]) != "" or not Merce.prendi(fila[scelta]):
 		vetrina.compra.rifiuta()
 		return
 	schegge.scoppia(vetrina.compra.get_global_rect().get_center())

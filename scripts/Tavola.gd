@@ -77,12 +77,35 @@ static func stringi(etichetta: Label, corpo: int, minimo: int) -> void:
 	# UN NOME LUNGO NON ESCE DAL SUO POSTO e non va a capo: si rimpicciolisce,
 	# fino a un minimo sotto cui non si legge piu'. Solo il corpo: la crenatura
 	# l'ha messa scritta(), e rimetterla avvolgerebbe il carattere un'altra volta
+	etichetta.add_theme_font_size_override("font_size",
+			corpo_che_entra(etichetta.get_theme_font("font"), etichetta.text, etichetta.size.x, corpo, minimo))
+
+
+static func corpo_che_entra(f: Font, testo: String, largo: float, corpo: int, minimo: int) -> int:
+	# il corpo piu' grande, tra corpo e minimo, a cui la scritta sta in largo.
+	# Per chi scrive con draw_string, che altrimenti taglia ("PROTAGONIST")
+	var c := corpo
+	while f != null and c > minimo and f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, c).x > largo:
+		c -= 1
+	return c
+
+
+static func stringi_a_capo(etichetta: Label, corpo: int, minimo: int) -> void:
+	# COME stringi, PER UNA SCRITTA CHE VA A CAPO: si rimpicciolisce finche'
+	# sta nella sua altezza e nessuna parola va spezzata a meta' - "CONVERTITO /
+	# RE" e' peggio di un corpo in meno
 	var f := etichetta.get_theme_font("font")
 	var c := corpo
-	while f != null and c > minimo \
-			and f.get_string_size(etichetta.text, HORIZONTAL_ALIGNMENT_LEFT, -1, c).x > etichetta.size.x:
+	while f != null and c > minimo and not ci_sta_a_capo(f, etichetta.text, etichetta.size, c):
 		c -= 1
 	etichetta.add_theme_font_size_override("font_size", c)
+
+
+static func ci_sta_a_capo(f: Font, testo: String, spazio: Vector2, corpo: int) -> bool:
+	for parola in testo.split(" ", false):
+		if f.get_string_size(parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x > spazio.x:
+			return false
+	return f.get_multiline_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, spazio.x, corpo).y <= spazio.y
 
 
 static func ombra(etichetta: Label, colore: Color, spostamento := Vector2(3, 3)) -> void:
@@ -97,14 +120,36 @@ static func ombra(etichetta: Label, colore: Color, spostamento := Vector2(3, 3))
 
 static func entra(nodo: CanvasItem, ritardo: float, da := Vector2.ZERO) -> void:
 	# l'entrata di un pezzo della tavola: si dissolve dentro arrivando da poco
-	# lontano. Col movimento ridotto si dissolve e basta
+	# lontano. Col movimento ridotto si dissolve e basta.
+	#
+	# UN'ENTRATA ALLA VOLTA, e sempre verso casa. Cambiando linguetta due volte
+	# di fila la seconda entrata partiva mentre la prima era a meta' strada, e
+	# prendeva come arrivo il punto in cui le carte si trovavano in quel
+	# momento: restavano storte di qualche pixel per sempre. Adesso la casa di
+	# un pezzo si segna la prima volta, e l'entrata vecchia si ferma
 	if nodo == null:
 		return
+	ferma_entrata(nodo)
 	nodo.modulate.a = 0.0
 	var t := nodo.create_tween().set_parallel()
+	nodo.set_meta("entrata", t)
 	Movimento.verso(t, nodo, "modulate:a", 1.0, "entrata", Movimento.durata("entrata")).set_delay(ritardo)
 	if Movimento.ridotto() or da == Vector2.ZERO or not nodo is Control:
 		return
-	var arrivo: Vector2 = (nodo as Control).position
+	var arrivo: Vector2 = nodo.get_meta("casa")
 	(nodo as Control).position = arrivo + da
 	Movimento.verso(t, nodo, "position", arrivo, "entrata", Movimento.durata("entrata")).set_delay(ritardo)
+
+
+static func ferma_entrata(nodo: CanvasItem) -> void:
+	# l'entrata in corso finisce subito, al suo posto e tutta visibile: per chi
+	# deve muovere il pezzo adesso (il carosello che gira) o farlo rientrare
+	# (get_meta con null come riserva non basta: null vuol dire "nessuna riserva")
+	var vecchia: Variant = nodo.get_meta("entrata") if nodo.has_meta("entrata") else null
+	if vecchia is Tween and (vecchia as Tween).is_valid():
+		(vecchia as Tween).kill()
+		nodo.modulate.a = 1.0
+	if nodo is Control:
+		if not nodo.has_meta("casa"):
+			nodo.set_meta("casa", (nodo as Control).position)
+		(nodo as Control).position = nodo.get_meta("casa")

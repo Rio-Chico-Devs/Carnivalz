@@ -14,6 +14,7 @@ extends Button
 
 signal presa(casella: SlotScheda)
 signal gira(verso: int)
+signal compagno(verso: int)     # su e giu': il compagno prima o dopo, senza lasciare il carosello
 
 const SFOGLIA := Vector2(6, 5)
 const SAGOMA_DI_SLOT := {"arma": "arma", "stigma": "stigma", "ultima_risorsa": "consumabile",
@@ -29,6 +30,7 @@ var rifiutata := -1.0
 func _init() -> void:
 	accesa = Movimento.molla("colore")
 	flat = true
+	clip_text = true      # la misura la decide la tavola, non la scritta nel carattere del tema
 	focus_mode = Control.FOCUS_ALL
 	for stato in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
 		add_theme_stylebox_override(stato, StyleBoxEmpty.new())
@@ -57,13 +59,26 @@ func carica(nuovi: Dictionary, centro: bool, scegliendo: bool) -> void:
 	in_scelta = scegliendo
 	text = String(dati.get("etichetta", ""))
 	visible = not dati.is_empty()
+	# la tastiera sta solo al centro: le laterali si cliccano, non ci si arriva
+	# col tab (ci si arriva girando)
+	focus_mode = Control.FOCUS_ALL if centro else Control.FOCUS_CLICK
 	queue_redraw()
 
 
 func _su_input(evento: InputEvent) -> void:
-	# le frecce fanno girare il carosello invece di saltare altrove
+	# LA TASTIERA SULLA SCHEDA STA TUTTA QUI: destra e sinistra girano il
+	# carosello, su e giu' cambiano compagno, INVIO apre lo slot, ESC torna.
+	# Un punto solo da cui si fa tutto, invece di un fuoco da portare in giro
 	if evento.is_action_pressed("ui_left") or evento.is_action_pressed("ui_right"):
 		gira.emit(-1 if evento.is_action_pressed("ui_left") else 1)
+		accept_event()
+	elif evento.is_action_pressed("ui_up") or evento.is_action_pressed("ui_down"):
+		compagno.emit(-1 if evento.is_action_pressed("ui_up") else 1)
+		accept_event()
+	elif evento is InputEventMouseButton and evento.pressed \
+			and evento.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		# la rotella gira il carosello, come scorre lo scaffale del negozio
+		gira.emit(-1 if evento.button_index == MOUSE_BUTTON_WHEEL_UP else 1)
 		accept_event()
 
 
@@ -145,7 +160,7 @@ func disegna_contenuto(r: Rect2) -> void:
 		return
 	var disegno := Sagome.immagine_oggetto(id_oggetto)
 	if disegno != null:
-		draw_texture_rect(disegno, Rect2(centro - Vector2(lato, lato) * 0.6, Vector2(lato, lato) * 1.2), false)
+		Sagome.disegna_dentro(self, disegno, Rect2(centro - Vector2(lato, lato) * 0.6, Vector2(lato, lato) * 1.2))
 	else:
 		Sagome.icona_oggetto(self, centro, lato, Sagome.tipo_icona(id_oggetto), Stile.colore("testo"),
 				Stile.colore("accento") if in_scelta else Stile.colore("pannello_chiaro"))

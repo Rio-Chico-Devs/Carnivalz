@@ -239,6 +239,12 @@ func _ready() -> void:
 	prova_collisioni()
 	prova_tutorial_di_veronica()
 	prova_rivitalizzante_di_veronica()
+	prova_il_negozio_non_fa_pagare_per_niente()
+	await prova_il_negozio_si_usa_con_le_frecce_e_con_la_rotella()
+	await prova_la_descrizione_scorre_e_aspetta_chi_legge()
+	await prova_la_scheda_si_gira_tutta_da_tastiera()
+	prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma()
+	await prova_la_tavola_sta_intera_anche_col_testo_grande()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -6410,7 +6416,9 @@ func prova_nomi_delle_immagini() -> void:
 		# file e' legittimo. Quello che non deve passare e' un file che NESSUNO
 		# chiama - cioe' un nome scritto storto, che a schermo diventa
 		# silenziosamente il segnaposto.
-		var ammesse := ESPRESSIONI + espressioni_usate_nei_dialoghi()
+		# e i disegni della scheda della squadra (Corredo.DISEGNI), che stanno
+		# nella stessa cartella
+		var ammesse := ESPRESSIONI + espressioni_usate_nei_dialoghi() + Corredo.DISEGNI
 		for nome_file in dentro.get_files():
 			if nome_file.begins_with(".") or nome_file.ends_with(".import"):
 				continue
@@ -15191,3 +15199,542 @@ func prova_le_pagine_si_girano_col_click() -> void:
 	scontro.queue_free()
 	await get_tree().process_frame
 	GameState.nuova_partita()
+
+# --- la nuova interfaccia: negozio e scheda della squadra ----------------------
+
+func azione_ui(nome: String) -> InputEventAction:
+	var evento := InputEventAction.new()
+	evento.action = nome
+	evento.pressed = true
+	return evento
+
+func rotella_del_mouse(giu: bool) -> InputEventMouseButton:
+	var evento := InputEventMouseButton.new()
+	evento.button_index = MOUSE_BUTTON_WHEEL_DOWN if giu else MOUSE_BUTTON_WHEEL_UP
+	evento.pressed = true
+	return evento
+
+func quanto_hai(id_oggetto: String) -> int:
+	# quante volte un oggetto e' tuo, dovunque stia: e per lo spazio nella
+	# realta', quante volte hai allargato il suo scomparto
+	var dati := GameState.dati_oggetto(id_oggetto)
+	if String(dati.get("tipo", "")) == "spazio":
+		return GameState.spazi_comprati(String(dati.get("categoria", "consumabili")))
+	var n := int(GameState.pila.get(id_oggetto, 0))
+	for elenco: Array in [GameState.sacca, GameState.armi, GameState.accessori, GameState.oggetti_speciali,
+			GameState.chiavi, GameState.collezionabili]:
+		n += elenco.count(id_oggetto)
+	return n
+
+func prova_il_negozio_non_fa_pagare_per_niente() -> void:
+	# LA REGOLA DEL NEGOZIO, su TUTTO quello che i negozi offrono: se il tasto
+	# dice di si', l'oggetto arriva davvero; se dice di no, dice perche'.
+	#
+	# Prima non era cosi' in due modi. Un'arma che avevi gia' si pagava e non
+	# arrivava niente (GameState.aggiungi_oggetto risponde di si' e non la
+	# aggiunge due volte). E la sacca allargata con lo spazio nella realta'
+	# per il negozio restava piena a 20, perche' leggeva il tetto scritto
+	# nelle regole invece di quello vero.
+	titolo("il negozio non fa pagare per niente, e quando dice di no dice perche'")
+	for ricco: bool in [true, false]:
+		for id_negozio in GameState.negozi:
+			for voce in Merce.voci(GameState.negozi[id_negozio]):
+				GameState.nuova_partita()
+				GameState.tazo = 99999 if ricco else 3
+				if ricco:
+					for materiale in voce.get("richiede", []):
+						GameState.collezionabili.append(String(materiale))
+				var id_oggetto := String(voce["oggetto"])
+				var no := Merce.perche_no(voce)
+				var stato := Merce.stato_breve(voce)
+				if no != "":
+					esigi(String(stato["testo"]) != "",
+							"%s: '%s' non si puo' prendere ('%s') ma la carta non dice niente" % [id_negozio, id_oggetto, no])
+					continue
+				var prima := quanto_hai(id_oggetto)
+				var tazo_prima := GameState.tazo
+				esigi(Merce.prendi(voce), "%s: il tasto dice di si' a '%s' e l'acquisto fallisce" % [id_negozio, id_oggetto])
+				esigi(quanto_hai(id_oggetto) > prima,
+						"%s: '%s' e' stato pagato e non e' arrivato niente" % [id_negozio, id_oggetto])
+				if String(voce["tipo"]) == "vendita":
+					esigi(GameState.tazo == tazo_prima - int(voce["prezzo"]),
+							"%s: '%s' non costa quello che dice il cartellino" % [id_negozio, id_oggetto])
+				# e il secondo uguale: o arriva anche lui, o il tasto adesso dice di no
+				if Merce.perche_no(voce) == "":
+					var dopo_uno := quanto_hai(id_oggetto)
+					esigi(Merce.prendi(voce) and quanto_hai(id_oggetto) > dopo_uno,
+							"%s: il secondo '%s' si paga e non arriva" % [id_negozio, id_oggetto])
+
+	# la sacca vera, non quella scritta nelle regole
+	GameState.nuova_partita()
+	GameState.tazo = 99999
+	esigi(GameState.aggiungi_oggetto("spazio_nella_realta"), "lo spazio nella realta' non si compra")
+	while GameState.sacca.size() < int(GameState.regole.get("sacca_massima", 20)):
+		GameState.sacca.append("razione_del_circo")
+	var razione := {"tipo": "vendita", "oggetto": "razione_del_circo", "prezzo": 10, "categoria": ""}
+	esigi(Merce.perche_no(razione) == "",
+			"con la sacca allargata il negozio la dice piena: '%s'" % Merce.perche_no(razione))
+	esigi(Merce.capienza_sacca() > int(GameState.regole.get("sacca_massima", 20)),
+			"la sacca del negozio non si e' allargata")
+
+	# un'arma che hai gia': si dice, e non si vende
+	GameState.nuova_partita()
+	GameState.tazo = 99999
+	GameState.aggiungi_oggetto("coltello_di_servizio")
+	var coltello := {"tipo": "vendita", "oggetto": "coltello_di_servizio", "prezzo": 45, "categoria": ""}
+	esigi(Merce.perche_no(coltello) == "ce l'hai già", "un'arma gia' tua si vende lo stesso: '%s'" % Merce.perche_no(coltello))
+	esigi(String(Merce.stato_breve(coltello)["testo"]) == "GIÀ TUO", "la carta di un'arma gia' tua non lo dice")
+
+	# LE FRASI DEGLI EFFETTI, per ogni oggetto del gioco: niente chiavi grezze,
+	# niente "elemento +0" (il Petardo lo diceva), niente riquadri vuoti
+	for dati in GameState.oggetti.values():
+		if not dati is Dictionary:
+			continue
+		var frase := Merce.riassunto_effetto(dati)
+		esigi(not frase.contains("_") and not frase.contains("elemento") and not frase.contains("+0"),
+				"'%s' si descrive cosi': '%s'" % [dati.get("id", ""), frase])
+		var pezzi := Merce.pezzi_effetto(dati)
+		esigi(pezzi.size() <= 3, "'%s' ha piu' di tre riquadri" % dati.get("id", ""))
+		for pezzo in pezzi:
+			esigi(String(pezzo["valore"]) != "" and String(pezzo["nome"]) != "",
+					"'%s' ha un riquadro vuoto: %s" % [dati.get("id", ""), pezzo])
+	esigi(Merce.riassunto_effetto(GameState.dati_oggetto("petardo")) == "6 danni da fuoco, ignora le difese",
+			"il Petardo si descrive '%s'" % Merce.riassunto_effetto(GameState.dati_oggetto("petardo")))
+	var frammento := Merce.riassunto_effetto(GameState.dati_oggetto("frammento_di_vita"))
+	esigi(frammento.contains("10%") and frammento.contains("3 battute"),
+			"il Frammento di vita si descrive '%s'" % frammento)
+	# e le parole sono le stesse dappertutto: lo zaino della pausa legge da qui
+	esigi(not FileAccess.get_file_as_string("res://scripts/PaginePausa.gd").contains("func riassunto_effetto"),
+			"lo zaino ha di nuovo un suo modo di descrivere gli effetti")
+
+	# I BARATTI CONTANO I DOPPIONI. Due rottami chiesti, uno in tasca: ne manca
+	# uno di rottame e uno di convertitore - due, non "tutti e tre NO"
+	GameState.nuova_partita()
+	GameState.collezionabili.append("rottame_di_metallo")
+	var richiesti := ["rottame_di_metallo", "rottame_di_metallo", "convertitore"]
+	var righe := Merce.materiali(richiesti)
+	esigi(righe.size() == 2, "i materiali uguali non si raggruppano: %s" % [righe])
+	esigi(righe.size() == 2 and int(righe[0]["hai"]) == 1 and int(righe[0]["servono"]) == 2
+			and int(righe[1]["hai"]) == 0, "il conto dei materiali e' sbagliato: %s" % [righe])
+	esigi(Merce.pezzi_mancanti(richiesti) == 2, "mancano %d pezzi invece di 2" % Merce.pezzi_mancanti(richiesti))
+	var baratto := {"tipo": "baratto", "oggetto": "il_mondo_e_il_mio_tesoro", "richiede": richiesti, "categoria": ""}
+	esigi(String(Merce.stato_breve(baratto)["testo"]) == "1/3 MATERIALI",
+			"sotto la carta del baratto c'e' '%s'" % Merce.stato_breve(baratto)["testo"])
+	esigi(Merce.perche_no(baratto) == "ti mancano 2 materiali", "il baratto dice '%s'" % Merce.perche_no(baratto))
+	GameState.collezionabili.append("rottame_di_metallo")
+	GameState.collezionabili.append("convertitore")
+	esigi(Merce.perche_no(baratto) == "", "con tutti i materiali il baratto dice ancora di no")
+	GameState.nuova_partita()
+
+func prova_il_negozio_si_usa_con_le_frecce_e_con_la_rotella() -> void:
+	# IL NEGOZIO USATO DAVVERO, senza mouse e col mouse: le frecce scorrono
+	# tutto lo scaffale e in fondo dicono di no, la rotella fa lo stesso, INVIO
+	# sulla carta scelta porta su COMPRA e da li' freccia a sinistra torna a
+	# QUELLA carta (non all'ultima dello scaffale, che la sceglieva). Le
+	# linguette restano le stesse dopo un acquisto - rifatte, si portavano via
+	# il fuoco - e le carte, entrate due volte di fila, tornano a casa.
+	titolo("il negozio si usa con le frecce, la rotella e INVIO, e le carte stanno al loro posto")
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	GameState.nuova_partita()
+	GameState.tazo = 140
+	GameState.negozi_sbloccati = ["organizzazione", "nyu", "artigiano"] as Array[String]
+	var bottega: Node = load("res://scenes/Negozio.tscn").instantiate()
+	add_child(bottega)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var carte: Array[CartaNegozio] = bottega.carte
+	esigi(carte[0].has_focus(), "aprendo il negozio il fuoco non e' sulla prima carta")
+	var fila: Array = bottega.fila
+	for i in fila.size() + 2:
+		carte[int(bottega.scelta) - int(bottega.inizio)].gui_input.emit(azione_ui("ui_right"))
+	esigi(int(bottega.scelta) == fila.size() - 1,
+			"a forza di frecce si arriva a %d su %d" % [int(bottega.scelta) + 1, fila.size()])
+	esigi(Movimento.ultimo_suono == "rifiuto", "in fondo allo scaffale la freccia non dice di no")
+	esigi(carte[int(bottega.scelta) - int(bottega.inizio)].has_focus(), "il fuoco non segue la carta scelta")
+	carte[int(bottega.scelta) - int(bottega.inizio)].gui_input.emit(rotella_del_mouse(false))
+	esigi(int(bottega.scelta) == fila.size() - 2, "la rotella non scorre lo scaffale")
+	for carta in carte:
+		# a meno di un soffio: una carta che si muove su posizioni con la virgola
+		# si ricalcola la misura dai margini, e il float ci lascia un 190.00003
+		esigi(carta.size.is_equal_approx(Vector2(CartaNegozio.LARGO + CartaNegozio.SPOSTA_BASSO, CartaNegozio.ALTO)),
+				"una carta e' cresciuta col nome: %s" % [carta.size])
+
+	# INVIO sulla carta scelta porta su COMPRA; da COMPRA si torna a quella carta
+	bottega.seleziona(0, true)
+	var scelta: CartaNegozio = carte[0]
+	scelta.gui_input.emit(azione_ui("ui_accept"))
+	scelta.pressed.emit()
+	var compra: TastoObliquo = bottega.vetrina.compra
+	esigi(compra.has_focus(), "INVIO sulla carta scelta non porta su COMPRA")
+	get_viewport().push_input(azione_ui("ui_left"))
+	esigi(scelta.has_focus() and int(bottega.scelta) == 0,
+			"da COMPRA la freccia a sinistra non torna alla carta che stavi comprando (scelta %d)" % int(bottega.scelta))
+	# e dalle linguette, in giu', si arriva alla carta scelta, non a quella sotto
+	(bottega.linguette[-1] as Control).grab_focus()
+	get_viewport().push_input(azione_ui("ui_down"))
+	esigi(scelta.has_focus() and int(bottega.scelta) == 0,
+			"dalle linguette la freccia in giu' sceglie un'altra carta (scelta %d)" % int(bottega.scelta))
+	scelta.gui_input.emit(azione_ui("ui_accept"))
+	scelta.pressed.emit()
+
+	# si compra; e da poveri si dice di no, senza toccare niente
+	var in_sacca := GameState.sacca.size()
+	var linguette_prima: Array = bottega.linguette.duplicate()
+	compra.pressed.emit()
+	esigi(GameState.tazo == 140 - int(fila[0]["prezzo"]) and GameState.sacca.size() == in_sacca + 1,
+			"COMPRA non ha comprato: %d Tazo, %d in sacca" % [GameState.tazo, GameState.sacca.size()])
+	esigi(bottega.linguette == linguette_prima and bottega.linguette.all(func(l: Node) -> bool: return is_instance_valid(l)),
+			"comprare ha rifatto le linguette: il fuoco e la gelatina di chi le usava si perdono")
+	GameState.tazo = 0
+	bottega.costruisci()
+	esigi(compra.inerte, "senza Tazo COMPRA non si spegne")
+	esigi(bottega.vetrina.motivo.text != "", "COMPRA spento non dice perche'")
+	compra.pressed.emit()
+	esigi(GameState.tazo == 0 and GameState.sacca.size() == in_sacca + 1, "COMPRA spento ha comprato lo stesso")
+	esigi(compra.rifiutata >= 0.0 and Movimento.ultimo_suono == "rifiuto", "COMPRA spento non dice di no")
+	# acquista() chiamata da fuori (l'automa) segue la stessa regola del tasto:
+	# un'arma gia' tua non si paga una seconda volta
+	GameState.tazo = 999
+	GameState.aggiungi_oggetto("coltello_di_servizio")
+	bottega.costruisci()
+	for i in bottega.fila.size():
+		if String(bottega.fila[i]["oggetto"]) == "coltello_di_servizio":
+			bottega.seleziona(i, false)
+	bottega.acquista()
+	esigi(GameState.tazo == 999, "acquista() da fuori fa pagare un'arma che hai gia': %d Tazo" % GameState.tazo)
+
+	# le linguette: una premuta diventa cremisi, le altre no, e ci stanno tutte
+	(bottega.linguette[2] as TastoObliquo).scelto.emit()
+	esigi(String(bottega.negozio_aperto) == "artigiano", "la linguetta non apre il suo negozio")
+	for linguetta: TastoObliquo in bottega.linguette:
+		esigi(linguetta.stile == ("accento" if String(linguetta.get_meta("negozio")) == "artigiano" else "spoglio"),
+				"la linguetta di '%s' ha lo stile sbagliato" % linguetta.get_meta("negozio"))
+	var ultima: TastoObliquo = bottega.linguette[-1]
+	esigi(ultima.position.x + ultima.misura_voluta().x <= bottega.FINE_LINGUETTE,
+			"le linguette escono sotto la vetrina")
+
+	# il baratto conta per davvero: nessun materiale in tasca, zero su tutto
+	var baratto := -1
+	for i in bottega.fila.size():
+		if String(bottega.fila[i]["tipo"]) == "baratto":
+			baratto = i
+	esigi(baratto >= 0, "la bottega dell'Artigiano non ha baratti")
+	if baratto >= 0:
+		bottega.seleziona(baratto, false)
+		var richiesti: Array = bottega.fila[baratto]["richiede"]
+		esigi(bottega.vetrina.restano.text == "0/%d" % richiesti.size(),
+				"senza materiali la vetrina dice '%s'" % bottega.vetrina.restano.text)
+		esigi(bottega.vetrina.valori[0].text.begins_with("0/"),
+				"il riquadro del primo materiale dice '%s'" % bottega.vetrina.valori[0].text)
+
+	# le scritte sotto le carte stanno nel loro passo, per ogni voce di ogni negozio
+	esigi(CartaNegozio.LARGO_STATO <= float(bottega.PASSO_CARTA) - 4.0,
+			"la riga sotto la carta e' piu' larga del passo dello scaffale: tocca quella accanto")
+	var tondo := Caratteri.tondo(900)
+	for id_negozio in GameState.negozi:
+		for voce in Merce.voci(GameState.negozi[id_negozio]):
+			var testo := String(Merce.stato_breve(voce)["testo"])
+			var corpo := Tavola.corpo_che_entra(tondo, testo, CartaNegozio.LARGO_STATO,
+					CartaNegozio.CORPO_STATO, CartaNegozio.CORPO_STATO - 2)
+			esigi(tondo.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x <= CartaNegozio.LARGO_STATO,
+					"'%s' sotto la carta esce nella carta accanto" % testo)
+
+	# DUE ENTRATE DI FILA: le carte tornano a casa, non dove le aveva lasciate la prima
+	# (di fila, senza fotogrammi in mezzo: se la prima avesse il tempo di finire
+	# la prova dipenderebbe da quanto e' lenta la macchina, e non vedrebbe niente)
+	bottega.entra_carte(0.0)
+	bottega.entra_carte(0.0)
+	await get_tree().create_timer(1.0).timeout
+	for i in carte.size():
+		var casa: Vector2 = bottega.PRIMA_CARTA + Vector2(bottega.PASSO_CARTA * i, 0)
+		esigi(carte[i].position.is_equal_approx(casa) and is_equal_approx(carte[i].modulate.a, 1.0),
+				"la carta %d dopo due entrate sta a %s invece che a %s" % [i, carte[i].position, casa])
+
+	# la sacca del cartiglio e' quella vera
+	GameState.aggiungi_oggetto("spazio_nella_realta")
+	bottega.costruisci()
+	esigi(bottega.sacca.testo.ends_with("/%d" % GameState.capacita_zaino("consumabili")),
+			"il cartiglio dice '%s'" % bottega.sacca.testo)
+	bottega.queue_free()
+	await get_tree().process_frame
+	Impostazioni.movimento_ridotto = ridotto_prima
+	GameState.nuova_partita()
+
+func prova_la_descrizione_scorre_e_aspetta_chi_legge() -> void:
+	# «DESCRIZIONE CHE SCORRE», l'ha chiesta Bru. Scorre alla velocita' di chi
+	# legge, parte quando l'inizio e' stato letto, si ferma sotto il mouse,
+	# torna in cima; un testo corto non si muove mai; la rotella la prende a
+	# mano; col movimento ridotto gira pagina invece di scorrere.
+	titolo("la descrizione lunga scorre a velocita' di lettura e aspetta chi legge")
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	var testo := TestoCheScorre.nuovo(16, Color.WHITE, Color.BLACK)
+	add_child(testo)
+	testo.size = Vector2(460, 100)
+	testo.scrivi("una parola dopo l'altra ".repeat(20))
+	await get_tree().process_frame
+	testo.set_process(false)
+	var fondo := testo.eccedenza()
+	esigi(fondo > 0.0, "il testo di prova ci sta tutto: non c'e' niente da far scorrere")
+	testo._process(0.1)
+	esigi(testo.scostamento == 0.0, "parte subito: non lascia il tempo di leggere l'inizio")
+	testo._process(testo.attesa())
+	esigi(testo.fase == TestoCheScorre.Fase.SCORRE, "passata l'attesa non comincia a scorrere")
+	var da := testo.scostamento
+	testo._process(1.0)
+	var velocita := testo.altezza_riga() / testo.tempo("riga", 2.5)
+	esigi(absf(testo.scostamento - da - velocita) < 0.5,
+			"scorre di %.1f pixel al secondo invece di %.1f (una riga ogni riga di lettura)"
+			% [testo.scostamento - da, velocita])
+	testo.sopra = true
+	var fermo := testo.scostamento
+	testo._process(2.0)
+	esigi(testo.scostamento == fermo, "col mouse sopra il testo continua a scorrere")
+	testo.sopra = false
+	var arrivato := false
+	var tornato := false
+	for i in 600:
+		testo._process(0.05)
+		arrivato = arrivato or is_equal_approx(testo.scostamento, fondo)
+		tornato = tornato or (arrivato and testo.scostamento == 0.0 and testo.fase == TestoCheScorre.Fase.ATTESA)
+	esigi(arrivato, "il testo non arriva mai in fondo")
+	esigi(tornato, "arrivato in fondo non torna in cima")
+	# la rotella lo prende a mano, e da li' resta dov'e'
+	testo.scrivi("un altro testo lungo, e poi ancora ".repeat(20))
+	testo._gui_input(rotella_del_mouse(true))
+	var a_mano := testo.scostamento
+	esigi(a_mano > 0.0, "la rotella non sposta il testo")
+	for i in 200:
+		testo._process(0.1)
+	esigi(testo.scostamento == a_mano, "spostato a mano, il testo riparte da solo")
+	# un testo corto non si muove
+	testo.scrivi("corto")
+	for i in 200:
+		testo._process(0.1)
+	esigi(testo.scostamento == 0.0 and testo.fase == TestoCheScorre.Fase.FERMA, "un testo che ci sta si muove lo stesso")
+	# col movimento ridotto: pagine intere, mai una posizione a meta'
+	Impostazioni.movimento_ridotto = true
+	testo.scrivi("pagina dopo pagina, riga dopo riga ".repeat(30))
+	var fondo_ridotto := testo.eccedenza()
+	var pagina := testo.size.y - testo.altezza_riga()
+	var viste := {}
+	for i in 2000:
+		testo._process(0.05)
+		viste[snappedf(testo.scostamento, 0.01)] = true
+	esigi(viste.size() >= 2, "col movimento ridotto non gira mai pagina")
+	for posizione: float in viste:
+		var a_pagina := is_equal_approx(fmod(posizione, pagina), 0.0) or is_equal_approx(fmod(posizione, pagina), pagina)
+		esigi(a_pagina or is_equal_approx(posizione, fondo_ridotto),
+				"col movimento ridotto il testo si ferma a %.1f: sta scorrendo, non girando pagina" % posizione)
+	testo.queue_free()
+	Impostazioni.movimento_ridotto = ridotto_prima
+
+func prova_la_scheda_si_gira_tutta_da_tastiera() -> void:
+	# LA SCHEDA DELLA SQUADRA USATA DAVVERO. Dal carosello: destra e sinistra
+	# girano gli slot in tondo, su e giu' passano per TUTTA la squadra - con
+	# quattro compagni la terza carta era un muro, e il quarto non si
+	# raggiungeva - e passando a chi e' di passaggio (niente carosello) il
+	# fuoco non si perde. INVIO apre lo slot, ESC chiude la scelta e non la
+	# scheda. Uno slot chiuso dice di no. Un accessorio cambiato resta al suo
+	# posto, e il carosello va dove l'oggetto e' finito davvero.
+	titolo("la scheda si gira tutta da tastiera, e gli accessori restano al loro posto")
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	for id_compagno: String in ["sally", "vega"]:
+		GameState.recluta(id_compagno)
+	GameState.recluta_temporaneo("niru", 3)
+	for id_oggetto: String in ["coltello_di_servizio", "mannaia_scheggiata"]:
+		GameState.aggiungi_oggetto(id_oggetto)
+	GameState.equipaggia(eroe, "arma", "coltello_di_servizio")
+	var scheda := SchedaPersonaggio.new()
+	add_child(scheda)
+	scheda.apri(func() -> void: pass, func() -> void: pass)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var centro: SlotScheda = scheda.caselle[1]
+	esigi(centro.has_focus(), "aprendo la scheda il fuoco non e' sul carosello")
+
+	var quanti := scheda.slot_elenco().size()
+	for i in quanti:
+		centro.gui_input.emit(azione_ui("ui_right"))
+	esigi(scheda.slot_centro == 0, "un giro intero del carosello non torna al primo slot")
+	centro.gui_input.emit(azione_ui("ui_left"))
+	esigi(scheda.slot_centro == quanti - 1, "a sinistra del primo slot non c'e' l'ultimo")
+	esigi(not scheda.caselle[0].focus_mode == Control.FOCUS_ALL,
+			"le caselle laterali si prendono il fuoco del tab: la tastiera sta al centro")
+
+	var visti: Array = [scheda.id_scelto]
+	for i in GameState.party.size() + 1:
+		var chi := scheda.get_viewport().gui_get_focus_owner()
+		esigi(chi != null, "cambiando compagno la tastiera ha perso il fuoco (su %s)" % scheda.id_scelto)
+		if chi == null:
+			break
+		chi.gui_input.emit(azione_ui("ui_down"))
+		if scheda.id_scelto not in visti:
+			visti.append(scheda.id_scelto)
+	esigi(visti == Array(GameState.party), "con le frecce si passa per %s e non per tutta la squadra %s" % [visti, GameState.party])
+	esigi(Movimento.ultimo_suono == "rifiuto", "in fondo alla squadra la freccia non dice di no")
+	esigi(not centro.visible, "chi e' di passaggio ha un carosello")
+	var sulla_carta := scheda.get_viewport().gui_get_focus_owner()
+	esigi(sulla_carta is CartaSquadra and (sulla_carta as CartaSquadra).id_classe == "niru",
+			"passando a chi e' di passaggio il fuoco non va sulla sua carta")
+	if sulla_carta != null:
+		sulla_carta.gui_input.emit(azione_ui("ui_up"))
+	esigi(scheda.id_scelto == String(GameState.party[2]), "dalla carta, su non torna al compagno prima")
+	var in_vista := scheda.carte.filter(func(c: CartaSquadra) -> bool: return c.id_classe == scheda.id_scelto)
+	esigi(in_vista.size() == 1, "il compagno scelto non ha la sua carta in vista")
+	esigi(scheda.su_carte.visible and scheda.giu_carte.visible, "con quattro compagni le frecce della fila non ci sono")
+	(scheda.carte[0] as CartaSquadra).gui_input.emit(rotella_del_mouse(true))
+	esigi(scheda.id_scelto == String(GameState.party[3]), "la rotella sulla fila non passa al compagno dopo")
+
+	# INVIO apre lo slot al centro, ESC chiude la scelta e non la scheda
+	scheda.cambia_compagno(eroe)
+	await get_tree().process_frame
+	centro.pressed.emit()
+	esigi(scheda.slot_aperto == "arma", "INVIO sullo slot al centro non apre la scelta: '%s'" % scheda.slot_aperto)
+	await get_tree().process_frame
+	var candidati := scheda.elenco.get_children().filter(func(v: Node) -> bool: return v is VoceCandidato)
+	esigi(candidati.size() == 2, "per l'arma ci sono %d candidati invece di 2" % candidati.size())
+	if candidati.size() == 2:
+		esigi((candidati[0] as Control).has_focus(), "aprendo la scelta il fuoco non va al primo candidato")
+		# le frecce vere, passate da Godot: su dal primo candidato si resta nella
+		# scelta (finiva sulla carta di sopra, che cambiava compagno e chiudeva)
+		get_viewport().push_input(azione_ui("ui_up"))
+		esigi(scheda.id_scelto == eroe and scheda.slot_aperto == "arma" and (candidati[0] as Control).has_focus(),
+				"freccia su dal primo candidato esce dalla scelta (compagno %s, slot '%s')" % [scheda.id_scelto, scheda.slot_aperto])
+		get_viewport().push_input(azione_ui("ui_left"))
+		esigi((candidati[0] as Control).has_focus(), "freccia a sinistra da un candidato esce dalla scelta")
+		# il mouse passa sul secondo e se ne va: l'anteprima torna a chi ha il fuoco
+		(candidati[1] as Control).mouse_entered.emit()
+		var mannaia := Corredo.scarti_di(String(candidati[1].id_oggetto), "coltello_di_servizio")
+		esigi(scheda.statistiche.anteprima == mannaia, "passando sulla mannaia le statistiche non mostrano dove andresti")
+		(candidati[1] as Control).mouse_exited.emit()
+		esigi(scheda.statistiche.anteprima == Corredo.scarti_di(String(candidati[0].id_oggetto), "coltello_di_servizio"),
+				"lasciata la mannaia, l'anteprima resta la sua: %s" % [scheda.statistiche.anteprima])
+	scheda._unhandled_input(esc_premuto())
+	esigi(scheda.slot_aperto == "", "ESC non chiude la scelta")
+	esigi(is_instance_valid(scheda) and scheda.is_inside_tree(), "ESC ha chiuso la scheda invece della scelta")
+
+	# uno slot chiuso, al centro, dice di no e non si apre
+	var slot := scheda.slot_elenco()
+	for i in slot.size():
+		if not bool(slot[i]["aperto"]):
+			scheda.slot_centro = i
+	scheda.ridisegna()
+	if not bool(scheda.slot_elenco()[scheda.slot_centro]["aperto"]):
+		centro.pressed.emit()
+		esigi(scheda.slot_aperto == "" and centro.rifiutata >= 0.0, "uno slot chiuso si apre, o non dice di no")
+
+	# GLI ACCESSORI RESTANO AL LORO POSTO. Tre slot, tre amuleti; si cambia il primo
+	GameState.porta_al_livello(eroe, 15)
+	for id_oggetto: String in ["amuleto_di_pietra", "amuleto_di_ferro", "amuleto_di_vento", "amuleto_di_cenere"]:
+		GameState.aggiungi_oggetto(id_oggetto)
+	var fila: Array = GameState.slot_di(eroe)["accessori"]
+	esigi(fila.size() == 3, "tre slot aperti ma %d accessori addosso" % fila.size())
+	if fila.size() == 3:
+		var terzo := String(fila[2])
+		scheda.slot_aperto = "accessori"
+		scheda.indice_aperto = 0
+		scheda.ridisegna()
+		scheda.metti("amuleto_di_cenere", String(fila[0]))
+		fila = GameState.slot_di(eroe)["accessori"]
+		esigi(String(fila[0]) == "amuleto_di_cenere" and String(fila[2]) == terzo,
+				"cambiando il primo accessorio la fila diventa %s" % [fila])
+		# e in uno slot dopo i buchi: il carosello va dove e' finito. (La fila
+		# e' quella vera di GameState: si copia prima di toglierci roba)
+		for id_oggetto: String in fila.slice(1).duplicate():
+			GameState.togli_oggetto_equipaggiato(id_oggetto)
+		scheda.slot_aperto = "accessori"
+		scheda.indice_aperto = 2
+		scheda.ridisegna()
+		scheda.metti("amuleto_di_vento", "")
+		var al_centro := scheda.slot_elenco()[scheda.slot_centro]
+		esigi(String(al_centro["oggetto"]) == "amuleto_di_vento",
+				"messo nel terzo slot, l'amuleto e' finito nel secondo e il carosello e' rimasto su %s" % al_centro["etichetta"])
+
+	# DUE GIRI DURANTE L'ENTRATA: il carosello torna a casa
+	scheda.entra()
+	centro.gui_input.emit(azione_ui("ui_right"))
+	centro.gui_input.emit(azione_ui("ui_right"))
+	await get_tree().create_timer(1.0).timeout
+	esigi(scheda.carosello.position.is_equal_approx(Vector2.ZERO) and is_equal_approx(scheda.carosello.modulate.a, 1.0),
+			"girando mentre la scheda entra il carosello resta a %s" % [scheda.carosello.position])
+	scheda.queue_free()
+	await get_tree().process_frame
+	Impostazioni.movimento_ridotto = ridotto_prima
+	GameState.nuova_partita()
+
+func prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma() -> void:
+	# COL MOVIMENTO RIDOTTO NIENTE SI SPOSTA: i colori cambiano, le cose restano
+	# dove sono. La carta della squadra si sporgeva lo stesso (la sua molla
+	# della forma non guardava l'impostazione), e il disegno della vetrina
+	# scivolava da destra
+	titolo("col movimento ridotto negozio e scheda cambiano colore ma non si spostano")
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	GameState.nuova_partita()
+	GameState.recluta("sally")
+	var carta := CartaSquadra.new()
+	add_child(carta)
+	carta.carica("sally", false)
+	carta.accendi()
+	for i in 30:
+		carta._process(1.0 / 60.0)
+	esigi(carta.sporta.valore == 0.0 and is_equal_approx(carta.accesa.valore, 1.0),
+			"col movimento ridotto la carta della squadra si sporge (%.2f)" % carta.sporta.valore)
+	carta.queue_free()
+	var scaffale := CartaNegozio.new()
+	add_child(scaffale)
+	scaffale.carica({"tipo": "vendita", "oggetto": "razione_del_circo", "prezzo": 10, "categoria": ""}, false)
+	scaffale.accendi()
+	for i in 30:
+		scaffale._process(1.0 / 60.0)
+	esigi(scaffale.alzata.valore == 0.0, "col movimento ridotto la carta del negozio si alza")
+	scaffale.queue_free()
+	var pezzo := Control.new()
+	add_child(pezzo)
+	pezzo.position = Vector2(100, 100)
+	Tavola.entra(pezzo, 0.0, Vector2(0, 40))
+	esigi(pezzo.position == Vector2(100, 100), "col movimento ridotto un pezzo entra da lontano")
+	pezzo.queue_free()
+	var vetrina := Vetrina.new()
+	add_child(vetrina)
+	vetrina.mostra({"tipo": "vendita", "oggetto": "petardo", "prezzo": 12, "categoria": ""})
+	vetrina.mostra({"tipo": "vendita", "oggetto": "tonico_calmante", "prezzo": 15, "categoria": ""})
+	esigi(vetrina.arrivo < 1.0 and vetrina.scivolo() == 0.0,
+			"col movimento ridotto il disegno della vetrina scivola (%.1f pixel)" % vetrina.scivolo())
+	Impostazioni.movimento_ridotto = false
+	esigi(vetrina.scivolo() > 0.0, "senza movimento ridotto il disegno nuovo non arriva scivolando")
+	vetrina.queue_free()
+	# e i disegni di Bru entrano nei riquadri interi, senza essere schiacciati:
+	# una fiala alta e stretta in una carta quadrata resta alta e stretta
+	var fiala := Sagome.dentro(Vector2(20, 80), Rect2(0, 0, 100, 100))
+	esigi(fiala.is_equal_approx(Rect2(37.5, 0, 25, 100)),
+			"un disegno 20x80 in un riquadro 100x100 finisce in %s: e' stato storto" % fiala)
+	Impostazioni.movimento_ridotto = ridotto_prima
+	GameState.nuova_partita()
+
+func prova_la_tavola_sta_intera_anche_col_testo_grande() -> void:
+	# NEGOZIO E SCHEDA SONO DISEGNATI A PIXEL SUL FOGLIO DI BRU, 1280x720, e
+	# «testo piu' grande» rimpicciolisce lo schermo utile a 1024x576: senza
+	# adattarsi il foglio ne uscirebbe di un quinto a destra e in basso. Si
+	# scala intero e resta dentro - e torna com'era quando il testo torna normale
+	titolo("il foglio del negozio e della scheda sta intero anche col testo grande")
+	var tavola := Tavola.su(self)
+	await get_tree().process_frame
+	var prima := get_tree().root.content_scale_factor
+	for fattore: float in [1.25, 1.0]:
+		get_tree().root.content_scale_factor = fattore
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var vista := get_viewport().get_visible_rect().size
+		var occupa := Rect2(tavola.position, Vector2(Tavola.LARGO, Tavola.ALTO) * tavola.scale)
+		esigi(Rect2(Vector2.ZERO, vista).grow(0.5).encloses(occupa),
+				"con la scala %.2f il foglio occupa %s su uno schermo di %s" % [fattore, occupa, vista])
+		esigi(is_equal_approx(occupa.size.x, vista.x) or is_equal_approx(occupa.size.y, vista.y),
+				"con la scala %.2f il foglio non riempie lo schermo: %s su %s" % [fattore, occupa.size, vista])
+	get_tree().root.content_scale_factor = prima
+	tavola.queue_free()

@@ -109,6 +109,35 @@ def illustrazioni():
     return fuori
 
 
+# I DISEGNI DELLA SCHEDA DELLA SQUADRA, nella cartella di ogni compagno (la
+# stessa delle espressioni: art/personaggi/<id>/). Devono restare uguali a
+# Corredo.DISEGNI in scripts/Corredo.gd. Le misure in docs/interfaccia.md
+DISEGNI_SCHEDA = [
+    ("intero", "la figura intera, al centro della scheda"),
+    ("carta", "il ritratto nella carta della squadra, a destra"),
+    ("emblema", "l'emblema accanto al nome, in alto a sinistra"),
+]
+STATISTICHE = [("hp", "Punti vita"), ("attacco", "Attacco"), ("difesa", "Difesa"),
+               ("velocita", "Velocità"), ("aura", "Aura")]
+
+
+def oggetti_disegnati():
+    """Gli oggetti che negozio e scheda disegnano: quello che si vende o si
+    baratta, e quello che si mette addosso. I materiali e le chiavi no: nei
+    riquadri del baratto sono scritti, non disegnati."""
+    tutti = {o["id"]: o for o in carica("data/oggetti.json")["oggetti"]}
+    scelti = set()
+    for negozio in carica("data/negozi.json")["negozi"]:
+        for voce in negozio.get("stock", []):
+            scelti.add(voce.get("oggetto", ""))
+        for baratto in negozio.get("baratti", []):
+            scelti.add(baratto.get("produce", ""))
+    for id_oggetto, dati in tutti.items():
+        if dati.get("tipo") in ("arma", "stigma", "accessorio", "consumabile"):
+            scelti.add(id_oggetto)
+    return [(i, tutti[i].get("nome", i)) for i in sorted(scelti) if i in tutti]
+
+
 def esiste(percorso_res):
     return os.path.exists(os.path.join(RADICE, percorso_res.replace("res://", "")))
 
@@ -259,6 +288,48 @@ def genera():
                 q["file"].replace("res://", ""), q["dove"], q["didascalia"],
                 "✓" if esiste(q["file"]) else ""))
         righe.append("")
+
+    righe.append("## Il negozio e la scheda della squadra")
+    righe.append("")
+    righe.append("Le misure, e come ogni disegno viene messo nel suo riquadro, stanno in")
+    righe.append("`docs/interfaccia.md`. Finché un file manca si vede un disegno a forme, quindi")
+    righe.append("anche qui si può fare con calma e in qualunque ordine.")
+    righe.append("")
+    righe.append("### I compagni: nella loro cartella, quella delle espressioni")
+    righe.append("")
+    righe.append("La cartella ha il nome dell'**id**, non del ritratto: i disegni di Yhvina")
+    righe.append("stanno in `art/personaggi/insonne/`.")
+    righe.append("")
+    righe.append("| chi | %s |" % " | ".join("`%s.png`" % d for d, _ in DISEGNI_SCHEDA))
+    righe.append("|---|%s|" % "|".join(":-:" for _ in DISEGNI_SCHEDA))
+    for classe in carica("data/classes.json")["classi"]:
+        segni = []
+        for disegno, _ in DISEGNI_SCHEDA:
+            segni.append("✓" if esiste("art/personaggi/%s/%s.png" % (classe["id"], disegno)) else "")
+        righe.append("| %s (`art/personaggi/%s/`) | %s |" % (classe.get("nome", classe["id"]), classe["id"], " | ".join(segni)))
+    righe.append("")
+    for disegno, cosa in DISEGNI_SCHEDA:
+        righe.append("- `%s.png`: %s" % (disegno, cosa))
+    righe.append("")
+    righe.append("### Gli oggetti: `art/oggetti/<id>.png`")
+    righe.append("")
+    righe.append("Lo stesso file serve alla carta dello scaffale, alla vetrina, alla miniatura")
+    righe.append("e al carosello della scheda.")
+    righe.append("")
+    righe.append("| oggetto | file | c'è |")
+    righe.append("|---|---|:-:|")
+    for id_oggetto, nome in oggetti_disegnati():
+        percorso = "art/oggetti/%s.png" % id_oggetto
+        righe.append("| %s | `%s` | %s |" % (nome, percorso, "✓" if esiste(percorso) else ""))
+    righe.append("")
+    righe.append("### Le icone delle statistiche: `art/interfaccia/statistiche/<chiave>.png`")
+    righe.append("")
+    righe.append("| statistica | file | c'è |")
+    righe.append("|---|---|:-:|")
+    for chiave, nome in STATISTICHE:
+        percorso = "art/interfaccia/statistiche/%s.png" % chiave
+        righe.append("| %s | `%s` | %s |" % (nome, percorso, "✓" if esiste(percorso) else ""))
+    righe.append("")
 
     righe.append("## Il resto")
     righe.append("")

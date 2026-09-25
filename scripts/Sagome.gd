@@ -11,9 +11,10 @@ extends RefCounted
 # il disegno vero: vuole dire subito COSA e' quella cosa, e tenere il posto
 # della misura giusta.
 #
-# Il file vince sempre: basta metterlo dove dice art/interfaccia/LEGGIMI.md e
-# il disegno a forme non si vede piu'. A chiedere i file al disco e' Disegni
-# (una volta sola per percorso): qui ci sono solo le sagome.
+# Il file vince sempre: basta metterlo dove dice docs/immagini.md (le misure
+# stanno in docs/interfaccia.md) e il disegno a forme non si vede piu'. A
+# chiedere i file al disco e' Disegni (una volta sola per percorso): qui ci
+# sono solo le sagome.
 
 const TIPI_ICONA := ["consumabile", "arma", "stigma", "accessorio", "materiale", "speciale"]
 
@@ -22,6 +23,18 @@ static func immagine_oggetto(id_oggetto: String) -> Texture2D:
 	# il disegno vero di un oggetto, se Bru l'ha messo: Disegni lo chiede al
 	# disco una volta sola, anche quando la risposta e' "non c'e'"
 	return Disegni.texture("res://art/oggetti/%s.png" % id_oggetto)
+
+
+static func disegna_dentro(ci: CanvasItem, disegno: Texture2D, r: Rect2, colore := Color.WHITE) -> void:
+	# UN DISEGNO DENTRO UN RIQUADRO, intero e senza storcerlo: si rimpicciolisce
+	# finche' ci sta, e si centra. Un oggetto alto e stretto disegnato in un
+	# quadrato veniva schiacciato - e Bru i disegni non li fa tutti quadrati
+	ci.draw_texture_rect(disegno, dentro(disegno.get_size(), r), false, colore)
+
+
+static func dentro(misura: Vector2, r: Rect2) -> Rect2:
+	var quanto := minf(r.size.x / misura.x, r.size.y / misura.y)
+	return Rect2(r.get_center() - misura * quanto * 0.5, misura * quanto)
 
 
 static func tipo_icona(id_oggetto: String) -> String:
@@ -74,11 +87,11 @@ static func rombo(centro: Vector2, raggio: float) -> PackedVector2Array:
 			centro + Vector2(0, raggio), centro + Vector2(-raggio, 0)])
 
 
-static func stella(centro: Vector2, fuori: float, dentro: float, punte := 4) -> PackedVector2Array:
+static func stella(centro: Vector2, fuori: float, interno: float, punte := 4) -> PackedVector2Array:
 	var p := PackedVector2Array()
 	for i in punte * 2:
 		var a := -PI * 0.5 + PI * float(i) / float(punte)
-		p.append(centro + Vector2(cos(a), sin(a)) * (fuori if i % 2 == 0 else dentro))
+		p.append(centro + Vector2(cos(a), sin(a)) * (fuori if i % 2 == 0 else interno))
 	return p
 
 
@@ -206,10 +219,12 @@ static func timbro(ci: CanvasItem, c: Vector2, raggio: float, colore: Color) -> 
 			c + Vector2(raggio * 0.46, -raggio * 0.34)]), colore, maxf(raggio * 0.16, 2.0), true)
 
 
-static func freccia(ci: CanvasItem, c: Vector2, l: float, verso: int, colore: Color) -> void:
-	var s := float(verso)
-	ci.draw_polyline(PackedVector2Array([c + Vector2(-l * 0.2 * s, -l * 0.4), c + Vector2(l * 0.2 * s, 0),
-			c + Vector2(-l * 0.2 * s, l * 0.4)]), colore, maxf(l * 0.16, 2.0), true)
+static func freccia(ci: CanvasItem, c: Vector2, l: float, verso: Vector2, colore: Color) -> void:
+	# una punta: due tratti che si incontrano dalla parte verso cui si va
+	var avanti := verso.normalized() * l * 0.2
+	var lato := Vector2(-verso.y, verso.x).normalized() * l * 0.4
+	ci.draw_polyline(PackedVector2Array([c - avanti + lato, c + avanti, c - avanti - lato]), colore,
+			maxf(l * 0.16, 2.0), true)
 
 
 static func iniziale(ci: CanvasItem, r: Rect2, nome: String, corpo: int, chiaro: Color,

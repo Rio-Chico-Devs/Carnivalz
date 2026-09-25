@@ -51,9 +51,9 @@ func disegna_riga(riga: Dictionary, y: float, titolo: Font, tondo: Font) -> void
 	draw_rect(icona, Stile.colore("sfondo"))
 	var disegno := Disegni.texture("res://art/interfaccia/statistiche/%s.png" % chiave)
 	if disegno != null:
-		draw_texture_rect(disegno, icona, false)
+		Sagome.disegna_dentro(self, disegno, icona)
 	else:
-		Sagome.icona_statistica(self, icona.grow(-4.0), chiave, Stile.colore("testo"))
+		Sagome.icona_statistica(self, icona.grow(-1.0), chiave, Stile.colore("testo"))
 	draw_string(tondo, Vector2(50, y + 23), String(riga["nome"]), HORIZONTAL_ALIGNMENT_LEFT, 200, 17,
 			Stile.colore("testo"))
 	draw_line(Vector2(50, y + PASSO - 3.0), Vector2(DESTRA, y + PASSO - 3.0), Color(Stile.colore("testo"), 0.1), 1.0)

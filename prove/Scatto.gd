@@ -782,6 +782,35 @@ func prepara(quale: String) -> void:
 			elif variante != "povero":
 				bottega.seleziona(1, true)
 			await attendi(40)
+		"scheda":
+			# LA SCHEDA DELLA SQUADRA CON UNA SQUADRA VERA: quattro compagni (le
+			# carte scorrono), uno solo di passaggio, qualcosa addosso e qualcosa
+			# da mettere. "scheda scelta" apre l'arma e passa sulla mannaia;
+			# "scheda passaggio" guarda chi e' con te solo per un tratto
+			GameState.nuova_partita()
+			for id_compagno in ["sally", "vega"]:
+				GameState.recluta(id_compagno)
+			GameState.recluta_temporaneo("niru", 3)
+			for id_oggetto in ["coltello_di_servizio", "mannaia_scheggiata", "amuleto_di_pietra",
+					"amuleto_di_ferro", "stigma_del_muto", "benda_stretta"]:
+				GameState.aggiungi_oggetto(id_oggetto)
+			GameState.equipaggia(GameState.id_protagonista, "arma", "coltello_di_servizio")
+			GameState.equipaggia("sally", "accessori", "amuleto_di_ferro")
+			var argomenti_scheda := OS.get_cmdline_user_args()
+			var variante_scheda := String(argomenti_scheda[1]) if argomenti_scheda.size() > 1 else ""
+			var scheda := SchedaPersonaggio.new()
+			add_child(scheda)
+			scheda.apri(Callable(), Callable())
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			if variante_scheda == "scelta":
+				scheda._su_casella(scheda.caselle[1])
+				await attendi(5)
+				var voci := scheda.elenco.get_children().filter(func(v: Node) -> bool: return v is VoceCandidato)
+				if voci.size() > 1:
+					(voci[1] as VoceCandidato).grab_focus()
+			elif variante_scheda == "passaggio":
+				scheda.cambia_compagno("niru")
+			await attendi(20)
 		"sede":
 			# LA SEDE, che e' la schermata su cui si torna piu' volte di tutte:
 			# ci si passa dopo ogni Carnivalz, ed e' li' che si salva. Bru:

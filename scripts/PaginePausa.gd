@@ -323,43 +323,4 @@ static func disegna_scomparto(genitore: VBoxContainer, chiave: String) -> void:
 		conteggio[id_stringa] = int(conteggio[id_stringa]) + 1
 	for id_oggetto in ordine:
 		genitore.add_child(SchedaOggetto.riga(id_oggetto, int(conteggio[id_oggetto]),
-				riassunto_effetto(GameState.dati_oggetto(id_oggetto))))
-
-static func etichetta_bonus(chiave: String) -> String:
-	match chiave:
-		"attacco": return "attacco"
-		"difesa": return "difesa"
-		"velocita": return "velocità"
-		"hp_max": return "vita massima"
-		"aura_max": return "aura massima"
-		"aura_per_turno": return "aura per turno"
-		"resistenza_maledizione": return "rintocchi di maledizione"
-		_: return chiave
-
-static func riassunto_effetto(dati: Dictionary) -> String:
-	# cosa fa davvero, in numeri: la descrizione poetica sta nel Compendio
-	var effetto: Dictionary = dati.get("effetto_equipaggiato", dati.get("effetto", {}))
-	var voci: Array[String] = []
-	for chiave in effetto:
-		var nome_chiave := String(chiave)
-		match nome_chiave:
-			"tipo":
-				continue
-			"cura_stato":
-				var definizione: Dictionary = GameState.stati.get(effetto[chiave], {})
-				voci.append("toglie " + String(definizione.get("nome", effetto[chiave])).to_lower())
-			"cura_stati":
-				voci.append("toglie ogni male")
-			"hp":
-				voci.append("+%d vita" % int(effetto[chiave]))
-			"aura":
-				voci.append("+%d aura" % int(effetto[chiave]))
-			"danno":
-				voci.append("%d danni al nemico" % int(effetto[chiave]))
-			_:
-				voci.append("%s %+d" % [etichetta_bonus(nome_chiave), int(effetto[chiave])])
-	if String(effetto.get("tipo", "")) == "scudo_primo_stato":
-		voci.append("respinge il primo male che ti prende")
-	if String(effetto.get("tipo", "")) == "resurrezione_dimezzata":
-		voci.append("ti rimette in piedi una volta")
-	return ", ".join(voci) if not voci.is_empty() else "nessun effetto"
+				Merce.riassunto_effetto(GameState.dati_oggetto(id_oggetto), "nessun effetto")))

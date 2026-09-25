@@ -1471,5 +1471,5 @@ func aggiorna_stato() -> void:
 	etichetta_party.text = ", ".join(nomi) if not nomi.is_empty() else "solo tu"
 	etichetta_risorse.text = "Lv %d   ·   Tazo %d   ·   Sacca %d/%d   ·   Legame %d" % [
 		GameState.livello_di(GameState.id_protagonista), GameState.tazo,
-		GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20)), GameState.legame,
+		GameState.sacca.size(), Merce.capienza_sacca(), GameState.legame,
 	]

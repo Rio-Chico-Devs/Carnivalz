@@ -13,7 +13,7 @@ extends Control
 # curva d'entrata: e' il gesto che dice "adesso guardi un altro".
 
 const SCIVOLO := 40.0
-const CORPO_INIZIALE := 520
+const CORPO_INIZIALE := 430    # tiene il posto senza gridare: il personaggio vero sara' meno pieno di una A
 const COPIE := 4
 
 var id_classe := ""
@@ -51,7 +51,7 @@ func _draw() -> void:
 		return
 	var spostato := Vector2(0.0 if Movimento.ridotto() else SCIVOLO * (1.0 - arrivo), 0.0)
 	var alfa := arrivo
-	var disegno := Disegni.texture("res://art/personaggi/%s/intero.png" % id_classe)
+	var disegno := Corredo.disegno(id_classe, "intero")
 	if disegno != null:
 		var misura := disegno.get_size()
 		var quanto := size.x / misura.x
@@ -62,6 +62,6 @@ func _draw() -> void:
 	var copie: Array[Color] = []
 	for i in COPIE:
 		copie.append(Color(Stile.colore("accento").darkened(0.25 + 0.15 * i), alfa))
-	var r := Rect2(Vector2(0, size.y * 0.1) + spostato, size)
+	var r := Rect2(Vector2(0, size.y * 0.06) + spostato, size)
 	Sagome.iniziale(self, r, SchedaOggetto.nome_di_classe(id_classe), CORPO_INIZIALE,
 			Color(Stile.colore("testo"), alfa), copie)

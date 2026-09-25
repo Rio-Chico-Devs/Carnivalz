@@ -7,13 +7,13 @@ extends RefCounted
 # non e' roba della pausa: e' roba dell'oggetto, e la stessa riga serve allo
 # zaino, al negozio e a qualunque schermata li elenchi.
 #
-# L'EFFETTO ARRIVA GIA' SCRITTO, non lo calcola questa scheda. Non e' pigrizia:
-# in questo momento il riassunto dell'effetto esiste in DUE versioni diverse -
-# una in PaginePausa.gd e una in Negozio.gd - e lo stesso oggetto si racconta in modi
-# diversi a seconda di dove lo guardi. PLAY, euristica F2: «The player
-# experiences the user interface as consistent». Unificarle cambia il testo che
-# il giocatore legge in uno dei due posti, quindi e' un lavoro suo, con le sue
-# prove: qui intanto la scheda non sceglie, riceve.
+# L'EFFETTO ARRIVA GIA' SCRITTO, non lo calcola questa scheda: lo scrive
+# Merce.riassunto_effetto, l'unico posto che lo dice. Erano due versioni
+# diverse, una nello zaino e una nel negozio, e lo stesso oggetto si
+# raccontava in modi diversi a seconda di dove lo guardavi (PLAY, euristica
+# F2: «The player experiences the user interface as consistent»). Adesso le
+# parole sono quelle del negozio dappertutto; la prova
+# prova_il_negozio_non_fa_pagare_per_niente guarda che non si sdoppino di nuovo.
 
 static func riga(id_oggetto: String, quanti: int, effetto: String) -> Control:
 	var dati := GameState.dati_oggetto(id_oggetto)

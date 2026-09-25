@@ -830,23 +830,28 @@ l'equipaggiamento. Si legge sulla scheda accanto alla vita, e si ricarica con Fi
 Essenza d'aura (+14).
 
 ## Come è fatto un negozio
-Prima era un elenco piatto di righe uguali: nome, descrizione poetica, prezzo. Per decidere
-dovevi già sapere cosa fa un oggetto e cosa hai in tasca. Ora ogni riga risponde da sola alle tre
-domande che uno si fa davanti a uno scaffale:
+Sullo schema di Bru (`docs/interfaccia.md`), ridipinto coi colori del gioco. In alto le linguette
+dei negozi aperti; a sinistra i Tazo in grande e la descrizione dell'oggetto scelto, che **scorre
+da sola** se è lunga (e si ferma col mouse sopra); in basso lo scaffale, cinque carte storte alla
+volta; a destra la vetrina cremisi con l'oggetto in grande, il prezzo, tre riquadri con quello che
+fa in numeri, e il blocco che decide: quanti Tazo ti restano, quanti ne hai già, e **COMPRA**.
 
-- **che cosa fa** — l'effetto in numeri (`+8 vita`, `difesa +1`, `toglie sonno`), generato dalle
-  stesse chiavi che legge il combattimento: un oggetto nuovo si racconta da solo, senza toccare
-  `Negozio.gd`. La descrizione poetica resta, ma sotto
-- **ne ho già** — quanti ne hai in sacca, o chi lo porta addosso se è roba da indossare.
-  Comprare il secondo amuleto uguale dev'essere una scelta, non una distrazione
-- **me lo posso permettere** — il prezzo e **quanti Tazo ti restano dopo**. Se non puoi, il
-  bottone è spento e c'è scritto quanto ti manca; se la sacca è piena lo dice invece di lasciarti
-  premere a vuoto
+Le tre domande di sempre hanno ognuna un posto fisso, e le risposte le dà `scripts/Merce.gd`:
 
-Lo scaffale è diviso per mestiere (da usare in combattimento / armi e stigmi / accessori), così
-si sceglie tra tre categorie invece di leggere quindici righe tutte uguali. I baratti
-dell'Artigiano dicono cosa ti manca invece di limitarsi a fallire.
+- **che cosa fa** — l'effetto in numeri (`+8 vita`, `difesa +1`, `6 danni da fuoco`), generato
+  dalle stesse chiavi che legge il combattimento: un oggetto nuovo si racconta da solo. È l'unico
+  posto che lo dice: lo zaino della pausa usa le stesse parole
+- **ne ho già** — sotto la carta (IN SACCA ×2, GIÀ TUO) e accanto alla miniatura
+- **me lo posso permettere** — quanti Tazo ti restano dopo. Se non si può, COMPRA è spento e dice
+  perché proprio sotto (ti mancano 12 Tazo, la sacca è piena, ce l'hai già); premuto, dice di no
 
+**Il tasto non mente.** Se dice di sì l'oggetto arriva davvero; un'arma che hai già non si vende
+due volte, e la sacca allargata con lo spazio nella realtà vale anche al negozio. La prova
+(`prova_il_negozio_non_fa_pagare_per_niente`) lo verifica su tutto quello che i negozi offrono.
+
+Si usa col mouse (clic, rotella sullo scaffale) o con la tastiera: le frecce scorrono le carte,
+INVIO porta su COMPRA, un altro INVIO compra. I baratti dell'Artigiano mostrano i materiali uno per
+riquadro, coi doppioni insieme ("1/2 ROTTAME DI METALLO").
 ## Psiche, stress, fattore Carnivalz
 Ogni personaggio ha una **psiche** (`psiche` nella classe, definizioni in `data/psiche.json`):
 quando un compagno va a terra, ognuno accusa il colpo a modo suo —
@@ -1947,10 +1952,16 @@ questa schermata fa quasi sempre:
    nascosto è un premio che non sai di poter vincere; uno slot chiuso che dice *«si apre al livello
    15»* è un motivo per continuare.
 
-Tre colonne senza sottomenu: **chi è** (ritratto grande, nome, classe, livello, psiche) · **cosa
-porta** (arma, stigma, ultima risorsa, accessori) · **quanto vale** (statistiche, e in fase di
-scelta la differenza). In alto le linguette dei compagni — la squadra si guarda da qui, senza
-uscire. In basso il Diario.
+Sullo schema di Bru, specchiato come l'ha chiesto (`docs/interfaccia.md`): **a sinistra** chi è
+(emblema, nome, livello, classe, psiche, legame) e quanto vale (le statistiche, e mentre scegli un
+oggetto dove andresti: "18 → 24"); sotto, **il carosello dell'equipaggiamento**, che gira in
+tondo. **Al centro** il personaggio intero, sulla fascia cremisi. **A destra** le carte della
+squadra e, sotto, il dettaglio dello slot al centro — che diventa la scelta di cosa metterci. I
+conti stanno in `scripts/Corredo.gd`.
+
+La tastiera sta tutta sul carosello: destra e sinistra girano gli slot, su e giù cambiano
+compagno (per tutta la squadra, anche oltre le tre carte che si vedono), INVIO apre lo slot, ESC
+chiude la scelta e poi la scheda.
 
 ### Gli accessori si aprono a poco a poco
 Non sono quattro dal primo minuto: all'inizio ce n'è **uno solo**, perché decidere cosa portare

@@ -30,6 +30,7 @@ const COLORI_TESTO := ["font_color", "font_hover_color", "font_pressed_color",
 var stile := "chiaro"          # chiaro | accento | spoglio
 var inerte := false            # si vede spento, e premuto dice di no
 var corpo := 24
+var freccia := Vector2.ZERO    # una punta disegnata al posto delle lettere: le frecce di pagina
 var font_scritta: Font
 var accesa: Movimento.Molla
 var premuta := -1.0
@@ -48,6 +49,7 @@ static func nuovo(scritta: String, quale_stile := "chiaro", dimensione := 24) ->
 func _init() -> void:
 	accesa = Movimento.molla("colore")
 	flat = true
+	clip_text = true      # la misura la decide la tavola, non la scritta nel carattere del tema
 	focus_mode = Control.FOCUS_ALL
 	for stato in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
 		add_theme_stylebox_override(stato, StyleBoxEmpty.new())
@@ -84,7 +86,9 @@ func misura_voluta() -> Vector2:
 		return Vector2(80, 40)
 	var misura := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo)
 	var alto := misura.y + MARGINE.y * 2.0
-	return Vector2(misura.x + MARGINE.x * 2.0 + TAGLIO * alto + SFOGLIA.x, alto + SFOGLIA.y)
+	# con la punta la scritta non si vede, ma resta: e' il nome del tasto
+	var largo := misura.x if freccia == Vector2.ZERO else alto * 0.3
+	return Vector2(largo + MARGINE.x * 2.0 + TAGLIO * alto + SFOGLIA.x, alto + SFOGLIA.y)
 
 
 # --- i gesti ------------------------------------------------------------------
@@ -196,13 +200,16 @@ func _draw() -> void:
 	var fondo := c[0].lerp(Stile.colore("bordo_acceso"), 1.0 if lampo > 0.0 else 0.0)
 	if fondo.a > 0.0:
 		draw_colored_polygon(Cartiglio.fascia(scossa, largo, h), fondo)
+	var scritta := c[1] if lampo <= 0.0 else Stile.colore("accento")
+	if freccia != Vector2.ZERO:
+		Sagome.freccia(self, Vector2(largo * 0.5, h * 0.5) + scossa, h * 0.6, freccia, scritta)
+		return
 	var f := font_scritta
 	if f == null:
 		return
 	var misura := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo)
 	var sotto := f.get_ascent(corpo) - (f.get_ascent(corpo) + f.get_descent(corpo)) * 0.5
 	var dove := Vector2((largo - misura.x) * 0.5, h * 0.5 + sotto) + scossa
-	var scritta := c[1] if lampo <= 0.0 else Stile.colore("accento")
 	draw_string(f, dove, text, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, scritta)
 
 

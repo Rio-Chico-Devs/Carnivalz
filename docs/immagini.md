@@ -97,7 +97,7 @@ art/personaggi/zombie_cittadino.png
 art/personaggi/zombie_mostruoso.png
 ```
 
-### 2. Le espressioni dei dialoghi — 58 da fare
+### 2. Le espressioni dei dialoghi — 59 da fare
 
 Solo per chi ha delle battute, e solo le facce che le battute nominano.
 Se una manca si ripiega sulla neutra, e se manca anche quella sul ritratto
@@ -141,6 +141,7 @@ art/personaggi/jongo_dongo/decisa.png
 art/personaggi/jongo_dongo/neutra.png
 art/personaggi/jongo_dongo/petrificata.png
 art/personaggi/l_immortale/neutra.png
+art/personaggi/manifestazione_di_un_sogno/neutra.png
 art/personaggi/nuvola_di_marciume/neutra.png
 art/personaggi/reika/carina.png
 art/personaggi/reika/neutra.png
@@ -185,6 +186,7 @@ art/personaggi/volto_sulla_parete/neutra.png
 | ignoto (`ignoto`) | 1 | `neutra` |
 | Infetto Rapido (`infetto_rapido`) | 1 | `neutra` |
 | ??? (`l_immortale`) | 1 | `neutra` |
+| Manifestazione di un sogno (`manifestazione_di_un_sogno`) | 1 | `neutra` |
 | Nuvola di Marciume (`nuvola_di_marciume`) | 1 | `neutra` |
 | Robo Pattuglia (`robo_pattuglia`) | 1 | `neutra` |
 | Slime Infimo (`slime_infimo`) | 1 | `neutra` |
@@ -282,6 +284,98 @@ quindi si possono fare con calma. Vanno in `art/illustrazioni/`.
 | `art/illustrazioni/casa_figlia_addio.png` | casa_gigante.json › spirito_storia | «Sono venuta a salutarti... ma non perché nutra un qualunque sentimento nei tuoi confronti: per avvisarti che ti supererò, a qualunque costo. Non voglio mai più vederti. Questo è un addio: grazie di niente.» |  |
 | `art/illustrazioni/meridia_morto_vivente.png` | meridia.json › fuori_struttura | In mezzo alla strada, fermo, c'è qualcosa che ti sta guardando da parecchio. |  |
 | `art/illustrazioni/file_reparto_montaggio.png` | squarcio_industriale.json › file_computer | In fila davanti alla catena ci sono più uomini di quanti quel reparto potesse contenerne. Nessuno guarda l'obiettivo. |  |
+
+## Il negozio e la scheda della squadra
+
+Le misure, e come ogni disegno viene messo nel suo riquadro, stanno in
+`docs/interfaccia.md`. Finché un file manca si vede un disegno a forme, quindi
+anche qui si può fare con calma e in qualunque ordine.
+
+### I compagni: nella loro cartella, quella delle espressioni
+
+La cartella ha il nome dell'**id**, non del ritratto: i disegni di Yhvina
+stanno in `art/personaggi/insonne/`.
+
+| chi | `intero.png` | `carta.png` | `emblema.png` |
+|---|:-:|:-:|:-:|
+| Anonimo (`art/personaggi/anonimo/`) |  |  |  |
+| Yhvina (`art/personaggi/insonne/`) |  |  |  |
+| Sally (`art/personaggi/sally/`) |  |  |  |
+| Vega (`art/personaggi/vega/`) |  |  |  |
+| Niru (`art/personaggi/niru/`) |  |  |  |
+| Fio (`art/personaggi/fio/`) |  |  |  |
+| Rio (`art/personaggi/rio/`) |  |  |  |
+| Bero (`art/personaggi/bero/`) |  |  |  |
+| Mockingbear (`art/personaggi/mockingbear/`) |  |  |  |
+| Mr. Eto (`art/personaggi/mr_eto/`) |  |  |  |
+| Yara (`art/personaggi/sopravvissuta/`) |  |  |  |
+| Il Vecchio Proprietario del teatro (`art/personaggi/vecchio_clown/`) |  |  |  |
+| Veronica (`art/personaggi/brawler/`) |  |  |  |
+
+- `intero.png`: la figura intera, al centro della scheda
+- `carta.png`: il ritratto nella carta della squadra, a destra
+- `emblema.png`: l'emblema accanto al nome, in alto a sinistra
+
+### Gli oggetti: `art/oggetti/<id>.png`
+
+Lo stesso file serve alla carta dello scaffale, alla vetrina, alla miniatura
+e al carosello della scheda.
+
+| oggetto | file | c'è |
+|---|---|:-:|
+| Amuleto di cenere | `art/oggetti/amuleto_di_cenere.png` |  |
+| Amuleto di ferro | `art/oggetti/amuleto_di_ferro.png` |  |
+| Amuleto di pietra | `art/oggetti/amuleto_di_pietra.png` |  |
+| Amuleto di vento | `art/oggetti/amuleto_di_vento.png` |  |
+| Bastone | `art/oggetti/bastone.png` |  |
+| Benda stretta | `art/oggetti/benda_stretta.png` |  |
+| Bomba al nitro | `art/oggetti/bomba_al_nitro.png` |  |
+| Bomba artigianale | `art/oggetti/bomba_artigianale.png` |  |
+| Bottiglia di liquore | `art/oggetti/bottiglia_di_liquore.png` |  |
+| Caramella di Nyu | `art/oggetti/caramella_di_nyu.png` |  |
+| Carbone attivo | `art/oggetti/carbone_attivo.png` |  |
+| Coltello di servizio | `art/oggetti/coltello_di_servizio.png` |  |
+| Cuore di latta | `art/oggetti/cuore_di_latta.png` |  |
+| Essenza d'aura | `art/oggetti/essenza_di_aura.png` |  |
+| Fiala d'aura | `art/oggetti/fiala_aura.png` |  |
+| Fiala HP | `art/oggetti/fiala_hp.png` |  |
+| Fiore di luna | `art/oggetti/fiore_di_luna.png` |  |
+| Frammento di vita | `art/oggetti/frammento_di_vita.png` |  |
+| Frammento — vassoio | `art/oggetti/frammento_per_gli_accessori.png` |  |
+| Frammento — rastrelliera | `art/oggetti/frammento_per_le_armi.png` |  |
+| Il mondo è il mio Tesoro | `art/oggetti/il_mondo_e_il_mio_tesoro.png` |  |
+| Infuso antico | `art/oggetti/infuso_antico.png` |  |
+| Lente di Nyu | `art/oggetti/lente_di_nyu.png` |  |
+| Mannaia scheggiata | `art/oggetti/mannaia_scheggiata.png` |  |
+| Mazzafrusto | `art/oggetti/mazzafrusto.png` |  |
+| Pacco di merendine scadute | `art/oggetti/merendine_scadute.png` |  |
+| Molotov | `art/oggetti/molotov.png` |  |
+| Motosega | `art/oggetti/motosega.png` |  |
+| Gel Omega | `art/oggetti/omega_gel.png` |  |
+| Petardo | `art/oggetti/petardo.png` |  |
+| Pietra Quieta | `art/oggetti/pietra_quieta.png` |  |
+| Premio di pezza | `art/oggetti/premio_di_pezza.png` |  |
+| Razione da viaggio | `art/oggetti/razione_del_circo.png` |  |
+| Ricordo del Passato | `art/oggetti/ricordo_del_passato.png` |  |
+| Sale amaro | `art/oggetti/sale_amaro.png` |  |
+| Sparachiodi arrugginito | `art/oggetti/sparachiodi_arrugginito.png` |  |
+| Spazio nella realtà | `art/oggetti/spazio_nella_realta.png` |  |
+| Specchio tascabile | `art/oggetti/specchio_tascabile.png` |  |
+| Spranga di ferro | `art/oggetti/spranga_di_ferro.png` |  |
+| Stigma del muto | `art/oggetti/stigma_del_muto.png` |  |
+| Stigma del veglio | `art/oggetti/stigma_del_veglio.png` |  |
+| Tonico calmante | `art/oggetti/tonico_calmante.png` |  |
+| Vino di ottima qualità | `art/oggetti/vino_di_ottima_qualita.png` |  |
+
+### Le icone delle statistiche: `art/interfaccia/statistiche/<chiave>.png`
+
+| statistica | file | c'è |
+|---|---|:-:|
+| Punti vita | `art/interfaccia/statistiche/hp.png` |  |
+| Attacco | `art/interfaccia/statistiche/attacco.png` |  |
+| Difesa | `art/interfaccia/statistiche/difesa.png` |  |
+| Velocità | `art/interfaccia/statistiche/velocita.png` |  |
+| Aura | `art/interfaccia/statistiche/aura.png` |  |
 
 ## Il resto
 
