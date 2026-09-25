@@ -579,9 +579,11 @@ Testo di Bru (24 settembre), dall'«Addentrati nelle pianure» alla tartaruga;
    fonte. Sopra c'è l'apparizione (vedi il punto 9); sotto, le pozze.
 7. **Le pozze: la prima orda.** Cinque rane folli. Le orde **annunciano la
    mossa**: «l'orda di rane sembra gracchiare ferocemente...» è l'assalto,
-   «...forma un fronte compatto» la difesa, che non fa danni. La strategia
-   giusta è concentrarsi mentre fanno fronte e poi colpirle tutte con
-   l'**onda psichica**.
+   «...forma un fronte compatto» la difesa, che non fa danni. L'annuncio si
+   dice una volta, nel box: chi non sta attento non lo ritrova scritto da
+   nessuna parte. Quando ne resta una sola, si parla di una sola («L'ultima
+   rana ti salta addosso!»). La strategia giusta è concentrarsi mentre fanno
+   fronte e poi colpirle tutte con l'**onda psichica**.
 8. **La tartaruga gigante.** Enorme, spaventosa, e non attacca mai: i colpi le
    rimbalzano sul guscio. Alla seconda mossa la Guida se ne accorge, e si
    accende **BOND**: premendolo la lasci andare — «sembrerebbe in qualche modo

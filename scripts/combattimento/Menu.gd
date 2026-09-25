@@ -217,10 +217,11 @@ func principale() -> void:
 	pulisci()
 	if bool(scontro.mattanza_attiva):
 		# durante la Mattanza sotto non c'e' un menu: c'e' una cosa sola da fare,
-		# e va scritta grossa. Il bottone e' spento apposta - si preme SPAZIO,
-		# non lui: un bottone premibile inviterebbe a cliccare, e cliccando non
-		# succede niente
-		bottone("␣  MARTELLA  ␣", principale, true)
+		# e va scritta grossa. Il bottone e' spento apposta - si batte SPAZIO o
+		# si clicca il nemico, non lui: un bottone premibile inviterebbe a
+		# cliccare qui, dove non succede niente
+		for riga in ["MARTELLA!", "SPAZIO", "o CLIC SUL NEMICO"]:
+			bottone(riga, principale, true, riga == "MARTELLA!")   # pulsa: e' adesso
 		return
 	# IL TURNO DEGLI ALTRI NON SPEGNE I BOTTONI. Un bottone `disabled` in Godot
 	# non emette `pressed` e si mangia lo stesso il click: chi premeva DIFESA un

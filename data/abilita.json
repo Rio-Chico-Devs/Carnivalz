@@ -475,7 +475,7 @@
 			"elemento": "oscuro",
 			"testo_uso": "[i]%s non smette più. Pesta finché ha fiato.[/i]",
 			"testo_fine": "[i]%s si ferma. %d colpi, e il silenzio dopo.[/i]",
-			"descrizione": "Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice è un colpo da un decimo del tuo attacco, che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti."
+			"descrizione": "Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice e ogni clic sul nemico è un colpo da un decimo del tuo attacco, che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti."
 		},
 		"guardia_ferma": {
 			"nome": "Guardia",

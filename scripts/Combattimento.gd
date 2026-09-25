@@ -139,6 +139,7 @@ var tutorial_passo := 0
 var tutorial_finito := false
 var tutorial_passi_introdotti: Array[int] = []
 var tutorial_id := ""  # id del nemico che porta lo script del tutorial
+var mattanza_azione: Dictionary = {}   # il passo che aspetta la fine della Mattanza
 var lezione_in_corso := false   # il tutorial sta parlando: il mondo aspetta
 var rivitalizzanti_usati := 0  # quante volte Veronica ti ha rimesso in piedi
 
@@ -229,6 +230,8 @@ func _ready() -> void:
 		# BOND e' la mediazione: «quando uno dei personaggi e' pronto per legare
 		# col nemico il tasto bond si illumina» (Bru). Spento, non si preme
 		plancia.tasto_bond.pressed.connect(menu.mediazione)
+		# e MATTANZA e' la Mattanza, come la voce sotto SKILL (vedi aggiorna_bond)
+		plancia.tasto_mattanza.pressed.connect(menu.bersagli_abilita.bind("mattanza"))
 		# sbanda il corpo della schermata, non lo sfondo: altrimenti a ogni
 		# scossa si vedrebbero i bordi neri dello schermo
 		impatto.collega(corpo)
@@ -326,7 +329,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if mazzata.prende(evento):
 		get_viewport().set_input_as_handled()
 		return
-	if mattanza_attiva and evento.is_action_pressed("ui_accept"):
+	if mattanza_attiva and evento.is_action_pressed("ui_accept") and not mattanza_sospesa():
 		colpo_di_mattanza()
 		get_viewport().set_input_as_handled()
 		return
@@ -884,6 +887,16 @@ func _su_click_nemico(bersaglio: Dictionary) -> void:
 	# IL COLPO NORMALE E' IL NEMICO, non una voce di menu: ci si clicca sopra.
 	# Se non e' ancora il tuo turno il click non si perde: aspetta il tuo turno
 	# e parte da solo (vedi Intenzione.gd).
+	#
+	# MA DURANTE LA MATTANZA IL CLIC E' UN COLPO, come lo spazio. Bru: «la
+	# mattanza non causa mai alcun danno, dovrebbe permetterti di fare danni
+	# cliccando sul nemico». Il clic passava di qui come un attacco normale: a
+	# turno gia' giocato finiva in coda, la finestra si chiudeva a zero colpi e
+	# l'attacco partiva al giro dopo
+	if mattanza_attiva:
+		if not mattanza_sospesa():
+			colpo_di_mattanza(bersaglio)
+		return
 	if int(bersaglio.get("hp", 0)) <= 0 or not il_tempo_scorre():
 		return
 	agisci_ora({"tipo": "attacca", "bersaglio": bersaglio})
@@ -964,6 +977,12 @@ func aggiorna_bond() -> void:
 	# indicava mentre era coperto indicava il vuoto
 	if plancia == null:
 		return
+	# IL TASSELLO MATTANZA ERA DISEGNATO E MAI COLLEGATO: restava spento anche a
+	# barra piena, e premerlo non faceva niente. Si accende quando si
+	# accenderebbe la voce sotto SKILL - stessa barra, stessa lezione, stessa Rabbia
+	var pronta := mattanza_chiamabile()
+	if plancia.tasto_mattanza.disabled == pronta:
+		plancia.accendi(plancia.tasto_mattanza, pronta)
 	var bond := in_corso and not bersagli_mediabili().is_empty()
 	if plancia.tasto_bond.disabled == bond:
 		plancia.accendi(plancia.tasto_bond, bond)   # si riscrive solo quando cambia
@@ -1421,7 +1440,12 @@ func passo_gia_spiegato() -> bool:
 
 func avanza_tutorial(azione: Dictionary) -> void:
 	# il passo si chiude solo se il giocatore ha fatto davvero quello che gli
-	# era stato chiesto (Studia non consuma il passo: e' sempre concesso)
+	# era stato chiesto (Studia non consuma il passo: e' sempre concesso).
+	# La Mattanza e' risolta quando la finestra si chiude (vedi chiudi_mattanza):
+	# Veronica la commentava mentre la barra si scaricava
+	if mattanza_attiva:
+		mattanza_azione = azione
+		return
 	var passo := passo_tutorial()
 	if passo.is_empty():
 		return
@@ -2236,14 +2260,33 @@ func mattanza(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) -> void:
 	if bool(dati.get("ferma_il_tempo", false)):
 		ferma_il_tempo()
 	if not muto:
-		menu.principale()   # sotto compare "MARTELLA SPAZIO", e nient'altro
+		menu.principale()   # sotto compare come si batte, e nient'altro
 
-func colpo_di_mattanza() -> bool:
+func mattanza_chiamabile() -> bool:
+	var tu := combattente_comandato()
+	var passo := passo_tutorial()
+	return in_corso and not mattanza_attiva and not tu.is_empty() \
+			and GameState.abilita_usabili(String(tu.id)).has("mattanza") \
+			and not RegoleCombattimento.solo_attacchi(tu) \
+			and dominio_sufficiente(tu, GameState.abilita_combattimento("mattanza")) \
+			and (passo.is_empty() or String(passo.get("id", "")) == "mattanza")
+
+func mattanza_sospesa() -> bool:
+	# MENTRE SI LEGGE, LA FINESTRA ASPETTA: non si scarica e non colpisce, e
+	# SPAZIO torna a far scorrere il testo. Senza, la barra correva sotto le
+	# parole - «non smette più», un KO, l'orda che si indebolisce - e i secondi
+	# se ne andavano a leggere
+	return il_mondo_aspetta_che_si_legga()
+
+func colpo_di_mattanza(su: Dictionary = {}) -> bool:
 	# un colpo, e dice se ha senso continuare. Va DIRITTO: un decimo dell'attacco
 	# senza passare dalla difesa, cosi' la Mattanza e' la risposta ai corazzati
-	# invece dell'ennesima cosa che contro un corazzato non serve
+	# invece dell'ennesima cosa che contro un corazzato non serve. Col clic il
+	# colpo va su chi hai cliccato
 	if mattanza_chi.is_empty() or int(mattanza_chi.get("hp", 0)) <= 0 or not in_corso:
 		return false
+	if int(su.get("hp", 0)) > 0:
+		mattanza_bersaglio = su
 	if mattanza_bersaglio.is_empty() or int(mattanza_bersaglio.get("hp", 0)) <= 0:
 		# il bersaglio e' caduto sotto i colpi: si passa al prossimo, non ci si
 		# ferma. Chi sta martellando non ha il tempo di riscegliere
@@ -2254,13 +2297,15 @@ func colpo_di_mattanza() -> bool:
 	var danno := maxi(int(round(RegoleCombattimento.attacco_di(mattanza_chi)
 			* float(mattanza_dati.get("frazione_attacco", 0.1)))), 1)
 	mattanza_colpi += 1
-	colpisci_diretto(mattanza_bersaglio, danno, String(mattanza_dati.get("elemento", "")))
+	colpisci_diretto(mattanza_bersaglio, danno, String(mattanza_dati.get("elemento", "")),
+			mattanza_attiva)
 	return in_corso
 
 func avanza_mattanza(delta: float) -> void:
 	if not mattanza_attiva:
 		return
-	mattanza_rimasto -= mattanza_scarico * delta
+	if not mattanza_sospesa():
+		mattanza_rimasto -= mattanza_scarico * delta
 	# la barra E' il cronometro: si riscrive dal residuo, cosi' niente di quello
 	# che succede intorno (un colpo incassato che ricarica) puo' allungare la
 	# finestra all'infinito
@@ -2284,6 +2329,10 @@ func chiudi_mattanza() -> void:
 	mattanza_chi = {}
 	mattanza_bersaglio = {}
 	mattanza_dati = {}
+	var azione := mattanza_azione
+	mattanza_azione = {}
+	if in_corso and not azione.is_empty():
+		avanza_tutorial(azione)   # adesso Veronica puo' commentare
 	if era_attiva and not muto and in_corso:
 		menu.principale()
 
@@ -2551,9 +2600,10 @@ func marea(chi: Dictionary, mossa: Dictionary) -> void:
 		return
 	var arrivati := OrdaDiNemici.colpi_a_segno(quanti, GameState.rng,
 			float(regole_orde().get("probabilita_mancare", 0.5)))
-	scrivi("[i]%s[/i]" % String(mossa.get("testo", "L'orda si muove tutta insieme.")))
+	# il testo della mossa l'ha gia' scritto esegui_mossa: scriverlo di nuovo
+	# qui lo faceva leggere due volte a ogni assalto
 	if arrivati <= 0:
-		scrivi("[i]Ti passano accanto tutti quanti, e nessuno ti prende.[/i]")
+		scrivi(String(regole_orde().get("testo_mancati_uno" if quanti == 1 else "testo_mancati", "")))
 		return
 	var valore := valore_mossa(chi, mossa)
 	for colpo in arrivati:
@@ -3106,7 +3156,6 @@ func turno_nemico_normale(nemico: Dictionary) -> void:
 		# avuto l'avviso ha avuto anche il tempo di reagire
 		var mossa_pronta: Dictionary = nemico.mossa_in_carica
 		nemico.mossa_in_carica = {}
-		voce.accoda_effetto(func() -> void: aggiorna_scheda(nemico))   # l'annuncio lascia la scheda
 		if mossa_eseguibile(nemico, mossa_pronta):
 			esegui_mossa(nemico, mossa_pronta)
 		else:
@@ -3169,9 +3218,11 @@ func preannuncia(nemico: Dictionary) -> void:
 	var prossima := scegli_mossa(nemico)
 	if not prossima.is_empty():
 		nemico.mossa_in_carica = prossima
-		scrivi_forte("[i]%s[/i]" % String(prossima.get("testo_annuncio", prossima.get("testo", ""))))
-		# e sulla sua scheda, quando lo leggi: vedi Campo.annuncio_di
-		voce.accoda_effetto(func() -> void: aggiorna_scheda(nemico))
+		# DETTO UNA VOLTA, NEL BOX, E BASTA. Bru: «le cose vengono dette una volta,
+		# il giocatore deve stare attento [...] il personaggio nota il movimento
+		# dell'orda e il giocatore se lo ricorda». Prima restava anche scritto
+		# sulla scheda dell'orda finche' non arrivava: adesso no
+		scrivi_forte("[i]%s[/i]" % OrdaDiNemici.testo_per(prossima, "testo_annuncio", int(nemico.get("componenti", 0))))
 
 func lancia_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	# una mossa telegrafata non parte adesso: si annuncia e arriva al prossimo
@@ -3180,8 +3231,7 @@ func lancia_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
 	# saggezza partirebbe senza avviso, e l'avviso e' meta' della sua ragione
 	if mossa.get("telegrafata", false):
 		nemico.mossa_in_carica = mossa
-		scrivi_forte(String(mossa.get("testo_annuncio", "Qualcosa si sta caricando...")))
-		voce.accoda_effetto(func() -> void: aggiorna_scheda(nemico))   # resta sulla scheda
+		scrivi_forte(String(mossa.get("testo_annuncio", "Qualcosa si sta caricando...")))   # detto una volta, nel box
 		return
 	esegui_mossa(nemico, mossa)
 
@@ -3586,7 +3636,7 @@ func valore_mossa(nemico: Dictionary, mossa: Dictionary) -> int:
 	return -1   # come un colpo normale suo
 
 func esegui_mossa(nemico: Dictionary, mossa: Dictionary) -> void:
-	scrivi("[i]%s[/i]" % mossa.get("testo", ""))
+	scrivi("[i]%s[/i]" % OrdaDiNemici.testo_per(mossa, "testo", int(nemico.get("componenti", 0))))
 	# QUALE MOSSA HA APPENA FATTO. Serve a chi guarda da fuori (le prove) per
 	# distinguere le due battute che a schermo si somigliano: quella in cui non
 	# e' successo niente perche' la creatura ha scelto una scena, e quella in cui
@@ -4188,11 +4238,16 @@ func segnala_disperazione(creatura: Dictionary) -> void:
 	if testo != "":
 		scrivi(testo % creatura.nome)
 
-func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "") -> void:
-	# oggetti e assist ignorano le difese
+func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "", subito := false) -> void:
+	# oggetti e assist ignorano le difese. SUBITO: il colpo si vede adesso, non
+	# in coda al racconto. La Mattanza ne da' sei al secondo, e in coda
+	# uscivano uno ogni mezzo secondo - a finestra gia' chiusa
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
 	registra_danno_subito(bersaglio, danno)
-	mostra_colpo(bersaglio, danno, elemento)
+	if subito:
+		effetto_colpo(bersaglio, danno, elemento).call()
+	else:
+		mostra_colpo(bersaglio, danno, elemento)
 	if bersaglio.hp <= 0:
 		_su_ko(bersaglio)
 

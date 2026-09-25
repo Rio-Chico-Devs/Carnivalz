@@ -70,7 +70,7 @@ const CATEGORIE := {
 		"titolo": "Mattanza e Collisioni",
 		"corpo": "La Mattanza dura quanto la barra del dominio che le dai. Nelle Collisioni un pugno preso in pieno non ti fa niente, di striscio metà.",
 		"righe": [
-			{"tasti": [["SPAZIO"]], "ripeti": true, "azione": "Mattanza: ogni pressione è un colpo, più in fretta più colpi"},
+			{"tasti": [["SPAZIO"], ["CLIC"]], "ripeti": true, "azione": "Mattanza: ogni pressione, o clic sul nemico, è un colpo"},
 			{"tasti": [["CLIC"]], "azione": "Collisioni: sul pugno, quando il cerchio si chiude"},
 			{"tasti": [["INVIO"], ["SPAZIO"]], "azione": "Collisioni: para il pugno più vicino"},
 		],

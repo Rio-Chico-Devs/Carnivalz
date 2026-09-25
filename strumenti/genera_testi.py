@@ -451,6 +451,10 @@ for id_p, p in personaggi.items():
             voce(f"CRE.{id_p}.mossa{i}.testo", "cosa si legge quando la usa", mossa.get("testo"))
             voce(f"CRE.{id_p}.mossa{i}.annuncio", "annuncio un turno prima",
                  mossa.get("testo_annuncio") or mossa.get("annuncio"))
+            # un'orda rimasta a uno solo parla al singolare (Orda.testo_per)
+            voce(f"CRE.{id_p}.mossa{i}.testo_uno", "quando ne resta una sola", mossa.get("testo_uno"))
+            voce(f"CRE.{id_p}.mossa{i}.annuncio_uno", "annuncio, quando ne resta una sola",
+                 mossa.get("testo_annuncio_uno"))
             # la Mazzata: come va a finire il contrasto (Mazzata.gd)
             voce(f"CRE.{id_p}.mossa{i}.parata", "quando la respingi premendo", mossa.get("testo_parata"))
             voce(f"CRE.{id_p}.mossa{i}.colpo", "quando ti batte e passa il colpo pesante", mossa.get("testo_colpo"))
@@ -521,6 +525,15 @@ for id_s, s in stati.items():
     voce(f"STA.{id_s}.testo_bloccato", "quando impedisce di agire", s.get("testo_bloccato"))
     voce(f"STA.{id_s}.testo_finito", "quando passa", s.get("testo_finito"))
     voce(f"STA.{id_s}.testo_immune", "quando non attecchisce", s.get("testo_immune"))
+
+regole = carica("data/regole.json")
+nota("<sub>`data/regole.json`</sub> — le righe delle orde e del ritmo.")
+for chiave, contesto in [("testo_indebolimento", "l'orda perde uno scalino"),
+                         ("testo_mancati", "l'assalto dell'orda va tutto a vuoto"),
+                         ("testo_mancati_uno", "l'ultima rimasta ti manca")]:
+    voce(f"REG.orde.{chiave}", contesto, regole.get("orde", {}).get(chiave))
+voce("REG.tempo.testo_lento", "chi e' troppo lento per muoversi a ogni giro",
+     regole.get("tempo", {}).get("testo_lento"))
 
 crescita = carica("data/crescita.json")
 titolo(1, "8. Crescita: statistiche e abilità passive")

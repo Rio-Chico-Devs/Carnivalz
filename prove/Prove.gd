@@ -3170,7 +3170,17 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(not tu.is_empty() and not lui.is_empty(), "lo scontro vero non si e' montato")
 	lui.hp_max = 1000000
 	lui.hp = 1000000
+	# 6. IL TASSELLO MATTANZA SI ACCENDE CON LA BARRA, e si preme. Era disegnato
+	#    e mai collegato: spento anche a barra piena, e premerlo non faceva niente
+	tu.dominio = int(per_segmento * 0.5)
+	vero.aggiorna_bond()
+	esigi(vero.plancia.tasto_mattanza.disabled, "con mezza barra il tassello MATTANZA e' acceso")
 	tu.dominio = per_segmento
+	vero.aggiorna_bond()
+	esigi(not vero.plancia.tasto_mattanza.disabled,
+			"a barra piena il tassello MATTANZA resta spento: e' l'unico avviso che la Mattanza e' pronta")
+	esigi(vero.plancia.tasto_mattanza.pressed.get_connections().size() > 0,
+			"il tassello MATTANZA non e' collegato a niente: premerlo non fa partire la Mattanza")
 	vero.usa_abilita_su(tu, "mattanza", lui)
 	esigi(bool(vero.mattanza_attiva),
 			"chiamata la Mattanza in tempo reale, la finestra non si e' aperta")
@@ -3178,12 +3188,41 @@ func prova_mattanza_svuota_la_barra() -> void:
 	spazio.keycode = KEY_SPACE
 	spazio.physical_keycode = KEY_SPACE
 	spazio.pressed = true
+	var clic := InputEventMouseButton.new()
+	clic.button_index = MOUSE_BUTTON_LEFT
+	clic.pressed = true
+	# 7. MENTRE SI LEGGE LA FINESTRA ASPETTA: «non smette più» e' ancora nel box,
+	#    e ne' la barra ne' i colpi devono correre sotto le parole
+	esigi(bool(vero.mattanza_sospesa()), "la Mattanza corre mentre c'e' ancora da leggere")
+	var a_finestra_aperta := int(lui.hp)
+	var barra_intera := int(tu.dominio)
+	vero._unhandled_input(spazio)
+	vero._su_input_nemico(clic, lui)
+	vero.avanza_mattanza(0.5)
+	esigi(int(lui.hp) == a_finestra_aperta and int(tu.dominio) == barra_intera,
+			"mentre si legge la Mattanza colpisce o si scarica: i secondi se ne vanno a leggere")
+	vero.voce.coda.clear()
+	vero.voce.sta_facendo_leggere = false
+	esigi(not bool(vero.mattanza_sospesa()), "finito di leggere, la finestra resta ferma")
 	var prima_di_battere := int(lui.hp)
 	vero._unhandled_input(spazio)
 	esigi(int(lui.hp) < prima_di_battere, "spazio non colpisce: la Mattanza e' una finestra vuota")
+	# 8. IL COLPO SI VEDE SUBITO, non in coda al racconto: in coda i numeri
+	#    uscivano uno ogni mezzo secondo, a finestra gia' chiusa - e la coda piena
+	#    teneva la finestra ferma dopo ogni colpo
+	esigi(vero.voce.coda.is_empty() and not bool(vero.mattanza_sospesa()),
+			"il colpo di Mattanza e' finito in coda al racconto: si vede a finestra chiusa")
 	var dopo_un_colpo := int(lui.hp)
 	vero._unhandled_input(spazio)
 	esigi(int(lui.hp) < dopo_un_colpo, "il secondo spazio non conta: si batte una volta sola")
+	# 9. E IL CLIC SUL NEMICO E' UN COLPO. Bru: «la mattanza non causa mai alcun
+	#    danno, dovrebbe permetterti di fare danni cliccando sul nemico». Prima il
+	#    clic diventava un attacco normale messo in coda per il turno dopo
+	var prima_del_clic := int(lui.hp)
+	vero._su_input_nemico(clic, lui)
+	esigi(int(lui.hp) < prima_del_clic, "il clic sul nemico durante la Mattanza non colpisce")
+	esigi(vero.nome_azione_in_coda() == "",
+			"il clic durante la Mattanza ha messo in coda un attacco per il turno dopo")
 	# e la barra che si scarica E' il cronometro: quando e' vuota, finisce
 	esigi(int(tu.dominio) > 0, "la barra e' gia' vuota a raffica appena cominciata")
 	for battito in 400:
@@ -3198,6 +3237,39 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(int(lui.hp) == a_raffica_finita,
 			"si continua a colpire con spazio anche a barra finita: la finestra non si chiude")
 	vero.free()
+
+	# 10. VERONICA COMMENTA LA MATTANZA QUANDO E' FINITA. Il passo si chiudeva
+	#     appena chiamata, e le sue battute riempivano il box nei secondi in cui
+	#     la barra si scaricava: si leggeva lei, e si chiudeva a zero colpi
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["veronica"]
+	var allenamento: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(allenamento)
+	await get_tree().process_frame
+	var passi: Array = allenamento.tutorial.get("passi", [])
+	var indice := -1
+	for i in passi.size():
+		if String(passi[i].get("id", "")) == "mattanza":
+			indice = i
+	esigi(indice >= 0, "l'allenamento non ha piu' il passo della Mattanza")
+	var allievo: Dictionary = allenamento.combattenti[0]
+	var maestra: Dictionary = allenamento.vivi(false)[0]
+	allenamento.tutorial_passo = indice
+	allievo.dominio = per_segmento
+	allenamento.voce.coda.clear()
+	allenamento.esegui_azione(allievo, {"tipo": "abilita", "id": "mattanza", "bersaglio": maestra})
+	esigi(bool(allenamento.mattanza_attiva), "nell'allenamento la Mattanza non si apre")
+	esigi(allenamento.tutorial_passo == indice,
+			"il passo della Mattanza si chiude appena chiamata: Veronica parla sopra la finestra")
+	allenamento.chiudi_mattanza()
+	esigi(allenamento.tutorial_passo == indice + 1,
+			"a Mattanza finita il passo non si chiude: l'allenamento resta fermo li'")
+	var detto := ""
+	for msg in allenamento.voce.coda:
+		detto += String(msg.get("testo", "")) + "\n"
+	esigi(String(passi[indice].get("dopo", [{}])[0].get("testo", "")).left(12) in detto,
+			"a Mattanza finita Veronica non commenta")
+	allenamento.free()
 	GameState.nuova_partita()
 
 func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
@@ -13717,34 +13789,101 @@ func prova_chi_tende_l_imboscata_muove_per_primo() -> void:
 func prova_l_orda_dice_cosa_sta_per_fare() -> void:
 	# «nelle orde puoi osservare i comportamenti, prima di compiere la mossa e
 	# che tu scelga cosa fare appare sempre un testo collegato alla mossa che
-	# fara'» (Bru)
-	titolo("l'orda annuncia la mossa prima di farla, e prima che tu scelga")
+	# fara'» (Bru). E poi: «le cose vengono dette una volta, il giocatore deve
+	# stare attento [...] non deve essere sempre disponibile la voce di cosa fa
+	# l'orda». Quindi: nel box, una volta per mossa, e MAI sulla scheda
+	titolo("l'orda annuncia la mossa una volta, nel box, e l'ultima rana resta una rana")
 	GameState.nuova_partita()
 	GameState.imposta_seed(31)
-	ricordo_scontro = {"scelte": 0, "senza_annuncio": 0, "componenti": 0}
+	ricordo_scontro = {"scelte": 0, "senza_annuncio": 0, "sulla_scheda": 0, "componenti": 0,
+			"svanita": 0}
+	var mosse: Array = []
+	for m in GameState.personaggi.get("rana_folle", {}).get("mosse", []):
+		if String(m.get("testo_annuncio", "")) != "":
+			mosse.append(m)
 	var guarda_annuncio := func(sc, _chi: Dictionary) -> Dictionary:
 		var orda: Dictionary = sc.vivi(false)[0]
 		ricordo_scontro["scelte"] += 1
 		ricordo_scontro["componenti"] = maxi(int(ricordo_scontro["componenti"]), int(orda.componenti_iniziali))
+		# UNA RANA FERITA NON E' UNA RANA STESA: finche' l'orda e' in piedi
+		# qualcuno c'e'. A zero componenti la marea non partiva piu', e l'ultima
+		# rana restava in campo senza mai attaccare
+		if int(orda.hp) > 0 and int(orda.componenti) <= 0:
+			ricordo_scontro["svanita"] += 1
 		var prossima: Dictionary = orda.get("mossa_in_carica", {})
-		# e mentre scegli, l'annuncio sta scritto sulla sua scheda: nel box e'
-		# gia' passato, ed e' adesso che serve
-		if prossima.is_empty() or not String(prossima.get("testo_annuncio", "")) in sc.campo.dettagli_di(orda):
+		if prossima.is_empty():
 			ricordo_scontro["senza_annuncio"] += 1
+		var scheda: String = sc.campo.dettagli_di(orda)
+		for m in mosse:
+			for chiave in ["testo_annuncio", "testo_annuncio_uno"]:
+				if String(m.get(chiave, "")) != "" and String(m[chiave]) in scheda:
+					ricordo_scontro["sulla_scheda"] += 1
 		return {"tipo": "attacca", "bersaglio": orda}
 	var scontro := scontro_muto_contro(["rana_folle"], {}, guarda_annuncio)
 	esigi(int(ricordo_scontro["componenti"]) == 5, "l'orda di rane non e' da cinque: %d" % int(ricordo_scontro["componenti"]))
 	esigi(int(ricordo_scontro["scelte"]) > 3 and int(ricordo_scontro["senza_annuncio"]) == 0,
-			"%d volte su %d hai dovuto scegliere senza sapere cosa stava per fare l'orda, o senza leggerlo sulla sua scheda"
+			"%d volte su %d hai dovuto scegliere senza che l'orda avesse annunciato niente"
 			% [int(ricordo_scontro["senza_annuncio"]), int(ricordo_scontro["scelte"])])
-	var annuncio := nello_storico("gracchiare ferocemente")
-	var assalto := nello_storico("ti saltano addosso da ogni parte")
-	esigi(annuncio >= 0 and assalto > annuncio, "l'assalto delle rane arriva senza il gracidio che lo annuncia")
+	esigi(int(ricordo_scontro["sulla_scheda"]) == 0,
+			"l'annuncio sta scritto sulla scheda dell'orda %d volte: si dice una volta nel box, e basta"
+			% int(ricordo_scontro["sulla_scheda"]))
+	esigi(int(ricordo_scontro["svanita"]) == 0,
+			"l'orda e' ancora in piedi con zero componenti %d volte: nessuno attacca piu'"
+			% int(ricordo_scontro["svanita"]))
+	# UNA VOLTA PER MOSSA: gli annunci sono quante le mosse fatte (piu' l'ultimo,
+	# se lo scontro finisce prima). E l'assalto si dice UNA volta: la marea lo
+	# riscriveva dopo esegui_mossa, e ogni assalto si leggeva due volte
+	var annunci := 0
+	var fatte := 0
+	var primo_singolare := -1
+	var plurale_dopo := 0
+	var righe: Array = GameState.storico
+	for i in righe.size():
+		var riga := String(righe[i].get("testo", ""))
+		for m in mosse:
+			if String(m.testo_annuncio) in riga or String(m.get("testo_annuncio_uno", "@")) in riga:
+				annunci += 1
+			if String(m.testo) in riga or String(m.get("testo_uno", "@")) in riga:
+				fatte += 1
+			if String(m.get("testo_uno", "@")) in riga or String(m.get("testo_annuncio_uno", "@")) in riga:
+				if primo_singolare < 0:
+					primo_singolare = i
+			elif primo_singolare >= 0 and (String(m.testo) in riga or String(m.testo_annuncio) in riga):
+				plurale_dopo += 1
+	esigi(fatte > 2 and annunci >= fatte and annunci <= fatte + 1,
+			"%d annunci per %d mosse: ogni mossa si annuncia una volta, e si racconta una volta"
+			% [annunci, fatte])
+	# QUANDO NE RESTA UNA, SI PARLA DI UNA. «Le rane ti saltano addosso» con una
+	# rana sola in campo era il «dialogo impazzito»
+	esigi(primo_singolare >= 0, "l'ultima rana non si e' mai sentita: si parla ancora di un'orda")
+	esigi(plurale_dopo == 0,
+			"rimasta una rana sola, %d battute parlano ancora di un'orda" % plurale_dopo)
 	esigi(bool(scontro.giocatore_ha_vinto), "a colpi normali, al livello 1, l'orda di rane non si batte")
 	scontro.free()
 	# e chi non lo dichiara non annuncia niente: gli zombi i testi non li hanno
 	esigi(not bool(GameState.personaggi.get("zombie_cittadino", {}).get("orda", {}).get("preannuncia", false)),
 			"gli zombi annunciano le mosse senza averne i testi")
+
+	# I CONTI DELL'ORDA, visti da vicino. Una ferita non e' una rana stesa: a
+	# nove decimi di vita le rane sono ancora cinque. Col conto per difetto
+	# l'orda da cinque perdeva due rane al primo graffio, e da sei decimi in
+	# giu' restava "l'ultima" per mezzo scontro
+	esigi(OrdaDiNemici.componenti_a(0.9, 5) == 5,
+			"a nove decimi di vita l'orda da cinque ne ha %d" % OrdaDiNemici.componenti_a(0.9, 5))
+	esigi(OrdaDiNemici.componenti_a(0.5, 5) == 3,
+			"a meta' vita l'orda da cinque ne ha %d invece di tre" % OrdaDiNemici.componenti_a(0.5, 5))
+	for centesimi in range(1, 101):
+		esigi(OrdaDiNemici.componenti_a(float(centesimi) / 100.0, 5) >= 1,
+				"a %d%% di vita l'orda da cinque non ha piu' nessuno in piedi" % centesimi)
+	esigi(OrdaDiNemici.componenti_a(0.00001, 30) == 1,
+			"con un soffio di vita l'orda da trenta non ha piu' nessuno in piedi")
+	var assalto: Dictionary = mosse[0]
+	esigi(OrdaDiNemici.testo_per(assalto, "testo", 1) == String(assalto.get("testo_uno", "")),
+			"con una rana sola il testo dell'assalto resta al plurale")
+	esigi(OrdaDiNemici.testo_per(assalto, "testo", 3) == String(assalto.testo),
+			"con tre rane il testo dell'assalto e' quello dell'ultima")
+	esigi(OrdaDiNemici.testo_per({"testo": "x"}, "testo", 1) == "x",
+			"una mossa senza testo per uno solo resta muta")
 
 func prova_l_onda_psichica_tira_per_ogni_componente() -> void:
 	# «sull'orda fa per esempio 5 colpi siccome l'orda e' composta da 5 [...]

@@ -3254,15 +3254,16 @@
         "nome": "Orda di rane folli",
         "componenti": 5,
         "preannuncia": true,
-        "_bru": "«è un orda da 5 [...] nelle orde puoi osservare i comportamenti, prima di compiere la mossa e che tu scelga cosa fare appare sempre un testo collegato alla mossa che farà, ogni orda avrà i suoi testi»"
+        "_bru": "«è un orda da 5 [...] nelle orde puoi osservare i comportamenti, prima di compiere la mossa e che tu scelga cosa fare appare sempre un testo collegato alla mossa che farà, ogni orda avrà i suoi testi»",
+        "_testi_uno": "Le righe «_uno» delle mosse (quando resta una rana sola) sono mie, da correggere."
       },
       "livello": 1,
       "ruolo": "comune",
       "nome": "Rana Folle",
       "apertura": "Cinque rane saltano fuori dalle pozze tutte insieme, e nessuna sembra avere tutte le rotelle a posto.",
       "hp": 34,
-      "attacco": 7,
-      "fuori_curva": "Orda della prima missione. Da comune al livello 1 una rana avrebbe la vita di un goblin intero, e cinque rane sarebbero cinque goblin: la vita di un'orda e' quella di una per quante sono. Numeri misurati sulla strategia di Bru (concentrarsi quando fanno fronte compatto, poi l'onda psichica).",
+      "attacco": 5,
+      "fuori_curva": "Orda della prima missione. Da comune al livello 1 una rana avrebbe la vita di un goblin intero, e cinque rane sarebbero cinque goblin: la vita di un'orda e' quella di una per quante sono. Numeri misurati sulla strategia di Bru (concentrarsi quando fanno fronte compatto, poi l'onda psichica). Attacco da 7 a 5 quando il conto delle rane e' diventato giusto (per eccesso, e mai zero con l'orda in piedi): prima dal 60% di vita ne restava una sola e sotto il 20% nessuna, quindi l'orda smetteva di picchiare a meta' scontro. Con 5 la sonda al livello 1 torna ai numeri di prima (studia 99% invece di 95%, attacca 37 danni invece di 33), ma i colpi arrivano per tutto lo scontro.",
       "peso_attacco_normale": 0,
       "ritratto": "res://art/personaggi/rana_folle.png",
       "descrizione": "Una rana di pozza gonfiata dal disallineamento fino alla taglia di un cane. Da sola non fa paura; il guaio è che non sono mai da sole.",
@@ -3292,7 +3293,9 @@
           "testo": "Le rane ti saltano addosso da ogni parte!",
           "testo_annuncio": "L'orda di rane sembra gracchiare ferocemente...",
           "quota": 1.0,
-          "peso": 2
+          "peso": 2,
+          "testo_uno": "L'ultima rana ti salta addosso!",
+          "testo_annuncio_uno": "L'ultima rana gracchia ferocemente..."
         },
         {
           "id": "fronte_compatto",
@@ -3302,7 +3305,9 @@
           "testo_annuncio": "L'orda di rane forma un fronte compatto...",
           "valore": 1,
           "turni": 2,
-          "peso": 1
+          "peso": 1,
+          "testo_uno": "L'ultima rana si rannicchia: la pelle viscida le fa da scudo.",
+          "testo_annuncio_uno": "L'ultima rana si rannicchia..."
         },
         {
           "id": "libera_3",
@@ -3860,11 +3865,19 @@
               },
               {
                 "tipo": "narrazione",
-                "testo": "La terza barra è il DOMINIO: si riempie combattendo, colpo dopo colpo. Quando un segmento è pieno, nel menu si accende MATTANZA."
+                "testo": "La terza barra è il DOMINIO: si riempie combattendo, colpo dopo colpo. Quando un segmento è pieno si accende il tasto MATTANZA, e sotto SKILL la sua voce.",
+                "evidenzia": "mattanza"
               },
               {
                 "tipo": "narrazione",
-                "testo": "La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti."
+                "testo": "La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE e ogni CLIC SUL NEMICO è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti."
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "E quando parte non pensare: pesta! Spazio, oppure clicca addosso a me, più in fretta che puoi. Finché la barra non è vuota, ogni colpo arriva.",
+                "espr": "decisa",
+                "_nota": "battuta mia (Claude), da correggere: Bru ha chiesto che Veronica spieghi che nella Mattanza si colpisce anche cliccando sul nemico"
               }
             ],
             "dopo": [

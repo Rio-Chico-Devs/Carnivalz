@@ -575,167 +575,157 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.054`** · marea
-> L'orda si muove tutta insieme.
->
-> →
-
-**`UI.Combattimento.055`** · marea
-> [i]Ti passano accanto tutti quanti, e nessuno ti prende.[/i]
->
-> →
-
-**`UI.Combattimento.056`** · colpo d'area
+**`UI.Combattimento.054`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.057`** · onda
+**`UI.Combattimento.055`** · onda
 > [i]Su %d, %d vanno a vuoto.[/i]
 >
 > →
 
-**`UI.Combattimento.058`** · potenziati
+**`UI.Combattimento.056`** · potenziati
 > %s si concentra.
 >
 > →
 
-**`UI.Combattimento.059`** · consuma_carica
+**`UI.Combattimento.057`** · consuma_carica
 > [b]%s scarica tutto quello che ha accumulato.[/b]
 >
 > →
 
-**`UI.Combattimento.060`** · quando si prova a fuggire
+**`UI.Combattimento.058`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.061`** · verifica_rabbia_su_morte
+**`UI.Combattimento.059`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.062`** · verifica_cura_su_morte
+**`UI.Combattimento.060`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.063`** · risolvi_rigenerazione
+**`UI.Combattimento.061`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.064`** · risolvi_rigenerazione
+**`UI.Combattimento.062`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.065`** · apri_la_guardia
+**`UI.Combattimento.063`** · apri_la_guardia
 > [i]La guardia di %s si apre.[/i]
 >
 > →
 
-**`UI.Combattimento.066`** · apri_la_guardia
+**`UI.Combattimento.064`** · apri_la_guardia
 > Difesa −%d, ora %d.
 >
 > →
 
-**`UI.Combattimento.067`** · avanza_trasformazione
+**`UI.Combattimento.065`** · avanza_trasformazione
 > Non è più quello di prima.
 >
 > →
 
-**`UI.Combattimento.068`** · spegni_tormento_di
+**`UI.Combattimento.066`** · spegni_tormento_di
 > [i]Il vento si ferma.[/i]
 >
 > →
 
-**`UI.Combattimento.069`** · mossa_rubavita
+**`UI.Combattimento.067`** · mossa_rubavita
 > [i]%s se ne nutre: +%d.[/i]
 >
 > →
 
-**`UI.Combattimento.070`** · mossa_evoca
+**`UI.Combattimento.068`** · mossa_evoca
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.071`** · mossa_sacrificio
+**`UI.Combattimento.069`** · mossa_sacrificio
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.072`** · cedimento
+**`UI.Combattimento.070`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.073`** · quando si attacca
+**`UI.Combattimento.071`** · quando si attacca
 > [i]Il colpo su %s si ferma a un dito dalla pelle.[/i]
 >
 > →
 
-**`UI.Combattimento.074`** · quando si attacca
+**`UI.Combattimento.072`** · quando si attacca
 > Il dominio di %s arde!
 >
 > →
 
-**`UI.Combattimento.075`** · quando si attacca
+**`UI.Combattimento.073`** · quando si attacca
 > [i]È il colpo giusto: %s lo incassa male.[/i]
 >
 > →
 
-**`UI.Combattimento.076`** · quando si attacca
+**`UI.Combattimento.074`** · quando si attacca
 > [i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]
 >
 > →
 
-**`UI.Combattimento.077`** · quando si attacca
+**`UI.Combattimento.075`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.078`** · quando si attacca
+**`UI.Combattimento.076`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.079`** · rimetti_in_piedi
+**`UI.Combattimento.077`** · rimetti_in_piedi
 > [i]%s non ha più niente da darsi.[/i]
 >
 > →
 
-**`UI.Combattimento.080`** · _racconta_ko
+**`UI.Combattimento.078`** · _racconta_ko
 > [i]%s si rimette in piedi.[/i]
 >
 > →
 
-**`UI.Combattimento.081`** · verifica_fine_scontro
+**`UI.Combattimento.079`** · verifica_fine_scontro
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.082`** · verifica_fine_scontro
+**`UI.Combattimento.080`** · verifica_fine_scontro
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.083`** · verifica_fine_scontro
+**`UI.Combattimento.081`** · verifica_fine_scontro
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.084`** · reagisci
+**`UI.Combattimento.082`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.085`** · reagisci
+**`UI.Combattimento.083`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.086`** · reagisci
+**`UI.Combattimento.084`** · reagisci
 > %s si concentra: la barra di dominio sale.
 >
 > →
@@ -13269,6 +13259,16 @@ carte collezionabili.
 >
 > →
 
+**`CRE.rana_folle.mossa1.testo_uno`** · quando ne resta una sola
+> L'ultima rana ti salta addosso!
+>
+> →
+
+**`CRE.rana_folle.mossa1.annuncio_uno`** · annuncio, quando ne resta una sola
+> L'ultima rana gracchia ferocemente...
+>
+> →
+
 **`CRE.rana_folle.mossa2.nome`** · nome di una mossa
 > Fronte compatto
 >
@@ -13281,6 +13281,16 @@ carte collezionabili.
 
 **`CRE.rana_folle.mossa2.annuncio`** · annuncio un turno prima
 > L'orda di rane forma un fronte compatto...
+>
+> →
+
+**`CRE.rana_folle.mossa2.testo_uno`** · quando ne resta una sola
+> L'ultima rana si rannicchia: la pelle viscida le fa da scudo.
+>
+> →
+
+**`CRE.rana_folle.mossa2.annuncio_uno`** · annuncio, quando ne resta una sola
+> L'ultima rana si rannicchia...
 >
 > →
 
@@ -13950,12 +13960,17 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento5.prima2`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, narrazione
-> La terza barra è il DOMINIO: si riempie combattendo, colpo dopo colpo. Quando un segmento è pieno, nel menu si accende MATTANZA.
+> La terza barra è il DOMINIO: si riempie combattendo, colpo dopo colpo. Quando un segmento è pieno si accende il tasto MATTANZA, e sotto SKILL la sua voce.
 >
 > →
 
 **`CRE.veronica.allenamento5.prima3`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, narrazione
-> La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
+> La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE e ogni CLIC SUL NEMICO è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
+>
+> →
+
+**`CRE.veronica.allenamento5.prima4`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, battuta di Veronica
+> E quando parte non pensare: pesta! Spazio, oppure clicca addosso a me, più in fretta che puoi. Finché la barra non è vuota, ogni colpo arriva.
 >
 > →
 
@@ -14789,7 +14804,7 @@ carte collezionabili.
 > →
 
 **`ABI.mattanza.descrizione`** · descrizione
-> Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice è un colpo da un decimo del tuo attacco, che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
+> Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice e ogni clic sul nemico è un colpo da un decimo del tuo attacco, che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
 >
 > →
 
@@ -16401,6 +16416,28 @@ carte collezionabili.
 
 **`STA.lentezza.nome`** · nome dello stato
 > Lentezza
+>
+> →
+
+<sub>`data/regole.json`</sub> — le righe delle orde e del ritmo.
+
+**`REG.orde.testo_indebolimento`** · l'orda perde uno scalino
+> [i]L'orda si indebolisce.[/i]
+>
+> →
+
+**`REG.orde.testo_mancati`** · l'assalto dell'orda va tutto a vuoto
+> [i]Ti passano accanto tutti quanti, e nessuno ti prende.[/i]
+>
+> →
+
+**`REG.orde.testo_mancati_uno`** · l'ultima rimasta ti manca
+> [i]Ma ti manca di un soffio.[/i]
+>
+> →
+
+**`REG.tempo.testo_lento`** · chi e' troppo lento per muoversi a ogni giro
+> [i]%s non tiene il passo: non riesce a muoversi a ogni giro.[/i]
 >
 > →
 

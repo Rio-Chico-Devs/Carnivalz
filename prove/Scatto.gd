@@ -549,6 +549,26 @@ func prepara(quale: String) -> void:
 			if scontro_lista.plancia.faccia_adesso != "lista":
 				push_error("al momento dello scatto il quadrante mostra '%s', non la lista"
 						% scontro_lista.plancia.faccia_adesso)
+		"mattanza":
+			# LA MATTANZA APERTA: il tassello, la barra che si scarica, e sotto
+			# come si batte. Bru: «la mattanza non causa mai alcun danno»
+			GameState.nuova_partita()
+			GameState.nemici_combattimento = ["goblin_tipico"]
+			var pesta: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(pesta)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			var eroe: Dictionary = pesta.combattenti[0]
+			var goblin: Dictionary = pesta.vivi(false)[0]
+			goblin.hp_max = 100000
+			goblin.hp = 100000
+			eroe.dominio = 300
+			pesta.usa_abilita_su(eroe, "mattanza", goblin)
+			while not pesta.voce.coda.is_empty() or pesta.voce.sta_facendo_leggere:
+				pesta.voce.avanza()
+				await attendi(2)
+			for colpo in 5:
+				pesta.colpo_di_mattanza(goblin)
+				await attendi(4)
 		"lezione":
 			# LA LEZIONE DI VERONICA, FOTOGRAFATA MENTRE PARLA.
 			#

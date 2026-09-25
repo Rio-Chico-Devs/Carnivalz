@@ -10,7 +10,10 @@
 		"massimo": 10,
 		"rara_componenti": 30,
 		"rara_probabilita": 0.03,
-		"testo_indebolimento": "[i]L'orda si indebolisce.[/i]"
+		"testo_indebolimento": "[i]L'orda si indebolisce.[/i]",
+		"testo_mancati": "[i]Ti passano accanto tutti quanti, e nessuno ti prende.[/i]",
+		"testo_mancati_uno": "[i]Ma ti manca di un soffio.[/i]",
+		"_testo_mancati": "La prima c'era gia' (era scritta nel codice); quella per quando ne resta una sola e' mia, da correggere."
 	},
 	"bonus_attacco_per_livello": 1.0,
 	"riduzione_danno_per_livello": 0.02,
@@ -181,8 +184,8 @@
 		"velocita_riferimento": 3,
 		"ritmo_minimo": 0.4,
 		"_ritmo_minimo": "0.4 e' la proporzione che avevano le ricariche di prima (1.6 secondi contro un massimo di 4): chi era al minimo prima lo e' anche adesso",
-		"testo_lento": "[i]%s è lento: non riesce a muoversi a ogni giro.[/i]",
-		"_testo_lento": "mia (Claude), da correggere: si dice la prima volta che una creatura salta il giro, poi basta",
+		"testo_lento": "[i]%s non tiene il passo: non riesce a muoversi a ogni giro.[/i]",
+		"_testo_lento": "mia (Claude), da correggere: si dice la prima volta che una creatura salta il giro, poi basta. Senza «è lento»: con l'orda diceva «Orda di rane folli è lento»",
 		"_battute_massime": "tetto di sicurezza dello scontro senza schermo: oltre, lo scontro si chiude e lo dice invece di girare a vuoto",
 		"battute_massime": 4000
 	},

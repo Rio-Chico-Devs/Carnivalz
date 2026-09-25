@@ -70,17 +70,38 @@ static func componenti_a(quota_hp: float, iniziali: int) -> int:
 		return 0
 	if quota_hp <= 0.0:
 		return 0
-	var vivi := float(iniziali) * clampf(quota_hp, 0.0, 1.0)
-	var scala := scalini_per(iniziali)
-	for passo in scala:
-		if float(passo) <= vivi:
+	# UNA FERITA NON E' UNA RANA STESA. Si contava floor: con quattro rane e
+	# mezza di vita l'orda risultava da quattro - e peggio, siccome gli scalini
+	# da cinque sono 5-3-1, sotto il 60% restava «l'ultima rana» per piu' di
+	# meta' scontro, con un solo colpo al 50% a turno. E' il «sembra che non
+	# ricevi danno» di Bru. Una sta in piedi finche' non ha perso tutta la sua
+	# parte: si conta per eccesso (il millesimo toglie l'errore dei float, per
+	# cui 0,8 x 5 fa 4,0000000001).
+	#
+	# E FINCHE' L'ORDA E' IN PIEDI, QUALCUNO C'E': almeno uno. Il conto andava a
+	# zero con l'orda ancora viva, e un'orda da zero annunciava l'assalto e poi
+	# non attaccava, non si indeboliva, e l'onda psichica contava «su 0». Bru:
+	# «quando rimane 1 componente sembra che i dialoghi impazziscano». Lo zero
+	# e' il KO, e il KO lo decide la vita
+	var vivi := maxf(ceilf(float(iniziali) * clampf(quota_hp, 0.0, 1.0) - 0.001), 1.0)
+	for passo in scalini_per(iniziali):
+		if passo > 0 and float(passo) <= vivi:
 			return passo
-	return 0
+	return 1   # non ci si arriva: ogni scala scende fino a uno
 
 static func si_indebolisce(prima: int, adesso: int) -> bool:
 	# uno scalino sceso, quindi una battuta. Non si annuncia il KO qui: quello
 	# lo racconta gia' il combattimento come per qualunque altra creatura
 	return adesso < prima and adesso > 0
+
+static func testo_per(mossa: Dictionary, chiave: String, componenti: int) -> String:
+	# CON UNA SOLA, AL SINGOLARE. «Le rane ti saltano addosso da ogni parte!»
+	# detto dall'ultima rana rimasta e' una bugia che si sente: una mossa
+	# d'orda puo' avere la sua riga "_uno" (testo_uno, testo_annuncio_uno), e
+	# quando ne resta una vale quella
+	if componenti == 1 and mossa.has(chiave + "_uno"):
+		return String(mossa[chiave + "_uno"])
+	return String(mossa.get(chiave, ""))
 
 # --- quanti ne arrivano addosso -----------------------------------------
 

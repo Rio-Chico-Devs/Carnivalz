@@ -1021,17 +1021,29 @@ durante il combattimento invece di veronica avremo la guida che parla».
 - **Le orde dicono cosa stanno per fare** (`"orda": {"preannuncia": true}`): la prossima mossa
   si sceglie appena finita questa e si annuncia subito col suo `testo_annuncio` («L'orda di
   rane sembra gracchiare ferocemente...»), così quando tocca a te sai già a cosa
-  rispondere. E **l'annuncio resta scritto sulla sua scheda** («» L'orda di rane...») finché la
-  mossa non arriva: nel box si legge e se ne va, e quando tocca a te il box mostra già il
-  menu — cioè proprio quando serve, non c'era più. Vale anche per le mosse telegrafate dei
-  boss. `"componenti"` fissa quante sono (le rane: cinque); senza, restano da 3 a 10
+  rispondere. **Si dice una volta, nel box dei dialoghi, e basta**: sulla scheda non resta
+  scritto. Bru: «le cose vengono dette una volta, il giocatore deve stare attento [...] il
+  personaggio nota il movimento dell'orda e il giocatore se lo ricorda». Vale anche per le
+  mosse telegrafate dei boss. `"componenti"` fissa quante sono (le rane: cinque); senza,
+  restano da 3 a 10
+- **Quante ne restano si conta per eccesso, e mai zero con l'orda in piedi**
+  (`Orda.componenti_a`). Una ferita non è una rana stesa: a nove decimi di vita le rane sono
+  ancora cinque. Prima si contava per difetto, e le rane da cinque (scalini 5-3-1) restavano
+  «l'ultima» dal 60% di vita in giù e nessuna sotto il 20% — un'orda viva da zero annunciava
+  l'assalto e poi non attaccava. Era il «sembra che non ricevi danno» di Bru
+- **Quando ne resta una, si parla di una.** Una mossa d'orda può avere le righe `testo_uno` e
+  `testo_annuncio_uno` («L'ultima rana ti salta addosso!»), e i colpi a vuoto hanno
+  `orde.testo_mancati_uno` in `regole.json`. L'assalto si racconta una volta sola: la marea lo
+  riscriveva dopo `esegui_mossa`, e ogni assalto si leggeva due volte. Le righe `_uno` delle
+  rane sono mie, da correggere
 - **Onda psichica** (tipo `onda`) e **Concentrazione** (tipo `potenziamento`), del
   protagonista fin dall'inizio. L'onda fa **un tentativo per ogni componente** di un'orda, e
   ognuno va a vuoto, colpisce o fa critico per conto suo; su un nemico solo è un colpo piccolo
   e basta. La concentrazione alza attacco e difesa di 2 per le tue tre azioni successive —
   contro un'orda la difesa conta per ogni colpo che arriva, ed è per questo che la strategia
   di Bru («boostarti mentre fanno fronte compatto, poi l'attacco a raggio») funziona.
-  Misurate: a colpi normali l'orda di rane ti costa in media 34 punti vita, con l'onda 19-20
+  Misurate su 200 scontri: a colpi normali l'orda di rane ti costa in media 38 punti vita, con
+  la strategia di Bru 21 (col conto delle rane giusto e l'attacco a 5)
 - **La tua battuta si apre sempre.** Era un difetto del motore in tempo reale: chi comandavi
   tu non passava da `battuta_di`, e con lei saltava tutto quello che si paga a ogni battuta —
   il veleno non mordeva, il sonno non toglieva il turno, i potenziamenti non scadevano. A
@@ -1095,10 +1107,24 @@ ogni colpo pari a 1/10 del tuo attacco attuale».
   vero: guardi la barra scendere e sai quanto ti resta. Il dominio viene riscritto ogni frame
   dal residuo, così un colpo incassato — che normalmente ricarica — non può allungare la
   finestra all'infinito
-- **Ogni pressione di spazio è un colpo** da `frazione_attacco` (un decimo) del tuo attacco di
-  adesso, e va **diritto**: ignora la difesa. È il motivo per cui vale la pena tenersela per i
-  corazzati, invece di essere l'ennesima cosa che contro un corazzato non serve. `is_echo()` è
-  esclusa apposta: tenere premuto non vale come martellare
+- **Ogni pressione di spazio, e ogni clic sul nemico, è un colpo** da `frazione_attacco` (un
+  decimo) del tuo attacco di adesso, e va **diritto**: ignora la difesa. È il motivo per cui
+  vale la pena tenersela per i corazzati, invece di essere l'ennesima cosa che contro un
+  corazzato non serve. `is_echo()` è esclusa apposta: tenere premuto non vale come martellare.
+  Il clic l'ha chiesto Bru («dovrebbe permetterti di fare danni cliccando sul nemico»): prima
+  passava come un attacco normale e, a turno già giocato, finiva in coda per il giro dopo
+- **Il colpo si vede subito**, non in coda al racconto (`colpisci_diretto(..., subito)`): in
+  coda i numeri uscivano uno ogni mezzo secondo, a finestra già chiusa, e intanto la coda
+  piena contava come "c'è da leggere"
+- **Mentre si legge, la finestra aspetta** (`mattanza_sospesa()`): la barra non scende, i colpi
+  non partono e SPAZIO torna a far scorrere il testo. Senza, «non smette più», un KO o l'orda
+  che si indebolisce si mangiavano i secondi della barra
+- **Il tassello MATTANZA si accende e si preme**: era disegnato e mai collegato, spento anche a
+  barra piena. Si accende quando si accenderebbe la voce sotto SKILL (`mattanza_chiamabile()`)
+  e apre la stessa cosa. Sotto, finché dura, pulsa «MARTELLA! — SPAZIO — o CLIC SUL NEMICO»
+- **Nell'allenamento Veronica la commenta quando è finita**: il passo si chiudeva appena
+  chiamata, e le sue battute riempivano il box proprio mentre la barra si scaricava. E adesso
+  spiega anche il clic (battuta mia, da correggere)
 - **Il mondo va avanti mentre batti** (`ferma_il_tempo: false`): sei chiuso lì a pestare e le
   creature ti picchiano, quindi *quando* la chiami conta. Metti `true` nei dati se preferisci
   che diventi un momento tuo e basta
@@ -1107,7 +1133,7 @@ ogni colpo pari a 1/10 del tuo attacco attuale».
   il simulatore direbbe che la Mattanza non fa danno — e ricalibreremmo il gioco su un'abilità
   che non ha mai colpito
 - Si prova in `prova_mattanza_svuota_la_barra()`, che la misura muta e poi ne apre una vera per
-  premere spazio davvero
+  premere spazio e cliccare davvero; `./prove/scatto.sh mattanza` la fotografa aperta
 
 ## Le creature capiscono come stanno (`personaggi.json` → `mosse`, `ruoli.json` → `disperazione`)
 Bru: «dobbiamo dare un set di attacchi a ogni nemico che o fanno danno o fanno cose... quando i
