@@ -58,6 +58,12 @@ const SEVERITA_MINIMA_SCOSSA := 0.08
 # schiacciati nella parte bassa e non si distinguerebbero fra loro.
 const DANNO_PIENO := 0.35
 
+# il tremito della Mattanza: corto, perche' a dieci colpi al secondo ne arriva
+# uno nuovo prima che il vecchio sia finito, e piccolo, perche' si ripete
+const DURATA_TREMITO := 0.12
+const PIXEL_TREMITO := 6.0
+const PASSI_TREMITO := 3
+
 var albero: SceneTree
 var nodo_scosso: CanvasItem     # cosa sbanda: il corpo della schermata, non lo sfondo
 var muta := false
@@ -66,6 +72,9 @@ var base_scossa := Vector2.ZERO
 var ho_la_base := false
 var tween_scossa: Tween
 var fermo_in_corso := false
+# il tremito tira i suoi numeri da un dado suo: e' un effetto, e un effetto non
+# deve spostare i tiri dello scontro (critici, bersagli) di chi gioca con un seme
+var dado := RandomNumberGenerator.new()
 
 func _init(albero_scena: SceneTree, silenzioso := false) -> void:
 	albero = albero_scena
@@ -219,6 +228,38 @@ func gesto_di_colpo(nodo: Control, scala: Vector2, inclinazione: float,
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	gesto.parallel().tween_property(nodo, "rotation", 0.0, ritorno) \
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func tremito(nodo: Control) -> void:
+	# LA MATTANZA SI SENTE ADDOSSO A CHI LA PRENDE. Bru: «quando la mattanza
+	# inizia l'immagine del nemico trema a ogni input». Un colpo da un punto non
+	# passa le soglie qui sopra - niente fermo, niente scossa, ed e' giusto
+	# cosi': a dieci colpi al secondo il fermo sarebbe un gioco che va a scatti.
+	# Il tremito e' la risposta al singolo tasto, non al danno.
+	#
+	# Muove la POSIZIONE, che dentro un contenitore e' il guaio spiegato sopra.
+	# Qui si puo' perche' dura un decimo di secondo e finisce sempre nello
+	# stesso modo: si torna alla base e si chiede al contenitore di rimettere in
+	# fila. Un colpo nuovo spegne il tremito vecchio e riparte dalla stessa
+	# base, non da dove quello l'aveva lasciato: se no martellando la creatura
+	# se ne andrebbe a spasso per il riquadro.
+	if muta or not valido(nodo) or Impostazioni.movimento_ridotto:
+		return
+	var vecchio: Variant = nodo.get_meta("tremito") if nodo.has_meta("tremito") else null
+	if vecchio is Tween and (vecchio as Tween).is_valid():
+		(vecchio as Tween).kill()
+	else:
+		nodo.set_meta("base_tremito", nodo.position)
+	var base: Vector2 = nodo.get_meta("base_tremito")
+	var gesto := nodo.create_tween()
+	for passo in PASSI_TREMITO:
+		var quota := PIXEL_TREMITO * (1.0 - float(passo) / float(PASSI_TREMITO))
+		gesto.tween_property(nodo, "position", base + Vector2(dado.randf_range(-quota, quota),
+				dado.randf_range(-quota, quota) * 0.5), DURATA_TREMITO / (PASSI_TREMITO + 1))
+	gesto.tween_property(nodo, "position", base, DURATA_TREMITO / (PASSI_TREMITO + 1))
+	gesto.finished.connect(func() -> void:
+		if is_instance_valid(nodo) and nodo.get_parent() is Container:
+			(nodo.get_parent() as Container).queue_sort())
+	nodo.set_meta("tremito", gesto)
 
 func scossa(pixel: float) -> void:
 	# L'inquadratura sbanda e si rimette a posto. Sbanda il CORPO della

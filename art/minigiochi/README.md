@@ -12,6 +12,7 @@ art/minigiochi/<nome>.png
 | file | cos'è | come viene usato |
 |---|---|---|
 | `pugno.png` | un pugno di Veronica, quelli delle **Collisioni infinite** | compare nel quadrante, ci clicchi sopra per fermarlo |
+| `mattanza_bersaglio.png` | il bersaglio del **colpo di grazia**, a fine Mattanza | sta su una barra, la lancetta ci passa sopra: se premi in quel momento **si frantuma in mille pezzi** (e parte `audio/ui/frantumi.wav`) |
 
 **Quadrato**, o quasi: il gioco lo mette dentro una casella quadrata e lo
 allarga fino a riempirla. Un pugno disegnato largo e basso viene stiracchiato.
@@ -32,6 +33,30 @@ Per guardarlo:
 ./prove/scatto.sh collisioni        # la raffica a metà
 ./prove/scatto.sh collisioni 80     # più avanti nel tempo
 ```
+
+## Il bersaglio del colpo di grazia (`mattanza_bersaglio.png`)
+
+**Largo quanto vale.** Il disegno viene largo esattamente quanto la zona che conta
+(il 12% della barra: circa 85 pixel a 1280×720) e non di più: quello che vedi è
+quello che centri. Due tacche ai lati segnano dove finisce, per chi ha un disegno
+tondo e si chiede se vale anche l'angolo.
+
+**Quadrato, con lo sfondo trasparente**, e grande: almeno 256×256. Qui il fondo
+del riquadro è scuro, quindi va bene qualunque colore.
+
+**Si rompe lui, non una foto.** I mille pezzi sono il tuo disegno tagliato a
+raggiera, ingrandito un soffio mentre esplode: niente da preparare a parte, basta
+il PNG. Finché non c'è, al suo posto c'è un bersaglio a cerchi rossi e bianchi,
+con la stessa misura e la stessa rottura.
+
+```
+./prove/scatto.sh grazia mira       # la lancetta che arriva sul bersaglio
+./prove/scatto.sh grazia rotto      # centrato: i pezzi in volo
+./prove/scatto.sh grazia mancato    # il tiro a vuoto
+```
+
+I numeri (quanto è veloce la lancetta, quanto è largo il bersaglio, quanto fa
+male) stanno in `data/abilita.json`, sotto `mattanza` → `colpo_di_grazia`.
 
 ## Se un pugno arriva troppo in fretta (o troppo piano)
 

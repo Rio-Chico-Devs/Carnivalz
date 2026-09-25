@@ -68,6 +68,7 @@ func _ready() -> void:
 	prova_a_turni_ognuno_agisce_una_volta_per_giro()
 	prova_barra_di_dominio_come_energia()
 	await prova_mattanza_svuota_la_barra()
+	await prova_il_colpo_di_grazia_si_centra_col_tempismo()
 	prova_ogni_creatura_ha_un_set_di_mosse()
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
@@ -3060,14 +3061,15 @@ func prova_mattanza_svuota_la_barra() -> void:
 	# LA MATTANZA, COME L'HA CHIESTA BRU: "quando riempi almeno una barra, puoi
 	# andare in mattanza, solo in quel momento; la mattanza consuma tutta la
 	# barra e finche' non e' consumata potrai premere spazio per colpire numerose
-	# volte il nemico, con un valore di ogni colpo pari a 1/10 del tuo attacco
-	# attuale".
+	# volte il nemico". E poi: «il giocatore puo' cliccare furiosamente, fai il
+	# minimo danno possibile per click».
 	#
 	# Sono quattro promesse, e ognuna puo' rompersi da sola senza che si veda:
 	# la soglia (mezza barra non apre niente), il serbatoio (se ne va TUTTO), la
 	# durata (piu' barra, piu' colpi) e il valore del colpo. La quinta - che
 	# spazio colpisca davvero - non si vede da nessuna parte se non premendolo,
-	# ed e' quella che in partita si nota per prima.
+	# ed e' quella che in partita si nota per prima. Il colpo di grazia ha la
+	# prova sua (prova_il_colpo_di_grazia_si_centra_col_tempismo).
 	titolo("la Mattanza si apre a barra piena, si porta via tutto, e la batti tu")
 	GameState.nuova_partita()
 	GameState.nemici_combattimento = ["goblin_tipico"]
@@ -3112,21 +3114,35 @@ func prova_mattanza_svuota_la_barra() -> void:
 	vita = int(nemico.hp)
 	scontro.usa_abilita_su(eroe, "mattanza", nemico)
 	var danno_una_barra := vita - int(nemico.hp)
-	var colpi_una_barra: int = scontro.mattanza_colpi
+	var colpi_una_barra: int = scontro.mattanza.colpi
 	esigi(danno_una_barra > 0, "la Mattanza non ha fatto un solo punto di danno")
 	esigi(int(eroe.dominio) == 0,
 			"la Mattanza ha lasciato %d nella barra: doveva portarsela via tutta" % int(eroe.dominio))
 	esigi(colpi_una_barra > 1,
 			"la Mattanza ha dato %d colpo: doveva essere una raffica" % colpi_una_barra)
 
-	# 3. OGNI COLPO VALE UN DECIMO DEL TUO ATTACCO, e va diritto: se passasse
-	#    dalla difesa, contro un corazzato non farebbe niente - ed e' proprio
-	#    contro i corazzati che uno se la tiene da parte
-	var atteso := maxi(int(round(RegoleCombattimento.attacco_di(eroe)
-			* float(dati.get("frazione_attacco", 0.1)))), 1)
-	esigi(danno_una_barra == colpi_una_barra * atteso,
-			"%d colpi hanno fatto %d danni invece di %d: un colpo non vale un decimo dell'attacco"
-			% [colpi_una_barra, danno_una_barra, colpi_una_barra * atteso])
+	# 3. OGNI COLPO VALE IL MINIMO, e va diritto: se passasse dalla difesa,
+	#    contro un corazzato non farebbe niente - ed e' proprio contro i
+	#    corazzati che uno se la tiene da parte. Il conto si fa colpo per colpo:
+	#    i normali valgono uno, i critici il loro, e il resto e' il colpo di
+	#    grazia della mano automatica
+	var normale := MattanzaCombattimento.danno_del_colpo(dati, false)
+	var pieno := MattanzaCombattimento.danno_del_colpo(dati, true)
+	esigi(normale == 1, "un colpo di Mattanza vale %d: Bru l'ha chiesto al minimo" % normale)
+	esigi(pieno > normale, "il critico della Mattanza vale %d come un colpo normale" % pieno)
+	var m: MattanzaCombattimento = scontro.mattanza
+	var atteso: int = (m.colpi - m.critici) * normale + m.critici * pieno
+	esigi(m.danno_colpi == atteso,
+			"%d colpi (%d critici) hanno fatto %d danni invece di %d: un colpo non vale il minimo"
+			% [m.colpi, m.critici, m.danno_colpi, atteso])
+	var riuscita := float(dati.get("colpo_di_grazia", {}).get("riuscita_automatica", 0.5))
+	var grazia_attesa := int(round(MattanzaCombattimento.danno_di_grazia(eroe, dati, 1.0) * riuscita))
+	esigi(m.danno_grazia == grazia_attesa,
+			"senza mani il colpo di grazia ha fatto %d invece di %d: il simulatore misura un'altra Mattanza"
+			% [m.danno_grazia, grazia_attesa])
+	esigi(danno_una_barra == m.danno_colpi + m.danno_grazia,
+			"la Mattanza ha tolto %d, ma colpi e colpo di grazia fanno %d: c'e' un danno che non si vede"
+			% [danno_una_barra, m.danno_colpi + m.danno_grazia])
 	# e la corazza non deve contare NIENTE, non "poco": chiedere solo che passi
 	# qualcosa non prova un bel niente, perche' un colpo normale contro un
 	# corazzato passa lo stesso - c'e' un minimo di legge (danno_minimo_percentuale)
@@ -3136,17 +3152,30 @@ func prova_mattanza_svuota_la_barra() -> void:
 	vita = int(nemico.hp)
 	scontro.usa_abilita_su(eroe, "mattanza", nemico)
 	var danno_corazzato := vita - int(nemico.hp)
-	var colpi_corazzato: int = scontro.mattanza_colpi
-	esigi(danno_corazzato == colpi_corazzato * atteso,
-			"contro un corazzato %d colpi fanno %d invece di %d: la Mattanza passa dalla difesa, e proprio contro i corazzati uno se la tiene da parte"
-			% [colpi_corazzato, danno_corazzato, colpi_corazzato * atteso])
+	var atteso_corazzato: int = (m.colpi - m.critici) * normale + m.critici * pieno + grazia_attesa
+	esigi(danno_corazzato == atteso_corazzato,
+			"contro un corazzato la Mattanza fa %d invece di %d: passa dalla difesa, e proprio contro i corazzati uno se la tiene da parte"
+			% [danno_corazzato, atteso_corazzato])
 	nemico.difesa = 0
+
+	# 3-bis. OGNI COLPO PUO' ESSERE CRITICO. Col cinque per cento in una barra
+	#    ne esce uno si' e uno no, e una prova che conta "almeno uno" direbbe
+	#    di si' anche a una Mattanza che non ne fa mai: qui il critico e'
+	#    certo, e allora devono esserlo TUTTI
+	var regola_critico: Variant = GameState.regole.get("critico_chance_base", 0.05)
+	GameState.regole["critico_chance_base"] = 1.0
+	eroe.dominio = per_segmento
+	scontro.usa_abilita_su(eroe, "mattanza", nemico)
+	GameState.regole["critico_chance_base"] = regola_critico
+	esigi(m.colpi > 1 and m.critici == m.colpi and m.danno_colpi == m.colpi * pieno,
+			"a critico certo %d colpi su %d sono stati critici (%d danni): la Mattanza non segue la regola dei critici"
+			% [m.critici, m.colpi, m.danno_colpi])
 
 	# 4. PIU' BARRA, PIU' COLPI: e' quello che rende una scelta il tenersela
 	eroe.dominio = per_segmento * 3
 	vita = int(nemico.hp)
 	scontro.usa_abilita_su(eroe, "mattanza", nemico)
-	var colpi_tre_barre: int = scontro.mattanza_colpi
+	var colpi_tre_barre: int = scontro.mattanza.colpi
 	esigi(colpi_tre_barre > colpi_una_barra,
 			"tre barre danno %d colpi come una (%d): tenersi la barra non compra niente"
 			% [colpi_tre_barre, colpi_una_barra])
@@ -3199,24 +3228,24 @@ func prova_mattanza_svuota_la_barra() -> void:
 	clic.pressed = true
 	# 7. MENTRE SI LEGGE LA FINESTRA ASPETTA: «non smette più» e' ancora nel box,
 	#    e ne' la barra ne' i colpi devono correre sotto le parole
-	esigi(bool(vero.mattanza_sospesa()), "la Mattanza corre mentre c'e' ancora da leggere")
+	esigi(bool(vero.mattanza.sospesa()), "la Mattanza corre mentre c'e' ancora da leggere")
 	var a_finestra_aperta := int(lui.hp)
 	var barra_intera := int(tu.dominio)
 	vero._unhandled_input(spazio)
 	vero._su_input_nemico(clic, lui)
-	vero.avanza_mattanza(0.5)
+	vero.mattanza.passa(0.5)
 	esigi(int(lui.hp) == a_finestra_aperta and int(tu.dominio) == barra_intera,
 			"mentre si legge la Mattanza colpisce o si scarica: i secondi se ne vanno a leggere")
 	vero.voce.coda.clear()
 	vero.voce.sta_facendo_leggere = false
-	esigi(not bool(vero.mattanza_sospesa()), "finito di leggere, la finestra resta ferma")
+	esigi(not bool(vero.mattanza.sospesa()), "finito di leggere, la finestra resta ferma")
 	var prima_di_battere := int(lui.hp)
 	vero._unhandled_input(spazio)
 	esigi(int(lui.hp) < prima_di_battere, "spazio non colpisce: la Mattanza e' una finestra vuota")
 	# 8. IL COLPO SI VEDE SUBITO, non in coda al racconto: in coda i numeri
 	#    uscivano uno ogni mezzo secondo, a finestra gia' chiusa - e la coda piena
 	#    teneva la finestra ferma dopo ogni colpo
-	esigi(vero.voce.coda.is_empty() and not bool(vero.mattanza_sospesa()),
+	esigi(vero.voce.coda.is_empty() and not bool(vero.mattanza.sospesa()),
 			"il colpo di Mattanza e' finito in coda al racconto: si vede a finestra chiusa")
 	var dopo_un_colpo := int(lui.hp)
 	vero._unhandled_input(spazio)
@@ -3229,19 +3258,27 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(int(lui.hp) < prima_del_clic, "il clic sul nemico durante la Mattanza non colpisce")
 	esigi(vero.nome_azione_in_coda() == "",
 			"il clic durante la Mattanza ha messo in coda un attacco per il turno dopo")
-	# e la barra che si scarica E' il cronometro: quando e' vuota, finisce
+	# e la barra che si scarica E' il cronometro: quando e' vuota, finisce il
+	# martello e comincia il colpo di grazia
 	esigi(int(tu.dominio) > 0, "la barra e' gia' vuota a raffica appena cominciata")
 	for battito in 400:
-		vero.avanza_mattanza(0.05)
-		if not vero.mattanza_attiva:
+		vero.mattanza.passa(0.05)
+		if not vero.mattanza.martella:
 			break
-	esigi(not bool(vero.mattanza_attiva),
+	esigi(not bool(vero.mattanza.martella),
 			"la Mattanza non finisce piu': la barra non si scarica")
 	esigi(int(tu.dominio) == 0, "finita la Mattanza restano %d di barra" % int(tu.dominio))
 	var a_raffica_finita := int(lui.hp)
 	vero._unhandled_input(spazio)
 	esigi(int(lui.hp) == a_raffica_finita,
 			"si continua a colpire con spazio anche a barra finita: la finestra non si chiude")
+	# il colpo di grazia lasciato scadere: nessun danno, e poi tutto si chiude
+	for battito in 200:
+		vero.mattanza.passa(0.05)
+		if not vero.mattanza_attiva:
+			break
+	esigi(not bool(vero.mattanza_attiva), "il colpo di grazia lasciato scadere non finisce mai")
+	esigi(int(lui.hp) == a_raffica_finita, "il colpo di grazia mai tirato ha fatto danno lo stesso")
 	vero.free()
 
 	# 10. VERONICA COMMENTA LA MATTANZA QUANDO E' FINITA. Il passo si chiudeva
@@ -3267,7 +3304,13 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(bool(allenamento.mattanza_attiva), "nell'allenamento la Mattanza non si apre")
 	esigi(allenamento.tutorial_passo == indice,
 			"il passo della Mattanza si chiude appena chiamata: Veronica parla sopra la finestra")
-	allenamento.chiudi_mattanza()
+	# e nemmeno a barra vuota: c'e' ancora il colpo di grazia, e Veronica
+	# commenterebbe sopra la lancetta
+	allenamento.mattanza.chiudi_finestra()
+	esigi(allenamento.mattanza.grazia.attivo, "nell'allenamento a barra vuota non parte il colpo di grazia")
+	esigi(allenamento.tutorial_passo == indice,
+			"il passo della Mattanza si chiude a barra vuota: Veronica parla sopra il colpo di grazia")
+	allenamento.mattanza.finisci()
 	esigi(allenamento.tutorial_passo == indice + 1,
 			"a Mattanza finita il passo non si chiude: l'allenamento resta fermo li'")
 	var detto := ""
@@ -3276,6 +3319,183 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(String(passi[indice].get("dopo", [{}])[0].get("testo", "")).left(12) in detto,
 			"a Mattanza finita Veronica non commenta")
 	allenamento.free()
+	GameState.nuova_partita()
+
+func prova_il_colpo_di_grazia_si_centra_col_tempismo() -> void:
+	# IL COLPO DI GRAZIA, COME L'HA CHIESTO BRU: «quando finisce hai un minigioco
+	# con una barra che scorre velocemente: se clicchi nel momento giusto in cui
+	# si allinea con un punto random sulla barra infliggi del danno bonus [...]
+	# se centra quel punto l'immagine si frantuma in mille pezzi, parte un
+	# effetto sonoro, e viene inflitto il danno al nemico».
+	#
+	# Le promesse una per una, perche' ognuna si rompe da sola: la lancetta va e
+	# viene, il colpo di grazia parte da solo a barra vuota e mentre si mira il
+	# mondo aspetta, le pressioni di chi sta ancora martellando non sprecano il
+	# tiro, un tiro dentro vale e uno fuori no, il danno arriva insieme ai pezzi,
+	# i pezzi sono davvero mille e volano fuori dal riquadro. E prima ancora: il
+	# nemico trema a ogni colpo, e smette di tremare al suo posto.
+	titolo("il colpo di grazia si centra col tempismo, e il nemico trema a ogni colpo")
+	# 1. LA LANCETTA VA E VIENE, a velocita' costante: da un capo all'altro in
+	#    "passaggio" secondi, e poi indietro. Una lancetta che si ferma in fondo
+	#    darebbe un tiro solo; una che rallenta ai bordi si prende da ferma
+	var passo := 0.7
+	var corsa := [[0.0, 0.0], [0.35, 0.5], [0.7, 1.0], [1.05, 0.5], [1.4, 0.0], [1.75, 0.5]]
+	for coppia in corsa:
+		var dove_e := ColpoDiGraziaCombattimento.posizione(float(coppia[0]), passo)
+		esigi(is_equal_approx(dove_e, float(coppia[1])),
+				"a %.2f secondi la lancetta e' a %.2f invece di %.2f: non va e viene a velocita' costante"
+				% [float(coppia[0]), dove_e, float(coppia[1])])
+	esigi(ColpoDiGraziaCombattimento.dentro(0.5, 0.54, 0.06)
+			and not ColpoDiGraziaCombattimento.dentro(0.45, 0.54, 0.06),
+			"il bersaglio non e' largo quanto la sua tolleranza")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var vero: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(vero)
+	await get_tree().process_frame
+	var tu: Dictionary = vero.combattenti[0]
+	var lui: Dictionary = vero.vivi(false)[0]
+	lui.hp_max = 1000000
+	lui.hp = 1000000
+	var dati := GameState.abilita_combattimento("mattanza")
+	var parametri: Dictionary = dati.get("colpo_di_grazia", {})
+	var per_segmento := maxi(int(GameState.regole.get("dominio", {}).get("per_segmento", 100)), 1)
+	var m: MattanzaCombattimento = vero.mattanza
+	var g: ColpoDiGraziaCombattimento = m.grazia
+	var spazio := InputEventKey.new()
+	spazio.keycode = KEY_SPACE
+	spazio.physical_keycode = KEY_SPACE
+	spazio.pressed = true
+	var clic := InputEventMouseButton.new()
+	clic.button_index = MOUSE_BUTTON_LEFT
+	clic.pressed = true
+	var apri := func(barre: int) -> void:
+		tu.dominio = per_segmento * barre
+		vero.usa_abilita_su(tu, "mattanza", lui)
+		vero.voce.coda.clear()
+		vero.voce.sta_facendo_leggere = false
+
+	# 2. IL NEMICO TREMA A OGNI COLPO, e trema il suo disegno, non la cornice:
+	#    un riquadro che balla a dieci colpi al secondo si porta dietro il nome,
+	#    la vita e le tacche. E finito il tremito il disegno e' dov'era: dieci
+	#    colpi di fila ripartono tutti dalla stessa base, o la creatura se ne
+	#    andrebbe a spasso per il riquadro
+	var immagine: Control = lui.get("immagine", null)
+	esigi(immagine != null and immagine != lui.scheda,
+			"il nemico non ha un disegno suo: sotto la Mattanza tremerebbe tutto il riquadro")
+	apri.call(1)
+	await get_tree().process_frame
+	var base := immagine.position
+	vero._unhandled_input(spazio)
+	var tremito: Variant = immagine.get_meta("tremito") if immagine.has_meta("tremito") else null
+	esigi(tremito is Tween and (tremito as Tween).is_valid(), "colpito dalla Mattanza, il nemico non trema")
+	for volta in 10:
+		vero._unhandled_input(spazio)
+		await get_tree().process_frame
+	await get_tree().create_timer(ImpattoCombattimento.DURATA_TREMITO * 3.0).timeout
+	esigi(immagine.position.is_equal_approx(base),
+			"dopo dieci colpi il disegno e' a %s invece che a %s: il tremito lo sposta per sempre"
+			% [immagine.position, base])
+	# col movimento ridotto non trema: il numero e il suono dicono gia' il colpo
+	var ridotto := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	immagine.remove_meta("tremito")
+	vero._unhandled_input(spazio)
+	esigi(not immagine.has_meta("tremito"), "col movimento ridotto il nemico trema lo stesso")
+	Impostazioni.movimento_ridotto = ridotto
+
+	# 3. A BARRA VUOTA PARTE DA SOLO, e mentre si mira il mondo aspetta. Ma
+	#    sotto la raffica la barra non scende: il colpo di grazia partirebbe
+	#    sopra i pugni, nello stesso quadrante
+	var barra_prima := int(tu.dominio)
+	vero.minigioco.attivo = true
+	m.passa(1.0)
+	vero.minigioco.attivo = false
+	esigi(int(tu.dominio) == barra_prima and not g.attivo,
+			"sotto la raffica la barra della Mattanza si scarica (%d su %d)" % [int(tu.dominio), barra_prima])
+	for battito in 400:
+		m.passa(0.05)
+		if not m.martella:
+			break
+	esigi(g.attivo, "a barra vuota il colpo di grazia non parte")
+	esigi(vero.fase_adesso() == "minigioco" and not vero.si_puo_passare_il_turno(),
+			"durante il colpo di grazia lo scontro e' in fase '%s' e i turni possono passare"
+			% vero.fase_adesso())
+	esigi(g.riquadro != null and g.riquadro.is_visible_in_tree(), "il riquadro del colpo di grazia non si vede")
+	var dove: Array = parametri.get("dove", [0.25, 0.85])
+	esigi(g.punto >= float(dove[0]) and g.punto <= float(dove[1]),
+			"il bersaglio e' caduto a %.2f, fuori da %s" % [g.punto, dove])
+	# 4. LA MANO CHE MARTELLA NON SPRECA IL TIRO: nei primi istanti i tasti non
+	#    contano - ma sono del colpo di grazia, e non vanno a nessun altro
+	var vita := int(lui.hp)
+	vero._unhandled_input(spazio)
+	vero._su_input_nemico(clic, lui)
+	esigi(g.fase == "sordo" and g.attivo and int(lui.hp) == vita,
+			"le pressioni rimaste dalla Mattanza hanno sprecato il tiro (fase '%s')" % g.fase)
+	# 5. CENTRATO: la lancetta sul bersaglio, spazio, e nello stesso istante il
+	#    danno sul nemico e il disegno in mille pezzi fuori dal riquadro
+	var giri := 0
+	while g.fase != "corsa" and giri < 200:
+		m.passa(1.0 / 120.0)
+		giri += 1
+	while absf(g.cursore - g.punto) > 0.01 and giri < 4000:
+		m.passa(1.0 / 480.0)
+		giri += 1
+	vero._unhandled_input(spazio)
+	var atteso := MattanzaCombattimento.danno_di_grazia(tu, dati, 1.0)
+	esigi(g.preso, "la lancetta era sul bersaglio (%.3f su %.3f) e il tiro e' andato a vuoto"
+			% [g.cursore, g.punto])
+	esigi(vita - int(lui.hp) == atteso and m.danno_grazia == atteso,
+			"centrato il bersaglio il nemico ha perso %d invece di %d" % [vita - int(lui.hp), atteso])
+	var pezzi: Control = g.riquadro.rottura
+	esigi(pezzi != null and is_instance_valid(pezzi) and pezzi.get_parent() == vero.volanti,
+			"il bersaglio centrato non si e' frantumato sullo strato di sopra")
+	if pezzi != null and is_instance_valid(pezzi):
+		esigi(pezzi.schegge.size() == 1000,
+				"il bersaglio si e' rotto in %d pezzi: Bru li ha chiesti mille" % pezzi.schegge.size())
+	esigi(MattanzaCombattimento.danno_di_grazia(tu, dati, 3.0) > atteso,
+			"tre barre bruciate valgono il colpo di grazia di una: tenersela non compra niente")
+	# e il riepilogo resta: le pressioni di troppo non lo chiudono subito
+	vero._unhandled_input(spazio)
+	esigi(g.attivo and g.fase == "chiusura", "il riepilogo del colpo di grazia si chiude al primo tasto di troppo")
+	for battito in 100:
+		m.passa(0.05)
+		if not vero.mattanza_attiva:
+			break
+	esigi(not bool(vero.mattanza_attiva) and not g.attivo, "finito il colpo di grazia la Mattanza resta aperta")
+	esigi(int(tu.dominio) == 0, "finito il colpo di grazia restano %d di barra" % int(tu.dominio))
+
+	# 6. FUORI DAL BERSAGLIO NON VALE, e il clic sul nemico e' un tiro come lo
+	#    spazio: chi gioca col mouse ce l'ha li' da tutta la raffica
+	apri.call(2)
+	m.chiudi_finestra()
+	giri = 0
+	while (g.fase != "corsa" or absf(g.cursore - g.punto) < 0.25) and giri < 4000:
+		m.passa(1.0 / 240.0)
+		giri += 1
+	vita = int(lui.hp)
+	vero._su_input_nemico(clic, lui)
+	esigi(g.tirato and not g.preso and int(lui.hp) == vita,
+			"un tiro lontano dal bersaglio (%.2f su %.2f) ha fatto %d danni" % [g.cursore, g.punto, vita - int(lui.hp)])
+	esigi(g.riquadro.avviso.text == String(parametri.get("testo_mancato", "MANCATO")),
+			"mancato il bersaglio il riquadro dice '%s'" % g.riquadro.avviso.text)
+	m.finisci()
+	esigi(not g.attivo and not bool(vero.mattanza_attiva), "chiusa a forza, la Mattanza lascia acceso il colpo di grazia")
+
+	# 7. CHI NON TIRA PERDE IL TIRO: la lancetta corre per "tempo" secondi e poi basta
+	apri.call(1)
+	m.chiudi_finestra()
+	vita = int(lui.hp)
+	for battito in 120:
+		m.passa(0.05)
+		if g.fase == "chiusura":
+			break
+	esigi(g.fase == "chiusura" and not g.tirato and not g.preso and int(lui.hp) == vita,
+			"lasciato scadere, il colpo di grazia non si chiude o fa danno")
+	esigi(g.riquadro.avviso.text == String(parametri.get("testo_tardi", "TROPPO TARDI")),
+			"scaduto il tempo il riquadro dice '%s'" % g.riquadro.avviso.text)
+	m.finisci()
+	vero.free()
 	GameState.nuova_partita()
 
 func prova_ogni_creatura_ha_un_set_di_mosse() -> void:
@@ -10465,7 +10685,7 @@ const TETTO_RIGHE_FUNZIONE := 100
 const TETTO_COGNITIVA := 15
 
 const FILE_GRANDI := {
-	"Combattimento.gd": {"misura": 4806, "perche":
+	"Combattimento.gd": {"misura": 4661, "perche":
 		"il motore dello scontro: quattordici mestieri dichiarati nei suoi " +
 		"stessi commenti. Ne sono usciti gli stati (Stati.gd) e il buffer " +
 		"dei comandi (Intenzione.gd), e adesso so perche' quei due e non " +
@@ -10512,7 +10732,10 @@ const FILE_GRANDI := {
 		"domande (la fase, la faccia, il process) invece di ripeterle due volte; 1 per collegare il " +
 		"bersaglio di chi viene evocato a scontro avviato, che prima non si poteva cliccare. Il braccio di " +
 		"ferro, il suo riquadro e chi lo lancia stanno in file loro (Contrasto.gd, " +
-		"RiquadroContrasto.gd, Mazzata.gd), i quadratini dei gregari in Gregari.gd"},
+		"RiquadroContrasto.gd, Mazzata.gd), i quadratini dei gregari in Gregari.gd. " +
+		"SCESO A 4661 il 25 settembre: la Mattanza e' uscita in Mattanza.gd, col suo colpo di " +
+		"grazia (ColpoDiGrazia.gd, RiquadroColpoDiGrazia.gd). Qui restano la domanda " +
+		"mattanza_attiva e i cinque agganci - lo SPAZIO, il clic, il fotogramma, il tassello, il ramo"},
 	"GameState.gd": {"misura": 2549, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. ALLARGATA DA 2537 A 2549 col controllo a basso livello: " +
@@ -10577,10 +10800,6 @@ const FUNZIONI_LUNGHE := {
 		"la sequenza intera di un colpo: bersaglio a terra, schivata, danno, " +
 		"impatto, stati, KO. E' l'ordine dei fatti, ed e' il mestiere " +
 		"dichiarato di questo file"},
-	"Combattimento.gd:flagello": {"misura": 102, "perche":
-		"venti o venticinque colpi tirati uno per uno, ognuno col suo " +
-		"bersaglio, il suo fallimento e il suo critico, piu' il riepilogo. E' " +
-		"un'abilita' sola e sta tutta qui"},
 }
 
 # LE FUNZIONI INGARBUGLIATE, col loro punteggio di oggi.
@@ -13502,6 +13721,8 @@ func prova_nessuna_bandiera_letta_e_mai_scritta() -> void:
 			if not (nuda.contains(":= false") or nuda.contains(":= true") \
 					or nuda.contains(": bool")):
 				continue
+			if nuda.strip_edges().ends_with(":"):
+				continue   # una proprieta' col suo get: si calcola, non si scrive
 			var nome := nuda.trim_prefix("var ").get_slice(" ", 0) \
 					.get_slice(":", 0).get_slice("=", 0).strip_edges()
 			if nome == "" or nome.begins_with("_"):
@@ -14770,7 +14991,7 @@ func prova_la_mazzata_dal_vivo_si_prende_la_barra_spaziatrice() -> void:
 	esigi(int(scontro.mazzata.contrasto.pressioni) == prima + 3,
 			"tre SPAZIO sotto la mazza ne hanno spinte %d" % (int(scontro.mazzata.contrasto.pressioni) - prima))
 	esigi(int(goblin.hp) == vita_goblin, "sotto la mazza SPAZIO e' andato alla Mattanza")
-	scontro.chiudi_mattanza()
+	scontro.mattanza.finisci()
 	# si finisce premendo: respinta, poco danno, e il mondo riparte
 	giri = 0
 	while giri < 600 and scontro.mazzata.in_corso():

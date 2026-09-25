@@ -71,6 +71,16 @@ Frasi registrate per boss e miniboss, per evento:
 Boss/miniboss attuali: `jerah` (inizio/cedimento/sconfitta), `tenero_ricordo` (inizio/sconfitta),
 `jongo_dongo` (inizio/sconfitta — non è convincibile: nessun cedimento).
 
+## Suoni dell'interfaccia — `audio/ui/`
+Colpi, conferme, il vetro che si rompe: `audio/ui/<nome>.wav`. Finché un file manca il gioco
+ne costruisce uno da solo, quindi non si sente mai il silenzio. Cosa fa scattare ognuno e cosa
+deve dire sta in `data/audio.json`, sotto `"_interfaccia"`.
+
+| File | Quando suona |
+|---|---|
+| `frantumi.wav` | **Il colpo di grazia della Mattanza è andato a segno**: il tuo disegno del bersaglio va in mille pezzi e il nemico prende il danno bonus, tutto nello stesso istante. È un premio, non una perdita: il contrario di `vetro.wav` |
+| `vetro.wav` | Una scelta a tempo è scaduta e si frantuma |
+
 ## Override nei dati (opzionale)
 Ogni percorso di default può essere sovrascritto nei JSON:
 - nel nemico: `"growl": "res://audio/versi/xxx.wav"`, `"morte": "..."`,

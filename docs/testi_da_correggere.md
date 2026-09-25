@@ -475,257 +475,247 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.Combattimento.034`** · mattanza
-> [i]%s non smette più.[/i]
->
-> →
-
-**`UI.Combattimento.035`** · chiudi_mattanza
-> [i]%s si ferma: %d colpi.[/i]
->
-> →
-
-**`UI.Combattimento.036`** · provocazione
+**`UI.Combattimento.034`** · provocazione
 > [i]%s si mette in mostra: i nemici non vedono altro che lui.[/i]
 >
 > →
 
-**`UI.Combattimento.037`** · smista_la_copertura
+**`UI.Combattimento.035`** · smista_la_copertura
 > [i]%s si prende metà del colpo al posto di %s.[/i]
 >
 > →
 
-**`UI.Combattimento.038`** · guardia
+**`UI.Combattimento.036`** · guardia
 > [i]%s è già chiuso quanto può.[/i]
 >
 > →
 
-**`UI.Combattimento.039`** · guardia
+**`UI.Combattimento.037`** · guardia
 > [i]%s si pianta e non si sposta.[/i]
 >
 > →
 
-**`UI.Combattimento.040`** · guardia
+**`UI.Combattimento.038`** · guardia
 > Guardia +%d (difesa ora %d).
 >
 > →
 
-**`UI.Combattimento.041`** · copertura
+**`UI.Combattimento.039`** · copertura
 > [i]%s non ha nessuno da coprire.[/i]
 >
 > →
 
-**`UI.Combattimento.042`** · copertura
+**`UI.Combattimento.040`** · copertura
 > [i]%s si mette davanti a %s.[/i]
 >
 > →
 
-**`UI.Combattimento.043`** · immunita
+**`UI.Combattimento.041`** · immunita
 > [i]Addosso a %s non passa piu' niente.[/i]
 >
 > →
 
-**`UI.Combattimento.044`** · rianima
+**`UI.Combattimento.042`** · rianima
 > [i]%s rimette in piedi chi era caduto.[/i]
 >
 > →
 
-**`UI.Combattimento.045`** · rianima
+**`UI.Combattimento.043`** · rianima
 > %s torna in piedi con %d punti vita.
 >
 > →
 
-**`UI.Combattimento.046`** · rianima
+**`UI.Combattimento.044`** · rianima
 > [i]Non c'è nessuno da rialzare.[/i]
 >
 > →
 
-**`UI.Combattimento.047`** · ultima_resistenza
+**`UI.Combattimento.045`** · ultima_resistenza
 > [i]%s decide che non cade oggi.[/i]
 >
 > →
 
-**`UI.Combattimento.048`** · evoca_alleato
+**`UI.Combattimento.046`** · evoca_alleato
 > [i]%s chiama, ma non risponde nessuno.[/i]
 >
 > →
 
-**`UI.Combattimento.049`** · evoca_alleato
+**`UI.Combattimento.047`** · evoca_alleato
 > [i]%s chiama ancora, ma un sogno per volta e' tutto quello che riesce a tenere aperto.[/i]
 >
 > →
 
-**`UI.Combattimento.050`** · evoca_alleato
+**`UI.Combattimento.048`** · evoca_alleato
 > [i]...ma non c'è più posto.[/i]
 >
 > →
 
-**`UI.Combattimento.051`** · evoca_alleato
+**`UI.Combattimento.049`** · evoca_alleato
 > [i]%s chiama, e qualcosa risponde.[/i]
 >
 > →
 
-**`UI.Combattimento.052`** · passiva
+**`UI.Combattimento.050`** · passiva
 > Vale sempre, non si usa.
 >
 > →
 
-**`UI.Combattimento.053`** · aggiorna_orda
+**`UI.Combattimento.051`** · aggiorna_orda
 > [i]L'orda si indebolisce.[/i]
 >
 > →
 
-**`UI.Combattimento.054`** · colpo d'area
+**`UI.Combattimento.052`** · colpo d'area
 > [i]%s scatena un colpo che si abbatte su tutti i nemici![/i]
 >
 > →
 
-**`UI.Combattimento.055`** · onda
+**`UI.Combattimento.053`** · onda
 > [i]Su %d, %d vanno a vuoto.[/i]
 >
 > →
 
-**`UI.Combattimento.056`** · potenziati
+**`UI.Combattimento.054`** · potenziati
 > %s si concentra.
 >
 > →
 
-**`UI.Combattimento.057`** · consuma_carica
+**`UI.Combattimento.055`** · consuma_carica
 > [b]%s scarica tutto quello che ha accumulato.[/b]
 >
 > →
 
-**`UI.Combattimento.058`** · quando si prova a fuggire
+**`UI.Combattimento.056`** · quando si prova a fuggire
 > [i]%s prova a fuggire, ma non trova il varco giusto.[/i]
 >
 > →
 
-**`UI.Combattimento.059`** · verifica_rabbia_su_morte
+**`UI.Combattimento.057`** · verifica_rabbia_su_morte
 > La rabbia cresce.
 >
 > →
 
-**`UI.Combattimento.060`** · verifica_cura_su_morte
+**`UI.Combattimento.058`** · verifica_cura_su_morte
 > Si rimette in sesto.
 >
 > →
 
-**`UI.Combattimento.061`** · risolvi_rigenerazione
+**`UI.Combattimento.059`** · risolvi_rigenerazione
 > La carne si richiude su se stessa.
 >
 > →
 
-**`UI.Combattimento.062`** · risolvi_rigenerazione
+**`UI.Combattimento.060`** · risolvi_rigenerazione
 > Resta a terra, e continua a ricucirsi.
 >
 > →
 
-**`UI.Combattimento.063`** · apri_la_guardia
+**`UI.Combattimento.061`** · apri_la_guardia
 > [i]La guardia di %s si apre.[/i]
 >
 > →
 
-**`UI.Combattimento.064`** · apri_la_guardia
+**`UI.Combattimento.062`** · apri_la_guardia
 > Difesa −%d, ora %d.
 >
 > →
 
-**`UI.Combattimento.065`** · avanza_trasformazione
+**`UI.Combattimento.063`** · avanza_trasformazione
 > Non è più quello di prima.
 >
 > →
 
-**`UI.Combattimento.066`** · spegni_tormento_di
+**`UI.Combattimento.064`** · spegni_tormento_di
 > [i]Il vento si ferma.[/i]
 >
 > →
 
-**`UI.Combattimento.067`** · mossa_rubavita
+**`UI.Combattimento.065`** · mossa_rubavita
 > [i]%s se ne nutre: +%d.[/i]
 >
 > →
 
-**`UI.Combattimento.068`** · mossa_evoca
+**`UI.Combattimento.066`** · mossa_evoca
 > [i]...ma nessuno risponde al richiamo.[/i]
 >
 > →
 
-**`UI.Combattimento.069`** · mossa_sacrificio
+**`UI.Combattimento.067`** · mossa_sacrificio
 > [i]%s lo colpisce lui stesso, senza esitare.[/i]
 >
 > →
 
-**`UI.Combattimento.070`** · cedimento
+**`UI.Combattimento.068`** · cedimento
 > [i]Lo spettacolo di %s si spegne un po' di più.[/i]
 >
 > →
 
-**`UI.Combattimento.071`** · quando si attacca
+**`UI.Combattimento.069`** · quando si attacca
 > [i]Il colpo su %s si ferma a un dito dalla pelle.[/i]
 >
 > →
 
-**`UI.Combattimento.072`** · quando si attacca
+**`UI.Combattimento.070`** · quando si attacca
 > Il dominio di %s arde!
 >
 > →
 
-**`UI.Combattimento.073`** · quando si attacca
+**`UI.Combattimento.071`** · quando si attacca
 > [i]È il colpo giusto: %s lo incassa male.[/i]
 >
 > →
 
-**`UI.Combattimento.074`** · quando si attacca
+**`UI.Combattimento.072`** · quando si attacca
 > [i]Non gli fa niente: %s non è fatto per essere colpito così.[/i]
 >
 > →
 
-**`UI.Combattimento.075`** · quando si attacca
+**`UI.Combattimento.073`** · quando si attacca
 > %s para il colpo di %s.
 >
 > →
 
-**`UI.Combattimento.076`** · quando si attacca
+**`UI.Combattimento.074`** · quando si attacca
 > [b]Colpo critico![/b] %s coglie %s in pieno.
 >
 > →
 
-**`UI.Combattimento.077`** · rimetti_in_piedi
+**`UI.Combattimento.075`** · rimetti_in_piedi
 > [i]%s non ha più niente da darsi.[/i]
 >
 > →
 
-**`UI.Combattimento.078`** · _racconta_ko
+**`UI.Combattimento.076`** · _racconta_ko
 > [i]%s si rimette in piedi.[/i]
 >
 > →
 
-**`UI.Combattimento.079`** · verifica_fine_scontro
+**`UI.Combattimento.077`** · verifica_fine_scontro
 > Vittoria.
 >
 > →
 
-**`UI.Combattimento.080`** · verifica_fine_scontro
+**`UI.Combattimento.078`** · verifica_fine_scontro
 > %d esperienza · %d Tazo
 >
 > →
 
-**`UI.Combattimento.081`** · verifica_fine_scontro
+**`UI.Combattimento.079`** · verifica_fine_scontro
 > Il party è a terra. Il disallineamento ha vinto.
 >
 > →
 
-**`UI.Combattimento.082`** · reagisci
+**`UI.Combattimento.080`** · reagisci
 > %s ribolle di rabbia!
 >
 > →
 
-**`UI.Combattimento.083`** · reagisci
+**`UI.Combattimento.081`** · reagisci
 > %s si chiude in sé: la sua difesa cala.
 >
 > →
 
-**`UI.Combattimento.084`** · reagisci
+**`UI.Combattimento.082`** · reagisci
 > %s si concentra: la barra di dominio sale.
 >
 > →
@@ -801,7 +791,47 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.15 Negozio
+## 1.15 Combattimento, la Mattanza
+
+<sub>`scripts/combattimento/Mattanza.gd`</sub>
+
+**`UI.Mattanza.001`** · avvia
+> [i]%s non smette più.[/i]
+>
+> →
+
+**`UI.Mattanza.002`** · finisci
+> [i]%s si ferma: %d colpi.[/i]
+>
+> →
+
+
+## 1.16 Combattimento, il colpo di grazia a fine Mattanza
+
+<sub>`scripts/combattimento/RiquadroColpoDiGrazia.gd`</sub>
+
+**`UI.RiquadroColpoDiGrazia.001`** · comincia
+> COLPO DI GRAZIA
+>
+> →
+
+**`UI.RiquadroColpoDiGrazia.002`** · comincia
+> Premi quando la lancetta è sul bersaglio!
+>
+> →
+
+**`UI.RiquadroColpoDiGrazia.003`** · tiro
+> CENTRATO!
+>
+> →
+
+**`UI.RiquadroColpoDiGrazia.004`** · tiro
+> MANCATO
+>
+> →
+
+
+## 1.17 Negozio
 
 <sub>`scripts/Negozio.gd`</sub>
 
@@ -826,7 +856,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.16 Negozio, cosa si dice di un oggetto e perche' non si puo' prendere
+## 1.18 Negozio, cosa si dice di un oggetto e perche' non si puo' prendere
 
 <sub>`scripts/Merce.gd`</sub>
 
@@ -876,7 +906,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.17 Negozio, la vetrina cremisi
+## 1.19 Negozio, la vetrina cremisi
 
 <sub>`scripts/Vetrina.gd`</sub>
 
@@ -921,7 +951,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.18 Scheda della squadra
+## 1.20 Scheda della squadra
 
 <sub>`scripts/Personaggio.gd`</sub>
 
@@ -986,7 +1016,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.19 Scheda della squadra, i conti
+## 1.21 Scheda della squadra, i conti
 
 <sub>`scripts/Corredo.gd`</sub>
 
@@ -996,7 +1026,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.20 Pausa, storico e Diario
+## 1.22 Pausa, storico e Diario
 
 <sub>`scripts/Pausa.gd`</sub>
 
@@ -1036,7 +1066,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.21 Pausa, le pagine (zaino, opzioni)
+## 1.23 Pausa, le pagine (zaino, opzioni)
 
 <sub>`scripts/PaginePausa.gd`</sub>
 
@@ -1246,7 +1276,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.22 Ritratti
+## 1.24 Ritratti
 
 <sub>`scripts/Ritratto.gd`</sub>
 
@@ -1256,7 +1286,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 
-## 1.23 Varie
+## 1.25 Varie
 
 <sub>`scripts/GameState.gd`</sub>
 
@@ -14319,6 +14349,11 @@ carte collezionabili.
 >
 > →
 
+**`CRE.veronica.allenamento5.prima5`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, narrazione
+> A barra vuota arriva il COLPO DI GRAZIA: una lancetta corre sulla barra. Premi quando passa sul bersaglio, una volta sola: se lo centri, fa male davvero.
+>
+> →
+
 **`CRE.veronica.allenamento5.dopo1`** · allenamento, passo 5 (ABILITA) — dopo che hai agito, battuta di Veronica
 > ECCO COS'ERA! Ti si è aperto qualcosa dietro gli occhi!
 >
@@ -15149,12 +15184,42 @@ carte collezionabili.
 > →
 
 **`ABI.mattanza.descrizione`** · descrizione
-> Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice e ogni clic sul nemico è un colpo da un decimo del tuo attacco, che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
+> Si può chiamare solo con almeno una barra piena, e si porta via tutta la barra. Finché si scarica, ogni pressione della barra spaziatrice e ogni clic sul nemico è un colpo che ignora la difesa, e può essere critico. A barra vuota, il colpo di grazia: premi quando la lancetta passa sul bersaglio, e più barre hai bruciato più fa male.
 >
 > →
 
 **`ABI.mattanza.testo_uso`** · quando la usi (%s = chi la usa)
 > [i]%s non smette più. Pesta finché ha fiato.[/i]
+>
+> →
+
+**`ABI.mattanza.testo_fine`** · quando finisce (%s = chi la usa, %d = quanti colpi)
+> [i]%s si ferma. %d colpi, e il silenzio dopo.[/i]
+>
+> →
+
+**`ABI.mattanza.grazia.titolo`** · il colpo di grazia: il titolo del riquadro
+> COLPO DI GRAZIA
+>
+> →
+
+**`ABI.mattanza.grazia.avviso`** · il colpo di grazia: cosa fare
+> Premi quando la lancetta è sul bersaglio!
+>
+> →
+
+**`ABI.mattanza.grazia.testo_centrato`** · il colpo di grazia: bersaglio centrato
+> CENTRATO!
+>
+> →
+
+**`ABI.mattanza.grazia.testo_mancato`** · il colpo di grazia: tiro fuori dal bersaglio
+> MANCATO
+>
+> →
+
+**`ABI.mattanza.grazia.testo_tardi`** · il colpo di grazia: tempo scaduto senza tirare
+> TROPPO TARDI
 >
 > →
 

@@ -146,6 +146,8 @@ SCHERMATE = [
     ("combattimento/RiquadroRaffica.gd", "Combattimento, la raffica di pugni"),
     ("combattimento/RiquadroContrasto.gd", "Combattimento, la Mazzata (il contrasto)"),
     ("combattimento/Mazzata.gd", "Combattimento, com'e' finita la Mazzata"),
+    ("combattimento/Mattanza.gd", "Combattimento, la Mattanza"),
+    ("combattimento/RiquadroColpoDiGrazia.gd", "Combattimento, il colpo di grazia a fine Mattanza"),
     ("Negozio.gd", "Negozio"),
     ("Merce.gd", "Negozio, cosa si dice di un oggetto e perche' non si puo' prendere"),
     ("Vetrina.gd", "Negozio, la vetrina cremisi"),
@@ -510,6 +512,14 @@ for id_a, a in abilita.items():
     voce(f"ABI.{id_a}.nome", "nome nel menu SKILL", a.get("nome"))
     voce(f"ABI.{id_a}.descrizione", "descrizione", a.get("descrizione"))
     voce(f"ABI.{id_a}.testo_uso", "quando la usi (%s = chi la usa)", a.get("testo_uso"))
+    voce(f"ABI.{id_a}.testo_fine", "quando finisce (%s = chi la usa, %d = quanti colpi)", a.get("testo_fine"))
+    grazia = a.get("colpo_di_grazia", {})
+    for chiave, contesto in [("titolo", "il colpo di grazia: il titolo del riquadro"),
+                             ("avviso", "il colpo di grazia: cosa fare"),
+                             ("testo_centrato", "il colpo di grazia: bersaglio centrato"),
+                             ("testo_mancato", "il colpo di grazia: tiro fuori dal bersaglio"),
+                             ("testo_tardi", "il colpo di grazia: tempo scaduto senza tirare")]:
+        voce(f"ABI.{id_a}.grazia.{chiave}", contesto, grazia.get(chiave))
 
 # ------------------------------------------------------------- 6. oggetti
 

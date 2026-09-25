@@ -19,6 +19,11 @@ extends Control
 #   cornice          un tratteggio cremisi intorno al pezzo, che scorre
 #   segno            il triangolo delle voci di menu, accanto al pezzo, che batte
 #                    verso di lui
+#   sfoglia          la lastra cremisi con la sfoglia bianca sotto, come la carta
+#                    scelta nel negozio e nella scheda della squadra: il pezzo ci
+#                    si posa sopra, e resta
+#   mirino           quattro angoli cremisi che si chiudono sul pezzo e respirano:
+#                    il segno di chi prende la mira, e il meno invadente di tutti
 #
 # COSA HANNO IN COMUNE, e perche'. Stanno ACCANTO al pezzo, un gradino prima di
 # lui fra i suoi fratelli: si disegnano dietro e non lo coprono mai, e lo
@@ -33,7 +38,7 @@ extends Control
 # NESSUNO SHADER, per la stessa ragione di tutto il resto dell'interfaccia:
 # Godot senza finestra non compila i frammenti, e le prove girano tutte cosi'.
 
-const STILI := ["macchia", "macchia_cremisi", "cornice", "segno"]
+const STILI := ["macchia", "macchia_cremisi", "cornice", "segno", "sfoglia", "mirino"]
 
 # LA MACCHIA E' UNA SUPERELLISSE, non un'ellisse: con l'esponente a dieci ha
 # quasi gli angoli del rettangolo, e quindi sta dietro TUTTO il pezzo e ne esce
@@ -65,6 +70,20 @@ const LATO_SEGNO := 18.0
 const STACCO_SEGNO := 4.0      # quanto resta lontano dal pezzo, al massimo della corsa
 const CORSA_SEGNO := 5.0       # quanto batte avanti e indietro
 const BATTITO := 0.45          # mezzo battito, in secondi
+
+# la sfoglia: di quanto la lastra esce intorno al pezzo, e dove sta la carta
+# bianca sotto - lo stesso scarto delle carte del negozio
+const ORLO_SFOGLIA := 8.0
+const SCARTO_SFOGLIA := Vector2(9, 8)
+const TAGLIO_SFOGLIA := 10.0
+# il mirino: quanto stanno lontani gli angoli, quanto sono lunghi e spessi, e di
+# quanto si stringono respirando
+const DISTACCO_MIRINO := 10.0
+const LATO_MIRINO := 22.0
+const SPESSORE_MIRINO := 4.0
+const RESPIRO_MIRINO := 4.0
+const ARRIVO_MIRINO := 18.0     # da quanto lontano arrivano, entrando
+const PASSO_MIRINO := 0.6       # mezzo respiro, in secondi
 
 var stile := "macchia"
 # ogni passo dei tween ridisegna: sono i due numeri da cui dipende il disegno
@@ -164,6 +183,10 @@ func sporgenza(lato: Vector2) -> Vector2:
 			return Vector2.ONE * (DISTACCO + TRATTO)
 		"segno":
 			return Vector2(LATO_SEGNO + STACCO_SEGNO + CORSA_SEGNO, 0.0)
+		"sfoglia":
+			return Vector2.ONE * ORLO_SFOGLIA + SCARTO_SFOGLIA
+		"mirino":
+			return Vector2.ONE * (DISTACCO_MIRINO + SPESSORE_MIRINO)
 	return Vector2.ONE * minf(SPORGE + SPORGE_QUOTA * minf(lato.x, lato.y), SPORGE_MASSIMO)
 
 
@@ -181,11 +204,11 @@ func accendi() -> void:
 	arrivo = create_tween()
 	arrivo.tween_property(self, "quanto", 1.0, Movimento.durata("entrata")) \
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	if stile == "cornice" or stile == "segno":
+	if stile in ["cornice", "segno", "mirino"]:
 		giro = create_tween().set_loops()
-		var passo := GIRO_CORNICE if stile == "cornice" else BATTITO
+		var passo := {"cornice": GIRO_CORNICE, "segno": BATTITO, "mirino": PASSO_MIRINO}[stile] as float
 		giro.tween_property(self, "fase", 1.0, passo).from(0.0) \
-				.set_trans(Tween.TRANS_SINE if stile == "segno" else Tween.TRANS_LINEAR)
+				.set_trans(Tween.TRANS_LINEAR if stile == "cornice" else Tween.TRANS_SINE)
 
 
 func completa() -> void:
@@ -205,6 +228,8 @@ func _draw() -> void:
 	match stile:
 		"cornice": disegna_cornice()
 		"segno": disegna_segno()
+		"sfoglia": disegna_sfoglia()
+		"mirino": disegna_mirino()
 		_: disegna_macchia()
 
 
@@ -282,6 +307,43 @@ func disegna_segno() -> void:
 			punta + Vector2(dietro * LATO_SEGNO, -mezzo),
 			punta + Vector2(dietro * LATO_SEGNO, mezzo)])
 	draw_colored_polygon(triangolo, Color(Stile.colore("accento"), clampf(quanto, 0.0, 1.0)))
+
+
+func disegna_sfoglia() -> void:
+	# LA LASTRA DOPPIA DEL NEGOZIO: sotto la carta sfalsata, sopra il cremisi
+	# che esce di qualche pixel tutt'intorno al pezzo. Entrando la carta scivola
+	# fuori da sotto: e' lei che fa leggere "questo e' scelto". Nel negozio la
+	# carta e' bianca sul nero; qui il fondo e' bianco, e la carta e' nera
+	var q := clampf(quanto, 0.0, 1.0)
+	if q <= 0.01:
+		return
+	# il pezzo sta a ORLO+SCARTO dal bordo; la lastra lo supera di ORLO per parte
+	var lastra := Sagome.smussato(Rect2(SCARTO_SFOGLIA, size - SCARTO_SFOGLIA * 2.0), TAGLIO_SFOGLIA)
+	var carta := lastra.duplicate()
+	for i in carta.size():
+		carta[i] += SCARTO_SFOGLIA * q
+	draw_colored_polygon(carta, Color(Stile.colore("box_testo"), q))
+	draw_colored_polygon(lastra, Color(Stile.colore("accento"), q))
+
+
+func disegna_mirino() -> void:
+	# QUATTRO ANGOLI, NIENT'ALTRO: si chiudono sul pezzo arrivando da fuori e poi
+	# respirano di pochi pixel. Non coprono niente e non tingono niente - e' lo
+	# stile che dice "guarda qui" con meno inchiostro
+	var q := clampf(quanto, 0.0, 1.0)
+	if q <= 0.01:
+		return
+	var stretta := sin(fase * PI) * RESPIRO_MIRINO + (1.0 - q) * ARRIVO_MIRINO
+	var fuori := Vector2.ONE * (DISTACCO_MIRINO + SPESSORE_MIRINO)
+	var r := Rect2(fuori, size - fuori * 2.0).grow(DISTACCO_MIRINO - stretta)
+	var lato := minf(LATO_MIRINO, minf(r.size.x, r.size.y) * 0.4)
+	var colore := Color(Stile.colore("accento"), q)
+	for angolo in [[r.position, Vector2(1, 1)], [Vector2(r.end.x, r.position.y), Vector2(-1, 1)],
+			[r.end, Vector2(-1, -1)], [Vector2(r.position.x, r.end.y), Vector2(1, -1)]]:
+		var p: Vector2 = angolo[0]
+		var verso: Vector2 = angolo[1]
+		draw_polyline(PackedVector2Array([p + Vector2(0, verso.y * lato), p, p + Vector2(verso.x * lato, 0)]),
+				colore, SPESSORE_MIRINO)
 
 
 static func macchia(quanti: int) -> PackedVector2Array:

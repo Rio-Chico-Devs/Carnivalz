@@ -14,7 +14,7 @@
 	},
 	"_interfaccia": {
 		"_dove": "res://audio/ui/<nome>.wav",
-		"_nota": "Otto suoni, e sono tutto quello che il gioco fa sentire fuori dalla musica e dalle voci. Qui sotto c'è cosa fa scattare ognuno e che cosa deve dire: il nome del file è la chiave.",
+		"_nota": "I suoni dell'interfaccia che si sostituiscono con un file. Qui sotto c'è cosa fa scattare ognuno e che cosa deve dire: il nome del file è la chiave.",
 		"conferma": "si preme una scelta, si conferma qualcosa. Corto e in salita.",
 		"annulla": "si torna indietro, si chiude un pannello. Corto e in discesa.",
 		"colpo": "qualcuno incassa danno. È l'unico che non deve suonare intonato: secco e sporco.",
@@ -23,6 +23,7 @@
 		"errore": "un'azione che non si può fare. Basso e chiuso.",
 		"allarme": "a un quarto del tempo rimasto su una scelta a tempo, quando la lancetta dell'orologio diventa rossa. Suona UNA volta sola per orologio. Deve dire «adesso o mai più» in un decimo di secondo.",
 		"vetro": "una scelta a tempo è scaduta e si frantuma. Lo schianto deve stare davanti a tutto, e la coda possono essere i pezzi che ricadono. È l'unico suono del gioco che racconta una perdita: se suona come un premio, sbaglia.",
+		"frantumi": "il colpo di grazia della Mattanza è andato a segno e il bersaglio va in mille pezzi. Bru: «parte un effetto sonoro che ti darò». È il rovescio di vetro: quello è una perdita, questo un colpo riuscito - deve suonare come un premio, pieno e con un tonfo sotto lo schianto. Finché non c'è, suona un segnaposto costruito dal gioco.",
 		"data_pad": "l'avviso del data pad a fine missione. Bru: «qui metteremo un suono che creo io tipo allert». Due note corte in salita: un apparecchio che ti chiama, non un pericolo."
 	},
 	"_versi": {

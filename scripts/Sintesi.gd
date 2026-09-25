@@ -140,10 +140,17 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			return tono(700.0, 0.11, "sega", 22.0, 0.14, 220.0)
 		"vetro":
 			return vetro()
+		"frantumi":
+			# IL BERSAGLIO DELLA MATTANZA IN MILLE PEZZI, ed e' il rovescio del
+			# vetro qui sopra: quello racconta una perdita, questo un colpo
+			# andato a segno. Piu' lungo, piu' pieno, con piu' schegge, e sotto lo
+			# schianto un tonfo basso - il colpo che arriva prima del vetro che
+			# cede. Segnaposto finche' Bru non manda il suo
+			return vetro(0.75, 30, 0.8)
 		_:
 			return tono(440.0, 0.08, "seno", 40.0, 0.2)
 
-static func vetro(durata := 0.40) -> AudioStreamWAV:
+static func vetro(durata := 0.40, quante_schegge := 12, tonfo := 0.0) -> AudioStreamWAV:
 	# IL VETRO CHE SI ROMPE, e non e' un tono: e' un rumore.
 	#
 	# Un suono intonato ha un'altezza sola, e per questo tono() non basta - una
@@ -164,14 +171,21 @@ static func vetro(durata := 0.40) -> AudioStreamWAV:
 		var avanzamento := float(i) / float(campioni)
 		var inviluppo := exp(-avanzamento * 16.0)
 		somma[i] = randf_range(-1.0, 1.0) * inviluppo * 0.55
+	# 1-bis. il tonfo, se c'e': una nota bassa che scende e si spegne, sotto tutto
+	if tonfo > 0.0:
+		var giro := 0.0
+		for i in campioni:
+			var avanzamento := float(i) / float(campioni)
+			giro += lerpf(140.0, 50.0, avanzamento) / float(CAMPIONAMENTO)
+			somma[i] += sin(giro * TAU) * exp(-avanzamento * 7.0) * tonfo * 0.6
 	# 2. le schegge che ricadono
 	var dado := RandomNumberGenerator.new()
 	dado.seed = 20260914   # sempre la stessa rottura: un suono che cambia a ogni
 	                       # partita non si impara, e un suono che non si impara
 	                       # non vuol dire niente
-	for scheggia in 12:
+	for scheggia in quante_schegge:
 		var nota := dado.randf_range(1900.0, 5200.0)
-		var ritardo := int(dado.randf_range(0.012, 0.27) * CAMPIONAMENTO)
+		var ritardo := int(dado.randf_range(0.012, durata * 0.67) * CAMPIONAMENTO)
 		var lunghezza := int(dado.randf_range(0.03, 0.10) * CAMPIONAMENTO)
 		var forza := dado.randf_range(0.06, 0.17)
 		var fase := 0.0

@@ -386,6 +386,8 @@ e al carosello della scheda.
 | `art/branding/logo_studio.png` | Logo Rio Chico Devs, primo dei loghi d'apertura |  |
 | `art/branding/logo_personale.png` | Logo personale, secondo logo d'apertura |  |
 | `art/fx/slaughter.png` | Illustrazione a schermo intero dello Slaughter |  |
+| `art/minigiochi/pugno.png` | Un pugno delle Collisioni infinite di Veronica (vedi art/minigiochi/README.md) |  |
+| `art/minigiochi/mattanza_bersaglio.png` | Il bersaglio del colpo di grazia a fine Mattanza: si frantuma in mille pezzi (vedi art/minigiochi/README.md) |  |
 
 ---
 

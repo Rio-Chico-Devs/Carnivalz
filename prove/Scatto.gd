@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if quale != "rottura" and quale != "nastro" and not quale.begins_with("ecg"):
+	if quale != "rottura" and quale != "nastro" and quale != "grazia" and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -568,8 +568,44 @@ func prepara(quale: String) -> void:
 				pesta.voce.avanza()
 				await attendi(2)
 			for colpo in 5:
-				pesta.colpo_di_mattanza(goblin)
+				pesta.mattanza.colpo(goblin)
 				await attendi(4)
+		"grazia":
+			# IL COLPO DI GRAZIA a barra vuota: "mira" con la lancetta che arriva
+			# sul bersaglio, "rotto" pochi fotogrammi dopo averlo centrato (i
+			# mille pezzi in volo, fuori dal quadrante), "mancato" dopo un tiro a
+			# vuoto. L'orologio lo tiene lo scatto, non lo scontro: a fotogrammi
+			# veri la lancetta sarebbe dove capita
+			var argomenti := OS.get_cmdline_user_args()
+			var momento := String(argomenti[1]) if argomenti.size() > 1 else "mira"
+			GameState.nuova_partita()
+			GameState.nemici_combattimento = ["goblin_tipico"]
+			var mira: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(mira)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 40)
+			var chi_batte: Dictionary = mira.combattenti[0]
+			var bersaglio: Dictionary = mira.vivi(false)[0]
+			bersaglio.hp_max = 100000
+			bersaglio.hp = 100000
+			chi_batte.dominio = 200
+			mira.usa_abilita_su(chi_batte, "mattanza", bersaglio)
+			mira.voce.coda.clear()
+			mira.voce.sta_facendo_leggere = false
+			mira.set_process(false)
+			mira.mattanza.chiudi_finestra()
+			var grazia: ColpoDiGraziaCombattimento = mira.mattanza.grazia
+			var distanza := {"mira": 0.07, "rotto": 0.005, "mancato": 0.3}.get(momento, 0.07) as float
+			var giri := 0
+			while (grazia.fase != "corsa" or absf(grazia.cursore - grazia.punto) > distanza) and giri < 5000:
+				grazia.passa(1.0 / 480.0)
+				giri += 1
+			if momento != "mira":
+				grazia.premi_col_tasto()
+			# l'orologio del minigioco va avanti coi fotogrammi: il lampo si spegne,
+			# e i pezzi volano col loro
+			for fotogramma in (8 if momento == "rotto" else 2):
+				grazia.passa(1.0 / 60.0)
+				await attendi(1)
 		"lezione":
 			# LA LEZIONE DI VERONICA, FOTOGRAFATA MENTRE PARLA.
 			#
@@ -734,6 +770,16 @@ func prepara(quale: String) -> void:
 				indicato.plancia.alone_evidenza.ferma()
 				indicato.plancia.alone_evidenza.completa()
 				indicato.plancia.alone_evidenza.fase = 0.5
+			if argomenti_alone.size() > 3 and String(argomenti_alone[3]) == "col_nome":
+				# IL NOME DELLO STILE SULLA FOTO, per il foglio di confronto: Bru
+				# sceglie guardando, e sotto ogni foto deve leggere cosa sta guardando
+				var cartello := Cartiglio.nuovo(Evidenza.stile_scelto().replace("_", " ").to_upper(),
+						Stile.colore("accento"), Stile.colore("testo"), Stile.colore("bordo_acceso"), 40)
+				add_child(cartello)
+				cartello.size = cartello.get_combined_minimum_size()
+				cartello.position = Vector2(640.0 - cartello.size.x * 0.5, 300.0)
+				cartello.svela(0.0)
+				await attendi(20)
 			await attendi(2)
 		"zona":
 			# LA MAPPA A QUADRETTI, quella che non aspetta nessun disegno.

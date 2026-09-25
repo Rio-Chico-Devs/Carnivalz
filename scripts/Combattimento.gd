@@ -59,6 +59,11 @@ var impatto: ImpattoCombattimento
 var arena: ArenaCombattimento
 var minigioco: MinigiocoCombattimento
 var mazzata: MazzataCombattimento
+var mattanza: MattanzaCombattimento   # la finestra a barra che si scarica, e il colpo di grazia
+# la domanda che fanno il menu, il tutorial e le prove: tutto il resto e' nel modulo
+var mattanza_attiva: bool:
+	get:
+		return mattanza != null and mattanza.attiva
 var plancia: PlanciaCombattimento
 var stati: StatiCombattimento
 
@@ -139,7 +144,6 @@ var tutorial_passo := 0
 var tutorial_finito := false
 var tutorial_passi_introdotti: Array[int] = []
 var tutorial_id := ""  # id del nemico che porta lo script del tutorial
-var mattanza_azione: Dictionary = {}   # il passo che aspetta la fine della Mattanza
 var lezione_in_corso := false   # il tutorial sta parlando: il mondo aspetta
 var rivitalizzanti_usati := 0  # quante volte Veronica ti ha rimesso in piedi
 
@@ -214,6 +218,7 @@ func _ready() -> void:
 	minigioco.dado = GameState.rng
 	minigioco.finito.connect(_minigioco_finito)
 	mazzata = MazzataCombattimento.new(self, muto)
+	mattanza = MattanzaCombattimento.new(self, muto)
 	if not muto:
 		# LA PLANCIA PRIMA DI TUTTO: e' lei che crea i pannelli, i tre slot e il
 		# quadrante, e tutti gli altri ci scrivono dentro. Finche' non esiste non
@@ -224,6 +229,7 @@ func _ready() -> void:
 		plancia.mostra_faccia("parlato")
 		minigioco.collega(plancia.interno_di(plancia.quadrante), plancia)
 		mazzata.collega(plancia.interno_di(plancia.quadrante), plancia)
+		mattanza.collega(plancia.interno_di(plancia.quadrante), plancia, volanti)
 		voce.collega(box, area_avanza, volanti)
 		campo.collega_plancia(plancia)
 		menu.collega(plancia.comandi, plancia.vesti_le_voci, plancia.pannello_per_menu)
@@ -329,8 +335,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if mazzata.prende(evento):
 		get_viewport().set_input_as_handled()
 		return
-	if mattanza_attiva and evento.is_action_pressed("ui_accept") and not mattanza_sospesa():
-		colpo_di_mattanza()
+	if mattanza.prende(evento):
 		get_viewport().set_input_as_handled()
 		return
 	# MENTRE C'E' LA RAFFICA, IL TASTO PARA. Viene prima del "salta avanti"
@@ -493,8 +498,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		# LA GUARDIA A SCATTI, stile Pokemon: si alza difendendosi, certi colpi
 		# la aprono, e resta com'e' fino alla fine dello scontro
 		"scatti_difesa": 0,
-		# il frammento di vita: quante battute di rigenerazione restano, e quanta
-		# vita rimette a posto ognuna
+		# il frammento di vita: le battute di rigenerazione rimaste, e quanto rimette ognuna
 		# la barra di dominio come energia: tre segmenti che si riempiono
 		# combattendo e si spendono sugli speciali
 		"dominio": 0,
@@ -558,6 +562,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 		# lo slot disegnato da Bru: ritratto, tre barre e i riquadri degli status
 		"slot": nodi.get("slot", null),
 		"bersaglio_cliccabile": nodi.get("bersaglio", null),
+		"immagine": nodi.get("immagine", null),   # il disegno: trema sotto la Mattanza
 		# l'allarme della vita bassa: acceso o spento, e il battito da fermare
 		# quando si spegne (vedi Campo.allarme_vita)
 		"allarme_acceso": false,
@@ -818,7 +823,8 @@ func _process(delta: float) -> void:
 		riprendi_il_tempo()
 	if mazzata.passa(delta):
 		return   # sotto la mazza si ferma tutto, anche la barra della Mattanza
-	avanza_mattanza(delta)   # la barra si scarica anche mentre il mondo e' fermo
+	if mattanza.passa(delta):   # la barra si scarica anche mentre il mondo e' fermo
+		return   # e durante il colpo di grazia il mondo aspetta il tiro
 	if minigioco != null and minigioco.attivo:
 		# mentre si para, lo scontro e' fermo: i pugni hanno un orologio loro
 		minigioco.passa(delta)
@@ -893,9 +899,7 @@ func _su_click_nemico(bersaglio: Dictionary) -> void:
 	# cliccando sul nemico». Il clic passava di qui come un attacco normale: a
 	# turno gia' giocato finiva in coda, la finestra si chiudeva a zero colpi e
 	# l'attacco partiva al giro dopo
-	if mattanza_attiva:
-		if not mattanza_sospesa():
-			colpo_di_mattanza(bersaglio)
+	if mattanza.clic_su(bersaglio):
 		return
 	if int(bersaglio.get("hp", 0)) <= 0 or not il_tempo_scorre():
 		return
@@ -980,7 +984,7 @@ func aggiorna_bond() -> void:
 	# IL TASSELLO MATTANZA ERA DISEGNATO E MAI COLLEGATO: restava spento anche a
 	# barra piena, e premerlo non faceva niente. Si accende quando si
 	# accenderebbe la voce sotto SKILL - stessa barra, stessa lezione, stessa Rabbia
-	var pronta := mattanza_chiamabile()
+	var pronta := mattanza.chiamabile()
 	if plancia.tasto_mattanza.disabled == pronta:
 		plancia.accendi(plancia.tasto_mattanza, pronta)
 	var bond := in_corso and not bersagli_mediabili().is_empty()
@@ -1441,10 +1445,11 @@ func passo_gia_spiegato() -> bool:
 func avanza_tutorial(azione: Dictionary) -> void:
 	# il passo si chiude solo se il giocatore ha fatto davvero quello che gli
 	# era stato chiesto (Studia non consuma il passo: e' sempre concesso).
-	# La Mattanza e' risolta quando la finestra si chiude (vedi chiudi_mattanza):
-	# Veronica la commentava mentre la barra si scaricava
+	# La Mattanza e' risolta quando e' finita, colpo di grazia compreso (vedi
+	# MattanzaCombattimento.finisci): Veronica la commentava mentre la barra si
+	# scaricava
 	if mattanza_attiva:
-		mattanza_azione = azione
+		mattanza.azione_in_attesa = azione
 		return
 	var passo := passo_tutorial()
 	if passo.is_empty():
@@ -1951,7 +1956,7 @@ func usa_abilita_su(chi: Dictionary, id_abilita: String, bersaglio: Dictionary) 
 		"vendetta": vendetta(chi, bersaglio, dati)
 		"annichilazione": annichilazione(chi, bersaglio, dati)
 		"pieta": pieta(chi, bersaglio, dati)
-		"mattanza": mattanza(chi, bersaglio, dati)
+		"mattanza": mattanza.avvia(chi, bersaglio, dati)
 
 func colpo_darma(chi: Dictionary, bersaglio: Dictionary, attacco: Dictionary) -> void:
 	# IL DANNO DI UN ATTACCO D'ARMA, come l'ha descritto Bru: l'attacco base del
@@ -2195,146 +2200,6 @@ func flagello(chi: Dictionary, dati: Dictionary) -> void:
 		scrivi(String(dati.get("testo_statistiche",
 				"Tutte le statistiche di %s salgono di %d.")) % [chi.nome, bonus])
 	voce.accoda_effetto(effetto_raffica(elenco, String(dati.get("elemento", ""))))
-
-# --- MATTANZA: la barra si svuota, e finche' si svuota tu batti --------------
-#
-# Bru: "quando riempi almeno una barra, puoi andare in mattanza, SOLO in quel
-# momento; la mattanza consuma tutta la barra e finche' non e' consumata potrai
-# premere spazio per colpire numerose volte il nemico, con un valore di ogni
-# colpo pari a 1/10 del tuo attacco attuale".
-#
-# Tre cose, e sono tutte e tre la stessa cosa vista da angoli diversi:
-#
-#   la SOGLIA e' a segmenti pieni - mezza barra non apre niente. E' quello che
-#   rende la barra una cosa che si aspetta invece di un contatore che sale;
-#
-#   il COSTO e' tutto quello che c'e'. Non e' un prezzo, e' un serbatoio: quanta
-#   barra avevi decide quanto dura la finestra, quindi tenerla da parte e'
-#   davvero una scelta e non solo pazienza;
-#
-#   la DURATA e' la barra stessa che si scarica. Non c'e' un secondo contatore
-#   accanto a quello vero: guardi la barra scendere e sai quanto ti resta. Per
-#   questo il dominio viene riscritto ogni frame dal residuo - se un colpo
-#   incassato lo ricaricasse mentre martelli, la mattanza non finirebbe piu'.
-#
-# Quanti colpi entrano lo decidi tu con le mani. Il giocatore automatico le mani
-# non ce l'ha: nelle prove batte a "pressioni_al_secondo", che sta nei dati
-# accanto al resto perche' e' una stima dichiarata, non un numero nascosto.
-
-var mattanza_attiva := false
-var mattanza_chi: Dictionary = {}
-var mattanza_bersaglio: Dictionary = {}
-var mattanza_rimasto := 0.0      # quanto dominio resta da bruciare
-var mattanza_scarico := 0.0      # quanto ne brucia al secondo
-var mattanza_colpi := 0
-var mattanza_dati: Dictionary = {}
-
-func mattanza(chi: Dictionary, bersaglio: Dictionary, dati: Dictionary) -> void:
-	var serbatoio := RegoleCombattimento.svuota_dominio(chi)
-	if serbatoio <= 0:
-		return
-	var per_segmento := maxf(float(GameState.regole.get("dominio", {}).get("per_segmento", 100)), 1.0)
-	var durata := float(dati.get("secondi_per_segmento", 2.2)) * (float(serbatoio) / per_segmento)
-	scrivi(String(dati.get("testo_uso", "[i]%s non smette più.[/i]")) % chi.nome)
-	mattanza_chi = chi
-	mattanza_bersaglio = bersaglio
-	mattanza_dati = dati
-	mattanza_colpi = 0
-	mattanza_rimasto = float(serbatoio)
-	mattanza_scarico = float(serbatoio) / maxf(durata, 0.01)
-	chi.dominio = serbatoio
-	aggiorna_scheda(chi)
-	if not tempo_reale or muto:
-		# NESSUNA MANO DA QUESTA PARTE. Senza schermo non esiste una
-		# barra spaziatrice e non esiste un frame: la finestra si risolve tutta
-		# adesso, con le battute che ci batterebbe una persona. Se qui non
-		# succedesse niente, il simulatore direbbe che la Mattanza non fa danno -
-		# e ricalibreremmo il gioco intero su un'abilita' che non ha mai colpito
-		var quante := maxi(int(round(durata * float(dati.get("pressioni_al_secondo", 6.0)))), 1)
-		for volta in quante:
-			if not colpo_di_mattanza():
-				break
-		chiudi_mattanza()
-		return
-	mattanza_attiva = true
-	if bool(dati.get("ferma_il_tempo", false)):
-		ferma_il_tempo()
-	if not muto:
-		menu.principale()   # sotto compare come si batte, e nient'altro
-
-func mattanza_chiamabile() -> bool:
-	var tu := combattente_comandato()
-	var passo := passo_tutorial()
-	return in_corso and not mattanza_attiva and not tu.is_empty() \
-			and GameState.abilita_usabili(String(tu.id)).has("mattanza") \
-			and not RegoleCombattimento.solo_attacchi(tu) \
-			and dominio_sufficiente(tu, GameState.abilita_combattimento("mattanza")) \
-			and (passo.is_empty() or String(passo.get("id", "")) == "mattanza")
-
-func mattanza_sospesa() -> bool:
-	# MENTRE SI LEGGE, LA FINESTRA ASPETTA: non si scarica e non colpisce, e
-	# SPAZIO torna a far scorrere il testo. Senza, la barra correva sotto le
-	# parole - «non smette più», un KO, l'orda che si indebolisce - e i secondi
-	# se ne andavano a leggere
-	return il_mondo_aspetta_che_si_legga()
-
-func colpo_di_mattanza(su: Dictionary = {}) -> bool:
-	# un colpo, e dice se ha senso continuare. Va DIRITTO: un decimo dell'attacco
-	# senza passare dalla difesa, cosi' la Mattanza e' la risposta ai corazzati
-	# invece dell'ennesima cosa che contro un corazzato non serve. Col clic il
-	# colpo va su chi hai cliccato
-	if mattanza_chi.is_empty() or int(mattanza_chi.get("hp", 0)) <= 0 or not in_corso:
-		return false
-	if int(su.get("hp", 0)) > 0:
-		mattanza_bersaglio = su
-	if mattanza_bersaglio.is_empty() or int(mattanza_bersaglio.get("hp", 0)) <= 0:
-		# il bersaglio e' caduto sotto i colpi: si passa al prossimo, non ci si
-		# ferma. Chi sta martellando non ha il tempo di riscegliere
-		var restanti := vivi(false)
-		if restanti.is_empty():
-			return false
-		mattanza_bersaglio = restanti[0]
-	var danno := maxi(int(round(RegoleCombattimento.attacco_di(mattanza_chi)
-			* float(mattanza_dati.get("frazione_attacco", 0.1)))), 1)
-	mattanza_colpi += 1
-	colpisci_diretto(mattanza_bersaglio, danno, String(mattanza_dati.get("elemento", "")),
-			mattanza_attiva)
-	return in_corso
-
-func avanza_mattanza(delta: float) -> void:
-	if not mattanza_attiva:
-		return
-	if not mattanza_sospesa():
-		mattanza_rimasto -= mattanza_scarico * delta
-	# la barra E' il cronometro: si riscrive dal residuo, cosi' niente di quello
-	# che succede intorno (un colpo incassato che ricarica) puo' allungare la
-	# finestra all'infinito
-	mattanza_chi.dominio = maxi(int(round(mattanza_rimasto)), 0)
-	aggiorna_scheda(mattanza_chi)
-	if mattanza_rimasto <= 0.0 or not in_corso or int(mattanza_chi.get("hp", 0)) <= 0:
-		chiudi_mattanza()
-
-func chiudi_mattanza() -> void:
-	var era_attiva := mattanza_attiva
-	mattanza_attiva = false
-	if not mattanza_chi.is_empty():
-		mattanza_chi.dominio = 0
-		aggiorna_scheda(mattanza_chi)
-		scrivi(String(mattanza_dati.get("testo_fine", "[i]%s si ferma: %d colpi.[/i]"))
-				% [mattanza_chi.nome, mattanza_colpi])
-	if era_attiva and bool(mattanza_dati.get("ferma_il_tempo", false)):
-		riprendi_il_tempo()
-	mattanza_rimasto = 0.0
-	mattanza_scarico = 0.0
-	mattanza_chi = {}
-	mattanza_bersaglio = {}
-	mattanza_dati = {}
-	var azione := mattanza_azione
-	mattanza_azione = {}
-	if in_corso and not azione.is_empty():
-		avanza_tutorial(azione)   # adesso Veronica puo' commentare
-	if era_attiva and not muto and in_corso:
-		menu.principale()
 
 func provoca(chi: Dictionary, bersagli: Array[Dictionary] = []) -> void:
 	# LA PROVOCAZIONE ADESSO E' UNO STATO SUBITO, non solo una calamita globale.
@@ -4238,16 +4103,17 @@ func segnala_disperazione(creatura: Dictionary) -> void:
 	if testo != "":
 		scrivi(testo % creatura.nome)
 
-func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "", subito := false) -> void:
+func colpisci_diretto(bersaglio: Dictionary, danno: int, elemento := "", subito := false,
+		critico := false) -> void:
 	# oggetti e assist ignorano le difese. SUBITO: il colpo si vede adesso, non
-	# in coda al racconto. La Mattanza ne da' sei al secondo, e in coda
+	# in coda al racconto. La Mattanza ne da' dieci al secondo, e in coda
 	# uscivano uno ogni mezzo secondo - a finestra gia' chiusa
 	bersaglio.hp = maxi(bersaglio.hp - danno, 0)
 	registra_danno_subito(bersaglio, danno)
 	if subito:
-		effetto_colpo(bersaglio, danno, elemento).call()
+		effetto_colpo(bersaglio, danno, elemento, critico).call()
 	else:
-		mostra_colpo(bersaglio, danno, elemento)
+		mostra_colpo(bersaglio, danno, elemento, critico)
 	if bersaglio.hp <= 0:
 		_su_ko(bersaglio)
 
@@ -4747,8 +4613,10 @@ func puo_cambiare_faccia() -> bool:
 	return plancia != null and not gioco_con_la_mano()
 
 func gioco_con_la_mano() -> bool:
-	# la raffica o la mazza: in quei secondi il quadrante e la mano sono loro
-	return (minigioco != null and minigioco.attivo) or (mazzata != null and mazzata.in_corso())
+	# la raffica, la mazza, il colpo di grazia: in quei secondi il quadrante e
+	# la mano sono loro
+	return (minigioco != null and minigioco.attivo) or (mazzata != null and mazzata.in_corso()) \
+			or (mattanza != null and mattanza.in_mano())
 
 func aggiorna_scheda(combattente: Dictionary) -> void:
 	campo.aggiorna(combattente)

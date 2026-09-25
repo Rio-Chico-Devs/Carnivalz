@@ -109,7 +109,8 @@ func crea_scheda(id_personaggio: String, giocatore: bool) -> Dictionary:
 			ritratto.imposta_grande(true)
 		ritratto.mostra(id_personaggio)
 	return {"scheda": scheda, "etichetta_vita": vita, "etichetta_extra": extra,
-			"barra_dominio": dominio, "bersaglio": (null if giocatore else scheda)}
+			"barra_dominio": dominio, "bersaglio": (null if giocatore else scheda),
+			"immagine": ritratto}
 
 func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary:
 	# LA SCHERMATA DISEGNATA DA BRU non ha schede tutte uguali messe in fila:
@@ -138,7 +139,7 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 		vita.visible = false
 		extra.visible = false
 		return {"scheda": posto, "etichetta_vita": vita, "etichetta_extra": extra,
-				"slot": posto, "barra_dominio": null, "bersaglio": null}
+				"slot": posto, "barra_dominio": null, "bersaglio": null, "immagine": posto}
 	if centrale_occupato:
 		# il riquadro grande e' gia' di qualcuno: chi arriva dopo - un evocato, il
 		# secondo di un'imboscata - prende un quadratino suo (vedi Gregari.gd)
@@ -164,8 +165,11 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	extra.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	plancia.righe_studio.add_child(vita)
 	plancia.righe_studio.add_child(extra)
+	# L'IMMAGINE e' il disegno e non il riquadro: e' lei che trema sotto la
+	# Mattanza, mentre la cornice resta ferma dov'e' (Impatto.tremito)
 	return {"scheda": plancia.box_nemico, "etichetta_vita": vita, "etichetta_extra": extra,
-			"slot": null, "barra_dominio": null, "bersaglio": plancia.box_nemico}
+			"slot": null, "barra_dominio": null, "bersaglio": plancia.box_nemico,
+			"immagine": ritratto}
 
 func scheda_da_gregario(id_personaggio: String, vita: Label, extra: Label) -> Dictionary:
 	if gregari == null:
@@ -179,7 +183,7 @@ func scheda_da_gregario(id_personaggio: String, vita: Label, extra: Label) -> Di
 	quadretto.add_child(vita)
 	quadretto.add_child(extra)
 	return {"scheda": quadretto, "etichetta_vita": vita, "etichetta_extra": extra,
-			"slot": null, "barra_dominio": null, "bersaglio": quadretto}
+			"slot": null, "barra_dominio": null, "bersaglio": quadretto, "immagine": quadretto}
 
 func nome_in_fascia(combattente: Dictionary) -> String:
 	# IL NOME BREVE, SE C'E'. La fascia e' larga quanto il riquadro e il corpo

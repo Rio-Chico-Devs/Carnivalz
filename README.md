@@ -1097,8 +1097,12 @@ protagonista che ne fa 15, cioè 2 a colpo, per circa 560 colpi.
 È la cosa che la barra di dominio serve a comprare, e l'unico momento del gioco in cui il
 combattimento passa dalle mani invece che dalle scelte. Bru: «quando riempi almeno una barra
 puoi andare in mattanza, **solo in quel momento**; la mattanza consuma tutta la barra e finché
-non è consumata potrai premere spazio per colpire numerose volte il nemico, con un valore di
-ogni colpo pari a 1/10 del tuo attacco attuale».
+non è consumata potrai premere spazio per colpire numerose volte il nemico». E poi, sul come:
+«il giocatore può cliccare furiosamente: fai il **minimo danno possibile per click** […] quando
+la mattanza inizia l'immagine del nemico **trema a ogni input**, ogni colpo può fare
+**critico**, e quando finisce hai un **minigioco con una barra che scorre velocemente**».
+Sta tutta in `scripts/combattimento/Mattanza.gd` (il colpo di grazia in `ColpoDiGrazia.gd` e
+`RiquadroColpoDiGrazia.gd`): Combattimento.gd ne chiede solo se è accesa.
 - **La soglia è a segmenti pieni** (`dominio_minimo`: 1). Mezza barra non apre niente: è quello
   che rende il dominio una cosa che si *aspetta* invece di un contatore che sale. Nel menu la
   voce resta spenta finché non è ora — un bottone acceso che poi risponde «non hai abbastanza
@@ -1106,39 +1110,72 @@ ogni colpo pari a 1/10 del tuo attacco attuale».
   `dominio_sufficiente()`, non due domande somiglianti
 - **Non ha un prezzo, ha un serbatoio** (`consuma_tutto`): si porta via *tutta* la barra, e
   quanta ce n'era decide quanto dura la finestra (`secondi_per_segmento`, 2,2 s per segmento —
-  una barra sola dà poco più di due secondi, tre ne danno quasi sette). Per questo tenersela da
-  parte è una scelta e non solo pazienza
+  una barra sola dà poco più di due secondi, tre ne danno quasi sette) **e quanto pesa il
+  colpo di grazia**. Per questo tenersela da parte è una scelta e non solo pazienza
 - **La durata è la barra stessa che si scarica.** Non c'è un secondo contatore accanto a quello
   vero: guardi la barra scendere e sai quanto ti resta. Il dominio viene riscritto ogni frame
   dal residuo, così un colpo incassato — che normalmente ricarica — non può allungare la
-  finestra all'infinito
-- **Ogni pressione di spazio, e ogni clic sul nemico, è un colpo** da `frazione_attacco` (un
-  decimo) del tuo attacco di adesso, e va **diritto**: ignora la difesa. È il motivo per cui
-  vale la pena tenersela per i corazzati, invece di essere l'ennesima cosa che contro un
-  corazzato non serve. `is_echo()` è esclusa apposta: tenere premuto non vale come martellare.
-  Il clic l'ha chiesto Bru («dovrebbe permetterti di fare danni cliccando sul nemico»): prima
-  passava come un attacco normale e, a turno già giocato, finiva in coda per il giro dopo
+  finestra all'infinito. Sotto la raffica o la mazza la barra aspetta: la mano è loro
+- **Ogni pressione di spazio, e ogni clic sul nemico, è un colpo da un punto**
+  (`danno_per_colpo`: 1), e va **diritto**: ignora la difesa. Il minimo perché si può martellare
+  a dieci-quindici colpi al secondo: con un decimo dell'attacco, com'era prima, la Mattanza la
+  vinceva la mano più veloce invece della barra. Il grosso adesso sta nel colpo di grazia.
+  Tenere premuto non vale come martellare. Il clic l'ha chiesto Bru («dovrebbe permetterti di
+  fare danni cliccando sul nemico»)
+- **Ogni colpo può essere critico**, con la regola di tutti gli altri colpi (il 5%, lo stress
+  di chi lo prende, il Terrore che lo blocca): un critico fa due, con `critico_moltiplicatore` e
+  almeno un punto in più — arrotondato, 1 × 1,5 sarebbe rimasto 1, e un critico che non si
+  distingue è un numero grande che mente
+- **Il nemico trema a ogni colpo** (`ImpattoCombattimento.tremito`): trema il *disegno*, non la
+  cornice, un decimo di secondo, e ogni colpo nuovo riparte dalla stessa base — martellando la
+  creatura non se ne va a spasso per il riquadro. Col movimento ridotto non trema: il numero e il
+  suono dicono già il colpo
 - **Il colpo si vede subito**, non in coda al racconto (`colpisci_diretto(..., subito)`): in
-  coda i numeri uscivano uno ogni mezzo secondo, a finestra già chiusa, e intanto la coda
-  piena contava come "c'è da leggere"
-- **Mentre si legge, la finestra aspetta** (`mattanza_sospesa()`): la barra non scende, i colpi
-  non partono e SPAZIO torna a far scorrere il testo. Senza, «non smette più», un KO o l'orda
-  che si indebolisce si mangiavano i secondi della barra
-- **Il tassello MATTANZA si accende e si preme**: era disegnato e mai collegato, spento anche a
-  barra piena. Si accende quando si accenderebbe la voce sotto SKILL (`mattanza_chiamabile()`)
-  e apre la stessa cosa. Sotto, finché dura, pulsa «MARTELLA! — SPAZIO — o CLIC SUL NEMICO»
-- **Nell'allenamento Veronica la commenta quando è finita**: il passo si chiudeva appena
-  chiamata, e le sue battute riempivano il box proprio mentre la barra si scaricava. E adesso
-  spiega anche il clic (battuta mia, da correggere)
-- **Il mondo va avanti mentre batti** (`ferma_il_tempo: false`): sei chiuso lì a pestare e le
-  creature ti picchiano, quindi *quando* la chiami conta. Metti `true` nei dati se preferisci
-  che diventi un momento tuo e basta
+  coda i numeri uscivano uno ogni mezzo secondo, a finestra già chiusa
+- **Mentre si legge, la finestra aspetta** (`MattanzaCombattimento.sospesa()`): la barra non
+  scende, i colpi non partono e SPAZIO torna a far scorrere il testo
+- **Il tassello MATTANZA si accende e si preme** quando si accenderebbe la voce sotto SKILL
+  (`chiamabile()`). Sotto, finché dura, pulsa «MARTELLA! — SPAZIO — o CLIC SUL NEMICO»
+- **Nell'allenamento Veronica la commenta quando è finita**, colpo di grazia compreso: il passo
+  aspetta la fine di tutto. Spiega anche il clic e il colpo di grazia (righe mie, da correggere)
+- **Mentre batti, gli altri aspettano**: coi turni, finché la mano è occupata — la Mattanza, il
+  colpo di grazia, la raffica, la mazza — il turno non passa a nessuno
+  (`si_puo_passare_il_turno()`). `ferma_il_tempo` nei dati c'è ancora, ma è di quando il
+  combattimento era in tempo reale e le creature ti picchiavano mentre pestavi
 - **Nelle prove qualcuno batte al posto tuo**: nell'orologio virtuale non esiste una barra
-  spaziatrice, quindi la finestra si risolve tutta insieme a `pressioni_al_secondo` (6). Senza,
-  il simulatore direbbe che la Mattanza non fa danno — e ricalibreremmo il gioco su un'abilità
-  che non ha mai colpito
-- Si prova in `prova_mattanza_svuota_la_barra()`, che la misura muta e poi ne apre una vera per
-  premere spazio e cliccare davvero; `./prove/scatto.sh mattanza` la fotografa aperta
+  spaziatrice, quindi la finestra si risolve tutta insieme a `pressioni_al_secondo` (6), e il
+  colpo di grazia vale la sua quota `riuscita_automatica` (metà). Senza, il simulatore direbbe
+  che la Mattanza non fa danno — e ricalibreremmo il gioco su un'abilità che non ha mai colpito
+
+### Il colpo di grazia (`mattanza` → `colpo_di_grazia`)
+Bru: «quando finisce hai un minigioco con una barra che scorre velocemente: se clicchi nel
+momento giusto in cui si allinea con un punto random sulla barra infliggi del danno bonus. In
+quel punto va inserita un'immagine che ti fornirò io; se centra quel punto l'immagine si
+frantuma in mille pezzi, parte un effetto sonoro che ti darò, e viene inflitto il danno».
+- **È il rovescio della Mattanza, apposta**: per secondi hai contato quante volte premevi, qui ne
+  conta una sola e conta *quando*. La stessa mano deve cambiare gesto di colpo
+- **Una lancetta va e viene** sulla barra a velocità costante (`passaggio`: 0,7 s da un capo
+  all'altro), e **un bersaglio cade a caso** (`dove`: fra il 25% e l'85% della barra). **Un tiro
+  solo**: SPAZIO, INVIO, un clic sul riquadro o sul nemico — chi gioca col mouse ce l'ha lì da
+  tutta la raffica
+- **Il bersaglio è largo esattamente quanto vale** (`tolleranza`: 0,06, cioè il 12% della
+  barra, circa 85 pixel a 1280×720 e un decimo di secondo a ogni passaggio): il disegno viene
+  largo così, e due tacche ai lati dicono dove finisce
+- **Le prime pressioni non contano** (`sordo`: 0,45 s): chi arriva dalla Mattanza sta ancora
+  martellando, e non deve sprecare il tiro per sbaglio
+- **Centrato: il disegno va in mille pezzi** — contati, 40 tagli per 25 anelli
+  (`Frantumi.frantuma_immagine`) — che volano sopra tutta la schermata, parte il suono
+  `frantumi` e **nello stesso istante** il nemico perde il danno bonus: il tuo attacco per ogni
+  barra bruciata, per `attacco_per_barra` (1,5), diritto come i colpi
+- **Fuori, o se la lancetta corre per `tempo` (3,2 s) senza tiro**: MANCATO o TROPPO TARDI, il
+  bersaglio si spegne e non succede niente. Nessun rallentatore: la velocità è quella per tutti
+- **I numeri e le scritte sono miei**, da provare in partita e da correggere: stanno tutti nei
+  dati. Il disegno va in `art/minigiochi/mattanza_bersaglio.png`, il suono in
+  `audio/ui/frantumi.wav`; finché non ci sono, un bersaglio a cerchi coi colori della Mattanza
+  e un suono costruito dal gioco, con la stessa misura e la stessa rottura
+- Si prova in `prova_mattanza_svuota_la_barra()` e `prova_il_colpo_di_grazia_si_centra_col_tempismo()`;
+  `./prove/scatto.sh mattanza` la fotografa aperta, `./prove/scatto.sh grazia mira|rotto|mancato`
+  il colpo di grazia
 
 ## Le creature capiscono come stanno (`personaggi.json` → `mosse`, `ruoli.json` → `disperazione`)
 Bru: «dobbiamo dare un set di attacchi a ogni nemico che o fanno danno o fanno cose... quando i

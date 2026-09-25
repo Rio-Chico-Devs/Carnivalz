@@ -3878,6 +3878,11 @@
                 "testo": "E quando parte non pensare: pesta! Spazio, oppure clicca addosso a me, più in fretta che puoi. Finché la barra non è vuota, ogni colpo arriva.",
                 "espr": "decisa",
                 "_nota": "battuta mia (Claude), da correggere: Bru ha chiesto che Veronica spieghi che nella Mattanza si colpisce anche cliccando sul nemico"
+              },
+              {
+                "tipo": "narrazione",
+                "testo": "A barra vuota arriva il COLPO DI GRAZIA: una lancetta corre sulla barra. Premi quando passa sul bersaglio, una volta sola: se lo centri, fa male davvero.",
+                "_nota": "riga mia (Claude), da correggere: spiega il minigioco a barra vuota che Bru ha chiesto per la fine della Mattanza"
               }
             ],
             "dopo": [
