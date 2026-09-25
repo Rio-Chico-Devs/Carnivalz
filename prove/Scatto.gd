@@ -186,6 +186,7 @@ func prepara(quale: String) -> void:
 				"opzioni": Pausa.mostra_opzioni()
 				"storico": Pausa.mostra_storico()
 				"uscita": Pausa.conferma_uscita()
+				"squadra": Pausa.mostra_equipaggiamento()
 				_: Pausa.mostra_diario()
 		"nodo":
 			# UN NODO VERO DI events_intro, portato avanti di N clic: "nodo
@@ -762,6 +763,25 @@ func prepara(quale: String) -> void:
 			quadretti.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			add_child(quadretti)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"negozio":
+			# IL NEGOZIO NUOVO, sullo schema di Bru: "negozio" col primo negozio,
+			# "negozio artigiano" coi baratti, "negozio povero" senza un Tazo
+			GameState.nuova_partita()
+			var argomenti_negozio := OS.get_cmdline_user_args()
+			var variante := String(argomenti_negozio[1]) if argomenti_negozio.size() > 1 else ""
+			GameState.negozi_sbloccati = ["organizzazione", "nyu", "artigiano"] as Array[String]
+			GameState.tazo = 0 if variante == "povero" else 140
+			GameState.sacca.append("razione_del_circo")
+			GameState.sacca.append("razione_del_circo")
+			var bottega: Control = load("res://scenes/Negozio.tscn").instantiate()
+			add_child(bottega)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			if variante == "artigiano":
+				bottega.apri_negozio("artigiano")
+				bottega.seleziona(bottega.fila.size() - 1, true)
+			elif variante != "povero":
+				bottega.seleziona(1, true)
+			await attendi(40)
 		"sede":
 			# LA SEDE, che e' la schermata su cui si torna piu' volte di tutte:
 			# ci si passa dopo ogni Carnivalz, ed e' li' che si salva. Bru:

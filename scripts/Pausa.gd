@@ -94,6 +94,7 @@ var chi_giochi: TextureRect     # il tuo personaggio, grande a destra, a fuoco
 var contenitore: MarginContainer
 var palco: Control              # dove stanno le colonne: un Control semplice, non un contenitore (vedi nuova_colonna)
 var colonna: VBoxContainer
+var foglio: Control             # un pannello a tutto schermo: la scheda della squadra
 var quinte: Quinte              # i fogli dietro le voci, e la parola grande
 var schegge: Schegge            # i ritagli che saltano via da una voce premuta
 var dissolvenza: Tween          # l'entrata o l'uscita del velo: una sola alla volta
@@ -312,6 +313,8 @@ func svuota() -> void:
 	# Per una frazione di secondo si vede ancora, e non si tocca gia' piu'
 	Movimento.congeda(colonna, Movimento.durata("entrata") * Movimento.SOGLIA_CAMBIO)
 	colonna = null
+	Movimento.congeda(foglio, Movimento.durata("uscita"))
+	foglio = null
 	# IL PERSONAGGIO GRANDE VALE SOLO PER IL MENU. Non e' un fondale della
 	# pausa: nel Diario, nello Zaino e nell'equipaggiamento quello spazio serve
 	# tutto, e una figura alta due terzi di schermo dietro un elenco di oggetti
@@ -688,8 +691,9 @@ func mostra_equipaggiamento() -> void:
 	# se' perche' cosi' si apre da ovunque - mappa, stanza, Vuoto, combattimento -
 	# senza cambiare scena e senza perdere il posto in cui si era.
 	# Come e' fatta e perche': vedi scripts/Personaggio.gd.
+	# E' un foglio intero sul velo (Tavola.gd), non una colonna: se ne va con svuota()
 	nuova_colonna()
 	pannello = "equipaggiamento"
-	var scheda := SchedaPersonaggio.new()
-	colonna.add_child(scheda)
-	scheda.apri(indietro(), mostra_diario)
+	foglio = SchedaPersonaggio.new()
+	velo.add_child(foglio)
+	foglio.apri(indietro(), mostra_diario)

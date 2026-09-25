@@ -1,314 +1,330 @@
 extends Control
 
-# I negozi (data/negozi.json). Mostra solo quelli sbloccati, lo stock evolve
-# con le fonti estinte (campo da_fonti) e l'Artigiano baratta materiali.
+# IL NEGOZIO, come l'ha disegnato Bru (schema a 1280x720, docs/interfaccia.md).
 #
-# COME SI COMPRA. Prima era un elenco piatto di righe uguali: nome, descrizione
-# poetica, prezzo. Per decidere dovevi gia' sapere cosa fa un oggetto e cosa hai
-# in tasca. Ora ogni riga risponde da sola alle tre domande che uno si fa
-# davanti a uno scaffale:
+#   in alto      i negozi aperti, uno per linguetta, e Indietro
+#   a sinistra   i Tazo in grande, e sotto la descrizione dell'oggetto scelto
+#   in basso     lo scaffale: cinque carte oblique alla volta, che scorrono
+#   a destra     la vetrina cremisi con l'oggetto scelto in grande, quanto ti
+#                resta, quanti ne hai, e COMPRA
 #
-#   che cosa fa      -> l'effetto in numeri ("+8 vita", "difesa +1"), non solo
-#                       la descrizione. La poesia resta, ma sotto
-#   ne ho gia'       -> quanti ne hai in sacca, o chi lo porta addosso se e'
-#                       roba da indossare. Comprare il secondo amuleto uguale
-#                       deve essere una scelta, non una distrazione
-#   me lo posso      -> il prezzo, e quanti Tazo ti restano dopo. Se non puoi,
-#   permettere          il bottone e' spento e si vede quanto ti manca
+# Le tre domande di sempre - che cosa fa, ne ho gia', me lo posso permettere -
+# hanno ognuna il suo posto fisso, e le risposte le da' Merce.gd.
 #
-# E lo scaffale e' diviso per mestiere (usare adesso / imbracciare / indossare):
-# tre categorie tra cui scegliere, non quindici righe tutte uguali da leggere.
+# COME SI USA. Col mouse: clic su una carta, clic su COMPRA; la rotella scorre
+# lo scaffale. Con la tastiera: le frecce scorrono le carte, INVIO sulla carta
+# scelta porta su COMPRA, un altro INVIO compra. Comprare non aspetta niente:
+# i Tazo se ne vanno subito e il numero li insegue (Conto.gd), e si puo'
+# ricomprare mentre il numero sta ancora scendendo.
+#
+# ENTRA IN CASCATA, COMPRA PER ULTIMO: prima il guscio (la barra, la vetrina),
+# poi il contenuto (le carte), per ultima l'azione principale - l'ordine di
+# Carbon, lo stesso della pausa.
 
 const SCENA_SEDE := "res://scenes/Sede.tscn"
+const VISIBILI := 5
+const PRIMA_CARTA := Vector2(40, 400)
+const PASSO_CARTA := 129.0
+const INIZIO_LINGUETTE := Vector2(180, 10)
 
-# l'ordine conta: prima quello che serve adesso, poi quello che serve dopo
-const CATEGORIE := [
-	{
-		"tipi": ["consumabile"],
-		"titolo": "Da usare in combattimento",
-		"nota": "Si consumano. Occupano posto nella sacca.",
-	},
-	{
-		"tipi": ["arma", "stigma"],
-		"titolo": "Armi e stigmi",
-		"nota": "Uno per personaggio. Uno stigma è un patto: dà e toglie.",
-	},
-	{
-		"tipi": ["accessorio"],
-		"titolo": "Accessori",
-		"nota": "Fino a quattro per personaggio. Piccoli aggiustamenti che si sommano.",
-	},
-]
+var tavola: Tavola
+var vetrina: Vetrina
+var etichetta_tazo: Label
+var conto_tazo: Conto
+var descrizione: RichTextLabel
+var sacca: Cartiglio
+var barra: Control
+var scaffale: Control
+var carte: Array[CartaNegozio] = []
+var linguette: Array[TastoObliquo] = []
+var indietro: TastoObliquo
+var prima: TastoObliquo
+var dopo: TastoObliquo
+var posizione: Label
+var schegge: Schegge
+var negozio_aperto := ""
+var fila: Array[Dictionary] = []
+var scelta := 0
+var inizio := 0
 
-@onready var etichetta_tazo: Label = %Tazo
-@onready var lista: VBoxContainer = %Lista
-@onready var bottone_mappa: Button = %BottoneMappa
-
-# I TAZO SI VEDONO SCENDERE. Il negozio e' l'unico posto dove il giocatore
-# SPENDE, e un numero che salta da 30 a 12 non racconta la spesa: la registra.
-# Vedi Conto.gd - e la regola che ci sta scritta sopra vale qui piu' che
-# altrove: l'acquisto succede SUBITO, e' il numero che arriva dopo. Comprare
-# due volte di fila non aspetta niente.
-var conto_tazo: Conto = null
 
 func _ready() -> void:
-	bottone_mappa.pressed.connect(_su_mappa)
-	conto_tazo = Conto.su(etichetta_tazo, intestazione_tazo())
+	costruisci_tavola()
+	conto_tazo = Conto.su(etichetta_tazo, "%d")
 	conto_tazo.scrivi(GameState.tazo)   # all'apertura il numero c'e' gia', non risale da zero
+	negozio_aperto = String(GameState.negozi_sbloccati[0]) if not GameState.negozi_sbloccati.is_empty() else ""
 	costruisci()
+	entra()
+	if not carte.is_empty() and carte[0].visible:
+		Tavola.fuoco.call_deferred(carte[0])
 
-func intestazione_tazo() -> String:
-	# il %%d resta per il contatore: la sacca invece si scrive adesso, perche'
-	# e' un conto di posti - o il posto c'e' o non c'e', non ha una via di mezzo
-	# da percorrere sotto gli occhi
-	return "Tazo: %%d   •   Sacca %d/%d" % [GameState.sacca.size(),
-			int(GameState.regole.get("sacca_massima", 20))]
+
+# --- la tavola ----------------------------------------------------------------
+
+func costruisci_tavola() -> void:
+	tavola = Tavola.su(self)
+	var fondo := Fondo.new()
+	tavola.add_child(fondo)
+	vetrina = Vetrina.new()
+	tavola.add_child(vetrina)
+	vetrina.compra.scelto.connect(acquista)
+	costruisci_sinistra()
+	costruisci_scaffale()
+	costruisci_barra()
+	schegge = Schegge.new()
+	schegge.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(schegge)
+
+
+func costruisci_barra() -> void:
+	barra = Control.new()
+	barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tavola.add_child(barra)
+	Tavola.metti(barra, Rect2(0, 0, Tavola.LARGO, 60))
+	indietro = TastoObliquo.nuovo("INDIETRO", "accento", 20)
+	indietro.scelto.connect(_su_indietro)
+	barra.add_child(indietro)
+	indietro.position = Vector2(16, 10)
+	sacca = Cartiglio.nuovo("", Stile.colore("bordo_acceso"), Stile.colore("box_testo"),
+			Stile.colore("box_testo"), 20)
+	barra.add_child(sacca)
+
+
+func costruisci_sinistra() -> void:
+	etichetta_tazo = Tavola.scritta("", 104, Stile.colore("testo"), Caratteri.titolo())
+	tavola.add_child(etichetta_tazo)
+	Tavola.metti(etichetta_tazo, Rect2(108, 104, 520, 124))
+	Tavola.ombra(etichetta_tazo, Stile.colore("accento"), Vector2(5, 5))
+	var sotto := Tavola.scritta("TAZO IN TASCA", 18, Stile.colore("testo"), Caratteri.tondo(900))
+	tavola.add_child(sotto)
+	Tavola.metti(sotto, Rect2(148, 234, 320, 28))
+	descrizione = RichTextLabel.new()
+	descrizione.bbcode_enabled = true
+	descrizione.scroll_active = false
+	descrizione.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	descrizione.add_theme_font_override("normal_font", Caratteri.tondo(600))
+	descrizione.add_theme_font_override("bold_font", Caratteri.tondo(900))
+	descrizione.add_theme_font_size_override("normal_font_size", 16)
+	descrizione.add_theme_font_size_override("bold_font_size", 16)
+	descrizione.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
+	tavola.add_child(descrizione)
+	Tavola.metti(descrizione, Rect2(115, 276, 460, 100))
+
+
+func costruisci_scaffale() -> void:
+	scaffale = Control.new()
+	scaffale.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tavola.add_child(scaffale)
+	Tavola.metti(scaffale, Rect2(0, 0, Tavola.LARGO, Tavola.ALTO))
+	for i in VISIBILI:
+		var carta := CartaNegozio.new()
+		scaffale.add_child(carta)
+		carta.position = PRIMA_CARTA + Vector2(PASSO_CARTA * i, 0)
+		carta.presa.connect(_su_carta_presa)
+		carta.sposta.connect(sposta)
+		carta.focus_entered.connect(func() -> void: seleziona(inizio + i, false))
+		carte.append(carta)
+	prima = TastoObliquo.nuovo("<", "chiaro", 22)
+	dopo = TastoObliquo.nuovo(">", "chiaro", 22)
+	prima.scelto.connect(func() -> void: sposta(-VISIBILI))
+	dopo.scelto.connect(func() -> void: sposta(VISIBILI))
+	for i in 2:
+		var freccia: TastoObliquo = [prima, dopo][i]
+		tavola.add_child(freccia)
+		freccia.position = Vector2(40 + 58 * i, 640)
+	posizione = Tavola.scritta("", 13, Stile.colore("testo_smorzato"), Caratteri.tondo(900))
+	tavola.add_child(posizione)
+	Tavola.metti(posizione, Rect2(166, 642, 480, 36))
+
+
+# --- cosa si vede ---------------------------------------------------------------
 
 func costruisci() -> void:
-	conto_tazo.formato = intestazione_tazo()
+	# TUTTO DA CAPO, e costa poco: la chiama chi ha appena comprato qualcosa,
+	# perche' dopo un acquisto cambiano i Tazo, la sacca, e cosa ti puoi
+	# permettere su ogni carta
 	conto_tazo.vai_a(GameState.tazo)
-	Albero.svuota(lista)
+	fila = Merce.voci(GameState.negozi.get(negozio_aperto, {}))
+	scelta = clampi(scelta, 0, maxi(fila.size() - 1, 0))
+	inizio = clampi(inizio, 0, maxi(fila.size() - VISIBILI, 0))
+	aggiorna_linguette()
+	aggiorna_sacca()
+	mostra_scelta(false)
+
+
+func aggiorna_linguette() -> void:
+	for vecchia in linguette:
+		vecchia.queue_free()
+	linguette.clear()
+	var x := INIZIO_LINGUETTE.x
 	for id_negozio in GameState.negozi_sbloccati:
-		var negozio: Dictionary = GameState.negozi.get(id_negozio, {})
-		if negozio.is_empty():
-			continue
-		aggiungi_intestazione(negozio)
-		var in_vendita := stock_disponibile(negozio)
-		for categoria in CATEGORIE:
-			var voci := filtra_per_tipo(in_vendita, categoria["tipi"])
-			if voci.is_empty():
-				continue
-			aggiungi_categoria(String(categoria["titolo"]), String(categoria["nota"]))
-			for voce in voci:
-				aggiungi_voce_vendita(voce)
-		var baratti: Array = negozio.get("baratti", [])
-		if not baratti.is_empty():
-			aggiungi_categoria("Baratti", "Lui non vende: lavora quello che gli porti.")
-			for baratto in baratti:
-				aggiungi_voce_baratto(baratto)
+		var nome := String(GameState.negozi.get(id_negozio, {}).get("nome", id_negozio)).to_upper()
+		var aperto := String(id_negozio) == negozio_aperto
+		var linguetta := TastoObliquo.nuovo(nome, "accento" if aperto else "spoglio", 20)
+		linguetta.scelto.connect(apri_negozio.bind(String(id_negozio)))
+		barra.add_child(linguetta)
+		linguetta.position = Vector2(x, INIZIO_LINGUETTE.y)
+		x += linguetta.misura_voluta().x + 8.0
+		linguette.append(linguetta)
 
-func stock_disponibile(negozio: Dictionary) -> Array:
-	var voci: Array = []
-	for voce in negozio.get("stock", []):
-		if int(voce.get("da_fonti", 0)) > GameState.fonti_estinte:
-			continue  # lo stock evolve man mano che estingui fonti
-		voci.append(voce)
-	return voci
 
-func filtra_per_tipo(voci: Array, tipi: Array) -> Array:
-	var risultato: Array = []
-	for voce in voci:
-		var dati := GameState.dati_oggetto(String(voce.get("oggetto", "")))
-		if String(dati.get("tipo", "consumabile")) in tipi:
-			risultato.append(voce)
-	return risultato
+func aggiorna_sacca() -> void:
+	sacca.testo = "SACCA %d/%d" % [GameState.sacca.size(), int(GameState.regole.get("sacca_massima", 20))]
+	sacca.update_minimum_size()
+	sacca.size = sacca.get_combined_minimum_size()
+	sacca.position = Vector2(Tavola.LARGO - sacca.size.x - 18.0, 12.0)
+	sacca.queue_redraw()
 
-func aggiungi_intestazione(negozio: Dictionary) -> void:
-	var titolo := Label.new()
-	titolo.text = String(negozio.get("nome", "?"))
-	titolo.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
-	titolo.add_theme_color_override("font_color", Stile.colore("accento"))
-	lista.add_child(titolo)
-	var descrizione := Label.new()
-	descrizione.text = String(negozio.get("descrizione", ""))
-	descrizione.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Stile.etichetta_piccola(descrizione)
-	lista.add_child(descrizione)
 
-func aggiungi_categoria(titolo_categoria: String, nota: String) -> void:
-	var spazio := Control.new()
-	spazio.custom_minimum_size = Vector2(0, 10)
-	lista.add_child(spazio)
-	var titolo := Label.new()
-	titolo.text = titolo_categoria
-	titolo.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	titolo.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
-	lista.add_child(titolo)
-	var sottotitolo := Label.new()
-	sottotitolo.text = nota
-	sottotitolo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Stile.etichetta_piccola(sottotitolo)
-	lista.add_child(sottotitolo)
+func mostra_scelta(entra_il_disegno := true) -> void:
+	for i in VISIBILI:
+		var indice := inizio + i
+		carte[i].carica(fila[indice] if indice < fila.size() else {}, indice == scelta)
+	var voce: Dictionary = fila[scelta] if scelta < fila.size() else {}
+	vetrina.visible = not voce.is_empty()
+	vetrina.mostra(voce, entra_il_disegno)
+	descrizione.text = testo_descrizione(voce)
+	prima.inerte = inizio <= 0
+	dopo.inerte = inizio + VISIBILI >= fila.size()
+	prima.queue_redraw()
+	dopo.queue_redraw()
+	posizione.text = testo_posizione(voce)
 
-func aggiungi_voce_vendita(voce: Dictionary) -> void:
+
+func testo_descrizione(voce: Dictionary) -> String:
+	if voce.is_empty():
+		return "Qui oggi non c'è niente da comprare."
 	var id_oggetto := String(voce.get("oggetto", ""))
-	var oggetto := GameState.dati_oggetto(id_oggetto)
-	var prezzo := int(voce.get("prezzo", 0))
-	var riga := HBoxContainer.new()
-	riga.add_theme_constant_override("separation", 16)
-	lista.add_child(riga)
-
-	var colonna := VBoxContainer.new()
-	colonna.add_theme_constant_override("separation", 2)
-	colonna.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	riga.add_child(colonna)
-
-	var nome := Label.new()
-	nome.text = String(oggetto.get("nome", id_oggetto))
-	nome.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	colonna.add_child(nome)
-
-	# cosa fa, in numeri: e' l'informazione che serve davvero a decidere
-	var effetto := Label.new()
-	effetto.text = riassunto_effetto(oggetto)
-	effetto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	effetto.add_theme_color_override("font_color", Stile.colore("positivo"))
-	effetto.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
-	colonna.add_child(effetto)
-
-	var descrizione := Label.new()
-	descrizione.text = String(oggetto.get("descrizione", ""))
-	descrizione.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Stile.etichetta_piccola(descrizione)
-	colonna.add_child(descrizione)
-
-	var gia := quanti_ne_hai(id_oggetto)
-	if gia != "":
-		var posseduto := Label.new()
-		posseduto.text = gia
-		posseduto.add_theme_color_override("font_color", Stile.colore("accento"))
-		posseduto.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
-		colonna.add_child(posseduto)
-
-	var lato := VBoxContainer.new()
-	lato.add_theme_constant_override("separation", 2)
-	lato.custom_minimum_size = Vector2(190, 0)
-	riga.add_child(lato)
-	var sacca_piena := String(oggetto.get("tipo", "consumabile")) == "consumabile" \
-			and GameState.sacca.size() >= int(GameState.regole.get("sacca_massima", 20))
-	var bottone := Button.new()
-	bottone.text = "Compra — %d Tazo" % prezzo
-	bottone.disabled = GameState.tazo < prezzo or sacca_piena
-	bottone.pressed.connect(func() -> void:
-		if GameState.compra(id_oggetto, prezzo):
-			costruisci())
-	lato.add_child(bottone)
-	var conto := Label.new()
-	if sacca_piena:
-		conto.text = "la sacca è piena"
-	elif GameState.tazo < prezzo:
-		conto.text = "ti mancano %d Tazo" % (prezzo - GameState.tazo)
+	var dati := GameState.dati_oggetto(id_oggetto)
+	var righe: Array[String] = []
+	if String(voce.get("tipo", "")) == "baratto":
+		var materiali: Array[String] = []
+		for materiale in voce.get("richiede", []):
+			materiali.append(Merce.nome_di(String(materiale)))
+		righe.append("[b][color=#%s]In cambio di: %s[/color][/b]" % [Stile.colore("testo").to_html(false), ", ".join(materiali)])
 	else:
-		conto.text = "te ne restano %d" % (GameState.tazo - prezzo)
-	conto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	Stile.etichetta_piccola(conto)
-	lato.add_child(conto)
+		righe.append("[b][color=#%s]%s[/color][/b]" % [Stile.colore("testo").to_html(false), Merce.riassunto_effetto(dati)])
+	righe.append(String(dati.get("descrizione", "")))
+	var gia := Merce.quanti_ne_hai(id_oggetto)
+	if gia != "":
+		righe.append("[b][color=#%s]%s[/color][/b]" % [Stile.colore("accento").to_html(false), gia])
+	return "\n".join(righe)
 
-func quanti_ne_hai(id_oggetto: String) -> String:
-	# comprare il secondo uguale dev'essere una scelta, non una distrazione
-	var tipo := String(GameState.dati_oggetto(id_oggetto).get("tipo", "consumabile"))
-	if tipo == "consumabile":
-		var quanti := 0
-		for x in GameState.sacca:
-			if String(x) == id_oggetto:
-				quanti += 1
-		return "" if quanti == 0 else "ne hai già %d in sacca" % quanti
-	if not GameState.posseduto_equipaggiabile(id_oggetto):
+
+func testo_posizione(voce: Dictionary) -> String:
+	if fila.is_empty():
 		return ""
-	var id_portatore := GameState.portatore_di(id_oggetto)
-	if id_portatore == "":
-		return "ne hai già uno, nell'armadio"
-	var classe: Dictionary = GameState.classi.get(id_portatore, {})
-	return "ne hai già uno, addosso a %s" % String(classe.get("nome", id_portatore))
+	return "%s   ·   %d DI %d" % [String(voce.get("categoria", "")).to_upper(), scelta + 1, fila.size()]
 
-func riassunto_effetto(oggetto: Dictionary) -> String:
-	# l'effetto in numeri. Le chiavi sono le stesse che legge il combattimento,
-	# quindi un oggetto nuovo si racconta da solo senza toccare questo file
-	var effetto: Dictionary = oggetto.get("effetto_equipaggiato", oggetto.get("effetto", {}))
-	var voci: Array[String] = []
-	for chiave in effetto:
-		var nome_chiave := String(chiave)
-		match nome_chiave:
-			"tipo":
-				continue
-			"hp":
-				voci.append("%+d vita" % int(effetto[chiave]))
-			"aura":
-				voci.append("%+d aura" % int(effetto[chiave]))
-			"stress":
-				voci.append("stress %+d" % int(effetto[chiave]))
-			"danno":
-				voci.append("%d danni, ignora le difese" % int(effetto[chiave]))
-			"speranza":
-				voci.append("speranza %+d" % int(effetto[chiave]))
-			"difesa_incontro":
-				voci.append("difesa %+d per tutto lo scontro" % int(effetto[chiave]))
-			"cura_stato":
-				var definizione: Dictionary = GameState.stati.get(effetto[chiave], {})
-				voci.append("toglie %s" % String(definizione.get("nome", effetto[chiave])).to_lower())
-			"cura_stati":
-				voci.append("toglie ogni male")
-			"attacco":
-				voci.append("attacco %+d" % int(effetto[chiave]))
-			"difesa":
-				voci.append("difesa %+d" % int(effetto[chiave]))
-			"velocita":
-				voci.append("velocità %+d" % int(effetto[chiave]))
-			"hp_max":
-				voci.append("vita massima %+d" % int(effetto[chiave]))
-			"aura_max":
-				voci.append("aura massima %+d" % int(effetto[chiave]))
-			"aura_per_turno":
-				voci.append("aura per turno %+d" % int(effetto[chiave]))
-			"resistenza_maledizione":
-				voci.append("maledizione: %+d rintocchi prima della fine" % int(effetto[chiave]))
-			_:
-				voci.append("%s %+d" % [nome_chiave, int(effetto[chiave])])
-	match String(effetto.get("tipo", "")):
-		"scudo_primo_stato":
-			voci.append("respinge il primo male che ti prende")
-		"resurrezione_dimezzata":
-			voci.append("ti rimette in piedi una volta, a metà vita")
-	return ", ".join(voci) if not voci.is_empty() else "—"
 
-func aggiungi_voce_baratto(baratto: Dictionary) -> void:
-	var richiesti: Array = baratto.get("richiede", [])
-	var prodotto := String(baratto.get("produce", ""))
-	var nomi_materiali: Array[String] = []
-	var mancanti: Array[String] = []
-	# un materiale richiesto due volte va posseduto due volte: si scala la copia
-	var disponibili: Array = GameState.collezionabili.duplicate()
-	for materiale in richiesti:
-		var id_materiale := String(materiale)
-		var nome_materiale := String(GameState.dati_oggetto(id_materiale).get("nome", id_materiale))
-		nomi_materiali.append(nome_materiale)
-		if id_materiale in disponibili:
-			disponibili.erase(id_materiale)
-		elif nome_materiale not in mancanti:
-			mancanti.append(nome_materiale)
-	var riga := HBoxContainer.new()
-	riga.add_theme_constant_override("separation", 16)
-	lista.add_child(riga)
-	var colonna := VBoxContainer.new()
-	colonna.add_theme_constant_override("separation", 2)
-	colonna.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	riga.add_child(colonna)
-	var nome := Label.new()
-	nome.text = String(GameState.dati_oggetto(prodotto).get("nome", prodotto))
-	nome.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	colonna.add_child(nome)
-	var costo := Label.new()
-	costo.text = "in cambio di: " + ", ".join(nomi_materiali)
-	costo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	Stile.etichetta_piccola(costo)
-	colonna.add_child(costo)
-	var lato := VBoxContainer.new()
-	lato.add_theme_constant_override("separation", 2)
-	lato.custom_minimum_size = Vector2(190, 0)
-	riga.add_child(lato)
-	var bottone := Button.new()
-	bottone.text = "Baratta"
-	bottone.disabled = not mancanti.is_empty()
-	bottone.pressed.connect(func() -> void:
-		if GameState.baratta(richiesti, prodotto):
-			costruisci())
-	lato.add_child(bottone)
-	if not mancanti.is_empty():
-		var manca := Label.new()
-		manca.text = "ti manca: " + ", ".join(mancanti)
-		manca.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		Stile.etichetta_piccola(manca)
-		lato.add_child(manca)
+# --- i gesti ------------------------------------------------------------------
 
-func _su_mappa() -> void:
+func seleziona(indice: int, col_fuoco: bool) -> void:
+	if fila.is_empty():
+		return
+	var nuovo := clampi(indice, 0, fila.size() - 1)
+	var prima_di := inizio
+	if nuovo < inizio:
+		inizio = nuovo
+	elif nuovo >= inizio + VISIBILI:
+		inizio = nuovo - VISIBILI + 1
+	var cambiata := nuovo != scelta or inizio != prima_di
+	scelta = nuovo
+	if inizio != prima_di:
+		scorri_scaffale(signi(inizio - prima_di))
+	if cambiata:
+		mostra_scelta()
+	if col_fuoco:
+		carte[scelta - inizio].grab_focus()
+
+
+func sposta(quanto: int) -> void:
+	if fila.is_empty():
+		return
+	var arrivo := clampi(scelta + quanto, 0, fila.size() - 1)
+	if arrivo == scelta:
+		Movimento.suona("rifiuto")   # in fondo allo scaffale: dice di no
+		return
+	seleziona(arrivo, true)
+
+
+func scorri_scaffale(verso: int) -> void:
+	# lo scaffale scivola di una carta: il contenuto cambia subito, e la fila
+	# arriva al suo posto da dove stava. Non si aspetta la fine per premere
+	if Movimento.ridotto():
+		return
+	scaffale.position.x = PASSO_CARTA * 0.5 * float(verso)
+	var t := scaffale.create_tween()
+	Movimento.verso(t, scaffale, "position:x", 0.0, "entrata", Movimento.durata("voce"))
+
+
+func _su_carta_presa(carta: CartaNegozio, da_tastiera: bool) -> void:
+	var indice := inizio + carte.find(carta)
+	if da_tastiera and indice == scelta:
+		vetrina.compra.grab_focus()   # INVIO sulla carta scelta: si va a COMPRA
+		return
+	seleziona(indice, false)
+
+
+func apri_negozio(id_negozio: String) -> void:
+	if id_negozio == negozio_aperto:
+		return
+	negozio_aperto = id_negozio
+	scelta = 0
+	inizio = 0
+	costruisci()
+	entra_carte(0.0)
+
+
+func acquista() -> void:
+	if scelta >= fila.size():
+		return
+	if not Merce.prendi(fila[scelta]):
+		vetrina.compra.rifiuta()
+		return
+	schegge.scoppia(vetrina.compra.get_global_rect().get_center())
+	costruisci()
+
+
+func _su_indietro() -> void:
 	Transizioni.vai(SCENA_SEDE)
+
+
+# --- l'entrata -----------------------------------------------------------------
+
+func entra() -> void:
+	Tavola.entra(barra, 0.0, Vector2(0, -12))
+	Tavola.entra(vetrina, 0.03, Vector2(48, 0))
+	Tavola.entra(etichetta_tazo, 0.05, Vector2(-24, 0))
+	Tavola.entra(descrizione, 0.07, Vector2(-24, 0))
+	entra_carte(0.1)
+
+
+func entra_carte(dopo_quanto: float) -> void:
+	# le carte in cascata, e COMPRA per ultimo
+	var ritardi := Movimento.ritardi_cascata(VISIBILI + 1, VISIBILI, dopo_quanto)
+	for i in VISIBILI:
+		Tavola.entra(carte[i], ritardi[i], Vector2(0, 24))
+	Tavola.entra(vetrina.compra, ritardi[VISIBILI], Vector2(24, 0))
+
+
+# --- il fondo --------------------------------------------------------------------
+
+class Fondo extends Control:
+	# nero, con la trama a puntini e una fascia chiarissima parallela alla
+	# vetrina: la pagina dello schema di Bru, al buio
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		size = Vector2(Tavola.LARGO, Tavola.ALTO)
+
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), Stile.colore("sfondo"))
+		Sagome.puntinato(self, Rect2(Vector2.ZERO, size), 24.0, Color(Stile.colore("testo"), 0.07))
+		var chiaro := PackedVector2Array([Vector2(760, 0), Vector2(860, 0), Vector2(514, 720), Vector2(414, 720)])
+		draw_colored_polygon(chiaro, Color(Stile.colore("testo"), 0.035))
+		draw_line(Vector2(0, 58), Vector2(980, 58), Color(Stile.colore("testo"), 0.12), 1.0)
+		var riga := 40.0
+		while riga < 700.0:
+			draw_rect(Rect2(riga, 600, 3, 2), Color(Stile.colore("testo"), 0.25))
+			riga += 7.0
+		draw_colored_polygon(Sagome.rombo(Vector2(126, 248), 10.0), Stile.colore("accento"))

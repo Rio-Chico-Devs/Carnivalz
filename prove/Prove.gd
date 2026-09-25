@@ -10643,7 +10643,6 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Combattimento.gd:aggiungi_combattente": {"misura": 17},
 	"GameState.gd:aggiorna_task": {"misura": 17},
 	"MappaZona.gd:_disegna_sotto": {"misura": 16},
-	"Negozio.gd:costruisci": {"misura": 16},
 }
 
 func complessita_cognitiva(corpo: Array[String]) -> int:
