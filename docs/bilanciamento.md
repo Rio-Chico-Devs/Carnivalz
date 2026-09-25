@@ -1,6 +1,6 @@
 # Bilanciamento (generato, non scrivere qui a mano)
 
-Prodotto da `prove/Simulatore.gd`: **309600 partite** giocate dal motore vero in 3039 secondi.
+Prodotto da `prove/Simulatore.gd`: **309600 partite** giocate dal motore vero in 3835 secondi.
 
 Non e' una stima e non e' un modello: e' `Combattimento.tscn` istanziata e giocata,
 con Voce/Campo/Menu muti. Se questi numeri sono sbagliati, sono sbagliati anche
@@ -54,7 +54,7 @@ Livello minimo a cui si vince almeno l'80% delle volte andandoci dritto.
 | Emblema dell'oppressione | `operaio_posseduto` | 290 | 16 | 5 |
 | Operaio Sfruttato | `operaio_sfruttato` | 404 | 18 | 5 |
 | Orrore di Meridia | `orrore_di_meridia` | 404 | 18 | 8 |
-| Rana Folle | `rana_folle` | 34 | 7 | 1 |
+| Rana Folle | `rana_folle` | 34 | 5 | 1 |
 | Robo Pattuglia | `robo_pattuglia` | 277 | 10 | 5 |
 | Sacerdote Folle | `sacerdote_folle` | 486 | 32 | 12 |
 | Sadico | `sadico` | 405 | 26 | 8 |
@@ -103,7 +103,7 @@ perche' nessuna prova guardava sopra il livello 8.
 | ruolo | hp | attacco | difesa | velocita | xp | tazo | cos'e' |
 |---|--:|--:|--:|--:|--:|--:|---|
 | **comune** | 448 | 29 | 13 | 8 | 39 | 12 | il nemico di riserva: muore in cinque o sei turni e si porta via un quarto della vita. E' il metro di tutto il resto - il suo xp e' 1.0, cioe' e' lui la creatura che conta in 'scontri_per_livello' |
-| **veloce** | 339 | 27 | 3 | 19 | 43 | 13 | colpisce prima e piu' spesso, ma regge poco e non para niente |
+| **veloce** | 339 | 27 | 3 | 19 | 43 | 13 | colpisce prima di te a ogni giro, ma regge poco e non para niente |
 | **corazzato** | 601 | 22 | 34 | 6 | 47 | 15 | il muro: lento, poco offensivo, ma i colpi normali ci rimbalzano |
 | **particolare** | 737 | 34 | 18 | 9 | 86 | 24 | l'incontro che ti fa alzare la testa: non un boss, ma nemmeno uno qualunque |
 | **miniboss** | 1201 | 38 | 22 | 10 | 175 | 49 | il guardiano di un ramo: si prepara, e se non ti prepari perdi |
@@ -123,7 +123,7 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Diabolo | 9 | comune | hp 445 | Stessa decisione di Bru, ma con la mano piu' leggera: da 405 a 445 (+10%). A +25% la strada dell'attesa non spariva, si INCEPPAVA - il 71% delle partite superava le sessanta battute senza finire, che non e' una sconfitta ma e' peggio di una. A +10% difendersi e basta vince il 45% invece del 55%, e chi attacca chiude in 6 battute. Numeri miei: ./prove/sonda.sh diabolo difendi 12. |
 | ??? | 8 | particolare | hp 120, attacco 5, difesa 0 | Non deve essere battuto: si rialza sempre. I suoi numeri sono bassi apposta, perche' il giocatore ci provi abbastanza a lungo da capirlo. |
 | Un tenero ricordo | 15 | fonte | hp 6660, attacco 27, difesa 12 | Non si vince a danno: si vince con le leve. La riserva e' una parete che dice «non da questa parte», non un conto da smaltire. |
-| Rana Folle | 1 | comune | hp 34, attacco 7 | Orda della prima missione. Da comune al livello 1 una rana avrebbe la vita di un goblin intero, e cinque rane sarebbero cinque goblin: la vita di un'orda e' quella di una per quante sono. Numeri misurati sulla strategia di Bru (concentrarsi quando fanno fronte compatto, poi l'onda psichica). |
+| Rana Folle | 1 | comune | hp 34, attacco 5 | Orda della prima missione. Da comune al livello 1 una rana avrebbe la vita di un goblin intero, e cinque rane sarebbero cinque goblin: la vita di un'orda e' quella di una per quante sono. Numeri misurati sulla strategia di Bru (concentrarsi quando fanno fronte compatto, poi l'onda psichica). Attacco da 7 a 5 quando il conto delle rane e' diventato giusto (per eccesso, e mai zero con l'orda in piedi): prima dal 60% di vita ne restava una sola e sotto il 20% nessuna, quindi l'orda smetteva di picchiare a meta' scontro. Con 5 la sonda al livello 1 torna ai numeri di prima (studia 99% invece di 95%, attacca 37 danni invece di 33), ma i colpi arrivano per tutto lo scontro. |
 | Tartaruga Gigante | 1 | corazzato | hp 555, attacco 0, difesa 6 | Non e' uno scontro, e' un indovinello: non attacca mai e non si batte a colpi. La sua riserva enorme serve a far capire che la strada e' un'altra. |
 | Un goblin terribilmente arrabbiato | 6 | fonte | hp 500, attacco 3, difesa 3, velocita 1 | Prima fonte del gioco, e primo boss vero. Le statistiche sono scritte a mano e non escono dal ruolo: Bru lo vuole «lungo e interessante, time consuming, non difficile e imbattibile». Tanta vita e poca difesa, cosi' ogni tuo colpo si vede e ne servono tanti; un attacco basso e lento, cosi' a fare paura sono la Mazzata e i goblin che chiama, non il colpo normale. |
 | Veronica | 5 | miniboss | hp 600, attacco 18, difesa 6, xp 0, tazo 0 | Allenamento scriptato del tutorial: e' invincibile per copione, i numeri servono solo a far durare la lezione il giusto. |
@@ -302,12 +302,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 6.7 | 100.0 | 0% | 0 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 0% | 100% | 0% | 21.8 | 100.0 | 0% | 0 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 0% | 100% | 0% | 5.8 | 100.0 | 0% | 0 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 11.8 | 32.9 | 0% | 2 |
-| Rana Folle | `rana_folle` | difendi | 0% | 57% | 43% | 55.2 | 95.6 | 0% | 0 |
-| Rana Folle | `rana_folle` | studia | 95% | 5% | 0% | 14.6 | 62.5 | 0% | 2 |
-| Rana Folle | `rana_folle` | casuale | 99% | 1% | 1% | 35.6 | 45.1 | 0% | 2 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 11.8 | 31.1 | 0% | 2 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 10.1 | 28.5 | 0% | 2 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 11.6 | 37.4 | 0% | 2 |
+| Rana Folle | `rana_folle` | difendi | 0% | 9% | 91% | 59.6 | 86.8 | 0% | 0 |
+| Rana Folle | `rana_folle` | studia | 99% | 1% | 0% | 14.7 | 57.4 | 0% | 2 |
+| Rana Folle | `rana_folle` | casuale | 97% | 1% | 3% | 34.1 | 41.6 | 0% | 2 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 11.7 | 30.9 | 0% | 2 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 10.0 | 31.4 | 0% | 2 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 7% | 93% | 0% | 10.3 | 96.8 | 0% | 1 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 80% | 20% | 52.4 | 98.4 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 5% | 95% | 0% | 10.6 | 98.6 | 0% | 1 |
@@ -380,12 +380,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 1.2 | 100.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 0% | 100% | 0% | 1.9 | 100.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 0% | 100% | 0% | 1.2 | 100.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 25% | 75% | 0% | 17.6 | 88.1 | 0% | 1 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 15% | 85% | 0% | 16.7 | 92.0 | 0% | 1 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 9% | 91% | 58.7 | 74.4 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 15% | 85% | 0% | 18.4 | 94.3 | 0% | 1 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 16% | 16% | 68% | 52.7 | 73.3 | 0% | 1 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 67% | 4% | 29% | 38.5 | 40.4 | 0% | 3 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 23% | 77% | 0% | 18.0 | 90.9 | 0% | 1 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 15% | 85% | 0% | 16.6 | 94.6 | 0% | 1 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 15% | 25% | 60% | 50.2 | 79.3 | 0% | 1 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 63% | 19% | 19% | 40.5 | 49.8 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 19% | 81% | 0% | 17.0 | 93.7 | 0% | 1 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 13% | 87% | 0% | 9.9 | 94.6 | 0% | 1 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 100% | 0% | 37.2 | 100.0 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 2% | 98% | 0% | 10.7 | 99.2 | 0% | 0 |
@@ -565,12 +565,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 100% | 0% | 15.6 | 145.0 | 0% | 0 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 0% | 100% | 0% | 35.1 | 145.0 | 0% | 0 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 0% | 100% | 0% | 9.3 | 145.0 | 0% | 0 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 8.4 | 17.8 | 0% | 2 |
-| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 91.5 | 0% | 0 |
-| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 11.4 | 41.7 | 0% | 2 |
-| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 25.5 | 27.1 | 0% | 2 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 8.4 | 17.8 | 0% | 2 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 7.1 | 15.4 | 0% | 2 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 8.2 | 22.4 | 0% | 2 |
+| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 79.8 | 0% | 0 |
+| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 11.3 | 37.4 | 0% | 2 |
+| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 25.2 | 24.0 | 0% | 2 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 8.2 | 22.4 | 0% | 2 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 7.1 | 16.1 | 0% | 2 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 19% | 81% | 0% | 16.6 | 133.1 | 0% | 3 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 60.0 | 81.4 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 17% | 83% | 0% | 17.2 | 137.1 | 0% | 3 |
@@ -643,12 +643,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 2.1 | 145.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 0% | 100% | 0% | 4.2 | 145.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 0% | 100% | 0% | 2.1 | 145.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 57% | 43% | 0% | 25.1 | 103.9 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 51% | 49% | 0% | 25.2 | 112.2 | 0% | 3 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 3% | 97% | 59.4 | 70.7 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 43% | 57% | 0% | 28.0 | 117.8 | 0% | 2 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 25% | 1% | 73% | 54.5 | 61.6 | 0% | 1 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 94% | 1% | 5% | 32.1 | 43.5 | 0% | 5 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 69% | 31% | 0% | 23.8 | 99.5 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 49% | 51% | 0% | 25.5 | 116.0 | 0% | 2 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 27% | 2% | 71% | 53.7 | 68.8 | 0% | 1 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 93% | 2% | 5% | 34.4 | 42.7 | 0% | 5 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 66% | 34% | 0% | 23.8 | 105.2 | 0% | 3 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 8.4 | 72.9 | 0% | 9 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 60.0 | 98.0 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 11.6 | 101.9 | 0% | 9 |
@@ -828,12 +828,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 0% | 85% | 15% | 38.1 | 186.9 | 0% | 0 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 5% | 95% | 0% | 39.3 | 189.9 | 0% | 2 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 0% | 100% | 0% | 14.1 | 190.0 | 0% | 0 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 6.5 | 7.7 | 0% | 1 |
-| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 66.4 | 0% | 0 |
-| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 9.6 | 26.7 | 0% | 1 |
-| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 18.8 | 14.8 | 0% | 1 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 6.5 | 7.7 | 0% | 1 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 5.3 | 10.8 | 0% | 1 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 6.5 | 10.5 | 0% | 1 |
+| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 61.4 | 0% | 0 |
+| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 9.5 | 18.3 | 0% | 1 |
+| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 19.2 | 15.4 | 0% | 1 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 6.5 | 10.5 | 0% | 1 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 5.3 | 7.5 | 0% | 1 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 44% | 56% | 0% | 29.3 | 150.2 | 0% | 7 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 60.0 | 53.8 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 41% | 59% | 0% | 29.6 | 153.0 | 0% | 7 |
@@ -906,12 +906,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 3.0 | 190.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 0% | 100% | 0% | 6.3 | 190.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 0% | 100% | 0% | 2.9 | 190.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 1% | 0% | 24.3 | 63.0 | 0% | 4 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 1% | 0% | 24.7 | 69.7 | 0% | 4 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 1% | 99% | 59.9 | 53.5 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 1% | 0% | 29.6 | 79.5 | 0% | 4 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 39% | 0% | 61% | 52.1 | 41.6 | 0% | 2 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 98% | 0% | 2% | 24.8 | 49.7 | 0% | 4 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 99% | 1% | 0% | 22.7 | 58.8 | 0% | 4 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 1% | 0% | 29.5 | 84.3 | 0% | 4 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 39% | 0% | 61% | 52.1 | 46.4 | 0% | 2 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 97% | 0% | 3% | 25.6 | 48.4 | 0% | 4 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 99% | 1% | 0% | 22.2 | 60.7 | 0% | 4 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 6.6 | 36.9 | 0% | 9 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 60.0 | 59.6 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 9.5 | 55.5 | 0% | 9 |
@@ -1091,12 +1091,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 3% | 24% | 73% | 57.0 | 202.9 | 0% | 2 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 100% | 0% | 0% | 27.0 | 120.0 | 0% | 39 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 55% | 45% | 0% | 17.9 | 280.2 | 0% | 22 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.9 | 3.6 | 0% | 3 |
-| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 49.1 | 0% | 0 |
-| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.9 | 10.6 | 0% | 3 |
-| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 15.0 | 7.2 | 0% | 3 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.9 | 3.6 | 0% | 3 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 3.9 | 5.8 | 0% | 3 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.9 | 2.6 | 0% | 3 |
+| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 48.8 | 0% | 0 |
+| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.9 | 4.0 | 0% | 3 |
+| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 15.0 | 6.3 | 0% | 3 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.9 | 2.6 | 0% | 3 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 3.9 | 2.2 | 0% | 3 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 12.2 | 28.0 | 0% | 14 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 60.0 | 28.5 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 99% | 0% | 1% | 17.0 | 37.8 | 0% | 14 |
@@ -1169,12 +1169,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 5.4 | 285.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 0% | 100% | 0% | 11.3 | 285.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 0% | 100% | 0% | 5.0 | 285.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 98% | 0% | 2% | 18.3 | 22.0 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 98% | 0% | 2% | 18.4 | 24.1 | 0% | 3 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 60.0 | 39.5 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 0% | 1% | 22.2 | 26.3 | 0% | 3 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 56% | 0% | 44% | 47.0 | 24.1 | 0% | 2 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 98% | 0% | 2% | 18.3 | 22.0 | 0% | 3 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 99% | 0% | 1% | 16.3 | 20.3 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 0% | 1% | 22.1 | 28.4 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 59% | 0% | 41% | 47.6 | 27.5 | 0% | 2 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 98% | 0% | 2% | 18.4 | 23.5 | 0% | 3 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 99% | 0% | 1% | 16.2 | 21.4 | 0% | 3 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 4.8 | 13.8 | 0% | 6 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 60.0 | 29.6 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 7.8 | 23.9 | 0% | 6 |
@@ -1354,12 +1354,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 83% | 7% | 10% | 45.4 | 364.8 | 0% | 18 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 100% | 0% | 0% | 16.2 | 134.3 | 0% | 21 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 100% | 0% | 0% | 7.9 | 342.6 | 0% | 21 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 3.6 | 0% | 10 |
-| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 75.4 | 0% | 0 |
-| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.8 | 10.3 | 0% | 10 |
-| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 13.6 | 8.4 | 0% | 10 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 3.6 | 0% | 10 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 3.9 | 4.3 | 0% | 10 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 2.0 | 0% | 10 |
+| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 75.0 | 0% | 0 |
+| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.8 | 6.7 | 0% | 10 |
+| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 14.5 | 8.9 | 0% | 10 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 2.0 | 0% | 10 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 3.9 | 2.7 | 0% | 10 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 8.8 | 7.7 | 0% | 12 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 60.0 | 21.4 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 100% | 0% | 0% | 11.9 | 14.0 | 0% | 12 |
@@ -1432,12 +1432,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 10.9 | 425.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 0% | 100% | 0% | 17.3 | 425.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 0% | 100% | 0% | 8.6 | 425.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 0% | 1% | 23.2 | 73.3 | 0% | 10 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 0% | 1% | 23.6 | 76.9 | 0% | 10 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 60.0 | 63.6 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 0% | 1% | 27.8 | 86.8 | 0% | 10 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 41% | 0% | 59% | 49.9 | 43.7 | 0% | 4 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 99% | 0% | 1% | 23.2 | 71.8 | 0% | 10 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 98% | 0% | 2% | 21.3 | 64.5 | 0% | 10 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 0% | 1% | 28.3 | 93.2 | 0% | 10 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 43% | 0% | 57% | 49.6 | 47.7 | 0% | 4 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 99% | 0% | 1% | 23.6 | 74.8 | 0% | 10 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 97% | 0% | 3% | 21.0 | 67.8 | 0% | 10 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 4.8 | 18.0 | 0% | 10 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 60.0 | 38.2 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 7.8 | 34.5 | 0% | 10 |
@@ -1617,12 +1617,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 47% | 15% | 38% | 53.9 | 548.2 | 0% | 21 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 100% | 0% | 0% | 21.9 | 318.7 | 0% | 42 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 100% | 0% | 0% | 15.1 | 536.7 | 0% | 42 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 2.8 | 0% | 19 |
-| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 75.4 | 0% | 0 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 2.0 | 0% | 19 |
+| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 75.0 | 0% | 0 |
 | Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.8 | 6.3 | 0% | 19 |
-| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 13.9 | 7.3 | 0% | 19 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 2.8 | 0% | 19 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 4.9 | 2.3 | 0% | 19 |
+| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 13.9 | 8.4 | 0% | 19 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 2.0 | 0% | 19 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 4.8 | 2.1 | 0% | 19 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 11.0 | 26.8 | 0% | 23 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 60.0 | 25.3 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 99% | 0% | 1% | 14.8 | 34.6 | 0% | 23 |
@@ -1695,12 +1695,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 100% | 0% | 26.8 | 610.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 0% | 100% | 0% | 24.3 | 610.0 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 0% | 100% | 0% | 13.9 | 610.0 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 0% | 1% | 26.3 | 140.4 | 0% | 19 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 0% | 1% | 26.5 | 144.4 | 0% | 19 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 60.0 | 69.9 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 97% | 0% | 3% | 32.1 | 173.6 | 0% | 18 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 35% | 0% | 65% | 52.1 | 58.0 | 0% | 7 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 99% | 0% | 1% | 26.3 | 139.6 | 0% | 19 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 98% | 0% | 2% | 24.2 | 124.6 | 0% | 19 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 0% | 1% | 32.8 | 179.1 | 0% | 19 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 33% | 0% | 67% | 51.9 | 61.7 | 0% | 6 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 99% | 0% | 1% | 26.5 | 142.8 | 0% | 19 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 98% | 0% | 2% | 24.3 | 132.5 | 0% | 19 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 4.9 | 22.9 | 0% | 19 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 60.0 | 50.2 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 7.9 | 49.7 | 0% | 19 |
@@ -1880,12 +1880,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 16% | 10% | 74% | 58.0 | 690.7 | 0% | 14 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 100% | 0% | 0% | 25.4 | 735.7 | 0% | 71 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 99% | 1% | 0% | 17.5 | 810.1 | 0% | 71 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 2.8 | 0% | 32 |
-| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 81.4 | 0% | 0 |
-| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.8 | 8.5 | 0% | 32 |
-| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 14.6 | 8.1 | 0% | 32 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 2.8 | 0% | 32 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 4.8 | 2.4 | 0% | 32 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 2.4 | 0% | 32 |
+| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 80.9 | 0% | 0 |
+| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.8 | 7.1 | 0% | 32 |
+| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 14.7 | 9.3 | 0% | 32 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 2.4 | 0% | 32 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 4.8 | 2.6 | 0% | 32 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 100% | 0% | 0% | 14.0 | 59.1 | 0% | 39 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 60.0 | 34.0 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 97% | 0% | 3% | 20.5 | 88.1 | 0% | 38 |
@@ -1958,12 +1958,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 61% | 39% | 56.6 | 869.2 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 70% | 30% | 0% | 39.8 | 772.6 | 0% | 102 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 99% | 1% | 0% | 22.6 | 681.5 | 0% | 144 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 0% | 1% | 29.5 | 242.7 | 0% | 32 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 0% | 1% | 30.5 | 262.2 | 0% | 32 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 60.0 | 85.8 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 98% | 0% | 2% | 35.4 | 286.2 | 0% | 31 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 28% | 0% | 72% | 53.6 | 79.0 | 0% | 9 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 99% | 0% | 1% | 29.5 | 237.1 | 0% | 32 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 99% | 0% | 1% | 25.7 | 207.2 | 0% | 32 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 99% | 0% | 1% | 33.4 | 280.9 | 0% | 32 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 31% | 0% | 69% | 52.6 | 85.0 | 0% | 11 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 98% | 0% | 2% | 30.6 | 255.9 | 0% | 31 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 99% | 0% | 1% | 25.1 | 209.8 | 0% | 32 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 5.7 | 56.8 | 0% | 32 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 60.0 | 73.3 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 8.7 | 91.0 | 0% | 32 |
@@ -2143,12 +2143,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Orrore di Meridia | `orrore_di_meridia` | casuale | 9% | 10% | 81% | 58.5 | 867.1 | 0% | 9 |
 | Orrore di Meridia | `orrore_di_meridia` | si_cura | 81% | 19% | 0% | 26.6 | 1107.9 | 0% | 82 |
 | Orrore di Meridia | `orrore_di_meridia` | speciali | 99% | 1% | 0% | 20.8 | 939.1 | 0% | 100 |
-| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 3.0 | 0% | 46 |
-| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 81.4 | 0% | 0 |
-| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.8 | 9.0 | 0% | 46 |
-| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 14.8 | 7.9 | 0% | 46 |
-| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 3.0 | 0% | 46 |
-| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 4.4 | 2.6 | 0% | 46 |
+| Rana Folle | `rana_folle` | attacca | 100% | 0% | 0% | 4.8 | 2.6 | 0% | 46 |
+| Rana Folle | `rana_folle` | difendi | 0% | 0% | 100% | 60.0 | 80.9 | 0% | 0 |
+| Rana Folle | `rana_folle` | studia | 100% | 0% | 0% | 7.8 | 7.7 | 0% | 46 |
+| Rana Folle | `rana_folle` | casuale | 100% | 0% | 0% | 14.5 | 9.2 | 0% | 46 |
+| Rana Folle | `rana_folle` | si_cura | 100% | 0% | 0% | 4.8 | 2.6 | 0% | 46 |
+| Rana Folle | `rana_folle` | speciali | 100% | 0% | 0% | 3.7 | 2.4 | 0% | 46 |
 | Robo Pattuglia | `robo_pattuglia` | attacca | 97% | 0% | 3% | 16.8 | 94.8 | 0% | 53 |
 | Robo Pattuglia | `robo_pattuglia` | difendi | 0% | 0% | 100% | 60.0 | 36.4 | 0% | 0 |
 | Robo Pattuglia | `robo_pattuglia` | studia | 93% | 0% | 7% | 23.4 | 141.4 | 0% | 51 |
@@ -2221,12 +2221,12 @@ cosi' un'eccezione resta un'eccezione invece di tornare a essere la regola.
 | Volto sulla parete | `volto_sulla_parete` | casuale | 0% | 69% | 31% | 55.1 | 1199.7 | 0% | 0 |
 | Volto sulla parete | `volto_sulla_parete` | si_cura | 5% | 95% | 0% | 39.5 | 1214.6 | 0% | 10 |
 | Volto sulla parete | `volto_sulla_parete` | speciali | 86% | 14% | 0% | 24.3 | 1070.4 | 0% | 178 |
-| Zombie Cittadino | `zombie_cittadino` | attacca | 99% | 0% | 1% | 30.9 | 401.4 | 0% | 45 |
+| Zombie Cittadino | `zombie_cittadino` | attacca | 97% | 0% | 3% | 32.5 | 427.4 | 0% | 45 |
 | Zombie Cittadino | `zombie_cittadino` | difendi | 0% | 0% | 100% | 60.0 | 100.4 | 0% | 0 |
-| Zombie Cittadino | `zombie_cittadino` | studia | 93% | 0% | 7% | 36.6 | 451.2 | 0% | 44 |
-| Zombie Cittadino | `zombie_cittadino` | casuale | 25% | 0% | 75% | 55.0 | 110.1 | 0% | 11 |
-| Zombie Cittadino | `zombie_cittadino` | si_cura | 96% | 0% | 4% | 31.0 | 375.8 | 0% | 44 |
-| Zombie Cittadino | `zombie_cittadino` | speciali | 98% | 0% | 2% | 27.3 | 349.7 | 0% | 45 |
+| Zombie Cittadino | `zombie_cittadino` | studia | 94% | 0% | 6% | 34.3 | 438.2 | 0% | 44 |
+| Zombie Cittadino | `zombie_cittadino` | casuale | 31% | 0% | 69% | 53.3 | 113.9 | 0% | 14 |
+| Zombie Cittadino | `zombie_cittadino` | si_cura | 95% | 0% | 5% | 32.6 | 397.6 | 0% | 44 |
+| Zombie Cittadino | `zombie_cittadino` | speciali | 100% | 0% | 0% | 23.3 | 297.1 | 0% | 46 |
 | Zombie Mostruoso | `zombie_mostruoso` | attacca | 100% | 0% | 0% | 6.6 | 106.0 | 0% | 46 |
 | Zombie Mostruoso | `zombie_mostruoso` | difendi | 0% | 0% | 100% | 60.0 | 100.2 | 0% | 0 |
 | Zombie Mostruoso | `zombie_mostruoso` | studia | 100% | 0% | 0% | 9.5 | 153.0 | 0% | 46 |
