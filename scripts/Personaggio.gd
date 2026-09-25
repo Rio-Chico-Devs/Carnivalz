@@ -305,7 +305,7 @@ func riga_candidato(id_oggetto: String, attuale: String) -> Control:
 
 func disegna_comandi() -> void:
 	var diario := Button.new()
-	diario.text = "Diario"
+	diario.text = GameState.nome_diario()
 	Stile.scelta(diario)
 	diario.pressed.connect(func() -> void:
 		if su_diario.is_valid():

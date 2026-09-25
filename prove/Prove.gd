@@ -158,6 +158,9 @@ func _ready() -> void:
 	prova_il_bond_con_la_tartaruga()
 	await prova_bond_si_preme()
 	prova_la_caverna_si_apre_guardando()
+	prova_prima_della_pressione_la_guida_lancia_la_scan()
+	prova_ogni_giro_del_data_pad_nomina_pezzi_veri()
+	await prova_il_data_pad_si_impara_aprendolo()
 	prova_il_promontorio_come_lo_ha_scritto_bru()
 	prova_l_apparizione_si_batte_solo_con_la_pietra()
 	await prova_il_promontorio_non_ti_lascia_andare_e_poi_ti_ferma()
@@ -9256,15 +9259,17 @@ func chiusa_la_mappa_la_guida_protesta() -> void:
 	await get_tree().process_frame
 
 func prova_nome_del_data_pad() -> void:
-	# «(il diario diventa data pad)» (Bru). Una riga sola nel suo messaggio, e
-	# cambia il nome di una schermata che il giocatore apre cento volte.
-	titolo("il diario diventa data pad quando arrivano gli ordini")
+	# Era un diario che diventava data pad con gli ordini; dal 25 settembre
+	# l'altoparlante della prima mattina dice gia' «il tuo datapad» (Bru), e
+	# dentro c'e' gia' il messaggio di Veronica. Si chiama cosi' da subito, e
+	# resta cosi'.
+	titolo("il data pad si chiama data pad dalla prima mattina")
 	GameState.nuova_partita()
-	esigi(GameState.nome_diario() == "Diario",
-			"prima degli ordini si chiama gia' '%s'" % GameState.nome_diario())
+	esigi(GameState.nome_diario() == "Data pad",
+			"la prima mattina si chiama '%s', e l'altoparlante lo chiama data pad" % GameState.nome_diario())
 	GameState.imposta_flag("ordini_ricevuti")
 	esigi(GameState.nome_diario() == "Data pad",
-			"dopo gli ordini si chiama ancora '%s'" % GameState.nome_diario())
+			"dopo gli ordini si chiama '%s'" % GameState.nome_diario())
 
 func prova_ecg() -> void:
 	# L'ECG DICE DUE COSE CON UNA RIGA SOLA, e qui si controllano tutte e due.
@@ -11372,41 +11377,83 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 	esigi(scontro.plancia.tasto_mattanza.modulate == Color.WHITE,
 			"il pezzo evidenziato e' stato tinto: modulate vale %s invece di bianco"
 			% scontro.plancia.tasto_mattanza.modulate)
-	var alone: Bagliore = scontro.plancia.alone_evidenza
-	esigi(alone != null, "non c'e' nessun alone intorno al pezzo evidenziato")
-	esigi(alone.get_parent() == scontro.plancia.tasto_mattanza,
-			"l'alone non e' attaccato al pezzo: non lo seguirebbe se si sposta")
-	esigi(alone.show_behind_parent,
-			"l'alone si disegna SOPRA il pezzo: lo coprirebbe invece di illuminarlo")
+	var alone: Evidenza = scontro.plancia.alone_evidenza
+	esigi(alone != null, "non c'e' nessuna evidenza intorno al pezzo indicato")
+	var mattanza: Control = scontro.plancia.tasto_mattanza
+	esigi(alone.get_parent() == mattanza.get_parent() and alone.get_index() < mattanza.get_index(),
+			"l'evidenza non sta subito dietro il pezzo, fra i suoi fratelli: lo coprirebbe")
+	esigi(alone.get_rect().encloses(mattanza.get_rect()),
+			"l'evidenza non sta intorno al pezzo che indica")
+	mattanza.position += Vector2(10, 6)
+	esigi(alone.get_rect().encloses(mattanza.get_rect()),
+			"spostato il pezzo, l'evidenza e' rimasta dov'era")
+	mattanza.position -= Vector2(10, 6)
+	# E NON SI SPEGNE COL PEZZO. Il riquadro del nemico, quando non e' il suo
+	# turno, sta a 0,65: la prima macchia, figlia del pezzo, usciva grigia
+	scontro.plancia.evidenzia_pezzo("nemico")
+	var dietro_al_nemico: Evidenza = scontro.plancia.alone_evidenza
+	esigi(not scontro.plancia.box_nemico.is_ancestor_of(dietro_al_nemico),
+			"l'evidenza del nemico sta dentro il suo riquadro: quando lui e' spento, si spegne anche lei")
+	scontro.plancia.evidenzia_pezzo("mattanza")
+	alone = scontro.plancia.alone_evidenza
 	esigi(alone.mouse_filter == Control.MOUSE_FILTER_IGNORE,
-			"l'alone intercetta il mouse: si mangerebbe i click sul pezzo che indica")
+			"l'evidenza intercetta il mouse: si mangerebbe i click sul pezzo che indica")
+	esigi(alone.stile == Evidenza.stile_scelto() and alone.stile in Evidenza.STILI,
+			"l'evidenza non usa lo stile scelto in stile.json ('%s')" % alone.stile)
 
-	# 4. LA LUCE SFUMA A ZERO, e non finisce con un gradino.
-	#
-	# La campana va troncata all'orlo: senza, l'ultima passata arriva al bordo
-	# con un nove per cento di rosso ancora addosso e si vede un anello netto
-	# tutto intorno - che si legge come un bordo colorato, non come luce.
-	esigi(is_zero_approx(alone.forza_a(1.0)),
-			"all'orlo l'alone vale ancora %.3f: si vedrebbe l'anello dell'ultima passata"
-			% alone.forza_a(1.0))
-	var prima_forza := 2.0
-	for passo in 20:
-		var quanto := float(passo) / 19.0
-		var adesso := alone.forza_a(quanto)
-		esigi(adesso <= prima_forza + 0.0001,
-				"l'alone risale andando in fuori: a %.2f vale %.3f dopo %.3f"
-				% [quanto, adesso, prima_forza])
-		prima_forza = adesso
-	esigi(alone.forza_a(0.0) > 0.25,
-			"contro il bordo del pezzo l'alone vale %.3f: non si vedrebbe" % alone.forza_a(0.0))
+	# 4. LA MACCHIA STA DIETRO TUTTO IL PEZZO. Bru: «un effetto tipo quello della
+	# schermata iniziale, quella macchia sul retro». Su un pannello grande come
+	# quello del nemico, una forma che lasciasse fuori gli spigoli sarebbe due
+	# macchie ai lati; e un poligono che si incrocia non si riempie. Qui si
+	# misura su pezzi di ogni forma: il riquadro del nemico, BOND, una scheda
+	for lato in [Vector2(476, 500), Vector2(183, 60), Vector2(244, 244), Vector2(120, 24)]:
+		var prova_macchia := Evidenza.new()
+		prova_macchia.stile = "macchia"
+		# un numero, non la costante: il riquadro del nemico sta a 17 pixel dal
+		# bordo dello schermo, e una macchia che esce di piu' di 24 (piu' l'orlo)
+		# ci resta tagliata sopra e a sinistra, come una cornice spezzata
+		esigi(prova_macchia.sporgenza(lato).x <= 24.0,
+				"dietro un pezzo di %s la macchia esce di %.0f pixel: al bordo dello schermo resta tagliata"
+				% [lato, prova_macchia.sporgenza(lato).x])
+		var fuori := prova_macchia.sporgenza(lato)
+		prova_macchia.size = lato + fuori * 2.0
+		prova_macchia.forma = Evidenza.macchia(Evidenza.PUNTI)
+		prova_macchia.orli = Evidenza.orlo(7, Evidenza.PUNTI)
+		var poligono := prova_macchia.poligono(1.0)
+		for angolo in [Vector2.ZERO, Vector2(lato.x, 0), lato, Vector2(0, lato.y)]:
+			esigi(Geometry2D.is_point_in_polygon(fuori + angolo, poligono),
+					"la macchia dietro un pezzo di %s lascia fuori l'angolo %s" % [lato, angolo])
+		esigi(not Geometry2D.triangulate_polygon(poligono).is_empty(),
+				"la macchia dietro un pezzo di %s si incrocia: non si puo' riempire" % lato)
+		prova_macchia.free()
+	# e si spande da sinistra, come quella del menu: a meta' entrata copre la
+	# parte sinistra e non la destra
+	var meta := Evidenza.new()
+	meta.size = Vector2(300, 100)
+	meta.forma = Evidenza.macchia(Evidenza.PUNTI)
+	meta.orli = Evidenza.orlo(3, Evidenza.PUNTI)
+	var a_meta := meta.poligono(0.5)
+	esigi(Geometry2D.is_point_in_polygon(Vector2(60, 50), a_meta)
+			and not Geometry2D.is_point_in_polygon(Vector2(250, 50), a_meta),
+			"la macchia non si spande da sinistra")
+	meta.free()
 
-	# 5. IL RESPIRO NON SI SPEGNE MAI DEL TUTTO. Un invito che sparisce e torna
-	# e' un lampeggio, e un lampeggio a schermo per minuti da' fastidio.
-	esigi(Bagliore.MINIMO > 0.2,
-			"il respiro scende a %.2f: il pezzo si spegne e l'invito lampeggia" % Bagliore.MINIMO)
-	esigi(Bagliore.RESPIRO >= 0.8,
-			"mezzo respiro dura %.2fs: era 0,45 e Bru l'ha trovato troppo rapido"
-			% Bagliore.RESPIRO)
+	# 5. OGNI STILE SI ACCENDE, e con meno movimento arriva gia' tutto fuori
+	var evidenza_prima: Variant = Stile.dati.get("evidenza", {})
+	for stile in Evidenza.STILI:
+		Stile.dati["evidenza"] = {"stile": stile}
+		scontro.plancia.evidenzia_pezzo("bond")
+		var questa: Evidenza = scontro.plancia.alone_evidenza
+		esigi(questa != null and questa.stile == stile,
+				"con lo stile '%s' in stile.json non si accende niente" % stile)
+	var movimento_prima: bool = Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	scontro.plancia.evidenzia_pezzo("mattanza")
+	esigi(is_equal_approx(float(scontro.plancia.alone_evidenza.quanto), 1.0)
+			and scontro.plancia.alone_evidenza.arrivo == null,
+			"con meno movimento l'evidenza entra lo stesso con l'animazione")
+	Impostazioni.movimento_ridotto = movimento_prima
+	Stile.dati["evidenza"] = evidenza_prima
 
 	scontro.plancia.spegni_evidenza()
 	esigi(scontro.plancia.evidenziato == null and scontro.plancia.tasto_mattanza.modulate == Color.WHITE,
@@ -13595,7 +13642,8 @@ func prova_le_pianure_si_esplorano_fino_alla_tartaruga() -> void:
 	var strada := [["banchetto", "banchetto_vinto"], ["banchetto_vinto", "pianura"], ["pianura", "albero"],
 			["albero", "albero_vinto"], ["albero_vinto", "caverna"], ["caverna", "caverna_fondo"],
 			["caverna_fondo", "caverna_pietra"], ["caverna_pietra", "caverna"], ["albero_vinto", "masso"],
-			["masso", "masso_fiale"], ["masso", "bivio"], ["bivio", "pozze"], ["bivio", "collina"],
+			["masso", "masso_fiale"], ["masso", "bivio"], ["masso_fiale", "bivio"], ["bivio", "bivio_pressione"],
+			["bivio_pressione", "pozze"], ["bivio_pressione", "collina"],
 			["pozze", "pozze_vinte"], ["pozze_vinte", "tartaruga"], ["tartaruga", "tartaruga_dopo"],
 			["tartaruga_dopo", "convergenza"]]
 	for tappa in strada:
@@ -13912,6 +13960,213 @@ func corridoio_aperto(a: String, b: String) -> bool:
 		if a in coppia and b in coppia:
 			return true
 	return false
+
+func prova_ogni_giro_del_data_pad_nomina_pezzi_veri() -> void:
+	# UN GIRO CHE INDICA UNA VOCE CHE NON C'E' NON SI VEDE, e uno che aspetta un
+	# gesto che non esiste non finisce piu'. A schermo tutti e due sembrano un
+	# giro fermo: qui si guarda ogni passo di ogni giro scritto nei dati
+	titolo("ogni giro guidato del data pad indica voci vere e aspetta gesti possibili")
+	var voci := ["riprendi", "storico", "diario", "zaino", "squadra", "opzioni", "uscita"]
+	var sezioni: Array[String] = []
+	for sezione in Pausa.SEZIONI_DIARIO:
+		sezioni.append(String(sezione[0]))
+	var giri := 0
+	for percorso in file_eventi():
+		var nodi: Dictionary = carica_eventi(percorso).get("nodi", {})
+		for id_nodo in nodi:
+			for msg in (nodi[id_nodo] as Dictionary).get("sequenza", []):
+				if String((msg as Dictionary).get("tipo", "")) != "data_pad":
+					continue
+				giri += 1
+				var passi: Array = (msg as Dictionary).get("passi", [])
+				esigi(not passi.is_empty(), "%s: un giro del data pad senza passi" % id_nodo)
+				esigi(String((passi.back() as Dictionary).get("aspetta", "")) == "chiudi",
+						"%s: il giro non finisce chiedendo di chiudere il data pad" % id_nodo)
+				for passo in passi:
+					var indica := String((passo as Dictionary).get("indica", ""))
+					var aspetta := String((passo as Dictionary).get("aspetta", ""))
+					esigi(String((passo as Dictionary).get("testo", "")) != "", "%s: un passo senza testo" % id_nodo)
+					esigi(indica in ["", "menu", "chiudi"]
+							or (indica.begins_with("voce:") and indica.trim_prefix("voce:") in voci)
+							or (indica.begins_with("sezione:") and indica.trim_prefix("sezione:") in sezioni),
+							"%s: il giro indica '%s', che nel data pad non c'e'" % [id_nodo, indica])
+					esigi(aspetta in ["", "apri", "chiudi", "voce:diario"]
+							or (aspetta.begins_with("sezione:") and aspetta.trim_prefix("sezione:") in sezioni),
+							"%s: il giro aspetta '%s', che non si puo' fare" % [id_nodo, aspetta])
+	esigi(giri >= 2, "i giri del data pad sono %d: ne servono due, la mattina e la sala" % giri)
+
+func prova_il_data_pad_si_impara_aprendolo() -> void:
+	# Bru: «quando si dovrebbe aprire il data pad durante la conversazione in
+	# sala non si apre nulla», e «bisogna educare il giocatore sul tasto in alto
+	# a sinistra [...] qui ti guida a cliccare il tasto, ti spiega tutte le
+	# voci, e poi nel datapad devi avere un messaggio da parte di Veronica».
+	# Qui il giro del mattino si gioca come un giocatore: arriva la battuta,
+	# si preme il tasto, si legge, si apre il data pad, i messaggi, si chiude.
+	titolo("il data pad si impara aprendolo: la mattina col tasto, in sala si apre da solo")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	var giro: GiroDataPad = null
+	for i in 40:
+		giro = schermata.find_children("*", "GiroDataPad", true, false).pop_back() as GiroDataPad
+		if giro != null:
+			break
+		schermata.box.completa()
+		schermata.avanza_messaggio()
+	esigi(giro != null, "la mattina, dopo l'altoparlante, il giro del data pad non parte")
+	if giro == null:
+		schermata.queue_free()
+		return
+	esigi(GameState.ha_flag("data_pad_ricordato") and "veronica_buongiorno" in GameState.messaggi_ricevuti,
+			"l'altoparlante ricorda il data pad, ma il messaggio di Veronica non e' arrivato")
+	esigi(not schermata.area_avanza.visible, "durante il giro l'area che fa avanzare il dialogo e' accesa: un clic salta il giro")
+	await get_tree().process_frame
+	esigi(giro.indicato == schermata.icona_menu, "il primo passo non indica il tasto in alto a sinistra")
+	esigi(giro.tende[0].visible and giro.tende[0].size.y <= schermata.icona_menu.get_global_rect().position.y + 1.0,
+			"intorno al tasto in alto a sinistra non c'e' un buco nel velo: non lo si potrebbe premere")
+	# premerlo apre il data pad, e il giro va avanti da solo
+	schermata.icona_menu.pressed.emit()
+	await get_tree().process_frame
+	esigi(Pausa.aperta and giro.quale == 1, "premuto il tasto, il data pad non si apre o il giro non va avanti")
+	# si legge: un clic completa, il secondo va avanti; le voci spiegate sono tutte
+	var spiegate: Array[String] = []
+	for volta in 20:
+		await get_tree().process_frame
+		var adesso: Dictionary = giro.passo()
+		if String(adesso.get("aspetta", "")) != "":
+			break
+		if String(adesso.get("indica", "")).begins_with("voce:"):
+			esigi(giro.indicato != null and String(giro.indicato.get_meta("chiave", "")) == String(adesso.indica).trim_prefix("voce:"),
+					"spiegando '%s' il giro non la indica" % adesso.indica)
+			spiegate.append(String(adesso.indica))
+		giro.clic()
+		giro.clic()
+	esigi(spiegate.size() >= 7, "la mattina il giro spiega solo %d voci del data pad: %s" % [spiegate.size(), spiegate])
+	esigi(Pausa.aperta, "leggendo il giro, il data pad si e' chiuso")
+	# «apri il Data pad»: la voce e' scoperta, e aprirla manda avanti
+	await get_tree().process_frame
+	esigi(String(giro.passo().get("aspetta", "")) == "voce:diario" and giro.indicato != null,
+			"il giro non chiede di aprire il Data pad, o non indica la voce")
+	Pausa.mostra_diario()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(String(giro.passo().get("aspetta", "")) == "sezione:messaggi", "aperto il Data pad, il giro non chiede i messaggi")
+	Pausa.sezione_diario = "messaggi"
+	Pausa.mostra_diario()
+	await get_tree().process_frame
+	esigi("veronica_buongiorno" in GameState.messaggi_letti, "aperti i messaggi, quello di Veronica non risulta letto")
+	esigi(not "veronica_buongiorno" in GameState.messaggi_da_notificare,
+			"letto il messaggio di Veronica, una notifica lo annuncera' ancora come nuovo")
+	for volta in 6:
+		if String(giro.passo().get("aspetta", "")) == "chiudi":
+			break
+		giro.clic()
+		giro.clic()
+		await get_tree().process_frame
+	esigi(String(giro.passo().get("aspetta", "")) == "chiudi", "il giro non finisce chiedendo di chiudere il data pad")
+	Pausa.chiudi()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(not is_instance_valid(giro) or giro.chiuso, "chiuso il data pad, il giro resta aperto")
+	esigi(schermata.area_avanza.visible and "seccatura" in String(schermata.box.get("testo").get_parsed_text()),
+			"finito il giro, la scena del mattino non riprende dalla battuta dopo")
+	schermata.queue_free()
+	await get_tree().process_frame
+
+	# E QUELLO CHE IL GIRO FA LEGGERE SI LEGGE. Gli appunti e le narrazioni dello
+	# storico avevano il colore della narrazione, quasi nero da quando il box e'
+	# bianco: sul nero del data pad erano righe invisibili
+	var appunto := PaginePausa.riga_appunto({"titolo": "prova", "testo": "prova"})
+	var narrata := PaginePausa.riga_storico({"tipo": "narrazione", "nome": "", "testo": "prova"})
+	for riga in [appunto, narrata]:
+		var corpi := (riga as Node).find_children("*", "RichTextLabel", true, false)
+		esigi(not corpi.is_empty() and Stile.contrasto((corpi.back() as RichTextLabel).get_theme_color("default_color"),
+				Stile.colore("sfondo")) >= 4.5,
+				"nel data pad il testo di un appunto o di una narrazione non si legge sul nero")
+		(riga as Node).free()
+
+	# E SE LA SCENA VA AVANTI SENZA DI LUI, IL GIRO SI TOGLIE DI MEZZO e il data
+	# pad si richiude. La prova della giornata intera fa avanzare la scena da
+	# fuori: il giro della sala restava col data pad aperto e il gioco in pausa,
+	# e venti prove dopo la suite si fermava su un timer che in pausa non scatta
+	var scavalcata: Node = load("res://scenes/Main.tscn").instantiate()
+	GameState.nodo_corrente = "data_pad_istruzioni"
+	IngressoNodo.ultimo_esito = {}
+	add_child(scavalcata)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var giro_sala: GiroDataPad = scavalcata.find_children("*", "GiroDataPad", true, false).pop_back() as GiroDataPad
+	esigi(giro_sala != null and Pausa.aperta, "in sala il giro non parte, o non apre il data pad")
+	scavalcata.avanza_messaggio()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(not Pausa.aperta and not get_tree().paused,
+			"la scena e' andata avanti senza il giro, e il data pad e' rimasto aperto col gioco in pausa")
+	scavalcata.queue_free()
+	await get_tree().process_frame
+	# E SE LA SCHERMATA SE NE VA COL GIRO APERTO, il data pad non resta aperto
+	# da solo sopra tutto
+	GameState.nodo_corrente = "data_pad_istruzioni"
+	IngressoNodo.ultimo_esito = {}
+	var liberata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(liberata)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	liberata.queue_free()
+	await get_tree().process_frame
+	esigi(not Pausa.aperta and not get_tree().paused,
+			"liberata la schermata col giro in corso, il data pad e' rimasto aperto col gioco in pausa")
+
+	# IN SALA IL DATA PAD SI APRE DA SOLO: la scelta dice «Apri il data pad»
+	var sala: Dictionary = carica_eventi("res://data/events_intro.json").get("nodi", {}).get("data_pad_istruzioni", {})
+	var primo: Dictionary = (sala.get("sequenza", [{}]) as Array)[0]
+	esigi(String(primo.get("tipo", "")) == "data_pad" and bool((primo.get("passi", [{}]) as Array)[0].get("apri", false)),
+			"in sala «Apri il data pad» non apre il data pad: il giro non comincia aprendolo")
+	GameState.imposta_flag("ordini_ricevuti")
+	var da_solo := GiroDataPad.avvia(self, primo)
+	await get_tree().process_frame
+	esigi(Pausa.aperta, "in sala il giro non apre il data pad da solo")
+	# e chi lo chiude a meta' chiude anche il giro, senza restare incastrato
+	Pausa.chiudi()
+	await get_tree().process_frame
+	esigi(not is_instance_valid(da_solo) or da_solo.chiuso, "chiuso il data pad a meta', il giro resta sullo schermo")
+	GameState.nuova_partita()
+
+func prova_prima_della_pressione_la_guida_lancia_la_scan() -> void:
+	# Bru, 25 settembre: «dopo aver trovato le fiale va inserito un altro po' di
+	# dialogo prima di sentire la pressione». E' la prima volta che si arriva al
+	# bivio, da qualunque parte: anche dalla mappa, che la scelta del masso la
+	# salterebbe. Col «Prosegui» la stanza diventa quella della pressione
+	titolo("prima della pressione la Guida lancia la scan, comunque si arrivi al bivio")
+	var nodi: Dictionary = carica_eventi("res://data/events_tutorial.json").get("nodi", {})
+	var righe: Array[String] = []
+	for msg in nodi["bivio"].get("sequenza", []):
+		righe.append(String(msg.get("testo", "")))
+	esigi(righe.size() == 7 and righe[0].begins_with("È da un po' che camminiamo")
+			and righe[6] == "Ricevuto, mi muovo immediatamente.",
+			"arrivando al bivio non c'e' la scan di Bru: %s" % [righe])
+	var pressione: Array = nodi["bivio_pressione"].get("sequenza", [])
+	esigi(String(nodi["bivio_pressione"].get("stanza", "")) == "bivio" and not pressione.is_empty()
+			and String(pressione[0].get("testo", "")) == "Cos'è questa pressione assurda?!",
+			"dopo la scan la pressione non arriva, o non arriva al bivio")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.nodo_corrente = "masso"
+	var prima := IngressoNodo.entra("bivio")
+	esigi(String(prima.id) == "bivio" and GameState.nodo_corrente == "bivio",
+			"arrivando al bivio la prima volta non parte la scan, ma '%s'" % prima.id)
+	var prosegui: Dictionary = (nodi["bivio"].get("scelte", [{}]) as Array)[0]
+	esigi(String(prosegui.get("flag", "")) == "tut_scan_fatta"
+			and IngressoNodo.destinazione(prosegui) == "bivio_pressione",
+			"dalla scan «Prosegui» non porta alla pressione, o non se lo ricorda: %s" % prosegui)
+	GameState.imposta_flag("tut_scan_fatta")
+	esigi(String(IngressoNodo.entra("bivio").id) == "bivio_pressione",
+			"fatta la scan, tornando al bivio la si risente invece di trovare la pressione")
+	GameState.nuova_partita()
 
 func prova_il_promontorio_come_lo_ha_scritto_bru() -> void:
 	# Bru, 24 settembre: «sviluppiamo la scena sopra la collina». Una salita in

@@ -366,7 +366,9 @@ le posizioni delle due stanze. Finché non la esplori è solo un insieme di line
   suo corridoio sta in `connessioni_da` e si apre solo quando la scena dell'albero l'ha fatta
   vedere. In fondo alla caverna un goblin tiene la **Pietra Quieta**, e battendolo la lascia:
   è la pietra che più avanti ti salva dall'apparizione e ti lascia batterla invece di
-  scappare. Il **promontorio** (Bru, 24 settembre) è una salita in due tempi, e in cima
+  scappare. Arrivando al bivio la prima volta, la Guida lancia una **scan** dei dintorni e
+  trova lo strano fenomeno verso i promontori (`bivio`, poi `bivio_pressione`: la stanza della
+  pressione). Il **promontorio** (Bru, 24 settembre) è una salita in due tempi, e in cima
   «prosegui» e «torna indietro» fanno scattare tutti e due l'apparizione; da lì tre uscite:
   la batti con la pietra (e si prosegue verso il goblin), scappi (e sei alle pozze, e il
   promontorio ti ferma finché la pietra non ce l'hai: allora ci riprovi), o dormi per sempre.
@@ -995,6 +997,12 @@ durante il combattimento invece di veronica avremo la guida che parla».
 - **`"battute"`**: `{"quando": "inizio" | "dopo_il_nemico" | "dopo_di_te", "volta": n,
   "righe": [...]}`. Le righe sono battute come quelle dell'allenamento di Veronica (`tipo`,
   `chi`, `testo`, `evidenzia`): mentre si leggono il mondo è fermo, e si va avanti col click.
+  **Come si evidenzia un pezzo** lo decide `stile.json` (`"evidenza": {"stile"}`), fra quattro
+  stili di `Evidenza.gd`: `macchia` (l'inchiostro quasi nero del menu principale),
+  `macchia_cremisi` (la stessa, rossa: quella di partenza), `cornice` (un tratteggio che gira)
+  e `segno` (il triangolo delle voci di menu, che batte). Al posto del vecchio alone rosso
+  sfocato (Bru: «è pessimo»). L'evidenza sta accanto al pezzo, non dentro: il riquadro del
+  nemico, fuori dal suo turno, è semitrasparente, e una macchia figlia sarebbe uscita grigia
   Nel goblin del pasto la Guida parla appena comincia, poi il goblin colpisce, poi il
   battibecco — e solo allora il menu diventa tuo. `"apre_bond": true` su una battuta rende
   mediabile subito chi ha una `"mediazione"`, senza aspettare lo studio
@@ -1007,7 +1015,7 @@ durante il combattimento invece di veronica avremo la guida che parla».
   come scegliere Mediazione dal menu. «Quando uno dei personaggi è pronto per legare col
   nemico il tasto bond si illumina» (Bru). La prima volta succede con la tartaruga gigante, e
   **la prima volta in ogni scontro pulsa** finché non lo premi — ma solo a scena finita:
-  mentre la Guida parla il tasto sta sotto il testo, e un alone su un tasto coperto indica il
+  mentre la Guida parla il tasto sta sotto il testo, e un'evidenza su un tasto coperto indica il
   vuoto. `"apre_bond"` decide anche che la creatura stasera vuole ascoltare: a deciderlo è la
   scena, non il tiro fatto all'ingresso
 - **Le orde dicono cosa stanno per fare** (`"orda": {"preannuncia": true}`): la prossima mossa
@@ -1234,6 +1242,19 @@ mappa su cui non si può esplorare non è una mappa, è un disegno.
   finché lei parla, perché andarsene di lì salterebbe il resto della scena
   (`GuidaSullaMappa.gd`). Nelle Pianure di Redenna la chiusura è la battuta del protagonista
   «preme sul tasto di chiusura», e la Guida risponde nel nodo `inizio_guida`
+- **Il data pad si spiega aprendolo** (`GiroDataPad.gd`). Una battuta `{"tipo": "data_pad",
+  "passi": [...]}` ferma la scena e apre il giro guidato: un box in basso a destra, sopra il
+  data pad vero, e ogni passo può indicare un pezzo (`"indica"`: `menu` il tasto in alto a
+  sinistra, `voce:<segno>` una voce, `sezione:<chiave>` una pagina, `chiudi`) e aspettare un
+  gesto (`"aspetta"`: `apri`, `voce:diario`, `sezione:<chiave>`, `chiudi`). Dove c'è da
+  premere, il resto dello schermo è velato e non si tocca; dove si legge, si va avanti col
+  clic. `"mostra"` apre da sé la pagina che spiega, `"apri"` apre da sé il data pad. Chiuderlo
+  a metà chiude anche il giro, e la scena riprende dalla battuta dopo. Ce ne sono due: la
+  prima mattina (`alloggio`, dopo l'altoparlante: il tasto, tutte le voci, il messaggio di
+  Veronica) e la sala comunicazioni (`data_pad_istruzioni`: gli appunti, cioè gli eventi, le
+  notifiche, i 3000 tazo, le altre pagine). Bru: «quando si dovrebbe aprire il data pad durante
+  la conversazione in sala non si apre nulla». Si chiama **data pad dalla prima mattina**
+  (`GameState.nome_diario()`): prima era un diario che lo diventava con gli ordini
 - **L'icona della Guida** (`IconaGuida.gd`) compare accanto a quella del menu dal flag
   `guida_conosciuta`, solo nelle zone che hanno `mappa_dungeon.guida`, e riapre la mappa con la
   spiegazione. Porta via dalla scena, quindi finché il testo scorre è spenta e non si preme.

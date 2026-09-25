@@ -437,6 +437,9 @@ func mostra_menu() -> void:
 func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null,
 		corpo := 0) -> VoceMenu:
 	var v := VoceMenu.nuova(segno, testo, corpo)
+	# come la si ritrova da fuori: il giro guidato del data pad (GiroDataPad)
+	# indica le voci per nome, e il nome di una voce del menu e' il suo segno
+	v.set_meta("chiave", segno)
 	# prima le schegge, poi quello che la voce fa: se apre un altro pannello,
 	# questa voce sta per sparire, e le schegge devono essere gia' partite
 	v.scoppio.connect(schegge.scoppia)
@@ -444,11 +447,13 @@ func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null
 	(dove if dove != null else colonna).add_child(v)
 	return v
 
-func voce_d_indice(dove: Control, testo: String, attuale: bool, richiamo: Callable) -> VoceMenu:
+func voce_d_indice(dove: Control, testo: String, attuale: bool, richiamo: Callable,
+		chiave := "") -> VoceMenu:
 	# UNA VOCE DELL'INDICE del Diario o dello Zaino. Quella in cui sei ha il
 	# segno davanti ed e' inerte: premerla non riapre la stessa pagina, dice di no
 	var v := voce("riprendi" if attuale else "", testo, richiamo, dove, Stile.dimensione("corpo"))
 	v.inerte = attuale
+	v.set_meta("chiave", chiave)
 	return v
 
 func cascata(voci: Array[VoceMenu], principale: int) -> void:
@@ -612,7 +617,7 @@ func mostra_diario() -> void:
 			qui = voci.size()
 		voci.append(voce_d_indice(indice, testo, chiave == sezione_diario, func() -> void:
 			sezione_diario = chiave
-			mostra_diario()))
+			mostra_diario(), "sezione:" + chiave))
 
 	var scorrevole := ScrollContainer.new()
 	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL

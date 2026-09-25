@@ -74,7 +74,7 @@ var faccia_adesso := ""   # quale delle tre e' in mostra adesso
 # CHI STA PULSANDO ADESSO, e il suo battito. Uno alla volta: due pezzi che
 # lampeggiano insieme non indicano niente, indicano "guarda lo schermo"
 var evidenziato: CanvasItem = null
-var alone_evidenza: Bagliore = null
+var alone_evidenza: Evidenza = null
 var stress_scritto := -1
 var morale_scritto := -1
 
@@ -701,10 +701,10 @@ func evidenzia_pezzo(nome: String) -> void:
 		push_error("Plancia: la battuta chiede di evidenziare '%s', che non e' un pezzo dello schermo" % nome)
 		return
 	evidenziato = nodo
-	# l'alone sta INTORNO, non sopra: il perche' sta in Bagliore.gd
+	# intorno o dietro, mai sopra; lo stile lo sceglie stile.json (Evidenza.gd)
 	if nodo is Control:
-		alone_evidenza = Bagliore.intorno_a(nodo as Control, Stile.colore("accento"))
-		alone_evidenza.respira()
+		alone_evidenza = Evidenza.intorno_a(nodo as Control)
+		alone_evidenza.accendi()
 
 func spegni_evidenza() -> void:
 	if alone_evidenza != null and is_instance_valid(alone_evidenza):

@@ -604,6 +604,7 @@ func avanza_messaggio() -> void:
 			# il mondo cambia e' spesso UNA battuta precisa - «acquistato!?» - e
 			# far arrivare la ricevuta venti righe prima rovina la scoperta.
 			GameState.imposta_flag(String(msg["flag"]))
+		if GiroDataPad.prende(self, msg): return   # il data pad spiegato aprendolo: finito, riprende da qui
 		attesa_messaggio = float(msg.get("attesa", 0.0))
 		nascondi_comandi()
 		# se questo e' l'ultimo messaggio e non c'e' nessuna transizione in

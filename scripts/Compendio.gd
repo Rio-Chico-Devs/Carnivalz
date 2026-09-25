@@ -26,7 +26,7 @@ func _etichetta_portatore(id_oggetto: String) -> Label:
 	var etichetta := Label.new()
 	var id_portatore := GameState.portatore_di(id_oggetto)
 	if id_portatore == "":
-		etichetta.text = "Nell'armadio — si mette addosso dal Diario (ESC)"
+		etichetta.text = "Nell'armadio — si mette addosso da «Personaggio e squadra» (ESC)"
 	else:
 		var classe: Dictionary = GameState.classi.get(id_portatore, {})
 		etichetta.text = "Addosso a %s" % String(classe.get("nome", id_portatore))

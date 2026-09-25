@@ -694,17 +694,15 @@ func proiettore_qui() -> String:
 	return elenco[0] if not elenco.is_empty() else ""
 
 func nome_diario() -> String:
-	# IL DIARIO DIVENTA DATA PAD. Bru, alla fine della sala comunicazioni: «(il
-	# diario diventa data pad)».
-	#
-	# Non e' un vezzo: fino a quel momento il protagonista e' in addestramento e
-	# quello che tiene e' un diario. Da quando l'Organizzazione gli affida una
-	# missione vera, la stessa cosa e' l'attrezzo con cui gli mandano gli
-	# ordini. Cambia il nome perche' e' cambiato a cosa serve.
+	# E' UN DATA PAD DALLA PRIMA MATTINA. Prima era un diario che diventava data
+	# pad con gli ordini (Bru: «il diario diventa data pad»); dal 25 settembre
+	# l'altoparlante del primo giorno dice gia' «dai un'occhiata al tuo
+	# datapad», e dentro c'e' gia' il messaggio di Veronica. Un nome solo.
 	#
 	# Sta qui e non in ogni schermata che lo nomina: il nome di una cosa deve
-	# stare in un posto solo, se no meta' del gioco la chiamera' ancora diario.
-	return "Data pad" if ha_flag("ordini_ricevuti") else "Diario"
+	# stare in un posto solo, se no meta' del gioco la chiamera' in un altro
+	# modo - e se un giorno torna a cambiare, cambia qui.
+	return "Data pad"
 
 func stanze_confinanti(id_stanza: String) -> Array[String]:
 	# i vicini sulla mappa: sono gli unici posti in cui la mappa lascia andare,

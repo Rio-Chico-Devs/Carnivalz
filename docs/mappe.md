@@ -181,7 +181,7 @@ introduzione
 
 # Pianure di Redenna (tutorial)
 
-<sub>`data/events_tutorial.json` — 43 scene</sub>
+<sub>`data/events_tutorial.json` — 44 scene</sub>
 
 ## La griglia
 
@@ -198,7 +198,7 @@ introduzione
 
 12 stanze sulla mappa, 11 collegamenti.
 
-Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `albero_vinto`, `banchetto_vinto`, `boss`, `caverna_pietra`, `collina_apparizione`, `collina_cima`, `collina_fuga`, `collina_negata`, `collina_riprova`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `inizio_guida`, `masso_fiale`, `pozze_vinte`, `ritorno_alla_base`, `ritorno_disponibile`, `ritorno_istruzioni`, `ritorno_rimandato`, `sconfitta`, `sconfitta_manifestazione`, `tartaruga_dopo`, `vittoria`.
+Non sulla mappa (scene di passaggio, scontri scritti, varianti «dopo»): `albero_vinto`, `banchetto_vinto`, `bivio_pressione`, `boss`, `caverna_pietra`, `collina_apparizione`, `collina_cima`, `collina_fuga`, `collina_negata`, `collina_riprova`, `collina_ritorno`, `collina_vuota`, `dopo_collina`, `hq_congedo`, `hq_domanda_dominatori`, `hq_domanda_perche`, `hq_domanda_quando`, `hq_infermeria`, `hq_sala_riunioni_1`, `hq_sala_riunioni_2`, `hq_veronica_saluto`, `inizio_guida`, `masso_fiale`, `pozze_vinte`, `ritorno_alla_base`, `ritorno_disponibile`, `ritorno_istruzioni`, `ritorno_rimandato`, `sconfitta`, `sconfitta_manifestazione`, `tartaruga_dopo`, `vittoria`.
 
 ## Il percorso
 
@@ -225,78 +225,81 @@ inizio
               · Prosegui → masso
                 · Prendi le fiale → masso_fiale   (+fiala_hp, fiala_hp)
                   · Prosegui → bivio
-                    · Passa per le pozze d'acqua → pozze   (scontro! rana_folle)
-                      ⟳ con tut_pozze_fatte diventa pozze_vinte
-                      pozze_vinte   (flag tut_pozze_fatte)
-                        · Prosegui → tartaruga   (scontro! tartaruga_innocente)
-                          ⟳ con tut_tartaruga_fatta diventa tartaruga_dopo
-                          tartaruga_dopo   (flag tut_tartaruga_fatta)
-                            · Prosegui → convergenza   (flag tut_strada_aperta)
-                              ⟳ con pianure_compiute diventa ritorno_disponibile
-                              ritorno_disponibile
-                                · Sì, torno alla base → ritorno_alla_base
-                                  · Scendi dalla piattaforma → hq_veronica_saluto
-                                    · Vai in sala riunioni → hq_sala_riunioni_1
-                                      · Passa in infermeria → hq_infermeria
-                                        · Vai in sala riunioni → hq_sala_riunioni_2
-                                          · Come mai mi trovo qui? → hq_domanda_perche
-                                            · Come mai mi trovo qui?
-                                            · Cosa sono i dominatori in realtà? → hq_domanda_dominatori
-                                              · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
-                                              · Cosa sono i dominatori in realtà?
-                                              · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando
+                    ⟳ con tut_scan_fatta diventa bivio_pressione
+                    bivio_pressione
+                      · Passa per le pozze d'acqua → pozze   (scontro! rana_folle)
+                        ⟳ con tut_pozze_fatte diventa pozze_vinte
+                        pozze_vinte   (flag tut_pozze_fatte)
+                          · Prosegui → tartaruga   (scontro! tartaruga_innocente)
+                            ⟳ con tut_tartaruga_fatta diventa tartaruga_dopo
+                            tartaruga_dopo   (flag tut_tartaruga_fatta)
+                              · Prosegui → convergenza   (flag tut_strada_aperta)
+                                ⟳ con pianure_compiute diventa ritorno_disponibile
+                                ritorno_disponibile
+                                  · Sì, torno alla base → ritorno_alla_base
+                                    · Scendi dalla piattaforma → hq_veronica_saluto
+                                      · Vai in sala riunioni → hq_sala_riunioni_1
+                                        · Passa in infermeria → hq_infermeria
+                                          · Vai in sala riunioni → hq_sala_riunioni_2
+                                            · Come mai mi trovo qui? → hq_domanda_perche
+                                              · Come mai mi trovo qui?
+                                              · Cosa sono i dominatori in realtà? → hq_domanda_dominatori
                                                 · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
-                                                · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
-                                                · Da quanto tempo sta succedendo tutto questo?
-                                                · Nessuna domanda. Parto immediatamente. → hq_congedo   (flag tutorial_completato)
-                                                  · Torna alla mappa stellare
+                                                · Cosa sono i dominatori in realtà?
+                                                · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando
+                                                  · Come mai mi trovo qui? → hq_domanda_perche [gia' visto]
+                                                  · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
+                                                  · Da quanto tempo sta succedendo tutto questo?
+                                                  · Nessuna domanda. Parto immediatamente. → hq_congedo   (flag tutorial_completato)
+                                                    · Torna alla mappa stellare
+                                                · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
+                                              · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
                                               · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
+                                            · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
                                             · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
                                             · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
-                                          · Cosa sono i dominatori in realtà? → hq_domanda_dominatori [gia' visto]
-                                          · Da quanto tempo sta succedendo tutto questo? → hq_domanda_quando [gia' visto]
-                                          · Nessuna domanda. Parto immediatamente. → hq_congedo [gia' visto]
-                                · No, voglio dare ancora un'occhiata → ritorno_rimandato
-                              · Scatta verso i rumori → boss   (scontro! goblin_arrabbiato)
-                                vinci → vittoria   (flag pianure_compiute)
-                                  · Apri il data pad → ritorno_istruzioni   (flag sa_tornare)
-                                    · Sì, torno alla base → ritorno_alla_base [gia' visto]
-                                    · No, voglio dare ancora un'occhiata → ritorno_rimandato [gia' visto]
-                                perdi → sconfitta [gia' visto]
-                              · Torna al promontorio → collina   (niente mappa)
-                                ⟳ con tut_collina_fatta diventa collina_vuota
-                                collina_vuota
-                                  · Attraversa gli arbusti → convergenza [gia' visto]
-                                  · Torna al bivio → bivio [gia' visto]
-                                ⟳ con tut_manifestazione_fuggita diventa collina_negata
-                                collina_negata   (non ti sposta)
-                                  ⟳ con tut_pietra_presa diventa collina_riprova
-                                  collina_riprova   (niente mappa)
-                                    · Prosegui → collina_ritorno   (scontro! manifestazione_di_un_sogno; niente mappa)
-                                      vinci → dopo_collina   (flag tut_collina_fatta)
-                                        · Prosegui → convergenza [gia' visto]
-                                        · Apri la mappa
-                                      perdi → sconfitta_manifestazione
-                                        · Rialzati e ricomincia
-                                      fuggi → collina_fuga   (flag tut_manifestazione_fuggita)
-                                        · Attraversa le pozze d'acqua → pozze [gia' visto]
-                                        · Prosegui → tartaruga [gia' visto]
-                                    · Torna indietro → collina_ritorno [gia' visto]
-                                  · Torna indietro   (torna nella stanza da cui ci hai provato)
-                                · Prosegui → collina_cima   (niente mappa)
-                                  · Prosegui → collina_apparizione   (scontro! manifestazione_di_un_sogno; niente mappa)
-                                    vinci → dopo_collina [gia' visto]
-                                    perdi → sconfitta_manifestazione [gia' visto]
-                                    fuggi → collina_fuga [gia' visto]
-                                  · Torna indietro → collina_apparizione [gia' visto]
-                              · Torna dalla tartaruga → tartaruga [gia' visto]
-                            · Torna alle pozze → pozze [gia' visto]
-                          vinci → tartaruga_dopo [gia' visto]
-                          perdi → sconfitta [gia' visto]
-                        · Torna al bivio → bivio [gia' visto]
-                      vinci → pozze_vinte [gia' visto]
-                      perdi → sconfitta [gia' visto]
-                    · Sali sulla cima del promontorio → collina [gia' visto]
+                                  · No, voglio dare ancora un'occhiata → ritorno_rimandato
+                                · Scatta verso i rumori → boss   (scontro! goblin_arrabbiato)
+                                  vinci → vittoria   (flag pianure_compiute)
+                                    · Apri il data pad → ritorno_istruzioni   (flag sa_tornare)
+                                      · Sì, torno alla base → ritorno_alla_base [gia' visto]
+                                      · No, voglio dare ancora un'occhiata → ritorno_rimandato [gia' visto]
+                                  perdi → sconfitta [gia' visto]
+                                · Torna al promontorio → collina   (niente mappa)
+                                  ⟳ con tut_collina_fatta diventa collina_vuota
+                                  collina_vuota
+                                    · Attraversa gli arbusti → convergenza [gia' visto]
+                                    · Torna al bivio → bivio [gia' visto]
+                                  ⟳ con tut_manifestazione_fuggita diventa collina_negata
+                                  collina_negata   (non ti sposta)
+                                    ⟳ con tut_pietra_presa diventa collina_riprova
+                                    collina_riprova   (niente mappa)
+                                      · Prosegui → collina_ritorno   (scontro! manifestazione_di_un_sogno; niente mappa)
+                                        vinci → dopo_collina   (flag tut_collina_fatta)
+                                          · Prosegui → convergenza [gia' visto]
+                                          · Apri la mappa
+                                        perdi → sconfitta_manifestazione
+                                          · Rialzati e ricomincia
+                                        fuggi → collina_fuga   (flag tut_manifestazione_fuggita)
+                                          · Attraversa le pozze d'acqua → pozze [gia' visto]
+                                          · Prosegui → tartaruga [gia' visto]
+                                      · Torna indietro → collina_ritorno [gia' visto]
+                                    · Torna indietro   (torna nella stanza da cui ci hai provato)
+                                  · Prosegui → collina_cima   (niente mappa)
+                                    · Prosegui → collina_apparizione   (scontro! manifestazione_di_un_sogno; niente mappa)
+                                      vinci → dopo_collina [gia' visto]
+                                      perdi → sconfitta_manifestazione [gia' visto]
+                                      fuggi → collina_fuga [gia' visto]
+                                    · Torna indietro → collina_apparizione [gia' visto]
+                                · Torna dalla tartaruga → tartaruga [gia' visto]
+                              · Torna alle pozze → pozze [gia' visto]
+                            vinci → tartaruga_dopo [gia' visto]
+                            perdi → sconfitta [gia' visto]
+                          · Torna al bivio → bivio [gia' visto]
+                        vinci → pozze_vinte [gia' visto]
+                        perdi → sconfitta [gia' visto]
+                      · Sali sulla cima del promontorio → collina [gia' visto]
+                    · Prosegui → bivio_pressione [gia' visto]
                 · Prosegui → bivio [gia' visto]
             vinci → albero_vinto [gia' visto]
             perdi → sconfitta [gia' visto]

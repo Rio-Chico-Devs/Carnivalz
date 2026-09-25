@@ -801,6 +801,61 @@
       ]
     },
     "bivio": {
+      "_nota": "Testo di Bru (25 settembre: «dopo aver trovato le fiale va inserito un altro po' di dialogo prima di sentire la pressione»). E' la prima volta che si arriva al bivio, da qualunque parte - dal masso o dalla mappa: col «Prosegui» si alza tut_scan_fatta, e da li' in avanti la stanza e' bivio_pressione (la pressione, le pozze, il promontorio). Il flag sta sulla scelta e non sul nodo: chi se ne va dalla mappa prima di proseguire, tornando, la scan la risente. Ritocchi: le maiuscole, «È da un po'».",
+      "vai_se_flag": {
+        "flag": "tut_scan_fatta",
+        "vai": "bivio_pressione"
+      },
+      "espr_sinistra": "pensiero",
+      "sequenza": [
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "È da un po' che camminiamo, riesci a rilevare qualcosa di nuovo?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Provo a lanciare una scan dei dintorni..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Hey, e questo cos'è?"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Hm?",
+          "espr": "sorpresa"
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "guida",
+          "testo": "Rilevo uno strano fenomeno andando più avanti verso quei promontori... forse vale la pena di dare un'occhiata..."
+        },
+        {
+          "tipo": "dialogo",
+          "chi": "anonimo",
+          "testo": "Ricevuto, mi muovo immediatamente.",
+          "espr": "decisa"
+        }
+      ],
+      "scelte": [
+        {
+          "testo": "Prosegui",
+          "flag": "tut_scan_fatta",
+          "vai": "bivio_pressione"
+        }
+      ]
+    },
+    "bivio_pressione": {
+      "stanza": "bivio",
       "_nota": "Testo di Bru. Sopra il promontorio c'e' l'apparizione (la collina di prima): non e' la fonte, ma un'anomalia che si puo' ignorare. Sotto, le pozze e l'orda di rane.",
       "espr_sinistra": "pensiero",
       "sequenza": [
@@ -1665,6 +1720,7 @@
       ]
     },
     "hq_sala_riunioni_1": {
+      "_nota_data_pad": "Tre battute dicevano «diario»: dal 25 settembre si chiama data pad dalla prima mattina (vedi GameState.nome_diario), e qui ho cambiato solo quella parola - e, nella narrazione, «premendo ESC» con «dal tasto in alto a sinistra, o con ESC».",
       "sequenza": [
         {
           "tipo": "dialogo",
@@ -1683,16 +1739,16 @@
         {
           "tipo": "dialogo",
           "chi": "figura_misteriosa",
-          "testo": "Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo diario gli eventi che vanno completati nell'arco della giornata."
+          "testo": "Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo data pad gli eventi che vanno completati nell'arco della giornata."
         },
         {
           "tipo": "dialogo",
           "chi": "figura_misteriosa",
-          "testo": "Le ricordiamo che il suo Diario è sempre consultabile: in cima vi troverà gli appunti sui luoghi dove deve recarsi e su ciò che le viene chiesto strada facendo, e sotto le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato."
+          "testo": "Le ricordiamo che il suo data pad è sempre consultabile: in cima vi troverà gli appunti sui luoghi dove deve recarsi e su ciò che le viene chiesto strada facendo, e sotto le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato."
         },
         {
           "tipo": "narrazione",
-          "testo": "Puoi aprire il Diario in qualunque momento premendo ESC: da lì passi anche allo storico di tutto quello che hai letto finora."
+          "testo": "Puoi aprire il data pad in qualunque momento dal tasto in alto a sinistra, o con ESC: da lì passi anche allo storico di tutto quello che hai letto finora."
         },
         {
           "tipo": "dialogo",

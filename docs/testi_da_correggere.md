@@ -146,7 +146,7 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`UI.Compendio.002`** · _etichetta_portatore
-> Nell'armadio — si mette addosso dal Diario (ESC)
+> Nell'armadio — si mette addosso da «Personaggio e squadra» (ESC)
 >
 > →
 
@@ -930,27 +930,22 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.GameState.002`** · nome_diario
-> Diario
->
-> →
-
-**`UI.GameState.003`** · metamorfosi_di
+**`UI.GameState.002`** · metamorfosi_di
 > non osservata
 >
 > →
 
-**`UI.GameState.004`** · anteprima_slot
+**`UI.GameState.003`** · anteprima_slot
 > Vuoto
 >
 > →
 
-**`UI.GameState.005`** · anteprima_slot
+**`UI.GameState.004`** · anteprima_slot
 > Tazo %d · Fonti estinte %d · Legame %d
 >
 > →
 
-**`UI.GameState.006`** · nome_slot
+**`UI.GameState.005`** · nome_slot
 > %s · livello %d
 >
 > →
@@ -1182,16 +1177,21 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`INT.alloggio.5`** · battuta di Altoparlante
-> Le ricordiamo il suo ultimo appuntamento nelle sale di allenamento con la signorina Veronica. Ci renda fieri come sempre, contiamo su di lei! Eventuali aggiornamenti le verranno comunicati direttamente sul suo diario. Buona giornata allora!
+> Le ricordiamo il suo ultimo appuntamento nelle sale di allenamento con la signorina Veronica. Ci renda fieri come sempre, contiamo su di lei!
 >
 > →
 
-**`INT.alloggio.6`** · battuta di Anonimo
+**`INT.alloggio.6`** · battuta di Altoparlante
+> Si ricordi di dare un'occhiata al suo data pad, per vedere se ha messaggi o comunicazioni. Buona giornata allora!
+>
+> →
+
+**`INT.alloggio.8`** · battuta di Anonimo
 > Che seccatura...
 >
 > →
 
-**`INT.alloggio.7`** · battuta di Anonimo
+**`INT.alloggio.9`** · battuta di Anonimo
 > Ma va fatto quel che va fatto... immagino...
 >
 > →
@@ -1710,77 +1710,37 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 ### Introduzione › `data_pad_istruzioni`
 
-**`INT.data_pad_istruzioni.1`** · narrazione
-> Il diario si è aggiornato da solo. Adesso è un'altra cosa.
->
-> →
-
 **`INT.data_pad_istruzioni.2`** · battuta di Anonimo
-> Data pad...
->
-> →
-
-**`INT.data_pad_istruzioni.3`** · narrazione
-> La prima schermata sono gli [b]Appunti[/b]: quello che c'è da fare, scritto come lo penseresti tu.
->
-> →
-
-**`INT.data_pad_istruzioni.4`** · narrazione
-> Sotto c'è lo [b]Stato[/b] — chi sei adesso, in numeri — e accanto [b]Cosa ti sta cambiando[/b]: il fattore Carnivalz non si legge in una statistica sola.
->
-> →
-
-**`INT.data_pad_istruzioni.5`** · narrazione
-> Poi le [b]Abilità passive[/b], quelle che funzionano senza che tu le chiami. La [b]Squadra[/b], per ora corta. Le [b]Osservazioni[/b], dove finisce quello che studi guardando le creature.
->
-> →
-
-**`INT.data_pad_istruzioni.6`** · narrazione
-> E l'[b]Organizzazione[/b], che tiene il conto di come ti stai comportando. Quello lo compilano loro.
->
-> →
-
-**`INT.data_pad_istruzioni.7`** · battuta di Anonimo
-> E questa?
->
-> →
-
-**`INT.data_pad_istruzioni.8`** · narrazione
-> [b]Messaggi[/b]. Ce n'è uno non letto.
->
-> →
-
-**`INT.data_pad_istruzioni.9`** · battuta di Anonimo
 > Tremila tazo.
 >
 > →
 
-**`INT.data_pad_istruzioni.10`** · battuta di Anonimo
+**`INT.data_pad_istruzioni.3`** · battuta di Anonimo
 > ...
 >
 > →
 
-**`INT.data_pad_istruzioni.11`** · battuta di Anonimo
+**`INT.data_pad_istruzioni.4`** · battuta di Anonimo
 > Quota di benvenuto. Non me l'aveva detto nessuno.
 >
 > →
 
-**`INT.data_pad_istruzioni.12`** · narrazione
+**`INT.data_pad_istruzioni.5`** · narrazione
 > «L'Organizzazione non risponde dell'uso che ne verrà fatto.»
 >
 > →
 
-**`INT.data_pad_istruzioni.13`** · battuta di Anonimo
+**`INT.data_pad_istruzioni.6`** · battuta di Anonimo
 > Che frase strana da scrivere su un accredito.
 >
 > →
 
-**`INT.data_pad_istruzioni.14`** · battuta di Anonimo
+**`INT.data_pad_istruzioni.7`** · battuta di Anonimo
 > Comunque. La procedura di proiezione si fa in sala di proiezione...
 >
 > →
 
-**`INT.data_pad_istruzioni.15`** · notifica
+**`INT.data_pad_istruzioni.8`** · notifica
 > Data pad aggiornato: recarsi alla sala di proiezione ed eseguire la procedura.
 >
 > →
@@ -2521,41 +2481,84 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 ### Tutorial › `bivio`
 
 **`TUT.bivio.1`** · battuta di Anonimo
-> Cos'è questa pressione assurda?!
+> È da un po' che camminiamo, riesci a rilevare qualcosa di nuovo?
 >
 > →
 
 **`TUT.bivio.2`** · battuta di Guida
-> Sembra che ci siano alti livelli di disallineamento oltre questo promontorio... non ti consiglio di andarci, {Dominatore|Dominatrice}...
+> Provo a lanciare una scan dei dintorni...
 >
 > →
 
-**`TUT.bivio.3`** · battuta di Anonimo
-> Forse faremmo meglio a passare di sotto, attraverso queste pozze d'acqua...
+**`TUT.bivio.3`** · battuta di Guida
+> ...
 >
 > →
 
 **`TUT.bivio.4`** · battuta di Guida
-> Posso confermarti che non si tratta della fonte, ma di un'anomalia che può essere ignorata...
+> Hey, e questo cos'è?
 >
 > →
 
 **`TUT.bivio.5`** · battuta di Anonimo
-> Sarebbe il caso di dare un'occhiata per raccogliere dati... ma non dovrei rischiare la missione...
+> Hm?
 >
 > →
 
-**`TUT.bivio.scena`** · quando ci torni («Osserva la scena»)
-> Il terreno sembra innalzarsi creando un promontorio... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.
+**`TUT.bivio.6`** · battuta di Guida
+> Rilevo uno strano fenomeno andando più avanti verso quei promontori... forse vale la pena di dare un'occhiata...
+>
+> →
+
+**`TUT.bivio.7`** · battuta di Anonimo
+> Ricevuto, mi muovo immediatamente.
 >
 > →
 
 **`TUT.bivio.scelta1`** · bottone di scelta
+> Prosegui
+>
+> →
+
+
+### Tutorial › `bivio_pressione`
+
+**`TUT.bivio_pressione.1`** · battuta di Anonimo
+> Cos'è questa pressione assurda?!
+>
+> →
+
+**`TUT.bivio_pressione.2`** · battuta di Guida
+> Sembra che ci siano alti livelli di disallineamento oltre questo promontorio... non ti consiglio di andarci, {Dominatore|Dominatrice}...
+>
+> →
+
+**`TUT.bivio_pressione.3`** · battuta di Anonimo
+> Forse faremmo meglio a passare di sotto, attraverso queste pozze d'acqua...
+>
+> →
+
+**`TUT.bivio_pressione.4`** · battuta di Guida
+> Posso confermarti che non si tratta della fonte, ma di un'anomalia che può essere ignorata...
+>
+> →
+
+**`TUT.bivio_pressione.5`** · battuta di Anonimo
+> Sarebbe il caso di dare un'occhiata per raccogliere dati... ma non dovrei rischiare la missione...
+>
+> →
+
+**`TUT.bivio_pressione.scena`** · quando ci torni («Osserva la scena»)
+> Il terreno sembra innalzarsi creando un promontorio... tutto intorno ci sono varie pozze d'acqua che riflettono i raggi del sole. In lontananza senti dei rumori indistinti.
+>
+> →
+
+**`TUT.bivio_pressione.scelta1`** · bottone di scelta
 > Passa per le pozze d'acqua
 >
 > →
 
-**`TUT.bivio.scelta2`** · bottone di scelta
+**`TUT.bivio_pressione.scelta2`** · bottone di scelta
 > Sali sulla cima del promontorio
 >
 > →
@@ -3211,17 +3214,17 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 > →
 
 **`TUT.hq_sala_riunioni_1.4`** · battuta di ??? (Organizzazione)
-> Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo diario gli eventi che vanno completati nell'arco della giornata.
+> Vanno corretti alcuni errori grammaticali nelle pratiche, errore trascurabile, ma ci teniamo a fartelo presente. Per il resto hai già disponibile nel tuo data pad gli eventi che vanno completati nell'arco della giornata.
 >
 > →
 
 **`TUT.hq_sala_riunioni_1.5`** · battuta di ??? (Organizzazione)
-> Le ricordiamo che il suo Diario è sempre consultabile: in cima vi troverà gli appunti sui luoghi dove deve recarsi e su ciò che le viene chiesto strada facendo, e sotto le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato.
+> Le ricordiamo che il suo data pad è sempre consultabile: in cima vi troverà gli appunti sui luoghi dove deve recarsi e su ciò che le viene chiesto strada facendo, e sotto le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato.
 >
 > →
 
 **`TUT.hq_sala_riunioni_1.6`** · narrazione
-> Puoi aprire il Diario in qualunque momento premendo ESC: da lì passi anche allo storico di tutto quello che hai letto finora.
+> Puoi aprire il data pad in qualunque momento dal tasto in alto a sinistra, o con ESC: da lì passi anche allo storico di tutto quello che hai letto finora.
 >
 > →
 

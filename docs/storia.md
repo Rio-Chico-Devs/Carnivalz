@@ -467,6 +467,8 @@ solo le proprie eccezioni esplicite, tutto il resto resta neutro):
 
 ```
 introduzione
+ │  alloggio: l'altoparlante («dia un'occhiata al suo data pad») e il primo giro
+ │  del data pad: il tasto in alto a sinistra, tutte le voci, il messaggio di Veronica
  └─ sala_allenamento ─ Veronica ─ combattimento ─ «Collisioni infinite»
      │                 la raffica ti lascia almeno a 1; la Meteora di Atlante ti abbatte
      └─ infermeria_risveglio          la Dr. Reika; da qui la mappa è tutta visibile
@@ -480,7 +482,8 @@ introduzione
          │
          └─ sala_comunicazioni → comunicazioni_convocazione   «Aprire il canale?» sì / no
              └─ comunicazioni_ordini   il computer, la figura della prima volta, gli ordini
-                 └─ data_pad_istruzioni   le sue parti, una per una
+                 └─ data_pad_istruzioni   il data pad si apre davvero: il giro della sala
+                     │                    (gli appunti, le notifiche, le altre pagine)
                      │                    Messaggi: 3000 tazo di quota di benvenuto
                      └─ missione: «recarsi alla sala di proiezione»
                          └─ sala_proiezione → proiezione_veronica
@@ -569,7 +572,9 @@ Testo di Bru (24 settembre), dall'«Addentrati nelle pianure» alla tartaruga;
    la lascia cadere: è la **Pietra Quieta**, un minerale raro che condiziona le
    biomasse. È la pietra che più avanti ti salva dall'apparizione.
 5. **Il masso gigante.** È una capsula da trasporto precipitata dallo spazio:
-   dentro, due fiale. «Lucky!»
+   dentro, due fiale. «Lucky!» Poi si cammina, e la Guida lancia una scan dei
+   dintorni: «rilevo uno strano fenomeno andando più avanti verso quei
+   promontori...» — «Ricevuto, mi muovo immediatamente.»
 6. **Il bivio.** Una pressione assurda oltre il promontorio: un'anomalia, non la
    fonte. Sopra c'è l'apparizione (vedi il punto 9); sotto, le pozze.
 7. **Le pozze: la prima orda.** Cinque rane folli. Le orde **annunciano la

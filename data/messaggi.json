@@ -3,6 +3,16 @@
 	"_effetti": "tazo: quanti se ne accreditano. azzera_tazo: svuota il conto (serve alla battuta «IL MIO CONTO E' A ZERO...»). oggetto: un id da data/oggetti.json.",
 	"messaggi": [
 		{
+			"id": "veronica_buongiorno",
+			"_nota": "Testo di Bru (25 settembre): «nel datapad devi avere un messaggio da parte di Veronica». Arriva con la battuta dell'altoparlante che ricorda di guardare il data pad, e si legge nel giro guidato del mattino. Mittente e oggetto sono miei; ritocco: «emozionat{o|a}».",
+			"mittente": "Veronica",
+			"oggetto": "Oggi si suda!",
+			"testo": "Heilà, non vedo l'ora di allenarci insieme oggi! Presto ti affideranno la tua prima missione in solitaria, non sei emozionat{o|a} alla massima potenza? xoxo",
+			"richiede_flags": [
+				"data_pad_ricordato"
+			]
+		},
+		{
 			"id": "benvenuto_quota",
 			"mittente": "Organizzazione — Amministrazione",
 			"oggetto": "Quota di benvenuto",

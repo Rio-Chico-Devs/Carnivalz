@@ -60,6 +60,10 @@ static func sezione_messaggi(genitore: VBoxContainer) -> void:
 		spazio.custom_minimum_size = Vector2(0, 12)
 		genitore.add_child(spazio)
 		GameState.segna_messaggio_letto(String(id_messaggio))
+		# letto qui, non serve piu' che una notifica dica che e' arrivato: il
+		# messaggio di Veronica si legge nel giro del mattino, e senza questa
+		# riga l'avviso sarebbe arrivato dopo, in palestra
+		GameState.messaggi_da_notificare.erase(String(id_messaggio))
 
 static func sezione_appunti(genitore: VBoxContainer) -> void:
 	# la prima cosa che si legge aprendo il Diario: dove devo andare adesso.
@@ -117,7 +121,10 @@ static func riga_appunto(voce: Dictionary) -> Control:
 	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	# gli appunti li pensa il protagonista: si accordano come le sue battute
 	corpo.text = "[i]%s[/i]" % Testi.accorda(String(voce.get("testo", "")), GameState.sesso_protagonista)
-	corpo.add_theme_color_override("default_color", Stile.colore("narrazione"))
+	# NON IL COLORE DELLA NARRAZIONE: quello e' quasi nero da quando il box dei
+	# dialoghi e' una pagina bianca, e qui il fondo e' nero - gli appunti erano
+	# righe invisibili. Visto facendo il giro guidato del data pad
+	corpo.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
 	corpo.add_theme_font_size_override("normal_font_size", Stile.dimensione("piccolo"))
 	corpo.add_theme_font_size_override("italics_font_size", Stile.dimensione("piccolo"))
 	blocco.add_child(corpo)
@@ -279,7 +286,8 @@ static func riga_storico(voce: Dictionary) -> Control:
 			corpo.add_theme_color_override("default_color", Stile.colore("accento"))
 		_:
 			corpo.text = "[i]%s[/i]" % testo
-			corpo.add_theme_color_override("default_color", Stile.colore("narrazione"))
+			# sul nero del data pad, come gli appunti (vedi riga_appunto)
+			corpo.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
 	blocco.add_child(corpo)
 	return blocco
 

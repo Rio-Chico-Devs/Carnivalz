@@ -216,6 +216,49 @@ func prepara(quale: String) -> void:
 				dialogo._su_avanza()
 				await attendi(2)
 				clic += 1
+		"giro_data_pad":
+			# IL GIRO GUIDATO DEL DATA PAD, portato fino a un passo: "giro_data_pad
+			# alloggio 0" e' il tasto in alto a sinistra da premere, "giro_data_pad
+			# data_pad_istruzioni 4" il messaggio da aprire in sala. I gesti che il
+			# giro aspetta li fa lo scatto al posto del giocatore
+			var argomenti_giro := OS.get_cmdline_user_args()
+			var nodo_giro := String(argomenti_giro[1]) if argomenti_giro.size() > 1 else "alloggio"
+			var fino_al := int(argomenti_giro[2]) if argomenti_giro.size() > 2 else 0
+			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+			if nodo_giro != "alloggio":
+				GameState.imposta_flag("rientro_infermeria")
+				GameState.imposta_flag("ordini_ricevuti")
+			GameState.nodo_corrente = nodo_giro
+			IngressoNodo.ultimo_esito = {}
+			var con_giro: Node = load("res://scenes/Main.tscn").instantiate()
+			add_child(con_giro)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			var giro: GiroDataPad = null
+			for i in 60:
+				giro = con_giro.find_children("*", "GiroDataPad", true, false).pop_back() as GiroDataPad
+				if giro != null:
+					break
+				con_giro.box.completa()
+				con_giro.avanza_messaggio()
+				await attendi(2)
+			while giro != null and giro.quale < fino_al and not giro.chiuso:
+				var aspetta := String(giro.passo().get("aspetta", ""))
+				if aspetta == "apri":
+					Pausa.apri()
+				elif aspetta == "voce:diario":
+					Pausa.mostra_diario()
+				elif aspetta.begins_with("sezione:"):
+					Pausa.sezione_diario = aspetta.trim_prefix("sezione:")
+					Pausa.mostra_diario()
+				elif aspetta == "":
+					giro.clic()
+					giro.clic()
+				else:
+					break
+				await attendi(12)
+			await attendi(40)
+			if giro != null:
+				giro.box.completa()
 		"guida_mappa":
 			# la Guida che parla sopra la mappa delle Pianure, all'arrivo:
 			# "guida_mappa 2" fotografa la seconda battuta
@@ -645,12 +688,11 @@ func prepara(quale: String) -> void:
 			await attendi(4)
 			print("pagina %d di %d" % [con_box.box.pagina + 1, con_box.box.pagine.size()])
 		"evidenza":
-			# L'ALONE CHE INDICA UN PEZZO, fermato sul colmo del respiro.
-			#
-			# E' l'unico modo di giudicarlo: dal vivo sale e scende in due
-			# secondi, e a occhio nudo non si ferma. Qui si mette a mano
-			# modulate.a a 1.0 dopo averlo acceso, cosi' la foto e' sempre lo
-			# stesso istante e due scatti si possono confrontare.
+			# L'EVIDENZA CHE INDICA UN PEZZO, arrivata tutta: "evidenza bond
+			# cornice" fotografa BOND con lo stile cornice (gli stili stanno in
+			# Evidenza.STILI; senza, quello di stile.json). Si ferma l'entrata e
+			# la si mette a mano tutta fuori, cosi' la foto e' sempre lo stesso
+			# istante e due stili si possono confrontare.
 			GameState.nuova_partita()
 			GameState.party = ["anonimo", "veronica"]
 			GameState.nemici_combattimento = ["marionetta"]
@@ -664,10 +706,13 @@ func prepara(quale: String) -> void:
 			var argomenti_alone := OS.get_cmdline_user_args()
 			if argomenti_alone.size() > 1:
 				quale_pezzo = String(argomenti_alone[1])
+			if argomenti_alone.size() > 2:
+				Stile.dati["evidenza"] = {"stile": String(argomenti_alone[2])}
 			indicato.plancia.evidenzia_pezzo(quale_pezzo)
 			if indicato.plancia.alone_evidenza != null:
 				indicato.plancia.alone_evidenza.ferma()
-				indicato.plancia.alone_evidenza.modulate.a = 1.0
+				indicato.plancia.alone_evidenza.completa()
+				indicato.plancia.alone_evidenza.fase = 0.5
 			await attendi(2)
 		"zona":
 			# LA MAPPA A QUADRETTI, quella che non aspetta nessun disegno.
