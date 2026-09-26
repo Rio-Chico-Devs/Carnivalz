@@ -425,7 +425,9 @@ Prima non lo diceva nessuno, e succedevano due cose.
   - La Carica e il Piccolo richiamo al 12.
   - Piantati e la Veglia al 16.
   - Al livello 18 sapeva 17 cose; adesso 11.
-  - Il simulatore misurava lui.
+  - Il simulatore misurava lui. L'ho rilanciato: 309.600 partite, **numeri
+    identici**. Il giocatore automatico quelle mosse non le usava, quindi
+    `bilanciamento.md` resta valido.
 - **Chiunque poteva comprare i gradi di chiunque.** Il commento nel codice
   diceva che Veronica non doveva imparare il Flagello; il controllo però c'era
   solo per lei, e solo per le mosse che arrivano col livello.
