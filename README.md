@@ -1366,10 +1366,16 @@ personaggio, ma quando lo impara e cosa può diventare.
   XIII. **Le due scelte che aveva descritto escono da sole da questa regola** e non sono
   scritte come casi particolari: al 25 hai un punto e davanti Pietà o Terra bruciata, al 29
   ne hai un altro e davanti quello che non hai preso più Annichilazione II
+  - **Attenzione, è la regola di prima.** Oggi i punti si comprano con l'hype, e il livello è
+    quanti nodi hai comprato: così i livelli scritti sui nodi chiudono l'albero su se stesso, e in
+    partita nessuno schermo spende l'hype. Il personaggio non cresce. I conti in `docs/albero.md`
 - **Le linee** sono abilità che crescono. Di una linea si conosce **un grado solo**, il più
   alto: Terra bruciata prende il posto di Flagello nel menu invece di stargli accanto —
   altrimenti dopo cinque potenziamenti il menu sarebbe una lista di sei versioni della stessa
   cosa. `prova_linee_abilita` fallisce se due gradi della stessa linea risultano noti insieme
+- **Ogni linea ha un padrone**: `"linee"` nella classe, in `classes.json`. Il livello insegna al
+  protagonista solo i gradi delle sue, e nessuno compra i gradi di una linea altrui. Prima il
+  protagonista imparava da solo la Provocazione di Veronica all'8 e la Veglia di Yhvina al 16
   - **Flagello** → Terra bruciata → Maelstrom → Devastazione → Apocalisse → *Fine karmica*
   - **Annichilazione** I→V → *Annichilazione totale* (KO al 50/55/58/62/65/**70%**)
   - **Mantra** I→V → *Pace assoluta*

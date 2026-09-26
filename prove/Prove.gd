@@ -2248,28 +2248,65 @@ func prova_linee_abilita() -> void:
 				"%s fa meno danno del grado prima: il potenziamento peggiora l'abilita'" % id_abilita)
 		bonus_prima = bonus
 
-	# 3. nel menu ne compare uno solo. Si prova sul serio: si porta il
-	#    protagonista al livello, si comprano i gradi, si guarda il menu
+	# 3. OGNI LINEA HA UN PADRONE SOLO (classes.json, "linee"). Una linea di
+	#    nessuno non la compra nessuno; una linea di due e' una mossa copiata
+	var padroni := {}
+	for id_classe in GameState.classi:
+		for linea in GameState.classi[id_classe].get("linee", []):
+			esigi(linee.has(linea), "%s porta la linea '%s', che in abilita.json non c'e'" % [id_classe, linea])
+			esigi(not padroni.has(linea), "la linea '%s' e' sia di %s sia di %s"
+					% [linea, padroni.get(linea, ""), id_classe])
+			padroni[linea] = id_classe
+	for linea in linee:
+		esigi(padroni.has(linea), "la linea '%s' non e' di nessuno: nessuno la potra' mai comprare" % linea)
+
+	# 4. nel menu ne compare uno solo, e solo delle linee sue. Si prova sul
+	#    serio, per ognuno: al livello massimo, tutti i gradi in mano
+	for id_classe in GameState.classi:
+		var sue: Array = GameState.classi[id_classe].get("linee", [])
+		if sue.is_empty():
+			continue
+		GameState.nuova_partita()
+		GameState.porta_al_livello(id_classe, 130)
+		for linea in sue:
+			for id_abilita in linee.get(linea, {}).values():
+				GameState.nodi_di(id_classe).append(String(id_abilita))
+		var usabili := GameState.abilita_usabili(id_classe)
+		for linea in linee:
+			var quanti := 0
+			var quale := ""
+			for id_abilita in usabili:
+				if String(tabella.get(id_abilita, {}).get("linea", "")) == linea:
+					quanti += 1
+					quale = String(id_abilita)
+			if not linea in sue:
+				esigi(quanti == 0, "%s ha nel menu '%s', della linea '%s' che non e' sua"
+						% [id_classe, quale, linea])
+				continue
+			esigi(quanti == 1, "a %s della linea '%s' nel menu compaiono %d abilita' invece di una"
+					% [id_classe, linea, quanti])
+			var gradi_linea: Dictionary = linee[linea]
+			esigi(quale == String(gradi_linea.get(gradi_linea.size(), "")),
+					"a %s della linea '%s' il menu mostra '%s' invece del grado piu' alto"
+					% [id_classe, linea, quale])
+
+	# 5. IL LIVELLO NON INSEGNA LE MOSSE DEGLI ALTRI. Il protagonista imparava
+	#    da solo la Provocazione di Veronica all'8 e la Veglia di Yhvina al 16;
+	#    e nessuno compra un grado di una linea che non e' sua
 	GameState.nuova_partita()
-	GameState.porta_al_livello(GameState.id_protagonista, 130)
-	for linea in linee:
-		var gradi: Dictionary = linee[linea]
-		for grado in range(2, gradi.size() + 1):
-			if gradi.has(grado):
-				GameState.nodi_abilita.append(String(gradi[grado]))
-	var usabili := GameState.abilita_usabili(GameState.id_protagonista)
-	for linea in linee:
-		var quanti := 0
-		var quale := ""
-		for id_abilita in usabili:
-			if String(tabella.get(id_abilita, {}).get("linea", "")) == linea:
-				quanti += 1
-				quale = String(id_abilita)
-		esigi(quanti == 1,
-				"della linea '%s' nel menu compaiono %d abilita' invece di una" % [linea, quanti])
-		var gradi_linea: Dictionary = linee[linea]
-		esigi(quale == String(gradi_linea.get(gradi_linea.size(), "")),
-				"della linea '%s' il menu mostra '%s' invece del grado piu' alto" % [linea, quale])
+	var eroe := GameState.id_protagonista
+	GameState.porta_al_livello(eroe, 130)
+	GameState.hype_disponibile = GameState.costo_in_hype(100)
+	for id_abilita in GameState.abilita_del_personaggio(eroe):
+		var linea := String(tabella.get(id_abilita, {}).get("linea", ""))
+		esigi(linea == "" or padroni.get(linea, "") == eroe,
+				"il protagonista sa '%s' senza averla comprata, ed e' della linea di %s"
+				% [id_abilita, padroni.get(linea, "")])
+	for id_abilita in tabella:
+		var linea := String(tabella[id_abilita].get("linea", ""))
+		if linea != "" and padroni.get(linea, "") != eroe:
+			esigi(not GameState.nodo_disponibile(String(id_abilita)),
+					"il protagonista puo' comprare '%s', della linea di %s" % [id_abilita, padroni.get(linea, "")])
 	GameState.nuova_partita()
 
 func prova_punti_abilita() -> void:

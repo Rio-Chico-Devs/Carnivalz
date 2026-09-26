@@ -658,12 +658,22 @@ func orologio() -> String:
 func chiudi(perche: String) -> void:
 	finito = true
 	raccogli_errori()
+	# LA CRESCITA SI LEGGE ANCHE DA QUI, prima di rimettere a posto: finche'
+	# nessuno schermo spende l'hype, la partita finisce al livello 1 con l'hype
+	# in tasca e le azioni mai convertite in stat (docs/albero.md)
+	var in_attesa := 0
+	for azione in GameState.contatori:
+		in_attesa += int(GameState.contatori[azione])
+	var crescita := "  crescita: livello %d · hype guadagnato %d, da spendere %d · azioni mai convertite %d" \
+			% [GameState.livello_di(GameState.id_protagonista), GameState.hype_accumulato,
+			GameState.hype_disponibile, in_attesa]
 	rimetti_a_posto()
 	print("")
 	print("AUTOMA FINITO (%s) dopo %s di gioco e %d azioni" % [perche, orologio(), passi])
 	print("  scene viste: %s" % ", ".join(scene_viste.keys().map(func(s: String) -> String: return s.get_file())))
 	print("  punti della storia visti: %d" % nodi_visti.size())
 	print("  cose diverse toccate: %d" % toccati.size())
+	print(crescita)
 	print("  errori: %d · blocchi: %d · fantasmi: %d" % [errori.size(), blocchi.size(), fantasmi.size()])
 	for f in fantasmi:
 		print("  FANTASMA %s: %s" % [f, fantasmi[f]])

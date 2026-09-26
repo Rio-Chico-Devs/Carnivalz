@@ -21,6 +21,7 @@
 | **`testi_da_correggere.md`** | 📝 | Ogni riga di dialogo del gioco, in un posto solo | 🕓 grande, mai riletto tutto |
 | **`godot.md`** | 👁 | Studio sul motore: fondamenta, avanzato, cosa si rompe in produzione, chi ha spedito. E cosa ci riguarda | ✅ nuovo |
 | **`mestiere.md`** | 👁 | Studio sul mestiere: sensazione, transizioni, colore, testo, i maestri dell'RPG e le tecniche dei romanzieri. E cosa ci riguarda | ✅ nuovo |
+| **`albero.md`** | 👁 | Studio sull'**albero di crescita**: Paper Mario, BotW, Kid Icarus, Pokémon, Fire Emblem, Diablo, WoW, FFX, Skyrim, Hades. E la nostra costellazione misurata: in partita oggi non si cresce | ✅ nuovo |
 | **`lezioni.md`** | 👁 | Studio sui maestri: EarthBound, Fear & Hunger, Zelda, Metroid, Doom, Final Fantasy, e cosa ne ha detto la critica | ✅ nuovo |
 | **`critica.md`** | 👁 | Il gioco giudicato duro, voto per voto, con la prova sotto ogni voto | ✅ nuovo |
 | **`dedalo.md`** | 👁 | Studio sulla **mappa**: la grammatica del livello, Jaquays, Lynch, i libri-gioco — e la nostra mappa misurata | ✅ nuovo |

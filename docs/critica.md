@@ -166,6 +166,11 @@ la costellazione accendersi — non c'è.
 Ed è il punto in cui il tuo stesso brief non è ancora soddisfatto: *«la gente vuole comprare,
 spendere punti e ricevere ricompense»*. Comprare c'è. **Vedere cosa hai comprato, no.**
 
+> **Corretto il 26 settembre:** comprare c'è **nel motore, non in partita**. Nessuna scena chiama
+> `sblocca_nodo`, quindi in una partita vera il livello resta 1 e le azioni non diventano mai
+> statistiche; e anche con uno schermo i nodi si aprirebbero col livello, che sale solo comprando.
+> Le prove e i conti in `albero.md` §3.
+
 **Come si alza:** il disegno. È **l'unica cosa in tutto questo documento che non posso fare io.**
 
 ---

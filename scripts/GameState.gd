@@ -830,9 +830,10 @@ func nodo_disponibile(id_nodo: String, id_classe := "") -> bool:
 	var richiesto := String(dati.get("richiede", ""))
 	if richiesto != "" and not nodo_gia_preso(richiesto, id_classe):
 		return false
-	# di una linea si compra il grado successivo a quello che hai, non uno a caso
+	# di una linea tua si compra il grado dopo quello che hai, non uno a caso
 	var linea := String(dati.get("linea", ""))
-	if linea != "" and int(dati.get("grado", 1)) != grado_di_linea(linea, id_classe) + 1:
+	if linea != "" and (not linea_sua(linea, id_classe)
+			or int(dati.get("grado", 1)) != grado_di_linea(linea, id_classe) + 1):
 		return false
 	return costo_nodo(id_nodo) <= punti_abilita_liberi()
 
@@ -898,14 +899,16 @@ func grado_di_linea(linea: String, id_classe := "") -> int:
 func abilita_del_protagonista() -> Array[String]:
 	return abilita_del_personaggio(id_protagonista)
 
+func linea_sua(linea: String, id_classe: String) -> bool:
+	# UNA LINEA E' DI CHI LA PORTA (classes.json, "linee"). Senza, il protagonista
+	# imparava da solo la Provocazione di Veronica al livello 8 e la Veglia di
+	# Yhvina al 16: sei mosse non sue, e al livello 18 le vedeva anche il simulatore
+	return linea == "" or linea in classi.get(id_classe, {}).get("linee", [])
+
 func abilita_del_personaggio(id_classe: String) -> Array[String]:
-	# tutto quello che sa fare: quelle scritte nella sua classe, quelle che il
-	# livello gli ha dato da solo, e quelle che ha comprato con l'hype.
-	#
-	# VALE PER TUTTI, non solo per il protagonista. Prima era scritta solo per
-	# lui, e i compagni erano fermi all'elenco della loro classe: adesso che
-	# Veronica e Yhvina hanno tre linee da sei gradi ciascuna, un elenco fisso
-	# vorrebbe dire che comprare un nodo per loro non cambia niente
+	# tutto quello che sa fare: quelle della sua classe, quelle che il livello
+	# gli ha dato da solo, e quelle comprate con l'hype. VALE PER TUTTI: con un
+	# elenco fisso, comprare un nodo per Veronica o Yhvina non cambierebbe niente
 	var elenco: Array[String] = []
 	for id_abilita in classi.get(id_classe, {}).get("abilita", []):
 		if not String(id_abilita) in elenco:
@@ -917,13 +920,11 @@ func abilita_del_personaggio(id_classe: String) -> Array[String]:
 		var suo_livello := int(dati.get("livello", 0))
 		if suo_livello <= 0 or String(id_abilita) in elenco:
 			continue
-		# solo le abilita' che stanno gia' nella sua classe, o che ha comprato:
-		# senza questo filtro Veronica imparerebbe da sola il Flagello del
-		# protagonista appena arriva al livello giusto
+		# i compagni non imparano niente da soli: solo la loro classe e i nodi
 		if String(id_abilita) in suoi:
 			elenco.append(String(id_abilita))
 			continue
-		if id_classe != id_protagonista:
+		if id_classe != id_protagonista or not linea_sua(String(dati.get("linea", "")), id_classe):
 			continue
 		if int(dati.get("costo", 0)) <= 0 and livello >= suo_livello:
 			elenco.append(String(id_abilita))

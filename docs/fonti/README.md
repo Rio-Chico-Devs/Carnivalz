@@ -30,6 +30,12 @@ sintesi della ricerca, e dove più testate dicevano la stessa cosa l'ho segnata
 «riscontrata» invece che «letta». L'elenco dei dieci originali, coi link, è in
 `docs/tutorial.md`, §6.8. Messi qui, rileggo il capitolo e correggo.
 
+## Da scaricare adesso: l'albero di crescita
+
+Stessa situazione per lo studio sull'albero (`docs/albero.md`): tutte le fonti viste solo in sintesi.
+I sette originali che cambierebbero di più le conclusioni sono in fondo a `docs/albero.md`, §6 — in
+testa l'Iwata Asks di Kid Icarus: Uprising, capitolo 5.
+
 ## Come metterle
 
 Un file per fonte, con un nome che dica cos'è:

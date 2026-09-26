@@ -18,6 +18,7 @@
 				"onda_psichica",
 				"concentrazione"
 			],
+			"linee": ["flagello", "annichilazione", "mantra"],
 			"ritratto": "res://art/personaggi/anonimo.png",
 			"classe_arma": "catalizzatore"
 		},
@@ -41,6 +42,7 @@
 				"taglio_corto",
 				"piccolo_richiamo"
 			],
+			"linee": ["lama", "richiamo_yhvina", "veglia"],
 			"ritratto": "res://art/personaggi/yhvina.png",
 			"classe_arma": "talismani",
 			"_stat_da_confermare": "130/7/1/5 sono una proposta mia: fragile e svelta, l'opposto di Veronica. Prima erano 400 hp, quattro volte il protagonista"
@@ -227,6 +229,7 @@
 				"colpo_caricato_veronica",
 				"piantati"
 			],
+			"linee": ["richiamo_veronica", "carica_veronica", "baluardo"],
 			"_stat_da_confermare": "160/5/4/2 sono una proposta mia: piu' lenta del protagonista, regge i colpi al posto suo"
 		}
 	]

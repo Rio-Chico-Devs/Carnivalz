@@ -347,8 +347,13 @@ cancellato la prova di aver giocato.
 | Quanto costa un punto | **1000 hype** | `regole.json` → `hype_per_punto` |
 
 Quindi un nodo del tronco costa 1000 hype, uno delle braccia 2000, delle punte 3000, delle stelle
-esterne 4000. Un personaggio portato a fondo costa **13.000 hype**. `>>` sono numeri miei: se il
+esterne 4000. Un personaggio portato a fondo costa **130 punti, cioè 130.000 hype** (qui c'era scritto
+13.000: il conto era mio ed era sbagliato di dieci volte — vedi `albero.md` §3.3). `>>` sono numeri miei: se il
 ritmo ti sembra sbagliato si girano da `regole.json` senza toccare il codice.
+
+> **Alcuni numeri di questa sezione non tornano fra loro:** dentro «i 60 nodi» ne stanno 80, col livello
+> uguale ai nodi il 130 non si raggiunge, e l'hype appena si potrà spendere corre. I conti e otto
+> domande per te in `albero.md` §3 e §5.
 
 `>>` se qualcosa qui sopra non è come lo intendevi, riscrivilo:
 
