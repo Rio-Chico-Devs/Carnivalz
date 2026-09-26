@@ -490,7 +490,9 @@
 				"avviso": "Premi quando la lancetta è sul bersaglio!",
 				"testo_centrato": "CENTRATO!",
 				"testo_mancato": "MANCATO",
-				"testo_tardi": "TROPPO TARDI"
+				"testo_tardi": "TROPPO TARDI",
+				"_testo_ora": "solo la prima volta, nell'allenamento: la lancetta si ferma sul bersaglio e aspetta. Scritta mia (Claude), da correggere",
+				"testo_ora": "ORA! Premi!"
 			},
 			"_ferma_il_tempo": "di quando il combattimento era in tempo reale: false voleva dire che mentre martellavi le creature ti picchiavano. Coi turni non cambia piu' niente - finche' la Mattanza e' accesa il turno non passa a nessuno (Combattimento.si_puo_passare_il_turno)",
 			"ferma_il_tempo": false,

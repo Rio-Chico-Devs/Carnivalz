@@ -518,7 +518,8 @@ for id_a, a in abilita.items():
                              ("avviso", "il colpo di grazia: cosa fare"),
                              ("testo_centrato", "il colpo di grazia: bersaglio centrato"),
                              ("testo_mancato", "il colpo di grazia: tiro fuori dal bersaglio"),
-                             ("testo_tardi", "il colpo di grazia: tempo scaduto senza tirare")]:
+                             ("testo_tardi", "il colpo di grazia: tempo scaduto senza tirare"),
+                             ("testo_ora", "il colpo di grazia guidato dell'allenamento: la lancetta ferma sul bersaglio")]:
         voce(f"ABI.{id_a}.grazia.{chiave}", contesto, grazia.get(chiave))
 
 # ------------------------------------------------------------- 6. oggetti

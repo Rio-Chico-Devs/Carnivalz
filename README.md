@@ -664,7 +664,12 @@ Numeri piccoli e leggibili, ma con scelte vere:
   Le battute `dopo` arrivano **a azione risolta**, non prima, così commentano quello che è
   appena successo. Primo caso: l'allenamento con **Veronica** al
   quartier generale, che insegna Attacca, Difenditi, gli oggetti curativi e quelli offensivi —
-  ed essendo `invincibile` non può essere uccisa per sbaglio
+  ed essendo `invincibile` non può essere uccisa per sbaglio. **Prima si gioca, poi si
+  spiega**: due battute e si colpisce, e ogni pezzo della schermata Veronica lo spiega nel
+  passo in cui entra in gioco (la scheda dopo il primo danno, i turni quando il turno passa a
+  lei, gli HP quando sono a 10), non tutti in un giro iniziale. Un passo può chiedere
+  `"grazia_guidata": true`: il primo colpo di grazia si ferma sul bersaglio e aspetta la mano,
+  come il primo comando d'azione di Paper Mario. Le ragioni e le fonti in `docs/tutorial.md`, §6
 - **HP incatenati tra scontri**: a fine combattimento gli hp rimasti restano in
   `GameState.hp_persistenti` e il combattimento successivo riparte da lì; si recupera tutto
   appena si mette piede in una stanza **senza** che scatti un agguato (`Main.mostra_nodo()`).

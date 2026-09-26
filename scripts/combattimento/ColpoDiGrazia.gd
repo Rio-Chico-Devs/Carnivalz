@@ -37,6 +37,14 @@ extends RefCounted
 # NIENTE RALLENTATORE: la velocita' e' quella per tutti. Il movimento ridotto
 # toglie gli scossoni e le schegge che volano, non il tempo per prendere la
 # mira - quello e' il gioco.
+#
+# LA PRIMA VOLTA E' GUIDATA ("guidata", nell'allenamento di Veronica). La
+# lancetta corre, arriva sul bersaglio e LI' SI FERMA, e aspetta la mano senza
+# orologio: il momento giusto si impara vedendolo, non sentendoselo spiegare.
+# E' la prima battaglia di Paper Mario: Twink ferma il salto di Mario sopra la
+# testa di Goombario e dice di premere A adesso - la prima pressione riesce
+# sempre, e dopo la mano sa com'e' fatto il "momento giusto". Le pressioni
+# prima che si fermi non contano: chi sta ancora martellando non sbaglia.
 
 signal centrato
 signal finito(esito: Dictionary)
@@ -59,6 +67,7 @@ var punto := 0.5          # il centro del bersaglio, da 0 a 1
 var cursore := 0.0        # dov'e' la lancetta, da 0 a 1
 var tirato := false
 var preso := false
+var guidata := false      # la prima volta: la lancetta si ferma sul bersaglio
 var attivo := false
 var giocati := 0          # le prove contano questi, non i pixel
 
@@ -91,11 +100,12 @@ static func dentro(dove_e: float, centro: float, tolleranza: float) -> bool:
 
 # --- a schermo ----------------------------------------------------------------
 
-func avvia(parametri: Dictionary) -> bool:
+func avvia(parametri: Dictionary, con_la_guida := false) -> bool:
 	# false = non c'e' nessun riquadro dove giocarlo: chi chiama se la sbriga
 	# da solo (vedi MattanzaCombattimento.centra_da_solo)
 	if muto or riquadro == null or attivo:
 		return false
+	guidata = con_la_guida
 	regole = {}
 	for chiave in DI_SERIE:
 		regole[chiave] = float(parametri.get(chiave, DI_SERIE[chiave]))
@@ -129,9 +139,12 @@ func passa(delta: float) -> void:
 				fase = "corsa"
 				tempo_fase = 0.0
 		"corsa":
+			var prima := cursore
 			corsa += delta
 			cursore = posizione(corsa, float(regole.get("passaggio", 0.7)))
-			if corsa >= float(regole.get("tempo", 3.2)):
+			if guidata and (prima - punto) * (cursore - punto) <= 0.0:
+				fermati_sul_bersaglio()
+			elif corsa >= float(regole.get("tempo", 3.2)):
 				tira()   # il tempo e' finito: il tiro e' perso
 		"chiusura":
 			if tempo_fase >= CHIUSURA:
@@ -147,11 +160,23 @@ func premi_col_tasto() -> bool:
 		return false
 	match fase:
 		"corsa":
+			if not guidata:
+				tira(true)
+		"ferma":
 			tira(true)
 		"chiusura":
 			if tempo_fase >= CHIUSURA_SORDA:
 				concludi()
 	return true   # anche da sordo: la pressione e' sua, e non va da nessun'altra parte
+
+func fermati_sul_bersaglio() -> void:
+	# la lancetta ha appena passato il centro: si rimette esattamente li', e da
+	# qui in poi il tempo non conta - "ferma" non ha un orologio in passa()
+	cursore = punto
+	fase = "ferma"
+	tempo_fase = 0.0
+	if riquadro != null:
+		riquadro.fermata()
 
 func tira(dalla_mano := false) -> void:
 	tirato = dalla_mano

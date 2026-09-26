@@ -250,7 +250,9 @@ func chiudi_finestra() -> void:
 		finisci()
 		return
 	var parametri: Dictionary = dati.get("colpo_di_grazia", {})
-	if not dal_vivo() or not grazia.avvia(parametri):
+	# nell'allenamento la prima volta e' guidata: lo dice il passo, non la Mattanza
+	var guidata := bool(scontro.passo_tutorial().get("grazia_guidata", false))
+	if not dal_vivo() or not grazia.avvia(parametri, guidata):
 		centra_da_solo(parametri)
 		finisci()
 

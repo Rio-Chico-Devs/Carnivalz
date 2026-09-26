@@ -136,6 +136,14 @@ func comincia() -> void:
 	aggiorna(0.0)
 
 
+func fermata() -> void:
+	# LA GUIDA: la lancetta e' ferma sul bersaglio e aspetta. Si dice una cosa
+	# sola, adesso, e con lo stesso suono dell'ultimo quarto delle scelte a tempo
+	avviso.text = testo("testo_ora", "ORA! Premi!")
+	AudioManager.interfaccia("allarme")
+	queue_redraw()
+
+
 func tiro(centrato: bool) -> void:
 	if centrato:
 		avviso.text = testo("testo_centrato", "CENTRATO!")
@@ -241,6 +249,10 @@ func disegna_bersaglio(barra: Rect2, quanto: float) -> void:
 		# cade dall'alto e rimbalza un soffio: si nota che e' arrivato
 		var scala: float = Tween.interpolate_value(0.0, 1.0, quanto, 1.0, Tween.TRANS_BACK, Tween.EASE_OUT)
 		r = Rect2(r.get_center() - r.size * scala * 0.5, r.size * scala)
+	if gioco.fase == "ferma" and not Impostazioni.movimento_ridotto:
+		# fermo e in attesa: il bersaglio respira, e' li' che va la mano
+		var respiro := 1.0 + 0.07 * sin(gioco.tempo_fase * TAU * 1.6)
+		r = Rect2(r.get_center() - r.size * respiro * 0.5, r.size * respiro)
 	var tinta := Color(1, 1, 1, quanto)
 	if gioco.fase == "chiusura":
 		tinta = Color(0.55, 0.55, 0.55, 0.6)   # mancato: resta li', spento
@@ -267,8 +279,8 @@ func disegna_lancetta(barra: Rect2) -> void:
 func disegna_tempo(barra: Rect2) -> void:
 	# il tempo che resta per tirare: pieno finche' la lancetta non parte, poi si
 	# accorcia verso sinistra. Come quello della mazzata
-	if gioco.fase == "chiusura":
-		return
+	if gioco.fase == "chiusura" or gioco.fase == "ferma":
+		return   # finito, o fermo ad aspettare: non c'e' un tempo che scade
 	var tempo := maxf(float(gioco.regole.get("tempo", 3.2)), 0.001)
 	var resta := clampf(1.0 - gioco.corsa / tempo, 0.0, 1.0)
 	var y := rettangolo_piano().end.y - 2.0

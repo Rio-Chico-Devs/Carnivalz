@@ -820,12 +820,17 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 >
 > →
 
-**`UI.RiquadroColpoDiGrazia.003`** · tiro
-> CENTRATO!
+**`UI.RiquadroColpoDiGrazia.003`** · fermata
+> ORA! Premi!
 >
 > →
 
 **`UI.RiquadroColpoDiGrazia.004`** · tiro
+> CENTRATO!
+>
+> →
+
+**`UI.RiquadroColpoDiGrazia.005`** · tiro
 > MANCATO
 >
 > →
@@ -14175,77 +14180,12 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento1.prima1`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Fermo lì. Prima che mi tiri qualunque cosa, guarda la stanza.
+> Fermo lì. Fammi vedere di cosa sei capace: colpiscimi al massimo della potenza.
 >
 > →
 
-**`CRE.veronica.allenamento1.prima2`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Te lo spiego una volta sola, {nome}, poi non voglio più sentire «e questo cos'era?».
->
-> →
-
-**`CRE.veronica.allenamento1.prima3`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, narrazione
-> Il riquadro grande, quello nero: è chi hai davanti. In questo caso sono io, quindi guardami bene.
->
-> →
-
-**`CRE.veronica.allenamento1.prima4`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Sotto c'è la mia scheda. Vedi i punti interrogativi? Vuol dire che non sai niente di me.
->
-> →
-
-**`CRE.veronica.allenamento1.prima5`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Si toglie guardando. [b]Studia[/b] sta dentro SKILL e non costa nulla — non costerà mai nulla.
->
-> →
-
-**`CRE.veronica.allenamento1.prima6`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, narrazione
-> In alto i riquadri siete voi. Quello acceso è chi stai comandando.
->
-> →
-
-**`CRE.veronica.allenamento1.prima7`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Le barre, dall'alto: [b]HP[/b] è quanto reggi. Finiti quelli sei per terra.
->
-> →
-
-**`CRE.veronica.allenamento1.prima8`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> [b]AURA[/b] è quello che paga le skill. Non torna in fretta, quindi non buttarla via.
->
-> →
-
-**`CRE.veronica.allenamento1.prima9`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, narrazione
-> A destra il menu: ATTACCHI, DIFESA, SKILL, OGGETTI, FUGA.
->
-> →
-
-**`CRE.veronica.allenamento1.prima10`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Quel tasto lì accanto lascialo stare, per oggi. Te lo spiego un'altra volta.
->
-> →
-
-**`CRE.veronica.allenamento1.prima11`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> E l'ultima cosa, che è la più importante: [b]qui si combatte a turni[/b].
->
-> →
-
-**`CRE.veronica.allenamento1.prima12`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> In ogni giro ognuno muove una volta, e chi è più veloce muove prima. Quando tocca a te, il mondo aspetta la tua scelta.
->
-> →
-
-**`CRE.veronica.allenamento1.prima13`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, narrazione
-> La barra sotto il tuo riquadro è quella: quando è piena, tocca a te.
->
-> →
-
-**`CRE.veronica.allenamento1.prima14`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, battuta di Veronica
-> Fatto. Adesso fammi vedere di cosa sei capace: colpiscimi al massimo della potenza.
->
-> →
-
-**`CRE.veronica.allenamento1.prima15`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, narrazione
-> Clicca sulla creatura per colpirla: il colpo normale è lei, non una voce di menu. Il danno è il tuo attacco meno la sua difesa.
+**`CRE.veronica.allenamento1.prima2`** · allenamento, passo 1 (ATTACCA) — prima che tu agisca, narrazione
+> Il riquadro grande, quello nero: è chi hai davanti. Clicca sulla creatura per colpirla: il colpo normale è lei, non una voce di menu.
 >
 > →
 
@@ -14254,18 +14194,48 @@ carte collezionabili.
 >
 > →
 
-**`CRE.veronica.allenamento2.prima1`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, battuta di Veronica
-> Il pugno da solo non basta. Adesso usa qualcosa che ti COSTI.
+**`CRE.veronica.allenamento1.dopo2`** · allenamento, passo 1 (ATTACCA) — dopo che hai agito, narrazione
+> Il numero che è volato via è il danno: il tuo attacco meno la sua difesa.
+>
+> →
+
+**`CRE.veronica.allenamento1.dopo3`** · allenamento, passo 1 (ATTACCA) — dopo che hai agito, battuta di Veronica
+> Sotto c'è la mia scheda. Vedi i punti interrogativi? Vuol dire che non sai niente di me.
+>
+> →
+
+**`CRE.veronica.allenamento1.dopo4`** · allenamento, passo 1 (ATTACCA) — dopo che hai agito, battuta di Veronica
+> Si toglie guardando. [b]Studia[/b] sta dentro SKILL e non costa nulla — non costerà mai nulla.
+>
+> →
+
+**`CRE.veronica.allenamento1.dopo5`** · allenamento, passo 1 (ATTACCA) — dopo che hai agito, battuta di Veronica
+> Adesso tocca a me. [b]Qui si combatte a turni[/b]: in ogni giro ognuno muove una volta, e chi è più veloce muove prima.
+>
+> →
+
+**`CRE.veronica.allenamento2.prima1`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, narrazione
+> Veronica ti gira intorno senza colpire: il suo turno l'ha usato per guardarti.
 >
 > →
 
 **`CRE.veronica.allenamento2.prima2`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, narrazione
-> Apri ABILITÀ e usa Sovraccarico. Sotto la vita hai l'AURA: è quella che si spende per le mosse, e ogni mossa ha il suo prezzo — più è grossa, più ne vuole.
+> In alto i riquadri siete voi. Quello acceso è chi stai comandando: adesso è di nuovo il tuo turno, e finché non scegli il mondo aspetta.
 >
 > →
 
 **`CRE.veronica.allenamento2.prima3`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, narrazione
-> L'aura non torna da sola mentre combatti. Quella con cui entri è quella che hai: si riempie dopo lo scontro, o con un oggetto, o con le abilità di chi ne sa una.
+> A destra il menu: ATTACCHI, DIFESA, SKILL, OGGETTI, FUGA.
+>
+> →
+
+**`CRE.veronica.allenamento2.prima4`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, battuta di Veronica
+> Il pugno da solo non basta. Adesso usa qualcosa che ti COSTI.
+>
+> →
+
+**`CRE.veronica.allenamento2.prima5`** · allenamento, passo 2 (ABILITA) — prima che tu agisca, narrazione
+> Apri SKILL e usa Sovraccarico. Sotto la vita hai l'AURA: è quella che si spende per le mosse, e ogni mossa ha il suo prezzo — più è grossa, più ne vuole.
 >
 > →
 
@@ -14284,13 +14254,18 @@ carte collezionabili.
 >
 > →
 
+**`CRE.veronica.allenamento2.dopo4`** · allenamento, passo 2 (ABILITA) — dopo che hai agito, narrazione
+> L'aura non torna da sola mentre combatti. Quella con cui entri è quella che hai: si riempie dopo lo scontro, o con un oggetto, o con le abilità di chi ne sa una.
+>
+> →
+
 **`CRE.veronica.allenamento3.prima1`** · allenamento, passo 3 (DIFENDI) — prima che tu agisca, narrazione
 > Veronica sembra caricare un pugno. È il momento di difendersi.
 >
 > →
 
 **`CRE.veronica.allenamento3.prima2`** · allenamento, passo 3 (DIFENDI) — prima che tu agisca, narrazione
-> Scegli DIFENDITI: alza la guardia, e la guardia resta fino alla fine dello scontro. Difendersi di fila vale ogni volta, ma ogni scatto conta un po' meno del precedente — e oltre un certo punto non si sale più.
+> Scegli DIFESA: alza la guardia, e la guardia resta fino alla fine dello scontro.
 >
 > →
 
@@ -14319,7 +14294,12 @@ carte collezionabili.
 >
 > →
 
-**`CRE.veronica.allenamento4.prima2`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, narrazione
+**`CRE.veronica.allenamento4.prima2`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, battuta di Veronica
+> Le barre, dall'alto: [b]HP[/b] è quanto reggi. Finiti quelli sei per terra.
+>
+> →
+
+**`CRE.veronica.allenamento4.prima3`** · allenamento, passo 4 (OGGETTO) — prima che tu agisca, narrazione
 > Apri OGGETTI e usa la Fiala HP: i consumabili si spendono, ma possono salvarti il combattimento.
 >
 > →
@@ -14339,18 +14319,13 @@ carte collezionabili.
 >
 > →
 
-**`CRE.veronica.allenamento5.prima3`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, narrazione
-> La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE e ogni CLIC SUL NEMICO è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti.
+**`CRE.veronica.allenamento5.prima3`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, battuta di Veronica
+> Quel tasto lì accanto lascialo stare, per oggi. Te lo spiego un'altra volta.
 >
 > →
 
 **`CRE.veronica.allenamento5.prima4`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, battuta di Veronica
 > E quando parte non pensare: pesta! Spazio, oppure clicca addosso a me, più in fretta che puoi. Finché la barra non è vuota, ogni colpo arriva.
->
-> →
-
-**`CRE.veronica.allenamento5.prima5`** · allenamento, passo 5 (ABILITA) — prima che tu agisca, narrazione
-> A barra vuota arriva il COLPO DI GRAZIA: una lancetta corre sulla barra. Premi quando passa sul bersaglio, una volta sola: se lo centri, fa male davvero.
 >
 > →
 
@@ -15220,6 +15195,11 @@ carte collezionabili.
 
 **`ABI.mattanza.grazia.testo_tardi`** · il colpo di grazia: tempo scaduto senza tirare
 > TROPPO TARDI
+>
+> →
+
+**`ABI.mattanza.grazia.testo_ora`** · il colpo di grazia guidato dell'allenamento: la lancetta ferma sul bersaglio
+> ORA! Premi!
 >
 > →
 

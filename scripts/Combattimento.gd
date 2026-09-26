@@ -809,13 +809,13 @@ func _process(delta: float) -> void:
 	# quattro uscite anticipate, e una sola dimenticata lascerebbe il mondo
 	# fermo per sempre. Qui invece la condizione e' una cosa che si guarda, non
 	# una cosa da ricordarsi
-	if studio_in_corso and voce != null and voce.coda.is_empty():
+	if studio_in_corso and voce != null and voce.niente_da_leggere():
 		studio_in_corso = false
 		riprendi_il_tempo()
 	# LA LEZIONE NON E' UN TURNO CHE SI PERDE: finche' Veronica spiega, il mondo
 	# sta fermo e il quadrante e' suo. Si sblocca allo stesso modo dello studio -
 	# guardando se c'e' ancora qualcosa da leggere, non ricordandosene a mano
-	if lezione_in_corso and voce != null and voce.coda.is_empty():
+	if lezione_in_corso and voce != null and voce.niente_da_leggere():
 		lezione_in_corso = false
 		voce.attende_il_click = false
 		if plancia != null:

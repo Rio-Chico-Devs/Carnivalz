@@ -3667,84 +3667,14 @@
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "Fermo lì. Prima che mi tiri qualunque cosa, guarda la stanza."
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Te lo spiego una volta sola, {nome}, poi non voglio più sentire «e questo cos'era?»."
+                "testo": "Fermo lì. Fammi vedere di cosa sei capace: colpiscimi al massimo della potenza.",
+                "_nota": "due battute di Bru unite («Fermo lì.» e «Adesso fammi vedere di cosa sei capace…»): il giro della schermata che stava in mezzo adesso è distribuito nella lezione, ogni pezzo quando si vede (docs/tutorial.md, §6)"
               },
               {
                 "tipo": "narrazione",
-                "testo": "Il riquadro grande, quello nero: è chi hai davanti. In questo caso sono io, quindi guardami bene.",
-                "evidenzia": "nemico"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Sotto c'è la mia scheda. Vedi i punti interrogativi? Vuol dire che non sai niente di me.",
-                "evidenzia": "scheda"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Si toglie guardando. [b]Studia[/b] sta dentro SKILL e non costa nulla — non costerà mai nulla.",
-                "evidenzia": "menu"
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "In alto i riquadri siete voi. Quello acceso è chi stai comandando.",
-                "evidenzia": "squadra"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Le barre, dall'alto: [b]HP[/b] è quanto reggi. Finiti quelli sei per terra.",
-                "evidenzia": "squadra"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "[b]AURA[/b] è quello che paga le skill. Non torna in fretta, quindi non buttarla via.",
-                "evidenzia": "squadra"
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "A destra il menu: ATTACCHI, DIFESA, SKILL, OGGETTI, FUGA.",
-                "evidenzia": "menu"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Quel tasto lì accanto lascialo stare, per oggi. Te lo spiego un'altra volta.",
-                "evidenzia": "bond"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "E l'ultima cosa, che è la più importante: [b]qui si combatte a turni[/b].",
-                "_nota": "battuta mia (Claude), da correggere: prima diceva il contrario, «qui non si aspetta il proprio turno». Bru ha chiesto i turni il 24 settembre"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "In ogni giro ognuno muove una volta, e chi è più veloce muove prima. Quando tocca a te, il mondo aspetta la tua scelta.",
-                "_nota": "battuta mia (Claude), da correggere: sostituisce quella sulla ricarica, che col motore a turni non esiste piu'",
-                "evidenzia": "squadra"
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "La barra sotto il tuo riquadro è quella: quando è piena, tocca a te.",
-                "evidenzia": "squadra"
-              },
-              {
-                "tipo": "dialogo",
-                "chi": "veronica",
-                "testo": "Fatto. Adesso fammi vedere di cosa sei capace: colpiscimi al massimo della potenza."
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "Clicca sulla creatura per colpirla: il colpo normale è lei, non una voce di menu. Il danno è il tuo attacco meno la sua difesa."
+                "testo": "Il riquadro grande, quello nero: è chi hai davanti. Clicca sulla creatura per colpirla: il colpo normale è lei, non una voce di menu.",
+                "evidenzia": "nemico",
+                "_nota": "riga mia (Claude), da correggere: unisce la prima metà della riga di Bru sul riquadro e l'istruzione del clic che c'erano già"
               }
             ],
             "dopo": [
@@ -3752,6 +3682,32 @@
                 "tipo": "dialogo",
                 "chi": "veronica",
                 "testo": "Spero che quello non fosse tutto quello di cui sei capace, {nome}..."
+              },
+              {
+                "tipo": "narrazione",
+                "testo": "Il numero che è volato via è il danno: il tuo attacco meno la sua difesa.",
+                "_nota": "riga mia (Claude), da correggere: la frase sul danno che c'era già, detta adesso che il numero si è visto"
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Sotto c'è la mia scheda. Vedi i punti interrogativi? Vuol dire che non sai niente di me.",
+                "evidenzia": "scheda",
+                "_spostata": "battuta di Bru, spostata dal giro della schermata al momento in cui la cosa si vede (docs/tutorial.md, §6)"
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Si toglie guardando. [b]Studia[/b] sta dentro SKILL e non costa nulla — non costerà mai nulla.",
+                "evidenzia": "menu",
+                "_spostata": "battuta di Bru, spostata dal giro della schermata al momento in cui la cosa si vede (docs/tutorial.md, §6)"
+              },
+              {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Adesso tocca a me. [b]Qui si combatte a turni[/b]: in ogni giro ognuno muove una volta, e chi è più veloce muove prima.",
+                "evidenzia": "squadra",
+                "_nota": "battuta mia (Claude), da correggere: unisce le mie due sui turni, detta nel momento in cui il turno passa a lei"
               }
             ]
           },
@@ -3761,6 +3717,23 @@
             "aura_protagonista": 10,
             "prima": [
               {
+                "tipo": "narrazione",
+                "testo": "Veronica ti gira intorno senza colpire: il suo turno l'ha usato per guardarti.",
+                "_nota": "riga mia (Claude), da correggere: nella lezione Veronica non attacca, e senza questa riga il suo turno non si vedeva - i turni restavano una parola"
+              },
+              {
+                "tipo": "narrazione",
+                "testo": "In alto i riquadri siete voi. Quello acceso è chi stai comandando: adesso è di nuovo il tuo turno, e finché non scegli il mondo aspetta.",
+                "evidenzia": "squadra",
+                "_nota": "la prima frase è di Bru (dal giro della schermata); la seconda è mia (Claude), da correggere: sostituisce «la barra sotto il tuo riquadro: quando è piena, tocca a te», che coi turni non era più vera - il turno si vede dalla cornice accesa"
+              },
+              {
+                "tipo": "narrazione",
+                "testo": "A destra il menu: ATTACCHI, DIFESA, SKILL, OGGETTI, FUGA.",
+                "evidenzia": "menu",
+                "_spostata": "battuta di Bru, spostata dal giro della schermata al momento in cui la cosa si vede (docs/tutorial.md, §6)"
+              },
+              {
                 "tipo": "dialogo",
                 "chi": "veronica",
                 "testo": "Il pugno da solo non basta. Adesso usa qualcosa che ti COSTI.",
@@ -3768,11 +3741,9 @@
               },
               {
                 "tipo": "narrazione",
-                "testo": "Apri ABILITÀ e usa Sovraccarico. Sotto la vita hai l'AURA: è quella che si spende per le mosse, e ogni mossa ha il suo prezzo — più è grossa, più ne vuole."
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "L'aura non torna da sola mentre combatti. Quella con cui entri è quella che hai: si riempie dopo lo scontro, o con un oggetto, o con le abilità di chi ne sa una."
+                "testo": "Apri SKILL e usa Sovraccarico. Sotto la vita hai l'AURA: è quella che si spende per le mosse, e ogni mossa ha il suo prezzo — più è grossa, più ne vuole.",
+                "evidenzia": "menu",
+                "_nota": "«ABILITÀ» corretto in «SKILL», il nome scritto sul tasto"
               }
             ],
             "dopo": [
@@ -3789,7 +3760,13 @@
               {
                 "tipo": "dialogo",
                 "chi": "veronica",
-                "testo": "È l'aura che se ne va. Impara a contarla, {nome}: quando finisce restano i pugni."
+                "testo": "È l'aura che se ne va. Impara a contarla, {nome}: quando finisce restano i pugni.",
+                "evidenzia": "squadra"
+              },
+              {
+                "tipo": "narrazione",
+                "testo": "L'aura non torna da sola mentre combatti. Quella con cui entri è quella che hai: si riempie dopo lo scontro, o con un oggetto, o con le abilità di chi ne sa una.",
+                "_spostata": "spostata dal «prima» al «dopo»: si dice quando la barra dell'aura è appena scesa"
               }
             ]
           },
@@ -3803,7 +3780,9 @@
               },
               {
                 "tipo": "narrazione",
-                "testo": "Scegli DIFENDITI: alza la guardia, e la guardia resta fino alla fine dello scontro. Difendersi di fila vale ogni volta, ma ogni scatto conta un po' meno del precedente — e oltre un certo punto non si sale più."
+                "testo": "Scegli DIFESA: alza la guardia, e la guardia resta fino alla fine dello scontro.",
+                "evidenzia": "menu",
+                "_nota": "«DIFENDITI» corretto in «DIFESA», il nome scritto sul tasto; tolta la seconda frase (gli scatti di guardia che contano sempre meno): è un dettaglio da giocatore esperto, non da prima lezione"
               }
             ],
             "dopo": [
@@ -3840,8 +3819,16 @@
                 "testo": "In piedi. E adesso curati con tutta la tua anima!"
               },
               {
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Le barre, dall'alto: [b]HP[/b] è quanto reggi. Finiti quelli sei per terra.",
+                "evidenzia": "squadra",
+                "_spostata": "battuta di Bru, spostata dal giro della schermata al momento in cui la cosa si vede (docs/tutorial.md, §6)"
+              },
+              {
                 "tipo": "narrazione",
-                "testo": "Apri OGGETTI e usa la Fiala HP: i consumabili si spendono, ma possono salvarti il combattimento."
+                "testo": "Apri OGGETTI e usa la Fiala HP: i consumabili si spendono, ma possono salvarti il combattimento.",
+                "evidenzia": "menu"
               }
             ],
             "dopo": [
@@ -3869,8 +3856,11 @@
                 "evidenzia": "mattanza"
               },
               {
-                "tipo": "narrazione",
-                "testo": "La Mattanza si porta via tutta la barra, e quanta ce n'era decide quanto dura. Finché dura, ogni pressione della BARRA SPAZIATRICE e ogni CLIC SUL NEMICO è un colpo che ignora la difesa: quanti ne entrano dipende da quanto in fretta batti."
+                "tipo": "dialogo",
+                "chi": "veronica",
+                "testo": "Quel tasto lì accanto lascialo stare, per oggi. Te lo spiego un'altra volta.",
+                "evidenzia": "bond",
+                "_spostata": "battuta di Bru, spostata dal giro della schermata al momento in cui la cosa si vede (docs/tutorial.md, §6)"
               },
               {
                 "tipo": "dialogo",
@@ -3878,11 +3868,6 @@
                 "testo": "E quando parte non pensare: pesta! Spazio, oppure clicca addosso a me, più in fretta che puoi. Finché la barra non è vuota, ogni colpo arriva.",
                 "espr": "decisa",
                 "_nota": "battuta mia (Claude), da correggere: Bru ha chiesto che Veronica spieghi che nella Mattanza si colpisce anche cliccando sul nemico"
-              },
-              {
-                "tipo": "narrazione",
-                "testo": "A barra vuota arriva il COLPO DI GRAZIA: una lancetta corre sulla barra. Premi quando passa sul bersaglio, una volta sola: se lo centri, fa male davvero.",
-                "_nota": "riga mia (Claude), da correggere: spiega il minigioco a barra vuota che Bru ha chiesto per la fine della Mattanza"
               }
             ],
             "dopo": [
@@ -3901,7 +3886,9 @@
                 "chi": "veronica",
                 "testo": "Quella cosa lì è tua. Ricordati di che sapore ha."
               }
-            ]
+            ],
+            "grazia_guidata": true,
+            "_grazia_guidata": "la prima volta la lancetta si ferma sul bersaglio e aspetta la mano, come Twink in Paper Mario ferma il salto sopra Goombario: il primo colpo di grazia si insegna facendolo, e riesce (docs/tutorial.md, §6)"
           },
           {
             "azione": "oggetto",
@@ -4035,7 +4022,7 @@
             }
           ]
         },
-        "_nota_lezione": "LA LEZIONE STA NEL 'prima' DEL PRIMO PASSO, e non serviva un meccanismo nuovo: quelle battute si leggono prima che il giocatore possa fare qualunque cosa, e il menu durante un passo accende solo quello che il passo chiede. Bru: «la prima cosa e' educare il giocatore sulla schermata, guidando e spiegando ogni singolo componente e come funziona, lo fara' veronica, poi finito di spiegare tutto comincia il combattimento scriptato». Il tasto BOND non viene spiegato apposta: e' disegnato ma non fa ancora niente, e raccontarlo sarebbe una bugia - Veronica lo rimanda.",
+        "_nota_lezione": "PRIMA SI GIOCA, POI SI SPIEGA - ognuno dei pezzi della schermata lo spiega ancora Veronica, come chiedeva Bru («la prima cosa e' educare il giocatore sulla schermata, guidando e spiegando ogni singolo componente e come funziona, lo fara' veronica»), ma nel momento in cui quel pezzo entra in gioco invece che tutti prima del primo colpo: la scheda e Studia dopo il primo danno, i turni quando il turno passa a lei, il menu quando lo apri, gli HP quando sono a 10, l'ECG dopo il colpo grosso, BOND accanto a MATTANZA. Prima del primo colpo restano due battute invece di quindici. Le ragioni e le fonti in docs/tutorial.md, §6. Il tasto BOND non viene spiegato apposta: e' disegnato ma non fa ancora niente, e raccontarlo sarebbe una bugia - Veronica lo rimanda.",
         "_nota_finale": "Bru: «superato questo veronica dira': cavolo ci sai proprio fare! non riesco a trattenermi! veronica va in mattanza e ti sferra il colpo che ti manda ko facendo finire l'allenamento». Quindi la raffica non sta piu' in mezzo: e' l'ULTIMA prova, e il colpo che chiude l'allenamento e' la conseguenza di averla superata - non una punizione, un complimento che le sfugge di mano."
       },
       "studio": [

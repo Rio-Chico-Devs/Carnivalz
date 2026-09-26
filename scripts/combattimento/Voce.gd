@@ -210,6 +210,13 @@ func svuota_coda() -> void:
 	sta_facendo_leggere = false
 	sta_svuotando = false
 
+func niente_da_leggere() -> bool:
+	# LA CODA VUOTA NON BASTA: la battuta a schermo e' gia' uscita dalla coda
+	# (pop_front, poi si mostra). Guardando solo la coda, la lezione di Veronica
+	# finiva mentre l'ULTIMA battuta era ancora li' - l'illuminazione si spegneva
+	# sotto le parole che la indicavano, e il click non si aspettava piu'
+	return coda.is_empty() and not sta_facendo_leggere
+
 func attendi_ogni_pagina(testo: String, forte: bool) -> void:
 	# UNA BATTUTA LUNGA E' PIU' PAGINE (vedi BoxTesto): ognuna ha il suo tempo
 	# di lettura, o il suo click

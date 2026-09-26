@@ -3310,7 +3310,39 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(allenamento.mattanza.grazia.attivo, "nell'allenamento a barra vuota non parte il colpo di grazia")
 	esigi(allenamento.tutorial_passo == indice,
 			"il passo della Mattanza si chiude a barra vuota: Veronica parla sopra il colpo di grazia")
-	allenamento.mattanza.finisci()
+	# 11. E LA PRIMA VOLTA E' GUIDATA, come la prima battaglia di Paper Mario:
+	#     la lancetta arriva sul bersaglio e LI' SI FERMA, senza orologio, e
+	#     aspetta la mano. Le pressioni di chi sta ancora martellando non
+	#     sprecano niente, e il primo colpo di grazia della vita riesce
+	var guida: ColpoDiGraziaCombattimento = allenamento.mattanza.grazia
+	esigi(guida.guidata, "nell'allenamento il primo colpo di grazia non e' guidato")
+	var tasto := InputEventKey.new()
+	tasto.keycode = KEY_SPACE
+	tasto.physical_keycode = KEY_SPACE
+	tasto.pressed = true
+	var giri := 0
+	while guida.fase != "ferma" and giri < 2000:
+		if giri % 7 == 0:
+			allenamento._unhandled_input(tasto)   # la mano che martella ancora
+		allenamento.mattanza.passa(1.0 / 120.0)
+		giri += 1
+	esigi(guida.fase == "ferma" and not guida.tirato,
+			"la lancetta guidata non si e' fermata sul bersaglio (fase '%s'): le pressioni di prima l'hanno sprecata?"
+			% guida.fase)
+	esigi(is_equal_approx(guida.cursore, guida.punto),
+			"la lancetta guidata si e' fermata a %.3f, il bersaglio e' a %.3f" % [guida.cursore, guida.punto])
+	for battito in 200:
+		allenamento.mattanza.passa(0.05)   # dieci secondi a guardarla
+	esigi(guida.fase == "ferma", "ferma sul bersaglio, la lancetta guidata ha un tempo che scade: e' in fase '%s'"
+			% guida.fase)
+	var vita_maestra := int(maestra.hp)
+	allenamento._unhandled_input(tasto)
+	esigi(guida.preso and int(maestra.hp) < vita_maestra,
+			"premuto sulla lancetta ferma, il colpo di grazia guidato non va a segno")
+	for battito in 100:
+		allenamento.mattanza.passa(0.05)
+		if not allenamento.mattanza_attiva:
+			break
 	esigi(allenamento.tutorial_passo == indice + 1,
 			"a Mattanza finita il passo non si chiude: l'allenamento resta fermo li'")
 	var detto := ""
@@ -9038,52 +9070,60 @@ func prova_tutorial_di_veronica() -> void:
 	# il giocatore sulla schermata, guidando e spiegando ogni singolo componente
 	# e come funziona, lo fara' veronica».
 	#
-	# Questa prova prima guardava solo il "prima" del passo 0, perche' li' stava
-	# tutta la spiegazione: ventuno battute di fila. Adesso ne stanno quindici,
-	# e sei sono andate dove la cosa di cui parlano si vede davvero - quindi il
-	# controllo guarda LA LEZIONE INTERA, prima e dopo di ogni passo.
-	#
-	# Non e' un allentamento: prende ancora un pezzo tolto per sbaglio, che e' il
-	# suo mestiere. Ed e' accompagnato dalla regola nuova, qui sotto.
+	# Lo spiega ancora tutto Veronica - ma ogni pezzo quando entra in gioco, non
+	# tutti prima del primo colpo (docs/tutorial.md, §6). Quindi il controllo
+	# guarda LA LEZIONE INTERA: che ogni pezzo venga nominato, e che ogni pezzo
+	# venga anche ILLUMINATO mentre se ne parla, in qualche passo.
 	var lezione := ""
+	var illuminati := {}
 	for passo_qualsiasi in passi:
 		for campo in ["prima", "dopo"]:
 			for msg in (passo_qualsiasi as Dictionary).get(campo, []):
 				lezione += String((msg as Dictionary).get("testo", "")) + " "
+				illuminati[String((msg as Dictionary).get("evidenzia", ""))] = true
 	for pezzo in ["Studia", "HP", "AURA", "dominio", "stress", "Morale",
 			"DIFESA", "MATTANZA", "turni", "veloce"]:
 		esigi(lezione.findn(String(pezzo)) != -1,
 				"la lezione di Veronica non nomina piu' '%s': un pezzo della schermata resta senza spiegazione"
 				% pezzo)
-	esigi((passi[0] as Dictionary).get("prima", []).size() >= 12,
-			"la lezione e' scesa a %d battute: non spiega piu' la schermata, la annuncia"
-			% (passi[0] as Dictionary).get("prima", []).size())
+	for pezzo in ["nemico", "scheda", "menu", "squadra", "bond", "ecg", "morale", "mattanza"]:
+		esigi(illuminati.has(pezzo),
+				"nella lezione nessuna battuta illumina '%s' mentre se ne parla" % pezzo)
 	esigi(insegna_minigioco, "l'allenamento non ha piu' le Collisioni infinite")
 	esigi(not tutorial.get("rivitalizzante", {}).is_empty(),
 			"senza rivitalizzante, sbagliare a parare chiude il tutorial a meta'")
 
-	# E NON SI TORNA INDIETRO. Le battute che parlano di una cosa che allo
-	# START DELLO SCONTRO non e' ancora successa non possono stare nel "prima"
-	# del passo 0: li' gli HP sono pieni, lo stress e' a zero, il dominio e'
-	# vuoto. Il giocatore vedrebbe un valore solo e gliene verrebbero raccontati
-	# tre - ed e' l'unico risultato di Andersen che sopravvive alla lettura del
-	# paper intero: +40% di livelli completati con l'informazione data nel
-	# momento in cui serve invece che in un blocco iniziale
-	# (docs/tutorial.md 0-bis, docs/fonti/chi2012-tutorial-complessita.pdf).
-	#
-	# Le tre sull'ECG e sullo stress stanno adesso nel "dopo" del passo 2, che
-	# porta il protagonista a 10 HP su 100: sotto QUOTA_ROSSA, quindi la linea
-	# e' davvero rossa mentre Veronica ne parla.
+	# PRIMA SI GIOCA. Sakurai: «let them play, first thing»; le euristiche PLAY
+	# (Desurvire e Wiberg, E3): i primi dieci minuti «dolorosamente ovvi» e con
+	# una risposta immediata e positiva. L'apertura era ventuno battute, poi
+	# quindici: adesso il primo colpo arriva dopo TRE al massimo, e nessun passo
+	# ne mette piu' di cinque davanti a quello che chiede di fare
+	esigi((passi[0] as Dictionary).get("prima", []).size() <= 3,
+			"prima del primo colpo ci sono %d battute: si torna a spiegare la schermata invece di giocarla"
+			% (passi[0] as Dictionary).get("prima", []).size())
+	for i in passi.size():
+		esigi((passi[i] as Dictionary).get("prima", []).size() <= 5,
+				"il passo %d mette %d battute davanti all'azione: e' un muro, non una lezione"
+				% [i, (passi[i] as Dictionary).get("prima", []).size()])
+
+	# E OGNI COSA QUANDO SI VEDE. Le battute che parlano di una cosa che in quel
+	# momento non e' ancora successa stanno nel posto sbagliato: il giocatore
+	# vedrebbe un valore e gliene verrebbero raccontati tre - ed e' l'unico
+	# risultato di Andersen che sopravvive alla lettura del paper intero: +40%
+	# di livelli completati con l'informazione data nel momento in cui serve
+	# (docs/tutorial.md 0-bis). La linea e lo stress stanno nel "dopo" del passo
+	# che porta il protagonista a 10 HP, e gli HP nel passo della cura
 	var apertura := ""
 	for msg in (passi[0] as Dictionary).get("prima", []):
 		apertura += String((msg as Dictionary).get("testo", "")) + " "
-	for troppo_presto in ["verde sopra", "rossa sotto", "impazzisce"]:
+	for troppo_presto in ["verde sopra", "rossa sotto", "impazzisce", "[b]HP[/b]", "[b]AURA[/b]", "DOMINIO"]:
 		esigi(apertura.findn(String(troppo_presto)) == -1,
-				"'%s' e' tornata nell'apertura: allo start non c'e' niente da guardare, la linea e' verde e lo stress a zero"
+				"'%s' e' tornata nell'apertura: allo start non c'e' niente da guardare"
 				% troppo_presto)
-	esigi((passi[0] as Dictionary).get("prima", []).size() <= 16,
-			"l'apertura e' risalita a %d battute: era 21, l'abbiamo portata a 15 apposta"
-			% (passi[0] as Dictionary).get("prima", []).size())
+	# e nessuna frase su una barra del turno: coi turni il turno si vede dalla
+	# cornice accesa, e una barra che si riempie non c'e' piu'
+	esigi(lezione.findn("quando è piena, tocca a te") == -1,
+			"la lezione parla ancora della barra che si riempie: coi turni non esiste")
 
 func prova_rivitalizzante_di_veronica() -> void:
 	# «se vai ko veronica dice [...] e usa un rivitalizzante su di te che ti
@@ -11350,15 +11390,46 @@ func prova_l_allenamento_non_si_pianta_al_primo_colpo() -> void:
 	esigi(not scontro.il_tempo_scorre(),
 			"il tutorial ha parlato e il mondo non si e' fermato: la lezione diventa un turno perso")
 	esigi(scontro.lezione_in_corso, "la lezione non si e' segnata come in corso: non ripartira' mai")
+	# si legge come la legge chi gioca: un click per battuta. Svuotare la coda
+	# non basta - la battuta a schermo e' gia' uscita dalla coda, e la lezione
+	# la aspetta (vedi la prova qui sotto)
 	scontro.voce.coda.clear()
-	for giro in 20:
+	for giro in 60:
 		if scontro.il_tempo_scorre():
 			break
+		scontro.voce.salta_messaggio = true
 		await get_tree().process_frame
 	esigi(scontro.il_tempo_scorre(),
 			"finita la lezione il mondo non e' ripartito: lo scontro resta fermo per sempre")
 	esigi(not scontro.voce.attende_il_click,
 			"finita la lezione le battute normali aspettano ancora il click: il combattimento si ferma a ogni frase")
+
+	# E L'ULTIMA BATTUTA TIENE FERMA LA LEZIONE FINCHE' E' A SCHERMO. La coda e'
+	# gia' vuota quando si mostra (pop_front, poi il box): guardando solo la
+	# coda la lezione finiva sotto l'ultima riga, il mondo ripartiva e
+	# l'illuminazione si spegneva sotto le parole che la indicavano. Con
+	# l'apertura di due battute si vedeva sempre: il riquadro di Veronica non
+	# si accendeva mai
+	scontro.scrivi_messaggio_tutorial({"tipo": "narrazione", "testo": "L'ultima.", "evidenzia": "nemico"})
+	for giro in 60:
+		if scontro.voce.coda.is_empty() and scontro.voce.sta_facendo_leggere:
+			break
+		await get_tree().process_frame
+	for giro in 10:
+		await get_tree().process_frame
+	esigi(scontro.voce.coda.is_empty() and scontro.voce.sta_facendo_leggere,
+			"l'ultima battuta della lezione non e' mai arrivata a schermo: la misura qui sotto non vale")
+	esigi(scontro.lezione_in_corso and not scontro.il_tempo_scorre(),
+			"sull'ultima battuta, ancora da leggere, la lezione e' gia' finita e il mondo e' ripartito")
+	esigi(scontro.plancia.evidenziato == scontro.plancia.pezzo("nemico"),
+			"l'ultima battuta della lezione indica il riquadro di Veronica, ma l'illuminazione si e' gia' spenta")
+	for giro in 60:
+		if not scontro.lezione_in_corso:
+			break
+		scontro.voce.salta_messaggio = true
+		await get_tree().process_frame
+	esigi(not scontro.lezione_in_corso and scontro.il_tempo_scorre(),
+			"letta l'ultima battuta la lezione non finisce: lo scontro resta fermo")
 
 	esigi(not scontro.tutorial.is_empty(),
 			"lo scontro con Veronica non ha caricato nessun tutorial")

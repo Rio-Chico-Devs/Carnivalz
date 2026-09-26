@@ -594,12 +594,18 @@ func prepara(quale: String) -> void:
 			mira.set_process(false)
 			mira.mattanza.chiudi_finestra()
 			var grazia: ColpoDiGraziaCombattimento = mira.mattanza.grazia
-			var distanza := {"mira": 0.07, "rotto": 0.005, "mancato": 0.3}.get(momento, 0.07) as float
+			if momento == "ora":
+				# la prima volta, nell'allenamento: la lancetta ferma sul
+				# bersaglio che aspetta la mano
+				grazia.interrompi()
+				grazia.avvia(mira.mattanza.dati.get("colpo_di_grazia", {}), true)
+			var distanza := {"mira": 0.07, "rotto": 0.005, "mancato": 0.3, "ora": -1.0}.get(momento, 0.07) as float
 			var giri := 0
-			while (grazia.fase != "corsa" or absf(grazia.cursore - grazia.punto) > distanza) and giri < 5000:
+			while giri < 5000 and grazia.fase != "ferma" \
+					and (grazia.fase != "corsa" or absf(grazia.cursore - grazia.punto) > distanza):
 				grazia.passa(1.0 / 480.0)
 				giri += 1
-			if momento != "mira":
+			if momento != "mira" and momento != "ora":
 				grazia.premi_col_tasto()
 			# l'orologio del minigioco va avanti coi fotogrammi: il lampo si spegne,
 			# e i pezzi volano col loro

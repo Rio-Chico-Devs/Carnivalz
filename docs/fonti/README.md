@@ -22,6 +22,14 @@ solo la pagina che serve:
 Restano bloccati i siti senza repository: le linee guida di accessibilità, i
 paper, i blog.
 
+## Da scaricare adesso: i tutorial di Nintendo
+
+Per il primo tutorial rifatto (`docs/tutorial.md`, §6) la rete non mi ha fatto
+aprire nemmeno una pagina: le fonti su Nintendo le ho viste solo attraverso le
+sintesi della ricerca, e dove più testate dicevano la stessa cosa l'ho segnata
+«riscontrata» invece che «letta». L'elenco dei dieci originali, coi link, è in
+`docs/tutorial.md`, §6.8. Messi qui, rileggo il capitolo e correggo.
+
 ## Come metterle
 
 Un file per fonte, con un nome che dica cos'è:
