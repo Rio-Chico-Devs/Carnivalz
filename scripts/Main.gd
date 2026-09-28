@@ -96,6 +96,7 @@ var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la ca
 var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alterne
 var nome_sul_nastro := ""  # chi c'e' scritto adesso: il nastro rientra solo quando cambia
 var tween_nastro: Tween
+var carta_nastro: NastroStrappato   # la carta strappata e il fregio, dietro la scritta
 var tween_sfondo: Tween
 var racconto: Racconto = null   # l'inizio del gioco e dei livelli, a schermo intero
 
@@ -251,28 +252,11 @@ func prepara_nastro() -> void:
 	# scendere sotto, nemmeno svuotandola. Col disegno di Bru addosso veniva
 	# alto 98 pixel invece dei 78 chiesti, e il disegno ci ballava dentro.
 	# Adesso il nastro e' un riquadro che decide lui la propria misura, e dentro
-	# ci sta o il disegno o la scritta di ripiego.
-	nome_nastro.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# ci sta o il disegno o la scritta di ripiego: la carta strappata col fregio
+	# e il nome in maiuscoletto Fell (NastroStrappato, scelto da Bru)
 	nome_nastro.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	nome_nastro.add_theme_stylebox_override("normal", stile_nastro_piatto())
-	nome_nastro.add_theme_color_override("font_color", Stile.colore("nastro_testo"))
-	# il carattere dei nomi (Caratteri.nomi): «piu' particolare e alla moda» (Bru)
-	if Caratteri.nomi() != null:
-		nome_nastro.add_theme_font_override("font", Caratteri.nomi())
-	nome_nastro.add_theme_font_size_override("font_size", Caratteri.corpo_nomi())
+	carta_nastro = NastroStrappato.dentro(nastro, nome_nastro)
 	nastro.rotation = Stile.angolo("inclinazione_nastro")
-
-func stile_nastro_piatto() -> StyleBoxFlat:
-	# Il ripiego: il rettangolo rosa. Vive finche' il disegno di quel
-	# personaggio non c'e', e per qualcuno durera' a lungo.
-	var stile := StyleBoxFlat.new()
-	stile.bg_color = Stile.colore("nastro")
-	stile.set_corner_radius_all(0)
-	stile.content_margin_left = 30
-	stile.content_margin_right = 30
-	stile.content_margin_top = 4
-	stile.content_margin_bottom = 6
-	return stile
 
 func aggiorna_nastro(nome: String, id_chi := "") -> void:
 	nastro.visible = nome != ""
@@ -287,9 +271,10 @@ func aggiorna_nastro(nome: String, id_chi := "") -> void:
 	if nome == nome_sul_nastro:
 		return
 	nome_sul_nastro = nome
-	# minuscolo come nel disegno: "veronica", non "Veronica". E' una scelta di
-	# carattere, non un errore - il nastro e' scritto a mano, non stampato
-	nome_nastro.text = nome.to_lower()
+	# COM'E' SCRITTO, maiuscole comprese: in maiuscoletto l'iniziale resta piu'
+	# alta, come i nomi di chi parla nei testi teatrali stampati
+	nome_nastro.text = nome
+	carta_nastro.strappa(nome)
 	vesti_il_nastro(id_chi)
 	await get_tree().process_frame   # la misura giusta si sa dopo che il testo c'e'
 	# SI GUARDA nome_sul_nastro E NON IL TESTO DELLA LABEL. Sembrava lo stesso
@@ -339,6 +324,7 @@ func applica_nastro(disegno: Texture2D) -> void:
 	fondo_nastro.texture = disegno
 	fondo_nastro.visible = disegno != null
 	nome_nastro.visible = disegno == null
+	carta_nastro.visible = disegno == null
 	if disegno == null:
 		nastro.custom_minimum_size = nome_nastro.get_combined_minimum_size()
 	else:

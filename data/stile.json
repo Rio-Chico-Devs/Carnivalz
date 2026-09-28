@@ -9,6 +9,7 @@
     "file_fiaba": "res://art/font/fiaba.ttf",
     "file_dialoghi": "res://art/font/dialoghi.ttf",
     "file_nomi": "res://art/font/nomi.ttf",
+    "file_fregi": "res://art/font/fregi.ttf",
     "corpo": [
       "Inter",
       "Segoe UI",
@@ -53,14 +54,17 @@
     ],
     "_nota_dialoghi": "IL CARATTERE DEL BOX DEI DIALOGHI (dialoghi, narrazione, notifiche, diario del combattimento). Bru: «dobbiamo anche scegliere un bel font generale per i dialoghi, quello attuale non mi piace»; dopo due giri di candidati («nessuno mi ispira molto») e il laboratorio dei caratteri fatti a codice («con bricolage grotesque ci avviciniamo»), la prova numero 5: «proviamo 5 ops 96 ma leggermente piu' grande». E' Bricolage Grotesque di Mathieu Triay, a tre assi: le misure (corpo ottico, larghezza, peso, spaziatura, e com'e' fatto il corsivo che non ha) stanno nella sezione \"dialoghi\" di questo file. Licenza: art/font/OFL-BricolageGrotesque.txt.",
     "nomi": [
-      "Shantell Sans",
-      "Segoe Print",
-      "Bradley Hand",
-      "Comic Neue",
-      "DejaVu Sans",
-      "sans-serif"
+      "IM FELL English SC",
+      "Garamond",
+      "Georgia",
+      "serif"
     ],
-    "_nota_nomi": "IL CARATTERE DEI NOMI DI CHI PARLA (il nastro rosa, la riga del nome nel box, lo storico). Bru: «nei nomi va usato un altro font piu' particolare e alla moda». Venti candidati sul nastro vero (scatti: nastri_1 e nastri_2, prove/scatto.sh nastri <cartella>); in attesa che Bru scelga, questo e' il mio: Shantell Sans di Shantell Martin e Arrow Type, una scrittura a mano col pennarello - il nastro e' uno scotch con su scritto un nome - con due assi che la rendono viva, INFM (quanto e' informale) e BNCE (quanto le lettere saltellano sulla riga). Le misure stanno nella sezione \"nomi\" di questo file. Licenza: art/font/OFL-ShantellSans.txt.",
+    "fregi": [
+      "EB Garamond",
+      "Garamond",
+      "serif"
+    ],
+    "_nota_nomi": "IL CARATTERE DEI NOMI DI CHI PARLA (il nastro rosa, la riga del nome nel box, lo storico). Bru, dopo diversi giri di prove - due cataloghi alla moda, uno gotico, uno elegante («non sono timeless e sanno di ai e pigrizia») e poi tre caratteri con una storia composti con cura - ha scelto questo: IM Fell English in maiuscoletto, dai caratteri che John Fell raccolse per la stamperia di Oxford nel Seicento. Il maiuscoletto e' come si stampano i nomi di chi parla nei testi teatrali. Davanti, il fregio ❧ dei tipografi, da EB Garamond (fregi). Le misure nella sezione \"nomi\" di questo file. Licenze: art/font/OFL-IMFell.txt, OFL-EBGaramond.txt.",
     "arrotondato": [
       "Nunito",
       "Varela Round",
@@ -71,7 +75,7 @@
     "_nota": "Il disegno di Bru ha un carattere pesante, squadrato, senza grazie - niente a che vedere con le grazie di prima. Se metti un .ttf in art/font/ e scrivi il percorso in file_corpo/file_titolo, quello vince su tutto: l'elenco qui sotto e' il ripiego di sistema fino ad allora, scelto per somigliargli il piu' possibile su Windows, Mac e Linux.",
     "_nota_corpo": "IL CORPO NON E' IL TITOLO, e per un po' lo e' stato: queste due liste erano identiche, tutte e due in testa con Haettenschweiler e Impact. Sono caratteri da manifesto - condensatissimi, occhielli piccoli, nessuno spazio fra le lettere - e vanno benissimo per CARNIVALZ a quarantaquattro, e malissimo per tre righe di dialogo a ventisei. Non si vedeva provando su Linux, dove nessuno dei due c'e' e si ripiegava su Liberation Sans: si vedeva solo su Windows, che ce li ha tutti e due.",
     "_nota_licenza": "Impact e Haettenschweiler sono di Microsoft e NON si possono incorporare in un gioco: il permesso di incorporare vale per i documenti, non per le applicazioni, e nemmeno convertendoli. Finche' si pescano dal sistema va bene, ma vuol dire che il gioco si legge diverso su ogni macchina. Per spedirlo serve un .ttf con licenza aperta (OFL) dentro art/font/, e allora file_corpo/file_titolo vincono su tutto.",
-    "_nota_ofl": "DENTRO art/font/ CI SONO QUATTRO CARATTERI VERI, e vincono sull'elenco di sistema: Anton per i titoli (pesante e condensato, il piu' vicino fra quelli liberi al carattere del menu di Borderlands 2 che Bru ha preso come riferimento), Nunito, arrotondato, per le scritte piccole del menu principale, Italianno per il racconto e Bricolage Grotesque per il box dei dialoghi. Tutti con licenza SIL OFL: si possono incorporare e distribuire col gioco. Vedi art/font/LEGGIMI.md."
+    "_nota_ofl": "DENTRO art/font/ CI SONO SEI CARATTERI VERI, e vincono sull'elenco di sistema: Anton per i titoli (pesante e condensato, il piu' vicino fra quelli liberi al carattere del menu di Borderlands 2 che Bru ha preso come riferimento), Nunito, arrotondato, per le scritte piccole del menu principale, Italianno per il racconto, Bricolage Grotesque per il box dei dialoghi, IM Fell English in maiuscoletto per i nomi e EB Garamond per i fregi. Tutti con licenza SIL OFL: si possono incorporare e distribuire col gioco. Vedi art/font/LEGGIMI.md."
   },
   "_nota_dialoghi": "COM'E' FATTO IL CARATTERE DEI DIALOGHI (Caratteri.dialoghi, font.file_dialoghi). E' la prova 5 del laboratorio che Bru ha scelto - corpo ottico (opsz) 96, larghezza (wdth) 75 cioe' stretto, peso (wght) 800 cioe' nerissimo, un pixel di spazio in piu' fra le lettere - ma il laboratorio la scriveva a 26 e Bru l'ha voluta «leggermente piu' grande»: corpo 28 (un gradino di scala sarebbe stato 31, troppo; 28 e' il 7-8% in piu'). Il corpo ottico a 96 e' il disegno pensato per i titoli: lettere piu' strette e contrasto piu' marcato, ed e' quello che le da' carattere anche a 28. Bricolage non ha un corsivo, e la narrazione e' in corsivo: si inclina il dritto (inclinazione, 0,2 = circa 11 gradi) - lo stesso trucco del laboratorio. Il grassetto non puo' pesare piu' di 800, che e' il massimo del file: si ispessisce il tratto (grassetto, in parti del corpo). Numeri miei tranne i quattro della prova 5.",
   "dialoghi": {
@@ -81,10 +85,16 @@
     "inclinazione": 0.2,
     "grassetto": 0.6
   },
-  "_nota_nomi": "COM'E' FATTO IL CARATTERE DEI NOMI (Caratteri.nomi, font.file_nomi). corpo: quanto e' grande sul nastro rosa (prima il nastro usava titolo, 45; Shantell ha l'occhio grande e a 42 riempie lo stesso nastro); la riga del nome nel box e lo storico tengono la loro misura (dimensioni.nome e dimensioni.piccolo). assi: quelli del file, per nome - wght il peso (300-800), INFM quanto e' informale (0-100), BNCE quanto le lettere saltellano (0-100). Cambiando carattere si cambiano gli assi con i suoi: un asse che il file non ha non fa niente. Numeri miei.",
+  "_nota_nomi": "COM'E' FATTO IL NOME SUL NASTRO (NastroStrappato, Caratteri.nomi). E' la prova che Bru ha approvato (scatti: nome_fell_strappato). corpo: quanto e' grande sul nastro; la riga del nome nel box e lo storico tengono la loro misura (dimensioni.nome e dimensioni.piccolo). spaziatura: un po' d'aria fra le lettere, che il maiuscoletto la vuole. inchiostro e steso: il colore del nome e quanto si allarga nella carta (un alone dello stesso colore, 0 = niente). fregio, fregio_corpo e fregio_assi: la fogliolina davanti al nome, quanto e' grande e il suo peso (EB Garamond e' a peso variabile, 500 come nella prova approvata); e' cremisi (colori.accento). assi: per un carattere a peso variabile; Fell non ne ha. Il nastro e' strappato a mano alle due estremita', a modo suo per ogni nome.",
   "nomi": {
-    "corpo": 42,
-    "assi": {"wght": 800, "INFM": 100, "BNCE": 100}
+    "corpo": 46,
+    "spaziatura": 3,
+    "inchiostro": "#1b1417",
+    "steso": 0.28,
+    "fregio": "❧",
+    "fregio_corpo": 42,
+    "fregio_assi": {"wght": 500},
+    "assi": {}
   },
   "_nota_dimensioni": "Scala tipografica: pochi gradini, sempre gli stessi. Niente font_size a occhio dentro le scene.",
   "dimensioni": {

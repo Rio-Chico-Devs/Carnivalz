@@ -111,7 +111,7 @@ class Ritaglio extends RichTextEffect:
 		return true
 
 
-class NastroStrappato extends PanelContainer:
+class StrappoDiProva extends PanelContainer:
 	# lo stesso nastro rosa, ma con le due estremita' strappate a mano, come un
 	# pezzo di scotch di carta vero: il rettangolo liscio si legge digitale
 	var colore := Color.PINK
@@ -271,6 +271,17 @@ func box_elegante(scritta: RichTextLabel, radice_ofl: String) -> Control:
 	return tutto
 
 
+func nastro_liscio() -> StyleBoxFlat:
+	# il nastro rosa di prima, liscio: quello su cui si sono provati i nomi
+	var stile := StyleBoxFlat.new()
+	stile.bg_color = Stile.colore("nastro")
+	stile.content_margin_left = 30
+	stile.content_margin_right = 30
+	stile.content_margin_top = 4
+	stile.content_margin_bottom = 6
+	return stile
+
+
 func nomi_in_scena(prove: Array) -> void:
 	# UN NOME PER SCHERMATA, NON UN CATALOGO. Bru, sui cataloghi: «non sono
 	# timeless e sanno di ai e pigrizia». Ogni prova (lo stesso json di
@@ -300,14 +311,14 @@ func nomi_in_scena(prove: Array) -> void:
 		var prova: Dictionary = prove[n]
 		if nastro != null:
 			nastro.queue_free()
-		nastro = NastroStrappato.new() if String(prova.get("nastro", "")) == "strappato" else PanelContainer.new()
-		var liscio := scena.stile_nastro_piatto() as StyleBoxFlat
-		if nastro is NastroStrappato:
+		nastro = StrappoDiProva.new() if String(prova.get("nastro", "")) == "strappato" else PanelContainer.new()
+		var liscio := nastro_liscio()
+		if nastro is StrappoDiProva:
 			var vuoto := StyleBoxEmpty.new()
 			for lato in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 				vuoto.set_content_margin(lato, liscio.get_content_margin(lato))
 			nastro.add_theme_stylebox_override("panel", vuoto)
-			(nastro as NastroStrappato).colore = liscio.bg_color
+			(nastro as StrappoDiProva).colore = liscio.bg_color
 		else:
 			nastro.add_theme_stylebox_override("panel", liscio)
 		var scritta := scritta_del_nome()
@@ -345,7 +356,7 @@ func nomi_a_confronto(prove: Array) -> void:
 	var schermata: Node = get_child(0)
 	schermata.nastro.visible = false
 	var nastro := PanelContainer.new()
-	nastro.add_theme_stylebox_override("panel", schermata.stile_nastro_piatto())
+	nastro.add_theme_stylebox_override("panel", nastro_liscio())
 	var sul_nastro := scritta_del_nome()
 	nastro.add_child(sul_nastro)
 	schermata.add_child(nastro)

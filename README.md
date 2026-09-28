@@ -614,8 +614,11 @@ spazio in più fra le lettere — a 28 invece che a 26 («leggermente più grand
 corsivo: la narrazione è il dritto inclinato. Le misure stanno in `data/stile.json`, sezione
 `dialoghi`. I **nomi di chi parla** (il nastro rosa, la riga del nome nel box, lo storico)
 hanno un carattere loro, `art/font/nomi.ttf` (`Caratteri.nomi()`, misure nella sezione `nomi`):
-per ora **Shantell Sans**, scritto a mano e saltellante, scelta mia in attesa che Bru scelga fra
-i venti candidati di `prove/scatto.sh nastri <cartella>`. Ogni nodo evento può
+**IM Fell English in maiuscoletto**, dai caratteri Fell della stamperia di Oxford — come i nomi
+di chi parla nei testi teatrali stampati — scelto da Bru dopo diversi giri di prove
+(`prove/scatto.sh nome_in_scena <prove.json>`). Sul nastro il nome ha davanti il fregio ❧ dei
+tipografi, in cremisi (`art/font/fregi.ttf`, EB Garamond), e il nastro è carta con le estremità
+strappate a mano, a modo suo per ogni nome (`NastroStrappato.gd`). Ogni nodo evento può
 avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
 - **`narrazione`**: la voce narrante descrive la scena in **seconda persona** ("ti nota",
   "il tuo compito"), sempre in *corsivo*, senza nome — non è Anonimo che parla, è chi

@@ -81,12 +81,22 @@ static func corpo_dialoghi() -> int:
 
 
 static func nomi() -> Font:
-	# I NOMI DI CHI PARLA (Shantell Sans, per ora): il nastro rosa, la riga del
-	# nome nel box, lo storico. Bru: «nei nomi va usato un altro font piu'
-	# particolare e alla moda». Misure in data/stile.json, sezione "nomi"
+	# I NOMI DI CHI PARLA (IM Fell English, maiuscoletto): il nastro rosa, la
+	# riga del nome nel box, lo storico. Bru l'ha scelto dopo diversi giri di
+	# prove - come i nomi di chi parla nei testi teatrali stampati. Misure in
+	# data/stile.json, sezione "nomi"
 	if not gia_fatti.has("nomi"):
 		gia_fatti["nomi"] = con_le_sue_misure("nomi", Stile.dati.get("nomi", {}))
 	return gia_fatti["nomi"]
+
+
+static func fregi() -> Font:
+	# I FREGI DEI TIPOGRAFI (EB Garamond): la fogliolina ❧ davanti ai nomi. Il
+	# peso sta in data/stile.json, sezione "nomi", alla voce fregio_assi
+	if not gia_fatti.has("fregi"):
+		var misure: Dictionary = Stile.dati.get("nomi", {})
+		gia_fatti["fregi"] = con_le_sue_misure("fregi", {"assi": misure.get("fregio_assi", {})})
+	return gia_fatti["fregi"]
 
 
 static func corpo_nomi() -> int:

@@ -5172,13 +5172,71 @@ func prova_i_nomi_si_scrivono_col_loro_carattere() -> void:
 	# le misure scritte in stile.json arrivano davvero al nastro
 	esigi(schermata.nome_nastro.get_theme_font_size("font_size") == Caratteri.corpo_nomi(),
 			"sul nastro il nome e' a %d invece che a %d" % [schermata.nome_nastro.get_theme_font_size("font_size"), Caratteri.corpo_nomi()])
+	# LA PROVA CHE BRU HA APPROVATO (scatti: nome_fell_strappato): maiuscoletto
+	# con un po' d'aria fra le lettere, l'inchiostro steso, il fregio cremisi
+	# davanti, e la carta strappata alle due estremita'
+	var misure: Dictionary = Stile.dati.get("nomi", {})
 	var variante: FontVariation = schermata.nome_nastro.get_theme_font("font") as FontVariation
-	var assi: Dictionary = (Stile.dati.get("nomi", {}) as Dictionary).get("assi", {})
-	esigi(variante != null and not assi.is_empty(), "il carattere dei nomi non ha le sue misure")
-	for asse: String in assi:
-		var messo: Variant = variante.variation_opentype.get(TextServerManager.get_primary_interface().name_to_tag(asse)) if variante != null else null
-		esigi(messo != null and is_equal_approx(float(messo), float(assi[asse])),
-				"sul nastro l'asse %s e' a %s invece che a %s" % [asse, messo, assi[asse]])
+	esigi(variante != null and variante.spacing_glyph == int(misure.get("spaziatura", -1)) and variante.spacing_glyph > 0,
+			"sul nastro fra le lettere del nome non c'e' l'aria del maiuscoletto (%s)" % [str(variante.spacing_glyph) if variante != null else "niente"])
+	var inchiostro := Color(String(misure.get("inchiostro", "#000000")))
+	esigi(schermata.nome_nastro.get_theme_color("font_color") == inchiostro
+			and is_equal_approx(schermata.nome_nastro.get_theme_color("font_shadow_color").a, float(misure.get("steso", -1.0)))
+			and schermata.nome_nastro.get_theme_color("font_shadow_color").a > 0.0,
+			"sul nastro il nome non e' dell'inchiostro scelto, o l'inchiostro non si stende nella carta")
+	var carta: NastroStrappato = schermata.carta_nastro
+	esigi(carta != null and carta.get_parent() == schermata.nastro and carta.get_index() < schermata.nome_nastro.get_index(),
+			"sotto il nome non c'e' la carta strappata, o ci sta davanti")
+	if carta != null:
+		var fregio_usato := base_del_carattere(carta.fregio.get_theme_font("font"))
+		esigi(carta.fregio.text == String(misure.get("fregio", "?")) and fregio_usato != null
+				and fregio_usato.resource_path == String((Stile.dati.get("font", {}) as Dictionary).get("file_fregi", "")),
+				"davanti al nome non c'e' il fregio, o non e' quello dei tipografi (EB Garamond)")
+		esigi(carta.fregio.get_theme_color("font_color") == Stile.colore("accento"), "il fregio davanti al nome non e' cremisi")
+		var peso := TextServerManager.get_primary_interface().name_to_tag("wght")
+		var variante_fregio := carta.fregio.get_theme_font("font") as FontVariation
+		esigi(variante_fregio != null and variante_fregio.variation_opentype.get(peso, 0.0)
+				== float((misure.get("fregio_assi", {}) as Dictionary).get("wght", -1)),
+				"il fregio non ha il peso scritto in stile.json (quello della prova approvata)")
+		# lo strappo: i due bordi non sono dritti, e due nomi non si strappano
+		# uguali. Si misura sul nastro vero, dopo che qualcuno ha parlato
+		schermata.nome_sul_nastro = ""
+		await schermata.aggiorna_nastro("Veronica")
+		await get_tree().process_frame
+		esigi(carta.size.y > 10.0, "il nastro con il nome di Veronica e' alto %.1f" % carta.size.y)
+		# IL FREGIO STA DAVANTI AL NOME, misurato col nastro gia' in scena, dopo
+		# che qualcuno ha parlato: e' li' che nel gioco finiva sotto la D
+		var margine := (schermata.nome_nastro.get_theme_stylebox("normal") as StyleBox).get_margin(SIDE_LEFT)
+		esigi(carta.fregio.position.x + carta.fregio.get_minimum_size().x <= margine,
+				"il fregio (fino a %.0f) finisce sopra il nome, che comincia a %.0f"
+				% [carta.fregio.position.x + carta.fregio.get_minimum_size().x, margine])
+		# e il nome comincia davvero al margine: una Label centrata centra
+		# sull'intera larghezza e dei margini non tiene conto
+		esigi(schermata.nome_nastro.horizontal_alignment == HORIZONTAL_ALIGNMENT_LEFT,
+				"il nome sul nastro e' centrato: non comincia dopo il fregio ma gli finisce addosso")
+		var una := carta.contorno()
+		# su quaranta nomi: lo strappo non e' mai dritto e non morde mai piu' di
+		# MORSO pixel di carta, ne' a destra ne' a sinistra
+		var dritti := 0
+		var troppo := 0
+		for n in 40:
+			carta.strappa("nome %d" % n)
+			var bordo := carta.contorno()
+			var meta := int(bordo.size() / 2.0)
+			var morsi: Array = []
+			for k in bordo.size():
+				morsi.append(carta.size.x - bordo[k].x if k < meta else bordo[k].x)
+			troppo += 1 if morsi.max() > NastroStrappato.MORSO + 0.01 or morsi.min() < -0.01 else 0
+			dritti += 1 if morsi.max() - morsi.min() < 2.0 else 0
+		esigi(dritti == 0 and troppo == 0, "su 40 nomi, %d nastri hanno i bordi dritti e %d mordono piu' di %d pixel di carta"
+				% [dritti, troppo, int(NastroStrappato.MORSO)])
+		carta.strappa("Dr. Reika")
+		esigi(carta.contorno() != una, "due nomi diversi hanno lo stesso strappo: sembrano stampati")
+		# col nastro disegnato da Bru la carta si spegne: il disegno e' gia' tutto
+		schermata.applica_nastro(ImageTexture.create_from_image(Image.create(300, 100, false, Image.FORMAT_RGBA8)))
+		esigi(not carta.visible, "col nastro disegnato addosso si vede ancora la carta strappata")
+		schermata.applica_nastro(null)
+		esigi(carta.visible, "tolto il disegno la carta strappata non torna")
 	# e il nome piu' lungo del gioco sta nello schermo: un carattere largo e alla
 	# moda non deve portare il nastro fuori dal bordo
 	var piu_lungo := ""
@@ -5708,7 +5766,8 @@ func prova_il_nastro_col_nome() -> void:
 		schermata.tween_nastro.pause()
 	var nastro: Control = schermata.nastro
 	esigi(nastro.visible, "il nastro non si e' acceso")
-	esigi(schermata.nome_nastro.text == "veronica",
+	# com'e' scritto, maiuscole comprese: in maiuscoletto l'iniziale resta alta
+	esigi(schermata.nome_nastro.text == "Veronica",
 			"sul nastro c'e' scritto '%s'" % schermata.nome_nastro.text)
 	esigi(nastro.position.x + nastro.size.x < 0.0,
 			"il nastro parte a x=%.1f, cioe' gia' dentro lo schermo" % nastro.position.x)
@@ -5749,7 +5808,7 @@ func prova_il_nastro_col_nome() -> void:
 	await get_tree().process_frame
 	esigi(not nastro.position.is_equal_approx(fermo),
 			"ha parlato qualcun altro e il nastro e' rimasto dov'era")
-	esigi(schermata.nome_nastro.text == "anonimo",
+	esigi(schermata.nome_nastro.text == "Anonimo",
 			"il nastro dice ancora '%s'" % schermata.nome_nastro.text)
 
 	# 5. IL DISEGNO DI BRU VINCE SUL RIPIEGO. Bru: «ogni personaggio avra' il
