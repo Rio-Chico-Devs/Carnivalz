@@ -406,7 +406,9 @@ func prepara(quale: String) -> void:
 			# I CARATTERI DA FAVOLA A CONFRONTO. Bru: «il font delle narrazioni [...]
 			# deve essere piu' elegante e fiabesco». Lo stesso paragrafo del racconto
 			# scritto con ogni .ttf di una cartella, anche fuori dal progetto, in un
-			# foglio solo: "caratteri /percorso/cartella [corpo]"
+			# foglio solo: "caratteri /percorso/cartella [corpo] [peso] [intero]".
+			# Un carattere che vuole misure sue le porta nel nome del file, fra
+			# graffe: "Italianno {corpo=58}.ttf", "Fraunces {SOFT=100;wght=450}.ttf".
 			var argomenti_c := OS.get_cmdline_user_args()
 			var cartella := String(argomenti_c[1])
 			var corpo_c := int(argomenti_c[2]) if argomenti_c.size() > 2 and argomenti_c[2].is_valid_int() else 34
@@ -431,15 +433,29 @@ func prepara(quale: String) -> void:
 			cartello.position = Vector2(40, 30)
 			cartello.add_theme_font_size_override("font_size", 40)
 			fiaba.add_child(cartello)
-			Stile.imposta_corpo(fiaba.testo, corpo_c)
 			for i in nomi.size():
 				var carattere := FontFile.new()
 				carattere.load_dynamic_font(cartella.path_join(String(nomi[i])))
+				# nel nome del file, fra graffe, le sue misure: "{corpo=50;wght=600;SOFT=100}"
+				var assi := {"wght": peso_c}
+				var corpo_suo := corpo_c
+				var nome_pulito := String(nomi[i]).get_basename()
+				if nome_pulito.contains("{"):
+					for coppia in nome_pulito.get_slice("{", 1).trim_suffix("}").split(";"):
+						if coppia.get_slice("=", 0) == "corpo":
+							corpo_suo = int(coppia.get_slice("=", 1))
+						else:
+							assi[coppia.get_slice("=", 0)] = float(coppia.get_slice("=", 1))
+					nome_pulito = nome_pulito.get_slice("{", 0).strip_edges()
 				var pesato := FontVariation.new()
 				pesato.base_font = carattere
-				pesato.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): peso_c}
+				var opentype := {}
+				for asse: String in assi:
+					opentype[TextServerManager.get_primary_interface().name_to_tag(asse)] = assi[asse]
+				pesato.variation_opentype = opentype
 				fiaba.testo.add_theme_font_override("normal_font", pesato)
-				cartello.text = String(nomi[i]).get_basename()
+				fiaba.testo.add_theme_font_size_override("normal_font_size", corpo_suo)
+				cartello.text = nome_pulito
 				await attendi(6)
 				await RenderingServer.frame_post_draw
 				var foto := get_viewport().get_texture().get_image()
