@@ -1721,7 +1721,7 @@
     },
     "hq_sala_riunioni_1": {
       "_nota": "28 settembre: la battuta «Le ricordiamo che il suo data pad è sempre consultabile...» descriveva il data pad di prima (appunti in cima, statistiche e abitudini sotto). Bru l'ha riorganizzato - via gli appunti, i messaggi in un'iconcina, statistiche e Sviluppo in Personaggio e squadra, il Database al posto delle Osservazioni - e la battuta e' riscritta su quello che c'e' adesso. Il testo nuovo e' mio.",
-      "_nota_data_pad": "Tre battute dicevano «diario»: dal 25 settembre si chiama data pad dalla prima mattina (vedi GameState.nome_diario), e qui ho cambiato solo quella parola - e, nella narrazione, «premendo ESC» con «dal tasto in alto a sinistra, o con ESC».",
+      "_nota_data_pad": "Tre battute dicevano «diario»: dal 25 settembre si chiama data pad dalla prima mattina (vedi GameState.nome_diario), e qui ho cambiato solo quella parola - e, nella narrazione, «premendo ESC» con «dal tasto in alto a sinistra, o con ESC». 28 settembre, Bru: «il datapad è NELLE opzioni» - il tasto in alto a sinistra apre il menu, e il data pad ci sta dentro. La narrazione adesso lo dice cosi' (testo mio).",
       "sequenza": [
         {
           "tipo": "dialogo",
@@ -1749,7 +1749,7 @@
         },
         {
           "tipo": "narrazione",
-          "testo": "Puoi aprire il data pad in qualunque momento dal tasto in alto a sinistra, o con ESC: da lì passi anche allo storico di tutto quello che hai letto finora."
+          "testo": "Puoi aprire il menu in qualunque momento dal tasto in alto a sinistra, o con ESC: lì dentro ci sono il data pad e lo storico di tutto quello che hai letto finora."
         },
         {
           "tipo": "dialogo",

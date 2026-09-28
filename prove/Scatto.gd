@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -70,6 +70,30 @@ func ferma_dopo(millesimi: int) -> void:
 	while Time.get_ticks_msec() - partenza < millesimi:
 		await get_tree().process_frame
 	Engine.time_scale = 0.0
+
+func carattere_con_misure(percorso: String, corpo: int, peso: int) -> Array:
+	# [Font, corpo, nome]. Nel nome del file, fra graffe, le sue misure:
+	# "Italianno {corpo=58}.ttf", "Fraunces {SOFT=100;wght=450}.ttf"
+	var carattere := FontFile.new()
+	carattere.load_dynamic_font(percorso)
+	var assi := {"wght": peso}
+	var corpo_suo := corpo
+	var nome := percorso.get_file().get_basename()
+	if nome.contains("{"):
+		for coppia in nome.get_slice("{", 1).trim_suffix("}").split(";"):
+			if coppia.get_slice("=", 0) == "corpo":
+				corpo_suo = int(coppia.get_slice("=", 1))
+			else:
+				assi[coppia.get_slice("=", 0)] = float(coppia.get_slice("=", 1))
+		nome = nome.get_slice("{", 0).strip_edges()
+	var pesato := FontVariation.new()
+	pesato.base_font = carattere
+	var opentype := {}
+	for asse: String in assi:
+		opentype[TextServerManager.get_primary_interface().name_to_tag(asse)] = assi[asse]
+	pesato.variation_opentype = opentype
+	return [pesato, corpo_suo, nome]
+
 
 func attendi(quanti: int) -> void:
 	for i in quanti:
@@ -450,28 +474,10 @@ func prepara(quale: String) -> void:
 			cartello.add_theme_font_size_override("font_size", 40)
 			fiaba.add_child(cartello)
 			for i in nomi.size():
-				var carattere := FontFile.new()
-				carattere.load_dynamic_font(cartella.path_join(String(nomi[i])))
-				# nel nome del file, fra graffe, le sue misure: "{corpo=50;wght=600;SOFT=100}"
-				var assi := {"wght": peso_c}
-				var corpo_suo := corpo_c
-				var nome_pulito := String(nomi[i]).get_basename()
-				if nome_pulito.contains("{"):
-					for coppia in nome_pulito.get_slice("{", 1).trim_suffix("}").split(";"):
-						if coppia.get_slice("=", 0) == "corpo":
-							corpo_suo = int(coppia.get_slice("=", 1))
-						else:
-							assi[coppia.get_slice("=", 0)] = float(coppia.get_slice("=", 1))
-					nome_pulito = nome_pulito.get_slice("{", 0).strip_edges()
-				var pesato := FontVariation.new()
-				pesato.base_font = carattere
-				var opentype := {}
-				for asse: String in assi:
-					opentype[TextServerManager.get_primary_interface().name_to_tag(asse)] = assi[asse]
-				pesato.variation_opentype = opentype
-				fiaba.testo.add_theme_font_override("normal_font", pesato)
-				fiaba.testo.add_theme_font_size_override("normal_font_size", corpo_suo)
-				cartello.text = nome_pulito
+				var misurato := carattere_con_misure(cartella.path_join(String(nomi[i])), corpo_c, peso_c)
+				fiaba.testo.add_theme_font_override("normal_font", misurato[0])
+				fiaba.testo.add_theme_font_size_override("normal_font_size", misurato[1])
+				cartello.text = misurato[2]
 				await attendi(6)
 				await RenderingServer.frame_post_draw
 				var foto := get_viewport().get_texture().get_image()
@@ -482,6 +488,56 @@ func prepara(quale: String) -> void:
 				foglio.blit_rect(foto, Rect2i(0, 0, 640, 360), Vector2i((i % 2) * 640, floori(i / 2.0) * 360))
 			foglio.save_png(ProjectSettings.globalize_path(CARTELLA + "caratteri_confronto.png"))
 			print("foglio salvato: %scaratteri_confronto.png" % CARTELLA)
+		"dialoghi":
+			# IL CARATTERE DEI DIALOGHI A CONFRONTO. Bru: «dobbiamo anche scegliere
+			# un bel font generale per i dialoghi, quello attuale non mi piace». La
+			# stessa battuta, nel box vero col nastro del nome, con ogni .ttf di una
+			# cartella: "dialoghi /percorso/cartella [nodo] [clic] [corpo]". Misure
+			# nel nome del file fra graffe, come in "caratteri". Fogli da sette
+			var argomenti_d := OS.get_cmdline_user_args()
+			var cartella_d := String(argomenti_d[1])
+			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+			GameState.imposta_flag("rientro_infermeria")
+			GameState.nodo_corrente = String(argomenti_d[2]) if argomenti_d.size() > 2 else "infermeria_risveglio"
+			IngressoNodo.ultimo_esito = {}
+			var parla: Node = load("res://scenes/Main.tscn").instantiate()
+			add_child(parla)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			for clic in (int(argomenti_d[3]) if argomenti_d.size() > 3 else 3):
+				parla._su_avanza()
+				await attendi(2)
+				parla._su_avanza()
+				await attendi(2)
+			await attendi(30)
+			var corpo_d := int(argomenti_d[4]) if argomenti_d.size() > 4 else Stile.dimensione("corpo")
+			var file_d: Array = Array(DirAccess.get_files_at(cartella_d)).filter(
+					func(f: String) -> bool: return f.ends_with(".ttf"))
+			file_d.sort()
+			var cartello_d := Label.new()
+			cartello_d.position = Vector2(760, 432)
+			cartello_d.add_theme_font_size_override("font_size", 30)
+			cartello_d.add_theme_color_override("font_color", Color.WHITE)
+			parla.add_child(cartello_d)
+			var striscia := Rect2i(0, 420, 1280, 300)
+			var fogli := ceili(file_d.size() / 7.0)
+			for f in fogli:
+				var quanti := mini(7, file_d.size() - f * 7)
+				var foglio_d := Image.create(1280, 300 * quanti, false, Image.FORMAT_RGBA8)
+				for k in quanti:
+					var misurato := carattere_con_misure(cartella_d.path_join(String(file_d[f * 7 + k])), corpo_d, 400)
+					for chiave in ["normal_font", "italics_font", "bold_font"]:
+						parla.box.testo.add_theme_font_override(chiave, misurato[0])
+					for chiave in ["normal_font_size", "italics_font_size", "bold_font_size"]:
+						parla.box.testo.add_theme_font_size_override(chiave, misurato[1])
+					cartello_d.text = misurato[2]
+					parla.box.completa()   # la battuta intera, non a meta' macchina da scrivere
+					await attendi(6)
+					await RenderingServer.frame_post_draw
+					var foto_d := get_viewport().get_texture().get_image()
+					foto_d.convert(Image.FORMAT_RGBA8)
+					foglio_d.blit_rect(foto_d, striscia, Vector2i(0, 300 * k))
+				foglio_d.save_png(ProjectSettings.globalize_path(CARTELLA + "dialoghi_rosa_%d.png" % (f + 1)))
+				print("foglio salvato: %sdialoghi_rosa_%d.png" % [CARTELLA, f + 1])
 		"scritta":
 			# LA SCRITTA DI CARNIVALZ nel momento in cui e' tutta accesa
 			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")

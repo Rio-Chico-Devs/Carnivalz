@@ -312,51 +312,36 @@
           "tipo": "data_pad",
           "passi": [
             {
-              "testo": "Il tasto in alto a sinistra apre il tuo data pad. Premilo.",
+              "testo": "Il tasto in alto a sinistra apre il menu. Premilo.",
               "indica": "menu",
               "aspetta": "apri"
             },
             {
-              "testo": "Questo è il data pad. Mentre è aperto il mondo si ferma: niente va avanti alle tue spalle."
-            },
-            {
-              "testo": "«Riprendi» lo chiude e ti rimette dov'eri.",
+              "testo": "Questo è il menu. Mentre è aperto il mondo si ferma: niente va avanti alle tue spalle. «Riprendi», o ESC, ti rimette dov'eri.",
               "indica": "voce:riprendi"
             },
             {
-              "testo": "Nello «Storico dei dialoghi» ritrovi tutto quello che è stato detto, se ti sei perso una battuta.",
-              "indica": "voce:storico"
-            },
-            {
-              "testo": "Il «Data pad» vero e proprio: il Database, con tutto quello che hai trovato e scoperto, e il giudizio dell'Organizzazione.",
+              "testo": "Nel primo gruppo si consulta: lo «Storico dei dialoghi», se ti perdi una battuta; il tuo «Data pad», con il database e il giudizio dell'Organizzazione; lo «Zaino», con quello che porti.",
               "indica": "voce:diario"
             },
             {
-              "testo": "Nello «Zaino» c'è quello che porti con te: cure, armi, accessori, oggetti speciali.",
-              "indica": "voce:zaino"
-            },
-            {
-              "testo": "In «Personaggio e squadra» vedi chi sei, cosa hai addosso e come stai crescendo, e cambi l'equipaggiamento: il tuo e quello dei compagni.",
+              "testo": "Nel secondo si amministra: in «Personaggio e squadra» vedi chi sei e come stai crescendo, e cambi l'equipaggiamento; nelle «Opzioni» regoli volume, testo e schermo.",
               "indica": "voce:squadra"
             },
             {
-              "testo": "Nelle «Opzioni» ci sono il volume, la velocità del testo, il testo più grande e le altre comodità.",
-              "indica": "voce:opzioni"
-            },
-            {
-              "testo": "E «Torna al menu principale», per quando smetti. Il gioco si salva da solo quando rientri alla Sede.",
+              "testo": "«Torna al menu principale» è per quando smetti: il gioco si salva da solo ogni volta che rientri alla Sede.",
               "indica": "voce:uscita"
             },
             {
-              "testo": "L'altoparlante parlava di messaggi: sono nell'icona in basso a destra. Quando squilla, c'è qualcosa di nuovo. Premila.",
+              "testo": "L'altoparlante parlava di messaggi: arrivano nell'icona in basso a destra, che squilla quando ce n'è uno nuovo. Premila.",
               "indica": "voce:messaggi",
               "aspetta": "voce:messaggi"
             },
             {
-              "testo": "Quando arriva qualcosa di nuovo, il data pad te lo dice mentre giochi. Le altre pagine le vedrai strada facendo."
+              "testo": "Quando arriva qualcosa di nuovo te lo dice una notifica, mentre giochi. Il resto lo scoprirai strada facendo."
             },
             {
-              "testo": "Adesso chiudi il data pad: «Indietro», poi «Riprendi». Oppure ESC.",
+              "testo": "Adesso chiudi il menu: «Indietro», poi «Riprendi». Oppure ESC.",
               "indica": "chiudi",
               "aspetta": "chiudi"
             }
@@ -396,7 +381,8 @@
       "vai_se_flag": {
         "flag": "rientro_infermeria",
         "vai": "alloggio_pomeriggio"
-      }
+      },
+      "_nota_giro": "28 settembre, Bru: il giro «invece di spiegare con frasi, ti fa vedere parola per parola», e «confonde il data pad con le opzioni, il datapad è NELLE opzioni». Il tasto in alto a sinistra apre il menu, e il Data pad è una voce del menu; e il giro adesso spiega a gruppi, con frasi, invece di illuminare una voce alla volta. I testi del giro sono miei."
     },
     "infermeria": {
       "_nota": "Area del complesso che oggi non si visita. Esiste perche' la mappa la mostri e perche' il giorno in cui si aprira' il posto ci sia gia'.",
@@ -1009,7 +995,7 @@
       ]
     },
     "data_pad_istruzioni": {
-      "_nota": "Bru, 25 settembre: «quando si dovrebbe aprire il data pad durante la conversazione in sala non si apre nulla, nessuna interfaccia, qui dovrebbe esserci il tutorial che ti spiega il resto delle funzioni del datapad che non sono state spiegate prima, come una sorta di riassunto del datapad e come funzionano eventi e notifiche». Adesso «Apri il data pad» lo apre davvero, e il giro guidato (GiroDataPad) spiega quello che la mattina era rimasto fuori: gli appunti (gli eventi), le notifiche, i messaggi coi 3000 tazo, e le altre pagine. Prima erano righe di narrazione con il menu chiuso. I testi del giro sono miei; le battute dopo il giro («Tremila tazo.»...) c'erano gia'. Prima ancora, Bru: «dopo che si spiega come usare il data pad in tutte le sue parti, c'è anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo come quota di benvenuto». 28 settembre, Bru riorganizza il data pad («appunti come voce non serve», i messaggi diventano un'iconcina in basso a destra che squilla, le statistiche e «cosa ti sta cambiando» - adesso «Sviluppo» - vanno in Personaggio e squadra, le Osservazioni diventano il Database): il giro e' riscritto su quello che c'e' adesso, e i testi nuovi sono miei.",
+      "_nota": "Bru, 25 settembre: «quando si dovrebbe aprire il data pad durante la conversazione in sala non si apre nulla, nessuna interfaccia, qui dovrebbe esserci il tutorial che ti spiega il resto delle funzioni del datapad che non sono state spiegate prima, come una sorta di riassunto del datapad e come funzionano eventi e notifiche». Adesso «Apri il data pad» lo apre davvero, e il giro guidato (GiroDataPad) spiega quello che la mattina era rimasto fuori: gli appunti (gli eventi), le notifiche, i messaggi coi 3000 tazo, e le altre pagine. Prima erano righe di narrazione con il menu chiuso. I testi del giro sono miei; le battute dopo il giro («Tremila tazo.»...) c'erano gia'. Prima ancora, Bru: «dopo che si spiega come usare il data pad in tutte le sue parti, c'è anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo come quota di benvenuto». 28 settembre, Bru riorganizza il data pad («appunti come voce non serve», i messaggi diventano un'iconcina in basso a destra che squilla, le statistiche e «cosa ti sta cambiando» - adesso «Sviluppo» - vanno in Personaggio e squadra, le Osservazioni diventano il Database): il giro e' riscritto su quello che c'e' adesso, e i testi nuovi sono miei. Lo stesso giorno, piu' tardi: «confonde il data pad con le opzioni, il datapad è NELLE opzioni». Il giro adesso dice menu per il menu e data pad per la voce che ci sta dentro, e la apre prima di mostrarla. Testi miei.",
       "sfondo": "res://art/scene/sala_comunicazioni.png",
       "flag": "data_pad_spiegato",
       "sequenza": [
@@ -1017,8 +1003,23 @@
           "tipo": "data_pad",
           "passi": [
             {
-              "testo": "Ecco il data pad. Lo apri quando vuoi dal tasto in alto a sinistra, o con ESC.",
+              "testo": "Ecco il menu: lo apri quando vuoi dal tasto in alto a sinistra, o con ESC. Il data pad sta qui dentro.",
               "apri": true
+            },
+            {
+              "testo": "Apri il «Data pad»: stavolta c'è da vederlo tutto.",
+              "indica": "voce:diario",
+              "aspetta": "voce:diario"
+            },
+            {
+              "testo": "Il «Database» raccoglie quello che trovi: le carte, le creature che incontri e studi, gli oggetti che ti passano fra le mani. Sono le stesse collezioni del menu principale.",
+              "indica": "sezione:database",
+              "mostra": true
+            },
+            {
+              "testo": "L'«Organizzazione» tiene il conto di come ti stai comportando. Quella pagina la compilano loro.",
+              "indica": "sezione:organizzazione",
+              "mostra": true
             },
             {
               "testo": "Quando arriva un messaggio te lo dice una notifica, mentre giochi, e l'icona in basso a destra squilla finché non l'hai letto. Non devi venire a controllare: è lui che ti chiama."
@@ -1029,23 +1030,13 @@
               "aspetta": "voce:messaggi"
             },
             {
-              "testo": "I Tazo, in alto a destra, si vedono da ogni pagina del data pad. Adesso sono un po' di più."
+              "testo": "I Tazo, in alto a destra, si vedono da ogni pagina del menu. Adesso sono un po' di più."
             },
             {
-              "testo": "Il «Database»: le carte che hai raccolto, le creature che hai incontrato e studiato, gli oggetti che ti sono passati fra le mani. Le stesse collezioni del menu principale.",
-              "indica": "sezione:database",
-              "mostra": true
+              "testo": "Chi sei e come stai crescendo non sta nel data pad: è in «Personaggio e squadra», alla linguetta «Sviluppo»."
             },
             {
-              "testo": "E l'«Organizzazione», che tiene il conto di come ti stai comportando. Quella la compilano loro.",
-              "indica": "sezione:organizzazione",
-              "mostra": true
-            },
-            {
-              "testo": "Chi sei, quanto vali e come stai crescendo non stanno qui: sono in «Personaggio e squadra», alla linguetta «Sviluppo»."
-            },
-            {
-              "testo": "È tutto. Chiudi il data pad.",
+              "testo": "È tutto. Chiudi il menu.",
               "indica": "chiudi",
               "aspetta": "chiudi"
             }

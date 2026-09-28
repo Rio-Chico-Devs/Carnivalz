@@ -14941,7 +14941,14 @@ func prova_ogni_giro_del_data_pad_nomina_pezzi_veri() -> void:
 				for passo in passi:
 					var indica := String((passo as Dictionary).get("indica", ""))
 					var aspetta := String((passo as Dictionary).get("aspetta", ""))
-					esigi(String((passo as Dictionary).get("testo", "")) != "", "%s: un passo senza testo" % id_nodo)
+					var testo_passo := String((passo as Dictionary).get("testo", "")).to_lower()
+					esigi(testo_passo != "", "%s: un passo senza testo" % id_nodo)
+					# «il datapad e' NELLE opzioni» (Bru): il tasto in alto a sinistra
+					# apre il menu, e si chiude il menu - non il data pad
+					if indica == "menu" or aspetta == "chiudi" or bool((passo as Dictionary).get("apri", false)):
+						esigi("menu" in testo_passo and not "chiudi il data pad" in testo_passo
+								and not "apre il tuo data pad" in testo_passo,
+								"%s: il giro chiama data pad il menu: «%s»" % [id_nodo, testo_passo])
 					esigi(indica in ["", "menu", "chiudi"]
 							or (indica.begins_with("voce:") and indica.trim_prefix("voce:") in voci)
 							or (indica.begins_with("sezione:") and indica.trim_prefix("sezione:") in sezioni),
@@ -14980,6 +14987,13 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 	esigi(GameState.ha_flag("data_pad_ricordato") and "veronica_buongiorno" in GameState.messaggi_ricevuti,
 			"l'altoparlante ricorda il data pad, ma il messaggio di Veronica non e' arrivato")
 	esigi(not schermata.area_avanza.visible, "durante il giro l'area che fa avanzare il dialogo e' accesa: un clic salta il giro")
+	# «il box di dialogo e' amorfo» (Bru): una lastra bianca col bordo nero sul
+	# nero del menu, e in cima la riga vuota del nome. Adesso ha una forma
+	var cornice_giro := giro.box.get_theme_stylebox("panel") as StyleBoxFlat
+	esigi(not giro.box.targhetta.visible, "nel box del giro c'e' ancora la riga vuota del nome")
+	esigi(cornice_giro != null and cornice_giro.border_color == Stile.colore("accento") and cornice_giro.shadow_size > 0,
+			"il box del giro ha ancora il bordo nero, che sul nero del menu sparisce")
+	esigi(giro.cartiglio != null and giro.cartiglio.testo == "TUTORIAL", "sopra il box del giro non c'e' il cartiglio che dice cos'e'")
 	await get_tree().process_frame
 	esigi(giro.indicato == schermata.icona_menu, "il primo passo non indica il tasto in alto a sinistra")
 	esigi(giro.tende[0].visible and giro.tende[0].size.y <= schermata.icona_menu.get_global_rect().position.y + 1.0,
@@ -15001,7 +15015,14 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 			spiegate.append(String(adesso.indica))
 		giro.clic()
 		giro.clic()
-	esigi(spiegate.size() >= 7, "la mattina il giro spiega solo %d voci del data pad: %s" % [spiegate.size(), spiegate])
+	# «invece di spiegare con frasi, ti fa vedere parola per parola» (Bru): il
+	# giro spiega a gruppi, ma ogni voce del menu la nomina
+	var detto := ""
+	for passo_detto in giro.passi:
+		detto += String((passo_detto as Dictionary).get("testo", "")) + " "
+	for voce_menu in ["Riprendi", "Storico dei dialoghi", "Data pad", "Zaino", "Personaggio e squadra", "Opzioni", "Torna al menu principale"]:
+		esigi("«%s»" % voce_menu in detto, "la mattina il giro non spiega «%s»" % voce_menu)
+	esigi(spiegate.size() <= 5, "il giro illumina ancora una voce alla volta (%d): %s" % [spiegate.size(), spiegate])
 	esigi(Pausa.aperta, "leggendo il giro, il data pad si e' chiuso")
 	# «i messaggi sono nell'icona in basso a destra»: e' scoperta, squilla, e
 	# premerla manda avanti

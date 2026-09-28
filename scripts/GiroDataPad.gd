@@ -60,6 +60,7 @@ var schermata: Node
 var passi: Array = []
 var quale := -1
 var box: Control
+var cartiglio: Cartiglio            # «TUTORIAL», appiccicato sopra il box
 var cornice: Evidenza
 var tende: Array[ColorRect] = []   # il velo, in quattro pezzi intorno al buco
 var indicato: Control = null
@@ -114,6 +115,19 @@ func _ready() -> void:
 	box.offset_bottom = -MARGINE
 	box.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	box.gui_input.connect(_su_input)
+	# IL BOX HA UNA FORMA SUA. Era il box bianco dei dialoghi col bordo nero, e
+	# sul nero del menu il bordo spariva: restava una lastra bianca, con in cima
+	# la riga vuota del nome - Bru: «il box di dialogo e' amorfo». Adesso parla
+	# la lingua del menu che spiega: pende come le sue fasce, ha il bordo
+	# cremisi e la sfoglia dietro, e sopra un cartiglio che dice cos'e'
+	box.nome_fuori_dal_box()
+	box.add_theme_stylebox_override("panel", cornice_del_box())
+	cartiglio = Cartiglio.nuovo("TUTORIAL", Stile.colore("accento"), Stile.colore("testo"),
+			Stile.colore("bordo_acceso"), Stile.dimensione("corpo"))
+	cartiglio.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(cartiglio)
+	cartiglio.size = cartiglio.get_combined_minimum_size()
+	cartiglio.svela(0.05)
 	# IL TRIANGOLINO HA IL SUO POSTO. In un box largo poco piu' di meta'
 	# schermo l'ultima parola della riga ci finiva sotto; e dove c'e' da premere
 	# una voce non c'e' proprio, perche' un clic sul box li' non va avanti
@@ -124,6 +138,18 @@ func _ready() -> void:
 		if String(passo().get("aspetta", "")) != "":
 			box.nascondi_indicatore())
 	avanti()
+
+
+static func cornice_del_box() -> StyleBox:
+	var cornice := Stile.stile_box_testo()
+	if cornice is StyleBoxFlat:
+		var piatta := cornice as StyleBoxFlat
+		piatta.border_color = Stile.colore("accento")
+		piatta.skew = Vector2(-0.06, 0.0)
+		piatta.shadow_color = Stile.colore("accento").darkened(0.45)
+		piatta.shadow_size = 1
+		piatta.shadow_offset = Vector2(9, 8)
+	return cornice
 
 
 func zittisci_la_scena() -> void:
@@ -157,10 +183,13 @@ func avanti() -> void:
 			Pausa.mostra_diario()
 	var testo := Testi.accorda(String(adesso.get("testo", "")), GameState.sesso_protagonista)
 	GameState.registra_storico("narrazione", "", testo)
-	box.mostra("narrazione", testo, "")
+	# dritto e nero, non il corsivo della narrazione: non racconta, spiega
+	box.mostra("dialogo", testo, "")
 
 
 func _process(_delta: float) -> void:
+	# il cartiglio sta attaccato all'angolo del box, anche quando il box sale
+	cartiglio.position = box.position + Vector2(28.0, -cartiglio.size.y * 0.75)
 	if chiuso or quale < 0 or quale >= passi.size():
 		return
 	if scena_andata_avanti():
@@ -196,8 +225,9 @@ func sposta_il_box() -> void:
 	box_in_alto = su
 	box.anchor_top = 0.0 if su else 1.0
 	box.anchor_bottom = box.anchor_top
-	box.offset_top = MARGINE if su else 0.0
-	box.offset_bottom = MARGINE if su else -MARGINE
+	# in alto lascia il posto al cartiglio, che sporge sopra l'angolo
+	box.offset_top = MARGINE + cartiglio.size.y if su else 0.0
+	box.offset_bottom = box.offset_top if su else -MARGINE
 	box.grow_vertical = Control.GROW_DIRECTION_END if su else Control.GROW_DIRECTION_BEGIN
 
 
