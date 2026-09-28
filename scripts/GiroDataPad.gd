@@ -141,15 +141,15 @@ func _ready() -> void:
 
 
 static func cornice_del_box() -> StyleBox:
-	var cornice := Stile.stile_box_testo()
-	if cornice is StyleBoxFlat:
-		var piatta := cornice as StyleBoxFlat
+	var forma := Stile.stile_box_testo()
+	if forma is StyleBoxFlat:
+		var piatta := forma as StyleBoxFlat
 		piatta.border_color = Stile.colore("accento")
 		piatta.skew = Vector2(-0.06, 0.0)
 		piatta.shadow_color = Stile.colore("accento").darkened(0.45)
 		piatta.shadow_size = 1
 		piatta.shadow_offset = Vector2(9, 8)
-	return cornice
+	return forma
 
 
 func zittisci_la_scena() -> void:
