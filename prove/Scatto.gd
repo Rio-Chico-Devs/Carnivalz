@@ -17,6 +17,7 @@ extends Node
 # uno scatto di un rendering che non e' avvenuto sarebbe nero e bugiardo.
 
 const CARTELLA := "res://scatti/"
+const NastroOltre := preload("res://prove/NastroOltre.gd")
 const FOTOGRAMMI_DI_ASSESTAMENTO := 45
 
 func _ready() -> void:
@@ -730,6 +731,14 @@ func prepara(quale: String) -> void:
 					if ferma >= 20:
 						break
 				await attendi(1)
+			# LE PROPOSTE OLTRE IL NASTRO APPROVATO, messe sopra quello vero:
+			# "nodo infermeria_risveglio 5 oltre=carta,impresso" (prove/NastroOltre.gd)
+			for argomento: String in argomenti_nodo:
+				if argomento.begins_with("oltre="):
+					await NastroOltre.vesti(dialogo, argomento.trim_prefix("oltre=").split(","))
+					await attendi(3)
+					if "arrivo" in argomento:
+						await NastroOltre.pellicola_dell_arrivo(dialogo, "res://scatti/nastro_oltre_arrivo.png")
 		"giro_data_pad":
 			# IL GIRO GUIDATO DEL DATA PAD, portato fino a un passo: "giro_data_pad
 			# alloggio 0" e' il tasto in alto a sinistra da premere, "giro_data_pad
