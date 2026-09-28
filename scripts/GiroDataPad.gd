@@ -29,7 +29,9 @@ extends CanvasLayer
 #   "indica"   cosa si evidenzia: "menu" (il tasto in alto a sinistra),
 #              "voce:<segno>" (una voce del data pad: storico, diario, zaino,
 #              squadra, opzioni, uscita, riprendi; e "messaggi", l'iconcina in
-#              basso a destra), "sezione:<chiave>" (una sezione del Data pad),
+#              basso a destra), "voci:<segno>,<segno>" (un gruppo di voci, in
+#              una cornice sola), "sezione:<chiave>" (una sezione del Data
+#              pad), "tazo" (il cartellino dei Tazo in alto a destra),
 #              "chiudi" (quello che lo chiude, dovunque tu sia: «Indietro» o
 #              «Riprendi»)
 #   "aspetta"  cosa deve fare chi gioca per andare avanti: "apri", "voce:diario",
@@ -65,6 +67,7 @@ var cartiglio: Cartiglio            # «TUTORIAL», appiccicato sopra il box
 var cornice: Evidenza
 var tende: Array[ColorRect] = []   # il velo, in quattro pezzi intorno al buco
 var indicato: Control = null
+var zona_indicata := Rect2()       # dove sta quello che si indica: un pezzo, o un gruppo di voci
 var gia_aperto := false            # il data pad e' stato aperto: da li' in poi, chiuso vuol dire finito
 var chiuso := false
 var battuta := -1                  # a che battuta era la scena quando il giro e' partito
@@ -211,7 +214,11 @@ func _process(_delta: float) -> void:
 	if fatto(String(passo().get("aspetta", ""))):
 		avanti()
 		return
-	indicato = pezzo_indicato(String(passo().get("indica", "")))
+	var pezzi := pezzi_indicati(String(passo().get("indica", "")))
+	indicato = pezzi[0] if not pezzi.is_empty() else null
+	zona_indicata = Rect2()
+	for pezzo in pezzi:
+		zona_indicata = pezzo.get_global_rect() if not zona_indicata.has_area() else zona_indicata.merge(pezzo.get_global_rect())
 	sposta_il_box()
 	sistema_il_velo()
 
@@ -225,16 +232,33 @@ func sposta_il_box() -> void:
 	var schermo := get_viewport().get_visible_rect().size
 	var in_basso := Rect2(schermo.x * (1.0 - LARGHEZZA_BOX), schermo.y - MARGINE - box.size.y,
 			schermo.x * LARGHEZZA_BOX - MARGINE, box.size.y)
-	var su := indicato != null and is_instance_valid(indicato) and indicato.get_global_rect().intersects(in_basso)
+	var su := zona_indicata.has_area() and zona_indicata.intersects(in_basso)
 	if su == box_in_alto:
 		return
 	box_in_alto = su
 	box.anchor_top = 0.0 if su else 1.0
 	box.anchor_bottom = box.anchor_top
-	# in alto lascia il posto al cartiglio, che sporge sopra l'angolo
-	box.offset_top = MARGINE + cartiglio.size.y if su else 0.0
+	# in alto si mette SOTTO la testata del menu, non sopra: i Tazo in alto a
+	# destra restano sempre visibili (la sala ne parla), e lascia il posto al
+	# cartiglio, che sporge sopra l'angolo
+	box.offset_top = sotto_la_testata() + cartiglio.size.y if su else 0.0
 	box.offset_bottom = box.offset_top if su else -MARGINE
 	box.grow_vertical = Control.GROW_DIRECTION_END if su else Control.GROW_DIRECTION_BEGIN
+
+
+func sotto_la_testata() -> float:
+	# dove finisce il cartellino dei Tazo, cioe' la testata del menu
+	var tazo := cartellino_dei_tazo()
+	return maxf(MARGINE, tazo.get_global_rect().end.y + MARGINE * 0.5) if tazo != null else MARGINE
+
+
+func cartellino_dei_tazo() -> Control:
+	if not Pausa.aperta or Pausa.colonna == null:
+		return null
+	for cartello in Pausa.colonna.find_children("*", "Cartiglio", true, false):
+		if String(cartello.get("testo")).begins_with("TAZO") and (cartello as Control).is_visible_in_tree():
+			return cartello as Control
+	return null
 
 
 func fatto(aspetta: String) -> bool:
@@ -254,10 +278,25 @@ func fatto(aspetta: String) -> bool:
 	return true
 
 
+func pezzi_indicati(indica: String) -> Array[Control]:
+	# quello che il passo indica: di solito un pezzo solo, ma "voci:" ne da' un
+	# gruppo - «nel primo gruppo si consulta» evidenziava la sola voce di mezzo,
+	# e il testo ne nominava tre
+	var pezzi: Array[Control] = []
+	var chiavi := indica.trim_prefix("voci:").split(",") if indica.begins_with("voci:") else PackedStringArray([indica])
+	for chiave in chiavi:
+		var pezzo := pezzo_indicato(("voce:" + chiave.strip_edges()) if indica.begins_with("voci:") else chiave)
+		if pezzo != null:
+			pezzi.append(pezzo)
+	return pezzi
+
+
 func pezzo_indicato(indica: String) -> Control:
 	if indica == "menu":
 		var icona: Variant = schermata.get("icona_menu")
 		return icona as Control if icona is Control and not Pausa.aperta else null
+	if indica == "tazo":
+		return cartellino_dei_tazo()
 	if not Pausa.aperta or Pausa.colonna == null:
 		return null
 	if indica == "chiudi":
@@ -279,8 +318,8 @@ func sistema_il_velo() -> void:
 	var schermo := get_viewport().get_visible_rect()
 	var aspetta := String(passo().get("aspetta", "")) != ""
 	var buco := Rect2()
-	if indicato != null and is_instance_valid(indicato):
-		buco = indicato.get_global_rect()
+	if zona_indicata.has_area():
+		buco = zona_indicata
 		cornice.inquadra(buco)
 		if not cornice.visible:
 			cornice.visible = true

@@ -27,17 +27,25 @@ static func sezione_database(genitore: VBoxContainer) -> void:
 	# cliccando su database puoi accedere a quello che vedi in collezioni dalla
 	# schermata principale, ma in questo caso in game dal datapad» (Bru). Sono
 	# le stesse tre schermate del menu principale (MenuPrincipale.COLLEZIONI):
-	# si aprono sopra la scena viva, e «Indietro» torna qui
-	titolo_sezione(genitore, "Database")
+	# si aprono sopra la scena viva, e «Indietro» torna qui.
+	#
+	# NIENTE TITOLO «Database» IN CIMA: lo dice gia' la voce accesa dell'indice,
+	# li' accanto. E ogni spiegazione sta attaccata alla sua voce, con l'aria fra
+	# una voce e l'altra: si legge a coppie. Tutte e due le cose servono anche al
+	# giro della sala, che spiega questa pagina col suo box in basso a destra -
+	# e il box ne copriva l'ultima riga
 	for c: Array in MenuPrincipale.COLLEZIONI:
+		var coppia := VBoxContainer.new()
+		coppia.add_theme_constant_override("separation", 0)
+		genitore.add_child(coppia)
 		var nome := String(c[0]).to_lower()
 		var voce := Pausa.voce("", "%s  %s" % [nome.left(1).to_upper() + nome.substr(1), conto_di(String(c[3]))],
-				Pausa.apri_collezione.bind(String(c[3])), genitore, Stile.dimensione("corpo"))
+				Pausa.apri_collezione.bind(String(c[3])), coppia, Stile.dimensione("corpo"))
 		voce.set_meta("chiave", "collezione:" + String(c[3]).get_file().get_basename().to_lower())
 		# la spiegazione parte dove parte il nome della voce, non dal bordo
 		var rientro := MarginContainer.new()
 		rientro.add_theme_constant_override("margin_left", VoceMenu.SPAZIO_SEGNO)
-		genitore.add_child(rientro)
+		coppia.add_child(rientro)
 		var spiega := Label.new()
 		spiega.text = String(c[2])
 		spiega.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -93,13 +101,6 @@ static func sezione_messaggi(genitore: VBoxContainer) -> void:
 		# riga l'avviso sarebbe arrivato dopo, in palestra
 		GameState.messaggi_da_notificare.erase(String(id_messaggio))
 
-static func titolo_sezione(genitore: VBoxContainer, testo: String) -> void:
-	var t := Label.new()
-	t.text = testo
-	t.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	t.add_theme_color_override("font_color", Stile.colore("accento"))
-	genitore.add_child(t)
-
 static func voce_diario(genitore: VBoxContainer, etichetta: String, valore: String) -> void:
 	var riga := HBoxContainer.new()
 	riga.add_theme_constant_override("separation", 12)
@@ -115,7 +116,6 @@ static func voce_diario(genitore: VBoxContainer, etichetta: String, valore: Stri
 	riga.add_child(destra)
 
 static func sezione_organizzazione(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Organizzazione")
 	voce_diario(genitore, "Fonti estinte", "%d" % GameState.fonti_estinte)
 	voce_diario(genitore, "Valutazione", valutazione_organizzazione())
 

@@ -172,6 +172,7 @@ func _ready() -> void:
 	prova_ogni_giro_del_data_pad_nomina_pezzi_veri()
 	await prova_il_data_pad_si_impara_aprendolo()
 	await prova_il_data_pad_come_lo_ha_riordinato_bru()
+	await prova_i_giri_del_data_pad_si_giocano_fino_in_fondo()
 	prova_lo_storico_dura_quanto_la_stanza()
 	await prova_lo_sviluppo_sta_nella_scheda()
 	prova_nei_testi_non_ci_sono_tag_html()
@@ -15116,6 +15117,10 @@ func cerca_tag_html(dato: Variant, dove: String, trovati: Array[String]) -> void
 	elif dato is String and ("<br" in dato or "</" in dato):
 		trovati.append("%s: «%s»" % [dove, String(dato).left(40)])
 
+const VOCI_DEL_MENU := {"Riprendi": "riprendi", "Storico dei dialoghi": "storico", "Data pad": "diario",
+		"Zaino": "zaino", "Personaggio e squadra": "squadra", "Opzioni": "opzioni",
+		"Torna al menu principale": "uscita"}
+
 func prova_ogni_giro_del_data_pad_nomina_pezzi_veri() -> void:
 	# UN GIRO CHE INDICA UNA VOCE CHE NON C'E' NON SI VEDE, e uno che aspetta un
 	# gesto che non esiste non finisce piu'. A schermo tutti e due sembrano un
@@ -15148,10 +15153,26 @@ func prova_ogni_giro_del_data_pad_nomina_pezzi_veri() -> void:
 						esigi("menu" in testo_passo and not "chiudi il data pad" in testo_passo
 								and not "apre il tuo data pad" in testo_passo,
 								"%s: il giro chiama data pad il menu: «%s»" % [id_nodo, testo_passo])
-					esigi(indica in ["", "menu", "chiudi"]
-							or (indica.begins_with("voce:") and indica.trim_prefix("voce:") in voci)
+					var indicate := Array(indica.trim_prefix("voci:").split(",")) if indica.begins_with("voci:") \
+							else ([indica.trim_prefix("voce:")] if indica.begins_with("voce:") else [])
+					esigi(indica in ["", "menu", "chiudi", "tazo"]
+							or (not indicate.is_empty() and indicate.all(func(v: String) -> bool: return v in voci))
 							or (indica.begins_with("sezione:") and indica.trim_prefix("sezione:") in sezioni),
 							"%s: il giro indica '%s', che nel data pad non c'e'" % [id_nodo, indica])
+					# IL TESTO E LA CORNICE DICONO LA STESSA COSA. «Nel primo gruppo si
+					# consulta» nominava tre voci e ne incorniciava una: se il passo
+					# indica voci del menu, indica tutte quelle che nomina
+					# e quello di cui parla si vede: l'iconcina dei messaggi e i Tazo
+					# stanno dove il box di solito si mette, o dove sale
+					if "icona" in testo_passo:
+						esigi(indica == "voce:messaggi", "%s: il passo parla dell'iconcina e non la indica: «%s»" % [id_nodo, testo_passo])
+					if "tazo" in testo_passo:
+						esigi(indica == "tazo", "%s: il passo parla dei Tazo e non li indica: «%s»" % [id_nodo, testo_passo])
+					if not indicate.is_empty():
+						for nome_voce: String in VOCI_DEL_MENU:
+							if ("«%s»" % nome_voce).to_lower() in testo_passo:
+								esigi(String(VOCI_DEL_MENU[nome_voce]) in indicate,
+										"%s: il passo nomina «%s» ma incornicia solo %s" % [id_nodo, nome_voce, indicate])
 					esigi(aspetta in ["", "apri", "chiudi", "voce:diario", "voce:messaggi"]
 							or (aspetta.begins_with("sezione:") and aspetta.trim_prefix("sezione:") in sezioni),
 							"%s: il giro aspetta '%s', che non si puo' fare" % [id_nodo, aspetta])
@@ -15317,6 +15338,108 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 	Pausa.chiudi()
 	await get_tree().process_frame
 	esigi(not is_instance_valid(da_solo) or da_solo.chiuso, "chiuso il data pad a meta', il giro resta sullo schermo")
+	GameState.nuova_partita()
+
+func apri_il_giro(nodo: String) -> Array:
+	# [schermata, giro]: la scena vera di events_intro, portata fino al giro
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	if nodo != "alloggio":
+		GameState.imposta_flag("rientro_infermeria")
+		GameState.imposta_flag("ordini_ricevuti")
+	GameState.nodo_corrente = nodo
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	var giro: GiroDataPad = null
+	for i in 80:
+		giro = schermata.find_children("*", "GiroDataPad", true, false).pop_back() as GiroDataPad
+		if giro != null:
+			break
+		schermata.box.completa()
+		schermata.avanza_messaggio()
+		await get_tree().process_frame
+	return [schermata, giro]
+
+func controlla_il_passo_del_giro(giro: GiroDataPad, quando: String) -> void:
+	# quello che si vede a un passo del giro, fermo: si legge tutto, si vede
+	# quello che indica, e il box non copre niente di quello che serve
+	var qui := "%s, passo %d" % [quando, giro.quale]
+	esigi(giro.box.pagine.size() == 1, "%s: la spiegazione si legge in %d pagine: %s"
+			% [qui, giro.box.pagine.size(), giro.box.pagine.slice(0, 5)])
+	var coperto := [giro.box.get_global_rect(), giro.cartiglio.get_global_rect()]
+	var indica := String(giro.passo().get("indica", ""))
+	if indica != "":
+		esigi(giro.zona_indicata.has_area(), "%s: indica «%s», e non si vede niente" % [qui, indica])
+		for rettangolo: Rect2 in coperto:
+			esigi(not giro.zona_indicata.intersects(rettangolo), "%s: il box copre quello che indica («%s»)" % [qui, indica])
+	if indica.begins_with("voci:"):
+		# un gruppo in una cornice sola, che le contiene tutte
+		for chiave in indica.trim_prefix("voci:").split(","):
+			var voce := voce_della_pausa(chiave)
+			esigi(voce != null and giro.zona_indicata.encloses(voce.get_global_rect()),
+					"%s: la cornice del gruppo lascia fuori «%s»" % [qui, chiave])
+	var tazo := giro.cartellino_dei_tazo()
+	for rettangolo: Rect2 in coperto:
+		esigi(tazo == null or not tazo.get_global_rect().intersects(rettangolo), "%s: il box copre i Tazo" % qui)
+	if bool(giro.passo().get("mostra", false)):
+		# la pagina che il passo apre per spiegarla si legge tutta
+		for scritta in Pausa.colonna.find_children("*", "Label", true, false):
+			if not (scritta as Control).is_visible_in_tree():
+				continue
+			for rettangolo: Rect2 in coperto:
+				esigi(not (scritta as Control).get_global_rect().intersects(rettangolo),
+						"%s: il box copre «%s», nella pagina che sta spiegando" % [qui, (scritta as Label).text])
+
+func prova_i_giri_del_data_pad_si_giocano_fino_in_fondo() -> void:
+	# Bru, 28 settembre: «rivedi tutta la sezione di tutorial delle opzioni per
+	# garantire un corretto funzionamento». I due giri, dal primo passo
+	# all'ultimo, giocati con clic veri come li giocherebbe chi li vede: sul box
+	# per andare avanti, su quello che il giro indica quando c'e' da premerlo.
+	# A ogni passo, fermo, si guarda quello che si vede
+	titolo("i due giri del data pad si giocano fino in fondo con clic veri")
+	var ridotto := Impostazioni.movimento_ridotto
+	var sezione := Pausa.sezione_diario     # il data pad ricorda l'ultima pagina: si rimette com'era
+	Impostazioni.movimento_ridotto = true   # le cose ferme dove stanno, non a meta' entrata
+	get_window().size = Vector2i(1280, 720)
+	for nodo in ["alloggio", "data_pad_istruzioni"]:
+		var aperti: Array = await apri_il_giro(nodo)
+		var schermata: Node = aperti[0]
+		var giro: GiroDataPad = aperti[1]
+		esigi(giro != null, "%s: il giro non parte" % nodo)
+		if giro == null:
+			schermata.queue_free()
+			continue
+		var visti: Array[int] = []
+		var quanti := giro.passi.size()
+		for mossa in 80:
+			if not is_instance_valid(giro) or giro.chiuso:
+				break
+			for f in 4:
+				await get_tree().process_frame
+			if not is_instance_valid(giro) or giro.chiuso:
+				break
+			if not giro.quale in visti:
+				visti.append(giro.quale)
+				controlla_il_passo_del_giro(giro, nodo)
+			if String(giro.passo().get("aspetta", "")) == "":
+				clic_vero(giro.box.get_global_rect().get_center())
+			elif giro.zona_indicata.has_area():
+				clic_vero(giro.zona_indicata.get_center())
+			else:
+				esigi(false, "%s, passo %d: aspetta un gesto e non indica dove farlo" % [nodo, giro.quale])
+				break
+		esigi(visti.size() == quanti, "%s: dei %d passi del giro se ne sono visti %d: %s"
+				% [nodo, quanti, visti.size(), visti])
+		esigi((not is_instance_valid(giro) or giro.chiuso) and not Pausa.aperta,
+				"%s: finiti i clic, il giro o il menu sono ancora aperti" % nodo)
+		for f in 3:
+			await get_tree().process_frame
+		esigi(schermata.area_avanza.visible, "%s: finito il giro, la scena non riprende" % nodo)
+		schermata.queue_free()
+		await get_tree().process_frame
+	Impostazioni.movimento_ridotto = ridotto
+	Pausa.sezione_diario = sezione
 	GameState.nuova_partita()
 
 func prova_prima_della_pressione_la_guida_lancia_la_scan() -> void:

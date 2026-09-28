@@ -322,11 +322,11 @@
             },
             {
               "testo": "Nel primo gruppo si consulta: lo «Storico dei dialoghi» se perdi una battuta, il «Data pad» col database e l'Organizzazione, lo «Zaino» con quello che porti.",
-              "indica": "voce:diario"
+              "indica": "voci:storico,diario,zaino"
             },
             {
               "testo": "Nel secondo si amministra: in «Personaggio e squadra» vedi chi sei, come cresci e cosa indossi; nelle «Opzioni» regoli volume, testo e schermo.",
-              "indica": "voce:squadra"
+              "indica": "voci:squadra,opzioni"
             },
             {
               "testo": "«Torna al menu principale» è per quando smetti: il gioco si salva da solo ogni volta che rientri alla Sede.",
@@ -1022,7 +1022,7 @@
               "mostra": true
             },
             {
-              "testo": "Quando arriva un messaggio te lo dice una notifica, e l'icona in basso a destra squilla finché non l'hai letto: non devi venire a controllare, è lui che ti chiama."
+              "indica": "voce:messaggi", "testo": "Quando arriva un messaggio te lo dice una notifica, e l'icona in basso a destra squilla finché non l'hai letto: non devi venire a controllare, è lui che ti chiama."
             },
             {
               "testo": "C'è un messaggio nuovo: aprilo.",
@@ -1030,13 +1030,13 @@
               "aspetta": "voce:messaggi"
             },
             {
-              "testo": "I Tazo, in alto a destra, si vedono da ogni pagina del menu. Adesso sono un po' di più."
+              "indica": "tazo", "testo": "I Tazo, in alto a destra, si vedono da ogni pagina del menu. Adesso sono un po' di più."
             },
             {
               "testo": "Chi sei e come stai crescendo non sta nel data pad: è in «Personaggio e squadra», alla linguetta «Sviluppo»."
             },
             {
-              "testo": "È tutto. Chiudi il menu.",
+              "testo": "È tutto. Chiudi il menu: «Indietro» finché non trovi «Riprendi», oppure ESC.",
               "indica": "chiudi",
               "aspetta": "chiudi"
             }
