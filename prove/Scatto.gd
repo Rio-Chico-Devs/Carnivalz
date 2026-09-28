@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "laboratorio"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -70,6 +70,116 @@ func ferma_dopo(millesimi: int) -> void:
 	while Time.get_ticks_msec() - partenza < millesimi:
 		await get_tree().process_frame
 	Engine.time_scale = 0.0
+
+const BATTUTA_LAB := "Non voglio sentire scuse signorino, la prossima volta che ti vedo ridotto così vi dovrò fare una bella lavata di capo!"
+const PROVE_LAB := [
+	{"nome": "Shantell Sans, formale", "file": "shantellsans/ShantellSans[BNCE,INFM,SPAC,wght].ttf",
+		"assi": {"wght": 450, "INFM": 0, "BNCE": 0}},
+	{"nome": "lo stesso, informale e saltellante (assi INFM e BNCE)", "file": "shantellsans/ShantellSans[BNCE,INFM,SPAC,wght].ttf",
+		"assi": {"wght": 560, "INFM": 100, "BNCE": 100}},
+	{"nome": "Bricolage Grotesque, stretto e nero (assi wdth e wght)", "file": "bricolagegrotesque/BricolageGrotesque[opsz,wdth,wght].ttf",
+		"assi": {"wght": 760, "wdth": 75}, "corpo": 26},
+	{"nome": "lo stesso, largo, leggero e spaziato", "file": "bricolagegrotesque/BricolageGrotesque[opsz,wdth,wght].ttf",
+		"assi": {"wght": 360, "wdth": 100}, "spazio": 2},
+	{"nome": "Special Elite, inclinato", "file": "../apache/specialelite/SpecialElite-Regular.ttf", "inclina": 0.2},
+	{"nome": "Special Elite, lettere ritagliate (effetto a codice)", "file": "../apache/specialelite/SpecialElite-Regular.ttf",
+		"effetto": "ritaglio", "corpo": 26},
+	{"nome": "Rubik, con l'ombra cremisi", "file": "rubik/Rubik[wght].ttf", "assi": {"wght": 620}, "ombra": true},
+	{"nome": "Shantell Sans, che bolle come un disegno animato", "file": "shantellsans/ShantellSans[BNCE,INFM,SPAC,wght].ttf",
+		"assi": {"wght": 520, "INFM": 60, "BNCE": 40}, "effetto": "bollore"},
+	{"nome": "Rubik, le parole che recitano", "file": "rubik/Rubik[wght].ttf", "assi": {"wght": 500},
+		"testo": "Non voglio sentire [shake rate=24 level=7]scuse[/shake] signorino, la prossima volta che ti vedo ridotto così vi dovrò fare una [wave amp=40 freq=5][color=#c8102e]bella lavata di capo![/color][/wave]"},
+]
+
+
+class Ritaglio extends RichTextEffect:
+	# ogni lettera un po' storta e un po' fuori riga, sempre la stessa: lettere
+	# ritagliate e incollate. Con "passo" > 0 cambiano ogni tanto: il bollore
+	# dei disegni animati a mano, dove la linea non sta mai ferma
+	var bbcode := "ritaglio"
+	var passo := 0.0
+	var quanto := 1.0
+
+	func _process_custom_fx(fx: CharFXTransform) -> bool:
+		var tempo := floori(fx.elapsed_time / passo) if passo > 0.0 else 0
+		var caso := RandomNumberGenerator.new()
+		caso.seed = hash(Vector2i(fx.range.x, tempo))
+		var angolo := caso.randf_range(-0.1, 0.1) * quanto
+		var scala := 1.0 + caso.randf_range(-0.06, 0.08) * quanto
+		fx.transform = fx.transform * Transform2D(angolo, Vector2(scala, scala), 0.0,
+				Vector2(0.0, caso.randf_range(-2.5, 2.5) * quanto))
+		return true
+
+
+func laboratorio(radice: String) -> void:
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.imposta_flag("rientro_infermeria")
+	GameState.nodo_corrente = "infermeria_risveglio"
+	IngressoNodo.ultimo_esito = {}
+	var parla: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(parla)
+	await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+	for clic in 5:
+		parla._su_avanza()
+		await attendi(2)
+		parla._su_avanza()
+		await attendi(2)
+	await attendi(30)
+	parla.box.completa()
+	var testo: RichTextLabel = parla.box.testo
+	var ritaglio := Ritaglio.new()
+	var bollore := Ritaglio.new()
+	bollore.bbcode = "bollore"
+	bollore.passo = 0.13
+	bollore.quanto = 0.6
+	testo.install_effect(ritaglio)
+	testo.install_effect(bollore)
+	var cartello := Label.new()
+	cartello.position = Vector2(300, 432)
+	cartello.add_theme_font_size_override("font_size", 26)
+	cartello.add_theme_color_override("font_color", Color.WHITE)
+	parla.add_child(cartello)
+	var righe_per_foglio := 5
+	for f in ceili(PROVE_LAB.size() / float(righe_per_foglio)):
+		var quante := mini(righe_per_foglio, PROVE_LAB.size() - f * righe_per_foglio)
+		var foglio := Image.create(1280, 300 * quante, false, Image.FORMAT_RGBA8)
+		for k in quante:
+			var prova: Dictionary = PROVE_LAB[f * righe_per_foglio + k]
+			prepara_prova_lab(testo, radice, prova)
+			cartello.text = "%d  %s" % [f * righe_per_foglio + k + 1, String(prova.nome)]
+			await attendi(8)
+			await RenderingServer.frame_post_draw
+			var foto := get_viewport().get_texture().get_image()
+			foto.convert(Image.FORMAT_RGBA8)
+			foglio.blit_rect(foto, Rect2i(0, 420, 1280, 300), Vector2i(0, 300 * k))
+		foglio.save_png(ProjectSettings.globalize_path(CARTELLA + "laboratorio_%d.png" % (f + 1)))
+		print("foglio salvato: %slaboratorio_%d.png" % [CARTELLA, f + 1])
+
+
+func prepara_prova_lab(testo: RichTextLabel, radice: String, prova: Dictionary) -> void:
+	var misurato := carattere_con_misure(radice.path_join(String(prova.file)), int(prova.get("corpo", 24)), 400)
+	var variante: FontVariation = misurato[0]
+	var assi: Dictionary = prova.get("assi", {})
+	var opentype := {}
+	for asse: String in assi:
+		opentype[TextServerManager.get_primary_interface().name_to_tag(asse)] = assi[asse]
+	if not opentype.is_empty():
+		variante.variation_opentype = opentype
+	variante.spacing_glyph = int(prova.get("spazio", 0))
+	variante.variation_transform = Transform2D(Vector2(1, 0), Vector2(-float(prova.get("inclina", 0.0)), 1), Vector2.ZERO)
+	for chiave in ["normal_font", "italics_font", "bold_font"]:
+		testo.add_theme_font_override(chiave, variante)
+	for chiave in ["normal_font_size", "italics_font_size", "bold_font_size"]:
+		testo.add_theme_font_size_override(chiave, misurato[1])
+	var ombra := bool(prova.get("ombra", false))
+	testo.add_theme_color_override("font_shadow_color", Color("#c8102e") if ombra else Color(0, 0, 0, 0))
+	testo.add_theme_constant_override("shadow_offset_x", 2 if ombra else 0)
+	testo.add_theme_constant_override("shadow_offset_y", 2 if ombra else 0)
+	var effetto := String(prova.get("effetto", ""))
+	var battuta := String(prova.get("testo", BATTUTA_LAB))
+	testo.text = battuta if effetto == "" else "[%s]%s[/%s]" % [effetto, battuta, effetto]
+	testo.visible_ratio = 1.0
+
 
 func carattere_con_misure(percorso: String, corpo: int, peso: int) -> Array:
 	# [Font, corpo, nome]. Nel nome del file, fra graffe, le sue misure:
@@ -538,6 +648,12 @@ func prepara(quale: String) -> void:
 					foglio_d.blit_rect(foto_d, striscia, Vector2i(0, 300 * k))
 				foglio_d.save_png(ProjectSettings.globalize_path(CARTELLA + "dialoghi_rosa_%d.png" % (f + 1)))
 				print("foglio salvato: %sdialoghi_rosa_%d.png" % [CARTELLA, f + 1])
+		"laboratorio":
+			# UN CARATTERE PIEGATO A CODICE. Bru: «c'e' modo di usare un font e con
+			# qualche stratagemma personalizzarlo a codice?». La stessa battuta nel
+			# box vero, con quello che Godot lascia fare a un carattere senza
+			# ridisegnarlo: "laboratorio /percorso/google-fonts/ofl"
+			await laboratorio(String(OS.get_cmdline_user_args()[1]))
 		"scritta":
 			# LA SCRITTA DI CARNIVALZ nel momento in cui e' tutta accesa
 			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
