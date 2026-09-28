@@ -143,7 +143,12 @@ func nome_composto(scritta: RichTextLabel, prova: Dictionary, colore: Color) -> 
 			variante.variation_opentype = opentype
 		scritta.push_font(variante, corpo)
 		scritta.push_color(Stile.colore("accento") if String(parte.get("colore", "")) == "accento" else colore)
+		if bool(parte.get("storto", false)):
+			# ogni lettera un po' fuori posto, sempre lo stesso: il gotico storto
+			scritta.push_customfx(Ritaglio.new(), {})
 		scritta.add_text(String(parte.get("testo", "")))
+		if bool(parte.get("storto", false)):
+			scritta.pop()
 		scritta.pop()
 		scritta.pop()
 
@@ -279,7 +284,15 @@ func nomi_a_confronto(prove: Array) -> void:
 		for k in quanti:
 			var prova: Dictionary = prove[f * 10 + k]
 			nome_composto(sul_nastro, prova, Stile.colore("nastro_testo"))
-			nome_composto(sulla_targhetta, prova, Color("#3b2418"))
+			nome_composto(sulla_targhetta, prova, Color(String(prova.get("inchiostro", "#3b2418"))))
+			# la targhetta dell'esempio e' pesca; una prova puo' chiederne un'altra,
+			# per esempio nera col bordo cremisi per i gotici scuri
+			var pelle := (sulla_targhetta.get_parent() as Control).get_theme_stylebox("panel") as StyleBoxFlat
+			pelle.bg_color = Color(String(prova.get("targhetta", "#e6c3a0")))
+			pelle.border_color = Color(String(prova.get("bordo", "#00000000")))
+			pelle.set_border_width_all(2 if prova.has("bordo") else 0)
+			(elegante.get_node("Fiore") as Label).add_theme_color_override("font_color",
+					Color(String(prova.get("fiore", "#f3dcc4"))))
 			cartello.text = String(prova.nome)
 			cartello_elegante.text = String(prova.nome)
 			nastro.size = Vector2.ZERO
