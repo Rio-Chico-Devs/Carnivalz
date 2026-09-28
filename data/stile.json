@@ -278,7 +278,7 @@
     "pausa": 2.0,
     "angolo": 13.0
   },
-  "_nota_racconto": "IL RACCONTO A SCHERMO INTERO (scripts/Racconto.gd): l'inizio del gioco e dei livelli, come le introduzioni di Final Fantasy Crystal Chronicles. Tutti i numeri sono miei, da girare qui. passo e respiro: la macchina da scrivere del box, rallentata (0,62 della velocita') e con le pause sulla punteggiatura lunghe una volta e mezza, perche' una favola si racconta piano. corpo, peso e larghezza: il testo al centro, 58 pixel di Italianno (vedi font.fiaba) su una colonna larga il 60% dello schermo: una calligrafia ha l'occhio piccolissimo, e sotto i 50 si legge a fatica. Il peso vale solo per un carattere a peso variabile, e Italianno non lo e': 400 e' il suo. righe_massime: un paragrafo piu' lungo gira pagina dove finisce una frase (le parole non cambiano). Le righe sono compatte (interlinee.compatta, 1,35 volte il corpo: una calligrafia ha l'occhio piccolo e a 1,5 le righe galleggiavano): cinque righe a 58 pixel sono circa 390 pixel, e piu' in basso c'e' il triangolino. apertura, cambio_sfondo, sparizione, chiusura: le sfumature, in secondi. avvicinamento: di quanto si avvicina l'immagine mentre la leggi (5% in 18 secondi). luce, respiro_luce: il chiarore caldo che respira dietro il testo. vignetta, ombra: quanto scuriscono i bordi e l'alone dietro le parole. logo_*: la scritta di Carnivalz - il buio che scende, il silenzio, l'entrata, quanto resta (almeno logo_tenuta, o l'attesa scritta nei dati se e' piu' lunga), l'uscita, il vuoto dopo, e di quanto cresce mentre si vede.",
+  "_nota_racconto": "IL RACCONTO A SCHERMO INTERO (scripts/Racconto.gd): l'inizio del gioco e dei livelli, come le introduzioni di Final Fantasy Crystal Chronicles. Tutti i numeri sono miei, da girare qui. passo e respiro: la macchina da scrivere del box, rallentata (0,62 della velocita') e con le pause sulla punteggiatura lunghe una volta e mezza, perche' una favola si racconta piano. corpo, peso e larghezza: il testo al centro, 58 pixel di Italianno (vedi font.fiaba) su una colonna larga il 60% dello schermo: una calligrafia ha l'occhio piccolissimo, e sotto i 50 si legge a fatica. Il peso vale solo per un carattere a peso variabile, e Italianno non lo e': 400 e' il suo. righe_massime: un paragrafo piu' lungo gira pagina dove finisce una frase (le parole non cambiano). Le righe sono compatte (interlinee.compatta, 1,35 volte il corpo: una calligrafia ha l'occhio piccolo e a 1,5 le righe galleggiavano): cinque righe a 58 pixel sono circa 390 pixel, e piu' in basso c'e' il triangolino. apertura, cambio_sfondo, sparizione, chiusura: le sfumature, in secondi. avvicinamento: di quanto si avvicina l'immagine mentre la leggi (5% in 18 secondi). luce, respiro_luce: il chiarore caldo che respira dietro il testo. vignetta, ombra: quanto scuriscono i bordi e l'alone dietro le parole. logo_*: la scritta di Carnivalz - il buio che scende, il silenzio, l'entrata, quanto resta (almeno logo_tenuta, o l'attesa scritta nei dati se e' piu' lunga), l'uscita, il vuoto dopo, e di quanto cresce mentre si vede. inchiostro e risalita: come affiorano le lettere (Inchiostro.gd, Bru: «un po' di fade mentre viene scritto») - in quanti secondi una lettera appena scritta sfuma dentro e passa dal colore della luce a quello del testo, e da quanti pixel piu' in basso sale al suo posto. Numeri miei.",
   "racconto": {
     "passo": 0.62,
     "respiro": 1.6,
@@ -304,7 +304,9 @@
     "logo_tenuta": 3.2,
     "logo_uscita": 3.4,
     "logo_vuoto": 2.4,
-    "logo_crescita": 0.06
+    "logo_crescita": 0.06,
+    "inchiostro": 0.5,
+    "risalita": 4.0
   },
   "_nota_plancia": "LA DISPOSIZIONE DELLA SCHERMATA DI COMBATTIMENTO, misurata sui disegni di Bru (1920x1080) e tenuta in FRAZIONI: la finestra puo' essere di qualunque misura, il disegno resta quello. Vedi docs/schermata_combattimento.md per lo schema e per cosa significa ogni riga.",
   "plancia": {

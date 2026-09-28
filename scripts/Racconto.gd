@@ -46,7 +46,7 @@ const DI_SERIE := {
 	"avvicinamento": 0.05, "durata_avvicinamento": 18.0, "luce": 0.16, "respiro_luce": 4.0,
 	"vignetta": 0.92, "ombra": 0.62,
 	"logo_buio": 1.8, "logo_silenzio": 1.2, "logo_entrata": 3.4, "logo_tenuta": 3.2,
-	"logo_uscita": 3.4, "logo_vuoto": 2.4, "logo_crescita": 0.06,
+	"logo_uscita": 3.4, "logo_vuoto": 2.4, "logo_crescita": 0.06, "inchiostro": 0.5, "risalita": 4.0,
 }
 const SCRITTA_SENZA_DISEGNO := "CARNIVALZ"
 
@@ -61,6 +61,7 @@ var testo: RichTextLabel
 var segno: Label                 # il triangolino che respira quando si puo' andare avanti
 var logo: Control
 var macchina: MacchinaDaScrivere
+var inchiostro: Inchiostro       # come affiorano le lettere che la macchina scopre
 var paragrafi: PackedStringArray = []
 var paragrafo := 0
 # "" chiuso, "cambio" l'immagine sta cambiando, "scrive", "legge" il paragrafo
@@ -171,6 +172,13 @@ func prepara_testo() -> void:
 	# corpo le righe galleggiavano lontane come frasi separate
 	Stile.interlinea(testo, "compatta", corpo)
 	testo.add_theme_color_override("default_color", colore("colore_testo", "#f3ead7"))
+	# LE LETTERE AFFIORANO invece di accendersi (Bru: «un po' di fade mentre
+	# viene scritto»): vedi Inchiostro.gd
+	inchiostro = Inchiostro.new()
+	inchiostro.durata = numero("inchiostro")
+	inchiostro.risalita = numero("risalita")
+	inchiostro.fresco = colore("colore_luce", "#e9b872")
+	testo.install_effect(inchiostro)
 	Stile.contorno(testo, corpo)
 	add_child(testo)
 
@@ -337,12 +345,21 @@ func ferma_il_passaggio() -> void:
 		tween_paragrafo.kill()
 
 
+func _process(delta: float) -> void:
+	# l'orologio dell'inchiostro, e le lettere che la macchina ha appena scoperto
+	inchiostro.adesso += delta
+	if fase == "scrive" or fase == "legge":
+		var visibili := testo.visible_characters
+		inchiostro.segna(visibili if visibili >= 0 else testo.get_total_character_count())
+
+
 func scrivi_paragrafo() -> void:
 	if fase != "cambio":
 		return
-	testo.text = "[center]%s[/center]" % paragrafi[paragrafo]
+	testo.text = "[center][inchiostro]%s[/inchiostro][/center]" % paragrafi[paragrafo]
 	testo.visible_ratio = 0.0
 	testo.modulate.a = 1.0
+	inchiostro.ricomincia()
 	fase = "scrive"
 	macchina.scrivi(testo, "", "narrazione")
 

@@ -93,6 +93,7 @@ func _ready() -> void:
 	prova_ogni_carattere_ha_la_sua_licenza()
 	await prova_il_racconto_si_prende_lo_schermo()
 	await prova_ogni_pagina_del_racconto_sta_nello_schermo()
+	await prova_nel_racconto_le_lettere_affiorano()
 	await prova_la_scritta_non_si_salta()
 	await prova_il_titolo_si_apre_col_clic()
 	prova_gli_otto_status()
@@ -5279,6 +5280,59 @@ func prova_ogni_pagina_del_racconto_sta_nello_schermo() -> void:
 			"misurare le pagine nuove ha cambiato la pagina di prima mentre sfuma: «%s»" % fiaba.testo.text.left(50))
 	for pagina in fiaba.paragrafi:
 		esigi(fiaba.righe(pagina) <= massimo, "il paragrafo lunghissimo ha una pagina di %d righe" % fiaba.righe(pagina))
+	fiaba.queue_free()
+	await get_tree().process_frame
+	Stile.dati["racconto"] = veri
+
+func lettera_d_inchiostro(inchiostro: Inchiostro, indice: int) -> CharFXTransform:
+	# come l'inchiostro disegnerebbe la lettera numero «indice», bianca in partenza
+	var fx := CharFXTransform.new()
+	fx.range = Vector2i(indice, indice + 1)
+	fx.color = Color.WHITE
+	inchiostro._process_custom_fx(fx)
+	return fx
+
+func prova_nel_racconto_le_lettere_affiorano() -> void:
+	# «puoi fare in modo che il testo appaia in modo piu' morbido? non so tipo
+	# con un po' di fade mentre viene scritto» (Bru). La lettera appena scritta
+	# e' ancora fresca - trasparente, piu' in basso, del colore della luce - e
+	# un attimo dopo e' al suo posto. Anche nelle pause, e anche col clic
+	titolo("nel racconto le lettere affiorano invece di accendersi")
+	var veri := racconto_veloce()
+	var fiaba := Racconto.new()
+	add_child(fiaba)
+	fiaba.visible = true
+	await get_tree().process_frame
+	fiaba.racconta({"tipo": "racconto"}, "C'era una volta, in un paese lontano, una festa che non finiva mai.")
+	for giro in 900:
+		if fiaba.fase == "scrive" and fiaba.testo.visible_characters >= 10:
+			break
+		await get_tree().process_frame
+	await get_tree().process_frame
+	var inchiostro := fiaba.inchiostro
+	esigi(fiaba.testo.text.contains("[inchiostro]") and inchiostro in fiaba.testo.custom_effects,
+			"il paragrafo non e' scritto con l'inchiostro: le lettere si accendono di colpo")
+	var ultima := inchiostro.comparsa.size() - 1
+	esigi(ultima >= 9, "l'inchiostro non sa quali lettere la macchina ha scoperto (%d)" % inchiostro.comparsa.size())
+	var fresca := lettera_d_inchiostro(inchiostro, ultima)
+	esigi(fresca.color.a < 0.9 and fresca.offset.y > 0.0 and fresca.color.b < 0.99,
+			"la lettera appena scritta e' gia' asciutta: si accende invece di affiorare")
+	# la lettera che la macchina scopre in questo fotogramma, prima che la si
+	# conti: fresca anche lei, non piena per un istante (lampeggiava)
+	esigi(lettera_d_inchiostro(inchiostro, ultima + 1).color.a == 0.0,
+			"la lettera appena scoperta lampeggia piena prima di affiorare")
+	inchiostro.adesso += inchiostro.durata + 0.01
+	var asciutta := lettera_d_inchiostro(inchiostro, 0)
+	esigi(asciutta.color == Color.WHITE and asciutta.offset == Vector2.ZERO,
+			"una lettera scritta da un pezzo non e' ancora al suo posto")
+	# il clic che completa: le lettere che mancavano affiorano insieme, non di colpo
+	fiaba.premi()
+	await get_tree().process_frame
+	var tutte := fiaba.testo.get_total_character_count()
+	esigi(fiaba.fase == "legge" and inchiostro.comparsa.size() == tutte,
+			"completato il paragrafo, l'inchiostro non segna tutte le lettere (%d su %d)" % [inchiostro.comparsa.size(), tutte])
+	esigi(lettera_d_inchiostro(inchiostro, tutte - 1).color.a < 1.0,
+			"col clic l'ultima lettera compare di colpo invece di affiorare")
 	fiaba.queue_free()
 	await get_tree().process_frame
 	Stile.dati["racconto"] = veri
