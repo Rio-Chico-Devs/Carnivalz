@@ -5171,7 +5171,7 @@ func prova_i_nomi_si_scrivono_col_loro_carattere() -> void:
 	# le misure scritte in stile.json arrivano davvero al nastro
 	esigi(schermata.nome_nastro.get_theme_font_size("font_size") == Caratteri.corpo_nomi(),
 			"sul nastro il nome e' a %d invece che a %d" % [schermata.nome_nastro.get_theme_font_size("font_size"), Caratteri.corpo_nomi()])
-	var variante := schermata.nome_nastro.get_theme_font("font") as FontVariation
+	var variante: FontVariation = schermata.nome_nastro.get_theme_font("font") as FontVariation
 	var assi: Dictionary = (Stile.dati.get("nomi", {}) as Dictionary).get("assi", {})
 	esigi(variante != null and not assi.is_empty(), "il carattere dei nomi non ha le sue misure")
 	for asse: String in assi:
