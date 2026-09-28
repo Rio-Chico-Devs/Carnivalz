@@ -111,7 +111,7 @@ class Ritaglio extends RichTextEffect:
 		return true
 
 
-func laboratorio(radice: String) -> void:
+func laboratorio(radice: String, prove: Array) -> void:
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
 	GameState.imposta_flag("rientro_infermeria")
 	GameState.nodo_corrente = "infermeria_risveglio"
@@ -140,11 +140,11 @@ func laboratorio(radice: String) -> void:
 	cartello.add_theme_color_override("font_color", Color.WHITE)
 	parla.add_child(cartello)
 	var righe_per_foglio := 5
-	for f in ceili(PROVE_LAB.size() / float(righe_per_foglio)):
-		var quante := mini(righe_per_foglio, PROVE_LAB.size() - f * righe_per_foglio)
+	for f in ceili(prove.size() / float(righe_per_foglio)):
+		var quante := mini(righe_per_foglio, prove.size() - f * righe_per_foglio)
 		var foglio := Image.create(1280, 300 * quante, false, Image.FORMAT_RGBA8)
 		for k in quante:
-			var prova: Dictionary = PROVE_LAB[f * righe_per_foglio + k]
+			var prova: Dictionary = prove[f * righe_per_foglio + k]
 			prepara_prova_lab(testo, radice, prova)
 			cartello.text = "%d  %s" % [f * righe_per_foglio + k + 1, String(prova.nome)]
 			await attendi(8)
@@ -652,8 +652,13 @@ func prepara(quale: String) -> void:
 			# UN CARATTERE PIEGATO A CODICE. Bru: «c'e' modo di usare un font e con
 			# qualche stratagemma personalizzarlo a codice?». La stessa battuta nel
 			# box vero, con quello che Godot lascia fare a un carattere senza
-			# ridisegnarlo: "laboratorio /percorso/google-fonts/ofl"
-			await laboratorio(String(OS.get_cmdline_user_args()[1]))
+			# ridisegnarlo: "laboratorio /percorso/google-fonts/ofl [prove.json]".
+			# Il json e' una lista di prove come PROVE_LAB, per provarne altre
+			var argomenti_l := OS.get_cmdline_user_args()
+			var prove_l: Array = PROVE_LAB
+			if argomenti_l.size() > 2:
+				prove_l = JSON.parse_string(FileAccess.get_file_as_string(String(argomenti_l[2])))
+			await laboratorio(String(argomenti_l[1]), prove_l)
 		"scritta":
 			# LA SCRITTA DI CARNIVALZ nel momento in cui e' tutta accesa
 			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
