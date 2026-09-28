@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -402,6 +402,54 @@ func prepara(quale: String) -> void:
 					r.premi()
 					await attendi(40)
 				break
+		"caratteri":
+			# I CARATTERI DA FAVOLA A CONFRONTO. Bru: «il font delle narrazioni [...]
+			# deve essere piu' elegante e fiabesco». Lo stesso paragrafo del racconto
+			# scritto con ogni .ttf di una cartella, anche fuori dal progetto, in un
+			# foglio solo: "caratteri /percorso/cartella [corpo]"
+			var argomenti_c := OS.get_cmdline_user_args()
+			var cartella := String(argomenti_c[1])
+			var corpo_c := int(argomenti_c[2]) if argomenti_c.size() > 2 and argomenti_c[2].is_valid_int() else 34
+			var peso_c := int(argomenti_c[3]) if argomenti_c.size() > 3 and argomenti_c[3].is_valid_int() else 500
+			GameState.avvia_carnivalz("magione", "res://data/vuoti/casa_gigante.json")
+			IngressoNodo.ultimo_esito = {}
+			var col_fiaba: Node = load("res://scenes/Main.tscn").instantiate()
+			add_child(col_fiaba)
+			var fiaba: Racconto = null
+			for giro in 3000:
+				await attendi(1)
+				fiaba = col_fiaba.racconto
+				if fiaba != null and fiaba.fase == "scrive":
+					fiaba.premi()
+					break
+			await attendi(20)
+			var nomi: Array = Array(DirAccess.get_files_at(cartella)).filter(
+					func(f: String) -> bool: return f.ends_with(".ttf"))
+			nomi.sort()
+			var foglio := Image.create(1280, 360 * ceili(nomi.size() / 2.0), false, Image.FORMAT_RGBA8)
+			var cartello := Label.new()
+			cartello.position = Vector2(40, 30)
+			cartello.add_theme_font_size_override("font_size", 40)
+			fiaba.add_child(cartello)
+			Stile.imposta_corpo(fiaba.testo, corpo_c)
+			for i in nomi.size():
+				var carattere := FontFile.new()
+				carattere.load_dynamic_font(cartella.path_join(String(nomi[i])))
+				var pesato := FontVariation.new()
+				pesato.base_font = carattere
+				pesato.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): peso_c}
+				fiaba.testo.add_theme_font_override("normal_font", pesato)
+				cartello.text = String(nomi[i]).get_basename()
+				await attendi(6)
+				await RenderingServer.frame_post_draw
+				var foto := get_viewport().get_texture().get_image()
+				foto.convert(Image.FORMAT_RGBA8)
+				if "intero" in argomenti_c:   # ognuno a grandezza vera, in un file suo
+					foto.save_png(ProjectSettings.globalize_path(CARTELLA + "carattere_%d.png" % (i + 1)))
+				foto.resize(640, 360, Image.INTERPOLATE_BILINEAR)
+				foglio.blit_rect(foto, Rect2i(0, 0, 640, 360), Vector2i((i % 2) * 640, floori(i / 2.0) * 360))
+			foglio.save_png(ProjectSettings.globalize_path(CARTELLA + "caratteri_confronto.png"))
+			print("foglio salvato: %scaratteri_confronto.png" % CARTELLA)
 		"scritta":
 			# LA SCRITTA DI CARNIVALZ nel momento in cui e' tutta accesa
 			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")

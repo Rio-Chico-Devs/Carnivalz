@@ -90,6 +90,7 @@ func _ready() -> void:
 	await prova_maschile_e_femminile()
 	prova_dall_introduzione_al_combattimento()
 	prova_l_inizio_di_ogni_livello_si_racconta()
+	prova_ogni_carattere_ha_la_sua_licenza()
 	await prova_il_racconto_si_prende_lo_schermo()
 	await prova_la_scritta_non_si_salta()
 	await prova_il_titolo_si_apre_col_clic()
@@ -5113,6 +5114,22 @@ func prova_l_inizio_di_ogni_livello_si_racconta() -> void:
 	esigi(Racconto.dividi("Una.\n\nDue.\n\n\n\nTre.") == PackedStringArray(["Una.", "Due.", "Tre."]),
 			"le righe vuote non dividono i paragrafi del racconto")
 
+func prova_ogni_carattere_ha_la_sua_licenza() -> void:
+	# UN CARATTERE SI PUO' SPEDIRE COL GIOCO SOLO CON LA SUA LICENZA ACCANTO: e'
+	# la condizione dell'OFL. Ogni .ttf in art/font/ deve stare nel LEGGIMI, e
+	# ci devono essere tanti OFL-*.txt quanti caratteri
+	titolo("ogni carattere del gioco ha la sua licenza accanto")
+	var cartella := "res://art/font/"
+	var file := Array(DirAccess.get_files_at(cartella))
+	var caratteri := file.filter(func(f: String) -> bool: return f.ends_with(".ttf"))
+	var licenze := file.filter(func(f: String) -> bool: return f.begins_with("OFL-") and f.ends_with(".txt"))
+	var leggimi := FileAccess.get_file_as_string(cartella + "LEGGIMI.md")
+	esigi(caratteri.size() >= 3, "in art/font/ ci sono %d caratteri: ne manca qualcuno" % caratteri.size())
+	esigi(licenze.size() == caratteri.size(),
+			"in art/font/ ci sono %d caratteri e %d licenze OFL: spedirli senza e' violarla" % [caratteri.size(), licenze.size()])
+	for nome in caratteri:
+		esigi(("`%s`" % nome) in leggimi, "%s non e' nel LEGGIMI dei caratteri: non si sa di chi e' ne' con che licenza" % nome)
+
 func racconto_veloce() -> Dictionary:
 	# LE PROVE NON ASPETTANO I TEMPI DI UNA FAVOLA: le sfumature durano un
 	# soffio. Restituisce i numeri veri, da rimettere a posto
@@ -5147,6 +5164,13 @@ func prova_il_racconto_si_prende_lo_schermo() -> void:
 	esigi(racconto.macchina is MacchinaDaScrivere and schermata.box.macchina is MacchinaDaScrivere,
 			"il racconto e il box non scrivono con la stessa macchina")
 	esigi(racconto.macchina.passo < 1.0, "il racconto scrive alla velocita' di una battuta, non di una favola")
+	# «il font delle narrazioni [...] deve essere piu' elegante e fiabesco» (Bru)
+	var di_base: Font = racconto.testo.get_theme_font("normal_font")
+	while di_base is FontVariation:   # il peso e l'eventuale crenatura lo avvolgono
+		di_base = (di_base as FontVariation).base_font
+	esigi(di_base != null and di_base.resource_path == "res://art/font/fiaba.ttf",
+			"il racconto non e' scritto col carattere da favola ma con «%s»"
+			% (di_base.resource_path if di_base != null else "niente"))
 	esigi(racconto.testo.visible_characters_behavior == TextServer.VC_CHARS_AFTER_SHAPING,
 			"le righe centrate si spostano mentre si scrivono")
 	var paragrafi := 0

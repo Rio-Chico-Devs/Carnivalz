@@ -606,7 +606,9 @@ avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio
   sciogliersi — non un timer, perché un nome di luogo merita di essere letto con calma
 - **`racconto`**: l'inizio del gioco e l'inizio di ogni livello. **Niente box**: il testo si
   prende lo schermo come nelle introduzioni dei livelli di *Final Fantasy Crystal Chronicles*
-  (Bru, 28 settembre: «ne faremo il fulcro del testo del gioco»). Paragrafi al centro, scritti
+  (Bru, 28 settembre: «ne faremo il fulcro del testo del gioco»). Paragrafi al centro, in un
+  corsivo da favola — **Cormorant Garamond**, `art/font/fiaba.ttf` (Bru: «più elegante e
+  fiabesco»; un altro carattere si mette al suo posto con lo stesso nome) — scritti
   dalla **stessa macchina da scrivere del box, con lo stesso suono** (`MacchinaDaScrivere.gd`),
   ma più piano; dietro, per ogni paragrafo, un'immagine (`"sfondo"`) o un video (`"video"`,
   un `.ogv`) che sfuma dal precedente e si avvicina piano mentre lo leggi; intorno una

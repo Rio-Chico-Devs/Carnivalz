@@ -20,8 +20,9 @@ extends Control
 #                    nero pieno e' uno schermo spento, non una notte
 #   la vignetta      i bordi che scuriscono: il «leggero fade» intorno
 #   l'ombra          un alone scuro dietro il testo, che si legga sopra qualunque disegno
-#   il testo         al centro, scritto dalla STESSA macchina del box, con lo
-#                    stesso suono (MacchinaDaScrivere.gd) ma piu' piano
+#   il testo         al centro, in un corsivo da favola (art/font/fiaba.ttf),
+#                    scritto dalla STESSA macchina del box, con lo stesso suono
+#                    (MacchinaDaScrivere.gd) ma piu' piano
 #   la scritta       CARNIVALZ, alla fine dell'introduzione
 #
 # UNA BATTUTA, UNO O PIU' PARAGRAFI. Nei dati una battuta e' {"tipo":
@@ -40,7 +41,7 @@ signal scrittura_finita  # l'ultimo paragrafo di una battuta e' scritto
 signal chiuso            # il racconto se n'e' andato: la scena torna padrona
 
 const DI_SERIE := {
-	"passo": 0.62, "respiro": 1.6, "corpo": 30, "larghezza": 0.6,
+	"passo": 0.62, "respiro": 1.6, "corpo": 40, "peso": 600, "larghezza": 0.6,
 	"apertura": 1.4, "cambio_sfondo": 1.6, "sparizione": 0.6, "chiusura": 1.2,
 	"avvicinamento": 0.05, "durata_avvicinamento": 18.0, "luce": 0.16, "respiro_luce": 4.0,
 	"vignetta": 0.92, "ombra": 0.62,
@@ -158,9 +159,14 @@ func prepara_testo() -> void:
 	testo.anchor_bottom = 0.5
 	testo.grow_vertical = Control.GROW_DIRECTION_BOTH
 	var corpo := int(numero("corpo"))
-	if Caratteri.tondo(500) != null:
-		testo.add_theme_font_override("normal_font", Caratteri.tondo(500))
-	Stile.imposta_corpo(testo, corpo)
+	# IL CARATTERE DELLE FAVOLE: Bru lo vuole «piu' elegante e fiabesco», e il
+	# tondo del menu non lo era. E' in art/font/fiaba.ttf (vedi font.fiaba)
+	var carattere := Caratteri.fiaba(int(numero("peso")))
+	if carattere != null:
+		testo.add_theme_font_override("normal_font", carattere)
+	# il corpo e basta, senza la crenatura dei titoli: questo e' testo da leggere,
+	# e stringerlo lo renderebbe solo piu' faticoso (vedi Stile.crenatura)
+	testo.add_theme_font_size_override("normal_font_size", corpo)
 	Stile.interlinea(testo, "lettura", corpo)
 	testo.add_theme_color_override("default_color", colore("colore_testo", "#f3ead7"))
 	Stile.contorno(testo, corpo)
