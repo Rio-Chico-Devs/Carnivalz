@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "laboratorio"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "nomi_eleganti", "laboratorio"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -109,6 +109,197 @@ class Ritaglio extends RichTextEffect:
 		fx.transform = fx.transform * Transform2D(angolo, Vector2(scala, scala), 0.0,
 				Vector2(0.0, caso.randf_range(-2.5, 2.5) * quanto))
 		return true
+
+
+class Rombi extends Control:
+	# i rombi d'arlecchino dell'esempio di Bru: una fila chiara e una scura, e
+	# dall'alto al basso il grigio sfuma nel lilla
+	func _draw() -> void:
+		var passo := Vector2(40.0, 56.0)
+		for j in int(size.y / (passo.y * 0.5)) + 3:
+			var t := clampf(j * passo.y * 0.5 / maxf(size.y, 1.0), 0.0, 1.0)
+			var tinta := (Color("#bdbdbd").lerp(Color("#c3bbe2"), t)) if j % 2 == 0 \
+					else (Color("#9e9e9e").lerp(Color("#a89fd0"), t))
+			for i in int(size.x / passo.x) + 3:
+				var c := Vector2(i * passo.x + (passo.x * 0.5 if j % 2 == 1 else 0.0), j * passo.y * 0.5)
+				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -passo.y * 0.5),
+						c + Vector2(passo.x * 0.5, 0), c + Vector2(0, passo.y * 0.5),
+						c + Vector2(-passo.x * 0.5, 0)]), tinta)
+
+
+func nome_composto(scritta: RichTextLabel, prova: Dictionary, colore: Color) -> void:
+	# IL NOME FATTO A PEZZI, ognuno col suo carattere: la «V» gotica e
+	# «eronica» in Cinzel, come una capolettera di un libro di fiabe
+	scritta.clear()
+	for parte: Dictionary in prova.get("parti", []):
+		var corpo := int(parte.get("corpo", 40))
+		var misurato := carattere_con_misure(String(parte.file), corpo, 400)
+		var variante: FontVariation = misurato[0]
+		var assi: Dictionary = parte.get("assi", {})
+		if not assi.is_empty():
+			var opentype := {}
+			for asse: String in assi:
+				opentype[TextServerManager.get_primary_interface().name_to_tag(asse)] = assi[asse]
+			variante.variation_opentype = opentype
+		scritta.push_font(variante, corpo)
+		scritta.push_color(Stile.colore("accento") if String(parte.get("colore", "")) == "accento" else colore)
+		scritta.add_text(String(parte.get("testo", "")))
+		scritta.pop()
+		scritta.pop()
+
+
+func scritta_del_nome() -> RichTextLabel:
+	var scritta := RichTextLabel.new()
+	scritta.bbcode_enabled = false
+	scritta.fit_content = true
+	scritta.autowrap_mode = TextServer.AUTOWRAP_OFF
+	scritta.scroll_active = false
+	scritta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return scritta
+
+
+func box_elegante(scritta: RichTextLabel, radice_ofl: String) -> Control:
+	# UN BOX COME L'ESEMPIO DI BRU, fatto a codice solo per provarci sopra i
+	# nomi: rombi d'arlecchino, bordo nero arrotondato, due volute nere sugli
+	# angoli (i fregi di EB Garamond), e la targhetta color pesca in cima
+	var tutto := Control.new()
+	tutto.size = Vector2(600, 196)
+	var alto := 46.0
+	var dentro := Rect2(Vector2(0, alto), Vector2(600, 150))
+	var maschera := Panel.new()
+	var fondo := StyleBoxFlat.new()
+	fondo.bg_color = Color("#aaa8b8")
+	fondo.set_corner_radius_all(14)
+	maschera.add_theme_stylebox_override("panel", fondo)
+	maschera.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+	maschera.position = dentro.position
+	maschera.size = dentro.size
+	tutto.add_child(maschera)
+	var rombi := Rombi.new()
+	rombi.size = dentro.size
+	maschera.add_child(rombi)
+	var bordo := Panel.new()
+	var linea := StyleBoxFlat.new()
+	linea.draw_center = false
+	linea.border_color = Color.BLACK
+	linea.set_border_width_all(5)
+	linea.set_corner_radius_all(14)
+	bordo.add_theme_stylebox_override("panel", linea)
+	bordo.position = dentro.position
+	bordo.size = dentro.size
+	tutto.add_child(bordo)
+	var fregi := FontFile.new()
+	fregi.load_dynamic_font(radice_ofl.path_join("ebgaramond/EBGaramond[wght].ttf"))
+	for dove: Array in [["❦", Vector2(528, alto - 34), 0.0], ["❧", Vector2(-6, alto + 92), 0.0]]:
+		var fregio := Label.new()
+		fregio.text = String(dove[0])
+		fregio.add_theme_font_override("font", fregi)
+		fregio.add_theme_font_size_override("font_size", 62)
+		fregio.add_theme_color_override("font_color", Color.BLACK)
+		fregio.position = dove[1]
+		tutto.add_child(fregio)
+	var battuta := Label.new()
+	battuta.text = "Non voglio sentire scuse, signorino: la prossima volta che ti vedo ridotto così..."
+	battuta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	battuta.add_theme_font_override("font", Caratteri.dialoghi())
+	battuta.add_theme_font_size_override("font_size", 24)
+	battuta.add_theme_color_override("font_color", Color("#1f1b2b"))
+	battuta.position = Vector2(30, alto + 26)
+	battuta.size = Vector2(470, 90)
+	tutto.add_child(battuta)
+	var targhetta := PanelContainer.new()
+	var pesca := StyleBoxFlat.new()
+	pesca.bg_color = Color("#e6c3a0")
+	pesca.set_corner_radius_all(12)
+	pesca.content_margin_left = 22
+	pesca.content_margin_right = 60
+	pesca.content_margin_top = 0
+	pesca.content_margin_bottom = 2
+	pesca.shadow_color = Color(0, 0, 0, 0.25)
+	pesca.shadow_size = 3
+	targhetta.add_theme_stylebox_override("panel", pesca)
+	targhetta.position = Vector2(0, 0)
+	targhetta.custom_minimum_size = Vector2(0, alto + 10)
+	scritta.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	targhetta.add_child(scritta)
+	tutto.add_child(targhetta)
+	# il fiore chiaro sulla destra della targhetta, come nell'esempio
+	var fiore := Label.new()
+	fiore.name = "Fiore"
+	fiore.text = "❦"
+	fiore.add_theme_font_override("font", fregi)
+	fiore.add_theme_font_size_override("font_size", 44)
+	fiore.add_theme_color_override("font_color", Color("#f3dcc4"))
+	fiore.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tutto.add_child(fiore)
+	return tutto
+
+
+func nomi_a_confronto(prove: Array) -> void:
+	# I NOMI, SECONDA SERIE. Bru: «per i nomi non mi piace nessuno dei font,
+	# abbiamo bisogno di qualcosa di piu' originale e che rimane in testa», con
+	# l'esempio di un box elegante. Ogni prova (un json: [{nome, parti: [{file,
+	# corpo, assi, testo, colore}]}]) due volte: sul nastro rosa com'e' nel
+	# gioco, e sulla targhetta di un box come quello dell'esempio
+	await apri_dialogo(nodo_di_prova())
+	await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+	var schermata: Node = get_child(0)
+	schermata.nastro.visible = false
+	var nastro := PanelContainer.new()
+	nastro.add_theme_stylebox_override("panel", schermata.stile_nastro_piatto())
+	var sul_nastro := scritta_del_nome()
+	nastro.add_child(sul_nastro)
+	schermata.add_child(nastro)
+	nastro.rotation = Stile.angolo("inclinazione_nastro")
+	var cartello := Label.new()
+	cartello.position = Vector2(330, 575)
+	cartello.add_theme_font_size_override("font_size", 20)
+	cartello.add_theme_color_override("font_color", Color.BLACK)
+	schermata.add_child(cartello)
+	var sopra := CanvasLayer.new()
+	sopra.layer = 200
+	add_child(sopra)
+	var buio := ColorRect.new()
+	buio.color = Color("#15131f")
+	buio.size = Vector2(640, 280)
+	sopra.add_child(buio)
+	var sulla_targhetta := scritta_del_nome()
+	var radice_ofl := String((prove[0] as Dictionary).parti[0].file).get_base_dir().get_base_dir()
+	var elegante := box_elegante(sulla_targhetta, radice_ofl)
+	elegante.position = Vector2(20, 44)
+	sopra.add_child(elegante)
+	var cartello_elegante := Label.new()
+	cartello_elegante.position = Vector2(24, 244)
+	cartello_elegante.add_theme_font_size_override("font_size", 18)
+	cartello_elegante.add_theme_color_override("font_color", Color("#d8d4e8"))
+	sopra.add_child(cartello_elegante)
+	for f in ceili(prove.size() / 10.0):
+		var quanti := mini(10, prove.size() - f * 10)
+		var foglio := Image.create(1280, 272 * quanti, false, Image.FORMAT_RGBA8)
+		for k in quanti:
+			var prova: Dictionary = prove[f * 10 + k]
+			nome_composto(sul_nastro, prova, Stile.colore("nastro_testo"))
+			nome_composto(sulla_targhetta, prova, Color("#3b2418"))
+			cartello.text = String(prova.nome)
+			cartello_elegante.text = String(prova.nome)
+			nastro.size = Vector2.ZERO
+			(sulla_targhetta.get_parent() as Control).size = Vector2.ZERO
+			await attendi(4)
+			nastro.pivot_offset = Vector2(0.0, nastro.size.y * 0.5)
+			nastro.position = Vector2(Stile.forma("cornice") * 0.6, schermata.box.position.y - nastro.size.y + 6)
+			# la targhetta cresce verso l'alto, come nell'esempio: il fondo resta
+			# appoggiato sul bordo del box, e un nome alto non copre la battuta
+			var targhetta := sulla_targhetta.get_parent() as Control
+			targhetta.position.y = 56.0 - targhetta.size.y
+			(elegante.get_node("Fiore") as Control).position = Vector2(targhetta.size.x - 54, targhetta.position.y - 6)
+			await attendi(3)
+			await RenderingServer.frame_post_draw
+			var foto := get_viewport().get_texture().get_image()
+			foto.convert(Image.FORMAT_RGBA8)
+			foglio.blit_rect(foto, Rect2i(0, 368, 640, 272), Vector2i(0, 272 * k))
+			foglio.blit_rect(foto, Rect2i(0, 0, 640, 272), Vector2i(640, 272 * k))
+		foglio.save_png(ProjectSettings.globalize_path(CARTELLA + "nomi_eleganti_%d.png" % (f + 1)))
+		print("foglio salvato: %snomi_eleganti_%d.png" % [CARTELLA, f + 1])
 
 
 func laboratorio(radice: String, prove: Array) -> void:
@@ -706,6 +897,8 @@ func prepara(quale: String) -> void:
 				print("foglio salvato: %sdialoghi_rosa_%d.png" % [CARTELLA, f + 1])
 		"nastri":
 			await nastri_a_confronto(String(OS.get_cmdline_user_args()[1]))
+		"nomi_eleganti":
+			await nomi_a_confronto(JSON.parse_string(FileAccess.get_file_as_string(String(OS.get_cmdline_user_args()[1]))))
 		"laboratorio":
 			# UN CARATTERE PIEGATO A CODICE. Bru: «c'e' modo di usare un font e con
 			# qualche stratagemma personalizzarlo a codice?». La stessa battuta nel
