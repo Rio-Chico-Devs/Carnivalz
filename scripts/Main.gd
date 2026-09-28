@@ -98,6 +98,7 @@ var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alt
 var nome_sul_nastro := ""  # chi c'e' scritto adesso: il nastro rientra solo quando cambia
 var tween_nastro: Tween
 var tween_sfondo: Tween
+var racconto: Racconto = null   # l'inizio del gioco e dei livelli, a schermo intero
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
@@ -590,32 +591,44 @@ func sequenza_di(nodo: Dictionary) -> Array[Dictionary]:
 
 func avanza_messaggio() -> void:
 	contatore_messaggi += 1
-	if not coda_messaggi.is_empty():
-		var msg: Dictionary = coda_messaggi.pop_front()
-		if msg.has("suono"):
-			# UNA BATTUTA PUO' SUONARE. Bru, sull'avviso del data pad: «qui
-			# metteremo un suono che creo io tipo allert». Il nome e' quello del
-			# file in res://audio/ui/: finche' non c'e', Sintesi ne fa uno
-			# provvisorio, e il giorno che Bru lo registra basta copiarlo li'.
-			AudioManager.interfaccia(String(msg["suono"]))
-		if msg.has("flag"):
-			# UN FLAG A META' SCENA. Fino a ieri una scena poteva cambiare il
-			# mondo solo entrando o uscendo; una battuta no. Ma il momento in cui
-			# il mondo cambia e' spesso UNA battuta precisa - «acquistato!?» - e
-			# far arrivare la ricevuta venti righe prima rovina la scoperta.
-			GameState.imposta_flag(String(msg["flag"]))
-		if GiroDataPad.prende(self, msg): return   # il data pad spiegato aprendolo: finito, riprende da qui
-		attesa_messaggio = float(msg.get("attesa", 0.0))
-		nascondi_comandi()
-		# se questo e' l'ultimo messaggio e non c'e' nessuna transizione in
-		# sospeso, appena finisce di scriversi compaiono le scelte vere
-		var ultimo: bool = coda_messaggi.is_empty() and not azione_dopo_coda.is_valid() \
-				and not nodo_in_corso.has("combattimento_automatico") \
-				and not nodo_in_corso.has("avvio_automatico") \
-				and not nodo_in_corso.has("apri_mappa_stellare")
-		azione_a_fine_testo = _apri_scelte if ultimo else Callable()
-		mostra_messaggio(msg)
-		area_avanza.visible = true
+	if coda_messaggi.is_empty():
+		coda_finita()
+		return
+	var msg: Dictionary = coda_messaggi.pop_front()
+	if msg.has("suono"):
+		# UNA BATTUTA PUO' SUONARE. Bru, sull'avviso del data pad: «qui
+		# metteremo un suono che creo io tipo allert». Il nome e' quello del
+		# file in res://audio/ui/: finche' non c'e', Sintesi ne fa uno
+		# provvisorio, e il giorno che Bru lo registra basta copiarlo li'.
+		AudioManager.interfaccia(String(msg["suono"]))
+	if msg.has("flag"):
+		# UN FLAG A META' SCENA. Fino a ieri una scena poteva cambiare il
+		# mondo solo entrando o uscendo; una battuta no. Ma il momento in cui
+		# il mondo cambia e' spesso UNA battuta precisa - «acquistato!?» - e
+		# far arrivare la ricevuta venti righe prima rovina la scoperta.
+		GameState.imposta_flag(String(msg["flag"]))
+	if GiroDataPad.prende(self, msg): return   # il data pad spiegato aprendolo: finito, riprende da qui
+	attesa_messaggio = float(msg.get("attesa", 0.0))
+	nascondi_comandi()
+	azione_a_fine_testo = _apri_scelte if apre_le_scelte(msg) else Callable()
+	mostra_messaggio(msg)
+	area_avanza.visible = not racconto_aperto()
+
+func apre_le_scelte(msg: Dictionary) -> bool:
+	# se questo e' l'ultimo messaggio e non c'e' nessuna transizione in
+	# sospeso, appena finisce di scriversi compaiono le scelte vere. Non dopo un
+	# paragrafo del racconto: li' prima il racconto si scioglie (coda_finita)
+	var paragrafo := String(msg.get("tipo", "")) == "racconto"
+	if not coda_messaggi.is_empty() or azione_dopo_coda.is_valid() or paragrafo:
+		return false
+	for chi_prosegue in ["combattimento_automatico", "avvio_automatico", "apri_mappa_stellare", "vai"]:
+		if nodo_in_corso.has(chi_prosegue):
+			return false
+	return true
+
+func coda_finita() -> void:
+	if racconto_aperto() and not nodo_in_corso.has("vai"):
+		racconto.chiudi(avanza_messaggio)   # prima si esce dal racconto, poi si sceglie
 		return
 	if azione_dopo_coda.is_valid():
 		var richiamo := azione_dopo_coda
@@ -639,10 +652,16 @@ func avanza_messaggio() -> void:
 		MappaStellare.missione_da_scegliere = String(nodo_in_corso["apri_mappa_stellare"])
 		Transizioni.vai(SCENA_MAPPA)
 		return
+	if nodo_in_corso.has("vai"):
+		mostra_nodo(String(nodo_in_corso["vai"]))   # il racconto prosegue da solo, senza scelte
+		return
 	_apri_scelte()
 
 func _su_avanza() -> void:
 	# primo click: il testo si completa, o si gira pagina. Poi si va avanti
+	if racconto_aperto():
+		racconto.premi()
+		return
 	if box.consuma_click():
 		return
 	if carta_titolo.visible:
@@ -712,6 +731,14 @@ func avvia_automatico(dati: Dictionary) -> void:
 func mostra_messaggio(msg: Dictionary) -> void:
 	var tipo := String(msg.get("tipo", "narrazione"))
 	var contenuto := sostituisci_nome(String(msg.get("testo", "")))
+	if tipo == "racconto" or tipo == "scritta":
+		if tipo == "racconto":
+			GameState.registra_storico("narrazione", "", contenuto)
+		apri_racconto().racconta(msg, contenuto)   # la favola non passa dal box
+		return
+	if racconto_aperto():
+		racconto.chiudi(mostra_messaggio.bind(msg))   # dal buio si ritrova la scena
+		return
 	if tipo == "titolo":
 		GameState.registra_storico(tipo, "", contenuto)
 		mostra_carta_titolo(contenuto)
@@ -719,9 +746,6 @@ func mostra_messaggio(msg: Dictionary) -> void:
 	if tipo == "immagine":
 		GameState.registra_storico("narrazione", "", contenuto)
 		mostra_carta_titolo(contenuto, String(msg.get("file", "")))
-		return
-	if tipo == "scritta":
-		mostra_scritta_dal_buio(String(msg.get("file", "")), float(msg.get("attesa", 2.0)))
 		return
 	carta_titolo.visible = false
 	box.visible = true
@@ -773,51 +797,27 @@ func mostra_carta_titolo(contenuto: String, percorso_immagine := "") -> void:
 	var comparsa := create_tween()
 	comparsa.tween_property(carta_titolo, "modulate:a", 1.0, Stile.tempo("carta_titolo"))
 
-func mostra_scritta_dal_buio(percorso: String, quanto_resta: float) -> void:
-	# LA SCRITTA DI CARNIVALZ. Bru: «apparirà la scritta che disegnerò di
-	# carnivalz, appare centrale dal buio, poi scompare piano piano e dal buio
-	# troviamo il primo dialog box».
-	#
-	# Non e' una carta del titolo, ed e' proprio la differenza che conta: la
-	# carta del titolo aspetta un click, questa NO. Un titolo di testa che
-	# chiede il permesso per andarsene non e' un titolo di testa, e' un
-	# messaggio. Compare, resta il tempo che deve, se ne va da sola.
-	#
-	# E dietro c'e' il nero, non la scena: "dal buio" vuol dire che prima di
-	# lei non c'e' niente e dopo di lei non c'e' niente, e la prima cosa che si
-	# rivede e' il box che parla.
-	azione_dopo_titolo = azione_a_fine_testo
-	azione_a_fine_testo = Callable()
+func apri_racconto() -> Racconto:
+	# L'INIZIO DEL GIOCO E DEI LIVELLI SI RACCONTA A SCHERMO INTERO (Racconto.gd),
+	# e il bottone rosso della pausa aspetta: Bru lo vuole «solo dopo che ti
+	# svegli», non sopra la favola. Torna quando il racconto si scioglie
+	if racconto == null:
+		racconto = Racconto.new()
+		add_child(racconto)
+		racconto.avanti.connect(avanza_messaggio)
+		racconto.scrittura_finita.connect(_su_testo_pronto)
+		racconto.chiuso.connect(func() -> void:
+			icona_menu.visible = true
+			area_avanza.visible = true)
+	icona_menu.visible = false
+	area_avanza.visible = false
 	box.visible = false
 	nastro.visible = false
 	nascondi_comandi()
-	area_avanza.visible = false
-	testo_titolo.text = ""
-	var c_e := percorso != "" and ResourceLoader.exists(percorso)
-	immagine_titolo.visible = c_e
-	if c_e:
-		immagine_titolo.texture = load(percorso)
-	else:
-		# finche' il disegno non c'e', il nome scritto: la scena esiste lo
-		# stesso e si puo' provare il ritmo, che e' l'unica cosa che conta qui
-		testo_titolo.text = "CARNIVALZ"
-		testo_titolo.custom_minimum_size = Vector2(760, 0)
-		Stile.imposta_corpo(testo_titolo, Stile.dimensione("titolo") * 2)
-	carta_titolo.visible = true
-	icona_menu.visible = false
-	carta_titolo.modulate.a = 0.0
-	var velo: ColorRect = carta_titolo.get_node("VeloTitolo")
-	velo.color = Color(Stile.colore("velo"), 1.0)   # buio pieno, non un velo
-	var durata := Stile.tempo("scritta_dal_buio")
-	var passaggio := create_tween()
-	passaggio.tween_property(carta_titolo, "modulate:a", 1.0, durata)
-	passaggio.tween_interval(maxf(quanto_resta, 0.0))
-	passaggio.tween_property(carta_titolo, "modulate:a", 0.0, durata)
-	passaggio.finished.connect(func() -> void:
-		if not is_instance_valid(self):
-			return
-		velo.color = Color(Stile.colore("velo"), 0.82)   # com'era per le altre carte
-		_dopo_carta_titolo())
+	return racconto
+
+func racconto_aperto() -> bool:
+	return racconto != null and racconto.visible
 
 func chiudi_carta_titolo() -> void:
 	var uscita := create_tween()

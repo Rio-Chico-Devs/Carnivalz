@@ -16,8 +16,11 @@ benvenuto di Jerah).
 Aprire `project.godot` con Godot 4.7+ (versione standard). Main scene: `scenes/Splash.tscn`.
 Flusso completo:
 **loghi d'apertura** (studio + personale, saltabili con un clic) → **menu principale** (un
-titolo, poi le voci) → NUOVA PARTITA (dove, poi il nome del protagonista) → **introduzione** (crawl di
-lore a schermo nero + monologo del protagonista) → il **tutorial parte da solo** (nessuna
+titolo — solo «CARNIVALZ», finché Bru non lo sostituisce col suo disegno in
+`art/interfaccia/carnivalz.png`; «premi un tasto» vale anche col clic — poi le voci) → NUOVA
+PARTITA (dove, poi il nome del protagonista) → **introduzione** (il racconto a schermo intero,
+tipo `racconto`, poi la scritta di Carnivalz che non si salta, poi dal buio l'alloggio: è lì
+che compare il bottone rosso della pausa) → il **tutorial parte da solo** (nessuna
 selezione del punto, vedi `avvio_automatico` sotto) → da lì in poi, il normale giro
 **mappa stellare** ("!" dove un Carnivalz sta avendo luogo) → click → **selezione del party**
 (solo le classi sbloccate; l'Anonimo c'è sempre) → **campagna narrata** → fine → mappa.
@@ -601,6 +604,22 @@ avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio
   nel box: prende tutto lo schermo come una carta da film (velo scuro + testo grande in
   `Stile.colore("accento")`) e **aspetta un click esplicito** ("▸ continua") prima di
   sciogliersi — non un timer, perché un nome di luogo merita di essere letto con calma
+- **`racconto`**: l'inizio del gioco e l'inizio di ogni livello. **Niente box**: il testo si
+  prende lo schermo come nelle introduzioni dei livelli di *Final Fantasy Crystal Chronicles*
+  (Bru, 28 settembre: «ne faremo il fulcro del testo del gioco»). Paragrafi al centro, scritti
+  dalla **stessa macchina da scrivere del box, con lo stesso suono** (`MacchinaDaScrivere.gd`),
+  ma più piano; dietro, per ogni paragrafo, un'immagine (`"sfondo"`) o un video (`"video"`,
+  un `.ogv`) che sfuma dal precedente e si avvicina piano mentre lo leggi; intorno una
+  vignetta, e un chiarore caldo che respira quando l'immagine non c'è ancora. Una riga vuota
+  dentro `"testo"` lo divide in più paragrafi sulla stessa immagine. Un clic (o Invio,
+  Spazio) completa il paragrafo, il successivo va avanti. Il bottone rosso della pausa non
+  c'è: torna quando il racconto si scioglie sulla scena. È `scripts/Racconto.gd`, e i suoi
+  numeri stanno in `data/stile.json` → `"racconto"`. `prova_l_inizio_di_ogni_livello_si_racconta`
+  pretende che ogni livello che comincia narrando lo faccia così
+- **`scritta`**: la scritta di Carnivalz alla fine dell'introduzione (`"file"`, il disegno di
+  Bru; finché manca, il nome scritto). **Non si salta**: tutto torna nel buio, un silenzio, la
+  scritta sale piano, resta, se ne va piano, e dopo resta ancora il nero prima che si apra la
+  stanza — il preludio. `prova_la_scritta_non_si_salta` preme di tutto, clic veri compresi
 - **`immagine`**: un'illustrazione a schermo intero (`file`, sotto `art/illustrazioni/`) col
   `testo` come didascalia. Usa lo stesso velo della carta del titolo, perché fa la stessa
   cosa: prende lo schermo, aspetta un click, poi la scena riprende. **Se il disegno non c'è
@@ -608,6 +627,10 @@ avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio
   percorso storto sarebbe identico a un disegno non ancora fatto, quindi
   `prova_illustrazioni` pretende didascalia + percorso dentro `art/illustrazioni/`, e in più
   che ogni file messo lì sia chiamato da qualche scena (vedi `art/illustrazioni/README.md`)
+
+Un nodo con **`"vai"`** (a livello del nodo, non di una scelta) finita la sequenza va da solo in
+quel nodo, senza scelte: è così che dopo la scritta di Carnivalz si arriva nell'alloggio, e dal
+buio del racconto si ritrova il primo box.
 
 Un nodo senza `"sequenza"` continua a funzionare col vecchio campo `"testo"` (diventa
 un'unica narrazione: `sequenza_di()` è retrocompatibile, nessun contenuto esistente va

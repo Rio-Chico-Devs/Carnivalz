@@ -40,6 +40,7 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 const SCENA_ALBUM := "res://scenes/Album.tscn"
 const SCENA_BESTIARIO := "res://scenes/Bestiario.tscn"
 const SCENA_COMPENDIO := "res://scenes/Compendio.tscn"
+const DISEGNO_DEL_NOME := "res://art/interfaccia/carnivalz.png"   # quando Bru lo disegna
 
 # il layout, in frazioni dello schermo (vedi sopra)
 const X_TESTO := 0.078
@@ -174,36 +175,46 @@ func _unhandled_input(evento: InputEvent) -> void:
 func mostra_titolo() -> void:
 	# IL PRIMO PASSO: il nome del gioco sul luna park, e l'invito a entrare. E'
 	# la schermata «premi start» del riferimento, e serve a una cosa sola: che
-	# il menu arrivi quando lo chiedi, non addosso
+	# il menu arrivi quando lo chiedi, non addosso.
+	#
+	# SOLO IL NOME. Bru: «carnivalz e basta, non vogliamo sottotitoli» - via il
+	# motto e il cartellino DEMO. E la scritta la sostituira' il suo disegno: lo
+	# stesso file della scritta che chiude l'introduzione, cosi' e' uno solo
 	insegna = Control.new()
 	insegna.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	insegna.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# IL CLIC E' UN TASTO. Dice «premi un tasto», e col mouse non succedeva
+	# niente: il clic se lo prendeva il fondo della schermata (un Control a tutto
+	# schermo ferma il mouse) e a _unhandled_input non arrivava mai. Adesso il
+	# titolo lo prende per primo
+	insegna.mouse_filter = Control.MOUSE_FILTER_STOP
+	insegna.gui_input.connect(func(evento: InputEvent) -> void:
+		if evento is InputEventMouseButton and (evento as InputEventMouseButton).pressed \
+				and insegna != null:
+			get_viewport().set_input_as_handled()
+			entra_dal_titolo())
 	add_child(insegna)
 	move_child(insegna, fondale.get_index() + 1)
 	var scritta := Control.new()
 	scritta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	scritta.rotation = Stile.angolo("inclinazione_nastro")
 	ancora(scritta, 0.5, 0.36)
 	insegna.add_child(scritta)
-	# CARNIVALZ a strati, come le fasce della pausa: il bianco sotto, sporgente,
-	# il cremisi sopra col bordo nero
-	for strato: Array in [[Vector2(9, 9), "testo"], [Vector2.ZERO, "accento"]]:
-		var nome := etichetta("CARNIVALZ", Caratteri.titolo(), 132, Stile.colore(String(strato[1])))
-		centra(nome, strato[0])
-		scritta.add_child(nome)
-	var demo := Cartiglio.nuovo("DEMO", Stile.colore("bordo_acceso"), Stile.colore("box_testo"),
-			Stile.colore("accento"), Stile.dimensione("corpo"))
-	demo.position = Vector2(170, 64)
-	scritta.add_child(demo)
-	demo.svela(0.35)
-	var motto := etichetta("una festa per chi ha subìto ingiustizie", Caratteri.tondo(700),
-			Stile.dimensione("piccolo"), Stile.colore("menu_chiaro"))
-	motto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	motto.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	motto.offset_top = 720.0 * 0.52
-	motto.offset_left = -400
-	motto.offset_right = 400
-	insegna.add_child(motto)
+	if ResourceLoader.exists(DISEGNO_DEL_NOME):
+		var disegno := TextureRect.new()
+		disegno.texture = load(DISEGNO_DEL_NOME)
+		disegno.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		disegno.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		disegno.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		disegno.custom_minimum_size = Vector2(720, 300)
+		centra(disegno, Vector2.ZERO)
+		scritta.add_child(disegno)
+	else:
+		# CARNIVALZ a strati, come le fasce della pausa: il bianco sotto,
+		# sporgente, il cremisi sopra col bordo nero
+		scritta.rotation = Stile.angolo("inclinazione_nastro")
+		for strato: Array in [[Vector2(9, 9), "testo"], [Vector2.ZERO, "accento"]]:
+			var nome := etichetta("CARNIVALZ", Caratteri.titolo(), 132, Stile.colore(String(strato[1])))
+			centra(nome, strato[0])
+			scritta.add_child(nome)
 	var invito := Stile.costruisci_prompt("premi un tasto")
 	invito.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	invito.offset_top = -150
@@ -222,6 +233,7 @@ func entra_dal_titolo() -> void:
 	Movimento.suona("apertura")
 	var vecchia := insegna
 	insegna = null
+	vecchia.mouse_filter = Control.MOUSE_FILTER_IGNORE   # mentre sfuma, i clic sono del menu
 	Movimento.congeda(vecchia, Movimento.durata("uscita"))
 	apri_menu()
 

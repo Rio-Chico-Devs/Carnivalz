@@ -89,6 +89,10 @@ func _ready() -> void:
 	await prova_il_nastro_col_nome()
 	await prova_maschile_e_femminile()
 	prova_dall_introduzione_al_combattimento()
+	prova_l_inizio_di_ogni_livello_si_racconta()
+	await prova_il_racconto_si_prende_lo_schermo()
+	await prova_la_scritta_non_si_salta()
+	await prova_il_titolo_si_apre_col_clic()
 	prova_gli_otto_status()
 	prova_mediazione()
 	prova_menu_cinque_voci_fisse()
@@ -5086,6 +5090,200 @@ func prova_maschile_e_femminile() -> void:
 	schermata.free()
 	GameState.nuova_partita()
 
+func prova_l_inizio_di_ogni_livello_si_racconta() -> void:
+	# Bru, 28 settembre: «non vogliamo il dialogue box per le narrazioni di inizio
+	# livello o di inizio gioco». Quindi la regola vale per ogni file di eventi,
+	# anche per quelli che arriveranno: se il primo posto di un livello comincia
+	# narrando, narra col racconto a schermo intero, non nel box
+	titolo("l'inizio del gioco e di ogni livello si racconta, non si legge nel box")
+	var raccontati := 0
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		var iniziale: Dictionary = dati.get("nodi", {}).get(String(dati.get("nodo_iniziale", "")), {})
+		for passo in iniziale.get("sequenza", []):
+			var tipo := String((passo as Dictionary).get("tipo", ""))
+			if tipo == "racconto":
+				raccontati += 1
+			if tipo != "narrazione" and tipo != "racconto":
+				break
+			esigi(tipo == "racconto", "%s: il livello comincia ancora con una narrazione nel box («%s»)"
+					% [percorso, String((passo as Dictionary).get("testo", "")).left(40)])
+	esigi(raccontati >= 14, "i paragrafi d'inizio raccontati sono %d: ne mancano" % raccontati)
+	# una riga vuota divide un paragrafo dall'altro, e le righe vuote in piu' no
+	esigi(Racconto.dividi("Una.\n\nDue.\n\n\n\nTre.") == PackedStringArray(["Una.", "Due.", "Tre."]),
+			"le righe vuote non dividono i paragrafi del racconto")
+
+func racconto_veloce() -> Dictionary:
+	# LE PROVE NON ASPETTANO I TEMPI DI UNA FAVOLA: le sfumature durano un
+	# soffio. Restituisce i numeri veri, da rimettere a posto
+	var veri: Dictionary = (Stile.dati.get("racconto", {}) as Dictionary).duplicate()
+	var veloci := veri.duplicate()
+	for chiave in ["apertura", "cambio_sfondo", "sparizione", "chiusura", "logo_buio", "logo_silenzio",
+			"logo_entrata", "logo_tenuta", "logo_uscita", "logo_vuoto"]:
+		veloci[chiave] = 0.03
+	Stile.dati["racconto"] = veloci
+	return veri
+
+func prova_il_racconto_si_prende_lo_schermo() -> void:
+	titolo("l'introduzione si racconta a paragrafi, al centro, senza box e senza pausa")
+	var veri := racconto_veloce()
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	var racconto: Racconto = schermata.racconto
+	esigi(racconto != null and racconto.visible, "l'introduzione non si apre a schermo intero: e' ancora nel box")
+	if racconto == null:
+		Stile.dati["racconto"] = veri
+		schermata.queue_free()
+		return
+	# «il box rosso della pausa deve apparire solo dopo che ti svegli»
+	esigi(not schermata.icona_menu.visible, "sopra il racconto c'e' il bottone rosso della pausa")
+	esigi(not schermata.box.visible and not schermata.area_avanza.visible,
+			"sotto il racconto il box e' acceso: sono due modi di leggere nello stesso momento")
+	# LA STESSA MACCHINA DA SCRIVERE DEL BOX, e piu' lenta
+	esigi(racconto.macchina is MacchinaDaScrivere and schermata.box.macchina is MacchinaDaScrivere,
+			"il racconto e il box non scrivono con la stessa macchina")
+	esigi(racconto.macchina.passo < 1.0, "il racconto scrive alla velocita' di una battuta, non di una favola")
+	esigi(racconto.testo.visible_characters_behavior == TextServer.VC_CHARS_AFTER_SHAPING,
+			"le righe centrate si spostano mentre si scrivono")
+	var paragrafi := 0
+	var completati := 0
+	for giro in 900:
+		if racconto.fase == "scritta" or not racconto.visible:
+			break
+		if racconto.fase == "scrive":
+			schermata._su_avanza()   # il primo clic completa il paragrafo
+			completati += 1
+			esigi(racconto.fase == "legge", "il clic a meta' paragrafo non l'ha completato")
+			esigi(racconto.testo.text.begins_with("[center]"), "il paragrafo non sta al centro")
+		elif racconto.fase == "legge":
+			paragrafi += 1
+			schermata._su_avanza()   # il secondo va avanti
+		await get_tree().process_frame
+	esigi(paragrafi == 9, "si sono letti %d paragrafi invece dei 9 dell'introduzione" % paragrafi)
+	esigi(completati >= 9, "i paragrafi non si scrivono a macchina: %d su 9 erano gia' scritti" % completati)
+	esigi(racconto.fase == "scritta", "dopo l'ultimo paragrafo non arriva la scritta di Carnivalz")
+	esigi(GameState.nodo_corrente == "introduzione", "si e' usciti dall'introduzione prima della scritta")
+	esigi(not schermata.icona_menu.visible, "sopra la scritta c'e' il bottone rosso della pausa")
+	# e dopo la scritta, da soli, dal buio si ritrova la stanza
+	var attesa := 0.0
+	while attesa < 12.0 and (racconto.visible or GameState.nodo_corrente != "alloggio"):
+		await get_tree().create_timer(0.1).timeout
+		attesa += 0.1
+	esigi(GameState.nodo_corrente == "alloggio", "finita la scritta non si arriva nell'alloggio")
+	esigi(not racconto.visible, "nell'alloggio il racconto e' ancora a schermo")
+	esigi(schermata.icona_menu.visible, "svegli nell'alloggio, il bottone rosso della pausa non c'e'")
+	esigi(schermata.box.visible and String(schermata.box.tipo_corrente) == "dialogo",
+			"nell'alloggio il primo box non e' il dialogo del risveglio")
+	esigi(schermata.area_avanza.visible, "nell'alloggio il clic non manda avanti le battute")
+	schermata.queue_free()
+	await get_tree().process_frame
+	# LO STESSO ALL'INIZIO DI UN LIVELLO: le Pianure si raccontano, poi il titolo
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	IngressoNodo.ultimo_esito = {}
+	var pianure: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(pianure)
+	await get_tree().process_frame
+	var suo: Racconto = pianure.racconto
+	esigi(suo != null and suo.visible and not pianure.icona_menu.visible,
+			"le Pianure non cominciano col racconto a schermo intero")
+	var letti := 0
+	for giro in 600:
+		if suo == null or pianure.carta_titolo.visible:
+			break
+		if suo.visible and suo.fase == "scrive":
+			pianure._su_avanza()
+		elif suo.visible and suo.fase == "legge":
+			letti += 1
+			pianure._su_avanza()
+		await get_tree().process_frame
+	esigi(letti == 3, "delle Pianure si sono letti %d paragrafi invece di 3: le righe vuote non li dividono" % letti)
+	esigi(pianure.carta_titolo.visible and suo != null and not suo.visible,
+			"il titolo delle Pianure compare sotto il racconto, o non compare")
+	pianure.queue_free()
+	await get_tree().process_frame
+	Stile.dati["racconto"] = veri
+	GameState.nuova_partita()
+
+func prova_la_scritta_non_si_salta() -> void:
+	# «l'apparizione del logo carnivalz non deve essere skippabile, deve apparire
+	# in fade in fade out maestosamente e lasciare spazio scenico» (Bru). Si
+	# preme di tutto - clic veri, Invio, Spazio, e la chiamata diretta - e la
+	# scritta deve restare li'
+	titolo("la scritta di Carnivalz non si salta, e dopo resta il vuoto")
+	GameState.nuova_partita()
+	var racconto := Racconto.new()
+	add_child(racconto)
+	await get_tree().process_frame
+	var avanti: Array[int] = [0]
+	racconto.avanti.connect(func() -> void: avanti[0] += 1)
+	# un paragrafo che sta ancora aspettando la sua immagine quando arriva la
+	# scritta: non si deve scrivere sopra il logo (si vedeva il triangolino)
+	racconto.racconta({"tipo": "racconto"}, "Un paragrafo in arrivo.")
+	racconto.scritta("", 0.0)
+	esigi(racconto.visible and racconto.fase == "scritta", "la scritta non parte")
+	# i tempi veri, non quelli accorciati: sono loro a fare il preludio
+	var tutta: float = racconto.numero("logo_buio") + racconto.numero("logo_silenzio") \
+			+ racconto.numero("logo_entrata") + racconto.numero("logo_tenuta") \
+			+ racconto.numero("logo_uscita") + racconto.numero("logo_vuoto")
+	esigi(tutta >= 12.0, "la scritta dura %.1f secondi in tutto: non e' un preludio, e' un lampo" % tutta)
+	esigi(racconto.numero("logo_entrata") >= 2.0 and racconto.numero("logo_uscita") >= 2.0,
+			"la scritta entra o esce di colpo: niente di maestoso")
+	esigi(racconto.numero("logo_vuoto") >= 1.5, "dopo la scritta non resta il vuoto: la stanza arriva addosso")
+	for volta in 6:
+		racconto.premi()
+		clic_vero(Vector2(640, 360))
+		get_viewport().push_input(azione_ui("ui_accept"))
+		await get_tree().process_frame
+	esigi(avanti[0] == 0 and racconto.fase == "scritta", "la scritta di Carnivalz si e' saltata premendo")
+	await get_tree().create_timer(racconto.numero("apertura") + 0.4).timeout
+	esigi(racconto.fase == "scritta" and not racconto.segno.visible and not racconto.macchina.sta_scrivendo,
+			"il paragrafo che aspettava si e' scritto sopra la scritta di Carnivalz")
+	esigi(racconto.logo != null and racconto.logo.get_parent() == racconto, "la scritta non c'e'")
+	racconto.queue_free()
+	await get_tree().process_frame
+
+func clic_vero(dove: Vector2) -> void:
+	# UN CLIC CHE ARRIVA DAVVERO DOVE DICE. Senza schermo la finestra e' di
+	# 64x64 (vedi sotto_il_mouse): un clic a meta' schermo cadeva fuori, nessun
+	# controllo lo prendeva, e arrivava a _unhandled_input per una strada che nel
+	# gioco non esiste. Cosi' la prova del titolo passava anche col difetto
+	get_window().size = Vector2i(1280, 720)
+	for premuto in [true, false]:
+		var evento := clic_del_mouse(dove, premuto)
+		evento.global_position = dove
+		get_viewport().push_input(evento)
+
+func prova_il_titolo_si_apre_col_clic() -> void:
+	# «c'e' scritto premi un tasto ma se clicco non succede niente, funziona solo
+	# se premi un tasto a tastiera» (Bru). La prova vecchia chiamava
+	# _unhandled_input a mano, e cosi' saltava proprio il pezzo rotto: il clic
+	# se lo prendeva il fondo della schermata. Questa manda un clic VERO
+	titolo("il titolo si apre anche col clic, non solo col tasto")
+	MenuPrincipale.titolo_visto = false
+	var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(schermo)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(schermo.insegna != null, "la schermata non comincia dal titolo")
+	clic_vero(Vector2(640, 360))
+	await get_tree().process_frame
+	esigi(schermo.insegna == null and schermo.menu.visible, "cliccando sul titolo non si entra nel menu")
+	# e il titolo dice solo il nome
+	schermo.torna_al_titolo()
+	await get_tree().process_frame
+	for scritta in schermo.insegna.find_children("*", "Label", true, false):
+		var detto := String((scritta as Label).text)
+		esigi(not detto.contains("ingiustizie") and detto != "DEMO",
+				"sul titolo c'e' ancora «%s»: Bru vuole Carnivalz e basta" % detto)
+	schermo.queue_free()
+	MenuPrincipale.titolo_visto = false
+	await get_tree().process_frame
+
 func prova_dall_introduzione_al_combattimento() -> void:
 	# LA STRADA CHE FA CHI COMINCIA A GIOCARE, camminata per intero.
 	#
@@ -5099,18 +5297,21 @@ func prova_dall_introduzione_al_combattimento() -> void:
 	esigi(String(dati.get("nodo_iniziale", "")) == "introduzione",
 			"il gioco non comincia dall'introduzione ma da '%s'" % dati.get("nodo_iniziale", ""))
 
-	# l'introduzione: nove battute di narrazione e poi la scritta
+	# l'introduzione: nove paragrafi di racconto, poi la scritta, poi da soli
+	# nell'alloggio - senza un bottone «…» dopo il preludio
 	var passi: Array = nodi["introduzione"]["sequenza"]
 	var narrazioni := 0
 	var scritte := 0
 	var cambi_sfondo := 0
 	for passo in passi:
 		match String((passo as Dictionary).get("tipo", "")):
-			"narrazione": narrazioni += 1
+			"racconto": narrazioni += 1
 			"scritta": scritte += 1
 		if (passo as Dictionary).has("sfondo"):
 			cambi_sfondo += 1
-	esigi(narrazioni == 9, "l'introduzione ha %d passi di narrazione invece dei 9 di Bru" % narrazioni)
+	esigi(narrazioni == 9, "l'introduzione ha %d paragrafi di racconto invece dei 9 di Bru" % narrazioni)
+	esigi(String(nodi["introduzione"].get("vai", "")) == "alloggio" and not nodi["introduzione"].has("scelte"),
+			"finita la scritta non si va da soli nell'alloggio: il preludio si chiude su un bottone")
 	esigi(scritte == 1, "la scritta di Carnivalz compare %d volte" % scritte)
 	esigi(cambi_sfondo == 5,
 			"gli sfondi dell'introduzione sono %d: Bru ne ha segnati cinque con ||" % cambi_sfondo)
@@ -6801,6 +7002,7 @@ func prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo() -> void:
 	titolo("chi ti rigetta fuori non ti tiene fermo")
 	GameState.nuova_partita()
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"   # l'introduzione si racconta a schermo intero, senza box
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(schermata)
 	await get_tree().process_frame
@@ -9345,6 +9547,7 @@ func prova_la_prima_missione_si_sceglie_sulla_mappa() -> void:
 	titolo("la prima missione si sceglie sulla mappa stellare, e c'e' solo lei")
 	GameState.nuova_partita()
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"   # l'introduzione si racconta a schermo intero, senza box
 	var stato_prima := Transizioni.in_corso
 	Transizioni.in_corso = true   # i cambi di scena si mettono in fila e basta
 	Transizioni.prossima = ""
@@ -9483,6 +9686,7 @@ func prova_l_icona_del_menu_si_preme_anche_mentre_si_legge() -> void:
 	titolo("l'icona del menu si preme anche mentre si legge, e anche appena chiusa la pausa")
 	GameState.nuova_partita()
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"   # l'introduzione si racconta a schermo intero, senza box
 	var stato_prima := Transizioni.in_corso
 	Transizioni.in_corso = true
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
@@ -9540,9 +9744,17 @@ func prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa() -> void:
 	Transizioni.in_corso = true
 	Transizioni.prossima = ""
 	IngressoNodo.vai_al_nodo("inizio")
+	var veri := racconto_veloce()
 	var arrivo: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
 	add_child(arrivo)
 	await get_tree().process_frame
+	# prima si ascolta il racconto delle Pianure (Racconto.gd): la Guida viene dopo
+	for giro in 600:
+		if arrivo.racconto == null or not arrivo.racconto.visible:
+			break
+		arrivo._su_avanza()
+		await get_tree().process_frame
+	Stile.dati["racconto"] = veri
 	esigi("Dominatrice" in arrivo.sostituisci_nome(String(sequenza[9]["testo"])),
 			"la Guida saluta una protagonista come «Dominatore»")
 	arrivo.coda_messaggi.clear()
@@ -10927,7 +11139,10 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Main.gd:_su_scelta": {"misura": 31, "perche":
 		"tutto quello che una scelta di dialogo puo' innescare. Cresce con " +
 		"la trama, che e' ancora in scrittura"},
-	"BoxTesto.gd:respiri": {"misura": 27},
+	"MacchinaDaScrivere.gd:respiri": {"misura": 27, "perche":
+		"la stessa funzione che stava in BoxTesto.gd, spostata con la macchina " +
+		"da scrivere quando l'ha voluta anche il racconto: un ramo per segno di " +
+		"punteggiatura, ed e' la punteggiatura a essere fatta cosi'"},
 	"Combattimento.gd:_racconta_ko": {"misura": 29},
 	"Combattimento.gd:esegui_azione": {"misura": 29},
 	"Combattimento.gd:studia": {"misura": 27},
@@ -12458,6 +12673,7 @@ func prova_la_giornata_passo_per_passo() -> void:
 	titolo("la giornata alla base, tappa per tappa, guardando il mondo")
 	GameState.nuova_partita()
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"   # l'introduzione si racconta a schermo intero, senza box
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(schermata)
 	await get_tree().process_frame
@@ -12890,6 +13106,7 @@ func prova_le_scelte_non_raddoppiano() -> void:
 	titolo("le scelte non raddoppiano quando la schermata si rifa'")
 	GameState.nuova_partita()
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"   # l'introduzione si racconta a schermo intero, senza box
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(schermata)
 	await get_tree().process_frame
@@ -15441,6 +15658,7 @@ func prova_ogni_testo_entra_nel_box() -> void:
 	esigi(testi.size() > 1000, "ho trovato solo %d testi: la raccolta non funziona" % testi.size())
 	GameState.nuova_partita()
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"   # l'introduzione si racconta a schermo intero, senza box
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(schermata)
 	GameState.nemici_combattimento = ["goblin_tipico"]
@@ -15481,6 +15699,7 @@ func prova_le_pagine_si_girano_col_click() -> void:
 		lungo += "Una frase che occupa un bel pezzo di riga, e poi continua ancora un poco. \n\n"
 	GameState.nuova_partita()
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.nodo_corrente = "alloggio"   # l'introduzione si racconta a schermo intero, senza box
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(schermata)
 	await get_tree().process_frame

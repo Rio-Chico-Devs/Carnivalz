@@ -8,45 +8,46 @@
   "nodi": {
     "introduzione": {
       "_nota": "I nove passi che ha scritto Bru. Il cambio di immagine cade dove lui ha messo ||, cioè dopo il terzo, il quinto, il settimo e l'ottavo.",
+      "_racconto": "Bru, 28 settembre: niente box per le narrazioni d'inizio gioco e d'inizio livello, ma paragrafi al centro scritti a macchina, un'immagine o un video dietro ogni paragrafo, come le introduzioni dei livelli di Final Fantasy Crystal Chronicles. Il tipo \"racconto\" fa questo (scripts/Racconto.gd). Un paragrafo puo' portare \"sfondo\" (un'immagine) o \"video\" (un .ogv); una riga vuota dentro il testo lo divide in piu' paragrafi sulla stessa immagine.",
       "sequenza": [
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "sfondo": "res://art/scene/intro_1_universo.png",
           "testo": "Nell'universo... la vita prende varie forme e colori."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "testo": "Varie creature di varie dimensioni lottano per sopravvivere dove il caos regna..."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "testo": "Anche il più piccolo essere cela un potenziale incredibile quando spinto al suo limite..."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "sfondo": "res://art/scene/intro_2_torrente.png",
           "testo": "E a volte quel potenziale può esplodere come un torrente che spacca le rocce sul letto di un fiume..."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "testo": "Spinti dal primordiale desiderio di esistere e trovare una fine degna delle proprie memorie, questi esseri risvegliano poteri e qualità che esulano dalla logica come la conosciamo..."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "sfondo": "res://art/scene/intro_3_trasformazione.png",
           "testo": "Alcuni la chiamano evoluzione, altri adattamento alle circostanze, ma è chiaro che in fondo è semplicemente un continuo percorso di trasformazione della materia..."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "testo": "In fondo ogni creatura è destinata ad un percorso ben definito che la spingerà a consumare se stessa nell'intento di trovare un senso alla sua esistenza..."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "sfondo": "res://art/scene/intro_4_fumo.png",
           "testo": "E quando nulla rimarrà di essa... quando ogni sforzo sarà vano e la fiamma lascerà solo che fumo..."
         },
         {
-          "tipo": "narrazione",
+          "tipo": "racconto",
           "sfondo": "res://art/scene/intro_5_sepolto.png",
           "testo": "forse qualcosa che va ben oltre la nostra immaginazione, che è rimasta sepolta a lungo dentro ogni essere vivente... Si mostrerà pretendendo riavere indietro quel che ha sacrificato..."
         },
@@ -56,12 +57,8 @@
           "attesa": 2.4
         }
       ],
-      "scelte": [
-        {
-          "testo": "…",
-          "vai": "alloggio"
-        }
-      ],
+      "vai": "alloggio",
+      "_vai": "Finita la scritta si va nell'alloggio da soli: un racconto che si chiude su un bottone «…» non e' un preludio, e' una domanda. Prima c'era quel bottone.",
       "palco": "nessuno"
     },
     "sala_allenamento": {

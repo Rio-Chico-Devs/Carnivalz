@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if quale != "rottura" and quale != "nastro" and quale != "grazia" and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -371,6 +371,49 @@ func prepara(quale: String) -> void:
 			# Bru ci stia nel box e che lo sfondo non copra niente
 			await apri_dialogo()
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"racconto":
+			# IL RACCONTO A SCHERMO INTERO (Racconto.gd): "racconto intro 3" e' il
+			# quarto paragrafo dell'introduzione, scritto tutto; "racconto tutorial
+			# 0 meta" il primo delle Pianure a meta' della macchina da scrivere
+			var argomenti_r := OS.get_cmdline_user_args()
+			var campagna := String(argomenti_r[1]) if argomenti_r.size() > 1 else "intro"
+			var fino_al := int(argomenti_r[2]) if argomenti_r.size() > 2 else 0
+			var a_meta := argomenti_r.size() > 3 and String(argomenti_r[3]) == "meta"
+			GameState.avvia_carnivalz(campagna, "res://data/events_intro.json" if campagna == "intro"
+					else "res://data/events_tutorial.json")
+			IngressoNodo.ultimo_esito = {}
+			var col_racconto: Node = load("res://scenes/Main.tscn").instantiate()
+			add_child(col_racconto)
+			var fatti := 0
+			for giro in 6000:
+				await attendi(1)
+				var r: Racconto = col_racconto.racconto
+				if r == null or r.fase != "scrive":
+					continue
+				if fatti < fino_al:
+					r.premi()   # completa
+					r.premi()   # e va avanti
+					fatti += 1
+					continue
+				if a_meta:
+					while r.testo.visible_ratio < 0.55:
+						await attendi(1)
+				else:
+					r.premi()
+					await attendi(40)
+				break
+		"scritta":
+			# LA SCRITTA DI CARNIVALZ nel momento in cui e' tutta accesa
+			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+			IngressoNodo.ultimo_esito = {}
+			var col_logo: Node = load("res://scenes/Main.tscn").instantiate()
+			add_child(col_logo)
+			await attendi(5)
+			var r_logo: Racconto = col_logo.racconto
+			r_logo.scritta("res://art/interfaccia/carnivalz.png", 2.4)
+			while r_logo.logo == null or r_logo.logo.modulate.a < 0.99:
+				await attendi(1)
+			await attendi(30)
 		"collisioni":
 			# LA RAFFICA FERMATA IN UN MOMENTO PRECISO. Il secondo argomento dice
 			# quale: "apertura", "chiusura", oppure i secondi dall'inizio dei

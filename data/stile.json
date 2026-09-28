@@ -184,8 +184,7 @@
     "colpo_a_schermo": 0.45,
     "battito_allarme": 0.42,
     "nastro": 0.46,
-    "cambio_sfondo": 0.9,
-    "scritta_dal_buio": 1.6
+    "cambio_sfondo": 0.9
   },
   "_nota_movimento": "IL VOCABOLARIO DEL MOVIMENTO (docs/animazione.md, scripts/Movimento.gd). Pochi gesti con un nome, e i loro tempi stanno qui: chi anima qualcosa chiede Movimento.durata(\"entrata\"), non scrive 0.24 a mano. Le durate sono i gradini di IBM Carbon (70, 110, 150, 240, 400 ms). Le curve sono quelle di Material 3: 'entrata' e' emphasized decelerate (arriva in fretta e si posa), 'uscita' e' emphasized accelerate (parte piano e se ne va), 'standard' per le cose che cambiano senza entrare ne' uscire. Le molle sono le SpringForce di Material (smorzamento, rigidita'): 'forma' e' FastSpatial, 'colore' e' FastEffects, 'quinte' e' SlowSpatial - la forma e il colore su due molle diverse, come chiede Material. Nessuna durata passa i 500 ms, e la cascata intera nemmeno: sopra, un menu non e' piu' vivo, e' lento. L'uscita e' sempre piu' breve dell'entrata.",
   "movimento": {
@@ -262,6 +261,32 @@
     "pausa_virgola": 0.1,
     "pausa_punto": 0.26,
     "pausa_sospensione": 0.45
+  },
+  "_nota_racconto": "IL RACCONTO A SCHERMO INTERO (scripts/Racconto.gd): l'inizio del gioco e dei livelli, come le introduzioni di Final Fantasy Crystal Chronicles. Tutti i numeri sono miei, da girare qui. passo e respiro: la macchina da scrivere del box, rallentata (0,62 della velocita') e con le pause sulla punteggiatura lunghe una volta e mezza, perche' una favola si racconta piano. corpo e larghezza: il testo al centro, 30 pixel su una colonna larga il 60% dello schermo. apertura, cambio_sfondo, sparizione, chiusura: le sfumature, in secondi. avvicinamento: di quanto si avvicina l'immagine mentre la leggi (5% in 18 secondi). luce, respiro_luce: il chiarore caldo che respira dietro il testo. vignetta, ombra: quanto scuriscono i bordi e l'alone dietro le parole. logo_*: la scritta di Carnivalz - il buio che scende, il silenzio, l'entrata, quanto resta (almeno logo_tenuta, o l'attesa scritta nei dati se e' piu' lunga), l'uscita, il vuoto dopo, e di quanto cresce mentre si vede.",
+  "racconto": {
+    "passo": 0.62,
+    "respiro": 1.6,
+    "corpo": 30,
+    "larghezza": 0.6,
+    "apertura": 1.4,
+    "cambio_sfondo": 1.6,
+    "sparizione": 0.6,
+    "chiusura": 1.2,
+    "avvicinamento": 0.05,
+    "durata_avvicinamento": 18.0,
+    "luce": 0.16,
+    "respiro_luce": 4.0,
+    "vignetta": 0.92,
+    "ombra": 0.62,
+    "colore_testo": "#f3ead7",
+    "colore_luce": "#e9b872",
+    "logo_buio": 1.8,
+    "logo_silenzio": 1.2,
+    "logo_entrata": 3.4,
+    "logo_tenuta": 3.2,
+    "logo_uscita": 3.4,
+    "logo_vuoto": 2.4,
+    "logo_crescita": 0.06
   },
   "_nota_plancia": "LA DISPOSIZIONE DELLA SCHERMATA DI COMBATTIMENTO, misurata sui disegni di Bru (1920x1080) e tenuta in FRAZIONI: la finestra puo' essere di qualunque misura, il disegno resta quello. Vedi docs/schermata_combattimento.md per lo schema e per cosa significa ogni riga.",
   "plancia": {
