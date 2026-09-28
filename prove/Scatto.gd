@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "nomi_eleganti", "laboratorio"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "nomi_eleganti", "nome_in_scena", "laboratorio"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -141,6 +141,7 @@ func nome_composto(scritta: RichTextLabel, prova: Dictionary, colore: Color) -> 
 			for asse: String in assi:
 				opentype[TextServerManager.get_primary_interface().name_to_tag(asse)] = assi[asse]
 			variante.variation_opentype = opentype
+		variante.spacing_glyph = int(parte.get("spazio", 0))
 		scritta.push_font(variante, corpo)
 		scritta.push_color(Stile.colore("accento") if String(parte.get("colore", "")) == "accento" else colore)
 		if bool(parte.get("storto", false)):
@@ -238,6 +239,49 @@ func box_elegante(scritta: RichTextLabel, radice_ofl: String) -> Control:
 	fiore.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tutto.add_child(fiore)
 	return tutto
+
+
+func nomi_in_scena(prove: Array) -> void:
+	# UN NOME PER SCHERMATA, NON UN CATALOGO. Bru, sui cataloghi: «non sono
+	# timeless e sanno di ai e pigrizia». Ogni prova (lo stesso json di
+	# nomi_eleganti) sul nastro della scena vera, Reika in infermeria, a
+	# schermo intero: nome_in_scena_<n>.png
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.imposta_flag("rientro_infermeria")
+	GameState.nodo_corrente = "infermeria_risveglio"
+	IngressoNodo.ultimo_esito = {}
+	var scena: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(scena)
+	await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+	for clic in 5:
+		scena._su_avanza()
+		await attendi(2)
+		scena._su_avanza()
+		await attendi(2)
+	for attesa in 200:
+		if scena.box.sta_scrivendo:
+			scena.box.completa()
+		await attendi(1)
+		if attesa > 40 and not scena.box.sta_scrivendo:
+			break
+	scena.nastro.visible = false
+	var nastro := PanelContainer.new()
+	nastro.add_theme_stylebox_override("panel", scena.stile_nastro_piatto())
+	var scritta := scritta_del_nome()
+	nastro.add_child(scritta)
+	scena.add_child(nastro)
+	nastro.rotation = Stile.angolo("inclinazione_nastro")
+	for n in prove.size():
+		nome_composto(scritta, prove[n], Color(String((prove[n] as Dictionary).get("inchiostro", "#1b1417"))))
+		nastro.size = Vector2.ZERO
+		await attendi(4)
+		nastro.pivot_offset = Vector2(0.0, nastro.size.y * 0.5)
+		nastro.position = Vector2(Stile.forma("cornice") * 0.6, scena.box.position.y - nastro.size.y + 6)
+		await attendi(3)
+		await RenderingServer.frame_post_draw
+		var foto := get_viewport().get_texture().get_image()
+		foto.save_png(ProjectSettings.globalize_path(CARTELLA + "nome_in_scena_%d.png" % (n + 1)))
+		print("scatto salvato: %snome_in_scena_%d.png  (%s)" % [CARTELLA, n + 1, (prove[n] as Dictionary).nome])
 
 
 func nomi_a_confronto(prove: Array) -> void:
@@ -910,6 +954,8 @@ func prepara(quale: String) -> void:
 				print("foglio salvato: %sdialoghi_rosa_%d.png" % [CARTELLA, f + 1])
 		"nastri":
 			await nastri_a_confronto(String(OS.get_cmdline_user_args()[1]))
+		"nome_in_scena":
+			await nomi_in_scena(JSON.parse_string(FileAccess.get_file_as_string(String(OS.get_cmdline_user_args()[1]))))
 		"nomi_eleganti":
 			await nomi_a_confronto(JSON.parse_string(FileAccess.get_file_as_string(String(OS.get_cmdline_user_args()[1]))))
 		"laboratorio":
