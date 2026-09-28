@@ -53,6 +53,7 @@ const SCENA_BOX := "res://scenes/BoxTesto.tscn"
 const VELO := Color(0, 0, 0, 0.45)
 const MARGINE := 24.0
 const LARGHEZZA_BOX := 0.56   # il box sta in basso a destra: a sinistra ci sono le voci
+const RIGHE_DEL_BOX := 3
 const PANNELLO_DI := {"diario": "diario", "zaino": "inventario", "squadra": "equipaggiamento",
 		"storico": "storico", "opzioni": "opzioni", "messaggi": "messaggi"}
 
@@ -121,6 +122,11 @@ func _ready() -> void:
 	# la lingua del menu che spiega: pende come le sue fasce, ha il bordo
 	# cremisi e la sfoglia dietro, e sopra un cartiglio che dice cos'e'
 	box.nome_fuori_dal_box()
+	# TRE RIGHE, non due come il box dei dialoghi: questo e' largo poco piu' di
+	# meta' schermo, e col carattere dei dialoghi a 28 meta' dei passi andava su
+	# una seconda pagina - una spiegazione spezzata a meta' mentre indichi una voce
+	var interlinea := float(Stile.dati.get("interlinee", {}).get("lettura", 1.5))
+	box.imposta_altezza(ceili(RIGHE_DEL_BOX * Caratteri.corpo_dialoghi() * interlinea))
 	box.add_theme_stylebox_override("panel", cornice_del_box())
 	cartiglio = Cartiglio.nuovo("TUTORIAL", Stile.colore("accento"), Stile.colore("testo"),
 			Stile.colore("bordo_acceso"), Stile.dimensione("corpo"))

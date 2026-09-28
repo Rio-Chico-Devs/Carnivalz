@@ -607,7 +607,12 @@ seguente — non c'è più un bottone "▸ Continua" incastonato tra le scelte: 
 (`AreaAvanza`) copre l'intero schermo mentre si legge, così qualunque click (o Invio/Spazio)
 fa la cosa giusta. Quando l'ultimo messaggio della coda è seguito solo da scelte vere, queste
 compaiono automaticamente **appena il box ha finito di scrivere** (`azione_a_fine_testo`),
-senza bisogno di un click a vuoto che lascerebbe la schermata identica. Ogni nodo evento può
+senza bisogno di un click a vuoto che lascerebbe la schermata identica. Il box scrive col
+**suo carattere**, **Bricolage Grotesque** (`art/font/dialoghi.ttf`, `Caratteri.dialoghi()`):
+la prova 5 del laboratorio scelta da Bru — corpo ottico 96, stretto, peso 800, un pixel di
+spazio in più fra le lettere — a 28 invece che a 26 («leggermente più grande»). Non ha un
+corsivo: la narrazione è il dritto inclinato. Le misure stanno in `data/stile.json`, sezione
+`dialoghi`. Ogni nodo evento può
 avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
 - **`narrazione`**: la voce narrante descrive la scena in **seconda persona** ("ti nota",
   "il tuo compito"), sempre in *corsivo*, senza nome — non è Anonimo che parla, è chi

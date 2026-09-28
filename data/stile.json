@@ -7,6 +7,7 @@
     "file_titolo": "res://art/font/titolo.ttf",
     "file_arrotondato": "res://art/font/arrotondato.ttf",
     "file_fiaba": "res://art/font/fiaba.ttf",
+    "file_dialoghi": "res://art/font/dialoghi.ttf",
     "corpo": [
       "Inter",
       "Segoe UI",
@@ -40,6 +41,16 @@
       "serif"
     ],
     "_nota_fiaba": "IL CARATTERE DEL RACCONTO (l'inizio del gioco e dei livelli). Bru prima: «deve essere piu' elegante e fiabesco»; poi: «dei font piu' belli ancora? piu' particolari ed eleganti?»; e su venti candidati con licenza OFL (scatti: caratteri_rosa_1 e _2, finalisti carattere_01..13): «il migliore per ora e' italianno». E' Italianno di Robert Leuschke, un calligrafico a peso unico: per questo racconto.peso non cambia niente, ed e' scritto grande (racconto.corpo) perche' una calligrafia ha l'occhio piccolo. Prima c'era Cormorant Garamond corsivo, che resta il primo di riserva. Licenza: art/font/OFL-Italianno.txt.",
+    "dialoghi": [
+      "Bricolage Grotesque",
+      "Inter",
+      "Segoe UI",
+      "Noto Sans",
+      "Liberation Sans",
+      "DejaVu Sans",
+      "sans-serif"
+    ],
+    "_nota_dialoghi": "IL CARATTERE DEL BOX DEI DIALOGHI (dialoghi, narrazione, notifiche, diario del combattimento). Bru: «dobbiamo anche scegliere un bel font generale per i dialoghi, quello attuale non mi piace»; dopo due giri di candidati («nessuno mi ispira molto») e il laboratorio dei caratteri fatti a codice («con bricolage grotesque ci avviciniamo»), la prova numero 5: «proviamo 5 ops 96 ma leggermente piu' grande». E' Bricolage Grotesque di Mathieu Triay, a tre assi: le misure (corpo ottico, larghezza, peso, spaziatura, e com'e' fatto il corsivo che non ha) stanno nella sezione \"dialoghi\" di questo file. Licenza: art/font/OFL-BricolageGrotesque.txt.",
     "arrotondato": [
       "Nunito",
       "Varela Round",
@@ -50,7 +61,17 @@
     "_nota": "Il disegno di Bru ha un carattere pesante, squadrato, senza grazie - niente a che vedere con le grazie di prima. Se metti un .ttf in art/font/ e scrivi il percorso in file_corpo/file_titolo, quello vince su tutto: l'elenco qui sotto e' il ripiego di sistema fino ad allora, scelto per somigliargli il piu' possibile su Windows, Mac e Linux.",
     "_nota_corpo": "IL CORPO NON E' IL TITOLO, e per un po' lo e' stato: queste due liste erano identiche, tutte e due in testa con Haettenschweiler e Impact. Sono caratteri da manifesto - condensatissimi, occhielli piccoli, nessuno spazio fra le lettere - e vanno benissimo per CARNIVALZ a quarantaquattro, e malissimo per tre righe di dialogo a ventisei. Non si vedeva provando su Linux, dove nessuno dei due c'e' e si ripiegava su Liberation Sans: si vedeva solo su Windows, che ce li ha tutti e due.",
     "_nota_licenza": "Impact e Haettenschweiler sono di Microsoft e NON si possono incorporare in un gioco: il permesso di incorporare vale per i documenti, non per le applicazioni, e nemmeno convertendoli. Finche' si pescano dal sistema va bene, ma vuol dire che il gioco si legge diverso su ogni macchina. Per spedirlo serve un .ttf con licenza aperta (OFL) dentro art/font/, e allora file_corpo/file_titolo vincono su tutto.",
-    "_nota_ofl": "DENTRO art/font/ CI SONO DUE CARATTERI VERI, e vincono sull'elenco di sistema: Anton per i titoli (pesante e condensato, il piu' vicino fra quelli liberi al carattere del menu di Borderlands 2 che Bru ha preso come riferimento) e Nunito, arrotondato, per le scritte piccole del menu principale. Tutti e due con licenza SIL OFL: si possono incorporare e distribuire col gioco. Vedi art/font/LEGGIMI.md."
+    "_nota_ofl": "DENTRO art/font/ CI SONO QUATTRO CARATTERI VERI, e vincono sull'elenco di sistema: Anton per i titoli (pesante e condensato, il piu' vicino fra quelli liberi al carattere del menu di Borderlands 2 che Bru ha preso come riferimento), Nunito, arrotondato, per le scritte piccole del menu principale, Italianno per il racconto e Bricolage Grotesque per il box dei dialoghi. Tutti con licenza SIL OFL: si possono incorporare e distribuire col gioco. Vedi art/font/LEGGIMI.md."
+  },
+  "_nota_dialoghi": "COM'E' FATTO IL CARATTERE DEI DIALOGHI (Caratteri.dialoghi, font.file_dialoghi). E' la prova 5 del laboratorio che Bru ha scelto - corpo ottico (opsz) 96, larghezza (wdth) 75 cioe' stretto, peso (wght) 800 cioe' nerissimo, un pixel di spazio in piu' fra le lettere - ma il laboratorio la scriveva a 26 e Bru l'ha voluta «leggermente piu' grande»: corpo 28 (un gradino di scala sarebbe stato 31, troppo; 28 e' il 7-8% in piu'). Il corpo ottico a 96 e' il disegno pensato per i titoli: lettere piu' strette e contrasto piu' marcato, ed e' quello che le da' carattere anche a 28. Bricolage non ha un corsivo, e la narrazione e' in corsivo: si inclina il dritto (inclinazione, 0,2 = circa 11 gradi) - lo stesso trucco del laboratorio. Il grassetto non puo' pesare piu' di 800, che e' il massimo del file: si ispessisce il tratto (grassetto, in parti del corpo). Numeri miei tranne i quattro della prova 5.",
+  "dialoghi": {
+    "corpo": 28,
+    "opsz": 96,
+    "wdth": 75,
+    "wght": 800,
+    "spaziatura": 1,
+    "inclinazione": 0.2,
+    "grassetto": 0.6
   },
   "_nota_dimensioni": "Scala tipografica: pochi gradini, sempre gli stessi. Niente font_size a occhio dentro le scene.",
   "dimensioni": {

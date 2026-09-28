@@ -321,11 +321,11 @@
               "indica": "voce:riprendi"
             },
             {
-              "testo": "Nel primo gruppo si consulta: lo «Storico dei dialoghi», se ti perdi una battuta; il tuo «Data pad», con il database e il giudizio dell'Organizzazione; lo «Zaino», con quello che porti.",
+              "testo": "Nel primo gruppo si consulta: lo «Storico dei dialoghi» se perdi una battuta, il «Data pad» col database e l'Organizzazione, lo «Zaino» con quello che porti.",
               "indica": "voce:diario"
             },
             {
-              "testo": "Nel secondo si amministra: in «Personaggio e squadra» vedi chi sei e come stai crescendo, e cambi l'equipaggiamento; nelle «Opzioni» regoli volume, testo e schermo.",
+              "testo": "Nel secondo si amministra: in «Personaggio e squadra» vedi chi sei, come cresci e cosa indossi; nelle «Opzioni» regoli volume, testo e schermo.",
               "indica": "voce:squadra"
             },
             {
@@ -1022,7 +1022,7 @@
               "mostra": true
             },
             {
-              "testo": "Quando arriva un messaggio te lo dice una notifica, mentre giochi, e l'icona in basso a destra squilla finché non l'hai letto. Non devi venire a controllare: è lui che ti chiama."
+              "testo": "Quando arriva un messaggio te lo dice una notifica, e l'icona in basso a destra squilla finché non l'hai letto: non devi venire a controllare, è lui che ti chiama."
             },
             {
               "testo": "C'è un messaggio nuovo: aprilo.",

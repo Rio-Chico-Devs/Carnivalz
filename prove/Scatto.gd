@@ -365,6 +365,20 @@ func prepara(quale: String) -> void:
 				dialogo._su_avanza()
 				await attendi(2)
 				clic += 1
+			# la battuta intera, non le prime due parole della macchina da scrivere:
+			# la battuta arriva qualche fotogramma dopo il clic, e puo' ripartire
+			# (la prima misura del box la reimpagina): si completa finche' per
+			# venti fotogrammi di fila non scrive piu' niente
+			var ferma := 0
+			for attesa in 600:
+				if dialogo.box.sta_scrivendo:
+					dialogo.box.completa()
+					ferma = 0
+				else:
+					ferma += 1
+					if ferma >= 20:
+						break
+				await attendi(1)
 		"giro_data_pad":
 			# IL GIRO GUIDATO DEL DATA PAD, portato fino a un passo: "giro_data_pad
 			# alloggio 0" e' il tasto in alto a sinistra da premere, "giro_data_pad

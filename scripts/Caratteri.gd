@@ -2,7 +2,8 @@ class_name Caratteri
 extends RefCounted
 
 # I CARATTERI DEL GIOCO, pronti all'uso e fatti una volta sola: i due del menu
-# principale, e la calligrafia del racconto (fiaba, in fondo).
+# principale, la calligrafia del racconto (fiaba) e quello del box dei
+# dialoghi (dialoghi).
 #
 # Anton per le voci e i titoli, Nunito per le scritte piccole: e' la coppia del
 # riferimento di Bru (Borderlands 2), dove le voci sono maiuscole pesanti e
@@ -51,6 +52,40 @@ static func fiaba(peso := 400) -> Font:
 	variante.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): peso}
 	gia_fatti[chiave] = variante
 	return variante
+
+
+static func dialoghi(stile := "dritto") -> Font:
+	# IL CARATTERE DEL BOX DEI DIALOGHI (Bricolage Grotesque), in quattro stili:
+	# "dritto", "corsivo" (la narrazione), "grassetto" e "grassetto_corsivo"
+	# (un grassetto dentro la narrazione). Bricolage non ha un
+	# corsivo ne' un peso oltre 800, che e' gia' quello del dritto: il corsivo
+	# e' il dritto inclinato, il grassetto e' il dritto col tratto ispessito.
+	# Le misure stanno in data/stile.json, sezione "dialoghi"
+	var chiave := "dialoghi_" + stile
+	if gia_fatti.has(chiave):
+		return gia_fatti[chiave]
+	var base := Stile.font_da("dialoghi")
+	if base == null:
+		return null
+	var misure: Dictionary = Stile.dati.get("dialoghi", {})
+	var variante := FontVariation.new()
+	variante.base_font = base
+	var assi := {}
+	for asse in ["opsz", "wdth", "wght"]:
+		if misure.has(asse):
+			assi[TextServerManager.get_primary_interface().name_to_tag(asse)] = float(misure[asse])
+	variante.variation_opentype = assi
+	variante.spacing_glyph = int(misure.get("spaziatura", 0))
+	if "corsivo" in stile:
+		variante.variation_transform = Transform2D(Vector2(1, 0), Vector2(-float(misure.get("inclinazione", 0.2)), 1), Vector2.ZERO)
+	if "grassetto" in stile:
+		variante.variation_embolden = float(misure.get("grassetto", 0.6))
+	gia_fatti[chiave] = variante
+	return variante
+
+
+static func corpo_dialoghi() -> int:
+	return int((Stile.dati.get("dialoghi", {}) as Dictionary).get("corpo", Stile.dimensione("corpo")))
 
 
 static func voce() -> Font:

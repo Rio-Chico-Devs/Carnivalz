@@ -69,11 +69,12 @@ func _ready() -> void:
 	indicatore.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
 	indicatore.visible = false
+	usa_il_carattere_dei_dialoghi()
 	# IL TESTO DA LEGGERE VUOLE ARIA FRA LE RIGHE. Il box tiene paragrafi, non
 	# una riga sola, e finche' nessuno decideva l'interlinea la decideva il font
 	# DI SISTEMA - quindi diversa su ogni macchina, e non c'era modo di
 	# accorgersene provando su una sola
-	Stile.interlinea(testo, "lettura", Stile.dimensione("corpo"))
+	Stile.interlinea(testo, "lettura", Caratteri.corpo_dialoghi())
 	# la targhetta tiene la sua riga anche quando e' vuota: se collassasse, il
 	# testo salterebbe su di una riga passando da un dialogo a una narrazione
 	var font_targhetta := targhetta.get_theme_font("font")
@@ -83,6 +84,19 @@ func _ready() -> void:
 	# la misura vera arriva col primo giro di impaginazione dei contenitori, e
 	# puo' cambiare (finestra, testo piu' grande): a ogni cambio si rimisura
 	testo.resized.connect(_al_cambio_di_misura)
+
+func usa_il_carattere_dei_dialoghi() -> void:
+	# IL CARATTERE DEI DIALOGHI, scelto da Bru (Caratteri.dialoghi, misure in
+	# data/stile.json sezione "dialoghi"): dritto per chi parla, inclinato per
+	# la narrazione che e' in corsivo, col tratto ispessito per il grassetto.
+	# Solo qui dentro: il resto dell'interfaccia tiene il carattere del tema
+	var corpo := Caratteri.corpo_dialoghi()
+	for coppia: Array in [["normal", "dritto"], ["italics", "corsivo"],
+			["bold", "grassetto"], ["bold_italics", "grassetto_corsivo"]]:
+		var carattere := Caratteri.dialoghi(String(coppia[1]))
+		if carattere != null:
+			testo.add_theme_font_override(String(coppia[0]) + "_font", carattere)
+		testo.add_theme_font_size_override(String(coppia[0]) + "_font_size", corpo)
 
 func nome_fuori_dal_box() -> void:
 	# IL NOME DI CHI PARLA ESCE DAL BOX. Nel disegno di Bru sta su un pezzo di

@@ -91,6 +91,7 @@ func _ready() -> void:
 	prova_dall_introduzione_al_combattimento()
 	prova_l_inizio_di_ogni_livello_si_racconta()
 	prova_ogni_carattere_ha_la_sua_licenza()
+	prova_il_box_parla_col_carattere_scelto_da_bru()
 	await prova_il_racconto_si_prende_lo_schermo()
 	await prova_ogni_pagina_del_racconto_sta_nello_schermo()
 	await prova_nel_racconto_le_lettere_affiorano()
@@ -5136,6 +5137,48 @@ func prova_ogni_carattere_ha_la_sua_licenza() -> void:
 			"in art/font/ ci sono %d caratteri e %d licenze OFL: spedirli senza e' violarla" % [caratteri.size(), licenze.size()])
 	for nome in caratteri:
 		esigi(("`%s`" % nome) in leggimi, "%s non e' nel LEGGIMI dei caratteri: non si sa di chi e' ne' con che licenza" % nome)
+
+func prova_il_box_parla_col_carattere_scelto_da_bru() -> void:
+	# Bru, 28 settembre, sul laboratorio dei caratteri: «per il testo proviamo
+	# 5 ops 96 ma leggermente piu' grande». La prova 5 era Bricolage Grotesque
+	# a corpo ottico 96, stretto (wdth 75), nerissimo (wght 800), un pixel di
+	# spazio fra le lettere, a 26: nel box ci deve essere quella, piu' grande
+	titolo("il box dei dialoghi parla col carattere della prova 5, un po' piu' grande")
+	var box: Node = load("res://scenes/BoxTesto.tscn").instantiate()
+	add_child(box)
+	var testo: RichTextLabel = box.testo
+	var server := TextServerManager.get_primary_interface()
+	var voluti := {"opsz": 96.0, "wdth": 75.0, "wght": 800.0}
+	for chiave in ["normal_font", "italics_font", "bold_font", "bold_italics_font"]:
+		var variante := testo.get_theme_font(chiave) as FontVariation
+		esigi(variante != null and variante.base_font != null
+				and variante.base_font.resource_path == "res://art/font/dialoghi.ttf",
+				"nel box il %s non e' Bricolage Grotesque (art/font/dialoghi.ttf)" % chiave)
+		if variante == null:
+			continue
+		for asse: String in voluti:
+			esigi(is_equal_approx(float(variante.variation_opentype.get(server.name_to_tag(asse), -1.0)), voluti[asse]),
+					"nel box il %s ha %s a %s invece di %s" % [chiave, asse,
+					variante.variation_opentype.get(server.name_to_tag(asse), "niente"), voluti[asse]])
+		esigi(variante.spacing_glyph == 1, "nel box il %s non ha il pixel di spazio fra le lettere della prova 5" % chiave)
+		# la narrazione e' in corsivo, e Bricolage un corsivo non ce l'ha: si inclina
+		var inclinato := variante.variation_transform.y.x < -0.05
+		esigi(inclinato == ("italics" in chiave), "nel box il %s %s" % [chiave,
+				"e' dritto: la narrazione non si distingue piu' da chi parla" if "italics" in chiave else "e' inclinato"])
+		esigi((variante.variation_embolden > 0.0) == ("bold" in chiave),
+				"nel box il %s ha il tratto ispessito sbagliato (%s)" % [chiave, variante.variation_embolden])
+		var corpo := testo.get_theme_font_size(chiave + "_size")
+		esigi(corpo > 26 and corpo <= 30, "nel box il %s e' a %d: la prova 5 era a 26 e Bru l'ha voluta «leggermente piu' grande»" % [chiave, corpo])
+	# l'interlinea si calcola sul corpo vero, non su quello del tema: 1,5 volte.
+	# Esatta, al pixel: calcolata su 26 e letta su 28 sbaglia di mezzo pixel, e
+	# con una tolleranza di uno passava
+	var corpo_vero := Caratteri.corpo_dialoghi()
+	var naturale := testo.get_theme_font("normal_font").get_height(corpo_vero)
+	var voluta := int(round(maxf(corpo_vero * float(Stile.dati.get("interlinee", {}).get("lettura", 1.5)) - naturale, 0.0)))
+	esigi(testo.get_theme_constant("line_separation") == voluta,
+			"nel box fra le righe ci sono %d pixel invece di %d: l'interlinea non e' calcolata sul corpo dei dialoghi (%d)"
+			% [testo.get_theme_constant("line_separation"), voluta, corpo_vero])
+	box.queue_free()
 
 func racconto_veloce() -> Dictionary:
 	# LE PROVE NON ASPETTANO I TEMPI DI UNA FAVOLA: le sfumature durano un
@@ -14779,6 +14822,16 @@ func corridoio_aperto(a: String, b: String) -> bool:
 			return true
 	return false
 
+func ogni_passo_del_giro_in_una_pagina(giro: GiroDataPad, quando: String) -> void:
+	# UNA SPIEGAZIONE NON SI SPEZZA A META' mentre indica una voce. Col
+	# carattere dei dialoghi a 28 due passi finivano con «con quello che
+	# porti.» da solo su una seconda pagina
+	esigi(giro.box.spazio_per_il_testo().x > 2.0, "%s il box del giro non ha ancora una misura" % quando)
+	giro.box.tipo_corrente = "dialogo"
+	for passo_giro: Dictionary in giro.passi:
+		var pagine: Array[String] = giro.box.impagina(String(passo_giro.get("testo", "")))
+		esigi(pagine.size() == 1, "%s un passo del giro va su %d pagine: %s" % [quando, pagine.size(), pagine])
+
 func voce_della_pausa(chiave: String) -> VoceMenu:
 	if Pausa.colonna == null:
 		return null
@@ -15080,6 +15133,7 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 	esigi(giro.cartiglio != null and giro.cartiglio.testo == "TUTORIAL", "sopra il box del giro non c'e' il cartiglio che dice cos'e'")
 	await get_tree().process_frame
 	esigi(giro.indicato == schermata.icona_menu, "il primo passo non indica il tasto in alto a sinistra")
+	ogni_passo_del_giro_in_una_pagina(giro, "la mattina")
 	esigi(giro.tende[0].visible and giro.tende[0].size.y <= schermata.icona_menu.get_global_rect().position.y + 1.0,
 			"intorno al tasto in alto a sinistra non c'e' un buco nel velo: non lo si potrebbe premere")
 	# premerlo apre il data pad, e il giro va avanti da solo
@@ -15164,6 +15218,8 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 	await get_tree().process_frame
 	var giro_sala: GiroDataPad = scavalcata.find_children("*", "GiroDataPad", true, false).pop_back() as GiroDataPad
 	esigi(giro_sala != null and Pausa.aperta, "in sala il giro non parte, o non apre il data pad")
+	if giro_sala != null:
+		ogni_passo_del_giro_in_una_pagina(giro_sala, "in sala")
 	scavalcata.avanza_messaggio()
 	await get_tree().process_frame
 	await get_tree().process_frame
