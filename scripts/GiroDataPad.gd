@@ -66,6 +66,7 @@ var indicato: Control = null
 var gia_aperto := false            # il data pad e' stato aperto: da li' in poi, chiuso vuol dire finito
 var chiuso := false
 var battuta := -1                  # a che battuta era la scena quando il giro e' partito
+var box_in_alto := false
 
 
 static func prende(dove: Node, msg: Dictionary) -> bool:
@@ -176,7 +177,28 @@ func _process(_delta: float) -> void:
 		avanti()
 		return
 	indicato = pezzo_indicato(String(passo().get("indica", "")))
+	sposta_il_box()
 	sistema_il_velo()
+
+
+func sposta_il_box() -> void:
+	# IL BOX NON COPRE QUELLO CHE INDICA. Sta in basso a destra, e in basso a
+	# destra c'e' l'iconcina dei messaggi: il giro chiedeva di premerla e il box
+	# ci stava sopra, prendendosi il clic. Se si toccano, il box sale in alto.
+	# Il confronto e' col posto in basso, non con dove il box e' adesso: se no,
+	# salito, non toccherebbe piu' niente e riscenderebbe al fotogramma dopo
+	var schermo := get_viewport().get_visible_rect().size
+	var in_basso := Rect2(schermo.x * (1.0 - LARGHEZZA_BOX), schermo.y - MARGINE - box.size.y,
+			schermo.x * LARGHEZZA_BOX - MARGINE, box.size.y)
+	var su := indicato != null and is_instance_valid(indicato) and indicato.get_global_rect().intersects(in_basso)
+	if su == box_in_alto:
+		return
+	box_in_alto = su
+	box.anchor_top = 0.0 if su else 1.0
+	box.anchor_bottom = box.anchor_top
+	box.offset_top = MARGINE if su else 0.0
+	box.offset_bottom = MARGINE if su else -MARGINE
+	box.grow_vertical = Control.GROW_DIRECTION_END if su else Control.GROW_DIRECTION_BEGIN
 
 
 func fatto(aspetta: String) -> bool:

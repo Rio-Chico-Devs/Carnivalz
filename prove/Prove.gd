@@ -15010,9 +15010,13 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 			"il giro non chiede di aprire i messaggi, o non indica l'iconcina in basso a destra")
 	esigi(Movimento.ridotto() or Pausa.icona_messaggi.sta_squillando(),
 			"col messaggio di Veronica da leggere, l'iconcina dei messaggi non squilla")
-	Pausa.icona_messaggi.pressed.emit()
+	# UN CLIC VERO, dove sta l'iconcina: il box del giro stava in basso a destra
+	# e la copriva, e il clic se lo prendeva lui
 	await get_tree().process_frame
-	esigi(Pausa.pannello == "messaggi", "premuta l'iconcina, i messaggi non si aprono")
+	clic_vero(Pausa.icona_messaggi.get_global_rect().get_center())
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(Pausa.pannello == "messaggi", "cliccata l'iconcina, i messaggi non si aprono: qualcosa la copre")
 	esigi("veronica_buongiorno" in GameState.messaggi_letti, "aperti i messaggi, quello di Veronica non risulta letto")
 	esigi(not "veronica_buongiorno" in GameState.messaggi_da_notificare,
 			"letto il messaggio di Veronica, una notifica lo annuncera' ancora come nuovo")
