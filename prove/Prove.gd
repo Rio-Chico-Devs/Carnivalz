@@ -170,6 +170,7 @@ func _ready() -> void:
 	prova_ogni_giro_del_data_pad_nomina_pezzi_veri()
 	await prova_il_data_pad_si_impara_aprendolo()
 	await prova_il_data_pad_come_lo_ha_riordinato_bru()
+	prova_lo_storico_dura_quanto_la_stanza()
 	await prova_lo_sviluppo_sta_nella_scheda()
 	prova_nei_testi_non_ci_sono_tag_html()
 	prova_gli_appunti_si_pensano_tutti()
@@ -14785,6 +14786,35 @@ func voce_della_pausa(chiave: String) -> VoceMenu:
 		if String(voce.get_meta("chiave", "")) == chiave and (voce as Control).is_visible_in_tree():
 			return voce as VoceMenu
 	return null
+
+func prova_lo_storico_dura_quanto_la_stanza() -> void:
+	# Bru, 28 settembre: «lo storico dei dialoghi deve durare per la permanenza
+	# della stanza altrimenti diventa troppo lungo». Si azzera entrando in
+	# un'altra stanza della mappa - e SOLO li': non a una risposta in una
+	# conversazione, non a una scena nella stessa stanza, non a un passo fermato
+	titolo("lo storico dura quanto la stanza")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.nodo_corrente = "bivio"
+	GameState.registra_storico("dialogo", "Guida", "detto al bivio")
+	GameState.imposta_flag("tut_manifestazione_fuggita")
+	IngressoNodo.entra("collina")   # scappato e senza pietra: non sali, resti al bivio
+	esigi(GameState.nodo_corrente == "bivio" and GameState.storico.size() == 1,
+			"provando a salire senza muoverti lo storico si svuota (%d righe)" % GameState.storico.size())
+	IngressoNodo.entra("masso")
+	esigi(GameState.nodo_corrente == "masso" and GameState.storico.is_empty(),
+			"entrato al masso lo storico ha ancora %d righe del bivio" % GameState.storico.size())
+	GameState.registra_storico("dialogo", "Guida", "detto al masso")
+	IngressoNodo.entra("masso_fiale")   # una scena nella stessa stanza
+	IngressoNodo.entra("masso")         # e la stessa stanza, di nuovo
+	esigi(GameState.storico.size() == 1, "una scena nella stessa stanza svuota lo storico")
+	# le domande nella sala riunioni sono nodi loro, ma non posti: la domanda
+	# fatta prima deve restare mentre si legge la risposta
+	GameState.nodo_corrente = "hq_sala_riunioni_2"
+	GameState.registra_storico("scelta", "", "Perché proprio io?")
+	IngressoNodo.entra("hq_domanda_perche")
+	esigi(not GameState.storico.is_empty(), "una risposta in una conversazione svuota lo storico come se fosse un'altra stanza")
+	GameState.nuova_partita()
 
 func prova_il_data_pad_come_lo_ha_riordinato_bru() -> void:
 	# Bru, 28 settembre: «organizziamo meglio il data pad, appunti come voce non

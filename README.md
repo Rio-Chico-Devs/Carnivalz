@@ -801,7 +801,7 @@ un canale solo stava facendo tre mestieri diversi. Ora sono tre canali, ognuno c
 | **il campo** (schede, barre di vita) | lo **stato**: quanta vita, che stati addosso | di sfuggita, sempre |
 | **i numeri volanti** | il **colpo**: `−4` che sale dalla scheda di chi lo prende e svanisce | nell'istante in cui succede |
 | **il box** (lo stesso dei dialoghi) | il **momento**: un messaggio alla volta, poi lascia il posto | mentre lo leggi |
-| **lo storico** (ESC) | tutto quello che è passato | dopo, se ti è sfuggito qualcosa |
+| **lo storico** (ESC) | tutto quello che è passato **in questa stanza** (si azzera entrando in un'altra stanza della mappa) | dopo, se ti è sfuggito qualcosa |
 
 La conseguenza più visibile: **un colpo normale non produce più nessuna riga di testo**. Vedi il
 numero salire, la scheda lampeggiare e la barra scendere — dirlo anche a parole era ridondante, e

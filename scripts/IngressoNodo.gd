@@ -123,7 +123,18 @@ static func entra(id_nodo: String) -> Dictionary:
 	# stanza resta quella in cui gia' eri, e il verdetto se la porta dietro
 	# ("stanza") perche' Main la riconosca nascendo.
 	if not nodo.get("resta_dove_sei", false):
-		GameState.nodo_corrente = String(nodo.get("stanza", id_vero))
+		var stanza := String(nodo.get("stanza", id_vero))
+		# LO STORICO DURA QUANTO LA STANZA. Bru: «lo storico dei dialoghi deve
+		# durare per la permanenza della stanza altrimenti diventa troppo
+		# lungo». Si ricomincia entrando in un'altra stanza DELLA MAPPA, cioe' in
+		# un posto dove si cammina. Non a ogni nodo: una risposta in una
+		# conversazione (le domande a Veronica, «perche' proprio io?») e' un nodo
+		# suo ma non un posto, e azzerare li' vorrebbe dire perdere la domanda.
+		# Anche una scena che succede nella stessa stanza (il risveglio, poi
+		# Reika, in infermeria) e lo scontro che ci scoppia dentro lo tengono
+		if stanza != GameState.nodo_corrente and GameState.stanza_nella_mappa(stanza):
+			GameState.storico.clear()
+		GameState.nodo_corrente = stanza
 	esito.stanza = GameState.nodo_corrente
 	applica_effetti(id_vero, nodo, esito.prima_visita)
 	esito.agguato = tira_agguato(id_vero, nodo)

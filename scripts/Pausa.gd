@@ -581,7 +581,7 @@ func mostra_storico() -> void:
 	var scorrevole := righe.get_parent() as ScrollContainer
 	if GameState.storico.is_empty():
 		var vuoto := Label.new()
-		vuoto.text = "Non hai ancora letto niente."
+		vuoto.text = "In questa stanza non è ancora stato detto niente."
 		Stile.etichetta_piccola(vuoto)
 		righe.add_child(vuoto)
 	for letta in GameState.storico:
