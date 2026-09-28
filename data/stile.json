@@ -271,6 +271,13 @@
     "pausa_punto": 0.26,
     "pausa_sospensione": 0.45
   },
+  "_nota_squillo": "L'ICONCINA DEI MESSAGGI CHE SQUILLA (scripts/IconaMessaggi.gd), in basso a destra del data pad. Bru: «ogni quarto di secondo tilta tipo biru biru biru, pausa di 2 secondi». ogni: quanto dura un colpo; colpi: quanti di fila; pausa: il silenzio prima del giro dopo; angolo: di quanti gradi si piega la campanella (l'angolo e' mio). Squilla finche' c'e' un messaggio da leggere, e con «meno movimento» non squilla.",
+  "squillo": {
+    "ogni": 0.25,
+    "colpi": 3,
+    "pausa": 2.0,
+    "angolo": 13.0
+  },
   "_nota_racconto": "IL RACCONTO A SCHERMO INTERO (scripts/Racconto.gd): l'inizio del gioco e dei livelli, come le introduzioni di Final Fantasy Crystal Chronicles. Tutti i numeri sono miei, da girare qui. passo e respiro: la macchina da scrivere del box, rallentata (0,62 della velocita') e con le pause sulla punteggiatura lunghe una volta e mezza, perche' una favola si racconta piano. corpo, peso e larghezza: il testo al centro, 58 pixel di Italianno (vedi font.fiaba) su una colonna larga il 60% dello schermo: una calligrafia ha l'occhio piccolissimo, e sotto i 50 si legge a fatica. Il peso vale solo per un carattere a peso variabile, e Italianno non lo e': 400 e' il suo. righe_massime: un paragrafo piu' lungo gira pagina dove finisce una frase (le parole non cambiano). Le righe sono compatte (interlinee.compatta, 1,35 volte il corpo: una calligrafia ha l'occhio piccolo e a 1,5 le righe galleggiavano): cinque righe a 58 pixel sono circa 390 pixel, e piu' in basso c'e' il triangolino. apertura, cambio_sfondo, sparizione, chiusura: le sfumature, in secondi. avvicinamento: di quanto si avvicina l'immagine mentre la leggi (5% in 18 secondi). luce, respiro_luce: il chiarore caldo che respira dietro il testo. vignetta, ombra: quanto scuriscono i bordi e l'alone dietro le parole. logo_*: la scritta di Carnivalz - il buio che scende, il silenzio, l'entrata, quanto resta (almeno logo_tenuta, o l'attesa scritta nei dati se e' piu' lunga), l'uscita, il vuoto dopo, e di quanto cresce mentre si vede.",
   "racconto": {
     "passo": 0.62,

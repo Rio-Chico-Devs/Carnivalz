@@ -328,7 +328,7 @@
               "indica": "voce:storico"
             },
             {
-              "testo": "Il «Data pad» vero e proprio: i tuoi appunti su cosa fare, i messaggi, come stai e come stai cambiando.",
+              "testo": "Il «Data pad» vero e proprio: il Database, con tutto quello che hai trovato e scoperto, e il giudizio dell'Organizzazione.",
               "indica": "voce:diario"
             },
             {
@@ -336,7 +336,7 @@
               "indica": "voce:zaino"
             },
             {
-              "testo": "In «Personaggio e squadra» vedi chi sei e cosa hai addosso, e cambi l'equipaggiamento: il tuo e quello dei compagni.",
+              "testo": "In «Personaggio e squadra» vedi chi sei, cosa hai addosso e come stai crescendo, e cambi l'equipaggiamento: il tuo e quello dei compagni.",
               "indica": "voce:squadra"
             },
             {
@@ -348,14 +348,9 @@
               "indica": "voce:uscita"
             },
             {
-              "testo": "L'altoparlante parlava di messaggi: apri il «Data pad».",
-              "indica": "voce:diario",
-              "aspetta": "voce:diario"
-            },
-            {
-              "testo": "Accanto a «Messaggi» c'è un numero: sono quelli che non hai ancora letto. Aprili.",
-              "indica": "sezione:messaggi",
-              "aspetta": "sezione:messaggi"
+              "testo": "L'altoparlante parlava di messaggi: sono nell'icona in basso a destra. Quando squilla, c'è qualcosa di nuovo. Premila.",
+              "indica": "voce:messaggi",
+              "aspetta": "voce:messaggi"
             },
             {
               "testo": "Quando arriva qualcosa di nuovo, il data pad te lo dice mentre giochi. Le altre pagine le vedrai strada facendo."
@@ -1014,7 +1009,7 @@
       ]
     },
     "data_pad_istruzioni": {
-      "_nota": "Bru, 25 settembre: «quando si dovrebbe aprire il data pad durante la conversazione in sala non si apre nulla, nessuna interfaccia, qui dovrebbe esserci il tutorial che ti spiega il resto delle funzioni del datapad che non sono state spiegate prima, come una sorta di riassunto del datapad e come funzionano eventi e notifiche». Adesso «Apri il data pad» lo apre davvero, e il giro guidato (GiroDataPad) spiega quello che la mattina era rimasto fuori: gli appunti (gli eventi), le notifiche, i messaggi coi 3000 tazo, e le altre pagine. Prima erano righe di narrazione con il menu chiuso. I testi del giro sono miei; le battute dopo il giro («Tremila tazo.»...) c'erano gia'. Prima ancora, Bru: «dopo che si spiega come usare il data pad in tutte le sue parti, c'è anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo come quota di benvenuto».",
+      "_nota": "Bru, 25 settembre: «quando si dovrebbe aprire il data pad durante la conversazione in sala non si apre nulla, nessuna interfaccia, qui dovrebbe esserci il tutorial che ti spiega il resto delle funzioni del datapad che non sono state spiegate prima, come una sorta di riassunto del datapad e come funzionano eventi e notifiche». Adesso «Apri il data pad» lo apre davvero, e il giro guidato (GiroDataPad) spiega quello che la mattina era rimasto fuori: gli appunti (gli eventi), le notifiche, i messaggi coi 3000 tazo, e le altre pagine. Prima erano righe di narrazione con il menu chiuso. I testi del giro sono miei; le battute dopo il giro («Tremila tazo.»...) c'erano gia'. Prima ancora, Bru: «dopo che si spiega come usare il data pad in tutte le sue parti, c'è anche una sezione messaggi dove l'organizzazione ti ha versato 3000 tazo come quota di benvenuto». 28 settembre, Bru riorganizza il data pad («appunti come voce non serve», i messaggi diventano un'iconcina in basso a destra che squilla, le statistiche e «cosa ti sta cambiando» - adesso «Sviluppo» - vanno in Personaggio e squadra, le Osservazioni diventano il Database): il giro e' riscritto su quello che c'e' adesso, e i testi nuovi sono miei.",
       "sfondo": "res://art/scene/sala_comunicazioni.png",
       "flag": "data_pad_spiegato",
       "sequenza": [
@@ -1026,55 +1021,28 @@
               "apri": true
             },
             {
-              "testo": "Apri il «Data pad»: stavolta c'è da vederlo tutto.",
-              "indica": "voce:diario",
-              "aspetta": "voce:diario"
-            },
-            {
-              "testo": "Gli «Appunti» sono i tuoi eventi: quello che ti viene chiesto e dove andare. Si scrivono da soli quando succede qualcosa, e si spuntano quando è fatto.",
-              "indica": "sezione:appunti",
-              "mostra": true
-            },
-            {
-              "testo": "Ogni volta che il data pad si aggiorna, con un appunto nuovo o un messaggio, te lo dice una notifica: la riga «Data pad aggiornato» che compare mentre giochi. Non devi venire a controllare: è lui che ti chiama."
+              "testo": "Quando arriva un messaggio te lo dice una notifica, mentre giochi, e l'icona in basso a destra squilla finché non l'hai letto. Non devi venire a controllare: è lui che ti chiama."
             },
             {
               "testo": "C'è un messaggio nuovo: aprilo.",
-              "indica": "sezione:messaggi",
-              "aspetta": "sezione:messaggi"
+              "indica": "voce:messaggi",
+              "aspetta": "voce:messaggi"
             },
             {
               "testo": "I Tazo, in alto a destra, si vedono da ogni pagina del data pad. Adesso sono un po' di più."
             },
             {
-              "testo": "«Stato» è chi sei adesso, in numeri.",
-              "indica": "sezione:stato",
-              "mostra": true
-            },
-            {
-              "testo": "«Cosa ti sta cambiando»: il fattore Carnivalz non si legge in una statistica sola.",
-              "indica": "sezione:crescita",
-              "mostra": true
-            },
-            {
-              "testo": "Le «Abilità passive» funzionano senza che tu le chiami.",
-              "indica": "sezione:passive",
-              "mostra": true
-            },
-            {
-              "testo": "La «Squadra», per ora corta.",
-              "indica": "sezione:squadra",
-              "mostra": true
-            },
-            {
-              "testo": "Le «Osservazioni»: quello che scopri studiando le creature.",
-              "indica": "sezione:osservazioni",
+              "testo": "Il «Database»: le carte che hai raccolto, le creature che hai incontrato e studiato, gli oggetti che ti sono passati fra le mani. Le stesse collezioni del menu principale.",
+              "indica": "sezione:database",
               "mostra": true
             },
             {
               "testo": "E l'«Organizzazione», che tiene il conto di come ti stai comportando. Quella la compilano loro.",
               "indica": "sezione:organizzazione",
               "mostra": true
+            },
+            {
+              "testo": "Chi sei, quanto vali e come stai crescendo non stanno qui: sono in «Personaggio e squadra», alla linguetta «Sviluppo»."
             },
             {
               "testo": "È tutto. Chiudi il data pad.",

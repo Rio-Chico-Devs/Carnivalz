@@ -3,7 +3,7 @@ extends Collezione
 # Compendio degli oggetti: una voce per ogni oggetto definito. La voce si
 # svela quando lo si ottiene almeno una volta (GameState.oggetti_catalogo).
 # Qui si guarda, non si equipaggia: l'equipaggiamento e' per personaggio e ha
-# i suoi slot, quindi si mette addosso dal Diario (ESC > Equipaggiamento).
+# i suoi slot, quindi si mette addosso da «Personaggio e squadra» (ESC).
 # Il compendio dice solo, di un oggetto che si puo' indossare, chi ce l'ha.
 
 func titolo_schermata() -> String:

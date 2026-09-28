@@ -65,6 +65,8 @@ func _draw() -> void:
 			traccia_indietro(centro, raggio, spessore)
 		"emblema":
 			traccia_emblema(centro, raggio, spessore)
+		"messaggi":
+			traccia_busta(centro, raggio, spessore)
 		_:
 			draw_arc(centro, raggio, 0.0, TAU, 20, tinta, spessore)
 
@@ -134,6 +136,14 @@ func traccia_indietro(centro: Vector2, raggio: float, spessore: float) -> void:
 			tinta, spessore)
 	draw_line(centro + Vector2(-raggio * 0.45, raggio * 0.55), centro + Vector2(-raggio, 0.0),
 			tinta, spessore)
+
+
+func traccia_busta(centro: Vector2, raggio: float, spessore: float) -> void:
+	# una busta: il rettangolo e la V del lembo, che e' quello che la fa busta
+	var alto := raggio * 0.7
+	draw_rect(Rect2(centro - Vector2(raggio, alto), Vector2(raggio * 2.0, alto * 2.0)), tinta, false, spessore)
+	draw_polyline(PackedVector2Array([centro + Vector2(-raggio, -alto), centro + Vector2(0.0, alto * 0.25),
+			centro + Vector2(raggio, -alto)]), tinta, spessore)
 
 
 func traccia_emblema(centro: Vector2, raggio: float, spessore: float) -> void:

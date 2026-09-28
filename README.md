@@ -80,7 +80,7 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `data/regole.json` — numeri di bilanciamento (hp, danno, stress, fattore, xp, legame)
 - `data/events.json` — campagna di prova
 - `data/events_intro.json` — l'introduzione (monologo prima del tutorial)
-- `data/task.json` — gli appunti del Diario: dove andare e cosa qualcuno ti ha chiesto (vedi sotto)
+- `data/task.json` — gli appunti: dove andare e cosa qualcuno ti ha chiesto, pensati a voce quando nascono (vedi sotto)
 - `data/codici.json` — codici riscattabili da EXTRA nel menu (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
 - `data/sede.json` — la Sede: nome, descrizione, presidio richiesto e stanze
@@ -223,20 +223,38 @@ combattimento — senza cambiare scena e senza perdere il posto in cui si era. M
 l'albero è in pausa: i tween si fermano, i timer del combattimento si fermano, niente va avanti
 alle spalle del giocatore.
 
-**Un pannello alla volta**, mai due cose insieme: *Riprendi · Storico · Diario · Personaggio e
-squadra · Zaino · Opzioni · Torna al menu principale*.
+**Un pannello alla volta**, mai due cose insieme: *Riprendi · Storico · Data pad · Zaino · Personaggio e
+squadra · Opzioni · Torna al menu principale*.
 
 **Tazo e livello sono sempre in alto a destra**, in ogni pannello. Li disegna `intestazione()`,
 non i singoli pannelli: così nessuno può dimenticarseli. Prima erano sepolti dentro una sezione
 del Diario, e per sapere quanti soldi si avevano bisognava navigare.
 
-### Il Diario ha un indice
+### Il Data pad: Database e Organizzazione
 
-Le sette sezioni (*Appunti, Stato, Cosa ti sta cambiando, Abilità passive, Squadra,
-Osservazioni, Organizzazione*) erano impilate nello stesso scorrevole: per arrivare all'ultima
-si rotolava per due schermate passando in mezzo a tutto il resto. Adesso **indice a sinistra,
-una sezione alla volta a destra**, con quella aperta segnata in ottone. Un diario non è un
-tabulato: è un posto dove si va a cercare una cosa precisa.
+Erano sette sezioni impilate in un solo scorrevole, poi otto con un indice. Il 28 settembre Bru
+l'ha riordinato: «organizziamo meglio il data pad». Adesso:
+
+- **indice a sinistra, una sezione alla volta a destra** (`Pausa.pannello_con_indice`, lo
+  stesso dello Zaino): **Database** e **Organizzazione**, e nient'altro;
+- il **Database** («la voce osservazioni è inutile, dobbiamo sostituirlo con database») apre
+  *le stesse* collezioni del menu principale — l'album delle carte, il bestiario, gli oggetti,
+  con quanti ne hai (`MenuPrincipale.COLLEZIONI`, una lista sola per tutti e due) — ma dentro la
+  pausa, sopra la scena viva: `Pausa.apri_collezione`, e «Indietro» (o ESC) torna al Database;
+- **gli appunti non ci sono più** («appunti come voce non serve»): il protagonista li pensa a
+  voce quando nascono (vedi sotto);
+- **statistiche, esperienza, cosa ti sta cambiando, abilità passive, squadra, resistenze** sono
+  in *Personaggio e squadra*, alla linguetta **Sviluppo** accanto a *Statistiche*
+  (`SviluppoScheda.gd`): «averlo anche su datapad è disorganizzazione [...] cosa ti sta
+  cambiando lo chiameremo sviluppo». Lo sviluppo si prende anche il posto del carosello, e a
+  destra il dettaglio dice cos'è;
+- **i messaggi sono un'iconcina in basso a destra** (`IconaMessaggi.gd`), nel menu della pausa
+  e nel Data pad, col numero dei non letti. Finché c'è qualcosa da leggere **squilla** come un
+  telefono a disco: «ogni quarto di secondo tilta tipo biru biru biru, pausa di 2 secondi» —
+  tre colpi da un quarto di secondo che cambiano lato, poi due secondi fermo
+  (`data/stile.json` → `"squillo"`). Con *meno movimento* non squilla, resta il numero.
+  Premuta, apre il pannello dei messaggi, che si considerano letti; «Indietro» torna dove l'hai
+  premuta.
 
 ### Lo Zaino
 
@@ -249,7 +267,7 @@ l'unico posto dove si vede.
 
 ### Aperta da una stanza della Sede
 
-`Pausa.apri_su("diario" | "equipaggiamento" | "inventario")` apre un pannello **senza passare dal
+`Pausa.apri_su("diario" | "equipaggiamento")` apre un pannello **senza passare dal
 menu di pausa**: serve alla Sede, dove *Alloggi* e *Archivio* sono stanze di un posto, non voci
 di un menu.
 
@@ -258,12 +276,13 @@ nel **menu di pausa** in mezzo alla Sede senza aver mai premuto ESC. Adesso `mod
 da dove si è arrivati, e `indietro()` è una funzione sola che decide dove tornare — così non c'è
 un pannello che se lo ricorda e uno che se lo dimentica.
 
-## Appunti del Diario (`data/task.json`)
+## Appunti (`data/task.json`)
 La guida del gioco. Non una lista di obiettivi con le spunte in un pannello a parte: sono i
 pensieri del protagonista quando mette a fuoco che c'è un posto dove deve andare o una cosa che
 qualcuno gli ha chiesto — *"Ho notato degli strani cambiamenti in quella regione... forse dovrei
-dare un'occhiata."* Stanno in cima al Diario, in corsivo, con il colore delle narrazioni: la
-stessa voce con cui il gioco racconta, non un'interfaccia che dà ordini.
+dare un'occhiata."* Si dicono come narrazioni: la stessa voce con cui il gioco racconta, non
+un'interfaccia che dà ordini. Dal 28 settembre non hanno più una pagina nel Data pad (Bru:
+«appunti come voce non serve»).
 
 **Vivono sui flag.** Il campo `richiede_flags` dice quando un appunto compare (tutti alzati),
 `chiuso_da` quando si segna come fatto. Nessun nodo deve ricordarsi di aprire o chiudere niente:
@@ -275,15 +294,15 @@ leggere alla Dr. Reika, la pressione senza nome dietro *Qualcosa preme*).
 Per gli appunti che nascono da una conversazione e non da uno stato del mondo, un nodo, una
 scelta o una battuta di un compagno possono anche aprirli a mano con `"task": "id"` (o una
 lista) e chiuderli con `"chiudi_task"`. Il campo `da` porta l'id di chi te l'ha chiesto: il
-Diario lo cerca sia tra i personaggi che tra le classi, così funziona sia per un png che per un
+gioco lo cerca sia tra i personaggi che tra le classi, così funziona sia per un png che per un
 compagno in squadra.
 
 **Come si annunciano.** Un appunto nuovo chiude la coda dei messaggi del nodo, non la apre:
-prima si vive la scena che l'ha fatto nascere, poi il protagonista ci ragiona sopra. Una
-notifica fa da intestazione ("Il Diario si è aggiornato"), poi arrivano i pensieri veri come
-narrazioni — al massimo `APPUNTI_LETTI_A_VOCE` (2) per volta, perché la fine del tutorial ne
-apre quattro insieme e scaricarli tutti addosso al giocatore sarebbe una lista travestita da
-monologo. Il resto si legge nel Diario.
+prima si vive la scena che l'ha fatto nascere, poi il protagonista ci ragiona sopra: i pensieri
+arrivano come narrazioni, **tutti**. Prima una notifica faceva da intestazione ("Il Data pad si
+è aggiornato") e se ne leggevano due, col resto rimandato alla pagina degli appunti; senza
+quella pagina, l'intestazione e il rimando sarebbero stati una bugia
+(`prova_gli_appunti_si_pensano_tutti`).
 
 **Ordine delle operazioni.** In `aggiorna_task()` si chiude prima e si apre dopo: un appunto che
 nascerebbe già risolto (raccogli la spilla dopo aver battuto il ricordo) non lampeggia per un
@@ -1344,14 +1363,17 @@ mappa su cui non si può esplorare non è una mappa, è un disegno.
 - **Il data pad si spiega aprendolo** (`GiroDataPad.gd`). Una battuta `{"tipo": "data_pad",
   "passi": [...]}` ferma la scena e apre il giro guidato: un box in basso a destra, sopra il
   data pad vero, e ogni passo può indicare un pezzo (`"indica"`: `menu` il tasto in alto a
-  sinistra, `voce:<segno>` una voce, `sezione:<chiave>` una pagina, `chiudi`) e aspettare un
-  gesto (`"aspetta"`: `apri`, `voce:diario`, `sezione:<chiave>`, `chiudi`). Dove c'è da
+  sinistra, `voce:<segno>` una voce — `voce:messaggi` è l'iconcina in basso a destra —,
+  `sezione:<chiave>` una pagina del Data pad, `chiudi`) e aspettare un gesto (`"aspetta"`:
+  `apri`, `voce:diario`, `voce:messaggi`, `sezione:<chiave>`, `chiudi`). Dove c'è da
   premere, il resto dello schermo è velato e non si tocca; dove si legge, si va avanti col
-  clic. `"mostra"` apre da sé la pagina che spiega, `"apri"` apre da sé il data pad. Chiuderlo
+  clic. `"mostra"` apre da sé la pagina che spiega, da qualunque pannello, `"apri"` apre da
+  sé il data pad. Chiuderlo
   a metà chiude anche il giro, e la scena riprende dalla battuta dopo. Ce ne sono due: la
   prima mattina (`alloggio`, dopo l'altoparlante: il tasto, tutte le voci, il messaggio di
-  Veronica) e la sala comunicazioni (`data_pad_istruzioni`: gli appunti, cioè gli eventi, le
-  notifiche, i 3000 tazo, le altre pagine). Bru: «quando si dovrebbe aprire il data pad durante
+  Veronica, dall'iconcina che squilla) e la sala comunicazioni (`data_pad_istruzioni`: le
+  notifiche, i 3000 tazo, il Database, l'Organizzazione, e dove sono finite statistiche e
+  Sviluppo). Bru: «quando si dovrebbe aprire il data pad durante
   la conversazione in sala non si apre nulla». Si chiama **data pad dalla prima mattina**
   (`GameState.nome_diario()`): prima era un diario che lo diventava con gli ordini
 - **L'icona della Guida** (`IconaGuida.gd`) compare accanto a quella del menu dal flag
@@ -1421,7 +1443,7 @@ personaggio, ma quando lo impara e cosa può diventare.
   sulla schermata dei dialoghi mostrava la statistica e risultava già carica a inizio partita
 - **La barra vive solo nel combattimento e si azzera a ogni scontro**: non è una risorsa che
   ti porti in giro per la mappa. La schermata dei dialoghi non mostra né lei né le
-  statistiche — quelle si consultano nel Diario
+  statistiche — quelle si consultano in *Personaggio e squadra*
 
 ## Da dove escono i numeri delle creature (`data/ruoli.json`)
 Nessuna creatura ha più `hp`, `attacco`, `difesa`, `velocita`, `xp` e `tazo` scritti nel suo

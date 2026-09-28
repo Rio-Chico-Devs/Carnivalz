@@ -1720,6 +1720,7 @@
       ]
     },
     "hq_sala_riunioni_1": {
+      "_nota": "28 settembre: la battuta «Le ricordiamo che il suo data pad è sempre consultabile...» descriveva il data pad di prima (appunti in cima, statistiche e abitudini sotto). Bru l'ha riorganizzato - via gli appunti, i messaggi in un'iconcina, statistiche e Sviluppo in Personaggio e squadra, il Database al posto delle Osservazioni - e la battuta e' riscritta su quello che c'e' adesso. Il testo nuovo e' mio.",
       "_nota_data_pad": "Tre battute dicevano «diario»: dal 25 settembre si chiama data pad dalla prima mattina (vedi GameState.nome_diario), e qui ho cambiato solo quella parola - e, nella narrazione, «premendo ESC» con «dal tasto in alto a sinistra, o con ESC».",
       "sequenza": [
         {
@@ -1744,7 +1745,7 @@
         {
           "tipo": "dialogo",
           "chi": "figura_misteriosa",
-          "testo": "Le ricordiamo che il suo data pad è sempre consultabile: in cima vi troverà gli appunti sui luoghi dove deve recarsi e su ciò che le viene chiesto strada facendo, e sotto le sue statistiche, quali sue abitudini la stanno facendo crescere, le creature che ha studiato, i legami con la squadra e la nostra valutazione sul suo operato."
+          "testo": "Le ricordiamo che il suo data pad è sempre consultabile: vi troverà i nostri messaggi, il database di ciò che ha raccolto e studiato e la nostra valutazione sul suo operato. Quanto vale e come sta crescendo lo trova invece alla voce «Personaggio e squadra»."
         },
         {
           "tipo": "narrazione",

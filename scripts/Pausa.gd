@@ -12,8 +12,9 @@ extends CanvasLayer
 #   menu          -> Riprendi / Storico / Diario / Personaggio / Inventario /
 #                    Opzioni / Esci
 #   storico       -> i messaggi gia' letti (GameState.storico), dal piu' recente
-#   diario        -> chi sei diventato. NON e' piu' un muro solo: ha un indice a
+#   diario        -> il Data pad: il Database e l'Organizzazione, un indice a
 #                    sinistra e una sezione alla volta a destra (vedi sotto)
+#   messaggi      -> dall'iconcina in basso a destra, che squilla (IconaMessaggi)
 #   inventario    -> lo zaino, uno scomparto alla volta, con la sua capienza
 #   equipaggiamento -> la scheda del personaggio (scripts/Personaggio.gd)
 #
@@ -64,17 +65,12 @@ const TITOLO_DOPO := 0.04
 const CARTELLINO_DOPO := 0.08
 const CASCATA_DOPO := 0.10
 
-# Le sezioni del Diario, in ordine. Prima erano impilate tutte in un unico
-# scorrevole: sette titoli uno sotto l'altro, e per arrivare all'ultimo si
-# rotolava per due schermate. Adesso una alla volta, con l'indice a sinistra.
+# Le sezioni del Data pad, una alla volta con l'indice a sinistra. Erano otto:
+# Bru ha tolto gli appunti, portato stato, sviluppo, passive e squadra in
+# «Personaggio e squadra», fatto dei messaggi un'iconcina e delle osservazioni
+# il Database (vedi PaginePausa.riempi)
 const SEZIONI_DIARIO := [
-	["appunti", "Appunti"],
-	["messaggi", "Messaggi"],
-	["stato", "Stato"],
-	["crescita", "Cosa ti sta cambiando"],
-	["passive", "Abilità passive"],
-	["squadra", "Squadra"],
-	["osservazioni", "Osservazioni"],
+	["database", "Database"],
 	["organizzazione", "Organizzazione"],
 ]
 
@@ -99,8 +95,9 @@ var quinte: Quinte              # i fogli dietro le voci, e la parola grande
 var schegge: Schegge            # i ritagli che saltano via da una voce premuta
 var dissolvenza: Tween          # l'entrata o l'uscita del velo: una sola alla volta
 var aperta := false
-var pannello := "menu"  # menu | storico | diario | inventario | equipaggiamento | opzioni | uscita
-var sezione_diario := "appunti"
+var pannello := "menu"  # menu | storico | diario | messaggi | collezione | inventario | equipaggiamento | opzioni | uscita
+var sezione_diario := "database"
+var icona_messaggi: IconaMessaggi   # in basso a destra, nel menu e nel Data pad
 var scomparto_aperto := "consumabili"
 # Aperta da una stanza della Sede (Alloggi, Archivio) invece che con ESC: allora
 # "Indietro" deve CHIUDERE e riportare alla Sede, non aprire il menu di pausa.
@@ -151,6 +148,11 @@ func _ready() -> void:
 	palco = Control.new()
 	palco.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	contenitore.add_child(palco)
+	icona_messaggi = IconaMessaggi.new()
+	icona_messaggi.visible = false
+	icona_messaggi.aperta.connect(mostra_messaggi)
+	velo.add_child(icona_messaggi)
+	icona_messaggi.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_KEEP_SIZE, 50)
 	# le schegge sopra tutto: devono volare anche sopra il pannello che la voce
 	# premuta ha appena aperto
 	schegge = Schegge.new()
@@ -270,8 +272,6 @@ func apri_su(quale: String) -> void:
 	match quale:
 		"diario": mostra_diario()
 		"equipaggiamento": mostra_equipaggiamento()
-		"inventario": mostra_inventario()
-		"storico": mostra_storico()
 		_:
 			modo_diretto = false
 			mostra_menu()
@@ -322,6 +322,12 @@ func svuota() -> void:
 	# pannello che l'ha voluto.
 	Movimento.congeda(chi_giochi, Movimento.durata("uscita"))
 	chi_giochi = null
+	icona_messaggi.visible = false
+	icona_messaggi.zitta()
+
+func mostra_icona_messaggi() -> void:
+	icona_messaggi.visible = true
+	icona_messaggi.aggiorna()
 
 func nuova_colonna(entra := true) -> VBoxContainer:
 	# LA COLONNA STA SUL PALCO, NON DENTRO IL CONTENITORE. Un contenitore di
@@ -435,6 +441,7 @@ func mostra_menu() -> void:
 	stacco()
 	voci.append(voce("uscita", "Torna al menu principale", conferma_uscita))
 	mostra_chi_giochi()
+	mostra_icona_messaggi()
 	cascata(voci, 0)
 
 func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null,
@@ -462,11 +469,11 @@ func voce_d_indice(dove: Control, testo: String, attuale: bool, richiamo: Callab
 func cascata(voci: Array[VoceMenu], principale: int) -> void:
 	Movimento.cascata(voci, principale, CASCATA_DOPO)
 
-func ritorno(col_fuoco := true) -> void:
+func ritorno(col_fuoco := true, dove := Callable()) -> void:
 	# «Indietro», in fondo a ogni pannello: e' una voce come le altre, con la
 	# sua freccia, e ha il fuoco appena il pannello si apre - tranne dove c'e'
 	# un indice, che il fuoco lo tiene sulla pagina aperta
-	var v := voce("indietro", "Indietro", indietro())
+	var v := voce("indietro", "Indietro", dove if dove.is_valid() else indietro())
 	if col_fuoco:
 		v.prendi_il_fuoco_in_silenzio()
 
@@ -529,15 +536,21 @@ func mostra_opzioni() -> void:
 	intestazione("Opzioni")
 	# dentro uno scorrevole: le opzioni sono tante, e senza «Indietro» finiva
 	# sotto il bordo dello schermo
+	PannelloOpzioni.costruisci(pagina_che_scorre(4), 200, Stile.colore("accento"))
+	ritorno()
+
+func pagina_che_scorre(separazione: int) -> VBoxContainer:
+	# uno scorrevole che si prende l'altezza rimasta della colonna, e dentro le
+	# righe: le opzioni, lo storico, i messaggi
 	var scorrevole := ScrollContainer.new()
 	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scorrevole.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	colonna.add_child(scorrevole)
 	var dentro := VBoxContainer.new()
+	dentro.add_theme_constant_override("separation", separazione)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.add_child(dentro)
-	PannelloOpzioni.costruisci(dentro, 200, Stile.colore("accento"))
-	ritorno()
+	return dentro
 
 func conferma_uscita() -> void:
 	# uscire da qui butta via i progressi della zona in corso: si salva solo
@@ -564,13 +577,8 @@ func mostra_storico() -> void:
 	nuova_colonna()
 	pannello = "storico"
 	intestazione("Storico dei dialoghi")
-	var scorrevole := ScrollContainer.new()
-	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	colonna.add_child(scorrevole)
-	var righe := VBoxContainer.new()
-	righe.add_theme_constant_override("separation", 12)
-	righe.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scorrevole.add_child(righe)
+	var righe := pagina_che_scorre(12)
+	var scorrevole := righe.get_parent() as ScrollContainer
 	if GameState.storico.is_empty():
 		var vuoto := Label.new()
 		vuoto.text = "Non hai ancora letto niente."
@@ -584,88 +592,57 @@ func mostra_storico() -> void:
 	if is_instance_valid(scorrevole):
 		scorrevole.scroll_vertical = int(scorrevole.get_v_scroll_bar().max_value)
 
-# --- pannello: diario ---
+# --- pannelli con l'indice: il Data pad e lo Zaino ---
 
 func mostra_diario() -> void:
-	# Indice a sinistra, UNA sezione alla volta a destra.
-	#
-	# Prima erano tutte impilate nello stesso scorrevole: sette titoli uno sotto
-	# l'altro, e per arrivare alla valutazione dell'Organizzazione bisognava
-	# rotolare per due schermate passando in mezzo a tutto il resto. Un diario
-	# non e' un tabulato: e' un posto dove si va a cercare una cosa precisa.
-	nuova_colonna()
-	pannello = "diario"
-	intestazione(GameState.nome_diario())
-	var corpo := HBoxContainer.new()
-	corpo.add_theme_constant_override("separation", 24)
-	corpo.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	colonna.add_child(corpo)
-
-	var indice := VBoxContainer.new()
-	indice.add_theme_constant_override("separation", 0)
-	indice.custom_minimum_size = Vector2(280, 0)
-	corpo.add_child(indice)
-	var voci: Array[VoceMenu] = []
-	var qui := 0
-	for sezione in SEZIONI_DIARIO:
-		var chiave := String(sezione[0])
-		var testo := String(sezione[1])
-		# QUANTI NON NE HAI ANCORA LETTI, sull'indice. Una sezione che non dice
-		# se dentro c'e' qualcosa di nuovo e' una sezione che non si apre: i 3000
-		# tazo di benvenuto resterebbero una riga che nessuno va a cercare.
-		if chiave == "messaggi" and GameState.messaggi_non_letti() > 0:
-			testo = "%s  (%d)" % [testo, GameState.messaggi_non_letti()]
-		# dove sei si vede: senza il segno l'indice e' sette voci uguali
-		if chiave == sezione_diario:
-			qui = voci.size()
-		voci.append(voce_d_indice(indice, testo, chiave == sezione_diario, func() -> void:
-			sezione_diario = chiave
-			mostra_diario(), "sezione:" + chiave))
-
-	var scorrevole := ScrollContainer.new()
-	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	corpo.add_child(scorrevole)
-	var dentro := VBoxContainer.new()
-	dentro.add_theme_constant_override("separation", 10)
-	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scorrevole.add_child(dentro)
-	PaginePausa.riempi(dentro, sezione_diario)
-	ritorno(false)
-	cascata(voci, qui)
-
-# --- pannello: inventario ---
+	pannello_con_indice("diario", GameState.nome_diario(), SEZIONI_DIARIO, sezione_diario,
+			func(chiave: String) -> void:
+				sezione_diario = chiave
+				mostra_diario(),
+			func(dentro: VBoxContainer) -> void: PaginePausa.riempi(dentro, sezione_diario))
+	mostra_icona_messaggi()
 
 func mostra_inventario() -> void:
-	# Lo zaino, uno scomparto alla volta. Mancava del tutto dal menu di pausa:
-	# per sapere cosa si aveva addosso bisognava aprire la scheda di un
-	# personaggio e guardare cosa si poteva equipaggiare - che e' un'altra
-	# domanda. Qui si guarda e basta.
+	# Lo zaino, uno scomparto alla volta: qui si guarda e basta. Per sapere cosa
+	# si aveva addosso bisognava aprire la scheda di un personaggio e guardare
+	# cosa si poteva equipaggiare - che e' un'altra domanda
+	var scomparti: Array = []
+	for scomparto in SCOMPARTI:
+		var chiave := String(scomparto[0])
+		scomparti.append([chiave, "%s  (%s)" % [String(scomparto[1]), PaginePausa.capienza_testo(chiave,
+				PaginePausa.contenuto_scomparto(chiave).size())]])
+	pannello_con_indice("inventario", "Zaino", scomparti, scomparto_aperto,
+			func(chiave: String) -> void:
+				scomparto_aperto = chiave
+				mostra_inventario(),
+			func(dentro: VBoxContainer) -> void: PaginePausa.disegna_scomparto(dentro, scomparto_aperto))
+
+func pannello_con_indice(nome: String, titolo: String, pagine: Array, attuale: String,
+		scegli: Callable, riempi: Callable) -> void:
+	# INDICE A SINISTRA, UNA PAGINA ALLA VOLTA A DESTRA. Prima il Diario era un
+	# solo scorrevole con sette titoli impilati, e per arrivare all'ultimo si
+	# rotolava per due schermate: un diario non e' un tabulato, e' un posto
+	# dove si va a cercare una cosa precisa. pagine: [[chiave, testo], ...]
 	nuova_colonna()
-	pannello = "inventario"
-	intestazione("Zaino")
+	pannello = nome
+	intestazione(titolo)
 	var corpo := HBoxContainer.new()
 	corpo.add_theme_constant_override("separation", 24)
 	corpo.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	colonna.add_child(corpo)
-
 	var indice := VBoxContainer.new()
 	indice.add_theme_constant_override("separation", 0)
 	indice.custom_minimum_size = Vector2(280, 0)
 	corpo.add_child(indice)
 	var voci: Array[VoceMenu] = []
 	var qui := 0
-	for scomparto in SCOMPARTI:
-		var chiave := String(scomparto[0])
-		var quanti := PaginePausa.contenuto_scomparto(chiave).size()
-		if chiave == scomparto_aperto:
+	for pagina: Array in pagine:
+		var chiave := String(pagina[0])
+		# dove sei si vede: senza il segno l'indice e' un elenco di voci uguali
+		if chiave == attuale:
 			qui = voci.size()
-		voci.append(voce_d_indice(indice, "%s  (%s)" % [String(scomparto[1]),
-				PaginePausa.capienza_testo(chiave, quanti)], chiave == scomparto_aperto,
-				func() -> void:
-					scomparto_aperto = chiave
-					mostra_inventario()))
-
+		voci.append(voce_d_indice(indice, String(pagina[1]), chiave == attuale, scegli.bind(chiave),
+				"sezione:" + chiave))
 	var scorrevole := ScrollContainer.new()
 	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -674,9 +651,32 @@ func mostra_inventario() -> void:
 	dentro.add_theme_constant_override("separation", 12)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.add_child(dentro)
-	PaginePausa.disegna_scomparto(dentro, scomparto_aperto)
+	riempi.call(dentro)
 	ritorno(false)
 	cascata(voci, qui)
+
+# --- pannello: messaggi, e le collezioni del Database ---
+
+func mostra_messaggi() -> void:
+	# dall'iconcina in basso a destra: «Indietro» riporta dove l'hai premuta
+	var da_dove := mostra_diario if pannello == "diario" else mostra_menu
+	nuova_colonna()
+	pannello = "messaggi"
+	intestazione("Messaggi")
+	PaginePausa.sezione_messaggi(pagina_che_scorre(4))
+	ritorno(true, da_dove)
+
+func apri_collezione(scena: String) -> void:
+	# LE COLLEZIONI DEL MENU PRINCIPALE, dal Database: la stessa schermata, ma
+	# sopra la scena viva invece che al suo posto. Indietro (o ESC, che la
+	# collezione prende per prima) torna al Database
+	nuova_colonna(false)
+	pannello = "collezione"
+	foglio = (load(scena) as PackedScene).instantiate()
+	(foglio as Collezione).torna = func() -> void:
+		sezione_diario = "database"
+		mostra_diario()
+	velo.add_child(foglio)
 
 # --- pannello: equipaggiamento ---
 #

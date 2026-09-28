@@ -1,35 +1,63 @@
 class_name PaginePausa
 extends RefCounted
 
-# LE PAGINE DEL DATA PAD: cosa c'e' scritto dentro il Diario, lo Storico e lo
-# Zaino. Stavano in Pausa.gd, che le mostrava; adesso Pausa decide QUANDO si
-# apre un pannello e come ci si muove dentro, e qui sta COSA c'e' scritto. Sono
-# due domande diverse, e la seconda cresce con la storia (una missione nuova,
-# un contatore nuovo, un oggetto nuovo) senza che il menu debba saperlo.
+# LE PAGINE DEL DATA PAD: cosa c'e' scritto dentro il Data pad, i Messaggi, lo
+# Storico e lo Zaino. Stavano in Pausa.gd, che le mostrava; adesso Pausa decide
+# QUANDO si apre un pannello e come ci si muove dentro, e qui sta COSA c'e'
+# scritto. Sono due domande diverse, e la seconda cresce con la storia (un
+# messaggio nuovo, una collezione nuova, un oggetto nuovo) senza che il menu
+# debba saperlo.
 #
 # Il file di pausa era oltre le ottocentosettanta righe e nell'elenco dei file
 # troppo grandi c'era scritto «E' il taglio piu' facile di tutto il progetto».
 # Lo era: nessuna di queste funzioni toccava lo stato del menu.
 
 static func riempi(genitore: VBoxContainer, sezione: String) -> void:
+	# Bru, 28 settembre: «organizziamo meglio il data pad». Chi sei e come stai
+	# crescendo sta in «Personaggio e squadra» (Stato, Sviluppo, passive,
+	# squadra: «averlo anche su datapad e' disorganizzazione»); gli appunti se ne
+	# sono andati («come voce non serve»); i messaggi sono l'iconcina in basso a
+	# destra (IconaMessaggi). Qui restano il Database e l'Organizzazione
 	match sezione:
-		"appunti": sezione_appunti(genitore)
-		"messaggi": sezione_messaggi(genitore)
-		"stato": sezione_stato(genitore)
-		"crescita": sezione_crescita(genitore)
-		"passive": sezione_passive(genitore)
-		"squadra": sezione_squadra(genitore)
-		"osservazioni": sezione_osservazioni(genitore)
+		"database": sezione_database(genitore)
 		"organizzazione": sezione_organizzazione(genitore)
+
+static func sezione_database(genitore: VBoxContainer) -> void:
+	# «la voce osservazioni e' inutile, dobbiamo sostituirlo con database,
+	# cliccando su database puoi accedere a quello che vedi in collezioni dalla
+	# schermata principale, ma in questo caso in game dal datapad» (Bru). Sono
+	# le stesse tre schermate del menu principale (MenuPrincipale.COLLEZIONI):
+	# si aprono sopra la scena viva, e «Indietro» torna qui
+	titolo_sezione(genitore, "Database")
+	for c: Array in MenuPrincipale.COLLEZIONI:
+		var nome := String(c[0]).to_lower()
+		var voce := Pausa.voce("", "%s  %s" % [nome.left(1).to_upper() + nome.substr(1), conto_di(String(c[3]))],
+				Pausa.apri_collezione.bind(String(c[3])), genitore, Stile.dimensione("corpo"))
+		voce.set_meta("chiave", "collezione:" + String(c[3]).get_file().get_basename().to_lower())
+		# la spiegazione parte dove parte il nome della voce, non dal bordo
+		var rientro := MarginContainer.new()
+		rientro.add_theme_constant_override("margin_left", VoceMenu.SPAZIO_SEGNO)
+		genitore.add_child(rientro)
+		var spiega := Label.new()
+		spiega.text = String(c[2])
+		spiega.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		Stile.etichetta_piccola(spiega)
+		rientro.add_child(spiega)
+
+static func conto_di(scena: String) -> String:
+	# quanti ne hai, come li conta la collezione stessa nel suo titolo: «(3 / 20)»
+	var collezione := (load(scena) as PackedScene).instantiate() as Collezione
+	var titolo := collezione.titolo_schermata()
+	collezione.free()
+	return titolo.substr(titolo.find("(")) if titolo.contains("(") else ""
 
 static func sezione_messaggi(genitore: VBoxContainer) -> void:
 	# «c'e' anche una sezione messaggi dove l'organizzazione ti ha versato 3000
-	# tazo come quota di benvenuto» (Bru).
+	# tazo come quota di benvenuto» (Bru). Si aprono dall'iconcina in basso a
+	# destra, in un pannello loro.
 	#
-	# Non sono gli appunti: quelli sono pensieri del protagonista, questi sono
-	# voci di altri - e si vede. Mittente e oggetto in testa, il corpo sotto, e
-	# aprendo la sezione si considerano letti tutti.
-	titolo_sezione(genitore, "Messaggi")
+	# Sono voci di altri, e si vede: mittente e oggetto in testa, il corpo
+	# sotto, e aprendo il pannello si considerano letti tutti.
 	if GameState.messaggi_ricevuti.is_empty():
 		var vuoto := Label.new()
 		vuoto.text = "Nessun messaggio."
@@ -65,71 +93,6 @@ static func sezione_messaggi(genitore: VBoxContainer) -> void:
 		# riga l'avviso sarebbe arrivato dopo, in palestra
 		GameState.messaggi_da_notificare.erase(String(id_messaggio))
 
-static func sezione_appunti(genitore: VBoxContainer) -> void:
-	# la prima cosa che si legge aprendo il Diario: dove devo andare adesso.
-	# Non sono obiettivi con la spunta, sono pensieri del protagonista, quindi
-	# stanno in corsivo e per esteso — la spunta e' solo un promemoria di
-	# quello che ha gia' risolto
-	titolo_sezione(genitore, "Appunti")
-	if GameState.task_attivi.is_empty() and GameState.task_chiusi.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "Niente da segnare, per ora."
-		Stile.etichetta_piccola(vuoto)
-		genitore.add_child(vuoto)
-		return
-	for id_task in GameState.task_attivi:
-		genitore.add_child(riga_appunto(GameState.dati_task(id_task)))
-	if GameState.task_chiusi.is_empty():
-		return
-	var separatore := Label.new()
-	separatore.text = "Già risolti"
-	Stile.etichetta_piccola(separatore)
-	genitore.add_child(separatore)
-	for id_task in GameState.task_chiusi:
-		var voce := GameState.dati_task(id_task)
-		var fatto := Label.new()
-		fatto.text = "✓  " + String(voce.get("titolo", id_task))
-		Stile.etichetta_piccola(fatto)
-		fatto.modulate = Color(1, 1, 1, 0.55)
-		genitore.add_child(fatto)
-
-static func riga_appunto(voce: Dictionary) -> Control:
-	var blocco := VBoxContainer.new()
-	blocco.add_theme_constant_override("separation", 4)
-	var intestazione_riga := Label.new()
-	intestazione_riga.text = "◆  " + String(voce.get("titolo", ""))
-	intestazione_riga.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	intestazione_riga.add_theme_color_override("font_color", Stile.colore("bordo_acceso"))
-	blocco.add_child(intestazione_riga)
-	var chi := String(voce.get("da", ""))
-	if chi != "":
-		# chi ha chiesto la cosa puo' essere un png (personaggi.json) o un
-		# compagno giocabile (classes.json): si guarda in tutt'e due
-		var scheda: Dictionary = GameState.personaggi.get(chi, {})
-		var nome := String(scheda.get("nome", ""))
-		if nome == "":
-			var classe: Dictionary = GameState.classi.get(chi, {})
-			nome = String(classe.get("nome", chi))
-		var firma := Label.new()
-		firma.text = "chiesto da " + nome
-		Stile.etichetta_piccola(firma)
-		blocco.add_child(firma)
-	var corpo := RichTextLabel.new()
-	corpo.bbcode_enabled = true
-	corpo.fit_content = true
-	corpo.scroll_active = false
-	corpo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	# gli appunti li pensa il protagonista: si accordano come le sue battute
-	corpo.text = "[i]%s[/i]" % Testi.accorda(String(voce.get("testo", "")), GameState.sesso_protagonista)
-	# NON IL COLORE DELLA NARRAZIONE: quello e' quasi nero da quando il box dei
-	# dialoghi e' una pagina bianca, e qui il fondo e' nero - gli appunti erano
-	# righe invisibili. Visto facendo il giro guidato del data pad
-	corpo.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
-	corpo.add_theme_font_size_override("normal_font_size", Stile.dimensione("piccolo"))
-	corpo.add_theme_font_size_override("italics_font_size", Stile.dimensione("piccolo"))
-	blocco.add_child(corpo)
-	return blocco
-
 static func titolo_sezione(genitore: VBoxContainer, testo: String) -> void:
 	var t := Label.new()
 	t.text = testo
@@ -150,94 +113,6 @@ static func voce_diario(genitore: VBoxContainer, etichetta: String, valore: Stri
 	destra.text = valore
 	destra.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
 	riga.add_child(destra)
-
-static func sezione_stato(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Stato")
-	var livello := GameState.livello_di(GameState.id_protagonista)
-	var xp_ora := int(GameState.xp.get(GameState.id_protagonista, 0))
-	voce_diario(genitore, "Livello", "%d  (%d / %d esperienza)" % [livello, xp_ora, GameState.fabbisogno_xp(livello)])
-	var tabella_stat: Dictionary = GameState.crescita.get("stat", {})
-	for chiave in tabella_stat:
-		var nome_stat := String(chiave)
-		var info: Dictionary = tabella_stat[chiave]
-		var guadagnati := int(GameState.punti_stat.get(nome_stat, 0))
-		var testo := str(GameState.stat_di(nome_stat))
-		if guadagnati > 0:
-			testo += "   (base %d + %d guadagnati)" % [GameState.stat_base_di(nome_stat), guadagnati]
-		voce_diario(genitore, String(info.get("nome", nome_stat)), testo)
-
-static func sezione_crescita(genitore: VBoxContainer) -> void:
-	# la parte piu' utile del diario: non "quanto vali", ma COSA ti sta facendo
-	# crescere. Ogni riga dice quanto manca al prossimo punto di quella stat.
-	titolo_sezione(genitore, "Cosa ti sta cambiando")
-	var regole_crescita: Dictionary = GameState.crescita.get("crescita", {})
-	if regole_crescita.is_empty():
-		return
-	var tabella_stat: Dictionary = GameState.crescita.get("stat", {})
-	for chiave in regole_crescita:
-		var nome_azione := String(chiave)
-		var regola: Dictionary = regole_crescita[chiave]
-		var ogni := maxi(int(regola.get("ogni", 1)), 1)
-		var fatte := int(GameState.contatori.get(nome_azione, 0))
-		var nome_stat := String(regola.get("stat", ""))
-		var info_stat: Dictionary = tabella_stat.get(nome_stat, {})
-		var nome_leggibile := String(info_stat.get("nome", nome_stat))
-		voce_diario(genitore, etichetta_azione(nome_azione),
-				"%d / %d verso +%d %s" % [fatte % ogni, ogni, int(regola.get("punti", 1)), nome_leggibile])
-
-static func etichetta_azione(nome_azione: String) -> String:
-	match nome_azione:
-		"attacchi_sferrati": return "Colpi che hai sferrato"
-		"danni_subiti": return "Danni che hai incassato"
-		"difese": return "Volte che hai tenuto la guardia"
-		"studi": return "Creature che hai studiato"
-		"fughe": return "Volte che sei scappato"
-		"oggetti_usati": return "Oggetti che hai usato"
-		"stanze_esplorate": return "Stanze che hai esplorato"
-		"stress_accumulato": return "Stress che hai retto"
-		"critici_inflitti": return "Colpi critici che hai messo a segno"
-		_: return nome_azione
-
-static func sezione_passive(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Abilità passive")
-	if GameState.passive_sbloccate.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "Nessuna, per ora."
-		Stile.etichetta_piccola(vuoto)
-		genitore.add_child(vuoto)
-		return
-	for gruppo in ["passive_livello", "passive_soglia", "passive_rare"]:
-		var elenco: Array = GameState.crescita.get(gruppo, [])
-		for elemento in elenco:
-			var voce: Dictionary = elemento
-			if not GameState.ha_passiva(String(voce.get("id", ""))):
-				continue
-			voce_diario(genitore, String(voce.get("nome", "")), String(voce.get("descrizione", "")))
-
-static func sezione_squadra(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Squadra")
-	voce_diario(genitore, "Legame", "%d / 100" % GameState.legame)
-	for id_classe in GameState.party:
-		if id_classe == GameState.id_protagonista:
-			continue
-		var definizione: Dictionary = GameState.classi.get(id_classe, {})
-		var nome := String(definizione.get("nome", id_classe))
-		var temporaneo := " (temporaneo)" if id_classe in GameState.alleati_temporanei else ""
-		voce_diario(genitore, nome + temporaneo, "Lv %d   ·   stress %d" % [
-			GameState.livello_di(id_classe), GameState.stress_di(id_classe)])
-
-static func sezione_osservazioni(genitore: VBoxContainer) -> void:
-	titolo_sezione(genitore, "Osservazioni")
-	voce_diario(genitore, "Creature studiate", "%d" % GameState.studiati.size())
-	voce_diario(genitore, "Creature incontrate", "%d" % GameState.bestiario.size())
-	voce_diario(genitore, "Oggetti catalogati", "%d / %d" % [
-		GameState.oggetti_catalogo.size(), GameState.oggetti.size()])
-	if GameState.resistenze_stato.is_empty():
-		return
-	for chiave in GameState.resistenze_stato:
-		var definizione: Dictionary = GameState.stati.get(chiave, {})
-		var nome := String(definizione.get("nome", chiave))
-		voce_diario(genitore, "Resistenza — " + nome, "+%d" % int(GameState.resistenze_stato[chiave]))
 
 static func sezione_organizzazione(genitore: VBoxContainer) -> void:
 	titolo_sezione(genitore, "Organizzazione")
@@ -286,7 +161,8 @@ static func riga_storico(voce: Dictionary) -> Control:
 			corpo.add_theme_color_override("default_color", Stile.colore("accento"))
 		_:
 			corpo.text = "[i]%s[/i]" % testo
-			# sul nero del data pad, come gli appunti (vedi riga_appunto)
+			# sul nero del data pad: il colore della narrazione e' quasi nero da
+			# quando il box dei dialoghi e' una pagina bianca, e qui spariva
 			corpo.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
 	blocco.add_child(corpo)
 	return blocco

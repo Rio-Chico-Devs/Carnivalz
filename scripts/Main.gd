@@ -52,7 +52,6 @@ const EVENTI_DEBUG := "res://data/events.json"
 # lo ha quasi in verticale, oltre il bordo sinistro.
 const ANGOLO_NASTRO_IN_ARRIVO := -58.0
 const CARTELLA_NASTRI := "res://art/nastri/"
-const APPUNTI_LETTI_A_VOCE := 2  # quanti appunti nuovi il protagonista pensa a voce prima di rimandare al Diario
 
 @onready var sfondo: ColorRect = %Sfondo
 @onready var slot_sinistra = %SlotSinistra
@@ -1050,30 +1049,14 @@ func segna_destinazione(bottone: Button, scelta: Dictionary) -> void:
 
 func notifiche_task() -> Array[Dictionary]:
 	# un appunto nuovo non e' una riga di sistema: e' il protagonista che si
-	# ferma un attimo e mette a fuoco dove deve andare. Quindi una notifica
-	# sola a fare da intestazione, e poi il pensiero vero come narrazione.
+	# ferma un attimo e mette a fuoco dove deve andare. Il Data pad non li tiene
+	# piu' (Bru: «appunti come voce non serve»), quindi niente «il Data pad si e'
+	# aggiornato» e niente «il resto me lo sono segnato»: si pensano tutti, qui
 	var righe: Array[Dictionary] = []
-	if GameState.task_da_notificare.is_empty():
-		return righe
-	var quanti := GameState.task_da_notificare.size()
-	var intestazione := "%s si è aggiornato." % GameState.nome_diario()
-	if quanti > 1:
-		intestazione = "%s si è aggiornato: %d nuovi appunti." % [GameState.nome_diario(), quanti]
-	righe.append({"tipo": "notifica", "testo": intestazione})
-	# quando ne arrivano tanti insieme (la fine del tutorial ne apre quattro)
-	# non si scaricano tutti addosso al giocatore: due si leggono qui, il
-	# resto lo trova nel Diario quando decide da dove cominciare
-	var letti := 0
 	for id_task in GameState.task_da_notificare:
-		if letti >= APPUNTI_LETTI_A_VOCE:
-			righe.append({"tipo": "narrazione",
-					"testo": "Il resto me lo sono segnato. Ci ripenso quando decido da dove cominciare."})
-			break
-		var voce := GameState.dati_task(id_task)
-		var testo := String(voce.get("testo", ""))
+		var testo := String(GameState.dati_task(id_task).get("testo", ""))
 		if testo != "":
 			righe.append({"tipo": "narrazione", "testo": testo})
-			letti += 1
 	GameState.task_da_notificare.clear()
 	return righe
 
@@ -1088,7 +1071,7 @@ func notifiche_messaggi() -> Array[Dictionary]:
 	# lo ha mai chiamato.
 	#
 	# Qui non si legge il messaggio: si dice che c'e'. Leggerlo e' un gesto che
-	# spetta al giocatore, e la sezione Messaggi porta il conto dei non letti.
+	# spetta al giocatore, e l'iconcina dei messaggi porta il conto dei non letti.
 	var righe: Array[Dictionary] = []
 	if GameState.messaggi_da_notificare.is_empty():
 		return righe

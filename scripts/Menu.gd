@@ -40,6 +40,12 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 const SCENA_ALBUM := "res://scenes/Album.tscn"
 const SCENA_BESTIARIO := "res://scenes/Bestiario.tscn"
 const SCENA_COMPENDIO := "res://scenes/Compendio.tscn"
+# le collezioni, una volta sola: le apre questo menu e le apre il Database del data pad
+const COLLEZIONI := [
+	["ALBUM DELLE CARTE", "Le carte", "Quelle che hai raccolto, e i posti vuoti di quelle che mancano.", SCENA_ALBUM],
+	["BESTIARIO", "Le creature", "Tutto quello che sai di chi hai incontrato, e di chi hai studiato.", SCENA_BESTIARIO],
+	["OGGETTI", "Gli oggetti", "Ogni oggetto che ti è passato fra le mani, e cosa fa davvero.", SCENA_COMPENDIO],
+]
 const DISEGNO_DEL_NOME := "res://art/interfaccia/carnivalz.png"   # quando Bru lo disegna
 
 # il layout, in frazioni dello schermo (vedi sopra)
@@ -567,14 +573,9 @@ func cancella(slot: int) -> void:
 
 
 func pagina_collezioni(fuoco := "") -> void:
-	var elenco: Array[Dictionary] = [
-		voce("ALBUM DELLE CARTE", "Le carte", "Quelle che hai raccolto, e i posti vuoti di quelle che mancano.",
-				vai_a_collezione.bind(SCENA_ALBUM, "ALBUM DELLE CARTE")),
-		voce("BESTIARIO", "Le creature", "Tutto quello che sai di chi hai incontrato, e di chi hai studiato.",
-				vai_a_collezione.bind(SCENA_BESTIARIO, "BESTIARIO")),
-		voce("OGGETTI", "Gli oggetti", "Ogni oggetto che ti è passato fra le mani, e cosa fa davvero.",
-				vai_a_collezione.bind(SCENA_COMPENDIO, "OGGETTI")),
-	]
+	var elenco: Array[Dictionary] = []
+	for c: Array in COLLEZIONI:
+		elenco.append(voce(c[0], c[1], c[2], vai_a_collezione.bind(c[3], c[0])))
 	mostra_pagina("collezioni", "COLLEZIONI", elenco, indice_di(elenco, fuoco),
 			pagina_principale.bind("COLLEZIONI"))
 

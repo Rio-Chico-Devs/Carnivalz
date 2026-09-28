@@ -174,14 +174,28 @@ func prepara(quale: String) -> void:
 				for slot in [2, 4]:
 					GameState.elimina_slot(slot)
 		"pausa":
-			# un pannello della pausa: "pausa diario", "pausa zaino", "pausa
-			# opzioni", "pausa storico", "pausa uscita"
+			# un pannello della pausa: "pausa menu", "pausa diario", "pausa
+			# organizzazione", "pausa messaggi", "pausa bestiario", "pausa
+			# sviluppo", "pausa zaino", "pausa opzioni", "pausa storico", "pausa
+			# uscita". Con "nuovi" dopo, arriva prima un messaggio da leggere
 			await apri_dialogo()
 			await attendi(10)
+			var argomenti := OS.get_cmdline_user_args()
+			if argomenti.size() > 2 and String(argomenti[2]) == "nuovi":
+				GameState.imposta_flag("ordini_ricevuti")
 			Pausa.apri()
 			await attendi(5)
-			var argomenti := OS.get_cmdline_user_args()
 			match String(argomenti[1]) if argomenti.size() > 1 else "diario":
+				"menu": pass
+				"messaggi": Pausa.mostra_messaggi()
+				"organizzazione":
+					Pausa.sezione_diario = "organizzazione"
+					Pausa.mostra_diario()
+				"bestiario": Pausa.apri_collezione(MenuPrincipale.SCENA_BESTIARIO)
+				"sviluppo":
+					Pausa.mostra_equipaggiamento()
+					await attendi(5)
+					(Pausa.foglio as SchedaPersonaggio).scegli_linguetta("sviluppo")
 				"zaino": Pausa.mostra_inventario()
 				"opzioni": Pausa.mostra_opzioni()
 				"storico": Pausa.mostra_storico()
@@ -248,6 +262,8 @@ func prepara(quale: String) -> void:
 					Pausa.apri()
 				elif aspetta == "voce:diario":
 					Pausa.mostra_diario()
+				elif aspetta == "voce:messaggi":
+					Pausa.mostra_messaggi()
 				elif aspetta.begins_with("sezione:"):
 					Pausa.sezione_diario = aspetta.trim_prefix("sezione:")
 					Pausa.mostra_diario()

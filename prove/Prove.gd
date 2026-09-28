@@ -168,6 +168,10 @@ func _ready() -> void:
 	prova_prima_della_pressione_la_guida_lancia_la_scan()
 	prova_ogni_giro_del_data_pad_nomina_pezzi_veri()
 	await prova_il_data_pad_si_impara_aprendolo()
+	await prova_il_data_pad_come_lo_ha_riordinato_bru()
+	await prova_lo_sviluppo_sta_nella_scheda()
+	prova_nei_testi_non_ci_sono_tag_html()
+	prova_gli_appunti_si_pensano_tutti()
 	prova_il_promontorio_come_lo_ha_scritto_bru()
 	prova_l_apparizione_si_batte_solo_con_la_pietra()
 	await prova_il_promontorio_non_ti_lascia_andare_e_poi_ti_ferma()
@@ -10655,12 +10659,9 @@ func prova_data_pad_e_proiezione() -> void:
 	esigi(GameState.tazo == 0,
 			"dopo la skin sul conto restano %d tazo: la battuta dice zero" % GameState.tazo)
 
-	# la sezione c'e' davvero nel data pad, e la missione pure
-	var sezioni: Array[String] = []
-	for voce in Pausa.SEZIONI_DIARIO:
-		sezioni.append(String(voce[0]))
-	esigi("messaggi" in sezioni,
-			"il data pad non ha la sezione Messaggi: i 3000 tazo non si possono leggere da nessuna parte")
+	# i messaggi si aprono davvero dal data pad (l'iconcina), e la missione c'e'
+	esigi(Pausa.icona_messaggi is IconaMessaggi and Pausa.has_method("mostra_messaggi"),
+			"il data pad non ha i messaggi: i 3000 tazo non si possono leggere da nessuna parte")
 	esigi(not GameState.dati_task("prima_proiezione").is_empty(),
 			"manca la missione che ti porta in sala di proiezione")
 
@@ -14723,12 +14724,205 @@ func corridoio_aperto(a: String, b: String) -> bool:
 			return true
 	return false
 
+func voce_della_pausa(chiave: String) -> VoceMenu:
+	if Pausa.colonna == null:
+		return null
+	for voce in Pausa.colonna.find_children("*", "VoceMenu", true, false):
+		if String(voce.get_meta("chiave", "")) == chiave and (voce as Control).is_visible_in_tree():
+			return voce as VoceMenu
+	return null
+
+func prova_il_data_pad_come_lo_ha_riordinato_bru() -> void:
+	# Bru, 28 settembre: «organizziamo meglio il data pad, appunti come voce non
+	# serve, messaggi creeremo un'iconcina in basso a destra [...] quando avrai
+	# messaggi nuovi dovrebbe muoversi [...] ogni quarto di secondo tilta tipo
+	# biru biru biru, pausa di 2 secondi, le stats non devono stare dentro il
+	# data pad [...] la voce osservazioni e' inutile, dobbiamo sostituirlo con
+	# database, cliccando su database puoi accedere a quello che vedi in
+	# collezioni dalla schermata principale, ma in questo caso in game»
+	titolo("il data pad come l'ha riordinato Bru: Database, Organizzazione, e i messaggi che squillano")
+	var chiavi: Array[String] = []
+	for sezione in Pausa.SEZIONI_DIARIO:
+		chiavi.append(String(sezione[0]))
+	esigi(chiavi == ["database", "organizzazione"], "nel Data pad ci sono ancora le sezioni %s" % [chiavi])
+	# LO SQUILLO, come l'ha detto: tre colpi di un quarto di secondo, a destra e
+	# a sinistra, poi due secondi fermo
+	var passi := IconaMessaggi.passi_dello_squillo()
+	var per_colpo := IconaMessaggi.COLPO.size()
+	var un_colpo := 0.0
+	for i in per_colpo:
+		un_colpo += float(passi[i][1])
+	esigi(passi.size() - 1 == 3 * per_colpo and is_equal_approx(un_colpo, 0.25),
+			"lo squillo non fa tre colpi da un quarto di secondo: %s" % [passi])
+	esigi(float(passi.back()[0]) == 0.0 and is_equal_approx(float(passi.back()[1]), 2.0),
+			"dopo i colpi l'iconcina non sta ferma due secondi: %s" % [passi.back()])
+	esigi(signf(float(passi[0][0])) != signf(float(passi[per_colpo][0])), "i colpi dello squillo non cambiano lato")
+	# un messaggio da leggere: l'iconcina e' in basso a destra, col numero, e squilla
+	GameState.nuova_partita()
+	GameState.imposta_flag("ordini_ricevuti")
+	var ridotto := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	Pausa.apri()
+	await get_tree().process_frame
+	var icona := Pausa.icona_messaggi
+	var dove := icona.get_global_rect().get_center()
+	var schermo := get_viewport().get_visible_rect().size
+	esigi(icona.is_visible_in_tree() and dove.x > schermo.x * 0.8 and dove.y > schermo.y * 0.75,
+			"nel menu della pausa l'iconcina dei messaggi non c'e', o non sta in basso a destra (%s)" % dove)
+	esigi(icona.numero.visible and icona.numero.text == "1", "l'iconcina non dice che c'e' un messaggio da leggere")
+	esigi(icona.sta_squillando(), "con un messaggio da leggere l'iconcina non squilla")
+	var angoli := {}
+	for i in 20:
+		await get_tree().process_frame
+		angoli[snappedf(icona.rotation, 0.01)] = true
+	esigi(angoli.size() > 2, "l'iconcina che squilla sta ferma: %s" % [angoli.keys()])
+	# con «meno movimento» resta il numero, ma non si muove
+	Impostazioni.movimento_ridotto = true
+	icona.aggiorna()
+	esigi(not icona.sta_squillando() and icona.rotation == 0.0 and icona.numero.visible,
+			"con meno movimento l'iconcina squilla lo stesso, o perde il numero")
+	Impostazioni.movimento_ridotto = false
+	icona.aggiorna()
+	# premuta: i messaggi, letti; Indietro torna al menu, e l'iconcina sta zitta
+	icona.pressed.emit()
+	await get_tree().process_frame
+	esigi(Pausa.pannello == "messaggi" and GameState.messaggi_non_letti() == 0,
+			"premuta l'iconcina, i messaggi non si aprono o non risultano letti")
+	esigi(not icona.visible, "sopra i messaggi resta l'iconcina")
+	var indietro := voce_della_pausa("indietro")
+	if indietro != null:
+		indietro.scelta.emit()
+	await get_tree().process_frame
+	esigi(Pausa.pannello == "menu" and icona.visible and not icona.sta_squillando() and not icona.numero.visible,
+			"letti i messaggi, tornando al menu l'iconcina squilla ancora o non c'e'")
+	# il Data pad si apre sul Database, e l'iconcina c'e' anche li': i messaggi
+	# aperti da li' tornano li'
+	Pausa.mostra_diario()
+	await get_tree().process_frame
+	esigi(Pausa.sezione_diario == "database" and icona.is_visible_in_tree(),
+			"il Data pad non si apre sul Database, o non ha l'iconcina dei messaggi")
+	icona.pressed.emit()
+	await get_tree().process_frame
+	indietro = voce_della_pausa("indietro")
+	if indietro != null:
+		indietro.scelta.emit()
+	await get_tree().process_frame
+	esigi(Pausa.pannello == "diario", "i messaggi aperti dal Data pad non tornano al Data pad")
+	# IL DATABASE apre le collezioni del menu principale, sopra la scena viva
+	for collezione in ["album", "bestiario", "compendio"]:
+		var voce := voce_della_pausa("collezione:" + collezione)
+		esigi(voce != null, "nel Database manca la collezione '%s'" % collezione)
+		if voce == null:
+			continue
+		voce.scelta.emit()
+		await get_tree().process_frame
+		esigi(Pausa.pannello == "collezione" and Pausa.foglio is Collezione and not Transizioni.in_corso,
+				"dal Database '%s' non si apre dentro la pausa" % collezione)
+		esigi(not icona.visible, "sopra la collezione resta l'iconcina dei messaggi")
+		if Pausa.foglio is Collezione:
+			(Pausa.foglio as Collezione).indietro()
+		await get_tree().process_frame
+		esigi(Pausa.aperta and Pausa.pannello == "diario" and Pausa.sezione_diario == "database",
+				"uscendo da '%s' non si torna al Database" % collezione)
+	Pausa.chiudi()
+	await get_tree().process_frame
+	Impostazioni.movimento_ridotto = ridotto
+	GameState.nuova_partita()
+
+func prova_lo_sviluppo_sta_nella_scheda() -> void:
+	# «le stats non devono stare dentro il data pad, da opzioni possiamo andare
+	# su squadra e personaggio e' li' che troviamo le info [...] cosa ti sta
+	# cambiando lo chiameremo sviluppo» (Bru). Accanto alle statistiche, con
+	# tutte le righe della crescita, l'esperienza e le passive
+	titolo("lo Sviluppo sta nella scheda della squadra, accanto alle statistiche")
+	GameState.nuova_partita()
+	GameState.contatori["attacchi_sferrati"] = 7
+	Pausa.apri()
+	Pausa.mostra_equipaggiamento()
+	await get_tree().process_frame
+	var scheda := Pausa.foglio as SchedaPersonaggio
+	esigi(scheda != null, "Personaggio e squadra non apre la scheda")
+	if scheda == null:
+		Pausa.chiudi()
+		return
+	esigi(scheda.linguette.map(func(t: TastoObliquo) -> String: return t.text) == ["STATISTICHE", "SVILUPPO"],
+			"nella scheda non ci sono le linguette Statistiche e Sviluppo")
+	esigi(scheda.statistiche.visible and not scheda.sviluppo.visible, "la scheda non si apre sulle statistiche")
+	scheda.linguette[1].scelto.emit()
+	await get_tree().process_frame
+	esigi(scheda.sviluppo.visible and not scheda.statistiche.visible and not scheda.carosello.visible,
+			"premuto Sviluppo, lo sviluppo non si vede o le statistiche restano sotto")
+	esigi(scheda.titolo_dettaglio.text == "SVILUPPO", "a destra il dettaglio non dice cos'e' lo sviluppo")
+	var scritte: Array[String] = []
+	for etichetta in scheda.sviluppo.find_children("*", "Label", true, false):
+		scritte.append((etichetta as Label).text)
+	for azione: String in GameState.crescita.get("crescita", {}):
+		var regola: Dictionary = GameState.crescita["crescita"][azione]
+		esigi(SviluppoScheda.maiuscola(String(regola.get("racconto", azione))) in scritte,
+				"nello Sviluppo manca la riga di '%s'" % azione)
+	var attacco := "2 / 5  → +1 %s" % SviluppoScheda.nome_stat("attacco")
+	esigi(attacco in scritte, "sette colpi sferrati non fanno «%s» nello Sviluppo: %s" % [attacco, scritte])
+	esigi("ESPERIENZA" in scritte and "ABILITÀ PASSIVE" in scritte, "nello Sviluppo mancano l'esperienza o le passive")
+	scheda.linguette[0].scelto.emit()
+	await get_tree().process_frame
+	esigi(scheda.statistiche.visible and scheda.carosello.visible and not scheda.sviluppo.visible,
+			"tornando alle statistiche il carosello non torna")
+	Pausa.chiudi()
+	await get_tree().process_frame
+	GameState.nuova_partita()
+
+func prova_gli_appunti_si_pensano_tutti() -> void:
+	# «appunti come voce non serve» (Bru): il Data pad non li tiene piu', quindi
+	# un appunto nuovo non puo' annunciarsi con «il Data pad si e' aggiornato»,
+	# ne' rimandare il resto a una pagina che non c'e'. Si pensano tutti, a voce
+	titolo("gli appunti nuovi si pensano tutti a voce, senza rimandare al Data pad")
+	GameState.nuova_partita()
+	var con_testo: Array[String] = []
+	for voce in GameState.task_catalogo:
+		if String(voce.get("testo", "")) != "" and con_testo.size() < 4:
+			con_testo.append(String(voce.get("id", "")))
+	for id_task in con_testo:
+		GameState.apri_task(id_task)
+	var schermata: Node = load("res://scripts/Main.gd").new()
+	var righe: Array[Dictionary] = schermata.notifiche_task()
+	schermata.free()
+	esigi(righe.size() == con_testo.size(), "%d appunti nuovi, pensati %d" % [con_testo.size(), righe.size()])
+	for riga in righe:
+		esigi(String(riga.get("tipo", "")) == "narrazione" and not GameState.nome_diario() in String(riga.get("testo", "")),
+				"un appunto nuovo rimanda ancora al Data pad: %s" % riga)
+	esigi(GameState.task_da_notificare.is_empty(), "pensati gli appunti, restano da annunciare")
+	GameState.nuova_partita()
+
+func prova_nei_testi_non_ci_sono_tag_html() -> void:
+	# «Gentile dominatore,<br>a seguito...»: i messaggi andavano a capo con un
+	# tag HTML, che il testo di Godot non conosce e scrive com'e'. Si va a capo
+	# con un a capo vero (\n nel json)
+	titolo("nei testi del gioco non ci sono tag HTML")
+	var trovati: Array[String] = []
+	var cartelle := ["res://data/", "res://data/vuoti/"]
+	for cartella in cartelle:
+		for nome in DirAccess.get_files_at(cartella):
+			if nome.ends_with(".json"):
+				cerca_tag_html(JSON.parse_string(FileAccess.get_file_as_string(cartella + nome)), cartella + nome, trovati)
+	esigi(trovati.is_empty(), "testi con tag HTML: %s" % [trovati])
+
+func cerca_tag_html(dato: Variant, dove: String, trovati: Array[String]) -> void:
+	if dato is Dictionary:
+		for chiave: String in dato:
+			if not chiave.begins_with("_"):
+				cerca_tag_html(dato[chiave], dove, trovati)
+	elif dato is Array:
+		for elemento in dato:
+			cerca_tag_html(elemento, dove, trovati)
+	elif dato is String and ("<br" in dato or "</" in dato):
+		trovati.append("%s: «%s»" % [dove, String(dato).left(40)])
+
 func prova_ogni_giro_del_data_pad_nomina_pezzi_veri() -> void:
 	# UN GIRO CHE INDICA UNA VOCE CHE NON C'E' NON SI VEDE, e uno che aspetta un
 	# gesto che non esiste non finisce piu'. A schermo tutti e due sembrano un
 	# giro fermo: qui si guarda ogni passo di ogni giro scritto nei dati
 	titolo("ogni giro guidato del data pad indica voci vere e aspetta gesti possibili")
-	var voci := ["riprendi", "storico", "diario", "zaino", "squadra", "opzioni", "uscita"]
+	var voci := ["riprendi", "storico", "diario", "zaino", "squadra", "opzioni", "uscita", "messaggi"]
 	var sezioni: Array[String] = []
 	for sezione in Pausa.SEZIONI_DIARIO:
 		sezioni.append(String(sezione[0]))
@@ -14752,7 +14946,7 @@ func prova_ogni_giro_del_data_pad_nomina_pezzi_veri() -> void:
 							or (indica.begins_with("voce:") and indica.trim_prefix("voce:") in voci)
 							or (indica.begins_with("sezione:") and indica.trim_prefix("sezione:") in sezioni),
 							"%s: il giro indica '%s', che nel data pad non c'e'" % [id_nodo, indica])
-					esigi(aspetta in ["", "apri", "chiudi", "voce:diario"]
+					esigi(aspetta in ["", "apri", "chiudi", "voce:diario", "voce:messaggi"]
 							or (aspetta.begins_with("sezione:") and aspetta.trim_prefix("sezione:") in sezioni),
 							"%s: il giro aspetta '%s', che non si puo' fare" % [id_nodo, aspetta])
 	esigi(giri >= 2, "i giri del data pad sono %d: ne servono due, la mattina e la sala" % giri)
@@ -14809,17 +15003,16 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 		giro.clic()
 	esigi(spiegate.size() >= 7, "la mattina il giro spiega solo %d voci del data pad: %s" % [spiegate.size(), spiegate])
 	esigi(Pausa.aperta, "leggendo il giro, il data pad si e' chiuso")
-	# «apri il Data pad»: la voce e' scoperta, e aprirla manda avanti
+	# «i messaggi sono nell'icona in basso a destra»: e' scoperta, squilla, e
+	# premerla manda avanti
 	await get_tree().process_frame
-	esigi(String(giro.passo().get("aspetta", "")) == "voce:diario" and giro.indicato != null,
-			"il giro non chiede di aprire il Data pad, o non indica la voce")
-	Pausa.mostra_diario()
+	esigi(String(giro.passo().get("aspetta", "")) == "voce:messaggi" and giro.indicato == Pausa.icona_messaggi,
+			"il giro non chiede di aprire i messaggi, o non indica l'iconcina in basso a destra")
+	esigi(Movimento.ridotto() or Pausa.icona_messaggi.sta_squillando(),
+			"col messaggio di Veronica da leggere, l'iconcina dei messaggi non squilla")
+	Pausa.icona_messaggi.pressed.emit()
 	await get_tree().process_frame
-	await get_tree().process_frame
-	esigi(String(giro.passo().get("aspetta", "")) == "sezione:messaggi", "aperto il Data pad, il giro non chiede i messaggi")
-	Pausa.sezione_diario = "messaggi"
-	Pausa.mostra_diario()
-	await get_tree().process_frame
+	esigi(Pausa.pannello == "messaggi", "premuta l'iconcina, i messaggi non si aprono")
 	esigi("veronica_buongiorno" in GameState.messaggi_letti, "aperti i messaggi, quello di Veronica non risulta letto")
 	esigi(not "veronica_buongiorno" in GameState.messaggi_da_notificare,
 			"letto il messaggio di Veronica, una notifica lo annuncera' ancora come nuovo")
@@ -14842,9 +15035,8 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 	# E QUELLO CHE IL GIRO FA LEGGERE SI LEGGE. Gli appunti e le narrazioni dello
 	# storico avevano il colore della narrazione, quasi nero da quando il box e'
 	# bianco: sul nero del data pad erano righe invisibili
-	var appunto := PaginePausa.riga_appunto({"titolo": "prova", "testo": "prova"})
 	var narrata := PaginePausa.riga_storico({"tipo": "narrazione", "nome": "", "testo": "prova"})
-	for riga in [appunto, narrata]:
+	for riga in [narrata]:
 		var corpi := (riga as Node).find_children("*", "RichTextLabel", true, false)
 		esigi(not corpi.is_empty() and Stile.contrasto((corpi.back() as RichTextLabel).get_theme_color("default_color"),
 				Stile.colore("sfondo")) >= 4.5,

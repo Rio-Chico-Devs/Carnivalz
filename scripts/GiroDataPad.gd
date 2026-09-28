@@ -22,20 +22,21 @@ extends CanvasLayer
 #   {"tipo": "data_pad", "passi": [
 #     {"testo": "...", "indica": "menu", "aspetta": "apri"},
 #     {"testo": "...", "indica": "voce:zaino"},
-#     {"testo": "...", "indica": "sezione:messaggi", "aspetta": "sezione:messaggi"},
-#     {"testo": "...", "indica": "sezione:stato", "mostra": true},
+#     {"testo": "...", "indica": "voce:messaggi", "aspetta": "voce:messaggi"},
+#     {"testo": "...", "indica": "sezione:database", "mostra": true},
 #     {"testo": "...", "aspetta": "chiudi"}]}
 #
 #   "indica"   cosa si evidenzia: "menu" (il tasto in alto a sinistra),
 #              "voce:<segno>" (una voce del data pad: storico, diario, zaino,
-#              squadra, opzioni, uscita, riprendi), "sezione:<chiave>" (una
-#              sezione del data pad), "chiudi" (quello che lo chiude, dovunque
-#              tu sia: «Indietro» o «Riprendi»)
+#              squadra, opzioni, uscita, riprendi; e "messaggi", l'iconcina in
+#              basso a destra), "sezione:<chiave>" (una sezione del Data pad),
+#              "chiudi" (quello che lo chiude, dovunque tu sia: «Indietro» o
+#              «Riprendi»)
 #   "aspetta"  cosa deve fare chi gioca per andare avanti: "apri", "voce:diario",
-#              "sezione:<chiave>", "chiudi". Senza, si va avanti col clic, come
-#              in un dialogo
-#   "mostra"   apre da se' la sezione indicata, per fartela vedere mentre la
-#              spiega
+#              "voce:messaggi", "sezione:<chiave>", "chiudi". Senza, si va avanti
+#              col clic, come in un dialogo
+#   "mostra"   apre da se' la sezione indicata del Data pad, da qualunque
+#              pagina, per fartela vedere mentre la spiega
 #   "apri"     apre da se' il data pad (la sala: «Apri il data pad» deve aprirlo)
 #
 # IL RESTO DELLO SCHERMO E' VELATO E NON SI TOCCA: resta scoperto solo il pezzo
@@ -53,7 +54,7 @@ const VELO := Color(0, 0, 0, 0.45)
 const MARGINE := 24.0
 const LARGHEZZA_BOX := 0.56   # il box sta in basso a destra: a sinistra ci sono le voci
 const PANNELLO_DI := {"diario": "diario", "zaino": "inventario", "squadra": "equipaggiamento",
-		"storico": "storico", "opzioni": "opzioni"}
+		"storico": "storico", "opzioni": "opzioni", "messaggi": "messaggi"}
 
 var schermata: Node
 var passi: Array = []
@@ -150,7 +151,7 @@ func avanti() -> void:
 		gia_aperto = true
 	if bool(adesso.get("mostra", false)):
 		var sezione := String(adesso.get("indica", "")).trim_prefix("sezione:")
-		if Pausa.aperta and Pausa.pannello == "diario" and Pausa.sezione_diario != sezione:
+		if Pausa.aperta and (Pausa.pannello != "diario" or Pausa.sezione_diario != sezione):
 			Pausa.sezione_diario = sezione
 			Pausa.mostra_diario()
 	var testo := Testi.accorda(String(adesso.get("testo", "")), GameState.sesso_protagonista)
@@ -204,6 +205,8 @@ func pezzo_indicato(indica: String) -> Control:
 	if indica == "chiudi":
 		indica = "voce:riprendi" if Pausa.pannello == "menu" else "voce:indietro"
 	var chiave := indica.trim_prefix("voce:")
+	if chiave == "messaggi":
+		return Pausa.icona_messaggi if Pausa.icona_messaggi.is_visible_in_tree() else null
 	for voce in Pausa.colonna.find_children("*", "VoceMenu", true, false):
 		if String(voce.get_meta("chiave", "")) == chiave and (voce as Control).is_visible_in_tree():
 			return voce as Control

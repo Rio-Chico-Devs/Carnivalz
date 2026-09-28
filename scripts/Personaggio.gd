@@ -8,8 +8,9 @@ extends Control
 # sinistra - e ridipinto coi colori del gioco (docs/interfaccia.md):
 #
 #   in alto        Indietro, il Data pad, e il titolo
-#   a sinistra     l'emblema, il nome, il livello; sotto, le statistiche; in
-#                  fondo il carosello dell'equipaggiamento
+#   a sinistra     l'emblema, il nome, il livello; sotto, due linguette:
+#                  STATISTICHE, col carosello dell'equipaggiamento in fondo, e
+#                  SVILUPPO - come sta crescendo (SviluppoScheda.gd)
 #   al centro      il personaggio a figura intera, sulla fascia cremisi
 #   a destra       le carte della squadra; sotto, il dettaglio dello slot - o,
 #                  quando ne apri uno, la scelta di cosa metterci
@@ -65,6 +66,9 @@ var psiche: Label
 var legame: Label
 var barra_legame: Barra
 var statistiche: StatisticheScheda
+var sviluppo: SviluppoScheda
+var linguetta := "statistiche"      # statistiche | sviluppo
+var linguette: Array[TastoObliquo] = []
 var dove_sei: Label
 var solo_un_tratto: Label
 var quante_carte: Label
@@ -173,10 +177,23 @@ func costruisci_identita() -> void:
 	Tavola.metti(barra_legame, Rect2(40, 210, 453, 6))
 	psiche = scritta(sinistra, Rect2(40, 220, 280, 18), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900))
 	legame = scritta(sinistra, Rect2(293, 220, 200, 18), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_RIGHT)
-	scritta(sinistra, Rect2(60, 243, 240, 26), 20, Stile.colore("testo"), Caratteri.titolo()).text = "STATISTICHE"
 	statistiche = StatisticheScheda.new()
 	sinistra.add_child(statistiche)
 	Tavola.metti(statistiche, Rect2(45, 272, 440, StatisticheScheda.MARGINE * 2.0 + StatisticheScheda.PASSO * Corredo.STATISTICHE.size()))
+	# «cosa ti sta cambiando lo chiameremo sviluppo» (Bru): stava nel Data pad,
+	# e sta qui accanto alle statistiche perche' e' la stessa domanda - quanto
+	# vale, e come sta crescendo. Occupa anche il posto del carosello
+	sviluppo = SviluppoScheda.new()
+	sinistra.add_child(sviluppo)
+	Tavola.metti(sviluppo, Rect2(45, 272, 448, 414))
+	var x := 45.0
+	for quale in ["statistiche", "sviluppo"]:
+		var tasto := TastoObliquo.nuovo(quale.to_upper(), "spoglio", 16)
+		tasto.scelto.connect(scegli_linguetta.bind(quale))
+		sinistra.add_child(tasto)
+		tasto.position = Vector2(x, 236)
+		x += tasto.misura_voluta().x + 8.0
+		linguette.append(tasto)
 
 
 func costruisci_carosello() -> void:
@@ -254,6 +271,7 @@ func ridisegna() -> void:
 	disegna_statistiche()
 	disegna_carosello(slot)
 	disegna_dettaglio(slot)
+	disegna_linguetta()
 
 
 func slot_elenco() -> Array[Dictionary]:
@@ -339,6 +357,37 @@ func disegna_identita() -> void:
 
 func disegna_statistiche() -> void:
 	statistiche.imposta(Corredo.righe(id_scelto))
+
+
+func disegna_linguetta() -> void:
+	# quella aperta e' piena, l'altra spoglia; lo sviluppo si prende anche il
+	# posto del carosello, e a destra il dettaglio dice cos'e'
+	var su_sviluppo := linguetta == "sviluppo"
+	for k in 2:
+		linguette[k].stile = "accento" if (k == 1) == su_sviluppo else "spoglio"
+		linguette[k].queue_redraw()
+	statistiche.visible = not su_sviluppo
+	carosello.visible = not su_sviluppo
+	sviluppo.visible = su_sviluppo
+	if not su_sviluppo:
+		return
+	sviluppo.mostra(id_scelto)
+	scorri.visible = false
+	togli.visible = false
+	chiudi_scelta.visible = false
+	testo_dettaglio.visible = true
+	titolo_dettaglio.text = "SVILUPPO"
+	testo_dettaglio.scrivi(SviluppoScheda.SPIEGAZIONE)
+
+
+func scegli_linguetta(quale: String) -> void:
+	if quale == linguetta:
+		return
+	Movimento.suona("sfioro")
+	linguetta = quale
+	slot_aperto = ""        # una scelta a meta' non resta aperta sotto l'altra pagina
+	ridisegna()
+	linguette[1 if quale == "sviluppo" else 0].grab_focus()
 
 
 func disegna_carosello(slot: Array[Dictionary]) -> void:
@@ -596,7 +645,6 @@ class Fondo extends Control:
 		draw_line(Vector2(40, 96), Vector2(493, 96), Color(Stile.colore("testo"), 0.25), 2.0)
 		draw_rect(Rect2(40, 92, 10, 4), Stile.colore("accento"))
 		draw_rect(Rect2(483, 92, 10, 4), Stile.colore("accento"))
-		draw_rect(Rect2(49, 247, 4, 20), Stile.colore("accento"))
 
 
 class Emblema extends Control:
