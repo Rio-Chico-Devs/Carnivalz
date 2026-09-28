@@ -111,6 +111,30 @@ class Ritaglio extends RichTextEffect:
 		return true
 
 
+class NastroStrappato extends PanelContainer:
+	# lo stesso nastro rosa, ma con le due estremita' strappate a mano, come un
+	# pezzo di scotch di carta vero: il rettangolo liscio si legge digitale
+	var colore := Color.PINK
+	func _draw() -> void:
+		# lo strappo: tanti morsi piccoli e irregolari, non denti uguali. Un
+		# passeggio casuale che resta fra 0 e 9 pixel dal bordo, ogni 2,5
+		var caso := RandomNumberGenerator.new()
+		caso.seed = 7
+		var destra := PackedVector2Array()
+		var sinistra := PackedVector2Array()
+		var d := 4.0
+		var s := 4.0
+		var y := 0.0
+		while y <= size.y + 0.1:
+			d = clampf(d + caso.randf_range(-2.6, 2.6), 0.0, 9.0)
+			s = clampf(s + caso.randf_range(-2.6, 2.6), 0.0, 9.0)
+			destra.append(Vector2(size.x - d, y))
+			sinistra.append(Vector2(s, y))
+			y += 2.5
+		sinistra.reverse()
+		draw_colored_polygon(destra + sinistra, colore)
+
+
 class Rombi extends Control:
 	# i rombi d'arlecchino dell'esempio di Bru: una fila chiara e una scura, e
 	# dall'alto al basso il grigio sfuma nel lilla
@@ -142,6 +166,12 @@ func nome_composto(scritta: RichTextLabel, prova: Dictionary, colore: Color) -> 
 				opentype[TextServerManager.get_primary_interface().name_to_tag(asse)] = assi[asse]
 			variante.variation_opentype = opentype
 		variante.spacing_glyph = int(parte.get("spazio", 0))
+		# le varianti che il carattere ha dentro: "swsh" lo svolazzo, "fina" le
+		# forme finali, "dlig" le legature rare, "smcp" il maiuscoletto...
+		var tratti := {}
+		for tratto: String in (parte.get("tratti", {}) as Dictionary):
+			tratti[TextServerManager.get_primary_interface().name_to_tag(tratto)] = int(parte.tratti[tratto])
+		variante.opentype_features = tratti
 		scritta.push_font(variante, corpo)
 		scritta.push_color(Stile.colore("accento") if String(parte.get("colore", "")) == "accento" else colore)
 		if bool(parte.get("storto", false)):
@@ -265,14 +295,34 @@ func nomi_in_scena(prove: Array) -> void:
 		if attesa > 40 and not scena.box.sta_scrivendo:
 			break
 	scena.nastro.visible = false
-	var nastro := PanelContainer.new()
-	nastro.add_theme_stylebox_override("panel", scena.stile_nastro_piatto())
-	var scritta := scritta_del_nome()
-	nastro.add_child(scritta)
-	scena.add_child(nastro)
-	nastro.rotation = Stile.angolo("inclinazione_nastro")
+	var nastro: PanelContainer = null
 	for n in prove.size():
-		nome_composto(scritta, prove[n], Color(String((prove[n] as Dictionary).get("inchiostro", "#1b1417"))))
+		var prova: Dictionary = prove[n]
+		if nastro != null:
+			nastro.queue_free()
+		nastro = NastroStrappato.new() if String(prova.get("nastro", "")) == "strappato" else PanelContainer.new()
+		var liscio := scena.stile_nastro_piatto() as StyleBoxFlat
+		if nastro is NastroStrappato:
+			var vuoto := StyleBoxEmpty.new()
+			for lato in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+				vuoto.set_content_margin(lato, liscio.get_content_margin(lato))
+			nastro.add_theme_stylebox_override("panel", vuoto)
+			(nastro as NastroStrappato).colore = liscio.bg_color
+		else:
+			nastro.add_theme_stylebox_override("panel", liscio)
+		var scritta := scritta_del_nome()
+		nastro.add_child(scritta)
+		scena.add_child(nastro)
+		nastro.rotation = Stile.angolo("inclinazione_nastro")
+		var inchiostro := Color(String(prova.get("inchiostro", "#1b1417")))
+		if bool(prova.get("inchiostro_steso", false)):
+			# l'inchiostro che si allarga appena nella carta: un alone dello
+			# stesso colore, trasparente, tutto intorno alla lettera
+			scritta.add_theme_color_override("font_shadow_color", Color(inchiostro, 0.28))
+			scritta.add_theme_constant_override("shadow_offset_x", 0)
+			scritta.add_theme_constant_override("shadow_offset_y", 0)
+			scritta.add_theme_constant_override("shadow_outline_size", 2)
+		nome_composto(scritta, prova, inchiostro)
 		nastro.size = Vector2.ZERO
 		await attendi(4)
 		nastro.pivot_offset = Vector2(0.0, nastro.size.y * 0.5)
