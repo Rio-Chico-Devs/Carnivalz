@@ -14883,6 +14883,12 @@ func ogni_passo_del_giro_in_una_pagina(giro: GiroDataPad, quando: String) -> voi
 	# carattere dei dialoghi a 28 due passi finivano con «con quello che
 	# porti.» da solo su una seconda pagina
 	esigi(giro.box.spazio_per_il_testo().x > 2.0, "%s il box del giro non ha ancora una misura" % quando)
+	# LE PAGINE CHE SI VEDONO, non quelle che si rifarebbero adesso. Il primo
+	# passo si divideva quando il box era appena nato e largo 41 pixel: una
+	# pagina per parola - Bru: «l'inizio della spiegazione mostra parola per
+	# parola». Ricalcolandole qui, col box gia' largo, la prova non lo vedeva
+	esigi(giro.box.pagine.size() == 1, "%s la spiegazione che si legge adesso e' divisa in %d pagine: %s"
+			% [quando, giro.box.pagine.size(), giro.box.pagine.slice(0, 6)])
 	giro.box.tipo_corrente = "dialogo"
 	for passo_giro: Dictionary in giro.passi:
 		var pagine: Array[String] = giro.box.impagina(String(passo_giro.get("testo", "")))
@@ -15201,6 +15207,8 @@ func prova_il_data_pad_si_impara_aprendolo() -> void:
 	for volta in 20:
 		await get_tree().process_frame
 		var adesso: Dictionary = giro.passo()
+		esigi(giro.box.pagine.size() == 1, "la mattina il passo %d si legge in %d pagine: %s"
+				% [giro.quale, giro.box.pagine.size(), giro.box.pagine.slice(0, 6)])
 		if String(adesso.get("aspetta", "")) != "":
 			break
 		if String(adesso.get("indica", "")).begins_with("voce:"):

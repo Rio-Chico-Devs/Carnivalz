@@ -50,6 +50,7 @@ var nome_corrente := ""
 # pagina sola, ed e' il caso di quasi tutte
 var pagine: Array[String] = []
 var pagina := 0
+var battuta_intera := ""   # la battuta com'e' arrivata, prima di dividerla in pagine
 var misuratore: RichTextLabel = null   # un doppione nascosto del testo, per misurare
 
 func _init() -> void:
@@ -134,6 +135,7 @@ func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 		# qualcosa in piu': ha un suono suo, e arriva prima delle parole
 		AudioManager.interfaccia("raccolta")
 	targhetta.text = nome_parlante if tipo == "dialogo" else ""
+	battuta_intera = contenuto
 	pagine = impagina(contenuto)
 	pagina = 0
 	scrivi_pagina()
@@ -185,12 +187,27 @@ func entra(pezzo: String, misura: Vector2) -> bool:
 	return misuratore.get_content_height() <= misura.y + 0.5
 
 func _al_cambio_di_misura() -> void:
-	# la pagina che si sta mostrando non ci sta piu' (o non era mai stata
-	# misurata): la si divide adesso, e si riscrive da capo
 	if pagine.is_empty() or not visible:
 		return
 	var misura := spazio_per_il_testo()
-	if misura.x < 2.0 or entra(pagine[pagina], misura):
+	if misura.x < 2.0:
+		return
+	# ALLA PRIMA PAGINA LA BATTUTA SI RIFA' DA CAPO, INTERA. Un box che parla
+	# appena nato (il giro del data pad, la Guida sulla mappa) misura la prima
+	# battuta prima che i contenitori gli abbiano dato la larghezza: largo 41
+	# pixel, la divideva in una pagina per parola - Bru: «l'inizio della
+	# spiegazione mostra parola per parola». Arrivata la misura vera, prima si
+	# guardava solo se la pagina corrente ci stava ancora: «Il» ci sta sempre, e
+	# le pagine restavano di una parola. Se non cambia niente non si riscrive
+	if pagina == 0:
+		var rifatte := impagina(battuta_intera)
+		if rifatte != pagine:
+			pagine = rifatte
+			scrivi_pagina()
+		return
+	# piu' avanti non si torna indietro: la pagina che si sta leggendo, se non
+	# ci sta piu' (la finestra si e' stretta), si divide adesso
+	if entra(pagine[pagina], misura):
 		return
 	var nuove := impagina(pagine[pagina])
 	pagine.remove_at(pagina)
