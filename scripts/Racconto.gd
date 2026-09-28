@@ -20,7 +20,7 @@ extends Control
 #                    nero pieno e' uno schermo spento, non una notte
 #   la vignetta      i bordi che scuriscono: il «leggero fade» intorno
 #   l'ombra          un alone scuro dietro il testo, che si legga sopra qualunque disegno
-#   il testo         al centro, in un corsivo da favola (art/font/fiaba.ttf),
+#   il testo         al centro, in una calligrafia da favola (art/font/fiaba.ttf),
 #                    scritto dalla STESSA macchina del box, con lo stesso suono
 #                    (MacchinaDaScrivere.gd) ma piu' piano
 #   la scritta       CARNIVALZ, alla fine dell'introduzione
@@ -41,7 +41,7 @@ signal scrittura_finita  # l'ultimo paragrafo di una battuta e' scritto
 signal chiuso            # il racconto se n'e' andato: la scena torna padrona
 
 const DI_SERIE := {
-	"passo": 0.62, "respiro": 1.6, "corpo": 40, "peso": 600, "larghezza": 0.6,
+	"passo": 0.62, "respiro": 1.6, "corpo": 58, "peso": 400, "larghezza": 0.6, "righe_massime": 5,
 	"apertura": 1.4, "cambio_sfondo": 1.6, "sparizione": 0.6, "chiusura": 1.2,
 	"avvicinamento": 0.05, "durata_avvicinamento": 18.0, "luce": 0.16, "respiro_luce": 4.0,
 	"vignetta": 0.92, "ombra": 0.62,
@@ -167,7 +167,9 @@ func prepara_testo() -> void:
 	# il corpo e basta, senza la crenatura dei titoli: questo e' testo da leggere,
 	# e stringerlo lo renderebbe solo piu' faticoso (vedi Stile.crenatura)
 	testo.add_theme_font_size_override("normal_font_size", corpo)
-	Stile.interlinea(testo, "lettura", corpo)
+	# righe compatte: una calligrafia ha l'occhio piccolo, e a 1,5 volte il
+	# corpo le righe galleggiavano lontane come frasi separate
+	Stile.interlinea(testo, "compatta", corpo)
 	testo.add_theme_color_override("default_color", colore("colore_testo", "#f3ead7"))
 	Stile.contorno(testo, corpo)
 	add_child(testo)
@@ -237,6 +239,57 @@ static func dividi(contenuto: String) -> PackedStringArray:
 	return pezzi
 
 
+func impagina(pezzi: PackedStringArray) -> PackedStringArray:
+	# UN PARAGRAFO TROPPO LUNGO GIRA PAGINA. Una calligrafia si scrive grande, e
+	# il paragrafo di Meridia (340 lettere) faceva sette righe: arrivava fin
+	# sotto il triangolino. Non si rimpicciolisce: si divide dove finisce una
+	# frase, come si gira pagina in un libro, e le parole restano quelle
+	var massimo := int(numero("righe_massime"))
+	if massimo <= 0 or testo.size.x < 1.0:
+		return pezzi
+	var scritto_prima := testo.text   # misurare non cambia quello che si vede
+	var visibile_prima := testo.visible_ratio
+	var pagine := PackedStringArray()
+	for pezzo in pezzi:
+		var pagina := ""
+		for frase in frasi(pezzo):
+			var con_questa := frase if pagina == "" else pagina + " " + frase
+			if pagina != "" and righe(con_questa) > massimo:
+				pagine.append(pagina)
+				pagina = frase
+			else:
+				pagina = con_questa
+		pagine.append(pagina)
+	testo.text = scritto_prima
+	testo.visible_ratio = visibile_prima
+	return pagine
+
+
+func righe(pagina: String) -> int:
+	testo.text = "[center]%s[/center]" % pagina
+	return testo.get_line_count()
+
+
+static func frasi(pezzo: String) -> PackedStringArray:
+	# dove finisce una frase: . ! ? o i puntini (anche dentro le virgolette che
+	# la chiudono), poi uno spazio e una maiuscola. «lente... la terra trema»
+	# e' una frase sola: dopo i puntini viene la minuscola
+	var fuori := PackedStringArray()
+	var inizio := 0
+	for i in range(1, pezzo.length() - 1):
+		var dopo := pezzo[i + 1]
+		if pezzo[i] != " " or (dopo == dopo.to_lower() and not dopo in "«\"“"):
+			continue
+		var prima := pezzo[i - 1]
+		if prima in "»\"”" and i > 1:
+			prima = pezzo[i - 2]
+		if prima in ".!?…":
+			fuori.append(pezzo.substr(inizio, i - inizio))
+			inizio = i + 1
+	fuori.append(pezzo.substr(inizio))
+	return fuori
+
+
 func racconta(msg: Dictionary, contenuto: String) -> void:
 	# UNA BATTUTA DEL RACCONTO. Se il racconto non c'era si apre nel buio, e
 	# l'immagine arriva prima delle parole
@@ -246,7 +299,7 @@ func racconta(msg: Dictionary, contenuto: String) -> void:
 	var appena_aperto := not visible
 	if appena_aperto:
 		apri()
-	paragrafi = dividi(contenuto)
+	paragrafi = impagina(dividi(contenuto))
 	paragrafo = 0
 	var attesa := cambia_sfondo(msg)
 	mostra_paragrafo(maxf(attesa, numero("apertura")) if appena_aperto else attesa)

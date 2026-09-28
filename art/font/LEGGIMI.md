@@ -8,10 +8,10 @@ non si possono incorporare in un'applicazione: questi si'.
 |---|---|---|---|
 | `titolo.ttf` | **Anton** (The Anton Project Authors) | titoli, voci del menu principale, cartigli della pausa | SIL Open Font License 1.1 — `OFL-Anton.txt` |
 | `arrotondato.ttf` | **Nunito**, a peso variabile (The Nunito Project Authors) | le scritte piccole del menu principale: intestazione, descrizioni, comandi | SIL Open Font License 1.1 — `OFL-Nunito.txt` |
-| `fiaba.ttf` | **Cormorant Garamond corsivo**, a peso variabile (Christian Thalmann, The Cormorant Project Authors) | il racconto a schermo intero: l'inizio del gioco e dei livelli | SIL Open Font License 1.1 — `OFL-CormorantGaramond.txt` |
+| `fiaba.ttf` | **Italianno**, calligrafico (Robert Leuschke, The Italianno Project Authors) | il racconto a schermo intero: l'inizio del gioco e dei livelli | SIL Open Font License 1.1 — `OFL-Italianno.txt` |
 
 Presi dal repository ufficiale di Google Fonts (`google/fonts`, cartelle
-`ofl/anton`, `ofl/nunito` e `ofl/cormorantgaramond`). La licenza OFL permette
+`ofl/anton`, `ofl/nunito` e `ofl/italianno`). La licenza OFL permette
 di incorporarli e distribuirli col gioco, anche venduto, purche' il testo della
 licenza li accompagni: e' il motivo dei file `OFL-*.txt` qui accanto, che non
 vanno tolti.

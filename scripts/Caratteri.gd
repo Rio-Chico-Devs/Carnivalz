@@ -2,7 +2,7 @@ class_name Caratteri
 extends RefCounted
 
 # I CARATTERI DEL GIOCO, pronti all'uso e fatti una volta sola: i due del menu
-# principale, e il corsivo del racconto (fiaba, in fondo).
+# principale, e la calligrafia del racconto (fiaba, in fondo).
 #
 # Anton per le voci e i titoli, Nunito per le scritte piccole: e' la coppia del
 # riferimento di Bru (Borderlands 2), dove le voci sono maiuscole pesanti e
@@ -36,9 +36,10 @@ static func tondo(peso := 400) -> Font:
 	return variante
 
 
-static func fiaba(peso := 600) -> Font:
-	# IL CORSIVO DEL RACCONTO, Cormorant Garamond a peso variabile come Nunito:
-	# lo stesso file fa il leggero e il grassetto (wght, da 300 a 700)
+static func fiaba(peso := 400) -> Font:
+	# LA CALLIGRAFIA DEL RACCONTO (Italianno). Il peso passa come per Nunito, ma
+	# conta solo se il carattere e' a peso variabile: Italianno non lo e', e se
+	# un giorno al suo posto ne torna uno che lo e' il peso e' gia' qui
 	var chiave := "fiaba_%d" % peso
 	if gia_fatti.has(chiave):
 		return gia_fatti[chiave]

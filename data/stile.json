@@ -33,13 +33,13 @@
       "sans-serif"
     ],
     "fiaba": [
+      "Italianno",
       "Cormorant Garamond",
-      "EB Garamond",
       "Garamond",
       "Georgia",
       "serif"
     ],
-    "_nota_fiaba": "IL CARATTERE DEL RACCONTO (l'inizio del gioco e dei livelli). Bru: «deve essere piu' elegante e fiabesco». E' Cormorant Garamond corsivo di Christian Thalmann, a peso variabile (qui 600, vedi racconto.peso): un Garamond da titoli, alto contrasto, e il corsivo e' la voce di chi racconta - nel box la narrazione e' in corsivo da sempre. Scelto fra sei candidati con licenza OFL (scatti: caratteri_confronto), gli altri due finalisti erano Cormorant Garamond dritto e IM Fell English. Licenza: art/font/OFL-CormorantGaramond.txt.",
+    "_nota_fiaba": "IL CARATTERE DEL RACCONTO (l'inizio del gioco e dei livelli). Bru prima: «deve essere piu' elegante e fiabesco»; poi: «dei font piu' belli ancora? piu' particolari ed eleganti?»; e su venti candidati con licenza OFL (scatti: caratteri_rosa_1 e _2, finalisti carattere_01..13): «il migliore per ora e' italianno». E' Italianno di Robert Leuschke, un calligrafico a peso unico: per questo racconto.peso non cambia niente, ed e' scritto grande (racconto.corpo) perche' una calligrafia ha l'occhio piccolo. Prima c'era Cormorant Garamond corsivo, che resta il primo di riserva. Licenza: art/font/OFL-Italianno.txt.",
     "arrotondato": [
       "Nunito",
       "Varela Round",
@@ -271,13 +271,14 @@
     "pausa_punto": 0.26,
     "pausa_sospensione": 0.45
   },
-  "_nota_racconto": "IL RACCONTO A SCHERMO INTERO (scripts/Racconto.gd): l'inizio del gioco e dei livelli, come le introduzioni di Final Fantasy Crystal Chronicles. Tutti i numeri sono miei, da girare qui. passo e respiro: la macchina da scrivere del box, rallentata (0,62 della velocita') e con le pause sulla punteggiatura lunghe una volta e mezza, perche' una favola si racconta piano. corpo, peso e larghezza: il testo al centro, 40 pixel di Cormorant Garamond corsivo a peso 600 (vedi font.fiaba) su una colonna larga il 60% dello schermo: un Garamond ha l'occhio piccolo e a 30 si leggeva a fatica. apertura, cambio_sfondo, sparizione, chiusura: le sfumature, in secondi. avvicinamento: di quanto si avvicina l'immagine mentre la leggi (5% in 18 secondi). luce, respiro_luce: il chiarore caldo che respira dietro il testo. vignetta, ombra: quanto scuriscono i bordi e l'alone dietro le parole. logo_*: la scritta di Carnivalz - il buio che scende, il silenzio, l'entrata, quanto resta (almeno logo_tenuta, o l'attesa scritta nei dati se e' piu' lunga), l'uscita, il vuoto dopo, e di quanto cresce mentre si vede.",
+  "_nota_racconto": "IL RACCONTO A SCHERMO INTERO (scripts/Racconto.gd): l'inizio del gioco e dei livelli, come le introduzioni di Final Fantasy Crystal Chronicles. Tutti i numeri sono miei, da girare qui. passo e respiro: la macchina da scrivere del box, rallentata (0,62 della velocita') e con le pause sulla punteggiatura lunghe una volta e mezza, perche' una favola si racconta piano. corpo, peso e larghezza: il testo al centro, 58 pixel di Italianno (vedi font.fiaba) su una colonna larga il 60% dello schermo: una calligrafia ha l'occhio piccolissimo, e sotto i 50 si legge a fatica. Il peso vale solo per un carattere a peso variabile, e Italianno non lo e': 400 e' il suo. righe_massime: un paragrafo piu' lungo gira pagina dove finisce una frase (le parole non cambiano). Le righe sono compatte (interlinee.compatta, 1,35 volte il corpo: una calligrafia ha l'occhio piccolo e a 1,5 le righe galleggiavano): cinque righe a 58 pixel sono circa 390 pixel, e piu' in basso c'e' il triangolino. apertura, cambio_sfondo, sparizione, chiusura: le sfumature, in secondi. avvicinamento: di quanto si avvicina l'immagine mentre la leggi (5% in 18 secondi). luce, respiro_luce: il chiarore caldo che respira dietro il testo. vignetta, ombra: quanto scuriscono i bordi e l'alone dietro le parole. logo_*: la scritta di Carnivalz - il buio che scende, il silenzio, l'entrata, quanto resta (almeno logo_tenuta, o l'attesa scritta nei dati se e' piu' lunga), l'uscita, il vuoto dopo, e di quanto cresce mentre si vede.",
   "racconto": {
     "passo": 0.62,
     "respiro": 1.6,
-    "corpo": 40,
-    "peso": 600,
+    "corpo": 58,
+    "peso": 400,
     "larghezza": 0.6,
+    "righe_massime": 5,
     "apertura": 1.4,
     "cambio_sfondo": 1.6,
     "sparizione": 0.6,

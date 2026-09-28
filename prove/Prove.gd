@@ -92,6 +92,7 @@ func _ready() -> void:
 	prova_l_inizio_di_ogni_livello_si_racconta()
 	prova_ogni_carattere_ha_la_sua_licenza()
 	await prova_il_racconto_si_prende_lo_schermo()
+	await prova_ogni_pagina_del_racconto_sta_nello_schermo()
 	await prova_la_scritta_non_si_salta()
 	await prova_il_titolo_si_apre_col_clic()
 	prova_gli_otto_status()
@@ -5232,6 +5233,51 @@ func prova_il_racconto_si_prende_lo_schermo() -> void:
 	await get_tree().process_frame
 	Stile.dati["racconto"] = veri
 	GameState.nuova_partita()
+
+func prova_ogni_pagina_del_racconto_sta_nello_schermo() -> void:
+	# Italianno si scrive a 58 pixel, e il paragrafo di Meridia faceva sette
+	# righe: finiva sotto il triangolino. Ogni pagina di ogni racconto nei dati
+	# deve stare nelle righe_massime, e girare pagina non perde parole
+	titolo("ogni pagina del racconto sta nello schermo, e girare pagina non perde parole")
+	var massimo := int((Stile.dati.get("racconto", {}) as Dictionary).get("righe_massime", 5))
+	var fiaba := Racconto.new()
+	add_child(fiaba)
+	fiaba.visible = true
+	await get_tree().process_frame
+	var pagine_in_tutto := 0
+	for percorso in file_eventi():
+		for nodo: Dictionary in carica_eventi(percorso).get("nodi", {}).values():
+			for passo: Dictionary in nodo.get("sequenza", []):
+				if String(passo.get("tipo", "")) != "racconto":
+					continue
+				var pezzi := Racconto.dividi(String(passo.get("testo", "")))
+				var pagine := fiaba.impagina(pezzi)
+				pagine_in_tutto += pagine.size()
+				esigi(" ".join(pagine).split(" ", false) == " ".join(pezzi).split(" ", false),
+						"%s: girando pagina il racconto ha perso o cambiato parole" % percorso)
+				for pagina in pagine:
+					var righe := fiaba.righe(pagina)
+					esigi(righe <= massimo, "%s: una pagina del racconto fa %d righe (al massimo %d): «%s...»"
+							% [percorso, righe, massimo, pagina.left(40)])
+	esigi(pagine_in_tutto >= 20, "le pagine dei racconti sono %d: la prova non li ha trovati" % pagine_in_tutto)
+	# si gira dove finisce una frase, non sui puntini a meta' ne' dentro le virgolette
+	esigi(Racconto.frasi("Ombre lente... la terra trema. \"Stai lontano\", si diceva. «Perché?» Nessuno.")
+			== PackedStringArray(["Ombre lente... la terra trema.", "\"Stai lontano\", si diceva.", "«Perché?»", "Nessuno."]),
+			"le frasi del racconto si dividono nel posto sbagliato: %s" % str(Racconto.frasi(
+			"Ombre lente... la terra trema. \"Stai lontano\", si diceva. «Perché?» Nessuno.")))
+	# e lo fa davvero quando racconta, non solo quando lo chiede la prova
+	var veri := racconto_veloce()
+	var lungo := " ".join(PackedStringArray(Array(range(30)).map(func(n: int) -> String: return "La frase numero %d si allunga ancora." % n)))
+	fiaba.testo.text = "[center]La pagina di prima, che sta sfumando.[/center]"
+	fiaba.racconta({"tipo": "racconto"}, lungo)
+	esigi(fiaba.paragrafi.size() > 1, "un paragrafo lunghissimo si racconta in una pagina sola, oltre lo schermo")
+	esigi(fiaba.testo.text == "[center]La pagina di prima, che sta sfumando.[/center]",
+			"misurare le pagine nuove ha cambiato la pagina di prima mentre sfuma: «%s»" % fiaba.testo.text.left(50))
+	for pagina in fiaba.paragrafi:
+		esigi(fiaba.righe(pagina) <= massimo, "il paragrafo lunghissimo ha una pagina di %d righe" % fiaba.righe(pagina))
+	fiaba.queue_free()
+	await get_tree().process_frame
+	Stile.dati["racconto"] = veri
 
 func prova_la_scritta_non_si_salta() -> void:
 	# «l'apparizione del logo carnivalz non deve essere skippabile, deve apparire
