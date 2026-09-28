@@ -30,7 +30,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "laboratorio"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "laboratorio"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -179,6 +179,48 @@ func prepara_prova_lab(testo: RichTextLabel, radice: String, prova: Dictionary) 
 	var battuta := String(prova.get("testo", BATTUTA_LAB))
 	testo.text = battuta if effetto == "" else "[%s]%s[/%s]" % [effetto, battuta, effetto]
 	testo.visible_ratio = 1.0
+
+
+func nastri_a_confronto(cartella: String) -> void:
+	# IL CARATTERE DEI NOMI A CONFRONTO. Bru: «nei nomi va usato un altro font
+	# piu' particolare e alla moda». Il nastro rosa vero, entrato e fermo, con
+	# "veronica" scritto sopra, per ogni .ttf di una cartella: "nastri
+	# /percorso/cartella". Misure nel nome del file fra graffe, come in
+	# "caratteri". Fogli da dieci, due per riga; e per ciascuno si stampa quanto
+	# viene largo il nome piu' lungo del gioco
+	await apri_dialogo(nodo_di_prova())
+	await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+	var schermata: Node = get_child(0)
+	var file: Array = Array(DirAccess.get_files_at(cartella)).filter(
+			func(f: String) -> bool: return f.ends_with(".ttf"))
+	file.sort()
+	var cartello := Label.new()
+	cartello.position = Vector2(330, 575)
+	cartello.add_theme_font_size_override("font_size", 22)
+	cartello.add_theme_color_override("font_color", Color.BLACK)
+	schermata.add_child(cartello)
+	var cella := Rect2i(0, 440, 640, 180)
+	for f in ceili(file.size() / 10.0):
+		var quanti := mini(10, file.size() - f * 10)
+		var foglio := Image.create(1280, 180 * ceili(quanti / 2.0), false, Image.FORMAT_RGBA8)
+		for k in quanti:
+			var misurato := carattere_con_misure(cartella.path_join(String(file[f * 10 + k])), Stile.dimensione("titolo"), 400)
+			schermata.nome_nastro.add_theme_font_override("font", misurato[0])
+			schermata.nome_nastro.add_theme_font_size_override("font_size", misurato[1])
+			cartello.text = misurato[2]
+			schermata.nome_sul_nastro = ""
+			schermata.aggiorna_nastro("Un goblin terribilmente arrabbiato")
+			await attendi(3)
+			print("%s: il nome piu' lungo fa un nastro largo %d" % [misurato[2], int(schermata.nastro.size.x)])
+			schermata.nome_sul_nastro = ""
+			schermata.aggiorna_nastro("Veronica")
+			await attendi(70)   # entrato e fermo
+			await RenderingServer.frame_post_draw
+			var foto := get_viewport().get_texture().get_image()
+			foto.convert(Image.FORMAT_RGBA8)
+			foglio.blit_rect(foto, cella, Vector2i((k % 2) * 640, floori(k / 2.0) * 180))
+		foglio.save_png(ProjectSettings.globalize_path(CARTELLA + "nastri_%d.png" % (f + 1)))
+		print("foglio salvato: %snastri_%d.png" % [CARTELLA, f + 1])
 
 
 func carattere_con_misure(percorso: String, corpo: int, peso: int) -> Array:
@@ -662,6 +704,8 @@ func prepara(quale: String) -> void:
 					foglio_d.blit_rect(foto_d, striscia, Vector2i(0, 300 * k))
 				foglio_d.save_png(ProjectSettings.globalize_path(CARTELLA + "dialoghi_rosa_%d.png" % (f + 1)))
 				print("foglio salvato: %sdialoghi_rosa_%d.png" % [CARTELLA, f + 1])
+		"nastri":
+			await nastri_a_confronto(String(OS.get_cmdline_user_args()[1]))
 		"laboratorio":
 			# UN CARATTERE PIEGATO A CODICE. Bru: «c'e' modo di usare un font e con
 			# qualche stratagemma personalizzarlo a codice?». La stessa battuta nel

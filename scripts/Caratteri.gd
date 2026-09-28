@@ -2,8 +2,8 @@ class_name Caratteri
 extends RefCounted
 
 # I CARATTERI DEL GIOCO, pronti all'uso e fatti una volta sola: i due del menu
-# principale, la calligrafia del racconto (fiaba) e quello del box dei
-# dialoghi (dialoghi).
+# principale, la calligrafia del racconto (fiaba), quello del box dei
+# dialoghi (dialoghi) e quello dei nomi di chi parla (nomi).
 #
 # Anton per le voci e i titoli, Nunito per le scritte piccole: e' la coppia del
 # riferimento di Bru (Borderlands 2), dove le voci sono maiuscole pesanti e
@@ -64,18 +64,10 @@ static func dialoghi(stile := "dritto") -> Font:
 	var chiave := "dialoghi_" + stile
 	if gia_fatti.has(chiave):
 		return gia_fatti[chiave]
-	var base := Stile.font_da("dialoghi")
-	if base == null:
-		return null
 	var misure: Dictionary = Stile.dati.get("dialoghi", {})
-	var variante := FontVariation.new()
-	variante.base_font = base
-	var assi := {}
-	for asse in ["opsz", "wdth", "wght"]:
-		if misure.has(asse):
-			assi[TextServerManager.get_primary_interface().name_to_tag(asse)] = float(misure[asse])
-	variante.variation_opentype = assi
-	variante.spacing_glyph = int(misure.get("spaziatura", 0))
+	var variante := con_le_sue_misure("dialoghi", misure)
+	if variante == null:
+		return null
 	if "corsivo" in stile:
 		variante.variation_transform = Transform2D(Vector2(1, 0), Vector2(-float(misure.get("inclinazione", 0.2)), 1), Vector2.ZERO)
 	if "grassetto" in stile:
@@ -86,6 +78,37 @@ static func dialoghi(stile := "dritto") -> Font:
 
 static func corpo_dialoghi() -> int:
 	return int((Stile.dati.get("dialoghi", {}) as Dictionary).get("corpo", Stile.dimensione("corpo")))
+
+
+static func nomi() -> Font:
+	# I NOMI DI CHI PARLA (Shantell Sans, per ora): il nastro rosa, la riga del
+	# nome nel box, lo storico. Bru: «nei nomi va usato un altro font piu'
+	# particolare e alla moda». Misure in data/stile.json, sezione "nomi"
+	if not gia_fatti.has("nomi"):
+		gia_fatti["nomi"] = con_le_sue_misure("nomi", Stile.dati.get("nomi", {}))
+	return gia_fatti["nomi"]
+
+
+static func corpo_nomi() -> int:
+	return int((Stile.dati.get("nomi", {}) as Dictionary).get("corpo", Stile.dimensione("titolo")))
+
+
+static func con_le_sue_misure(chiave: String, misure: Dictionary) -> FontVariation:
+	# il file di font.file_<chiave>, con gli assi scritti per nome ("wght",
+	# "opsz", "INFM"...) e lo spazio in piu' fra le lettere. Un asse che il
+	# file non ha non fa niente: cambiando carattere non si rompe nulla
+	var base := Stile.font_da(chiave)
+	if base == null:
+		return null
+	var variante := FontVariation.new()
+	variante.base_font = base
+	var assi := {}
+	var scritti: Dictionary = misure.get("assi", {})
+	for asse: String in scritti:
+		assi[TextServerManager.get_primary_interface().name_to_tag(asse)] = float(scritti[asse])
+	variante.variation_opentype = assi
+	variante.spacing_glyph = int(misure.get("spaziatura", 0))
+	return variante
 
 
 static func voce() -> Font:

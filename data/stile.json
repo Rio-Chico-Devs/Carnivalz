@@ -8,6 +8,7 @@
     "file_arrotondato": "res://art/font/arrotondato.ttf",
     "file_fiaba": "res://art/font/fiaba.ttf",
     "file_dialoghi": "res://art/font/dialoghi.ttf",
+    "file_nomi": "res://art/font/nomi.ttf",
     "corpo": [
       "Inter",
       "Segoe UI",
@@ -51,6 +52,15 @@
       "sans-serif"
     ],
     "_nota_dialoghi": "IL CARATTERE DEL BOX DEI DIALOGHI (dialoghi, narrazione, notifiche, diario del combattimento). Bru: «dobbiamo anche scegliere un bel font generale per i dialoghi, quello attuale non mi piace»; dopo due giri di candidati («nessuno mi ispira molto») e il laboratorio dei caratteri fatti a codice («con bricolage grotesque ci avviciniamo»), la prova numero 5: «proviamo 5 ops 96 ma leggermente piu' grande». E' Bricolage Grotesque di Mathieu Triay, a tre assi: le misure (corpo ottico, larghezza, peso, spaziatura, e com'e' fatto il corsivo che non ha) stanno nella sezione \"dialoghi\" di questo file. Licenza: art/font/OFL-BricolageGrotesque.txt.",
+    "nomi": [
+      "Shantell Sans",
+      "Segoe Print",
+      "Bradley Hand",
+      "Comic Neue",
+      "DejaVu Sans",
+      "sans-serif"
+    ],
+    "_nota_nomi": "IL CARATTERE DEI NOMI DI CHI PARLA (il nastro rosa, la riga del nome nel box, lo storico). Bru: «nei nomi va usato un altro font piu' particolare e alla moda». Venti candidati sul nastro vero (scatti: nastri_1 e nastri_2, prove/scatto.sh nastri <cartella>); in attesa che Bru scelga, questo e' il mio: Shantell Sans di Shantell Martin e Arrow Type, una scrittura a mano col pennarello - il nastro e' uno scotch con su scritto un nome - con due assi che la rendono viva, INFM (quanto e' informale) e BNCE (quanto le lettere saltellano sulla riga). Le misure stanno nella sezione \"nomi\" di questo file. Licenza: art/font/OFL-ShantellSans.txt.",
     "arrotondato": [
       "Nunito",
       "Varela Round",
@@ -66,12 +76,15 @@
   "_nota_dialoghi": "COM'E' FATTO IL CARATTERE DEI DIALOGHI (Caratteri.dialoghi, font.file_dialoghi). E' la prova 5 del laboratorio che Bru ha scelto - corpo ottico (opsz) 96, larghezza (wdth) 75 cioe' stretto, peso (wght) 800 cioe' nerissimo, un pixel di spazio in piu' fra le lettere - ma il laboratorio la scriveva a 26 e Bru l'ha voluta «leggermente piu' grande»: corpo 28 (un gradino di scala sarebbe stato 31, troppo; 28 e' il 7-8% in piu'). Il corpo ottico a 96 e' il disegno pensato per i titoli: lettere piu' strette e contrasto piu' marcato, ed e' quello che le da' carattere anche a 28. Bricolage non ha un corsivo, e la narrazione e' in corsivo: si inclina il dritto (inclinazione, 0,2 = circa 11 gradi) - lo stesso trucco del laboratorio. Il grassetto non puo' pesare piu' di 800, che e' il massimo del file: si ispessisce il tratto (grassetto, in parti del corpo). Numeri miei tranne i quattro della prova 5.",
   "dialoghi": {
     "corpo": 28,
-    "opsz": 96,
-    "wdth": 75,
-    "wght": 800,
+    "assi": {"opsz": 96, "wdth": 75, "wght": 800},
     "spaziatura": 1,
     "inclinazione": 0.2,
     "grassetto": 0.6
+  },
+  "_nota_nomi": "COM'E' FATTO IL CARATTERE DEI NOMI (Caratteri.nomi, font.file_nomi). corpo: quanto e' grande sul nastro rosa (prima il nastro usava titolo, 45; Shantell ha l'occhio grande e a 42 riempie lo stesso nastro); la riga del nome nel box e lo storico tengono la loro misura (dimensioni.nome e dimensioni.piccolo). assi: quelli del file, per nome - wght il peso (300-800), INFM quanto e' informale (0-100), BNCE quanto le lettere saltellano (0-100). Cambiando carattere si cambiano gli assi con i suoi: un asse che il file non ha non fa niente. Numeri miei.",
+  "nomi": {
+    "corpo": 42,
+    "assi": {"wght": 800, "INFM": 100, "BNCE": 100}
   },
   "_nota_dimensioni": "Scala tipografica: pochi gradini, sempre gli stessi. Niente font_size a occhio dentro le scene.",
   "dimensioni": {

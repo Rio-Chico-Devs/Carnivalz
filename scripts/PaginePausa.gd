@@ -140,6 +140,8 @@ static func riga_storico(voce: Dictionary) -> Control:
 		nome.text = chi
 		nome.add_theme_color_override("font_color", Stile.colore("accento"))
 		nome.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
+		if Caratteri.nomi() != null:
+			nome.add_theme_font_override("font", Caratteri.nomi())
 		blocco.add_child(nome)
 	var corpo := RichTextLabel.new()
 	corpo.bbcode_enabled = true

@@ -256,7 +256,10 @@ func prepara_nastro() -> void:
 	nome_nastro.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	nome_nastro.add_theme_stylebox_override("normal", stile_nastro_piatto())
 	nome_nastro.add_theme_color_override("font_color", Stile.colore("nastro_testo"))
-	nome_nastro.add_theme_font_size_override("font_size", Stile.dimensione("titolo"))
+	# il carattere dei nomi (Caratteri.nomi): «piu' particolare e alla moda» (Bru)
+	if Caratteri.nomi() != null:
+		nome_nastro.add_theme_font_override("font", Caratteri.nomi())
+	nome_nastro.add_theme_font_size_override("font_size", Caratteri.corpo_nomi())
 	nastro.rotation = Stile.angolo("inclinazione_nastro")
 
 func stile_nastro_piatto() -> StyleBoxFlat:

@@ -62,6 +62,8 @@ func _ready() -> void:
 	macchina.finita.connect(conclusione)
 	add_theme_stylebox_override("panel", Stile.stile_box_testo())
 	targhetta.add_theme_color_override("font_color", Stile.colore("accento"))
+	if Caratteri.nomi() != null:   # chi parla si scrive col carattere dei nomi
+		targhetta.add_theme_font_override("font", Caratteri.nomi())
 	targhetta.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
 	# IL TRIANGOLINO E' NERO PERCHE' IL BOX E' BIANCO. Sembra ovvio e non lo era:
 	# prendeva il colore d'accento, che su un fondo scuro si vedeva benissimo e

@@ -612,7 +612,10 @@ senza bisogno di un click a vuoto che lascerebbe la schermata identica. Il box s
 la prova 5 del laboratorio scelta da Bru — corpo ottico 96, stretto, peso 800, un pixel di
 spazio in più fra le lettere — a 28 invece che a 26 («leggermente più grande»). Non ha un
 corsivo: la narrazione è il dritto inclinato. Le misure stanno in `data/stile.json`, sezione
-`dialoghi`. Ogni nodo evento può
+`dialoghi`. I **nomi di chi parla** (il nastro rosa, la riga del nome nel box, lo storico)
+hanno un carattere loro, `art/font/nomi.ttf` (`Caratteri.nomi()`, misure nella sezione `nomi`):
+per ora **Shantell Sans**, scritto a mano e saltellante, scelta mia in attesa che Bru scelga fra
+i venti candidati di `prove/scatto.sh nastri <cartella>`. Ogni nodo evento può
 avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
 - **`narrazione`**: la voce narrante descrive la scena in **seconda persona** ("ti nota",
   "il tuo compito"), sempre in *corsivo*, senza nome — non è Anonimo che parla, è chi

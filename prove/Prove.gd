@@ -92,6 +92,7 @@ func _ready() -> void:
 	prova_l_inizio_di_ogni_livello_si_racconta()
 	prova_ogni_carattere_ha_la_sua_licenza()
 	prova_il_box_parla_col_carattere_scelto_da_bru()
+	await prova_i_nomi_si_scrivono_col_loro_carattere()
 	await prova_il_racconto_si_prende_lo_schermo()
 	await prova_ogni_pagina_del_racconto_sta_nello_schermo()
 	await prova_nel_racconto_le_lettere_affiorano()
@@ -5137,6 +5138,61 @@ func prova_ogni_carattere_ha_la_sua_licenza() -> void:
 			"in art/font/ ci sono %d caratteri e %d licenze OFL: spedirli senza e' violarla" % [caratteri.size(), licenze.size()])
 	for nome in caratteri:
 		esigi(("`%s`" % nome) in leggimi, "%s non e' nel LEGGIMI dei caratteri: non si sa di chi e' ne' con che licenza" % nome)
+
+func base_del_carattere(carattere: Font) -> Font:
+	# sotto tutte le varianti (assi, crenatura), il file vero
+	while carattere is FontVariation:
+		carattere = (carattere as FontVariation).base_font
+	return carattere
+
+func prova_i_nomi_si_scrivono_col_loro_carattere() -> void:
+	# Bru, 28 settembre: «nei nomi va usato un altro font piu' particolare e alla
+	# moda». Chi parla si scrive con un carattere suo dappertutto: sul nastro
+	# rosa, nella riga del nome del box (combattimento, Guida), nello storico
+	titolo("i nomi di chi parla hanno il loro carattere, dappertutto")
+	var voluto := String((Stile.dati.get("font", {}) as Dictionary).get("file_nomi", ""))
+	esigi(voluto != "" and ResourceLoader.exists(voluto), "il carattere dei nomi non c'e': «%s»" % voluto)
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	GameState.imposta_flag("rientro_infermeria")
+	GameState.nodo_corrente = "infermeria_risveglio"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	var dove := {"sul nastro rosa": schermata.nome_nastro, "nella riga del nome del box": schermata.box.targhetta}
+	var riga_storico := PaginePausa.riga_storico({"tipo": "dialogo", "chi": "Veronica", "testo": "Ciao."})
+	dove["nello storico"] = riga_storico.get_child(0)
+	for quale: String in dove:
+		var usato := base_del_carattere((dove[quale] as Control).get_theme_font("font"))
+		esigi(usato != null and usato.resource_path == voluto, "%s il nome e' scritto con «%s» invece che con %s"
+				% [quale, usato.resource_path if usato != null else "niente", voluto])
+	riga_storico.free()
+	# le misure scritte in stile.json arrivano davvero al nastro
+	esigi(schermata.nome_nastro.get_theme_font_size("font_size") == Caratteri.corpo_nomi(),
+			"sul nastro il nome e' a %d invece che a %d" % [schermata.nome_nastro.get_theme_font_size("font_size"), Caratteri.corpo_nomi()])
+	var variante := schermata.nome_nastro.get_theme_font("font") as FontVariation
+	var assi: Dictionary = (Stile.dati.get("nomi", {}) as Dictionary).get("assi", {})
+	esigi(variante != null and not assi.is_empty(), "il carattere dei nomi non ha le sue misure")
+	for asse: String in assi:
+		var messo: Variant = variante.variation_opentype.get(TextServerManager.get_primary_interface().name_to_tag(asse)) if variante != null else null
+		esigi(messo != null and is_equal_approx(float(messo), float(assi[asse])),
+				"sul nastro l'asse %s e' a %s invece che a %s" % [asse, messo, assi[asse]])
+	# e il nome piu' lungo del gioco sta nello schermo: un carattere largo e alla
+	# moda non deve portare il nastro fuori dal bordo
+	var piu_lungo := ""
+	var personaggi: Array = (JSON.parse_string(FileAccess.get_file_as_string("res://data/personaggi.json")) as Dictionary).get("personaggi", [])
+	for personaggio: Dictionary in personaggi:
+		var nome := String(personaggio.get("nome", ""))
+		if nome.length() > piu_lungo.length():
+			piu_lungo = nome
+	schermata.nome_sul_nastro = ""
+	await schermata.aggiorna_nastro(piu_lungo)
+	var largo := get_viewport().get_visible_rect().size.x - (schermata.posto_del_nastro() as Vector2).x
+	esigi(schermata.nastro.size.x <= largo,
+			"col nome «%s» il nastro e' largo %d ed esce dallo schermo (ci sono %d pixel)" % [piu_lungo, schermata.nastro.size.x, largo])
+	schermata.queue_free()
+	await get_tree().process_frame
 
 func prova_il_box_parla_col_carattere_scelto_da_bru() -> void:
 	# Bru, 28 settembre, sul laboratorio dei caratteri: «per il testo proviamo
