@@ -1,12 +1,12 @@
 class_name Vetrina
 extends Control
 
-# LA FASCIA CREMISI DEL NEGOZIO: l'oggetto scelto, grande.
+# LA FASCIA NERA DEL NEGOZIO: l'oggetto scelto, grande.
 #
 # Nello schema di Bru e' la fascia scura obliqua a destra (F) e il blocco
-# accanto (G). Da noi la fascia e' cremisi, l'unico colore caldo di tutta la
-# schermata, con la striscia bianca accanto come le quinte della pausa: dice
-# "questo e' quello che stai guardando" senza bisogno di una cornice.
+# accanto (G). Da noi la fascia e' nera sull'arancio del manifesto, con la
+# striscia chiara accanto: dice "questo e' quello che stai guardando" senza
+# bisogno di una cornice. Fuori dalla fascia si scrive in nero.
 #
 # Dentro, dall'alto: il prezzo grande, il disegno che sporge dalla fascia a
 # sinistra, il nome, e tre riquadri con quello che fa in numeri. A destra,
@@ -52,7 +52,7 @@ func _ready() -> void:
 	var nero := Stile.colore("box_testo")
 	prezzo = aggiungi(Tavola.scritta("", 76, bianco, Caratteri.titolo(), HORIZONTAL_ALIGNMENT_CENTER), Rect2(930, 70, 270, 92))
 	Tavola.ombra(prezzo, Color(nero, 0.9), Vector2(4, 4))
-	unita = aggiungi(Tavola.scritta("TAZO", 16, nero, Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER), Rect2(965, 166, 200, 22))
+	unita = aggiungi(Tavola.scritta("TAZO", 16, bianco, Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER), Rect2(965, 166, 200, 22))
 	nome = aggiungi(Tavola.scritta("", 30, bianco, Caratteri.titolo(), HORIZONTAL_ALIGNMENT_CENTER), Rect2(724, 496, 330, 44))
 	Tavola.ombra(nome, Color(nero, 0.9))
 	for i in 3:
@@ -66,14 +66,14 @@ func _ready() -> void:
 		sotto.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 		a_capo(sotto)
 		etichette.append(sotto)
-	restano = aggiungi(Tavola.scritta("", 44, bianco, Caratteri.titolo(), HORIZONTAL_ALIGNMENT_RIGHT), Rect2(1070, 372, 180, 56))
-	restano_cosa = aggiungi(Tavola.scritta("", 13, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_RIGHT), Rect2(1070, 428, 180, 18))
-	quanti = aggiungi(Tavola.scritta("", 30, bianco, Caratteri.titolo()), Rect2(1154, 484, 110, 36))
-	quanti_cosa = aggiungi(Tavola.scritta("", 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900)), Rect2(1154, 518, 120, 16))
-	compra = TastoObliquo.nuovo("COMPRA", "chiaro", 26)
+	restano = aggiungi(Tavola.scritta("", 44, nero, Caratteri.titolo(), HORIZONTAL_ALIGNMENT_RIGHT), Rect2(1070, 372, 180, 56))
+	restano_cosa = aggiungi(Tavola.scritta("", 13, nero, Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_RIGHT), Rect2(1070, 428, 180, 18))
+	quanti = aggiungi(Tavola.scritta("", 30, nero, Caratteri.titolo()), Rect2(1154, 484, 110, 36))
+	quanti_cosa = aggiungi(Tavola.scritta("", 12, nero, Caratteri.tondo(900)), Rect2(1154, 518, 120, 16))
+	compra = TastoObliquo.nuovo("COMPRA", "nero", 26)
 	add_child(compra)
 	Tavola.metti(compra, Rect2(1030, 566, 240, 50))
-	motivo = aggiungi(Tavola.scritta("", 12, Stile.colore("accento"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER), Rect2(1010, 622, 262, 34))
+	motivo = aggiungi(Tavola.scritta("", 12, nero, Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER), Rect2(1010, 622, 262, 34))
 	motivo.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	a_capo(motivo)
 
@@ -139,7 +139,7 @@ func riempi_riquadri(baratto: bool) -> void:
 
 func pezzi_del_baratto() -> Array[Dictionary]:
 	# un riquadro per materiale, coi doppioni insieme: "1/2" sopra ROTTAME DI
-	# METALLO, in cremisi finche' non li hai tutti. Prima erano tre SI'/NO, uno
+	# METALLO, in arancio finche' non li hai tutti. Prima erano tre SI'/NO, uno
 	# per pezzo, e due rottami erano due riquadri uguali
 	var pezzi: Array[Dictionary] = []
 	for riga in Merce.materiali(voce.get("richiede", [])).slice(0, 3):
@@ -157,8 +157,6 @@ func riempi_conti(baratto: bool, id_oggetto: String) -> void:
 		var dopo := GameState.tazo - int(voce.get("prezzo", 0))
 		restano.text = "%d" % absi(dopo)
 		restano_cosa.text = "TI RESTANO" if dopo >= 0 else "TI MANCANO"
-	restano.add_theme_color_override("font_color",
-			Stile.colore("accento") if restano_cosa.text == "TI MANCANO" else Stile.colore("testo"))
 	var quanti_e_cosa := Merce.quanti_ne_possiedi(id_oggetto)
 	quanti.text = quanti_e_cosa[0]
 	quanti_cosa.text = quanti_e_cosa[1]
@@ -195,7 +193,7 @@ func _draw() -> void:
 	striscia.append(BANDA[3] - Vector2(STACCO_STRISCIA, 0))
 	striscia.append(BANDA[0] - Vector2(STACCO_STRISCIA, 0))
 	draw_colored_polygon(striscia, Stile.colore("bordo_acceso"))
-	draw_colored_polygon(banda, Stile.colore("accento"))
+	draw_colored_polygon(banda, Stile.colore("bordo"))
 	disegna_riquadri()
 	if voce.is_empty():
 		return
@@ -208,7 +206,7 @@ func disegna_riquadri() -> void:
 		if valori.size() <= i or valori[i].text == "":
 			continue
 		var r := Rect2(PRIMO_RIQUADRO + Vector2(PASSO_RIQUADRO * i, 0), RIQUADRO)
-		draw_rect(r, Stile.colore("box_testo"))
+		draw_rect(r, Stile.colore("pannello_chiaro"))
 		draw_rect(Rect2(r.position.x, r.end.y - 3.0, r.size.x, 3.0), Stile.colore("bordo_acceso"))
 
 
@@ -219,7 +217,7 @@ func disegna_oggetto(dove: Rect2, lato: float, spostato: Vector2, alfa: float, o
 	if disegno != null:
 		Sagome.disegna_dentro(self, disegno, r, Color(1, 1, 1, alfa))
 		return
-	# la sagoma ha la sua sfoglia nera sotto: sulla fascia cremisi e sul nero
+	# la sagoma ha la sua sfoglia nera sotto: sulla fascia nera e sull'arancio
 	# della pagina si legge lo stesso
 	var tipo := Sagome.tipo_icona(id_oggetto)
 	var nero := Color(Stile.colore("box_testo"), alfa)

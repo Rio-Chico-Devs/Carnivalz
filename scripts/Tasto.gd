@@ -14,8 +14,7 @@ static func nuovo(tasto: String, azione: String, richiamo: Callable) -> Tasto:
 	var bottone := Button.new()
 	bottone.text = tasto
 	bottone.focus_mode = Control.FOCUS_NONE
-	if Caratteri.tondo(850) != null:
-		bottone.add_theme_font_override("font", Caratteri.tondo(850))
+	bottone.add_theme_font_override("font", Caratteri.titolo())
 	bottone.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
 	# LA PILLOLA DEL MANIFESTO: arancio con la scritta nera, sulla banda nera
 	# in fondo; passandoci sopra si accende il bordo chiaro
@@ -31,9 +30,8 @@ static func nuovo(tasto: String, azione: String, richiamo: Callable) -> Tasto:
 	riga.add_child(bottone)
 	var scritta := Label.new()
 	scritta.text = azione
-	if Caratteri.tondo(700) != null:
-		scritta.add_theme_font_override("font", Caratteri.tondo(700))
-	scritta.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
+	scritta.add_theme_font_override("font", Caratteri.titolo())
+	scritta.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
 	scritta.add_theme_color_override("font_color", Stile.colore("testo"))
 	Stile.contorno(scritta, Stile.dimensione("minuscolo"))
 	scritta.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

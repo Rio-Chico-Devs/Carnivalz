@@ -17,7 +17,7 @@ extends VoceMenu
 # sua, il segno compare col colore. Non scivola: in un elenco lungo una voce
 # che si sposta fa sembrare storto tutto l'elenco.
 
-const CORPO := 31
+const CORPO := 34
 # IL PASSO FRA LE VOCI E' FISSO: 40 pixel, il 5,6% dello schermo come nel
 # riferimento. Non lo decide l'altezza del carattere - che fra un sistema e
 # l'altro cambia, e senza finestra Godot la sbaglia del tutto (Anton risulta
@@ -28,7 +28,7 @@ const PASSO := 40.0
 
 static func crea(testo: String, corpo := 0) -> VoceMacchia:
 	var voce := VoceMacchia.new()
-	voce.costruisci("emblema", testo, corpo if corpo > 0 else CORPO)
+	voce.costruisci("riprendi", testo, corpo if corpo > 0 else CORPO)
 	voce.vesti()
 	return voce
 

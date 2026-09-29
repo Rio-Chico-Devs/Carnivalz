@@ -19,7 +19,6 @@ const LARGO := 300.0
 const TESTA := 30.0
 const RIGA := 34.0
 const STACCO := 5.0
-const TACCA := Vector2(4, 12)
 
 var accesa := 0                    # la partita piu' recente; 0 = nessuna
 var righe: Array[Dictionary] = []
@@ -89,52 +88,45 @@ func _draw() -> void:
 
 
 func testata() -> void:
-	var chiaro := Color(Stile.colore("menu_chiaro"), arrivo)
+	# L'ETICHETTA del manifesto, e accanto la pillola chiara con quante partite
+	# ci sono: com'e' nel bozzetto approvato
 	var titolo := Caratteri.titolo()
-	if titolo != null:
-		# L'ETICHETTA del manifesto: nera, con la scritta chiara
-		var largo := titolo.get_string_size("LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
-		draw_colored_polygon(VoceMenu.lastra(-6.0, largo + 38.0, -2.0, 30.0), Color(Stile.colore("bordo"), arrivo))
-		draw_string(titolo, Vector2(26, 22), "LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20,
-				Color(Stile.colore("testo"), arrivo))
-		chiaro = Color(Stile.colore("testo"), arrivo)
-	# il segno della squadra, due teste, come nel riferimento
-	draw_circle(Vector2(8, 13), 4.0, chiaro)
-	draw_circle(Vector2(17, 13), 4.0, chiaro)
-	# le tacche: una per partita, piene quelle in uso
-	var in_uso := Partite.occupate().size()
-	for t in GameState.SLOT_MASSIMO:
-		var dove := Vector2(LARGO - 92.0 + t * 7.0, 20.0 - TACCA.y)
-		draw_rect(Rect2(dove, TACCA), Color(Stile.colore("box_testo"), arrivo * (1.0 if t < in_uso else 0.25)))
-	var tondo := Caratteri.tondo(800)
-	if tondo != null:
-		draw_string(tondo, Vector2(LARGO - 52.0, 21), "[%d/%d]" % [in_uso, GameState.SLOT_MASSIMO],
-				HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color(Stile.colore("box_testo"), arrivo))
+	if titolo == null:
+		return
+	var largo := titolo.get_string_size("LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
+	draw_colored_polygon(VoceMenu.lastra(-12.0, largo + 12.0, -4.0, 30.0), Color(Stile.colore("bordo"), arrivo))
+	draw_string(titolo, Vector2(4, 19), "LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20,
+			Color(Stile.colore("testo"), arrivo))
+	var conto := "%d / %d" % [Partite.occupate().size(), GameState.SLOT_MASSIMO]
+	var pillola := Rect2(LARGO - 62.0, -2.0, 62.0, 26.0)
+	draw_style_box(Manifesto.stile_pillola(Color(Stile.colore("bordo_acceso"), arrivo)), pillola)
+	draw_string(titolo, Vector2(pillola.position.x, 17), conto, HORIZONTAL_ALIGNMENT_CENTER, pillola.size.x, 16,
+			Color(Stile.colore("box_testo"), arrivo))
 
 
 func riga(i: int, dove: Rect2) -> void:
+	# UNA PARTITA SUL FOGLIO: la riga chiara con la sua linea tratteggiata sotto,
+	# come un modulo da riempire; quella piu' recente ha il bordo nero
 	var quanto := quota_riga(i)
 	if quanto <= 0.0:
 		return
 	var dati: Dictionary = righe[i]
 	var accesa_qui := int(dati.slot) == accesa
-	var fondo := StyleBoxFlat.new()
-	fondo.set_corner_radius_all(4)
-	fondo.bg_color = Color(Stile.colore("menu_riga_accesa" if accesa_qui else "menu_riga"),
-			(0.88 if accesa_qui else 0.7) * quanto)
-	fondo.set_border_width_all(2 if accesa_qui else 1)
-	fondo.border_color = Color(Stile.colore("menu_riga_accesa_bordo" if accesa_qui else "menu_riga_bordo"),
-			(0.9 if accesa_qui else 0.5) * quanto)
-	draw_style_box(fondo, dove)
-	var tondo := Caratteri.tondo(700)
-	if tondo == null:
-		return
-	var testo := Stile.colore("menu_descrizione")
+	draw_rect(dove, Color(Stile.colore("box_fondo"), quanto))
+	if accesa_qui:
+		draw_rect(dove.grow(-1.0), Color(Stile.colore("bordo"), quanto), false, 2.0)
+	var x := dove.position.x
+	while x < dove.end.x:
+		draw_line(Vector2(x, dove.end.y - 1.0), Vector2(minf(x + 8.0, dove.end.x), dove.end.y - 1.0),
+				Color(Stile.colore("bordo"), quanto), 2.0)
+		x += 14.0
+	var carattere := Caratteri.titolo()
+	var testo := Stile.colore("box_testo")
 	if not bool(dati.piena):
-		draw_string(tondo, Vector2(dove.position.x, dove.position.y + 23.0), "Partita libera…",
-				HORIZONTAL_ALIGNMENT_CENTER, dove.size.x, 17, Color(testo, 0.62 * quanto))
+		draw_string(carattere, dove.position + Vector2(12, 23), "Partita libera…",
+				HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color(Stile.colore("comando_spento"), quanto))
 		return
-	draw_string(tondo, dove.position + Vector2(14, 23), "%d  %s" % [int(dati.slot), String(dati.nome)],
+	draw_string(carattere, dove.position + Vector2(12, 23), "%d  %s" % [int(dati.slot), String(dati.nome)],
 			HORIZONTAL_ALIGNMENT_LEFT, dove.size.x - 80.0, 18, Color(testo, quanto))
 	cartellino_livello(dove, int(dati.livello), quanto)
 	if accesa_qui:
@@ -142,16 +134,16 @@ func riga(i: int, dove: Rect2) -> void:
 
 
 func cartellino_livello(dove: Rect2, livello: int, quanto: float) -> void:
-	# il livello in un cartellino chiaro a destra, come il numero del riferimento
+	# il livello in un cartellino nero a destra, la scritta chiara
 	var titolo := Caratteri.titolo()
 	var tessera := Rect2(dove.end.x - 58.0, dove.position.y + 6.0, 50.0, dove.size.y - 12.0)
 	var fondo := StyleBoxFlat.new()
 	fondo.set_corner_radius_all(3)
-	fondo.bg_color = Color(Stile.colore("menu_chiaro"), 0.9 * quanto)
+	fondo.bg_color = Color(Stile.colore("bordo"), quanto)
 	draw_style_box(fondo, tessera)
 	if titolo != null:
 		draw_string(titolo, Vector2(tessera.position.x, tessera.end.y - 4.0), "LV %d" % livello,
-				HORIZONTAL_ALIGNMENT_CENTER, tessera.size.x, 17, Color(Stile.colore("menu_macchia"), quanto))
+				HORIZONTAL_ALIGNMENT_CENTER, tessera.size.x, 17, Color(Stile.colore("testo"), quanto))
 
 
 func segno_della_recente(dove: Vector2, quanto: float) -> void:

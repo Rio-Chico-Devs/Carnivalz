@@ -97,6 +97,7 @@ func costruisci() -> void:
 	iniziale.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	iniziale.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	iniziale.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+	iniziale.add_theme_font_override("font", Caratteri.titolo())
 	iniziale.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ritratto.add_child(iniziale)
 	for riga in RIGHE:

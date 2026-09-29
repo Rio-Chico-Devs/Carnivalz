@@ -83,7 +83,9 @@ static func vesti_etichetta(scritta: Label, corpo: int, inchiostro := "testo", t
 
 
 static func vesti_striscia(scritta: Label, corpo: int) -> void:
-	# la riga sottile sotto un'etichetta: largo e spaziato, arancio sul nero
+	# la riga sottile sotto un'etichetta: largo e spaziato, arancio sul nero,
+	# maiuscolo come nel bozzetto approvato
+	scritta.uppercase = true
 	scritta.add_theme_stylebox_override("normal", stile_etichetta(Stile.colore("bordo"), corpo * 0.6, corpo * 0.1))
 	scritta.add_theme_font_override("font", Caratteri.striscia())
 	scritta.add_theme_font_size_override("font_size", corpo)
@@ -106,13 +108,13 @@ static func vesti_voce(tasto: Button, corpo: int) -> void:
 	tasto.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN   # l'etichetta si stringe sulla parola
 	tasto.custom_minimum_size = Vector2.ZERO
 	tasto.set_meta("corpo_voce", corpo)
-	tasto.add_theme_font_override("font", Caratteri.voci_strette())
+	tasto.add_theme_font_override("font", Caratteri.titolo())
 	tasto.add_theme_font_size_override("font_size", corpo)
 	tasto.add_theme_color_override("font_pressed_color", Stile.colore("box_testo"))
 	for stato in ["font_hover_color", "font_hover_pressed_color"]:
 		tasto.add_theme_color_override(stato, Stile.colore("testo"))
 	tasto.add_theme_color_override("font_disabled_color", Stile.colore("comando_spento"))
-	var acceso := stile_etichetta(Stile.colore("bordo"), corpo * 0.4, 0.0)
+	var acceso := fascia_voce(tasto)
 	for stato in ["hover", "hover_pressed"]:
 		tasto.add_theme_stylebox_override(stato, acceso)
 	for stato in ["pressed", "disabled"]:
@@ -126,9 +128,13 @@ static func vesti_voce(tasto: Button, corpo: int) -> void:
 
 
 static func accendi_voce(tasto: Button, si: bool) -> void:
+	# accesa: l'etichetta nera, la scritta chiara e il triangolo davanti
 	tasto.set_meta("voce_accesa", si)
-	var corpo := int(tasto.get_meta("corpo_voce", 20))
-	var acceso := stile_etichetta(Stile.colore("bordo"), corpo * 0.4, 0.0)
+	tasto.icon = freccia() if si else null
+	for stato in ["icon_normal_color", "icon_focus_color", "icon_hover_color", "icon_pressed_color"]:
+		tasto.add_theme_color_override(stato, Stile.colore("testo"))
+	tasto.add_theme_constant_override("icon_max_width", int(float(tasto.get_meta("corpo_voce", 20)) * 0.5))
+	var acceso := fascia_voce(tasto)
 	if si:
 		tasto.add_theme_stylebox_override("normal", acceso)
 	else:
@@ -136,6 +142,34 @@ static func accendi_voce(tasto: Button, si: bool) -> void:
 	var tinta := Stile.colore("testo") if si else Stile.colore("box_testo")
 	for stato in ["font_color", "font_focus_color"]:
 		tasto.add_theme_color_override(stato, tinta)
+
+
+static func fascia_voce(tasto: Button) -> StyleBoxFlat:
+	# l'etichetta della voce accesa; una riga d'elenco ci lascia la sua corsia
+	# a sinistra (Stile.voce_di_elenco), dove sta il marcatore
+	var corpo := int(tasto.get_meta("corpo_voce", 20))
+	var fascia := stile_etichetta(Stile.colore("bordo"), corpo * 0.4, 0.0)
+	if tasto.has_meta("rientro_voce"):
+		fascia.content_margin_left = float(tasto.get_meta("rientro_voce"))
+	return fascia
+
+
+static var la_freccia: ImageTexture = null
+
+
+static func freccia() -> ImageTexture:
+	# il triangolo delle voci accese, disegnato una volta: bianco, lo tinge il tema
+	if la_freccia != null:
+		return la_freccia
+	var lato := 32
+	var immagine := Image.create(lato, lato, false, Image.FORMAT_RGBA8)
+	for y in lato:
+		var mezza := absf(float(y) + 0.5 - lato * 0.5)
+		for x in lato:
+			if float(x) < (lato * 0.5 - mezza) * 1.6:
+				immagine.set_pixel(x, y, Color.WHITE)
+	la_freccia = ImageTexture.create_from_image(immagine)
+	return la_freccia
 
 
 static func spento_come(acceso: StyleBox) -> StyleBoxEmpty:
@@ -223,13 +257,14 @@ class Carta extends Control:
 		Manifesto.carta(self, Rect2(Vector2.ZERO, size), tinta, spessore, con_retino)
 
 
-static func carta(tela: CanvasItem, dove: Rect2, tinta: Color, spessore := 5.0, con_retino := true) -> void:
+static func carta(tela: CanvasItem, dove: Rect2, tinta: Color, spessore := 5.0, con_retino := true,
+		da := Vector2(0.5, 0.4)) -> void:
 	# il foglio disegnato a mano, per chi disegna in _draw invece che coi nodi
 	var nero := Stile.colore("bordo")
 	tela.draw_rect(Rect2(dove.position + OMBRA, dove.size), nero)
 	tela.draw_rect(dove, tinta)
 	if con_retino:
-		retino(tela, dove, Stile.colore("retino"))
+		retino(tela, dove, Stile.colore("retino"), da)
 	tela.draw_rect(dove.grow(-spessore * 0.5), nero, false, spessore)
 
 
@@ -406,3 +441,200 @@ class FregioBox extends Control:
 		for punta in punte:
 			dentro.append(centro + (punta - centro) * 0.5)
 		draw_colored_polygon(dentro, Stile.colore("manifesto"))
+
+
+class Foglio extends PanelContainer:
+	# UN FOGLIO CHE CONTIENE ALTRO, come il pannello dello zaino nel bozzetto
+	# approvato del Data pad: la carta chiara, il contorno nero spesso, l'ombra
+	# piena e il retino nell'angolo; sopra, a cavallo del bordo, l'etichetta nera
+	# col nome di quello che contiene. Quello che ci si scrive dentro era pensato
+	# per il nero: sulla carta si ritinge da se' (Manifesto.ritingi)
+	const MARGINE := 28.0
+	var titolo := "":
+		set(nuovo):
+			titolo = nuovo
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var margini := StyleBoxEmpty.new()
+		margini.set_content_margin_all(MARGINE)
+		add_theme_stylebox_override("panel", margini)
+		theme = Manifesto.tema_carta()
+		resized.connect(queue_redraw)
+
+	func _enter_tree() -> void:
+		get_tree().node_added.connect(nodo_nuovo)
+		nodo_nuovo(self)
+
+	func _exit_tree() -> void:
+		get_tree().node_added.disconnect(nodo_nuovo)
+
+	func nodo_nuovo(nodo: Node) -> void:
+		# alla fine del fotogramma: chi aggiunge una scritta le da' il colore
+		# DOPO averla aggiunta
+		if nodo == self or is_ancestor_of(nodo):
+			(func() -> void:
+				if is_instance_valid(nodo):
+					Manifesto.ritingi(nodo)).call_deferred()
+
+	func _draw() -> void:
+		# il retino stretto nell'angolo: sul foglio ci si legge, e i puntini
+		# sotto le parole le sporcano
+		Manifesto.carta(self, Rect2(Vector2.ZERO, size), Stile.colore("box_fondo"), 6.0, true, Vector2(0.72, 0.6))
+		if titolo != "":
+			Manifesto.etichetta(self, Vector2(MARGINE * 0.5, -MARGINE * 1.1), titolo, 28)
+
+
+static func in_foglio(contenuto: Control, titolo := "") -> Foglio:
+	# mette "contenuto" su un foglio, al posto dove stava
+	var foglio := Foglio.new()
+	foglio.titolo = titolo
+	al_posto_di(contenuto, foglio)
+	return foglio
+
+
+class Schermo extends PanelContainer:
+	# UNO SCHERMO DI CABINATO CHE CONTIENE ALTRO: le mappe, che sono proiezioni.
+	# Quello che era pensato per il nero resta sul nero, dentro il vetro; fuori
+	# c'e' l'arancio del manifesto
+	const BORDO := 14.0
+	const ARIA := 14.0
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var margini := StyleBoxEmpty.new()
+		margini.set_content_margin_all(BORDO + ARIA)
+		add_theme_stylebox_override("panel", margini)
+		resized.connect(queue_redraw)
+
+	func _draw() -> void:
+		Manifesto.disegna_schermo(self, Rect2(Vector2.ZERO, size))
+
+
+static func in_schermo(contenuto: Control) -> Schermo:
+	var schermo_nuovo := Schermo.new()
+	al_posto_di(contenuto, schermo_nuovo)
+	return schermo_nuovo
+
+
+# LE PROIEZIONI: una mappa scritta per lo schermo intero (i punti di
+# data/mappa.json stanno in 1280x720) sta nel vetro di un cabinato, fra il
+# titolo in alto e la barra dei tasti in basso, e i punti ci si riportano dentro
+# in proporzione
+const MISURA_PROIEZIONE := Vector2(1280, 720)
+
+
+static func vetro_della_proiezione(schermo: Vector2) -> Rect2:
+	return Rect2(Vector2(30, 102), Vector2(schermo.x - 60.0, schermo.y - 102.0 - 90.0))
+
+
+static func nella_proiezione(punto: Vector2, vetro: Rect2) -> Vector2:
+	return vetro.position + punto / MISURA_PROIEZIONE * vetro.size
+
+
+static func titolo_della_proiezione(titolo: Label) -> void:
+	Manifesto.vesti_etichetta(titolo, Stile.dimensione("corpo"))
+	titolo.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	titolo.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	titolo.grow_horizontal = Control.GROW_DIRECTION_END
+	titolo.size = Vector2.ZERO   # si stringe sulla scritta: era larga quanto lo schermo
+	titolo.position = Vector2(24, 14)
+
+
+static func al_posto_di(contenuto: Control, contenitore: Control) -> void:
+	# il contenitore prende il posto del contenuto - stesso genitore, stesso
+	# ordine, stesse regole di misura - e il contenuto ci va dentro
+	contenitore.size_flags_horizontal = contenuto.size_flags_horizontal
+	contenitore.size_flags_vertical = contenuto.size_flags_vertical
+	var genitore := contenuto.get_parent()
+	var dove := contenuto.get_index()
+	genitore.remove_child(contenuto)
+	genitore.add_child(contenitore)
+	genitore.move_child(contenitore, dove)
+	contenitore.add_child(contenuto)
+
+
+# --- scrivere sulla carta ---------------------------------------------------------
+
+# quello che sul nero era chiaro, sulla carta e' nero; l'arancio pieno sulla
+# carta non si legge (1,5:1) e diventa quello bruciato. Contrasti su box_fondo:
+# box_testo 16:1, accento_su_carta 4,6:1, tratto 4,8:1
+const INCHIOSTRI_SU_CARTA := {"testo": "box_testo", "bordo_acceso": "box_testo",
+		"accento": "accento_su_carta", "testo_smorzato": "tratto", "spento": "tratto"}
+const COLORI_SCRITTA := ["font_color", "default_color", "font_hover_color", "font_focus_color",
+		"font_pressed_color", "font_hover_pressed_color", "font_placeholder_color"]
+
+static var il_tema_carta: Theme = null
+
+
+static func tema_carta() -> Theme:
+	# i colori di serie sulla carta: chi non ne sceglie uno scrive nero
+	if il_tema_carta != null:
+		return il_tema_carta
+	il_tema_carta = Theme.new()
+	var nero := Stile.colore("box_testo")
+	for tipo in ["Label", "Button", "CheckBox", "LineEdit"]:
+		for chiave in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
+			il_tema_carta.set_color(chiave, tipo, nero)
+	il_tema_carta.set_color("default_color", "RichTextLabel", nero)
+	return il_tema_carta
+
+
+static func ritingi(nodo: Node) -> void:
+	# i colori scelti per il nero, uno per uno, con quelli della carta. Le voci
+	# dei menu (VoceMenu) si colorano da sole a ogni passo e hanno gia' i loro
+	if nodo.get_parent() is VoceMenu or not nodo is Control:
+		return
+	var scritta := nodo as Control
+	for chiave in COLORI_SCRITTA:
+		if scritta.has_theme_color_override(chiave):
+			scritta.add_theme_color_override(chiave, su_carta(scritta.get_theme_color(chiave)))
+	if scritta is RichTextLabel and (scritta as RichTextLabel).bbcode_enabled:
+		var testo := (scritta as RichTextLabel).text
+		for da: String in INCHIOSTRI_SU_CARTA:
+			testo = testo.replace(Stile.colore(da).to_html(false), Stile.colore(INCHIOSTRI_SU_CARTA[da]).to_html(false))
+		if testo != (scritta as RichTextLabel).text:
+			(scritta as RichTextLabel).text = testo
+
+
+static func su_carta(tinta: Color) -> Color:
+	for da: String in INCHIOSTRI_SU_CARTA:
+		if Color(tinta, 1.0).is_equal_approx(Stile.colore(da)):
+			return Color(Stile.colore(INCHIOSTRI_SU_CARTA[da]), tinta.a)
+	return tinta
+
+
+static func etichetta(tela: CanvasItem, dove: Vector2, testo: String, corpo: int) -> void:
+	# l'etichetta nera disegnata a mano, per chi disegna in _draw: la stessa
+	# fascia inclinata di stile_etichetta, con la scritta chiara
+	var f := Caratteri.titolo()
+	var misura := f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo)
+	var alto := corpo * 1.3
+	var largo := misura.x + corpo
+	var obliquo := INCLINA * alto
+	var fascia := PackedVector2Array([dove + Vector2(obliquo, 0), dove + Vector2(largo + obliquo, 0),
+			dove + Vector2(largo, alto), dove + Vector2(0, alto)])
+	tela.draw_colored_polygon(fascia, Stile.colore("bordo"))
+	var riga := dove + Vector2(corpo * 0.5 + obliquo * 0.5, alto * 0.5 + f.get_ascent(corpo) * 0.5 - f.get_descent(corpo) * 0.35)
+	tela.draw_string(f, riga, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Stile.colore("testo"))
+
+
+static func disegna_schermo(tela: CanvasItem, dove: Rect2) -> void:
+	# LO SCHERMO DI UN CABINATO disegnato a mano, per le schermate fatte su una
+	# tavola (la scheda della squadra): il contorno nero arrotondato con l'ombra
+	# piena, la cornice chiara, il vetro scuro col suo filo
+	var tondo := StyleBoxFlat.new()
+	tondo.anti_aliasing = true
+	tondo.bg_color = Stile.colore("bordo")
+	tondo.set_corner_radius_all(22)
+	tela.draw_style_box(tondo, Rect2(dove.position + OMBRA, dove.size))
+	tela.draw_style_box(tondo, dove)
+	tondo.bg_color = Stile.colore("bordo_acceso")
+	tondo.set_corner_radius_all(18)
+	tela.draw_style_box(tondo, dove.grow(-4.0))
+	tondo.bg_color = Stile.colore("quadro_vuoto")
+	tondo.border_color = Stile.colore("bordo")
+	tondo.set_border_width_all(3)
+	tondo.set_corner_radius_all(12)
+	tela.draw_style_box(tondo, dove.grow(-14.0))

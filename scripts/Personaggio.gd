@@ -5,13 +5,14 @@ extends Control
 #
 # COME E' FATTA. E' lo schema che Bru ha preso dal suo riferimento, specchiato
 # come l'ha chiesto lui - il personaggio e le carte a destra, le informazioni a
-# sinistra - e ridipinto coi colori del gioco (docs/interfaccia.md):
+# sinistra - e ridipinto nella lingua del manifesto (Manifesto.gd): l'arancio
+# fuori, le informazioni negli schermi scuri dei cabinati (docs/interfaccia.md):
 #
 #   in alto        Indietro, il Data pad, e il titolo
 #   a sinistra     l'emblema, il nome, il livello; sotto, due linguette:
 #                  STATISTICHE, col carosello dell'equipaggiamento in fondo, e
 #                  SVILUPPO - come sta crescendo (SviluppoScheda.gd)
-#   al centro      il personaggio a figura intera, sulla fascia cremisi
+#   al centro      il personaggio a figura intera, sulla fascia nera
 #   a destra       le carte della squadra; sotto, il dettaglio dello slot - o,
 #                  quando ne apri uno, la scelta di cosa metterci
 #
@@ -143,20 +144,20 @@ func scritta(dove: Control, rettangolo: Rect2, corpo: int, colore: Color, font: 
 
 
 func costruisci_barra() -> void:
-	var indietro := TastoObliquo.nuovo("INDIETRO", "accento", 20)
+	var indietro := TastoObliquo.nuovo("INDIETRO", "nero", 20)
 	indietro.scelto.connect(func() -> void:
 		if su_indietro.is_valid():
 			su_indietro.call())
 	barra.add_child(indietro)
 	indietro.position = Vector2(16, 10)
-	var diario := TastoObliquo.nuovo(GameState.nome_diario().to_upper(), "spoglio", 20)
+	var diario := TastoObliquo.nuovo(GameState.nome_diario().to_upper(), "inchiostro", 20)
 	diario.scelto.connect(func() -> void:
 		if su_diario.is_valid():
 			su_diario.call())
 	barra.add_child(diario)
 	diario.position = Vector2(24 + indietro.misura_voluta().x, 10)
-	var titolo := Cartiglio.nuovo("SQUADRA", Stile.colore("accento"), Stile.colore("testo"),
-			Stile.colore("bordo_acceso"), Stile.dimensione("sezione"))
+	var titolo := Cartiglio.nuovo("SQUADRA", Stile.colore("bordo"), Stile.colore("testo"),
+			Color(0, 0, 0, 0), Stile.dimensione("sezione"))
 	barra.add_child(titolo)
 	titolo.size = titolo.get_combined_minimum_size()
 	titolo.position = Vector2(Tavola.LARGO - titolo.size.x - 18.0, 4.0)
@@ -205,7 +206,7 @@ func costruisci_carosello() -> void:
 		casella.gira.connect(gira)
 		casella.compagno.connect(cambia_compagno_di)
 		caselle.append(casella)
-	dove_sei = scritta(carosello, Rect2(150, 690, 242, 20), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER)
+	dove_sei = scritta(carosello, Rect2(150, 686, 242, 18), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER)
 	solo_un_tratto = scritta(carosello, Rect2(44, 540, 450, 60), 16, Stile.colore("testo_smorzato"), Caratteri.tondo(700))
 	solo_un_tratto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	solo_un_tratto.clip_text = false
@@ -625,23 +626,25 @@ func entra() -> void:
 # --- i pezzi disegnati ---------------------------------------------------------
 
 class Fondo extends Control:
-	# nero con la trama a puntini, e la fascia cremisi dietro al personaggio:
-	# pende come tutte le fasce del gioco, con la striscia bianca accanto
+	# l'arancio del manifesto con la sua trama; due schermi di cabinato - a
+	# sinistra chi e', a destra la squadra - e la fascia nera dietro al
+	# personaggio: pende come tutte le fasce del gioco, con la striscia chiara accanto
 	const BANDA := [Vector2(760, 62), Vector2(1025, 62), Vector2(750, 720), Vector2(485, 720)]
+	const SCHERMI: Array[Rect2] = [Rect2(18, 70, 498, 648), Rect2(986, 62, 282, 656)]
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		size = Vector2(Tavola.LARGO, Tavola.ALTO)
+		Manifesto.trama_dietro(self).show_behind_parent = true
 
 	func _draw() -> void:
-		draw_rect(Rect2(Vector2.ZERO, size), Stile.colore("sfondo"))
-		Sagome.puntinato(self, Rect2(Vector2.ZERO, size), 24.0, Color(Stile.colore("testo"), 0.07))
 		var striscia := PackedVector2Array()
 		for p in [BANDA[0], BANDA[0] + Vector2(-5, 0), BANDA[3] + Vector2(-5, 0), BANDA[3]]:
 			striscia.append(p - Vector2(14, 0))
 		draw_colored_polygon(striscia, Stile.colore("bordo_acceso"))
-		draw_colored_polygon(PackedVector2Array(BANDA), Stile.colore("accento"))
-		draw_line(Vector2(0, 58), Vector2(Tavola.LARGO, 58), Color(Stile.colore("testo"), 0.12), 1.0)
+		draw_colored_polygon(PackedVector2Array(BANDA), Stile.colore("bordo"))
+		for schermo in SCHERMI:
+			Manifesto.disegna_schermo(self, schermo)
 		draw_line(Vector2(40, 96), Vector2(493, 96), Color(Stile.colore("testo"), 0.25), 2.0)
 		draw_rect(Rect2(40, 92, 10, 4), Stile.colore("accento"))
 		draw_rect(Rect2(483, 92, 10, 4), Stile.colore("accento"))

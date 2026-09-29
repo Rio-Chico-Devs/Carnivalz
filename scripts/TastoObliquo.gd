@@ -27,7 +27,7 @@ const LAMPO := 0.07
 const COLORI_TESTO := ["font_color", "font_hover_color", "font_pressed_color",
 		"font_focus_color", "font_disabled_color", "font_hover_pressed_color"]
 
-var stile := "chiaro"          # chiaro | accento | spoglio
+var stile := "chiaro"          # chiaro | accento | spoglio | nero | inchiostro
 var inerte := false            # si vede spento, e premuto dice di no
 var corpo := 24
 var freccia := Vector2.ZERO    # una punta disegnata al posto delle lettere: le frecce di pagina
@@ -176,16 +176,23 @@ func colori() -> Array[Color]:
 		return [Stile.colore("pannello_chiaro"), Stile.colore("spento"), Color(0, 0, 0, 0)]
 	var spento: Array[Color] = []
 	var acceso: Array[Color] = []
+	# sull'arancio la scritta e' sempre nera: il chiaro sull'arancio si legge a 1,5:1
 	match stile:
 		"accento":
-			spento = [rosso, bianco, bianco]
+			spento = [rosso, nero, Stile.colore("bordo")]
 			acceso = [bianco, nero, rosso]
 		"spoglio":
 			spento = [Color(0, 0, 0, 0), Stile.colore("testo_smorzato"), Color(0, 0, 0, 0)]
 			acceso = [Stile.colore("pannello_chiaro"), bianco, rosso]
+		"nero":         # l'etichetta del manifesto, sul foglio arancio
+			spento = [Stile.colore("bordo"), Stile.colore("testo"), Color(0, 0, 0, 0)]
+			acceso = [bianco, nero, Stile.colore("bordo")]
+		"inchiostro":   # solo la scritta nera sull'arancio, finche' non la accendi
+			spento = [Color(0, 0, 0, 0), nero, Color(0, 0, 0, 0)]
+			acceso = [Stile.colore("bordo"), Stile.colore("testo"), Color(0, 0, 0, 0)]
 		_:
 			spento = [bianco, nero, rosso]
-			acceso = [rosso, bianco, bianco]
+			acceso = [rosso, nero, bianco]
 	var q := clampf(accesa.valore, 0.0, 1.0)
 	return [spento[0].lerp(acceso[0], q), spento[1].lerp(acceso[1], q), spento[2].lerp(acceso[2], q)]
 

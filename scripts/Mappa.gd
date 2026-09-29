@@ -37,7 +37,15 @@ const SEED_STELLE := 20260721
 func _ready() -> void:
 	AudioManager.musica_chiave("mappa")
 	resized.connect(queue_redraw)
+	Manifesto.trama_dietro(self).show_behind_parent = true
+	# la proiezione sta nel vetro di un cabinato (Manifesto.vetro_della_proiezione)
+	sfondo.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	sfondo.position = vetro().position
+	sfondo.size = vetro().size
+	Manifesto.titolo_della_proiezione($Titolo as Label)
 	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
+	etichetta_tazo.add_theme_color_override("font_color", Stile.colore("box_testo"))
+	Stile.ritorno(bottone_sede)
 	bottone_sede.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_SEDE))
 	var mappa: Dictionary = GameState.carica_mappa()
@@ -59,7 +67,7 @@ func _ready() -> void:
 		var consegna := Label.new()
 		consegna.text = "Seleziona il punto d'interesse."
 		consegna.add_theme_font_size_override("font_size", Stile.dimensione("corpo"))
-		Stile.contorno(consegna, Stile.dimensione("corpo"))
+		consegna.add_theme_color_override("font_color", Stile.colore("box_testo"))
 		consegna.position = Vector2(24, 58)
 		add_child(consegna)
 		return
@@ -86,7 +94,7 @@ func crea_punti(punti: Array, prima_missione := false) -> void:
 		marker.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
 		Stile.segna_visita(marker, stato)
 		var pos: Array = punto.get("pos", [0, 0])
-		marker.position = Vector2(pos[0], pos[1]) - Vector2(22, 22)
+		marker.position = Manifesto.nella_proiezione(Vector2(pos[0], pos[1]), vetro()) - Vector2(22, 22)
 		marker.pressed.connect(_su_punto.bind(punto))
 		strato_punti.add_child(marker)
 		var etichetta := Label.new()
@@ -115,13 +123,17 @@ func _su_punto(punto: Dictionary) -> void:
 	GameState.segna_visitata(String(punto.get("id", "")))
 	Transizioni.vai(SCENA_VUOTO)
 
+func vetro() -> Rect2:
+	return Manifesto.vetro_della_proiezione(get_viewport_rect().size)
+
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Stile.colore("sfondo"))
+	var dentro := vetro()
+	Manifesto.disegna_schermo(self, dentro.grow(14.0))
 	if sfondo != null and sfondo.texture != null:
 		return
 	# cielo placeholder finché non c'è l'illustrazione in art/mappa.png
 	var rng := RandomNumberGenerator.new()
 	rng.seed = SEED_STELLE
 	for i in 140:
-		var centro := Vector2(rng.randf() * size.x, rng.randf() * size.y)
+		var centro := dentro.position + Vector2(rng.randf() * dentro.size.x, rng.randf() * dentro.size.y)
 		draw_circle(centro, rng.randf_range(0.6, 1.8), Color(1, 1, 1, rng.randf_range(0.25, 0.9)))

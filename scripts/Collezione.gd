@@ -16,8 +16,10 @@ extends Control
 #   - indietro vuol dire COLLEZIONI, sulla voce da cui eri entrato (il menu se
 #     lo segna uscendo: MenuPrincipale.ritorno);
 #   - le frecce e pagina su/giu' scorrono l'elenco: si naviga anche senza mouse;
-#   - la barra che scorre e' del menu (sottile, azzurra) e l'elenco le lascia
-#     spazio: prima «mai trovato» ci finiva attaccato.
+#   - la barra che scorre e' del menu (sottile) e l'elenco le lascia
+#     spazio: prima «mai trovato» ci finiva attaccato;
+#   - l'elenco sta su un foglio del manifesto (Manifesto.Foglio), come le
+#     pagine del Data pad: la carta chiara scritta in nero, sopra il luna park.
 
 const SCENA_MENU := "res://scenes/Menu.tscn"
 const PASSO_FRECCIA := 80.0
@@ -36,12 +38,6 @@ func _ready() -> void:
 	var fondale := LunaPark.new()
 	fondale.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(fondale)
-	# un velo sopra il luna park: qui si leggono schede fitte, non cinque voci
-	var velo := ColorRect.new()
-	velo.color = Color(Stile.colore("menu_macchia"), 0.6)
-	velo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	velo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(velo)
 	testata = Testata.new()
 	appendi(testata, MenuPrincipale.X_TESTO, MenuPrincipale.Y_TESTATA)
 	add_child(testata)
@@ -49,11 +45,14 @@ func _ready() -> void:
 	scorri = ScrollContainer.new()
 	scorri.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scorri.follow_focus = true
-	scorri.anchor_left = MenuPrincipale.X_TESTO
-	scorri.anchor_right = 1.0 - MenuPrincipale.X_TESTO
-	scorri.anchor_top = MenuPrincipale.Y_VOCI
-	scorri.anchor_bottom = FINE_ELENCO
-	add_child(scorri)
+	# qui si leggono schede fitte, non cinque voci: su un foglio
+	var foglio := Manifesto.Foglio.new()
+	foglio.anchor_left = MenuPrincipale.X_TESTO
+	foglio.anchor_right = 1.0 - MenuPrincipale.X_TESTO
+	foglio.anchor_top = MenuPrincipale.Y_VOCI
+	foglio.anchor_bottom = FINE_ELENCO
+	add_child(foglio)
+	foglio.add_child(scorri)
 	vesti_barra(scorri.get_v_scroll_bar())
 	var margine := MarginContainer.new()
 	margine.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -72,8 +71,8 @@ func _ready() -> void:
 
 
 static func vesti_barra(barra: ScrollBar) -> void:
-	# sottile, dell'azzurro della testata; piu' accesa sotto il mouse
-	var chiaro := Stile.colore("menu_chiaro")
+	# sottile, del nero della testata; piu' piena sotto il mouse
+	var chiaro := Stile.colore("bordo")
 	var binario := StyleBoxFlat.new()
 	binario.bg_color = Color(chiaro, 0.12)
 	binario.set_corner_radius_all(3)
@@ -129,8 +128,13 @@ func popola() -> void:
 func aggiungi_scheda(titolo: String, sottotitolo: String, corpo: String, colore: Color, sbloccata: bool, extra: Control = null) -> void:
 	var pannello := PanelContainer.new()
 	pannello.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	if not sbloccata:
-		pannello.modulate = Color(1, 1, 1, 0.45)
+	# una riga del foglio: il filo nero sotto, niente riquadro
+	var riga_del_foglio := StyleBoxFlat.new()
+	riga_del_foglio.bg_color = Color(0, 0, 0, 0)
+	riga_del_foglio.border_color = Stile.colore("bordo")
+	riga_del_foglio.border_width_bottom = 2
+	riga_del_foglio.content_margin_bottom = 10
+	pannello.add_theme_stylebox_override("panel", riga_del_foglio)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 4)
 	pannello.add_child(v)
@@ -138,12 +142,21 @@ func aggiungi_scheda(titolo: String, sottotitolo: String, corpo: String, colore:
 	var etichetta_titolo := Label.new()
 	etichetta_titolo.text = titolo
 	etichetta_titolo.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
+	etichetta_titolo.add_theme_font_override("font", Caratteri.titolo())
 	etichetta_titolo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	riga.add_child(etichetta_titolo)
+	# quella che manca si spegne nel testo, non nella pillola: «mai
+	# incontrato» e' un'informazione, e deve leggersi
+	if not sbloccata:
+		etichetta_titolo.modulate.a = 0.45
 	if sottotitolo != "":
+		# il colore della rarita' o del tipo, su una pillola nera: sulla carta
+		# chiara quei colori non si leggerebbero
 		var tag := Label.new()
 		tag.text = sottotitolo
-		tag.modulate = colore
+		tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		tag.add_theme_stylebox_override("normal", Manifesto.stile_pillola(Stile.colore("bordo"), 12.0))
+		tag.add_theme_color_override("font_color", colore)
 		riga.add_child(tag)
 	v.add_child(riga)
 	if corpo != "":

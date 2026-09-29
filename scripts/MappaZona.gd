@@ -67,11 +67,7 @@ var strato_bottoni: Control
 var etichetta_stato: Label
 
 func _ready() -> void:
-	var sfondo := ColorRect.new()
-	sfondo.color = Stile.colore("sfondo")
-	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	sfondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(sfondo)
+	Manifesto.trama_dietro(self)   # l'arancio del manifesto; la mappa sta nel vetro
 
 	carica_disegno()
 	for stanza in GameState.mappa_zona.get("stanze", []):
@@ -259,8 +255,7 @@ func costruisci_intelaiatura() -> void:
 
 	var titolo := Label.new()
 	titolo.text = String(GameState.mappa_zona.get("nome", ""))
-	titolo.add_theme_color_override("font_color", Stile.colore("accento"))
-	titolo.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
+	Manifesto.vesti_etichetta(titolo, Stile.dimensione("sezione"))
 	barra.add_child(titolo)
 
 	# LA FIGURA E LA SUA CHIAVE, una di fianco all'altra. I nomi delle stanze
@@ -270,6 +265,9 @@ func costruisci_intelaiatura() -> void:
 	fianco.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	fianco.add_theme_constant_override("separation", Stile.forma("separazione"))
 	colonna.add_child(fianco)
+	# la mappa e la sua chiave sono una proiezione: stanno nel vetro scuro di un
+	# cabinato, e li' valgono i colori e i contrasti pensati per il nero
+	Manifesto.in_schermo(fianco)
 
 	# la cornice del disegno di Bru: la porzione di mappa che stai guardando
 	cornice = Control.new()
@@ -308,7 +306,7 @@ func costruisci_intelaiatura() -> void:
 	# schermata, non la piu' alta. A 26 si legge da lontano e non grida.
 	etichetta_stato = Label.new()
 	etichetta_stato.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	etichetta_stato.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+	etichetta_stato.add_theme_color_override("font_color", Stile.colore("box_testo"))   # sull'arancio
 	Stile.imposta_corpo(etichetta_stato, Stile.dimensione("corpo"))
 	etichetta_stato.text = " "
 	colonna.add_child(etichetta_stato)

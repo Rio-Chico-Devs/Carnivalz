@@ -19,6 +19,15 @@ const SEED_STELLE := 20260722
 
 func _ready() -> void:
 	resized.connect(queue_redraw)
+	# come la mappa stellare: l'arancio del manifesto, e il sistema nel vetro
+	# di un cabinato (Manifesto.vetro_della_proiezione)
+	Manifesto.trama_dietro(self).show_behind_parent = true
+	sfondo.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	sfondo.position = vetro().position
+	sfondo.size = vetro().size
+	Manifesto.titolo_della_proiezione(titolo)
+	etichetta_tazo.add_theme_color_override("font_color", Stile.colore("box_testo"))
+	Stile.ritorno(bottone_mappa)
 	var punto: Dictionary = GameState.punto_mappa_corrente
 	AudioManager.musica(String(punto.get("musica", "")))
 	# si salva solo dalla mappa stellare: il Vuoto e' gia' "dentro" un sistema
@@ -34,7 +43,7 @@ func _ready() -> void:
 		if vuoto_visibile(vuoto):
 			crea_squarcio(vuoto)
 	var legenda := Stile.legenda_visite()
-	legenda.position = Vector2(24, 64)
+	legenda.position = Vector2(24, 58)
 	add_child(legenda)
 
 func pianeta_accessibile(punto: Dictionary) -> bool:
@@ -51,7 +60,7 @@ func crea_pianeta(punto: Dictionary) -> void:
 	var bottone := Button.new()
 	bottone.text = "☉  Scendi verso l'anomalia"
 	bottone.custom_minimum_size = Vector2(240, 64)
-	bottone.position = Vector2(640, 330) - Vector2(120, 32)
+	bottone.position = Manifesto.nella_proiezione(Vector2(640, 330), vetro()) - Vector2(120, 32)
 	bottone.pressed.connect(_su_pianeta)
 	strato_punti.add_child(bottone)
 
@@ -66,7 +75,7 @@ func crea_squarcio(vuoto: Dictionary) -> void:
 	bottone.custom_minimum_size = Vector2(180, 48)
 	Stile.segna_visita(bottone, stato)
 	var pos: Array = vuoto.get("pos", [0, 0])
-	bottone.position = Vector2(pos[0], pos[1]) - Vector2(90, 24)
+	bottone.position = Manifesto.nella_proiezione(Vector2(pos[0], pos[1]), vetro()) - Vector2(90, 24)
 	bottone.pressed.connect(_su_squarcio.bind(vuoto))
 	strato_punti.add_child(bottone)
 	if stato == "nuovo":
@@ -97,15 +106,23 @@ func _su_squarcio(vuoto: Dictionary) -> void:
 		GameState.musica_ambiente = String(vuoto.get("musica", ""))
 		IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
 
+func vetro() -> Rect2:
+	return Manifesto.vetro_della_proiezione(get_viewport_rect().size)
+
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.03, 0.02, 0.07))
+	var dentro := vetro()
+	Manifesto.disegna_schermo(self, dentro.grow(14.0))
 	if sfondo != null and sfondo.texture != null:
 		return  # un'illustrazione vera sostituisce il cielo stellato segnaposto
 	var rng := RandomNumberGenerator.new()
 	rng.seed = SEED_STELLE
 	for i in 160:
-		var centro := Vector2(rng.randf() * size.x, rng.randf() * size.y)
+		var centro := dentro.position + Vector2(rng.randf() * dentro.size.x, rng.randf() * dentro.size.y)
 		draw_circle(centro, rng.randf_range(0.5, 1.6), Color(1, 1, 1, rng.randf_range(0.2, 0.8)))
-	# gli anelli del sistema deformato
+	# gli anelli del sistema deformato, schiacciati come il vetro
+	var centro_sistema := Manifesto.nella_proiezione(Vector2(640, 330), dentro)
+	var schiaccia := dentro.size / Manifesto.MISURA_PROIEZIONE
+	draw_set_transform(centro_sistema, 0.0, schiaccia)
 	for raggio in [180.0, 280.0]:
-		draw_arc(Vector2(640, 330), raggio, 0, TAU, 64, Color(1, 1, 1, 0.08), 1.5)
+		draw_arc(Vector2.ZERO, raggio, 0, TAU, 64, Color(1, 1, 1, 0.08), 1.5)
+	draw_set_transform(Vector2.ZERO)

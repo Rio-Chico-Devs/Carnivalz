@@ -84,6 +84,9 @@ var ultima_tinta := Color(0, 0, 0, 0)
 var tinta_spenta := Color.WHITE
 var tinta_accesa := Color.WHITE
 var tinta_lastra := Color.WHITE
+var tinta_sfoglia := Color.WHITE
+var segno_solo_acceso := false   # il segno compare solo sulla voce accesa (il manifesto)
+var rientro := 0.0                # di quanto sta piu' a destra delle altre: le voci a scalini del menu
 var scivolo := 0.0
 
 
@@ -103,6 +106,7 @@ func costruisci(nome_segno: String, testo: String, corpo: int) -> void:
 	tinta_spenta = Stile.colore("accento")
 	tinta_accesa = Stile.colore("box_testo")
 	tinta_lastra = Stile.colore("accento")
+	tinta_sfoglia = Stile.colore("bordo_acceso")
 	scivolo = Movimento.misura("scivolo")
 	accesa = Movimento.molla("forma")
 	tinta = Movimento.molla("colore")
@@ -137,11 +141,18 @@ func costruisci(nome_segno: String, testo: String, corpo: int) -> void:
 
 
 func su_manifesto() -> void:
-	# LA VOCE SUL FOGLIO ARANCIO del manifesto (il menu di pausa): nera da
-	# spenta, e accesa su un'etichetta nera con la scritta chiara
+	# LA VOCE SUL FOGLIO ARANCIO del manifesto (il menu di pausa), come nel
+	# bozzetto approvato: maiuscola e nera da spenta, e accesa su un'etichetta
+	# nera con la scritta chiara e il triangolo davanti. Niente segni sulle
+	# spente e niente sfoglia sotto l'etichetta
 	tinta_spenta = Stile.colore("box_testo")
 	tinta_accesa = Stile.colore("testo")
 	tinta_lastra = Stile.colore("bordo")
+	tinta_sfoglia = Color(0, 0, 0, 0)
+	bottone.text = bottone.text.to_upper()
+	segno.quale = "riprendi"
+	segno.visible = true
+	segno_solo_acceso = true
 	bottone.add_theme_font_override("font", Caratteri.titolo())
 	ultima_tinta = Color(0, 0, 0, 0)
 	colora(tinta.valore)
@@ -163,7 +174,7 @@ func _get_minimum_size() -> Vector2:
 	if bottone == null:
 		return Vector2.ZERO
 	var m := bottone.get_combined_minimum_size()
-	return Vector2(m.x + scivolo + SFOGLIA.x, m.y)
+	return Vector2(m.x + scivolo + SFOGLIA.x + rientro, m.y)
 
 
 func _notification(cosa: int) -> void:
@@ -301,7 +312,7 @@ func applica() -> void:
 		return
 	var arrivo := 0.0 if Movimento.ridotto() else ENTRA_DA * (1.0 - entrata)
 	var scossa := Movimento.scossa(rifiutata) if rifiutata >= 0.0 else 0.0
-	bottone.position.x = arrivo + scivolo * accesa.valore + scossa
+	bottone.position.x = rientro + arrivo + scivolo * accesa.valore + scossa
 	bottone.modulate.a = entrata
 	bottone.scale = Vector2.ONE + (Movimento.gelatina(premuta) if premuta >= 0.0 else Vector2.ZERO)
 	colora(tinta.valore)
@@ -319,7 +330,7 @@ func colora(quanto: float) -> void:
 	ultima_tinta = c
 	for stato in COLORI_TESTO:
 		bottone.add_theme_color_override(stato, c)
-	segno.tinta = c
+	segno.tinta = Color(c, clampf(quanto * entrata, 0.0, 1.0)) if segno_solo_acceso else c
 	segno.queue_redraw()
 
 
@@ -344,7 +355,7 @@ func _draw() -> void:
 	var sinistra := -SPORGE - centro.x
 	var fine := destra - centro.x
 	draw_colored_polygon(lastra(sinistra + SFOGLIA.x, fine + SFOGLIA.x, -h * 0.5 + SFOGLIA.y, h),
-			Color(Stile.colore("bordo_acceso"), clampf(tinta.valore * entrata, 0.0, 1.0)))
+			Color(tinta_sfoglia, tinta_sfoglia.a * clampf(tinta.valore * entrata, 0.0, 1.0)))
 	var rosso := tinta_lastra.lerp(Stile.colore("bordo_acceso"), 1.0 if lampo > 0.0 else 0.0)
 	draw_colored_polygon(lastra(sinistra, fine, -h * 0.5, h), rosso)
 	draw_set_transform(Vector2.ZERO)

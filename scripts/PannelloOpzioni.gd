@@ -36,9 +36,8 @@ static var caselle: Dictionary = {}   # le icone delle caselle, fatte una volta 
 
 static func costruisci(colonna: VBoxContainer, larghezza_etichetta := 150,
 		tinta := Color.WHITE) -> void:
-	# "tinta" e' il colore delle intestazioni e delle caselle: cremisi nella
-	# pausa, azzurro chiaro nel menu principale - dove l'unico colore caldo deve
-	# restare la voce scelta
+	# "tinta" e' il colore delle intestazioni e delle caselle: l'arancio
+	# bruciato, perche' le righe stanno su un foglio chiaro (Manifesto.Foglio)
 	for quale: String in SEZIONI:
 		costruisci_sezione(colonna, quale, larghezza_etichetta, tinta)
 
@@ -137,10 +136,9 @@ static func cursore(colonna: VBoxContainer, testo: String, valore: float,
 	fila.add_child(barra)
 	# col fuoco sulla barra si accende anche il suo nome: e' il nome che si
 	# legge, non il pallino
-	var tinta := tinta_di(colonna)
 	barra.focus_entered.connect(func() -> void:
 		riga.add_theme_stylebox_override("panel", fuoco())
-		etichetta.add_theme_color_override("font_color", tinta))
+		etichetta.add_theme_color_override("font_color", Stile.colore("testo")))
 	barra.focus_exited.connect(func() -> void:
 		riga.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 		etichetta.remove_theme_color_override("font_color"))
@@ -152,10 +150,10 @@ static func interruttore(colonna: VBoxContainer, testo: String, attivo: bool,
 	var tinta := tinta_di(colonna)
 	casella.add_theme_icon_override("checked", icona_casella(true, tinta))
 	casella.add_theme_icon_override("unchecked", icona_casella(false, tinta))
-	casella.add_theme_color_override("font_color", Stile.colore("testo"))
-	casella.add_theme_color_override("font_hover_color", tinta)
-	casella.add_theme_color_override("font_focus_color", tinta)
-	casella.add_theme_color_override("font_pressed_color", Stile.colore("testo"))
+	# sul foglio: nera, e chiara sull'etichetta nera del fuoco
+	for chiave in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
+		casella.add_theme_color_override(chiave, Stile.colore("box_testo"))
+	casella.add_theme_color_override("font_focus_color", Stile.colore("testo"))
 	casella.add_theme_stylebox_override("focus", fuoco())
 	casella.button_pressed = attivo
 	casella.toggled.connect(su_cambio)
@@ -202,25 +200,14 @@ static func icona_casella(piena: bool, tinta: Color) -> ImageTexture:
 
 
 static func fuoco() -> StyleBoxFlat:
-	# DOVE SEI, SENZA MOUSE: la stessa grammatica delle voci del menu - una
-	# banda scura come la macchia d'inchiostro e il cremisi della scelta, qui un
-	# filo a sinistra. Non il riquadro bianco di serie, che nel menu sembrava un
-	# campo da riempire; e non una banda azzurra, che sul cielo spariva
-	var banda := StyleBoxFlat.new()
-	banda.bg_color = Color(Stile.colore("menu_macchia"), 0.7)
-	banda.border_color = Stile.colore("accento")
-	banda.border_width_left = 3
-	banda.set_corner_radius_all(2)
-	banda.expand_margin_left = 8.0
-	banda.expand_margin_right = 8.0
+	# DOVE SEI, SENZA MOUSE: la stessa grammatica delle voci del manifesto,
+	# l'etichetta nera inclinata dietro la riga (la scritta diventa chiara). Non
+	# il riquadro bianco di serie, che sembrava un campo da riempire
+	var banda := Manifesto.stile_etichetta(Stile.colore("bordo"), 0.0, 0.0)
+	banda.expand_margin_left = 10.0
+	banda.expand_margin_right = 10.0
 	banda.expand_margin_top = 2.0
 	banda.expand_margin_bottom = 2.0
-	# il filo non sposta niente: senza questo la riga prenderebbe il fuoco
-	# scivolando di tre pixel a destra
-	banda.content_margin_left = 0.0
-	banda.content_margin_right = 0.0
-	banda.content_margin_top = 0.0
-	banda.content_margin_bottom = 0.0
 	return banda
 
 

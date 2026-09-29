@@ -142,8 +142,10 @@ func disegna_contenuto(r: Rect2) -> void:
 	if titolo == null or tondo == null:
 		return
 	var corpo_slot := 18 if al_centro else 15
+	# sull'arancio della casella aperta si scrive nero: il chiaro si legge a 1,5:1
+	var inchiostro := "testo" if al_centro else "testo_smorzato"
 	draw_string(titolo, r.position + Vector2(10, 10 + corpo_slot), text, HORIZONTAL_ALIGNMENT_LEFT,
-			r.size.x - 20, corpo_slot, Stile.colore("testo") if al_centro or in_scelta else Stile.colore("testo_smorzato"))
+			r.size.x - 20, corpo_slot, Stile.colore("box_testo" if in_scelta else inchiostro))
 	var lato := minf(r.size.x, r.size.y) * 0.46
 	var centro := r.position + Vector2(r.size.x * 0.5, r.size.y * 0.47)
 	var id_oggetto := String(dati.get("oggetto", ""))
@@ -156,15 +158,15 @@ func disegna_contenuto(r: Rect2) -> void:
 		var sagoma: String = SAGOMA_DI_SLOT.get(String(dati.get("slot", "")), "speciale")
 		Sagome.icona_oggetto(self, centro, lato, sagoma, Color(Stile.colore("testo"), 0.14), Stile.colore("pannello_chiaro"))
 		# "vuoto" e' uno stato; "+ metti qualcosa" e' un invito
-		scrivi_sotto(tondo, sotto, "+ METTI QUALCOSA", Stile.colore("bordo_acceso") if in_scelta else Stile.colore("accento"))
+		scrivi_sotto(tondo, sotto, "+ METTI QUALCOSA", Stile.colore("bordo") if in_scelta else Stile.colore("accento"))
 		return
 	var disegno := Sagome.immagine_oggetto(id_oggetto)
 	if disegno != null:
 		Sagome.disegna_dentro(self, disegno, Rect2(centro - Vector2(lato, lato) * 0.6, Vector2(lato, lato) * 1.2))
 	else:
-		Sagome.icona_oggetto(self, centro, lato, Sagome.tipo_icona(id_oggetto), Stile.colore("testo"),
+		Sagome.icona_oggetto(self, centro, lato, Sagome.tipo_icona(id_oggetto), Stile.colore("box_testo" if in_scelta else "testo"),
 				Stile.colore("accento") if in_scelta else Stile.colore("pannello_chiaro"))
-	scrivi_sotto(tondo, sotto, Merce.nome_di(id_oggetto), Stile.colore("testo"))
+	scrivi_sotto(tondo, sotto, Merce.nome_di(id_oggetto), Stile.colore("box_testo" if in_scelta else "testo"))
 
 
 func scrivi_sotto(f: Font, dove: Rect2, scritta: String, colore: Color) -> void:

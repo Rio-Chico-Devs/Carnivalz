@@ -10,7 +10,7 @@ extends Button
 #
 # COME SI MUOVE. Passandoci sopra (o arrivandoci con le frecce) la carta si
 # alza di otto pixel e il bordo si accende: sono due molle diverse, la forma e
-# il colore, come vuole Material. Scelta, diventa cremisi e le compare sotto la
+# il colore, come vuole Material. Scelta, diventa arancio e le compare sotto la
 # sfoglia bianca - la stessa lastra doppia delle voci della pausa. Premuta, si
 # schiaccia (la gelatina).
 #
@@ -158,8 +158,10 @@ func _draw() -> void:
 		var sfoglia := forma.duplicate()
 		for i in sfoglia.size():
 			sfoglia[i] += SFOGLIA
-		draw_colored_polygon(sfoglia, Stile.colore("bordo_acceso"))
-	draw_colored_polygon(forma, Stile.colore("accento") if scelta else Stile.colore("pannello_chiaro"))
+		draw_colored_polygon(sfoglia, Stile.colore("bordo"))
+	# la carta scelta e' un foglio chiaro, scritto in nero: sull'arancio della
+	# pagina una carta arancio sparirebbe
+	draw_colored_polygon(forma, Stile.colore("bordo_acceso") if scelta else Stile.colore("pannello_chiaro"))
 	var bordo := Stile.colore("spento").lerp(Stile.colore("bordo_acceso"), clampf(accesa.valore, 0.0, 1.0))
 	draw_polyline(Sagome.chiudi(forma), bordo, 2.0, true)
 	var velo := 1.0 if Merce.perche_no(voce) == "" else SPENTA
@@ -178,7 +180,7 @@ func disegna_prezzo(su: float, velo: float) -> void:
 	var misura := f.get_string_size(scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo)
 	var x := centro_a(22.0) - misura.x * 0.5
 	draw_string(f, Vector2(x, 40.0 + su), scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo,
-			Color(Stile.colore("testo"), velo))
+			Color(Stile.colore("box_testo" if scelta else "testo"), velo))
 
 
 func disegna_nome(su: float, velo: float) -> void:
@@ -188,7 +190,7 @@ func disegna_nome(su: float, velo: float) -> void:
 	var largo := 104.0
 	draw_multiline_string(f, Vector2(centro_a(60.0) - largo * 0.5, 62.0 + su), text,
 			HORIZONTAL_ALIGNMENT_CENTER, largo, CORPO_NOME, 2,
-			Color(Stile.colore("testo") if scelta else Stile.colore("testo_smorzato"), velo))
+			Color(Stile.colore("box_testo") if scelta else Stile.colore("testo_smorzato"), velo))
 
 
 func disegna_icona(su: float, velo: float) -> void:
@@ -200,12 +202,12 @@ func disegna_icona(su: float, velo: float) -> void:
 		Sagome.disegna_dentro(self, disegno, Rect2(centro - Vector2(lato, lato) * 0.5, Vector2(lato, lato)),
 				Color(1, 1, 1, velo))
 	else:
-		var fondo := Stile.colore("accento") if scelta else Stile.colore("pannello_chiaro")
+		var fondo := Stile.colore("bordo_acceso") if scelta else Stile.colore("pannello_chiaro")
 		Sagome.icona_oggetto(self, centro, LATO_ICONA, Sagome.tipo_icona(id_oggetto),
-				Color(Stile.colore("testo"), velo), fondo)
+				Color(Stile.colore("box_testo" if scelta else "testo"), velo), fondo)
 	if Merce.gia_tuo(id_oggetto):
 		Sagome.timbro(self, centro + Vector2(30, 26), 16.0,
-				Stile.colore("bordo_acceso") if scelta else Stile.colore("accento"))
+				Stile.colore("bordo") if scelta else Stile.colore("accento"))
 
 
 func disegna_stato() -> void:
@@ -215,7 +217,9 @@ func disegna_stato() -> void:
 	var f := Caratteri.tondo(900)
 	if f == null or String(stato["testo"]) == "":
 		return
-	var colore := Stile.colore("accento") if bool(stato["problema"]) else Stile.colore("testo_smorzato")
+	# sotto la carta c'e' l'arancio della pagina: si scrive nero (il rosso e
+	# l'arancio li' non si leggono), e il problema lo dice la scritta stessa
+	var colore := Stile.colore("box_testo")
 	# largo quanto il passo dello scaffale, non di piu': sotto la carta accanto
 	# c'e' la sua riga, e due righe che si toccano non si leggono
 	var testo := String(stato["testo"])

@@ -42,6 +42,7 @@ func _ready() -> void:
 	# cornice, e l'iniziale di chi non ha ancora un disegno e' sparita: nero su
 	# nero, e a schermo sembrava semplicemente che non ci fosse nessuno.
 	iniziale.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+	iniziale.add_theme_font_override("font", Caratteri.titolo())
 
 func mostra(id_personaggio: String, livello: int = 0, espressione: String = "neutra") -> void:
 	var cambia_immagine := id_personaggio != id_mostrato or espressione != espressione_mostrata

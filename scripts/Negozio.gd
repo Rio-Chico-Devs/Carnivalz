@@ -5,8 +5,12 @@ extends Control
 #   in alto      i negozi aperti, uno per linguetta, e Indietro
 #   a sinistra   i Tazo in grande, e sotto la descrizione dell'oggetto scelto
 #   in basso     lo scaffale: cinque carte oblique alla volta, che scorrono
-#   a destra     la vetrina cremisi con l'oggetto scelto in grande, quanto ti
+#   a destra     la vetrina nera con l'oggetto scelto in grande, quanto ti
 #                resta, quanti ne hai, e COMPRA
+#
+# Nella lingua del manifesto (Manifesto.gd): la pagina e' l'arancio con la sua
+# trama, e fuori dalla fascia tutto e' scritto in nero (il chiaro sull'arancio
+# si legge a 1,5:1)
 #
 # Le tre domande di sempre - che cosa fa, ne ho gia', me lo posso permettere -
 # hanno ognuna il suo posto fisso, e le risposte le da' Merce.gd.
@@ -85,7 +89,7 @@ func costruisci_barra() -> void:
 	barra.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tavola.add_child(barra)
 	Tavola.metti(barra, Rect2(0, 0, Tavola.LARGO, 60))
-	indietro = TastoObliquo.nuovo("INDIETRO", "accento", 20)
+	indietro = TastoObliquo.nuovo("INDIETRO", "nero", 20)
 	indietro.scelto.connect(_su_indietro)
 	barra.add_child(indietro)
 	indietro.position = Vector2(16, 10)
@@ -95,14 +99,14 @@ func costruisci_barra() -> void:
 
 
 func costruisci_sinistra() -> void:
-	etichetta_tazo = Tavola.scritta("", 104, Stile.colore("testo"), Caratteri.titolo())
+	etichetta_tazo = Tavola.scritta("", 104, Stile.colore("box_testo"), Caratteri.titolo())
 	tavola.add_child(etichetta_tazo)
 	Tavola.metti(etichetta_tazo, Rect2(108, 104, 520, 124))
-	Tavola.ombra(etichetta_tazo, Stile.colore("accento"), Vector2(5, 5))
-	var sotto := Tavola.scritta("TAZO IN TASCA", 18, Stile.colore("testo"), Caratteri.tondo(900))
+	Tavola.ombra(etichetta_tazo, Stile.colore("bordo_acceso"), Vector2(5, 5))
+	var sotto := Tavola.scritta("TAZO IN TASCA", 18, Stile.colore("box_testo"), Caratteri.tondo(900))
 	tavola.add_child(sotto)
 	Tavola.metti(sotto, Rect2(148, 234, 320, 28))
-	descrizione = TestoCheScorre.nuovo(16, Stile.colore("testo_smorzato"), Stile.colore("sfondo"))
+	descrizione = TestoCheScorre.nuovo(16, Stile.colore("box_testo"), Stile.colore("manifesto"))
 	tavola.add_child(descrizione)
 	Tavola.metti(descrizione, Rect2(115, 276, 460, 100))
 
@@ -120,8 +124,8 @@ func costruisci_scaffale() -> void:
 		carta.sposta.connect(sposta)
 		carta.focus_entered.connect(func() -> void: seleziona(inizio + i, false))
 		carte.append(carta)
-	prima = TastoObliquo.nuovo("<", "chiaro", 22)
-	dopo = TastoObliquo.nuovo(">", "chiaro", 22)
+	prima = TastoObliquo.nuovo("<", "nero", 22)
+	dopo = TastoObliquo.nuovo(">", "nero", 22)
 	prima.freccia = Vector2.LEFT
 	dopo.freccia = Vector2.RIGHT
 	prima.scelto.connect(func() -> void: sposta(-VISIBILI))
@@ -131,7 +135,7 @@ func costruisci_scaffale() -> void:
 		tavola.add_child(freccia)
 		# una accanto all'altra, e la scritta dopo: dalla misura vera, non a occhio
 		freccia.position = Vector2(40.0 if i == 0 else 44.0 + prima.misura_voluta().x, 640.0)
-	posizione = Tavola.scritta("", 13, Stile.colore("testo_smorzato"), Caratteri.tondo(900))
+	posizione = Tavola.scritta("", 13, Stile.colore("box_testo"), Caratteri.tondo(900))
 	tavola.add_child(posizione)
 	var dopo_le_frecce := dopo.position.x + dopo.misura_voluta().x + 10.0
 	Tavola.metti(posizione, Rect2(dopo_le_frecce, 642, 600.0 - dopo_le_frecce, 36))
@@ -167,7 +171,7 @@ func costruisci_linguette() -> void:
 		var x := INIZIO_LINGUETTE.x
 		for id_negozio in GameState.negozi_sbloccati:
 			var nome := String(GameState.negozi.get(id_negozio, {}).get("nome", id_negozio)).to_upper()
-			var linguetta := TastoObliquo.nuovo(nome, "spoglio", corpo)
+			var linguetta := TastoObliquo.nuovo(nome, "inchiostro", corpo)
 			linguetta.scelto.connect(apri_negozio.bind(String(id_negozio)))
 			linguetta.set_meta("negozio", String(id_negozio))
 			barra.add_child(linguetta)
@@ -180,7 +184,7 @@ func costruisci_linguette() -> void:
 
 func aggiorna_linguette() -> void:
 	for linguetta in linguette:
-		linguetta.stile = "accento" if String(linguetta.get_meta("negozio")) == negozio_aperto else "spoglio"
+		linguetta.stile = "nero" if String(linguetta.get_meta("negozio")) == negozio_aperto else "inchiostro"
 		linguetta.queue_redraw()
 
 
@@ -234,13 +238,13 @@ func testo_descrizione(voce: Dictionary) -> String:
 		var materiali: Array[String] = []
 		for materiale in voce.get("richiede", []):
 			materiali.append(Merce.nome_di(String(materiale)))
-		righe.append("[b][color=#%s]In cambio di: %s[/color][/b]" % [Stile.colore("testo").to_html(false), ", ".join(materiali)])
+		righe.append("[b][color=#%s]In cambio di: %s[/color][/b]" % [Stile.colore("box_testo").to_html(false), ", ".join(materiali)])
 	else:
-		righe.append("[b][color=#%s]%s[/color][/b]" % [Stile.colore("testo").to_html(false), Merce.riassunto_effetto(dati)])
+		righe.append("[b][color=#%s]%s[/color][/b]" % [Stile.colore("box_testo").to_html(false), Merce.riassunto_effetto(dati)])
 	righe.append(String(dati.get("descrizione", "")))
 	var gia := Merce.quanti_ne_hai(id_oggetto)
 	if gia != "":
-		righe.append("[b][color=#%s]%s[/color][/b]" % [Stile.colore("accento").to_html(false), gia])
+		righe.append("[b][color=#%s]%s[/color][/b]" % [Stile.colore("box_testo").to_html(false), gia])
 	return "\n".join(righe)
 
 
@@ -350,20 +354,15 @@ func entra_carte(dopo_quanto: float) -> void:
 # --- il fondo --------------------------------------------------------------------
 
 class Fondo extends Control:
-	# nero, con la trama a puntini e una fascia chiarissima parallela alla
-	# vetrina: la pagina dello schema di Bru, al buio
+	# l'arancio del manifesto con la sua trama: la pagina dello schema di Bru
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		size = Vector2(Tavola.LARGO, Tavola.ALTO)
+		Manifesto.trama_dietro(self).show_behind_parent = true
 
 	func _draw() -> void:
-		draw_rect(Rect2(Vector2.ZERO, size), Stile.colore("sfondo"))
-		Sagome.puntinato(self, Rect2(Vector2.ZERO, size), 24.0, Color(Stile.colore("testo"), 0.07))
-		var chiaro := PackedVector2Array([Vector2(760, 0), Vector2(860, 0), Vector2(514, 720), Vector2(414, 720)])
-		draw_colored_polygon(chiaro, Color(Stile.colore("testo"), 0.035))
-		draw_line(Vector2(0, 58), Vector2(980, 58), Color(Stile.colore("testo"), 0.12), 1.0)
 		var riga := 40.0
 		while riga < 700.0:
-			draw_rect(Rect2(riga, 600, 3, 2), Color(Stile.colore("testo"), 0.25))
+			draw_rect(Rect2(riga, 600, 3, 2), Stile.colore("bordo"))
 			riga += 7.0
-		draw_colored_polygon(Sagome.rombo(Vector2(126, 248), 10.0), Stile.colore("accento"))
+		draw_colored_polygon(Sagome.rombo(Vector2(126, 248), 10.0), Stile.colore("bordo"))

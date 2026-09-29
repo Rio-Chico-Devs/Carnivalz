@@ -67,11 +67,14 @@ func _ready() -> void:
 	if Caratteri.nomi() != null:   # chi parla si scrive col carattere dei nomi
 		targhetta.add_theme_font_override("font", Caratteri.nomi())
 	targhetta.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
-	# IL TRIANGOLINO E' NERO PERCHE' IL BOX E' BIANCO. Sembra ovvio e non lo era:
-	# prendeva il colore d'accento, che su un fondo scuro si vedeva benissimo e
-	# su una pagina bianca era un rosso acceso che tirava l'occhio piu' del testo.
-	indicatore.add_theme_color_override("font_color", Stile.colore("box_testo"))
-	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
+	# L'INVITO AD ANDARE AVANTI: prima un triangolino nero (sulla pagina chiara il
+	# colore d'accento tirava l'occhio piu' del testo); dal manifesto e' il rombo
+	# del bozzetto approvato, contornato di nero perche' si stacchi dalla carta.
+	# un rombo arancio contornato di nero, come quelli sui fianchi del box
+	indicatore.text = "◆"
+	indicatore.add_theme_color_override("font_color", Stile.colore("manifesto"))
+	indicatore.add_theme_font_size_override("font_size", Stile.dimensione("piccolo"))
+	Stile.contorno(indicatore, Stile.dimensione("piccolo"))
 	indicatore.visible = false
 	usa_il_carattere_dei_dialoghi()
 	# IL TESTO DA LEGGERE VUOLE ARIA FRA LE RIGHE. Il box tiene paragrafi, non

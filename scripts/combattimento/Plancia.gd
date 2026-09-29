@@ -217,6 +217,7 @@ func costruisci_quadrante() -> Control:
 	etichetta_morale = Label.new()
 	etichetta_stress = Label.new()
 	for misura in [etichetta_morale, etichetta_stress]:
+		misura.uppercase = true
 		misura.add_theme_color_override("font_color", Stile.colore("box_testo"))
 		misura.add_theme_font_override("font", Caratteri.titolo())
 		faccia_comandi.add_child(misura)
@@ -441,10 +442,19 @@ func adatta_comandi() -> void:
 	var per_riga := alto / float(quante)
 	corpo_comandi = corpo_che_ci_sta(campione, per_riga) if campione != null \
 			else clampi(int(per_riga * 0.62), CORPO_MINIMO, CORPO_MASSIMO)
+	corpo_comandi = corpo_che_ci_sta_in_largo(corpo_comandi)
 	comandi.add_theme_constant_override("separation", maxi(int(corpo_comandi * 0.12), 0))
 	for voce in comandi.get_children():
 		if voce is Control:
 			vesti_comando(voce as Control)
+
+func corpo_che_ci_sta_in_largo(corpo: int) -> int:
+	# E IN LARGO: la voce piu' lunga, col triangolo davanti, dentro la colonna
+	for voce in comandi.get_children():
+		while voce is Button and corpo > CORPO_MINIMO and Caratteri.titolo().get_string_size(
+				(voce as Button).text, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x + corpo * 1.6 > comandi.size.x:
+			corpo -= 1
+	return corpo
 
 func vesti_comando(voce: Control) -> void:
 	# UNA VOCE DEL MENU, scritta sulla carta del quadrante: nera, e quella col
@@ -570,6 +580,7 @@ func vesti_voce_di_lista(voce: Control, posto: int, righe: int, per_riga: float,
 		per_colonna: float, distacco: float, corpo: int, margine: float) -> void:
 	vesti_comando(voce)
 	if voce is Button:
+		(voce as Button).add_theme_font_override("font", Caratteri.voci_strette())   # le liste sono lunghe
 		(voce as Button).add_theme_font_size_override("font_size", corpo)
 		(voce as Button).text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS   # mai fuori dalla cella
 	# LA MISURA MINIMA VA DETTA, non lasciata a quella che c'era. Il menu da' a

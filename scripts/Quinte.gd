@@ -178,7 +178,11 @@ func _draw() -> void:
 	if size.x <= 0.0:
 		return
 	# la parola sta DIETRO i fogli: e' il fondale, e dove c'e' il foglio nero
-	# ci sono le voci da leggere
+	# ci sono le voci da leggere. Sul manifesto il fondale e' tutto arancio,
+	# come nel bozzetto approvato: la parola sta sull'arancio, non sul mondo
+	if su_carta:
+		draw_rect(Rect2(Vector2.ONE * -OLTRE, size + Vector2.ONE * OLTRE * 2.0),
+				Color(Stile.colore("manifesto"), arrivo(0.0)))
 	disegna_parola()
 	for i in FOGLI.size():
 		var foglio: Array = FOGLI[i]
@@ -234,9 +238,7 @@ func disegna_parola() -> void:
 	var larga := f.get_string_size(parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
 	var base := Vector2(size.x - larga + OLTRE * 0.5, size.y * 0.93)
 	var arrivata := arrivo(0.06)
-	var alfa := ALFA_PAROLA * alfa_parola.valore * arrivata
-	var tinta := Stile.colore("accento")
-	var nero := Stile.colore("sfondo")
+	var alfa := (1.0 if su_carta else ALFA_PAROLA) * alfa_parola.valore * arrivata
 	var spessore := maxi(3, int(float(corpo) * 0.014))
 	for i in range(COPIE_PAROLA - 1, -1, -1):
 		# la copia piu' in fondo per prima: quella davanti le passa sopra
@@ -244,9 +246,18 @@ func disegna_parola() -> void:
 		var dove := base + PASSO_COPIE * float(i) + spostamento(profondita) \
 				+ Vector2(OLTRE * 2.0 * (1.0 - arrivata), 0.0)
 		draw_set_transform(dove, Stile.angolo("inclinazione_nastro"))
-		var pieno := nero.lerp(tinta, float(SCURO_COPIE[i]))
-		draw_string(f, Vector2.ZERO, parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Color(pieno, alfa))
-		if i == 0:
+		draw_string(f, Vector2.ZERO, parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Color(tinta_copia(i), alfa))
+		if i == 0 and not su_carta:
 			draw_string_outline(f, Vector2.ZERO, parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo,
-					spessore, Color(tinta, alfa))
+					spessore, Color(Stile.colore("accento"), alfa))
 	draw_set_transform(Vector2.ZERO)
+
+
+func tinta_copia(i: int) -> Color:
+	# la copia davanti e' nera; quelle dietro sono gli scalini: sul manifesto
+	# l'arancio scuro, sempre piu' scuro verso il fondo; sul nero il cremisi
+	if i == 0:
+		return Stile.colore("bordo")
+	if su_carta:
+		return Stile.colore("manifesto_scuro").darkened(float(i) * 0.05)
+	return Stile.colore("sfondo").lerp(Stile.colore("accento"), float(SCURO_COPIE[i]))

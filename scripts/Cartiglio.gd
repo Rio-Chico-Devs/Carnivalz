@@ -31,6 +31,7 @@ var ritardo := 0.0
 var orologio := -1.0
 var svolta := 1.0               # la fascia, 0..1
 var svolta_sfoglia := 1.0
+var tondo := false              # una pillola dritta invece della fascia storta (i Tazo sul manifesto)
 
 
 static func nuovo(scritta: String, colore_fondo: Color, colore_scritta: Color,
@@ -95,6 +96,9 @@ func _draw() -> void:
 	var f := carattere()
 	if f == null:
 		return
+	if tondo:
+		disegna_pillola(f)
+		return
 	var h := size.y - SFOGLIA.y
 	var largo := size.x - SFOGLIA.x
 	draw_set_transform(Vector2(largo, h) * 0.5, Stile.angolo("inclinazione_nastro"))
@@ -125,3 +129,16 @@ static func fascia(origine: Vector2, largo: float, h: float) -> PackedVector2Arr
 	return PackedVector2Array([
 		origine + Vector2(obliquo, 0.0), origine + Vector2(fine + obliquo, 0.0),
 		origine + Vector2(fine, h), origine + Vector2(0.0, h)])
+
+
+func disegna_pillola(f: Font) -> void:
+	# la pillola del manifesto: dritta, piena, senza sfoglia; si apre da
+	# sinistra come la fascia
+	var h := size.y - SFOGLIA.y
+	var quanto := 1.0 if Movimento.ridotto() else svolta
+	var forma := Manifesto.stile_pillola(fondo)
+	draw_style_box(forma, Rect2(0, 0, maxf(size.x * quanto, h), h))
+	var scritta := clampf((svolta - 0.35) / 0.5, 0.0, 1.0)
+	var sotto := f.get_ascent(corpo) - (f.get_ascent(corpo) + f.get_descent(corpo)) * 0.5
+	draw_string(f, Vector2(0, h * 0.5 + sotto), testo, HORIZONTAL_ALIGNMENT_CENTER, size.x, corpo,
+			Color(inchiostro, inchiostro.a * scritta))

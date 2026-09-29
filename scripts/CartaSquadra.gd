@@ -174,11 +174,12 @@ func disegna_scritte(r: Rect2) -> void:
 	# chi e' di passaggio ha una riga in piu': tutto sale di qualche pixel
 	var su := 6.0 if di_passaggio else 0.0
 	draw_string(titolo, Vector2(x, r.position.y + 44.0 - su), nome, HORIZONTAL_ALIGNMENT_LEFT,
-			largo, Tavola.corpo_che_entra(titolo, nome, largo, 26, 18), Stile.colore("testo"))
+			largo, Tavola.corpo_che_entra(titolo, nome, largo, 26, 18), Stile.colore("box_testo" if scelta else "testo"))
 	var sotto := Corredo.classe_di(id_classe).to_upper()
-	var colore := Stile.colore("testo") if scelta else Stile.colore("testo_smorzato")
+	# sull'arancio della carta scelta si scrive nero: il chiaro si legge a 1,5:1
+	var colore := Stile.colore("box_testo") if scelta else Stile.colore("testo_smorzato")
 	draw_string(tondo, Vector2(x, r.position.y + 66.0 - su), sotto, HORIZONTAL_ALIGNMENT_LEFT, largo,
 			Tavola.corpo_che_entra(tondo, sotto, largo, 13, 10), colore)
 	if di_passaggio:
 		draw_string(tondo, Vector2(x, r.position.y + 81.0), "DI PASSAGGIO", HORIZONTAL_ALIGNMENT_LEFT,
-				largo, 11, Stile.colore("bordo_acceso") if scelta else Stile.colore("accento"))
+				largo, 11, Stile.colore("bordo") if scelta else Stile.colore("accento"))

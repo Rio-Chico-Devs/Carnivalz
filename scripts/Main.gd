@@ -134,7 +134,6 @@ func applica_stile() -> void:
 	quadro.offset_top = bordo
 	quadro.offset_right = -bordo
 	quadro.offset_bottom = -bordo
-	Manifesto.cabinato_intorno(quadro)   # la scena e' lo schermo di un cabinato
 	# PRIMA SI TOGLIE LA TARGHETTA, POI SI MISURA IL BOX. In quest'ordine e non
 	# nell'altro: il box si calcola l'altezza da solo, e finche' dentro c'e' la
 	# riga del nome quell'altezza comprende anche quella. Misurarlo prima
@@ -142,6 +141,7 @@ func applica_stile() -> void:
 	# sua, con una striscia di bianco in piu' in fondo allo schermo.
 	box.nome_fuori_dal_box()
 	prepara_quadro()
+	Manifesto.cabinato_intorno(quadro)   # la scena e' lo schermo di un cabinato
 	prepara_nastro()
 	prepara_icona_menu()
 	prepara_colonna_scelte()
@@ -187,10 +187,13 @@ func prepara_quadro() -> void:
 	# usciva dallo schermo: il box sa gia' quanto e' alto, perche' se l'e'
 	# calcolata lui in imposta_altezza().
 	var bordo := Stile.forma("cornice")
-	box.offset_left = bordo
-	box.offset_right = -bordo * 3
-	box.offset_bottom = -bordo * 0.8
+	box.offset_left = bordo * 1.5
+	box.offset_right = -bordo * 1.5
+	box.offset_bottom = -bordo * 0.6
 	box.offset_top = box.offset_bottom - box.get_combined_minimum_size().y
+	# LO SCHERMO FINISCE SOPRA IL BOX, come nel bozzetto approvato: il box e' un
+	# foglio appoggiato sotto il cabinato. Chi parla sborda lo stesso (il palco)
+	quadro.offset_bottom = box.offset_top - bordo
 	# il palco dei ritratti arriva fin sotto il box: e' cosi' che chi parla
 	# risulta tagliato dal box invece che appoggiato sopra
 	palco.offset_left = bordo * 3
@@ -336,7 +339,7 @@ func applica_nastro(disegno: Texture2D) -> void:
 	nastro.size = nastro.custom_minimum_size
 
 func posto_del_nastro() -> Vector2:
-	return Vector2(Stile.forma("cornice") * 0.6, box.position.y - nastro.size.y + 6)
+	return Vector2(Stile.forma("cornice") * 1.8, box.position.y - nastro.size.y + 6)
 
 func lancia_il_nastro() -> void:
 	# IL NASTRO ARRIVA DA FUORI, e non compare.

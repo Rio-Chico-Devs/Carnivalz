@@ -54,10 +54,16 @@ func _ready() -> void:
 	size = Vector2(LATO, LATO)
 	pivot_offset = size * 0.5    # la campanella gira sul suo centro, non sull'angolo
 	focus_mode = Control.FOCUS_ALL
+	# nera col bordo chiaro e l'ombra piena: si vede sull'arancio del manifesto
+	# e sul nero dei pannelli
 	var fondo := StyleBoxFlat.new()
-	fondo.bg_color = Stile.colore("accento")
+	fondo.bg_color = Stile.colore("bordo")
 	fondo.set_border_width_all(3)
 	fondo.border_color = Stile.colore("testo")
+	fondo.set_corner_radius_all(14)
+	fondo.shadow_color = Stile.colore("bordo")
+	fondo.shadow_size = 1
+	fondo.shadow_offset = Manifesto.OMBRA * 0.6
 	for stato in ["normal", "hover", "pressed", "focus", "disabled"]:
 		add_theme_stylebox_override(stato, fondo)
 	var busta := Segno.nuovo("messaggi", Stile.colore("testo"), LATO * 0.6)

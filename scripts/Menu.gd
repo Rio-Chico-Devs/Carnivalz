@@ -325,6 +325,7 @@ func mostra_pagina(nome: String, titolo: String, elenco: Array[Dictionary], prin
 	voci.clear()
 	for dati in elenco:
 		var v := VoceMacchia.crea(String(dati.testo))
+		v.rientro = 7.0 * voci.size()   # a scalini, come le etichette del bozzetto approvato
 		v.inerte = bool(dati.inerte)
 		v.scoppio.connect(schegge.scoppia)
 		v.scelta.connect(dati.azione)
@@ -642,9 +643,11 @@ func pagina_opzioni_di(quale: String) -> void:
 	var dentro := VBoxContainer.new()
 	dentro.add_theme_constant_override("separation", 10)
 	margine.add_child(dentro)
-	PannelloOpzioni.costruisci_sezione(dentro, quale, 220, Stile.colore("menu_chiaro"), false)
+	PannelloOpzioni.costruisci_sezione(dentro, quale, 220, Stile.colore("accento_su_carta"), false)
+	var foglio := Manifesto.Foglio.new()   # le righe su un foglio, come nella pausa
+	foglio.add_child(margine)
 	var nessuna: Array[Dictionary] = []
-	mostra_pagina("opzioni " + quale, quale.to_upper(), nessuna, 0, pagina_opzioni.bind(quale.to_upper()), margine)
+	mostra_pagina("opzioni " + quale, quale.to_upper(), nessuna, 0, pagina_opzioni.bind(quale.to_upper()), foglio)
 	colonna.anchor_right = X_FINE_PANNELLO
 	colonna.offset_right = -(PannelloPartite.LARGO + SPAZIO_DAL_PANNELLO)
 	descrizione.mostra("Valgono anche in gioco", "Le ritrovi nel menu di pausa (ESC), e si salvano da sole.")

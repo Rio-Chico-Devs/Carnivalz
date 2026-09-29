@@ -377,34 +377,33 @@ func intestazione(testo: String) -> void:
 	# bisognava navigare per sapere quanti soldi si avevano. Stanno qui dentro e
 	# non in ogni pannello proprio perche' nessuno se le possa dimenticare.
 	#
-	# Sono due cartigli, fasce storte come il nastro dei nomi, che entrano
-	# srotolandosi, il titolo per primo.
+	# Due cartigli, che entrano srotolandosi: il titolo per primo.
 	var riga := HBoxContainer.new()
 	riga.add_theme_constant_override("separation", 24)
 	colonna.add_child(riga)
-	var su_carta := pannello == "menu"   # il menu sta sul foglio arancio del manifesto
+	var su_carta := true   # tutti i pannelli stanno sul foglio arancio del manifesto
 	var titolo := Cartiglio.nuovo(testo.to_upper(), Stile.colore("bordo" if su_carta else "accento"),
-			Stile.colore("testo" if su_carta else "box_testo"), Stile.colore("bordo_acceso"), Stile.dimensione("titolo"))
+			Stile.colore("testo" if su_carta else "box_testo"), Color(0, 0, 0, 0) if su_carta
+			else Stile.colore("bordo_acceso"), Stile.dimensione("titolo"))
 	titolo.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_BEGIN
 	riga.add_child(titolo)
 	var risorse := Cartiglio.nuovo("TAZO %d   ·   LV %d" % [GameState.tazo,
 			GameState.livello_di(GameState.id_protagonista)], Stile.colore("bordo" if su_carta else "bordo_acceso"),
 			Stile.colore("testo" if su_carta else "box_testo"), Stile.colore("accento"), Stile.dimensione("corpo"))
 	risorse.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	risorse.tondo = su_carta
 	riga.add_child(risorse)
 	titolo.svela(TITOLO_DOPO)
 	risorse.svela(CARTELLINO_DOPO)
-	# un po' d'aria sotto: la prima lastra e' storta, e senza toccherebbe la
-	# sfoglia del titolo
+	# un po' d'aria sotto: la prima lastra e' storta
 	var aria := Control.new()
 	aria.custom_minimum_size = Vector2(0.0, STACCO_TESTATA)
 	aria.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	colonna.add_child(aria)
 	# col testo grande le voci sono piu' larghe del 25%, e il foglio le deve
-	# coprire lo stesso: altrimenti «Torna al menu principale» finisce sulla
-	# striscia rossa. Si allarga della stessa scala
+	# coprire lo stesso: si allarga della stessa scala
 	var scala := get_tree().root.content_scale_factor
-	quinte.copri(COPRE_MENU * scala if su_carta else COPRE_PANNELLO, testo.to_upper(), su_carta)
+	quinte.copri(COPRE_MENU * scala if pannello == "menu" else COPRE_PANNELLO, testo.to_upper(), su_carta)
 
 # --- pannello: menu ---
 
@@ -451,8 +450,7 @@ func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null
 	# questa voce sta per sparire, e le schegge devono essere gia' partite
 	v.scoppio.connect(schegge.scoppia)
 	v.scelta.connect(richiamo)
-	if pannello == "menu":
-		v.su_manifesto()
+	v.su_manifesto()
 	(dove if dove != null else colonna).add_child(v)
 	return v
 
@@ -535,7 +533,7 @@ func mostra_opzioni() -> void:
 	intestazione("Opzioni")
 	# dentro uno scorrevole: le opzioni sono tante, e senza «Indietro» finiva
 	# sotto il bordo dello schermo
-	PannelloOpzioni.costruisci(pagina_che_scorre(4), 200, Stile.colore("accento"))
+	PannelloOpzioni.costruisci(pagina_che_scorre(4), 200, Stile.colore("accento_su_carta"))
 	ritorno()
 
 func pagina_che_scorre(separazione: int) -> VBoxContainer:
@@ -545,6 +543,7 @@ func pagina_che_scorre(separazione: int) -> VBoxContainer:
 	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scorrevole.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	colonna.add_child(scorrevole)
+	Manifesto.in_foglio(scorrevole)   # quello che si legge sta su un foglio, come nel bozzetto
 	var dentro := VBoxContainer.new()
 	dentro.add_theme_constant_override("separation", separazione)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -559,7 +558,7 @@ func conferma_uscita() -> void:
 	intestazione("Tornare al menu?")
 	var avviso := Label.new()
 	avviso.text = "Il gioco si salva da solo quando rientri alla Sede: tutto quello che hai\nfatto dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso."
-	avviso.add_theme_color_override("font_color", Stile.colore("pericolo"))
+	avviso.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	colonna.add_child(avviso)
 	var voci: Array[VoceMenu] = []
 	voci.append(voce("riprendi", "No, resto qui", mostra_menu if not modo_diretto else chiudi))
@@ -646,6 +645,7 @@ func pannello_con_indice(nome: String, titolo: String, pagine: Array, attuale: S
 	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	corpo.add_child(scorrevole)
+	Manifesto.in_foglio(scorrevole, String(pagine[qui][1]).to_upper())
 	var dentro := VBoxContainer.new()
 	dentro.add_theme_constant_override("separation", 12)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL

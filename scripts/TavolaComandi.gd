@@ -84,11 +84,10 @@ var categoria := ""
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var fondo := StyleBoxFlat.new()
-	fondo.bg_color = Color(Stile.colore("menu_macchia"), 0.7)
-	fondo.set_border_width_all(1)
-	fondo.border_color = Color(Stile.colore("menu_riga_bordo"), 0.6)
-	fondo.set_corner_radius_all(4)
+	# UN FOGLIO DEL MANIFESTO, come quelli del Data pad: la carta la disegna
+	# _draw, lo StyleBox tiene solo i margini
+	resized.connect(queue_redraw)
+	var fondo := StyleBoxEmpty.new()
 	fondo.content_margin_left = MARGINE
 	fondo.content_margin_right = MARGINE
 	fondo.content_margin_top = 12
@@ -101,9 +100,8 @@ func _init() -> void:
 	testata = Label.new()
 	if Caratteri.titolo() != null:
 		testata.add_theme_font_override("font", Caratteri.titolo())
-	testata.add_theme_font_size_override("font_size", 20)
-	testata.add_theme_color_override("font_color", Stile.colore("menu_chiaro"))
-	Stile.contorno(testata, 20)
+	testata.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	Manifesto.vesti_etichetta(testata, 20)
 	colonna.add_child(testata)
 	righe = VBoxContainer.new()
 	righe.add_theme_constant_override("separation", 6)
@@ -134,11 +132,11 @@ func mostra(quale: String) -> void:
 func riga_di(dati: Dictionary) -> Control:
 	var riga := PanelContainer.new()
 	riga.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# una riga del foglio: il filo nero sotto, niente riquadro
 	var fondo := StyleBoxFlat.new()
-	fondo.bg_color = Color(Stile.colore("menu_riga"), 0.72)
-	fondo.set_border_width_all(1)
-	fondo.border_color = Color(Stile.colore("menu_riga_bordo"), 0.5)
-	fondo.set_corner_radius_all(4)
+	fondo.bg_color = Color(0, 0, 0, 0)
+	fondo.border_color = Stile.colore("bordo")
+	fondo.border_width_bottom = 2
 	fondo.content_margin_left = 10
 	fondo.content_margin_right = 12
 	fondo.content_margin_top = 5
@@ -170,7 +168,7 @@ func riga_di(dati: Dictionary) -> Control:
 	if Caratteri.tondo(700) != null:
 		azione.add_theme_font_override("font", Caratteri.tondo(700))
 	azione.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
-	azione.add_theme_color_override("font_color", Stile.colore("menu_descrizione"))
+	azione.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	fila.add_child(azione)
 	return riga
 
@@ -184,8 +182,12 @@ static func parola(testo: String) -> Label:
 	if Caratteri.tondo(700) != null:
 		scritta.add_theme_font_override("font", Caratteri.tondo(700))
 	scritta.add_theme_font_size_override("font_size", 15)
-	scritta.add_theme_color_override("font_color", Color(Stile.colore("menu_chiaro"), 0.7))
+	scritta.add_theme_color_override("font_color", Stile.colore("tratto"))
 	return scritta
+
+
+func _draw() -> void:
+	Manifesto.carta(self, Rect2(Vector2.ZERO, size), Stile.colore("box_fondo"), 6.0, true, Vector2(0.72, 0.6))
 
 
 static func tasti_usati() -> Array[String]:

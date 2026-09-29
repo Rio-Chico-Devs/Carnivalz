@@ -39,10 +39,7 @@ func _ready() -> void:
 	var letto: Variant = GameState.carica_json(PERCORSO_SEDE)
 	dati = letto if letto is Dictionary else {}
 
-	var sfondo := ColorRect.new()
-	sfondo.color = Stile.colore("sfondo")
-	sfondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(sfondo)
+	Manifesto.trama_dietro(self)   # l'arancio del manifesto, come tutte le schermate
 	var percorso_sfondo := String(dati.get("sfondo", ""))
 	if percorso_sfondo != "" and ResourceLoader.exists(percorso_sfondo):
 		var immagine := TextureRect.new()
@@ -139,7 +136,6 @@ func costruisci_stanza(stanza: Dictionary) -> Button:
 	if not aperta:
 		bottone.text = "— chiuso —"
 		bottone.disabled = true
-		bottone.add_theme_color_override("font_disabled_color", Stile.colore("testo_smorzato"))
 		# IL PERCHE' NON STA PIU' SOLO NEL SUGGERIMENTO. Il testo della porta
 		# chiusa era in tooltip_text, cioe' visibile soltanto tenendoci sopra
 		# il mouse - e un bottone disabilitato in Godot non prende nemmeno il
@@ -148,16 +144,14 @@ func costruisci_stanza(stanza: Dictionary) -> Button:
 		return bottone
 	bottone.text = String(stanza.get("nome", "?"))
 	var stato := GameState.stato_visita(id_stanza(stanza))
-	bottone.add_theme_color_override("font_color", Stile.colore("testo"))
-	for acceso in ["font_hover_color", "font_focus_color", "font_pressed_color"]:
-		bottone.add_theme_color_override(acceso, Stile.colore("accento"))
 	# IL MARCATORE VA NELLA SUA CORSIA, non davanti al nome. Stile.segna_visita
 	# lo infila nel testo ("•  Alloggi"), e allora i nomi delle stanze in cui
 	# sei gia' stato partono da un'altra x: sei righe, tre margini sinistri
 	# diversi, e nessuna linea che l'occhio possa seguire.
 	if stato != Stile.VISITA_VISTO:
-		metti_marcatore(bottone, "•" if stato == Stile.VISITA_NUOVO else "✓",
-				Stile.colore_visita(stato))
+		# neri tutti e due: sull'arancio i colori della carta non si leggono, e
+		# i due segni si distinguono gia' per la forma
+		metti_marcatore(bottone, "•" if stato == Stile.VISITA_NUOVO else "✓", Stile.colore("box_testo"))
 	bottone.pressed.connect(_su_stanza.bind(stanza))
 	bottone.focus_entered.connect(_su_sguardo.bind(stanza))
 	bottone.mouse_entered.connect(_su_sguardo.bind(stanza))
@@ -178,6 +172,9 @@ func metti_marcatore(bottone: Button, segno: String, tinta: Color) -> void:
 	marchio.offset_left = 10.0
 	marchio.offset_right = float(GUTTER)
 	bottone.add_child(marchio)
+	# sulla voce accesa c'e' l'etichetta nera: il segno diventa chiaro con lei
+	bottone.focus_entered.connect(func() -> void: marchio.add_theme_color_override("font_color", Stile.colore("testo")))
+	bottone.focus_exited.connect(func() -> void: marchio.add_theme_color_override("font_color", tinta))
 
 func id_stanza(stanza: Dictionary) -> String:
 	return "sede__" + String(stanza.get("id", ""))
@@ -195,20 +192,13 @@ func costruisci_pannello(riga: HBoxContainer) -> void:
 	# restavano cinquecento pixel di nero: non si sapeva nemmeno di cosa si
 	# stesse leggendo. Adesso ha un titolo - il nome della stanza che stai
 	# guardando - e un bordo che dice dove comincia e dove finisce.
-	var scheda := PanelContainer.new()
+	# E' un foglio del manifesto (Manifesto.Foglio): la carta chiara col
+	# contorno nero e l'ombra piena, scritta in nero.
+	var scheda := Manifesto.Foglio.new()
 	# SI STRINGE SUL TESTO, non riempie mezzo schermo. Espandendola, quattro
 	# righe di descrizione si portavano dietro cinquecento pixel di riquadro
 	# vuoto: non e' una scheda, e' una parete con una frase sopra.
 	scheda.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	var vestito := StyleBoxFlat.new()
-	vestito.bg_color = Color(Stile.colore("tratto"), 0.14)
-	vestito.border_width_left = 3
-	vestito.border_color = Stile.colore("accento")
-	vestito.content_margin_left = 24
-	vestito.content_margin_right = 24
-	vestito.content_margin_top = 20
-	vestito.content_margin_bottom = 20
-	scheda.add_theme_stylebox_override("panel", vestito)
 	colonna.add_child(scheda)
 
 	var dentro := VBoxContainer.new()
@@ -219,6 +209,7 @@ func costruisci_pannello(riga: HBoxContainer) -> void:
 	etichetta_titolo_scheda.text = String(dati.get("nome", ""))
 	etichetta_titolo_scheda.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	etichetta_titolo_scheda.add_theme_color_override("font_color", Stile.colore("testo"))
+	etichetta_titolo_scheda.add_theme_font_override("font", Caratteri.titolo())
 	Stile.imposta_corpo(etichetta_titolo_scheda, Stile.dimensione("sezione"))
 	dentro.add_child(etichetta_titolo_scheda)
 

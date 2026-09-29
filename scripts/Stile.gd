@@ -279,9 +279,10 @@ func costruisci_tema() -> Theme:
 	t.set_stylebox("disabled", "Button", stile_bottone("spento"))
 	t.set_stylebox("focus", "Button", stile_bottone("fuoco"))
 	t.set_color("font_color", "Button", colore("testo"))
-	t.set_color("font_hover_color", "Button", colore("accento"))
-	t.set_color("font_pressed_color", "Button", colore("accento"))
-	t.set_color("font_focus_color", "Button", colore("accento"))
+	t.set_color("font_hover_color", "Button", colore("box_testo"))
+	t.set_color("font_pressed_color", "Button", colore("box_testo"))
+	t.set_color("font_hover_pressed_color", "Button", colore("box_testo"))
+	t.set_color("font_focus_color", "Button", colore("testo"))
 	t.set_color("font_disabled_color", "Button", colore("testo_smorzato"))
 	t.set_font_size("font_size", "Button", dimensione("corpo"))
 
@@ -344,30 +345,16 @@ func stile_bottone(stato: String) -> StyleBox:
 	var texture := stile_bottone_texture(stato)
 	if texture != null:
 		return texture
-	var s := StyleBoxFlat.new()
-	s.set_corner_radius_all(forma("raggio"))
-	s.set_border_width_all(forma("bordo"))
-	s.content_margin_left = forma("padding_bottone_x")
-	s.content_margin_right = forma("padding_bottone_x")
-	s.content_margin_top = forma("padding_bottone_y")
-	s.content_margin_bottom = forma("padding_bottone_y")
-	match stato:
-		"sopra":
-			s.bg_color = colore("pannello_chiaro")
-			s.border_color = colore("bordo_acceso")
-		"premuto":
-			s.bg_color = colore("bordo")
-			s.border_color = colore("bordo_acceso")
-		"spento":
-			s.bg_color = Color(colore("pannello"), 0.35)
-			s.border_color = Color(colore("bordo"), 0.4)
-		"fuoco":
-			s.bg_color = colore("pannello_chiaro")
-			s.border_color = colore("bordo_acceso")
-			s.set_border_width_all(forma("bordo_acceso"))
-		_:
-			s.bg_color = colore("pannello")
-			s.border_color = colore("bordo")
+	# NEL MANIFESTO UN BOTTONE E' UN'ETICHETTA: la fascia inclinata nera; col
+	# mouse sopra chiara, premuta arancio. Il fuoco Godot lo disegna SOPRA la
+	# scritta, quindi e' solo un filo chiaro intorno, mai un fondo
+	var tinte := {"sopra": colore("bordo_acceso"), "premuto": colore("manifesto"),
+			"spento": Color(colore("bordo"), 0.35), "fuoco": Color(0, 0, 0, 0)}
+	var s := Manifesto.stile_etichetta(tinte.get(stato, colore("bordo")), forma("padding_bottone_x"),
+			forma("padding_bottone_y"))
+	if stato == "fuoco":
+		s.border_color = colore("bordo_acceso")
+		s.set_border_width_all(forma("bordo_acceso"))
 	return s
 
 func stile_bottone_texture(stato: String) -> StyleBoxTexture:
@@ -435,70 +422,40 @@ func scelta(bottone: Button, genere := "") -> void:
 		bottone.add_theme_color_override(stato, tinta)
 
 func ritorno(bottone: Button) -> void:
-	# LA VIA D'USCITA, E DEV'ESSERE LA STESSA OVUNQUE. La Sede e la mappa di
-	# zona hanno tutt'e due un bottone per tornare indietro, e fino a ieri erano
-	# due bottoni diversi: uno grande in fondo a una colonna, uno piccolo e
-	# grigio del tema di serie. Non e' un dettaglio di gusto - una cosa che fa
-	# sempre lo stesso mestiere deve avere sempre la stessa faccia, se no
-	# ognuna va riconosciuta da capo. Qui e' quieta: e' l'uscita, non l'invito.
+	# LA VIA D'USCITA, E DEV'ESSERE LA STESSA OVUNQUE (la Sede, la mappa di
+	# zona): una cosa che fa sempre lo stesso mestiere ha sempre la stessa
+	# faccia. E' quieta, e' l'uscita e non l'invito: un'etichetta nera del
+	# manifesto; col mouse sopra diventa chiara, col fuoco le si accende il filo
 	bottone.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	bottone.clip_text = false
 	bottone.autowrap_mode = TextServer.AUTOWRAP_OFF
 	bottone.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	imposta_corpo(bottone, dimensione("piccolo"))
-	bottone.add_theme_color_override("font_color", colore("testo_smorzato"))
-	for acceso in ["font_hover_color", "font_focus_color", "font_pressed_color"]:
-		bottone.add_theme_color_override(acceso, colore("accento"))
-	for stato in ["normal", "hover", "pressed", "focus"]:
-		var scatola := StyleBoxFlat.new()
-		scatola.bg_color = Color(colore("tratto"), 0.0 if stato == "normal" else 0.30)
-		scatola.set_border_width_all(1)
-		scatola.border_color = colore("accento") if stato != "normal" \
-				else Color(colore("tratto"), 0.8)
-		scatola.set_corner_radius_all(3)
-		scatola.content_margin_left = 16
-		scatola.content_margin_right = 16
-		scatola.content_margin_top = 8
-		scatola.content_margin_bottom = 8
-		bottone.add_theme_stylebox_override(stato, scatola)
+	bottone.add_theme_font_override("font", Caratteri.titolo())
+	for chiave in ["font_color", "font_focus_color"]:
+		bottone.add_theme_color_override(chiave, colore("testo"))
+	for chiave in ["font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
+		bottone.add_theme_color_override(chiave, colore("box_testo"))
+	bottone.add_theme_stylebox_override("normal", Manifesto.stile_etichetta(colore("bordo"), 18.0, 6.0))
+	for stato in ["hover", "pressed", "hover_pressed"]:
+		bottone.add_theme_stylebox_override(stato, Manifesto.stile_etichetta(colore("bordo_acceso"), 18.0, 6.0))
+	# il fuoco e' disegnato SOPRA la scritta: solo il filo, non un fondo
+	var filo := Manifesto.stile_etichetta(Color(0, 0, 0, 0), 18.0, 6.0)
+	filo.border_color = colore("bordo_acceso")
+	filo.set_border_width_all(3)
+	bottone.add_theme_stylebox_override("focus", filo)
 
 func voce_di_elenco(bottone: Button, gutter: int) -> void:
-	# UNA RIGA DI ELENCO, E NON E' UNA SCELTA DI DIALOGO.
-	#
-	# scelta() qui sopra mette SIZE_SHRINK_END, ed e' giusto per quello che fa:
-	# nel disegno di Bru le scelte sono cartelli appoggiati al bordo destro
-	# sopra l'illustrazione, ognuno largo quanto le sue parole. Ma la Sede la
-	# riusava per una COLONNA A SINISTRA, e allora quello stesso SHRINK_END
-	# diventa il difetto che si vede subito: sei riquadri di sei larghezze
-	# diverse, incolonnati a destra, con il margine sinistro a zigzag. Bru:
-	# «siamo ancora disordinati».
-	#
-	# Una riga di elenco vuole il contrario di una scelta: tutte della stessa
-	# larghezza, testo a filo a sinistra, e IL MARCATORE IN UNA CORSIA SUA. Se
-	# il pallino sta dentro al testo - "•  Alloggi" contro "Archivio" - i nomi
-	# partono da due x diverse a seconda che tu ci sia gia' stato o no, e
-	# l'occhio non ha piu' nessuna linea da seguire. Il "gutter" e' quella
-	# corsia: il testo comincia sempre dopo, il marcatore ci sta dentro.
-	bottone.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	# UNA RIGA DI ELENCO, E NON E' UNA SCELTA DI DIALOGO: tutte a filo a
+	# sinistra, e IL MARCATORE IN UNA CORSIA SUA, il "gutter" (Bru: «siamo
+	# ancora disordinati»). Se il pallino stesse dentro al testo, i nomi
+	# partirebbero da x diverse e l'occhio non avrebbe una linea da seguire.
+	# Nel manifesto e' una voce come quelle del quadrante: nera sull'arancio,
+	# e accesa sull'etichetta nera con la scritta chiara (Manifesto.vesti_voce)
 	bottone.clip_text = false
 	bottone.autowrap_mode = TextServer.AUTOWRAP_OFF
-	bottone.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	imposta_corpo(bottone, dimensione("corpo"))
-	for stato in ["normal", "hover", "pressed", "focus", "disabled"]:
-		var scatola := StyleBoxFlat.new()
-		scatola.bg_color = Color(colore("tratto"), 0.0 if stato == "normal"
-				or stato == "disabled" else 0.32)
-		scatola.content_margin_left = gutter
-		scatola.content_margin_right = 12
-		scatola.content_margin_top = 6
-		scatola.content_margin_bottom = 6
-		# il filetto acceso a sinistra: dice dove sei nell'elenco senza spostare
-		# niente, che e' la ragione per cui non e' un bordo su tutti e quattro i
-		# lati - un bordo che compare sposterebbe il testo di due pixel
-		scatola.border_width_left = 3
-		scatola.border_color = colore("accento") if stato == "hover" \
-				or stato == "focus" or stato == "pressed" else Color(colore("tratto"), 0.5)
-		bottone.add_theme_stylebox_override(stato, scatola)
+	bottone.set_meta("rientro_voce", gutter)
+	Manifesto.vesti_voce(bottone, dimensione("corpo"))
 
 func colore_scelta(genere: String) -> Color:
 	# IL COLORE DICE CHE RAZZA DI SCELTA E'. Bru le ha disegnate cosi': il rosso
@@ -572,6 +529,8 @@ const VISITA_VISTO := "visto"
 const VISITA_CHIUSO := "chiuso"
 
 func colore_visita(stato: String) -> Color:
+	# per le mappe, che stanno sul vetro scuro; sulla carta li ritinge il
+	# foglio (Manifesto.ritingi)
 	match stato:
 		VISITA_NUOVO: return colore("accento")
 		VISITA_CHIUSO: return colore("positivo")
@@ -625,12 +584,13 @@ func riempi_barra(telaio: Control, riempita: float) -> void:
 	telaio.queue_redraw()
 
 func etichetta_piccola(etichetta: Label) -> void:
+	# nera: sta sull'arancio del manifesto o sulla carta, e li' il grigio non si legge
 	etichetta.add_theme_font_size_override("font_size", dimensione("piccolo"))
-	etichetta.add_theme_color_override("font_color", colore("testo_smorzato"))
+	etichetta.add_theme_color_override("font_color", colore("box_testo"))
 
 func titolo_schermata(etichetta: Label) -> void:
-	etichetta.add_theme_font_size_override("font_size", dimensione("sezione"))
-	etichetta.add_theme_color_override("font_color", colore("accento"))
+	etichetta.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	Manifesto.vesti_etichetta(etichetta, dimensione("sezione"))
 
 func lampeggia(nodo: CanvasItem, tinta: Color) -> void:
 	# un colpo si deve vedere sul ritratto, non solo leggere nel diario
