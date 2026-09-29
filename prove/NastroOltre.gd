@@ -109,7 +109,7 @@ static func pellicola_dell_arrivo(schermata: Node, dove: String) -> void:
 	var foglio := Image.create(ritaglio.size.x * 2, ritaglio.size.y * 4, false, Image.FORMAT_RGBA8)
 	for i in 8:
 		await RenderingServer.frame_post_draw
-		var fotogramma := schermata.get_viewport().get_texture().get_image()
+		var fotogramma: Image = schermata.get_viewport().get_texture().get_image()
 		fotogramma.convert(Image.FORMAT_RGBA8)
 		foglio.blit_rect(fotogramma, ritaglio, Vector2i((i % 2) * ritaglio.size.x, floori(i / 2.0) * ritaglio.size.y))
 		for attesa in 3:
