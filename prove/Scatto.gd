@@ -19,6 +19,7 @@ extends Node
 const CARTELLA := "res://scatti/"
 const NastroOltre := preload("res://prove/NastroOltre.gd")
 const Temi := preload("res://prove/Temi.gd")
+const Bozzetti := preload("res://prove/Bozzetti.gd")
 const FOTOGRAMMI_DI_ASSESTAMENTO := 45
 
 func _ready() -> void:
@@ -41,7 +42,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "nomi_eleganti", "nome_in_scena", "laboratorio", "indica"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "nomi_eleganti", "nome_in_scena", "laboratorio", "indica", "bozzetto"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -1440,6 +1441,12 @@ func prepara(quale: String) -> void:
 					con_box.box.pagina_seguente()
 			await attendi(4)
 			print("pagina %d di %d" % [con_box.box.pagina + 1, con_box.box.pagine.size()])
+		"bozzetto":
+			# UN BOZZETTO DELL'INTERFACCIA nella lingua dell'immagine di Bru
+			# (prove/Bozzetti.gd): "bozzetto combattimento"
+			var arg_b := OS.get_cmdline_user_args()
+			add_child(Bozzetti.crea(String(arg_b[1]) if arg_b.size() > 1 else "combattimento"))
+			await attendi(6)
 		"indica":
 			# COME LA LEZIONE INDICA UN PEZZO: la battuta vera del tutorial di
 			# Veronica che lo nomina, con lo stile chiesto - "indica ecg pennarello"
