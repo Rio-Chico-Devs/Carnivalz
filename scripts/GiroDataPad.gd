@@ -131,7 +131,7 @@ func _ready() -> void:
 	var interlinea := float(Stile.dati.get("interlinee", {}).get("lettura", 1.5))
 	box.imposta_altezza(ceili(RIGHE_DEL_BOX * Caratteri.corpo_dialoghi() * interlinea))
 	box.add_theme_stylebox_override("panel", cornice_del_box())
-	cartiglio = Cartiglio.nuovo("TUTORIAL", Stile.colore("accento"), Stile.colore("testo"),
+	cartiglio = Cartiglio.nuovo("TUTORIAL", Stile.colore("accento"), Stile.colore("box_testo"),
 			Stile.colore("bordo_acceso"), Stile.dimensione("corpo"))
 	cartiglio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(cartiglio)

@@ -2,18 +2,14 @@ class_name Testata
 extends Control
 
 # LA TESTATA DI UN PASSO DEL MENU PRINCIPALE: «MENU PRINCIPALE», «NUOVA
-# PARTITA»... Nel riferimento di Bru e' piccola, tonda, chiara, e sta su una
-# SCIA DI LUCE - una striscia azzurra che sfuma ai due capi, piu' luminosa un
-# po' a sinistra del centro. Dice «sei qui» senza pesare quanto le voci.
+# PARTITA»... E' la STRISCIA del manifesto: una fascia nera sottile e inclinata
+# con la scritta arancio, larga e spaziata. Dice «sei qui» senza pesare quanto
+# le voci. (Prima era una scia di luce azzurra, dal riferimento di Borderlands 2.)
 #
-# Cambiando passo la scia si riaccende da sinistra: e' il primo gesto della
+# Cambiando passo la fascia si srotola da sinistra: e' il primo gesto della
 # coreografia, prima che arrivino le voci.
 
 const LARGA := 330.0
-const ALTA := 16.0
-const PARTE_PRIMA := -30.0        # la scia comincia un po' prima della scritta
-const PICCO := 0.38               # dove la scia e' piu' luminosa, in frazione
-const LUCE := 0.42
 
 var testo := ""
 var quanto := 1.0
@@ -48,30 +44,17 @@ func accendi(valore: float) -> void:
 
 
 func _draw() -> void:
-	var mezzo := size.y * 0.5 + 2.0
-	var fine := PARTE_PRIMA + LARGA * quanto
-	var picco := PARTE_PRIMA + LARGA * PICCO * quanto
-	var scia := Stile.colore("menu_scia")
-	var nulla := Color(scia, 0.0)
-	var piena := Color(scia, LUCE)
-	for meta: Array in [[PARTE_PRIMA, picco, nulla, piena], [picco, fine, piena, nulla]]:
-		var da := float(meta[0])
-		var a := float(meta[1])
-		draw_polygon(PackedVector2Array([Vector2(da, mezzo - ALTA * 0.5), Vector2(a, mezzo - ALTA * 0.5),
-				Vector2(a, mezzo + ALTA * 0.5), Vector2(da, mezzo + ALTA * 0.5)]),
-				PackedColorArray([meta[2], meta[3], meta[3], meta[2]]))
-	# il filo piu' chiaro dentro la scia: e' lui a farla sembrare luce e non nebbia
-	draw_line(Vector2(PARTE_PRIMA + 20.0, mezzo), Vector2(fine - 30.0, mezzo),
-			Color(Stile.colore("menu_chiaro"), 0.28 * quanto), 2.0)
-	var carattere := Caratteri.tondo(800)
+	var carattere := Caratteri.striscia()
 	if carattere == null or testo == "":
 		return
 	var corpo := Stile.dimensione("minuscolo")
-	var base := Vector2(0.0, mezzo + carattere.get_ascent(corpo) * 0.36)
-	draw_string_outline(carattere, base, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, bordo(corpo),
-			Color(Stile.colore("menu_macchia"), 0.8 * minf(quanto * 2.0, 1.0)))
+	var largo := carattere.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x + 28.0
+	var alto := float(corpo) * 1.35
+	var sopra := (size.y - alto) * 0.5
+	draw_colored_polygon(VoceMenu.lastra(-14.0, -14.0 + largo * quanto, sopra, alto), Stile.colore("bordo"))
+	var base := Vector2(0.0, sopra + (alto + carattere.get_ascent(corpo) - carattere.get_descent(corpo)) * 0.5)
 	draw_string(carattere, base, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo,
-			Color(Stile.colore("menu_chiaro"), minf(quanto * 2.0, 1.0)))
+			Color(Stile.colore("manifesto"), clampf(quanto * 2.0 - 0.6, 0.0, 1.0)))
 
 
 static func bordo(corpo: int) -> int:

@@ -326,15 +326,14 @@ func stile_box_testo() -> StyleBox:
 		s.content_margin_top = float(config.get("padding_alto", s.texture_margin_top))
 		s.content_margin_bottom = float(config.get("padding_basso", s.texture_margin_bottom))
 		return s
-	# IL BOX E' BIANCO COL BORDO NERO SPESSO, come nel disegno di Bru. E' l'unica
-	# cosa chiara di tutta la schermata, ed e' apposta: dove si legge si guarda,
-	# e una pagina bianca in mezzo al nero non ha bisogno di nessun'altra
-	# indicazione per dire "qui c'e' da leggere".
+	# IL BOX E' CHIARO COL BORDO NERO SPESSO E TONDO (e i fregi del manifesto:
+	# Manifesto.decora_box). Dove si legge si guarda, e una pagina chiara non ha
+	# bisogno di nessun'altra indicazione per dire "qui c'e' da leggere".
 	var piatto := StyleBoxFlat.new()
 	piatto.bg_color = colore("box_fondo")
 	piatto.border_color = colore("bordo")
 	piatto.set_border_width_all(forma("bordo_box"))
-	piatto.set_corner_radius_all(forma("raggio"))
+	piatto.set_corner_radius_all(forma("raggio_box"))
 	piatto.content_margin_left = forma("padding_box_x")
 	piatto.content_margin_right = forma("padding_box_x")
 	piatto.content_margin_top = forma("padding_box_y")

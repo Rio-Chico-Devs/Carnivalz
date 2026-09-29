@@ -35,7 +35,7 @@ const QUOTA_BARRE_DA := 0.658
 const QUOTA_BARRE_A := 0.801
 const QUOTA_STATUS_DA := 0.848
 
-var cornice: ColorRect   # il bordo dello slot: si accende a chi ha il turno
+var cornice: Manifesto.Cabinato   # lo schermo dello slot: la cornice si accende a chi ha il turno
 var ritratto: Control
 var barre: Dictionary = {}       # chiave -> Control che si disegna
 var quote: Dictionary = {}       # chiave -> quanto si VEDE adesso, 0..1
@@ -75,15 +75,14 @@ func _ready() -> void:
 	ridisponi()
 
 func costruisci() -> void:
-	cornice = ColorRect.new()
-	cornice.color = Stile.colore("bordo")
-	cornice.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(cornice)
+	# LO SLOT E' UNO SCHERMO DEL CABINATO (Manifesto): la cornice chiara e' di
+	# chi ha il turno, quella degli altri e' nera
 	ritratto = Control.new()
 	ritratto.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(ritratto)
+	cornice = Manifesto.cabinato(self, ritratto, "bordo")
 	var fondo_faccia := ColorRect.new()
-	fondo_faccia.color = Stile.colore("pannello_chiaro")
+	fondo_faccia.color = Stile.colore("quadro_vuoto")
 	fondo_faccia.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	fondo_faccia.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ritratto.add_child(fondo_faccia)
@@ -113,11 +112,12 @@ func costruisci() -> void:
 		else:
 			var scritta := Label.new()
 			scritta.text = String(riga.testo)
-			# NERE SUL BIANCO, come nel disegno. Erano bianche - il colore del
-			# testo della schermata di dialogo, che ha il fondo nero - e su
-			# questa pagina bianca sparivano del tutto: le barre c'erano e
-			# nessuno sapeva quale fosse quale.
+			# NERE SUL FONDO, come nel disegno. Erano bianche - il colore del
+			# testo della schermata di dialogo, che ha il fondo nero - e sulla
+			# pagina chiara sparivano del tutto: le barre c'erano e nessuno
+			# sapeva quale fosse quale.
 			scritta.add_theme_color_override("font_color", Stile.colore("box_testo"))
+			scritta.add_theme_font_override("font", Caratteri.titolo())
 			etichetta = scritta
 		etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(etichetta)
@@ -163,36 +163,37 @@ func vesti_numero(etichetta: Label) -> void:
 	Stile.contorno(etichetta, etichetta.get_theme_font_size("font_size"))
 
 func barra_colorata(chiave: String, nome_colore: String) -> Control:
-	# Piena e squadrata, senza bordo: nel disegno e' un rettangolo di colore
-	# pieno sul nero, e basta quello.
+	# Squadrata, in una cornice nera: il colore pieno dentro, il vuoto scuro.
 	var telaio := Control.new()
 	telaio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	telaio.draw.connect(func() -> void:
 		var pieno := clampf(float(quote.get(chiave, 0.0)), 0.0, 1.0)
 		var coda := clampf(float(scie.get(chiave, pieno)), 0.0, 1.0)
-		telaio.draw_rect(Rect2(Vector2.ZERO, telaio.size), Stile.colore("pannello_chiaro"))
+		telaio.draw_rect(Rect2(Vector2.ZERO, telaio.size), Stile.colore("bordo"))
+		var dentro := Rect2(Vector2.ZERO, telaio.size).grow(-minf(3.0, telaio.size.y * 0.2))
+		telaio.draw_rect(dentro, Stile.colore("barra_vuota"))
 		# LA SCIA STA SOTTO E SI VEDE SOLO SE SPORGE. Perdendo sporge a destra
 		# (quello che hai appena perso), curando sporge la barra e la scia e'
 		# gia' arrivata: in quel caso non si disegna niente in piu'
 		if coda > pieno:
-			telaio.draw_rect(Rect2(Vector2(telaio.size.x * pieno, 0.0),
-					Vector2(telaio.size.x * (coda - pieno), telaio.size.y)),
-					Stile.colore("negativo"))
+			telaio.draw_rect(Rect2(dentro.position + Vector2(dentro.size.x * pieno, 0.0),
+					Vector2(dentro.size.x * (coda - pieno), dentro.size.y)), Stile.colore("negativo"))
 		if pieno > 0.0:
-			telaio.draw_rect(Rect2(Vector2.ZERO, Vector2(telaio.size.x * pieno, telaio.size.y)),
+			telaio.draw_rect(Rect2(dentro.position, Vector2(dentro.size.x * pieno, dentro.size.y)),
 					Stile.colore(nome_colore)))
 	return telaio
 
 func tassello_status(indice: int) -> Control:
-	# Un quadrato nero col simbolo dentro. Quando sta bene c'e' l'icona
-	# normale, altrimenti quella dello status: «se stanno bene ci stara l'icona
-	# normale altrimenti ho fatto esempi per in fiamme, maledetto e paralisi».
+	# Un gettone tondo col simbolo dentro (Manifesto.gettone). Quando sta bene
+	# c'e' l'icona normale, altrimenti quella dello status: «se stanno bene ci
+	# stara l'icona normale altrimenti ho fatto esempi per in fiamme, maledetto
+	# e paralisi».
 	var tassello := Control.new()
 	tassello.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tassello.draw.connect(func() -> void:
-		tassello.draw_rect(Rect2(Vector2.ZERO, tassello.size), Stile.colore("bordo"))
+		Manifesto.gettone(tassello, Rect2(Vector2.ZERO, tassello.size))
 		var quale := simboli[indice] if indice < simboli.size() else ""
-		IconeStato.disegna(tassello, quale, Rect2(Vector2.ZERO, tassello.size)))
+		IconeStato.disegna(tassello, quale, Rect2(Vector2.ZERO, tassello.size).grow(-tassello.size.x * 0.14)))
 	return tassello
 
 # --- quello che si vede ------------------------------------------------------
@@ -283,7 +284,7 @@ func imposta_turno(suo: bool) -> void:
 	if suo == tocca_a_lui:
 		return
 	tocca_a_lui = suo
-	cornice.color = Stile.colore("accento") if suo else Stile.colore("bordo")
+	cornice.color = Stile.colore("cornice_turno") if suo else Stile.colore("bordo")
 	if numero_aura != null:
 		numero_aura.visible = suo and id_dentro != ""
 
@@ -401,10 +402,11 @@ func ridisponi() -> void:
 		return
 	var lato := size.x
 	cornice.position = Vector2.ZERO
-	cornice.size = Vector2(lato, lato)
-	var bordo := float(Stile.forma("bordo_plancia"))
-	ritratto.position = Vector2(bordo, bordo)
-	ritratto.size = Vector2(lato - bordo * 2.0, lato - bordo * 2.0)
+	cornice.size = Vector2(lato, lato * 0.92)
+	ritratto.position = cornice.dentro().position
+	ritratto.size = cornice.dentro().size
+	cornice.davanti.position = ritratto.position
+	cornice.davanti.size = ritratto.size
 	if iniziale != null:
 		iniziale.add_theme_font_size_override("font_size", maxi(int(lato * 0.42), 12))
 

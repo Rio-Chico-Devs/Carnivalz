@@ -5,11 +5,9 @@ extends RefCounted
 # principale, la calligrafia del racconto (fiaba), quello del box dei
 # dialoghi (dialoghi) e quello dei nomi di chi parla (nomi).
 #
-# Anton per le voci e i titoli, Nunito per le scritte piccole: e' la coppia del
-# riferimento di Bru (Borderlands 2), dove le voci sono maiuscole pesanti e
-# strette e tutto il resto - la testata, la descrizione, i comandi - e'
-# tondo. Due voci di carattere diverse per due mestieri diversi: quello che si
-# sceglie e quello che si legge.
+# Archivo corsivo per le voci e i titoli (era Anton, fino ai bozzetti del
+# manifesto), Nunito per le scritte piccole. Due voci di carattere diverse per
+# due mestieri diversi: quello che si sceglie e quello che si legge.
 #
 # Nunito e' a peso variabile: lo stesso file fa il normale e il grassetto, e il
 # peso si chiede qui (wght, da 200 a 1000).
@@ -18,9 +16,28 @@ static var gia_fatti: Dictionary = {}
 
 
 static func titolo() -> Font:
+	# IL GROTTESCO NERO E CORSIVO DEL MANIFESTO (Archivo corsivo): i titoli, le
+	# etichette, le voci. Bru l'ha approvato coi bozzetti del 29 settembre. E' a
+	# due assi, peso e larghezza: le misure stanno in data/stile.json, "titoli"
 	if not gia_fatti.has("titolo"):
-		gia_fatti["titolo"] = Stile.font_da("titolo")
+		gia_fatti["titolo"] = con_le_sue_misure("titolo", Stile.dati.get("titoli", {}))
 	return gia_fatti["titolo"]
+
+
+static func voci_strette() -> Font:
+	# lo stesso carattere stretto, per le voci del quadrante del combattimento:
+	# una lista di skill e' lunga, e il quadrante e' quello che e'
+	if not gia_fatti.has("voci"):
+		gia_fatti["voci"] = con_le_sue_misure("titolo", Stile.dati.get("voci", {}))
+	return gia_fatti["voci"]
+
+
+static func striscia() -> Font:
+	# lo stesso carattere largo e spaziato, per le righe sottili sotto le
+	# etichette (la striscia arancio sul nero dell'immagine di Bru)
+	if not gia_fatti.has("striscia"):
+		gia_fatti["striscia"] = con_le_sue_misure("titolo", Stile.dati.get("strisce", {}))
+	return gia_fatti["striscia"]
 
 
 static func tondo(peso := 400) -> Font:
@@ -113,18 +130,16 @@ static func con_le_sue_misure(chiave: String, misure: Dictionary) -> FontVariati
 
 
 static func voce() -> Font:
-	# ANTON STRETTO IN ALTEZZA, per le voci del menu principale. Anton ha tanto
-	# spazio sopra le maiuscole (per gli accenti) e sotto (per le discendenti),
-	# e le voci sono tutte maiuscole: a 31 pixel la riga sarebbe alta 48, e nel
-	# riferimento il passo fra una voce e l'altra e' il 5,6% dello schermo,
-	# cioe' 40. Si toglie l'aria, non si rimpiccioliscono le lettere
+	# IL CARATTERE DEI TITOLI STRETTO IN ALTEZZA, per le voci del menu
+	# principale (un po' meno largo: stile.json, voci_menu). Ha spazio sopra le
+	# maiuscole (per gli accenti) e sotto (per le discendenti), e le voci sono
+	# tutte maiuscole: il passo fra una voce e l'altra e' il 5,6% dello
+	# schermo, cioe' 40. Si toglie l'aria, non si rimpiccioliscono le lettere
 	if gia_fatti.has("voce"):
 		return gia_fatti["voce"]
-	var base := titolo()
-	if base == null:
+	var stretto := con_le_sue_misure("titolo", Stile.dati.get("voci_menu", {}))
+	if stretto == null:
 		return null
-	var stretto := FontVariation.new()
-	stretto.base_font = base
 	stretto.spacing_top = -7
 	stretto.spacing_bottom = -7
 	gia_fatti["voce"] = stretto

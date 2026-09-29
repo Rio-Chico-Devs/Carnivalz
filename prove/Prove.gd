@@ -8432,10 +8432,12 @@ func prova_il_menu_di_pausa_si_muove_ma_non_fa_aspettare() -> void:
 	esigi(Movimento.ultimo_suono == "chiusura", "il menu si chiude senza il suo suono")
 	Pausa.dissolvenza.custom_step(1.0)
 	esigi(not Pausa.velo.visible, "finita l'uscita il velo e' ancora li'")
-	# 6. E SI LEGGE. Il bianco sulla lastra, il rosso sul foglio nero, il nero
-	#    sul cartellino dei Tazo: 4,5:1, la soglia WCAG del testo normale, anche
-	#    se queste scritte sono grandi e ne basterebbe 3
-	for coppia: Array in [["testo", "accento"], ["accento", "sfondo"], ["box_testo", "bordo_acceso"]]:
+	# 6. E SI LEGGE. Il nero sulla lastra arancio, l'arancio sul foglio nero, il
+	#    nero sul cartellino dei Tazo; sul foglio arancio del menu (il manifesto)
+	#    il nero delle voci e il chiaro sull'etichetta nera: 4,5:1, la soglia WCAG
+	#    del testo normale, anche se queste scritte sono grandi e ne basterebbe 3
+	for coppia: Array in [["box_testo", "accento"], ["accento", "sfondo"], ["box_testo", "bordo_acceso"],
+			["box_testo", "manifesto"], ["testo", "bordo"]]:
 		var rapporto := Stile.contrasto(Stile.colore(String(coppia[0])), Stile.colore(String(coppia[1])))
 		esigi(rapporto >= 4.5, "'%s' su '%s' sta a %.2f:1: non si legge" % [coppia[0], coppia[1], rapporto])
 	Impostazioni.movimento_ridotto = prima
@@ -8666,68 +8668,50 @@ func prova_il_menu_principale_sta_dove_sta_nel_riferimento() -> void:
 	MenuPrincipale.titolo_visto = false
 
 func prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda() -> void:
-	# LA TEORIA DEL COLORE DEL RIFERIMENTO, come numeri. Bru: «vedi che spazza
-	# il giallo dell'opzione selezionata con lo sfondo?». Tutto quello che non e'
-	# scelto sta nei blu; la scelta e' dell'unico colore caldo, dall'altra parte
-	# del cerchio. E tutto si legge: le voci spente sopra il 3:1 (testo grande)
-	# nel punto esatto in cui stanno sul luna park, la scelta sopra il 4,5:1 sulla
-	# sua macchia, la testata e la descrizione sopra il 4,5:1.
-	titolo("nel menu principale la scelta e' l'unica cosa calda, e tutto si legge")
+	# IL MENU DEL MANIFESTO, come numeri (bozzetti approvati da Bru il 29
+	# settembre). Ogni voce sta su un'etichetta piena - nera con la scritta
+	# chiara, la scelta chiara con la scritta nera - quindi il contrasto non
+	# dipende da dove cade sul luna park, che dal cielo alla terra cambia tutto.
+	# L'arancio e' l'unico colore caldo acceso: il cielo e' la sua famiglia, le
+	# sagome sono nere. E si legge tutto: le voci sopra il 4,5:1 sulla loro
+	# etichetta, la testata (arancio sulla striscia nera) e la descrizione
+	# (chiara, col contorno, sulla terra scura) anche.
+	titolo("nel menu principale ogni voce sta sulla sua etichetta, e tutto si legge")
 	var scena := LunaPark.new()
 	var calda := Stile.colore("accento").h * 360.0
-	esigi(calda < 30.0 or calda > 330.0, "il colore della scelta non e' caldo (tinta %.0f)" % calda)
-	for nome: String in ["menu_notte_alto", "menu_notte_basso", "menu_lontano", "menu_sagoma", "menu_voce",
-			"menu_chiaro", "menu_scia", "menu_nebbia", "menu_riga", "menu_riga_accesa", "menu_spruzzo"]:
-		var tinta := Stile.colore(nome).h * 360.0
-		esigi(tinta > 180.0 and tinta < 260.0, "'%s' non sta nei blu (tinta %.0f): la scelta non sarebbe l'unica cosa calda"
-				% [nome, tinta])
-		var distanza := absf(tinta - calda)
-		distanza = minf(distanza, 360.0 - distanza)
-		esigi(distanza >= 120.0, "'%s' e la scelta distano %.0f gradi: non stanno da parti opposte" % [nome, distanza])
-	for riga in 8:
-		var dove := Vector2(100.0, 90.0 + 40.0 * float(riga) + 20.0)
-		var fondo := scena.fondo_a(dove)
-		var rapporto := Stile.contrasto(Stile.colore("menu_voce"), fondo)
-		esigi(rapporto >= 3.0, "la voce %d sta a %.2f:1 sul luna park: non si legge" % [riga + 1, rapporto])
-		# la scelta, in quella stessa riga: sulla macchia (quasi nera, al 90%)
-		# deve stare ben sopra il 3:1 del testo grande - a 4. Il cremisi da solo
-		# sul luna park nelle righe basse ci sta sotto: e' per questo che la
-		# macchia c'e'
-		var macchia := fondo.lerp(Stile.colore("menu_macchia"), VoceMacchia.OPACITA_MACCHIA)
-		var sulla_macchia := Stile.contrasto(Stile.colore("accento"), macchia)
-		esigi(sulla_macchia >= 4.0, "la voce %d scelta sta a %.2f:1 sulla sua macchia" % [riga + 1, sulla_macchia])
-	esigi(Stile.contrasto(Stile.colore("menu_chiaro"), scena.fondo_a(Vector2(110, 70))) >= 4.5,
-			"la testata non si legge sul cielo")
-	esigi(Stile.contrasto(Stile.colore("menu_descrizione"), scena.fondo_a(Vector2(110, 640))) >= 4.5,
+	esigi(calda > 15.0 and calda < 45.0, "l'accento non e' l'arancio del manifesto (tinta %.0f)" % calda)
+	esigi(Stile.colore("menu_notte_alto").is_equal_approx(Stile.colore("manifesto")),
+			"il cielo del luna park non e' l'arancio del manifesto")
+	esigi(Stile.contrasto(Stile.colore("testo"), Stile.colore("bordo")) >= 4.5,
+			"la voce spenta non si legge sulla sua etichetta nera")
+	esigi(Stile.contrasto(Stile.colore("box_testo"), Stile.colore("bordo_acceso")) >= 4.5,
+			"la voce scelta non si legge sulla sua etichetta chiara")
+	esigi(Stile.contrasto(Stile.colore("manifesto"), Stile.colore("bordo")) >= 4.5,
+			"la testata non si legge sulla sua striscia")
+	esigi(Stile.contrasto(Stile.colore("testo"), scena.fondo_a(Vector2(110, 640))) >= 4.5,
 			"la descrizione non si legge in fondo allo schermo")
 	scena.free()
 
 func prova_la_voce_col_segno_e_la_macchia() -> void:
-	# LA VOCE DEL MENU PRINCIPALE: spenta e' blu, senza segno e senza macchia;
-	# scelta e' cremisi, col segno, con la macchia - e NON si sposta, perche'
-	# nel riferimento non si sposta.
-	titolo("la voce del menu principale: il segno e la macchia solo quando e' scelta")
+	# LA VOCE DEL MENU PRINCIPALE: spenta e' un'etichetta nera con la scritta
+	# chiara, senza segno; scelta e' un'etichetta chiara con la scritta nera e
+	# il segno - e NON si sposta: in un elenco lungo una voce che si sposta fa
+	# sembrare storto tutto l'elenco.
+	titolo("la voce del menu principale: il segno e l'etichetta chiara solo quando e' scelta")
 	var prima := Impostazioni.movimento_ridotto
 	Impostazioni.movimento_ridotto = false
 	var v := VoceMacchia.crea("COLLEZIONI")
 	add_child(v)
 	await get_tree().process_frame
 	esigi(v.segno.tinta.a < 0.01, "la voce spenta ha il segno")
-	esigi(v.ultima_tinta.is_equal_approx(Stile.colore("menu_voce")), "la voce spenta non e' del blu delle voci")
+	esigi(v.ultima_tinta.is_equal_approx(Stile.colore("testo")), "la voce spenta non ha la scritta chiara")
 	v.accendi()
 	for i in 30:
 		v.avanza(1.0 / 60.0)
 	esigi(v.segno.tinta.a > 0.99, "la voce scelta non ha il segno")
-	esigi(v.ultima_tinta.is_equal_approx(Stile.colore("accento")), "la voce scelta non e' cremisi")
-	esigi(is_zero_approx(v.bottone.position.x), "la voce scelta si sposta di %.0f pixel: nel riferimento resta dov'e'"
+	esigi(v.ultima_tinta.is_equal_approx(Stile.colore("box_testo")), "la voce scelta non ha la scritta nera")
+	esigi(is_zero_approx(v.bottone.position.x), "la voce scelta si sposta di %.0f pixel"
 			% v.bottone.position.x)
-	# la macchia copre il segno e piu' di meta' della scritta: e' lei che da'
-	# al cremisi il contrasto che sul blu non ha
-	var testo := v.bottone.size.x - VoceMenu.SPAZIO_SEGNO - VoceMenu.MARGINE_DESTRO
-	var fino_a := -VoceMacchia.SPORGE_MACCHIA + (VoceMacchia.SPORGE_MACCHIA + VoceMenu.SPAZIO_SEGNO
-			+ testo * VoceMacchia.QUOTA_TESTO_COPERTO)
-	esigi(fino_a >= VoceMenu.SPAZIO_SEGNO + testo * 0.5, "la macchia si ferma prima di meta' della scritta")
-	esigi(Geometry2D.triangulate_polygon(v.forma).size() > 0, "la macchia e' un poligono che si incrocia: non si disegna")
 	v.queue_free()
 	Impostazioni.movimento_ridotto = prima
 
@@ -9029,8 +9013,8 @@ func prova_ogni_cosa_ha_il_suo_spazio() -> void:
 	# carattere, che sono quello che Godot usa in una finestra vera
 	# il conto torna con quello misurato in una finestra vera: se leggesse male
 	# il file direbbe zero, e ogni cosa «ci starebbe»
-	esigi(altezza_vera("res://art/font/titolo.ttf", 31) == 48.0 and altezza_vera("res://art/font/arrotondato.ttf", 18) == 26.0,
-			"l'altezza letta dal file del carattere non e' quella vera (Anton 31: %.0f invece di 48; Nunito 18: %.0f invece di 26)"
+	esigi(altezza_vera("res://art/font/titolo.ttf", 31) == 35.0 and altezza_vera("res://art/font/arrotondato.ttf", 18) == 26.0,
+			"l'altezza letta dal file del carattere non e' quella vera (Archivo 31: %.0f invece di 35; Nunito 18: %.0f invece di 26)"
 			% [altezza_vera("res://art/font/titolo.ttf", 31), altezza_vera("res://art/font/arrotondato.ttf", 18)])
 	var alta_descrizione := altezza_vera("res://art/font/titolo.ttf", Stile.dimensione("corpo")) \
 			+ MenuPrincipale.RIGHE_DESCRIZIONE * altezza_vera("res://art/font/arrotondato.ttf", Stile.dimensione("minuscolo"))
@@ -9099,7 +9083,8 @@ func altezza_vera(percorso: String, corpo: int) -> float:
 	# L'ALTEZZA DI UNA RIGA, DAL FILE DEL CARATTERE: la tabella 'head' dice in
 	# quante unita' e' diviso un em, la 'hhea' quanto sale e quanto scende. Godot
 	# in una finestra vera fa esattamente questo conto, arrotondando per eccesso
-	# la salita e la discesa (Anton a corpo 31: 37 + 11 = 48, misurato)
+	# la salita e la discesa (Archivo a corpo 31: 28 + 7 = 35, misurato in una
+	# finestra il 29 settembre; prima c'era Anton, 37 + 11 = 48)
 	var dati := FileAccess.get_file_as_bytes(percorso)
 	dati.reverse()   # decode_* legge in little endian, il TTF e' big endian
 	var lungo := dati.size()
@@ -10443,13 +10428,20 @@ func prova_menu_da_tastiera() -> void:
 	# usa un colore suo - font_focus_color - che viene dal tema generale, fatto
 	# per il fondo scuro del resto del gioco. Sul bianco del quadrante la parola
 	# spariva del tutto: restava la barretta rossa e nient'altro.
+	#
+	# SUL MANIFESTO la voce col fuoco sta su un'etichetta nera con la scritta
+	# chiara, le altre sono nere sulla carta: la forma (l'etichetta piena) dice
+	# dov'e' il fuoco, e tutte e due le scritte si leggono a 4,5:1
 	for voce in voci:
-		var tinta: Color = voce.get_theme_color("font_focus_color")
-		esigi(tinta.a > 0.5 and tinta.v < 0.6,
-				"la voce col fuoco si scrive in %s sul bianco: non si legge piu'" % tinta)
-	var segno: StyleBox = voci[0].get_theme_stylebox("focus")
-	esigi(segno is StyleBoxFlat and (segno as StyleBoxFlat).border_width_left > 0,
-			"la voce col fuoco non ha nessun segno di forma: si distingue solo dal colore")
+		var fondo: StyleBox = voce.get_theme_stylebox("normal")
+		var col_fuoco: bool = voce.has_focus()
+		var tinta: Color = voce.get_theme_color("font_focus_color" if col_fuoco else "font_color")
+		var dietro := (fondo as StyleBoxFlat).bg_color if fondo is StyleBoxFlat else Stile.colore("plancia_pannello")
+		esigi(Stile.contrasto(tinta, dietro) >= 4.5,
+				"la voce '%s' si scrive in %s su %s: non si legge" % [voce.text, tinta, dietro])
+		esigi((fondo is StyleBoxFlat) == col_fuoco,
+				"la voce '%s' %s l'etichetta: il fuoco si distingue solo dal colore" % [voce.text,
+				"col fuoco non ha" if col_fuoco else "senza fuoco ha"])
 	scontro.free()
 
 func prova_ecg_non_accumula() -> void:

@@ -122,17 +122,19 @@ func _ready() -> void:
 	disegna_nodo(IngressoNodo.raccogli(GameState.nodo_corrente), [])
 
 func applica_stile() -> void:
-	# LA CORNICE NERA. Non e' un bordo decorativo: e' quello che rende la scena
-	# un'inquadratura invece di uno sfondo, ed e' il motivo per cui chi parla
-	# puo' SBORDARE. Veronica esce dal quadro, passa sopra il nero e finisce
-	# dietro il box - e se non ci fosse un quadro da cui uscire, quel gesto non
-	# vorrebbe dire niente.
-	sfondo.color = Stile.colore("sfondo")
+	# LA CORNICE: l'arancio del manifesto e lo schermo del cabinato. Non e' un
+	# bordo decorativo: e' quello che rende la scena un'inquadratura invece di
+	# uno sfondo, ed e' il motivo per cui chi parla puo' SBORDARE. Veronica esce
+	# dal quadro, passa sopra la cornice e finisce dietro il box - e se non ci
+	# fosse un quadro da cui uscire, quel gesto non vorrebbe dire niente.
+	sfondo.color = Stile.colore("manifesto")
+	Manifesto.trama_dietro(sfondo)
 	var bordo := Stile.forma("cornice")
 	quadro.offset_left = bordo
 	quadro.offset_top = bordo
 	quadro.offset_right = -bordo
 	quadro.offset_bottom = -bordo
+	Manifesto.cabinato_intorno(quadro)   # la scena e' lo schermo di un cabinato
 	# PRIMA SI TOGLIE LA TARGHETTA, POI SI MISURA IL BOX. In quest'ordine e non
 	# nell'altro: il box si calcola l'altezza da solo, e finche' dentro c'e' la
 	# riga del nome quell'altezza comprende anche quella. Misurarlo prima
@@ -397,10 +399,13 @@ func prepara_icona_menu() -> void:
 	icona_menu.custom_minimum_size = Vector2(lato, lato)
 	icona_menu.size = Vector2(lato, lato)
 	var fondo := StyleBoxFlat.new()
-	fondo.bg_color = Stile.colore("pericolo")
-	fondo.set_corner_radius_all(0)
-	fondo.set_border_width_all(3)
+	fondo.bg_color = Stile.colore("manifesto")
+	fondo.set_corner_radius_all(14)
+	fondo.set_border_width_all(4)
 	fondo.border_color = Stile.colore("bordo")
+	fondo.shadow_color = Stile.colore("bordo")   # l'ombra piena del manifesto:
+	fondo.shadow_size = 1                        # quasi senza sfumatura
+	fondo.shadow_offset = Manifesto.OMBRA * 0.6
 	for stato in ["normal", "hover", "pressed", "focus", "disabled"]:
 		icona_menu.add_theme_stylebox_override(stato, fondo)
 	icona_menu.tooltip_text = "Menu"
@@ -416,6 +421,8 @@ func prepara_icona_menu() -> void:
 	var ritratto := ritratto_del_giocato()
 	if ritratto != "":
 		faccia.texture = load(ritratto)
+	else:
+		Manifesto.tre_righe(icona_menu)   # finche' la faccia non c'e', il segno del menu
 	icona_menu.add_child(faccia)
 	icona_menu.pressed.connect(func() -> void: Pausa.apri())
 	# SOPRA L'AREA CHE FA AVANZARE IL TESTO. Stava in Interfaccia, e AreaAvanza

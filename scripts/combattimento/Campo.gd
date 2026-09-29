@@ -155,8 +155,7 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	var suo_nome := ritratto.get_node_or_null("%Nome")
 	if suo_nome != null:
 		(suo_nome as Control).visible = false
-	plancia.fascia_nome.text = nome_in_fascia({"id": id_personaggio, "nome": id_personaggio})
-	plancia.fascia_nome.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS   # mai fuori dal pannello
+	plancia.scrivi_nome(nome_in_fascia({"id": id_personaggio, "nome": id_personaggio}))   # mai fuori dalla scheda
 	# «HP: ???» con i punti interrogativi rossi, come nel disegno: quello che
 	# non sai e' scritto col colore di quello che ti fara' male
 	vita.add_theme_color_override("font_color", Stile.colore("box_testo"))
@@ -265,7 +264,7 @@ func scrivi_quanti_in_fascia(combattente: Dictionary) -> void:
 	# in un quadratino non si prende il nome del boss
 	var quanti := int(combattente.get("componenti", 0))
 	if quanti > 0 and combattente.scheda == plancia.box_nemico:
-		plancia.fascia_nome.text = "%s  \u00d7%d" % [nome_in_fascia(combattente), quanti]
+		plancia.scrivi_nome("%s  \u00d7%d" % [nome_in_fascia(combattente), quanti])
 
 func aggiorna_quadretto(combattente: Dictionary) -> void:
 	var quadretto := combattente.scheda as GregariNemici.QuadrettoNemico
@@ -412,7 +411,12 @@ func evidenzia(combattenti: Array[Dictionary], attivo: Dictionary) -> void:
 			# altri: sbiadire su fondo bianco si legge "fuori combattimento"
 			(suo_slot as SlotCompagno).imposta_turno(suo_turno)
 			continue
-		combattente.scheda.modulate = Color.WHITE if suo_turno else Color(1, 1, 1, 0.65)
+		# si spegne la creatura, non il suo schermo: un cabinato sbiadito
+		# sull'arancio sembra rotto, non in attesa
+		var chi: Variant = combattente.get("immagine", null)
+		if chi == null or not is_instance_valid(chi):
+			chi = combattente.scheda
+		(chi as CanvasItem).modulate = Color.WHITE if suo_turno else Color(1, 1, 1, 0.65)
 
 func congeda(scheda: Control) -> void:
 	if muta or scheda == null or not is_instance_valid(scheda):

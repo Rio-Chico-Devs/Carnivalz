@@ -300,18 +300,16 @@ func applica_stile() -> void:
 	# bordi e stesso box della schermata eventi. Il fondo e' l'unica cosa che
 	# cambia, e cambia poco
 	#
-	# IL FONDO E' BIANCO, E NON CAMBIA MAI. Nei tre disegni di Bru la schermata
-	# sta su una pagina bianca, ed e' quella che fa esistere i bordi neri spessi
-	# dei pannelli: provata su nero, i bordi sparivano e restavano quattro
-	# rettangoli che galleggiavano nel buio.
+	# IL FONDO E' L'ARANCIO DEL MANIFESTO, E NON CAMBIA MAI (era la pagina
+	# bianca dei disegni di Bru: e' quella che fa esistere i bordi neri spessi
+	# dei pannelli; provata su nero, i pannelli galleggiavano nel buio).
 	#
 	# C'era stata una tinta per tipo - il fondo che prendeva una traccia del
 	# colore di chi avevi davanti - e non c'e' piu': su questa schermata
 	# diventava una patina su tutto. Il tipo si legge lo stesso, ma sul numero
 	# del danno; e il colore per tipo resta nell'arena, che lo usa per i lampi.
 	sfondo.color = Stile.colore("sfondo_combattimento")
-	etichetta_speranza.add_theme_color_override("font_color", Stile.colore("accento"))
-	etichetta_speranza.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
+	Manifesto.vesti_etichetta(etichetta_speranza, Stile.dimensione("nome"))
 	# il box e' lo stesso componente della schermata eventi: non c'e' niente da
 	# impostare qui, si porta dietro corpo del testo, cornice e macchina da
 	# scrivere. Il combattimento parla con la stessa voce del resto del gioco

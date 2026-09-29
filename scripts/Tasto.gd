@@ -17,16 +17,13 @@ static func nuovo(tasto: String, azione: String, richiamo: Callable) -> Tasto:
 	if Caratteri.tondo(850) != null:
 		bottone.add_theme_font_override("font", Caratteri.tondo(850))
 	bottone.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
+	# LA PILLOLA DEL MANIFESTO: arancio con la scritta nera, sulla banda nera
+	# in fondo; passandoci sopra si accende il bordo chiaro
 	for colore in ["font_color", "font_hover_color", "font_pressed_color"]:
-		bottone.add_theme_color_override(colore, Stile.colore("menu_descrizione"))
+		bottone.add_theme_color_override(colore, Stile.colore("box_testo"))
 	for stato in ["normal", "hover", "pressed"]:
-		var tappo := StyleBoxFlat.new()
-		tappo.bg_color = Color(Stile.colore("menu_riga"), 0.8)
-		tappo.set_border_width_all(2)
-		tappo.border_color = Stile.colore("menu_chiaro" if stato == "normal" else "testo")
-		tappo.set_corner_radius_all(12)
-		tappo.content_margin_left = 10
-		tappo.content_margin_right = 10
+		var tappo := Manifesto.stile_pillola(Stile.colore("manifesto"), 12.0,
+				Stile.colore("bordo_acceso") if stato != "normal" else Color(0, 0, 0, 0))
 		tappo.content_margin_top = 1
 		tappo.content_margin_bottom = 1
 		bottone.add_theme_stylebox_override(stato, tappo)
@@ -37,7 +34,7 @@ static func nuovo(tasto: String, azione: String, richiamo: Callable) -> Tasto:
 	if Caratteri.tondo(700) != null:
 		scritta.add_theme_font_override("font", Caratteri.tondo(700))
 	scritta.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
-	scritta.add_theme_color_override("font_color", Stile.colore("menu_descrizione"))
+	scritta.add_theme_color_override("font_color", Stile.colore("testo"))
 	Stile.contorno(scritta, Stile.dimensione("minuscolo"))
 	scritta.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	riga.add_child(scritta)

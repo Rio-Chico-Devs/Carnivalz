@@ -77,6 +77,11 @@ func quota_riga(i: int) -> float:
 func _draw() -> void:
 	var entrato := 0.0 if Movimento.ridotto() else (1.0 - arrivo) * 40.0
 	draw_set_transform(Vector2(entrato, 0.0))
+	if not righe.is_empty():
+		# le partite stanno su un foglio del manifesto, e l'etichetta ci si appoggia sopra
+		var giu := TESTA + float(righe.size()) * (RIGA + STACCO) - STACCO
+		Manifesto.carta(self, Rect2(-14.0, TESTA - 10.0, LARGO + 28.0, giu - TESTA + 24.0),
+				Color(Stile.colore("plancia_pannello"), arrivo))
 	testata()
 	for i in righe.size():
 		riga(i, Rect2(0.0, TESTA + float(i) * (RIGA + STACCO), LARGO, RIGA))
@@ -87,9 +92,12 @@ func testata() -> void:
 	var chiaro := Color(Stile.colore("menu_chiaro"), arrivo)
 	var titolo := Caratteri.titolo()
 	if titolo != null:
-		draw_string_outline(titolo, Vector2(26, 22), "LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Testata.bordo(20),
-				Color(Stile.colore("menu_macchia"), arrivo))
-		draw_string(titolo, Vector2(26, 22), "LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, chiaro)
+		# L'ETICHETTA del manifesto: nera, con la scritta chiara
+		var largo := titolo.get_string_size("LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
+		draw_colored_polygon(VoceMenu.lastra(-6.0, largo + 38.0, -2.0, 30.0), Color(Stile.colore("bordo"), arrivo))
+		draw_string(titolo, Vector2(26, 22), "LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20,
+				Color(Stile.colore("testo"), arrivo))
+		chiaro = Color(Stile.colore("testo"), arrivo)
 	# il segno della squadra, due teste, come nel riferimento
 	draw_circle(Vector2(8, 13), 4.0, chiaro)
 	draw_circle(Vector2(17, 13), 4.0, chiaro)
@@ -97,11 +105,11 @@ func testata() -> void:
 	var in_uso := Partite.occupate().size()
 	for t in GameState.SLOT_MASSIMO:
 		var dove := Vector2(LARGO - 92.0 + t * 7.0, 20.0 - TACCA.y)
-		draw_rect(Rect2(dove, TACCA), Color(Stile.colore("menu_scia"), arrivo * (1.0 if t < in_uso else 0.25)))
+		draw_rect(Rect2(dove, TACCA), Color(Stile.colore("box_testo"), arrivo * (1.0 if t < in_uso else 0.25)))
 	var tondo := Caratteri.tondo(800)
 	if tondo != null:
 		draw_string(tondo, Vector2(LARGO - 52.0, 21), "[%d/%d]" % [in_uso, GameState.SLOT_MASSIMO],
-				HORIZONTAL_ALIGNMENT_LEFT, -1, 17, chiaro)
+				HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color(Stile.colore("box_testo"), arrivo))
 
 
 func riga(i: int, dove: Rect2) -> void:

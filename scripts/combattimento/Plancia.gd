@@ -56,7 +56,7 @@ var quadrante: Control           # il pannello in basso a destra
 var faccia_comandi: Control
 var faccia_lista: Control
 var faccia_parlato: Control
-var fondale_ecg: ColorRect
+var fondale_ecg: Panel
 var ecg: TracciatoEcg
 var etichetta_morale: Label
 var etichetta_stress: Label
@@ -83,11 +83,11 @@ var morale_scritto := -1
 func costruisci(dentro: Control) -> void:
 	radice = dentro
 	radice.resized.connect(ridisponi)
-	# IL RIQUADRO DEL NEMICO E' NERO DENTRO, non bianco: nel disegno di Bru la
-	# creatura sta su un fondo nero, ed e' l'unico pannello della schermata che
-	# non e' bianco. Ha senso: gli altri contengono testo, questo contiene un
-	# disegno.
-	box_nemico = pannello("sfondo")
+	# IL FONDO E' IL MANIFESTO (Manifesto.Trama): l'arancio, gli anelli, il retino.
+	# Il riquadro del nemico e' lo schermo di un cabinato, nero dentro: gli
+	# altri pannelli contengono testo, questo contiene un disegno
+	Manifesto.trama_dietro(radice, "sfondo_combattimento")
+	box_nemico = schermo()
 	# SUL NEMICO SI CLICCA, ed e' il colpo normale. Il riquadro grande e' il
 	# bersaglio: un pannello che ignora il mouse lascerebbe passare il click
 	# attraverso, e il modo piu' diretto di picchiare sparirebbe.
@@ -111,65 +111,84 @@ func costruisci(dentro: Control) -> void:
 # --- i mattoni ---------------------------------------------------------------
 
 func pannello(tinta_dentro := "plancia_pannello") -> Control:
-	# UN PANNELLO E' UN BORDO NERO SPESSO CON DENTRO IL BIANCO. E' lo stesso
-	# linguaggio della schermata di dialogo, ed e' quello che tiene insieme le
-	# due schermate: sono lo stesso gioco visto da due stanze diverse.
+	# UN PANNELLO E' UN FOGLIO DEL MANIFESTO: grigio caldo, contorno nero spesso,
+	# l'ombra piena e il retino (Manifesto.Carta). Il contenuto sta in "Dentro"
 	var fuori := Control.new()
 	fuori.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var nero := ColorRect.new()
-	nero.color = Stile.colore("bordo")
-	nero.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	nero.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	fuori.add_child(nero)
+	var carta := Manifesto.Carta.new()
+	carta.tinta = Stile.colore(tinta_dentro)
+	carta.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	fuori.add_child(carta)
+	fuori.add_child(margini_dentro(Stile.forma("bordo_plancia")))
+	radice.add_child(fuori)
+	return fuori
+
+func schermo() -> Control:
+	# LO SCHERMO DEL CABINATO: il vetro scuro dentro la cornice chiara, e il
+	# vetro davanti che ne arrotonda gli angoli anche sopra la creatura
+	var fuori := Control.new()
+	fuori.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var retro := Manifesto.Cabinato.new()
+	retro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	fuori.add_child(retro)
+	var margini := margini_dentro(int(retro.bordo))
+	fuori.add_child(margini)
+	var vetro := ColorRect.new()
+	vetro.color = Stile.colore("quadro_vuoto")
+	vetro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margini.add_child(vetro)
+	retro.davanti = Manifesto.Vetro.new()
+	retro.color = Stile.colore("bordo_acceso")
+	fuori.add_child(retro.davanti)
+	retro.davanti.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for lato in ["left", "top"]:
+		retro.davanti.set("offset_" + lato, retro.bordo)
+	for lato in ["right", "bottom"]:
+		retro.davanti.set("offset_" + lato, -retro.bordo)
+	radice.add_child(fuori)
+	return fuori
+
+func margini_dentro(spessore: int) -> MarginContainer:
 	var margini := MarginContainer.new()
 	margini.name = "Dentro"
 	margini.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margini.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var spessore := Stile.forma("bordo_plancia")
 	for lato in ["left", "right", "top", "bottom"]:
 		margini.add_theme_constant_override("margin_" + lato, spessore)
-	fuori.add_child(margini)
-	var bianco := ColorRect.new()
-	bianco.color = Stile.colore(tinta_dentro)
-	bianco.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margini.add_child(bianco)
-	radice.add_child(fuori)
-	return fuori
+	return margini
 
 func interno_di(pannello_nodo: Control) -> Control:
 	return pannello_nodo.get_node("Dentro")
 
 func costruisci_scheda_nemico() -> Control:
 	# «nel box del boss ci vanno le info che si scoprono con lo studio». Il nome
-	# sta su una fascia rossa, e sotto - su bianco - quello che sai. All'inizio
-	# non sai niente, e infatti c'e' scritto "HP: ???" col punto interrogativo
-	# rosso.
-	var fuori := pannello()
+	# sta su un'etichetta nera, e sotto - sulle strisce - quello che sai.
+	# All'inizio non sai niente: "HP: ???"
+	var fuori := Control.new()
+	fuori.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	radice.add_child(fuori)
 	var colonna := VBoxContainer.new()
 	colonna.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	colonna.add_theme_constant_override("separation", 0)
+	colonna.add_theme_constant_override("separation", 6)
 	colonna.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	interno_di(fuori).add_child(colonna)
-
-	var fascia := PanelContainer.new()
-	var fondo := StyleBoxFlat.new()
-	fondo.bg_color = Stile.colore("fascia_nemico")
-	fascia.add_theme_stylebox_override("panel", fondo)
-	fascia.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	colonna.add_child(fascia)
+	fuori.add_child(colonna)
 	fascia_nome = Label.new()
-	fascia_nome.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	fascia_nome.add_theme_color_override("font_color", Stile.colore("testo"))
-	fascia.add_child(fascia_nome)
-
-	var corpo := MarginContainer.new()
-	corpo.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	for lato in ["left", "right", "top", "bottom"]:
-		corpo.add_theme_constant_override("margin_" + lato, 8)
-	colonna.add_child(corpo)
+	fascia_nome.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	colonna.add_child(fascia_nome)
+	# le strisce stanno un passo piu' in dentro, come le righe sotto le
+	# etichette dell'immagine; chi le scrive (il campo) non sa di che colore sono
+	var rientro := margini_dentro(0)
+	rientro.add_theme_constant_override("margin_left", 24)
+	rientro.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	colonna.add_child(rientro)
 	righe_studio = VBoxContainer.new()
 	righe_studio.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	corpo.add_child(righe_studio)
+	righe_studio.child_entered_tree.connect(func(riga: Node) -> void:
+		if riga is Label:
+			Manifesto.vesti_striscia(riga as Label, 16)
+			(riga as Label).size_flags_horizontal = Control.SIZE_FILL if (riga as Label).autowrap_mode \
+					!= TextServer.AUTOWRAP_OFF else Control.SIZE_SHRINK_BEGIN)
+	rientro.add_child(righe_studio)
 	return fuori
 
 func costruisci_quadrante() -> Control:
@@ -181,22 +200,26 @@ func costruisci_quadrante() -> Control:
 	faccia_comandi.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	dentro.add_child(faccia_comandi)
 
-	# L'ECG STA DENTRO UN RIQUADRO SCURO. Nel disegno e' un rettangolo
-	# grigio-bruno col bordo nero, e la linea ci corre dentro: sul bianco del
-	# pannello una linea gialla non si leggerebbe.
-	fondale_ecg = ColorRect.new()
-	fondale_ecg.color = Stile.colore("ecg_fondo")
+	# L'ECG STA DENTRO UN VETRINO SCURO, tondo e col bordo nero: sulla carta una
+	# linea gialla non si leggerebbe
+	fondale_ecg = Panel.new()
+	var vetrino := StyleBoxFlat.new()
+	vetrino.bg_color = Stile.colore("ecg_fondo")
+	vetrino.border_color = Stile.colore("bordo")
+	vetrino.set_border_width_all(4)
+	vetrino.set_corner_radius_all(12)
+	fondale_ecg.add_theme_stylebox_override("panel", vetrino)
 	fondale_ecg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	faccia_comandi.add_child(fondale_ecg)
 	ecg = TracciatoEcg.new()
 	faccia_comandi.add_child(ecg)
 
 	etichetta_morale = Label.new()
-	etichetta_morale.add_theme_color_override("font_color", Stile.colore("box_testo"))
-	faccia_comandi.add_child(etichetta_morale)
 	etichetta_stress = Label.new()
-	etichetta_stress.add_theme_color_override("font_color", Stile.colore("box_testo"))
-	faccia_comandi.add_child(etichetta_stress)
+	for misura in [etichetta_morale, etichetta_stress]:
+		misura.add_theme_color_override("font_color", Stile.colore("box_testo"))
+		misura.add_theme_font_override("font", Caratteri.titolo())
+		faccia_comandi.add_child(misura)
 
 	# I DUE TASSELLI NON STANNO DENTRO UNA FACCIA SOLA.
 	#
@@ -256,13 +279,13 @@ func costruisci_quadrante() -> Control:
 func tasto_acceso(testo: String, tinta: String) -> Button:
 	# MATTANZA e BOND: «quando uno dei personaggi è pronto per legare col nemico
 	# il tasto bond si illumina, quando la mattanza è pronta si illumina
-	# quella». Tassello nero, scritta colorata quando e' pronto e spenta quando
-	# non lo e' - non si accendono a comando, si accendono quando la cosa c'e'.
+	# quella». Una pillola nera, scritta colorata quando e' pronto e spenta
+	# quando non lo e' - si accendono quando la cosa c'e', non a comando.
 	var tasto := Button.new()
 	tasto.text = testo
 	tasto.focus_mode = Control.FOCUS_NONE
-	var fondo := StyleBoxFlat.new()
-	fondo.bg_color = Stile.colore("bordo")
+	tasto.add_theme_font_override("font", Caratteri.titolo())
+	var fondo := Manifesto.stile_pillola(Stile.colore("bordo"))
 	for stato in ["normal", "hover", "pressed", "disabled"]:
 		tasto.add_theme_stylebox_override(stato, fondo)
 	tasto.set_meta("tinta", tinta)
@@ -284,8 +307,7 @@ func ridisponi() -> void:
 	var tutto := radice.size
 	piazza(box_nemico, Stile.riquadro("box_nemico", tutto))
 	piazza(scheda_nemico, Stile.riquadro("scheda_nemico", tutto))
-	fascia_nome.add_theme_font_size_override("font_size",
-			maxi(int(scheda_nemico.size.y * Stile.quota("quota_fascia") * 0.62), 10))
+	scrivi_nome(fascia_nome.text)
 
 	var slot_largo := tutto.x * Stile.quota("slot_largo")
 	var stacco := tutto.x * Stile.quota("slot_stacco")
@@ -298,6 +320,16 @@ func ridisponi() -> void:
 
 	piazza(quadrante, Stile.riquadro("quadrante", tutto))
 	disponi_quadrante()
+
+func scrivi_nome(testo: String) -> void:
+	# IL NOME SULL'ETICHETTA, piu' piccolo finche' non ci sta: mai fuori dalla
+	# scheda. Un'etichetta si stringe sul suo testo, quindi il testo non si taglia
+	fascia_nome.text = testo
+	var corpo := maxi(int(scheda_nemico.size.y * Stile.quota("quota_fascia")), 12)
+	while corpo > 12 and Caratteri.titolo().get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x \
+			+ corpo * 1.3 > scheda_nemico.size.x:
+		corpo -= 2
+	Manifesto.vesti_etichetta(fascia_nome, corpo)
 
 func piazza(nodo: Control, dove: Rect2) -> void:
 	if nodo == null:
@@ -415,53 +447,10 @@ func adatta_comandi() -> void:
 			vesti_comando(voce as Control)
 
 func vesti_comando(voce: Control) -> void:
-	# UNA VOCE DEL MENU COME NEL DISEGNO: nera, grande, allineata a sinistra e
-	# senza nessuna cornice. Nel disegno di Bru ATTACCHI DIFESA SKILL OGGETTI
-	# FUGA sono scritte sul bianco, non bottoni - e un bottone che sembra un
-	# bottone qui dentro spezzerebbe il pannello in cinque scatolette.
-	if not (voce is Button):
-		return
-	var tasto := voce as Button
-	tasto.flat = true
-	# SI GIOCA ANCHE DA TASTIERA. Prima ogni voce aveva il fuoco spento: il menu
-	# di combattimento si poteva usare SOLO col mouse, e in uno scontro in tempo
-	# reale spostare la mano sul mouse per ogni battuta e' una tassa. Adesso le
-	# frecce scorrono le voci e INVIO sceglie - e chi il mouse non lo puo' usare
-	# bene puo' giocare.
-	tasto.focus_mode = Control.FOCUS_ALL
-	tasto.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	tasto.custom_minimum_size = Vector2(0, 0)
-	tasto.add_theme_font_size_override("font_size", corpo_comandi)
-	tasto.add_theme_color_override("font_color", Stile.colore("box_testo"))
-	tasto.add_theme_color_override("font_hover_color", Stile.colore("accento"))
-	tasto.add_theme_color_override("font_pressed_color", Stile.colore("accento"))
-	tasto.add_theme_color_override("font_disabled_color", Stile.colore("comando_spento"))
-	# E ANCHE QUELLO DEL FUOCO. Manca questo e la voce selezionata da tastiera
-	# sparisce: Godot per un bottone che ha il fuoco usa font_focus_color, che
-	# viene dal tema generale - fatto per il fondo scuro del resto del gioco, e
-	# qui il fondo e' bianco. Si vedeva solo la barretta rossa a sinistra, e la
-	# parola ATTACCHI non c'era piu'.
-	tasto.add_theme_color_override("font_focus_color", Stile.colore("box_testo"))
-	for stato in ["normal", "hover", "pressed", "disabled"]:
-		tasto.add_theme_stylebox_override(stato, StyleBoxEmpty.new())
-	# IL FUOCO SI DEVE VEDERE, e non puo' essere solo un cambio di colore del
-	# testo: sarebbe la stessa cosa che gia' fa il passaggio del mouse. E' una
-	# barretta accesa a sinistra della voce - una forma, che si vede anche da
-	# chi i colori non li distingue.
-	# SOLO LA BARRETTA, NIENTE RIQUADRO. Il primo tentativo dipingeva anche il
-	# fondo della voce col fuoco: il riquadro finiva sopra la scritta e la voce
-	# spariva - ATTACCHI diventava un trattino rosso e basta. Qui il fondo e'
-	# trasparente e i margini sono dichiarati tutti, cosi' Godot non ci mette i
-	# suoi: resta un segno a sinistra, che e' una forma e non un colore.
-	var segno := StyleBoxFlat.new()
-	segno.bg_color = Color(0, 0, 0, 0)
-	segno.border_color = Stile.colore("accento")
-	segno.border_width_left = maxi(int(corpo_comandi * 0.22), 3)
-	segno.content_margin_left = 0.0
-	segno.content_margin_right = 0.0
-	segno.content_margin_top = 0.0
-	segno.content_margin_bottom = 0.0
-	tasto.add_theme_stylebox_override("focus", segno)
+	# UNA VOCE DEL MENU, scritta sulla carta del quadrante: nera, e quella col
+	# fuoco sull'etichetta (Manifesto.vesti_voce)
+	if voce is Button:
+		Manifesto.vesti_voce(voce as Button, corpo_comandi)
 
 func ospita_box(box: Control) -> void:
 	# il box del testo viene dalla scena e va a vivere dentro il quadrante: e'
@@ -582,6 +571,7 @@ func vesti_voce_di_lista(voce: Control, posto: int, righe: int, per_riga: float,
 	vesti_comando(voce)
 	if voce is Button:
 		(voce as Button).add_theme_font_size_override("font_size", corpo)
+		(voce as Button).text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS   # mai fuori dalla cella
 	# LA MISURA MINIMA VA DETTA, non lasciata a quella che c'era. Il menu da' a
 	# ogni voce 44 pixel di altezza minima - giusti per la colonna dei comandi,
 	# troppi per una lista: un Control non scende mai sotto il proprio minimo, e

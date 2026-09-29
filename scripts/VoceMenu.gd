@@ -83,6 +83,7 @@ var ultima_tinta := Color(0, 0, 0, 0)
 # (VoceMacchia) ne hanno altri
 var tinta_spenta := Color.WHITE
 var tinta_accesa := Color.WHITE
+var tinta_lastra := Color.WHITE
 var scivolo := 0.0
 
 
@@ -97,8 +98,11 @@ static func nuova(nome_segno: String, testo: String, corpo := 0) -> VoceMenu:
 func costruisci(nome_segno: String, testo: String, corpo: int) -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	# arancio spenta sul nero, NERA accesa sulla lastra arancio: il crema
+	# sull'arancio si legge a 1,5:1, il nero a 8,5:1
 	tinta_spenta = Stile.colore("accento")
-	tinta_accesa = Stile.colore("testo")
+	tinta_accesa = Stile.colore("box_testo")
+	tinta_lastra = Stile.colore("accento")
 	scivolo = Movimento.misura("scivolo")
 	accesa = Movimento.molla("forma")
 	tinta = Movimento.molla("colore")
@@ -130,6 +134,17 @@ func costruisci(nome_segno: String, testo: String, corpo: int) -> void:
 	bottone.button_down.connect(giu)
 	bottone.pressed.connect(premi)
 	set_process(false)
+
+
+func su_manifesto() -> void:
+	# LA VOCE SUL FOGLIO ARANCIO del manifesto (il menu di pausa): nera da
+	# spenta, e accesa su un'etichetta nera con la scritta chiara
+	tinta_spenta = Stile.colore("box_testo")
+	tinta_accesa = Stile.colore("testo")
+	tinta_lastra = Stile.colore("bordo")
+	bottone.add_theme_font_override("font", Caratteri.titolo())
+	ultima_tinta = Color(0, 0, 0, 0)
+	colora(tinta.valore)
 
 
 func stringi(margine: int) -> void:
@@ -330,7 +345,7 @@ func _draw() -> void:
 	var fine := destra - centro.x
 	draw_colored_polygon(lastra(sinistra + SFOGLIA.x, fine + SFOGLIA.x, -h * 0.5 + SFOGLIA.y, h),
 			Color(Stile.colore("bordo_acceso"), clampf(tinta.valore * entrata, 0.0, 1.0)))
-	var rosso := Stile.colore("accento").lerp(Stile.colore("bordo_acceso"), 1.0 if lampo > 0.0 else 0.0)
+	var rosso := tinta_lastra.lerp(Stile.colore("bordo_acceso"), 1.0 if lampo > 0.0 else 0.0)
 	draw_colored_polygon(lastra(sinistra, fine, -h * 0.5, h), rosso)
 	draw_set_transform(Vector2.ZERO)
 

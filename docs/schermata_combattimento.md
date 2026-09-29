@@ -81,14 +81,28 @@ nero spesso** e l'interno **bianco**. Il colore acceso solo dove conta.
 
 ### Due cose decise leggendo il disegno
 
-**Lo sfondo è bianco.** Nei tre disegni la schermata sta su una pagina bianca, e
+**Lo sfondo è chiaro.** Nei tre disegni la schermata sta su una pagina bianca, e
 non è un dettaglio del mockup: è quella pagina che fa *esistere* i bordi neri
 spessi dei pannelli. Provata su nero — che è il fondo della schermata di
 dialogo — i bordi sparivano e restavano quattro rettangoli che galleggiavano nel
 buio. Il riquadro del nemico resta nero dentro: è l'unico, e ci sta la creatura.
 
-Se il fondo deve essere nero è un valore solo in `data/stile.json`
-(`sfondo_combattimento`), ma allora i bordi vanno ripensati.
+**Dal 29 settembre la pagina è l'arancio del manifesto.** Bru ha mandato
+un'immagine arancio, nera e grigio caldo e ha approvato i bozzetti fatti nella sua
+lingua («bene mi piace! approvato, metti questi intanto»). La disposizione è
+rimasta quella dei disegni; è cambiato come sono fatti i pezzi
+(`scripts/Manifesto.gd`):
+
+| pezzo | com'è adesso |
+|---|---|
+| fondo | arancio, con gli anelli larghi e il retino a puntini (`Manifesto.Trama`) |
+| riquadro del nemico, slot | lo schermo di un cabinato: vetro scuro dentro una cornice arrotondata, contorno nero, ombra piena. La cornice di chi ha il turno è chiara, quella degli altri nera |
+| nome del nemico | un'etichetta nera inclinata; sotto, quello che sai sulle strisce nere con la scritta arancio |
+| quadrante | un foglio grigio caldo col contorno spesso, l'ombra piena e il retino nell'angolo (`Manifesto.Carta`) |
+| voci del menu | nere; quella scelta su un'etichetta nera con la scritta chiara |
+| MATTANZA, BOND | pillole nere, la scritta si accende quando sono pronte |
+| status | gettoni tondi |
+| caratteri | Archivo corsivo per le etichette e le voci (stretto nel quadrante) |
 
 ### Una cosa che il disegno dice diversamente
 

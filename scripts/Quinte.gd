@@ -31,11 +31,15 @@ extends Control
 
 const TAGLIO_BORDO := 0.18        # l'obliquo del bordo: quanto si sposta in tutta l'altezza
 const FOGLI := [
-	# colore, di quanto sporge dal nero, quanto arriva dopo, profondita'
+	# colore, di quanto sporge dal foglio delle voci, quanto arriva dopo,
+	# profondita'. Sul manifesto (su_carta) i colori sono l'altra riga: il foglio
+	# delle voci e' arancio, e dal suo bordo sporgono una fascia nera e un filo
+	# crema - le righe dell'immagine di Bru
 	["bordo_acceso", 26.0, 0.08, 0.40],
 	["accento", 14.0, 0.04, 0.34],
 	["sfondo", 0.0, 0.0, 0.28],
 ]
+const FOGLI_SU_CARTA := ["bordo_acceso", "bordo", "manifesto"]
 # LA PAROLA E' CARTA A STRATI, non un contorno: la copia davanti e' nera col
 # filo cremisi, quelle dietro sono piene, sempre piu' scure - i fogli di una
 # scritta ritagliata e impilata. Da ferma sembra spessa; col mouse le copie si
@@ -56,6 +60,7 @@ var font: Font
 var orologio := -1.0
 var uscendo := false
 var puntatore_finto := Vector2(-1.0, -1.0)   # le prove muovono il mouse da qui
+var su_carta := false   # il foglio delle voci e' l'arancio del manifesto (il menu di pausa)
 
 
 func _init() -> void:
@@ -64,7 +69,7 @@ func _init() -> void:
 	mira_x = Movimento.molla("quinte")
 	mira_y = Movimento.molla("quinte")
 	alfa_parola = Movimento.molla("colore")
-	font = Stile.font_da("titolo")
+	font = Caratteri.titolo()
 	set_process(false)
 
 
@@ -83,9 +88,10 @@ func entra(quanto_copre: float, scritta: String) -> void:
 	queue_redraw()
 
 
-func copri(quanto_copre: float, scritta: String) -> void:
+func copri(quanto_copre: float, scritta: String, carta := false) -> void:
 	# da un pannello all'altro: il foglio nero si allarga o si stringe (su una
 	# molla lenta: e' la scenografia che si sposta, non una voce che si accende)
+	su_carta = carta
 	quota.obiettivo = quanto_copre
 	if Movimento.ridotto():
 		quota.salta_a(quanto_copre)
@@ -174,11 +180,33 @@ func _draw() -> void:
 	# la parola sta DIETRO i fogli: e' il fondale, e dove c'e' il foglio nero
 	# ci sono le voci da leggere
 	disegna_parola()
-	for foglio in FOGLI:
+	for i in FOGLI.size():
+		var foglio: Array = FOGLI[i]
 		var quanto := arrivo(float(foglio[2]))
 		var fuori := -(size.x * quota.valore + OLTRE * 4.0) * (1.0 - quanto)
 		var dove := spostamento(float(foglio[3])) + Vector2(fuori, 0.0)
-		draw_colored_polygon(foglio_nero(float(foglio[1]), dove), Stile.colore(String(foglio[0])))
+		var tinta := String(FOGLI_SU_CARTA[i] if su_carta else foglio[0])
+		draw_colored_polygon(foglio_nero(float(foglio[1]), dove), Stile.colore(tinta))
+		if su_carta and i == FOGLI.size() - 1:
+			disegna_retino(dove)
+
+
+func disegna_retino(dove: Vector2) -> void:
+	# IL RETINO DEL MANIFESTO sul foglio arancio: i puntini piu' scuri che si
+	# addensano verso l'angolo in basso a sinistra, e solo dentro il foglio
+	var scuro := Stile.colore("manifesto").darkened(0.09)
+	var passo := 11.0
+	var y := size.y * 0.35
+	var riga := 0
+	while y < size.y:
+		var x := passo * 0.5 if riga % 2 == 1 else 0.0
+		while x < bordo(y) - passo:
+			var quanto := clampf((y / size.y) * 1.3 - (x / size.x) * 1.6 - 0.35, 0.0, 1.0)
+			if quanto > 0.05:
+				draw_circle(Vector2(x, y) + dove, passo * 0.42 * quanto, scuro)
+			x += passo
+		y += passo * 0.87
+		riga += 1
 
 
 func foglio_nero(sporge: float, dove: Vector2) -> PackedVector2Array:

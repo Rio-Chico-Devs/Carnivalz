@@ -41,7 +41,7 @@ static func nuovo(scritta: String, colore_fondo: Color, colore_scritta: Color,
 	c.inchiostro = colore_scritta
 	c.carta = colore_carta
 	c.corpo = dimensione
-	c.font = Stile.font_da("titolo")
+	c.font = Caratteri.titolo()
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	c.set_process(false)
 	return c

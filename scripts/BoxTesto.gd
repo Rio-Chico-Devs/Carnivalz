@@ -62,7 +62,8 @@ func _init() -> void:
 func _ready() -> void:
 	macchina.finita.connect(conclusione)
 	add_theme_stylebox_override("panel", Stile.stile_box_testo())
-	targhetta.add_theme_color_override("font_color", Stile.colore("accento"))
+	Manifesto.decora_box(self)
+	targhetta.add_theme_color_override("font_color", Stile.colore("accento_su_carta"))
 	if Caratteri.nomi() != null:   # chi parla si scrive col carattere dei nomi
 		targhetta.add_theme_font_override("font", Caratteri.nomi())
 	targhetta.add_theme_font_size_override("font_size", Stile.dimensione("nome"))
@@ -251,7 +252,7 @@ func scrivi_pagina() -> void:
 		"dialogo":
 			testo.add_theme_color_override("default_color", Stile.colore("box_testo"))
 		"notifica":
-			testo.add_theme_color_override("default_color", Stile.colore("accento"))
+			testo.add_theme_color_override("default_color", Stile.colore("accento_su_carta"))
 		"vista":
 			# QUELLO CHE SI VEDE DA QUI, e non e' la stanza in cui sei.
 			#

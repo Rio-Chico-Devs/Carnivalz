@@ -286,6 +286,9 @@ func disegna_cornice() -> void:
 			var t0 := maxf(t, 0.0)
 			var t1 := minf(t + TRATTINO, tratto)
 			if t1 > t0:
+				# sotto l'arancio un filo nero piu' largo: il pezzo puo' stare
+				# sull'arancio del manifesto o sul nero, e si deve vedere su tutti e due
+				draw_line(da + verso * t0, da + verso * t1, Color(Stile.colore("bordo"), colore.a), TRATTO + 4.0)
 				draw_line(da + verso * t0, da + verso * t1, colore, TRATTO)
 			t += passo
 		lungo += tratto

@@ -33,14 +33,14 @@ func _init() -> void:
 	if Caratteri.titolo() != null:
 		titolo.add_theme_font_override("font", Caratteri.titolo())
 	titolo.add_theme_font_size_override("font_size", Stile.dimensione("corpo"))
-	titolo.add_theme_color_override("font_color", Stile.colore("menu_descrizione"))
+	titolo.add_theme_color_override("font_color", Stile.colore("testo"))
 	Stile.contorno(titolo, Stile.dimensione("corpo"))
 	colonna.add_child(titolo)
 	corpo = Label.new()
 	if Caratteri.tondo(650) != null:
 		corpo.add_theme_font_override("font", Caratteri.tondo(650))
 	corpo.add_theme_font_size_override("font_size", Stile.dimensione("minuscolo"))
-	corpo.add_theme_color_override("font_color", Stile.colore("menu_descrizione"))
+	corpo.add_theme_color_override("font_color", Stile.colore("testo"))
 	Stile.contorno(corpo, Stile.dimensione("minuscolo"))
 	corpo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	colonna.add_child(corpo)

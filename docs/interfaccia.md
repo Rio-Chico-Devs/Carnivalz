@@ -43,7 +43,8 @@ valere anche qui. I corpi non scendono mai sotto i 12-13 pixel apposta
 - **Tutto pende** con la stessa pendenza delle fasce (0,48): le carte dello
   scaffale, la vetrina, la fascia del personaggio. I tasti usano il taglio dei
   cartigli (0,35).
-- **Anton** per numeri e titoli, **Nunito** per le scritte da leggere.
+- **Archivo corsivo** per numeri, titoli ed etichette (era Anton fino al manifesto
+  del 29 settembre), **Nunito** per le scritte da leggere.
 
 ## Il negozio
 

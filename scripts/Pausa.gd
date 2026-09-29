@@ -377,20 +377,19 @@ func intestazione(testo: String) -> void:
 	# bisognava navigare per sapere quanti soldi si avevano. Stanno qui dentro e
 	# non in ogni pannello proprio perche' nessuno se le possa dimenticare.
 	#
-	# Sono due cartigli, fasce storte come il nastro dei nomi: il titolo e' una
-	# fascia cremisi con la scritta bianca, il cartellino una fascia bianca con
-	# la scritta nera - il box del dialogo in piccolo. Entrano srotolandosi, il
-	# titolo per primo.
+	# Sono due cartigli, fasce storte come il nastro dei nomi, che entrano
+	# srotolandosi, il titolo per primo.
 	var riga := HBoxContainer.new()
 	riga.add_theme_constant_override("separation", 24)
 	colonna.add_child(riga)
-	var titolo := Cartiglio.nuovo(testo.to_upper(), Stile.colore("accento"),
-			Stile.colore("testo"), Stile.colore("bordo_acceso"), Stile.dimensione("titolo"))
+	var su_carta := pannello == "menu"   # il menu sta sul foglio arancio del manifesto
+	var titolo := Cartiglio.nuovo(testo.to_upper(), Stile.colore("bordo" if su_carta else "accento"),
+			Stile.colore("testo" if su_carta else "box_testo"), Stile.colore("bordo_acceso"), Stile.dimensione("titolo"))
 	titolo.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_BEGIN
 	riga.add_child(titolo)
 	var risorse := Cartiglio.nuovo("TAZO %d   ·   LV %d" % [GameState.tazo,
-			GameState.livello_di(GameState.id_protagonista)], Stile.colore("bordo_acceso"),
-			Stile.colore("box_testo"), Stile.colore("accento"), Stile.dimensione("corpo"))
+			GameState.livello_di(GameState.id_protagonista)], Stile.colore("bordo" if su_carta else "bordo_acceso"),
+			Stile.colore("testo" if su_carta else "box_testo"), Stile.colore("accento"), Stile.dimensione("corpo"))
 	risorse.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	riga.add_child(risorse)
 	titolo.svela(TITOLO_DOPO)
@@ -405,7 +404,7 @@ func intestazione(testo: String) -> void:
 	# coprire lo stesso: altrimenti «Torna al menu principale» finisce sulla
 	# striscia rossa. Si allarga della stessa scala
 	var scala := get_tree().root.content_scale_factor
-	quinte.copri(COPRE_MENU * scala if pannello == "menu" else COPRE_PANNELLO, testo.to_upper())
+	quinte.copri(COPRE_MENU * scala if su_carta else COPRE_PANNELLO, testo.to_upper(), su_carta)
 
 # --- pannello: menu ---
 
@@ -416,11 +415,9 @@ func mostra_menu() -> void:
 	# quello che esce - e ogni voce ha un segno accanto (F4, «Art is
 	# recognizable to the player and speaks to its function»). Vedi docs/menu.md.
 	#
-	# LE VOCI STANNO A SINISTRA, IN ROSSO. E' cosi' nel disegno, e non e' un
-	# capriccio: le scelte di un dialogo stanno a destra, e se anche il menu
-	# stesse a destra e in bianco per un istante sarebbero la stessa cosa. Da
-	# che parte dello schermo guardi ti dice gia' se stai giocando o ti sei
-	# fermato.
+	# LE VOCI STANNO A SINISTRA, sul foglio arancio. Non e' un capriccio: le
+	# scelte di un dialogo stanno a destra, e da che parte dello schermo guardi
+	# ti dice gia' se stai giocando o ti sei fermato.
 	#
 	# E ENTRANO IN CASCATA, CON RIPRENDI PER ULTIMA. Sta in cima ed e' quella
 	# che ha il fuoco, ma arriva dopo tutte le altre: Bru, «i pulsanti d'azione
@@ -454,6 +451,8 @@ func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null
 	# questa voce sta per sparire, e le schegge devono essere gia' partite
 	v.scoppio.connect(schegge.scoppia)
 	v.scelta.connect(richiamo)
+	if pannello == "menu":
+		v.su_manifesto()
 	(dove if dove != null else colonna).add_child(v)
 	return v
 
