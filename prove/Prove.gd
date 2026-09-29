@@ -10638,6 +10638,16 @@ func prova_condizione_di_chi_ha_il_turno() -> void:
 			"la riga dello stress dice '%s'" % scontro.plancia.etichetta_stress.text)
 	esigi(scontro.plancia.etichetta_morale.text != "",
 			"la riga del morale e' vuota")
+	# E CHI E' A TERRA HA LA LINEA PIATTA. Bru: «alla fine del tutorial, quando
+	# sei morto, l'ecg e' ancora verde dovrebbe essere piatto». Senza nessuno in
+	# piedi da comandare, l'ecg restava all'ultima condizione che aveva visto
+	for combattente in scontro.combattenti:
+		if combattente.giocatore:
+			combattente.hp = 0
+	scontro.aggiorna_pronto_giocatore()
+	esigi(is_equal_approx(scontro.plancia.ecg.quota_hp, 0.0)
+			and not EcgCombattimento.batte_il_cuore(scontro.plancia.ecg.quota_hp),
+			"a terra, l'ecg segna ancora una vita di %.2f: il cuore batte" % scontro.plancia.ecg.quota_hp)
 	scontro.free()
 
 func prova_chi_tocca_si_accende() -> void:

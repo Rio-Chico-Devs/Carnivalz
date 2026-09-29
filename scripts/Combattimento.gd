@@ -945,14 +945,14 @@ func aggiorna_pronto_giocatore() -> void:
 	# di un personaggio immaginario, sempre la stessa, e i due numeri restavano
 	# vuoti. Tutto il lavoro sul tracciato non si vedeva affatto.
 	#
-	# "Morale" non esiste come statistica: la cosa piu' vicina che c'e' e' il
-	# LEGAME della squadra, 0..100, ed e' anche quello che accende il tasto BOND
-	# che sta subito sotto nel disegno di Bru. Se morale dev'essere altro, si
-	# cambia questa riga.
-	if plancia != null and not tu.is_empty():
+	# "Morale" non esiste come statistica: la cosa piu' vicina e' il LEGAME
+	# della squadra, 0..100, che accende anche il tasto BOND li' sotto. E CHI E'
+	# A TERRA HA LA LINEA PIATTA: senza nessuno in piedi restava l'ultima, verde
+	var cuore := tu if not tu.is_empty() else combattente_comandato(true)
+	if plancia != null and not cuore.is_empty():
 		plancia.aggiorna_condizione(
-				float(tu.hp) / maxf(float(tu.get("hp_max", 1)), 1.0),
-				int(tu.get("stress", 0)),
+				float(cuore.hp) / maxf(float(cuore.get("hp_max", 1)), 1.0),
+				int(cuore.get("stress", 0)),
 				GameState.legame)
 	# PRIMA DI TUTTO, QUELLO CHE IL GIOCATORE HA GIA' CHIESTO. Sta qui e non piu'
 	# in fondo perche' il punto e' proprio non perdere un fotogramma: appena
@@ -996,9 +996,9 @@ func aggiorna_bond() -> void:
 		bond_indicato = true
 		plancia.evidenzia_pezzo("bond")
 
-func combattente_comandato() -> Dictionary:
+func combattente_comandato(anche_a_terra := false) -> Dictionary:
 	for combattente in combattenti:
-		if comandi_tu(combattente) and int(combattente.hp) > 0:
+		if comandi_tu(combattente) and (anche_a_terra or int(combattente.hp) > 0):
 			return combattente
 	return {}
 
