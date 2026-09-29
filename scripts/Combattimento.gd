@@ -1340,7 +1340,7 @@ func scrivi_messaggio_tutorial(msg: Dictionary) -> void:
 	var acceso := Callable()
 	if plancia != null:
 		var da_evidenziare := String(msg.get("evidenzia", ""))
-		acceso = func() -> void: plancia.evidenzia_pezzo(da_evidenziare)
+		acceso = func() -> void: plancia.evidenzia_pezzo(da_evidenziare, true)
 	match String(msg.get("tipo", "narrazione")):
 		"dialogo":
 			var chi := String(msg.get("chi", GameState.id_protagonista))

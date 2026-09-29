@@ -212,6 +212,7 @@ func _ready() -> void:
 	await prova_l_azione_in_attesa_si_vede_a_schermo()
 	await prova_non_si_puo_anticipare_la_lezione()
 	await prova_l_evidenziazione_indica_un_pezzo_vero()
+	await prova_la_lezione_indica_senza_coprire()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	await prova_dopo_la_raffica_resti_in_piedi_e_il_finale_si_legge()
 	prova_la_raffica_accelera_verso_la_fine()
@@ -12255,9 +12256,9 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 		for passo in (creatura as Dictionary).get("tutorial_combattimento", {}).get("passi", []):
 			for dove in ["prima", "dopo"]:
 				for msg in (passo as Dictionary).get(dove, []):
-					var nome := String((msg as Dictionary).get("evidenzia", ""))
-					if nome != "" and nome not in usati:
-						usati.append(nome)
+					for nome in String((msg as Dictionary).get("evidenzia", "")).split(",", false):
+						if nome.strip_edges() not in usati:
+							usati.append(nome.strip_edges())
 	esigi(usati.size() >= 5,
 			"i dialoghi del tutorial indicano solo %d pezzi dello schermo: quasi niente si evidenzia" % usati.size())
 	for nome in usati:
@@ -12304,8 +12305,11 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 	alone = scontro.plancia.alone_evidenza
 	esigi(alone.mouse_filter == Control.MOUSE_FILTER_IGNORE,
 			"l'evidenza intercetta il mouse: si mangerebbe i click sul pezzo che indica")
-	esigi(alone.stile == Evidenza.stile_scelto() and alone.stile in Evidenza.STILI,
-			"l'evidenza non usa lo stile scelto in stile.json ('%s')" % alone.stile)
+	# A SCONTRO APERTO (BOND che si accende la prima volta) resta la cornice che
+	# scorre: niente velo e niente box spostato, non si ferma il mondo per quello.
+	# A lezione e' un'altra cosa (prova_la_lezione_indica_senza_coprire)
+	esigi(alone.stile == "cornice" and scontro.plancia.indicazione == null,
+			"fuori dalla lezione l'evidenza non e' la cornice ('%s')" % alone.stile)
 
 	# 4. LA MACCHIA STA DIETRO TUTTO IL PEZZO. Bru: «un effetto tipo quello della
 	# schermata iniziale, quella macchia sul retro». Su un pannello grande come
@@ -12344,14 +12348,7 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 			"la macchia non si spande da sinistra")
 	meta.free()
 
-	# 5. OGNI STILE SI ACCENDE, e con meno movimento arriva gia' tutto fuori
-	var evidenza_prima: Variant = Stile.dati.get("evidenza", {})
-	for stile in Evidenza.STILI:
-		Stile.dati["evidenza"] = {"stile": stile}
-		scontro.plancia.evidenzia_pezzo("bond")
-		var questa: Evidenza = scontro.plancia.alone_evidenza
-		esigi(questa != null and questa.stile == stile,
-				"con lo stile '%s' in stile.json non si accende niente" % stile)
+	# 5. con meno movimento la cornice arriva gia' tutta fuori
 	var movimento_prima: bool = Impostazioni.movimento_ridotto
 	Impostazioni.movimento_ridotto = true
 	scontro.plancia.evidenzia_pezzo("mattanza")
@@ -12359,7 +12356,6 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 			and scontro.plancia.alone_evidenza.arrivo == null,
 			"con meno movimento l'evidenza entra lo stesso con l'animazione")
 	Impostazioni.movimento_ridotto = movimento_prima
-	Stile.dati["evidenza"] = evidenza_prima
 
 	scontro.plancia.spegni_evidenza()
 	esigi(scontro.plancia.evidenziato == null and scontro.plancia.tasto_mattanza.modulate == Color.WHITE,
@@ -12370,6 +12366,127 @@ func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 	scontro.voce.coda.clear()
 	scontro.queue_free()
 	await get_tree().process_frame
+
+func prova_la_lezione_indica_senza_coprire() -> void:
+	# Bru, 29 settembre: «l'idea del evidenziare nel tutorial di veronica le parti
+	# dalle ui come nel menu principale e' stata pessima». E guardando si e' visto
+	# di peggio: mentre Veronica parlava, il box del testo stava proprio sopra il
+	# menu, l'ECG, il morale, MATTANZA e BOND - la battuta nominava un pezzo che
+	# la battuta stessa copriva. Qui si misura che il pezzo si VEDA, che il box
+	# non ci stia sopra e torni al suo posto, e che il velo non copra ne' il pezzo
+	# ne' il testo (IndicazioneCombattimento)
+	titolo("la lezione indica un pezzo e non lo copre")
+	GameState.nuova_partita()
+	GameState.nemici_combattimento = ["veronica"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(scontro)
+	var limite: int = Time.get_ticks_msec() + 20000
+	while scontro.plancia == null and Time.get_ticks_msec() < limite:
+		await get_tree().process_frame
+	await get_tree().process_frame
+	var plancia: PlanciaCombattimento = scontro.plancia
+	var box: Control = plancia.box_testo
+	esigi(box != null and plancia.faccia_parlato.is_ancestor_of(box), "il box del testo non sta nel quadrante")
+	var stile_prima: Variant = Stile.dati.get("indicazione", {})
+	for stile in IndicazioneCombattimento.STILI:
+		Stile.dati["indicazione"] = {"stile": stile}
+		for nomi: String in ["nemico", "scheda", "squadra", "menu", "ecg", "morale,stress", "dominio,mattanza", "bond"]:
+			plancia.evidenzia_pezzo(nomi, true)
+			var indicazione: IndicazioneCombattimento = plancia.indicazione
+			esigi(indicazione != null and indicazione.stile == stile and plancia.alone_evidenza == null,
+					"a lezione «%s» non si indica con lo stile '%s'" % [nomi, stile])
+			if indicazione == null:
+				continue
+			plancia.mostra_faccia("parlato")   # quello che chiede lo scontro mentre si legge
+			await get_tree().process_frame
+			indicazione.quanto = 1.0
+			var sotto_il_box := false
+			for nome in nomi.split(","):
+				var pezzo_vero := plancia.pezzo(nome) as Control
+				sotto_il_box = sotto_il_box or plancia.quadrante.is_ancestor_of(pezzo_vero)
+				esigi(pezzo_vero.is_visible_in_tree(),
+						"con lo stile '%s' la battuta indica «%s», che non si vede" % [stile, nome])
+				esigi(not box.get_global_rect().intersects(pezzo_vero.get_global_rect()),
+						"con lo stile '%s' il box del testo sta sopra «%s», che la battuta nomina" % [stile, nome])
+				if stile != "pennarello":
+					for velato in IndicazioneCombattimento.fuori_dai_buchi(Rect2(Vector2.ZERO, indicazione.size),
+							indicazione.buchi(indicazione.pezzi, true)):
+						# un pixel dentro il bordo: il velo puo' toccare il pezzo, non coprirlo
+						for sotto in [indicazione.dove_sta(pezzo_vero), indicazione.dove_sta(box)]:
+							var dentro := Rect2((sotto as Rect2).position + Vector2.ONE,
+									((sotto as Rect2).size - Vector2(2, 2)).max(Vector2.ZERO))
+							esigi(not velato.intersects(dentro),
+									"con lo stile '%s' il velo copre «%s» o il testo che lo spiega" % [stile, nome])
+			esigi(box.is_visible_in_tree(), "indicando «%s» il box del testo non si vede piu'" % nomi)
+			esigi(indicazione.box_prestato == sotto_il_box, "indicando «%s» il box %s"
+					% [nomi, "e' rimasto sopra il pezzo" if sotto_il_box else "si e' spostato per niente"])
+			esigi(plancia.faccia_adesso == ("comandi" if sotto_il_box else "parlato"),
+					"indicando «%s» il quadrante mostra '%s'" % [nomi, plancia.faccia_adesso])
+			esigi(indicazione.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+					"l'indicazione prende il mouse: si mangerebbe il clic che manda avanti")
+	Stile.dati["indicazione"] = stile_prima
+	# IL PENNARELLO GIRA FUORI DAL PEZZO, non ci passa sopra
+	var bond_qui := Rect2(Vector2(600, 600), Vector2(183, 60))
+	for punto in IndicazioneCombattimento.giro_di_pennarello(bond_qui.grow(IndicazioneCombattimento.GIRO_LARGO),
+			Vector4(1, 2, -0.75, 3)):
+		esigi(not bond_qui.has_point(punto), "il giro del pennarello passa sopra il pezzo che indica")
+	# IL VELO E' TUTTO LO SCHERMO MENO I BUCHI, senza sovrapposizioni
+	var schermo := Rect2(0, 0, 1280, 720)
+	var fori: Array[Rect2] = [Rect2(20, 400, 470, 290), Rect2(540, 450, 200, 90), Rect2(0, 0, 50, 50)]
+	var coperto := 0.0
+	for velato in IndicazioneCombattimento.fuori_dai_buchi(schermo, fori):
+		coperto += velato.get_area()
+		for foro in fori:
+			esigi(not velato.intersects(foro), "il velo copre un buco")
+	var aperto := 0.0
+	for foro in fori:
+		aperto += foro.get_area()
+	esigi(is_equal_approx(coperto + aperto, schermo.get_area()), "il velo lascia scoperto qualcosa che non e' un buco")
+	# SPENTA, IL BOX TORNA A CASA e il leggio se ne va
+	plancia.evidenzia_pezzo("ecg", true)
+	var leggio: Control = plancia.indicazione.leggio
+	plancia.spegni_evidenza()
+	await get_tree().process_frame
+	esigi(plancia.indicazione == null and plancia.faccia_parlato.is_ancestor_of(box) and not is_instance_valid(leggio),
+			"spenta l'indicazione, il box non e' tornato nel quadrante o il leggio e' rimasto")
+	plancia.mostra_faccia("parlato")
+	esigi(plancia.faccia_adesso == "parlato", "spenta l'indicazione, il quadrante non torna al testo")
+	# LA STRADA VERA, dalla battuta del tutorial: una battuta lunga sul leggio
+	# stretto si divide in pagine e non scorre sotto il bordo
+	# (quella dell'ECG: sul leggio sono quattro righe, e nello scatto scorreva)
+	var lunga := "Al centro la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%."
+	# le battute d'apertura della lezione aspettano il clic: si fanno passare
+	for i in 60:
+		if scontro.voce.niente_da_leggere():
+			break
+		scontro.voce.coda.clear()
+		scontro.voce.avanza()
+		await get_tree().process_frame
+	scontro.scrivi_messaggio_tutorial({"tipo": "narrazione", "testo": lunga, "evidenzia": "ecg"})
+	limite = Time.get_ticks_msec() + 5000
+	while plancia.indicazione == null and Time.get_ticks_msec() < limite:
+		await get_tree().process_frame
+	esigi(plancia.indicazione != null and plancia.indicazione.box_prestato,
+			"la battuta del tutorial che indica l'ECG non ha spostato il box")
+	for i in 4:
+		await get_tree().process_frame
+	box.call("completa")
+	await get_tree().process_frame
+	var testo := box.get("testo") as RichTextLabel
+	esigi(testo.get_content_height() <= testo.size.y + 1.0,
+			"sul leggio la battuta e' alta %.0f in un posto di %.0f: scorre sotto il bordo"
+			% [testo.get_content_height(), testo.size.y])
+	var movimento_prima: bool = Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	plancia.evidenzia_pezzo("ecg", true)
+	esigi(is_equal_approx(plancia.indicazione.quanto, 1.0), "con meno movimento l'indicazione entra con l'animazione")
+	Impostazioni.movimento_ridotto = movimento_prima
+	plancia.spegni_evidenza()
+	scontro.in_corso = false
+	scontro.voce.coda.clear()
+	scontro.queue_free()
+	await get_tree().process_frame
+
 
 func prova_una_fase_alla_volta_e_niente_click_a_vuoto() -> void:
 	# L'INVARIANTE CHE RENDE IMPOSSIBILE IL CLICK A VUOTO.

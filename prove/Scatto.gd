@@ -31,7 +31,7 @@ func _ready() -> void:
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
 	# rimette il parlato a ogni fotogramma: aspettare l'assestamento vuol dire
 	# fotografare il box del testo. Successo due volte prima che lo capissi.
-	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "nomi_eleganti", "nome_in_scena", "laboratorio"] and not quale.begins_with("ecg"):
+	if not quale in ["rottura", "nastro", "grazia", "racconto", "scritta", "caratteri", "dialoghi", "nastri", "nomi_eleganti", "nome_in_scena", "laboratorio", "indica"] and not quale.begins_with("ecg"):
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
@@ -1430,6 +1430,34 @@ func prepara(quale: String) -> void:
 					con_box.box.pagina_seguente()
 			await attendi(4)
 			print("pagina %d di %d" % [con_box.box.pagina + 1, con_box.box.pagine.size()])
+		"indica":
+			# COME LA LEZIONE INDICA UN PEZZO: la battuta vera del tutorial di
+			# Veronica che lo nomina, con lo stile chiesto - "indica ecg pennarello"
+			# (gli stili in IndicazioneCombattimento.STILI). Con "film" in fondo, la
+			# pellicola dell'arrivo invece dello scatto fermo
+			var arg_i := OS.get_cmdline_user_args()
+			var quale_i := String(arg_i[1]) if arg_i.size() > 1 else "ecg"
+			if arg_i.size() > 2:
+				Stile.dati["indicazione"] = {"stile": String(arg_i[2])}
+			GameState.nuova_partita()
+			GameState.nemici_combattimento = ["veronica"]
+			var con_lezione: Node = load("res://scenes/Combattimento.tscn").instantiate()
+			add_child(con_lezione)
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			# le battute d'apertura si saltano: si vuole quella che indica
+			for i in 40:
+				if con_lezione.voce.niente_da_leggere():
+					break
+				con_lezione.voce.coda.clear()
+				con_lezione.voce.avanza()
+				await attendi(3)
+			con_lezione.scrivi_messaggio_tutorial(battuta_che_indica(quale_i))
+			if "film" in arg_i:
+				await pellicola("res://scatti/indica_%s_pellicola.png" % quale_i)
+			else:
+				await attendi(30)
+				con_lezione.box.completa()
+				await attendi(20)
 		"evidenza":
 			# L'EVIDENZA CHE INDICA UN PEZZO, arrivata tutta: "evidenza bond
 			# cornice" fotografa BOND con lo stile cornice (gli stili stanno in
@@ -1576,6 +1604,16 @@ func prepara(quale: String) -> void:
 			await attendi(22)   # a meta' caduta: i pezzi sono in aria e ancora visibili
 		_:
 			await apri_dialogo()
+
+func battuta_che_indica(quale: String) -> Dictionary:
+	# la prima battuta del tutorial di Veronica che nomina quel pezzo
+	for passo in (GameState.personaggi.get("veronica", {}) as Dictionary).get("tutorial_combattimento", {}).get("passi", []):
+		for dove in ["prima", "dopo"]:
+			for msg in (passo as Dictionary).get(dove, []):
+				if quale in String((msg as Dictionary).get("evidenzia", "")).split(","):
+					return msg
+	return {"tipo": "narrazione", "testo": "(nessuna battuta indica «%s»)" % quale, "evidenzia": quale}
+
 
 func nodo_di_prova() -> Dictionary:
 	# La stanza finta del disegno di Bru: qualcuno che parla, due scelte a tempo

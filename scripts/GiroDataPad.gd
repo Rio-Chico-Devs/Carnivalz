@@ -140,9 +140,7 @@ func _ready() -> void:
 	# IL TRIANGOLINO HA IL SUO POSTO. In un box largo poco piu' di meta'
 	# schermo l'ultima parola della riga ci finiva sotto; e dove c'e' da premere
 	# una voce non c'e' proprio, perche' un clic sul box li' non va avanti
-	var margine := StyleBoxEmpty.new()
-	margine.content_margin_right = 40.0
-	(box.get("testo") as Control).add_theme_stylebox_override("normal", margine)
+	box.posto_al_triangolo(true)
 	box.scrittura_finita.connect(func() -> void:
 		if String(passo().get("aspetta", "")) != "":
 			box.nascondi_indicatore())

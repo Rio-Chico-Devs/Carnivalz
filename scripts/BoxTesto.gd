@@ -113,6 +113,22 @@ func nome_fuori_dal_box() -> void:
 	targhetta.custom_minimum_size = Vector2.ZERO
 	imposta_altezza(Stile.forma("altezza_box"))
 
+func posto_al_triangolo(si: bool) -> void:
+	# IL TRIANGOLINO HA IL SUO POSTO, quando il box e' stretto: l'ultima parola
+	# della riga ci finiva sotto. Il doppione che misura le pagine si rifa': fatto
+	# prima del margine, misurava righe piu' larghe del vero, una battuta di
+	# quattro righe stava "in una pagina" e scorreva sotto il bordo
+	if si:
+		var margine := StyleBoxEmpty.new()
+		margine.content_margin_right = 40.0
+		testo.add_theme_stylebox_override("normal", margine)
+	else:
+		testo.remove_theme_stylebox_override("normal")
+	if misuratore != null:
+		misuratore.queue_free()
+		misuratore = null
+	_al_cambio_di_misura()
+
 func imposta_altezza(altezza_testo: int) -> void:
 	# l'altezza del box si decide una volta e non cambia piu': testo + riga
 	# della targhetta + separazione + i margini della cornice. Il combattimento

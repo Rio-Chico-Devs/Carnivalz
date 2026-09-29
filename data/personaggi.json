@@ -3742,7 +3742,7 @@
               {
                 "tipo": "narrazione",
                 "testo": "Apri SKILL e usa Sovraccarico. Sotto la vita hai l'AURA: è quella che si spende per le mosse, e ogni mossa ha il suo prezzo — più è grossa, più ne vuole.",
-                "evidenzia": "menu",
+                "evidenzia": "menu,squadra",
                 "_nota": "«ABILITÀ» corretto in «SKILL», il nome scritto sul tasto"
               }
             ],
@@ -3805,7 +3805,7 @@
                 "tipo": "dialogo",
                 "chi": "veronica",
                 "testo": "[b]Morale[/b] e [b]Stress[/b] sono scritti sotto in chiaro. Tienili d'occhio più della mia faccia.",
-                "evidenzia": "morale"
+                "evidenzia": "morale,stress"
               }
             ]
           },
@@ -3853,7 +3853,7 @@
               {
                 "tipo": "narrazione",
                 "testo": "La terza barra è il DOMINIO: si riempie combattendo, colpo dopo colpo. Quando un segmento è pieno si accende il tasto MATTANZA, e sotto SKILL la sua voce.",
-                "evidenzia": "mattanza"
+                "evidenzia": "dominio,mattanza"
               },
               {
                 "tipo": "dialogo",

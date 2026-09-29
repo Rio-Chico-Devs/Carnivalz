@@ -74,7 +74,9 @@ var faccia_adesso := ""   # quale delle tre e' in mostra adesso
 # CHI STA PULSANDO ADESSO, e il suo battito. Uno alla volta: due pezzi che
 # lampeggiano insieme non indicano niente, indicano "guarda lo schermo"
 var evidenziato: CanvasItem = null
-var alone_evidenza: Evidenza = null
+var alone_evidenza: Evidenza = null                  # a scontro aperto: la cornice
+var indicazione: IndicazioneCombattimento = null     # a lezione (Indicazione.gd)
+var box_testo: Control = null
 var stress_scritto := -1
 var morale_scritto := -1
 
@@ -470,6 +472,7 @@ func ospita_box(box: Control) -> void:
 		box.get_parent().remove_child(box)
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	faccia_parlato.add_child(box)
+	box_testo = box
 
 func pannello_per_menu(modo: String) -> Control:
 	# IL MENU NON SA IN CHE PANNELLO STA, e non deve saperlo: chiede "mi serve
@@ -635,6 +638,8 @@ static func faccia_da_mostrare(puoi_agire: bool, da_leggere: bool, modo_menu: St
 	return "parlato" if da_leggere else modo_menu
 
 func mostra_faccia(quale: String) -> void:
+	if quale == "parlato" and indicazione != null and indicazione.box_prestato:
+		quale = "comandi"   # il box e' sul leggio: il quadrante mostra il pezzo indicato
 	if quale == faccia_adesso:
 		return
 	faccia_adesso = quale
@@ -666,44 +671,34 @@ func aggiorna_condizione(quota_hp: float, stress: int, morale: int) -> void:
 
 # --- indicare un pezzo dello schermo ----------------------------------------
 #
-# Bru: «bisogna rendere piu' accattivante la segnalazione degli elementi
-# dell'interfaccia evidenziandoli con animazioni».
-#
-# Una battuta del tutorial puo' dire QUALE pezzo sta nominando, e quel pezzo
-# pulsa finche' si parla di lui. Non e' decorazione: e' la differenza fra "le
-# barre, dall'alto: HP e' quanto reggi" letto nel vuoto, e la stessa frase con
-# la barra che batte sotto gli occhi. Chi legge non deve cercare.
+# Una battuta del tutorial dice QUALE pezzo nomina: a lezione il pezzo si scopre
+# e si indica (IndicazioneCombattimento); a scontro aperto basta la cornice.
 
 func pezzo(nome: String) -> CanvasItem:
-	# il nome che si scrive nei dati -> il nodo che pulsa. Sta qui e non nel
-	# motore: e' la plancia a sapere com'e' fatta
-	match nome:
-		"nemico": return box_nemico
-		"scheda": return scheda_nemico
-		"squadra": return slot[0] if not slot.is_empty() else null
-		"ecg": return fondale_ecg
-		"morale": return etichetta_morale
-		"stress": return etichetta_stress
-		"mattanza": return tasto_mattanza
-		"bond": return tasto_bond
-		"menu": return faccia_comandi
-	return null
+	# il nome scritto nei dati -> il nodo: lo sa la plancia, non il motore
+	var primo: SlotCompagno = slot[0] if not slot.is_empty() else null
+	return {"nemico": box_nemico, "scheda": scheda_nemico, "squadra": primo, "ecg": fondale_ecg,
+			"dominio": primo.barre.get("dominio") if primo != null else null, "morale": etichetta_morale,
+			"stress": etichetta_stress, "mattanza": tasto_mattanza, "bond": tasto_bond, "menu": comandi}.get(nome)
 
-func evidenzia_pezzo(nome: String) -> void:
+func evidenzia_pezzo(nomi: String, a_lezione := false) -> void:
+	# uno o piu' pezzi: "dominio,mattanza" - la barra e il tasto che accende
 	spegni_evidenza()
-	if nome == "":
+	var nodi: Array[Control] = []
+	for nome in nomi.split(",", false):
+		var nodo := pezzo(nome.strip_edges())
+		if nodo == null or not is_instance_valid(nodo):
+			# UN NOME SBAGLIATO NEI DATI DEVE DIRLO: se no non si vede e basta
+			push_error("Plancia: la battuta chiede di evidenziare '%s', che non e' un pezzo dello schermo" % nome)
+			return
+		nodi.append(nodo as Control)
+	if nodi.is_empty():
 		return
-	var nodo := pezzo(nome)
-	if nodo == null or not is_instance_valid(nodo):
-		# UN NOME SBAGLIATO NEI DATI DEVE DIRLO. Un'evidenziazione che non si
-		# vede e' indistinguibile da una che non e' stata chiesta, e chi scrive
-		# i dialoghi non ha modo di accorgersene se non guardando
-		push_error("Plancia: la battuta chiede di evidenziare '%s', che non e' un pezzo dello schermo" % nome)
-		return
-	evidenziato = nodo
-	# intorno o dietro, mai sopra; lo stile lo sceglie stile.json (Evidenza.gd)
-	if nodo is Control:
-		alone_evidenza = Evidenza.intorno_a(nodo as Control)
+	evidenziato = nodi[0]
+	if a_lezione:
+		indicazione = IndicazioneCombattimento.su(self, nodi)
+	else:
+		alone_evidenza = Evidenza.intorno_a(nodi[0], "cornice")
 		alone_evidenza.accendi()
 
 func spegni_evidenza() -> void:
@@ -711,4 +706,7 @@ func spegni_evidenza() -> void:
 		alone_evidenza.ferma()
 		alone_evidenza.queue_free()
 	alone_evidenza = null
-	evidenziato = null   # modulate non lo tocca piu' nessuno: niente da rimettere
+	if indicazione != null and is_instance_valid(indicazione):
+		indicazione.togli()   # e il box torna nel quadrante
+	indicazione = null
+	evidenziato = null
