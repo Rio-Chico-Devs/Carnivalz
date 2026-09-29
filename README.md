@@ -1062,12 +1062,18 @@ durante il combattimento invece di veronica avremo la guida che parla».
 - **`"battute"`**: `{"quando": "inizio" | "dopo_il_nemico" | "dopo_di_te", "volta": n,
   "righe": [...]}`. Le righe sono battute come quelle dell'allenamento di Veronica (`tipo`,
   `chi`, `testo`, `evidenzia`): mentre si leggono il mondo è fermo, e si va avanti col click.
-  **Come si evidenzia un pezzo** lo decide `stile.json` (`"evidenza": {"stile"}`), fra quattro
-  stili di `Evidenza.gd`: `macchia` (l'inchiostro quasi nero del menu principale),
-  `macchia_cremisi` (la stessa, rossa: quella di partenza), `cornice` (un tratteggio che gira)
-  e `segno` (il triangolo delle voci di menu, che batte). Al posto del vecchio alone rosso
-  sfocato (Bru: «è pessimo»). L'evidenza sta accanto al pezzo, non dentro: il riquadro del
-  nemico, fuori dal suo turno, è semitrasparente, e una macchia figlia sarebbe uscita grigia
+  **Come si indica un pezzo** (`IndicazioneCombattimento`, `scripts/combattimento/Indicazione.gd`):
+  prima di tutto **il pezzo si vede** — se sta nel quadrante in basso a destra (menu, ECG,
+  morale, stress, MATTANZA, BOND), il box del testo si sposta su un leggio sopra la scheda del
+  nemico e il quadrante torna ai comandi; prima la battuta nominava un pezzo che il box stesso
+  copriva. Poi lo stile, in `stile.json` (`"indicazione": {"stile"}`): `riflettore` (lo schermo
+  si abbassa e la luce si stringe sul pezzo e sul testo: quello di partenza), `tratteggio`
+  (velo leggero e cornice tratteggiata, come il giro del data pad), `pennarello` (un giro di
+  pennarello cremisi tracciato a mano) e `riflettore_pennarello`. Una battuta può indicare più
+  pezzi: `"evidenzia": "dominio,mattanza"`. Al posto della macchia del menu principale (Bru,
+  29 settembre: «pessima») e prima ancora dell'alone rosso sfocato. Fuori dalla lezione — BOND
+  che si accende la prima volta — resta la cornice tratteggiata di `Evidenza.gd`, accanto al
+  pezzo e senza fermare niente
   Nel goblin del pasto la Guida parla appena comincia, poi il goblin colpisce, poi il
   battibecco — e solo allora il menu diventa tuo. `"apre_bond": true` su una battuta rende
   mediabile subito chi ha una `"mediazione"`, senza aspettare lo studio

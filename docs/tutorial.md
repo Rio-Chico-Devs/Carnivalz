@@ -477,6 +477,23 @@ così chi sta ancora martellando non spreca niente. È Twink che ferma il salto 
 Mario: il primo colpo di grazia riesce, e la mano impara com'è fatto il momento.
 Solo nell'allenamento: negli scontri veri la lancetta non aspetta nessuno.
 
+### 6.5-bis Il pezzo di cui si parla deve vedersi (29 settembre)
+
+Bru, sull'evidenziazione della lezione: «l'idea del evidenziare nel tutorial di veronica le
+parti dalle ui come nel menu principale è stata pessima». Guardando gli scatti è venuto fuori
+un difetto più grosso dello stile, e va contro la regola 2 qui sopra (*ogni cosa quando si
+vede*): **mentre Veronica parla, il box del testo occupa il quadrante in basso a destra, cioè
+proprio il menu, l'ECG, il morale, lo stress, MATTANZA e BOND.** «Al centro la linea che
+batte» si leggeva con la linea coperta dalla frase che la nomina, e la macchia del menu
+diventava un bordo rosso intorno al box.
+
+Adesso (`IndicazioneCombattimento`): se il pezzo sta nel quadrante, il box si sposta su un
+leggio sopra la scheda del nemico e il quadrante torna ai comandi; il pezzo si indica col
+**riflettore** (tutto si abbassa tranne il pezzo e il testo), e gli altri stili restano a
+portata in `stile.json`. Tre battute indicano ora tutto quello che nominano: la barra del
+Dominio col tasto MATTANZA, Morale con Stress, SKILL con la barra dell'aura. La scelta del
+riflettore come stile di partenza è mia, da confermare con Bru guardando gli scatti.
+
 ### 6.6 Cosa non ho cambiato, e perché
 
 - **Il menu resta bloccato sull'azione richiesta.** CHI 2012 non trova vantaggi

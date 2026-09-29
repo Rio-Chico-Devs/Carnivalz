@@ -164,14 +164,7 @@ func passa(delta: float) -> void:
 				fase = "corsa"
 				tempo_fase = 0.0
 		"corsa":
-			var prima := cursore
-			corsa += delta
-			cursore = piega(strada_fatta(corsa, float(regole.get("passaggio_iniziale", 2.0)),
-					float(regole.get("passaggio", 0.7)), float(regole.get("rampa", 3.0))))
-			if guidata and (prima - punto) * (cursore - punto) <= 0.0:
-				fermati_sul_bersaglio()
-			elif corsa >= float(regole.get("tempo", 5.0)):
-				tira()   # il tempo e' finito: il tiro e' perso
+			corri(delta)
 		"ferma":
 			if tempo_fase >= float(regole.get("attesa_guidata", 1.5)):
 				tira()   # ferma sul bersaglio e nessuno ha premuto: perso anche questo
@@ -181,6 +174,18 @@ func passa(delta: float) -> void:
 				return
 	if riquadro != null:
 		riquadro.aggiorna(delta)
+
+func corri(delta: float) -> void:
+	# la lancetta avanza, sempre piu' veloce; la prima volta si ferma sul
+	# bersaglio, le altre il tiro e' perso quando il tempo finisce
+	var prima := cursore
+	corsa += delta
+	cursore = piega(strada_fatta(corsa, float(regole.get("passaggio_iniziale", 2.0)),
+			float(regole.get("passaggio", 0.7)), float(regole.get("rampa", 3.0))))
+	if guidata and (prima - punto) * (cursore - punto) <= 0.0:
+		fermati_sul_bersaglio()
+	elif corsa >= float(regole.get("tempo", 5.0)):
+		tira()   # il tempo e' finito: il tiro e' perso
 
 func premi_col_tasto() -> bool:
 	# SPAZIO, INVIO, un clic sul riquadro o sul nemico: e' il tiro. Torna false

@@ -5238,7 +5238,7 @@ func prova_i_nomi_si_scrivono_col_loro_carattere() -> void:
 		esigi(carta.size.y > 10.0, "il nastro con il nome di Veronica e' alto %.1f" % carta.size.y)
 		# il nome ha la stessa aria dai due lati: senza fregio non c'e' niente
 		# che giustifichi un lato piu' largo
-		var margini := schermata.nome_nastro.get_theme_stylebox("normal") as StyleBox
+		var margini: StyleBox = schermata.nome_nastro.get_theme_stylebox("normal")
 		esigi(is_equal_approx(margini.get_margin(SIDE_LEFT), margini.get_margin(SIDE_RIGHT)),
 				"sul nastro il nome ha %.0f pixel a sinistra e %.0f a destra"
 				% [margini.get_margin(SIDE_LEFT), margini.get_margin(SIDE_RIGHT)])
@@ -9635,7 +9635,8 @@ func prova_tutorial_di_veronica() -> void:
 		for campo in ["prima", "dopo"]:
 			for msg in (passo_qualsiasi as Dictionary).get(campo, []):
 				lezione += String((msg as Dictionary).get("testo", "")) + " "
-				illuminati[String((msg as Dictionary).get("evidenzia", ""))] = true
+				for nome in String((msg as Dictionary).get("evidenzia", "")).split(",", false):
+					illuminati[nome.strip_edges()] = true   # "dominio,mattanza": due pezzi
 	for pezzo in ["Studia", "HP", "AURA", "dominio", "stress", "Morale",
 			"DIFESA", "MATTANZA", "turni", "veloce"]:
 		esigi(lezione.findn(String(pezzo)) != -1,

@@ -250,8 +250,8 @@ static func fuori_dai_buchi(tutto: Rect2, fori: Array) -> Array[Rect2]:
 	# IL VELO CON I BUCHI, fatto di rettangoli: a fasce orizzontali, e in ogni
 	# fascia i pezzi fra un buco e l'altro. Un poligono con due buchi dentro
 	# Godot non lo riempie
-	var tagli: Array[float] = [tutto.position.y, tutto.end.y]
 	var dentro: Array[Rect2] = []
+	var tagli: Array[float] = [tutto.position.y, tutto.end.y]
 	for buco: Rect2 in fori:
 		var b := buco.intersection(tutto)
 		if b.has_area():
@@ -261,20 +261,25 @@ static func fuori_dai_buchi(tutto: Rect2, fori: Array) -> Array[Rect2]:
 	tagli.sort()
 	var strisce: Array[Rect2] = []
 	for k in tagli.size() - 1:
-		var y0 := tagli[k]
-		var y1 := tagli[k + 1]
-		if y1 - y0 <= 0.0:
-			continue
-		var x := tutto.position.x
-		var aperti: Array[Rect2] = []
-		for b in dentro:
-			if b.position.y <= y0 and b.end.y >= y1:
-				aperti.append(b)
-		aperti.sort_custom(func(a: Rect2, b: Rect2) -> bool: return a.position.x < b.position.x)
-		for b in aperti:
-			if b.position.x > x:
-				strisce.append(Rect2(x, y0, b.position.x - x, y1 - y0))
-			x = maxf(x, b.end.x)
-		if x < tutto.end.x:
-			strisce.append(Rect2(x, y0, tutto.end.x - x, y1 - y0))
+		if tagli[k + 1] > tagli[k]:
+			strisce.append_array(fascia(tutto, dentro, tagli[k], tagli[k + 1]))
 	return strisce
+
+
+static func fascia(tutto: Rect2, dentro: Array[Rect2], y0: float, y1: float) -> Array[Rect2]:
+	# una fascia orizzontale del velo: da sinistra a destra, saltando i buchi
+	# che la attraversano tutta
+	var aperti: Array[Rect2] = []
+	for b in dentro:
+		if b.position.y <= y0 and b.end.y >= y1:
+			aperti.append(b)
+	aperti.sort_custom(func(a: Rect2, b: Rect2) -> bool: return a.position.x < b.position.x)
+	var pezzi_di_fascia: Array[Rect2] = []
+	var x := tutto.position.x
+	for b in aperti:
+		if b.position.x > x:
+			pezzi_di_fascia.append(Rect2(x, y0, b.position.x - x, y1 - y0))
+		x = maxf(x, b.end.x)
+	if x < tutto.end.x:
+		pezzi_di_fascia.append(Rect2(x, y0, tutto.end.x - x, y1 - y0))
+	return pezzi_di_fascia
