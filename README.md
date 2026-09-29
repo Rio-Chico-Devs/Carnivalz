@@ -616,8 +616,7 @@ corsivo: la narrazione è il dritto inclinato. Le misure stanno in `data/stile.j
 hanno un carattere loro, `art/font/nomi.ttf` (`Caratteri.nomi()`, misure nella sezione `nomi`):
 **IM Fell English in maiuscoletto**, dai caratteri Fell della stamperia di Oxford — come i nomi
 di chi parla nei testi teatrali stampati — scelto da Bru dopo diversi giri di prove
-(`prove/scatto.sh nome_in_scena <prove.json>`). Sul nastro il nome ha davanti il fregio ❧ dei
-tipografi, in cremisi (`art/font/fregi.ttf`, EB Garamond), e il nastro è carta con le estremità
+(`prove/scatto.sh nome_in_scena <prove.json>`). Sul nastro il nome sta su carta con le estremità
 strappate a mano, a modo suo per ogni nome (`NastroStrappato.gd`). Ogni nodo evento può
 avere una `"sequenza"` (lista ordinata di messaggi tipizzati) invece del vecchio `"testo"` unico:
 - **`narrazione`**: la voce narrante descrive la scena in **seconda persona** ("ti nota",

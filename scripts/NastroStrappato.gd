@@ -9,24 +9,24 @@ extends Control
 # di nastro adesivo di carta vero ha le due estremita' strappate, a morsi
 # piccoli e irregolari. Lo stesso rosa, la stessa inclinazione.
 #
-# Qui c'e' solo il fondo, e il fregio ❧ cremisi dove comincia il nome: la
-# scritta e' la Label del nome che gli sta davanti (vesti_la_scritta le da'
-# carattere, inchiostro e margini). Quando c'e' il nastro disegnato da Bru per
-# quel personaggio, questo si spegne: il disegno e' gia' tutto.
+# Qui c'e' solo il fondo: la scritta e' la Label del nome che gli sta davanti
+# (vesti_la_scritta le da' carattere, inchiostro e margini). Quando c'e' il
+# nastro disegnato da Bru per quel personaggio, questo si spegne: il disegno e'
+# gia' tutto.
+#
+# C'era anche un fregio ❧ cremisi davanti al nome, dalla prova approvata. Bru,
+# 29 settembre: «la foglia cremisi non mi piace». Tolto, col carattere che
+# serviva solo a lui.
 #
 # Ogni nome si strappa a modo suo (il seme e' il nome): due nastri uguali uno
 # dopo l'altro sembrerebbero stampati, non strappati.
 
 const MORSO := 9.0      # quanto al massimo lo strappo entra nella carta
 const PASSO := 2.5      # ogni quanti pixel lo strappo cambia
-const BORDO := 28.0     # dal bordo strappato al fregio (lo strappo ne morde fino a MORSO)
-const ARIA := 10.0      # fra il fregio e il nome
-const DESTRA := 30.0
+const LATO := 30.0      # l'aria fra lo strappo e il nome, uguale ai due lati
 
 var colore := Color.PINK
 var seme := 7
-var fregio: Label
-var scritta: Label       # il nome, la cui riga il fregio segue
 
 
 static func dentro(nastro: Control, etichetta: Label) -> NastroStrappato:
@@ -46,29 +46,15 @@ static func misura(nome: String, di_serie: Variant) -> Variant:
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	colore = Stile.colore("nastro")
-	fregio = Label.new()
-	fregio.text = String(misura("fregio", "❧"))
-	fregio.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if Caratteri.fregi() != null:
-		fregio.add_theme_font_override("font", Caratteri.fregi())
-	fregio.add_theme_font_size_override("font_size", corpo_del_fregio())
-	fregio.add_theme_color_override("font_color", Stile.colore("accento"))
-	add_child(fregio)
-	resized.connect(_al_cambio_di_misura)
+	resized.connect(queue_redraw)
 
 
-func vesti_la_scritta(etichetta: Label) -> void:
+func vesti_la_scritta(scritta: Label) -> void:
 	# il nome in maiuscoletto Fell, con l'inchiostro che si allarga appena nella
-	# carta (un alone dello stesso colore, trasparente), e a sinistra il posto
-	# per il fregio
-	scritta = etichetta
-	# A SINISTRA E NON AL CENTRO: la Label centra sull'intera larghezza senza
-	# contare i margini, e col fregio i margini non sono piu' uguali - il nome
-	# gli finiva addosso. Tanto il nastro e' largo quanto la scritta
-	scritta.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	# carta (un alone dello stesso colore, trasparente)
 	var margini := StyleBoxEmpty.new()
-	margini.content_margin_left = BORDO + fregio.get_minimum_size().x + ARIA
-	margini.content_margin_right = DESTRA
+	margini.content_margin_left = LATO
+	margini.content_margin_right = LATO
 	margini.content_margin_top = 4
 	margini.content_margin_bottom = 6
 	scritta.add_theme_stylebox_override("normal", margini)
@@ -86,35 +72,6 @@ func vesti_la_scritta(etichetta: Label) -> void:
 func strappa(nome: String) -> void:
 	seme = hash(nome)
 	queue_redraw()
-
-
-func _al_cambio_di_misura() -> void:
-	# IL FREGIO STA SULLA RIGA DEL NOME, come un segno della stessa riga di
-	# piombo: la sua linea di base e' quella del nome. Centrarlo nel nastro lo
-	# lasciava piu' basso, perche' la fogliolina ha il suo peso sotto
-	fregio.size = fregio.get_minimum_size()
-	fregio.position = Vector2(BORDO, linea_di_base() - fregio_ascesa())
-	queue_redraw()
-
-
-func linea_di_base() -> float:
-	# dove poggia il nome: la Label lo centra fra i suoi margini
-	if scritta == null or scritta.get_theme_font("font") == null:
-		return size.y * 0.7
-	var carattere := scritta.get_theme_font("font")
-	var corpo := scritta.get_theme_font_size("font_size")
-	var margini := scritta.get_theme_stylebox("normal")
-	var alto := size.y - margini.get_margin(SIDE_TOP) - margini.get_margin(SIDE_BOTTOM)
-	return margini.get_margin(SIDE_TOP) + (alto - carattere.get_height(corpo)) * 0.5 + carattere.get_ascent(corpo)
-
-
-func corpo_del_fregio() -> int:
-	return int(misura("fregio_corpo", 42))
-
-
-func fregio_ascesa() -> float:
-	var carattere := Caratteri.fregi()
-	return carattere.get_ascent(corpo_del_fregio()) if carattere != null else 0.0
 
 
 func contorno() -> PackedVector2Array:

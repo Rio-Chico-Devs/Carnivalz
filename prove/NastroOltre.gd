@@ -2,7 +2,7 @@ extends RefCounted
 
 # OLTRE IL NASTRO APPROVATO: proposte per Bru, non il gioco.
 #
-# Bru ha approvato il nastro strappato col fregio (scripts/NastroStrappato.gd)
+# Bru ha approvato il nastro strappato (scripts/NastroStrappato.gd)
 # e poi: «per curiosita' voglio vedere quale e' il tuo limite, vediamo se sai
 # fare ancora meglio». Queste sono le risposte, messe SOPRA il nastro vero del
 # gioco per fotografarle:
@@ -19,17 +19,10 @@ extends RefCounted
 #               copre tutto uguale
 #   arlecchino  i rombi d'arlecchino dell'esempio di Bru, rosa su rosa, e il
 #               filetto dei manifesti teatrali (uno grosso e uno fine)
-#   fregi       ognuno il suo fregio, dai caratteri dei tipografi
 #   ombra       il nastro fa ombra, e l'ombra si stringe quando si posa
 #   arrivo      rifa' entrare il nastro e ne fa una pellicola a grandezza vera
 #               (scatti/nastro_oltre_arrivo.png)
 #   nome:X      scrive X sul nastro, per fotografare un altro personaggio
-
-# IL FREGIO DI CIASCUNO. Non a caso: la foglia ❧ e' chi e' in scena; il cuore
-# fiorito ❦ e' Veronica; la foglia girata ☙ e' chi non si conosce ancora; la
-# manina ☞ dei tipografi (quella che nei margini dei libri indica "guarda qui")
-# e' chi annuncia - altoparlante, computer, Guida
-const FREGI := {"Veronica": "❦", "???": "☙", "Altoparlante": "☞", "Computer": "☞", "Guida": "☞"}
 
 const GRANA := """
 shader_type canvas_item;
@@ -87,16 +80,13 @@ static func vesti(schermata: Node, quali: PackedStringArray) -> void:
 				await schermata.get_tree().process_frame
 	var carta: NastroStrappato = schermata.carta_nastro
 	var scritta: Label = schermata.nome_nastro
-	# in quest'ordine, qualunque sia quello chiesto: la copia di luce del nome
-	# impresso va fatta dopo che il fregio ha deciso dove comincia il nome
-	for quale in ["fregi", "carta", "arlecchino", "impresso", "ombra"]:
+	for quale in ["carta", "arlecchino", "impresso", "ombra"]:
 		if not quale in quali:
 			continue
 		match quale:
 			"carta": carta_vera(carta)
 			"impresso": impresso(scritta)
 			"arlecchino": arlecchino(carta)
-			"fregi": fregio_di_ciascuno(schermata, carta, scritta.text)
 			"ombra": ombra(schermata, carta)
 
 
@@ -154,13 +144,6 @@ static func arlecchino(carta: NastroStrappato) -> void:
 	stampa.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# la stampa sta sulla carta e non fuori: si ritaglia sulla forma strappata
 	carta.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
-
-
-static func fregio_di_ciascuno(schermata: Node, carta: NastroStrappato, nome: String) -> void:
-	carta.fregio.text = String(FREGI.get(nome, NastroStrappato.misura("fregio", "❧")))
-	carta.vesti_la_scritta(carta.scritta)
-	schermata.applica_nastro(null)
-	carta._al_cambio_di_misura()
 
 
 static func ombra(schermata: Node, carta: NastroStrappato) -> void:

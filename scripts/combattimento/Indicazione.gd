@@ -246,13 +246,13 @@ static func giro_di_pennarello(intorno: Rect2, fasi: Vector4) -> PackedVector2Ar
 	return punti
 
 
-static func fuori_dai_buchi(tutto: Rect2, buchi: Array) -> Array[Rect2]:
+static func fuori_dai_buchi(tutto: Rect2, fori: Array) -> Array[Rect2]:
 	# IL VELO CON I BUCHI, fatto di rettangoli: a fasce orizzontali, e in ogni
 	# fascia i pezzi fra un buco e l'altro. Un poligono con due buchi dentro
 	# Godot non lo riempie
 	var tagli: Array[float] = [tutto.position.y, tutto.end.y]
 	var dentro: Array[Rect2] = []
-	for buco: Rect2 in buchi:
+	for buco: Rect2 in fori:
 		var b := buco.intersection(tutto)
 		if b.has_area():
 			dentro.append(b)

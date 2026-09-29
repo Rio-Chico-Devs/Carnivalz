@@ -5174,8 +5174,9 @@ func prova_i_nomi_si_scrivono_col_loro_carattere() -> void:
 	esigi(schermata.nome_nastro.get_theme_font_size("font_size") == Caratteri.corpo_nomi(),
 			"sul nastro il nome e' a %d invece che a %d" % [schermata.nome_nastro.get_theme_font_size("font_size"), Caratteri.corpo_nomi()])
 	# LA PROVA CHE BRU HA APPROVATO (scatti: nome_fell_strappato): maiuscoletto
-	# con un po' d'aria fra le lettere, l'inchiostro steso, il fregio cremisi
-	# davanti, e la carta strappata alle due estremita'
+	# con un po' d'aria fra le lettere, l'inchiostro steso e la carta strappata
+	# alle due estremita'. Il fregio cremisi davanti no: «la foglia cremisi non
+	# mi piace» (29 settembre)
 	var misure: Dictionary = Stile.dati.get("nomi", {})
 	var variante: FontVariation = schermata.nome_nastro.get_theme_font("font") as FontVariation
 	esigi(variante != null and variante.spacing_glyph == int(misure.get("spaziatura", -1)) and variante.spacing_glyph > 0,
@@ -5189,32 +5190,20 @@ func prova_i_nomi_si_scrivono_col_loro_carattere() -> void:
 	esigi(carta != null and carta.get_parent() == schermata.nastro and carta.get_index() < schermata.nome_nastro.get_index(),
 			"sotto il nome non c'e' la carta strappata, o ci sta davanti")
 	if carta != null:
-		var fregio_usato := base_del_carattere(carta.fregio.get_theme_font("font"))
-		esigi(carta.fregio.text == String(misure.get("fregio", "?")) and fregio_usato != null
-				and fregio_usato.resource_path == String((Stile.dati.get("font", {}) as Dictionary).get("file_fregi", "")),
-				"davanti al nome non c'e' il fregio, o non e' quello dei tipografi (EB Garamond)")
-		esigi(carta.fregio.get_theme_color("font_color") == Stile.colore("accento"), "il fregio davanti al nome non e' cremisi")
-		var peso := TextServerManager.get_primary_interface().name_to_tag("wght")
-		var variante_fregio := carta.fregio.get_theme_font("font") as FontVariation
-		esigi(variante_fregio != null and variante_fregio.variation_opentype.get(peso, 0.0)
-				== float((misure.get("fregio_assi", {}) as Dictionary).get("wght", -1)),
-				"il fregio non ha il peso scritto in stile.json (quello della prova approvata)")
+		esigi(carta.get_children().filter(func(n: Node) -> bool: return n is Label).is_empty(),
+				"sul nastro c'e' ancora una scritta oltre al nome: il fregio che Bru non vuole")
 		# lo strappo: i due bordi non sono dritti, e due nomi non si strappano
 		# uguali. Si misura sul nastro vero, dopo che qualcuno ha parlato
 		schermata.nome_sul_nastro = ""
 		await schermata.aggiorna_nastro("Veronica")
 		await get_tree().process_frame
 		esigi(carta.size.y > 10.0, "il nastro con il nome di Veronica e' alto %.1f" % carta.size.y)
-		# IL FREGIO STA DAVANTI AL NOME, misurato col nastro gia' in scena, dopo
-		# che qualcuno ha parlato: e' li' che nel gioco finiva sotto la D
-		var margine := (schermata.nome_nastro.get_theme_stylebox("normal") as StyleBox).get_margin(SIDE_LEFT)
-		esigi(carta.fregio.position.x + carta.fregio.get_minimum_size().x <= margine,
-				"il fregio (fino a %.0f) finisce sopra il nome, che comincia a %.0f"
-				% [carta.fregio.position.x + carta.fregio.get_minimum_size().x, margine])
-		# e il nome comincia davvero al margine: una Label centrata centra
-		# sull'intera larghezza e dei margini non tiene conto
-		esigi(schermata.nome_nastro.horizontal_alignment == HORIZONTAL_ALIGNMENT_LEFT,
-				"il nome sul nastro e' centrato: non comincia dopo il fregio ma gli finisce addosso")
+		# il nome ha la stessa aria dai due lati: senza fregio non c'e' niente
+		# che giustifichi un lato piu' largo
+		var margini := schermata.nome_nastro.get_theme_stylebox("normal") as StyleBox
+		esigi(is_equal_approx(margini.get_margin(SIDE_LEFT), margini.get_margin(SIDE_RIGHT)),
+				"sul nastro il nome ha %.0f pixel a sinistra e %.0f a destra"
+				% [margini.get_margin(SIDE_LEFT), margini.get_margin(SIDE_RIGHT)])
 		var una := carta.contorno()
 		# su quaranta nomi: lo strappo non e' mai dritto e non morde mai piu' di
 		# MORSO pixel di carta, ne' a destra ne' a sinistra

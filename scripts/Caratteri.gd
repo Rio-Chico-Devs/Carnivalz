@@ -90,15 +90,6 @@ static func nomi() -> Font:
 	return gia_fatti["nomi"]
 
 
-static func fregi() -> Font:
-	# I FREGI DEI TIPOGRAFI (EB Garamond): la fogliolina ❧ davanti ai nomi. Il
-	# peso sta in data/stile.json, sezione "nomi", alla voce fregio_assi
-	if not gia_fatti.has("fregi"):
-		var misure: Dictionary = Stile.dati.get("nomi", {})
-		gia_fatti["fregi"] = con_le_sue_misure("fregi", {"assi": misure.get("fregio_assi", {})})
-	return gia_fatti["fregi"]
-
-
 static func corpo_nomi() -> int:
 	return int((Stile.dati.get("nomi", {}) as Dictionary).get("corpo", Stile.dimensione("titolo")))
 

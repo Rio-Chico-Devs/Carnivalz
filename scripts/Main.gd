@@ -96,7 +96,7 @@ var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la ca
 var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alterne
 var nome_sul_nastro := ""  # chi c'e' scritto adesso: il nastro rientra solo quando cambia
 var tween_nastro: Tween
-var carta_nastro: NastroStrappato   # la carta strappata e il fregio, dietro la scritta
+var carta_nastro: NastroStrappato   # la carta strappata, dietro la scritta
 var tween_sfondo: Tween
 var racconto: Racconto = null   # l'inizio del gioco e dei livelli, a schermo intero
 
@@ -252,7 +252,7 @@ func prepara_nastro() -> void:
 	# scendere sotto, nemmeno svuotandola. Col disegno di Bru addosso veniva
 	# alto 98 pixel invece dei 78 chiesti, e il disegno ci ballava dentro.
 	# Adesso il nastro e' un riquadro che decide lui la propria misura, e dentro
-	# ci sta o il disegno o la scritta di ripiego: la carta strappata col fregio
+	# ci sta o il disegno o la scritta di ripiego: la carta strappata
 	# e il nome in maiuscoletto Fell (NastroStrappato, scelto da Bru)
 	nome_nastro.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	carta_nastro = NastroStrappato.dentro(nastro, nome_nastro)
