@@ -18,6 +18,7 @@ extends Node
 
 const CARTELLA := "res://scatti/"
 const NastroOltre := preload("res://prove/NastroOltre.gd")
+const Temi := preload("res://prove/Temi.gd")
 const FOTOGRAMMI_DI_ASSESTAMENTO := 45
 
 func _ready() -> void:
@@ -25,7 +26,16 @@ func _ready() -> void:
 	var quale := String(argomenti[0]) if argomenti.size() > 0 else "dialogo"
 	var etichetta := quale if argomenti.size() < 2 else "%s_%s" % [quale, argomenti[1]]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
+	# UN TEMA DI PROVA, prima di costruire la schermata (prove/Temi.gd)
+	var tema := ""
+	for argomento: String in argomenti:
+		if argomento.begins_with("tema="):
+			tema = argomento.trim_prefix("tema=")
+			Temi.applica(tema)
 	await prepara(quale)
+	if tema != "":
+		await attendi(2)
+		Temi.decora(self, tema)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta
 	# fotogrammi qui vorrebbe dire fotografare il vetro quando e' gia' svanito
 	# L'ECG SI FOTOGRAFA SUBITO. Lo scontro gira in tempo reale e decidi_faccia
