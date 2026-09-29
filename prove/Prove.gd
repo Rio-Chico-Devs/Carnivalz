@@ -3364,9 +3364,10 @@ func prova_mattanza_svuota_la_barra() -> void:
 	esigi(allenamento.tutorial_passo == indice,
 			"il passo della Mattanza si chiude a barra vuota: Veronica parla sopra il colpo di grazia")
 	# 11. E LA PRIMA VOLTA E' GUIDATA, come la prima battaglia di Paper Mario:
-	#     la lancetta arriva sul bersaglio e LI' SI FERMA, senza orologio, e
-	#     aspetta la mano. Le pressioni di chi sta ancora martellando non
-	#     sprecano niente, e il primo colpo di grazia della vita riesce
+	#     la lancetta arriva sul bersaglio e LI' SI FERMA, e aspetta la mano un
+	#     secondo e mezzo (Bru: «se non lo centri appena si ferma in 1 secondo e
+	#     mezzo perdi il colpo di grazia»). Le pressioni di chi sta ancora
+	#     martellando non sprecano niente, e chi preme in tempo lo centra
 	var guida: ColpoDiGraziaCombattimento = allenamento.mattanza.grazia
 	esigi(guida.guidata, "nell'allenamento il primo colpo di grazia non e' guidato")
 	var tasto := InputEventKey.new()
@@ -3384,9 +3385,9 @@ func prova_mattanza_svuota_la_barra() -> void:
 			% guida.fase)
 	esigi(is_equal_approx(guida.cursore, guida.punto),
 			"la lancetta guidata si e' fermata a %.3f, il bersaglio e' a %.3f" % [guida.cursore, guida.punto])
-	for battito in 200:
-		allenamento.mattanza.passa(0.05)   # dieci secondi a guardarla
-	esigi(guida.fase == "ferma", "ferma sul bersaglio, la lancetta guidata ha un tempo che scade: e' in fase '%s'"
+	for battito in 20:
+		allenamento.mattanza.passa(0.05)   # un secondo a guardarla: aspetta ancora
+	esigi(guida.fase == "ferma", "ferma sul bersaglio, dopo un secondo la lancetta guidata non aspetta piu': e' in fase '%s'"
 			% guida.fase)
 	var vita_maestra := int(maestra.hp)
 	allenamento._unhandled_input(tasto)
@@ -3420,9 +3421,9 @@ func prova_il_colpo_di_grazia_si_centra_col_tempismo() -> void:
 	# i pezzi sono davvero mille e volano fuori dal riquadro. E prima ancora: il
 	# nemico trema a ogni colpo, e smette di tremare al suo posto.
 	titolo("il colpo di grazia si centra col tempismo, e il nemico trema a ogni colpo")
-	# 1. LA LANCETTA VA E VIENE, a velocita' costante: da un capo all'altro in
-	#    "passaggio" secondi, e poi indietro. Una lancetta che si ferma in fondo
-	#    darebbe un tiro solo; una che rallenta ai bordi si prende da ferma
+	# 1. LA LANCETTA VA E VIENE: da un capo all'altro in "passaggio" secondi, e
+	#    poi indietro. Una lancetta che si ferma in fondo darebbe un tiro solo;
+	#    una che rallenta ai bordi si prende da ferma
 	var passo := 0.7
 	var corsa := [[0.0, 0.0], [0.35, 0.5], [0.7, 1.0], [1.05, 0.5], [1.4, 0.0], [1.75, 0.5]]
 	for coppia in corsa:
@@ -3433,6 +3434,43 @@ func prova_il_colpo_di_grazia_si_centra_col_tempismo() -> void:
 	esigi(ColpoDiGraziaCombattimento.dentro(0.5, 0.54, 0.06)
 			and not ColpoDiGraziaCombattimento.dentro(0.45, 0.54, 0.06),
 			"il bersaglio non e' largo quanto la sua tolleranza")
+	# 1-bis. MA PARTE LENTA E ACCELERA, senza scatti. Bru: «e' troppo veloce
+	#    deve aumentare gradualmente la velocita'»
+	var cdg: Dictionary = GameState.abilita_combattimento("mattanza").get("colpo_di_grazia", {})
+	var lenta := float(cdg.get("passaggio_iniziale", 0.0))
+	var piena := float(cdg.get("passaggio", 0.0))
+	var rampa := float(cdg.get("rampa", 0.0))
+	esigi(lenta > piena * 1.5 and rampa > 0.5,
+			"la lancetta non parte lenta: %.2f secondi a passaggio all'inizio, %.2f alla fine" % [lenta, piena])
+	var velocita_prima := -1.0
+	var scatti := 0
+	var t := 0.0
+	while t < rampa + 1.0:
+		var velocita := (ColpoDiGraziaCombattimento.strada_fatta(t + 0.05, lenta, piena, rampa)
+				- ColpoDiGraziaCombattimento.strada_fatta(t, lenta, piena, rampa)) / 0.05
+		if velocita_prima >= 0.0 and (velocita < velocita_prima - 0.001 or velocita - velocita_prima > 0.1):
+			scatti += 1
+		velocita_prima = velocita
+		t += 0.05
+	esigi(scatti == 0, "la lancetta non accelera piano: %d volte rallenta o fa uno scatto" % scatti)
+	esigi(is_equal_approx(ColpoDiGraziaCombattimento.strada_fatta(0.4, lenta, lenta, 0.0) , 0.4 / lenta),
+			"senza rampa la lancetta non va alla velocita' di partenza")
+	# 1-ter. FERMA SUL BERSAGLIO, un secondo e mezzo e poi e' perso
+	var banco := Control.new()
+	add_child(banco)
+	var sola := ColpoDiGraziaCombattimento.new()
+	sola.collega(banco)
+	esigi(sola.avvia(cdg, true), "il colpo di grazia guidato non parte")
+	var passi_guida := 0
+	while sola.fase != "ferma" and passi_guida < 4000:
+		sola.passa(1.0 / 120.0)
+		passi_guida += 1
+	for battito in 34:
+		sola.passa(0.05)   # 1,7 secondi senza premere
+	esigi(sola.fase == "chiusura" and not sola.tirato and not sola.preso,
+			"ferma sul bersaglio da 1,7 secondi, la lancetta guidata aspetta ancora (fase '%s')" % sola.fase)
+	sola.interrompi()
+	banco.queue_free()
 	GameState.nuova_partita()
 	GameState.nemici_combattimento = ["goblin_tipico"]
 	var vero: Node = load("res://scenes/Combattimento.tscn").instantiate()

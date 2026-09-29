@@ -16,6 +16,9 @@ extends RefCounted
 #
 # COME E' FATTO: una lancetta che va e viene sulla barra, avanti e indietro,
 # e un bersaglio messo a caso. Un tiro solo. Dentro il bersaglio: centrato.
+# La lancetta PARTE LENTA E ACCELERA: Bru, 29 settembre, «e' troppo veloce
+# deve aumentare gradualmente la velocita'». I primi passaggi si guardano, gli
+# ultimi si prendono al volo.
 # Fuori, o se il tempo finisce senza tiro: mancato. Il bersaglio e' largo
 # esattamente quanto l'immagine che lo segna - quello che vedi e' quello che
 # vale, al pixel.
@@ -28,9 +31,13 @@ extends RefCounted
 # I NUMERI (nei dati della Mattanza, sotto "colpo_di_grazia"; quelli qui sotto
 # sono solo il ripiego):
 #
-#   passaggio   quanti secondi ci mette la lancetta da un capo all'altro
+#   passaggio_iniziale  quanti secondi ci mette la lancetta da un capo
+#                       all'altro quando parte
+#   passaggio   e quanti ne mette a velocita' piena
+#   rampa       in quanti secondi arriva dalla prima alla seconda
 #   tolleranza  mezza larghezza del bersaglio, in frazioni di barra
 #   tempo       quanto corre la lancetta prima che il tiro sia perso
+#   attesa_guidata  la prima volta, quanto aspetta ferma sul bersaglio
 #   sordo       i secondi in cui la mano che martella non conta
 #   dove        tra quali frazioni di barra puo' cadere il bersaglio
 #
@@ -39,8 +46,10 @@ extends RefCounted
 # mira - quello e' il gioco.
 #
 # LA PRIMA VOLTA E' GUIDATA ("guidata", nell'allenamento di Veronica). La
-# lancetta corre, arriva sul bersaglio e LI' SI FERMA, e aspetta la mano senza
-# orologio: il momento giusto si impara vedendolo, non sentendoselo spiegare.
+# lancetta corre, arriva sul bersaglio e LI' SI FERMA, e aspetta la mano: il
+# momento giusto si impara vedendolo, non sentendoselo spiegare. Aspetta un
+# secondo e mezzo, non per sempre - Bru: «se non lo centri appena si ferma in
+# 1 secondo e mezzo perdi il colpo di grazia».
 # E' la prima battaglia di Paper Mario: Twink ferma il salto di Mario sopra la
 # testa di Goombario e dice di premere A adesso - la prima pressione riesce
 # sempre, e dopo la mano sa com'e' fatto il "momento giusto". Le pressioni
@@ -49,7 +58,8 @@ extends RefCounted
 signal centrato
 signal finito(esito: Dictionary)
 
-const DI_SERIE := {"passaggio": 0.7, "tolleranza": 0.06, "tempo": 3.2, "sordo": 0.45}
+const DI_SERIE := {"passaggio_iniziale": 2.0, "passaggio": 0.7, "rampa": 3.0, "tolleranza": 0.06,
+		"tempo": 5.0, "sordo": 0.45, "attesa_guidata": 1.5}
 const DOVE_DI_SERIE := [0.25, 0.85]
 const CHIUSURA := 1.4              # quanto resta a schermo com'e' andata
 const CHIUSURA_SORDA := 0.5        # e per quanto un tasto non la chiude
@@ -90,10 +100,25 @@ func collega(dove: Control, tabellone: PlanciaCombattimento = null, sopra: Contr
 
 static func posizione(t: float, passaggio: float) -> float:
 	# AVANTI E INDIETRO, a velocita' costante: da 0 a 1 in "passaggio" secondi,
-	# poi da 1 a 0. Costante apposta - una lancetta che rallenta ai bordi si
-	# prende da ferma, e il tempismo diventerebbe aspettare
-	var giri := fposmod(t / maxf(passaggio, 0.01), 2.0)
+	# poi da 1 a 0. Senza rallentare ai bordi - una lancetta che rallenta ai
+	# bordi si prende da ferma, e il tempismo diventerebbe aspettare
+	return piega(t / maxf(passaggio, 0.01))
+
+static func piega(strada: float) -> float:
+	# quante barre ha percorso -> dov'e': va e viene
+	var giri := fposmod(strada, 2.0)
 	return giri if giri <= 1.0 else 2.0 - giri
+
+static func strada_fatta(t: float, lenta: float, piena: float, rampa: float) -> float:
+	# QUANTE BARRE HA PERCORSO in t secondi, partendo a "lenta" secondi per
+	# passaggio e arrivando a "piena" in "rampa" secondi, sempre piu' veloce
+	# senza scatti: la velocita' cresce dritta, la strada e' la sua area
+	var v0 := 1.0 / maxf(lenta, 0.01)
+	var v1 := 1.0 / maxf(piena, 0.01)
+	var r := maxf(rampa, 0.0)
+	if t <= r:
+		return v0 * t + (v1 - v0) * t * t / (2.0 * maxf(r, 0.001))
+	return v0 * r + (v1 - v0) * r * 0.5 + v1 * (t - r)
 
 static func dentro(dove_e: float, centro: float, tolleranza: float) -> bool:
 	return absf(dove_e - centro) <= tolleranza
@@ -141,11 +166,15 @@ func passa(delta: float) -> void:
 		"corsa":
 			var prima := cursore
 			corsa += delta
-			cursore = posizione(corsa, float(regole.get("passaggio", 0.7)))
+			cursore = piega(strada_fatta(corsa, float(regole.get("passaggio_iniziale", 2.0)),
+					float(regole.get("passaggio", 0.7)), float(regole.get("rampa", 3.0))))
 			if guidata and (prima - punto) * (cursore - punto) <= 0.0:
 				fermati_sul_bersaglio()
-			elif corsa >= float(regole.get("tempo", 3.2)):
+			elif corsa >= float(regole.get("tempo", 5.0)):
 				tira()   # il tempo e' finito: il tiro e' perso
+		"ferma":
+			if tempo_fase >= float(regole.get("attesa_guidata", 1.5)):
+				tira()   # ferma sul bersaglio e nessuno ha premuto: perso anche questo
 		"chiusura":
 			if tempo_fase >= CHIUSURA:
 				concludi()
@@ -171,7 +200,7 @@ func premi_col_tasto() -> bool:
 
 func fermati_sul_bersaglio() -> void:
 	# la lancetta ha appena passato il centro: si rimette esattamente li', e da
-	# qui in poi il tempo non conta - "ferma" non ha un orologio in passa()
+	# qui conta l'attesa (attesa_guidata), non piu' la corsa
 	cursore = punto
 	fase = "ferma"
 	tempo_fase = 0.0
