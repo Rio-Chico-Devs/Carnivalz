@@ -29,6 +29,9 @@ extends RefCounted
 const OMBRA := Vector2(8, 8)        # l'ombra piena: di quanto sta spostata
 const INCLINA := 0.24               # le etichette: per ogni pixel d'altezza, tanto di lato
 const PASSO_RETINO := 9.0
+# un puntino del retino ha dodici lati: a quella misura (nove pixel al massimo)
+# e' tondo a occhio anche a schermo intero; con otto, ingrandito, si vedevano gli spigoli
+const LATI_PUNTINO := 12
 
 
 # --- i pezzi pronti ------------------------------------------------------------
@@ -154,6 +157,17 @@ static func fascia_voce(tasto: Button) -> StyleBoxFlat:
 	return fascia
 
 
+static var il_giro_del_puntino := PackedVector2Array()
+
+
+static func forma_puntino() -> PackedVector2Array:
+	# i vertici di un puntino di raggio 1, calcolati una volta
+	if il_giro_del_puntino.is_empty():
+		for j in LATI_PUNTINO:
+			il_giro_del_puntino.append(Vector2.RIGHT.rotated(TAU * j / LATI_PUNTINO))
+	return il_giro_del_puntino
+
+
 static var la_freccia: ImageTexture = null
 
 
@@ -182,22 +196,54 @@ static func spento_come(acceso: StyleBox) -> StyleBoxEmpty:
 static func retino(tela: CanvasItem, dove: Rect2, tinta: Color, da := Vector2(0.5, 0.4)) -> void:
 	# I PUNTINI DELLE OMBRE: nulli lontano dall'angolo in basso a destra, sempre
 	# piu' grossi verso l'angolo. "da" e' dove cominciano, in frazioni
+	var centri: Array[Vector2] = []
+	var raggi: Array[float] = []
 	var y := dove.size.y * da.y
 	var riga := 0
 	while y < dove.size.y - 3.0:
-		riga_di_retino(tela, dove, y, riga % 2 == 1, tinta, da)
+		riga_di_retino(dove, y, riga % 2 == 1, da, centri, raggi)
 		y += PASSO_RETINO * 0.87
 		riga += 1
+	puntini(tela, centri, raggi, tinta)
 
 
-static func riga_di_retino(tela: CanvasItem, dove: Rect2, y: float, sfalsata: bool, tinta: Color,
-		da: Vector2) -> void:
+static func riga_di_retino(dove: Rect2, y: float, sfalsata: bool, da: Vector2,
+		centri: Array[Vector2], raggi: Array[float]) -> void:
 	var x := dove.size.x * da.x + (PASSO_RETINO * 0.5 if sfalsata else 0.0)
 	while x < dove.size.x - 3.0:
 		var quanto := clampf((x / dove.size.x - da.x) * 2.4 + (y / dove.size.y - da.y) * 2.0 - 0.9, 0.0, 1.0)
 		if quanto > 0.05:
-			tela.draw_circle(dove.position + Vector2(x, y), PASSO_RETINO * 0.42 * quanto, tinta)
+			centri.append(dove.position + Vector2(x, y))
+			raggi.append(PASSO_RETINO * 0.42 * quanto)
 		x += PASSO_RETINO
+
+
+static func puntini(tela: CanvasItem, centri: Array[Vector2], raggi: Array[float], tinta: Color) -> void:
+	# TANTI PUNTINI IN UN DISEGNO SOLO. draw_circle fa di ogni puntino un
+	# poligono di decine di lati e un comando a parte, e i retini ne hanno
+	# migliaia: una schermata arancio costava circa centomila primitive a
+	# fotogramma, anche da ferma (misurato col monitor del motore). Qui ogni
+	# puntino ha dodici lati, e sono tutti un comando solo
+	if centri.is_empty():
+		return
+	var giro := forma_puntino()
+	var n := LATI_PUNTINO + 1
+	var punti := PackedVector2Array()
+	var indici := PackedInt32Array()
+	punti.resize(centri.size() * n)
+	indici.resize(centri.size() * LATI_PUNTINO * 3)
+	for k in centri.size():
+		punti[k * n] = centri[k]
+		for j in LATI_PUNTINO:
+			punti[k * n + 1 + j] = centri[k] + giro[j] * raggi[k]
+			var t := (k * LATI_PUNTINO + j) * 3
+			indici[t] = k * n
+			indici[t + 1] = k * n + 1 + j
+			indici[t + 2] = k * n + 1 + (j + 1) % LATI_PUNTINO
+	var colori := PackedColorArray()
+	colori.resize(punti.size())
+	colori.fill(tinta)
+	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, punti, colori)
 
 
 # --- i disegni ------------------------------------------------------------------
@@ -223,7 +269,8 @@ class Trama extends Control:
 		while raggio < size.x * 1.3:
 			draw_arc(centro, raggio, 0.0, TAU, 160, chiaro, size.x * 0.03, true)
 			raggio += size.x * 0.11
-		var scuro := tinta.darkened(0.09)
+		var centri: Array[Vector2] = []
+		var raggi: Array[float] = []
 		var passo := 11.0
 		var y := 0.0
 		var riga := 0
@@ -232,10 +279,12 @@ class Trama extends Control:
 			while x < size.x + passo:
 				var quanto := clampf((y / size.y) * 1.3 - (x / size.x) * 1.1 - 0.25, 0.0, 1.0)
 				if quanto > 0.05:
-					draw_circle(Vector2(x, y), passo * 0.42 * quanto, scuro)
+					centri.append(Vector2(x, y))
+					raggi.append(passo * 0.42 * quanto)
 				x += passo
 			y += passo * 0.87
 			riga += 1
+		Manifesto.puntini(self, centri, raggi, tinta.darkened(0.09))
 
 
 class Carta extends Control:

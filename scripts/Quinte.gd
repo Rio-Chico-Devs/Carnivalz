@@ -28,6 +28,14 @@ extends Control
 # se ne vanno insieme, e piu' in fretta.
 #
 # Con il movimento ridotto non c'e' parallasse e i fogli non corrono: ci sono.
+#
+# SUL MANIFESTO (su_carta, il menu di pausa di adesso) E' TUTTO FERMO. Bru:
+# «le opzioni quando aperte laggano, che sia per la scritta pausa animata?
+# possiamo anche semplificarla [...] bastano due scritte, una principale e una
+# per l'ombra». La parola e' due scritte, la nera e la sua ombra, e ne' la
+# parola ne' i fogli seguono il mouse: cosi' fra un'entrata e l'altra le quinte
+# non si ridisegnano piu', e il retino dei puntini non si ricalcola a ogni
+# movimento del mouse.
 
 const TAGLIO_BORDO := 0.18        # l'obliquo del bordo: quanto si sposta in tutta l'altezza
 const FOGLI := [
@@ -48,6 +56,7 @@ const COPIE_PAROLA := 5
 const SCURO_COPIE := [0.0, 0.62, 0.48, 0.36, 0.26]   # quanto cremisi c'e' in ogni copia (0 = nero)
 const ALFA_PAROLA := 0.85
 const PASSO_COPIE := Vector2(6, 6)    # quanto sta dietro ogni copia, da fermo
+const OMBRA_SU_CARTA := Vector2(12, 12)   # sul manifesto: la parola e la sua ombra, e basta
 const QUOTA_CORPO_PAROLA := 0.36      # il corpo della parola, in altezze di schermo
 const OLTRE := 48.0                    # i fogli sbordano: la parallasse non deve scoprire il margine
 
@@ -142,7 +151,7 @@ func fermo() -> bool:
 func dove_mira() -> Vector2:
 	# dove guarda il giocatore, da -1 a 1 su ogni asse. Col movimento ridotto
 	# sempre al centro: la parallasse e' movimento e basta, non dice niente
-	if Movimento.ridotto() or size.x <= 0.0 or size.y <= 0.0:
+	if Movimento.ridotto() or su_carta or size.x <= 0.0 or size.y <= 0.0:
 		return Vector2.ZERO
 	var dove := puntatore_finto
 	if dove.x < 0.0:
@@ -153,7 +162,7 @@ func dove_mira() -> Vector2:
 
 func _input(evento: InputEvent) -> void:
 	# il mouse che si muove sveglia la parallasse; da ferma non costa niente
-	if evento is InputEventMouseMotion and is_visible_in_tree() and not is_processing():
+	if evento is InputEventMouseMotion and is_visible_in_tree() and not is_processing() and not su_carta:
 		set_process(true)
 
 
@@ -198,7 +207,8 @@ func _draw() -> void:
 func disegna_retino(dove: Vector2) -> void:
 	# IL RETINO DEL MANIFESTO sul foglio arancio: i puntini piu' scuri che si
 	# addensano verso l'angolo in basso a sinistra, e solo dentro il foglio
-	var scuro := Stile.colore("manifesto").darkened(0.09)
+	var centri: Array[Vector2] = []
+	var raggi: Array[float] = []
 	var passo := 11.0
 	var y := size.y * 0.35
 	var riga := 0
@@ -207,10 +217,12 @@ func disegna_retino(dove: Vector2) -> void:
 		while x < bordo(y) - passo:
 			var quanto := clampf((y / size.y) * 1.3 - (x / size.x) * 1.6 - 0.35, 0.0, 1.0)
 			if quanto > 0.05:
-				draw_circle(Vector2(x, y) + dove, passo * 0.42 * quanto, scuro)
+				centri.append(Vector2(x, y) + dove)
+				raggi.append(passo * 0.42 * quanto)
 			x += passo
 		y += passo * 0.87
 		riga += 1
+	Manifesto.puntini(self, centri, raggi, Stile.colore("manifesto").darkened(0.09))
 
 
 func foglio_nero(sporge: float, dove: Vector2) -> PackedVector2Array:
@@ -238,6 +250,9 @@ func disegna_parola() -> void:
 	var larga := f.get_string_size(parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
 	var base := Vector2(size.x - larga + OLTRE * 0.5, size.y * 0.93)
 	var arrivata := arrivo(0.06)
+	if su_carta:
+		parola_ferma(f, corpo, base + Vector2(OLTRE * 2.0 * (1.0 - arrivata), 0.0), arrivata)
+		return
 	var alfa := (1.0 if su_carta else ALFA_PAROLA) * alfa_parola.valore * arrivata
 	var spessore := maxi(3, int(float(corpo) * 0.014))
 	for i in range(COPIE_PAROLA - 1, -1, -1):
@@ -250,6 +265,15 @@ func disegna_parola() -> void:
 		if i == 0 and not su_carta:
 			draw_string_outline(f, Vector2.ZERO, parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo,
 					spessore, Color(Stile.colore("accento"), alfa))
+	draw_set_transform(Vector2.ZERO)
+
+
+func parola_ferma(f: Font, corpo: int, dove: Vector2, alfa: float) -> void:
+	# l'ombra arancio scuro e sopra la parola nera: due scritte, niente altro
+	draw_set_transform(dove + OMBRA_SU_CARTA, Stile.angolo("inclinazione_nastro"))
+	draw_string(f, Vector2.ZERO, parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Color(Stile.colore("manifesto_scuro"), alfa))
+	draw_set_transform(dove, Stile.angolo("inclinazione_nastro"))
+	draw_string(f, Vector2.ZERO, parola, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Color(Stile.colore("bordo"), alfa))
 	draw_set_transform(Vector2.ZERO)
 
 
