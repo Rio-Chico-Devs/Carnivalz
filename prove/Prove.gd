@@ -7916,7 +7916,11 @@ func prova_la_sede_si_legge_e_ci_sta_nello_schermo() -> void:
 		if etichetta.text.strip_edges() == "":
 			continue
 		guardati += 1
-		var quanto: float = Stile.contrasto_su_sfondo(etichetta.get_theme_color("font_color"))
+		# contro il fondo su cui sta DAVVERO: nel manifesto non e' piu' il nero
+		# per tutti - c'e' l'arancio della pagina, la carta, l'etichetta nera
+		var fondo := fondo_di(etichetta)
+		var inchiostro := etichetta.get_theme_color("font_color")
+		var quanto: float = Stile.contrasto(Stile.sopra(inchiostro, fondo), fondo)
 		esigi(quanto >= Stile.CONTRASTO_MINIMO,
 				"«%s» sta a %.2f:1 sul fondo: non si legge"
 				% [etichetta.text.substr(0, 40), quanto])
@@ -7946,6 +7950,21 @@ func bottoni_fermi(nodo: Node) -> Array[Button]:
 			trovati.append(figlio as Button)
 		trovati.append_array(bottoni_fermi(figlio))
 	return trovati
+
+func fondo_di(etichetta: Label) -> Color:
+	# dove sta una scritta nella lingua del manifesto: sulla fascia che la
+	# veste, sulla voce accesa (l'etichetta nera), su un foglio o sull'arancio
+	var fascia := etichetta.get_theme_stylebox("normal") as StyleBoxFlat
+	if fascia != null and fascia.bg_color.a > 0.5:
+		return fascia.bg_color
+	var su := etichetta.get_parent()
+	while su != null:
+		if su is Button and bool(su.get_meta("voce_accesa", false)):
+			return Stile.colore("bordo")
+		if su is Manifesto.Foglio:
+			return Stile.colore("box_fondo")
+		su = su.get_parent()
+	return Stile.colore("manifesto")
 
 func etichette_dentro(nodo: Node) -> Array[Label]:
 	var trovate: Array[Label] = []
@@ -16772,11 +16791,12 @@ func prova_il_negozio_si_usa_con_le_frecce_e_con_la_rotella() -> void:
 	bottega.acquista()
 	esigi(GameState.tazo == 999, "acquista() da fuori fa pagare un'arma che hai gia': %d Tazo" % GameState.tazo)
 
-	# le linguette: una premuta diventa cremisi, le altre no, e ci stanno tutte
+	# le linguette: una premuta diventa l'etichetta nera, le altre restano
+	# scritte nere sull'arancio, e ci stanno tutte
 	(bottega.linguette[2] as TastoObliquo).scelto.emit()
 	esigi(String(bottega.negozio_aperto) == "artigiano", "la linguetta non apre il suo negozio")
 	for linguetta: TastoObliquo in bottega.linguette:
-		esigi(linguetta.stile == ("accento" if String(linguetta.get_meta("negozio")) == "artigiano" else "spoglio"),
+		esigi(linguetta.stile == ("nero" if String(linguetta.get_meta("negozio")) == "artigiano" else "inchiostro"),
 				"la linguetta di '%s' ha lo stile sbagliato" % linguetta.get_meta("negozio"))
 	var ultima: TastoObliquo = bottega.linguette[-1]
 	esigi(ultima.position.x + ultima.misura_voluta().x <= bottega.FINE_LINGUETTE,

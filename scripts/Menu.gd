@@ -71,7 +71,7 @@ const TESTATA_DOPO := 0.0
 const CASCATA_DOPO := 0.10
 const PANNELLO_DOPO := 0.12
 const SPAZIO_DAL_PANNELLO := 48.0   # fra le righe delle opzioni e il pannello
-const X_TAVOLA := 0.36             # dove comincia la tavola dei comandi; finisce dove il pannello
+const X_TAVOLA := 0.38             # dove comincia la tavola dei comandi (dopo le voci a scalini); finisce dove il pannello
 # cosa dicono le voci di EXTRA (erano in Extra.gd, che adesso e' una pagina di
 # questo menu). Da confermare con Bru
 const INSTAGRAM := "@iltuohandle (da confermare)"
