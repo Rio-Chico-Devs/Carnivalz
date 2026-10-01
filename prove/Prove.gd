@@ -5806,14 +5806,28 @@ func prova_la_lastra_dei_dialoghi() -> void:
 	esigi(box.segno.position.x < box.lastra.size.x * 0.4,
 			"il segno sta a x=%.0f: non e' dopo l'ultima parola" % box.segno.position.x)
 
-	# 4. L'AVVISO DEL GIOCO E LA VISTA LONTANA si leggono sul nero
+	# 4. L'AVVISO DEL GIOCO E LA VISTA LONTANA si leggono sul nero; l'avviso
+	#    su una riga sta fra due rombi, e il segno viene dopo il secondo
 	for tipo: String in ["notifica", "vista"]:
 		schermata.mostra_messaggio({"tipo": tipo, "testo": "Quarta."})
 		esigi(not box.lastra.di_carta, "%s sulla carta invece che sulla lastra" % tipo)
 		esigi(Stile.contrasto(box.testo.get_theme_color("default_color"), fondo_nero) >= 4.5,
 				"%s sulla lastra nera non si legge" % tipo)
+		box.completa()
+		await get_tree().process_frame
+		var due: bool = box.lastra.rombi.size() == 2
+		esigi(due == (tipo == "notifica"), "%s: %d rombi ai lati" % [tipo, box.lastra.rombi.size()])
+		if due:
+			esigi(box.lastra.rombi[0].x < box.lastra.rombi[1].x and box.segno.position.x > box.lastra.rombi[1].x,
+					"i rombi dell'avviso o il segno non stanno al loro posto")
 
-	# 5. LE SCELTE: etichette oblique chiare, l'accesa arancio col triangolo,
+	# 5. LE BATTUTE GRIDATE SI STAMPANO: solo chi parla, solo col punto esclamativo
+	esigi(box.gridata("dialogo", "Allora! Cosa facciamo?!"), "una battuta gridata non si riconosce")
+	esigi(not box.gridata("dialogo", "Wahahaha! Su, non te la prendere."),
+			"un esclamativo a meta' battuta la fa stampare")
+	esigi(not box.gridata("narrazione", "Crolla tutto!"), "la narrazione si stampa come una battuta")
+
+	# 6. LE SCELTE: etichette oblique chiare, l'accesa arancio col triangolo,
 	#    il villain con la sua fascia rossa, la colonna che pende a gradini, e
 	#    una frase lunga che va a capo restando larga
 	schermata.ricostruisci_scelte(nodo)
@@ -5838,9 +5852,16 @@ func prova_la_lastra_dei_dialoghi() -> void:
 					"la scritta di una scelta non si legge sul suo fondo")
 		var rientri: Array[int] = []
 		for gradino in schermata.contenitore_scelte.get_children():
-			rientri.append((gradino as Control).get_theme_constant("margin_right"))
+			rientri.append(int(gradino.get_meta("rientro", -1)))   # dove si ferma: entrando scivola
 		esigi(rientri.size() == 3 and rientri[0] < rientri[1] and rientri[1] < rientri[2],
 				"le scelte non scendono a gradini lungo la pendenza: %s" % [rientri])
+		# entrano in cascata, e finita l'entrata ognuna e' sul suo gradino (si
+		# aspetta il tempo, non i fotogrammi: senza schermo ne passano cento al volo)
+		await get_tree().create_timer(Movimento.durata("entrata") + 0.3).timeout
+		for gradino in schermata.contenitore_scelte.get_children():
+			esigi((gradino as Control).get_theme_constant("margin_right") == int(gradino.get_meta("rientro", -1))
+					and is_equal_approx((gradino as Control).modulate.a, 1.0),
+					"finita l'entrata, una scelta non e' al suo posto o non si vede del tutto")
 		esigi(lunga.size.y < corta.size.y * 3.0,
 				"la scelta lunga e' alta %.0f: va a capo a ogni parola" % lunga.size.y)
 	schermata.queue_free()

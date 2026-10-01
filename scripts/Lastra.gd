@@ -30,6 +30,7 @@ const RIGHE_DI_SCALINO := 62.0   # le scelte scendono lungo la pendenza: tanto p
 # la colonna andando a capo. Trenta e' il punto in cui una scritta smette di
 # essere un'etichetta e diventa una frase.
 const LETTERE_SCELTA_CORTA := 30
+const ARRIVO_SCELTA := 40.0   # da quanto piu' a destra arriva una scelta entrando
 
 # >0 pende a destra (chi parla), <0 a sinistra (tu). Si anima: la lastra che si gira
 var inclina := Manifesto.INCLINA:
@@ -44,6 +45,12 @@ var di_carta := false:
 var ombra := 1.0:
 	set(nuova):
 		ombra = nuova
+		queue_redraw()
+# i due rombi arancio ai lati dell'avviso del gioco, come il «premi un tasto»
+# della copertina: dove stanno, nelle coordinate della lastra (vuoto: niente)
+var rombi := PackedVector2Array():
+	set(nuovi):
+		rombi = nuovi
 		queue_redraw()
 
 
@@ -79,6 +86,9 @@ func _draw() -> void:
 	Manifesto.poligono(self, Lastra.sposta(forma, OMBRA * ombra), Stile.colore("manifesto_scuro"))
 	Manifesto.poligono(self, forma, Stile.colore("box_fondo") if di_carta else Stile.colore("bordo"))
 	retino(forma, r, a_sinistra)
+	for centro in rombi:
+		Manifesto.poligono(self, PackedVector2Array([centro + Vector2(0, -7), centro + Vector2(7, 0),
+				centro + Vector2(0, 7), centro + Vector2(-7, 0)]), Stile.colore("manifesto"))
 
 
 func retino(forma: PackedVector2Array, r: Rect2, verso_destra: bool) -> void:
@@ -217,9 +227,29 @@ static func in_colonna(colonna: Container, nodo: Control) -> void:
 	var gradino := MarginContainer.new()
 	gradino.size_flags_horizontal = nodo.size_flags_horizontal
 	gradino.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	gradino.add_theme_constant_override("margin_right", roundi(scalino(colonna.get_child_count())))
+	var rientro := roundi(scalino(colonna.get_child_count()))
+	gradino.set_meta("rientro", rientro)
+	gradino.add_theme_constant_override("margin_right", rientro)
 	gradino.add_child(nodo)
 	colonna.add_child(gradino)
+	in_cascata(gradino, colonna.get_child_count() - 1)
+
+
+static func in_cascata(gradino: MarginContainer, k: int) -> void:
+	# LE SCELTE ARRIVANO UNA DOPO L'ALTRA, lungo la stessa pendenza: da destra,
+	# dissolvendosi dentro, a un passo di cascata l'una dall'altra (i tempi
+	# del vocabolario del movimento, come le voci dei menu)
+	if Movimento.ridotto():
+		return
+	var rientro := int(gradino.get_meta("rientro", 0))
+	var durata := Movimento.durata("entrata")
+	var ritardo := float(k) * float((Movimento.dati().get("cascata", {}) as Dictionary).get("passo", 0.03))
+	gradino.modulate.a = 0.0
+	gradino.add_theme_constant_override("margin_right", rientro - roundi(ARRIVO_SCELTA))
+	var arrivo := gradino.create_tween().set_parallel()
+	Movimento.verso(arrivo, gradino, "modulate:a", 1.0, "entrata", durata).set_delay(ritardo)
+	Movimento.verso(arrivo, gradino, "theme_override_constants/margin_right", rientro, "entrata", durata) \
+			.set_delay(ritardo)
 
 
 static func fuori_dalla_colonna(nodo: Control, colonna: Container) -> void:

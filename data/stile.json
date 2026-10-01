@@ -258,6 +258,7 @@
   "movimento": {
     "durate": {
       "giro_lastra": 0.24,
+      "timbro_lastra": 0.22,
       "ombra_lastra": 0.2,
       "colore": 0.07,
       "sfioro": 0.11,
@@ -320,8 +321,9 @@
     },
     "scivolo": 16,
     "parallasse": 16,
-    "_nota_lastra": "LA LASTRA DEI DIALOGHI (scripts/Lastra.gd, BoxTesto.gd), approvata da Bru il primo ottobre. Entrando scivola da sinistra di 'scivolo_lastra' pixel nel tempo di comparsa_box (0,18 s), e l'ombra la raggiunge 'ritardo_ombra' secondi dopo, in durate.ombra_lastra. Quando cambia chi parla fra te e gli altri si gira passando per il dritto in durate.giro_lastra. Numeri miei, da provare.",
+    "_nota_lastra": "LA LASTRA DEI DIALOGHI (scripts/Lastra.gd, BoxTesto.gd), approvata da Bru il primo ottobre. Entrando scivola da sinistra di 'scivolo_lastra' pixel nel tempo di comparsa_box (0,18 s), e l'ombra la raggiunge 'ritardo_ombra' secondi dopo, in durate.ombra_lastra. Quando cambia chi parla fra te e gli altri si gira passando per il dritto in durate.giro_lastra. Una battuta che finisce col punto esclamativo si stampa: la lastra si alza di 'timbro_lastra' (3%) e ricade in durate.timbro_lastra. Numeri miei, da provare.",
     "scivolo_lastra": 70,
+    "timbro_lastra": 0.03,
     "ritardo_ombra": 0.08,
     "_nota_lettura": "I TEMPI DI UN TESTO CHE SCORRE DA SOLO (scripts/TestoCheScorre.gd: la descrizione del negozio, il dettaglio della scheda). Sono MIEI, da provare a occhio: 'riga' e' quanto ci vuole a leggere una riga di descrizione - una decina di parole, a circa quattro al secondo - e da li' vengono la velocita' e l'attesa. 'sosta' e' quanto resta fermo in fondo prima di tornare in cima. Queste non sono durate di un gesto (quelle stanno sotto il mezzo secondo): sono il tempo di chi legge.",
     "lettura": {

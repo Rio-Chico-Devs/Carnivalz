@@ -211,6 +211,23 @@ func posto_del_nastro(misura: Vector2, tuo: bool) -> Vector2:
 		return Vector2(x + size.x - misura.x - 66.0, y)
 	return Vector2(x + 60.0, y)
 
+static func gridata(tipo: String, contenuto: String) -> bool:
+	var fine := contenuto.strip_edges()
+	return tipo == "dialogo" and (fine.ends_with("!") or fine.ends_with("!?") or fine.ends_with("?!"))
+
+func timbro() -> void:
+	# UNA BATTUTA GRIDATA SI STAMPA: la lastra si alza appena, con l'ombra che
+	# si allarga, e ricade al suo posto. Solo sulle battute di qualcuno che
+	# finiscono col punto esclamativo (gridata())
+	if lastra == null or Movimento.ridotto():
+		return
+	pivot_offset = size * 0.5
+	scale = Vector2.ONE * (1.0 + Movimento.misura("timbro_lastra"))
+	lastra.ombra = 1.6
+	var giu := create_tween().set_parallel()
+	Movimento.verso(giu, self, "scale", Vector2.ONE, "entrata", Movimento.durata("timbro_lastra"))
+	Movimento.verso(giu, lastra, "ombra", 1.0, "entrata", Movimento.durata("timbro_lastra"))
+
 func posto_al_triangolo(si: bool) -> void:
 	# IL TRIANGOLINO HA IL SUO POSTO, quando il box e' stretto: l'ultima parola
 	# della riga ci finiva sotto. Il doppione che misura le pagine si rifa': fatto
@@ -249,6 +266,8 @@ func mostra(tipo: String, contenuto: String, nome_parlante: String) -> void:
 		# qualcosa in piu': ha un suono suo, e arriva prima delle parole
 		AudioManager.interfaccia("raccolta")
 	targhetta.text = nome_parlante if tipo == "dialogo" else ""
+	if gridata(tipo, contenuto):
+		timbro()
 	battuta_intera = contenuto
 	pagine = impagina(contenuto)
 	pagina = 0
@@ -389,6 +408,7 @@ func scrivi_a_macchina() -> void:
 	indicatore.visible = false
 	if segno != null:
 		segno.visible = false
+		lastra.rombi = PackedVector2Array()
 	macchina.scrivi(testo, nome_corrente, tipo_corrente)
 
 func completa() -> void:
@@ -422,9 +442,15 @@ func metti_il_segno() -> void:
 	var da := 0.0
 	if tipo_corrente == "notifica":
 		da = (testo.size.x - largo) * 0.5   # l'avviso e' centrato
-	var x := minf(da + largo + 16.0, testo.size.x + 24.0)
 	var y := float(testo.get_line_offset(ultima)) + float(testo.get_line_height(ultima)) * 0.5
-	segno.position = testo.global_position - lastra.global_position + Vector2(x, y - segno.size.y * 0.5)
+	var origine := testo.global_position - lastra.global_position
+	var dopo := 16.0
+	if tipo_corrente == "notifica" and ultima == 0:
+		# l'avviso su una riga sola sta fra due rombi, e il segno viene dopo il secondo
+		lastra.rombi = PackedVector2Array([origine + Vector2(da - 26.0, y), origine + Vector2(da + largo + 26.0, y)])
+		dopo = 48.0
+	var x := minf(da + largo + dopo, testo.size.x + 24.0)
+	segno.position = origine + Vector2(x, y - segno.size.y * 0.5)
 
 func nascondi_indicatore() -> void:
 	# a coda finita non c'e' piu' niente da far avanzare: comandano le scelte
