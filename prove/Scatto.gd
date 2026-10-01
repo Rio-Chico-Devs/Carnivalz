@@ -878,6 +878,17 @@ func prepara(quale: String) -> void:
 			add_child(load("res://scenes/Mappa.tscn").instantiate())
 		"scelte":
 			await apri_dialogo(nodo_di_prova())
+		"lastra":
+			# LA LASTRA DEI DIALOGHI (Lastra.gd) in ogni situazione, con battute
+			# vere: "lastra parla", "lastra tu", "lastra narrazione", "lastra
+			# avviso", "lastra scelte"
+			var argomenti_l := OS.get_cmdline_user_args()
+			var come := String(argomenti_l[1]) if argomenti_l.size() > 1 else "parla"
+			await apri_dialogo(nodo_lastra(come))
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO + 20)
+			var con_lastra := get_child(0)
+			con_lastra.box.completa()
+			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 		"nastro":
 			# IL NASTRO A META' VOLO. Dura meno di mezzo secondo: a occhio nudo
 			# non si ferma, e senza fermarlo non si puo' dire se la curva e'
@@ -1632,6 +1643,25 @@ func nodo_di_prova() -> Dictionary:
 		],
 		"destra": {"id": "brawler", "espr": "decisa"},
 	}
+
+func nodo_lastra(come: String) -> Dictionary:
+	# una battuta vera per ogni situazione della lastra: Veronica e il
+	# protagonista in events_intro, la sala di proiezione in events_tutorial,
+	# la convocazione e la Dr. Reika in events_intro
+	var battute := {
+		"parla": {"tipo": "dialogo", "chi": "veronica", "testo": "Ricordo ancora la mia prima missione, evidentemente ero troppo forte, non rimase nulla di quella povera creatura..."},
+		"tu": {"tipo": "dialogo", "chi": "anonimo", "testo": "Non ci si può far niente vero? D'altronde questo è il nostro ultimo allenamento..."},
+		"narrazione": {"tipo": "narrazione", "testo": "La piattaforma della sala di proiezione, e l'odore di metallo freddo che non avevi notato all'andata."},
+		"avviso": {"tipo": "notifica", "testo": "Hai una nuova convocazione. Aprire il canale?"},
+		"scelte": {"tipo": "dialogo", "chi": "reika", "testo": "Hey ciao di nuovo, hai dimenticato qualcosa?"},
+	}
+	var scelte := {
+		"avviso": [{"testo": "Sì", "vai": "scatto_prova"}, {"testo": "No", "vai": "scatto_prova"}],
+		"scelte": [{"testo": "Volevo chiederti cosa ne pensi dell'organizzazione", "vai": "scatto_prova"},
+				{"testo": "Sei mai andata in missione?", "vai": "scatto_prova"},
+				{"testo": "Mi sono sbagliato, vado.", "vai": "scatto_prova"}],
+	}
+	return {"sequenza": [battute.get(come, battute["parla"])], "scelte": scelte.get(come, [])}
 
 func apri_dialogo(finto: Dictionary = {}) -> void:
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")

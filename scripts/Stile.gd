@@ -13,10 +13,6 @@ extends Node
 # variante di questo tema, non un tema che lo sostituisce.
 
 const PERCORSO := "res://data/stile.json"
-# Oltre queste lettere una scelta smette di stringersi sul testo e prende tutta
-# la colonna andando a capo. Trenta e' il punto in cui una scritta smette di
-# essere un'etichetta e diventa una frase.
-const LETTERE_SCELTA_CORTA := 30
 # Un sesto del corpo: e' il rapporto che i tre contorni scelti a occhio avevano
 # gia', misurato. Vedi contorno()
 const QUOTA_CONTORNO := 0.167
@@ -391,35 +387,6 @@ func stile_bottone_texture(stato: String) -> StyleBoxTexture:
 	return s
 
 # --- aiutanti per i controlli costruiti a mano ---
-
-func scelta(bottone: Button, genere := "") -> void:
-	# LE SCELTE SONO RIQUADRI NERI CHE SI STRINGONO SUL LORO TESTO, appoggiati
-	# al bordo destro sopra l'illustrazione. Nel disegno di Bru non c'e' nessuna
-	# colonna: non e' una barra laterale, sono cartelli attaccati sulla scena, e
-	# ognuno e' largo quanto le sue parole.
-	#
-	# Prima invece riempivano una colonna riservata larga sempre uguale. Serviva
-	# a non far ballare i ritratti quando le scelte comparivano - problema che
-	# qui non esiste piu', perche' le scelte stanno SOPRA la scena e non di
-	# fianco: niente che compare puo' spostare niente.
-	bottone.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	bottone.clip_text = false
-	bottone.add_theme_font_size_override("font_size", dimensione("sezione"))
-	# QUANDO SI STRINGE E QUANDO VA A CAPO. Un Control in Godot non ha una
-	# larghezza massima: o fa la misura del suo contenuto, o riempie quello che
-	# gli danno. Quindi la decisione si prende qui, sulla lunghezza del testo -
-	# le scritte corte ("Choice 1", "Hero option") si stringono come nel
-	# disegno, una frase lunga prende tutta la colonna e va a capo invece di
-	# uscire dallo schermo.
-	if bottone.text.length() > LETTERE_SCELTA_CORTA:
-		bottone.size_flags_horizontal = Control.SIZE_FILL
-		bottone.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	else:
-		bottone.size_flags_horizontal = Control.SIZE_SHRINK_END
-		bottone.autowrap_mode = TextServer.AUTOWRAP_OFF
-	var tinta := colore_scelta(genere)
-	for stato in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		bottone.add_theme_color_override(stato, tinta)
 
 func ritorno(bottone: Button) -> void:
 	# LA VIA D'USCITA, E DEV'ESSERE LA STESSA OVUNQUE (la Sede, la mappa di

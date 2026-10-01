@@ -95,6 +95,7 @@ var mostrando_scena := false  # true quando il nodo sta mostrando la sua descriz
 var azione_dopo_titolo: Callable = Callable()  # ripresa in sospeso mentre la carta del titolo e' a schermo
 var orologi_appesi := 0   # serve solo a far pendere le cipolle da due parti alterne
 var nome_sul_nastro := ""  # chi c'e' scritto adesso: il nastro rientra solo quando cambia
+var nastro_tuo := false    # il nastro e' del protagonista: chiaro, e attaccato a destra
 var tween_nastro: Tween
 var carta_nastro: NastroStrappato   # la carta strappata, dietro la scritta
 var tween_sfondo: Tween
@@ -120,6 +121,7 @@ func _ready() -> void:
 	# entrato nel nodo (IngressoNodo.vai_al_nodo) e ha stabilito che c'era
 	# qualcosa da mostrare. Questa schermata esiste solo in quel caso.
 	disegna_nodo(IngressoNodo.raccogli(GameState.nodo_corrente), [])
+	box.arriva()
 
 func applica_stile() -> void:
 	# LA CORNICE: l'arancio del manifesto e lo schermo del cabinato. Non e' un
@@ -140,6 +142,7 @@ func applica_stile() -> void:
 	# voleva dire inchiodarlo a un'altezza che un istante dopo non era piu' la
 	# sua, con una striscia di bianco in piu' in fondo allo schermo.
 	box.nome_fuori_dal_box()
+	box.a_lastra()   # la lastra nera approvata da Bru (Lastra.gd), alta come prima
 	prepara_quadro()
 	Manifesto.cabinato_intorno(quadro)   # la scena e' lo schermo di un cabinato
 	prepara_nastro()
@@ -280,6 +283,10 @@ func aggiorna_nastro(nome: String, id_chi := "") -> void:
 	# alta, come i nomi di chi parla nei testi teatrali stampati
 	nome_nastro.text = nome
 	carta_nastro.strappa(nome)
+	# IL TUO NASTRO E' CHIARO, e sta dall'altra parte: parli tu, prima di leggere
+	nastro_tuo = id_chi != "" and id_chi == GameState.id_protagonista
+	carta_nastro.colore = Stile.colore("bordo_acceso") if nastro_tuo else Stile.colore("nastro")
+	carta_nastro.queue_redraw()
 	vesti_il_nastro(id_chi)
 	await get_tree().process_frame   # la misura giusta si sa dopo che il testo c'e'
 	# SI GUARDA nome_sul_nastro E NON IL TESTO DELLA LABEL. Sembrava lo stesso
@@ -339,6 +346,8 @@ func applica_nastro(disegno: Texture2D) -> void:
 	nastro.size = nastro.custom_minimum_size
 
 func posto_del_nastro() -> Vector2:
+	if box.lastra != null:
+		return box.posto_del_nastro(nastro.size, nastro_tuo)
 	return Vector2(Stile.forma("cornice") * 1.8, box.position.y - nastro.size.y + 6)
 
 func lancia_il_nastro() -> void:
@@ -357,19 +366,22 @@ func lancia_il_nastro() -> void:
 	#   3. un rimbalzo in coda sull'angolo: la carta che si posa non si ferma
 	#      di colpo. Mezzo grado di troppo e poi indietro, e si sente.
 	var arrivo := posto_del_nastro()
-	var angolo_finale := Stile.angolo("inclinazione_nastro")
-	# fuori dal bordo sinistro e piu' in alto: e' da li' che entra nel disegno
-	var partenza := arrivo + Vector2(-nastro.size.x - 60.0, -150.0)
-	var controllo := arrivo + Vector2(nastro.size.x * 0.25, -200.0)
+	# IL TUO ARRIVA DA DESTRA, specchiato: stessa curva, stessa rotazione al contrario
+	var verso := -1.0 if nastro_tuo else 1.0
+	var angolo_finale := Stile.angolo("inclinazione_nastro") * verso
+	# fuori dal bordo (sinistro, o destro il tuo) e piu' in alto: e' da li' che entra
+	var partenza := Vector2(get_viewport_rect().size.x + 60.0 if nastro_tuo else -nastro.size.x - 60.0,
+			arrivo.y - 150.0)
+	var controllo := arrivo + Vector2(nastro.size.x * 0.25 * verso, -200.0)
 	# GIRA ATTORNO AL SUO LATO SINISTRO, non attorno allo spigolo in alto.
 	#
 	# Con il perno sull'angolo, a cinquantotto gradi il nastro schizzava su
 	# nell'angolo dello schermo: ruotando attorno a un vertice tutto il corpo
 	# gli si allontana. Perno a meta' del lato corto e il nastro pendola come
 	# un pezzo di carta tenuto per un capo - che e' quello che e'.
-	nastro.pivot_offset = Vector2(0.0, nastro.size.y * 0.5)
+	nastro.pivot_offset = Vector2(nastro.size.x if nastro_tuo else 0.0, nastro.size.y * 0.5)
 	nastro.position = partenza
-	nastro.rotation = deg_to_rad(ANGOLO_NASTRO_IN_ARRIVO)
+	nastro.rotation = deg_to_rad(ANGOLO_NASTRO_IN_ARRIVO) * verso
 	if tween_nastro != null and tween_nastro.is_valid():
 		tween_nastro.kill()
 	tween_nastro = create_tween()
@@ -759,6 +771,8 @@ func mostra_messaggio(msg: Dictionary) -> void:
 	else:
 		evidenzia_parlante("")
 	GameState.registra_storico(tipo, nome_parlante, contenuto)
+	# quando parli tu la lastra pende dall'altra parte: la conversazione va e torna
+	box.gira(tipo == "dialogo" and id_parlante == GameState.id_protagonista)
 	box.mostra(tipo, contenuto, nome_parlante)
 	aggiorna_nastro(nome_parlante, id_parlante)
 
@@ -888,7 +902,7 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 				String(scelta.get("genere", "")))
 		segna_destinazione(bottone, scelta)
 		bottone.pressed.connect(_su_scelta.bind(scelta))
-		contenitore_scelte.add_child(riga_di_scelta(bottone, scelta))
+		aggiungi_scelta(riga_di_scelta(bottone, scelta))
 		if primo == null:
 			primo = bottone
 	if nodo.has("scena"):
@@ -907,7 +921,7 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 		# "finiti i dialoghi", che e' esattamente quando deve esserci.
 		var bottone_osserva := bottone_scelta("Osserva la scena")
 		bottone_osserva.pressed.connect(_su_osserva)
-		contenitore_scelte.add_child(bottone_osserva)
+		aggiungi_scelta(bottone_osserva)
 		if primo == null:
 			primo = bottone_osserva
 	if primo != null:
@@ -918,8 +932,11 @@ func bottone_scelta(testo: String, genere := "") -> Button:
 	var bottone := Button.new()
 	# anche le risposte si accordano: «Mi sono {sbagliato|sbagliata}, vado.»
 	bottone.text = sostituisci_nome(testo)
-	Stile.scelta(bottone, genere)
+	Lastra.vesti_scelta(bottone, genere)
 	return bottone
+
+func aggiungi_scelta(nodo: Control) -> void:
+	Lastra.in_colonna(contenitore_scelte, nodo)   # a gradini, lungo la pendenza
 
 func tempo_della_scelta(scelta: Dictionary) -> float:
 	# QUANTO DURA UNA SCELTA A TEMPO.
@@ -1007,7 +1024,7 @@ func rompi_la_scelta(riga: Control, bottone: Button) -> void:
 	add_child(vetro)
 	await vetro.frantuma(riga)
 	if is_instance_valid(riga):
-		riga.queue_free()
+		Lastra.fuori_dalla_colonna(riga, contenitore_scelte)
 	if era_selezionata:
 		# il fuoco non deve restare su una cosa che non c'e' piu', o da tastiera
 		# si continua a premere invio nel vuoto
@@ -1045,6 +1062,7 @@ func segna_destinazione(bottone: Button, scelta: Dictionary) -> void:
 		return
 	Stile.segna_visita(bottone, Stile.VISITA_VISTO \
 			if destinazione in GameState.nodi_visitati else Stile.VISITA_NUOVO)
+	Lastra.ritingi_scelta(bottone)   # i colori del vetro scuro, sull'etichetta chiara
 
 func notifiche_task() -> Array[Dictionary]:
 	# un appunto nuovo non e' una riga di sistema: e' il protagonista che si
@@ -1392,7 +1410,7 @@ func _opzioni_mediazione(mediazione: Dictionary) -> void:
 			continue
 		var bottone := bottone_scelta(String(opzione.get("testo", "…")))
 		bottone.pressed.connect(_su_mediazione.bind(opzione))
-		contenitore_scelte.add_child(bottone)
+		aggiungi_scelta(bottone)
 		if primo == null:
 			primo = bottone
 	if primo != null:

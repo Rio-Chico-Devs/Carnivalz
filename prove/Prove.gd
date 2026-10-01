@@ -87,6 +87,7 @@ func _ready() -> void:
 	prova_chi_e_a_terra_non_viene_piu_colpito()
 	await prova_le_scelte_a_tempo()
 	await prova_il_nastro_col_nome()
+	await prova_la_lastra_dei_dialoghi()
 	await prova_maschile_e_femminile()
 	prova_dall_introduzione_al_combattimento()
 	prova_l_inizio_di_ogni_livello_si_racconta()
@@ -5745,6 +5746,113 @@ func prova_dall_introduzione_al_combattimento() -> void:
 				"da '%s' non si finisce a combattere con Veronica" % dove)
 		esigi(String(scontro.get("se_vinci", "")) != "" and String(scontro.get("se_perdi", "")) != "",
 				"l'allenamento con Veronica non dice dove si va vincendo o perdendo")
+
+func prova_la_lastra_dei_dialoghi() -> void:
+	# LA LASTRA (Lastra.gd), approvata da Bru il primo ottobre. Quello che si
+	# vede negli scatti; qui si misura quello che, rotto, nessuno noterebbe
+	# finche' non sta giocando: da che parte pende, di che materia e', dove
+	# sta il segno per andare avanti, se le scritte si leggono, come stanno
+	# le scelte
+	titolo("la lastra dei dialoghi: chi parla, tu, la narrazione, il segno, le scelte")
+	GameState.nuova_partita()
+	var tu := GameState.id_protagonista
+	var nodo := {
+		"sequenza": [{"tipo": "dialogo", "chi": "veronica", "testo": "Prima."}],
+		"scelte": [{"testo": "Corta", "vai": "prova_lastra"},
+				{"testo": "Da villain", "genere": "malvagio", "vai": "prova_lastra"},
+				{"testo": "Una scelta abbastanza lunga da dover andare a capo nella colonna", "vai": "prova_lastra"}],
+	}
+	GameState.eventi["prova_lastra"] = nodo
+	GameState.nodo_corrente = "prova_lastra"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	var box = schermata.box
+	esigi(box.lastra != null, "il box dei dialoghi non e' la lastra")
+	if box.lastra == null:
+		schermata.queue_free()
+		return
+	var fondo_nero := Stile.colore("bordo")
+
+	# 1. CHI PARLA DI LA', TU DI QUA. La lastra pende come le etichette quando
+	#    parla qualcuno, al contrario quando parli tu - e il tuo nastro e'
+	#    chiaro e sta dall'altra parte
+	schermata.mostra_messaggio({"tipo": "dialogo", "chi": "veronica", "testo": "Prima."})
+	await finisca_il_giro(box)
+	esigi(box.lastra.inclina > 0.0, "parla Veronica e la lastra pende dalla parte sbagliata")
+	schermata.mostra_messaggio({"tipo": "dialogo", "chi": tu, "testo": "Seconda."})
+	await finisca_il_giro(box)
+	esigi(box.lastra.inclina < 0.0, "parli tu e la lastra pende ancora dalla parte di chi parla")
+	esigi(schermata.nastro_tuo, "parli tu e il nastro non lo sa")
+	esigi(schermata.carta_nastro.colore.is_equal_approx(Stile.colore("bordo_acceso")),
+			"il tuo nastro non e' chiaro")
+	esigi(schermata.posto_del_nastro().x > box.position.x + box.size.x * 0.5,
+			"il tuo nastro si attacca a x=%.0f, dalla parte di chi parla" % schermata.posto_del_nastro().x)
+	esigi(Stile.contrasto(box.testo.get_theme_color("default_color"), fondo_nero) >= 4.5,
+			"chi parla, sulla lastra nera, non si legge")
+
+	# 2. LA NARRAZIONE E' CARTA: la voce che racconta non e' nessuno nella stanza
+	schermata.mostra_messaggio({"tipo": "narrazione", "testo": "Terza."})
+	esigi(box.lastra.di_carta, "la narrazione e' sulla lastra nera invece che sulla carta")
+	esigi(Stile.contrasto(box.testo.get_theme_color("default_color"), Stile.colore("box_fondo")) >= 4.5,
+			"la narrazione, sulla carta, non si legge")
+
+	# 3. IL SEGNO STA DOPO L'ULTIMA PAROLA, non nell'angolo: «Terza.» e' corta,
+	#    quindi il segno sta a sinistra, vicino alla parola
+	box.completa()
+	await get_tree().process_frame
+	esigi(box.segno.visible, "finita la battuta, il segno per andare avanti non c'e'")
+	esigi(box.segno.position.x < box.lastra.size.x * 0.4,
+			"il segno sta a x=%.0f: non e' dopo l'ultima parola" % box.segno.position.x)
+
+	# 4. L'AVVISO DEL GIOCO E LA VISTA LONTANA si leggono sul nero
+	for tipo: String in ["notifica", "vista"]:
+		schermata.mostra_messaggio({"tipo": tipo, "testo": "Quarta."})
+		esigi(not box.lastra.di_carta, "%s sulla carta invece che sulla lastra" % tipo)
+		esigi(Stile.contrasto(box.testo.get_theme_color("default_color"), fondo_nero) >= 4.5,
+				"%s sulla lastra nera non si legge" % tipo)
+
+	# 5. LE SCELTE: etichette oblique chiare, l'accesa arancio col triangolo,
+	#    il villain con la sua fascia rossa, la colonna che pende a gradini, e
+	#    una frase lunga che va a capo restando larga
+	schermata.ricostruisci_scelte(nodo)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var corta := cerca_bottone_con_testo(schermata.contenitore_scelte, "Corta")
+	var cattiva := cerca_bottone_con_testo(schermata.contenitore_scelte, "Da villain")
+	var lunga := cerca_bottone_con_testo(schermata.contenitore_scelte,
+			"Una scelta abbastanza lunga da dover andare a capo nella colonna")
+	esigi(corta != null and cattiva != null and lunga != null, "mancano delle scelte")
+	if corta != null and cattiva != null and lunga != null:
+		esigi(corta.has_focus() and corta.icon != null, "la prima scelta non e' accesa col triangolo")
+		var accesa := corta.get_theme_stylebox("normal") as StyleBoxFlat
+		var spenta := cattiva.get_theme_stylebox("normal") as StyleBoxFlat
+		esigi(accesa.bg_color.is_equal_approx(Stile.colore("manifesto")), "la scelta accesa non e' arancio")
+		esigi(spenta.bg_color.is_equal_approx(Stile.colore("bordo_acceso")), "la scelta spenta non e' chiara")
+		esigi(spenta.skew.x > 0.0, "le scelte non pendono come le etichette")
+		esigi(spenta.border_width_left > 0 and spenta.border_color.is_equal_approx(Stile.colore("malvagio")),
+				"la scelta da villain non ha la sua fascia rossa")
+		for fondo: Color in [accesa.bg_color, spenta.bg_color]:
+			esigi(Stile.contrasto(corta.get_theme_color("font_color"), fondo) >= 4.5,
+					"la scritta di una scelta non si legge sul suo fondo")
+		var rientri: Array[int] = []
+		for gradino in schermata.contenitore_scelte.get_children():
+			rientri.append((gradino as Control).get_theme_constant("margin_right"))
+		esigi(rientri.size() == 3 and rientri[0] < rientri[1] and rientri[1] < rientri[2],
+				"le scelte non scendono a gradini lungo la pendenza: %s" % [rientri])
+		esigi(lunga.size.y < corta.size.y * 3.0,
+				"la scelta lunga e' alta %.0f: va a capo a ogni parola" % lunga.size.y)
+	schermata.queue_free()
+
+
+func finisca_il_giro(box: Node) -> void:
+	for i in 60:
+		var giro: Tween = box.giro_lastra
+		if giro == null or not giro.is_running():
+			return
+		await get_tree().process_frame
+
 
 func prova_il_nastro_col_nome() -> void:
 	# Bru ha disegnato il nastro col nome in tre fotogrammi: fuori dal bordo

@@ -52,6 +52,29 @@ var pagine: Array[String] = []
 var pagina := 0
 var battuta_intera := ""   # la battuta com'e' arrivata, prima di dividerla in pagine
 var misuratore: RichTextLabel = null   # un doppione nascosto del testo, per misurare
+# LA LASTRA (Lastra.gd), quando chi usa il box la chiede: il fondo nero
+# obliquo approvato da Bru, e il triangolo per andare avanti subito dopo
+# l'ultima parola invece che nell'angolo
+var lastra: Lastra = null
+var segno: Control = null
+var giro_lastra: Tween
+var x_a_riposo := -1.0   # dove sta la lastra quando non scivola: il nastro si regola su questa
+
+
+class SegnoAvanti extends Control:
+	# il triangolo arancio che dice "c'e' dell'altro": sulla carta della
+	# narrazione e' nero, perche' l'arancio sulla carta non si legge
+	var tinta := Color.ORANGE:
+		set(nuova):
+			tinta = nuova
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		size = Vector2(16, 18)
+
+	func _draw() -> void:
+		Manifesto.poligono(self, PackedVector2Array([Vector2(0, 0), Vector2(15, 9), Vector2(0, 18)]), tinta)
 
 func _init() -> void:
 	# NASCE FIGLIA, non in _ready: un box creato e buttato senza entrare in scena
@@ -117,6 +140,77 @@ func nome_fuori_dal_box() -> void:
 	targhetta.custom_minimum_size = Vector2.ZERO
 	imposta_altezza(Stile.forma("altezza_box"))
 
+func a_lastra() -> void:
+	# IL BOX DIVENTA LA LASTRA. Via la pagina chiara coi fregi, dentro il
+	# parallelogramma nero; i margini fanno stare il testo dentro il nero anche
+	# dove il lato pende, e l'altezza resta quella di prima: niente si sposta
+	for figlio in get_children():
+		if figlio is Manifesto.FregioBox:
+			remove_child(figlio)
+			figlio.queue_free()
+	var margini := StyleBoxEmpty.new()
+	margini.content_margin_left = 64
+	margini.content_margin_right = 96
+	margini.content_margin_top = 26
+	margini.content_margin_bottom = 22
+	add_theme_stylebox_override("panel", margini)
+	lastra = Lastra.new()
+	add_child(lastra)
+	move_child(lastra, 0)
+	indicatore.visible = false
+	# dove il nome resta dentro (la Guida sulla mappa) si legge in arancio sul nero
+	targhetta.add_theme_color_override("font_color", Stile.colore("manifesto"))
+	segno = SegnoAvanti.new()
+	segno.visible = false
+	lastra.add_child(segno)
+	imposta_altezza(Stile.forma("altezza_box"))
+
+
+func gira(tuo: bool, subito := false) -> void:
+	# CHI RISPONDE STA DALL'ALTRA PARTE: parli tu e la lastra pende al
+	# contrario. Si gira passando per il dritto, in un quarto di secondo
+	if lastra == null:
+		return
+	var dove := -Manifesto.INCLINA if tuo else Manifesto.INCLINA
+	if giro_lastra != null and giro_lastra.is_valid():
+		giro_lastra.kill()
+	if subito or Movimento.ridotto() or is_equal_approx(lastra.inclina, dove):
+		lastra.inclina = dove
+		return
+	giro_lastra = create_tween()
+	Movimento.verso(giro_lastra, lastra, "inclina", dove, "standard", Movimento.durata("giro_lastra"))
+
+
+func arriva() -> void:
+	# LA LASTRA ARRIVA, e l'ombra si stacca un attimo dopo: in 0,18 secondi
+	# scivola da sinistra e si accende, poi l'ombra la raggiunge
+	if lastra == null:
+		return
+	var tempo := Stile.tempo("comparsa_box")
+	modulate.a = 0.0
+	lastra.ombra = 0.0
+	var arrivo := create_tween().set_parallel()
+	Movimento.verso(arrivo, self, "modulate:a", 1.0, "entrata", tempo)
+	Movimento.verso(arrivo, lastra, "ombra", 1.0, "entrata", Movimento.durata("ombra_lastra")) \
+			.set_delay(Movimento.misura("ritardo_ombra"))
+	if Movimento.ridotto():
+		return
+	var posto := position.x
+	x_a_riposo = posto
+	position.x = posto - Movimento.misura("scivolo_lastra")
+	Movimento.verso(arrivo, self, "position:x", posto, "entrata", tempo)
+
+
+func posto_del_nastro(misura: Vector2, tuo: bool) -> Vector2:
+	# IL NASTRO COL NOME SULLA LASTRA: appena dentro il lato che pende, da una
+	# parte o dall'altra. Da dove la lastra sta ferma, non da dove sta
+	# scivolando entrando: preso a meta' scivolo, il nastro atterrava di lato
+	var x := x_a_riposo if x_a_riposo >= 0.0 else position.x
+	var y := position.y - misura.y + 6.0
+	if tuo:
+		return Vector2(x + size.x - misura.x - 66.0, y)
+	return Vector2(x + 60.0, y)
+
 func posto_al_triangolo(si: bool) -> void:
 	# IL TRIANGOLINO HA IL SUO POSTO, quando il box e' stretto: l'ultima parola
 	# della riga ci finiva sotto. Il doppione che misura le pagine si rifa': fatto
@@ -142,7 +236,7 @@ func imposta_altezza(altezza_testo: int) -> void:
 	if font_nome != null and targhetta.visible:
 		altezza_nome = font_nome.get_height(Stile.dimensione("nome"))
 	testo.custom_minimum_size = Vector2(0, altezza_testo)
-	var cornice := Stile.stile_box_testo()
+	var cornice := get_theme_stylebox("panel")
 	custom_minimum_size = Vector2(0, altezza_testo + altezza_nome + 8
 			+ cornice.get_margin(SIDE_TOP) + cornice.get_margin(SIDE_BOTTOM))
 
@@ -251,6 +345,10 @@ func scrivi_pagina() -> void:
 	# colori qui sotto sono quelli che si leggono SU BIANCO - e non sono gli
 	# stessi che si leggono sul nero delle scelte: il rosso di una notifica su
 	# fondo chiaro va scurito, o vibra.
+	if lastra != null:
+		colora_sulla_lastra()
+		scrivi_a_macchina()
+		return
 	match tipo_corrente:
 		"dialogo":
 			testo.add_theme_color_override("default_color", Stile.colore("box_testo"))
@@ -270,8 +368,27 @@ func scrivi_pagina() -> void:
 			testo.add_theme_color_override("default_color", Stile.colore("narrazione"))
 	scrivi_a_macchina()
 
+func colora_sulla_lastra() -> void:
+	# SULLA LASTRA NERA si scrive chiaro: chi parla in crema, l'avviso del gioco
+	# in arancio, la vista lontana in azzurro (il blu dell'eroe sul nero non si
+	# leggerebbe). La narrazione e' carta, e li' si torna al nero
+	var di_carta := not (tipo_corrente in ["dialogo", "notifica", "vista"])
+	lastra.di_carta = di_carta
+	segno.tinta = Stile.colore("bordo") if di_carta else Stile.colore("manifesto")
+	var tinta := Stile.colore("testo")
+	match tipo_corrente:
+		"notifica":
+			tinta = Stile.colore("manifesto")
+		"vista":
+			tinta = Stile.colore("eroe_chiaro")
+	if di_carta:
+		tinta = Stile.colore("narrazione")
+	testo.add_theme_color_override("default_color", tinta)
+
 func scrivi_a_macchina() -> void:
 	indicatore.visible = false
+	if segno != null:
+		segno.visible = false
 	macchina.scrivi(testo, nome_corrente, tipo_corrente)
 
 func completa() -> void:
@@ -279,20 +396,40 @@ func completa() -> void:
 	macchina.completa()
 
 func conclusione() -> void:
-	indicatore.visible = true
+	var quale: CanvasItem = indicatore
+	if segno != null:
+		quale = segno
+		metti_il_segno()
+	quale.visible = true
 	if tween_indicatore != null and tween_indicatore.is_valid():
 		tween_indicatore.kill()
 	var battito := Stile.tempo("battito_indicatore")
 	tween_indicatore = create_tween().set_loops()
-	tween_indicatore.tween_property(indicatore, "modulate:a", 0.15, battito)
-	tween_indicatore.tween_property(indicatore, "modulate:a", 1.0, battito)
+	tween_indicatore.tween_property(quale, "modulate:a", 0.15, battito)
+	tween_indicatore.tween_property(quale, "modulate:a", 1.0, battito)
 	# "finita" vuol dire la battuta, non la pagina: chi aspetta la fine del
 	# testo (le scelte, l'andare avanti da soli) aspetta l'ultima
 	if not ha_altre_pagine():
 		scrittura_finita.emit()
 
+func metti_il_segno() -> void:
+	# SUBITO DOPO L'ULTIMA PAROLA, alla sua altezza: e' li' che l'occhio
+	# arriva finendo di leggere. Se la riga arriva in fondo, sta in fondo
+	var ultima := testo.get_line_count() - 1
+	if ultima < 0:
+		return
+	var largo := float(testo.get_line_width(ultima))
+	var da := 0.0
+	if tipo_corrente == "notifica":
+		da = (testo.size.x - largo) * 0.5   # l'avviso e' centrato
+	var x := minf(da + largo + 16.0, testo.size.x + 24.0)
+	var y := float(testo.get_line_offset(ultima)) + float(testo.get_line_height(ultima)) * 0.5
+	segno.position = testo.global_position - lastra.global_position + Vector2(x, y - segno.size.y * 0.5)
+
 func nascondi_indicatore() -> void:
 	# a coda finita non c'e' piu' niente da far avanzare: comandano le scelte
 	indicatore.visible = false
+	if segno != null:
+		segno.visible = false
 	if tween_indicatore != null and tween_indicatore.is_valid():
 		tween_indicatore.kill()

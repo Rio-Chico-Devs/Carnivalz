@@ -87,6 +87,7 @@ func _ready() -> void:
 	(box as Control).offset_bottom = -MARGINE
 	(box as Control).grow_vertical = Control.GROW_DIRECTION_BEGIN
 	(box as Control).gui_input.connect(_su_input_box)
+	box.a_lastra()   # la lastra nera dei dialoghi, col nome dentro in arancio
 	fai_posto()
 	avanti()
 
@@ -132,6 +133,7 @@ func avanti() -> void:
 	var nome := String(GameState.personaggi.get(chi, {}).get("nome", chi))
 	var testo := Testi.accorda(String(riga.get("testo", "")), GameState.sesso_protagonista)
 	GameState.registra_storico("dialogo", nome, testo)
+	box.gira(chi == GameState.id_protagonista)
 	box.mostra("dialogo", testo, nome)
 	# «vedi?»: l'anello si accende sul posto in cui sei, e si spegne alla dopo
 	if String(riga.get("indica", "")) == "qui":

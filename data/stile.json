@@ -139,6 +139,8 @@
     "box_testo": "#0b0908",
     "malvagio": "#ed1c24",
     "eroe": "#1f3dc4",
+    "_nota_eroe_chiaro": "IL BLU DELL'EROE SULLA LASTRA NERA dei dialoghi: #1f3dc4 sul nero fa 2,4:1 e non si legge, questo fa 8,6:1. Serve alle righe di 'vista' (BoxTesto), che sulla pagina chiara usavano il blu pieno. Colore mio, da provare.",
+    "eroe_chiaro": "#8fa6ff",
     "nastro": "#f4931b",
     "nastro_testo": "#0b0908",
     "quadro_vuoto": "#141110",
@@ -255,6 +257,8 @@
   "_nota_movimento": "IL VOCABOLARIO DEL MOVIMENTO (docs/animazione.md, scripts/Movimento.gd). Pochi gesti con un nome, e i loro tempi stanno qui: chi anima qualcosa chiede Movimento.durata(\"entrata\"), non scrive 0.24 a mano. Le durate sono i gradini di IBM Carbon (70, 110, 150, 240, 400 ms). Le curve sono quelle di Material 3: 'entrata' e' emphasized decelerate (arriva in fretta e si posa), 'uscita' e' emphasized accelerate (parte piano e se ne va), 'standard' per le cose che cambiano senza entrare ne' uscire. Le molle sono le SpringForce di Material (smorzamento, rigidita'): 'forma' e' FastSpatial, 'colore' e' FastEffects, 'quinte' e' SlowSpatial - la forma e il colore su due molle diverse, come chiede Material. Nessuna durata passa i 500 ms, e la cascata intera nemmeno: sopra, un menu non e' piu' vivo, e' lento. L'uscita e' sempre piu' breve dell'entrata.",
   "movimento": {
     "durate": {
+      "giro_lastra": 0.24,
+      "ombra_lastra": 0.2,
       "colore": 0.07,
       "sfioro": 0.11,
       "uscita": 0.15,
@@ -316,6 +320,9 @@
     },
     "scivolo": 16,
     "parallasse": 16,
+    "_nota_lastra": "LA LASTRA DEI DIALOGHI (scripts/Lastra.gd, BoxTesto.gd), approvata da Bru il primo ottobre. Entrando scivola da sinistra di 'scivolo_lastra' pixel nel tempo di comparsa_box (0,18 s), e l'ombra la raggiunge 'ritardo_ombra' secondi dopo, in durate.ombra_lastra. Quando cambia chi parla fra te e gli altri si gira passando per il dritto in durate.giro_lastra. Numeri miei, da provare.",
+    "scivolo_lastra": 70,
+    "ritardo_ombra": 0.08,
     "_nota_lettura": "I TEMPI DI UN TESTO CHE SCORRE DA SOLO (scripts/TestoCheScorre.gd: la descrizione del negozio, il dettaglio della scheda). Sono MIEI, da provare a occhio: 'riga' e' quanto ci vuole a leggere una riga di descrizione - una decina di parole, a circa quattro al secondo - e da li' vengono la velocita' e l'attesa. 'sosta' e' quanto resta fermo in fondo prima di tornare in cima. Queste non sono durate di un gesto (quelle stanno sotto il mezzo secondo): sono il tempo di chi legge.",
     "lettura": {
       "riga": 2.5,
