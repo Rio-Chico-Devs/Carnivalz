@@ -192,9 +192,9 @@ func costruisci_pannello(riga: HBoxContainer) -> void:
 	# restavano cinquecento pixel di nero: non si sapeva nemmeno di cosa si
 	# stesse leggendo. Adesso ha un titolo - il nome della stanza che stai
 	# guardando - e un bordo che dice dove comincia e dove finisce.
-	# E' un foglio del manifesto (Manifesto.Foglio): la carta chiara col
+	# E' un foglio del manifesto (Foglio.gd): la carta chiara col
 	# contorno nero e l'ombra piena, scritta in nero.
-	var scheda := Manifesto.Foglio.new()
+	var scheda := Foglio.new()
 	# SI STRINGE SUL TESTO, non riempie mezzo schermo. Espandendola, quattro
 	# righe di descrizione si portavano dietro cinquecento pixel di riquadro
 	# vuoto: non e' una scheda, e' una parete con una frase sopra.

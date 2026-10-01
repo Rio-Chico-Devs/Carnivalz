@@ -543,7 +543,7 @@ func pagina_che_scorre(separazione: int) -> VBoxContainer:
 	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scorrevole.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	colonna.add_child(scorrevole)
-	Manifesto.in_foglio(scorrevole)   # quello che si legge sta su un foglio, come nel bozzetto
+	Foglio.in_foglio(scorrevole)   # quello che si legge sta su un foglio, come nel bozzetto
 	var dentro := VBoxContainer.new()
 	dentro.add_theme_constant_override("separation", separazione)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -645,7 +645,7 @@ func pannello_con_indice(nome: String, titolo: String, pagine: Array, attuale: S
 	scorrevole.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scorrevole.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	corpo.add_child(scorrevole)
-	Manifesto.in_foglio(scorrevole, String(pagine[qui][1]).to_upper())
+	Foglio.in_foglio(scorrevole, String(pagine[qui][1]).to_upper())
 	var dentro := VBoxContainer.new()
 	dentro.add_theme_constant_override("separation", 12)
 	dentro.size_flags_horizontal = Control.SIZE_EXPAND_FILL

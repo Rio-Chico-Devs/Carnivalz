@@ -644,7 +644,7 @@ func pagina_opzioni_di(quale: String) -> void:
 	dentro.add_theme_constant_override("separation", 10)
 	margine.add_child(dentro)
 	PannelloOpzioni.costruisci_sezione(dentro, quale, 220, Stile.colore("accento_su_carta"), false)
-	var foglio := Manifesto.Foglio.new()   # le righe su un foglio, come nella pausa
+	var foglio := Foglio.new()   # le righe su un foglio, come nella pausa
 	foglio.add_child(margine)
 	var nessuna: Array[Dictionary] = []
 	mostra_pagina("opzioni " + quale, quale.to_upper(), nessuna, 0, pagina_opzioni.bind(quale.to_upper()), foglio)

@@ -37,7 +37,7 @@ static var caselle: Dictionary = {}   # le icone delle caselle, fatte una volta 
 static func costruisci(colonna: VBoxContainer, larghezza_etichetta := 150,
 		tinta := Color.WHITE) -> void:
 	# "tinta" e' il colore delle intestazioni e delle caselle: l'arancio
-	# bruciato, perche' le righe stanno su un foglio chiaro (Manifesto.Foglio)
+	# bruciato, perche' le righe stanno su un foglio chiaro (Foglio.gd)
 	for quale: String in SEZIONI:
 		costruisci_sezione(colonna, quale, larghezza_etichetta, tinta)
 

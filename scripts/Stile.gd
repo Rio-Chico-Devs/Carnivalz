@@ -530,7 +530,7 @@ const VISITA_CHIUSO := "chiuso"
 
 func colore_visita(stato: String) -> Color:
 	# per le mappe, che stanno sul vetro scuro; sulla carta li ritinge il
-	# foglio (Manifesto.ritingi)
+	# foglio (Foglio.ritingi)
 	match stato:
 		VISITA_NUOVO: return colore("accento")
 		VISITA_CHIUSO: return colore("positivo")

@@ -18,7 +18,7 @@ extends Control
 #   - le frecce e pagina su/giu' scorrono l'elenco: si naviga anche senza mouse;
 #   - la barra che scorre e' del menu (sottile) e l'elenco le lascia
 #     spazio: prima «mai trovato» ci finiva attaccato;
-#   - l'elenco sta su un foglio del manifesto (Manifesto.Foglio), come le
+#   - l'elenco sta su un foglio del manifesto (Foglio.gd), come le
 #     pagine del Data pad: la carta chiara scritta in nero, sopra il luna park.
 
 const SCENA_MENU := "res://scenes/Menu.tscn"
@@ -46,7 +46,7 @@ func _ready() -> void:
 	scorri.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scorri.follow_focus = true
 	# qui si leggono schede fitte, non cinque voci: su un foglio
-	var foglio := Manifesto.Foglio.new()
+	var foglio := Foglio.new()
 	foglio.anchor_left = MenuPrincipale.X_TESTO
 	foglio.anchor_right = 1.0 - MenuPrincipale.X_TESTO
 	foglio.anchor_top = MenuPrincipale.Y_VOCI

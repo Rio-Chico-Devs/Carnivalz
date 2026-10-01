@@ -7961,7 +7961,7 @@ func fondo_di(etichetta: Label) -> Color:
 	while su != null:
 		if su is Button and bool(su.get_meta("voce_accesa", false)):
 			return Stile.colore("bordo")
-		if su is Manifesto.Foglio:
+		if su is Foglio:
 			return Stile.colore("box_fondo")
 		su = su.get_parent()
 	return Stile.colore("manifesto")
