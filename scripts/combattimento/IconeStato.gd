@@ -78,7 +78,7 @@ static func fiamma(dove: CanvasItem, centro: Vector2, raggio: float, tinta: Colo
 		centro + Vector2(-raggio * 0.55, -raggio * 0.25),
 		centro + Vector2(-raggio * 0.12, -raggio * 0.62),
 	])
-	dove.draw_colored_polygon(punti, tinta)
+	Manifesto.poligono(dove, punti, tinta)
 
 static func fantasma(dove: CanvasItem, centro: Vector2, raggio: float, tinta: Color) -> void:
 	var punti := PackedVector2Array()
@@ -93,7 +93,7 @@ static func fantasma(dove: CanvasItem, centro: Vector2, raggio: float, tinta: Co
 	punti.append(centro + Vector2(-raggio * 0.4, raggio * 0.35))
 	punti.append(centro + Vector2(-raggio * 0.8, raggio * 0.8))
 	punti.append(centro + Vector2(-raggio, raggio * 0.35))
-	dove.draw_colored_polygon(punti, tinta)
+	Manifesto.poligono(dove, punti, tinta)
 	for lato in [-1.0, 1.0]:
 		dove.draw_circle(centro + Vector2(raggio * 0.38 * lato, -raggio * 0.22),
 				raggio * 0.17, Stile.colore("bordo"))
@@ -107,7 +107,7 @@ static func saetta(dove: CanvasItem, centro: Vector2, raggio: float, tinta: Colo
 		centro + Vector2(raggio * 0.78, -raggio * 0.22),
 		centro + Vector2(raggio * 0.05, -raggio * 0.22),
 	])
-	dove.draw_colored_polygon(punti, tinta)
+	Manifesto.poligono(dove, punti, tinta)
 
 static func ricciolo(dove: CanvasItem, riquadro: Rect2, tinta: Color) -> void:
 	# IL SEGNO DELLA BARRA DI DOMINIO. Nel disegno di Bru quella riga non porta

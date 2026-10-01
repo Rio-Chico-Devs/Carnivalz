@@ -175,15 +175,25 @@ static func freccia() -> ImageTexture:
 	# il triangolo delle voci accese, disegnato una volta: bianco, lo tinge il tema
 	if la_freccia != null:
 		return la_freccia
+	# ogni pixel vale quanta parte ne copre il triangolo (sedici campioni): il
+	# bordo obliquo e' sfumato, non a scalini
 	var lato := 32
 	var immagine := Image.create(lato, lato, false, Image.FORMAT_RGBA8)
 	for y in lato:
-		var mezza := absf(float(y) + 0.5 - lato * 0.5)
 		for x in lato:
-			if float(x) < (lato * 0.5 - mezza) * 1.6:
-				immagine.set_pixel(x, y, Color.WHITE)
+			immagine.set_pixel(x, y, Color(1, 1, 1, copertura_freccia(x, y, lato)))
 	la_freccia = ImageTexture.create_from_image(immagine)
 	return la_freccia
+
+
+static func copertura_freccia(x: int, y: int, lato: int) -> float:
+	var dentro := 0
+	for k in 16:
+		var cx := float(x) + (float(k % 4) + 0.5) / 4.0
+		var cy := float(y) + (floorf(k / 4.0) + 0.5) / 4.0
+		if cx < (lato * 0.5 - absf(cy - lato * 0.5)) * 1.6:
+			dentro += 1
+	return dentro / 16.0
 
 
 static func spento_come(acceso: StyleBox) -> StyleBoxEmpty:
@@ -216,6 +226,22 @@ static func riga_di_retino(dove: Rect2, y: float, sfalsata: bool, da: Vector2,
 			centri.append(dove.position + Vector2(x, y))
 			raggi.append(PASSO_RETINO * 0.42 * quanto)
 		x += PASSO_RETINO
+
+
+static func poligono(tela: CanvasItem, punti: PackedVector2Array, tinta: Color) -> void:
+	# UN POLIGONO PIENO COL BORDO LISCIO. draw_colored_polygon non ha
+	# l'antialiasing, e le forme oblique del manifesto (etichette, fasce, lastre)
+	# avevano il bordo a scalini - Bru: «inclinando sulle linee diagonali c'e' un
+	# terribile effetto pixellato». Sopra il bordo passa un filo di un pixel
+	# sfumato dello stesso colore. La sfumatura e' geometria, non un'impostazione
+	# della scheda video: vale con qualunque renderer (l'MSAA 2D qui non cambiava
+	# niente). Sulle forme trasparenti il filo farebbe un orlo piu' scuro: li' no
+	tela.draw_colored_polygon(punti, tinta)
+	if punti.size() < 3 or tinta.a < 0.99:
+		return
+	var giro := punti.duplicate()
+	giro.append(punti[0])
+	tela.draw_polyline(giro, tinta, 1.0, true)
 
 
 static func puntini(tela: CanvasItem, centri: Array[Vector2], raggi: Array[float], tinta: Color) -> void:
@@ -485,11 +511,11 @@ class FregioBox extends Control:
 	func rombo(centro: Vector2, r: float) -> void:
 		var punte := PackedVector2Array([centro + Vector2(0, -r), centro + Vector2(r, 0),
 				centro + Vector2(0, r), centro + Vector2(-r, 0)])
-		draw_colored_polygon(punte, Stile.colore("bordo"))
+		Manifesto.poligono(self, punte, Stile.colore("bordo"))
 		var dentro := PackedVector2Array()
 		for punta in punte:
 			dentro.append(centro + (punta - centro) * 0.5)
-		draw_colored_polygon(dentro, Stile.colore("manifesto"))
+		Manifesto.poligono(self, dentro, Stile.colore("manifesto"))
 
 
 class Foglio extends PanelContainer:
@@ -664,7 +690,7 @@ static func etichetta(tela: CanvasItem, dove: Vector2, testo: String, corpo: int
 	var obliquo := INCLINA * alto
 	var fascia := PackedVector2Array([dove + Vector2(obliquo, 0), dove + Vector2(largo + obliquo, 0),
 			dove + Vector2(largo, alto), dove + Vector2(0, alto)])
-	tela.draw_colored_polygon(fascia, Stile.colore("bordo"))
+	Manifesto.poligono(tela, fascia, Stile.colore("bordo"))
 	var riga := dove + Vector2(corpo * 0.5 + obliquo * 0.5, alto * 0.5 + f.get_ascent(corpo) * 0.5 - f.get_descent(corpo) * 0.35)
 	tela.draw_string(f, riga, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Stile.colore("testo"))
 

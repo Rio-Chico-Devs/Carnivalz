@@ -192,8 +192,8 @@ func _draw() -> void:
 		striscia.append(p - Vector2(STACCO_STRISCIA + LARGO_STRISCIA, 0))
 	striscia.append(BANDA[3] - Vector2(STACCO_STRISCIA, 0))
 	striscia.append(BANDA[0] - Vector2(STACCO_STRISCIA, 0))
-	draw_colored_polygon(striscia, Stile.colore("bordo_acceso"))
-	draw_colored_polygon(banda, Stile.colore("bordo"))
+	Manifesto.poligono(self, striscia, Stile.colore("bordo_acceso"))
+	Manifesto.poligono(self, banda, Stile.colore("bordo"))
 	disegna_riquadri()
 	if voce.is_empty():
 		return

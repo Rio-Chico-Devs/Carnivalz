@@ -203,10 +203,10 @@ func _draw() -> void:
 	var largo := size.x - SFOGLIA.x
 	var scossa := Vector2(Movimento.scossa(rifiutata) if rifiutata >= 0.0 else 0.0, 0.0)
 	if c[2].a > 0.0:
-		draw_colored_polygon(Cartiglio.fascia(SFOGLIA + scossa, largo, h), c[2])
+		Manifesto.poligono(self, Cartiglio.fascia(SFOGLIA + scossa, largo, h), c[2])
 	var fondo := c[0].lerp(Stile.colore("bordo_acceso"), 1.0 if lampo > 0.0 else 0.0)
 	if fondo.a > 0.0:
-		draw_colored_polygon(Cartiglio.fascia(scossa, largo, h), fondo)
+		Manifesto.poligono(self, Cartiglio.fascia(scossa, largo, h), fondo)
 	var scritta := c[1] if lampo <= 0.0 else Stile.colore("accento")
 	if freccia != Vector2.ZERO:
 		Sagome.freccia(self, Vector2(largo * 0.5, h * 0.5) + scossa, h * 0.6, freccia, scritta)

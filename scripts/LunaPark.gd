@@ -154,10 +154,10 @@ func colline() -> void:
 		x += 40.0
 	punti.append(Vector2(1360, 780))
 	punti.append(Vector2(-80, 780))
-	draw_colored_polygon(punti, Stile.colore("menu_lontano"))
+	Manifesto.poligono(self, punti, Stile.colore("menu_lontano"))
 	# le tende lontane sulla cresta, piccole e chiare: la distanza si vede cosi'
 	for cima: Vector2 in [Vector2(170, 490), Vector2(250, 500), Vector2(330, 486), Vector2(430, 498)]:
-		draw_colored_polygon(PackedVector2Array([cima, cima + Vector2(22, 26), cima + Vector2(-22, 26)]),
+		Manifesto.poligono(self, PackedVector2Array([cima, cima + Vector2(22, 26), cima + Vector2(-22, 26)]),
 				Stile.colore("menu_lontano").lightened(0.06))
 
 
@@ -211,7 +211,7 @@ func tendone() -> void:
 	for i in spicchi:
 		var da := lerpf(505.0, 875.0, float(i) / float(spicchi))
 		var a := lerpf(505.0, 875.0, float(i + 1) / float(spicchi))
-		draw_colored_polygon(PackedVector2Array([cima, Vector2(a, gronda), Vector2(da, gronda)]),
+		Manifesto.poligono(self, PackedVector2Array([cima, Vector2(a, gronda), Vector2(da, gronda)]),
 				chiara if i % 2 == 0 else nera)
 	# il festone sotto la gronda
 	var x := 515.0
@@ -221,10 +221,10 @@ func tendone() -> void:
 	draw_rect(Rect2(525, gronda, 330, 118), nera)
 	for k in 6:
 		draw_rect(Rect2(540 + k * 52, gronda + 14, 22, 104), chiara)
-	draw_colored_polygon(PackedVector2Array([Vector2(690, 560), Vector2(726, 645), Vector2(654, 645)]),
+	Manifesto.poligono(self, PackedVector2Array([Vector2(690, 560), Vector2(726, 645), Vector2(654, 645)]),
 			Stile.colore("menu_primo_piano"))
 	draw_line(cima, cima + Vector2(0, -44), nera, 3.0)
-	draw_colored_polygon(PackedVector2Array([cima + Vector2(0, -44), cima + Vector2(30, -36),
+	Manifesto.poligono(self, PackedVector2Array([cima + Vector2(0, -44), cima + Vector2(30, -36),
 			cima + Vector2(0, -28)]), Stile.colore("menu_luna").darkened(0.35))
 	for passo in 9:
 		var t := float(passo + 1) / 10.0
@@ -255,7 +255,7 @@ func terra() -> void:
 		x += 60.0
 	punti.append(Vector2(1360, 780))
 	punti.append(Vector2(-80, 780))
-	draw_colored_polygon(punti, nera)
+	Manifesto.poligono(self, punti, nera)
 	# lo steccato: paletti e corda, il piano piu' vicino e piu' scuro
 	var palo := 560.0
 	while palo <= 1330.0:

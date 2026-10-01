@@ -254,7 +254,7 @@ func disegna_macchia() -> void:
 	var pieno := clampf(quanto, 0.0, 1.2)
 	if pieno <= 0.01:
 		return
-	draw_colored_polygon(poligono(pieno), Color(tinta(), OPACITA))
+	Manifesto.poligono(self, poligono(pieno), Color(tinta(), OPACITA))
 	# gli schizzi arrivano per ultimi, quando la macchia e' quasi tutta fuori
 	var schizzo := clampf((quanto - 0.6) / 0.4, 0.0, 1.0)
 	if schizzo <= 0.0:
@@ -309,7 +309,7 @@ func disegna_segno() -> void:
 	var triangolo := PackedVector2Array([punta,
 			punta + Vector2(dietro * LATO_SEGNO, -mezzo),
 			punta + Vector2(dietro * LATO_SEGNO, mezzo)])
-	draw_colored_polygon(triangolo, Color(Stile.colore("accento"), clampf(quanto, 0.0, 1.0)))
+	Manifesto.poligono(self, triangolo, Color(Stile.colore("accento"), clampf(quanto, 0.0, 1.0)))
 
 
 func disegna_sfoglia() -> void:
@@ -325,8 +325,8 @@ func disegna_sfoglia() -> void:
 	var carta := lastra.duplicate()
 	for i in carta.size():
 		carta[i] += SCARTO_SFOGLIA * q
-	draw_colored_polygon(carta, Color(Stile.colore("box_testo"), q))
-	draw_colored_polygon(lastra, Color(Stile.colore("accento"), q))
+	Manifesto.poligono(self, carta, Color(Stile.colore("box_testo"), q))
+	Manifesto.poligono(self, lastra, Color(Stile.colore("accento"), q))
 
 
 func disegna_mirino() -> void:

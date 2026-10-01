@@ -51,7 +51,7 @@ func _draw() -> void:
 	var largo := carattere.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x + 28.0
 	var alto := float(corpo) * 1.35
 	var sopra := (size.y - alto) * 0.5
-	draw_colored_polygon(VoceMenu.lastra(-14.0, -14.0 + largo * quanto, sopra, alto), Stile.colore("bordo"))
+	Manifesto.poligono(self, VoceMenu.lastra(-14.0, -14.0 + largo * quanto, sopra, alto), Stile.colore("bordo"))
 	var base := Vector2(0.0, sopra + (alto + carattere.get_ascent(corpo) - carattere.get_descent(corpo)) * 0.5)
 	draw_string(carattere, base, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo,
 			Color(Stile.colore("manifesto"), clampf(quanto * 2.0 - 0.6, 0.0, 1.0)))

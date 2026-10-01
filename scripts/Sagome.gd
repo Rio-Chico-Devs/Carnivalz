@@ -105,7 +105,7 @@ static func icona_oggetto(ci: CanvasItem, centro: Vector2, lato: float, tipo: St
 		"stigma": occhio(ci, centro, lato, chiaro, scuro)
 		"accessorio": anello(ci, centro, lato, chiaro, scuro)
 		"materiale": scheggia(ci, centro, lato, chiaro, scuro)
-		_: ci.draw_colored_polygon(stella(centro, lato * 0.45, lato * 0.12), chiaro)
+		_: Manifesto.poligono(ci, stella(centro, lato * 0.45, lato * 0.12), chiaro)
 
 
 static func fiala(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Color) -> void:
@@ -126,7 +126,7 @@ static func lama(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Col
 	var p := Vector2(1, 1).normalized()
 	var base := c - d * l * 0.08
 	var punta := c + d * l * 0.46
-	ci.draw_colored_polygon(PackedVector2Array([base + p * l * 0.09, punta, base - p * l * 0.09]), chiaro)
+	Manifesto.poligono(ci, PackedVector2Array([base + p * l * 0.09, punta, base - p * l * 0.09]), chiaro)
 	ci.draw_line(base, punta - d * l * 0.06, scuro, maxf(l * 0.02, 1.0))
 	ci.draw_line(base + p * l * 0.2, base - p * l * 0.2, chiaro, l * 0.07)
 	ci.draw_line(base, base - d * l * 0.28, scuro, l * 0.09)
@@ -135,7 +135,7 @@ static func lama(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Col
 
 
 static func occhio(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Color) -> void:
-	ci.draw_colored_polygon(rombo(c, l * 0.46), chiaro)
+	Manifesto.poligono(ci, rombo(c, l * 0.46), chiaro)
 	var mandorla := PackedVector2Array()
 	for i in 17:
 		var t := -1.0 + 2.0 * float(i) / 16.0
@@ -143,7 +143,7 @@ static func occhio(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: C
 	for i in range(15, 0, -1):
 		var t := -1.0 + 2.0 * float(i) / 16.0
 		mandorla.append(c + Vector2(t * l * 0.3, l * 0.15 * (1.0 - t * t)))
-	ci.draw_colored_polygon(mandorla, scuro)
+	Manifesto.poligono(ci, mandorla, scuro)
 	ci.draw_circle(c, l * 0.07, chiaro)
 
 
@@ -151,15 +151,15 @@ static func anello(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: C
 	var centro := c + Vector2(0, l * 0.08)
 	ci.draw_arc(centro, l * 0.27, 0.0, TAU, 40, chiaro, l * 0.1, true)
 	var gemma := c + Vector2(0, -l * 0.24)
-	ci.draw_colored_polygon(rombo(gemma, l * 0.16), chiaro)
-	ci.draw_colored_polygon(rombo(gemma, l * 0.08), scuro)
+	Manifesto.poligono(ci, rombo(gemma, l * 0.16), chiaro)
+	Manifesto.poligono(ci, rombo(gemma, l * 0.08), scuro)
 
 
 static func scheggia(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Color) -> void:
 	var p := PackedVector2Array([c + Vector2(-l * 0.05, -l * 0.44), c + Vector2(l * 0.26, -l * 0.1),
 			c + Vector2(l * 0.14, l * 0.42), c + Vector2(-l * 0.22, l * 0.3),
 			c + Vector2(-l * 0.28, -l * 0.08)])
-	ci.draw_colored_polygon(p, chiaro)
+	Manifesto.poligono(ci, p, chiaro)
 	ci.draw_line(c + Vector2(-l * 0.05, -l * 0.44), c + Vector2(l * 0.02, l * 0.36), scuro, maxf(l * 0.03, 1.0))
 
 
@@ -169,12 +169,12 @@ static func emblema(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, accento
 	# l'emblema di una classe: un rombo grande col cuore acceso, due piccoli
 	# sopra e sotto, e due fantasmi ai lati. Finche' Bru non disegna quello vero
 	var fantasma := Color(chiaro, chiaro.a * 0.18)
-	ci.draw_colored_polygon(rombo(c + Vector2(-l * 0.3, l * 0.04), l * 0.24), fantasma)
-	ci.draw_colored_polygon(rombo(c + Vector2(l * 0.3, l * 0.04), l * 0.24), fantasma)
-	ci.draw_colored_polygon(rombo(c, l * 0.32), chiaro)
-	ci.draw_colored_polygon(rombo(c, l * 0.13), accento)
-	ci.draw_colored_polygon(rombo(c + Vector2(0, -l * 0.43), l * 0.08), chiaro)
-	ci.draw_colored_polygon(rombo(c + Vector2(0, l * 0.43), l * 0.08), chiaro)
+	Manifesto.poligono(ci, rombo(c + Vector2(-l * 0.3, l * 0.04), l * 0.24), fantasma)
+	Manifesto.poligono(ci, rombo(c + Vector2(l * 0.3, l * 0.04), l * 0.24), fantasma)
+	Manifesto.poligono(ci, rombo(c, l * 0.32), chiaro)
+	Manifesto.poligono(ci, rombo(c, l * 0.13), accento)
+	Manifesto.poligono(ci, rombo(c + Vector2(0, -l * 0.43), l * 0.08), chiaro)
+	Manifesto.poligono(ci, rombo(c + Vector2(0, l * 0.43), l * 0.08), chiaro)
 
 
 static func icona_statistica(ci: CanvasItem, r: Rect2, chiave: String, colore: Color) -> void:
@@ -183,15 +183,15 @@ static func icona_statistica(ci: CanvasItem, r: Rect2, chiave: String, colore: C
 	match chiave:
 		"hp": cuore(ci, c, l, colore)
 		"attacco": lama(ci, c, l, colore, Color(0, 0, 0, 0))
-		"difesa": ci.draw_colored_polygon(scudo(c, l), colore)
-		"velocita": ci.draw_colored_polygon(fulmine(c, l), colore)
-		_: ci.draw_colored_polygon(stella(c, l * 0.42, l * 0.14), colore)
+		"difesa": Manifesto.poligono(ci, scudo(c, l), colore)
+		"velocita": Manifesto.poligono(ci, fulmine(c, l), colore)
+		_: Manifesto.poligono(ci, stella(c, l * 0.42, l * 0.14), colore)
 
 
 static func cuore(ci: CanvasItem, c: Vector2, l: float, colore: Color) -> void:
 	ci.draw_circle(c + Vector2(-l * 0.14, -l * 0.08), l * 0.17, colore)
 	ci.draw_circle(c + Vector2(l * 0.14, -l * 0.08), l * 0.17, colore)
-	ci.draw_colored_polygon(PackedVector2Array([c + Vector2(-l * 0.3, -l * 0.02),
+	Manifesto.poligono(ci, PackedVector2Array([c + Vector2(-l * 0.3, -l * 0.02),
 			c + Vector2(l * 0.3, -l * 0.02), c + Vector2(0, l * 0.34)]), colore)
 
 

@@ -158,10 +158,10 @@ func _draw() -> void:
 		var sfoglia := forma.duplicate()
 		for i in sfoglia.size():
 			sfoglia[i] += SFOGLIA
-		draw_colored_polygon(sfoglia, Stile.colore("bordo"))
+		Manifesto.poligono(self, sfoglia, Stile.colore("bordo"))
 	# la carta scelta e' un foglio chiaro, scritto in nero: sull'arancio della
 	# pagina una carta arancio sparirebbe
-	draw_colored_polygon(forma, Stile.colore("bordo_acceso") if scelta else Stile.colore("pannello_chiaro"))
+	Manifesto.poligono(self, forma, Stile.colore("bordo_acceso") if scelta else Stile.colore("pannello_chiaro"))
 	var bordo := Stile.colore("spento").lerp(Stile.colore("bordo_acceso"), clampf(accesa.valore, 0.0, 1.0))
 	draw_polyline(Sagome.chiudi(forma), bordo, 2.0, true)
 	var velo := 1.0 if Merce.perche_no(voce) == "" else SPENTA

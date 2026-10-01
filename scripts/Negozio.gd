@@ -365,4 +365,4 @@ class Fondo extends Control:
 		while riga < 700.0:
 			draw_rect(Rect2(riga, 600, 3, 2), Stile.colore("bordo"))
 			riga += 7.0
-		draw_colored_polygon(Sagome.rombo(Vector2(126, 248), 10.0), Stile.colore("bordo"))
+		Manifesto.poligono(self, Sagome.rombo(Vector2(126, 248), 10.0), Stile.colore("bordo"))

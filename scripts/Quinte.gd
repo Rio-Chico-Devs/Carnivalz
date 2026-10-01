@@ -199,7 +199,7 @@ func _draw() -> void:
 		var fuori := -(size.x * quota.valore + OLTRE * 4.0) * (1.0 - quanto)
 		var dove := spostamento(float(foglio[3])) + Vector2(fuori, 0.0)
 		var tinta := String(FOGLI_SU_CARTA[i] if su_carta else foglio[0])
-		draw_colored_polygon(foglio_nero(float(foglio[1]), dove), Stile.colore(tinta))
+		Manifesto.poligono(self, foglio_nero(float(foglio[1]), dove), Stile.colore(tinta))
 		if su_carta and i == FOGLI.size() - 1:
 			disegna_retino(dove)
 

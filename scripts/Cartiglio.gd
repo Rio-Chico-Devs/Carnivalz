@@ -109,10 +109,10 @@ func _draw() -> void:
 	var quanto_fascia := 1.0 if ridotto else svolta
 	var alfa := svolta if ridotto else 1.0
 	if quanto_sfoglia > 0.0:
-		draw_colored_polygon(fascia(origine + SFOGLIA, largo * quanto_sfoglia, h),
+		Manifesto.poligono(self, fascia(origine + SFOGLIA, largo * quanto_sfoglia, h),
 				Color(carta, carta.a * alfa))
 	if quanto_fascia > 0.0:
-		draw_colored_polygon(fascia(origine, largo * quanto_fascia, h), Color(fondo, fondo.a * alfa))
+		Manifesto.poligono(self, fascia(origine, largo * quanto_fascia, h), Color(fondo, fondo.a * alfa))
 	# la scritta compare mentre la fascia le passa sotto: prima di meta' strada
 	# sarebbe inchiostro sul vuoto
 	var scritta := clampf((svolta - 0.35) / 0.5, 0.0, 1.0)

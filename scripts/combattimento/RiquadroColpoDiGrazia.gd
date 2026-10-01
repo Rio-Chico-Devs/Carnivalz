@@ -272,7 +272,7 @@ func disegna_lancetta(barra: Rect2) -> void:
 	var sotto := maxf(r.end.y, barra.end.y) + 6.0
 	var tinta := Stile.colore("ecg_giallo")
 	draw_line(Vector2(x, sopra), Vector2(x, sotto), tinta, 4.0)
-	draw_colored_polygon(PackedVector2Array([Vector2(x - 8.0, sopra - 8.0), Vector2(x + 8.0, sopra - 8.0),
+	Manifesto.poligono(self, PackedVector2Array([Vector2(x - 8.0, sopra - 8.0), Vector2(x + 8.0, sopra - 8.0),
 			Vector2(x, sopra + 2.0)]), tinta)
 
 

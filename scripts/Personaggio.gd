@@ -641,8 +641,8 @@ class Fondo extends Control:
 		var striscia := PackedVector2Array()
 		for p in [BANDA[0], BANDA[0] + Vector2(-5, 0), BANDA[3] + Vector2(-5, 0), BANDA[3]]:
 			striscia.append(p - Vector2(14, 0))
-		draw_colored_polygon(striscia, Stile.colore("bordo_acceso"))
-		draw_colored_polygon(PackedVector2Array(BANDA), Stile.colore("bordo"))
+		Manifesto.poligono(self, striscia, Stile.colore("bordo_acceso"))
+		Manifesto.poligono(self, PackedVector2Array(BANDA), Stile.colore("bordo"))
 		for schermo in SCHERMI:
 			Manifesto.disegna_schermo(self, schermo)
 		draw_line(Vector2(40, 96), Vector2(493, 96), Color(Stile.colore("testo"), 0.25), 2.0)

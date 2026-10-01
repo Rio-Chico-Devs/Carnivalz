@@ -252,7 +252,7 @@ func _draw() -> void:
 		if foto != null:
 			draw_colored_polygon(scheggia.punti, tinta, scheggia.uv, foto)
 		else:
-			draw_colored_polygon(scheggia.punti, tinta_piatta)
+			Manifesto.poligono(self, scheggia.punti, tinta_piatta)
 		if not fili:
 			continue
 		# il filo di luce sul taglio: e' l'unica cosa che fa leggere "vetro"

@@ -124,8 +124,8 @@ func _draw() -> void:
 		var sfoglia := forma.duplicate()
 		for i in sfoglia.size():
 			sfoglia[i] += SFOGLIA
-		draw_colored_polygon(sfoglia, Stile.colore("bordo_acceso"))
-	draw_colored_polygon(forma, Stile.colore("accento") if scelta else Stile.colore("pannello_chiaro"))
+		Manifesto.poligono(self, sfoglia, Stile.colore("bordo_acceso"))
+	Manifesto.poligono(self, forma, Stile.colore("accento") if scelta else Stile.colore("pannello_chiaro"))
 	disegna_ritratto(Rect2(r.end.x - LARGO_RITRATTO, r.position.y, LARGO_RITRATTO, r.size.y))
 	var bordo := Stile.colore("spento").lerp(Stile.colore("bordo_acceso"), clampf(accesa.valore, 0.0, 1.0))
 	draw_polyline(Sagome.chiudi(forma), bordo, 2.0, true)

@@ -145,4 +145,4 @@ func _draw() -> void:
 	var alto := titolo.size.y + 30.0
 	for p in macchia:
 		punti.append(Vector2(-22.0 + p.y * 26.0, -6.0 + p.x * alto))
-	draw_colored_polygon(punti, Color(Stile.colore("menu_spruzzo"), 0.55 + 0.35 * lampo))
+	Manifesto.poligono(self, punti, Color(Stile.colore("menu_spruzzo"), 0.55 + 0.35 * lampo))

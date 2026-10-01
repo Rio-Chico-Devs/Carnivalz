@@ -354,10 +354,10 @@ func _draw() -> void:
 	draw_set_transform(centro, Stile.angolo("inclinazione_nastro"))
 	var sinistra := -SPORGE - centro.x
 	var fine := destra - centro.x
-	draw_colored_polygon(lastra(sinistra + SFOGLIA.x, fine + SFOGLIA.x, -h * 0.5 + SFOGLIA.y, h),
+	Manifesto.poligono(self, lastra(sinistra + SFOGLIA.x, fine + SFOGLIA.x, -h * 0.5 + SFOGLIA.y, h),
 			Color(tinta_sfoglia, tinta_sfoglia.a * clampf(tinta.valore * entrata, 0.0, 1.0)))
 	var rosso := tinta_lastra.lerp(Stile.colore("bordo_acceso"), 1.0 if lampo > 0.0 else 0.0)
-	draw_colored_polygon(lastra(sinistra, fine, -h * 0.5, h), rosso)
+	Manifesto.poligono(self, lastra(sinistra, fine, -h * 0.5, h), rosso)
 	draw_set_transform(Vector2.ZERO)
 
 

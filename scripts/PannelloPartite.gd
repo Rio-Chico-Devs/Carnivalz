@@ -94,7 +94,7 @@ func testata() -> void:
 	if titolo == null:
 		return
 	var largo := titolo.get_string_size("LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
-	draw_colored_polygon(VoceMenu.lastra(-12.0, largo + 12.0, -4.0, 30.0), Color(Stile.colore("bordo"), arrivo))
+	Manifesto.poligono(self, VoceMenu.lastra(-12.0, largo + 12.0, -4.0, 30.0), Color(Stile.colore("bordo"), arrivo))
 	draw_string(titolo, Vector2(4, 19), "LE TUE PARTITE", HORIZONTAL_ALIGNMENT_LEFT, -1, 20,
 			Color(Stile.colore("testo"), arrivo))
 	var conto := "%d / %d" % [Partite.occupate().size(), GameState.SLOT_MASSIMO]
@@ -153,6 +153,6 @@ func segno_della_recente(dove: Vector2, quanto: float) -> void:
 	var r := 7.0
 	var rombo := PackedVector2Array([dove + Vector2(0, -r), dove + Vector2(r, 0), dove + Vector2(0, r),
 			dove + Vector2(-r, 0)])
-	draw_colored_polygon(rombo, Color(Stile.colore("accento"), quanto))
+	Manifesto.poligono(self, rombo, Color(Stile.colore("accento"), quanto))
 	rombo.append(rombo[0])
 	draw_polyline(rombo, Color(Stile.colore("menu_macchia"), quanto), 2.0, true)

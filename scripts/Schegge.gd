@@ -89,7 +89,7 @@ func _draw() -> void:
 		var giro := float(pezzo.angolo)
 		var centro: Vector2 = pezzo.dove
 		# un triangolo lungo e stretto: una scheggia, non un coriandolo
-		draw_colored_polygon(PackedVector2Array([
+		Manifesto.poligono(self, PackedVector2Array([
 			centro + Vector2.from_angle(giro) * lato,
 			centro + Vector2.from_angle(giro + 2.5) * lato * 0.45,
 			centro + Vector2.from_angle(giro - 2.5) * lato * 0.45]),

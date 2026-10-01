@@ -54,7 +54,7 @@ func tasto() -> void:
 	var centro := Vector2(size.x * 0.5, (size.y - 2.0) * 0.5)
 	if nome == "SU" or nome == "GIU":
 		var punta := -1.0 if nome == "SU" else 1.0
-		draw_colored_polygon(PackedVector2Array([
+		Manifesto.poligono(self, PackedVector2Array([
 			centro + Vector2(0, 7.0 * punta),
 			centro + Vector2(-7.0, -5.0 * punta),
 			centro + Vector2(7.0, -5.0 * punta)]), Stile.colore("menu_descrizione"))
@@ -101,7 +101,7 @@ func mouse() -> void:
 		ruota.set_corner_radius_all(3)
 		draw_style_box(ruota, rotella)
 		var sotto := corpo.end.y - 7.0
-		draw_colored_polygon(PackedVector2Array([Vector2(centro_x, sotto - 9.0),
+		Manifesto.poligono(self, PackedVector2Array([Vector2(centro_x, sotto - 9.0),
 				Vector2(centro_x - 3.5, sotto - 5.0), Vector2(centro_x + 3.5, sotto - 5.0)]), chiaro)
-		draw_colored_polygon(PackedVector2Array([Vector2(centro_x, sotto),
+		Manifesto.poligono(self, PackedVector2Array([Vector2(centro_x, sotto),
 				Vector2(centro_x - 3.5, sotto - 4.0), Vector2(centro_x + 3.5, sotto - 4.0)]), chiaro)

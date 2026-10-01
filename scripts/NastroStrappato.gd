@@ -96,4 +96,4 @@ func contorno() -> PackedVector2Array:
 
 func _draw() -> void:
 	if size.x > 2.0 * MORSO and size.y > 2.0:
-		draw_colored_polygon(contorno(), colore)
+		Manifesto.poligono(self, contorno(), colore)

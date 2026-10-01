@@ -120,4 +120,4 @@ func _draw() -> void:
 		var spicchio := minf(angolo, TAU - 0.01)
 		for i in passi + 1:
 			punti.append(centro + Vector2.UP.rotated(spicchio * float(i) / float(passi)) * raggio)
-		draw_colored_polygon(punti, Color(Stile.colore("pericolo"), 0.22))
+		Manifesto.poligono(self, punti, Color(Stile.colore("pericolo"), 0.22))

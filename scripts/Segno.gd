@@ -77,7 +77,7 @@ func disegno_vero() -> Texture2D:
 
 
 func traccia_triangolo(centro: Vector2, raggio: float) -> void:
-	draw_colored_polygon(PackedVector2Array([
+	Manifesto.poligono(self, PackedVector2Array([
 			centro + Vector2(-raggio * 0.6, -raggio),
 			centro + Vector2(raggio, 0.0),
 			centro + Vector2(-raggio * 0.6, raggio)]), tinta)
@@ -154,7 +154,7 @@ func traccia_emblema(centro: Vector2, raggio: float, spessore: float) -> void:
 	var rombo := PackedVector2Array([centro + Vector2(0.0, -raggio * 1.1),
 			centro + Vector2(raggio * 1.1, 0.0), centro + Vector2(0.0, raggio * 1.1),
 			centro + Vector2(-raggio * 1.1, 0.0)])
-	draw_colored_polygon(rombo, tinta)
+	Manifesto.poligono(self, rombo, tinta)
 	var chiuso := rombo.duplicate()
 	chiuso.append(rombo[0])
 	draw_polyline(chiuso, Color(nero, tinta.a), spessore * 0.8, true)

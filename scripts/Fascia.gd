@@ -62,4 +62,4 @@ static func poligono(dove: CanvasItem, punti: PackedVector2Array, spessore: floa
 	var giro := punti.duplicate()
 	giro.append(punti[0])   # draw_polyline non chiude da sola
 	dove.draw_polyline(giro, fascia, spessore * 2.0)
-	dove.draw_colored_polygon(punti, tinta)
+	Manifesto.poligono(dove, punti, tinta)

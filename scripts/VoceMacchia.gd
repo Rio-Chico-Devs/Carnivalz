@@ -81,10 +81,10 @@ func _draw() -> void:
 	var sinistra := bottone.position.x + SPAZIO_SEGNO * (1.0 - quanto) - 10.0
 	var nero := Stile.colore("bordo")
 	var ombra := Vector2(5, 4) * quanto
-	draw_colored_polygon(VoceMenu.lastra(sinistra + ombra.x, destra + ombra.x, alto + ombra.y, h),
+	Manifesto.poligono(self, VoceMenu.lastra(sinistra + ombra.x, destra + ombra.x, alto + ombra.y, h),
 			Color(nero, entrata))
 	var fondo := nero.lerp(Stile.colore("bordo_acceso"), clampf(tinta.valore, 0.0, 1.0))
-	draw_colored_polygon(VoceMenu.lastra(sinistra, destra, alto, h), Color(fondo, entrata))
+	Manifesto.poligono(self, VoceMenu.lastra(sinistra, destra, alto, h), Color(fondo, entrata))
 
 
 static func macchia(seme: int, quanti: int) -> PackedVector2Array:
