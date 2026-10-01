@@ -254,10 +254,34 @@ static func in_cascata(gradino: MarginContainer, k: int) -> void:
 
 static func fuori_dalla_colonna(nodo: Control, colonna: Container) -> void:
 	# via una scelta, col suo gradino: un gradino vuoto terrebbe il posto per niente
+	#
+	# IL POSTO SI CHIUDE SCIVOLANDO. Prima le scelte di sotto saltavano su di
+	# colpo mentre i pezzi di quella rotta stavano ancora cadendo, e i pezzi
+	# finivano sopra le scritte. Adesso la scelta di sotto eredita il buco come
+	# margine di sopra e lo stringe piano, in durate.chiusura_scelta, dopo una
+	# sosta di sosta_chiusura_scelta.
+	#
+	# Il gradino esce dall'albero SUBITO, non a fine fotogramma: chi cerca la
+	# prima scelta rimasta per darle il fuoco (Main.sposta_fuoco_sulla_prima_
+	# scelta) deve gia' non trovarlo, o il fuoco tornerebbe su quella rotta.
 	var su := nodo.get_parent()
-	nodo.queue_free()
-	if su is MarginContainer and su.get_parent() == colonna:
-		su.queue_free()
+	if not (su is MarginContainer and su.get_parent() == colonna):
+		nodo.queue_free()
+		return
+	var gradino := su as MarginContainer
+	var buco := gradino.size.y + float(colonna.get_theme_constant("separation"))
+	var sotto: MarginContainer = null
+	if gradino.get_index() + 1 < colonna.get_child_count():
+		sotto = colonna.get_child(gradino.get_index() + 1) as MarginContainer
+	colonna.remove_child(gradino)
+	gradino.queue_free()
+	if sotto == null or Movimento.ridotto():
+		return
+	sotto.add_theme_constant_override("margin_top", roundi(buco))
+	# un attimo di sosta prima, perche' l'occhio veda la rottura e non il posto
+	Movimento.verso(sotto.create_tween(), sotto, "theme_override_constants/margin_top", 0,
+			"standard", Movimento.durata("chiusura_scelta")) \
+			.set_delay(float(Movimento.dati().get("sosta_chiusura_scelta", 0.0)))
 
 
 static func scalino(k: int) -> float:

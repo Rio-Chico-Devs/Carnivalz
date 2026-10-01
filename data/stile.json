@@ -265,7 +265,8 @@
       "uscita": 0.15,
       "voce": 0.15,
       "entrata": 0.24,
-      "quinta": 0.4
+      "quinta": 0.4,
+      "chiusura_scelta": 0.4
     },
     "cascata": {
       "passo": 0.03,
@@ -321,6 +322,8 @@
     },
     "scivolo": 16,
     "parallasse": 16,
+    "sosta_chiusura_scelta": 0.15,
+    "_nota_chiusura_scelta": "durate.chiusura_scelta: quando una scelta a tempo scade e si rompe, quelle di sotto salgono a chiudere il buco in questo tempo, dopo una sosta di sosta_chiusura_scelta secondi perche' l'occhio veda prima la rottura, invece di saltare su di colpo mentre i pezzi cadono (Lastra.fuori_dalla_colonna). Numeri miei, da provare.",
     "_nota_lastra": "LA LASTRA DEI DIALOGHI (scripts/Lastra.gd, BoxTesto.gd), approvata da Bru il primo ottobre. Entrando scivola da sinistra di 'scivolo_lastra' pixel nel tempo di comparsa_box (0,18 s), e l'ombra la raggiunge 'ritardo_ombra' secondi dopo, in durate.ombra_lastra. Quando cambia chi parla fra te e gli altri si gira passando per il dritto in durate.giro_lastra. Una battuta che finisce col punto esclamativo si stampa: la lastra si alza di 'timbro_lastra' (3%) e ricade in durate.timbro_lastra. Numeri miei, da provare.",
     "scivolo_lastra": 70,
     "timbro_lastra": 0.03,

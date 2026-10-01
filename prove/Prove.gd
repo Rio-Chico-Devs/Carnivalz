@@ -86,6 +86,7 @@ func _ready() -> void:
 	prova_i_sogni_di_yhvina()
 	prova_chi_e_a_terra_non_viene_piu_colpito()
 	await prova_le_scelte_a_tempo()
+	await prova_la_scelta_scaduta_lascia_il_posto_piano()
 	await prova_il_nastro_col_nome()
 	await prova_la_lastra_dei_dialoghi()
 	await prova_maschile_e_femminile()
@@ -4929,12 +4930,14 @@ func prova_le_scelte_a_tempo() -> void:
 	var trovato_orologio := cerca_orologio(schermata.contenitore_scelte)
 	esigi(trovato_orologio != null, "la scelta con \"tempo\" non ha nessun orologio appeso")
 	if trovato_orologio != null:
+		# preso PRIMA che scada: scaduta, la scelta esce subito dalla colonna
+		# (Lastra.fuori_dalla_colonna) e cercarla dopo non la troverebbe
+		var scaduto_ma_vivo := cerca_bottone_con_testo(schermata.contenitore_scelte, "Di corsa")
 		trovato_orologio._process(1.0)     # il tempo scade
 		# SCADUTA E' MORTA SUBITO, anche se il vetro sta ancora cadendo. Fra lo
 		# scadere e la rottura passano dei fotogrammi - la fotografia del pezzo
 		# che si rompe si prende alla fine di un disegno - e in quei fotogrammi
 		# la si poteva ancora cliccare.
-		var scaduto_ma_vivo := cerca_bottone_con_testo(schermata.contenitore_scelte, "Di corsa")
 		esigi(scaduto_ma_vivo != null and scaduto_ma_vivo.disabled,
 				"il tempo e' scaduto e la scelta si puo' ancora premere mentre si rompe")
 		# la rottura non e' istantanea: si aspetta che il vetro abbia finito,
@@ -5042,6 +5045,86 @@ func prova_le_scelte_a_tempo() -> void:
 	var visibili: Array = testo_dei_bottoni(schermata.contenitore_scelte)
 	esigi(visibili.has("solo per eroi"), "due scelte da eroe non bastano per un requisito da due")
 	esigi(not visibili.has("per veri eroi"), "un requisito da nove e' passato con due scelte da eroe")
+	schermata.free()
+	GameState.nuova_partita()
+
+func prova_la_scelta_scaduta_lascia_il_posto_piano() -> void:
+	# QUANDO UNA SCELTA A TEMPO SI ROMPE le altre non saltano, e il fuoco non si
+	# perde. Due guai visti filmando le bozze dell'orologio per Bru: le scelte
+	# di sotto salivano di colpo mentre i pezzi cadevano ancora sopra le loro
+	# scritte; e il fuoco, che era sulla scelta rotta, tornava su di lei (era
+	# ancora nell'albero fino a fine fotogramma) invece di passare alla prima
+	# rimasta - da tastiera non restava niente di selezionato, e Godot lo diceva
+	# ("This control can't grab focus").
+	titolo("la scelta scaduta: il posto si chiude piano, il fuoco passa alla prima viva")
+	GameState.nuova_partita()
+	GameState.eventi["prova_posto"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "Decidi."}],
+		"scelte": [
+			{"testo": "Di corsa", "genere": "malvagio", "tempo": 30.0, "vai": "prova_posto"},
+			{"testo": "Con calma", "vai": "prova_posto"},
+			{"testo": "Resto qui", "vai": "prova_posto"},
+		],
+	}
+	GameState.nodo_corrente = "prova_posto"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	# LE SCELTE LE APRE IL GIOCO, a battuta finita. Montarle a mano mentre la
+	# battuta si scrive ancora era una gara persa: a meta' prova il gioco le
+	# rimontava da se', il gradino guardato spariva, e la prova si piantava
+	# lasciando in giro una schermata intera che sporcava le prove dopo
+	for i in 300:
+		if schermata.box.sta_scrivendo:
+			schermata.box.completa()
+		elif cerca_bottone_con_testo(schermata.contenitore_scelte, "Con calma") != null:
+			break
+		await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var corsa := cerca_bottone_con_testo(schermata.contenitore_scelte, "Di corsa")
+	var calma := cerca_bottone_con_testo(schermata.contenitore_scelte, "Con calma")
+	var orologio := cerca_orologio(schermata.contenitore_scelte)
+	esigi(corsa != null and calma != null and orologio != null,
+			"mancano dei pezzi: la scelta a tempo, quella normale o l'orologio")
+	if corsa == null or calma == null or orologio == null:
+		schermata.free()
+		return
+	esigi(corsa.has_focus(), "la prima scelta, quella a tempo, non parte col fuoco")
+	var y_prima := calma.global_position.y
+	orologio._process(31.0)    # il tempo scade, e la scelta si rompe
+	for i in 40:
+		if not is_instance_valid(corsa) or not corsa.is_inside_tree():
+			break
+		await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(not is_instance_valid(corsa) or not corsa.is_inside_tree(),
+			"la scelta scaduta e' ancora nella colonna")
+	esigi(calma.has_focus(),
+			"rotta la scelta che aveva il fuoco, il fuoco non e' passato alla prima rimasta")
+	if Movimento.ridotto():
+		schermata.free()
+		GameState.nuova_partita()
+		return
+	var gradino := calma.get_parent() as Control
+	esigi(gradino != null and gradino.get_theme_constant("margin_top") > 0,
+			"la scelta di sotto non ha preso il buco come margine: il posto si chiude di colpo")
+	esigi(absf(calma.global_position.y - y_prima) <= 3.0,
+			"appena rotta quella sopra, la scelta di sotto e' saltata di %.0f pixel"
+			% (y_prima - calma.global_position.y))
+	await get_tree().create_timer(Movimento.durata("chiusura_scelta")
+			+ float(Movimento.dati().get("sosta_chiusura_scelta", 0.0)) + 0.15).timeout
+	await get_tree().process_frame
+	if not is_instance_valid(gradino) or not is_instance_valid(calma):
+		esigi(false, "mentre il buco si chiudeva le scelte sono state rimontate da capo")
+		schermata.free()
+		GameState.nuova_partita()
+		return
+	esigi(gradino.get_theme_constant("margin_top") == 0,
+			"il buco non si e' chiuso: restano %d pixel" % gradino.get_theme_constant("margin_top"))
+	esigi(calma.global_position.y < y_prima - 20.0,
+			"chiuso il buco, la scelta di sotto non e' salita: era a %.0f, e' a %.0f"
+			% [y_prima, calma.global_position.y])
 	schermata.free()
 	GameState.nuova_partita()
 

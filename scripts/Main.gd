@@ -1033,7 +1033,7 @@ func rompi_la_scelta(riga: Control, bottone: Button) -> void:
 func sposta_fuoco_sulla_prima_scelta() -> void:
 	for figlio in contenitore_scelte.get_children():
 		var bottone := primo_bottone_in(figlio)
-		if bottone != null:
+		if bottone != null and not bottone.disabled:   # non quella che si sta rompendo
 			bottone.grab_focus()
 			return
 
