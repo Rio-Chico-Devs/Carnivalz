@@ -124,5 +124,5 @@ func _draw() -> void:
 	var schiaccia := dentro.size / Manifesto.MISURA_PROIEZIONE
 	draw_set_transform(centro_sistema, 0.0, schiaccia)
 	for raggio in [180.0, 280.0]:
-		draw_arc(Vector2.ZERO, raggio, 0, TAU, 64, Color(1, 1, 1, 0.08), 1.5)
+		draw_arc(Vector2.ZERO, raggio, 0, TAU, 64, Color(1, 1, 1, 0.08), 1.5, true)
 	draw_set_transform(Vector2.ZERO)

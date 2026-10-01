@@ -140,10 +140,11 @@ func luna() -> void:
 	# l'alone: cerchi sempre piu' larghi e piu' tenui, che e' com'e' fatto un
 	# bagliore quando non si ha uno shader per sfocarlo
 	for anello: Array in [[3.4, 0.03], [2.5, 0.05], [1.8, 0.08], [1.3, 0.13]]:
-		draw_circle(LUNA, 62.0 * float(anello[0]), Color(chiara, float(anello[1])))
-	draw_circle(LUNA, 62.0, Color(chiara, 0.92))
+		draw_circle(LUNA, 62.0 * float(anello[0]), Color(chiara, float(anello[1])), true, -1.0, true)
+	draw_circle(LUNA, 62.0, Color(chiara, 0.92), true, -1.0, true)
 	for macchia: Vector3 in [Vector3(-18, -12, 14), Vector3(16, 8, 10), Vector3(-6, 22, 7)]:
-		draw_circle(LUNA + Vector2(macchia.x, macchia.y), macchia.z, Color(Stile.colore("menu_lontano"), 0.12))
+		draw_circle(LUNA + Vector2(macchia.x, macchia.y), macchia.z, Color(Stile.colore("menu_lontano"), 0.12),
+				true, -1.0, true)
 
 
 func colline() -> void:
@@ -171,17 +172,17 @@ func nebbia(y: float, alta: float, forza: float) -> void:
 func ruota() -> void:
 	var nera := Stile.colore("menu_sagoma")
 	# le gambe e la traversa: il cavalletto su cui gira
-	draw_line(RUOTA, Vector2(905, 650), nera, 12.0)
-	draw_line(RUOTA, Vector2(1125, 650), nera, 12.0)
+	draw_line(RUOTA, Vector2(905, 650), nera, 12.0, true)
+	draw_line(RUOTA, Vector2(1125, 650), nera, 12.0, true)
 	draw_line(Vector2(935, 570), Vector2(1095, 570), nera, 6.0)
 	draw_arc(RUOTA, RAGGIO_RUOTA, 0.0, TAU, 96, nera, 7.0, true)
 	draw_arc(RUOTA, RAGGIO_RUOTA * 0.9, 0.0, TAU, 96, nera, 3.0, true)
 	draw_arc(RUOTA, 40.0, 0.0, TAU, 32, nera, 5.0, true)
-	draw_circle(RUOTA, 14.0, nera)
+	draw_circle(RUOTA, 14.0, nera, true, -1.0, true)
 	for i in CABINE:
 		var angolo := giro + TAU * float(i) / float(CABINE)
 		var bordo := RUOTA + Vector2.from_angle(angolo) * RAGGIO_RUOTA
-		draw_line(RUOTA + Vector2.from_angle(angolo) * 14.0, bordo, nera, 3.0)
+		draw_line(RUOTA + Vector2.from_angle(angolo) * 14.0, bordo, nera, 3.0, true)
 		# le cabine stanno sempre dritte, appese: e' quello che le fa sembrare
 		# cabine e non denti di un ingranaggio
 		draw_line(bordo, bordo + Vector2(0, 10), nera, 2.0)
@@ -197,8 +198,8 @@ func lampadine_su_un_cerchio(centro: Vector2, raggio: float, quante: int, sfasam
 func lampadina(dove: Vector2, indice: int) -> void:
 	var luce := 0.7 + 0.3 * sin(tempo * 2.1 + float(indice) * 1.7)
 	var colore := Stile.colore("menu_lampadina")
-	draw_circle(dove, 7.0, Color(colore, 0.1 * luce))
-	draw_circle(dove, 2.6, Color(colore, 0.85 * luce))
+	draw_circle(dove, 7.0, Color(colore, 0.1 * luce), true, -1.0, true)
+	draw_circle(dove, 2.6, Color(colore, 0.85 * luce), true, -1.0, true)
 
 
 func tendone() -> void:
@@ -216,7 +217,7 @@ func tendone() -> void:
 	# il festone sotto la gronda
 	var x := 515.0
 	while x <= 866.0:
-		draw_circle(Vector2(x, gronda), 14.0, nera)
+		draw_circle(Vector2(x, gronda), 14.0, nera, true, -1.0, true)
 		x += 30.0
 	draw_rect(Rect2(525, gronda, 330, 118), nera)
 	for k in 6:

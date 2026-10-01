@@ -111,10 +111,10 @@ static func icona_oggetto(ci: CanvasItem, centro: Vector2, lato: float, tipo: St
 static func fiala(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Color) -> void:
 	var corpo := Rect2(c.x - l * 0.22, c.y - l * 0.08, l * 0.44, l * 0.4)
 	ci.draw_rect(corpo, chiaro)
-	ci.draw_circle(Vector2(c.x, corpo.end.y), l * 0.22, chiaro)
+	ci.draw_circle(Vector2(c.x, corpo.end.y), l * 0.22, chiaro, true, -1.0, true)
 	# il liquido: la meta' bassa, scura, con la linea di superficie
 	ci.draw_rect(Rect2(corpo.position.x + l * 0.05, c.y + l * 0.12, corpo.size.x - l * 0.1, l * 0.2), scuro)
-	ci.draw_circle(Vector2(c.x, corpo.end.y), l * 0.15, scuro)
+	ci.draw_circle(Vector2(c.x, corpo.end.y), l * 0.15, scuro, true, -1.0, true)
 	ci.draw_rect(Rect2(c.x - l * 0.09, c.y - l * 0.3, l * 0.18, l * 0.23), chiaro)
 	ci.draw_rect(Rect2(c.x - l * 0.13, c.y - l * 0.42, l * 0.26, l * 0.12), scuro)
 	ci.draw_line(Vector2(corpo.position.x + l * 0.08, c.y - l * 0.02),
@@ -131,7 +131,7 @@ static func lama(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Col
 	ci.draw_line(base + p * l * 0.2, base - p * l * 0.2, chiaro, l * 0.07)
 	ci.draw_line(base, base - d * l * 0.28, scuro, l * 0.09)
 	ci.draw_line(base, base - d * l * 0.28, chiaro, l * 0.05)
-	ci.draw_circle(base - d * l * 0.32, l * 0.06, chiaro)
+	ci.draw_circle(base - d * l * 0.32, l * 0.06, chiaro, true, -1.0, true)
 
 
 static func occhio(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Color) -> void:
@@ -144,7 +144,7 @@ static func occhio(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: C
 		var t := -1.0 + 2.0 * float(i) / 16.0
 		mandorla.append(c + Vector2(t * l * 0.3, l * 0.15 * (1.0 - t * t)))
 	Manifesto.poligono(ci, mandorla, scuro)
-	ci.draw_circle(c, l * 0.07, chiaro)
+	ci.draw_circle(c, l * 0.07, chiaro, true, -1.0, true)
 
 
 static func anello(ci: CanvasItem, c: Vector2, l: float, chiaro: Color, scuro: Color) -> void:
@@ -189,8 +189,8 @@ static func icona_statistica(ci: CanvasItem, r: Rect2, chiave: String, colore: C
 
 
 static func cuore(ci: CanvasItem, c: Vector2, l: float, colore: Color) -> void:
-	ci.draw_circle(c + Vector2(-l * 0.14, -l * 0.08), l * 0.17, colore)
-	ci.draw_circle(c + Vector2(l * 0.14, -l * 0.08), l * 0.17, colore)
+	ci.draw_circle(c + Vector2(-l * 0.14, -l * 0.08), l * 0.17, colore, true, -1.0, true)
+	ci.draw_circle(c + Vector2(l * 0.14, -l * 0.08), l * 0.17, colore, true, -1.0, true)
 	Manifesto.poligono(ci, PackedVector2Array([c + Vector2(-l * 0.3, -l * 0.02),
 			c + Vector2(l * 0.3, -l * 0.02), c + Vector2(0, l * 0.34)]), colore)
 

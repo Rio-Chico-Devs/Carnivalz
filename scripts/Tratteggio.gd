@@ -32,7 +32,7 @@ static func dentro(dove: CanvasItem, r: Rect2, tinta: Color) -> void:
 	while k < fine:
 		var estremi := taglio_obliquo(r, k)
 		if estremi.size() == 2:
-			dove.draw_line(estremi[0], estremi[1], tinta, spessore)
+			dove.draw_line(estremi[0], estremi[1], tinta, spessore, true)
 		k += passo
 
 

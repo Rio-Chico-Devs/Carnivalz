@@ -64,9 +64,9 @@ static func disegna(dove: CanvasItem, id_stato: String, riquadro: Rect2) -> void
 			# «se stanno bene ci stara l'icona normale»: un cerchio pieno e
 			# calmo. Sta bene vuol dire che non c'e' niente da leggere, e
 			# l'icona deve dirlo stando zitta.
-			dove.draw_circle(centro, raggio * 0.62, Stile.colore("testo_smorzato"))
+			dove.draw_circle(centro, raggio * 0.62, Stile.colore("testo_smorzato"), true, -1.0, true)
 		_:
-			dove.draw_circle(centro, raggio * 0.72, Stile.colore("accento"))
+			dove.draw_circle(centro, raggio * 0.72, Stile.colore("accento"), true, -1.0, true)
 
 static func fiamma(dove: CanvasItem, centro: Vector2, raggio: float, tinta: Color) -> void:
 	var punti := PackedVector2Array([
@@ -96,7 +96,7 @@ static func fantasma(dove: CanvasItem, centro: Vector2, raggio: float, tinta: Co
 	Manifesto.poligono(dove, punti, tinta)
 	for lato in [-1.0, 1.0]:
 		dove.draw_circle(centro + Vector2(raggio * 0.38 * lato, -raggio * 0.22),
-				raggio * 0.17, Stile.colore("bordo"))
+				raggio * 0.17, Stile.colore("bordo"), true, -1.0, true)
 
 static func saetta(dove: CanvasItem, centro: Vector2, raggio: float, tinta: Color) -> void:
 	var punti := PackedVector2Array([
@@ -117,6 +117,6 @@ static func ricciolo(dove: CanvasItem, riquadro: Rect2, tinta: Color) -> void:
 	var centro := riquadro.position + riquadro.size * 0.5
 	var raggio := minf(riquadro.size.x, riquadro.size.y) * 0.42
 	var spessore := maxf(raggio * 0.42, 1.5)
-	dove.draw_arc(centro, raggio, PI * 0.15, PI * 1.55, 20, tinta, spessore)
+	dove.draw_arc(centro, raggio, PI * 0.15, PI * 1.55, 20, tinta, spessore, true)
 	dove.draw_circle(centro + Vector2(cos(PI * 0.15), sin(PI * 0.15)) * raggio,
-			spessore * 0.5, tinta)
+			spessore * 0.5, tinta, true, -1.0, true)

@@ -34,6 +34,9 @@ const PASSO_RETINO := 9.0
 # un puntino del retino ha dodici lati: a quella misura (nove pixel al massimo)
 # e' tondo a occhio anche a schermo intero; con otto, ingrandito, si vedevano gli spigoli
 const LATI_PUNTINO := 12
+# il bordo sfumato dei poligoni: quanto si ritira il pieno e quanto sfuma fuori
+const SFUMA_DENTRO := 0.5
+const SFUMA_FUORI := 0.75
 
 
 # --- i pezzi pronti ------------------------------------------------------------
@@ -234,16 +237,55 @@ static func poligono(tela: CanvasItem, punti: PackedVector2Array, tinta: Color) 
 	# UN POLIGONO PIENO COL BORDO LISCIO. draw_colored_polygon non ha
 	# l'antialiasing, e le forme oblique del manifesto (etichette, fasce, lastre)
 	# avevano il bordo a scalini - Bru: «inclinando sulle linee diagonali c'e' un
-	# terribile effetto pixellato». Sopra il bordo passa un filo di un pixel
-	# sfumato dello stesso colore. La sfumatura e' geometria, non un'impostazione
-	# della scheda video: vale con qualunque renderer (l'MSAA 2D qui non cambiava
-	# niente). Sulle forme trasparenti il filo farebbe un orlo piu' scuro: li' no
-	tela.draw_colored_polygon(punti, tinta)
-	if punti.size() < 3 or tinta.a < 0.99:
+	# terribile effetto pixellato». Il pieno si ritira di mezzo pixel e intorno
+	# gli corre una fascia che sfuma dal colore al trasparente, a cavallo del
+	# bordo vero: e' come Godot sfuma gli StyleBox, fatto per i poligoni. E'
+	# geometria, quindi vale con qualunque scheda video (l'MSAA 2D qui non
+	# cambiava niente)
+	#
+	# Pieno e fascia vanno in un disegno solo, coi triangoli fatti qui: una
+	# forma troppo sottile per ritirarsi di mezzo pixel (una carta larga zero
+	# mentre si apre) si rovescia e non si triangola - allora resta com'e'
+	var n := punti.size()
+	if n < 3:
 		return
-	var giro := punti.duplicate()
-	giro.append(punti[0])
-	tela.draw_polyline(giro, tinta, 1.0, true)
+	var dentro := scosta(punti, -SFUMA_DENTRO)
+	var indici := Geometry2D.triangulate_polygon(dentro)
+	if indici.is_empty():
+		dentro = punti
+		indici = Geometry2D.triangulate_polygon(punti)
+		if indici.is_empty():
+			return
+	var vertici := dentro.duplicate()
+	vertici.append_array(scosta(punti, SFUMA_FUORI))
+	var colori := PackedColorArray()
+	colori.resize(n * 2)
+	colori.fill(Color(tinta, 0.0))
+	for k in n:
+		colori[k] = tinta
+		var dopo := (k + 1) % n
+		indici.append_array([k, n + k, n + dopo, k, n + dopo, dopo])
+	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, vertici, colori)
+
+
+static func scosta(punti: PackedVector2Array, quanto: float) -> PackedVector2Array:
+	# i vertici spostati di "quanto" pixel perpendicolari ai lati (positivo =
+	# verso fuori), qualunque sia il verso in cui il poligono e' scritto
+	var area := 0.0
+	var n := punti.size()
+	for k in n:
+		area += punti[k].cross(punti[(k + 1) % n])
+	var verso := 1.0 if area > 0.0 else -1.0
+	var nuovi := PackedVector2Array()
+	for k in n:
+		var prima := (punti[k] - punti[(k - 1 + n) % n]).normalized()
+		var dopo := (punti[(k + 1) % n] - punti[k]).normalized()
+		var normale := (Vector2(prima.y, -prima.x) + Vector2(dopo.y, -dopo.x)) * verso
+		normale = normale.normalized() if normale.length() > 0.001 else Vector2(dopo.y, -dopo.x) * verso
+		# negli angoli lo spostamento si allunga, ma non all'infinito sulle punte
+		var allunga := 1.0 / maxf(normale.dot(Vector2(dopo.y, -dopo.x) * verso), 0.4)
+		nuovi.append(punti[k] + normale * quanto * allunga)
+	return nuovi
 
 
 static func puntini(tela: CanvasItem, centri: Array[Vector2], raggi: Array[float], tinta: Color) -> void:

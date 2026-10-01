@@ -323,7 +323,7 @@ func disegna_pugno(pugno: Dictionary, r: float) -> void:
 		piano.draw_texture_rect(texture, Rect2(centro - Vector2(r, r), Vector2(r, r) * 2.0),
 				false, Color(1, 1, 1, acceso))
 	else:
-		piano.draw_circle(centro, r, Color(Stile.colore("pericolo"), acceso))
+		piano.draw_circle(centro, r, Color(Stile.colore("pericolo"), acceso), true, -1.0, true)
 		piano.draw_arc(centro, r * 0.94, 0.0, TAU, 40, Color(1, 1, 1, 0.75 * acceso),
 				maxf(r * 0.10, 2.0), true)
 	# IL CERCHIO DI AVVICINAMENTO. Parte largo e si stringe sul pugno in
@@ -344,7 +344,7 @@ func disegna_scoppio(segno: Dictionary, r: float) -> void:
 	var centro := centro_di(pugno)
 	if String(segno.esito) == "preso":
 		# preso: il pugno si accende di rosso pieno e sparisce, senza allargarsi
-		piano.draw_circle(centro, r * (1.0 + quanto * 0.15), Color(tinta, 0.7 * (1.0 - quanto)))
+		piano.draw_circle(centro, r * (1.0 + quanto * 0.15), Color(tinta, 0.7 * (1.0 - quanto)), true, -1.0, true)
 		return
 	piano.draw_arc(centro, r * (1.0 + quanto * 0.8), 0.0, TAU, 48,
 			Color(tinta, 1.0 - quanto), maxf(r * 0.12 * (1.0 - quanto), 1.0), true)

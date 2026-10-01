@@ -44,15 +44,15 @@ static func linea(dove: CanvasItem, da: Vector2, a: Vector2, spessore: float,
 
 static func cerchio(dove: CanvasItem, centro: Vector2, raggio: float,
 		tinta: Color, fascia: Color) -> void:
-	dove.draw_circle(centro, raggio + spessore_di(raggio * 0.4), fascia)
-	dove.draw_circle(centro, raggio, tinta)
+	dove.draw_circle(centro, raggio + spessore_di(raggio * 0.4), fascia, true, -1.0, true)
+	dove.draw_circle(centro, raggio, tinta, true, -1.0, true)
 
 
 static func arco(dove: CanvasItem, centro: Vector2, raggio: float,
 		spessore: float, tinta: Color, fascia: Color) -> void:
 	dove.draw_arc(centro, raggio, 0.0, TAU, 24, fascia,
-			spessore + spessore_di(spessore) * 2.0)
-	dove.draw_arc(centro, raggio, 0.0, TAU, 24, tinta, spessore)
+			spessore + spessore_di(spessore) * 2.0, true)
+	dove.draw_arc(centro, raggio, 0.0, TAU, 24, tinta, spessore, true)
 
 
 static func poligono(dove: CanvasItem, punti: PackedVector2Array, spessore: float,
@@ -61,5 +61,5 @@ static func poligono(dove: CanvasItem, punti: PackedVector2Array, spessore: floa
 		return
 	var giro := punti.duplicate()
 	giro.append(punti[0])   # draw_polyline non chiude da sola
-	dove.draw_polyline(giro, fascia, spessore * 2.0)
+	dove.draw_polyline(giro, fascia, spessore * 2.0, true)
 	Manifesto.poligono(dove, punti, tinta)

@@ -284,7 +284,7 @@ func disegna_testa(dove: Vector2, tinta: Color, spessore: float) -> void:
 	for alone in ALONI:
 		var quanto := float(alone + 1)
 		draw_circle(dove, raggio * (1.0 + quanto * 1.6),
-				Color(tinta.r, tinta.g, tinta.b, 0.13 / quanto))
-	draw_circle(dove, raggio, tinta)
+				Color(tinta.r, tinta.g, tinta.b, 0.13 / quanto), true, -1.0, true)
+	draw_circle(dove, raggio, tinta, true, -1.0, true)
 	# un cuore dentro piu' chiaro: e' il riflesso del vetro
-	draw_circle(dove, raggio * 0.45, Color(1, 1, 1, 0.75))
+	draw_circle(dove, raggio * 0.45, Color(1, 1, 1, 0.75), true, -1.0, true)

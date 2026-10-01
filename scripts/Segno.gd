@@ -53,8 +53,8 @@ func _draw() -> void:
 		"diario":
 			traccia_quaderno(centro, raggio, spessore)
 		"squadra":
-			draw_circle(centro + Vector2(-raggio * 0.45, 0.0), raggio * 0.42, tinta)
-			draw_circle(centro + Vector2(raggio * 0.45, 0.0), raggio * 0.42, tinta)
+			draw_circle(centro + Vector2(-raggio * 0.45, 0.0), raggio * 0.42, tinta, true, -1.0, true)
+			draw_circle(centro + Vector2(raggio * 0.45, 0.0), raggio * 0.42, tinta, true, -1.0, true)
 		"zaino":
 			traccia_zaino(centro, raggio, spessore)
 		"opzioni":
@@ -68,7 +68,7 @@ func _draw() -> void:
 		"messaggi":
 			traccia_busta(centro, raggio, spessore)
 		_:
-			draw_arc(centro, raggio, 0.0, TAU, 20, tinta, spessore)
+			draw_arc(centro, raggio, 0.0, TAU, 20, tinta, spessore, true)
 
 
 func disegno_vero() -> Texture2D:
@@ -104,12 +104,12 @@ func traccia_zaino(centro: Vector2, raggio: float, spessore: float) -> void:
 	draw_rect(Rect2(centro - Vector2(raggio, raggio * 0.55),
 			Vector2(raggio * 2.0, raggio * 1.55)), tinta, false, spessore)
 	# il manico sopra: senza, e' una scatola
-	draw_arc(centro + Vector2(0.0, -raggio * 0.55), raggio * 0.5, PI, TAU, 12, tinta, spessore)
+	draw_arc(centro + Vector2(0.0, -raggio * 0.55), raggio * 0.5, PI, TAU, 12, tinta, spessore, true)
 
 
 func traccia_leva(centro: Vector2, raggio: float, spessore: float) -> void:
 	draw_line(centro - Vector2(raggio, 0.0), centro + Vector2(raggio, 0.0), tinta, spessore)
-	draw_circle(centro + Vector2(raggio * 0.35, 0.0), raggio * 0.42, tinta)
+	draw_circle(centro + Vector2(raggio * 0.35, 0.0), raggio * 0.42, tinta, true, -1.0, true)
 
 
 func traccia_uscita(centro: Vector2, raggio: float, spessore: float) -> void:
@@ -143,7 +143,7 @@ func traccia_busta(centro: Vector2, raggio: float, spessore: float) -> void:
 	var alto := raggio * 0.7
 	draw_rect(Rect2(centro - Vector2(raggio, alto), Vector2(raggio * 2.0, alto * 2.0)), tinta, false, spessore)
 	draw_polyline(PackedVector2Array([centro + Vector2(-raggio, -alto), centro + Vector2(0.0, alto * 0.25),
-			centro + Vector2(raggio, -alto)]), tinta, spessore)
+			centro + Vector2(raggio, -alto)]), tinta, spessore, true)
 
 
 func traccia_emblema(centro: Vector2, raggio: float, spessore: float) -> void:
@@ -160,4 +160,4 @@ func traccia_emblema(centro: Vector2, raggio: float, spessore: float) -> void:
 	draw_polyline(chiuso, Color(nero, tinta.a), spessore * 0.8, true)
 	var z := raggio * 0.36
 	draw_polyline(PackedVector2Array([centro + Vector2(-z, -z), centro + Vector2(z, -z),
-			centro + Vector2(-z, z), centro + Vector2(z, z)]), Color(nero, tinta.a), spessore * 0.75)
+			centro + Vector2(-z, z), centro + Vector2(z, z)]), Color(nero, tinta.a), spessore * 0.75, true)

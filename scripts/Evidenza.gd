@@ -262,7 +262,7 @@ func disegna_macchia() -> void:
 	var centro := size * 0.5
 	for s in schizzi:
 		draw_circle(Vector2(centro.x + s.x * centro.x, centro.y + s.y * centro.y), s.z,
-				Color(tinta(), 0.85 * schizzo))
+				Color(tinta(), 0.85 * schizzo), true, -1.0, true)
 
 
 func disegna_cornice() -> void:

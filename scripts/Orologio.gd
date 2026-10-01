@@ -85,13 +85,13 @@ func _draw() -> void:
 		# LA CIPOLLA, finche' il disegno vero non c'e'. Quadrante bianco, cassa
 		# nera, e l'anellino sopra: bastano tre primitive perche' si capisca che
 		# e' un orologio e non un pallino.
-		draw_circle(centro, raggio, Stile.colore("box_fondo"))
+		draw_circle(centro, raggio, Stile.colore("box_fondo"), true, -1.0, true)
 		draw_arc(centro, raggio, 0.0, TAU, 48, Stile.colore("bordo"), 4.0, true)
 		draw_arc(centro + Vector2(0, -raggio - 5), 5.0, 0.0, TAU, 16, Stile.colore("bordo"), 4.0, true)
 		for ora in 12:
 			var verso := Vector2.UP.rotated(TAU * float(ora) / 12.0)
 			draw_line(centro + verso * (raggio * 0.78), centro + verso * (raggio * 0.92),
-					Stile.colore("bordo"), 2.0)
+					Stile.colore("bordo"), 2.0, true)
 	# LA LANCETTA E' IL TEMPO CHE RESTA, e gira in senso orario partendo dall'alto
 	# come qualunque orologio: se girasse al contrario si leggerebbe benissimo
 	# lo stesso, e non sarebbe un orologio.
@@ -100,7 +100,7 @@ func _draw() -> void:
 	var lancetta := Vector2.UP.rotated(angolo) * (raggio * 0.82)
 	# rossa sull'ultimo quarto: e' l'unico avviso che si e' quasi senza tempo
 	var tinta := Stile.colore("pericolo") if quota <= QUOTA_ALLARME else Stile.colore("bordo")
-	draw_line(centro, centro + lancetta, tinta, 5.0)
+	draw_line(centro, centro + lancetta, tinta, 5.0, true)
 	# E LA FETTA GIA' PERSA, in trasparenza: il colpo d'occhio vale piu' della
 	# lancetta.
 	#
