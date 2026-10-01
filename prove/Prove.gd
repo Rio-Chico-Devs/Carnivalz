@@ -87,6 +87,7 @@ func _ready() -> void:
 	prova_chi_e_a_terra_non_viene_piu_colpito()
 	await prova_le_scelte_a_tempo()
 	await prova_la_scelta_scaduta_lascia_il_posto_piano()
+	prova_i_frantumi_fotografano_il_pezzo_giusto()
 	await prova_il_nastro_col_nome()
 	await prova_la_lastra_dei_dialoghi()
 	await prova_maschile_e_femminile()
@@ -5127,6 +5128,32 @@ func prova_la_scelta_scaduta_lascia_il_posto_piano() -> void:
 			% [y_prima, calma.global_position.y])
 	schermata.free()
 	GameState.nuova_partita()
+
+func prova_i_frantumi_fotografano_il_pezzo_giusto() -> void:
+	# LA FOTOGRAFIA DEL PEZZO CHE SI ROMPE, A OGNI MISURA DI FINESTRA. Il gioco
+	# si disegna in 1280x720 e si stira sulla finestra: a schermo intero la
+	# fotografia e' piu' grande, e ritagliarla con le coordinate del gioco
+	# prendeva un pezzo in alto a sinistra - schegge scure e vuote. Le prove
+	# girano senza finestra e non fotografano niente: si misura il conto.
+	titolo("i frantumi fotografano il pezzo giusto a ogni misura di finestra")
+	var frantumi: GDScript = load("res://scripts/Frantumi.gd")
+	var pezzo := Rect2(100, 50, 40, 20)
+	var gioco := Vector2(1280, 720)
+	var casi := [
+		[Vector2i(1280, 720), Rect2i(100, 50, 40, 20)],
+		[Vector2i(1920, 1080), Rect2i(150, 75, 60, 30)],
+		[Vector2i(2560, 1440), Rect2i(200, 100, 80, 40)],
+		# stirato senza tenere le proporzioni: ogni asse per conto suo
+		[Vector2i(1280, 1024), Rect2i(100, 71, 40, 29)],
+	]
+	for caso in casi:
+		var preso: Rect2i = frantumi.sullo_schermo(pezzo, caso[0], gioco)
+		esigi(preso == caso[1], "su una finestra %s il pezzo %s si fotografa in %s invece che in %s"
+				% [caso[0], pezzo, preso, caso[1]])
+	# e un pezzo che esce dallo schermo si fotografa solo per quel che si vede
+	var sul_bordo: Rect2i = frantumi.sullo_schermo(Rect2(1270, 700, 40, 40), Vector2i(1280, 720), gioco)
+	esigi(sul_bordo == Rect2i(1270, 700, 10, 20),
+			"un pezzo sul bordo si fotografa in %s: doveva restare dentro lo schermo" % sul_bordo)
 
 func conta_bottoni(radice: Node) -> int:
 	var quanti := 0

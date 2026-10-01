@@ -123,11 +123,24 @@ func fotografa(sorgente: Control) -> void:
 	var schermo := vista.get_texture().get_image()
 	if schermo == null or schermo.is_empty():
 		return
-	var riquadro := Rect2i(Vector2i(sorgente.global_position), Vector2i(misura.ceil()))
-	riquadro = riquadro.intersection(Rect2i(Vector2i.ZERO, schermo.get_size()))
+	var riquadro := sullo_schermo(Rect2(sorgente.get_global_transform_with_canvas().origin, misura),
+			schermo.get_size(), vista.get_visible_rect().size)
 	if riquadro.size.x <= 0 or riquadro.size.y <= 0:
 		return
 	foto = ImageTexture.create_from_image(schermo.get_region(riquadro))
+
+static func sullo_schermo(dove: Rect2, schermo: Vector2i, visibile: Vector2) -> Rect2i:
+	# DOVE STA IL PEZZO NELLA FOTOGRAFIA, che non e' grande come il gioco.
+	#
+	# Il gioco e' disegnato in 1280x720 e poi stirato sulla finestra: a schermo
+	# intero su un 1920x1080 la fotografia e' una volta e mezza piu' grande, e
+	# ritagliarla con le coordinate del gioco prendeva un pezzo in alto a
+	# sinistra - schegge scure, vuote, coi soli fili di luce. A 1280x720 non si
+	# vedeva, ed era l'unica misura su cui l'avevamo guardato; si e' visto
+	# girando le bozze dell'orologio a risoluzione doppia.
+	var scala := Vector2(schermo) / visibile if visibile.x > 0.0 and visibile.y > 0.0 else Vector2.ONE
+	var riquadro := Rect2i(Vector2i((dove.position * scala).floor()), Vector2i((dove.size * scala).ceil()))
+	return riquadro.intersection(Rect2i(Vector2i.ZERO, schermo))
 
 func costruisci_schegge(dado: RandomNumberGenerator, tagli := SPICCHI, anelli := 2) -> void:
 	schegge.clear()
