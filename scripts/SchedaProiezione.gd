@@ -7,13 +7,23 @@ extends RefCounted
 #   01 il nome e l'epoca
 #   02 il pozzo e l'orbita, al tratto, che girano piano
 #   03 lo stato e quanto attira
-#   04 il testo, a blocco
+#   04 il testo, in tondo, che affiora parola per parola
 #   05 il bottone: entra, scendi, oppure perche' non si puo'
 # Sotto, i comandi. Il bottone e' un Button vero (Proiezione.bottone_entra):
 # qui se ne disegna solo l'aspetto.
+#
+# I TESTI. Bru: «dobbiamo rendere piu' bella la visualizzazione dei
+# messaggi». Erano tutti maiuscoli, a blocco, e si scrivevano lettera per
+# lettera: un poster si guarda, ma una scheda si legge. Adesso le etichette
+# restano maiuscole e spaziate, e il racconto e' in tondo, piu' grande, a
+# bandiera, con un filo d'inchiostro a lato; il nome entra con una
+# dissolvenza, le parole del racconto affiorano una dopo l'altra.
 
 const X := 972.0
 const LARGO := 272.0
+const RACCONTO := {"corpo": 13, "riga": 18.0, "peso": 380.0, "largo": 90.0, "spazio": 0}
+const RIGHE_MASSIME := 5       # quante ne tiene la scatola 04
+const PAROLE_AL_SECONDO := 12.0
 
 
 static func posto_del_bottone() -> Rect2:
@@ -51,9 +61,7 @@ static func disegna(p: Proiezione, tela: Control) -> void:
 	var r4 := Rect2(X + dx, 362, LARGO, 132)
 	scatola(tela, r4, "04 / RILEVAMENTO", p.tinte)
 	if not c.is_empty():
-		var testo := String(c["testo"]).to_upper()
-		testo = testo.substr(0, roundi(minf(da * 140.0, float(testo.length()))))
-		giustificato(tela, Rect2(r4.position + Vector2(10, 28), Vector2(LARGO - 20, 100)), testo, 10, p.tinte["carta"])
+		racconto(tela, Rect2(r4.position + Vector2(10, 34), Vector2(LARGO - 20, 96)), String(c["testo"]), da, p.tinte)
 	bottone(tela, posto_del_bottone().grow_side(SIDE_LEFT, -dx).grow_side(SIDE_RIGHT, dx), p)
 	suggerimenti(tela, Vector2(X + dx, 566), p.tinte)
 
@@ -64,11 +72,13 @@ static func nome(tela: Control, r: Rect2, c: Dictionary, da: float, tinte: Dicti
 	var corpo := 20
 	while corpo > 11 and DisegnoProiezione.larghezza(testo, corpo, 260, 75, 4) > LARGO - 20.0:
 		corpo -= 1
-	var visibili := roundi(minf(da * 60.0, float(testo.length())))
-	DisegnoProiezione.scrivi(tela, r.position + Vector2(10, 40), testo.substr(0, visibili), corpo, tinte["carta"],
-			260, 75, 4)
+	# il nome entra scivolando di un soffio, e subito dopo la sua epoca
+	var entra := DisegnoProiezione.liscio(da / 0.3)
+	DisegnoProiezione.scrivi(tela, r.position + Vector2(10.0 + (1.0 - entra) * 8.0, 40), testo, corpo,
+			Color(tinte["carta"], entra), 260, 75, 4)
 	var epoca := "PUNTA UN SISTEMA O UNA FRATTURA" if c.is_empty() else String(c["epoca"]).to_upper()
-	DisegnoProiezione.scrivi(tela, r.position + Vector2(10, 56), epoca, 9, tinte["inchiostro"], 450, 85, 2)
+	DisegnoProiezione.scrivi(tela, r.position + Vector2(10, 57), epoca, 9,
+			Color(tinte["inchiostro"], DisegnoProiezione.liscio((da - 0.12) / 0.3)), 450, 85, 2)
 
 
 static func dati(tela: Control, r: Rect2, c: Dictionary, da: float, tinte: Dictionary) -> void:
@@ -114,36 +124,43 @@ static func bottone(tela: Control, r: Rect2, p: Proiezione) -> void:
 
 static func suggerimenti(tela: Control, dove: Vector2, tinte: Dictionary) -> void:
 	var tinta: Color = tinte["inchiostro"]
-	DisegnoProiezione.scrivi(tela, dove, "CLIC  ·  LA NAVE CI VA", 9, tinta, 450, 85, 2)
+	DisegnoProiezione.scrivi(tela, dove, "CLIC  ·  SCEGLI", 9, tinta, 450, 85, 2)
 	DisegnoProiezione.scrivi(tela, dove + Vector2(0, 15), "CLIC DI NUOVO O INVIO  ·  ENTRA", 9, tinta, 450, 85, 2)
 	DisegnoProiezione.scrivi(tela, dove + Vector2(0, 30), "ESC O TASTO DESTRO  ·  ANNULLA", 9, tinta, 450, 85, 2)
 
 
-static func giustificato(tela: Control, r: Rect2, testo: String, corpo: int, tinta: Color) -> void:
-	# TESTO A BLOCCO, come sul poster ciano: le righe piene si allargano fino al bordo
-	var righe := a_capo(testo, corpo, r.size.x)
-	var y := r.position.y
-	for i in righe.size():
-		var parole := righe[i]
-		var piene := 0.0
-		for parola in parole:
-			piene += DisegnoProiezione.larghezza(parola, corpo, 420, 85, 2)
-		var buco := DisegnoProiezione.larghezza(" ", corpo, 420, 85, 2)
-		if i < righe.size() - 1 and parole.size() > 1:
-			buco = (r.size.x - piene) / float(parole.size() - 1)
-		var x := r.position.x
-		for parola in parole:
-			DisegnoProiezione.scrivi(tela, Vector2(x, y), parola, corpo, tinta, 420, 85, 2)
-			x += DisegnoProiezione.larghezza(parola, corpo, 420, 85, 2) + buco
-		y += float(corpo) + 5.0
+static func racconto(tela: Control, r: Rect2, testo: String, da: float, tinte: Dictionary) -> void:
+	# il racconto della scheda: un filo d'inchiostro a lato, e le parole che
+	# affiorano una dopo l'altra, ognuna con una dissolvenza breve
+	var righe := a_capo(testo, r.size.x - 10.0)
+	var alto := float(mini(righe.size(), RIGHE_MASSIME)) * float(RACCONTO["riga"])
+	tela.draw_line(r.position + Vector2(0, -12), r.position + Vector2(0, alto - 12.0), Color(tinte["inchiostro"], 0.9), 1.0)
+	var spazio := larghezza_racconto(" ")
+	var indice := 0
+	for n in mini(righe.size(), RIGHE_MASSIME):
+		var x := r.position.x + 10.0
+		var y := r.position.y + float(n) * float(RACCONTO["riga"])
+		for parola in righe[n]:
+			var a := DisegnoProiezione.liscio((da * PAROLE_AL_SECONDO - float(indice)) / 2.2)
+			if a > 0.0:
+				DisegnoProiezione.scrivi(tela, Vector2(x, y + (1.0 - a) * 3.0), parola, int(RACCONTO["corpo"]),
+						Color(tinte["carta"], a * 0.95), RACCONTO["peso"], RACCONTO["largo"], int(RACCONTO["spazio"]))
+			x += larghezza_racconto(parola) + spazio
+			indice += 1
 
 
-static func a_capo(testo: String, corpo: int, largo: float) -> Array[PackedStringArray]:
+static func larghezza_racconto(testo: String) -> float:
+	return DisegnoProiezione.larghezza(testo, int(RACCONTO["corpo"]), RACCONTO["peso"], RACCONTO["largo"],
+			int(RACCONTO["spazio"]))
+
+
+static func a_capo(testo: String, largo: float) -> Array[PackedStringArray]:
+	# le righe del racconto, a bandiera: si va a capo prima della parola che non ci sta
 	var righe: Array[PackedStringArray] = []
 	var adesso := PackedStringArray()
 	for parola in testo.split(" ", false):
 		var prova := " ".join(adesso + PackedStringArray([parola]))
-		if DisegnoProiezione.larghezza(prova, corpo, 420, 85, 2) > largo and adesso.size() > 0:
+		if larghezza_racconto(prova) > largo and adesso.size() > 0:
 			righe.append(adesso)
 			adesso = PackedStringArray()
 		adesso.append(parola)

@@ -51,7 +51,7 @@ func _ready() -> void:
 	DisegnoProiezione.vesti(bottone_mappa, proiezione.tinte)
 	bottone_mappa.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_MAPPA))
-	proiezione.risali()
+	proiezione.risali("anomalia")
 	strappa_le_nuove()
 
 

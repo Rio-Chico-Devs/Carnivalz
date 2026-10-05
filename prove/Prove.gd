@@ -10590,7 +10590,7 @@ func scegli_e_scendi(mappa: Control, p: Proiezione, ardente: Button, porto: Butt
 	esigi(p.scelto == "" and not Pausa.aperta, "Esc non ha annullato la scelta, o ha aperto la pausa")
 	# il primo clic sceglie: la nave ci va, e non si parte
 	ardente.pressed.emit()
-	esigi(p.scelto == "carnivalz_del_bosco" and p.nave_meta == "carnivalz_del_bosco" and Transizioni.prossima == "",
+	esigi(p.scelto == "carnivalz_del_bosco" and Transizioni.prossima == "",
 			"il primo clic sul Vuoto Ardente non l'ha solo scelto")
 	var partita := [false]
 	mappa.connect("partita", func() -> void: partita[0] = true)
@@ -10598,6 +10598,14 @@ func scegli_e_scendi(mappa: Control, p: Proiezione, ardente: Button, porto: Butt
 	await aspetta_un_cambio_di_schermata()
 	esigi(Transizioni.prossima == "res://scenes/Vuoto.tscn" and partita[0],
 			"confermato il Vuoto Ardente non si scende nel suo Vuoto (si va a '%s')" % Transizioni.prossima)
+	# CI SI LANCIA SUL PIANETA, non nel pozzo. Bru: «quando ti lanci sembra
+	# andare verso il centro del pozzo gravitazionale invece che sul pianeta».
+	# A fine caduta il pianeta e' in mezzo allo schermo, e lo riempie
+	var pianeta := p.corpo("carnivalz_del_bosco")
+	var dove := p.sullo_schermo(pianeta["pos"])
+	esigi(dove.distance_to(Vector2(640, 360)) < 90.0 and p.raggio_sullo_schermo(pianeta) > 150.0,
+			"a fine caduta il pianeta e' a %s, largo %.0f pixel: la camera non e' andata sul pianeta"
+			% [dove, p.raggio_sullo_schermo(pianeta)])
 	esigi(String(GameState.punto_mappa_corrente.get("id", "")) == "carnivalz_del_bosco"
 			and GameState.gia_visitata("carnivalz_del_bosco"),
 			"sceso nel Vuoto, la partita non sa dove sei, o non lo segna come visitato")
@@ -10674,14 +10682,21 @@ func le_nascoste_si_strappano(bosco: Dictionary) -> void:
 
 func prova_ogni_frattura_ha_la_sua_scheda() -> void:
 	# la colonna delle schede racconta ogni corpo: un punto o una frattura
-	# senza epoca o senza descrizione avrebbero la scheda vuota
-	titolo("ogni sistema e ogni frattura di mappa.json ha epoca e descrizione per la scheda")
+	# senza epoca o senza descrizione avrebbero la scheda vuota; con una
+	# descrizione troppo lunga il racconto uscirebbe dalla sua scatola
+	titolo("ogni sistema e ogni frattura di mappa.json ha epoca e descrizione, e la descrizione ci sta")
 	var vuote: Array[String] = []
+	var lunghe: Array[String] = []
 	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
 		for voce: Dictionary in [punto] + Array(punto.get("vuoti", [])):
-			if String(voce.get("epoca", "")) == "" or String(voce.get("descrizione", "")) == "":
+			var descrizione := String(voce.get("descrizione", ""))
+			if String(voce.get("epoca", "")) == "" or descrizione == "":
 				vuote.append(String(voce.get("id", "?")))
+			if SchedaProiezione.a_capo(descrizione, SchedaProiezione.LARGO - 30.0).size() > SchedaProiezione.RIGHE_MASSIME:
+				lunghe.append(String(voce.get("id", "?")))
 	esigi(vuote.is_empty(), "senza epoca o descrizione, la scheda di questi e' vuota: %s" % [vuote])
+	esigi(lunghe.is_empty(), "la descrizione di questi esce dalla scheda (piu' di %d righe): accorciarla %s"
+			% [SchedaProiezione.RIGHE_MASSIME, lunghe])
 
 func prova_la_proiezione_sta_ferma_col_movimento_ridotto() -> void:
 	titolo("col movimento ridotto la proiezione sta ferma: niente deriva, orbite, onde o cadute")

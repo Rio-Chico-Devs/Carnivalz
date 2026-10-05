@@ -3,8 +3,8 @@ extends RefCounted
 
 # QUELLO CHE STA SOPRA LA GRIGLIA della proiezione (Proiezione.gd): la
 # cornice e il righello, il titolo spaziato, i segnali dei Carnivalz in
-# corso, gli squarci delle fratture, le etichette a didascalia, la nave con
-# la sua scia, il mirino, la frattura nuova che si strappa. La colonna delle
+# corso, gli squarci delle fratture, le etichette a didascalia, il mirino,
+# la frattura nuova che si strappa. La colonna delle
 # schede a destra e' SchedaProiezione.
 #
 # Il carattere e' quello dei dialoghi (Bricolage) stretto e leggero, tutto
@@ -86,7 +86,6 @@ static func disegna(p: Proiezione, tela: Control) -> void:
 	segnali(p, tela)
 	squarci(p, tela)
 	etichette(p, tela)
-	rotta(p, tela)
 	mirino(p, tela)
 	crepa(p, tela)
 	SchedaProiezione.disegna(p, tela)
@@ -210,7 +209,7 @@ static func etichetta(p: Proiezione, tela: Control, c: Dictionary, s: Vector2, c
 	var tinta := Color(p.tinte["inchiostro"] if stato in ["spento", "visto"] else p.tinte["carta"], compare)
 	var nome := String(c["nome"]).to_upper()
 	# la didascalia e' larga quanto la sua riga piu' lunga: il nome o lo stato
-	var lungo := maxf(larghezza(nome, 11, 450, 85, 2), larghezza(parola_di_stato(stato), 9, 400, 85, 2) + 13.0)
+	var lungo := maxf(larghezza(nome, 12, 500, 85, 2), larghezza(parola_di_stato(stato), 10, 420, 85, 2) + 13.0)
 	var verso := 1.0 if s.x + r + 30.0 + lungo < SchedaProiezione.X - 12.0 else -1.0
 	var a := s + Vector2((r * 0.72 + 3.0) * verso, -r * 0.72 - 3.0)
 	var su := 16.0
@@ -224,11 +223,13 @@ static func etichetta(p: Proiezione, tela: Control, c: Dictionary, s: Vector2, c
 		su += 26.0
 	var b := a + Vector2(16.0 * verso, -su)
 	var fine := b + Vector2((lungo + 10.0) * verso, 0)
+	var da := b + Vector2(4, 0) if verso > 0.0 else fine + Vector2(4, 0)
+	# una lastrina scura sotto la scritta: sopra la griglia si legge sempre
+	tela.draw_rect(Rect2(da + Vector2(-4, -19), Vector2(lungo + 8.0, 35)), Color(p.tinte["fondo"], 0.72 * compare))
 	tela.draw_polyline(PackedVector2Array([a, b, fine]), Color(tinta, 0.8 * compare), 1.0)
 	tela.draw_circle(a, 1.8, tinta)
-	var da := b + Vector2(4, 0) if verso > 0.0 else fine + Vector2(4, 0)
-	scrivi(tela, da + Vector2(0, -5), nome, 11, tinta, 450, 85, 2)
-	var riga := da + Vector2(0, 11)
+	scrivi(tela, da + Vector2(0, -5), nome, 12, tinta, 500, 85, 2)
+	var riga := da + Vector2(0, 12)
 	if stato == "nuovo":
 		var batte := 1.0 if Movimento.ridotto() else 0.55 + 0.45 * sin(p.t * 5.0)
 		tela.draw_circle(riga + Vector2(3, -4), 3.0, Color(p.tinte["segnale"], batte * compare))
@@ -237,48 +238,7 @@ static func etichetta(p: Proiezione, tela: Control, c: Dictionary, s: Vector2, c
 		tela.draw_polyline(PackedVector2Array([riga + Vector2(0, -4), riga + Vector2(3, -1), riga + Vector2(9, -8)]),
 				Color(p.tinte["carta"], compare), 1.5)
 		riga.x += 13.0
-	scrivi(tela, riga, parola_di_stato(stato), 9, Color(p.tinte["inchiostro"], compare), 400, 85, 2)
-
-
-static func rotta(p: Proiezione, tela: Control) -> void:
-	# LA NAVE: un triangolo al tratto che vola sulla griglia, con la sua scia
-	var carta: Color = p.tinte["carta"]
-	for i in p.scia.size():
-		if i % 2 == 0:
-			tela.draw_circle(p.sullo_schermo(p.scia[i]), 1.4, Color(carta, float(i) / float(p.scia.size()) * 0.8))
-	var verso := Vector3(p.nave_verso.x, 0, p.nave_verso.z)
-	verso = verso.normalized() if verso.length() > 0.01 else Vector3(-1, 0, 0)
-	var lato := verso.cross(Vector3.UP).normalized()
-	var punte := PackedVector2Array()
-	for punto: Vector3 in [p.nave + verso * 0.55, p.nave - verso * 0.32 + lato * 0.3, p.nave - verso * 0.16,
-			p.nave - verso * 0.32 - lato * 0.3]:
-		punte.append(p.sullo_schermo(punto))
-	if punte[0].x < -1000.0:
-		return
-	# il pieno e' il triangolo esterno, che e' convesso e non si annoda mai;
-	# la tacca della coda la fa solo il contorno. Di taglio, o lontanissima,
-	# la nave e' un segmento: niente pieno
-	var pieno := PackedVector2Array([punte[0], punte[1], punte[3]])
-	if absf(area(pieno)) >= 4.0:
-		tela.draw_colored_polygon(pieno, p.tinte["fondo"])
-	punte.append(punte[0])
-	tela.draw_polyline(punte, carta, 1.5, true)
-	var meta := p.corpo(p.nave_meta)
-	if meta.is_empty():
-		return
-	var a := p.sullo_schermo(p.nave)
-	var b := p.sullo_schermo(meta["pos"])
-	var passi := int(a.distance_to(b) / 9.0)
-	for k in passi:
-		if k % 2 == 0:
-			tela.draw_line(a.lerp(b, float(k) / passi), a.lerp(b, float(k + 1) / passi), Color(carta, 0.5), 1.0)
-
-
-static func area(punti: PackedVector2Array) -> float:
-	var doppia := 0.0
-	for k in punti.size():
-		doppia += punti[k].cross(punti[(k + 1) % punti.size()])
-	return doppia * 0.5
+	scrivi(tela, riga, parola_di_stato(stato), 10, Color(p.tinte["inchiostro"], compare), 420, 85, 2)
 
 
 static func mirino(p: Proiezione, tela: Control) -> void:
@@ -329,8 +289,16 @@ static func crepa(p: Proiezione, tela: Control) -> void:
 				punto += Vector2.RIGHT.rotated(a) * lungo / 5.0
 				punti.append(punto)
 			tela.draw_polyline(punti, Color(p.tinte["carta"], 1.0 - dt), 1.4)
-	if dt < 5.0 and (fmod(dt, 0.5) < 0.32 or Movimento.ridotto()):
-		var r := p.raggio_sullo_schermo(c)
-		var tag := s + Vector2(r + 14.0, -r - 48.0)
-		tela.draw_rect(Rect2(tag, Vector2(112, 18)), p.tinte["segnale"])
-		scrivi(tela, tag + Vector2(6, 13), "NUOVA FRATTURA", 10, p.tinte["fondo"], 650, 85, 2)
+	# l'avviso non lampeggia: entra, resta qualche secondo col suo puntino che
+	# batte, e se ne va. Sta sotto a sinistra: sopra c'e' la didascalia
+	var presenza := liscio(dt * 3.0) * (1.0 - liscio((dt - 4.4) / 0.8))
+	if presenza <= 0.0:
+		return
+	var r := p.raggio_sullo_schermo(c)
+	var tag := s + Vector2(-r - 136.0, r + 14.0)
+	var segnale: Color = p.tinte["segnale"]
+	tela.draw_line(s + Vector2(-r, r) * 0.7, tag + Vector2(124, 9), Color(segnale, presenza), 1.0)
+	tela.draw_rect(Rect2(tag, Vector2(124, 20)), Color(segnale, presenza))
+	var batte := 1.0 if Movimento.ridotto() else 0.6 + 0.4 * sin(dt * 6.0)
+	tela.draw_circle(tag + Vector2(10, 10), 3.0, Color(p.tinte["fondo"], presenza * batte))
+	scrivi(tela, tag + Vector2(20, 14), "NUOVA FRATTURA", 10, Color(p.tinte["fondo"], presenza), 650, 85, 2)

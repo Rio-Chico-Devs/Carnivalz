@@ -1582,11 +1582,14 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
 - **la griglia si piega nei pozzi**: ogni Carnivalz è un pozzo profondo, ogni frattura un pozzo
   più piccolo col suo mondo dentro, che orbita il grande. Lo shader è in `shaders/`;
 - **il primo clic sceglie, il secondo entra**: passando su un corpo il mirino si stringe e la
-  colonna delle schede a destra lo racconta (`SchedaProiezione.gd`); il clic lo sceglie e la
-  nave ci vola; un altro clic, il bottone in fondo alla colonna o Invio confermano. Esc o il tasto
-  destro annullano la scelta; senza scelta Esc è la pausa;
-- dal settore si **cade nel pozzo** del sistema e nel Vuoto si risale; aprendo parte un'**onda di
-  scansione**; una frattura nascosta che compare, finché non ci entri, si **strappa** nella
+  colonna delle schede a destra lo racconta (`SchedaProiezione.gd`: etichette maiuscole e
+  spaziate, il racconto in tondo che affiora parola per parola); il clic lo sceglie, un altro
+  clic, il bottone in fondo alla colonna o Invio confermano. Esc o il tasto destro annullano la
+  scelta; senza scelta Esc è la pausa. La navicella che volava sul bersaglio è stata tolta (Bru:
+  «possiamo risparmiarci questa animazione»);
+- dal settore ci si **lancia sul pianeta** del sistema (non nel pozzo: la camera arriva di fronte
+  al pianeta e finisce esattamente lì) e nel Vuoto si risale dal pianeta del centro; aprendo parte
+  un'**onda di scansione**; una frattura nascosta che compare, finché non ci entri, si **strappa** nella
   griglia con l'avviso «nuova frattura»;
 - i corpi sono **Button veri** e trasparenti che inseguono il loro pianeta: mouse, tastiera,
   prove e automa li premono come qualunque bottone;
@@ -1594,7 +1597,8 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
 
 Colori e inquadrature in `stile.json` (`proiezione`); i testi delle schede in `mappa.json`
 (`epoca`, `descrizione`, `sottotitolo`, `anomalia`; per le fratture anche `pozzo: "grande"` e
-`aspetto: "spento" | "respira"`).
+`aspetto: "spento" | "respira"`). Una descrizione sta in cinque righe della scheda: una prova
+avvisa se è più lunga.
 
 **Le fratture non sono quest.** Sono frazioni del mondo vero, aperte come conseguenza del
 Carnivalz: non contengono una fonte e non si "completano" sconfiggendo qualcosa. Le prime

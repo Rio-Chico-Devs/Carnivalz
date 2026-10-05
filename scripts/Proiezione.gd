@@ -15,11 +15,13 @@ extends Control
 # piegano da sole dentro i pozzi.
 #
 # COME MASS EFFECT (dai riassunti che ho potuto leggere: la mappa a livelli,
-# la nave che si sposta e «entra in orbita», la scansione a impulso):
-#   - due livelli, il settore e il Vuoto: dal settore si cade nel pozzo di un
-#     sistema, nel Vuoto si risale (chi li riempie: Mappa.gd e Vuoto.gd)
+# «entrare in orbita», la scansione a impulso):
+#   - due livelli, il settore e il Vuoto: dal settore ci si lancia sul pianeta
+#     del sistema, nel Vuoto si risale (chi li riempie: Mappa.gd e Vuoto.gd)
 #   - passando su un corpo il mirino si stringe e la scheda a destra si
-#     riempie; il primo clic lo SCEGLIE (la nave ci va), il secondo CONFERMA
+#     riempie; il primo clic lo SCEGLIE, il secondo CONFERMA. La navicella che
+#     volava fin li' non c'e' piu': Bru, «possiamo risparmiarci questa
+#     animazione»
 #   - Esc, o il tasto destro, annulla la scelta; senza una scelta Esc resta
 #     la pausa, come in ogni altra schermata
 #   - aprendo la proiezione parte un'onda di scansione; una frattura nuova si
@@ -78,13 +80,9 @@ var cam_voluta := {}
 var rapidita := 2.0
 
 var sotto := ""                # il corpo sotto il mouse, o col fuoco
-var scelto := ""               # il corpo scelto: la nave ci va
+var scelto := ""               # il corpo scelto: il secondo clic lo conferma
 var da_quando_sotto := 0.0
 var da_quando_scelto := 0.0
-var nave := Vector3(10, 0.8, 7)
-var nave_verso := Vector3(-1, 0, 0)
-var nave_meta := ""
-var scia: Array[Vector3] = []
 var onda := -1.0
 var onda_centro := Vector2.ZERO
 var accensione := 999.0
@@ -188,7 +186,7 @@ func inquadratura() -> Dictionary:
 	# l'inquadratura di riposo del livello: i numeri che si toccano stanno in stile.json
 	var p: Dictionary = PER_LIVELLO.get(livello, PER_LIVELLO["settore"])
 	var scritti := CieloProiezione.inquadratura(livello)
-	return {"bersaglio": p["bersaglio"], "giro": p["giro"], "fov": p["fov"],
+	return {"bersaglio": p["bersaglio"], "giro": p["giro"], "fov": p["fov"], "spalla": SPALLA,
 			"distanza": float(scritti.get("distanza", p["distanza"])),
 			"beccheggio": float(scritti.get("beccheggio", p["beccheggio"]))}
 
@@ -307,7 +305,6 @@ func scegli(id: String) -> void:
 		return
 	scelto = id
 	da_quando_scelto = 0.0
-	nave_meta = id
 	AudioManager.interfaccia("conferma")
 	if livello == "vuoto":
 		# come entrare in orbita: la camera si avvicina senza perdere il sistema
@@ -328,7 +325,6 @@ func conferma() -> void:
 
 func annulla() -> void:
 	scelto = ""
-	nave_meta = ""
 	cam_voluta = inquadratura()
 	AudioManager.interfaccia("annulla")
 	annullato.emit()
@@ -358,24 +354,50 @@ func accendi(centro: Vector2) -> void:
 
 
 func cadi_nel_pozzo(id: String) -> void:
-	# DAL SETTORE AL VUOTO: la camera cade nel pozzo del sistema. Chi chiama
-	# cambia schermata dopo; nel Vuoto si risale (risali)
+	# DAL SETTORE AL VUOTO: ci si lancia SUL PIANETA del sistema. Bru, sulla
+	# prima versione: «quando ti lanci sembra andare verso il centro del pozzo
+	# gravitazionale invece che sul pianeta» - la camera guardava giu' nel
+	# pozzo, e la spalla la spostava di lato. Adesso arriva di fronte al
+	# pianeta, dritta, finche' lo schermo e' suo. Chi chiama cambia schermata
+	# dopo; nel Vuoto si risale (risali)
 	var c := corpo(id)
 	if c.is_empty() or Movimento.ridotto():
 		return
-	rapidita = 2.6
-	cam_voluta = {"bersaglio": c["pos"], "distanza": 1.6, "giro": cam["giro"], "beccheggio": 78.0, "fov": 72.0}
-	var attesa := create_tween()
-	attesa.tween_interval(CieloProiezione.misura("tuffo", 1.1))
-	await attesa.finished
+	# una corsa con un inizio e una fine, non un inseguimento: deve finire
+	# proprio sul pianeta quando lo schermo cambia
+	var da := cam.duplicate()
+	var a := {"bersaglio": c["pos"], "distanza": float(c["raggio"]) * 2.2, "giro": float(cam["giro"]),
+			"beccheggio": 16.0, "fov": 58.0, "spalla": 0.0}
+	var corsa := create_tween()
+	corsa.tween_method(func(k: float) -> void:
+		cam = mescola(da, a, k)
+		cam_voluta = cam.duplicate(), 0.0, 1.0, CieloProiezione.misura("tuffo", 1.1)) \
+			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	await corsa.finished
 	lampo = 1.0
 
 
-func risali() -> void:
-	# si entra dal fondo del pozzo e la camera si tira indietro fino al sistema
+static func mescola(da: Dictionary, a: Dictionary, k: float) -> Dictionary:
+	# un'inquadratura a meta' strada fra due
+	var fra := {}
+	for chiave in a:
+		if chiave == "bersaglio":
+			fra[chiave] = (da.get(chiave, a[chiave]) as Vector3).lerp(a[chiave], k)
+		else:
+			fra[chiave] = lerpf(float(da.get(chiave, a[chiave])), float(a[chiave]), k)
+	return fra
+
+
+func risali(id_centro: String) -> void:
+	# si arriva davanti al pianeta del centro, come ci si era lanciati, e la
+	# camera si tira indietro fino a vedere tutto il sistema
 	if Movimento.ridotto():
 		return
-	cam = {"bersaglio": Vector3(0, -4.0, 0), "distanza": 3.0, "giro": 0.5, "beccheggio": 80.0, "fov": 70.0}
+	muovi_corpi(0.0)
+	var c := corpo(id_centro)
+	var dove: Vector3 = c.get("pos", Vector3(0, -1.0, 0))
+	cam = {"bersaglio": dove, "distanza": float(c.get("raggio", 1.0)) * 2.4, "giro": 0.4, "beccheggio": 16.0,
+			"fov": 58.0, "spalla": 0.0}
 	cam_voluta = inquadratura()
 	rapidita = 1.6
 	accendi(Vector2.ZERO)
@@ -410,7 +432,6 @@ func _process(delta: float) -> void:
 	muovi_corpi(delta)
 	muovi_camera(delta)
 	muovi_bersagli()
-	muovi_nave(delta)
 	if onda >= 0.0:
 		onda += delta * 16.0
 		if onda > 70.0:
@@ -495,6 +516,7 @@ func muovi_camera(delta: float) -> void:
 	camera.position = bersaglio_cam + Vector3(sin(giro) * cos(becc), sin(becc), cos(giro) * cos(becc)) \
 			* float(cam["distanza"])
 	camera.fov = float(cam["fov"])
+	camera.h_offset = float(cam.get("spalla", SPALLA))
 	camera.look_at(bersaglio_cam, Vector3.UP)
 
 
@@ -521,17 +543,3 @@ func muovi_bersagli() -> void:
 		b.position = s - b.size * 0.5
 		b.visible = float(c["apertura"]) >= 0.6 and s.x > -1000.0
 
-
-func muovi_nave(delta: float) -> void:
-	var meta := corpo(nave_meta)
-	var dove: Vector3 = nave
-	if not meta.is_empty():
-		dove = (meta["pos"] as Vector3) + Vector3(0, float(meta["raggio"]) * 1.6 + 0.9, 0)
-	var verso := dove - nave
-	if verso.length() > 0.05:
-		nave_verso = nave_verso.lerp(verso.normalized(), 1.0 - exp(-delta * 6.0)).normalized()
-		nave = dove if Movimento.ridotto() else nave + verso.normalized() * minf(verso.length(), delta * 9.0)
-	if scia.is_empty() or scia[scia.size() - 1].distance_to(nave) > 0.35:
-		scia.append(nave)
-		if scia.size() > 26:
-			scia.pop_front()
