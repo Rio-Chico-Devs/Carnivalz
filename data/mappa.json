@@ -122,6 +122,62 @@
 					"musica": "",
 					"file_eventi": ""
 				}
+			],
+			"_nota_pianeti": "I pianeti delle risorse (Vuoto.gd): girano intorno al Vuoto come le fratture e si esplorano col loro 'file_eventi' (vuoto: la scheda dice che l'esplorazione arriva). 'risorse' sono parole fra collezionabili, oggetti, minerali, tazo, organizzazione. 'nascosto', 'richiede_flags', 'richiede_oggetti' e 'flag_completato' come per le fratture. QUESTI DUE SONO ESEMPI MIEI, per vedere come vengono: nomi, testi e giochi sono da fare.",
+			"pianeti": [
+				{
+					"id": "pianeta_esempio_uno",
+					"esempio": true,
+					"nome": "Pianeta d'esempio",
+					"epoca": "Da scrivere",
+					"descrizione": "Un pianeta delle risorse d'esempio: quando avrà il suo videogioco, qui si troveranno minerali e tazo. Nome e storia sono ancora da scrivere.",
+					"risorse": ["minerali", "tazo"],
+					"pos": [330, 470],
+					"file_eventi": ""
+				},
+				{
+					"id": "pianeta_esempio_due",
+					"esempio": true,
+					"nome": "Altro pianeta d'esempio",
+					"epoca": "Da scrivere",
+					"descrizione": "Un altro pianeta d'esempio: collezionabili e risorse per l'Organizzazione, appena ci sarà il gioco per prenderli.",
+					"risorse": ["collezionabili", "organizzazione"],
+					"pos": [1060, 420],
+					"file_eventi": ""
+				}
+			],
+			"_nota_segreti": "I segreti del Vuoto (SegretiVuoto.gd): non si vedono finché il cursore non ci passa sopra, poi esce il «!». 'tipo' e' meteorite, crepa (un inizio di frattura) o segnale (si sente: un bip che accelera avvicinandosi). 'premio' puo' dare 'tazo', un 'oggetto' (id di oggetti.json) e un 'flag'; preso una volta, non torna (flag 'segreto_' + id). 'pos' come per le fratture. QUESTI TRE SONO ESEMPI MIEI: posti, testi e premi sono da decidere.",
+			"segreti": [
+				{
+					"id": "meteorite_alla_deriva",
+					"esempio": true,
+					"tipo": "meteorite",
+					"nome": "Un meteorite alla deriva",
+					"epoca": "Caduto chissà quando",
+					"descrizione": "Un sasso nero che gira piano su se stesso, lontano da ogni orbita. Fra le venature c'è ancora qualche tazo.",
+					"premio": {"tazo": 40},
+					"pos": [235, 555]
+				},
+				{
+					"id": "inizio_di_frattura",
+					"esempio": true,
+					"tipo": "crepa",
+					"nome": "Un inizio di frattura",
+					"epoca": "Non ancora aperta",
+					"descrizione": "Qui la griglia non tiene: una frattura che sta cominciando. Non ci si entra, ma al Comando vorranno saperlo.",
+					"premio": {"flag": "visto_inizio_di_frattura"},
+					"pos": [910, -30]
+				},
+				{
+					"id": "segnale_nel_vuoto",
+					"esempio": true,
+					"tipo": "segnale",
+					"nome": "Un segnale nel vuoto",
+					"epoca": "Trasmette da sempre",
+					"descrizione": "Tre note che si ripetono, sempre le stesse, da un punto dove non c'è niente. Registrate, valgono qualcosa.",
+					"premio": {"tazo": 15},
+					"pos": [100, 60]
+				}
 			]
 		},
 		{

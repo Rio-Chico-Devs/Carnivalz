@@ -10,9 +10,14 @@ extends Control
 #
 # L'IDEA. Il Carnivalz deforma la realta' intorno al pianeta (storia.md, «Il
 # Vuoto»), e qui la deformazione si vede: e' un pozzo nella griglia. Ogni
-# frattura e' un pozzo piu' piccolo, col suo mondo dentro, che orbita il
-# grande. Le linee le disegna lo shader sul piano (shaders/), quindi si
-# piegano da sole dentro i pozzi.
+# frattura e' un pozzo piu' piccolo che orbita il grande. Le linee le disegna
+# lo shader sul piano (shaders/), quindi si piegano da sole dentro i pozzi.
+#
+# SOLO I CARNIVALZ SONO PIANETI. Bru: «le fratture devono sembrare piu'
+# distorsioni spazio tempo piu' che pianeti». Un corpo ha una "forma": "sfera"
+# (i Carnivalz, i pianeti delle risorse, i meteoriti) e' una palla a retino;
+# "lente" (le fratture) e' un vortice che piega quello che c'e' dietro
+# (shaders/proiezione_lenti); "nessuna" e' solo un punto con la sua scheda.
 #
 # COME MASS EFFECT (dai riassunti che ho potuto leggere: la mappa a livelli,
 # «entrare in orbita», la scansione a impulso):
@@ -44,6 +49,9 @@ signal annullato
 const GRIGLIA := preload("res://shaders/proiezione_griglia.gdshader")
 const RETINO := preload("res://shaders/proiezione_retino.gdshader")
 const ANELLO := preload("res://shaders/proiezione_anello.gdshader")
+const LENTI := preload("res://shaders/proiezione_lenti.gdshader")
+const LENTI_MASSIME := 12   # quante ne tiene lo shader
+const LENTE := 3.0          # quanto e' larga una lente rispetto al suo corpo: l'anello cade a 0.38
 const SPALLA := 2.4      # la camera guarda un po' a sinistra: a destra c'e' la colonna delle schede
 const PER_LIVELLO := {
 	"settore": {"bersaglio": Vector3(0, -0.8, 0.5), "giro": -0.05, "fov": 50.0, "polare": 0.0, "passo": 1.0,
@@ -67,6 +75,8 @@ var t_livello := 0.0
 
 var vista: SubViewport
 var schermo: TextureRect
+var lenti: ColorRect
+var mat_lenti: ShaderMaterial
 var camera: Camera3D
 var mat_griglia: ShaderMaterial
 var sopra: Control
@@ -90,6 +100,7 @@ var lampo := 0.0
 var crepa_dove := ""
 var nuova_t := -1.0
 var pronta := false            # dopo il primo fotogramma: prima la camera non e' ancora al suo posto
+var cursore_finto := Vector2.INF      # per le prove: il mouse dove lo vuole la prova (anche fuori schermo)
 
 
 func _ready() -> void:
@@ -121,6 +132,15 @@ func costruisci() -> void:
 	schermo.stretch_mode = TextureRect.STRETCH_SCALE
 	schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(schermo)
+	# le fratture: lenti che piegano quello che e' gia' disegnato qui sotto
+	mat_lenti = CieloProiezione.materiale(LENTI, {})
+	tingi(mat_lenti)
+	lenti = ColorRect.new()
+	lenti.material = mat_lenti
+	lenti.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lenti.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lenti.visible = false
+	add_child(lenti)
 	camera = Camera3D.new()
 	camera.near = 0.05
 	camera.far = 400.0
@@ -162,6 +182,8 @@ func misura_della_vista() -> Vector2i:
 	# la proiezione si disegna ai pixel veri della finestra, non ai 1280x720
 	# del gioco: a schermo intero i puntini del retino restano puntini
 	var scala := get_viewport().get_final_transform().get_scale() if get_viewport() != null else Vector2.ONE
+	if DisplayServer.window_get_size() == Vector2i.ZERO:
+		scala = Vector2.ONE   # senza finestra (le prove) si disegna come a 1280x720
 	return Vector2i(maxi(64, roundi(size.x * scala.x)), maxi(64, roundi(size.y * scala.y)))
 
 
@@ -210,24 +232,30 @@ func aggiungi(dati: Dictionary) -> Dictionary:
 	var c := {"id": "", "nome": "", "tipo": "frattura", "orbita": 0.0, "angolo": 0.0, "vel": 0.0,
 			"profondita": 1.6, "largo": 0.55, "raggio": 0.42, "stato": "visto", "epoca": "", "testo": "",
 			"azione": "", "attiva": false, "apertura": 1.0, "bande": 0.0, "spento": 0.0, "segnale": false,
-			"xz": Vector2.ZERO, "pos": Vector3.ZERO, "respiro": 0.0}
+			"xz": Vector2.ZERO, "pos": Vector3.ZERO, "respiro": 0.0, "forma": "sfera", "dati": []}
 	c.merge(dati, true)
-	var sfera := MeshInstance3D.new()
+	if c["forma"] == "sfera":
+		c["nodo"] = sfera(c)
+	c["bottone"] = bersaglio(c)
+	corpi.append(c)
+	return c
+
+
+func sfera(c: Dictionary) -> MeshInstance3D:
+	# un pianeta a retino, come i punti stampati del poster
+	var nodo := MeshInstance3D.new()
 	var forma := SphereMesh.new()
 	forma.radius = 1.0
 	forma.height = 2.0
 	forma.radial_segments = 48
 	forma.rings = 24
-	sfera.mesh = forma
+	nodo.mesh = forma
 	var m := CieloProiezione.materiale(RETINO, {"bande": float(c["bande"]), "spento": float(c["spento"]),
 			"cella": 4.0 * float(vista.size.y) / 720.0})
 	tingi(m)
-	sfera.material_override = m
-	vista.add_child(sfera)
-	c["nodo"] = sfera
-	c["bottone"] = bersaglio(c)
-	corpi.append(c)
-	return c
+	nodo.material_override = m
+	vista.add_child(nodo)
+	return nodo
 
 
 func bersaglio(c: Dictionary) -> Button:
@@ -447,6 +475,7 @@ func _process(delta: float) -> void:
 		mat_griglia.set_shader_parameter("luce_pos", luce["xz"])
 	fondo_dietro.position = Vector2(-160 - float(cam["giro"]) * 600.0, -40 + (float(cam["beccheggio"]) - 28.0) * 6.0)
 	CieloProiezione.agita_grana(grane, t)
+	muovi_lenti()
 	bottone_entra.disabled = not bool(corpo(scelto).get("attiva", false))
 	pronta = true
 	sopra.queue_redraw()
@@ -456,6 +485,8 @@ func pozzi() -> Array[Vector4]:
 	# al massimo sedici, quanti ne tiene lo shader: prima i corpi, poi le stelle lontane
 	var lista: Array[Vector4] = []
 	for c in corpi:
+		if float(c["profondita"]) <= 0.0:
+			continue
 		var respiro := 1.0 + 0.35 * float(c["respiro"]) * sin(t * 2.3)
 		lista.append(Vector4(c["xz"].x, c["xz"].y, float(c["profondita"]) * float(c["apertura"]) * respiro,
 				float(c["largo"])))
@@ -488,12 +519,16 @@ func muovi_corpi(delta: float) -> void:
 	for c in corpi:
 		var xz: Vector2 = c["xz"]
 		var r := float(c["raggio"]) * DisegnoProiezione.elastico(float(c["apertura"]))
-		c["pos"] = Vector3(xz.x, altezza(xz, lista) * 0.5 + r * 1.2 + 0.1, xz.y)
-		var nodo: MeshInstance3D = c["nodo"]
-		nodo.position = c["pos"]
-		nodo.scale = Vector3.ONE * maxf(r, 0.001)
-		nodo.visible = r > 0.01
-		(nodo.material_override as ShaderMaterial).set_shader_parameter("giro", 0.0 if fermi else t * 0.25)
+		var h := altezza(xz, lista)
+		# una sfera galleggia sopra il suo pozzo; una lente sta nella gola, dove la griglia si stringe
+		c["pos"] = Vector3(xz.x, h * 0.8 if c["forma"] == "lente" else h * 0.5 + r * 1.2 + 0.1, xz.y)
+		var nodo: Variant = c.get("nodo")
+		if nodo is MeshInstance3D:
+			(nodo as MeshInstance3D).position = c["pos"]
+			(nodo as MeshInstance3D).scale = Vector3.ONE * maxf(r, 0.001)
+			(nodo as MeshInstance3D).visible = r > 0.01
+			((nodo as MeshInstance3D).material_override as ShaderMaterial).set_shader_parameter("giro",
+					0.0 if fermi else t * 0.25)
 		var anello: Variant = c.get("anello")
 		if anello is MeshInstance3D:
 			(anello as MeshInstance3D).position = c["pos"]
@@ -530,6 +565,37 @@ func raggio_sullo_schermo(c: Dictionary) -> float:
 	var distanza := camera.global_position.distance_to(c["pos"])
 	var focale := size.y * 0.5 / tan(deg_to_rad(camera.fov) * 0.5)
 	return float(c["raggio"]) * DisegnoProiezione.elastico(float(c["apertura"])) * focale / maxf(distanza, 0.01)
+
+
+func muovi_lenti() -> void:
+	# OGNI FRATTURA PIEGA LO SCHERMO intorno alla sua gola. Centri e raggi
+	# sono nei 1280x720 della proiezione; per spostare i pixel veri lo shader
+	# ha bisogno di sapere quanto sono grandi
+	var a := PackedVector4Array()
+	var b := PackedVector4Array()
+	for c in corpi:
+		var s := sullo_schermo(c["pos"])
+		if c["forma"] != "lente" or s.x < -1000.0 or a.size() >= LENTI_MASSIME:
+			continue
+		var respiro := 1.0 + 0.18 * float(c["respiro"]) * sin(t * 2.3)
+		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro,
+				1.0 - float(c["spento"]) * 0.7))
+		b.append(Vector4(float(c["spento"]), float(hash(String(c["id"])) % 628) / 100.0, 0.0, 0.0))
+	var quante := a.size()
+	lenti.visible = quante > 0
+	a.resize(LENTI_MASSIME)
+	b.resize(LENTI_MASSIME)
+	mat_lenti.set_shader_parameter("lenti", a)
+	mat_lenti.set_shader_parameter("lenti_b", b)
+	mat_lenti.set_shader_parameter("n_lenti", quante)
+	mat_lenti.set_shader_parameter("scala", (get_viewport().get_final_transform()
+			* get_global_transform_with_canvas()).get_scale().y)
+	mat_lenti.set_shader_parameter("tempo", 0.0 if Movimento.ridotto() else t)
+
+
+func cursore() -> Vector2:
+	# dove punta il giocatore, in coordinate della proiezione
+	return cursore_finto if cursore_finto.is_finite() else get_local_mouse_position()
 
 
 func muovi_bersagli() -> void:

@@ -138,6 +138,14 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			# la stessa spazzata al contrario, e piu' corta: l'uscita dura meno
 			# dell'entrata anche per l'orecchio
 			return tono(700.0, 0.11, "sega", 22.0, 0.14, 220.0)
+		"segnale":
+			# IL BIP DI UN SEGRETO NEL VUOTO (SegretiVuoto): corto e pulito, come
+			# un rilevatore. Si ripete sempre piu' svelto avvicinandosi, quindi
+			# deve stare sotto a tutto il resto
+			return tono(1320.0, 0.06, "seno", 45.0, 0.14, 1240.0)
+		"scoperta":
+			# il «!» che salta fuori: due ottave in salita, svelte
+			return tono(660.0, 0.2, "triangolo", 14.0, 0.22, 1320.0)
 		"vetro":
 			return vetro()
 		"frantumi":

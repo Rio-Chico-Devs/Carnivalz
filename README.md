@@ -1580,7 +1580,22 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
 (`Proiezione.gd`), riempita da `Mappa.gd` (il settore) e da `Vuoto.gd` (il sistema deformato):
 
 - **la griglia si piega nei pozzi**: ogni Carnivalz è un pozzo profondo, ogni frattura un pozzo
-  più piccolo col suo mondo dentro, che orbita il grande. Lo shader è in `shaders/`;
+  più piccolo che orbita il grande. Lo shader è in `shaders/`;
+- **solo i Carnivalz sono pianeti** (Bru: «le fratture devono sembrare più distorsioni spazio
+  tempo più che pianeti»): una frattura è una **lente** (`shaders/proiezione_lenti.gdshader`)
+  che piega e fa girare quello che c'è dietro, con un arco di luce spezzato, un cuore scuro e
+  il suo squarcio. Un corpo ha una `forma`: `sfera` (Carnivalz, pianeti delle risorse,
+  meteoriti), `lente` (fratture, inizi di frattura) o `nessuna` (un segnale);
+- **i pianeti delle risorse** (`pianeti` del punto, `Vuoto.gd`): piccole sfere in orbita intorno
+  al Vuoto; la scheda dice le risorse (collezionabili, oggetti, minerali, tazo, per
+  l'Organizzazione) e col loro `file_eventi` si esplorano come una frattura, senza dice
+  «esplorazione in arrivo». I due di adesso sono **esempi miei**, da sostituire;
+- **i segreti** (`segreti` del punto, `SegretiVuoto.gd`): non si vedono e col Tab non si
+  raggiungono; quando il cursore passa a meno di 30 pixel esce il «!», e il segreto diventa un
+  corpo da scegliere e prendere una volta sola (`premio`: tazo, un oggetto, un flag; poi il flag
+  `segreto_<id>`). Meteoriti e inizi di frattura mandano ogni tanto un luccichio; un **segnale**
+  non si vede ma si sente, con un bip che accelera avvicinandosi e un'eco intorno al cursore.
+  I tre di adesso sono **esempi miei** (posti, testi, premi da decidere);
 - **il primo clic sceglie, il secondo entra**: passando su un corpo il mirino si stringe e la
   colonna delle schede a destra lo racconta (`SchedaProiezione.gd`: etichette maiuscole e
   spaziate, il racconto in tondo che affiora parola per parola); il clic lo sceglie, un altro
@@ -1593,12 +1608,15 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
   griglia con l'avviso «nuova frattura»;
 - i corpi sono **Button veri** e trasparenti che inseguono il loro pianeta: mouse, tastiera,
   prove e automa li premono come qualunque bottone;
-- col **movimento ridotto** camera e orbite stanno ferme, niente cadute né onde.
+- col **movimento ridotto** camera e orbite stanno ferme, le lenti non girano, niente cadute,
+  onde né luccichii; i segreti si trovano lo stesso.
 
 Colori e inquadrature in `stile.json` (`proiezione`); i testi delle schede in `mappa.json`
 (`epoca`, `descrizione`, `sottotitolo`, `anomalia`; per le fratture anche `pozzo: "grande"` e
-`aspetto: "spento" | "respira"`). Una descrizione sta in cinque righe della scheda: una prova
-avvisa se è più lunga.
+`aspetto: "spento" | "respira"`; per pianeti e segreti `_nota_pianeti` e `_nota_segreti` in
+`mappa.json`). Una descrizione sta in cinque righe della scheda: una prova avvisa se è più
+lunga, e un'altra se un pianeta o un segreto è scritto male (risorsa senza nome, tipo che non
+c'è, oggetto inesistente, due corpi con lo stesso id).
 
 **Le fratture non sono quest.** Sono frazioni del mondo vero, aperte come conseguenza del
 Carnivalz: non contengono una fonte e non si "completano" sconfiggendo qualcosa. Le prime

@@ -23,7 +23,8 @@ Sei cose girano da sole, e nessun'altra:
 | `BoxTesto._process` | mentre la macchina da scrivere scrive | sì, `set_process(false)` |
 | `MappaZona._process` | solo se il `!` è in vista | sì, `set_process(obiettivo_in_vista)` |
 | `Orologio._process` | da `avvia` finché il vetro cede | sì, `set_process(false)` a `rotto` o con `ferma()` |
-| `Proiezione._process` | finché la mappa stellare o il Vuoto sono a schermo | no: è la proiezione, gira finché c'è (camera, orbite, bersagli) |
+| `Proiezione._process` | finché la mappa stellare o il Vuoto sono a schermo | no: è la proiezione, gira finché c'è (camera, orbite, bersagli, lenti) |
+| `SegretiVuoto._process` | finché il Vuoto è a schermo | no: annusa il cursore e fa i bip; costa quanti segreti restano nascosti |
 | `Tracciato._process` | mentre l'ECG **si vede** | sì, esce se non è in vista |
 | `Combattimento._process` | durante uno scontro sullo schermo (passa i turni) | sì, esce se non è avviato |
 

@@ -164,6 +164,10 @@ func _ready() -> void:
 	await prova_il_vuoto_e_una_proiezione()
 	prova_ogni_frattura_ha_la_sua_scheda()
 	await prova_la_proiezione_sta_ferma_col_movimento_ridotto()
+	await prova_le_fratture_sono_distorsioni()
+	await prova_i_pianeti_delle_risorse()
+	await prova_i_segreti_si_trovano_col_cursore()
+	prova_pianeti_e_segreti_scritti_bene()
 	await prova_da_un_altra_schermata_arriva_il_nodo_giusto()
 	await prova_l_icona_del_menu_si_preme_anche_mentre_si_legge()
 	await prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa()
@@ -10537,8 +10541,11 @@ func controlla_i_bersagli(p: Proiezione) -> void:
 			continue
 		guardati += 1
 		var b: Button = c["bottone"]
-		if not b.visible or b.get_rect().get_center().distance_to(s) > 2.0 or b.size.x < 44.0:
-			fuori.append(String(c["id"]))
+		# un decimo di pixel di tolleranza: Godot ricostruisce la larghezza dai
+		# bordi in float32, e 44 torna 43,99997 a seconda di dove sta il bottone
+		if not b.visible or b.get_rect().get_center().distance_to(s) > 2.0 or b.size.x < 43.9:
+			fuori.append("%s (visibile %s, a %.1f px, largo %.0f)" % [c["id"], b.visible,
+					b.get_rect().get_center().distance_to(s), b.size.x])
 	esigi(guardati >= 2, "a schermo ci sono %d corpi: la prova dei bersagli non guarda niente" % guardati)
 	esigi(fuori.is_empty(), "questi corpi non si possono premere dove sono disegnati: %s" % [fuori])
 
@@ -10688,7 +10695,8 @@ func prova_ogni_frattura_ha_la_sua_scheda() -> void:
 	var vuote: Array[String] = []
 	var lunghe: Array[String] = []
 	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
-		for voce: Dictionary in [punto] + Array(punto.get("vuoti", [])):
+		for voce: Dictionary in [punto] + Array(punto.get("vuoti", [])) + Array(punto.get("pianeti", [])) \
+				+ Array(punto.get("segreti", [])):
 			var descrizione := String(voce.get("descrizione", ""))
 			if String(voce.get("epoca", "")) == "" or descrizione == "":
 				vuote.append(String(voce.get("id", "?")))
@@ -10717,6 +10725,17 @@ func prova_la_proiezione_sta_ferma_col_movimento_ridotto() -> void:
 	esigi(p.corpi.map(func(c: Dictionary) -> float: return float(c["angolo"])) == angoli,
 			"col movimento ridotto le fratture girano")
 	esigi(p.onda < 0.0, "col movimento ridotto parte l'onda di scansione")
+	esigi(float(p.mat_lenti.get_shader_parameter("tempo")) == 0.0, "col movimento ridotto le fratture girano su se stesse")
+	# un segreto trovato col movimento ridotto c'e' subito, senza saltar fuori
+	var segreti: SegretiVuoto = vuoto.get("segreti")
+	if not segreti.nascosti.is_empty():
+		var primo: Dictionary = segreti.nascosti[0]
+		p.cursore_finto = segreti.dove(primo, p.pozzi())
+		for i in 2:
+			await get_tree().process_frame
+		var trovato := p.corpo(String(primo["voce"]["id"]))
+		esigi(not trovato.is_empty() and float(trovato["apertura"]) == 1.0,
+				"col movimento ridotto un segreto trovato non c'e' subito tutto")
 	vuoto.queue_free()
 	# e scegliere e confermare parte subito, senza cadere nel pozzo
 	GameState.imposta_flag("tutorial_completato")
@@ -10737,6 +10756,219 @@ func prova_la_proiezione_sta_ferma_col_movimento_ridotto() -> void:
 	Transizioni.in_corso = stato_prima
 	Impostazioni.movimento_ridotto = prima
 	GameState.nuova_partita()
+
+func apri_il_vuoto(punto: Dictionary) -> Control:
+	GameState.punto_mappa_corrente = punto
+	var vuoto: Control = load("res://scenes/Vuoto.tscn").instantiate()
+	add_child(vuoto)
+	var p: Proiezione = vuoto.get("proiezione")
+	p.cursore_finto = Vector2(1, 1)   # in un angolo, lontano da ogni segreto
+	# entrando si risale dal fondo del pozzo: si guarda a camera arrivata
+	await aspetta_che(func() -> bool: return float(p.cam["distanza"]) > 20.0, 6.0)
+	return vuoto
+
+func prova_le_fratture_sono_distorsioni() -> void:
+	# Bru: «le fratture devono sembrare piu' distorsioni spazio tempo piu' che
+	# pianeti, solo i carnivalz sono pianeti». Nel Vuoto il Carnivalz al
+	# centro e i pianeti delle risorse hanno la loro sfera; le fratture no:
+	# sono lenti dello shader, una per frattura, ognuna sulla sua frattura
+	titolo("le fratture sono distorsioni, non pianeti: niente sfera, una lente ciascuna, al suo posto")
+	GameState.nuova_partita()
+	var vuoto: Control = await apri_il_vuoto(punto_della_mappa("carnivalz_del_bosco"))
+	var p: Proiezione = vuoto.get("proiezione")
+	var fratture: Dictionary = vuoto.get("fratture")
+	var sfere: Array[String] = []
+	var senza: Array[String] = []
+	var attese: Array[Vector2] = []
+	for c in p.corpi:
+		var ha_sfera: bool = c.get("nodo") is MeshInstance3D
+		if fratture.has(c["id"]):
+			if ha_sfera:
+				sfere.append(String(c["id"]))
+			var s := p.sullo_schermo(c["pos"])
+			if s.x > -1000.0:
+				attese.append(s)
+		elif String(c["tipo"]) in ["centro", "pianeta"] and not ha_sfera:
+			senza.append(String(c["id"]))
+	esigi(not fratture.is_empty() and sfere.is_empty(), "queste fratture sono ancora pianeti: %s" % [sfere])
+	esigi(senza.is_empty(), "questi pianeti non hanno la loro sfera: %s" % [senza])
+	var quante := int(p.mat_lenti.get_shader_parameter("n_lenti"))
+	esigi(p.lenti.visible and quante == attese.size(),
+			"a schermo ci sono %d fratture, ma lo shader piega %d lenti" % [attese.size(), quante])
+	var lenti: PackedVector4Array = p.mat_lenti.get_shader_parameter("lenti")
+	var storte := 0
+	for i in mini(quante, attese.size()):
+		if Vector2(lenti[i].x, lenti[i].y).distance_to(attese[i]) > 1.0 or lenti[i].z < 12.0:
+			storte += 1
+	esigi(storte == 0, "%d lenti non stanno sulla loro frattura, o sono troppo piccole per vedersi" % storte)
+	vuoto.queue_free()
+	# sulla mappa stellare ci sono solo sistemi: nessuna lente
+	GameState.imposta_flag("tutorial_completato")
+	var mappa: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(mappa)
+	for i in 3:
+		await get_tree().process_frame
+	esigi(not (mappa.get("proiezione") as Proiezione).lenti.visible, "sulla mappa stellare c'e' una lente senza fratture")
+	mappa.queue_free()
+	GameState.nuova_partita()
+
+func prova_i_pianeti_delle_risorse() -> void:
+	# Bru: «metteremo dei pianeti intorno a ogni vuoto, che sono visitabili per
+	# acquisire nuove risorse tramite videogiochi». Un Vuoto finto con tre
+	# pianeti: uno col suo gioco, uno ancora senza, uno nascosto
+	titolo("i pianeti delle risorse: sfere in orbita, la scheda dice cosa c'e', col gioco si esplorano")
+	GameState.nuova_partita()
+	var punto := punto_della_mappa("carnivalz_del_bosco").duplicate(true)
+	punto["pianeti"] = [
+		{"id": "pianeta_col_gioco", "nome": "Col gioco", "epoca": "Prova", "descrizione": "Prova.", "pos": [400, 500],
+			"risorse": ["minerali", "organizzazione"], "file_eventi": "res://data/vuoti/squarcio_industriale.json"},
+		{"id": "pianeta_senza_gioco", "nome": "Senza gioco", "epoca": "Prova", "descrizione": "Prova.",
+			"pos": [900, 200], "risorse": ["tazo"], "file_eventi": ""},
+		{"id": "pianeta_nascosto", "nome": "Nascosto", "epoca": "Prova", "descrizione": "Prova.", "pos": [600, 80],
+			"nascosto": true, "richiede_flags": ["una_flag_che_non_c_e"], "file_eventi": ""}]
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var vuoto: Control = await apri_il_vuoto(punto)
+	var p: Proiezione = vuoto.get("proiezione")
+	var con := p.corpo("pianeta_col_gioco")
+	var senza := p.corpo("pianeta_senza_gioco")
+	esigi(not con.is_empty() and not senza.is_empty() and p.corpo("pianeta_nascosto").is_empty(),
+			"i pianeti scritti in mappa.json non ci sono, o quello nascosto si vede")
+	if con.is_empty() or senza.is_empty():
+		vuoto.queue_free()
+		Transizioni.in_corso = stato_prima
+		return
+	esigi(con.get("nodo") is MeshInstance3D and float(con["orbita"]) > 0.0
+			and float(con["raggio"]) < float(p.corpo("anomalia")["raggio"]),
+			"un pianeta delle risorse non e' una sfera in orbita, piu' piccola del Carnivalz")
+	var righe: Array = con.get("dati", [])
+	esigi(righe.size() == 1 and String(righe[0][0]) == "RISORSE" and "MINERALI" in String(righe[0][1])
+			and "ORGANIZZAZIONE" in String(righe[0][1]), "la scheda del pianeta non dice cosa ci si trova: %s" % [righe])
+	esigi(bool(con["attiva"]) and not bool(senza["attiva"]),
+			"si esplora un pianeta che non ha ancora il suo gioco, o non quello che ce l'ha")
+	(senza["bottone"] as Button).pressed.emit()
+	(senza["bottone"] as Button).pressed.emit()
+	await get_tree().create_timer(0.3).timeout
+	esigi(Transizioni.prossima == "", "un pianeta senza gioco si apre lo stesso (si va a '%s')" % Transizioni.prossima)
+	(con["bottone"] as Button).pressed.emit()
+	(con["bottone"] as Button).pressed.emit()
+	await aspetta_un_cambio_di_schermata()
+	esigi(Transizioni.prossima == "res://scenes/Main.tscn",
+			"due clic sul pianeta col gioco non lo esplorano (si va a '%s')" % Transizioni.prossima)
+	vuoto.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
+
+func insegui(p: Proiezione, segreti: SegretiVuoto, nascosto: Dictionary, scarto: Vector2, secondi: float) -> void:
+	# il cursore resta a 'scarto' dal segreto anche se la camera respira
+	var fine := Time.get_ticks_msec() + roundi(secondi * 1000.0)
+	while Time.get_ticks_msec() < fine:
+		p.cursore_finto = segreti.dove(nascosto, p.pozzi()) + scarto
+		await get_tree().process_frame
+
+func prova_i_segreti_si_trovano_col_cursore() -> void:
+	# Bru: «se navighi con cursore nel vuoto, e passi sopra un determinato
+	# punto esce un puntino esclamativo, potrebbero essere meteoriti, inizi di
+	# frattura o segnali audio»
+	titolo("i segreti: invisibili, il cursore li scopre col «!», si prendono una volta sola, il segnale si sente")
+	GameState.nuova_partita()
+	var punto := punto_della_mappa("carnivalz_del_bosco").duplicate(true)
+	punto["segreti"] = [
+		{"id": "sasso_di_prova", "tipo": "meteorite", "nome": "Sasso", "epoca": "Prova", "descrizione": "Prova.",
+			"premio": {"tazo": 25, "oggetto": "scheggia_di_specchio"}, "pos": [300, 520]},
+		{"id": "bip_di_prova", "tipo": "segnale", "nome": "Bip", "epoca": "Prova", "descrizione": "Prova.",
+			"premio": {"tazo": 5}, "pos": [200, 120]}]
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var vuoto: Control = await apri_il_vuoto(punto)
+	var p: Proiezione = vuoto.get("proiezione")
+	var segreti: SegretiVuoto = vuoto.get("segreti")
+	var bottoni: Array = (vuoto.get("strato_punti") as Control).get_children().map(
+			func(bottone: Node) -> String: return String(bottone.get_meta("id", "")))
+	esigi(p.corpo("sasso_di_prova").is_empty() and segreti.nascosti.size() == 2 and not "sasso_di_prova" in bottoni,
+			"un segreto si vede, o si raggiunge col Tab, prima che il cursore ci passi sopra")
+	var sasso: Dictionary = segreti.nascosti.filter(
+			func(n: Dictionary) -> bool: return n["voce"]["id"] == "sasso_di_prova").front()
+	await insegui(p, segreti, sasso, Vector2(SegretiVuoto.FIUTO + 12.0, 0), 0.3)
+	esigi(p.corpo("sasso_di_prova").is_empty(), "il segreto si scopre da lontano, senza passarci sopra")
+	await insegui(p, segreti, sasso, Vector2(SegretiVuoto.FIUTO - 8.0, 0), 0.2)
+	var c := p.corpo("sasso_di_prova")
+	esigi(not c.is_empty() and bool(c.get("segnale", false)) and p.sotto == "sasso_di_prova",
+			"passandoci sopra il segreto non esce col suo «!», o la scheda non lo mostra")
+	if c.is_empty():
+		vuoto.queue_free()
+		Transizioni.in_corso = stato_prima
+		return
+	await aspetta_che(func() -> bool: return float(c["apertura"]) >= 1.0, 2.0)
+	var b: Button = c["bottone"]
+	esigi(b.visible and b.get_rect().get_center().distance_to(p.sullo_schermo(c["pos"])) < 2.0,
+			"il segreto trovato non si puo' premere dove e' disegnato")
+	var tazo_prima := GameState.tazo
+	b.pressed.emit()
+	b.pressed.emit()
+	esigi(GameState.tazo == tazo_prima + 25 and GameState.possiede_oggetto("scheggia_di_specchio")
+			and GameState.ha_flag("segreto_sasso_di_prova"), "preso il segreto, i tazo o l'oggetto non arrivano")
+	p.bottone_entra.pressed.emit()
+	b.pressed.emit()
+	esigi(GameState.tazo == tazo_prima + 25 and not bool(c["segnale"]), "un segreto si prende due volte, o tiene il «!»")
+	esigi(Transizioni.prossima == "", "prendere un segreto cambia schermata")
+	vuoto.queue_free()
+	# il segnale: piu' vicino, piu' svelto; troppo lontano, muto
+	esigi(SegretiVuoto.intervallo(20.0) < SegretiVuoto.intervallo(120.0)
+			and SegretiVuoto.intervallo(120.0) < SegretiVuoto.intervallo(SegretiVuoto.ASCOLTO),
+			"il segnale non accelera avvicinandosi")
+	# riaprendo il Vuoto il segreto preso non c'e' piu'
+	var di_nuovo: Control = await apri_il_vuoto(punto)
+	var p2: Proiezione = di_nuovo.get("proiezione")
+	var s2: SegretiVuoto = di_nuovo.get("segreti")
+	esigi(s2.nascosti.size() == 1 and String(s2.nascosti[0]["voce"]["id"]) == "bip_di_prova",
+			"un segreto gia' preso torna nel Vuoto")
+	if s2.nascosti.size() == 1:
+		var bip_prima := s2.bip
+		await insegui(p2, s2, s2.nascosti[0], Vector2(SegretiVuoto.ASCOLTO + 40.0, 0), 1.3)
+		esigi(s2.bip == bip_prima, "il segnale si sente da troppo lontano")
+		await insegui(p2, s2, s2.nascosti[0], Vector2(70, 0), 1.3)
+		esigi(s2.bip - bip_prima >= 2, "vicino al segnale non si sente niente (%d bip)" % (s2.bip - bip_prima))
+	di_nuovo.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
+
+func prova_pianeti_e_segreti_scritti_bene() -> void:
+	# quello che sta in mappa.json deve funzionare: risorse con un nome,
+	# giochi che esistono, segreti di un tipo vero con un premio vero, e ogni
+	# corpo di un Vuoto col suo nome (corpo() cerca per id)
+	titolo("i pianeti e i segreti di mappa.json sono scritti bene")
+	var risorse: Dictionary = (load("res://scripts/Vuoto.gd") as GDScript).get_script_constant_map()["RISORSE"]
+	var errori: Array[String] = []
+	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+		var visti: Array[String] = ["anomalia"]
+		for voce: Dictionary in Array(punto.get("vuoti", [])) + Array(punto.get("pianeti", [])) \
+				+ Array(punto.get("segreti", [])):
+			var id := String(voce.get("id", ""))
+			if id == "" or id in visti:
+				errori.append("'%s' manca o c'e' due volte" % id)
+			visti.append(id)
+		for pianeta: Dictionary in punto.get("pianeti", []):
+			for chiave in pianeta.get("risorse", []):
+				if not risorse.has(String(chiave)):
+					errori.append("il pianeta '%s' ha una risorsa senza nome: %s" % [pianeta.get("id"), chiave])
+			var gioco := String(pianeta.get("file_eventi", ""))
+			if gioco != "" and not FileAccess.file_exists(gioco):
+				errori.append("il pianeta '%s' punta a '%s', che non esiste" % [pianeta.get("id"), gioco])
+		for segreto: Dictionary in punto.get("segreti", []):
+			var premio: Dictionary = segreto.get("premio", {})
+			if not SegretiVuoto.COME.has(String(segreto.get("tipo", ""))):
+				errori.append("il segreto '%s' e' di un tipo che non c'e'" % segreto.get("id"))
+			if premio.is_empty() or int(premio.get("tazo", 0)) < 0:
+				errori.append("il segreto '%s' non contiene niente" % segreto.get("id"))
+			var oggetto := String(premio.get("oggetto", ""))
+			if oggetto != "" and GameState.dati_oggetto(oggetto).is_empty():
+				errori.append("il segreto '%s' da' '%s', che non esiste" % [segreto.get("id"), oggetto])
+	esigi(errori.is_empty(), "mappa.json: %s" % [errori])
 
 func prova_da_un_altra_schermata_arriva_il_nodo_giusto() -> void:
 	# CHI ARRIVA DA UN'ALTRA SCHERMATA VEDE IL NODO IN CUI E' ENTRATO.

@@ -86,6 +86,12 @@ static func dati(tela: Control, r: Rect2, c: Dictionary, da: float, tinte: Dicti
 	if c.is_empty():
 		return
 	riga(tela, r.position + Vector2(10, 32), "STATO", DisegnoProiezione.parola_di_stato(String(c["stato"])), tinte)
+	# un pianeta delle risorse o un segreto dicono cosa c'e'; gli altri quanto attirano
+	var righe: Array = c.get("dati", [])
+	if not righe.is_empty():
+		for n in mini(righe.size(), 2):
+			riga(tela, r.position + Vector2(10, 50 + 16 * n), String(righe[n][0]), String(righe[n][1]), tinte)
+		return
 	var attrazione := clampf(float(c["profondita"]) / 5.5, 0.0, 1.0)
 	riga(tela, r.position + Vector2(10, 50), "ATTRAZIONE", "%d%%" % roundi(attrazione * 100.0), tinte)
 	var barra := Rect2(r.position + Vector2(10, 58), Vector2(LARGO - 20, 5))

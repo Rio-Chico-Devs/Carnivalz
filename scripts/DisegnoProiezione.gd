@@ -144,8 +144,10 @@ static func segnali(p: Proiezione, tela: Control) -> void:
 			tela.draw_polyline(giro, Color(p.tinte["segnale"], (1.0 - fase) * 0.8), 1.5, true)
 		var s := p.sullo_schermo(pos)
 		var su := s + Vector2(0, -p.raggio_sullo_schermo(c) - 30)
-		var rombo := PackedVector2Array([su + Vector2(0, -12), su + Vector2(10, 0), su + Vector2(0, 12),
-				su + Vector2(-10, 0)])
+		# il «!» salta fuori con lo stesso elastico delle fratture che si aprono
+		var k := elastico(float(c["apertura"]))
+		var rombo := PackedVector2Array([su + Vector2(0, -12) * k, su + Vector2(10, 0) * k, su + Vector2(0, 12) * k,
+				su + Vector2(-10, 0) * k])
 		tela.draw_colored_polygon(rombo, p.tinte["segnale"])
 		scrivi(tela, su + Vector2(-2.5, 6), "!", 16, p.tinte["fondo"], 800, 100, 0)
 		tela.draw_line(su + Vector2(0, 12), s + Vector2(0, -p.raggio_sullo_schermo(c) - 2),
@@ -156,7 +158,7 @@ static func squarci(p: Proiezione, tela: Control) -> void:
 	# OGNI FRATTURA E' UNO SQUARCIO: un taglio luminoso attraverso il suo
 	# mondo, diverso per ognuna, che pulsa piano
 	for c in p.corpi:
-		if String(c["tipo"]) != "frattura" or float(c["apertura"]) < 0.3:
+		if c["forma"] != "lente" or float(c["apertura"]) < 0.3:
 			continue
 		var s := p.sullo_schermo(c["pos"])
 		var r := p.raggio_sullo_schermo(c)
@@ -182,6 +184,8 @@ static func parola_di_stato(stato: String) -> String:
 		"sigillato": return "SIGILLATA"
 		"aperto": return "APERTA"
 		"spento": return "NESSUN SEGNALE"
+		"trovato": return "TROVATO"
+		"preso": return "PRESO"
 	return stato.to_upper()
 
 
@@ -210,17 +214,10 @@ static func etichetta(p: Proiezione, tela: Control, c: Dictionary, s: Vector2, c
 	var nome := String(c["nome"]).to_upper()
 	# la didascalia e' larga quanto la sua riga piu' lunga: il nome o lo stato
 	var lungo := maxf(larghezza(nome, 12, 500, 85, 2), larghezza(parola_di_stato(stato), 10, 420, 85, 2) + 13.0)
-	var verso := 1.0 if s.x + r + 30.0 + lungo < SchedaProiezione.X - 12.0 else -1.0
+	var posto := posto_libero(s, r, lungo, occupati)
+	var verso := posto.x
+	var su := posto.y
 	var a := s + Vector2((r * 0.72 + 3.0) * verso, -r * 0.72 - 3.0)
-	var su := 16.0
-	for prova in 4:
-		var b0 := a + Vector2(16.0 * verso, -su)
-		var x0 := b0.x if verso > 0.0 else b0.x - lungo - 14.0
-		var spazio := Rect2(x0, b0.y - 16.0, lungo + 14.0, 32.0)
-		if not occupati.any(func(o: Rect2) -> bool: return o.intersects(spazio)):
-			occupati.append(spazio)
-			break
-		su += 26.0
 	var b := a + Vector2(16.0 * verso, -su)
 	var fine := b + Vector2((lungo + 10.0) * verso, 0)
 	var da := b + Vector2(4, 0) if verso > 0.0 else fine + Vector2(4, 0)
@@ -239,6 +236,31 @@ static func etichetta(p: Proiezione, tela: Control, c: Dictionary, s: Vector2, c
 				Color(p.tinte["carta"], compare), 1.5)
 		riga.x += 13.0
 	scrivi(tela, riga, parola_di_stato(stato), 10, Color(p.tinte["inchiostro"], compare), 420, 85, 2)
+
+
+static func spazio_della_didascalia(s: Vector2, r: float, lungo: float, verso: float, su: float) -> Rect2:
+	var b := s + Vector2((r * 0.72 + 19.0) * verso, -r * 0.72 - 3.0 - su)
+	return Rect2(b.x if verso > 0.0 else b.x - lungo - 14.0, b.y - 16.0, lungo + 14.0, 32.0)
+
+
+static func posto_libero(s: Vector2, r: float, lungo: float, occupati: Array[Rect2]) -> Vector2:
+	# DOVE VA UNA DIDASCALIA: (verso, quanto sale). Prima dal lato dove c'e'
+	# posto prima della colonna, salendo un gradino alla volta; se quel lato e'
+	# pieno, l'altro lato. Con i pianeti e i segreti i corpi sono tanti, e
+	# un lato solo non bastava piu'
+	var a_destra := s.x + r + 30.0 + lungo < SchedaProiezione.X - 12.0
+	var a_sinistra := s.x - r - 30.0 - lungo > 24.0
+	var verso := 1.0 if a_destra else -1.0
+	for lato: float in [verso, -verso]:
+		if (lato > 0.0 and not a_destra) or (lato != verso and not a_sinistra):
+			continue
+		for gradino in 4:
+			var su := 16.0 + 26.0 * float(gradino)
+			var spazio := spazio_della_didascalia(s, r, lungo, lato, su)
+			if not occupati.any(func(o: Rect2) -> bool: return o.intersects(spazio)):
+				occupati.append(spazio)
+				return Vector2(lato, su)
+	return Vector2(verso, 120.0)
 
 
 static func mirino(p: Proiezione, tela: Control) -> void:
