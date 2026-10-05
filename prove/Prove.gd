@@ -165,6 +165,7 @@ func _ready() -> void:
 	prova_ogni_frattura_ha_la_sua_scheda()
 	await prova_la_proiezione_sta_ferma_col_movimento_ridotto()
 	await prova_le_fratture_sono_distorsioni()
+	await prova_gli_anelli_passano_dietro_il_pianeta()
 	await prova_i_pianeti_delle_risorse()
 	await prova_i_segreti_si_trovano_col_cursore()
 	prova_pianeti_e_segreti_scritti_bene()
@@ -10809,6 +10810,63 @@ func prova_le_fratture_sono_distorsioni() -> void:
 	for i in 3:
 		await get_tree().process_frame
 	esigi(not (mappa.get("proiezione") as Proiezione).lenti.visible, "sulla mappa stellare c'e' una lente senza fratture")
+	mappa.queue_free()
+	GameState.nuova_partita()
+
+func prova_gli_anelli_passano_dietro_il_pianeta() -> void:
+	# Bru, sugli anelli del segnale: «vanno sopra il pianeta e sembra brutto,
+	# c'e' modo che la parte dei cerchi che va dietro il pianeta venga nascosta
+	# dal pianeta?». Gli anelli si disegnano sopra la griglia, senza la
+	# profondita' del 3D: il pezzo dietro la sfera va tolto a mano. Qui lo si
+	# controlla col conto di Godot (Geometry3D), indipendente da quello del
+	# disegno: un punto e' dietro se il segmento dalla camera a lui attraversa
+	# la sfera
+	titolo("gli anelli del segnale passano DIETRO il pianeta: quel pezzo non si disegna, il resto si'")
+	GameState.nuova_partita()
+	GameState.imposta_flag("tutorial_completato")
+	var mappa: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(mappa)
+	for i in 3:
+		await get_tree().process_frame
+	var p: Proiezione = mappa.get("proiezione")
+	var c := p.corpo("carnivalz_del_bosco")
+	esigi(not c.is_empty() and bool(c["segnale"]) and c.get("nodo") is MeshInstance3D,
+			"sulla mappa il Vuoto Ardente non chiama: la prova non guarda niente")
+	if c.is_empty() or not c.get("nodo") is MeshInstance3D:
+		mappa.queue_free()
+		return
+	var occhio := p.camera.global_position
+	var sfera: Vector3 = c["pos"]
+	var r := (c["nodo"] as MeshInstance3D).scale.x
+	var conti := {"dietro": 0, "disegnati_dietro": 0, "davanti_mancanti": 0, "tagli": 0, "tagli_storti": 0}
+	for fase in [0.05, 0.2, 0.4, 0.7]:
+		var punti := DisegnoProiezione.giro_del_segnale(c, fase)
+		var tratti := DisegnoProiezione.a_tratti(p, punti)
+		var prima := false
+		for i in punti.size():
+			var s := p.sullo_schermo(punti[i])
+			var disegnato := tratti.any(func(t: PackedVector2Array) -> bool: return t.has(s))
+			var dietro := not Geometry3D.segment_intersects_sphere(occhio, punti[i], sfera, r).is_empty()
+			if dietro:
+				conti["dietro"] += 1
+				conti["disegnati_dietro"] += 1 if disegnato else 0
+			elif not disegnato:
+				conti["davanti_mancanti"] += 1
+			if i > 0 and dietro != prima:
+				# il taglio cade sul bordo: la retta dalla camera sfiora la sfera
+				var bordo := DisegnoProiezione.bordo_della_sfera(p, punti[i - 1], punti[i], prima)
+				var verso := (bordo - occhio).normalized()
+				var al_centro := sfera - occhio
+				conti["tagli"] += 1
+				if absf((al_centro - verso * al_centro.dot(verso)).length() - r) > r * 0.02:
+					conti["tagli_storti"] += 1
+			prima = dietro
+	esigi(conti["dietro"] > 0 and conti["tagli"] > 0, "nessun anello passa dietro il pianeta: la prova non guarda niente")
+	esigi(conti["disegnati_dietro"] == 0, "%d punti degli anelli dietro il pianeta si disegnano sopra di lui"
+			% conti["disegnati_dietro"])
+	esigi(conti["davanti_mancanti"] == 0, "%d punti degli anelli che si vedono non si disegnano" % conti["davanti_mancanti"])
+	esigi(conti["tagli_storti"] == 0, "%d tagli degli anelli su %d non cadono sul bordo del pianeta"
+			% [conti["tagli_storti"], conti["tagli"]])
 	mappa.queue_free()
 	GameState.nuova_partita()
 

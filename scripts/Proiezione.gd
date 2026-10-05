@@ -561,6 +561,27 @@ func sullo_schermo(p: Vector3) -> Vector2:
 	return camera.unproject_position(p) * size / Vector2(vista.size)
 
 
+func coperto(punto: Vector3) -> bool:
+	# UN PUNTO DIETRO UN PIANETA: la retta dalla camera al punto entra in una
+	# sfera prima di arrivarci. Per quello che si disegna sopra la griglia (gli
+	# anelli dei segnali), che non ha la profondita' del 3D
+	var occhio := camera.global_position
+	var verso := punto - occhio
+	var lungo := verso.length()
+	verso /= maxf(lungo, 0.0001)
+	for c in corpi:
+		var nodo: Variant = c.get("nodo")
+		if not nodo is MeshInstance3D or not (nodo as MeshInstance3D).visible:
+			continue
+		var r := (nodo as MeshInstance3D).scale.x
+		var al_centro := (nodo as MeshInstance3D).position - occhio
+		var avanti := al_centro.dot(verso)
+		var di_lato := al_centro.length_squared() - avanti * avanti
+		if avanti > 0.0 and di_lato < r * r and avanti - sqrt(r * r - di_lato) < lungo:
+			return true
+	return false
+
+
 func raggio_sullo_schermo(c: Dictionary) -> float:
 	var distanza := camera.global_position.distance_to(c["pos"])
 	var focale := size.y * 0.5 / tan(deg_to_rad(camera.fov) * 0.5)

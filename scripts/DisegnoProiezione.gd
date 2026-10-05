@@ -135,13 +135,9 @@ static func segnali(p: Proiezione, tela: Control) -> void:
 		# gli anelli chiamano solo dove non sei ancora stato; il «!» resta
 		for k in (3 if bool(c.get("chiama", true)) else 0):
 			var fase := 0.5 if Movimento.ridotto() else fmod(p.t * 0.6 + float(k) / 3.0, 1.0)
-			var giro := PackedVector2Array()
-			for i in 41:
-				var a := TAU * float(i) / 40.0
-				var punto := pos + Vector3(cos(a), 0, sin(a)) * (0.8 + fase * 3.4)
-				punto.y = pos.y - float(c["raggio"]) * 0.6
-				giro.append(p.sullo_schermo(punto))
-			tela.draw_polyline(giro, Color(p.tinte["segnale"], (1.0 - fase) * 0.8), 1.5, true)
+			# il pezzo di anello che passa dietro il pianeta non si vede
+			for tratto in a_tratti(p, giro_del_segnale(c, fase)):
+				tela.draw_polyline(tratto, Color(p.tinte["segnale"], (1.0 - fase) * 0.8), 1.5, true)
 		var s := p.sullo_schermo(pos)
 		var su := s + Vector2(0, -p.raggio_sullo_schermo(c) - 30)
 		# il «!» salta fuori con lo stesso elastico delle fratture che si aprono
@@ -152,6 +148,53 @@ static func segnali(p: Proiezione, tela: Control) -> void:
 		scrivi(tela, su + Vector2(-2.5, 6), "!", 16, p.tinte["fondo"], 800, 100, 0)
 		tela.draw_line(su + Vector2(0, 12), s + Vector2(0, -p.raggio_sullo_schermo(c) - 2),
 				Color(p.tinte["segnale"], 0.8), 1.0)
+
+
+static func giro_del_segnale(c: Dictionary, fase: float) -> Array[Vector3]:
+	# un anello del segnale, sulla griglia sotto il corpo: piu' la fase avanza piu' e' largo
+	var pos: Vector3 = c["pos"]
+	var punti: Array[Vector3] = []
+	for i in 41:
+		var a := TAU * float(i) / 40.0
+		var punto := pos + Vector3(cos(a), 0, sin(a)) * (0.8 + fase * 3.4)
+		punto.y = pos.y - float(c["raggio"]) * 0.6
+		punti.append(punto)
+	return punti
+
+
+static func a_tratti(p: Proiezione, punti: Array[Vector3]) -> Array[PackedVector2Array]:
+	# UNA LINEA CHE GIRA INTORNO A UN PIANETA, sullo schermo. Bru: «vanno sopra
+	# il pianeta e sembra brutto». Quello che sta sopra la griglia non ha la
+	# profondita' del 3D, quindi la si fa a mano: i pezzi dietro una sfera non
+	# si disegnano, e il taglio cade sul bordo vero della sfera
+	var tratti: Array[PackedVector2Array] = []
+	var tratto := PackedVector2Array()
+	var prima_coperto := false
+	for i in punti.size():
+		var coperto := p.coperto(punti[i])
+		if i > 0 and coperto != prima_coperto:
+			tratto.append(p.sullo_schermo(bordo_della_sfera(p, punti[i - 1], punti[i], prima_coperto)))
+			if coperto:
+				tratti.append(tratto)
+				tratto = PackedVector2Array()
+		if not coperto:
+			tratto.append(p.sullo_schermo(punti[i]))
+		prima_coperto = coperto
+	tratti.append(tratto)
+	return tratti.filter(func(t: PackedVector2Array) -> bool: return t.size() >= 2)
+
+
+static func bordo_della_sfera(p: Proiezione, da: Vector3, a: Vector3, da_coperto: bool) -> Vector3:
+	# fra un punto coperto e uno no c'e' il bordo: lo si trova dimezzando
+	var qui := da
+	var li := a
+	for n in 10:
+		var mezzo := qui.lerp(li, 0.5)
+		if p.coperto(mezzo) == da_coperto:
+			qui = mezzo
+		else:
+			li = mezzo
+	return qui.lerp(li, 0.5)
 
 
 static func squarci(p: Proiezione, tela: Control) -> void:

@@ -1608,6 +1608,10 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
   griglia con l'avviso «nuova frattura»;
 - i corpi sono **Button veri** e trasparenti che inseguono il loro pianeta: mouse, tastiera,
   prove e automa li premono come qualunque bottone;
+- quello che sta sopra la griglia è disegnato in 2D e non ha la profondità del 3D: gli
+  **anelli dei segnali** si tagliano a mano dove passano dietro una sfera
+  (`Proiezione.coperto`, `DisegnoProiezione.a_tratti`), col taglio sul bordo vero del pianeta.
+  Bru: «vanno sopra il pianeta e sembra brutto»;
 - col **movimento ridotto** camera e orbite stanno ferme, le lenti non girano, niente cadute,
   onde né luccichii; i segreti si trovano lo stesso.
 
