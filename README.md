@@ -55,7 +55,8 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
   di stanza, e il posto sicuro del gioco (qui si salva, da solo). Stanze data-driven da
   `data/sede.json`
 - `scenes/Mappa.tscn` + `scripts/Mappa.gd` — la proiezione del settore, guardata dal tavolo
-  tattico della Sala operativa della Sede: marker data-driven
+  tattico della Sala operativa della Sede: i sistemi di `mappa.json` in una proiezione 3D
+  (`scripts/Proiezione.gd`, vedi «La proiezione» sotto «Il Vuoto»)
 - `scenes/MappaZona.tscn` + `scripts/MappaZona.gd` — mappa dungeon della zona corrente, se ne
   ha una (`mappa_dungeon`, vedi sotto)
 - `scenes/Selezione.tscn` + `scripts/Selezione.gd` — menu del party: mostra solo le classi
@@ -529,7 +530,8 @@ Tre stati, tre colori, **gli stessi in tutto il gioco** (`Stile.segna_visita`):
 | `chiuso` | `✓` | verde | non c'è più niente da fare (lo dice un flag) |
 
 Il pallino non è decorazione: chi non distingue bene i colori deve poter vedere lo stesso quali
-posti gli restano. Ogni schermata che li usa mostra la legenda (`Stile.legenda_visite()`).
+posti gli restano. Ogni schermata che li usa mostra la legenda (`Stile.legenda_visite()`); la
+proiezione della mappa stellare e del Vuoto invece scrive lo stato per esteso sotto ogni nome.
 
 Si applica a: i punti della **mappa stellare**, gli squarci del **Vuoto**, le stanze della
 **mappa di zona**, le stanze della **Sede** e le **scelte di un dialogo che portano altrove**
@@ -1572,6 +1574,28 @@ Ogni punto "!" apre il suo **sistema deformato** (scena Vuoto): il pianeta al ce
 `richiede_flags` per farli apparire). Gli squarci usano il motore eventi con stanze
 collegate nei due sensi (perlustrazione libera).
 
+### La proiezione (mappa stellare e Vuoto)
+Approvata da Bru dopo la bozza filmata, sui suoi tre poster (Interstellar, uno ciano, uno verde
+acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stessa proiezione 3D
+(`Proiezione.gd`), riempita da `Mappa.gd` (il settore) e da `Vuoto.gd` (il sistema deformato):
+
+- **la griglia si piega nei pozzi**: ogni Carnivalz è un pozzo profondo, ogni frattura un pozzo
+  più piccolo col suo mondo dentro, che orbita il grande. Lo shader è in `shaders/`;
+- **il primo clic sceglie, il secondo entra**: passando su un corpo il mirino si stringe e la
+  colonna delle schede a destra lo racconta (`SchedaProiezione.gd`); il clic lo sceglie e la
+  nave ci vola; un altro clic, il bottone in fondo alla colonna o Invio confermano. Esc o il tasto
+  destro annullano la scelta; senza scelta Esc è la pausa;
+- dal settore si **cade nel pozzo** del sistema e nel Vuoto si risale; aprendo parte un'**onda di
+  scansione**; una frattura nascosta che compare, finché non ci entri, si **strappa** nella
+  griglia con l'avviso «nuova frattura»;
+- i corpi sono **Button veri** e trasparenti che inseguono il loro pianeta: mouse, tastiera,
+  prove e automa li premono come qualunque bottone;
+- col **movimento ridotto** camera e orbite stanno ferme, niente cadute né onde.
+
+Colori e inquadrature in `stile.json` (`proiezione`); i testi delle schede in `mappa.json`
+(`epoca`, `descrizione`, `sottotitolo`, `anomalia`; per le fratture anche `pozzo: "grande"` e
+`aspetto: "spento" | "respira"`).
+
 **Le fratture non sono quest.** Sono frazioni del mondo vero, aperte come conseguenza del
 Carnivalz: non contengono una fonte e non si "completano" sconfiggendo qualcosa. Le prime
 del Vuoto Ardente (Meridia, Squarcio Industriale) si chiudono semplicemente esplorandole fino
@@ -1844,8 +1868,10 @@ Gigante.
   ]
 }
 ```
-Posizioni in coordinate 1280×720 (design resolution, stretch `canvas_items`). Solo i punti
-con `attivo: true` mostrano il "!". Nuove campagne = nuovo JSON + nuovo punto, zero codice.
+Posizioni in coordinate 1280×720 (le vecchie coordinate della mappa piatta: la proiezione le
+converte in posti sulla griglia). I punti con `attivo: true` hanno il pozzo profondo e il "!";
+gli altri sono pianeti spenti, che si vedono ma non si aprono. Nuove campagne = nuovo JSON +
+nuovo punto, zero codice.
 
 **Il tutorial non è un punto della mappa.** Le Pianure di Redenna partono da sole a fine
 introduzione (`avvio_automatico` in `events_intro.json`, che chiama `avvia_carnivalz("tutorial",

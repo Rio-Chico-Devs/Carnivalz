@@ -160,6 +160,10 @@ func _ready() -> void:
 	await prova_chi_ti_rigetta_fuori_non_ti_tiene_fermo()
 	prova_giornata_dopo_allenamento()
 	await prova_la_prima_missione_si_sceglie_sulla_mappa()
+	await prova_la_mappa_stellare_e_una_proiezione()
+	await prova_il_vuoto_e_una_proiezione()
+	prova_ogni_frattura_ha_la_sua_scheda()
+	await prova_la_proiezione_sta_ferma_col_movimento_ridotto()
 	await prova_da_un_altra_schermata_arriva_il_nodo_giusto()
 	await prova_l_icona_del_menu_si_preme_anche_mentre_si_legge()
 	await prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa()
@@ -10468,9 +10472,14 @@ func prova_la_prima_missione_si_sceglie_sulla_mappa() -> void:
 			segni.append(figlio)
 	esigi(segni.size() == 1, "sulla mappa della prima missione ci sono %d fratture invece di una" % segni.size())
 	if segni.size() == 1:
-		esigi(segni[0].tooltip_text == "Pianure di Redenna",
-				"la sola frattura della mappa e' «%s», non le Pianure di Redenna" % segni[0].tooltip_text)
+		esigi(String(segni[0].get_meta("nome", "")) == "Pianure di Redenna",
+				"la sola frattura della mappa e' «%s», non le Pianure di Redenna" % segni[0].get_meta("nome", ""))
+		# COME MASS EFFECT: il primo clic sceglie (la nave ci va), il secondo parte
 		segni[0].pressed.emit()
+		esigi(Transizioni.prossima == "" and MappaStellare.missione_da_scegliere != "",
+				"il primo clic sulla meta parte gia': doveva solo sceglierla")
+		segni[0].pressed.emit()
+		await aspetta_un_cambio_di_schermata()
 		esigi(MappaStellare.missione_da_scegliere == "",
 				"scelta la meta la mappa resta in modo «prima missione»: la prossima volta mostrerebbe ancora solo lei")
 		esigi(Transizioni.prossima == "res://scenes/Main.tscn"
@@ -10491,13 +10500,227 @@ func prova_la_prima_missione_si_sceglie_sulla_mappa() -> void:
 	var nomi: Array[String] = []
 	for figlio in dopo.strato_punti.get_children():
 		if figlio is Button:
-			nomi.append((figlio as Button).tooltip_text)
+			nomi.append(String((figlio as Button).get_meta("nome", "")))
 	esigi(not "Pianure di Redenna" in nomi, "la prima missione resta sulla mappa anche dopo: %s" % [nomi])
 	esigi(not nomi.is_empty(), "dopo la prima missione la mappa e' vuota")
 	esigi(dopo.bottone_sede.visible, "sulla mappa di sempre non si torna alla Sede")
 	dopo.queue_free()
 	Transizioni.prossima = ""
 	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
+
+func aspetta_un_cambio_di_schermata(secondi := 4.0) -> void:
+	# la mappa prima cade nel pozzo, poi cambia schermata: si aspetta, con un
+	# tetto. A tempo e non a fotogrammi: senza finestra i fotogrammi volano, e
+	# la caduta dura un secondo vero
+	await aspetta_che(func() -> bool: return Transizioni.prossima != "", secondi)
+
+func aspetta_che(vero: Callable, secondi: float) -> void:
+	var fine := Time.get_ticks_msec() + roundi(secondi * 1000.0)
+	while not bool(vero.call()) and Time.get_ticks_msec() < fine:
+		await get_tree().create_timer(0.05).timeout
+
+func punto_della_mappa(id: String) -> Dictionary:
+	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+		if String(punto.get("id", "")) == id:
+			return punto
+	return {}
+
+func controlla_i_bersagli(p: Proiezione) -> void:
+	# OGNI CORPO SI PREME DOVE E' DISEGNATO: il suo Button gli sta sopra, e non
+	# e' mai piu' piccolo di un dito
+	var fuori: Array[String] = []
+	var guardati := 0
+	for c in p.corpi:
+		var s := p.sullo_schermo(c["pos"])
+		if float(c["apertura"]) < 0.6 or not Rect2(0, 0, 1280, 720).has_point(s):
+			continue
+		guardati += 1
+		var b: Button = c["bottone"]
+		if not b.visible or b.get_rect().get_center().distance_to(s) > 2.0 or b.size.x < 44.0:
+			fuori.append(String(c["id"]))
+	esigi(guardati >= 2, "a schermo ci sono %d corpi: la prova dei bersagli non guarda niente" % guardati)
+	esigi(fuori.is_empty(), "questi corpi non si possono premere dove sono disegnati: %s" % [fuori])
+
+func prova_la_mappa_stellare_e_una_proiezione() -> void:
+	# Bru: «riusciamo a farla dinamica e animata? e con interazioni come su
+	# mass effect». La mappa e' una proiezione 3D (Proiezione.gd); qui si prova
+	# quello che conta per chi gioca: cosa c'e', cosa si puo' premere, e che il
+	# primo clic scelga e il secondo parta
+	titolo("la mappa stellare: i sistemi veri, il primo clic sceglie, il secondo cade nel pozzo")
+	GameState.nuova_partita()
+	GameState.imposta_flag("tutorial_completato")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var mappa: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(mappa)
+	for i in 3:
+		await get_tree().process_frame
+	var p: Proiezione = mappa.get("proiezione")
+	var ardente := p.corpo("carnivalz_del_bosco")
+	var porto := p.corpo("carnivalz_del_porto")
+	esigi(not ardente.is_empty() and bool(ardente["attiva"]) and bool(ardente["segnale"]),
+			"il Vuoto Ardente non c'e', o non si apre, o non chiama col suo «!»")
+	esigi(not porto.is_empty() and not bool(porto["attiva"]) and String(porto["stato"]) == "spento",
+			"il Carnivalz del Porto, dove non c'e' nessun Carnivalz, non e' un pianeta spento che non si apre")
+	controlla_i_bersagli(p)
+	if not ardente.is_empty() and not porto.is_empty():
+		await scegli_e_scendi(mappa, p, ardente["bottone"], porto["bottone"])
+	mappa.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
+
+func scegli_e_scendi(mappa: Control, p: Proiezione, ardente: Button, porto: Button) -> void:
+	# PUNTARE: col fuoco della tastiera la scheda racconta il sistema
+	ardente.grab_focus()
+	esigi(p.sotto == "carnivalz_del_bosco" and SchedaProiezione.mostrato(p).get("id", "") == "carnivalz_del_bosco",
+			"col fuoco su un sistema la scheda non lo racconta")
+	# il Porto si sceglie, ma non si apre
+	porto.pressed.emit()
+	porto.pressed.emit()
+	esigi(p.scelto == "carnivalz_del_porto" and Transizioni.prossima == "",
+			"un sistema spento si e' aperto, o non si e' lasciato scegliere")
+	# ESC CON UNA SCELTA IN MANO la lascia andare, e non apre la pausa
+	var esc := InputEventAction.new()
+	esc.action = "ui_cancel"
+	esc.pressed = true
+	p._unhandled_input(esc)
+	esigi(p.scelto == "" and not Pausa.aperta, "Esc non ha annullato la scelta, o ha aperto la pausa")
+	# il primo clic sceglie: la nave ci va, e non si parte
+	ardente.pressed.emit()
+	esigi(p.scelto == "carnivalz_del_bosco" and p.nave_meta == "carnivalz_del_bosco" and Transizioni.prossima == "",
+			"il primo clic sul Vuoto Ardente non l'ha solo scelto")
+	var partita := [false]
+	mappa.connect("partita", func() -> void: partita[0] = true)
+	p.bottone_entra.pressed.emit()   # «Scendi nel Vuoto»
+	await aspetta_un_cambio_di_schermata()
+	esigi(Transizioni.prossima == "res://scenes/Vuoto.tscn" and partita[0],
+			"confermato il Vuoto Ardente non si scende nel suo Vuoto (si va a '%s')" % Transizioni.prossima)
+	esigi(String(GameState.punto_mappa_corrente.get("id", "")) == "carnivalz_del_bosco"
+			and GameState.gia_visitata("carnivalz_del_bosco"),
+			"sceso nel Vuoto, la partita non sa dove sei, o non lo segna come visitato")
+
+func prova_il_vuoto_e_una_proiezione() -> void:
+	titolo("il Vuoto: l'anomalia sigillata finche' serve, le nascoste si strappano, il secondo clic entra")
+	GameState.nuova_partita()
+	var bosco := punto_della_mappa("carnivalz_del_bosco")
+	GameState.punto_mappa_corrente = bosco
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var vuoto: Control = load("res://scenes/Vuoto.tscn").instantiate()
+	add_child(vuoto)
+	for i in 3:
+		await get_tree().process_frame
+	var p: Proiezione = vuoto.get("proiezione")
+	var presenti: Array[String] = []
+	for c in p.corpi:
+		presenti.append(String(c["id"]))
+	for v: Dictionary in bosco.get("vuoti", []):
+		var nascosta := bool(v.get("nascosto", false))
+		esigi((String(v["id"]) in presenti) != nascosta,
+				"la frattura '%s' %s" % [v["id"], "nascosta si vede gia'" if nascosta else "aperta non si vede"])
+	var anomalia := p.corpo("anomalia")
+	esigi(String(anomalia.get("stato", "")) == "sigillato" and not bool(anomalia.get("attiva", true)),
+			"senza le fratture percorse l'anomalia al centro non e' sigillata")
+	# entrando si risale dal fondo del pozzo: i bersagli si guardano a camera arrivata
+	await aspetta_che(func() -> bool: return float(p.cam["distanza"]) > 18.0, 4.0)
+	controlla_i_bersagli(p)
+	if not anomalia.is_empty():
+		(anomalia["bottone"] as Button).pressed.emit()
+		(anomalia["bottone"] as Button).pressed.emit()
+	esigi(Transizioni.prossima == "", "l'anomalia sigillata si e' aperta lo stesso")
+	var squarcio := p.corpo("squarcio_industriale")
+	if not squarcio.is_empty():
+		(squarcio["bottone"] as Button).pressed.emit()
+		(squarcio["bottone"] as Button).pressed.emit()
+		await aspetta_un_cambio_di_schermata()
+	esigi(Transizioni.prossima == "res://scenes/Main.tscn",
+			"due clic sullo Squarcio Industriale non ci fanno entrare (si va a '%s')" % Transizioni.prossima)
+	vuoto.queue_free()
+	Transizioni.prossima = ""
+	await le_nascoste_si_strappano(bosco)
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
+
+func le_nascoste_si_strappano(bosco: Dictionary) -> void:
+	# CON LE FLAG GIUSTE l'anomalia si apre e le fratture nascoste compaiono:
+	# quella dove non sei mai entrato si strappa davanti a te, quella che
+	# conosci gia' e' semplicemente li'
+	for nome_flag in bosco.get("pianeta_richiede_flags", []):
+		GameState.imposta_flag(String(nome_flag))
+	GameState.segna_visitata("casa_gigante")
+	var vuoto: Control = load("res://scenes/Vuoto.tscn").instantiate()
+	add_child(vuoto)
+	for i in 3:
+		await get_tree().process_frame
+	var p: Proiezione = vuoto.get("proiezione")
+	esigi(bool(p.corpo("anomalia").get("attiva", false)), "percorse le fratture richieste, l'anomalia resta sigillata")
+	var teatro := p.corpo("teatro_del_passato")
+	var casa := p.corpo("casa_gigante")
+	var nuove: Array = vuoto.get("nuove")
+	esigi(not teatro.is_empty() and float(teatro["apertura"]) < 0.1 and "teatro_del_passato" in nuove,
+			"la frattura appena comparsa non si strappa: e' gia' li', come se ci fosse sempre stata")
+	esigi(not casa.is_empty() and is_equal_approx(float(casa["apertura"]), 1.0) and not "casa_gigante" in nuove,
+			"una frattura gia' visitata si strappa ancora, come se fosse nuova")
+	if not teatro.is_empty():
+		await aspetta_che(func() -> bool: return float(teatro["apertura"]) >= 1.0, 6.0)
+		esigi(float(teatro["apertura"]) >= 1.0 and p.crepa_dove == "teatro_del_passato",
+				"la frattura nuova non finisce mai di aprirsi")
+	vuoto.queue_free()
+
+func prova_ogni_frattura_ha_la_sua_scheda() -> void:
+	# la colonna delle schede racconta ogni corpo: un punto o una frattura
+	# senza epoca o senza descrizione avrebbero la scheda vuota
+	titolo("ogni sistema e ogni frattura di mappa.json ha epoca e descrizione per la scheda")
+	var vuote: Array[String] = []
+	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+		for voce: Dictionary in [punto] + Array(punto.get("vuoti", [])):
+			if String(voce.get("epoca", "")) == "" or String(voce.get("descrizione", "")) == "":
+				vuote.append(String(voce.get("id", "?")))
+	esigi(vuote.is_empty(), "senza epoca o descrizione, la scheda di questi e' vuota: %s" % [vuote])
+
+func prova_la_proiezione_sta_ferma_col_movimento_ridotto() -> void:
+	titolo("col movimento ridotto la proiezione sta ferma: niente deriva, orbite, onde o cadute")
+	var prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	GameState.nuova_partita()
+	GameState.punto_mappa_corrente = punto_della_mappa("carnivalz_del_bosco")
+	var vuoto: Control = load("res://scenes/Vuoto.tscn").instantiate()
+	add_child(vuoto)
+	for i in 2:
+		await get_tree().process_frame
+	var p: Proiezione = vuoto.get("proiezione")
+	var dove := p.camera.global_position
+	var angoli: Array = p.corpi.map(func(c: Dictionary) -> float: return float(c["angolo"]))
+	for i in 20:
+		await get_tree().process_frame
+	esigi(p.camera.global_position.distance_to(dove) < 0.001, "col movimento ridotto la camera si muove")
+	esigi(p.corpi.map(func(c: Dictionary) -> float: return float(c["angolo"])) == angoli,
+			"col movimento ridotto le fratture girano")
+	esigi(p.onda < 0.0, "col movimento ridotto parte l'onda di scansione")
+	vuoto.queue_free()
+	# e scegliere e confermare parte subito, senza cadere nel pozzo
+	GameState.imposta_flag("tutorial_completato")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var mappa: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(mappa)
+	await get_tree().process_frame
+	var ardente: Dictionary = (mappa.get("proiezione") as Proiezione).corpo("carnivalz_del_bosco")
+	if not ardente.is_empty():
+		(ardente["bottone"] as Button).pressed.emit()
+		(ardente["bottone"] as Button).pressed.emit()
+	esigi(Transizioni.prossima == "res://scenes/Vuoto.tscn",
+			"col movimento ridotto la conferma aspetta la caduta nel pozzo invece di partire subito")
+	mappa.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	Impostazioni.movimento_ridotto = prima
 	GameState.nuova_partita()
 
 func prova_da_un_altra_schermata_arriva_il_nodo_giusto() -> void:

@@ -1,4 +1,15 @@
 {
+  "proiezione": {
+    "_nota": "LA MAPPA STELLARE E IL VUOTO (Proiezione.gd), approvati da Bru il 5 ottobre («moooolto bene, implementiamo cosi»). Quattro inchiostri come una serigrafia: 'fondo' il nero, 'inchiostro' le linee, 'carta' la luce, 'segnale' un Carnivalz in corso o una frattura nuova. Le altre due tavolozze delle bozze erano ciano (fondo #04080b, inchiostro #2a9fd0, carta #b4ecff) e verde acido (fondo #0a0b07, inchiostro #94c41c, carta #ecffb0, segnale #ff6a3d). 'settore' e 'vuoto' sono le inquadrature: distanza della camera e quanto guarda dall'alto, in gradi. 'orbita' e' quanto girano le fratture (piu' lontane piu' lente), 'tuffo' i secondi della caduta nel pozzo. Numeri miei, da provare.",
+    "fondo": "#0b0e14",
+    "inchiostro": "#4a7aa8",
+    "carta": "#efd8b2",
+    "segnale": "#f29a2e",
+    "settore": {"distanza": 17.0, "beccheggio": 28.0},
+    "vuoto": {"distanza": 21.0, "beccheggio": 33.0},
+    "orbita": 0.11,
+    "tuffo": 1.1
+  },
   "orologio": {
     "_nota": "L'OROLOGIO DELLE SCELTE A TEMPO (Orologio.gd, disegno in Cipolla.gd, crepe in Crepe.gd, rottura in Rottura.gd), approvato da Bru il 5 ottobre. E' un pendolo simulato: 'periodo' e' il tempo di un'oscillazione intera; lo scappamento lo tiene a 'ampiezza' gradi e nell'ultimo quarto lo porta verso 'ampiezza_allarme'; appeso di colpo lo si lascia andare da 'partenza' gradi. 'tic' e 'tic_allarme' sono i secondi fra un tic e l'altro, a riposo e allo scadere. Allo scadere il vetro si crepa in tre colpi e cede dopo 'rotto_a' secondi: e' allora che la scelta va in pezzi (morta lo e' gia' dallo scadere). Numeri miei, da provare.",
     "periodo": 1.35,

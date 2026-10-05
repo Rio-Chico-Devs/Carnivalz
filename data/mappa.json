@@ -1,9 +1,12 @@
 {
+	"_nota_proiezione": "La mappa stellare e il Vuoto sono la proiezione 3D (Proiezione.gd). Per ogni punto e ogni frattura: 'epoca' e' la riga piccola sotto il nome nella scheda, 'descrizione' il testo a blocco. Per un punto, 'sottotitolo' va sopra il titolo grande del suo Vuoto e 'anomalia' racconta il pianeta al centro ('sigillata' e' il testo finche' non si apre). Per una frattura, 'pozzo': 'grande' la fa piu' profonda, 'aspetto': 'spento' la stampa in inchiostro (un mondo perduto) e 'respira' fa pulsare il suo pozzo. I testi di adesso sono presi da docs/storia.md, da riscrivere.",
 	"sfondo": "res://art/mappa.png",
 	"punti": [
 		{
 			"id": "tutorial",
 			"nome": "Pianure di Redenna",
+			"epoca": "La tua prima missione",
+			"descrizione": "Un pianeta primitivo corrotto da una fonte debolissima.",
 			"_nota": "La prima missione, e la sola frattura sulla mappa quando la apre Veronica in sala di proiezione. Bru: «nella mappa dovrebbe essere presente solo quella frattura». Non si vede in nessun altro momento: la sceglie la proiezione, e dopo e' storia (vedi Mappa.gd).",
 			"pos": [520, 360],
 			"attivo": true,
@@ -12,6 +15,10 @@
 		{
 			"id": "carnivalz_del_bosco",
 			"nome": "Il Vuoto Ardente",
+			"epoca": "Carnivalz in corso",
+			"sottotitolo": "Il sistema deformato di Jerah",
+			"descrizione": "Quando un Carnivalz nasce, deforma la realtà intorno al pianeta creando una sorta di sistema solare: il Vuoto.",
+			"anomalia": {"nome": "L'anomalia", "epoca": "Il Carnivalz di Jerah", "descrizione": "Il mondo di Jerah: un deserto in fiamme, fiamme di passione.", "sigillata": "Si apre quando avrai percorso lo Squarcio, Meridia e i Cunicoli."},
 			"tema": "fama e spettacolo — passione, corrida, fiamme",
 			"pos": [400, 300],
 			"attivo": true,
@@ -24,6 +31,8 @@
 				{
 					"id": "squarcio_industriale",
 					"nome": "Lo Squarcio Industriale",
+					"epoca": "Il mondo di Jerah",
+					"descrizione": "Complesso Kizako in rovina, ruggine e calore; sirene e luci di cantiere.",
 					"pos": [250, 190],
 					"musica": "res://audio/musica/frattura_industriale.ogg",
 					"file_eventi": "res://data/vuoti/squarcio_industriale.json"
@@ -31,6 +40,8 @@
 				{
 					"id": "teatro_del_passato",
 					"nome": "Il Teatro del Passato",
+					"epoca": "Il passato",
+					"descrizione": "Un ragazzo si allena in acrobazie folli per una platea vuota.",
 					"pos": [660, 150],
 					"nascosto": true,
 					"richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
@@ -40,6 +51,8 @@
 				{
 					"id": "casa_gigante",
 					"nome": "La Casa Gigante",
+					"epoca": "Il mondo di Jerah",
+					"descrizione": "Gigante nel numero di stanze, non nelle proporzioni. Foto e quadri raccontano senza dire.",
 					"pos": [900, 400],
 					"nascosto": true,
 					"richiede_flags": ["industriale_esplorato", "meridia_esplorata", "quest_ossidiana"],
@@ -49,6 +62,9 @@
 				{
 					"id": "rocca_ossidiana",
 					"nome": "Cunicoli sotterranei di Jondoh",
+					"epoca": "Opzionale · un boss proprio",
+					"pozzo": "grande",
+					"descrizione": "Una frattura più grande delle altre, con un boss proprio. Dungeon oscuro di ossidiana nera.",
 					"pos": [1000, 220],
 					"musica": "res://audio/musica/frattura_ossidiana.ogg",
 					"file_eventi": "res://data/vuoti/rocca_ossidiana.json"
@@ -56,6 +72,9 @@
 				{
 					"id": "meridia",
 					"nome": "Meridia",
+					"epoca": "Un mondo già perduto",
+					"aspetto": "spento",
+					"descrizione": "Non un pezzo del mondo di Jerah, ma un frammento di un altro mondo, già consumato da un proprio Carnivalz, molto prima di questo.",
 					"pos": [80, 260],
 					"musica": "res://audio/musica/frattura_meridia.ogg",
 					"file_eventi": "res://data/vuoti/meridia.json"
@@ -63,6 +82,9 @@
 				{
 					"id": "qualcosa_preme",
 					"nome": "Qualcosa preme",
+					"epoca": "Sconosciuta",
+					"aspetto": "respira",
+					"descrizione": "Un varco che non si apre su un luogo ma su una pressione enorme e senza forma.",
 					"pos": [640, 640],
 					"musica": "",
 					"file_eventi": "res://data/vuoti/qualcosa_preme.json"
@@ -70,6 +92,8 @@
 				{
 					"id": "kizako_ala",
 					"nome": "Kizako Industries — Ala Dimenticata",
+					"epoca": "Kizako Industries",
+					"descrizione": "Un'altra sezione della stessa fabbrica. La ferraglia è posseduta dagli spiriti dei lavoratori.",
 					"pos": [180, 420],
 					"nascosto": true,
 					"richiede_flags": ["industriale_esplorato", "quest_teatro", "casa_ricordo_sconfitto"],
@@ -79,6 +103,8 @@
 				{
 					"id": "fontana",
 					"nome": "La Fontana",
+					"epoca": "Un luogo etereo",
+					"descrizione": "Il suo segreto richiede quattro pezzi raccolti nel gioco.",
 					"pos": [520, 560],
 					"nascosto": true,
 					"richiede_flags": ["industriale_esplorato", "quest_teatro", "casa_ricordo_sconfitto"],
@@ -88,6 +114,8 @@
 				{
 					"id": "frattura_post_v5",
 					"nome": "Una crepa che pulsa",
+					"epoca": "Sconosciuta",
+					"descrizione": "Una crepa che pulsa, e non si apre ancora.",
 					"pos": [740, 540],
 					"nascosto": true,
 					"richiede_flags": ["vuoto5_completo"],
@@ -99,6 +127,8 @@
 		{
 			"id": "carnivalz_del_porto",
 			"nome": "Il Carnivalz del Porto",
+			"epoca": "Nessun segnale",
+			"descrizione": "Nessun Carnivalz in corso: la realtà, qui, è ancora piatta.",
 			"pos": [860, 430],
 			"attivo": false,
 			"file_eventi": "",

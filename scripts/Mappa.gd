@@ -1,23 +1,29 @@
 class_name MappaStellare
 extends Control
 
-# La proiezione del settore, guardata dal tavolo tattico della Sala operativa
-# (vedi Sede.gd): legge data/mappa.json e mostra un "!" dove un Carnivalz sta
-# avendo luogo. Click sul marker -> si entra nel Vuoto di quel sistema.
+# LA MAPPA STELLARE: la proiezione del settore, guardata dal tavolo tattico
+# della Sala operativa (vedi Sede.gd). Legge data/mappa.json e mostra i
+# sistemi: dove un Carnivalz sta avendo luogo c'e' un pozzo profondo e il
+# «!»; dove non c'e', un pianeta spento, che non si apre. Il disegno e i
+# gesti sono in Proiezione.gd: qui ci sono le regole.
 #
-# Non e' piu' il posto in cui si vive fra una missione e l'altra, ed e' per
-# questo che qui non si salva e non si compra: la Sede fa quelle cose. Qui si
-# guarda dove andare, e si va.
+# Non e' il posto in cui si vive fra una missione e l'altra, ed e' per questo
+# che qui non si salva e non si compra: la Sede fa quelle cose. Qui si guarda
+# dove andare, e si va. Il primo clic su un sistema lo sceglie (la nave ci
+# va, la scheda lo racconta); il secondo, o «Scendi nel Vuoto», o Invio, ci
+# fa cadere dentro.
 #
-# Un punto dove non hai ancora messo piede pulsa e si segna col pallino; uno
-# gia' battuto resta li' senza chiamarti (Stile.segna_visita). E' la stessa
-# regola del Vuoto e della mappa di zona.
+# Un sistema dove non hai ancora messo piede chiama: gli anelli si allargano
+# e la didascalia dice «non ci sei ancora stato». Uno gia' battuto resta li'
+# senza chiamarti. E' la stessa regola del Vuoto e della mappa di zona.
 #
 # LA PRIMA VOLTA LA APRE VERONICA, in sala di proiezione: «vedi questa mappa?
 # devi selezionare il punto d'interesse che appare su di essa [...] adesso hai
 # a disposizione solo la tua prima missione». Allora (missione_da_scegliere)
 # sulla mappa c'e' solo quella frattura - i punti "prima_missione" - non si
 # torna alla Sede, e scelta la meta si torna da Veronica per partire.
+
+signal partita   # la meta e' decisa e il cambio di schermata e' chiesto
 
 # aperta da Veronica per la prima missione: il nodo a cui tornare scelta la
 # meta. "" = la mappa di sempre. Sta qui e non in GameState perche' e' una cosa
@@ -26,114 +32,94 @@ static var missione_da_scegliere := ""
 
 const SCENA_VUOTO := "res://scenes/Vuoto.tscn"
 const SCENA_SEDE := "res://scenes/Sede.tscn"
-# Seed solo cosmetico (stelle placeholder): il caso di gioco sta in GameState.rng
-const SEED_STELLE := 20260721
+const SCALA := 42.0   # i "pos" di mappa.json sono pixel di un vecchio 1280x720: tanti fanno un'unita'
 
-@onready var sfondo: TextureRect = %Sfondo
 @onready var strato_punti: Control = %Punti
-@onready var etichetta_tazo: Label = %Tazo
 @onready var bottone_sede: Button = %BottoneSede
+
+var proiezione: Proiezione
+var punti_per_id := {}
+var partendo := false
+
 
 func _ready() -> void:
 	AudioManager.musica_chiave("mappa")
-	resized.connect(queue_redraw)
-	Manifesto.trama_dietro(self).show_behind_parent = true
-	# la proiezione sta nel vetro di un cabinato (Manifesto.vetro_della_proiezione)
-	sfondo.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	sfondo.position = vetro().position
-	sfondo.size = vetro().size
-	Manifesto.titolo_della_proiezione($Titolo as Label)
-	etichetta_tazo.text = "Tazo: %d" % GameState.tazo
-	etichetta_tazo.add_theme_color_override("font_color", Stile.colore("box_testo"))
-	Stile.ritorno(bottone_sede)
-	bottone_sede.pressed.connect(func() -> void:
-		Transizioni.vai(SCENA_SEDE))
-	var mappa: Dictionary = GameState.carica_mappa()
-	var percorso_sfondo: String = mappa.get("sfondo", "")
-	if percorso_sfondo != "" and ResourceLoader.exists(percorso_sfondo):
-		sfondo.texture = load(percorso_sfondo)
 	# e solo se quel nodo c'e' davvero: una partita caricata a meta' scelta non
 	# deve riaprire la mappa della prima missione dalla Sede
 	if not GameState.eventi.has(missione_da_scegliere):
 		missione_da_scegliere = ""
 	var scegliendo := missione_da_scegliere != ""
+	proiezione = Proiezione.new()
+	proiezione.livello = "settore"
+	proiezione.strato = strato_punti
+	proiezione.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(proiezione)
+	move_child(proiezione, 0)
+	proiezione.nota_destra = "TAZO %d" % GameState.tazo
+	var mappa: Dictionary = GameState.carica_mappa()
+	var percorso_sfondo := String(mappa.get("sfondo", ""))
+	if percorso_sfondo != "" and ResourceLoader.exists(percorso_sfondo):
+		proiezione.immagine_di_fondo(load(percorso_sfondo))
 	crea_punti(mappa.get("punti", []), scegliendo)
+	proiezione.aggiungi_stelle_lontane(14, 404)
+	proiezione.confermato.connect(_su_conferma)
+	DisegnoProiezione.vesti(bottone_sede, proiezione.tinte)
+	bottone_sede.pressed.connect(func() -> void:
+		Transizioni.vai(SCENA_SEDE))
 	if scegliendo:
 		# dalla sala di proiezione non si va alla Sede: si sceglie la meta e basta.
 		# E il titolo dice dove sei davvero: non la sala operativa della Sede, che
 		# non hai ancora visto, ma la piattaforma di Veronica
 		bottone_sede.visible = false
-		($Titolo as Label).text = "Sala di proiezione — la tua prima missione"
-		var consegna := Label.new()
-		consegna.text = "Seleziona il punto d'interesse."
-		consegna.add_theme_font_size_override("font_size", Stile.dimensione("corpo"))
-		consegna.add_theme_color_override("font_color", Stile.colore("box_testo"))
-		consegna.position = Vector2(24, 58)
-		add_child(consegna)
-		return
-	var legenda := Stile.legenda_visite()
-	legenda.position = Vector2(24, 58)
-	add_child(legenda)
+		proiezione.intestazione = "CARNIVALZ  ·  SALA DI PROIEZIONE"
+		proiezione.titolo_grande = "LA PRIMA MISSIONE"
+		proiezione.sopratitolo = "SELEZIONA IL PUNTO D'INTERESSE"
+	else:
+		proiezione.titolo_grande = "IL SETTORE"
+		proiezione.sopratitolo = "PROIEZIONE DEL SETTORE  ·  %d SISTEMI" % punti_per_id.size()
+	proiezione.accendi(Vector2.ZERO)
+
 
 func crea_punti(punti: Array, prima_missione := false) -> void:
-	for punto in punti:
-		if not punto.get("attivo", false):
-			continue  # nessun Carnivalz in corso qui: niente marker
+	for punto: Dictionary in punti:
 		# la prima missione si vede solo quando la si sceglie, e allora si vede
 		# solo lei: dopo, quella frattura e' storia
 		if bool(punto.get("prima_missione", false)) != prima_missione:
 			continue
-		if punto.has("richiede_flag") and not GameState.ha_flag(punto["richiede_flag"]):
+		if punto.has("richiede_flag") and not GameState.ha_flag(String(punto["richiede_flag"])):
 			continue  # sbloccato solo dopo un'altra campagna (es. il tutorial)
 		var id_punto := String(punto.get("id", ""))
-		var stato := GameState.stato_visita(id_punto, String(punto.get("flag_completato", "")))
-		var marker := Button.new()
-		marker.text = "!"
-		marker.tooltip_text = punto.get("nome", id_punto)
-		marker.custom_minimum_size = Vector2(44, 44)
-		marker.add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
-		Stile.segna_visita(marker, stato)
-		var pos: Array = punto.get("pos", [0, 0])
-		marker.position = Manifesto.nella_proiezione(Vector2(pos[0], pos[1]), vetro()) - Vector2(22, 22)
-		marker.pressed.connect(_su_punto.bind(punto))
-		strato_punti.add_child(marker)
-		var etichetta := Label.new()
-		etichetta.text = String(punto.get("nome", id_punto))
-		etichetta.add_theme_color_override("font_color", Stile.colore_visita(stato))
-		etichetta.position = marker.position + Vector2(52, 10)
-		etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		strato_punti.add_child(etichetta)
-		if stato != "visto":
-			# un posto nuovo (o uno appena chiuso) si fa notare; uno gia' battuto
-			# resta fermo, o la mappa diventa un albero di Natale
-			var pulsazione := marker.create_tween().set_loops()
-			pulsazione.tween_property(marker, "modulate:a", 0.45, 0.6)
-			pulsazione.tween_property(marker, "modulate:a", 1.0, 0.6)
+		var attivo := bool(punto.get("attivo", false))
+		var stato := GameState.stato_visita(id_punto, String(punto.get("flag_completato", ""))) if attivo else "spento"
+		var pos: Array = punto.get("pos", [640, 360])
+		punti_per_id[id_punto] = punto
+		proiezione.aggiungi({"id": id_punto, "nome": String(punto.get("nome", id_punto)), "tipo": "sistema",
+				"xz": Vector2((float(pos[0]) - 640.0) / SCALA, (float(pos[1]) - 360.0) / SCALA),
+				"profondita": 5.0 if attivo else 1.4, "largo": 1.3 if attivo else 0.7,
+				"raggio": 0.85 if attivo else 0.45, "stato": stato, "segnale": attivo, "chiama": stato == "nuovo",
+				"bande": 1.0 if attivo else 0.0, "spento": 0.0 if attivo else 1.0,
+				"epoca": String(punto.get("epoca", "Carnivalz in corso" if attivo else "Nessun segnale")),
+				"testo": String(punto.get("descrizione", "")),
+				"azione": "Scendi nel Vuoto" if attivo else "Nessun segnale", "attiva": attivo})
 
-func _su_punto(punto: Dictionary) -> void:
+
+func _su_conferma(id: String) -> void:
+	var punto: Dictionary = punti_per_id.get(id, {})
+	if punto.is_empty() or partendo:
+		return
+	partendo = true
 	if missione_da_scegliere != "":
 		# la meta e' scelta: si torna in sala di proiezione, dove Veronica fa
 		# partire il resto
 		var ritorno := missione_da_scegliere
 		missione_da_scegliere = ""
+		await proiezione.cadi_nel_pozzo(id)
 		IngressoNodo.vai_al_nodo(ritorno)
+		partita.emit()
 		return
-	# click sul "!": si entra nel sistema deformato del Carnivalz (il Vuoto)
+	# si cade nel pozzo del sistema: dall'altra parte c'e' il suo Vuoto
 	GameState.punto_mappa_corrente = punto
-	GameState.segna_visitata(String(punto.get("id", "")))
+	GameState.segna_visitata(id)
+	await proiezione.cadi_nel_pozzo(id)
 	Transizioni.vai(SCENA_VUOTO)
-
-func vetro() -> Rect2:
-	return Manifesto.vetro_della_proiezione(get_viewport_rect().size)
-
-func _draw() -> void:
-	var dentro := vetro()
-	Manifesto.disegna_schermo(self, dentro.grow(14.0))
-	if sfondo != null and sfondo.texture != null:
-		return
-	# cielo placeholder finché non c'è l'illustrazione in art/mappa.png
-	var rng := RandomNumberGenerator.new()
-	rng.seed = SEED_STELLE
-	for i in 140:
-		var centro := dentro.position + Vector2(rng.randf() * dentro.size.x, rng.randf() * dentro.size.y)
-		draw_circle(centro, rng.randf_range(0.6, 1.8), Color(1, 1, 1, rng.randf_range(0.25, 0.9)))
+	partita.emit()
