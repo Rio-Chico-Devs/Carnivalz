@@ -11984,7 +11984,18 @@ func prova_osserva_la_scena_c_e_gia_alla_prima_visita() -> void:
 	IngressoNodo.ultimo_esito = {}
 	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
 	add_child(schermata)
-	await get_tree().process_frame
+	# LA BATTUTA FINISCE PRIMA, o e' una gara. Rimontando le scelte a mano
+	# mentre "Entri." si scriveva ancora, a battuta finita il gioco le
+	# rimontava da se' per questo posto - che la scena ce l'ha - e la seconda
+	# meta' trovava «Osserva la scena» rimesso dal gioco, non da lei: falliva
+	# ogni tanto, a seconda di quanto ci metteva la battuta
+	for i in 300:
+		if not schermata.box.sta_scrivendo:
+			break
+		schermata.box.completa()
+		await get_tree().process_frame
+	for i in 3:
+		await get_tree().process_frame
 	# prima visita: mostrando_scena e' falsa, ed e' giusto che lo sia
 	schermata.mostrando_scena = false
 	schermata.ricostruisci_scelte(GameState.eventi["prova_osserva"])
@@ -11998,6 +12009,7 @@ func prova_osserva_la_scena_c_e_gia_alla_prima_visita() -> void:
 		"sequenza": [{"tipo": "narrazione", "testo": "Entri."}],
 		"scelte": [{"testo": "Vai via", "vai": "prova_senza_scena"}],
 	}
+	GameState.nodo_corrente = "prova_senza_scena"
 	schermata.ricostruisci_scelte(GameState.eventi["prova_senza_scena"])
 	await get_tree().process_frame
 	esigi(cerca_bottone_con_testo(schermata.contenitore_scelte, "Osserva la scena") == null,
