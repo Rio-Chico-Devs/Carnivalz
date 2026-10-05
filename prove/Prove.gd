@@ -229,6 +229,7 @@ func _ready() -> void:
 	prova_ogni_mossa_si_esegue_davvero()
 	prova_la_rete_dei_dati_non_ha_buchi()
 	await prova_orologio_delle_scelte()
+	await prova_l_orologio_approvato()
 	prova_minigioco_ai_bordi()
 	prova_combattimento_sotto_stress()
 	await prova_la_giornata_passo_per_passo()
@@ -4942,6 +4943,7 @@ func prova_le_scelte_a_tempo() -> void:
 		# la si poteva ancora cliccare.
 		esigi(scaduto_ma_vivo != null and scaduto_ma_vivo.disabled,
 				"il tempo e' scaduto e la scelta si puo' ancora premere mentre si rompe")
+		trovato_orologio._process(1.0)     # il vetro si crepa in tre colpi, e cede
 		# la rottura non e' istantanea: si aspetta che il vetro abbia finito,
 		# con un tetto, perche' un'attesa senza tetto in una prova e' un modo
 		# elegante di piantarsi
@@ -5094,7 +5096,8 @@ func prova_la_scelta_scaduta_lascia_il_posto_piano() -> void:
 		return
 	esigi(corsa.has_focus(), "la prima scelta, quella a tempo, non parte col fuoco")
 	var y_prima := calma.global_position.y
-	orologio._process(31.0)    # il tempo scade, e la scelta si rompe
+	orologio._process(31.0)    # il tempo scade, e la scelta muore
+	orologio._process(1.0)     # il vetro si crepa in tre colpi, e cede: si rompe
 	for i in 40:
 		if not is_instance_valid(corsa) or not corsa.is_inside_tree():
 			break
@@ -5183,6 +5186,307 @@ func prova_la_scelta_scaduta_si_spegne_senza_muoversi() -> void:
 	esigi(bottone.get_global_rect().is_equal_approx(prima),
 			"spenta, la scelta si e' mossa: era %s, e' %s" % [prima, bottone.get_global_rect()])
 	riga.free()
+
+func prova_l_orologio_approvato() -> void:
+	# LA CIPOLLA APPROVATA DA BRU il 5 ottobre, dopo sei giri di bozze: il
+	# pendolo, le crepe, la catena, la rottura. Ognuna di queste cose si vede
+	# solo muovendosi, e quindi si misura muovendola
+	prova_il_pendolo_dell_orologio()
+	prova_le_crepe_dell_orologio()
+	await prova_la_catena_dell_orologio()
+	await prova_la_rottura_dell_orologio()
+
+func massimo_assoluto(lista: Array[float], da: int, a: int) -> float:
+	var massimo := 0.0
+	for i in range(da, mini(a, lista.size())):
+		massimo = maxf(massimo, absf(lista[i]))
+	return massimo
+
+func prova_il_pendolo_dell_orologio() -> void:
+	# Bru: «possiamo migliorare l'oscillazione? secondo te e' possibile?». Era
+	# un seno sempre uguale; adesso e' un pendolo, e un pendolo si riconosce da
+	# quello che fa: lasciato andare oscilla e si calma, lo scappamento lo tiene
+	# vivo, nell'ultimo quarto si agita, e non salta mai da una posa all'altra
+	titolo("l'orologio dondola come un pendolo, e lo scappamento lo tiene vivo")
+	var ridotto_prima: bool = Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = false
+	var orologio: Control = load("res://scripts/Orologio.gd").new()
+	add_child(orologio)
+	var segnali: Array[String] = []
+	var tempo := [0.0]
+	var quando: Array[float] = []
+	orologio.scaduto.connect(func() -> void:
+		segnali.append("scaduto")
+		quando.append(tempo[0]))
+	orologio.rotto.connect(func() -> void:
+		segnali.append("rotto")
+		quando.append(tempo[0]))
+	orologio.avvia(6.0, 12.0)
+	var angoli: Array[float] = []
+	var scarti: Array[float] = []
+	for i in 340:
+		orologio._process(0.02)
+		tempo[0] += 0.02
+		angoli.append(rad_to_deg(float(orologio.angolo)))
+		scarti.append(rad_to_deg(float(orologio.corpo) - float(orologio.angolo)))
+	esigi(absf(angoli[0]) > 10.0, "appena appeso l'orologio non oscilla: parte da %.1f gradi" % angoli[0])
+	var cambi := 0
+	for i in range(1, 300):
+		if signf(angoli[i]) != signf(angoli[i - 1]):
+			cambi += 1
+	esigi(cambi >= 6, "in sei secondi ha cambiato verso %d volte: non e' un pendolo" % cambi)
+	var calmo := massimo_assoluto(angoli, 150, 220)
+	esigi(calmo > 1.5 and calmo < 7.0, "a riposo dondola di %.1f gradi: doveva stare fra 1,5 e 7" % calmo)
+	var agitato := massimo_assoluto(angoli, 255, 300)
+	esigi(agitato > calmo, "nell'ultimo quarto dondola %.1f gradi e a riposo %.1f: non si agita" % [agitato, calmo])
+	var peggiore := 0.0
+	for i in range(1, angoli.size()):
+		peggiore = maxf(peggiore, absf(angoli[i] - angoli[i - 1]))
+	esigi(peggiore < 2.0, "in due centesimi di secondo l'orologio ha saltato di %.1f gradi" % peggiore)
+	var cerniera := massimo_assoluto(scarti, 150, 220)
+	esigi(cerniera > 0.02 and cerniera < 3.0,
+			"a riposo cassa e archetto si scostano di %.2f gradi: la cerniera e' di ferro o di gomma" % cerniera)
+	esigi(segnali == ["scaduto", "rotto"], "allo scadere l'orologio ha detto %s" % [segnali])
+	if quando.size() == 2:
+		esigi(absf(quando[0] - 6.0) < 0.05, "e' scaduto a %.2f secondi invece che a 6" % quando[0])
+		esigi(quando[1] - quando[0] >= 0.4,
+				"il vetro ha ceduto %.2f secondi dopo lo scadere: non c'era il tempo di creparsi" % (quando[1] - quando[0]))
+	orologio.queue_free()
+	prova_lo_scappamento_nel_tempo_lungo()
+	# COL MOVIMENTO RIDOTTO resta appeso dritto: conta, si crepa e si rompe lo stesso
+	Impostazioni.movimento_ridotto = true
+	var fermo: Control = load("res://scripts/Orologio.gd").new()
+	add_child(fermo)
+	fermo.avvia(1.0, 12.0)
+	var mosso := 0.0
+	for i in 100:
+		fermo._process(0.02)
+		mosso = maxf(mosso, absf(float(fermo.angolo)) + absf(float(fermo.salto)))
+	esigi(mosso < 0.001, "col movimento ridotto l'orologio dondola o salta lo stesso (%.3f)" % mosso)
+	esigi(not fermo.acceso and float(fermo.fine) > 0.0, "col movimento ridotto l'orologio non scade")
+	fermo.queue_free()
+	Impostazioni.movimento_ridotto = ridotto_prima
+
+func prova_lo_scappamento_nel_tempo_lungo() -> void:
+	# SU UNA SCELTA LUNGA si vede quello che su una corta si confonde con lo
+	# slancio della partenza: senza scappamento un pendolo si spegne, e
+	# nell'ultimo quarto i tic devono farsi fitti (contati dal conto alla
+	# rovescia del prossimo tic, che risale solo quando un tic e' battuto)
+	var lungo: Control = load("res://scripts/Orologio.gd").new()
+	add_child(lungo)
+	lungo.avvia(20.0, 12.0)
+	var tic_prima := 0
+	var tic_ultimo_quarto := 0
+	var vivo: Array[float] = []
+	var al_tic_prima := float(lungo.al_tic)
+	for i in 990:
+		lungo._process(0.02)
+		if float(lungo.al_tic) > al_tic_prima:
+			if i >= 750:
+				tic_ultimo_quarto += 1
+			elif i >= 500:
+				tic_prima += 1
+		al_tic_prima = float(lungo.al_tic)
+		if i >= 600 and i < 700:
+			vivo.append(rad_to_deg(float(lungo.angolo)))
+	var dopo_dodici := massimo_assoluto(vivo, 0, vivo.size())
+	esigi(dopo_dodici > 1.5, "dopo dodici secondi dondola di %.1f gradi: lo scappamento non lo tiene vivo" % dopo_dodici)
+	esigi(tic_ultimo_quarto >= tic_prima + 2,
+			"nell'ultimo quarto %d tic, nei cinque secondi prima %d: non accelerano" % [tic_ultimo_quarto, tic_prima])
+	lungo.queue_free()
+
+func prova_le_crepe_dell_orologio() -> void:
+	# Bru: «il tratto della frattura e' troppo denso e la forma non mi piace,
+	# troppo prevedibile». Una rete di vetro vero: fuori centro, diversa per
+	# ogni orologio, sempre la stessa per lo stesso, fina, e al terzo colpo le
+	# crepe principali arrivano al bordo - se no il vetro non si spaccherebbe
+	titolo("le crepe: fuori centro, diverse per ogni orologio, fini, e al bordo all'ultimo colpo")
+	var una := Crepe.new(12345)
+	var stessa := Crepe.new(12345)
+	esigi(una.impatto == stessa.impatto and una.rete.size() == stessa.rete.size(),
+			"lo stesso seme ha dato due reti diverse: le crepe cambierebbero a ogni ridisegno")
+	esigi(Crepe.CAPELLO <= 1.0, "il filo delle crepe e' di %.2f pixel: troppo denso" % Crepe.CAPELLO)
+	var cede := float((Stile.dati.get("orologio", {}) as Dictionary).get("rotto_a", 0.46))
+	var difetti: Array[String] = []
+	var impatti: Array[Vector2] = []
+	for seme in 30:
+		var rete := Crepe.new(seme * 104729 + 3)
+		impatti.append(rete.impatto)
+		var lontano := rete.impatto.distance_to(Cipolla.CENTRO) / Cipolla.CASSA
+		if lontano < 0.17 or lontano > 0.51:
+			difetti.append("impatto a %.2f del raggio" % lontano)
+		var principali := 0
+		for crepa in rete.rete:
+			if float(crepa["pieno"]) < 1.0:
+				continue
+			principali += 1
+			var punti: PackedVector2Array = crepa["punti"]
+			if Crepe.arrivata(crepa, cede) < 0.999 \
+					or punti[punti.size() - 1].distance_to(Cipolla.CENTRO) < Cipolla.CASSA * Crepe.VETRO - 0.1:
+				difetti.append("una principale non arriva al bordo")
+			if crepa["nasce"] == 0 and Crepe.arrivata(crepa, 0.05) > 0.6:
+				difetti.append("al primo colpo una crepa e' gia' arrivata fino in fondo")
+		if principali < 3 or principali > 4:
+			difetti.append("%d crepe principali" % principali)
+	esigi(difetti.is_empty(), "le crepe di trenta orologi hanno questi difetti: %s" % [difetti.slice(0, 4)])
+	var diversi := 0
+	for i in range(1, impatti.size()):
+		if impatti[i].distance_to(impatti[i - 1]) > 2.0:
+			diversi += 1
+	esigi(diversi >= 27, "su trenta orologi solo %d si crepano in un punto diverso dal precedente" % diversi)
+	# UN TAGLIO CHIUSO DENTRO UN PEZZO gli fa un buco, e Godot lo restituisce
+	# come un poligono in piu' (in senso orario): non e' un pezzo di vetro
+	var quadro := PackedVector2Array([Vector2(0, 0), Vector2(40, 0), Vector2(40, 40), Vector2(0, 40)])
+	var dentro := PackedVector2Array([Vector2(15, 15), Vector2(25, 15), Vector2(25, 25), Vector2(15, 25)])
+	var restano: Array = Rottura.senza([quadro], dentro)
+	esigi(restano.size() == 1, "un taglio chiuso dentro un pezzo ne ha fatti %d: il buco e' diventato un pezzo" % restano.size())
+
+func prova_la_catena_dell_orologio() -> void:
+	# LA CATENA E' UNA CORDA: un capo all'archetto, l'altro sotto la scelta,
+	# pende fra i due, e oscillando non si allunga e non si accorcia
+	titolo("la catena pende fra l'archetto e la scelta, e non cambia lunghezza")
+	var riga := HBoxContainer.new()
+	riga.position = Vector2(300, 200)
+	riga.size = Vector2(520, 94)
+	add_child(riga)
+	var orologio: Control = load("res://scripts/Orologio.gd").new()
+	riga.add_child(orologio)
+	var bottone := Button.new()
+	bottone.custom_minimum_size = Vector2(220, 48)
+	bottone.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	riga.add_child(bottone)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	orologio.avvia(30.0, 12.0)
+	for i in 150:
+		orologio._process(0.02)
+	var nodi: PackedVector2Array = orologio.nodi
+	var cima: Vector2 = orologio.get_global_transform() * (Cipolla.PERNO + Vector2(0, float(orologio.salto)))
+	var fondo: Vector2 = bottone.get_global_transform() * Vector2(30.0, bottone.size.y * 0.3)
+	esigi(nodi.size() > 4, "la catena non c'e'")
+	if nodi.size() > 4:
+		esigi(nodi[0].distance_to(cima) < 0.5 and nodi[nodi.size() - 1].distance_to(fondo) < 0.5,
+				"la catena non va dall'archetto alla scelta")
+		var tratto := float(orologio.tratto_catena)
+		var peggiore := 0.0
+		for i in range(1, nodi.size()):
+			peggiore = maxf(peggiore, absf(nodi[i].distance_to(nodi[i - 1]) - tratto) / tratto)
+		esigi(peggiore < 0.08, "oscillando un tratto di catena si e' allungato del %d%%" % roundi(peggiore * 100.0))
+		var meta := nodi[int(nodi.size() / 2.0)]
+		var sulla_retta := cima.lerp(fondo, (meta.x - cima.x) / maxf(fondo.x - cima.x, 0.001))
+		esigi(meta.y > sulla_retta.y + 3.0, "la catena non pende: sta tesa come un filo")
+		# E RICADE: pende perche' pesa, non perche' e' nata a pancia. Tirata
+		# su sopra la retta, deve tornare giu' da sola
+		var su: PackedVector2Array = orologio.nodi
+		var su_prima: PackedVector2Array = orologio.nodi_prima
+		for i in range(1, su.size() - 1):
+			su[i] += Vector2(0, -50)
+			su_prima[i] += Vector2(0, -50)
+		orologio.nodi = su
+		orologio.nodi_prima = su_prima
+		for i in 75:
+			orologio._process(0.02)
+		var ricaduta: Vector2 = orologio.nodi[int(nodi.size() / 2.0)]
+		esigi(ricaduta.y > sulla_retta.y + 3.0,
+				"tirata su, la catena resta per aria (%.0f pixel sopra la retta): non pesa" % (sulla_retta.y - ricaduta.y))
+	riga.queue_free()
+
+func prova_la_rottura_dell_orologio() -> void:
+	# SCADUTA, LA SCELTA MUORE SUBITO E VA IN PEZZI DOPO: prima il vetro si
+	# crepa in tre colpi, poi cede. I pezzi sono dell'orologio e della scelta e
+	# basta - la rottura di prima fotografava un rettangolo di schermo, e meta'
+	# delle schegge erano pezzi di buio - e cadono e svaniscono
+	titolo("la scelta scaduta si crepa, poi va in pezzi: solo orologio e scelta, che cadono e svaniscono")
+	GameState.nuova_partita()
+	GameState.eventi["prova_rottura"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "Decidi."}],
+		"scelte": [
+			{"testo": "Di corsa", "genere": "eroe", "tempo": 30.0, "vai": "prova_rottura"},
+			{"testo": "Con calma", "vai": "prova_rottura"},
+		],
+	}
+	GameState.nodo_corrente = "prova_rottura"
+	IngressoNodo.ultimo_esito = {}
+	var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+	add_child(schermata)
+	for i in 300:
+		if schermata.box.sta_scrivendo:
+			schermata.box.completa()
+		elif cerca_bottone_con_testo(schermata.contenitore_scelte, "Con calma") != null:
+			break
+		await get_tree().process_frame
+	await get_tree().process_frame
+	var orologio := cerca_orologio(schermata.contenitore_scelte)
+	var corsa := cerca_bottone_con_testo(schermata.contenitore_scelte, "Di corsa")
+	esigi(orologio != null and corsa != null, "la scelta a tempo non c'e', o non ha l'orologio")
+	if orologio == null or corsa == null:
+		schermata.free()
+		return
+	# l'eroe e non il villain: il rosso del villain e' anche il colore che
+	# l'orologio ha di suo, e la prova passerebbe senza che nessuno glielo dica
+	esigi(orologio.get("tinta_genere") == Stile.colore("eroe"),
+			"il tempo perso sull'orologio non ha il colore della scelta")
+	# IL TEMPO PASSA DA SOLO. Tutto il resto qui gira a mano, con _process: e a
+	# mano girava anche quando nel gioco l'orologio era spento, perche' Main lo
+	# avvia prima di appenderlo e _ready lo rispegneva
+	var rimasto_prima := float(orologio.get("rimasto"))
+	for i in 3:
+		await get_tree().process_frame
+	esigi(orologio.is_processing() and float(orologio.get("rimasto")) < rimasto_prima,
+			"appeso alla scelta l'orologio e' fermo: il tempo non passa e la scelta non scade mai")
+	var rotture := func() -> Array:
+		return schermata.get_children().filter(func(n: Node) -> bool: return n is Rottura)
+	orologio._process(31.0)
+	orologio._process(0.4)
+	esigi(corsa.disabled, "scaduta, la scelta si puo' ancora premere mentre il vetro si crepa")
+	esigi(corsa.is_inside_tree() and rotture.call().is_empty(),
+			"la scelta e' andata in pezzi subito: il vetro doveva prima creparsi")
+	var forma: Dictionary = orologio.forma_della_rottura()
+	var etichetta := corsa.get_global_rect().grow(14.0)
+	orologio._process(0.1)
+	var trovate: Array = rotture.call()
+	esigi(trovate.size() == 1, "il vetro ha ceduto e di rotture ce ne sono %d" % trovate.size())
+	if trovate.size() == 1:
+		misura_la_rottura(trovate[0], forma, etichetta)
+	schermata.free()
+	GameState.nuova_partita()
+
+func misura_la_rottura(rottura: Rottura, forma: Dictionary, etichetta: Rect2) -> void:
+	var vetro := 0
+	var scelta := 0
+	var fuori: Array[String] = []
+	for pezzo in rottura.pezzi:
+		var dove: Vector2 = pezzo["pos"]
+		if pezzo["razza"] == "vetro":
+			vetro += 1
+			if dove.distance_to(forma["centro"]) > float(forma["raggio"]) + 16.0:
+				fuori.append("vetro a %s" % dove)
+		else:
+			scelta += 1
+			if not etichetta.has_point(dove):
+				fuori.append("scelta a %s" % dove)
+	esigi(vetro >= 4, "l'orologio e' andato in %d pezzi: troppo pochi per sembrare vetro" % vetro)
+	esigi(scelta >= 4, "la scelta e' andata in %d pezzi" % scelta)
+	esigi(fuori.is_empty(), "ci sono pezzi fuori dall'orologio e dalla scelta, cioe' sfondo: %s" % [fuori.slice(0, 3)])
+	esigi(not rottura.catena.is_empty(), "la catena e' sparita invece di cadere a pezzi")
+	var prima: Array[float] = []
+	for pezzo in rottura.pezzi:
+		prima.append((pezzo["pos"] as Vector2).y)
+	esigi(is_equal_approx(rottura.opacita(), 1.0), "appena rotta e' gia' trasparente")
+	for i in 30:
+		rottura._process(1.0 / 60.0)
+	var scesi := 0
+	for i in rottura.pezzi.size():
+		if (rottura.pezzi[i]["pos"] as Vector2).y > prima[i]:
+			scesi += 1
+	esigi(scesi == rottura.pezzi.size(), "dopo mezzo secondo solo %d pezzi su %d sono scesi" % [scesi, rottura.pezzi.size()])
+	var finita := [false]
+	rottura.finito.connect(func() -> void: finita[0] = true)
+	for i in 90:
+		if finita[0]:
+			break
+		rottura._process(1.0 / 60.0)
+	esigi(finita[0], "i pezzi non se ne vanno mai: restano a schermo per sempre")
 
 func conta_bottoni(radice: Node) -> int:
 	var quanti := 0

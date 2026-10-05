@@ -22,7 +22,7 @@ Sei cose girano da sole, e nessun'altra:
 | `Frantumi._process` | mentre le schegge cadono | sì, `set_process(false)` e si libera |
 | `BoxTesto._process` | mentre la macchina da scrivere scrive | sì, `set_process(false)` |
 | `MappaZona._process` | solo se il `!` è in vista | sì, `set_process(obiettivo_in_vista)` |
-| `Orologio._process` | solo a orologio acceso | sì, esce subito se spento |
+| `Orologio._process` | da `avvia` finché il vetro cede | sì, `set_process(false)` a `rotto` o con `ferma()` |
 | `Tracciato._process` | mentre l'ECG **si vede** | sì, esce se non è in vista |
 | `Combattimento._process` | durante uno scontro sullo schermo (passa i turni) | sì, esce se non è avviato |
 
@@ -220,6 +220,24 @@ finito in mezzo senza farsi notare.
 > fetta troppo sottile appena parte. Provate una per una, né una soglia
 > sull'angolo minimo né un punto in più sull'arco cambiavano niente. Era solo il
 > giro intero. La correzione è un `minf(angolo, TAU - 0.01)`.
+
+**La cipolla approvata** (5 ottobre, dopo sei giri di bozze) ha diviso il lavoro
+in quattro: `Cipolla.gd` disegna, `Crepe.gd` è la rete del vetro, `Orologio.gd`
+conta e si muove (pendolo, scappamento, cerniera, catena a corda),
+`Rottura.gd` fa i pezzi. E l'orologio adesso lo dice **due volte**, perché sono
+due cose diverse:
+
+| segnale | quando | chi ascolta fa |
+|---|---|---|
+| `scaduto` | il tempo è finito | la scelta si spegne **subito**: non si preme più |
+| `rotto` | dopo i tre colpi in cui il vetro si crepa | la scelta va in pezzi e il posto si chiude |
+
+Fra i due la scelta è già morta ma ancora lì: è il «manchi timing non recuperi»
+di Bru, e l'animazione non deve rimandarlo. Le prove nuove misurano quello che si
+vede solo muovendosi — che oscilli e si calmi, che lo scappamento lo tenga vivo e
+nell'ultimo quarto lo agiti, che non salti mai di posa, che la catena penda e non
+cambi lunghezza, che le crepe arrivino al bordo, che i pezzi siano solo orologio e
+scelta (mai sfondo) e se ne vadano — e ognuna è stata rotta apposta.
 
 ## Chi controlla i controlli
 

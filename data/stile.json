@@ -1,4 +1,14 @@
 {
+  "orologio": {
+    "_nota": "L'OROLOGIO DELLE SCELTE A TEMPO (Orologio.gd, disegno in Cipolla.gd, crepe in Crepe.gd, rottura in Rottura.gd), approvato da Bru il 5 ottobre. E' un pendolo simulato: 'periodo' e' il tempo di un'oscillazione intera; lo scappamento lo tiene a 'ampiezza' gradi e nell'ultimo quarto lo porta verso 'ampiezza_allarme'; appeso di colpo lo si lascia andare da 'partenza' gradi. 'tic' e 'tic_allarme' sono i secondi fra un tic e l'altro, a riposo e allo scadere. Allo scadere il vetro si crepa in tre colpi e cede dopo 'rotto_a' secondi: e' allora che la scelta va in pezzi (morta lo e' gia' dallo scadere). Numeri miei, da provare.",
+    "periodo": 1.35,
+    "ampiezza": 4.0,
+    "ampiezza_allarme": 11.0,
+    "partenza": 17.0,
+    "tic": 1.0,
+    "tic_allarme": 0.22,
+    "rotto_a": 0.46
+  },
   "_nota": "Linguaggio visivo del gioco, in un posto solo. Da qui escono il tema di Godot (Stile.gd lo costruisce all'avvio e lo applica alla radice: tutte le schermate lo ereditano) e i colori che gli script chiedono a Stile.colore(). Cambiare un valore qui cambia tutto il gioco, senza toccare una scena.",
   "_nota_font": "usa_font_di_sistema: true prende il primo font disponibile dell'elenco (l'ultimo nome è una famiglia generica, quindi qualcosa si trova sempre). Se Bru mette un .ttf in res://art/font/ basta scriverne il percorso in file_corpo/file_titolo e quello vince su tutto. Se in gioco il testo dovesse sparire, mettere usa_font_di_sistema a false: si torna al font incorporato di Godot.",
   "font": {

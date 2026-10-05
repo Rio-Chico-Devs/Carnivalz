@@ -982,20 +982,21 @@ func riga_di_scelta(bottone: Button, scelta: Dictionary) -> Control:
 	riga.size_flags_horizontal = Control.SIZE_SHRINK_END
 	riga.add_theme_constant_override("separation", 10)
 	var orologio: Control = load("res://scripts/Orologio.gd").new()
+	orologio.set("tinta_genere", Stile.colore_scelta(String(scelta.get("genere", ""))))   # il tempo perso
 	riga.add_child(orologio)
 	riga.add_child(bottone)
 	# scaduta: si rompe LEI, e le altre restano. "Non recuperi" vuol dire che
 	# quella strada si e' chiusa, non che hai perso il turno - se sparisse tutto
 	# il giocatore non capirebbe di aver perso qualcosa, capirebbe di aver
 	# aspettato troppo e basta
-	orologio.scaduto.connect(func() -> void: rompi_la_scelta(riga, bottone))
+	orologio.scaduto.connect(func() -> void: rompi_la_scelta(riga, bottone, orologio))
 	# inclinazioni alternate: nel disegno le due cipolle pendono da due parti
 	var inclinazione := 12.0 if orologi_appesi % 2 == 0 else -14.0
 	orologi_appesi += 1
 	orologio.avvia(secondi, inclinazione)
 	return riga
 
-func rompi_la_scelta(riga: Control, bottone: Button) -> void:
+func rompi_la_scelta(riga: Control, bottone: Button, orologio: Control) -> void:
 	# SCADUTA, SI FRANTUMA COME VETRO. Bru: «le opzioni hero o evil si frantumano
 	# come se fosse vetro e scompaiono, i pezzi devono cadere e gradualmente
 	# svanire verso il trasparente».
@@ -1016,12 +1017,12 @@ func rompi_la_scelta(riga: Control, bottone: Button) -> void:
 	# permettere. Il tempo e' finito adesso, non quando l'animazione lo dice.
 	if is_instance_valid(bottone):
 		Lastra.spegni_scelta(bottone)   # morta, e senza muoversi di un pixel
-	var vetro: Control = load("res://scripts/Frantumi.gd").new()
-	# fuori dal contenitore delle scelte, o verrebbe messo in colonna con le
-	# altre e riordinato insieme a loro: i frantumi non sono una scelta, sono
-	# quello che resta di una
-	add_child(vetro)
-	await vetro.frantuma(riga)
+	await orologio.rotto   # prima il vetro si crepa, in tre colpi (Crepe.gd)
+	if not is_instance_valid(riga) or not is_instance_valid(orologio):
+		return
+	var vetro: Control = load("res://scripts/Rottura.gd").new()
+	add_child(vetro)   # fuori dalla colonna: i pezzi non sono una scelta
+	await vetro.rompi(orologio, bottone)
 	if is_instance_valid(riga):
 		Lastra.fuori_dalla_colonna(riga, contenitore_scelte)
 	if era_selezionata:

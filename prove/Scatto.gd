@@ -1611,7 +1611,8 @@ func prepara(quale: String) -> void:
 			if orologio == null:
 				push_error("Scatto 'rottura': nessun orologio in campo, non c'e' niente da rompere")
 				return
-			orologio._process(99.0)
+			orologio._process(99.0)   # il tempo scade
+			orologio._process(1.0)    # il vetro si crepa in tre colpi, e cede
 			await attendi(22)   # a meta' caduta: i pezzi sono in aria e ancora visibili
 		_:
 			await apri_dialogo()
