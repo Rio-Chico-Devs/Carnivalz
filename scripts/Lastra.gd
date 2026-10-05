@@ -209,6 +209,18 @@ static func accendi_scelta(bottone: Button) -> void:
 			String(bottone.get_meta("genere_scelta", ""))))
 
 
+static func spegni_scelta(bottone: Button) -> void:
+	# SCADUTA, LA SCELTA SI SPEGNE SENZA MUOVERSI. Spenta perde il fuoco, e col
+	# fuoco il triangolo davanti: si stringe, e la riga - allineata a destra -
+	# faceva un salto verso destra un fotogramma prima di rompersi. Il vetro
+	# poi fotografava la scelta gia' spostata, e i pezzi partivano da dove non
+	# era mai stata. Visto filmando l'orologio che dondola: la catena restava
+	# indietro. La misura si blocca prima di spegnerla.
+	bottone.custom_minimum_size = bottone.size
+	bottone.disabled = true
+	bottone.focus_mode = Control.FOCUS_NONE
+
+
 static func ritingi_scelta(bottone: Button) -> void:
 	# una scelta segnata come posto nuovo o gia' visto ha i colori del vetro
 	# scuro (Stile.segna_visita): sull'etichetta chiara diventano quelli della

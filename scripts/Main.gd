@@ -1015,8 +1015,7 @@ func rompi_la_scelta(riga: Control, bottone: Button) -> void:
 	# scelta scaduta, ed e' esattamente quello che "non recuperi" non deve
 	# permettere. Il tempo e' finito adesso, non quando l'animazione lo dice.
 	if is_instance_valid(bottone):
-		bottone.disabled = true
-		bottone.focus_mode = Control.FOCUS_NONE
+		Lastra.spegni_scelta(bottone)   # morta, e senza muoversi di un pixel
 	var vetro: Control = load("res://scripts/Frantumi.gd").new()
 	# fuori dal contenitore delle scelte, o verrebbe messo in colonna con le
 	# altre e riordinato insieme a loro: i frantumi non sono una scelta, sono

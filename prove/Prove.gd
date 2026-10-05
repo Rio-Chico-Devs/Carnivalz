@@ -88,6 +88,7 @@ func _ready() -> void:
 	await prova_le_scelte_a_tempo()
 	await prova_la_scelta_scaduta_lascia_il_posto_piano()
 	prova_i_frantumi_fotografano_il_pezzo_giusto()
+	await prova_la_scelta_scaduta_si_spegne_senza_muoversi()
 	await prova_il_nastro_col_nome()
 	await prova_la_lastra_dei_dialoghi()
 	await prova_maschile_e_femminile()
@@ -5154,6 +5155,34 @@ func prova_i_frantumi_fotografano_il_pezzo_giusto() -> void:
 	var sul_bordo: Rect2i = frantumi.sullo_schermo(Rect2(1270, 700, 40, 40), Vector2i(1280, 720), gioco)
 	esigi(sul_bordo == Rect2i(1270, 700, 10, 20),
 			"un pezzo sul bordo si fotografa in %s: doveva restare dentro lo schermo" % sul_bordo)
+
+func prova_la_scelta_scaduta_si_spegne_senza_muoversi() -> void:
+	# SCADUTA, SI SPEGNE AL SUO POSTO. Spenta perdeva il fuoco e il triangolo
+	# davanti, si stringeva, e la riga allineata a destra saltava verso destra
+	# un fotogramma prima di rompersi: il vetro fotografava la scelta spostata
+	titolo("la scelta scaduta si spegne senza muoversi")
+	var riga := HBoxContainer.new()
+	riga.alignment = BoxContainer.ALIGNMENT_END
+	riga.size = Vector2(600, 80)
+	add_child(riga)
+	var bottone := Button.new()
+	bottone.text = "Di corsa"
+	Lastra.vesti_scelta(bottone, "malvagio")
+	riga.add_child(bottone)
+	await get_tree().process_frame
+	bottone.grab_focus()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var prima := bottone.get_global_rect()
+	esigi(bottone.icon != null, "la scelta col fuoco non ha il triangolo: la prova non misura niente")
+	Lastra.spegni_scelta(bottone)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(bottone.disabled and bottone.focus_mode == Control.FOCUS_NONE,
+			"la scelta scaduta si puo' ancora premere o prendere il fuoco")
+	esigi(bottone.get_global_rect().is_equal_approx(prima),
+			"spenta, la scelta si e' mossa: era %s, e' %s" % [prima, bottone.get_global_rect()])
+	riga.free()
 
 func conta_bottoni(radice: Node) -> int:
 	var quanti := 0
