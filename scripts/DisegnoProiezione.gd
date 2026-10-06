@@ -3,7 +3,7 @@ extends RefCounted
 
 # QUELLO CHE STA SOPRA LA GRIGLIA della proiezione (Proiezione.gd): la
 # cornice e il righello, il titolo spaziato, i segnali dei Carnivalz in
-# corso, gli squarci delle fratture, le etichette a didascalia, il mirino,
+# corso, le etichette a didascalia, il mirino,
 # la frattura nuova che si strappa. La colonna delle
 # schede a destra e' SchedaProiezione.
 #
@@ -84,7 +84,6 @@ static func disegna(p: Proiezione, tela: Control) -> void:
 		return
 	cornice(p, tela)
 	segnali(p, tela)
-	squarci(p, tela)
 	etichette(p, tela)
 	mirino(p, tela)
 	crepa(p, tela)
@@ -197,28 +196,6 @@ static func bordo_della_sfera(p: Proiezione, da: Vector3, a: Vector3, da_coperto
 	return qui.lerp(li, 0.5)
 
 
-static func squarci(p: Proiezione, tela: Control) -> void:
-	# OGNI FRATTURA E' UNO SQUARCIO: un taglio luminoso attraverso il suo
-	# mondo, diverso per ognuna, che pulsa piano
-	for c in p.corpi:
-		if c["forma"] != "lente" or float(c["apertura"]) < 0.3:
-			continue
-		var s := p.sullo_schermo(c["pos"])
-		var r := p.raggio_sullo_schermo(c)
-		var d := RandomNumberGenerator.new()
-		d.seed = hash(String(c["id"]))
-		var ang := d.randf_range(-0.6, 0.6) + PI * 0.5
-		var lungo := r * 2.3 * minf(float(c["apertura"]), 1.0)
-		var punti := PackedVector2Array()
-		for k in 7:
-			var lato := (d.randf_range(-0.22, 0.22) if k > 0 and k < 6 else 0.0) * r
-			punti.append(s + Vector2.RIGHT.rotated(ang) * (float(k) / 6.0 - 0.5) * lungo
-					+ Vector2.RIGHT.rotated(ang + PI * 0.5) * lato)
-		var batte := 0.75 + 0.25 * sin(p.t * 2.0 + d.randf() * TAU)
-		tela.draw_polyline(punti, Color(p.tinte["fondo"], 0.9), 3.4, true)
-		tela.draw_polyline(punti, Color(p.tinte["carta"], batte), 1.4, true)
-
-
 static func parola_di_stato(stato: String) -> String:
 	match stato:
 		"nuovo": return "NON CI SEI ANCORA STATO"
@@ -244,7 +221,9 @@ static func etichette(p: Proiezione, tela: Control) -> void:
 		if Movimento.ridotto():
 			compare = 1.0 if float(c["apertura"]) >= 0.6 else 0.0
 		var s := p.sullo_schermo(c["pos"])
-		if compare <= 0.0 or s.x < -1000.0:
+		# girando o avvicinando la mappa un corpo puo' finire dietro la colonna, o
+		# fuori dalla cornice: li' niente didascalia
+		if compare <= 0.0 or not Rect2(24, 64, SchedaProiezione.X - 30.0, 620).has_point(s):
 			continue
 		etichetta(p, tela, c, s, compare, occupati)
 

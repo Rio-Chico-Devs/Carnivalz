@@ -31,6 +31,13 @@ const AZIONE_DI := {
 	"ESC": ["ui_cancel", KEY_ESCAPE],
 	"SU": ["ui_up", KEY_UP],
 	"GIU": ["ui_down", KEY_DOWN],
+	"Q": ["mappa_ruota_sinistra", KEY_Q],
+	"E": ["mappa_ruota_destra", KEY_E],
+	"R": ["mappa_alza", KEY_R],
+	"F": ["mappa_abbassa", KEY_F],
+	"PAG SU": ["mappa_avvicina", KEY_PAGEUP],
+	"PAG GIU": ["mappa_allontana", KEY_PAGEDOWN],
+	"INIZIO": ["mappa_centra", KEY_HOME],
 }
 
 # "tasti" e' un elenco di ALTERNATIVE, separate da «o»; ogni alternativa e' un
@@ -64,6 +71,16 @@ const CATEGORIE := {
 			{"tasti": [["SU", "GIU"], ["CLIC"]], "azione": "Attacchi, difesa, skill, oggetti, fuga"},
 			{"tasti": [["INVIO"], ["CLIC"]], "azione": "Fa andare avanti il racconto dello scontro"},
 			{"tasti": [["ESC"]], "azione": "Pausa, anche a metà scontro"},
+		],
+	},
+	"MAPPA": {
+		"titolo": "Guardare la mappa stellare e il Vuoto",
+		"corpo": "La proiezione si gira e si avvicina, ma non troppo: serve a vedere meglio, non a perdersi. Il primo clic su un corpo lo sceglie, il secondo ci entra.",
+		"righe": [
+			{"tasti": [["TRASCINA"], ["Q", "E"]], "azione": "Gira la proiezione"},
+			{"tasti": [["TRASCINA"], ["R", "F"]], "azione": "La guarda più dall'alto o più di lato"},
+			{"tasti": [["ROTELLA"], ["PAG SU", "PAG GIU"]], "azione": "Avvicina o allontana, verso il cursore"},
+			{"tasti": [["DOPPIO CLIC"], ["INIZIO"]], "azione": "Torna alla vista di partenza"},
 		],
 	},
 	"MOSSE SPECIALI": {

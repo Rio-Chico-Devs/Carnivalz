@@ -1583,9 +1583,21 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
   più piccolo che orbita il grande. Lo shader è in `shaders/`;
 - **solo i Carnivalz sono pianeti** (Bru: «le fratture devono sembrare più distorsioni spazio
   tempo più che pianeti»): una frattura è una **lente** (`shaders/proiezione_lenti.gdshader`)
-  che piega e fa girare quello che c'è dietro, con un arco di luce spezzato, un cuore scuro e
-  il suo squarcio. Un corpo ha una `forma`: `sfera` (Carnivalz, pianeti delle risorse,
+  fatta di due cose. Un **vortice** che giace sulla griglia (dall'alto è un cerchio, di lato
+  un'ellisse) e piega e fa girare quello che c'è dietro, con un arco di luce spezzato, un
+  cuore scuro e detriti che spiraleggiano dentro; e uno **squarcio** in piedi sulla gola, dai
+  bordi strappati, con dentro un altro mondo che si muove. Quanto è viva lo dice lo stato:
+  nuova brucia, vista è calma, chiusa è una cicatrice, spenta è grigia; quella che punti si
+  accende e si apre. Un corpo ha una `forma`: `sfera` (Carnivalz, pianeti delle risorse,
   meteoriti), `lente` (fratture, inizi di frattura) o `nessuna` (un segnale);
+- **la mappa si maneggia, ma non troppo** (`ManoProiezione.gd`; Bru: «non troppo però, il
+  giusto per visualizzare al meglio le varie parti [...] ma non esageriamo con lo zoom»):
+  trascinare sul vuoto gira e inclina, la rotella (o il pizzico, o Pag su/giù) avvicina
+  verso il cursore, Q/E girano, R/F inclinano, la levetta destra del pad fa le due cose,
+  doppio clic o Inizio ricentrano. I limiti sono in `stile.json` (`proiezione` → `mano`), i
+  tasti sono azioni del progetto (`mappa_...` in `project.godot`) e stanno nella tavola di
+  COME SI GIOCA (MAPPA). La caduta nel pozzo parte da dove stai guardando; quello che finisce
+  dietro la colonna delle schede non si preme e non ha didascalia;
 - **i pianeti delle risorse** (`pianeti` del punto, `Vuoto.gd`): piccole sfere in orbita intorno
   al Vuoto; la scheda dice le risorse (collezionabili, oggetti, minerali, tazo, per
   l'Organizzazione) e col loro `file_eventi` si esplorano come una frattura, senza dice

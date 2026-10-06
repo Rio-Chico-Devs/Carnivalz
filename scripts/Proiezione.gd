@@ -101,6 +101,7 @@ var crepa_dove := ""
 var nuova_t := -1.0
 var pronta := false            # dopo il primo fotogramma: prima la camera non e' ancora al suo posto
 var cursore_finto := Vector2.INF      # per le prove: il mouse dove lo vuole la prova (anche fuori schermo)
+var mano := ManoProiezione.new()      # quello che il giocatore aggiunge all'inquadratura
 
 
 func _ready() -> void:
@@ -133,7 +134,7 @@ func costruisci() -> void:
 	schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(schermo)
 	# le fratture: lenti che piegano quello che e' gia' disegnato qui sotto
-	mat_lenti = CieloProiezione.materiale(LENTI, {})
+	mat_lenti = CieloProiezione.materiale(LENTI, {"rumore": CieloProiezione.rumore(), "segnale": tinte["segnale"]})
 	tingi(mat_lenti)
 	lenti = ColorRect.new()
 	lenti.material = mat_lenti
@@ -334,6 +335,7 @@ func scegli(id: String) -> void:
 	scelto = id
 	da_quando_scelto = 0.0
 	AudioManager.interfaccia("conferma")
+	mano.voluto["spinta"] = Vector3.ZERO
 	if livello == "vuoto":
 		# come entrare in orbita: la camera si avvicina senza perdere il sistema
 		var riposo := inquadratura()
@@ -359,6 +361,10 @@ func annulla() -> void:
 
 
 func _unhandled_input(evento: InputEvent) -> void:
+	# trascinare, la rotella, i tasti della mappa: la mano (ManoProiezione)
+	if pronta and mano.gestisci(evento, self):
+		get_viewport().set_input_as_handled()
+		return
 	# CON UNA SCELTA IN MANO, Esc la lascia andare; senza, Esc passa avanti e
 	# apre la pausa come dappertutto
 	if scelto == "":
@@ -393,6 +399,9 @@ func cadi_nel_pozzo(id: String) -> void:
 		return
 	# una corsa con un inizio e una fine, non un inseguimento: deve finire
 	# proprio sul pianeta quando lo schermo cambia
+	# parte da dove stai guardando, mano compresa: niente scatto
+	cam = mano.applica(cam)
+	mano.azzera()
 	var da := cam.duplicate()
 	var a := {"bersaglio": c["pos"], "distanza": float(c["raggio"]) * 2.2, "giro": float(cam["giro"]),
 			"beccheggio": 16.0, "fov": 58.0, "spalla": 0.0}
@@ -458,6 +467,7 @@ func _process(delta: float) -> void:
 	if vista.size != misura_della_vista():
 		vista.size = misura_della_vista()
 	muovi_corpi(delta)
+	mano.aggiorna(delta)
 	muovi_camera(delta)
 	muovi_bersagli()
 	if onda >= 0.0:
@@ -473,7 +483,8 @@ func _process(delta: float) -> void:
 	mat_griglia.set_shader_parameter("luce", 0.0 if luce.is_empty() else 1.0)
 	if not luce.is_empty():
 		mat_griglia.set_shader_parameter("luce_pos", luce["xz"])
-	fondo_dietro.position = Vector2(-160 - float(cam["giro"]) * 600.0, -40 + (float(cam["beccheggio"]) - 28.0) * 6.0)
+	var guardo := mano.applica(cam)
+	fondo_dietro.position = Vector2(-160 - float(guardo["giro"]) * 600.0, -40 + (float(guardo["beccheggio"]) - 28.0) * 6.0)
 	CieloProiezione.agita_grana(grane, t)
 	muovi_lenti()
 	bottone_entra.disabled = not bool(corpo(scelto).get("attiva", false))
@@ -542,17 +553,31 @@ func muovi_camera(delta: float) -> void:
 			cam["bersaglio"] = (cam["bersaglio"] as Vector3).lerp(cam_voluta["bersaglio"], k)
 		else:
 			cam[chiave] = lerpf(float(cam[chiave]), float(cam_voluta[chiave]), k)
-	# il respiro della proiezione: una deriva lenta, e un filo di parallasse col mouse
+	# l'inquadratura del gioco piu' la mano del giocatore; e il respiro della
+	# proiezione: una deriva lenta, e un filo di parallasse col mouse (non
+	# mentre si trascina: li' il mouse e' la mano)
+	var guardo := mano.applica(cam)
 	var mouse := get_local_mouse_position()
 	var vivo := 0.0 if Movimento.ridotto() else 1.0
-	var giro := float(cam["giro"]) + (sin(t * 0.13) * 0.06 + (mouse.x / 1280.0 - 0.5) * 0.05) * vivo
-	var becc := deg_to_rad(float(cam["beccheggio"]) + (sin(t * 0.17) * 1.2 - (mouse.y / 720.0 - 0.5) * 2.0) * vivo)
-	var bersaglio_cam: Vector3 = cam["bersaglio"]
+	var segue := 0.0 if mano.trascinando else vivo
+	var giro := float(guardo["giro"]) + sin(t * 0.13) * 0.06 * vivo + (mouse.x / 1280.0 - 0.5) * 0.05 * segue
+	var becc := deg_to_rad(float(guardo["beccheggio"]) + sin(t * 0.17) * 1.2 * vivo - (mouse.y / 720.0 - 0.5) * 2.0 * segue)
+	var bersaglio_cam: Vector3 = guardo["bersaglio"]
 	camera.position = bersaglio_cam + Vector3(sin(giro) * cos(becc), sin(becc), cos(giro) * cos(becc)) \
-			* float(cam["distanza"])
-	camera.fov = float(cam["fov"])
-	camera.h_offset = float(cam.get("spalla", SPALLA))
+			* float(guardo["distanza"])
+	camera.fov = float(guardo["fov"])
+	camera.h_offset = float(guardo.get("spalla", SPALLA))
 	camera.look_at(bersaglio_cam, Vector3.UP)
+
+
+func sul_piano(dove: Vector2) -> Variant:
+	# il punto della griglia (a quota zero) sotto un punto dello schermo, o null
+	var v := dove * Vector2(vista.size) / size
+	var origine := camera.project_ray_origin(v)
+	var verso := camera.project_ray_normal(v)
+	if verso.y > -0.01:
+		return null
+	return origine + verso * (-origine.y / verso.y)
 
 
 func sullo_schermo(p: Vector3) -> Vector2:
@@ -594,24 +619,50 @@ func muovi_lenti() -> void:
 	# ha bisogno di sapere quanto sono grandi
 	var a := PackedVector4Array()
 	var b := PackedVector4Array()
+	var squarci := PackedVector4Array()
+	var fermo := Movimento.ridotto()
 	for c in corpi:
 		var s := sullo_schermo(c["pos"])
 		if c["forma"] != "lente" or s.x < -1000.0 or a.size() >= LENTI_MASSIME:
 			continue
+		# quella che punti (o hai scelto) si accende, senza scatti
+		var puntata := 1.0 if String(c["id"]) in [sotto, scelto] else 0.0
+		c["acceso"] = move_toward(float(c.get("acceso", 0.0)), puntata, get_process_delta_time() * 4.0)
+		var fase := float(hash(String(c["id"])) % 628) / 100.0
 		var respiro := 1.0 + 0.18 * float(c["respiro"]) * sin(t * 2.3)
-		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro,
-				1.0 - float(c["spento"]) * 0.7))
-		b.append(Vector4(float(c["spento"]), float(hash(String(c["id"])) % 628) / 100.0, 0.0, 0.0))
+		var energia := (energia_di(String(c["stato"])) + 0.5 * float(c["acceso"])) * (1.0 - float(c["spento"]) * 0.7)
+		# lo squarcio: una cicatrice se la frattura e' chiusa; si apre quando la punti, e respira
+		var apre := 0.18 if String(c["stato"]) in ["chiuso", "preso"] else 0.75 + 0.35 * float(c["acceso"])
+		apre *= DisegnoProiezione.elastico(float(c["apertura"])) * (1.0 if fermo else 1.0 + 0.08 * sin(t * 1.7 + fase))
+		# il vortice giace sulla griglia: dall'alto e' un cerchio, di lato un'ellisse
+		var schiaccia := absf((c["pos"] - camera.global_position).normalized().y)
+		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro, 1.0 - float(c["spento"]) * 0.7))
+		b.append(Vector4(float(c["spento"]), fase, energia, schiaccia))
+		squarci.append(Vector4(apre, (float(hash(String(c["id"]) + "/") % 100) / 100.0 - 0.5) * 0.5, 0.0, 0.0))
 	var quante := a.size()
 	lenti.visible = quante > 0
 	a.resize(LENTI_MASSIME)
 	b.resize(LENTI_MASSIME)
+	squarci.resize(LENTI_MASSIME)
 	mat_lenti.set_shader_parameter("lenti", a)
 	mat_lenti.set_shader_parameter("lenti_b", b)
+	mat_lenti.set_shader_parameter("lenti_c", squarci)
 	mat_lenti.set_shader_parameter("n_lenti", quante)
 	mat_lenti.set_shader_parameter("scala", (get_viewport().get_final_transform()
 			* get_global_transform_with_canvas()).get_scale().y)
 	mat_lenti.set_shader_parameter("tempo", 0.0 if Movimento.ridotto() else t)
+
+
+static func energia_di(stato: String) -> float:
+	# quanto e' viva una frattura: nuova brucia, vista e' calma, chiusa quasi niente
+	match stato:
+		"nuovo", "trovato":
+			return 1.0
+		"chiuso", "preso":
+			return 0.15
+		"spento":
+			return 0.2
+	return 0.55
 
 
 func cursore() -> Vector2:
@@ -628,5 +679,6 @@ func muovi_bersagli() -> void:
 		var lato := maxf(raggio_sullo_schermo(c) * 2.0 + 16.0, 44.0)
 		b.size = Vector2(lato, lato)
 		b.position = s - b.size * 0.5
-		b.visible = float(c["apertura"]) >= 0.6 and s.x > -1000.0
+		# dietro la colonna delle schede non si preme: ci sono le schede
+		b.visible = float(c["apertura"]) >= 0.6 and s.x > -1000.0 and s.x < SchedaProiezione.X - 6.0
 

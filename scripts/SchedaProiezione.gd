@@ -63,7 +63,7 @@ static func disegna(p: Proiezione, tela: Control) -> void:
 	if not c.is_empty():
 		racconto(tela, Rect2(r4.position + Vector2(10, 34), Vector2(LARGO - 20, 96)), String(c["testo"]), da, p.tinte)
 	bottone(tela, posto_del_bottone().grow_side(SIDE_LEFT, -dx).grow_side(SIDE_RIGHT, dx), p)
-	suggerimenti(tela, Vector2(X + dx, 566), p.tinte)
+	suggerimenti(tela, Vector2(X + dx, 561), p.tinte)
 
 
 static func nome(tela: Control, r: Rect2, c: Dictionary, da: float, tinte: Dictionary) -> void:
@@ -131,8 +131,9 @@ static func bottone(tela: Control, r: Rect2, p: Proiezione) -> void:
 static func suggerimenti(tela: Control, dove: Vector2, tinte: Dictionary) -> void:
 	var tinta: Color = tinte["inchiostro"]
 	DisegnoProiezione.scrivi(tela, dove, "CLIC  ·  SCEGLI", 9, tinta, 450, 85, 2)
-	DisegnoProiezione.scrivi(tela, dove + Vector2(0, 15), "CLIC DI NUOVO O INVIO  ·  ENTRA", 9, tinta, 450, 85, 2)
-	DisegnoProiezione.scrivi(tela, dove + Vector2(0, 30), "ESC O TASTO DESTRO  ·  ANNULLA", 9, tinta, 450, 85, 2)
+	DisegnoProiezione.scrivi(tela, dove + Vector2(0, 13), "CLIC DI NUOVO O INVIO  ·  ENTRA", 9, tinta, 450, 85, 2)
+	DisegnoProiezione.scrivi(tela, dove + Vector2(0, 26), "ESC O TASTO DESTRO  ·  ANNULLA", 9, tinta, 450, 85, 2)
+	DisegnoProiezione.scrivi(tela, dove + Vector2(0, 39), "TRASCINA  ·  GIRA      ROTELLA  ·  ZOOM", 9, tinta, 450, 85, 2)
 
 
 static func racconto(tela: Control, r: Rect2, testo: String, da: float, tinte: Dictionary) -> void:

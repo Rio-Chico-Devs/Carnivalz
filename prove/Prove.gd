@@ -166,6 +166,9 @@ func _ready() -> void:
 	await prova_la_proiezione_sta_ferma_col_movimento_ridotto()
 	await prova_le_fratture_sono_distorsioni()
 	await prova_gli_anelli_passano_dietro_il_pianeta()
+	await prova_la_mappa_si_gira_ma_non_troppo()
+	await prova_dalla_mappa_girata_ci_si_lancia_sul_pianeta()
+	await prova_le_fratture_si_accendono()
 	await prova_i_pianeti_delle_risorse()
 	await prova_i_segreti_si_trovano_col_cursore()
 	prova_pianeti_e_segreti_scritti_bene()
@@ -9481,7 +9484,7 @@ func prova_come_si_gioca_disegna_i_tasti_veri() -> void:
 	# ogni tasto che disegna e' DAVVERO quello che fa quella cosa; e se ne va
 	# quando si cambia passo, restituendo il posto alle partite.
 	titolo("come si gioca: i tasti disegnati sono quelli veri")
-	var mouse := ["CLIC", "ROTELLA"]
+	var mouse := ["CLIC", "ROTELLA", "TRASCINA", "DOPPIO CLIC"]
 	for nome in TavolaComandi.tasti_usati():
 		if nome in mouse:
 			continue
@@ -10868,6 +10871,229 @@ func prova_gli_anelli_passano_dietro_il_pianeta() -> void:
 	esigi(conti["tagli_storti"] == 0, "%d tagli degli anelli su %d non cadono sul bordo del pianeta"
 			% [conti["tagli_storti"], conti["tagli"]])
 	mappa.queue_free()
+	GameState.nuova_partita()
+
+func spingi_mouse(e: InputEvent) -> void:
+	# un evento vero: passa dai Button prima di arrivare alla mappa. Le
+	# coordinate sono gia' quelle del gioco (1280x720): senza finestra Godot
+	# non saprebbe come scalarle
+	get_viewport().push_input(e, true)
+	await get_tree().process_frame
+
+func trascina_sulla_mappa(da: Vector2, di: Vector2) -> void:
+	var giu := InputEventMouseButton.new()
+	giu.button_index = MOUSE_BUTTON_LEFT
+	giu.pressed = true
+	giu.position = da
+	await spingi_mouse(giu)
+	for i in 10:
+		var m := InputEventMouseMotion.new()
+		m.position = da + di * float(i + 1) / 10.0
+		m.relative = di / 10.0
+		m.button_mask = MOUSE_BUTTON_MASK_LEFT
+		await spingi_mouse(m)
+	var su := InputEventMouseButton.new()
+	su.button_index = MOUSE_BUTTON_LEFT
+	su.position = da + di
+	await spingi_mouse(su)
+
+func rotella_sulla_mappa(dove: Vector2, quante: int, avvicina: bool) -> void:
+	# come la rotella vera: ogni scatto e' una pressione e un rilascio. Senza il
+	# rilascio Godot crede il tasto ancora giu', e i clic delle prove dopo
+	# finiscono al bottone sbagliato
+	for i in quante:
+		for giu in [true, false]:
+			var r := InputEventMouseButton.new()
+			r.button_index = MOUSE_BUTTON_WHEEL_UP if avvicina else MOUSE_BUTTON_WHEEL_DOWN
+			r.pressed = giu
+			r.position = dove
+			await spingi_mouse(r)
+
+func vuoto_libero(p: Proiezione) -> Vector2:
+	# un punto della proiezione senza corpi sotto, lontano dalla colonna
+	for y in range(120, 620, 40):
+		for x in range(60, 900, 40):
+			var punto := Vector2(x, y)
+			if not p.corpi.any(func(c: Dictionary) -> bool:
+					return (c["bottone"] as Button).visible and (c["bottone"] as Button).get_global_rect().grow(8).has_point(punto)):
+				return punto
+	return Vector2(60, 120)
+
+func prova_la_mappa_si_gira_ma_non_troppo() -> void:
+	# Bru: «possiamo far manipolare un po' di piu' la mappa all'utente come se
+	# fosse un piano 3d? non troppo pero' [...] e aggiungere uno zoom in zoom
+	# out ma non esageriamo con lo zoom». Gli eventi passano dalla finestra,
+	# come quelli del mouse vero: se qualcosa li inghiotte prima, la prova lo vede
+	titolo("la mappa si gira, si inclina e si avvicina col mouse e coi tasti, dentro i suoi limiti")
+	GameState.nuova_partita()
+	var vuoto: Control = await apri_il_vuoto(punto_della_mappa("carnivalz_del_bosco"))
+	var p: Proiezione = vuoto.get("proiezione")
+	var l := ManoProiezione.limiti()
+	var libero := vuoto_libero(p)
+	var prima := p.camera.global_position
+	# un clic sul vuoto, senza muoversi, non gira niente
+	await trascina_sulla_mappa(libero, Vector2.ZERO)
+	esigi(is_zero_approx(float(p.mano.voluto["giro"])) and is_zero_approx(float(p.mano.voluto["becc"])),
+			"un clic sul vuoto, senza trascinare, gira la mappa")
+	await trascina_sulla_mappa(libero, Vector2(-120, 60))
+	esigi(float(p.mano.voluto["giro"]) > 0.2 and float(p.mano.voluto["becc"]) > 5.0,
+			"trascinando sul vuoto la mappa non gira o non s'inclina (giro %.2f, inclinazione %.1f)"
+			% [p.mano.voluto["giro"], p.mano.voluto["becc"]])
+	for i in 20:
+		await get_tree().process_frame
+	esigi(p.camera.global_position.distance_to(prima) > 0.5, "la mano gira, ma la camera resta dov'era")
+	# oltre i limiti non si va, da nessuna parte
+	await trascina_sulla_mappa(libero, Vector2(-2000, 2000))
+	esigi(is_equal_approx(float(p.mano.voluto["giro"]), float(l["giro"]))
+			and is_equal_approx(float(p.mano.voluto["becc"]), float(l["su"])),
+			"trascinando tanto la mappa va oltre i suoi limiti (giro %.2f, inclinazione %.1f)"
+			% [p.mano.voluto["giro"], p.mano.voluto["becc"]])
+	await trascina_sulla_mappa(libero, Vector2(4000, -4000))
+	esigi(is_equal_approx(float(p.mano.voluto["giro"]), -float(l["giro"]))
+			and is_equal_approx(float(p.mano.voluto["becc"]), -float(l["giu"])), "dall'altra parte la mappa va oltre i limiti")
+	# lo zoom: verso il cursore, e mai troppo
+	var c := p.corpo("qualcosa_preme")
+	var verso_lei: Vector3 = (c["pos"] as Vector3) - (p.cam["bersaglio"] as Vector3)
+	await rotella_sulla_mappa(p.sullo_schermo(c["pos"]), 3, true)
+	var spinta: Vector3 = p.mano.voluto["spinta"]
+	esigi(float(p.mano.voluto["zoom"]) < 1.0 and spinta.length() > 0.1
+			and Vector2(spinta.x, spinta.z).dot(Vector2(verso_lei.x, verso_lei.z)) > 0.0,
+			"la rotella sopra una frattura non avvicina verso di lei")
+	await rotella_sulla_mappa(p.sullo_schermo(c["pos"]), 40, true)
+	esigi(is_equal_approx(float(p.mano.voluto["zoom"]), float(l["vicino"])), "lo zoom va oltre il suo limite vicino")
+	await rotella_sulla_mappa(libero, 60, false)
+	esigi(is_equal_approx(float(p.mano.voluto["zoom"]), float(l["lontano"]))
+			and (p.mano.voluto["spinta"] as Vector3).is_zero_approx(),
+			"allontanandosi lo zoom va oltre il limite, o il centro non torna al suo posto")
+	# coi tasti
+	p.mano.centra()
+	Input.action_press("mappa_ruota_destra")
+	Input.action_press("mappa_avvicina")
+	await get_tree().create_timer(0.3).timeout
+	Input.action_release("mappa_ruota_destra")
+	Input.action_release("mappa_avvicina")
+	esigi(float(p.mano.voluto["giro"]) < -0.05 and float(p.mano.voluto["zoom"]) < 0.98,
+			"tenendo premuti E e Pag su la mappa non gira o non si avvicina")
+	# girata, ogni corpo si preme ancora dove e' disegnato; e dietro la colonna non si preme
+	await trascina_sulla_mappa(libero, Vector2(-200, 80))
+	await aspetta_che(func() -> bool: return absf(p.mano.giro - float(p.mano.voluto["giro"])) < 0.002, 3.0)
+	controlla_i_bersagli(p)
+	# girando e avvicinandosi qualche corpo finisce dietro la colonna delle
+	# schede: li' non si deve poter premere (si premerebbe attraverso le schede)
+	var finiti_dietro := 0
+	var premibili_dietro := 0
+	for giro in [-0.75, -0.35, 0.0, 0.35, 0.75]:
+		p.mano.voluto["giro"] = giro
+		p.mano.voluto["zoom"] = float(l["vicino"])
+		p.mano.giro = giro
+		p.mano.zoom = float(l["vicino"])
+		for i in 2:
+			await get_tree().process_frame
+		for k in p.corpi:
+			if p.sullo_schermo(k["pos"]).x >= SchedaProiezione.X - 6.0 and p.sullo_schermo(k["pos"]).x < 1280.0:
+				finiti_dietro += 1
+				premibili_dietro += 1 if (k["bottone"] as Button).visible else 0
+	esigi(finiti_dietro > 0, "girando non finisce mai niente dietro la colonna: la prova non guarda niente")
+	esigi(premibili_dietro == 0, "girando la mappa, %d corpi dietro la colonna delle schede si possono ancora premere"
+			% premibili_dietro)
+	# doppio clic, e si torna come prima
+	var doppio := InputEventMouseButton.new()
+	doppio.button_index = MOUSE_BUTTON_LEFT
+	doppio.pressed = true
+	doppio.double_click = true
+	doppio.position = vuoto_libero(p)
+	await spingi_mouse(doppio)
+	var su := InputEventMouseButton.new()
+	su.button_index = MOUSE_BUTTON_LEFT
+	su.position = doppio.position
+	await spingi_mouse(su)
+	esigi(is_zero_approx(float(p.mano.voluto["giro"])) and is_equal_approx(float(p.mano.voluto["zoom"]), 1.0),
+			"il doppio clic sul vuoto non riporta la mappa alla vista di partenza")
+	vuoto.queue_free()
+	GameState.nuova_partita()
+
+func prova_dalla_mappa_girata_ci_si_lancia_sul_pianeta() -> void:
+	# la caduta parte da dove guardi, mano compresa, e finisce sempre sul pianeta
+	titolo("girata e avvicinata la mappa, ci si lancia ancora sul pianeta, senza scatti")
+	GameState.nuova_partita()
+	GameState.imposta_flag("tutorial_completato")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var mappa: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(mappa)
+	for i in 3:
+		await get_tree().process_frame
+	var p: Proiezione = mappa.get("proiezione")
+	await trascina_sulla_mappa(vuoto_libero(p), Vector2(150, 90))
+	await rotella_sulla_mappa(Vector2(300, 300), 3, true)
+	await aspetta_che(func() -> bool: return absf(p.mano.giro - float(p.mano.voluto["giro"])) < 0.002, 3.0)
+	var pianeta := p.corpo("carnivalz_del_bosco")
+	var occhio := p.camera.global_position
+	(pianeta["bottone"] as Button).pressed.emit()
+	(pianeta["bottone"] as Button).pressed.emit()
+	# due fotogrammi: il segnale arriva prima che la proiezione muova la camera
+	for i in 2:
+		await get_tree().process_frame
+	esigi(p.camera.global_position.distance_to(occhio) < 0.6,
+			"lanciandosi dalla mappa girata la camera fa uno scatto (%.2f)" % p.camera.global_position.distance_to(occhio))
+	await aspetta_un_cambio_di_schermata()
+	var dove := p.sullo_schermo(pianeta["pos"])
+	esigi(dove.distance_to(Vector2(640, 360)) < 90.0 and p.raggio_sullo_schermo(pianeta) > 150.0,
+			"dalla mappa girata la caduta non finisce sul pianeta (a %s)" % dove)
+	mappa.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
+
+func prova_le_fratture_si_accendono() -> void:
+	# Bru: «miglioriamo anche la grafica delle fratture». Il vortice giace
+	# sulla griglia (dall'alto e' un cerchio, di lato un'ellisse), lo squarcio
+	# e' aperto se la frattura e' viva e una cicatrice se e' chiusa, e quella
+	# che punti si accende
+	titolo("le fratture: piu' vive se nuove, cicatrici se chiuse, accese se le punti, stese sul piano")
+	esigi(Proiezione.energia_di("nuovo") > Proiezione.energia_di("visto")
+			and Proiezione.energia_di("visto") > Proiezione.energia_di("chiuso"),
+			"una frattura nuova non e' piu' viva di una vista, o una vista di una chiusa")
+	GameState.nuova_partita()
+	# una frattura chiusa: il suo flag di fine e' scritto (in mappa.json oggi nessuna ce l'ha)
+	var punto := punto_della_mappa("carnivalz_del_bosco").duplicate(true)
+	for v: Dictionary in punto.get("vuoti", []):
+		if v["id"] == "squarcio_industriale":
+			v["flag_completato"] = "industriale_esplorato"
+	GameState.segna_visitata("squarcio_industriale")
+	GameState.imposta_flag("industriale_esplorato")
+	var vuoto: Control = await apri_il_vuoto(punto)
+	var p: Proiezione = vuoto.get("proiezione")
+	var dati := func(id: String) -> Array:
+		var lenti_viste: Array = []
+		var i := 0
+		for c in p.corpi:
+			if c["forma"] != "lente" or p.sullo_schermo(c["pos"]).x < -1000.0:
+				continue
+			if String(c["id"]) == id:
+				return [(p.mat_lenti.get_shader_parameter("lenti_b") as PackedVector4Array)[i],
+						(p.mat_lenti.get_shader_parameter("lenti_c") as PackedVector4Array)[i]]
+			i += 1
+		return lenti_viste
+	var chiusa: Array = dati.call("squarcio_industriale")
+	var nuova: Array = dati.call("qualcosa_preme")
+	esigi(chiusa.size() == 2 and nuova.size() == 2, "le fratture di prova non hanno la loro lente")
+	if chiusa.size() == 2 and nuova.size() == 2:
+		esigi((chiusa[1] as Vector4).x < 0.3 and (nuova[1] as Vector4).x > 0.5,
+				"lo squarcio di una frattura chiusa e' aperto, o quello di una nuova e' chiuso")
+		esigi((nuova[0] as Vector4).z > (chiusa[0] as Vector4).z, "una frattura nuova non e' piu' viva di una chiusa")
+	var spenta := float((nuova[0] as Vector4).z) if nuova.size() == 2 else 0.0
+	var di_lato := float((nuova[0] as Vector4).w) if nuova.size() == 2 else 0.0
+	(p.corpo("qualcosa_preme")["bottone"] as Button).grab_focus()
+	p.mano.gira(0.0, 30.0)
+	await get_tree().create_timer(0.8).timeout
+	var accesa: Array = dati.call("qualcosa_preme")
+	esigi(accesa.size() == 2 and (accesa[0] as Vector4).z > spenta + 0.3 and (accesa[1] as Vector4).x > 0.9,
+			"puntata, la frattura non si accende e non si apre")
+	esigi(accesa.size() == 2 and (accesa[0] as Vector4).w > di_lato + 0.1 and di_lato > 0.2 and (accesa[0] as Vector4).w <= 1.0,
+			"il vortice non giace sul piano: guardandolo piu' dall'alto non si arrotonda")
+	vuoto.queue_free()
 	GameState.nuova_partita()
 
 func prova_i_pianeti_delle_risorse() -> void:
