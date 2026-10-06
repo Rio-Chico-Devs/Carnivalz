@@ -470,10 +470,43 @@ guardia, officina.
   da una missione, o da una partita caricata, nel proprio alloggio.
 - Una stanza con `"richiede_flag"` si vede, ci si arriva davanti, e non si apre: dice il suo
   `"testo_chiusa"` (l'officina del Dott. Eto, finché non lo incontri).
-- Finché `art/mappe/complesso.png` non c'è, si vedono i riquadri e i **corridoi** fra le stanze
-  (`SegniPianta.gd`), da porta a porta.
+- La mappa è un **plastico a piani** (vedi sotto): piano operativo, piano terra, sotterraneo.
 
-I testi delle stanze nuove sono miei e provvisori, da riscrivere.
+I testi delle stanze nuove, e a quale piano sta ogni stanza, sono miei e provvisori, da rifare.
+
+## Il plastico: la mappa di zona in 3D, a piani
+
+Bru, mandando una mappa di Metroid Prime: «vorrei dessimo una rappresentazione tridimensionale ma
+semplice come nelle mappe di metroid, per farti capire come è strutturata la zona, per esempio
+piani inferiori o superiori, dove collocheremo anche quando li avremo gli npc», e «cliccando sopra
+ogni area dovrebbe essere possibile entrarci».
+
+Una zona lo chiede con `"vista": "plastico"` nel suo `mappa_dungeon` (oggi il complesso della
+prima giornata e la Sede, che sono lo stesso edificio). `PlasticoZona.gd` la disegna come un
+modellino olografico:
+
+- ogni stanza è un **volume di luce** sul suo **`"piano"`** (0 il piano terra, 1 quello sopra, -1
+  quello sotto), con la pianta del suo `"riquadro"` (o della sua `"cella"`, se la zona è a
+  quadratini); ogni piano ha un **telaio** sottile per pavimento e un nome nella colonna a
+  sinistra (`"piani"`: `{"1": "Piano operativo", "0": "Piano terra", "-1": "Sotterraneo"}`);
+- i **corridoi** aperti sono tubi da porta a porta; quando uniscono due piani diventano **pozzi**;
+- la luce dice cosa sai: piena dove sei stato, a metà dove sai che c'è una stanza, appena
+  accennata dove l'hai solo intravista; più spenta dove non si arriva; **arancio** e respira la
+  stanza in cui sei, **verde** una segreta, **grigia** una porta chiusa. Le icone (il punto
+  esclamativo, la freccia del «sei qui») sono quelle di sempre, sopra la stanza;
+- **ogni stanza si clicca** (`PortaStanza.gd`): è un bottone vero, ritagliato sulla sagoma che la
+  stanza ha a schermo, così l'angolo vuoto non ruba il clic alla stanza dietro; la più vicina sta
+  sopra. Si arriva anche da tastiera, e la stanza puntata si accende;
+- **si gira, si inclina e si avvicina** come la mappa stellare e con gli stessi limiti: trascinare
+  sul vuoto, rotella, Q/E, R/F, Pag su/giù, doppio clic o Inizio per ricentrare;
+- **i personaggi**: `"personaggi": ["veronica"]` su una stanza (id di `personaggi.json`) mette un
+  segnalino sopra il suo volume, e passando sulla stanza la riga in basso dice chi c'è. Una stanza
+  chiusa o che non conosci non lo dice. Oggi nessuna stanza ne ha: si aggiungono quando ci sono;
+- i nomi stanno sulle stanze, quindi niente legenda di fianco: il plastico prende tutta la cornice.
+
+Il disegno della pianta (`art/mappe/complesso.png`) per vedere la mappa non serve più. Colori in
+`stile.json` (`plastico`). Le zone a quadratini restano come sono; passarne una al plastico è
+una riga (`"vista": "plastico"`, e `"piano"` sulle stanze se ha più piani).
 
 ## Il menu, in ogni schermata
 

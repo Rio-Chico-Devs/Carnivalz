@@ -56,13 +56,21 @@ static func costruisci(zona: MappaZona) -> void:
 	zona.elenco.indicato.connect(zona._indica_stanza)
 	zona.elenco.lasciato.connect(zona._smetti_di_indicare)
 	zona.elenco.scelto.connect(zona._su_stanza_per_id)
-	# alla Sede i nomi sono sulla pianta: la stessa lista una seconda volta, di
-	# fianco, era proprio la «schermata di opzioni» da cui si voleva uscire
-	zona.elenco.visible = not zona.e_la_sede()
+	# alla Sede e sul plastico i nomi sono sulle stanze: la stessa lista una
+	# seconda volta, di fianco, era proprio la «schermata di opzioni» da cui si
+	# voleva uscire, e sul plastico avrebbe avuto i colori della mappa vecchia
+	zona.elenco.visible = not (zona.e_la_sede() or zona.e_un_plastico())
 	fianco.add_child(zona.elenco)
 
+	# IL PLASTICO sta sotto tutto, dentro la cornice: le porte delle stanze e le
+	# icone gli vanno sopra come sulla pianta. Il foglio della pianta non serve
+	if zona.e_un_plastico():
+		zona.plastico = PlasticoZona.new()
+		zona.plastico.zona = zona
+		zona.cornice.add_child(zona.plastico)
 	zona.strato_sotto = strato(zona.cornice)
 	zona.strato_sotto.draw.connect(zona._disegna_sotto)
+	zona.strato_sotto.visible = not zona.e_un_plastico()
 	zona.strato_bottoni = strato(zona.cornice)
 	zona.strato_sopra = strato(zona.cornice)
 	zona.strato_sopra.draw.connect(zona._disegna_sopra)

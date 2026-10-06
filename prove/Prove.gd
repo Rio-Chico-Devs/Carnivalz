@@ -177,6 +177,7 @@ func _ready() -> void:
 	# dopo le prove della proiezione: sotto_il_mouse porta la finestra alla
 	# misura del gioco, e le prove della mano la vogliono come la trova Godot
 	await prova_alla_sede_si_salva_e_si_cammina()
+	await prova_il_plastico_e_a_piani_e_si_clicca()
 	await prova_le_stanze_della_sede_aprono_quello_che_dicono()
 	await prova_il_menu_c_e_in_ogni_schermata()
 	await prova_sulla_proiezione_non_c_e_grana()
@@ -877,6 +878,7 @@ func prova_mappe() -> void:
 		# occupata, cosi' la sovrapposizione non e' improbabile: non passa.
 		var occupate: Dictionary = {}
 		var riquadri: Dictionary = {}
+		var piani_riquadri: Dictionary = {}
 		esigi(String(mappa_zona.get("nome", "")) != "",
 				"%s: la mappa della zona non ha nome" % percorso)
 		# il disegno, se c'e', e il foglio su cui Bru ha messo le coordinate
@@ -921,12 +923,16 @@ func prova_mappe() -> void:
 						and suo.end.x <= foglio.x and suo.end.y <= foglio.y,
 						"%s: il riquadro di '%s' (%s) esce dal disegno, che e' %dx%d"
 						% [percorso, id_stanza, str(suo), int(foglio.x), int(foglio.y)])
+				# SULLO STESSO PIANO: su un plastico due stanze una sopra l'altra
+				# sono un edificio a piani, non un errore
+				var piano := int(stanza.get("piano", 0))
 				for altra_id in riquadri:
 					var altra: Rect2 = riquadri[altra_id]
-					esigi(not suo.intersects(altra),
+					esigi(not suo.intersects(altra) or piano != int(piani_riquadri[altra_id]),
 							"%s: i riquadri di '%s' e '%s' si accavallano: quello sotto non si puo' cliccare"
 							% [percorso, altra_id, id_stanza])
 				riquadri[id_stanza] = suo
+				piani_riquadri[id_stanza] = piano
 				continue
 			var cella: Array = stanza.get("cella", [])
 			esigi(cella.size() == 2 and int(cella[0]) >= 0 and int(cella[1]) >= 0,
@@ -7646,8 +7652,10 @@ func prova_sede() -> void:
 	esigi(String(complesso.get("disegno", "")) == String(pianta.get("disegno", "")),
 			"la Sede e il complesso della prima giornata non sono piu' lo stesso disegno")
 	var di_allora := {}
+	var piani_di_allora := {}
 	for stanza: Dictionary in complesso.get("stanze", []):
 		di_allora[String(stanza.get("id", ""))] = stanza.get("riquadro", [])
+		piani_di_allora[String(stanza.get("id", ""))] = int(stanza.get("piano", 0))
 	var in_comune := 0
 	for stanza: Dictionary in pianta.get("stanze", []):
 		var id_stanza := String(stanza.get("id", ""))
@@ -7655,6 +7663,8 @@ func prova_sede() -> void:
 			in_comune += 1
 			esigi(stanza.get("riquadro", []) == di_allora[id_stanza],
 					"alla Sede la stanza %s non sta dove stava la prima giornata" % id_stanza)
+			esigi(int(stanza.get("piano", 0)) == int(piani_di_allora.get(id_stanza, 0)),
+					"alla Sede la stanza %s non sta allo stesso piano della prima giornata" % id_stanza)
 	esigi(in_comune >= 6, "la Sede ha solo %d stanze del complesso: non e' piu' lo stesso posto" % in_comune)
 
 func prova_posti_visitati() -> void:
@@ -8560,6 +8570,82 @@ func bottoni_fermi(nodo: Node) -> Array[Button]:
 			trovati.append(figlio as Button)
 		trovati.append_array(bottoni_fermi(figlio))
 	return trovati
+
+func prova_il_plastico_e_a_piani_e_si_clicca() -> void:
+	# IL PLASTICO. Bru, mandando una mappa di Metroid Prime: «vorrei dessimo una
+	# rappresentazione tridimensionale ma semplice come nelle mappe di metroid,
+	# per farti capire come e' strutturata la zona, per esempio piani inferiori
+	# o superiori, dove collocheremo anche quando li avremo gli npc». E:
+	# «cliccando sopra ogni area dovrebbe essere possibile entrarci».
+	titolo("il plastico: stanze a piani, ognuna si clicca, e ci si vede chi c'e'")
+	GameState.nuova_partita()
+	var pianta := await sede_aperta()
+	var p := pianta.plastico
+	esigi(p != null, "la Sede non e' un plastico: la mappa e' ancora piatta")
+	if p == null:
+		return
+	for i in 3:
+		await get_tree().process_frame
+	# A PIANI: la sala operativa (piano operativo) sta due piani sopra
+	# l'archivio (sotterraneo), nel modellino e a schermo
+	var su := p.scatole["sala_operativa"]["centro"] as Vector3
+	var giu := p.scatole["archivio"]["centro"] as Vector3
+	esigi(is_equal_approx(su.y - giu.y, 2.0 * PlasticoZona.ALTEZZA_PIANO),
+			"sul plastico la sala operativa non sta due piani sopra l'archivio (%.1f di differenza)" % (su.y - giu.y))
+	esigi(p.cima("sala_operativa").y < p.cima("archivio").y - 40.0,
+			"a schermo il piano operativo non sta sopra il sotterraneo: i piani non si distinguono")
+	esigi(p.piani_visti() == [-1, 0, 1], "la Sede non mostra i suoi tre piani: %s" % str(p.piani_visti()))
+	# OGNI STANZA CHE SI VEDE HA LA SUA PORTA, sagomata, dentro la cornice
+	var porte := {}
+	for porta in pianta.strato_bottoni.get_children():
+		porte[String(porta.get_meta("stanza", ""))] = porta
+	var cornice := Rect2(Vector2.ZERO, pianta.cornice.size).grow(4.0)
+	for id_stanza in p.scatole:
+		if not pianta.si_vede(id_stanza):
+			continue
+		var sua := porte.get(id_stanza) as PortaStanza
+		esigi(sua != null and sua.sagoma.size() >= 4, "sul plastico la stanza %s non si puo' cliccare" % id_stanza)
+		if sua != null:
+			esigi(cornice.encloses(Rect2(sua.position, sua.size)), "sul plastico la stanza %s esce dalla cornice" % id_stanza)
+	# LA SAGOMA, NON IL RETTANGOLO: l'angolo vuoto non e' della stanza
+	var emporio := porte.get("emporio") as PortaStanza
+	if emporio == null:
+		return
+	esigi(emporio._has_point(emporio.size * 0.5) and not emporio._has_point(Vector2(1, 1)),
+			"la porta dell'emporio prende il clic anche nell'angolo vuoto del suo rettangolo")
+	# CLICCANDO SI ENTRA: niente le sta sopra, e porta dentro la stanza
+	var sotto: Control = await sotto_il_mouse(emporio)
+	esigi(sotto == emporio, "sopra l'emporio c'e' «%s»: il clic non arriva alla stanza" % (String(sotto.name) if sotto != null else "niente"))
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	emporio.pressed.emit()
+	esigi(Transizioni.prossima == "res://scenes/Main.tscn" and String(IngressoNodo.ultimo_esito.get("id", "")) == "emporio",
+			"cliccando l'emporio sul plastico non ci si entra")
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	Transizioni.in_corso = stato_prima
+	GameState.nodo_corrente = "alloggio"
+	# SI GIRA, e le porte vanno dietro alle stanze
+	var prima := emporio.position
+	p.mano.gira(0.5, 10.0)
+	for i in 40:
+		await get_tree().process_frame
+	esigi(emporio.position.distance_to(prima) > 5.0, "girando il plastico le porte restano dov'erano")
+	# PUNTARE UNA STANZA LA ACCENDE, e dice chi ci trovi
+	for stanza: Dictionary in GameState.mappa_zona.get("stanze", []):
+		if String(stanza.get("id", "")) in ["mensa", "officina"]:
+			stanza["personaggi"] = ["veronica"]
+	pianta._indica_stanza("mensa")
+	esigi(float((p.accese["mensa"] as ShaderMaterial).get_shader_parameter("acceso")) > 0.5,
+			"puntando la mensa sul plastico la mensa non si accende")
+	var nome_veronica := String(GameState.personaggi.get("veronica", {}).get("nome", "veronica"))
+	esigi(pianta.etichetta_stato.text.contains(nome_veronica),
+			"puntando la mensa non si dice che c'e' %s: «%s»" % [nome_veronica, pianta.etichetta_stato.text])
+	esigi(pianta.chi_c_e("officina").is_empty(), "una porta chiusa dice gia' chi c'e' dentro")
+	pianta.get_parent().queue_free()
+	await get_tree().process_frame
+	GameState.reset_campagna()
 
 func sede_aperta() -> MappaZona:
 	var casa: Control = load("res://scenes/Sede.tscn").instantiate()

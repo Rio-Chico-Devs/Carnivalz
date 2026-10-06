@@ -12,6 +12,13 @@
     "_nota_mano": "Quanto il giocatore puo' muovere la proiezione (ManoProiezione.gd). 'giro' i radianti che puo' girare per lato (0.75 = 43 gradi); 'su' e 'giu' i gradi che puo' inclinare verso l'alto (piu' dall'alto) e verso il basso; 'vicino' e 'lontano' quanto puo' avvicinarsi e allontanarsi (0.62 = un terzo piu' vicino); 'spinta' quanto il centro puo' scivolare verso il cursore quando si avvicina. Numeri miei, da provare.",
     "mano": {"giro": 0.75, "su": 30.0, "giu": 14.0, "vicino": 0.62, "lontano": 1.2, "spinta": 7.0}
   },
+  "plastico": {
+    "_nota": "IL PLASTICO DELLA MAPPA DI ZONA (PlasticoZona.gd), sul modello delle mappe di Metroid Prime che ha mandato Bru: volumi di luce che si sommano, su fondo scuro. 'linea' e' il colore delle stanze e dei corridoi, 'qui' la stanza in cui sei (respira), 'segreta' una stanza segreta gia' visitata, 'chiusa' una porta chiusa a chiave. Quanto e' accesa una stanza dice cosa sai di lei: visitata piena, nota a meta', intravista appena. Colori miei, da provare.",
+    "linea": "#3fd6e6",
+    "qui": "#f29a2e",
+    "segreta": "#8fe08a",
+    "chiusa": "#7d8a90"
+  },
   "orologio": {
     "_nota": "L'OROLOGIO DELLE SCELTE A TEMPO (Orologio.gd, disegno in Cipolla.gd, crepe in Crepe.gd, rottura in Rottura.gd), approvato da Bru il 5 ottobre. E' un pendolo simulato: 'periodo' e' il tempo di un'oscillazione intera; lo scappamento lo tiene a 'ampiezza' gradi e nell'ultimo quarto lo porta verso 'ampiezza_allarme'; appeso di colpo lo si lascia andare da 'partenza' gradi. 'tic' e 'tic_allarme' sono i secondi fra un tic e l'altro, a riposo e allo scadere. Allo scadere il vetro si crepa in tre colpi e cede dopo 'rotto_a' secondi: e' allora che la scelta va in pezzi (morta lo e' gia' dallo scadere). Numeri miei, da provare.",
     "periodo": 1.35,

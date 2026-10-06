@@ -67,6 +67,7 @@ static var avviso := ""
 var detto := ""
 
 var cornice: Control
+var plastico: PlasticoZona = null   # la zona in 3D, a piani, se la chiede ("vista": "plastico")
 var elenco: ElencoPosti
 var strato_sotto: Control      # griglia e collegamenti
 var strato_sopra: Control      # icone e "sei qui"
@@ -174,6 +175,19 @@ func e_la_sede() -> bool:
 	# la mappa e' la schermata stessa, non uno strumento: vedi IntelaiaturaZona
 	return bool(GameState.mappa_zona.get("sede", false))
 
+func e_un_plastico() -> bool:
+	# la zona come un modellino a piani invece che una pianta: vedi PlasticoZona
+	return String(GameState.mappa_zona.get("vista", "")) == "plastico"
+
+func chi_c_e(id_stanza: String) -> Array[String]:
+	# i personaggi che stanno in una stanza ("personaggi"), se la stanza la conosci
+	var chi: Array[String] = []
+	if not stanze_per_id.has(id_stanza) or nome_di(id_stanza) == "?":
+		return chi
+	for id_personaggio in IngressoNodo.lista_id(stanze_per_id[id_stanza].get("personaggi", [])):
+		chi.append(String(GameState.personaggi.get(id_personaggio, {}).get("nome", id_personaggio)))
+	return chi
+
 func chiusa(id_stanza: String) -> bool:
 	# UNA PORTA CHIUSA A CHIAVE si vede, ci si arriva davanti, e non si apre: il
 	# corridoio c'e', e' la stanza che aspetta il suo flag ("richiede_flag")
@@ -267,11 +281,17 @@ func ricostruisci() -> void:
 		lato = clampf(minf(spazio.x / float(colonne), spazio.y / float(righe)),
 				LATO_MINIMO, LATO_MASSIMO)
 		origine = (spazio - Vector2(colonne, righe) * lato) * 0.5
+	if plastico != null:
+		plastico.inquadra()
+		plastico.aggiorna()
 	disegna_bottoni()
 	strato_sotto.queue_redraw()
 	strato_sopra.queue_redraw()
 
 func rettangolo_di(stanza: Dictionary) -> Rect2:
+	if plastico != null:
+		# dove la stanza finisce a schermo, vista dalla camera del plastico
+		return plastico.rettangolo(String(stanza.get("id", "")))
 	if c_e_un_disegno():
 		# le coordinate sono quelle del disegno di Bru, in pixel del SUO file:
 		# qui si riportano alla misura a cui il foglio e' finito a schermo
@@ -358,7 +378,8 @@ func disegna_bottoni() -> void:
 		if not si_vede(id_stanza):
 			continue   # non se ne conosce nemmeno l'esistenza
 		var rettangolo := rettangolo_di(stanza)
-		var bottone := Button.new()
+		var bottone := PortaStanza.new()
+		bottone.set_meta("stanza", id_stanza)
 		# NON PIATTO, MAI. Un Button con flat = true in Godot NON DISEGNA il suo
 		# StyleBox: salta il fondo e disegna solo il testo. Qui sotto ci sono
 		# quaranta righe che costruiscono una scatola per ogni stato - fondo,
@@ -380,12 +401,12 @@ func disegna_bottoni() -> void:
 			# il punto di domanda: quello che invita ad andarci. NON dove c'e'
 			# gia' il punto esclamativo: quello dice "vai qui" molto meglio di
 			# un "?", e i due sovrapposti erano solo due segni uno sull'altro.
-			if icona_di(stanza) != "obiettivo" and not e_la_sede():
+			if icona_di(stanza) != "obiettivo" and not (e_la_sede() or plastico != null):
 				bottone.text = "?"
 				bottone.add_theme_font_size_override("font_size", int(lato * 0.5))
 			vesti_vuoto(bottone, noto, raggiungibile)
-		if e_la_sede():
-			# alla Sede ogni stanza si chiama col suo nome, sulla pianta
+		if e_la_sede() or plastico != null:
+			# alla Sede e sul plastico il nome sta sulla stanza, non in una legenda
 			SegniPianta.nome(bottone, nome_di(id_stanza), corpo_dei_nomi())
 		bottone.pressed.connect(_su_stanza.bind(id_stanza, noto, raggiungibile))
 		# ANCHE COL TASTO, NON SOLO COL MOUSE. In Godot il suggerimento non
@@ -397,6 +418,16 @@ func disegna_bottoni() -> void:
 		bottone.mouse_exited.connect(_smetti_di_indicare)
 		bottone.focus_exited.connect(_smetti_di_indicare)
 		strato_bottoni.add_child(bottone)
+	if plastico != null:
+		plastico.svuota(strato_bottoni)   # le stanze le disegna il plastico: le porte non hanno faccia
+		riposiziona()
+
+func riposiziona() -> void:
+	# il plastico si e' mosso: le porte e le icone lo seguono
+	for porta in strato_bottoni.get_children():
+		plastico.metti_porta(porta as PortaStanza, String(porta.get_meta("stanza", "")))
+	plastico.ordina(strato_bottoni)
+	strato_sopra.queue_redraw()
 
 func vesti_pieno(bottone: Button, segreta: bool, raggiungibile: bool) -> void:
 	# un posto dove sei stato ma da cui sei lontano resta rosso, ma spento: si
@@ -437,14 +468,21 @@ func vesti_vuoto(bottone: Button, noto: bool, raggiungibile: bool) -> void:
 
 func _indica_stanza(id_stanza: String) -> void:
 	indicata = id_stanza
+	if plastico != null:
+		plastico.evidenzia(id_stanza)
 	# e cosa ci si fa, se la stanza lo dice ("cosa"): «dove vado? cosa faccio?»
 	var cosa := String(stanze_per_id.get(id_stanza, {}).get("cosa", ""))
 	etichetta_stato.text = nome_di(id_stanza) if cosa == "" or chiusa(id_stanza) \
 			else "%s  ·  %s" % [nome_di(id_stanza), cosa]
+	# e chi ci trovi, se ci sta qualcuno
+	if not chi_c_e(id_stanza).is_empty():
+		etichetta_stato.text += "  ·  " + ", ".join(chi_c_e(id_stanza))
 	elenco.evidenzia(id_stanza)
 	strato_sopra.queue_redraw()
 
 func _smetti_di_indicare() -> void:
+	if plastico != null:
+		plastico.evidenzia("")
 	# SI TORNA A DIRE DOVE SEI, non si torna al vuoto. Prima qui restava una
 	# riga bianca, e la schermata smetteva di rispondere alla sola domanda a
 	# cui una mappa deve rispondere sempre.
@@ -565,7 +603,7 @@ func _disegna_sopra() -> void:
 		if not si_vede(id_stanza):
 			continue
 		var rettangolo := rettangolo_di(stanza)
-		var segni := rettangolo_dei_segni(rettangolo)
+		var segni := rettangolo_dei_segni(id_stanza, rettangolo)
 		var icona := icona_di(stanza)
 		# IL PUNTO ESCLAMATIVO E' L'ECCEZIONE, e per il motivo piu' ovvio: le
 		# altre icone raccontano cosa hai trovato in un posto, quindi si vedono
@@ -586,7 +624,11 @@ func _disegna_sopra() -> void:
 		if id_stanza == indicata:
 			disegna_anello(rettangolo)
 
-func rettangolo_dei_segni(rettangolo: Rect2) -> Rect2:
+func rettangolo_dei_segni(id_stanza: String, rettangolo: Rect2) -> Rect2:
+	# sul plastico le icone stanno sopra il tetto della stanza, sempre della
+	# stessa misura: la stanza a schermo cambia forma girando la vista
+	if plastico != null:
+		return Rect2(plastico.cima(id_stanza) - Vector2(24.0, 44.0), Vector2(48.0, 48.0))
 	# alla Sede in fondo al riquadro c'e' il nome: icone e freccia stanno sopra
 	if not e_la_sede():
 		return rettangolo
@@ -598,6 +640,8 @@ func corpo_dei_nomi() -> int:
 	return clampi(int(riquadro_disegno.size.y / 30.0), 13, 18)
 
 func tratteggia(rettangolo: Rect2, raggiungibile: bool) -> void:
+	if plastico != null:
+		return   # sul plastico la segreta e' di un altro colore (PlasticoZona.stato_di)
 	# le righe oblique delle stanze segrete: come si tracciano e perche' sta
 	# in Tratteggio.gd, che disegna anche il quadratino della legenda - se i
 	# due segni non fossero identici la legenda direbbe un'altra cosa
@@ -605,6 +649,8 @@ func tratteggia(rettangolo: Rect2, raggiungibile: bool) -> void:
 			tinta_stanza(true, raggiungibile).lightened(SCHIARITA_TRATTEGGIO))
 
 func disegna_anello(rettangolo: Rect2) -> void:
+	if plastico != null:
+		return   # sul plastico la stanza puntata si accende (PlasticoZona.evidenzia)
 	# L'ANELLO E' IL FILO CHE LEGA LA LEGENDA ALLA MAPPA. Senza, un elenco di
 	# nomi di fianco e' una tabella: leggi "Sala del lamento" e poi devi
 	# andartela a cercare fra ventisette quadrati uguali.
@@ -650,6 +696,3 @@ func _process(delta: float) -> void:
 		return
 	battito = fmod(battito + delta / DURATA_BATTITO, 1.0)
 	strato_sopra.queue_redraw()
-
-
-
