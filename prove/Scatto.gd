@@ -642,6 +642,7 @@ func prepara(quale: String) -> void:
 				"come_storia": schermo.pagina_come_si_gioca("STORIA")
 				"come_scontro": schermo.pagina_come_si_gioca("COMBATTIMENTO")
 				"come_mosse": schermo.pagina_come_si_gioca("MOSSE SPECIALI")
+				"come_mappa": schermo.pagina_come_si_gioca("MAPPA")
 				"opzioni": schermo.pagina_opzioni()
 				"audio": schermo.pagina_opzioni_di("Audio")
 				"grafica": schermo.pagina_opzioni_di("Grafica")
@@ -1599,6 +1600,13 @@ func prepara(quale: String) -> void:
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 			if argomenti_sede.size() > 1 and String(argomenti_sede[1]) == "girata":
 				(casa.get_child(-1) as MappaZona)._indica_stanza("emporio")
+				await attendi(4)
+			# "sede piano": il piano terra da solo, gli altri spenti
+			if argomenti_sede.size() > 1 and String(argomenti_sede[1]) == "piano":
+				var pianta := casa.get_child(-1) as MappaZona
+				pianta.plastico.isola(0)
+				await attendi(40)
+				pianta._indica_stanza("emporio")
 				await attendi(4)
 		"rottura":
 			# il vetro a meta' caduta: e' l'unico modo di guardarlo, perche'

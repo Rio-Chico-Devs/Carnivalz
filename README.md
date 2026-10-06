@@ -497,8 +497,32 @@ modellino olografico:
 - **ogni stanza si clicca** (`PortaStanza.gd`): è un bottone vero, ritagliato sulla sagoma che la
   stanza ha a schermo, così l'angolo vuoto non ruba il clic alla stanza dietro; la più vicina sta
   sopra. Si arriva anche da tastiera, e la stanza puntata si accende;
-- **si gira, si inclina e si avvicina** come la mappa stellare e con gli stessi limiti: trascinare
-  sul vuoto, rotella, Q/E, R/F, Pag su/giù, doppio clic o Inizio per ricentrare;
+- **si tiene in mano** (`ManoPlastico.gd`; Bru, la prima volta: «molto carino ma va migliorato,
+  anche in termini di interazione e manipolazione»). Prima usava la mano della mappa stellare,
+  fatta apposta per muoversi poco; adesso:
+  - si trascina col tasto sinistro per **girarlo tutto intorno** e inclinarlo fin quasi a pianta,
+    **anche partendo da una stanza**: se la mano si muove il clic diventa un giro e nella stanza
+    non si entra, se resta ferma si entra come sempre;
+  - col **tasto destro** (o centrale, o sinistro con Maiusc) e con **W/A/S/D** lo si **sposta**,
+    senza farlo uscire dalla cornice;
+  - la **rotella** avvicina fino a una stanza sola, tenendo fermo il punto sotto il cursore;
+  - lasciato andare di slancio gira ancora un poco (col movimento ridotto no);
+  - Q/E, R/F, Pag su/giù come sulla mappa stellare; doppio clic sul vuoto o Inizio rimettono tutto
+    com'era. Limiti in `stile.json` (`plastico` → `mano`); i comandi sono anche in COME SI GIOCA →
+    PLASTICO;
+- **un piano alla volta**: i nomi dei piani a sinistra sono bottoni (`ScrittePlastico.gd`).
+  Cliccandone uno restano accese solo le sue stanze, quelle sopra quasi spariscono e quelle sotto
+  restano un'ombra, le loro porte non si cliccano più e la vista va su quel piano, un po' più
+  dall'alto. Di nuovo lo stesso piano: tornano tutti. Da tastiera **Z/X** (o i dorsali del pad):
+  prima il piano in cui sei, poi giù o su, oltre l'ultimo tutti. Il pallino arancio dice su che
+  piano sei;
+- **la scheda della stanza puntata** sta accanto alla stanza: nome, cosa ci si fa, chi c'è e cosa
+  fa il clic («CLIC · ENTRA», «SEI QUI», «CHIUSA», «TROPPO LONTANO»). Prima lo diceva solo la riga
+  in basso, lontana dal cursore. Il suggerimento di Godot sulle stanze non c'è più: copriva la
+  stanza;
+- **i nomi non si coprono**: dalla stanza puntata e da quella in cui sei, poi dalla più vicina, ogni
+  nome va sotto la sua stanza, o appena sopra o sotto se lì c'è già qualcosa (anche la freccia del
+  «sei qui»); se non c'è posto aspetta che ci si avvicini;
 - **i personaggi**: `"personaggi": ["veronica"]` su una stanza (id di `personaggi.json`) mette un
   segnalino sopra il suo volume, e passando sulla stanza la riga in basso dice chi c'è. Una stanza
   chiusa o che non conosci non lo dice. Oggi nessuna stanza ne ha: si aggiungono quando ci sono;

@@ -10,10 +10,11 @@ uniform vec4 tinta : source_color = vec4(0.25, 0.84, 0.9, 0.3);
 uniform float pulsa = 0.0;     // la stanza in cui sei respira
 uniform float acceso = 0.0;    // quella che punti si accende
 uniform float taglio = 1.0;    // 0 per le linee: non hanno facce
+uniform float velo = 1.0;      // scegliendo un piano, gli altri si spengono (PlasticoZona.isola)
 
 void fragment() {
 	float bordo = mix(1.0, 0.6 + 0.8 * (1.0 - abs(dot(NORMAL, VIEW))), taglio);
 	float respiro = 1.0 + pulsa * 0.45 * sin(TIME * 3.4);
 	ALBEDO = mix(tinta.rgb, vec3(1.0), acceso * 0.25);
-	ALPHA = clamp(tinta.a * bordo * respiro + acceso * mix(0.5, 0.3, taglio), 0.0, 1.0);
+	ALPHA = clamp(tinta.a * bordo * respiro + acceso * mix(0.5, 0.3, taglio), 0.0, 1.0) * velo;
 }

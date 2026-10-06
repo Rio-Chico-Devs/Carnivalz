@@ -74,6 +74,10 @@ static func costruisci(zona: MappaZona) -> void:
 	zona.strato_bottoni = strato(zona.cornice)
 	zona.strato_sopra = strato(zona.cornice)
 	zona.strato_sopra.draw.connect(zona._disegna_sopra)
+	# e sopra tutto i nomi dei piani e la scheda della stanza puntata: i piani
+	# si cliccano anche dove una stanza ci passa sotto
+	if zona.plastico != null:
+		zona.plastico.monta_sopra(zona.cornice)
 
 	# LA RIGA CHE DICE SEMPRE DOVE SEI. Era a corpo 37 - piu' grande della
 	# legenda e quasi quanto il nome della zona - e da sola rovesciava la

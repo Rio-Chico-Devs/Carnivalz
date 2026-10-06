@@ -17,7 +17,16 @@
     "linea": "#3fd6e6",
     "qui": "#f29a2e",
     "segreta": "#8fe08a",
-    "chiusa": "#7d8a90"
+    "chiusa": "#7d8a90",
+    "mano": {
+      "_nota": "QUANTO SI MUOVE IL PLASTICO (ManoPlastico.gd). 'vicino' e 'lontano' moltiplicano la distanza della vista d'insieme (0,3 = una stanza riempie un terzo della cornice); 'basso' e 'alto' sono i gradi d'altezza da cui lo si guarda (85 e' quasi una pianta); 'slancio' sono i radianti al secondo massimi con cui continua a girare se lo lasci andare di slancio, 'attrito' quanto in fretta si ferma. Il giro non ha limiti. Numeri miei, da provare.",
+      "vicino": 0.3,
+      "lontano": 1.5,
+      "basso": 12.0,
+      "alto": 85.0,
+      "slancio": 4.0,
+      "attrito": 4.0
+    }
   },
   "orologio": {
     "_nota": "L'OROLOGIO DELLE SCELTE A TEMPO (Orologio.gd, disegno in Cipolla.gd, crepe in Crepe.gd, rottura in Rottura.gd), approvato da Bru il 5 ottobre. E' un pendolo simulato: 'periodo' e' il tempo di un'oscillazione intera; lo scappamento lo tiene a 'ampiezza' gradi e nell'ultimo quarto lo porta verso 'ampiezza_allarme'; appeso di colpo lo si lascia andare da 'partenza' gradi. 'tic' e 'tic_allarme' sono i secondi fra un tic e l'altro, a riposo e allo scadere. Allo scadere il vetro si crepa in tre colpi e cede dopo 'rotto_a' secondi: e' allora che la scelta va in pezzi (morta lo e' gia' dallo scadere). Numeri miei, da provare.",

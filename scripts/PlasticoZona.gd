@@ -12,14 +12,25 @@ extends Control
 # un volume di luce sul suo "piano" (0 il piano terra, 1 quello sopra, -1
 # quello sotto) con la pianta del suo "riquadro" (o della sua "cella", sulle
 # zone a quadratini); i corridoi aperti sono tubi, e quando uniscono due piani
-# diventano pozzi. Si gira, si inclina e si avvicina come la mappa stellare, e
-# con gli stessi limiti (ManoProiezione): si guarda meglio, non ci si perde.
+# diventano pozzi.
+#
+# SI TIENE IN MANO. Bru, la prima volta che l'ha visto: «molto carino ma va
+# migliorato, anche in termini di interazione e manipolazione». Si gira tutto
+# intorno, si inclina fin quasi a pianta, si avvicina verso il cursore e si
+# sposta, anche trascinando da sopra una stanza: tasti, gesti e limiti stanno
+# in ManoPlastico.
+#
+# UN PIANO ALLA VOLTA, se si vuole: cliccando il nome di un piano (a sinistra)
+# restano accese solo le sue stanze, quelle degli altri piani si spengono e non
+# si cliccano piu', e la vista ci va sopra. E' quello che fa leggere un piano
+# che sta sotto un altro: guardando dall'alto, il piano di sopra lo copriva.
 #
 # QUI SI DISEGNA SOLTANTO. Cosa si sa di una stanza, dove si puo' andare e cosa
 # succede cliccandola lo decide MappaZona, come sulla mappa a quadratini: le
 # stanze si premono con PortaStanza, che e' un bottone vero ritagliato sulla
 # sagoma che la stanza ha a schermo. Le icone (il punto esclamativo, la freccia
-# del «sei qui») restano quelle di SegniMappa, sopra la stanza.
+# del «sei qui») restano quelle di SegniMappa, sopra la stanza. I nomi dei
+# piani, chi c'e' e la scheda della stanza puntata stanno in ScrittePlastico.
 #
 # I PERSONAGGI: "personaggi" su una stanza (id di personaggi.json) mette un
 # segnalino sopra il suo volume, e MappaZona dice chi c'e' nella riga in basso.
@@ -32,24 +43,27 @@ const SCALA_PIANTA := 0.01       # un pixel del foglio della pianta: 1920 divent
 const LATO_CELLA := 1.7          # una cella delle zone a quadratini
 const TUBO := 0.2                # quanto e' spesso un corridoio
 const POZZO := 0.34              # e un pozzo fra due piani
-const MARGINE_PIANI := 120.0     # a sinistra, la colonna coi nomi dei piani
-const SOGLIA := 4.0              # pixel prima che un clic diventi un trascinamento
 const BASE := {"giro": -0.38, "beccheggio": 22.0, "fov": 30.0}
+const NESSUNO := -9999           # nessun piano scelto: si vedono tutti
+const VELO_SOTTO := 0.14         # scelto un piano, quelli sotto restano un'ombra
+const VELO_SOPRA := 0.03         # e quelli sopra quasi spariscono: lo coprirebbero
+const PER_UN_PIANO := 40.0       # gradi d'altezza, almeno, guardando un piano solo
 
 var zona: MappaZona
 var vista: SubViewport
 var camera: Camera3D
 var radice: Node3D
-var scritte: Control             # i nomi dei piani e i segnalini: sopra il 3D, sotto le porte
-var mano := ManoProiezione.new()
+var scritte: ScrittePlastico     # i piani, chi c'e', la scheda: sopra le porte (monta_sopra)
+var mano: ManoPlastico               # la vista in mano: mouse, tasti, limiti
 var cam := {}                    # l'inquadratura di partenza: tutta la zona, di tre quarti
+var ora := {}                    # quella di adesso: la partenza piu' la mano
 var scatole := {}                # id stanza -> {"centro": Vector3, "misura": Vector3, "piano": int}
 var accese := {}                 # id stanza -> il suo materiale, per accenderla quando la si punta
 var tinte := {}
 var puntata := ""
-var premuto := false
-var trascinando := false
-var da := Vector2.ZERO
+var solo := NESSUNO              # il piano scelto, se ce n'e' uno
+var veli := {}                   # piano -> quanto si vede adesso (scivola verso velo_di)
+var velati: Array = []           # [materiale, piani]: cosa si spegne con quali piani
 var ultima := Transform3D()      # dov'era la camera l'ultima volta che si sono messe a posto le porte
 
 
@@ -75,12 +89,18 @@ func _ready() -> void:
 	schermo.stretch_mode = TextureRect.STRETCH_SCALE
 	schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(schermo)
-	scritte = Control.new()
-	scritte.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	scritte.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	scritte.draw.connect(_disegna_scritte)
+	scritte = ScrittePlastico.new(self)
 	add_child(scritte)
+	mano = ManoPlastico.new(self)
+	add_child(mano)
 	misura_le_stanze()
+
+
+func monta_sopra(cornice: Control) -> void:
+	# le scritte vanno sopra le porte delle stanze: i bottoni dei piani si
+	# devono cliccare anche quando una stanza ci passa sotto
+	scritte.reparent(cornice, false)
+	scritte.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 static func tavolozza() -> Dictionary:
@@ -141,15 +161,17 @@ func aggiorna() -> void:
 		radice.remove_child(figlio)
 		figlio.queue_free()
 	accese.clear()
+	velati.clear()
 	for id_stanza in scatole:
 		if zona.si_vede(id_stanza):
 			var s: Dictionary = scatole[id_stanza]
-			accese[id_stanza] = volume(s["centro"], s["misura"], Basis(), stato_di(id_stanza))
+			accese[id_stanza] = volume(s["centro"], s["misura"], Basis(), stato_di(id_stanza), [s["piano"]])
 	for coppia in GameState.collegamenti_aperti():
 		if coppia.size() >= 2 and zona.si_vede(String(coppia[0])) and zona.si_vede(String(coppia[1])):
 			corridoio(String(coppia[0]), String(coppia[1]))
 	for piano in piani_visti():
 		lastra(int(piano))
+	applica_veli()
 	evidenzia(puntata)
 	scritte.queue_redraw()
 
@@ -172,8 +194,9 @@ func stato_di(id_stanza: String) -> Dictionary:
 	return {"tinta": tinta, "pieno": 0.34 * luce, "linea": 1.0 * luce, "pulsa": 1.0 if qui and not Movimento.ridotto() else 0.0}
 
 
-func volume(centro: Vector3, misura: Vector3, base: Basis, stato: Dictionary) -> ShaderMaterial:
-	# un parallelepipedo di luce: le facce appena velate e gli spigoli accesi
+func volume(centro: Vector3, misura: Vector3, base: Basis, stato: Dictionary, piani: Array) -> ShaderMaterial:
+	# un parallelepipedo di luce: le facce appena velate e gli spigoli accesi.
+	# 'piani' sono i piani con cui si spegne quando se ne sceglie un altro
 	var pieno := MeshInstance3D.new()
 	var forma := BoxMesh.new()
 	forma.size = misura
@@ -186,6 +209,8 @@ func volume(centro: Vector3, misura: Vector3, base: Basis, stato: Dictionary) ->
 	spigoli.mesh = spigoli_di(misura)
 	spigoli.material_override = materiale_di(stato["tinta"], float(stato["linea"]), float(stato["pulsa"]), 0.0)
 	pieno.add_child(spigoli)
+	velati.append([materiale, piani])
+	velati.append([spigoli.material_override, piani])
 	return materiale
 
 
@@ -233,21 +258,22 @@ func corridoio(a: String, b: String) -> void:
 	var percorso := zona.visitata(a) and zona.visitata(b)
 	var stato := {"tinta": tinte["linea"], "pieno": 0.16 if percorso else 0.08,
 			"linea": 0.7 if percorso else 0.38, "pulsa": 0.0}
+	var piani := [sa["piano"], sb["piano"]]
 	var da_qui := Vector3(porta_a.x, quota_a, porta_a.y)
 	var a_li := Vector3(porta_b.x, quota_a, porta_b.y)
 	if da_qui.distance_to(a_li) > 0.05:
-		tubo(da_qui, a_li, TUBO, stato)
+		tubo(da_qui, a_li, TUBO, stato, piani)
 	if absf(quota_a - quota_b) > 0.05:
-		tubo(a_li, Vector3(porta_b.x, quota_b, porta_b.y), POZZO, stato)
+		tubo(a_li, Vector3(porta_b.x, quota_b, porta_b.y), POZZO, stato, piani)
 
 
-func tubo(da_dove: Vector3, a_dove: Vector3, spessore: float, stato: Dictionary) -> void:
+func tubo(da_dove: Vector3, a_dove: Vector3, spessore: float, stato: Dictionary, piani: Array) -> void:
 	var lungo := da_dove.distance_to(a_dove)
 	var asse := (a_dove - da_dove) / lungo
 	var su := Vector3.UP if absf(asse.y) < 0.9 else Vector3.FORWARD
 	var lato := asse.cross(su).normalized()
 	var base := Basis(asse, lato.cross(asse), lato)
-	volume((da_dove + a_dove) * 0.5, Vector3(lungo, spessore, spessore), base, stato)
+	volume((da_dove + a_dove) * 0.5, Vector3(lungo, spessore, spessore), base, stato, piani)
 
 
 func piani_visti() -> Array:
@@ -281,13 +307,122 @@ func lastra(piano: int) -> void:
 	var r := impronta_del_piano(piano)
 	var quota := float(piano) * ALTEZZA_PIANO - 0.02
 	volume(Vector3(r.get_center().x, quota, r.get_center().y), Vector3(r.size.x, 0.02, r.size.y), Basis(),
-			{"tinta": tinte["linea"], "pieno": 0.035, "linea": 0.4, "pulsa": 0.0})
+			{"tinta": tinte["linea"], "pieno": 0.035, "linea": 0.4, "pulsa": 0.0}, [piano])
 
 
 func evidenzia(id_stanza: String) -> void:
 	puntata = id_stanza
 	for id_acceso in accese:
 		(accese[id_acceso] as ShaderMaterial).set_shader_parameter("acceso", 1.0 if id_acceso == id_stanza else 0.0)
+	porta_in_vista(id_stanza)
+	if zona.strato_bottoni != null:
+		scritte.dirada(zona.strato_bottoni)
+	scritte.queue_redraw()
+
+
+func porta_in_vista(id_stanza: String) -> void:
+	# chi passa da una stanza all'altra con la tastiera o col pad non deve
+	# finire su una stanza fuori dalla cornice: la vista ci va
+	var porta := porta_di(id_stanza)
+	if porta == null or not porta.has_focus() or porta.is_hovered():
+		return
+	if Rect2(Vector2.ZERO, size).grow(-60.0).has_point(cima(id_stanza)):
+		return
+	mano.guarda(scatole[id_stanza]["centro"], float(mano.voluto["zoom"]), 0.0)
+
+
+func porta_di(id_stanza: String) -> PortaStanza:
+	if id_stanza == "" or zona.strato_bottoni == null:
+		return null
+	for porta in zona.strato_bottoni.get_children():
+		if String(porta.get_meta("stanza", "")) == id_stanza:
+			return porta as PortaStanza
+	return null
+
+
+# --- un piano solo --------------------------------------------------------------
+
+func isola(piano: int) -> void:
+	# lo stesso piano un'altra volta (o uno che non c'e'): tornano tutti
+	solo = NESSUNO if piano == solo or piano not in piani_visti() else piano
+	if solo == NESSUNO:
+		mano.guarda(cam.get("bersaglio", Vector3.ZERO), 1.0, 0.0)
+	else:
+		# la vista va su quel piano, che riempie la cornice, e un po' dall'alto:
+		# un piano e' una pianta. Il giro resta quello che avevi
+		var r := impronta_del_piano(solo)
+		var quota := float(solo) * ALTEZZA_PIANO
+		var angoli: Array[Vector3] = []
+		for angolo: Vector2 in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
+			angoli.append(Vector3(angolo.x, quota, angolo.y))
+			angoli.append(Vector3(angolo.x, quota + ALTEZZA_STANZA, angolo.y))
+		var dall_alto := clampf(float(cam["beccheggio"]) + float(mano.voluto["becc"]), PER_UN_PIANO,
+				float(ManoPlastico.limiti()["alto"]))
+		var g := adatta(angoli, {"bersaglio": Vector3(r.get_center().x, quota, r.get_center().y),
+				"distanza": float(cam["distanza"]), "giro": float(cam["giro"]) + float(mano.voluto["giro"]),
+				"beccheggio": dall_alto, "fov": cam["fov"]})
+		metti_camera(mano.applica(cam))   # adatta l'ha mossa per provare
+		mano.guarda(g["bersaglio"], float(g["distanza"]) / float(cam["distanza"]), PER_UN_PIANO)
+	if puntata != "" and velata(puntata):
+		zona._smetti_di_indicare()
+	scritte.vesti_piani()
+	zona.riposiziona()
+	scritte.queue_redraw()
+
+
+func cambia_piano(passo: int) -> void:
+	# Z e X: la prima volta il piano in cui sei, poi uno su o uno giu'; oltre
+	# l'ultimo tornano tutti
+	var piani := piani_visti()
+	if piani.is_empty():
+		return
+	if solo == NESSUNO:
+		var qui := int(scatole.get(GameState.nodo_corrente, {}).get("piano", piani[0]))
+		isola(qui if qui in piani else int(piani[0]))
+		return
+	var dopo := piani.find(solo) + passo
+	isola(int(piani[dopo]) if dopo >= 0 and dopo < piani.size() else solo)
+
+
+func ricentra() -> void:
+	solo = NESSUNO
+	mano.centra()
+	scritte.vesti_piani()
+	zona.riposiziona()
+	scritte.queue_redraw()
+
+
+func velata(id_stanza: String) -> bool:
+	# la stanza sta su un piano che adesso e' spento
+	return solo != NESSUNO and scatole.has(id_stanza) and int(scatole[id_stanza]["piano"]) != solo
+
+
+func velo_di(piano: int) -> float:
+	if solo == NESSUNO or piano == solo:
+		return 1.0
+	return VELO_SOPRA if piano > solo else VELO_SOTTO
+
+
+func scivola_veli(delta: float) -> void:
+	# i piani si spengono e si riaccendono in un attimo, non di colpo
+	var k := 1.0 if Movimento.ridotto() else 1.0 - exp(-delta * 10.0)
+	var cambiati := false
+	for piano: int in piani_visti():
+		var adesso := float(veli.get(piano, 1.0))
+		var voluto := velo_di(piano)
+		if adesso != voluto:
+			veli[piano] = voluto if absf(adesso - voluto) < 0.003 else lerpf(adesso, voluto, k)
+			cambiati = true
+	if cambiati:
+		applica_veli()
+
+
+func applica_veli() -> void:
+	for coppia: Array in velati:
+		var quanto := 0.0
+		for piano: int in coppia[1]:
+			quanto = maxf(quanto, float(veli.get(piano, 1.0)))
+		(coppia[0] as ShaderMaterial).set_shader_parameter("velo", quanto)
 
 
 # --- la camera ------------------------------------------------------------------
@@ -301,35 +436,49 @@ func misura_della_vista() -> Vector2i:
 
 
 func inquadra() -> void:
-	# tutta la zona dentro la cornice, di tre quarti e un po' dall'alto: la
-	# distanza si trova provando, perche' quanto spazio prende un modellino
-	# dipende da come lo si guarda
+	# tutta la zona dentro la cornice, di tre quarti e un po' dall'alto
 	vista.size = misura_della_vista()
+	scritte.prepara_piani()
 	var tutto := ingombro()
-	cam = {"bersaglio": tutto.get_center(), "distanza": maxf(tutto.size.length() * 2.0, 4.0),
-			"giro": BASE["giro"], "beccheggio": BASE["beccheggio"], "fov": BASE["fov"]}
-	for prova in 5:
-		metti_camera(cam)
-		var r := Rect2()
-		for i in 8:
-			var punto := sullo_schermo(tutto.get_endpoint(i))
-			r = Rect2(punto, Vector2.ZERO) if i == 0 else r.expand(punto)
-		# sopra ci vanno le icone, sotto i nomi: anche loro devono starci
-		r = r.grow_individual(0.0, 40.0, 0.0, 20.0)
-		var quanto := maxf(r.size.x / maxf(size.x - MARGINE_PIANI, 1.0), r.size.y / maxf(size.y, 1.0))
-		# e centrata nello spazio libero, a destra dei nomi dei piani
-		var per_pixel := 2.0 * float(cam["distanza"]) * tan(deg_to_rad(float(cam["fov"])) * 0.5) / maxf(size.y, 1.0)
-		var scarto := r.get_center() - Vector2((size.x + MARGINE_PIANI) * 0.5, size.y * 0.5)
-		cam["bersaglio"] = (cam["bersaglio"] as Vector3) + (camera.global_transform.basis.x * scarto.x
-				- camera.global_transform.basis.y * scarto.y) * per_pixel
-		cam["distanza"] = float(cam["distanza"]) * clampf(quanto / 0.92, 0.3, 3.0)
+	var angoli: Array[Vector3] = []
+	for i in 8:
+		angoli.append(tutto.get_endpoint(i))
+	cam = adatta(angoli, {"bersaglio": tutto.get_center(), "distanza": maxf(tutto.size.length() * 2.0, 4.0),
+			"giro": BASE["giro"], "beccheggio": BASE["beccheggio"], "fov": BASE["fov"]})
+	mano.base = cam
+	mano.confini = tutto.grow(3.0)
 	metti_camera(mano.applica(cam))
 
 
+func adatta(punti: Array[Vector3], guardo: Dictionary) -> Dictionary:
+	# la vista che mette quei punti dentro la cornice, a destra dei bottoni dei
+	# piani: la distanza si trova provando, perche' quanto spazio prende un
+	# modellino dipende da come lo si guarda. Muove la camera per provare: chi
+	# chiama la rimette dove serve
+	var margine := scritte.larghezza_piani() + 40.0
+	var g := guardo.duplicate()
+	for prova in 5:
+		metti_camera(g)
+		var r := Rect2(sullo_schermo(punti[0]), Vector2.ZERO)
+		for punto in punti:
+			r = r.expand(sullo_schermo(punto))
+		# sopra ci vanno le icone, sotto i nomi e la riga dei comandi
+		r = r.grow_individual(0.0, 40.0, 0.0, 34.0)
+		var quanto := maxf(r.size.x / maxf(size.x - margine, 1.0), r.size.y / maxf(size.y, 1.0))
+		# e centrata nello spazio libero
+		var pixel := 2.0 * float(g["distanza"]) * tan(deg_to_rad(float(g["fov"])) * 0.5) / maxf(size.y, 1.0)
+		var scarto := r.get_center() - Vector2((size.x + margine) * 0.5, size.y * 0.5)
+		g["bersaglio"] = (g["bersaglio"] as Vector3) + (camera.global_transform.basis.x * scarto.x
+				- camera.global_transform.basis.y * scarto.y) * pixel
+		g["distanza"] = float(g["distanza"]) * clampf(quanto / 0.92, 0.3, 3.0)
+	return g
+
+
 func metti_camera(guardo: Dictionary) -> void:
+	ora = guardo
 	var giro := float(guardo["giro"])
-	# mai di taglio: sotto i 12 gradi i piani diventano righe
-	var becc := deg_to_rad(clampf(float(guardo["beccheggio"]), 12.0, 75.0))
+	# mai di taglio e mai a piombo: i limiti veri sono quelli di ManoPlastico
+	var becc := deg_to_rad(clampf(float(guardo["beccheggio"]), 5.0, 88.0))
 	var bersaglio: Vector3 = guardo["bersaglio"]
 	camera.fov = float(guardo["fov"])
 	camera.position = bersaglio + Vector3(sin(giro) * cos(becc), sin(becc), cos(giro) * cos(becc)) \
@@ -337,15 +486,35 @@ func metti_camera(guardo: Dictionary) -> void:
 	camera.look_at(bersaglio, Vector3.UP)
 
 
+func per_pixel() -> float:
+	# quanto e' lungo un pixel della cornice, alla distanza del centro della vista
+	return 2.0 * float(ora.get("distanza", 1.0)) * tan(deg_to_rad(camera.fov) * 0.5) / maxf(size.y, 1.0)
+
+
+func verso_il_cursore(dove: Vector2) -> Variant:
+	# dal centro della vista al punto sotto il cursore, all'altezza del centro:
+	# e' quello che deve restare fermo avvicinandosi
+	var pixel := dove * Vector2(vista.size) / size
+	var origine := camera.project_ray_origin(pixel)
+	var raggio := camera.project_ray_normal(pixel)
+	var quota := float((ora.get("bersaglio", Vector3.ZERO) as Vector3).y)
+	if absf(raggio.y) < 0.01 or (quota - origine.y) / raggio.y <= 0.0:
+		return null
+	var punto := origine + raggio * ((quota - origine.y) / raggio.y)
+	return punto - ((cam["bersaglio"] as Vector3) + (mano.voluto["spinta"] as Vector3))
+
+
 func _process(delta: float) -> void:
 	if cam.is_empty():
 		return
 	mano.aggiorna(delta)
 	metti_camera(mano.applica(cam))
+	scivola_veli(delta)
 	if not camera.transform.is_equal_approx(ultima):
 		ultima = camera.transform
 		zona.riposiziona()
-		scritte.queue_redraw()   # i nomi dei piani e i segnalini seguono la vista
+		scritte.colloca_piani()
+		scritte.queue_redraw()   # i fili dei piani, i segnalini e la scheda seguono la vista
 
 
 func sullo_schermo(punto: Vector3) -> Vector2:
@@ -378,13 +547,22 @@ func cima(id_stanza: String) -> Vector2:
 	return sullo_schermo(s["centro"] + Vector3.UP * float(s["misura"].y) * 0.5)
 
 
+func segni_di(id_stanza: String) -> Rect2:
+	# dove MappaZona disegna le icone di una stanza: sopra il tetto, sempre
+	# della stessa misura, perche' la stanza a schermo cambia forma girandola
+	return Rect2(cima(id_stanza) - Vector2(24.0, 44.0), Vector2(48.0, 48.0))
+
+
 func distanza(id_stanza: String) -> float:
 	return camera.global_position.distance_to(scatole[id_stanza]["centro"])
 
 
+# --- le porte e i loro nomi -------------------------------------------------------
+
 func metti_porta(porta: PortaStanza, id_stanza: String) -> void:
 	# la porta prende il posto e la forma della stanza a schermo, e non disegna
-	# niente di suo: la stanza la disegna il plastico
+	# niente di suo: la stanza la disegna il plastico. Su un piano spento la
+	# porta non c'e': la sua stanza non si clicca e non copre quelle accese
 	var r := rettangolo(id_stanza)
 	porta.position = r.position
 	porta.size = r.size
@@ -392,6 +570,7 @@ func metti_porta(porta: PortaStanza, id_stanza: String) -> void:
 	for punto in sagoma(id_stanza):
 		dentro.append(punto - r.position)
 	porta.sagoma = dentro
+	porta.visible = not velata(id_stanza)
 
 
 func svuota(porte: Control) -> void:
@@ -401,6 +580,12 @@ func svuota(porte: Control) -> void:
 	for porta in porte.get_children():
 		for stato in ["normal", "hover", "pressed", "focus", "disabled"]:
 			(porta as Control).add_theme_stylebox_override(stato, niente)
+		# il suggerimento di Godot no: copriva la stanza, e lo dice gia' la scheda
+		(porta as Control).tooltip_text = ""
+		# la manina solo dove il clic porta da qualche parte
+		var id_stanza := String(porta.get_meta("stanza", ""))
+		(porta as Control).mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND \
+				if zona.si_puo_andare(id_stanza) and not zona.chiusa(id_stanza) else Control.CURSOR_ARROW
 		# il nome su una riga sola, sotto la stanza: a capo dentro una stanza
 		# vista di sbieco diventava «Infermer / ia»
 		var nome := porta.get_node_or_null("Nome") as Label
@@ -418,74 +603,4 @@ func ordina(porte: Control) -> void:
 		return distanza(String(a.get_meta("stanza", ""))) > distanza(String(b.get_meta("stanza", ""))))
 	for i in elenco.size():
 		porte.move_child(elenco[i], i)
-
-
-# --- le scritte: i nomi dei piani e chi c'e' ----------------------------------
-
-func _disegna_scritte() -> void:
-	var font := get_theme_default_font()
-	var nomi: Dictionary = GameState.mappa_zona.get("piani", {})
-	for piano in piani_visti():
-		var nome := String(nomi.get(str(piano), "")).to_upper()
-		if nome == "":
-			continue
-		# a sinistra del piano, all'altezza del suo pavimento
-		var r := impronta_del_piano(int(piano))
-		var quota := float(piano) * ALTEZZA_PIANO
-		var dove := Vector2(INF, 0.0)
-		for angolo in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
-			var punto := sullo_schermo(Vector3(angolo.x, quota, angolo.y))
-			dove = punto if punto.x < dove.x else dove
-		# in colonna sul bordo sinistro, all'altezza del pavimento: una scala
-		# di piani da leggere dall'alto in basso, che non copre le stanze
-		var riga := Vector2(14.0, dove.y + 4.0)
-		scritte.draw_line(Vector2(14.0, dove.y + 9.0), dove, Color(tinte["linea"], 0.25), 1.0)
-		scritte.draw_string_outline(font, riga, nome, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, 4, Color(0, 0, 0, 0.85))
-		scritte.draw_string(font, riga, nome, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(tinte["linea"], 0.95))
-	for id_stanza in scatole:
-		var chi := zona.chi_c_e(id_stanza)
-		for i in chi.size():
-			var dove := cima(id_stanza) + Vector2(-8.0 * float(chi.size() - 1) + 16.0 * float(i), -26)
-			scritte.draw_circle(dove, 6.5, Color(0, 0, 0, 0.85))
-			scritte.draw_circle(dove, 4.5, tinte["qui"])
-
-
-# --- la mano --------------------------------------------------------------------
-
-func _gui_input(evento: InputEvent) -> void:
-	# si trascina sul vuoto del plastico: sulle stanze ci sono le porte
-	if evento is InputEventMouseButton and (evento as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
-		var b := evento as InputEventMouseButton
-		if b.double_click:
-			mano.centra()
-		premuto = b.pressed
-		trascinando = false
-		da = b.position
-		accept_event()
-	elif evento is InputEventMouseMotion and premuto:
-		var m := evento as InputEventMouseMotion
-		trascinando = trascinando or m.position.distance_to(da) >= SOGLIA
-		if trascinando:
-			mano.gira(-m.relative.x * 0.006, m.relative.y * 0.18)
-		accept_event()
-
-
-func _input(evento: InputEvent) -> void:
-	# la rotella avvicina anche sopra una stanza: lì c'e' una porta, che la
-	# terrebbe per se'
-	if not evento is InputEventMouseButton or not is_visible_in_tree():
-		return
-	var b := evento as InputEventMouseButton
-	if not b.pressed or b.button_index not in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-		return
-	if not get_global_rect().has_point(b.position):
-		return
-	mano.avvicina(ManoProiezione.PASSO_ROTELLA if b.button_index == MOUSE_BUTTON_WHEEL_UP
-			else 1.0 / ManoProiezione.PASSO_ROTELLA, null)
-	get_viewport().set_input_as_handled()
-
-
-func _unhandled_input(evento: InputEvent) -> void:
-	if is_visible_in_tree() and evento.is_action_pressed("mappa_centra"):
-		mano.centra()
-		get_viewport().set_input_as_handled()
+	scritte.dirada(porte)

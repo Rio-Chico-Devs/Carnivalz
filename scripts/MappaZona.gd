@@ -391,7 +391,7 @@ func disegna_bottoni() -> void:
 		bottone.flat = false
 		bottone.position = rettangolo.position
 		bottone.size = rettangolo.size
-		bottone.tooltip_text = String(stanza.get("nome", id_stanza))
+		bottone.tooltip_text = nome_di(id_stanza)   # «?» finche' non la conosci: il nome vero sarebbe uno spoiler
 		bottone.mouse_filter = Control.MOUSE_FILTER_STOP
 		var noto := GameState.stanza_sbloccata(id_stanza)
 		var raggiungibile := si_puo_andare(id_stanza)
@@ -600,8 +600,8 @@ func _disegna_sotto() -> void:
 func _disegna_sopra() -> void:
 	for stanza in GameState.mappa_zona.get("stanze", []):
 		var id_stanza := String(stanza.get("id", ""))
-		if not si_vede(id_stanza):
-			continue
+		if not si_vede(id_stanza) or (plastico != null and plastico.velata(id_stanza)):
+			continue   # sul plastico, un piano spento non ha icone
 		var rettangolo := rettangolo_di(stanza)
 		var segni := rettangolo_dei_segni(id_stanza, rettangolo)
 		var icona := icona_di(stanza)
@@ -609,8 +609,7 @@ func _disegna_sopra() -> void:
 		# altre icone raccontano cosa hai trovato in un posto, quindi si vedono
 		# solo dove sei gia' stato. Questa racconta dove DEVI andare, e un
 		# segnale che compare solo dopo che ci sei arrivato non e' un segnale.
-		if visitata(id_stanza) and e_segreta(stanza):
-			tratteggia(rettangolo, si_puo_andare(id_stanza))
+		tratteggia(stanza, rettangolo)
 		if icona == "obiettivo":
 			SegniMappa.obiettivo(strato_sopra, segni, battito,
 					tinta_segno(), tinta_fascia())
@@ -628,7 +627,7 @@ func rettangolo_dei_segni(id_stanza: String, rettangolo: Rect2) -> Rect2:
 	# sul plastico le icone stanno sopra il tetto della stanza, sempre della
 	# stessa misura: la stanza a schermo cambia forma girando la vista
 	if plastico != null:
-		return Rect2(plastico.cima(id_stanza) - Vector2(24.0, 44.0), Vector2(48.0, 48.0))
+		return plastico.segni_di(id_stanza)
 	# alla Sede in fondo al riquadro c'e' il nome: icone e freccia stanno sopra
 	if not e_la_sede():
 		return rettangolo
@@ -639,14 +638,16 @@ func corpo_dei_nomi() -> int:
 	# corpo per stanza le stanze grandi gridavano e le piccole sussurravano
 	return clampi(int(riquadro_disegno.size.y / 30.0), 13, 18)
 
-func tratteggia(rettangolo: Rect2, raggiungibile: bool) -> void:
-	if plastico != null:
-		return   # sul plastico la segreta e' di un altro colore (PlasticoZona.stato_di)
+func tratteggia(stanza: Dictionary, rettangolo: Rect2) -> void:
+	# solo una segreta gia' vista; sul plastico e' di un altro colore (PlasticoZona.stato_di)
+	var id_stanza := String(stanza.get("id", ""))
+	if plastico != null or not (visitata(id_stanza) and e_segreta(stanza)):
+		return
 	# le righe oblique delle stanze segrete: come si tracciano e perche' sta
 	# in Tratteggio.gd, che disegna anche il quadratino della legenda - se i
 	# due segni non fossero identici la legenda direbbe un'altra cosa
 	Tratteggio.dentro(strato_sopra, rettangolo,
-			tinta_stanza(true, raggiungibile).lightened(SCHIARITA_TRATTEGGIO))
+			tinta_stanza(true, si_puo_andare(id_stanza)).lightened(SCHIARITA_TRATTEGGIO))
 
 func disegna_anello(rettangolo: Rect2) -> void:
 	if plastico != null:

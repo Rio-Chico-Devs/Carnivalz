@@ -178,6 +178,7 @@ func _ready() -> void:
 	# misura del gioco, e le prove della mano la vogliono come la trova Godot
 	await prova_alla_sede_si_salva_e_si_cammina()
 	await prova_il_plastico_e_a_piani_e_si_clicca()
+	await prova_il_plastico_si_tiene_in_mano()
 	await prova_le_stanze_della_sede_aprono_quello_che_dicono()
 	await prova_il_menu_c_e_in_ogni_schermata()
 	await prova_sulla_proiezione_non_c_e_grana()
@@ -8654,6 +8655,201 @@ func prova_il_plastico_e_a_piani_e_si_clicca() -> void:
 	await get_tree().process_frame
 	GameState.reset_campagna()
 
+func prova_il_plastico_si_tiene_in_mano() -> void:
+	# Bru, sul plastico: «molto carino ma va migliorato, anche in termini di
+	# interazione e manipolazione». Si gira tutto intorno e quasi a pianta, si
+	# avvicina verso il cursore, si trascina anche da sopra una stanza (e allora
+	# non ci si entra), si sceglie un piano solo, i nomi non si coprono e la
+	# stanza puntata dice accanto a se' cosa fa il clic
+	titolo("il plastico si tiene in mano: giro, avvicinamento, trascinamento, piani, nomi, scheda")
+	GameState.nuova_partita()
+	var pianta := await sede_aperta()
+	var p := pianta.plastico
+	if p == null:
+		esigi(false, "la Sede non e' un plastico")
+		return
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true   # la vista arriva subito dove la si manda
+	for i in 3:
+		await get_tree().process_frame
+	var porte := {}
+	for porta in pianta.strato_bottoni.get_children():
+		porte[String(porta.get_meta("stanza", ""))] = porta
+	# SI GIRA TUTTO INTORNO, e si inclina fin quasi a pianta (ma mai di taglio)
+	var l := ManoPlastico.limiti()
+	p.mano.gira(4.0, 0.0)
+	esigi(is_equal_approx(float(p.mano.voluto["giro"]), 4.0), "il plastico non fa il giro intero: si ferma a %.2f" % float(p.mano.voluto["giro"]))
+	p.mano.gira(0.0, 500.0)
+	esigi(is_equal_approx(float(p.cam["beccheggio"]) + float(p.mano.voluto["becc"]), float(l["alto"])),
+			"il plastico non si guarda quasi dall'alto: l'inclinazione si ferma prima di %d gradi" % int(l["alto"]))
+	p.mano.gira(0.0, -900.0)
+	esigi(is_equal_approx(float(p.cam["beccheggio"]) + float(p.mano.voluto["becc"]), float(l["basso"])),
+			"il plastico si guarda di taglio: l'inclinazione scende sotto %d gradi" % int(l["basso"]))
+	p.ricentra()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	# AVVICINANDOSI, IL PUNTO SOTTO IL CURSORE RESTA SOTTO IL CURSORE
+	var dove := p.cima("emporio")
+	var verso: Variant = p.verso_il_cursore(dove)
+	esigi(verso is Vector3, "sotto il cursore il plastico non trova il pavimento")
+	if verso is Vector3:
+		var punto := (p.cam["bersaglio"] as Vector3) + (p.mano.voluto["spinta"] as Vector3) + (verso as Vector3)
+		p.mano.avvicina(0.6, verso)
+		await get_tree().process_frame
+		await get_tree().process_frame
+		esigi(p.sullo_schermo(punto).distance_to(dove) < 2.0,
+				"avvicinandosi il punto sotto il cursore scappa di %.0f pixel" % p.sullo_schermo(punto).distance_to(dove))
+		esigi(float(p.mano.zoom) < 0.7, "la rotella non avvicina il plastico")
+	p.ricentra()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await prova_il_plastico_col_mouse(pianta, porte)
+	prova_il_plastico_a_un_piano_alla_volta(pianta, porte)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await prova_i_nomi_del_plastico_non_si_coprono(pianta)
+	# LA SCHEDA DICE COSA FA IL CLIC, accanto alla stanza
+	var s := p.scritte
+	esigi(String(s.cosa_fa_il_clic("emporio")[0]) == "CLIC · ENTRA", "la scheda dell'emporio non dice che ci si entra")
+	esigi(String(s.cosa_fa_il_clic(GameState.nodo_corrente)[0]) == "SEI QUI", "la scheda della tua stanza non dice che ci sei")
+	esigi(String(s.cosa_fa_il_clic("officina")[0]) == "CHIUSA", "la scheda dell'officina non dice che e' chiusa")
+	var stanza := p.rettangolo("emporio")
+	var posto := s.posto_della_scheda(stanza, Vector2(200, 90))
+	esigi(Rect2(Vector2.ZERO, s.size).encloses(Rect2(posto, Vector2(200, 90))), "la scheda dell'emporio esce dalla cornice")
+	esigi(not Rect2(posto, Vector2(200, 90)).intersects(stanza.grow(-6.0)), "la scheda copre la stanza che descrive")
+	var emporio := porte.get("emporio") as Control
+	esigi(emporio != null and emporio.tooltip_text == "", "sul plastico il suggerimento di Godot copre ancora la stanza")
+	Impostazioni.movimento_ridotto = ridotto_prima
+	pianta.get_parent().queue_free()
+	await get_tree().process_frame
+	GameState.reset_campagna()
+
+func prova_il_plastico_col_mouse(pianta: MappaZona, porte: Dictionary) -> void:
+	# col mouse vero (Input.parse_input_event): un clic che resta fermo entra,
+	# un clic che si muove gira e non entra; il tasto destro sposta
+	var p := pianta.plastico
+	var emporio := porte.get("emporio") as PortaStanza
+	if emporio == null:
+		esigi(false, "sul plastico l'emporio non ha la porta")
+		return
+	var sotto: Control = await sotto_il_mouse(emporio)
+	esigi(sotto == emporio, "sull'emporio c'e' «%s», non la sua porta" % (String(sotto.name) if sotto != null else "niente"))
+	var centro := get_viewport().get_final_transform() * (emporio.get_global_transform_with_canvas() * (emporio.size * 0.5))
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	# fermo: entra
+	await mouse_vero(MOUSE_BUTTON_LEFT, true, centro)
+	await mouse_vero(MOUSE_BUTTON_LEFT, false, centro)
+	esigi(Transizioni.prossima != "" and String(IngressoNodo.ultimo_esito.get("id", "")) == "emporio",
+			"cliccando l'emporio col mouse fermo non ci si entra")
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	GameState.nodo_corrente = "alloggio"
+	# mosso: gira, e non entra
+	var giro_prima := float(p.mano.voluto["giro"])
+	await sotto_il_mouse(emporio)
+	await mouse_vero(MOUSE_BUTTON_LEFT, true, centro)
+	for passo in 6:
+		await muovi_il_mouse(centro + Vector2(12.0 * float(passo + 1), 0.0), Vector2(12.0, 0.0), MOUSE_BUTTON_MASK_LEFT)
+	await mouse_vero(MOUSE_BUTTON_LEFT, false, centro + Vector2(72.0, 0.0))
+	esigi(absf(float(p.mano.voluto["giro"]) - giro_prima) > 0.1,
+			"trascinando partendo dall'emporio il plastico non gira: la pressione se la tiene la porta")
+	esigi(Transizioni.prossima == "", "trascinando partendo dall'emporio ci si e' entrati: il giro e' diventato un clic")
+	# il tasto destro, sul vuoto, sposta e non gira
+	var vuoto := get_viewport().get_final_transform() * (p.get_global_transform_with_canvas() * Vector2(p.size.x - 40.0, 40.0))
+	await muovi_il_mouse(vuoto, Vector2.ZERO, 0)
+	var spinta_prima := p.mano.voluto["spinta"] as Vector3
+	giro_prima = float(p.mano.voluto["giro"])
+	await mouse_vero(MOUSE_BUTTON_RIGHT, true, vuoto)
+	for passo in 6:
+		await muovi_il_mouse(vuoto + Vector2(-10.0 * float(passo + 1), 8.0 * float(passo + 1)), Vector2(-10.0, 8.0), MOUSE_BUTTON_MASK_RIGHT)
+	await mouse_vero(MOUSE_BUTTON_RIGHT, false, vuoto + Vector2(-60.0, 48.0))
+	esigi((p.mano.voluto["spinta"] as Vector3).distance_to(spinta_prima) > 0.2, "col tasto destro il plastico non si sposta")
+	esigi(is_equal_approx(float(p.mano.voluto["giro"]), giro_prima), "col tasto destro il plastico gira invece di spostarsi")
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	p.ricentra()
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+func mouse_vero(tasto: MouseButton, giu: bool, dove: Vector2) -> void:
+	var b := InputEventMouseButton.new()
+	b.button_index = tasto
+	b.pressed = giu
+	b.position = dove
+	b.global_position = dove
+	Input.parse_input_event(b)
+	await get_tree().process_frame
+
+func muovi_il_mouse(dove: Vector2, di: Vector2, tasti: int) -> void:
+	var m := InputEventMouseMotion.new()
+	m.position = dove
+	m.global_position = dove
+	m.relative = di
+	m.button_mask = tasti
+	Input.parse_input_event(m)
+	await get_tree().process_frame
+
+func prova_il_plastico_a_un_piano_alla_volta(pianta: MappaZona, porte: Dictionary) -> void:
+	# il piano terra da solo: le stanze degli altri piani si spengono, le loro
+	# porte spariscono (non si cliccano e non coprono), e i loro segni pure
+	var p := pianta.plastico
+	var bottone := p.scritte.bottoni.get(0) as Button
+	esigi(bottone != null, "sul plastico il piano terra non ha il suo bottone")
+	if bottone == null:
+		return
+	bottone.pressed.emit()
+	esigi(p.solo == 0, "cliccando il piano terra non resta solo il piano terra")
+	esigi(not (porte["sala_operativa"] as Control).visible and (porte["emporio"] as Control).visible,
+			"scelto il piano terra, la sala operativa si clicca ancora (o l'emporio non piu')")
+	for i in 30:
+		p.scivola_veli(0.05)
+	var velo := float((p.accese["sala_operativa"] as ShaderMaterial).get_shader_parameter("velo"))
+	esigi(velo < 0.1, "scelto il piano terra, il piano operativo resta acceso (velo %.2f)" % velo)
+	esigi(float((p.accese["emporio"] as ShaderMaterial).get_shader_parameter("velo")) > 0.99,
+			"scelto il piano terra, si e' spento anche il piano terra")
+	bottone.pressed.emit()
+	esigi(p.solo == PlasticoZona.NESSUNO and (porte["sala_operativa"] as Control).visible,
+			"cliccando di nuovo il piano terra non tornano tutti i piani")
+	# Z e X: dal piano in cui sei, poi su, poi oltre l'ultimo tornano tutti
+	p.cambia_piano(1)
+	esigi(p.solo == int(p.scatole[GameState.nodo_corrente]["piano"]), "la prima X non sceglie il piano in cui sei")
+	p.cambia_piano(1)
+	esigi(p.solo == 1, "la seconda X non sale di un piano")
+	p.cambia_piano(1)
+	esigi(p.solo == PlasticoZona.NESSUNO, "oltre l'ultimo piano non tornano tutti")
+
+func prova_i_nomi_del_plastico_non_si_coprono(pianta: MappaZona) -> void:
+	# due nomi che si coprono non si leggono, e un nome sotto la freccia del
+	# «sei qui» nemmeno: se non c'e' posto, il nome aspetta di avere spazio
+	var p := pianta.plastico
+	for giro in [0.0, 1.3, 2.6]:
+		p.mano.azzera()
+		p.mano.gira(giro, 0.0)
+		for i in 3:
+			await get_tree().process_frame
+		# i nomi che hanno la precedenza (la stanza puntata e la tua) e le icone
+		# stanno dove stanno; tutti gli altri non li devono toccare, ne' toccarsi
+		var presi := p.scritte.icone_a_schermo()
+		var altri: Array = []
+		for porta: Control in pianta.strato_bottoni.get_children():
+			var nome := porta.get_node_or_null("Nome") as Label
+			if nome == null or not nome.is_visible_in_tree():
+				continue
+			var misura := nome.get_minimum_size()
+			var r := Rect2(porta.position + Vector2(porta.size.x * 0.5 - misura.x * 0.5,
+					porta.size.y + nome.offset_bottom - misura.y), misura)
+			if String(porta.get_meta("stanza", "")) in [p.puntata, GameState.nodo_corrente]:
+				presi.append(r)
+			else:
+				altri.append([nome.text, r])
+		for coppia: Array in altri:
+			for altro in presi:
+				esigi(not altro.intersects(coppia[1]), "girato di %.1f, il nome «%s» ne copre un altro (o un'icona)" % [giro, coppia[0]])
+			presi.append(coppia[1])
+	p.ricentra()
+
 func sede_aperta() -> MappaZona:
 	var casa: Control = load("res://scenes/Sede.tscn").instantiate()
 	casa.custom_minimum_size = Vector2(1280, 720)
@@ -10079,17 +10275,20 @@ func prova_mappa_a_quadratini() -> void:
 
 	var quadratini: Dictionary = {}
 	for figlio in mappa.strato_bottoni.get_children():
-		quadratini[figlio.tooltip_text] = figlio
+		quadratini[String(figlio.get_meta("stanza", ""))] = figlio
 
-	esigi(quadratini.has("Il varco"), "il varco, dove sei, non e' sulla mappa")
-	esigi(quadratini.has("Strade di periferia"),
+	esigi(quadratini.has("varco"), "il varco, dove sei, non e' sulla mappa")
+	esigi(quadratini.has("periferia"),
 			"la periferia confina col varco: doveva comparire come '?'")
-	esigi(not quadratini.has("Quartieri profondi"),
+	esigi(not quadratini.has("quartieri_profondi"),
 			"i quartieri profondi non confinano con niente di noto: non dovevano comparire")
-	esigi(String(quadratini["Il varco"].text) == "",
+	esigi(String(quadratini["varco"].text) == "",
 			"il varco e' stato visitato: non deve mostrare un punto di domanda")
-	esigi(String(quadratini["Strade di periferia"].text) == "?",
+	esigi(String(quadratini["periferia"].text) == "?",
 			"un posto intravisto deve mostrare il punto di domanda")
+	# e il suo nome non lo dice nemmeno il suggerimento: era uno spoiler
+	esigi(String(quadratini["periferia"].tooltip_text) == "?" and String(quadratini["varco"].tooltip_text) == "Il varco",
+			"passandoci sopra col mouse, un posto mai visto dice gia' come si chiama: «%s»" % quadratini["periferia"].tooltip_text)
 
 	# un quadratino LONTANO non ci porta: lo dice, e resta dov'e'
 	mappa.etichetta_stato.text = " "

@@ -38,6 +38,10 @@ const AZIONE_DI := {
 	"PAG SU": ["mappa_avvicina", KEY_PAGEUP],
 	"PAG GIU": ["mappa_allontana", KEY_PAGEDOWN],
 	"INIZIO": ["mappa_centra", KEY_HOME],
+	"W": ["mappa_sposta_su", KEY_W],
+	"A": ["mappa_sposta_sinistra", KEY_A],
+	"S": ["mappa_sposta_giu", KEY_S],
+	"D": ["mappa_sposta_destra", KEY_D],
 }
 
 # "tasti" e' un elenco di ALTERNATIVE, separate da «o»; ogni alternativa e' un
@@ -74,12 +78,12 @@ const CATEGORIE := {
 		],
 	},
 	"MAPPA": {
-		"titolo": "Guardare la mappa stellare e il Vuoto",
-		"corpo": "La proiezione si gira e si avvicina, ma non troppo: serve a vedere meglio, non a perdersi. Il primo clic su un corpo lo sceglie, il secondo ci entra.",
+		"titolo": "Guardare le mappe",
+		"corpo": "Le mappe si girano e si avvicinano. Sulle stelle il primo clic sceglie, il secondo entra; sul plastico delle zone a piani un clic fermo porta nella stanza.",
 		"righe": [
-			{"tasti": [["TRASCINA"], ["Q", "E"]], "azione": "Gira la proiezione"},
-			{"tasti": [["TRASCINA"], ["R", "F"]], "azione": "La guarda più dall'alto o più di lato"},
+			{"tasti": [["TRASCINA"], ["Q", "E"]], "azione": "Gira; in verticale, o con R e F, inclina"},
 			{"tasti": [["ROTELLA"], ["PAG SU", "PAG GIU"]], "azione": "Avvicina o allontana, verso il cursore"},
+			{"tasti": [["W", "A", "S", "D"]], "azione": "Sposta il plastico (o tasto destro); Z e X: un piano alla volta"},
 			{"tasti": [["DOPPIO CLIC"], ["INIZIO"]], "azione": "Torna alla vista di partenza"},
 		],
 	},
