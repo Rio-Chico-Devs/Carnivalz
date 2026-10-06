@@ -513,7 +513,6 @@ func _process(delta: float) -> void:
 	if not camera.transform.is_equal_approx(ultima):
 		ultima = camera.transform
 		zona.riposiziona()
-		scritte.colloca_piani()
 		scritte.queue_redraw()   # i fili dei piani, i segnalini e la scheda seguono la vista
 
 

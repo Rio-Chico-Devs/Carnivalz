@@ -4,8 +4,8 @@ extends Control
 # QUELLO CHE STA SOPRA IL PLASTICO, in due dimensioni: sopra le stanze e sopra
 # le loro porte, perche' si deve leggere e cliccare anche dove una stanza ci
 # passa sotto (PlasticoZona.monta_sopra lo mette in cima alla cornice).
-#   - i PIANI, a sinistra: un bottone per piano, all'altezza del suo pavimento,
-#     con un filo che ci arriva. Cliccandolo resta solo quel piano (gli altri si
+#   - i PIANI, a sinistra: un bottone per piano, fermi in colonna come in un
+#     ascensore, con un filo che arriva al suo pavimento. Cliccandolo resta solo quel piano (gli altri si
 #     spengono e non si cliccano), cliccandolo di nuovo tornano tutti. Il pallino
 #     arancio dice su che piano sei
 #   - chi c'e': un pallino per personaggio sopra la sua stanza
@@ -29,6 +29,7 @@ func _init(plastico: PlasticoZona) -> void:
 	p = plastico
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	resized.connect(colloca_piani)
 
 
 # --- i piani --------------------------------------------------------------------
@@ -55,6 +56,7 @@ func prepara_piani() -> void:
 		add_child(b)
 		bottoni[piano] = b
 	vesti_piani()
+	colloca_piani()
 
 
 func vesti_piani() -> void:
@@ -93,26 +95,24 @@ func attacco(piano: int) -> Vector2:
 
 
 func colloca_piani() -> void:
-	# ogni bottone all'altezza del suo pavimento, dall'alto in basso, senza
-	# coprirsi: guardando dall'alto i pavimenti finiscono quasi alla stessa
-	# altezza, e i bottoni allora si mettono in fila
+	# UNA PULSANTIERA FERMA, come quella di un ascensore: il piano piu' alto in
+	# cima, al centro dell'altezza della cornice. Prima ogni bottone seguiva il
+	# suo pavimento, e cliccandolo la vista andava su quel piano e il bottone
+	# scappava da sotto il cursore: il secondo clic, quello che fa tornare
+	# tutti i piani, finiva nel vuoto. Il filo lo lega comunque al suo pavimento
 	var ordine: Array = bottoni.keys()
 	ordine.sort()
 	ordine.reverse()
-	var sotto := 6.0
-	var fondo := size.y - 30.0   # la riga dei comandi
-	var posti: Array[float] = []
+	var alto := 0.0
 	for piano: int in ordine:
 		var b: Button = bottoni[piano]
 		b.size = b.get_combined_minimum_size()
-		var y := maxf(attacco(piano).y - b.size.y * 0.5, sotto)
-		posti.append(y)
-		sotto = y + b.size.y + 4.0
-	# se la fila esce sotto, sale tutta insieme
-	var fuori := maxf(sotto - 4.0 - fondo, 0.0)
-	for i in ordine.size():
-		var b: Button = bottoni[ordine[i]]
-		b.position = Vector2(18.0, maxf(posti[i] - fuori, 6.0))
+		alto += b.size.y + 10.0
+	var y := maxf((size.y - alto) * 0.5, 6.0)
+	for piano: int in ordine:
+		var b: Button = bottoni[piano]
+		b.position = Vector2(18.0, y)
+		y += b.size.y + 10.0
 
 
 func larghezza_piani() -> float:

@@ -8704,7 +8704,7 @@ func prova_il_plastico_si_tiene_in_mano() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await prova_il_plastico_col_mouse(pianta, porte)
-	prova_il_plastico_a_un_piano_alla_volta(pianta, porte)
+	await prova_il_plastico_a_un_piano_alla_volta(pianta, porte)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await prova_i_nomi_del_plastico_non_si_coprono(pianta)
@@ -8799,8 +8799,15 @@ func prova_il_plastico_a_un_piano_alla_volta(pianta: MappaZona, porte: Dictionar
 	esigi(bottone != null, "sul plastico il piano terra non ha il suo bottone")
 	if bottone == null:
 		return
+	var dov_era := bottone.get_global_rect()
 	bottone.pressed.emit()
 	esigi(p.solo == 0, "cliccando il piano terra non resta solo il piano terra")
+	# la vista va sul piano, ma il bottone resta sotto il cursore: il secondo
+	# clic, quello che fa tornare tutti i piani, deve trovarlo dov'era
+	for i in 10:
+		await get_tree().process_frame
+	esigi(bottone.get_global_rect().is_equal_approx(dov_era),
+			"cliccato il piano terra, il suo bottone scappa da sotto il cursore (%s -> %s)" % [dov_era, bottone.get_global_rect()])
 	esigi(not (porte["sala_operativa"] as Control).visible and (porte["emporio"] as Control).visible,
 			"scelto il piano terra, la sala operativa si clicca ancora (o l'emporio non piu')")
 	for i in 30:
