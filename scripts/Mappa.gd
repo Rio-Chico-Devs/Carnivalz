@@ -78,6 +78,7 @@ func _ready() -> void:
 		proiezione.titolo_grande = "IL SETTORE"
 		proiezione.sopratitolo = "PROIEZIONE DEL SETTORE  ·  %d SISTEMI" % punti_per_id.size()
 	proiezione.accendi(Vector2.ZERO)
+	IconaMenu.metti(self)
 
 
 func crea_punti(punti: Array, prima_missione := false) -> void:

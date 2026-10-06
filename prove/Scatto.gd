@@ -1587,17 +1587,19 @@ func prepara(quale: String) -> void:
 			# ci si passa dopo ogni Carnivalz, ed e' li' che si salva. Bru:
 			# «siamo ancora disordinati e l'interfaccia non e' accattivante,
 			# alcune cose sono illeggibili, altre fuori inquadratura».
+			# Adesso e' il complesso (events_sede.json): "sede girata" ci arriva
+			# dopo aver gia' visto qualche stanza, e indica l'emporio
 			GameState.nuova_partita()
-			# con le stanze aperte, se no meta' schermata dice "— chiuso —" e
-			# non si vede quello che c'e' da guardare
-			for stanza in GameState.carica_json("res://data/sede.json").get("stanze", []):
-				var flag := String(stanza.get("richiede_flag", ""))
-				if flag != "":
-					GameState.imposta_flag(flag)
+			var argomenti_sede := OS.get_cmdline_user_args()
+			if argomenti_sede.size() > 1 and String(argomenti_sede[1]) == "girata":
+				GameState.nodi_visitati.append_array(["alloggio", "sala_operativa", "mensa", "archivio"])
 			var casa: Control = load("res://scenes/Sede.tscn").instantiate()
 			casa.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			add_child(casa)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+			if argomenti_sede.size() > 1 and String(argomenti_sede[1]) == "girata":
+				(casa.get_child(-1) as MappaZona)._indica_stanza("emporio")
+				await attendi(4)
 		"rottura":
 			# il vetro a meta' caduta: e' l'unico modo di guardarlo, perche'
 			# dura poco piu' di un secondo e a occhio nudo non si ferma

@@ -174,6 +174,12 @@ func _ready() -> void:
 	prova_pianeti_e_segreti_scritti_bene()
 	await prova_da_un_altra_schermata_arriva_il_nodo_giusto()
 	await prova_l_icona_del_menu_si_preme_anche_mentre_si_legge()
+	# dopo le prove della proiezione: sotto_il_mouse porta la finestra alla
+	# misura del gioco, e le prove della mano la vogliono come la trova Godot
+	await prova_alla_sede_si_salva_e_si_cammina()
+	await prova_le_stanze_della_sede_aprono_quello_che_dicono()
+	await prova_il_menu_c_e_in_ogni_schermata()
+	await prova_sulla_proiezione_non_c_e_grana()
 	await prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa()
 	prova_le_pianure_si_esplorano_fino_alla_tartaruga()
 	prova_chi_tende_l_imboscata_muove_per_primo()
@@ -324,6 +330,7 @@ func file_eventi() -> Array[String]:
 		"res://data/events_intro.json",
 		"res://data/events_tutorial.json",
 		"res://data/events.json",
+		"res://data/events_sede.json",
 	]
 	var cartella := DirAccess.open("res://data/vuoti")
 	if cartella != null:
@@ -7599,38 +7606,56 @@ func prova_abilita_di_combattimento() -> void:
 				"l'abilita' %s costa piu' aura di quanta se ne possa avere" % id_abilita)
 
 func prova_sede() -> void:
-	titolo("la Sede: stanze, azioni e presidio")
-	var letto: Variant = GameState.carica_json("res://data/sede.json")
-	esigi(letto is Dictionary, "data/sede.json non si legge")
-	if not letto is Dictionary:
-		return
-	var sede: Dictionary = letto
-	esigi(String(sede.get("nome", "")) != "", "la Sede non ha un nome")
-	var azioni_note := ["mappa", "negozio", "squadra", "diario", "testo"]
-	var stanze: Array = sede.get("stanze", [])
-	esigi(not stanze.is_empty(), "la Sede non ha stanze")
-	var ids: Array[String] = []
-	var porta_alla_mappa := false
-	for stanza in stanze:
+	# LA SEDE E' IL COMPLESSO. Era una lista di voci (data/sede.json); Bru:
+	# «perche' non posso esplorare la mappa dell'organizzazione? perche' ho solo
+	# una lista di opzioni tra cui scegliere?». Adesso e' una pianta in cui si
+	# cammina (data/events_sede.json), e qui si controlla che stia in piedi.
+	titolo("la Sede: il complesso, le sue stanze e cosa fanno")
+	var dati := carica_eventi(Sede.PERCORSO)
+	var nodi: Dictionary = dati.get("nodi", {})
+	var pianta: Dictionary = dati.get("mappa_dungeon", {})
+	esigi(bool(pianta.get("sede", false)), "la pianta della Sede non dice di essere la Sede")
+	esigi(String(pianta.get("flag_completamento", "")) != "",
+			"la Sede non ha un flag che la apra tutta: le stanze resterebbero dei «?»")
+	esigi(bool(pianta.get("corridoi_liberi", false)), "alla Sede i corridoi devono essere liberi: e' casa tua")
+	var apre_note := ["mappa_stellare", "negozio", "squadra", "diario"]
+	var aperte: Array[String] = []
+	for stanza: Dictionary in pianta.get("stanze", []):
 		var id_stanza := String(stanza.get("id", ""))
-		esigi(id_stanza != "", "una stanza della Sede non ha id")
-		esigi(id_stanza not in ids, "due stanze della Sede hanno lo stesso id: %s" % id_stanza)
-		ids.append(id_stanza)
-		esigi(String(stanza.get("nome", "")) != "", "la stanza %s non ha un nome" % id_stanza)
-		esigi(String(stanza.get("descrizione", "")) != "",
-				"la stanza %s non ha una descrizione: il pannello di destra resterebbe vuoto" % id_stanza)
-		var azione := String(stanza.get("azione", "testo"))
-		esigi(azione in azioni_note,
-				"la stanza %s fa '%s', che la Sede non sa fare" % [id_stanza, azione])
-		if azione == "mappa":
-			porta_alla_mappa = true
+		esigi(nodi.has(id_stanza), "la stanza %s della Sede non ha un nodo: cliccandola non si entra" % id_stanza)
+		esigi(String(stanza.get("nome", "")) != "", "la stanza %s della Sede non ha un nome" % id_stanza)
 		if stanza.has("richiede_flag"):
 			esigi(String(stanza.get("testo_chiusa", "")) != "",
 					"la stanza %s si puo' trovare chiusa e non dice perche'" % id_stanza)
+	for id_nodo in nodi:
+		var nodo: Dictionary = nodi[id_nodo]
+		esigi(apre_la_mappa(nodo), "dalla stanza %s della Sede non si torna alla pianta" % id_nodo)
+		for scelta: Dictionary in nodo.get("scelte", []):
+			if scelta.has("apre"):
+				esigi(String(scelta["apre"]) in apre_note,
+						"la stanza %s apre '%s', che la Sede non sa aprire" % [id_nodo, String(scelta["apre"])])
+				aperte.append(String(scelta["apre"]))
 	# Se nessuna stanza porta alla mappa stellare, il gioco e' finito qui: si
 	# resta alla Sede a guardare le pareti. E' l'unico collegamento che DEVE
-	# esserci, e quindi l'unico che vale la pena controllare.
-	esigi(porta_alla_mappa, "dalla Sede non si arriva alla mappa stellare: non si parte piu'")
+	# esserci. E quello che faceva la lista vecchia lo fa ancora qualcuno
+	for cosa in apre_note:
+		esigi(cosa in aperte, "nessuna stanza della Sede apre '%s': la lista lo faceva" % cosa)
+	# LO STESSO EDIFICIO DELLA PRIMA GIORNATA: le stanze che c'erano allora
+	# stanno dove stavano, sullo stesso foglio
+	var complesso: Dictionary = carica_eventi("res://data/events_intro.json").get("mappa_dungeon", {})
+	esigi(String(complesso.get("disegno", "")) == String(pianta.get("disegno", "")),
+			"la Sede e il complesso della prima giornata non sono piu' lo stesso disegno")
+	var di_allora := {}
+	for stanza: Dictionary in complesso.get("stanze", []):
+		di_allora[String(stanza.get("id", ""))] = stanza.get("riquadro", [])
+	var in_comune := 0
+	for stanza: Dictionary in pianta.get("stanze", []):
+		var id_stanza := String(stanza.get("id", ""))
+		if di_allora.has(id_stanza):
+			in_comune += 1
+			esigi(stanza.get("riquadro", []) == di_allora[id_stanza],
+					"alla Sede la stanza %s non sta dove stava la prima giornata" % id_stanza)
+	esigi(in_comune >= 6, "la Sede ha solo %d stanze del complesso: non e' piu' lo stesso posto" % in_comune)
 
 func prova_posti_visitati() -> void:
 	titolo("dove sei gia' stato")
@@ -8497,7 +8522,8 @@ func prova_la_sede_si_legge_e_ci_sta_nello_schermo() -> void:
 	# --- SI LEGGE ---
 	var guardati := 0
 	for etichetta in etichette_dentro(casa):
-		if etichetta.text.strip_edges() == "":
+		# la legenda della mappa alla Sede non si vede: i nomi stanno sulla pianta
+		if etichetta.text.strip_edges() == "" or not etichetta.is_visible_in_tree():
 			continue
 		guardati += 1
 		# contro il fondo su cui sta DAVVERO: nel manifesto non e' piu' il nero
@@ -8535,6 +8561,196 @@ func bottoni_fermi(nodo: Node) -> Array[Button]:
 		trovati.append_array(bottoni_fermi(figlio))
 	return trovati
 
+func sede_aperta() -> MappaZona:
+	var casa: Control = load("res://scenes/Sede.tscn").instantiate()
+	casa.custom_minimum_size = Vector2(1280, 720)
+	add_child(casa)
+	casa.size = Vector2(1280, 720)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	return casa.get_child(-1) as MappaZona
+
+func prova_alla_sede_si_salva_e_si_cammina() -> void:
+	# LA SEDE E' UNA PIANTA, NON UNA LISTA. Bru: «quando mi ritrovo nella sede
+	# mi sento confuso, dove vado? cosa faccio? perche' non posso esplorare la
+	# mappa dell'organizzazione?». Entrando si salva (come prima), e poi si e'
+	# sulla pianta del complesso: ogni stanza col suo nome, nessuna «stanza
+	# corrente» a cui tornare, e si torna dove si era uscito
+	titolo("alla Sede si salva, e poi si cammina per il complesso")
+	GameState.nuova_partita()
+	var pianta := await sede_aperta()
+	esigi(pianta != null, "entrando alla Sede non si apre la pianta del complesso")
+	if pianta == null:
+		return
+	esigi(GameState.carnivalz_corrente == Sede.ZONA, "alla Sede non si e' nella zona della Sede")
+	esigi(GameState.nodo_corrente == "alloggio",
+			"da una partita appena cominciata si arriva in '%s', non nell'alloggio" % GameState.nodo_corrente)
+	esigi(pianta.e_la_sede() and not pianta.elenco.visible,
+			"alla Sede c'e' ancora la legenda di fianco: i nomi devono stare sulla pianta")
+	esigi(pianta.etichetta_stato.text.contains("Sei in: Il tuo alloggio"),
+			"la Sede non dice dove sei: «%s»" % pianta.etichetta_stato.text)
+	for bottone in pianta.find_children("*", "Button", true, false):
+		esigi((bottone as Button).text != "Torna alla stanza corrente",
+				"alla Sede c'e' «Torna alla stanza corrente»: la Sede non e' una stanza da cui si consulta la mappa")
+	var nomi := {}
+	for bottone in pianta.strato_bottoni.get_children():
+		var scritta := bottone.get_node_or_null("Nome") as Label
+		if scritta != null:
+			nomi[scritta.text] = true
+	for atteso in ["Sala operativa", "Emporio", "Il tuo alloggio", "Archivio", "Mensa"]:
+		esigi(nomi.has(atteso), "sulla pianta della Sede non c'e' scritto «%s»" % atteso)
+	esigi(not nomi.has("Officina del Dott. Eto"), "l'officina chiusa dice gia' il suo nome")
+	# la porta chiusa si vede e dice perche', e non ti sposta
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	pianta._su_stanza_per_id("officina")
+	esigi(pianta.etichetta_stato.text.begins_with("La porta è chiusa"),
+			"cliccando l'officina chiusa la Sede dice «%s»" % pianta.etichetta_stato.text)
+	esigi(Transizioni.prossima == "" and GameState.nodo_corrente == "alloggio", "la porta chiusa ti ha fatto entrare")
+	# una stanza aperta si cammina: la si lascia decidere a IngressoNodo
+	pianta._su_stanza_per_id("emporio")
+	esigi(Transizioni.prossima == "res://scenes/Main.tscn" and String(IngressoNodo.ultimo_esito.get("id", "")) == "emporio",
+			"cliccando l'emporio sulla pianta non si entra nell'emporio")
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	Transizioni.in_corso = stato_prima
+	pianta.get_parent().queue_free()
+	await get_tree().process_frame
+	# tornando dall'emporio si e' ancora nell'emporio, non all'ingresso
+	var tornata := await sede_aperta()
+	esigi(GameState.nodo_corrente == "emporio" and tornata.etichetta_stato.text.contains("Sei in: Emporio"),
+			"tornando dall'emporio la Sede ti rimette in '%s'" % GameState.nodo_corrente)
+	tornata.get_parent().queue_free()
+	await get_tree().process_frame
+	# da una missione finita (reset_campagna) si torna nel proprio alloggio
+	GameState.reset_campagna()
+	var da_missione := await sede_aperta()
+	esigi(GameState.nodo_corrente == "alloggio", "tornando da una missione si arriva in '%s'" % GameState.nodo_corrente)
+	da_missione.get_parent().queue_free()
+	await get_tree().process_frame
+	GameState.reset_campagna()
+
+func prova_le_stanze_della_sede_aprono_quello_che_dicono() -> void:
+	# QUELLO CHE FACEVA LA LISTA LO FANNO LE STANZE: dentro la sala operativa si
+	# consulta la mappa stellare, nell'emporio si compra, nell'alloggio si
+	# controlla la squadra, in archivio il data pad. E' una scelta "apre", che
+	# Main passa a Sede.apri
+	titolo("le stanze della Sede aprono quello che dicono")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz(Sede.ZONA, Sede.PERCORSO)
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	for caso: Array in [["sala_operativa", "res://scenes/Mappa.tscn"], ["emporio", "res://scenes/Negozio.tscn"]]:
+		Transizioni.prossima = ""
+		var scelta := scelta_che_apre(String(caso[0]))
+		var schermata: Node = load("res://scenes/Main.tscn").instantiate()
+		GameState.nodo_corrente = String(caso[0])
+		IngressoNodo.ultimo_esito = {}
+		add_child(schermata)
+		await get_tree().process_frame
+		schermata._su_scelta(scelta)
+		esigi(Transizioni.prossima == String(caso[1]),
+				"«%s» in %s porta a '%s', non a %s" % [String(scelta.get("testo", "")), caso[0], Transizioni.prossima, caso[1]])
+		schermata.queue_free()
+		await get_tree().process_frame
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	for caso: Array in [["alloggio", "equipaggiamento"], ["archivio", "diario"]]:
+		Sede.apri(String(scelta_che_apre(String(caso[0])).get("apre", "")))
+		esigi(Pausa.aperta and Pausa.pannello == String(caso[1]),
+				"in %s la scelta non apre il pannello '%s' (aperto: %s)" % [caso[0], caso[1], Pausa.pannello])
+		# il pannello si prende il fuoco al fotogramma dopo: chiuderlo prima
+		# vorrebbe dire darlo a una scheda che sta gia' sparendo
+		for i in 4:
+			await get_tree().process_frame
+		Pausa.chiudi()
+		await get_tree().process_frame
+	# e alla Sede tornare al menu principale non fa perdere niente: lo dice
+	esigi(Sede.avviso_di_uscita().contains("senza perdere niente"),
+			"alla Sede il menu avvisa che si perde la zona: «%s»" % Sede.avviso_di_uscita())
+	GameState.reset_campagna()
+	esigi(Sede.avviso_di_uscita().contains("andrà perso"), "fuori dalla Sede uscire non avvisa piu' di niente")
+
+func scelta_che_apre(id_nodo: String) -> Dictionary:
+	for scelta: Dictionary in (GameState.eventi.get(id_nodo, {}) as Dictionary).get("scelte", []):
+		if scelta.has("apre"):
+			return scelta
+	return {}
+
+func prova_il_menu_c_e_in_ogni_schermata() -> void:
+	# LE OPZIONI DEVONO ESSERE SEMPRE PRESENTI. Bru: «abbiamo anche vari
+	# problemi di navigazione, le opzioni devono essere sempre presenti». Il
+	# menu c'era con ESC, ma l'iconcina in alto a sinistra stava solo nei
+	# dialoghi: sulla mappa stellare, nel Vuoto, sulla mappa di zona, alla Sede,
+	# nell'emporio e nella scelta della squadra non si vedeva. Qui ogni
+	# schermata deve averla, cliccabile (niente le sta sopra), e premendola si
+	# apre il menu
+	titolo("l'iconcina del menu c'e' in ogni schermata, e apre il menu")
+	var stato_prima := Transizioni.in_corso
+	for nome in ["Mappa", "Vuoto", "MappaZona", "Sede", "Negozio", "Selezione"]:
+		GameState.nuova_partita()
+		GameState.negozi_sbloccati = ["organizzazione"] as Array[String]
+		GameState.punto_mappa_corrente = primo_punto_con_vuoti()
+		if nome == "MappaZona":
+			GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+			GameState.nodo_corrente = "alloggio"
+		var schermata: Control = load("res://scenes/%s.tscn" % nome).instantiate()
+		add_child(schermata)
+		for i in 3:
+			await get_tree().process_frame
+		var icona: Button = schermata.find_child("IconaMenu", true, false) as Button
+		esigi(icona != null and icona.is_visible_in_tree(), "in %s non c'e' l'iconcina del menu" % nome)
+		if icona != null:
+			var sotto: Control = await sotto_il_mouse(icona)
+			esigi(sotto == icona or icona.is_ancestor_of(sotto),
+					"in %s un clic sull'iconcina del menu lo prende «%s»" % [nome, String(sotto.name) if sotto != null else "nessuno"])
+			# come ESC: a meta' di una dissolvenza no, si aprirebbe su una scena
+			# che sta gia' sparendo
+			Transizioni.in_corso = true
+			icona.pressed.emit()
+			esigi(not Pausa.aperta, "in %s l'iconcina apre il menu anche a meta' di un cambio di schermata" % nome)
+			Transizioni.in_corso = false
+			icona.pressed.emit()
+			esigi(Pausa.aperta, "in %s premere l'iconcina non apre il menu" % nome)
+			Pausa.chiudi()
+		Transizioni.in_corso = stato_prima
+		schermata.queue_free()
+		await get_tree().process_frame
+	GameState.reset_campagna()
+
+func primo_punto_con_vuoti() -> Dictionary:
+	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+		if not (punto.get("vuoti", []) as Array).is_empty():
+			return punto
+	return {}
+
+func prova_sulla_proiezione_non_c_e_grana() -> void:
+	# I PALLINI ERANO LA GRANA. Un velo di puntini chiari e scuri a tutto
+	# schermo, che saltavano otto volte al secondo: si leggevano come stelle che
+	# non stanno ferme. Bru: «tutti quei pallini che appaiono quando entri o esci
+	# dalle zone nella mappa stellare vanno tolti». A tutto schermo sulla
+	# proiezione restano solo le cose che hanno un mestiere: le lenti delle
+	# fratture e la nebulosa del fondo
+	titolo("sulla mappa stellare non c'e' piu' la grana che saltava")
+	GameState.nuova_partita()
+	var mappa: Control = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(mappa)
+	await get_tree().process_frame
+	var ammessi := [Proiezione.LENTI.resource_path, CieloProiezione.NEBULOSA.resource_path]
+	var strati := 0
+	for nodo in (mappa.get("proiezione") as Node).find_children("*", "Control", true, false):
+		var strato := nodo as Control
+		if not strato.material is ShaderMaterial or strato.size.x < 1200.0:
+			continue
+		strati += 1
+		var percorso := (strato.material as ShaderMaterial).shader.resource_path
+		esigi(percorso in ammessi, "sopra la proiezione c'e' uno strato a tutto schermo che non si sa cosa sia: %s" % percorso)
+	esigi(strati >= 1, "la prova non ha trovato nemmeno le lenti: non sta guardando la proiezione")
+	esigi(not ResourceLoader.exists("res://shaders/proiezione_grana.gdshader"), "lo shader della grana c'e' ancora")
+	mappa.queue_free()
+	await get_tree().process_frame
+
 func fondo_di(etichetta: Label) -> Color:
 	# dove sta una scritta nella lingua del manifesto: sulla fascia che la
 	# veste, sulla voce accesa (l'etichetta nera), su un foglio o sull'arancio
@@ -8547,8 +8763,19 @@ func fondo_di(etichetta: Label) -> Color:
 			return Stile.colore("bordo")
 		if su is Foglio:
 			return Stile.colore("box_fondo")
+		if su is Manifesto.Schermo:
+			# nel vetro di una mappa: sul fondo della stanza, se la scritta ne ha una
+			return fondo_nel_vetro(etichetta)
 		su = su.get_parent()
 	return Stile.colore("manifesto")
+
+func fondo_nel_vetro(etichetta: Label) -> Color:
+	var vetro := Stile.colore("quadro_vuoto")
+	var stanza := etichetta.get_parent() as Button
+	if stanza == null:
+		return vetro
+	var scatola := stanza.get_theme_stylebox("normal") as StyleBoxFlat
+	return Stile.sopra(scatola.bg_color, vetro) if scatola != null else vetro
 
 func etichette_dentro(nodo: Node) -> Array[Label]:
 	var trovate: Array[Label] = []
@@ -10910,14 +11137,17 @@ func rotella_sulla_mappa(dove: Vector2, quante: int, avvicina: bool) -> void:
 			await spingi_mouse(r)
 
 func vuoto_libero(p: Proiezione) -> Vector2:
-	# un punto della proiezione senza corpi sotto, lontano dalla colonna
+	# un punto della proiezione senza niente sopra, lontano dalla colonna: ne'
+	# corpi ne' bottoni della schermata. Partiva da (60, 120), che adesso e'
+	# sotto l'iconcina del menu: il clic lo prendeva lei, e la mappa non girava
+	var bottoni := p.get_parent().find_children("*", "Button", true, false)
 	for y in range(120, 620, 40):
 		for x in range(60, 900, 40):
 			var punto := Vector2(x, y)
-			if not p.corpi.any(func(c: Dictionary) -> bool:
-					return (c["bottone"] as Button).visible and (c["bottone"] as Button).get_global_rect().grow(8).has_point(punto)):
+			if not bottoni.any(func(b: Node) -> bool:
+					return (b as Button).is_visible_in_tree() and (b as Button).get_global_rect().grow(8).has_point(punto)):
 				return punto
-	return Vector2(60, 120)
+	return Vector2(300, 300)
 
 func prova_la_mappa_si_gira_ma_non_troppo() -> void:
 	# Bru: «possiamo far manipolare un po' di piu' la mappa all'utente come se
@@ -12704,7 +12934,7 @@ const FILE_GRANDI := {
 		"righe per far sopravvivere il dato fino a chi lo racconta. Il " +
 		"racconto invece non e' entrato qui: sta in Resoconto.gd, e in " +
 		"cambio ha tolto quarantanove righe di presentazione da Main.gd"},
-	"Main.gd": {"misura": 1476, "perche":
+	"Main.gd": {"misura": 1430, "perche":
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
 		"adesso vuol dire spezzarlo di nuovo fra un mese. " +
@@ -12713,7 +12943,10 @@ const FILE_GRANDI := {
 		"saltabile, ed e' nata esci_dal_posto - che in cambio ha tolto una " +
 		"duplicazione. Per stare dentro il numero stavo cancellando i " +
 		"commenti che spiegano la correzione: il cricchetto serve a fermare " +
-		"la deriva, non a farmi peggiorare il codice per due righe"},
+		"la deriva, non a farmi peggiorare il codice per due righe. " +
+		"STRETTA A 1430 quando l'iconcina del menu e' andata in IconaMenu.gd " +
+		"(la mettono tutte le schermate) e i primi effetti di una scelta in " +
+		"IngressoNodo.applica_scelta"},
 	"Plancia.gd": {"misura": 715, "perche":
 		"la schermata di combattimento intera, come l'ha disegnata Bru: il " +
 		"riquadro della creatura, i tre della squadra, le tre barre, l'ECG, " +
@@ -12797,9 +13030,11 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Stati.gd:applica_stato": {"misura": 34, "perche":
 		"un ramo per tipo di status. E' lo stesso caso di esegui_mossa e si " +
 		"spezza allo stesso modo: e' il prossimo della lista"},
-	"Main.gd:_su_scelta": {"misura": 31, "perche":
+	"Main.gd:_su_scelta": {"misura": 28, "perche":
 		"tutto quello che una scelta di dialogo puo' innescare. Cresce con " +
-		"la trama, che e' ancora in scrittura"},
+		"la trama, che e' ancora in scrittura. Era a 31: il ramo \"apre\" " +
+		"delle stanze della Sede e' entrato solo dopo che chi sei, i flag e " +
+		"le reclute sono usciti in IngressoNodo.applica_scelta"},
 	"MacchinaDaScrivere.gd:respiri": {"misura": 27, "perche":
 		"la stessa funzione che stava in BoxTesto.gd, spostata con la macchina " +
 		"da scrivere quando l'ha voluta anche il racconto: un ramo per segno di " +

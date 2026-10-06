@@ -52,8 +52,8 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
   fondale del menu, elenco che scorre con le frecce, ESC che torna a COLLEZIONI
 - `scenes/Intro.tscn` + `scripts/Intro.gd` — crawl introduttivo (solo per una nuova partita)
 - `scenes/Sede.tscn` + `scripts/Sede.gd` — **la Sede**: l'unità dell'Organizzazione in cui sei
-  di stanza, e il posto sicuro del gioco (qui si salva, da solo). Stanze data-driven da
-  `data/sede.json`
+  di stanza, e il posto sicuro del gioco (qui si salva, da solo). È il complesso della prima
+  giornata, in cui si cammina come in una zona: `data/events_sede.json`
 - `scenes/Mappa.tscn` + `scripts/Mappa.gd` — la proiezione del settore, guardata dal tavolo
   tattico della Sala operativa della Sede: i sistemi di `mappa.json` in una proiezione 3D
   (`scripts/Proiezione.gd`, vedi «La proiezione» sotto «Il Vuoto»)
@@ -84,7 +84,7 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `data/task.json` — gli appunti: dove andare e cosa qualcuno ti ha chiesto, pensati a voce quando nascono (vedi sotto)
 - `data/codici.json` — codici riscattabili da EXTRA nel menu (vuoto per ora: `{codice, testo, effetto}`)
 - `data/mappa.json` — sfondo e punti della mappa stellare
-- `data/sede.json` — la Sede: nome, descrizione, presidio richiesto e stanze
+- `data/events_sede.json` — la Sede: la pianta del complesso, le stanze, cosa fanno, il presidio
 - `scripts/PannelloOpzioni.gd` — l'elenco delle opzioni, definito una volta sola e usato sia
   dalla schermata principale sia dalla pausa
 - `prove/` — le prove del progetto (`./prove/esegui.sh`) e il giocatore automatico
@@ -436,7 +436,7 @@ La regola non è un'intenzione: è una prova. `prova_gerarchia_schermate()` legg
 fallisce se uno script che non sia `GameState` o `Menu` nomina la gestione degli slot, o se
 uno che non sia `Sede`/`IngressoNodo` chiama `GameState.salva()`.
 
-## La Sede (`data/sede.json`, `scripts/Sede.gd`)
+## La Sede (`data/events_sede.json`, `scripts/Sede.gd`)
 
 **Dove sei quando non sei dentro un Carnivalz.** Prima il gioco non aveva un "dove": si usciva
 dal menu e ci si trovava sospesi su una mappa stellare, senza che nessuno avesse mai detto da
@@ -449,13 +449,39 @@ di non avere il fattore Carnivalz; il che non vuol dire che siano innocue (chi �
 come si deve, o attrezzato come il **Dott. Eto**, sta al passo con gente che piega la realtà
 usando la testa e la tecnologia).
 
-Le stanze sono voci di `data/sede.json`: `id`, `nome`, `descrizione`, `azione`
-(`mappa` | `negozio` | `squadra` | `diario` | `testo`) e, se serve, `richiede_flag` +
-`testo_chiusa`. Aggiungerne una non richiede una riga di codice. `squadra` e `diario` non
-cambiano schermata: aprono il pannello della pausa sopra la Sede, e si torna dov'eri.
+**Non è più una lista.** Era una colonna di voci (Sala operativa, Emporio, Alloggi, Archivio)
+con una scheda di fianco. Bru: «quando mi ritrovo nella sede mi sento confuso, dove vado? cosa
+faccio? perché non posso esplorare la mappa dell'organizzazione? [...] è come restare
+intrappolati in una schermata di opzioni». La lista era nata prima che il complesso avesse una
+mappa, e nessuno l'aveva più rimessa in discussione. Adesso la Sede **è il complesso della prima
+giornata**, sulla stessa pianta (una prova controlla che le stanze in comune stiano dove
+stavano), con in più le stanze che allora non avevi visto: sala operativa, emporio, ponte di
+guardia, officina.
 
-Da qui si va alla **Sala operativa**, cioè alla mappa stellare. È l'unico collegamento
-obbligatorio, e c'è una prova che fallisce se sparisce.
+- Entrando (`Sede.gd`) si **salva**, e poi si apre la pianta (`MappaZona` con `"sede": true`):
+  ogni stanza ha il suo nome scritto dentro, niente legenda di fianco, niente «Torna alla stanza
+  corrente» (la Sede non è uno strumento che si consulta da una stanza: è il posto in cui sei).
+- La riga in basso dice dove sei e com'è messo il presidio; passando su una stanza dice cosa ci
+  si fa (`"cosa"`). Sulla sala operativa c'è il punto esclamativo: è da lì che si parte.
+- Cliccando una stanza ci si entra (una scena in `events_sede.json`). Le stanze che fanno
+  qualcosa lo fanno con una scelta **`"apre"`**: `mappa_stellare` (sala operativa), `negozio`
+  (emporio), `squadra` (il tuo alloggio), `diario` (archivio). Tutte hanno «Torna alla mappa».
+- Tornando dall'emporio o dalla mappa stellare si è ancora nella stanza da cui si era usciti;
+  da una missione, o da una partita caricata, nel proprio alloggio.
+- Una stanza con `"richiede_flag"` si vede, ci si arriva davanti, e non si apre: dice il suo
+  `"testo_chiusa"` (l'officina del Dott. Eto, finché non lo incontri).
+- Finché `art/mappe/complesso.png` non c'è, si vedono i riquadri e i **corridoi** fra le stanze
+  (`SegniPianta.gd`), da porta a porta.
+
+I testi delle stanze nuove sono miei e provvisori, da riscrivere.
+
+## Il menu, in ogni schermata
+
+Bru: «le opzioni devono essere sempre presenti». Il menu c'era sempre con ESC, ma l'iconcina in
+alto a sinistra stava solo nei dialoghi. Adesso la mettono tutte le schermate di gioco — mappa
+stellare, Vuoto, mappa di zona, Sede, emporio, scelta della squadra — nello stesso angolo
+(`IconaMenu.gd`), e si comporta come ESC: non si apre a metà di un cambio di schermata. Alla
+Sede, tornare al menu principale avvisa che non si perde niente (si è appena salvato).
 
 ## Salvataggio: una partita, un file
 
@@ -1624,6 +1650,12 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
   **anelli dei segnali** si tagliano a mano dove passano dietro una sfera
   (`Proiezione.coperto`, `DisegnoProiezione.a_tratti`), col taglio sul bordo vero del pianeta.
   Bru: «vanno sopra il pianeta e sembra brutto»;
+- **niente grana**: c'era un velo di puntini chiari e scuri a tutto schermo, che saltavano otto
+  volte al secondo come la carta di una serigrafia, e si leggevano come stelle che non stanno
+  ferme. Bru: «tutti quei pallini che appaiono quando entri o esci dalle zone nella mappa
+  stellare vanno tolti». Una prova controlla che sopra la proiezione, a tutto schermo, ci siano
+  solo le lenti e la nebulosa del fondo; l'iconcina del menu sta nell'angolo in alto a
+  sinistra, e l'intestazione comincia dopo di lei;
 - col **movimento ridotto** camera e orbite stanno ferme, le lenti non girano, niente cadute,
   onde né luccichii; i segreti si trovano lo stesso.
 

@@ -2,14 +2,12 @@ class_name CieloProiezione
 extends RefCounted
 
 # IL CIELO DELLA PROIEZIONE (Proiezione.gd): le stelle, la nebulosa del
-# settore, la grana della serigrafia, e il rumore che fa gli schizzi sulla
-# griglia. Tutto quello che non e' un corpo e non e' una scritta.
+# settore, e il rumore che fa gli schizzi sulla griglia. Tutto quello che non e' un corpo e non e' una scritta.
 #
 # Il rumore si fa una volta sola per partita: e' la stessa trama ogni volta
 # che si apre la mappa, e rifarlo costerebbe un attimo a ogni apertura.
 
 const STELLA := preload("res://shaders/proiezione_stella.gdshader")
-const GRANA := preload("res://shaders/proiezione_grana.gdshader")
 const NEBULOSA := preload("res://shaders/proiezione_nebulosa.gdshader")
 
 static var rumore_fatto: ImageTexture = null
@@ -88,23 +86,3 @@ static func nebulosa(tinta: Color) -> ColorRect:
 	r.position = Vector2(-160, -40)
 	r.material = materiale(NEBULOSA, {"rumore": rumore(), "tinta": tinta})
 	return r
-
-
-static func grana(tinta: Color, quanta: float) -> ColorRect:
-	# un velo a tutto schermo, un po' piu' largo per poterlo scuotere
-	var r := ColorRect.new()
-	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	r.size = Vector2(1344, 768)
-	r.position = Vector2(-32, -24)
-	r.material = materiale(GRANA, {"tinta": tinta, "quanta": quanta, "celle": Vector2(672, 384)})
-	return r
-
-
-static func agita_grana(grane: Array[ColorRect], t: float) -> void:
-	# a scatti, otto volte al secondo: la stampa vibra, non scorre
-	var scatto := 0 if Movimento.ridotto() else floori(t * 8.0)
-	var d := RandomNumberGenerator.new()
-	d.seed = scatto
-	for i in grane.size():
-		grane[i].position = Vector2(-32 + d.randi_range(-12, 12), -24 + d.randi_range(-10, 10))
-		(grane[i].material as ShaderMaterial).set_shader_parameter("scatto", float(scatto * 2 + i))

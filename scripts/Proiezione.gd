@@ -38,8 +38,13 @@ extends Control
 # DisegnoProiezione (sopra la griglia) e SchedaProiezione (la colonna).
 #
 # Col movimento ridotto (Impostazioni) la camera e le orbite stanno ferme,
-# niente cadute, niente scansione, niente grana che vibra: le informazioni
-# restano tutte.
+# niente cadute, niente scansione: le informazioni restano tutte.
+#
+# NIENTE GRANA. C'era un velo di puntini chiari e scuri, a tutto schermo, che
+# saltavano otto volte al secondo come la carta di una serigrafia. Si
+# leggevano come stelle che non stanno ferme, anche dentro le schede. Bru:
+# «tutti quei pallini che appaiono quando entri o esci dalle zone nella mappa
+# stellare vanno tolti».
 
 signal puntato(id: String)
 signal scelto_corpo(id: String)
@@ -81,7 +86,6 @@ var camera: Camera3D
 var mat_griglia: ShaderMaterial
 var sopra: Control
 var fondo_dietro: Control
-var grane: Array[ColorRect] = []
 
 # la camera guarda 'bersaglio' da 'distanza', girata di 'giro' e inclinata di
 # 'beccheggio' gradi; si avvicina a cam_voluta senza scatti
@@ -154,9 +158,6 @@ func costruisci() -> void:
 	sopra.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	sopra.draw.connect(func() -> void: DisegnoProiezione.disegna(self, sopra))
 	add_child(sopra)
-	grane = [CieloProiezione.grana(tinte["carta"], 0.005), CieloProiezione.grana(tinte["fondo"], 0.05)]
-	for g in grane:
-		add_child(g)
 	bottone_entra = Button.new()
 	DisegnoProiezione.trasparente(bottone_entra)
 	bottone_entra.position = SchedaProiezione.posto_del_bottone().position
@@ -485,7 +486,6 @@ func _process(delta: float) -> void:
 		mat_griglia.set_shader_parameter("luce_pos", luce["xz"])
 	var guardo := mano.applica(cam)
 	fondo_dietro.position = Vector2(-160 - float(guardo["giro"]) * 600.0, -40 + (float(guardo["beccheggio"]) - 28.0) * 6.0)
-	CieloProiezione.agita_grana(grane, t)
 	muovi_lenti()
 	bottone_entra.disabled = not bool(corpo(scelto).get("attiva", false))
 	pronta = true

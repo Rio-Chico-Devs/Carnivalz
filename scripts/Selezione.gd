@@ -15,6 +15,10 @@ const SCENA_RITRATTO := preload("res://scenes/Ritratto.tscn")
 var carte: Dictionary = {}
 
 func _ready() -> void:
+	# il menu nello stesso angolo di ogni schermata, e il titolo gli sta di fianco
+	var icona := IconaMenu.metti(self)
+	$Margini.add_theme_constant_override("margin_left", int(icona.position.x + icona.size.x + 16.0))
+	$Margini.add_theme_constant_override("margin_top", int(icona.position.y))
 	bottone_inizia.pressed.connect(_su_inizia)
 	bottone_mappa.pressed.connect(_su_mappa)
 	for id_classe in GameState.classi_sbloccate:

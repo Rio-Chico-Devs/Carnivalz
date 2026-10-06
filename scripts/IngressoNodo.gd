@@ -100,7 +100,8 @@ static func entra(id_nodo: String) -> Dictionary:
 		# verificato dalle prove su tutti i file di eventi: qui si finisce solo
 		# con dati sbagliati, e allora meglio la mappa che una prigione
 		push_error("Nodo evento mancante: " + id_nodo)
-		esito.scena = SCENA_VUOTO if GameState.carnivalz_corrente != "" else SCENA_SEDE
+		# (la Sede e' una zona anche lei, ma fuori di li' c'e' la Sede, non un Vuoto)
+		esito.scena = SCENA_SEDE if GameState.carnivalz_corrente in ["", Sede.ZONA] else SCENA_VUOTO
 		return esito
 	var nodo: Dictionary = GameState.eventi[id_vero]
 	esito.id = id_vero
@@ -248,6 +249,26 @@ static func tira_agguato(id_nodo: String, nodo: Dictionary) -> bool:
 	GameState.prepara_combattimento(gruppo, id_nodo, "", agguato.get("se_perdi", ""), id_nodo,
 			{"precedenza": "nemici"})
 	return true
+
+static func applica_scelta(scelta: Dictionary) -> void:
+	# I PRIMI EFFETTI DI UNA SCELTA, quelli che cambiano solo chi sei e cosa sai.
+	# Stavano in testa a Main._su_scelta; sono usciti di li' quando le stanze
+	# della Sede hanno chiesto un ramo in piu' ("apre"), che altrimenti avrebbe
+	# fatto crescere la funzione oltre il suo tetto.
+	#
+	# IL CONTO DI CHI SEI. Due contatori separati, non un asse solo: qui c'e'
+	# soltanto quante volte hai scelto in un modo e quante nell'altro. Cosa
+	# voglia dire lo decidono le scene, chiedendo "richiede_eroe" o
+	# "richiede_malvagio" - qui non c'e' nessun giudizio scritto nel codice.
+	match String(scelta.get("genere", "")):
+		"eroe": GameState.scelte_eroe += 1
+		"malvagio": GameState.scelte_malvagie += 1
+	if scelta.has("flag"):
+		GameState.imposta_flag(scelta["flag"])
+	if scelta.has("una_tantum"):
+		GameState.imposta_flag(scelta["una_tantum"])
+	if scelta.has("recluta"):
+		GameState.recluta(scelta["recluta"])
 
 static func destinazione(scelta: Dictionary) -> String:
 	# dove porta una scelta: il nodo che nomina ("vai"), oppure la stanza in

@@ -1,3 +1,4 @@
+class_name MappaZona
 extends Control
 
 # La mappa di una zona: una figura fatta di quadratini, uno per scena.
@@ -25,7 +26,8 @@ extends Control
 #
 # Le icone (boss, uscita, "sei qui", il punto esclamativo) stanno in
 # SegniMappa.gd; i nomi delle stanze non ci stanno dentro e si leggono nella
-# legenda di fianco, che e' ElencoPosti.gd.
+# legenda di fianco, che e' ElencoPosti.gd. Tranne alla Sede, dove la mappa e'
+# la schermata e i nomi stanno sulla pianta (IntelaiaturaZona, SegniPianta).
 
 const SCENA_EVENTI := "res://scenes/Main.tscn"
 const DURATA_BATTITO := 1.1   # secondi di un salto completo del punto esclamativo
@@ -59,6 +61,11 @@ var riquadro_disegno := Rect2()    # e dove finisce a schermo, dopo averlo adatt
 
 var indicata := ""             # la stanza che l'anello sta cerchiando, se c'e'
 
+# una riga da dire una volta, aprendo: la Sede ci mette com'e' andato il
+# salvataggio e com'e' messo il presidio. Si consuma alla nascita della mappa
+static var avviso := ""
+var detto := ""
+
 var cornice: Control
 var elenco: ElencoPosti
 var strato_sotto: Control      # griglia e collegamenti
@@ -76,6 +83,8 @@ func _ready() -> void:
 		var misura := dimensione_di(stanza)
 		colonne = maxi(colonne, int(cella.x + misura.x))
 		righe = maxi(righe, int(cella.y + misura.y))
+	detto = avviso
+	avviso = ""
 
 	costruisci_intelaiatura()
 	# SI ASPETTA LA CORNICE, NON LO SCHERMO.
@@ -161,6 +170,16 @@ func dimensione_di(stanza: Dictionary) -> Vector2:
 func e_segreta(stanza: Dictionary) -> bool:
 	return String(stanza.get("tipo", "normale")) == "segreta"
 
+func e_la_sede() -> bool:
+	# la mappa e' la schermata stessa, non uno strumento: vedi IntelaiaturaZona
+	return bool(GameState.mappa_zona.get("sede", false))
+
+func chiusa(id_stanza: String) -> bool:
+	# UNA PORTA CHIUSA A CHIAVE si vede, ci si arriva davanti, e non si apre: il
+	# corridoio c'e', e' la stanza che aspetta il suo flag ("richiede_flag")
+	var serve := String(stanze_per_id.get(id_stanza, {}).get("richiede_flag", ""))
+	return serve != "" and not GameState.ha_flag(serve)
+
 # --- la tavolozza della mappa -------------------------------------------
 #
 # STA TUTTA QUI, IN TRE FUNZIONI CHE NON TOCCANO NIENTE, per un motivo solo:
@@ -227,89 +246,8 @@ func tinta_fascia() -> Color:
 # --- intelaiatura --------------------------------------------------------
 
 func costruisci_intelaiatura() -> void:
-	# i margini ci vogliono, se no il titolo tocca il bordo destro e ci esce
-	var margini := MarginContainer.new()
-	margini.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for lato_margine in ["left", "right", "top", "bottom"]:
-		margini.add_theme_constant_override("margin_" + lato_margine, Stile.forma("cornice"))
-	add_child(margini)
-	var colonna := VBoxContainer.new()
-	colonna.add_theme_constant_override("separation", 12)
-	margini.add_child(colonna)
-
-	var barra := HBoxContainer.new()
-	barra.add_theme_constant_override("separation", 16)
-	colonna.add_child(barra)
-
-	var indietro := Button.new()
-	# con la Guida sopra, questo e' il «tasto di chiusura» del testo di Bru: si
-	# torna dove dice lei (vedi GuidaSullaMappa.dove_tornare)
-	indietro.text = "Chiudi la mappa" if GuidaSullaMappa.sta_parlando() else "Torna alla stanza corrente"
-	Stile.ritorno(indietro)
-	indietro.pressed.connect(func() -> void: IngressoNodo.vai_al_nodo(GuidaSullaMappa.dove_tornare()))
-	barra.add_child(indietro)
-
-	var spazio := Control.new()
-	spazio.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	barra.add_child(spazio)
-
-	var titolo := Label.new()
-	titolo.text = String(GameState.mappa_zona.get("nome", ""))
-	Manifesto.vesti_etichetta(titolo, Stile.dimensione("sezione"))
-	barra.add_child(titolo)
-
-	# LA FIGURA E LA SUA CHIAVE, una di fianco all'altra. I nomi delle stanze
-	# arrivano a 27 caratteri e i quadratini a 104 pixel: dentro non ci stanno
-	# e sotto nemmeno, quindi vanno letti qui di fianco. Vedi ElencoPosti.gd.
-	var fianco := HBoxContainer.new()
-	fianco.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	fianco.add_theme_constant_override("separation", Stile.forma("separazione"))
-	colonna.add_child(fianco)
-	# la mappa e la sua chiave sono una proiezione: stanno nel vetro scuro di un
-	# cabinato, e li' valgono i colori e i contrasti pensati per il nero
-	Manifesto.in_schermo(fianco)
-
-	# la cornice del disegno di Bru: la porzione di mappa che stai guardando
-	cornice = Control.new()
-	cornice.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	cornice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cornice.clip_contents = true
-	fianco.add_child(cornice)
-
-	elenco = ElencoPosti.new()
-	elenco.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	elenco.indicato.connect(_indica_stanza)
-	elenco.lasciato.connect(_smetti_di_indicare)
-	elenco.scelto.connect(_su_stanza_per_id)
-	fianco.add_child(elenco)
-
-	strato_sotto = Control.new()
-	strato_sotto.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	strato_sotto.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	strato_sotto.draw.connect(_disegna_sotto)
-	cornice.add_child(strato_sotto)
-
-	strato_bottoni = Control.new()
-	strato_bottoni.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	strato_bottoni.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cornice.add_child(strato_bottoni)
-
-	strato_sopra = Control.new()
-	strato_sopra.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	strato_sopra.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	strato_sopra.draw.connect(_disegna_sopra)
-	cornice.add_child(strato_sopra)
-
-	# LA RIGA CHE DICE SEMPRE DOVE SEI. Era a corpo 37 - piu' grande della
-	# legenda e quasi quanto il nome della zona - e da sola rovesciava la
-	# gerarchia: una riga di stato in fondo e' la voce piu' bassa della
-	# schermata, non la piu' alta. A 26 si legge da lontano e non grida.
-	etichetta_stato = Label.new()
-	etichetta_stato.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	etichetta_stato.add_theme_color_override("font_color", Stile.colore("box_testo"))   # sull'arancio
-	Stile.imposta_corpo(etichetta_stato, Stile.dimensione("corpo"))
-	etichetta_stato.text = " "
-	colonna.add_child(etichetta_stato)
+	# la barra, la cornice, la legenda e la riga di stato: IntelaiaturaZona.gd
+	IntelaiaturaZona.costruisci(self)
 
 # --- geometria -----------------------------------------------------------
 
@@ -442,10 +380,13 @@ func disegna_bottoni() -> void:
 			# il punto di domanda: quello che invita ad andarci. NON dove c'e'
 			# gia' il punto esclamativo: quello dice "vai qui" molto meglio di
 			# un "?", e i due sovrapposti erano solo due segni uno sull'altro.
-			if icona_di(stanza) != "obiettivo":
+			if icona_di(stanza) != "obiettivo" and not e_la_sede():
 				bottone.text = "?"
 				bottone.add_theme_font_size_override("font_size", int(lato * 0.5))
 			vesti_vuoto(bottone, noto, raggiungibile)
+		if e_la_sede():
+			# alla Sede ogni stanza si chiama col suo nome, sulla pianta
+			SegniPianta.nome(bottone, nome_di(id_stanza), corpo_dei_nomi())
 		bottone.pressed.connect(_su_stanza.bind(id_stanza, noto, raggiungibile))
 		# ANCHE COL TASTO, NON SOLO COL MOUSE. In Godot il suggerimento non
 		# compare quando un bottone prende il fuoco da tastiera: chi gira la
@@ -496,7 +437,10 @@ func vesti_vuoto(bottone: Button, noto: bool, raggiungibile: bool) -> void:
 
 func _indica_stanza(id_stanza: String) -> void:
 	indicata = id_stanza
-	etichetta_stato.text = nome_di(id_stanza)
+	# e cosa ci si fa, se la stanza lo dice ("cosa"): «dove vado? cosa faccio?»
+	var cosa := String(stanze_per_id.get(id_stanza, {}).get("cosa", ""))
+	etichetta_stato.text = nome_di(id_stanza) if cosa == "" or chiusa(id_stanza) \
+			else "%s  ·  %s" % [nome_di(id_stanza), cosa]
 	elenco.evidenzia(id_stanza)
 	strato_sopra.queue_redraw()
 
@@ -511,14 +455,17 @@ func _smetti_di_indicare() -> void:
 
 func dove_sei() -> String:
 	var nome := nome_di(GameState.nodo_corrente)
-	return "" if nome == "" else "Sei in: %s" % nome
+	var qui := "" if nome == "" else "Sei in: %s" % nome
+	if detto == "":
+		return qui
+	return detto if qui == "" else "%s  ·  %s" % [qui, detto]
 
 func nome_di(id_stanza: String) -> String:
 	# il nome si sa se ci sei stato o se la storia te l'ha nominato; se no e'
 	# un "?", ed e' giusto che resti un "?"
 	if not stanze_per_id.has(id_stanza):
 		return ""
-	if not (visitata(id_stanza) or GameState.stanza_sbloccata(id_stanza)):
+	if chiusa(id_stanza) or not (visitata(id_stanza) or GameState.stanza_sbloccata(id_stanza)):
 		return "?"
 	return String(stanze_per_id[id_stanza].get("nome", id_stanza))
 
@@ -553,6 +500,9 @@ func _su_stanza(id_stanza: String, _noto: bool, raggiungibile: bool) -> void:
 	if GuidaSullaMappa.solo_chiudere():
 		etichetta_stato.text = "La Guida sta ancora parlando."
 		return
+	if chiusa(id_stanza):
+		etichetta_stato.text = String(stanze_per_id[id_stanza].get("testo_chiusa", "La porta è chiusa."))
+		return
 	if not raggiungibile:
 		if GameState.ce_un_proiettore(id_stanza):
 			etichetta_stato.text = "C'è un proiettore, ma per usarlo devi essere su un altro proiettore."
@@ -579,9 +529,9 @@ func _disegna_sotto() -> void:
 		if disegno != null:
 			strato_sotto.draw_texture_rect(disegno, riquadro_disegno, false)
 		else:
-			# il foglio in attesa: si vede dove starebbe la mappa
-			strato_sotto.draw_rect(riquadro_disegno, Color(Stile.colore("tratto"), 0.10))
-			strato_sotto.draw_rect(riquadro_disegno, Color(Stile.colore("tratto"), 0.45), false, 2.0)
+			# il foglio in attesa: si vede dove starebbe la mappa, e i corridoi
+			# fra le stanze finche' non li disegna Bru (SegniPianta)
+			SegniPianta.foglio(self, strato_sotto)
 		return
 	# il reticolo si deve VEDERE sul buio: "bordo" e' il nero della cornice
 	var reticolo := Color(Stile.colore("tratto"), 0.30)
@@ -615,6 +565,7 @@ func _disegna_sopra() -> void:
 		if not si_vede(id_stanza):
 			continue
 		var rettangolo := rettangolo_di(stanza)
+		var segni := rettangolo_dei_segni(rettangolo)
 		var icona := icona_di(stanza)
 		# IL PUNTO ESCLAMATIVO E' L'ECCEZIONE, e per il motivo piu' ovvio: le
 		# altre icone raccontano cosa hai trovato in un posto, quindi si vedono
@@ -623,17 +574,28 @@ func _disegna_sopra() -> void:
 		if visitata(id_stanza) and e_segreta(stanza):
 			tratteggia(rettangolo, si_puo_andare(id_stanza))
 		if icona == "obiettivo":
-			SegniMappa.obiettivo(strato_sopra, rettangolo, battito,
+			SegniMappa.obiettivo(strato_sopra, segni, battito,
 					tinta_segno(), tinta_fascia())
 		elif visitata(id_stanza):
-			SegniMappa.icona(strato_sopra, icona, rettangolo,
+			SegniMappa.icona(strato_sopra, icona, segni,
 					tinta_segno(), tinta_fascia())
 		if id_stanza == GameState.proiettore_qui():
-			SegniMappa.proiettore(strato_sopra, rettangolo, tinta_segno(), tinta_fascia())
+			SegniMappa.proiettore(strato_sopra, segni, tinta_segno(), tinta_fascia())
 		if id_stanza == GameState.nodo_corrente:
-			SegniMappa.sei_qui(strato_sopra, rettangolo, tinta_segno(), tinta_fascia())
+			SegniMappa.sei_qui(strato_sopra, segni, tinta_segno(), tinta_fascia())
 		if id_stanza == indicata:
 			disegna_anello(rettangolo)
+
+func rettangolo_dei_segni(rettangolo: Rect2) -> Rect2:
+	# alla Sede in fondo al riquadro c'e' il nome: icone e freccia stanno sopra
+	if not e_la_sede():
+		return rettangolo
+	return rettangolo.grow_side(SIDE_BOTTOM, -corpo_dei_nomi() * 1.3)
+
+func corpo_dei_nomi() -> int:
+	# uno solo per tutta la pianta, che segue quanto e' grande il foglio: con un
+	# corpo per stanza le stanze grandi gridavano e le piccole sussurravano
+	return clampi(int(riquadro_disegno.size.y / 30.0), 13, 18)
 
 func tratteggia(rettangolo: Rect2, raggiungibile: bool) -> void:
 	# le righe oblique delle stanze segrete: come si tracciano e perche' sta

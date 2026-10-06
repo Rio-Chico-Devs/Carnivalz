@@ -557,7 +557,7 @@ func conferma_uscita() -> void:
 	pannello = "uscita"
 	intestazione("Tornare al menu?")
 	var avviso := Label.new()
-	avviso.text = "Il gioco si salva da solo quando rientri alla Sede: tutto quello che hai\nfatto dentro questa zona (stanze, oggetti raccolti, Tazo) andrà perso."
+	avviso.text = Sede.avviso_di_uscita()   # alla Sede non si perde niente
 	avviso.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	colonna.add_child(avviso)
 	var voci: Array[VoceMenu] = []

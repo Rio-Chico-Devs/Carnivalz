@@ -1,0 +1,152 @@
+{
+	"_nota": "LA SEDE: dove sei quando non sei dentro un Carnivalz. Prima era una lista di voci (data/sede.json, che non c'e' piu'); Bru: «perche' non posso esplorare la mappa dell'organizzazione? perche' ho solo una lista di opzioni tra cui scegliere? [...] se ci sono alloggi, emporio e le cose riportate qui le vorrei vedere sulla mappa piuttosto che in questa schermata noiosa». Adesso e' il complesso, lo stesso edificio della prima giornata: le stanze che c'erano allora stanno nello stesso posto (c'e' una prova che lo controlla), e in piu' ci sono quelle che allora non avevi visto. Si entra dalla schermata della Sede (scripts/Sede.gd), che salva e apre questa mappa. Le stanze che fanno qualcosa lo fanno con una scelta \"apre\": mappa_stellare, negozio, squadra, diario. I testi delle stanze nuove sono miei, provvisori: vanno riscritti da Bru.",
+	"_disposizione": "Le coordinate sono sullo stesso foglio di 1920x1080 del complesso (art/mappe/complesso.png, che non esiste ancora: finche' manca si vedono i riquadri e i corridoi). Le quattro stanze nuove - sala operativa, emporio, ponte di guardia, officina - stanno negli spazi che il complesso lasciava liberi: la disposizione e' mia, da rifare sul disegno vero.",
+	"musica": "res://audio/musica/mappa.ogg",
+	"presidio_richiesto": 6,
+	"_nota_presidio": "Il presidio e' quanti dominatori l'unita' deve tenere in casa. Non e' ancora una meccanica: e' una riga di stato che dice che il posto e' un presidio e non un albergo. Se diventera' una regola (partire in missione scopre l'unita') si tocchera' solo questo file e la riga che lo legge (Sede.riga_di_stato).",
+	"nodo_iniziale": "alloggio",
+	"nodi": {
+		"alloggio": {
+			"stanza": "alloggio",
+			"scena": "La tua branda, l'armadietto, la roba della squadra in fila contro il muro. Qui si controlla chi porta cosa, e come sta chi lo porta.",
+			"scelte": [
+				{"testo": "Controlla la squadra", "apre": "squadra"},
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "alloggio"}
+			]
+		},
+		"sala_operativa": {
+			"stanza": "sala_operativa",
+			"scena": "Il tavolo tattico al centro, e sopra la proiezione del settore. Dove il disallineamento sta bruciando compare un punto. È così che si guarda la mappa: da qui, con qualcuno che ti dice dove andare.",
+			"scelte": [
+				{"testo": "Consulta la proiezione del settore", "apre": "mappa_stellare"},
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "sala_operativa"}
+			]
+		},
+		"emporio": {
+			"stanza": "emporio",
+			"scena": "Scaffali metallici, un bancone, e un tizio che non ti guarda mai in faccia. Tutto quello che ti serve per non morire là fuori.",
+			"scelte": [
+				{"testo": "Guarda la merce", "apre": "negozio"},
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "emporio"}
+			]
+		},
+		"archivio": {
+			"stanza": "archivio",
+			"scena": "Faldoni, schede, la tua valutazione. L'Organizzazione scrive tutto, anche quello che preferiresti non rileggere.",
+			"scelte": [
+				{"testo": "Consulta il data pad", "apre": "diario"},
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "archivio"}
+			]
+		},
+		"ponte_di_guardia": {
+			"stanza": "ponte_di_guardia",
+			"scena": "Da qui si vede il perimetro. Le forze militari fanno i turni sui camminamenti: fucili, mezzi, procedure. Nessuno di loro ha il fattore Carnivalz, e nessuno di loro finge il contrario — sanno benissimo che se qualcosa entra davvero, quelli che devono muoversi siete voi. Il che non vuol dire che siano meno pericolosi di voi. Alcuni, addestrati come si deve, ti stenderebbero senza sudare.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "ponte_di_guardia"}
+			]
+		},
+		"officina": {
+			"_nota": "Ci si entra solo con 'eto_incontrato' (vedi la stanza nella mappa qui sotto): fino ad allora la porta si vede e non si apre.",
+			"stanza": "officina",
+			"scena": "Cavi, banchi, cose smontate che dovrebbero stare montate. Eto non ha nessun fattore: ha una testa, e quella gli basta per stare al passo con gente che piega la realtà. Dice che è solo una questione di strumenti. Non sta scherzando.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "officina"}
+			]
+		},
+		"mensa": {
+			"_nota": "Testo mio, provvisorio.",
+			"stanza": "mensa",
+			"scena": "La mensa fra un turno e l'altro: qualcuno mangia in piedi, qualcuno non mangia affatto. Il caffè è sempre lo stesso.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "mensa"}
+			]
+		},
+		"infermeria": {
+			"_nota": "Testo mio, provvisorio.",
+			"stanza": "infermeria",
+			"scena": "Letti in fila, luci basse, l'odore del disinfettante. Oggi nessuno ti aspetta qui, ed è meglio così.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "infermeria"}
+			]
+		},
+		"sala_allenamento": {
+			"_nota": "Testo mio, provvisorio.",
+			"stanza": "sala_allenamento",
+			"scena": "Il tappeto, i bersagli, i segni dei colpi di chi si è allenato prima di te. A quest'ora è vuota.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "sala_allenamento"}
+			]
+		},
+		"sala_comunicazioni": {
+			"_nota": "Testo mio, provvisorio.",
+			"stanza": "sala_comunicazioni",
+			"scena": "Gli schermi, le cuffie, il ronzio dei canali aperti. Da qui l'unità parla con le altre: tu, per ora, ascolti.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "sala_comunicazioni"}
+			]
+		},
+		"sala_proiezione": {
+			"_nota": "Testo mio, provvisorio.",
+			"stanza": "sala_proiezione",
+			"scena": "La piattaforma di Veronica, spenta. Le missioni adesso si scelgono in sala operativa.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "sala_proiezione"}
+			]
+		},
+		"hangar": {
+			"_nota": "Testo mio, provvisorio.",
+			"stanza": "hangar",
+			"scena": "Mezzi in fila, tecnici che non alzano la testa. È da qui che si parte, quando la sala operativa ha deciso dove.",
+			"scelte": [
+				{"testo": "Torna alla mappa", "torna_a_mappa": true, "stanza": "hangar"}
+			]
+		}
+	},
+	"mappa_dungeon": {
+		"nome": "Unità Terza",
+		"sede": true,
+		"_nota_sede": "La mappa e' la schermata della Sede, non uno strumento che si consulta da una stanza: niente «Torna alla stanza corrente», i nomi stanno sulla pianta e non in una legenda (vedi scripts/IntelaiaturaZona.gd).",
+		"disegno": "res://art/mappe/complesso.png",
+		"misura_disegno": [1920, 1080],
+		"corridoi_liberi": true,
+		"flag_completamento": "sede_aperta",
+		"_nota_flag_completamento": "La Sede la conosci tutta: Sede.gd accende questo flag entrando, e ogni stanza si vede col suo nome (tranne quelle chiuse a chiave, vedi l'officina).",
+		"connessioni": [
+			["alloggio", "mensa"],
+			["alloggio", "archivio"],
+			["alloggio", "emporio"],
+			["emporio", "infermeria"],
+			["emporio", "sala_comunicazioni"],
+			["emporio", "sala_allenamento"],
+			["mensa", "infermeria"],
+			["infermeria", "sala_operativa"],
+			["sala_operativa", "hangar"],
+			["sala_operativa", "sala_allenamento"],
+			["sala_allenamento", "sala_proiezione"],
+			["sala_allenamento", "ponte_di_guardia"],
+			["hangar", "ponte_di_guardia"],
+			["archivio", "sala_comunicazioni"],
+			["sala_comunicazioni", "sala_proiezione"],
+			["sala_proiezione", "officina"]
+		],
+		"stanze": [
+			{"id": "alloggio", "nome": "Il tuo alloggio", "riquadro": [140, 430, 300, 220], "icona": "personaggio",
+				"cosa": "la squadra: chi porta cosa"},
+			{"id": "sala_allenamento", "nome": "Sala di allenamento", "riquadro": [980, 400, 460, 280]},
+			{"id": "mensa", "nome": "Mensa", "riquadro": [180, 120, 300, 200]},
+			{"id": "infermeria", "nome": "Infermeria", "riquadro": [620, 120, 280, 200]},
+			{"id": "archivio", "nome": "Archivio", "riquadro": [180, 760, 280, 190], "cosa": "il data pad"},
+			{"id": "sala_comunicazioni", "nome": "Sala comunicazioni", "riquadro": [620, 760, 420, 190]},
+			{"id": "sala_proiezione", "nome": "Sala di proiezione", "riquadro": [1300, 760, 320, 190]},
+			{"id": "hangar", "nome": "Hangar", "riquadro": [1520, 140, 280, 420]},
+			{"id": "sala_operativa", "nome": "Sala operativa", "riquadro": [960, 120, 500, 200], "icona": "obiettivo",
+				"cosa": "la mappa stellare: da qui si sceglie dove andare"},
+			{"id": "emporio", "nome": "Emporio", "riquadro": [520, 440, 380, 200], "cosa": "si compra"},
+			{"id": "ponte_di_guardia", "nome": "Ponte di guardia", "riquadro": [1500, 600, 380, 130]},
+			{"id": "officina", "nome": "Officina del Dott. Eto", "riquadro": [1660, 760, 220, 190],
+				"richiede_flag": "eto_incontrato",
+				"testo_chiusa": "La porta è chiusa. Sull'etichetta, un nome che non hai ancora avuto motivo di imparare.",
+				"_chiave_non_ancora": "Nessuno accende 'eto_incontrato': l'officina e' chiusa per sempre. Non e' un guasto, e' contenuto che non c'e' ancora - Eto va incontrato da qualche parte, e quella scena non e' scritta. Dichiarato qui perche' la prova prova_ogni_cancello_ha_una_chiave non lo segnali come una svista, e perche' resti scritto che lo sappiamo."}
+		]
+	}
+}

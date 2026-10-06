@@ -70,6 +70,7 @@ func _ready() -> void:
 		Transizioni.vai(SCENA_MAPPA))
 	proiezione.risali("anomalia")
 	strappa_le_nuove()
+	IconaMenu.metti(self)
 
 
 func pianeta_accessibile(punto: Dictionary) -> bool:

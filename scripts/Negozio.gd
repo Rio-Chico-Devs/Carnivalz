@@ -29,7 +29,7 @@ const SCENA_SEDE := "res://scenes/Sede.tscn"
 const VISIBILI := 5
 const PRIMA_CARTA := Vector2(40, 400)
 const PASSO_CARTA := 129.0
-const INIZIO_LINGUETTE := Vector2(180, 10)
+const INIZIO_LINGUETTE := Vector2(220, 10)
 const FINE_LINGUETTE := 940.0       # dove comincia la vetrina, in cima
 
 var tavola: Tavola
@@ -62,6 +62,9 @@ func _ready() -> void:
 	costruisci_linguette()
 	costruisci()
 	entra()
+	# il menu, nello stesso angolo di ogni schermata: per questo i Tazo e la
+	# descrizione stanno quaranta pixel piu' in la' che nello schema di Bru
+	IconaMenu.metti(tavola)
 	# il fuoco alla prima carta; in un negozio vuoto a Indietro, che senza un
 	# fuoco la tastiera non ha da dove partire
 	Tavola.fuoco.call_deferred(carte[0] as Control if carte[0].visible else indietro as Control)
@@ -92,7 +95,7 @@ func costruisci_barra() -> void:
 	indietro = TastoObliquo.nuovo("INDIETRO", "nero", 20)
 	indietro.scelto.connect(_su_indietro)
 	barra.add_child(indietro)
-	indietro.position = Vector2(16, 10)
+	indietro.position = Vector2(IconaMenu.posto().x, 10)   # in colonna col menu, che gli sta sotto
 	sacca = Cartiglio.nuovo("", Stile.colore("bordo_acceso"), Stile.colore("box_testo"),
 			Stile.colore("box_testo"), 20)
 	barra.add_child(sacca)
@@ -101,14 +104,14 @@ func costruisci_barra() -> void:
 func costruisci_sinistra() -> void:
 	etichetta_tazo = Tavola.scritta("", 104, Stile.colore("box_testo"), Caratteri.titolo())
 	tavola.add_child(etichetta_tazo)
-	Tavola.metti(etichetta_tazo, Rect2(108, 104, 520, 124))
+	Tavola.metti(etichetta_tazo, Rect2(156, 104, 520, 124))
 	Tavola.ombra(etichetta_tazo, Stile.colore("bordo_acceso"), Vector2(5, 5))
 	var sotto := Tavola.scritta("TAZO IN TASCA", 18, Stile.colore("box_testo"), Caratteri.tondo(900))
 	tavola.add_child(sotto)
-	Tavola.metti(sotto, Rect2(148, 234, 320, 28))
+	Tavola.metti(sotto, Rect2(196, 234, 320, 28))
 	descrizione = TestoCheScorre.nuovo(16, Stile.colore("box_testo"), Stile.colore("manifesto"))
 	tavola.add_child(descrizione)
-	Tavola.metti(descrizione, Rect2(115, 276, 460, 100))
+	Tavola.metti(descrizione, Rect2(163, 276, 460, 100))
 
 
 func costruisci_scaffale() -> void:
@@ -365,4 +368,4 @@ class Fondo extends Control:
 		while riga < 700.0:
 			draw_rect(Rect2(riga, 600, 3, 2), Stile.colore("bordo"))
 			riga += 7.0
-		Manifesto.poligono(self, Sagome.rombo(Vector2(126, 248), 10.0), Stile.colore("bordo"))
+		Manifesto.poligono(self, Sagome.rombo(Vector2(174, 248), 10.0), Stile.colore("bordo"))

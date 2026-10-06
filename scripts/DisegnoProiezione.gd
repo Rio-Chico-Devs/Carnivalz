@@ -10,6 +10,10 @@ extends RefCounted
 # Il carattere e' quello dei dialoghi (Bricolage) stretto e leggero, tutto
 # maiuscolo e spaziato: le scritte piccole dei poster di Bru.
 
+# l'intestazione comincia dopo l'iconcina del menu (IconaMenu), che sta
+# nell'angolo in alto a sinistra in ogni schermata
+const INIZIO_INTESTAZIONE := 148.0
+
 static var fonti := {}
 
 
@@ -102,11 +106,12 @@ static func cornice(p: Proiezione, tela: Control) -> void:
 		var sy := 1.0 if angolo.y < 360.0 else -1.0
 		tela.draw_polyline(PackedVector2Array([angolo + Vector2(0, 14 * sy), angolo, angolo + Vector2(14 * sx, 0)]),
 				carta, 2.0)
-	scrivi(tela, Vector2(36, 44), p.intestazione, 11, Color(carta, 0.85), 350, 85, 3)
+	# l'intestazione parte dopo l'iconcina del menu (IconaMenu), che sta nell'angolo
+	scrivi(tela, Vector2(INIZIO_INTESTAZIONE, 44), p.intestazione, 11, Color(carta, 0.85), 350, 85, 3)
 	# il righello sotto l'intestazione, come nei diagrammi del poster
-	tela.draw_line(Vector2(36, 54), Vector2(940, 54), Color(inchiostro, 0.8), 1.0)
-	for i in 46:
-		var x := 36.0 + float(i) * 19.65
+	tela.draw_line(Vector2(INIZIO_INTESTAZIONE, 54), Vector2(940, 54), Color(inchiostro, 0.8), 1.0)
+	for i in 41:
+		var x := INIZIO_INTESTAZIONE + float(i) * 19.65
 		tela.draw_line(Vector2(x, 54), Vector2(x, 58 if i % 5 else 62), Color(inchiostro, 0.8), 1.0)
 	scrivi(tela, Vector2(972, 44), "SCANSIONE", 11, Color(carta, 0.85), 350, 85, 3)
 	if fmod(p.t, 1.2) < 0.7 or Movimento.ridotto():

@@ -406,54 +406,15 @@ func curva(da: Vector2, verso: Vector2, a: Vector2, t: float) -> Vector2:
 	return da.lerp(verso, t).lerp(verso.lerp(a, t), t)
 
 func prepara_icona_menu() -> void:
-	# L'ICONCINA IN ALTO A SINISTRA: la faccia di chi stai giocando, e si apre
-	# il menu. Bru l'ha disegnata come un quadrato rosso col muso dentro.
-	var lato := Stile.forma("icona_menu")
-	var bordo := Stile.forma("cornice")
-	icona_menu.position = Vector2(bordo * 1.8, bordo * 1.8)
-	icona_menu.custom_minimum_size = Vector2(lato, lato)
-	icona_menu.size = Vector2(lato, lato)
-	var fondo := StyleBoxFlat.new()
-	fondo.bg_color = Stile.colore("manifesto")
-	fondo.set_corner_radius_all(14)
-	fondo.set_border_width_all(4)
-	fondo.border_color = Stile.colore("bordo")
-	fondo.shadow_color = Stile.colore("bordo")   # l'ombra piena del manifesto:
-	fondo.shadow_size = 1                        # quasi senza sfumatura
-	fondo.shadow_offset = Manifesto.OMBRA * 0.6
-	for stato in ["normal", "hover", "pressed", "focus", "disabled"]:
-		icona_menu.add_theme_stylebox_override(stato, fondo)
-	icona_menu.tooltip_text = "Menu"
-	var faccia := TextureRect.new()
-	faccia.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	faccia.offset_left = 4
-	faccia.offset_top = 4
-	faccia.offset_right = -4
-	faccia.offset_bottom = -4
-	faccia.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	faccia.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	faccia.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var ritratto := ritratto_del_giocato()
-	if ritratto != "":
-		faccia.texture = load(ritratto)
-	else:
-		Manifesto.tre_righe(icona_menu)   # finche' la faccia non c'e', il segno del menu
-	icona_menu.add_child(faccia)
-	icona_menu.pressed.connect(func() -> void: Pausa.apri())
+	# l'iconcina del menu: com'e' fatta sta in IconaMenu, che la mette in ogni schermata
+	IconaMenu.vesti(icona_menu)
+	icona_menu.position = IconaMenu.posto()
 	# SOPRA L'AREA CHE FA AVANZARE IL TESTO. Stava in Interfaccia, e AreaAvanza
 	# - un bottone grande quanto lo schermo, messo per ultimo - la copriva:
 	# mentre un dialogo scorreva, cliccare la faccia mandava avanti la battuta
 	# invece di aprire il menu. L'ha trovato l'automa (prove/automa.sh)
 	icona_menu.reparent(self)
 	IconaGuida.metti(self, $Interfaccia, icona_menu)
-
-func ritratto_del_giocato() -> String:
-	var id := GameState.id_protagonista
-	var per_espressione := "res://art/personaggi/%s/neutra.png" % id
-	if ResourceLoader.exists(per_espressione):
-		return per_espressione
-	var singolo := String(GameState.personaggi.get(id, {}).get("ritratto", ""))
-	return singolo if singolo != "" and ResourceLoader.exists(singolo) else ""
 
 func prepara_colonna_scelte() -> void:
 	# Le scelte stanno appoggiate al bordo destro del quadro, sopra
@@ -1243,19 +1204,8 @@ func _su_osserva() -> void:
 
 func _su_scelta(scelta: Dictionary) -> void:
 	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi
-	# IL CONTO DI CHI SEI. Due contatori separati, non un asse solo: qui c'e'
-	# soltanto quante volte hai scelto in un modo e quante nell'altro. Cosa
-	# voglia dire lo decidono le scene, chiedendo "richiede_eroe" o
-	# "richiede_malvagio" - qui non c'e' nessun giudizio scritto nel codice.
-	match String(scelta.get("genere", "")):
-		"eroe": GameState.scelte_eroe += 1
-		"malvagio": GameState.scelte_malvagie += 1
-	if scelta.has("flag"):
-		GameState.imposta_flag(scelta["flag"])
-	if scelta.has("una_tantum"):
-		GameState.imposta_flag(scelta["una_tantum"])
-	if scelta.has("recluta"):
-		GameState.recluta(scelta["recluta"])
+	# chi sei (eroe o malvagio), i flag, le reclute: IngressoNodo.applica_scelta
+	IngressoNodo.applica_scelta(scelta)
 	var notifiche: Array[Dictionary] = []
 	if scelta.get("piazza_proiettore", false):
 		# il proiettore e' uno solo: piantarlo qui lo toglie da dove stava
@@ -1313,6 +1263,10 @@ func _su_scelta(scelta: Dictionary) -> void:
 		match GameState.game_over():
 			"zona": Transizioni.vai(SCENA_EVENTI)
 			_: Transizioni.vai(SCENA_SEDE)
+		return
+	if scelta.has("apre"):
+		# una stanza della Sede che fa qualcosa: la mappa stellare, l'emporio...
+		Sede.apri(String(scelta["apre"]))
 		return
 	if scelta.get("torna_a_mappa", false):
 		apri_la_mappa_di_zona(scelta)
