@@ -8632,6 +8632,13 @@ func prova_il_plastico_e_a_piani_e_si_clicca() -> void:
 	for i in 40:
 		await get_tree().process_frame
 	esigi(emporio.position.distance_to(prima) > 5.0, "girando il plastico le porte restano dov'erano")
+	# e anche i nomi dei piani, che si ridisegnano sul pavimento nuovo
+	var ridisegni := [0]
+	p.scritte.draw.connect(func() -> void: ridisegni[0] += 1)
+	p.mano.gira(-0.3, -5.0)
+	for i in 20:
+		await get_tree().process_frame
+	esigi(int(ridisegni[0]) > 0, "girando il plastico i nomi dei piani restano dov'erano")
 	# PUNTARE UNA STANZA LA ACCENDE, e dice chi ci trovi
 	for stanza: Dictionary in GameState.mappa_zona.get("stanze", []):
 		if String(stanza.get("id", "")) in ["mensa", "officina"]:

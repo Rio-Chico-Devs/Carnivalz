@@ -328,7 +328,8 @@ func inquadra() -> void:
 
 func metti_camera(guardo: Dictionary) -> void:
 	var giro := float(guardo["giro"])
-	var becc := deg_to_rad(float(guardo["beccheggio"]))
+	# mai di taglio: sotto i 12 gradi i piani diventano righe
+	var becc := deg_to_rad(clampf(float(guardo["beccheggio"]), 12.0, 75.0))
 	var bersaglio: Vector3 = guardo["bersaglio"]
 	camera.fov = float(guardo["fov"])
 	camera.position = bersaglio + Vector3(sin(giro) * cos(becc), sin(becc), cos(giro) * cos(becc)) \
@@ -344,6 +345,7 @@ func _process(delta: float) -> void:
 	if not camera.transform.is_equal_approx(ultima):
 		ultima = camera.transform
 		zona.riposiziona()
+		scritte.queue_redraw()   # i nomi dei piani e i segnalini seguono la vista
 
 
 func sullo_schermo(punto: Vector3) -> Vector2:
