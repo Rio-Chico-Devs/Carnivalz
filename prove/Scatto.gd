@@ -24,6 +24,12 @@ func _ready() -> void:
 	var argomenti := OS.get_cmdline_user_args()
 	var quale := String(argomenti[0]) if argomenti.size() > 0 else "dialogo"
 	var etichetta := quale if argomenti.size() < 2 else "%s_%s" % [quale, argomenti[1]]
+	# TESTO_GRANDE=1 ./prove/scatto.sh ...: la schermata come la vede chi ha
+	# acceso «Testo piu' grande» (lo schermo utile scende a 1024x576)
+	if OS.has_environment("TESTO_GRANDE"):
+		Impostazioni.testo_grande = true
+		Impostazioni.applica_scala_testo()
+		etichetta += "_testo_grande"
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta

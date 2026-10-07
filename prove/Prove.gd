@@ -289,6 +289,7 @@ func _ready() -> void:
 	await prova_la_scheda_si_gira_tutta_da_tastiera()
 	prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma()
 	await prova_la_tavola_sta_intera_anche_col_testo_grande()
+	await prova_la_proiezione_sta_intera_col_testo_grande()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -19234,6 +19235,61 @@ func prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma() -> void:
 	var fiala := Sagome.dentro(Vector2(20, 80), Rect2(0, 0, 100, 100))
 	esigi(fiala.is_equal_approx(Rect2(37.5, 0, 25, 100)),
 			"un disegno 20x80 in un riquadro 100x100 finisce in %s: e' stato storto" % fiala)
+	Impostazioni.movimento_ridotto = ridotto_prima
+	GameState.nuova_partita()
+
+func prova_la_proiezione_sta_intera_col_testo_grande() -> void:
+	# Bru, con una foto: la mappa stellare tagliata a destra. Col testo grande
+	# lo schermo utile e' 1024x576, e la proiezione e' disegnata a pixel fissi
+	# del 1280x720: la colonna delle schede usciva a destra, «Torna alla Sede» e
+	# il titolo sotto. Adesso e' un foglio come la tavola del negozio, e la mano
+	# (la rotella, il trascinamento) lavora nei pixel della proiezione: la
+	# stessa rotellata nello stesso punto del foglio porta la vista nello stesso
+	# posto, col testo grande e senza
+	titolo("la mappa stellare e il Vuoto stanno interi col testo grande, e la mano fa lo stesso gesto")
+	var prima := get_tree().root.content_scale_factor
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	for scena: String in ["Mappa", "Vuoto"]:
+		var spinte := {}
+		for fattore: float in [1.25, 1.0]:
+			get_tree().root.content_scale_factor = fattore
+			GameState.nuova_partita()
+			var schermata: Control
+			if scena == "Vuoto":
+				schermata = await apri_il_vuoto(punto_della_mappa("carnivalz_del_bosco"))
+			else:
+				schermata = load("res://scenes/Mappa.tscn").instantiate()
+				add_child(schermata)
+				for i in 3:
+					await get_tree().process_frame
+			var p: Proiezione = schermata.get("proiezione")
+			var vista := Rect2(Vector2.ZERO, get_viewport().get_visible_rect().size)
+			var foglio: Rect2 = schermata.get_global_transform_with_canvas() * Rect2(0, 0, 1280, 720)
+			esigi(vista.grow(0.5).encloses(foglio) and (is_equal_approx(foglio.size.x, vista.size.x)
+					or is_equal_approx(foglio.size.y, vista.size.y)),
+					"%s a scala %.2f: il foglio della proiezione occupa %s su uno schermo di %s" % [scena, fattore, foglio, vista.size])
+			for bottone: Button in [schermata.find_child("BottoneSede", true, false), schermata.find_child("BottoneMappa", true, false)]:
+				if bottone != null and bottone.is_visible_in_tree():
+					esigi(vista.grow(0.5).encloses(bottone.get_global_rect()),
+							"%s a scala %.2f: «%s» esce dallo schermo (%s)" % [scena, fattore, bottone.text, bottone.get_global_rect()])
+			# la rotella in un punto fisso del foglio (sulla griglia, lontano dai bottoni)
+			var locale := Vector2(520, 560)
+			p.cursore_finto = locale
+			p.mano.centra()
+			for i in 2:
+				await get_tree().process_frame
+			esigi(p.sul_piano(locale) is Vector3, "%s: sotto il punto della prova non c'e' la griglia" % scena)
+			await rotella_sulla_mappa(p.get_global_transform_with_canvas() * locale, 3, true)
+			spinte[fattore] = p.mano.voluto["spinta"]
+			schermata.queue_free()
+			await get_tree().process_frame
+		var normale: Vector3 = spinte[1.0]
+		var grande: Vector3 = spinte[1.25]
+		esigi(normale.length() > 0.1, "%s: la rotella non avvicina verso il cursore: la prova non guarda niente" % scena)
+		esigi(grande.distance_to(normale) < 0.02, "%s: col testo grande la rotella avvicina verso un altro punto (%s invece di %s)"
+				% [scena, grande, normale])
+	get_tree().root.content_scale_factor = prima
 	Impostazioni.movimento_ridotto = ridotto_prima
 	GameState.nuova_partita()
 

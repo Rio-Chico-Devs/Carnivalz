@@ -40,6 +40,7 @@ var partendo := false
 
 
 func _ready() -> void:
+	Tavola.come_foglio(self)   # disegnato a pixel come la mappa stellare
 	var punto: Dictionary = GameState.punto_mappa_corrente
 	AudioManager.musica(String(punto.get("musica", "")))
 	proiezione = Proiezione.new()

@@ -43,6 +43,7 @@ var partendo := false
 
 
 func _ready() -> void:
+	Tavola.come_foglio(self)
 	AudioManager.musica_chiave("mappa")
 	# e solo se quel nodo c'e' davvero: una partita caricata a meta' scelta non
 	# deve riaprire la mappa della prima missione dalla Sede

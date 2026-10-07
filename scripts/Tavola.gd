@@ -34,11 +34,37 @@ func _ready() -> void:
 
 
 func adatta() -> void:
-	var vista := get_viewport_rect().size
+	Tavola.al_foglio(self)
+
+
+static func al_foglio(foglio: Control) -> void:
+	var vista := foglio.get_viewport_rect().size
 	var quanto := minf(vista.x / LARGO, vista.y / ALTO)
-	scale = Vector2(quanto, quanto)
+	foglio.scale = Vector2(quanto, quanto)
 	# la posizione e' quella nel genitore: chi ospita la tavola sta a tutto schermo
-	position = (vista - Vector2(LARGO, ALTO) * quanto) * 0.5
+	foglio.position = (vista - Vector2(LARGO, ALTO) * quanto) * 0.5
+
+
+static func come_foglio(schermata: Control) -> void:
+	# UNA SCHERMATA INTERA DISEGNATA A PIXEL, come la proiezione della mappa
+	# stellare e del Vuoto: cornice, righello, colonna delle schede e titolo
+	# stanno a numeri fissi del 1280x720. Col testo grande (1024x576 utili)
+	# la colonna usciva dallo schermo a destra e il titolo sotto; Bru l'ha
+	# vista tagliata. Diventa un foglio come la tavola: si scala intera
+	schermata.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	schermata.size = Vector2(LARGO, ALTO)
+	schermata.add_child(Adattatore.new())
+
+
+class Adattatore extends Node:
+	# segue la finestra per conto della schermata: un nodo suo, cosi' il
+	# collegamento se ne va con lei
+	func _ready() -> void:
+		get_viewport().size_changed.connect(adatta)
+		adatta()
+
+	func adatta() -> void:
+		Tavola.al_foglio(get_parent() as Control)
 
 
 static func metti(nodo: Control, dove: Rect2) -> Control:

@@ -183,7 +183,9 @@ func costruisci_griglia() -> void:
 func misura_della_vista() -> Vector2i:
 	# la proiezione si disegna ai pixel veri della finestra, non ai 1280x720
 	# del gioco: a schermo intero i puntini del retino restano puntini
-	var scala := get_viewport().get_final_transform().get_scale() if get_viewport() != null else Vector2.ONE
+	# (la scala del foglio compresa: col testo grande la schermata e' rimpicciolita)
+	var scala := (get_viewport().get_final_transform() * get_global_transform_with_canvas()).get_scale() \
+			if get_viewport() != null else Vector2.ONE
 	if DisplayServer.window_get_size() == Vector2i.ZERO:
 		scala = Vector2.ONE   # senza finestra (le prove) si disegna come a 1280x720
 	return Vector2i(maxi(64, roundi(size.x * scala.x)), maxi(64, roundi(size.y * scala.y)))
@@ -362,8 +364,11 @@ func annulla() -> void:
 
 
 func _unhandled_input(evento: InputEvent) -> void:
-	# trascinare, la rotella, i tasti della mappa: la mano (ManoProiezione)
-	if pronta and mano.gestisci(evento, self):
+	# trascinare, la rotella, i tasti della mappa: la mano (ManoProiezione). Le
+	# sue misure sono nei pixel della proiezione, non della finestra: col testo
+	# grande la schermata e' un foglio scalato (Tavola.come_foglio), e la
+	# rotella avvicinava verso un punto che non era quello sotto il cursore
+	if pronta and mano.gestisci(make_input_local(evento), self):
 		get_viewport().set_input_as_handled()
 		return
 	# CON UNA SCELTA IN MANO, Esc la lascia andare; senza, Esc passa avanti e
