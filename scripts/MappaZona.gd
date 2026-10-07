@@ -598,7 +598,7 @@ func _disegna_sotto() -> void:
 # --- strato di sopra: icone e "sei qui" ---------------------------------
 
 func _disegna_sopra() -> void:
-	for stanza in GameState.mappa_zona.get("stanze", []):
+	for stanza: Dictionary in stanze_per_id.values():   # le sue: GameState puo' essere gia' altrove
 		var id_stanza := String(stanza.get("id", ""))
 		if not si_vede(id_stanza) or (plastico != null and plastico.velata(id_stanza)):
 			continue   # sul plastico, un piano spento non ha icone
@@ -619,7 +619,8 @@ func _disegna_sopra() -> void:
 		if id_stanza == GameState.proiettore_qui():
 			SegniMappa.proiettore(strato_sopra, segni, tinta_segno(), tinta_fascia())
 		if id_stanza == GameState.nodo_corrente:
-			SegniMappa.sei_qui(strato_sopra, segni, tinta_segno(), tinta_fascia())
+			SegniMappa.sei_qui(strato_sopra, plastico.freccia_di(id_stanza) if plastico != null else segni,
+					tinta_segno(), tinta_fascia())
 		if id_stanza == indicata:
 			disegna_anello(rettangolo)
 
@@ -658,7 +659,6 @@ func disegna_anello(rettangolo: Rect2) -> void:
 	var fuori := rettangolo.grow(maxf(lato * 0.06, 3.0))
 	strato_sopra.draw_rect(fuori, tinta_fascia(), false, maxf(lato * 0.09, 5.0))
 	strato_sopra.draw_rect(fuori, Stile.colore("accento"), false, maxf(lato * 0.05, 3.0))
-
 
 func icona_di(stanza: Dictionary) -> String:
 	# L'ICONA DI UNA STANZA PUO' AVERE UN ORARIO.

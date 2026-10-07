@@ -2,10 +2,14 @@
 	"nodo_iniziale": "varco",
 	"mappa_dungeon": {
 		"nome": "Meridia",
+		"vista": "plastico",
+		"_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 la citta'), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: il varco si apre «sulla cima di una collina che affaccia su un'enorme citta'» («Scendi verso le strade di periferia»), la struttura abbandonata e' un garage sotterraneo («Esplora i piani inferiori»), e dal vicolo «Scendi verso i quartieri profondi». Proposta mia, da rifare.",
+		"piani": {"1": "La collina", "0": "La citta'", "-1": "Sotto la citta'"},
 		"flag_completamento": "meridia_esplorata",
 		"stanze": [
 			{
 				"id": "varco",
+				"piano": 1,
 				"nome": "Il varco",
 				"cella": [
 					1,
@@ -15,6 +19,7 @@
 			},
 			{
 				"id": "periferia",
+				"piano": 0,
 				"nome": "Strade di periferia",
 				"cella": [
 					1,
@@ -23,6 +28,7 @@
 			},
 			{
 				"id": "ingresso_citta",
+				"piano": 0,
 				"nome": "Ingresso della città",
 				"cella": [
 					1,
@@ -31,6 +37,7 @@
 			},
 			{
 				"id": "complessi",
+				"piano": 0,
 				"nome": "Primi complessi",
 				"cella": [
 					1,
@@ -39,6 +46,7 @@
 			},
 			{
 				"id": "struttura",
+				"piano": -1,
 				"nome": "Struttura abbandonata",
 				"cella": [
 					0,
@@ -47,6 +55,7 @@
 			},
 			{
 				"id": "parco",
+				"piano": 0,
 				"nome": "Il parco",
 				"cella": [
 					2,
@@ -59,6 +68,7 @@
 			},
 			{
 				"id": "strada_principale",
+				"piano": 0,
 				"nome": "Strada principale",
 				"cella": [
 					1,
@@ -67,6 +77,7 @@
 			},
 			{
 				"id": "supermercato",
+				"piano": 0,
 				"nome": "Supermercato",
 				"cella": [
 					0,
@@ -75,6 +86,7 @@
 			},
 			{
 				"id": "officina",
+				"piano": 0,
 				"nome": "Officina",
 				"cella": [
 					1,
@@ -83,6 +95,7 @@
 			},
 			{
 				"id": "edicola",
+				"piano": 0,
 				"nome": "Edicola",
 				"cella": [
 					2,
@@ -91,6 +104,7 @@
 			},
 			{
 				"id": "vicolo",
+				"piano": 0,
 				"nome": "Vicolo sul retro",
 				"cella": [
 					2,
@@ -100,6 +114,7 @@
 			},
 			{
 				"id": "quartieri_profondi",
+				"piano": -1,
 				"nome": "Quartieri profondi",
 				"cella": [
 					2,

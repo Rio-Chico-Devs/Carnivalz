@@ -2,10 +2,14 @@
 	"nodo_iniziale": "varco",
 	"mappa_dungeon": {
 		"nome": "Lo Squarcio Industriale",
+		"vista": "plastico",
+		"_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 l'impianto), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: dalla sala delle valvole «Sali verso la sala informatica», e dalla sala informatica «Scendi al vecchio centro di controllo». Tutto il resto, discarica e Padiglione compresi, sta a terra. Proposta mia, da rifare.",
+		"piani": {"1": "Piano alto", "0": "Impianto"},
 		"flag_completamento": "industriale_esplorato",
 		"stanze": [
 			{
 				"id": "varco",
+				"piano": 0,
 				"nome": "Il varco",
 				"cella": [
 					4,
@@ -15,6 +19,7 @@
 			},
 			{
 				"id": "corridoi_stretti",
+				"piano": 0,
 				"nome": "Corridoi stretti",
 				"cella": [
 					4,
@@ -23,6 +28,7 @@
 			},
 			{
 				"id": "sala_vetrata",
+				"piano": 0,
 				"nome": "Sala vetrata",
 				"cella": [
 					4,
@@ -32,6 +38,7 @@
 			},
 			{
 				"id": "corridoio_tubi",
+				"piano": 0,
 				"nome": "Corridoio dei tubi",
 				"cella": [
 					4,
@@ -40,6 +47,7 @@
 			},
 			{
 				"id": "corridoi_infiniti",
+				"piano": 0,
 				"nome": "Corridoi infiniti",
 				"cella": [
 					2,
@@ -48,6 +56,7 @@
 			},
 			{
 				"id": "sala_sorveglianza",
+				"piano": 0,
 				"nome": "Stanza degli schermi",
 				"cella": [
 					0,
@@ -56,6 +65,7 @@
 			},
 			{
 				"id": "deposito",
+				"piano": 0,
 				"nome": "Deposito",
 				"cella": [
 					5,
@@ -64,6 +74,7 @@
 			},
 			{
 				"id": "sala_valvole",
+				"piano": 0,
 				"nome": "Sala delle valvole",
 				"cella": [
 					4,
@@ -72,6 +83,7 @@
 			},
 			{
 				"id": "sala_schede",
+				"piano": 1,
 				"nome": "Sala informatica",
 				"cella": [
 					5,
@@ -80,6 +92,7 @@
 			},
 			{
 				"id": "centro_controllo",
+				"piano": 0,
 				"nome": "Vecchio centro di controllo",
 				"cella": [
 					6,
@@ -88,6 +101,7 @@
 			},
 			{
 				"id": "nastro",
+				"piano": 0,
 				"nome": "Il nastro trasportatore",
 				"cella": [
 					3,
@@ -96,6 +110,7 @@
 			},
 			{
 				"id": "cuore",
+				"piano": 0,
 				"nome": "Cuore del complesso",
 				"cella": [
 					3,
@@ -108,6 +123,7 @@
 			},
 			{
 				"id": "discarica",
+				"piano": 0,
 				"nome": "La grande discarica",
 				"cella": [
 					3,
@@ -121,6 +137,7 @@
 			},
 			{
 				"id": "padiglione_e",
+				"piano": 0,
 				"nome": "Il Padiglione",
 				"cella": [
 					1,

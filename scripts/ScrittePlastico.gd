@@ -40,9 +40,8 @@ func prepara_piani() -> void:
 		remove_child(vecchio)
 		vecchio.queue_free()
 	bottoni.clear()
-	var nomi: Dictionary = GameState.mappa_zona.get("piani", {})
 	for piano: int in p.piani_visti():
-		var nome := String(nomi.get(str(piano), ""))
+		var nome := nome_del_piano(piano)
 		if nome == "":
 			continue
 		var b := Button.new()
@@ -57,6 +56,19 @@ func prepara_piani() -> void:
 		bottoni[piano] = b
 	vesti_piani()
 	colloca_piani()
+
+
+func nome_del_piano(piano: int) -> String:
+	# il nome di un piano si sa quando se ne conosce una stanza: un piano di
+	# soli «?» si chiama «?», come le sue stanze. «Profondita'» sul bottone,
+	# prima di esserci scesi, era gia' uno spoiler
+	var nome := String((GameState.mappa_zona.get("piani", {}) as Dictionary).get(str(piano), ""))
+	if nome == "":
+		return ""
+	for id_stanza: String in p.scatole:
+		if int(p.scatole[id_stanza]["piano"]) == piano and p.zona.nome_di(id_stanza) not in ["", "?"]:
+			return nome
+	return "?"
 
 
 func vesti_piani() -> void:
@@ -86,7 +98,7 @@ func vesti_piani() -> void:
 func attacco(piano: int) -> Vector2:
 	# dove il filo tocca il piano: l'angolo del pavimento piu' a sinistra a schermo
 	var r := p.impronta_del_piano(piano)
-	var quota := float(piano) * PlasticoZona.ALTEZZA_PIANO
+	var quota := float(piano) * p.altezza
 	var dove := Vector2(INF, 0.0)
 	for angolo in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
 		var punto := p.sullo_schermo(Vector3(angolo.x, quota, angolo.y))
@@ -162,11 +174,17 @@ func posa_il_nome(porta: Control, nome: Label, presi: Array[Rect2]) -> bool:
 	var conta := id_stanza == p.puntata or id_stanza == GameState.nodo_corrente
 	for scarto: float in [0.0, misura.y + 2.0, -(misura.y + 2.0), 2.0 * (misura.y + 2.0)]:
 		var r := Rect2(sotto + Vector2(-misura.x * 0.5, scarto - misura.y), misura)
-		if conta or not presi.any(func(altro: Rect2) -> bool: return altro.intersects(r)):
+		if not presi.any(func(altro: Rect2) -> bool: return altro.intersects(r)):
 			nome.offset_bottom = -4.0 + scarto
 			presi.append(r)
 			return true
-	return false
+	if not conta:
+		return false
+	# la stanza puntata e la tua il nome lo dicono comunque: prima pero' hanno
+	# provato i posti liberi, invece di finire sotto la freccia del «sei qui»
+	nome.offset_bottom = -4.0
+	presi.append(Rect2(sotto + Vector2(-misura.x * 0.5, -misura.y), misura))
+	return true
 
 
 func icone_a_schermo() -> Array[Rect2]:
@@ -179,6 +197,8 @@ func icone_a_schermo() -> Array[Rect2]:
 		if id_stanza == GameState.nodo_corrente or id_stanza == GameState.proiettore_qui() \
 				or icona == "obiettivo" or (icona != "" and p.zona.visitata(id_stanza)):
 			presi.append(p.segni_di(id_stanza).grow(-8.0))
+		if id_stanza == GameState.nodo_corrente:
+			presi.append(p.freccia_di(id_stanza).grow(-8.0))
 	return presi
 
 
@@ -244,13 +264,12 @@ func scheda(id_stanza: String) -> void:
 		largo = maxf(largo, DisegnoProiezione.larghezza(String(riga[0]), int(riga[1]), float(riga[3]), 85, 1))
 		alto += float(riga[1]) + 7.0
 	var misura := Vector2(clampf(largo + 24.0, 140.0, LARGA_SCHEDA + 80.0), alto)
-	var dove := posto_della_scheda(p.rettangolo(id_stanza), misura)
+	var dove := posto_della_scheda(occupato_da(id_stanza), misura)
 	var linea: Color = p.tinte["linea"]
 	draw_rect(Rect2(dove, misura), Color(0.01, 0.03, 0.05, 0.9))
 	draw_rect(Rect2(dove, misura), Color(linea, 0.9), false, 1.0)
 	# la linguetta col piano, come le scatole della mappa stellare
-	var nomi: Dictionary = GameState.mappa_zona.get("piani", {})
-	var piano := String(nomi.get(str(int(p.scatole[id_stanza]["piano"])), "")).to_upper()
+	var piano := nome_del_piano(int(p.scatole[id_stanza]["piano"])).to_upper()
 	if piano != "":
 		var w := DisegnoProiezione.larghezza(piano, 9, 600, 85, 2) + 10.0
 		draw_rect(Rect2(dove, Vector2(w, 14)), linea)
@@ -260,6 +279,18 @@ func scheda(id_stanza: String) -> void:
 		y += float(riga[1]) + 3.0
 		DisegnoProiezione.scrivi(self, Vector2(dove.x + 12.0, y), String(riga[0]), int(riga[1]), riga[2], float(riga[3]), 85, 1)
 		y += 4.0
+
+
+func occupato_da(id_stanza: String) -> Rect2:
+	# la stanza e il suo nome, che e' spesso piu' largo di lei: la scheda sta
+	# lontana da tutti e due. Lo ripete, ma coprirlo a meta' («Punto
+	# d'atterragg») era disordine
+	var occupato := p.rettangolo(id_stanza)
+	var porta := p.porta_di(id_stanza)
+	var nome := porta.get_node_or_null("Nome") as Label if porta != null else null
+	if nome != null and nome.is_visible_in_tree():
+		occupato = occupato.merge(Rect2(nome.get_global_rect().position - get_global_rect().position, nome.size))
+	return occupato
 
 
 func posto_della_scheda(stanza: Rect2, misura: Vector2) -> Vector2:

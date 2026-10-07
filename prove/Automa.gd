@@ -47,8 +47,11 @@ const PASSI_IN_PAUSA := 25        # dopo tanti clic dentro la pausa, si esce
 const SCENA_INIZIALE := "res://scenes/Splash.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 
-# mai, in esplora: riportano al titolo o chiudono il gioco
-const MAI_IN_ESPLORA := ["ESCI", "Torna al menu principale", "Sì, torna al menu principale"]
+# mai, in esplora: riportano al titolo o chiudono il gioco. Si confrontano in
+# maiuscolo (vietato): dallo stile del manifesto la pausa scrive le sue voci
+# in maiuscolo, e «TORNA AL MENU PRINCIPALE» non era piu' «Torna al menu
+# principale». L'automa ci tornava, ricominciava, e alla Sede non arrivava mai
+const MAI_IN_ESPLORA := ["ESCI", "TORNA AL MENU PRINCIPALE", "SÌ, TORNA AL MENU PRINCIPALE"]
 # mai, in nessun modo: chiude il gioco e il giro finisce
 const MAI := ["ESCI"]
 
@@ -363,6 +366,10 @@ func nome_di(c: Control) -> String:
 	return c.get_class() if nome.begins_with("@") else "%s %s" % [c.get_class(), nome]
 
 
+func vietato(c: Control, lista: Array) -> bool:
+	return nome_di(c).to_upper() in lista
+
+
 func chiave_di(c: Control, schermata := "") -> String:
 	# la cosa, DENTRO la schermata in cui sta. «ESC» nella pagina EXTRA e «ESC»
 	# nella pagina del codice sono due uscite diverse: contate insieme, l'automa
@@ -397,7 +404,7 @@ func mossa_esplorando() -> void:
 	var tutti := candidati()
 	var scelti: Array[Control] = []
 	for c in tutti:
-		if nome_di(c) in MAI_IN_ESPLORA:
+		if vietato(c, MAI_IN_ESPLORA):
 			continue
 		# la fuga si prova, ma di rado: altrimenti ogni scontro finiva li', e
 		# l'automa non arrivava mai dove la storia continua
@@ -472,7 +479,7 @@ func mossa_a_caso() -> void:
 		var tutti := candidati()
 		var buoni: Array[Control] = []
 		for c in tutti:
-			if nome_di(c) not in MAI:
+			if not vietato(c, MAI):
 				buoni.append(c)
 		if not buoni.is_empty():
 			var c: Control = buoni[dadi.randi_range(0, buoni.size() - 1)]

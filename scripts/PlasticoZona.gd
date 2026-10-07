@@ -37,7 +37,8 @@ extends Control
 
 const SHADER := preload("res://shaders/plastico.gdshader")
 const PREDEFINITE := {"linea": "#3fd6e6", "qui": "#f29a2e", "segreta": "#8fe08a", "chiusa": "#7d8a90"}
-const ALTEZZA_PIANO := 4.5       # unita' fra un piano e l'altro: abbastanza da non coprirsi
+const ALTEZZA_PIANO := 4.5       # unita' fra un piano e l'altro sulla pianta disegnata: abbastanza da non coprirsi
+const PIANO_A_QUADRATINI := 2.2  # e sulle zone a quadratini, dove una cella e' 1,7 (altezza_dei_piani)
 const ALTEZZA_STANZA := 0.8
 const SCALA_PIANTA := 0.01       # un pixel del foglio della pianta: 1920 diventano 19,2 unita'
 const LATO_CELLA := 1.7          # una cella delle zone a quadratini
@@ -48,6 +49,7 @@ const NESSUNO := -9999           # nessun piano scelto: si vedono tutti
 const VELO_SOTTO := 0.14         # scelto un piano, quelli sotto restano un'ombra
 const VELO_SOPRA := 0.03         # e quelli sopra quasi spariscono: lo coprirebbero
 const PER_UN_PIANO := 40.0       # gradi d'altezza, almeno, guardando un piano solo
+const INQUADRATURA_MINIMA := 7.0 # di lato, in unita': quattro celle (ingombro)
 
 var zona: MappaZona
 var vista: SubViewport
@@ -57,6 +59,7 @@ var scritte: ScrittePlastico     # i piani, chi c'e', la scheda: sopra le porte 
 var mano: ManoPlastico               # la vista in mano: mouse, tasti, limiti
 var cam := {}                    # l'inquadratura di partenza: tutta la zona, di tre quarti
 var ora := {}                    # quella di adesso: la partenza piu' la mano
+var altezza := ALTEZZA_PIANO     # fra un piano e l'altro, in questa zona
 var scatole := {}                # id stanza -> {"centro": Vector3, "misura": Vector3, "piano": int}
 var accese := {}                 # id stanza -> il suo materiale, per accenderla quando la si punta
 var tinte := {}
@@ -116,14 +119,27 @@ static func tavolozza() -> Dictionary:
 
 func misura_le_stanze() -> void:
 	scatole.clear()
-	for stanza: Dictionary in GameState.mappa_zona.get("stanze", []):
-		scatole[String(stanza.get("id", ""))] = scatola_di(stanza)
+	var stanze: Array = GameState.mappa_zona.get("stanze", [])
+	altezza = altezza_dei_piani(stanze)
+	for stanza: Dictionary in stanze:
+		scatole[String(stanza.get("id", ""))] = scatola_di(stanza, altezza)
 
 
-static func scatola_di(stanza: Dictionary) -> Dictionary:
+static func altezza_dei_piani(stanze: Array) -> float:
+	# IN PROPORZIONE ALLA PIANTA. Sul complesso una stanza e' larga quattro o
+	# cinque unita', e 4,5 fra un piano e l'altro li fa leggere bene; su una
+	# zona a quadratini una cella ne fa 1,7, e con la stessa altezza la Casa
+	# Gigante (sei piani) veniva una torre di stuzzicadenti
+	for stanza: Dictionary in stanze:
+		if (stanza.get("riquadro", []) as Array).size() == 4:
+			return ALTEZZA_PIANO
+	return PIANO_A_QUADRATINI
+
+
+static func scatola_di(stanza: Dictionary, fra_i_piani := ALTEZZA_PIANO) -> Dictionary:
 	var pianta := pianta_di(stanza)
 	var piano := int(stanza.get("piano", 0))
-	var quota := float(piano) * ALTEZZA_PIANO
+	var quota := float(piano) * fra_i_piani
 	return {"centro": Vector3(pianta.get_center().x, quota + ALTEZZA_STANZA * 0.5, pianta.get_center().y),
 			"misura": Vector3(pianta.size.x, ALTEZZA_STANZA, pianta.size.y), "piano": piano}
 
@@ -140,17 +156,35 @@ static func pianta_di(stanza: Dictionary) -> Rect2:
 	return Rect2(Vector2(float(cella[0]), float(cella[1])) * LATO_CELLA, lati * LATO_CELLA).grow(-0.18)
 
 
+func da_inquadrare() -> Array:
+	# LE STANZE CHE SI VEDONO, non tutta la zona. Prima si inquadrava anche
+	# quello che non si conosce ancora, per non far saltare la vista scoprendo
+	# una stanza; ma la mappa si rifa' ogni volta che la si apre, e le stanze
+	# si scoprono fuori di qui. Con tutto il livello nella cornice, all'inizio
+	# delle Pianure restava una scatolina sola in un angolo del vuoto
+	var viste: Array = scatole.keys().filter(func(id_stanza: String) -> bool: return zona.si_vede(id_stanza))
+	return viste if not viste.is_empty() else scatole.keys()
+
+
 func ingombro() -> AABB:
-	# tutta la zona, anche le stanze che non si vedono ancora: cosi' scoprendone
-	# una la vista non salta
+	# quello che si inquadra, e mai meno di INQUADRATURA_MINIMA di lato: una
+	# stanza sola (il primo passo in un livello) non riempie tutta la cornice
 	var tutto := AABB()
 	var primo := true
-	for id_stanza in scatole:
-		var s: Dictionary = scatole[id_stanza]
-		var scatola := AABB(s["centro"] - s["misura"] * 0.5, s["misura"])
+	for id_stanza in da_inquadrare():
+		var scatola := scatola_vera(id_stanza)
 		tutto = scatola if primo else tutto.merge(scatola)
 		primo = false
+	var centro := tutto.get_center()
+	tutto.size.x = maxf(tutto.size.x, INQUADRATURA_MINIMA)
+	tutto.size.z = maxf(tutto.size.z, INQUADRATURA_MINIMA)
+	tutto.position = Vector3(centro.x - tutto.size.x * 0.5, tutto.position.y, centro.z - tutto.size.z * 0.5)
 	return tutto
+
+
+func scatola_vera(id_stanza: String) -> AABB:
+	var s: Dictionary = scatole[id_stanza]
+	return AABB(s["centro"] - s["misura"] * 0.5, s["misura"])
 
 
 # --- il modellino ---------------------------------------------------------------
@@ -167,7 +201,10 @@ func aggiorna() -> void:
 			var s: Dictionary = scatole[id_stanza]
 			accese[id_stanza] = volume(s["centro"], s["misura"], Basis(), stato_di(id_stanza), [s["piano"]])
 	for coppia in GameState.collegamenti_aperti():
-		if coppia.size() >= 2 and zona.si_vede(String(coppia[0])) and zona.si_vede(String(coppia[1])):
+		# solo fra stanze sue: una schermata che sta per andarsene si ridisegna
+		# un'ultima volta, e GameState puo' essere gia' in un'altra zona
+		if coppia.size() >= 2 and scatole.has(String(coppia[0])) and scatole.has(String(coppia[1])) \
+				and zona.si_vede(String(coppia[0])) and zona.si_vede(String(coppia[1])):
 			corridoio(String(coppia[0]), String(coppia[1]))
 	for piano in piani_visti():
 		lastra(int(piano))
@@ -305,7 +342,7 @@ func lastra(piano: int) -> void:
 	# il pavimento di un piano: solo un contorno sottile, per leggere a che
 	# altezza sta una stanza anche quando e' sola
 	var r := impronta_del_piano(piano)
-	var quota := float(piano) * ALTEZZA_PIANO - 0.02
+	var quota := float(piano) * altezza - 0.02
 	volume(Vector3(r.get_center().x, quota, r.get_center().y), Vector3(r.size.x, 0.02, r.size.y), Basis(),
 			{"tinta": tinte["linea"], "pieno": 0.035, "linea": 0.4, "pulsa": 0.0}, [piano])
 
@@ -351,7 +388,7 @@ func isola(piano: int) -> void:
 		# la vista va su quel piano, che riempie la cornice, e un po' dall'alto:
 		# un piano e' una pianta. Il giro resta quello che avevi
 		var r := impronta_del_piano(solo)
-		var quota := float(solo) * ALTEZZA_PIANO
+		var quota := float(solo) * altezza
 		var angoli: Array[Vector3] = []
 		for angolo: Vector2 in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
 			angoli.append(Vector3(angolo.x, quota, angolo.y))
@@ -440,9 +477,16 @@ func inquadra() -> void:
 	vista.size = misura_della_vista()
 	scritte.prepara_piani()
 	var tutto := ingombro()
+	# gli spigoli delle stanze, non quelli della scatola che le contiene: i suoi
+	# stavano nel vuoto, e il plastico veniva piccolo. Quelli della scatola solo
+	# se e' la minima, cioe' piu' grande delle stanze
 	var angoli: Array[Vector3] = []
-	for i in 8:
-		angoli.append(tutto.get_endpoint(i))
+	for id_stanza in da_inquadrare():
+		for i in 8:
+			angoli.append(scatola_vera(id_stanza).get_endpoint(i))
+	if tutto.size.x <= INQUADRATURA_MINIMA + 0.001 or tutto.size.z <= INQUADRATURA_MINIMA + 0.001:
+		for i in 8:
+			angoli.append(tutto.get_endpoint(i))
 	cam = adatta(angoli, {"bersaglio": tutto.get_center(), "distanza": maxf(tutto.size.length() * 2.0, 4.0),
 			"giro": BASE["giro"], "beccheggio": BASE["beccheggio"], "fov": BASE["fov"]})
 	mano.base = cam
@@ -552,6 +596,16 @@ func segni_di(id_stanza: String) -> Rect2:
 	return Rect2(cima(id_stanza) - Vector2(24.0, 44.0), Vector2(48.0, 48.0))
 
 
+func freccia_di(id_stanza: String) -> Rect2:
+	# la freccia del «sei qui» sta dove stanno le icone, sopra il tetto. Se la
+	# stanza un'icona ce l'ha - il varco di ogni livello e' insieme l'uscita e
+	# il posto in cui arrivi - la freccia sale sopra di lei invece di coprirla
+	var segni := segni_di(id_stanza)
+	if zona.icona_di(zona.stanze_per_id.get(id_stanza, {})) == "" and id_stanza != GameState.proiettore_qui():
+		return segni
+	return Rect2(segni.position - Vector2(0.0, 30.0), segni.size)
+
+
 func distanza(id_stanza: String) -> float:
 	return camera.global_position.distance_to(scatole[id_stanza]["centro"])
 
@@ -605,6 +659,11 @@ func svuota(porte: Control) -> void:
 		if nome != null:
 			nome.autowrap_mode = TextServer.AUTOWRAP_OFF
 			nome.grow_horizontal = Control.GROW_DIRECTION_BOTH
+			# e se la stanza a schermo e' piu' bassa della scritta (sulle zone a
+			# quadratini succede sempre) la scritta cresce in su, col fondo dove
+			# l'ha messo ScrittePlastico.posa_il_nome: crescendo in giu' finiva
+			# sopra il nome della stanza di sotto, che quel posto credeva libero
+			nome.grow_vertical = Control.GROW_DIRECTION_BEGIN
 			Stile.imposta_corpo(nome, 13)
 			Stile.contorno(nome, 13)
 

@@ -4,9 +4,13 @@
   "nodo_iniziale": "inizio",
   "mappa_dungeon": {
     "nome": "Pianure di Redenna",
+    "vista": "plastico",
+    "_nota_plastico": "IL PLASTICO, come al complesso e alla Sede (Bru: «possiamo fare cosi' anche per le mappe dei livelli che abbiamo creato?»). Ogni stanza sta sul suo \"piano\" (0 la pianura), e un corridoio fra due piani diventa un pozzo. La cima del promontorio sta un piano sopra: e' una salita («mentre sali non c'e' la mappa»). La caverna un piano sotto e' una MIA IPOTESI: i testi dicono che e' piccola e umida e che continua «piu' in fondo», non che scende. I piani e i loro nomi sono una mia proposta, da rifare.",
+    "piani": {"1": "Promontorio", "0": "Pianura", "-1": "Caverna"},
     "stanze": [
       {
         "id": "inizio",
+        "piano": 0,
         "nome": "Punto d'atterraggio",
         "cella": [
           2,
@@ -15,6 +19,7 @@
       },
       {
         "id": "banchetto",
+        "piano": 0,
         "nome": "Il pasto del goblin",
         "cella": [
           2,
@@ -23,6 +28,7 @@
       },
       {
         "id": "pianura",
+        "piano": 0,
         "nome": "La pianura aperta",
         "cella": [
           2,
@@ -31,6 +37,7 @@
       },
       {
         "id": "albero",
+        "piano": 0,
         "nome": "L'albero",
         "cella": [
           2,
@@ -39,6 +46,7 @@
       },
       {
         "id": "caverna",
+        "piano": -1,
         "nome": "La piccola caverna",
         "cella": [
           1,
@@ -48,6 +56,7 @@
       },
       {
         "id": "caverna_fondo",
+        "piano": -1,
         "nome": "Il fondo della caverna",
         "cella": [
           0,
@@ -57,6 +66,7 @@
       },
       {
         "id": "masso",
+        "piano": 0,
         "nome": "Il masso gigante",
         "cella": [
           2,
@@ -65,6 +75,7 @@
       },
       {
         "id": "bivio",
+        "piano": 0,
         "nome": "Il bivio",
         "cella": [
           2,
@@ -73,6 +84,7 @@
       },
       {
         "id": "pozze",
+        "piano": 0,
         "nome": "Le pozze d'acqua",
         "cella": [
           1,
@@ -81,6 +93,7 @@
       },
       {
         "id": "collina",
+        "piano": 1,
         "nome": "La cima del promontorio",
         "cella": [
           3,
@@ -90,6 +103,7 @@
       },
       {
         "id": "tartaruga",
+        "piano": 0,
         "nome": "La tartaruga gigante",
         "cella": [
           1,
@@ -98,6 +112,7 @@
       },
       {
         "id": "convergenza",
+        "piano": 0,
         "nome": "Verso le urla",
         "cella": [
           2,

@@ -1515,9 +1515,21 @@ func prepara(quale: String) -> void:
 			# puo' guardare adesso. Casa Gigante e' la piu' grande che abbiamo -
 			# ventisette stanze - ed e' il caso in cui una mappa o regge o non
 			# regge: su sei stanze qualunque disposizione sembra buona.
+			# "zona meridia", "zona rocca_ossidiana tutto": un'altra zona di
+			# data/vuoti, e con "tutto" visitata da cima a fondo
+			var argomenti_zona := OS.get_cmdline_user_args()
+			var quale_zona := String(argomenti_zona[1]) if argomenti_zona.size() > 1 else "casa_gigante"
+			var tutta := argomenti_zona.size() > 2 and String(argomenti_zona[2]) == "tutto"
 			GameState.nuova_partita()
-			GameState.avvia_carnivalz("casa_gigante",
-					"res://data/vuoti/casa_gigante.json")
+			GameState.avvia_carnivalz(quale_zona, "res://data/vuoti/%s.json" % quale_zona)
+			# "inizio": appena arrivati, una stanza sola e quello che le confina
+			if argomenti_zona.size() > 2 and String(argomenti_zona[2]) == "inizio":
+				GameState.nodi_visitati.append(GameState.nodo_corrente)
+				var appena: Control = load("res://scenes/MappaZona.tscn").instantiate()
+				appena.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				add_child(appena)
+				await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+				return
 			# MEZZA ESPLORATA, non tutta: una mappa tutta accesa non dice niente
 			# di come si legge mentre ci stai dentro. Si sbloccano tutte (cosi'
 			# si vedono) ma se ne visitano solo le prime, che e' la situazione
@@ -1525,7 +1537,7 @@ func prepara(quale: String) -> void:
 			var stanze_zona: Array = GameState.mappa_zona.get("stanze", [])
 			for stanza in stanze_zona:
 				GameState.sblocca_stanza(String(stanza.get("id", "")))
-			for i in mini(floori(stanze_zona.size() / 2.0), stanze_zona.size()):
+			for i in (stanze_zona.size() if tutta else mini(floori(stanze_zona.size() / 2.0), stanze_zona.size())):
 				var id_visitata := String(stanze_zona[i].get("id", ""))
 				if not id_visitata in GameState.nodi_visitati:
 					GameState.nodi_visitati.append(id_visitata)

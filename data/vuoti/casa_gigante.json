@@ -3,10 +3,14 @@
 	"nodo_iniziale": "soglia",
 	"mappa_dungeon": {
 		"nome": "La Casa Gigante",
+		"vista": "plastico",
+		"_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 il piano terra), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: dalla sala principale «Sali le scale», dalla scala «Sali fino alla soffitta», dalla soffitta «un altro sottoscala porta piu' su, verso l'attico», e la camera da letto e' in fondo all'attico, sotto lo spiovente. Dalla stanza dei giochi «Scendi nella botola» alla stanza degli studi (qui a piano terra), e il tunnel «scende oltre le fondamenta» fino all'altare. Il vivaio si scende: dal primo piano «Prosegui al piano inferiore», e il fondo e' «il piano piu' basso». Proposta mia, da rifare.",
+		"piani": {"3": "Attico", "2": "Soffitta", "1": "Primo piano", "0": "Piano terra", "-1": "Sotterraneo", "-2": "Profondita'"},
 		"flag_completamento": "casa_ricordo_sconfitto",
 		"stanze": [
 			{
 				"id": "soglia",
+				"piano": 0,
 				"nome": "La soglia",
 				"cella": [
 					2,
@@ -16,6 +20,7 @@
 			},
 			{
 				"id": "salone",
+				"piano": 0,
 				"nome": "Il salone",
 				"cella": [
 					2,
@@ -28,6 +33,7 @@
 			},
 			{
 				"id": "sala_principale",
+				"piano": 0,
 				"nome": "Sala principale",
 				"cella": [
 					2,
@@ -36,6 +42,7 @@
 			},
 			{
 				"id": "ala_destra",
+				"piano": 0,
 				"nome": "Ala destra",
 				"cella": [
 					3,
@@ -44,6 +51,7 @@
 			},
 			{
 				"id": "ala_sinistra",
+				"piano": 0,
 				"nome": "Ala sinistra",
 				"cella": [
 					1,
@@ -52,6 +60,7 @@
 			},
 			{
 				"id": "cucina",
+				"piano": 0,
 				"nome": "Cucina",
 				"cella": [
 					3,
@@ -60,6 +69,7 @@
 			},
 			{
 				"id": "scala",
+				"piano": 1,
 				"nome": "La scala",
 				"cella": [
 					2,
@@ -68,6 +78,7 @@
 			},
 			{
 				"id": "grande_bagno",
+				"piano": 1,
 				"nome": "Grande bagno",
 				"cella": [
 					3,
@@ -76,6 +87,7 @@
 			},
 			{
 				"id": "stanza_giochi",
+				"piano": 1,
 				"nome": "Stanza dei giochi",
 				"cella": [
 					1,
@@ -84,6 +96,7 @@
 			},
 			{
 				"id": "soffitta",
+				"piano": 2,
 				"nome": "Soffitta",
 				"cella": [
 					2,
@@ -92,6 +105,7 @@
 			},
 			{
 				"id": "attico",
+				"piano": 3,
 				"nome": "Attico",
 				"cella": [
 					2,
@@ -100,6 +114,7 @@
 			},
 			{
 				"id": "camera_da_letto",
+				"piano": 3,
 				"nome": "Camera da letto",
 				"cella": [
 					2,
@@ -109,6 +124,7 @@
 			},
 			{
 				"id": "stanza_studi",
+				"piano": 0,
 				"nome": "Stanza degli studi",
 				"cella": [
 					0,
@@ -117,6 +133,7 @@
 			},
 			{
 				"id": "tunnel",
+				"piano": -1,
 				"nome": "Il tunnel",
 				"cella": [
 					0,
@@ -125,6 +142,7 @@
 			},
 			{
 				"id": "altare",
+				"piano": -2,
 				"nome": "L'altare",
 				"cella": [
 					0,
@@ -134,6 +152,7 @@
 			},
 			{
 				"id": "giardino_ingresso",
+				"piano": 0,
 				"nome": "Verso i giardini",
 				"cella": [
 					4,
@@ -142,6 +161,7 @@
 			},
 			{
 				"id": "giardino",
+				"piano": 0,
 				"nome": "Il giardino",
 				"cella": [
 					4,
@@ -154,6 +174,7 @@
 			},
 			{
 				"id": "giardino_est",
+				"piano": 0,
 				"nome": "Giardino est",
 				"cella": [
 					5,
@@ -162,6 +183,7 @@
 			},
 			{
 				"id": "albero_voce",
+				"piano": 0,
 				"nome": "L'albero grande",
 				"cella": [
 					6,
@@ -171,6 +193,7 @@
 			},
 			{
 				"id": "giardino_ovest",
+				"piano": 0,
 				"nome": "Giardino ovest",
 				"cella": [
 					4,
@@ -179,6 +202,7 @@
 			},
 			{
 				"id": "laboratorio",
+				"piano": 0,
 				"nome": "Il grande laboratorio",
 				"cella": [
 					4,
@@ -187,6 +211,7 @@
 			},
 			{
 				"id": "sala_matrici",
+				"piano": 0,
 				"nome": "Sala delle matrici",
 				"cella": [
 					4,
@@ -195,6 +220,7 @@
 			},
 			{
 				"id": "deposito_chimico",
+				"piano": 0,
 				"nome": "Deposito chimico",
 				"cella": [
 					4,
@@ -203,6 +229,7 @@
 			},
 			{
 				"id": "giardino_nord",
+				"piano": 0,
 				"nome": "Giardino nord",
 				"cella": [
 					5,
@@ -211,6 +238,7 @@
 			},
 			{
 				"id": "vivaio_1",
+				"piano": 0,
 				"nome": "Vivaio, primo piano",
 				"cella": [
 					6,
@@ -219,6 +247,7 @@
 			},
 			{
 				"id": "vivaio_2",
+				"piano": -1,
 				"nome": "Vivaio, secondo piano",
 				"cella": [
 					6,
@@ -227,6 +256,7 @@
 			},
 			{
 				"id": "vivaio_3",
+				"piano": -2,
 				"nome": "Fondo del vivaio",
 				"cella": [
 					6,

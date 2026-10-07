@@ -179,6 +179,8 @@ func _ready() -> void:
 	await prova_alla_sede_si_salva_e_si_cammina()
 	await prova_il_plastico_e_a_piani_e_si_clicca()
 	await prova_il_plastico_si_tiene_in_mano()
+	prova_i_livelli_sono_plastici()
+	await prova_il_plastico_dei_livelli()
 	await prova_le_stanze_della_sede_aprono_quello_che_dicono()
 	await prova_il_menu_c_e_in_ogni_schermata()
 	await prova_sulla_proiezione_non_c_e_grana()
@@ -8211,6 +8213,7 @@ func prova_i_quadratini_della_mappa_si_vedono_davvero() -> void:
 	titolo("i quadratini della mappa si vedono davvero")
 	GameState.nuova_partita()
 	GameState.entra_squarcio("prova_vestito", "res://data/vuoti/meridia.json")
+	sulla_griglia()
 	GameState.nodi_visitati = ["varco", "periferia"] as Array[String]
 	for id_stanza in GameState.nodi_visitati:
 		GameState.sblocca_stanza(id_stanza)
@@ -8272,6 +8275,7 @@ func prova_ogni_segno_della_mappa_si_vede() -> void:
 	titolo("sulla mappa ogni segno che dice qualcosa si vede davvero")
 	GameState.nuova_partita()
 	GameState.entra_squarcio("prova_contrasto", "res://data/vuoti/meridia.json")
+	sulla_griglia()
 	var mappa: Control = load("res://scenes/MappaZona.tscn").instantiate()
 	add_child(mappa)
 	var segni: Array = []
@@ -8426,6 +8430,7 @@ func prova_i_nomi_delle_stanze_si_leggono_senza_mouse() -> void:
 	titolo("i nomi delle stanze si leggono senza passarci sopra col mouse")
 	GameState.nuova_partita()
 	GameState.entra_squarcio("prova_nomi", "res://data/vuoti/meridia.json")
+	sulla_griglia()
 	GameState.nodi_visitati = ["varco", "periferia"] as Array[String]
 	for id_stanza in GameState.nodi_visitati:
 		GameState.sblocca_stanza(id_stanza)
@@ -8846,9 +8851,12 @@ func prova_i_nomi_del_plastico_non_si_coprono(pianta: MappaZona) -> void:
 			var nome := porta.get_node_or_null("Nome") as Label
 			if nome == null or not nome.is_visible_in_tree():
 				continue
+			# dov'e' davvero la scritta: in fondo alla Label, al centro. Non da
+			# offset_bottom, che e' quello che il codice crede: sulle stanze
+			# piccole la Label cresceva in giu' e la scritta non era li'
 			var misura := nome.get_minimum_size()
-			var r := Rect2(porta.position + Vector2(porta.size.x * 0.5 - misura.x * 0.5,
-					porta.size.y + nome.offset_bottom - misura.y), misura)
+			var fondo := porta.position + nome.position + Vector2(nome.size.x * 0.5, nome.size.y)
+			var r := Rect2(fondo - Vector2(misura.x * 0.5, misura.y), misura)
 			if String(porta.get_meta("stanza", "")) in [p.puntata, GameState.nodo_corrente]:
 				presi.append(r)
 			else:
@@ -8878,12 +8886,11 @@ func prova_il_plastico_da_vicino(pianta: MappaZona) -> void:
 		var dietro := false
 		for k in 8:
 			dietro = dietro or p.camera.is_position_behind(scatola.get_endpoint(k))
+		# (una stanza vicinissima ma tutta davanti finisce a migliaia di pixel:
+		# e' giusto, la si vede proprio cosi', fuori dallo schermo)
 		if dietro:
 			addosso += 1
 			esigi(not porta.visible, "da vicino la stanza %s sta alle spalle della camera e si clicca ancora" % id_stanza)
-		elif porta.visible:
-			esigi(porta.position.x > -5000.0 and porta.position.y > -5000.0,
-					"da vicino la porta di %s finisce a %s" % [id_stanza, porta.position])
 	esigi(addosso > 0, "la prova non porta nessuna stanza alle spalle della camera: non misura niente")
 	p.mano.azzera()
 	p.ricentra()
@@ -8919,6 +8926,194 @@ func prova_il_plastico_lasciato_dove_non_sente(pianta: MappaZona) -> void:
 	p.ricentra()
 	for i in 3:
 		await get_tree().process_frame
+
+func sulla_griglia() -> void:
+	# LA GRIGLIA RESTA, per le zone che non dicono a che piano sta ogni stanza
+	# (senza "vista": "plastico"). I livelli di adesso sono tutti plastici:
+	# le prove della griglia la guardano togliendo la vista alla zona caricata
+	GameState.mappa_zona.erase("vista")
+
+const LIVELLI_A_PLASTICO := ["res://data/events_tutorial.json", "res://data/vuoti/squarcio_industriale.json",
+		"res://data/vuoti/casa_gigante.json", "res://data/vuoti/meridia.json", "res://data/vuoti/rocca_ossidiana.json"]
+
+func prova_i_livelli_sono_plastici() -> void:
+	# Bru, dopo il plastico della Sede: «possiamo fare cosi' anche per le mappe
+	# dei livelli che abbiamo creato?». Ogni livello e' un plastico, ogni stanza
+	# sta su un piano che ha un nome, e i piani dicono quello che dicono i
+	# testi: una scelta che dice «Sali» porta piu' su, una che dice «Scendi»
+	# piu' giu'. Spostando una stanza di piano (o riscrivendo una scelta) la
+	# prova dice dove le due cose non si parlano piu'
+	titolo("i livelli sono plastici, e i piani dicono quello che dicono i testi")
+	var su := RegEx.create_from_string("^(Sali|Risali)|pi[uù] su|superiore")
+	var giu := RegEx.create_from_string("^Scendi|inferiore|gi[uù]\\b")
+	for percorso: String in LIVELLI_A_PLASTICO:
+		var dati: Dictionary = GameState.carica_json(percorso)
+		var mappa: Dictionary = dati.get("mappa_dungeon", {})
+		var livello := percorso.get_file()
+		esigi(String(mappa.get("vista", "")) == "plastico", "%s non e' un plastico" % livello)
+		var piani: Dictionary = mappa.get("piani", {})
+		var piano_di := {}
+		for stanza: Dictionary in mappa.get("stanze", []):
+			var id_stanza := String(stanza.get("id", ""))
+			var piano: Variant = stanza.get("piano")
+			esigi(piano is float and is_equal_approx(float(piano), roundf(float(piano))),
+					"in %s la stanza %s non dice a che piano sta" % [livello, id_stanza])
+			piano_di[id_stanza] = int(piano) if piano is float else 0
+			esigi(piani.has(str(piano_di[id_stanza])), "in %s il piano %d (di %s) non ha un nome" % [livello, piano_di[id_stanza], id_stanza])
+		var nodi: Dictionary = dati.get("nodi", {})
+		var salite := 0
+		for id_stanza: String in piano_di:
+			for scelta: Dictionary in scelte_dentro(nodi.get(id_stanza, {})):
+				var dove := String(scelta.get("vai", ""))
+				var testo := String(scelta.get("testo", ""))
+				if not piano_di.has(dove) or dove == id_stanza:
+					continue
+				if su.search(testo) != null:
+					salite += 1
+					esigi(piano_di[dove] > piano_di[id_stanza], "in %s «%s» porta da %s (piano %d) a %s (piano %d): non sale"
+							% [livello, testo, id_stanza, piano_di[id_stanza], dove, piano_di[dove]])
+				elif giu.search(testo) != null:
+					salite += 1
+					esigi(piano_di[dove] < piano_di[id_stanza], "in %s «%s» porta da %s (piano %d) a %s (piano %d): non scende"
+							% [livello, testo, id_stanza, piano_di[id_stanza], dove, piano_di[dove]])
+		if livello != "events_tutorial.json":
+			esigi(salite > 0, "in %s nessuna scelta sale o scende: la prova non guarda niente" % livello)
+
+func scelte_dentro(cosa: Variant) -> Array:
+	# tutte le scelte ("testo" e "vai") dentro un nodo, a qualunque profondita'
+	var trovate: Array = []
+	if cosa is Dictionary:
+		if (cosa as Dictionary).has("testo") and (cosa as Dictionary).has("vai"):
+			trovate.append(cosa)
+		for valore: Variant in (cosa as Dictionary).values():
+			trovate.append_array(scelte_dentro(valore))
+	elif cosa is Array:
+		for valore: Variant in cosa:
+			trovate.append_array(scelte_dentro(valore))
+	return trovate
+
+func prova_il_plastico_dei_livelli() -> void:
+	# ogni livello come plastico, tutto esplorato e appena cominciato: le
+	# stanze dentro la cornice e cliccabili, i nomi che non si coprono, la mano
+	# agli estremi senza porte impazzite; e all'arrivo la stanza ne' un puntino
+	# ne' tutta la cornice, i piani mai visti che si chiamano «?», la freccia
+	# del «sei qui» sopra l'icona del varco invece che sopra
+	titolo("i plastici dei livelli: tutti esplorati, appena cominciati, e agli estremi")
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	for percorso: String in LIVELLI_A_PLASTICO:
+		var livello := percorso.get_file()
+		for tutto: bool in [true, false]:
+			var pianta := await livello_aperto(percorso, tutto)
+			var p := pianta.plastico
+			if p == null:
+				esigi(false, "%s non si apre come plastico" % livello)
+				pianta.get_parent().queue_free()
+				continue
+			var cornice := Rect2(Vector2.ZERO, pianta.cornice.size).grow(4.0)
+			for porta: PortaStanza in pianta.strato_bottoni.get_children():
+				var id_stanza := String(porta.get_meta("stanza", ""))
+				esigi(porta.visible and porta.sagoma.size() >= 4, "%s: la stanza %s non si clicca" % [livello, id_stanza])
+				esigi(cornice.encloses(Rect2(porta.position, porta.size)), "%s: la stanza %s esce dalla cornice" % [livello, id_stanza])
+			if tutto:
+				schede_e_stanze(pianta, livello)
+				await prova_i_nomi_del_plastico_non_si_coprono(pianta)
+				await estremi_del_plastico(pianta, livello)
+			else:
+				appena_arrivati(pianta, livello)
+			pianta.get_parent().queue_free()
+			await get_tree().process_frame
+	Impostazioni.movimento_ridotto = ridotto_prima
+	GameState.reset_campagna()
+
+func schede_e_stanze(pianta: MappaZona, livello: String) -> void:
+	# la scheda di ogni stanza non copre il suo nome (spesso piu' largo della
+	# stanza: «Punto d'atterragg»), e le stanze a schermo non sono stuzzicadenti:
+	# coi piani alti come al complesso la Casa Gigante era una torre di scatoline
+	var p := pianta.plastico
+	var larghezze: Array[float] = []
+	for porta: PortaStanza in pianta.strato_bottoni.get_children():
+		var id_stanza := String(porta.get_meta("stanza", ""))
+		larghezze.append(porta.size.x)
+		var nome := porta.get_node_or_null("Nome") as Label
+		if nome == null or not nome.is_visible_in_tree():
+			continue
+		var scheda := Rect2(p.scritte.posto_della_scheda(p.scritte.occupato_da(id_stanza), Vector2(180, 70)), Vector2(180, 70))
+		var scritta := Rect2(nome.get_global_rect().position - p.scritte.get_global_rect().position, nome.size)
+		esigi(not scheda.intersects(scritta), "%s: la scheda di %s copre il suo nome" % [livello, id_stanza])
+	larghezze.sort()
+	var mediana := larghezze[floori(larghezze.size() / 2.0)] if not larghezze.is_empty() else 0.0
+	esigi(mediana > pianta.cornice.size.x * 0.025, "%s: la stanza tipica e' larga %.0f pixel su %.0f: stuzzicadenti"
+			% [livello, mediana, pianta.cornice.size.x])
+
+func appena_arrivati(pianta: MappaZona, livello: String) -> void:
+	var p := pianta.plastico
+	var qui := GameState.nodo_corrente
+	var stanza := p.rettangolo(qui)
+	esigi(stanza.size.y > pianta.cornice.size.y * 0.1 and stanza.size.x < pianta.cornice.size.x * 0.25,
+			"%s: appena arrivati la stanza in cui sei e' %s in una cornice di %s (un puntino, o tutta la cornice)" % [livello, stanza.size, pianta.cornice.size])
+	for piano: int in p.scritte.bottoni:
+		var conosciuta := false
+		for id_stanza: String in p.scatole:
+			conosciuta = conosciuta or (int(p.scatole[id_stanza]["piano"]) == piano and pianta.nome_di(id_stanza) not in ["", "?"])
+		var scritta := (p.scritte.bottoni[piano] as Button).text
+		esigi((scritta == "?") != conosciuta, "%s: il piano %d si chiama «%s» %s" % [livello, piano, scritta,
+				"ma non se ne conosce nessuna stanza" if not conosciuta else "anche se se ne conosce una stanza"])
+	if pianta.icona_di(pianta.stanze_per_id.get(qui, {})) != "":
+		esigi(not p.freccia_di(qui).grow(-12.0).intersects(p.segni_di(qui).grow(-12.0)),
+				"%s: la freccia del «sei qui» copre l'icona di %s" % [livello, qui])
+
+func estremi_del_plastico(pianta: MappaZona, livello: String) -> void:
+	# la sonda degli estremi, da ogni stanza: vicinissimo, girato tutto intorno,
+	# inclinato al minimo e al massimo. Una porta che si vede non ha mai un
+	# angolo alle spalle della camera: era un cuneo invisibile che si prendeva
+	# il clic di mezza cornice. (Una stanza vicinissima ma tutta davanti finisce
+	# a migliaia di pixel, fuori dallo schermo: e' giusto, si vede cosi')
+	var p := pianta.plastico
+	var guasti: Array[String] = []
+	for id_centro: String in p.scatole:
+		if not pianta.si_vede(id_centro):
+			continue
+		for giro: float in [0.0, 1.6, 3.2, 4.8]:
+			for becc: float in [-900.0, 900.0]:
+				p.mano.azzera()
+				p.mano.guarda(p.scatole[id_centro]["centro"], 0.01, 0.0)
+				p.mano.gira(giro, becc)
+				await get_tree().process_frame
+				await get_tree().process_frame
+				for porta: PortaStanza in pianta.strato_bottoni.get_children():
+					var id_stanza := String(porta.get_meta("stanza", ""))
+					var scatola := AABB(p.scatole[id_stanza]["centro"] - p.scatole[id_stanza]["misura"] * 0.5, p.scatole[id_stanza]["misura"])
+					var dietro := false
+					for k in 8:
+						dietro = dietro or p.camera.is_position_behind(scatola.get_endpoint(k))
+					if porta.visible and dietro:
+						guasti.append("%s da %s (giro %.1f)" % [id_stanza, id_centro, giro])
+	esigi(guasti.is_empty(), "%s: agli estremi %d porte impazzite, per esempio %s" % [livello, guasti.size(), ", ".join(guasti.slice(0, 3))])
+	p.mano.azzera()
+	p.ricentra()
+	for i in 3:
+		await get_tree().process_frame
+
+func livello_aperto(percorso: String, tutto: bool) -> MappaZona:
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz(percorso.get_file().get_basename(), percorso)
+	if tutto:
+		for stanza: Dictionary in GameState.mappa_zona.get("stanze", []):
+			GameState.sblocca_stanza(String(stanza.get("id", "")))
+			GameState.nodi_visitati.append(String(stanza.get("id", "")))
+	else:
+		GameState.nodi_visitati.append(GameState.nodo_corrente)
+	var schermo := Control.new()
+	schermo.custom_minimum_size = Vector2(1280, 720)
+	add_child(schermo)
+	schermo.size = Vector2(1280, 720)
+	var pianta: MappaZona = load("res://scenes/MappaZona.tscn").instantiate()
+	schermo.add_child(pianta)
+	pianta.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for i in 3:
+		await get_tree().process_frame
+	return pianta
 
 func sede_aperta() -> MappaZona:
 	var casa: Control = load("res://scenes/Sede.tscn").instantiate()
@@ -10332,6 +10527,7 @@ func prova_mappa_a_quadratini() -> void:
 	titolo("la mappa a quadratini")
 	GameState.nuova_partita()
 	GameState.entra_squarcio("prova_mappa", "res://data/vuoti/meridia.json")
+	sulla_griglia()
 
 	# stato di partenza: si e' visto solo il varco, e da li' si intravede la
 	# periferia. Tutto il resto della citta' non esiste ancora
@@ -10433,6 +10629,7 @@ func prova_mappa_a_quadratini() -> void:
 
 	# una stanza grande occupa davvero piu' di un quadratino
 	GameState.entra_squarcio("prova_mappa2", "res://data/vuoti/casa_gigante.json")
+	sulla_griglia()
 	GameState.nodi_visitati = ["soglia", "salone"] as Array[String]
 	GameState.nodo_corrente = "salone"
 	mappa.queue_free()

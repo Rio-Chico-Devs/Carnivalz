@@ -92,10 +92,21 @@ parte).
 
 ### I piani
 
-Se una frattura (o un Carnivalz) ha piu' piani, **ogni piano ha la sua mappa**,
-col suo titolo — «1° piano», «-2», «sotterranei». Si passa da una all'altra
-dove il percorso sale o scende. Il primo caso vero e' il garage di Meridia:
-quattro piani sotto la citta', ognuno una discesa in linea retta.
+Ogni livello e' un **plastico**: un modellino olografico in 3D, come le mappe
+di Metroid Prime (`"vista": "plastico"` nel `mappa_dungeon`, codice in
+`scripts/PlasticoZona.gd`). Ogni stanza sta sul suo `"piano"` (0 il piano
+terra, 1 sopra, -1 sotto), `"piani"` da' un nome a ogni piano, e un corridoio
+fra due piani diventa un pozzo. Si gira, si inclina, si avvicina e si sposta;
+cliccando il nome di un piano restano accese solo le sue stanze.
+
+I piani di adesso li ho ricavati dai testi («Sali verso la sala informatica»,
+«Scendi nella fossa oscura»): sono una proposta, da rifare. Una prova
+(`prova_i_livelli_sono_plastici`) controlla che una scelta che dice «Sali»
+porti davvero piu' su e una che dice «Scendi» piu' giu': spostando una stanza
+di piano, dice dove i dati e i testi non si parlano piu'. Un piano di cui non
+conosci nessuna stanza si chiama «?», come le sue stanze.
+
+Senza `"vista": "plastico"` la mappa resta la griglia di quadratini.
 
 ### La mappa totale
 
@@ -120,8 +131,8 @@ non cosa troverai.
 | cornice della vista | ✅ |
 | **niente teletrasporto**: si va solo nelle stanze confinanti | ✅ |
 | il **proiettore** come unica eccezione | ✅ `piazza_proiettore` sulla scelta |
-| zoom e trascinamento | ⬜ oggi la griglia si adatta da sola al riquadro |
-| piu' piani per zona | ⬜ oggi la mappa e' una sola per file di eventi |
+| zoom e trascinamento | ✅ sul plastico: si gira, si inclina, si avvicina verso il cursore, si sposta |
+| piu' piani per zona | ✅ campo `piano` sulle stanze e `piani` sulla mappa (il plastico) |
 | eventi che compaiono sulla mappa dopo uno scontro, e **scadono** se il giocatore perde troppo tempo | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
@@ -326,6 +337,10 @@ def percorso(nodi, id_iniziale):
         if isinstance(guida, dict) and guida.get("ritorno"):
             righe.append("%s  ⟳ mappa di zona con la Guida, chiusa la mappa" % indenti)
             scendi(str(guida["ritorno"]), profondita + 1, "", [])
+        # un nodo senza scelte che passa da se' al prossimo (il racconto
+        # dell'introduzione): senza questo il percorso si fermava li'
+        if isinstance(nodo.get("vai"), str) and nodo.get("vai") and not nodo.get("scelte"):
+            scendi(str(nodo["vai"]), profondita + 1, "· …", [])
         if nodo.get("combattimento_automatico"):
             esito = nodo["combattimento_automatico"]
             for chiave, come in [("se_vinci", "vinci"), ("se_perdi", "perdi"), ("se_fuggi", "fuggi")]:

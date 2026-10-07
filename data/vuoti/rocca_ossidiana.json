@@ -2,11 +2,15 @@
   "nodo_iniziale": "varco",
   "mappa_dungeon": {
     "nome": "La Rocca di Ossidiana",
+    "vista": "plastico",
+    "_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 la superficie), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: dal varco «Scendi nel corridoio di ossidiana», da li' «Scendi nella fossa oscura», dalla sala del raccolto «Scendi verso la sala del lamento». Al bivio i cunicoli si separano: quello di sinistra «scende ancora» verso la piazza sotterranea, quello di destra «sale» e porta «verso la superficie», al cargo abbandonato. Proposta mia, da rifare.",
+    "piani": {"0": "Superficie", "-1": "Primo scavo", "-2": "Cunicoli", "-3": "Profondita'"},
     "flag_completamento": "quest_ossidiana",
     "sfondo": "res://art/mappe_zona/jondoh.png",
     "stanze": [
       {
         "id": "varco",
+        "piano": 0,
         "nome": "Il varco",
         "cella": [
           3,
@@ -16,6 +20,7 @@
       },
       {
         "id": "corridoio_ossidiana",
+        "piano": -1,
         "nome": "Corridoio di ossidiana",
         "cella": [
           3,
@@ -24,6 +29,7 @@
       },
       {
         "id": "fossa_oscura",
+        "piano": -2,
         "nome": "La fossa oscura",
         "cella": [
           1,
@@ -32,6 +38,7 @@
       },
       {
         "id": "sala_del_raccolto",
+        "piano": -1,
         "nome": "Sala del raccolto",
         "cella": [
           5,
@@ -40,6 +47,7 @@
       },
       {
         "id": "sala_del_lamento",
+        "piano": -2,
         "nome": "Sala del lamento",
         "cella": [
           5,
@@ -48,6 +56,7 @@
       },
       {
         "id": "cunicolo_1",
+        "piano": -2,
         "nome": "Bivio dei cunicoli",
         "cella": [
           3,
@@ -56,6 +65,7 @@
       },
       {
         "id": "cunicolo_2",
+        "piano": -3,
         "nome": "Cunicolo di sinistra",
         "cella": [
           2,
@@ -64,6 +74,7 @@
       },
       {
         "id": "piazza_sotterranea",
+        "piano": -3,
         "nome": "Piazza sotterranea",
         "cella": [
           0,
@@ -76,6 +87,7 @@
       },
       {
         "id": "cunicolo_3",
+        "piano": -1,
         "nome": "Cunicolo di destra",
         "cella": [
           4,
@@ -84,6 +96,7 @@
       },
       {
         "id": "cargo_abbandonato",
+        "piano": 0,
         "nome": "Cargo abbandonato",
         "cella": [
           6,
@@ -92,6 +105,7 @@
       },
       {
         "id": "ponte_approccio",
+        "piano": -2,
         "nome": "Il grande ponte marcio",
         "cella": [
           3,
