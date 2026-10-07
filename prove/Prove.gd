@@ -13684,7 +13684,7 @@ const FILE_GRANDI := {
 		"righe per far sopravvivere il dato fino a chi lo racconta. Il " +
 		"racconto invece non e' entrato qui: sta in Resoconto.gd, e in " +
 		"cambio ha tolto quarantanove righe di presentazione da Main.gd"},
-	"Main.gd": {"misura": 1414, "perche":
+	"Main.gd": {"misura": 1415, "perche":
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
 		"adesso vuol dire spezzarlo di nuovo fra un mese. " +
@@ -13696,7 +13696,7 @@ const FILE_GRANDI := {
 		"la deriva, non a farmi peggiorare il codice per due righe. " +
 		"STRETTA A 1430 quando l'iconcina del menu e' andata in IconaMenu.gd " +
 		"(la mettono tutte le schermate) e i primi effetti di una scelta in " +
-		"IngressoNodo.applica_scelta. STRETTA A 1414 quando l'uscita verso " +
+		"IngressoNodo.applica_scelta. STRETTA A 1415 quando l'uscita verso " +
 		"la mappa di zona e' andata in IngressoNodo.alla_mappa_di_zona"},
 	"Plancia.gd": {"misura": 715, "perche":
 		"la schermata di combattimento intera, come l'ha disegnata Bru: il " +
