@@ -43,7 +43,7 @@ const CARTELLA_SCATTI := "res://scatti/automa/"
 const FPS := 60
 const BLOCCO_SECONDI := 60.0
 const ERRORI_MASSIMI := 30
-const PASSI_IN_PAUSA := 25        # dopo tanti clic dentro la pausa, si esce
+const PASSI_IN_PAUSA := 12        # dopo tanti clic dentro la pausa, si esce
 const SCENA_INIZIALE := "res://scenes/Splash.tscn"
 const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 
@@ -405,6 +405,13 @@ func mossa_esplorando() -> void:
 	var scelti: Array[Control] = []
 	for c in tutti:
 		if vietato(c, MAI_IN_ESPLORA):
+			continue
+		# L'ICONCINA DEL MENU NON E' UNA PORTA DELLA STORIA. Sta su ogni
+		# schermata, e su ogni schermata nuova era una voce mai toccata come le
+		# altre: l'automa la sceglieva di continuo, passava venticinque mosse in
+		# pausa, usciva, e alla schermata dopo ricominciava. In pausa ci va
+		# gia' da solo ogni tanto (qui sopra), come chi controlla il data pad
+		if String(c.name) == "IconaMenu":
 			continue
 		# la fuga si prova, ma di rado: altrimenti ogni scontro finiva li', e
 		# l'automa non arrivava mai dove la storia continua
