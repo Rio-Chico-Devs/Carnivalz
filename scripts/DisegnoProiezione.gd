@@ -16,20 +16,50 @@ const INIZIO_INTESTAZIONE := 148.0
 
 static var fonti := {}
 
+# CON CHE VOCE PARLA LA PROIEZIONE. Bru: «piu' che ingrandire le scritte
+# uniformare i font alla grafica generale del gioco». Finche' non sceglie, le
+# proposte stanno tutte qui (proiezione.voce in data/stile.json; per gli scatti
+# VOCE_PROIEZIONE):
+#   vetro      quella di prima: Bricolage stretto e leggero, maiuscolo spaziato
+#   archivo    lo stesso disegno, col carattere delle etichette (Archivo corsivo)
+#   manifesto  Archivo, e titolo, nomi e bottoni sulle etichette nere del manifesto
+#   dialoghi   Archivo per le etichette, e i racconti col carattere del box
+const VOCI := ["vetro", "archivo", "manifesto", "dialoghi"]
+static var voce := ""
+
+
+static func voce_scelta() -> String:
+	if voce == "":
+		voce = String((Stile.dati.get("proiezione", {}) as Dictionary).get("voce", "vetro"))
+	return voce
+
 
 static func fonte(peso: float, largo: float, spazio: int) -> Font:
-	var chiave := "%d_%d_%d" % [roundi(peso), roundi(largo), spazio]
+	var chiave := "%s_%d_%d_%d" % [voce_scelta(), roundi(peso), roundi(largo), spazio]
 	if not fonti.has(chiave):
 		var v := FontVariation.new()
-		var base := Stile.font_da("dialoghi")
+		var ts := TextServerManager.get_primary_interface()
+		var vetro := voce_scelta() == "vetro"
+		var base := Stile.font_da("dialoghi" if vetro else "titolo")
 		if base != null:
 			v.base_font = base
-		var ts := TextServerManager.get_primary_interface()
-		v.variation_opentype = {ts.name_to_tag("wght"): peso, ts.name_to_tag("wdth"): largo,
-				ts.name_to_tag("opsz"): 14.0}
-		v.spacing_glyph = spazio
+		if vetro:
+			v.variation_opentype = {ts.name_to_tag("wght"): peso, ts.name_to_tag("wdth"): largo,
+					ts.name_to_tag("opsz"): 14.0}
+			v.spacing_glyph = spazio
+		else:
+			# Archivo e' piu' chiaro e piu' largo a parita' di numeri: un gradino
+			# di peso in piu', e la spaziatura dimezzata (un corsivo spaziato
+			# come un tondo si sfalda)
+			v.variation_opentype = {ts.name_to_tag("wght"): clampf(peso + 250.0, 450.0, 900.0),
+					ts.name_to_tag("wdth"): clampf(largo + 8.0, 62.0, 125.0)}
+			v.spacing_glyph = roundi(spazio * 0.5)
 		fonti[chiave] = v
 	return fonti[chiave]
+
+
+static func sul_manifesto() -> bool:
+	return voce_scelta() == "manifesto"
 
 
 static func scrivi(tela: Control, dove: Vector2, testo: String, corpo: int, tinta: Color, peso := 300.0,
@@ -66,7 +96,11 @@ static func trasparente(b: Button) -> void:
 
 static func vesti(b: Button, tinte: Dictionary) -> void:
 	# i bottoni di servizio (Torna alla Sede, Mappa stellare): una scatola al
-	# tratto come quelle della colonna
+	# tratto come quelle della colonna. Sul manifesto, l'uscita di ogni altra
+	# schermata: l'etichetta nera (Stile.ritorno)
+	if sul_manifesto():
+		Stile.ritorno(b)
+		return
 	for stato in ["normal", "hover", "pressed", "focus", "hover_pressed"]:
 		var s := StyleBoxFlat.new()
 		s.bg_color = Color(tinte["fondo"], 0.88) if stato in ["normal", "focus"] else Color(tinte["carta"], 0.92)
@@ -126,6 +160,14 @@ static func titolo(p: Proiezione, tela: Control) -> void:
 	var lettere := roundi(float(p.titolo_grande.length()) * liscio(p.t_livello * 0.8))
 	if Movimento.ridotto():
 		lettere = p.titolo_grande.length()
+	if sul_manifesto():
+		# il nome del settore su un'etichetta, come il nome di una zona: arancio,
+		# perche' sul vetro scuro un'etichetta nera non si vedrebbe
+		scrivi(tela, Vector2(38, 626), p.sopratitolo, 11, Stile.colore("manifesto"), 400, 85, 3)
+		if lettere > 0:
+			Manifesto.etichetta_tinta(tela, Vector2(30, 636), p.titolo_grande.substr(0, lettere), 34,
+					Stile.colore("manifesto"), Stile.colore("bordo"))
+		return
 	scrivi(tela, Vector2(38, 640), p.sopratitolo, 11, p.tinte["inchiostro"], 400, 85, 3)
 	scrivi(tela, Vector2(34, 684), p.titolo_grande.substr(0, lettere), 42, p.tinte["carta"], 220, 75, 16)
 
@@ -252,7 +294,11 @@ static func etichetta(p: Proiezione, tela: Control, c: Dictionary, s: Vector2, c
 	tela.draw_rect(Rect2(da + Vector2(-4, -19), Vector2(lungo + 8.0, 35)), Color(p.tinte["fondo"], 0.72 * compare))
 	tela.draw_polyline(PackedVector2Array([a, b, fine]), Color(tinta, 0.8 * compare), 1.0)
 	tela.draw_circle(a, 1.8, tinta)
-	scrivi(tela, da + Vector2(0, -5), nome, 12, tinta, 500, 85, 2)
+	if sul_manifesto():
+		# il nome su un'etichetta piena, del colore che aveva la scritta
+		Manifesto.etichetta_tinta(tela, da + Vector2(-4, -20), nome, 12, tinta, Color(p.tinte["fondo"], compare))
+	else:
+		scrivi(tela, da + Vector2(0, -5), nome, 12, tinta, 500, 85, 2)
 	var riga := da + Vector2(0, 12)
 	if stato == "nuovo":
 		var batte := 1.0 if Movimento.ridotto() else 0.55 + 0.45 * sin(p.t * 5.0)

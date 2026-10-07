@@ -33,6 +33,11 @@ static func posto_del_bottone() -> Rect2:
 static func scatola(tela: Control, r: Rect2, etichetta: String, tinte: Dictionary) -> void:
 	tela.draw_rect(r, Color(tinte["fondo"], 0.88))
 	tela.draw_rect(r, Color(tinte["inchiostro"], 0.9), false, 1.0)
+	if DisegnoProiezione.sul_manifesto():
+		# la linguetta e' un'etichetta arancio, come le strisce del manifesto
+		Manifesto.etichetta_tinta(tela, r.position + Vector2(-1, -1), etichetta, 10, Stile.colore("manifesto"),
+				Stile.colore("bordo"))
+		return
 	var w := DisegnoProiezione.larghezza(etichetta, 9, 600, 85, 2) + 10.0
 	tela.draw_rect(Rect2(r.position, Vector2(w, 14)), tinte["inchiostro"])
 	DisegnoProiezione.scrivi(tela, r.position + Vector2(5, 11), etichetta, 9, tinte["fondo"], 600, 85, 2)
@@ -115,6 +120,8 @@ static func bottone(tela: Control, r: Rect2, p: Proiezione) -> void:
 	if not c.is_empty():
 		parola = String(c["azione"]).to_upper()
 	var batte := 1.0 if Movimento.ridotto() else 0.82 + 0.18 * sin(p.t * 6.0)
+	if DisegnoProiezione.sul_manifesto():
+		carta = Stile.colore("manifesto")   # l'invito e' arancio, come le scelte del manifesto
 	tela.draw_rect(r, Color(carta, batte) if vivo else Color(p.tinte["fondo"], 0.88))
 	var a_fuoco := p.bottone_entra != null and p.bottone_entra.has_focus()
 	tela.draw_rect(r, carta if vivo or a_fuoco else Color(p.tinte["inchiostro"], 0.9), false, 2.0 if a_fuoco else 1.0)
@@ -140,25 +147,45 @@ static func racconto(tela: Control, r: Rect2, testo: String, da: float, tinte: D
 	# il racconto della scheda: un filo d'inchiostro a lato, e le parole che
 	# affiorano una dopo l'altra, ognuna con una dissolvenza breve
 	var righe := a_capo(testo, r.size.x - 10.0)
-	var alto := float(mini(righe.size(), RIGHE_MASSIME)) * float(RACCONTO["riga"])
+	var passo := riga_racconto()
+	var alto := float(mini(righe.size(), RIGHE_MASSIME)) * passo
 	tela.draw_line(r.position + Vector2(0, -12), r.position + Vector2(0, alto - 12.0), Color(tinte["inchiostro"], 0.9), 1.0)
 	var spazio := larghezza_racconto(" ")
 	var indice := 0
 	for n in mini(righe.size(), RIGHE_MASSIME):
 		var x := r.position.x + 10.0
-		var y := r.position.y + float(n) * float(RACCONTO["riga"])
+		var y := r.position.y + float(n) * passo
 		for parola in righe[n]:
 			var a := DisegnoProiezione.liscio((da * PAROLE_AL_SECONDO - float(indice)) / 2.2)
 			if a > 0.0:
-				DisegnoProiezione.scrivi(tela, Vector2(x, y + (1.0 - a) * 3.0), parola, int(RACCONTO["corpo"]),
-						Color(tinte["carta"], a * 0.95), RACCONTO["peso"], RACCONTO["largo"], int(RACCONTO["spazio"]))
+				tela.draw_string(fonte_racconto(), Vector2(x, y + (1.0 - a) * 3.0), parola, HORIZONTAL_ALIGNMENT_LEFT,
+						-1, corpo_racconto(), Color(tinte["carta"], a * 0.95))
 			x += larghezza_racconto(parola) + spazio
 			indice += 1
 
 
 static func larghezza_racconto(testo: String) -> float:
-	return DisegnoProiezione.larghezza(testo, int(RACCONTO["corpo"]), RACCONTO["peso"], RACCONTO["largo"],
-			int(RACCONTO["spazio"]))
+	return fonte_racconto().get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo_racconto()).x
+
+
+# IL RACCONTO DELLA SCHEDA, nella voce "dialoghi": il carattere del box, un
+# po' piu' grande perche' e' nero e stretto (DisegnoProiezione.voce)
+static func col_box() -> bool:
+	return DisegnoProiezione.voce_scelta() == "dialoghi"
+
+
+static func fonte_racconto() -> Font:
+	if col_box():
+		return Caratteri.dialoghi()
+	return DisegnoProiezione.fonte(RACCONTO["peso"], RACCONTO["largo"], int(RACCONTO["spazio"]))
+
+
+static func corpo_racconto() -> int:
+	return 15 if col_box() else int(RACCONTO["corpo"])
+
+
+static func riga_racconto() -> float:
+	return 19.0 if col_box() else float(RACCONTO["riga"])
 
 
 static func a_capo(testo: String, largo: float) -> Array[PackedStringArray]:

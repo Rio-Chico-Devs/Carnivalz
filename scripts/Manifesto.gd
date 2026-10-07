@@ -629,6 +629,11 @@ static func al_posto_di(contenuto: Control, contenitore: Control) -> void:
 static func etichetta(tela: CanvasItem, dove: Vector2, testo: String, corpo: int) -> void:
 	# l'etichetta nera disegnata a mano, per chi disegna in _draw: la stessa
 	# fascia inclinata di stile_etichetta, con la scritta chiara
+	etichetta_tinta(tela, dove, testo, corpo, Stile.colore("bordo"), Stile.colore("testo"))
+
+
+static func etichetta_tinta(tela: CanvasItem, dove: Vector2, testo: String, corpo: int, fondo: Color,
+		inchiostro: Color) -> void:
 	var f := Caratteri.titolo()
 	var misura := f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo)
 	var alto := corpo * 1.3
@@ -636,9 +641,9 @@ static func etichetta(tela: CanvasItem, dove: Vector2, testo: String, corpo: int
 	var obliquo := INCLINA * alto
 	var fascia := PackedVector2Array([dove + Vector2(obliquo, 0), dove + Vector2(largo + obliquo, 0),
 			dove + Vector2(largo, alto), dove + Vector2(0, alto)])
-	Manifesto.poligono(tela, fascia, Stile.colore("bordo"))
+	Manifesto.poligono(tela, fascia, fondo)
 	var riga := dove + Vector2(corpo * 0.5 + obliquo * 0.5, alto * 0.5 + f.get_ascent(corpo) * 0.5 - f.get_descent(corpo) * 0.35)
-	tela.draw_string(f, riga, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Stile.colore("testo"))
+	tela.draw_string(f, riga, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, inchiostro)
 
 
 static func disegna_schermo(tela: CanvasItem, dove: Rect2) -> void:

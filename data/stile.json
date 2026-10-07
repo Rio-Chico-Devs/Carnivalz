@@ -9,6 +9,8 @@
     "vuoto": {"distanza": 21.0, "beccheggio": 33.0},
     "orbita": 0.11,
     "tuffo": 1.1,
+    "_nota_voce": "CON CHE CARATTERI SCRIVE LA PROIEZIONE (mappa stellare, Vuoto, e le scritte piccole del plastico). Bru, il 7 ottobre: «piu' che ingrandire le scritte uniformare i font alla grafica generale del gioco». Quattro proposte, da scegliere (scatti: confronto_mappa, confronto_vuoto): 'vetro' quella di prima, Bricolage stretto e leggero, maiuscolo spaziato; 'archivo' lo stesso disegno con Archivo corsivo, il carattere delle etichette; 'manifesto' Archivo, e titolo, nomi, linguette e bottoni sulle etichette del manifesto; 'dialoghi' Archivo per le etichette, e il racconto della scheda col carattere del box. Vedi DisegnoProiezione.VOCI.",
+    "voce": "vetro",
     "_nota_mano": "Quanto il giocatore puo' muovere la proiezione (ManoProiezione.gd). 'giro' i radianti che puo' girare per lato (0.75 = 43 gradi); 'su' e 'giu' i gradi che puo' inclinare verso l'alto (piu' dall'alto) e verso il basso; 'vicino' e 'lontano' quanto puo' avvicinarsi e allontanarsi (0.62 = un terzo piu' vicino); 'spinta' quanto il centro puo' scivolare verso il cursore quando si avvicina. Numeri miei, da provare.",
     "mano": {"giro": 0.75, "su": 30.0, "giu": 14.0, "vicino": 0.62, "lontano": 1.2, "spinta": 7.0}
   },

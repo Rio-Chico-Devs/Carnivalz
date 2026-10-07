@@ -30,6 +30,12 @@ func _ready() -> void:
 		Impostazioni.testo_grande = true
 		Impostazioni.applica_scala_testo()
 		etichetta += "_testo_grande"
+	# VOCE_PROIEZIONE=archivo ./prove/scatto.sh proiezione mappa: le scritte
+	# della mappa stellare, del Vuoto e del plastico con un'altra voce
+	# (DisegnoProiezione.VOCI)
+	if OS.has_environment("VOCE_PROIEZIONE"):
+		DisegnoProiezione.voce = OS.get_environment("VOCE_PROIEZIONE")
+		etichetta += "_" + DisegnoProiezione.voce
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta
@@ -41,6 +47,45 @@ func _ready() -> void:
 		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
 	salva(etichetta)
 	get_tree().quit()
+
+func proiezione_piena(dove: String) -> void:
+	GameState.nuova_partita()
+	GameState.imposta_flag("tutorial_completato")
+	if dove == "plastico":
+		GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+		for id_stanza: String in ["inizio", "banchetto", "pianura", "albero", "masso", "bivio"]:
+			GameState.sblocca_stanza(id_stanza)
+			GameState.nodi_visitati.append(id_stanza)
+		GameState.nodo_corrente = "masso"
+		var pianta: MappaZona = load("res://scenes/MappaZona.tscn").instantiate()
+		add_child(pianta)
+		await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		pianta.plastico.evidenzia("albero")
+		return
+	var schermata: Control
+	if dove == "vuoto":
+		for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+			if String(punto.get("id", "")) == "carnivalz_del_bosco":
+				GameState.punto_mappa_corrente = punto
+		schermata = load("res://scenes/Vuoto.tscn").instantiate()
+	else:
+		schermata = load("res://scenes/Mappa.tscn").instantiate()
+	add_child(schermata)
+	var p: Proiezione = schermata.get("proiezione")
+	p.cursore_finto = Vector2(1, 1)
+	await attendi(240)
+	# si punta il corpo piu' vicino al centro della griglia, perche' la scheda
+	# si riempia come quando ci si passa sopra col mouse
+	var meglio := ""
+	var dista := INF
+	for c: Dictionary in p.corpi:
+		var s := p.sullo_schermo(c["pos"])
+		if float(c["apertura"]) >= 0.6 and s.x < SchedaProiezione.X - 40.0 and s.distance_to(Vector2(480, 380)) < dista:
+			dista = s.distance_to(Vector2(480, 380))
+			meglio = String(c["id"])
+	p.punta(meglio)
+	await attendi(150)
+
 
 func partite_finte() -> void:
 	# due partite vere, scritte come le scrive il gioco, per vedere il menu
@@ -879,6 +924,13 @@ func prepara(quale: String) -> void:
 			pianure.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			add_child(pianure)
 			await attendi(FOTOGRAMMI_DI_ASSESTAMENTO)
+		"proiezione":
+			# LE SCRITTE DELLE PROIEZIONI, con una scheda piena: "proiezione mappa"
+			# la mappa stellare a meta' gioco col cursore su un sistema,
+			# "proiezione vuoto" il Vuoto Ardente col cursore su una frattura,
+			# "proiezione plastico" le Pianure con la scheda di una stanza
+			var dove := String(OS.get_cmdline_user_args()[1]) if OS.get_cmdline_user_args().size() > 1 else "mappa"
+			await proiezione_piena(dove)
 		"mappa_prima":
 			# la mappa stellare aperta da Veronica: solo la prima missione
 			MappaStellare.missione_da_scegliere = "proiezione_partenza"
