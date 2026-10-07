@@ -8708,6 +8708,8 @@ func prova_il_plastico_si_tiene_in_mano() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await prova_i_nomi_del_plastico_non_si_coprono(pianta)
+	await prova_il_plastico_da_vicino(pianta)
+	await prova_il_plastico_lasciato_dove_non_sente(pianta)
 	# LA SCHEDA DICE COSA FA IL CLIC, accanto alla stanza
 	var s := p.scritte
 	esigi(String(s.cosa_fa_il_clic("emporio")[0]) == "CLIC · ENTRA", "la scheda dell'emporio non dice che ci si entra")
@@ -8856,6 +8858,67 @@ func prova_i_nomi_del_plastico_non_si_coprono(pianta: MappaZona) -> void:
 				esigi(not altro.intersects(coppia[1]), "girato di %.1f, il nome «%s» ne copre un altro (o un'icona)" % [giro, coppia[0]])
 			presi.append(coppia[1])
 	p.ricentra()
+
+func prova_il_plastico_da_vicino(pianta: MappaZona) -> void:
+	# vicinissimo all'alloggio e di sbieco la vista passa fra i piani, e qualche
+	# stanza finisce alle spalle della camera. Prima la sua porta diventava un
+	# cuneo invisibile grande quasi quanto la cornice: si cliccava ovunque e si
+	# entrava nell'hangar
+	var p := pianta.plastico
+	p.mano.azzera()
+	p.mano.guarda(p.scatole["alloggio"]["centro"], 0.01, 0.0)
+	p.mano.gira(1.6, -900.0)
+	for i in 3:
+		await get_tree().process_frame
+	var addosso := 0
+	for porta: PortaStanza in pianta.strato_bottoni.get_children():
+		var id_stanza := String(porta.get_meta("stanza", ""))
+		var s: Dictionary = p.scatole[id_stanza]
+		var scatola := AABB(s["centro"] - s["misura"] * 0.5, s["misura"])
+		var dietro := false
+		for k in 8:
+			dietro = dietro or p.camera.is_position_behind(scatola.get_endpoint(k))
+		if dietro:
+			addosso += 1
+			esigi(not porta.visible, "da vicino la stanza %s sta alle spalle della camera e si clicca ancora" % id_stanza)
+		elif porta.visible:
+			esigi(porta.position.x > -5000.0 and porta.position.y > -5000.0,
+					"da vicino la porta di %s finisce a %s" % [id_stanza, porta.position])
+	esigi(addosso > 0, "la prova non porta nessuna stanza alle spalle della camera: non misura niente")
+	p.mano.azzera()
+	p.ricentra()
+	for i in 3:
+		await get_tree().process_frame
+
+func prova_il_plastico_lasciato_dove_non_sente(pianta: MappaZona) -> void:
+	# si trascina e il tasto si lascia dove la mano non sente: in pausa, o col
+	# plastico nascosto. Prima la presa restava e il plastico girava dietro al
+	# mouse a tasti alzati
+	var p := pianta.plastico
+	var vuoto := get_viewport().get_final_transform() * (p.get_global_transform_with_canvas() * Vector2(p.size.x - 40.0, 40.0))
+	for come in ["pausa", "nascosto"]:
+		await muovi_il_mouse(vuoto, Vector2.ZERO, 0)
+		await mouse_vero(MOUSE_BUTTON_LEFT, true, vuoto)
+		for passo in 4:
+			await muovi_il_mouse(vuoto + Vector2(10.0 * float(passo + 1), 0.0), Vector2(10.0, 0.0), MOUSE_BUTTON_MASK_LEFT)
+		esigi(p.mano.trascinando, "la prova non riesce a trascinare il plastico (%s)" % come)
+		if come == "pausa":
+			get_tree().paused = true
+		else:
+			p.visible = false
+		await mouse_vero(MOUSE_BUTTON_LEFT, false, vuoto + Vector2(40.0, 0.0))
+		get_tree().paused = false
+		p.visible = true
+		await get_tree().process_frame
+		var giro_prima := float(p.mano.voluto["giro"])
+		for passo in 5:
+			await muovi_il_mouse(vuoto + Vector2(40.0 - 20.0 * float(passo + 1), 0.0), Vector2(-20.0, 0.0), 0)
+		esigi(is_equal_approx(float(p.mano.voluto["giro"]), giro_prima),
+				"lasciato il tasto (%s), il plastico gira dietro al mouse a tasti alzati" % come)
+		esigi(p.mano.presa == MOUSE_BUTTON_NONE, "lasciato il tasto (%s), la mano tiene ancora il plastico" % come)
+	p.ricentra()
+	for i in 3:
+		await get_tree().process_frame
 
 func sede_aperta() -> MappaZona:
 	var casa: Control = load("res://scenes/Sede.tscn").instantiate()

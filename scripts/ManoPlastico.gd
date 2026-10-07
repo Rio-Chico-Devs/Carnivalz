@@ -239,6 +239,13 @@ func pulsante(b: InputEventMouseButton) -> void:
 
 
 func muovi(m: InputEventMouseMotion) -> void:
+	# IL TASTO NON E' PIU' GIU': lo si e' lasciato dove questa mano non sentiva
+	# (in pausa, col plastico nascosto, fuori dalla finestra). Prima la presa
+	# restava, e il plastico girava dietro al mouse a tasti alzati finche' non
+	# si cliccava di nuovo
+	if not m.button_mask & (1 << (presa - 1)):
+		lascia()
+		return
 	if not trascinando:
 		if m.position.distance_to(da) < SOGLIA:
 			return
@@ -259,6 +266,14 @@ func lascia() -> void:
 		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 	presa = MOUSE_BUTTON_NONE
 	trascinando = false
+
+
+func _notification(cosa: int) -> void:
+	# la pausa (o l'uscita dalla schermata) a meta' di un trascinamento: si
+	# lascia subito, e il cursore torna la freccia invece di restare la manina
+	# sopra il menu di pausa
+	if (cosa == NOTIFICATION_PAUSED or cosa == NOTIFICATION_EXIT_TREE) and presa != MOUSE_BUTTON_NONE:
+		lascia()
 
 
 func annulla_il_clic() -> void:

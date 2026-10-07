@@ -569,7 +569,21 @@ func metti_porta(porta: PortaStanza, id_stanza: String) -> void:
 	for punto in sagoma(id_stanza):
 		dentro.append(punto - r.position)
 	porta.sagoma = dentro
-	porta.visible = not velata(id_stanza)
+	porta.visible = not velata(id_stanza) and not alle_spalle(id_stanza)
+
+
+func alle_spalle(id_stanza: String) -> bool:
+	# UN ANGOLO DELLA STANZA STA DIETRO LA CAMERA: succede avvicinandosi molto e
+	# guardando di sbieco, quando la vista passa fra un piano e l'altro. Quel
+	# angolo a schermo non c'e' (sullo_schermo lo manda a -9999), e la sagoma che
+	# ne veniva fuori era un cuneo invisibile: l'hangar si prendeva il clic di
+	# quasi tutta la cornice. Una stanza che ti sta addosso non si clicca
+	var s: Dictionary = scatole[id_stanza]
+	var scatola := AABB(s["centro"] - s["misura"] * 0.5, s["misura"])
+	for i in 8:
+		if camera.is_position_behind(scatola.get_endpoint(i)):
+			return true
+	return false
 
 
 func svuota(porte: Control) -> void:

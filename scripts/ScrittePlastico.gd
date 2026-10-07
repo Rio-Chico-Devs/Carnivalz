@@ -235,7 +235,7 @@ func cosa_fa_il_clic(id_stanza: String) -> Array:
 
 
 func scheda(id_stanza: String) -> void:
-	if id_stanza == "" or not p.scatole.has(id_stanza) or p.velata(id_stanza):
+	if id_stanza == "" or not p.scatole.has(id_stanza) or p.velata(id_stanza) or p.alle_spalle(id_stanza):
 		return
 	var righe := righe_della_scheda(id_stanza)
 	var largo := 0.0
