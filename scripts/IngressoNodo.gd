@@ -41,6 +41,7 @@ const SCENA_COMBATTIMENTO := "res://scenes/Combattimento.tscn"
 
 const SALTI_MASSIMI := 8   # oltre questo due nodi si stanno rimandando a vicenda
 const SCENA_EVENTI := "res://scenes/Main.tscn"
+const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
 
 # Il verdetto dell'ultimo ingresso, che Main raccoglie appena nasce. E' l'unico
 # stato che questa classe tiene, e dura un istante: chi entra decide, chi
@@ -48,6 +49,12 @@ const SCENA_EVENTI := "res://scenes/Main.tscn"
 # checkpoint) devono succedere UNA volta sola, non di nuovo alla nascita della
 # schermata.
 static var ultimo_esito: Dictionary = {}
+
+# L'ultimo posto DELLA MAPPA in cui si e' entrati. Serve solo alla rete di
+# sicurezza (via_d_uscita): una scena che non e' una stanza - il risveglio,
+# il ritorno dopo il boss - lascia in nodo_corrente il proprio nome, e da li'
+# la mappa non avrebbe vicini da proporre
+static var ultima_stanza := ""
 
 static func vai_al_nodo(id_nodo: String) -> void:
 	# L'UNICO MODO DI ENTRARE IN UN NODO DA UN'ALTRA SCHERMATA.
@@ -100,8 +107,7 @@ static func entra(id_nodo: String) -> Dictionary:
 		# verificato dalle prove su tutti i file di eventi: qui si finisce solo
 		# con dati sbagliati, e allora meglio la mappa che una prigione
 		push_error("Nodo evento mancante: " + id_nodo)
-		# (la Sede e' una zona anche lei, ma fuori di li' c'e' la Sede, non un Vuoto)
-		esito.scena = SCENA_SEDE if GameState.carnivalz_corrente in ["", Sede.ZONA] else SCENA_VUOTO
+		esito.scena = scena_di_ripiego()
 		return esito
 	var nodo: Dictionary = GameState.eventi[id_vero]
 	esito.id = id_vero
@@ -136,6 +142,8 @@ static func entra(id_nodo: String) -> Dictionary:
 		if stanza != GameState.nodo_corrente and GameState.stanza_nella_mappa(stanza):
 			GameState.storico.clear()
 		GameState.nodo_corrente = stanza
+		if GameState.stanza_nella_mappa(stanza):
+			ultima_stanza = stanza
 	esito.stanza = GameState.nodo_corrente
 	applica_effetti(id_vero, nodo, esito.prima_visita)
 	esito.agguato = tira_agguato(id_vero, nodo)
@@ -279,6 +287,59 @@ static func destinazione(scelta: Dictionary) -> String:
 	if scelta.get("torna_dove_eri", false):
 		return GameState.nodo_corrente
 	return String(scelta.get("vai", ""))
+
+static func alla_mappa_di_zona(da: Dictionary) -> void:
+	# mappa dungeon di zona: si torna li' a scegliere la prossima stanza, invece
+	# di proseguire dritti verso un altro nodo. "da" e' la scelta che lo chiede,
+	# o il nodo intero quando non c'e' niente da scegliere (finisce_alla_mappa).
+	#
+	# DA QUALE STANZA SI ESCE, quando il nodo non e' una stanza.
+	#
+	# La mappa lascia andare solo nei posti che confinano con quello in cui sei,
+	# e "dove sei" per lei e' nodo_corrente. Ma non tutti i nodi sono stanze: il
+	# risveglio in infermeria e' un nodo a se', e la stanza sulla planimetria si
+	# chiama "infermeria". Uscendo di li' la mappa si apriva con ZERO vicini -
+	# aperta, disegnata, e senza niente da premere - proprio nel momento in cui
+	# il complesso si apre al giocatore.
+	#
+	# Non era un caso solo: la prova che lo cerca ne ha trovati cinque, fra le
+	# Pianure (dopo_pozze, dopo_collina) e la Rocca d'Ossidiana (le tre scene
+	# della piazza sotterranea). Erano tutti li' da prima, e nessuno li aveva
+	# mai percorsi.
+	if da.has("stanza"):
+		GameState.nodo_corrente = String(da["stanza"])
+	Transizioni.vai(SCENA_MAPPA_ZONA)
+
+static func finisce_alla_mappa(nodo: Dictionary) -> bool:
+	# UNA BATTUTA E SI TORNA ALLA MAPPA, SENZA SCELTE. Bru, dopo il goblin
+	# arrabbiato: «No, voglio dare ancora un'occhiata» e Veronica risponde «Dai
+	# non perdere tempo, torna indietro, e' quasi ora di cena...». Il nodo diceva
+	# "torna_a_mappa" per conto suo, ma il motore lo leggeva solo sulle SCELTE:
+	# finita la battuta la schermata restava aperta senza niente da premere, e
+	# il giocatore era chiuso dentro. Le prove guardavano che il campo ci fosse
+	# nei dati, non cosa succedeva arrivati in fondo
+	return bool(nodo.get("torna_a_mappa", false)) and (nodo.get("scelte", []) as Array).is_empty()
+
+static func via_d_uscita(dove: String) -> String:
+	# LA RETE DI SICUREZZA: un nodo e' finito e non c'e' niente da premere.
+	#
+	# Non deve succedere, e sui dati lo vieta una prova (ogni nodo ha
+	# un'uscita). Ma puo' succedere lo stesso a partita in corso - le scelte ci
+	# sono, e i loro requisiti le nascondono tutte - e allora meglio la mappa,
+	# dall'ultimo posto vero in cui si era, che una schermata ferma per sempre.
+	# Resta scritto come avviso, non come errore, per la stessa regola degli
+	# sfondi mancanti: la partita si salva e va avanti. L'errore vero lo da'
+	# la prova, sui dati, prima che arrivino a un giocatore
+	push_warning("Il nodo «%s» e' finito senza niente da premere: ai dati manca un'uscita" % dove)
+	if GameState.mappa_consultabile() and GameState.stanza_nella_mappa(ultima_stanza):
+		GameState.nodo_corrente = ultima_stanza
+		return SCENA_MAPPA_ZONA
+	return scena_di_ripiego()
+
+static func scena_di_ripiego() -> String:
+	# dove si finisce quando la storia non sa dove mandarti: fuori dalla zona.
+	# (la Sede e' una zona anche lei, ma fuori di li' c'e' la Sede, non un Vuoto)
+	return SCENA_SEDE if GameState.carnivalz_corrente in ["", Sede.ZONA] else SCENA_VUOTO
 
 static func trattiene(nodo: Dictionary) -> bool:
 	# UNA SCENA CHE NON TI LASCIA ANDARE. Bru, in cima al promontorio: «qui due

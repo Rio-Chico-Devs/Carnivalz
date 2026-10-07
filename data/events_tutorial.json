@@ -2200,6 +2200,8 @@
           "testo": "Dai non perdere tempo, torna indietro, è quasi ora di cena..."
         }
       ],
+      "_nota_stanza": "La scena succede dove finisce la mappa, alla convergenza: è da lì che si riparte a piedi, ed è lì che si ritrova la scelta di tornare (vai_se_flag di convergenza).",
+      "stanza": "convergenza",
       "torna_a_mappa": true
     },
     "ritorno_disponibile": {
@@ -2214,6 +2216,7 @@
           "testo": "Vuoi tornare indietro?"
         }
       ],
+      "stanza": "convergenza",
       "scelte": [
         {
           "testo": "Sì, torno alla base",

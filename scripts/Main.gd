@@ -485,7 +485,9 @@ func disegna_nodo(esito: Dictionary, notifiche_precedenti: Array[Dictionary]) ->
 	# ha fatti nascere, poi il protagonista ci ragiona sopra
 	# la salita di livello viene PRIMA delle passive: e' la causa, quelle sono
 	# la conseguenza, e leggerle nell'ordine opposto non si capisce
-	if nodo.has("apri_mappa_zona") and not mostrando_scena:
+	if IngressoNodo.finisce_alla_mappa(nodo):
+		azione_dopo_coda = IngressoNodo.alla_mappa_di_zona.bind(nodo)   # «Dai non perdere tempo...»
+	elif nodo.has("apri_mappa_zona") and not mostrando_scena:
 		azione_dopo_coda = GuidaSullaMappa.apri.bind(nodo["apri_mappa_zona"])   # la Guida sulla mappa
 	coda_messaggi = notifiche_precedenti + Resoconto.salite_di_livello() \
 			+ notifiche_passive() + contenuto_nodo(nodo) + notifiche_task() + notifiche_messaggi()
@@ -675,6 +677,10 @@ func _apri_scelte() -> void:
 	aggiorna_palco(nodo_in_corso)
 	ricostruisci_scelte(nodo_in_corso)
 	aggiorna_dialoga()
+	# NESSUNA SCHERMATA RESTA SENZA NIENTE DA PREMERE ("Osserva la scena" non porta
+	# da nessuna parte): se i dati hanno dimenticato l'uscita, la rete e' qui
+	if contenitore_scelte.get_child_count() <= int(nodo_in_corso.has("scena")) and not bottone_mappa.visible:
+		Transizioni.vai(IngressoNodo.via_d_uscita(GameState.nodo_corrente))
 
 func nascondi_comandi() -> void:
 	# mentre si legge non c'e' niente da premere: i comandi tornano a coda vuota
@@ -1269,7 +1275,7 @@ func _su_scelta(scelta: Dictionary) -> void:
 		Sede.apri(String(scelta["apre"]))
 		return
 	if scelta.get("torna_a_mappa", false):
-		apri_la_mappa_di_zona(scelta)
+		IngressoNodo.alla_mappa_di_zona(scelta)   # da quale stanza si esce: li'
 		return
 	var dove := IngressoNodo.destinazione(scelta)
 	if dove != "":
@@ -1278,27 +1284,6 @@ func _su_scelta(scelta: Dictionary) -> void:
 		# si resta sullo stesso nodo: si mostrano solo le notifiche in coda
 		coda_messaggi = notifiche
 		avanza_messaggio()
-
-func apri_la_mappa_di_zona(scelta: Dictionary) -> void:
-	# mappa dungeon di zona: si torna li' a scegliere la prossima stanza, invece
-	# di proseguire dritti verso un altro nodo.
-	#
-	# DA QUALE STANZA SI ESCE, quando il nodo non e' una stanza.
-	#
-	# La mappa lascia andare solo nei posti che confinano con quello in cui sei,
-	# e "dove sei" per lei e' nodo_corrente. Ma non tutti i nodi sono stanze: il
-	# risveglio in infermeria e' un nodo a se', e la stanza sulla planimetria si
-	# chiama "infermeria". Uscendo di li' la mappa si apriva con ZERO vicini -
-	# aperta, disegnata, e senza niente da premere - proprio nel momento in cui
-	# il complesso si apre al giocatore.
-	#
-	# Non era un caso solo: la prova che lo cerca ne ha trovati cinque, fra le
-	# Pianure (dopo_pozze, dopo_collina) e la Rocca d'Ossidiana (le tre scene
-	# della piazza sotterranea). Erano tutti li' da prima, e nessuno li aveva
-	# mai percorsi.
-	if scelta.has("stanza"):
-		GameState.nodo_corrente = String(scelta["stanza"])
-	Transizioni.vai(SCENA_MAPPA_ZONA)
 
 func aggiorna_dialoga() -> void:
 	# senza compagni non c'e' nessuno con cui parlare: il bottone sparisce

@@ -225,6 +225,9 @@ func _ready() -> void:
 	prova_il_box_racconta_nel_quadrante()
 	prova_data_pad_e_proiezione()
 	prova_ritorno_dalla_missione()
+	await prova_dicendo_no_dopo_il_goblin_si_torna_alla_mappa()
+	prova_nessun_nodo_finisce_senza_uscita()
+	await prova_se_le_scelte_spariscono_si_esce_lo_stesso()
 	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	await prova_un_solo_artwork_quello_di_chi_parla()
@@ -12926,6 +12929,147 @@ func prova_ritorno_dalla_missione() -> void:
 	# e il ritorno finisce da Veronica, non da nessuna parte
 	esigi("hq_veronica_saluto" in destinazioni_di(nodi["ritorno_alla_base"]),
 			"tornando alla base non si arriva da Veronica")
+
+func prova_dicendo_no_dopo_il_goblin_si_torna_alla_mappa() -> void:
+	# Bru, dopo il goblin arrabbiato: «mi trovo bloccato al dialogo». Il
+	# dialogo e' Veronica - «Dai non perdere tempo, torna indietro, e' quasi ora
+	# di cena...» - e dopo non c'era niente da premere.
+	#
+	# La prova qui sopra chiedeva che il nodo DICESSE "torna_a_mappa", e lo
+	# diceva. Ma il motore quel campo lo leggeva solo sulle scelte: sul nodo era
+	# una parola senza effetto, e nessuno guardava cosa succedeva arrivati in
+	# fondo. Qui si clicca come clicca il giocatore, finche' c'e' qualcosa da
+	# cliccare, e si guarda dove si arriva.
+	titolo("dopo il goblin, «No, voglio dare ancora un'occhiata» riporta alla mappa")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	GameState.imposta_flag("pianure_compiute")
+	GameState.imposta_flag("sa_tornare")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	IngressoNodo.vai_al_nodo("ritorno_rimandato")
+	Transizioni.prossima = ""   # la schermata degli eventi la si apre qui a mano
+	var schermata: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	var clic := await clicca_finche_si_puo(schermata)
+	var detta := false
+	for voce: Dictionary in GameState.storico:
+		detta = detta or "quasi ora di cena" in String(voce.get("testo", ""))
+	esigi(detta, "la battuta di Veronica non arriva a schermo")
+	esigi(Transizioni.prossima == IngressoNodo.SCENA_MAPPA_ZONA,
+			"finita la battuta di Veronica si resta li' senza niente da premere (dopo %d clic si va a '%s')"
+			% [clic, Transizioni.prossima])
+	esigi(GameState.nodo_corrente == "convergenza",
+			"la mappa si apre lasciandoti in '%s', non alla convergenza dove sei" % GameState.nodo_corrente)
+	schermata.queue_free()
+	# E LA MAPPA CHE SI APRE HA STRADE DA PRENDERE: da li' si torna a piedi
+	# verso il promontorio e la tartaruga, e rientrando alla convergenza si
+	# ritrova la scelta di tornare alla base
+	Transizioni.prossima = ""
+	var mappa: Node = load(IngressoNodo.SCENA_MAPPA_ZONA).instantiate()
+	add_child(mappa)
+	await get_tree().process_frame
+	for vicina in ["collina", "tartaruga"]:
+		esigi(bool(mappa.call("si_puo_andare", vicina)),
+				"dalla mappa dopo il goblin non si puo' andare in '%s'" % vicina)
+	esigi(IngressoNodo.risolvi("convergenza") == "ritorno_disponibile",
+			"tornati alla convergenza la scelta di rientrare alla base non c'e' piu'")
+	mappa.queue_free()
+	await get_tree().process_frame
+	Transizioni.in_corso = stato_prima
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	GameState.nuova_partita()
+
+func clicca_finche_si_puo(schermata: Node) -> int:
+	# il giocatore clicca finche' c'e' l'area per farlo; quando sparisce
+	# dovrebbero esserci le scelte, oppure si e' gia' andati altrove
+	var clic := 0
+	while Transizioni.prossima == "" and (schermata.get("area_avanza") as Control).visible and clic < 40:
+		schermata.call("_su_avanza")
+		clic += 1
+		await get_tree().process_frame
+	return clic
+
+func prova_nessun_nodo_finisce_senza_uscita() -> void:
+	# LO STESSO BLOCCO, CERCATO DAPPERTUTTO. Un nodo finisce in due modi: le
+	# scelte, oppure qualcosa che a fine coda parte da solo (Main.coda_finita).
+	# Un nodo che non ha ne' l'una ne' l'altra cosa lascia la schermata ferma,
+	# ed e' esattamente com'era ritorno_rimandato.
+	titolo("nessun nodo finisce senza niente da premere")
+	var contati := 0
+	for percorso in file_eventi():
+		var dati := carica_eventi(percorso)
+		var nodi: Dictionary = dati.get("nodi", {})
+		var stanze: Array[String] = []
+		for stanza in dati.get("mappa_dungeon", {}).get("stanze", []):
+			stanze.append(String((stanza as Dictionary).get("id", "")))
+		for id_nodo: String in nodi:
+			var nodo: Dictionary = nodi[id_nodo]
+			contati += 1
+			var da_solo: Array[String] = []
+			for campo in PROSEGUE_DA_SOLO:
+				if nodo.has(campo):
+					da_solo.append(campo)
+			esigi(not (nodo.get("scelte", []) as Array).is_empty() or not da_solo.is_empty(),
+					"%s: il nodo '%s' finisce senza scelte e senza niente che parta da solo"
+					% [percorso.get_file(), id_nodo])
+			if not nodo.has("torna_a_mappa"):
+				continue
+			# "torna_a_mappa" SUL NODO vale solo se non ci sono scelte: con le due
+			# cose insieme non si saprebbe quale vince, e il motore sceglie le scelte
+			esigi(IngressoNodo.finisce_alla_mappa(nodo),
+					"%s: '%s' dice torna_a_mappa ma ha anche delle scelte: il campo non fa niente"
+					% [percorso.get_file(), id_nodo])
+			# e ti lascia in una stanza, o la mappa si apre senza vicini
+			var dove := String(nodo.get("stanza", id_nodo))
+			esigi(dove in stanze,
+					"%s: '%s' riapre la mappa lasciandoti in '%s', che sulla mappa non c'e'"
+					% [percorso.get_file(), id_nodo, dove])
+	esigi(contati > 250, "ho guardato solo %d nodi: i file di eventi non si stanno leggendo" % contati)
+
+# chi fa proseguire un nodo senza scelte, nell'ordine in cui Main.coda_finita
+# (e mostra_nodo, per l'espulsione e la mappa) li guarda
+const PROSEGUE_DA_SOLO := ["vai", "combattimento_automatico", "avvio_automatico",
+		"apri_mappa_stellare", "espulsione_automatica", "torna_a_mappa", "apri_mappa_zona"]
+
+func prova_se_le_scelte_spariscono_si_esce_lo_stesso() -> void:
+	# LA RETE DI SICUREZZA. I dati li tiene la prova qui sopra; questa e' per
+	# quello che nessuna prova sui dati vede: un nodo con le scelte giuste, e
+	# i loro requisiti che a partita in corso le nascondono tutte. Allora si
+	# torna alla mappa dall'ultimo posto vero, invece di restare chiusi dentro.
+	titolo("se a un nodo non resta niente da premere si torna alla mappa")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	IngressoNodo.entra("masso")
+	esigi(IngressoNodo.ultima_stanza == "masso", "entrando al masso non si ricorda l'ultimo posto della mappa")
+	GameState.eventi["prova_vicolo_cieco"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "Qui le strade sono tutte chiuse."}],
+		"scelte": [{"testo": "Una porta che non c'e'", "vai": "masso", "richiede_flag": "flag_che_nessuno_accende"}],
+	}
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	IngressoNodo.vai_al_nodo("prova_vicolo_cieco")
+	Transizioni.prossima = ""
+	var schermata: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	var clic := await clicca_finche_si_puo(schermata)
+	esigi(Transizioni.prossima == IngressoNodo.SCENA_MAPPA_ZONA,
+			"con le scelte tutte nascoste la schermata resta ferma (dopo %d clic si va a '%s')"
+			% [clic, Transizioni.prossima])
+	esigi(GameState.nodo_corrente == "masso",
+			"la mappa si apre in '%s' invece che nell'ultimo posto vero (il masso)" % GameState.nodo_corrente)
+	schermata.queue_free()
+	await get_tree().process_frame
+	GameState.eventi.erase("prova_vicolo_cieco")
+	Transizioni.in_corso = stato_prima
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	GameState.nuova_partita()
 
 func prova_data_pad_e_proiezione() -> void:
 	# «dopo che si spiega come usare il data pad in tutte le sue parti, c'e'
