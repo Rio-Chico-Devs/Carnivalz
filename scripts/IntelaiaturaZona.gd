@@ -108,6 +108,7 @@ static func barra(zona: MappaZona) -> HBoxContainer:
 		fila.add_child(indietro)
 
 	var spazio := Control.new()
+	spazio.name = "Spazio"
 	spazio.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	fila.add_child(spazio)
 
@@ -117,6 +118,26 @@ static func barra(zona: MappaZona) -> HBoxContainer:
 	titolo.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	fila.add_child(titolo)
 	return fila
+
+
+static func stato_in_barra(zona: MappaZona) -> void:
+	# MENTRE PARLA LA GUIDA LA RIGA DI STATO SALE NELLA BARRA, nel vuoto fra il
+	# tasto di chiusura e il nome della zona. Sotto la mappa c'e' il suo box, e
+	# ogni riga presa li' e' tolta alla mappa (GuidaSullaMappa.fai_posto). Resta
+	# una riga sola, coi puntini se non ci sta: andando a capo la barra
+	# crescerebbe, e il plastico si reinquadrerebbe a ogni messaggio
+	var spazio := zona.find_child("Spazio", true, false)
+	if spazio == null:
+		return
+	var fila := spazio.get_parent()
+	var riga := zona.etichetta_stato
+	riga.reparent(fila, false)
+	fila.move_child(riga, spazio.get_index())
+	fila.remove_child(spazio)
+	spazio.queue_free()
+	riga.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	riga.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	riga.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 
 static func strato(cornice: Control) -> Control:

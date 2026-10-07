@@ -185,6 +185,7 @@ func _ready() -> void:
 	await prova_il_menu_c_e_in_ogni_schermata()
 	await prova_sulla_proiezione_non_c_e_grana()
 	await prova_arrivando_nelle_pianure_la_guida_spiega_la_mappa()
+	await prova_sotto_la_guida_la_mappa_resta_grande()
 	prova_le_pianure_si_esplorano_fino_alla_tartaruga()
 	prova_chi_tende_l_imboscata_muove_per_primo()
 	prova_l_orda_dice_cosa_sta_per_fare()
@@ -12287,6 +12288,51 @@ func chiusa_la_mappa_la_guida_protesta() -> void:
 			"l'icona della Guida non riapre la mappa com'e' giusto")
 	await get_tree().process_frame
 
+func prova_sotto_la_guida_la_mappa_resta_grande() -> void:
+	# Bru, dalla «?» col testo grande: «mi fa vedere la mappa piccolissima [...]
+	# se c'e' il dialogo sotto la mappa e' troppo piccola». A 1024x576 sopra il
+	# box restava una striscia, e la stanza in cui sei era un puntino. Si
+	# guarda la schermata vera, alle due scale
+	titolo("sotto la Guida la mappa resta grande, anche col testo grande")
+	var prima := get_tree().root.content_scale_factor
+	for fattore: float in [1.25, 1.0]:
+		get_tree().root.content_scale_factor = fattore
+		GameState.nuova_partita()
+		GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+		GameState.nodi_visitati.append("inizio")
+		GuidaSullaMappa.in_corso = {"zona": GameState.carnivalz_corrente, "ritorno": "inizio_guida",
+				"righe": GameState.mappa_zona.get("guida", []), "solo_chiudere": true}
+		var mappa: MappaZona = load(GuidaSullaMappa.SCENA_MAPPA_ZONA).instantiate()
+		add_child(mappa)
+		for i in 3:
+			await get_tree().process_frame
+		var guida := figlio_di_tipo(mappa, "GuidaSullaMappa") as GuidaSullaMappa
+		var schermo := get_viewport().get_visible_rect().size
+		var cornice: Rect2 = mappa.cornice.get_global_rect()
+		var box := (guida.box as Control).get_global_rect()
+		esigi(cornice.size.y >= schermo.y * SOTTO_LA_GUIDA,
+				"a scala %.2f la mappa sopra la Guida e' alta %d pixel su %d" % [fattore, cornice.size.y, schermo.y])
+		esigi(not cornice.intersects(box), "a scala %.2f il box della Guida copre la mappa" % fattore)
+		var qui: Rect2 = mappa.plastico.rettangolo(GameState.nodo_corrente)
+		esigi(qui.size.y > cornice.size.y * 0.2,
+				"a scala %.2f la stanza in cui sei e' alta %d pixel in una cornice di %d: un puntino"
+				% [fattore, qui.size.y, cornice.size.y])
+		# LA RIGA DI STATO NON SPARISCE, SALE NELLA BARRA: dice ancora perche'
+		# un clic su una stanza non porta da nessuna parte
+		mappa.call("_su_stanza", "banchetto", true, true)
+		var riga := mappa.etichetta_stato
+		esigi(riga.is_visible_in_tree() and riga.text == "La Guida sta ancora parlando.",
+				"a scala %.2f cliccando una stanza mentre la Guida parla non si legge perche' non si va" % fattore)
+		esigi(not riga.get_global_rect().intersects(cornice) and not riga.get_global_rect().intersects(box),
+				"a scala %.2f la riga di stato finisce sopra la mappa o sopra il box" % fattore)
+		mappa.queue_free()
+		await get_tree().process_frame
+	get_tree().root.content_scale_factor = prima
+	GuidaSullaMappa.in_corso = {}
+	GameState.nuova_partita()
+
+const SOTTO_LA_GUIDA := 0.22  # quanta parte dello schermo resta alla mappa sopra il box
+
 func prova_nome_del_data_pad() -> void:
 	# Era un diario che diventava data pad con gli ordini; dal 25 settembre
 	# l'altoparlante della prima mattina dice gia' «il tuo datapad» (Bru), e
@@ -13638,7 +13684,7 @@ const FILE_GRANDI := {
 		"righe per far sopravvivere il dato fino a chi lo racconta. Il " +
 		"racconto invece non e' entrato qui: sta in Resoconto.gd, e in " +
 		"cambio ha tolto quarantanove righe di presentazione da Main.gd"},
-	"Main.gd": {"misura": 1430, "perche":
+	"Main.gd": {"misura": 1414, "perche":
 		"il direttore della storia: dialoghi, scelte, notifiche, cambi di " +
 		"scena. Cresce con la trama, che e' ancora in scrittura: spezzarlo " +
 		"adesso vuol dire spezzarlo di nuovo fra un mese. " +
@@ -13650,7 +13696,8 @@ const FILE_GRANDI := {
 		"la deriva, non a farmi peggiorare il codice per due righe. " +
 		"STRETTA A 1430 quando l'iconcina del menu e' andata in IconaMenu.gd " +
 		"(la mettono tutte le schermate) e i primi effetti di una scelta in " +
-		"IngressoNodo.applica_scelta"},
+		"IngressoNodo.applica_scelta. STRETTA A 1414 quando l'uscita verso " +
+		"la mappa di zona e' andata in IngressoNodo.alla_mappa_di_zona"},
 	"Plancia.gd": {"misura": 715, "perche":
 		"la schermata di combattimento intera, come l'ha disegnata Bru: il " +
 		"riquadro della creatura, i tre della squadra, le tre barre, l'ECG, " +

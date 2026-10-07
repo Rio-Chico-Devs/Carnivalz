@@ -50,6 +50,7 @@ const VELO_SOTTO := 0.14         # scelto un piano, quelli sotto restano un'ombr
 const VELO_SOPRA := 0.03         # e quelli sopra quasi spariscono: lo coprirebbero
 const PER_UN_PIANO := 40.0       # gradi d'altezza, almeno, guardando un piano solo
 const INQUADRATURA_MINIMA := 7.0 # di lato, in unita': quattro celle (ingombro)
+const CORNICE_PIENA := 0.5        # da questa altezza in su (frazione dello schermo) il minimo vale tutto
 
 var zona: MappaZona
 var vista: SubViewport
@@ -176,10 +177,20 @@ func ingombro() -> AABB:
 		tutto = scatola if primo else tutto.merge(scatola)
 		primo = false
 	var centro := tutto.get_center()
-	tutto.size.x = maxf(tutto.size.x, INQUADRATURA_MINIMA)
-	tutto.size.z = maxf(tutto.size.z, INQUADRATURA_MINIMA)
+	tutto.size.x = maxf(tutto.size.x, inquadratura_minima())
+	tutto.size.z = maxf(tutto.size.z, inquadratura_minima())
 	tutto.position = Vector3(centro.x - tutto.size.x * 0.5, tutto.position.y, centro.z - tutto.size.z * 0.5)
 	return tutto
+
+
+func inquadratura_minima() -> float:
+	# UNA CORNICE BASSA NON SI RIEMPIE DI VUOTO. Quattro celle di contesto vanno
+	# bene in una cornice alta mezzo schermo. Sotto la Guida, col testo grande,
+	# la cornice era una striscia alta un quinto, e quel contesto vuoto faceva
+	# della stanza in cui sei un puntino (Bru: «mi fa vedere la mappa
+	# piccolissima»). Il minimo scende con l'altezza della cornice, fino a meta'
+	var alta := size.y / maxf(get_viewport_rect().size.y, 1.0)
+	return INQUADRATURA_MINIMA * clampf(alta / CORNICE_PIENA, 0.5, 1.0)
 
 
 func scatola_vera(id_stanza: String) -> AABB:
@@ -484,7 +495,7 @@ func inquadra() -> void:
 	for id_stanza in da_inquadrare():
 		for i in 8:
 			angoli.append(scatola_vera(id_stanza).get_endpoint(i))
-	if tutto.size.x <= INQUADRATURA_MINIMA + 0.001 or tutto.size.z <= INQUADRATURA_MINIMA + 0.001:
+	if tutto.size.x <= inquadratura_minima() + 0.001 or tutto.size.z <= inquadratura_minima() + 0.001:
 		for i in 8:
 			angoli.append(tutto.get_endpoint(i))
 	cam = adatta(angoli, {"bersaglio": tutto.get_center(), "distanza": maxf(tutto.size.length() * 2.0, 4.0),

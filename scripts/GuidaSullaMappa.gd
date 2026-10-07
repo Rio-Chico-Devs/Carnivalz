@@ -25,6 +25,7 @@ extends Control
 const SCENA_MAPPA_ZONA := "res://scenes/MappaZona.tscn"
 const SCENA_BOX := "res://scenes/BoxTesto.tscn"
 const MARGINE := 24.0
+const STACCO := 10.0   # fra la mappa e il box: lo spazio e' poco, e va alla mappa
 
 # la visita in corso: {"righe": [...], "ritorno": id, "solo_chiudere": bool}.
 # Vive fra due schermate - la decide il dialogo, la legge la mappa - come
@@ -96,11 +97,18 @@ func fai_posto() -> void:
 	# LA MAPPA SI FERMA SOPRA IL BOX. Messo sopra e basta, il box copriva la
 	# riga piu' in basso della mappa - e nelle Pianure la riga piu' in basso e'
 	# il punto d'atterraggio, cioe' proprio il posto di «vedi?». L'ha fatto
-	# vedere il primo scatto
-	var alto := (box as Control).get_combined_minimum_size().y + MARGINE * 2.0
+	# vedere il primo scatto.
+	#
+	# MA SOPRA IL BOX ALLA MAPPA RESTAVA POCO. Bru, dalla «?» col testo grande:
+	# «se c'e' il dialogo sotto la mappa e' troppo piccola». A 1024x576 il box
+	# prende 200 pixel, e fra lui e la mappa c'erano ancora la riga di stato e
+	# due margini da 24: alla cornice ne restava un centinaio. Adesso fra mappa
+	# e box c'e' solo uno stacco, e la riga di stato sale nella barra in alto
+	var alto := (box as Control).get_combined_minimum_size().y + MARGINE + STACCO
 	for figlio in mappa.get_children():
 		if figlio is MarginContainer:
 			(figlio as MarginContainer).add_theme_constant_override("margin_bottom", int(alto))
+	IntelaiaturaZona.stato_in_barra(mappa as MappaZona)
 
 
 func _unhandled_input(evento: InputEvent) -> void:
