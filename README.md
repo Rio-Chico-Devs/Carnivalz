@@ -1704,6 +1704,12 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
   e sotto il corpo, da un lato e poi dall'altro; se non c'è un posto libero prende quello che
   copre meno superficie. Una prova fa fare ai pianeti un giro intero e guarda che nessun nome
   copra mai l'anomalia o una frattura;
+- **e stanno ferme mentre la mappa si muove** (Bru: «i nomi sfarfallano, non sono fissi,
+  lampeggiano»): il conto di quanto una didascalia esce dalla cornice era una sottrazione e
+  lasciava un millesimo di pixel, così nessun posto era mai libero e il nome cambiava lato a
+  caso a ogni fotogramma (85 volte in 4 secondi sulla mappa stellare). Adesso dentro la cornice
+  si chiede con `encloses`, e una didascalia resta dov'era finché lì non copre più di un filo
+  (`DisegnoProiezione.TOLLERANZA`). Una prova gira la mappa avanti e indietro e conta i salti;
 - **i segreti** (`segreti` del punto, `SegretiVuoto.gd`): non si vedono e col Tab non si
   raggiungono; quando il cursore passa a meno di 30 pixel esce il «!», e il segreto diventa un
   corpo da scegliere e prendere una volta sola (`premio`: tazo, un oggetto, un flag; poi il flag
