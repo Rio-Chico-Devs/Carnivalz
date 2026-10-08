@@ -295,6 +295,7 @@ func _ready() -> void:
 	await prova_la_tavola_sta_intera_anche_col_testo_grande()
 	await prova_la_proiezione_sta_intera_col_testo_grande()
 	await prova_la_proiezione_scrive_come_il_manifesto()
+	await prova_le_fratture_sono_il_gorgo_approvato()
 	await prova_le_sonde_trovano_e_aspettano_che_passi()
 	prova_le_sonde_si_salvano()
 	await prova_nel_vuoto_la_sonda_chiama_e_si_estrae()
@@ -12054,6 +12055,48 @@ func prova_pianeti_e_segreti_scritti_bene() -> void:
 			if oggetto != "" and GameState.dati_oggetto(oggetto).is_empty():
 				errori.append("il segreto '%s' da' '%s', che non esiste" % [segreto.get("id"), oggetto])
 	esigi(errori.is_empty(), "mappa.json: %s" % [errori])
+
+func prova_le_fratture_sono_il_gorgo_approvato() -> void:
+	# Bru, fra quattro proposte: «il gorgo e' il meglio la 4 per favore,
+	# approvata». Le altre tre e la lente di prima sono uscite dallo shader:
+	# niente di loro deve restare indietro, ne' un uniform che nessuno usa ne'
+	# un parametro che il codice scrive in uno shader che non lo ha piu' (Godot
+	# lo accetta in silenzio, e non fa niente)
+	titolo("le fratture sono il gorgo approvato: niente avanzi delle altre forme, e i bracci girano")
+	var morti: Array[String] = []
+	for nome in DirAccess.get_files_at("res://shaders"):
+		if nome.get_extension() != "gdshader":
+			continue
+		var codice := FileAccess.get_file_as_string("res://shaders/" + nome)
+		var senza_note := RegEx.create_from_string("//[^\\n]*").sub(codice, "", true)
+		for dichiarato in RegEx.create_from_string("(?m)^\\s*uniform\\s+\\w+\\s+(\\w+)").search_all(senza_note):
+			var uniform := dichiarato.get_string(1)
+			if RegEx.create_from_string("\\b%s\\b" % uniform).search_all(senza_note).size() < 2:
+				morti.append("%s: %s" % [nome, uniform])
+	esigi(morti.is_empty(), "uniform dichiarati e mai usati: %s" % [morti])
+	var nello_shader: Array = (load("res://shaders/proiezione_lenti.gdshader") as Shader).get_shader_uniform_list().map(
+			func(u: Dictionary) -> String: return String(u["name"]))
+	var proiezione := testo_script("res://scripts/Proiezione.gd")
+	var scritti: Array[String] = []
+	for chiamata in RegEx.create_from_string("mat_lenti\\.set_shader_parameter\\(\"(\\w+)\"").search_all(proiezione):
+		scritti.append(chiamata.get_string(1))
+	var prima := RegEx.create_from_string("materiale\\(LENTI, \\{([^}]*)\\}").search(proiezione)
+	if prima != null:
+		for chiave in RegEx.create_from_string("\"(\\w+)\":").search_all(prima.get_string(1)):
+			scritti.append(chiave.get_string(1))
+	var fantasmi := scritti.filter(func(nome: String) -> bool: return not nome in nello_shader)
+	esigi(scritti.size() >= 6 and fantasmi.is_empty(),
+			"Proiezione scrive alle lenti parametri che lo shader non ha: %s (letti %s)" % [fantasmi, scritti])
+	# e i bracci del gorgo girano piano: il tempo dello shader va avanti
+	GameState.nuova_partita()
+	var vuoto: Control = await apri_il_vuoto(punto_della_mappa("carnivalz_del_bosco"))
+	var p: Proiezione = vuoto.get("proiezione")
+	var prima_t := float(p.mat_lenti.get_shader_parameter("tempo"))
+	await get_tree().create_timer(0.3).timeout
+	esigi(int(p.mat_lenti.get_shader_parameter("n_lenti")) > 0
+			and float(p.mat_lenti.get_shader_parameter("tempo")) > prima_t, "i bracci del gorgo stanno fermi")
+	vuoto.queue_free()
+	GameState.nuova_partita()
 
 func prova_le_sonde_trovano_e_aspettano_che_passi() -> void:
 	# Bru: «su questi ogni tanto randomicamente arrivano dei dati dalle sonde

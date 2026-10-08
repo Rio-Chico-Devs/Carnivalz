@@ -1665,18 +1665,15 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
 - **la griglia si piega nei pozzi**: ogni Carnivalz è un pozzo profondo, ogni frattura un pozzo
   più piccolo accanto al grande. Lo shader è in `shaders/`;
 - **le fratture stanno ferme, in orbita ci sono solo i pianeti** (Bru: «non devono ruotare in
-  orbite, in orbita solo pianeti»): una frattura sta dove la mette `pos` in `mappa.json`. Il suo
-  aspetto è ancora da scegliere: oltre alla lente di adesso ci sono quattro proposte (`strappo`,
-  `crepa`, `varco`, `gorgo`, in `CieloProiezione.FORME_FRATTURA`), che si guardano con
-  `FORMA_FRATTURE=varco ./prove/scatto.sh proiezione vuoto`;
+  orbite, in orbita solo pianeti»): una frattura sta dove la mette `pos` in `mappa.json`;
 - **solo i Carnivalz sono pianeti** (Bru: «le fratture devono sembrare più distorsioni spazio
-  tempo più che pianeti»): una frattura è una **lente** (`shaders/proiezione_lenti.gdshader`)
-  fatta di due cose. Un **vortice** che giace sulla griglia (dall'alto è un cerchio, di lato
-  un'ellisse) e piega e fa girare quello che c'è dietro, con un arco di luce spezzato, un
-  cuore scuro e detriti che spiraleggiano dentro; e uno **squarcio** in piedi sulla gola, dai
-  bordi strappati, con dentro un altro mondo che si muove. Quanto è viva lo dice lo stato:
-  nuova brucia, vista è calma, chiusa è una cicatrice, spenta è grigia; quella che punti si
-  accende e si apre. Un corpo ha una `forma`: `sfera` (Carnivalz, pianeti delle risorse,
+  tempo più che pianeti»): una frattura è un **gorgo** (`shaders/proiezione_lenti.gdshader`),
+  scelto da Bru fra quattro proposte (strappo, crepa, varco, gorgo: «il gorgo è il meglio la 4
+  per favore, approvata»). Giace sulla griglia (dall'alto è un cerchio, di lato un'ellisse): un
+  disco a **retino** come i pianeti, coi bracci di una spirale che girano piano su se stessi e
+  si scaldano d'arancio verso la gola, un **buco nero** al centro col suo anello di luce, e la
+  griglia dietro che scivola dentro. Quanto è viva lo dice lo stato: nuova brucia e gira più
+  svelta, vista è calma, chiusa è appena un'ombra, spenta è grigia; quella che punti si accende. Un corpo ha una `forma`: `sfera` (Carnivalz, pianeti delle risorse,
   meteoriti), `lente` (fratture, inizi di frattura) o `nessuna` (un segnale);
 - **la mappa si maneggia, ma non troppo** (`ManoProiezione.gd`; Bru: «non troppo però, il
   giusto per visualizzare al meglio le varie parti [...] ma non esageriamo con lo zoom»):

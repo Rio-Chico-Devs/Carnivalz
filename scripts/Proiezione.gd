@@ -56,7 +56,7 @@ const RETINO := preload("res://shaders/proiezione_retino.gdshader")
 const ANELLO := preload("res://shaders/proiezione_anello.gdshader")
 const LENTI := preload("res://shaders/proiezione_lenti.gdshader")
 const LENTI_MASSIME := 12   # quante ne tiene lo shader
-const LENTE := 3.0          # quanto e' larga una lente rispetto al suo corpo: l'anello cade a 0.38
+const LENTE := 4.05         # quanto e' largo un gorgo rispetto al suo corpo: il buco nero sta a un quinto
 const SPALLA := 2.4      # la camera guarda un po' a sinistra: a destra c'e' la colonna delle schede
 const PER_LIVELLO := {
 	"settore": {"bersaglio": Vector3(0, -0.8, 0.5), "giro": -0.05, "fov": 50.0, "polare": 0.0, "passo": 1.0,
@@ -138,7 +138,7 @@ func costruisci() -> void:
 	schermo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(schermo)
 	# le fratture: lenti che piegano quello che e' gia' disegnato qui sotto
-	mat_lenti = CieloProiezione.materiale(LENTI, {"rumore": CieloProiezione.rumore(), "segnale": tinte["segnale"]})
+	mat_lenti = CieloProiezione.materiale(LENTI, {"segnale": tinte["segnale"]})
 	tingi(mat_lenti)
 	lenti = ColorRect.new()
 	lenti.material = mat_lenti
@@ -624,7 +624,7 @@ func muovi_lenti() -> void:
 	# ha bisogno di sapere quanto sono grandi
 	var a := PackedVector4Array()
 	var b := PackedVector4Array()
-	var squarci := PackedVector4Array()
+	var aperture := PackedVector4Array()
 	var fermo := Movimento.ridotto()
 	for c in corpi:
 		var s := sullo_schermo(c["pos"])
@@ -636,25 +636,23 @@ func muovi_lenti() -> void:
 		var fase := float(hash(String(c["id"])) % 628) / 100.0
 		var respiro := 1.0 + 0.18 * float(c["respiro"]) * sin(t * 2.3)
 		var energia := (energia_di(String(c["stato"])) + 0.5 * float(c["acceso"])) * (1.0 - float(c["spento"]) * 0.7)
-		# lo squarcio: una cicatrice se la frattura e' chiusa; si apre quando la punti, e respira
+		# il gorgo: un'ombra se la frattura e' chiusa; si apre quando la punti, e respira
 		var apre := 0.18 if String(c["stato"]) in ["chiuso", "preso"] else 0.75 + 0.35 * float(c["acceso"])
 		apre *= DisegnoProiezione.elastico(float(c["apertura"])) * (1.0 if fermo else 1.0 + 0.08 * sin(t * 1.7 + fase))
-		# il vortice giace sulla griglia: dall'alto e' un cerchio, di lato un'ellisse
+		# il gorgo giace sulla griglia: dall'alto e' un cerchio, di lato un'ellisse
 		var schiaccia := absf((c["pos"] - camera.global_position).normalized().y)
-		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro * float(CieloProiezione.forma_delle_fratture()[1]),
-				1.0 - float(c["spento"]) * 0.7))
+		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro, 0.0))
 		b.append(Vector4(float(c["spento"]), fase, energia, schiaccia))
-		squarci.append(Vector4(apre, (float(hash(String(c["id"]) + "/") % 100) / 100.0 - 0.5) * 0.5, 0.0, 0.0))
+		aperture.append(Vector4(apre, 0.0, 0.0, 0.0))
 	var quante := a.size()
 	lenti.visible = quante > 0
 	a.resize(LENTI_MASSIME)
 	b.resize(LENTI_MASSIME)
-	squarci.resize(LENTI_MASSIME)
+	aperture.resize(LENTI_MASSIME)
 	mat_lenti.set_shader_parameter("lenti", a)
 	mat_lenti.set_shader_parameter("lenti_b", b)
-	mat_lenti.set_shader_parameter("lenti_c", squarci)
+	mat_lenti.set_shader_parameter("lenti_c", aperture)
 	mat_lenti.set_shader_parameter("n_lenti", quante)
-	mat_lenti.set_shader_parameter("stile", int(CieloProiezione.forma_delle_fratture()[0]))
 	mat_lenti.set_shader_parameter("scala", (get_viewport().get_final_transform()
 			* get_global_transform_with_canvas()).get_scale().y)
 	mat_lenti.set_shader_parameter("tempo", 0.0 if Movimento.ridotto() else t)

@@ -30,11 +30,6 @@ func _ready() -> void:
 		Impostazioni.testo_grande = true
 		Impostazioni.applica_scala_testo()
 		etichetta += "_testo_grande"
-	# FORMA_FRATTURE=crepa ./prove/scatto.sh proiezione vuoto: le fratture in
-	# un'altra forma (CieloProiezione.FORME_FRATTURA)
-	if OS.has_environment("FORMA_FRATTURE"):
-		CieloProiezione.forma_fratture = OS.get_environment("FORMA_FRATTURE")
-		etichetta += "_" + CieloProiezione.forma_fratture
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta
