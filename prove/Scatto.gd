@@ -30,12 +30,6 @@ func _ready() -> void:
 		Impostazioni.testo_grande = true
 		Impostazioni.applica_scala_testo()
 		etichetta += "_testo_grande"
-	# VOCE_PROIEZIONE=archivo ./prove/scatto.sh proiezione mappa: le scritte
-	# della mappa stellare, del Vuoto e del plastico con un'altra voce
-	# (DisegnoProiezione.VOCI)
-	if OS.has_environment("VOCE_PROIEZIONE"):
-		DisegnoProiezione.voce = OS.get_environment("VOCE_PROIEZIONE")
-		etichetta += "_" + DisegnoProiezione.voce
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta

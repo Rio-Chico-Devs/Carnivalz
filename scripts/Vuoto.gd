@@ -63,10 +63,10 @@ func _ready() -> void:
 			crea_pianeta_delle_risorse(pianeta)
 	crea_segreti(punto.get("segreti", []))
 	proiezione.titolo_grande = String(punto.get("nome", "Il Vuoto")).to_upper()
-	proiezione.sopratitolo = "%s  ·  %d FRATTURE APERTE" % [String(punto.get("sottotitolo", "Il Vuoto")).to_upper(),
-			fratture.size()]
+	proiezione.sopratitolo = "%s  ·  %d %s" % [String(punto.get("sottotitolo", "Il Vuoto")).to_upper(),
+			fratture.size(), "FRATTURA APERTA" if fratture.size() == 1 else "FRATTURE APERTE"]
 	proiezione.confermato.connect(_su_conferma)
-	DisegnoProiezione.vesti(bottone_mappa, proiezione.tinte)
+	DisegnoProiezione.vesti(bottone_mappa)
 	bottone_mappa.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_MAPPA))
 	proiezione.risali("anomalia")

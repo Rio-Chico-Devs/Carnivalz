@@ -294,6 +294,7 @@ func _ready() -> void:
 	prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma()
 	await prova_la_tavola_sta_intera_anche_col_testo_grande()
 	await prova_la_proiezione_sta_intera_col_testo_grande()
+	await prova_la_proiezione_scrive_come_il_manifesto()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -19427,6 +19428,41 @@ func prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma() -> void:
 	esigi(fiala.is_equal_approx(Rect2(37.5, 0, 25, 100)),
 			"un disegno 20x80 in un riquadro 100x100 finisce in %s: e' stato storto" % fiala)
 	Impostazioni.movimento_ridotto = ridotto_prima
+	GameState.nuova_partita()
+
+func prova_la_proiezione_scrive_come_il_manifesto() -> void:
+	# Bru: «piu' che ingrandire le scritte uniformare i font alla grafica
+	# generale del gioco», e fra quattro proposte «variante 3 sia». La mappa
+	# stellare era l'unico posto del gioco che scriveva col carattere dei
+	# dialoghi leggerissimo e spaziato: adesso scrive in Archivo, come le
+	# etichette, e le sue uscite sono l'etichetta nera di ogni altra schermata
+	titolo("la mappa stellare e il Vuoto scrivono col carattere e le etichette del manifesto")
+	var archivo := Stile.font_da("titolo")
+	for misure: Array in [[220, 75, 16], [450, 85, 2], [600, 85, 2]]:
+		var f := DisegnoProiezione.fonte(float(misure[0]), float(misure[1]), int(misure[2])) as FontVariation
+		esigi(f != null and f.base_font == archivo,
+				"la proiezione scrive ancora con un altro carattere (misure %s)" % [misure])
+	var riferimento := Button.new()
+	Stile.ritorno(riferimento)
+	for scena: String in ["Mappa", "Vuoto"]:
+		GameState.nuova_partita()
+		var schermata: Control
+		if scena == "Vuoto":
+			schermata = await apri_il_vuoto(punto_della_mappa("carnivalz_del_bosco"))
+		else:
+			schermata = load("res://scenes/Mappa.tscn").instantiate()
+			add_child(schermata)
+			await get_tree().process_frame
+		for bottone: Button in [schermata.find_child("BottoneSede", true, false), schermata.find_child("BottoneMappa", true, false)]:
+			if bottone == null:
+				continue
+			esigi(bottone.get_theme_font("font") == Caratteri.titolo(),
+					"%s: «%s» non usa il carattere delle etichette" % [scena, bottone.text])
+			esigi((bottone.get_theme_stylebox("normal") as StyleBoxFlat).skew == (riferimento.get_theme_stylebox("normal") as StyleBoxFlat).skew,
+					"%s: «%s» non e' l'etichetta inclinata delle altre uscite" % [scena, bottone.text])
+		schermata.queue_free()
+		await get_tree().process_frame
+	riferimento.free()
 	GameState.nuova_partita()
 
 func prova_la_proiezione_sta_intera_col_testo_grande() -> void:

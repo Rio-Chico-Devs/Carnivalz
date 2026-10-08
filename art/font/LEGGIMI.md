@@ -6,7 +6,7 @@ non si possono incorporare in un'applicazione: questi si'.
 
 | file | carattere | dove si usa | licenza |
 |---|---|---|---|
-| `titolo.ttf` | **Archivo corsivo**, a due assi variabili: peso e larghezza (Omnibus-Type, The Archivo Project Authors) | il grottesco nero del manifesto: titoli, etichette, voci, strisce, pillole | SIL Open Font License 1.1 — `OFL-Archivo.txt` |
+| `titolo.ttf` | **Archivo corsivo**, a due assi variabili: peso e larghezza (Omnibus-Type, The Archivo Project Authors) | il grottesco nero del manifesto: titoli, etichette, voci, strisce, pillole; e dall'8 ottobre anche le scritte della mappa stellare, del Vuoto e dei plastici (Bru: «variante 3 sia») | SIL Open Font License 1.1 — `OFL-Archivo.txt` |
 | `arrotondato.ttf` | **Nunito**, a peso variabile (The Nunito Project Authors) | le scritte piccole del menu principale: intestazione, descrizioni, comandi | SIL Open Font License 1.1 — `OFL-Nunito.txt` |
 | `fiaba.ttf` | **Italianno**, calligrafico (Robert Leuschke, The Italianno Project Authors) | il racconto a schermo intero: l'inizio del gioco e dei livelli | SIL Open Font License 1.1 — `OFL-Italianno.txt` |
 | `dialoghi.ttf` | **Bricolage Grotesque**, a tre assi variabili: corpo ottico, larghezza, peso (Mathieu Triay, The Bricolage Grotesque Project Authors) | il box dei dialoghi: dialoghi, narrazione, notifiche, il diario del combattimento | SIL Open Font License 1.1 — `OFL-BricolageGrotesque.txt` |

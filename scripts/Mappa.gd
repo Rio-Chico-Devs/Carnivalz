@@ -64,7 +64,7 @@ func _ready() -> void:
 	crea_punti(mappa.get("punti", []), scegliendo)
 	proiezione.aggiungi_stelle_lontane(14, 404)
 	proiezione.confermato.connect(_su_conferma)
-	DisegnoProiezione.vesti(bottone_sede, proiezione.tinte)
+	DisegnoProiezione.vesti(bottone_sede)
 	bottone_sede.pressed.connect(func() -> void:
 		Transizioni.vai(SCENA_SEDE))
 	if scegliendo:
@@ -77,7 +77,8 @@ func _ready() -> void:
 		proiezione.sopratitolo = "SELEZIONA IL PUNTO D'INTERESSE"
 	else:
 		proiezione.titolo_grande = "IL SETTORE"
-		proiezione.sopratitolo = "PROIEZIONE DEL SETTORE  ·  %d SISTEMI" % punti_per_id.size()
+		var quanti := punti_per_id.size()
+		proiezione.sopratitolo = "PROIEZIONE DEL SETTORE  ·  %d %s" % [quanti, "SISTEMA" if quanti == 1 else "SISTEMI"]
 	proiezione.accendi(Vector2.ZERO)
 	IconaMenu.metti(self)
 
