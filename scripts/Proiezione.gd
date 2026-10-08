@@ -173,8 +173,7 @@ func costruisci_griglia() -> void:
 	piano.subdivide_width = 300
 	piano.subdivide_depth = 300
 	griglia.mesh = piano
-	mat_griglia = CieloProiezione.materiale(GRIGLIA, {"rumore": CieloProiezione.rumore(),
-			"stile": int(CieloProiezione.FORME_GRIGLIA.get(CieloProiezione.forma_griglia, 0))})
+	mat_griglia = CieloProiezione.materiale(GRIGLIA, {"rumore": CieloProiezione.rumore()})
 	tingi(mat_griglia)
 	griglia.material_override = mat_griglia
 	griglia.extra_cull_margin = 60.0

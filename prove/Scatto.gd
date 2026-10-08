@@ -30,11 +30,6 @@ func _ready() -> void:
 		Impostazioni.testo_grande = true
 		Impostazioni.applica_scala_testo()
 		etichetta += "_testo_grande"
-	# GRIGLIA=retino ./prove/scatto.sh proiezione vuoto: la griglia dello spazio
-	# in una delle proposte (CieloProiezione.FORME_GRIGLIA)
-	if OS.has_environment("GRIGLIA"):
-		CieloProiezione.forma_griglia = OS.get_environment("GRIGLIA")
-		etichetta += "_" + CieloProiezione.forma_griglia
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta

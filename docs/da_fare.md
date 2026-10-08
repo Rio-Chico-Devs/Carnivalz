@@ -28,3 +28,11 @@ Esempi miei, da sostituire quando ci sono i contenuti veri:
   minuti trovano, quanti giacimenti tengono, cosa e quanto. Vanno provati
   giocando;
 - **i tre segreti** del Vuoto (`mappa.json`, `segreti`): posti, testi e premi.
+
+## La griglia dello spazio
+*Bru, l'8 ottobre, fra quattro proposte: «per ora quella attuale è la migliore».*
+
+La griglia resta com'è. Le quattro proposte (retino, curve di livello, tavola
+tecnica, rilievo) sono tolte dal gioco ma restano nella storia del repository,
+nel commit «Griglia dello spazio: quattro proposte da far scegliere a Bru»
+(`773ea2b`): se un giorno si vuole riprenderne una, si parte da lì.
