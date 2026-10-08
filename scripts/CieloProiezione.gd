@@ -86,3 +86,11 @@ static func nebulosa(tinta: Color) -> ColorRect:
 	r.position = Vector2(-160, -40)
 	r.material = materiale(NEBULOSA, {"rumore": rumore(), "tinta": tinta})
 	return r
+
+
+# LA GRIGLIA DELLO SPAZIO (shaders/proiezione_griglia, "stile"), PROVVISORIO.
+# Bru: «mi preme migliorare anche la griglia dello spazio, secondo te si puo'
+# fare meglio? mandami degli esempi perfavore, sempre per uniformare». Finche'
+# non sceglie, le proposte stanno qui (per gli scatti GRIGLIA=retino ...)
+const FORME_GRIGLIA := {"oggi": 0, "retino": 1, "livelli": 2, "tavola": 3, "rilievo": 4}
+static var forma_griglia := "oggi"

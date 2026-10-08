@@ -4,6 +4,7 @@ RPG d'avventura narrativa dark fantasy: illustrazioni statiche, mappa stellare +
 I mondi collassano, le realtà si fondono, e chi tocca il confine matura il fattore Carnivalz:
 l'Organizzazione manda il party a estinguere le fonti prima che i pianeti vengano divorati.
 Storia completa (canone): `docs/storia.md`.
+Le decisioni lasciate per dopo: `docs/da_fare.md`.
 Motore in Godot (GDScript), **contenuti tutti nei JSON** sotto `data/` — mai hardcodati negli script.
 Il protagonista è l'**Anonimo**: il gioco si vive in prima persona attraverso le sue avventure.
 Al via di una nuova partita (menu principale) il giocatore può scegliere un nome per lui — se
