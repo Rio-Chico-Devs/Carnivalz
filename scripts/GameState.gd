@@ -2353,16 +2353,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	oggetti_speciali = _lista_str(d.get("oggetti_speciali", []))
 	spazi_zaino = d.get("spazi_zaino", {})
 	carte_copie = d.get("carte_copie", {})
-	# salvataggi vecchi: armi e stigmi stavano tutti in "accessori", e le
-	# carte non avevano copie. Si smistano al primo caricamento
-	if armi.is_empty() and oggetti_speciali.is_empty():
-		var rimaste: Array[String] = []
-		for id_oggetto in accessori:
-			match String(dati_oggetto(id_oggetto).get("tipo", "")):
-				"arma": armi.append(id_oggetto)
-				"stigma": oggetti_speciali.append(id_oggetto)
-				_: rimaste.append(id_oggetto)
-		accessori = rimaste
+	_smista_lo_zaino_vecchio()
 	equipaggiamento = d.get("equipaggiamento", {})
 	# partite salvate col vecchio sistema a un solo accessorio: quello che
 	# avevi addosso diventa il primo accessorio del protagonista
@@ -2444,6 +2435,19 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	musica_ambiente = ""
 	annulla_combattimento()
 	return true
+
+
+func _smista_lo_zaino_vecchio() -> void:
+	# salvataggi vecchi: armi e stigmi stavano tutti in "accessori", si smistano qui
+	if not armi.is_empty() or not oggetti_speciali.is_empty():
+		return
+	var rimaste: Array[String] = []
+	for id_oggetto in accessori:
+		match String(dati_oggetto(id_oggetto).get("tipo", "")):
+			"arma": armi.append(id_oggetto)
+			"stigma": oggetti_speciali.append(id_oggetto)
+			_: rimaste.append(id_oggetto)
+	accessori = rimaste
 
 func _lista_str(v: Variant) -> Array[String]:
 	var a: Array[String] = []

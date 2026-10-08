@@ -5,7 +5,8 @@ extends Control
 # che scegli in grande. Bru: «siccome avremo un'immagine per ogni oggetto ci
 # deve essere una lista». Cosa fanno i giochi migliori e cosa ne abbiamo preso
 # sta in docs/zaino.md; qui si disegna e si risponde, i conti (cosa c'e', in
-# che ordine, cos'e' nuovo) stanno in ElencoZaino.gd.
+# che ordine, cos'e' nuovo) stanno in ElencoZaino.gd, i pezzi disegnati (il
+# fondo, l'oggetto grande, i riquadri) in PezziZaino.gd.
 #
 # COME E' FATTO. E' della stessa famiglia della scheda della squadra
 # (Personaggio.gd), perche' si apre dallo stesso menu: l'arancio del manifesto,
@@ -50,10 +51,10 @@ var barra: Control
 var elenco: Control
 var lista: Control
 var dettaglio: Control
-var mostra: Mostra
-var riquadri: Riquadri
-var segni: SegniNuovi
-var binario: Binario
+var mostra: PezziZaino.Mostra
+var riquadri: PezziZaino.Riquadri
+var segni: PezziZaino.SegniNuovi
+var binario: PezziZaino.Binario
 var indietro: TastoObliquo
 var ordina: TastoObliquo
 var linguette: Array[TastoObliquo] = []
@@ -103,8 +104,8 @@ func dove_va_il_fuoco() -> Control:
 
 func costruisci_tavola() -> void:
 	tavola = Tavola.su(self)
-	tavola.add_child(Fondo.new())
-	mostra = Mostra.new()
+	tavola.add_child(PezziZaino.Fondo.new())
+	mostra = PezziZaino.Mostra.new()
 	tavola.add_child(mostra)
 	elenco = gruppo()
 	dettaglio = gruppo()
@@ -152,7 +153,7 @@ func costruisci_barra() -> void:
 	titolo.position = Vector2(Tavola.LARGO - titolo.size.x - 18.0, 4.0)
 	titolo.svela(0.05)
 	costruisci_linguette(24.0 + indietro.misura_voluta().x, minf(titolo.position.x - 12.0, FINE_LINGUETTE))
-	segni = SegniNuovi.new()
+	segni = PezziZaino.SegniNuovi.new()
 	segni.scheda = self
 	barra.add_child(segni)
 
@@ -185,7 +186,7 @@ func costruisci_linguette(da: float, fino: float) -> void:
 
 func costruisci_elenco() -> void:
 	capienza = scritta(elenco, Rect2(48, 92, 330, 24), 16, Stile.colore("testo"), Caratteri.titolo())
-	binario = Binario.new()
+	binario = PezziZaino.Binario.new()
 	elenco.add_child(binario)
 	Tavola.metti(binario, Rect2(0, 0, Tavola.LARGO, Tavola.ALTO))
 	ordina = TastoObliquo.nuovo("", "spoglio", 14)
@@ -211,7 +212,7 @@ func costruisci_elenco() -> void:
 
 
 func costruisci_dettaglio() -> void:
-	riquadri = Riquadri.new()
+	riquadri = PezziZaino.Riquadri.new()
 	dettaglio.add_child(riquadri)
 	tipo = scritta(dettaglio, Rect2(DETTAGLIO_X, 84, DETTAGLIO_LARGO, 18), 13, Stile.colore("accento"), Caratteri.tondo(900))
 	nome = scritta(dettaglio, Rect2(DETTAGLIO_X, 106, DETTAGLIO_LARGO, 68), 26, Stile.colore("testo"), Caratteri.titolo())
@@ -429,161 +430,3 @@ func entra_lista() -> void:
 	# resto della schermata e' lo stesso, e ballare tutto a ogni freccia
 	# sarebbe una schermata che si guarda invece di usarla
 	Tavola.entra(lista, 0.0, Vector2(0, 10))
-
-
-# --- i pezzi disegnati ---------------------------------------------------------
-
-class Fondo extends Control:
-	# l'arancio del manifesto con la sua trama, la fascia nera storta con la
-	# striscia chiara accanto, e i due schermi: la lista e la scheda
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		size = Vector2(Tavola.LARGO, Tavola.ALTO)
-		Manifesto.trama_dietro(self).show_behind_parent = true
-
-	func _draw() -> void:
-		var striscia := PackedVector2Array()
-		for p in [BANDA[0], BANDA[0] + Vector2(-5, 0), BANDA[3] + Vector2(-5, 0), BANDA[3]]:
-			striscia.append(p - Vector2(14, 0))
-		Manifesto.poligono(self, striscia, Stile.colore("bordo_acceso"))
-		Manifesto.poligono(self, PackedVector2Array(BANDA), Stile.colore("bordo"))
-		for schermo in [SCHERMO_ELENCO, SCHERMO_DETTAGLIO]:
-			Manifesto.disegna_schermo(self, schermo)
-
-
-class Mostra extends Control:
-	# L'OGGETTO SCELTO, GRANDE, sulla fascia nera: il disegno di Bru quando
-	# c'e', se no la sagoma del suo tipo. Sopra, quanti ne hai. Cambiando riga
-	# arriva scivolando di poco, come in vetrina: e' l'unica cosa che si muove
-	const SCIVOLO := 24.0
-	var id_oggetto := ""
-	var sagoma_vuota := ""         # lo scomparto vuoto: la sua sagoma, spenta
-	var arrivo := 1.0
-	var orologio := -1.0
-	var quanti: Label
-	var quanti_cosa: Label
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		size = Vector2(Tavola.LARGO, Tavola.ALTO)
-		quanti = Tavola.scritta("", 60, Stile.colore("testo"), Caratteri.titolo(), HORIZONTAL_ALIGNMENT_CENTER)
-		add_child(quanti)
-		Tavola.metti(quanti, Rect2(800, 80, 180, 76))
-		Tavola.ombra(quanti, Color(Stile.colore("box_testo"), 0.9), Vector2(4, 4))
-		quanti_cosa = Tavola.scritta("", 13, Stile.colore("testo"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER)
-		add_child(quanti_cosa)
-		Tavola.metti(quanti_cosa, Rect2(800, 156, 180, 20))
-
-	func mostra(voce: Dictionary, sagoma_dello_scomparto: String) -> void:
-		var nuovo := String(voce.get("oggetto", ""))
-		var cambia := nuovo != id_oggetto
-		id_oggetto = nuovo
-		sagoma_vuota = sagoma_dello_scomparto
-		quanti.text = "×%d" % int(voce.get("quanti", 0)) if nuovo != "" else ""
-		quanti_cosa.text = ("NEL BOTTINO" if Merce.tipo_oggetto(nuovo) == "pila" else "NELLO ZAINO") if nuovo != "" else ""
-		if cambia and nuovo != "":
-			arrivo = 0.0
-			orologio = 0.0
-			set_process(true)
-		queue_redraw()
-
-	func _process(delta: float) -> void:
-		if orologio < 0.0:
-			set_process(false)
-			return
-		orologio += delta
-		var durata := Movimento.durata("colore" if Movimento.ridotto() else "entrata")
-		arrivo = Movimento.curva("entrata", clampf(orologio / durata, 0.0, 1.0))
-		if orologio >= durata:
-			orologio = -1.0
-			arrivo = 1.0
-		queue_redraw()
-
-	func _draw() -> void:
-		if id_oggetto == "":
-			Sagome.icona_oggetto(self, IMMAGINE.get_center(), 210.0, sagoma_vuota,
-					Stile.colore("pannello_chiaro"), Stile.colore("bordo"))
-			return
-		var spostato := Vector2(0.0 if Movimento.ridotto() else SCIVOLO * (1.0 - arrivo), 0.0)
-		var r := Rect2(IMMAGINE.position + spostato, IMMAGINE.size)
-		var disegno := Sagome.immagine_oggetto(id_oggetto)
-		if disegno != null:
-			Sagome.disegna_dentro(self, disegno, r, Color(1, 1, 1, arrivo))
-			return
-		# la sagoma ha la sua sfoglia nera sotto: sulla fascia e sull'arancio
-		# si legge lo stesso
-		var forma := Sagome.tipo_icona(id_oggetto)
-		var nero := Color(Stile.colore("box_testo"), arrivo)
-		Sagome.icona_oggetto(self, r.get_center() + Vector2(8, 8), 210.0, forma, nero, nero)
-		Sagome.icona_oggetto(self, r.get_center(), 210.0, forma, Color(Stile.colore("testo"), arrivo), nero)
-
-
-class Riquadri extends Control:
-	# i riquadri chiari sotto i numeri di cosa fa, e la fascia arancio di chi
-	# lo sta usando
-	var quanti := 0
-	var in_uso := false
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		size = Vector2(Tavola.LARGO, Tavola.ALTO)
-
-	func _draw() -> void:
-		for i in quanti:
-			var r := Rect2(Vector2(DETTAGLIO_X + PASSO_RIQUADRO * i, Y_RIQUADRI), RIQUADRO)
-			draw_rect(r, Stile.colore("pannello_chiaro"))
-			draw_rect(Rect2(r.position.x, r.end.y - 3.0, r.size.x, 3.0), Stile.colore("bordo_acceso"))
-		if in_uso:
-			var storto := IN_USO.size.y * Manifesto.INCLINA
-			Manifesto.poligono(self, PackedVector2Array([IN_USO.position + Vector2(storto, 0),
-					Vector2(IN_USO.end.x, IN_USO.position.y), IN_USO.end - Vector2(storto, 0),
-					Vector2(IN_USO.position.x, IN_USO.end.y)]), Stile.colore("accento"))
-
-
-class Binario extends Control:
-	# QUANTO E' PIENO LO SCOMPARTO, sotto il conto dei posti: una barra, perche'
-	# «17/20» si legge, ma una barra quasi piena si vede. E sul bordo destro
-	# della lista, se le righe non ci stanno tutte, dove sei nella lista
-	var pieno := -1.0
-	var finestra := Vector2.ZERO
-	var quante := 0
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	func _draw() -> void:
-		if pieno >= 0.0:
-			var r := Rect2(48, 120, 300, 5)
-			draw_rect(r, Stile.colore("barra_vuota"))
-			draw_rect(Rect2(r.position, Vector2(r.size.x * pieno, r.size.y)),
-					Stile.colore("pericolo") if pieno >= 1.0 else Stile.colore("accento"))
-		if quante <= VISIBILI:
-			return
-		var alto := PASSO_RIGA * VISIBILI - 4.0
-		var x := PRIMA_RIGA.x + LARGO_RIGA + 8.0
-		draw_rect(Rect2(x, PRIMA_RIGA.y, 3, alto), Stile.colore("pannello_chiaro"))
-		var da := alto * finestra.x / float(quante)
-		var a := alto * finestra.y / float(quante)
-		draw_rect(Rect2(x - 1.0, PRIMA_RIGA.y + da, 5, a - da), Stile.colore("bordo_acceso"))
-
-
-class SegniNuovi extends Control:
-	# UN ROMBO SULLA LINGUETTA di uno scomparto che ha dentro qualcosa di mai
-	# guardato: la stella di Diablo 3 sullo scomparto. Si spegne quando li hai
-	# guardati tutti. Chiaro con la sfoglia nera, come il segno NUOVO delle
-	# righe: arancio sull'arancio della pagina non si vedeva
-	var scheda: SchedaZaino
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		size = Vector2(Tavola.LARGO, 60)
-
-	func _draw() -> void:
-		if scheda == null:
-			return
-		for linguetta in scheda.linguette:
-			if not ElencoZaino.ha_nuovi(String(linguetta.get_meta("scomparto"))):
-				continue
-			var c := linguetta.position + Vector2(linguetta.size.x - 2.0, 4.0)
-			Manifesto.poligono(self, Sagome.rombo(c + Vector2(2, 2), 7.0), Stile.colore("bordo"))
-			Manifesto.poligono(self, Sagome.rombo(c, 7.0), Stile.colore("bordo_acceso"))

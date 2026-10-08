@@ -7,8 +7,9 @@ per ottenere il miglior risultato».*
 
 Qui c'è cosa ho trovato, cosa ne ho preso e cosa ho lasciato. Lo zaino nuovo sta
 in `scripts/Zaino.gd` (la schermata), `scripts/RigaZaino.gd` (una riga della
-lista) ed `scripts/ElencoZaino.gd` (cosa c'è dentro, in che ordine, cos'è nuovo:
-senza disegnare niente, così si prova da solo).
+lista), `scripts/PezziZaino.gd` (il fondo, l'oggetto grande, i riquadri) ed
+`scripts/ElencoZaino.gd` (cosa c'è dentro, in che ordine, cos'è nuovo: senza
+disegnare niente, così si prova da solo).
 
 ## Prima: com'era
 

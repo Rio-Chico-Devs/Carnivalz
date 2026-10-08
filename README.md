@@ -1720,8 +1720,10 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
 - **le didascalie non coprono i corpi** (`DisegnoProiezione.didascalie`): con le fratture ferme,
   un nome finito sopra un corpo ci restava per sempre. Ogni didascalia prova undici gradini sopra
   e sotto il corpo, da un lato e poi dall'altro; se non c'è un posto libero prende quello che
-  copre meno superficie. Una prova fa fare ai pianeti un giro intero e guarda che nessun nome
-  copra mai l'anomalia o una frattura;
+  copre meno, e **un pixel di corpo pesa quanto otto di un altro nome**
+  (`DisegnoProiezione.PESO_DEI_CORPI`): contavano uguale, e quando un pianeta in orbita passava
+  sopra la Rocca ossidiana il suo nome restava sulla frattura. Una prova fa fare ai pianeti un
+  giro intero e guarda che nessun nome copra mai l'anomalia o una frattura;
 - **e stanno ferme mentre la mappa si muove** (Bru: «i nomi sfarfallano, non sono fissi,
   lampeggiano»): il conto di quanto una didascalia esce dalla cornice era una sottrazione e
   lasciava un millesimo di pixel, così nessun posto era mai libero e il nome cambiava lato a

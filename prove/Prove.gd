@@ -12376,6 +12376,15 @@ func prova_le_didascalie_non_coprono_i_corpi() -> void:
 	var proprio: Array[Rect2] = [Rect2(0, 0, 1280, 720)]
 	esigi(DisegnoProiezione.posto_libero(s, 10.0, 80.0, proprio, proprio[0]) == Vector2(1.0, DisegnoProiezione.GRADINI[0]),
 			"la didascalia scappa dal suo stesso corpo")
+	# coprire un corpo costa piu' che coprire un nome: un filo di frattura pesa
+	# piu' di mezzo nome. Contavano uguale, e un pianeta passato sopra la Rocca
+	# ossidiana ci lasciava sopra il suo nome
+	var sotto_il_nome := Rect2(0, 0, 100, 32)
+	var un_filo_di_corpo: Array[Rect2] = [Rect2(0, 0, 10, 30)]
+	var mezzo_nome: Array[Rect2] = [Rect2(50, 0, 50, 32)]
+	esigi(DisegnoProiezione.costo_del_posto(sotto_il_nome, un_filo_di_corpo, Rect2(), 1)
+			> DisegnoProiezione.costo_del_posto(sotto_il_nome, mezzo_nome, Rect2(), 0),
+			"un filo di corpo sotto una didascalia costa meno di mezzo nome")
 	# vicino al bordo alto il primo gradino uscirebbe sotto l'intestazione: si scende
 	var in_alto := Vector2(300, 82)
 	var niente: Array[Rect2] = []
@@ -14191,7 +14200,7 @@ const FUNZIONI_LUNGHE := {
 		"priorita', ricarica, massimo_usi, dopo_mossa, alleati vivi). Da " +
 		"guardare insieme a risolvi_drop: e' una delle due funzioni sopra il " +
 		"tetto ANCHE per garbuglio, a quota 52, e quello si', e' un difetto"},
-	"GameState.gd:_leggi_salvataggio": {"misura": 117, "perche":
+	"GameState.gd:_leggi_salvataggio": {"misura": 109, "perche":
 		"legge un salvataggio campo per campo con un ripiego per ognuno, " +
 		"perche' un file vecchio non ha i campi nuovi. Ogni riga e' una " +
 		"compatibilita' all'indietro"},
@@ -14263,7 +14272,7 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Combattimento.gd:esegui_azione": {"misura": 29},
 	"Combattimento.gd:studia": {"misura": 27},
 	"Combattimento.gd:applica_effetto": {"misura": 26},
-	"GameState.gd:_leggi_salvataggio": {"misura": 25},
+	"GameState.gd:_leggi_salvataggio": {"misura": 18},
 	"GameState.gd:verifica_passive": {"misura": 26},
 	"Campo.gd:aggiorna": {"misura": 22},
 	"Combattimento.gd:condizioni_mossa": {"misura": 25},

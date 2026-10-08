@@ -28,6 +28,11 @@ const CORNICE := Rect2(24, 64, SchedaProiezione.X - 30.0, 620)
 # un filo largo due pixel lungo una didascalia: per cosi' poco un nome non salta
 # altrove (e' un angolo del quadrato intorno a un corpo, non il corpo)
 const TOLLERANZA := 64.0
+# COPRIRE UN CORPO COSTA PIU' CHE COPRIRE UN NOME: un pixel di pianeta o di
+# frattura sotto una didascalia vale quanto otto pixel di un'altra didascalia.
+# Contavano uguale, e quando un pianeta in orbita passava sopra la Rocca
+# ossidiana il suo nome finiva sulla frattura perche' altrove pestava due nomi
+const PESO_DEI_CORPI := 8.0
 
 static var fonti := {}
 
@@ -240,6 +245,7 @@ static func didascalie(p: Proiezione) -> Array[Dictionary]:
 	for c in p.corpi:
 		if float(c["apertura"]) >= 0.6:
 			occupati.append(ingombro_del_corpo(p, c))
+	var quanti_corpi := occupati.size()   # i primi sono i corpi, poi si aggiungono i nomi
 	var tutte: Array[Dictionary] = []
 	var indice := 0
 	for c in p.corpi:
@@ -258,7 +264,7 @@ static func didascalie(p: Proiezione) -> Array[Dictionary]:
 		var lungo := maxf(larghezza(String(c["nome"]).to_upper(), 12, 500, 85, 2),
 				larghezza(parola_di_stato(String(c["stato"])), 10, 420, 85, 2) + 13.0)
 		var di_prima: Vector2 = c.get("didascalia", Vector2.ZERO)
-		var posto := posto_libero(s, r, lungo, occupati, ingombro_del_corpo(p, c), di_prima)
+		var posto := posto_libero(s, r, lungo, occupati, ingombro_del_corpo(p, c), di_prima, quanti_corpi)
 		c["didascalia"] = posto
 		tutte.append({"corpo": c, "s": s, "r": r, "compare": compare, "lungo": lungo, "posto": posto,
 				"spazio": spazio_della_didascalia(s, r, lungo, posto.x, posto.y)})
@@ -311,7 +317,7 @@ static func ingombro_del_corpo(p: Proiezione, c: Dictionary) -> Rect2:
 
 
 static func posto_libero(s: Vector2, r: float, lungo: float, occupati: Array[Rect2], proprio := Rect2(),
-		di_prima := Vector2.ZERO) -> Vector2:
+		di_prima := Vector2.ZERO, corpi := 0) -> Vector2:
 	# DOVE VA UNA DIDASCALIA: (verso, quanto sale). Prima dal lato dove c'e'
 	# posto prima della colonna, salendo un gradino alla volta; se quel lato e'
 	# pieno, l'altro lato, e poi anche sotto il corpo. Con i pianeti e i segreti
@@ -330,7 +336,7 @@ static func posto_libero(s: Vector2, r: float, lungo: float, occupati: Array[Rec
 	var meglio: Vector2 = posti[0]
 	var meno := INF
 	for posto: Vector2 in posti:
-		var costo := costo_del_posto(spazio_della_didascalia(s, r, lungo, posto.x, posto.y), occupati, proprio)
+		var costo := costo_del_posto(spazio_della_didascalia(s, r, lungo, posto.x, posto.y), occupati, proprio, corpi)
 		if posto == di_prima:
 			costo = maxf(costo - TOLLERANZA, 0.0)
 		if costo < meno:
@@ -342,17 +348,20 @@ static func posto_libero(s: Vector2, r: float, lungo: float, occupati: Array[Rec
 	return meglio
 
 
-static func costo_del_posto(spazio: Rect2, occupati: Array[Rect2], proprio: Rect2) -> float:
-	# la superficie degli altri che finisce sotto la didascalia, e quella della
-	# didascalia che esce dalla cornice (e andrebbe sotto la colonna o l'intestazione).
+static func costo_del_posto(spazio: Rect2, occupati: Array[Rect2], proprio: Rect2, corpi := 0) -> float:
+	# la superficie degli altri che finisce sotto la didascalia (i primi
+	# "corpi" di occupati sono corpi, e pesano di piu': PESO_DEI_CORPI), e
+	# quella della didascalia che esce dalla cornice (e andrebbe sotto la
+	# colonna o l'intestazione).
 	# Dentro la cornice si chiede con encloses, non con una sottrazione: la
 	# sottrazione lasciava un millesimo di pixel, nessun posto risultava mai
 	# libero, e vinceva a caso il residuo piu' piccolo - il nome saltava da un
 	# lato all'altro a ogni fotogramma
 	var costo := 0.0 if CORNICE.encloses(spazio) else (spazio.get_area() - CORNICE.intersection(spazio).get_area()) * 4.0
-	for o in occupati:
+	for i in occupati.size():
+		var o := occupati[i]
 		if o != proprio and o.intersects(spazio):
-			costo += o.intersection(spazio).get_area()
+			costo += o.intersection(spazio).get_area() * (PESO_DEI_CORPI if i < corpi else 1.0)
 	return costo
 
 
