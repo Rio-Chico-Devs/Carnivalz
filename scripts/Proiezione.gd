@@ -497,15 +497,14 @@ func _process(delta: float) -> void:
 	sopra.queue_redraw()
 
 
-func pozzi() -> Array[Vector4]:
-	# al massimo sedici, quanti ne tiene lo shader: prima i corpi, poi le stelle lontane
+func pozzi(solo_fermi := false) -> Array[Vector4]:
+	# al massimo sedici, quanti ne tiene lo shader: prima i corpi, poi le stelle
+	# lontane. Solo_fermi: senza i pianeti che girano, per chi deve stare fermo
 	var lista: Array[Vector4] = []
 	for c in corpi:
-		if float(c["profondita"]) <= 0.0:
+		if float(c["profondita"]) <= 0.0 or (solo_fermi and float(c["vel"]) != 0.0):
 			continue
-		var respiro := 1.0 + 0.35 * float(c["respiro"]) * sin(t * 2.3)
-		lista.append(Vector4(c["xz"].x, c["xz"].y, float(c["profondita"]) * float(c["apertura"]) * respiro,
-				float(c["largo"])))
+		lista.append(Vector4(c["xz"].x, c["xz"].y, float(c["profondita"]) * float(c["apertura"]), float(c["largo"])))
 	for w in pozzi_fissi:
 		if lista.size() < 16:
 			lista.append(w)
@@ -532,10 +531,14 @@ func muovi_corpi(delta: float) -> void:
 	var lista := pozzi()
 	mat_griglia.set_shader_parameter("pozzi", PackedVector4Array(lista))
 	mat_griglia.set_shader_parameter("n_pozzi", lista.size())
+	# LE FRATTURE STANNO FERME (Bru: «perche' la frattura di qualcosa preme si
+	# muove cosi' tanto? dovrebbero restare ferme sul posto»): la loro gola si
+	# misura senza i pianeti che girano, che passandole accanto le facevano ballare
+	var fissi := pozzi(true)
 	for c in corpi:
 		var xz: Vector2 = c["xz"]
 		var r := float(c["raggio"]) * DisegnoProiezione.elastico(float(c["apertura"]))
-		var h := altezza(xz, lista)
+		var h := altezza(xz, fissi if float(c["vel"]) == 0.0 else lista)
 		# una sfera galleggia sopra il suo pozzo; una lente sta nella gola, dove la griglia si stringe
 		c["pos"] = Vector3(xz.x, h * 0.8 if c["forma"] == "lente" else h * 0.5 + r * 1.2 + 0.1, xz.y)
 		var nodo: Variant = c.get("nodo")
@@ -634,14 +637,17 @@ func muovi_lenti() -> void:
 		var puntata := 1.0 if String(c["id"]) in [sotto, scelto] else 0.0
 		c["acceso"] = move_toward(float(c.get("acceso", 0.0)), puntata, get_process_delta_time() * 4.0)
 		var fase := float(hash(String(c["id"])) % 628) / 100.0
-		var respiro := 1.0 + 0.18 * float(c["respiro"]) * sin(t * 2.3)
-		var energia := (energia_di(String(c["stato"])) + 0.5 * float(c["acceso"])) * (1.0 - float(c["spento"]) * 0.7)
+		# una frattura che "respira" lo fa nella luce, non nel posto ne' nella misura:
+		# prima il suo pozzo si gonfiava e lei saliva e scendeva di trenta pixel
+		var respiro := 0.0 if fermo else 0.45 * float(c["respiro"]) * sin(t * 2.3)
+		var energia := (energia_di(String(c["stato"])) + 0.5 * float(c["acceso"])) * (1.0 - float(c["spento"]) * 0.7) \
+				* (1.0 + respiro)
 		# il gorgo: un'ombra se la frattura e' chiusa; si apre quando la punti, e respira
 		var apre := 0.18 if String(c["stato"]) in ["chiuso", "preso"] else 0.75 + 0.35 * float(c["acceso"])
 		apre *= DisegnoProiezione.elastico(float(c["apertura"])) * (1.0 if fermo else 1.0 + 0.08 * sin(t * 1.7 + fase))
 		# il gorgo giace sulla griglia: dall'alto e' un cerchio, di lato un'ellisse
 		var schiaccia := absf((c["pos"] - camera.global_position).normalized().y)
-		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro, 0.0))
+		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE, 0.0))
 		b.append(Vector4(float(c["spento"]), fase, energia, schiaccia))
 		aperture.append(Vector4(apre, 0.0, 0.0, 0.0))
 	var quante := a.size()

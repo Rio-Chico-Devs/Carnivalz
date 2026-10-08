@@ -237,8 +237,8 @@ del Diario, e per sapere quanti soldi si avevano bisognava navigare.
 Erano sette sezioni impilate in un solo scorrevole, poi otto con un indice. Il 28 settembre Bru
 l'ha riordinato: «organizziamo meglio il data pad». Adesso:
 
-- **indice a sinistra, una sezione alla volta a destra** (`Pausa.pannello_con_indice`, lo
-  stesso dello Zaino): **Database** e **Organizzazione**, e nient'altro;
+- **indice a sinistra, una sezione alla volta a destra** (`Pausa.pannello_con_indice`):
+  **Database** e **Organizzazione**, e nient'altro;
 - il **Database** («la voce osservazioni è inutile, dobbiamo sostituirlo con database») apre
   *le stesse* collezioni del menu principale — l'album delle carte, il bestiario, gli oggetti,
   con quanti ne hai (`MenuPrincipale.COLLEZIONI`, una lista sola per tutti e due) — ma dentro la
@@ -260,12 +260,30 @@ l'ha riordinato: «organizziamo meglio il data pad». Adesso:
 
 ### Lo Zaino
 
-Mancava del tutto: per sapere cosa si aveva addosso bisognava aprire la scheda di un personaggio
-e guardare cosa si poteva equipaggiare — che è un'altra domanda. Adesso è un pannello suo, uno
-scomparto alla volta (*Consumabili · Armi · Accessori · Oggetti speciali · Ricordi e chiavi*),
-ognuno con la sua capienza. Gli oggetti uguali si contano su una riga sola (`×3`), e un'arma
-equipaggiata è segnata **in uso — Yhvina**: resta nello zaino, è una regola dello zaino, e qui è
-l'unico posto dove si vede.
+Bru, 8 ottobre: «siccome avremo un'immagine per ogni oggetto ci deve essere una lista, studiamo
+online come fare uno zaino ben ordinato e esteticamente perfetto». Lo studio — cosa fanno
+Breath of the Wild, Persona 5 e Metaphor, Diablo IV, Resident Evil 4, e cosa ne abbiamo preso — sta
+in [`docs/zaino.md`](docs/zaino.md). È un foglio intero come la scheda della squadra, della stessa
+famiglia (`scripts/Zaino.gd`):
+
+- **in alto, gli scomparti in linguette** col loro conto (*Consumabili 3/20 · Armi · Accessori ·
+  Speciali · Ricordi e chiavi · Bottino*). **Ogni oggetto sta in uno scomparto solo**: ricordi e
+  chiavi prima comparivano anche fra gli speciali. Il **Bottino** è la pila dei nemici, che
+  prima non si vedeva da nessuna parte;
+- **a sinistra, la lista**: una riga per tipo di oggetto, con l'**immagine** su una piastrella
+  scura (`art/oggetti/<id>.png`, o la sagoma del tipo finché non c'è), il nome, cosa fa, quanti
+  (`×3`). L'arma in mano ha l'etichetta piena **IN USO**; un oggetto mai guardato **NUOVO**, e la
+  sua linguetta un rombo (`RigaZaino.gd`). Sopra, quanto è pieno lo scomparto e il tasto
+  **ORDINA**, che gira fra *tipo · nome · quantità · arrivo* e dice quale sta usando;
+- **al centro**, sulla fascia nera, l'oggetto scelto **in grande**, e quanti;
+- **a destra**, cos'è, cosa fa in numeri (i riquadri della vetrina del negozio), la descrizione
+  intera, e chi lo sta usando.
+
+Su e giù scorrono la lista, destra e sinistra cambiano scomparto. **Qui si guarda e basta**: si
+equipaggia dalla scheda della squadra, si compra e si vende al negozio. Cosa c'è, in che ordine e
+cos'è nuovo sta in `ElencoZaino.gd`, che si prova senza aprire niente; gli oggetti già guardati
+si salvano con la partita (`oggetti_visti`), e un salvataggio di prima li considera già visti
+tutti.
 
 ### Aperta da una stanza della Sede
 
@@ -2206,7 +2224,9 @@ capacità **totale** a ogni acquisto, non l'incremento — così i numeri nel fi
 il giocatore legge al negozio.
 
 Comprare uno spazio è l'unico acquisto che **non ti lascia niente in mano**: allarga e basta.
-Un'arma equipaggiata **resta nello zaino**, segnata `· in uso ·` — impugnarla non è metterla via.
+Un'arma equipaggiata **resta nello zaino**, segnata **IN USO** — impugnarla non è metterla via.
+Nella schermata dello zaino gli oggetti speciali si vedono in due linguette, *Speciali* (gli
+stigmi) e *Ricordi e chiavi*, più il *Bottino* (la pila): vedi «Lo Zaino» più su.
 
 ## Compagni temporanei e definitivi
 Chi ti accompagna per un tratto combatte al tuo fianco ma **non gli si affida niente**: la scheda

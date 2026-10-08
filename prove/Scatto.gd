@@ -736,7 +736,13 @@ func prepara(quale: String) -> void:
 					Pausa.mostra_equipaggiamento()
 					await attendi(5)
 					(Pausa.foglio as SchedaPersonaggio).scegli_linguetta("sviluppo")
-				"zaino": Pausa.mostra_inventario()
+				"zaino":
+					# "pausa zaino armi" apre uno scomparto preciso, "pausa
+					# zaino vuoto" lo zaino di chi ha appena cominciato
+					var scomparto := String(argomenti[2]) if argomenti.size() > 2 else "consumabili"
+					if scomparto != "vuoto":
+						riempi_lo_zaino(scomparto)
+					Pausa.mostra_inventario()
 				"opzioni": Pausa.mostra_opzioni()
 				"storico": Pausa.mostra_storico()
 				"uscita": Pausa.conferma_uscita()
@@ -1745,6 +1751,24 @@ func nodo_lastra(come: String) -> Dictionary:
 				{"testo": "Mi sono sbagliato, vado.", "vai": "scatto_prova"}],
 	}
 	return {"sequenza": [battute.get(come, battute["parla"])], "scelte": scelte.get(come, [])}
+
+func riempi_lo_zaino(scomparto: String) -> void:
+	# UNO ZAINO DA META' PARTITA: qualcosa in ogni scomparto, l'arma in mano,
+	# e tre cose arrivate da poco (NUOVO), il resto gia' guardato
+	for id_oggetto in ["razione_del_circo", "razione_del_circo", "razione_del_circo", "tonico_calmante",
+			"tonico_calmante", "benda_stretta", "petardo", "molotov", "fiala_aura", "fiore_di_luna",
+			"carbone_attivo", "frammento_di_vita", "coltello_di_servizio", "mannaia_scheggiata",
+			"pietra_quieta", "amuleto_di_ferro", "stigma_del_veglio", "spilla_margherita",
+			"rottame_di_metallo", "ricordi_felici"]:
+		GameState.aggiungi_oggetto(id_oggetto)
+	GameState.equipaggia(GameState.id_protagonista, "arma", "coltello_di_servizio")
+	GameState.aggiungi_alla_pila("cianfrusaglia", 12)
+	GameState.oggetti_visti.clear()
+	for scomparto_qualunque in ElencoZaino.SCOMPARTI:
+		for id_oggetto in ElencoZaino.pezzi(String(scomparto_qualunque[0])):
+			if String(id_oggetto) not in ["molotov", "frammento_di_vita", "mannaia_scheggiata", "ricordi_felici"]:
+				ElencoZaino.segna_visto(String(id_oggetto))
+	ElencoZaino.aperto = scomparto
 
 func apri_dialogo(finto: Dictionary = {}) -> void:
 	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")

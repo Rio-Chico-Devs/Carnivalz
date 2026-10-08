@@ -47,6 +47,7 @@ func _ready() -> void:
 	await prova_il_motore_si_comporta_come_il_codice_crede()
 	prova_una_partita_rovinata_si_riprende()
 	prova_zaino()
+	prova_lo_zaino_e_in_ordine()
 	prova_compagni_temporanei()
 	prova_carte()
 	prova_slot_accessori()
@@ -291,6 +292,7 @@ func _ready() -> void:
 	await prova_il_negozio_si_usa_con_le_frecce_e_con_la_rotella()
 	await prova_la_descrizione_scorre_e_aspetta_chi_legge()
 	await prova_la_scheda_si_gira_tutta_da_tastiera()
+	await prova_lo_zaino_si_usa_da_tastiera()
 	prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma()
 	await prova_la_tavola_sta_intera_anche_col_testo_grande()
 	await prova_la_proiezione_sta_intera_col_testo_grande()
@@ -12313,6 +12315,7 @@ func prova_le_fratture_stanno_ferme_e_i_pianeti_girano() -> void:
 			ferme.append(String(c["id"]))
 	esigi(not fratture.is_empty() and girate.is_empty(), "queste fratture girano ancora in orbita: %s" % [girate])
 	esigi(not vuoto.get("pianeti").is_empty() and ferme.is_empty(), "questi pianeti non girano piu': %s" % [ferme])
+	await le_fratture_non_ballano(p, fratture)
 	for id: String in fratture:
 		var c := p.corpo(id)
 		var giro: Vector2 = vuoto.call("nel_vuoto", fratture[id].get("pos"))
@@ -12321,6 +12324,36 @@ func prova_le_fratture_stanno_ferme_e_i_pianeti_girano() -> void:
 					"la frattura '%s' non sta dove la mette mappa.json" % id)
 	vuoto.queue_free()
 	GameState.nuova_partita()
+
+func le_fratture_non_ballano(p: Proiezione, fratture: Dictionary) -> void:
+	# Bru: «perche' la frattura di qualcosa preme si muove cosi' tanto?
+	# dovrebbero restare ferme sul posto». Ferme anche in altezza: il pozzo di
+	# quella che "respira" si gonfiava e lei saliva e scendeva di trenta pixel,
+	# e i pianeti che passavano accanto facevano ballare le altre. Il respiro
+	# adesso e' nella luce: cambia l'energia del gorgo, non il posto
+	var dove := {}
+	var energie := {}
+	var fine := Time.get_ticks_msec() + 1500
+	while Time.get_ticks_msec() < fine:
+		await get_tree().process_frame
+		for id: String in fratture:
+			var c := p.corpo(id)
+			if c.is_empty():
+				continue
+			if not dove.has(id):
+				dove[id] = [c["pos"], c["pos"]]
+			dove[id] = [(dove[id][0] as Vector3).min(c["pos"]), (dove[id][1] as Vector3).max(c["pos"])]
+		var b: PackedVector4Array = p.mat_lenti.get_shader_parameter("lenti_b")
+		for i in mini(b.size(), int(p.mat_lenti.get_shader_parameter("n_lenti"))):
+			energie[i] = [minf(b[i].z, energie.get(i, [INF, -INF])[0]), maxf(b[i].z, energie.get(i, [INF, -INF])[1])]
+	var ballano: Array[String] = []
+	for id: String in dove:
+		if ((dove[id][1] as Vector3) - (dove[id][0] as Vector3)).length() > 0.001:
+			ballano.append("%s (%.2f)" % [id, ((dove[id][1] as Vector3) - (dove[id][0] as Vector3)).length()])
+	esigi(not dove.is_empty() and ballano.is_empty(), "queste fratture salgono e scendono: %s" % [ballano])
+	var respira := fratture.values().any(func(v: Dictionary) -> bool: return String(v.get("aspetto", "")) == "respira")
+	esigi(not respira or energie.values().any(func(e: Array) -> bool: return float(e[1]) - float(e[0]) > 0.2),
+			"la frattura che respira non respira piu', nemmeno nella luce")
 
 func prova_le_didascalie_non_coprono_i_corpi() -> void:
 	# da quando le fratture stanno ferme, un nome finito sopra un corpo ci
@@ -19451,8 +19484,9 @@ func prova_il_negozio_non_fa_pagare_per_niente() -> void:
 	esigi(frammento.contains("10%") and frammento.contains("3 battute"),
 			"il Frammento di vita si descrive '%s'" % frammento)
 	# e le parole sono le stesse dappertutto: lo zaino della pausa legge da qui
-	esigi(not FileAccess.get_file_as_string("res://scripts/PaginePausa.gd").contains("func riassunto_effetto"),
-			"lo zaino ha di nuovo un suo modo di descrivere gli effetti")
+	for pezzo_dello_zaino in ["Zaino", "RigaZaino", "ElencoZaino", "PaginePausa"]:
+		esigi(not FileAccess.get_file_as_string("res://scripts/%s.gd" % pezzo_dello_zaino).contains("func riassunto_effetto"),
+				"lo zaino (%s) ha di nuovo un suo modo di descrivere gli effetti" % pezzo_dello_zaino)
 
 	# I BARATTI CONTANO I DOPPIONI. Due rottami chiesti, uno in tasca: ne manca
 	# uno di rottame e uno di convertitore - due, non "tutti e tre NO"
@@ -19676,6 +19710,208 @@ func prova_la_descrizione_scorre_e_aspetta_chi_legge() -> void:
 		esigi(a_pagina or is_equal_approx(posizione, fondo_ridotto),
 				"col movimento ridotto il testo si ferma a %.1f: sta scorrendo, non girando pagina" % posizione)
 	testo.queue_free()
+	Impostazioni.movimento_ridotto = ridotto_prima
+
+func prova_lo_zaino_e_in_ordine() -> void:
+	# LO ZAINO SENZA DISEGNARLO (ElencoZaino.gd, docs/zaino.md): ogni oggetto
+	# in uno scomparto solo, una riga per tipo col conto, i quattro ordini, il
+	# conto dei posti, chi lo usa, e il segno NUOVO che si salva con la partita
+	titolo("lo zaino: uno scomparto per oggetto, righe col conto, ordini, NUOVO")
+	var ordine_prima := ElencoZaino.ordine
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	# TUTTI GLI OGGETTI DEL GIOCO, uno per tipo per volta: ognuno finisce in
+	# uno scomparto e in uno solo. Ricordi e chiavi stavano anche fra gli
+	# speciali, e lo zaino di prima li mostrava due volte
+	for dati in GameState.oggetti.values():
+		var id_oggetto := String(dati.get("id", ""))
+		if not GameState.aggiungi_oggetto(id_oggetto) or Merce.tipo_oggetto(id_oggetto) == "spazio":
+			continue
+		var dove: Array[String] = []
+		for scomparto in ElencoZaino.SCOMPARTI:
+			if id_oggetto in ElencoZaino.pezzi(String(scomparto[0])):
+				dove.append(String(scomparto[0]))
+		esigi(dove.size() == 1, "'%s' sta negli scomparti %s: deve stare in uno solo" % [id_oggetto, dove])
+
+	GameState.nuova_partita()
+	for id_oggetto in ["razione_del_circo", "tonico_calmante", "razione_del_circo", "petardo",
+			"razione_del_circo", "fiala_aura", "coltello_di_servizio", "mannaia_scheggiata"]:
+		GameState.aggiungi_oggetto(id_oggetto)
+	GameState.equipaggia(eroe, "arma", "coltello_di_servizio")
+	GameState.aggiungi_alla_pila("cianfrusaglia", 7)
+	var righe := ElencoZaino.voci("consumabili", "arrivo")
+	var nomi_delle_righe := righe.map(func(r: Dictionary) -> String: return String(r["oggetto"]))
+	esigi(righe.size() == 4, "tre razioni, un tonico, un petardo e una fiala fanno %d righe invece di 4" % righe.size())
+	esigi(nomi_delle_righe == ["fiala_aura", "razione_del_circo", "petardo", "tonico_calmante"],
+			"per arrivo, il piu' recente non viene prima: %s" % [nomi_delle_righe])
+	var razioni := righe.filter(func(r: Dictionary) -> bool: return r["oggetto"] == "razione_del_circo")
+	esigi(razioni.size() == 1 and int(razioni[0]["quanti"]) == 3, "le tre razioni non sono una riga ×3: %s" % [razioni])
+	var per_nome := ElencoZaino.voci("consumabili", "nome").map(func(r: Dictionary) -> String:
+		return Merce.nome_di(String(r["oggetto"])))
+	var in_ordine := per_nome.duplicate()
+	in_ordine.sort_custom(func(a: String, b: String) -> bool: return a.naturalnocasecmp_to(b) < 0)
+	esigi(per_nome == in_ordine, "per nome non e' in ordine alfabetico: %s" % [per_nome])
+	esigi(String(ElencoZaino.voci("consumabili", "quantita")[0]["oggetto"]) == "razione_del_circo",
+			"per quantita' le tre razioni non vengono prima")
+	# per tipo: quello che cura (vita), poi l'aura, poi lo stress, poi il danno
+	var per_tipo := ElencoZaino.voci("consumabili", "tipo").map(func(r: Dictionary) -> String: return String(r["oggetto"]))
+	esigi(per_tipo == ["razione_del_circo", "fiala_aura", "tonico_calmante", "petardo"],
+			"per tipo gli oggetti non stanno insieme per quello che fanno: %s" % [per_tipo])
+	var giro: Array[String] = []
+	for i in ElencoZaino.ORDINI.size():
+		giro.append(ElencoZaino.gira_ordine())
+	esigi(giro.size() == 4 and giro[-1] == ordine_prima and giro.duplicate().filter(func(o: String) -> bool:
+			return giro.count(o) == 1).size() == 4, "il tasto ORDINA non gira per tutti e quattro gli ordini: %s" % [giro])
+	for o in ElencoZaino.ORDINI:
+		esigi(ElencoZaino.NOMI_ORDINI.has(o), "l'ordine '%s' non ha la parola che lo dice" % o)
+
+	# il conto dei posti: col tetto dove c'e', senza dove non c'e'
+	esigi(ElencoZaino.conto("consumabili") == "6/%d" % GameState.capacita_zaino("consumabili"),
+			"il conto della sacca e' '%s'" % ElencoZaino.conto("consumabili"))
+	esigi(ElencoZaino.conto("bottino") == "7", "il bottino conta '%s' invece dei 7 pezzi" % ElencoZaino.conto("bottino"))
+	esigi(ElencoZaino.tetto("ricordi") < 0 and ElencoZaino.tetto("bottino") < 0, "ricordi e bottino hanno un tetto finto")
+	var armi := ElencoZaino.voci("armi")
+	var coltello := armi.filter(func(r: Dictionary) -> bool: return r["oggetto"] == "coltello_di_servizio")
+	esigi(coltello.size() == 1 and String(coltello[0]["in_uso"]) == eroe, "l'arma in mano non e' segnata IN USO")
+	for scomparto in ElencoZaino.SCOMPARTI:
+		esigi(ElencoZaino.spiegazione(String(scomparto[0])) != "" and String(scomparto[3]) in Sagome.TIPI_ICONA + ["speciale"],
+				"lo scomparto '%s' non dice a cosa serve o non ha la sua sagoma" % scomparto[0])
+
+	# NUOVO: finche' non lo guardi; guardato, non piu'; e si salva
+	esigi(ElencoZaino.e_nuovo("petardo") and ElencoZaino.ha_nuovi("consumabili"), "un oggetto appena preso non e' nuovo")
+	for riga in ElencoZaino.voci("consumabili"):
+		ElencoZaino.segna_visto(String(riga["oggetto"]))
+	esigi(not ElencoZaino.ha_nuovi("consumabili"), "guardati tutti, la sacca ha ancora qualcosa di nuovo")
+	esigi(ElencoZaino.ha_nuovi("armi"), "le armi mai guardate non sono nuove")
+	ElencoZaino.segna_visto("petardo")
+	esigi(GameState.oggetti_visti.count("petardo") == 1, "guardare due volte segna due volte")
+	var percorso := "user://prova_zaino_visti.json"
+	GameState._scrivi_salvataggio(percorso)
+	GameState.nuova_partita()
+	esigi(GameState.oggetti_visti.is_empty(), "una partita nuova si porta dietro gli oggetti gia' visti")
+	esigi(GameState._leggi_salvataggio(percorso), "la partita dello zaino non si rilegge")
+	esigi("petardo" in GameState.oggetti_visti and ElencoZaino.ha_nuovi("armi") and not ElencoZaino.ha_nuovi("consumabili"),
+			"ricaricando, lo zaino non si ricorda cosa avevi gia' guardato: %s" % [GameState.oggetti_visti])
+	# un salvataggio di prima non sa cosa hai guardato: tutto quello che hai
+	# e' gia' visto, se no lo zaino si apre coperto di NUOVO
+	var vecchio := FileSicuro.leggi_dizionario(percorso) as Dictionary
+	vecchio.erase("oggetti_visti")
+	FileSicuro.scrivi(percorso, JSON.stringify(vecchio))
+	esigi(GameState._leggi_salvataggio(percorso), "il salvataggio di prima degli oggetti visti non si apre")
+	for scomparto in ElencoZaino.SCOMPARTI:
+		esigi(not ElencoZaino.ha_nuovi(String(scomparto[0])),
+				"un salvataggio di prima apre lo scomparto '%s' coperto di NUOVO" % scomparto[0])
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(percorso))
+	ElencoZaino.ordine = ordine_prima
+
+func prova_lo_zaino_si_usa_da_tastiera() -> void:
+	# LO ZAINO USATO DAVVERO, con le frecce: su e giu' scorrono la lista anche
+	# oltre le righe che si vedono (la finestra segue), destra e sinistra
+	# cambiano scomparto anche passando da uno vuoto, su dalla prima riga si
+	# arriva a ORDINA, che riordina senza perdere l'oggetto scelto. A destra
+	# c'e' sempre quello che e' scelto, e il segno NUOVO resta sulla riga
+	# guardata finche' resti qui, ma si spegne sulla linguetta
+	titolo("lo zaino si usa tutto da tastiera, e dice sempre cosa hai scelto")
+	var ridotto_prima := Impostazioni.movimento_ridotto
+	var ordine_prima := ElencoZaino.ordine
+	Impostazioni.movimento_ridotto = false
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	var consumabili := ["razione_del_circo", "tonico_calmante", "petardo", "premio_di_pezza", "lente_di_nyu",
+			"caramella_di_nyu", "cuore_di_latta", "specchio_tascabile", "fiala_hp", "molotov", "benda_stretta",
+			"fiala_aura"]
+	for id_oggetto in consumabili + ["coltello_di_servizio", "mannaia_scheggiata"]:
+		GameState.aggiungi_oggetto(id_oggetto)
+	GameState.equipaggia(eroe, "arma", "coltello_di_servizio")
+	ElencoZaino.aperto = "consumabili"
+	ElencoZaino.ordine = "tipo"
+	var zaino := SchedaZaino.new()
+	add_child(zaino)
+	zaino.apri(func() -> void: pass)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var prima_riga := zaino.righe[0]
+	esigi(prima_riga.has_focus(), "aprendo lo zaino il fuoco non e' sulla prima riga")
+	esigi(zaino.fila.size() == consumabili.size(), "la sacca ha %d righe invece di %d" % [zaino.fila.size(), consumabili.size()])
+	esigi(zaino.righe[0].nuova and zaino.nuovi.size() == consumabili.size() + 2, "gli oggetti appena presi non sono NUOVI")
+
+	# giu' fino in fondo: la finestra segue, e la riga scelta ha il fuoco
+	for i in zaino.fila.size() + 1:
+		var chi := zaino.get_viewport().gui_get_focus_owner()
+		esigi(chi is RigaZaino, "scorrendo la lista il fuoco esce dalle righe (alla riga %d)" % zaino.scelta)
+		if not chi is RigaZaino:
+			break
+		chi.gui_input.emit(azione_ui("ui_down"))
+		var id_scelto := String(zaino.fila[zaino.scelta]["oggetto"])
+		esigi(zaino.nome.text == Merce.nome_di(id_scelto).to_upper() and zaino.mostra.id_oggetto == id_scelto,
+				"a destra non c'e' l'oggetto scelto (%s, si legge '%s')" % [id_scelto, zaino.nome.text])
+		var in_finestra := zaino.scelta - zaino.inizio in range(SchedaZaino.VISIBILI)
+		esigi(in_finestra, "la riga scelta (%d) e' fuori dalla finestra (da %d): la lista non segue" % [zaino.scelta, zaino.inizio])
+		if not in_finestra:
+			break
+		esigi(zaino.righe[zaino.scelta - zaino.inizio].scelta and zaino.righe[zaino.scelta - zaino.inizio].has_focus(),
+				"la riga scelta (%d) non e' quella accesa col fuoco" % zaino.scelta)
+	esigi(zaino.scelta == zaino.fila.size() - 1 and zaino.inizio == zaino.fila.size() - SchedaZaino.VISIBILI,
+			"in fondo alla lista la finestra non segue: scelta %d, inizio %d" % [zaino.scelta, zaino.inizio])
+	esigi(Movimento.ultimo_suono == "rifiuto", "in fondo alla lista la freccia non dice di no")
+	esigi(not ElencoZaino.ha_nuovi("consumabili"), "guardate tutte, la linguetta della sacca dice ancora che c'e' del nuovo")
+	# la riga appena lasciata e' gia' guardata, ma il segno resta finche' sei qui
+	esigi(ElencoZaino.e_nuovo(String(zaino.fila[zaino.scelta - 1]["oggetto"])) == false
+			and zaino.righe[zaino.scelta - 1 - zaino.inizio].nuova,
+			"il segno NUOVO sparisce dalla riga appena guardata, mentre sei ancora nello zaino")
+	# la rotella torna su di uno
+	zaino.righe[zaino.scelta - zaino.inizio].gui_input.emit(rotella_del_mouse(false))
+	esigi(zaino.scelta == zaino.fila.size() - 2, "la rotella sulla lista non sale di una riga")
+
+	# su fino in cima, e su ancora: ORDINA. Premuto, riordina tenendo la scelta
+	for i in zaino.fila.size():
+		var chi := zaino.get_viewport().gui_get_focus_owner()
+		if chi is RigaZaino:
+			chi.gui_input.emit(azione_ui("ui_up"))
+	esigi(zaino.ordina.has_focus() and zaino.scelta == 0, "su dalla prima riga non si arriva a ORDINA")
+	# un oggetto a meta' lista, che per nome sta altrove: la prima riga era la
+	# stessa in tutti e due gli ordini, e la prova non vedeva niente
+	zaino.seleziona(4, false)
+	var scelto_prima := String(zaino.fila[zaino.scelta]["oggetto"])
+	var posto_prima := zaino.scelta
+	zaino.ordina.scelto.emit()
+	esigi(ElencoZaino.ordine == "nome" and zaino.ordina.text.ends_with("NOME"),
+			"ORDINA non passa all'ordine per nome, o non lo dice: '%s'" % zaino.ordina.text)
+	esigi(String(zaino.fila[zaino.scelta]["oggetto"]) == scelto_prima and zaino.scelta != posto_prima
+			and zaino.scelta - zaino.inizio in range(SchedaZaino.VISIBILI),
+			"riordinando si perde l'oggetto scelto (%s), o finisce fuori dalla finestra" % scelto_prima)
+	zaino.righe[zaino.scelta - zaino.inizio].grab_focus()
+
+	# destra: le armi, con quella in mano segnata e detta a destra
+	zaino.righe[zaino.scelta - zaino.inizio].gui_input.emit(azione_ui("ui_right"))
+	esigi(ElencoZaino.aperto == "armi" and zaino.righe[zaino.scelta - zaino.inizio].has_focus(),
+			"destra dalla sacca non apre le armi col fuoco sulla riga (aperto '%s')" % ElencoZaino.aperto)
+	var in_mano := zaino.fila.filter(func(r: Dictionary) -> bool: return r["oggetto"] == "coltello_di_servizio")
+	esigi(in_mano.size() == 1, "il coltello non e' fra le armi")
+	if in_mano.size() == 1:
+		zaino.seleziona(zaino.fila.find(in_mano[0]), true)
+		esigi(zaino.portatore.text.contains(Corredo.nome_di(eroe).to_upper()) and zaino.riquadri.in_uso,
+				"l'arma in mano non dice chi la usa: '%s'" % zaino.portatore.text)
+	# ancora a destra: gli accessori, vuoti. Il fuoco va sulla loro linguetta,
+	# e da li' si continua
+	zaino.righe[zaino.scelta - zaino.inizio].gui_input.emit(azione_ui("ui_right"))
+	var linguetta := zaino.linguette[2]
+	esigi(ElencoZaino.aperto == "accessori" and zaino.fila.is_empty() and linguetta.has_focus(),
+			"in uno scomparto vuoto il fuoco non va sulla sua linguetta (aperto '%s')" % ElencoZaino.aperto)
+	esigi(zaino.vuoto.visible and zaino.nome.text == "ACCESSORI" and not zaino.ordina.visible,
+			"lo scomparto vuoto non dice cos'e', o mostra un ORDINA che non ordina niente")
+	zaino.linguette[3].grab_focus()
+	esigi(ElencoZaino.aperto == "speciali", "spostando il fuoco sulle linguette lo scomparto non cambia")
+	# un clic su una linguetta apre il suo scomparto
+	zaino.linguette[0].grab_focus()
+	zaino.linguette[0].scelto.emit()
+	esigi(ElencoZaino.aperto == "consumabili", "il clic sulla linguetta non apre la sacca")
+	zaino.dove_va_il_fuoco().grab_focus()
+	zaino.righe[0].gui_input.emit(azione_ui("ui_left"))
+	esigi(Movimento.ultimo_suono == "rifiuto" and ElencoZaino.aperto == "consumabili",
+			"a sinistra del primo scomparto la freccia non dice di no")
+	zaino.queue_free()
+	ElencoZaino.ordine = ordine_prima
 	Impostazioni.movimento_ridotto = ridotto_prima
 
 func prova_la_scheda_si_gira_tutta_da_tastiera() -> void:

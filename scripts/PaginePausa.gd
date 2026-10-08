@@ -1,8 +1,9 @@
 class_name PaginePausa
 extends RefCounted
 
-# LE PAGINE DEL DATA PAD: cosa c'e' scritto dentro il Data pad, i Messaggi, lo
-# Storico e lo Zaino. Stavano in Pausa.gd, che le mostrava; adesso Pausa decide
+# LE PAGINE DEL DATA PAD: cosa c'e' scritto dentro il Data pad, i Messaggi e lo
+# Storico (lo Zaino ha una schermata sua: Zaino.gd). Stavano in Pausa.gd, che
+# le mostrava; adesso Pausa decide
 # QUANDO si apre un pannello e come ci si muove dentro, e qui sta COSA c'e'
 # scritto. Sono due domande diverse, e la seconda cresce con la storia (un
 # messaggio nuovo, una collezione nuova, un oggetto nuovo) senza che il menu
@@ -168,37 +169,3 @@ static func riga_storico(voce: Dictionary) -> Control:
 			corpo.add_theme_color_override("default_color", Stile.colore("testo_smorzato"))
 	blocco.add_child(corpo)
 	return blocco
-
-static func contenuto_scomparto(chiave: String) -> Array:
-	if chiave == "collezionabili":
-		return GameState.collezionabili + GameState.chiavi
-	return GameState.contenuto_zaino(chiave)
-
-static func capienza_testo(chiave: String, quanti: int) -> String:
-	# gli scomparti senza tetto non devono mostrarne uno finto: gli oggetti
-	# speciali sono la storia che ti porti dietro, non zavorra da amministrare
-	if chiave in ["speciali", "collezionabili"]:
-		return "%d" % quanti
-	return "%d / %d" % [quanti, GameState.capacita_zaino(chiave)]
-
-static func disegna_scomparto(genitore: VBoxContainer, chiave: String) -> void:
-	var elenco := contenuto_scomparto(chiave)
-	if elenco.is_empty():
-		var vuoto := Label.new()
-		vuoto.text = "Questo scomparto è vuoto."
-		Stile.etichetta_piccola(vuoto)
-		genitore.add_child(vuoto)
-		return
-	# quanti ne hai dello stesso tipo: tre fiale sono una riga con un x3, non tre
-	# righe uguali una sotto l'altra
-	var conteggio := {}
-	var ordine: Array[String] = []
-	for id_oggetto in elenco:
-		var id_stringa := String(id_oggetto)
-		if not conteggio.has(id_stringa):
-			conteggio[id_stringa] = 0
-			ordine.append(id_stringa)
-		conteggio[id_stringa] = int(conteggio[id_stringa]) + 1
-	for id_oggetto in ordine:
-		genitore.add_child(SchedaOggetto.riga(id_oggetto, int(conteggio[id_oggetto]),
-				Merce.riassunto_effetto(GameState.dati_oggetto(id_oggetto), "nessun effetto")))

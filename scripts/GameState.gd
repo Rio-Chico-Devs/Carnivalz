@@ -140,6 +140,8 @@ var chiavi: Array[String] = []
 var armi: Array[String] = []
 var accessori: Array[String] = []         # equipaggiamento posseduto (unico per id, non consumabile)
 var oggetti_speciali: Array[String] = []
+# gli oggetti gia' guardati nello zaino: gli altri hanno il segno NUOVO (ElencoZaino)
+var oggetti_visti: Array[String] = []
 # quante volte hai comprato spazio, per categoria: "spazi nella realta'" per i
 # consumabili, "frammenti" per armi e accessori
 var spazi_zaino: Dictionary = {}
@@ -510,6 +512,7 @@ func nuova_partita() -> void:
 	armi.clear()
 	accessori.clear()
 	oggetti_speciali.clear()
+	oggetti_visti.clear()
 	spazi_zaino.clear()
 	accessorio_equipaggiato = ""
 	equipaggiamento.clear()
@@ -1337,16 +1340,7 @@ func categoria_zaino(id_oggetto: String) -> String:
 	return "consumabili"
 
 func contenuto_zaino(categoria: String) -> Array:
-	match categoria:
-		"armi":
-			return armi
-		"accessori":
-			return accessori
-		"consumabili":
-			return sacca
-		"speciali":
-			return oggetti_speciali
-	return sacca
+	return {"armi": armi, "accessori": accessori, "speciali": oggetti_speciali}.get(categoria, sacca)
 
 func spazi_comprati(categoria: String) -> int:
 	return int(spazi_zaino.get(categoria, 0))
@@ -2291,6 +2285,7 @@ func _scrivi_salvataggio(percorso: String) -> bool:
 		"accessori": accessori,
 		"armi": armi,
 		"oggetti_speciali": oggetti_speciali,
+		"oggetti_visti": oggetti_visti,
 		"spazi_zaino": spazi_zaino,
 		"carte_copie": carte_copie,
 		"equipaggiamento": equipaggiamento,
@@ -2418,6 +2413,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	# Messaggi.aggiorna(), che se no riaccrediterebbe i 3000 tazo a ogni caricamento
 	Messaggi.riprendi(d)
 	sonde = d["sonde"] if d.get("sonde") is Dictionary else {}
+	ElencoZaino.riprendi(d)
 	# una partita salvata prima che un appunto esistesse (o prima che il
 	# catalogo lo prevedesse) lo recupera qui dai flag che ha gia' in mano,
 	# senza annunciarlo come se fosse appena successo

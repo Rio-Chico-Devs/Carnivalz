@@ -318,8 +318,8 @@ stanno in `art/personaggi/insonne/`.
 
 ### Gli oggetti: `art/oggetti/<id>.png`
 
-Lo stesso file serve alla carta dello scaffale, alla vetrina, alla miniatura
-e al carosello della scheda.
+Lo stesso file serve alla carta dello scaffale, alla vetrina, alla miniatura,
+al carosello della scheda e allo zaino (la riga della lista e l'oggetto grande).
 
 | oggetto | file | c'è |
 |---|---|:-:|
@@ -327,45 +327,74 @@ e al carosello della scheda.
 | Amuleto di ferro | `art/oggetti/amuleto_di_ferro.png` |  |
 | Amuleto di pietra | `art/oggetti/amuleto_di_pietra.png` |  |
 | Amuleto di vento | `art/oggetti/amuleto_di_vento.png` |  |
+| Un'anima inquieta | `art/oggetti/anima_inquieta.png` |  |
 | Bastone | `art/oggetti/bastone.png` |  |
 | Benda stretta | `art/oggetti/benda_stretta.png` |  |
+| Benzina | `art/oggetti/benzina.png` |  |
+| Copia di uno strano biglietto | `art/oggetti/biglietto_strano.png` |  |
 | Bomba al nitro | `art/oggetti/bomba_al_nitro.png` |  |
 | Bomba artigianale | `art/oggetti/bomba_artigianale.png` |  |
 | Bottiglia di liquore | `art/oggetti/bottiglia_di_liquore.png` |  |
+| Bottone dorato | `art/oggetti/bottone_dorato.png` |  |
 | Caramella di Nyu | `art/oggetti/caramella_di_nyu.png` |  |
 | Carbone attivo | `art/oggetti/carbone_attivo.png` |  |
+| Cianfrusaglia | `art/oggetti/cianfrusaglia.png` |  |
+| Ciondolo del grande viaggio | `art/oggetti/ciondolo_del_grande_viaggio.png` |  |
+| Collana particolare | `art/oggetti/collana_particolare.png` |  |
 | Coltello di servizio | `art/oggetti/coltello_di_servizio.png` |  |
+| Misterioso componente elettronico | `art/oggetti/componente_elettronico.png` |  |
+| Convertitore | `art/oggetti/convertitore.png` |  |
+| Un cuore di disallineamento | `art/oggetti/cuore_di_carnivalz.png` |  |
 | Cuore di latta | `art/oggetti/cuore_di_latta.png` |  |
+| Diari di ricerca | `art/oggetti/diari_di_ricerca.png` |  |
+| Diserbante dei vivai | `art/oggetti/diserbante.png` |  |
 | Essenza d'aura | `art/oggetti/essenza_di_aura.png` |  |
 | Fiala d'aura | `art/oggetti/fiala_aura.png` |  |
 | Fiala HP | `art/oggetti/fiala_hp.png` |  |
+| Fiala misteriosa | `art/oggetti/fiala_misteriosa.png` |  |
 | Fiore di luna | `art/oggetti/fiore_di_luna.png` |  |
 | Frammento di vita | `art/oggetti/frammento_di_vita.png` |  |
 | Frammento — vassoio | `art/oggetti/frammento_per_gli_accessori.png` |  |
 | Frammento — rastrelliera | `art/oggetti/frammento_per_le_armi.png` |  |
+| ID della capofamiglia | `art/oggetti/id_card.png` |  |
 | Il mondo è il mio Tesoro | `art/oggetti/il_mondo_e_il_mio_tesoro.png` |  |
 | Infuso antico | `art/oggetti/infuso_antico.png` |  |
+| Lanterna che pulsa | `art/oggetti/lanterna_che_pulsa.png` |  |
 | Lente di Nyu | `art/oggetti/lente_di_nyu.png` |  |
 | Mannaia scheggiata | `art/oggetti/mannaia_scheggiata.png` |  |
+| Matrice di accesso | `art/oggetti/matrice.png` |  |
 | Mazzafrusto | `art/oggetti/mazzafrusto.png` |  |
+| Meccanismo del varco | `art/oggetti/meccanismo_del_varco.png` |  |
+| Medaglia della vecchia plaza | `art/oggetti/medaglia_del_vecchio_circo.png` |  |
 | Pacco di merendine scadute | `art/oggetti/merendine_scadute.png` |  |
 | Molotov | `art/oggetti/molotov.png` |  |
 | Motosega | `art/oggetti/motosega.png` |  |
 | Gel Omega | `art/oggetti/omega_gel.png` |  |
+| Pagina di giornale (prima) | `art/oggetti/pagina_di_giornale_1.png` |  |
+| Pagina di giornale (seconda) | `art/oggetti/pagina_di_giornale_2.png` |  |
+| Pagina di giornale (ultima) | `art/oggetti/pagina_di_giornale_3.png` |  |
+| Pergamene incomprensibili | `art/oggetti/pergamene_incomprensibili.png` |  |
 | Petardo | `art/oggetti/petardo.png` |  |
 | Pietra Quieta | `art/oggetti/pietra_quieta.png` |  |
 | Premio di pezza | `art/oggetti/premio_di_pezza.png` |  |
+| Prova di un forte amore | `art/oggetti/prova_di_un_forte_amore.png` |  |
 | Razione da viaggio | `art/oggetti/razione_del_circo.png` |  |
+| Dei ricordi felici | `art/oggetti/ricordi_felici.png` |  |
 | Ricordo del Passato | `art/oggetti/ricordo_del_passato.png` |  |
+| Rottame di metallo | `art/oggetti/rottame_di_metallo.png` |  |
 | Sale amaro | `art/oggetti/sale_amaro.png` |  |
+| Scheggia di specchio | `art/oggetti/scheggia_di_specchio.png` |  |
 | Sparachiodi arrugginito | `art/oggetti/sparachiodi_arrugginito.png` |  |
 | Spazio nella realtà | `art/oggetti/spazio_nella_realta.png` |  |
 | Specchio tascabile | `art/oggetti/specchio_tascabile.png` |  |
+| Spilla a margherita | `art/oggetti/spilla_margherita.png` |  |
 | Spranga di ferro | `art/oggetti/spranga_di_ferro.png` |  |
 | Stigma del muto | `art/oggetti/stigma_del_muto.png` |  |
 | Stigma del veglio | `art/oggetti/stigma_del_veglio.png` |  |
 | Tonico calmante | `art/oggetti/tonico_calmante.png` |  |
 | Vino di ottima qualità | `art/oggetti/vino_di_ottima_qualita.png` |  |
+| Viti e bulloni | `art/oggetti/viti_e_bulloni.png` |  |
+| La volontà di un fabbro | `art/oggetti/volonta_di_un_fabbro.png` |  |
 
 ### Le icone delle statistiche: `art/interfaccia/statistiche/<chiave>.png`
 

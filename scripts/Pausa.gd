@@ -15,7 +15,7 @@ extends CanvasLayer
 #   diario        -> il Data pad: il Database e l'Organizzazione, un indice a
 #                    sinistra e una sezione alla volta a destra (vedi sotto)
 #   messaggi      -> dall'iconcina in basso a destra, che squilla (IconaMessaggi)
-#   inventario    -> lo zaino, uno scomparto alla volta, con la sua capienza
+#   inventario    -> lo zaino: una lista per scomparto (scripts/Zaino.gd)
 #   equipaggiamento -> la scheda del personaggio (scripts/Personaggio.gd)
 #
 # In ogni pannello, in alto a destra: Tazo e livello. Sempre, senza doverli
@@ -74,16 +74,6 @@ const SEZIONI_DIARIO := [
 	["organizzazione", "Organizzazione"],
 ]
 
-# Gli scomparti dello zaino: gli stessi di GameState (contenuto_zaino), piu' i
-# collezionabili, che non sono zaino ma nemmeno vanno persi di vista.
-const SCOMPARTI := [
-	["consumabili", "Consumabili"],
-	["armi", "Armi"],
-	["accessori", "Accessori"],
-	["speciali", "Oggetti speciali"],
-	["collezionabili", "Ricordi e chiavi"],
-]
-
 var velo: ColorRect
 var sfocato: TextureRect        # l'istantanea sfocata della scena rimasta sotto
 var chi_giochi: TextureRect     # il tuo personaggio, grande a destra, a fuoco
@@ -98,7 +88,6 @@ var aperta := false
 var pannello := "menu"  # menu | storico | diario | messaggi | collezione | inventario | equipaggiamento | opzioni | uscita
 var sezione_diario := "database"
 var icona_messaggi: IconaMessaggi   # in basso a destra, nel menu e nel Data pad
-var scomparto_aperto := "consumabili"
 # Aperta da una stanza della Sede (Alloggi, Archivio) invece che con ESC: allora
 # "Indietro" deve CHIUDERE e riportare alla Sede, non aprire il menu di pausa.
 # Senza questa riga succedeva davvero: cliccavi Alloggi, tornavi indietro, e ti
@@ -456,7 +445,7 @@ func voce(segno: String, testo: String, richiamo: Callable, dove: Control = null
 
 func voce_d_indice(dove: Control, testo: String, attuale: bool, richiamo: Callable,
 		chiave := "") -> VoceMenu:
-	# UNA VOCE DELL'INDICE del Diario o dello Zaino. Quella in cui sei ha il
+	# UNA VOCE DELL'INDICE del Data pad. Quella in cui sei ha il
 	# segno davanti ed e' inerte: premerla non riapre la stessa pagina, dice di no
 	var v := voce("riprendi" if attuale else "", testo, richiamo, dove, Stile.dimensione("corpo"))
 	v.inerte = attuale
@@ -590,7 +579,7 @@ func mostra_storico() -> void:
 	if is_instance_valid(scorrevole):
 		scorrevole.scroll_vertical = int(scorrevole.get_v_scroll_bar().max_value)
 
-# --- pannelli con l'indice: il Data pad e lo Zaino ---
+# --- il pannello con l'indice: il Data pad ---
 
 func mostra_diario() -> void:
 	pannello_con_indice("diario", GameState.nome_diario(), SEZIONI_DIARIO, sezione_diario,
@@ -601,19 +590,14 @@ func mostra_diario() -> void:
 	mostra_icona_messaggi()
 
 func mostra_inventario() -> void:
-	# Lo zaino, uno scomparto alla volta: qui si guarda e basta. Per sapere cosa
-	# si aveva addosso bisognava aprire la scheda di un personaggio e guardare
-	# cosa si poteva equipaggiare - che e' un'altra domanda
-	var scomparti: Array = []
-	for scomparto in SCOMPARTI:
-		var chiave := String(scomparto[0])
-		scomparti.append([chiave, "%s  (%s)" % [String(scomparto[1]), PaginePausa.capienza_testo(chiave,
-				PaginePausa.contenuto_scomparto(chiave).size())]])
-	pannello_con_indice("inventario", "Zaino", scomparti, scomparto_aperto,
-			func(chiave: String) -> void:
-				scomparto_aperto = chiave
-				mostra_inventario(),
-			func(dentro: VBoxContainer) -> void: PaginePausa.disegna_scomparto(dentro, scomparto_aperto))
+	# Lo zaino: una lista per scomparto, con l'immagine di ogni oggetto e quello
+	# che scegli in grande. Qui si guarda e basta. Come e' fatto e perche':
+	# scripts/Zaino.gd e docs/zaino.md. Un foglio intero sul velo, come la squadra
+	nuova_colonna()
+	pannello = "inventario"
+	foglio = SchedaZaino.new()
+	velo.add_child(foglio)
+	foglio.apri(indietro())
 
 func pannello_con_indice(nome: String, titolo: String, pagine: Array, attuale: String,
 		scegli: Callable, riempi: Callable) -> void:

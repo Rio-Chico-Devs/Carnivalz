@@ -124,20 +124,11 @@ STATISTICHE = [("hp", "Punti vita"), ("attacco", "Attacco"), ("difesa", "Difesa"
 
 
 def oggetti_disegnati():
-    """Gli oggetti che negozio e scheda disegnano: quello che si vende o si
-    baratta, e quello che si mette addosso. I materiali e le chiavi no: nei
-    riquadri del baratto sono scritti, non disegnati."""
+    """Gli oggetti che hanno un disegno: tutti. Lo zaino (scripts/Zaino.gd) ne
+    mostra uno per riga e quello scelto in grande, chiavi, materiali e bottino
+    compresi: «avremo un'immagine per ogni oggetto» (Bru, 8 ottobre)."""
     tutti = {o["id"]: o for o in carica("data/oggetti.json")["oggetti"]}
-    scelti = set()
-    for negozio in carica("data/negozi.json")["negozi"]:
-        for voce in negozio.get("stock", []):
-            scelti.add(voce.get("oggetto", ""))
-        for baratto in negozio.get("baratti", []):
-            scelti.add(baratto.get("produce", ""))
-    for id_oggetto, dati in tutti.items():
-        if dati.get("tipo") in ("arma", "stigma", "accessorio", "consumabile"):
-            scelti.add(id_oggetto)
-    return [(i, tutti[i].get("nome", i)) for i in sorted(scelti) if i in tutti]
+    return [(i, tutti[i].get("nome", i)) for i in sorted(tutti)]
 
 
 def esiste(percorso_res):
@@ -315,8 +306,8 @@ def genera():
     righe.append("")
     righe.append("### Gli oggetti: `art/oggetti/<id>.png`")
     righe.append("")
-    righe.append("Lo stesso file serve alla carta dello scaffale, alla vetrina, alla miniatura")
-    righe.append("e al carosello della scheda.")
+    righe.append("Lo stesso file serve alla carta dello scaffale, alla vetrina, alla miniatura,")
+    righe.append("al carosello della scheda e allo zaino (la riga della lista e l'oggetto grande).")
     righe.append("")
     righe.append("| oggetto | file | c'è |")
     righe.append("|---|---|:-:|")

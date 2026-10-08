@@ -140,6 +140,8 @@ trasparenza.
 | (lo stesso) | carta dello scaffale | 97×97 | intero, centrato | |
 | (lo stesso) | miniatura accanto a "×N" | 86×86 | intero, centrato | |
 | (lo stesso) | casella del carosello | 90×90 al centro, 67×67 ai lati | intero, centrato | |
+| (lo stesso) | riga dello zaino | 40×40 su una piastrella scura | intero, centrato; deve leggersi anche così piccolo: conta la sagoma | |
+| (lo stesso) | l'oggetto scelto nello zaino | 280×290 | intero, centrato | |
 | `art/personaggi/<id>/intero.png` | figura al centro della scheda | largo 490, alto fino a 710 | scalato alla larghezza, **appoggiato in basso**; se è più alto esce dal fondo, come nel riferimento | 980×1400 circa |
 | `art/personaggi/<id>/carta.png` | ritratto nella carta della squadra | 113×76 | **riempie** il riquadro tagliando quello che avanza (una fototessera): il viso al centro | 240×160 |
 | `art/personaggi/<id>/emblema.png` | accanto al nome | 97×103 | intero, centrato | 200×200 |
