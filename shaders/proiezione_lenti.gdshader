@@ -27,6 +27,9 @@ uniform vec3 inchiostro : source_color = vec3(0.29, 0.48, 0.66);
 uniform vec3 fondo : source_color = vec3(0.04, 0.05, 0.07);
 uniform vec3 segnale : source_color = vec3(0.95, 0.60, 0.18);
 uniform float tempo = 0.0;
+// LE PROPOSTE NUOVE (Bru: «non mi piace come si vedono»): 0 com'era, 1 lo
+// strappo, 2 la crepa, 3 il varco, 4 il gorgo a retino (Proiezione.STILI_FRATTURA)
+uniform int stile = 0;
 
 mat2 giro(float a) {
 	float c = cos(a);
@@ -36,6 +39,23 @@ mat2 giro(float a) {
 
 float caso(vec2 p) {
 	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+// il retino dei pianeti (proiezione_retino): puntini grandi dove c'e' luce,
+// sulla stessa griglia obliqua, fermi sullo schermo come sulla carta
+float retino(vec2 px, float lum, float cella) {
+	vec2 q = px / cella;
+	q = vec2(q.x + q.y, q.y - q.x) * 0.7071;
+	vec2 f = fract(q) - 0.5;
+	float r = sqrt(clamp(lum, 0.0, 1.0)) * 0.62;
+	return 1.0 - smoothstep(r - 0.08, r + 0.08, length(f));
+}
+
+// una tinta sopra le altre: vince la piu' coprente
+void sovrapponi(inout vec4 sopra, vec3 tinta, float quanto) {
+	float a = clamp(quanto, 0.0, 1.0);
+	sopra.rgb = mix(sopra.rgb, tinta, a);
+	sopra.a = max(sopra.a, a);
 }
 
 // le lenti si misurano sul rettangolo, non sulla finestra: a schermo intero,
@@ -58,10 +78,139 @@ void fragment() {
 	float dentro = 0.0;
 	float spento = 0.0;
 	vec3 mondo = vec3(0.0);
+	vec4 sopra = vec4(0.0);
+	float nero = 0.0;
+	float cella = 4.0 * scala;
 	for (int i = 0; i < n_lenti; i++) {
 		float raggio = lenti[i].z;
 		vec2 d = p - lenti[i].xy;
 		if (raggio < 1.0 || length(d) >= raggio) {
+			continue;
+		}
+		if (stile != 0) {
+			float fase_n = lenti_b[i].y;
+			float en = lenti_b[i].z;
+			float sch = max(lenti_b[i].w, 0.2);
+			float sp = lenti_b[i].x;
+			float apre_n = lenti_c[i].x;
+			vec3 luce = mix(carta, inchiostro, sp * 0.7);
+			vec3 calda = mix(segnale, inchiostro, sp);
+			vec2 e = vec2(d.x, d.y / sch);
+			float r = length(e) / raggio;
+			float th = atan(e.y, e.x);
+			vec2 s = giro(lenti_c[i].y) * d;
+			float aperta = step(0.02, apre_n);
+			if (stile == 1) {
+				// LO STRAPPO: un taglio alto in piedi sulla griglia, coi bordi di
+				// carta strappata, e dentro un altro mondo stampato a retino
+				if (r < 1.0) {
+					float k = 1.0 - r;
+					vec2 tira = -e * 0.35 * k * k;
+					sposta += vec2(tira.x, tira.y * sch);
+				}
+				float alto_n = raggio * 0.9 * mix(1.0, 0.6, sch * sch);
+				float l = s.y / alto_n;
+				if (abs(l) < 1.0) {
+					float n1 = texture(rumore, vec2(l * 0.8 + fase_n, fase_n * 0.3)).r - 0.5;
+					float n2 = texture(rumore, vec2(l * 3.1 - fase_n, 0.7)).r - 0.5;
+					float largo_n = raggio * 0.17 * apre_n * pow(1.0 - l * l, 0.75) * (1.0 + n1 * 1.3);
+					float fuori_n = abs(s.x) - largo_n;
+					float fibra = raggio * 0.03 * (1.0 + n2 * 2.5);
+					float orlo_n = smoothstep(fibra + 0.8, fibra - 0.8, fuori_n) * smoothstep(-1.0, 0.5, fuori_n);
+					float dentro_n = smoothstep(0.8, -0.8, fuori_n);
+					// dentro e' buio, e dal fondo sale una luce: piu' forte al centro del
+					// taglio, a retino come tutto quello che e' stampato
+					float cuore = exp(-pow(s.x / max(largo_n, 0.5), 2.0) * 3.0) * pow(1.0 - l * l, 0.8);
+					float pt = retino(FRAGCOORD.xy, cuore * (0.35 + 0.5 * en), cella * 0.8);
+					vec3 interno = mix(fondo * 0.6, mix(calda, luce, 0.35), pt);
+					float cucitura = exp(-pow(s.x / max(largo_n * 0.18, 0.6), 2.0)) * pow(1.0 - l * l, 1.2) * (0.5 + 0.5 * en);
+					interno = mix(interno, luce, cucitura * dentro_n);
+					float alone_n = exp(-pow(max(fuori_n, 0.0) / (raggio * 0.1), 2.0)) * pow(1.0 - l * l, 0.5)
+							* (0.2 + 0.4 * en);
+					sovrapponi(sopra, luce, retino(FRAGCOORD.xy, alone_n, cella) * alone_n * aperta * (1.0 - dentro_n));
+					sovrapponi(sopra, interno, dentro_n * aperta);
+					sovrapponi(sopra, luce, orlo_n * aperta);
+				}
+			} else if (stile == 2) {
+				// LA CREPA: lo spazio si incrina come un vetro, sul piano della
+				// griglia. Sei crepe frastagliate partono dal buco, ognuna col suo
+				// ramo; fra una crepa e l'altra il mondo dietro scivola un poco, e
+				// dalle crepe esce luce
+				if (r < 1.0) {
+					float k = 1.0 - r;
+					float vicina = 1e5;
+					float settore = 0.0;
+					for (int c = 0; c < 6; c++) {
+						float fc = float(c);
+						float lunga = 0.55 + 0.45 * caso(vec2(fc, fase_n));
+						float base = (fc + 0.35 * (caso(vec2(fc, fase_n + 1.3)) - 0.5)) * 1.0471976;
+						float storta = (texture(rumore, vec2(r * 1.6 + fc * 0.37, fase_n + fc * 0.11)).r - 0.5) * 1.1;
+						float dove = base + storta * r;
+						float scarto = abs(mod(th - dove + 3.14159265, 6.2831853) - 3.14159265);
+						float dist = scarto * r * raggio + max(r - lunga, 0.0) * raggio * 3.0;
+						vicina = min(vicina, dist / mix(1.0, 0.3, r));
+						// il ramo: parte a meta' crepa e se ne va di lato
+						float ramo_da = 0.3 + 0.3 * caso(vec2(fc, fase_n + 2.9));
+						float ramo = dove + (caso(vec2(fc, fase_n + 4.1)) > 0.5 ? 1.0 : -1.0) * (r - ramo_da) * 1.4;
+						float scarto_r = abs(mod(th - ramo + 3.14159265, 6.2831853) - 3.14159265);
+						float dist_r = scarto_r * r * raggio + max(r - (ramo_da + 0.3), 0.0) * raggio * 3.0
+								+ max(ramo_da - r, 0.0) * raggio * 3.0;
+						vicina = min(vicina, dist_r / mix(1.4, 0.4, r));
+						settore += step(base + storta * r, th + 3.14159265 - 3.14159265 * step(3.14159265, th));
+					}
+					float crepa = (1.0 - smoothstep(1.2, 2.4, vicina)) * smoothstep(0.12, 0.17, r) * apre_n;
+					vec2 via = normalize(e + vec2(0.0001));
+					vec2 off = (vec2(caso(vec2(settore, fase_n)), caso(vec2(settore + 5.0, fase_n))) - 0.5) * raggio * 0.05 * k
+							+ via * raggio * 0.025 * k;
+					sposta += vec2(off.x, off.y * sch) * apre_n;
+					float batte = 0.8 + 0.2 * sin(tempo * 1.4 + fase_n * 6.0);
+					float bagliore = exp(-pow(vicina / (4.0 + 4.0 * en), 2.0)) * smoothstep(1.0, 0.5, r)
+							* (0.35 + 0.55 * en) * batte * apre_n;
+					sovrapponi(sopra, calda, retino(FRAGCOORD.xy, bagliore, cella) * bagliore);
+					sovrapponi(sopra, luce, crepa);
+					// il buco, dall'orlo spezzato
+					float orlo_r = 0.13 + (texture(rumore, vec2(th * 0.9, fase_n * 3.0)).r - 0.5) * 0.06;
+					nero = max(nero, smoothstep(orlo_r + 0.01, orlo_r - 0.01, r) * apre_n);
+					sovrapponi(sopra, luce, exp(-pow((r - orlo_r) / 0.012, 2.0)) * (0.7 + 0.3 * en) * apre_n);
+				}
+			} else if (stile == 3) {
+				// IL VARCO: una mandorla in piedi, col tratto arancio del manifesto,
+				// e intorno sulla griglia onde lente come in uno stagno
+				if (r < 1.0) {
+					for (int o = 0; o < 3; o++) {
+						float fr = fract(tempo * 0.06 + float(o) / 3.0 + fase_n);
+						float onda = exp(-pow((r - (0.2 + fr * 0.8)) / 0.012, 2.0)) * (1.0 - fr);
+						sovrapponi(sopra, luce, onda * 0.7 * (0.4 + 0.6 * en));
+						sposta += normalize(d + vec2(0.0001)) * onda * 3.0;
+					}
+				}
+				float alto_n = raggio * 0.75 * mix(1.0, 0.6, sch * sch);
+				float l = s.y / alto_n;
+				if (abs(l) < 1.0) {
+					float largo_n = raggio * 0.3 * apre_n * (1.0 - l * l);
+					float fuori_n = abs(s.x) - largo_n;
+					float dentro_n = smoothstep(0.8, -0.8, fuori_n);
+					float tratto = 1.0 - smoothstep(1.6, 2.6, abs(fuori_n + 1.2));
+					float cuore = exp(-pow(length(vec2(s.x / max(largo_n, 1.0), l)) * 1.4, 2.0));
+					float pt = retino(FRAGCOORD.xy, cuore * (0.5 + 0.5 * en) + 0.05, cella);
+					sovrapponi(sopra, mix(fondo, luce, pt), dentro_n * aperta);
+					sovrapponi(sopra, calda, tratto * aperta);
+				}
+			} else {
+				// IL GORGO A RETINO: un disco di puntini che si stringe in un buco
+				// nero, coi bracci fermi come in una stampa
+				if (r < 1.0) {
+					float k = 1.0 - r;
+					sposta += -d * 0.45 * k * k * k;
+					float braccio = 0.5 + 0.5 * sin(th * 3.0 + log(max(r, 0.05)) * 5.0 + fase_n * 3.0);
+					float densita = smoothstep(1.0, 0.25, r) * (0.25 + 0.75 * braccio) * (0.5 + 0.5 * en);
+					float pt = retino(FRAGCOORD.xy, densita, cella * 0.9);
+					vec3 tinta = mix(luce, calda, smoothstep(0.6, 0.25, r));
+					sovrapponi(sopra, tinta, pt * smoothstep(0.17, 0.22, r) * apre_n);
+					nero = max(nero, smoothstep(0.2, 0.15, r) * apre_n);
+					sovrapponi(sopra, luce, exp(-pow((r - 0.2) / 0.015, 2.0)) * apre_n);
+				}
+			}
 			continue;
 		}
 		float fase = lenti_b[i].y;
@@ -134,5 +283,7 @@ void fragment() {
 	vec3 visto = mix(mondo, vec3(dot(mondo, vec3(0.33))) * inchiostro * 1.6, spento);
 	col = mix(col, visto, dentro);
 	col = mix(col, mix(carta, inchiostro, spento * 0.6), clamp(bordo, 0.0, 1.0));
+	col = mix(col, fondo, nero * 0.95);
+	col = mix(col, sopra.rgb, clamp(sopra.a, 0.0, 1.0));
 	COLOR = vec4(col, 1.0);
 }

@@ -86,3 +86,19 @@ static func nebulosa(tinta: Color) -> ColorRect:
 	r.position = Vector2(-160, -40)
 	r.material = materiale(NEBULOSA, {"rumore": rumore(), "tinta": tinta})
 	return r
+
+
+# LA FORMA DELLE FRATTURE (shaders/proiezione_lenti, "stile"). Bru: «dobbiamo
+# lavorare sulle fratture ancora non mi piace come si vedono». Finche' non
+# sceglie, le proposte stanno qui (proiezione.fratture in data/stile.json; per
+# gli scatti FORMA_FRATTURE): "lente" quella di prima, "strappo", "crepa",
+# "varco", "gorgo". Quelle nuove sono piu' grandi: piccole non si leggevano
+const FORME_FRATTURA := {"lente": [0, 1.0], "strappo": [1, 1.35], "crepa": [2, 1.45], "varco": [3, 1.3],
+		"gorgo": [4, 1.35]}
+static var forma_fratture := ""
+
+
+static func forma_delle_fratture() -> Array:
+	if forma_fratture == "":
+		forma_fratture = String(dati().get("fratture", "lente"))
+	return FORME_FRATTURA.get(forma_fratture, FORME_FRATTURA["lente"])

@@ -1663,7 +1663,12 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
 (`Proiezione.gd`), riempita da `Mappa.gd` (il settore) e da `Vuoto.gd` (il sistema deformato):
 
 - **la griglia si piega nei pozzi**: ogni Carnivalz è un pozzo profondo, ogni frattura un pozzo
-  più piccolo che orbita il grande. Lo shader è in `shaders/`;
+  più piccolo accanto al grande. Lo shader è in `shaders/`;
+- **le fratture stanno ferme, in orbita ci sono solo i pianeti** (Bru: «non devono ruotare in
+  orbite, in orbita solo pianeti»): una frattura sta dove la mette `pos` in `mappa.json`. Il suo
+  aspetto è ancora da scegliere: oltre alla lente di adesso ci sono quattro proposte (`strappo`,
+  `crepa`, `varco`, `gorgo`, in `CieloProiezione.FORME_FRATTURA`), che si guardano con
+  `FORMA_FRATTURE=varco ./prove/scatto.sh proiezione vuoto`;
 - **solo i Carnivalz sono pianeti** (Bru: «le fratture devono sembrare più distorsioni spazio
   tempo più che pianeti»): una frattura è una **lente** (`shaders/proiezione_lenti.gdshader`)
   fatta di due cose. Un **vortice** che giace sulla griglia (dall'alto è un cerchio, di lato
@@ -1684,7 +1689,23 @@ acido) e con le interazioni di Mass Effect. Mappa stellare e Vuoto sono la stess
 - **i pianeti delle risorse** (`pianeti` del punto, `Vuoto.gd`): piccole sfere in orbita intorno
   al Vuoto; la scheda dice le risorse (collezionabili, oggetti, minerali, tazo, per
   l'Organizzazione) e col loro `file_eventi` si esplorano come una frattura, senza dice
-  «esplorazione in arrivo». I due di adesso sono **esempi miei**, da sostituire;
+  «esplorazione in arrivo». I quattro di adesso sono **esempi miei**, da sostituire;
+- **le sonde** (`sonda` del pianeta, `Sonde.gd`; Bru: «ogni tanto randomicamente arrivano dei
+  dati dalle sonde che ti dicono che ci sono nuove risorse da estrarre, cosi' accumuli nel lungo
+  periodo»): la sonda si accende la prima volta che il pianeta si vede, e ogni tanto (a caso fra
+  i due numeri di `ogni_minuti`, in minuti di gioco: in pausa il tempo non passa) trova un
+  giacimento. Arriva un messaggio sul data pad, il pianeta chiama col «!», la scheda dice
+  «SONDA · 2 DA ESTRARRE» e il bottone diventa «Estrai le risorse». I giacimenti aspettano fino
+  a `massimo`. I tazo vanno sul conto, un `oggetto` nello zaino (quello che non ci sta resta sul
+  pianeta), il resto (minerali, risorse per l'Organizzazione) nelle **riserve**
+  (`GameState.sonde`, si salvano). Una sonda trova solo quello che la scheda del pianeta promette,
+  e mai collezionabili: ognuno è unico. I messaggi scritti a partita in corso stanno in
+  `Messaggi.gd`, che ha preso le regole dei messaggi da `GameState`;
+- **le didascalie non coprono i corpi** (`DisegnoProiezione.didascalie`): con le fratture ferme,
+  un nome finito sopra un corpo ci restava per sempre. Ogni didascalia prova undici gradini sopra
+  e sotto il corpo, da un lato e poi dall'altro; se non c'è un posto libero prende quello che
+  copre meno superficie. Una prova fa fare ai pianeti un giro intero e guarda che nessun nome
+  copra mai l'anomalia o una frattura;
 - **i segreti** (`segreti` del punto, `SegretiVuoto.gd`): non si vedono e col Tab non si
   raggiungono; quando il cursore passa a meno di 30 pixel esce il «!», e il segreto diventa un
   corpo da scegliere e prendere una volta sola (`premio`: tazo, un oggetto, un flag; poi il flag

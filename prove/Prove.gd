@@ -295,6 +295,12 @@ func _ready() -> void:
 	await prova_la_tavola_sta_intera_anche_col_testo_grande()
 	await prova_la_proiezione_sta_intera_col_testo_grande()
 	await prova_la_proiezione_scrive_come_il_manifesto()
+	await prova_le_sonde_trovano_e_aspettano_che_passi()
+	prova_le_sonde_si_salvano()
+	await prova_nel_vuoto_la_sonda_chiama_e_si_estrae()
+	prova_le_sonde_di_mappa_json_sono_scritte_bene()
+	await prova_le_fratture_stanno_ferme_e_i_pianeti_girano()
+	await prova_le_didascalie_non_coprono_i_corpi()
 	prova_script_compilano()
 	prova_scene_caricabili()
 	stampa_esito()
@@ -12049,6 +12055,317 @@ func prova_pianeti_e_segreti_scritti_bene() -> void:
 				errori.append("il segreto '%s' da' '%s', che non esiste" % [segreto.get("id"), oggetto])
 	esigi(errori.is_empty(), "mappa.json: %s" % [errori])
 
+func prova_le_sonde_trovano_e_aspettano_che_passi() -> void:
+	# Bru: «su questi ogni tanto randomicamente arrivano dei dati dalle sonde
+	# che ti dicono che ci sono nuove risorse da estrarre, cosi' accumuli nel
+	# lungo periodo». Una sonda finta che trova ogni minuto e ne tiene due
+	titolo("le sonde: trovano col tempo di gioco, lo scrivono sul data pad, ne tengono da parte un massimo, si estraggono")
+	GameState.nuova_partita()
+	var sonda := {"ogni_minuti": [1, 1], "massimo": 2, "giacimenti": [{"risorsa": "minerali", "da": 4, "a": 4}]}
+	Sonde.accendi({"id": "pianeta_muto", "nome": "Muto"})
+	Sonde.accendi({"id": "pianeta_sondato", "nome": "Sondato", "sonda": sonda})
+	esigi(Sonde.pianeti().keys() == ["pianeta_sondato"],
+			"si accende una sonda su un pianeta che non ce l'ha, o non quella che c'e': %s" % [Sonde.pianeti().keys()])
+	Sonde.pianeti()["pianeta_sondato"]["attesa"] = 60.0
+	Sonde.accendi({"id": "pianeta_sondato", "nome": "Sondato", "sonda": sonda})
+	esigi(float(Sonde.pianeti()["pianeta_sondato"]["attesa"]) == 60.0, "rivedere il pianeta riaccende la sonda da capo")
+	var non_letti := Messaggi.non_letti()
+	Sonde.avanza(59.0)
+	esigi(Sonde.giacimenti("pianeta_sondato").is_empty(), "la sonda trova prima del suo tempo")
+	Sonde.avanza(2.0)
+	esigi(Sonde.giacimenti("pianeta_sondato").size() == 1, "passato il minuto la sonda non ha trovato niente")
+	var messaggio := Messaggi.dati("sonda_pianeta_sondato_1")
+	esigi(Messaggi.non_letti() == non_letti + 1 and "sonda_pianeta_sondato_1" in GameState.messaggi_da_notificare,
+			"il giacimento trovato non arriva sul data pad, o arriva in silenzio")
+	esigi("4 minerali" in String(messaggio.get("testo", "")) and "Sondato" in String(messaggio.get("mittente", "")),
+			"il messaggio della sonda non dice chi ha trovato cosa: %s" % [messaggio])
+	for i in 6:
+		Sonde.avanza(61.0)
+	esigi(Sonde.giacimenti("pianeta_sondato").size() == 2 and Messaggi.non_letti() == non_letti + 2,
+			"la sonda piena trova lo stesso: %d giacimenti, %d messaggi" % [Sonde.giacimenti("pianeta_sondato").size(),
+			Messaggi.non_letti() - non_letti])
+	# si estrae tutto in un colpo, e le riserve crescono di volta in volta
+	var presi := Sonde.estrai("pianeta_sondato")
+	esigi(presi.size() == 2 and Sonde.giacimenti("pianeta_sondato").is_empty() and int(Sonde.riserve().get("minerali", 0)) == 8,
+			"estratti %s, nelle riserve %s: i giacimenti non finiscono nelle riserve" % [presi, Sonde.riserve()])
+	Sonde.trova("pianeta_sondato")
+	Sonde.estrai("pianeta_sondato")
+	esigi(int(Sonde.riserve().get("minerali", 0)) == 12, "le riserve non si accumulano: %s" % [Sonde.riserve()])
+	# i tazo vanno sul conto
+	Sonde.accendi({"id": "pianeta_dei_tazo", "nome": "Tazo", "sonda": {"giacimenti": [{"risorsa": "tazo", "da": 30, "a": 30}]}})
+	Sonde.trova("pianeta_dei_tazo")
+	var tazo_prima := GameState.tazo
+	Sonde.estrai("pianeta_dei_tazo")
+	esigi(GameState.tazo == tazo_prima + 30, "i tazo trovati dalla sonda non arrivano sul conto")
+	le_sonde_e_lo_zaino_pieno()
+	# e il tempo che passa e' quello del gioco: GameState lo porta alle sonde da solo
+	Sonde.pianeti()["pianeta_sondato"]["attesa"] = 0.001
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(Sonde.giacimenti("pianeta_sondato").size() == 1, "mentre si gioca il tempo delle sonde non passa")
+	GameState.nuova_partita()
+	esigi(Sonde.pianeti().is_empty() and Sonde.riserve().is_empty() and GameState.messaggi_scritti.is_empty(),
+			"una partita nuova si porta dietro le sonde o i messaggi di quella di prima")
+
+func le_sonde_e_lo_zaino_pieno() -> void:
+	# un oggetto che nello zaino non ci sta resta sul pianeta: torni quando hai posto
+	Sonde.accendi({"id": "pianeta_delle_razioni", "nome": "Razioni",
+			"sonda": {"giacimenti": [{"risorsa": "oggetto", "oggetto": "razione_del_circo", "da": 3, "a": 3}]}})
+	Sonde.trova("pianeta_delle_razioni")
+	var categoria := GameState.categoria_zaino("razione_del_circo")
+	var scomparto := GameState.contenuto_zaino(categoria)
+	while GameState.spazio_libero(categoria) > 1:
+		scomparto.append("razione_del_circo")
+	var prima := scomparto.count("razione_del_circo")
+	var presi := Sonde.estrai("pianeta_delle_razioni")
+	var restano := Sonde.giacimenti("pianeta_delle_razioni")
+	esigi(scomparto.count("razione_del_circo") == prima + 1 and presi.size() == 1 and "1 ×" in presi[0],
+			"con un posto solo nello zaino non si prende una razione: %s" % [presi])
+	esigi(restano.size() == 1 and int(restano[0]["quanti"]) == 2,
+			"le due razioni che non stavano nello zaino sono sparite: %s" % [restano])
+	esigi(Sonde.estrai("pianeta_delle_razioni").is_empty() and Sonde.giacimenti("pianeta_delle_razioni").size() == 1,
+			"con lo zaino pieno l'estrazione butta via quello che resta")
+
+func prova_le_sonde_si_salvano() -> void:
+	# il lungo periodo e' fatto di partite riprese: sonde, riserve e messaggi
+	# scritti dalle sonde tornano come erano, e nessun messaggio riarriva
+	titolo("sonde, riserve e messaggi delle sonde si salvano e si riprendono come erano")
+	var percorso := "user://prova_sonde.json"
+	FileSicuro.cancella(percorso)
+	GameState.nuova_partita()
+	Sonde.accendi({"id": "pianeta_salvato", "nome": "Salvato",
+			"sonda": {"ogni_minuti": [5, 5], "giacimenti": [{"risorsa": "minerali", "da": 7, "a": 7}]}})
+	Sonde.trova("pianeta_salvato")
+	Sonde.trova("pianeta_salvato")
+	Sonde.estrai("pianeta_salvato")
+	Sonde.trova("pianeta_salvato")
+	var attesa := float(Sonde.pianeti()["pianeta_salvato"]["attesa"])
+	var non_letti := Messaggi.non_letti()
+	GameState._scrivi_salvataggio(percorso)
+	GameState.nuova_partita()
+	esigi(GameState._leggi_salvataggio(percorso), "la partita con le sonde non si ricarica")
+	esigi(Sonde.giacimenti("pianeta_salvato").size() == 1 and int(Sonde.riserve().get("minerali", 0)) == 14,
+			"ripresa la partita, giacimenti e riserve non sono quelli di prima: %s, %s" % [Sonde.giacimenti("pianeta_salvato"),
+			Sonde.riserve()])
+	esigi(is_equal_approx(float((Sonde.pianeti().get("pianeta_salvato", {}) as Dictionary).get("attesa", -1.0)), attesa),
+			"ripresa la partita, la sonda ricomincia ad aspettare da capo")
+	esigi(Messaggi.non_letti() == non_letti and String(Messaggi.dati("sonda_pianeta_salvato_3").get("testo", "")) != "",
+			"ripresa la partita, i messaggi delle sonde non ci sono piu' o hanno perso il testo")
+	esigi(GameState.messaggi_da_notificare.is_empty(), "ripresa la partita, i messaggi delle sonde si annunciano di nuovo")
+	esigi(Sonde.estrai("pianeta_salvato").size() == 1 and int(Sonde.riserve().get("minerali", 0)) == 21,
+			"un giacimento ripreso da un salvataggio non si estrae")
+	FileSicuro.cancella(percorso)
+	GameState.nuova_partita()
+
+func prova_nel_vuoto_la_sonda_chiama_e_si_estrae() -> void:
+	titolo("nel Vuoto il pianeta con la sonda piena chiama, la scheda dice quanti, la conferma estrae senza partire")
+	GameState.nuova_partita()
+	var punto := punto_della_mappa("carnivalz_del_bosco").duplicate(true)
+	var pianeta := {"id": "pianeta_della_sonda", "nome": "Della sonda", "epoca": "Prova", "descrizione": "Prova.",
+			"pos": [400, 500], "risorse": ["minerali"], "file_eventi": "res://data/vuoti/squarcio_industriale.json",
+			"sonda": {"ogni_minuti": [30, 30], "giacimenti": [{"risorsa": "minerali", "da": 5, "a": 5}]}}
+	punto["pianeti"] = [pianeta]
+	Sonde.accendi(pianeta)
+	Sonde.trova("pianeta_della_sonda")
+	Sonde.trova("pianeta_della_sonda")
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var vuoto: Control = await apri_il_vuoto(punto)
+	var p: Proiezione = vuoto.get("proiezione")
+	var c := p.corpo("pianeta_della_sonda")
+	var righe: Array = c.get("dati", [])
+	esigi(bool(c.get("segnale", false)) and righe.size() == 2 and String(righe[1][0]) == "SONDA"
+			and String(righe[1][1]) == "2 DA ESTRARRE" and String(c.get("azione", "")) == "Estrai le risorse",
+			"il pianeta con due giacimenti non chiama, o la scheda non lo dice: %s, «%s»" % [righe, c.get("azione")])
+	if c.is_empty():
+		vuoto.queue_free()
+		Transizioni.in_corso = stato_prima
+		return
+	(c["bottone"] as Button).pressed.emit()
+	(c["bottone"] as Button).pressed.emit()
+	await get_tree().create_timer(0.3).timeout
+	esigi(int(Sonde.riserve().get("minerali", 0)) == 10 and Sonde.giacimenti("pianeta_della_sonda").is_empty(),
+			"confermato il pianeta, i giacimenti non si estraggono: %s" % [Sonde.riserve()])
+	esigi(Transizioni.prossima == "", "estrarre le risorse fa partire per il pianeta (si va a '%s')" % Transizioni.prossima)
+	esigi(not bool(c["segnale"]) and String(c["dati"][1][1]) == "IN ASCOLTO" and String(c["azione"]) == "Esplora il pianeta"
+			and "5 minerali" in String(c["testo"]), "estratto tutto, la scheda non torna in ascolto o non dice cosa si e' preso")
+	# una sonda puo' trovare anche mentre guardi
+	Sonde.trova("pianeta_della_sonda")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	esigi(bool(c["segnale"]) and String(c["dati"][1][1]) == "1 DA ESTRARRE",
+			"un giacimento trovato col Vuoto aperto non si vede finche' non lo si riapre")
+	# e senza giacimenti la conferma esplora, come prima
+	Sonde.estrai("pianeta_della_sonda")
+	await get_tree().process_frame
+	(c["bottone"] as Button).pressed.emit()
+	await aspetta_un_cambio_di_schermata()
+	esigi(Transizioni.prossima == "res://scenes/Main.tscn",
+			"senza giacimenti il pianeta col gioco non si esplora piu' (si va a '%s')" % Transizioni.prossima)
+	vuoto.queue_free()
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
+
+func prova_le_sonde_di_mappa_json_sono_scritte_bene() -> void:
+	# una sonda trova solo quello che la scheda del suo pianeta promette, mai un
+	# collezionabile (ognuno e' unico) e mai un oggetto che non esiste
+	titolo("le sonde di mappa.json sono scritte bene, e trovano solo quello che il pianeta dice di avere")
+	var errori: Array[String] = []
+	var con_la_sonda := 0
+	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+		for pianeta: Dictionary in punto.get("pianeti", []):
+			if not pianeta.has("sonda"):
+				continue
+			con_la_sonda += 1
+			errori.append_array(errori_della_sonda(pianeta))
+	esigi(con_la_sonda >= 4, "in mappa.json ci sono %d pianeti con la sonda: ne aspettavo almeno quattro" % con_la_sonda)
+	esigi(errori.is_empty(), "mappa.json: %s" % [errori])
+
+func errori_della_sonda(pianeta: Dictionary) -> Array[String]:
+	var errori: Array[String] = []
+	var id := String(pianeta.get("id", "?"))
+	var sonda: Dictionary = pianeta["sonda"]
+	var minuti: Array = sonda.get("ogni_minuti", Sonde.MINUTI)
+	if minuti.size() != 2 or float(minuti[0]) <= 0.0 or float(minuti[0]) > float(minuti[1]):
+		errori.append("'%s': ogni_minuti %s non e' un intervallo" % [id, minuti])
+	if int(sonda.get("massimo", Sonde.MASSIMO)) < 1:
+		errori.append("'%s': la sonda non tiene da parte niente" % id)
+	var giacimenti: Array = sonda.get("giacimenti", [])
+	if giacimenti.is_empty():
+		errori.append("'%s': la sonda non sa trovare niente" % id)
+	for g: Dictionary in giacimenti:
+		var risorsa := String(g.get("risorsa", ""))
+		if not Sonde.NOMI.has(risorsa):
+			errori.append("'%s': una sonda non trova '%s'" % [id, risorsa])
+		elif not (("oggetti" if risorsa == "oggetto" else risorsa) in pianeta.get("risorse", [])):
+			errori.append("'%s': la sonda trova '%s', ma la scheda del pianeta non lo dice" % [id, risorsa])
+		var tipo := String(GameState.dati_oggetto(String(g.get("oggetto", ""))).get("tipo", ""))
+		if risorsa == "oggetto" and not tipo in ["consumabile", "pila"]:
+			errori.append("'%s': la sonda trova '%s', che non esiste o e' unico" % [id, g.get("oggetto")])
+		if int(g.get("da", 1)) < 1 or int(g.get("da", 1)) > int(g.get("a", 1)) or float(g.get("peso", 1.0)) <= 0.0:
+			errori.append("'%s': quantita' o peso di '%s' sbagliati" % [id, risorsa])
+	return errori
+
+func prova_le_fratture_stanno_ferme_e_i_pianeti_girano() -> void:
+	# Bru: «non devono ruotare in orbite, in orbita solo pianeti»
+	titolo("nel Vuoto le fratture stanno ferme dove le mettono i dati, e i pianeti girano")
+	GameState.nuova_partita()
+	var vuoto: Control = await apri_il_vuoto(punto_della_mappa("carnivalz_del_bosco"))
+	var p: Proiezione = vuoto.get("proiezione")
+	var fratture: Dictionary = vuoto.get("fratture")
+	var prima := {}
+	for c in p.corpi:
+		prima[c["id"]] = c["xz"]
+	await get_tree().create_timer(0.5).timeout
+	var girate: Array[String] = []
+	var ferme: Array[String] = []
+	for c in p.corpi:
+		var mosso := (c["xz"] as Vector2).distance_to(prima[c["id"]]) > 0.0001
+		if fratture.has(c["id"]) and mosso:
+			girate.append(String(c["id"]))
+		elif String(c["tipo"]) == "pianeta" and not mosso:
+			ferme.append(String(c["id"]))
+	esigi(not fratture.is_empty() and girate.is_empty(), "queste fratture girano ancora in orbita: %s" % [girate])
+	esigi(not vuoto.get("pianeti").is_empty() and ferme.is_empty(), "questi pianeti non girano piu': %s" % [ferme])
+	for id: String in fratture:
+		var c := p.corpo(id)
+		var giro: Vector2 = vuoto.call("nel_vuoto", fratture[id].get("pos"))
+		if not c.is_empty():
+			esigi((c["xz"] as Vector2).distance_to(Vector2.RIGHT.rotated(giro.y) * giro.x) < 0.001,
+					"la frattura '%s' non sta dove la mette mappa.json" % id)
+	vuoto.queue_free()
+	GameState.nuova_partita()
+
+func prova_le_didascalie_non_coprono_i_corpi() -> void:
+	# da quando le fratture stanno ferme, un nome finito sopra un corpo ci
+	# restava per sempre: i «Cunicoli» sopra l'anomalia del Vuoto Ardente
+	titolo("le didascalie della proiezione non coprono i corpi, e non si coprono fra loro")
+	# il posto: il primo libero, e se non ce n'e' quello che copre meno
+	var s := Vector2(300, 300)
+	var primo := DisegnoProiezione.spazio_della_didascalia(s, 10.0, 80.0, 1.0, DisegnoProiezione.GRADINI[0])
+	var occupati: Array[Rect2] = [primo]
+	var posto := DisegnoProiezione.posto_libero(s, 10.0, 80.0, occupati)
+	esigi(posto != Vector2(1.0, DisegnoProiezione.GRADINI[0]) and not primo.intersects(
+			DisegnoProiezione.spazio_della_didascalia(s, 10.0, 80.0, posto.x, posto.y)) and occupati.size() == 2,
+			"la didascalia prende il posto gia' occupato, o non segna il suo (%s)" % posto)
+	var pieno: Array[Rect2] = [Rect2(0, 0, 1280, 720), Rect2(0, 0, 1280, 720),
+			DisegnoProiezione.spazio_della_didascalia(s, 10.0, 80.0, 1.0, DisegnoProiezione.GRADINI[0])]
+	var meno := DisegnoProiezione.posto_libero(s, 10.0, 80.0, pieno)
+	var dove_meno := DisegnoProiezione.spazio_della_didascalia(s, 10.0, 80.0, meno.x, meno.y)
+	esigi(pieno.slice(0, 3).filter(func(o: Rect2) -> bool: return o.intersects(dove_meno)).size() == 2,
+			"senza un posto libero la didascalia non va dove copre meno (%s)" % meno)
+	var proprio: Array[Rect2] = [Rect2(0, 0, 1280, 720)]
+	esigi(DisegnoProiezione.posto_libero(s, 10.0, 80.0, proprio, proprio[0]) == Vector2(1.0, DisegnoProiezione.GRADINI[0]),
+			"la didascalia scappa dal suo stesso corpo")
+	# vicino al bordo alto il primo gradino uscirebbe sotto l'intestazione: si scende
+	var in_alto := Vector2(300, 82)
+	var niente: Array[Rect2] = []
+	var sotto := DisegnoProiezione.posto_libero(in_alto, 10.0, 80.0, niente)
+	esigi(DisegnoProiezione.CORNICE.encloses(DisegnoProiezione.spazio_della_didascalia(in_alto, 10.0, 80.0, sotto.x, sotto.y)),
+			"una didascalia vicino al bordo alto esce dalla cornice (%s)" % sotto)
+	# e nei Vuoti veri, a camera ferma, coi pianeti in ogni punto della loro
+	# orbita: con quattro pianeti, girando, chiudevano ogni posto intorno ai
+	# «Cunicoli», e il nome finiva di nuovo sopra l'anomalia
+	var ridotto := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+		if Array(punto.get("vuoti", [])).is_empty():
+			continue
+		GameState.nuova_partita()
+		var vuoto: Control = await apri_il_vuoto(punto)
+		for i in 3:
+			await get_tree().process_frame   # col movimento ridotto la camera si mette a posto al secondo
+		var p: Proiezione = vuoto.get("proiezione")
+		esigi(not DisegnoProiezione.didascalie(p).is_empty(), "%s: nessuna didascalia, la prova non guarda niente" % punto.get("id"))
+		await lungo_le_orbite(p, String(punto.get("id")))
+		vuoto.queue_free()
+		await get_tree().process_frame
+	Impostazioni.movimento_ridotto = ridotto
+	GameState.nuova_partita()
+
+func lungo_le_orbite(p: Proiezione, dove: String) -> void:
+	# un giro intero del pianeta piu' lento, in 72 scatti. Un nome sopra un corpo
+	# fermo (l'anomalia, una frattura) non deve capitare mai; due pianeti che si
+	# incrociano possono pestarsi per un attimo, ma di rado
+	var partenza := {}
+	var lento := INF
+	for c in p.corpi:
+		if float(c["vel"]) > 0.0:
+			partenza[c["id"]] = float(c["angolo"])
+			lento = minf(lento, float(c["vel"]))
+	var scatti := 72 if not partenza.is_empty() else 1
+	var sui_fermi: Array[String] = []
+	var pestati := 0
+	for k in scatti:
+		for c in p.corpi:
+			if partenza.has(c["id"]):
+				c["angolo"] = float(partenza[c["id"]]) + float(c["vel"]) * TAU / lento * k / scatti
+		await get_tree().process_frame
+		await get_tree().process_frame
+		for coperto in didascalie_che_coprono(p, true):
+			if not coperto in sui_fermi:
+				sui_fermi.append(coperto)
+		pestati += 0 if didascalie_che_coprono(p).is_empty() else 1
+	esigi(sui_fermi.is_empty(), "%s: %s" % [dove, sui_fermi])
+	esigi(pestati <= scatti * 0.1, "%s: in %d posizioni su %d i nomi si pestano" % [dove, pestati, scatti])
+
+func didascalie_che_coprono(p: Proiezione, solo_sui_fermi := false) -> Array[String]:
+	var tutte := DisegnoProiezione.didascalie(p)
+	var coperti: Array[String] = []
+	for d in tutte:
+		var spazio: Rect2 = d["spazio"]
+		for c in p.corpi:
+			if c != d["corpo"] and float(c["apertura"]) >= 0.6 and (float(c["vel"]) == 0.0 or not solo_sui_fermi) \
+					and spazio.intersects(DisegnoProiezione.ingombro_del_corpo(p, c)):
+				coperti.append("il nome di '%s' copre '%s'" % [d["corpo"]["id"], c["id"]])
+		for altra in tutte:
+			if not solo_sui_fermi and altra != d and spazio.intersects(altra["spazio"]) \
+					and String(d["corpo"]["id"]) < String(altra["corpo"]["id"]):
+				coperti.append("i nomi di '%s' e '%s' si coprono" % [d["corpo"]["id"], altra["corpo"]["id"]])
+	return coperti
+
 func prova_da_un_altra_schermata_arriva_il_nodo_giusto() -> void:
 	# CHI ARRIVA DA UN'ALTRA SCHERMATA VEDE IL NODO IN CUI E' ENTRATO.
 	#
@@ -13209,14 +13526,14 @@ func prova_data_pad_e_proiezione() -> void:
 			"ricevuti gli ordini, la quota di benvenuto non arriva")
 	esigi(GameState.tazo == prima_tazo + 3000,
 			"la quota di benvenuto ha portato %d tazo invece di 3000" % (GameState.tazo - prima_tazo))
-	esigi(GameState.messaggi_non_letti() == 1,
-			"il data pad non segnala %d messaggi non letti" % GameState.messaggi_non_letti())
+	esigi(Messaggi.non_letti() == 1,
+			"il data pad non segnala %d messaggi non letti" % Messaggi.non_letti())
 
 	# UN MESSAGGIO ARRIVA UNA VOLTA SOLA. Senza questo, ogni flag rimesso - o
 	# ogni caricamento - riaccrediterebbe i 3000 tazo.
 	var soldi := GameState.tazo
-	GameState.aggiorna_messaggi()
-	GameState.aggiorna_messaggi()
+	Messaggi.aggiorna()
+	Messaggi.aggiorna()
 	esigi(GameState.tazo == soldi,
 			"chiamando due volte l'aggiornamento i tazo sono passati da %d a %d"
 			% [soldi, GameState.tazo])
@@ -13667,7 +13984,7 @@ const FILE_GRANDI := {
 		"SCESO A 4661 il 25 settembre: la Mattanza e' uscita in Mattanza.gd, col suo colpo di " +
 		"grazia (ColpoDiGrazia.gd, RiquadroColpoDiGrazia.gd). Qui restano la domanda " +
 		"mattanza_attiva e i cinque agganci - lo SPAZIO, il clic, il fotogramma, il tassello, il ramo"},
-	"GameState.gd": {"misura": 2549, "perche":
+	"GameState.gd": {"misura": 2500, "perche":
 		"lo stato del mondo piu' il caricamento di tutti i dati piu' i " +
 		"salvataggi. ALLARGATA DA 2537 A 2549 col controllo a basso livello: " +
 		"riprendi_il_dado() rimette lo stato del dado salvato invece di " +
@@ -13723,7 +14040,7 @@ const FUNZIONI_LUNGHE := {
 		"priorita', ricarica, massimo_usi, dopo_mossa, alleati vivi). Da " +
 		"guardare insieme a risolvi_drop: e' una delle due funzioni sopra il " +
 		"tetto ANCHE per garbuglio, a quota 52, e quello si', e' un difetto"},
-	"GameState.gd:_leggi_salvataggio": {"misura": 119, "perche":
+	"GameState.gd:_leggi_salvataggio": {"misura": 117, "perche":
 		"legge un salvataggio campo per campo con un ripiego per ognuno, " +
 		"perche' un file vecchio non ha i campi nuovi. Ogni riga e' una " +
 		"compatibilita' all'indietro"},
@@ -17536,7 +17853,7 @@ func prova_il_data_pad_come_lo_ha_riordinato_bru() -> void:
 	# premuta: i messaggi, letti; Indietro torna al menu, e l'iconcina sta zitta
 	icona.pressed.emit()
 	await get_tree().process_frame
-	esigi(Pausa.pannello == "messaggi" and GameState.messaggi_non_letti() == 0,
+	esigi(Pausa.pannello == "messaggi" and Messaggi.non_letti() == 0,
 			"premuta l'iconcina, i messaggi non si aprono o non risultano letti")
 	esigi(not icona.visible, "sopra i messaggi resta l'iconcina")
 	var indietro := voce_della_pausa("indietro")

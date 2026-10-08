@@ -19,6 +19,12 @@ extends RefCounted
 # l'intestazione comincia dopo l'iconcina del menu (IconaMenu), che sta
 # nell'angolo in alto a sinistra in ogni schermata
 const INIZIO_INTESTAZIONE := 148.0
+# quanto sale una didascalia sopra il suo corpo, nell'ordine in cui si prova
+# (sotto zero: scende sotto il corpo). Con quattro pianeti in orbita sette non
+# bastavano: girando, prima o poi chiudevano ogni posto intorno a una frattura
+const GRADINI: Array[float] = [16.0, 42.0, 68.0, 94.0, -40.0, -66.0, 120.0, -92.0, 146.0, -118.0, 172.0]
+# dove una didascalia si puo' scrivere: fuori ci sono la colonna e l'intestazione
+const CORNICE := Rect2(24, 64, SchedaProiezione.X - 30.0, 620)
 
 static var fonti := {}
 
@@ -217,8 +223,21 @@ static func parola_di_stato(stato: String) -> String:
 
 static func etichette(p: Proiezione, tela: Control) -> void:
 	# didascalie col filo, come nei diagrammi del poster: a destra del corpo se
-	# c'e' posto prima della colonna, se no a sinistra; due non si coprono mai
+	# c'e' posto prima della colonna, se no a sinistra; due non si coprono mai.
+	# E NON COPRONO I CORPI: da quando le fratture stanno ferme, un nome finito
+	# sopra l'anomalia ci restava per sempre (i «Cunicoli» nel Vuoto Ardente)
+	for d in didascalie(p):
+		etichetta(p, tela, d)
+
+
+static func didascalie(p: Proiezione) -> Array[Dictionary]:
+	# DOVE VA OGNI DIDASCALIA, decisa prima di disegnare: e' quello che si vede,
+	# e la prova guarda qui che non copra niente
 	var occupati: Array[Rect2] = []
+	for c in p.corpi:
+		if float(c["apertura"]) >= 0.6:
+			occupati.append(ingombro_del_corpo(p, c))
+	var tutte: Array[Dictionary] = []
 	var indice := 0
 	for c in p.corpi:
 		indice += 1
@@ -229,22 +248,29 @@ static func etichette(p: Proiezione, tela: Control) -> void:
 		var s := p.sullo_schermo(c["pos"])
 		# girando o avvicinando la mappa un corpo puo' finire dietro la colonna, o
 		# fuori dalla cornice: li' niente didascalia
-		if compare <= 0.0 or not Rect2(24, 64, SchedaProiezione.X - 30.0, 620).has_point(s):
+		if compare <= 0.0 or not CORNICE.has_point(s):
 			continue
-		etichetta(p, tela, c, s, compare, occupati)
+		var r := p.raggio_sullo_schermo(c)
+		# la didascalia e' larga quanto la sua riga piu' lunga: il nome o lo stato
+		var lungo := maxf(larghezza(String(c["nome"]).to_upper(), 12, 500, 85, 2),
+				larghezza(parola_di_stato(String(c["stato"])), 10, 420, 85, 2) + 13.0)
+		var posto := posto_libero(s, r, lungo, occupati, ingombro_del_corpo(p, c))
+		tutte.append({"corpo": c, "s": s, "r": r, "compare": compare, "lungo": lungo, "posto": posto,
+				"spazio": spazio_della_didascalia(s, r, lungo, posto.x, posto.y)})
+	return tutte
 
 
-static func etichetta(p: Proiezione, tela: Control, c: Dictionary, s: Vector2, compare: float,
-		occupati: Array[Rect2]) -> void:
-	var r := p.raggio_sullo_schermo(c)
+static func etichetta(p: Proiezione, tela: Control, d: Dictionary) -> void:
+	var c: Dictionary = d["corpo"]
+	var s: Vector2 = d["s"]
+	var r: float = d["r"]
+	var compare: float = d["compare"]
+	var lungo: float = d["lungo"]
 	var stato := String(c["stato"])
 	var tinta := Color(p.tinte["inchiostro"] if stato in ["spento", "visto"] else p.tinte["carta"], compare)
 	var nome := String(c["nome"]).to_upper()
-	# la didascalia e' larga quanto la sua riga piu' lunga: il nome o lo stato
-	var lungo := maxf(larghezza(nome, 12, 500, 85, 2), larghezza(parola_di_stato(stato), 10, 420, 85, 2) + 13.0)
-	var posto := posto_libero(s, r, lungo, occupati)
-	var verso := posto.x
-	var su := posto.y
+	var verso: float = d["posto"].x
+	var su: float = d["posto"].y
 	var a := s + Vector2((r * 0.72 + 3.0) * verso, -r * 0.72 - 3.0)
 	var b := a + Vector2(16.0 * verso, -su)
 	var fine := b + Vector2((lungo + 10.0) * verso, 0)
@@ -272,24 +298,64 @@ static func spazio_della_didascalia(s: Vector2, r: float, lungo: float, verso: f
 	return Rect2(b.x if verso > 0.0 else b.x - lungo - 14.0, b.y - 16.0, lungo + 14.0, 32.0)
 
 
-static func posto_libero(s: Vector2, r: float, lungo: float, occupati: Array[Rect2]) -> Vector2:
+static func ingombro_del_corpo(p: Proiezione, c: Dictionary) -> Rect2:
+	# quanto spazio prende un corpo a schermo: una frattura e' piu' larga del
+	# suo punto, perche' la si disegna intorno
+	var r := p.raggio_sullo_schermo(c) * (2.0 if String(c["forma"]) == "lente" else 1.1)
+	return Rect2(p.sullo_schermo(c["pos"]) - Vector2(r, r), Vector2(r, r) * 2.0)
+
+
+static func posto_libero(s: Vector2, r: float, lungo: float, occupati: Array[Rect2], proprio := Rect2()) -> Vector2:
 	# DOVE VA UNA DIDASCALIA: (verso, quanto sale). Prima dal lato dove c'e'
 	# posto prima della colonna, salendo un gradino alla volta; se quel lato e'
-	# pieno, l'altro lato. Con i pianeti e i segreti i corpi sono tanti, e
-	# un lato solo non bastava piu'
-	var a_destra := s.x + r + 30.0 + lungo < SchedaProiezione.X - 12.0
-	var a_sinistra := s.x - r - 30.0 - lungo > 24.0
-	var verso := 1.0 if a_destra else -1.0
-	for lato: float in [verso, -verso]:
-		if (lato > 0.0 and not a_destra) or (lato != verso and not a_sinistra):
-			continue
-		for gradino in 4:
-			var su := 16.0 + 26.0 * float(gradino)
-			var spazio := spazio_della_didascalia(s, r, lungo, lato, su)
-			if not occupati.any(func(o: Rect2) -> bool: return o.intersects(spazio)):
-				occupati.append(spazio)
-				return Vector2(lato, su)
-	return Vector2(verso, 120.0)
+	# pieno, l'altro lato, e poi anche sotto il corpo. Con i pianeti e i segreti
+	# i corpi sono tanti, e un lato solo non bastava piu'. Se non c'e' un posto
+	# libero si prende quello che copre meno superficie: un filo di un'altra
+	# didascalia e' meglio di mezzo pianeta
+	var posti := posti_da_provare(s, r, lungo)
+	var meglio: Vector2 = posti[0]
+	var meno := INF
+	for posto: Vector2 in posti:
+		var costo := costo_del_posto(spazio_della_didascalia(s, r, lungo, posto.x, posto.y), occupati, proprio)
+		if costo < meno:
+			meno = costo
+			meglio = posto
+		if meno <= 0.0:
+			break
+	occupati.append(spazio_della_didascalia(s, r, lungo, meglio.x, meglio.y))
+	return meglio
+
+
+static func costo_del_posto(spazio: Rect2, occupati: Array[Rect2], proprio: Rect2) -> float:
+	# la superficie degli altri che finisce sotto la didascalia, e quella della
+	# didascalia che esce dalla cornice (e andrebbe sotto la colonna o l'intestazione)
+	var costo := (spazio.get_area() - CORNICE.intersection(spazio).get_area()) * 4.0
+	for o in occupati:
+		if o != proprio and o.intersects(spazio):
+			costo += o.intersection(spazio).get_area()
+	return costo
+
+
+static func posti_da_provare(s: Vector2, r: float, lungo: float) -> Array[Vector2]:
+	# i posti in ordine: tutti i gradini del lato buono, poi quelli dell'altro
+	# lato se anche li' la didascalia sta prima della colonna e dentro la cornice
+	var posti: Array[Vector2] = []
+	for lato in lati_liberi(s.x, r + 30.0 + lungo):
+		for su in GRADINI:
+			posti.append(Vector2(lato, su))
+	return posti
+
+
+static func lati_liberi(x: float, largo: float) -> Array[float]:
+	# a destra se la didascalia finisce prima della colonna; a sinistra se ci
+	# sta, o se a destra non c'e' posto (meglio tagliata che sotto la colonna)
+	var a_destra := x + largo < SchedaProiezione.X - 12.0
+	var lati: Array[float] = []
+	if a_destra:
+		lati.append(1.0)
+	if x - largo > 24.0 or not a_destra:
+		lati.append(-1.0)
+	return lati
 
 
 static func mirino(p: Proiezione, tela: Control) -> void:

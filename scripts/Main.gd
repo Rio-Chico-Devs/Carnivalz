@@ -1061,7 +1061,7 @@ func notifiche_messaggi() -> Array[Dictionary]:
 		return righe
 	var quanti := GameState.messaggi_da_notificare.size()
 	if quanti == 1:
-		var voce := GameState.dati_messaggio(String(GameState.messaggi_da_notificare[0]))
+		var voce := Messaggi.dati(String(GameState.messaggi_da_notificare[0]))
 		righe.append({"tipo": "notifica", "testo": "%s: nuovo messaggio — %s"
 				% [GameState.nome_diario(), String(voce.get("oggetto", "senza oggetto"))]})
 	else:

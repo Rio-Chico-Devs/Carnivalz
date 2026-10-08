@@ -30,6 +30,11 @@ func _ready() -> void:
 		Impostazioni.testo_grande = true
 		Impostazioni.applica_scala_testo()
 		etichetta += "_testo_grande"
+	# FORMA_FRATTURE=crepa ./prove/scatto.sh proiezione vuoto: le fratture in
+	# un'altra forma (CieloProiezione.FORME_FRATTURA)
+	if OS.has_environment("FORMA_FRATTURE"):
+		CieloProiezione.forma_fratture = OS.get_environment("FORMA_FRATTURE")
+		etichetta += "_" + CieloProiezione.forma_fratture
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(CARTELLA))
 	await prepara(quale)
 	# la rottura si assesta da sola dentro prepara(): aspettare altri quaranta
@@ -57,7 +62,7 @@ func proiezione_piena(dove: String) -> void:
 		pianta.plastico.evidenzia("albero")
 		return
 	var schermata: Control
-	if dove == "vuoto":
+	if dove in ["vuoto", "sonde"]:
 		for punto: Dictionary in GameState.carica_mappa().get("punti", []):
 			if String(punto.get("id", "")) == "carnivalz_del_bosco":
 				GameState.punto_mappa_corrente = punto
@@ -77,7 +82,15 @@ func proiezione_piena(dove: String) -> void:
 		if float(c["apertura"]) >= 0.6 and s.x < SchedaProiezione.X - 40.0 and s.distance_to(Vector2(480, 380)) < dista:
 			dista = s.distance_to(Vector2(480, 380))
 			meglio = String(c["id"])
+	if dove == "sonde":
+		# "proiezione sonde": le sonde hanno trovato qualcosa su due pianeti, e
+		# si punta il primo
+		for id_pianeta: String in ["pianeta_esempio_uno", "pianeta_esempio_uno", "pianeta_esempio_quattro"]:
+			Sonde.trova(id_pianeta)
+		meglio = "pianeta_esempio_uno"
 	p.punta(meglio)
+	if dove == "sonde":
+		(p.corpo(meglio)["bottone"] as Button).pressed.emit()   # scelto: il bottone dice «Estrai le risorse»
 	await attendi(150)
 
 

@@ -123,7 +123,8 @@
 					"file_eventi": ""
 				}
 			],
-			"_nota_pianeti": "I pianeti delle risorse (Vuoto.gd): girano intorno al Vuoto come le fratture e si esplorano col loro 'file_eventi' (vuoto: la scheda dice che l'esplorazione arriva). 'risorse' sono parole fra collezionabili, oggetti, minerali, tazo, organizzazione. 'nascosto', 'richiede_flags', 'richiede_oggetti' e 'flag_completato' come per le fratture. QUESTI DUE SONO ESEMPI MIEI, per vedere come vengono: nomi, testi e giochi sono da fare.",
+			"_nota_pianeti": "I pianeti delle risorse (Vuoto.gd): girano intorno al Vuoto (le fratture invece stanno ferme: Bru, «in orbita solo pianeti») e si esplorano col loro 'file_eventi' (vuoto: la scheda dice che l'esplorazione arriva). 'risorse' sono parole fra collezionabili, oggetti, minerali, tazo, organizzazione. 'nascosto', 'richiede_flags', 'richiede_oggetti' e 'flag_completato' come per le fratture. QUESTI QUATTRO SONO ESEMPI MIEI, per vedere come vengono: nomi, testi e giochi sono da fare.",
+			"_nota_sonde": "LA SONDA di ogni pianeta (Sonde.gd). Bru: «ogni tanto randomicamente arrivano dei dati dalle sonde che ti dicono che ci sono nuove risorse da estrarre, cosi' accumuli nel lungo periodo». Si accende la prima volta che il pianeta si vede nel Vuoto. 'ogni_minuti': ogni quanto trova un giacimento, in minuti di gioco (a caso fra i due numeri; in pausa il tempo non passa). 'massimo': quanti giacimenti tiene da parte aspettando che tu passi. 'giacimenti': cosa puo' trovare, ognuno col suo 'peso' (piu' e' alto, piu' capita spesso) e la quantita' fra 'da' e 'a'. 'risorsa': 'tazo' va sul conto, 'oggetto' (con 'oggetto': un id di oggetti.json) va nello zaino, le altre ('minerali', 'organizzazione') vanno nelle riserve, che si accumulano. Una sonda trova solo quello che il pianeta dice di avere nelle 'risorse' ('oggetto' conta come 'oggetti'), e mai collezionabili: ognuno e' unico, si trova giocando. Numeri miei, da provare.",
 			"pianeti": [
 				{
 					"id": "pianeta_esempio_uno",
@@ -133,7 +134,15 @@
 					"descrizione": "Un pianeta delle risorse d'esempio: quando avrà il suo videogioco, qui si troveranno minerali e tazo. Nome e storia sono ancora da scrivere.",
 					"risorse": ["minerali", "tazo"],
 					"pos": [330, 470],
-					"file_eventi": ""
+					"file_eventi": "",
+					"sonda": {
+						"ogni_minuti": [8, 18],
+						"massimo": 3,
+						"giacimenti": [
+							{"risorsa": "minerali", "da": 3, "a": 8, "peso": 3},
+							{"risorsa": "tazo", "da": 20, "a": 60, "peso": 2}
+						]
+					}
 				},
 				{
 					"id": "pianeta_esempio_due",
@@ -143,7 +152,50 @@
 					"descrizione": "Un altro pianeta d'esempio: collezionabili e risorse per l'Organizzazione, appena ci sarà il gioco per prenderli.",
 					"risorse": ["collezionabili", "organizzazione"],
 					"pos": [1060, 420],
-					"file_eventi": ""
+					"file_eventi": "",
+					"sonda": {
+						"ogni_minuti": [10, 22],
+						"massimo": 3,
+						"giacimenti": [
+							{"risorsa": "organizzazione", "da": 1, "a": 3, "peso": 1}
+						]
+					}
+				},
+				{
+					"id": "pianeta_esempio_tre",
+					"esempio": true,
+					"nome": "Terzo pianeta d'esempio",
+					"epoca": "Da scrivere",
+					"descrizione": "Un pianeta d'esempio ricco di minerali: la sonda ci scava di continuo, e ogni tanto tira fuori qualcosa da mettere nello zaino.",
+					"risorse": ["minerali", "oggetti"],
+					"pos": [560, 60],
+					"file_eventi": "",
+					"sonda": {
+						"ogni_minuti": [12, 25],
+						"massimo": 2,
+						"giacimenti": [
+							{"risorsa": "minerali", "da": 6, "a": 12, "peso": 3},
+							{"risorsa": "oggetto", "oggetto": "razione_del_circo", "da": 1, "a": 1, "peso": 1}
+						]
+					}
+				},
+				{
+					"id": "pianeta_esempio_quattro",
+					"esempio": true,
+					"nome": "Quarto pianeta d'esempio",
+					"epoca": "Da scrivere",
+					"descrizione": "Un pianeta d'esempio piccolo e veloce: la sua sonda trova poco, ma spesso.",
+					"risorse": ["tazo", "organizzazione"],
+					"pos": [1100, 640],
+					"file_eventi": "",
+					"sonda": {
+						"ogni_minuti": [6, 15],
+						"massimo": 4,
+						"giacimenti": [
+							{"risorsa": "tazo", "da": 10, "a": 30, "peso": 3},
+							{"risorsa": "organizzazione", "da": 1, "a": 2, "peso": 2}
+						]
+					}
 				}
 			],
 			"_nota_segreti": "I segreti del Vuoto (SegretiVuoto.gd): non si vedono finché il cursore non ci passa sopra, poi esce il «!». 'tipo' e' meteorite, crepa (un inizio di frattura) o segnale (si sente: un bip che accelera avvicinandosi). 'premio' puo' dare 'tazo', un 'oggetto' (id di oggetti.json) e un 'flag'; preso una volta, non torna (flag 'segreto_' + id). 'pos' come per le fratture. QUESTI TRE SONO ESEMPI MIEI: posti, testi e premi sono da decidere.",

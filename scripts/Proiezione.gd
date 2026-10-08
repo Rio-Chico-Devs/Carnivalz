@@ -641,7 +641,8 @@ func muovi_lenti() -> void:
 		apre *= DisegnoProiezione.elastico(float(c["apertura"])) * (1.0 if fermo else 1.0 + 0.08 * sin(t * 1.7 + fase))
 		# il vortice giace sulla griglia: dall'alto e' un cerchio, di lato un'ellisse
 		var schiaccia := absf((c["pos"] - camera.global_position).normalized().y)
-		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro, 1.0 - float(c["spento"]) * 0.7))
+		a.append(Vector4(s.x, s.y, raggio_sullo_schermo(c) * LENTE * respiro * float(CieloProiezione.forma_delle_fratture()[1]),
+				1.0 - float(c["spento"]) * 0.7))
 		b.append(Vector4(float(c["spento"]), fase, energia, schiaccia))
 		squarci.append(Vector4(apre, (float(hash(String(c["id"]) + "/") % 100) / 100.0 - 0.5) * 0.5, 0.0, 0.0))
 	var quante := a.size()
@@ -653,6 +654,7 @@ func muovi_lenti() -> void:
 	mat_lenti.set_shader_parameter("lenti_b", b)
 	mat_lenti.set_shader_parameter("lenti_c", squarci)
 	mat_lenti.set_shader_parameter("n_lenti", quante)
+	mat_lenti.set_shader_parameter("stile", int(CieloProiezione.forma_delle_fratture()[0]))
 	mat_lenti.set_shader_parameter("scala", (get_viewport().get_final_transform()
 			* get_global_transform_with_canvas()).get_scale().y)
 	mat_lenti.set_shader_parameter("tempo", 0.0 if Movimento.ridotto() else t)

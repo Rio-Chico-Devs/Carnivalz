@@ -76,7 +76,7 @@ static func sezione_messaggi(genitore: VBoxContainer) -> void:
 	var ordine := GameState.messaggi_ricevuti.duplicate()
 	ordine.reverse()
 	for id_messaggio in ordine:
-		var dati := GameState.dati_messaggio(String(id_messaggio))
+		var dati := Messaggi.dati(String(id_messaggio))
 		if dati.is_empty():
 			continue
 		var nuovo := String(id_messaggio) not in GameState.messaggi_letti
@@ -95,7 +95,7 @@ static func sezione_messaggi(genitore: VBoxContainer) -> void:
 		var spazio := Control.new()
 		spazio.custom_minimum_size = Vector2(0, 12)
 		genitore.add_child(spazio)
-		GameState.segna_messaggio_letto(String(id_messaggio))
+		Messaggi.segna_letto(String(id_messaggio))
 		# letto qui, non serve piu' che una notifica dica che e' arrivato: il
 		# messaggio di Veronica si legge nel giro del mattino, e senza questa
 		# riga l'avviso sarebbe arrivato dopo, in palestra

@@ -4,8 +4,9 @@ extends Control
 # «Il Vuoto»). Al centro il pozzo piu' profondo e il suo pianeta, l'anomalia:
 # la campagna principale, che si apre solo quando le fratture richieste sono
 # state percorse - prima e' li', si vede, e la scheda dice cosa manca.
-# Intorno, in orbita, le fratture (mappa.json, "vuoti" del punto), ognuna nel
-# suo pozzo. Il disegno e i gesti sono in Proiezione.gd: qui le regole.
+# Intorno le fratture (mappa.json, "vuoti" del punto), ognuna nel suo pozzo,
+# ferme dove le mettono i dati. Il disegno e i gesti sono in Proiezione.gd:
+# qui le regole.
 #
 # Le fratture nascoste compaiono con gli oggetti o le flag giuste; finche' non
 # ci entri, ogni volta che apri il Vuoto si strappano nella griglia davanti a
@@ -36,6 +37,7 @@ var fratture := {}            # id -> la sua voce in mappa.json
 var pianeti := {}             # id -> la sua voce in mappa.json ("pianeti" del punto)
 var segreti: SegretiVuoto
 var nuove: Array[String] = []  # le nascoste appena comparse: si strappano entrando
+var giacimenti_visti := {}     # pianeta -> quanti giacimenti mostra la sua scheda
 var partendo := false
 
 
@@ -103,8 +105,9 @@ static func nel_vuoto(pos: Variant, vicino := 4.6, lontano := 10.8) -> Vector2:
 
 
 func crea_squarcio(vuoto: Dictionary) -> void:
-	# ogni frattura orbita dove mappa.json la mette, attorno al centro: piu'
-	# lontana piu' lenta, come un pianeta vero
+	# OGNI FRATTURA STA FERMA dove mappa.json la mette. Bru: «non devono ruotare
+	# in orbite, in orbita solo pianeti»: una ferita nello spazio non gira
+	# attorno a niente. Il raggio e l'angolo dicono solo dove sta
 	var id_vuoto := String(vuoto.get("id", ""))
 	var stato := GameState.stato_visita(id_vuoto, String(vuoto.get("flag_completato", "")))
 	var giro := nel_vuoto(vuoto.get("pos"))
@@ -116,7 +119,7 @@ func crea_squarcio(vuoto: Dictionary) -> void:
 	if nuova:
 		nuove.append(id_vuoto)
 	proiezione.aggiungi({"id": id_vuoto, "nome": String(vuoto.get("nome", "?")), "orbita": orbita,
-			"angolo": giro.y, "vel": CieloProiezione.misura("orbita", 0.11) / sqrt(orbita),
+			"angolo": giro.y, "vel": 0.0,
 			"profondita": 2.5 if grande else 1.7, "largo": 0.8 if grande else 0.55, "raggio": 0.55 if grande else 0.4,
 			"stato": stato, "spento": 0.75 if aspetto == "spento" else 0.0, "respiro": 1.0 if aspetto == "respira" else 0.0,
 			"epoca": String(vuoto.get("epoca", "")), "testo": String(vuoto.get("descrizione", "")),
@@ -134,13 +137,55 @@ func crea_pianeta_delle_risorse(pianeta: Dictionary) -> void:
 	for chiave in pianeta.get("risorse", []):
 		risorse.append(String(RISORSE.get(chiave, String(chiave).to_upper())))
 	pianeti[id] = pianeta
-	proiezione.aggiungi({"id": id, "nome": String(pianeta.get("nome", "?")), "tipo": "pianeta",
+	Sonde.accendi(pianeta)
+	var c := proiezione.aggiungi({"id": id, "nome": String(pianeta.get("nome", "?")), "tipo": "pianeta",
 			"orbita": giro.x, "angolo": giro.y, "vel": CieloProiezione.misura("orbita", 0.11) / sqrt(giro.x),
 			"profondita": 0.9, "largo": 0.45, "raggio": 0.32, "bande": 0.5,
 			"stato": GameState.stato_visita(id, String(pianeta.get("flag_completato", ""))),
 			"epoca": String(pianeta.get("epoca", "")), "testo": String(pianeta.get("descrizione", "")),
 			"azione": "Esplora il pianeta" if gioco != "" else "Esplorazione in arrivo", "attiva": gioco != "",
 			"dati": [["RISORSE", " · ".join(risorse)]]})
+	aggiorna_sonda(c)
+
+
+func aggiorna_sonda(c: Dictionary) -> void:
+	# LA SONDA SULLA SCHEDA (Sonde.gd): quanti giacimenti aspettano. Se ce ne
+	# sono, il pianeta chiama col suo segnale e il bottone li estrae
+	var id := String(c["id"])
+	var pianeta: Dictionary = pianeti.get(id, {})
+	if not pianeta.has("sonda"):
+		return
+	var pronti := Sonde.giacimenti(id).size()
+	var gioco := String(pianeta.get("file_eventi", ""))
+	var righe: Array = c["dati"]
+	righe.resize(1)
+	righe.append(["SONDA", ("%d DA ESTRARRE" % pronti) if pronti > 0 else "IN ASCOLTO"])
+	c["segnale"] = pronti > 0
+	c["chiama"] = pronti > 0
+	c["azione"] = "Estrai le risorse" if pronti > 0 else ("Esplora il pianeta" if gioco != "" else "Esplorazione in arrivo")
+	c["attiva"] = pronti > 0 or gioco != ""
+	giacimenti_visti[id] = pronti
+
+
+func _process(_delta: float) -> void:
+	# una sonda puo' trovare qualcosa anche mentre guardi il Vuoto
+	for id: String in giacimenti_visti:
+		if Sonde.giacimenti(id).size() != int(giacimenti_visti[id]):
+			aggiorna_sonda(proiezione.corpo(id))
+
+
+func estrai(id: String) -> void:
+	var presi := Sonde.estrai(id)
+	var c := proiezione.corpo(id)
+	if presi.is_empty():
+		AudioManager.interfaccia("errore")   # lo zaino non ha posto per quello che c'e'
+		c["azione"] = "Zaino pieno"
+		return
+	AudioManager.interfaccia("raccolta")
+	c["testo"] = "Estratto dalla sonda: %s." % ", ".join(presi)
+	proiezione.da_quando_sotto = 0.0
+	proiezione.nota_destra = "TAZO %d" % GameState.tazo
+	aggiorna_sonda(c)
 
 
 func crea_segreti(voci: Array) -> void:
@@ -186,6 +231,8 @@ func _su_conferma(id: String) -> void:
 	elif fratture.has(id):
 		partendo = true
 		_su_squarcio(fratture[id])
+	elif pianeti.has(id) and not Sonde.giacimenti(id).is_empty():
+		estrai(id)
 	elif pianeti.has(id):
 		partendo = true
 		_su_squarcio(pianeti[id])

@@ -91,7 +91,7 @@ func _ready() -> void:
 
 
 func aggiorna() -> void:
-	var nuovi := GameState.messaggi_non_letti()
+	var nuovi := Messaggi.non_letti()
 	numero.text = str(nuovi)
 	numero.visible = nuovi > 0
 	tooltip_text = "Messaggi" if nuovi == 0 else "Messaggi: %d da leggere" % nuovi
