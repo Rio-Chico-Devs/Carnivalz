@@ -109,6 +109,25 @@ volte. È la regola che teniamo: lo zaino prende la lingua della scheda della
 squadra (arancio del manifesto, schermi dei cabinati, la fascia nera storta),
 ma ogni scritta sta su un fondo pieno.
 
+## Quattro proposte, da scegliere
+
+*Bru, 9 ottobre: «ok molto meglio lo zaino, vedi se puoi ancora fare meglio
+mandami altri esempi altrimenti approviamo questo».*
+
+Gli stessi dati, gli stessi tasti, quattro modi di disegnarli
+(`scripts/ProposteZaino.gd`, provvisorio). Nello zaino il tasto **PROPOSTA 1/4**,
+in alto accanto al titolo, gira fra le quattro.
+
+| | proposta | com'è | a cosa punta |
+|---|---|---|---|
+| 1 | **Cabinato** | com'è oggi: la lista nello schermo di un cabinato | la stessa famiglia della scheda squadra |
+| 2 | **Fasce** | la lista sull'arancio, una fascia nera storta per riga, quella scelta esce chiara dalla fila | la lingua delle voci della pausa: la più «manifesto» |
+| 3 | **Taccuino** | un foglio chiaro scritto in nero, diviso in sezioni (VITA, AURA, STRESS, DANNI, CURE…), la scelta con l'evidenziatore | la più ordinata: i gruppi si vedono senza leggere |
+| 4 | **Vetrina grande** | la lista stretta, solo i nomi; l'oggetto scelto enorme al centro, col nome sotto | i disegni di Bru diventano la cosa più grande a schermo |
+
+Quando Bru sceglie, la proposta scelta entra in `Zaino.gd` e `RigaZaino.gd` e il
+file delle proposte se ne va.
+
 ## Cosa ho lasciato fuori, e perché
 
 - **La griglia e le forme diverse degli oggetti.** Bello in RE4 perché è il

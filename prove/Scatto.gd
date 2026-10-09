@@ -742,6 +742,9 @@ func prepara(quale: String) -> void:
 					var scomparto := String(argomenti[2]) if argomenti.size() > 2 else "consumabili"
 					if scomparto != "vuoto":
 						riempi_lo_zaino(scomparto)
+					# "pausa zaino consumabili fasce": una delle proposte (ProposteZaino)
+					if argomenti.size() > 3:
+						ProposteZaino.scelta = String(argomenti[3])
 					Pausa.mostra_inventario()
 				"opzioni": Pausa.mostra_opzioni()
 				"storico": Pausa.mostra_storico()

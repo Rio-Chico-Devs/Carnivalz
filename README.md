@@ -279,6 +279,10 @@ famiglia (`scripts/Zaino.gd`):
 - **a destra**, cos'è, cosa fa in numeri (i riquadri della vetrina del negozio), la descrizione
   intera, e chi lo sta usando.
 
+**Quattro proposte da far scegliere a Bru** (cabinato, fasce, taccuino, vetrina grande): il
+tasto *PROPOSTA 1/4* in alto gira fra le quattro, e `docs/zaino.md` le racconta. Sono
+provvisorie (`ProposteZaino.gd`): la scelta entra nello zaino, le altre se ne vanno.
+
 Su e giù scorrono la lista, destra e sinistra cambiano scomparto. **Qui si guarda e basta**: si
 equipaggia dalla scheda della squadra, si compra e si vende al negozio. Cosa c'è, in che ordine e
 cos'è nuovo sta in `ElencoZaino.gd`, che si prova senza aprire niente; gli oggetti già guardati

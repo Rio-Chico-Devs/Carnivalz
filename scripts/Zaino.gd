@@ -69,6 +69,10 @@ var etichette: Array[Label] = []
 var descrizione: TestoCheScorre
 var portatore: Label
 
+var proposta: TastoObliquo     # PROVVISORIO: gira fra le proposte (ProposteZaino)
+# dove sta ogni cosa: dipende dalla proposta (ProposteZaino.misure)
+var m: Dictionary = {}
+
 var fila: Array[Dictionary] = []
 var scelta := 0
 var inizio := 0
@@ -82,6 +86,7 @@ func apri(indietro_a: Callable) -> void:
 	su_indietro = indietro_a
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP     # il foglio copre: sotto non si clicca niente
+	m = ProposteZaino.misure(ProposteZaino.scelta)
 	for scomparto in ElencoZaino.SCOMPARTI:
 		for id_oggetto in ElencoZaino.pezzi(String(scomparto[0])):
 			if ElencoZaino.e_nuovo(String(id_oggetto)):
@@ -104,8 +109,11 @@ func dove_va_il_fuoco() -> Control:
 
 func costruisci_tavola() -> void:
 	tavola = Tavola.su(self)
-	tavola.add_child(PezziZaino.Fondo.new())
+	var fondo := PezziZaino.Fondo.new()
+	fondo.m = m
+	tavola.add_child(fondo)
 	mostra = PezziZaino.Mostra.new()
+	mostra.m = m
 	tavola.add_child(mostra)
 	elenco = gruppo()
 	dettaglio = gruppo()
@@ -152,7 +160,14 @@ func costruisci_barra() -> void:
 	titolo.size = titolo.get_combined_minimum_size()
 	titolo.position = Vector2(Tavola.LARGO - titolo.size.x - 18.0, 4.0)
 	titolo.svela(0.05)
-	costruisci_linguette(24.0 + indietro.misura_voluta().x, minf(titolo.position.x - 12.0, FINE_LINGUETTE))
+	# PROVVISORIO: le proposte da far scegliere a Bru, a sinistra del titolo
+	proposta = TastoObliquo.nuovo(ProposteZaino.etichetta(), "chiaro", 12)
+	# differita: il tasto sta dentro la tavola che si rifa', e liberarlo mentre
+	# sta ancora dicendo «scelto» e' un errore (e un crash, prima o poi)
+	proposta.scelto.connect(func() -> void: cambia_proposta.call_deferred())
+	barra.add_child(proposta)
+	proposta.position = Vector2(titolo.position.x - proposta.misura_voluta().x - 8.0, 16.0)
+	costruisci_linguette(24.0 + indietro.misura_voluta().x, minf(proposta.position.x - 8.0, FINE_LINGUETTE))
 	segni = PezziZaino.SegniNuovi.new()
 	segni.scheda = self
 	barra.add_child(segni)
@@ -185,11 +200,17 @@ func costruisci_linguette(da: float, fino: float) -> void:
 
 
 func costruisci_elenco() -> void:
-	capienza = scritta(elenco, Rect2(48, 92, 330, 24), 16, Stile.colore("testo"), Caratteri.titolo())
+	# sullo schermo si scrive chiaro, sull'arancio e sul foglio in nero
+	var su_carta := bool(m["su_carta"])
+	var chiaro := Stile.colore("box_testo") if su_carta else Stile.colore("testo")
+	var smorzato := Color(Stile.colore("box_testo"), 0.75) if su_carta else Stile.colore("testo_smorzato")
+	var area: Rect2 = m["elenco"]
+	capienza = scritta(elenco, Rect2(48, 92, minf(330.0, area.size.x - 220.0), 24), 16, chiaro, Caratteri.titolo())
 	binario = PezziZaino.Binario.new()
+	binario.m = m
 	elenco.add_child(binario)
 	Tavola.metti(binario, Rect2(0, 0, Tavola.LARGO, Tavola.ALTO))
-	ordina = TastoObliquo.nuovo("", "spoglio", 14)
+	ordina = TastoObliquo.nuovo("", "nero" if su_carta else "spoglio", 14)
 	ordina.scelto.connect(cambia_ordine)
 	elenco.add_child(ordina)
 	scrivi_ordine()
@@ -197,31 +218,37 @@ func costruisci_elenco() -> void:
 	lista.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	elenco.add_child(lista)
 	Tavola.metti(lista, Rect2(0, 0, Tavola.LARGO, Tavola.ALTO))
-	for i in VISIBILI:
+	var prima: Rect2 = m["riga"]
+	for i in int(m["visibili"]):
 		var riga := RigaZaino.new()
+		riga.stile = ProposteZaino.scelta
 		lista.add_child(riga)
-		Tavola.metti(riga, Rect2(PRIMA_RIGA + Vector2(0, PASSO_RIGA * i), Vector2(LARGO_RIGA, RigaZaino.ALTO)))
+		Tavola.metti(riga, Rect2(prima.position + Vector2(0, float(m["passo"]) * i), prima.size))
 		riga.presa.connect(func(_r: RigaZaino) -> void: seleziona(inizio + i, true))
 		riga.focus_entered.connect(func() -> void: seleziona(inizio + i, false))
 		riga.sposta.connect(sposta)
 		riga.scomparto.connect(cambia_scomparto)
 		righe.append(riga)
-	vuoto = scritta(elenco, Rect2(48, 150, 560, 60), 16, Stile.colore("testo_smorzato"), Caratteri.tondo(700))
+	vuoto = scritta(elenco, Rect2(48, 150, area.size.x - 80.0, 60), 16, smorzato, Caratteri.tondo(700))
 	a_capo(vuoto, 2)
-	posizione = scritta(elenco, Rect2(48, 682, 580, 18), 12, Stile.colore("testo_smorzato"), Caratteri.tondo(900))
+	posizione = scritta(elenco, Rect2(48, 682, area.size.x - 60.0, 18), 12, smorzato, Caratteri.tondo(900))
 
 
 func costruisci_dettaglio() -> void:
 	riquadri = PezziZaino.Riquadri.new()
+	riquadri.y = float(m["y_riquadri"])
 	dettaglio.add_child(riquadri)
 	tipo = scritta(dettaglio, Rect2(DETTAGLIO_X, 84, DETTAGLIO_LARGO, 18), 13, Stile.colore("accento"), Caratteri.tondo(900))
 	nome = scritta(dettaglio, Rect2(DETTAGLIO_X, 106, DETTAGLIO_LARGO, 68), 26, Stile.colore("testo"), Caratteri.titolo())
 	a_capo(nome, 2)
+	# nella vetrina grande il nome sta gia' sulla fascia, in grande
+	nome.visible = (m["nome_sulla_fascia"] as Rect2).size == Vector2.ZERO
+	var y_riquadri := float(m["y_riquadri"])
 	for i in 3:
 		var x := DETTAGLIO_X + PASSO_RIQUADRO * i
-		valori.append(scritta(dettaglio, Rect2(x, Y_RIQUADRI + 8, RIQUADRO.x, 44), 24, Stile.colore("testo"),
+		valori.append(scritta(dettaglio, Rect2(x, y_riquadri + 8, RIQUADRO.x, 44), 24, Stile.colore("testo"),
 				Caratteri.titolo(), HORIZONTAL_ALIGNMENT_CENTER))
-		var sotto := scritta(dettaglio, Rect2(x - 4, Y_RIQUADRI + RIQUADRO.y + 4, RIQUADRO.x + 8, 30), 11,
+		var sotto := scritta(dettaglio, Rect2(x - 4, y_riquadri + RIQUADRO.y + 4, RIQUADRO.x + 8, 30), 11,
 				Stile.colore("testo_smorzato"), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER)
 		a_capo(sotto, 2)
 		etichette.append(sotto)
@@ -234,13 +261,31 @@ func costruisci_dettaglio() -> void:
 
 func apri_scomparto(chiave: String) -> void:
 	ElencoZaino.aperto = chiave
-	fila = ElencoZaino.voci(chiave)
-	scelta = 0
+	fila = fila_di(chiave)
+	scelta = selezionabile(0, 1)
 	inizio = 0
 	for linguetta in linguette:
 		linguetta.stile = "nero" if String(linguetta.get_meta("scomparto")) == chiave else "inchiostro"
 		linguetta.queue_redraw()
 	mostra_scelta()
+
+
+func fila_di(chiave: String) -> Array[Dictionary]:
+	# le righe dello scomparto; nel taccuino, ordinate per tipo, coi titoli
+	# delle sezioni in mezzo (ProposteZaino.con_i_gruppi)
+	var righe_dello_scomparto := ElencoZaino.voci(chiave)
+	if bool(m.get("gruppi", false)) and ElencoZaino.ordine == "tipo":
+		return ProposteZaino.con_i_gruppi(righe_dello_scomparto)
+	return righe_dello_scomparto
+
+
+func selezionabile(da: int, verso: int) -> int:
+	# la prima riga che si puo' scegliere da "da" in poi, nel verso dato: i
+	# titoli delle sezioni si saltano. -1 se non ce n'e'
+	var i := da
+	while i >= 0 and i < fila.size() and fila[i].has("gruppo"):
+		i += verso
+	return i if i >= 0 and i < fila.size() else -1
 
 
 func indice_aperto() -> int:
@@ -251,11 +296,11 @@ func indice_aperto() -> int:
 
 
 func mostra_scelta() -> void:
-	for i in VISIBILI:
+	for i in righe.size():
 		var indice := inizio + i
 		var voce: Dictionary = fila[indice] if indice < fila.size() else {}
 		righe[i].carica(voce, indice == scelta, nuovi.has(String(voce.get("oggetto", ""))))
-	var voce_scelta: Dictionary = fila[scelta] if scelta < fila.size() else {}
+	var voce_scelta: Dictionary = fila[scelta] if scelta >= 0 and scelta < fila.size() else {}
 	# GUARDATO VUOL DIRE SCELTO: il segno NUOVO se ne va quando la riga e' tua,
 	# non quando apri lo zaino (docs/zaino.md)
 	ElencoZaino.segna_visto(String(voce_scelta.get("oggetto", "")))
@@ -273,15 +318,16 @@ func disegna_elenco() -> void:
 	capienza.text = "%d / %d POSTI" % [quanti, tetto] if tetto >= 0 \
 			else "%d %s" % [quanti, "PEZZI" if chiave == "bottino" else ("OGGETTO" if quanti == 1 else "OGGETTI")]
 	binario.pieno = clampf(float(quanti) / float(tetto), 0.0, 1.0) if tetto > 0 else -1.0
-	binario.finestra = Vector2(float(inizio), float(mini(inizio + VISIBILI, fila.size())))
+	binario.finestra = Vector2(float(inizio), float(mini(inizio + righe.size(), fila.size())))
 	binario.quante = fila.size()
 	binario.queue_redraw()
 	# ordinare una riga sola non vuol dire niente: il tasto c'e' quando serve
 	ordina.visible = fila.size() > 1
 	vuoto.visible = fila.is_empty()
 	vuoto.text = "Qui non c'è niente." if fila.is_empty() else ""
-	posizione.text = "%d DI %d   ·   ORDINATI PER %s" % [scelta + 1, fila.size(),
-			String(ElencoZaino.NOMI_ORDINI[ElencoZaino.ordine])] if not fila.is_empty() else ""
+	var oggetti := fila.filter(func(v: Dictionary) -> bool: return not v.has("gruppo"))
+	posizione.text = "%d DI %d   ·   ORDINATI PER %s" % [oggetti.find(fila[scelta]) + 1, oggetti.size(),
+			String(ElencoZaino.NOMI_ORDINI[ElencoZaino.ordine])] if scelta >= 0 and not fila.is_empty() else ""
 
 
 func disegna_dettaglio(voce: Dictionary) -> void:
@@ -300,7 +346,8 @@ func disegna_dettaglio(voce: Dictionary) -> void:
 	riquadri.queue_redraw()
 	portatore.text = "IN USO · %s" % Corredo.nome_di(chi).to_upper() if chi != "" else ""
 	Tavola.stringi(portatore, 17, 12)
-	var sotto := Y_RIQUADRI + RIQUADRO.y + 46.0 if not pezzi.is_empty() else Y_RIQUADRI
+	var y_riquadri := float(m["y_riquadri"])
+	var sotto := y_riquadri + RIQUADRO.y + 46.0 if not pezzi.is_empty() else y_riquadri
 	Tavola.metti(descrizione, Rect2(DETTAGLIO_X, sotto, DETTAGLIO_LARGO, IN_USO.position.y - 14.0 - sotto))
 	if id_oggetto == "":
 		# lo scomparto vuoto dice a cosa serve: e' l'unico momento in cui
@@ -330,7 +377,7 @@ func punta_i_vicini() -> void:
 	# Indietro o da ORDINA. La riga piu' vicina a occhio e' un'altra, e
 	# arrivarci col fuoco la sceglieva - cambiando l'oggetto sotto il dito
 	var giu: Control = linguette[indice_aperto()]
-	if not fila.is_empty():
+	if scelta >= 0 and not fila.is_empty():
 		giu = righe[scelta - inizio]
 	for sopra: Control in linguette + [indietro]:
 		sopra.focus_neighbor_bottom = sopra.get_path_to(giu)
@@ -346,8 +393,13 @@ func seleziona(indice: int, col_fuoco: bool) -> void:
 	if fila.is_empty():
 		return
 	var nuova := clampi(indice, 0, fila.size() - 1)
+	if fila[nuova].has("gruppo"):
+		return
 	var prima_di := inizio
-	inizio = clampi(inizio, maxi(nuova - VISIBILI + 1, 0), nuova)
+	inizio = clampi(inizio, maxi(nuova - righe.size() + 1, 0), nuova)
+	# il titolo della sezione resta in vista sopra la sua prima riga
+	if nuova > 0 and inizio == nuova and fila[nuova - 1].has("gruppo"):
+		inizio -= 1
 	var cambiata := nuova != scelta or inizio != prima_di
 	scelta = nuova
 	if cambiata:
@@ -360,14 +412,14 @@ func seleziona(indice: int, col_fuoco: bool) -> void:
 func sposta(verso: int) -> void:
 	if fila.is_empty():
 		return
-	var arrivo := scelta + verso
+	var arrivo := selezionabile(scelta + verso, verso)
+	if arrivo < 0 and verso > 0:
+		Movimento.suona("rifiuto")   # in fondo alla lista: dice di no
+		return
 	if arrivo < 0:
 		# su dalla prima riga: il tasto ORDINA, e sopra le linguette
 		var sopra: TastoObliquo = ordina if ordina.visible else linguette[indice_aperto()]
 		sopra.grab_focus()
-		return
-	if arrivo >= fila.size():
-		Movimento.suona("rifiuto")   # in fondo alla lista: dice di no
 		return
 	seleziona(arrivo, true)
 
@@ -395,16 +447,16 @@ func cambia_ordine() -> void:
 	# IL TASTO GIRA FRA GLI ORDINI E DICE QUALE STA USANDO (la proposta di
 	# Amped-UX per Breath of the Wild). L'oggetto scelto resta scelto: cambia
 	# il suo posto nella lista, non quello che stai guardando
-	var id_oggetto := String(fila[scelta].get("oggetto", "")) if scelta < fila.size() else ""
+	var id_oggetto := String(fila[scelta].get("oggetto", "")) if scelta >= 0 and scelta < fila.size() else ""
 	ElencoZaino.gira_ordine()
 	scrivi_ordine()
-	fila = ElencoZaino.voci(ElencoZaino.aperto)
-	scelta = 0
+	fila = fila_di(ElencoZaino.aperto)
+	scelta = selezionabile(0, 1)
 	for i in fila.size():
-		if String(fila[i]["oggetto"]) == id_oggetto:
+		if String(fila[i].get("oggetto", "")) == id_oggetto:
 			scelta = i
 	# la riga scelta a meta' della finestra, dove l'occhio la ritrova
-	inizio = clampi(scelta - floori(VISIBILI * 0.5), 0, maxi(fila.size() - VISIBILI, 0))
+	inizio = clampi(scelta - floori(righe.size() * 0.5), 0, maxi(fila.size() - righe.size(), 0))
 	mostra_scelta()
 	entra_lista()
 
@@ -412,8 +464,27 @@ func cambia_ordine() -> void:
 func scrivi_ordine() -> void:
 	ordina.text = "ORDINA · %s" % String(ElencoZaino.NOMI_ORDINI[ElencoZaino.ordine])
 	ordina.adatta_misura()
-	ordina.position = Vector2(SCHERMO_ELENCO.end.x - 30.0 - ordina.misura_voluta().x, 90.0)
+	ordina.position = Vector2((m["elenco"] as Rect2).end.x - 30.0 - ordina.misura_voluta().x, 90.0)
 	ordina.queue_redraw()
+
+
+func cambia_proposta() -> void:
+	# PROVVISORIO: la stessa schermata disegnata con la proposta dopo. Si
+	# rifa' da capo, sullo stesso scomparto e con lo stesso oggetto scelto
+	ProposteZaino.gira()
+	var id_oggetto := String(fila[scelta].get("oggetto", "")) if scelta >= 0 and scelta < fila.size() else ""
+	tavola.free()
+	linguette.clear()
+	righe.clear()
+	valori.clear()
+	etichette.clear()
+	m = ProposteZaino.misure(ProposteZaino.scelta)
+	costruisci_tavola()
+	apri_scomparto(ElencoZaino.aperto)
+	for i in fila.size():
+		if String(fila[i].get("oggetto", "")) == id_oggetto:
+			seleziona(i, false)
+	proposta.grab_focus()
 
 
 # --- l'entrata -----------------------------------------------------------------
