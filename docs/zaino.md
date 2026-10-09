@@ -109,24 +109,40 @@ volte. È la regola che teniamo: lo zaino prende la lingua della scheda della
 squadra (arancio del manifesto, schermi dei cabinati, la fascia nera storta),
 ma ogni scritta sta su un fondo pieno.
 
-## Quattro proposte, da scegliere
+## La scelta: le fasce
 
 *Bru, 9 ottobre: «ok molto meglio lo zaino, vedi se puoi ancora fare meglio
-mandami altri esempi altrimenti approviamo questo».*
+mandami altri esempi altrimenti approviamo questo». Fra quattro proposte: «la
+numero 2 mi convince, approvata».*
 
-Gli stessi dati, gli stessi tasti, quattro modi di disegnarli
-(`scripts/ProposteZaino.gd`, provvisorio). Nello zaino il tasto **PROPOSTA 1/4**,
-in alto accanto al titolo, gira fra le quattro.
+Le quattro proposte erano gli stessi dati e gli stessi tasti, disegnati in
+quattro modi:
 
-| | proposta | com'è | a cosa punta |
+| | proposta | com'era | a cosa puntava |
 |---|---|---|---|
-| 1 | **Cabinato** | com'è oggi: la lista nello schermo di un cabinato | la stessa famiglia della scheda squadra |
-| 2 | **Fasce** | la lista sull'arancio, una fascia nera storta per riga, quella scelta esce chiara dalla fila | la lingua delle voci della pausa: la più «manifesto» |
-| 3 | **Taccuino** | un foglio chiaro scritto in nero, diviso in sezioni (VITA, AURA, STRESS, DANNI, CURE…), la scelta con l'evidenziatore | la più ordinata: i gruppi si vedono senza leggere |
-| 4 | **Vetrina grande** | la lista stretta, solo i nomi; l'oggetto scelto enorme al centro, col nome sotto | i disegni di Bru diventano la cosa più grande a schermo |
+| 1 | Cabinato | la lista nello schermo di un cabinato | la stessa famiglia della scheda squadra |
+| 2 | **Fasce** ✔ | la lista sull'arancio, una fascia nera storta per riga, quella scelta esce chiara dalla fila | la lingua delle voci della pausa: la più «manifesto» |
+| 3 | Taccuino | un foglio chiaro scritto in nero, diviso in sezioni, la scelta con l'evidenziatore | la più ordinata: i gruppi si vedono senza leggere |
+| 4 | Vetrina grande | la lista stretta, solo i nomi; l'oggetto scelto enorme al centro | i disegni di Bru come la cosa più grande a schermo |
 
-Quando Bru sceglie, la proposta scelta entra in `Zaino.gd` e `RigaZaino.gd` e il
-file delle proposte se ne va.
+Le fasce sono entrate in `Zaino.gd`, `RigaZaino.gd` e `PezziZaino.gd`; il file
+delle proposte e il tasto PROPOSTA se ne sono andati. Le altre tre restano nella
+storia del repository (commit `2e3936c`), se un giorno servissero.
+
+Com'è fatta adesso:
+
+- **la lista sta sull'arancio**, senza schermo intorno: le scritte sopra (il
+  titolo dello scomparto, l'ordine, «3 di 12») sono nere, come sul manifesto;
+- **ogni riga è una fascia nera storta** (pende come le voci della pausa), con
+  la piastrella dell'immagine, il nome in maiuscolo nel carattere dei titoli e
+  cosa fa sotto;
+- **la riga scelta è chiara, scritta in nero, ed esce dalla fila** di
+  quattordici pixel, con la sfoglia nera sotto: si vede dove sei anche senza
+  leggere;
+- **i clic si prendono dentro la fascia**: negli angoli fuori dalla pendenza
+  c'è l'arancio, non la riga;
+- a destra non cambia niente: la fascia nera con l'oggetto grande e lo schermo
+  del cabinato con nome, riquadri e descrizione.
 
 ## Cosa ho lasciato fuori, e perché
 

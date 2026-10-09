@@ -293,7 +293,7 @@ func _ready() -> void:
 	await prova_la_descrizione_scorre_e_aspetta_chi_legge()
 	await prova_la_scheda_si_gira_tutta_da_tastiera()
 	await prova_lo_zaino_si_usa_da_tastiera()
-	await prova_le_proposte_dello_zaino_si_usano_tutte()
+	prova_lo_zaino_e_a_fasce()
 	prova_col_movimento_ridotto_la_nuova_interfaccia_sta_ferma()
 	await prova_la_tavola_sta_intera_anche_col_testo_grande()
 	await prova_la_proiezione_sta_intera_col_testo_grande()
@@ -19924,58 +19924,38 @@ func prova_lo_zaino_si_usa_da_tastiera() -> void:
 	ElencoZaino.ordine = ordine_prima
 	Impostazioni.movimento_ridotto = ridotto_prima
 
-func prova_le_proposte_dello_zaino_si_usano_tutte() -> void:
-	# PROVVISORIA, come le proposte (ProposteZaino.gd): finche' Bru non
-	# sceglie, tutte e quattro devono funzionare nello zip che prova. Su e giu'
-	# per tutta la lista senza mai scegliere il titolo di una sezione (il
-	# taccuino), su dalla prima riga a ORDINA, e il tasto PROPOSTA che gira
-	# fra le quattro tenendo l'oggetto scelto
-	titolo("le quattro proposte dello zaino si usano tutte da tastiera")
-	var prima := ProposteZaino.scelta
-	var ordine_prima := ElencoZaino.ordine
-	GameState.nuova_partita()
-	for id_oggetto in ["razione_del_circo", "tonico_calmante", "petardo", "premio_di_pezza", "lente_di_nyu",
-			"caramella_di_nyu", "cuore_di_latta", "specchio_tascabile", "fiala_hp", "molotov", "benda_stretta",
-			"fiala_aura", "carbone_attivo", "frammento_di_vita"]:
-		GameState.aggiungi_oggetto(id_oggetto)
-	ElencoZaino.aperto = "consumabili"
-	ElencoZaino.ordine = "tipo"
-	ProposteZaino.scelta = ProposteZaino.PROPOSTE[0]
-	var zaino := SchedaZaino.new()
-	add_child(zaino)
-	zaino.apri(func() -> void: pass)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	for quale in ProposteZaino.PROPOSTE:
-		esigi(ProposteZaino.scelta == quale, "il tasto PROPOSTA non arriva a '%s' (e' su '%s')" % [quale, ProposteZaino.scelta])
-		var oggetti := zaino.fila.filter(func(v: Dictionary) -> bool: return not v.has("gruppo")).size()
-		var visti := {}
-		zaino.seleziona(zaino.selezionabile(0, 1), true)
-		for i in zaino.fila.size() + 2:
-			var chi := zaino.get_viewport().gui_get_focus_owner()
-			if not chi is RigaZaino:
-				esigi(false, "%s: scorrendo, il fuoco esce dalle righe" % quale)
-				break
-			esigi(not zaino.fila[zaino.scelta].has("gruppo"), "%s: si sceglie il titolo di una sezione" % quale)
-			visti[zaino.scelta] = true
-			chi.gui_input.emit(azione_ui("ui_down"))
-		esigi(visti.size() == oggetti, "%s: giu' per la lista si passa per %d oggetti su %d" % [quale, visti.size(), oggetti])
-		for i in zaino.fila.size() + 1:
-			var chi := zaino.get_viewport().gui_get_focus_owner()
-			if chi is RigaZaino:
-				chi.gui_input.emit(azione_ui("ui_up"))
-		esigi(zaino.ordina.has_focus(), "%s: su dalla prima riga non si arriva a ORDINA" % quale)
-		# l'ultimo oggetto: il primo sarebbe il primo anche ripartendo da capo
-		zaino.seleziona(zaino.fila.size() - 1, false)
-		var scelto := String(zaino.fila[zaino.scelta]["oggetto"])
-		zaino.proposta.scelto.emit()
-		await get_tree().process_frame
-		esigi(String(zaino.fila[zaino.scelta].get("oggetto", "")) == scelto,
-				"cambiando proposta dopo '%s' si perde l'oggetto scelto" % quale)
-	esigi(ProposteZaino.scelta == ProposteZaino.PROPOSTE[0], "il tasto PROPOSTA non torna alla prima")
-	zaino.queue_free()
-	ProposteZaino.scelta = prima
-	ElencoZaino.ordine = ordine_prima
+func prova_lo_zaino_e_a_fasce() -> void:
+	# LA PROPOSTA APPROVATA E' QUELLA IN GIOCO, e delle altre non resta niente.
+	# Bru, fra quattro (cabinato, fasce, taccuino, vetrina grande): «la numero 2
+	# mi convince, approvata». Le altre stanno nella storia del repository
+	# (commit 2e3936c), non nel gioco
+	titolo("lo zaino e' a fasce, come ha scelto Bru, e delle altre proposte non resta niente")
+	esigi(not FileAccess.file_exists("res://scripts/ProposteZaino.gd"), "il file delle proposte e' ancora nel gioco")
+	for pezzo in ["Zaino", "RigaZaino", "PezziZaino", "ElencoZaino"]:
+		var testo := FileAccess.get_file_as_string("res://scripts/%s.gd" % pezzo)
+		for avanzo in ["ProposteZaino", "SCHERMO_ELENCO", "\"taccuino\"", "\"vetrina\"", "cambia_proposta"]:
+			esigi(not testo.contains(avanzo), "%s.gd ha ancora un avanzo delle proposte: %s" % [pezzo, avanzo])
+	# una fascia: storta (negli angoli c'e' l'arancio, non la riga), e quella
+	# scelta esce dalla fila e si prende i clic dove si vede
+	var riga := RigaZaino.new()
+	riga.size = Vector2(500, RigaZaino.ALTO)
+	riga.carica({"oggetto": "razione_del_circo", "quanti": 2}, false, false)
+	# senza la sua _has_point la riga prenderebbe i clic in tutto il rettangolo
+	# (e chiamarla qui sarebbe un errore, non un fallimento)
+	esigi(riga.has_method("_has_point"), "la riga prende i clic in tutto il rettangolo, non nella fascia")
+	if not riga.has_method("_has_point"):
+		riga.free()
+		return
+	var in_mezzo := riga.size * 0.5
+	var angolo := Vector2(2, 2)
+	var oltre := Vector2(riga.size.x + RigaZaino.ESCE * 0.5, 4)
+	esigi(riga._has_point(in_mezzo) and not riga._has_point(angolo),
+			"la riga non e' una fascia storta: prende i clic nell'angolo in alto a sinistra")
+	esigi(not riga._has_point(oltre), "una fascia non scelta si prende i clic oltre la sua fine")
+	riga.carica(riga.voce, true, false)
+	esigi(riga._has_point(oltre), "la fascia scelta non esce dalla fila (o non prende i clic dove si vede)")
+	esigi(riga.inchiostro() == Stile.colore("box_testo"), "la fascia scelta, chiara, non e' scritta in nero")
+	riga.free()
 
 func prova_la_scheda_si_gira_tutta_da_tastiera() -> void:
 	# LA SCHEDA DELLA SQUADRA USATA DAVVERO. Dal carosello: destra e sinistra

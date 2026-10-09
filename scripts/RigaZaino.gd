@@ -3,6 +3,11 @@ extends Button
 
 # UNA RIGA DELLO ZAINO: l'immagine, il nome, cosa fa, quanti, e i due segni.
 #
+# E' UNA FASCIA NERA STORTA, come le voci della pausa: la lista sta
+# sull'arancio, una fascia per tipo di oggetto. Bru, fra quattro proposte:
+# «la numero 2 mi convince, approvata». La fascia scelta e' chiara, scritta in
+# nero, ed esce dalla fila di quattordici pixel con la sfoglia nera sotto.
+#
 # L'immagine sta su una piastrella scura uguale per tutti, a sinistra: quando
 # arriveranno i disegni di Bru (art/oggetti/<id>.png) staranno tutti sullo
 # stesso fondo e la colonna delle immagini si leggera' da sola, come la
@@ -11,9 +16,6 @@ extends Button
 # I DUE SEGNI sono pieni, mai solo una parola grigia: IN USO arancio (l'arma
 # in mano a qualcuno), NUOVO chiaro (un oggetto che non hai ancora guardato).
 # In Metaphor l'arma addosso era «E:1», e nessuno capiva cosa volesse dire.
-#
-# La riga scelta e' un foglio chiaro scritto in nero, con la sfoglia nera
-# sotto e il filo arancio a sinistra: la stessa carta scelta del negozio.
 #
 # LE FRECCE LE PRENDE LA RIGA prima che Godot sposti il fuoco da solo: su e
 # giu' scorrono la lista (che e' una finestra di righe fisse: si sposta la
@@ -24,8 +26,9 @@ signal presa(riga: RigaZaino)
 signal sposta(verso: int)
 signal scomparto(verso: int)
 
-const ALTO := 56.0
-const SFOGLIA := Vector2(4, 4)
+const ALTO := 50.0
+const SFOGLIA := Vector2(6, 5)
+const ESCE := 14.0            # di quanto la fascia scelta esce dalla fila
 const CORPO_NOME := 17
 const CORPO_EFFETTO := 13
 const CORPO_QUANTI := 24
@@ -35,7 +38,6 @@ var voce: Dictionary = {}
 var scelta := false
 var nuova := false
 var accesa: Movimento.Molla
-var stile := "cabinato"       # le proposte da far scegliere a Bru: ProposteZaino
 
 
 func _init() -> void:
@@ -67,10 +69,6 @@ func carica(nuova_voce: Dictionary, e_scelta: bool, e_nuova: bool) -> void:
 	# col nome che si legge
 	text = Merce.nome_di(String(voce.get("oggetto", "")))
 	visible = not voce.is_empty()
-	# il titolo di una sezione (il taccuino) non si sceglie: ne' fuoco ne' clic
-	var titolo := voce.has("gruppo")
-	focus_mode = Control.FOCUS_NONE if titolo else Control.FOCUS_ALL
-	mouse_filter = Control.MOUSE_FILTER_IGNORE if titolo else Control.MOUSE_FILTER_STOP
 	queue_redraw()
 
 
@@ -127,15 +125,9 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if voce.is_empty():
 		return
-	if voce.has("gruppo"):
-		ProposteZaino.titoletto(self)
-		return
-	if stile == "fasce" and scelta:
-		draw_set_transform(Vector2(14, 0))   # la fascia scelta esce dalla fila
-	if stile in ["cabinato", "vetrina"]:
-		fondo_cabinato()
-	else:
-		ProposteZaino.fondo_della_riga(self)
+	if scelta:
+		draw_set_transform(Vector2(ESCE, 0))
+	disegna_fascia()
 	disegna_piastrella()
 	# il numero a destra in basso, IN USO sopra di lui: il nome si ferma prima
 	# dell'etichetta, cosa fa prima del numero
@@ -143,40 +135,47 @@ func _draw() -> void:
 	disegna_testi(disegna_in_uso(dopo_quanti), dopo_quanti)
 
 
-func fondo_cabinato() -> void:
-	var fondo := Rect2(Vector2.ZERO, size)
+func storto() -> float:
+	return size.y * Manifesto.INCLINA
+
+
+func sagoma() -> PackedVector2Array:
+	# la fascia: pende come le voci della pausa, alta quanto la riga
+	return PackedVector2Array([Vector2(storto(), 0), Vector2(size.x, 0), Vector2(size.x - storto(), size.y),
+			Vector2(0, size.y)])
+
+
+func _has_point(punto: Vector2) -> bool:
+	# I CLIC SI PRENDONO DENTRO LA FASCIA, anche quando la scelta esce dalla
+	# fila: negli angoli fuori dalla pendenza c'e' l'arancio, non la riga
+	return Geometry2D.is_point_in_polygon(punto - Vector2(ESCE if scelta else 0.0, 0.0), sagoma())
+
+
+func disegna_fascia() -> void:
+	var forma := sagoma()
 	if scelta:
-		draw_rect(Rect2(fondo.position + SFOGLIA, fondo.size), Stile.colore("bordo"))
-		draw_rect(fondo, Stile.colore("bordo_acceso"))
-		draw_rect(Rect2(0, 0, 6, size.y), Stile.colore("accento"))
-	else:
-		draw_rect(fondo, Color(Stile.colore("pannello_chiaro"), clampf(accesa.valore, 0.0, 1.0)))
-		draw_rect(Rect2(x_testo(), size.y - 1.0, size.x - x_testo(), 1.0), Color(Stile.colore("tratto"), 0.45))
+		var sfoglia := forma.duplicate()
+		for i in sfoglia.size():
+			sfoglia[i] += SFOGLIA
+		Manifesto.poligono(self, sfoglia, Stile.colore("bordo"))
+	var tinta := Stile.colore("bordo_acceso") if scelta \
+			else Stile.colore("bordo").lerp(Stile.colore("pannello_chiaro"), clampf(accesa.valore, 0.0, 1.0))
+	Manifesto.poligono(self, forma, tinta)
 
 
 func piastrella() -> Rect2:
-	# il quadrato dell'immagine, alto quanto la riga; nelle fasce si sposta
-	# di quanto la fascia pende, se no ne uscirebbe in alto
+	# il quadrato dell'immagine, alto quanto la riga e spostato di quanto la
+	# fascia pende: se no ne uscirebbe in alto a sinistra
 	var lato := size.y - 10.0
-	var da := 8.0 + (size.y * Manifesto.INCLINA if stile == "fasce" else 0.0)
-	return Rect2(da, 5.0, lato, lato)
+	return Rect2(8.0 + storto(), 5.0, lato, lato)
 
 
 func x_testo() -> float:
 	return piastrella().end.x + 14.0
 
 
-func compatta() -> bool:
-	# una riga bassa (la vetrina grande) ha il nome e basta, senza cosa fa
-	return size.y < 46.0
-
-
-func scritta_scura() -> bool:
-	return scelta or stile == "taccuino"
-
-
 func inchiostro() -> Color:
-	return Stile.colore("box_testo") if scritta_scura() else Stile.colore("testo")
+	return Stile.colore("box_testo") if scelta else Stile.colore("testo")
 
 
 func disegna_piastrella() -> void:
@@ -198,26 +197,21 @@ func disegna_quanti() -> float:
 	# il posto libero a sinistra del numero
 	var quanti := int(voce.get("quanti", 1))
 	var tipo := Merce.tipo_oggetto(String(voce.get("oggetto", "")))
-	var x := size.x - 14.0 - (size.y * Manifesto.INCLINA if stile == "fasce" else 0.0)
+	var x := size.x - 14.0 - storto()
 	if quanti <= 1 and tipo not in ["consumabile", "pila"]:
 		return x
 	var f := Caratteri.titolo()
 	if f == null:
 		return x
 	var scritta := "×%d" % quanti
-	var corpo := 20 if compatta() else CORPO_QUANTI
-	var largo := f.get_string_size(scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
-	var y := size.y * 0.5 + 7.0 if compatta() else size.y * 0.66
-	draw_string(f, Vector2(x - largo, y), scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, inchiostro())
+	var largo := f.get_string_size(scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, CORPO_QUANTI).x
+	draw_string(f, Vector2(x - largo, size.y * 0.66), scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, CORPO_QUANTI, inchiostro())
 	return x - largo - 12.0
 
 
 func disegna_in_uso(destra: float) -> float:
 	if String(voce.get("in_uso", "")) == "":
 		return destra
-	# sull'evidenziatore arancio del taccuino un'etichetta arancio sparirebbe
-	if stile == "taccuino" and scelta:
-		return segno(destra, "IN USO", Stile.colore("bordo"), Stile.colore("bordo_acceso"), true)
 	return segno(destra, "IN USO", Stile.colore("accento"), Stile.colore("box_testo"), true)
 
 
@@ -230,37 +224,33 @@ func segno(dove: float, scritta: String, fondo: Color, colore: Color, da_destra:
 	var largo := f.get_string_size(scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, CORPO_SEGNO).x + 14.0
 	var x := dove - largo if da_destra else dove
 	var alto := 18.0
-	var y := minf(9.0, (size.y - alto) * 0.5)
-	var storto := alto * Manifesto.INCLINA
-	var fascia := PackedVector2Array([Vector2(x + storto, y), Vector2(x + largo + storto, y),
+	var y := 7.0
+	var pende := alto * Manifesto.INCLINA
+	var fascia := PackedVector2Array([Vector2(x + pende, y), Vector2(x + largo + pende, y),
 			Vector2(x + largo, y + alto), Vector2(x, y + alto)])
 	Manifesto.poligono(self, fascia, fondo)
-	draw_string(f, Vector2(x + 7.0 + storto * 0.5, y + 13.0), scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, CORPO_SEGNO, colore)
-	return x - 8.0 if da_destra else x + largo + storto + 8.0
+	draw_string(f, Vector2(x + 7.0 + pende * 0.5, y + 13.0), scritta, HORIZONTAL_ALIGNMENT_LEFT, -1, CORPO_SEGNO, colore)
+	return x - 8.0 if da_destra else x + largo + pende + 8.0
 
 
 func disegna_testi(destra: float, destra_sotto: float) -> void:
-	# nelle fasce il nome e' nel carattere dei titoli, maiuscolo, come le voci
-	# della pausa; altrove nel tondo, che si legge meglio in una lista lunga
-	var fasce := stile == "fasce"
-	var f := Caratteri.titolo() if fasce else Caratteri.tondo(800)
+	# il nome nel carattere dei titoli, maiuscolo, come le voci della pausa;
+	# cosa fa sotto, nel tondo, piu' piccolo
+	var f := Caratteri.titolo()
 	if f == null:
 		return
 	var x := x_testo()
 	var largo := destra - x
-	var nome := text.to_upper() if fasce else text
+	var nome := text.to_upper()
 	var corpo := Tavola.corpo_che_entra(f, nome, largo - (64.0 if nuova else 0.0), CORPO_NOME, 13)
-	var y := size.y * 0.5 + 6.0 if compatta() else size.y * 0.45
-	draw_string(f, Vector2(x, y), nome, HORIZONTAL_ALIGNMENT_LEFT, largo, corpo, inchiostro())
+	draw_string(f, Vector2(x, size.y * 0.45), nome, HORIZONTAL_ALIGNMENT_LEFT, largo, corpo, inchiostro())
 	if nuova:
 		var fine := x + minf(f.get_string_size(nome, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x, largo - 64.0) + 10.0
-		segno(fine, "NUOVO", Stile.colore("bordo") if scritta_scura() else Stile.colore("bordo_acceso"),
-				Stile.colore("bordo_acceso") if scritta_scura() else Stile.colore("box_testo"), false)
-	if compatta():
-		return
+		segno(fine, "NUOVO", Stile.colore("bordo") if scelta else Stile.colore("bordo_acceso"),
+				Stile.colore("bordo_acceso") if scelta else Stile.colore("box_testo"), false)
 	var effetto := Merce.riassunto_effetto(GameState.dati_oggetto(String(voce.get("oggetto", ""))), "")
 	if effetto == "":
 		effetto = String(ElencoZaino.NOMI_TIPI.get(Merce.tipo_oggetto(String(voce.get("oggetto", ""))), ""))
-	var sotto := Color(Stile.colore("box_testo"), 0.75) if scritta_scura() else Stile.colore("testo_smorzato")
+	var sotto := Color(Stile.colore("box_testo"), 0.75) if scelta else Stile.colore("testo_smorzato")
 	draw_string(Caratteri.tondo(700), Vector2(x, size.y * 0.8), effetto, HORIZONTAL_ALIGNMENT_LEFT,
 			destra_sotto - x, CORPO_EFFETTO, sotto)

@@ -270,18 +270,16 @@ famiglia (`scripts/Zaino.gd`):
   Speciali · Ricordi e chiavi · Bottino*). **Ogni oggetto sta in uno scomparto solo**: ricordi e
   chiavi prima comparivano anche fra gli speciali. Il **Bottino** è la pila dei nemici, che
   prima non si vedeva da nessuna parte;
-- **a sinistra, la lista**: una riga per tipo di oggetto, con l'**immagine** su una piastrella
-  scura (`art/oggetti/<id>.png`, o la sagoma del tipo finché non c'è), il nome, cosa fa, quanti
+- **a sinistra, la lista, a fasce** (Bru, fra quattro proposte: «la numero 2 mi convince,
+  approvata»): sta sull'arancio, una **fascia nera storta** per tipo di oggetto come le voci
+  della pausa, e quella scelta è chiara ed esce dalla fila. Ogni fascia ha l'**immagine** su una
+  piastrella scura (`art/oggetti/<id>.png`, o la sagoma del tipo finché non c'è), il nome, cosa fa, quanti
   (`×3`). L'arma in mano ha l'etichetta piena **IN USO**; un oggetto mai guardato **NUOVO**, e la
   sua linguetta un rombo (`RigaZaino.gd`). Sopra, quanto è pieno lo scomparto e il tasto
   **ORDINA**, che gira fra *tipo · nome · quantità · arrivo* e dice quale sta usando;
 - **al centro**, sulla fascia nera, l'oggetto scelto **in grande**, e quanti;
 - **a destra**, cos'è, cosa fa in numeri (i riquadri della vetrina del negozio), la descrizione
   intera, e chi lo sta usando.
-
-**Quattro proposte da far scegliere a Bru** (cabinato, fasce, taccuino, vetrina grande): il
-tasto *PROPOSTA 1/4* in alto gira fra le quattro, e `docs/zaino.md` le racconta. Sono
-provvisorie (`ProposteZaino.gd`): la scelta entra nello zaino, le altre se ne vanno.
 
 Su e giù scorrono la lista, destra e sinistra cambiano scomparto. **Qui si guarda e basta**: si
 equipaggia dalla scheda della squadra, si compra e si vende al negozio. Cosa c'è, in che ordine e
