@@ -278,6 +278,193 @@ static func applica_scelta(scelta: Dictionary) -> void:
 	if scelta.has("recluta"):
 		GameState.recluta(scelta["recluta"])
 
+# --- quali scelte si vedono, e cosa fanno -------------------------------------
+#
+# STAVANO IN Main.ricostruisci_scelte E Main._su_scelta, e sono uscite di li'
+# per un motivo preciso: l'esploratore (prove/Esploratore.gd) gioca TUTTE le
+# strade della storia per cercare i punti morti, e deve vedere le stesse porte
+# che vede il giocatore. Una copia della regola dentro la prova avrebbe potuto
+# dire «si passa» davanti a una porta che nel gioco e' chiusa - e una prova che
+# guarda una copia controlla la copia.
+
+static func scelta_visibile(scelta: Dictionary) -> bool:
+	return ha_chi_serve(scelta) and il_mondo_lo_permette(scelta) and il_karma_lo_permette(scelta)
+
+static func ha_chi_serve(scelta: Dictionary) -> bool:
+	if scelta.has("richiede") and not GameState.party_ha_abilita(scelta["richiede"]):
+		return false  # requisito non soddisfatto: la scelta non appare proprio
+	if scelta.has("richiede_legame") and GameState.legame < int(scelta["richiede_legame"]):
+		return false  # evento raro: serve un legame abbastanza coltivato
+	if scelta.has("richiede_ospite") and scelta["richiede_ospite"] not in GameState.ospiti:
+		return false
+	# serve un alleato specifico in squadra (es. un compagno temporaneo reclutato)
+	return not (scelta.has("richiede_compagno") and scelta["richiede_compagno"] not in GameState.party)
+
+static func il_mondo_lo_permette(scelta: Dictionary) -> bool:
+	if scelta.has("richiede_flag") and not GameState.ha_flag(scelta["richiede_flag"]):
+		return false
+	if scelta.has("richiede_non_flag") and GameState.ha_flag(scelta["richiede_non_flag"]):
+		return false
+	if scelta.has("richiede_oggetti") and not GameState.possiede_tutti(scelta["richiede_oggetti"]):
+		return false  # servono tutti i pezzi (es. la Fontana)
+	if scelta.get("piazza_proiettore", false) and GameState.proiettore_qui() == GameState.nodo_corrente:
+		return false  # e' gia' qui: piantarlo di nuovo non farebbe niente
+	if scelta.has("una_tantum") and GameState.ha_flag(scelta["una_tantum"]):
+		return false  # gia' raccolto/fatto: la scelta non torna
+	# non puoi pagare cio' che non hai
+	return not (int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)))
+
+static func il_karma_lo_permette(scelta: Dictionary) -> bool:
+	# IL KARMA DECIDE QUALE DELLE DUE TI COMPARE. Bru: «ci sara' magari solo
+	# 1 o l'altra, a seconda del tuo karma, e in alcune anche entrambe».
+	#
+	# Servono tutte e quattro le forme, non due. Con i soli minimi si puo'
+	# dire "questa la vede chi e' stato eroe almeno tre volte", ma non si
+	# puo' NASCONDERE niente a nessuno - e "solo l'opzione da villain,
+	# perche' ormai sei quello" e' esattamente una cosa da nascondere.
+	if scelta.has("richiede_eroe") and GameState.scelte_eroe < int(scelta["richiede_eroe"]):
+		return false  # la puo' dire solo chi si e' comportato da eroe abbastanza volte
+	if scelta.has("richiede_malvagio") and GameState.scelte_malvagie < int(scelta["richiede_malvagio"]):
+		return false
+	if scelta.has("richiede_eroe_max") and GameState.scelte_eroe > int(scelta["richiede_eroe_max"]):
+		return false  # chi e' stato troppo eroe questa non se la sente piu' dire
+	return not (scelta.has("richiede_malvagio_max")
+			and GameState.scelte_malvagie > int(scelta["richiede_malvagio_max"]))
+
+static func effetti_della_scelta(scelta: Dictionary) -> Array[Dictionary]:
+	# TUTTO QUELLO CHE UNA SCELTA CAMBIA NEL MONDO, senza muovere niente a
+	# schermo. Torna le notifiche da mostrare; dove si va dopo lo decide Main
+	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi
+	applica_scelta(scelta)   # chi sei (eroe o malvagio), i flag, le reclute
+	var notifiche: Array[Dictionary] = []
+	if scelta.get("piazza_proiettore", false):
+		notifiche.append(pianta_il_proiettore())
+	# "oggetto" ne da' uno, "oggetti" ne da' quanti se ne scrivono - anche lo
+	# stesso due volte, per un ritrovamento che vale il doppio. Le due forme
+	# convivono: i contenuti gia' scritti usano la prima e non vanno ritoccati.
+	for id_oggetto in lista_id(scelta.get("oggetto", scelta.get("oggetti", []))):
+		notifiche.append_array(raccogli_oggetto(id_oggetto))
+	cambia_la_squadra(scelta)
+	if scelta.has("tazo"):
+		var quantita := int(scelta["tazo"])
+		GameState.modifica_tazo(quantita)
+		if quantita > 0:
+			notifiche.append({"tipo": "notifica", "testo": "Hai ottenuto %d Tazo." % quantita})
+	if scelta.has("sblocca_negozio"):
+		GameState.sblocca_negozio(scelta["sblocca_negozio"])
+	applica_task_di(scelta)
+	if scelta.has("stress"):
+		for id_classe in GameState.party:
+			GameState.modifica_stress(id_classe, int(scelta["stress"]))
+	if scelta.has("legame"):
+		GameState.modifica_legame(int(scelta["legame"]))
+	return notifiche
+
+static func pianta_il_proiettore() -> Dictionary:
+	# il proiettore e' uno solo: piantarlo qui lo toglie da dove stava
+	var dove_stava := GameState.proiettore_qui()
+	GameState.piazza_proiettore(GameState.nodo_corrente)
+	return {"tipo": "notifica", "testo":
+			"Proiettore piantato. Da qualunque punto della zona, la mappa riporta qui."
+			if dove_stava == "" else
+			"Proiettore spostato qui. Dove stava prima non c'e' piu'."}
+
+static func cambia_la_squadra(scelta: Dictionary) -> void:
+	# chi entra e chi esce dalla squadra, e chi viene con te per un po'
+	if scelta.has("lascia"):
+		GameState.rimuovi_classe(scelta["lascia"])
+	if scelta.has("ospite"):
+		GameState.aggiungi_ospite(scelta["ospite"])
+	if scelta.has("recluta_temporaneo"):
+		GameState.recluta_temporaneo(scelta["recluta_temporaneo"], int(scelta.get("livello_alleato", 1)))
+	if scelta.has("congeda"):
+		GameState.congeda(scelta["congeda"])
+
+static func raccogli_oggetto(id_oggetto: String) -> Array[Dictionary]:
+	# notifiche sequenziali: "hai raccolto X" e' un messaggio a se',
+	# ordinato insieme agli altri, non un testo mescolato o un elemento minore.
+	# Per gli oggetti chiave (di solito indizi/lore, come le pagine di
+	# giornale di Meridia) la descrizione diventa una seconda pagina.
+	var dati := GameState.dati_oggetto(id_oggetto)
+	var nome: String = String(dati.get("nome", id_oggetto))
+	if not GameState.aggiungi_oggetto(id_oggetto):
+		return [{"tipo": "notifica", "testo": "%s: la sacca è piena, non c'è posto per lui." % nome}]
+	var tipo := String(dati.get("tipo", "consumabile"))
+	var luogo := "nella sacca"
+	match tipo:
+		"collezionabile":
+			luogo = "tra i collezionabili"
+		"chiave":
+			luogo = "tra gli oggetti chiave"
+	var risultato: Array[Dictionary] = [{"tipo": "notifica", "testo": "Hai raccolto: %s (%s)." % [nome, luogo]}]
+	if tipo == "chiave":
+		risultato.append({"tipo": "narrazione", "testo": String(dati.get("descrizione", ""))})
+	return risultato
+
+# --- dove si va dalla mappa di zona -----------------------------------------
+#
+# Stavano in MappaZona, che le chiedeva per i suoi quadratini. Sono uscite per
+# la stessa ragione delle scelte: l'esploratore deve camminare sulla mappa con
+# le stesse regole del giocatore, senza aprire la schermata.
+
+static func chiusa_a_chiave(id_stanza: String) -> bool:
+	# UNA PORTA CHIUSA A CHIAVE si vede, ci si arriva davanti, e non si apre: il
+	# corridoio c'e', e' la stanza che aspetta il suo flag ("richiede_flag")
+	for stanza: Dictionary in GameState.mappa_zona.get("stanze", []):
+		if String(stanza.get("id", "")) == id_stanza:
+			var serve := String(stanza.get("richiede_flag", ""))
+			return serve != "" and not GameState.ha_flag(serve)
+	return false
+
+static func si_entra(id_stanza: String) -> bool:
+	# IL CLIC SU UNA STANZA PORTA DENTRO: non e' chiusa a chiave e ci si arriva.
+	# E' la regola di _su_stanza, scritta una volta: la usa anche l'esploratore
+	# che gioca tutte le strade (prove/Esploratore.gd)
+	return not chiusa_a_chiave(id_stanza) and raggiungibile(id_stanza)
+
+static func raggiungibile(id_stanza: String) -> bool:
+	# DALLA MAPPA CI SI CAMMINA, E SI CAMMINA ANCHE NEL BUIO.
+	#
+	# Qui c'era il difetto che rendeva la mappa inutilizzabile: si pretendeva
+	# che la stanza fosse GIA' sbloccata. Ma una stanza si sblocca solo se un
+	# evento la nomina, quindi i punti interrogativi invitavano ad andarci e
+	# poi rispondevano "da questa parte non si passa". Una mappa su cui non si
+	# puo' esplorare non e' una mappa, e' un disegno.
+	#
+	# Adesso: nei posti confinanti ci si va sempre, scoperti o no - andarci E'
+	# il modo di scoprirli. Il resto della mappa resta guardabile e non
+	# raggiungibile, tranne i proiettori (vedi sotto).
+	if id_stanza == GameState.nodo_corrente:
+		return true
+	if id_stanza in GameState.stanze_confinanti(GameState.nodo_corrente):
+		return true
+	# IN CASA TUA SI VA DRITTI. Una frattura si scopre un passo alla volta, e li'
+	# il passo e' il gioco. Il complesso no: e' dove vivi, i corridoi li conosci,
+	# e dopo i soldati in palestra la sala comunicazioni col punto esclamativo
+	# rispondeva «troppo lontano» - si passava solo facendo tappa in camera, e
+	# niente lo diceva. Bru: «dopo il dialogo in sala non riesco ad andare
+	# avanti». Con "corridoi_liberi" si arriva in ogni stanza a cui porta un
+	# corridoio aperto, quante che siano in mezzo; i corridoi chiusi restano
+	# chiusi (la mattina dall'alloggio si va solo in palestra)
+	if bool(GameState.mappa_zona.get("corridoi_liberi", false)) \
+			and id_stanza in raggiungibili_a_piedi(GameState.nodo_corrente):
+		return true
+	# I PROIETTORI SONO UNA RETE, non un ritorno alla base: si salta da uno
+	# all'altro, e solo stando su uno. Se sei in mezzo al niente, cammini.
+	return GameState.su_un_proiettore() and GameState.ce_un_proiettore(id_stanza) \
+			and id_stanza in GameState.nodi_visitati
+
+static func raggiungibili_a_piedi(da: String) -> Array[String]:
+	# tutte le stanze in fondo a un corridoio aperto, anche passando per altre
+	var viste: Array[String] = [da]
+	var da_guardare: Array[String] = [da]
+	while not da_guardare.is_empty():
+		for vicina in GameState.stanze_confinanti(da_guardare.pop_front()):
+			if vicina not in viste:
+				viste.append(vicina)
+				da_guardare.append(vicina)
+	return viste
+
 static func destinazione(scelta: Dictionary) -> String:
 	# dove porta una scelta: il nodo che nomina ("vai"), oppure la stanza in
 	# cui sei ("torna_dove_eri"). La seconda serve dopo una scena che non ti ha

@@ -74,6 +74,11 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `scripts/Impostazioni.gd` — autoload: impostazioni utente persistite a parte (vedi sotto)
 - `scripts/Pausa.gd` — autoload: menu di pausa, storico dei dialoghi e Diario, aperti con ESC
   da qualunque schermata di gioco (vedi sotto)
+- `scripts/Cursore.gd` — autoload: il cursore del mouse non resta spento. Godot lo ridice al
+  sistema solo quando la forma cambia o il mouse rientra nella finestra; se qualcosa fuori dal
+  gioco lo spegne mentre è dentro, sul menu principale (dove la forma non cambia mai) restava
+  spento. Lo ridice lui: all'apertura del menu, al ritorno del fuoco, e muovendo il mouse (al
+  più due volte al secondo). Il gioco non usa mai `mouse_mode`, e una prova lo tiene così
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
 - `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + `livello`/`ruolo` se combattono)
 - `data/ruoli.json` — la curva e i ruoli da cui escono i numeri di ogni creatura
@@ -88,8 +93,9 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `data/events_sede.json` — la Sede: la pianta del complesso, le stanze, cosa fanno, il presidio
 - `scripts/PannelloOpzioni.gd` — l'elenco delle opzioni, definito una volta sola e usato sia
   dalla schermata principale sia dalla pausa
-- `prove/` — le prove del progetto (`./prove/esegui.sh`) e il giocatore automatico
-  (`./prove/simula.sh`), entrambi descritti in fondo
+- `prove/` — le prove del progetto (`./prove/esegui.sh`), il giocatore automatico
+  (`./prove/simula.sh`) e l'esploratore che gioca tutte le strade della storia
+  (`./prove/esplora.sh`), descritti in fondo
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
   (ritratti), `art/branding/logo_studio.png`/`logo_personale.png` (loghi d'apertura). Finché
   mancano: placeholder generati (cielo stellato / iniziale del nome / testo)
@@ -2211,6 +2217,31 @@ Misurava quindi uno arrivato al livello 8 senza aver mai combattuto, e la tabell
 "equilibrato" mentre chi ci giocava non scendeva mai sotto metà vita. Adesso `cresci_fino_a()`
 applica il `profilo_giocatore_tipo` di `crescita.json` prima di ogni scontro. Se quella stima è
 sbagliata, tutta la tabella è sbagliata: è il numero più importante del file.
+
+## L'esploratore (`prove/Esploratore.gd`)
+Le prove sui dati guardano un nodo alla volta, e l'automa gioca una partita alla volta. Nessuno
+dei due risponde alla domanda che conta prima di far provare il gioco a qualcuno: **c'e' un modo
+di giocare che ti chiude in un posto da cui la storia non va piu' avanti?** L'esploratore prova
+tutte le combinazioni: ogni scelta visibile, ogni stanza della mappa, ogni scontro vinto, perso e
+fuggito, ogni agguato che scatta e non scatta. Poi, all'indietro, chiede a ogni situazione
+raggiunta se da li' si esce ancora dalla zona (altrimenti e' una **prigione**) e se la zona si
+finisce ancora (altrimenti e' un **punto morto**).
+
+```
+./prove/esplora.sh                                   # tutte le zone, ~15 minuti (la Casa Gigante da sola ne prende 14)
+ESPLORA_ZONA=meridia ./prove/esplora.sh              # una zona sola (piu' il primo giorno e le Pianure, da cui si parte)
+```
+
+Usa le regole del gioco, non una copia: le scelte visibili sono `IngressoNodo.scelta_visibile`, i
+loro effetti `IngressoNodo.effetti_della_scelta`, le stanze in cui si entra dalla mappa
+`IngressoNodo.si_entra` — le stesse funzioni che chiamano `Main` e `MappaZona`. Le zone si giocano
+in fila (il primo giorno, poi le Pianure, poi la Sede e le fratture), ognuna partendo da come e'
+finita quella prima. La meta di una frattura e' quello che il resto del gioco le chiede
+(`mappa.json`: i flag per l'anomalia e per le fratture nascoste).
+
+Dentro la suite gira su tutte le zone tranne la Casa Gigante (`prova_la_storia_non_ha_punti_morti`,
+una dozzina di secondi). Non guarda il bilanciamento (uno scontro si da' per vincibile e per
+perdibile: per quello c'e' il simulatore), le scelte a tempo lasciate scadere, e lo schermo.
 
 ## Lo zaino: quattro scomparti, tre con un tetto
 Non è un mucchio. Ogni categoria ha la sua capacità, e si allarga comprando spazio al negozio.

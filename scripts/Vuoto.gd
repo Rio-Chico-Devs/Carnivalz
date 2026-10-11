@@ -223,31 +223,37 @@ func vuoto_visibile(vuoto: Dictionary) -> bool:
 
 
 func _su_conferma(id: String) -> void:
+	# "partendo" ferma il secondo clic mentre si parte. Si accende solo se si
+	# parte DAVVERO: acceso a prescindere, una frattura col file rotto lasciava
+	# il Vuoto sordo a ogni clic, con la sola mappa stellare per uscirne
 	if partendo:
 		return
 	if id == "anomalia":
-		partendo = true
-		_su_pianeta()
+		partendo = _su_pianeta()
 	elif fratture.has(id):
-		partendo = true
-		_su_squarcio(fratture[id])
+		partendo = _su_squarcio(fratture[id])
 	elif pianeti.has(id) and not Sonde.giacimenti(id).is_empty():
 		estrai(id)
 	elif pianeti.has(id):
-		partendo = true
-		_su_squarcio(pianeti[id])
+		partendo = _su_squarcio(pianeti[id])
 	elif segreti.trovati.has(id):
 		segreti.prendi(id)
 
 
-func _su_pianeta() -> void:
+func _su_pianeta() -> bool:
 	var punto: Dictionary = GameState.punto_mappa_corrente
-	if GameState.avvia_carnivalz(punto.get("id", ""), punto.get("file_eventi", "")):
-		GameState.musica_ambiente = String(punto.get("musica_campagna", ""))
-		Transizioni.vai(SCENA_SELEZIONE)
+	if not GameState.avvia_carnivalz(punto.get("id", ""), punto.get("file_eventi", "")):
+		push_warning("Il Carnivalz «%s» non si apre: %s" % [punto.get("id", ""), punto.get("file_eventi", "")])
+		return false
+	GameState.musica_ambiente = String(punto.get("musica_campagna", ""))
+	Transizioni.vai(SCENA_SELEZIONE)
+	return true
 
 
-func _su_squarcio(vuoto: Dictionary) -> void:
-	if GameState.entra_squarcio(vuoto.get("id", ""), vuoto.get("file_eventi", "")):
-		GameState.musica_ambiente = String(vuoto.get("musica", ""))
-		IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
+func _su_squarcio(vuoto: Dictionary) -> bool:
+	if not GameState.entra_squarcio(vuoto.get("id", ""), vuoto.get("file_eventi", "")):
+		push_warning("La frattura «%s» non si apre: %s" % [vuoto.get("id", ""), vuoto.get("file_eventi", "")])
+		return false
+	GameState.musica_ambiente = String(vuoto.get("musica", ""))
+	IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
+	return true

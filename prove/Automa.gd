@@ -140,6 +140,12 @@ func _ready() -> void:
 	if nodo_di_partenza == "negozio":
 		fino_a = ""   # dal negozio si gira finche' c'e' tempo
 		parti_dal_negozio.call_deferred()
+	elif nodo_di_partenza == "sede":
+		fino_a = ""   # dalla Sede si gira finche' c'e' tempo: mappa stellare, Vuoto, fratture
+		parti_dalla_sede.call_deferred()
+	elif nodo_di_partenza.begins_with("frattura:"):
+		fino_a = ""   # dentro una frattura del Vuoto, a girarla tutta
+		parti_dalla_sede.call_deferred(nodo_di_partenza.trim_prefix("frattura:"))
 	elif nodo_di_partenza != "":
 		parti_da.call_deferred(nodo_di_partenza)
 	else:
@@ -238,6 +244,43 @@ func parti_dal_negozio() -> void:
 			"amuleto_di_ferro", "rottame_di_metallo", "rottame_di_metallo", "convertitore"]:
 		GameState.aggiungi_oggetto(id_oggetto)
 	Transizioni.vai("res://scenes/Negozio.tscn")
+
+
+func parti_dalla_sede(frattura := "") -> void:
+	# DOPO IL TUTORIAL. Il giro di sempre si ferma alla Sede, e tutto quello che
+	# viene dopo - la mappa stellare, il Vuoto, le fratture, i loro scontri - non
+	# l'aveva mai giocato nessuno con clic veri. Qui si parte da li', con la
+	# squadra al livello delle fratture (le Pianure si giocano al primo). Nel
+	# Vuoto pero' l'automa si perde fra segreti e sonde, e allora si puo' anche
+	# partire DENTRO una frattura:
+	#   ./prove/automa.sh esplora 1 1200 sede
+	#   ./prove/automa.sh esplora 1 900 frattura:meridia
+	var segnaposto := Node.new()
+	get_tree().root.add_child(segnaposto)
+	get_tree().current_scene = segnaposto
+	GameState.nuova_partita()
+	for flag: String in ["rientro_infermeria", "data_pad_spiegato", "pianure_compiute", "tutorial_completato",
+			"guida_conosciuta"]:
+		GameState.imposta_flag(flag)
+	GameState.porta_al_livello(GameState.id_protagonista, 8)
+	GameState.tazo = 300
+	for id_oggetto: String in ["benda_stretta", "benda_stretta", "fiala_aura", "fiore_di_luna"]:
+		GameState.aggiungi_oggetto(id_oggetto)
+	if frattura == "":
+		Transizioni.vai("res://scenes/Sede.tscn")
+		return
+	var bosco: Dictionary = {}
+	for punto: Dictionary in GameState.carica_mappa().get("punti", []):
+		for voce: Dictionary in punto.get("vuoti", []):
+			if String(voce.get("id", "")) == frattura:
+				bosco = punto
+				for flag in voce.get("richiede_flags", []):
+					GameState.imposta_flag(String(flag))
+				GameState.punto_mappa_corrente = bosco
+				GameState.entra_squarcio(frattura, String(voce.get("file_eventi", "")))
+				IngressoNodo.vai_al_nodo(GameState.nodo_corrente)
+				return
+	push_error("AUTOMA: la frattura \"%s\" non c'e' in mappa.json" % frattura)
 
 
 func gira() -> void:
@@ -465,10 +508,21 @@ func tocca(c: Control, schermata := "") -> void:
 	if not is_instance_valid(c):
 		return
 	var sotto := get_viewport().gui_get_hovered_control()
+	if sotto != null and sotto.name == "AreaAvanza" and String(get_tree().root.get_path_to(c)).contains("/Plancia/"):
+		# IN COMBATTIMENTO IL RACCONTO HA LA MANO, e non e' un fantasma. Mentre una
+		# battuta aspetta il clic, l'area che la fa avanzare copre la plancia: il
+		# riquadro del nemico, cliccato, manda avanti il testo invece di colpire -
+		# ed e' voluto, si colpisce quando tocca a te. Solo la plancia, pero':
+		# l'icona del menu coperta dalla stessa area era un fantasma vero (la
+		# prima caccia, docs/caccia.md), e deve restarlo
+		return
 	if sotto != c and (sotto == null or not c.is_ancestor_of(sotto)):
 		coperti[chiave] = int(coperti.get(chiave, 0)) + 1
 		if int(coperti[chiave]) == 12:
-			fantasmi[chiave] = "coperto da %s" % (nome_di(sotto) if sotto != null else "niente")
+			# COL SUO POSTO NELL'ALBERO: «|Control coperto da AreaAvanza» non diceva
+			# quale Control fosse, e un fantasma che non si trova non si corregge
+			fantasmi[chiave] = "coperto da %s (%s, in %s)" % [nome_di(sotto) if sotto != null else "niente",
+					get_tree().root.get_path_to(c), scena_adesso().get_file()]
 		return
 	ultima_azione = "clic su \"%s\" (%s)" % [nome_di(c), scena_adesso().get_file()]
 	racconta()

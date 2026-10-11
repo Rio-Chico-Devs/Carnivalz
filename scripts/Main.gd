@@ -100,6 +100,7 @@ var tween_nastro: Tween
 var carta_nastro: NastroStrappato   # la carta strappata, dietro la scritta
 var tween_sfondo: Tween
 var racconto: Racconto = null   # l'inizio del gioco e dei livelli, a schermo intero
+var uscita_chiesta := false     # scadute tutte le scelte si esce, e una volta sola
 
 func _ready() -> void:
 	if GameState.eventi.is_empty():
@@ -829,41 +830,9 @@ func ricostruisci_scelte(nodo: Dictionary) -> void:
 	Albero.svuota(contenitore_scelte)
 	var primo: Button = null
 	for scelta in nodo.get("scelte", []):
-		if scelta.has("richiede") and not GameState.party_ha_abilita(scelta["richiede"]):
-			continue  # requisito non soddisfatto: la scelta non appare proprio
-		if scelta.has("richiede_legame") and GameState.legame < int(scelta["richiede_legame"]):
-			continue  # evento raro: serve un legame abbastanza coltivato
-		if scelta.has("richiede_ospite") and scelta["richiede_ospite"] not in GameState.ospiti:
-			continue
-		if scelta.has("richiede_compagno") and scelta["richiede_compagno"] not in GameState.party:
-			continue  # serve un alleato specifico in squadra (es. un compagno temporaneo reclutato)
-		if scelta.has("richiede_flag") and not GameState.ha_flag(scelta["richiede_flag"]):
-			continue
-		if scelta.has("richiede_non_flag") and GameState.ha_flag(scelta["richiede_non_flag"]):
-			continue
-		if scelta.has("richiede_oggetti") and not GameState.possiede_tutti(scelta["richiede_oggetti"]):
-			continue  # servono tutti i pezzi (es. la Fontana)
-		if scelta.get("piazza_proiettore", false) \
-				and GameState.proiettore_qui() == GameState.nodo_corrente:
-			continue  # e' gia' qui: piantarlo di nuovo non farebbe niente
-		if scelta.has("una_tantum") and GameState.ha_flag(scelta["una_tantum"]):
-			continue  # gia' raccolto/fatto: la scelta non torna
-		if int(scelta.get("tazo", 0)) < 0 and GameState.tazo < -int(scelta.get("tazo", 0)):
-			continue  # non puoi pagare cio' che non hai
-		# IL KARMA DECIDE QUALE DELLE DUE TI COMPARE. Bru: «ci sara' magari solo
-		# 1 o l'altra, a seconda del tuo karma, e in alcune anche entrambe».
-		#
-		# Servono tutte e quattro le forme, non due. Con i soli minimi si puo'
-		# dire "questa la vede chi e' stato eroe almeno tre volte", ma non si
-		# puo' NASCONDERE niente a nessuno - e "solo l'opzione da villain,
-		# perche' ormai sei quello" e' esattamente una cosa da nascondere.
-		if scelta.has("richiede_eroe") and GameState.scelte_eroe < int(scelta["richiede_eroe"]):
-			continue  # la puo' dire solo chi si e' comportato da eroe abbastanza volte
-		if scelta.has("richiede_malvagio") and GameState.scelte_malvagie < int(scelta["richiede_malvagio"]):
-			continue
-		if scelta.has("richiede_eroe_max") and GameState.scelte_eroe > int(scelta["richiede_eroe_max"]):
-			continue  # chi e' stato troppo eroe questa non se la sente piu' dire
-		if scelta.has("richiede_malvagio_max") and GameState.scelte_malvagie > int(scelta["richiede_malvagio_max"]):
+		# quali scelte si vedono lo decide IngressoNodo.scelta_visibile: la stessa
+		# regola la usa l'esploratore che gioca tutte le strade (prove/Esploratore.gd)
+		if not IngressoNodo.scelta_visibile(scelta):
 			continue
 		var bottone := bottone_scelta(String(scelta.get("testo", "…")),
 				String(scelta.get("genere", "")))
@@ -996,6 +965,24 @@ func rompi_la_scelta(riga: Control, bottone: Button, orologio: Control) -> void:
 		# il fuoco non deve restare su una cosa che non c'e' piu', o da tastiera
 		# si continua a premere invio nel vuoto
 		sposta_fuoco_sulla_prima_scelta()
+	se_non_resta_niente_si_esce()
+
+func se_non_resta_niente_si_esce() -> void:
+	# SCADUTE TUTTE, LA SCENA NON SI FERMA. La rete di _apri_scelte guarda solo
+	# quando le scelte si aprono: se erano tutte a tempo e sono scadute tutte, la
+	# schermata restava senza niente da premere. Nei dati non deve succedere (una
+	# prova pretende una scelta che non scade accanto a quelle che scadono); se
+	# succede lo stesso, si esce come quando le scelte non ci sono
+	var vive := 0
+	for figlio in contenitore_scelte.get_children():
+		var bottone := primo_bottone_in(figlio)
+		if bottone != null and not bottone.disabled:
+			vive += 1
+	# una volta sola: le scelte si rompono una alla volta, e l'ultima a cadere
+	# non deve chiedere un secondo cambio di schermata
+	if vive <= int(nodo_in_corso.has("scena")) and not bottone_mappa.visible and not uscita_chiesta:
+		uscita_chiesta = true
+		Transizioni.vai(IngressoNodo.via_d_uscita(GameState.nodo_corrente))
 
 func sposta_fuoco_sulla_prima_scelta() -> void:
 	for figlio in contenitore_scelte.get_children():
@@ -1078,27 +1065,6 @@ func notifiche_passive() -> Array[Dictionary]:
 		righe.append({"tipo": "notifica", "testo": "Nuova abilità passiva: %s" % nome})
 	GameState.passive_da_notificare.clear()
 	return righe
-
-func pickup(id_oggetto: String) -> Array[Dictionary]:
-	# notifiche sequenziali: "hai raccolto X" e' un messaggio a se',
-	# ordinato insieme agli altri, non un testo mescolato o un elemento minore.
-	# Per gli oggetti chiave (di solito indizi/lore, come le pagine di
-	# giornale di Meridia) la descrizione diventa una seconda pagina.
-	var dati := GameState.dati_oggetto(id_oggetto)
-	var nome: String = String(dati.get("nome", id_oggetto))
-	if not GameState.aggiungi_oggetto(id_oggetto):
-		return [{"tipo": "notifica", "testo": "%s: la sacca è piena, non c'è posto per lui." % nome}]
-	var tipo := String(dati.get("tipo", "consumabile"))
-	var luogo := "nella sacca"
-	match tipo:
-		"collezionabile":
-			luogo = "tra i collezionabili"
-		"chiave":
-			luogo = "tra gli oggetti chiave"
-	var risultato: Array[Dictionary] = [{"tipo": "notifica", "testo": "Hai raccolto: %s (%s)." % [nome, luogo]}]
-	if tipo == "chiave":
-		risultato.append({"tipo": "narrazione", "testo": String(dati.get("descrizione", ""))})
-	return risultato
 
 # --- palco dei ritratti ---
 
@@ -1209,44 +1175,9 @@ func _su_osserva() -> void:
 	avanza_messaggio()
 
 func _su_scelta(scelta: Dictionary) -> void:
-	GameState.modifica_legame(-1)  # il legame respira: cala se non lo curi
-	# chi sei (eroe o malvagio), i flag, le reclute: IngressoNodo.applica_scelta
-	IngressoNodo.applica_scelta(scelta)
-	var notifiche: Array[Dictionary] = []
-	if scelta.get("piazza_proiettore", false):
-		# il proiettore e' uno solo: piantarlo qui lo toglie da dove stava
-		var dove_stava := GameState.proiettore_qui()
-		GameState.piazza_proiettore(GameState.nodo_corrente)
-		notifiche.append({"tipo": "notifica", "testo":
-				"Proiettore piantato. Da qualunque punto della zona, la mappa riporta qui."
-				if dove_stava == "" else
-				"Proiettore spostato qui. Dove stava prima non c'e' piu'."})
-	# "oggetto" ne da' uno, "oggetti" ne da' quanti se ne scrivono - anche lo
-	# stesso due volte, per un ritrovamento che vale il doppio. Le due forme
-	# convivono: i contenuti gia' scritti usano la prima e non vanno ritoccati.
-	for id_oggetto in IngressoNodo.lista_id(scelta.get("oggetto", scelta.get("oggetti", []))):
-		notifiche.append_array(pickup(id_oggetto))
-	if scelta.has("lascia"):
-		GameState.rimuovi_classe(scelta["lascia"])
-	if scelta.has("ospite"):
-		GameState.aggiungi_ospite(scelta["ospite"])
-	if scelta.has("recluta_temporaneo"):
-		GameState.recluta_temporaneo(scelta["recluta_temporaneo"], int(scelta.get("livello_alleato", 1)))
-	if scelta.has("congeda"):
-		GameState.congeda(scelta["congeda"])
-	if scelta.has("tazo"):
-		var quantita := int(scelta["tazo"])
-		GameState.modifica_tazo(quantita)
-		if quantita > 0:
-			notifiche.append({"tipo": "notifica", "testo": "Hai ottenuto %d Tazo." % quantita})
-	if scelta.has("sblocca_negozio"):
-		GameState.sblocca_negozio(scelta["sblocca_negozio"])
-	IngressoNodo.applica_task_di(scelta)
-	if scelta.has("stress"):
-		for id_classe in GameState.party:
-			GameState.modifica_stress(id_classe, int(scelta["stress"]))
-	if scelta.has("legame"):
-		GameState.modifica_legame(int(scelta["legame"]))
+	# cosa cambia nel mondo lo fa IngressoNodo.effetti_della_scelta, che non
+	# tocca lo schermo; qui si decide solo dove si va dopo
+	var notifiche := IngressoNodo.effetti_della_scelta(scelta)
 	if scelta.has("combatti"):
 		GameState.prepara_combattimento(scelta["combatti"], scelta.get("se_vinci", ""),
 				scelta.get("se_vinci_eroe", ""), scelta.get("se_perdi", ""), scelta.get("se_fuggi", ""),

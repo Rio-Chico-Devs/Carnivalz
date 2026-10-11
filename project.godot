@@ -19,6 +19,7 @@ Stile="*res://scripts/Stile.gd"
 Impostazioni="*res://scripts/Impostazioni.gd"
 Transizioni="*res://scripts/Transizioni.gd"
 Pausa="*res://scripts/Pausa.gd"
+Cursore="*res://scripts/Cursore.gd"
 
 [display]
 

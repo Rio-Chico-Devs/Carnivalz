@@ -475,10 +475,15 @@
         }
       ],
       "_chiusa_per_ora": "Ci si entra nel tutorial, al ritorno dalla prima missione. Oggi e' solo un rettangolo sulla mappa.",
+      "_nota_ritorno": "Le regole vanno dalla piu' recente alla piu' vecchia. Dopo gli ordini la sala e' «dopo» solo se il data pad e' stato spiegato: chi ha ricevuto gli ordini e non ha ancora aperto il data pad ritrova la chiamata, e da li' «Apri il data pad». Prima la regola era 'ordini_ricevuti -> dopo', e chi usciva dalla chiamata senza aprire il data pad non lo apriva piu': la sala di proiezione restava chiusa e la prima missione non partiva mai (l'ha trovato l'esploratore, prove/esplora.sh).",
       "vai_se_flag": [
         {
-          "flag": "ordini_ricevuti",
+          "flag": "data_pad_spiegato",
           "vai": "sala_comunicazioni_dopo"
+        },
+        {
+          "flag": "ordini_ricevuti",
+          "vai": "comunicazioni_ordini"
         },
         {
           "flag": "rientro_infermeria",
@@ -895,6 +900,8 @@
     },
     "comunicazioni_ordini": {
       "_nota": "Il testo è di Bru, parola per parola: il canale si apre, ronza, e parla la stessa figura della prima volta. Ritocchi: «dominatore» accordato, «missiona», e le maiuscole a inizio battuta.",
+      "_nota_senza_mappa": "Gli ordini si chiudono aprendo il data pad: la mappa qui non c'e'. Col tasto «Mappa» accanto ad «Apri il data pad» si poteva uscire dalla chiamata, e il data pad (che accende 'data_pad_spiegato' e apre la sala di proiezione) non tornava piu'.",
+      "senza_mappa": true,
       "sfondo": "res://art/scene/sala_comunicazioni.png",
       "flag": "ordini_ricevuti",
       "sequenza": [

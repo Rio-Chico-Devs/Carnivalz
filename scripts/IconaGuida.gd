@@ -53,6 +53,7 @@ func _ready() -> void:
 		text = "?"
 		add_theme_font_size_override("font_size", Stile.dimensione("sezione"))
 		add_theme_color_override("font_color", Stile.colore("accento"))
+		add_theme_color_override("font_disabled_color", Stile.colore("accento"))   # spenta la sbiadisce modulate
 	pressed.connect(func() -> void: GuidaSullaMappa.apri({}))
 	aggiorna()
 
@@ -68,5 +69,8 @@ func aggiorna() -> void:
 	# e dove la scena non ti lascia andare (IngressoNodo.trattiene) resta spenta
 	# anche a testo finito: riaprirebbe la mappa, e dalla mappa si esce
 	var nodo: Variant = schermata.get("nodo_in_corso") if schermata != null else null
-	disabled = nodo is Dictionary and IngressoNodo.trattiene(nodo)
-	modulate.a = SPENTA if si_legge or disabled else 1.0
+	# SPENTA DAVVERO, NON SOLO SBIADITA. Mentre si legge il clic va all'area del
+	# testo: un bottone acceso che non si puo' premere e' quello che l'automa
+	# chiama fantasma (ne contava uno a ogni scena delle Pianure)
+	disabled = si_legge or (nodo is Dictionary and IngressoNodo.trattiene(nodo))
+	modulate.a = SPENTA if disabled else 1.0

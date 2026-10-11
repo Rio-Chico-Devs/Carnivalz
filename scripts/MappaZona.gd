@@ -189,10 +189,7 @@ func chi_c_e(id_stanza: String) -> Array[String]:
 	return chi
 
 func chiusa(id_stanza: String) -> bool:
-	# UNA PORTA CHIUSA A CHIAVE si vede, ci si arriva davanti, e non si apre: il
-	# corridoio c'e', e' la stanza che aspetta il suo flag ("richiede_flag")
-	var serve := String(stanze_per_id.get(id_stanza, {}).get("richiede_flag", ""))
-	return serve != "" and not GameState.ha_flag(serve)
+	return IngressoNodo.chiusa_a_chiave(id_stanza)
 
 # --- la tavolozza della mappa -------------------------------------------
 #
@@ -327,47 +324,10 @@ func si_vede(id_stanza: String) -> bool:
 	return visitata(id_stanza) or GameState.stanza_sbloccata(id_stanza) or intravista(id_stanza)
 
 func si_puo_andare(id_stanza: String) -> bool:
-	# DALLA MAPPA CI SI CAMMINA, E SI CAMMINA ANCHE NEL BUIO.
-	#
-	# Qui c'era il difetto che rendeva la mappa inutilizzabile: si pretendeva
-	# che la stanza fosse GIA' sbloccata. Ma una stanza si sblocca solo se un
-	# evento la nomina, quindi i punti interrogativi invitavano ad andarci e
-	# poi rispondevano "da questa parte non si passa". Una mappa su cui non si
-	# puo' esplorare non e' una mappa, e' un disegno.
-	#
-	# Adesso: nei posti confinanti ci si va sempre, scoperti o no - andarci E'
-	# il modo di scoprirli. Il resto della mappa resta guardabile e non
-	# raggiungibile, tranne i proiettori (vedi sotto).
-	if id_stanza == GameState.nodo_corrente:
-		return true
-	if id_stanza in GameState.stanze_confinanti(GameState.nodo_corrente):
-		return true
-	# IN CASA TUA SI VA DRITTI. Una frattura si scopre un passo alla volta, e li'
-	# il passo e' il gioco. Il complesso no: e' dove vivi, i corridoi li conosci,
-	# e dopo i soldati in palestra la sala comunicazioni col punto esclamativo
-	# rispondeva «troppo lontano» - si passava solo facendo tappa in camera, e
-	# niente lo diceva. Bru: «dopo il dialogo in sala non riesco ad andare
-	# avanti». Con "corridoi_liberi" si arriva in ogni stanza a cui porta un
-	# corridoio aperto, quante che siano in mezzo; i corridoi chiusi restano
-	# chiusi (la mattina dall'alloggio si va solo in palestra)
-	if bool(GameState.mappa_zona.get("corridoi_liberi", false)) \
-			and id_stanza in raggiungibili_a_piedi(GameState.nodo_corrente):
-		return true
-	# I PROIETTORI SONO UNA RETE, non un ritorno alla base: si salta da uno
-	# all'altro, e solo stando su uno. Se sei in mezzo al niente, cammini.
-	return GameState.su_un_proiettore() and GameState.ce_un_proiettore(id_stanza) \
-			and visitata(id_stanza)
+	# la regola di dove si cammina sta in IngressoNodo.raggiungibile: la usano
+	# anche il plastico e l'esploratore che gioca tutte le strade
+	return IngressoNodo.raggiungibile(id_stanza)
 
-func raggiungibili_a_piedi(da: String) -> Array[String]:
-	# tutte le stanze in fondo a un corridoio aperto, anche passando per altre
-	var viste: Array[String] = [da]
-	var da_guardare: Array[String] = [da]
-	while not da_guardare.is_empty():
-		for vicina in GameState.stanze_confinanti(da_guardare.pop_front()):
-			if vicina not in viste:
-				viste.append(vicina)
-				da_guardare.append(vicina)
-	return viste
 
 # --- i quadratini --------------------------------------------------------
 

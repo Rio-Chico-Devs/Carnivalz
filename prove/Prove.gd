@@ -147,6 +147,7 @@ func _ready() -> void:
 	prova_il_movimento_ridotto_toglie_i_movimenti_non_le_voci()
 	await prova_la_voce_inerte_dice_di_no()
 	await prova_il_menu_principale_ha_piu_passi()
+	await prova_il_cursore_non_resta_spento()
 	await prova_il_menu_principale_sta_dove_sta_nel_riferimento()
 	prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda()
 	await prova_la_voce_col_segno_e_la_macchia()
@@ -163,6 +164,7 @@ func _ready() -> void:
 	await prova_la_prima_missione_si_sceglie_sulla_mappa()
 	await prova_la_mappa_stellare_e_una_proiezione()
 	await prova_il_vuoto_e_una_proiezione()
+	await prova_una_frattura_rotta_non_ammutolisce_il_vuoto()
 	prova_ogni_frattura_ha_la_sua_scheda()
 	await prova_la_proiezione_sta_ferma_col_movimento_ridotto()
 	await prova_le_fratture_sono_distorsioni()
@@ -230,6 +232,9 @@ func _ready() -> void:
 	await prova_dicendo_no_dopo_il_goblin_si_torna_alla_mappa()
 	prova_nessun_nodo_finisce_senza_uscita()
 	await prova_se_le_scelte_spariscono_si_esce_lo_stesso()
+	prova_dagli_ordini_si_esce_aprendo_il_data_pad()
+	prova_la_storia_non_ha_punti_morti()
+	await prova_scadute_tutte_si_esce_lo_stesso()
 	await prova_osserva_la_scena_c_e_gia_alla_prima_visita()
 	prova_la_mappa_non_si_apre_prima_di_essere_spiegata()
 	await prova_un_solo_artwork_quello_di_chi_parla()
@@ -11208,8 +11213,13 @@ func prova_giornata_dopo_allenamento() -> void:
 	GameState.imposta_flag("ordini_ricevuti")
 	esigi(IngressoNodo.risolvi("sala_allenamento") == "sala_allenamento_vuota",
 			"ricevuti gli ordini, i soldati sono ancora li': la conversazione valeva solo prima")
-	esigi(IngressoNodo.risolvi("sala_comunicazioni") == "sala_comunicazioni_dopo",
+	# ricevuti gli ordini ma senza aver aperto il data pad, si ritrova la
+	# chiamata (da cui «Apri il data pad»), non la convocazione di prima
+	esigi(IngressoNodo.risolvi("sala_comunicazioni") == "comunicazioni_ordini",
 			"ricevuti gli ordini, la sala comunicazioni ti convoca di nuovo")
+	GameState.imposta_flag("data_pad_spiegato")
+	esigi(IngressoNodo.risolvi("sala_comunicazioni") == "sala_comunicazioni_dopo",
+			"spiegato il data pad, la sala comunicazioni ripete la chiamata")
 	# LA DR. REIKA, SECONDA VOLTA: tre domande, due tornano alle domande, la
 	# terza saluta e ti rimanda alla mappa
 	var domande: Array = nodi.get("infermeria_reika", {}).get("scelte", [])
@@ -11423,6 +11433,36 @@ func scegli_e_scendi(mappa: Control, p: Proiezione, ardente: Button, porto: Butt
 	esigi(String(GameState.punto_mappa_corrente.get("id", "")) == "carnivalz_del_bosco"
 			and GameState.gia_visitata("carnivalz_del_bosco"),
 			"sceso nel Vuoto, la partita non sa dove sei, o non lo segna come visitato")
+
+func prova_una_frattura_rotta_non_ammutolisce_il_vuoto() -> void:
+	# UNA GUARDIA CHE NON SI SPEGNE E' UNA SCHERMATA SORDA. "partendo" ferma il
+	# secondo clic mentre si parte, e si accendeva PRIMA di sapere se si partiva
+	# davvero: una frattura col file rotto lasciava il Vuoto acceso e muto, con la
+	# sola mappa stellare per uscirne. Si accende solo se la frattura si apre
+	titolo("una frattura che non si apre non lascia il Vuoto sordo ai clic")
+	GameState.nuova_partita()
+	var bosco := punto_della_mappa("carnivalz_del_bosco").duplicate(true)
+	# un file che c'e' ma non e' una frattura: si apre senza nodi, e non si parte
+	var rotta := {"id": "frattura_rotta", "nome": "Rotta", "file_eventi": "res://data/task.json", "pos": [760, 260]}
+	bosco["vuoti"] = [rotta] + (bosco.get("vuoti", []) as Array)
+	GameState.punto_mappa_corrente = bosco
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	var vuoto: Control = load("res://scenes/Vuoto.tscn").instantiate()
+	add_child(vuoto)
+	await get_tree().process_frame
+	vuoto.call("_su_conferma", "frattura_rotta")
+	esigi(not bool(vuoto.get("partendo")) and Transizioni.prossima == "",
+			"una frattura che non si apre lascia il Vuoto con la guardia accesa: non risponde piu' a nessun clic")
+	vuoto.call("_su_conferma", "squarcio_industriale")
+	esigi(bool(vuoto.get("partendo")) and Transizioni.prossima == "res://scenes/Main.tscn",
+			"dopo una frattura rotta, una buona non si apre piu' (si va a '%s')" % Transizioni.prossima)
+	vuoto.queue_free()
+	await get_tree().process_frame
+	Transizioni.prossima = ""
+	Transizioni.in_corso = stato_prima
+	GameState.nuova_partita()
 
 func prova_il_vuoto_e_una_proiezione() -> void:
 	titolo("il Vuoto: l'anomalia sigillata finche' serve, le nascoste si strappano, il secondo clic entra")
@@ -12742,11 +12782,28 @@ func chiusa_la_mappa_la_guida_protesta() -> void:
 			"chiusa la mappa non arriva la protesta della Guida")
 	var icona := figlio_di_tipo(dopo, "IconaGuida") as IconaGuida
 	esigi(icona != null and not icona.visible, "l'icona della Guida c'e' gia' prima che lei la nomini")
+	# mentre si legge l'icona c'e' ma e' spenta DAVVERO (disabled), non solo
+	# sbiadita: il clic va all'area del testo, e un bottone acceso che non si
+	# puo' premere e' un fantasma per l'automa
+	var spenta_leggendo := 0
+	var accesa_leggendo := 0
 	while not dopo.coda_messaggi.is_empty():
 		dopo.avanza_messaggio()
+		if icona != null and dopo.area_avanza.visible:
+			icona.aggiorna()
+			if icona.visible:
+				spenta_leggendo += int(icona.disabled)
+				accesa_leggendo += int(not icona.disabled)
 	await get_tree().process_frame
 	esigi(GameState.ha_flag("guida_conosciuta") and icona != null and icona.visible,
 			"«Se hai bisogno puoi premere sulla mia icona» e l'icona non c'e'")
+	esigi(spenta_leggendo > 0 and accesa_leggendo == 0,
+			"mentre il testo scorre l'icona della Guida e' accesa sotto l'area che lo fa avanzare (%d battute)" % accesa_leggendo)
+	dopo._su_testo_pronto()   # l'ultima battuta finisce di scriversi: arrivano le scelte
+	if icona != null:
+		icona.aggiorna()
+		esigi(not icona.disabled and not dopo.area_avanza.visible,
+				"finito il testo l'icona della Guida resta spenta")
 	dopo.queue_free()
 	await get_tree().process_frame
 	# e tornando al punto d'atterraggio la mappa non si riapre: lo ha gia' fatto
@@ -13560,6 +13617,114 @@ func prova_nessun_nodo_finisce_senza_uscita() -> void:
 const PROSEGUE_DA_SOLO := ["vai", "combattimento_automatico", "avvio_automatico",
 		"apri_mappa_stellare", "espulsione_automatica", "torna_a_mappa", "apri_mappa_zona"]
 
+func prova_dagli_ordini_si_esce_aprendo_il_data_pad() -> void:
+	# IL PUNTO MORTO CHE L'ESPLORATORE HA TROVATO. In sala comunicazioni, dopo la
+	# chiamata di Veronica, c'erano «Apri il data pad» E il tasto della mappa.
+	# Chi prendeva la mappa ritrovava la sala gia' «dopo», con solo «Torna alla
+	# mappa»: il data pad - l'unico posto che accende data_pad_spiegato - non
+	# tornava piu', la sala di proiezione restava chiusa e la prima missione non
+	# partiva mai. Prima di qualunque salvataggio: partita da ricominciare
+	titolo("dagli ordini di Veronica si esce aprendo il data pad, e chi ne esce li ritrova")
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("intro", "res://data/events_intro.json")
+	esigi(IngressoNodo.trattiene(GameState.eventi["comunicazioni_ordini"]),
+			"accanto ad «Apri il data pad» c'e' il tasto della mappa: uscendo di li' il data pad non torna piu'")
+	for flag in ["rientro_infermeria", "ordini_ricevuti"]:
+		GameState.imposta_flag(flag)
+	esigi(IngressoNodo.risolvi("sala_comunicazioni") == "comunicazioni_ordini",
+			"chi ha ricevuto gli ordini senza aprire il data pad rientra in una sala che non glielo fa aprire (%s)"
+			% IngressoNodo.risolvi("sala_comunicazioni"))
+	GameState.imposta_flag("data_pad_spiegato")
+	esigi(IngressoNodo.risolvi("sala_comunicazioni") == "sala_comunicazioni_dopo",
+			"spiegato il data pad, la sala non torna quella di sempre (%s)" % IngressoNodo.risolvi("sala_comunicazioni"))
+	GameState.nuova_partita()
+
+func prova_scadute_tutte_si_esce_lo_stesso() -> void:
+	# LE SCELTE A TEMPO POSSONO SCADERE TUTTE. La rete di sicurezza di Main
+	# guardava solo quando le scelte si aprono: un nodo con due scelte da eroe e
+	# da villain, lasciate scadere tutte e due, restava senza niente da premere.
+	# Nei dati oggi non ce n'e' nessuno - le scelte a tempo arriveranno coi
+	# dialoghi di Bru - e per questo la regola si scrive adesso: accanto a quelle
+	# che scadono ce ne vuole una che non scade, e se manca il motore esce lo stesso
+	titolo("se scadono tutte le scelte a tempo la scena non resta ferma, e nei dati una non scade mai")
+	for percorso in file_eventi():
+		var nodi: Dictionary = carica_eventi(percorso).get("nodi", {})
+		for id_nodo: String in nodi:
+			var scelte: Array = (nodi[id_nodo] as Dictionary).get("scelte", [])
+			var a_tempo := 0
+			for scelta: Dictionary in scelte:
+				if scelta.has("tempo") or String(scelta.get("genere", "")) in ["eroe", "malvagio"]:
+					a_tempo += 1
+			esigi(a_tempo == 0 or a_tempo < scelte.size(),
+					"%s: in '%s' tutte le scelte scadono, e lasciate scadere la scena non va avanti"
+					% [percorso.get_file(), id_nodo])
+	GameState.nuova_partita()
+	GameState.avvia_carnivalz("tutorial", "res://data/events_tutorial.json")
+	IngressoNodo.entra("masso")
+	GameState.eventi["prova_tutte_a_tempo"] = {
+		"sequenza": [{"tipo": "narrazione", "testo": "Decidi, e in fretta."}],
+		"scelte": [
+			{"testo": "Ora", "genere": "eroe", "tempo": 0.5, "vai": "masso"},
+			{"testo": "Adesso", "genere": "malvagio", "tempo": 0.5, "vai": "masso"},
+		],
+	}
+	var stato_prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Transizioni.prossima = ""
+	IngressoNodo.vai_al_nodo("prova_tutte_a_tempo")
+	Transizioni.prossima = ""
+	var schermata: Node = load(IngressoNodo.SCENA_EVENTI).instantiate()
+	add_child(schermata)
+	await get_tree().process_frame
+	await clicca_finche_si_puo(schermata)
+	var orologi: Array[Control] = []
+	for pezzo in (schermata.get("contenitore_scelte") as Node).find_children("*", "Control", true, false):
+		if pezzo.has_signal("scaduto"):
+			orologi.append(pezzo as Control)
+	esigi(orologi.size() == 2, "le due scelte a tempo hanno %d orologi invece di 2" % orologi.size())
+	for giro in 2:
+		for orologio in orologi:
+			if is_instance_valid(orologio):
+				orologio.call("_process", 1.0)   # scade, poi il vetro cede
+	for i in 60:
+		if Transizioni.prossima != "":
+			break
+		await get_tree().process_frame
+	esigi(Transizioni.prossima == IngressoNodo.SCENA_MAPPA_ZONA,
+			"scadute tutte le scelte la schermata resta ferma senza niente da premere (si va a '%s')"
+			% Transizioni.prossima)
+	schermata.queue_free()
+	await get_tree().process_frame
+	GameState.eventi.erase("prova_tutte_a_tempo")
+	Transizioni.in_corso = stato_prima
+	Transizioni.prossima = ""
+	IngressoNodo.ultimo_esito = {}
+	GameState.nuova_partita()
+
+func prova_la_storia_non_ha_punti_morti() -> void:
+	# L'ESPLORATORE, DENTRO LE PROVE (prove/Esploratore.gd). Gioca tutte le
+	# strade di ogni zona - ogni scelta, ogni stanza della mappa, ogni scontro
+	# vinto perso e fuggito, ogni agguato che scatta e non scatta - e pretende
+	# che da OGNI situazione raggiunta si possa ancora uscire dalla zona e
+	# portarla a termine. Le prove sui nodi guardano un nodo alla volta; un punto
+	# morto e' fatto di due nodi giusti e di un ordine sbagliato, e lo vede solo
+	# chi prova gli ordini tutti.
+	#
+	# La Casa Gigante resta fuori da qui: ha tanti indizi indipendenti che le
+	# combinazioni sono quasi un milione, e un giro costa minuti. Si guarda a
+	# parte, con ./prove/esplora.sh
+	titolo("ogni strada della storia esce dalla zona e la porta a termine (l'esploratore)")
+	var esploratore: Node = load("res://prove/Esploratore.gd").new()
+	add_child(esploratore)
+	var zone: Array = []
+	for z: Dictionary in esploratore.call("tutte_le_zone"):
+		if String(z["id"]) != "casa_gigante":
+			zone.append(String(z["id"]))
+	esigi(zone.size() >= 10, "l'esploratore vede solo %d zone: non sta leggendo la mappa" % zone.size())
+	var trovati := int(esploratore.call("esplora_tutto", zone))
+	esigi(trovati == 0, "l'esploratore ha trovato %d difetti nelle strade della storia (i dettagli qui sopra)" % trovati)
+	esploratore.free()
+
 func prova_se_le_scelte_spariscono_si_esce_lo_stesso() -> void:
 	# LA RETE DI SICUREZZA. I dati li tiene la prova qui sopra; questa e' per
 	# quello che nessuna prova sui dati vede: un nodo con le scelte giuste, e
@@ -14231,11 +14396,6 @@ const FUNZIONI_INGARBUGLIATE := {
 		"tutte le condizioni che una mossa puo' dichiarare nei dati messe " +
 		"una dietro l'altra. Si spezza per condizione - una funzione per " +
 		"'quando', una per 'ricarica' - e cade sotto il tetto da sola"},
-	"Main.gd:ricostruisci_scelte": {"misura": 49, "perche":
-		"NON L'AVEVO MAI VISTA. Non e' lunga e non e' annidata: e' una " +
-		"catena di condizioni piatte, e con i tetti di prima - righe e " +
-		"profondita' - era invisibile. E' la prova che la metrica vecchia " +
-		"guardava dalla parte sbagliata"},
 	"GameState.gd:cerca_creature": {"misura": 44, "perche":
 		"cerca dentro zone dentro nodi dentro gruppi dentro elenchi. " +
 		"Difetto vero: il rimedio e' voltare i cicli e uscire prima"},
@@ -14260,11 +14420,6 @@ const FUNZIONI_INGARBUGLIATE := {
 	"Stati.gd:applica_stato": {"misura": 34, "perche":
 		"un ramo per tipo di status. E' lo stesso caso di esegui_mossa e si " +
 		"spezza allo stesso modo: e' il prossimo della lista"},
-	"Main.gd:_su_scelta": {"misura": 28, "perche":
-		"tutto quello che una scelta di dialogo puo' innescare. Cresce con " +
-		"la trama, che e' ancora in scrittura. Era a 31: il ramo \"apre\" " +
-		"delle stanze della Sede e' entrato solo dopo che chi sei, i flag e " +
-		"le reclute sono usciti in IngressoNodo.applica_scelta"},
 	"MacchinaDaScrivere.gd:respiri": {"misura": 27, "perche":
 		"la stessa funzione che stava in BoxTesto.gd, spostata con la macchina " +
 		"da scrivere quando l'ha voluta anche il racconto: un ramo per segno di " +
@@ -18631,14 +18786,24 @@ func prova_il_promontorio_non_ti_lascia_andare_e_poi_ti_ferma() -> void:
 		if figlio is IconaGuida:
 			icona = figlio
 	esigi(icona != null, "nelle Pianure l'icona della Guida non c'e': la prova non misurerebbe niente")
+	# a testo finito: mentre si legge e' spenta comunque, e la prova non
+	# saprebbe piu' se la spegne il promontorio
+	while not schermata.coda_messaggi.is_empty():
+		schermata.avanza_messaggio()
+	schermata._su_testo_pronto()
 	if icona != null:
 		icona.aggiorna()
-		esigi(icona.disabled, "in cima al promontorio l'icona della Guida riapre la mappa, e dalla mappa si scappa")
+		esigi(not schermata.area_avanza.visible and icona.disabled,
+				"in cima al promontorio l'icona della Guida riapre la mappa, e dalla mappa si scappa")
 	esigi(not schermata.bottone_mappa.visible, "in cima al promontorio c'e' il bottone della mappa")
 	# e al bivio, che non trattiene nessuno, tutto torna com'era
 	schermata.mostra_nodo("bivio")
 	schermata.aggiorna_dialoga()
 	esigi(schermata.bottone_mappa.visible, "al bivio la mappa non c'e' piu': la trattenuta del promontorio e' rimasta addosso")
+	# a testo finito: mentre si legge l'icona e' spenta comunque (IconaGuida)
+	while not schermata.coda_messaggi.is_empty():
+		schermata.avanza_messaggio()
+	schermata._su_testo_pronto()
 	if icona != null:
 		icona.aggiorna()
 		esigi(not icona.disabled, "al bivio l'icona della Guida resta spenta")
@@ -20255,3 +20420,82 @@ func prova_la_tavola_sta_intera_anche_col_testo_grande() -> void:
 				"con la scala %.2f il foglio non riempie lo schermo: %s su %s" % [fattore, occupa.size, vista])
 	get_tree().root.content_scale_factor = prima
 	tavola.queue_free()
+
+
+class SchermoFinto extends RefCounted:
+	# IL DISPLAYSERVER, MA CHE SI SEGNA TUTTO. In --headless quello vero non fa
+	# niente: per sapere cosa il gioco dice al sistema serve qualcuno che ascolti.
+	# Come quello vero, la forma che c'e' gia' non arriva al sistema.
+	var modo: int = DisplayServer.MOUSE_MODE_VISIBLE
+	var forma: int = DisplayServer.CURSOR_ARROW
+	var dette: Array[int] = []    # ogni forma arrivata al sistema, in ordine
+
+	func mouse_get_mode() -> int:
+		return modo
+
+	func mouse_set_mode(nuovo: int) -> void:
+		modo = nuovo
+
+	func cursor_get_shape() -> int:
+		return forma
+
+	func cursor_set_shape(nuova: int) -> void:
+		if nuova != forma:
+			dette.append(nuova)
+		forma = nuova
+
+
+func prova_il_cursore_non_resta_spento() -> void:
+	# Bru: «a volte sul menu principale il cursore sparisce, e torna appena la
+	# schermata si chiude». Godot ridice il cursore al sistema solo quando la
+	# forma cambia o il mouse rientra (Cursore.gd): sul menu niente la cambia, e
+	# un cursore spento da fuori restava spento. Qui si guarda che il gioco
+	# glielo ridica da se', e che non lo nasconda mai di suo.
+	titolo("il cursore non resta spento")
+	var finto := SchermoFinto.new()
+	var vero: Object = Cursore.schermo
+	Cursore.schermo = finto
+	# 1. il menu si apre: il mouse si vede, e la forma arriva di nuovo al sistema
+	finto.modo = DisplayServer.MOUSE_MODE_HIDDEN
+	var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(schermo)
+	await get_tree().process_frame
+	esigi(finto.modo == DisplayServer.MOUSE_MODE_VISIBLE,
+			"il menu principale si apre col mouse nascosto, e resta nascosto")
+	esigi(finto.dette.size() == 2 and finto.dette[-1] == DisplayServer.CURSOR_ARROW,
+			"aprendo il menu la freccia non viene ridetta al sistema: forme dette %s" % [finto.dette])
+	schermo.queue_free()
+	# 2. la finestra riprende il fuoco, o il mouse rientra: idem
+	for avviso in [Node.NOTIFICATION_APPLICATION_FOCUS_IN, Node.NOTIFICATION_WM_WINDOW_FOCUS_IN,
+			Node.NOTIFICATION_WM_MOUSE_ENTER]:
+		finto.dette.clear()
+		finto.modo = DisplayServer.MOUSE_MODE_HIDDEN
+		Cursore._notification(avviso)
+		esigi(finto.modo == DisplayServer.MOUSE_MODE_VISIBLE and finto.dette.size() == 2,
+				"dopo l'avviso %d il cursore resta come l'aveva lasciato chi l'ha spento" % avviso)
+	# 3. muovendo il mouse si ridice la forma, ma al piu' due volte al secondo,
+	# e senza cambiare quella che il giocatore vede (qui la manina)
+	finto.forma = DisplayServer.CURSOR_POINTING_HAND
+	var movimento := InputEventMouseMotion.new()
+	Cursore.ultima_ripassata = Time.get_ticks_msec() - Cursore.OGNI_MS
+	finto.dette.clear()
+	Cursore._input(movimento)
+	esigi(finto.dette == [DisplayServer.CURSOR_ARROW, DisplayServer.CURSOR_POINTING_HAND],
+			"muovendo il mouse la forma non viene ridetta, o non torna la manina: %s" % [finto.dette])
+	finto.dette.clear()
+	Cursore._input(movimento)
+	esigi(finto.dette.is_empty(), "il cursore viene ridetto a ogni movimento, non due volte al secondo")
+	Cursore.ultima_ripassata = Time.get_ticks_msec() - Cursore.OGNI_MS
+	Cursore._input(tasto_premuto(KEY_A))
+	esigi(finto.dette.is_empty(), "un tasto ridice il cursore: e' il mouse che lo chiede, non la tastiera")
+	# 4. anche a gioco in pausa: il menu della pausa si usa col mouse
+	esigi(Cursore.process_mode == Node.PROCESS_MODE_ALWAYS, "a gioco in pausa il cursore non si ridice")
+	Cursore.schermo = vero
+	# 5. il gioco non nasconde il mouse da nessuna parte: se un giorno servira'
+	# (un minigioco col mouse catturato), questa riga si cambia insieme a
+	# Cursore.gd, che glielo rimetterebbe
+	for percorso in script_del_gioco():
+		var codice := FileAccess.get_file_as_string(percorso)
+		for vietato in ["mouse_mode", "mouse_set_mode", "MOUSE_MODE_HIDDEN", "MOUSE_MODE_CAPTURED"]:
+			esigi(percorso.ends_with("/Cursore.gd") or not vietato in codice,
+					"%s usa %s: nasconde o cattura il mouse" % [percorso.get_file(), vietato])

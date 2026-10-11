@@ -106,6 +106,7 @@ var al_via := func() -> void: parti()
 
 
 func _ready() -> void:
+	Cursore.rimetti()   # il menu si usa col mouse: che si veda (Cursore.gd)
 	AudioManager.musica_chiave("menu")
 	# una partita giocata prima che gli slot esistessero diventa la partita 1:
 	# chi stava giocando riapre e ritrova la sua roba, non cinque righe vuote
