@@ -153,6 +153,7 @@ func _ready() -> void:
 	prova_i_tasti_si_leggono_sulla_tastiera_di_chi_gioca()
 	prova_il_tempo_di_gioco_non_salta()
 	prova_la_finestra_che_perde_il_fuoco_mette_in_pausa()
+	await prova_la_foto_si_fa_da_dentro_senza_pausa()
 	prova_la_finestra_sta_nello_schermo()
 	await prova_il_menu_principale_sta_dove_sta_nel_riferimento()
 	prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda()
@@ -20657,6 +20658,84 @@ func prova_la_finestra_che_perde_il_fuoco_mette_in_pausa() -> void:
 	Transizioni.in_corso = prima
 	if Pausa.aperta:
 		Pausa.chiudi()
+	# e si spegne nelle opzioni, e lo ricorda: lo Strumento di cattura di Bru
+	# apriva la pausa a ogni foto
+	var prima_fuori := Impostazioni.pausa_fuori
+	Impostazioni.pausa_fuori = false
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	esigi(not Pausa.aperta, "spenta nelle opzioni, la pausa si apre lo stesso col fuoco perso")
+	if Pausa.aperta:
+		Pausa.chiudi()
+	Impostazioni.salva()
+	Impostazioni.pausa_fuori = true
+	Impostazioni.carica()
+	esigi(not Impostazioni.pausa_fuori, "la pausa al fuoco perso spenta non si salva: torna accesa a ogni avvio")
+	Impostazioni.pausa_fuori = prima_fuori
+	Impostazioni.salva()
+	var colonna := VBoxContainer.new()
+	PannelloOpzioni.costruisci_sezione(colonna, "Grafica")
+	var nomi := colonna.find_children("*", "CheckBox", true, false).map(
+			func(n: Node) -> String: return (n as CheckBox).text)
+	esigi("Pausa quando esci dalla finestra" in nomi, "nelle opzioni Grafica non c'e' la pausa al fuoco perso: %s" % [nomi])
+	colonna.free()
+
+
+func prova_la_foto_si_fa_da_dentro_senza_pausa() -> void:
+	# Bru: «non riesco a farti screen siccome ogni volta che apro lo snipping
+	# tool il gioco va in menu di pausa». F12 fa la foto da dentro: il fuoco
+	# resta al gioco, e la foto e' quello che si sta guardando
+	titolo("F12 fa una foto dello schermo: si salva, l'avviso non ci finisce dentro, la pausa non si apre")
+	var vera_foto: Callable = Foto.fotografa
+	var vera_cartella: Callable = Foto.cartella
+	var dove := "user://prova_foto"
+	var avviso_nella_foto := [false]
+	Foto.fotografa = func() -> Image:
+		await get_tree().process_frame
+		avviso_nella_foto[0] = Foto.avviso.visible
+		var finta := Image.create(8, 6, false, Image.FORMAT_RGBA8)
+		finta.fill(Color(0.9, 0.5, 0.1))
+		return finta
+	Foto.cartella = func() -> String: return dove
+	esigi(Foto.process_mode == Node.PROCESS_MODE_ALWAYS, "a gioco in pausa F12 non fa la foto")
+	var f12 := InputEventKey.new()
+	f12.keycode = KEY_F12
+	f12.pressed = true
+	esigi(f12.is_action_pressed("foto"), "F12 non e' legato alla foto")
+	# un avviso di prima ancora a schermo: non deve finire nella foto nuova
+	Foto.mostra("un avviso di prima")
+	Foto._input(f12)
+	for i in 4:
+		await get_tree().process_frame
+	var fatte := Array(DirAccess.get_files_at(dove)) if DirAccess.dir_exists_absolute(dove) else []
+	esigi(fatte.size() == 1, "premuto F12 le foto salvate sono %d" % fatte.size())
+	esigi(not avviso_nella_foto[0], "l'avviso della foto di prima finisce dentro la foto")
+	esigi(not Pausa.aperta, "F12 apre la pausa")
+	if fatte.size() == 1:
+		var nome := String(fatte[0])
+		esigi(nome.begins_with("Carnivalz ") and nome.ends_with(".png") and not ":" in nome,
+				"il nome della foto non va bene per Windows: «%s»" % nome)
+		var letta := Image.load_from_file(dove.path_join(nome))
+		esigi(letta != null and letta.get_size() == Vector2i(8, 6), "la foto salvata non e' quella fatta")
+		esigi(Foto.avviso.visible and Foto.leggibile(dove.path_join(nome)) in Foto.scritta.text,
+				"dopo la foto l'avviso non dice dove l'ha messa: «%s»" % Foto.scritta.text)
+	# due foto nello stesso secondo non si sovrascrivono
+	var prima_foto: String = await Foto.scatta()
+	var seconda_foto: String = await Foto.scatta()
+	esigi(prima_foto != "" and seconda_foto != "" and prima_foto != seconda_foto,
+			"due foto di fila finiscono nello stesso file: %s, %s" % [prima_foto, seconda_foto])
+	# se Godot non da' l'immagine lo dice, invece di salvare un file vuoto
+	Foto.fotografa = func() -> Image:
+		await get_tree().process_frame
+		return null
+	var nulla: String = await Foto.scatta()
+	esigi(nulla == "" and "non è riuscita" in Foto.scritta.text,
+			"una foto non riuscita non lo dice: «%s»" % Foto.scritta.text)
+	for nome in DirAccess.get_files_at(dove):
+		DirAccess.remove_absolute(dove.path_join(nome))
+	DirAccess.remove_absolute(dove)
+	Foto.fotografa = vera_foto
+	Foto.cartella = vera_cartella
+	Foto.avviso.visible = false
 
 
 func prova_la_finestra_sta_nello_schermo() -> void:

@@ -44,6 +44,7 @@ const AZIONE_DI := {
 	"D": ["mappa_sposta_destra", KEY_D],
 	"Z": ["mappa_piano_giu", KEY_Z],
 	"X": ["mappa_piano_su", KEY_X],
+	"F12": ["foto", KEY_F12],
 }
 
 # LE LETTERE SONO POSTI, NON LETTERE. I comandi della mappa sono legati al
@@ -86,6 +87,7 @@ const CATEGORIE := {
 			{"tasti": [["INVIO"], ["CLIC"]], "azione": "Sceglie la voce accesa"},
 			{"tasti": [["ESC"]], "azione": "Torna al passo prima, sulla voce di partenza"},
 			{"tasti": [["ROTELLA"]], "azione": "Scorre gli elenchi lunghi: carte, creature, oggetti"},
+			{"tasti": [["F12"]], "azione": "Una foto dello schermo, in Immagini > Carnivalz"},
 		],
 	},
 	"STORIA": {

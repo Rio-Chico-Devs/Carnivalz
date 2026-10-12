@@ -79,6 +79,9 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
   gioco lo spegne mentre è dentro, sul menu principale (dove la forma non cambia mai) restava
   spento. Lo ridice lui: all'apertura del menu, al ritorno del fuoco, e muovendo il mouse (al
   più due volte al secondo). Il gioco non usa mai `mouse_mode`, e una prova lo tiene così
+- `scripts/Foto.gd` — autoload: **F12** fa una foto dello schermo, in Immagini › Carnivalz, e
+  dice dove l'ha messa. Da dentro il gioco la finestra non perde il fuoco: lo Strumento di
+  cattura invece lo toglie, e apriva la pausa (che si spegne in Opzioni › Grafica)
 - `scripts/Tempo.gd` — il tempo di gioco non salta: dopo una sospensione del computer o un
   sistema inchiodato, Godot passa tutti quei secondi in un fotogramma. L'orologio delle
   scelte a tempo, lo scontro e le sonde ne contano al massimo un decimo per fotogramma

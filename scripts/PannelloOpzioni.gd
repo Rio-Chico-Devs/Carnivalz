@@ -83,6 +83,10 @@ static func grafica(colonna: VBoxContainer) -> void:
 		Impostazioni.salva()
 	interruttore(colonna, "Schermo intero", Impostazioni.schermo_intero, cambia,
 			SOLO_FUORI_DALL_EDITOR if Impostazioni.incorporato else "")
+	interruttore(colonna, "Pausa quando esci dalla finestra", Impostazioni.pausa_fuori,
+			func(attivo: bool) -> void:
+				Impostazioni.pausa_fuori = attivo
+				Impostazioni.salva())
 
 
 static func accessibilita(colonna: VBoxContainer, larghezza_etichetta: int) -> void:

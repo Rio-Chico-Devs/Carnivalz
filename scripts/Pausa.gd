@@ -170,8 +170,9 @@ func _notification(cosa: int) -> void:
 	# che ruba la finestra, un clic sull'editor: il gioco continuava a correre
 	# senza nessuno davanti, e una scelta a tempo scadeva, un colpo di grazia
 	# si perdeva. Si apre la pausa, come con ESC e solo dove ESC la aprirebbe;
-	# al ritorno la trovi aperta e decidi tu quando ripartire
-	if cosa == NOTIFICATION_APPLICATION_FOCUS_OUT and not aperta and pausabile():
+	# al ritorno la trovi aperta e decidi tu quando ripartire. Si spegne nelle
+	# opzioni (Grafica); per le foto c'e' F12, che il fuoco non lo toglie (Foto.gd)
+	if cosa == NOTIFICATION_APPLICATION_FOCUS_OUT and Impostazioni.pausa_fuori and not aperta and pausabile():
 		apri()
 
 func pausabile() -> bool:

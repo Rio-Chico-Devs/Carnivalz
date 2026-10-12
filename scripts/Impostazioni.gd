@@ -23,6 +23,10 @@ var alto_contrasto := false
 # un cambio di colore che resta, invece di un battito.
 var movimento_ridotto := false
 var velocita_testo := 1.0  # moltiplica i caratteri al secondo del box (0.5 lento, 3 = quasi istantaneo)
+# LA PAUSA QUANDO LA FINESTRA PERDE IL FUOCO (Pausa.gd), che si puo' spegnere:
+# chi gioca nell'editor e guarda l'output, o fa una foto con lo Strumento di
+# cattura, si ritrovava la pausa a ogni clic fuori (Bru). Accesa di serie
+var pausa_fuori := true
 
 # HAI GIA' FATTO L'ALLENAMENTO, ALMENO UNA VOLTA.
 #
@@ -62,6 +66,7 @@ func carica() -> void:
 	alto_contrasto = bool(cfg.get_value("accessibilita", "alto_contrasto", false))
 	velocita_testo = float(cfg.get_value("accessibilita", "velocita_testo", 1.0))
 	movimento_ridotto = bool(cfg.get_value("accessibilita", "movimento_ridotto", false))
+	pausa_fuori = bool(cfg.get_value("grafica", "pausa_fuori", true))
 	allenamento_gia_fatto = bool(cfg.get_value("progressi", "allenamento_gia_fatto", false))
 
 func salva() -> void:
@@ -70,6 +75,7 @@ func salva() -> void:
 	cfg.set_value("audio", "musica", volume_musica)
 	cfg.set_value("audio", "effetti", volume_effetti)
 	cfg.set_value("grafica", "schermo_intero", schermo_intero)
+	cfg.set_value("grafica", "pausa_fuori", pausa_fuori)
 	cfg.set_value("accessibilita", "testo_grande", testo_grande)
 	cfg.set_value("accessibilita", "alto_contrasto", alto_contrasto)
 	cfg.set_value("accessibilita", "movimento_ridotto", movimento_ridotto)
