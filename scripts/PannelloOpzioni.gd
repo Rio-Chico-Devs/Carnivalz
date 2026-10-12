@@ -74,12 +74,15 @@ static func audio(colonna: VBoxContainer, larghezza_etichetta: int) -> void:
 				Impostazioni.salva())
 
 
+const SOLO_FUORI_DALL_EDITOR := "Nella vista Game dell'editor la finestra è dell'editor: lo schermo intero si prova col gioco in una finestra sua"
+
 static func grafica(colonna: VBoxContainer) -> void:
-	interruttore(colonna, "Schermo intero", Impostazioni.schermo_intero,
-			func(attivo: bool) -> void:
-				Impostazioni.schermo_intero = attivo
-				Impostazioni.applica_schermo()
-				Impostazioni.salva())
+	var cambia := func(attivo: bool) -> void:
+		Impostazioni.schermo_intero = attivo
+		Impostazioni.applica_schermo()
+		Impostazioni.salva()
+	interruttore(colonna, "Schermo intero", Impostazioni.schermo_intero, cambia,
+			SOLO_FUORI_DALL_EDITOR if Impostazioni.incorporato else "")
 
 
 static func accessibilita(colonna: VBoxContainer, larghezza_etichetta: int) -> void:
@@ -144,9 +147,12 @@ static func cursore(colonna: VBoxContainer, testo: String, valore: float,
 		etichetta.remove_theme_color_override("font_color"))
 
 static func interruttore(colonna: VBoxContainer, testo: String, attivo: bool,
-		su_cambio: Callable) -> void:
+		su_cambio: Callable, perche_spento := "") -> void:
 	var casella := CheckBox.new()
 	casella.text = testo
+	# spento quando li' non puo' fare niente, col perche' sotto il mouse
+	casella.disabled = perche_spento != ""
+	casella.tooltip_text = perche_spento
 	var tinta := tinta_di(colonna)
 	casella.add_theme_icon_override("checked", icona_casella(true, tinta))
 	casella.add_theme_icon_override("unchecked", icona_casella(false, tinta))

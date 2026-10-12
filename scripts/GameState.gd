@@ -289,7 +289,7 @@ func _ready() -> void:
 	nuova_partita()
 
 func _process(delta: float) -> void:
-	Sonde.avanza(delta)   # il tempo di gioco per le sonde dei pianeti: con la pausa si ferma
+	Sonde.avanza(Tempo.passo(delta))   # tempo di gioco per le sonde: si ferma in pausa, non salta (Tempo)
 
 func imposta_seed(nuovo_seed: int) -> void:
 	seed_partita = nuovo_seed
@@ -2316,10 +2316,10 @@ func _scrivi_salvataggio(percorso: String) -> bool:
 		"messaggi_scritti": messaggi_scritti,
 		"sonde": sonde,
 		"nome_protagonista": nome_protagonista,
+		"salvata": Partite.timbro(),   # quando, scritto dal gioco: vedi Partite
 	}
-	# accanto e poi scambiato, controllato, con la riserva: vedi FileSicuro
-	# non e' un errore del programma, e' un disco che non scrive: lo dice la
-	# Sede al giocatore (vedi Sede.riga_di_stato)
+	# scritto accanto, controllato, scambiato con la riserva (FileSicuro). Se non riesce non e'
+	# un errore del programma, e' un disco che non scrive: lo dice la Sede (Sede.riga_di_stato)
 	if not FileSicuro.scrivi(percorso, JSON.stringify(dati, "\t")):
 		push_warning("Salvataggio non riuscito: " + percorso)
 		return false

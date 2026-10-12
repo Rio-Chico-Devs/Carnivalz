@@ -802,6 +802,7 @@ func comandi_tu(combattente: Dictionary) -> bool:
 func _process(delta: float) -> void:
 	if not tempo_reale or not scontro_avviato or muto:
 		return
+	delta = Tempo.passo(delta)   # dopo una sospensione non si scarica tutto in un fotogramma
 	# IL TEMPO RIPARTE DA SOLO quando non c'e' piu' niente da leggere. Sbloccare
 	# dentro studia() sarebbe stato piu' diretto e sbagliato: quella funzione ha
 	# quattro uscite anticipate, e una sola dimenticata lascerebbe il mondo

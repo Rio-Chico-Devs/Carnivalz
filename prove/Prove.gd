@@ -148,6 +148,11 @@ func _ready() -> void:
 	await prova_la_voce_inerte_dice_di_no()
 	await prova_il_menu_principale_ha_piu_passi()
 	await prova_il_cursore_non_resta_spento()
+	prova_l_ora_del_salvataggio_la_scrive_il_gioco()
+	prova_i_tasti_si_leggono_sulla_tastiera_di_chi_gioca()
+	prova_il_tempo_di_gioco_non_salta()
+	prova_la_finestra_che_perde_il_fuoco_mette_in_pausa()
+	prova_la_finestra_sta_nello_schermo()
 	await prova_il_menu_principale_sta_dove_sta_nel_riferimento()
 	prova_nel_menu_principale_la_scelta_e_l_unica_cosa_calda()
 	await prova_la_voce_col_segno_e_la_macchia()
@@ -4945,18 +4950,18 @@ func prova_le_scelte_a_tempo() -> void:
 	orologio.avvia(1.0, 0.0)
 	esigi(is_equal_approx(orologio.quota_rimasta(), 1.0),
 			"appena avviato l'orologio e' gia' a %f" % orologio.quota_rimasta())
-	orologio._process(0.4)
+	orologio.avanza(0.4)
 	esigi(orologio.quota_rimasta() < 1.0 and orologio.quota_rimasta() > 0.0,
 			"dopo quattro decimi su un secondo la quota e' %f" % orologio.quota_rimasta())
 	esigi(not suonato[0], "l'orologio e' scaduto a meta' strada")
-	orologio._process(0.7)
+	orologio.avanza(0.7)
 	esigi(suonato[0], "il tempo e' finito e l'orologio non l'ha detto")
 	esigi(is_equal_approx(orologio.quota_rimasta(), 0.0),
 			"scaduto, ma la quota rimasta e' %f" % orologio.quota_rimasta())
 	# e una volta scaduto sta fermo: senza questo continuerebbe a contare in
 	# negativo e a ripetere il segnale a ogni fotogramma
 	suonato[0] = false
-	orologio._process(1.0)
+	orologio.avanza(1.0)
 	esigi(not suonato[0], "l'orologio ha suonato una seconda volta dopo essere gia' scaduto")
 	orologio.free()
 
@@ -4986,14 +4991,14 @@ func prova_le_scelte_a_tempo() -> void:
 		# preso PRIMA che scada: scaduta, la scelta esce subito dalla colonna
 		# (Lastra.fuori_dalla_colonna) e cercarla dopo non la troverebbe
 		var scaduto_ma_vivo := cerca_bottone_con_testo(schermata.contenitore_scelte, "Di corsa")
-		trovato_orologio._process(1.0)     # il tempo scade
+		trovato_orologio.avanza(1.0)     # il tempo scade
 		# SCADUTA E' MORTA SUBITO, anche se il vetro sta ancora cadendo. Fra lo
 		# scadere e la rottura passano dei fotogrammi - la fotografia del pezzo
 		# che si rompe si prende alla fine di un disegno - e in quei fotogrammi
 		# la si poteva ancora cliccare.
 		esigi(scaduto_ma_vivo != null and scaduto_ma_vivo.disabled,
 				"il tempo e' scaduto e la scelta si puo' ancora premere mentre si rompe")
-		trovato_orologio._process(1.0)     # il vetro si crepa in tre colpi, e cede
+		trovato_orologio.avanza(1.0)     # il vetro si crepa in tre colpi, e cede
 		# la rottura non e' istantanea: si aspetta che il vetro abbia finito,
 		# con un tetto, perche' un'attesa senza tetto in una prova e' un modo
 		# elegante di piantarsi
@@ -5146,8 +5151,8 @@ func prova_la_scelta_scaduta_lascia_il_posto_piano() -> void:
 		return
 	esigi(corsa.has_focus(), "la prima scelta, quella a tempo, non parte col fuoco")
 	var y_prima := calma.global_position.y
-	orologio._process(31.0)    # il tempo scade, e la scelta muore
-	orologio._process(1.0)     # il vetro si crepa in tre colpi, e cede: si rompe
+	orologio.avanza(31.0)    # il tempo scade, e la scelta muore
+	orologio.avanza(1.0)     # il vetro si crepa in tre colpi, e cede: si rompe
 	for i in 40:
 		if not is_instance_valid(corsa) or not corsa.is_inside_tree():
 			break
@@ -5486,8 +5491,8 @@ func prova_la_rottura_dell_orologio() -> void:
 			"appeso alla scelta l'orologio e' fermo: il tempo non passa e la scelta non scade mai")
 	var rotture := func() -> Array:
 		return schermata.get_children().filter(func(n: Node) -> bool: return n is Rottura)
-	orologio._process(31.0)
-	orologio._process(0.4)
+	orologio.avanza(31.0)
+	orologio.avanza(0.4)
 	esigi(corsa.disabled, "scaduta, la scelta si puo' ancora premere mentre il vetro si crepa")
 	esigi(corsa.is_inside_tree() and rotture.call().is_empty(),
 			"la scelta e' andata in pezzi subito: il vetro doveva prima creparsi")
@@ -13685,7 +13690,7 @@ func prova_scadute_tutte_si_esce_lo_stesso() -> void:
 	for giro in 2:
 		for orologio in orologi:
 			if is_instance_valid(orologio):
-				orologio.call("_process", 1.0)   # scade, poi il vetro cede
+				orologio.call("avanza", 1.0)   # scade, poi il vetro cede (avanza: senza il tetto di Tempo)
 	for i in 60:
 		if Transizioni.prossima != "":
 			break
@@ -20499,3 +20504,219 @@ func prova_il_cursore_non_resta_spento() -> void:
 		for vietato in ["mouse_mode", "mouse_set_mode", "MOUSE_MODE_HIDDEN", "MOUSE_MODE_CAPTURED"]:
 			esigi(percorso.ends_with("/Cursore.gd") or not vietato in codice,
 					"%s usa %s: nasconde o cattura il mouse" % [percorso.get_file(), vietato])
+
+
+# --- LE COSE CHE NON DIPENDONO DAL CODICE (docs/fonti_esterne.md) ---
+
+func prova_l_ora_del_salvataggio_la_scrive_il_gioco() -> void:
+	# «salvata il 10/10 alle 11:07» veniva dalla data del FILE e dal fuso di
+	# ADESSO: un backup rimesso a posto o una cartella sincronizzata rendevano
+	# «la piu' recente» una partita vecchia, e dopo il cambio dell'ora la
+	# partita risultava salvata un'ora prima. Adesso l'ora e il fuso di quel
+	# momento stanno dentro il salvataggio
+	titolo("l'ora del salvataggio la scrive il gioco, col fuso di quel momento")
+	var liberi: Array[int] = []
+	for slot in range(GameState.SLOT_MASSIMO, 0, -1):
+		if not GameState.ha_salvataggio_slot(slot):
+			liberi.append(slot)
+	esigi(liberi.size() >= 2, "servono due slot liberi per la prova")
+	if liberi.size() < 2:
+		return
+	var a := liberi[0]
+	var b := liberi[1]
+	GameState.nuova_partita()
+	GameState.salva_slot(a)
+	var timbro: Dictionary = GameState.dati_slot(a).get("salvata", {})
+	var adesso := int(Time.get_unix_time_from_system())
+	esigi(absi(int(timbro.get("utc", 0)) - adesso) <= 5,
+			"il salvataggio non porta l'ora in cui e' stato scritto: %s" % [timbro])
+	esigi(int(timbro.get("fuso", -9999)) == int(Time.get_time_zone_from_system().get("bias", 0)),
+			"il salvataggio non porta il fuso di quel momento: %s" % [timbro])
+	# una partita salvata il 15 luglio alle 10:00 di Greenwich con un fuso che
+	# non e' quello di adesso si legge nell'ora di QUEL momento. Il fuso e'
+	# +5:45 (il Nepal) apposta: nessun computer che fa la prova ce l'ha, quindi
+	# usare il fuso di adesso darebbe sempre un'altra ora
+	var estate := int(Time.get_unix_time_from_datetime_string("2026-07-15T10:00:00"))
+	var dati := GameState.dati_slot(a)
+	dati["salvata"] = {"utc": estate, "fuso": 345}
+	FileSicuro.scrivi(GameState.percorso_slot(a), JSON.stringify(dati))
+	esigi(Partite.data(a) == "il 15/07 alle 15:45",
+			"salvata il 15/07 alle 15:45 dell'ora di allora, il menu dice «%s»" % Partite.data(a))
+	# la piu' recente e' quella GIOCATA per ultima, non il file toccato per
+	# ultimo: b e' scritto dopo (come un backup ricopiato) ma e' di ieri
+	dati["salvata"] = {"utc": adesso, "fuso": 120}
+	FileSicuro.scrivi(GameState.percorso_slot(a), JSON.stringify(dati))
+	dati["salvata"] = {"utc": adesso - 86400, "fuso": 120}
+	FileSicuro.scrivi(GameState.percorso_slot(b), JSON.stringify(dati))
+	esigi(Partite.piu_recente() != b,
+			"CONTINUA prende la partita %d, ricopiata per ultima ma giocata ieri" % b)
+	esigi(Partite.quando(b) == adesso - 86400, "l'ora di una partita e' quella del file, non del salvataggio")
+	# un salvataggio di prima del timbro: la data del file, come prima
+	dati.erase("salvata")
+	FileSicuro.scrivi(GameState.percorso_slot(b), JSON.stringify(dati))
+	esigi(Partite.quando(b) == FileAccess.get_modified_time(GameState.percorso_slot(b)),
+			"un salvataggio vecchio, senza timbro, non ha piu' una data")
+	GameState.elimina_slot(a)
+	GameState.elimina_slot(b)
+
+
+func prova_i_tasti_si_leggono_sulla_tastiera_di_chi_gioca() -> void:
+	# i comandi della mappa sono tasti FISICI: su una tastiera francese il
+	# posto della Q si chiama A. La tavola dei comandi deve scrivere quello che
+	# c'e' stampato sul tasto di chi gioca, non le lettere americane
+	titolo("i tasti si leggono sulla tastiera di chi gioca")
+	var vera: Callable = TavolaComandi.tastiera
+	esigi(TavolaComandi.etichetta("Q") == "Q" and TavolaComandi.etichetta("INVIO") == "INVIO",
+			"senza sapere la tastiera la tavola non scrive piu' le lettere del posto")
+	# AZERTY: A e Q si scambiano, Z e W pure
+	var azerty := {KEY_Q: KEY_A, KEY_A: KEY_Q, KEY_W: KEY_Z, KEY_Z: KEY_W}
+	TavolaComandi.tastiera = func(fisico: int) -> int: return int(azerty.get(fisico, fisico))
+	esigi(TavolaComandi.etichetta("Q") == "A" and TavolaComandi.etichetta("W") == "Z"
+			and TavolaComandi.etichetta("E") == "E",
+			"con una tastiera AZERTY la tavola scrive ancora Q e W: Q=%s W=%s"
+			% [TavolaComandi.etichetta("Q"), TavolaComandi.etichetta("W")])
+	var tavola := TavolaComandi.new()
+	add_child(tavola)
+	tavola.mostra("MAPPA")
+	var disegnati: Array[String] = []
+	for nodo in tavola.find_children("*", "Control", true, false):
+		if nodo is TappoTasto:
+			disegnati.append(String((nodo as TappoTasto).nome))
+	esigi("A" in disegnati and "Z" in disegnati and "Q" in disegnati,
+			"con AZERTY i tasti disegnati sono %s: Q per girare dovrebbe essere A" % [disegnati])
+	var frasi := ""
+	for nodo in tavola.find_children("*", "Label", true, false):
+		frasi += (nodo as Label).text + "\n"
+	esigi("W e X" in frasi and "{" not in frasi,
+			"anche nelle frasi le lettere devono essere quelle della tastiera:\n%s" % frasi)
+	tavola.queue_free()
+	TavolaComandi.tastiera = vera
+	# e nessuna frase nomina un tasto a mano: o e' un {posto}, o non e' un tasto
+	var a_mano := RegEx.create_from_string("\\b[A-Z] e [A-Z]\\b|\\bcon [A-Z]\\b")
+	for quale: String in TavolaComandi.CATEGORIE:
+		for riga: Dictionary in (TavolaComandi.CATEGORIE[quale] as Dictionary).get("righe", []):
+			esigi(a_mano.search(String(riga.get("azione", ""))) == null,
+					"«%s» nomina un tasto a mano: su un'altra tastiera sarebbe sbagliato" % riga.get("azione", ""))
+
+
+func prova_il_tempo_di_gioco_non_salta() -> void:
+	# dopo una sospensione del computer, o un sistema inchiodato qualche
+	# secondo, arrivavano tutti in un fotogramma: la scelta a tempo scadeva
+	# col coperchio chiuso
+	titolo("il tempo di gioco non salta")
+	esigi(is_equal_approx(Tempo.passo(5.0), Tempo.PASSO_MASSIMO) and is_equal_approx(Tempo.passo(0.016), 0.016),
+			"Tempo.passo non taglia i salti, o taglia anche i fotogrammi normali")
+	var orologio: Control = load("res://scripts/Orologio.gd").new()
+	add_child(orologio)
+	var scaduta := [false]
+	orologio.scaduto.connect(func() -> void: scaduta[0] = true)
+	orologio.avvia(5.0, 0.0)
+	orologio._process(600.0)   # dieci minuti col coperchio chiuso
+	esigi(not scaduta[0] and orologio.quota_rimasta() > 0.9,
+			"dopo una sospensione la scelta a tempo e' scaduta (quota %f)" % orologio.quota_rimasta())
+	orologio.queue_free()
+	# chi gioca a tempo prende il tempo da Tempo.passo, prima di passarlo avanti:
+	# l'orologio, lo scontro (Mattanza, mazzata, Collisioni), le sonde
+	for percorso in ["res://scripts/Orologio.gd", "res://scripts/Combattimento.gd", "res://scripts/GameState.gd"]:
+		var codice := FileAccess.get_file_as_string(percorso)
+		var inizio := codice.find("\nfunc _process(delta: float)")
+		var fine := codice.find("\nfunc ", inizio + 1)
+		var corpo := codice.substr(inizio, fine - inizio) if inizio >= 0 else ""
+		esigi(corpo.contains("Tempo.passo(delta)"),
+				"%s: _process passa avanti il tempo senza Tempo.passo" % percorso.get_file())
+	# le sonde contano il tempo di gioco, non il tempo del coperchio chiuso
+	GameState.nuova_partita()
+	Sonde.accendi({"id": "pianeta_del_coperchio", "nome": "Coperchio",
+			"sonda": {"ogni_minuti": [1, 1], "giacimenti": [{"risorsa": "tazo", "da": 1, "a": 1}]}})
+	var prima := {}
+	for id: String in Sonde.pianeti():
+		prima[id] = (Sonde.pianeti()[id]["giacimenti"] as Array).size()
+	esigi(not prima.is_empty(), "non ci sono sonde: la prova non misurerebbe niente")
+	GameState._process(3600.0)
+	for id: String in prima:
+		esigi((Sonde.pianeti()[id]["giacimenti"] as Array).size() == int(prima[id]),
+				"un'ora di sospensione conta per la sonda di %s: ha gia' trovato qualcosa" % id)
+
+
+func prova_la_finestra_che_perde_il_fuoco_mette_in_pausa() -> void:
+	# un alt-tab o una notifica: il gioco correva senza nessuno davanti
+	titolo("la finestra che perde il fuoco mette in pausa")
+	esigi(not Pausa.aperta, "la pausa era gia' aperta: la prova non misurerebbe niente")
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	esigi(Pausa.aperta and get_tree().paused, "perso il fuoco, il gioco continua da solo")
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	esigi(Pausa.aperta, "un secondo alt-tab chiude la pausa invece di lasciarla aperta")
+	Pausa.chiudi()
+	esigi(not get_tree().paused, "chiusa la pausa il gioco resta fermo")
+	# dove ESC non la aprirebbe, non la apre nemmeno il fuoco perso
+	var prima := Transizioni.in_corso
+	Transizioni.in_corso = true
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	esigi(not Pausa.aperta, "a meta' di una dissolvenza il fuoco perso apre la pausa")
+	Transizioni.in_corso = prima
+	if Pausa.aperta:
+		Pausa.chiudi()
+
+
+func prova_la_finestra_sta_nello_schermo() -> void:
+	# 1280x720 con la barra del titolo non ci sta in uno schermo 1366x768 con
+	# la barra delle applicazioni: la barra del titolo finiva fuori
+	titolo("la finestra sta nello schermo, e nell'editor lo schermo intero si spegne")
+	var cornice := Vector2i(16, 39)
+	var piccolo := Rect2i(0, 0, 1366, 728)
+	var r := Impostazioni.finestra_che_entra(Vector2i(1280, 720), cornice, piccolo)
+	esigi(r.has_area(), "su uno schermo 1366x768 la finestra 1280x720 resta com'e'")
+	if r.has_area():
+		var bordo := floori(cornice.x * 0.5)
+		var fuori := Rect2i(r.position - Vector2i(bordo, cornice.y - bordo), r.size + cornice)
+		esigi(piccolo.encloses(fuori), "rimpicciolita, la finestra con la cornice esce ancora: %s in %s" % [fuori, piccolo])
+		esigi(absf(float(r.size.x) / float(r.size.y) - 16.0 / 9.0) < 0.01, "rimpicciolita, la finestra non e' piu' 16:9: %s" % r.size)
+	esigi(not Impostazioni.finestra_che_entra(Vector2i(1280, 720), cornice, Rect2i(0, 0, 1920, 1040)).has_area(),
+			"su uno schermo grande la finestra viene toccata lo stesso")
+	var secondo := Impostazioni.finestra_che_entra(Vector2i(1280, 720), cornice, Rect2i(1920, 0, 1366, 728))
+	esigi(secondo.position.x >= 1920, "sul secondo schermo la finestra finisce sul primo: %s" % secondo)
+	# e la finestra vera si sposta davvero (un DisplayServer finto che si segna le chiamate)
+	var finta := FinestraFinta.new()
+	var vero: Object = Impostazioni.schermo
+	Impostazioni.schermo = finta
+	Impostazioni.entra_nello_schermo()
+	Impostazioni.schermo = vero
+	esigi(finta.messa.has_area() and piccolo.encloses(finta.messa),
+			"la finestra che non ci sta non viene rimpicciolita: %s" % finta.messa)
+	# nella vista Game dell'editor lo schermo intero non si puo': l'interruttore e' spento, e dice perche'
+	var prima := Impostazioni.incorporato
+	for incorporato: bool in [true, false]:
+		Impostazioni.incorporato = incorporato
+		var colonna := VBoxContainer.new()
+		add_child(colonna)
+		PannelloOpzioni.grafica(colonna)
+		var casella := colonna.get_child(0) as CheckBox
+		esigi(casella != null and casella.disabled == incorporato and (casella.tooltip_text != "") == incorporato,
+				"nell'editor=%s l'interruttore dello schermo intero e' %s" % [incorporato,
+				"spento" if casella != null and casella.disabled else "acceso"])
+		colonna.queue_free()
+	Impostazioni.incorporato = prima
+
+
+class FinestraFinta extends RefCounted:
+	# una finestra 1280x720 con la cornice di Windows su uno schermo 1366x768
+	# (barra delle applicazioni: 40 pixel); si segna dove la mettono
+	var messa := Rect2i()
+
+	func window_get_size() -> Vector2i:
+		return Vector2i(1280, 720)
+
+	func window_get_size_with_decorations() -> Vector2i:
+		return Vector2i(1296, 759)
+
+	func window_get_current_screen() -> int:
+		return 0
+
+	func screen_get_usable_rect(_quale: int) -> Rect2i:
+		return Rect2i(0, 0, 1366, 728)
+
+	func window_set_size(misura: Vector2i) -> void:
+		messa.size = misura
+
+	func window_set_position(dove: Vector2i) -> void:
+		messa.position = dove

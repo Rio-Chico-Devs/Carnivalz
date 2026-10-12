@@ -38,6 +38,14 @@ var velocita_testo := 1.0  # moltiplica i caratteri al secondo del box (0.5 lent
 # e' la stessa lezione, non piu' offerta a chi l'ha gia' avuta.
 var allenamento_gia_fatto := false
 
+# NELL'EDITOR, DENTRO LA VISTA «GAME», la finestra del gioco e' un pezzo della
+# finestra dell'editor: Godot non la mette a schermo intero e non la sposta
+# (scrive solo «Embedded window only supports Windowed mode.» nell'output).
+# L'interruttore dello schermo intero li' non poteva fare niente, e sembrava
+# rotto. Si prova avviando il gioco in una finestra sua.
+var incorporato := Engine.is_embedded_in_editor()
+var schermo: Object = DisplayServer   # le prove ne passano uno finto: in --headless quello vero non fa niente
+
 func _ready() -> void:
 	carica()
 	applica_tutto()
@@ -89,8 +97,34 @@ func _imposta_bus(nome: String, valore: float) -> void:
 		AudioServer.set_bus_volume_db(indice, linear_to_db(clampf(valore, 0.0, 1.0)))
 
 func applica_schermo() -> void:
+	if incorporato:
+		return
 	DisplayServer.window_set_mode(
 			DisplayServer.WINDOW_MODE_FULLSCREEN if schermo_intero else DisplayServer.WINDOW_MODE_WINDOWED)
+	if not schermo_intero:
+		entra_nello_schermo()
+
+func entra_nello_schermo() -> void:
+	var dentro: Vector2i = schermo.window_get_size()
+	var cornice: Vector2i = schermo.window_get_size_with_decorations() - dentro
+	var giusta := finestra_che_entra(dentro, cornice, schermo.screen_get_usable_rect(schermo.window_get_current_screen()))
+	if giusta.has_area():
+		schermo.window_set_size(giusta.size)
+		schermo.window_set_position(giusta.position)
+
+func finestra_che_entra(dentro: Vector2i, cornice: Vector2i, utile: Rect2i) -> Rect2i:
+	# LA FINESTRA STA NELLO SCHERMO. 1280x720, piu' la barra del titolo, su
+	# uno schermo 1366x768 con la barra delle applicazioni non ci sta: Godot la
+	# centra lo stesso, e la barra del titolo finisce sopra il bordo, dove non
+	# la si puo' afferrare. Se non ci sta, si rimpicciolisce (stesse
+	# proporzioni) e si centra con la cornice dentro. Rect2i() = va gia' bene
+	var posto := utile.size - cornice
+	if posto.x <= 0 or posto.y <= 0 or (dentro.x <= posto.x and dentro.y <= posto.y):
+		return Rect2i()
+	var k := minf(float(posto.x) / float(dentro.x), float(posto.y) / float(dentro.y))
+	var nuova := Vector2i(Vector2(dentro) * k)
+	var bordo := floori(cornice.x * 0.5)   # il bordo di lato; sopra c'e' anche la barra del titolo
+	return Rect2i(utile.position + Vector2i(bordo, cornice.y - bordo) + Vector2i(Vector2(posto - nuova) * 0.5), nuova)
 
 func applica_scala_testo() -> void:
 	# raddoppia (circa) la scala dell'interfaccia: leggibile per chi ha

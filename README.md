@@ -79,6 +79,11 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
   gioco lo spegne mentre è dentro, sul menu principale (dove la forma non cambia mai) restava
   spento. Lo ridice lui: all'apertura del menu, al ritorno del fuoco, e muovendo il mouse (al
   più due volte al secondo). Il gioco non usa mai `mouse_mode`, e una prova lo tiene così
+- `scripts/Tempo.gd` — il tempo di gioco non salta: dopo una sospensione del computer o un
+  sistema inchiodato, Godot passa tutti quei secondi in un fotogramma. L'orologio delle
+  scelte a tempo, lo scontro e le sonde ne contano al massimo un decimo per fotogramma
+- `docs/fonti_esterne.md` — i problemi che non vengono dal codice (sistema, driver, tastiere,
+  editor, antivirus, OneDrive, versione di Godot): cosa è corretto nel gioco e cosa va fatto fuori
 - `data/classes.json` — classi giocabili (`protagonista` + lista con id, nome, hp, velocita, abilita, ritratto)
 - `data/personaggi.json` — personaggi non giocabili (ritratti nei dialoghi + `livello`/`ruolo` se combattono)
 - `data/ruoli.json` — la curva e i ruoli da cui escono i numeri di ogni creatura

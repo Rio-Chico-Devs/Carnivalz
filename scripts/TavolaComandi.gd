@@ -42,7 +42,38 @@ const AZIONE_DI := {
 	"A": ["mappa_sposta_sinistra", KEY_A],
 	"S": ["mappa_sposta_giu", KEY_S],
 	"D": ["mappa_sposta_destra", KEY_D],
+	"Z": ["mappa_piano_giu", KEY_Z],
+	"X": ["mappa_piano_su", KEY_X],
 }
+
+# LE LETTERE SONO POSTI, NON LETTERE. I comandi della mappa sono legati al
+# tasto FISICO (physical_keycode): il quadrato di WASD resta un quadrato su
+# qualunque tastiera. Ma il tasto che su una tastiera italiana o inglese si
+# chiama Q, su una francese (AZERTY) si chiama A, e su una tedesca (QWERTZ) la
+# Z sta dove qui c'e' la Y. La tavola scriveva sempre le lettere americane: a
+# un francese diceva «Q» per un tasto che sul suo ha stampato «A». Adesso
+# chiede al sistema cosa c'e' stampato su quel tasto (sui sistemi che lo
+# sanno dire; altrove restano le lettere americane, che sono il nome del posto).
+const SISTEMI_CHE_LO_SANNO := ["Windows", "macOS", "X11", "Wayland"]
+static var tastiera := func(fisico: int) -> int:
+	return int(DisplayServer.keyboard_get_label_from_physical(fisico)) \
+			if DisplayServer.get_name() in SISTEMI_CHE_LO_SANNO else fisico
+
+
+static func etichetta(nome: String) -> String:
+	# il nome di un tasto disegnato come lo legge chi ha QUELLA tastiera
+	var voce: Array = AZIONE_DI.get(nome, [])
+	if voce.is_empty() or int(voce[1]) < KEY_A or int(voce[1]) > KEY_Z:
+		return nome
+	var scritta := OS.get_keycode_string(int(tastiera.call(int(voce[1])))).to_upper()
+	return scritta if scritta.length() == 1 else nome
+
+
+static func testo_azione(testo: String) -> String:
+	# «con {R} e {F}»: anche nelle frasi le lettere sono quelle della tastiera
+	for nome: String in AZIONE_DI:
+		testo = testo.replace("{%s}" % nome, etichetta(nome))
+	return testo
 
 # "tasti" e' un elenco di ALTERNATIVE, separate da «o»; ogni alternativa e' un
 # elenco di tasti che vanno insieme (le due frecce, per esempio)
@@ -81,9 +112,9 @@ const CATEGORIE := {
 		"titolo": "Guardare le mappe",
 		"corpo": "Le mappe si girano e si avvicinano. Sulle stelle il primo clic sceglie, il secondo entra; sul plastico delle zone a piani un clic fermo porta nella stanza.",
 		"righe": [
-			{"tasti": [["TRASCINA"], ["Q", "E"]], "azione": "Gira; in verticale, o con R e F, inclina"},
+			{"tasti": [["TRASCINA"], ["Q", "E"]], "azione": "Gira; in verticale, o con {R} e {F}, inclina"},
 			{"tasti": [["ROTELLA"], ["PAG SU", "PAG GIU"]], "azione": "Avvicina o allontana, verso il cursore"},
-			{"tasti": [["W", "A", "S", "D"]], "azione": "Sposta il plastico (o tasto destro); Z e X: un piano alla volta"},
+			{"tasti": [["W", "A", "S", "D"]], "azione": "Sposta il plastico (o tasto destro); {Z} e {X}: un piano alla volta"},
 			{"tasti": [["DOPPIO CLIC"], ["INIZIO"]], "azione": "Torna alla vista di partenza"},
 		],
 	},
@@ -178,11 +209,11 @@ func riga_di(dati: Dictionary) -> Control:
 		if a > 0:
 			tasti.add_child(parola("o"))
 		for nome in (alternative[a] as Array):
-			tasti.add_child(TappoTasto.nuovo(String(nome)))
+			tasti.add_child(TappoTasto.nuovo(etichetta(String(nome))))
 	if bool(dati.get("ripeti", false)):
 		tasti.add_child(parola("× tante"))
 	var azione := Label.new()
-	azione.text = String(dati.get("azione", ""))
+	azione.text = testo_azione(String(dati.get("azione", "")))
 	azione.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	azione.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	azione.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

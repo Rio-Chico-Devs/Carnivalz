@@ -131,6 +131,10 @@ func nervoso() -> float:
 
 
 func _process(delta: float) -> void:
+	avanza(Tempo.passo(delta))   # il tempo che conta: vedi Tempo.gd
+
+
+func avanza(delta: float) -> void:
 	if fine >= 0.0:
 		si_crepa(delta)
 	elif acceso:

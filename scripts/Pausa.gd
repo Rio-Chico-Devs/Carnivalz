@@ -165,6 +165,15 @@ func _unhandled_input(evento: InputEvent) -> void:
 		apri()
 	get_viewport().set_input_as_handled()
 
+func _notification(cosa: int) -> void:
+	# LA FINESTRA PERDE IL FUOCO, IL GIOCO SI FERMA. Un alt-tab, una notifica
+	# che ruba la finestra, un clic sull'editor: il gioco continuava a correre
+	# senza nessuno davanti, e una scelta a tempo scadeva, un colpo di grazia
+	# si perdeva. Si apre la pausa, come con ESC e solo dove ESC la aprirebbe;
+	# al ritorno la trovi aperta e decidi tu quando ripartire
+	if cosa == NOTIFICATION_APPLICATION_FOCUS_OUT and not aperta and pausabile():
+		apri()
+
 func pausabile() -> bool:
 	# niente pausa a meta' di una dissolvenza tra schermate: si riaprirebbe su
 	# una scena che sta gia' sparendo
