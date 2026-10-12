@@ -578,7 +578,7 @@ func lampeggia(nodo: CanvasItem, tinta: Color) -> void:
 	battito.tween_property(nodo, "modulate", tinta, durata * 0.35)
 	battito.tween_property(nodo, "modulate", Color.WHITE, durata * 0.65)
 
-func pulsa(nodo: CanvasItem, durata_battito := 0.0) -> Tween:
+func pulsa(nodo: CanvasItem, durata_battito := 0.0, minimo := 0.35) -> Tween:
 	# battito lento e infinito di opacita': l'invito a proseguire non deve
 	# mai restare immobile, o si perde tra tutto il resto che e' fermo a
 	# schermo. Il nodo deve gia' essere dentro l'albero quando si chiama
@@ -591,11 +591,11 @@ func pulsa(nodo: CanvasItem, durata_battito := 0.0) -> Tween:
 		return null
 	var durata := durata_battito if durata_battito > 0.0 else tempo("battito_indicatore")
 	var battito: Tween = nodo.create_tween().set_loops()
-	battito.tween_property(nodo, "modulate:a", 0.35, durata)
+	battito.tween_property(nodo, "modulate:a", minimo, durata)
 	battito.tween_property(nodo, "modulate:a", 1.0, durata)
 	return battito
 
-func costruisci_prompt(testo: String) -> HBoxContainer:
+func costruisci_prompt(testo: String, chiaro := false) -> HBoxContainer:
 	# la riga "◆  premi per continuare  ◆": lo stesso identico invito a
 	# proseguire ovunque compaia nel gioco (crawl introduttivo, carta del
 	# titolo di un luogo). Centrata per costruzione (allineamento del
@@ -606,20 +606,24 @@ func costruisci_prompt(testo: String) -> HBoxContainer:
 	riga.alignment = BoxContainer.ALIGNMENT_CENTER
 	riga.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	riga.add_theme_constant_override("separation", 14)
-	riga.add_child(_rombo_prompt())
+	riga.add_child(_rombo_prompt(chiaro))
 	var etichetta := Label.new()
 	etichetta.text = testo
 	etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	etichetta.add_theme_color_override("font_color", colore("testo_smorzato"))
+	etichetta.add_theme_color_override("font_color", colore("testo" if chiaro else "testo_smorzato"))
 	etichetta.add_theme_font_size_override("font_size", dimensione("piccolo"))
+	if chiaro:
+		contorno(etichetta, dimensione("piccolo"))   # sopra un fondo che non si sa: chiaro dentro, scuro intorno
 	riga.add_child(etichetta)
-	riga.add_child(_rombo_prompt())
+	riga.add_child(_rombo_prompt(chiaro))
 	return riga
 
-func _rombo_prompt() -> Label:
+func _rombo_prompt(chiaro := false) -> Label:
 	var rombo := Label.new()
 	rombo.text = "◆"
 	rombo.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rombo.add_theme_color_override("font_color", colore("bordo_acceso"))
 	rombo.add_theme_font_size_override("font_size", dimensione("minuscolo"))
+	if chiaro:
+		contorno(rombo, dimensione("minuscolo"))   # col testo grande cade sul cielo arancio
 	return rombo

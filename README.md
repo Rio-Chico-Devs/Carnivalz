@@ -99,8 +99,8 @@ su `prove/`, `strumenti/` e `scripts/combattimento/` che non spiega perché. È 
 - `scripts/PannelloOpzioni.gd` — l'elenco delle opzioni, definito una volta sola e usato sia
   dalla schermata principale sia dalla pausa
 - `prove/` — le prove del progetto (`./prove/esegui.sh`), il giocatore automatico
-  (`./prove/simula.sh`) e l'esploratore che gioca tutte le strade della storia
-  (`./prove/esplora.sh`), descritti in fondo
+  (`./prove/simula.sh`), l'esploratore che gioca tutte le strade della storia
+  (`./prove/esplora.sh`) e il misuratore delle scritte (`./prove/leggibilita.sh`), descritti in fondo
 - `art/` — illustrazioni di Bru: `art/mappa.png` (sfondo mappa), `art/personaggi/<id>.png`
   (ritratti), `art/branding/logo_studio.png`/`logo_personale.png` (loghi d'apertura). Finché
   mancano: placeholder generati (cielo stellato / iniziale del nome / testo)
@@ -2247,6 +2247,27 @@ finita quella prima. La meta di una frattura e' quello che il resto del gioco le
 Dentro la suite gira su tutte le zone tranne la Casa Gigante (`prova_la_storia_non_ha_punti_morti`,
 una dozzina di secondi). Non guarda il bilanciamento (uno scontro si da' per vincibile e per
 perdibile: per quello c'e' il simulatore), le scelte a tempo lasciate scadere, e lo schermo.
+
+## Le scritte si leggono? (`prove/Leggibilita.gd`)
+Bru: «nell'inserimento nome giocatore non si legge la scritta». Le lettere erano color crema su
+una riga color crema, e nessuna prova poteva accorgersene: il colore era giusto per sé, sbagliato
+solo per quello che aveva dietro. Questo strumento guarda lo schermo come lo guarda chi gioca.
+
+```
+./prove/leggibilita.sh                       # tutto il menu principale, 30 schermate
+./prove/leggibilita.sh pausa                 # il menu di pausa, 10 schermate
+ALTO_CONTRASTO=1 ./prove/leggibilita.sh      # con l'alto contrasto (TESTO_GRANDE=1: col testo grande)
+```
+
+Per ogni schermata scatta tre foto: com'è, con le scritte rese invisibili, e di nuovo com'è. I
+pixel che cambiano fra la prima e la seconda (e non fra la prima e la terza, che si muovono da
+soli) sono le lettere; il loro colore si prende dalla prima foto, il fondo dalla seconda. Il
+contrasto si misura come le WCAG 2.2: almeno 4,5:1, o 3:1 per le scritte grandi. Trova anche le
+scritte fuori dallo schermo e quelle troppo piccole. Le foto, con le scritte da sistemare
+cerchiate di rosso, finiscono in `scatti/leggibilita/`, con un rapporto per variante.
+
+Serve una finestra (basta `xvfb-run`), quindi non gira nella suite: quello che ha trovato lo
+tiene fermo `prova_le_scritte_del_menu_si_leggono`, coi colori.
 
 ## Lo zaino: quattro scomparti, tre con un tetto
 Non è un mucchio. Ogni categoria ha la sua capacità, e si allarga comprando spazio al negozio.

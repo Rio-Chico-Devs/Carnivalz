@@ -83,7 +83,13 @@ static func ritingi(nodo: Node) -> void:
 	if nodo.get_parent() is VoceMenu or not nodo is Control:
 		return
 	var scritta := nodo as Control
+	# COLORI CHE STANNO SUL NERO ANCHE SULLA CARTA: la riga col fuoco delle
+	# opzioni ha dietro l'etichetta nera, e la sua scritta chiara qui diventava
+	# nera - nero su nero (prove/Leggibilita.gd). Chi scrive sul nero lo dice
+	var fissi: Array = scritta.get_meta("inchiostro_fisso", [])
 	for chiave in COLORI_SCRITTA:
+		if chiave in fissi:
+			continue
 		if scritta.has_theme_color_override(chiave):
 			scritta.add_theme_color_override(chiave, su_carta(scritta.get_theme_color(chiave)))
 	if scritta is RichTextLabel and (scritta as RichTextLabel).bbcode_enabled:

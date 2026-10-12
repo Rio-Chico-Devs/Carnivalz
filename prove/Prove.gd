@@ -148,6 +148,7 @@ func _ready() -> void:
 	await prova_la_voce_inerte_dice_di_no()
 	await prova_il_menu_principale_ha_piu_passi()
 	await prova_il_cursore_non_resta_spento()
+	await prova_le_scritte_del_menu_si_leggono()
 	prova_l_ora_del_salvataggio_la_scrive_il_gioco()
 	prova_i_tasti_si_leggono_sulla_tastiera_di_chi_gioca()
 	prova_il_tempo_di_gioco_non_salta()
@@ -20720,3 +20721,168 @@ class FinestraFinta extends RefCounted:
 
 	func window_set_position(dove: Vector2i) -> void:
 		messa.position = dove
+
+
+func prova_le_scritte_del_menu_si_leggono() -> void:
+	# Bru: «nell'inserimento nome giocatore non si legge la scritta». Crema su
+	# crema: il colore della scritta pensato per il nero, rimasto quando le
+	# righe sono diventate carta. prove/Leggibilita.gd lo misura sulle foto vere
+	# (serve una finestra); qui si tengono fermi, coi colori, i casi che ha
+	# trovato. La soglia e' quella delle WCAG 2.2 per il testo: 4,5:1
+	titolo("le scritte del menu si leggono: il nome, il codice, le opzioni, la descrizione, l'invito")
+	var prima_contrasto := Stile.alto_contrasto
+	var prima_movimento := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	# una partita salvata: la descrizione di CONTINUA e' quella di tre righe
+	var serviva_partita := not GameState.ha_salvataggio_slot(3)
+	if serviva_partita:
+		GameState.nuova_partita()
+		GameState.salva_slot(3)
+	for contrasto: bool in [false, true]:
+		Stile.imposta_alto_contrasto(contrasto)
+		MenuPrincipale.titolo_visto = true
+		var schermo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+		add_child(schermo)
+		await get_tree().process_frame
+		# 1. il nome e il codice: le lettere, e il segnaposto, sul loro fondo
+		schermo.pagina_chi_sei(1)
+		await get_tree().process_frame
+		controlla_il_campo(schermo.campo_nome, "il nome", contrasto)
+		schermo.pagina_codice()
+		await get_tree().process_frame
+		controlla_il_campo(schermo.campo_codice, "il codice", contrasto)
+		# 2. le opzioni sul foglio: la riga col fuoco ha l'etichetta nera dietro
+		for sezione in ["Audio", "Grafica", "Accessibilità"]:
+			schermo.pagina_opzioni_di(sezione)
+			for i in 3:
+				await get_tree().process_frame
+			controlla_il_fuoco_delle_opzioni(schermo, "nel menu, %s" % sezione, contrasto)
+		schermo.queue_free()
+		await get_tree().process_frame
+	Stile.imposta_alto_contrasto(prima_contrasto)
+	# 3. le stesse opzioni nella pausa, col fuoco su ciascuna riga
+	Pausa.apri()
+	Pausa.mostra_opzioni()
+	for i in 3:
+		await get_tree().process_frame
+	var righe_pausa := Pausa.find_children("*", "Control", true, false).filter(
+			func(n: Node) -> bool: return n is HSlider or n is CheckBox)
+	esigi(righe_pausa.size() >= 5, "nella pausa le opzioni sono %d" % righe_pausa.size())
+	for riga: Control in righe_pausa:
+		riga.grab_focus()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		controlla_il_fuoco_delle_opzioni(Pausa, "nella pausa", false)
+	Pausa.chiudi()
+	# 4. la descrizione in basso, aprendo il menu dal titolo con una partita
+	# salvata (la descrizione di CONTINUA e' di tre righe): alta quanto le sue
+	# righe e dentro lo schermo
+	MenuPrincipale.titolo_visto = false
+	var dal_titolo: MenuPrincipale = load("res://scenes/Menu.tscn").instantiate()
+	add_child(dal_titolo)
+	await get_tree().process_frame
+	# 5. l'invito del titolo, al suo momento piu' spento, sul nero
+	var invito: Control = null
+	for figlio in dal_titolo.insegna.get_children():
+		if figlio is HBoxContainer:
+			invito = figlio
+	esigi(invito != null, "sul titolo non c'e' l'invito «premi un tasto»")
+	if invito != null:
+		# un battito intero, in tempo vero: senza finestra i fotogrammi
+		# corrono, e centocinquanta durerebbero un decimo di secondo
+		var piu_spento := 1.0
+		var fine := Time.get_ticks_msec() + int(Stile.tempo("battito_indicatore") * 2400.0)
+		while Time.get_ticks_msec() < fine:
+			piu_spento = minf(piu_spento, invito.modulate.a)
+			await get_tree().process_frame
+		var parola := invito.get_child(1) as Label
+		var vista := Stile.colore("bordo").lerp(parola.get_theme_color("font_color"), piu_spento)
+		esigi(Stile.contrasto(vista, Stile.colore("bordo")) >= 4.5,
+				"«premi un tasto» al suo piu' spento (%.2f) sta a %.1f:1 sul nero" % [piu_spento,
+				Stile.contrasto(vista, Stile.colore("bordo"))])
+	dal_titolo.entra_dal_titolo()
+	for i in 20:
+		await get_tree().process_frame
+	var d := dal_titolo.descrizione
+	var righe := d.get_child(0) as Control
+	var schermo_vero := get_viewport().get_visible_rect()
+	esigi(absf(d.size.y - righe.get_combined_minimum_size().y) <= 1.0,
+			"la descrizione e' alta %.0f per %.0f di righe: la scritta finisce fuori posto" % [d.size.y,
+			righe.get_combined_minimum_size().y])
+	esigi(schermo_vero.encloses(d.get_global_rect()),
+			"la descrizione esce dallo schermo: %s" % d.get_global_rect())
+	# e quando la finestra cambia larghezza: stretta va a capo di piu' e cresce,
+	# riallargata torna giu' - Godot da solo la lascerebbe alta
+	var destra := d.anchor_right
+	for largo in [d.anchor_left + (destra - d.anchor_left) * 0.4, destra]:
+		d.set_anchor(SIDE_RIGHT, largo, true)
+		for i in 5:
+			await get_tree().process_frame
+		esigi(absf(d.size.y - righe.get_combined_minimum_size().y) <= 1.0,
+				"larga %.0f, la descrizione e' alta %.0f per %.0f di righe" % [d.size.x, d.size.y,
+				righe.get_combined_minimum_size().y])
+	dal_titolo.queue_free()
+	# 6. la «o» fra due tasti, sulla carta della tavola dei comandi. A 15 px il
+	# tratto e' sottile e i bordi sfumati rubano contrasto: il grigio che di
+	# calcolo stava a 4,75:1, nella foto ne misurava 4,2. Sotto i 16 px si
+	# chiede il margine del livello AAA, 7:1
+	var o := TavolaComandi.parola("o")
+	var su_carta := Stile.colore("box_fondo")
+	var la_o := su_carta.lerp(Color(o.get_theme_color("font_color"), 1.0), o.get_theme_color("font_color").a)
+	esigi(o.get_theme_font_size("font_size") >= 16 or Stile.contrasto(la_o, su_carta) >= 7.0,
+			"la «o» fra due tasti (%d px) sta a %.1f:1 sulla carta" % [o.get_theme_font_size("font_size"),
+			Stile.contrasto(la_o, su_carta)])
+	o.free()
+	if serviva_partita:
+		GameState.elimina_slot(3)
+	MenuPrincipale.titolo_visto = false
+	Impostazioni.movimento_ridotto = prima_movimento
+
+
+func controlla_il_campo(campo: LineEdit, quale: String, contrasto: bool) -> void:
+	if campo == null:
+		esigi(false, "non c'e' il campo per %s" % quale)
+		return
+	for stato in ["normal", "focus"]:
+		var fondo := campo.get_theme_stylebox(stato) as StyleBoxFlat
+		if fondo == null:
+			continue
+		# dietro la riga c'e' il cielo, dal nero all'arancio: se la riga lascia
+		# passare qualcosa, la scritta si misura sul fondo che ne viene fuori
+		for cielo: Color in [Stile.colore("bordo"), Stile.colore("accento")]:
+			var dietro := cielo.lerp(Color(fondo.bg_color, 1.0), fondo.bg_color.a)
+			var selezione := campo.get_theme_color("selection_color")
+			var selezionato := dietro.lerp(Color(selezione, 1.0), selezione.a)
+			for coppia in [["font_color", dietro], ["font_placeholder_color", dietro],
+					["font_selected_color", selezionato]]:
+				var colore := campo.get_theme_color(coppia[0])
+				var sotto: Color = coppia[1]
+				var visto := sotto.lerp(Color(colore, 1.0), colore.a)
+				esigi(Stile.contrasto(visto, sotto) >= 4.5,
+						"%s (%s, cielo %s, alto contrasto %s): %s sta a %.1f:1 sul suo fondo" % [quale, stato,
+						cielo.to_html(false), contrasto, coppia[0], Stile.contrasto(visto, sotto)])
+
+
+func controlla_il_fuoco_delle_opzioni(radice: Node, dove: String, contrasto: bool) -> void:
+	# la scritta della riga col fuoco: l'etichetta di una barra o una casella
+	var fuoco := get_viewport().gui_get_focus_owner()
+	esigi(fuoco != null and radice.is_ancestor_of(fuoco), "%s nessuna opzione ha il fuoco" % dove)
+	if fuoco == null:
+		return
+	var banda := PannelloOpzioni.fuoco().bg_color
+	var colore: Color
+	var nome := ""
+	if fuoco is CheckBox:
+		# a riposo, spuntata, col mouse sopra: col fuoco, sempre sull'etichetta nera
+		nome = (fuoco as CheckBox).text
+		colore = (fuoco as CheckBox).get_theme_color("font_focus_color")
+		for chiave in ["font_pressed_color", "font_hover_color", "font_hover_pressed_color"]:
+			var altro := (fuoco as CheckBox).get_theme_color(chiave)
+			if Stile.contrasto(altro, banda) < Stile.contrasto(colore, banda):
+				colore = altro
+	else:
+		var etichetta := fuoco.get_parent().get_child(0) as Label
+		colore = etichetta.get_theme_color("font_color")
+		nome = etichetta.text
+	esigi(Stile.contrasto(colore, banda) >= 4.5, "%s «%s» col fuoco sta a %.1f:1 sull'etichetta nera (alto contrasto %s)"
+			% [dove, nome, Stile.contrasto(colore, banda), contrasto])

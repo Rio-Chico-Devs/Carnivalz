@@ -126,6 +126,7 @@ static func cursore(colonna: VBoxContainer, testo: String, valore: float,
 	var etichetta := Label.new()
 	etichetta.text = testo
 	etichetta.custom_minimum_size = Vector2(larghezza_etichetta, 0)
+	etichetta.set_meta("inchiostro_fisso", ["font_color"])   # col fuoco e' chiara sull'etichetta nera: il foglio non la ritinge
 	fila.add_child(etichetta)
 	var barra := HSlider.new()
 	vesti_barra(barra, tinta_di(colonna))
@@ -160,6 +161,20 @@ static func interruttore(colonna: VBoxContainer, testo: String, attivo: bool,
 	for chiave in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color"]:
 		casella.add_theme_color_override(chiave, Stile.colore("box_testo"))
 	casella.add_theme_color_override("font_focus_color", Stile.colore("testo"))
+	# COL FUOCO E' CHIARA IN OGNI STATO. Godot usa il colore «col fuoco» solo
+	# per la casella a riposo: spuntata usa quello «premuto», col mouse sopra
+	# quello «sotto il mouse» - neri, sull'etichetta nera del fuoco. Col testo
+	# grande acceso «Testo più grande» e' spuntata, e spariva (prove/Leggibilita.gd)
+	const COL_FUOCO := ["font_pressed_color", "font_hover_color", "font_hover_pressed_color"]
+	casella.focus_entered.connect(func() -> void:
+		for chiave: String in COL_FUOCO:
+			casella.add_theme_color_override(chiave, Stile.colore("testo")))
+	casella.focus_exited.connect(func() -> void:
+		for chiave: String in COL_FUOCO:
+			casella.add_theme_color_override(chiave, Stile.colore("box_testo")))
+	# su un foglio, le scritte chiare diventano nere da sole (Foglio.ritingi):
+	# queste stanno sull'etichetta nera, e restano chiare
+	casella.set_meta("inchiostro_fisso", ["font_focus_color"] + COL_FUOCO)
 	casella.add_theme_stylebox_override("focus", fuoco())
 	casella.button_pressed = attivo
 	casella.toggled.connect(su_cambio)

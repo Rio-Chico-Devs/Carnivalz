@@ -28,6 +28,14 @@ func _init() -> void:
 	colonna.add_theme_constant_override("separation", 0)
 	colonna.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	colonna.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# ALTA QUANTO LE SUE RIGHE, NE' PIU' NE' MENO. Le righe sono appese con le
+	# ancore, non in un contenitore: quando vanno a capo di nuovo (piu' larga,
+	# piu' stretta) nessuno lo diceva alla descrizione, che restava della misura
+	# vecchia. Aprendo il menu dal titolo si misurava ancora larga zero - una
+	# parola per riga, 2433 pixel, la scritta 1700 pixel sopra lo schermo
+	# (prove/Leggibilita.gd); stretta la finestra restava bassa, e l'ultima riga
+	# usciva sotto (la foto di Bru). Glielo dicono le righe
+	colonna.minimum_size_changed.connect(update_minimum_size)
 	add_child(colonna)
 	titolo = Label.new()
 	if Caratteri.titolo() != null:

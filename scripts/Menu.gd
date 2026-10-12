@@ -222,14 +222,16 @@ func mostra_titolo() -> void:
 			var nome := etichetta("CARNIVALZ", Caratteri.titolo(), 132, Stile.colore(String(strato[1])))
 			centra(nome, strato[0])
 			scritta.add_child(nome)
-	var invito := Stile.costruisci_prompt("premi un tasto")
+	# «PREMI UN TASTO» SI LEGGE: era grigio sul tendone e pulsando spariva
+	# (1,9:1). Chiaro col contorno, e il battito si ferma al 65%
+	var invito := Stile.costruisci_prompt("premi un tasto", true)
 	invito.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
 	invito.offset_top = -150
 	invito.offset_bottom = -110
 	invito.offset_left = -300
 	invito.offset_right = 300
 	insegna.add_child(invito)
-	Stile.pulsa(invito)
+	Stile.pulsa(invito, 0.0, 0.65)
 	insegna.modulate.a = 0.0
 	var dentro := insegna.create_tween()
 	Movimento.verso(dentro, insegna, "modulate:a", 1.0, "entrata", Movimento.durata("quinta"))
@@ -470,12 +472,15 @@ func campo(testo: String, segnaposto := "ANONIMO") -> LineEdit:
 	if Caratteri.voce() != null:
 		riga.add_theme_font_override("font", Caratteri.voce())
 	riga.add_theme_font_size_override("font_size", VoceMacchia.CORPO)
-	riga.add_theme_color_override("font_color", Stile.colore("testo"))
-	riga.add_theme_color_override("font_placeholder_color", Color(Stile.colore("menu_voce"), 0.8))
-	riga.add_theme_color_override("caret_color", Stile.colore("accento"))
+	# LE LETTERE NERE SULLA RIGA CHIARA: in crema il nome non si leggeva (Bru)
+	riga.add_theme_color_override("font_color", Stile.colore("menu_voce"))
+	riga.add_theme_color_override("font_selected_color", Stile.colore("menu_voce"))
+	riga.add_theme_color_override("font_placeholder_color", Stile.colore("tratto"))
+	riga.add_theme_color_override("selection_color", Color(Stile.colore("accento"), 0.45))
+	riga.add_theme_color_override("caret_color", Stile.colore("menu_voce"))
 	for stato in ["normal", "focus"]:
 		var fondo := StyleBoxFlat.new()
-		fondo.bg_color = Color(Stile.colore("menu_riga"), 0.85)
+		fondo.bg_color = Stile.colore("menu_riga")   # piena: sotto il cielo arancio, il grigio scendeva sotto il 4,5:1
 		fondo.set_border_width_all(2)
 		fondo.border_color = Stile.colore("menu_riga_accesa_bordo" if stato == "focus" else "menu_riga_bordo")
 		fondo.set_corner_radius_all(4)

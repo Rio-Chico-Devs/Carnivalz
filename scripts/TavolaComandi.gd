@@ -234,7 +234,9 @@ static func parola(testo: String) -> Label:
 	if Caratteri.tondo(700) != null:
 		scritta.add_theme_font_override("font", Caratteri.tondo(700))
 	scritta.add_theme_font_size_override("font_size", 15)
-	scritta.add_theme_color_override("font_color", Stile.colore("tratto"))
+	# spenta ma leggibile: il grigio «tratto» a 15 px, antialiasato, misurava
+	# 4,2:1 sulla carta (prove/Leggibilita.gd); il nero al 72% sta sopra 7:1
+	scritta.add_theme_color_override("font_color", Color(Stile.colore("box_testo"), 0.72))
 	return scritta
 
 
