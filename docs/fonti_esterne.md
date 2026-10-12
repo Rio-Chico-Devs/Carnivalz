@@ -37,9 +37,22 @@ sorgente di Godot 4.7 se tocca davvero Carnivalz.
    - **un crash all'avvio** se Godot non riesce a scrivere il file di log, cioè
      se la cartella dei dati utente è bloccata (antivirus, cartella protetta,
      disco pieno) (GH-121926);
-   - **mouse da gioco ad alta frequenza su Windows** (2 kHz e oltre): nella
-     4.7.1 muovere il mouse poteva far crollare il gioco sotto 1 fotogramma al
-     secondo (GH-109639, articolo ufficiale nelle fonti);
+   - **mouse da gioco ad alta frequenza su Windows** (2 kHz e oltre; alcuni
+     mouse partono già così di fabbrica). L'articolo ufficiale (che Bru mi ha
+     mandato in PDF) dice tre cose che ci riguardano:
+     - colpisce soprattutto i giochi col cursore visibile, cioè tutto
+       Carnivalz;
+     - su Windows 11, con la maggior parte dei processori, il problema comincia
+       già fra 1 e 2 kHz, e i portatili soffrono di più;
+     - nella misura ufficiale, col cursore visibile a 8 kHz i fotogrammi
+       arrivavano a scatti oltre i 16 ms («giocabile ma non fluido»), e su
+       processori più lenti si scende a pochi fotogrammi al secondo. Con la
+       4.7.2 sparisce (GH-109639).
+
+     Il consiglio che resta a noi, tenere leggero il codice che risponde al
+     movimento del mouse, lo rispettiamo già: l'accumulo dei movimenti di Godot
+     è acceso (un evento per fotogramma), e `Cursore.gd` lavora al più due
+     volte al secondo;
    - **impaginazione dei contenitori** (`BoxContainer`, la dimensione massima),
      cioè quello su cui sono costruite le nostre schermate (GH-120351,
      GH-120500, GH-120984, GH-120002);
@@ -64,16 +77,33 @@ sorgente di Godot 4.7 se tocca davvero Carnivalz.
 5. **Se il cursore sparisce ancora**, disattiva «Embed Game on Next Play» nella
    vista Game e prova col gioco in una finestra sua. Se lì non succede, la causa
    è l'incorporamento nell'editor.
-6. **Quando esporterai per altri**, tre cose:
-   - un `.exe` non firmato fa comparire l'avviso blu di Windows (SmartScreen);
-   - alcuni antivirus segnalano per errore i giochi Godot, e diversi
-     sviluppatori lo collegano al file `.pck` incorporato nell'eseguibile, che
-     è l'impostazione del nostro export (`embed_pck=true`);
-   - si può esportare col `.pck` separato e controllare il file su VirusTotal
-     prima di pubblicarlo. La soluzione definitiva è firmare l'eseguibile, che
-     però costa.
+6. **Quando esporterai per altri.** Le due pagine ufficiali che mi hai
+   mandato («Exporting for Windows» ed «EditorExportPlatformWindows»), lette
+   insieme al codice dell'esportatore:
+   - **la firma.** Un `.exe` non firmato fa comparire l'avviso blu di Windows.
+     Godot firma da solo all'export, ma servono due cose: lo strumento
+     `SignTool.exe`, che viene col Windows SDK, e un certificato di firma, che
+     si compra. Poi va impostato in due posti: Impostazioni dell'editor →
+     Export → Windows → Sign Tool, e nel preset Windows la sezione Codesign
+     (Enable, Identity col file del certificato, Password). La password si
+     può anche passare con la variabile d'ambiente
+     `GODOT_WINDOWS_CODESIGN_PASSWORD`, così non finisce nel repository;
+   - **il `.pck` dentro l'eseguibile.** La documentazione ufficiale non parla
+     di antivirus: la segnalazione resta solo degli sviluppatori su itch.io.
+     Però nel codice di Godot `embed_pck` di serie è **spento**, e il nostro
+     export l'ha acceso. Se un antivirus si lamenta, la prima cosa da provare
+     è spegnerlo: il gioco diventa un `.exe` più un `.pck` accanto;
+   - **gli shader pronti nell'eseguibile** (`shader_baker/enabled`, di serie
+     spento). Compila gli shader durante l'export invece che sul computer di
+     chi gioca, quindi niente scatto la prima volta che compare un effetto.
+     Funziona col motore grafico Forward+ (il nostro) e va fatto dall'editor
+     su Windows: da qui non posso provarlo, quindi non l'ho acceso;
+   - **la descrizione del file** (`application/file_description`) la pagina
+     la dà come obbligatoria, e mancava: senza, Gestione attività mostra solo
+     il nome dell'eseguibile. L'ho aggiunta («Carnivalz»). La versione,
+     senza `application/config/version`, Godot la scrive come 1.0.0.0.
 
-   Non ho cambiato l'export: è una tua scelta.
+   La firma, il `.pck` e gli shader pronti non li ho cambiati: sono scelte tue.
 
 ---
 
@@ -119,8 +149,11 @@ sorgente di Godot 4.7 se tocca davvero Carnivalz.
 
 ## Fonti
 
-Ufficiali:
-- [Godot — Fixing high polling rate mice on Windows](https://godotengine.org/article/fixing-high-polling-rate-mice-on-windows/)
+Ufficiali (gli ultimi tre mandati da Bru in PDF, 12 ottobre):
+- [Godot — Fixing high polling rate mice on Windows](https://godotengine.org/article/fixing-high-polling-rate-mice-on-windows/) (Hugo Locurcio, 24 agosto 2026)
+- [Godot docs 4.7 — Exporting for Windows](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_windows.html)
+- [Godot docs 4.7 — EditorExportPlatformWindows](https://docs.godotengine.org/en/stable/classes/class_editorexportplatformwindows.html)
+- codice dell'esportatore di Godot 4.7: `editor/export/editor_export_platform_pc.cpp` (i valori di serie di `embed_pck` e `shader_baker/enabled`), `platform/windows/export/template_modifier.cpp` (la descrizione e la versione del file)
 - [Godot — Maintenance release 4.7.1](https://godotengine.org/article/maintenance-release-godot-4-7-1/); changelog 4.7.1 e 4.7.2 letto dal repository di Godot (`CHANGELOG.md` ai tag `4.7.1-stable` e `4.7.2-stable`)
 - [Godot docs 4.7 — Troubleshooting (Windows Defender)](https://docs.godotengine.org/en/4.7/tutorials/troubleshooting.html)
 - [Godot docs 4.7 — Reducing stutter from shader compilations](https://docs.godotengine.org/en/4.7/tutorials/performance/pipeline_compilations.html)

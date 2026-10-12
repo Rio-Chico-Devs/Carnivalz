@@ -239,7 +239,9 @@ ecco cosa ho verificato e cosa no:
   freccia è già dentro (l'editor, che col gioco incorporato nella vista «Game» ne
   divide l'input, o il sistema), resta spento finché la forma non cambia. Sul menu
   niente la cambia;
-- **chi lo spegne non l'ho trovato**: da qui non si vede.
+- **chi lo spegne non l'ho trovato**: da qui non si vede. Bru usa Windows (12
+  ottobre), quindi il meccanismo sopra è proprio il suo; il codice
+  dell'editor che incorpora il gioco (`editor/run/`) il cursore non lo tocca mai.
 
 `scripts/Cursore.gd` (autoload) glielo ridice da sé: quando il menu si apre,
 quando la finestra riprende il fuoco, quando il mouse rientra, e muovendo il
