@@ -14,5 +14,5 @@ if ! [ -n "${DISPLAY:-}" ]; then
 	LANCIA="xvfb-run -a $GODOT"
 fi
 # shellcheck disable=SC2086
-$LANCIA --path . --resolution 1280x720 prove/ProposteCrescita.tscn -- foto 2>&1 \
+$LANCIA --path . --resolution 1280x720 prove/ProposteCrescita.tscn -- foto "$@" 2>&1 \
 	| grep -vE "ALSA|audio_driver_alsa|All audio drivers failed|snd_pcm|snd_func|snd_config|Vulkan|VK_KHR|rendering_context_driver_vulkan|switching to OpenGL" || true
