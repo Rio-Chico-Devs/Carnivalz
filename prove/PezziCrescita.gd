@@ -1,11 +1,10 @@
 extends RefCounted
 
 # I PEZZI DISEGNATI DELLE PROPOSTE DI CRESCITA (prove/ProposteCrescita.gd).
-# Provvisorio come loro. Il luna park e' quello del menu (LunaPark.gd) rifatto
-# a pezzi spostabili: la ruota, il tendone, le lampadine, i fili che pendono.
-# Il resto e' la lingua del manifesto: cartoncini col contorno nero e l'ombra
-# piena, scritte ritagliate, fasce storte, niente sfumature sulle cose (le
-# sfumature solo nel cielo, come nel menu).
+# Provvisorio come loro. Terza mano, dopo «meno dettagli da circo, piu'
+# astratto» (Bru): niente oggetti del luna park, solo la lingua del manifesto -
+# l'arancio col retino, le lastre nere in diagonale, i rombi dell'emblema, le
+# fasce storte, le scritte ritagliate, il contorno nero e l'ombra piena.
 
 const NERO := Color("#0b0908")
 const CREMA := Color("#ece6df")
@@ -13,7 +12,8 @@ const CARTA := Color("#d8cfc7")
 const ARANCIO := Color("#f4931b")
 const ARANCIO_SCURO := Color("#c96f12")
 const BRUNO := Color("#2a211a")
-const LUCE := Color("#fff1dd")
+const SPENTO := Color("#1c1611")
+const TRATTO := Color("#6b635d")
 const OMBRA := Vector2(8, 8)
 
 
@@ -27,146 +27,79 @@ static func dritto(t: CanvasItem) -> void:
 	t.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
-# --- il cielo e il luna park -----------------------------------------------------------
+# --- le lastre e i rombi --------------------------------------------------------------
 
-static func cielo(t: CanvasItem, tinte: Array, quote: Array) -> void:
-	# fasce di colore una sotto l'altra: tinte[i] a quote[i], sfumate fra loro
-	for i in tinte.size() - 1:
-		var da := float(quote[i])
-		var a := float(quote[i + 1])
-		t.draw_polygon(PackedVector2Array([Vector2(-20, da), Vector2(1300, da), Vector2(1300, a), Vector2(-20, a)]),
-				PackedColorArray([tinte[i], tinte[i], tinte[i + 1], tinte[i + 1]]))
-
-
-static func stelline(t: CanvasItem, area: Rect2, quante: int, seme: int, tempo: float) -> void:
-	var dado := RandomNumberGenerator.new()
-	dado.seed = seme
-	for i in quante:
-		var p := Vector2(dado.randf_range(area.position.x, area.end.x), dado.randf_range(area.position.y, area.end.y))
-		var forza := dado.randf_range(0.25, 0.8) * (0.7 + 0.3 * sin(tempo * 1.3 + i * 2.1))
-		var lato := 2.0 if dado.randf() < 0.85 else 3.0
-		t.draw_rect(Rect2(p, Vector2(lato, lato)), Color(CARTA, forza * (1.0 - (p.y - area.position.y) / area.size.y * 0.6)))
-
-
-static func luna(t: CanvasItem, c: Vector2, r: float) -> void:
-	for anello: Array in [[3.6, 0.03], [2.6, 0.05], [1.9, 0.08], [1.35, 0.14]]:
-		t.draw_circle(c, r * float(anello[0]), Color(CARTA, float(anello[1])), true, -1.0, true)
-	t.draw_circle(c, r, Color(CARTA, 0.95), true, -1.0, true)
-	for macchia: Vector3 in [Vector3(-0.3, -0.2, 0.22), Vector3(0.28, 0.12, 0.16), Vector3(-0.1, 0.36, 0.11)]:
-		t.draw_circle(c + Vector2(macchia.x, macchia.y) * r, macchia.z * r, Color(ARANCIO_SCURO, 0.14), true, -1.0, true)
-
-
-static func colline(t: CanvasItem, y: float, onda: float, tinta: Color) -> void:
-	var punti := PackedVector2Array()
-	var x := -40.0
-	while x <= 1320.0:
-		punti.append(Vector2(x, y + onda * sin(x * 0.006) + onda * 0.5 * sin(x * 0.017 + 1.0)))
-		x += 40.0
-	punti.append(Vector2(1320, 760))
-	punti.append(Vector2(-40, 760))
+static func lastra(t: CanvasItem, punti: PackedVector2Array, tinta := NERO, striscia := CREMA, scosta := -16.0) -> void:
+	# la lastra in diagonale con la striscia chiara accanto, come nella pausa
+	if striscia.a > 0.0:
+		var s := PackedVector2Array()
+		for p in punti:
+			s.append(p + Vector2(scosta, 0))
+		Manifesto.poligono(t, s, striscia)
 	Manifesto.poligono(t, punti, tinta)
 
 
-static func nebbia(t: CanvasItem, y: float, alta: float, forza: float, tinta: Color) -> void:
-	var nulla := Color(tinta, 0.0)
-	var piena := Color(tinta, forza)
-	cielo(t, [nulla, piena, nulla], [y - alta, y, y + alta])
+static func puntini(t: CanvasItem, area: Rect2, passo: float, tinta: Color, dentro := Callable()) -> void:
+	# la griglia di puntini del manifesto, solo dove "dentro" dice di si'
+	var y := area.position.y
+	var riga := 0
+	while y <= area.end.y:
+		var x := area.position.x + (passo * 0.5 if riga % 2 == 1 else 0.0)
+		while x <= area.end.x:
+			if not dentro.is_valid() or bool(dentro.call(Vector2(x, y))):
+				t.draw_circle(Vector2(x, y), 1.6, tinta, true, -1.0, true)
+			x += passo
+		y += passo
+		riga += 1
 
 
-static func lampadina(t: CanvasItem, dove: Vector2, luce: float, raggio := 2.6) -> void:
-	# luce 0 = spenta (si vede il vetro), 1 = accesa col suo alone
-	if luce <= 0.05:
-		t.draw_circle(dove, raggio, BRUNO, true, -1.0, true)
-		t.draw_circle(dove + Vector2(-raggio * 0.3, -raggio * 0.3), raggio * 0.35, Color(CARTA, 0.35), true, -1.0, true)
-		return
-	t.draw_circle(dove, raggio * 3.2, Color(LUCE, 0.10 * luce), true, -1.0, true)
-	t.draw_circle(dove, raggio * 1.9, Color(ARANCIO, 0.22 * luce), true, -1.0, true)
-	t.draw_circle(dove, raggio, Color(LUCE, 0.35 + 0.6 * luce), true, -1.0, true)
+static func rombo(t: CanvasItem, c: Vector2, r: float, pieno: Color, bordo := Color(0, 0, 0, 0), spessore := 3.0) -> void:
+	var forma := Sagome.rombo(c, r)
+	if pieno.a > 0.0:
+		Manifesto.poligono(t, forma, pieno)
+	if bordo.a > 0.0:
+		t.draw_polyline(Sagome.chiudi(forma), bordo, spessore, true)
 
 
-static func catena(da: Vector2, a: Vector2, pancia: float, quanti := 24) -> PackedVector2Array:
+static func rombo_fino_a(c: Vector2, r: float, quota: float) -> PackedVector2Array:
+	# la parte di sotto di un rombo, piena fino a "quota" (0..1)
+	var y0 := c.y + r - 2.0 * r * clampf(quota, 0.0, 1.0)
 	var p := PackedVector2Array()
-	for i in quanti + 1:
-		var k := float(i) / quanti
-		p.append(da.lerp(a, k) + Vector2(0, pancia * 4.0 * k * (1.0 - k)))
+	var giro := [c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)]
+	for i in 4:
+		var a: Vector2 = giro[i]
+		var b: Vector2 = giro[(i + 1) % 4]
+		if a.y >= y0:
+			p.append(a)
+		if (a.y - y0) * (b.y - y0) < 0.0:
+			p.append(a.lerp(b, (y0 - a.y) / (b.y - a.y)))
 	return p
 
 
-static func filo(t: CanvasItem, da: Vector2, a: Vector2, pancia: float, luce: float, tempo: float, inseguono := false,
-		filo_tinta := Color(0, 0, 0, 0)) -> void:
-	# un filo di lampadine che pende fra due punti. "inseguono": le lampadine si
-	# accendono una dopo l'altra verso "a", come le luci che chiamano dentro
-	var tratto := catena(da, a, pancia)
-	t.draw_polyline(tratto, filo_tinta if filo_tinta.a > 0.0 else Color(NERO, 0.9), 2.0, true)
-	var lungo := da.distance_to(a)
-	var quante := maxi(int(lungo / 20.0), 2)
-	for i in range(1, quante):
-		var k := float(i) / quante
-		var dove := da.lerp(a, k) + Vector2(0, pancia * 4.0 * k * (1.0 - k)) + Vector2(0, 3)
-		var accesa := luce
-		if inseguono:
-			accesa = 0.25 + 0.75 * maxf(0.0, sin(tempo * 4.0 - k * 9.0))
-		lampadina(t, dove, accesa, 2.8)
+static func gettone(t: CanvasItem, c: Vector2, r: float, quota: float, tinta := NERO, vuoto := Color(0, 0, 0, 0.18)) -> void:
+	# un punto da spendere: un rombo pieno; quota < 1 e' quello che si sta riempiendo
+	rombo(t, c, r, vuoto)
+	if quota > 0.0:
+		var parte := rombo_fino_a(c, r, quota)
+		if parte.size() >= 3:
+			Manifesto.poligono(t, parte, tinta)
+	t.draw_polyline(Sagome.chiudi(Sagome.rombo(c, r)), tinta, 3.0, true)
 
 
-static func ruota(t: CanvasItem, c: Vector2, r: float, giro: float, tinta: Color, tempo: float, cabine := 16,
-		con_cabine := true) -> void:
-	t.draw_line(c, c + Vector2(-r * 0.55, r * 1.55), tinta, r * 0.06, true)
-	t.draw_line(c, c + Vector2(r * 0.55, r * 1.55), tinta, r * 0.06, true)
-	t.draw_line(c + Vector2(-r * 0.42, r * 1.2), c + Vector2(r * 0.42, r * 1.2), tinta, r * 0.03)
-	t.draw_arc(c, r, 0.0, TAU, 128, tinta, maxf(r * 0.035, 3.0), true)
-	t.draw_arc(c, r * 0.9, 0.0, TAU, 128, tinta, maxf(r * 0.015, 2.0), true)
-	t.draw_arc(c, r * 0.2, 0.0, TAU, 48, tinta, maxf(r * 0.025, 2.0), true)
-	t.draw_circle(c, r * 0.07, tinta, true, -1.0, true)
-	for i in cabine:
-		var angolo := giro + TAU * float(i) / cabine
-		var bordo := c + Vector2.from_angle(angolo) * r
-		t.draw_line(c + Vector2.from_angle(angolo) * r * 0.07, bordo, tinta, maxf(r * 0.014, 1.5), true)
-		if con_cabine:
-			t.draw_line(bordo, bordo + Vector2(0, r * 0.05), tinta, 2.0)
-			t.draw_rect(Rect2(bordo + Vector2(-r * 0.055, r * 0.05), Vector2(r * 0.11, r * 0.085)), tinta)
-	for j in 40:
-		lampadina(t, c + Vector2.from_angle(giro + TAU * j / 40.0) * r, 0.7 + 0.3 * sin(tempo * 2.1 + j * 1.7), 2.6)
-
-
-static func tendone(t: CanvasItem, cima: Vector2, mezza: float, gronda: float, scura: Color, chiara: Color, tempo: float) -> void:
-	var spicchi := 8
-	for i in spicchi:
-		var da := lerpf(cima.x - mezza, cima.x + mezza, float(i) / spicchi)
-		var a := lerpf(cima.x - mezza, cima.x + mezza, float(i + 1) / spicchi)
-		Manifesto.poligono(t, PackedVector2Array([cima, Vector2(a, gronda), Vector2(da, gronda)]), chiara if i % 2 == 0 else scura)
-	var x := cima.x - mezza + 10.0
-	while x <= cima.x + mezza - 10.0:
-		t.draw_circle(Vector2(x, gronda), 14.0, scura, true, -1.0, true)
-		x += 30.0
-	t.draw_rect(Rect2(cima.x - mezza + 20, gronda, mezza * 2.0 - 40, 140), scura)
-	for k in 6:
-		t.draw_rect(Rect2(cima.x - mezza + 36 + k * (mezza * 2.0 - 72) / 6.0, gronda + 14, 20, 130), chiara)
-	t.draw_line(cima, cima + Vector2(0, -44), scura, 3.0)
-	Manifesto.poligono(t, PackedVector2Array([cima + Vector2(0, -44), cima + Vector2(30, -36), cima + Vector2(0, -28)]), CARTA.darkened(0.35))
-	for passo in 9:
-		var k := float(passo + 1) / 10.0
-		lampadina(t, cima.lerp(Vector2(cima.x - mezza, gronda), k), 0.7 + 0.3 * sin(tempo * 2.1 + passo * 1.7))
-		lampadina(t, cima.lerp(Vector2(cima.x + mezza, gronda), k), 0.7 + 0.3 * sin(tempo * 2.1 + passo * 1.7 + 3.0))
-
-
-static func terra(t: CanvasItem, y: float, tinta: Color, steccato := true) -> void:
-	var punti := PackedVector2Array([Vector2(-40, y + 4)])
-	var x := -40.0
-	while x <= 1320.0:
-		punti.append(Vector2(x, y + 5.0 * sin(x * 0.02)))
-		x += 60.0
-	punti.append(Vector2(1320, 760))
-	punti.append(Vector2(-40, 760))
-	Manifesto.poligono(t, punti, tinta)
-	if not steccato:
-		return
-	var palo := -20.0
-	while palo <= 1300.0:
-		t.draw_rect(Rect2(palo, y - 44, 8, 48), tinta)
-		var corda := catena(Vector2(palo + 4, y - 36), Vector2(palo + 60, y - 36), 10.0, 8)
-		t.draw_polyline(corda, tinta, 3.0, true)
-		palo += 56.0
+static func spicchio(t: CanvasItem, c: Vector2, dentro: float, fuori: float, da: float, a: float, tinta: Color,
+		bordo := Color(0, 0, 0, 0), spessore := 3.0) -> void:
+	# un pezzo d'anello, da un angolo all'altro (radianti)
+	var p := PackedVector2Array()
+	var passi := maxi(int(absf(a - da) / 0.04), 2)
+	for i in passi + 1:
+		p.append(c + Vector2.from_angle(lerpf(da, a, float(i) / passi)) * fuori)
+	for i in passi + 1:
+		p.append(c + Vector2.from_angle(lerpf(a, da, float(i) / passi)) * dentro)
+	if tinta.a > 0.0:
+		Manifesto.poligono(t, p, tinta)
+	if bordo.a > 0.0:
+		p.append(p[0])
+		t.draw_polyline(p, bordo, spessore, true)
 
 
 # --- la carta, le scritte, le forme ---------------------------------------------------
@@ -223,6 +156,14 @@ static func larghezza(testo: String, corpo: int, font: Font = null) -> float:
 	return f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
 
 
+static func corpo_che_entra(testo: String, corpo: int, largo: float, font: Font = null) -> int:
+	# il corpo piu' grande, fino a corpo, con cui la scritta sta in largo
+	var c := corpo
+	while c > 9 and larghezza(testo, c, font) > largo:
+		c -= 1
+	return c
+
+
 static func etichetta(t: CanvasItem, dove: Vector2, testo: String, corpo: int, fondo := NERO, inchiostro := CREMA,
 		sfoglia := Color(0, 0, 0, 0)) -> float:
 	# la fascia storta con la scritta: restituisce quanto e' larga
@@ -258,21 +199,6 @@ static func scoppio(t: CanvasItem, c: Vector2, fuori: float, dentro: float, punt
 
 static func scintilla(t: CanvasItem, c: Vector2, r: float, tinta: Color) -> void:
 	Manifesto.poligono(t, Sagome.stella(c, r, r * 0.28, 4), tinta)
-
-
-static func biglietto(t: CanvasItem, r: Rect2, tinta: Color, testo: String, sotto := "", corpo := 18) -> void:
-	# il biglietto del luna park: le tacche ai lati, la linea da strappare
-	t.draw_rect(Rect2(r.position + Vector2(5, 5), r.size), NERO)
-	t.draw_rect(r, tinta)
-	t.draw_rect(r.grow(-2.0), NERO, false, 3.0)
-	var taglio := r.position.x + r.size.x * 0.74
-	t.draw_dashed_line(Vector2(taglio, r.position.y + 6), Vector2(taglio, r.end.y - 6), NERO, 2.0, 5.0)
-	for lato in [r.position.x, r.end.x]:
-		t.draw_circle(Vector2(lato, r.get_center().y), r.size.y * 0.16, NERO, true, -1.0, true)
-	scritta(t, Vector2(r.position.x + 12, r.position.y + r.size.y * 0.5 + corpo * 0.3 - (6.0 if sotto != "" else 0.0)), testo, corpo, NERO)
-	if sotto != "":
-		scritta(t, Vector2(r.position.x + 12, r.position.y + r.size.y * 0.5 + corpo * 0.3 + 12), sotto, 11, Color(NERO, 0.75),
-				Caratteri.tondo(900))
 
 
 # --- i disegni delle abilita' ---------------------------------------------------------
