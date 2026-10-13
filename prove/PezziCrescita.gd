@@ -72,16 +72,8 @@ static func gettone(t: CanvasItem, c: Vector2, r: float, quota: float, tinta := 
 	t.draw_polyline(Sagome.chiudi(Sagome.rombo(c, r)), tinta, 3.0, true)
 
 
-static func biforca(t: CanvasItem, c: Vector2, r: float, tinta: Color, spessore := 3.0) -> void:
-	# "una delle due": il rombo tagliato a meta', una meta' piena e una no
-	Manifesto.poligono(t, PackedVector2Array([c + Vector2(0, -r), c + Vector2(0, r), c + Vector2(-r, 0)]), tinta)
-	t.draw_polyline(Sagome.chiudi(Sagome.rombo(c, r)), tinta, spessore, true)
 
 
-static func segno_passiva(t: CanvasItem, c: Vector2, r: float, bordo := NERO) -> void:
-	# una passiva, in piccolo: l'alloggio a rombo della schermata delle passive
-	rombo(t, c, r, ARANCIO, bordo, 2.0)
-	rombo(t, c, r * 0.5, CREMA)
 
 
 static func barretta(t: CanvasItem, r: Rect2, quota: float, pieno: Color, vuoto := Color(0, 0, 0, 0)) -> void:
@@ -93,17 +85,6 @@ static func barretta(t: CanvasItem, r: Rect2, quota: float, pieno: Color, vuoto 
 				0.5), pieno)
 
 
-static func icona_stat(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo := CREMA) -> void:
-	# il disegno di una statistica: quelli del gioco (Sagome), piu' due
-	match chiave:
-		"intelligenza":
-			Sagome.occhio(t, c, l, tinta, fondo)
-		"fattore":
-			glifo(t, "fiamma", c, l, tinta, fondo)
-		"attacco":
-			glifo(t, "lama", c, l, tinta, fondo)
-		_:
-			Sagome.icona_statistica(t, Rect2(c - Vector2(l, l) * 0.5, Vector2(l, l)), chiave, tinta)
 
 
 static func spicchio(t: CanvasItem, c: Vector2, dentro: float, fuori: float, da: float, a: float, tinta: Color,
@@ -123,6 +104,26 @@ static func spicchio(t: CanvasItem, c: Vector2, dentro: float, fuori: float, da:
 
 
 # --- la carta, le scritte, le forme ---------------------------------------------------
+
+static func rombini(t: CanvasItem, centri: Array[Vector2], r: float, tinta: Color) -> void:
+	# tanti rombi piccoli in un disegno solo, come Manifesto.puntini: una finitura
+	# ne ha centinaia, e uno per uno costerebbero un comando ciascuno
+	if centri.is_empty():
+		return
+	var vertici := PackedVector2Array()
+	var indici := PackedInt32Array()
+	for q in centri:
+		var base := vertici.size()
+		vertici.append(q + Vector2(0, -r))
+		vertici.append(q + Vector2(r, 0))
+		vertici.append(q + Vector2(0, r))
+		vertici.append(q + Vector2(-r, 0))
+		indici.append_array(PackedInt32Array([base, base + 1, base + 2, base, base + 2, base + 3]))
+	var colori := PackedColorArray()
+	colori.resize(vertici.size())
+	colori.fill(tinta)
+	RenderingServer.canvas_item_add_triangle_array(t.get_canvas_item(), indici, vertici, colori)
+
 
 static func cartoncino(t: CanvasItem, r: Rect2, tinta: Color, spessore := 4.0, ombra := OMBRA, retino := false) -> void:
 	if ombra != Vector2.ZERO:
@@ -198,115 +199,3 @@ static func etichetta(t: CanvasItem, dove: Vector2, testo: String, corpo: int, f
 	fascia(t, Rect2(dove, Vector2(largo, alto)), fondo, sfoglia)
 	scritta(t, dove + Vector2(corpo * 0.55, alto * 0.5 + corpo * 0.36), testo, corpo, inchiostro)
 	return largo
-
-
-static func raggi(t: CanvasItem, c: Vector2, quanti: int, lungo: float, a: Color, b: Color, rotazione: float) -> void:
-	# i raggi dal centro, a colori alterni, che girano
-	for i in quanti:
-		var a0 := rotazione + TAU * float(i) / quanti
-		var a1 := rotazione + TAU * float(i + 1) / quanti
-		var tinta := a if i % 2 == 0 else b
-		if tinta.a > 0.0:
-			t.draw_colored_polygon(PackedVector2Array([c, c + Vector2.from_angle(a0) * lungo, c + Vector2.from_angle(a1) * lungo]),
-					tinta)
-
-
-static func scoppio(t: CanvasItem, c: Vector2, fuori: float, dentro: float, punte: int, tinta: Color, contorno := NERO,
-		spessore := 5.0, giro := 0.0) -> void:
-	var p := PackedVector2Array()
-	for i in punte * 2:
-		var a := giro - PI * 0.5 + PI * float(i) / punte
-		var r := fuori if i % 2 == 0 else dentro
-		p.append(c + Vector2.from_angle(a) * r)
-	if spessore > 0.0:
-		var largo := PackedVector2Array()
-		for q in p:
-			largo.append(c + (q - c) * (1.0 + spessore / fuori))
-		Manifesto.poligono(t, largo, contorno)
-	Manifesto.poligono(t, p, tinta)
-
-
-static func scintilla(t: CanvasItem, c: Vector2, r: float, tinta: Color) -> void:
-	Manifesto.poligono(t, Sagome.stella(c, r, r * 0.28, 4), tinta)
-
-
-# --- i disegni delle abilita' ---------------------------------------------------------
-
-static func glifo(t: CanvasItem, quale: String, c: Vector2, l: float, tinta: Color, fondo := CREMA) -> void:
-	match quale:
-		"aghi":
-			for i in 11:
-				var a := -PI * 0.5 + (float(i) - 5.0) * 0.22
-				var dir := Vector2.from_angle(a)
-				Manifesto.poligono(t, PackedVector2Array([c + dir * l * 0.08 + dir.orthogonal() * l * 0.03,
-						c + dir * l * 0.48, c + dir * l * 0.08 - dir.orthogonal() * l * 0.03]), tinta)
-			t.draw_circle(c + Vector2(0, l * 0.12), l * 0.12, tinta, true, -1.0, true)
-		"fiamma":
-			Manifesto.poligono(t, PackedVector2Array([c + Vector2(0, -l * 0.48), c + Vector2(l * 0.16, -l * 0.18),
-					c + Vector2(l * 0.3, -l * 0.3), c + Vector2(l * 0.32, l * 0.08), c + Vector2(l * 0.18, l * 0.36),
-					c + Vector2(-l * 0.18, l * 0.36), c + Vector2(-l * 0.32, l * 0.06), c + Vector2(-l * 0.2, -l * 0.16)]), tinta)
-			Manifesto.poligono(t, PackedVector2Array([c + Vector2(0, -l * 0.08), c + Vector2(l * 0.12, l * 0.14),
-					c + Vector2(l * 0.06, l * 0.3), c + Vector2(-l * 0.06, l * 0.3), c + Vector2(-l * 0.12, l * 0.14)]), fondo)
-		"spirale":
-			var p := PackedVector2Array()
-			for i in 60:
-				var k := float(i) / 59.0
-				p.append(c + Vector2.from_angle(k * TAU * 2.2) * l * (0.04 + 0.42 * k))
-			t.draw_polyline(p, tinta, l * 0.08, true)
-		"vuoto":
-			t.draw_circle(c, l * 0.42, tinta, true, -1.0, true)
-			t.draw_circle(c, l * 0.26, fondo, true, -1.0, true)
-			t.draw_circle(c, l * 0.15, tinta, true, -1.0, true)
-			t.draw_line(c + Vector2(-l * 0.46, l * 0.46), c + Vector2(l * 0.46, -l * 0.46), tinta, l * 0.07, true)
-		"loto":
-			for k in 5:
-				var a := -PI * 0.5 + (k - 2) * 0.42
-				var punta := c + Vector2(0, l * 0.22) + Vector2.from_angle(a) * l * 0.5
-				Manifesto.poligono(t, PackedVector2Array([c + Vector2(0, l * 0.22), punta + Vector2.from_angle(a + 1.2) * l * 0.12,
-						punta, punta + Vector2.from_angle(a - 1.2) * l * 0.12]), tinta)
-			t.draw_line(c + Vector2(-l * 0.4, l * 0.34), c + Vector2(l * 0.4, l * 0.34), tinta, l * 0.06, true)
-		"saetta":
-			Manifesto.poligono(t, Sagome.fulmine(c, l * 1.1), tinta)
-		"cuore":
-			Sagome.cuore(t, c, l * 1.1, tinta)
-		"lama":
-			Manifesto.poligono(t, PackedVector2Array([c + Vector2(l * 0.36, -l * 0.42), c + Vector2(l * 0.44, -l * 0.34),
-					c + Vector2(-l * 0.12, l * 0.2), c + Vector2(-l * 0.2, l * 0.12)]), tinta)
-			t.draw_line(c + Vector2(-l * 0.32, l * 0.04), c + Vector2(-l * 0.04, l * 0.32), tinta, l * 0.08, true)
-			t.draw_line(c + Vector2(-l * 0.18, l * 0.18), c + Vector2(-l * 0.36, l * 0.36), tinta, l * 0.1, true)
-		"fuoco_interno":
-			scoppio(t, c, l * 0.46, l * 0.2, 8, tinta, NERO, 0.0)
-			t.draw_circle(c, l * 0.14, fondo, true, -1.0, true)
-		"occhio":
-			Sagome.occhio(t, c, l, tinta, fondo)
-		"clessidra":
-			# il vetro vuoto, un po' di sabbia sopra e il mucchio sotto
-			t.draw_rect(Rect2(c + Vector2(-l * 0.36, -l * 0.5), Vector2(l * 0.72, l * 0.09)), tinta)
-			t.draw_rect(Rect2(c + Vector2(-l * 0.36, l * 0.41), Vector2(l * 0.72, l * 0.09)), tinta)
-			var vetro := PackedVector2Array([c + Vector2(-l * 0.27, -l * 0.41), c + Vector2(l * 0.27, -l * 0.41),
-					c + Vector2(l * 0.05, 0), c + Vector2(l * 0.27, l * 0.41), c + Vector2(-l * 0.27, l * 0.41),
-					c + Vector2(-l * 0.05, 0)])
-			t.draw_polyline(Sagome.chiudi(vetro), tinta, maxf(l * 0.06, 1.5), true)
-			Manifesto.poligono(t, PackedVector2Array([c + Vector2(-l * 0.13, -l * 0.16), c + Vector2(l * 0.13, -l * 0.16),
-					c + Vector2(0, -l * 0.03)]), tinta)
-			Manifesto.poligono(t, PackedVector2Array([c + Vector2(-l * 0.25, l * 0.41), c + Vector2(l * 0.25, l * 0.41),
-					c + Vector2(0, l * 0.17)]), tinta)
-			t.draw_line(c, c + Vector2(0, l * 0.3), tinta, maxf(l * 0.03, 1.0))
-		"gemma":
-			Manifesto.poligono(t, PackedVector2Array([c + Vector2(-l * 0.4, -l * 0.12), c + Vector2(-l * 0.22, -l * 0.34),
-					c + Vector2(l * 0.22, -l * 0.34), c + Vector2(l * 0.4, -l * 0.12), c + Vector2(0, l * 0.42)]), tinta)
-			t.draw_line(c + Vector2(-l * 0.4, -l * 0.12), c + Vector2(l * 0.4, -l * 0.12), fondo, l * 0.04, true)
-			t.draw_line(c + Vector2(-l * 0.1, -l * 0.12), c + Vector2(0, l * 0.36), fondo, l * 0.03, true)
-			t.draw_line(c + Vector2(l * 0.1, -l * 0.12), c + Vector2(0, l * 0.36), fondo, l * 0.03, true)
-		"battito":
-			Sagome.cuore(t, c, l * 1.1, tinta)
-			t.draw_polyline(PackedVector2Array([c + Vector2(-l * 0.5, 0), c + Vector2(-l * 0.16, 0), c + Vector2(-l * 0.06, -l * 0.18),
-					c + Vector2(l * 0.06, l * 0.16), c + Vector2(l * 0.14, 0), c + Vector2(l * 0.5, 0)]), fondo, l * 0.06, true)
-		"tre":
-			for k in 3:
-				var dir := Vector2.from_angle(-PI * 0.5 + TAU * k / 3.0)
-				Manifesto.poligono(t, PackedVector2Array([c + dir * l * 0.46, c + dir.orthogonal() * l * 0.1,
-						c - dir.orthogonal() * l * 0.1]), tinta)
-			t.draw_circle(c, l * 0.1, tinta, true, -1.0, true)
-		_:
-			scintilla(t, c, l * 0.45, tinta)
