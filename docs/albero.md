@@ -501,6 +501,13 @@ fila diventa il suo tronco.
 Così la demo **cresce**. Oggi no, ed è la cosa che un giocatore noterebbe per
 prima.
 
+**Bru, sulle proposte (prove/ProposteCrescita.gd):** approvata la roulette, un
+giro di venti spicchi; «superato il 20 dovremmo farla ricominciare da 21 con un
+look più figo e così via fino al livello massimo [...] ovviamente nella beta il
+cap è 20». Fino al 130 sono sei giri da venti e un ultimo da dieci. Qui sopra e
+in altri documenti la demo finisce al 18: se la beta è la demo, il 18 va
+aggiornato al 20.
+
 ### 4.4 Le «stelle doppie»: la scelta dentro il nodo
 
 - 38 nodi statistica su 60 sono il rischio di Greg Street *(R)*: tanti +qualcosa

@@ -1,51 +1,70 @@
 extends Control
 
-# LE PROPOSTE PER LA CRESCITA, quarta mano. Provvisorio: quando la schermata vera
+# LE PROPOSTE PER LA CRESCITA, quinta mano. Provvisorio: quando la schermata vera
 # nasce da qui, questo file se ne va (come ProposteZaino).
 #
 # Delle sei astratte Bru ne ha tenute tre: «approvato quella che sembra una
-# roulette, le passive e un punto due strade, miglioriamo per ora queste
-# approvate». Qui sono diventate un sistema solo, quello di docs/albero.md
-# (4.3, 4.4, 4.5), e dicono cose vere: cosa arriva a ogni livello, i nomi, le
-# descrizioni e i numeri dei potenziamenti vengono da abilita.json e crescita.json.
+# roulette, le passive e un punto due strade». Sono un sistema solo, quello di
+# docs/albero.md (4.3, 4.4, 4.5), e dicono cose vere: cosa arriva a ogni
+# livello, i nomi, le descrizioni e i potenziamenti vengono da abilita.json e
+# crescita.json. Poi, sulla roulette: «arriva fino a 20, superato il 20
+# dovremmo farla ricominciare da 21 con un look piu' figo e cosi' via fino al
+# livello massimo [...] ovviamente nella beta il cap e' 20». Il massimo e'
+# livello_massimo di regole.json (130): sei giri da venti e un ultimo da dieci,
+# ognuno con un aspetto piu' acceso del precedente.
 #
-#   quadrante  il tronco della demo, venti spicchi: un punto = un livello. Su ogni
-#              spicchio si vede cosa da' (una statistica a scelta, e a volte
-#              un'abilita' o una passiva). La lancetta sta ferma, gira la ruota
-#   bivio      prendere lo spicchio: un punto, due strade. La strada scelta si
-#              allarga; quello che arriva comunque sta sulla fascia in basso
-#   passive    quelle sbloccate si portano in tre alloggi, e si cambiano quando vuoi
+#   giro_1 .. giro_7  la roulette, un giro per foto
+#   fine_beta         il primo giro chiuso, nella beta: il 20 e' il tetto
+#   massimo           l'ultimo giro chiuso, al 130: si torna sui bivi
+#   bivio             prendere lo spicchio: un punto, due strade
+#   passive           quelle sbloccate si portano in tre alloggi, e si cambiano
 #
-# Il protagonista d'esempio e' lo stesso: livello 7, 3.450 di hype. Le passive
-# lo mostrano al 24, perche' prima del 10 non ce n'e' nessuna.
-#
-#   ./prove/proposte_crescita.sh   le fotografa in scatti/proposte_crescita/
-#   -- film quadrante              per il Movie Maker: il copione la usa da solo
+#   ./prove/proposte_crescita.sh        le fotografa in scatti/proposte_crescita/
+#   -- film giri                        dal primo giro all'ultimo, coi passaggi
+#   -- film giro_1 (o bivio, passive)   una sola, usata da un copione
 #   nell'editor, F6: destra e sinistra cambiano schermata; su, giu' e invio la usano
 
 const P := preload("res://prove/PezziCrescita.gd")
-const PROPOSTE := ["quadrante", "quadrante_avanti", "bivio", "passive"]
+const PROPOSTE := ["giro_1", "giro_2", "giro_3", "giro_4", "giro_5", "giro_6", "giro_7", "fine_beta", "massimo", "bivio",
+		"passive"]
 const CARTELLA := "res://scatti/proposte_crescita"
 const HYPE := 3450
-const LIVELLO := 7
+const LIVELLO := 7          # il protagonista d'esempio del bivio
+const TETTO_BETA := 20      # Bru: «nella beta il cap e' 20»
+# dove sta il protagonista d'esempio in ogni foto della roulette: un livello
+# prima di uno in cui arriva qualcosa, per vederlo sulla lastra
+const ADESSO := {"giro_1": 7, "giro_2": 32, "giro_3": 44, "giro_4": 64, "giro_5": 87, "giro_6": 110, "giro_7": 125,
+		"fine_beta": 20, "massimo": 130, "giri": 20}
 # nel film: quando (secondi dall'entrata) e cosa fa da solo chi la usa
 const COPIONI := {
-	"quadrante": [[1.5, "avanti"], [1.95, "avanti"], [2.4, "avanti"], [3.5, "indietro"], [3.75, "indietro"], [4.0, "indietro"]],
+	"giro_1": [[1.5, "avanti"], [1.95, "avanti"], [2.4, "avanti"], [3.5, "indietro"], [3.75, "indietro"], [4.0, "indietro"]],
+	# il giro chiuso passa al prossimo; il prossimo si riempie (la ruota fa un giro intero) e passa ancora
+	"giri": [[1.2, "conferma"], [3.2, "riempi"], [4.4, "conferma"], [6.4, "riempi"], [7.6, "conferma"], [9.6, "riempi"],
+			[10.8, "conferma"], [12.8, "riempi"], [14.0, "conferma"], [16.0, "riempi"], [17.2, "conferma"], [19.6, "riempi"]],
 	"bivio": [[1.5, "avanti"], [2.4, "avanti"], [3.2, "conferma"]],
 	"passive": [[1.4, "conferma"], [2.5, "avanti"], [3.2, "avanti"]],
 }
 
 var indice := 0
+var schermata := ""
 var tavola: Tavola
 var tela: Disegno
 var tempo := 1.3
 var inizio := 0.0       # quando e' comparsa la schermata: le entrate contano da qui
 var foto := false
 var copione: Array = []
+var arrivi := {}        # livello -> [[tipo, id], ...]: cosa arriva a quel livello
 # lo stato di chi la usa
-var guardato := LIVELLO        # lo spicchio sotto la lancetta (livello - 1)
-var vista := float(LIVELLO)    # dove sta davvero la ruota: ci arriva con una molla
+var adesso := LIVELLO          # il livello del protagonista
+var beta := false
+var guardato := LIVELLO + 1    # il livello sotto la lancetta
+var vista := float(LIVELLO + 1)   # dove sta davvero la ruota: ci arriva con una molla
 var spinta_vista := 0.0
+var giro_prima := 0            # nel passaggio da un giro all'altro, quello che se ne va
+var cambio_giro_a := -10.0
+var riempi_a := -10.0          # nel film: il giro si riempie in un attimo, come il tempo che passa
+var riempi_da := 0
+var riempi_fino := 0
 var a_destra := true           # la strada scelta nel bivio
 var peso := 1.0                # 0 = la strada di sinistra, 1 = quella di destra, con la molla
 var spinta_peso := 0.0
@@ -57,12 +76,16 @@ var portata := false
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	prepara_arrivi()
 	var argomenti := OS.get_cmdline_user_args()
 	foto = "foto" in argomenti
 	if not foto:
 		# "-- film bivio": parte da quella, per registrarla col Movie Maker
-		var quale := PROPOSTE.find(argomenti[argomenti.find("film") + 1]) if "film" in argomenti and argomenti.size() > 1 else 0
-		mostra(maxi(quale, 0))
+		var quale := String(argomenti[argomenti.find("film") + 1]) if "film" in argomenti and argomenti.size() > 1 else ""
+		if quale in PROPOSTE:
+			mostra(PROPOSTE.find(quale))
+		else:
+			mostra_nome(quale if COPIONI.has(quale) else String(PROPOSTE[0]))
 		return
 	DirAccess.make_dir_recursive_absolute(CARTELLA)
 	for i in PROPOSTE.size():
@@ -73,7 +96,7 @@ func _ready() -> void:
 			await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		var immagine := get_viewport().get_texture().get_image()
-		immagine.save_png(CARTELLA.path_join("%d_%s.png" % [i + 1, PROPOSTE[i]]))
+		immagine.save_png(CARTELLA.path_join("%02d_%s.png" % [i + 1, PROPOSTE[i]]))
 		print("PROPOSTA %d: %s" % [i + 1, PROPOSTE[i]])
 	get_tree().quit()
 
@@ -85,6 +108,16 @@ func _process(delta: float) -> void:
 	while not copione.is_empty() and tempo - inizio >= float(copione[0][0]):
 		var battuta: Array = copione.pop_front()
 		azione(String(battuta[1]))
+	if riempi_a >= 0.0:
+		var fatto := clampf((tempo - riempi_a) / 0.9, 0.0, 1.0)
+		adesso = riempi_da + roundi(fatto * (riempi_fino - riempi_da))
+		guardato = maxi(adesso, riempi_da + 1)
+		if fatto >= 1.0:
+			riempi_a = -10.0
+	if tempo - cambio_giro_a < 1.0:
+		# mentre passa al giro nuovo la ruota aspetta, poi entra girando
+		vista = float(guardato) - 5.0
+		spinta_vista = 0.0
 	var ruota := molla(vista, spinta_vista, float(guardato), delta)
 	vista = ruota.x
 	spinta_vista = ruota.y
@@ -108,20 +141,34 @@ func _unhandled_input(evento: InputEvent) -> void:
 		azione("conferma")
 
 
+static func genere(nome: String) -> String:
+	return nome if nome in ["bivio", "passive"] else "quadrante"
+
+
 func mostra(quale: int) -> void:
 	indice = quale
+	mostra_nome(String(PROPOSTE[quale]))
+
+
+func mostra_nome(nome: String) -> void:
+	schermata = nome
 	if tavola != null:
 		tavola.queue_free()
 	tavola = Tavola.su(self)
 	tela = Disegno.new()
-	var nome := String(PROPOSTE[quale])
-	tela.come = Callable(self, "disegna_" + nome.get_slice("_", 0))
+	tela.come = Callable(self, "disegna_" + genere(nome))
 	tavola.add_child(tela)
 	Manifesto.trama_dietro(tela).show_behind_parent = true
 	inizio = tempo - (20.0 if foto else 0.0)   # nelle foto, a entrata finita
-	guardato = LIVELLO + (8 if nome == "quadrante_avanti" else 0)
+	adesso = int(ADESSO.get(nome, LIVELLO))
+	beta = nome == "fine_beta"
+	# a giro chiuso la lancetta sta sull'ultimo; se no sul prossimo
+	guardato = adesso if nome in ["fine_beta", "massimo", "giri"] else adesso + 1
 	vista = float(guardato) - (0.0 if foto else 5.0)   # nel film la ruota entra girando
 	spinta_vista = 0.0
+	giro_prima = giro_di(guardato)
+	cambio_giro_a = -10.0
+	riempi_a = -10.0
 	a_destra = true
 	peso = 1.0
 	spinta_peso = 0.0
@@ -130,16 +177,27 @@ func mostra(quale: int) -> void:
 	passiva = 2
 	portata = false
 	copione = [] if foto else (COPIONI.get(nome, []) as Array).duplicate(true)
-	call("tasti_" + nome.get_slice("_", 0))
+	call("tasti_" + genere(nome))
 
 
 func azione(quale: String) -> void:
 	var avanti := 1 if quale == "avanti" else -1
-	match String(PROPOSTE[indice]).get_slice("_", 0):
+	match genere(schermata):
 		"quadrante":
-			if quale != "conferma":
-				guardato = clampi(guardato + avanti, 0, SPICCHI - 1)
+			var g := giro_di(guardato)
+			if quale == "riempi":
+				riempi_a = tempo
+				riempi_da = adesso
+				riempi_fino = ultimo_del_giro(g)
+			elif quale != "conferma":
+				guardato = clampi(guardato + avanti, primo_del_giro(g), mini(ultimo_del_giro(g), TETTO_BETA if beta else 999))
 				cambiato_a = tempo
+			elif chiuso() and not beta and g < giri() - 1:
+				# giro chiuso: si passa al prossimo
+				giro_prima = g
+				guardato = adesso + 1
+				cambio_giro_a = tempo
+				cambiato_a = tempo + 0.55
 		"bivio":
 			if quale == "conferma":
 				preso_a = tempo
@@ -182,13 +240,10 @@ func comandi(dove: Vector2, coppie: Array, inchiostro: Color) -> void:
 
 # --- i dati, i conti e i tempi ---------------------------------------------------------------
 
-const SPICCHI := 20
-# cosa arriva a ogni livello oltre alla statistica a scelta: le abilita' senza
-# costo arrivano da sole a quel livello (abilita.json), le passive pure
-# (crescita.json, passive_livello)
-const ARRIVA := {5: ["abilita", "astio"], 8: ["abilita", "vendetta"], 10: ["passiva", "non_ce_tempo"],
-		11: ["abilita", "flagello"], 14: ["abilita", "mantra"], 16: ["passiva", "immondizia_tesoro"],
-		19: ["abilita", "annichilazione"]}
+# le abilita' del protagonista: le sue tre linee (classes.json) e le tre senza
+# linea che oggi sono sue (docs/albero.md, domanda 8)
+const LINEE := ["flagello", "annichilazione", "mantra"]
+const SENZA_LINEA := ["astio", "vendetta", "pieta"]
 # la stella doppia di ogni livello (docs/albero.md 4.4), d'esempio, a giro; l'8
 # e' quella del bivio, coi due potenziamenti veri
 const COPPIE := [["velocita", "difesa"], ["attacco", "fattore"], ["hp", "intelligenza"], ["hp", "attacco"], ["difesa", "attacco"]]
@@ -197,10 +252,36 @@ const ATTUALI := {"hp": 110, "attacco": 17}       # il protagonista d'esempio al
 const FINO_A := {"hp": 200.0, "attacco": 30.0}    # quanto e' lunga la barretta
 const PAROLE := {"hp": "VITA", "attacco": "ATTACCO", "difesa": "DIFESA", "velocita": "VELOCITÀ",
 		"intelligenza": "INTELLIGENZA", "fattore": "FATTORE"}
-const GLIFI := {"astio": "spirale", "vendetta": "fuoco_interno", "flagello": "aghi", "mantra": "loto",
+# il disegno di ogni abilita' (per linea) e di ogni passiva
+const GLIFI := {"astio": "spirale", "vendetta": "fuoco_interno", "pieta": "gemma", "flagello": "aghi", "mantra": "loto",
 		"annichilazione": "vuoto", "non_ce_tempo": "clessidra", "immondizia_tesoro": "gemma",
 		"battito_dell_eroe": "battito", "trinita": "tre", "presenza_minacciosa": "fuoco_interno", "furia": "fiamma",
-		"perspicacia_acuta": "occhio"}
+		"perspicacia_acuta": "occhio", "crudelta": "lama", "illuminazione_1": "occhio", "charm": "cuore", "negazione": "vuoto",
+		"infinito": "spirale", "oltre_il_limite": "saetta", "ancora_oltre_il_limite": "saetta", "tryharder": "gemma",
+		"illuminazione_2": "occhio", "pressione_ultraterrena": "fuoco_interno", "una_nuova_alba": "fiamma"}
+
+
+func prepara_arrivi() -> void:
+	# le abilita' senza costo arrivano da sole al loro livello (abilita.json), e
+	# cosi' le passive (crescita.json, passive_livello): prima le abilita'
+	arrivi = {}
+	var tutte: Dictionary = GameState.abilita.get("abilita", {})
+	for id: String in tutte:
+		var dati: Dictionary = tutte[id]
+		if dati.has("livello") and (String(dati.get("linea", "")) in LINEE or id in SENZA_LINEA):
+			(arrivi.get_or_add(int(dati["livello"]), []) as Array).append(["abilita", id])
+	for voce: Dictionary in GameState.crescita.get("passive_livello", []):
+		(arrivi.get_or_add(int(voce.get("livello", 0)), []) as Array).append(["passiva", String(voce.get("id", ""))])
+
+
+func arrivi_di(livello: int) -> Array:
+	return arrivi.get(livello, [])
+
+
+static func glifo_di(tipo: String, id: String) -> String:
+	if GLIFI.has(id) or tipo == "passiva":
+		return String(GLIFI.get(id, ""))
+	return String(GLIFI.get(String(abilita(id).get("linea", "")), ""))
 
 
 static func abilita(id: String) -> Dictionary:
@@ -219,6 +300,10 @@ static func dati_passiva(id: String) -> Dictionary:
 			if String(voce.get("id", "")) == id:
 				return voce
 	return {}
+
+
+static func dati_di(tipo: String, id: String) -> Dictionary:
+	return dati_passiva(id) if tipo == "passiva" else abilita(id)
 
 
 static func nome_stat(chiave: String) -> String:
@@ -272,6 +357,10 @@ static func frena(x: float) -> float:
 	return 1.0 - pow(1.0 - x, 3.0)
 
 
+static func velo(tinta: Color, quanto: float) -> Color:
+	return Color(tinta, tinta.a * quanto)
+
+
 # --- i pezzi comuni ------------------------------------------------------------------------
 
 static func testata(t: CanvasItem, titolo: String, sinistra_su_nero: bool, destra_su_nero: bool, livello := LIVELLO) -> void:
@@ -303,132 +392,332 @@ static func gettoni(t: CanvasItem, dove: Vector2, inchiostro: Color, vuoto: Colo
 			migliaia(per_punto())], 13, inchiostro, Caratteri.tondo(900))
 
 
-static func segno_arriva(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
-	# il disegno di quello che arriva a quel livello: il glifo dell'abilita',
-	# o il rombo della passiva
-	var arriva: Array = ARRIVA[livello]
-	if String(arriva[0]) == "passiva":
-		P.segno_passiva(t, c, l * 0.42)
-	else:
-		P.glifo(t, String(GLIFI.get(String(arriva[1]), "")), c, l, tinta, fondo)
-
-
-# --- 1. il quadrante -----------------------------------------------------------------------
+# --- 1. la roulette, a giri -----------------------------------------------------------------
 #
-# Il tronco della demo come una roulette di venti spicchi, uno per livello. La
-# lancetta sta ferma, a sinistra, dove la lastra mette il dente; gira la ruota.
-# Presi = neri, col disegno di quello che hai scelto; il prossimo esce
-# dall'anello; gli altri sono il contorno, col disegno di quello che daranno.
+# Il tronco come una roulette: venti spicchi, uno per livello. La lancetta sta
+# ferma, a sinistra, dove la lastra mette il dente; gira la ruota. Presi = pieni,
+# col disegno di quello che hai scelto; il prossimo esce dall'anello; gli altri
+# hanno il disegno di quello che daranno. Chiuso un giro se ne apre un altro, dal
+# 21, dal 41... fino al massimo: ogni giro ha il suo aspetto, e ognuno aggiunge
+# qualcosa al precedente. L'ultimo (121-130) ha dieci spicchi, piu' grandi.
 
 const CENTRO := Vector2(920, 392)
 const DENTRO := 206.0
 const FUORI := 300.0
 const LASTRA_QUADRANTE := [Vector2(-20, -20), Vector2(606, -20), Vector2(440, 740), Vector2(-20, 740)]
+const SIPARIO := [Vector2(596, -20), Vector2(1300, -20), Vector2(1300, 740), Vector2(430, 740)]
 
 
-func angolo_spicchio(k: int) -> float:
-	return PI + deg_to_rad(360.0 / SPICCHI * (k - vista))
+static func massimo() -> int:
+	return int(GameState.regole.get("livello_massimo", 130))
+
+
+static func giri() -> int:
+	return ceili(massimo() / 20.0)
+
+
+static func giro_di(livello: int) -> int:
+	return clampi(floori((livello - 1) / 20.0), 0, giri() - 1)
+
+
+static func primo_del_giro(g: int) -> int:
+	return 20 * g + 1
+
+
+static func spicchi_del_giro(g: int) -> int:
+	return mini(20, massimo() - 20 * g)
+
+
+static func ultimo_del_giro(g: int) -> int:
+	return primo_del_giro(g) + spicchi_del_giro(g) - 1
+
+
+func chiuso() -> bool:
+	# il giro di adesso e' finito: tutti i suoi spicchi sono presi
+	return adesso == ultimo_del_giro(giro_di(adesso)) or (beta and adesso >= TETTO_BETA)
+
+
+static func tema(g: int) -> Dictionary:
+	# l'aspetto di ogni giro: si parte dall'arancio del menu e ogni giro ci
+	# mette sopra qualcosa (una fascia, il nero, i raggi, la carta, le punte...)
+	var tm := {"nome": "", "fondo": "arancio", "inchiostro": P.NERO, "bordo": P.NERO, "preso": P.NERO,
+			"preso_segno": P.CREMA, "futuro": P.NERO, "futuro_pieno": Color(0, 0, 0, 0), "esce": P.CREMA,
+			"esce_segno": P.NERO, "ombra": P.NERO, "disco": P.NERO, "disco_segno": P.CREMA, "numero": P.CREMA,
+			"accento": P.ARANCIO, "cuore": P.ARANCIO, "punte": P.NERO, "scintilla": P.CREMA, "extra": []}
+	match g:
+		0:
+			tm.merge({"nome": "PRIMO GIRO"}, true)
+		1:
+			# la fascia nera dietro: i presi, neri anche loro, hanno il bordo chiaro per staccarsene
+			tm.merge({"nome": "SECONDO GIRO", "bordo": P.CREMA, "futuro_pieno": P.ARANCIO, "extra": ["fascia", "doppio", "filo"]}, true)
+		2:
+			tm.merge({"nome": "TERZO GIRO", "fondo": "nero", "inchiostro": P.ARANCIO, "preso": P.ARANCIO,
+					"preso_segno": P.NERO, "futuro": P.ARANCIO, "ombra": P.ARANCIO_SCURO, "disco": P.ARANCIO,
+					"disco_segno": P.NERO, "numero": P.NERO, "accento": P.NERO, "cuore": P.CREMA,
+					"extra": ["trattini", "doppio", "filo"]}, true)
+		3:
+			tm.merge({"nome": "QUARTO GIRO", "futuro_pieno": P.ARANCIO, "accento": P.CREMA,
+					"extra": ["raggi", "punte", "filo"]}, true)
+		4:
+			tm.merge({"nome": "QUINTO GIRO", "fondo": "carta", "preso_segno": P.ARANCIO, "esce": P.ARANCIO,
+					"numero": P.ARANCIO, "scintilla": P.ARANCIO_SCURO, "extra": ["doppio", "rombi", "scintille"]}, true)
+		5:
+			tm.merge({"nome": "SESTO GIRO", "fondo": "nero", "inchiostro": P.CREMA, "preso": P.CREMA, "preso_segno": P.NERO,
+					"futuro": P.CREMA, "esce": P.ARANCIO, "ombra": P.ARANCIO_SCURO, "disco": P.CREMA,
+					"disco_segno": P.NERO, "numero": P.NERO, "punte": P.ARANCIO, "futuro_pieno": P.NERO,
+					"extra": ["raggi_scuri", "punte", "orbite"]}, true)
+		_:
+			tm.merge({"nome": "ULTIMO GIRO", "fondo": "nero", "inchiostro": P.CREMA, "preso": P.ARANCIO,
+					"preso_segno": P.NERO, "futuro": P.CREMA, "futuro_pieno": P.NERO, "ombra": P.ARANCIO, "disco": P.ARANCIO,
+					"disco_segno": P.NERO, "numero": P.NERO, "accento": P.CREMA, "cuore": P.CREMA, "punte": P.ARANCIO,
+					"extra": ["raggi_fuoco", "punte", "punte_dentro", "doppio", "scintille", "filo"]}, true)
+	return tm
 
 
 func disegna_quadrante(t: CanvasItem) -> void:
-	quadrante(t)
-	legenda(t, Vector2(1144, 650))
+	# nel passaggio da un giro all'altro: il vecchio vola via (fino a 0,55 s), una
+	# lastra col nome del nuovo copre tutto, il nuovo si monta (da 1 s)
+	var p := tempo - cambio_giro_a
+	var g := giro_prima if p < 0.55 else giro_di(guardato)
+	var tm := tema(g)
+	var v := float(adesso) if p < 0.55 else vista
+	fondo_del_giro(t, tm, g, v)
+	ruota_del_giro(t, tm, g, v, p)
+	disco(t, tm, g)
+	legenda(t)
+	var nome := "%s · %d–%d" % [tm["nome"], primo_del_giro(g), ultimo_del_giro(g)]
+	var su_nero: bool = tm["fondo"] == "nero"
+	P.etichetta(t, Vector2(1262 - P.larghezza(nome, 16) - 18, 72), nome, 16, P.CREMA if su_nero else P.NERO,
+			P.NERO if su_nero else P.CREMA, P.CREMA if tm["fondo"] == "arancio" else P.ARANCIO)
 	P.gira(t, Vector2(-600.0 * (1.0 - frena(entrata(0.0, 0.45))), 0), 0.0)
 	P.lastra(t, PackedVector2Array(LASTRA_QUADRANTE), P.NERO, P.CREMA, 16.0)
 	# il dente della lastra: la lancetta
 	var bordo := lerpf(606.0, 440.0, (CENTRO.y + 20.0) / 760.0) + 14.0
 	Manifesto.poligono(t, PackedVector2Array([Vector2(bordo, CENTRO.y - 24), Vector2(bordo + 30, CENTRO.y),
 			Vector2(bordo, CENTRO.y + 24)]), P.CREMA)
-	pannello_quadrante(t, guardato)
+	pannello_quadrante(t, adesso if p < 0.55 else guardato)
 	P.dritto(t)
-	testata(t, "CRESCITA", true, false)
+	sipario(t, p, giro_di(guardato))
+	testata(t, "CRESCITA", true, su_nero, adesso)
 
 
-func quadrante(t: CanvasItem) -> void:
+func fondo_del_giro(t: CanvasItem, tm: Dictionary, g: int, v: float) -> void:
+	# il fondo e quello che sta dietro alla ruota
 	var c := CENTRO
-	var mezzo := deg_to_rad(360.0 / SPICCHI * 0.5 - 1.0)
+	var tutto := Rect2(0, 0, 1280, 720)
+	match String(tm["fondo"]):
+		"nero":
+			t.draw_rect(tutto, P.NERO)
+			Manifesto.retino(t, tutto, Color(P.ARANCIO, 0.08), Vector2(1.0, 1.0))
+		"carta":
+			t.draw_rect(tutto, P.CREMA)
+			Manifesto.retino(t, tutto, Color(P.NERO, 0.07), Vector2(1.0, 1.0))
+	var extra: Array = tm["extra"]
+	var n := spicchi_del_giro(g)
+	var passo := TAU / n
+	var primo := primo_del_giro(g)
+	var inchiostro: Color = tm["inchiostro"]
+	if "raggi" in extra:
+		P.raggi(t, c, 28, 1700.0, P.ARANCIO, Color("#e8830f"), tempo * 0.05)
+	if "raggi_scuri" in extra:
+		P.raggi(t, c, 28, 1700.0, Color("#17120e"), Color(0, 0, 0, 0), -tempo * 0.04)
+	if "raggi_fuoco" in extra:
+		P.raggi(t, c, 32, 1700.0, Color(P.ARANCIO, 0.26), Color(0, 0, 0, 0), tempo * 0.07)
+	if "fascia" in extra:
+		P.gira(t, c, -24.0)
+		t.draw_rect(Rect2(-1100, -130, 2200, 260), P.NERO)
+		t.draw_rect(Rect2(-1100, -146, 2200, 8), P.CREMA)
+		t.draw_rect(Rect2(-1100, 138, 2200, 8), P.CREMA)
+		P.dritto(t)
+	if "punte" in extra:
+		# una punta fra uno spicchio e l'altro: girano con la ruota
+		P.scoppio(t, c, FUORI + 72.0, FUORI + 8.0, n, tm["punte"], P.NERO, 0.0, PI + passo * (primo - v + 0.5) + PI * 0.5)
+	if "punte_dentro" in extra:
+		P.scoppio(t, c, FUORI + 44.0, FUORI + 6.0, n, P.CREMA, P.NERO, 0.0, PI + passo * (primo - v) + PI * 0.5)
+	if "doppio" in extra:
+		t.draw_arc(c, FUORI + 30.0, 0.0, TAU, 128, inchiostro, 2.0, true)
+		for i in 40:
+			P.rombo(t, c + Vector2.from_angle(tempo * 0.08 + TAU * i / 40.0) * (FUORI + 30.0), 4.0, inchiostro)
+	if "trattini" in extra:
+		for i in 36:
+			var a := tempo * 0.12 + TAU * i / 36.0
+			t.draw_line(c + Vector2.from_angle(a) * (FUORI + 42.0), c + Vector2.from_angle(a) * (FUORI + 58.0), inchiostro, 4.0, true)
+	if "orbite" in extra:
+		# un'orbita larga, e tre comete che la percorrono
+		t.draw_arc(c, FUORI + 96.0, 0.0, TAU, 160, Color(P.CREMA, 0.25), 2.0, true)
+		for i in 3:
+			var a := -tempo * 0.6 + TAU * i / 3.0
+			t.draw_arc(c, FUORI + 96.0, a, a + 0.5, 24, P.ARANCIO, 5.0, true)
+			P.rombo(t, c + Vector2.from_angle(a + 0.5) * (FUORI + 96.0), 8.0, P.CREMA)
+	if "rombi" in extra:
+		for i in giri():
+			var q := c + Vector2.from_angle(tempo * 0.15 + TAU * i / giri()) * (FUORI + 62.0)
+			P.rombo(t, q, 12.0, P.ARANCIO, P.NERO, 2.0)
+	if "scintille" in extra:
+		for i in 16:
+			var a := TAU * i / 16.0 + 0.3 * sin(i * 7.1)
+			var r := FUORI + 56.0 + 44.0 * fmod(i * 0.618, 1.0)
+			var brilla := maxf(0.0, sin(tempo * 2.2 + i * 1.9))
+			if brilla > 0.05:
+				P.scintilla(t, c + Vector2.from_angle(a) * r, 4.0 + 10.0 * brilla, tm["scintilla"])
+
+
+func ruota_del_giro(t: CanvasItem, tm: Dictionary, g: int, v: float, p: float) -> void:
+	# p: i secondi dall'inizio del passaggio a questo giro (tanti, se non ce n'e' stato)
+	var c := CENTRO
+	var n := spicchi_del_giro(g)
+	var primo := primo_del_giro(g)
+	var passo := TAU / n
+	var mezzo := passo * 0.5 - deg_to_rad(1.0)
+	var lato := 30.0 * sqrt(20.0 / n)   # i disegni crescono quando gli spicchi sono meno
+	var inchiostro: Color = tm["inchiostro"]
+	var filo: bool = "filo" in tm["extra"]
 	var vicini: Array[int] = []
-	for k in SPICCHI:
-		var a := angolo_spicchio(k)
-		var tacca := a + mezzo + deg_to_rad(1.0)
-		t.draw_line(c + Vector2.from_angle(tacca) * (FUORI + 6), c + Vector2.from_angle(tacca) * (FUORI + 16), P.NERO, 2.0, true)
-		if absf(k - vista) < 1.0:
-			vicini.append(k)
+	for k in n:
+		var livello := primo + k
+		var a := PI + passo * (livello - v)
+		# volano via nel passaggio, e il giro nuovo si monta uno spicchio alla volta
+		var esce := frena(clampf((p - 0.012 * k) / 0.3, 0.0, 1.0)) if p < 0.55 else 0.0
+		var entra := frena(clampf((p - 1.0 - 0.022 * k) / 0.32, 0.0, 1.0)) if p >= 0.55 else 1.0
+		var alfa := (1.0 - esce) * entra
+		if alfa <= 0.0:
 			continue
-		var preso := k < LIVELLO
-		P.spicchio(t, c, DENTRO, FUORI, a - mezzo, a + mezzo, P.NERO if preso else Color(0, 0, 0, 0), P.NERO, 2.0)
-		segno_spicchio(t, k + 1, c + Vector2.from_angle(a) * 244.0, 30.0, P.CREMA if preso else P.NERO,
-				P.NERO if preso else P.ARANCIO)
-		P.scritta(t, c + Vector2.from_angle(a) * 282.0 + Vector2(-20, 6), str(k + 1), 15,
-				Color(P.CREMA, 0.6) if preso else Color(P.NERO, 0.5), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER, 40)
+		var o := c + Vector2.from_angle(a) * (460.0 * esce + 420.0 * (1.0 - entra))
+		var tacca := a + passo * 0.5
+		t.draw_line(o + Vector2.from_angle(tacca) * (FUORI + 6), o + Vector2.from_angle(tacca) * (FUORI + 16), velo(inchiostro, alfa),
+				2.0, true)
+		if absf(livello - v) < 1.0 and alfa >= 1.0:
+			vicini.append(livello)
+			continue
+		var preso := livello <= adesso
+		P.spicchio(t, o, DENTRO, FUORI, a - mezzo, a + mezzo, velo(tm["preso"] if preso else tm["futuro_pieno"], alfa),
+				velo(tm["bordo"] if preso else tm["futuro"], alfa), 2.0)
+		if filo and preso:
+			t.draw_arc(o, FUORI - 10.0, a - mezzo + 0.05, a + mezzo - 0.05, 8, velo(tm["accento"], alfa), 3.0, true)
+		var segno: Color = tm["preso_segno"] if preso else tm["futuro"]
+		var sotto: Color = tm["preso"] if preso else tm["futuro_pieno"]
+		segno_spicchio(t, livello, o + Vector2.from_angle(a) * 244.0, lato, velo(segno, alfa), sotto if sotto.a > 0.0 else fondo_tinta(tm))
+		P.scritta(t, o + Vector2.from_angle(a) * 282.0 + Vector2(-24, 6), str(livello), 15, velo(segno, alfa * 0.6),
+				Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER, 48)
+	# giro chiuso: un anello acceso tutto intorno
+	if adesso >= ultimo_del_giro(g) or (beta and adesso >= TETTO_BETA):
+		var chiaro := 1.0 - frena(clampf(p / 0.3, 0.0, 1.0)) if p < 0.55 else 1.0
+		t.draw_arc(c, FUORI + 20.0, 0.0, TAU, 128, velo(P.NERO, chiaro), 12.0, true)
+		t.draw_arc(c, FUORI + 20.0, 0.0, TAU, 128, velo(P.CREMA if tm["fondo"] == "arancio" else P.ARANCIO, chiaro), 6.0, true)
 	# quello sotto la lancetta esce dall'anello (anche a meta' giro: esce di quanto e' vicino)
-	vicini.sort_custom(func(x: int, y: int) -> bool: return absf(x - vista) > absf(y - vista))
+	vicini.sort_custom(func(x: int, y: int) -> bool: return absf(x - v) > absf(y - v))
 	var batte := 0.5 + 0.5 * sin(tempo * 3.0)
-	for k in vicini:
-		var fuori := 1.0 - absf(k - vista)
-		var a := angolo_spicchio(k)
+	for livello in vicini:
+		var fuori := 1.0 - absf(livello - v)
+		var a := PI + passo * (livello - v)
 		var spinta := c + Vector2.from_angle(a) * (12.0 + 4.0 * batte) * fuori
 		var chiaro := fuori > 0.5
-		var tinta := P.CREMA if chiaro else (P.NERO if k < LIVELLO else Color(0, 0, 0, 0))
+		var preso := livello <= adesso
+		var tinta: Color = tm["esce"] if chiaro else (tm["preso"] if preso else tm["futuro_pieno"])
 		var bordo_fuori := FUORI + 34.0 * fuori
 		var largo := mezzo + 0.05 * fuori
 		P.spicchio(t, spinta + Vector2(8, 8) * fuori, DENTRO + 10 * fuori, bordo_fuori, a - largo, a + largo,
-				Color(P.NERO, fuori))
+				velo(tm["ombra"], fuori))
 		P.spicchio(t, spinta, DENTRO + 10 * fuori, bordo_fuori, a - largo, a + largo, tinta, P.NERO, 2.0 + 2.0 * fuori)
 		var dove := spinta + Vector2.from_angle(a) * (DENTRO + bordo_fuori) * 0.5
-		var inchiostro := P.NERO if chiaro or k >= LIVELLO else P.CREMA
-		segno_spicchio(t, k + 1, dove + Vector2(0, -18) * fuori, 30.0 + 8.0 * fuori, inchiostro,
-				P.CREMA if chiaro else (P.NERO if k < LIVELLO else P.ARANCIO))
-		P.scritta(t, dove + Vector2(-30, 8 + 22 * fuori), str(k + 1), roundi(15 + 13 * fuori), inchiostro, null,
-				HORIZONTAL_ALIGNMENT_CENTER, 60)
-	# il centro: dove sei adesso
-	t.draw_circle(c, 190.0, P.NERO, true, -1.0, true)
-	t.draw_arc(c, 176.0, 0.0, TAU, 96, P.ARANCIO, 3.0, true)
-	Manifesto.poligono(t, PackedVector2Array([c + Vector2(-216, 0), c + Vector2(-178, -18), c + Vector2(-178, 18)]), P.ARANCIO)
-	Sagome.emblema(t, c + Vector2(0, -70), 84.0, P.CREMA, P.ARANCIO)
-	P.scritta(t, c + Vector2(-90, 4), "LIVELLO", 15, P.CARTA, Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER, 180)
-	P.scritta(t, c + Vector2(-90, 108), str(LIVELLO), 104, P.CREMA, null, HORIZONTAL_ALIGNMENT_CENTER, 180)
+		var segno: Color = tm["esce_segno"] if chiaro else (tm["preso_segno"] if preso else tm["futuro"])
+		segno_spicchio(t, livello, dove + Vector2(0, -18) * fuori, lato + 8.0 * fuori, segno, tinta)
+		P.scritta(t, dove + Vector2(-40, 8 + 22 * fuori), str(livello), roundi(15 + 11 * fuori), segno, null,
+				HORIZONTAL_ALIGNMENT_CENTER, 80)
 
 
-static func segno_spicchio(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
+static func fondo_tinta(tm: Dictionary) -> Color:
+	match String(tm["fondo"]):
+		"nero":
+			return P.NERO
+		"carta":
+			return P.CREMA
+	return P.ARANCIO
+
+
+func disco(t: CanvasItem, tm: Dictionary, g: int) -> void:
+	# il centro: dove sei adesso, e i giri (chiusi pieni, quello di adesso che batte)
+	var c := CENTRO
+	var batte := 0.5 + 0.5 * sin(tempo * 3.0)
+	var segno: Color = tm["disco_segno"]
+	t.draw_circle(c, 190.0, tm["disco"], true, -1.0, true)
+	t.draw_arc(c, 176.0, 0.0, TAU, 96, tm["accento"], 3.0, true)
+	Manifesto.poligono(t, PackedVector2Array([c + Vector2(-216, 0), c + Vector2(-178, -18), c + Vector2(-178, 18)]), tm["accento"])
+	Sagome.emblema(t, c + Vector2(0, -70), 84.0 if g < giri() - 1 else 104.0, segno, tm["cuore"])
+	P.scritta(t, c + Vector2(-90, 4), "LIVELLO", 15, velo(segno, 0.75), Caratteri.tondo(900), HORIZONTAL_ALIGNMENT_CENTER, 180)
+	P.scritta(t, c + Vector2(-120, 108), str(adesso), 104, tm["numero"], null, HORIZONTAL_ALIGNMENT_CENTER, 240)
+	if beta:
+		var tetto := "TETTO DELLA BETA"
+		P.etichetta(t, c + Vector2(-(P.larghezza(tetto, 14) + 15.0) * 0.5, 126), tetto, 14, P.ARANCIO, P.NERO)
+		return
+	for i in giri():
+		var q := c + Vector2((i - (giri() - 1) * 0.5) * 22.0, 148)
+		if i < g or (i == g and chiuso()):
+			P.rombo(t, q, 7.0, tm["accento"])
+		elif i == g:
+			P.rombo(t, q, 7.0 + batte, Color(0, 0, 0, 0), tm["accento"], 2.0)
+		else:
+			P.rombo(t, q, 6.0, Color(0, 0, 0, 0), velo(segno, 0.3), 1.5)
+
+
+func segno_spicchio(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
 	# cosa da' (o ha dato) lo spicchio: quello che arriva, se arriva qualcosa;
 	# se no la statistica scelta, o il rombo a meta' della scelta che verra'
-	if ARRIVA.has(livello):
-		segno_arriva(t, livello, c, l, tinta, fondo)
+	var qui := arrivi_di(livello)
+	if not qui.is_empty():
+		var primo: Array = qui[0]
+		if String(primo[0]) == "passiva":
+			P.segno_passiva(t, c, l * 0.42)
+		else:
+			P.glifo(t, glifo_di("abilita", String(primo[1])), c, l, tinta, fondo)
+		if qui.size() > 1:
+			P.scritta(t, c + Vector2(l * 0.34, -l * 0.3), "+%d" % (qui.size() - 1), 12, tinta)
 	elif livello == 1:
 		P.rombo(t, c, l * 0.14, tinta)
-	elif livello <= LIVELLO:
+	elif livello <= adesso:
 		P.icona_stat(t, String(coppia(livello)[livello % 2]), c, l * 0.9, tinta, fondo)
 	else:
-		P.biforca(t, c, l * 0.3, Color(tinta, 0.6), 2.0)
+		P.biforca(t, c, l * 0.3, Color(tinta, tinta.a * 0.6), 2.0)
 
 
-static func legenda(t: CanvasItem, dove: Vector2) -> void:
-	P.biforca(t, dove + Vector2(8, -5), 8.0, P.NERO, 2.0)
-	P.scritta(t, dove + Vector2(26, 0), "STAT A SCELTA", 13, P.NERO, Caratteri.tondo(900))
-	P.glifo(t, "aghi", dove + Vector2(8, 18), 20.0, P.NERO, P.ARANCIO)
-	P.scritta(t, dove + Vector2(26, 23), "ABILITÀ", 13, P.NERO, Caratteri.tondo(900))
+static func legenda(t: CanvasItem) -> void:
+	# su un cartellino nero, cosi' si legge su tutti i fondi
+	var dove := Vector2(1146, 650)
+	Manifesto.poligono(t, P.storta(Rect2(dove + Vector2(-16, -24), Vector2(150, 80)), 0.1), P.NERO)
+	P.biforca(t, dove + Vector2(8, -5), 8.0, P.CREMA, 2.0)
+	P.scritta(t, dove + Vector2(26, 0), "STAT A SCELTA", 13, P.CREMA, Caratteri.tondo(900))
+	P.glifo(t, "aghi", dove + Vector2(8, 18), 20.0, P.CREMA, P.NERO)
+	P.scritta(t, dove + Vector2(26, 23), "ABILITÀ", 13, P.CREMA, Caratteri.tondo(900))
 	P.segno_passiva(t, dove + Vector2(8, 41), 9.0)
-	P.scritta(t, dove + Vector2(26, 46), "PASSIVA", 13, P.NERO, Caratteri.tondo(900))
+	P.scritta(t, dove + Vector2(26, 46), "PASSIVA", 13, P.CREMA, Caratteri.tondo(900))
 
 
-func pannello_quadrante(t: CanvasItem, k: int) -> void:
+func pannello_quadrante(t: CanvasItem, livello: int) -> void:
 	# quello che dice la lastra cambia con lo spicchio sotto la lancetta
-	var livello := k + 1
-	var stato := "prossimo" if k == LIVELLO else ("preso" if k < LIVELLO else "dopo")
-	var servono := k - LIVELLO + 1
+	var g := giro_di(livello)
+	var stato := "prossimo" if livello == adesso + 1 else ("preso" if livello <= adesso else "dopo")
+	if livello == adesso and chiuso():
+		stato = "chiuso"
+	var servono := livello - adesso
 	gettoni(t, Vector2(46, 104), P.CREMA, Color(P.CREMA, 0.14))
-	var sopra := {"prossimo": "ARRIVI AL", "preso": "GIÀ PRESO", "dopo": "PIÙ AVANTI"}
+	var sopra := {"prossimo": "ARRIVI AL", "preso": "GIÀ PRESO", "dopo": "PIÙ AVANTI", "chiuso": "HAI CHIUSO IL GIRO AL"}
 	P.scritta(t, Vector2(36, 172), String(sopra[stato]), 18, P.CARTA)
 	var numero := str(livello)
-	var sale := 26.0 * (1.0 - frena(dopo(cambiato_a, 0.0, 0.22)))
-	P.ritagliata(t, Vector2(30, 322 + sale), numero, 170, P.ARANCIO if stato == "prossimo" else P.CREMA, P.NERO, 0,
-			P.ARANCIO_SCURO if stato == "prossimo" else P.TRATTO, Vector2(10, 10))
-	var x := 40.0 + P.larghezza(numero, 170)
+	var corpo := 170 if numero.length() < 3 else 128
+	var sale := 26.0 * (1.0 - frena(dopo(cambiato_a, 0.0, 0.22))) if tempo >= cambiato_a else 0.0
+	var arancio := stato in ["prossimo", "chiuso"]
+	P.ritagliata(t, Vector2(30, 322 + sale), numero, corpo, P.ARANCIO if arancio else P.CREMA, P.NERO, 0,
+			P.ARANCIO_SCURO if arancio else P.TRATTO, Vector2(10, 10))
+	var x := 40.0 + P.larghezza(numero, corpo)
 	P.scritta(t, Vector2(x, 226), "LIVELLO", 34, P.CREMA)
-	var quanti := {"prossimo": "%d DI %d · COSTA 1 PUNTO" % [livello, SPICCHI], "preso": "%d DI %d" % [livello, SPICCHI],
-			"dopo": "SERVONO %d PUNTI · NE HAI %d" % [servono, punti()]}
-	P.scritta(t, Vector2(x, 254), String(quanti[stato]), 15, P.CARTA, Caratteri.tondo(900))
+	var quanti := {"prossimo": "%d DI %d · 1 PUNTO" % [livello - primo_del_giro(g) + 1, spicchi_del_giro(g)],
+			"preso": "%d DI %d" % [livello - primo_del_giro(g) + 1, spicchi_del_giro(g)],
+			"dopo": "SERVONO %d PUNTI · NE HAI %d" % [servono, punti()],
+			"chiuso": "TETTO DELLA BETA" if beta else ("IL MASSIMO" if g == giri() - 1 else "%s COMPLETO" % tema(g)["nome"])}
+	P.scritta(t, Vector2(x, 254), String(quanti[stato]), 15, P.ARANCIO if stato == "chiuso" else P.CARTA, Caratteri.tondo(900))
+	if stato == "chiuso":
+		pannello_chiuso(t, g)
+		return
 	P.scritta(t, Vector2(36, 390), "COSA TI HA DATO" if stato == "preso" else "COSA TI DÀ", 14, P.CARTA, Caratteri.tondo(900))
 	var y := 404.0
 	if livello == 1:
@@ -447,29 +736,101 @@ func pannello_quadrante(t: CanvasItem, k: int) -> void:
 			var detta := "PIÙ %s O PIÙ %s" % [PAROLE[due[0]], PAROLE[due[1]]]
 			P.scritta(t, Vector2(90, y + 26), detta, P.corpo_che_entra(detta, 22, 390.0), P.CREMA)
 			var come := "una delle due: la scegli quando lo prendi"
-			if stato == "prossimo":
+			if stato == "prossimo" and livello == LIVELLO + 1:
 				come = "%+d %s o %+d %s: la scegli dopo" % [int(potenziamento(String(due[0])).get("quanto", 1)),
 						nome_stat(String(due[0])).to_lower(), int(potenziamento(String(due[1])).get("quanto", 1)),
 						nome_stat(String(due[1])).to_lower()]
 			P.scritta(t, Vector2(90, y + 46), come, 14, P.CARTA, Caratteri.tondo(700))
 		y += 70.0
-	if ARRIVA.has(livello):
-		var arriva: Array = ARRIVA[livello]
-		var tipo := String(arriva[0])
-		var id := String(arriva[1])
-		var dati := dati_passiva(id) if tipo == "passiva" else abilita(id)
+	var qui := arrivi_di(livello)
+	if not qui.is_empty():
+		var primo: Array = qui[0]
+		var tipo := String(primo[0])
+		var id := String(primo[1])
+		var dati := dati_di(tipo, id)
 		P.rombo(t, Vector2(56, y + 30), 24.0, P.ARANCIO, P.CREMA, 2.0)
-		P.glifo(t, String(GLIFI.get(id, "")), Vector2(56, y + 30), 26.0, P.NERO, P.ARANCIO)
+		P.glifo(t, glifo_di(tipo, id), Vector2(56, y + 30), 26.0, P.NERO, P.ARANCIO)
 		P.etichetta(t, Vector2(88, y), ("ARRIVA UNA PASSIVA" if tipo == "passiva" else "ARRIVA UN'ABILITÀ")
 				if stato != "preso" else ("PASSIVA" if tipo == "passiva" else "ABILITÀ"), 12, P.ARANCIO, P.NERO)
 		var nome := String(dati.get("nome", id)).to_upper()
 		P.scritta(t, Vector2(90, y + 44), nome, P.corpo_che_entra(nome, 22, 380.0), P.CREMA)
-		P.a_capo(t, Rect2(90, y + 52, 370, 44), String(dati.get("descrizione", "")), 14, P.CARTA)
+		P.a_capo(t, Rect2(90, y + 52, 370, 56), String(dati.get("descrizione", "")), 13, P.CARTA, null,
+				HORIZONTAL_ALIGNMENT_LEFT, 3)
+		if qui.size() > 1:
+			var altri := PackedStringArray()
+			for voce: Array in qui.slice(1):
+				altri.append(String(dati_di(String(voce[0]), String(voce[1])).get("nome", voce[1])))
+			P.scritta(t, Vector2(90, y + 124), "E ANCHE: " + ", ".join(altri).to_upper(), 14, P.ARANCIO, Caratteri.tondo(900))
 	match stato:
 		"prossimo":
-			P.etichetta(t, Vector2(30, 606), "PRENDI · 1 PUNTO", 26, P.ARANCIO, P.NERO, P.CREMA)
+			P.etichetta(t, Vector2(30, 624), "PRENDI · 1 PUNTO", 26, P.ARANCIO, P.NERO, P.CREMA)
 		"dopo":
-			P.etichetta(t, Vector2(30, 612), "IN FILA: PRIMA IL LIVELLO %d" % (LIVELLO + 1), 20, P.SPENTO, P.TRATTO)
+			P.etichetta(t, Vector2(30, 628), "IN FILA: PRIMA IL LIVELLO %d" % (adesso + 1), 20, P.SPENTO, P.TRATTO)
+
+
+func pannello_chiuso(t: CanvasItem, g: int) -> void:
+	# il giro chiuso: nella beta e' il tetto; nel gioco intero si passa al prossimo
+	P.scritta(t, Vector2(36, 390), "E ADESSO", 14, P.CARTA, Caratteri.tondo(900))
+	if beta:
+		Sagome.lucchetto(t, Vector2(56, 424), 34.0, P.CREMA)
+		P.scritta(t, Vector2(90, 430), "IL SECONDO GIRO (21–40)", 22, P.CREMA)
+		P.scritta(t, Vector2(90, 450), "arriva col gioco intero: nella beta il 20 è il tetto", 14, P.CARTA, Caratteri.tondo(700))
+		P.gettone(t, Vector2(56, 504), 14.0, 1.0, P.CREMA, Color(P.CREMA, 0.14))
+		P.scritta(t, Vector2(90, 500), "L'HYPE NON SI BUTTA", 22, P.CREMA)
+		P.scritta(t, Vector2(90, 520), "i punti restano da parte: li spendi quando arriva", 14, P.CARTA, Caratteri.tondo(700))
+		P.etichetta(t, Vector2(30, 628), "GIRO COMPLETO", 20, P.SPENTO, P.TRATTO)
+		return
+	if g == giri() - 1:
+		# Oggi al 130 si torna indietro, ed e' l'unico momento (docs/albero.md 4.1 e 4.7)
+		P.biforca(t, Vector2(56, 424), 15.0, P.CREMA)
+		P.scritta(t, Vector2(90, 430), "TORNI SUI BIVI", 22, P.CREMA)
+		P.scritta(t, Vector2(90, 450), "le strade che hai lasciato, adesso, si possono prendere", 14, P.CARTA,
+				Caratteri.tondo(700))
+		P.rombo(t, Vector2(56, 494), 16.0, P.ARANCIO, P.CREMA, 2.0)
+		P.scritta(t, Vector2(90, 500), "NON C'È UN GIRO DOPO", 22, P.CREMA)
+		P.scritta(t, Vector2(90, 520), "%d livelli, %d giri: la ruota è tutta tua" % [massimo(), giri()], 14, P.CARTA,
+				Caratteri.tondo(700))
+		P.etichetta(t, Vector2(30, 624), "AI BIVI", 26, P.ARANCIO, P.NERO, P.CREMA)
+		return
+	var dopo_questo := tema(g + 1)
+	P.rombo(t, Vector2(56, 424), 16.0, P.ARANCIO, P.CREMA, 2.0)
+	P.scritta(t, Vector2(90, 430), "SI RICOMINCIA DAL %d" % primo_del_giro(g + 1), 22, P.CREMA)
+	P.scritta(t, Vector2(90, 450), "%s, con un altro aspetto" % String(dopo_questo["nome"]).to_lower(), 14, P.CARTA,
+			Caratteri.tondo(700))
+	P.etichetta(t, Vector2(30, 624), "AL %s" % dopo_questo["nome"], 26, P.ARANCIO, P.NERO, P.CREMA)
+
+
+func sipario(t: CanvasItem, p: float, g: int) -> void:
+	# la lastra del passaggio: entra da destra col nome del giro nuovo, il rombo
+	# del giro si accende, e se ne va
+	if p > 1.4 or p < 0.0:
+		return
+	var dx := 900.0 * (1.0 - frena(clampf((p - 0.06) / 0.32, 0.0, 1.0))) + 900.0 * frena(clampf((p - 0.95) / 0.4, 0.0, 1.0))
+	P.gira(t, Vector2(dx, 0), 0.0)
+	P.lastra(t, PackedVector2Array(SIPARIO))
+	P.dritto(t)
+	var scritta := clampf((p - 0.34) / 0.2, 0.0, 1.0)
+	if scritta <= 0.0:
+		return
+	var tm := tema(g)
+	var nome := String(tm["nome"])
+	var scossa := Vector2(sin(p * 90.0), cos(p * 77.0)) * 8.0 * (1.0 - clampf((p - 0.54) / 0.2, 0.0, 1.0)) if scritta >= 1.0 \
+			else Vector2.ZERO
+	P.gira(t, Vector2(930 + dx, 330) + scossa, -6.0, lerpf(1.8, 1.0, frena(scritta)))
+	P.ritagliata(t, Vector2(-330, 0), nome, P.corpo_che_entra(nome, 92, 640.0), P.CREMA, P.NERO, 0, P.ARANCIO, Vector2(9, 9),
+			null, HORIZONTAL_ALIGNMENT_CENTER, 660)
+	P.scritta(t, Vector2(-330, 54), "LIVELLI %d–%d" % [primo_del_giro(g), ultimo_del_giro(g)], 30, P.ARANCIO, null,
+			HORIZONTAL_ALIGNMENT_CENTER, 660)
+	var accende := rimbalza(clampf((p - 0.6) / 0.25, 0.0, 1.0))
+	for i in giri():
+		var q := Vector2((i - (giri() - 1) * 0.5) * 34.0, 104)
+		if i < g:
+			P.rombo(t, q, 10.0, P.CREMA)
+		elif i == g:
+			P.rombo(t, q, 13.0 * accende, P.ARANCIO, P.CREMA, 2.0)
+		else:
+			P.rombo(t, q, 9.0, Color(0, 0, 0, 0), Color(P.CREMA, 0.3), 2.0)
+	P.dritto(t)
 
 
 func tasti_quadrante() -> void:
@@ -550,7 +911,7 @@ func strada(t: CanvasItem, dove: Vector2, stat: String, scelta: float, su_nero: 
 
 func fascia_comunque(t: CanvasItem) -> void:
 	# quello che arriva comunque a quel livello: attraversa il taglio
-	var arriva: Array = ARRIVA[LIVELLO + 1]
+	var arriva: Array = arrivi_di(LIVELLO + 1)[0]
 	var dati := abilita(String(arriva[1]))
 	var entra := frena(entrata(0.35, 0.4))
 	P.gira(t, Vector2(-20 - 1400.0 * (1.0 - entra), 604), -1.5)

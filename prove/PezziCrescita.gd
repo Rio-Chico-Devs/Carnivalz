@@ -166,9 +166,9 @@ static func ritagliata(t: CanvasItem, dove: Vector2, testo: String, corpo: int, 
 
 
 static func a_capo(t: CanvasItem, r: Rect2, testo: String, corpo: int, tinta: Color, font: Font = null,
-		allinea := HORIZONTAL_ALIGNMENT_LEFT) -> void:
+		allinea := HORIZONTAL_ALIGNMENT_LEFT, righe := -1) -> void:
 	var f := font if font != null else Caratteri.tondo(700)
-	t.draw_multiline_string(f, r.position + Vector2(0, f.get_ascent(corpo)), testo, allinea, r.size.x, corpo, -1, tinta)
+	t.draw_multiline_string(f, r.position + Vector2(0, f.get_ascent(corpo)), testo, allinea, r.size.x, corpo, righe, tinta)
 
 
 static func scritta_larga(t: CanvasItem, dove: Vector2, testo: String, corpo: int, tinta: Color, font: Font = null) -> float:
@@ -198,6 +198,17 @@ static func etichetta(t: CanvasItem, dove: Vector2, testo: String, corpo: int, f
 	fascia(t, Rect2(dove, Vector2(largo, alto)), fondo, sfoglia)
 	scritta(t, dove + Vector2(corpo * 0.55, alto * 0.5 + corpo * 0.36), testo, corpo, inchiostro)
 	return largo
+
+
+static func raggi(t: CanvasItem, c: Vector2, quanti: int, lungo: float, a: Color, b: Color, rotazione: float) -> void:
+	# i raggi dal centro, a colori alterni, che girano
+	for i in quanti:
+		var a0 := rotazione + TAU * float(i) / quanti
+		var a1 := rotazione + TAU * float(i + 1) / quanti
+		var tinta := a if i % 2 == 0 else b
+		if tinta.a > 0.0:
+			t.draw_colored_polygon(PackedVector2Array([c, c + Vector2.from_angle(a0) * lungo, c + Vector2.from_angle(a1) * lungo]),
+					tinta)
 
 
 static func scoppio(t: CanvasItem, c: Vector2, fuori: float, dentro: float, punte: int, tinta: Color, contorno := NERO,
