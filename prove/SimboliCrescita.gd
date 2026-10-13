@@ -22,33 +22,72 @@ const NOMI := {
 }
 
 
+# Seconda mano, dopo «già meglio ma sa ancora di ai»: un set di icone sottili e
+# dritte e' quello che fa qualunque generatore. Questi sono timbri del
+# manifesto: pendono come le sue scritte (PIEGA), il tratto e' piu' pesante
+# (PESO), e dietro hanno l'ombra piena spostata (timbro), come le etichette.
+
+const PIEGA := 0.2      # quanto pende tutto, verso destra, come il corsivo del titolo
+const PESO := 1.3       # i tratti, piu' grassi di quelli disegnati sulla griglia
+static var senza_tagli := false   # per le ombre: solo la sagoma, niente tagli nel fondo
+
+
 static func punti(c: Vector2, l: float, xy: Array, giro := 0.0) -> PackedVector2Array:
-	# coppie x, y sulla griglia di 24 -> punti veri, girati attorno al centro
+	# coppie x, y sulla griglia di 24 -> punti veri: girati attorno al centro, poi pendenti
 	var fuori := PackedVector2Array()
 	for i in range(0, xy.size(), 2):
-		fuori.append(c + Vector2(float(xy[i]) - 12.0, float(xy[i + 1]) - 12.0).rotated(giro) * (l / 24.0))
+		var q := Vector2(float(xy[i]) - 12.0, float(xy[i + 1]) - 12.0).rotated(giro)
+		q.x -= q.y * PIEGA
+		fuori.append(c + q * (l / 24.0))
 	return fuori
 
 
-static func punto(c: Vector2, l: float, x: float, y: float) -> Vector2:
-	return c + Vector2(x - 12.0, y - 12.0) * (l / 24.0)
-
-
 static func pieno(t: CanvasItem, c: Vector2, l: float, xy: Array, tinta: Color, giro := 0.0) -> void:
-	Manifesto.poligono(t, punti(c, l, xy, giro), tinta)
+	if tinta.a > 0.0:
+		Manifesto.poligono(t, punti(c, l, xy, giro), tinta)
 
 
 static func tratto(t: CanvasItem, c: Vector2, l: float, xy: Array, tinta: Color, spessore := 2.0, giro := 0.0) -> void:
-	t.draw_polyline(punti(c, l, xy, giro), tinta, maxf(spessore * l / 24.0, 1.0), true)
+	if tinta.a > 0.0:
+		t.draw_polyline(punti(c, l, xy, giro), tinta, maxf(spessore * PESO * l / 24.0, 1.0), true)
 
 
 static func tondo(t: CanvasItem, c: Vector2, l: float, x: float, y: float, r: float, tinta: Color) -> void:
-	t.draw_circle(punto(c, l, x, y), r * l / 24.0, tinta, true, -1.0, true)
+	# un cerchio fatto di punti, cosi' pende anche lui
+	var xy := []
+	for i in 32:
+		var a := TAU * i / 32.0
+		xy.append_array([x + cos(a) * r, y + sin(a) * r])
+	pieno(t, c, l, xy, tinta)
 
 
 static func arco(t: CanvasItem, c: Vector2, l: float, x: float, y: float, r: float, tinta: Color, spessore := 2.0,
 		da := 0.0, a := TAU) -> void:
-	t.draw_arc(punto(c, l, x, y), r * l / 24.0, da, a, 64, tinta, maxf(spessore * l / 24.0, 1.0), true)
+	var quanti := maxi(int(absf(a - da) / 0.1), 8)
+	var xy := []
+	for i in quanti + 1:
+		var b := lerpf(da, a, float(i) / quanti)
+		xy.append_array([x + cos(b) * r, y + sin(b) * r])
+	tratto(t, c, l, xy, tinta, spessore)
+
+
+static func timbro(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Color, fondo: Color,
+		ombra := Color(0, 0, 0, 0)) -> void:
+	# il simbolo con l'ombra piena spostata in basso a destra, come le etichette
+	if ombra.a > 0.0:
+		senza_tagli = true
+		disegna(t, nome, c + Vector2(1, 1) * l * 0.08, l, ombra, ombra)
+		senza_tagli = false
+	disegna(t, nome, c, l, tinta, fondo)
+
+
+static func passiva_timbro(t: CanvasItem, id: String, c: Vector2, l: float, tinta: Color, fondo: Color,
+		ombra := Color(0, 0, 0, 0)) -> void:
+	if ombra.a > 0.0:
+		senza_tagli = true
+		passiva(t, id, c + Vector2(1, 1) * l * 0.07, l, ombra, ombra)
+		senza_tagli = false
+	passiva(t, id, c, l, tinta, fondo)
 
 
 static func rombo(t: CanvasItem, c: Vector2, l: float, x: float, y: float, r: float, tinta: Color) -> void:
@@ -116,6 +155,8 @@ static func freccia_su(t: CanvasItem, c: Vector2, l: float, tinta: Color) -> voi
 
 
 static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
+	if senza_tagli:
+		fondo = Color(0, 0, 0, 0)
 	match nome:
 		# --- le statistiche, e la scelta fra due ---
 		"biforca":
@@ -284,8 +325,10 @@ static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Co
 
 static func passiva(t: CanvasItem, id: String, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
 	# le passive dentro la cornice a rombo, tagliata per sottrazione
+	if senza_tagli:
+		fondo = Color(0, 0, 0, 0)
 	rombo(t, c, l, 12, 12, 12, tinta)
-	rombo(t, c, l, 12, 12, 9.8, fondo)
+	rombo(t, c, l, 12, 12, 9.4, fondo)
 	disegna(t, id, c, l * 0.54, tinta, fondo)
 
 

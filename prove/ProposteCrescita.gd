@@ -180,6 +180,7 @@ func mostra_nome(nome: String) -> void:
 	portata = false
 	copione = [] if foto else (COPIONI.get(nome, []) as Array).duplicate(true)
 	call("tasti_" + genere(nome))
+	grana()
 
 
 func azione(quale: String) -> void:
@@ -211,6 +212,31 @@ func azione(quale: String) -> void:
 			elif String(PASSIVE[passiva][1]) == "libera" and not portata:
 				portata = true
 				preso_a = tempo
+
+
+static var carta_grana: ImageTexture
+
+
+func grana() -> void:
+	# la grana della stampa, sopra a tutto: il vettoriale perfetto e liscio e'
+	# una delle cose che fanno «sa di ai». Rumore fisso (stesso seme), chiaro e
+	# scuro, leggerissimo
+	if carta_grana == null:
+		var immagine := Image.create(256, 256, false, Image.FORMAT_LA8)
+		var caso := RandomNumberGenerator.new()
+		caso.seed = 1907
+		for y in 256:
+			for x in 256:
+				var v := caso.randf()
+				immagine.set_pixel(x, y, Color(1.0 if v > 0.5 else 0.0, 0, 0, absf(v - 0.5) * 2.0))
+		carta_grana = ImageTexture.create_from_image(immagine)
+	var sopra := TextureRect.new()
+	sopra.texture = carta_grana
+	sopra.stretch_mode = TextureRect.STRETCH_TILE
+	sopra.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sopra.size = Vector2(Tavola.LARGO, Tavola.ALTO)
+	sopra.modulate = Color(1, 1, 1, 0.09)
+	tavola.add_child(sopra)
 
 
 class Disegno extends Control:
@@ -394,32 +420,23 @@ static func gettoni(t: CanvasItem, dove: Vector2, inchiostro: Color, vuoto: Colo
 # Chiuso un giro se ne apre un altro, dal 21, dal 41... fino al massimo
 # (l'ultimo, 121-130, ha dieci tasche, piu' grandi).
 #
-# Bru: «bisogna impegnarsi di più sulla grafica della roulette [...] non è un
-# design timeless da designer». Allora e' fatta come la ghiera di un orologio,
-# uno strumento di precisione, dal centro verso fuori:
-#   il mozzo      dove sei: il giro in numeri romani, il livello, i sette giri
-#   la traccia    un filo sottile: quanto del giro hai fatto
-#   le tasche     una per livello, coi simboli (SimboliCrescita); niente
-#                 contorni, le separa il fondo, come i tasti di un orologio
-#   la lunetta    le tacche (una lunga fra le tasche, quattro corte in mezzo),
-#                 i numeri che seguono il cerchio, il segno di cosa arriva
-#   la strada     fuori da tutto, ferma: i 130 livelli del gioco intero, una
-#                 tacca ciascuno, come la minuteria
-# Niente raggi ne' punte. Ogni giro cambia i colori e la finitura del mozzo
-# (raggiata, guilloché, clous de Paris, rosone: le finiture dei quadranti) e
-# aggiunge un dettaglio alla lunetta, come le edizioni di un orologio.
+# Terza mano. La seconda era la ghiera di un orologio: Bru, «già meglio ma sa
+# ancora di ai». Aveva ragione: anelli sottili, tacche minute e scritte
+# piccolissime sono il pannello di fantascienza che fa qualunque generatore.
+# Qui ci sono tre cose sole, grandi, nella lingua del manifesto:
+#   le tasche   prese piene, da prendere chiare, coi simboli timbrati
+#   i numeri    grandi, ognuno nella sua cella, come sull'anello della ruota
+#               vera; dove arriva qualcosa la cella cambia colore, come lo zero
+#   il mozzo    il retino del manifesto, il giro e il livello, enorme
+# Ogni giro rimescola i tre colori; dal terzo in poi la ruota ha un orlo, dal
+# quinto coi rombi, nell'ultimo doppio.
 
-const CENTRO := Vector2(918, 384)
-const R_MOZZO := 174.0
-const R_PULITO := 118.0     # dentro, il mozzo e' liscio: ci stanno le scritte
-const R_TRACCIA := 182.0
-const R_DENTRO := 190.0
-const R_FUORI := 268.0
-const R_LUNETTA := 274.0
-const R_NUMERI := 293.0
-const R_SEGNI := 307.0
-const R_BORDO := 315.0
-const R_STRADA := 325.0
+const CENTRO := Vector2(938, 392)
+const R_MOZZO := 170.0
+const R_DENTRO := 180.0
+const R_FUORI := 276.0
+const R_CELLE := 282.0      # l'anello dei numeri
+const R_ORLO := 336.0
 const LASTRA_QUADRANTE := [Vector2(-20, -20), Vector2(606, -20), Vector2(440, 740), Vector2(-20, 740)]
 const SIPARIO := [Vector2(596, -20), Vector2(1300, -20), Vector2(1300, 740), Vector2(430, 740)]
 const ROMANI := ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
@@ -455,51 +472,69 @@ func chiuso() -> bool:
 
 
 static func tema(g: int) -> Dictionary:
-	# i colori e la finitura di ogni giro. Tre colori soli (l'arancio, il nero,
-	# la crema del manifesto), ogni volta in un ordine diverso
+	# per ogni giro: il campo, l'anello dei numeri, le tasche prese e da
+	# prendere, quella che esce, il mozzo. Tre colori soli e due loro toni
+	# (la carta e il bruno), ogni volta in un ordine diverso. "ombra" e' quella
+	# piena dei simboli timbrati
 	var tm: Dictionary
 	match g:
 		0:
-			tm = {"campo": "arancio", "inchiostro": P.NERO, "presa": P.NERO, "segno_presa": P.CREMA, "segno_futura": P.NERO,
-					"esce": P.CREMA, "segno_esce": P.NERO, "ombra": P.NERO, "segno": P.NERO, "arco": P.CREMA,
-					"mozzo": P.NERO, "mozzo_segno": P.CREMA, "numero": P.CREMA, "romano": P.ARANCIO,
-					"finitura": "raggiata", "finitura_tinta": Color(P.CREMA, 0.10), "filo": P.ARANCIO}
+			tm = {"campo": "arancio", "anello": P.NERO, "numero": P.CREMA, "numero_preso": P.ARANCIO,
+					"speciale": P.CREMA, "speciale_segno": P.NERO,
+					"presa": P.NERO, "presa_segno": P.CREMA, "presa_ombra": P.ARANCIO,
+					"futura": P.CREMA, "futura_segno": P.NERO, "futura_ombra": P.ARANCIO,
+					"esce": P.CREMA, "esce_segno": P.NERO, "esce_ombra": P.ARANCIO,
+					"mozzo": P.NERO, "mozzo_numero": P.CREMA, "mozzo_ombra": P.ARANCIO, "retino": Color(P.ARANCIO, 0.55),
+					"accento": P.ARANCIO}
 		1:
-			tm = {"campo": "carta", "inchiostro": P.NERO, "presa": P.NERO, "segno_presa": P.ARANCIO, "segno_futura": P.NERO,
-					"esce": P.ARANCIO, "segno_esce": P.NERO, "ombra": P.NERO, "segno": P.ARANCIO, "arco": P.ARANCIO,
-					"mozzo": P.NERO, "mozzo_segno": P.CREMA, "numero": P.CREMA, "romano": P.ARANCIO,
-					"finitura": "guilloche", "finitura_tinta": Color(P.ARANCIO, 0.40), "filo": P.ARANCIO}
+			tm = {"campo": "carta", "anello": P.NERO, "numero": P.CREMA, "numero_preso": P.ARANCIO,
+					"speciale": P.ARANCIO, "speciale_segno": P.NERO,
+					"presa": P.ARANCIO, "presa_segno": P.NERO, "presa_ombra": P.CREMA,
+					"futura": P.CARTA, "futura_segno": P.NERO, "futura_ombra": P.ARANCIO,
+					"esce": P.NERO, "esce_segno": P.ARANCIO, "esce_ombra": P.CREMA,
+					"mozzo": P.NERO, "mozzo_numero": P.ARANCIO, "mozzo_ombra": P.CREMA, "retino": Color(P.CREMA, 0.3),
+					"accento": P.ARANCIO}
 		2:
-			tm = {"campo": "nero", "inchiostro": P.CREMA, "presa": P.ARANCIO, "segno_presa": P.NERO, "segno_futura": P.CREMA,
-					"esce": P.CREMA, "segno_esce": P.NERO, "ombra": P.ARANCIO_SCURO, "segno": P.ARANCIO, "arco": P.ARANCIO,
-					"mozzo": P.ARANCIO, "mozzo_segno": P.NERO, "numero": P.NERO, "romano": P.CREMA,
-					"finitura": "clous", "finitura_tinta": Color(P.NERO, 0.28), "filo": P.NERO}
+			tm = {"campo": "nero", "anello": P.ARANCIO, "numero": P.NERO, "numero_preso": Color(P.NERO, 0.45),
+					"speciale": P.CREMA, "speciale_segno": P.NERO,
+					"presa": P.CREMA, "presa_segno": P.NERO, "presa_ombra": P.ARANCIO,
+					"futura": P.BRUNO, "futura_segno": P.CREMA, "futura_ombra": P.NERO,
+					"esce": P.ARANCIO, "esce_segno": P.NERO, "esce_ombra": P.CREMA,
+					"mozzo": P.ARANCIO, "mozzo_numero": P.NERO, "mozzo_ombra": P.CREMA, "retino": Color(P.NERO, 0.3),
+					"accento": P.NERO}
 		3:
-			tm = {"campo": "arancio", "inchiostro": P.NERO, "presa": P.CREMA, "segno_presa": P.NERO, "segno_futura": P.NERO,
-					"esce": P.NERO, "segno_esce": P.ARANCIO, "ombra": Color(P.NERO, 0.45), "segno": P.NERO, "arco": P.NERO,
-					"mozzo": P.CREMA, "mozzo_segno": P.NERO, "numero": P.NERO, "romano": P.ARANCIO_SCURO,
-					"finitura": "rosone", "finitura_tinta": Color(P.NERO, 0.20), "filo": P.NERO}
+			tm = {"campo": "arancio", "anello": P.CREMA, "numero": P.NERO, "numero_preso": P.ARANCIO_SCURO,
+					"speciale": P.NERO, "speciale_segno": P.CREMA,
+					"presa": P.NERO, "presa_segno": P.CREMA, "presa_ombra": P.ARANCIO,
+					"futura": P.ARANCIO_SCURO, "futura_segno": P.NERO, "futura_ombra": P.CREMA,
+					"esce": P.CREMA, "esce_segno": P.NERO, "esce_ombra": P.ARANCIO,
+					"mozzo": P.CREMA, "mozzo_numero": P.NERO, "mozzo_ombra": P.ARANCIO, "retino": Color(P.ARANCIO, 0.5),
+					"accento": P.ARANCIO_SCURO}
 		4:
-			tm = {"campo": "nero", "inchiostro": P.CREMA, "presa": P.CREMA, "segno_presa": P.NERO, "segno_futura": P.CREMA,
-					"esce": P.ARANCIO, "segno_esce": P.NERO, "ombra": P.ARANCIO_SCURO, "segno": P.ARANCIO, "arco": P.ARANCIO,
-					"mozzo": P.NERO, "mozzo_segno": P.CREMA, "numero": P.CREMA, "romano": P.ARANCIO,
-					"finitura": "rosone", "finitura_tinta": Color(P.ARANCIO, 0.40), "filo": P.ARANCIO}
+			tm = {"campo": "nero", "anello": P.CREMA, "numero": P.NERO, "numero_preso": P.TRATTO,
+					"speciale": P.ARANCIO, "speciale_segno": P.NERO,
+					"presa": P.ARANCIO, "presa_segno": P.NERO, "presa_ombra": P.CREMA,
+					"futura": P.BRUNO, "futura_segno": P.CREMA, "futura_ombra": P.NERO,
+					"esce": P.CREMA, "esce_segno": P.NERO, "esce_ombra": P.ARANCIO,
+					"mozzo": P.NERO, "mozzo_numero": P.CREMA, "mozzo_ombra": P.ARANCIO, "retino": Color(P.ARANCIO, 0.4),
+					"accento": P.ARANCIO}
 		5:
-			tm = {"campo": "carta", "inchiostro": P.NERO, "presa": P.ARANCIO, "segno_presa": P.NERO, "segno_futura": P.NERO,
-					"esce": P.NERO, "segno_esce": P.ARANCIO, "ombra": P.ARANCIO, "segno": P.ARANCIO, "arco": P.NERO,
-					"mozzo": P.ARANCIO, "mozzo_segno": P.NERO, "numero": P.NERO, "romano": P.CREMA,
-					"finitura": "guilloche", "finitura_tinta": Color(P.NERO, 0.24), "filo": P.NERO}
+			tm = {"campo": "carta", "anello": P.ARANCIO, "numero": P.NERO, "numero_preso": Color(P.NERO, 0.45),
+					"speciale": P.NERO, "speciale_segno": P.CREMA,
+					"presa": P.NERO, "presa_segno": P.ARANCIO, "presa_ombra": P.CREMA,
+					"futura": P.CARTA, "futura_segno": P.NERO, "futura_ombra": P.ARANCIO,
+					"esce": P.ARANCIO, "esce_segno": P.NERO, "esce_ombra": P.CREMA,
+					"mozzo": P.ARANCIO, "mozzo_numero": P.NERO, "mozzo_ombra": P.CREMA, "retino": Color(P.NERO, 0.25),
+					"accento": P.NERO}
 		_:
-			tm = {"campo": "nero", "inchiostro": P.ARANCIO, "presa": P.ARANCIO, "segno_presa": P.NERO, "segno_futura": P.ARANCIO,
-					"esce": P.CREMA, "segno_esce": P.NERO, "ombra": P.ARANCIO, "segno": P.CREMA, "arco": P.CREMA,
-					"mozzo": P.NERO, "mozzo_segno": P.ARANCIO, "numero": P.ARANCIO, "romano": P.CREMA,
-					"finitura": "clous", "finitura_tinta": Color(P.ARANCIO, 0.50), "filo": P.ARANCIO}
+			tm = {"campo": "nero", "anello": P.ARANCIO, "numero": P.NERO, "numero_preso": Color(P.NERO, 0.45),
+					"speciale": P.CREMA, "speciale_segno": P.NERO,
+					"presa": P.ARANCIO, "presa_segno": P.NERO, "presa_ombra": P.CREMA,
+					"futura": P.BRUNO, "futura_segno": P.ARANCIO, "futura_ombra": P.NERO,
+					"esce": P.CREMA, "esce_segno": P.NERO, "esce_ombra": P.ARANCIO,
+					"mozzo": P.NERO, "mozzo_numero": P.ARANCIO, "mozzo_ombra": P.CREMA, "retino": Color(P.ARANCIO, 0.45),
+					"accento": P.ARANCIO}
 	tm["nome"] = ["PRIMO", "SECONDO", "TERZO", "QUARTO", "QUINTO", "SESTO", "ULTIMO"][mini(g, 6)] + " GIRO"
-	var campo: Color = {"arancio": P.ARANCIO, "carta": P.CREMA, "nero": P.NERO}[tm["campo"]]
-	tm["campo_tinta"] = campo
-	# le tasche ancora da prendere: il fondo appena schiarito (sull'arancio) o
-	# velato, ma pieno, cosi' i tagli dei simboli, nel colore della tasca, cadono giusti
-	tm["futura"] = campo.lerp(P.CREMA, 0.2) if tm["campo"] == "arancio" else campo.lerp(tm["inchiostro"], 0.09)
 	return tm
 
 
@@ -517,37 +552,19 @@ func disegna_quadrante(t: CanvasItem) -> void:
 		"carta":
 			t.draw_rect(Rect2(0, 0, 1280, 720), P.CREMA)
 			Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.NERO, 0.07), Vector2(1.0, 1.0))
-	minuteria(t, tm)
 	ruota_giro(t, tm, g, v, p)
 	mozzo(t, tm, g)
 	legenda(t)
 	P.gira(t, Vector2(-600.0 * (1.0 - frena(entrata(0.0, 0.45))), 0), 0.0)
 	P.lastra(t, PackedVector2Array(LASTRA_QUADRANTE), P.NERO, P.CREMA, 16.0)
-	# il dente della lastra e' la lancetta: lungo e sottile, come l'indice di una ghiera
+	# il dente della lastra e' la lancetta
 	var bordo := lerpf(606.0, 440.0, (CENTRO.y + 20.0) / 760.0) + 14.0
-	Manifesto.poligono(t, PackedVector2Array([Vector2(bordo, CENTRO.y - 13), Vector2(CENTRO.x - R_STRADA + 14, CENTRO.y),
-			Vector2(bordo, CENTRO.y + 13)]), P.CREMA)
+	Manifesto.poligono(t, PackedVector2Array([Vector2(bordo, CENTRO.y - 22), Vector2(bordo + 34, CENTRO.y),
+			Vector2(bordo, CENTRO.y + 22)]), P.CREMA)
 	pannello_quadrante(t, adesso if p < 0.55 else guardato)
 	P.dritto(t)
 	sipario(t, p, giro_di(guardato))
 	testata(t, "CRESCITA", true, tm["campo"] == "nero", adesso)
-
-
-func minuteria(t: CanvasItem, tm: Dictionary) -> void:
-	# fuori da tutto, ferma: i livelli del gioco intero, una tacca ciascuno, dal
-	# primo in cima in senso orario. Le prese nel colore della traccia, la fine
-	# di ogni giro piu' lunga; nella beta, dopo il 20, quasi niente
-	var c := CENTRO
-	var inchiostro: Color = tm["inchiostro"]
-	for i in massimo():
-		var livello := i + 1
-		var a := -PI * 0.5 + TAU * (i + 0.5) / massimo()
-		var lungo := 5.0 if livello % 20 == 0 else 2.5
-		var tinta: Color = tm["arco"] if livello <= adesso else velo(inchiostro, 0.08 if beta and livello > TETTO_BETA else 0.3)
-		var su := Vector2.from_angle(a)
-		t.draw_line(c + su * (R_STRADA - lungo), c + su * (R_STRADA + lungo), tinta, 2.0 if livello <= adesso else 1.0, true)
-	var qui := Vector2.from_angle(-PI * 0.5 + TAU * (adesso - 0.5) / massimo())
-	Manifesto.poligono(t, Sagome.rombo(c + qui * (R_STRADA + 11.0), 4.0), tm["arco"])
 
 
 func ruota_giro(t: CanvasItem, tm: Dictionary, g: int, v: float, p: float) -> void:
@@ -556,24 +573,19 @@ func ruota_giro(t: CanvasItem, tm: Dictionary, g: int, v: float, p: float) -> vo
 	var n := spicchi_del_giro(g)
 	var primo := primo_del_giro(g)
 	var passo := TAU / n
-	var stacco := deg_to_rad(0.9)
-	var mezzo := passo * 0.5 - stacco
-	var lato := 34.0 * sqrt(20.0 / n)   # i simboli crescono quando le tasche sono meno
-	var inchiostro: Color = tm["inchiostro"]
+	var mezzo := passo * 0.5 - deg_to_rad(1.1)
+	var lato := 42.0 * sqrt(20.0 / n)   # i simboli crescono quando le tasche sono meno
 	var vicini: Array[int] = []
-	# la lunetta: il filo di dentro e quello di fuori, e i dettagli dei giri alti
+	# l'orlo, dal terzo giro: uno spesso, poi coi rombi, nell'ultimo doppio
 	var tutta := 1.0 - frena(clampf(p / 0.45, 0.0, 1.0)) if p < 0.55 else frena(clampf((p - 1.0) / 0.5, 0.0, 1.0))
-	t.draw_arc(c, R_LUNETTA, 0.0, TAU, 180, velo(inchiostro, 0.45 * tutta), 1.0, true)
-	t.draw_arc(c, R_BORDO, 0.0, TAU, 180, velo(inchiostro, tutta), 1.6, true)
-	if g >= 1:
-		t.draw_arc(c, R_BORDO + 3.5, 0.0, TAU, 180, velo(inchiostro, 0.55 * tutta), 1.0, true)
-	# la traccia: quanto del giro e' fatto
-	t.draw_arc(c, R_TRACCIA, 0.0, TAU, 180, velo(inchiostro, 0.22 * tutta), 1.0, true)
-	var fatti := clampi(adesso - primo + 1, 0, n)
-	if fatti > 0:
-		var da := PI + passo * (primo - v) - passo * 0.5
-		t.draw_arc(c, R_TRACCIA, da, da + passo * fatti, 24 * fatti, velo(tm["arco"], tutta), 4.0, true)
-		Manifesto.poligono(t, Sagome.rombo(c + Vector2.from_angle(da + passo * fatti) * R_TRACCIA, 5.0), velo(tm["arco"], tutta))
+	if g >= 2:
+		t.draw_arc(c, R_ORLO + 9.0, 0.0, TAU, 180, velo(tm["anello"], tutta), 6.0, true)
+	if g >= 6:
+		t.draw_arc(c, R_ORLO + 19.0, 0.0, TAU, 180, velo(tm["anello"], tutta), 2.0, true)
+	if g >= 4:
+		for k in n:
+			var su := Vector2.from_angle(PI + passo * (primo + k - v) + passo * 0.5)
+			Manifesto.poligono(t, Sagome.rombo(c + su * (R_ORLO + 9.0), 7.0), velo(tm["accento"] if g < 6 else P.CREMA, tutta))
 	for k in n:
 		var livello := primo + k
 		var a := PI + passo * (livello - v)
@@ -584,192 +596,115 @@ func ruota_giro(t: CanvasItem, tm: Dictionary, g: int, v: float, p: float) -> vo
 		if alfa <= 0.0:
 			continue
 		var o := c + Vector2.from_angle(a) * (460.0 * esce + 420.0 * (1.0 - entra))
-		lunetta(t, tm, g, o, a, passo, livello, alfa)
+		cella(t, tm, o, a, mezzo, livello, alfa)
 		if absf(livello - v) < 1.0 and alfa >= 1.0:
 			vicini.append(livello)
 			continue
 		var preso := livello <= adesso
 		var pieno: Color = tm["presa"] if preso else tm["futura"]
 		P.spicchio(t, o, R_DENTRO, R_FUORI, a - mezzo, a + mezzo, velo(pieno, alfa))
-		if preso and g >= 4:
-			# dal quinto giro, il filo intarsiato nelle tasche prese
-			t.draw_arc(o, R_FUORI - 9.0, a - mezzo + 0.04, a + mezzo - 0.04, 12, velo(tm["arco"], alfa), 2.0, true)
 		simbolo_tasca(t, livello, o + Vector2.from_angle(a) * (R_DENTRO + R_FUORI) * 0.5, lato,
-				velo(tm["segno_presa"] if preso else tm["segno_futura"], alfa), pieno, preso)
+				velo(tm["presa_segno"] if preso else tm["futura_segno"], alfa), pieno,
+				velo(tm["presa_ombra"] if preso else tm["futura_ombra"], alfa), preso)
 	# quella sotto la lancetta esce dalla ruota (anche a meta' giro: esce di quanto e' vicina)
 	vicini.sort_custom(func(x: int, y: int) -> bool: return absf(x - v) > absf(y - v))
 	for livello in vicini:
 		var fuori := 1.0 - absf(livello - v)
 		var a := PI + passo * (livello - v)
-		var o := c + Vector2.from_angle(a) * 10.0 * fuori
+		var o := c + Vector2.from_angle(a) * 12.0 * fuori
 		var chiara := fuori > 0.5
 		var preso := livello <= adesso
 		var pieno: Color = tm["esce"] if chiara else (tm["presa"] if preso else tm["futura"])
 		var dentro := R_DENTRO + 4.0 * fuori
-		var oltre := R_FUORI + 30.0 * fuori
-		var largo := mezzo + 0.035 * fuori
-		P.spicchio(t, o + Vector2(6, 6) * fuori, dentro, oltre, a - largo, a + largo, velo(tm["ombra"], fuori))
-		P.spicchio(t, o, dentro, oltre, a - largo, a + largo, pieno)
-		if chiara:
-			# il doppio filo, come il bordo di una medaglia
-			P.spicchio(t, o, dentro + 5.0, oltre - 5.0, a - largo + 0.02, a + largo - 0.02, Color(0, 0, 0, 0),
-					velo(tm["segno_esce"], 0.5), 1.0)
-		var segno: Color = tm["segno_esce"] if chiara else (tm["segno_presa"] if preso else tm["segno_futura"])
+		var oltre := R_FUORI + 36.0 * fuori
+		var largo := mezzo + 0.04 * fuori
+		P.spicchio(t, o + Vector2(9, 9) * fuori, dentro, oltre, a - largo, a + largo, velo(tm["anello"], fuori))
+		P.spicchio(t, o, dentro, oltre, a - largo, a + largo, pieno, velo(P.NERO, fuori), 3.0)
 		var dove := o + Vector2.from_angle(a) * (dentro + oltre) * 0.5
-		simbolo_tasca(t, livello, dove + Vector2(0, -15) * fuori, lato + 8.0 * fuori, segno, pieno, preso)
-		P.scritta(t, dove + Vector2(-40, 8 + 26 * fuori), str(livello), roundi(14 + 8 * fuori), segno, Caratteri.tondo(900),
+		var segno: Color = tm["esce_segno"] if chiara else (tm["presa_segno"] if preso else tm["futura_segno"])
+		var ombra: Color = tm["esce_ombra"] if chiara else (tm["presa_ombra"] if preso else tm["futura_ombra"])
+		simbolo_tasca(t, livello, dove + Vector2(0, -18) * fuori, lato + 10.0 * fuori, segno, pieno, ombra, preso)
+		P.scritta(t, dove + Vector2(-40, 12 + 28 * fuori), str(livello), roundi(18 + 12 * fuori), segno, null,
 				HORIZONTAL_ALIGNMENT_CENTER, 80)
 
 
-func lunetta(t: CanvasItem, tm: Dictionary, g: int, o: Vector2, a: float, passo: float, livello: int, alfa: float) -> void:
-	# la lunetta di una tasca: la tacca lunga al confine, quattro corte in mezzo,
-	# il numero che segue il cerchio, e il segno di cosa arriva
-	var inchiostro: Color = tm["inchiostro"]
-	var confine := a + passo * 0.5
-	var su := Vector2.from_angle(confine)
-	t.draw_line(o + su * R_LUNETTA, o + su * (R_LUNETTA + 10.0), velo(inchiostro, alfa), 2.0, true)
-	for j in range(1, 5):
-		var corta := Vector2.from_angle(a - passo * 0.5 + passo * j / 5.0)
-		t.draw_line(o + corta * R_LUNETTA, o + corta * (R_LUNETTA + 5.0), velo(inchiostro, 0.6 * alfa), 1.0, true)
-	if g >= 2:
-		Manifesto.poligono(t, Sagome.rombo(o + su * R_BORDO, 2.6), velo(inchiostro, alfa))
-	# il numero, girato lungo il cerchio: sopra con la testa fuori, sotto con la testa dentro
+func cella(t: CanvasItem, tm: Dictionary, o: Vector2, a: float, mezzo: float, livello: int, alfa: float) -> void:
+	# la cella del numero, sull'anello: dove arriva qualcosa cambia colore, come
+	# lo zero sulla ruota vera. Il numero segue il cerchio: sopra con la testa
+	# fuori, sotto con la testa dentro, cosi' si legge sempre
+	var speciale := not arrivi_di(livello).is_empty()
+	P.spicchio(t, o, R_CELLE, R_ORLO, a - mezzo, a + mezzo, velo(tm["speciale"] if speciale else tm["anello"], alfa))
+	var colore: Color = tm["speciale_segno"] if speciale else (tm["numero_preso"] if livello <= adesso else tm["numero"])
 	var giro := a + PI * 0.5 if sin(a) <= 0.0 else a - PI * 0.5
-	var preso := livello <= adesso
-	var colore: Color = tm["segno"] if g >= 5 and not preso else inchiostro
-	P.gira(t, o + Vector2.from_angle(a) * R_NUMERI, rad_to_deg(giro))
-	P.scritta(t, Vector2(-24, 5), str(livello), 13, velo(colore, alfa * (0.45 if preso else 1.0)), Caratteri.tondo(900),
-			HORIZONTAL_ALIGNMENT_CENTER, 48)
+	P.gira(t, o + Vector2.from_angle(a) * (R_CELLE + R_ORLO) * 0.5, rad_to_deg(giro))
+	P.scritta(t, Vector2(-40, 9), str(livello), 24 if livello < 100 else 20, velo(colore, alfa), null,
+			HORIZONTAL_ALIGNMENT_CENTER, 80)
 	P.dritto(t)
-	var qui := arrivi_di(livello)
-	if not qui.is_empty():
-		var q := o + Vector2.from_angle(a) * R_SEGNI
-		if String(qui[0][0]) == "passiva":
-			Manifesto.poligono(t, Sagome.rombo(q, 5.0), velo(tm["segno"], alfa))
-			Manifesto.poligono(t, Sagome.rombo(q, 2.6), velo(tm["campo_tinta"], alfa))
-		else:
-			Manifesto.poligono(t, Sagome.rombo(q, 4.6), velo(tm["segno"], alfa))
 
 
-func simbolo_tasca(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Color, fondo: Color, preso: bool) -> void:
+func simbolo_tasca(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Color, fondo: Color, ombra: Color,
+		preso: bool) -> void:
 	# cosa da' (o ha dato) la tasca: quello che arriva, se arriva qualcosa; se no
-	# la statistica scelta, o la strada che si divide della scelta che verra'
+	# la statistica scelta, o la strada che si divide della scelta che verra'.
+	# Timbrati: con l'ombra piena spostata
 	var qui := arrivi_di(livello)
 	if not qui.is_empty():
 		var primo: Array = qui[0]
 		var id := String(primo[1])
 		if String(primo[0]) == "passiva":
-			S.passiva(t, id, c, l * 1.05, tinta, fondo)
+			S.passiva_timbro(t, id, c, l * 1.05, tinta, fondo, ombra)
 		else:
-			S.disegna(t, simbolo_di("abilita", id), c, l, tinta, fondo)
+			S.timbro(t, simbolo_di("abilita", id), c, l, tinta, fondo, ombra)
 			var grado := int(abilita(id).get("grado", 1))
 			if grado > 1:
-				S.gradi(t, grado, c + Vector2(0, l * 0.72), l, tinta)
+				S.gradi(t, grado, c + Vector2(0, l * 0.7), l, tinta)
 		if qui.size() > 1:
-			P.scritta(t, c + Vector2(l * 0.42, -l * 0.34), "+%d" % (qui.size() - 1), 11, tinta, Caratteri.tondo(900))
+			P.scritta(t, c + Vector2(l * 0.44, -l * 0.34), "+%d" % (qui.size() - 1), 13, tinta)
 	elif livello == 1:
-		S.rombo(t, c, l, 12, 12, 3.0, tinta)
+		S.rombo(t, c, l, 12, 12, 3.4, tinta)
 	elif preso:
-		S.disegna(t, String(coppia(livello)[livello % 2]), c, l * 0.9, tinta, fondo)
+		S.timbro(t, String(coppia(livello)[livello % 2]), c, l * 0.86, tinta, fondo, ombra)
 	else:
-		# la scelta che verra', piu' quieta: un colore pieno a meta' fra segno e tasca
-		S.disegna(t, "biforca", c, l * 0.82, Color(Color(fondo, 1.0).lerp(Color(tinta, 1.0), 0.55), tinta.a), fondo)
+		# la scelta che verra', piu' quieta: senza ombra, un colore pieno a meta' fra segno e tasca
+		S.disegna(t, "biforca", c, l * 0.78, Color(Color(fondo, 1.0).lerp(Color(tinta, 1.0), 0.6), tinta.a), fondo)
 
 
 func mozzo(t: CanvasItem, tm: Dictionary, g: int) -> void:
-	# il centro: la finitura del giro intorno, liscio in mezzo per le scritte
+	# il centro: il retino del manifesto, il giro, e il livello enorme
 	var c := CENTRO
-	var segno: Color = tm["mozzo_segno"]
 	t.draw_circle(c, R_MOZZO, tm["mozzo"], true, -1.0, true)
-	finitura(t, String(tm["finitura"]), tm["finitura_tinta"])
-	if g >= 3:
-		# il rehaut: la minuteria fine sul bordo del mozzo
-		for i in 120:
-			var su := Vector2.from_angle(TAU * i / 120.0)
-			t.draw_line(c + su * (R_MOZZO - 6.0), c + su * (R_MOZZO - 1.0), velo(segno, 0.35), 1.0, true)
-	t.draw_arc(c, R_MOZZO - 9.0, 0.0, TAU, 160, tm["filo"], 1.6, true)
-	t.draw_circle(c, R_PULITO, tm["mozzo"], true, -1.0, true)
-	t.draw_arc(c, R_PULITO, 0.0, TAU, 120, velo(segno, 0.3), 1.0, true)
-	spaziata(t, c + Vector2(0, -88), "GIRO", 11, velo(segno, 0.7), 3.0)
-	P.scritta(t, c + Vector2(-60, -54), ROMANI[g], 30, tm["romano"], Caratteri.titolo(), HORIZONTAL_ALIGNMENT_CENTER, 120)
-	spaziata(t, c + Vector2(0, -20), "LIVELLO", 11, velo(segno, 0.7), 3.0)
-	P.scritta(t, c + Vector2(-110, 50), str(adesso), 84 if adesso < 100 else 70, tm["numero"], null, HORIZONTAL_ALIGNMENT_CENTER, 220)
-	spaziata(t, c + Vector2(0, 74), "%d — %d" % [primo_del_giro(g), ultimo_del_giro(g)], 12, velo(segno, 0.7), 2.0)
+	var centri: Array[Vector2] = []
+	var raggi: Array[float] = []
+	var passo := 10.0
+	var y := -R_MOZZO
+	while y <= R_MOZZO:
+		var x := -R_MOZZO
+		while x <= R_MOZZO:
+			var q := Vector2(x + (passo * 0.5 if roundi(y / passo) % 2 == 0 else 0.0), y)
+			# i punti crescono verso il basso a destra, come nelle ombre del manifesto
+			var quanto := clampf((q.x + q.y) / (R_MOZZO * 1.7) + 0.3, 0.0, 1.0)
+			if q.length() < R_MOZZO - 8.0 and quanto > 0.2:
+				centri.append(c + q)
+				raggi.append(3.9 * quanto * quanto)
+			x += passo
+		y += passo
+	Manifesto.puntini(t, centri, raggi, tm["retino"])
+	var giro := "GIRO %s" % ROMANI[g]
+	P.etichetta(t, c + Vector2(-(P.larghezza(giro, 18) + 20.0) * 0.5, -122), giro, 18, tm["accento"],
+			tm["mozzo"] if tm["accento"] != tm["mozzo"] else tm["mozzo_numero"])
+	var numero := str(adesso)
+	var corpo := 150 if numero.length() < 3 else 112
+	P.ritagliata(t, c + Vector2(-170, 54 if numero.length() < 3 else 40), numero, corpo, tm["mozzo_numero"], P.NERO, 0,
+			tm["mozzo_ombra"], Vector2(9, 9), null, HORIZONTAL_ALIGNMENT_CENTER, 340)
 	if beta:
 		var tetto := "TETTO DELLA BETA"
-		P.etichetta(t, c + Vector2(-(P.larghezza(tetto, 12) + 13.0) * 0.5, 84), tetto, 12, P.ARANCIO, P.NERO)
-		return
-	var batte := 0.5 + 0.5 * sin(tempo * 3.0)
-	for i in giri():
-		var q := c + Vector2((i - (giri() - 1) * 0.5) * 15.0, 96)
-		if i < g or (i == g and chiuso()):
-			Manifesto.poligono(t, Sagome.rombo(q, 4.2), tm["romano"])
-		elif i == g:
-			Manifesto.poligono(t, Sagome.rombo(q, 4.2 + batte), tm["romano"])
-			Manifesto.poligono(t, Sagome.rombo(q, 2.0 + 0.5 * batte), tm["mozzo"])
-		else:
-			Manifesto.poligono(t, Sagome.rombo(q, 3.0), velo(segno, 0.25))
-
-
-func finitura(t: CanvasItem, quale: String, tinta: Color) -> void:
-	# le finiture dei quadranti, nell'anello fra il bordo del mozzo e il centro liscio
-	var c := CENTRO
-	var dentro := R_PULITO + 2.0
-	var fuori := R_MOZZO - 11.0
-	match quale:
-		"raggiata":
-			# il soleil: tanti raggi sottilissimi
-			for i in 180:
-				var su := Vector2.from_angle(TAU * i / 180.0)
-				t.draw_line(c + su * dentro, c + su * fuori, tinta, 1.0, true)
-		"guilloche":
-			# l'onda incisa: cerchi che ondeggiano, sfasati uno sull'altro
-			for j in 8:
-				var r := dentro + 3.0 + j * (fuori - dentro - 6.0) / 7.0
-				var onda := PackedVector2Array()
-				for i in 241:
-					var a := TAU * i / 240.0
-					onda.append(c + Vector2.from_angle(a) * (r + 2.4 * sin(a * 24.0 + j * 0.8)))
-				t.draw_polyline(onda, tinta, 1.0, true)
-		"clous":
-			# il clous de Paris: una griglia di piramidine a rombo
-			var centri: Array[Vector2] = []
-			var passo := 8.5
-			var y := -fuori
-			while y <= fuori:
-				var x := -fuori
-				while x <= fuori:
-					var q := Vector2(x, y).rotated(PI * 0.25)
-					var d := q.length()
-					if d > dentro + 4.0 and d < fuori - 4.0:
-						centri.append(c + q)
-					x += passo
-				y += passo
-			P.rombini(t, centri, 3.0, tinta)
-		"rosone":
-			# il rosone: cerchi uguali che girano attorno e si intrecciano
-			var r := (dentro + fuori) * 0.5
-			for i in 36:
-				var q := c + Vector2.from_angle(TAU * i / 36.0) * r
-				t.draw_arc(q, (fuori - dentro) * 0.5 - 1.0, 0.0, TAU, 40, tinta, 1.0, true)
-
-
-static func spaziata(t: CanvasItem, centro: Vector2, testo: String, corpo: int, tinta: Color, spazio: float) -> void:
-	# le scritte piccole, spaziate lettera per lettera come sui quadranti
-	var f := Caratteri.tondo(900)
-	var largo := spazio * (testo.length() - 1)
-	for ch in testo:
-		largo += f.get_string_size(ch, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
-	var x := centro.x - largo * 0.5
-	for ch in testo:
-		t.draw_string(f, Vector2(x, centro.y), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, tinta)
-		x += f.get_string_size(ch, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x + spazio
+		P.etichetta(t, c + Vector2(-(P.larghezza(tetto, 14) + 15.0) * 0.5, 84), tetto, 14, P.ARANCIO, P.NERO)
 
 
 static func legenda(t: CanvasItem) -> void:
 	# su un cartellino nero, cosi' si legge su tutti i fondi
-	var dove := Vector2(1158, 656)
-	Manifesto.poligono(t, P.storta(Rect2(dove + Vector2(-20, -24), Vector2(146, 84)), 0.1), P.NERO)
+	var dove := Vector2(1196, 670)
+	Manifesto.poligono(t, P.storta(Rect2(dove + Vector2(-18, -22), Vector2(110, 74)), 0.1), P.NERO)
 	S.disegna(t, "biforca", dove + Vector2(4, -6), 18.0, P.CREMA, P.NERO)
 	P.scritta(t, dove + Vector2(20, -1), "A SCELTA", 12, P.CREMA, Caratteri.tondo(900))
 	S.disegna(t, "flagello", dove + Vector2(4, 17), 18.0, P.CREMA, P.NERO)
@@ -1229,10 +1164,10 @@ func disegna_simboli(t: CanvasItem) -> void:
 	t.draw_rect(Rect2(0, 0, 1280, 720), P.NERO)
 	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.ARANCIO, 0.06), Vector2(1.0, 1.0))
 	P.etichetta(t, Vector2(28, 52), "I SIMBOLI", 40, P.CREMA, P.NERO, P.ARANCIO)
-	P.scritta(t, Vector2(300, 82), "Una famiglia sola: griglia di 24, un tratto, angoli vivi, i dettagli tagliati nel fondo.",
+	P.scritta(t, Vector2(300, 82), "Timbri del manifesto: pendono come le sue scritte, tratto pieno, ombra spostata, dettagli",
 			15, P.CARTA, Caratteri.tondo(700))
-	P.scritta(t, Vector2(300, 102), "Le abilità raccontano quello che fanno; le passive stanno dentro il rombo.", 15, P.CARTA,
-			Caratteri.tondo(700))
+	P.scritta(t, Vector2(300, 102), "tagliati nel fondo. Le abilità raccontano quello che fanno; le passive stanno nel rombo.", 15,
+			P.CARTA, Caratteri.tondo(700))
 	riga_di_simboli(t, "STATISTICHE", 186.0, SIMBOLI_STAT, false)
 	riga_di_simboli(t, "ABILITÀ", 340.0, SIMBOLI_ABILITA, false)
 	var passive: Array[String] = []
@@ -1253,10 +1188,10 @@ func riga_di_simboli(t: CanvasItem, titolo: String, y: float, nomi: Array, passi
 		var x := 96.0 + passo * i
 		var nome := String(dati_passiva(id).get("nome", id)) if passive else String(S.NOMI.get(id, id))
 		if passive:
-			S.passiva(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO)
+			S.passiva_timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
 			S.passiva(t, id, Vector2(x + 50, y + 22), 22.0, P.ARANCIO, P.NERO)
 		else:
-			S.disegna(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO)
+			S.timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
 			S.disegna(t, id, Vector2(x + 52, y + 22), 22.0, P.ARANCIO, P.NERO)
 		P.a_capo(t, Rect2(x - 62, y + 38, 124, 30), nome.to_upper(), 11, P.CARTA, Caratteri.tondo(900),
 				HORIZONTAL_ALIGNMENT_CENTER, 2)
