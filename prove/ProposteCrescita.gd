@@ -17,6 +17,9 @@ extends Control
 #   fine_beta         il primo giro chiuso, nella beta: il 20 e' il tetto
 #   massimo           l'ultimo giro chiuso, al 130: si torna sui bivi
 #   statistiche       i mon delle statistiche: il catalogo, la costruzione, il timbro, le prove
+#   studio_occhio     le correzioni ottiche sui mon: sporgenza, irraggiamento, peso, una tinta
+#   studio_pieno      pieno e vuoto: tre trattamenti dello stesso mon (StudioSegni)
+#   studio_astrazione dal disegno al segno: la Vita e l'Attacco, un passo alla volta
 #   simboli           la tavola dei simboli (SimboliCrescita), grandi e piccoli
 #   bivio             prendere lo spicchio: un punto, due strade
 #   passive           quelle sbloccate si portano in tre alloggi, e si cambiano
@@ -28,8 +31,9 @@ extends Control
 
 const P := preload("res://prove/PezziCrescita.gd")
 const S := preload("res://prove/SimboliCrescita.gd")
+const ST := preload("res://prove/StudioSegni.gd")
 const PROPOSTE := ["giro_1", "giro_2", "giro_3", "giro_4", "giro_5", "giro_6", "giro_7", "fine_beta", "massimo",
-		"statistiche", "simboli", "bivio", "passive"]
+		"statistiche", "studio_occhio", "studio_pieno", "studio_astrazione", "simboli", "bivio", "passive"]
 const CARTELLA := "res://scatti/proposte_crescita"
 const HYPE := 3450
 const LIVELLO := 7          # il protagonista d'esempio del bivio
@@ -145,7 +149,8 @@ func _unhandled_input(evento: InputEvent) -> void:
 
 
 static func genere(nome: String) -> String:
-	return nome if nome in ["bivio", "passive", "simboli", "statistiche"] else "quadrante"
+	return nome if nome in ["bivio", "passive", "simboli", "statistiche", "studio_occhio", "studio_pieno",
+			"studio_astrazione"] else "quadrante"
 
 
 func mostra(quale: int) -> void:
@@ -1249,7 +1254,7 @@ func disegna_statistiche(t: CanvasItem) -> void:
 		S.senza_tagli = true
 		S.mon(t, chiave, Vector2(x, 636), 40.0, P.CREMA, P.CREMA, P.CREMA, false)
 		S.senza_tagli = false
-	P.a_capo(t, Rect2(170, 576, 560, 20), "senza arancio il cuore e' un buco: un kamon e' un timbro, deve bastare un colore",
+	P.a_capo(t, Rect2(170, 576, 560, 20), "senza arancio il cuore resta pieno nel suo taglio: un kamon e' un timbro, deve bastare un colore",
 			12, P.CARTA)
 	P.a_capo(t, Rect2(170, 664, 560, 20), "senza anello e riempite: ogni sagoma si distingue dalle altre", 12, P.CARTA)
 	# la costruzione e il timbro
@@ -1314,28 +1319,30 @@ func costruzione(t: CanvasItem, c: Vector2, l: float) -> void:
 		t.draw_line(o + Vector2(0, i) * k, o + Vector2(24, i) * k, tinta, 1.0)
 	S.mon(t, "hp", c, l, Color(P.CREMA, 0.9), P.NERO, P.ARANCIO)
 	var guida := Color(P.ARANCIO, 0.6)
-	for raggio: float in [12.0, 12.0 - S.W, 12.0 - S.W - S.TAGLIO]:
+	# l'anello chiaro sul nero ha la linea assottigliata (l'irraggiamento); il
+	# motivo sta dentro il raggio 9, le punte fino a 9,4
+	for raggio: float in [12.0, 12.0 - S.W * S.CHIARO_SU_SCURO_LINEA, 9.0, 9.4]:
 		t.draw_arc(c, raggio * k, 0.0, TAU, 96, guida, 1.0, true)
-	for d: float in [4.7, -3.5, 11.7, 3.5]:
+	# il cuore e' rimpicciolito a 0,93 per il peso: le rette si ricavano dai suoi vertici
+	var v := S.griglia(S.scala([8.5, 3.8, 12, 7.3, 15.5, 3.8, 19.6, 7.9, 12, 20.9, 4.4, 7.9], 0.93))
+	for d: float in [v[0].x - v[0].y, v[3].x - v[3].y]:
 		# x - y = d, dentro il quadrato
 		t.draw_line(o + Vector2(maxf(0.0, d), maxf(0.0, -d)) * k, o + Vector2(minf(24.0, 24.0 + d), minf(24.0, 24.0 - d)) * k,
 				Color(guida, 0.4), 1.0, true)
-	for somma: float in [12.3, 20.5, 19.3, 27.5]:
+	for somma: float in [v[0].x + v[0].y, v[2].x + v[2].y]:
 		# x + y = somma, dentro il quadrato
 		t.draw_line(o + Vector2(minf(24.0, somma), maxf(0.0, somma - 24.0)) * k,
 				o + Vector2(maxf(0.0, somma - 24.0), minf(24.0, somma)) * k, Color(guida, 0.4), 1.0, true)
+	var a45 := Vector2(12, v[5].y + (12 - v[5].x))
 	for i in 8:
 		# la punta a 45°, tratteggiata
 		var u := float(i) / 8.0
-		t.draw_line(o + Vector2(4.4, 7.9).lerp(Vector2(12, 15.5), u) * k, o + Vector2(4.4, 7.9).lerp(Vector2(12, 15.5), u + 0.06) * k,
-				P.ARANCIO, 1.5)
-		t.draw_line(o + Vector2(19.6, 7.9).lerp(Vector2(12, 15.5), u) * k, o + Vector2(19.6, 7.9).lerp(Vector2(12, 15.5), u + 0.06) * k,
-				P.ARANCIO, 1.5)
-	for v: Vector2 in [Vector2(8.5, 3.8), Vector2(15.5, 3.8), Vector2(4.4, 7.9), Vector2(19.6, 7.9), Vector2(12, 20.9),
-			Vector2(12, 15.5)]:
-		t.draw_circle(o + v * k, 3.0, P.ARANCIO, true, -1.0, true)
+		t.draw_line(o + v[5].lerp(a45, u) * k, o + v[5].lerp(a45, u + 0.06) * k, P.ARANCIO, 1.5)
+		t.draw_line(o + v[3].lerp(a45, u) * k, o + v[3].lerp(a45, u + 0.06) * k, P.ARANCIO, 1.5)
+	for q: Vector2 in [v[0], v[2], v[3], v[4], v[5], a45]:
+		t.draw_circle(o + q * k, 3.0, P.ARANCIO, true, -1.0, true)
 	t.draw_circle(c, 2.0, P.ARANCIO)
-	P.scritta(t, o + Vector2(13.0, 16.6) * k, "45°", 11, P.ARANCIO, Caratteri.tondo(900))
+	P.scritta(t, o + (a45 + Vector2(1.0, 1.2)) * k, "45°", 11, P.ARANCIO, Caratteri.tondo(900))
 	P.scritta(t, c + Vector2(12.4, 2.0) * k, "W", 12, P.ARANCIO, Caratteri.tondo(900))
 	P.scritta(t, c + Vector2(-12.0, -11.2) * k, "24", 12, Color(P.CREMA, 0.5), Caratteri.tondo(900))
 
@@ -1367,4 +1374,33 @@ func scheda_in_piccolo(t: CanvasItem, r: Rect2) -> void:
 
 
 func tasti_statistiche() -> void:
+	pass
+
+
+# --- le tavole di studio (StudioSegni) -----------------------------------------------------------
+
+func disegna_studio_occhio(t: CanvasItem) -> void:
+	ST.occhio(t)
+	testata(t, "", true, true)
+
+
+func disegna_studio_pieno(t: CanvasItem) -> void:
+	ST.pieno(t)
+	testata(t, "", true, true)
+
+
+func disegna_studio_astrazione(t: CanvasItem) -> void:
+	ST.astrazione(t)
+	testata(t, "", true, true)
+
+
+func tasti_studio_occhio() -> void:
+	pass
+
+
+func tasti_studio_pieno() -> void:
+	pass
+
+
+func tasti_studio_astrazione() -> void:
 	pass

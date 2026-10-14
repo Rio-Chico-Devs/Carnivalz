@@ -290,9 +290,13 @@ static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Co
 #   dal crema, che con l'arancio fa poco contrasto). L'arancio e' una cosa sola
 #   per mon: nella Maestria del dominio e' il terzo segmento della barra;
 # - una tinta sola deve bastare (un kamon e' un timbro): senza arancio il cuore
-#   e' un buco, e il mon si legge lo stesso;
+#   resta pieno nel suo taglio, e il mon si legge lo stesso;
 # - la prova della sagoma (le icone di gioco): senza anello e riempito tutto,
 #   ogni motivo si distingue dagli altri.
+# Poi la pulizia, dalle letture sulle correzioni ottiche (Logo Geek,
+# Scannerlicker) e dalle misure fatte sui simboli AIGA/DOT: lo stesso peso per
+# tutti, le punte che sporgono un poco, le linee piu' sottili quando il mon e'
+# chiaro sul fondo scuro (vedi sagoma, ottica e prove/StudioSegni.gd).
 # Le idee restano quelle della strada tenuta da Bru: il cuore, la lama, lo
 # scudo, il fulmine, l'occhio, la coppia allineati / disallineati (lo stesso
 # rombo, intero e spezzato), la barra del dominio col terzo segmento acceso,
@@ -301,10 +305,19 @@ static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Co
 const STATISTICHE := ["hp", "attacco", "difesa", "velocita", "intelligenza", "forza_mentale", "fattore",
 		"maestria_dominio", "aura"]
 
-const W := 1.8           # lo spessore: l'anello e ogni linea
+const W := 2.0           # lo spessore: l'anello e ogni linea
 const TAGLIO := 1.2      # lo spazio fra due parti
 const CUORE := 2.2       # il rombo arancio al centro, sempre questo
 const INCASTRO := 1.4    # il taglio attorno al cuore, sul vertice (TAGLIO per radice di 2, a occhio)
+# L'irraggiamento (Logo Geek): chiaro su scuro sembra piu' grasso dello stesso
+# disegno scuro su chiaro, e i tagli scuri sembrano piu' stretti. Quando il mon
+# e' chiaro sul fondo scuro le linee si assottigliano e i tagli si allargano.
+# Quanto, l'ha deciso l'occhio sulle prove, come dice l'articolo
+const CHIARO_SU_SCURO_LINEA := 0.88
+const CHIARO_SU_SCURO_TAGLIO := 1.18
+static var linea_ora := W
+static var taglio_ora := TAGLIO
+static var correggi := true       # le tavole di studio la spengono, per far vedere la differenza
 
 
 static func griglia(xy: Array) -> PackedVector2Array:
@@ -327,7 +340,7 @@ static func banda(t: CanvasItem, c: Vector2, l: float, xy: Array, tinta: Color, 
 	pieno(t, c, l, xy, tinta, giro)
 	if senza_tagli or fondo.a <= 0.0:
 		return
-	for dentro in Geometry2D.offset_polygon(griglia(xy), -W, Geometry2D.JOIN_MITER):
+	for dentro in Geometry2D.offset_polygon(griglia(xy), -linea_ora, Geometry2D.JOIN_MITER):
 		pieno(t, c, l, piatto(dentro), fondo, giro)
 
 
@@ -336,7 +349,7 @@ static func scosta(t: CanvasItem, c: Vector2, l: float, xy: Array, fondo: Color,
 	# allargata di TAGLIO, nel colore del fondo
 	if senza_tagli or fondo.a <= 0.0:
 		return
-	for fuori in Geometry2D.offset_polygon(griglia(xy), TAGLIO, Geometry2D.JOIN_MITER):
+	for fuori in Geometry2D.offset_polygon(griglia(xy), taglio_ora, Geometry2D.JOIN_MITER):
 		pieno(t, c, l, piatto(fuori), fondo, giro)
 
 
@@ -346,28 +359,28 @@ static func maru(t: CanvasItem, c: Vector2, l: float, tinta: Color) -> void:
 	if senza_tagli:
 		t.draw_circle(c, 12.0 * k, tinta, true, -1.0, true)
 	else:
-		t.draw_arc(c, (12.0 - W * 0.5) * k, 0.0, TAU, 96, tinta, maxf(W * k, 1.0), true)
+		t.draw_arc(c, (12.0 - linea_ora * 0.5) * k, 0.0, TAU, 96, tinta, maxf(linea_ora * k, 1.0), true)
 
 
 static func nucleo(t: CanvasItem, c: Vector2, l: float, x: float, y: float, tinta: Color, fondo: Color,
 		accento: Color) -> void:
-	# il cuore: il rombo arancio dell'emblema, incastonato; con una tinta sola e' un buco
+	# il cuore: il rombo arancio dell'emblema, incastonato. Con una tinta sola
+	# resta pieno nel suo taglio: prima era un buco, e dove il cuore sta nel
+	# vuoto (l'occhio, la Forza mentale) spariva, e la lama si sbriciolava
 	if senza_tagli:
 		rombo(t, c, l, x, y, CUORE, tinta)
-	elif accento.a > 0.0:
-		rombo(t, c, l, x, y, CUORE + INCASTRO, fondo)
-		rombo(t, c, l, x, y, CUORE, accento)
-	else:
-		rombo(t, c, l, x, y, CUORE, fondo)
+		return
+	rombo(t, c, l, x, y, CUORE + INCASTRO * taglio_ora / TAGLIO, fondo)
+	rombo(t, c, l, x, y, CUORE, accento if accento.a > 0.0 else tinta)
 
 
 static func faglia(t: CanvasItem, c: Vector2, l: float, tinta: Color, fondo: Color, scivola: float) -> void:
 	# il rombo della Forza mentale spezzato lungo la verticale, con le due meta'
 	# scivolate in senso opposto: il disallineamento
-	var fuori := griglia([12, 4.8, 19.2, 12, 12, 19.2, 4.8, 12])
-	var dentro: PackedVector2Array = Geometry2D.offset_polygon(fuori, -W, Geometry2D.JOIN_MITER)[0]
-	var meta := [griglia([-12, -12, 12 - TAGLIO * 0.5, -12, 12 - TAGLIO * 0.5, 36, -12, 36]),
-			griglia([12 + TAGLIO * 0.5, -12, 36, -12, 36, 36, 12 + TAGLIO * 0.5, 36])]
+	var fuori := griglia([12, 3.2, 20.8, 12, 12, 20.8, 3.2, 12])
+	var dentro: PackedVector2Array = Geometry2D.offset_polygon(fuori, -linea_ora, Geometry2D.JOIN_MITER)[0]
+	var meta := [griglia([-12, -12, 12 - taglio_ora * 0.5, -12, 12 - taglio_ora * 0.5, 36, -12, 36]),
+			griglia([12 + taglio_ora * 0.5, -12, 36, -12, 36, 36, 12 + taglio_ora * 0.5, 36])]
 	for i in 2:
 		var sposta := Transform2D(0.0, Vector2(0, scivola if i == 0 else -scivola))
 		for pezzo in Geometry2D.intersect_polygons(sposta * fuori, meta[i]):
@@ -393,9 +406,22 @@ static func segmenti(t: CanvasItem, c: Vector2, l: float, tinta: Color, fondo: C
 				pieno(t, c, l, piatto(vuoto), fondo)
 
 
+static func scala(xy: Array, f: float) -> Array:
+	# le coppie x, y ingrandite (o rimpicciolite) attorno al centro 12,12
+	var fuori := []
+	for v in xy:
+		fuori.append(12.0 + (float(v) - 12.0) * f)
+	return fuori
+
+
 static func sagoma(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
 		accento := Color(0, 0, 0, 0)) -> void:
-	# il motivo del mon, senza anello: dritto, sulla griglia di 24 col centro in 12,12
+	# il motivo del mon, senza anello: dritto, sulla griglia di 24 col centro in 12,12.
+	# Le parti piatte stanno dentro il raggio 9 (l'anello meno il taglio); le
+	# punte possono uscire fino a 9,4: una punta sembra piu' corta di quanto e',
+	# come il cerchio accanto al quadrato (la sporgenza, Scannerlicker). E ogni
+	# motivo ha piu' o meno lo stesso peso: l'inchiostro misurato, nero su
+	# bianco, sta fra 0,27 e 0,33 del quadrato del motivo (docs/simboli.md)
 	if senza_tagli:
 		fondo = Color(0, 0, 0, 0)
 	var prima := piega
@@ -404,39 +430,38 @@ static func sagoma(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: C
 		"hp":
 			# il cuore: due lobi a rombo e la punta, un po' piu' lunga dei 45°
 			# (l'occhio prima della griglia, come Aicher)
-			rombo(t, c, l, 8.5, 7.9, 4.1, tinta)
-			rombo(t, c, l, 15.5, 7.9, 4.1, tinta)
-			pieno(t, c, l, [4.4, 7.9, 19.6, 7.9, 12, 20.9], tinta)
+			var f := 0.93
+			pieno(t, c, l, scala([8.5, 3.8, 12, 7.3, 15.5, 3.8, 19.6, 7.9, 12, 20.9, 4.4, 7.9], f), tinta)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"attacco":
-			# la lama di sbieco: il cuore incastonato alla base, la guardia staccata
-			# da un taglio, l'impugnatura e il pomo
+			# la lama di sbieco, larga, col cuore incastonato alla base; la guardia
+			# staccata da un taglio, l'impugnatura e il pomo
 			var sbieco := PI * 0.25
-			pieno(t, c, l, [12, 2.8, 14.2, 5.0, 14.2, 12.0, 12, 14.2, 9.8, 12.0, 9.8, 5.0], tinta, sbieco)
-			pieno(t, c, l, [7.6, 15.8, 16.4, 15.8, 17.4, 16.7, 16.4, 17.6, 7.6, 17.6, 6.6, 16.7], tinta, sbieco)
-			pieno(t, c, l, [11.0, 17.6, 13.0, 17.6, 13.0, 19.2, 11.0, 19.2], tinta, sbieco)
-			pieno(t, c, l, [12, 18.9, 13.2, 20.1, 12, 21.3, 10.8, 20.1], tinta, sbieco)
+			pieno(t, c, l, [12, 2.6, 15.4, 6.0, 15.4, 14.4, 8.6, 14.4, 8.6, 6.0], tinta, sbieco)
+			pieno(t, c, l, [7.0, 15.6, 17.0, 15.6, 18.2, 16.8, 17.0, 18.0, 7.0, 18.0, 5.8, 16.8], tinta, sbieco)
+			pieno(t, c, l, [10.7, 18.0, 13.3, 18.0, 13.3, 19.3, 10.7, 19.3], tinta, sbieco)
+			pieno(t, c, l, [12, 18.7, 13.3, 20.0, 12, 21.3, 10.7, 20.0], tinta, sbieco)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"difesa":
 			# lo scudo, e il cuore per borchia
-			pieno(t, c, l, [6.4, 5.0, 17.6, 5.0, 17.6, 13.0, 12, 21.0, 6.4, 13.0], tinta)
+			pieno(t, c, l, scala([6.4, 5.0, 17.6, 5.0, 17.6, 13.0, 12, 21.0, 6.4, 13.0], 0.93), tinta)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"velocita":
 			# il fulmine: il cuore dove i due colpi si toccano
-			pieno(t, c, l, [9.3, 4.0, 15.8, 4.0, 13.6, 10.2, 17.8, 10.2, 10.0, 20.8, 10.6, 13.8, 5.8, 13.8], tinta)
+			pieno(t, c, l, [8.4, 3.8, 15.9, 3.8, 13.7, 10.0, 18.3, 10.0, 9.9, 21.1, 10.5, 14.0, 5.0, 14.0], tinta)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"intelligenza":
 			# l'occhio a lente, con gli spigoli a 45°: la pupilla e' il cuore
-			banda(t, c, l, [3.0, 12, 7.8, 7.2, 16.2, 7.2, 21.0, 12, 16.2, 16.8, 7.8, 16.8], tinta, fondo)
+			banda(t, c, l, [2.6, 12, 8.4, 6.2, 15.6, 6.2, 21.4, 12, 15.6, 17.8, 8.4, 17.8], tinta, fondo)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"forza_mentale":
 			# allineati: l'anello, il rombo e il cuore hanno lo stesso centro
-			banda(t, c, l, [12, 4.8, 19.2, 12, 12, 19.2, 4.8, 12], tinta, fondo)
+			banda(t, c, l, [12, 3.2, 20.8, 12, 12, 20.8, 3.2, 12], tinta, fondo)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"fattore":
 			# disallineati: lo stesso rombo spezzato, le due meta' scivolate. Il
 			# cuore resta dov'e'
-			faglia(t, c, l, tinta, fondo, 2.0)
+			faglia(t, c, l, tinta, fondo, 1.6)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"maestria_dominio":
 			segmenti(t, c, l, tinta, fondo, accento)
@@ -444,27 +469,37 @@ static func sagoma(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: C
 			# l'emblema: il rombo grande col cuore, i due piccoli sopra e sotto, e
 			# ai lati i fantasmi, dietro, staccati da un taglio: sono la sua aura
 			var fantasma := Color(Color(fondo, 1.0).lerp(Color(tinta, 1.0), 0.45), tinta.a) if fondo.a > 0.0 else tinta
-			rombo(t, c, l, 5.8, 12, 3.0, fantasma)
-			rombo(t, c, l, 18.2, 12, 3.0, fantasma)
-			scosta(t, c, l, [12, 6.0, 18.0, 12, 12, 18.0, 6.0, 12], fondo)
-			rombo(t, c, l, 12, 12, 6.0, tinta)
-			rombo(t, c, l, 12, 3.9, 1.3, tinta)
-			rombo(t, c, l, 12, 20.1, 1.3, tinta)
+			rombo(t, c, l, 5.6, 12, 3.2, fantasma)
+			rombo(t, c, l, 18.4, 12, 3.2, fantasma)
+			scosta(t, c, l, [12, 5.4, 18.6, 12, 12, 18.6, 5.4, 12], fondo)
+			rombo(t, c, l, 12, 12, 6.6, tinta)
+			rombo(t, c, l, 12, 3.4, 1.6, tinta)
+			rombo(t, c, l, 12, 20.6, 1.6, tinta)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 	piega = prima
+
+
+static func ottica(tinta: Color, fondo: Color) -> void:
+	# lo spessore e il taglio giusti per questi colori (l'irraggiamento)
+	var chiaro := correggi and fondo.a > 0.0 and tinta.get_luminance() > fondo.get_luminance() + 0.2
+	linea_ora = W * (CHIARO_SU_SCURO_LINEA if chiaro else 1.0)
+	taglio_ora = TAGLIO * (CHIARO_SU_SCURO_TAGLIO if chiaro else 1.0)
 
 
 static func mon(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
 		accento := Color(0, 0, 0, 0), anello := true) -> void:
 	# il mon intero: l'anello, e dentro il motivo, piu' piccolo di quanto serve
 	# perche' fra il motivo e l'anello resti il taglio
+	ottica(tinta, fondo)
 	if anello:
 		if not senza_tagli and fondo.a > 0.0:
-			t.draw_circle(c, (12.0 - W * 0.5) * l / 24.0, fondo, true, -1.0, true)
+			t.draw_circle(c, (12.0 - linea_ora * 0.5) * l / 24.0, fondo, true, -1.0, true)
 		maru(t, c, l, tinta)
 		sagoma(t, chiave, c, l, tinta, fondo, accento)
 	else:
 		sagoma(t, chiave, c, l * 1.22, tinta, fondo, accento)
+	linea_ora = W
+	taglio_ora = TAGLIO
 
 
 static func statistica(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
