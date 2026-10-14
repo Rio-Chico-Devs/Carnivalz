@@ -121,8 +121,8 @@ static func banda(da: Vector2, a: Vector2, distanza_dal_bordo: float, larga: flo
 static func unisci(figure: Array) -> Array[PackedVector2Array]:
 	# le figure che si toccano diventano una; quelle staccate restano staccate
 	var fuori: Array[PackedVector2Array] = []
-	for figura: PackedVector2Array in figure:
-		var corrente := figura
+	for nuova: PackedVector2Array in figure:
+		var corrente := nuova
 		var restano: Array[PackedVector2Array] = []
 		for altra in fuori:
 			var unite: Array[PackedVector2Array] = Geometry2D.merge_polygons(corrente, altra)
