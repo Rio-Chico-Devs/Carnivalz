@@ -16,7 +16,7 @@ extends Control
 #   giro_1 .. giro_7  la roulette, un giro per foto
 #   fine_beta         il primo giro chiuso, nella beta: il 20 e' il tetto
 #   massimo           l'ultimo giro chiuso, al 130: si torna sui bivi
-#   statistiche       le icone delle statistiche: tre strade a confronto, e nella scheda
+#   statistiche       i mon delle statistiche: il catalogo, la costruzione, il timbro, le prove
 #   simboli           la tavola dei simboli (SimboliCrescita), grandi e piccoli
 #   bivio             prendere lo spicchio: un punto, due strade
 #   passive           quelle sbloccate si portano in tre alloggi, e si cambiano
@@ -664,7 +664,7 @@ func simbolo_tasca(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Col
 	elif livello == 1:
 		S.rombo(t, c, l, 12, 12, 3.4, tinta)
 	elif preso:
-		S.timbro(t, String(coppia(livello)[livello % 2]), c, l * 0.86, tinta, fondo, ombra, accento_per(tinta, fondo))
+		S.statistica(t, String(coppia(livello)[livello % 2]), c, l * 1.04, tinta, fondo, accento_per(tinta, fondo), ombra)
 	else:
 		# la scelta che verra', piu' quieta: senza ombra, un colore pieno a meta' fra segno e tasca
 		S.disegna(t, "biforca", c, l * 0.78, Color(Color(fondo, 1.0).lerp(Color(tinta, 1.0), 0.6), tinta.a), fondo)
@@ -893,10 +893,11 @@ func disegna_bivio(t: CanvasItem) -> void:
 	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.NERO, 0.07), Vector2(1.0, 1.0))
 	# i simboli grandi sul fondo: colori pieni gia' mescolati, non trasparenze
 	# (i pezzi di un simbolo si sovrappongono, e la trasparenza li farebbe a chiazze)
-	S.disegna(t, String(due[1]), Vector2(1010, 450), 600.0, P.CREMA.lerp(P.NERO, 0.06), P.CREMA)
+	# i mon interi, grandi come lo stemma stampato su una tenda
+	S.mon(t, String(due[1]), Vector2(1010, 450), 640.0, P.CREMA.lerp(P.NERO, 0.06), P.CREMA)
 	Manifesto.poligono(t, PackedVector2Array([Vector2(-20, -20), Vector2(taglio, -20), Vector2(basso, 740), Vector2(-20, 740)]),
 			P.NERO)
-	S.disegna(t, String(due[0]), Vector2(taglio - 410, 470), 560.0, P.NERO.lerp(P.CREMA, 0.07), P.NERO)
+	S.mon(t, String(due[0]), Vector2(taglio - 410, 470), 600.0, P.NERO.lerp(P.CREMA, 0.07), P.NERO)
 	Manifesto.poligono(t, PackedVector2Array([Vector2(taglio, -20), Vector2(taglio + 14, -20), Vector2(basso + 14, 740),
 			Vector2(basso, 740)]), P.ARANCIO)
 	# presa la strada, quella scelta va al margine e l'altra se ne va col taglio
@@ -1175,9 +1176,9 @@ func disegna_simboli(t: CanvasItem) -> void:
 	t.draw_rect(Rect2(0, 0, 1280, 720), P.NERO)
 	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.ARANCIO, 0.06), Vector2(1.0, 1.0))
 	P.etichetta(t, Vector2(28, 52), "I SIMBOLI", 40, P.CREMA, P.NERO, P.ARANCIO)
-	P.scritta(t, Vector2(300, 82), "Timbri del manifesto: pendono come le sue scritte, tratto pieno, ombra spostata, dettagli",
+	P.scritta(t, Vector2(300, 82), "Le statistiche sono mon, dritti nel loro anello (la tavola delle statistiche). Abilità e",
 			15, P.CARTA, Caratteri.tondo(700))
-	P.scritta(t, Vector2(300, 102), "tagliati nel fondo. Le abilità raccontano quello che fanno; le passive stanno nel rombo.", 15,
+	P.scritta(t, Vector2(300, 102), "passive sono ancora timbri del manifesto, pendenti: le abilità senza cornice, le passive nel rombo.", 15,
 			P.CARTA, Caratteri.tondo(700))
 	riga_di_simboli(t, "STATISTICHE", 186.0, SIMBOLI_STAT, false)
 	riga_di_simboli(t, "ABILITÀ", 340.0, SIMBOLI_ABILITA, false)
@@ -1201,6 +1202,9 @@ func riga_di_simboli(t: CanvasItem, titolo: String, y: float, nomi: Array, passi
 		if passive:
 			S.passiva_timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
 			S.passiva(t, id, Vector2(x + 50, y + 22), 22.0, P.ARANCIO, P.NERO)
+		elif id in S.STATISTICHE:
+			S.statistica(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO, P.ARANCIO)
+			S.statistica(t, id, Vector2(x + 52, y + 22), 22.0, P.ARANCIO, P.NERO)
 		else:
 			S.timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
 			S.disegna(t, id, Vector2(x + 52, y + 22), 22.0, P.ARANCIO, P.NERO)
@@ -1214,10 +1218,12 @@ func tasti_simboli() -> void:
 
 # --- la tavola delle statistiche ------------------------------------------------------------
 #
-# Il foglio di progetto delle icone delle statistiche (SimboliCrescita.sagoma):
-# la famiglia intera col suo nucleo arancio; la costruzione sulla griglia di 24
-# col righello a 45°; la coppia allineati / disallineati; la lista della scheda
-# alla grandezza vera e la prova delle grandezze piccole.
+# Il foglio di progetto dei mon delle statistiche (SimboliCrescita.mon), fatto
+# come una pagina dei cataloghi di kamon: gli stemmi chiari nei quadrati neri,
+# il nome sotto. Accanto la costruzione col compasso e il righello lasciata a
+# vista (il «Mon Mandala» dei Hatoba: i cerchi che di solito si cancellano),
+# il mon premuto come un timbro, e le tre prove: una tinta sola, la sagoma,
+# le grandezze piccole nella scheda.
 
 const NOMI_STAT := {"hp": "Punti vita", "attacco": "Attacco", "difesa": "Difesa", "velocita": "Velocità",
 		"intelligenza": "Intelligenza", "forza_mentale": "Forza mentale", "fattore": "Fattore", "maestria_dominio": "Maestria",
@@ -1228,58 +1234,121 @@ func disegna_statistiche(t: CanvasItem) -> void:
 	t.draw_rect(Rect2(0, 0, 1280, 720), P.NERO)
 	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.ARANCIO, 0.06), Vector2(1.0, 1.0))
 	P.etichetta(t, Vector2(28, 52), "LE STATISTICHE", 36, P.CREMA, P.NERO, P.ARANCIO)
-	P.scritta(t, Vector2(372, 80), "Costruite coi rombi dell'emblema, col righello a 45°. In ognuna un nucleo arancio,", 15,
+	P.scritta(t, Vector2(372, 80), "Come i kamon: compasso e righello, uno spessore e un taglio, la simmetria.", 15,
 			P.CARTA, Caratteri.tondo(700))
-	P.scritta(t, Vector2(372, 100), "il cuore dell'emblema. Un'idea a testa, e si ridisegnano a memoria.", 15, P.CARTA,
-			Caratteri.tondo(700))
-	# la famiglia
+	P.scritta(t, Vector2(372, 100), "L'anello per cornice, il cuore arancio al centro. Forza mentale e Fattore: lo stesso rombo, intero e spezzato.",
+			15, P.CARTA, Caratteri.tondo(700))
+	catalogo(t, Rect2(28, 132, 700, 372))
+	# le prove: una tinta sola, e la sagoma
+	P.etichetta(t, Vector2(28, 528), "UNA TINTA", 14, P.ARANCIO, P.NERO)
+	P.etichetta(t, Vector2(28, 616), "LA SAGOMA", 14, P.ARANCIO, P.NERO)
 	for i in S.STATISTICHE.size():
 		var chiave := String(S.STATISTICHE[i])
-		var x := 84.0 + 138.0 * i
-		S.statistica(t, chiave, Vector2(x, 190), 76.0, P.CREMA, P.NERO, P.ARANCIO, P.ARANCIO_SCURO)
-		P.a_capo(t, Rect2(x - 64, 244, 128, 30), String(NOMI_STAT[chiave]).to_upper(), 12, P.CARTA, Caratteri.tondo(900),
-				HORIZONTAL_ALIGNMENT_CENTER, 2)
-	# la costruzione: la griglia di 24 e le diagonali a 45°, pendenti come l'icona
-	var centro := Vector2(150, 470)
-	var lato := 220.0
-	P.etichetta(t, Vector2(28, 312), "LA COSTRUZIONE", 14, P.ARANCIO, P.NERO)
-	for k in 25:
-		var tinta := Color(P.CREMA, 0.16 if k % 4 == 0 else 0.06)
-		S.tratto(t, centro, lato, [k, 0, k, 24], tinta, 0.2)
-		S.tratto(t, centro, lato, [0, k, 24, k], tinta, 0.2)
-	for k in range(-20, 21, 4):
-		# le diagonali a 45°, tagliate dentro il quadrato della griglia
-		S.tratto(t, centro, lato, [maxf(k, 0), maxf(-k, 0), minf(24, 24 + k), minf(24, 24 - k)], Color(P.ARANCIO, 0.2), 0.2)
-		S.tratto(t, centro, lato, [24 - maxf(k, 0), maxf(-k, 0), 24 - minf(24, 24 + k), minf(24, 24 - k)],
-				Color(P.ARANCIO, 0.2), 0.2)
-	S.sagoma(t, "hp", centro, lato, Color(P.CREMA, 0.92), P.NERO, P.ARANCIO)
-	P.scritta(t, Vector2(40, 602), "tre rombi e una punta a 45°: due lobi,", 13, P.CARTA, Caratteri.tondo(700))
-	P.scritta(t, Vector2(40, 620), "il nucleo sotto la piega", 13, P.CARTA, Caratteri.tondo(700))
-	# la coppia
-	P.etichetta(t, Vector2(330, 312), "LA COPPIA", 14, P.ARANCIO, P.NERO)
-	S.statistica(t, "forza_mentale", Vector2(420, 450), 150.0, P.CREMA, P.NERO, P.ARANCIO, P.ARANCIO_SCURO)
-	S.statistica(t, "fattore", Vector2(620, 450), 150.0, P.CREMA, P.NERO, P.ARANCIO, P.ARANCIO_SCURO)
-	P.scritta(t, Vector2(340, 566), "ALLINEATI", 18, P.CREMA, null, HORIZONTAL_ALIGNMENT_CENTER, 160)
-	P.scritta(t, Vector2(340, 586), "la forza mentale", 13, P.CARTA, Caratteri.tondo(700), HORIZONTAL_ALIGNMENT_CENTER, 160)
-	P.scritta(t, Vector2(540, 566), "DISALLINEATI", 18, P.CREMA, null, HORIZONTAL_ALIGNMENT_CENTER, 160)
-	P.scritta(t, Vector2(540, 586), "il fattore Carnivalz", 13, P.CARTA, Caratteri.tondo(700), HORIZONTAL_ALIGNMENT_CENTER, 160)
+		var x := 170.0 + 62.0 * i
+		S.statistica(t, chiave, Vector2(x, 548), 44.0, P.CREMA, P.NERO)
+		S.senza_tagli = true
+		S.mon(t, chiave, Vector2(x, 636), 40.0, P.CREMA, P.CREMA, P.CREMA, false)
+		S.senza_tagli = false
+	P.a_capo(t, Rect2(170, 576, 560, 20), "senza arancio il cuore e' un buco: un kamon e' un timbro, deve bastare un colore",
+			12, P.CARTA)
+	P.a_capo(t, Rect2(170, 664, 560, 20), "senza anello e riempite: ogni sagoma si distingue dalle altre", 12, P.CARTA)
+	# la costruzione e il timbro
+	P.etichetta(t, Vector2(770, 132), "LA COSTRUZIONE", 14, P.ARANCIO, P.NERO)
+	costruzione(t, Vector2(880, 290), 220.0)
+	P.a_capo(t, Rect2(770, 410, 230, 60), "il compasso fa l'anello, il righello il resto. A 45° la punta finiva sul tratteggio: l'occhio l'ha allungata",
+			12, P.CARTA)
+	P.etichetta(t, Vector2(1040, 132), "IL TIMBRO", 14, P.ARANCIO, P.NERO)
+	timbro_su_carta(t, Vector2(1140, 270))
+	P.a_capo(t, Rect2(1040, 410, 220, 60), "premuto storto: e' il timbro a pendere, non il mon", 12, P.CARTA)
 	# nella scheda, e piccole
-	P.etichetta(t, Vector2(780, 312), "NELLA SCHEDA", 14, P.ARANCIO, P.NERO)
-	scheda_in_piccolo(t, Rect2(784, 344, 230, 150))
-	P.etichetta(t, Vector2(1046, 312), "PICCOLE", 14, P.ARANCIO, P.NERO)
+	P.etichetta(t, Vector2(770, 476), "NELLA SCHEDA", 14, P.ARANCIO, P.NERO)
+	scheda_in_piccolo(t, Rect2(774, 508, 230, 150))
+	P.etichetta(t, Vector2(1040, 476), "PICCOLE", 14, P.ARANCIO, P.NERO)
 	var misure := [14.0, 18.0, 24.0, 32.0]
 	for r in 3:
-		var chiave := String(["hp", "attacco", "velocita"][r])
-		var x := 1060.0
+		var chiave := String(["hp", "attacco", "maestria_dominio"][r])
+		var x := 1048.0
 		for m: float in misure:
-			S.statistica(t, chiave, Vector2(x + m * 0.5, 368 + 46 * r), m, P.CREMA, P.NERO, P.ARANCIO)
+			S.statistica(t, chiave, Vector2(x + m * 0.5, 530 + 46 * r), m, P.CREMA, P.NERO, P.ARANCIO)
 			x += m + 18.0
-	P.scritta(t, Vector2(1048, 520), "14 · 18 · 24 · 32 px", 12, P.CARTA, Caratteri.tondo(900))
-	P.a_capo(t, Rect2(784, 540, 470, 120), "Le lezioni (docs/simboli.md): un'idea a testa e la prova dello scarabocchio "
-			+ "(Rand, Chermayeff & Geismar), la metafora e non l'illustrazione (Kare), il righello a 45° e l'occhio che "
-			+ "corregge la griglia (Aicher), lo stesso motivo rifatto (i kamon, Katsumi a Tokyo '64), un segno che "
-			+ "attraversa il sistema (Wyman, Messico '68).", 13, P.CARTA)
+	P.scritta(t, Vector2(1048, 684), "14 · 18 · 24 · 32 px", 12, P.CARTA, Caratteri.tondo(900))
 	testata(t, "", true, true)
+
+
+func catalogo(t: CanvasItem, r: Rect2) -> void:
+	# la pagina del catalogo: carta, i quadrati neri, il mon chiaro, il nome sotto.
+	# Il primo quadrato e' la cornice di tutti: l'anello e il cuore, senza motivo
+	P.cartoncino(t, r, P.CARTA, 0.0, P.OMBRA, true)
+	P.scritta(t, r.position + Vector2(22, 34), "I MON DI CARNIVALZ", 22, P.NERO)
+	P.scritta(t, r.position + Vector2(r.size.x - 222, 34), "le statistiche, in catalogo", 14, P.NERO, Caratteri.tondo(800),
+			HORIZONTAL_ALIGNMENT_RIGHT, 200)
+	t.draw_line(r.position + Vector2(22, 46), r.position + Vector2(r.size.x - 22, 46), P.NERO, 2.0)
+	var voci := ["cornice"] + S.STATISTICHE
+	var lato := 116.0
+	var passo := (r.size.x - 44.0 - lato) / 4.0
+	for i in voci.size():
+		var chiave := String(voci[i])
+		var q := Rect2(r.position + Vector2(22 + passo * (i % 5), 62 + 154 * floori(i / 5.0)), Vector2(lato, lato))
+		t.draw_rect(q, P.NERO)
+		var c := q.get_center()
+		if chiave == "cornice":
+			S.maru(t, c, 92.0, P.CREMA)
+			S.nucleo(t, c, 92.0, 12, 12, P.CREMA, P.NERO, P.ARANCIO)
+		else:
+			S.mon(t, chiave, c, 92.0, P.CREMA, P.NERO, P.ARANCIO)
+		var nome := "la cornice" if chiave == "cornice" else String(NOMI_STAT[chiave])
+		P.scritta(t, Vector2(q.position.x, q.end.y + 19), nome.to_upper(), 12, P.NERO, Caratteri.tondo(900),
+				HORIZONTAL_ALIGNMENT_CENTER, lato)
+
+
+func costruzione(t: CanvasItem, c: Vector2, l: float) -> void:
+	# il mon della Vita con la sua costruzione a vista: la griglia di 24, i
+	# cerchi del compasso (l'anello, il suo dentro, il limite del motivo), le
+	# rette a 45° del righello sui lati dei lobi, e la punta: a 45° sarebbe
+	# finita sulla tratteggiata, l'occhio l'ha voluta piu' lunga
+	var k := l / 24.0
+	var o := c - Vector2(12, 12) * k
+	for i in 25:
+		var tinta := Color(P.CREMA, 0.14 if i % 4 == 0 else 0.05)
+		t.draw_line(o + Vector2(i, 0) * k, o + Vector2(i, 24) * k, tinta, 1.0)
+		t.draw_line(o + Vector2(0, i) * k, o + Vector2(24, i) * k, tinta, 1.0)
+	S.mon(t, "hp", c, l, Color(P.CREMA, 0.9), P.NERO, P.ARANCIO)
+	var guida := Color(P.ARANCIO, 0.6)
+	for raggio: float in [12.0, 12.0 - S.W, 12.0 - S.W - S.TAGLIO]:
+		t.draw_arc(c, raggio * k, 0.0, TAU, 96, guida, 1.0, true)
+	for d: float in [4.7, -3.5, 11.7, 3.5]:
+		# x - y = d, dentro il quadrato
+		t.draw_line(o + Vector2(maxf(0.0, d), maxf(0.0, -d)) * k, o + Vector2(minf(24.0, 24.0 + d), minf(24.0, 24.0 - d)) * k,
+				Color(guida, 0.4), 1.0, true)
+	for somma: float in [12.3, 20.5, 19.3, 27.5]:
+		# x + y = somma, dentro il quadrato
+		t.draw_line(o + Vector2(minf(24.0, somma), maxf(0.0, somma - 24.0)) * k,
+				o + Vector2(maxf(0.0, somma - 24.0), minf(24.0, somma)) * k, Color(guida, 0.4), 1.0, true)
+	for i in 8:
+		# la punta a 45°, tratteggiata
+		var u := float(i) / 8.0
+		t.draw_line(o + Vector2(4.4, 7.9).lerp(Vector2(12, 15.5), u) * k, o + Vector2(4.4, 7.9).lerp(Vector2(12, 15.5), u + 0.06) * k,
+				P.ARANCIO, 1.5)
+		t.draw_line(o + Vector2(19.6, 7.9).lerp(Vector2(12, 15.5), u) * k, o + Vector2(19.6, 7.9).lerp(Vector2(12, 15.5), u + 0.06) * k,
+				P.ARANCIO, 1.5)
+	for v: Vector2 in [Vector2(8.5, 3.8), Vector2(15.5, 3.8), Vector2(4.4, 7.9), Vector2(19.6, 7.9), Vector2(12, 20.9),
+			Vector2(12, 15.5)]:
+		t.draw_circle(o + v * k, 3.0, P.ARANCIO, true, -1.0, true)
+	t.draw_circle(c, 2.0, P.ARANCIO)
+	P.scritta(t, o + Vector2(13.0, 16.6) * k, "45°", 11, P.ARANCIO, Caratteri.tondo(900))
+	P.scritta(t, c + Vector2(12.4, 2.0) * k, "W", 12, P.ARANCIO, Caratteri.tondo(900))
+	P.scritta(t, c + Vector2(-12.0, -11.2) * k, "24", 12, Color(P.CREMA, 0.5), Caratteri.tondo(900))
+
+
+func timbro_su_carta(t: CanvasItem, c: Vector2) -> void:
+	# il foglietto, e il mon della Vita premuto sopra con l'inchiostro arancio
+	P.gira(t, c, 4.0)
+	P.cartoncino(t, Rect2(-86, -98, 172, 196), P.CREMA, 0.0, P.OMBRA)
+	P.scritta(t, Vector2(-70, 80), "livello 7 · punti vita", 13, P.TRATTO, Caratteri.tondo(800))
+	P.dritto(t)
+	P.gira(t, c + Vector2(0, -12), -9.0)
+	S.mon(t, "hp", Vector2.ZERO, 124.0, P.ARANCIO, P.CREMA)
+	P.dritto(t)
 
 
 func scheda_in_piccolo(t: CanvasItem, r: Rect2) -> void:
