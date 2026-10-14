@@ -414,6 +414,71 @@ static func scala(xy: Array, f: float) -> Array:
 	return fuori
 
 
+# Vita, Attacco e Difesa, rifatte a fondo (Bru: «lavoriamo a fondo su icona
+# attacco difesa e vita»). Ognuna e' il rombo dell'emblema piu' una figura
+# semplice, e le misure tornano: 45°, 60°, 1 : 1,5 e 0,618. Le strade
+# provate e scartate, e perche', sono in prove/TreIcone.gd (foto «vita»,
+# «attacco», «difesa», «lezioni»).
+
+static func cuore_a_rombi(f := 1.0) -> Array:
+	# la Vita: due rombi di raggio 4 coi centri a 3,6 dall'asse (si sovrappongono
+	# appena) e il cuneo dai loro vertici esterni alla punta. La punta e' un
+	# triangolo equilatero: 60°, piu' lunga dei 45° della griglia, perche' a 45°
+	# il cuore sembrava tozzo (l'occhio corregge la griglia)
+	var r := 4.0
+	var dx := 3.6
+	var y := 7.9
+	var largo := dx + r
+	var punta := y + largo * sqrt(3.0)
+	var xy := [12 - dx, y - r, 12, y - r + dx, 12 + dx, y - r, 12 + largo, y, 12, punta, 12 - largo, y]
+	return scala(xy, f)
+
+
+static func nucleo_a_cuore(t: CanvasItem, c: Vector2, l: float, tinta: Color, fondo: Color, accento: Color) -> void:
+	# il cuore nel cuore: solo nella Vita il rombo arancio dell'emblema ha la
+	# forma di un cuore. Un gioco di parole, come facevano i kamon
+	# il cuore grande ridotto a 0,3, col centro dove sta il rombo degli altri
+	var grande := cuore_a_rombi()
+	var piccolo := []
+	for i in grande.size():
+		var centro := 12.0 if i % 2 == 0 else 12.4
+		piccolo.append(12.0 + (float(grande[i]) - centro) * 0.3)
+	if senza_tagli:
+		pieno(t, c, l, piccolo, tinta)
+		return
+	for incastro: PackedVector2Array in Geometry2D.offset_polygon(griglia(piccolo), INCASTRO * 0.85 * taglio_ora / TAGLIO,
+			Geometry2D.JOIN_MITER):
+		pieno(t, c, l, piatto(incastro), fondo)
+	pieno(t, c, l, piccolo, accento if accento.a > 0.0 else tinta)
+
+
+static func scudo_quadrato(lato: float, cima: float) -> Array:
+	# la Difesa: un quadrato e la meta' bassa di un rombo largo quanto il
+	# quadrato. La punta e' a 45°, parallela ai lati del cuore; lo scudo e' alto
+	# una volta e mezza la sua larghezza
+	var m := lato * 0.5
+	return [12 - m, cima, 12 + m, cima, 12 + m, cima + lato, 12, cima + lato + m, 12 - m, cima + lato]
+
+
+const LAMA := [12, -0.4, 15.4, 3.0, 15.4, 14.4, 8.6, 14.4, 8.6, 3.0]
+
+
+static func spada_che_esce(t: CanvasItem, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
+	# l'Attacco: la spada di sbieco, e la punta che buca l'anello ed esce dalla
+	# cornice. La lama e' un rettangolo con l'angolo del rombo per punta; la
+	# lama e' 0,618 della spada (la sezione aurea), poi la guardia staccata da un
+	# taglio, l'impugnatura e il pomo a rombo. L'anello e' gia' disegnato: il
+	# taglio attorno alla lama lo interrompe, poi la lama ci passa sopra
+	var sbieco := PI * 0.25
+	if not senza_tagli and fondo.a > 0.0:
+		for fuori: PackedVector2Array in Geometry2D.offset_polygon(griglia(LAMA), taglio_ora * 1.4, Geometry2D.JOIN_MITER):
+			pieno(t, c, l, piatto(fuori), fondo, sbieco)
+	pieno(t, c, l, LAMA, tinta, sbieco)
+	pieno(t, c, l, [7.0, 15.6, 17.0, 15.6, 18.2, 16.8, 17.0, 18.0, 7.0, 18.0, 5.8, 16.8], tinta, sbieco)
+	pieno(t, c, l, [10.7, 18.0, 13.3, 18.0, 13.3, 19.3, 10.7, 19.3], tinta, sbieco)
+	pieno(t, c, l, [12, 18.7, 13.3, 20.0, 12, 21.3, 10.7, 20.0], tinta, sbieco)
+
+
 static func sagoma(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
 		accento := Color(0, 0, 0, 0)) -> void:
 	# il motivo del mon, senza anello: dritto, sulla griglia di 24 col centro in 12,12.
@@ -428,23 +493,17 @@ static func sagoma(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: C
 	piega = 0.0
 	match chiave:
 		"hp":
-			# il cuore: due lobi a rombo e la punta, un po' piu' lunga dei 45°
-			# (l'occhio prima della griglia, come Aicher)
-			var f := 0.93
-			pieno(t, c, l, scala([8.5, 3.8, 12, 7.3, 15.5, 3.8, 19.6, 7.9, 12, 20.9, 4.4, 7.9], f), tinta)
-			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
+			# il cuore nel cuore: due rombi e un cuneo equilatero, e dentro il cuore
+			# dell'emblema a forma di cuore
+			pieno(t, c, l, cuore_a_rombi(0.93), tinta)
+			nucleo_a_cuore(t, c, l, tinta, fondo, accento)
 		"attacco":
-			# la lama di sbieco, larga, col cuore incastonato alla base; la guardia
-			# staccata da un taglio, l'impugnatura e il pomo
-			var sbieco := PI * 0.25
-			pieno(t, c, l, [12, 2.6, 15.4, 6.0, 15.4, 14.4, 8.6, 14.4, 8.6, 6.0], tinta, sbieco)
-			pieno(t, c, l, [7.0, 15.6, 17.0, 15.6, 18.2, 16.8, 17.0, 18.0, 7.0, 18.0, 5.8, 16.8], tinta, sbieco)
-			pieno(t, c, l, [10.7, 18.0, 13.3, 18.0, 13.3, 19.3, 10.7, 19.3], tinta, sbieco)
-			pieno(t, c, l, [12, 18.7, 13.3, 20.0, 12, 21.3, 10.7, 20.0], tinta, sbieco)
+			# la spada che esce dall'anello, col cuore alla base della lama
+			spada_che_esce(t, c, l, tinta, fondo)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"difesa":
-			# lo scudo, e il cuore per borchia
-			pieno(t, c, l, scala([6.4, 5.0, 17.6, 5.0, 17.6, 13.0, 12, 21.0, 6.4, 13.0], 0.93), tinta)
+			# lo scudo: un quadrato e mezzo rombo, il cuore per borchia nel baricentro
+			pieno(t, c, l, scudo_quadrato(9.6, 5.9), tinta)
 			nucleo(t, c, l, 12, 12, tinta, fondo, accento)
 		"velocita":
 			# il fulmine: il cuore dove i due colpi si toccano

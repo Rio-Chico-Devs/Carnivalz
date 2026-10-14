@@ -17,6 +17,8 @@ extends Control
 #   fine_beta         il primo giro chiuso, nella beta: il 20 e' il tetto
 #   massimo           l'ultimo giro chiuso, al 130: si torna sui bivi
 #   statistiche       i mon delle statistiche: il catalogo, la costruzione, il timbro, le prove
+#   lezioni           icona, indice e simbolo; due figure per una terza; il centro ottico; la geometria
+#   vita, attacco, difesa   le tre icone rifatte a fondo: le strade provate e le tre tenute (TreIcone)
 #   studio_occhio     le correzioni ottiche sui mon: sporgenza, irraggiamento, peso, una tinta
 #   studio_pieno      pieno e vuoto: tre trattamenti dello stesso mon (StudioSegni)
 #   studio_astrazione dal disegno al segno: la Vita e l'Attacco, un passo alla volta
@@ -32,8 +34,10 @@ extends Control
 const P := preload("res://prove/PezziCrescita.gd")
 const S := preload("res://prove/SimboliCrescita.gd")
 const ST := preload("res://prove/StudioSegni.gd")
+const TI := preload("res://prove/TreIcone.gd")
 const PROPOSTE := ["giro_1", "giro_2", "giro_3", "giro_4", "giro_5", "giro_6", "giro_7", "fine_beta", "massimo",
-		"statistiche", "studio_occhio", "studio_pieno", "studio_astrazione", "simboli", "bivio", "passive"]
+		"statistiche", "lezioni", "vita", "attacco", "difesa", "studio_occhio", "studio_pieno", "studio_astrazione", "simboli",
+		"bivio", "passive"]
 const CARTELLA := "res://scatti/proposte_crescita"
 const HYPE := 3450
 const LIVELLO := 7          # il protagonista d'esempio del bivio
@@ -150,7 +154,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 
 static func genere(nome: String) -> String:
 	return nome if nome in ["bivio", "passive", "simboli", "statistiche", "studio_occhio", "studio_pieno",
-			"studio_astrazione"] else "quadrante"
+			"studio_astrazione", "lezioni", "vita", "attacco", "difesa"] else "quadrante"
 
 
 func mostra(quale: int) -> void:
@@ -1260,7 +1264,7 @@ func disegna_statistiche(t: CanvasItem) -> void:
 	# la costruzione e il timbro
 	P.etichetta(t, Vector2(770, 132), "LA COSTRUZIONE", 14, P.ARANCIO, P.NERO)
 	costruzione(t, Vector2(880, 290), 220.0)
-	P.a_capo(t, Rect2(770, 410, 230, 60), "il compasso fa l'anello, il righello il resto. A 45° la punta finiva sul tratteggio: l'occhio l'ha allungata",
+	P.a_capo(t, Rect2(770, 410, 230, 60), "il compasso fa l'anello, il righello il resto. A 45° la punta finiva sul tratteggio: e' a 60°, un triangolo equilatero",
 			12, P.CARTA)
 	P.etichetta(t, Vector2(1040, 132), "IL TIMBRO", 14, P.ARANCIO, P.NERO)
 	timbro_su_carta(t, Vector2(1140, 270))
@@ -1323,8 +1327,8 @@ func costruzione(t: CanvasItem, c: Vector2, l: float) -> void:
 	# motivo sta dentro il raggio 9, le punte fino a 9,4
 	for raggio: float in [12.0, 12.0 - S.W * S.CHIARO_SU_SCURO_LINEA, 9.0, 9.4]:
 		t.draw_arc(c, raggio * k, 0.0, TAU, 96, guida, 1.0, true)
-	# il cuore e' rimpicciolito a 0,93 per il peso: le rette si ricavano dai suoi vertici
-	var v := S.griglia(S.scala([8.5, 3.8, 12, 7.3, 15.5, 3.8, 19.6, 7.9, 12, 20.9, 4.4, 7.9], 0.93))
+	# le rette si ricavano dai vertici del cuore vero (due rombi e un cuneo a 60°)
+	var v := S.griglia(S.cuore_a_rombi(0.93))
 	for d: float in [v[0].x - v[0].y, v[3].x - v[3].y]:
 		# x - y = d, dentro il quadrato
 		t.draw_line(o + Vector2(maxf(0.0, d), maxf(0.0, -d)) * k, o + Vector2(minf(24.0, 24.0 + d), minf(24.0, 24.0 - d)) * k,
@@ -1392,6 +1396,42 @@ func disegna_studio_pieno(t: CanvasItem) -> void:
 func disegna_studio_astrazione(t: CanvasItem) -> void:
 	ST.astrazione(t)
 	testata(t, "", true, true)
+
+
+func disegna_lezioni(t: CanvasItem) -> void:
+	TI.lezioni(t)
+	testata(t, "", true, true)
+
+
+func disegna_vita(t: CanvasItem) -> void:
+	TI.tavola_icona(t, "vita")
+	testata(t, "", true, true)
+
+
+func disegna_attacco(t: CanvasItem) -> void:
+	TI.tavola_icona(t, "attacco")
+	testata(t, "", true, true)
+
+
+func disegna_difesa(t: CanvasItem) -> void:
+	TI.tavola_icona(t, "difesa")
+	testata(t, "", true, true)
+
+
+func tasti_lezioni() -> void:
+	pass
+
+
+func tasti_vita() -> void:
+	pass
+
+
+func tasti_attacco() -> void:
+	pass
+
+
+func tasti_difesa() -> void:
+	pass
 
 
 func tasti_studio_occhio() -> void:

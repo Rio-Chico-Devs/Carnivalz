@@ -18,14 +18,18 @@ Questa pagina dice:
 - come è entrato nelle icone (§2) e la pulizia che ne è venuta, con le misure
   (§2.1);
 - cosa avevo ricavato prima dai soli riassunti dei motori di ricerca (§3);
-- le fonti (§4) e cosa resta da leggere (§5).
+- le fonti (§4) e cosa resta da leggere (§5);
+- Vita, Attacco e Difesa rifatte a fondo: le lezioni su simbolismo, due figure
+  in una, composizione e geometria, le strade provate e le tre proposte (§6).
 
 Il codice è in `prove/SimboliCrescita.gd` (`mon`, `sagoma`, `statistica`,
 `ottica`); le tavole di studio in `prove/StudioSegni.gd`. Le immagini sono
 nelle foto delle proposte:
 - «statistiche», «simboli», i giri della roulette, «bivio»;
 - le tre tavole di studio: «studio_occhio», «studio_pieno»,
-  «studio_astrazione».
+  «studio_astrazione»;
+- le lezioni e le tre icone: «lezioni», «vita», «attacco», «difesa»
+  (`prove/TreIcone.gd`).
 
 ## 1. Le letture vere
 
@@ -448,6 +452,21 @@ Dai motori di ricerca (solo i riassunti):
 
 ## 5. Cosa resta da leggere
 
+Per le lezioni del §6 (composizione, due figure in una, simbolismo,
+geometria) da qui ho letto solo i riassunti. Per leggerle davvero:
+- Eli Kince, *Visual Puns in Design*: la scheda è su
+  [People's Graphic Design Archive](https://peoplesgdarchive.org/item/3989/visual-puns-in-design-the-pun-used-as-a-communication-tool);
+- Shigeo Fukuda, *Victory 1945*: [People's Graphic Design Archive](https://peoplesgdarchive.org/item/19639/victory-1945-2)
+  e il profilo su [It's Nice That](https://www.itsnicethat.com/articles/shigeo-fukuda);
+- Noma Bar, le immagini con doppia lettura:
+  [designboom](https://www.designboom.com/design/noma-bar-illustrated-illusions/);
+- il mitate: [Mitate-e, Wikipedia](https://en.wikipedia.org/wiki/Mitate-e);
+- Gui Bonsiepe e la retorica visiva: l'articolo su
+  [Visible Language](https://journals.uc.edu/index.php/vl/article/download/5794/4658/7471) (PDF);
+- figura e sfondo: [Interaction Design Foundation, le leggi della Gestalt](https://ixdf.org/literature/article/the-laws-of-figure-ground-praegnanz-closure-and-common-fate-gestalt-principles-3);
+- il centro ottico: [Duke, «Graphic design: the optical center»](https://sites.math.duke.edu/education/ccp/resources/write/design/graphic7.html);
+- icona, indice, simbolo: [il glossario dell'Università di Chicago](https://csmt.uchicago.edu/glossary2004/symbolindexicon.htm).
+
 Della lista mandata a Bru sono arrivati Logo Geek, Scannerlicker (parte III),
 Haviv, Logobook e AIGA/DOT. Restano, in ordine di utilità:
 - Adrian Frutiger, *Segni e simboli*: i capitoli sugli elementi del segno;
@@ -471,3 +490,96 @@ Se Bru li trova, in PDF o in immagini:
 6. **Persona 5**: l'intervista sulla UI e delle schermate delle statistiche
    (anche dal Game UI Database).
 7. **Munari, *Design e comunicazione visiva***: i capitoli sui segni.
+
+## 6. Vita, Attacco, Difesa, a fondo
+
+Bru: «molto bene, ma bisogna andare oltre, lavoriamo a fondo su icona attacco
+difesa e vita, tutto l'impegno su queste per ora, ti serve anche qualche
+lezione su composizione, uso di due figure per crearne un altra, simbolismo e
+cura delle geometrie».
+
+### 6.1 Le lezioni
+
+Queste vengono da ricerche (riassunti, non testi interi: i link per leggerle
+davvero sono in §5). La tavola «lezioni» le mette in figura.
+
+**Icona, indice, simbolo** (Charles S. Peirce). Un segno può stare per una
+cosa in tre modi:
+- **icona:** le somiglia (un ritratto, una mappa);
+- **indice:** ne è la traccia o l'effetto (il fumo per il fuoco, l'impronta);
+- **simbolo:** vale per un'intesa che si impara (le lettere, il cuore per la
+  vita).
+
+Quasi ogni segno mescola i tre. Gui Bonsiepe, a Ulm negli anni '60, ha
+portato le figure della retorica nelle immagini: la metafora, la metonimia (la
+parte per il tutto, l'effetto per la causa), l'iperbole.
+
+Per una statistica servono l'icona o il simbolo più noto. L'indice racconta un
+momento (il battito, il fendente), non una qualità.
+
+**Due figure per farne una terza.**
+- **Il mitate** (見立て), alla base dell'estetica giapponese: vedere una cosa
+  come un'altra. A teatro un ventaglio fa le nuvole, una coppa di sakè la
+  luna.
+- **Shigeo Fukuda**, *Victory 1945* (1975): il proiettile che rientra nella
+  bocca del cannone. Una forma sola, due letture.
+- **Noma Bar**: «massima comunicazione con elementi minimi».
+- **Lo spazio negativo**: la freccia di FedEx fra la E e la X. Il vaso di
+  Rubin, che è anche due profili. Funziona quando la figura nascosta
+  rinforza il messaggio. Paul Rand trovava la freccia di FedEx troppo
+  nascosta.
+- Eli Kince, *Visual Puns in Design*, divide i giochi visivi in tre tipi:
+  letterali, suggestivi (due simboli ne fanno uno), comparativi.
+
+**La composizione.**
+- **Il centro ottico** sta un poco sopra quello geometrico (circa un ottavo
+  dell'altezza): l'occhio pesa di più l'alto. Una cosa al centro esatto
+  sembra un po' bassa.
+- **Le direzioni:** l'orizzontale e la base piatta sono stabilità; la
+  diagonale è movimento; la simmetria è calma.
+
+**La cura della geometria.**
+- Poche misure che tornano.
+- Le curve e le rette si toccano senza scalini.
+- Le griglie pubblicate dopo (quella della mela di Apple) spesso sono
+  inventate a posteriori: la geometria serve a costruire, non a giustificare.
+
+### 6.2 Le strade
+
+Per ognuna delle tre statistiche ho provato otto strade e le ho giudicate col
+banco: grandi, a 44 pixel, riempite (la sagoma). Le tavole «vita», «attacco» e
+«difesa» le mostrano tutte, tenute e scartate, col perché. Le strade sono in
+`prove/TreIcone.gd`.
+
+| | tenute | scartate, e perché |
+|---|---|---|
+| Vita | il cuore nel cuore; due rombi e un cuneo; a tacche | il contorno (da piccolo un groviglio), la goccia (l'HP di troppi giochi, sembra una gemma), il battito (l'icona della salute di ogni app), tre rombi (troppo vicina al marchio di un'automobile), in due (dice la fine) |
+| Attacco | la spada che esce; la spada nell'anello; a stampo | la lama a rombo (un pennino, una lancia), il colpo al cuore (la lama copre il cuore), il fendente (anello e barra di traverso = divieto), la punta (un cursore), le spade incrociate (l'icona della battaglia di ogni gioco) |
+| Difesa | un quadrato e mezzo rombo; a lamelle; com'era | due piastre (sembra «scarica»), il guscio kikkō (un dado da bullone), il bordo (il distintivo dell'antivirus), il riparo (la casa), l'abbraccio (il simbolo del codice, `< >`) |
+
+### 6.3 Le tre proposte (ora nei mon)
+
+- **Vita: il cuore nel cuore.** Due figure ne fanno una terza: due rombi di
+  raggio 4, coi centri a 3,6 dall'asse, e un cuneo dai loro vertici esterni.
+  - La punta è un triangolo equilatero, a 60°: a 45° il cuore sembrava tozzo
+    (si vede nella costruzione del foglio delle statistiche).
+  - Dentro, il cuore dell'emblema ha la forma di un cuore: è l'unico mon dove
+    il rombo arancio cambia forma. È un gioco di parole, come quelli dei
+    kamon.
+  - Da piccolo resta un punto arancio, come negli altri.
+- **Attacco: la spada che esce.** La diagonale è il movimento.
+  - La lama è un rettangolo con l'angolo del rombo per punta (90°).
+  - La guardia cade a 0,618 della spada.
+  - La punta buca l'anello: è l'unico mon che rompe la cornice, e l'attacco è
+    proprio questo, uscire. Un taglio attorno alla lama interrompe l'anello.
+- **Difesa: un quadrato e mezzo rombo.**
+  - Il quadrato è la stabilità; sotto c'è la metà bassa del rombo
+    dell'emblema, larga quanto il quadrato.
+  - Lo scudo è alto una volta e mezza la larghezza, e la punta è a 45°,
+    parallela ai lati del cuore.
+  - Il cuore sta nel baricentro della figura, al centro del mon.
+
+Pesi misurati col banco, senza anello: Vita 0,28, Attacco 0,33, Difesa 0,31.
+Con l'anello: 0,41, 0,41, 0,43. Sono nella fascia degli altri sei.
+
+Ognuna ha due alternative tenute, nelle tavole. La scelta è di Bru.
