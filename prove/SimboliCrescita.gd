@@ -46,6 +46,7 @@ const NOMI := {
 const PIEGA := 0.2      # quanto pende tutto, verso destra, come il corsivo del titolo
 const PESO := 1.4       # i tratti, piu' grassi di quelli disegnati sulla griglia
 static var senza_tagli := false   # per le ombre: solo la sagoma, niente tagli nel fondo
+static var giro_tutto := 0.0       # i ritagli: ogni adesivo e' attaccato un po' storto
 
 
 static func punti(c: Vector2, l: float, xy: Array, giro := 0.0) -> PackedVector2Array:
@@ -54,7 +55,7 @@ static func punti(c: Vector2, l: float, xy: Array, giro := 0.0) -> PackedVector2
 	for i in range(0, xy.size(), 2):
 		var q := Vector2(float(xy[i]) - 12.0, float(xy[i + 1]) - 12.0).rotated(giro)
 		q.x -= q.y * PIEGA
-		fuori.append(c + q * (l / 24.0))
+		fuori.append(c + q.rotated(giro_tutto) * (l / 24.0))
 	return fuori
 
 
@@ -152,24 +153,8 @@ static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Co
 			tratto(t, c, l, [5.8, 7.4, 12, 13.6, 18.2, 7.4], tinta, 2.2)
 			rombo(t, c, l, 5.2, 6.2, 4.0, tinta)
 			rombo_cavo(t, c, l, 18.8, 6.2, 4.0, tinta, fondo, 1.8)
-		"hp":
-			cuore(t, c, l, tinta)
-		"attacco":
-			# la punta: un cuneo lungo, largo in alto e affilato in basso
-			pieno(t, c, l, [23.6, 7.6, 16.4, 0.4, 0.6, 23.4], tinta)
-		"difesa":
-			# il tetto che para, e il rombo che ci sta sotto
-			pieno(t, c, l, [1.2, 13.4, 12, 1.6, 22.8, 13.4, 22.8, 18.6, 12, 6.8, 1.2, 18.6], tinta)
-			rombo(t, c, l, 12, 17.6, 4.6, tinta)
-		"velocita":
-			# il rombo in corsa, con due scie
-			rombo(t, c, l, 15.6, 12, 7.0, tinta)
-			pieno(t, c, l, [1.2, 8.4, 9.6, 8.4, 9.6, 10.8, 1.2, 10.8], tinta)
-			pieno(t, c, l, [4.0, 13.2, 9.6, 13.2, 9.6, 15.6, 4.0, 15.6], tinta)
-		"intelligenza":
-			occhio(t, c, l, tinta, fondo)
-		"fattore":
-			disallineati(t, c, l, tinta, fondo)
+		"hp", "attacco", "difesa", "velocita", "intelligenza", "forza_mentale", "fattore", "maestria_dominio", "aura":
+			sagoma(t, nome, c, l, tinta, fondo)
 		# --- le abilita' del protagonista ---
 		"astio":
 			# il conto: ogni colpo che incassi e' un debito (abilita.json), e si segna
@@ -278,6 +263,133 @@ static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Co
 			rombo(t, c, l, 12, 3.2, 2.8, tinta)
 		_:
 			stella(t, c, l, 12, 12, 9.0, tinta)
+
+
+# --- le statistiche, a fondo -----------------------------------------------------------
+#
+# Bru: «no... mi dispiace ma dobbiamo lavorarci ancora, concentrati prima
+# sulle icone statistica». Dopo tre mani su una strada sola, tre strade per
+# tutte le statistiche del gioco (crescita.json, e l'Aura della scheda):
+#   sagome   le metafore che tutti riconoscono (il cuore, la lama, lo scudo, il
+#            fulmine, l'occhio, la testa, la brace, la barra del dominio, l'alone)
+#            rifatte con la nostra geometria: piene, pesanti, pendenti, timbrate.
+#            E' quella che usano la roulette e il resto delle proposte
+#   ritagli  le stesse sagome come adesivi ritagliati a mano: bordo nero, ombra
+#            arancio, ognuno attaccato un po' storto
+#   sigle    solo tipografia, come le statistiche di Persona: due lettere nel
+#            corsivo del titolo, su una fascia storta
+# L'Aura nella scheda oggi e' la stellina a quattro punte: e' diventata il
+# simbolo dell'«intelligenza artificiale», in nessuna delle tre c'e'.
+
+const STATISTICHE := ["hp", "attacco", "difesa", "velocita", "intelligenza", "forza_mentale", "fattore",
+		"maestria_dominio", "aura"]
+const SIGLE := {"hp": "PV", "attacco": "AT", "difesa": "DF", "velocita": "VL", "intelligenza": "IN",
+		"forza_mentale": "FM", "fattore": "FC", "maestria_dominio": "MD", "aura": "AU"}
+const STORTI := {"hp": -6.0, "attacco": 5.0, "difesa": -3.0, "velocita": 7.0, "intelligenza": -5.0,
+		"forza_mentale": 3.0, "fattore": -7.0, "maestria_dominio": 4.0, "aura": -2.0}
+
+
+static func sagoma(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
+	# la strada A: una sagoma piena per statistica, angoli smussati a spigolo, un
+	# solo dettaglio tagliato nel fondo
+	if senza_tagli:
+		fondo = Color(0, 0, 0, 0)
+	match chiave:
+		"hp":
+			# il cuore, coi lobi a spigoli, e la luce sul lobo sinistro
+			pieno(t, c, l, [12, 6.6, 14.6, 3.4, 18.6, 2.6, 21.8, 4.8, 22.6, 8.6, 21.2, 12.0, 12, 21.8, 2.8, 12.0,
+					1.4, 8.6, 2.2, 4.8, 5.4, 2.6, 9.4, 3.4], tinta)
+			pieno(t, c, l, [4.6, 6.4, 7.6, 4.8, 8.4, 6.2, 5.4, 7.8], fondo)
+		"attacco":
+			# la lama, di sbieco: punta, scanalatura, guardia, impugnatura, pomo
+			var sbieco := PI * 0.25
+			pieno(t, c, l, [12, 0.6, 14.6, 4.2, 14.6, 14.6, 9.4, 14.6, 9.4, 4.2], tinta, sbieco)
+			pieno(t, c, l, [11.3, 4.8, 12.7, 4.8, 12.7, 13.0, 11.3, 13.0], fondo, sbieco)
+			pieno(t, c, l, [5.2, 14.4, 18.8, 14.4, 18.8, 17.2, 5.2, 17.2], tinta, sbieco)
+			pieno(t, c, l, [10.7, 17.0, 13.3, 17.0, 13.3, 21.0, 10.7, 21.0], tinta, sbieco)
+			pieno(t, c, l, [12, 20.0, 14.0, 22.0, 12, 24.0, 10.0, 22.0], tinta, sbieco)
+		"difesa":
+			# lo scudo a punta, e lo scaglione inciso
+			pieno(t, c, l, [4.2, 2.4, 19.8, 2.4, 21.2, 3.8, 21.2, 11.2, 12, 22.2, 2.8, 11.2, 2.8, 3.8], tinta)
+			pieno(t, c, l, [6.4, 7.0, 12, 12.6, 17.6, 7.0, 17.6, 9.6, 12, 15.2, 6.4, 9.6], fondo)
+		"velocita":
+			# il fulmine
+			pieno(t, c, l, [15.0, 0.8, 18.2, 0.8, 13.6, 9.4, 19.8, 9.4, 7.8, 23.2, 10.8, 13.6, 4.2, 13.6], tinta)
+		"intelligenza":
+			# l'occhio: la lente a spigoli, l'iride, la pupilla a rombo
+			pieno(t, c, l, [0.6, 12, 6.4, 5.6, 17.6, 5.6, 23.4, 12, 17.6, 18.4, 6.4, 18.4], tinta)
+			pieno(t, c, l, [4.4, 12, 8.2, 8.2, 15.8, 8.2, 19.6, 12, 15.8, 15.8, 8.2, 15.8], fondo)
+			pieno(t, c, l, [12, 7.6, 15.2, 9.0, 16.4, 12, 15.2, 15.0, 12, 16.4, 8.8, 15.0, 7.6, 12, 8.8, 9.0], tinta)
+			rombo(t, c, l, 12, 12, 1.8, fondo)
+		"forza_mentale":
+			# la testa di profilo, e dentro il rombo che non si muove
+			pieno(t, c, l, [6.6, 22.6, 6.6, 17.4, 3.8, 14.8, 3.8, 8.6, 6.8, 4.0, 11.6, 1.6, 16.8, 2.2, 20.2, 5.4, 21.0, 9.2,
+					22.8, 12.8, 20.8, 13.6, 20.8, 17.0, 17.0, 17.8, 16.4, 22.6], tinta)
+			rombo(t, c, l, 12.6, 9.6, 3.2, fondo)
+		"fattore":
+			# la brace: la fiamma, e dentro il cuore piu' caldo
+			pieno(t, c, l, [12, 1.0, 16.8, 7.0, 18.8, 5.2, 20.4, 12.6, 18.4, 18.8, 12, 23.0, 5.6, 18.8, 3.6, 12.6,
+					6.0, 7.4, 8.8, 10.6], tinta)
+			pieno(t, c, l, [12, 11.0, 15.4, 15.4, 14.8, 19.4, 12, 20.8, 9.2, 19.4, 8.6, 15.4], fondo)
+		"maestria_dominio":
+			# la barra del dominio, a tre segmenti come nel combattimento: due pieni,
+			# il terzo da riempire, e la tacca di dove sei
+			pieno(t, c, l, [1.2, 17.4, 7.0, 17.4, 9.0, 9.4, 3.2, 9.4], tinta)
+			pieno(t, c, l, [8.6, 17.4, 14.4, 17.4, 16.4, 9.4, 10.6, 9.4], tinta)
+			pieno(t, c, l, [16.0, 17.4, 21.8, 17.4, 23.8, 9.4, 18.0, 9.4], tinta)
+			pieno(t, c, l, [18.0, 15.6, 20.4, 15.6, 21.8, 11.2, 19.4, 11.2], fondo)
+			pieno(t, c, l, [12.4, 2.2, 17.6, 2.2, 15.0, 6.6], tinta)
+		"aura":
+			# l'alone: il rombo, e intorno la luce a raggi dritti
+			rombo(t, c, l, 12, 12, 5.2, tinta)
+			for i in 8:
+				var su := Vector2.from_angle(PI * 0.25 * i)
+				var lato := su.orthogonal() * (1.3 if i % 2 == 0 else 0.9)
+				var da := Vector2(12, 12) + su * (8.0 if i % 2 == 0 else 7.6)
+				var a := Vector2(12, 12) + su * (11.8 if i % 2 == 0 else 10.0)
+				pieno(t, c, l, [da.x + lato.x, da.y + lato.y, a.x + lato.x, a.y + lato.y, a.x - lato.x, a.y - lato.y,
+						da.x - lato.x, da.y - lato.y], tinta)
+
+
+static func statistica(t: CanvasItem, via: String, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
+		ombra := Color(0, 0, 0, 0), bordo := Color(0, 0, 0, 1)) -> void:
+	# una statistica in una delle tre strade
+	match via:
+		"ritagli":
+			# l'adesivo: storto a modo suo, l'ombra arancio, il bordo nero tutto
+			# intorno (la sagoma ripetuta spostata), sopra il pieno
+			giro_tutto = deg_to_rad(float(STORTI.get(chiave, 0.0)))
+			senza_tagli = true
+			if ombra.a > 0.0:
+				sagoma(t, chiave, c + Vector2(1, 1) * l * 0.1, l, ombra, ombra)
+			for i in 8:
+				sagoma(t, chiave, c + Vector2.from_angle(PI * 0.25 * i) * l * 0.065, l, bordo, bordo)
+			senza_tagli = false
+			sagoma(t, chiave, c, l, tinta, bordo)
+			giro_tutto = 0.0
+		"sigle":
+			# due lettere nel corsivo del titolo, su una fascia storta
+			var alto := l * 0.66
+			var largo := l * 1.08
+			var forma := punti(c, l, [12 - 12.0 * largo / l, 12 - 12.0 * alto / l, 12 + 12.0 * largo / l, 12 - 12.0 * alto / l,
+					12 + 12.0 * largo / l, 12 + 12.0 * alto / l, 12 - 12.0 * largo / l, 12 + 12.0 * alto / l])
+			if ombra.a > 0.0:
+				var sotto := PackedVector2Array()
+				for q in forma:
+					sotto.append(q + Vector2(1, 1) * l * 0.09)
+				Manifesto.poligono(t, sotto, ombra)
+			Manifesto.poligono(t, forma, fondo)
+			var f := Caratteri.titolo()
+			var corpo := roundi(l * 0.5)
+			var testo := String(SIGLE.get(chiave, "?"))
+			var w := f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
+			t.draw_string(f, c + Vector2(-w * 0.5, corpo * 0.36), testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, tinta)
+		_:
+			if ombra.a > 0.0:
+				senza_tagli = true
+				sagoma(t, chiave, c + Vector2(1, 1) * l * 0.08, l, ombra, ombra)
+				senza_tagli = false
+			sagoma(t, chiave, c, l, tinta, fondo)
 
 
 static func passiva(t: CanvasItem, id: String, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:
