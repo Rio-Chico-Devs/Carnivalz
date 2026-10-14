@@ -386,8 +386,7 @@ func intestazione(testo: String) -> void:
 			else Stile.colore("bordo_acceso"), Stile.dimensione("titolo"))
 	titolo.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_BEGIN
 	riga.add_child(titolo)
-	var risorse := Cartiglio.nuovo("TAZO %d   ·   LV %d" % [GameState.tazo,
-			GameState.livello_di(GameState.id_protagonista)], Stile.colore("bordo" if su_carta else "bordo_acceso"),
+	var risorse := Cartiglio.nuovo(testo_risorse(), Stile.colore("bordo" if su_carta else "bordo_acceso"),
 			Stile.colore("testo" if su_carta else "box_testo"), Stile.colore("accento"), Stile.dimensione("corpo"))
 	risorse.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	risorse.tondo = su_carta
@@ -403,6 +402,9 @@ func intestazione(testo: String) -> void:
 	# coprire lo stesso: si allarga della stessa scala
 	var scala := get_tree().root.content_scale_factor
 	quinte.copri(COPRE_MENU * scala if pannello == "menu" else COPRE_PANNELLO, testo.to_upper(), su_carta)
+
+func testo_risorse() -> String:
+	return "TAZO %d   ·   LV %d" % [GameState.tazo, GameState.livello_di(GameState.id_protagonista)]
 
 # --- pannello: menu ---
 
@@ -532,7 +534,9 @@ func mostra_opzioni() -> void:
 	intestazione("Opzioni")
 	# dentro uno scorrevole: le opzioni sono tante, e senza «Indietro» finiva
 	# sotto il bordo dello schermo
-	PannelloOpzioni.costruisci(pagina_che_scorre(4), 200, Stile.colore("accento_su_carta"))
+	var righe := pagina_che_scorre(4)
+	PannelloOpzioni.costruisci(righe, 200, Stile.colore("accento_su_carta"))
+	Trucchi.costruisci(righe, 200)   # provvisori, per le prove di Bru: vedi Trucchi.gd
 	ritorno()
 
 func pagina_che_scorre(separazione: int) -> VBoxContainer:

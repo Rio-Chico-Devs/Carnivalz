@@ -744,6 +744,26 @@ func prepara(quale: String) -> void:
 						riempi_lo_zaino(scomparto)
 					Pausa.mostra_inventario()
 				"opzioni": Pausa.mostra_opzioni()
+				"trucchi":
+					# le opzioni scorse fino in fondo, dove stanno i trucchi
+					# provvisori (Trucchi.gd), dopo averne premuto uno
+					Pausa.mostra_opzioni()
+					await attendi(20)
+					for scorrevole in Pausa.colonna.find_children("*", "ScrollContainer", true, false):
+						var barra := (scorrevole as ScrollContainer).get_v_scroll_bar()
+						(scorrevole as ScrollContainer).scroll_vertical = int(barra.max_value)
+					# premuti +1.000 tazo e poi +10.000 hype: il cartellino in alto
+					# dice i tazo nuovi, la riga sotto l'ultimo tasto premuto
+					for fila in Pausa.colonna.find_children("*", "HBoxContainer", true, false):
+						var nome := (fila.get_child(0) as Label).text if fila.get_child(0) is Label else ""
+						for bottone in fila.get_children():
+							if bottone is Button and nome == "Tazo" and (bottone as Button).text == "+1.000":
+								(bottone as Button).pressed.emit()
+					for fila in Pausa.colonna.find_children("*", "HBoxContainer", true, false):
+						var nome := (fila.get_child(0) as Label).text if fila.get_child(0) is Label else ""
+						for bottone in fila.get_children():
+							if bottone is Button and nome == "Hype (l'xp)" and (bottone as Button).text == "+10.000":
+								(bottone as Button).pressed.emit()
 				"storico": Pausa.mostra_storico()
 				"uscita": Pausa.conferma_uscita()
 				"squadra": Pausa.mostra_equipaggiamento()

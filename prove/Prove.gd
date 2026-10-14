@@ -75,6 +75,7 @@ func _ready() -> void:
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
 	prova_hype()
+	prova_i_trucchi()
 	prova_abilita_di_veronica_e_yhvina()
 	prova_i_cinque_tipi()
 	prova_il_colpo_si_sente()
@@ -4151,6 +4152,77 @@ func prova_le_meccaniche_nuove_delle_mosse() -> void:
 	esigi(int(nemico.hp) <= 0, "e' rinato una seconda volta: lo scontro non finisce piu'")
 	GameState.personaggi["zombie_mostruoso"].erase("rinascita")
 	scontro.free()
+
+func tasto_dei_trucchi(dove: Node, testo: String, riga: String) -> Button:
+	# il tasto con quella scritta nella riga che comincia con quell'etichetta
+	for figlio in dove.get_children():
+		if figlio is HBoxContainer and figlio.get_child_count() > 0 and figlio.get_child(0) is Label \
+				and (figlio.get_child(0) as Label).text == riga:
+			for bottone in figlio.get_children():
+				if bottone is Button and (bottone as Button).text == testo:
+					return bottone
+		var dentro := tasto_dei_trucchi(figlio, testo, riga)
+		if dentro != null:
+			return dentro
+	return null
+
+func prova_i_trucchi() -> void:
+	# Bru: «un tasto provvisorio tra le opzioni [...] dove posso scegliere di
+	# riempirmi di xp o tazo o degli spendibili cosi' da testare». Ogni tasto
+	# deve dare quello che dice e solo quello, e stare dove Bru lo cerca: in
+	# fondo alle Opzioni della pausa
+	titolo("i trucchi provvisori danno hype, tazo e spendibili")
+	GameState.nuova_partita()
+	var tazo_prima := GameState.tazo
+	Trucchi.dai_hype(10000)
+	esigi(GameState.hype_disponibile == 10000 and GameState.hype_accumulato == 10000,
+			"il trucco dell'hype ne da' %d da spendere e %d accumulati, invece di 10000 e 10000"
+			% [GameState.hype_disponibile, GameState.hype_accumulato])
+	Trucchi.dai_tazo(1000)
+	esigi(GameState.tazo == tazo_prima + 1000, "il trucco dei tazo ne da' %d invece di 1000" % (GameState.tazo - tazo_prima))
+	# la sacca: piena fino al tetto, solo consumabili, uno per tipo a giro
+	var tetto := GameState.capacita_zaino("consumabili")
+	var spazi_prima := GameState.spazi_zaino.duplicate()
+	var messi := Trucchi.riempi_sacca()
+	esigi(messi == tetto and GameState.sacca.size() == tetto,
+			"riempita la sacca ci sono %d oggetti (%d messi), il tetto e' %d" % [GameState.sacca.size(), messi, tetto])
+	var tipi := Trucchi.consumabili()
+	for i in mini(tetto, tipi.size()):
+		esigi(tipi[i] in GameState.sacca, "riempita la sacca manca '%s': non e' uno per tipo" % tipi[i])
+	for id_oggetto in GameState.sacca:
+		esigi(GameState.categoria_zaino(id_oggetto) == "consumabili"
+				and String(GameState.dati_oggetto(id_oggetto).get("tipo", "")) not in ["spazio", "pila"],
+				"nella sacca riempita c'e' '%s', che non e' un consumabile" % id_oggetto)
+	esigi(GameState.spazi_zaino == spazi_prima, "riempire la sacca ha allargato lo zaino")
+	esigi(Trucchi.riempi_sacca() == 0 and GameState.sacca.size() == tetto, "la sacca piena si riempie ancora")
+	esigi(Trucchi.migliaia(100000) == "100.000" and Trucchi.migliaia(999) == "999",
+			"le migliaia si scrivono %s e %s" % [Trucchi.migliaia(100000), Trucchi.migliaia(999)])
+	# nelle opzioni della pausa, e i tasti fanno quello che dicono
+	GameState.nuova_partita()
+	Pausa.apri()
+	Pausa.mostra_opzioni()
+	var hype := tasto_dei_trucchi(Pausa.colonna, "+10.000", "Hype (l'xp)")
+	var tazo := tasto_dei_trucchi(Pausa.colonna, "+1.000", "Tazo")
+	var sacca := tasto_dei_trucchi(Pausa.colonna, "Riempi la sacca", "Spendibili")
+	esigi(hype != null and tazo != null and sacca != null,
+			"nelle Opzioni della pausa non ci sono i tasti dei trucchi (hype %s, tazo %s, sacca %s)"
+			% [hype != null, tazo != null, sacca != null])
+	if hype != null and tazo != null and sacca != null:
+		var tazo_iniziali := GameState.tazo
+		hype.pressed.emit()
+		tazo.pressed.emit()
+		sacca.pressed.emit()
+		esigi(GameState.hype_disponibile == 10000, "il tasto +10.000 hype ne ha dati %d" % GameState.hype_disponibile)
+		esigi(GameState.tazo == tazo_iniziali + 1000, "il tasto +1.000 tazo ne ha dati %d" % (GameState.tazo - tazo_iniziali))
+		esigi(GameState.spazio_libero("consumabili") == 0, "il tasto «Riempi la sacca» non l'ha riempita")
+		var cartellini: Array[String] = []
+		for nodo in Pausa.colonna.find_children("*", "", true, false):
+			if nodo is Cartiglio and (nodo as Cartiglio).testo.begins_with("TAZO "):
+				cartellini.append((nodo as Cartiglio).testo)
+		esigi(cartellini == [Pausa.testo_risorse()],
+				"dopo i trucchi il cartellino in alto dice %s invece di «%s»" % [cartellini, Pausa.testo_risorse()])
+	Pausa.chiudi()
+	GameState.nuova_partita()
 
 func prova_hype() -> void:
 	# Bru: "facciamo che spendi xp ma maschereremo l'xp con il termine hype...
