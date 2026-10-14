@@ -664,10 +664,20 @@ func simbolo_tasca(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Col
 	elif livello == 1:
 		S.rombo(t, c, l, 12, 12, 3.4, tinta)
 	elif preso:
-		S.timbro(t, String(coppia(livello)[livello % 2]), c, l * 0.86, tinta, fondo, ombra)
+		S.timbro(t, String(coppia(livello)[livello % 2]), c, l * 0.86, tinta, fondo, ombra, accento_per(tinta, fondo))
 	else:
 		# la scelta che verra', piu' quieta: senza ombra, un colore pieno a meta' fra segno e tasca
 		S.disegna(t, "biforca", c, l * 0.78, Color(Color(fondo, 1.0).lerp(Color(tinta, 1.0), 0.6), tinta.a), fondo)
+
+
+static func accento_per(tinta: Color, fondo: Color) -> Color:
+	# il nucleo delle statistiche: il primo dei tre colori che non sia ne' il
+	# segno ne' la tasca (sull'arancio non puo' essere arancio)
+	for prova: Color in [P.ARANCIO, P.CREMA, P.NERO]:
+		if not Color(tinta, 1.0).is_equal_approx(prova) and not Color(fondo, 1.0).is_equal_approx(prova) \
+				and not (prova == P.ARANCIO and Color(fondo, 1.0).is_equal_approx(P.ARANCIO_SCURO)):
+			return Color(prova, tinta.a)
+	return Color(0, 0, 0, 0)
 
 
 func mozzo(t: CanvasItem, tm: Dictionary, g: int) -> void:
@@ -749,7 +759,7 @@ func pannello_quadrante(t: CanvasItem, livello: int) -> void:
 		var due: Array = coppia(livello)
 		if stato == "preso":
 			var scelta_presa := String(due[livello % 2])
-			S.disegna(t, scelta_presa, Vector2(56, y + 20), 34.0, P.CREMA, P.NERO)
+			S.disegna(t, scelta_presa, Vector2(56, y + 20), 34.0, P.CREMA, P.NERO, P.ARANCIO)
 			P.scritta(t, Vector2(90, y + 26), "PIÙ " + String(PAROLE[scelta_presa]), 22, P.CREMA)
 			P.scritta(t, Vector2(90, y + 46), "l'hai scelta tu, invece di %s" % nome_stat(String(due[1 - livello % 2])).to_lower(),
 					14, P.CARTA, Caratteri.tondo(700))
@@ -1204,66 +1214,83 @@ func tasti_simboli() -> void:
 
 # --- la tavola delle statistiche ------------------------------------------------------------
 #
-# Le icone delle statistiche in tre strade (SimboliCrescita.statistica), sulla
-# stessa carta per confrontarle giuste: grandi, piccole come nella scheda, e a
-# destra la lista della scheda vera (pannello scuro, icona da 22) con quella strada.
+# Il foglio di progetto delle icone delle statistiche (SimboliCrescita.sagoma):
+# la famiglia intera col suo nucleo arancio; la costruzione sulla griglia di 24
+# col righello a 45°; la coppia allineati / disallineati; la lista della scheda
+# alla grandezza vera e la prova delle grandezze piccole.
 
-const VIE := [
-	["sagome", "A · SAGOME", "Le metafore che tutti riconoscono, con la nostra geometria: piene, pendenti, timbrate."],
-	["ritagli", "B · RITAGLI", "Le stesse sagome come adesivi ritagliati a mano: bordo nero, ombra, ognuno un po' storto."],
-	["sigle", "C · SIGLE", "Solo tipografia, come le statistiche di Persona: due lettere nel corsivo del titolo."],
-]
 const NOMI_STAT := {"hp": "Punti vita", "attacco": "Attacco", "difesa": "Difesa", "velocita": "Velocità",
 		"intelligenza": "Intelligenza", "forza_mentale": "Forza mentale", "fattore": "Fattore", "maestria_dominio": "Maestria",
 		"aura": "Aura"}
 
 
 func disegna_statistiche(t: CanvasItem) -> void:
-	t.draw_rect(Rect2(0, 0, 1280, 720), P.CREMA)
-	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.NERO, 0.06), Vector2(1.0, 1.0))
-	P.etichetta(t, Vector2(28, 52), "LE STATISTICHE", 36, P.NERO, P.CREMA, P.ARANCIO)
-	P.scritta(t, Vector2(380, 82), "Tre strade per le stesse nove statistiche. A destra di ognuna, la lista della scheda", 15,
-			Color(P.NERO, 0.8), Caratteri.tondo(700))
-	P.scritta(t, Vector2(380, 102), "della squadra alla grandezza vera. Scegline una (o un pezzo di una e uno dell'altra).", 15,
-			Color(P.NERO, 0.8), Caratteri.tondo(700))
-	for r in VIE.size():
-		var via: Array = VIE[r]
-		var y := 150.0 + 192.0 * r
-		P.etichetta(t, Vector2(26, y - 22), String(via[1]), 17, P.NERO, P.CREMA, P.ARANCIO)
-		P.a_capo(t, Rect2(30, y + 14, 150, 110), String(via[2]), 13, Color(P.NERO, 0.75))
-		for i in S.STATISTICHE.size():
-			var chiave := String(S.STATISTICHE[i])
-			var x := 236.0 + 92.0 * i
-			icona_statistica(t, String(via[0]), chiave, Vector2(x, y + 36), 54.0, false)
-			icona_statistica(t, String(via[0]), chiave, Vector2(x + 34, y + 72), 20.0, false)
-			P.a_capo(t, Rect2(x - 44, y + 92, 88, 30), String(NOMI_STAT[chiave]).to_upper(), 11, P.NERO, Caratteri.tondo(900),
-					HORIZONTAL_ALIGNMENT_CENTER, 2)
-		scheda_in_piccolo(t, String(via[0]), Rect2(1066, y - 18, 196, 150))
-	testata(t, "", false, false)
+	t.draw_rect(Rect2(0, 0, 1280, 720), P.NERO)
+	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.ARANCIO, 0.06), Vector2(1.0, 1.0))
+	P.etichetta(t, Vector2(28, 52), "LE STATISTICHE", 36, P.CREMA, P.NERO, P.ARANCIO)
+	P.scritta(t, Vector2(372, 80), "Costruite coi rombi dell'emblema, col righello a 45°. In ognuna un nucleo arancio,", 15,
+			P.CARTA, Caratteri.tondo(700))
+	P.scritta(t, Vector2(372, 100), "il cuore dell'emblema. Un'idea a testa, e si ridisegnano a memoria.", 15, P.CARTA,
+			Caratteri.tondo(700))
+	# la famiglia
+	for i in S.STATISTICHE.size():
+		var chiave := String(S.STATISTICHE[i])
+		var x := 84.0 + 138.0 * i
+		S.statistica(t, chiave, Vector2(x, 190), 76.0, P.CREMA, P.NERO, P.ARANCIO, P.ARANCIO_SCURO)
+		P.a_capo(t, Rect2(x - 64, 244, 128, 30), String(NOMI_STAT[chiave]).to_upper(), 12, P.CARTA, Caratteri.tondo(900),
+				HORIZONTAL_ALIGNMENT_CENTER, 2)
+	# la costruzione: la griglia di 24 e le diagonali a 45°, pendenti come l'icona
+	var centro := Vector2(150, 470)
+	var lato := 220.0
+	P.etichetta(t, Vector2(28, 312), "LA COSTRUZIONE", 14, P.ARANCIO, P.NERO)
+	for k in 25:
+		var tinta := Color(P.CREMA, 0.16 if k % 4 == 0 else 0.06)
+		S.tratto(t, centro, lato, [k, 0, k, 24], tinta, 0.2)
+		S.tratto(t, centro, lato, [0, k, 24, k], tinta, 0.2)
+	for k in range(-20, 21, 4):
+		# le diagonali a 45°, tagliate dentro il quadrato della griglia
+		S.tratto(t, centro, lato, [maxf(k, 0), maxf(-k, 0), minf(24, 24 + k), minf(24, 24 - k)], Color(P.ARANCIO, 0.2), 0.2)
+		S.tratto(t, centro, lato, [24 - maxf(k, 0), maxf(-k, 0), 24 - minf(24, 24 + k), minf(24, 24 - k)],
+				Color(P.ARANCIO, 0.2), 0.2)
+	S.sagoma(t, "hp", centro, lato, Color(P.CREMA, 0.92), P.NERO, P.ARANCIO)
+	P.scritta(t, Vector2(40, 602), "tre rombi e una punta a 45°: due lobi,", 13, P.CARTA, Caratteri.tondo(700))
+	P.scritta(t, Vector2(40, 620), "il nucleo sotto la piega", 13, P.CARTA, Caratteri.tondo(700))
+	# la coppia
+	P.etichetta(t, Vector2(330, 312), "LA COPPIA", 14, P.ARANCIO, P.NERO)
+	S.statistica(t, "forza_mentale", Vector2(420, 450), 150.0, P.CREMA, P.NERO, P.ARANCIO, P.ARANCIO_SCURO)
+	S.statistica(t, "fattore", Vector2(620, 450), 150.0, P.CREMA, P.NERO, P.ARANCIO, P.ARANCIO_SCURO)
+	P.scritta(t, Vector2(340, 566), "ALLINEATI", 18, P.CREMA, null, HORIZONTAL_ALIGNMENT_CENTER, 160)
+	P.scritta(t, Vector2(340, 586), "la forza mentale", 13, P.CARTA, Caratteri.tondo(700), HORIZONTAL_ALIGNMENT_CENTER, 160)
+	P.scritta(t, Vector2(540, 566), "DISALLINEATI", 18, P.CREMA, null, HORIZONTAL_ALIGNMENT_CENTER, 160)
+	P.scritta(t, Vector2(540, 586), "il fattore Carnivalz", 13, P.CARTA, Caratteri.tondo(700), HORIZONTAL_ALIGNMENT_CENTER, 160)
+	# nella scheda, e piccole
+	P.etichetta(t, Vector2(780, 312), "NELLA SCHEDA", 14, P.ARANCIO, P.NERO)
+	scheda_in_piccolo(t, Rect2(784, 344, 230, 150))
+	P.etichetta(t, Vector2(1046, 312), "PICCOLE", 14, P.ARANCIO, P.NERO)
+	var misure := [14.0, 18.0, 24.0, 32.0]
+	for r in 3:
+		var chiave := String(["hp", "attacco", "velocita"][r])
+		var x := 1060.0
+		for m: float in misure:
+			S.statistica(t, chiave, Vector2(x + m * 0.5, 368 + 46 * r), m, P.CREMA, P.NERO, P.ARANCIO)
+			x += m + 18.0
+	P.scritta(t, Vector2(1048, 520), "14 · 18 · 24 · 32 px", 12, P.CARTA, Caratteri.tondo(900))
+	P.a_capo(t, Rect2(784, 540, 470, 120), "Le lezioni (docs/simboli.md): un'idea a testa e la prova dello scarabocchio "
+			+ "(Rand, Chermayeff & Geismar), la metafora e non l'illustrazione (Kare), il righello a 45° e l'occhio che "
+			+ "corregge la griglia (Aicher), lo stesso motivo rifatto (i kamon, Katsumi a Tokyo '64), un segno che "
+			+ "attraversa il sistema (Wyman, Messico '68).", 13, P.CARTA)
+	testata(t, "", true, true)
 
 
-func icona_statistica(t: CanvasItem, via: String, chiave: String, c: Vector2, l: float, su_scuro: bool) -> void:
-	# i colori giusti per ogni strada, sulla carta o sul pannello scuro della scheda
-	match via:
-		"ritagli":
-			S.statistica(t, via, chiave, c, l, P.CREMA, P.NERO, P.ARANCIO, P.NERO)
-		"sigle":
-			S.statistica(t, via, chiave, c, l, P.NERO if su_scuro else P.CREMA, P.ARANCIO if su_scuro else P.NERO,
-					P.CREMA if su_scuro else P.ARANCIO)
-		_:
-			S.statistica(t, via, chiave, c, l, P.CREMA if su_scuro else P.NERO, P.NERO if su_scuro else P.CREMA, P.ARANCIO)
-
-
-func scheda_in_piccolo(t: CanvasItem, via: String, r: Rect2) -> void:
+func scheda_in_piccolo(t: CanvasItem, r: Rect2) -> void:
 	# la lista delle statistiche della scheda, come la disegna StatisticheScheda
-	var fondo := Color("#1a1512")
-	t.draw_rect(Rect2(r.position + Vector2(6, 6), r.size), P.NERO)
-	t.draw_rect(r, fondo)
+	t.draw_rect(Rect2(r.position + Vector2(6, 6), r.size), P.ARANCIO_SCURO)
+	t.draw_rect(r, Color("#1a1512"))
 	var valori := {"hp": 100, "attacco": 15, "difesa": 0, "velocita": 3, "aura": 10}
 	var i := 0
 	for chiave: String in valori:
 		var y := r.position.y + 14.0 + 27.0 * i
-		icona_statistica(t, via, chiave, Vector2(r.position.x + 20, y + 11), 22.0, true)
+		S.statistica(t, chiave, Vector2(r.position.x + 20, y + 11), 22.0, P.CREMA, Color("#1a1512"), P.ARANCIO)
 		P.scritta(t, Vector2(r.position.x + 40, y + 17), String(NOMI_STAT[chiave]), 13, P.CREMA, Caratteri.tondo(800))
 		P.scritta(t, Vector2(r.end.x - 70, y + 19), str(int(valori[chiave])), 19, P.CREMA, null, HORIZONTAL_ALIGNMENT_RIGHT, 60)
 		t.draw_line(Vector2(r.position.x + 40, y + 25), Vector2(r.end.x - 10, y + 25), Color(P.CREMA, 0.1), 1.0)
