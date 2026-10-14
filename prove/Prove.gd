@@ -76,6 +76,7 @@ func _ready() -> void:
 	prova_le_meccaniche_nuove_delle_mosse()
 	prova_hype()
 	prova_i_trucchi()
+	prova_le_sagome_a_si_misurano()
 	prova_abilita_di_veronica_e_yhvina()
 	prova_i_cinque_tipi()
 	prova_il_colpo_si_sente()
@@ -4223,6 +4224,70 @@ func prova_i_trucchi() -> void:
 				"dopo i trucchi il cartellino in alto dice %s invece di «%s»" % [cartellini, Pausa.testo_risorse()])
 	Pausa.chiudi()
 	GameState.nuova_partita()
+
+func prova_le_sagome_a_si_misurano() -> void:
+	# Bru: «puliscile e rendile perfette, devono passare un'analisi in cui io
+	# potrei misurare le geometrie, i tratti, i segmenti, la pienezza, lo
+	# spessore delle linee». Il canone e' in prove/SagomeA.gd: qui si misura il
+	# disegno finito, non quello che il codice dice di aver fatto
+	titolo("le sagome della strada A rispettano il canone")
+	var sagome := preload("res://prove/SagomeA.gd")
+	var pesi: Array[float] = []
+	for chiave: String in sagome.CHIAVI:
+		var anelli: Dictionary = sagome.anelli(chiave)
+		esigi(not (anelli["0"] as Array).is_empty(), "la sagoma '%s' non ha un pieno" % chiave)
+		# gli angoli: solo quelli ammessi
+		for g in sagome.direzioni(chiave):
+			esigi(sagome.angolo_ammesso(g), "'%s' ha un lato a %.2f°, fuori dal canone" % [chiave, g])
+		# l'ingombro: dentro l'area viva, e la tocca su un lato almeno
+		var b: Rect2 = sagome.ingombro(chiave)
+		var dentro := b.position.x >= 1.0 - 1e-3 and b.position.y >= 1.0 - 1e-3 and b.end.x <= 19.0 + 1e-3 \
+				and b.end.y <= 19.0 + 1e-3
+		esigi(dentro, "'%s' esce dall'area viva: %s" % [chiave, b])
+		# gli spessori misurati: un taglio sta ad almeno T dal pieno che lo
+		# contiene; un pieno dentro un taglio ne sta a C; un foro ad almeno C
+		var a: Dictionary = anelli
+		var livelli_minimi := {1: sagome.T, 2: sagome.C, 3: sagome.C}
+		for livello: int in livelli_minimi:
+			for p: PackedVector2Array in a[str(livello)]:
+				var vicino := INF
+				for q: PackedVector2Array in a[str(livello - 1)]:
+					vicino = minf(vicino, sagome.distanza(p, q))
+				esigi(vicino >= float(livelli_minimi[livello]) - 1e-3,
+						"in '%s' un anello di livello %d sta a %.3f dal suo contenitore, meno di %s"
+						% [chiave, livello, vicino, livelli_minimi[livello]])
+				if livello == 2:
+					esigi(absf(vicino - sagome.C) < 1e-3, "in '%s' il distacco dentro il taglio e' %.3f, non C" % [chiave, vicino])
+		# i pezzi staccati: ognuno ha il vicino a C esatto, nessuno piu' vicino
+		var pezzi: Array = a["0"]
+		if pezzi.size() > 1:
+			for i in pezzi.size():
+				var vicino := INF
+				for j in pezzi.size():
+					if i != j:
+						vicino = minf(vicino, sagome.distanza(pezzi[i], pezzi[j]))
+				esigi(absf(vicino - sagome.C) < 1e-3,
+						"in '%s' il pezzo %d dista %.3f dal piu' vicino, non C" % [chiave, i + 1, vicino])
+		# le coordinate dei pieni sul mezzo modulo, dove non ci sono rotazioni
+		if chiave not in ["attacco", "aura"]:
+			for p: PackedVector2Array in a["0"]:
+				for q in p:
+					esigi(is_equal_approx(q.x * 2.0, roundf(q.x * 2.0)) and is_equal_approx(q.y * 2.0, roundf(q.y * 2.0)),
+							"in '%s' il vertice %s non sta sul mezzo modulo" % [chiave, q])
+		pesi.append(sagome.pienezza(chiave))
+		# il file da misurare e' quello che il codice disegna adesso
+		var percorso := "res://art/interfaccia/statistiche/strada_a/%s.svg" % chiave
+		esigi(FileAccess.file_exists(percorso) and FileAccess.get_file_as_string(percorso) == sagome.svg(chiave),
+				"%s non e' aggiornato: rilancia ./prove/sagome_a.sh" % percorso)
+		esigi(FileAccess.file_exists(percorso.get_basename() + ".png"), "manca il PNG di '%s'" % chiave)
+	# il peso: nessuna piu' lontana del 10% dalla media
+	var media := 0.0
+	for v in pesi:
+		media += v
+	media /= maxf(pesi.size(), 1.0)
+	for i in pesi.size():
+		esigi(absf(pesi[i] / media - 1.0) <= 0.10, "la pienezza di '%s' e' %.3f, a %+.0f%% dalla media %.3f"
+				% [sagome.CHIAVI[i], pesi[i], (pesi[i] / media - 1.0) * 100.0, media])
 
 func prova_hype() -> void:
 	# Bru: "facciamo che spendi xp ma maschereremo l'xp con il termine hype...

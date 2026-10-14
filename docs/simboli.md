@@ -1,5 +1,15 @@
 # I simboli: cosa ho imparato dai maestri, e come lo uso
 
+> **Com'è finita.** La strada dei mon (§2, §6) Bru l'ha scartata: «no dai non ci
+> siamo». Poi, sulla tavola delle tre strade: «queste icone mi piacevano, bisognava
+> solo migliorarle e renderle più precise e pulite». Le statistiche adesso sono le
+> sagome della strada A, ricostruite su un canone misurabile: `prove/SagomeA.gd`,
+> con le misure in [`docs/sagome_a.md`](sagome_a.md) e i file da misurare in
+> `art/interfaccia/statistiche/strada_a/`. Le tavole dei mon e degli esercizi
+> («lezioni», «vita», «attacco», «difesa», «studio_…») sono state tolte dalle
+> proposte; restano nella storia del progetto (commit `9f68b96`). Le letture qui
+> sotto restano valide, e sono quelle da cui viene il canone.
+
 Bru, sulle icone delle statistiche: «siamo sulla strada giusta, tieni questa
 ma migliorale, non hanno ancora quel qualcosa che le renda uniche [...]
 educhiamoci dai maestri, cerca risorse per migliorare le tue capacità di

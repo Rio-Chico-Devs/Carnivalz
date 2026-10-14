@@ -15,6 +15,11 @@ Conviene disegnarle a 52×52, bianche su trasparente. Il file entra intero e
 centrato. Finché non c'è, al suo posto c'è un disegno a forme: cuore, lama,
 scudo, fulmine, stella.
 
+In `statistiche/strada_a/` ci sono le sagome della strada A pulite, da misurare:
+un SVG e un PNG per statistica, 480 × 480, nero su trasparente. Le scrive
+`./prove/sagome_a.sh` dal codice (`prove/SagomeA.gd`), e il gioco non le carica:
+servono a controllarle. Il canone e le misure stanno in `docs/sagome_a.md`.
+
 Le misure di tutto il resto (gli oggetti, la figura intera, la carta,
 l'emblema) stanno in `docs/interfaccia.md`. L'elenco di cosa manca, coi nomi
 esatti dei file, sta in `docs/immagini.md`.
