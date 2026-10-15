@@ -4314,6 +4314,22 @@ func prova_le_icone_si_reggono() -> void:
 		for strato: Array in strati:
 			esigi(icone.area(strato[1]) >= 20.0, "in '%s' c'e' una briciola di %.1f unita' quadrate"
 					% [chiave, icone.area(strato[1])])
+		# PICCOLA, coi tagli piu' larghi (taglio_per), il disegno regge lo stesso:
+		# niente briciole e l'SVG coerente. E il timbro ha la sua ombra, grande e
+		# piccola: il fuoco disegnato nel verso sbagliato la perdeva senza errori
+		for strato: Array in icone.strati(chiave, 16.0):
+			esigi(icone.area(strato[1]) >= 20.0, "in '%s' a 16 pixel c'e' una briciola di %.1f unita' quadrate"
+					% [chiave, icone.area(strato[1])])
+		var storti := 0
+		for y in 50:
+			for x in 50:
+				var q := Vector2(x * 2.0 + 1.0, y * 2.0 + 1.0)
+				if icone.inchiostro_in(chiave, q, 16.0) != icone.pari_e_dispari(chiave, q, 16.0):
+					storti += 1
+		esigi(storti == 0, "'%s' a 16 pixel: gli strati non si leggono pari e dispari in %d punti" % [chiave, storti])
+		for lato: float in [icone.LATO, 16.0]:
+			esigi(not (icone.progetto(chiave, icone.taglio_per(lato))["ombra"] as Array).is_empty(),
+					"il timbro di '%s' %s non ha l'ombra" % [chiave, "grande" if lato == icone.LATO else "a 16 pixel"])
 		var pieni := 0
 		var diversi := 0
 		var inchiostro := PackedByteArray()
@@ -4341,6 +4357,12 @@ func prova_le_icone_si_reggono() -> void:
 	for i in pesi.size():
 		esigi(absf(pesi[i] / media - 1.0) <= 0.12, "la pienezza di '%s' e' %.3f, a %+.0f%% dalla media %.3f"
 				% [icone.CHIAVI[i], pesi[i], (pesi[i] / media - 1.0) * 100.0, media])
+	# I TAGLI DELLE PICCOLE: dai 32 pixel in su quelli del disegno, sotto mai
+	# piu' sottili di 1,4 pixel
+	esigi(is_equal_approx(icone.taglio_per(32.0), icone.C), "a 32 pixel il taglio non e' piu' quello del disegno")
+	for lato: float in [16.0, 20.0, 24.0]:
+		esigi(icone.taglio_per(lato) * lato / icone.LATO >= 1.4 - 1e-3,
+				"a %d pixel un taglio e' largo %.2f pixel" % [lato, icone.taglio_per(lato) * lato / icone.LATO])
 	# DUE ICONE NON SI CONFONDONO: l'inchiostro dell'una sopra quello dell'altra,
 	# quanto si sovrappone (l'intersezione sull'unione) resta sotto il 60%. Il
 	# Fattore era il rombo dell'emblema pieno, col fuoco in negativo: con la

@@ -18,6 +18,8 @@ extends RefCounted
 # taglio e ogni distacco; T = 10, i bordi. Le figure si sommano e si sottraggono
 # (Geometry2D), e si disegnano a strati: + inchiostro, - fondo. Il peso e'
 # bilanciato a occhio e a misura (pienezza): tutte entro il 12% dalla media.
+# Piccole (sotto i 32 pixel) hanno i tagli piu' larghi, mai sotto 1,4 pixel; e
+# timbrate hanno l'ombra di una sagoma sola, chiusa (taglio_per, chiusa).
 #
 # I file da misurare (SVG e PNG 480 x 480) li scrive ./prove/icone.sh in
 # art/interfaccia/statistiche/proposta/; la tavola e' TavolaIcone.
@@ -167,12 +169,13 @@ static func cuore(cx: float, alto: float, basso: float, d: float, r: float) -> P
 
 # --- le icone: una lista di strati, [+1 inchiostro / -1 fondo, figura] ---------------------------
 
-static func strati(chiave: String) -> Array:
+static func strati(chiave: String, l := LATO) -> Array:
 	# gli strati in ordine, l'ultimo sopra. Sono costruiti annidati: ogni taglio sta
 	# dentro un pieno, ogni pieno dentro un taglio o sul fondo, e nessuno ne
 	# accavalla un altro dello stesso segno; cosi' l'icona e' anche un percorso
-	# solo, pari e dispari (svg)
-	return progetto(chiave)["icona"]
+	# solo, pari e dispari (svg). "l" e' il lato a cui la si disegna: piccola, i
+	# tagli si allargano (taglio_per)
+	return progetto(chiave, taglio_per(l))["icona"]
 
 
 static func due_figure(chiave: String) -> Array:
@@ -180,13 +183,22 @@ static func due_figure(chiave: String) -> Array:
 	return [progetto(chiave)["a"], progetto(chiave)["b"]]
 
 
-static func progetto(chiave: String) -> Dictionary:
-	if not memoria.has(chiave):
-		memoria[chiave] = costruisci(chiave)
-	return memoria[chiave]
+static func taglio_per(l: float) -> float:
+	# LE PICCOLE HANNO I TAGLI PIU' LARGHI. A 16 pixel un taglio di C e' 0,8
+	# pixel: la sfumatura se lo mangia, e la spada col fendente diventa una
+	# macchia. Sotto i 32 pixel il taglio cresce fino a restare largo 1,4 pixel
+	# (a mezze unita', per non rifare il disegno a ogni misura)
+	return maxf(C, ceilf(1.4 * LATO / maxf(l, 1.0) * 2.0) * 0.5)
 
 
-static func costruisci(chiave: String) -> Dictionary:
+static func progetto(chiave: String, taglio := C) -> Dictionary:
+	var nome := "%s@%s" % [chiave, taglio]
+	if not memoria.has(nome):
+		memoria[nome] = costruisci(chiave, taglio)
+	return memoria[nome]
+
+
+static func costruisci(chiave: String, taglio := C) -> Dictionary:
 	var s: Array = []           # l'icona
 	var a: Array = []           # la prima figura
 	var b: Array = []           # la seconda
@@ -194,10 +206,10 @@ static func costruisci(chiave: String) -> Dictionary:
 		"hp":
 			# il cuore e la cicatrice cucita: il taglio in diagonale, tre punti di traverso
 			var c := cuore(50, 37, 88, 19, 21)
-			var cicatrice: Array = [banda(poli([30, 30, 68, 68]), C)]
+			var cicatrice: Array = [banda(poli([30, 30, 68, 68]), taglio)]
 			for k: float in [0.2, 0.5, 0.8]:
 				var q := Vector2(30, 30).lerp(Vector2(68, 68), k)
-				cicatrice.append(banda(PackedVector2Array([q + Vector2(-7, 7), q + Vector2(7, -7)]), C))
+				cicatrice.append(banda(PackedVector2Array([q + Vector2(-7, 7), q + Vector2(7, -7)]), taglio))
 			var cucitura := unione(cicatrice)
 			s = [[1, c], [-1, cucitura]]
 			a = [[1, c]]
@@ -210,12 +222,12 @@ static func costruisci(chiave: String) -> Dictionary:
 			var manico := rett(45, 70, 55, 90)
 			var pomo := rett(43, 87, 57, 101)
 			var spada := ruota(unione([lama, guardia, manico, pomo]), CENTRO, 45.0)
-			var sguscio := ruota(banda(poli([50, 8, 50, 56]), C), CENTRO, 45.0)
+			var sguscio := ruota(banda(poli([50, 8, 50, 56]), taglio), CENTRO, 45.0)
 			# la mezzaluna: il cerchio di fuori meno uno piu' grande spostato verso la
 			# spada. Il cerchio di dentro passa per i due punti di quello di fuori che
 			# stanno a 9 + C dall'asse: le punte finiscono a C dal filo della lama
 			var fuori_r := 46.0
-			var dall_asse := 9.0 + C
+			var dall_asse := 9.0 + taglio
 			var spessa := 14.0
 			var lungo := sqrt(fuori_r * fuori_r - dall_asse * dall_asse)
 			var dentro_r := fuori_r - spessa
@@ -236,20 +248,24 @@ static func costruisci(chiave: String) -> Dictionary:
 				scudo = meno(scudo, rett(x, 0, x + 10, 8 + T))[0]
 				torre = meno(torre, rett(x, 0, x + 10, 8 + T))[0]
 			var dentro := cresci(forma, -T)
-			var cinta := cresci(dentro, -C - 3)
+			var cinta := cresci(dentro, -taglio - 3)
 			s = [[1, scudo], [-1, dentro], [1, cinta]]
 			a = [[1, forma], [-1, dentro], [1, cinta]]
 			b = [[1, unione([torre, rett(18, 24, 82, 56)])], [-1, rett(43, 36, 57, 56)]]
 		"velocita":
 			# il fulmine fuori registro: la copia spostata e' la scia, la stampa che
-			# slitta come slitta la realta'. Della copia resta quello che sporge dal
-			# fulmine allargato di C
-			var fulmine := poli([48, 4, 78, 4, 64, 37, 82, 37, 42, 96, 52, 55, 32, 55])
+			# slitta come slitta la realta'. Della copia resta il pezzo grande che
+			# sporge dal fulmine allargato di un taglio: la lama sottile che sporgeva
+			# sotto, a 16 pixel, era una sbavatura
+			var fulmine := poli([47, 4, 81, 4, 66, 36, 86, 36, 42, 96, 53, 56, 30, 56])
 			s = [[1, fulmine]]
 			a = [[1, fulmine]]
-			for resto in meno(sposta(fulmine, Vector2(-14, 0)), cresci(fulmine, C)):
-				s.append([1, resto])
-				b.append([1, resto])
+			var scia := PackedVector2Array()
+			for resto in meno(sposta(fulmine, Vector2(-14, 0)), cresci(fulmine, taglio)):
+				if area(resto) > area(scia):
+					scia = resto
+			s.append([1, scia])
+			b.append([1, scia])
 		"intelligenza":
 			# l'occhio e la serratura: vedere la via d'uscita (alza la fuga)
 			var occhio := lente(CENTRO, 92, 62)
@@ -264,13 +280,15 @@ static func costruisci(chiave: String) -> Dictionary:
 			var base := poli([23, 78, 77, 78, 71, 90, 29, 90])
 			var lanterna := unione([corpo, tetto, base, cerchio(Vector2(50, 12), 7, 48)])
 			var vuoti: Array = [[-1, cerchio(Vector2(50, 12), 3, 32)], [-1, rett(27 + T, 29 + C + 1, 73 - T, 78 - C)]]
-			s = [[1, lanterna]] + vuoti + [[1, fuoco(Vector2(50, 68), 28, 1.2)]]
+			# la fiamma sta a C dal vetro; se il taglio cresce (piccola) si stringe lei
+			var alta := 28.0 - 2.0 * (taglio - C)
+			s = [[1, lanterna]] + vuoti + [[1, fuoco(Vector2(50, 54 + alta * 0.5), alta, 1.2)]]
 			a = [[1, lanterna]] + vuoti
 			b = [[1, fuoco(Vector2(50, 92), 84)]]
 		"fattore":
 			# il fuoco e, nel suo ventre, il rombo dell'emblema: il disallineamento che
 			# arde. (Il rombo pieno col fuoco in negativo si confondeva con l'Aura)
-			var fiamma := fuoco(Vector2(50, 94), 90, 1.25)
+			var fiamma := fuoco(Vector2(50, 94), 90, 1.15)
 			s = [[1, fiamma], [-1, rombo(Vector2(50, 70), 10, 13)]]
 			a = [[1, fiamma]]
 			b = [[1, rombo(CENTRO, 30, 40)]]
@@ -282,11 +300,11 @@ static func costruisci(chiave: String) -> Dictionary:
 			s = [[1, corona]]
 			a = [[1, corona]]
 			for i in 3:
-				var x0 := 14.0 + i * (72.0 + C) / 3.0
-				var x1 := x0 + (72.0 - 2.0 * C) / 3.0
+				var x0 := 14.0 + i * (72.0 + taglio) / 3.0
+				var x1 := x0 + (72.0 - 2.0 * taglio) / 3.0
 				var sx := 3.0 if i > 0 else 0.0           # i fianchi della corona restano dritti
 				var dx := 3.0 if i < 2 else 0.0
-				var segmento := poli([x0 + sx, 62 + C, x1 + dx, 62 + C, x1 - dx, 81, x0 - sx, 81])
+				var segmento := poli([x0 + sx, 62 + taglio, x1 + dx, 62 + taglio, x1 - dx, 81, x0 - sx, 81])
 				s.append([1, segmento])
 				b.append([1, scala(sposta(segmento, Vector2(0, -24)), CENTRO, Vector2(1.0, 1.6))])
 		"aura":
@@ -302,7 +320,39 @@ static func costruisci(chiave: String) -> Dictionary:
 			s = [[1, stella], [-1, rombo(CENTRO, 8, 11)]]
 			a = [[1, stella]]
 			b = [[1, rombo(CENTRO, 30, 40)]]
-	return {"icona": s, "a": a, "b": b}
+	var pieni: Array = []
+	for strato: Array in s:
+		if int(strato[0]) > 0:
+			pieni.append(strato[1])
+	return {"icona": s, "a": a, "b": b, "ombra": chiusa(pieni, taglio * 0.6 + 0.5)}
+
+
+static func chiusa(figure: Array, g: float) -> Array[PackedVector2Array]:
+	# L'OMBRA DEL TIMBRO E' UNA SAGOMA SOLA. Le figure allargate di g finche' si
+	# toccano, fuse, e ristrette di g: i vuoti stretti fra un pezzo e l'altro (la
+	# fascia della corona, la falce e la spada, la scia del fulmine) si chiudono,
+	# e nei vuoti non lampeggia l'arancio a righe. Il contorno di fuori resta quello
+	var pezzi: Array[PackedVector2Array] = []
+	for f: PackedVector2Array in figure:
+		pezzi.append(cresci(f, g))
+	var fuso := true
+	while fuso:
+		fuso = false
+		for i in pezzi.size():
+			for j in range(i + 1, pezzi.size()):
+				if not Geometry2D.intersect_polygons(pezzi[i], pezzi[j]).is_empty():
+					pezzi[i] = unione([pezzi[i], pezzi[j]])
+					pezzi.remove_at(j)
+					fuso = true
+					break
+			if fuso:
+				break
+	var fuori: Array[PackedVector2Array] = []
+	for p in pezzi:
+		var stretta := cresci(p, -g)
+		if stretta.size() >= 3:
+			fuori.append(stretta)
+	return fuori
 
 
 static func curva(a: Vector2, guida: Vector2, b: Vector2, lati := 24) -> PackedVector2Array:
@@ -345,6 +395,9 @@ static func fuoco(c: Vector2, alto: float, largo := 1.0) -> PackedVector2Array:
 	for tratto in tratti:
 		for i in tratto.size() - 1:
 			fuori.append(c + tratto[i] * k * Vector2(largo, 1.0))
+	# nel verso delle altre figure: Geometry2D allarga e restringe solo quelle
+	if Geometry2D.is_polygon_clockwise(fuori):
+		fuori.reverse()
 	return fuori
 
 
@@ -407,7 +460,7 @@ static func figura(t: CanvasItem, c: Vector2, l: float, p: PackedVector2Array, t
 
 static func disegna(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
 		solo_sagoma := false) -> void:
-	for strato: Array in strati(chiave):
+	for strato: Array in strati(chiave, l):
 		var segno := int(strato[0])
 		if segno < 0 and (solo_sagoma or fondo.a <= 0.0):
 			continue
@@ -416,26 +469,34 @@ static func disegna(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: 
 
 static func timbro(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
 		ombra := Color(0, 0, 0, 0)) -> void:
+	# l'ombra e' la sagoma chiusa, spostata; sopra, la stessa sagoma col colore del
+	# fondo: i vuoti fra i pezzi restano del fondo come i tagli, e l'arancio si
+	# vede solo fuori dal contorno
+	var chiusa_qui: Array = progetto(chiave, taglio_per(l))["ombra"]
 	if ombra.a > 0.0:
-		disegna(t, chiave, c + Vector2(1, 1) * l * 0.045, l, ombra, ombra, true)
+		for p: PackedVector2Array in chiusa_qui:
+			figura(t, c + Vector2(1, 1) * l * 0.045, l, p, ombra)
+		if fondo.a > 0.0:
+			for p: PackedVector2Array in chiusa_qui:
+				figura(t, c, l, p, fondo)
 	disegna(t, chiave, c, l, tinta, fondo)
 
 
 # --- misurarle --------------------------------------------------------------------------------
 
-static func inchiostro_in(chiave: String, q: Vector2) -> bool:
+static func inchiostro_in(chiave: String, q: Vector2, l := LATO) -> bool:
 	# il punto e' d'inchiostro? Vince l'ultimo strato che lo contiene
 	var pieno := false
-	for strato: Array in strati(chiave):
+	for strato: Array in strati(chiave, l):
 		if Geometry2D.is_point_in_polygon(q, strato[1]):
 			pieno = int(strato[0]) > 0
 	return pieno
 
 
-static func pari_e_dispari(chiave: String, q: Vector2) -> bool:
+static func pari_e_dispari(chiave: String, q: Vector2, l := LATO) -> bool:
 	# lo stesso punto letto come lo legge l'SVG: dentro un numero dispari di contorni
 	var dentro := 0
-	for strato: Array in strati(chiave):
+	for strato: Array in strati(chiave, l):
 		if Geometry2D.is_point_in_polygon(q, strato[1]):
 			dentro += 1
 	return dentro % 2 == 1

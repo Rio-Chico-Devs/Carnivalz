@@ -75,6 +75,10 @@ func scrivi_rapporto() -> String:
 	r.append("i bordi T = 10. La pienezza è l'inchiostro sul quadrato di 100, contata su una griglia")
 	r.append("di punti ogni mezza unità.")
 	r.append("")
+	r.append("I file sono il disegno a misura piena. Sotto i 32 pixel il gioco le disegna coi tagli più")
+	r.append("larghi (mai sotto 1,4 pixel, a mezze unità), e timbrate l'ombra è la sagoma chiusa:")
+	r.append("i vuoti fra un pezzo e l'altro restano del colore del fondo.")
+	r.append("")
 	var media := 0.0
 	for chiave: String in I.CHIAVI:
 		media += I.pienezza(chiave)
