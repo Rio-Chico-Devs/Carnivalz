@@ -4306,6 +4306,12 @@ func prova_le_icone_si_reggono() -> void:
 		esigi(not strati.is_empty() and int(strati[0][0]) > 0, "l'icona '%s' non comincia da un pieno" % chiave)
 		var idea: Array = icone.IDEE.get(chiave, [])
 		esigi(idea.size() == 3, "l'icona '%s' non dice da quali due figure nasce" % chiave)
+		# la costruzione si vede: ogni icona lascia le sue guide e una nota che le
+		# spiega (la tavola «costruzione»)
+		var guide: Array = icone.progetto(chiave)["guide"]
+		var note := guide.filter(func(g: Array) -> bool: return String(g[0]) == "nota")
+		esigi(guide.size() > note.size() and not note.is_empty(),
+				"l'icona '%s' non mostra come e' costruita (guide %d, note %d)" % [chiave, guide.size() - note.size(), note.size()])
 		var due := icone.due_figure(chiave)
 		esigi(not (due[0] as Array).is_empty() and not (due[1] as Array).is_empty(),
 				"la tavola non ha le due figure di '%s'" % chiave)

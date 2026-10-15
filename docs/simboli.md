@@ -667,6 +667,13 @@ misura più piccola sul fondo vero (le icone di gioco).
     regola di mestiere per trovare chi è fuori posto);
   - le distanze fra tutti i contorni (`distacchi`).
 
+- **La tavola «costruzione»** (`prove/TavolaCostruzione.gd`). Ogni icona,
+  mentre si costruisce, lascia le sue guide: i cerchi, i centri, le tangenti,
+  i punti di controllo delle curve, la linea di mezzo del ricciolo, e una nota
+  che le spiega. La tavola le disegna in arancio sotto l'icona, sulla griglia
+  di 10. È il «Mon Mandala» dei Hatoba: i cerchi di costruzione che di solito
+  si cancellano. Serve a vedere che ogni curva viene da qualcosa, e a misurarla.
+
 ### 7.3 Cosa hanno trovato, e cosa è cambiato
 
 | | prima | dopo |

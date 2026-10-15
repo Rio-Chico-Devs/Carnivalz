@@ -55,6 +55,11 @@ const IDEE := {
 const PIXEL := 4.8               # nei file da misurare: 100 unita' = 480 pixel
 
 static var memoria: Dictionary = {}
+# LE GUIDE DI COSTRUZIONE: mentre si costruisce un'icona a misura piena, i
+# cerchi, i centri, le tangenti e i punti di controllo da cui nasce finiscono
+# qui (la tavola «costruzione» le disegna sotto l'icona)
+static var registra := false
+static var guide: Array = []
 
 
 # --- le figure ------------------------------------------------------------------------------
@@ -167,6 +172,20 @@ static func tangente(da: Vector2, centro: Vector2, r: float, verso: float) -> Ve
 	return da + (centro - da).normalized().rotated(angolo) * lungo
 
 
+static func cifra(v: float) -> String:
+	# un numero all'italiana, con la virgola e senza zeri inutili: 20,5; 31; 63,6
+	var t := String.num(snappedf(v, 0.1), 1)
+	if t.ends_with(".0"):
+		t = t.substr(0, t.length() - 2)
+	return t.replace(".", ",")
+
+
+static func guida(cosa: Array) -> void:
+	# ["cerchio", centro, raggio] | ["segmento", da, a] | ["punto", p] | ["linea", punti] | ["nota", testo]
+	if registra:
+		guide.append(cosa)
+
+
 static func cuore(cx: float, alto: float, basso: float, d: float, r: float) -> PackedVector2Array:
 	# due cerchi di raggio r coi centri a d dall'asse e alto di quota, e la punta
 	# in basso: i lati sono le tangenti dalla punta ai cerchi
@@ -175,6 +194,15 @@ static func cuore(cx: float, alto: float, basso: float, d: float, r: float) -> P
 	var punta := Vector2(cx, basso)
 	var t_sx := tangente(punta, sx, r, -1.0)
 	var t_dx := tangente(punta, dx, r, 1.0)
+	for centro: Vector2 in [sx, dx]:
+		guida(["cerchio", centro, r])
+		guida(["punto", centro])
+	guida(["segmento", punta, t_sx])
+	guida(["segmento", punta, t_dx])
+	guida(["punto", t_sx])
+	guida(["punto", t_dx])
+	guida(["nota", "Due cerchi di raggio %s coi centri a %s dall'asse; i lati sono le tangenti dalla punta." % [cifra(r),
+			cifra(d)]])
 	return unione([cerchio(sx, r), cerchio(dx, r), PackedVector2Array([punta, t_dx, dx, sx, t_sx])])
 
 
@@ -213,6 +241,8 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 	var s: Array = []           # l'icona
 	var a: Array = []           # la prima figura
 	var b: Array = []           # la seconda
+	registra = taglio == C
+	guide = []
 	match chiave:
 		"hp":
 			# il cuore e la cicatrice cucita: il taglio in diagonale, tre punti di traverso
@@ -229,6 +259,8 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 				cicatrice.append(banda(PackedVector2Array([q + Vector2(-1, 1) * mezzo_punto,
 						q + Vector2(1, -1) * mezzo_punto]), taglio))
 			var cucitura := unione(cicatrice)
+			guida(["segmento", da, fino])
+			guida(["nota", "La cicatrice a 45°, tre punti di traverso a 1/5, 1/2 e 4/5; tutta ad almeno un taglio dal bordo."])
 			s = [[1, c], [-1, cucitura]]
 			a = [[1, c]]
 			b = [[1, scala(cucitura, CENTRO, Vector2(1.3, 1.3))]]
@@ -262,6 +294,18 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			var k := (lungo * lungo + dall_asse * dall_asse - dentro_r * dentro_r) / (2.0 * (dentro_r - dall_asse))
 			var luna := CENTRO + d - Vector2(1, 1).normalized() * e
 			var dentro := cerchio(luna + Vector2(1, 1).normalized() * k, dentro_r + k, 192)
+			var asse := posa(poli([50, -10, 50, 102]), z, 45.0, d)
+			guida(["segmento", asse[0], asse[1]])
+			guida(["cerchio", luna, fuori_r])
+			guida(["punto", luna])
+			guida(["cerchio", luna + Vector2(1, 1).normalized() * k, dentro_r + k])
+			guida(["punto", luna + Vector2(1, 1).normalized() * k])
+			var lungo_asse := (asse[0] - asse[1]).normalized()
+			var di_traverso := Vector2(-1, -1).normalized()
+			for verso: float in [-1.0, 1.0]:
+				guida(["punto", luna + lungo_asse * lungo * verso + di_traverso * dall_asse])
+			guida(["nota", "La spada costruita dritta e girata di 45°. La falce: un cerchio di raggio %s meno uno di %s; le punte a un taglio dal filo della lama, il centro scostato di %s dall'asse."
+					% [cifra(fuori_r), cifra(dentro_r + k), cifra(e)]])
 			for pezzo in meno(cerchio(luna, fuori_r, 192), dentro):
 				s.append([1, pezzo])
 				b.append([1, pezzo])
@@ -301,6 +345,14 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 					Vector2(1.16, 1.0))
 			s = [[1, fulmine]]
 			a = [[1, fulmine]]
+			# i fianchi lunghi, prolungati: sono paralleli
+			for lato: Array in [[0, 6], [1, 2], [4, 5], [3, 4]]:
+				var p0: Vector2 = fulmine[lato[0]]
+				var p1: Vector2 = fulmine[lato[1]]
+				var verso := (p1 - p0).normalized()
+				guida(["segmento", p0 - verso * 12.0, p1 + verso * 12.0])
+			guida(["segmento", fulmine[0], fulmine[0] + Vector2(-15, 0)])
+			guida(["nota", "I fianchi lunghi paralleli. La copia spostata di 15 a sinistra; ne resta il pezzo grande, staccato di un taglio."])
 			var scia := PackedVector2Array()
 			for resto in meno(sposta(fulmine, Vector2(-15, 0)), cresci(fulmine, taglio)):
 				if area(resto) > area(scia):
@@ -315,6 +367,9 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			var occhio := lente(CENTRO, 92, 60)
 			var serratura := scala(unione([cerchio(Vector2(50, 46), 6), poli([46, 48, 54, 48, 57, 63, 43, 63])]),
 					Vector2(50, 54), Vector2.ONE * (1.0 - (taglio - C) * 0.05))
+			guida(["cerchio", CENTRO, 21])
+			guida(["cerchio", Vector2(50, 46), 6])
+			guida(["nota", "La mandorla: due archi di cerchio; il bordo spesso T; l'iride di raggio 21 tocca le palpebre, la serratura è un cerchio di 6 e un trapezio."])
 			s = [[1, occhio]]
 			for bianco in meno(cresci(occhio, -T), cerchio(CENTRO, 21)):
 				s.append([-1, bianco])
@@ -333,7 +388,13 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 				vuoti.push_front([-1, cerchio(Vector2(50, 12), 3, 96)])
 			# la fiamma sta a C dal vetro; se il taglio cresce (piccola) si stringe lei
 			var alta := 28.0 - 2.0 * (taglio - C)
+			guida(["linea", corpo + PackedVector2Array([corpo[0]])])
+			guida(["cerchio", Vector2(50, 12), 8])
+			guida(["linea", rett(26 + T, 29 + C + 1, 74 - T, 78 - C) + PackedVector2Array([Vector2(26 + T, 29 + C + 1)])])
+			guida(["nota", "I montanti spessi T, i traversi C. L'anello spesso un taglio. La fiamma a un taglio dal vetro."])
+			registra = false
 			s = [[1, lanterna]] + vuoti + [[1, fuoco(Vector2(50, 54 + alta * 0.5), alta, 1.2)]]
+			registra = false
 			a = [[1, lanterna]] + vuoti
 			b = [[1, fuoco(Vector2(50, 92), 84)]]
 		"fattore":
@@ -341,7 +402,10 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			# arde. (Il rombo pieno col fuoco in negativo si confondeva con l'Aura)
 			var fiamma := fuoco(Vector2(50, 92), 88, 1.25)
 			var piccolo := 1.0 - (taglio - C) * 0.04          # piccola, il rombo si stringe
+			guida(["punto", Vector2(50, 70)])
+			guida(["nota", "Il fuoco: quattro curve cubiche (in arancio i loro punti di controllo) e il piede tondo; il rombo dell'emblema al centro del piede."])
 			s = [[1, fiamma], [-1, rombo(Vector2(50, 70), 10 * piccolo, 13 * piccolo)]]
+			registra = false
 			a = [[1, fiamma]]
 			b = [[1, rombo(CENTRO, 30, 40)]]
 		"maestria_dominio":
@@ -349,6 +413,10 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			var punte := poli([14, 62, 14, 28, 32, 44, 50, 18, 68, 44, 86, 28, 86, 62])
 			var corona := unione([punte, cerchio(Vector2(14, 24), 5, 32), cerchio(Vector2(50, 14), 5, 32),
 					cerchio(Vector2(86, 24), 5, 32)])
+			for centro: Vector2 in [Vector2(14, 24), Vector2(50, 14), Vector2(86, 24)]:
+				guida(["cerchio", centro, 5])
+			guida(["linea", poli([14, 28, 32, 44, 50, 18, 68, 44, 86, 28])])
+			guida(["nota", "Tre punte con le palle di raggio 5. La fascia in tre segmenti uguali; le fessure di sbieco (6 su 13) sono larghe un taglio misurate di traverso."])
 			s = [[1, corona]]
 			a = [[1, corona]]
 			# le fessure sono di sbieco (3 su 13 per parte): larghe un taglio misurate di
@@ -361,6 +429,8 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 				var sx := 3.0 if i > 0 else 0.0           # i fianchi della corona restano dritti
 				var dx := 3.0 if i < 2 else 0.0
 				var segmento := poli([x0 + sx, 62 + taglio, x1 + dx, 62 + taglio, x1 - dx, 80, x0 - sx, 80])
+				if i < 2:
+					guida(["segmento", Vector2(x1 + dx, 62 + taglio) + Vector2(6, -alta) * 0.6, Vector2(x1 - dx, 80) - Vector2(6, -alta) * 0.6])
 				s.append([1, segmento])
 				b.append([1, scala(sposta(segmento, Vector2(0, -24)), CENTRO, Vector2(1.0, 1.6))])
 		"aura":
@@ -369,15 +439,17 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			# segno sulla pancia di Jalhalla, capovolto; qui ridisegnato da capo
 			var r := ricciolo(Vector2(64, 55), 31, 10, 295, Vector2(50, 4), 33, 3, 0.42)
 			s = [[1, r]]
+			registra = false
 			a = [[1, ricciolo(Vector2(54, 58), 30, 10, 330, Vector2(30, 38), 22, 4, 0.12)]]
 			var sx := curva3(Vector2(62, 4), Vector2(44, 30), Vector2(30, 60), Vector2(38, 94))
 			var dx := curva3(Vector2(58, 94), Vector2(52, 62), Vector2(56, 30), Vector2(62, 4))
 			b = [[1, sx.slice(0, sx.size() - 1) + dx.slice(0, dx.size() - 1)]]
+	registra = false
 	var pieni: Array = []
 	for strato: Array in s:
 		if int(strato[0]) > 0:
 			pieni.append(strato[1])
-	return {"icona": s, "a": a, "b": b, "ombra": chiusa(pieni, taglio * 0.6 + 0.5)}
+	return {"icona": s, "a": a, "b": b, "ombra": chiusa(pieni, taglio * 0.6 + 0.5), "guide": guide.duplicate()}
 
 
 static func chiusa(figure: Array, g: float) -> Array[PackedVector2Array]:
@@ -408,12 +480,12 @@ static func chiusa(figure: Array, g: float) -> Array[PackedVector2Array]:
 	return fuori
 
 
-static func curva(a: Vector2, guida: Vector2, b: Vector2, lati := 24) -> PackedVector2Array:
-	# la curva di Bezier quadratica da a a b, tirata verso "guida"
+static func curva(a: Vector2, tira: Vector2, b: Vector2, lati := 24) -> PackedVector2Array:
+	# la curva di Bezier quadratica da a a b, tirata verso "tira"
 	var p := PackedVector2Array()
 	for i in lati + 1:
 		var k := float(i) / lati
-		p.append(a.lerp(guida, k).lerp(guida.lerp(b, k), k))
+		p.append(a.lerp(tira, k).lerp(tira.lerp(b, k), k))
 	return p
 
 
@@ -448,6 +520,17 @@ static func fuoco(c: Vector2, alto: float, largo := 1.0) -> PackedVector2Array:
 	for tratto in tratti:
 		for i in tratto.size() - 1:
 			fuori.append(c + tratto[i] * k * Vector2(largo, 1.0))
+	# le guide: i poligoni di controllo delle quattro cubiche e il cerchio del piede
+	var qui := func(q: Vector2) -> Vector2: return c + q * k * Vector2(largo, 1.0)
+	for controllo: Array in [[piede + Vector2(r, 0), Vector2(r, -46), Vector2(20, -74), punta],
+			[punta, Vector2(2, -74), Vector2(-6, -58), tacca], [tacca, Vector2(-8, -50), Vector2(-12, -58), lingua],
+			[lingua, Vector2(-21, -56), Vector2(-r, -40), piede + Vector2(-r, 0)]]:
+		guida(["segmento", qui.call(controllo[0]), qui.call(controllo[1])])
+		guida(["segmento", qui.call(controllo[2]), qui.call(controllo[3])])
+		guida(["punto", qui.call(controllo[1])])
+		guida(["punto", qui.call(controllo[2])])
+	if is_equal_approx(largo, 1.0):
+		guida(["cerchio", qui.call(piede), r * k])
 	# nel verso delle altre figure: Geometry2D allarga e restringe solo quelle
 	if Geometry2D.is_polygon_clockwise(fuori):
 		fuori.reverse()
@@ -498,6 +581,13 @@ static func ricciolo(occhio: Vector2, r0: float, r1: float, giro: float, punta: 
 		ultima = verso.orthogonal()
 		sx.append(linea[i] + ultima * spesso * 0.5)
 		dx.append(linea[i] - ultima * spesso * 0.5)
+	guida(["linea", linea])
+	guida(["punto", occhio])
+	guida(["cerchio", occhio, r0])
+	guida(["segmento", punta, punta + Vector2(r0 * 0.35, (attacco.y - punta.y) * 0.4)])
+	guida(["segmento", attacco - parte * r0 * 1.1, attacco])
+	guida(["nota", "La linea di mezzo: una cubica e una spirale logaritmica (da raggio %s a %s in %s°). Lo spessore sale fino a %s e cala liscio."
+			% [cifra(r0), cifra(r1), cifra(giro), cifra(largo)]])
 	var p := sx
 	var testa := arco(linea[linea.size() - 1], fine * 0.5, rad_to_deg(ultima.angle()), rad_to_deg(ultima.angle()) + 180.0, 16)
 	p.append_array(testa.slice(1, testa.size() - 1))
@@ -516,6 +606,10 @@ static func lente(c: Vector2, largo: float, alto: float) -> PackedVector2Array:
 	var giu := Vector2(c.x, c.y + r - h)
 	var su := Vector2(c.x, c.y - r + h)
 	var a := rad_to_deg(asin(mezzo / r))
+	guida(["cerchio", giu, r])
+	guida(["cerchio", su, r])
+	guida(["punto", giu])
+	guida(["punto", su])
 	var p := arco(giu, r, -90.0 - a, -90.0 + a, 40)
 	p.remove_at(p.size() - 1)
 	var b := arco(su, r, 90.0 - a, 90.0 + a, 40)
@@ -537,6 +631,12 @@ static func scudo_a_punta(x0: float, x1: float, alto: float, basso: float, dritt
 	var c_dx := Vector2(x1 - dal_fianco, meta)
 	var c_sx := Vector2(x0 + dal_fianco, meta)
 	var a := rad_to_deg((Vector2(asse, basso) - c_dx).angle())
+	guida(["cerchio", c_dx, dal_fianco])
+	guida(["cerchio", c_sx, dal_fianco])
+	guida(["punto", Vector2(x0, meta)])
+	guida(["punto", Vector2(x1, meta)])
+	guida(["punto", Vector2(asse, basso)])
+	guida(["nota", "I fianchi dritti, poi due archi di raggio %s che partono tangenti e si chiudono nella punta." % cifra(dal_fianco)])
 	var p := PackedVector2Array([Vector2(x0, alto), Vector2(x1, alto)])
 	p.append_array(arco(c_dx, dal_fianco, 0.0, a, 40))
 	var sx := arco(c_sx, dal_fianco, 180.0 - a, 180.0, 40)

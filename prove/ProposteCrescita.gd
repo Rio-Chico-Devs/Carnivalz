@@ -20,6 +20,8 @@ extends Control
 #                     con le due figure da cui nasce, timbrate, nella scheda, piccole
 #   misure            le stesse icone sotto la lente (TavolaMisure): forme chiave, centri,
 #                     la prova della sfocatura, i numeri, la resa sul fondo della scheda
+#   costruzione       le stesse icone coi loro cerchi, centri, tangenti e punti di controllo
+#                     (TavolaCostruzione)
 #   simboli           la tavola dei simboli (SimboliCrescita), grandi e piccoli
 #   bivio             prendere lo spicchio: un punto, due strade
 #   passive           quelle sbloccate si portano in tre alloggi, e si cambiano
@@ -34,8 +36,9 @@ const S := preload("res://prove/SimboliCrescita.gd")
 const IS := preload("res://prove/IconeStatistiche.gd")
 const TI := preload("res://prove/TavolaIcone.gd")
 const TM := preload("res://prove/TavolaMisure.gd")
+const TC := preload("res://prove/TavolaCostruzione.gd")
 const PROPOSTE := ["giro_1", "giro_2", "giro_3", "giro_4", "giro_5", "giro_6", "giro_7", "fine_beta", "massimo",
-		"statistiche", "misure", "simboli", "bivio", "passive"]
+		"statistiche", "misure", "costruzione", "simboli", "bivio", "passive"]
 const CARTELLA := "res://scatti/proposte_crescita"
 const HYPE := 3450
 const LIVELLO := 7          # il protagonista d'esempio del bivio
@@ -151,7 +154,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 
 
 static func genere(nome: String) -> String:
-	return nome if nome in ["bivio", "passive", "simboli", "statistiche", "misure"] else "quadrante"
+	return nome if nome in ["bivio", "passive", "simboli", "statistiche", "misure", "costruzione"] else "quadrante"
 
 
 func mostra(quale: int) -> void:
@@ -1231,4 +1234,13 @@ func disegna_misure(t: CanvasItem) -> void:
 
 
 func tasti_misure() -> void:
+	pass
+
+
+func disegna_costruzione(t: CanvasItem) -> void:
+	TC.disegna(t)
+	testata(t, "", true, true)
+
+
+func tasti_costruzione() -> void:
 	pass
