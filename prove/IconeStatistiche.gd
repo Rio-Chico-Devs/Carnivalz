@@ -43,7 +43,7 @@ const IDEE := {
 	"forza_mentale": ["la lanterna", "il fuoco", "La fiamma dietro il vetro, che lo stress non spegne."],
 	"fattore": ["il fuoco", "l'emblema", "Nella fiamma, il rombo di Carnivalz: il disallineamento che arde in te."],
 	"maestria_dominio": ["la corona", "la barra del dominio", "La fascia della corona sono i tre segmenti della barra."],
-	"aura": ["la scintilla", "l'emblema", "L'energia che spendi, col rombo di Carnivalz nel cuore."],
+	"aura": ["il vortice", "la scia", "L'energia che spendi sale dal vortice come una fiamma di spirito."],
 }
 
 const PIXEL := 4.8               # nei file da misurare: 100 unita' = 480 pixel
@@ -308,18 +308,15 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 				s.append([1, segmento])
 				b.append([1, scala(sposta(segmento, Vector2(0, -24)), CENTRO, Vector2(1.0, 1.6))])
 		"aura":
-			# la scintilla e, nel cuore, il rombo dell'emblema. I fianchi della
-			# scintilla sono curve da punta a punta, tirate verso il centro
-			var stella := PackedVector2Array()
-			for i in 4:
-				var da := CENTRO + Vector2.from_angle(deg_to_rad(-90.0 + i * 90.0)) * 46.0
-				var verso := CENTRO + Vector2.from_angle(deg_to_rad(i * 90.0)) * 46.0
-				var tratto := curva(da, CENTRO + Vector2.from_angle(deg_to_rad(-45.0 + i * 90.0)) * 18.0, verso)
-				tratto.remove_at(tratto.size() - 1)
-				stella.append_array(tratto)
-			s = [[1, stella], [-1, rombo(CENTRO, 8, 11)]]
-			a = [[1, stella]]
-			b = [[1, rombo(CENTRO, 30, 40)]]
+			# il vortice e la scia: un tratto solo che si avvolge in basso e sale a
+			# punta, come una fiamma di spirito (lo hitodama). L'idea e' di Bru: il
+			# segno sulla pancia di Jalhalla, capovolto; qui ridisegnato da capo
+			var r := ricciolo(Vector2(61, 62), 31, 10, 295, Vector2(47, 4), 28, 5, 0.42)
+			s = [[1, r]]
+			a = [[1, ricciolo(Vector2(54, 58), 30, 10, 330, Vector2(30, 38), 22, 4, 0.12)]]
+			var sx := curva3(Vector2(62, 4), Vector2(44, 30), Vector2(30, 60), Vector2(38, 94))
+			var dx := curva3(Vector2(58, 94), Vector2(52, 62), Vector2(56, 30), Vector2(62, 4))
+			b = [[1, sx.slice(0, sx.size() - 1) + dx.slice(0, dx.size() - 1)]]
 	var pieni: Array = []
 	for strato: Array in s:
 		if int(strato[0]) > 0:
@@ -404,6 +401,49 @@ static func fuoco(c: Vector2, alto: float, largo := 1.0) -> PackedVector2Array:
 static func rombo(c: Vector2, mezzo_largo: float, mezzo_alto: float) -> PackedVector2Array:
 	return PackedVector2Array([c + Vector2(0, -mezzo_alto), c + Vector2(mezzo_largo, 0),
 			c + Vector2(0, mezzo_alto), c + Vector2(-mezzo_largo, 0)])
+
+
+static func ricciolo(occhio: Vector2, r0: float, r1: float, giro: float, punta: Vector2, largo: float,
+		fine: float, coda := 0.5) -> PackedVector2Array:
+	# IL RICCIOLO CON LA CODA: un tratto solo, largo "largo", che nasce a punta in
+	# "punta", scende e si avvolge attorno a "occhio". La linea di mezzo e' la coda
+	# (una cubica che arriva tangente all'attacco, a sinistra dell'occhio) e poi una
+	# spirale logaritmica che gira di "giro" gradi, da sinistra verso il basso, a
+	# destra e su, stringendosi da r0 a r1. Lo spessore cresce in fretta lungo la
+	# coda, poi cala fino a "fine", e il tratto finisce tondo. "coda" e' quanto
+	# della lunghezza tocca alla coda
+	var spirale := PackedVector2Array()
+	for i in 97:
+		var k := i / 96.0
+		spirale.append(occhio + Vector2.from_angle(deg_to_rad(180.0 - giro * k)) * r0 * pow(r1 / r0, k))
+	# la coda arriva nella direzione in cui la spirale parte: niente gomito
+	var attacco := spirale[0]
+	var parte := (spirale[1] - spirale[0]).normalized()
+	var linea := curva3(punta, punta + Vector2(r0 * 0.35, (attacco.y - punta.y) * 0.4),
+			attacco - parte * r0 * 1.1, attacco, 40)
+	linea.append_array(spirale.slice(1))
+	var lungo := PackedFloat32Array([0.0])
+	for i in range(1, linea.size()):
+		lungo.append(lungo[i - 1] + linea[i].distance_to(linea[i - 1]))
+	var tutto := lungo[lungo.size() - 1]
+	var sx := PackedVector2Array()
+	var dx := PackedVector2Array()
+	var ultima := Vector2.ZERO
+	for i in linea.size():
+		var u := lungo[i] / tutto
+		var spesso := largo * pow(u / coda, 0.8) if u < coda else lerpf(largo, fine, pow((u - coda) / (1.0 - coda), 1.3))
+		var verso := (linea[mini(i + 1, linea.size() - 1)] - linea[maxi(i - 1, 0)]).normalized()
+		ultima = verso.orthogonal()
+		sx.append(linea[i] + ultima * spesso * 0.5)
+		dx.append(linea[i] - ultima * spesso * 0.5)
+	var p := sx
+	var testa := arco(linea[linea.size() - 1], fine * 0.5, rad_to_deg(ultima.angle()), rad_to_deg(ultima.angle()) + 180.0, 16)
+	p.append_array(testa.slice(1, testa.size() - 1))
+	dx.reverse()
+	p.append_array(dx.slice(0, dx.size() - 1))
+	if Geometry2D.is_polygon_clockwise(p):
+		p.reverse()
+	return p
 
 
 static func lente(c: Vector2, largo: float, alto: float) -> PackedVector2Array:

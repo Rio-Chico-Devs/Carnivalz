@@ -33,7 +33,8 @@ static func disegna(t: CanvasItem) -> void:
 		for m: float in [16.0, 20.0, 26.0]:
 			I.timbro(t, chiave, Vector2(x + m * 0.5, 538 + 38 * r), m, P.CREMA, P.NERO, P.ARANCIO)
 			x += m + 14.0
-	P.scritta(t, Vector2(1130, 694), "16 · 20 · 26 px: tagli ≥ 1,4 px", 11, P.CARTA, Caratteri.tondo(900))
+	P.scritta(t, Vector2(1130, 690), "16 · 20 · 26 px", 12, P.CARTA, Caratteri.tondo(900))
+	P.scritta(t, Vector2(1130, 706), "tagli mai sotto 1,4 px", 11, P.CARTA, Caratteri.tondo(800))
 
 
 static func catalogo(t: CanvasItem, r: Rect2) -> void:
