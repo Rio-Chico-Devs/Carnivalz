@@ -294,7 +294,7 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			var k := (lungo * lungo + dall_asse * dall_asse - dentro_r * dentro_r) / (2.0 * (dentro_r - dall_asse))
 			var luna := CENTRO + d - Vector2(1, 1).normalized() * e
 			var dentro := cerchio(luna + Vector2(1, 1).normalized() * k, dentro_r + k, 192)
-			var asse := posa(poli([50, -10, 50, 102]), z, 45.0, d)
+			var asse := posa(poli([50, -10, 50, 99]), z, 45.0, d)
 			guida(["segmento", asse[0], asse[1]])
 			guida(["cerchio", luna, fuori_r])
 			guida(["punto", luna])
@@ -338,11 +338,11 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			# il fulmine fuori registro: la copia spostata e' la scia, la stampa che
 			# slitta come slitta la realta'. Della copia resta il pezzo grande che
 			# sporge dal fulmine allargato di un taglio: la lama sottile che sporgeva
-			# sotto, a 16 pixel, era una sbavatura
-			# i fianchi lunghi tutti alla stessa pendenza; il gradino di destra piu'
+			# sotto, a 16 pixel, era una sbavatura.
+			# I fianchi lunghi tutti alla stessa pendenza; il gradino di destra piu'
 			# alto di quello di sinistra, come nel fulmine classico. La punta in basso
 			# tira la massa in alto: il fulmine parte da 8 e non da 4, e si allarga
-			# (x 1,12) per non sembrare piu' piccolo degli altri
+			# (x 1,16) per non sembrare piu' piccolo degli altri
 			var fulmine := scala(poli([46, 8, 77, 8, 64.33, 46, 86, 46, 38, 96, 50.67, 58, 29.33, 58]), CENTRO,
 					Vector2(1.16, 1.0))
 			s = [[1, fulmine]]
@@ -394,9 +394,8 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			guida(["cerchio", Vector2(50, 12), 8])
 			guida(["linea", rett(26 + T, 29 + C + 1, 74 - T, 78 - C) + PackedVector2Array([Vector2(26 + T, 29 + C + 1)])])
 			guida(["nota", "I montanti spessi T, i traversi C. L'anello spesso un taglio. La fiamma a un taglio dal vetro."])
-			registra = false
+			registra = false            # la fiammella e' troppo piccola per mostrarne i controlli
 			s = [[1, lanterna]] + vuoti + [[1, fuoco(Vector2(50, 54 + alta * 0.5), alta, 1.2)]]
-			registra = false
 			a = [[1, lanterna]] + vuoti
 			b = [[1, fuoco(Vector2(50, 92), 84)]]
 		"fattore":
@@ -421,7 +420,7 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			guida(["nota", "Tre punte con le palle di raggio 5. La fascia in tre segmenti uguali; le fessure di sbieco (6 su 13) sono larghe un taglio misurate di traverso."])
 			s = [[1, corona]]
 			a = [[1, corona]]
-			# le fessure sono di sbieco (3 su 13 per parte): larghe un taglio misurate di
+			# le fessure sono di sbieco (6 su 13): larghe un taglio misurate di
 			# traverso, non in orizzontale (la regola di Holt), quindi un po' di piu'
 			var alta := 80.0 - 62.0 - taglio
 			var fessura := taglio * Vector2(6.0, alta).length() / alta
@@ -550,9 +549,10 @@ static func ricciolo(occhio: Vector2, r0: float, r1: float, giro: float, punta: 
 	# "punta", scende e si avvolge attorno a "occhio". La linea di mezzo e' la coda
 	# (una cubica che arriva tangente all'attacco, a sinistra dell'occhio) e poi una
 	# spirale logaritmica che gira di "giro" gradi, da sinistra verso il basso, a
-	# destra e su, stringendosi da r0 a r1. Lo spessore cresce in fretta lungo la
-	# coda, poi cala fino a "fine", e il tratto finisce tondo. "coda" e' quanto
-	# della lunghezza tocca alla coda
+	# destra e su, stringendosi da r0 a r1. Lo spessore sale lungo la coda (da una
+	# punta fine, come una pennellata) fino a "largo", poi cala liscio fino a
+	# "fine", e il tratto finisce tondo. "coda" e' quanto della lunghezza tocca
+	# alla coda
 	var spirale := PackedVector2Array()
 	for i in 97:
 		var k := i / 96.0
