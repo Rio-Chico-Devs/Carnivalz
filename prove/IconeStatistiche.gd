@@ -275,8 +275,8 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			var mezza := 11.0                   # mezza lama, prima di z
 			var lama := poli([50, -10, 50 + mezza, 8, 50 + mezza, 62, 50 - mezza, 62, 50 - mezza, 8])
 			var guardia := poli([27, 59, 73, 59, 68, 75, 32, 75])
-			var manico := rett(44.5, 70, 55.5, 90)
-			var pomo := rett(42.5, 87, 57.5, 102)
+			var manico := rett(44.5, 70, 55.5, 88)
+			var pomo := rett(39.5, 86, 60.5, 99)
 			var spada := posa(unione([lama, guardia, manico, pomo]), z, 45.0, d)
 			var sguscio := sposta(ruota(banda(scala(poli([50, 9, 50, 56]), CENTRO, Vector2(z, z)), taglio), CENTRO, 45.0), d)
 			# la mezzaluna: il cerchio di fuori meno uno piu' grande spostato verso la
@@ -380,9 +380,9 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			b = [[1, scala(serratura, Vector2(50, 54), Vector2(4, 4))]]
 		"forza_mentale":
 			# la lanterna e il fuoco: la fiamma che lo stress non spegne
-			var tetto := poli([41, 17, 59, 17, 79, 30, 21, 30])
+			var tetto := poli([44, 17, 56, 17, 79, 30, 21, 30])
 			var corpo := rett(26, 29, 74, 79)
-			var base := poli([22, 78, 78, 78, 72, 91, 28, 91])
+			var base := poli([21, 78, 79, 78, 72, 91, 28, 91])
 			var lanterna := unione([corpo, tetto, base, cerchio(Vector2(50, 12), 8, 96)])
 			# l'anello e' spesso un taglio: piccola diventa una palla piena
 			var vuoti: Array = [[-1, rett(26 + T, 29 + C + 1, 74 - T, 78 - C)]]

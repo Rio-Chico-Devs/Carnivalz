@@ -744,6 +744,13 @@ La prova `prova_le_icone_si_reggono` controlla tutto questo:
   pixel: il taglio cresceva anche attorno alla cinta. Ora quei 3 in più calano
   quando il taglio cresce. Nella scheda stanno tutte entro il 10% (l'occhio è
   il più pesante, +9%), e la prova lo controlla.
+- **Niente dettagli sotto il taglio.** La regola dei fili vale anche per le
+  sporgenze: un gradino più piccolo di C da piccolo diventa un dentino
+  confuso.
+  - Il pomo della spada sporgeva dal manico di 2 per parte: ora 5.
+  - La base della lanterna sporgeva di 4: ora 5.
+  - In cima al tetto restava una spalla di un'unità sotto l'anello: ora il tetto
+    finisce a filo.
 - **I pixel.** Ho pensato di allineare i lati dritti alla griglia dei pixel,
   come si fa con le icone piccole. Ma il gioco sfuma ogni bordo di un pixel e
   un quarto a cavallo del bordo vero (`Manifesto.poligono`): allineato o no, il

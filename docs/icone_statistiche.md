@@ -22,15 +22,15 @@ taglio.
 
 | icona | le due figure | pienezza | dalla media | raggio | dalla media | centro visivo | ingombro (unità) |
 |---|---|---|---|---|---|---|---|
-| Punti vita | il cuore + la cicatrice cucita | 0.311 | +5.4% | 26.0 | -3.0% | +0.1, -1.6 | da 11.0,17.0 a 89.0,87.0 |
-| Attacco | la spada + il fendente | 0.278 | -5.9% | 28.9 | +7.7% | -0.6, -1.6 | da 12.0,10.5 a 93.7,91.9 |
-| Difesa | lo scudo + i merli | 0.281 | -4.8% | 27.7 | +3.4% | +0.0, -2.4 | da 20.0,10.0 a 80.0,92.0 |
-| Velocità | il fulmine + la sua eco | 0.305 | +3.4% | 25.3 | -5.6% | +1.3, -3.5 | da 11.0,8.0 a 91.8,96.0 |
-| Intelligenza | l'occhio + la serratura | 0.311 | +5.5% | 27.1 | +1.0% | +0.0, -0.1 | da 4.0,20.0 a 96.0,80.0 |
-| Forza mentale | la lanterna + il fuoco | 0.284 | -3.7% | 28.1 | +4.7% | +0.0, +0.7 | da 21.0,4.0 a 79.0,91.0 |
-| Fattore | il fuoco + l'emblema | 0.294 | -0.4% | 25.2 | -6.0% | +1.0, +1.5 | da 23.1,4.0 a 76.9,92.0 |
+| Punti vita | il cuore + la cicatrice cucita | 0.311 | +5.4% | 26.0 | -2.9% | +0.1, -1.6 | da 11.0,17.0 a 89.0,87.0 |
+| Attacco | la spada + il fendente | 0.280 | -5.1% | 28.8 | +7.4% | -0.6, -1.6 | da 12.0,10.5 a 93.7,91.9 |
+| Difesa | lo scudo + i merli | 0.281 | -4.8% | 27.7 | +3.5% | +0.0, -2.4 | da 20.0,10.0 a 80.0,92.0 |
+| Velocità | il fulmine + la sua eco | 0.305 | +3.5% | 25.3 | -5.6% | +1.3, -3.5 | da 11.0,8.0 a 91.8,96.0 |
+| Intelligenza | l'occhio + la serratura | 0.311 | +5.5% | 27.1 | +1.1% | +0.0, -0.1 | da 4.0,20.0 a 96.0,80.0 |
+| Forza mentale | la lanterna + il fuoco | 0.282 | -4.6% | 28.0 | +4.5% | +0.0, +1.0 | da 21.0,4.0 a 79.0,91.0 |
+| Fattore | il fuoco + l'emblema | 0.294 | -0.4% | 25.2 | -5.9% | +1.0, +1.5 | da 23.1,4.0 a 76.9,92.0 |
 | Maestria del dominio | la corona + la barra del dominio | 0.308 | +4.4% | 27.3 | +1.8% | +0.0, -1.9 | da 9.0,9.0 a 91.0,80.0 |
-| Aura | il vortice + la scia | 0.284 | -3.8% | 25.7 | -4.0% | -1.1, +3.0 | da 16.7,4.0 a 85.4,90.5 |
+| Aura | il vortice + la scia | 0.284 | -3.8% | 25.7 | -3.9% | -1.1, +3.0 | da 16.7,4.0 a 85.4,90.5 |
 
 Medie: pienezza 0.295, raggio 26.8.
 
