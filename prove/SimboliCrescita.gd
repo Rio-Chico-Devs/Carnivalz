@@ -30,7 +30,7 @@ extends RefCounted
 # scelta, il cuore a due punte, la punta dell'attacco, il tetto della difesa,
 # la zanna della vendetta, il pettine d'aghi, la girandola che si chiude...
 
-const SA := preload("res://prove/SagomeA.gd")
+const IS := preload("res://prove/IconeStatistiche.gd")
 const NOMI := {
 	"biforca": "Una a scelta", "hp": "Vita", "attacco": "Attacco", "difesa": "Difesa", "velocita": "Velocità",
 	"intelligenza": "Intelligenza", "fattore": "Fattore",
@@ -156,7 +156,7 @@ static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Co
 			rombo(t, c, l, 5.2, 6.2, 4.0, tinta)
 			rombo_cavo(t, c, l, 18.8, 6.2, 4.0, tinta, fondo, 1.8)
 		"hp", "attacco", "difesa", "velocita", "intelligenza", "forza_mentale", "fattore", "maestria_dominio", "aura":
-			SA.disegna(t, nome, c, l, tinta, fondo, senza_tagli)
+			IS.disegna(t, nome, c, l, tinta, fondo, senza_tagli)
 		# --- le abilita' del protagonista ---
 		"astio":
 			# il conto: ogni colpo che incassi e' un debito (abilita.json), e si segna
@@ -269,12 +269,12 @@ static func disegna(t: CanvasItem, nome: String, c: Vector2, l: float, tinta: Co
 
 # --- le statistiche -------------------------------------------------------------------------
 #
-# Le statistiche sono le sagome della strada A pulite: stanno in SagomeA, col
-# loro canone (docs/sagome_a.md). Qui si chiamano soltanto.
+# Le icone delle statistiche stanno in IconeStatistiche, con le loro idee. Qui si
+# chiamano soltanto.
 
 static func statistica(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
 		ombra := Color(0, 0, 0, 0)) -> void:
-	SA.timbro(t, chiave, c, l, tinta, fondo, ombra)
+	IS.timbro(t, chiave, c, l, tinta, fondo, ombra)
 
 
 static func passiva(t: CanvasItem, id: String, c: Vector2, l: float, tinta: Color, fondo: Color) -> void:

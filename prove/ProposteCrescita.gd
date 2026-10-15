@@ -16,8 +16,8 @@ extends Control
 #   giro_1 .. giro_7  la roulette, un giro per foto
 #   fine_beta         il primo giro chiuso, nella beta: il 20 e' il tetto
 #   massimo           l'ultimo giro chiuso, al 130: si torna sui bivi
-#   statistiche       le sagome della strada A pulite (SagomeA, TavolaSagomeA): il catalogo
-#                     sulla griglia, la costruzione con le quote, timbrate, nella scheda
+#   statistiche       le icone delle statistiche (IconeStatistiche, TavolaIcone): ognuna
+#                     con le due figure da cui nasce, timbrate, nella scheda, piccole
 #   simboli           la tavola dei simboli (SimboliCrescita), grandi e piccoli
 #   bivio             prendere lo spicchio: un punto, due strade
 #   passive           quelle sbloccate si portano in tre alloggi, e si cambiano
@@ -29,8 +29,8 @@ extends Control
 
 const P := preload("res://prove/PezziCrescita.gd")
 const S := preload("res://prove/SimboliCrescita.gd")
-const SA := preload("res://prove/SagomeA.gd")
-const TSA := preload("res://prove/TavolaSagomeA.gd")
+const IS := preload("res://prove/IconeStatistiche.gd")
+const TI := preload("res://prove/TavolaIcone.gd")
 const PROPOSTE := ["giro_1", "giro_2", "giro_3", "giro_4", "giro_5", "giro_6", "giro_7", "fine_beta", "massimo",
 		"statistiche", "simboli", "bivio", "passive"]
 const CARTELLA := "res://scatti/proposte_crescita"
@@ -667,7 +667,7 @@ func simbolo_tasca(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Col
 	elif livello == 1:
 		S.rombo(t, c, l, 12, 12, 3.4, tinta)
 	elif preso:
-		SA.timbro(t, String(coppia(livello)[livello % 2]), c, l * 1.1, tinta, fondo, ombra)
+		IS.timbro(t, String(coppia(livello)[livello % 2]), c, l * 1.1, tinta, fondo, ombra)
 	else:
 		# la scelta che verra', piu' quieta: senza ombra, un colore pieno a meta' fra segno e tasca
 		S.disegna(t, "biforca", c, l * 0.78, Color(Color(fondo, 1.0).lerp(Color(tinta, 1.0), 0.6), tinta.a), fondo)
@@ -886,10 +886,10 @@ func disegna_bivio(t: CanvasItem) -> void:
 	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.NERO, 0.07), Vector2(1.0, 1.0))
 	# i simboli grandi sul fondo: colori pieni gia' mescolati, non trasparenze
 	# (i pezzi di un simbolo si sovrappongono, e la trasparenza li farebbe a chiazze)
-	SA.disegna(t, String(due[1]), Vector2(1010, 450), 640.0, P.CREMA.lerp(P.NERO, 0.06), P.CREMA)
+	IS.disegna(t, String(due[1]), Vector2(1010, 450), 640.0, P.CREMA.lerp(P.NERO, 0.06), P.CREMA)
 	Manifesto.poligono(t, PackedVector2Array([Vector2(-20, -20), Vector2(taglio, -20), Vector2(basso, 740), Vector2(-20, 740)]),
 			P.NERO)
-	SA.disegna(t, String(due[0]), Vector2(taglio - 410, 470), 600.0, P.NERO.lerp(P.CREMA, 0.07), P.NERO)
+	IS.disegna(t, String(due[0]), Vector2(taglio - 410, 470), 600.0, P.NERO.lerp(P.CREMA, 0.07), P.NERO)
 	Manifesto.poligono(t, PackedVector2Array([Vector2(taglio, -20), Vector2(taglio + 14, -20), Vector2(basso + 14, 740),
 			Vector2(basso, 740)]), P.ARANCIO)
 	# presa la strada, quella scelta va al margine e l'altra se ne va col taglio
@@ -1168,7 +1168,7 @@ func disegna_simboli(t: CanvasItem) -> void:
 	t.draw_rect(Rect2(0, 0, 1280, 720), P.NERO)
 	Manifesto.retino(t, Rect2(0, 0, 1280, 720), Color(P.ARANCIO, 0.06), Vector2(1.0, 1.0))
 	P.etichetta(t, Vector2(28, 52), "I SIMBOLI", 40, P.CREMA, P.NERO, P.ARANCIO)
-	P.scritta(t, Vector2(300, 82), "Le statistiche sono le sagome A pulite, dritte (la tavola delle statistiche). Abilità e",
+	P.scritta(t, Vector2(300, 82), "Le statistiche: due figure in una icona (la tavola delle statistiche). Abilità e",
 			15, P.CARTA, Caratteri.tondo(700))
 	P.scritta(t, Vector2(300, 102), "passive sono ancora timbri del manifesto, pendenti: le abilità senza cornice, le passive nel rombo.", 15,
 			P.CARTA, Caratteri.tondo(700))
@@ -1194,9 +1194,9 @@ func riga_di_simboli(t: CanvasItem, titolo: String, y: float, nomi: Array, passi
 		if passive:
 			S.passiva_timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
 			S.passiva(t, id, Vector2(x + 50, y + 22), 22.0, P.ARANCIO, P.NERO)
-		elif id in SA.CHIAVI:
-			SA.timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
-			SA.timbro(t, id, Vector2(x + 52, y + 22), 24.0, P.ARANCIO, P.NERO)
+		elif id in IS.CHIAVI:
+			IS.timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
+			IS.timbro(t, id, Vector2(x + 52, y + 22), 24.0, P.ARANCIO, P.NERO)
 		else:
 			S.timbro(t, id, Vector2(x, y), 64.0, P.CREMA, P.NERO, P.ARANCIO)
 			S.disegna(t, id, Vector2(x + 52, y + 22), 22.0, P.ARANCIO, P.NERO)
@@ -1210,11 +1210,11 @@ func tasti_simboli() -> void:
 
 # --- la tavola delle statistiche ------------------------------------------------------------
 #
-# Le sagome della strada A pulite: la tavola sta in TavolaSagomeA, le sagome e
-# il loro canone in SagomeA.
+# Le icone delle statistiche: la tavola sta in TavolaIcone, le icone e le loro
+# idee in IconeStatistiche.
 
 func disegna_statistiche(t: CanvasItem) -> void:
-	TSA.disegna(t)
+	TI.disegna(t)
 	testata(t, "", true, true)
 
 

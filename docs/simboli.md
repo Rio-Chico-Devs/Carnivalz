@@ -2,13 +2,18 @@
 
 > **Com'è finita.** La strada dei mon (§2, §6) Bru l'ha scartata: «no dai non ci
 > siamo». Poi, sulla tavola delle tre strade: «queste icone mi piacevano, bisognava
-> solo migliorarle e renderle più precise e pulite». Le statistiche adesso sono le
-> sagome della strada A, ricostruite su un canone misurabile: `prove/SagomeA.gd`,
-> con le misure in [`docs/sagome_a.md`](sagome_a.md) e i file da misurare in
-> `art/interfaccia/statistiche/strada_a/`. Le tavole dei mon e degli esercizi
-> («lezioni», «vita», «attacco», «difesa», «studio_…») sono state tolte dalle
-> proposte; restano nella storia del progetto (commit `9f68b96`). Le letture qui
-> sotto restano valide, e sono quelle da cui viene il canone.
+> solo migliorarle e renderle più precise e pulite», e le sagome della strada A sono
+> state ricostruite su un canone misurabile (`prove/SagomeA.gd`, misure in
+> [`docs/sagome_a.md`](sagome_a.md), file in `art/interfaccia/statistiche/strada_a/`).
+> Su quelle: «si potrebbe passare un esame di misure ma non di design, non ricordano
+> abbastanza quel che devono ricordare e non hanno quel qualcosa di design che per
+> esempio combina due icone per crearne una». Le statistiche adesso sono
+> `prove/IconeStatistiche.gd`: ognuna due figure del mondo di Carnivalz che ne fanno
+> una terza (il cuore e la cicatrice cucita, la spada e il fendente, la lanterna e il
+> fuoco...), con curve vere e il peso bilanciato. Idee, pesi e ingombri in
+> [`docs/icone_statistiche.md`](icone_statistiche.md); i file in
+> `art/interfaccia/statistiche/proposta/`. Le sagome A restano, coi loro file e la
+> loro prova, ma le proposte non le usano più. Le letture qui sotto restano valide.
 
 Bru, sulle icone delle statistiche: «siamo sulla strada giusta, tieni questa
 ma migliorale, non hanno ancora quel qualcosa che le renda uniche [...]

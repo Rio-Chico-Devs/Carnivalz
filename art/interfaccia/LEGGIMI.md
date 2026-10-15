@@ -20,6 +20,11 @@ un SVG e un PNG per statistica, 480 × 480, nero su trasparente. Le scrive
 `./prove/sagome_a.sh` dal codice (`prove/SagomeA.gd`), e il gioco non le carica:
 servono a controllarle. Il canone e le misure stanno in `docs/sagome_a.md`.
 
+In `statistiche/proposta/` ci sono le icone nuove delle proposte, nello stesso
+formato: le scrive `./prove/icone.sh` da `prove/IconeStatistiche.gd`, idee e pesi
+in `docs/icone_statistiche.md`. Neanche queste le carica il gioco: per metterle
+nella scheda vanno esportate bianche e copiate in `statistiche/<chiave>.png`.
+
 Le misure di tutto il resto (gli oggetti, la figura intera, la carta,
 l'emblema) stanno in `docs/interfaccia.md`. L'elenco di cosa manca, coi nomi
 esatti dei file, sta in `docs/immagini.md`.

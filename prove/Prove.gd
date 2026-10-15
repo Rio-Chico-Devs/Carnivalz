@@ -77,6 +77,7 @@ func _ready() -> void:
 	prova_hype()
 	prova_i_trucchi()
 	prova_le_sagome_a_si_misurano()
+	prova_le_icone_si_reggono()
 	prova_abilita_di_veronica_e_yhvina()
 	prova_i_cinque_tipi()
 	prova_il_colpo_si_sente()
@@ -4288,6 +4289,74 @@ func prova_le_sagome_a_si_misurano() -> void:
 	for i in pesi.size():
 		esigi(absf(pesi[i] / media - 1.0) <= 0.10, "la pienezza di '%s' e' %.3f, a %+.0f%% dalla media %.3f"
 				% [sagome.CHIAVI[i], pesi[i], (pesi[i] / media - 1.0) * 100.0, media])
+
+func prova_le_icone_si_reggono() -> void:
+	# Bru: «prova adesso a renderle belle». Il bello non si misura, ma quello che
+	# lo regge si': stanno nell'area viva, il file e' il disegno (un percorso
+	# solo che dice lo stesso degli strati), niente briciole lasciate dalle
+	# sottrazioni, il peso entro il 12% dalla media, e due icone non si
+	# confondono. Si misura su una griglia di punti, uno per unita'
+	titolo("le icone delle statistiche si reggono")
+	var icone := preload("res://prove/IconeStatistiche.gd")
+	var pesi: Array[float] = []
+	var disegni: Array = []
+	for chiave: String in icone.CHIAVI:
+		var strati: Array = icone.strati(chiave)
+		esigi(not strati.is_empty() and int(strati[0][0]) > 0, "l'icona '%s' non comincia da un pieno" % chiave)
+		var idea: Array = icone.IDEE.get(chiave, [])
+		esigi(idea.size() == 3, "l'icona '%s' non dice da quali due figure nasce" % chiave)
+		var due := icone.due_figure(chiave)
+		esigi(not (due[0] as Array).is_empty() and not (due[1] as Array).is_empty(),
+				"la tavola non ha le due figure di '%s'" % chiave)
+		var b := icone.ingombro(chiave)
+		esigi(b.position.x >= 4.0 - 1e-3 and b.position.y >= 4.0 - 1e-3 and b.end.x <= 96.0 + 1e-3
+				and b.end.y <= 96.0 + 1e-3, "'%s' esce dall'area viva: %s" % [chiave, b])
+		for strato: Array in strati:
+			esigi(icone.area(strato[1]) >= 20.0, "in '%s' c'e' una briciola di %.1f unita' quadrate"
+					% [chiave, icone.area(strato[1])])
+		var pieni := 0
+		var diversi := 0
+		var inchiostro := PackedByteArray()
+		for y in 100:
+			for x in 100:
+				var q := Vector2(x + 0.5, y + 0.5)
+				var pieno := icone.inchiostro_in(chiave, q)
+				if pieno:
+					pieni += 1
+				if pieno != icone.pari_e_dispari(chiave, q):
+					diversi += 1
+				inchiostro.append(1 if pieno else 0)
+		esigi(diversi == 0, "l'SVG di '%s' (pari e dispari) differisce dagli strati in %d punti su 10000"
+				% [chiave, diversi])
+		pesi.append(pieni / 10000.0)
+		disegni.append(inchiostro)
+		var percorso := "res://art/interfaccia/statistiche/proposta/%s.svg" % chiave
+		esigi(FileAccess.file_exists(percorso) and FileAccess.get_file_as_string(percorso) == icone.svg(chiave),
+				"%s non e' aggiornato: rilancia ./prove/icone.sh" % percorso)
+		esigi(FileAccess.file_exists(percorso.get_basename() + ".png"), "manca il PNG di '%s'" % chiave)
+	var media := 0.0
+	for v in pesi:
+		media += v
+	media /= maxf(pesi.size(), 1.0)
+	for i in pesi.size():
+		esigi(absf(pesi[i] / media - 1.0) <= 0.12, "la pienezza di '%s' e' %.3f, a %+.0f%% dalla media %.3f"
+				% [icone.CHIAVI[i], pesi[i], (pesi[i] / media - 1.0) * 100.0, media])
+	# DUE ICONE NON SI CONFONDONO: l'inchiostro dell'una sopra quello dell'altra,
+	# quanto si sovrappone (l'intersezione sull'unione) resta sotto il 60%. Il
+	# Fattore era il rombo dell'emblema pieno, col fuoco in negativo: con la
+	# scintilla dell'Aura faceva il 64%, due macchie della stessa forma
+	for i in disegni.size():
+		for j in range(i + 1, disegni.size()):
+			var comuni := 0
+			var tutte := 0
+			for k in 10000:
+				var uno: int = disegni[i][k]
+				var altro: int = disegni[j][k]
+				comuni += uno & altro
+				tutte += uno | altro
+			var simili := float(comuni) / maxf(tutte, 1.0)
+			esigi(simili < 0.6, "'%s' e '%s' si sovrappongono per il %.0f%%: si confondono"
+					% [icone.CHIAVI[i], icone.CHIAVI[j], simili * 100.0])
 
 func prova_hype() -> void:
 	# Bru: "facciamo che spendi xp ma maschereremo l'xp con il termine hype...
