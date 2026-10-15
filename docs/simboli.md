@@ -739,6 +739,15 @@ La prova `prova_le_icone_si_reggono` controlla tutto questo:
   - Lo scudo aveva in cima, sotto le feritoie, un muro di 14 contro i 10 dei
     fianchi: ora è 10.
   - L'anello della lanterna è disegnato con più lati, così misura 5 esatti.
+- **Il peso nella scheda.** Le icone ci stanno in 26 pixel, chiare su scuro, coi
+  tagli più larghi. Misurate così, lo scudo pesava il 13% meno degli altri a 16
+  pixel: il taglio cresceva anche attorno alla cinta. Ora quei 3 in più calano
+  quando il taglio cresce. Nella scheda stanno tutte entro il 10% (l'occhio è
+  il più pesante, +9%), e la prova lo controlla.
+- **I pixel.** Ho pensato di allineare i lati dritti alla griglia dei pixel,
+  come si fa con le icone piccole. Ma il gioco sfuma ogni bordo di un pixel e
+  un quarto a cavallo del bordo vero (`Manifesto.poligono`): allineato o no, il
+  bordo resta morbido uguale. Non serve.
 - **Due somiglianze col resto del gioco, da decidere.** In combattimento i
   riquadri degli status (`scripts/combattimento/IconeStato.gd`, dal disegno di
   Bru) usano la fiamma per «in fiamme» e la saetta per «lentezza», «frastornato»
@@ -771,7 +780,7 @@ La prova `prova_le_icone_si_reggono` controlla tutto questo:
 | Difesa | scudo | vicina | la convenzione |
 | Velocità | fulmine | media (il classico è lo stivale alato) | il fulmine era già nel gioco per la velocità; la scia dice il movimento |
 | Intelligenza | occhio con serratura | media | nel gioco è la fuga: vedere la via d'uscita |
-| Forza mentale | lanterna | lontana | si impara; e nella scheda il nome sta sempre accanto all'icona |
+| Forza mentale | lanterna | lontana | si impara; nella scheda il nome sta sempre accanto all'icona; e nei giochi con lo stress (Darkest Dungeon) la luce è proprio quello che lo tiene basso |
 | Fattore | fuoco con l'emblema | lontana | è un concetto solo di Carnivalz: nessuna icona nota lo dice |
 | Maestria | corona con la barra | media | la corona è la maestria; la barra lega il segno al dominio |
 | Aura | ricciolo con la coda | lontana | l'energia che si spende; lo hitodama dà al segno una storia |

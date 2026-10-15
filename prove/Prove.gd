@@ -4396,6 +4396,30 @@ func prova_le_icone_si_reggono() -> void:
 				% [chiave, r, (r / raggi - 1.0) * 100.0, raggi])
 		var scarto := icone.centro_visivo(chiave) - icone.CENTRO
 		esigi(scarto.length() <= 4.0, "il centro visivo di '%s' e' a %+.1f, %+.1f dal centro" % [chiave, scarto.x, scarto.y])
+	# IL PESO ANCHE NELLA SCHEDA: le icone ci stanno in 26 pixel, chiare su scuro,
+	# coi tagli piu' larghi. Lo scudo, col taglio che cresceva anche attorno alla
+	# cinta, a 16 pixel pesava il 13% meno degli altri. Qui si guarda la misura
+	# vera, su una griglia di un punto ogni due unita': entro il 10%
+	var nella_scheda := icone.taglio_a_colori(26.0, Color.WHITE, Color.BLACK)
+	var pesi_scheda: Array[float] = []
+	for chiave: String in icone.CHIAVI:
+		var n := 0
+		for y in 50:
+			for x in 50:
+				var q := Vector2(x * 2.0 + 1.0, y * 2.0 + 1.0)
+				var pieno := false
+				for strato: Array in icone.progetto(chiave, nella_scheda)["icona"]:
+					if Geometry2D.is_point_in_polygon(q, strato[1]):
+						pieno = int(strato[0]) > 0
+				n += 1 if pieno else 0
+		pesi_scheda.append(n / 2500.0)
+	var media_scheda := 0.0
+	for v in pesi_scheda:
+		media_scheda += v
+	media_scheda /= pesi_scheda.size()
+	for i in pesi_scheda.size():
+		esigi(absf(pesi_scheda[i] / media_scheda - 1.0) <= 0.1, "nella scheda '%s' pesa %+.0f%% dalla media"
+				% [icone.CHIAVI[i], (pesi_scheda[i] / media_scheda - 1.0) * 100.0])
 	# L'IRRAGGIAMENTO: chiara su scuro, l'icona ha i tagli un decimo piu' larghi
 	esigi(icone.taglio_a_colori(icone.LATO, Color.WHITE, Color.BLACK) > icone.taglio_a_colori(icone.LATO, Color.BLACK,
 			Color.WHITE), "chiara su scuro l'icona non corregge l'irraggiamento")

@@ -328,7 +328,9 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 				scudo = meno(scudo, rett(x, 0, x + 9, 10 + T))[0]
 				torre = meno(torre, rett(x, 0, x + 9, 10 + T))[0]
 			var dentro := cresci(forma, -T)
-			var cinta := cresci(dentro, -taglio - 3)
+			# piccola, il taglio cresce: i 3 in piu' attorno alla cinta calano, se no la
+			# cinta si rimpicciolisce e lo scudo perde peso (era a -13% a 16 pixel)
+			var cinta := cresci(dentro, -taglio - maxf(0.0, 3.0 - (taglio - C) * 0.6))
 			s = [[1, scudo], [-1, dentro], [1, cinta]]
 			a = [[1, forma], [-1, dentro], [1, cinta]]
 			b = [[1, unione([torre, rett(20, 26, 80, 58)])], [-1, rett(43, 38, 57, 58)]]

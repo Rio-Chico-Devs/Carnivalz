@@ -54,7 +54,7 @@ su scuro) almeno tre quarti del taglio.
 |---|---|---|---|
 | Punti vita | 5.17 | 8.0 | 8.66 |
 | Attacco | 5.04 | 8.29 | 8.9 |
-| Difesa | 8.0 | 10.0 | 10.0 |
+| Difesa | 8.0 | 9.6 | 10.0 |
 | Velocità | 5.0 | 9.0 | 10.0 |
 | Intelligenza | 6.22 | 8.47 | 9.03 |
 | Forza mentale | 5.0 | 8.13 | 8.72 |
