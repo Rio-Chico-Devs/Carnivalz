@@ -108,4 +108,23 @@ func scrivi_rapporto() -> String:
 	for chiave: String in I.CHIAVI:
 		var idea: Array = I.IDEE[chiave]
 		r.append("- **%s** (`%s`): %s e %s. %s" % [I.NOMI[chiave], chiave, idea[0], idea[1], idea[2]])
+	r.append("")
+	r.append("## Le distanze fra i contorni")
+	r.append("")
+	r.append("Per ogni icona, la distanza più corta fra due contorni che non si toccano (in unità; il")
+	r.append("taglio C è %s). A misura piena è sempre almeno C; piccola (taglio %s a 16 pixel, %s chiara" % [String.num(I.C),
+			String.num(I.taglio_per(16.0)), String.num(I.taglio_a_colori(16.0, Color.WHITE, Color.BLACK))])
+	r.append("su scuro) almeno tre quarti del taglio.")
+	r.append("")
+	r.append("| icona | a misura piena | piccola | piccola, chiara su scuro |")
+	r.append("|---|---|---|---|")
+	for chiave: String in I.CHIAVI:
+		var celle: Array[String] = []
+		for taglio: float in [I.C, I.taglio_per(16.0), I.taglio_a_colori(16.0, Color.WHITE, Color.BLACK)]:
+			var minima := INF
+			for d: Array in I.distacchi(chiave, taglio):
+				if float(d[1]) > 0.05:
+					minima = minf(minima, float(d[1]))
+			celle.append("—" if minima == INF else String.num(minima, 2))
+		r.append("| %s | %s |" % [I.NOMI[chiave], " | ".join(celle)])
 	return "\n".join(r) + "\n"

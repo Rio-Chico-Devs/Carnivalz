@@ -724,6 +724,14 @@ La prova `prova_le_icone_si_reggono` controlla tutto questo:
   resta qualche unità fuori: la punta conta nell'ingombro più di quanto pesi.
 - L'Attacco è il più sparso (raggio +7%): una spada di sbieco con la sua
   falce occupa la diagonale. Più piccola diventava tozza; ho scelto la forma.
+- **Le rifiniture viste in grande** (a 640 pixel, sulla griglia):
+  - L'Aura aveva un gomito dove la coda entra nel ricciolo: lo spessore
+    cresceva e calava con uno spigolo, e lo spigolo passava nel contorno. Ora
+    sale e scende con curve lisce, e la punta della coda si affina come una
+    pennellata.
+  - Lo scudo aveva in cima, sotto le feritoie, un muro di 14 contro i 10 dei
+    fianchi: ora è 10.
+  - L'anello della lanterna è disegnato con più lati, così misura 5 esatti.
 - **Due somiglianze col resto del gioco, da decidere.** In combattimento i
   riquadri degli status (`scripts/combattimento/IconeStato.gd`, dal disegno di
   Bru) usano la fiamma per «in fiamme» e la saetta per «lentezza», «frastornato»
@@ -735,3 +743,40 @@ La prova `prova_le_icone_si_reggono` controlla tutto questo:
 
   Sono contesti diversi (la scheda e la crescita da una parte, la vita in
   battaglia dall'altra), ma lo stesso gioco.
+
+### 7.5 Le metafore, rilette con le ricerche sul riconoscimento
+
+- **McDougall e Isherwood (2009, *Behavior Research Methods*).** All'inizio
+  conta la **distanza semantica**, cioè quanto l'icona è vicina a quello che
+  vuol dire: spiega fino al 55% di quanto bene si riconosce. Con l'uso conta
+  di più la familiarità.
+- **Zheng, Silvennoinen e Kujala (Jyväskylä).** La concretezza è quello che
+  avvicina di più un'icona al suo significato; la bellezza aiuta poco l'uso.
+- **Le convenzioni dei giochi** (Improbable Island, OpenGameArt, Inkwell):
+  - cuore per la vita, spada per l'attacco, scudo per la difesa;
+  - per la velocità il classico è lo stivale alato (o le impronte);
+  - per l'intelligenza e la volontà non c'è un segno fisso.
+
+| statistica | la nostra figura | distanza dal significato | perché va bene lo stesso |
+|---|---|---|---|
+| Vita | cuore | vicinissima | la convenzione più forte che c'è |
+| Attacco | spada | vicina | la convenzione |
+| Difesa | scudo | vicina | la convenzione |
+| Velocità | fulmine | media (il classico è lo stivale alato) | il fulmine era già nel gioco per la velocità; la scia dice il movimento |
+| Intelligenza | occhio con serratura | media | nel gioco è la fuga: vedere la via d'uscita |
+| Forza mentale | lanterna | lontana | si impara; e nella scheda il nome sta sempre accanto all'icona |
+| Fattore | fuoco con l'emblema | lontana | è un concetto solo di Carnivalz: nessuna icona nota lo dice |
+| Maestria | corona con la barra | media | la corona è la maestria; la barra lega il segno al dominio |
+| Aura | ricciolo con la coda | lontana | l'energia che si spende; lo hitodama dà al segno una storia |
+
+Le ricerche dicono che le figure lontane si imparano con l'uso. Nella scheda e
+nella crescita il nome sta sempre accanto all'icona: l'icona deve farsi
+riconoscere al secondo sguardo, non spiegarsi da sola. Le tre statistiche che
+si guardano di più (vita, attacco, difesa) sono anche quelle con le figure più
+vicine.
+
+**I contorni e i pieni.** Le regole dei set chiedono uno stile solo: o tratto
+o pieno. Le nostre sono pieni coi tagli. Dove l'oggetto ha un bordo (l'occhio,
+lo scudo, la lanterna) il bordo è spesso T, sempre lo stesso: è il pieno di un
+oggetto che ha un bordo, non un'icona a tratto. La lanterna ha i montanti
+spessi T e i traversi spessi C, come i telai veri.

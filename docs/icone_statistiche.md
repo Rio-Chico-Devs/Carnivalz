@@ -22,17 +22,17 @@ taglio.
 
 | icona | le due figure | pienezza | dalla media | raggio | dalla media | centro visivo | ingombro (unità) |
 |---|---|---|---|---|---|---|---|
-| Punti vita | il cuore + la cicatrice cucita | 0.311 | +4.8% | 26.0 | -3.4% | +0.1, -1.6 | da 11.0,17.0 a 89.0,87.0 |
-| Attacco | la spada + il fendente | 0.278 | -6.4% | 28.9 | +7.2% | -0.6, -1.6 | da 12.0,10.5 a 93.7,91.9 |
-| Difesa | lo scudo + i merli | 0.293 | -1.3% | 27.8 | +3.3% | +0.0, -2.4 | da 20.0,10.0 a 80.0,92.0 |
-| Velocità | il fulmine + la sua eco | 0.305 | +2.9% | 25.3 | -6.0% | +1.3, -3.5 | da 11.0,8.0 a 91.8,96.0 |
-| Intelligenza | l'occhio + la serratura | 0.311 | +4.9% | 27.1 | +0.6% | +0.0, -0.1 | da 4.0,20.0 a 96.0,80.0 |
-| Forza mentale | la lanterna + il fuoco | 0.284 | -4.3% | 28.1 | +4.3% | +0.0, +0.7 | da 21.0,4.0 a 79.0,91.0 |
-| Fattore | il fuoco + l'emblema | 0.294 | -1.0% | 25.2 | -6.4% | +1.0, +1.5 | da 23.1,4.0 a 76.9,92.0 |
-| Maestria del dominio | la corona + la barra del dominio | 0.308 | +3.8% | 27.3 | +1.3% | +0.0, -1.9 | da 9.0,9.0 a 91.0,80.0 |
-| Aura | il vortice + la scia | 0.286 | -3.5% | 26.7 | -1.0% | -1.5, +3.5 | da 16.2,4.0 a 84.5,91.6 |
+| Punti vita | il cuore + la cicatrice cucita | 0.311 | +5.4% | 26.0 | -3.0% | +0.1, -1.6 | da 11.0,17.0 a 89.0,87.0 |
+| Attacco | la spada + il fendente | 0.278 | -5.9% | 28.9 | +7.7% | -0.6, -1.6 | da 12.0,10.5 a 93.7,91.9 |
+| Difesa | lo scudo + i merli | 0.281 | -4.8% | 27.7 | +3.4% | +0.0, -2.4 | da 20.0,10.0 a 80.0,92.0 |
+| Velocità | il fulmine + la sua eco | 0.305 | +3.4% | 25.3 | -5.6% | +1.3, -3.5 | da 11.0,8.0 a 91.8,96.0 |
+| Intelligenza | l'occhio + la serratura | 0.311 | +5.5% | 27.1 | +1.0% | +0.0, -0.1 | da 4.0,20.0 a 96.0,80.0 |
+| Forza mentale | la lanterna + il fuoco | 0.284 | -3.7% | 28.1 | +4.7% | +0.0, +0.7 | da 21.0,4.0 a 79.0,91.0 |
+| Fattore | il fuoco + l'emblema | 0.294 | -0.4% | 25.2 | -6.0% | +1.0, +1.5 | da 23.1,4.0 a 76.9,92.0 |
+| Maestria del dominio | la corona + la barra del dominio | 0.308 | +4.4% | 27.3 | +1.8% | +0.0, -1.9 | da 9.0,9.0 a 91.0,80.0 |
+| Aura | il vortice + la scia | 0.284 | -3.8% | 25.7 | -4.0% | -1.1, +3.0 | da 16.7,4.0 a 85.4,90.5 |
 
-Medie: pienezza 0.297, raggio 26.9.
+Medie: pienezza 0.295, raggio 26.8.
 
 - **Punti vita** (`hp`): il cuore e la cicatrice cucita. Chi tocca il confine e torna: il trauma ricucito è forza.
 - **Attacco** (`attacco`): la spada e il fendente. Il colpo lascia uno squarcio alle spalle della lama.
@@ -43,3 +43,21 @@ Medie: pienezza 0.297, raggio 26.9.
 - **Fattore** (`fattore`): il fuoco e l'emblema. Nella fiamma, il rombo di Carnivalz: il disallineamento che arde in te.
 - **Maestria del dominio** (`maestria_dominio`): la corona e la barra del dominio. La fascia della corona sono i tre segmenti della barra.
 - **Aura** (`aura`): il vortice e la scia. L'energia che spendi sale dal vortice come una fiamma di spirito.
+
+## Le distanze fra i contorni
+
+Per ogni icona, la distanza più corta fra due contorni che non si toccano (in unità; il
+taglio C è 5.0). A misura piena è sempre almeno C; piccola (taglio 9.0 a 16 pixel, 10.0 chiara
+su scuro) almeno tre quarti del taglio.
+
+| icona | a misura piena | piccola | piccola, chiara su scuro |
+|---|---|---|---|
+| Punti vita | 5.17 | 8.0 | 8.66 |
+| Attacco | 5.04 | 8.29 | 8.9 |
+| Difesa | 8.0 | 10.0 | 10.0 |
+| Velocità | 5.0 | 9.0 | 10.0 |
+| Intelligenza | 6.22 | 8.47 | 9.03 |
+| Forza mentale | 5.0 | 8.13 | 8.72 |
+| Fattore | 7.79 | 9.5 | 9.95 |
+| Maestria del dominio | 5.0 | 9.0 | 10.0 |
+| Aura | — | — | — |

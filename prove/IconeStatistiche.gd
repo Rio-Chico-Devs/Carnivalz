@@ -274,8 +274,10 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 		"difesa":
 			# lo scudo e la fortezza: tre merli in cima, e la cinta (la sagoma rientrata
 			# di T, staccata di C)
-			# tre merli uguali di 14 e due feritoie di 9 su una larghezza di 60
-			var forma := scudo_a_punta(20, 80, 24, 92, 0.25)
+			# tre merli uguali di 14 e due feritoie di 9 su una larghezza di 60. La
+			# sagoma dello scudo parte da 20, cosi' sotto le feritoie il muro e' alto
+			# T come i fianchi (partiva da 24: in cima il muro era 14)
+			var forma := scudo_a_punta(20, 80, 20, 92, 0.25)
 			var torre := rett(20, 10, 80, 26)
 			var scudo := unione([forma, torre])
 			for x: float in [34.0, 57.0]:
@@ -324,11 +326,11 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			var tetto := poli([41, 17, 59, 17, 79, 30, 21, 30])
 			var corpo := rett(26, 29, 74, 79)
 			var base := poli([22, 78, 78, 78, 72, 91, 28, 91])
-			var lanterna := unione([corpo, tetto, base, cerchio(Vector2(50, 12), 8, 48)])
+			var lanterna := unione([corpo, tetto, base, cerchio(Vector2(50, 12), 8, 96)])
 			# l'anello e' spesso un taglio: piccola diventa una palla piena
 			var vuoti: Array = [[-1, rett(26 + T, 29 + C + 1, 74 - T, 78 - C)]]
 			if taglio <= 7.0:
-				vuoti.push_front([-1, cerchio(Vector2(50, 12), 3, 32)])
+				vuoti.push_front([-1, cerchio(Vector2(50, 12), 3, 96)])
 			# la fiamma sta a C dal vetro; se il taglio cresce (piccola) si stringe lei
 			var alta := 28.0 - 2.0 * (taglio - C)
 			s = [[1, lanterna]] + vuoti + [[1, fuoco(Vector2(50, 54 + alta * 0.5), alta, 1.2)]]
@@ -365,7 +367,7 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 			# il vortice e la scia: un tratto solo che si avvolge in basso e sale a
 			# punta, come una fiamma di spirito (lo hitodama). L'idea e' di Bru: il
 			# segno sulla pancia di Jalhalla, capovolto; qui ridisegnato da capo
-			var r := ricciolo(Vector2(61, 57), 31, 10, 295, Vector2(47, 4), 30, 5, 0.42)
+			var r := ricciolo(Vector2(64, 55), 31, 10, 295, Vector2(50, 4), 33, 3, 0.42)
 			s = [[1, r]]
 			a = [[1, ricciolo(Vector2(54, 58), 30, 10, 330, Vector2(30, 38), 22, 4, 0.12)]]
 			var sx := curva3(Vector2(62, 4), Vector2(44, 30), Vector2(30, 60), Vector2(38, 94))
@@ -485,7 +487,13 @@ static func ricciolo(occhio: Vector2, r0: float, r1: float, giro: float, punta: 
 	var ultima := Vector2.ZERO
 	for i in linea.size():
 		var u := lungo[i] / tutto
-		var spesso := largo * pow(u / coda, 0.8) if u < coda else lerpf(largo, fine, pow((u - coda) / (1.0 - coda), 1.3))
+		# lo spessore sale e scende senza spigoli: un gomito nella sua crescita
+		# diventa un gomito nel contorno (si vedeva dove la coda entra nel ricciolo)
+		var spesso := 0.0
+		if u < coda:
+			spesso = largo * pow(sin(u / coda * PI * 0.5), 1.5)
+		else:
+			spesso = lerpf(largo, fine, smoothstep(0.0, 1.0, (u - coda) / (1.0 - coda)))
 		var verso := (linea[mini(i + 1, linea.size() - 1)] - linea[maxi(i - 1, 0)]).normalized()
 		ultima = verso.orthogonal()
 		sx.append(linea[i] + ultima * spesso * 0.5)
