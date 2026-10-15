@@ -17,7 +17,7 @@ static func disegna(t: CanvasItem) -> void:
 	P.etichetta(t, Vector2(28, 52), "LE STATISTICHE", 36, P.CREMA, P.NERO, P.ARANCIO)
 	P.scritta(t, Vector2(372, 80), "Due figure del mondo di Carnivalz, una icona sola. Curve vere, due spessori (taglio 5, bordo 10",
 			15, P.CARTA, Caratteri.tondo(700))
-	P.scritta(t, Vector2(372, 100), "su 100), il peso entro il 12% dalla media. I file da misurare: art/interfaccia/statistiche/proposta.",
+	P.scritta(t, Vector2(372, 100), "su 100), il peso entro l'8% dalla media, niente fili sottili. Le misure: la foto «misure».",
 			15, P.CARTA, Caratteri.tondo(700))
 	catalogo(t, Rect2(28, 132, 846, 560))
 	P.etichetta(t, Vector2(900, 132), "TIMBRATE", 14, P.ARANCIO, P.NERO)

@@ -4294,7 +4294,8 @@ func prova_le_icone_si_reggono() -> void:
 	# Bru: «prova adesso a renderle belle». Il bello non si misura, ma quello che
 	# lo regge si': stanno nell'area viva, il file e' il disegno (un percorso
 	# solo che dice lo stesso degli strati), niente briciole lasciate dalle
-	# sottrazioni, il peso entro il 12% dalla media, e due icone non si
+	# sottrazioni, due contorni o si toccano o stanno ad almeno un taglio, il
+	# peso, la grandezza e il centro si somigliano, e due icone non si
 	# confondono. Si misura su una griglia di punti, uno per unita'
 	titolo("le icone delle statistiche si reggono")
 	var icone := preload("res://prove/IconeStatistiche.gd")
@@ -4314,6 +4315,22 @@ func prova_le_icone_si_reggono() -> void:
 		for strato: Array in strati:
 			esigi(icone.area(strato[1]) >= 20.0, "in '%s' c'e' una briciola di %.1f unita' quadrate"
 					% [chiave, icone.area(strato[1])])
+		# NIENTE FILI. Due contorni o si toccano o stanno ad almeno un taglio (C,
+		# con mezzo decimo per i cerchi fatti a lati): in mezzo c'e' il filo che da
+		# piccolo si impasta. Cosi' sono stati trovati la cicatrice a 1,3 dal bordo
+		# del cuore, la falce a 0,4 dalla guardia, l'iride a 1 dalle palpebre,
+		# l'anello della lanterna spesso 4 e le fessure di sbieco della corona,
+		# larghe 4,5 misurate di traverso. Piccola (e chiara su scuro) i tagli
+		# crescono e i dettagli si stringono o spariscono: basta tre quarti di taglio
+		for distacco: Array in icone.distacchi(chiave):
+			var d := float(distacco[1])
+			esigi(d < 0.05 or d >= icone.C - 0.05, "in '%s' %s sta a %.2f: un filo, ne' attaccato ne' a un taglio"
+					% [chiave, distacco[0], d])
+		for piccolo: float in [icone.taglio_per(16.0), icone.taglio_a_colori(16.0, Color.WHITE, Color.BLACK)]:
+			for distacco: Array in icone.distacchi(chiave, piccolo):
+				var d := float(distacco[1])
+				esigi(d < 0.05 or d >= piccolo * 0.75, "in '%s' col taglio di %s %s sta a %.2f: un filo"
+						% [chiave, piccolo, distacco[0], d])
 		# PICCOLA, coi tagli piu' larghi (taglio_per), il disegno regge lo stesso:
 		# niente briciole e l'SVG coerente. E il timbro ha la sua ombra, grande e
 		# piccola: il fuoco disegnato nel verso sbagliato la perdeva senza errori
@@ -4355,8 +4372,27 @@ func prova_le_icone_si_reggono() -> void:
 		media += v
 	media /= maxf(pesi.size(), 1.0)
 	for i in pesi.size():
-		esigi(absf(pesi[i] / media - 1.0) <= 0.12, "la pienezza di '%s' e' %.3f, a %+.0f%% dalla media %.3f"
+		esigi(absf(pesi[i] / media - 1.0) <= 0.08, "la pienezza di '%s' e' %.3f, a %+.0f%% dalla media %.3f"
 				% [icone.CHIAVI[i], pesi[i], (pesi[i] / media - 1.0) * 100.0, media])
+	# LA STESSA GRANDEZZA E LO STESSO CENTRO. Con lo stesso inchiostro, una forma
+	# stretta (il fulmine) sembra piu' piccola di una sparsa (la spada col
+	# fendente): lo dice il raggio d'inerzia, e la prova della sfocatura nella
+	# tavola delle misure. Il raggio e' una misura piu' grossolana della
+	# pienezza: gli si lascia il 10%. E il centro visivo (fra l'ingombro e il baricentro)
+	# sta vicino al centro: la falce tirava la spada a -6,6, -4,9
+	var raggi := 0.0
+	for chiave: String in icone.CHIAVI:
+		raggi += icone.raggio_inerzia(chiave)
+	raggi /= icone.CHIAVI.size()
+	for chiave: String in icone.CHIAVI:
+		var r := icone.raggio_inerzia(chiave)
+		esigi(absf(r / raggi - 1.0) <= 0.1, "'%s' ha il raggio d'inerzia %.1f, a %+.0f%% dalla media %.1f"
+				% [chiave, r, (r / raggi - 1.0) * 100.0, raggi])
+		var scarto := icone.centro_visivo(chiave) - icone.CENTRO
+		esigi(scarto.length() <= 4.0, "il centro visivo di '%s' e' a %+.1f, %+.1f dal centro" % [chiave, scarto.x, scarto.y])
+	# L'IRRAGGIAMENTO: chiara su scuro, l'icona ha i tagli un decimo piu' larghi
+	esigi(icone.taglio_a_colori(icone.LATO, Color.WHITE, Color.BLACK) > icone.taglio_a_colori(icone.LATO, Color.BLACK,
+			Color.WHITE), "chiara su scuro l'icona non corregge l'irraggiamento")
 	# I TAGLI DELLE PICCOLE: dai 32 pixel in su quelli del disegno, sotto mai
 	# piu' sottili di 1,4 pixel
 	esigi(is_equal_approx(icone.taglio_per(32.0), icone.C), "a 32 pixel il taglio non e' piu' quello del disegno")

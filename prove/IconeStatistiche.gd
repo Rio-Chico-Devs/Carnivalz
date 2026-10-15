@@ -16,8 +16,14 @@ extends RefCounted
 # Il disegno: griglia di 100, centro 50,50, area viva da 4 a 96. Curve vere
 # dove servono (cerchi, archi, curve di Bezier), e due spessori: C = 5, ogni
 # taglio e ogni distacco; T = 10, i bordi. Le figure si sommano e si sottraggono
-# (Geometry2D), e si disegnano a strati: + inchiostro, - fondo. Il peso e'
-# bilanciato a occhio e a misura (pienezza): tutte entro il 12% dalla media.
+# (Geometry2D), e si disegnano a strati: + inchiostro, - fondo.
+#
+# Le correzioni ottiche, misurate (TavolaMisure, la foto «misure»):
+#   - il peso (pienezza) entro l'8% dalla media, la grandezza (raggio
+#     d'inerzia) entro il 10%, il centro visivo entro 4 unita' dal centro;
+#   - niente fili: due contorni o si toccano o stanno ad almeno un taglio;
+#   - le fessure di sbieco larghe un taglio misurate di traverso (Holt);
+#   - chiare su scuro, i tagli un decimo piu' larghi (l'irraggiamento).
 # Piccole (sotto i 32 pixel) hanno i tagli piu' larghi, mai sotto 1,4 pixel; e
 # timbrate hanno l'ombra di una sagoma sola, chiusa (taglio_per, chiusa).
 #
@@ -84,6 +90,11 @@ static func ruota(p: PackedVector2Array, perno: Vector2, gradi: float) -> Packed
 	for q in p:
 		fuori.append(perno + (q - perno).rotated(deg_to_rad(gradi)))
 	return fuori
+
+
+static func posa(p: PackedVector2Array, z: float, gradi: float, d: Vector2) -> PackedVector2Array:
+	# rimpicciolita di z attorno al centro, girata, spostata
+	return sposta(ruota(scala(p, CENTRO, Vector2(z, z)), CENTRO, gradi), d)
 
 
 static func sposta(p: PackedVector2Array, d: Vector2) -> PackedVector2Array:
@@ -205,81 +216,119 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 	match chiave:
 		"hp":
 			# il cuore e la cicatrice cucita: il taglio in diagonale, tre punti di traverso
-			var c := cuore(50, 37, 88, 19, 21)
-			var cicatrice: Array = [banda(poli([30, 30, 68, 68]), taglio)]
+			var c := cuore(50, 37.5, 87, 18.5, 20.5)
+			# piccola (taglio piu' largo) la cicatrice si accorcia: fra lei e il bordo
+			# del cuore deve restare almeno un taglio d'inchiostro
+			var di_piu := taglio - C
+			var da := Vector2(33, 31) + Vector2(1, 1) * di_piu * 0.5
+			var fino := Vector2(63, 61) - Vector2(1, 1) * di_piu * 0.5
+			var mezzo_punto := 6.0 - di_piu * 0.5
+			var cicatrice: Array = [banda(PackedVector2Array([da, fino]), taglio)]
 			for k: float in [0.2, 0.5, 0.8]:
-				var q := Vector2(30, 30).lerp(Vector2(68, 68), k)
-				cicatrice.append(banda(PackedVector2Array([q + Vector2(-7, 7), q + Vector2(7, -7)]), taglio))
+				var q := da.lerp(fino, k)
+				cicatrice.append(banda(PackedVector2Array([q + Vector2(-1, 1) * mezzo_punto,
+						q + Vector2(1, -1) * mezzo_punto]), taglio))
 			var cucitura := unione(cicatrice)
 			s = [[1, c], [-1, cucitura]]
 			a = [[1, c]]
 			b = [[1, scala(cucitura, CENTRO, Vector2(1.3, 1.3))]]
 		"attacco":
 			# la spada di sbieco e il fendente: la mezzaluna del colpo alle sue spalle.
-			# Costruita dritta (punta in su) e girata di 45°
-			var lama := poli([50, -6, 59, 6, 59, 62, 41, 62, 41, 6])
-			var guardia := poli([22, 62, 78, 62, 73, 72, 27, 72])
-			var manico := rett(45, 70, 55, 90)
-			var pomo := rett(43, 87, 57, 101)
-			var spada := ruota(unione([lama, guardia, manico, pomo]), CENTRO, 45.0)
-			var sguscio := ruota(banda(poli([50, 8, 50, 56]), taglio), CENTRO, 45.0)
+			# Costruita dritta (punta in su), rimpicciolita di "z", girata di 45° e
+			# spostata di "d": la falce sta in alto a sinistra e tirava la massa da
+			# quella parte (il centro visivo era a -6,6, -4,9). I tagli non si
+			# rimpiccioliscono
+			var z := 0.9
+			var d := Vector2(5.5, 4.0)
+			var mezza := 11.0                   # mezza lama, prima di z
+			var lama := poli([50, -10, 50 + mezza, 8, 50 + mezza, 62, 50 - mezza, 62, 50 - mezza, 8])
+			var guardia := poli([27, 59, 73, 59, 68, 75, 32, 75])
+			var manico := rett(44.5, 70, 55.5, 90)
+			var pomo := rett(42.5, 87, 57.5, 102)
+			var spada := posa(unione([lama, guardia, manico, pomo]), z, 45.0, d)
+			var sguscio := sposta(ruota(banda(scala(poli([50, 9, 50, 56]), CENTRO, Vector2(z, z)), taglio), CENTRO, 45.0), d)
 			# la mezzaluna: il cerchio di fuori meno uno piu' grande spostato verso la
 			# spada. Il cerchio di dentro passa per i due punti di quello di fuori che
-			# stanno a 9 + C dall'asse: le punte finiscono a C dal filo della lama
-			var fuori_r := 46.0
-			var dall_asse := 9.0 + taglio
-			var spessa := 14.0
+			# stanno a mezza lama + un taglio dall'asse: le punte finiscono a un taglio
+			# dal filo della lama
+			# la falce si scosta dall'asse di "e" verso l'alto a sinistra: senza, la
+			# guardia (che sporge di traverso proprio verso di lei) le arrivava a 2
+			var e := 5.5 + (taglio - C) * 0.6
+			var fuori_r := 44.0 * z
+			var dall_asse := mezza * z + taglio - e
+			var spessa := 18.0
 			var lungo := sqrt(fuori_r * fuori_r - dall_asse * dall_asse)
 			var dentro_r := fuori_r - spessa
 			var k := (lungo * lungo + dall_asse * dall_asse - dentro_r * dentro_r) / (2.0 * (dentro_r - dall_asse))
-			var dentro := cerchio(CENTRO + Vector2(1, 1).normalized() * k, dentro_r + k, 192)
-			for pezzo in meno(cerchio(CENTRO, fuori_r, 192), dentro):
+			var luna := CENTRO + d - Vector2(1, 1).normalized() * e
+			var dentro := cerchio(luna + Vector2(1, 1).normalized() * k, dentro_r + k, 192)
+			for pezzo in meno(cerchio(luna, fuori_r, 192), dentro):
 				s.append([1, pezzo])
 				b.append([1, pezzo])
-			s.append_array([[1, spada], [-1, sguscio]])
+			# la scanalatura e' un dettaglio da grande: piccola, il filo di lama ai suoi
+			# lati scenderebbe sotto il pixel
+			s.append([1, spada])
+			if taglio <= 7.0:
+				s.append([-1, sguscio])
 			a = [[1, spada], [-1, sguscio]]
 		"difesa":
 			# lo scudo e la fortezza: tre merli in cima, e la cinta (la sagoma rientrata
 			# di T, staccata di C)
-			var forma := scudo_a_punta(18, 82, 22, 94, 0.25)
-			var torre := rett(18, 8, 82, 24)
+			# tre merli uguali di 14 e due feritoie di 9 su una larghezza di 60
+			var forma := scudo_a_punta(20, 80, 24, 92, 0.25)
+			var torre := rett(20, 10, 80, 26)
 			var scudo := unione([forma, torre])
-			for x: float in [33.0, 57.0]:
-				scudo = meno(scudo, rett(x, 0, x + 10, 8 + T))[0]
-				torre = meno(torre, rett(x, 0, x + 10, 8 + T))[0]
+			for x: float in [34.0, 57.0]:
+				scudo = meno(scudo, rett(x, 0, x + 9, 10 + T))[0]
+				torre = meno(torre, rett(x, 0, x + 9, 10 + T))[0]
 			var dentro := cresci(forma, -T)
 			var cinta := cresci(dentro, -taglio - 3)
 			s = [[1, scudo], [-1, dentro], [1, cinta]]
 			a = [[1, forma], [-1, dentro], [1, cinta]]
-			b = [[1, unione([torre, rett(18, 24, 82, 56)])], [-1, rett(43, 36, 57, 56)]]
+			b = [[1, unione([torre, rett(20, 26, 80, 58)])], [-1, rett(43, 38, 57, 58)]]
 		"velocita":
 			# il fulmine fuori registro: la copia spostata e' la scia, la stampa che
 			# slitta come slitta la realta'. Della copia resta il pezzo grande che
 			# sporge dal fulmine allargato di un taglio: la lama sottile che sporgeva
 			# sotto, a 16 pixel, era una sbavatura
-			var fulmine := poli([47, 4, 81, 4, 66, 36, 86, 36, 42, 96, 53, 56, 30, 56])
+			# i fianchi lunghi tutti alla stessa pendenza; il gradino di destra piu'
+			# alto di quello di sinistra, come nel fulmine classico. La punta in basso
+			# tira la massa in alto: il fulmine parte da 8 e non da 4, e si allarga
+			# (x 1,12) per non sembrare piu' piccolo degli altri
+			var fulmine := scala(poli([46, 8, 77, 8, 64.33, 46, 86, 46, 38, 96, 50.67, 58, 29.33, 58]), CENTRO,
+					Vector2(1.16, 1.0))
 			s = [[1, fulmine]]
 			a = [[1, fulmine]]
 			var scia := PackedVector2Array()
-			for resto in meno(sposta(fulmine, Vector2(-14, 0)), cresci(fulmine, taglio)):
+			for resto in meno(sposta(fulmine, Vector2(-15, 0)), cresci(fulmine, taglio)):
 				if area(resto) > area(scia):
 					scia = resto
 			s.append([1, scia])
 			b.append([1, scia])
 		"intelligenza":
 			# l'occhio e la serratura: vedere la via d'uscita (alza la fuga)
-			var occhio := lente(CENTRO, 92, 62)
-			var serratura := unione([cerchio(Vector2(50, 46), 6), poli([46, 48, 54, 48, 57, 63, 43, 63])])
-			s = [[1, occhio], [-1, cresci(occhio, -T)], [1, cerchio(CENTRO, 21)], [-1, serratura]]
-			a = [[1, occhio], [-1, cresci(occhio, -T)], [1, cerchio(CENTRO, 21)]]
+			# l'iride tocca le palpebre: il bianco dell'occhio sono due pezzi, a
+			# sinistra e a destra, e iride e palpebre un pieno solo (un filo fra
+			# l'iride e le palpebre, da piccola, si impasta)
+			var occhio := lente(CENTRO, 92, 60)
+			var serratura := scala(unione([cerchio(Vector2(50, 46), 6), poli([46, 48, 54, 48, 57, 63, 43, 63])]),
+					Vector2(50, 54), Vector2.ONE * (1.0 - (taglio - C) * 0.05))
+			s = [[1, occhio]]
+			for bianco in meno(cresci(occhio, -T), cerchio(CENTRO, 21)):
+				s.append([-1, bianco])
+			a = s.duplicate()
+			s.append([-1, serratura])
 			b = [[1, scala(serratura, Vector2(50, 54), Vector2(4, 4))]]
 		"forza_mentale":
 			# la lanterna e il fuoco: la fiamma che lo stress non spegne
-			var tetto := poli([42, 18, 58, 18, 78, 30, 22, 30])
-			var corpo := rett(27, 29, 73, 79)
-			var base := poli([23, 78, 77, 78, 71, 90, 29, 90])
-			var lanterna := unione([corpo, tetto, base, cerchio(Vector2(50, 12), 7, 48)])
-			var vuoti: Array = [[-1, cerchio(Vector2(50, 12), 3, 32)], [-1, rett(27 + T, 29 + C + 1, 73 - T, 78 - C)]]
+			var tetto := poli([41, 17, 59, 17, 79, 30, 21, 30])
+			var corpo := rett(26, 29, 74, 79)
+			var base := poli([22, 78, 78, 78, 72, 91, 28, 91])
+			var lanterna := unione([corpo, tetto, base, cerchio(Vector2(50, 12), 8, 48)])
+			# l'anello e' spesso un taglio: piccola diventa una palla piena
+			var vuoti: Array = [[-1, rett(26 + T, 29 + C + 1, 74 - T, 78 - C)]]
+			if taglio <= 7.0:
+				vuoti.push_front([-1, cerchio(Vector2(50, 12), 3, 32)])
 			# la fiamma sta a C dal vetro; se il taglio cresce (piccola) si stringe lei
 			var alta := 28.0 - 2.0 * (taglio - C)
 			s = [[1, lanterna]] + vuoti + [[1, fuoco(Vector2(50, 54 + alta * 0.5), alta, 1.2)]]
@@ -288,30 +337,35 @@ static func costruisci(chiave: String, taglio := C) -> Dictionary:
 		"fattore":
 			# il fuoco e, nel suo ventre, il rombo dell'emblema: il disallineamento che
 			# arde. (Il rombo pieno col fuoco in negativo si confondeva con l'Aura)
-			var fiamma := fuoco(Vector2(50, 94), 90, 1.15)
-			s = [[1, fiamma], [-1, rombo(Vector2(50, 70), 10, 13)]]
+			var fiamma := fuoco(Vector2(50, 92), 88, 1.25)
+			var piccolo := 1.0 - (taglio - C) * 0.04          # piccola, il rombo si stringe
+			s = [[1, fiamma], [-1, rombo(Vector2(50, 70), 10 * piccolo, 13 * piccolo)]]
 			a = [[1, fiamma]]
 			b = [[1, rombo(CENTRO, 30, 40)]]
 		"maestria_dominio":
 			# la corona, e la sua fascia e' la barra del dominio: tre segmenti di sbieco
 			var punte := poli([14, 62, 14, 28, 32, 44, 50, 18, 68, 44, 86, 28, 86, 62])
-			var corona := unione([punte, cerchio(Vector2(14, 24), 5.5, 32), cerchio(Vector2(50, 13.5), 5.5, 32),
-					cerchio(Vector2(86, 24), 5.5, 32)])
+			var corona := unione([punte, cerchio(Vector2(14, 24), 5, 32), cerchio(Vector2(50, 14), 5, 32),
+					cerchio(Vector2(86, 24), 5, 32)])
 			s = [[1, corona]]
 			a = [[1, corona]]
+			# le fessure sono di sbieco (3 su 13 per parte): larghe un taglio misurate di
+			# traverso, non in orizzontale (la regola di Holt), quindi un po' di piu'
+			var alta := 80.0 - 62.0 - taglio
+			var fessura := taglio * Vector2(6.0, alta).length() / alta
 			for i in 3:
-				var x0 := 14.0 + i * (72.0 + taglio) / 3.0
-				var x1 := x0 + (72.0 - 2.0 * taglio) / 3.0
+				var x0 := 14.0 + i * (72.0 + fessura) / 3.0
+				var x1 := x0 + (72.0 - 2.0 * fessura) / 3.0
 				var sx := 3.0 if i > 0 else 0.0           # i fianchi della corona restano dritti
 				var dx := 3.0 if i < 2 else 0.0
-				var segmento := poli([x0 + sx, 62 + taglio, x1 + dx, 62 + taglio, x1 - dx, 81, x0 - sx, 81])
+				var segmento := poli([x0 + sx, 62 + taglio, x1 + dx, 62 + taglio, x1 - dx, 80, x0 - sx, 80])
 				s.append([1, segmento])
 				b.append([1, scala(sposta(segmento, Vector2(0, -24)), CENTRO, Vector2(1.0, 1.6))])
 		"aura":
 			# il vortice e la scia: un tratto solo che si avvolge in basso e sale a
 			# punta, come una fiamma di spirito (lo hitodama). L'idea e' di Bru: il
 			# segno sulla pancia di Jalhalla, capovolto; qui ridisegnato da capo
-			var r := ricciolo(Vector2(61, 62), 31, 10, 295, Vector2(47, 4), 28, 5, 0.42)
+			var r := ricciolo(Vector2(61, 57), 31, 10, 295, Vector2(47, 4), 30, 5, 0.42)
 			s = [[1, r]]
 			a = [[1, ricciolo(Vector2(54, 58), 30, 10, 330, Vector2(30, 38), 22, 4, 0.12)]]
 			var sx := curva3(Vector2(62, 4), Vector2(44, 30), Vector2(30, 60), Vector2(38, 94))
@@ -498,9 +552,19 @@ static func figura(t: CanvasItem, c: Vector2, l: float, p: PackedVector2Array, t
 	Manifesto.poligono(t, fuori, tinta)
 
 
+static func taglio_a_colori(l: float, tinta: Color, fondo: Color) -> float:
+	# L'IRRAGGIAMENTO: chiaro su scuro, l'inchiostro chiaro sembra allargarsi e i
+	# tagli scuri stringersi (Paget, le correzioni ottiche: la versione chiara va
+	# assottigliata). Qui i tagli crescono di un decimo, a mezze unita'
+	var taglio := taglio_per(l)
+	if fondo.a > 0.0 and tinta.get_luminance() > fondo.get_luminance():
+		taglio = ceilf(taglio * 1.1 * 2.0) * 0.5
+	return taglio
+
+
 static func disegna(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: Color, fondo: Color,
 		solo_sagoma := false) -> void:
-	for strato: Array in strati(chiave, l):
+	for strato: Array in progetto(chiave, taglio_a_colori(l, tinta, fondo))["icona"]:
 		var segno := int(strato[0])
 		if segno < 0 and (solo_sagoma or fondo.a <= 0.0):
 			continue
@@ -512,7 +576,7 @@ static func timbro(t: CanvasItem, chiave: String, c: Vector2, l: float, tinta: C
 	# l'ombra e' la sagoma chiusa, spostata; sopra, la stessa sagoma col colore del
 	# fondo: i vuoti fra i pezzi restano del fondo come i tagli, e l'arancio si
 	# vede solo fuori dal contorno
-	var chiusa_qui: Array = progetto(chiave, taglio_per(l))["ombra"]
+	var chiusa_qui: Array = progetto(chiave, taglio_a_colori(l, tinta, fondo))["ombra"]
 	if ombra.a > 0.0:
 		for p: PackedVector2Array in chiusa_qui:
 			figura(t, c + Vector2(1, 1) * l * 0.045, l, p, ombra)
@@ -556,6 +620,89 @@ static func pienezza(chiave: String, passo := 0.5) -> float:
 			x += passo
 		y += passo
 	return float(pieni) / tutti
+
+
+static func griglia_inchiostro(chiave: String, passo := 1.0) -> PackedByteArray:
+	# l'inchiostro su una griglia di punti (al centro di ogni cella), riga per riga
+	var nome := "griglia %s %s" % [chiave, passo]
+	if not memoria.has(nome):
+		var celle := PackedByteArray()
+		var lato := int(LATO / passo)
+		for y in lato:
+			for x in lato:
+				celle.append(1 if inchiostro_in(chiave, Vector2(x + 0.5, y + 0.5) * passo) else 0)
+		memoria[nome] = celle
+	return memoria[nome]
+
+
+static func baricentro(chiave: String, passo := 1.0) -> Vector2:
+	# il centro della massa d'inchiostro
+	var celle := griglia_inchiostro(chiave, passo)
+	var lato := int(LATO / passo)
+	var somma := Vector2.ZERO
+	var n := 0
+	for i in celle.size():
+		if celle[i] == 1:
+			somma += Vector2(i % lato + 0.5, floorf(float(i) / lato) + 0.5) * passo
+			n += 1
+	return somma / maxf(n, 1.0)
+
+
+static func raggio_inerzia(chiave: String, passo := 1.0) -> float:
+	# quanto la massa e' sparsa attorno al suo centro: la radice della distanza
+	# quadra media. Due icone con la stessa pienezza e raggi diversi non
+	# sembrano grandi uguali
+	var celle := griglia_inchiostro(chiave, passo)
+	var lato := int(LATO / passo)
+	var g := baricentro(chiave, passo)
+	var somma := 0.0
+	var n := 0
+	for i in celle.size():
+		if celle[i] == 1:
+			somma += (Vector2(i % lato + 0.5, floorf(float(i) / lato) + 0.5) * passo - g).length_squared()
+			n += 1
+	return sqrt(somma / maxf(n, 1.0))
+
+
+static func centro_visivo(chiave: String) -> Vector2:
+	# dove l'occhio mette il centro: a meta' fra il centro dell'ingombro (che
+	# conta le punte) e il baricentro (che conta la massa). Una regola di mestiere,
+	# non una legge: serve a vedere chi e' fuori posto, poi decide l'occhio
+	return ingombro(chiave).get_center().lerp(baricentro(chiave), 0.5)
+
+
+static func distanza(a: PackedVector2Array, b: PackedVector2Array) -> float:
+	# la distanza piu' corta fra i due contorni (0 se si toccano o si tagliano)
+	var meglio := INF
+	for i in a.size():
+		var a0 := a[i]
+		var a1 := a[(i + 1) % a.size()]
+		for j in b.size():
+			var vicini := Geometry2D.get_closest_points_between_segments(a0, a1, b[j], b[(j + 1) % b.size()])
+			meglio = minf(meglio, vicini[0].distance_to(vicini[1]))
+	return meglio
+
+
+static func distacchi(chiave: String, taglio := C) -> Array:
+	# TUTTE LE DISTANZE FRA I PEZZI, come [descrizione, distanza]: ogni strato dal
+	# contorno di segno opposto che lo contiene, e i pezzi dello stesso segno che
+	# stanno uno accanto all'altro. Servono a una regola sola: due contorni o si
+	# toccano (0) o stanno ad almeno un taglio. Nel mezzo c'e' il filo sottile che
+	# da piccola si impasta
+	var s: Array = progetto(chiave, taglio)["icona"]
+	var fuori: Array = []
+	for i in s.size():
+		var p: PackedVector2Array = s[i][1]
+		var segno := int(s[i][0])
+		for j in range(i - 1, -1, -1):
+			if int(s[j][0]) != segno and Geometry2D.is_point_in_polygon(p[0], s[j][1]):
+				fuori.append(["%d dentro %d" % [i, j], distanza(p, s[j][1])])
+				break
+		for j in range(i):
+			if int(s[j][0]) == segno and not Geometry2D.is_point_in_polygon(p[0], s[j][1]) \
+					and not Geometry2D.is_point_in_polygon((s[j][1] as PackedVector2Array)[0], p):
+				fuori.append(["%d accanto a %d" % [i, j], distanza(p, s[j][1])])
+	return fuori
 
 
 static func ingombro(chiave: String) -> Rect2:

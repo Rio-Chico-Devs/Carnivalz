@@ -598,3 +598,140 @@ Pesi misurati col banco, senza anello: Vita 0,28, Attacco 0,33, Difesa 0,31.
 Con l'anello: 0,41, 0,41, 0,43. Sono nella fascia degli altri sei.
 
 Ognuna ha due alternative tenute, nelle tavole. La scelta è di Bru.
+
+## 7. La revisione delle icone nuove, sotto la lente
+
+Bru: «continua a studiare [...] rivaluta il tuo lavoro, pensaci su,
+confrontalo con risorse esterne». Le icone sono quelle di
+`prove/IconeStatistiche.gd` (due figure in una). Qui c'è cosa ho letto, cosa
+ho misurato e cosa è cambiato.
+
+### 7.1 Le letture
+
+Dalla cloud i siti non si aprono: sono riassunti delle ricerche, con le fonti.
+
+- **Le forme chiave di Material** (material.io, *System icons*). La griglia è
+  di 24 con un'area viva di 20. Le forme chiave sono il quadrato di 18, il
+  cerchio di 20, il rettangolo verticale 16 × 20 e quello orizzontale
+  20 × 16. Riportate su 100: 75, 83, 67 × 83, 83 × 67. Dicono quanto spazio
+  prende di solito una forma di quel genere.
+- **Le correzioni ottiche** (Slava Shestopalov, *Optical effects in user
+  interfaces*, ripreso da iconscout e icons8).
+  - L'occhio pesa l'area, non il riquadro: un quadrato pesa più di un cerchio
+    alto uguale.
+  - La prova più semplice è sfocare: se le forme diventano macchie uguali,
+    pesano uguale.
+  - Le forme non quadrate possono sporgere dall'area, quelle quadrate
+    rientrano.
+- **Il centro ottico.** Un programma centra il riquadro, l'occhio centra la
+  massa: il triangolo del «play» si sposta a destra (railsdesigner, Framer).
+  Non c'è un numero fisso: si sposta a occhio.
+- **Le piccole** (Font Awesome, Sky, Semrush, ServiceNow). I bordi che cadono
+  fra due pixel si sfumano. Le distanze fra le forme vanno tenute sui 2 pixel
+  a 16–24 (Sky, Semrush), con mezzo pixel di tolleranza.
+- **La coerenza di un set** (IBM, Volvo, Vic Bell, Recraft).
+  - Un valore solo per ogni cosa: lo spessore, il raggio degli angoli, i
+    terminali, gli angoli delle oblique.
+  - Lo stesso spazio occupato nell'area viva.
+  - Un'icona nuova deve rispettare prima le regole, poi il concetto: un raggio
+    sbagliato stona comunque.
+- **I kamon** (Core77, Morse Museum): cerchio, simmetria, poche forme
+  astratte, leggibili a un colore solo.
+- **Il tomoe e lo hitodama** (Wikipedia, yokai.jp). Il tomoe è la «virgola»
+  vorticosa dei mon, simbolo di Hachiman, il dio dei guerrieri. Lo hitodama
+  è la fiamma dell'anima, con la coda: è il segno di Jalhalla capovolto, cioè
+  la nostra Aura.
+- **Persona 5** (Redbrick, Mechanics of Magic, Inverse). Forme angolose e
+  colori forti dappertutto; ma una critica (Inverse) dice che a volte lo
+  stile passa davanti alla leggibilità. Da noi la leggibilità viene prima.
+
+Da qui vengono le lezioni già in §1 rilette con le misure: la sporgenza
+(Martins), l'irraggiamento (Paget), le oblique di Holt, il giudizio alla
+misura più piccola sul fondo vero (le icone di gioco).
+
+### 7.2 Gli strumenti
+
+- **La tavola «misure»** (`prove/TavolaMisure.gd`). Per ognuna delle nove:
+  - le forme chiave di Material sotto il disegno;
+  - il baricentro e il centro visivo;
+  - la prova della sfocatura;
+  - la sagoma;
+  - i numeri;
+  - la resa a 24 e 16 pixel sul fondo della scheda.
+- **I numeri** (`IconeStatistiche`):
+  - la pienezza (l'inchiostro);
+  - il raggio d'inerzia (quanto la massa è sparsa attorno al suo centro: due
+    icone con lo stesso inchiostro e raggi diversi non sembrano grandi
+    uguali);
+  - il centro visivo (a metà fra il centro dell'ingombro e il baricentro: una
+    regola di mestiere per trovare chi è fuori posto);
+  - le distanze fra tutti i contorni (`distacchi`).
+
+### 7.3 Cosa hanno trovato, e cosa è cambiato
+
+| | prima | dopo |
+|---|---|---|
+| pienezza, dalla media | da -10% a +11% | da -6% a +5% |
+| raggio d'inerzia, dalla media | da -11% (Velocità) a +15% (Attacco) | da -6% a +7% |
+| centro visivo, il più lontano | Attacco a -6,6, -4,9; Velocità a -6,7 in alto; Aura a +6,3 in basso | Velocità a -3,5 in alto, Aura a +3,5 in basso: due forme a punta |
+| fili (distanze fra 0 e un taglio) | 5 | 0 |
+
+- **Attacco.** La falce in alto a sinistra tirava tutta la massa da quella
+  parte. La spada si è rimpicciolita (0,9) e spostata verso il basso a destra.
+  La falce si è scostata dall'asse, perché la guardia, che sporge di traverso
+  proprio verso di lei, le arrivava a 0,4. La punta della lama è più acuta:
+  a 90°, girata di 45°, sembrava un angolo squadrato.
+- **Difesa.** Era la più grande (raggio +7%): ora è più stretta, con tre merli
+  uguali di 14 e due feritoie di 9.
+- **Velocità.** Era la più piccola (raggio -11%) e pesava in alto. Il fulmine
+  è stato ridisegnato:
+  - i fianchi lunghi tutti alla stessa pendenza;
+  - il gradino di destra più alto di quello di sinistra;
+  - parte da 8 e non da 4 (la punta in basso tira la massa in alto);
+  - è più largo.
+- **Fattore** più largo, **Aura** più in alto, **Forza mentale** con la
+  cornice della lanterna spessa T come i bordi delle altre.
+- **I fili.**
+  - La cicatrice stava a 1,3 dal bordo del cuore.
+  - La falce stava a 0,4 dalla guardia.
+  - L'iride stava a 1 dalle palpebre: ora le tocca, e il bianco dell'occhio è
+    fatto di due pezzi.
+  - L'anello della lanterna era spesso 4: ora 5.
+  - Le fessure della corona erano larghe 5 in orizzontale ma 4,5 di traverso
+    (la regola di Holt): ora 5,4 in orizzontale, 5 di traverso.
+- **Le piccole.** Coi tagli più larghi i dettagli si stringono o spariscono,
+  come fa chi disegna una versione piccola:
+  - la cicatrice si accorcia;
+  - la scanalatura della spada sparisce sotto i 7 di taglio;
+  - l'anello della lanterna diventa una palla;
+  - la serratura e il rombo nel fuoco si stringono.
+- **L'irraggiamento.** Chiare su scuro (la scheda, i timbri), i tagli sono un
+  decimo più larghi.
+
+La prova `prova_le_icone_si_reggono` controlla tutto questo:
+- la pienezza entro l'8%;
+- il raggio entro il 10% (è una misura più grossolana);
+- il centro visivo entro 4;
+- nessun filo, a misura piena, piccola e chiara su scuro;
+- l'irraggiamento.
+
+È validata con sedici sabotaggi, presi tutti.
+
+### 7.4 Quello che i numeri non dicono
+
+- Il raggio e il centro visivo sono regole di mestiere, non leggi. Per le
+  forme a punta (il fulmine, l'Aura, la punta dello scudo) il centro visivo
+  resta qualche unità fuori: la punta conta nell'ingombro più di quanto pesi.
+- L'Attacco è il più sparso (raggio +7%): una spada di sbieco con la sua
+  falce occupa la diagonale. Più piccola diventava tozza; ho scelto la forma.
+- **Due somiglianze col resto del gioco, da decidere.** In combattimento i
+  riquadri degli status (`scripts/combattimento/IconeStato.gd`, dal disegno di
+  Bru) usano la fiamma per «in fiamme» e la saetta per «lentezza», «frastornato»
+  e «sonno».
+  - La Velocità è un fulmine: lo stesso segno, con un significato opposto.
+    La scia fuori registro la distingue, e anche i colori: lo status è giallo
+    in un tassello nero, la statistica è crema col timbro arancio.
+  - Il Fattore è un fuoco, ma porta il rombo dell'emblema in mezzo.
+
+  Sono contesti diversi (la scheda e la crescita da una parte, la vita in
+  battaglia dall'altra), ma lo stesso gioco.

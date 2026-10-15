@@ -18,6 +18,8 @@ extends Control
 #   massimo           l'ultimo giro chiuso, al 130: si torna sui bivi
 #   statistiche       le icone delle statistiche (IconeStatistiche, TavolaIcone): ognuna
 #                     con le due figure da cui nasce, timbrate, nella scheda, piccole
+#   misure            le stesse icone sotto la lente (TavolaMisure): forme chiave, centri,
+#                     la prova della sfocatura, i numeri, la resa sul fondo della scheda
 #   simboli           la tavola dei simboli (SimboliCrescita), grandi e piccoli
 #   bivio             prendere lo spicchio: un punto, due strade
 #   passive           quelle sbloccate si portano in tre alloggi, e si cambiano
@@ -31,8 +33,9 @@ const P := preload("res://prove/PezziCrescita.gd")
 const S := preload("res://prove/SimboliCrescita.gd")
 const IS := preload("res://prove/IconeStatistiche.gd")
 const TI := preload("res://prove/TavolaIcone.gd")
+const TM := preload("res://prove/TavolaMisure.gd")
 const PROPOSTE := ["giro_1", "giro_2", "giro_3", "giro_4", "giro_5", "giro_6", "giro_7", "fine_beta", "massimo",
-		"statistiche", "simboli", "bivio", "passive"]
+		"statistiche", "misure", "simboli", "bivio", "passive"]
 const CARTELLA := "res://scatti/proposte_crescita"
 const HYPE := 3450
 const LIVELLO := 7          # il protagonista d'esempio del bivio
@@ -148,7 +151,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 
 
 static func genere(nome: String) -> String:
-	return nome if nome in ["bivio", "passive", "simboli", "statistiche"] else "quadrante"
+	return nome if nome in ["bivio", "passive", "simboli", "statistiche", "misure"] else "quadrante"
 
 
 func mostra(quale: int) -> void:
@@ -1219,4 +1222,13 @@ func disegna_statistiche(t: CanvasItem) -> void:
 
 
 func tasti_statistiche() -> void:
+	pass
+
+
+func disegna_misure(t: CanvasItem) -> void:
+	TM.disegna(t)
+	testata(t, "", true, true)
+
+
+func tasti_misure() -> void:
 	pass

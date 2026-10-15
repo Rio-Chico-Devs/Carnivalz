@@ -80,19 +80,30 @@ func scrivi_rapporto() -> String:
 	r.append("i vuoti fra un pezzo e l'altro restano del colore del fondo.")
 	r.append("")
 	var media := 0.0
+	var raggi := 0.0
 	for chiave: String in I.CHIAVI:
 		media += I.pienezza(chiave)
+		raggi += I.raggio_inerzia(chiave)
 	media /= I.CHIAVI.size()
-	r.append("| icona | le due figure | pienezza | dalla media | ingombro (unità) |")
-	r.append("|---|---|---|---|---|")
+	raggi /= I.CHIAVI.size()
+	r.append("Le correzioni ottiche si misurano (la foto «misure» delle proposte): la pienezza entro l'8%")
+	r.append("dalla media, la grandezza (il raggio d'inerzia, quanto la massa è sparsa attorno al suo")
+	r.append("centro) entro il 10%, il centro visivo (a metà fra il centro dell'ingombro e il baricentro)")
+	r.append("entro 4 unità dal centro. E niente fili: due contorni o si toccano o stanno ad almeno un")
+	r.append("taglio.")
+	r.append("")
+	r.append("| icona | le due figure | pienezza | dalla media | raggio | dalla media | centro visivo | ingombro (unità) |")
+	r.append("|---|---|---|---|---|---|---|---|")
 	for chiave: String in I.CHIAVI:
 		var idea: Array = I.IDEE[chiave]
 		var b := I.ingombro(chiave)
-		r.append("| %s | %s + %s | %.3f | %+.1f%% | da %s,%s a %s,%s |" % [I.NOMI[chiave], idea[0], idea[1],
-				I.pienezza(chiave), (I.pienezza(chiave) / media - 1.0) * 100.0, String.num(b.position.x, 1),
+		var v := I.centro_visivo(chiave) - I.CENTRO
+		r.append("| %s | %s + %s | %.3f | %+.1f%% | %.1f | %+.1f%% | %+.1f, %+.1f | da %s,%s a %s,%s |" % [I.NOMI[chiave],
+				idea[0], idea[1], I.pienezza(chiave), (I.pienezza(chiave) / media - 1.0) * 100.0, I.raggio_inerzia(chiave),
+				(I.raggio_inerzia(chiave) / raggi - 1.0) * 100.0, v.x, v.y, String.num(b.position.x, 1),
 				String.num(b.position.y, 1), String.num(b.end.x, 1), String.num(b.end.y, 1)])
 	r.append("")
-	r.append("Media %.3f." % media)
+	r.append("Medie: pienezza %.3f, raggio %.1f." % [media, raggi])
 	r.append("")
 	for chiave: String in I.CHIAVI:
 		var idea: Array = I.IDEE[chiave]

@@ -14,19 +14,25 @@ I file sono il disegno a misura piena. Sotto i 32 pixel il gioco le disegna coi 
 larghi (mai sotto 1,4 pixel, a mezze unità), e timbrate l'ombra è la sagoma chiusa:
 i vuoti fra un pezzo e l'altro restano del colore del fondo.
 
-| icona | le due figure | pienezza | dalla media | ingombro (unità) |
-|---|---|---|---|---|
-| Punti vita | il cuore + la cicatrice cucita | 0.320 | +8.7% | da 10.0,16.0 a 90.0,88.0 |
-| Attacco | la spada + il fendente | 0.270 | -8.3% | da 4.0,4.0 a 89.6,91.0 |
-| Difesa | lo scudo + i merli | 0.327 | +10.9% | da 18.0,8.0 a 82.0,94.0 |
-| Velocità | il fulmine + la sua eco | 0.275 | -6.9% | da 16.0,4.0 a 86.0,96.0 |
-| Intelligenza | l'occhio + la serratura | 0.317 | +7.5% | da 4.0,19.0 a 96.0,81.0 |
-| Forza mentale | la lanterna + il fuoco | 0.266 | -9.8% | da 22.0,5.0 a 78.0,90.0 |
-| Fattore | il fuoco + l'emblema | 0.282 | -4.4% | da 24.7,4.0 a 75.3,94.0 |
-| Maestria del dominio | la corona + la barra del dominio | 0.320 | +8.5% | da 8.5,8.0 a 91.5,81.0 |
-| Aura | il vortice + la scia | 0.276 | -6.3% | da 16.6,4.0 a 84.0,95.6 |
+Le correzioni ottiche si misurano (la foto «misure» delle proposte): la pienezza entro l'8%
+dalla media, la grandezza (il raggio d'inerzia, quanto la massa è sparsa attorno al suo
+centro) entro il 10%, il centro visivo (a metà fra il centro dell'ingombro e il baricentro)
+entro 4 unità dal centro. E niente fili: due contorni o si toccano o stanno ad almeno un
+taglio.
 
-Media 0.295.
+| icona | le due figure | pienezza | dalla media | raggio | dalla media | centro visivo | ingombro (unità) |
+|---|---|---|---|---|---|---|---|
+| Punti vita | il cuore + la cicatrice cucita | 0.311 | +4.8% | 26.0 | -3.4% | +0.1, -1.6 | da 11.0,17.0 a 89.0,87.0 |
+| Attacco | la spada + il fendente | 0.278 | -6.4% | 28.9 | +7.2% | -0.6, -1.6 | da 12.0,10.5 a 93.7,91.9 |
+| Difesa | lo scudo + i merli | 0.293 | -1.3% | 27.8 | +3.3% | +0.0, -2.4 | da 20.0,10.0 a 80.0,92.0 |
+| Velocità | il fulmine + la sua eco | 0.305 | +2.9% | 25.3 | -6.0% | +1.3, -3.5 | da 11.0,8.0 a 91.8,96.0 |
+| Intelligenza | l'occhio + la serratura | 0.311 | +4.9% | 27.1 | +0.6% | +0.0, -0.1 | da 4.0,20.0 a 96.0,80.0 |
+| Forza mentale | la lanterna + il fuoco | 0.284 | -4.3% | 28.1 | +4.3% | +0.0, +0.7 | da 21.0,4.0 a 79.0,91.0 |
+| Fattore | il fuoco + l'emblema | 0.294 | -1.0% | 25.2 | -6.4% | +1.0, +1.5 | da 23.1,4.0 a 76.9,92.0 |
+| Maestria del dominio | la corona + la barra del dominio | 0.308 | +3.8% | 27.3 | +1.3% | +0.0, -1.9 | da 9.0,9.0 a 91.0,80.0 |
+| Aura | il vortice + la scia | 0.286 | -3.5% | 26.7 | -1.0% | -1.5, +3.5 | da 16.2,4.0 a 84.5,91.6 |
+
+Medie: pienezza 0.297, raggio 26.9.
 
 - **Punti vita** (`hp`): il cuore e la cicatrice cucita. Chi tocca il confine e torna: il trauma ricucito è forza.
 - **Attacco** (`attacco`): la spada e il fendente. Il colpo lascia uno squarcio alle spalle della lama.
