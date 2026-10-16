@@ -70,6 +70,32 @@ static func pannello(t: CanvasItem, chiave: String, c: Vector2, l: float) -> voi
 				t.draw_polyline(punti, Color(tinta, 0.75), 1.2, true)
 			"punto":
 				t.draw_circle(I.punto(c, l, g[1]), 2.6, P.ARANCIO)
+			"pettine":
+				pettine(t, c, l, g[1], tinta)
+
+
+static func pettine(t: CanvasItem, c: Vector2, l: float, p: PackedVector2Array, tinta: Color) -> void:
+	# il pettine della curvatura (IconeStatistiche.curvatura): da ogni punto del bordo
+	# un dente lungo la normale, lungo quanto la curva gira li'. Se la cresta dei
+	# denti e' liscia, il bordo non ha bozzi
+	var ck: Array = I.curvatura(p, 0.5, 2.0)
+	var q: PackedVector2Array = ck[0]
+	var k: PackedFloat32Array = ck[1]
+	var n := q.size()
+	var cresta := PackedVector2Array()
+	for i in n:
+		var tangente := (q[(i + 1) % n] - q[(i - 1 + n) % n]).normalized()
+		var dente := q[i] - tangente.orthogonal() * clampf(k[i], -0.5, 0.5) * 40.0
+		if dentro(dente) and dentro(q[i]):
+			if i % 4 == 0:
+				t.draw_line(I.punto(c, l, q[i]), I.punto(c, l, dente), Color(tinta, 0.3), 1.0, true)
+			cresta.append(I.punto(c, l, dente))
+		else:
+			if cresta.size() > 1:
+				t.draw_polyline(cresta, Color(tinta, 0.8), 1.0, true)
+			cresta = PackedVector2Array()
+	if cresta.size() > 1:
+		t.draw_polyline(cresta, Color(tinta, 0.8), 1.0, true)
 
 
 static func arco_nel_riquadro(t: CanvasItem, c: Vector2, l: float, centro: Vector2, r: float, tinta: Color) -> void:

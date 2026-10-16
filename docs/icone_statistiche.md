@@ -22,27 +22,27 @@ taglio.
 
 | icona | le due figure | pienezza | dalla media | raggio | dalla media | centro visivo | ingombro (unità) |
 |---|---|---|---|---|---|---|---|
-| Punti vita | il cuore + la cicatrice cucita | 0.311 | +5.4% | 26.0 | -2.9% | +0.1, -1.6 | da 11.0,17.0 a 89.0,87.0 |
-| Attacco | la spada + il fendente | 0.280 | -5.1% | 28.8 | +7.4% | -0.6, -1.6 | da 12.0,10.5 a 93.7,91.9 |
-| Difesa | lo scudo + i merli | 0.281 | -4.8% | 27.7 | +3.5% | +0.0, -2.4 | da 20.0,10.0 a 80.0,92.0 |
-| Velocità | il fulmine + la sua eco | 0.305 | +3.5% | 25.3 | -5.6% | +1.3, -3.5 | da 11.0,8.0 a 91.8,96.0 |
-| Intelligenza | l'occhio + la serratura | 0.311 | +5.5% | 27.1 | +1.1% | +0.0, -0.1 | da 4.0,20.0 a 96.0,80.0 |
-| Forza mentale | la lanterna + il fuoco | 0.282 | -4.6% | 28.0 | +4.5% | +0.0, +1.0 | da 21.0,4.0 a 79.0,91.0 |
-| Fattore | il fuoco + l'emblema | 0.294 | -0.4% | 25.2 | -5.9% | +1.0, +1.5 | da 23.1,4.0 a 76.9,92.0 |
-| Maestria del dominio | la corona + la barra del dominio | 0.308 | +4.4% | 27.3 | +1.8% | +0.0, -1.9 | da 9.0,9.0 a 91.0,80.0 |
-| Aura | il vortice + la scia | 0.284 | -3.8% | 25.7 | -3.9% | -1.1, +3.0 | da 16.7,4.0 a 85.4,90.5 |
+| Punti vita | il cuore + il palloncino | 0.306 | +3.5% | 24.3 | -9.4% | +0.3, -2.5 | da 15.0,12.0 a 85.0,95.9 |
+| Attacco | la spada + la maschera | 0.275 | -7.0% | 28.1 | +4.7% | -0.9, +0.9 | da 9.0,9.0 a 91.0,91.0 |
+| Difesa | lo scudo + i merli | 0.281 | -4.8% | 27.7 | +3.3% | +0.0, -2.4 | da 20.0,10.0 a 80.0,92.0 |
+| Velocità | il gallone + il suo doppio | 0.294 | -0.4% | 27.5 | +2.5% | -2.0, +0.0 | da 5.8,15.0 a 90.2,85.0 |
+| Intelligenza | l'occhio + la serratura | 0.311 | +5.5% | 27.1 | +0.9% | +0.0, -0.1 | da 4.0,20.0 a 96.0,80.0 |
+| Forza mentale | il rombo + il brillante | 0.304 | +2.9% | 27.9 | +4.1% | +0.0, +2.5 | da 4.0,16.0 a 96.0,96.0 |
+| Fattore | la bomba + la scintilla | 0.298 | +0.8% | 25.1 | -6.6% | +1.6, +2.3 | da 14.5,4.0 a 96.0,90.5 |
+| Maestria del dominio | la corona + la barra del dominio | 0.308 | +4.3% | 27.3 | +1.6% | +0.0, -1.9 | da 9.0,9.0 a 91.0,80.0 |
+| Aura | il vortice + la fiamma | 0.281 | -4.7% | 26.6 | -0.9% | -2.0, +2.4 | da 18.0,4.0 a 82.0,92.0 |
 
-Medie: pienezza 0.295, raggio 26.8.
+Medie: pienezza 0.295, raggio 26.9.
 
-- **Punti vita** (`hp`): il cuore e la cicatrice cucita. Chi tocca il confine e torna: il trauma ricucito è forza.
-- **Attacco** (`attacco`): la spada e il fendente. Il colpo lascia uno squarcio alle spalle della lama.
+- **Punti vita** (`hp`): il cuore e il palloncino. La vita è un palloncino della fiera: ogni colpo che incassi la gonfia un po' di più.
+- **Attacco** (`attacco`): la spada e la maschera. L'elsa è una colombina di carnevale: il Carnivalz è la festa di chi ha subito un torto.
 - **Difesa** (`difesa`): lo scudo e i merli. L'unità è una struttura da difendere: lo scudo è una fortezza.
-- **Velocità** (`velocita`): il fulmine e la sua eco. La stampa slitta fuori registro: la scia è il disallineamento.
+- **Velocità** (`velocita`): il gallone e il suo doppio. Il segno dell'avanti veloce: dove gli altri fanno un passo, tu ne fai due.
 - **Intelligenza** (`intelligenza`): l'occhio e la serratura. Vedere la via d'uscita: è la stat che fa fuggire.
-- **Forza mentale** (`forza_mentale`): la lanterna e il fuoco. La fiamma dietro il vetro, che lo stress non spegne.
-- **Fattore** (`fattore`): il fuoco e l'emblema. Nella fiamma, il rombo di Carnivalz: il disallineamento che arde in te.
+- **Forza mentale** (`forza_mentale`): il rombo e il brillante. La pressione fa i diamanti: la forza mentale cresce con lo stress che reggi.
+- **Fattore** (`fattore`): la bomba e la scintilla. La brace corre lungo la miccia, il critico è lo scoppio. Il riflesso è il rombo di Carnivalz.
 - **Maestria del dominio** (`maestria_dominio`): la corona e la barra del dominio. La fascia della corona sono i tre segmenti della barra.
-- **Aura** (`aura`): il vortice e la scia. L'energia che spendi sale dal vortice come una fiamma di spirito.
+- **Aura** (`aura`): il vortice e la fiamma. Il segno sulla pancia di Jalhalla, capovolto: un fuoco fatuo che sale dal vortice.
 
 ## Le distanze fra i contorni
 
@@ -52,12 +52,12 @@ su scuro) almeno tre quarti del taglio.
 
 | icona | a misura piena | piccola | piccola, chiara su scuro |
 |---|---|---|---|
-| Punti vita | 5.17 | 8.0 | 8.66 |
-| Attacco | 5.04 | 8.29 | 8.9 |
+| Punti vita | 7.58 | 7.58 | 7.58 |
+| Attacco | 5.11 | 7.22 | 7.73 |
 | Difesa | 8.0 | 9.6 | 10.0 |
 | Velocità | 5.0 | 9.0 | 10.0 |
 | Intelligenza | 6.22 | 8.47 | 9.03 |
-| Forza mentale | 5.0 | 8.13 | 8.72 |
-| Fattore | 7.79 | 9.5 | 9.95 |
+| Forza mentale | — | — | — |
+| Fattore | 6.4 | 8.7 | 9.12 |
 | Maestria del dominio | 5.0 | 9.0 | 10.0 |
 | Aura | — | — | — |

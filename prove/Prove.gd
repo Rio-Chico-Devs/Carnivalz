@@ -4373,6 +4373,14 @@ func prova_le_icone_si_reggono() -> void:
 		esigi(FileAccess.file_exists(percorso) and FileAccess.get_file_as_string(percorso) == icone.svg(chiave),
 				"%s non e' aggiornato: rilancia ./prove/icone.sh" % percorso)
 		esigi(FileAccess.file_exists(percorso.get_basename() + ".png"), "manca il PNG di '%s'" % chiave)
+	# NIENTE BOZZI. Bru: «l'aura non è perfettamente curvilinea sembra abbia bozzi».
+	# Lungo il bordo la curvatura deve cambiare verso solo dove la figura ha una
+	# gobba vera, lontano dal cambio precedente: il ricciolo di prima, fatto con le
+	# normali stimate dai punti e uno spessore a tratti, ne aveva 59 a meno di 3
+	# unita' uno dall'altro
+	var increspature := icone.bozzi(icone.strati("aura")[0][1])
+	esigi(increspature == 0, "il bordo dell'aura ha %d bozzi (la curvatura cambia verso a meno di 3 unita' dal cambio prima)"
+			% increspature)
 	var media := 0.0
 	for v in pesi:
 		media += v

@@ -9,8 +9,10 @@
 > abbastanza quel che devono ricordare e non hanno quel qualcosa di design che per
 > esempio combina due icone per crearne una». Le statistiche adesso sono
 > `prove/IconeStatistiche.gd`: ognuna due figure del mondo di Carnivalz che ne fanno
-> una terza (il cuore e la cicatrice cucita, la spada e il fendente, la lanterna e il
-> fuoco...), con curve vere e il peso bilanciato. Idee, pesi e ingombri in
+> una terza, con curve vere e il peso bilanciato. Dopo la seconda revisione di Bru
+> (§8) sono il cuore-palloncino, la spada mascherata, lo scudo-fortezza, i due
+> galloni, l'occhio con la serratura, il brillante, la bomba, la corona con la barra
+> e il fuoco fatuo di Jalhalla. Idee, pesi e ingombri in
 > [`docs/icone_statistiche.md`](icone_statistiche.md); i file in
 > `art/interfaccia/statistiche/proposta/`. Le sagome A restano, coi loro file e la
 > loro prova, ma le proposte non le usano più. Le letture qui sotto restano valide.
@@ -35,7 +37,11 @@ Questa pagina dice:
 - cosa avevo ricavato prima dai soli riassunti dei motori di ricerca (§3);
 - le fonti (§4) e cosa resta da leggere (§5);
 - Vita, Attacco e Difesa rifatte a fondo: le lezioni su simbolismo, due figure
-  in una, composizione e geometria, le strade provate e le tre proposte (§6).
+  in una, composizione e geometria, le strade provate e le tre proposte (§6);
+- la revisione delle icone sotto la lente: misure ottiche, fili, piccole (§7);
+- le icone rifatte da capo dopo la seconda critica di Bru: la regola nuova, le
+  strade tenute e scartate, l'Aura misurata sul segno di Jalhalla e senza
+  bozzi (§8).
 
 Il codice è in `prove/SimboliCrescita.gd` (`mon`, `sagoma`, `statistica`,
 `ottica`); le tavole di studio in `prove/StudioSegni.gd`. Le immagini sono
@@ -604,7 +610,9 @@ Ognuna ha due alternative tenute, nelle tavole. La scelta è di Bru.
 Bru: «continua a studiare [...] rivaluta il tuo lavoro, pensaci su,
 confrontalo con risorse esterne». Le icone sono quelle di
 `prove/IconeStatistiche.gd` (due figure in una). Qui c'è cosa ho letto, cosa
-ho misurato e cosa è cambiato.
+ho misurato e cosa è cambiato. Gli strumenti e le regole di misura restano; le
+figure di Vita, Attacco, Velocità, Forza mentale, Fattore e Aura sono state
+rifatte da capo dopo (§8).
 
 ### 7.1 Le letture
 
@@ -803,3 +811,127 @@ o pieno. Le nostre sono pieni coi tagli. Dove l'oggetto ha un bordo (l'occhio,
 lo scudo, la lanterna) il bordo è spesso T, sempre lo stesso: è il pieno di un
 oggetto che ha un bordo, non un'icona a tratto. La lanterna ha i montanti
 spessi T e i traversi spessi C, come i telai veri.
+
+## 8. Rifatte da capo: la seconda revisione di Bru
+
+Bru, sulla revisione del §7: «ancora non ci siamo le icone che effettivamente
+sono migliorate sono: intelligenza e le frecce [...] come ti viene in mente di
+mettere la cicatrice in mezzo al cuore? terribile... l'aura non è perfettamente
+curvilinea sembra abbia bozzi [...] l'icona attacco è totalmente da rifare [...]
+così come quella della lanterna che è un'idea proprio senza fantasia come la
+fiamma, non c'è stato impegno».
+
+Aveva ragione su tutto. Il §7 aveva corretto i numeri (pesi, centri, fili) su
+idee che non reggevano: una cicatrice messa sopra un cuore, una falce messa
+accanto a una spada, una fiamma messa dentro una lanterna. Sono figure **una
+accanto all'altra**. L'occhio con la serratura funziona perché l'iride **è** la
+serratura.
+
+### 8.1 La regola nuova
+
+- **La prima figura si legge da sola.** La seconda è il premio di chi guarda.
+  È la regola dei marchi a spazio negativo (Creative Bloq, *19 brilliant
+  examples of negative space*): la figura nascosta non deve servire a capire,
+  e il marchio non deve perdere niente se uno non la vede.
+- **Le due figure si fondono**, non si sommano: una parte della prima fa da
+  seconda (l'iride e la serratura, la fascia della corona e la barra).
+- **Prima le idee, poi i numeri.** Per ognuna delle quattro da rifare ho
+  schizzato da sette a sedici strade e le ho giudicate grandi, a 64, 32, 24 e
+  16 pixel, chiare su scuro. Solo dopo ho misurato.
+
+### 8.2 Le strade, tenute e scartate
+
+| statistica | tenuta | scartate, e perché |
+|---|---|---|
+| Vita | **il palloncino**: il cuore è un palloncino della fiera, col nodo, il filo e il riflesso | la fiala (il cuore come pozione: buona, seconda scelta), il cuore mezzo pieno (sembra un triangolo nel cuore), la chiave a carica (fa rima con la serratura dell'Intelligenza), il cuore nel cuore (piatto), la croce (l'icona di ogni farmacia), la foglia d'edera (la vena lo spacca: sembra un cuore rotto) |
+| Attacco | **la spada mascherata**: l'elsa è una colombina, la maschera del carnevale veneziano | la spada di picche (un cartello di pericolo), la picca e la guardia a picche (una pala), il tirapugni (una corona coi denti), la Z di Zorro (la Z del sonno), il coltello che inchioda la carta (affollato), la sciabola (un coltello da cucina, e leggera), il guantone (una nuvola), la mazza (un martello da artigiano o da giudice), i graffi (fili), la spada nel rombo e l'asso di spade (una croce), la lancia da giostra (un trapano) |
+| Velocità | **i due galloni**: la scelta di Bru fra le frecce | il fulmine (lo stesso segno dello status «lentezza»), tre galloni (fitti da piccoli), la freccia con l'eco |
+| Forza mentale | **il brillante**: il rombo dell'emblema tagliato in cima diventa un diamante | l'ancora (è il legame, nella storia), la trottola, la maschera (una faccia), il loto (sembra una foglia di canapa), la palla in equilibrio (un pedone), la perla nella conchiglia (una persona in una ciotola), l'incudine (l'artigiano) |
+| Fattore | **la bomba**: la miccia accesa è la brace, la scintilla il critico, il riflesso il rombo | il rombo fuori registro (astratto), il rombo a strisce sfasate (un albero di Natale), la candela accesa dai due capi (un fornello), l'asso infuocato, lo scoppio di rombi (una rosa dei venti), la brace a rombo (affollata), il cappello del giullare (la stessa sagoma della corona) |
+
+La spada mascherata è stata provata dritta e di sbieco. Dritta, appesantita
+perché pesasse come le altre, diventava una faccia mascherata col cappello a
+punta. Di sbieco si legge subito come arma; perché non si allargasse troppo
+(il raggio d'inerzia) sta in un quadrato di 82, e il pomo resta un rombo dritto.
+
+### 8.3 L'Aura senza bozzi
+
+La critica era precisa: il bordo ondeggiava. Il ricciolo del §7 era costruito
+così:
+
+- una curva cubica e una spirale, attaccate;
+- allargate con le normali stimate dai punti vicini;
+- uno spessore fatto a tratti.
+
+Ogni attacco lasciava un piccolo salto di curvatura, e l'occhio li vede.
+
+Gli strumenti nuovi:
+
+- **Il pettine della curvatura**, come nei programmi per disegnare caratteri:
+  da ogni punto del bordo esce un dente lungo quanto la curva gira lì. Se la
+  cresta dei denti è liscia, il bordo è liscio. È nella tavola «costruzione»,
+  sopra l'Aura (`IconeStatistiche.curvatura`).
+- **Il conto dei bozzi** (`IconeStatistiche.bozzi`): le volte che la curvatura
+  smette di crescere e cala, a meno di 3 unità dal cambio prima. Le gobbe vere
+  di una figura stanno lontane fra loro; un bordo a bozzi cambia ogni unità o
+  due. Il ricciolo di prima ne aveva **59**, quello nuovo **0**. È una prova
+  della suite.
+
+Il segno, misurato:
+
+1. La foto di Jalhalla, ritagliata e ridotta a bianco e nero; lo scheletro
+   (Zhang-Suen) dà la linea di mezzo, la distanza dal fondo dà lo spessore.
+2. La linea di mezzo del segno capovolto, letta così:
+   - dalla punta scende girando in senso orario (la pancia, da 50° a circa
+     145°);
+   - poi si flette e si avvolge in senso antiorario per circa 470°;
+   - il ricciolo è un ovale 1,65 : 1;
+   - la pancia è larga 0,22 dell'altezza, il ricciolo 0,09.
+3. La curva nuova è data dalla sua **curvatura lungo la lunghezza**, che non salta mai:
+   - sulla coda, una gobba oraria che sfuma nella curvatura del ricciolo;
+   - poi una spirale logaritmica, il cui raggio di curvatura cala dritto;
+   - tutto allargato in orizzontale per l'ovale.
+   Sette numeri, trovati con una ricerca che ricalca la linea misurata: lo
+   scarto medio è il **2% dell'altezza**.
+4. Lo spessore è più pieno del segno, come le altre icone:
+   - nasce dalla punta;
+   - si gonfia nella pancia (0,36 dell'altezza);
+   - corre nel ricciolo (0,185);
+   - chiude in tondo.
+   Tutte funzioni lisce, e le normali sono quelle vere della curva.
+5. Un ultimo gomito l'ha trovato il pettine ingrandito sette volte: dove
+   cominciava la fine tonda (radice di 1 − x²) lo spessore cambiava curvatura di
+   colpo. Ora è radice di 1 − x⁶, piatta in partenza fino alla derivata quinta.
+
+### 8.4 Le misure
+
+Tutte dentro le regole del §7 (il rapporto è `docs/icone_statistiche.md`):
+
+- **pesi** fra −7% (la spada, che è fatta di lame) e +5,5% (l'occhio);
+- **raggi** entro il 10%;
+- **centri visivi** entro 2,5;
+- **niente fili**, nemmeno a 16 pixel chiare su scuro. Piccole:
+  - gli occhi della maschera si stringono;
+  - il riflesso della bomba rientra;
+  - la miccia si accorcia;
+  - i due galloni si allontanano.
+
+La prova delle icone è stata sabotata in venti modi (l'aura fuori dall'area,
+il riflesso fuori dal palloncino, gli occhi che da piccoli non si stringono, la
+scintilla attaccata alla miccia, le frecce strette, le normali stimate a
+occhio, lo spessore a gradini...): li ha presi tutti.
+
+### 8.5 Cosa resta a Bru
+
+Le alternative tenute sono nelle strade sopra: la fiala per la Vita, i tre
+galloni o la freccia con l'eco per la Velocità. Le metafore del §7.5 cambiano
+così:
+
+| statistica | figura | distanza dal significato |
+|---|---|---|
+| Vita | cuore-palloncino | vicinissima: è un cuore |
+| Attacco | spada mascherata | vicina: è una spada |
+| Velocità | due galloni | vicina: l'avanti veloce di ogni lettore |
+| Forza mentale | brillante | media: la pressione che fa i diamanti si spiega in una riga |
+| Fattore | bomba | media: il potenziale che esplode, i critici |
+| Aura | fuoco fatuo | lontana, ma con la sua storia: il segno di Jalhalla |
