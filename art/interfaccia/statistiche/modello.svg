@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 100 100">
+<title>Modello per le icone delle statistiche</title>
+<!-- Il riquadro di un'icona, su 100 unita'. Disegna sopra, in un livello tuo, e
+     togli questo prima di esportare. docs/icone_da_disegnare.md dice tutto. -->
+<g id="griglia" fill="none" stroke="#000" stroke-opacity="0.12" stroke-width="0.15">
+<path d="M10 0V100M20 0V100M30 0V100M40 0V100M60 0V100M70 0V100M80 0V100M90 0V100"/>
+<path d="M0 10H100M0 20H100M0 30H100M0 40H100M0 60H100M0 70H100M0 80H100M0 90H100"/>
+</g>
+<g id="assi" fill="none" stroke="#000" stroke-opacity="0.3" stroke-width="0.2">
+<path d="M50 0V100M0 50H100"/>
+</g>
+<g id="forme_chiave" fill="none" stroke="#f4931b" stroke-opacity="0.55" stroke-width="0.3">
+<!-- quanto spazio prende di solito una forma: tonda, quadrata, alta, larga -->
+<circle cx="50" cy="50" r="41.5"/>
+<rect x="12.5" y="12.5" width="75" height="75"/>
+<rect x="16.5" y="8.5" width="67" height="83"/>
+<rect x="8.5" y="16.5" width="83" height="67"/>
+</g>
+<g id="area_viva" fill="none" stroke="#c96f12" stroke-width="0.4">
+<!-- niente esce da qui: da 4 a 96 -->
+<rect x="4" y="4" width="92" height="92"/>
+</g>
+<g id="campioni" fill="#c96f12" fill-opacity="0.35">
+<!-- in alto a sinistra, fuori dall'area viva: il taglio (5) e il bordo (10) -->
+<rect x="0.5" y="0.5" width="5" height="3"/>
+<rect x="6.5" y="0.5" width="10" height="3"/>
+</g>
+</svg>

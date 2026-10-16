@@ -8,12 +8,17 @@ art/interfaccia/statistiche/<chiave>.png
 ```
 
 Sono le icone delle statistiche nella scheda della squadra. Le chiavi sono
-`hp`, `attacco`, `difesa`, `velocita`, `aura`.
+`hp`, `attacco`, `difesa`, `velocita`, `aura`; la crescita usa anche
+`intelligenza`, `forza_mentale`, `fattore`, `maestria_dominio`.
 
-Sul foglio da 1280×720 stanno in 24×24 pixel, dentro un quadratino nero.
-Conviene disegnarle a 52×52, bianche su trasparente. Il file entra intero e
-centrato. Finché non c'è, al suo posto c'è un disegno a forme: cuore, lama,
-scudo, fulmine, stella.
+Sul foglio da 1280×720 stanno in 26×26 pixel, dentro un quadratino scuro. Il
+file entra intero e centrato. Finché non c'è, al suo posto c'è un disegno a
+forme: cuore, lama, scudo, fulmine, stella.
+
+Per disegnarle: le misure (griglia, area viva, tagli, peso) sono in
+[`docs/icone_da_disegnare.md`](../../docs/icone_da_disegnare.md), e il modello
+su cui disegnare è `statistiche/modello.svg` (o `modello.png`, 1000 × 1000).
+Bianche su trasparente, una tinta sola; meglio l'SVG, se no un PNG 512 × 512.
 
 In `statistiche/strada_a/` ci sono le sagome della strada A pulite, da misurare:
 un SVG e un PNG per statistica, 480 × 480, nero su trasparente. Le scrive
