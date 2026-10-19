@@ -95,3 +95,54 @@ Il perché è scritto sotto, negli stessi colori.
      gioco.
 4. Veronica e Yhvina hanno la loro ruota, con le loro tasche, nella stessa
    schermata?
+
+## 6. I film: la salita e oltre il 20
+
+Bru: «bisogna animare la crescita di livello e quando la ruota supera il 20
+esponendo la nuova ruota».
+
+Li gira `./prove/film_salita.sh` (serve ffmpeg) con `prove/FilmSalita.gd`, e
+finiscono in `scatti/proposte_salita/`. Seguono la B, la strada consigliata,
+perché Bru non ne ha scelta un'altra. Ogni pezzo vale anche per la A e per la C.
+
+**`salita.mp4`** (18 secondi), dal 7 all'8:
+
+1. **PRENDI.** Il punto lascia il contatore, che passa da 3 a 2, e vola nella
+   tasca sotto la lancetta, che si accende d'arancio.
+2. **La lastra.** Fra un momento e l'altro passa una lastra nera, da sinistra a
+   destra, come nella pausa.
+3. **Il bivio** approvato, coi suoi tempi.
+4. **Il salto.**
+   - Il 7 cade, l'8 arriva dall'alto, batte e trema.
+   - La carta del perché entra girando.
+   - Ogni riga compare, crescono le azioni (il pezzo pieno), poi la strada (il
+     pezzo arancio), e il numero conta.
+5. **La carta di Vendetta.** Sale dal basso girando, batte con un lampo e la
+   attraversa un riflesso. I raggi dietro girano piano.
+6. **Di nuovo la ruota.**
+   - Il timbro cade sulla tasca dell'8, e la tasca resta scura anche sotto la
+     lancetta.
+   - Il mozzo rotola dal 7 all'8.
+   - La lastra dice GIÀ PRESO, con la strada vera (più attacco).
+   - La lancetta passa al 9.
+
+**`oltre_il_20.mp4`** (8 secondi), dal 19 al 20 e oltre:
+
+1. Il timbro cade sul 20 e il mozzo rotola dal 19 al 20.
+2. Il giro chiuso si accende: una luce fa il giro delle tasche, come le
+   lampadine della ruota vera, poi lampeggiano tutte. Nel mozzo compare
+   COMPLETO.
+3. **AL SECONDO GIRO**: un giro di vittoria, un giro intero della ruota.
+4. La ruota si crepa dal mozzo lungo il taglio storto del bivio.
+5. Le due metà volano via, una in alto a sinistra e una in basso a destra, e
+   **sotto c'è la ruota nuova**, che entra girando e si ferma sul 21.
+   - Per spaccarla, la ruota vecchia si disegna anche in un SubViewport; le
+     metà sono due pezzi della sua immagine.
+6. Il nome del giro (II, SECONDO GIRO, LIVELLI 21–40) arriva come un timbro, e
+   se ne va.
+
+Nella beta non si vede: il 20 è il tetto, e al suo posto c'è il giro chiuso col
+lucchetto.
+
+Il bivio è nel primo film e non nel secondo. È disegnato per il livello
+d'esempio, e il secondo film comincia quando si torna sulla ruota.

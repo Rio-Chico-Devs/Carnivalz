@@ -204,11 +204,12 @@ static func segnapunti(t: CanvasItem, dove: Vector2, quanti: int, resto: int, in
 
 
 static func riga_cresciuta(t: CanvasItem, voce: Dictionary, dove: Vector2, largo: float, su_nero: bool,
-		grande := false) -> float:
+		grande := false, azioni_fatte := 1.0, strada_fatta := 1.0, comparsa := 1.0) -> float:
 	# una statistica cresciuta: l'icona, il nome, da quanto a quanto, la
 	# barretta in tre pezzi (quello che avevi, grigio; le azioni, nel colore del
 	# testo; la strada, arancio) e il perche', negli stessi colori. Restituisce
-	# quanto e' alta
+	# quanto e' alta (sempre la stessa, anche a meta': la colonna non salta).
+	# Nel film (FilmSalita) la riga compare, poi crescono le azioni, poi la strada
 	var inchiostro := P.CREMA if su_nero else P.NERO
 	var grigio := P.TRATTO if su_nero else P.CREMA.lerp(P.NERO, 0.3)
 	var arancio := P.ARANCIO if su_nero else P.ARANCIO_SCURO
@@ -218,34 +219,43 @@ static func riga_cresciuta(t: CanvasItem, voce: Dictionary, dove: Vector2, largo
 	var fatte := int(voce["fatte"])
 	var corpo := 24 if grande else 19
 	var lato := 34.0 if grande else 27.0
-	IS.timbro(t, chiave, dove + Vector2(lato * 0.5, 2), lato, inchiostro, P.NERO if su_nero else P.CREMA, P.ARANCIO)
 	var x := dove.x + lato + 12.0
-	P.scritta(t, Vector2(x, dove.y + 10), nome_stat(chiave).to_upper(), corpo, inchiostro)
-	P.scritta(t, Vector2(dove.x, dove.y + 12), "%d → %d" % [prima, prima + scelta + fatte], corpo + 6, inchiostro, null,
+	var y := dove.y + (56.0 if grande else 50.0)
+	var corpo_perche := 15 if grande else 13
+	var testo := "%+d per %s" % [fatte, String(voce["perche"])]
+	var spazio := dove.x + largo - x
+	var righe := 1 if P.larghezza(testo, corpo_perche, Caratteri.tondo(800)) <= spazio else 2
+	var alto := y - dove.y + 4.0 + (corpo_perche + 4.0) * ((1 if scelta > 0 else 0) + (righe if fatte > 0 else 0))
+	if comparsa <= 0.0:
+		return alto
+	if comparsa > 0.2:
+		# l'icona salta fuori
+		IS.timbro(t, chiave, dove + Vector2(lato * 0.5, 2), lato * rimbalza(comparsa), inchiostro,
+				P.NERO if su_nero else P.CREMA, P.ARANCIO)
+	P.scritta(t, Vector2(x, dove.y + 10), nome_stat(chiave).to_upper(), corpo, velo(inchiostro, comparsa))
+	var adesso_vale := prima + roundi(fatte * azioni_fatte) + roundi(scelta * strada_fatta)
+	P.scritta(t, Vector2(dove.x, dove.y + 12), "%d → %d" % [prima, adesso_vale], corpo + 6, velo(inchiostro, comparsa), null,
 			HORIZONTAL_ALIGNMENT_RIGHT, largo)
 	var barra := Rect2(x, dove.y + 22, dove.x + largo - x, 10 if grande else 8)
 	var fondo := float(FONDO.get(chiave, 100.0))
-	P.barretta(t, barra, (prima + scelta + fatte) / fondo, arancio, Color(inchiostro, 0.12))
-	P.barretta(t, barra, (prima + fatte) / fondo, inchiostro)
+	P.barretta(t, barra, (prima + scelta * strada_fatta + fatte * azioni_fatte) / fondo, arancio,
+			Color(inchiostro, 0.12 * comparsa))
+	P.barretta(t, barra, (prima + fatte * azioni_fatte) / fondo, inchiostro)
 	P.barretta(t, barra, prima / fondo, grigio)
-	var y := dove.y + (56.0 if grande else 50.0)
-	var corpo_perche := 15 if grande else 13
 	if scelta > 0:
-		P.scritta(t, Vector2(x, y), "%+d la strada che hai preso" % scelta, corpo_perche, arancio, Caratteri.tondo(900))
+		P.scritta(t, Vector2(x, y), "%+d la strada che hai preso" % scelta, corpo_perche, velo(arancio, strada_fatta),
+				Caratteri.tondo(900))
 		y += corpo_perche + 4.0
 	if fatte > 0:
-		var testo := "%+d per %s" % [fatte, String(voce["perche"])]
-		var spazio := dove.x + largo - x
-		var righe := 1 if P.larghezza(testo, corpo_perche, Caratteri.tondo(800)) <= spazio else 2
-		P.a_capo(t, Rect2(x, y - corpo_perche, spazio, 40), testo, corpo_perche, inchiostro, Caratteri.tondo(800),
-				HORIZONTAL_ALIGNMENT_LEFT, 2)
-		y += (corpo_perche + 4.0) * righe
-	return y - dove.y + 4.0
+		P.a_capo(t, Rect2(x, y - corpo_perche, spazio, 40), testo, corpo_perche, velo(inchiostro, azioni_fatte),
+				Caratteri.tondo(800), HORIZONTAL_ALIGNMENT_LEFT, 2)
+	return alto
 
 
-static func carta_abilita(t: CanvasItem, c: Vector2, gradi: float, quanto_grande := 1.0) -> void:
+static func carta_abilita(t: CanvasItem, c: Vector2, gradi: float, quanto_grande := 1.0, lucido := -1.0) -> void:
 	# l'abilita' che arriva, come una carta: il simbolo, il nome, cosa fa, e in
-	# fondo quanto costa e quanto pesa (abilita.json)
+	# fondo quanto costa e quanto pesa (abilita.json). "lucido", fra 0 e 1: il
+	# riflesso che la attraversa quando arriva
 	var dati := abilita(ARRIVA)
 	P.gira(t, c, gradi, quanto_grande)
 	# il bordo chiaro, come un adesivo ritagliato: sul nero la carta resta intera
@@ -268,17 +278,23 @@ static func carta_abilita(t: CanvasItem, c: Vector2, gradi: float, quanto_grande
 	P.scritta(t, Vector2(-200, 238), "×%s a vita piena · ×%s quasi a terra" % [virgola(float(dati.get("moltiplicatore_pieno", 1.0))),
 			virgola(float(dati.get("moltiplicatore_vuoto", 1.0)))], 14, P.CREMA, Caratteri.tondo(800),
 			HORIZONTAL_ALIGNMENT_CENTER, 400)
+	if lucido > 0.0 and lucido < 1.0:
+		var x := lerpf(-560.0, 420.0, lucido)
+		var riflesso := PackedVector2Array([Vector2(x, -260), Vector2(x + 90, -260), Vector2(x - 50, 260), Vector2(x - 140, 260)])
+		for pezzo: PackedVector2Array in Geometry2D.intersect_polygons(riflesso, PackedVector2Array([Vector2(-200, -250),
+				Vector2(200, -250), Vector2(200, 250), Vector2(-200, 250)])):
+			Manifesto.poligono(t, pezzo, Color(1, 1, 1, 0.28))
 	P.dritto(t)
 
 
-static func raggiera(t: CanvasItem, c: Vector2, quanti: int, chiaro: Color, scuro: Color) -> void:
-	# i raggi dei manifesti del luna park, dietro a quello che arriva
+static func raggiera(t: CanvasItem, c: Vector2, quanti: int, chiaro: Color, scuro: Color, giro := 0.0) -> void:
+	# i raggi dei manifesti del luna park, dietro a quello che arriva (nel film girano)
 	t.draw_rect(Rect2(0, 0, 1280, 720), scuro)
 	var passo := TAU / quanti
 	for i in quanti:
 		if i % 2 == 1:
-			Manifesto.poligono(t, PackedVector2Array([c, c + Vector2.from_angle(passo * i) * 1700.0,
-					c + Vector2.from_angle(passo * (i + 1)) * 1700.0]), chiaro)
+			Manifesto.poligono(t, PackedVector2Array([c, c + Vector2.from_angle(giro + passo * i) * 1700.0,
+					c + Vector2.from_angle(giro + passo * (i + 1)) * 1700.0]), chiaro)
 
 
 func arriva_comunque(t: CanvasItem, dove: Vector2, su_nero: bool) -> void:

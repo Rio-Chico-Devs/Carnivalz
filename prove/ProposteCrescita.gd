@@ -84,6 +84,7 @@ var cambiato_a := -10.0
 var preso_a := -1.0
 var passiva := 2               # quella guardata fra tutte
 var portata := false
+var scelte := {}               # livello -> la strada presa (la scrive la salita); senza, pari o dispari
 
 
 func _ready() -> void:
@@ -673,7 +674,7 @@ func simbolo_tasca(t: CanvasItem, livello: int, c: Vector2, l: float, tinta: Col
 	elif livello == 1:
 		S.rombo(t, c, l, 12, 12, 3.4, tinta)
 	elif preso:
-		IS.timbro(t, String(coppia(livello)[livello % 2]), c, l * 1.1, tinta, fondo, ombra)
+		IS.timbro(t, scelta_di(livello), c, l * 1.1, tinta, fondo, ombra)
 	else:
 		# la scelta che verra', piu' quieta: senza ombra, un colore pieno a meta' fra segno e tasca
 		S.disegna(t, "biforca", c, l * 0.78, Color(Color(fondo, 1.0).lerp(Color(tinta, 1.0), 0.6), tinta.a), fondo)
@@ -702,13 +703,27 @@ func mozzo(t: CanvasItem, tm: Dictionary, g: int) -> void:
 	var giro := "GIRO %s" % ROMANI[g]
 	P.etichetta(t, c + Vector2(-(P.larghezza(giro, 18) + 20.0) * 0.5, -122), giro, 18, tm["accento"],
 			tm["mozzo"] if tm["accento"] != tm["mozzo"] else tm["mozzo_numero"])
-	var numero := str(adesso)
-	var corpo := 150 if numero.length() < 3 else 112
-	P.ritagliata(t, c + Vector2(-170, 54 if numero.length() < 3 else 40), numero, corpo, tm["mozzo_numero"], P.NERO, 0,
-			tm["mozzo_ombra"], Vector2(9, 9), null, HORIZONTAL_ALIGNMENT_CENTER, 340)
+	numero_del_mozzo(t, tm)
 	if beta:
 		var tetto := "TETTO DELLA BETA"
 		P.etichetta(t, c + Vector2(-(P.larghezza(tetto, 14) + 15.0) * 0.5, 84), tetto, 14, P.ARANCIO, P.NERO)
+
+
+func numero_del_mozzo(t: CanvasItem, tm: Dictionary) -> void:
+	# il livello, enorme (nella salita rotola: FilmSalita)
+	numero_nel_mozzo(t, tm, str(adesso), Vector2.ZERO, 1.0)
+
+
+static func numero_nel_mozzo(t: CanvasItem, tm: Dictionary, numero: String, spinta: Vector2, alfa: float) -> void:
+	var corpo := 150 if numero.length() < 3 else 112
+	P.ritagliata(t, CENTRO + spinta + Vector2(-170, 54 if numero.length() < 3 else 40), numero, corpo,
+			velo(tm["mozzo_numero"], alfa), P.NERO, 0, velo(tm["mozzo_ombra"], alfa), Vector2(9, 9), null,
+			HORIZONTAL_ALIGNMENT_CENTER, 340)
+
+
+func scelta_di(livello: int) -> String:
+	# la strada presa a quel livello: quella vera, se la salita l'ha scritta
+	return String(scelte.get(livello, coppia(livello)[livello % 2]))
 
 
 static func legenda(t: CanvasItem) -> void:
@@ -757,10 +772,11 @@ func pannello_quadrante(t: CanvasItem, livello: int) -> void:
 	else:
 		var due: Array = coppia(livello)
 		if stato == "preso":
-			var scelta_presa := String(due[livello % 2])
+			var scelta_presa := scelta_di(livello)
 			S.disegna(t, scelta_presa, Vector2(56, y + 20), 34.0, P.CREMA, P.NERO, P.ARANCIO)
 			P.scritta(t, Vector2(90, y + 26), "PIÙ " + String(PAROLE[scelta_presa]), 22, P.CREMA)
-			P.scritta(t, Vector2(90, y + 46), "l'hai scelta tu, invece di %s" % nome_stat(String(due[1 - livello % 2])).to_lower(),
+			var lasciata := String(due[1]) if String(due[0]) == scelta_presa else String(due[0])
+			P.scritta(t, Vector2(90, y + 46), "l'hai scelta tu, invece di %s" % nome_stat(lasciata).to_lower(),
 					14, P.CARTA, Caratteri.tondo(700))
 		else:
 			S.disegna(t, "biforca", Vector2(56, y + 18), 34.0, P.CREMA, P.NERO)
