@@ -5,9 +5,11 @@ extends Control
 # le loro porte, perche' si deve leggere e cliccare anche dove una stanza ci
 # passa sotto (PlasticoZona.monta_sopra lo mette in cima alla cornice).
 #   - i PIANI, a sinistra: un bottone per piano, fermi in colonna come in un
-#     ascensore, con un filo che arriva al suo pavimento. Cliccandolo resta solo quel piano (gli altri si
-#     spengono e non si cliccano), cliccandolo di nuovo tornano tutti. Il pallino
-#     arancio dice su che piano sei
+#     ascensore. Cliccandolo resta solo quel piano (gli altri si spengono e non
+#     si cliccano), cliccandolo di nuovo tornano tutti. Il pallino arancio dice
+#     su che piano sei. Niente filo dal bottone al pavimento: Bru, «la linea
+#     [...] e' proprio brutta togliamola, non penso l'utente abbia bisogno della
+#     linea per capire in quale piano si trova»
 #   - chi c'e': un pallino per personaggio sopra la sua stanza
 #   - la SCHEDA della stanza puntata, accanto alla stanza e non in fondo allo
 #     schermo: come si chiama, cosa ci si fa, chi c'e' e cosa succede cliccando.
@@ -95,23 +97,12 @@ func vesti_piani() -> void:
 			b.add_theme_color_override(chiave, scritta)
 
 
-func attacco(piano: int) -> Vector2:
-	# dove il filo tocca il piano: l'angolo del pavimento piu' a sinistra a schermo
-	var r := p.impronta_del_piano(piano)
-	var quota := float(piano) * p.altezza
-	var dove := Vector2(INF, 0.0)
-	for angolo in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
-		var punto := p.sullo_schermo(Vector3(angolo.x, quota, angolo.y))
-		dove = punto if punto.x < dove.x else dove
-	return dove
-
-
 func colloca_piani() -> void:
 	# UNA PULSANTIERA FERMA, come quella di un ascensore: il piano piu' alto in
 	# cima, al centro dell'altezza della cornice. Prima ogni bottone seguiva il
 	# suo pavimento, e cliccandolo la vista andava su quel piano e il bottone
 	# scappava da sotto il cursore: il secondo clic, quello che fa tornare
-	# tutti i piani, finiva nel vuoto. Il filo lo lega comunque al suo pavimento
+	# tutti i piani, finiva nel vuoto
 	var ordine: Array = bottoni.keys()
 	ordine.sort()
 	ordine.reverse()
@@ -209,12 +200,8 @@ func _draw() -> void:
 	var qui := int(p.scatole.get(GameState.nodo_corrente, {}).get("piano", 9999))
 	for piano: int in bottoni:
 		var b: Button = bottoni[piano]
-		var da := b.position + Vector2(b.size.x, b.size.y * 0.5)
-		# il filo arriva solo a un piano acceso: a uno spento puntava nel vuoto
-		if p.solo == PlasticoZona.NESSUNO or p.solo == piano:
-			draw_line(da, attacco(piano), Color(linea, 0.6 if p.solo == piano else 0.25), 1.0)
 		if piano == qui:
-			draw_circle(Vector2(9.0, da.y), 4.0, p.tinte["qui"])
+			draw_circle(Vector2(9.0, b.position.y + b.size.y * 0.5), 4.0, p.tinte["qui"])
 	for id_stanza in p.scatole:
 		if p.velata(id_stanza) or not p.zona.si_vede(id_stanza):
 			continue
