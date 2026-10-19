@@ -3,7 +3,8 @@ extends "res://prove/ProposteSalita.gd"
 # LA SALITA IN MOVIMENTO. Provvisorio come ProposteSalita, da cui prende tutti
 # i pezzi. Bru: «bisogna animare la crescita di livello e quando la ruota
 # supera il 20 esponendo la nuova ruota». Due film, sulla strada consigliata
-# (la B, tre tempi):
+# (la B, tre tempi). Approvati: «mi piacciono molto queste animazioni,
+# approvate!» (docs/salita.md §6).
 #
 #   salita       dal 7 all'8, tutto:
 #                  - PRENDI: il punto vola dal contatore alla tasca;

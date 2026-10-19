@@ -86,6 +86,9 @@ Il perché è scritto sotto, negli stessi colori.
 
 ## 5. Le domande per Bru
 
+Le animazioni sono approvate (§6). Sono fatte sulla B, ma la scelta fra A, B e
+C non l'ha detta: resta la domanda 1, insieme alle altre.
+
 1. A, B o C? Oppure un pezzo di una dentro l'altra.
 2. Si entra dalla pausa e dal resoconto: va bene così?
 3. Il punto più grosso, che è anche quello di albero.md §5 (domande 1 e 3).
@@ -100,6 +103,9 @@ Il perché è scritto sotto, negli stessi colori.
 
 Bru: «bisogna animare la crescita di livello e quando la ruota supera il 20
 esponendo la nuova ruota».
+
+**Approvati.** Bru, visti i due film: «mi piacciono molto queste animazioni,
+approvate!». La schermata vera si muove così.
 
 Li gira `./prove/film_salita.sh` (serve ffmpeg) con `prove/FilmSalita.gd`, e
 finiscono in `scatti/proposte_salita/`. Seguono la B, la strada consigliata,
