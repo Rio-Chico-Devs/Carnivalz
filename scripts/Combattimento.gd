@@ -431,7 +431,7 @@ func aggiungi_combattente(id_personaggio: String, giocatore: bool) -> void:
 	# fattore Carnivalz in GameState).
 	var stat := func(chiave: String, difetto: int) -> int:
 		if giocatore:
-			return int(dati.get(chiave, difetto))
+			return int(dati.get(chiave, difetto)) + Crescita.bonus(id_personaggio, chiave)
 		return GameState.stat_nemico(id_personaggio, chiave, difetto)
 	var hp_max: int = GameState.stat_di("hp") if e_protagonista \
 			else int(stat.call("hp", int(GameState.regole.get("hp_base", 25))))

@@ -82,6 +82,8 @@ var hype_accumulato := 0
 # id classe -> i nodi comprati per LUI. Il livello di un personaggio e' quanti
 # ne ha comprati: non esiste un livello separato da guadagnare
 var nodi_per_personaggio: Dictionary = {}
+# LA RUOTA (Crescita.gd): id classe -> le strade prese, una per tasca dal livello 2
+var tasche: Dictionary = {}
 var codici: Dictionary = {}               # codice (maiuscolo) -> {testo, effetto}, vedi Extra
 var codici_riscattati: Array[String] = []  # persiste da solo, fuori dagli slot di salvataggio
 var musica_ambiente: String = ""     # traccia della scena eventi corrente (frattura/campagna)
@@ -484,6 +486,7 @@ func nuova_partita() -> void:
 	punti_stat.clear()
 	nodi_abilita.clear()
 	nodi_per_personaggio.clear()
+	tasche.clear()
 	hype_disponibile = 0
 	hype_accumulato = 0
 	contatori.clear()
@@ -964,8 +967,9 @@ func livello_di(id_classe: String) -> int:
 	# Parte da 1 e non da 0 perche' un personaggio appena reclutato e' di
 	# livello 1, non di livello zero: mezzo gioco fa i conti su quel numero
 	# (la curva dei ruoli, il disallineamento, il danno per livello) e uno zero
-	# li' dentro darebbe risultati che nessuno ha mai voluto.
-	return 1 + nodi_di(id_classe).size()
+	# li' dentro darebbe risultati che nessuno ha mai voluto. Con la ruota
+	# (Crescita.gd) conta anche le tasche: un punto, una tasca, un livello.
+	return 1 + nodi_di(id_classe).size() + Crescita.tasche_di(id_classe).size()
 
 func nodi_di(id_classe: String) -> Array:
 	# il protagonista tiene i suoi in nodi_abilita, che esisteva gia' ed e'
@@ -998,7 +1002,7 @@ func porta_al_livello(id_classe: String, livello: int) -> void:
 	for id_nodo in nodi_di(id_classe):
 		if not String(id_nodo).begins_with("livello_imposto_"):
 			veri.append(String(id_nodo))
-	var mancano := maxi(livello - 1 - veri.size(), 0)
+	var mancano := maxi(livello - 1 - veri.size() - Crescita.tasche_di(id_classe).size(), 0)
 	for numero in mancano:
 		veri.append("livello_imposto_%d" % numero)
 	if id_classe == id_protagonista:
@@ -1927,7 +1931,7 @@ func stat_di(nome_stat: String) -> int:
 	# valore attuale di una stat del protagonista: base, piu' i punti guadagnati
 	# giocando, piu' i nodi di potenziamento comprati coi punti abilita'
 	return stat_base_di(nome_stat) + int(punti_stat.get(nome_stat, 0)) \
-			+ bonus_da_potenziamenti(nome_stat)
+			+ bonus_da_potenziamenti(nome_stat) + Crescita.bonus(id_protagonista, nome_stat)
 
 func resistenza_stato_di(id_stato: String) -> int:
 	return int(resistenze_stato.get(id_stato, 0))
@@ -2300,6 +2304,7 @@ func _scrivi_salvataggio(percorso: String) -> bool:
 		"punti_stat": punti_stat,
 		"nodi_abilita": nodi_abilita,
 		"nodi_per_personaggio": nodi_per_personaggio,
+		"tasche": tasche,
 		"hype_disponibile": hype_disponibile,
 		"hype_accumulato": hype_accumulato,
 		"contatori": contatori,
@@ -2376,15 +2381,7 @@ func _leggi_salvataggio(percorso: String) -> bool:
 	negozi_sbloccati = _lista_str(d.get("negozi_sbloccati", []))
 	flags = _lista_str(d.get("flags", []))
 	pila = d.get("pila", {})
-	punti_stat = d.get("punti_stat", {})
-	nodi_abilita = _lista_str(d.get("nodi_abilita", []))
-	nodi_per_personaggio = d.get("nodi_per_personaggio", {})
-	hype_disponibile = int(d.get("hype_disponibile", 0))
-	hype_accumulato = int(d.get("hype_accumulato", 0))
-	contatori = d.get("contatori", {})
-	resistenze_stato = d.get("resistenze_stato", {})
-	volte_stato_subito = d.get("volte_stato_subito", {})
-	passive_sbloccate = _lista_str(d.get("passive_sbloccate", []))
+	Crescita.riprendi(d)   # i punti, i nodi, le ruote, l'hype, le azioni, le passive
 	nodi_visitati = _lista_str(d.get("nodi_visitati", []))
 	proiettori = d.get("proiettori", {})
 	zone_visitate = _lista_str(d.get("zone_visitate", []))

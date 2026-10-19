@@ -39,15 +39,16 @@ static func salite_di_livello() -> Array[Dictionary]:
 		righe.append(nota("[b]Livello %d.[/b]" % int(salita.get("livello", 0))))
 		var cresciute: Array = salita.get("stat", [])
 		var motivi: Array = salita.get("motivi", [])
+		var strada: Dictionary = salita.get("strada", {})
 		if cresciute.is_empty():
 			righe.append(nota("Nessuna statistica è cresciuta: crescono con " +
 					"quello che fai, e in quest'ultimo tratto non hai fatto " +
 					"abbastanza di niente."))
 		for voce in cresciute:
-			righe.append(nota(riga_di_crescita(voce, motivi)))
+			righe.append(nota(riga_di_crescita(voce, motivi, strada)))
 		var punti := int(salita.get("punti_abilita", 0))
 		if punti > 0:
-			righe.append(nota("Hai %d %s da spendere sulle abilità." % [punti,
+			righe.append(nota("Hai %d %s da spendere: la Crescita è nella pausa." % [punti,
 					"punto" if punti == 1 else "punti"]))
 	GameState.salite_di_livello.clear()
 	return righe
@@ -57,7 +58,7 @@ static func nota(testo: String) -> Dictionary:
 	return {"tipo": "notifica", "testo": testo}
 
 
-static func riga_di_crescita(voce: Dictionary, motivi: Array) -> String:
+static func riga_di_crescita(voce: Dictionary, motivi: Array, strada: Dictionary = {}) -> String:
 	# UNA PER RIGA, non tutte in blocco. Prima uscivano incolonnate in un
 	# messaggio solo e si leggevano come una tabella; sono quattro o cinque
 	# frasi vere, e separate si leggono come un resoconto.
@@ -65,6 +66,10 @@ static func riga_di_crescita(voce: Dictionary, motivi: Array) -> String:
 	var testo := "[b]%s[/b] %d → %d  (+%d)" % [String(voce.get("nome", "")),
 			int(voce.get("prima", 0)), int(voce.get("dopo", 0)), salto]
 	var suoi := perche_di(String(voce.get("stat", "")), motivi)
+	# la strada presa sulla ruota: anche lei e' un perche'
+	if String(strada.get("stat", "")) == String(voce.get("stat", "")) and String(voce.get("stat", "")) != "":
+		var presa := "la strada che hai preso (+%d)" % int(strada.get("quanto", 0))
+		suoi = presa if suoi == "" else "%s e %s" % [presa, suoi]
 	return testo if suoi == "" else "%s\nper %s" % [testo, suoi]
 
 

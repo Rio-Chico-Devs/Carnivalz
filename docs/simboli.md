@@ -8,7 +8,7 @@
 > Su quelle: «si potrebbe passare un esame di misure ma non di design, non ricordano
 > abbastanza quel che devono ricordare e non hanno quel qualcosa di design che per
 > esempio combina due icone per crearne una». Le statistiche adesso sono
-> `prove/IconeStatistiche.gd`: ognuna due figure del mondo di Carnivalz che ne fanno
+> `scripts/crescita/IconeStatistiche.gd`: ognuna due figure del mondo di Carnivalz che ne fanno
 > una terza, con curve vere e il peso bilanciato. Dopo la seconda revisione di Bru
 > (§8) sono il cuore-palloncino, la spada mascherata, lo scudo-fortezza, i due
 > galloni, l'occhio con la serratura, il brillante, la bomba, la corona con la barra
@@ -43,7 +43,7 @@ Questa pagina dice:
   strade tenute e scartate, l'Aura misurata sul segno di Jalhalla e senza
   bozzi (§8).
 
-Il codice è in `prove/SimboliCrescita.gd` (`mon`, `sagoma`, `statistica`,
+Il codice è in `scripts/crescita/SimboliCrescita.gd` (`mon`, `sagoma`, `statistica`,
 `ottica`); le tavole di studio in `prove/StudioSegni.gd`. Le immagini sono
 nelle foto delle proposte:
 - «statistiche», «simboli», i giri della roulette, «bivio»;
@@ -609,7 +609,7 @@ Ognuna ha due alternative tenute, nelle tavole. La scelta è di Bru.
 
 Bru: «continua a studiare [...] rivaluta il tuo lavoro, pensaci su,
 confrontalo con risorse esterne». Le icone sono quelle di
-`prove/IconeStatistiche.gd` (due figure in una). Qui c'è cosa ho letto, cosa
+`scripts/crescita/IconeStatistiche.gd` (due figure in una). Qui c'è cosa ho letto, cosa
 ho misurato e cosa è cambiato. Gli strumenti e le regole di misura restano; le
 figure di Vita, Attacco, Velocità, Forza mentale, Fattore e Aura sono state
 rifatte da capo dopo (§8).

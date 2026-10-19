@@ -31,9 +31,9 @@ extends Control
 #   -- film giro_1 (o bivio, passive)   una sola, usata da un copione
 #   nell'editor, F6: destra e sinistra cambiano schermata; su, giu' e invio la usano
 
-const P := preload("res://prove/PezziCrescita.gd")
-const S := preload("res://prove/SimboliCrescita.gd")
-const IS := preload("res://prove/IconeStatistiche.gd")
+const P := preload("res://scripts/crescita/PezziCrescita.gd")
+const S := preload("res://scripts/crescita/SimboliCrescita.gd")
+const IS := preload("res://scripts/crescita/IconeStatistiche.gd")
 const TI := preload("res://prove/TavolaIcone.gd")
 const TM := preload("res://prove/TavolaMisure.gd")
 const TC := preload("res://prove/TavolaCostruzione.gd")

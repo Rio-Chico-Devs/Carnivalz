@@ -26,7 +26,7 @@ un SVG e un PNG per statistica, 480 × 480, nero su trasparente. Le scrive
 servono a controllarle. Il canone e le misure stanno in `docs/sagome_a.md`.
 
 In `statistiche/proposta/` ci sono le icone nuove delle proposte, nello stesso
-formato: le scrive `./prove/icone.sh` da `prove/IconeStatistiche.gd`, idee e pesi
+formato: le scrive `./prove/icone.sh` da `scripts/crescita/IconeStatistiche.gd`, idee e pesi
 in `docs/icone_statistiche.md`. Neanche queste le carica il gioco: per metterle
 nella scheda vanno esportate bianche e copiate in `statistiche/<chiave>.png`.
 

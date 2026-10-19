@@ -6,8 +6,8 @@ extends RefCounted
 # §1): i cerchi di costruzione che di solito si cancellano. Servono a vedere che
 # ogni curva viene da qualcosa, e a misurarla.
 
-const P := preload("res://prove/PezziCrescita.gd")
-const I := preload("res://prove/IconeStatistiche.gd")
+const P := preload("res://scripts/crescita/PezziCrescita.gd")
+const I := preload("res://scripts/crescita/IconeStatistiche.gd")
 
 
 static func disegna(t: CanvasItem) -> void:

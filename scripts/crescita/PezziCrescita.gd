@@ -1,7 +1,7 @@
 extends RefCounted
 
-# I PEZZI DISEGNATI DELLE PROPOSTE DI CRESCITA (prove/ProposteCrescita.gd).
-# Provvisorio come loro. Niente oggetti del luna park («meno dettagli da circo,
+# I PEZZI DISEGNATI DELLA CRESCITA: la schermata vera (SchedaCrescita) e le
+# proposte da cui e' nata (prove/ProposteCrescita.gd). Niente oggetti del luna park («meno dettagli da circo,
 # piu' astratto», Bru), solo la lingua del manifesto: l'arancio col retino, le
 # lastre nere in diagonale, i rombi dell'emblema, le fasce storte, le scritte
 # ritagliate, il contorno nero e l'ombra piena.

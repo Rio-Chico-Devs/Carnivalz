@@ -7,8 +7,8 @@ extends RefCounted
 #   - nella scheda, e piccole.
 # I file da misurare sono in art/interfaccia/statistiche/proposta.
 
-const P := preload("res://prove/PezziCrescita.gd")
-const I := preload("res://prove/IconeStatistiche.gd")
+const P := preload("res://scripts/crescita/PezziCrescita.gd")
+const I := preload("res://scripts/crescita/IconeStatistiche.gd")
 
 
 static func disegna(t: CanvasItem) -> void:

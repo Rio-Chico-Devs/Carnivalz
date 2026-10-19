@@ -1,7 +1,7 @@
 extends RefCounted
 
-# LE ICONE DELLE STATISTICHE (proposte della crescita). Provvisorie come le
-# proposte.
+# LE ICONE DELLE STATISTICHE della crescita (SchedaCrescita, e le proposte in
+# prove/). Provvisorie: quelle vere le disegna Bru (docs/icone_da_disegnare.md).
 #
 # Bru, sulle sagome A pulite: «si potrebbe passare un esame di misure ma non di
 # design, non ricordano abbastanza quel che devono ricordare e non hanno quel

@@ -1,6 +1,6 @@
 # Le icone delle statistiche (generato, non scrivere qui a mano)
 
-Rigenera con `./prove/icone.sh`. Il codice è `prove/IconeStatistiche.gd`; i file sono in
+Rigenera con `./prove/icone.sh`. Il codice è `scripts/crescita/IconeStatistiche.gd`; i file sono in
 `art/interfaccia/statistiche/proposta/`: un SVG e un PNG per icona, 480 × 480, nero su
 trasparente. Nell'SVG ogni icona è un percorso solo con `fill-rule="evenodd"`. Sono una
 proposta: il gioco legge `art/interfaccia/statistiche/<chiave>.png`, bianche su trasparente.

@@ -433,6 +433,7 @@ func mostra_menu() -> void:
 	voci.append(voce("diario", GameState.nome_diario(), mostra_diario))
 	voci.append(voce("zaino", "Zaino", mostra_inventario))
 	stacco()
+	voci.append(voce("crescita", SchedaCrescita.testo_della_voce(), mostra_crescita))
 	voci.append(voce("squadra", "Personaggio e squadra", mostra_equipaggiamento))
 	voci.append(voce("opzioni", "Opzioni", mostra_opzioni))
 	stacco()
@@ -607,11 +608,17 @@ func mostra_inventario() -> void:
 	# Lo zaino: una lista per scomparto, con l'immagine di ogni oggetto e quello
 	# che scegli in grande. Qui si guarda e basta. Come e' fatto e perche':
 	# scripts/Zaino.gd e docs/zaino.md. Un foglio intero sul velo, come la squadra
+	apri_foglio("inventario", SchedaZaino.new()).apri(indietro())
+
+func mostra_crescita() -> void:
+	apri_foglio("crescita", SchedaCrescita.new()).apri(indietro(), not SchedaCrescita.in_combattimento(get_tree()))
+
+func apri_foglio(nome: String, nuovo: Control) -> Control:
 	nuova_colonna()
-	pannello = "inventario"
-	foglio = SchedaZaino.new()
+	pannello = nome
+	foglio = nuovo
 	velo.add_child(foglio)
-	foglio.apri(indietro())
+	return foglio
 
 func pannello_con_indice(nome: String, titolo: String, pagine: Array, attuale: String,
 		scegli: Callable, riempi: Callable) -> void:
@@ -689,8 +696,4 @@ func mostra_equipaggiamento() -> void:
 	# senza cambiare scena e senza perdere il posto in cui si era.
 	# Come e' fatta e perche': vedi scripts/Personaggio.gd.
 	# E' un foglio intero sul velo (Tavola.gd), non una colonna: se ne va con svuota()
-	nuova_colonna()
-	pannello = "equipaggiamento"
-	foglio = SchedaPersonaggio.new()
-	velo.add_child(foglio)
-	foglio.apri(indietro(), mostra_diario)
+	apri_foglio("equipaggiamento", SchedaPersonaggio.new()).apri(indietro(), mostra_diario)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Scrive i file da misurare delle icone delle statistiche (prove/IconeStatistiche.gd):
+# Scrive i file da misurare delle icone delle statistiche (scripts/crescita/IconeStatistiche.gd):
 # gli SVG e i PNG in art/interfaccia/statistiche/proposta/ e il rapporto in
 # docs/icone_statistiche.md. Per i PNG serve una finestra (xvfb-run basta).
 set -euo pipefail

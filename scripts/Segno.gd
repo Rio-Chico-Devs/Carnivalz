@@ -59,6 +59,8 @@ func _draw() -> void:
 			traccia_zaino(centro, raggio, spessore)
 		"opzioni":
 			traccia_leva(centro, raggio, spessore)
+		"crescita":
+			traccia_ruota(centro, raggio, spessore)
 		"uscita":
 			traccia_uscita(centro, raggio, spessore)
 		"indietro":
@@ -110,6 +112,15 @@ func traccia_zaino(centro: Vector2, raggio: float, spessore: float) -> void:
 func traccia_leva(centro: Vector2, raggio: float, spessore: float) -> void:
 	draw_line(centro - Vector2(raggio, 0.0), centro + Vector2(raggio, 0.0), tinta, spessore)
 	draw_circle(centro + Vector2(raggio * 0.35, 0.0), raggio * 0.42, tinta, true, -1.0, true)
+
+
+func traccia_ruota(centro: Vector2, raggio: float, spessore: float) -> void:
+	# la ruota della crescita: il cerchio, quattro raggi e il mozzo
+	draw_arc(centro, raggio, 0.0, TAU, 24, tinta, spessore, true)
+	for i in 4:
+		var verso := Vector2.from_angle(TAU * i / 4.0 + PI * 0.25)
+		draw_line(centro + verso * raggio * 0.3, centro + verso * raggio, tinta, spessore * 0.7, true)
+	draw_circle(centro, raggio * 0.3, tinta, true, -1.0, true)
 
 
 func traccia_uscita(centro: Vector2, raggio: float, spessore: float) -> void:

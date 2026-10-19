@@ -14,8 +14,8 @@ extends RefCounted
 # I numeri: la pienezza e lo scarto dalla media, lo scarto del centro visivo, il
 # raggio d'inerzia (quanto la massa e' sparsa).
 
-const P := preload("res://prove/PezziCrescita.gd")
-const I := preload("res://prove/IconeStatistiche.gd")
+const P := preload("res://scripts/crescita/PezziCrescita.gd")
+const I := preload("res://scripts/crescita/IconeStatistiche.gd")
 const SCHEDA := Color("#1a1512")
 
 static var sfocate: Dictionary = {}

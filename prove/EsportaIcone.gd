@@ -1,6 +1,6 @@
 extends Node
 
-# SCRIVE I FILE DELLE ICONE DELLE STATISTICHE (prove/IconeStatistiche.gd):
+# SCRIVE I FILE DELLE ICONE DELLE STATISTICHE (scripts/crescita/IconeStatistiche.gd):
 #   art/interfaccia/statistiche/proposta/<chiave>.svg   il disegno esatto, 480 x 480
 #   art/interfaccia/statistiche/proposta/<chiave>.png   lo stesso, nero su trasparente
 #   docs/icone_statistiche.md                           le idee, il peso, gli ingombri
@@ -11,7 +11,7 @@ extends Node
 # (bianche su trasparente), non questa cartella. Una prova (prova_le_icone_si_reggono) controlla che gli
 # SVG sul disco siano quelli che il codice disegna adesso.
 
-const I := preload("res://prove/IconeStatistiche.gd")
+const I := preload("res://scripts/crescita/IconeStatistiche.gd")
 const CARTELLA := "res://art/interfaccia/statistiche/proposta"
 const RAPPORTO := "res://docs/icone_statistiche.md"
 
@@ -65,7 +65,7 @@ func scrivi_rapporto() -> String:
 	var r: Array[String] = []
 	r.append("# Le icone delle statistiche (generato, non scrivere qui a mano)")
 	r.append("")
-	r.append("Rigenera con `./prove/icone.sh`. Il codice è `prove/IconeStatistiche.gd`; i file sono in")
+	r.append("Rigenera con `./prove/icone.sh`. Il codice è `scripts/crescita/IconeStatistiche.gd`; i file sono in")
 	r.append("`art/interfaccia/statistiche/proposta/`: un SVG e un PNG per icona, 480 × 480, nero su")
 	r.append("trasparente. Nell'SVG ogni icona è un percorso solo con `fill-rule=\"evenodd\"`. Sono una")
 	r.append("proposta: il gioco legge `art/interfaccia/statistiche/<chiave>.png`, bianche su trasparente.")

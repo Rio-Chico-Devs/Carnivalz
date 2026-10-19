@@ -1,0 +1,23 @@
+{
+  "_nota": "LA RUOTA DI OGNI PERSONAGGIO. Un punto d'hype (regole.json, hype_per_punto) compra una tasca, e una tasca e' un livello. A ogni livello un bivio fra due statistiche: la coppia di quel livello e' coppie[livello % quante sono]. Quello che arriva a quel livello (un'abilita', una passiva) arriva comunque, qualunque strada prendi: lo dicono abilita.json e crescita.json, non questo file. La schermata e' scripts/SchedaCrescita.gd, il perche' di tutto docs/salita.md.",
+  "_bru": "«approvato quella che sembra una roulette, le passive e un punto due strade»; «ogni personaggio ha la sua ruota poi le customizzaremo quando avrò tutti i disegni finiti»",
+  "tetto": 20,
+  "_nota_tetto": "Bru: «ovviamente nella beta il cap e' 20». Oltre il 20 la ruota ricomincia dal 21 con un altro aspetto, fino a livello_massimo di regole.json (130): per aprirla basta alzare questo numero.",
+  "quanto": {
+    "hp": 15,
+    "attacco": 2,
+    "difesa": 1,
+    "velocita": 1,
+    "intelligenza": 1,
+    "forza_mentale": 1,
+    "fattore": 2
+  },
+  "_nota_quanto": "PROVVISORI, da decidere con Bru. Quanto da' la strada presa nel bivio, a ogni tasca. Il metro: un livello di azioni del giocatore tipo da' circa +6 attacco e +45 vita (crescita.json, profilo_giocatore_tipo), e la strada ne vale un terzo, su una statistica sola. Le creature si regolano sul protagonista tipo SENZA la ruota (GameState.stat_eroe_tipo): la strada e' un vantaggio vero, quindi va tenuta piccola.",
+  "coppie": {
+    "anonimo": [["velocita", "difesa"], ["attacco", "fattore"], ["hp", "intelligenza"], ["hp", "attacco"], ["difesa", "attacco"]],
+    "brawler": [["hp", "difesa"], ["attacco", "hp"], ["difesa", "velocita"]],
+    "insonne": [["velocita", "attacco"], ["hp", "velocita"], ["attacco", "difesa"]],
+    "_altri": [["hp", "attacco"], ["difesa", "velocita"]]
+  },
+  "_nota_coppie": "Le coppie del protagonista sono quelle delle proposte approvate (prove/ProposteCrescita.gd). Veronica (brawler) e' quella che incassa, Yhvina (insonne) quella veloce. Per i compagni solo vita, attacco, difesa e velocita': intelligenza, forza mentale e fattore in combattimento sono solo del protagonista. '_altri' vale per chi non ha una riga sua."
+}

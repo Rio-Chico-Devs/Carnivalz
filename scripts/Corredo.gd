@@ -26,13 +26,13 @@ const STATISTICHE := [
 
 static func statistica_base(id_classe: String, chiave: String) -> int:
 	# il protagonista cresce con quello che fa (crescita.json); i compagni hanno
-	# le loro statistiche scritte nei dati
+	# le loro statistiche scritte nei dati, piu' le strade prese sulla loro ruota
 	if chiave == "aura":
 		return GameState.aura_massima(id_classe) - GameState.bonus_equipaggiamento(id_classe, "aura_max")
 	if id_classe == GameState.id_protagonista:
 		return GameState.stat_di(chiave)
 	var dati: Dictionary = GameState.personaggi.get(id_classe, {})
-	return int(dati.get(chiave, 0))
+	return int(dati.get(chiave, 0)) + Crescita.bonus(id_classe, chiave)
 
 
 static func bonus_di(id_classe: String, chiave: String) -> int:

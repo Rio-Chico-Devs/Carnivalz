@@ -590,6 +590,16 @@ cambierei niente.
 
 ## 5. Le domande per te
 
+**Risposte di Bru, poi** (docs/salita.md §7):
+- la roulette, il bivio e le passive sono approvati;
+- «ogni personaggio ha la sua ruota»;
+- le animazioni sono quelle dei film.
+
+Quindi il livello è un punto per tasca (domanda 1). La ruota prende il posto
+del tronco provvisorio (domanda 3). Le stelle doppie sono il bivio (domanda 4).
+I nodi restano nel codice per i salvataggi, ma nessuno li compra più: si sale
+dalla Crescita, nella pausa.
+
 Una riga per risposta basta.
 
 1. **Il livello è quanti nodi o quanti punti hai speso?** (§4.1) Con i punti

@@ -152,3 +152,80 @@ lucchetto.
 
 Il bivio è nel primo film e non nel secondo. È disegnato per il livello
 d'esempio, e il secondo film comincia quando si torna sulla ruota.
+
+## 7. Nel gioco: la Crescita
+
+Bru: «ogni personaggio ha la sua ruota poi le customizzaremo quando avrò tutti i
+disegni finiti, le animazioni vanno bene le ultime che mi hai fatto vedere».
+Quindi è la B, coi movimenti dei film, e una ruota per personaggio.
+
+**Dove.** Nella pausa c'è la voce **Crescita**, fra Zaino e Personaggio e
+squadra. Quando ci sono punti da spendere, la voce lo dice («Crescita · 3
+punti»).
+- In combattimento la ruota si apre ma si guarda e basta: salire a metà scontro
+  cambierebbe i colpi in volo.
+
+**Come.**
+- La schermata è `scripts/SchedaCrescita.gd`. Sotto ha quattro livelli in
+  `scripts/crescita/`: lo stato, la ruota disegnata, i pezzi che si muovono, i
+  momenti a tutto schermo.
+- Le regole della ruota sono in `scripts/Crescita.gd`.
+- I numeri sono in `data/ruote.json`.
+- **Un punto, una tasca, un livello.** Un punto sono 1000 hype
+  (`hype_per_punto`), e l'hype è della squadra: si sceglie su chi spenderlo.
+- **Il bivio.** Ogni tasca ha due strade, dalle coppie del suo personaggio:
+  - il protagonista ha quelle delle proposte approvate;
+  - Veronica, che incassa, gira fra vita, difesa, attacco e velocità;
+  - Yhvina, che è veloce, fra velocità, attacco, vita e difesa.
+
+  Ai compagni la ruota offre solo vita, attacco, difesa e velocità, perché le
+  altre statistiche in combattimento contano solo per il protagonista.
+- **La strada si vede.** Quella presa vale nella scheda della squadra e in
+  combattimento, per tutti.
+- **Le azioni diventano statistiche.** Per il protagonista, prendere la tasca
+  converte le azioni fatte giocando, come faceva comprare un nodo. Il salto lo
+  racconta riga per riga.
+- **Il tetto.** Nella beta è il 20. Oltre, la ruota si spacca e scopre il giro
+  dopo; per aprirlo basta alzare `tetto` in `ruote.json`. L'ho provato col
+  tetto alzato e funziona.
+- **I tasti.**
+  - Sulla ruota: su e giù la girano, INVIO prende, destra e sinistra cambiano
+    personaggio, ESC torna alla pausa.
+  - Nel bivio: destra, sinistra o clic per scegliere, INVIO prende, ESC ci
+    ripensa (il punto torna nel contatore).
+  - Nel salto e sulle carte: INVIO va avanti (la prima volta finisce
+    l'animazione), ESC salta tutto.
+  - Col mouse: le linguette dei personaggi, INDIETRO, PRENDI e la rotella.
+
+**Cosa arriva.** Arriva comunque, qualunque strada prendi, e la ruota lo dice
+prima: le abilità che il gioco dà da sole a quel livello e le passive di
+`crescita.json`. Una prova controlla, livello per livello fino al 130, che la
+ruota prometta esattamente quello che il gioco dà.
+
+**Cosa è cambiato sotto.**
+- Il livello conta anche le tasche: nodi + tasche + 1.
+- I nodi dell'albero restano per i salvataggi e per `porta_al_livello`, ma
+  nessuno li compra più.
+- I pezzi disegnati della crescita (`PezziCrescita`, `SimboliCrescita`,
+  `IconeStatistiche`) sono passati da `prove/` a `scripts/crescita/`, perché
+  `prove/` non entra nel gioco esportato.
+
+## 8. Ancora da decidere
+
+1. **Quanto dà una strada.** Oggi: +15 vita, +2 attacco, +1 difesa, velocità,
+   intelligenza e forza mentale, +2 fattore. Sono numeri miei, segnati come
+   provvisori in `ruote.json`.
+   - Il metro: un livello di azioni del giocatore tipo dà circa +6 attacco e
+     +45 vita, e la strada ne vale un terzo.
+   - Le creature si regolano sul protagonista tipo senza la ruota, quindi la
+     strada è un vantaggio vero. Va tenuta piccola, o va messa nel conto delle
+     creature.
+2. **Le scelte dal 25 in su.** Erano scelte fra nodi, «al 25 Pietà o Terra
+   bruciata». Nella ruota possono diventare bivi fra due abilità invece che fra
+   due statistiche. Nella beta non servono: il tetto è il 20.
+3. **I compagni.** Le prime abilità delle loro linee le hanno già dall'inizio
+   (sono nella loro classe), quindi nella beta la loro ruota ha solo bivi.
+   Restano così, o le facciamo arrivare al loro livello come al protagonista?
+4. **Le passive in tre alloggi** (approvate) non ci sono ancora: oggi una
+   passiva sbloccata vale da sola.
+5. **Le ruote personalizzate**: quando arrivano i tuoi disegni.

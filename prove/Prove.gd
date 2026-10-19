@@ -75,6 +75,10 @@ func _ready() -> void:
 	prova_nessuna_creatura_perde_la_battuta()
 	prova_le_meccaniche_nuove_delle_mosse()
 	prova_hype()
+	prova_la_ruota()
+	prova_quello_che_arriva_alla_tasca()
+	prova_la_scheda_della_crescita()
+	prova_la_crescita_nella_pausa()
 	prova_i_trucchi()
 	prova_le_sagome_a_si_misurano()
 	prova_le_icone_si_reggono()
@@ -4298,7 +4302,7 @@ func prova_le_icone_si_reggono() -> void:
 	# peso, la grandezza e il centro si somigliano, e due icone non si
 	# confondono. Si misura su una griglia di punti, uno per unita'
 	titolo("le icone delle statistiche si reggono")
-	var icone := preload("res://prove/IconeStatistiche.gd")
+	var icone := preload("res://scripts/crescita/IconeStatistiche.gd")
 	var pesi: Array[float] = []
 	var disegni: Array = []
 	for chiave: String in icone.CHIAVI:
@@ -4541,6 +4545,290 @@ func prova_hype() -> void:
 	esigi(GameState.maestria_dominio_di(protagonista) > mio, "la maestria del protagonista non e' salita")
 	esigi(GameState.maestria_dominio_di("brawler") == suo,
 			"la maestria di Veronica e' salita insieme a quella del protagonista: usa la sua")
+
+func prova_la_ruota() -> void:
+	# LA RUOTA. Bru: «approvato quella che sembra una roulette [...] un punto
+	# due strade», e poi «ogni personaggio ha la sua ruota». Un punto d'hype,
+	# una tasca, un livello; a ogni tasca un bivio fra due statistiche
+	# (data/ruote.json). Lo stesso mucchio d'hype paga per chiunque.
+	titolo("la ruota: un punto, una tasca, un livello, e una strada")
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	var per_punto := GameState.costo_in_hype(1)
+	# 1. senza punti non si sale
+	var due := Crescita.coppia(eroe, 2)
+	esigi(not Crescita.prendibile(eroe), "senza hype la prossima tasca si puo' prendere")
+	esigi(not Crescita.prendi(eroe, due[0]) and GameState.livello_di(eroe) == 1,
+			"senza hype si e' saliti di livello")
+	# 2. una strada che a quel livello non c'e' non si prende, e non costa niente
+	GameState.hype_disponibile = per_punto * 3 + 450
+	var fuori := ""
+	for chiave: String in ["hp", "attacco", "difesa", "velocita", "intelligenza", "fattore", "forza_mentale"]:
+		if not chiave in due:
+			fuori = chiave
+			break
+	esigi(not Crescita.prendi(eroe, fuori), "presa una strada che al livello 2 non c'e' (%s)" % fuori)
+	esigi(GameState.hype_disponibile == per_punto * 3 + 450, "una strada rifiutata ha speso hype")
+	# 3. la strada giusta: un punto in meno, un livello in piu', e la statistica
+	#    cresce di quanto dice ruote.json; la salita si racconta, con la strada
+	var stat := due[1]
+	var prima := GameState.stat_di(stat)
+	GameState.salite_di_livello.clear()
+	# e qualcosa fatto giocando che alimenta la stessa statistica: nel racconto
+	# le due parti si devono sommare, non pestarsi i piedi
+	var azione_della_stat := ""
+	for nome_azione: String in GameState.crescita.get("crescita", {}):
+		if String(GameState.crescita["crescita"][nome_azione].get("stat", "")) == stat:
+			azione_della_stat = nome_azione
+			break
+	var regola: Dictionary = GameState.crescita.get("crescita", {}).get(azione_della_stat, {})
+	GameState.registra_azione(azione_della_stat, int(regola.get("ogni", 1)))
+	var dalle_azioni := int(regola.get("punti", 0))
+	esigi(Crescita.prendi(eroe, stat), "con un punto e la strada giusta la tasca non si prende")
+	esigi(GameState.livello_di(eroe) == 2, "presa la tasca il livello e' %d invece di 2" % GameState.livello_di(eroe))
+	esigi(GameState.hype_disponibile == per_punto * 2 + 450,
+			"la tasca e' costata %d hype invece di un punto" % (per_punto * 3 + 450 - GameState.hype_disponibile))
+	esigi(GameState.stat_di(stat) == prima + Crescita.quanto(stat) + dalle_azioni,
+			"la strada %s (e %s) hanno portato %s da %d a %d invece che a %d" % [stat, azione_della_stat, stat, prima,
+			GameState.stat_di(stat), prima + Crescita.quanto(stat) + dalle_azioni])
+	esigi(Crescita.tasche_di(eroe) == [stat], "la ruota non si ricorda la strada presa: %s" % [Crescita.tasche_di(eroe)])
+	esigi(GameState.salite_di_livello.size() == 1
+			and String(GameState.salite_di_livello[0].get("strada", {}).get("stat", "")) == stat,
+			"la salita non si racconta, o non dice la strada presa")
+	var riga_della_stat := {}
+	for voce: Dictionary in (GameState.salite_di_livello.back() if not GameState.salite_di_livello.is_empty() else {}).get("stat", []):
+		if String(voce.get("stat", "")) == stat:
+			riga_della_stat = voce
+	esigi(int(riga_della_stat.get("prima", -1)) == prima
+			and int(riga_della_stat.get("dopo", -1)) == prima + Crescita.quanto(stat) + dalle_azioni,
+			"nel racconto %s va da %d a %d: doveva andare da %d a %d (la strada piu' le azioni)"
+			% [stat, int(riga_della_stat.get("prima", -1)), int(riga_della_stat.get("dopo", -1)), prima,
+			prima + Crescita.quanto(stat) + dalle_azioni])
+	# il resoconto, se racconta lui, dice anche la strada
+	var riga := Resoconto.riga_di_crescita({"stat": "attacco", "nome": "Attacco", "prima": 17, "dopo": 25},
+			[{"stat": "attacco", "racconto": "i colpi che hai tirato", "quante": 30}], {"stat": "attacco", "quanto": 2})
+	esigi("la strada che hai preso (+2)" in riga and "i colpi che hai tirato (30)" in riga,
+			"il resoconto non dice tutti e due i perche': %s" % riga)
+	# 4. i compagni: ognuno la sua ruota, lo stesso mucchio d'hype
+	var compagno := "brawler"
+	for livello in range(2, 22):
+		for chiave in Crescita.coppia(compagno, livello):
+			esigi(chiave in ["hp", "attacco", "difesa", "velocita"],
+					"la ruota di Veronica offre %s al livello %d, che in combattimento conta solo per il protagonista"
+					% [chiave, livello])
+	var sua := Crescita.coppia(compagno, 2)
+	var quanto := Crescita.quanto(sua[0])
+	var hype_prima := GameState.hype_disponibile
+	var sua_prima := Corredo.statistica_base(compagno, sua[0])
+	var mia_prima := Crescita.bonus(eroe, sua[0])
+	GameState.nemici_combattimento = ["goblin_tipico"]
+	var scontro: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	scontro.muto = true
+	scontro.limite_giri = 1
+	add_child(scontro)
+	var chiave_in_campo := "hp_max" if sua[0] == "hp" else sua[0]
+	scontro.aggiungi_combattente(compagno, true)
+	var in_campo_prima := int(scontro.combattenti[scontro.combattenti.size() - 1].get(chiave_in_campo, 0))
+	esigi(Crescita.prendi(compagno, sua[0]), "su Veronica la tasca non si prende")
+	esigi(GameState.livello_di(compagno) == 2 and GameState.livello_di(eroe) == 2,
+			"i livelli non sono di ognuno: Veronica %d, il protagonista %d"
+			% [GameState.livello_di(compagno), GameState.livello_di(eroe)])
+	esigi(GameState.hype_disponibile == hype_prima - per_punto, "la tasca di Veronica non e' uscita dallo stesso mucchio")
+	esigi(Corredo.statistica_base(compagno, sua[0]) == sua_prima + quanto,
+			"la strada di Veronica non si vede nella sua scheda")
+	esigi(Crescita.bonus(eroe, sua[0]) == mia_prima, "la strada di Veronica e' finita al protagonista")
+	scontro.aggiungi_combattente(compagno, true)
+	var in_campo_dopo := int(scontro.combattenti[scontro.combattenti.size() - 1].get(chiave_in_campo, 0))
+	esigi(in_campo_dopo == in_campo_prima + quanto,
+			"in combattimento la strada di Veronica non conta: %s da %d a %d invece che a %d"
+			% [chiave_in_campo, in_campo_prima, in_campo_dopo, in_campo_prima + quanto])
+	scontro.queue_free()
+	# 5. il tetto: nella beta il 20, e l'hype non si butta
+	var tetto := Crescita.tetto()
+	esigi(tetto == 20, "il tetto della ruota e' %d: nella beta e' il 20" % tetto)
+	GameState.porta_al_livello(eroe, tetto - 1)
+	GameState.hype_disponibile = per_punto * 5
+	esigi(Crescita.prendi(eroe, Crescita.coppia(eroe, tetto)[0]),
+			"l'ultima tasca prima del tetto non si prende")
+	esigi(GameState.livello_di(eroe) == tetto, "dopo l'ultima tasca il livello e' %d" % GameState.livello_di(eroe))
+	esigi(not Crescita.prendibile(eroe)
+			and not Crescita.prendi(eroe, Crescita.coppia(eroe, tetto + 1)[0]),
+			"si sale oltre il tetto della beta")
+	esigi(GameState.hype_disponibile == per_punto * 4, "il tetto ha mangiato hype")
+	# 6. il salvataggio: le ruote fanno il giro completo
+	var percorso := "user://prova_ruota.json"
+	var tasche_prima := GameState.tasche.duplicate(true)
+	var livelli_prima := [GameState.livello_di(eroe), GameState.livello_di(compagno)]
+	GameState._scrivi_salvataggio(percorso)
+	GameState.nuova_partita()
+	esigi(GameState.tasche.is_empty(), "nuova_partita non ha svuotato le ruote")
+	esigi(GameState._leggi_salvataggio(percorso), "il salvataggio con le ruote non si rilegge")
+	esigi(GameState.tasche == tasche_prima, "le ruote non tornano dal salvataggio: %s invece di %s"
+			% [GameState.tasche, tasche_prima])
+	esigi([GameState.livello_di(eroe), GameState.livello_di(compagno)] == livelli_prima,
+			"dal salvataggio i livelli tornano %s invece di %s"
+			% [[GameState.livello_di(eroe), GameState.livello_di(compagno)], livelli_prima])
+	DirAccess.remove_absolute(percorso)
+	GameState.nuova_partita()
+
+func prova_quello_che_arriva_alla_tasca() -> void:
+	# LA RUOTA DICE COSA ARRIVA A OGNI TASCA, e deve dire il vero: proprio le
+	# abilita' che abilita_del_personaggio da' a quel livello, e le passive che
+	# verifica_passive apre. Se le regole cambiano da una parte sola, la ruota
+	# promette una cosa e il gioco ne da' un'altra
+	titolo("quello che la ruota dice che arriva, arriva davvero")
+	for chi: String in [GameState.id_protagonista, "brawler", "insonne"]:
+		GameState.nuova_partita()
+		var prima := GameState.abilita_del_personaggio(chi)
+		for livello in range(2, int(GameState.regole.get("livello_massimo", 130)) + 1):
+			GameState.porta_al_livello(chi, livello)
+			var adesso_sa := GameState.abilita_del_personaggio(chi)
+			var nuove: Array[String] = []
+			for id_abilita in adesso_sa:
+				if not id_abilita in prima:
+					nuove.append(id_abilita)
+			var dette: Array[String] = []
+			var passive_dette: Array[String] = []
+			for voce: Array in Crescita.arriva(chi, livello):
+				if String(voce[0]) == "abilita":
+					dette.append(String(voce[1]))
+				else:
+					passive_dette.append(String(voce[1]))
+			nuove.sort()
+			dette.sort()
+			esigi(nuove == dette, "%s al livello %d impara %s, ma la ruota dice %s" % [chi, livello, nuove, dette])
+			var aperte_prima := GameState.passive_sbloccate.duplicate()
+			if chi == GameState.id_protagonista:
+				GameState.verifica_passive(livello)
+			for id_passiva in passive_dette:
+				esigi(id_passiva in GameState.passive_sbloccate and not id_passiva in aperte_prima,
+						"la ruota dice che al %d arriva la passiva %s, e non arriva" % [livello, id_passiva])
+			for voce: Dictionary in GameState.crescita.get("passive_livello", []):
+				var id_passiva := String(voce.get("id", ""))
+				if id_passiva in GameState.passive_sbloccate and not id_passiva in aperte_prima:
+					esigi(id_passiva in passive_dette,
+							"al %d arriva la passiva %s, e la ruota non lo dice" % [livello, id_passiva])
+			prima = adesso_sa
+	GameState.nuova_partita()
+
+func prova_la_scheda_della_crescita() -> void:
+	# LA SCHERMATA VERA, coi tasti, come la usa chi gioca: PRENDI, il bivio
+	# (e il ripensamento), il salto, la carta, e di nuovo la ruota. Si guarda
+	# cosa succede al gioco, non solo dove si arriva. Il tempo lo muove la
+	# prova: niente attese vere
+	titolo("la crescita: coi tasti si sale davvero, e si torna sulla ruota")
+	GameState.nuova_partita()
+	var eroe := GameState.id_protagonista
+	GameState.party.assign([eroe, "brawler"])
+	GameState.porta_al_livello(eroe, 7)
+	GameState.hype_disponibile = GameState.costo_in_hype(2) + 300
+	GameState.salite_di_livello.clear()
+	var scheda := SchedaCrescita.new()
+	add_child(scheda)
+	scheda.apri(func() -> void: pass)
+	var avanti := func(secondi: float) -> void:
+		for i in ceili(secondi / 0.05):
+			scheda._process(0.05)
+	var tasto := func(azione: String) -> void:
+		var evento := InputEventAction.new()
+		evento.action = azione
+		evento.pressed = true
+		scheda._unhandled_input(evento)
+	esigi(scheda.momento == "ruota" and scheda.chi == eroe and scheda.adesso == 7 and scheda.guardato == 8,
+			"la ruota non si apre sul protagonista, con la lancetta sulla prossima tasca")
+	# PRENDI: il punto vola, e solo dopo arriva il bivio. Non si spende ancora niente
+	tasto.call("ui_accept")
+	avanti.call(0.4)
+	esigi(scheda.momento == "ruota" and GameState.livello_di(eroe) == 7
+			and GameState.hype_disponibile == GameState.costo_in_hype(2) + 300,
+			"premuto PRENDI si e' speso, o si e' saliti, prima di scegliere la strada")
+	avanti.call(1.0)
+	esigi(scheda.momento == "bivio", "dopo PRENDI non arriva il bivio (momento: %s)" % scheda.momento)
+	# ci si ripensa: si torna alla ruota e il punto non e' speso
+	tasto.call("ui_cancel")
+	avanti.call(0.6)
+	esigi(scheda.momento == "ruota" and GameState.livello_di(eroe) == 7
+			and GameState.hype_disponibile == GameState.costo_in_hype(2) + 300,
+			"ripensarci nel bivio costa lo stesso, o non torna alla ruota")
+	# di nuovo, e questa volta la strada di sinistra
+	tasto.call("ui_accept")
+	avanti.call(1.4)
+	esigi(scheda.momento == "bivio", "il secondo PRENDI non porta al bivio")
+	tasto.call("ui_left")
+	tasto.call("ui_accept")
+	var due := Crescita.coppia(eroe, 8)
+	esigi(GameState.livello_di(eroe) == 8 and GameState.hype_disponibile == GameState.costo_in_hype(1) + 300,
+			"presa la strada il livello e' %d e l'hype %d" % [GameState.livello_di(eroe), GameState.hype_disponibile])
+	esigi(Crescita.tasche_di(eroe).back() == due[0], "a sinistra c'era %s, e si e' presa %s"
+			% [due[0], Crescita.tasche_di(eroe).back()])
+	esigi(GameState.salite_di_livello.is_empty(),
+			"la salita la racconta la schermata, ma resta in coda: il resoconto di fine scontro la ripeterebbe")
+	avanti.call(1.8)
+	esigi(scheda.momento == "salto", "dopo il bivio non arriva il salto (momento: %s)" % scheda.momento)
+	# il primo INVIO finisce l'animazione, il secondo va avanti: all'8 arriva Vendetta
+	tasto.call("ui_accept")
+	esigi(scheda.momento == "salto", "il primo INVIO nel salto non deve saltarlo, ma finirlo")
+	tasto.call("ui_accept")
+	avanti.call(0.6)
+	esigi(scheda.momento == "carta" and ["abilita", "vendetta"] in scheda.carte,
+			"all'8 arriva Vendetta, e la carta non c'e' (momento: %s, carte: %s)" % [scheda.momento, scheda.carte])
+	# ESC salta tutto e torna alla ruota: il timbro cade, il mozzo passa all'8, la lancetta al 9
+	tasto.call("ui_cancel")
+	avanti.call(0.6)
+	esigi(scheda.momento == "ruota", "ESC dalla carta non torna alla ruota")
+	avanti.call(1.0)
+	esigi(scheda.timbrato and scheda.adesso == 8, "tornati sulla ruota il timbro non e' caduto, o il mozzo dice %d"
+			% scheda.adesso)
+	avanti.call(1.5)
+	esigi(scheda.guardato == 9, "la lancetta non e' passata alla tasca dopo (e' sul %d)" % scheda.guardato)
+	# un altro personaggio, la sua ruota
+	tasto.call("ui_right")
+	esigi(scheda.chi == "brawler" and scheda.adesso == GameState.livello_di("brawler"),
+			"destra non porta alla ruota di Veronica")
+	# senza punti PRENDI non porta da nessuna parte
+	GameState.hype_disponibile = 0
+	tasto.call("ui_accept")
+	avanti.call(1.5)
+	esigi(scheda.momento == "ruota" and GameState.livello_di("brawler") == 1, "senza punti si arriva al bivio")
+	scheda.queue_free()
+	# in combattimento si guarda e basta
+	GameState.hype_disponibile = GameState.costo_in_hype(1)
+	var guarda := SchedaCrescita.new()
+	add_child(guarda)
+	guarda.apri(func() -> void: pass, false)
+	var tasto_guarda := InputEventAction.new()
+	tasto_guarda.action = "ui_accept"
+	tasto_guarda.pressed = true
+	guarda._unhandled_input(tasto_guarda)
+	for i in 30:
+		guarda._process(0.05)
+	esigi(guarda.momento == "ruota" and GameState.hype_disponibile == GameState.costo_in_hype(1),
+			"in combattimento dalla ruota si sale")
+	guarda.queue_free()
+	GameState.nuova_partita()
+
+func prova_la_crescita_nella_pausa() -> void:
+	# LA CRESCITA STA NELLA PAUSA, e dice quanti punti ci sono da spendere:
+	# altrimenti l'hype si accumula e nessuno sa dove andarlo a usare (Bru:
+	# «ho usato il cheat per l'xp, ma dove salgo di livello?»)
+	titolo("nella pausa c'e' la Crescita, coi punti da spendere")
+	GameState.nuova_partita()
+	GameState.hype_disponibile = GameState.costo_in_hype(3)
+	Pausa.apri()
+	var trovata: VoceMenu = null
+	for voce in voci_della_pausa():
+		if String(voce.get_meta("chiave", "")) == "crescita":
+			trovata = voce
+	esigi(trovata != null, "nel menu di pausa non c'e' la Crescita")
+	if trovata != null:
+		esigi("3 punti" in trovata.bottone.text.to_lower(),
+				"la voce non dice quanti punti ci sono da spendere: '%s'" % trovata.bottone.text)
+		trovata.bottone.pressed.emit()
+		esigi(Pausa.pannello == "crescita" and Pausa.foglio is SchedaCrescita, "la voce Crescita non apre la ruota")
+		if Pausa.foglio is SchedaCrescita:
+			esigi((Pausa.foglio as SchedaCrescita).si_sale, "fuori dal combattimento la ruota non lascia salire")
+	Pausa.chiudi()
+	GameState.nuova_partita()
 
 func prova_abilita_di_veronica_e_yhvina() -> void:
 	# I SETTE TIPI NUOVI, eseguiti davvero. Che siano dichiarati con un tipo che
@@ -10072,8 +10360,9 @@ func prova_il_menu_di_pausa_si_muove_ma_non_fa_aspettare() -> void:
 	esigi(Movimento.ultimo_suono == "apertura",
 			"il menu si apre in silenzio, o col tocco della voce che ha il fuoco (%s)" % Movimento.ultimo_suono)
 	var voci := voci_della_pausa()
-	esigi(voci.size() == 7, "il menu ha %d voci animate, e deve averne sette" % voci.size())
-	if voci.size() != 7:
+	# otto: con la Crescita (la ruota, dove si spende l'hype)
+	esigi(voci.size() == 8, "il menu ha %d voci animate, e deve averne otto" % voci.size())
+	if voci.size() != 8:
 		Pausa.chiudi()
 		Impostazioni.movimento_ridotto = prima
 		return
@@ -10130,7 +10419,7 @@ func prova_il_menu_di_pausa_si_muove_ma_non_fa_aspettare() -> void:
 	# 4. riaperto da capo, un clic su Opzioni PRIMA che il menu sia entrato
 	Pausa.chiudi()
 	Pausa.apri()
-	var opzioni := voci_della_pausa()[5]
+	var opzioni := voci_della_pausa()[6]
 	esigi(opzioni.quota_visibile() < 0.01, "la prova e' sbagliata: Opzioni e' gia' entrata")
 	opzioni.bottone.pressed.emit()
 	esigi(Pausa.pannello == "opzioni",

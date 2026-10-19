@@ -1,6 +1,7 @@
 extends RefCounted
 
-# I SIMBOLI DELLA CRESCITA (prove/ProposteCrescita.gd), provvisori come loro.
+# I SIMBOLI DELLA CRESCITA: la schermata vera (SchedaCrescita) e le proposte
+# da cui e' nata (prove/ProposteCrescita.gd).
 #
 # Terza mano. Bru: «dobbiamo personalizzare di più i simboli per evitare
 # problemi di copyright». Le forme semplici in se' non sono di nessuno, ma un
@@ -30,7 +31,7 @@ extends RefCounted
 # scelta, il cuore a due punte, la punta dell'attacco, il tetto della difesa,
 # la zanna della vendetta, il pettine d'aghi, la girandola che si chiude...
 
-const IS := preload("res://prove/IconeStatistiche.gd")
+const IS := preload("res://scripts/crescita/IconeStatistiche.gd")
 const NOMI := {
 	"biforca": "Una a scelta", "hp": "Vita", "attacco": "Attacco", "difesa": "Difesa", "velocita": "Velocità",
 	"intelligenza": "Intelligenza", "fattore": "Fattore",
