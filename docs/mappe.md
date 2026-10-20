@@ -94,18 +94,24 @@ dentro le stanze.
 
 | ambiente | la stanza | da una stanza all'altra |
 |---|---|---|
-| `edificio` | la scatola (la Sede) | un corridoio a tubo, un pozzo fra due piani |
+| `edificio` | la scatola (la Sede, il complesso, lo Squarcio) | un corridoio a tubo, un pozzo fra due piani |
 | `magione` | scatole attaccate come le stanze di una casa | una porta nel muro; fra due piani una scala a gradini |
 | `laboratorio` | come la magione: un altro edificio | una porta |
 | `giardino` | un'aiuola dal contorno regolare, alzata da terra | un sentiero |
 | `natura` | una radura dal bordo storto, alzata da terra | un sentiero che serpeggia, e sale se sale |
 | `cunicoli` | una caverna dalla volta storta | una galleria che si allarga e si stringe |
+| `strada` | una lastra piatta a filo di terra (le vie di Meridia) | un nastro dritto |
 
 Una stanza il cui spazio non e' quello del suo ambiente ha il suo
 **dettaglio** (`"dettaglio"`, in `scripts/ArrediPlastico.gd`): la `collina`
 (la stanza in cima, e sotto la collina fino al piano di sotto), la `fossa`, il
-`ponte` sopra il vuoto, il tetto a `spiovente`, la volta della `serra`, la
-`sala` e la `piazza` scavate (una caverna piu' regolare).
+`ponte` sopra il vuoto, il tetto a `spiovente`, la volta della `serra`, i
+`cumuli` (il terreno fa dei monti: la discarica), il `tondo` (un muro rotondo
+con la cupola: il Padiglione), la `sala` e la `piazza` scavate (una caverna
+piu' regolare). E due misure per qualunque stanza: `"altezza"` (quanto e'
+alta rispetto a una stanza qualunque, da 0,3 a 2,5: l'hangar, i palazzi, il
+nastro basso) e `"proporzioni"` (quanto della sua pianta tiene in larghezza e
+in profondita', fino a 1: una strada, un vicolo, un corridoio stretto).
 `"percorsi"` dice per dove passa un sentiero che non deve tagliare in mezzo a
 qualcosa (in quadratini, come le celle). Sul plastico due stanze possono stare
 sullo stesso quadratino se stanno su piani diversi: e' una casa a piani, e qui
@@ -136,7 +142,7 @@ non cosa troverai.
 | il **proiettore** come unica eccezione | ✅ `piazza_proiettore` sulla scelta |
 | zoom e trascinamento | ✅ sul plastico: si gira, si inclina, si avvicina verso il cursore, si sposta |
 | piu' piani per zona | ✅ campo `piano` sulle stanze e `piani` sulla mappa (il plastico) |
-| ogni zona somiglia al suo posto | ✅ `ambiente`, `dettaglio`, `percorsi` (Pianure, Casa Gigante, Rocca di Ossidiana) |
+| ogni zona somiglia al suo posto | ✅ `ambiente`, `dettaglio`, `altezza`, `proporzioni`, `percorsi` (tutte le zone) |
 | eventi che compaiono sulla mappa dopo uno scontro, e **scadono** se il giocatore perde troppo tempo | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
@@ -989,12 +995,12 @@ varco
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |   | **Il Padiglione** | ← | **La grande discarica** | ← |   |   |
 |   | ↑ | ↑ | **Cuore del complesso** | ← |   |   |
-|   |   |   |   |   |   | **Vecchio centro di controllo** |
-|   |   |   | **Il nastro trasportatore** |   |   |   |
+|   |   |   | **Il nastro trasportatore** |   |   | **Vecchio centro di controllo** |
+|   |   |   | ↑ |   |   |   |
 |   |   |   |   |   | **Sala informatica** |   |
 |   |   |   |   | **Sala delle valvole** |   |   |
 | **Stanza degli schermi** |   |   |   |   |   |   |
-|   |   | **Corridoi infiniti** |   | **Corridoio dei tubi** | **Deposito** |   |
+|   |   | **Corridoi infiniti** | ← | **Corridoio dei tubi** | **Deposito** |   |
 |   |   |   |   | **Sala vetrata** |   |   |
 |   |   |   |   | **Corridoi stretti** |   |   |
 |   |   |   |   | ▶ ✕ **Il varco** |   |   |
