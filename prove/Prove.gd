@@ -9686,7 +9686,7 @@ func prova_le_zone_somigliano_al_loro_posto() -> void:
 	pianta.get_parent().queue_free()
 	# la Sede e' un edificio: scatole e corridoi di sempre, e l'hangar e' alto
 	var sede := await sede_aperta()
-	esigi(alta(sede.plastico, "hangar") > alta(sede.plastico, "alloggio") * 1.5, "alla Sede l'hangar e' alto come un alloggio")
+	esigi(altezza_della_stanza(sede.plastico, "hangar") > altezza_della_stanza(sede.plastico, "alloggio") * 1.5, "alla Sede l'hangar e' alto come un alloggio")
 	for id_stanza: String in sede.plastico.accese:
 		esigi(forma_di(sede.plastico, sede.plastico.accese[id_stanza]) is BoxMesh, "alla Sede la stanza %s non e' piu' una scatola" % id_stanza)
 	for coppia: Array in GameState.collegamenti_aperti():
@@ -9713,10 +9713,10 @@ func solo_la_forma(pianta: MappaZona, zona: String) -> void:
 			esigi((p.parti[id_stanza] as Array).size() == 2, "%s: la stanza %s ha %d pezzi, cioe' dentro ci sono delle cose e non solo la sua forma"
 					% [zona, id_stanza, (p.parti[id_stanza] as Array).size()])
 
-func alta(p: PlasticoZona, id_stanza: String) -> float:
+func altezza_della_stanza(p: PlasticoZona, id_stanza: String) -> float:
 	return float(p.scatole[id_stanza]["misura"].y)
 
-func larga(p: PlasticoZona, id_stanza: String) -> float:
+func larghezza_della_stanza(p: PlasticoZona, id_stanza: String) -> float:
 	# la misura piu' corta della pianta: quanto e' stretta una stanza
 	var r := AmbientiPlastico.pianta(p.scatole[id_stanza])
 	return minf(r.size.x, r.size.y)
@@ -9736,23 +9736,23 @@ func la_citta(pianta: MappaZona) -> void:
 	var p := pianta.plastico
 	esigi((p.parti.get("varco", []) as Array).size() == 4, "a Meridia il varco non sta in cima a una collina")
 	for id_strada: String in ["periferia", "ingresso_citta", "strada_principale", "vicolo", "quartieri_profondi"]:
-		esigi(AmbientiPlastico.ambiente_di(pianta.stanze_per_id[id_strada]) == "strada" and larga(p, id_strada) < 0.8,
+		esigi(AmbientiPlastico.ambiente_di(pianta.stanze_per_id[id_strada]) == "strada" and larghezza_della_stanza(p, id_strada) < 0.8,
 				"a Meridia %s non e' una strada stretta" % id_strada)
 		var forma := forma_di(p, p.accese[id_strada])
 		esigi(forma != null and forma.get_aabb().size.y < 0.1, "a Meridia %s non e' piatta come una strada" % id_strada)
 	esigi(pavimento_dritto(p, 0), "a Meridia il pavimento della citta' non e' un rettangolo, come in un edificio")
 	esigi(AmbientiPlastico.passo(p, "periferia", "ingresso_citta") == "strada" and AmbientiPlastico.passo(p, "strada_principale", "supermercato") == "strada",
 			"a Meridia da una strada non si va per la strada")
-	esigi(alta(p, "complessi") > alta(p, "supermercato") * 2.0 and alta(p, "edicola") < alta(p, "officina"),
+	esigi(altezza_della_stanza(p, "complessi") > altezza_della_stanza(p, "supermercato") * 2.0 and altezza_della_stanza(p, "edicola") < altezza_della_stanza(p, "officina"),
 			"a Meridia i palazzi non sono piu' alti delle botteghe")
 
 func l_impianto(pianta: MappaZona) -> void:
 	# LO SQUARCIO: corridoi stretti, il nastro lungo e basso, le sale alte, fuori
 	# la discarica a cumuli e il Padiglione tondo
 	var p := pianta.plastico
-	esigi(larga(p, "corridoi_stretti") < larga(p, "sala_vetrata") * 0.5 and larga(p, "corridoi_infiniti") < larga(p, "deposito") * 0.5,
+	esigi(larghezza_della_stanza(p, "corridoi_stretti") < larghezza_della_stanza(p, "sala_vetrata") * 0.5 and larghezza_della_stanza(p, "corridoi_infiniti") < larghezza_della_stanza(p, "deposito") * 0.5,
 			"nello Squarcio i corridoi non sono stretti")
-	esigi(alta(p, "nastro") < alta(p, "deposito") * 0.6 and alta(p, "cuore") > alta(p, "deposito") * 1.5 and alta(p, "sala_schede") > alta(p, "deposito") * 1.5,
+	esigi(altezza_della_stanza(p, "nastro") < altezza_della_stanza(p, "deposito") * 0.6 and altezza_della_stanza(p, "cuore") > altezza_della_stanza(p, "deposito") * 1.5 and altezza_della_stanza(p, "sala_schede") > altezza_della_stanza(p, "deposito") * 1.5,
 			"nello Squarcio il nastro non e' basso, o il cuore e la sala informatica non sono alti")
 	esigi(not forma_di(p, p.accese["padiglione_e"]) is BoxMesh and (p.parti.get("padiglione_e", []) as Array).size() == 4,
 			"nello Squarcio il Padiglione non e' la struttura tonda")
