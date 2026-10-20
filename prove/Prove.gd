@@ -70,6 +70,11 @@ func _ready() -> void:
 	prova_barra_di_dominio_come_energia()
 	await prova_mattanza_svuota_la_barra()
 	await prova_il_colpo_di_grazia_si_centra_col_tempismo()
+	await prova_il_taglio_della_mattanza()
+	await prova_lo_squarcio_d_entrata()
+	await prova_il_turno_si_vede_col_corpo()
+	await prova_la_raffica_col_corpo()
+	prova_il_riflesso_sui_vetri()
 	prova_ogni_creatura_ha_un_set_di_mosse()
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
@@ -3605,6 +3610,10 @@ func prova_il_colpo_di_grazia_si_centra_col_tempismo() -> void:
 	var apri := func(barre: int) -> void:
 		tu.dominio = per_segmento * barre
 		vero.usa_abilita_su(tu, "mattanza", lui)
+		# il taglio con cui parte (TaglioMattanza.gd) qui si salta: questa
+		# prova guarda i colpi, e la sua prova e' prova_il_taglio_della_mattanza
+		if m.taglio_in_corso():
+			m.taglio.salta()
 		vero.voce.coda.clear()
 		vero.voce.sta_facendo_leggere = false
 
@@ -21749,3 +21758,295 @@ func controlla_il_fuoco_delle_opzioni(radice: Node, dove: String, contrasto: boo
 		nome = etichetta.text
 	esigi(Stile.contrasto(colore, banda) >= 4.5, "%s «%s» col fuoco sta a %.1f:1 sull'etichetta nera (alto contrasto %s)"
 			% [dove, nome, Stile.contrasto(colore, banda), contrasto])
+
+# --- GLI EFFETTI DI VITA (docs/vita.md) ---------------------------------------
+# Bru, sugli esempi animati: «mattanza approvata, bellissima ma vogliamo che la
+# barra sia più grande dentro ci metteremo un artwork, bello anche lo spacco che
+# ti introduce al combattimento, bello tutto tranne le particelle che si muovono
+# nello sfondo e le immagini che galleggiano»
+
+func scontro_vivo(nemico: String) -> Node:
+	GameState.nuova_partita()
+	GameState.party = ["anonimo", "veronica"]
+	GameState.nemici_combattimento = [nemico]
+	var vero: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(vero)
+	return vero
+
+func i_due_dello_scontro(vero: Node) -> Array[Dictionary]:
+	var tu: Dictionary = {}
+	var lui: Dictionary = {}
+	for combattente: Dictionary in vero.combattenti:
+		if bool(combattente.giocatore) and tu.is_empty():
+			tu = combattente
+		elif not bool(combattente.giocatore) and lui.is_empty():
+			lui = combattente
+	return [tu, lui]
+
+func tasto_spazio() -> InputEventKey:
+	var spazio := InputEventKey.new()
+	spazio.keycode = KEY_SPACE
+	spazio.physical_keycode = KEY_SPACE
+	spazio.pressed = true
+	return spazio
+
+func prova_il_taglio_della_mattanza() -> void:
+	titolo("la Mattanza parte col taglio: la fascia grande per l'artwork, sopra tutto, si salta, non fa aspettare")
+	var vero := scontro_vivo("goblin_tipico")
+	await get_tree().process_frame
+	var coppia := i_due_dello_scontro(vero)
+	var tu: Dictionary = coppia[0]
+	var lui: Dictionary = coppia[1]
+	lui.hp_max = 1000000
+	lui.hp = 1000000
+	var per_segmento := int(GameState.regole.get("dominio", {}).get("per_segmento", 100))
+	tu.dominio = per_segmento
+	vero.usa_abilita_su(tu, "mattanza", lui)
+	var taglio: TaglioMattanza = vero.mattanza.taglio
+	esigi(taglio != null and vero.mattanza.taglio_in_corso(), "partita la Mattanza, il taglio a tutto schermo non c'e'")
+	if taglio == null:
+		vero.free()
+		return
+	# 1. SOPRA TUTTO LO SCONTRO, anche sopra il box: un clic ovunque lo salta
+	esigi(taglio.get_parent() == vero and taglio.get_index() == vero.get_child_count() - 1,
+			"il taglio non sta sopra tutto lo scontro: un clic sul box non lo salterebbe")
+	esigi(taglio.size.is_equal_approx(vero.size), "il taglio non copre lo schermo: %s su %s" % [taglio.size, vero.size])
+	# 2. LA FASCIA NERA E' GRANDE: Bru ci mettera' l'artwork
+	var nera := taglio.fasce[0].get_child(0) as Polygon2D
+	var alta := 0.0
+	for punto in nera.polygon:
+		alta = maxf(alta, absf(punto.y) * 2.0)
+	esigi(alta >= taglio.size.y * 0.5 - 1.0, "la fascia nera e' alta %.0f su %.0f: per l'artwork deve essere meta' schermo"
+			% [alta, taglio.size.y])
+	# 3. FINCHE' L'ARTWORK NON C'E', L'INIZIALE GRANDE
+	esigi(taglio.arte == null and taglio.iniziale != null and taglio.iniziale.text == String(tu.nome).left(1).to_upper(),
+			"senza art/mattanza/%s.png al posto dell'artwork non c'e' l'iniziale" % String(tu.id))
+	# 4. MENTRE IL TAGLIO GIRA il mondo aspetta e la barra non si scarica:
+	#    la finestra comincia quando e' finito, non sotto di lui
+	var barra := int(tu.dominio)
+	esigi(bool(vero.mattanza.passa(0.3)) and int(tu.dominio) == barra,
+			"mentre il taglio gira la barra si scarica, o il mondo non aspetta")
+	# 5. IL PRIMO SPAZIO LO SALTA, e non e' ancora un colpo
+	var vita := int(lui.hp)
+	vero._unhandled_input(tasto_spazio())
+	esigi(not vero.mattanza.taglio_in_corso() and int(lui.hp) == vita,
+			"spazio durante il taglio non lo salta, o colpisce gia'")
+	vero.free()
+	# 6. DA SOLO FINISCE in poco piu' di un secondo dell'orologio dello scontro
+	vero = scontro_vivo("goblin_tipico")
+	await get_tree().process_frame
+	coppia = i_due_dello_scontro(vero)
+	coppia[0].dominio = per_segmento
+	vero.usa_abilita_su(coppia[0], "mattanza", coppia[1])
+	var passato := 0.0
+	while vero.mattanza.taglio_in_corso() and passato < 5.0:
+		vero.mattanza.passa(0.05)
+		passato += 0.05
+	esigi(not vero.mattanza.taglio_in_corso() and passato <= TaglioMattanza.DURATA + 0.06,
+			"il taglio dura %.2f s: deve finire da solo in %.2f" % [passato, TaglioMattanza.DURATA])
+	vero.free()
+	# 7. CON L'ARTWORK: il disegno sta dentro la fascia, tagliato dai suoi bordi
+	var tela := Control.new()
+	tela.size = Vector2(1280, 720)
+	add_child(tela)
+	var percorso := TaglioMattanza.ARTWORK % "anonimo"
+	Disegni.trovati[percorso] = ImageTexture.create_from_image(Image.create(400, 600, false, Image.FORMAT_RGBA8))
+	var con_arte := TaglioMattanza.apri(tela, {"id": "anonimo", "nome": "Anonimo"})
+	con_arte.avanza(0.5)
+	esigi(con_arte.arte != null and con_arte.arte.polygon.size() >= 3, "con art/mattanza/anonimo.png il taglio non mostra l'artwork")
+	if con_arte.arte != null:
+		var bordo := TaglioMattanza.bordo_fascia(tela.size.x * 1.6, tela.size.y * TaglioMattanza.ALTA + 2.0)
+		var fuori := 0
+		for punto in con_arte.arte.polygon:
+			if not Geometry2D.is_point_in_polygon(punto, bordo):
+				fuori += 1
+		esigi(fuori == 0, "l'artwork esce dalla fascia nera in %d punti" % fuori)
+	Disegni.svuota_cache()
+	# 8. COL MOVIMENTO RIDOTTO solo la fascia nera con la parola, ferma, e piu' breve
+	Impostazioni.movimento_ridotto = true
+	var fermo := TaglioMattanza.apri(tela, {"id": "anonimo", "nome": "Anonimo"})
+	fermo.avanza(0.2)
+	esigi(fermo.ridotto and not fermo.fasce[1].visible and not fermo.fasce[2].visible
+			and is_equal_approx(fermo.fasce[0].position.x, tela.size.x * 0.5),
+			"col movimento ridotto le fasce volano lo stesso")
+	fermo.avanza(TaglioMattanza.DURATA_RIDOTTA)
+	esigi(not fermo.in_corso, "col movimento ridotto il taglio non finisce in %.1f s" % TaglioMattanza.DURATA_RIDOTTA)
+	Impostazioni.movimento_ridotto = false
+	tela.free()
+
+func prova_lo_squarcio_d_entrata() -> void:
+	titolo("verso lo scontro lo schermo si crepa, e i pezzi dello scontro entrano a cascata")
+	# 1. QUANDO: solo verso lo scontro, mai col movimento ridotto, mai senza
+	#    una finestra da fotografare (queste prove girano senza)
+	esigi(not Squarcio.per("res://scenes/Mappa.tscn"), "lo squarcio si apre anche verso la mappa")
+	esigi(Squarcio.per(Squarcio.SCENA) == (DisplayServer.get_name() != "headless"),
+			"senza finestra lo squarcio prova lo stesso a fotografare lo schermo")
+	Impostazioni.movimento_ridotto = true
+	esigi(not Squarcio.per(Squarcio.SCENA), "col movimento ridotto lo scontro si apre con lo squarcio")
+	Impostazioni.movimento_ridotto = false
+	# 2. LA FOTO SI ROMPE: due meta' che all'inizio coprono tutto, poi volano via,
+	#    e tutto finisce prima della dissolvenza che sostituisce
+	var crepa := Squarcio.new(Image.create(128, 72, false, Image.FORMAT_RGBA8), Vector2(1280, 720))
+	add_child(crepa)
+	crepa.set_process(false)
+	esigi(crepa.meta_su.position == Vector2.ZERO and crepa.meta_giu.position == Vector2.ZERO,
+			"all'inizio la foto non copre lo schermo: si vedrebbe lo scontro prima della crepa")
+	var massimo_uv := 0.0
+	for punto in crepa.meta_giu.uv:
+		massimo_uv = maxf(massimo_uv, punto.x)
+	esigi(massimo_uv > 120.0 and massimo_uv < 140.0, "la foto e' attaccata alle meta' con la misura sbagliata (uv fino a %.0f su 128)" % massimo_uv)
+	var finito := [false]
+	crepa.finito.connect(func() -> void: finito[0] = true)
+	var passato := 0.0
+	var meta_strada := Vector2.ZERO
+	while not bool(finito[0]) and passato < 3.0:
+		crepa.avanza(1.0 / 60.0)
+		passato += 1.0 / 60.0
+		if meta_strada == Vector2.ZERO and passato >= Squarcio.APRE + Squarcio.VOLA * 0.5:
+			meta_strada = crepa.meta_su.position
+	esigi(bool(finito[0]) and meta_strada.y < -50.0, "le due meta' non volano via")
+	esigi(passato <= 2.0 * Stile.tempo("transizione_scena"),
+			"lo squarcio dura %.2f s: piu' della dissolvenza andata e ritorno che sostituisce" % passato)
+	# 3. I PEZZI ENTRANO SOLO ARRIVANDO DA UNO SQUARCIO, e il quadrante per ultimo
+	var fermo := scontro_vivo("goblin_tipico")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var box_fermo := Squarcio.pezzo_di(fermo.plancia.box_nemico, fermo.plancia.radice)
+	var a_riposo := box_fermo.position
+	var quadrante_a_riposo := Squarcio.pezzo_di(fermo.plancia.quadrante, fermo.plancia.radice).position
+	await get_tree().process_frame
+	esigi(box_fermo.position == a_riposo, "senza squarcio i pezzi dello scontro si muovono lo stesso")
+	fermo.free()
+	Squarcio.in_arrivo = true
+	var arriva := scontro_vivo("goblin_tipico")
+	esigi(not Squarcio.in_arrivo, "lo scontro non si e' preso l'arrivo dallo squarcio")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var radice: Control = arriva.plancia.radice
+	var box := Squarcio.pezzo_di(arriva.plancia.box_nemico, radice)
+	var quadrante := Squarcio.pezzo_di(arriva.plancia.quadrante, radice)
+	esigi(box.position.x < -100.0, "arrivando dallo squarcio il nemico non entra da sinistra")
+	await get_tree().create_timer(Squarcio.PEZZI_DOPO + Movimento.durata("entrata") * 0.6).timeout
+	var quanto_box := absf(box.position.x - a_riposo.x)
+	esigi(quadrante.position.y - quadrante_a_riposo.y > 40.0 and quanto_box < 120.0,
+			"il quadrante non arriva per ultimo: il nemico e' a %.0f dal suo posto, il quadrante a %.0f"
+			% [quanto_box, quadrante.position.y - quadrante_a_riposo.y])
+	await get_tree().create_timer(0.8).timeout
+	esigi(box.position.is_equal_approx(a_riposo), "finito lo squarcio il nemico non e' al suo posto: %s invece di %s" % [box.position, a_riposo])
+	arriva.free()
+
+func prova_il_turno_si_vede_col_corpo() -> void:
+	titolo("il turno che passa: lo slot si alza, una fascia dice di chi e', il nemico si accende di rosso")
+	var vero := scontro_vivo("marionetta")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	vero.set_process(false)
+	var campo: CampoCombattimento = vero.campo
+	var plancia: PlanciaCombattimento = vero.plancia
+	var gente: Array[Dictionary] = vero.combattenti
+	var nemico: Dictionary = i_due_dello_scontro(vero)[1]
+	# 1. A VERONICA: la sua fascia, e quella di prima se ne va
+	campo.evidenzia(gente, gente[0])
+	campo.evidenzia(gente, gente[1])
+	var sua := FasciaTurno.di(plancia.slot[1])
+	esigi(sua != null and sua.text == FasciaTurno.testo_per("veronica"), "tocca a Veronica e sotto il suo schermo non c'e' la fascia")
+	esigi(FasciaTurno.di(plancia.slot[0]) == null, "tocca a Veronica e la fascia del protagonista resta")
+	if sua != null:
+		esigi(sua.size.x <= plancia.slot[1].cornice.size.x - 23.0, "la fascia «%s» esce dallo schermo dello slot" % sua.text)
+	await get_tree().create_timer(FasciaTurno.SALE + 0.1).timeout
+	esigi(plancia.slot[1].scale.x > 1.02 and is_equal_approx(plancia.slot[0].scale.x, 1.0),
+			"tocca a Veronica e il suo slot non si alza (%.3f), o resta alzato quello di prima" % plancia.slot[1].scale.x)
+	# 2. LO STESSO TURNO DI NUOVO non rifa' niente
+	campo.evidenzia(gente, gente[1])
+	esigi(FasciaTurno.di(plancia.slot[1]) == sua, "lo stesso turno ridetto rifa' entrare la fascia")
+	# 3. A TE si dice "tu"
+	campo.evidenzia(gente, gente[0])
+	var tua := FasciaTurno.di(plancia.slot[0])
+	esigi(tua != null and tua.text == "TOCCA A TE", "tocca al protagonista e la fascia non dice «TOCCA A TE»")
+	# 4. AL NEMICO: lo schermo si accende di rosso, e la fascia e' sua
+	campo.evidenzia(gente, nemico)
+	var rossa := FasciaTurno.di(plancia.box_nemico)
+	esigi(rossa != null and rossa.text.begins_with("TOCCA A ") and plancia.box_nemico.has_meta(FasciaTurno.META_LAMPO),
+			"tocca al nemico e il suo schermo non si accende, o non c'e' la fascia rossa")
+	esigi(FasciaTurno.di(plancia.slot[0]) == null, "tocca al nemico e la fascia del protagonista resta")
+	campo.evidenzia(gente, gente[0])
+	esigi(FasciaTurno.di(plancia.box_nemico) == null, "tornato il turno al protagonista, la fascia rossa resta")
+	# 5. COL MOVIMENTO RIDOTTO niente inclinazione e niente rimbalzo
+	Impostazioni.movimento_ridotto = true
+	campo.evidenzia(gente, gente[1])
+	await get_tree().create_timer(FasciaTurno.SALE + 0.1).timeout
+	esigi(is_equal_approx(plancia.slot[1].rotation_degrees, 0.0), "col movimento ridotto lo slot si inclina lo stesso")
+	Impostazioni.movimento_ridotto = false
+	vero.free()
+
+func prova_la_raffica_col_corpo() -> void:
+	titolo("la raffica col corpo: l'anticipo, il timbro, la parata che scoppia, il colpo preso che crepa e scuote")
+	var vero := scontro_vivo("veronica")
+	await get_tree().process_frame
+	vero.voce.coda.clear()
+	vero.set_process(false)
+	var gioco: MinigiocoCombattimento = vero.minigioco
+	esigi(gioco.impatto == vero.impatto, "il minigioco non sa far sbandare lo scontro")
+	gioco.avvia({"nome": "Collisioni infinite", "quanti": 3, "intervallo": 1.0, "durata": 1.4, "danno": 9})
+	gioco.salta()
+	var riquadro: RiquadroRaffica = gioco.riquadro
+	var primo: Dictionary = gioco.raffica[0]
+	# 1. L'ANTICIPO: le tacche solo nell'ultimo mezzo secondo
+	esigi(RiquadroRaffica.anticipo(primo, float(primo.impatto) - 0.8) < 0.0, "le tacche corrono gia' quasi un secondo prima")
+	esigi(absf(RiquadroRaffica.anticipo(primo, float(primo.impatto) - 0.25) - 0.5) < 0.01,
+			"a meta' dell'ultimo mezzo secondo le tacche non sono a meta' strada")
+	# 2. LA PARATA: il timbro sulla fascia nera, le schegge, dentro il piano
+	while gioco.tempo < float(primo.impatto) - 0.02:
+		gioco.passa(1.0 / 60.0)
+	gioco.colpisci(0)
+	gioco.passa(1.0 / 60.0)
+	esigi(RiquadroRaffica.anticipo(primo, gioco.tempo) < 0.0, "parato il pugno, le tacche corrono ancora")
+	var timbro := riquadro.scritte[0]
+	esigi(timbro.visible and timbro.get_theme_stylebox("normal") == riquadro.stile_nero,
+			"la parata non ha il timbro sulla fascia nera")
+	esigi(not riquadro.schegge.pezzi.is_empty(), "la parata non fa saltare le schegge")
+	var piano := Rect2(Vector2.ZERO, riquadro.piano.size)
+	esigi(piano.encloses(Rect2(timbro.position, timbro.size)), "il timbro esce dal piano: vicino al bordo viene tagliato")
+	# 3. IL COLPO PRESO: il timbro rosso, e lo scontro sbanda
+	var secondo: Dictionary = gioco.raffica[1]
+	while gioco.tempo < float(secondo.scade) + 0.05:
+		gioco.passa(1.0 / 60.0)
+	var rosso := false
+	for scritta in riquadro.scritte:
+		rosso = rosso or (scritta.visible and scritta.get_theme_stylebox("normal") == riquadro.stile_rosso)
+	esigi(rosso, "il colpo preso non ha il timbro rosso")
+	esigi(vero.impatto.tween_scossa != null and vero.impatto.tween_scossa.is_valid(), "il colpo preso non fa sbandare lo scontro")
+	# 4. COL MOVIMENTO RIDOTTO niente tacche e niente schegge
+	Impostazioni.movimento_ridotto = true
+	var terzo: Dictionary = gioco.raffica[2]
+	esigi(RiquadroRaffica.anticipo(terzo, float(terzo.impatto) - 0.2) < 0.0, "col movimento ridotto le tacche corrono lo stesso")
+	var schegge_prima := riquadro.schegge.pezzi.size()
+	riquadro.para_col_corpo(Vector2(40, 40))
+	esigi(riquadro.schegge.pezzi.size() == schegge_prima, "col movimento ridotto la parata fa saltare le schegge")
+	Impostazioni.movimento_ridotto = false
+	vero.free()
+
+func prova_il_riflesso_sui_vetri() -> void:
+	titolo("sui vetri dei cabinati ogni tanto passa la luce, mai su due insieme, e niente col movimento ridotto")
+	var uno := Manifesto.Vetro.new()
+	var due := Manifesto.Vetro.new()
+	var luce_uno: RiflessoVetro = null
+	var luce_due: RiflessoVetro = null
+	for figlio in uno.get_children():
+		luce_uno = figlio as RiflessoVetro if figlio is RiflessoVetro else luce_uno
+	for figlio in due.get_children():
+		luce_due = figlio as RiflessoVetro if figlio is RiflessoVetro else luce_due
+	esigi(luce_uno != null and luce_due != null, "il vetro di un cabinato non ha il riflesso")
+	if luce_uno != null and luce_due != null:
+		esigi(absf(luce_uno.ritardo - luce_due.ritardo) >= RiflessoVetro.PASSA, "due vetri nati insieme si accendono insieme")
+		luce_uno.orologio = luce_uno.ritardo + RiflessoVetro.PASSA * 0.5
+		esigi(luce_uno.passaggio() > 0.4 and luce_uno.passaggio() < 0.6, "a meta' passaggio la luce non e' a meta' vetro")
+		luce_uno.orologio = luce_uno.ritardo + RiflessoVetro.PASSA + 0.5
+		esigi(luce_uno.passaggio() < 0.0, "la luce resta sul vetro oltre il suo passaggio")
+		luce_uno.orologio = luce_uno.ritardo + RiflessoVetro.PERIODO + RiflessoVetro.PASSA * 0.5
+		esigi(luce_uno.passaggio() > 0.0, "la luce passa una volta sola e poi mai piu'")
+		Impostazioni.movimento_ridotto = true
+		esigi(luce_uno.passaggio() < 0.0, "col movimento ridotto la luce passa lo stesso")
+		Impostazioni.movimento_ridotto = false
+	uno.free()
+	due.free()

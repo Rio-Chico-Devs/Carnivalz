@@ -35,6 +35,7 @@ var prossimo_lato := "destra"
 # muti, perche' e' l'unico modo che hanno le prove di accorgersi se una scheda
 # cambia PRIMA che il box abbia raccontato perche'
 var aggiornamenti := 0
+var turno_di := -1   # l'indice di chi aveva il turno: la fascia si muove solo quando cambia
 
 func _init(silenzioso := false) -> void:
 	muta = silenzioso
@@ -401,10 +402,14 @@ func evidenzia(combattenti: Array[Dictionary], attivo: Dictionary) -> void:
 	# di chi e' il turno si vede senza leggere: gli altri si spengono un po'
 	if muta:
 		return
+	var cambiato: bool = int(attivo.get("indice", -1)) != turno_di
+	turno_di = int(attivo.get("indice", -1))
 	for combattente in combattenti:
 		if combattente.hp <= 0 or combattente.get("scheda", null) == null:
 			continue
 		var suo_turno: bool = combattente.indice == attivo.indice
+		if cambiato:
+			turno_al_nemico(combattente, suo_turno)
 		var suo_slot: Variant = combattente.get("slot", null)
 		if suo_slot != null and is_instance_valid(suo_slot):
 			# SULLA PLANCIA DISEGNATA si accende chi tocca, non si spengono gli
@@ -417,6 +422,20 @@ func evidenzia(combattenti: Array[Dictionary], attivo: Dictionary) -> void:
 		if chi == null or not is_instance_valid(chi):
 			chi = combattente.scheda
 		(chi as CanvasItem).modulate = Color.WHITE if suo_turno else Color(1, 1, 1, 0.65)
+
+func turno_al_nemico(combattente: Dictionary, suo_turno: bool) -> void:
+	# QUANDO TOCCA AL NEMICO il suo schermo si accende di rosso e una fascia
+	# rossa lo dice (FasciaTurno.gd). Solo per chi sta nel riquadro grande: i
+	# gregari sono quadretti, e sotto un quadretto una fascia non ci sta
+	if plancia == null or bool(combattente.get("giocatore", false)) or combattente.get("scheda") != plancia.box_nemico:
+		return
+	var schermo: Control = plancia.box_nemico
+	if not suo_turno:
+		FasciaTurno.togli(schermo)
+		return
+	FasciaTurno.accendi_nemico(schermo)
+	FasciaTurno.metti(schermo, "TOCCA A %s" % nome_in_fascia(combattente), "pericolo",
+			Vector2(24.0, schermo.size.y - 24.0), schermo.size.x - 48.0)
 
 func congeda(scheda: Control) -> void:
 	if muta or scheda == null or not is_instance_valid(scheda):

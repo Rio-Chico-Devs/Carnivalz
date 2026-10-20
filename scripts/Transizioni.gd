@@ -50,6 +50,9 @@ func vai(percorso: String) -> void:
 		# apra due stanze - senza buttare via una navigazione legittima.
 		prossima = percorso
 		return
+	if Squarcio.per(percorso):
+		vai_con_lo_squarcio(percorso)
+		return
 	in_corso = true
 	velo.color = Color(Stile.colore("velo"), velo.color.a)
 	velo.mouse_filter = Control.MOUSE_FILTER_STOP  # da qui in poi i click non passano
@@ -86,6 +89,26 @@ func vai(percorso: String) -> void:
 	# Adesso si guarda di nuovo alla fine, quando la transizione e' chiusa per
 	# davvero e in_corso e' gia' tornato falso. Non esiste piu' nessun istante
 	# in cui una richiesta puo' entrare e non essere raccolta da nessuno.
+	if prossima != "":
+		var rimasta := prossima
+		prossima = ""
+		vai(rimasta)
+
+func vai_con_lo_squarcio(percorso: String) -> void:
+	# VERSO UNO SCONTRO NON SI VA AL BUIO (Squarcio.gd): la foto dello schermo
+	# copre tutto, la scena cambia sotto, e la foto si rompe. Il velo resta
+	# trasparente ma mangia i click finche' le due meta' non sono volate via
+	in_corso = true
+	velo.mouse_filter = Control.MOUSE_FILTER_STOP
+	var crepa := Squarcio.new(get_viewport().get_texture().get_image(), get_viewport().get_visible_rect().size)
+	add_child(crepa)
+	Squarcio.in_arrivo = true
+	get_tree().change_scene_to_file(percorso)
+	await crepa.finito
+	Squarcio.in_arrivo = false
+	velo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	in_corso = false
+	# una richiesta arrivata nel frattempo si raccoglie qui, come in vai()
 	if prossima != "":
 		var rimasta := prossima
 		prossima = ""

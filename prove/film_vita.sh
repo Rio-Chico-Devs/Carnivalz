@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Gli esempi di vita (prove/ProposteVita.gd), girati col Movie Maker di Godot in
-# scatti/proposte_vita/: un .mp4 per esempio. Provvisorio: se ne va con le
-# scelte di Bru. Serve ffmpeg, e una finestra vera (xvfb-run basta).
-#   ./prove/film_vita.sh                      tutti
-#   ./prove/film_vita.sh respiro mattanza     solo questi
+# Gli effetti di vita (prove/ProposteVita.gd), girati dal gioco vero col Movie
+# Maker di Godot in scatti/proposte_vita/: un .mp4 per effetto. Provvisorio.
+# Serve ffmpeg, e una finestra vera (xvfb-run basta).
+#   ./prove/film_vita.sh                       tutti
+#   ./prove/film_vita.sh squarcio mattanza     solo questi
 set -euo pipefail
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-$(command -v godot || command -v godot4 || true)}"
@@ -19,14 +19,16 @@ fi
 CARTELLA=scatti/proposte_vita
 mkdir -p "$CARTELLA"
 FILM=("$@")
-[ ${#FILM[@]} -gt 0 ] || FILM=(respiro squarcio turno mattanza collisioni)
+[ ${#FILM[@]} -gt 0 ] || FILM=(squarcio mattanza turno collisioni riflesso)
+# lo squarcio cambia scena e porta via chi lo filma: si ferma a fotogrammi
+declare -A QUANTI=([squarcio]=200)
 for nome in "${FILM[@]}"; do
 	appoggio="$(mktemp -d)"
 	# lo scontro si dispone per un po' prima che l'esempio cominci: lo script
 	# scrive da quale fotogramma, e il film parte da li'. Si ferma da solo
 	# shellcheck disable=SC2086
 	$LANCIA --path . --resolution 1280x720 --write-movie "$appoggio/f.png" --fixed-fps 30 \
-			--quit-after 600 prove/ProposteVita.tscn -- film "$nome" > "$appoggio/registro.txt" 2>&1 || true
+			--quit-after "${QUANTI[$nome]:-600}" prove/ProposteVita.tscn -- film "$nome" > "$appoggio/registro.txt" 2>&1 || true
 	grep -E "SCRIPT ERROR|Parse Error|^ERROR" "$appoggio/registro.txt" \
 		| grep -vE "Vulkan|VK_KHR|rendering_context_driver_vulkan|Condition \"err != OK\"|Condition \"status < 0\"" || true
 	inizio="$(grep -oE "INIZIO_FILM [0-9]+" "$appoggio/registro.txt" | grep -oE "[0-9]+" | head -1)"

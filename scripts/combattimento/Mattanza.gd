@@ -60,6 +60,7 @@ var danno_colpi := 0
 var danno_grazia := 0
 var azione_in_attesa: Dictionary = {}   # il passo di tutorial che aspetta la fine
 var tempo_fermato := false
+var taglio: TaglioMattanza = null      # il taglio a tutto schermo con cui parte (TaglioMattanza.gd)
 
 func _init(nodo_scontro: Combattimento, muto: bool) -> void:
 	scontro = nodo_scontro
@@ -115,6 +116,17 @@ func avvia(chi_batte: Dictionary, su: Dictionary, dati_abilita: Dictionary) -> v
 		scontro.ferma_il_tempo()
 		tempo_fermato = true
 	scontro.menu.principale()   # sotto compare come si batte, e nient'altro
+	# IL TAGLIO A TUTTO SCHERMO, sopra tutto lo scontro (anche sopra il box:
+	# un clic ovunque lo salta). La finestra comincia quando e' finito
+	taglio = TaglioMattanza.apri(scontro, chi)
+	taglio.finito.connect(_taglio_finito)
+
+func taglio_in_corso() -> bool:
+	return taglio != null and is_instance_valid(taglio) and taglio.in_corso
+
+func _taglio_finito() -> void:
+	# le fasce sono uscite: lo scontro sbanda, e si comincia a battere
+	scontro.impatto.scossa(10.0)
 
 func dal_vivo() -> bool:
 	return scontro.tempo_reale and not scontro.muto
@@ -142,6 +154,9 @@ func prende(evento: InputEvent) -> bool:
 	# grazia. Mentre si legge non e' suo: fa scorrere il testo
 	if not attiva or not evento.is_action_pressed("ui_accept"):
 		return false
+	if taglio_in_corso():
+		taglio.salta()   # il primo tasto chiude il taglio, e non e' ancora un colpo
+		return true
 	if grazia.attivo:
 		return grazia.premi_col_tasto()
 	if not martella or sospesa():
@@ -156,7 +171,9 @@ func clic_su(su: Dictionary) -> bool:
 	# puntatore sul nemico da tutta la raffica, e non deve correre al riquadro
 	if not attiva:
 		return false
-	if grazia.attivo:
+	if taglio_in_corso():
+		taglio.salta()
+	elif grazia.attivo:
 		grazia.premi_col_tasto()
 	elif martella and not sospesa():
 		colpo(su)
@@ -213,7 +230,11 @@ static func danno_del_colpo(dati_abilita: Dictionary, critico: bool) -> int:
 # --- il tempo ---------------------------------------------------------------
 
 func passa(delta: float) -> bool:
-	# true = il colpo di grazia si e' preso questo fotogramma, e il mondo aspetta
+	# true = il colpo di grazia (o il taglio con cui parte) si e' preso questo
+	# fotogramma, e il mondo aspetta
+	if taglio_in_corso():
+		taglio.avanza(delta)
+		return true
 	if grazia.attivo:
 		grazia.passa(delta)
 		return true
@@ -240,6 +261,8 @@ func chiudi_finestra() -> void:
 	# LA BARRA E' VUOTA: resta il colpo di grazia, se c'e' ancora qualcuno da
 	# colpire e qualcuno che colpisce. Chi e' caduto martellando non tira
 	martella = false
+	if taglio_in_corso():
+		taglio.salta()   # la finestra chiusa prima che il taglio finisse
 	if chi.is_empty():
 		finisci()
 		return

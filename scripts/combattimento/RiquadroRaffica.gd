@@ -41,6 +41,13 @@ const ALTEZZA_TESTATA := 44.0
 const MARGINE := 12.0
 const DURATA_SEGNO := 0.55      # quanto resta a schermo "PARATA" / "COLPITO"
 const SCRITTE := 4              # quante al massimo insieme: create una volta sola
+# I RISCONTRI COL CORPO (Bru, sugli esempi animati di docs/vita.md: «bello
+# tutto»): l'anticipo, il timbro, l'anello della parata, la crepa del colpo preso
+const ANTICIPO := 0.5           # nell'ultimo mezzo secondo le tacche corrono verso il pugno
+const TACCHE := 8
+const TIMBRO := 0.14            # quanto ci mette la parola a cadere
+const ANELLO_PARATA := 1.6      # di quanti raggi si allarga l'anello della parata
+const RAMI_CREPA := 6
 
 var gioco: MinigiocoCombattimento
 var testata: ColorRect
@@ -50,6 +57,9 @@ var piano: Control              # dove vivono i pugni, e taglia quello che esce
 var avviso: Label               # cosa fare, all'inizio; com'e' andata, alla fine
 var scritte: Array[Label] = []
 var segni: Array[Dictionary] = []   # i riscontri in volo: {indice, esito, eta}
+var schegge: Schegge                # la parata fa saltare via i ritagli di carta
+var stile_nero: StyleBoxFlat        # il timbro: fascia nera (la parata) o rossa (il colpo preso)
+var stile_rosso: StyleBoxFlat
 
 
 func _init(chi: MinigiocoCombattimento) -> void:
@@ -82,16 +92,23 @@ func _ready() -> void:
 	avviso.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(avviso)
 
+	# LA PAROLA E' UN TIMBRO: una fascia storta, come le etichette del
+	# manifesto, che cade sul pugno. La fascia regge la scritta su qualunque
+	# cosa ci sia sotto, il pugno rosso o il lampo del colpo
+	var corpo := Stile.dimensione("corpo")
+	stile_nero = Manifesto.stile_etichetta(Stile.colore("bordo"), corpo * 0.5, corpo * 0.12)
+	stile_rosso = Manifesto.stile_etichetta(Stile.colore("pericolo"), corpo * 0.5, corpo * 0.12)
 	for i in SCRITTE:
-		var scritta := etichetta(Stile.dimensione("piccolo"), Stile.colore("testo"))
+		var scritta := etichetta(corpo, Stile.colore("testo"))
+		scritta.add_theme_font_override("font", Caratteri.titolo())
 		scritta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		# col contorno scuro: una scritta che puo' finire sopra un pugno rosso
-		# o sopra il lampo di un colpo deve reggere su tutti e due (e' la stessa
-		# fasciatura dei segni della mappa, Fascia.gd)
-		Stile.contorno(scritta, Stile.dimensione("piccolo"))
+		scritta.rotation_degrees = -8.0
 		scritta.visible = false
 		piano.add_child(scritta)
 		scritte.append(scritta)
+	schegge = Schegge.new()
+	schegge.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(schegge)
 	resized.connect(disponi)
 	disponi()
 
@@ -235,6 +252,24 @@ func segna(indice: int, esito: String) -> void:
 	segni.append({"indice": indice, "esito": esito, "eta": 0.0})
 	if segni.size() > SCRITTE:
 		segni.pop_front()
+	if esito != "preso" and indice >= 0 and indice < gioco.raffica.size():
+		para_col_corpo(centro_di(gioco.raffica[indice]))
+
+
+func para_col_corpo(centro: Vector2) -> void:
+	# LA PARATA SI SENTE: le schegge, il piano che sobbalza, il contatore che fa
+	# la gelatina. Col movimento ridotto resta solo l'anello
+	if Impostazioni.movimento_ridotto:
+		return
+	schegge.scoppia(piano.get_global_transform() * centro)
+	var sobbalzo := piano.create_tween()
+	sobbalzo.tween_property(piano, "position:y", ALTEZZA_TESTATA + MARGINE + 4.0, 0.04)
+	sobbalzo.tween_property(piano, "position:y", ALTEZZA_TESTATA + MARGINE, 0.18) \
+			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	contatore.pivot_offset = contatore.size * Vector2(0.9, 0.5)
+	var gelatina := contatore.create_tween()
+	gelatina.tween_property(contatore, "scale", Vector2(1.3, 0.82), 0.05)
+	gelatina.tween_property(contatore, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 func aggiorna(delta: float) -> void:
@@ -266,11 +301,21 @@ func metti_scritte() -> void:
 		scritta.visible = true
 		scritta.text = testo_del_segno(String(segno.esito))
 		scritta.add_theme_color_override("font_color", tinta_della_scritta(String(segno.esito)))
-		scritta.size = Vector2(r * 4.0, r)
-		# sale un poco mentre sparisce: tranne per chi ha chiesto meno movimento,
-		# a cui resta ferma - la parola e' l'informazione, il volo no
-		var salita := 0.0 if Impostazioni.movimento_ridotto else quanto * r * 0.6
-		scritta.position = centro_di(pugno) - Vector2(r * 2.0, r * 0.5 + salita)
+		scritta.add_theme_stylebox_override("normal", stile_rosso if String(segno.esito) == "preso" else stile_nero)
+		scritta.size = Vector2.ZERO
+		scritta.reset_size()
+		scritta.pivot_offset = scritta.size * 0.5
+		# cade come un timbro, un poco sopra e a destra del pugno: tranne per chi
+		# ha chiesto meno movimento, a cui compare ferma - la parola e'
+		# l'informazione, la caduta no
+		var caduta := 1.0
+		if not Impostazioni.movimento_ridotto:
+			caduta = Tween.interpolate_value(0.0, 1.0, clampf(float(segno.eta) / TIMBRO, 0.0, 1.0), 1.0,
+					Tween.TRANS_BACK, Tween.EASE_OUT)
+		scritta.scale = Vector2.ONE * lerpf(1.8, 1.0, caduta)
+		# e resta dentro il piano: vicino al bordo un timbro tagliato non si legge
+		var dove := centro_di(pugno) + Vector2(r * 0.4, -r * 1.5) - scritta.size * 0.5
+		scritta.position = dove.clamp(Vector2.ONE * 4.0, (piano.size - scritta.size - Vector2.ONE * 4.0).max(Vector2.ONE * 4.0))
 		scritta.modulate.a = 1.0 - quanto * quanto
 
 
@@ -282,9 +327,12 @@ static func testo_del_segno(esito: String) -> String:
 
 
 static func tinta_della_scritta(esito: String) -> Color:
-	# COLPITO e' bianco e non rosso: sta sopra il lampo rosso del colpo, e
-	# rosso su rosso non si legge. Il rosso lo dice gia' il lampo
-	return Stile.colore("ecg_giallo") if esito == "striscio" else Stile.colore("testo")
+	# sulla fascia nera la parata e' arancio e lo striscio giallo; COLPITO e'
+	# bianco sulla fascia rossa
+	match esito:
+		"piena": return Stile.colore("manifesto")
+		"striscio": return Stile.colore("ecg_giallo")
+	return Stile.colore("testo")
 
 
 static func tinta_del_segno(esito: String) -> Color:
@@ -335,6 +383,30 @@ func disegna_pugno(pugno: Dictionary, r: float) -> void:
 	var nella_finestra := gioco.tempo >= float(pugno.piena_da)
 	var spessore := maxf(r * (0.14 if nella_finestra else 0.07), 2.0)
 	piano.draw_arc(centro, anello, 0.0, TAU, 56, Color(1, 1, 1, 0.9 * acceso), spessore, true)
+	disegna_anticipo(pugno, centro, r)
+
+
+static func anticipo(pugno: Dictionary, adesso: float) -> float:
+	# quanto e' vicino il pugno, da 0 (mezzo secondo prima) a 1 (adesso); -1 se
+	# le tacche non vanno disegnate: troppo presto, gia' giudicato, gia' passato
+	var manca := float(pugno.impatto) - adesso
+	if Impostazioni.movimento_ridotto or String(pugno.get("esito", "")) != "" or manca < 0.0 or manca > ANTICIPO:
+		return -1.0
+	return 1.0 - manca / ANTICIPO
+
+
+func disegna_anticipo(pugno: Dictionary, centro: Vector2, r: float) -> void:
+	# L'ANTICIPO: nell'ultimo mezzo secondo otto tacche corrono verso il pugno.
+	# Dicono «adesso» anche con la coda dell'occhio, mentre guardi un altro
+	# pugno. Col movimento ridotto non corrono: lo dice gia' l'anello
+	var q := anticipo(pugno, gioco.tempo)
+	if q < 0.0:
+		return
+	var fuori := r * lerpf(2.4, 1.25, q)
+	for k in TACCHE:
+		var verso := Vector2.from_angle(TAU * float(k) / float(TACCHE) + 0.2)
+		piano.draw_line(centro + verso * fuori, centro + verso * (fuori + r * 0.35), Color(1, 1, 1, 0.75 * q),
+				maxf(r * 0.08, 2.0), true)
 
 
 func disegna_scoppio(segno: Dictionary, r: float) -> void:
@@ -343,8 +415,31 @@ func disegna_scoppio(segno: Dictionary, r: float) -> void:
 	var tinta := tinta_del_segno(String(segno.esito))
 	var centro := centro_di(pugno)
 	if String(segno.esito) == "preso":
-		# preso: il pugno si accende di rosso pieno e sparisce, senza allargarsi
+		# preso: il riquadro si accende di rosso, il pugno si accende e sparisce,
+		# e lo schermo si crepa dal punto in cui ti ha preso
+		piano.draw_rect(Rect2(Vector2.ZERO, piano.size), Color(tinta, 0.3 * (1.0 - quanto)))
 		piano.draw_circle(centro, r * (1.0 + quanto * 0.15), Color(tinta, 0.7 * (1.0 - quanto)), true, -1.0, true)
+		disegna_crepa(int(segno.indice), centro, r, quanto)
 		return
-	piano.draw_arc(centro, r * (1.0 + quanto * 0.8), 0.0, TAU, 48,
-			Color(tinta, 1.0 - quanto), maxf(r * 0.12 * (1.0 - quanto), 1.0), true)
+	# la parata: un anello che si allarga e sparisce
+	piano.draw_arc(centro, r * (1.0 + quanto * ANELLO_PARATA), 0.0, TAU, 48,
+			Color(tinta, 1.0 - quanto), maxf(r * 0.22 * (1.0 - quanto), 1.0), true)
+
+
+func disegna_crepa(indice: int, centro: Vector2, r: float, quanto: float) -> void:
+	# sei rami storti, sempre gli stessi per lo stesso pugno: crescono nel primo
+	# decimo e si spengono nell'ultimo terzo
+	var dado := RandomNumberGenerator.new()
+	dado.seed = 7919 * (indice + 1)
+	var cresce := clampf(quanto / 0.12, 0.0, 1.0)
+	var spegne := 1.0 - clampf((quanto - 0.6) / 0.4, 0.0, 1.0)
+	for k in RAMI_CREPA:
+		var verso := TAU * float(k) / float(RAMI_CREPA) + dado.randf_range(-0.3, 0.3)
+		var punto := centro
+		var ramo := PackedVector2Array([punto])
+		for passo in 4:
+			punto += Vector2.from_angle(verso + dado.randf_range(-0.5, 0.5)) * r * dado.randf_range(0.35, 0.7)
+			ramo.append(punto)
+		var tratto := ramo.slice(0, maxi(2, int(round(cresce * float(ramo.size())))))
+		piano.draw_polyline(tratto, Color(Stile.colore("pericolo"), 0.9 * spegne), maxf(r * 0.09, 2.0), true)
+		piano.draw_polyline(tratto, Color(1, 1, 1, spegne), maxf(r * 0.035, 1.0), true)

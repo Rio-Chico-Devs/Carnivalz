@@ -288,6 +288,14 @@ func imposta_turno(suo: bool) -> void:
 	cornice.color = Stile.colore("cornice_turno") if suo else Stile.colore("bordo")
 	if numero_aura != null:
 		numero_aura.visible = suo and id_dentro != ""
+	# E COL CORPO (FasciaTurno.gd): chi tocca si alza, e sotto il suo schermo
+	# una fascia dice di chi e' il turno
+	FasciaTurno.alza(self, suo)
+	if suo and id_dentro != "":
+		FasciaTurno.metti(self, FasciaTurno.testo_per(id_dentro), "bordo",
+				Vector2(cornice.position.x + 10.0, cornice.position.y + cornice.size.y - 14.0), cornice.size.x - 24.0)
+	else:
+		FasciaTurno.togli(self)
 
 func mostra_aura(adesso: int, massimo: int) -> void:
 	# IL NUMERO SI SCRIVE SEMPRE, SI VEDE QUANDO TOCCA.

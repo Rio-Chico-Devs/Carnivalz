@@ -41,6 +41,7 @@ const CHIUSURA := 2.2   # quanto resta il conto, se nessuno clicca prima
 var muto := false
 var plancia: PlanciaCombattimento = null
 var riquadro: RiquadroRaffica = null
+var impatto: ImpattoCombattimento = null   # il colpo preso fa sbandare lo scontro
 var dado := RandomNumberGenerator.new()
 
 var raffica: Array[Dictionary] = []
@@ -56,11 +57,12 @@ var suonate := 0
 func _init(silenzioso := false) -> void:
 	muto = silenzioso
 
-func collega(dove: Control, tabellone: PlanciaCombattimento = null) -> void:
+func collega(dove: Control, tabellone: PlanciaCombattimento = null, scossa: ImpattoCombattimento = null) -> void:
 	# "dove" e' l'interno del pannello: il riquadro ci si appende e ne prende la
 	# misura, come le altre facce. La plancia serve a spegnere le altre facce
 	# quando la raffica parte - senza (nelle prove) il riquadro fa da solo.
 	plancia = tabellone
+	impatto = scossa
 	if dove == null or muto:
 		return
 	riquadro = RiquadroRaffica.new(self)
@@ -217,6 +219,8 @@ func segna_i_mancati() -> void:
 		pugno.esito = "preso"
 		if riquadro != null:
 			riquadro.segna(int(pugno.indice), "preso")
+		if impatto != null:
+			impatto.scossa(12.0)   # il colpo preso si sente: lo scontro sbanda forte
 		AudioManager.interfaccia("colpo")
 
 func concludi() -> void:

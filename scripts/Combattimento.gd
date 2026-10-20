@@ -227,7 +227,7 @@ func _ready() -> void:
 		plancia.costruisci(corpo)
 		plancia.ospita_box(box)
 		plancia.mostra_faccia("parlato")
-		minigioco.collega(plancia.interno_di(plancia.quadrante), plancia)
+		minigioco.collega(plancia.interno_di(plancia.quadrante), plancia, impatto)
 		mazzata.collega(plancia.interno_di(plancia.quadrante), plancia)
 		mattanza.collega(plancia.interno_di(plancia.quadrante), plancia, volanti)
 		voce.collega(box, area_avanza, volanti)
@@ -243,6 +243,7 @@ func _ready() -> void:
 		impatto.collega(corpo)
 		arena.collega(sfondo, self)
 		applica_stile()
+		Squarcio.entra_a_pezzi(plancia)   # se si arriva da uno squarcio, i pezzi entrano
 	for id_classe in GameState.party:
 		aggiungi_combattente(id_classe, true)
 	for id_nemico in GameState.nemici_combattimento:

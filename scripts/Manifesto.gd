@@ -438,6 +438,7 @@ class Vetro extends Control:
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		resized.connect(queue_redraw)
+		add_child(RiflessoVetro.new())   # ogni tanto ci passa sopra la luce
 
 	func _draw() -> void:
 		var anello := StyleBoxFlat.new()
