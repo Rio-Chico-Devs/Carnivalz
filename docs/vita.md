@@ -132,38 +132,55 @@ mezzo secondo, i timbri nero e rosso dentro il piano, le schegge, la scossa;
 i riflessi sfalsati. Ognuna col suo caso del movimento ridotto. Verificate
 rompendo apposta il codice in 32 modi.
 
-## 8. Il BOND: tre proposte
+## 8. Il BOND: solo la scritta, e la luce
 
-Bru: «per il bond ci vuole qualcosa di più felice e tranquillo». Il BOND è la
-mediazione: la creatura la lasci vivere, la raggiungi (`docs/mediazione.md`).
-Quindi il contrario della Mattanza in ogni scelta:
+Bru: «per il bond ci vuole qualcosa di più felice e tranquillo». Il primo
+giro aveva i due personaggi (il filo, l'alba, l'anello), e Bru: «no
+nessuno mi piace non ci devono essere i personaggi nel bond solo la scritta
+animata in modo angelico e pacifico tipo purificazione».
+
+Quindi solo la parola. Il BOND è la mediazione: la creatura non la abbatti,
+la liberi da quello che l'ha deformata (`docs/mediazione.md`). Si fa con la
+luce, che **lava** lo scontro. Ed è il contrario della Mattanza in ogni
+scelta:
 
 | la Mattanza | il BOND |
 |---|---|
-| fasce di traverso | linee orizzontali e cerchi |
-| entra di scatto, esce di scatto | si muove piano, comincia e finisce morbido |
-| nero e rosso | crema, oro, l'arancio del gioco |
-| lampo, scossa, schegge | niente di tutto questo |
-| uno solo che colpisce | due che si avvicinano |
+| fasce di traverso, lampo, scossa, schegge | luce morbida, niente scatti |
+| entra di scatto, esce di scatto | comincia piano e finisce piano |
+| nero e rosso | il fantasma color crema dello scontro, la parola d'oro |
+| 1,1 s | 2,8 s, e un clic la salterebbe |
+
+Com'è fatto: tre strati.
+
+- **Il lavaggio**: uno shader legge lo scontro sotto e lo scolora, lo
+  schiarisce e lo sfoca, finché ne resta un fantasma color crema. La luce ci
+  arriva in modo diverso in ogni proposta.
+- **La parola**, disegnata bianca in un CanvasGroup: il suo shader la sfoca
+  (la parola che si condensa dalla luce), la dora (oro chiaro in alto, ambra in
+  basso), ci fa passare un riflesso e le mette intorno il bagliore.
+- **Gli ornamenti**, disegnati e dorati con lei: la riga col rombo, l'aureola.
 
 Le tre proposte (`prove/ProposteBond.gd`, `./prove/film_bond.sh`, nell'editor
-`ProposteBond.tscn` e F6), un secondo e tre quarti ciascuna:
+`ProposteBond.tscn` e F6), ognuna con un suo carattere:
 
-- **Il filo**: una fascia chiara entra dritta, i due si guardano dai due
-  lati, un filo arancio li unisce ondeggiando e al centro si fa il nodo: il
-  rombo del gioco, con una luce che si allarga piano.
-- **L'alba**: un sole sale dall'orizzonte nero coi raggi che girano piano, i
-  due si camminano incontro sull'orizzonte, e BOND è scritto nel sole.
-- **L'anello**: due metà d'anello, una arancio e una nera, scivolano una verso
-  l'altra e si chiudono intorno ai due. È l'anello aperto del mon (quello del
-  pugno dell'Attacco) che qui si chiude.
+- **La purificazione**: un'onda di luce sale dal basso e lava lo schermo.
+  BOND, nel maiuscoletto antico dei nomi, si condensa dalla luce all'oro; ci
+  passa sopra un riflesso, e sotto si apre una riga col rombo del gioco.
+- **L'aureola**: la luce scende dall'alto, a raggi morbidi. Le lettere, nel
+  tondo leggero, scendono come piume dondolando, una dopo l'altra, e sopra la
+  parola si posa un'aureola.
+- **La calligrafia**: la luce si apre dal centro, con cerchi lenti come
+  sull'acqua. Bond si scrive in calligrafia (quella del racconto): il tratto
+  appena scritto è luce, e si raffredda in oro.
 
-Al posto delle lettere andrebbero gli artwork dei due: chi media e la creatura.
-Come la Mattanza, un clic la salterebbe e il mondo starebbe fermo sotto.
+Alla fine tutto si ritira insieme: la parola sale un poco e si scioglie, e lo
+scontro torna coi suoi colori.
 
 ## 9. Cosa resta da decidere
 
-1. Quale delle tre per il **BOND** (o cosa prendere da ognuna).
+1. Quale delle tre per il **BOND** (o cosa prendere da ognuna: la luce di
+   una, il carattere di un'altra).
 2. I **minigiochi**: oggi ci sono la raffica (Collisioni infinite), il
    braccio di ferro della Mazzata e il colpo di grazia della Mattanza. Quali
    altri hai in mente?
