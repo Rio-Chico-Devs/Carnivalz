@@ -42,9 +42,14 @@ var anima: Line2D
 
 
 static func per(percorso: String) -> bool:
-	# lo squarcio si apre solo verso uno scontro, e solo se c'e' qualcosa da
-	# fotografare e nessuno ha chiesto meno movimento
-	return percorso == SCENA and not Movimento.ridotto() and DisplayServer.get_name() != "headless"
+	# e solo se c'e' una finestra da fotografare
+	return vale_per(percorso) and DisplayServer.get_name() != "headless"
+
+
+static func vale_per(percorso: String) -> bool:
+	# lo squarcio si apre solo verso uno scontro, e mai se si e' chiesto meno
+	# movimento
+	return percorso == SCENA and not Movimento.ridotto()
 
 
 func _init(foto: Image, schermo: Vector2) -> void:

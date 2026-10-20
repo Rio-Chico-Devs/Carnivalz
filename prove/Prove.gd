@@ -21826,7 +21826,11 @@ func prova_il_taglio_della_mattanza() -> void:
 	var barra := int(tu.dominio)
 	esigi(bool(vero.mattanza.passa(0.3)) and int(tu.dominio) == barra,
 			"mentre il taglio gira la barra si scarica, o il mondo non aspetta")
-	# 5. IL PRIMO SPAZIO LO SALTA, e non e' ancora un colpo
+	# 5. IL PRIMO SPAZIO LO SALTA, e non e' ancora un colpo. Il racconto si
+	#    toglie prima: mentre si legge lo spazio non colpisce comunque, e la
+	#    prova non direbbe niente
+	vero.voce.coda.clear()
+	vero.voce.sta_facendo_leggere = false
 	var vita := int(lui.hp)
 	vero._unhandled_input(tasto_spazio())
 	esigi(not vero.mattanza.taglio_in_corso() and int(lui.hp) == vita,
@@ -21842,25 +21846,28 @@ func prova_il_taglio_della_mattanza() -> void:
 	while vero.mattanza.taglio_in_corso() and passato < 5.0:
 		vero.mattanza.passa(0.05)
 		passato += 0.05
-	esigi(not vero.mattanza.taglio_in_corso() and passato <= TaglioMattanza.DURATA + 0.06,
-			"il taglio dura %.2f s: deve finire da solo in %.2f" % [passato, TaglioMattanza.DURATA])
+	esigi(not vero.mattanza.taglio_in_corso() and passato <= 1.2,
+			"il taglio dura %.2f s: deve finire da solo in poco piu' di un secondo" % passato)
 	vero.free()
 	# 7. CON L'ARTWORK: il disegno sta dentro la fascia, tagliato dai suoi bordi
 	var tela := Control.new()
 	tela.size = Vector2(1280, 720)
 	add_child(tela)
 	var percorso := TaglioMattanza.ARTWORK % "anonimo"
-	Disegni.trovati[percorso] = ImageTexture.create_from_image(Image.create(400, 600, false, Image.FORMAT_RGBA8))
+	# un disegno largo: piu' largo della sua parte di fascia, che lo deve tagliare
+	Disegni.trovati[percorso] = ImageTexture.create_from_image(Image.create(2000, 600, false, Image.FORMAT_RGBA8))
 	var con_arte := TaglioMattanza.apri(tela, {"id": "anonimo", "nome": "Anonimo"})
 	con_arte.avanza(0.5)
 	esigi(con_arte.arte != null and con_arte.arte.polygon.size() >= 3, "con art/mattanza/anonimo.png il taglio non mostra l'artwork")
 	if con_arte.arte != null:
 		var bordo := TaglioMattanza.bordo_fascia(tela.size.x * 1.6, tela.size.y * TaglioMattanza.ALTA + 2.0)
 		var fuori := 0
+		var limite := -tela.size.x * 0.5 + tela.size.x * (TaglioMattanza.ARTE_LARGA + 0.06) \
+				+ tela.size.y * TaglioMattanza.ALTA * 0.35 + 1.0
 		for punto in con_arte.arte.polygon:
-			if not Geometry2D.is_point_in_polygon(punto, bordo):
+			if not Geometry2D.is_point_in_polygon(punto, bordo) or punto.x > limite:
 				fuori += 1
-		esigi(fuori == 0, "l'artwork esce dalla fascia nera in %d punti" % fuori)
+		esigi(fuori == 0, "l'artwork esce dalla fascia nera, o finisce sotto la parola, in %d punti" % fuori)
 	Disegni.svuota_cache()
 	# 8. COL MOVIMENTO RIDOTTO solo la fascia nera con la parola, ferma, e piu' breve
 	Impostazioni.movimento_ridotto = true
@@ -21878,11 +21885,12 @@ func prova_lo_squarcio_d_entrata() -> void:
 	titolo("verso lo scontro lo schermo si crepa, e i pezzi dello scontro entrano a cascata")
 	# 1. QUANDO: solo verso lo scontro, mai col movimento ridotto, mai senza
 	#    una finestra da fotografare (queste prove girano senza)
-	esigi(not Squarcio.per("res://scenes/Mappa.tscn"), "lo squarcio si apre anche verso la mappa")
+	esigi(not Squarcio.vale_per("res://scenes/Mappa.tscn"), "lo squarcio si apre anche verso la mappa")
+	esigi(Squarcio.vale_per(Squarcio.SCENA), "verso lo scontro non si apre lo squarcio")
 	esigi(Squarcio.per(Squarcio.SCENA) == (DisplayServer.get_name() != "headless"),
 			"senza finestra lo squarcio prova lo stesso a fotografare lo schermo")
 	Impostazioni.movimento_ridotto = true
-	esigi(not Squarcio.per(Squarcio.SCENA), "col movimento ridotto lo scontro si apre con lo squarcio")
+	esigi(not Squarcio.vale_per(Squarcio.SCENA), "col movimento ridotto lo scontro si apre con lo squarcio")
 	Impostazioni.movimento_ridotto = false
 	# 2. LA FOTO SI ROMPE: due meta' che all'inizio coprono tutto, poi volano via,
 	#    e tutto finisce prima della dissolvenza che sostituisce
@@ -21995,7 +22003,11 @@ func prova_la_raffica_col_corpo() -> void:
 	esigi(RiquadroRaffica.anticipo(primo, float(primo.impatto) - 0.8) < 0.0, "le tacche corrono gia' quasi un secondo prima")
 	esigi(absf(RiquadroRaffica.anticipo(primo, float(primo.impatto) - 0.25) - 0.5) < 0.01,
 			"a meta' dell'ultimo mezzo secondo le tacche non sono a meta' strada")
-	# 2. LA PARATA: il timbro sulla fascia nera, le schegge, dentro il piano
+	# 2. LA PARATA: il timbro sulla fascia nera, le schegge, dentro il piano.
+	#    Il pugno sta nell'angolo in alto a destra: il timbro, che cade sopra
+	#    e a destra del pugno, li' uscirebbe
+	primo["x"] = 1.0
+	primo["y"] = 0.0
 	while gioco.tempo < float(primo.impatto) - 0.02:
 		gioco.passa(1.0 / 60.0)
 	gioco.colpisci(0)
