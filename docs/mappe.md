@@ -81,6 +81,33 @@ conosci nessuna stanza si chiama «?», come le sue stanze.
 
 Senza `"vista": "plastico"` la mappa resta la griglia di quadratini.
 
+### Ogni zona somiglia al suo posto
+
+Bru: «volevo solo che le parti della mappa somigliassero di piu' alle
+ambientazioni». Il plastico e' lo stesso dappertutto (la luce, i piani, la
+scheda), ma ogni stanza ha la forma del suo **ambiente** (`"ambiente"` sulla
+mappa per tutte, sulla stanza se e' diversa; codice in
+`scripts/AmbientiPlastico.gd`):
+
+| ambiente | la stanza | da una stanza all'altra |
+|---|---|---|
+| `edificio` | la scatola (la Sede) | un corridoio a tubo, un pozzo fra due piani |
+| `magione` | stanze attaccate come in una casa, con le finestre sui muri di fuori | una porta nel muro; fra due piani una scala a gradini |
+| `laboratorio` | come la magione, col tetto a pannelli e gli sfiati | una porta |
+| `giardino` | un prato con la siepe e un albero | un sentiero |
+| `natura` | una radura dal bordo storto, con l'erba e gli alberi | un sentiero che serpeggia, e sale se sale |
+| `cunicoli` | una caverna dalla volta storta | una galleria che si allarga e si stringe |
+
+Una stanza che si riconosce da qualcosa ha il suo **dettaglio** (`"dettaglio"`,
+in `scripts/ArrediPlastico.gd`): l'albero grande, il masso, le pozze, la
+collina del promontorio, la tartaruga, il fuoco, il cartello del bivio, il
+ponte sopra il vuoto, la fossa, le colonne di una sala scavata, la serra, le
+vasche, gli scaffali, l'altare, il tetto a spiovente, il cancello, i fiori.
+`"percorsi"` dice per dove passa un sentiero che non deve tagliare in mezzo a
+qualcosa (in quadratini, come le celle). Sul plastico due stanze possono stare
+sullo stesso quadratino se stanno su piani diversi: e' una casa a piani, e qui
+sotto la griglia si legge un piano alla volta.
+
 ### La mappa totale
 
 Piu' avanti uno dei personaggi sapra' **disegnare la mappa intera** di una
@@ -106,6 +133,7 @@ non cosa troverai.
 | il **proiettore** come unica eccezione | ✅ `piazza_proiettore` sulla scelta |
 | zoom e trascinamento | ✅ sul plastico: si gira, si inclina, si avvicina verso il cursore, si sposta |
 | piu' piani per zona | ✅ campo `piano` sulle stanze e `piani` sulla mappa (il plastico) |
+| ogni zona somiglia al suo posto | ✅ `ambiente`, `dettaglio`, `percorsi` (Pianure, Casa Gigante, Rocca di Ossidiana) |
 | eventi che compaiono sulla mappa dopo uno scontro, e **scadono** se il giocatore perde troppo tempo | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
@@ -201,10 +229,10 @@ introduzione
 |   | **La tartaruga gigante** | **Verso le urla** |   |
 |   | **Le pozze d'acqua** |   | **La cima del promontorio** |
 |   |   | **Il bivio** |   |
-|   |   | **Il masso gigante** |   |
+|   |   |   | **Il masso gigante** |
 | ◇ **Il fondo della caverna** | ◇ **La piccola caverna** | **L'albero** |   |
 |   |   | **La pianura aperta** |   |
-|   |   | **Il pasto del goblin** |   |
+|   |   |   | **Il pasto del goblin** |
 |   |   | ▶ **Punto d'atterraggio** |   |
 
 12 stanze sulla mappa, 11 collegamenti.
@@ -384,18 +412,84 @@ inizio
 
 ## La griglia
 
-| | | | | | | |
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|   |   | **Camera da letto** |   |   |   |   |
-| **L'altare** |   | **Attico** |   | **Deposito chimico** |   |   |
-| **Il tunnel** |   | **Soffitta** |   | **Sala delle matrici** |   |   |
-| **Stanza degli studi** | **Stanza dei giochi** | **La scala** | **Grande bagno** | **Il grande laboratorio** |   |   |
-|   |   | **Sala principale** | **Cucina** | **Giardino ovest** |   |   |
-|   | **Ala sinistra** | **Il salone** | **Ala destra** | **Il giardino** | **Giardino est** | **L'albero grande** |
-|   |   | ↑ |   | ↑ |   |   |
-|   |   | ▶ ✕ **La soglia** |   | **Verso i giardini** | **Giardino nord** | **Vivaio, primo piano** |
-|   |   |   |   |   |   | **Vivaio, secondo piano** |
-|   |   |   |   |   |   | **Fondo del vivaio** |
+
+**Attico** (piano 3)
+
+| | | | | | | | |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   | **Attico** | **Camera da letto** |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+
+**Soffitta** (piano 2)
+
+| | | | | | | | |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   | **Soffitta** |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+
+**Primo piano** (piano 1)
+
+| | | | | | | | |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   | **Stanza dei giochi** | **La scala** | **Grande bagno** |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+
+**Piano terra** (piano 0)
+
+| | | | | | | | |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+| **Deposito chimico** |   |   |   |   |   |   |   |
+| **Sala delle matrici** |   |   |   |   |   |   |   |
+| **Il grande laboratorio** |   | **Stanza degli studi** | **Sala principale** | **Cucina** | **Giardino nord** | **Vivaio, primo piano** |   |
+|   | **Giardino ovest** | **Ala sinistra** | **Il salone** | **Ala destra** | **Il giardino** | **Giardino est** | **L'albero grande** |
+|   | ↑ | ↑ | ↑ | ↑ | ↑ |   |   |
+|   |   |   | ▶ ✕ **La soglia** | **Verso i giardini** |   |   |   |
+
+**Sotterraneo** (piano -1)
+
+| | | | | | | | |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   | **Il tunnel** |   |   |   |   |   |
+|   |   | ↑ |   |   |   | **Vivaio, secondo piano** |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+
+**Profondita'** (piano -2)
+
+| | | | | | | | |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   | **L'altare** |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   | **Fondo del vivaio** |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |
 
 27 stanze sulla mappa, 26 collegamenti.
 

@@ -1,150 +1,119 @@
-# La mappa di zona: cosa non va, e tre strade
+# La mappa di zona: ogni zona somiglia al suo posto
 
-Bru, dopo aver fatto togliere il filo fra i bottoni dei piani e i pavimenti:
-«ora accupiamoci della mappa riusciamo a migliorare anche questa?».
+## 1. Cosa ha deciso Bru
 
-Le tavole si rifanno con `./prove/proposte_mappa.sh` (finiscono in
-`scatti/proposte_mappa/`); il codice delle proposte sta in
-`prove/ProposteMappa.gd` e `prove/mappa/`, ed e' provvisorio come quello delle
-proposte della crescita: se ne va quando la mappa vera nasce dalla strada scelta.
-Tutte le tavole disegnano la stessa Casa Gigante (17 stanze viste su 27, sei
-piani, sei sulla scala del primo piano) e la stessa Sede, con le regole vere del
-gioco: cosa sai di una stanza lo dice GameState, dove arrivi
-IngressoNodo.raggiungibile.
+Dopo il filo dei piani tolto, avevo proposto tre mappe nuove (una vetrina nella
+lingua della mappa stellare, un plastico di carta arancio e nero, una pianta
+con la sezione). Bru:
 
-## 1. Il mestiere della mappa
+> «ti dirò, mi piaceva quella di prima più che quelle proposte, volevo solo
+> che le parti della mappa somigliassero di più alle ambientazioni tipo nelle
+> pianure del risveglio siamo nella natura nella grande magione in una magione
+> enorme con ai fianchi i giardini e i laboratori dall'altra parte, nei
+> cunicoli deve proprio sembrare cunicoli»
 
-In Carnivalz la mappa non si consulta ogni tanto: **e' il modo in cui ci si
-muove**. Da una stanza si apre la mappa, si clicca una stanza confinante e ci
-si va. Quindi la si guarda a ogni passo, e a ogni passo deve rispondere, in
-quest'ordine:
+Quindi il plastico resta com'era: il vetro, la luce azzurra, i bottoni dei
+piani, la scheda della stanza, i comandi. Cambia **la forma dei pezzi**. Le
+tre proposte sono uscite dal progetto (stanno nella storia di git, commit
+4665c96, se un giorno servisse riprenderne un pezzo).
 
-1. dove sono?
-2. dove arrivo adesso, con un clic?
-3. dove devo andare (il punto esclamativo)?
-4. cosa ho gia' visto e cosa manca?
-5. com'e' fatta la zona: cosa sta sopra e cosa sotto?
+## 2. Come funziona
 
-La mappa di oggi risponde bene alla 5 solo su una zona piccola, e risponde alla
-2 a fatica dappertutto.
+Ogni stanza ha un **ambiente**: quello della zona (`"ambiente"` nel
+`mappa_dungeon`) o il suo, se e' diverso (`"ambiente"` sulla stanza). Il codice
+sta in tre file:
 
-## 2. Cosa non va oggi (tavola `0_oggi`)
+- `scripts/AmbientiPlastico.gd` decide che forma ha una stanza e come si va da
+  una all'altra, ambiente per ambiente;
+- `scripts/ArrediPlastico.gd` disegna i **dettagli**, quello da cui una stanza
+  si riconosce (`"dettaglio"` sulla stanza);
+- `scripts/FormePlastico.gd` ha le forme: contorni morbidi, prismi, cupole,
+  colline, sentieri, gallerie, alberi, colonne.
 
-1. **Sei piani in un modellino solo.** La Casa Gigante ha sei piani: tutti
-   accesi insieme, le lastre si coprono e non si capisce cosa sta sopra cosa. E'
-   la critica che si fa piu' spesso alla mappa di Control («un groviglio» fra un
-   piano e l'altro) e quella che si fa a Metroid Prime: ottima per quello che
-   hai intorno, confusa sull'insieme. Oggi un piano solo si vede solo
-   cliccandolo.
-2. **Il modellino e' piccolo.** Ventisette stanze in un terzo della cornice: una
-   stanza e' grande come una lettera. Il resto della cornice e' vuoto, perche' la
-   Casa e' alta (sei piani) e la cornice e' larga.
-3. **I nomi si coprono.** Ogni stanza ha il suo nome, tutti alla stessa misura e
-   nello stesso bianco: «Il bivio» sopra «Il masso gigante», «Ingresso della
-   citta'» sopra «Strade di periferia», e la scheda sopra «Sala di allenamento».
-4. **Dove arrivo adesso?** Una stanza vicina e una lontana hanno lo stesso
-   azzurro: la differenza e' qualche punto di luce in piu'. E' la domanda che il
-   giocatore si fa a ogni passo.
-5. **Due anelli uguali.** Il boss e' un anello, chi ti aspetta (Yhvina) e' un
-   anello piu' piccolo, uno scontro duro e' un punto. Non c'e' una legenda.
-6. **Le scale sono fili.** Un pozzo fra due piani e' un tubo sottile come un
-   capello, e attraversa altre stanze.
-7. **La riga in fondo ripete.** «Sei in: La scala» lo dice gia' la freccia sopra
-   la stanza, e passando su una stanza lo ripete la scheda accanto. Intanto la
-   riga ruba altezza alla mappa.
+| ambiente | la stanza | da una stanza all'altra |
+|---|---|---|
+| `edificio` | la scatola di sempre (la Sede, il complesso) | il corridoio a tubo, il pozzo fra due piani |
+| `magione` | stanze attaccate come in una casa, con le finestre sui muri di fuori | una porta nel muro; fra due piani una scala a gradini |
+| `laboratorio` | come la magione, col tetto a pannelli e gli sfiati | una porta |
+| `giardino` | un prato con la siepe e un albero | un sentiero |
+| `natura` | una radura dal bordo storto, con l'erba e gli alberi | un sentiero che serpeggia, e sale se sale |
+| `cunicoli` | una caverna dalla volta storta | una galleria che si allarga e si stringe |
 
-E un difetto che non e' di disegno: la mappa di zona e la mappa stellare (che
-Bru ha approvato) parlano due lingue diverse. Vetro azzurro su arancio di qua,
-serigrafia blu e crema di la'.
+I dettagli: `alberone`, `masso`, `pozze`, `collina` (la stanza in cima e sotto
+la collina fino al piano di sotto), `tartaruga`, `falo`, `atterraggio`,
+`cartello`, `grotta` (stalagmiti), `ponte` (sopra il vuoto), `fossa`, `piazza`
+e `sala` (le colonne), `cargo`, `varco` (l'anello da cui si entra), `serra`,
+`vasche`, `scaffali`, `altare`, `spiovente` (il tetto), `cancello`, `fiori`.
 
-## 3. Cosa hanno in comune le tre strade
+Le forme storte sono storte sempre allo stesso modo: il caso viene dal nome
+della stanza, e la mappa non cambia sagoma a ogni apertura. Le radure escono un
+po' dalla loro cella (la natura non sta in fila); le stanze della magione si
+toccano (fra due stanze c'e' un muro, non un vicolo). Il pavimento di un piano
+con prati o caverne e' il contorno morbido del terreno, e sotto terra e'
+tratteggiato.
 
-Le tre proposte cambiano lingua, ma tengono le stesse regole:
+`"percorsi"` sulla mappa dice per dove passa un sentiero che non deve tagliare
+in mezzo a qualcosa: nella Casa Gigante il sentiero dal giardino al giardino
+ovest gira davanti alla casa invece di attraversarla.
 
-- **Un piano alla volta in primo piano**: quello in cui sei, appena apri. Gli
-  altri ci sono, ma come contesto (spenti, in pila, o in sezione). Z e X, o un
-  clic sul piano, cambiano piano.
-- **Dove arrivi e' la cosa piu' forte dopo dove sei.** I corridoi che partono
-  dalla tua stanza sono arancio, con la freccia; le stanze dove arrivi hanno il
-  nome in una linguetta. Le altre il nome piccolo (se c'e' posto) o niente, e le
-  stanze che non conosci un «?».
-- **Sei stati, ognuno con due segni** (pieno e bordo, mai il colore da solo): sei
-  qui, ci arrivi, ci sei stato, la conosci ma non ci sei stato, la intravedi,
-  chiusa.
-- **Le scale dicono dove portano**: «↑ Soffitta», «↓ Piano terra».
-- **«Da qui si va»**: la scheda di destra elenca le uscite della stanza, con la
-  freccia del piano. E' la stessa domanda della mappa, scritta: si legge anche
-  senza guardare il disegno, e da tastiera si scorre.
-- **Segni nuovi, con la legenda**: la corona per il boss, lo scoppio per lo
-  scontro duro, la persona per chi ti aspetta, la porta con la freccia per
-  l'uscita, il lucchetto. Il punto esclamativo resta quello approvato. Sono
-  provvisori come oggi: un disegno di Bru in `art/icone_mappa/` vince sempre.
-- **Via la riga in fondo**: la mappa si prende tutta l'altezza.
-- **Chi c'e'**: dove ci sono personaggi, il segno della persona sopra la
-  stanza e il nome nella scheda (sulle tavole della Sede, Veronica in palestra e
-  la Dr. Reika in infermeria, per far vedere come verrebbe: oggi nessuna stanza
-  ne ha).
+Per cliccare non cambia niente: la stanza si clicca sulla sua sagoma di prima,
+le icone e i nomi stanno dove stavano.
 
-## 4. Le tre strade
+## 3. Le tre zone
 
-### A · La vetrina (`a1`, `a2`, `a3`)
+**Le Pianure di Redenna** (`natura`): radure con l'erba e gli alberi, il
+sentiero che serpeggia dal punto d'atterraggio al bivio, il fuoco del goblin,
+l'albero grande, il masso, il cartello del bivio, le pozze, la tartaruga, e il
+promontorio: la cima sta un piano sopra, e sotto c'e' la collina che sale dalla
+pianura. La piccola caverna e il suo fondo sono caverne vere, con la galleria
+che scende dall'albero. Il pasto del goblin e il masso si sono spostati di una
+casella, perche' la valle non andasse dritta come un righello.
 
-Il plastico 3D resta, ma parla come la mappa stellare e il Vuoto: i quattro
-inchiostri (nero, blu, crema, arancio), le linguette, la colonna delle schede a
-destra (01 stanza, 02 da qui si va, 03 piani), il titolo in basso a sinistra.
-I piani si aprono come una cassettiera: quello scelto in mezzo, quelli sopra e
-sotto spenti e lontani, ridotti all'impronta delle stanze, e le scale sono pozzi
-tratteggiati che vanno dritti al piano dove portano.
+**La Casa Gigante** (`magione`), rifatta come l'ha descritta Bru:
 
-- per: e' la piu' vicina a Metroid Prime e a quello che c'e' gia'; le due mappe
-  del gioco diventano sorelle; si gira ancora tutto intorno.
-- contro: e' la piu' scura; il piano sopra e quello sotto si vedono solo a meta'.
+- al centro la magione, tre stanze per tre a piano terra (la stanza degli
+  studi, la sala principale, la cucina; l'ala sinistra, il salone, l'ala
+  destra), con la soglia davanti;
+- i piani di sopra **sopra** quelli di sotto: la scala sopra la sala
+  principale, la stanza dei giochi sopra la stanza degli studi (la botola
+  scende dritta), il bagno sopra la cucina, la soffitta sopra la scala, e in
+  cima l'attico e la camera da letto sotto il tetto a spiovente;
+- sotto le fondamenta il tunnel e l'altare, che sono cunicoli;
+- **ai fianchi i giardini**: a est il giardino grande, il giardino nord, i
+  fiori del giardino est, l'albero grande e la serra del vivaio (che scende in
+  caverna); a ovest il giardino ovest;
+- **dall'altra parte i laboratori**: oltre il giardino ovest, il grande
+  laboratorio, la sala delle matrici con gli scaffali, il deposito chimico con
+  le vasche.
 
-### B · Il manifesto (`b1`, `b2`, `b3`)
+E' una mia lettura delle parole di Bru («ai fianchi i giardini e i laboratori
+dall'altra parte»): giardini sui due lati della casa, laboratori oltre quello
+di ovest, lontani dal giardino grande. I piani delle stanze sono quelli di
+prima, quindi «Sali» porta ancora su e «Scendi» giu'.
 
-La mappa parla come la pausa e la crescita: arancio col retino, nero pieno,
-carta grigio caldo, etichette inclinate, ombre stampate. Ogni piano e' un
-vassoio di cartoncino, le stanze sono blocchi neri, quella in cui sei e'
-arancio. A sinistra i piani **in pila**, piccoli e interi, ognuno della misura
-di tutta la zona (le stanze di sopra stanno sopra quelle di sotto): la pila e'
-la pulsantiera, e dice su che piano sei. Quello scelto esce dalla pila e si apre
-in grande.
+**La Rocca di Ossidiana**, i cunicoli di Jondoh (`cunicoli`): caverne e
+gallerie; le sale del raccolto e del lamento e la piazza sotterranea sono
+scavate e hanno le colonne, la fossa oscura e' un imbuto, il grande ponte
+marcio e' un ponte sopra il baratro, il varco e' l'anello da cui si entra, il
+cargo e' un container abbandonato.
 
-- per: la piu' riconoscibile, la piu' «Carnivalz»; si legge come un cartello
-  stradale; la pila mostra tutti i piani sempre, senza coprirsi.
-- contro: non c'e' piu' il vetro olografico; i blocchi neri chiedono stanze non
-  troppo piccole.
+## 4. Le altre zone
 
-### C · Pianta e sezione (`c1`, `c2`, `c3`)
+La Sede e il complesso restano `edificio`: sono un edificio. Meridia e lo
+Squarcio Industriale per ora anche: se va bene la strada, la citta' puo'
+diventare isolati e strade (il parco un prato), lo Squarcio tubi, nastri e
+vasche. Basta un ambiente nuovo in AmbientiPlastico e la parola nei dati.
 
-Come si disegna un edificio: un piano visto dall'alto (la pianta) e di fianco la
-casa tagliata in due (la sezione), con tutti i piani uno sopra l'altro e le
-scale che li legano. Resta nello schermo del cabinato, come oggi.
+## 5. Le prove
 
-- per: la piu' leggibile; nessun piano copre mai un altro; i nomi stanno dentro
-  le stanze; la sezione racconta la casa a colpo d'occhio (l'altare in fondo,
-  la soffitta in cima).
-- contro: niente modellino da girare: e' la meno spettacolare, e la piu'
-  lontana da quello che Bru aveva chiesto («tridimensionale ma semplice come
-  nelle mappe di Metroid»).
+- `prova_mappe`: ambienti e dettagli sono parole che il plastico conosce, i
+  `percorsi` vanno fra stanze legate davvero, e su un plastico due stanze non
+  stanno sulla stessa casella **dello stesso piano**.
+- `prova_le_zone_somigliano_al_loro_posto`: le radure non sono scatole, fra
+  due radure c'e' un sentiero e fra due caverne una galleria, le stanze della
+  magione si toccano e hanno le finestre solo sui muri di fuori, i piani della
+  magione stanno sopra il piano terra, i giardini stanno ai fianchi e i
+  laboratori dall'altra parte.
 
-Si possono mescolare: per esempio B con la sezione di C al posto della pila, o
-A con la pianta di C quando si sceglie un piano solo.
-
-## 5. Cosa chiedo a Bru
-
-1. Quale strada, o quale miscuglio.
-2. Il modellino da girare serve ancora? In A e in B resta; in C no.
-3. I nomi delle stanze lontane: sempre (piccoli, se c'e' posto, come nelle
-   tavole) o solo passandoci sopra?
-4. I segni nuovi (corona, scoppio, persona, porta) vanno bene finche' non arrivano
-   i tuoi?
-
-## 6. Come sono fatte le tavole
-
-Le proposte sono disegnate in 2D da una proiezione assonometrica (senza
-prospettiva: le stanze lontane restano grandi quanto le vicine, e un piano si
-legge tutto alla stessa misura). E' anche come le farei nel gioco: la camera
-3D per sapere dove sta ogni cosa, e il disegno in 2D per avere i bordi pieni,
-le ombre stampate e le scritte del manifesto. Girare e inclinare restano
-possibili, cambiano solo i due angoli.
+`strumenti/genera_mappe.py` scrive la griglia di `docs/mappe.md` un piano alla
+volta quando due stanze di piani diversi stanno sulla stessa casella.

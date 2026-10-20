@@ -198,6 +198,7 @@ func _ready() -> void:
 	await prova_il_plastico_si_tiene_in_mano()
 	prova_i_livelli_sono_plastici()
 	await prova_il_plastico_dei_livelli()
+	await prova_le_zone_somigliano_al_loro_posto()
 	await prova_le_stanze_della_sede_aprono_quello_che_dicono()
 	await prova_il_menu_c_e_in_ogni_schermata()
 	await prova_sulla_proiezione_non_c_e_grana()
@@ -988,9 +989,13 @@ func prova_mappe() -> void:
 				esigi(String(stanza["icona"]) in ICONE_MAPPA,
 						"%s: la stanza '%s' chiede l'icona '%s', che non esiste"
 						% [percorso, id_stanza, stanza["icona"]])
+			ambienti_e_dettagli(stanza, mappa_zona, percorso)
+			# SU UN PLASTICO IL QUADRATINO E' DEL SUO PIANO: la scala sta sopra la
+			# sala principale, e' una casa a piani e non un errore (come i riquadri)
+			var di_piano := "@%d" % int(stanza.get("piano", 0)) if String(mappa_zona.get("vista", "")) == "plastico" else ""
 			for dx in maxi(int(misura[0]), 1):
 				for dy in maxi(int(misura[1]), 1):
-					var chiave := "%d,%d" % [int(cella[0]) + dx, int(cella[1]) + dy]
+					var chiave := "%d,%d%s" % [int(cella[0]) + dx, int(cella[1]) + dy, di_piano]
 					esigi(not occupate.has(chiave),
 							"%s: '%s' e '%s' occupano lo stesso quadratino %s"
 							% [percorso, occupate.get(chiave, "?"), id_stanza, chiave])
@@ -999,6 +1004,29 @@ func prova_mappe() -> void:
 			for estremo in coppia:
 				esigi(stanze.has(String(estremo)),
 						"%s: connessione verso '%s', che non e' sulla mappa" % [percorso, estremo])
+		percorsi_della_zona(mappa_zona, percorso)
+
+func ambienti_e_dettagli(stanza: Dictionary, mappa_zona: Dictionary, percorso: String) -> void:
+	# l'ambiente e il dettaglio di una stanza sono parole che il plastico conosce:
+	# una scritta sbagliata farebbe una scatola qualunque, senza dire niente
+	var id_stanza := String(stanza.get("id", ""))
+	var ambiente := AmbientiPlastico.ambiente_di(stanza, mappa_zona)
+	esigi(ambiente in AmbientiPlastico.AMBIENTI, "%s: la stanza '%s' sta in un ambiente '%s', che non esiste" % [percorso, id_stanza, ambiente])
+	if stanza.has("dettaglio"):
+		esigi(String(stanza["dettaglio"]) in ArrediPlastico.DETTAGLI,
+				"%s: la stanza '%s' chiede il dettaglio '%s', che non esiste" % [percorso, id_stanza, stanza["dettaglio"]])
+
+func percorsi_della_zona(mappa_zona: Dictionary, percorso: String) -> void:
+	# un sentiero coi suoi punti di passaggio va fra due stanze che un corridoio lega davvero
+	var aperti: Array[String] = []
+	for coppia: Array in mappa_zona.get("connessioni", []):
+		aperti.append("%s|%s" % [coppia[0], coppia[1]])
+		aperti.append("%s|%s" % [coppia[1], coppia[0]])
+	var percorsi: Dictionary = mappa_zona.get("percorsi", {})
+	for chiave: String in percorsi:
+		esigi(chiave in aperti, "%s: i \"percorsi\" passano per '%s', ma fra quelle due stanze non c'e' un corridoio" % [percorso, chiave])
+		for punto: Variant in percorsi[chiave]:
+			esigi(punto is Array and (punto as Array).size() == 2, "%s: un punto del percorso '%s' non e' [x, y]" % [percorso, chiave])
 
 func prova_equipaggiamento() -> void:
 	titolo("equipaggiamento: slot, tipi e somme")
@@ -9610,6 +9638,93 @@ func scelte_dentro(cosa: Variant) -> Array:
 		for valore: Variant in cosa:
 			trovate.append_array(scelte_dentro(valore))
 	return trovate
+
+func prova_le_zone_somigliano_al_loro_posto() -> void:
+	# Bru: «volevo solo che le parti della mappa somigliassero di più alle
+	# ambientazioni tipo nelle pianure del risveglio siamo nella natura nella
+	# grande magione in una magione enorme con ai fianchi i giardini e i
+	# laboratori dall'altra parte, nei cunicoli deve proprio sembrare cunicoli».
+	# Il plastico resta quello; cambia la forma dei pezzi (AmbientiPlastico)
+	titolo("ogni zona somiglia al suo posto: la natura, la magione coi giardini e i laboratori, i cunicoli")
+	var pianta := await livello_aperto("res://data/events_tutorial.json", true)
+	natura_e_caverne(pianta)
+	pianta.get_parent().queue_free()
+	pianta = await livello_aperto("res://data/vuoti/casa_gigante.json", true)
+	la_magione(pianta)
+	pianta.get_parent().queue_free()
+	pianta = await livello_aperto("res://data/vuoti/rocca_ossidiana.json", true)
+	for coppia: Array in GameState.collegamenti_aperti():
+		esigi(AmbientiPlastico.passo(pianta.plastico, String(coppia[0]), String(coppia[1])) == "galleria",
+				"nei cunicoli da %s a %s non si va per una galleria" % [coppia[0], coppia[1]])
+	pianta.get_parent().queue_free()
+	# la Sede e' un edificio: scatole e corridoi di sempre
+	var sede := await sede_aperta()
+	for id_stanza: String in sede.plastico.accese:
+		esigi(forma_di(sede.plastico, sede.plastico.accese[id_stanza]) is BoxMesh, "alla Sede la stanza %s non e' piu' una scatola" % id_stanza)
+	for coppia: Array in GameState.collegamenti_aperti():
+		esigi(AmbientiPlastico.passo(sede.plastico, String(coppia[0]), String(coppia[1])) == "corridoio",
+				"alla Sede da %s a %s non si va per un corridoio" % [coppia[0], coppia[1]])
+	sede.get_parent().queue_free()
+	await get_tree().process_frame
+	GameState.reset_campagna()
+
+func forma_di(p: PlasticoZona, materiale: ShaderMaterial) -> Mesh:
+	for figlio in p.radice.get_children():
+		if figlio is MeshInstance3D and (figlio as MeshInstance3D).material_override == materiale:
+			return (figlio as MeshInstance3D).mesh
+	return null
+
+func natura_e_caverne(pianta: MappaZona) -> void:
+	# nelle Pianure: radure (non scatole) coi loro alberi, sentieri fra una e
+	# l'altra, gallerie verso la caverna
+	var p := pianta.plastico
+	for id_stanza: String in p.accese:
+		var ambiente := AmbientiPlastico.ambiente_di(pianta.stanze_per_id[id_stanza])
+		esigi(not forma_di(p, p.accese[id_stanza]) is BoxMesh, "nelle Pianure la stanza %s e' ancora una scatola" % id_stanza)
+		if ambiente == "natura":
+			esigi((p.parti.get(id_stanza, []) as Array).size() >= 5, "nelle Pianure la radura %s non ha ne' erba ne' alberi" % id_stanza)
+	for coppia: Array in GameState.collegamenti_aperti():
+		var ambienti := [AmbientiPlastico.ambiente_di(pianta.stanze_per_id[coppia[0]]), AmbientiPlastico.ambiente_di(pianta.stanze_per_id[coppia[1]])]
+		var atteso := "galleria" if "cunicoli" in ambienti else "sentiero"
+		esigi(AmbientiPlastico.passo(p, String(coppia[0]), String(coppia[1])) == atteso,
+				"nelle Pianure da %s a %s non si va per un %s" % [coppia[0], coppia[1], atteso])
+
+func la_magione(pianta: MappaZona) -> void:
+	# LA CASA GIGANTE: la magione al centro, coi piani uno sopra l'altro e le
+	# stanze attaccate; i giardini ai fianchi, i laboratori dall'altra parte
+	var p := pianta.plastico
+	var terra := Rect2()
+	var prima := true
+	for id_stanza: String in p.scatole:
+		var dati: Dictionary = pianta.stanze_per_id[id_stanza]
+		if AmbientiPlastico.ambiente_di(dati) == "magione" and int(dati.get("piano", 0)) == 0:
+			terra = AmbientiPlastico.pianta(p.scatole[id_stanza]) if prima else terra.merge(AmbientiPlastico.pianta(p.scatole[id_stanza]))
+			prima = false
+	for id_stanza: String in p.scatole:
+		var dati: Dictionary = pianta.stanze_per_id[id_stanza]
+		if AmbientiPlastico.ambiente_di(dati) == "magione" and int(dati.get("piano", 0)) > 0:
+			esigi(terra.grow(0.05).encloses(AmbientiPlastico.pianta(p.scatole[id_stanza])),
+					"la stanza %s (piano %d) non sta sopra la casa: sporge dal piano terra" % [id_stanza, int(dati["piano"])])
+	var x := func(id_stanza: String) -> float: return AmbientiPlastico.pianta(p.scatole[id_stanza]).get_center().x
+	esigi(x.call("giardino") > terra.end.x and x.call("giardino_ovest") < terra.position.x,
+			"i giardini non stanno ai fianchi della casa (giardino %.1f, giardino ovest %.1f, la casa da %.1f a %.1f)"
+			% [x.call("giardino"), x.call("giardino_ovest"), terra.position.x, terra.end.x])
+	for id_lab: String in ["laboratorio", "sala_matrici", "deposito_chimico"]:
+		esigi(float(x.call(id_lab)) < float(x.call("giardino_ovest")), "il laboratorio %s non sta dall'altra parte, oltre il giardino ovest" % id_lab)
+	# stanze attaccate, le finestre solo sui muri di fuori
+	var salone := AmbientiPlastico.pianta(p.scatole["salone"])
+	var ala := AmbientiPlastico.pianta(p.scatole["ala_sinistra"])
+	esigi(salone.position.x - ala.end.x < 0.1, "fra il salone e l'ala sinistra c'e' un vicolo di %.2f: non sono la stessa casa" % (salone.position.x - ala.end.x))
+	var fuori := []
+	for lato: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+		if AmbientiPlastico.di_fuori(p, "salone", salone, lato):
+			fuori.append(lato)
+	esigi(fuori == [Vector2.DOWN], "il salone ha le finestre verso %s: dovrebbe averle solo davanti, verso la soglia" % str(fuori))
+	esigi(AmbientiPlastico.passo(p, "sala_principale", "scala") == "scala" and AmbientiPlastico.passo(p, "salone", "ala_destra") == "porta",
+			"nella magione fra due piani non c'e' una scala, o fra due stanze una porta")
+	# il sentiero dal giardino al giardino ovest gira intorno alla casa, non la taglia
+	for punto: Vector3 in AmbientiPlastico.cammino(p, "giardino", "giardino_ovest", 0.02):
+		esigi(not terra.grow(-0.05).has_point(Vector2(punto.x, punto.z)), "il sentiero dal giardino al giardino ovest passa dentro la casa")
 
 func prova_il_plastico_dei_livelli() -> void:
 	# ogni livello come plastico, tutto esplorato e appena cominciato: le

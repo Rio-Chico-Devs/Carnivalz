@@ -4,16 +4,21 @@
 	"mappa_dungeon": {
 		"nome": "La Casa Gigante",
 		"vista": "plastico",
+		"ambiente": "magione",
+		"_nota_ambiente": "OGNI ZONA SOMIGLIA AL SUO POSTO (scripts/AmbientiPlastico.gd). Bru: «nella grande magione in una magione enorme con ai fianchi i giardini e i laboratori dall'altra parte». Al centro la magione: stanze attaccate, i piani di sopra sopra quelli di sotto (la scala sopra la sala principale, la soffitta sopra la scala, l'attico sotto il tetto, la stanza dei giochi sopra la stanza degli studi: la botola scende dritta), e sotto le fondamenta il tunnel e l'altare. Ai fianchi i giardini: a est il giardino grande, i fiori, l'albero e la serra del vivaio; a ovest il giardino ovest, e oltre, dall'altra parte, i laboratori. Dal giardino al giardino ovest il sentiero gira davanti alla casa (\"percorsi\").",
+		"percorsi": {"giardino|giardino_ovest": [[5.4, 7.6], [3.5, 8.45], [1.6, 7.4]]},
 		"_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 il piano terra), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: dalla sala principale «Sali le scale», dalla scala «Sali fino alla soffitta», dalla soffitta «un altro sottoscala porta piu' su, verso l'attico», e la camera da letto e' in fondo all'attico, sotto lo spiovente. Dalla stanza dei giochi «Scendi nella botola» alla stanza degli studi (qui a piano terra), e il tunnel «scende oltre le fondamenta» fino all'altare. Il vivaio si scende: dal primo piano «Prosegui al piano inferiore», e il fondo e' «il piano piu' basso». Proposta mia, da rifare.",
 		"piani": {"3": "Attico", "2": "Soffitta", "1": "Primo piano", "0": "Piano terra", "-1": "Sotterraneo", "-2": "Profondita'"},
 		"flag_completamento": "casa_ricordo_sconfitto",
 		"stanze": [
 			{
 				"id": "soglia",
+				"ambiente": "giardino",
+				"dettaglio": "cancello",
 				"piano": 0,
 				"nome": "La soglia",
 				"cella": [
-					2,
+					3,
 					7
 				],
 				"icona": "uscita"
@@ -23,7 +28,7 @@
 				"piano": 0,
 				"nome": "Il salone",
 				"cella": [
-					2,
+					3,
 					5
 				],
 				"dimensione": [
@@ -36,7 +41,7 @@
 				"piano": 0,
 				"nome": "Sala principale",
 				"cella": [
-					2,
+					3,
 					4
 				]
 			},
@@ -44,125 +49,6 @@
 				"id": "ala_destra",
 				"piano": 0,
 				"nome": "Ala destra",
-				"cella": [
-					3,
-					5
-				]
-			},
-			{
-				"id": "ala_sinistra",
-				"piano": 0,
-				"nome": "Ala sinistra",
-				"cella": [
-					1,
-					5
-				]
-			},
-			{
-				"id": "cucina",
-				"piano": 0,
-				"nome": "Cucina",
-				"cella": [
-					3,
-					4
-				]
-			},
-			{
-				"id": "scala",
-				"piano": 1,
-				"nome": "La scala",
-				"cella": [
-					2,
-					3
-				]
-			},
-			{
-				"id": "grande_bagno",
-				"piano": 1,
-				"nome": "Grande bagno",
-				"cella": [
-					3,
-					3
-				]
-			},
-			{
-				"id": "stanza_giochi",
-				"piano": 1,
-				"nome": "Stanza dei giochi",
-				"cella": [
-					1,
-					3
-				]
-			},
-			{
-				"id": "soffitta",
-				"piano": 2,
-				"nome": "Soffitta",
-				"cella": [
-					2,
-					2
-				]
-			},
-			{
-				"id": "attico",
-				"piano": 3,
-				"nome": "Attico",
-				"cella": [
-					2,
-					1
-				]
-			},
-			{
-				"id": "camera_da_letto",
-				"piano": 3,
-				"nome": "Camera da letto",
-				"cella": [
-					2,
-					0
-				],
-				"icona": "personaggio"
-			},
-			{
-				"id": "stanza_studi",
-				"piano": 0,
-				"nome": "Stanza degli studi",
-				"cella": [
-					0,
-					3
-				]
-			},
-			{
-				"id": "tunnel",
-				"piano": -1,
-				"nome": "Il tunnel",
-				"cella": [
-					0,
-					2
-				]
-			},
-			{
-				"id": "altare",
-				"piano": -2,
-				"nome": "L'altare",
-				"cella": [
-					0,
-					1
-				],
-				"icona": "boss"
-			},
-			{
-				"id": "giardino_ingresso",
-				"piano": 0,
-				"nome": "Verso i giardini",
-				"cella": [
-					4,
-					7
-				]
-			},
-			{
-				"id": "giardino",
-				"piano": 0,
-				"nome": "Il giardino",
 				"cella": [
 					4,
 					5
@@ -173,94 +59,252 @@
 				]
 			},
 			{
-				"id": "giardino_est",
+				"id": "ala_sinistra",
 				"piano": 0,
-				"nome": "Giardino est",
+				"nome": "Ala sinistra",
 				"cella": [
-					5,
+					2,
 					5
+				],
+				"dimensione": [
+					1,
+					2
 				]
 			},
 			{
-				"id": "albero_voce",
+				"id": "cucina",
 				"piano": 0,
-				"nome": "L'albero grande",
-				"cella": [
-					6,
-					5
-				],
-				"icona": "personaggio"
-			},
-			{
-				"id": "giardino_ovest",
-				"piano": 0,
-				"nome": "Giardino ovest",
+				"nome": "Cucina",
 				"cella": [
 					4,
 					4
 				]
 			},
 			{
-				"id": "laboratorio",
-				"piano": 0,
-				"nome": "Il grande laboratorio",
+				"id": "scala",
+				"piano": 1,
+				"nome": "La scala",
 				"cella": [
-					4,
-					3
+					3,
+					4
 				]
 			},
 			{
-				"id": "sala_matrici",
-				"piano": 0,
-				"nome": "Sala delle matrici",
+				"id": "grande_bagno",
+				"piano": 1,
+				"nome": "Grande bagno",
 				"cella": [
 					4,
+					4
+				]
+			},
+			{
+				"id": "stanza_giochi",
+				"piano": 1,
+				"nome": "Stanza dei giochi",
+				"cella": [
+					2,
+					4
+				]
+			},
+			{
+				"id": "soffitta",
+				"piano": 2,
+				"nome": "Soffitta",
+				"cella": [
+					3,
+					4
+				]
+			},
+			{
+				"id": "attico",
+				"dettaglio": "spiovente",
+				"piano": 3,
+				"nome": "Attico",
+				"cella": [
+					3,
+					4
+				]
+			},
+			{
+				"id": "camera_da_letto",
+				"dettaglio": "spiovente",
+				"piano": 3,
+				"nome": "Camera da letto",
+				"cella": [
+					4,
+					4
+				],
+				"icona": "personaggio"
+			},
+			{
+				"id": "stanza_studi",
+				"piano": 0,
+				"nome": "Stanza degli studi",
+				"cella": [
+					2,
+					4
+				]
+			},
+			{
+				"id": "tunnel",
+				"ambiente": "cunicoli",
+				"piano": -1,
+				"nome": "Il tunnel",
+				"cella": [
+					2,
+					3
+				],
+				"dimensione": [
+					1,
 					2
 				]
 			},
 			{
+				"id": "altare",
+				"ambiente": "cunicoli",
+				"dettaglio": "altare",
+				"piano": -2,
+				"nome": "L'altare",
+				"cella": [
+					2,
+					2
+				],
+				"icona": "boss"
+			},
+			{
+				"id": "giardino_ingresso",
+				"ambiente": "giardino",
+				"piano": 0,
+				"nome": "Verso i giardini",
+				"cella": [
+					4,
+					7
+				]
+			},
+			{
+				"id": "giardino",
+				"ambiente": "giardino",
+				"piano": 0,
+				"nome": "Il giardino",
+				"cella": [
+					5,
+					5
+				],
+				"dimensione": [
+					1,
+					2
+				]
+			},
+			{
+				"id": "giardino_est",
+				"ambiente": "giardino",
+				"dettaglio": "fiori",
+				"piano": 0,
+				"nome": "Giardino est",
+				"cella": [
+					6,
+					5
+				]
+			},
+			{
+				"id": "albero_voce",
+				"ambiente": "giardino",
+				"dettaglio": "alberone",
+				"piano": 0,
+				"nome": "L'albero grande",
+				"cella": [
+					7,
+					5
+				],
+				"icona": "personaggio"
+			},
+			{
+				"id": "giardino_ovest",
+				"ambiente": "giardino",
+				"piano": 0,
+				"nome": "Giardino ovest",
+				"cella": [
+					1,
+					5
+				],
+				"dimensione": [
+					1,
+					2
+				]
+			},
+			{
+				"id": "laboratorio",
+				"ambiente": "laboratorio",
+				"piano": 0,
+				"nome": "Il grande laboratorio",
+				"cella": [
+					0,
+					4
+				]
+			},
+			{
+				"id": "sala_matrici",
+				"ambiente": "laboratorio",
+				"dettaglio": "scaffali",
+				"piano": 0,
+				"nome": "Sala delle matrici",
+				"cella": [
+					0,
+					3
+				]
+			},
+			{
 				"id": "deposito_chimico",
+				"ambiente": "laboratorio",
+				"dettaglio": "vasche",
 				"piano": 0,
 				"nome": "Deposito chimico",
 				"cella": [
-					4,
-					1
+					0,
+					2
 				]
 			},
 			{
 				"id": "giardino_nord",
+				"ambiente": "giardino",
 				"piano": 0,
 				"nome": "Giardino nord",
 				"cella": [
 					5,
-					7
+					4
 				]
 			},
 			{
 				"id": "vivaio_1",
+				"ambiente": "giardino",
+				"dettaglio": "serra",
 				"piano": 0,
 				"nome": "Vivaio, primo piano",
 				"cella": [
 					6,
-					7
+					4
 				]
 			},
 			{
 				"id": "vivaio_2",
+				"ambiente": "cunicoli",
 				"piano": -1,
 				"nome": "Vivaio, secondo piano",
 				"cella": [
 					6,
-					8
+					4
 				]
 			},
 			{
 				"id": "vivaio_3",
+				"ambiente": "cunicoli",
+				"dettaglio": "grotta",
 				"piano": -2,
 				"nome": "Fondo del vivaio",
 				"cella": [
 					6,
-					9
+					4
 				],
 				"icona": "forte"
 			}

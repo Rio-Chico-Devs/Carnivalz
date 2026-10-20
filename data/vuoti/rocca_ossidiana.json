@@ -3,6 +3,8 @@
   "mappa_dungeon": {
     "nome": "La Rocca di Ossidiana",
     "vista": "plastico",
+    "ambiente": "cunicoli",
+    "_nota_ambiente": "OGNI ZONA SOMIGLIA AL SUO POSTO (scripts/AmbientiPlastico.gd). Bru: «nei cunicoli deve proprio sembrare cunicoli». Ogni stanza e' una caverna dalla volta storta, da una all'altra una galleria che si allarga e si stringe; le sale scavate sono piu' regolari e hanno le colonne, la fossa e' un buco, il ponte marcio e' un ponte sopra il vuoto.",
     "_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 la superficie), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: dal varco «Scendi nel corridoio di ossidiana», da li' «Scendi nella fossa oscura», dalla sala del raccolto «Scendi verso la sala del lamento». Al bivio i cunicoli si separano: quello di sinistra «scende ancora» verso la piazza sotterranea, quello di destra «sale» e porta «verso la superficie», al cargo abbandonato. Proposta mia, da rifare.",
     "piani": {"0": "Superficie", "-1": "Primo scavo", "-2": "Cunicoli", "-3": "Profondita'"},
     "flag_completamento": "quest_ossidiana",
@@ -10,6 +12,7 @@
     "stanze": [
       {
         "id": "varco",
+        "dettaglio": "varco",
         "piano": 0,
         "nome": "Il varco",
         "cella": [
@@ -29,6 +32,7 @@
       },
       {
         "id": "fossa_oscura",
+        "dettaglio": "fossa",
         "piano": -2,
         "nome": "La fossa oscura",
         "cella": [
@@ -38,6 +42,7 @@
       },
       {
         "id": "sala_del_raccolto",
+        "dettaglio": "sala",
         "piano": -1,
         "nome": "Sala del raccolto",
         "cella": [
@@ -47,6 +52,7 @@
       },
       {
         "id": "sala_del_lamento",
+        "dettaglio": "sala",
         "piano": -2,
         "nome": "Sala del lamento",
         "cella": [
@@ -74,6 +80,7 @@
       },
       {
         "id": "piazza_sotterranea",
+        "dettaglio": "piazza",
         "piano": -3,
         "nome": "Piazza sotterranea",
         "cella": [
@@ -96,6 +103,7 @@
       },
       {
         "id": "cargo_abbandonato",
+        "dettaglio": "cargo",
         "piano": 0,
         "nome": "Cargo abbandonato",
         "cella": [
@@ -105,6 +113,7 @@
       },
       {
         "id": "ponte_approccio",
+        "dettaglio": "ponte",
         "piano": -2,
         "nome": "Il grande ponte marcio",
         "cella": [

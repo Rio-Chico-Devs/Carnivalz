@@ -108,6 +108,33 @@ conosci nessuna stanza si chiama «?», come le sue stanze.
 
 Senza `"vista": "plastico"` la mappa resta la griglia di quadratini.
 
+### Ogni zona somiglia al suo posto
+
+Bru: «volevo solo che le parti della mappa somigliassero di piu' alle
+ambientazioni». Il plastico e' lo stesso dappertutto (la luce, i piani, la
+scheda), ma ogni stanza ha la forma del suo **ambiente** (`"ambiente"` sulla
+mappa per tutte, sulla stanza se e' diversa; codice in
+`scripts/AmbientiPlastico.gd`):
+
+| ambiente | la stanza | da una stanza all'altra |
+|---|---|---|
+| `edificio` | la scatola (la Sede) | un corridoio a tubo, un pozzo fra due piani |
+| `magione` | stanze attaccate come in una casa, con le finestre sui muri di fuori | una porta nel muro; fra due piani una scala a gradini |
+| `laboratorio` | come la magione, col tetto a pannelli e gli sfiati | una porta |
+| `giardino` | un prato con la siepe e un albero | un sentiero |
+| `natura` | una radura dal bordo storto, con l'erba e gli alberi | un sentiero che serpeggia, e sale se sale |
+| `cunicoli` | una caverna dalla volta storta | una galleria che si allarga e si stringe |
+
+Una stanza che si riconosce da qualcosa ha il suo **dettaglio** (`"dettaglio"`,
+in `scripts/ArrediPlastico.gd`): l'albero grande, il masso, le pozze, la
+collina del promontorio, la tartaruga, il fuoco, il cartello del bivio, il
+ponte sopra il vuoto, la fossa, le colonne di una sala scavata, la serra, le
+vasche, gli scaffali, l'altare, il tetto a spiovente, il cancello, i fiori.
+`"percorsi"` dice per dove passa un sentiero che non deve tagliare in mezzo a
+qualcosa (in quadratini, come le celle). Sul plastico due stanze possono stare
+sullo stesso quadratino se stanno su piani diversi: e' una casa a piani, e qui
+sotto la griglia si legge un piano alla volta.
+
 ### La mappa totale
 
 Piu' avanti uno dei personaggi sapra' **disegnare la mappa intera** di una
@@ -133,6 +160,7 @@ non cosa troverai.
 | il **proiettore** come unica eccezione | ✅ `piazza_proiettore` sulla scelta |
 | zoom e trascinamento | ✅ sul plastico: si gira, si inclina, si avvicina verso il cursore, si sposta |
 | piu' piani per zona | ✅ campo `piano` sulle stanze e `piani` sulla mappa (il plastico) |
+| ogni zona somiglia al suo posto | ✅ `ambiente`, `dettaglio`, `percorsi` (Pianure, Casa Gigante, Rocca di Ossidiana) |
 | eventi che compaiono sulla mappa dopo uno scontro, e **scadono** se il giocatore perde troppo tempo | ⬜ |
 | mappa totale a contorni | ⬜ (abilita' di un personaggio, piu' avanti) |
 
@@ -223,13 +251,52 @@ def disegnata(mappa, id_iniziale):
     return fuori
 
 
+def a_piani(mappa):
+    """Sul plastico due stanze possono stare sullo stesso quadratino se stanno
+    su piani diversi (la scala sopra la sala principale): allora la griglia si
+    stampa un piano alla volta, dal piu' alto, tutte della stessa misura."""
+    stanze = mappa.get("stanze", [])
+    viste = set()
+    for s in stanze:
+        larghezza, altezza = s.get("dimensione", [1, 1])
+        for dx in range(larghezza):
+            for dy in range(altezza):
+                chiave = (s["cella"][0] + dx, s["cella"][1] + dy)
+                if chiave in viste:
+                    return True
+                viste.add(chiave)
+    return False
+
+
 def disegna_griglia(mappa, id_iniziale, nodi):
     if mappa.get("disegno") or any("cella" not in s for s in mappa.get("stanze", [])):
         return disegnata(mappa, id_iniziale)
+    if not a_piani(mappa):
+        return una_griglia(mappa, id_iniziale, nodi, None)
+    fuori = []
+    nomi = mappa.get("piani", {})
+    for piano in sorted({int(s.get("piano", 0)) for s in mappa["stanze"]}, reverse=True):
+        fuori += ["", "**%s** (piano %d)" % (nomi.get(str(piano), "piano %d" % piano), piano), ""]
+        fuori += una_griglia(mappa, id_iniziale, nodi, piano)
+    return fuori
+
+
+def una_griglia(mappa, id_iniziale, nodi, piano):
     esito = griglia(mappa)
     if esito is None:
         return []
     celle, colonne, righe = esito
+    if piano is not None:
+        celle = {k: v for k, v in celle.items() if int(v[0].get("piano", 0)) == piano}
+        intere = {}
+        for s in mappa["stanze"]:
+            if int(s.get("piano", 0)) != piano:
+                continue
+            larghezza, altezza = s.get("dimensione", [1, 1])
+            for dx in range(larghezza):
+                for dy in range(altezza):
+                    intere[(s["cella"][0] + dx, s["cella"][1] + dy)] = (s, dx == 0 and dy == 0)
+        celle = intere
     # chi porta fuori dalla zona: e' l'uscita
     uscite = set()
     for id_nodo, nodo in nodi.items():

@@ -63,6 +63,7 @@ var ora := {}                    # quella di adesso: la partenza piu' la mano
 var altezza := ALTEZZA_PIANO     # fra un piano e l'altro, in questa zona
 var scatole := {}                # id stanza -> {"centro": Vector3, "misura": Vector3, "piano": int}
 var accese := {}                 # id stanza -> il suo materiale, per accenderla quando la si punta
+var parti := {}                  # id stanza -> tutti i suoi pezzi, se e' fatta di piu' forme (AmbientiPlastico)
 var tinte := {}
 var puntata := ""
 var solo := NESSUNO              # il piano scelto, se ce n'e' uno
@@ -154,7 +155,9 @@ static func pianta_di(stanza: Dictionary) -> Rect2:
 	var cella: Array = stanza.get("cella", [0, 0])
 	var misura: Array = stanza.get("dimensione", [1, 1])
 	var lati := Vector2(maxf(float(misura[0]), 1.0), maxf(float(misura[1]), 1.0))
-	return Rect2(Vector2(float(cella[0]), float(cella[1])) * LATO_CELLA, lati * LATO_CELLA).grow(-0.18)
+	# una stanza della magione tocca la vicina, una radura esce un po' dalla fila
+	var sua := Rect2(Vector2(float(cella[0]), float(cella[1])) * LATO_CELLA, lati * LATO_CELLA).grow(-AmbientiPlastico.aria(stanza))
+	return Rect2(sua.position + AmbientiPlastico.scarto(stanza), sua.size)
 
 
 func da_inquadrare() -> Array:
@@ -206,19 +209,20 @@ func aggiorna() -> void:
 		radice.remove_child(figlio)
 		figlio.queue_free()
 	accese.clear()
+	parti.clear()
 	velati.clear()
+	# la forma di ogni pezzo la decide l'ambiente della zona (AmbientiPlastico)
 	for id_stanza in scatole:
 		if zona.si_vede(id_stanza):
-			var s: Dictionary = scatole[id_stanza]
-			accese[id_stanza] = volume(s["centro"], s["misura"], Basis(), stato_di(id_stanza), [s["piano"]])
+			accese[id_stanza] = AmbientiPlastico.monta_stanza(self, id_stanza, stato_di(id_stanza))
 	for coppia in GameState.collegamenti_aperti():
 		# solo fra stanze sue: una schermata che sta per andarsene si ridisegna
 		# un'ultima volta, e GameState puo' essere gia' in un'altra zona
 		if coppia.size() >= 2 and scatole.has(String(coppia[0])) and scatole.has(String(coppia[1])) \
 				and zona.si_vede(String(coppia[0])) and zona.si_vede(String(coppia[1])):
-			corridoio(String(coppia[0]), String(coppia[1]))
+			AmbientiPlastico.corridoio(self, String(coppia[0]), String(coppia[1]))
 	for piano in piani_visti():
-		lastra(int(piano))
+		AmbientiPlastico.lastra(self, int(piano))
 	applica_veli()
 	evidenzia(puntata)
 	scritte.queue_redraw()
@@ -262,6 +266,22 @@ func volume(centro: Vector3, misura: Vector3, base: Basis, stato: Dictionary, pi
 	return materiale
 
 
+func getto(pieno: Mesh, linee: Mesh, stato: Dictionary, piani: Array, quanto := 1.0) -> Array[ShaderMaterial]:
+	# una forma qualunque (FormePlastico) col velo e gli spigoli come una stanza
+	var fatti: Array[ShaderMaterial] = []
+	for pezzo: Array in [[pieno, float(stato["pieno"]), 1.0], [linee, float(stato["linea"]), 0.0]]:
+		if pezzo[0] == null:
+			continue
+		var forma := MeshInstance3D.new()
+		forma.mesh = pezzo[0]
+		var materiale := materiale_di(stato["tinta"], float(pezzo[1]) * quanto, float(stato["pulsa"]), float(pezzo[2]))
+		forma.material_override = materiale
+		radice.add_child(forma)
+		velati.append([materiale, piani])
+		fatti.append(materiale)
+	return fatti
+
+
 func materiale_di(tinta: Color, quanto: float, pulsa: float, taglio: float) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = SHADER
@@ -290,40 +310,6 @@ static func spigoli_di(misura: Vector3) -> ArrayMesh:
 	return linee
 
 
-func corridoio(a: String, b: String) -> void:
-	# da porta a porta; se le due stanze stanno su piani diversi, il tratto in
-	# piano arriva sopra (o sotto) l'altra e da li' un pozzo scende (o sale)
-	var sa: Dictionary = scatole[a]
-	var sb: Dictionary = scatole[b]
-	var pa := Rect2(Vector2(sa["centro"].x, sa["centro"].z) - Vector2(sa["misura"].x, sa["misura"].z) * 0.5,
-			Vector2(sa["misura"].x, sa["misura"].z))
-	var pb := Rect2(Vector2(sb["centro"].x, sb["centro"].z) - Vector2(sb["misura"].x, sb["misura"].z) * 0.5,
-			Vector2(sb["misura"].x, sb["misura"].z))
-	var porta_a := SegniPianta.porta(pa, pb.get_center())
-	var porta_b := SegniPianta.porta(pb, pa.get_center())
-	var quota_a := float(sa["centro"].y) - ALTEZZA_STANZA * 0.25
-	var quota_b := float(sb["centro"].y) - ALTEZZA_STANZA * 0.25
-	var percorso := zona.visitata(a) and zona.visitata(b)
-	var stato := {"tinta": tinte["linea"], "pieno": 0.16 if percorso else 0.08,
-			"linea": 0.7 if percorso else 0.38, "pulsa": 0.0}
-	var piani := [sa["piano"], sb["piano"]]
-	var da_qui := Vector3(porta_a.x, quota_a, porta_a.y)
-	var a_li := Vector3(porta_b.x, quota_a, porta_b.y)
-	if da_qui.distance_to(a_li) > 0.05:
-		tubo(da_qui, a_li, TUBO, stato, piani)
-	if absf(quota_a - quota_b) > 0.05:
-		tubo(a_li, Vector3(porta_b.x, quota_b, porta_b.y), POZZO, stato, piani)
-
-
-func tubo(da_dove: Vector3, a_dove: Vector3, spessore: float, stato: Dictionary, piani: Array) -> void:
-	var lungo := da_dove.distance_to(a_dove)
-	var asse := (a_dove - da_dove) / lungo
-	var su := Vector3.UP if absf(asse.y) < 0.9 else Vector3.FORWARD
-	var lato := asse.cross(su).normalized()
-	var base := Basis(asse, lato.cross(asse), lato)
-	volume((da_dove + a_dove) * 0.5, Vector3(lungo, spessore, spessore), base, stato, piani)
-
-
 func piani_visti() -> Array:
 	var piani: Array = []
 	for id_stanza in scatole:
@@ -349,19 +335,11 @@ func impronta_del_piano(piano: int) -> Rect2:
 	return tutto.grow(0.6)
 
 
-func lastra(piano: int) -> void:
-	# il pavimento di un piano: solo un contorno sottile, per leggere a che
-	# altezza sta una stanza anche quando e' sola
-	var r := impronta_del_piano(piano)
-	var quota := float(piano) * altezza - 0.02
-	volume(Vector3(r.get_center().x, quota, r.get_center().y), Vector3(r.size.x, 0.02, r.size.y), Basis(),
-			{"tinta": tinte["linea"], "pieno": 0.035, "linea": 0.4, "pulsa": 0.0}, [piano])
-
-
 func evidenzia(id_stanza: String) -> void:
 	puntata = id_stanza
 	for id_acceso in accese:
-		(accese[id_acceso] as ShaderMaterial).set_shader_parameter("acceso", 1.0 if id_acceso == id_stanza else 0.0)
+		for materiale: ShaderMaterial in parti.get(id_acceso, [accese[id_acceso]]):
+			materiale.set_shader_parameter("acceso", 1.0 if id_acceso == id_stanza else 0.0)
 	porta_in_vista(id_stanza)
 	if zona.strato_bottoni != null:
 		scritte.dirada(zona.strato_bottoni)
