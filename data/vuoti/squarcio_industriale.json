@@ -3,6 +3,7 @@
 	"mappa_dungeon": {
 		"nome": "Lo Squarcio Industriale",
 		"vista": "plastico",
+		"_nota_ambiente": "OGNI ZONA SOMIGLIA AL SUO POSTO (scripts/AmbientiPlastico.gd), solo come forma dello spazio e come altezze. E' un impianto: scatole e tubi. I corridoi stretti e i corridoi infiniti sono stretti e lunghi (\"proporzioni\", e i corridoi infiniti prendono due caselle), il nastro trasportatore e' lungo, stretto e basso; la sala informatica ha «l'alto soffitto» e il cuore del complesso e' grande e alto (\"altezza\"). Fuori, la grande discarica e' terreno a cumuli («una montagna di lamiere») e il Padiglione e' «la struttura tonda».",
 		"_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 l'impianto), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: dalla sala delle valvole «Sali verso la sala informatica», e dalla sala informatica «Scendi al vecchio centro di controllo». Tutto il resto, discarica e Padiglione compresi, sta a terra. Proposta mia, da rifare.",
 		"piani": {"1": "Piano alto", "0": "Impianto"},
 		"flag_completamento": "industriale_esplorato",
@@ -19,6 +20,7 @@
 			},
 			{
 				"id": "corridoi_stretti",
+				"proporzioni": [0.35, 1.0],
 				"piano": 0,
 				"nome": "Corridoi stretti",
 				"cella": [
@@ -47,11 +49,16 @@
 			},
 			{
 				"id": "corridoi_infiniti",
+				"proporzioni": [1.0, 0.35],
 				"piano": 0,
 				"nome": "Corridoi infiniti",
 				"cella": [
 					2,
 					7
+				],
+				"dimensione": [
+					2,
+					1
 				]
 			},
 			{
@@ -83,6 +90,7 @@
 			},
 			{
 				"id": "sala_schede",
+				"altezza": 1.6,
 				"piano": 1,
 				"nome": "Sala informatica",
 				"cella": [
@@ -101,15 +109,22 @@
 			},
 			{
 				"id": "nastro",
+				"proporzioni": [0.3, 1.0],
+				"altezza": 0.45,
 				"piano": 0,
 				"nome": "Il nastro trasportatore",
 				"cella": [
 					3,
-					3
+					2
+				],
+				"dimensione": [
+					1,
+					2
 				]
 			},
 			{
 				"id": "cuore",
+				"altezza": 1.7,
 				"piano": 0,
 				"nome": "Cuore del complesso",
 				"cella": [
@@ -123,6 +138,8 @@
 			},
 			{
 				"id": "discarica",
+				"ambiente": "natura",
+				"dettaglio": "cumuli",
 				"piano": 0,
 				"nome": "La grande discarica",
 				"cella": [
@@ -137,6 +154,7 @@
 			},
 			{
 				"id": "padiglione_e",
+				"dettaglio": "tondo",
 				"piano": 0,
 				"nome": "Il Padiglione",
 				"cella": [

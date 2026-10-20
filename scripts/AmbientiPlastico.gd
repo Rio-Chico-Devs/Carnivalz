@@ -27,12 +27,19 @@ extends RefCounted
 #                un sentiero che serpeggia (e sale, se sale)
 #   cunicoli     una caverna dalla volta storta; da una all'altra una galleria
 #                che si allarga e si stringe
+#   strada       una lastra piatta, a filo di terra (le vie di Meridia); da una
+#                strada all'altra, o da una strada a un edificio, un nastro dritto
+# E due misure, per tutti: "altezza" (quanto e' alta la stanza: l'hangar, il
+# cuore del complesso, i palazzi; il nastro trasportatore e' basso) e
+# "proporzioni" (quanto della sua pianta tiene: un corridoio stretto, un vicolo,
+# un'edicola), in PlasticoZona.scatola_di e stringi.
 # Il "dettaglio" di una stanza (la collina, la fossa, il ponte...) sta in
 # ArrediPlastico. "percorsi" sulla mappa dice per dove passa un sentiero che non
 # deve tagliare in mezzo a qualcosa: punti in quadratini, come le celle.
 
-const AMBIENTI := ["edificio", "magione", "laboratorio", "giardino", "natura", "cunicoli"]
+const AMBIENTI := ["edificio", "magione", "laboratorio", "giardino", "natura", "cunicoli", "strada"]
 const ALL_APERTO := ["natura", "giardino"]
+const COSTRUITI := ["edificio", "strada"]   # dove ce ne sono, il pavimento del piano resta un rettangolo
 const MURATI := ["magione", "laboratorio"]
 const ARIA_MURATA := 0.03   # fra due stanze della stessa casa: un muro, non un vicolo
 const SCARTO := 0.15        # di quanto una radura esce dalla sua cella, a caso: la natura non sta in fila
@@ -76,7 +83,7 @@ static func monta_stanza(p: PlasticoZona, id_stanza: String, stato: Dictionary) 
 	var forme: Array = []
 	if not dettaglio in ArrediPlastico.SENZA_BASE:
 		forme = base(id_stanza, ambiente, dettaglio, r, quota, float(s["misura"].y))
-	forme.append_array(ArrediPlastico.dettaglio(dettaglio, r, quota, id_stanza, p.altezza))
+	forme.append_array(ArrediPlastico.dettaglio(dettaglio, r, quota, id_stanza, p.altezza, float(s["misura"].y)))
 	var tutte: Array[ShaderMaterial] = []
 	for forma: Array in forme:
 		tutte.append_array(p.getto(forma[0], forma[1], stato, [s["piano"]], float(forma[2])))
@@ -92,6 +99,8 @@ static func base(id_stanza: String, ambiente: String, dettaglio: String, r: Rect
 			return radura(id_stanza, r, quota, true)
 		"cunicoli":
 			return caverna(id_stanza, r, quota, dettaglio)
+		"strada":
+			return strada(r, quota)
 	# la magione e i laboratori sono scatole: la casa la fanno le stanze attaccate
 	var c := FormePlastico.cassa(Vector3(r.get_center().x, quota + alto * 0.5, r.get_center().y), Vector3(r.size.x, alto, r.size.y))
 	return [[c[0], c[1], 1.0]]
@@ -104,6 +113,14 @@ static func radura(id_stanza: String, r: Rect2, quota: float, giardino: bool) ->
 	var contorno := FormePlastico.chiazza(r, id_stanza, 0.05 if giardino else 0.16, 3.6 if giardino else 2.2)
 	var prato := FormePlastico.prisma(contorno, quota, FormePlastico.piane(contorno.size(), quota + 0.18), 3)
 	return [[prato[0], prato[1], 1.25]]
+
+
+static func strada(r: Rect2, quota: float) -> Array:
+	# LA STRADA: una lastra piatta a filo di terra, larga quanto le sue
+	# "proporzioni". Gli edifici intorno sono alti, lei no: e' cosi' che si legge
+	var bordo := PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)])
+	var lastra_strada := FormePlastico.prisma(bordo, quota, FormePlastico.piane(4, quota + 0.05), 1)
+	return [[lastra_strada[0], lastra_strada[1], 1.2]]
 
 
 static func caverna(id_stanza: String, r: Rect2, quota: float, dettaglio: String) -> Array:
@@ -130,6 +147,8 @@ static func passo(p: PlasticoZona, a: String, b: String) -> String:
 		return "galleria"
 	if ambienti[0] in ALL_APERTO or ambienti[1] in ALL_APERTO:
 		return "sentiero"
+	if "strada" in ambienti:
+		return "strada"
 	if ambienti[0] in MURATI and ambienti[1] in MURATI:
 		return "porta" if int(p.scatole[a]["piano"]) == int(p.scatole[b]["piano"]) else "scala"
 	return "corridoio"
@@ -147,6 +166,8 @@ static func corridoio(p: PlasticoZona, a: String, b: String) -> void:
 			forma = FormePlastico.tubo(cammino(p, a, b, 0.24), 0.17, a + b)
 		"sentiero":
 			forma = FormePlastico.nastro(cammino(p, a, b, 0.02), 0.15)
+		"strada":
+			forma = FormePlastico.nastro(FormePlastico.curva(PackedVector3Array([estremo(sa, sb["centro"], 0.03), estremo(sb, sa["centro"], 0.03)]), 4), 0.3)
 		"porta", "scala":
 			forma = [null, FormePlastico.linee(passaggio(sa, sb)), 1.0]
 		_:
@@ -252,8 +273,9 @@ static func dritto(p: PlasticoZona, a: String, b: String, stato: Dictionary, pia
 	var sb: Dictionary = p.scatole[b]
 	var porta_a := SegniPianta.porta(pianta(sa), pianta(sb).get_center())
 	var porta_b := SegniPianta.porta(pianta(sb), pianta(sa).get_center())
-	var quota_a := float(sa["centro"].y) - PlasticoZona.ALTEZZA_STANZA * 0.25
-	var quota_b := float(sb["centro"].y) - PlasticoZona.ALTEZZA_STANZA * 0.25
+	# a un quarto d'altezza di una stanza qualunque, anche dove la stanza e' piu' alta
+	var quota_a := float(sa["centro"].y) - float(sa["misura"].y) * 0.5 + PlasticoZona.ALTEZZA_STANZA * 0.25
+	var quota_b := float(sb["centro"].y) - float(sb["misura"].y) * 0.5 + PlasticoZona.ALTEZZA_STANZA * 0.25
 	var da_qui := Vector3(porta_a.x, quota_a, porta_a.y)
 	var a_li := Vector3(porta_b.x, quota_a, porta_b.y)
 	if da_qui.distance_to(a_li) > 0.05:
@@ -273,20 +295,23 @@ static func tubo(p: PlasticoZona, da_dove: Vector3, a_dove: Vector3, spessore: f
 # --- il pavimento di un piano -------------------------------------------------------
 
 static func lastra(p: PlasticoZona, piano: int) -> void:
-	# IL PAVIMENTO DI UN PIANO: in un edificio un rettangolo sottile; dove ci sono
-	# prati o caverne il contorno morbido del terreno, e sotto terra tratteggiato
+	# IL PAVIMENTO DI UN PIANO: in un edificio o in una citta' un rettangolo
+	# sottile; dove ci sono soprattutto prati o caverne il contorno morbido del
+	# terreno, e sotto terra tratteggiato
 	var quota := float(piano) * p.altezza - 0.02
 	var stato := {"tinta": p.tinte["linea"], "pieno": 0.035, "linea": 0.4, "pulsa": 0.0}
 	var sue: Array[String] = []
 	var aperte := 0
 	var scavate := 0
+	var costruite := 0
 	for id_stanza: String in p.scatole:
 		if int(p.scatole[id_stanza]["piano"]) == piano and p.zona.si_vede(id_stanza):
 			sue.append(id_stanza)
 			var ambiente := ambiente_di(p.zona.stanze_per_id.get(id_stanza, {}))
 			aperte += 1 if ambiente in ALL_APERTO else 0
 			scavate += 1 if ambiente == "cunicoli" else 0
-	if aperte + scavate == 0:
+			costruite += 1 if ambiente in COSTRUITI else 0
+	if aperte + scavate == 0 or aperte + scavate < costruite:
 		var r := p.impronta_del_piano(piano)
 		p.volume(Vector3(r.get_center().x, quota, r.get_center().y), Vector3(r.size.x, 0.02, r.size.y), Basis(), stato, [piano])
 		return

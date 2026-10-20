@@ -139,7 +139,7 @@
 			{"id": "archivio", "nome": "Archivio", "riquadro": [180, 760, 280, 190], "piano": -1, "cosa": "il data pad"},
 			{"id": "sala_comunicazioni", "nome": "Sala comunicazioni", "riquadro": [620, 760, 420, 190], "piano": 1},
 			{"id": "sala_proiezione", "nome": "Sala di proiezione", "riquadro": [1300, 760, 320, 190], "piano": 1},
-			{"id": "hangar", "nome": "Hangar", "riquadro": [1520, 140, 280, 420], "piano": -1},
+			{"id": "hangar", "nome": "Hangar", "riquadro": [1520, 140, 280, 420], "piano": -1, "altezza": 1.8},
 			{"id": "sala_operativa", "nome": "Sala operativa", "riquadro": [960, 120, 500, 200], "piano": 1, "icona": "obiettivo",
 				"cosa": "la mappa stellare: da qui si sceglie dove andare"},
 			{"id": "emporio", "nome": "Emporio", "riquadro": [520, 440, 380, 200], "piano": 0, "cosa": "si compra"},

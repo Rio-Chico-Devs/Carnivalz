@@ -49,18 +49,32 @@ sta in tre file:
 | `giardino` | un'aiuola dal contorno regolare, alzata da terra | un sentiero |
 | `natura` | una radura dal bordo storto, alzata da terra | un sentiero che serpeggia, e sale se sale |
 | `cunicoli` | una caverna dalla volta storta | una galleria che si allarga e si stringe |
+| `strada` | una lastra piatta, a filo di terra (le vie di Meridia) | un nastro dritto, verso un'altra strada o un edificio |
 
 I dettagli: `collina` (la stanza in cima e sotto la collina fino al piano di
 sotto), `fossa` (tutto scende verso il fondo), `ponte` (un'asse sopra il
 vuoto), `spiovente` (il tetto a due falde), `serra` (la volta a botte),
+`cumuli` (il terreno fa dei monti), `tondo` (un muro rotondo con la cupola),
 `sala` e `piazza` (una caverna scavata, dal contorno piu' regolare).
+
+E due misure, per qualunque stanza:
+
+- `"altezza"`: quanto e' alta rispetto a una stanza qualunque (da 0,3 a 2,5).
+  L'hangar 1,8, i palazzi di Meridia 2, il nastro trasportatore 0,45;
+- `"proporzioni"`: quanto della sua pianta tiene, in larghezza e in
+  profondita', intorno al suo centro (due numeri fino a 1). Una strada, un
+  vicolo, un corridoio stretto, un'edicola piccola.
+
+Il corridoio che parte da una stanza alta parte sempre a un quarto d'altezza
+di una stanza qualunque, cioe' da terra, non a mezz'aria.
 
 Le forme storte sono storte sempre allo stesso modo: il caso viene dal nome
 della stanza, e la mappa non cambia sagoma a ogni apertura. Le radure escono un
 po' dalla loro cella (la natura non sta in fila); le stanze della magione si
 toccano (fra due stanze c'e' un muro, non un vicolo). Il pavimento di un piano
 con prati o caverne e' il contorno morbido del terreno, e sotto terra e'
-tratteggiato.
+tratteggiato; se pero' sul piano gli edifici e le strade sono di piu' (la
+citta' di Meridia col suo parco) resta il rettangolo di sempre.
 
 `"percorsi"` sulla mappa dice per dove passa un sentiero che non deve tagliare
 in mezzo a qualcosa: nella Casa Gigante il sentiero dal giardino al giardino
@@ -69,7 +83,7 @@ ovest gira davanti alla casa invece di attraversarla.
 Per cliccare non cambia niente: la stanza si clicca sulla sua sagoma di prima,
 le icone e i nomi stanno dove stavano.
 
-## 3. Le tre zone
+## 3. Le zone
 
 **Le Pianure di Redenna** (`natura`): radure alzate da terra, il sentiero che
 serpeggia dal punto d'atterraggio al bivio, e il promontorio: la cima sta un
@@ -106,11 +120,32 @@ un'asse sopra il baratro.
 
 ## 4. Le altre zone
 
-La Sede e il complesso restano `edificio`: sono un edificio. Meridia e lo
-Squarcio Industriale per ora anche: se va bene la strada, la citta' puo'
-diventare isolati e strade (il parco un prato), lo Squarcio tubi, nastri e
-vasche, sempre solo come forma dello spazio. Basta un ambiente nuovo in
-AmbientiPlastico e la parola nei dati.
+Bru, sulle Pianure, la Casa Gigante e la Rocca: «molto bene! fai lo stesso
+anche per le altre». Sempre solo forma dello spazio e altezze, dai testi della
+zona:
+
+**Meridia**. Il varco «si apre sulla cima di una collina che affaccia su
+un'enorme citta'»: e' un prato in cima a una collina, che scende fino alla
+citta'. Le strade (la periferia, l'ingresso, la strada principale, il vicolo
+sul retro, piu' stretto, e sotto i quartieri profondi) sono lastre piatte e
+strette; da una strada si va all'altra, e agli edifici, per un nastro. Gli
+edifici sono scatole alte quanto sono: i primi complessi due volte una stanza,
+il supermercato, l'officina e l'edicola bassi, l'edicola anche piccola. Il
+parco e' un prato. La struttura abbandonata, il garage sotto la citta', e'
+bassa.
+
+**Lo Squarcio Industriale** e' un impianto: scatole e tubi, come prima, ma con
+le misure giuste. I corridoi stretti e i corridoi infiniti sono stretti e
+lunghi (i corridoi infiniti prendono due caselle); il nastro trasportatore e'
+lungo, stretto e basso; la sala informatica ha «l'alto soffitto» e il cuore
+del complesso e' grande e alto. Fuori, la grande discarica e' terreno a
+cumuli («una montagna di lamiere») e il Padiglione e' «la struttura tonda»:
+un muro rotondo con la cupola. Il nastro si e' spostato di una casella in su
+per stare lungo fra la sala delle valvole e il cuore.
+
+**La Sede e il complesso** restano `edificio`: sono un edificio, scatole e
+tubi. Solo l'hangar e' piu' alto delle altre stanze (1,8): e' l'hangar, coi
+«mezzi in fila».
 
 ## 5. Le prove
 
@@ -123,6 +158,13 @@ AmbientiPlastico e la parola nei dati.
   giardini stanno ai fianchi e i laboratori dall'altra parte, il sentiero fra
   i giardini non taglia la casa, la Sede e' ancora a scatole; e una stanza
   senza dettaglio e' un pezzo solo (velo e spigoli), cioe' niente cose dentro.
+  A Meridia il varco sta sulla collina, le strade sono piatte e strette e ci
+  si va per la strada, i palazzi sono piu' alti delle botteghe e il pavimento
+  della citta' e' un rettangolo; nello Squarcio i corridoi sono stretti, il
+  nastro basso, il cuore e la sala informatica alti, la discarica a cumuli e
+  il Padiglione tondo; alla Sede l'hangar e' alto.
+- `prova_mappe` guarda anche le misure: `altezza` fra 0,3 e 2,5,
+  `proporzioni` due numeri fra 0,1 e 1.
 
 `strumenti/genera_mappe.py` scrive la griglia di `docs/mappe.md` un piano alla
 volta quando due stanze di piani diversi stanno sulla stessa casella.

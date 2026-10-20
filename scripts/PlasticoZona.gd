@@ -139,11 +139,14 @@ static func altezza_dei_piani(stanze: Array) -> float:
 
 
 static func scatola_di(stanza: Dictionary, fra_i_piani := ALTEZZA_PIANO) -> Dictionary:
+	# "altezza" nei dati: quanto e' alta la stanza rispetto a una stanza qualunque
+	# (l'hangar, il cuore del complesso, i palazzi di Meridia; il nastro e' basso)
 	var pianta := pianta_di(stanza)
 	var piano := int(stanza.get("piano", 0))
 	var quota := float(piano) * fra_i_piani
-	return {"centro": Vector3(pianta.get_center().x, quota + ALTEZZA_STANZA * 0.5, pianta.get_center().y),
-			"misura": Vector3(pianta.size.x, ALTEZZA_STANZA, pianta.size.y), "piano": piano}
+	var alta := ALTEZZA_STANZA * float(stanza.get("altezza", 1.0))
+	return {"centro": Vector3(pianta.get_center().x, quota + alta * 0.5, pianta.get_center().y),
+			"misura": Vector3(pianta.size.x, alta, pianta.size.y), "piano": piano}
 
 
 static func pianta_di(stanza: Dictionary) -> Rect2:
@@ -151,13 +154,22 @@ static func pianta_di(stanza: Dictionary) -> Rect2:
 	# pianta, o dalla cella (e dalla dimensione) delle zone a quadratini
 	var r: Array = stanza.get("riquadro", [])
 	if r.size() == 4:
-		return Rect2(Vector2(float(r[0]), float(r[1])) * SCALA_PIANTA, Vector2(float(r[2]), float(r[3])) * SCALA_PIANTA)
+		return stringi(Rect2(Vector2(float(r[0]), float(r[1])) * SCALA_PIANTA, Vector2(float(r[2]), float(r[3])) * SCALA_PIANTA), stanza)
 	var cella: Array = stanza.get("cella", [0, 0])
 	var misura: Array = stanza.get("dimensione", [1, 1])
 	var lati := Vector2(maxf(float(misura[0]), 1.0), maxf(float(misura[1]), 1.0))
 	# una stanza della magione tocca la vicina, una radura esce un po' dalla fila
 	var sua := Rect2(Vector2(float(cella[0]), float(cella[1])) * LATO_CELLA, lati * LATO_CELLA).grow(-AmbientiPlastico.aria(stanza))
-	return Rect2(sua.position + AmbientiPlastico.scarto(stanza), sua.size)
+	return stringi(Rect2(sua.position + AmbientiPlastico.scarto(stanza), sua.size), stanza)
+
+
+static func stringi(r: Rect2, stanza: Dictionary) -> Rect2:
+	# "proporzioni" nei dati: quanto della sua pianta tiene la stanza in larghezza
+	# e in profondita', intorno al suo centro. Un corridoio stretto, una strada,
+	# un'edicola piccola in un isolato
+	var quanto: Array = stanza.get("proporzioni", [1.0, 1.0])
+	var nuova := r.size * Vector2(float(quanto[0]), float(quanto[1]))
+	return Rect2(r.get_center() - nuova * 0.5, nuova)
 
 
 func da_inquadrare() -> Array:

@@ -3,12 +3,15 @@
 	"mappa_dungeon": {
 		"nome": "Meridia",
 		"vista": "plastico",
+		"_nota_ambiente": "OGNI ZONA SOMIGLIA AL SUO POSTO (scripts/AmbientiPlastico.gd), solo come forma dello spazio e come altezze (Bru: «troppi dettagli creano confusione, l'importante è avere una resa delle altezze e di come è conformato lo spazio»). Il varco sta in cima alla collina, che scende fino alla citta' («Lo squarcio si apre sulla cima di una collina che affaccia su un'enorme città»). Le strade sono lastre piatte e strette (\"ambiente\": \"strada\", \"proporzioni\"), il vicolo ancora di piu'; gli edifici sono scatole alte quanto sono alti (\"altezza\"): i primi complessi di palazzi alti, il supermercato e l'officina bassi, l'edicola piccola; il parco e' un prato. Sotto la citta' il garage, basso, e i quartieri profondi.",
 		"_nota_plastico": "IL PLASTICO, come al complesso e alla Sede. Ogni stanza sta sul suo \"piano\" (0 la citta'), e un corridoio fra due piani diventa un pozzo. I piani vengono dai testi: il varco si apre «sulla cima di una collina che affaccia su un'enorme citta'» («Scendi verso le strade di periferia»), la struttura abbandonata e' un garage sotterraneo («Esplora i piani inferiori»), e dal vicolo «Scendi verso i quartieri profondi». Proposta mia, da rifare.",
 		"piani": {"1": "La collina", "0": "La citta'", "-1": "Sotto la citta'"},
 		"flag_completamento": "meridia_esplorata",
 		"stanze": [
 			{
 				"id": "varco",
+				"ambiente": "natura",
+				"dettaglio": "collina",
 				"piano": 1,
 				"nome": "Il varco",
 				"cella": [
@@ -19,6 +22,8 @@
 			},
 			{
 				"id": "periferia",
+				"proporzioni": [0.4, 1.0],
+				"ambiente": "strada",
 				"piano": 0,
 				"nome": "Strade di periferia",
 				"cella": [
@@ -28,6 +33,8 @@
 			},
 			{
 				"id": "ingresso_citta",
+				"proporzioni": [0.4, 1.0],
+				"ambiente": "strada",
 				"piano": 0,
 				"nome": "Ingresso della città",
 				"cella": [
@@ -37,6 +44,7 @@
 			},
 			{
 				"id": "complessi",
+				"altezza": 2.0,
 				"piano": 0,
 				"nome": "Primi complessi",
 				"cella": [
@@ -46,6 +54,7 @@
 			},
 			{
 				"id": "struttura",
+				"altezza": 0.5,
 				"piano": -1,
 				"nome": "Struttura abbandonata",
 				"cella": [
@@ -55,6 +64,7 @@
 			},
 			{
 				"id": "parco",
+				"ambiente": "giardino",
 				"piano": 0,
 				"nome": "Il parco",
 				"cella": [
@@ -68,6 +78,8 @@
 			},
 			{
 				"id": "strada_principale",
+				"proporzioni": [0.4, 1.0],
+				"ambiente": "strada",
 				"piano": 0,
 				"nome": "Strada principale",
 				"cella": [
@@ -77,6 +89,7 @@
 			},
 			{
 				"id": "supermercato",
+				"altezza": 0.6,
 				"piano": 0,
 				"nome": "Supermercato",
 				"cella": [
@@ -86,6 +99,7 @@
 			},
 			{
 				"id": "officina",
+				"altezza": 0.7,
 				"piano": 0,
 				"nome": "Officina",
 				"cella": [
@@ -95,6 +109,8 @@
 			},
 			{
 				"id": "edicola",
+				"altezza": 0.5,
+				"proporzioni": [0.5, 0.5],
 				"piano": 0,
 				"nome": "Edicola",
 				"cella": [
@@ -104,6 +120,8 @@
 			},
 			{
 				"id": "vicolo",
+				"proporzioni": [0.25, 1.0],
+				"ambiente": "strada",
 				"piano": 0,
 				"nome": "Vicolo sul retro",
 				"cella": [
@@ -114,6 +132,8 @@
 			},
 			{
 				"id": "quartieri_profondi",
+				"proporzioni": [1.0, 0.45],
+				"ambiente": "strada",
 				"piano": -1,
 				"nome": "Quartieri profondi",
 				"cella": [

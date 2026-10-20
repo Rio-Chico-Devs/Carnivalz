@@ -1015,6 +1015,19 @@ func ambienti_e_dettagli(stanza: Dictionary, mappa_zona: Dictionary, percorso: S
 	if stanza.has("dettaglio"):
 		esigi(String(stanza["dettaglio"]) in ArrediPlastico.DETTAGLI,
 				"%s: la stanza '%s' chiede il dettaglio '%s', che non esiste" % [percorso, id_stanza, stanza["dettaglio"]])
+	misure_della_stanza(stanza, percorso)
+
+func misure_della_stanza(stanza: Dictionary, percorso: String) -> void:
+	# "altezza" e "proporzioni": una stanza alta il triplo o stretta a zero non e'
+	# una stanza, e' una scritta sbagliata
+	var id_stanza := String(stanza.get("id", ""))
+	if stanza.has("altezza"):
+		esigi(stanza["altezza"] is float and float(stanza["altezza"]) >= 0.3 and float(stanza["altezza"]) <= 2.5,
+				"%s: la stanza '%s' e' alta %s: l'altezza va fra 0,3 e 2,5 volte una stanza qualunque" % [percorso, id_stanza, str(stanza["altezza"])])
+	if stanza.has("proporzioni"):
+		var quanto: Variant = stanza["proporzioni"]
+		esigi(quanto is Array and (quanto as Array).size() == 2 and (quanto as Array).all(func(v: Variant) -> bool: return v is float and float(v) > 0.1 and float(v) <= 1.0),
+				"%s: le proporzioni della stanza '%s' (%s) non sono due numeri fra 0,1 e 1" % [percorso, id_stanza, str(quanto)])
 
 func percorsi_della_zona(mappa_zona: Dictionary, percorso: String) -> void:
 	# un sentiero coi suoi punti di passaggio va fra due stanze che un corridoio lega davvero
@@ -9657,14 +9670,23 @@ func prova_le_zone_somigliano_al_loro_posto() -> void:
 	la_magione(pianta)
 	solo_la_forma(pianta, "Casa Gigante")
 	pianta.get_parent().queue_free()
+	pianta = await livello_aperto("res://data/vuoti/meridia.json", true)
+	la_citta(pianta)
+	solo_la_forma(pianta, "Meridia")
+	pianta.get_parent().queue_free()
+	pianta = await livello_aperto("res://data/vuoti/squarcio_industriale.json", true)
+	l_impianto(pianta)
+	solo_la_forma(pianta, "Squarcio Industriale")
+	pianta.get_parent().queue_free()
 	pianta = await livello_aperto("res://data/vuoti/rocca_ossidiana.json", true)
 	solo_la_forma(pianta, "Rocca di Ossidiana")
 	for coppia: Array in GameState.collegamenti_aperti():
 		esigi(AmbientiPlastico.passo(pianta.plastico, String(coppia[0]), String(coppia[1])) == "galleria",
 				"nei cunicoli da %s a %s non si va per una galleria" % [coppia[0], coppia[1]])
 	pianta.get_parent().queue_free()
-	# la Sede e' un edificio: scatole e corridoi di sempre
+	# la Sede e' un edificio: scatole e corridoi di sempre, e l'hangar e' alto
 	var sede := await sede_aperta()
+	esigi(alta(sede.plastico, "hangar") > alta(sede.plastico, "alloggio") * 1.5, "alla Sede l'hangar e' alto come un alloggio")
 	for id_stanza: String in sede.plastico.accese:
 		esigi(forma_di(sede.plastico, sede.plastico.accese[id_stanza]) is BoxMesh, "alla Sede la stanza %s non e' piu' una scatola" % id_stanza)
 	for coppia: Array in GameState.collegamenti_aperti():
@@ -9691,12 +9713,59 @@ func solo_la_forma(pianta: MappaZona, zona: String) -> void:
 			esigi((p.parti[id_stanza] as Array).size() == 2, "%s: la stanza %s ha %d pezzi, cioe' dentro ci sono delle cose e non solo la sua forma"
 					% [zona, id_stanza, (p.parti[id_stanza] as Array).size()])
 
+func alta(p: PlasticoZona, id_stanza: String) -> float:
+	return float(p.scatole[id_stanza]["misura"].y)
+
+func larga(p: PlasticoZona, id_stanza: String) -> float:
+	# la misura piu' corta della pianta: quanto e' stretta una stanza
+	var r := AmbientiPlastico.pianta(p.scatole[id_stanza])
+	return minf(r.size.x, r.size.y)
+
+func pavimento_dritto(p: PlasticoZona, piano: int) -> bool:
+	# il pavimento di un piano costruito e' il rettangolo sottile di sempre
+	for figlio in p.radice.get_children():
+		if figlio is MeshInstance3D and (figlio as MeshInstance3D).mesh is BoxMesh:
+			var scatola := (figlio as MeshInstance3D).mesh as BoxMesh
+			if scatola.size.y < 0.03 and absf((figlio as MeshInstance3D).position.y - (float(piano) * p.altezza - 0.02)) < 0.01:
+				return true
+	return false
+
+func la_citta(pianta: MappaZona) -> void:
+	# MERIDIA: il varco in cima alla collina, le strade piatte e strette, i
+	# palazzi alti e le botteghe basse
+	var p := pianta.plastico
+	esigi((p.parti.get("varco", []) as Array).size() == 4, "a Meridia il varco non sta in cima a una collina")
+	for id_strada: String in ["periferia", "ingresso_citta", "strada_principale", "vicolo", "quartieri_profondi"]:
+		esigi(AmbientiPlastico.ambiente_di(pianta.stanze_per_id[id_strada]) == "strada" and larga(p, id_strada) < 0.8,
+				"a Meridia %s non e' una strada stretta" % id_strada)
+		var forma := forma_di(p, p.accese[id_strada])
+		esigi(forma != null and forma.get_aabb().size.y < 0.1, "a Meridia %s non e' piatta come una strada" % id_strada)
+	esigi(pavimento_dritto(p, 0), "a Meridia il pavimento della citta' non e' un rettangolo, come in un edificio")
+	esigi(AmbientiPlastico.passo(p, "periferia", "ingresso_citta") == "strada" and AmbientiPlastico.passo(p, "strada_principale", "supermercato") == "strada",
+			"a Meridia da una strada non si va per la strada")
+	esigi(alta(p, "complessi") > alta(p, "supermercato") * 2.0 and alta(p, "edicola") < alta(p, "officina"),
+			"a Meridia i palazzi non sono piu' alti delle botteghe")
+
+func l_impianto(pianta: MappaZona) -> void:
+	# LO SQUARCIO: corridoi stretti, il nastro lungo e basso, le sale alte, fuori
+	# la discarica a cumuli e il Padiglione tondo
+	var p := pianta.plastico
+	esigi(larga(p, "corridoi_stretti") < larga(p, "sala_vetrata") * 0.5 and larga(p, "corridoi_infiniti") < larga(p, "deposito") * 0.5,
+			"nello Squarcio i corridoi non sono stretti")
+	esigi(alta(p, "nastro") < alta(p, "deposito") * 0.6 and alta(p, "cuore") > alta(p, "deposito") * 1.5 and alta(p, "sala_schede") > alta(p, "deposito") * 1.5,
+			"nello Squarcio il nastro non e' basso, o il cuore e la sala informatica non sono alti")
+	esigi(not forma_di(p, p.accese["padiglione_e"]) is BoxMesh and (p.parti.get("padiglione_e", []) as Array).size() == 4,
+			"nello Squarcio il Padiglione non e' la struttura tonda")
+	esigi((p.parti.get("discarica", []) as Array).size() > 2 and AmbientiPlastico.passo(p, "cuore", "discarica") == "sentiero",
+			"nello Squarcio la discarica non e' un terreno a cumuli, all'aperto")
+
 func natura_e_caverne(pianta: MappaZona) -> void:
 	# nelle Pianure: radure (non scatole), sentieri fra una e l'altra, gallerie
 	# verso la caverna
 	var p := pianta.plastico
 	for id_stanza: String in p.accese:
 		esigi(not forma_di(p, p.accese[id_stanza]) is BoxMesh, "nelle Pianure la stanza %s e' ancora una scatola" % id_stanza)
+	esigi(not pavimento_dritto(p, 0), "nelle Pianure il pavimento e' un rettangolo invece del contorno del terreno")
 	for coppia: Array in GameState.collegamenti_aperti():
 		var ambienti := [AmbientiPlastico.ambiente_di(pianta.stanze_per_id[coppia[0]]), AmbientiPlastico.ambiente_di(pianta.stanze_per_id[coppia[1]])]
 		var atteso := "galleria" if "cunicoli" in ambienti else "sentiero"

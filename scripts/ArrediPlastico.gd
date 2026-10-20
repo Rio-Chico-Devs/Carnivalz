@@ -13,16 +13,18 @@ extends RefCounted
 #   ponte      niente pavimento: un'asse sopra il vuoto
 #   spiovente  il tetto a due falde sopra la stanza (l'attico)
 #   serra      la volta a botte sopra la stanza
+#   cumuli     il terreno fa dei monti (la grande discarica: «una montagna di lamiere»)
+#   tondo      un edificio rotondo con la cupola (il Padiglione, «la struttura tonda»)
 #   sala, piazza  una caverna scavata: il contorno piu' regolare (AmbientiPlastico)
 # AmbientiPlastico ci mette sotto la forma del suo ambiente, tranne per quelli
 # che sono la stanza stessa (SENZA_BASE). Ogni pezzo e' [pieno, linee, quanto si
 # accende rispetto alla stanza].
 
-const DETTAGLI := ["collina", "fossa", "ponte", "spiovente", "serra", "sala", "piazza"]
-const SENZA_BASE := ["ponte", "fossa"]
+const DETTAGLI := ["collina", "fossa", "ponte", "spiovente", "serra", "cumuli", "tondo", "sala", "piazza"]
+const SENZA_BASE := ["ponte", "fossa", "tondo"]
 
 
-static func dettaglio(nome: String, r: Rect2, quota: float, id_stanza: String, fra_i_piani: float) -> Array:
+static func dettaglio(nome: String, r: Rect2, quota: float, id_stanza: String, fra_i_piani: float, alto: float) -> Array:
 	match nome:
 		"collina":
 			return [collina(r, quota, fra_i_piani, id_stanza)]
@@ -31,10 +33,37 @@ static func dettaglio(nome: String, r: Rect2, quota: float, id_stanza: String, f
 		"ponte":
 			return ponte(r, quota)
 		"spiovente":
-			return [spiovente(r, quota + PlasticoZona.ALTEZZA_STANZA)]
+			return [spiovente(r, quota + alto)]
 		"serra":
 			return [serra(r, quota)]
+		"cumuli":
+			return cumuli(r, quota, id_stanza)
+		"tondo":
+			return tondo(r, quota, alto)
 	return []
+
+
+static func cumuli(r: Rect2, quota: float, seme: String) -> Array:
+	# MONTI DI ROTTAMI: tre gobbe sul terreno, ognuna col suo piede storto
+	var rng := FormePlastico.caso(seme + "cumuli")
+	var forme: Array = []
+	var lato := minf(r.size.x, r.size.y)
+	for k in 3:
+		var c := r.get_center() + Vector2((float(k) - 1.0) * r.size.x * 0.28, (rng.randf() - 0.5) * r.size.y * 0.3)
+		var raggio := lato * (0.22 + rng.randf() * 0.1)
+		var piede := FormePlastico.chiazza(Rect2(c - Vector2.ONE * raggio, Vector2.ONE * raggio * 2.0), seme + str(k), 0.25, 2.0, 12)
+		var monte := FormePlastico.dosso(piede, quota + 0.18, quota + 0.18 + lato * (0.25 + rng.randf() * 0.2), 0.2, 3)
+		forme.append([monte[0], monte[1], 0.9])
+	return forme
+
+
+static func tondo(r: Rect2, quota: float, alto: float) -> Array:
+	# IL PADIGLIONE: un muro tondo e sopra la cupola
+	var giro := FormePlastico.chiazza(r.grow(-0.05), "tondo", 0.0, 2.0, 24)
+	var muro := quota + alto * 0.55
+	var parete := FormePlastico.prisma(giro, quota, FormePlastico.piane(giro.size(), muro), 4)
+	var cupola := FormePlastico.dosso(giro, muro, quota + alto, 0.15, 4)
+	return [[parete[0], parete[1], 1.0], [cupola[0], cupola[1], 0.9]]
 
 
 static func collina(r: Rect2, quota: float, fra_i_piani: float, seme: String) -> Array:

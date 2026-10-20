@@ -1424,6 +1424,7 @@
       },
       {
         "id": "hangar",
+        "altezza": 1.8,
         "nome": "Hangar",
         "riquadro": [
           1520,
