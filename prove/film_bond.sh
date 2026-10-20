@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Le proposte per il BOND (prove/ProposteBond.gd), girate col Movie
-# Maker di Godot in scatti/proposte_bond/: un .mp4 per proposta. Provvisorio.
+# La proposta per il BOND (prove/ProposteBond.gd, la purificazione), girata
+# col Movie Maker di Godot in scatti/proposte_bond/. Provvisorio.
 # Serve ffmpeg, e una finestra vera (xvfb-run basta).
-#   ./prove/film_bond.sh                       tutte
-#   ./prove/film_bond.sh aureola calligrafia          solo queste
+#   ./prove/film_bond.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 GODOT="${GODOT:-$(command -v godot || command -v godot4 || true)}"
@@ -19,7 +18,7 @@ fi
 CARTELLA=scatti/proposte_bond
 mkdir -p "$CARTELLA"
 FILM=("$@")
-[ ${#FILM[@]} -gt 0 ] || FILM=(purificazione aureola calligrafia)
+[ ${#FILM[@]} -gt 0 ] || FILM=(purificazione)
 declare -A QUANTI=()
 for nome in "${FILM[@]}"; do
 	appoggio="$(mktemp -d)"

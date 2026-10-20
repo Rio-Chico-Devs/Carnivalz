@@ -149,38 +149,57 @@ scelta:
 | fasce di traverso, lampo, scossa, schegge | luce morbida, niente scatti |
 | entra di scatto, esce di scatto | comincia piano e finisce piano |
 | nero e rosso | il fantasma color crema dello scontro, la parola d'oro |
-| 1,1 s | 2,8 s, e un clic la salterebbe |
+| 1,1 s | 3,5 s, e un clic la salterebbe |
 
 Com'è fatto: tre strati.
 
 - **Il lavaggio**: uno shader legge lo scontro sotto e lo scolora, lo
-  schiarisce e lo sfoca, finché ne resta un fantasma color crema. La luce ci
-  arriva in modo diverso in ogni proposta.
-- **La parola**, disegnata bianca in un CanvasGroup: il suo shader la sfoca
-  (la parola che si condensa dalla luce), la dora (oro chiaro in alto, ambra in
-  basso), ci fa passare un riflesso e le mette intorno il bagliore.
-- **Gli ornamenti**, disegnati e dorati con lei: la riga col rombo, l'aureola.
+  schiarisce e lo sfoca, finché ne resta un fantasma color crema.
+- **La parola**, disegnata bianca: uno shader la sfoca, la dora (oro chiaro in
+  alto, ambra in basso), ci fa passare un riflesso e le mette intorno il
+  bagliore.
+- **Gli ornamenti**, disegnati e dorati con lei: la riga col rombo.
 
-Le tre proposte (`prove/ProposteBond.gd`, `./prove/film_bond.sh`, nell'editor
-`ProposteBond.tscn` e F6), ognuna con un suo carattere:
+Le tre proposte di sola scritta erano la purificazione (un'onda di luce dal
+basso), l'aureola (luce dall'alto, lettere come piume) e la calligrafia (luce
+dal centro, Bond scritto a mano). Bru: «mi piace il primo, ma va migliorato
+manipolando ogni singola lettera e anche mettendoci più lavoro nelle
+animazioni».
 
-- **La purificazione**: un'onda di luce sale dal basso e lava lo schermo.
-  BOND, nel maiuscoletto antico dei nomi, si condensa dalla luce all'oro; ci
-  passa sopra un riflesso, e sotto si apre una riga col rombo del gioco.
-- **L'aureola**: la luce scende dall'alto, a raggi morbidi. Le lettere, nel
-  tondo leggero, scendono come piume dondolando, una dopo l'altra, e sopra la
-  parola si posa un'aureola.
-- **La calligrafia**: la luce si apre dal centro, con cerchi lenti come
-  sull'acqua. Bond si scrive in calligrafia (quella del racconto): il tratto
-  appena scritto è luce, e si raffredda in oro.
+### La purificazione, lettera per lettera
 
-Alla fine tutto si ritira insieme: la parola sale un poco e si scioglie, e lo
-scontro torna coi suoi colori.
+`prove/ProposteBond.gd`, `./prove/film_bond.sh`, nell'editor
+`ProposteBond.tscn` e F6. In tutto 3,5 secondi:
+
+1. **L'onda** sale dal basso, col bordo che ondeggia piano come la marea, e
+   lava lo scontro.
+2. **Ogni lettera nasce per conto suo.** Ha i suoi tempi: prima la O, poi la
+   N, la B, la D. Arriva da una posa sua, un poco girata, più bassa e più in
+   fuori, e si posa frenando. Dentro, tre tempi:
+   - **la luce sale lungo il contorno.** Due punte partono dal punto più basso
+     e si incontrano in cima. È il contorno vero del carattere, letto dal font,
+     coi buchi della B, della O e della D. Dove la luce tocca la lettera per la
+     prima volta si accende un seme;
+   - **si riempie dal basso**, come un vaso, col pelo della luce chiaro;
+   - **si raffredda in oro.** Appena piena splende di più, poi respira piano,
+     ognuna col suo passo.
+3. **La riga** si apre sotto la parola. Il rombo arriva girando di un quarto,
+   e due comete di luce corrono dal centro alle punte.
+4. **Il riflesso** passa sulla parola, e ogni lettera si accende quando la
+   tocca.
+5. **L'uscita.** Le lettere salgono una alla volta, da sinistra, e si
+   sciolgono in luce. La riga si ritira nel rombo, che sale con loro. Poi una
+   seconda onda porta via la luce verso l'alto, e lo scontro torna coi suoi
+   colori, dal basso.
+
+Ogni lettera ha il suo CanvasGroup e il suo shader, quindi la sua sfocatura,
+il suo oro, il suo riempimento e il suo bagliore. Sopra ci sono le tracce
+della luce sui contorni e le scintille (le punte, i semi, le comete).
 
 ## 9. Cosa resta da decidere
 
-1. Quale delle tre per il **BOND** (o cosa prendere da ognuna: la luce di
-   una, il carattere di un'altra).
+1. La **purificazione** lettera per lettera: va bene così, o cosa cambiare?
+   Quando ti convince la metto nel gioco, come la Mattanza.
 2. I **minigiochi**: oggi ci sono la raffica (Collisioni infinite), il
    braccio di ferro della Mazzata e il colpo di grazia della Mattanza. Quali
    altri hai in mente?
