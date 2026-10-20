@@ -129,7 +129,7 @@ esempio) e angoli con gli stessi raggi dello scudo. L'anello, invece, è una
 scelta di tutto il set: se l'Attacco ce l'ha e le altre no, l'Attacco sembra
 di un'altra famiglia.
 
-## 6. Le domande per Bru
+## 6. Le domande per Bru (primo giro)
 
 1. **L'anello aperto in basso è il tema del set?** Se sì, lo prendono tutte
    (anche le approvate), ognuna a modo suo: il peccato con le fiamme,
@@ -138,3 +138,48 @@ di un'altra famiglia.
    figura basica che preferisci.
 3. **Dritto o inclinato?** Dritto sta meglio con le approvate; inclinato ha
    l'atteggiamento del colpo.
+
+## 7. Il pugno ridisegnato (secondo giro)
+
+Bru: «un cerchio intorno al pugno e un pugno disegnato meglio dovrebbero
+essere quel che cerchiamo». Il pugno resta dentro l'anello aperto in basso,
+e cambia il disegno:
+
+- **una sagoma sola**: le nocche più squadrate (gli angoli tondi di quattro
+  decimi della larghezza del dito, non più il mezzo cerchio che le faceva
+  sembrare salsicce), e i tagli fra le dita più corti;
+- **il pollice è un pezzo a sé**: il bordo di sopra parte dal fianco e sale
+  appena verso la punta, la punta gira e scende fino in fondo. Si legge
+  subito, e il pugno pesa meno;
+- **i tagli a misura finale**: rimpicciolito per stare nell'anello, il pugno
+  della miniatura B aveva i tagli di 3,3 unità, e a 26 pixel si chiudevano.
+  Adesso il pugno si disegna coi tagli già larghi quanto serve perché, finito,
+  siano 5.
+
+Le misure, con le regole di `docs/icone_da_disegnare.md`: l'inchiostro è
+0,300 (le altre stanno in media a 0,295); il centro visivo è 3,2 unità
+sopra il centro (il limite è 4: l'anello pesa in cima ed è aperto sotto,
+per questo l'insieme è sceso di un poco); fra il pugno e l'anello ci sono più
+di 7 unità, quindi nessun filo.
+
+Le strade provate e scartate in questo giro:
+
+- *il pugno a griglia* (ogni falange un pezzo staccato): sembra una zampa a
+  blocchi;
+- *il pollice col bordo di sotto*: il contorno fa una «G»;
+- *il pugno su archi concentrici* (nocche, pollice e fondo attorno a un
+  centro sotto, i tagli come raggi): si allarga in alto e diventa un guanto.
+
+Ho provato anche a scaricare i pugni di qualche set di icone open source, per
+studiarne la costruzione, ma dalla macchina quei siti sono bloccati: se hai
+dei pugni disegnati che ti piacciono, mandameli.
+
+| | cosa |
+|---|---|
+| `F1_pugno_inclinato_nell_anello.svg` | il pugno ridisegnato, inclinato, nell'anello |
+| `F2_pugno_dritto_nell_anello.svg` | lo stesso, dritto |
+| `ridisegnato.png` | i due, grandi e a 26 pixel |
+| `ridisegnato_accanto_alle_approvate.png` | prima e dopo, accanto a Difesa, Velocità e Intelligenza |
+
+Resta da decidere: **dritto o inclinato**, e se **l'anello passa anche alle
+altre icone**.
