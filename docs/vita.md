@@ -132,10 +132,38 @@ mezzo secondo, i timbri nero e rosso dentro il piano, le schegge, la scossa;
 i riflessi sfalsati. Ognuna col suo caso del movimento ridotto. Verificate
 rompendo apposta il codice in 32 modi.
 
-## 8. Cosa resta da decidere
+## 8. Il BOND: tre proposte
 
-1. Il taglio della Mattanza va bene anche per il **BOND**, con un altro
-   colore?
+Bru: «per il bond ci vuole qualcosa di più felice e tranquillo». Il BOND è la
+mediazione: la creatura la lasci vivere, la raggiungi (`docs/mediazione.md`).
+Quindi il contrario della Mattanza in ogni scelta:
+
+| la Mattanza | il BOND |
+|---|---|
+| fasce di traverso | linee orizzontali e cerchi |
+| entra di scatto, esce di scatto | si muove piano, comincia e finisce morbido |
+| nero e rosso | crema, oro, l'arancio del gioco |
+| lampo, scossa, schegge | niente di tutto questo |
+| uno solo che colpisce | due che si avvicinano |
+
+Le tre proposte (`prove/ProposteBond.gd`, `./prove/film_bond.sh`, nell'editor
+`ProposteBond.tscn` e F6), un secondo e tre quarti ciascuna:
+
+- **Il filo**: una fascia chiara entra dritta, i due si guardano dai due
+  lati, un filo arancio li unisce ondeggiando e al centro si fa il nodo: il
+  rombo del gioco, con una luce che si allarga piano.
+- **L'alba**: un sole sale dall'orizzonte nero coi raggi che girano piano, i
+  due si camminano incontro sull'orizzonte, e BOND è scritto nel sole.
+- **L'anello**: due metà d'anello, una arancio e una nera, scivolano una verso
+  l'altra e si chiudono intorno ai due. È l'anello aperto del mon (quello del
+  pugno dell'Attacco) che qui si chiude.
+
+Al posto delle lettere andrebbero gli artwork dei due: chi media e la creatura.
+Come la Mattanza, un clic la salterebbe e il mondo starebbe fermo sotto.
+
+## 9. Cosa resta da decidere
+
+1. Quale delle tre per il **BOND** (o cosa prendere da ognuna).
 2. I **minigiochi**: oggi ci sono la raffica (Collisioni infinite), il
    braccio di ferro della Mazzata e il colpo di grazia della Mattanza. Quali
    altri hai in mente?
