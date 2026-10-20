@@ -9644,15 +9644,21 @@ func prova_le_zone_somigliano_al_loro_posto() -> void:
 	# ambientazioni tipo nelle pianure del risveglio siamo nella natura nella
 	# grande magione in una magione enorme con ai fianchi i giardini e i
 	# laboratori dall'altra parte, nei cunicoli deve proprio sembrare cunicoli».
-	# Il plastico resta quello; cambia la forma dei pezzi (AmbientiPlastico)
+	# Il plastico resta quello; cambia la forma dei pezzi (AmbientiPlastico).
+	# E solo la forma: «troppi dettagli creano confusione, l'importante è avere
+	# una resa delle altezze e di come è conformato lo spazio, non degli
+	# elementi al suo interno»
 	titolo("ogni zona somiglia al suo posto: la natura, la magione coi giardini e i laboratori, i cunicoli")
 	var pianta := await livello_aperto("res://data/events_tutorial.json", true)
 	natura_e_caverne(pianta)
+	solo_la_forma(pianta, "Pianure")
 	pianta.get_parent().queue_free()
 	pianta = await livello_aperto("res://data/vuoti/casa_gigante.json", true)
 	la_magione(pianta)
+	solo_la_forma(pianta, "Casa Gigante")
 	pianta.get_parent().queue_free()
 	pianta = await livello_aperto("res://data/vuoti/rocca_ossidiana.json", true)
+	solo_la_forma(pianta, "Rocca di Ossidiana")
 	for coppia: Array in GameState.collegamenti_aperti():
 		esigi(AmbientiPlastico.passo(pianta.plastico, String(coppia[0]), String(coppia[1])) == "galleria",
 				"nei cunicoli da %s a %s non si va per una galleria" % [coppia[0], coppia[1]])
@@ -9674,15 +9680,23 @@ func forma_di(p: PlasticoZona, materiale: ShaderMaterial) -> Mesh:
 			return (figlio as MeshInstance3D).mesh
 	return null
 
+func solo_la_forma(pianta: MappaZona, zona: String) -> void:
+	# una stanza senza un dettaglio di forma (la collina, la fossa, il tetto...)
+	# e' un pezzo solo, il suo velo e i suoi spigoli: niente alberi, erba,
+	# finestre o sfiati dentro
+	var p := pianta.plastico
+	for id_stanza: String in p.parti:
+		var dettaglio := String(pianta.stanze_per_id[id_stanza].get("dettaglio", ""))
+		if dettaglio in ["", "sala", "piazza"]:
+			esigi((p.parti[id_stanza] as Array).size() == 2, "%s: la stanza %s ha %d pezzi, cioe' dentro ci sono delle cose e non solo la sua forma"
+					% [zona, id_stanza, (p.parti[id_stanza] as Array).size()])
+
 func natura_e_caverne(pianta: MappaZona) -> void:
-	# nelle Pianure: radure (non scatole) coi loro alberi, sentieri fra una e
-	# l'altra, gallerie verso la caverna
+	# nelle Pianure: radure (non scatole), sentieri fra una e l'altra, gallerie
+	# verso la caverna
 	var p := pianta.plastico
 	for id_stanza: String in p.accese:
-		var ambiente := AmbientiPlastico.ambiente_di(pianta.stanze_per_id[id_stanza])
 		esigi(not forma_di(p, p.accese[id_stanza]) is BoxMesh, "nelle Pianure la stanza %s e' ancora una scatola" % id_stanza)
-		if ambiente == "natura":
-			esigi((p.parti.get(id_stanza, []) as Array).size() >= 5, "nelle Pianure la radura %s non ha ne' erba ne' alberi" % id_stanza)
 	for coppia: Array in GameState.collegamenti_aperti():
 		var ambienti := [AmbientiPlastico.ambiente_di(pianta.stanze_per_id[coppia[0]]), AmbientiPlastico.ambiente_di(pianta.stanze_per_id[coppia[1]])]
 		var atteso := "galleria" if "cunicoli" in ambienti else "sentiero"
@@ -9711,15 +9725,10 @@ func la_magione(pianta: MappaZona) -> void:
 			% [x.call("giardino"), x.call("giardino_ovest"), terra.position.x, terra.end.x])
 	for id_lab: String in ["laboratorio", "sala_matrici", "deposito_chimico"]:
 		esigi(float(x.call(id_lab)) < float(x.call("giardino_ovest")), "il laboratorio %s non sta dall'altra parte, oltre il giardino ovest" % id_lab)
-	# stanze attaccate, le finestre solo sui muri di fuori
+	# stanze attaccate: un muro, non un vicolo
 	var salone := AmbientiPlastico.pianta(p.scatole["salone"])
 	var ala := AmbientiPlastico.pianta(p.scatole["ala_sinistra"])
 	esigi(salone.position.x - ala.end.x < 0.1, "fra il salone e l'ala sinistra c'e' un vicolo di %.2f: non sono la stessa casa" % (salone.position.x - ala.end.x))
-	var fuori := []
-	for lato: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
-		if AmbientiPlastico.di_fuori(p, "salone", salone, lato):
-			fuori.append(lato)
-	esigi(fuori == [Vector2.DOWN], "il salone ha le finestre verso %s: dovrebbe averle solo davanti, verso la soglia" % str(fuori))
 	esigi(AmbientiPlastico.passo(p, "sala_principale", "scala") == "scala" and AmbientiPlastico.passo(p, "salone", "ala_destra") == "porta",
 			"nella magione fra due piani non c'e' una scala, o fra due stanze una porta")
 	# il sentiero dal giardino al giardino ovest gira intorno alla casa, non la taglia

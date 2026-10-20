@@ -8,20 +8,26 @@ extends RefCounted
 # deve proprio sembrare cunicoli». Il plastico resta quello (vetro, luce,
 # bottoni dei piani, scheda): cambia la forma dei pezzi.
 #
+# LA FORMA DELLO SPAZIO, NON LE COSE DENTRO. Al primo giro c'erano alberi, erba,
+# siepi e finestre; Bru: «non c'era bisogno di mettere alberi ed erbetta, troppi
+# dettagli creano confusione, l'importante è avere una resa delle altezze e di
+# come è conformato lo spazio, non degli elementi al suo interno». Qui si
+# disegnano solo contorni, spessori, quote e passaggi.
+#
 # L'"ambiente" sta nei dati: sulla mappa della zona quello di tutte le stanze,
 # su una stanza quello suo se e' diverso. Ognuno ha la sua stanza e il suo
 # modo di andare da una stanza all'altra:
 #   edificio     la scatola di sempre, e i corridoi a tubo (la Sede)
-#   magione      stanze attaccate una all'altra come in una casa vera, con le
-#                finestre sui muri di fuori, le porte fra una stanza e l'altra
-#                e le scale fra un piano e quello sopra
-#   laboratorio  scatole attaccate, col tetto a pannelli e gli sfiati
-#   giardino     un prato col bordo di siepi e un albero
-#   natura       una radura dal bordo storto con gli alberi intorno; da una
-#                all'altra un sentiero che serpeggia (e sale, se sale)
+#   magione      scatole attaccate una all'altra come le stanze di una casa
+#                vera, le porte fra una stanza e l'altra e le scale fra un
+#                piano e quello sopra
+#   laboratorio  come la magione: un altro edificio
+#   giardino     un'aiuola dal contorno regolare, alzata da terra
+#   natura       una radura dal bordo storto, alzata da terra; da una all'altra
+#                un sentiero che serpeggia (e sale, se sale)
 #   cunicoli     una caverna dalla volta storta; da una all'altra una galleria
 #                che si allarga e si stringe
-# Il "dettaglio" di una stanza (un masso, le pozze, il ponte...) sta in
+# Il "dettaglio" di una stanza (la collina, la fossa, il ponte...) sta in
 # ArrediPlastico. "percorsi" sulla mappa dice per dove passa un sentiero che non
 # deve tagliare in mezzo a qualcosa: punti in quadratini, come le celle.
 
@@ -69,7 +75,7 @@ static func monta_stanza(p: PlasticoZona, id_stanza: String, stato: Dictionary) 
 	var dettaglio := String(dati.get("dettaglio", ""))
 	var forme: Array = []
 	if not dettaglio in ArrediPlastico.SENZA_BASE:
-		forme = base(p, id_stanza, ambiente, dettaglio, r, quota, float(s["misura"].y))
+		forme = base(id_stanza, ambiente, dettaglio, r, quota, float(s["misura"].y))
 	forme.append_array(ArrediPlastico.dettaglio(dettaglio, r, quota, id_stanza, p.altezza))
 	var tutte: Array[ShaderMaterial] = []
 	for forma: Array in forme:
@@ -78,58 +84,26 @@ static func monta_stanza(p: PlasticoZona, id_stanza: String, stato: Dictionary) 
 	return tutte[0] if not tutte.is_empty() else null
 
 
-static func base(p: PlasticoZona, id_stanza: String, ambiente: String, dettaglio: String, r: Rect2, quota: float,
-		alto: float) -> Array:
+static func base(id_stanza: String, ambiente: String, dettaglio: String, r: Rect2, quota: float, alto: float) -> Array:
 	match ambiente:
 		"natura":
-			return radura(id_stanza, r, quota, false, dettaglio)
+			return radura(id_stanza, r, quota, false)
 		"giardino":
-			return radura(id_stanza, r, quota, true, dettaglio)
+			return radura(id_stanza, r, quota, true)
 		"cunicoli":
 			return caverna(id_stanza, r, quota, dettaglio)
-		"magione":
-			return casa(p, id_stanza, r, quota, alto)
-		"laboratorio":
-			return laboratorio(p, id_stanza, r, quota, alto)
+	# la magione e i laboratori sono scatole: la casa la fanno le stanze attaccate
 	var c := FormePlastico.cassa(Vector3(r.get_center().x, quota + alto * 0.5, r.get_center().y), Vector3(r.size.x, alto, r.size.y))
 	return [[c[0], c[1], 1.0]]
 
 
-static func radura(id_stanza: String, r: Rect2, quota: float, giardino: bool, dettaglio := "") -> Array:
-	# IL PRATO: un contorno morbido appena alzato da terra; intorno, alberi (la
-	# radura) o una siepe di cespugli con un albero (il giardino)
+static func radura(id_stanza: String, r: Rect2, quota: float, giardino: bool) -> Array:
+	# IL TERRENO: un contorno morbido (regolare se e' un giardino) alzato da
+	# terra quanto basta perche' si veda il suo spessore, con qualche montante
+	# sul bordo. Niente dentro: conta la forma, non le cose
 	var contorno := FormePlastico.chiazza(r, id_stanza, 0.05 if giardino else 0.16, 3.6 if giardino else 2.2)
-	var prato := FormePlastico.prisma(contorno, quota, FormePlastico.piane(contorno.size(), quota + 0.1))
-	var rng := FormePlastico.caso(id_stanza + "alberi")
-	var c := r.get_center()
-	var forme: Array = [[prato[0], prato[1], 1.25], [null, FormePlastico.linee(erba(c, r, quota + 0.1, rng)), 0.9]]
-	if giardino:
-		for i in contorno.size():
-			if i % 3 == 0 and i % 9 != 0:
-				var dove := c.lerp(contorno[i], 0.86)
-				var siepe := FormePlastico.palla(Vector3(dove.x, quota + 0.14, dove.y), Vector3(0.11, 0.09, 0.11), 6, 3)
-				forme.append([siepe[0], siepe[1], 0.7])
-		forme.append_array(ArrediPlastico.albero(Vector3(c.x + r.size.x * 0.22, quota + 0.1, c.y - r.size.y * 0.2), 0.65, rng))
-		return forme
-	# dove c'e' gia' qualcosa da riconoscere (il masso, la tartaruga) un albero
-	# solo, che non lo copra
-	for k in (1 if dettaglio != "" else 2 + rng.randi() % 2):
-		var angolo := TAU * (float(k) / 3.0 + rng.randf() * 0.2)
-		var dove := c + Vector2.from_angle(angolo) * r.size * 0.36
-		forme.append_array(ArrediPlastico.albero(Vector3(dove.x, quota + 0.1, dove.y), 0.6 + rng.randf() * 0.3, rng))
-	return forme
-
-
-static func erba(c: Vector2, r: Rect2, quota: float, rng: RandomNumberGenerator) -> PackedVector3Array:
-	# CIUFFI D'ERBA: tre fili a ventaglio, sparsi nel prato. Senza, una radura
-	# vista dall'alto era una pellicola, e non si capiva che era un prato
-	var fili := PackedVector3Array()
-	for k in 9:
-		var dove := c + Vector2((rng.randf() - 0.5) * r.size.x * 0.62, (rng.randf() - 0.5) * r.size.y * 0.62)
-		var piede := Vector3(dove.x, quota, dove.y)
-		for verso: Vector3 in [Vector3(-0.05, 0.1, 0.0), Vector3(0.0, 0.13, 0.0), Vector3(0.05, 0.1, 0.0)]:
-			fili.append_array([piede, piede + verso])
-	return fili
+	var prato := FormePlastico.prisma(contorno, quota, FormePlastico.piane(contorno.size(), quota + 0.18), 3)
+	return [[prato[0], prato[1], 1.25]]
 
 
 static func caverna(id_stanza: String, r: Rect2, quota: float, dettaglio: String) -> Array:
@@ -143,64 +117,6 @@ static func caverna(id_stanza: String, r: Rect2, quota: float, dettaglio: String
 		volta.append(quota + (0.55 if scavata else 0.32 + rng.randf() * 0.42))
 	var roccia := FormePlastico.prisma(contorno, quota, volta, 2 if not scavata else 4)
 	return [[roccia[0], roccia[1], 1.1]]
-
-
-static func casa(p: PlasticoZona, id_stanza: String, r: Rect2, quota: float, alto: float) -> Array:
-	# UNA STANZA DELLA MAGIONE: la scatola, e sui muri che danno fuori due
-	# finestre. I muri fra due stanze non ne hanno: e' cosi' che si vede la casa
-	var c := FormePlastico.cassa(Vector3(r.get_center().x, quota + alto * 0.5, r.get_center().y), Vector3(r.size.x, alto, r.size.y))
-	var finestre := PackedVector3Array()
-	for lato: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
-		if di_fuori(p, id_stanza, r, lato):
-			finestre.append_array(due_finestre(r, lato, quota, alto))
-	return [[c[0], c[1], 1.0], [null, FormePlastico.linee(finestre), 0.8]]
-
-
-static func di_fuori(p: PlasticoZona, id_stanza: String, r: Rect2, lato: Vector2) -> bool:
-	# il muro da' fuori se appena oltre non c'e' un'altra stanza murata dello stesso piano
-	var oltre := r.get_center() + lato * (r.size * 0.5 + Vector2.ONE * 0.12)
-	var piano := int(p.scatole[id_stanza]["piano"])
-	for altra: String in p.scatole:
-		var dati: Dictionary = p.zona.stanze_per_id.get(altra, {})
-		if altra != id_stanza and int(p.scatole[altra]["piano"]) == piano and ambiente_di(dati) in MURATI \
-				and pianta(p.scatole[altra]).has_point(oltre):
-			return false
-	return true
-
-
-static func due_finestre(r: Rect2, lato: Vector2, quota: float, alto: float) -> PackedVector3Array:
-	var lungo := Vector2(absf(lato.y), absf(lato.x))
-	var muro := r.get_center() + lato * (r.size * 0.5 + Vector2.ONE * 0.01)
-	var tratti := PackedVector3Array()
-	var largo := (r.size.x if lato.y != 0.0 else r.size.y)
-	for k: float in [-0.22, 0.22]:
-		var c := muro + lungo * largo * k
-		var mezza := lungo * 0.09
-		var giu := quota + alto * 0.35
-		var su := quota + alto * 0.72
-		var angoli := PackedVector3Array([Vector3(c.x - mezza.x, giu, c.y - mezza.y), Vector3(c.x + mezza.x, giu, c.y + mezza.y),
-				Vector3(c.x + mezza.x, su, c.y + mezza.y), Vector3(c.x - mezza.x, su, c.y - mezza.y)])
-		tratti.append_array(FormePlastico.giro(angoli))
-		tratti.append(Vector3(c.x, giu, c.y))
-		tratti.append(Vector3(c.x, su, c.y))
-	return tratti
-
-
-static func laboratorio(p: PlasticoZona, id_stanza: String, r: Rect2, quota: float, alto: float) -> Array:
-	# IL LABORATORIO: la scatola col tetto a pannelli e due sfiati, e le finestre
-	# lunghe dove da' fuori
-	var forme := casa(p, id_stanza, r, quota, alto)
-	var tetto := PackedVector3Array()
-	var y := quota + alto + 0.005
-	for k: float in [0.33, 0.66]:
-		var x := r.position.x + r.size.x * k
-		var z := r.position.y + r.size.y * k
-		tetto.append_array([Vector3(x, y, r.position.y), Vector3(x, y, r.end.y), Vector3(r.position.x, y, z), Vector3(r.end.x, y, z)])
-	forme.append([null, FormePlastico.linee(tetto), 0.7])
-	for k: float in [0.25, 0.75]:
-		var sfiato := FormePlastico.cilindro(Vector3(r.position.x + r.size.x * k, y, r.get_center().y + r.size.y * 0.25), 0.07, 0.16, 6)
-		forme.append([sfiato[0], sfiato[1], 0.7])
-	return forme
 
 
 # --- da una stanza all'altra ------------------------------------------------------

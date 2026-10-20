@@ -6,13 +6,12 @@
     "nome": "Pianure di Redenna",
     "vista": "plastico",
     "ambiente": "natura",
-    "_nota_ambiente": "OGNI ZONA SOMIGLIA AL SUO POSTO (scripts/AmbientiPlastico.gd). Bru: «nelle pianure del risveglio siamo nella natura». Le stanze sono radure col loro bordo storto e gli alberi intorno, da una all'altra un sentiero che serpeggia, e quelle che si riconoscono da qualcosa hanno il loro \"dettaglio\": il fuoco del goblin, l'albero, il masso, le pozze, la tartaruga, il promontorio che sale dalla pianura. La caverna e' una caverna.",
+    "_nota_ambiente": "OGNI ZONA SOMIGLIA AL SUO POSTO (scripts/AmbientiPlastico.gd). Bru: «nelle pianure del risveglio siamo nella natura». Le stanze sono radure col loro bordo storto, alzate da terra, da una all'altra un sentiero che serpeggia; il promontorio e' una collina che sale dalla pianura (\"dettaglio\": \"collina\"), la caverna e' una caverna. Niente alberi ne' cose dentro le stanze: Bru, «troppi dettagli creano confusione, l'importante è avere una resa delle altezze e di come è conformato lo spazio, non degli elementi al suo interno».",
     "_nota_plastico": "IL PLASTICO, come al complesso e alla Sede (Bru: «possiamo fare cosi' anche per le mappe dei livelli che abbiamo creato?»). Ogni stanza sta sul suo \"piano\" (0 la pianura), e un corridoio fra due piani diventa un pozzo. La cima del promontorio sta un piano sopra: e' una salita («mentre sali non c'e' la mappa»). La caverna un piano sotto e' una MIA IPOTESI: i testi dicono che e' piccola e umida e che continua «piu' in fondo», non che scende. I piani e i loro nomi sono una mia proposta, da rifare.",
     "piani": {"1": "Promontorio", "0": "Pianura", "-1": "Caverna"},
     "stanze": [
       {
         "id": "inizio",
-        "dettaglio": "atterraggio",
         "piano": 0,
         "nome": "Punto d'atterraggio",
         "cella": [
@@ -22,7 +21,6 @@
       },
       {
         "id": "banchetto",
-        "dettaglio": "falo",
         "piano": 0,
         "nome": "Il pasto del goblin",
         "cella": [
@@ -41,7 +39,6 @@
       },
       {
         "id": "albero",
-        "dettaglio": "alberone",
         "piano": 0,
         "nome": "L'albero",
         "cella": [
@@ -52,7 +49,6 @@
       {
         "id": "caverna",
         "ambiente": "cunicoli",
-        "dettaglio": "grotta",
         "piano": -1,
         "nome": "La piccola caverna",
         "cella": [
@@ -64,7 +60,6 @@
       {
         "id": "caverna_fondo",
         "ambiente": "cunicoli",
-        "dettaglio": "grotta",
         "piano": -1,
         "nome": "Il fondo della caverna",
         "cella": [
@@ -75,7 +70,6 @@
       },
       {
         "id": "masso",
-        "dettaglio": "masso",
         "piano": 0,
         "nome": "Il masso gigante",
         "cella": [
@@ -85,7 +79,6 @@
       },
       {
         "id": "bivio",
-        "dettaglio": "cartello",
         "piano": 0,
         "nome": "Il bivio",
         "cella": [
@@ -95,7 +88,6 @@
       },
       {
         "id": "pozze",
-        "dettaglio": "pozze",
         "piano": 0,
         "nome": "Le pozze d'acqua",
         "cella": [
@@ -116,7 +108,6 @@
       },
       {
         "id": "tartaruga",
-        "dettaglio": "tartaruga",
         "piano": 0,
         "nome": "La tartaruga gigante",
         "cella": [

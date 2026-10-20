@@ -111,25 +111,28 @@ Senza `"vista": "plastico"` la mappa resta la griglia di quadratini.
 ### Ogni zona somiglia al suo posto
 
 Bru: «volevo solo che le parti della mappa somigliassero di piu' alle
-ambientazioni». Il plastico e' lo stesso dappertutto (la luce, i piani, la
-scheda), ma ogni stanza ha la forma del suo **ambiente** (`"ambiente"` sulla
-mappa per tutte, sulla stanza se e' diversa; codice in
-`scripts/AmbientiPlastico.gd`):
+ambientazioni», e poi «troppi dettagli creano confusione, l'importante e'
+avere una resa delle altezze e di come e' conformato lo spazio, non degli
+elementi al suo interno». Il plastico e' lo stesso dappertutto (la luce, i
+piani, la scheda), ma ogni stanza ha la forma del suo **ambiente**
+(`"ambiente"` sulla mappa per tutte, sulla stanza se e' diversa; codice in
+`scripts/AmbientiPlastico.gd`). Solo forme, spessori e quote: niente cose
+dentro le stanze.
 
 | ambiente | la stanza | da una stanza all'altra |
 |---|---|---|
 | `edificio` | la scatola (la Sede) | un corridoio a tubo, un pozzo fra due piani |
-| `magione` | stanze attaccate come in una casa, con le finestre sui muri di fuori | una porta nel muro; fra due piani una scala a gradini |
-| `laboratorio` | come la magione, col tetto a pannelli e gli sfiati | una porta |
-| `giardino` | un prato con la siepe e un albero | un sentiero |
-| `natura` | una radura dal bordo storto, con l'erba e gli alberi | un sentiero che serpeggia, e sale se sale |
+| `magione` | scatole attaccate come le stanze di una casa | una porta nel muro; fra due piani una scala a gradini |
+| `laboratorio` | come la magione: un altro edificio | una porta |
+| `giardino` | un'aiuola dal contorno regolare, alzata da terra | un sentiero |
+| `natura` | una radura dal bordo storto, alzata da terra | un sentiero che serpeggia, e sale se sale |
 | `cunicoli` | una caverna dalla volta storta | una galleria che si allarga e si stringe |
 
-Una stanza che si riconosce da qualcosa ha il suo **dettaglio** (`"dettaglio"`,
-in `scripts/ArrediPlastico.gd`): l'albero grande, il masso, le pozze, la
-collina del promontorio, la tartaruga, il fuoco, il cartello del bivio, il
-ponte sopra il vuoto, la fossa, le colonne di una sala scavata, la serra, le
-vasche, gli scaffali, l'altare, il tetto a spiovente, il cancello, i fiori.
+Una stanza il cui spazio non e' quello del suo ambiente ha il suo
+**dettaglio** (`"dettaglio"`, in `scripts/ArrediPlastico.gd`): la `collina`
+(la stanza in cima, e sotto la collina fino al piano di sotto), la `fossa`, il
+`ponte` sopra il vuoto, il tetto a `spiovente`, la volta della `serra`, la
+`sala` e la `piazza` scavate (una caverna piu' regolare).
 `"percorsi"` dice per dove passa un sentiero che non deve tagliare in mezzo a
 qualcosa (in quadratini, come le celle). Sul plastico due stanze possono stare
 sullo stesso quadratino se stanno su piani diversi: e' una casa a piani, e qui

@@ -131,9 +131,8 @@ static func piane(n: int, quota: float) -> PackedFloat32Array:
 
 
 static func cupola(contorno: PackedVector2Array, sotto: float, bordo: float, apice: Vector3, seme := "") -> Array:
-	# UN MUCCHIO: i fianchi fino al bordo, e da li' tutto converge in una punta.
-	# Un masso, una collina, il guscio di una tartaruga; con la punta sotto il
-	# bordo e' un imbuto (la fossa)
+	# I FIANCHI FINO AL BORDO, e da li' tutto converge in una punta; con la punta
+	# sotto il bordo e' un imbuto (la fossa)
 	var rng := caso(seme)
 	var n := contorno.size()
 	var st := SurfaceTool.new()
@@ -278,61 +277,6 @@ static func serpeggia(da: Vector3, a: Vector3, seme: String, quanto := 0.22) -> 
 	var uno := da.lerp(a, 0.33) + lato * (rng.randf() * 2.0 - 1.0)
 	var due := da.lerp(a, 0.66) + lato * (rng.randf() * 2.0 - 1.0)
 	return curva(PackedVector3Array([da, uno, due, a]), 5)
-
-
-static func cilindro(base: Vector3, raggio: float, alto: float, lati := 8, punta := false) -> Array:
-	# una colonna, una vasca, un tronco; con la punta e' un cono (un abete)
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var giu := PackedVector3Array()
-	var su := PackedVector3Array()
-	var cima := base + Vector3.UP * alto
-	for k in lati:
-		var d := Vector3(cos(TAU * float(k) / float(lati)), 0.0, sin(TAU * float(k) / float(lati))) * raggio
-		giu.append(base + d)
-		su.append(cima if punta else cima + d)
-	var tratti := giro(giu)
-	if not punta:
-		tratti.append_array(giro(su))
-	for k in lati:
-		var j := (k + 1) % lati
-		for p: Vector3 in [giu[k], giu[j], su[j], giu[k], su[j], su[k]]:
-			st.add_vertex(p)
-		if punta or k % 2 == 0:
-			tratti.append(giu[k])
-			tratti.append(su[k])
-		if not punta:
-			for p: Vector3 in [cima, su[k], su[j]]:
-				st.add_vertex(p)
-	st.generate_normals()
-	return [st.commit(), linee(tratti)]
-
-
-static func palla(centro: Vector3, raggio: Vector3, lati := 8, strati := 4) -> Array:
-	# una chioma, un cespuglio: una sfera schiacciata a pochi lati
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var anelli: Array[PackedVector3Array] = []
-	for s in strati + 1:
-		var fi := PI * float(s) / float(strati)
-		var anello := PackedVector3Array()
-		for k in lati:
-			var te := TAU * float(k) / float(lati)
-			anello.append(centro + Vector3(sin(fi) * cos(te) * raggio.x, cos(fi) * raggio.y, sin(fi) * sin(te) * raggio.z))
-		anelli.append(anello)
-	var tratti := PackedVector3Array()
-	for s in strati:
-		for k in lati:
-			var j := (k + 1) % lati
-			for p: Vector3 in [anelli[s][k], anelli[s][j], anelli[s + 1][j], anelli[s][k], anelli[s + 1][j], anelli[s + 1][k]]:
-				st.add_vertex(p)
-			if k % 2 == 0:
-				tratti.append(anelli[s][k])
-				tratti.append(anelli[s + 1][k])
-		if s > 0:
-			tratti.append_array(giro(anelli[s]))
-	st.generate_normals()
-	return [st.commit(), linee(tratti)]
 
 
 static func cassa(centro: Vector3, misura: Vector3) -> Array:
