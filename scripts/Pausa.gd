@@ -85,6 +85,7 @@ var quinte: Quinte              # i fogli dietro le voci, e la parola grande
 var schegge: Schegge            # i ritagli che saltano via da una voce premuta
 var dissolvenza: Tween          # l'entrata o l'uscita del velo: una sola alla volta
 var aperta := false
+var fuoco_perso := FuocoPerso.new(self)   # alt-tab e Strumento di cattura (FuocoPerso.gd)
 var pannello := "menu"  # menu | storico | diario | messaggi | collezione | inventario | equipaggiamento | opzioni | uscita
 var sezione_diario := "database"
 var icona_messaggi: IconaMessaggi   # in basso a destra, nel menu e nel Data pad
@@ -166,14 +167,10 @@ func _unhandled_input(evento: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 func _notification(cosa: int) -> void:
-	# LA FINESTRA PERDE IL FUOCO, IL GIOCO SI FERMA. Un alt-tab, una notifica
-	# che ruba la finestra, un clic sull'editor: il gioco continuava a correre
-	# senza nessuno davanti, e una scelta a tempo scadeva, un colpo di grazia
-	# si perdeva. Si apre la pausa, come con ESC e solo dove ESC la aprirebbe;
-	# al ritorno la trovi aperta e decidi tu quando ripartire. Si spegne nelle
-	# opzioni (Grafica); per le foto c'e' F12, che il fuoco non lo toglie (Foto.gd)
-	if cosa == NOTIFICATION_APPLICATION_FOCUS_OUT and Impostazioni.pausa_fuori and not aperta and pausabile():
-		apri()
+	# la finestra che perde il fuoco ferma il gioco com'e', e la pausa si apre al
+	# ritorno: lo Strumento di cattura fotografa il gioco, non il menu (FuocoPerso.gd)
+	if fuoco_perso != null:
+		fuoco_perso.notifica(cosa)
 
 func pausabile() -> bool:
 	# niente pausa a meta' di una dissolvenza tra schermate: si riaprirebbe su

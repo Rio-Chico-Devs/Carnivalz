@@ -21437,31 +21437,55 @@ func prova_il_tempo_di_gioco_non_salta() -> void:
 
 
 func prova_la_finestra_che_perde_il_fuoco_mette_in_pausa() -> void:
-	# un alt-tab o una notifica: il gioco correva senza nessuno davanti
-	titolo("la finestra che perde il fuoco mette in pausa")
-	esigi(not Pausa.aperta, "la pausa era gia' aperta: la prova non misurerebbe niente")
+	# un alt-tab o una notifica: il gioco correva senza nessuno davanti. E lo
+	# Strumento di cattura di Bru fotografava il menu di pausa invece del gioco
+	titolo("la finestra che perde il fuoco ferma il gioco com'e', e la pausa si apre al ritorno")
+	esigi(not Pausa.aperta and not get_tree().paused, "la pausa era gia' aperta: la prova non misurerebbe niente")
 	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
-	esigi(Pausa.aperta and get_tree().paused, "perso il fuoco, il gioco continua da solo")
+	esigi(get_tree().paused, "perso il fuoco, il gioco continua da solo")
+	esigi(not Pausa.aperta and not Pausa.velo.visible,
+			"perso il fuoco, il menu di pausa copre lo schermo: lo Strumento di cattura fotografa la pausa invece del gioco")
 	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
-	esigi(Pausa.aperta, "un secondo alt-tab chiude la pausa invece di lasciarla aperta")
+	esigi(get_tree().paused and not Pausa.aperta, "un secondo alt-tab sblocca il gioco o apre il menu")
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	esigi(Pausa.aperta and get_tree().paused, "tornato il fuoco, il gioco riparte da solo invece di aspettarti nella pausa")
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	esigi(Pausa.aperta, "un secondo ritorno del fuoco chiude la pausa")
 	Pausa.chiudi()
 	esigi(not get_tree().paused, "chiusa la pausa il gioco resta fermo")
+	# il ritorno del fuoco apre la pausa solo se l'aveva fermato il fuoco perso
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	esigi(not Pausa.aperta and not get_tree().paused, "il fuoco che torna apre la pausa anche senza essere mai andato via")
+	# la pausa gia' aperta con ESC resta com'e', anche sul pannello in cui eri:
+	# al ritorno non se ne apre un'altra che ti rimanda al menu
+	Pausa.apri()
+	Pausa.mostra_storico()
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	esigi(Pausa.aperta and get_tree().paused, "la pausa aperta con ESC si chiude perdendo e ritrovando il fuoco")
+	esigi(Pausa.pannello == "storico", "nella pausa, perdendo e ritrovando il fuoco, si torna al menu da %s" % Pausa.pannello)
+	Pausa.chiudi()
 	# dove ESC non la aprirebbe, non la apre nemmeno il fuoco perso
 	var prima := Transizioni.in_corso
 	Transizioni.in_corso = true
 	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
-	esigi(not Pausa.aperta, "a meta' di una dissolvenza il fuoco perso apre la pausa")
+	esigi(not Pausa.aperta and not get_tree().paused, "a meta' di una dissolvenza il fuoco perso ferma il gioco")
 	Transizioni.in_corso = prima
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
 	if Pausa.aperta:
 		Pausa.chiudi()
+	get_tree().paused = false
 	# e si spegne nelle opzioni, e lo ricorda: lo Strumento di cattura di Bru
 	# apriva la pausa a ogni foto
 	var prima_fuori := Impostazioni.pausa_fuori
 	Impostazioni.pausa_fuori = false
 	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
-	esigi(not Pausa.aperta, "spenta nelle opzioni, la pausa si apre lo stesso col fuoco perso")
+	esigi(not Pausa.aperta and not get_tree().paused, "spenta nelle opzioni, il fuoco perso ferma lo stesso il gioco")
+	Pausa._notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	esigi(not Pausa.aperta, "spenta nelle opzioni, al ritorno del fuoco si apre la pausa")
 	if Pausa.aperta:
 		Pausa.chiudi()
+	get_tree().paused = false
 	Impostazioni.salva()
 	Impostazioni.pausa_fuori = true
 	Impostazioni.carica()
