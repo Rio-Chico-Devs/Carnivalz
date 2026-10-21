@@ -103,13 +103,31 @@ dall'altra parte; poi lo scontro sbanda e si comincia a battere.
 - **La parata**: un anello che si allarga di più di prima, la parola come un
   **timbro** sulla fascia nera (arancio), le schegge, il piano che sobbalza,
   il contatore che fa la gelatina.
-- **Il colpo preso**: il riquadro si accende di rosso, lo schermo si
-  **crepa** dal punto in cui ti ha preso, la parola sulla fascia rossa, e lo
-  scontro sbanda forte.
+- **Il colpo preso**: il riquadro si accende di rosso, la parola va sulla
+  fascia rossa, lo scontro sbanda forte, e **il vetro dello schermo si rompe**
+  dal punto in cui il pugno ti ha preso (`scripts/combattimento/VetroRotto.gd`).
+  Prima erano sei rami corti rossi e bianchi; Bru: «concentriamoci più che
+  altro sull'effetto vetro rotto quando ricevi i colpi nel videogioco
+  attualmente è abbastanza brutto». Adesso è la lingua delle crepe
+  dell'orologio approvate (`Crepe.gd`):
+  - nel punto dell'impatto il vetro è schiacciato, chiaro, con un lampo;
+  - da lì corrono fino al bordo del vetro da cinque a sette crepe principali,
+    quasi dritte, con lo strappo secco, e qualcuna si biforca;
+  - intorno all'impatto ci sono le crepe minute, e fra le principali tre giri
+    di ragnatela, con qualche buco;
+  - ogni faccia prende la luce a modo suo, un luccichio le attraversa dal
+    centro, e qualche scheggia salta via e cade;
+  - il filo chiaro ha accanto un'ombra scura, così il taglio si legge sopra
+    qualunque cosa;
+  - un pugno diverso rompe il vetro in un modo diverso.
+
+  Le crepe corrono in un decimo di secondo, il vetro resta poco più di un
+  secondo e sfuma, perché i pugni dopo vanno letti.
 - I timbri restano dentro il riquadro: vicino al bordo un timbro tagliato non
   si legge.
 - **Movimento ridotto**: niente tacche, niente schegge, niente scossa; le
-  parole compaiono ferme.
+  parole compaiono ferme. Il vetro rotto c'è subito, intero, senza lampo né
+  schegge, e sfuma.
 
 ## 6. Il riflesso sui vetri: tolto
 

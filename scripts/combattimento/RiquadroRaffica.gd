@@ -42,12 +42,12 @@ const MARGINE := 12.0
 const DURATA_SEGNO := 0.55      # quanto resta a schermo "PARATA" / "COLPITO"
 const SCRITTE := 4              # quante al massimo insieme: create una volta sola
 # I RISCONTRI COL CORPO (Bru, sugli esempi animati di docs/vita.md: «bello
-# tutto»): l'anticipo, il timbro, l'anello della parata, la crepa del colpo preso
+# tutto»): l'anticipo, il timbro, l'anello della parata, il vetro che si rompe
+# quando il pugno ti prende (VetroRotto.gd)
 const ANTICIPO := 0.5           # nell'ultimo mezzo secondo le tacche corrono verso il pugno
 const TACCHE := 8
 const TIMBRO := 0.14            # quanto ci mette la parola a cadere
 const ANELLO_PARATA := 1.6      # di quanti raggi si allarga l'anello della parata
-const RAMI_CREPA := 6
 
 var gioco: MinigiocoCombattimento
 var testata: ColorRect
@@ -57,6 +57,7 @@ var piano: Control              # dove vivono i pugni, e taglia quello che esce
 var avviso: Label               # cosa fare, all'inizio; com'e' andata, alla fine
 var scritte: Array[Label] = []
 var segni: Array[Dictionary] = []   # i riscontri in volo: {indice, esito, eta}
+var vetri: Array[Dictionary] = []   # i vetri rotti dai pugni presi: {vetro (VetroRotto), eta}
 var schegge: Schegge                # la parata fa saltare via i ritagli di carta
 var stile_nero: StyleBoxFlat        # il timbro: fascia nera (la parata) o rossa (il colpo preso)
 var stile_rosso: StyleBoxFlat
@@ -217,6 +218,7 @@ func clic(punto: Vector2) -> void:
 
 func comincia(nome: String) -> void:
 	segni.clear()
+	vetri.clear()
 	for scritta in scritte:
 		scritta.visible = false
 	titolo.text = nome.to_upper()
@@ -252,6 +254,11 @@ func segna(indice: int, esito: String) -> void:
 	segni.append({"indice": indice, "esito": esito, "eta": 0.0})
 	if segni.size() > SCRITTE:
 		segni.pop_front()
+	if esito == "preso" and indice >= 0 and indice < gioco.raffica.size():
+		# il pugno ti ha preso: il vetro dello schermo si rompe da li', ogni volta
+		# in un modo suo
+		vetri.append({"vetro": VetroRotto.new(7919 * (indice + 1), centro_di(gioco.raffica[indice]),
+				Rect2(Vector2.ZERO, piano.size), raggio()), "eta": 0.0})
 	if esito != "preso" and indice >= 0 and indice < gioco.raffica.size():
 		para_col_corpo(centro_di(gioco.raffica[indice]))
 
@@ -284,6 +291,10 @@ func aggiorna(delta: float) -> void:
 		segno.eta = float(segno.eta) + delta
 	while not segni.is_empty() and float(segni[0].eta) > DURATA_SEGNO:
 		segni.pop_front()
+	for vetro in vetri:
+		vetro.eta = float(vetro.eta) + delta
+	while not vetri.is_empty() and float(vetri[0].eta) > VetroRotto.DURATA:
+		vetri.pop_front()
 	metti_scritte()
 	piano.queue_redraw()
 
@@ -355,6 +366,9 @@ func _disegna_piano() -> void:
 	for pugno in gioco.raffica:
 		if gioco.si_vede(pugno):
 			disegna_pugno(pugno, r)
+	# il vetro rotto sta davanti ai pugni: e' la superficie dello schermo
+	for vetro in vetri:
+		(vetro.vetro as VetroRotto).disegna(piano, float(vetro.eta), Impostazioni.movimento_ridotto)
 	if Impostazioni.movimento_ridotto:
 		return
 	for segno in segni:
@@ -415,31 +429,12 @@ func disegna_scoppio(segno: Dictionary, r: float) -> void:
 	var tinta := tinta_del_segno(String(segno.esito))
 	var centro := centro_di(pugno)
 	if String(segno.esito) == "preso":
-		# preso: il riquadro si accende di rosso, il pugno si accende e sparisce,
-		# e lo schermo si crepa dal punto in cui ti ha preso
+		# preso: il riquadro si accende di rosso e il pugno si accende e sparisce;
+		# il vetro che si rompe lo disegna VetroRotto
 		piano.draw_rect(Rect2(Vector2.ZERO, piano.size), Color(tinta, 0.3 * (1.0 - quanto)))
 		piano.draw_circle(centro, r * (1.0 + quanto * 0.15), Color(tinta, 0.7 * (1.0 - quanto)), true, -1.0, true)
-		disegna_crepa(int(segno.indice), centro, r, quanto)
 		return
 	# la parata: un anello che si allarga e sparisce
 	piano.draw_arc(centro, r * (1.0 + quanto * ANELLO_PARATA), 0.0, TAU, 48,
 			Color(tinta, 1.0 - quanto), maxf(r * 0.22 * (1.0 - quanto), 1.0), true)
 
-
-func disegna_crepa(indice: int, centro: Vector2, r: float, quanto: float) -> void:
-	# sei rami storti, sempre gli stessi per lo stesso pugno: crescono nel primo
-	# decimo e si spengono nell'ultimo terzo
-	var dado := RandomNumberGenerator.new()
-	dado.seed = 7919 * (indice + 1)
-	var cresce := clampf(quanto / 0.12, 0.0, 1.0)
-	var spegne := 1.0 - clampf((quanto - 0.6) / 0.4, 0.0, 1.0)
-	for k in RAMI_CREPA:
-		var verso := TAU * float(k) / float(RAMI_CREPA) + dado.randf_range(-0.3, 0.3)
-		var punto := centro
-		var ramo := PackedVector2Array([punto])
-		for passo in 4:
-			punto += Vector2.from_angle(verso + dado.randf_range(-0.5, 0.5)) * r * dado.randf_range(0.35, 0.7)
-			ramo.append(punto)
-		var tratto := ramo.slice(0, maxi(2, int(round(cresce * float(ramo.size())))))
-		piano.draw_polyline(tratto, Color(Stile.colore("pericolo"), 0.9 * spegne), maxf(r * 0.09, 2.0), true)
-		piano.draw_polyline(tratto, Color(1, 1, 1, spegne), maxf(r * 0.035, 1.0), true)

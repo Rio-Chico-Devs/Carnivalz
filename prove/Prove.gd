@@ -76,6 +76,7 @@ func _ready() -> void:
 	await prova_la_raffica_col_corpo()
 	prova_i_vetri_stanno_fermi()
 	prova_le_diagonali_hanno_il_bordo_liscio()
+	prova_il_vetro_rotto_del_colpo_preso()
 	await prova_la_luce_del_bond_quando_medi()
 	prova_la_luce_del_bond_lettera_per_lettera()
 	prova_la_luce_del_bond_col_movimento_ridotto()
@@ -22066,6 +22067,13 @@ func prova_la_raffica_col_corpo() -> void:
 		rosso = rosso or (scritta.visible and scritta.get_theme_stylebox("normal") == riquadro.stile_rosso)
 	esigi(rosso, "il colpo preso non ha il timbro rosso")
 	esigi(vero.impatto.tween_scossa != null and vero.impatto.tween_scossa.is_valid(), "il colpo preso non fa sbandare lo scontro")
+	# e il vetro dello schermo si rompe dal punto in cui ti ha preso, e poi se ne va
+	esigi(riquadro.vetri.size() == 1, "il colpo preso non rompe il vetro: %d vetri rotti" % riquadro.vetri.size())
+	if riquadro.vetri.size() == 1:
+		var rotto: VetroRotto = riquadro.vetri[0].vetro
+		esigi(rotto.impatto.is_equal_approx(riquadro.centro_di(secondo)), "il vetro non si rompe dove il pugno ti ha preso")
+		riquadro.aggiorna(VetroRotto.DURATA + 0.05)
+		esigi(riquadro.vetri.is_empty(), "il vetro rotto resta per sempre sopra i pugni che vengono dopo")
 	# 4. COL MOVIMENTO RIDOTTO niente tacche e niente schegge
 	Impostazioni.movimento_ridotto = true
 	var terzo: Dictionary = gioco.raffica[2]
@@ -22145,6 +22153,49 @@ func prova_le_diagonali_hanno_il_bordo_liscio() -> void:
 		lisce += 1 if fascia.get_child(0) is TaglioMattanza.Carta else 0
 	esigi(lisce == taglio.fasce.size(), "le fasce della Mattanza non hanno il bordo liscio: %d su %d" % [lisce, taglio.fasce.size()])
 	tela.free()
+
+func prova_il_vetro_rotto_del_colpo_preso() -> void:
+	# Bru: «concentriamoci più che altro sull'effetto vetro rotto quando ricevi
+	# i colpi nel videogioco attualmente è abbastanza brutto». Erano sei rami
+	# corti intorno al pugno; adesso e' un vetro: le principali fino al bordo,
+	# la ragnatela, le facce, il cratere, le schegge (VetroRotto.gd)
+	titolo("il vetro rotto del colpo preso: le crepe arrivano al bordo, la ragnatela, ognuno diverso, poi se ne va")
+	var piano := Rect2(Vector2.ZERO, Vector2(700, 220))
+	var primi: Array[Vector2] = []
+	for seme in [7919, 15838, 23757, 31676, 39595]:
+		var vetro := VetroRotto.new(int(seme), Vector2(420, 120), piano, 30.0)
+		var dove := "col seme %d" % int(seme)
+		esigi(vetro.principali.size() >= 5 and vetro.principali.size() <= 7,
+				"%s le crepe principali sono %d: ne servono da cinque a sette" % [dove, vetro.principali.size()])
+		var fuori := 0
+		var lontane := 0
+		for punti in vetro.principali:
+			for p in punti:
+				fuori += 0 if piano.grow(0.5).has_point(p) else 1
+			var fine := punti[punti.size() - 1]
+			var dal_bordo := minf(minf(fine.x - vetro.vetro.position.x, vetro.vetro.end.x - fine.x),
+					minf(fine.y - vetro.vetro.position.y, vetro.vetro.end.y - fine.y))
+			lontane += 0 if dal_bordo < 1.0 else 1
+			esigi(punti[0].is_equal_approx(vetro.impatto), "%s una crepa principale non parte dall'impatto" % dove)
+		esigi(fuori == 0, "%s %d punti delle crepe escono dal vetro" % [dove, fuori])
+		esigi(lontane == 0, "%s %d crepe principali si fermano prima del bordo del vetro" % [dove, lontane])
+		esigi(vetro.anelli.size() >= 4 and vetro.facce.size() >= 4,
+				"%s la ragnatela e' povera: %d tratti e %d facce" % [dove, vetro.anelli.size(), vetro.facce.size()])
+		primi.append(vetro.principali[0][vetro.principali[0].size() - 1])
+	var diversi := 0
+	for i in range(1, primi.size()):
+		diversi += 0 if primi[i].is_equal_approx(primi[i - 1]) else 1
+	esigi(diversi == primi.size() - 1, "due pugni rompono il vetro allo stesso modo")
+	# il tempo: le crepe corrono in un attimo, il vetro resta un poco e sfuma
+	esigi(VetroRotto.corsa(0.0, false) < 0.01 and VetroRotto.corsa(VetroRotto.CORSA, false) > 0.99,
+			"le crepe non corrono dall'impatto al bordo")
+	esigi(VetroRotto.luce(0.3) > 0.99 and VetroRotto.luce(VetroRotto.DURATA) < 0.01, "il vetro rotto non resta, o non se ne va")
+	var uno := VetroRotto.new(7919, Vector2(420, 120), piano, 30.0)
+	esigi(not uno.schegge_vive(0.1, false).is_empty() and uno.schegge_vive(VetroRotto.VITA_SCHEGGE, false).is_empty(),
+			"le schegge non saltano, o non cadono mai")
+	# col movimento ridotto la crepa c'e' subito, e niente schegge
+	esigi(VetroRotto.corsa(0.0, true) > 0.99, "col movimento ridotto le crepe corrono lo stesso")
+	esigi(uno.schegge_vive(0.1, true).is_empty(), "col movimento ridotto le schegge saltano lo stesso")
 
 func script_sotto_scripts(cartella: String) -> Array[String]:
 	var trovati: Array[String] = []
