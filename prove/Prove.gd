@@ -276,7 +276,7 @@ func _ready() -> void:
 	await prova_la_lezione_indica_senza_coprire()
 	await prova_la_raffica_del_tutorial_parte_davvero()
 	await prova_dopo_la_raffica_resti_in_piedi_e_il_finale_si_legge()
-	prova_la_raffica_accelera_verso_la_fine()
+	prova_la_raffica_si_stringe_verso_la_fine()
 	await prova_l_allenamento_non_si_pianta_al_primo_colpo()
 	prova_il_metro_del_garbuglio_e_quello_giusto()
 	prova_nessuna_bandiera_letta_e_mai_scritta()
@@ -1686,7 +1686,7 @@ func prova_suoni() -> void:
 	# (Sintesi.gd). Un'onda sbagliata non da' errore: da' silenzio, o un clic.
 	titolo("suoni sintetizzati")
 	for nome: String in ["conferma", "annulla", "colpo", "cura", "raccolta", "errore",
-			"allarme", "vetro", "parata", "sfiora", "apertura", "chiusura"]:
+			"allarme", "vetro", "parata", "pugno", "acceso", "incrinato", "sfiora", "apertura", "chiusura"]:
 		var suono := Sintesi.interfaccia(nome)
 		esigi(suono != null and suono.data.size() > 0, "il suono '%s' esce vuoto" % nome)
 		esigi(suono.mix_rate == Sintesi.CAMPIONAMENTO, "il suono '%s' ha il campionamento sbagliato" % nome)
@@ -10218,8 +10218,7 @@ func prova_la_raffica_ha_un_riquadro_suo() -> void:
 	var gioco: MinigiocoCombattimento = scontro.minigioco
 	gioco.finito.disconnect(scontro._minigioco_finito)
 	var plancia: PlanciaCombattimento = scontro.plancia
-	gioco.avvia({"nome": "Collisioni infinite", "quanti": 12, "intervallo": 1.0,
-			"durata": 2.0, "danno": 9})
+	gioco.avvia({"nome": "Collisioni infinite", "quanti": 12, "danno": 9})
 	await get_tree().process_frame
 	await get_tree().process_frame
 
@@ -10243,21 +10242,27 @@ func prova_la_raffica_ha_un_riquadro_suo() -> void:
 			"il riquadro copre solo il %d%% del pannello: sotto si vede il resto"
 			% int(suo.get_area() / maxf(pannello.get_area(), 1.0) * 100.0))
 
-	# --- OGNI PUGNO STA TUTTO DENTRO ---
+	# --- OGNI PUGNO STA TUTTO DENTRO, ANCHE GONFIO, E NESSUNO SOPRA UN ALTRO ---
 	var piano: Rect2 = riquadro.piano.get_global_rect()
 	esigi(piano.size.x > 100.0 and piano.size.y > 60.0,
 			"il piano dei pugni misura %s: non c'e' posto per niente" % str(piano.size))
-	var r := riquadro.raggio()
+	var r := riquadro.raggio() * Collisioni.INGOMBRO
 	for pugno in gioco.raffica:
 		var centro: Vector2 = riquadro.piano.global_position + riquadro.centro_di(pugno)
 		esigi(piano.grow(0.5).encloses(Rect2(centro - Vector2(r, r), Vector2(r, r) * 2.0)),
-				"il pugno %d esce dal riquadro" % int(pugno.indice))
+				"il pugno %d, gonfio, esce dal riquadro" % int(pugno.indice))
+	esigi(sovrapposti(gioco.raffica, riquadro.piano.size) == "",
+			"nel quadrante del gioco %s" % sovrapposti(gioco.raffica, riquadro.piano.size))
 
 	# --- E SI VEDE: il pugno sul fondo del riquadro, e la testata ---
 	var fondo: Color = Stile.colore("ecg_fondo")
-	esigi(Stile.contrasto(Stile.colore("pericolo"), fondo) >= Stile.CONTRASTO_MINIMO,
-			"il pugno sta a %.2f:1 sul fondo del riquadro"
-			% Stile.contrasto(Stile.colore("pericolo"), fondo))
+	esigi(Stile.contrasto(RiquadroRaffica.tinta_acceso(), fondo) >= Stile.CONTRASTO_MINIMO,
+			"il pugno acceso sta a %.2f:1 sul fondo del riquadro"
+			% Stile.contrasto(RiquadroRaffica.tinta_acceso(), fondo))
+	# quello acceso si trova con la coda dell'occhio, fra undici spenti
+	esigi(Stile.contrasto(RiquadroRaffica.tinta_acceso(), RiquadroRaffica.tinta_spento()) >= 2.0,
+			"il pugno acceso sta a %.2f:1 su quelli spenti: non salta all'occhio"
+			% Stile.contrasto(RiquadroRaffica.tinta_acceso(), RiquadroRaffica.tinta_spento()))
 	esigi(Stile.contrasto(Stile.colore("testo"), Stile.colore("fascia_nemico")) >= 3.0,
 			"il titolo della raffica non si legge sulla sua fascia")
 
@@ -10303,37 +10308,74 @@ func prova_il_pugno_si_para_quando_premi() -> void:
 	# quando alzavi il dito, tutta la durata del clic dopo il momento buono.
 	#
 	# E IL BERSAGLIO E' IL CERCHIO: il Button prendeva anche gli angoli del
-	# quadrato che lo contiene, dove a schermo non c'e' niente.
-	titolo("il pugno si para quando premi, e solo dove c'e' il pugno")
+	# quadrato che lo contiene, dove a schermo non c'e' niente. E un pugno
+	# SPENTO, cliccato, ti prende: «o viene parato o lo ricevi».
+	titolo("il pugno si para quando premi, solo quello acceso, e solo dove c'e' il pugno")
 	var faccia := Control.new()
 	faccia.size = Vector2(700, 240)
 	add_child(faccia)
 	var gioco := MinigiocoCombattimento.new()
 	gioco.collega(faccia)
-	gioco.avvia({"quanti": 3, "intervallo": 1.0, "durata": 2.0, "danno": 5})
+	gioco.avvia({"quanti": 4, "danno": 5})
 	await get_tree().process_frame
 	var riquadro := gioco.riquadro
 	gioco.salta()
-	while gioco.tempo < 1.9:   # il primo pugno e' nella sua finestra piena
+	var giri := 0
+	while gioco.fase == "raffica" and Collisioni.accesa(gioco.raffica) < 0 and giri < 600:
 		gioco.passa(1.0 / 60.0)
-	var sul_primo: Vector2 = riquadro.piano.position + riquadro.centro_di(gioco.raffica[0])
+		giri += 1
+	var acceso := Collisioni.accesa(gioco.raffica)
+	esigi(acceso >= 0, "finiti di comparire, nessun pugno si accende")
+	if acceso < 0:
+		gioco.concludi()
+		faccia.queue_free()
+		return
+	# TUTTI A SCHERMO, UN ATTIMO, E POI IL PRIMO: non mentre compaiono ancora
+	var primo_lampo := float(gioco.raffica[acceso].accesa_da)
+	esigi(absf(primo_lampo - Collisioni.tutti_fuori(gioco.raffica) - Collisioni.ATTESA) < 0.02,
+			"il primo pugno si accende a %.2fs: doveva aspettare %.2fs dopo l'ultimo comparso"
+			% [primo_lampo, Collisioni.ATTESA])
+	for i in 6:
+		gioco.passa(1.0 / 60.0)
+	var sull_acceso: Vector2 = riquadro.piano.position + riquadro.centro_di(gioco.raffica[acceso])
 
-	riquadro._gui_input(clic_del_mouse(sul_primo, false))
-	esigi(String(gioco.raffica[0].esito) == "",
+	riquadro._gui_input(clic_del_mouse(sull_acceso, false))
+	esigi(String(gioco.raffica[acceso].esito) == "",
 			"il RILASCIO del mouse ha parato il pugno: la parata arriverebbe in ritardo di un clic")
-	riquadro._gui_input(clic_del_mouse(sul_primo, true))
-	esigi(String(gioco.raffica[0].esito) == "piena",
-			"premere sul pugno mentre il cerchio si chiude non l'ha parato in pieno (esito '%s')"
-			% String(gioco.raffica[0].esito))
+	riquadro._gui_input(clic_del_mouse(sull_acceso, true))
+	esigi(String(gioco.raffica[acceso].esito) == "parata",
+			"premere sul pugno acceso non l'ha parato (esito '%s')" % String(gioco.raffica[acceso].esito))
+	# PARATO UNO, IL PROSSIMO SI ACCENDE UNA PAUSA DOPO: piu' sei svelto, piu'
+	# corre la raffica
+	var parato_a := gioco.tempo
+	giri = 0
+	while gioco.fase == "raffica" and Collisioni.accesa(gioco.raffica) < 0 and giri < 600:
+		gioco.passa(1.0 / 60.0)
+		giri += 1
+	var dopo := Collisioni.accesa(gioco.raffica)
+	esigi(dopo >= 0 and absf(float(gioco.raffica[dopo].accesa_da) - parato_a - Collisioni.PAUSA) < 0.02,
+			"parato un pugno, il prossimo non si accende una pausa dopo (%.2fs invece di %.2fs)"
+			% [float(gioco.raffica[dopo].accesa_da) - parato_a if dopo >= 0 else -1.0, Collisioni.PAUSA])
 
-	# l'angolo del quadrato intorno al secondo pugno non e' il pugno
+	# l'angolo del quadrato intorno a un pugno spento non e' il pugno; il
+	# pugno spento, cliccato, ti prende
+	var spento := Collisioni.prossima(gioco.raffica)
+	esigi(spento >= 0, "dopo due pugni non ne resta nessuno spento")
+	if spento < 0:
+		gioco.concludi()
+		faccia.queue_free()
+		return
 	var r := riquadro.raggio()
-	var angolo: Vector2 = riquadro.centro_di(gioco.raffica[1]) + Vector2(r, r) * 0.95
+	var angolo: Vector2 = riquadro.centro_di(gioco.raffica[spento]) + Vector2(r, r) * 0.95
 	esigi(riquadro.pugno_sotto(angolo) == -1,
 			"un clic nell'angolo del quadrato intorno al pugno lo prende: il bersaglio e' il cerchio")
 	riquadro._gui_input(clic_del_mouse(riquadro.piano.position + angolo, true))
-	esigi(String(gioco.raffica[1].esito) == "",
-			"un clic fuori dal cerchio ha giudicato il pugno lo stesso")
+	esigi(String(gioco.raffica[spento].esito) == "", "un clic fuori dal cerchio ha deciso il pugno lo stesso")
+	riquadro._gui_input(clic_del_mouse(riquadro.piano.position + riquadro.centro_di(gioco.raffica[spento]), true))
+	esigi(String(gioco.raffica[spento].esito) == "preso",
+			"cliccato da spento, il pugno non ti prende (esito '%s'): cliccare dappertutto pagherebbe"
+			% String(gioco.raffica[spento].esito))
+	esigi(riquadro.vetri.size() == 1, "il pugno spento che ti prende non rompe il vetro")
 	gioco.concludi()
 	faccia.queue_free()
 
@@ -11636,138 +11678,136 @@ func stampa_esito() -> void:
 func prova_collisioni() -> void:
 	# IL CALENDARIO DELLA RAFFICA, provato senza disegnare un pugno.
 	#
-	# Bru, adesso: «ogni pugno deve rimanere visibile per 2 secondi, e ne deve
-	# apparire un altro ogni secondo». E prima: «deve essere molto difficile
-	# pararli tutti senno sei invincibile». Le due cose stavano in piedi solo
-	# separando il tempo per LEGGERE un pugno da quello per PARARLO - che e'
-	# esattamente come osu! tiene separati Approach Rate e Overall Difficulty.
-	titolo("le collisioni infinite: due secondi per leggere, un attimo per parare")
+	# Bru: «facciamo che compaiono di botto uno ad uno dodici pugni poi devi
+	# cliccare quando si illuminano, una volta che ci prendi il pugno o viene
+	# parato o lo ricevi, cosi' e' piu' dinamico, ordine in cui si illuminano e'
+	# randomico». E prima: «deve essere molto difficile pararli tutti senno sei
+	# invincibile».
+	titolo("le collisioni infinite: compaiono di botto, si accendono a caso, o parato o preso")
 	var dado := RandomNumberGenerator.new()
 	dado.seed = 20260914
-	var raffica := Collisioni.calendario(12, 1.0, 2.0, dado)
+	var raffica := Collisioni.calendario(12, dado, 710.0 / 190.0)
 	esigi(raffica.size() == 12, "la raffica doveva avere 12 pugni, ne ha %d" % raffica.size())
 
-	# UNO OGNI SECONDO, E OGNUNO SI VEDE PER DUE
+	# COMPAIONO DI BOTTO, UNO ALLA VOLTA: tutti e dodici in un secondo e mezzo
 	for pugno in raffica:
-		esigi(absf(float(pugno.istante) - float(pugno.indice) * 1.0) < 0.0001,
-				"il pugno %d compare a %.3fs invece che a %d.000s: non e' uno al secondo"
-				% [int(pugno.indice), float(pugno.istante), int(pugno.indice)])
-		esigi(absf(float(pugno.impatto) - float(pugno.istante) - 2.0) < 0.0001,
-				"il pugno %d si vede per %.2fs prima di arrivare invece che per 2"
-				% [int(pugno.indice), float(pugno.impatto) - float(pugno.istante)])
-	# e quindi mai piu' di due insieme: il terzo compare quando il primo arriva
-	for decimo in 130:
-		var adesso := float(decimo) * 0.1
-		var insieme := 0
-		for pugno in raffica:
-			if adesso >= float(pugno.istante) and adesso < float(pugno.impatto):
-				insieme += 1
-		esigi(insieme <= 2, "a %.1fs ci sono %d pugni in arrivo insieme" % [adesso, insieme])
+		esigi(absf(float(pugno.istante) - float(pugno.indice) * Collisioni.COMPARSA) < 0.0001,
+				"il pugno %d compare a %.3fs: non uno ogni %.2fs" % [int(pugno.indice), float(pugno.istante), Collisioni.COMPARSA])
+	esigi(Collisioni.tutti_fuori(raffica) <= 1.5,
+			"l'ultimo pugno compare dopo %.2fs: non e' di botto, e' un'attesa" % Collisioni.tutti_fuori(raffica))
 
-	# LEGGERE E PARARE SONO DUE NUMERI. La finestra piena e' una frazione
-	# piccola del tempo in cui il pugno si vede: e' li' che sta la difficolta',
-	# non nella fretta di vederlo
+	# SI ACCENDONO IN UN ORDINE A CASO: i turni sono dodici, tutti diversi, e
+	# non sono l'ordine in cui sono comparsi
+	var turni := {}
+	var in_fila := true
 	for pugno in raffica:
-		var piena := float(pugno.scade) - float(pugno.piena_da)
-		esigi(piena > 0.0, "un pugno con la finestra piena chiusa non si para mai in pieno")
-		esigi(piena < float(pugno.durata) * 0.25,
-				("la parata piena dura %.2fs su %.2fs di pugno: pararli tutti non costa " +
-				"niente, e Bru ha detto «senno sei invincibile»") % [piena, float(pugno.durata)])
-
-	# LE QUATTRO RISPOSTE DI UN CLIC. E' la regola intera del minigioco
-	var primo: Dictionary = raffica[0]
-	esigi(Collisioni.giudica(raffica, 0, float(primo.istante) - 0.01) == "",
-			"un pugno si para PRIMA di comparire")
-	esigi(Collisioni.giudica(raffica, 0, float(primo.istante) + 0.001) == "striscio",
-			"un pugno preso appena comparso doveva essere di striscio")
-	esigi(Collisioni.giudica(raffica, 0, float(primo.impatto)) == "",
-			"lo stesso pugno si giudica due volte: cliccare a ripetizione pagherebbe")
-	var secondo: Dictionary = raffica[1]
-	esigi(Collisioni.giudica(raffica, 1, float(secondo.impatto) - 0.05) == "piena",
-			"un pugno preso mentre il cerchio si chiude non e' una parata piena")
-	var terzo: Dictionary = raffica[2]
-	esigi(Collisioni.giudica(raffica, 2, float(terzo.scade) + 0.01) == "",
-			"un pugno si para dopo che ti ha gia' preso")
-
-	# IL DANNO E' QUELLO CHE NON HAI FERMATO, E META' DI QUELLO CHE HAI FERMATO TARDI
-	var tutti := Collisioni.calendario(10, 1.0, 2.0, dado)
-	esigi(Collisioni.danno(tutti, 7) == 70,
-			"dieci pugni non parati da 7 dovevano fare 70, fanno %d" % Collisioni.danno(tutti, 7))
-	for i in tutti.size():
-		Collisioni.giudica(tutti, i, float(tutti[i].istante) + 0.001)
-	esigi(Collisioni.danno(tutti, 7) == 40,
-			"dieci pugni presi di striscio da 7 dovevano fare 40 (meta' per eccesso), fanno %d"
-			% Collisioni.danno(tutti, 7))
-	esigi(not bool(Collisioni.esito(tutti, 7).get("perfetto", true)),
-			"presi tutti in anticipo, la raffica risulta perfetta: la finestra non conta niente")
-	var pieni := Collisioni.calendario(10, 1.0, 2.0, dado)
-	for i in pieni.size():
-		Collisioni.giudica(pieni, i, float(pieni[i].impatto))
-	esigi(Collisioni.danno(pieni, 7) == 0,
-			"parare tutta la raffica in pieno deve azzerare il danno: e' il patto che la rende difficile")
-	esigi(bool(Collisioni.esito(pieni, 7).get("perfetto", false)),
-			"una raffica tutta parata in pieno non viene riconosciuta come perfetta")
-
-	# IL METRONOMO E' UNA SCELTA DELLA RAFFICA, non un obbligo: chi vuole i
-	# pugni irregolari lo chiede con "sbandamento"
-	var storta := Collisioni.calendario(12, 1.0, 2.0, dado, 1.0, -1.0, 0.35)
+		turni[int(pugno.turno)] = true
+		in_fila = in_fila and int(pugno.turno) == int(pugno.indice)
+	esigi(turni.size() == 12, "due pugni si accendono allo stesso turno, o ne manca uno: %s" % str(turni.keys()))
+	esigi(not in_fila, "si accendono nell'ordine in cui sono comparsi: non e' a caso")
+	var altro := RandomNumberGenerator.new()
+	altro.seed = 7
+	var seconda := Collisioni.calendario(12, altro, 710.0 / 190.0)
 	var uguali := true
-	for i in range(2, storta.size()):
-		var questo := float(storta[i].istante) - float(storta[i - 1].istante)
-		var quello := float(storta[i - 1].istante) - float(storta[i - 2].istante)
-		if absf(questo - quello) > 0.001:
-			uguali = false
-	esigi(not uguali, "chiesto lo sbandamento, i pugni arrivano lo stesso a metronomo")
+	for i in 12:
+		uguali = uguali and int(seconda[i].turno) == int(raffica[i].turno)
+	esigi(not uguali, "due raffiche diverse si accendono nello stesso ordine")
+	# e lo stesso dado da' la stessa raffica: dove e in che ordine
+	var stesso := RandomNumberGenerator.new()
+	stesso.seed = 7
+	var gemella := Collisioni.calendario(12, stesso, 710.0 / 190.0)
+	var identiche := true
+	for i in 12:
+		identiche = identiche and int(gemella[i].turno) == int(seconda[i].turno) \
+				and is_equal_approx(float(gemella[i].x), float(seconda[i].x)) and is_equal_approx(float(gemella[i].y), float(seconda[i].y))
+	esigi(identiche, "lo stesso dado da' due raffiche diverse: il calendario non si puo' rifare")
 
-	# e due di fila non si coprono a vicenda
-	# DUE PUGNI DI FILA NON SI DEVONO SOVRAPPORRE, e "sovrapporsi" si misura in
-	# pixel con la misura vera del pugno - non in frazioni astratte.
-	#
-	# Il quadrante e' il box del combattimento: largo e basso, circa 1155 per
-	# 175. Un pugno e' 0.40 del lato corto, cioe' settanta pixel. La distanza
-	# minima era 0.22 del lato corto: trentotto pixel. Meta' del pugno. Si
-	# sovrapponevano, e il controllo diceva di no perche' confrontava la
-	# distanza con un numero che non aveva niente a che fare con quanto e'
-	# grosso un pugno. Adesso e' la misura del pugno a decidere.
-	var alto := 175.0
-	var largo := 1155.0
-	var proporzione := largo / alto
-	var lato_pixel := Collisioni.LATO_PUGNO * alto
-	var larga := Collisioni.calendario(14, 0.34, 0.52, dado, proporzione)
-	for i in range(1, larga.size()):
-		var qui := Vector2(float(larga[i].x) * largo, float(larga[i].y) * alto)
-		var prima := Vector2(float(larga[i - 1].x) * largo, float(larga[i - 1].y) * alto)
-		esigi(qui.distance_to(prima) >= lato_pixel,
-				("due pugni di fila distano %d pixel e un pugno ne e' largo %d: "
-				+ "il secondo nasce sotto la mano che ha appena parato il primo")
-				% [int(qui.distance_to(prima)), int(lato_pixel)])
+	# UNO ALLA VOLTA: il prossimo e' il turno piu' basso ancora in piedi
+	var primo := Collisioni.prossima(raffica)
+	esigi(int(raffica[primo].turno) == 0, "il primo ad accendersi non e' quello del turno 0")
+	esigi(Collisioni.accesa(raffica) == -1, "un pugno e' acceso prima che qualcuno lo accenda")
+	var quando := Collisioni.tutti_fuori(raffica) + Collisioni.ATTESA
+	Collisioni.accendi(raffica, primo, quando)
+	esigi(Collisioni.accesa(raffica) == primo, "acceso un pugno, non risulta acceso")
+	esigi(absf(float(raffica[primo].scade) - quando - Collisioni.FINESTRA) < 0.0001,
+			"il pugno acceso ti prende dopo %.2fs invece che dopo %.2fs"
+			% [float(raffica[primo].scade) - quando, Collisioni.FINESTRA])
 
-	# E LA RAFFICA DEVE RESTARE FITTA.
-	#
-	# Senza correggere la proporzione, chiedere la stessa distanza in frazioni
-	# diventa sei volte piu' severo per il lungo che per il corto: i pugni
-	# finiscono buttati mezzo schermo l'uno dall'altro e la raffica si
-	# sparpaglia.
-	#
-	# E' UN EFFETTO DI MEDIA, E VA MISURATO COME TALE. Su una raffica sola
-	# qualche coppia vicina capita comunque, e infatti la prima versione di
-	# questa prova restava verde anche togliendo la correzione: misurava il
-	# caso, non la regola. Misurato su quaranta raffiche il conto e' netto -
-	# con la correzione 5.8 coppie vicine su 13, senza 3.0 - e la soglia sta
-	# in mezzo.
-	var vicini := 0
-	var raffiche := 40
-	for prova in raffiche:
-		var altro_dado := RandomNumberGenerator.new()
-		altro_dado.seed = 4000 + prova
-		var una := Collisioni.calendario(14, 0.34, 0.52, altro_dado, proporzione)
-		for i in range(1, una.size()):
-			if absf(float(una[i].x) - float(una[i - 1].x)) < 0.25:
-				vicini += 1
-	var media := float(vicini) / float(raffiche)
-	esigi(media >= 4.0,
-			("i pugni nascono vicini solo %.1f volte su 13: la raffica e' sparpagliata "
-			+ "su tutta la larghezza invece di arrivare addosso") % media)
+	# O PARATO O PRESO. E' la regola intera del minigioco
+	var spento := Collisioni.prossima(raffica)   # a schermo, ma non tocca a lui
+	esigi(Collisioni.giudica(raffica, primo, quando - 0.5) == "preso",
+			"cliccato prima che si accenda, il pugno non ti prende: cliccare dappertutto pagherebbe")
+	var dado2 := RandomNumberGenerator.new()
+	dado2.seed = 20260914
+	raffica = Collisioni.calendario(12, dado2, 710.0 / 190.0)
+	Collisioni.accendi(raffica, primo, quando)
+	esigi(Collisioni.giudica(raffica, primo, quando + 0.3) == "parata", "cliccato acceso, il pugno non e' parato")
+	esigi(Collisioni.giudica(raffica, primo, quando + 0.4) == "", "lo stesso pugno si decide due volte")
+	esigi(Collisioni.giudica(raffica, spento, quando + 0.5) == "preso",
+			"un pugno spento cliccato non ti prende: «o viene parato o lo ricevi»")
+	var tardi := Collisioni.prossima(raffica)
+	Collisioni.accendi(raffica, tardi, 5.0)
+	esigi(Collisioni.scaduti(raffica, 5.0 + Collisioni.FINESTRA * 0.5).is_empty(), "il pugno acceso ti prende prima del tempo")
+	var scaduti := Collisioni.scaduti(raffica, 5.0 + Collisioni.FINESTRA + 0.01)
+	esigi(scaduti.size() == 1 and scaduti[0] == tardi, "passato il suo tempo, il pugno acceso non ti ha preso")
+	esigi(Collisioni.giudica(raffica, tardi, 5.0 + Collisioni.FINESTRA + 0.01) == "preso", "un pugno si para dopo che ti ha gia' preso")
+	var ultimo := Collisioni.calendario(12, dado, 4.0)
+	esigi(Collisioni.giudica(ultimo, 11, float(ultimo[11].istante) - 0.01) == "" and String(ultimo[11].esito) == "",
+			"un pugno si decide prima di comparire")
+
+	# IL DANNO E' QUELLO CHE NON HAI PARATO, PER INTERO
+	var tutti := Collisioni.calendario(10, dado, 4.0)
+	esigi(Collisioni.danno(tutti, 7) == 70, "dieci pugni non parati da 7 dovevano fare 70, fanno %d" % Collisioni.danno(tutti, 7))
+	for i in 5:
+		Collisioni.giudica(tutti, i, 10.0)
+	esigi(Collisioni.danno(tutti, 7) == 70, "cliccati da spenti, i pugni non fanno danno")
+	var pieni := Collisioni.calendario(10, dado, 4.0)
+	for i in pieni.size():
+		Collisioni.accendi(pieni, i, 10.0)
+		Collisioni.giudica(pieni, i, 10.1)
+	esigi(Collisioni.danno(pieni, 7) == 0, "parare tutta la raffica deve azzerare il danno: e' il patto che la rende difficile")
+	esigi(bool(Collisioni.esito(pieni, 7).get("perfetto", false)), "una raffica tutta parata non viene riconosciuta come perfetta")
+	esigi(not Collisioni.esito(pieni, 7).has("striscio"), "c'e' ancora il pugno preso di striscio: ora o lo pari o ti prende")
+
+	# LA RAFFICA PUO' STRINGERSI: con "finestra_finale" il tempo per parare
+	# scivola verso quello, nell'ordine in cui si accendono
+	var stretta := Collisioni.calendario(12, dado, 4.0, 0.1, 1.2, 0.6)
+	for pugno in stretta:
+		var atteso := lerpf(1.2, 0.6, float(pugno.turno) / 11.0)
+		esigi(absf(float(pugno.finestra) - atteso) < 0.001,
+				"il pugno del turno %d resta acceso %.2fs invece che %.2fs" % [int(pugno.turno), float(pugno.finestra), atteso])
+	for pugno in Collisioni.calendario(12, dado, 4.0):
+		esigi(absf(float(pugno.finestra) - Collisioni.FINESTRA) < 0.001, "senza finestra_finale la raffica si stringe lo stesso")
+
+	# DODICI A SCHERMO, NESSUNO SOPRA UN ALTRO, nel quadrante largo e basso del
+	# gioco e in quelli delle prove; e da cinque a sedici pugni, che e' quanti ce
+	# ne stanno nel quadrante. Si misura in pixel, coi centri dove li mette
+	# centro_di
+	var casi := {Vector2(710, 190): [5, 12, 16], Vector2(1155, 175): [5, 12, 16],
+			Vector2(700, 240): [5, 12], Vector2(900, 300): [5, 12]}
+	for misura: Vector2 in casi:
+		for quanti: int in casi[misura]:
+			for seme in 6:
+				var d := RandomNumberGenerator.new()
+				d.seed = 300 + seme
+				var posti := Collisioni.calendario(quanti, d, misura.x / misura.y)
+				esigi(sovrapposti(posti, misura) == "",
+						"in un pannello %dx%d con %d pugni %s" % [int(misura.x), int(misura.y), quanti, sovrapposti(posti, misura)])
+
+func sovrapposti(raffica: Array[Dictionary], misura: Vector2) -> String:
+	# "" se nessun pugno ne tocca un altro e tutti stanno dentro, se no il primo guaio
+	var raggio := minf(misura.x, misura.y) * Collisioni.LATO_PUGNO * 0.5
+	var bordo := raggio * Collisioni.INGOMBRO
+	var centri: Array[Vector2] = []
+	for pugno in raffica:
+		if float(pugno.x) < 0.0 or float(pugno.x) > 1.0 or float(pugno.y) < 0.0 or float(pugno.y) > 1.0:
+			return "il pugno %d e' fuori dal piano (%.2f, %.2f)" % [int(pugno.indice), float(pugno.x), float(pugno.y)]
+		centri.append(Vector2(bordo + float(pugno.x) * (misura.x - 2.0 * bordo), bordo + float(pugno.y) * (misura.y - 2.0 * bordo)))
+	for i in centri.size():
+		for j in range(i + 1, centri.size()):
+			if centri[i].distance_to(centri[j]) < raggio * 2.0 * Collisioni.RESPIRO - 0.01:
+				return "i pugni %d e %d distano %d pixel e un pugno ne e' largo %d" % [i, j, int(centri[i].distance_to(centri[j])), int(raggio * 2.0)]
+	return ""
 
 func prova_tutorial_di_veronica() -> void:
 	# IL COPIONE DELL'ALLENAMENTO, letto come lo legge il motore.
@@ -15948,7 +15988,7 @@ func prova_dopo_la_raffica_resti_in_piedi_e_il_finale_si_legge() -> void:
 	var rialzate: int = scontro.rivitalizzanti_usati
 	# nessun pugno fermato: il caso di chi prova la raffica per la prima volta
 	scontro.minigioco_bersaglio = eroe
-	scontro._minigioco_finito({"totali": 12, "parati": 0, "piene": 0, "striscio": 0,
+	scontro._minigioco_finito({"totali": 12, "parati": 0,
 			"danno": int(eroe.hp_max) + 8, "perfetto": false})
 	esigi(scontro.rivitalizzanti_usati == rialzate,
 			"dopo la raffica Veronica ha dovuto rialzarti: i pugni ti hanno mandato KO")
@@ -15998,51 +16038,33 @@ func prova_dopo_la_raffica_resti_in_piedi_e_il_finale_si_legge() -> void:
 	GameState.sesso_protagonista = Testi.MASCHILE
 	await get_tree().process_frame
 
-func prova_la_raffica_accelera_verso_la_fine() -> void:
-	# Bru: «la velocita' aumenta verso la fine, 12 pugni su cui cliccare».
-	titolo("i pugni della raffica si stringono andando avanti")
-	var dado := RandomNumberGenerator.new()
-	dado.seed = 7
-	var raffica := Collisioni.calendario(12, 0.46, 0.5, dado, 1.0, 0.22)
-	esigi(raffica.size() == 12, "la raffica ha %d pugni invece di 12" % raffica.size())
-	# si misurano i distacchi fra i primi tre e fra gli ultimi tre: lo
-	# sbandamento casuale sposta il singolo pugno, non la tendenza
-	var primi := float(raffica[2]["istante"]) - float(raffica[0]["istante"])
-	var ultimi := float(raffica[11]["istante"]) - float(raffica[9]["istante"])
-	esigi(ultimi < primi * 0.75,
-			"gli ultimi pugni distano %.2fs e i primi %.2fs: la raffica non accelera" % [ultimi, primi])
-	# e senza il parametro resta com'era: gli scontri veri non devono cambiare
-	dado.seed = 7
-	var piatta := Collisioni.calendario(12, 0.46, 0.5, dado, 1.0)
-	var p_primi := float(piatta[2]["istante"]) - float(piatta[0]["istante"])
-	var p_ultimi := float(piatta[11]["istante"]) - float(piatta[9]["istante"])
-	esigi(absf(p_ultimi - p_primi) < p_primi * 0.5,
-			"senza intervallo_finale la raffica accelera lo stesso: cambierebbe tutti gli scontri")
-
-	# I TEMPI DELLA RAFFICA DEL TUTORIAL SONO QUELLI DI BRU, scritti nei dati e
-	# controllati qui, cosi' non possono cambiare di nascosto quando qualcuno
-	# ritocca un numero: «ogni pugno deve rimanere visibile per 2 secondi, e ne
-	# deve apparire un altro ogni secondo».
+func prova_la_raffica_si_stringe_verso_la_fine() -> void:
+	# Bru: «la velocita' aumenta verso la fine, 12 pugni su cui cliccare». Adesso
+	# la velocita' e' il tempo che un pugno acceso ti lascia: con
+	# "finestra_finale" scivola verso quello, nell'ordine in cui si accendono.
+	titolo("la raffica del tutorial: dodici, di botto, e si stringe verso la fine")
+	# I TEMPI DELLA RAFFICA DEL TUTORIAL, scritti nei dati e controllati qui,
+	# cosi' non possono cambiare di nascosto quando qualcuno ritocca un numero
 	var passo_raffica: Dictionary = {}
 	for creatura in GameState.personaggi.values():
 		for passo in (creatura as Dictionary).get("tutorial_combattimento", {}).get("passi", []):
 			if String((passo as Dictionary).get("azione", "")) == "minigioco":
 				passo_raffica = (passo as Dictionary).get("minigioco", {})
 	esigi(not passo_raffica.is_empty(), "il tutorial non ha piu' nessuna raffica")
-	esigi(absf(float(passo_raffica.get("durata", 0.0)) - 2.0) < 0.001,
-			"nel tutorial un pugno si vede per %.2fs: Bru ha chiesto 2"
-			% float(passo_raffica.get("durata", 0.0)))
-	esigi(absf(float(passo_raffica.get("intervallo", 0.0)) - 1.0) < 0.001,
-			"nel tutorial i pugni arrivano ogni %.2fs: Bru ha chiesto uno al secondo"
-			% float(passo_raffica.get("intervallo", 0.0)))
-	esigi(not passo_raffica.has("intervallo_finale"),
-			"la raffica del tutorial accelera: Bru ha chiesto uno al secondo, sempre")
-	# e la finestra piena non e' una lotteria: con la mano che deve anche
-	# arrivarci, meno di un quarto di secondo e' fortuna
-	var finestra := float(passo_raffica.get("finestra_prima", Collisioni.FINESTRA_PRIMA)) \
-			+ float(passo_raffica.get("finestra_dopo", Collisioni.FINESTRA_DOPO))
-	esigi(finestra >= 0.25,
-			"la parata piena dura %.2fs: sotto i 0.25s non e' tempismo, e' una lotteria" % finestra)
+	esigi(int(passo_raffica.get("quanti", 0)) == 12,
+			"nel tutorial i pugni sono %d: Bru ha chiesto dodici" % int(passo_raffica.get("quanti", 0)))
+	var comparsa := float(passo_raffica.get("comparsa", Collisioni.COMPARSA))
+	esigi(comparsa > 0.0 and comparsa <= 0.2,
+			"nel tutorial i pugni compaiono uno ogni %.2fs: Bru ha chiesto «di botto uno ad uno»" % comparsa)
+	esigi(not passo_raffica.has("intervallo") and not passo_raffica.has("durata"),
+			"la raffica del tutorial ha ancora i tempi del cerchio che si chiude")
+	var finestra := float(passo_raffica.get("finestra", Collisioni.FINESTRA))
+	var finale := float(passo_raffica.get("finestra_finale", finestra))
+	esigi(finale < finestra, "la raffica del tutorial non si stringe: %.2fs dal primo all'ultimo" % finestra)
+	# e il pugno piu' svelto resta umano: trovarlo fra dodici e arrivarci col
+	# mouse costa mezzo secondo buono, e sotto e' una lotteria
+	esigi(finale >= 0.6, "l'ultimo pugno acceso ti lascia %.2fs: sotto i 0.6s non e' bravura, e' fortuna" % finale)
+	esigi(finestra <= 1.5, "il primo pugno acceso ti lascia %.2fs: cosi' pararli tutti non costa niente" % finestra)
 
 func prova_l_evidenziazione_indica_un_pezzo_vero() -> void:
 	# Bru: «bisogna rendere piu' accattivante la segnalazione degli elementi
@@ -16737,7 +16759,8 @@ func prova_minigioco_ai_bordi() -> void:
 	gioco.finito.connect(func(esito: Dictionary) -> void: esiti.append(esito))
 
 	# 1. UNA RAFFICA NORMALE FINISCE UNA VOLTA SOLA
-	gioco.avvia({"quanti": 5, "intervallo": 0.2, "durata": 0.3, "danno": 4})
+	var svelta := {"quanti": 5, "comparsa": 0.05, "attesa": 0.1, "finestra": 0.3, "pausa": 0.05, "danno": 4}
+	gioco.avvia(svelta)
 	esigi(gioco.attivo, "la raffica non e' partita")
 	esigi(esiti.is_empty(), "la raffica ha gia' detto di essere finita appena partita")
 	for passo in 200:
@@ -16759,17 +16782,17 @@ func prova_minigioco_ai_bordi() -> void:
 		gioco.colpisci(indice)
 	esigi(esiti.size() == 1, "cliccando a raffica finita e' arrivato un altro esito")
 
-	# 4. PARARE TUTTO IN PIENO VUOL DIRE ZERO DANNO. E' la promessa del
-	#    minigioco: «cliccando su di esse annulli il danno». Ma si para in pieno
-	#    SOLO QUANDO IL CERCHIO SI CHIUDE - e' il cuore del minigioco. Qui si
-	#    simula una mano perfetta: preme ogni pugno quando arriva, non quando
-	#    compare.
+	# 4. PARARE TUTTO VUOL DIRE ZERO DANNO. E' la promessa del minigioco:
+	#    «cliccando su di esse annulli il danno». Ma si para SOLO QUELLO ACCESO -
+	#    e' il cuore del minigioco. Qui si simula una mano perfetta: preme ogni
+	#    pugno quando si accende, e mai uno spento.
 	esiti.clear()
-	gioco.avvia({"quanti": 4, "intervallo": 0.2, "durata": 0.5, "danno": 7})
+	svelta["quanti"] = 4
+	svelta["danno"] = 7
+	gioco.avvia(svelta)
 	for passo in 400:
-		for pugno in gioco.raffica:
-			if gioco.tempo >= float(pugno.piena_da) and gioco.tempo <= float(pugno.scade):
-				gioco.colpisci(int(pugno.indice))
+		if Collisioni.accesa(gioco.raffica) >= 0:
+			gioco.colpisci(Collisioni.accesa(gioco.raffica))
 		gioco.passa(0.05)
 		if not gioco.attivo:
 			break
@@ -16781,7 +16804,7 @@ func prova_minigioco_ai_bordi() -> void:
 
 	# 5. NON PARARNE NESSUNO COSTA TUTTO
 	esiti.clear()
-	gioco.avvia({"quanti": 4, "intervallo": 0.2, "durata": 0.3, "danno": 7})
+	gioco.avvia(svelta)
 	for passo in 400:
 		gioco.passa(0.05)
 		if not gioco.attivo:
@@ -16795,7 +16818,7 @@ func prova_minigioco_ai_bordi() -> void:
 	var muto := MinigiocoCombattimento.new(true)
 	var esiti_muti: Array[Dictionary] = []
 	muto.finito.connect(func(esito: Dictionary) -> void: esiti_muti.append(esito))
-	muto.avvia({"quanti": 6, "intervallo": 0.2, "durata": 0.3, "danno": 3}, 1.0)
+	muto.avvia({"quanti": 6, "danno": 3}, 1.0)
 	esigi(esiti_muti.size() == 1, "da muto l'esito non arriva subito")
 	esigi(not muto.attivo, "da muto la raffica resta attiva")
 	esigi(int(esiti_muti[0].get("danno", 0)) == 0,
@@ -18089,36 +18112,52 @@ class FintoScontro extends RefCounted:
 		scelte.append(azione)
 
 func prova_la_raffica_si_para_anche_da_tastiera() -> void:
-	# ERA L'UNICO PEZZO CHE PRETENDEVA UN MOUSE. I pugni sono bottoni, quindi in
-	# teoria il Tab li raggiunge - ma cercare col Tab durante una raffica non e'
-	# giocare, e' un'altra cosa. Adesso il tasto para, e sceglie da solo.
-	#
-	# QUALE sceglie e' la domanda vera, e la risposta e' l'unica che non tradisce
-	# il giocatore: QUELLO CHE STA PER SCADERE. E' quello che punterebbe col
-	# mouse - gli altri hanno ancora tempo.
-	titolo("la raffica si para anche senza mouse")
-	var raffica: Array[Dictionary] = [
-		{"indice": 0, "istante": 0.0, "scade": 9.0, "parato": false, "x": 0.0, "y": 0.0},
-		{"indice": 1, "istante": 0.0, "scade": 2.0, "parato": false, "x": 0.0, "y": 0.0},
-		{"indice": 2, "istante": 5.0, "scade": 6.0, "parato": false, "x": 0.0, "y": 0.0},
-	]
-	# a 1s: il 2 non e' ancora arrivato, il piu' urgente fra 0 e 1 e' l'1
-	esigi(Collisioni.piu_urgente(raffica, 1.0) == 1,
-			"a tastiera para il pugno sbagliato: prende il %d invece di quello che scade prima"
-			% Collisioni.piu_urgente(raffica, 1.0))
-	# parato quello, resta il it 0
-	raffica[1].parato = true
-	esigi(Collisioni.piu_urgente(raffica, 1.0) == 0,
-			"dopo aver parato il piu' urgente non passa al successivo")
-	# A VUOTO NON PRENDE NIENTE. Un tasto premuto quando non c'e' niente da
-	# parare non deve rubare un pugno che non e' ancora arrivato
-	var vuota: Array[Dictionary] = [
-		{"indice": 0, "istante": 5.0, "scade": 6.0, "parato": false, "x": 0.0, "y": 0.0},
-	]
-	esigi(Collisioni.piu_urgente(vuota, 1.0) == -1,
-			"il tasto premuto a vuoto prende un pugno che non e' ancora arrivato")
-	esigi(Collisioni.piu_urgente(vuota, 8.0) == -1,
-			"il tasto prende un pugno gia' scaduto: la finestra non conta piu' niente")
+	# ERA L'UNICO PEZZO CHE PRETENDEVA UN MOUSE. Adesso il tasto para, e sceglie
+	# da solo - e la scelta e' facile: QUELLO ACCESO, che e' l'unico che si para.
+	# Premuto quando nessuno e' acceso vale come un clic su un pugno spento: ti
+	# prende il prossimo, se e' gia' a schermo. Se no tenere premuto INVIO
+	# pararebbe tutta la raffica senza guardarla.
+	titolo("la raffica si para anche senza mouse, e premere a caso non paga")
+	var dado := RandomNumberGenerator.new()
+	dado.seed = 11
+	var raffica := Collisioni.calendario(5, dado, 3.0)
+	esigi(Collisioni.piu_urgente(raffica, 1.0) == -1, "il tasto prende un pugno quando nessuno e' acceso")
+	var primo := Collisioni.prossima(raffica)
+	Collisioni.accendi(raffica, primo, 2.0)
+	esigi(Collisioni.piu_urgente(raffica, 2.3) == primo,
+			"a tastiera para il pugno sbagliato: prende il %d invece di quello acceso" % Collisioni.piu_urgente(raffica, 2.3))
+	esigi(Collisioni.piu_urgente(raffica, 2.0 + Collisioni.FINESTRA + 0.05) == -1,
+			"il tasto prende un pugno che ti ha gia' preso: il tempo non conta piu' niente")
+
+	# e nel gioco: il tasto e' la stessa porta del clic
+	var faccia := Control.new()
+	faccia.size = Vector2(700, 240)
+	add_child(faccia)
+	var gioco := MinigiocoCombattimento.new()
+	gioco.collega(faccia)
+	gioco.avvia({"quanti": 4, "danno": 5})
+	gioco.salta()
+	# il primo ad accendersi e' l'ultimo a comparire: cosi' si puo' premere
+	# prima che ci sia
+	var primo_turno := Collisioni.prossima(gioco.raffica)
+	gioco.raffica[primo_turno].turno = gioco.raffica[3].turno
+	gioco.raffica[3].turno = 0
+	esigi(not gioco.para_col_tasto() and Collisioni.conta(gioco.raffica, "") == 4,
+			"il tasto ha preso un pugno che non e' ancora comparso")
+	while gioco.fase == "raffica" and Collisioni.tutti_fuori(gioco.raffica) >= gioco.tempo:
+		gioco.passa(1.0 / 60.0)
+	var prossimo := Collisioni.prossima(gioco.raffica)
+	esigi(gioco.para_col_tasto() and String(gioco.raffica[prossimo].esito) == "preso",
+			"premuto a vuoto, il tasto non ti fa prendere il prossimo pugno: tenerlo premuto parerebbe tutto")
+	var giri := 0
+	while gioco.fase == "raffica" and Collisioni.accesa(gioco.raffica) < 0 and giri < 600:
+		gioco.passa(1.0 / 60.0)
+		giri += 1
+	var acceso := Collisioni.accesa(gioco.raffica)
+	esigi(acceso >= 0 and gioco.para_col_tasto() and String(gioco.raffica[acceso].esito) == "parata",
+			"col pugno acceso il tasto non lo para")
+	gioco.concludi()
+	faccia.queue_free()
 
 func prova_la_lezione_si_salta_solo_a_chi_l_ha_gia_fatta() -> void:
 	# CHI RIGIOCA NON E' PIU' UN PRINCIPIANTE. Su questo la ricerca e' concorde
@@ -22027,57 +22066,92 @@ func prova_il_turno_si_vede_col_corpo() -> void:
 	vero.free()
 
 func prova_la_raffica_col_corpo() -> void:
-	titolo("la raffica col corpo: l'anticipo, il timbro, la parata che scoppia, il colpo preso che crepa e scuote")
+	titolo("la raffica col corpo: di botto, quello acceso che ti arriva addosso, il timbro, il vetro che si rompe")
 	var vero := scontro_vivo("veronica")
 	await get_tree().process_frame
 	vero.voce.coda.clear()
 	vero.set_process(false)
 	var gioco: MinigiocoCombattimento = vero.minigioco
 	esigi(gioco.impatto == vero.impatto, "il minigioco non sa far sbandare lo scontro")
-	gioco.avvia({"nome": "Collisioni infinite", "quanti": 3, "intervallo": 1.0, "durata": 1.4, "danno": 9})
+	gioco.avvia({"nome": "Collisioni infinite", "quanti": 3, "danno": 9})
 	gioco.salta()
 	var riquadro: RiquadroRaffica = gioco.riquadro
-	var primo: Dictionary = gioco.raffica[0]
-	# 1. L'ANTICIPO: le tacche solo nell'ultimo mezzo secondo
-	esigi(RiquadroRaffica.anticipo(primo, float(primo.impatto) - 0.8) < 0.0, "le tacche corrono gia' quasi un secondo prima")
-	esigi(absf(RiquadroRaffica.anticipo(primo, float(primo.impatto) - 0.25) - 0.5) < 0.01,
-			"a meta' dell'ultimo mezzo secondo le tacche non sono a meta' strada")
-	# 2. LA PARATA: il timbro sulla fascia nera, le schegge, dentro il piano.
+	# 1. NIENTE CERCHIO CHE SI CHIUDE, NIENTE TACCHE. Bru: «quando si chiude
+	#    quelle linee sono brutte da vedere e il fatto che si chiuda e' noioso»
+	esigi(not riquadro.has_method("disegna_anticipo") and not riquadro.has_method("anticipo")
+			and not "SCALA_ANELLO" in riquadro.get_script().get_script_constant_map(),
+			"il cerchio che si stringe o le tacche sono tornati")
+	# 2. DI BOTTO: appena comparso il pugno e' piu' grande, e un attimo dopo e'
+	#    al suo posto
+	var ultimo: Dictionary = gioco.raffica[2]
+	esigi(riquadro.scala_di(ultimo) > 1.2, "il pugno non compare di botto: nasce gia' della sua misura")
+	while gioco.tempo < float(ultimo.istante) + RiquadroRaffica.BOTTO + 0.02:
+		gioco.passa(1.0 / 60.0)
+	esigi(is_equal_approx(riquadro.scala_di(ultimo), 1.0), "il pugno non si pianta: resta gonfio dopo la comparsa")
+	# 3. QUELLO ACCESO TI ARRIVA ADDOSSO: si gonfia sempre di piu', fino a
+	#    quando ti prende - e' il tempo che resta, detto senza un cerchio
+	var giri := 0
+	while Collisioni.accesa(gioco.raffica) < 0 and giri < 600:
+		gioco.passa(1.0 / 60.0)
+		giri += 1
+	esigi(Collisioni.accesa(gioco.raffica) >= 0, "nessun pugno si accende")
+	if Collisioni.accesa(gioco.raffica) < 0:
+		vero.free()
+		return
+	var primo: Dictionary = gioco.raffica[Collisioni.accesa(gioco.raffica)]
+	for i in 8:
+		gioco.passa(1.0 / 60.0)
+	var appena := riquadro.scala_di(primo)
+	var adesso_spento: Dictionary = gioco.raffica[Collisioni.prossima(gioco.raffica)]
+	esigi(appena > riquadro.scala_di(adesso_spento), "acceso, il pugno non e' piu' grande degli altri")
+	gioco.tempo = float(primo.accesa_da) + float(primo.finestra) * 0.95
+	esigi(riquadro.scala_di(primo) > appena + 0.15, "il pugno acceso non si gonfia arrivandoti addosso")
+	esigi(riquadro.scala_di(primo) <= Collisioni.INGOMBRO, "gonfio, il pugno acceso esce dallo spazio che gli e' tenuto")
+	gioco.tempo = float(primo.accesa_da) + 0.15
+	# 4. LA PARATA: il timbro sulla fascia nera, le schegge, dentro il piano.
 	#    Il pugno sta nell'angolo in alto a destra: il timbro, che cade sopra
 	#    e a destra del pugno, li' uscirebbe
 	primo["x"] = 1.0
 	primo["y"] = 0.0
-	while gioco.tempo < float(primo.impatto) - 0.02:
-		gioco.passa(1.0 / 60.0)
-	gioco.colpisci(0)
+	gioco.colpisci(int(primo.indice))
 	gioco.passa(1.0 / 60.0)
-	esigi(RiquadroRaffica.anticipo(primo, gioco.tempo) < 0.0, "parato il pugno, le tacche corrono ancora")
 	var timbro := riquadro.scritte[0]
+	esigi(String(primo.esito) == "parata", "il pugno acceso, cliccato, non e' parato")
 	esigi(timbro.visible and timbro.get_theme_stylebox("normal") == riquadro.stile_nero,
 			"la parata non ha il timbro sulla fascia nera")
 	esigi(not riquadro.schegge.pezzi.is_empty(), "la parata non fa saltare le schegge")
 	var piano := Rect2(Vector2.ZERO, riquadro.piano.size)
 	esigi(piano.encloses(Rect2(timbro.position, timbro.size)), "il timbro esce dal piano: vicino al bordo viene tagliato")
-	# 3. IL COLPO PRESO: il timbro rosso, e lo scontro sbanda
-	var secondo: Dictionary = gioco.raffica[1]
-	while gioco.tempo < float(secondo.scade) + 0.05:
+	# 5. IL COLPO PRESO: il secondo si accende e nessuno lo ferma. Il timbro
+	#    rosso, lo scontro che sbanda, il vetro che si rompe da li'
+	giri = 0
+	while Collisioni.accesa(gioco.raffica) < 0 and giri < 600:
 		gioco.passa(1.0 / 60.0)
+		giri += 1
+	var secondo: Dictionary = gioco.raffica[maxi(Collisioni.accesa(gioco.raffica), 0)]
+	giri = 0
+	while String(secondo.esito) == "" and giri < 600:
+		gioco.passa(1.0 / 60.0)
+		giri += 1
+	esigi(String(secondo.esito) == "preso", "il pugno acceso lasciato stare non ti ha preso")
 	var rosso := false
 	for scritta in riquadro.scritte:
 		rosso = rosso or (scritta.visible and scritta.get_theme_stylebox("normal") == riquadro.stile_rosso)
 	esigi(rosso, "il colpo preso non ha il timbro rosso")
 	esigi(vero.impatto.tween_scossa != null and vero.impatto.tween_scossa.is_valid(), "il colpo preso non fa sbandare lo scontro")
-	# e il vetro dello schermo si rompe dal punto in cui ti ha preso, e poi se ne va
 	esigi(riquadro.vetri.size() == 1, "il colpo preso non rompe il vetro: %d vetri rotti" % riquadro.vetri.size())
 	if riquadro.vetri.size() == 1:
 		var rotto: VetroRotto = riquadro.vetri[0].vetro
 		esigi(rotto.impatto.is_equal_approx(riquadro.centro_di(secondo)), "il vetro non si rompe dove il pugno ti ha preso")
 		riquadro.aggiorna(VetroRotto.DURATA + 0.05)
 		esigi(riquadro.vetri.is_empty(), "il vetro rotto resta per sempre sopra i pugni che vengono dopo")
-	# 4. COL MOVIMENTO RIDOTTO niente tacche e niente schegge
+	# 6. COL MOVIMENTO RIDOTTO niente scatti, niente gonfiarsi, niente schegge:
+	#    lo dice la luce
 	Impostazioni.movimento_ridotto = true
-	var terzo: Dictionary = gioco.raffica[2]
-	esigi(RiquadroRaffica.anticipo(terzo, float(terzo.impatto) - 0.2) < 0.0, "col movimento ridotto le tacche corrono lo stesso")
+	var terzo: Dictionary = gioco.raffica[Collisioni.prossima(gioco.raffica)]
+	Collisioni.accendi(gioco.raffica, int(terzo.indice), gioco.tempo)
+	gioco.tempo += float(terzo.finestra) * 0.9
+	esigi(is_equal_approx(riquadro.scala_di(terzo), 1.0), "col movimento ridotto il pugno acceso si gonfia lo stesso")
 	var schegge_prima := riquadro.schegge.pezzi.size()
 	riquadro.para_col_corpo(Vector2(40, 40))
 	esigi(riquadro.schegge.pezzi.size() == schegge_prima, "col movimento ridotto la parata fa saltare le schegge")
@@ -22196,6 +22270,39 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 	# col movimento ridotto la crepa c'e' subito, e niente schegge
 	esigi(VetroRotto.corsa(0.0, true) > 0.99, "col movimento ridotto le crepe corrono lo stesso")
 	esigi(uno.schegge_vive(0.1, true).is_empty(), "col movimento ridotto le schegge saltano lo stesso")
+	# LE LINEE. Bru: «va fatto ancora meglio sono le linee da migliorare».
+	# Tremavano: passi di cinque pixel ognuno storto di un poco. Un vetro si
+	# rompe a tratti lunghi e dritti, con qualche strappo secco
+	var passi := 0
+	var dritti := 0
+	var lungo := 0.0
+	for punti in uno.principali:
+		for i in range(1, punti.size() - 1):
+			passi += 1
+			lungo += punti[i].distance_to(punti[i - 1])
+			var piega := absf((punti[i + 1] - punti[i]).angle_to(punti[i] - punti[i - 1]))
+			dritti += 1 if piega < 0.05 else 0
+	esigi(lungo / maxf(float(passi), 1.0) >= 30.0 * 0.3,
+			"le crepe vanno a passi di %.1f pixel: tremano come un filo di lana" % (lungo / maxf(float(passi), 1.0)))
+	esigi(float(dritti) / maxf(float(passi), 1.0) >= 0.5,
+			"solo %d gomiti su %d sono dritti: la crepa non tiene la sua direzione" % [dritti, passi])
+	# e il filo non si strozza nei gomiti: a ogni punto il pieno resta largo
+	# quanto deve dai due tratti che ci arrivano, qualunque sia la piega
+	var gomito := PackedVector2Array([Vector2(0, 0), Vector2(40, 0), Vector2(60, 30), Vector2(100, 30)])
+	for largo: float in [0.4, 1.5, 3.0]:
+		var larghi := PackedFloat32Array([largo, largo, largo, largo])
+		var vertici := VetroRotto.traverso(gomito, larghi)
+		for i in gomito.size():
+			var pieno := maxf(largo * 0.5 - 0.5, 0.0)
+			for tratto in [i - 1, i]:
+				if tratto < 0 or tratto + 1 >= gomito.size():
+					continue
+				var verso := (gomito[tratto + 1] - gomito[tratto]).normalized()
+				var dal_tratto := absf((vertici[i * 4 + 1] - gomito[i]).dot(verso.orthogonal()))
+				var sfuma := absf((vertici[i * 4] - gomito[i]).dot(verso.orthogonal())) - dal_tratto
+				esigi(dal_tratto >= pieno - 0.01 and sfuma >= 0.99,
+						"largo %.1f, al punto %d il filo si strozza: pieno %.2f invece di %.2f, sfumatura %.2f"
+						% [largo, i, dal_tratto, pieno, sfuma])
 
 func script_sotto_scripts(cartella: String) -> Array[String]:
 	var trovati: Array[String] = []

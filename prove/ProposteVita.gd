@@ -18,9 +18,12 @@ extends Control
 #   ./prove/film_vita.sh mattanza    uno solo
 #   nell'editor: ProposteVita.tscn, F6 (fa la Mattanza)
 
-const DURATE := {"squarcio": 3.0, "mattanza": 3.6, "turno": 5.6, "collisioni": 8.4}
+const DURATE := {"squarcio": 3.0, "mattanza": 3.6, "turno": 5.6, "collisioni": 15.0}
 const ASSESTAMENTO := 90   # fotogrammi prima di cominciare: lo scontro si dispone
-const PARATE := [0, 1, 3, 4, 6]
+# la mano del film: para quello acceso dopo REAZIONE secondi, tranne quando
+# si accende per quarto, settimo, decimo e ultimo - quelli ti prendono
+const PARATE := [0, 1, 2, 4, 5, 7, 8, 10]
+const REAZIONE := 0.42
 
 var scena: Node
 var nome := "mattanza"
@@ -68,7 +71,10 @@ func prepara() -> void:
 	scena.menu.principale()
 	if nome == "collisioni":
 		gioco = scena.minigioco
-		gioco.avvia({"nome": "Collisioni infinite", "quanti": 7, "intervallo": 0.85, "durata": 1.4, "danno": 9})
+		# la raffica del tutorial, coi suoi tempi
+		for passo in GameState.personaggi.get("veronica", {}).get("tutorial_combattimento", {}).get("passi", []):
+			if String((passo as Dictionary).get("azione", "")) == "minigioco":
+				gioco.avvia((passo as Dictionary).get("minigioco", {}))
 		gioco.salta()
 
 
@@ -122,6 +128,7 @@ func passa_collisioni(delta: float) -> void:
 	if gioco.fase != "raffica":
 		return
 	gioco.passa(delta)
-	for pugno: Dictionary in gioco.raffica:
-		if int(pugno.indice) in PARATE and String(pugno.esito) == "" and float(pugno.impatto) - gioco.tempo <= 0.03:
-			gioco.colpisci(int(pugno.indice))
+	var acceso := Collisioni.accesa(gioco.raffica)
+	if acceso >= 0 and int(gioco.raffica[acceso].turno) in PARATE \
+			and gioco.tempo - float(gioco.raffica[acceso].accesa_da) >= REAZIONE:
+		gioco.colpisci(acceso)

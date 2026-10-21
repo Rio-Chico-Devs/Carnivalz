@@ -22,7 +22,8 @@ extends RefCounted
 # TRE FASI, e il riquadro resta suo per tutte e tre:
 #
 #   apertura  il titolo e la riga che dice cosa fare. Un clic la salta
-#   raffica   i pugni: uno ogni "intervallo", ognuno visibile per "durata"
+#   raffica   i pugni: compaiono di botto uno alla volta, poi si accendono a
+#             caso uno alla volta (Collisioni.gd dice come e perche')
 #   chiusura  quanti ne hai fermati. Si chiude da sola, e un clic prima
 #
 # Animare si', sbarrare mai: ne' l'inizio ne' la fine ti tengono fermo.
@@ -35,8 +36,9 @@ extends RefCounted
 signal finito(esito: Dictionary)
 
 const DISEGNO_PUGNO := "res://art/minigiochi/pugno.png"
-const APERTURA := 1.8   # quanto si legge "clicca quando il cerchio si chiude"
+const APERTURA := 1.8   # quanto si legge "clicca il pugno quando si accende"
 const CHIUSURA := 2.2   # quanto resta il conto, se nessuno clicca prima
+const CODA := 0.45      # deciso l'ultimo pugno, quanto resta il suo riscontro
 
 var muto := false
 var plancia: PlanciaCombattimento = null
@@ -48,6 +50,8 @@ var raffica: Array[Dictionary] = []
 var fase := ""            # "apertura", "raffica", "chiusura"; "" a riposo
 var tempo := 0.0          # l'orologio dei pugni: gira solo durante la raffica
 var tempo_fase := 0.0     # quello dell'apertura e della chiusura
+var prossima_luce := 0.0  # quando si accende il prossimo pugno, sull'orologio dei pugni
+var pausa := Collisioni.PAUSA
 var attivo := false
 var in_partenza := false   # chiesta, ma il box sta ancora finendo di parlare
 var danno_per_colpo := 0
@@ -74,8 +78,8 @@ func collega(dove: Control, tabellone: PlanciaCombattimento = null, scossa: Impa
 	Disegni.texture(DISEGNO_PUGNO)
 
 func avvia(parametri: Dictionary, bravura := -1.0) -> void:
-	# parametri: quanti, intervallo, durata, danno, e facoltativi nome,
-	# intervallo_finale, sbandamento, finestra_prima, finestra_dopo
+	# parametri: quanti, danno, e facoltativi nome, comparsa, attesa,
+	# finestra, finestra_finale, pausa (di serie, quelli di Collisioni)
 	#
 	# UNA RAFFICA ALLA VOLTA, E CHI L'HA CHIESTA DEVE SAPERE COM'E' FINITA.
 	# Chi lancia aspetta il segnale "finito": se ne partisse una seconda sopra
@@ -88,18 +92,13 @@ func avvia(parametri: Dictionary, bravura := -1.0) -> void:
 	tempo = 0.0
 	tempo_fase = 0.0
 	danno_per_colpo = int(parametri.get("danno", 0))
-	# di serie sono i tempi di Bru: «ogni pugno deve rimanere visibile per 2
-	# secondi, e ne deve apparire un altro ogni secondo»
-	raffica = Collisioni.calendario(
-			int(parametri.get("quanti", 10)),
-			float(parametri.get("intervallo", 1.0)),
-			float(parametri.get("durata", 2.0)),
-			dado, riquadro.proporzione() if riquadro != null else 1.0,
-			float(parametri.get("intervallo_finale", -1.0)),
-			float(parametri.get("sbandamento", 0.0)))
-	Collisioni.imposta_finestre(raffica,
-			float(parametri.get("finestra_prima", Collisioni.FINESTRA_PRIMA)),
-			float(parametri.get("finestra_dopo", Collisioni.FINESTRA_DOPO)))
+	raffica = Collisioni.calendario(int(parametri.get("quanti", 12)), dado,
+			riquadro.proporzione() if riquadro != null else 1.0,
+			float(parametri.get("comparsa", Collisioni.COMPARSA)),
+			float(parametri.get("finestra", Collisioni.FINESTRA)),
+			float(parametri.get("finestra_finale", -1.0)))
+	pausa = maxf(float(parametri.get("pausa", Collisioni.PAUSA)), 0.0)
+	prossima_luce = Collisioni.tutti_fuori(raffica) + maxf(float(parametri.get("attesa", Collisioni.ATTESA)), 0.0)
 	suonate += 1
 	if muto or riquadro == null:
 		risolvi_da_solo(bravura)
@@ -112,52 +111,62 @@ func avvia(parametri: Dictionary, bravura := -1.0) -> void:
 	riquadro.comincia(String(parametri.get("nome", "Raffica")))
 
 func risolvi_da_solo(bravura: float) -> void:
-	# Nessuno sta guardando. "Bravura" e' la quota di pugni che una mano para in
-	# pieno: sotto zero vuol dire "non ci prova nemmeno", ed e' il caso del
-	# giocatore automatico di oggi, che un mouse non ce l'ha.
+	# Nessuno sta guardando. "Bravura" e' la quota di pugni che una mano para:
+	# sotto zero vuol dire "non ci prova nemmeno", ed e' il caso del giocatore
+	# automatico di oggi, che un mouse non ce l'ha.
 	if bravura > 0.0:
 		for pugno in raffica:
 			if dado.randf() < bravura:
-				Collisioni.giudica(raffica, int(pugno.indice), float(pugno.impatto))
+				Collisioni.accendi(raffica, int(pugno.indice), float(pugno.istante))
+				Collisioni.giudica(raffica, int(pugno.indice), float(pugno.istante))
 	attivo = false
 	fase = ""
 	finito.emit(Collisioni.esito(raffica, danno_per_colpo))
 
 func si_vede(pugno: Dictionary) -> bool:
-	# a schermo da quando compare a quando la sua finestra si chiude, e non un
-	# istante di piu': un pugno gia' giudicato sparisce, e al suo posto resta
-	# il riscontro (PARATA, DI STRISCIO, COLPITO)
-	return fase == "raffica" and String(pugno.get("esito", "")) == "" \
-			and tempo >= float(pugno.istante) and tempo <= float(pugno.scade)
+	# a schermo da quando compare a quando e' deciso, e non un istante di piu':
+	# al suo posto resta il riscontro (PARATA, COLPITO)
+	return fase == "raffica" and String(pugno.get("esito", "")) == "" and tempo >= float(pugno.istante)
 
-func arrivati() -> int:
-	# per il contatore in alto: quanti pugni sono gia' comparsi
+func decisi() -> int:
+	# per il contatore in alto: quanti pugni sono gia' parati o andati a segno
 	if fase == "chiusura":
 		return raffica.size()
-	if fase != "raffica":
-		return 0
-	var quanti := 0
-	for pugno in raffica:
-		if tempo >= float(pugno.istante):
-			quanti += 1
-	return quanti
+	return 0 if fase != "raffica" else raffica.size() - Collisioni.conta(raffica, "")
 
 func colpisci(indice: int) -> void:
+	# il clic su un pugno: acceso lo pari, spento ti prende (Collisioni.giudica)
 	if not attivo or fase != "raffica":
 		return
+	var era_acceso := Collisioni.accesa(raffica) == indice
 	var esito := Collisioni.giudica(raffica, indice, tempo)
 	if esito == "":
+		return
+	if era_acceso:
+		prossima_luce = tempo + pausa
+	if esito == "preso":
+		subisci(indice)
 		return
 	if riquadro != null:
 		riquadro.segna(indice, esito)
 	AudioManager.interfaccia("parata")
 
+func subisci(indice: int) -> void:
+	# il pugno ti ha preso: lo si dice una volta sola, nel momento in cui succede
+	if riquadro != null:
+		riquadro.segna(indice, "preso")
+	if impatto != null:
+		impatto.scossa(12.0)   # il colpo preso si sente: lo scontro sbanda forte
+	AudioManager.interfaccia("incrinato")
+
 func para_col_tasto() -> bool:
-	# LA RAFFICA SI GIOCA ANCHE SENZA MOUSE: il tasto para il pugno che sta per
-	# arrivare, con le stesse finestre del clic. Fuori dalla raffica fa andare
+	# LA RAFFICA SI GIOCA ANCHE SENZA MOUSE: il tasto para il pugno acceso.
+	# Premuto quando nessuno e' acceso vale come un clic su un pugno spento - il
+	# prossimo che si sarebbe acceso, se e' gia' a schermo - e ti prende: se no
+	# tenere premuto a raffica pararebbe tutto. Fuori dalla raffica fa andare
 	# avanti (salta l'apertura, chiude il conto).
 	#
-	# Torna false se il tasto e' stato premuto a vuoto - cosi' chi chiama sa se
+	# Torna false se il tasto non ha trovato niente - cosi' chi chiama sa se
 	# l'evento e' stato consumato o deve passare oltre.
 	if not attivo:
 		return false
@@ -166,7 +175,9 @@ func para_col_tasto() -> bool:
 		return true
 	var quale := Collisioni.piu_urgente(raffica, tempo)
 	if quale < 0:
-		return false
+		quale = Collisioni.prossima(raffica)
+		if quale < 0 or tempo < float(raffica[quale].istante):
+			return false
 	colpisci(quale)
 	return true
 
@@ -196,9 +207,23 @@ func passa_apertura(delta: float) -> void:
 		fase = "raffica"
 
 func passa_raffica(delta: float) -> void:
+	var prima := tempo
 	tempo += delta
+	for pugno in raffica:
+		# compare di botto, e si sente
+		if float(pugno.istante) >= prima and float(pugno.istante) < tempo:
+			AudioManager.interfaccia("pugno")
 	segna_i_mancati()
-	if tempo < Collisioni.durata_totale(raffica):
+	if Collisioni.accesa(raffica) >= 0 or tempo < prossima_luce:
+		return
+	var quale := Collisioni.prossima(raffica)
+	if quale >= 0:
+		# si accende all'istante giusto, non al fotogramma che se ne accorge: la
+		# finestra e' la stessa a 30 e a 144 fotogrammi al secondo
+		Collisioni.accendi(raffica, quale, prossima_luce)
+		AudioManager.interfaccia("acceso")
+		return
+	if tempo < prossima_luce + CODA:
 		return
 	fase = "chiusura"
 	tempo_fase = 0.0
@@ -211,17 +236,13 @@ func passa_chiusura(delta: float) -> void:
 		concludi()
 
 func segna_i_mancati() -> void:
-	# un pugno la cui finestra si e' chiusa senza che nessuno lo fermasse ti ha
-	# preso: lo si dice una volta sola, nel momento in cui succede
-	for pugno in raffica:
-		if String(pugno.get("esito", "")) != "" or tempo <= float(pugno.scade):
-			continue
+	# un pugno acceso che nessuno ha fermato in tempo ti ha preso; il prossimo
+	# si accende una pausa dopo l'istante in cui e' arrivato
+	for indice in Collisioni.scaduti(raffica, tempo):
+		var pugno: Dictionary = raffica[indice]
 		pugno.esito = "preso"
-		if riquadro != null:
-			riquadro.segna(int(pugno.indice), "preso")
-		if impatto != null:
-			impatto.scossa(12.0)   # il colpo preso si sente: lo scontro sbanda forte
-		AudioManager.interfaccia("colpo")
+		prossima_luce = float(pugno.scade) + pausa
+		subisci(indice)
 
 func concludi() -> void:
 	attivo = false
@@ -238,13 +259,9 @@ static func racconto(esito: Dictionary) -> Dictionary:
 	# via: pararli tutti in pieno e' una cosa che merita di essere letta
 	var totali := int(esito.get("totali", 0))
 	var parati := int(esito.get("parati", 0))
-	var striscio := int(esito.get("striscio", 0))
-	if totali > 0 and bool(esito.get("perfetto", parati == totali and striscio == 0)):
+	if totali > 0 and bool(esito.get("perfetto", parati == totali)):
 		return {"forte": true, "testo": "[i]Non te ne arriva addosso nemmeno uno.[/i]"}
-	var testo := "%d colpi su %d ti arrivano addosso" % [totali - parati, totali]
-	if striscio > 0:
-		testo += ", e %d li fermi solo di striscio" % striscio
-	return {"forte": false, "testo": "[i]%s.[/i]" % testo}
+	return {"forte": false, "testo": "[i]%d colpi su %d ti arrivano addosso.[/i]" % [totali - parati, totali]}
 
 
 func prenota() -> bool:

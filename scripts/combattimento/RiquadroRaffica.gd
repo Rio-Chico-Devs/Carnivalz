@@ -32,21 +32,20 @@ extends Control
 # tutta la durata del clic dopo il momento in cui avevi deciso. Qui si guarda
 # l'evento grezzo e conta la pressione.
 
-const SCALA_ANELLO := 2.6       # osu! parte da 4 (DrawableHitCircle.cs, Scale = 4);
-								# il nostro riquadro e' basso e largo, a 4 uscirebbe
-								# dal bordo per mezza vita del pugno
-const COMPARSA := 0.20          # quanto ci mette un pugno ad accendersi
+const BOTTO := 0.12             # quanto ci mette un pugno a piantarsi: compare di botto
+const SCATTO := 0.09            # e quanto ci mette ad accendersi
 const TOLLERANZA_MIRA := 8.0    # pixel oltre il bordo del cerchio che contano ancora
 const ALTEZZA_TESTATA := 44.0
 const MARGINE := 12.0
 const DURATA_SEGNO := 0.55      # quanto resta a schermo "PARATA" / "COLPITO"
 const SCRITTE := 4              # quante al massimo insieme: create una volta sola
 # I RISCONTRI COL CORPO (Bru, sugli esempi animati di docs/vita.md: «bello
-# tutto»): l'anticipo, il timbro, l'anello della parata, il vetro che si rompe
-# quando il pugno ti prende (VetroRotto.gd)
-const ANTICIPO := 0.5           # nell'ultimo mezzo secondo le tacche corrono verso il pugno
-const TACCHE := 8
+# tutto»): il timbro, l'anello della parata, il vetro che si rompe quando il
+# pugno ti prende (VetroRotto.gd). Il cerchio che si stringeva e le tacche che
+# correvano non ci sono piu': «quando si chiude quelle linee sono brutte da
+# vedere e il fatto che si chiuda e' noioso sembra che ti colpisca piano»
 const TIMBRO := 0.14            # quanto ci mette la parola a cadere
+const VICINO := 0.3             # di quanto si gonfia il pugno acceso arrivandoti addosso
 const ANELLO_PARATA := 1.6      # di quanti raggi si allarga l'anello della parata
 
 var gioco: MinigiocoCombattimento
@@ -161,12 +160,13 @@ func raggio() -> float:
 
 
 func centro_di(pugno: Dictionary) -> Vector2:
-	# IL PUGNO STA TUTTO DENTRO. Il centro si sceglie nel rettangolo ridotto di
-	# un raggio per lato, quindi il cerchio non tocca mai il bordo del piano -
-	# e il piano sta dentro il riquadro, che sta dentro il pannello
-	var r := raggio()
-	return Vector2(r + float(pugno.x) * maxf(piano.size.x - 2.0 * r, 0.0),
-			r + float(pugno.y) * maxf(piano.size.y - 2.0 * r, 0.0))
+	# IL PUGNO STA TUTTO DENTRO, anche quando si gonfia. Il centro si sceglie
+	# nel rettangolo ridotto di Collisioni.INGOMBRO raggi per lato, quindi il
+	# cerchio non tocca mai il bordo del piano - e il piano sta dentro il
+	# riquadro, che sta dentro il pannello
+	var bordo := raggio() * Collisioni.INGOMBRO
+	return Vector2(bordo + float(pugno.x) * maxf(piano.size.x - 2.0 * bordo, 0.0),
+			bordo + float(pugno.y) * maxf(piano.size.y - 2.0 * bordo, 0.0))
 
 
 func pugno_sotto(punto: Vector2) -> int:
@@ -174,21 +174,23 @@ func pugno_sotto(punto: Vector2) -> int:
 	# prendeva anche gli angoli, dove non c'e' disegnato niente. Un po' di
 	# tolleranza oltre il bordo si', perche' la mano che ci arriva di corsa si
 	# ferma spesso un filo corta (e' la legge di Fitts: un bersaglio si prende
-	# tanto meglio quanto e' largo).
+	# tanto meglio quanto e' largo). Quello acceso e' piu' grande, e la sua
+	# portata cresce con lui.
 	#
-	# Se due si toccano vince quello che arriva prima: e' lo stesso criterio del
-	# tasto, e la regola di osu! per due cerchi sovrapposti (Notelock: il
-	# secondo aspetta che il primo sia giudicato).
+	# I pugni non si toccano mai (Collisioni.posti), ma la tolleranza si': nel
+	# dubbio vince quello acceso, poi il piu' vicino.
 	var scelto := -1
-	var prima := INF
-	var portata := raggio() + TOLLERANZA_MIRA
+	var meglio := INF
 	for pugno in gioco.raffica:
 		if not gioco.si_vede(pugno):
 			continue
-		if punto.distance_to(centro_di(pugno)) > portata:
+		var quanto_lontano := punto.distance_to(centro_di(pugno))
+		if quanto_lontano > raggio() * scala_di(pugno) + TOLLERANZA_MIRA:
 			continue
-		if float(pugno.impatto) < prima:
-			prima = float(pugno.impatto)
+		if float(pugno.accesa_da) >= 0.0:
+			quanto_lontano -= 10000.0
+		if quanto_lontano < meglio:
+			meglio = quanto_lontano
 			scelto = int(pugno.indice)
 	return scelto
 
@@ -225,7 +227,7 @@ func comincia(nome: String) -> void:
 	# QUELLO CHE DEVI FARE, DETTO NEL MOMENTO IN CUI SERVE, e dentro il riquadro
 	# dove lo farai: e' la regola di ogni buon tutorial - si insegna al punto
 	# del bisogno, non prima e non altrove
-	avviso.text = "Clicca ogni pugno quando il cerchio si chiude su di lui."
+	avviso.text = "Clicca il pugno che si accende, prima che ti arrivi.\nUno spento non toccarlo: ti prende."
 	avviso.visible = true
 	aggiorna(0.0)
 
@@ -234,18 +236,9 @@ func chiudi(esito: Dictionary) -> void:
 	# LA FINE DELL'EVENTO, nello stesso riquadro. Non e' una schermata che
 	# aspetta: si chiude da sola, e un clic la chiude prima
 	var totali := int(esito.get("totali", 0))
-	var testo := "Fermati %d su %d" % [int(esito.get("parati", 0)), totali]
-	if bool(esito.get("perfetto", false)):
-		testo = "Tutti e %d, in pieno" % totali
-	var dettagli: Array[String] = []
-	if int(esito.get("piene", 0)) > 0 and not bool(esito.get("perfetto", false)):
-		dettagli.append("%d in pieno" % int(esito.get("piene", 0)))
-	if int(esito.get("striscio", 0)) > 0:
-		dettagli.append("%d di striscio" % int(esito.get("striscio", 0)))
 	var passati := totali - int(esito.get("parati", 0))
-	if passati > 0:
-		dettagli.append("%d a segno" % passati)
-	avviso.text = testo if dettagli.is_empty() else "%s\n%s" % [testo, "  ·  ".join(dettagli)]
+	avviso.text = "Tutti e %d, parati" % totali if bool(esito.get("perfetto", false)) \
+			else "Fermati %d su %d\n%d a segno" % [int(esito.get("parati", 0)), totali, passati]
 
 
 func segna(indice: int, esito: String) -> void:
@@ -286,7 +279,7 @@ func aggiorna(delta: float) -> void:
 	# subito ci si scriveva sopra, e "COLPITO" e il riepilogo si leggevano
 	# tutti e due male
 	avviso.visible = gioco.fase == "apertura" or (gioco.fase == "chiusura" and segni.is_empty())
-	contatore.text = "%d / %d" % [gioco.arrivati(), gioco.raffica.size()]
+	contatore.text = "%d / %d" % [gioco.decisi(), gioco.raffica.size()]
 	for segno in segni:
 		segno.eta = float(segno.eta) + delta
 	while not segni.is_empty() and float(segni[0].eta) > DURATA_SEGNO:
@@ -331,26 +324,26 @@ func metti_scritte() -> void:
 
 
 static func testo_del_segno(esito: String) -> String:
-	match esito:
-		"piena": return "PARATA"
-		"striscio": return "DI STRISCIO"
-	return "COLPITO"
+	return "PARATA" if esito == "parata" else "COLPITO"
 
 
 static func tinta_della_scritta(esito: String) -> Color:
-	# sulla fascia nera la parata e' arancio e lo striscio giallo; COLPITO e'
-	# bianco sulla fascia rossa
-	match esito:
-		"piena": return Stile.colore("manifesto")
-		"striscio": return Stile.colore("ecg_giallo")
-	return Stile.colore("testo")
+	# sulla fascia nera la parata e' arancio; COLPITO e' bianco sulla fascia rossa
+	return Stile.colore("manifesto") if esito == "parata" else Stile.colore("testo")
+
+
+static func tinta_spento() -> Color:
+	# SPENTO E' IN PENOMBRA, acceso e' il rosso pieno col bordo bianco: dodici
+	# a schermo, e quello giusto si deve trovare con la coda dell'occhio
+	return Stile.colore("pericolo").darkened(0.58)
+
+
+static func tinta_acceso() -> Color:
+	return Stile.colore("pericolo").lightened(0.08)
 
 
 static func tinta_del_segno(esito: String) -> Color:
-	match esito:
-		"piena": return Stile.colore("testo")
-		"striscio": return Stile.colore("ecg_giallo")
-	return Stile.colore("pericolo")
+	return Stile.colore("testo") if esito == "parata" else Stile.colore("pericolo")
 
 
 # --- il disegno ------------------------------------------------------------
@@ -363,9 +356,17 @@ func _draw() -> void:
 
 func _disegna_piano() -> void:
 	var r := raggio()
+	# prima quelli spenti, poi quello acceso: il suo alone ci passa sopra
+	var acceso: Dictionary = {}
 	for pugno in gioco.raffica:
-		if gioco.si_vede(pugno):
+		if not gioco.si_vede(pugno):
+			continue
+		if float(pugno.accesa_da) >= 0.0:
+			acceso = pugno
+		else:
 			disegna_pugno(pugno, r)
+	if not acceso.is_empty():
+		disegna_pugno(acceso, r)
 	# il vetro rotto sta davanti ai pugni: e' la superficie dello schermo
 	for vetro in vetri:
 		(vetro.vetro as VetroRotto).disegna(piano, float(vetro.eta), Impostazioni.movimento_ridotto)
@@ -375,52 +376,55 @@ func _disegna_piano() -> void:
 		disegna_scoppio(segno, r)
 
 
+func scala_di(pugno: Dictionary) -> float:
+	# QUANTO E' GROSSO ADESSO. Compare DI BOTTO: piantato un filo piu' grande, e
+	# rientra in un attimo. Acceso, scatta in avanti e poi si gonfia sempre piu'
+	# in fretta - e' un pugno che ti arriva in faccia, e quando e' grosso del
+	# tutto ti ha preso. E' il tempo che resta, detto senza un cerchio. Col
+	# movimento ridotto non scatta e non si gonfia: lo dice la luce
+	if Impostazioni.movimento_ridotto:
+		return 1.0
+	var botto := clampf((gioco.tempo - float(pugno.istante)) / BOTTO, 0.0, 1.0)
+	var scala := lerpf(1.4, 1.0, 1.0 - pow(1.0 - botto, 3.0))
+	if float(pugno.accesa_da) >= 0.0:
+		var da := gioco.tempo - float(pugno.accesa_da)
+		var arriva := clampf(da / maxf(float(pugno.finestra), 0.001), 0.0, 1.0)
+		scala = (1.08 + VICINO * arriva * arriva) * lerpf(1.18, 1.0, clampf(da / SCATTO, 0.0, 1.0))
+	return scala
+
+
 func disegna_pugno(pugno: Dictionary, r: float) -> void:
 	var centro := centro_di(pugno)
-	var eta := gioco.tempo - float(pugno.istante)
-	var acceso := clampf(eta / COMPARSA, 0.0, 1.0)
-	var quanto := clampf(eta / maxf(float(pugno.durata), 0.001), 0.0, 1.0)
+	var acceso := float(pugno.accesa_da) >= 0.0
+	var lampo := 1.0 - clampf((gioco.tempo - float(pugno.istante)) / BOTTO, 0.0, 1.0)
+	var arriva := 0.0
+	if acceso:
+		arriva = clampf((gioco.tempo - float(pugno.accesa_da)) / maxf(float(pugno.finestra), 0.001), 0.0, 1.0)
+		if not Impostazioni.movimento_ridotto:
+			# trema sempre di piu': sta per arrivare
+			var da := gioco.tempo - float(pugno.accesa_da)
+			centro += Vector2(sin(da * 61.0), cos(da * 47.0)) * r * 0.07 * arriva
+	var grande := r * scala_di(pugno)
+	var rosso := Stile.colore("pericolo")
+	if acceso:
+		# l'alone: tre giri sempre piu' larghi e piu' tenui, e pulsa
+		var pulsa := 0.75 + 0.25 * sin((gioco.tempo - float(pugno.accesa_da)) * TAU * 6.0)
+		for k in 3:
+			piano.draw_circle(centro, grande * (1.12 + 0.13 * float(k)),
+					Color(rosso.lightened(0.25), (0.22 - 0.06 * float(k)) * pulsa), true, -1.0, true)
 	var texture := Disegni.texture(MinigiocoCombattimento.DISEGNO_PUGNO)
 	if texture != null:
-		piano.draw_texture_rect(texture, Rect2(centro - Vector2(r, r), Vector2(r, r) * 2.0),
-				false, Color(1, 1, 1, acceso))
+		var tinta := Color.WHITE if acceso else Color(0.42, 0.42, 0.46)
+		piano.draw_texture_rect(texture, Rect2(centro - Vector2(grande, grande), Vector2(grande, grande) * 2.0),
+				false, tinta.lerp(Color.WHITE, lampo))
 	else:
-		piano.draw_circle(centro, r, Color(Stile.colore("pericolo"), acceso), true, -1.0, true)
-		piano.draw_arc(centro, r * 0.94, 0.0, TAU, 40, Color(1, 1, 1, 0.75 * acceso),
-				maxf(r * 0.10, 2.0), true)
-	# IL CERCHIO DI AVVICINAMENTO. Parte largo e si stringe sul pugno in
-	# esattamente il tempo che il pugno ci mette ad arrivare: quando lo tocca,
-	# e' il momento. Nella finestra piena si fa piu' spesso - e' l'unico
-	# cambiamento di forma, e dice "adesso" a chi non ha ancora imparato a
-	# leggere la velocita' del cerchio.
-	var anello := r * lerpf(SCALA_ANELLO, 1.0, quanto)
-	var nella_finestra := gioco.tempo >= float(pugno.piena_da)
-	var spessore := maxf(r * (0.14 if nella_finestra else 0.07), 2.0)
-	piano.draw_arc(centro, anello, 0.0, TAU, 56, Color(1, 1, 1, 0.9 * acceso), spessore, true)
-	disegna_anticipo(pugno, centro, r)
-
-
-static func anticipo(pugno: Dictionary, adesso: float) -> float:
-	# quanto e' vicino il pugno, da 0 (mezzo secondo prima) a 1 (adesso); -1 se
-	# le tacche non vanno disegnate: troppo presto, gia' giudicato, gia' passato
-	var manca := float(pugno.impatto) - adesso
-	if Impostazioni.movimento_ridotto or String(pugno.get("esito", "")) != "" or manca < 0.0 or manca > ANTICIPO:
-		return -1.0
-	return 1.0 - manca / ANTICIPO
-
-
-func disegna_anticipo(pugno: Dictionary, centro: Vector2, r: float) -> void:
-	# L'ANTICIPO: nell'ultimo mezzo secondo otto tacche corrono verso il pugno.
-	# Dicono «adesso» anche con la coda dell'occhio, mentre guardi un altro
-	# pugno. Col movimento ridotto non corrono: lo dice gia' l'anello
-	var q := anticipo(pugno, gioco.tempo)
-	if q < 0.0:
-		return
-	var fuori := r * lerpf(2.4, 1.25, q)
-	for k in TACCHE:
-		var verso := Vector2.from_angle(TAU * float(k) / float(TACCHE) + 0.2)
-		piano.draw_line(centro + verso * fuori, centro + verso * (fuori + r * 0.35), Color(1, 1, 1, 0.75 * q),
-				maxf(r * 0.08, 2.0), true)
+		var pieno := tinta_acceso() if acceso else tinta_spento()
+		piano.draw_circle(centro, grande, pieno.lerp(Color.WHITE, lampo * 0.85), true, -1.0, true)
+		var bordo := Color(1, 1, 1, 0.95) if acceso else Color(rosso, 0.55)
+		piano.draw_arc(centro, grande * 0.93, 0.0, TAU, 48, bordo, maxf(r * (0.13 if acceso else 0.06), 1.5), true)
+	if acceso and arriva > 0.6 and not Impostazioni.movimento_ridotto:
+		# l'ultimo tratto: il bianco gli sale dentro
+		piano.draw_circle(centro, grande * 0.93, Color(1, 1, 1, (arriva - 0.6) * 0.6), true, -1.0, true)
 
 
 func disegna_scoppio(segno: Dictionary, r: float) -> void:

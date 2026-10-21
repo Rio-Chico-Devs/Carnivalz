@@ -125,6 +125,19 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			# tempo di chiederti se l'hai preso: cortissimo, e sale - un colpo
 			# che scende suonerebbe come un errore
 			return tono(1240.0, 0.055, "triangolo", 70.0, 0.26, 1760.0)
+		"pugno":
+			# un pugno delle Collisioni che si pianta a schermo: un tonfo
+			# cortissimo e basso. Ne arrivano dodici in un secondo e mezzo, quindi
+			# piu' un colpo sul tavolo che una nota
+			return tono(150.0, 0.06, "seno", 70.0, 0.30, 80.0)
+		"acceso":
+			# il pugno che si accende: deve chiamare l'occhio anche se stai
+			# guardando dall'altra parte del riquadro. Secco e in alto, e sale
+			return tono(900.0, 0.07, "quadra", 60.0, 0.16, 1350.0)
+		"incrinato":
+			# il pugno che ti prende e incrina il vetro dello schermo: un tonfo e
+			# poche schegge, piu' corto dei frantumi della Mattanza
+			return vetro(0.3, 8, 0.9)
 		"sfiora":
 			# LA VOCE DI MENU SFIORATA: un tic, non una nota. Si sente decine di
 			# volte di fila, quindi e' il piu' corto e il piu' piano di tutti -

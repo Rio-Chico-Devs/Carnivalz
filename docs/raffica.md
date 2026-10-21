@@ -132,6 +132,11 @@ web**, non i testi interi. Le riporto come tali.
 
 ## 5. Cosa è stato fatto, e perché
 
+> **Superato.** Questa era la raffica col cerchio di avvicinamento, alla osu!.
+> Giocandola Bru l'ha bocciata, ed è stata rifatta: compaiono di botto e si
+> accendono a caso (§7). Il riquadro suo, il clic che vale quando premi, il
+> nodo solo che disegna e la tastiera sono rimasti; i tempi e il giudizio no.
+
 **Un riquadro suo.** La raffica è una faccia del pannello, come i comandi e il
 parlato: quando parte, le altre si spengono (anche MATTANZA e BOND), e lei è
 opaca, con la fascia rossa del titolo e il contatore «3 / 12». Ha un inizio
@@ -185,14 +190,97 @@ Con il movimento ridotto restano le parole, spariscono gli anelli.
   scritta nei dati.
 - **La parata piena ha un premio?** Oggi toglie tutto il danno e basta. Potrebbe
   caricare la Mattanza, o l'hype. È una scelta di bilanciamento, non tecnica.
-- **L'accelerazione verso la fine** non c'è più: Bru ha chiesto «uno al
-  secondo». Se la rivuole, è `"intervallo_finale"` nei dati della raffica.
+- **L'accelerazione verso la fine** adesso c'è di nuovo, in un'altra forma: è
+  il tempo che un pugno acceso ti lascia, che scende con `"finestra_finale"`
+  (§7).
 - **Il disegno del pugno**: `art/minigiochi/pugno.png` prende il posto del
   cerchio rosso senza toccare il codice.
-- **I numeri delle finestre** vanno confermati giocando: 0,20 s e 0,12 s sono
-  ragionati, non ancora provati da una mano vera.
+- **I numeri** vanno confermati giocando (§7): sono ragionati, non ancora
+  provati da una mano vera.
 - **Un caso limite, vecchio quanto lo scontro**: se una Mattanza finisce mentre
   la raffica è in corso, la sua riga di chiusura accende `AreaAvanza` (il
   bottone a tutto schermo che fa avanzare il testo), che sta sopra il pannello
   e si prenderebbe i clic sui pugni. Succedeva identico col vecchio strato. Non
   l'ho toccato alla cieca: va deciso se durante un minigioco il testo aspetta.
+
+---
+
+## 7. Rifatta: compaiono di botto, si accendono a caso
+
+Bru, giocando la raffica col cerchio:
+
+> va fatto ancora meglio sono le linee da migliorare, altra cosa anche quando
+> si chiude quelle linee sono brutte da vedere e il fatto che si chiuda è
+> noioso sembra che ti colpisca piano, faciamo che compaiono di botto uno ad
+> uno docici pugni poi devi cliccare quando si illuminano, una volta che ci
+> prendi il pugno o viene parato o lo ricevi, così è più dinamico, ordine in
+> cui si illuminano è randomico
+
+Il cerchio era la soluzione di osu! al problema «leggere e parare sono due
+numeri» (§2). Funzionava, ma mostrava la cosa sbagliata: un pugno che ti
+arriva **piano**, in due secondi. Adesso la lettura la fa la disposizione
+(li vedi tutti, sai dove sono) e la difficoltà la fa il **trovare** quello
+giusto in fretta.
+
+**Come si gioca** (`scripts/Collisioni.gd`, `scripts/combattimento/Minigioco.gd`):
+
+| fase | cosa succede | di serie | nel tutorial |
+|---|---|---|---|
+| compaiono | uno alla volta, di botto, in un ordine che non dice niente | uno ogni 0,12 s | 0,12 s |
+| aspettano | tutti a schermo, spenti | 0,6 s | 0,6 s |
+| si accendono | uno alla volta, **in un ordine tirato a caso**, diverso da quello in cui sono comparsi | — | — |
+| il pugno acceso | ti arriva addosso in `finestra` secondi | 1,0 s | da 1,1 s al primo a 0,75 s all'ultimo |
+| il prossimo | si accende una `pausa` dopo che il precedente è deciso: più sei svelto, più corre la raffica | 0,2 s | 0,22 s |
+
+**Il giudizio, o parato o preso** — niente più «di striscio»:
+
+| clic su | cosa succede |
+|---|---|
+| il pugno acceso, in tempo | **PARATA**: zero danno |
+| un pugno spento | **COLPITO**: gli sei andato incontro, ti prende |
+| un punto vuoto | niente |
+| (il pugno acceso che nessuno ferma) | **COLPITO** quando arriva |
+
+Il clic sullo spento che ti prende è il «una volta che ci prendi il pugno o
+viene parato o lo ricevi» preso alla lettera, e chiude l'unico modo di barare
+che il gioco avrebbe: cliccare dappertutto sperando di beccare quello giusto
+quando si accende. **È la scelta da confermare**: se Bru preferisce che il
+clic su uno spento non faccia niente, è una riga in `Collisioni.giudica`.
+
+**Tastiera**: INVIO (o SPAZIO) para quello acceso. Premuto quando nessuno è
+acceso vale come un clic su uno spento: ti prende il prossimo, se è già a
+schermo. Se no tenere premuto il tasto parerebbe tutta la raffica senza
+guardarla.
+
+**Dove stanno.** Dodici a schermo insieme non si tirano più a caso: a caso
+nel quadrante largo e basso non c'è posto. Sono una griglia a mattoni (le
+righe dispari sfalsate di mezzo passo), con le righe scelte perché stiano il
+più lontano possibile; i posti si pescano a caso e ognuno scarta un poco dal
+suo, mai tanto da toccare un vicino. Nel quadrante del gioco (circa 710×190)
+sono due righe da sei, e ce ne starebbero fino a sedici. I centri stanno 1,45
+raggi dentro il bordo, perché il pugno acceso si gonfia fino a lì.
+
+**Il disegno** (`RiquadroRaffica.gd`): spento in penombra, acceso rosso pieno
+col bordo bianco e un alone che pulsa (il contrasto fra i due è controllato,
+almeno 2:1, perché quello giusto si trovi con la coda dell'occhio); acceso
+scatta in avanti e poi si gonfia sempre più in fretta e trema, fino a quando
+ti prende. Col movimento ridotto non scatta e non si gonfia: lo dice la luce.
+I suoni: un tonfo per ogni pugno che compare, un segnale secco quando uno si
+accende, il vetro che si incrina quando ti prende.
+
+**Il contatore** in alto conta i pugni decisi, parati o presi: «4 / 12».
+
+**Le prove**: `prova_collisioni` (il calendario: di botto, l'ordine a caso, lo
+stesso dado dà la stessa raffica, o parato o preso, il danno, la finestra che si
+stringe, nessuno sopra un altro in quattro quadranti e da cinque a sedici
+pugni), `prova_il_pugno_si_para_quando_premi` (la pressione, l'attesa, la
+pausa, il cerchio e non il quadrato, lo spento che ti prende),
+`prova_la_raffica_si_para_anche_da_tastiera`, `prova_minigioco_ai_bordi`,
+`prova_la_raffica_si_stringe_verso_la_fine` (i numeri del tutorial),
+`prova_la_raffica_col_corpo`, `prova_il_vetro_rotto_del_colpo_preso` (anche le
+linee: tratti lunghi e dritti, il filo che non si strozza). Verificate
+rompendo apposta il codice in 38 modi.
+
+**Da confermare giocando**: i tempi (soprattutto lo 0,75 s dell'ultimo pugno:
+trovarlo fra quelli rimasti e arrivarci col mouse costa mezzo secondo buono) e
+il clic sullo spento che ti prende.

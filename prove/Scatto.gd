@@ -1152,8 +1152,9 @@ func prepara(quale: String) -> void:
 		"collisioni":
 			# LA RAFFICA FERMATA IN UN MOMENTO PRECISO. Il secondo argomento dice
 			# quale: "apertura", "chiusura", oppure i secondi dall'inizio dei
-			# pugni (di serie 2.3: un pugno appena parato, uno a meta' strada,
-			# uno appena comparso - le tre cose che si devono leggere insieme).
+			# pugni (di serie 2.3: tutti e dodici a schermo, spenti, e il primo
+			# appena acceso - le due cose che si devono distinguere a colpo
+			# d'occhio). I tempi sono quelli della raffica del tutorial.
 			#
 			# L'orologio del minigioco si muove a mano, a passi di un
 			# fotogramma: aspettare fotogrammi veri sotto xvfb vuol dire
@@ -1166,20 +1167,22 @@ func prepara(quale: String) -> void:
 			scontro.voce.coda.clear()
 			scontro.set_process(false)
 			var gioco: MinigiocoCombattimento = scontro.minigioco
-			gioco.avvia({"nome": "Collisioni infinite", "quanti": 12,
-					"intervallo": 1.0, "durata": 2.0, "danno": 9})
+			var del_tutorial: Dictionary = {}
+			for passo in GameState.personaggi.get("veronica", {}).get("tutorial_combattimento", {}).get("passi", []):
+				if String((passo as Dictionary).get("azione", "")) == "minigioco":
+					del_tutorial = (passo as Dictionary).get("minigioco", {})
+			gioco.avvia(del_tutorial)
 			var argomenti := OS.get_cmdline_user_args()
 			var quando := String(argomenti[1]) if argomenti.size() > 1 else "2.3"
 			if quando != "apertura":
 				gioco.salta()
 				var fino_a := 99.0 if quando == "chiusura" else float(quando)
-				var parato := false
 				while gioco.fase == "raffica" and gioco.tempo < fino_a:
 					gioco.passa(1.0 / 60.0)
-					# una mano che prende il primo pugno quando il cerchio si chiude
-					if not parato and gioco.tempo >= 1.95:
-						gioco.colpisci(0)
-						parato = true
+					# una mano che para quello acceso dopo quattro decimi
+					var acceso := Collisioni.accesa(gioco.raffica)
+					if acceso >= 0 and gioco.tempo - float(gioco.raffica[acceso].accesa_da) >= 0.4:
+						gioco.colpisci(acceso)
 			# alla chiusura il conto compare quando l'ultimo riscontro e' svanito
 			for i in (50 if quando == "chiusura" else 1):
 				gioco.passa(1.0 / 60.0)

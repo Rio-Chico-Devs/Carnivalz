@@ -3938,8 +3938,11 @@
             "minigioco": {
               "nome": "Collisioni infinite",
               "quanti": 12,
-              "intervallo": 1.0,
-              "durata": 2.0,
+              "comparsa": 0.12,
+              "attesa": 0.6,
+              "finestra": 1.1,
+              "finestra_finale": 0.75,
+              "pausa": 0.22,
               "danno": 9
             },
             "bravura_automatica": 0.45,
@@ -3960,7 +3963,7 @@
               },
               {
                 "tipo": "narrazione",
-                "testo": "Collisioni infinite. Dodici pugni, uno al secondo. Attorno a ognuno si stringe un cerchio: CLICCA il pugno quando il cerchio si chiude. Preso in anticipo ti colpisce di striscio; quelli che non fermi ti arrivano addosso."
+                "testo": "Collisioni infinite. Dodici pugni ti si piantano davanti, poi si accendono uno alla volta, a caso: CLICCA quello acceso prima che ti arrivi addosso. Non toccare quelli spenti: andargli incontro vuol dire prenderli."
               }
             ],
             "dopo": [

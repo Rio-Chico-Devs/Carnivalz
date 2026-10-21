@@ -726,7 +726,8 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 <sub>`scripts/combattimento/RiquadroRaffica.gd`</sub>
 
 **`UI.RiquadroRaffica.001`** · comincia
-> Clicca ogni pugno quando il cerchio si chiude su di lui.
+> Clicca il pugno che si accende, prima che ti arrivi.
+> Uno spento non toccarlo: ti prende.
 >
 > →
 
@@ -737,11 +738,6 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`UI.RiquadroRaffica.003`** · metti_scritte
 > PARATA
->
-> →
-
-**`UI.RiquadroRaffica.004`** · metti_scritte
-> DI STRISCIO
 >
 > →
 
@@ -14390,7 +14386,7 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento7.prima3`** · allenamento, passo 7 (MINIGIOCO) — prima che tu agisca, narrazione
-> Collisioni infinite. Dodici pugni, uno al secondo. Attorno a ognuno si stringe un cerchio: CLICCA il pugno quando il cerchio si chiude. Preso in anticipo ti colpisce di striscio; quelli che non fermi ti arrivano addosso.
+> Collisioni infinite. Dodici pugni ti si piantano davanti, poi si accendono uno alla volta, a caso: CLICCA quello acceso prima che ti arrivi addosso. Non toccare quelli spenti: andargli incontro vuol dire prenderli.
 >
 > →
 

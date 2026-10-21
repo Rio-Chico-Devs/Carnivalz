@@ -26,7 +26,7 @@ Mattanza, il minigioco). Bru:
 | lo squarcio d'entrata | approvato | nel gioco: `scripts/Squarcio.gd` |
 | la Mattanza | approvata, con la fascia **più grande** per l'artwork | nel gioco: `scripts/combattimento/TaglioMattanza.gd` |
 | il turno che passa | approvato | nel gioco: `scripts/combattimento/FasciaTurno.gd` |
-| il minigioco col corpo | approvato | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
+| il minigioco col corpo | approvato, poi **rifatto** giocando: niente cerchio che si chiude (§5) | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
 | il riflesso sui vetri | approvato, poi **no** giocando (§6) | tolto |
 | il BOND (la purificazione, §8) | approvato dopo tre giri | nel gioco: `scripts/combattimento/LuceBond.gd` |
 | le braci che salgono | **no** | tolte |
@@ -98,8 +98,26 @@ dall'altra parte; poi lo scontro sbanda e si comincia a battere.
 
 ## 5. Il minigioco col corpo (Collisioni infinite)
 
-- **L'anticipo**: nell'ultimo mezzo secondo prima che un pugno arrivi, otto
-  tacche corrono verso di lui.
+Bru, giocandolo:
+
+> «quando si chiude quelle linee sono brutte da vedere e il fatto che si
+> chiuda è noioso sembra che ti colpisca piano, facciamo che compaiono di botto
+> uno ad uno dodici pugni poi devi cliccare quando si illuminano, una volta che
+> ci prendi il pugno o viene parato o lo ricevi, così è più dinamico, ordine in
+> cui si illuminano è randomico»
+
+Il cerchio che si stringeva e le tacche che correvano non ci sono più. Adesso
+(le regole in `docs/raffica.md` §7):
+
+- **Compaiono di botto**, uno ogni 0,12 s, ognuno al suo posto: si piantano un
+  filo più grandi, con un lampo bianco, e rientrano in un attimo. Ognuno fa un
+  tonfo.
+- **Spenti sono in penombra**: rosso scuro, bordo sottile. Dodici a schermo
+  insieme, mai uno sopra l'altro.
+- **Acceso** è il rosso pieno col bordo bianco e un alone che pulsa; scatta in
+  avanti e poi **si gonfia sempre più in fretta** e trema: è un pugno che ti
+  arriva in faccia. Quando è gonfio del tutto ti prende: il tempo che resta,
+  detto senza un cerchio. Negli ultimi istanti il bianco gli sale dentro.
 - **La parata**: un anello che si allarga di più di prima, la parola come un
   **timbro** sulla fascia nera (arancio), le schegge, il piano che sobbalza,
   il contatore che fa la gelatina.
@@ -117,17 +135,31 @@ dall'altra parte; poi lo scontro sbanda e si comincia a battere.
     di ragnatela, con qualche buco;
   - ogni faccia prende la luce a modo suo, un luccichio le attraversa dal
     centro, e qualche scheggia salta via e cade;
-  - il filo chiaro ha accanto un'ombra scura, così il taglio si legge sopra
-    qualunque cosa;
   - un pugno diverso rompe il vetro in un modo diverso.
 
-  Le crepe corrono in un decimo di secondo, il vetro resta poco più di un
-  secondo e sfuma, perché i pugni dopo vanno letti.
+  **Le linee, rifatte** (Bru: «va fatto ancora meglio sono le linee da
+  migliorare»). Erano tre difetti insieme:
+  - **tremavano**: passi di cinque pixel ognuno storto di un poco, e il poco si
+    sommava. Adesso tratti lunghi e dritti, uno strappo secco ogni tanto, e la
+    crepa torna sempre verso la sua direzione; la ragnatela è fatta di corde
+    quasi dritte con un gomito solo;
+  - **erano doppie**: l'ombra era la stessa riga spostata di un pixel in basso
+    a destra, e da vicino se ne leggevano due, sfocate. Adesso sotto c'è un
+    alone scuro centrato e sopra un filo solo, nitido, che si assottiglia;
+  - **il bordo**: il filo era un poligono che si ritirava di mezzo pixel e
+    sotto i due pixel si rovesciava. Adesso è una striscia di triangoli che
+    sfuma di traverso: liscia a qualunque larghezza, e nei gomiti non si
+    strozza.
+
+  E il filo si muove: la punta che corre è più chiara, e appena le crepe sono
+  al bordo un riflesso le percorre dall'impatto in fuori. Le crepe corrono in
+  un decimo di secondo, il vetro resta un secondo e sfuma, perché i pugni dopo
+  vanno letti.
 - I timbri restano dentro il riquadro: vicino al bordo un timbro tagliato non
   si legge.
-- **Movimento ridotto**: niente tacche, niente schegge, niente scossa; le
-  parole compaiono ferme. Il vetro rotto c'è subito, intero, senza lampo né
-  schegge, e sfuma.
+- **Movimento ridotto**: i pugni non scattano e non si gonfiano (lo dice la
+  luce), niente schegge, niente scossa; le parole compaiono ferme. Il vetro
+  rotto c'è subito, intero, senza lampo né schegge né riflesso, e sfuma.
 
 ## 6. Il riflesso sui vetri: tolto
 
@@ -153,10 +185,12 @@ l'artwork dentro la fascia, il mondo fermo sotto il taglio, il tasto che lo
 salta senza colpire, la durata; lo squarcio solo verso lo scontro e mai col
 movimento ridotto, le metà che volano, i pezzi che entrano solo arrivando dallo
 squarcio e il quadrante per ultimo; le fasce del turno, «TOCCA A TE», il
-rosso del nemico, lo slot che non resta alzato; l'anticipo solo nell'ultimo
-mezzo secondo, i timbri nero e rosso dentro il piano, le schegge, la scossa.
+rosso del nemico, lo slot che non resta alzato; i pugni che compaiono di botto,
+quello acceso che si gonfia (e resta nel suo spazio), niente più cerchio né
+tacche, i timbri nero e rosso dentro il piano, le schegge, la scossa, il vetro.
 Ognuna col suo caso del movimento ridotto. Verificate rompendo apposta il
-codice in 32 modi (con quella del riflesso, che non c'è più).
+codice in 32 modi (con quella del riflesso, che non c'è più); le Collisioni
+nuove e le linee del vetro in altri 38 (`docs/raffica.md` §7).
 
 Per il BOND: `prova_la_luce_del_bond_quando_medi`,
 `prova_la_luce_del_bond_lettera_per_lettera`,
