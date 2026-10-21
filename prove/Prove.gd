@@ -75,6 +75,9 @@ func _ready() -> void:
 	await prova_il_turno_si_vede_col_corpo()
 	await prova_la_raffica_col_corpo()
 	prova_il_riflesso_sui_vetri()
+	await prova_la_luce_del_bond_quando_medi()
+	prova_la_luce_del_bond_lettera_per_lettera()
+	prova_la_luce_del_bond_col_movimento_ridotto()
 	prova_ogni_creatura_ha_un_set_di_mosse()
 	prova_le_creature_capiscono_come_stanno()
 	prova_nessuna_creatura_perde_la_battuta()
@@ -22062,3 +22065,232 @@ func prova_il_riflesso_sui_vetri() -> void:
 		Impostazioni.movimento_ridotto = false
 	uno.free()
 	due.free()
+
+# --- LA LUCE DEL BOND (docs/vita.md §8) ---------------------------------------
+# Bru, sulla purificazione lettera per lettera: «si dai mettila»
+
+func scontro_bond_cominciato() -> Node:
+	# uno scontro vero con la Tartaruga, gia' cominciato (l'apertura si salta,
+	# come la salta chi gioca): la pompa delle parole gira, si puo' mediare
+	var vero := scontro_vivo("tartaruga_innocente")
+	var giri := 0
+	while not bool(vero.scontro_avviato) and giri < 600:
+		vero.voce.coda.clear()
+		vero.voce.avanza()
+		await get_tree().process_frame
+		giri += 1
+	# e niente sotto gli occhi: quello che si legge dopo e' solo la mediazione
+	giri = 0
+	while not vero.voce.niente_da_leggere() and giri < 600:
+		vero.voce.coda.clear()
+		vero.voce.avanza()
+		await get_tree().process_frame
+		giri += 1
+	var lui: Dictionary = i_due_dello_scontro(vero)[1]
+	lui.vuole_mediare = true
+	lui.bond_aperto = true
+	return vero
+
+func prova_la_luce_del_bond_quando_medi() -> void:
+	titolo("quando medi parte la luce del BOND: sopra tutto, il mondo e le parole aspettano, va avanti da sola")
+	var vero: Node = await scontro_bond_cominciato()
+	esigi(bool(vero.scontro_avviato), "lo scontro con la Tartaruga non comincia: la prova non direbbe niente")
+	var lui: Dictionary = i_due_dello_scontro(vero)[1]
+	vero.voce.box.testo.text = "una battuta di prima"
+	vero.media(lui)
+	var luce := LuceBond.aperta
+	esigi(LuceBond.copre() and luce != null, "mediando non parte la luce del BOND")
+	if luce == null:
+		vero.free()
+		return
+	# 1. SOPRA TUTTO LO SCONTRO, e il clic e' suo
+	esigi(luce.get_parent() == vero and luce.get_index() == vero.get_child_count() - 1,
+			"la luce non sta sopra tutto lo scontro")
+	esigi(luce.mouse_filter == Control.MOUSE_FILTER_STOP, "un clic passa attraverso la luce e arriva allo scontro")
+	# 2. LE PAROLE ASPETTANO: il racconto della mediazione e' in coda, e sotto la
+	#    luce non si comincia a leggere
+	var in_coda: int = vero.voce.coda.size()
+	esigi(in_coda > 0, "mediando non c'e' niente da raccontare: la prova non direbbe niente")
+	for i in 4:
+		await get_tree().process_frame
+	esigi(LuceBond.copre() and vero.voce.coda.size() == in_coda,
+			"sotto la luce il racconto della mediazione si legge gia': %d battute su %d" % [in_coda - vero.voce.coda.size(), in_coda])
+	esigi(not bool(vero.voce.sta_facendo_leggere),
+			"sotto la luce il pannello passa gia' al racconto: quando la luce se ne va si vede la battuta di prima")
+	esigi(String(vero.voce.box.testo.text) == "", "sotto la luce nel box resta la battuta di prima: la si rivede quando la luce se ne va")
+	# 3. VA AVANTI DA SOLA, e lo scontro non la spinge: se la spingesse lui, e
+	#    lui aspettasse lei, resterebbero fermi tutti e due
+	esigi(luce.is_processing() and luce.orologio > 0.0, "la luce non va avanti da sola")
+	var adesso := luce.orologio
+	vero._process(0.2)
+	esigi(is_equal_approx(luce.orologio, adesso), "lo scontro fa avanzare la luce: andrebbe al doppio, o si fermerebbe con lui")
+	# 4. SALTATA, SE NE VA SFUMANDO; e allora il racconto comincia
+	luce.salta()
+	esigi(LuceBond.copre(), "saltata, la luce sparisce di colpo invece di sfumare")
+	luce.avanza(LuceBond.SFUMA * 0.5)
+	esigi(LuceBond.copre() and luce.modulate.a > 0.0 and luce.modulate.a < 1.0, "saltata, la luce non sfuma: se ne va di colpo")
+	luce.avanza(LuceBond.SFUMA)
+	esigi(not LuceBond.copre(), "saltata, la luce non se ne va")
+	for i in 6:
+		await get_tree().process_frame
+	esigi(vero.voce.coda.size() < in_coda, "andata via la luce, il racconto della mediazione non comincia")
+	vero.free()
+	# 5. IL MONDO ASPETTA: una barra della Mattanza che si sta scaricando sotto
+	#    la luce resta dov'e' (e senza la luce si scarica: e' la prova del nove)
+	vero = await scontro_bond_cominciato()
+	var coppia := i_due_dello_scontro(vero)
+	var barra: MattanzaCombattimento = vero.mattanza
+	barra.attiva = true
+	barra.martella = true
+	barra.chi = coppia[0]
+	barra.rimasto = 100.0
+	barra.scarico = 50.0
+	vero.voce.coda.clear()
+	vero.voce.sta_facendo_leggere = false
+	vero._process(0.1)
+	esigi(barra.rimasto < 100.0, "senza la luce la barra della Mattanza non si scarica: la prova non direbbe niente")
+	vero.media(coppia[1])
+	vero.voce.coda.clear()
+	vero.voce.sta_facendo_leggere = false
+	var resto := barra.rimasto
+	vero._process(0.1)
+	esigi(is_equal_approx(barra.rimasto, resto) and barra.martella, "sotto la luce del BOND lo scontro va avanti")
+	barra.attiva = false
+	barra.martella = false
+	vero.free()
+	# 6. SENZA SCHERMO NIENTE LUCE: il simulatore e le prove mute mediano e basta
+	var muto: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	muto.muto = true
+	esigi(LuceBond.sullo_scontro(muto) == null, "in uno scontro muto si apre la luce del BOND")
+	muto.muto = false
+	muto.tempo_reale = false
+	esigi(LuceBond.sullo_scontro(muto) == null, "in uno scontro senza tempo reale si apre la luce: nessuno la farebbe finire")
+	muto.free()
+
+func prova_la_luce_del_bond_lettera_per_lettera() -> void:
+	titolo("la luce del BOND lettera per lettera: il contorno vero, i tempi e le pose di ognuna, l'uscita")
+	var tela := Control.new()
+	tela.size = Vector2(1280, 720)
+	add_child(tela)
+	var luce := LuceBond.apri(tela)
+	luce.set_process(false)   # l'orologio qui lo tiene la prova
+	esigi(luce.lettere.size() == 4, "BOND non ha quattro lettere: %d" % luce.lettere.size())
+	if luce.lettere.size() != 4:
+		tela.free()
+		return
+	var b := luce.lettere[0]
+	var o := luce.lettere[1]
+	var n := luce.lettere[2]
+	var d := luce.lettere[3]
+	# 1. IL CONTORNO VERO DEL CARATTERE: i buchi della B, della O e della D;
+	#    ogni giro chiuso, e comincia dal suo punto piu' basso
+	var giri: Array[int] = [b.contorni.size(), o.contorni.size(), n.contorni.size(), d.contorni.size()]
+	esigi(giri == [3, 2, 1, 2], "i contorni di B, O, N, D hanno %s giri invece di [3, 2, 1, 2]" % [giri])
+	for lettera in luce.lettere:
+		for giro in lettera.contorni:
+			var piu_basso := -INF
+			for punto in giro:
+				piu_basso = maxf(piu_basso, punto.y)
+			esigi(giro[0].is_equal_approx(giro[giro.size() - 1]), "un giro della %s non si chiude" % lettera.segno)
+			esigi(is_equal_approx(giro[0].y, piu_basso), "la luce non parte dal punto piu' basso della %s" % lettera.segno)
+		var fuori := lettera.contorni[0]
+		var cima := INF
+		var fondo := -INF
+		for punto in fuori:
+			cima = minf(cima, punto.y)
+			fondo = maxf(fondo, punto.y)
+		esigi(absf((fondo - cima) / float(lettera.corpo) - 0.7) < 0.1,
+				"il contorno della %s e' alto %.0f su un corpo di %d: non e' quello che si disegna" % [lettera.segno, fondo - cima, lettera.corpo])
+	# 2. OGNUNA LA SUA POSA: com'e' girata quando la luce la tocca, ognuna a
+	#    modo suo
+	var nate := {}
+	while nate.size() < 4 and luce.orologio < 1.5:
+		luce.avanza(0.01)
+		for lettera in luce.lettere:
+			if lettera.traccia > 0.0 and not nate.has(lettera.segno):
+				nate[lettera.segno] = snappedf(lettera.rotation, 0.001)
+	var giri_di_nascita := {}
+	for segno: String in nate:
+		giri_di_nascita[nate[segno]] = true
+	esigi(nate.size() == 4 and giri_di_nascita.size() == 4 and not giri_di_nascita.has(0.0),
+			"le lettere non nascono ognuna con la sua posa: %s" % [nate])
+	luce.free()
+	luce = LuceBond.apri(tela)
+	luce.set_process(false)
+	b = luce.lettere[0]
+	o = luce.lettere[1]
+	n = luce.lettere[2]
+	d = luce.lettere[3]
+	# 3. OGNUNA I SUOI TEMPI: prima la O, poi la N, la B, la D
+	luce.avanza(0.66)
+	esigi(o.traccia > n.traccia and n.traccia > b.traccia and b.traccia > 0.0 and is_zero_approx(d.traccia),
+			"la luce non sale prima sulla O, poi sulla N, la B e la D: %.2f %.2f %.2f %.2f" % [o.traccia, n.traccia, b.traccia, d.traccia])
+	# e arrivano girate e spostate, non gia' dritte al loro posto
+	luce.avanza(0.1)
+	for lettera in luce.lettere:
+		esigi(not is_zero_approx(lettera.rotation) and not lettera.position.is_equal_approx(lettera.posto),
+				"la %s arriva gia' dritta e al suo posto" % lettera.segno)
+	# 4. SI RIEMPIE DAL BASSO, poi si raffredda in oro
+	luce.avanza(0.9 - luce.orologio)
+	var pieno: float = luce.dorature[1].get_shader_parameter("riempi")
+	var sotto := (o.position.y + o.corpo * 0.38) / tela.size.y
+	var sopra := (o.position.y - o.corpo * 0.38) / tela.size.y
+	esigi(pieno > sopra and pieno < sotto, "a meta' la O non e' piena a meta': il pelo della luce e' a %.3f" % pieno)
+	esigi(float(luce.dorature[1].get_shader_parameter("bianco")) > 0.3, "appena piena la O e' gia' oro: non e' mai stata luce")
+	# 5. POSATE, DRITTE, D'ORO; la riga aperta col rombo
+	luce.avanza(2.1 - luce.orologio)
+	for i in luce.lettere.size():
+		var lettera := luce.lettere[i]
+		esigi(lettera.position.distance_to(lettera.posto) < 0.5 and absf(lettera.rotation) < 0.001,
+				"a parola fatta la %s non e' posata" % lettera.segno)
+		esigi(float(luce.dorature[i].get_shader_parameter("riempi")) < 0.0 and float(luce.dorature[i].get_shader_parameter("bianco")) < 0.01,
+				"a parola fatta la %s non e' piena d'oro" % lettera.segno)
+	esigi(luce.ornamento.mezza > luce.largo_riga * 0.9 and luce.ornamento.rombo > 0.99 and absf(luce.ornamento.giro_rombo) < 0.01,
+			"a parola fatta la riga col rombo non c'e'")
+	# 6. SE NE VANNO UNA ALLA VOLTA, DA SINISTRA
+	luce.avanza(2.65 - luce.orologio)
+	esigi(b.position.y < d.position.y - 5.0 and b.luce < d.luce, "le lettere non se ne vanno una alla volta da sinistra")
+	# 7. FINISCE DA SOLA, quando la seconda onda ha portato via la luce
+	var finita := [false]
+	luce.finito.connect(func() -> void: finita[0] = true)
+	while luce.in_corso and luce.orologio < 10.0:
+		luce.avanza(0.05)
+	esigi(bool(finita[0]) and luce.orologio >= LuceBond.DURATA - 0.06 and luce.orologio <= LuceBond.DURATA + 0.06,
+			"la luce finisce a %.2f s invece che a %.1f" % [luce.orologio, LuceBond.DURATA])
+	esigi(not LuceBond.copre(), "finita la luce, lo scontro resta coperto")
+	# 8. UN CLIC O UN TASTO LA SALTANO
+	var col_clic := LuceBond.apri(tela)
+	col_clic.set_process(false)
+	var clic := InputEventMouseButton.new()
+	clic.button_index = MOUSE_BUTTON_LEFT
+	clic.pressed = true
+	col_clic._gui_input(clic)
+	esigi(col_clic.saltata >= 0.0, "un clic sulla luce non la salta")
+	var col_tasto := LuceBond.apri(tela)
+	col_tasto.set_process(false)
+	col_tasto._input(tasto_spazio())
+	esigi(col_tasto.saltata >= 0.0, "lo spazio non salta la luce")
+	tela.free()
+
+func prova_la_luce_del_bond_col_movimento_ridotto() -> void:
+	titolo("col movimento ridotto la luce del BOND e' la parola d'oro, ferma, che compare e sparisce")
+	var ridotto := Impostazioni.movimento_ridotto
+	Impostazioni.movimento_ridotto = true
+	var tela := Control.new()
+	tela.size = Vector2(1280, 720)
+	add_child(tela)
+	var luce := LuceBond.apri(tela)
+	luce.set_process(false)
+	var ferma := true
+	var vista := false
+	while luce.in_corso and luce.orologio < 10.0:
+		luce.avanza(0.05)
+		for lettera in luce.lettere:
+			ferma = ferma and lettera.position.is_equal_approx(lettera.posto) and is_zero_approx(lettera.rotation) \
+					and is_zero_approx(lettera.traccia)
+			vista = vista or lettera.luce > 0.9
+	esigi(ferma, "col movimento ridotto le lettere si muovono, o la luce ci sale sopra")
+	esigi(vista, "col movimento ridotto la parola non si vede")
+	esigi(luce.orologio <= LuceBond.DURATA_RIDOTTA + 0.06, "col movimento ridotto la luce dura %.2f s" % luce.orologio)
+	Impostazioni.movimento_ridotto = ridotto
+	tela.free()

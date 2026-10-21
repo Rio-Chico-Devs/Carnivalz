@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# La proposta per il BOND (prove/ProposteBond.gd, la purificazione), girata
-# col Movie Maker di Godot in scatti/proposte_bond/. Provvisorio.
+# Il BOND del gioco (la purificazione, LuceBond.gd) girato da prove/ProposteBond.gd
+# col Movie Maker di Godot, in scatti/proposte_bond/. Provvisorio.
 # Serve ffmpeg, e una finestra vera (xvfb-run basta).
 #   ./prove/film_bond.sh
 set -euo pipefail

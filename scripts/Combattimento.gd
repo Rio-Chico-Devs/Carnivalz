@@ -821,8 +821,8 @@ func _process(delta: float) -> void:
 		if plancia != null:
 			plancia.spegni_evidenza()   # finita la lezione non resta niente acceso
 		riprendi_il_tempo()
-	if mazzata.passa(delta):
-		return   # sotto la mazza si ferma tutto, anche la barra della Mattanza
+	if LuceBond.copre() or mazzata.passa(delta):
+		return   # sotto la luce del BOND e sotto la mazza si ferma tutto, anche la barra della Mattanza
 	if mattanza.passa(delta):   # la barra si scarica anche mentre il mondo e' fermo
 		return   # e durante il colpo di grazia il mondo aspetta il tiro
 	if minigioco != null and minigioco.attivo:
@@ -1826,14 +1826,14 @@ func annuncia_mediazione(bersaglio: Dictionary) -> void:
 func media(bersaglio: Dictionary) -> void:
 	# esce dal combattimento senza dare Tazo ne' drop, ma rende piu' xp di
 	# quanta ne renderebbe da morto, il legame sale e lo stress della squadra
-	# scende. Gli altri nemici in campo restano dove sono.
-	#
-	# Mediare e' una decisione, non un'azione: si legge con calma, e si vede
-	# subito cosa comporta. Prima costava xp e Tazo in silenzio, e il giocatore
-	# non poteva sapere che scambio stesse facendo
+	# scende. Gli altri nemici in campo restano dove sono. Mediare e' una
+	# decisione, non un'azione: si legge con calma, e si vede subito cosa
+	# comporta (prima costava xp e Tazo in silenzio). E prima si vede il BOND:
+	# la luce della purificazione copre lo scontro, e mondo e parole aspettano
 	var dati_risparmio := dati_mediazione(bersaglio)
 	if dati_risparmio.is_empty():
 		return
+	LuceBond.sullo_scontro(self)
 	scrivi_forte(String(dati_risparmio.get("testo", "Decidi di lasciarlo andare.")))
 	var conseguenze: Array[String] = []
 	if dati_risparmio.has("legame"):

@@ -452,6 +452,14 @@ func metti_il_segno() -> void:
 	var x := minf(da + largo + dopo, testo.size.x + 24.0)
 	segno.position = origine + Vector2(x, y - segno.size.y * 0.5)
 
+func pagina_bianca() -> void:
+	# NIENTE BATTUTA DI PRIMA SOTTO GLI OCCHI: quando passa la luce del BOND
+	# (LuceBond.gd) il box riparte pulito, e la mediazione si scrive su una
+	# pagina nuova invece di comparire dopo l'ultima cosa letta
+	macchina.ferma()
+	testo.text = ""
+	nascondi_indicatore()
+
 func nascondi_indicatore() -> void:
 	# a coda finita non c'e' piu' niente da far avanzare: comandano le scelte
 	indicatore.visible = false

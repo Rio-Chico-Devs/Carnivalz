@@ -156,6 +156,7 @@ func svuota_coda() -> void:
 			await albero.process_frame
 		return
 	sta_svuotando = true
+	await aspetta_la_luce()   # e il pannello non passa al racconto sotto la luce
 	# LA FASE RESTA "RACCONTO" FINCHE' C'E' DA LEGGERE, non finche' la coda e'
 	# piena. Sono due cose diverse, e la differenza e' un difetto che Bru ha
 	# sentito e io no.
@@ -184,6 +185,7 @@ func svuota_coda() -> void:
 		# carattere. Bru: «ci vuole ordine».
 		await albero.process_frame
 	while not coda.is_empty():
+		await aspetta_la_luce()
 		var msg: Dictionary = coda.pop_front()
 		var testo := String(msg.testo)
 		# "viva()" e non "not muta": la scena puo' essere sparita mentre si
@@ -209,6 +211,14 @@ func svuota_coda() -> void:
 	# fase non tornerebbe mai ai comandi e lo scontro sembrerebbe piantato
 	sta_facendo_leggere = false
 	sta_svuotando = false
+
+func aspetta_la_luce() -> void:
+	# SOTTO LA LUCE DEL BOND NON SI LEGGE (LuceBond.gd): il racconto della
+	# mediazione comincia quando la luce se n'e' andata, su una pagina bianca
+	if viva() and LuceBond.copre():
+		box.pagina_bianca()
+	while viva() and LuceBond.copre():
+		await albero.process_frame
 
 func niente_da_leggere() -> bool:
 	# LA CODA VUOTA NON BASTA: la battuta a schermo e' gia' uscita dalla coda

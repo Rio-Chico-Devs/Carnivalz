@@ -28,6 +28,7 @@ Mattanza, il minigioco). Bru:
 | il turno che passa | approvato | nel gioco: `scripts/combattimento/FasciaTurno.gd` |
 | il minigioco col corpo | approvato | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
 | il riflesso sui vetri | approvato | nel gioco: `scripts/RiflessoVetro.gd` |
+| il BOND (la purificazione, §8) | approvato dopo tre giri | nel gioco: `scripts/combattimento/LuceBond.gd` |
 | le braci che salgono | **no** | tolte |
 | chi combatte che respira | **no** («le immagini che galleggiano») | tolto |
 
@@ -132,6 +133,20 @@ mezzo secondo, i timbri nero e rosso dentro il piano, le schegge, la scossa;
 i riflessi sfalsati. Ognuna col suo caso del movimento ridotto. Verificate
 rompendo apposta il codice in 32 modi.
 
+Per il BOND: `prova_la_luce_del_bond_quando_medi`,
+`prova_la_luce_del_bond_lettera_per_lettera`,
+`prova_la_luce_del_bond_col_movimento_ridotto`. Controllano:
+- che mediando parta, sopra tutto lo scontro, e che il clic sia suo;
+- che le parole, il pannello del racconto e la barra della Mattanza aspettino,
+  che il box riparta pulito, e che la luce vada avanti da sola;
+- che si salti sfumando, e che da muti non si apra;
+- il contorno vero di ogni lettera (i giri, il punto più basso, la misura);
+- i tempi e le pose di ognuna, il riempimento, l'oro, la riga col rombo;
+- l'uscita da sinistra e la durata;
+- il movimento ridotto.
+
+Verificate rompendo apposta il codice in 29 modi.
+
 ## 8. Il BOND: solo la scritta, e la luce
 
 Bru: «per il bond ci vuole qualcosa di più felice e tranquillo». Il primo
@@ -166,10 +181,13 @@ dal centro, Bond scritto a mano). Bru: «mi piace il primo, ma va migliorato
 manipolando ogni singola lettera e anche mettendoci più lavoro nelle
 animazioni».
 
-### La purificazione, lettera per lettera
+### La purificazione, lettera per lettera (nel gioco)
 
-`prove/ProposteBond.gd`, `./prove/film_bond.sh`, nell'editor
-`ProposteBond.tscn` e F6. In tutto 3,5 secondi:
+Bru: «si dai mettila». È nel gioco: `scripts/combattimento/LuceBond.gd`, con
+`LetteraBond.gd` (il contorno di ogni lettera) e i due shader
+`shaders/bond_lavaggio.gdshader` e `shaders/bond_doratura.gdshader`. Il film si
+gira dallo scontro vero, mediando con la Tartaruga: `./prove/film_bond.sh`
+(nell'editor `prove/ProposteBond.tscn` e F6). In tutto 3,5 secondi:
 
 1. **L'onda** sale dal basso, col bordo che ondeggia piano come la marea, e
    lava lo scontro.
@@ -196,10 +214,25 @@ Ogni lettera ha il suo CanvasGroup e il suo shader, quindi la sua sfocatura,
 il suo oro, il suo riempimento e il suo bagliore. Sopra ci sono le tracce
 della luce sui contorni e le scintille (le punte, i semi, le comete).
 
+Nello scontro:
+
+- **Quando parte**: quando medi (col tasto BOND o con la voce Mediazione),
+  prima di tutto il resto. Sta sopra tutto lo scontro, anche sopra il box.
+- **Il mondo aspetta**: finché la luce copre, i turni, le barre e la Mattanza
+  stanno fermi, e il racconto della mediazione («Lo lasci andare: …») comincia
+  quando la luce se n'è andata, su una pagina bianca (la battuta di prima non
+  resta nel box). La luce invece va avanti da sola: se dipendesse
+  dallo scontro, e lo scontro aspettasse lei, resterebbero fermi tutti e due.
+- **Sotto la luce lo scontro è fermo** com'era quando hai mediato (una foto): la
+  creatura è ancora lì finché la luce la copre, e non c'è più quando la seconda
+  onda riporta lo scontro vero.
+- **Il primo tasto o clic la salta**: se ne va sfumando in un quarto di secondo.
+- **Movimento ridotto**: niente onde e niente lettere in volo. Lo scontro si lava
+  tutto insieme e la parola d'oro, ferma, compare e sparisce (1,4 s).
+- **Da muti** (il simulatore, le prove) non si apre: non c'è niente da guardare.
+
 ## 9. Cosa resta da decidere
 
-1. La **purificazione** lettera per lettera: va bene così, o cosa cambiare?
-   Quando ti convince la metto nel gioco, come la Mattanza.
-2. I **minigiochi**: oggi ci sono la raffica (Collisioni infinite), il
+1. I **minigiochi**: oggi ci sono la raffica (Collisioni infinite), il
    braccio di ferro della Mazzata e il colpo di grazia della Mattanza. Quali
    altri hai in mente?
