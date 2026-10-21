@@ -268,6 +268,17 @@ static func poligono(tela: CanvasItem, punti: PackedVector2Array, tinta: Color) 
 	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, vertici, colori)
 
 
+static func rettangolo(tela: CanvasItem, dove: Rect2, tinta: Color) -> void:
+	# UN RETTANGOLO COL BORDO LISCIO, per quello che si inclina. draw_rect,
+	# ColorRect e gli StyleBoxFlat senza angoli tondi non sfumano il bordo: dritti
+	# non serve, ma lo slot di chi ha il turno si inclina (FasciaTurno) e quello
+	# che prende un colpo sbanda (Impatto), e i loro rettangoli diventavano a
+	# scalini. Bru: «a volte nei riquadri che hanno linee diagonali, queste
+	# risultano pixellose»
+	poligono(tela, PackedVector2Array([dove.position, Vector2(dove.end.x, dove.position.y), dove.end,
+			Vector2(dove.position.x, dove.end.y)]), tinta)
+
+
 static func scosta(punti: PackedVector2Array, quanto: float) -> PackedVector2Array:
 	# i vertici spostati di "quanto" pixel perpendicolari ai lati (positivo =
 	# verso fuori), qualunque sia il verso in cui il poligono e' scritto

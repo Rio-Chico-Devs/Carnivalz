@@ -126,7 +126,7 @@ static func bottone(tela: Control, r: Rect2, p: Proiezione) -> void:
 	for k in 3:
 		var x := r.end.x - 44.0 + float(k) * 11.0 + (0.0 if Movimento.ridotto() else fmod(p.t * 2.0, 1.0) * 4.0)
 		var y := r.position.y + 20.0
-		tela.draw_colored_polygon(PackedVector2Array([Vector2(x, y - 6), Vector2(x + 7, y), Vector2(x, y + 6)]), tinta)
+		Manifesto.poligono(tela, PackedVector2Array([Vector2(x, y - 6), Vector2(x + 7, y), Vector2(x, y + 6)]), tinta)
 
 
 static func suggerimenti(tela: Control, dove: Vector2, tinte: Dictionary) -> void:

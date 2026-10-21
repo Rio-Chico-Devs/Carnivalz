@@ -36,6 +36,7 @@ var velo: ColorRect
 var bianco: ColorRect
 var fasce: Array[Node2D] = []   # la nera, la rossa, l'arancio
 var arte: Polygon2D = null      # l'artwork tagliato dalla fascia
+var orlo: Carta = null          # il suo bordo, liscio (sotto)
 var iniziale: Label = null      # al posto dell'artwork, finche' non c'e'
 var parola: Label
 var schegge: Schegge
@@ -100,11 +101,12 @@ func rettangolo(tinta: Color) -> ColorRect:
 
 
 func fascia(centro: Vector2, alto: float, tinta: Color) -> Node2D:
-	# una fascia di carta di traverso: un parallelogramma, girato di INCLINA
+	# una fascia di carta di traverso: un parallelogramma, girato di INCLINA,
+	# col bordo liscio (Carta, sotto)
 	var perno := Node2D.new()
 	perno.position = centro
 	perno.rotation_degrees = INCLINA
-	var carta := Polygon2D.new()
+	var carta := Carta.new()
 	carta.polygon = bordo_fascia(size.x * 1.6, alto)
 	carta.color = tinta
 	perno.add_child(carta)
@@ -126,6 +128,10 @@ func metti_arte(id_personaggio: String, nome: String, alto: float) -> void:
 		arte = Polygon2D.new()
 		arte.texture = disegno
 		fasce[0].add_child(arte)
+		orlo = Carta.new()
+		orlo.color = Stile.colore("sfondo")
+		orlo.solo_bordo = true
+		fasce[0].add_child(orlo)
 		return
 	iniziale = Label.new()
 	iniziale.text = nome.left(1).to_upper()
@@ -162,6 +168,7 @@ func taglia_l_arte(dove: Rect2) -> void:
 		dentro = Geometry2D.intersect_polygons(nella_fascia[0], sinistra)
 	if dentro.is_empty():
 		arte.polygon = PackedVector2Array()
+		orlo.polygon = PackedVector2Array()
 		return
 	var contorno: PackedVector2Array = dentro[0]
 	var uv := PackedVector2Array()
@@ -170,6 +177,7 @@ func taglia_l_arte(dove: Rect2) -> void:
 		uv.append((p - dove.position) / dove.size * misura)
 	arte.polygon = contorno
 	arte.uv = uv
+	orlo.polygon = contorno
 
 
 func _gui_input(evento: InputEvent) -> void:
@@ -250,6 +258,29 @@ func sistema_arte(scivola: float) -> void:
 	elif iniziale != null:
 		var dove := dove_sta_l_arte(scivola)
 		iniziale.position = Vector2(dove.position.x + dove.size.x * 0.2, -iniziale.size.y * 0.52)
+
+
+class Carta extends Node2D:
+	# UN POLIGONO COL BORDO LISCIO (Manifesto.poligono): un Polygon2D inclinato
+	# ha il bordo a scalini, e l'antialiasing di Polygon2D qui non fa niente
+	# (provato). Pieno, per le fasce; o solo il bordo, per l'artwork, che e' un
+	# Polygon2D con la texture e il suo taglio storto va lisciato da sopra
+	var polygon := PackedVector2Array():
+		set(nuovo):
+			polygon = nuovo
+			queue_redraw()
+	var color := Color.BLACK
+	var solo_bordo := false
+
+	func _draw() -> void:
+		if polygon.size() < 3:
+			return
+		if not solo_bordo:
+			Manifesto.poligono(self, polygon, color)
+			return
+		var chiuso := polygon.duplicate()
+		chiuso.append(polygon[0])
+		draw_polyline(chiuso, color, 2.0, true)
 
 
 class Corse extends Node2D:

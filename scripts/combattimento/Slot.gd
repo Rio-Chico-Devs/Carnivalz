@@ -165,22 +165,23 @@ func vesti_numero(etichetta: Label) -> void:
 
 func barra_colorata(chiave: String, nome_colore: String) -> Control:
 	# Squadrata, in una cornice nera: il colore pieno dentro, il vuoto scuro.
+	# Coi bordi lisci (Manifesto.rettangolo): lo slot si inclina, e la barra con lui
 	var telaio := Control.new()
 	telaio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	telaio.draw.connect(func() -> void:
 		var pieno := clampf(float(quote.get(chiave, 0.0)), 0.0, 1.0)
 		var coda := clampf(float(scie.get(chiave, pieno)), 0.0, 1.0)
-		telaio.draw_rect(Rect2(Vector2.ZERO, telaio.size), Stile.colore("bordo"))
+		Manifesto.rettangolo(telaio, Rect2(Vector2.ZERO, telaio.size), Stile.colore("bordo"))
 		var dentro := Rect2(Vector2.ZERO, telaio.size).grow(-minf(3.0, telaio.size.y * 0.2))
-		telaio.draw_rect(dentro, Stile.colore("barra_vuota"))
+		Manifesto.rettangolo(telaio, dentro, Stile.colore("barra_vuota"))
 		# LA SCIA STA SOTTO E SI VEDE SOLO SE SPORGE. Perdendo sporge a destra
 		# (quello che hai appena perso), curando sporge la barra e la scia e'
 		# gia' arrivata: in quel caso non si disegna niente in piu'
 		if coda > pieno:
-			telaio.draw_rect(Rect2(dentro.position + Vector2(dentro.size.x * pieno, 0.0),
+			Manifesto.rettangolo(telaio, Rect2(dentro.position + Vector2(dentro.size.x * pieno, 0.0),
 					Vector2(dentro.size.x * (coda - pieno), dentro.size.y)), Stile.colore("negativo"))
 		if pieno > 0.0:
-			telaio.draw_rect(Rect2(dentro.position, Vector2(dentro.size.x * pieno, dentro.size.y)),
+			Manifesto.rettangolo(telaio, Rect2(dentro.position, Vector2(dentro.size.x * pieno, dentro.size.y)),
 					Stile.colore(nome_colore)))
 	return telaio
 

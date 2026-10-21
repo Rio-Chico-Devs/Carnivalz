@@ -36,6 +36,6 @@ func comete() -> void:
 	var corre := Color(1, 1, 1, riga.luce * sin(riga.corsa * PI))
 	for verso: float in [-1.0, 1.0]:
 		var testa := Vector2(verso * riga.mezza * riga.corsa, 0.0)
-		draw_colored_polygon(PackedVector2Array([testa - Vector2(verso * 30.0, 0.0), testa + Vector2(0.0, -2.2),
+		Manifesto.poligono(self, PackedVector2Array([testa - Vector2(verso * 30.0, 0.0), testa + Vector2(0.0, -2.2),
 				testa + Vector2(0.0, 2.2)]), corre)
 		draw_circle(testa, 2.6, corre, true, -1.0, true)

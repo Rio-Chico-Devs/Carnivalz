@@ -163,7 +163,7 @@ static func segnali(p: Proiezione, tela: Control) -> void:
 		var k := elastico(float(c["apertura"]))
 		var rombo := PackedVector2Array([su + Vector2(0, -12) * k, su + Vector2(10, 0) * k, su + Vector2(0, 12) * k,
 				su + Vector2(-10, 0) * k])
-		tela.draw_colored_polygon(rombo, p.tinte["segnale"])
+		Manifesto.poligono(tela, rombo, p.tinte["segnale"])
 		scrivi(tela, su + Vector2(-2.5, 6), "!", 16, p.tinte["fondo"], 800, 100, 0)
 		tela.draw_line(su + Vector2(0, 12), s + Vector2(0, -p.raggio_sullo_schermo(c) - 2),
 				Color(p.tinte["segnale"], 0.8), 1.0)

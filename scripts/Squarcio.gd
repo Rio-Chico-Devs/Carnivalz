@@ -94,6 +94,7 @@ func filo(spesso: float, tinta: Color) -> Line2D:
 	tratto.default_color = tinta
 	tratto.begin_cap_mode = Line2D.LINE_CAP_ROUND
 	tratto.end_cap_mode = Line2D.LINE_CAP_ROUND
+	tratto.antialiased = true   # la crepa e' storta: senza, a scalini
 	add_child(tratto)
 	return tratto
 

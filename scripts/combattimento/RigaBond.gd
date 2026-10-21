@@ -16,10 +16,10 @@ var alto := 8.0           # mezza altezza del rombo
 func _draw() -> void:
 	var bianco := Color(1, 1, 1, luce)
 	if mezza > 4.0:
-		draw_colored_polygon(PackedVector2Array([Vector2(-mezza, 0), Vector2(0, -1.8), Vector2(mezza, 0),
+		Manifesto.poligono(self, PackedVector2Array([Vector2(-mezza, 0), Vector2(0, -1.8), Vector2(mezza, 0),
 				Vector2(0, 1.8)]), bianco)
 	if rombo > 0.05:
 		draw_set_transform(Vector2.ZERO, giro_rombo, Vector2.ONE * rombo)
-		draw_colored_polygon(PackedVector2Array([Vector2(0, -alto), Vector2(alto * 0.8, 0), Vector2(0, alto),
+		Manifesto.poligono(self, PackedVector2Array([Vector2(0, -alto), Vector2(alto * 0.8, 0), Vector2(0, alto),
 				Vector2(-alto * 0.8, 0)]), bianco)
 		draw_set_transform(Vector2.ZERO)

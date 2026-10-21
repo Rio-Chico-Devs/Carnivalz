@@ -75,6 +75,7 @@ func _ready() -> void:
 	await prova_il_turno_si_vede_col_corpo()
 	await prova_la_raffica_col_corpo()
 	prova_i_vetri_stanno_fermi()
+	prova_le_diagonali_hanno_il_bordo_liscio()
 	await prova_la_luce_del_bond_quando_medi()
 	prova_la_luce_del_bond_lettera_per_lettera()
 	prova_la_luce_del_bond_col_movimento_ridotto()
@@ -21839,7 +21840,7 @@ func prova_il_taglio_della_mattanza() -> void:
 			"il taglio non sta sopra tutto lo scontro: un clic sul box non lo salterebbe")
 	esigi(taglio.size.is_equal_approx(vero.size), "il taglio non copre lo schermo: %s su %s" % [taglio.size, vero.size])
 	# 2. LA FASCIA NERA E' GRANDE: Bru ci mettera' l'artwork
-	var nera := taglio.fasce[0].get_child(0) as Polygon2D
+	var nera := taglio.fasce[0].get_child(0) as TaglioMattanza.Carta
 	var alta := 0.0
 	for punto in nera.polygon:
 		alta = maxf(alta, absf(punto.y) * 2.0)
@@ -22100,6 +22101,59 @@ func prova_i_vetri_stanno_fermi() -> void:
 			"il cabinato ha qualcosa in piu' del retro e del vetro, o qualcosa che si muove: %d" % mossi)
 	tela.free()
 	esigi(not ResourceLoader.exists("res://scripts/RiflessoVetro.gd"), "il riflesso sui vetri e' tornato fra gli script")
+
+func prova_le_diagonali_hanno_il_bordo_liscio() -> void:
+	# Bru: «a volte nei riquadri che hanno linee diagonali, queste risultano
+	# pixellose». Godot non sfuma il bordo dei poligoni pieni, dei Polygon2D (il
+	# loro antialiasing qui non fa niente, provato) e dei rettangoli che si
+	# inclinano; lo sfuma Manifesto.poligono, e Manifesto.rettangolo per i
+	# rettangoli. "A volte" era: lo slot di chi ha il turno si inclina, e le sue
+	# barre andavano a scalini; le fasce della Mattanza sono di traverso
+	titolo("le diagonali hanno il bordo liscio: niente poligoni pieni o rettangoli inclinati senza sfumatura")
+	var sporchi: Array[String] = []
+	for percorso in script_sotto_scripts("res://scripts"):
+		var righe := FileAccess.get_file_as_string(percorso).split("\n")
+		for i in righe.size():
+			var riga := String(righe[i])
+			if riga.strip_edges().begins_with("#"):
+				continue
+			# un poligono pieno senza texture va disegnato liscio
+			if riga.contains("draw_colored_polygon(") and not riga.contains("uv"):
+				sporchi.append("%s:%d poligono pieno senza bordo liscio" % [percorso.get_file(), i + 1])
+			# un Polygon2D serve solo con un disegno dentro: pieno, va a scalini
+			if riga.contains("Polygon2D.new()"):
+				var con_texture := false
+				for k in range(i + 1, mini(i + 4, righe.size())):
+					con_texture = con_texture or String(righe[k]).contains(".texture =")
+				if not con_texture:
+					sporchi.append("%s:%d Polygon2D pieno: il suo antialiasing non funziona" % [percorso.get_file(), i + 1])
+		var testo := FileAccess.get_file_as_string(percorso)
+		if testo.contains("Line2D.new()") and not testo.contains("antialiased = true"):
+			sporchi.append("%s: una Line2D senza antialiasing" % percorso.get_file())
+	esigi(sporchi.is_empty(), "diagonali a scalini: %s" % ", ".join(sporchi))
+	# lo slot si inclina quando ha il turno (FasciaTurno) e sbanda quando prende
+	# un colpo (Impatto): i suoi rettangoli devono essere lisci
+	var slot := FileAccess.get_file_as_string("res://scripts/combattimento/Slot.gd")
+	esigi(not slot.contains("draw_rect("), "lo slot, che si inclina, disegna rettangoli col bordo a scalini (draw_rect)")
+	# le fasce della Mattanza sono carta col bordo liscio
+	var tela := Control.new()
+	tela.size = Vector2(1280, 720)
+	add_child(tela)
+	var taglio := TaglioMattanza.apri(tela, {"id": "nessuno", "nome": "Nessuno"})
+	var lisce := 0
+	for fascia in taglio.fasce:
+		lisce += 1 if fascia.get_child(0) is TaglioMattanza.Carta else 0
+	esigi(lisce == taglio.fasce.size(), "le fasce della Mattanza non hanno il bordo liscio: %d su %d" % [lisce, taglio.fasce.size()])
+	tela.free()
+
+func script_sotto_scripts(cartella: String) -> Array[String]:
+	var trovati: Array[String] = []
+	for nome in DirAccess.get_files_at(cartella):
+		if nome.ends_with(".gd"):
+			trovati.append(cartella.path_join(nome))
+	for sotto in DirAccess.get_directories_at(cartella):
+		trovati.append_array(script_sotto_scripts(cartella.path_join(sotto)))
+	return trovati
 
 # --- LA LUCE DEL BOND (docs/vita.md §8) ---------------------------------------
 # Bru, sulla purificazione lettera per lettera: «si dai mettila»
