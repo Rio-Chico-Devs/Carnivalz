@@ -13,13 +13,12 @@ extends Control
 #   mattanza    la Mattanza chiamata sul nemico (TaglioMattanza.gd)
 #   turno       il turno che passa a Veronica, al nemico, a te (FasciaTurno.gd)
 #   collisioni  la raffica giocata: parate e colpi presi (RiquadroRaffica.gd)
-#   riflesso    lo scontro a riposo: la luce che passa sui vetri (RiflessoVetro.gd)
 #
 #   ./prove/film_vita.sh             li gira tutti in scatti/proposte_vita/
 #   ./prove/film_vita.sh mattanza    uno solo
 #   nell'editor: ProposteVita.tscn, F6 (fa la Mattanza)
 
-const DURATE := {"squarcio": 3.0, "mattanza": 3.6, "turno": 5.6, "collisioni": 8.4, "riflesso": 6.0}
+const DURATE := {"squarcio": 3.0, "mattanza": 3.6, "turno": 5.6, "collisioni": 8.4}
 const ASSESTAMENTO := 90   # fotogrammi prima di cominciare: lo scontro si dispone
 const PARATE := [0, 1, 3, 4, 6]
 

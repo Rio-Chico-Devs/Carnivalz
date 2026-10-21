@@ -74,7 +74,7 @@ func _ready() -> void:
 	await prova_lo_squarcio_d_entrata()
 	await prova_il_turno_si_vede_col_corpo()
 	await prova_la_raffica_col_corpo()
-	prova_il_riflesso_sui_vetri()
+	prova_i_vetri_stanno_fermi()
 	await prova_la_luce_del_bond_quando_medi()
 	prova_la_luce_del_bond_lettera_per_lettera()
 	prova_la_luce_del_bond_col_movimento_ridotto()
@@ -21937,11 +21937,21 @@ func prova_lo_squarcio_d_entrata() -> void:
 	var box := Squarcio.pezzo_di(arriva.plancia.box_nemico, radice)
 	var quadrante := Squarcio.pezzo_di(arriva.plancia.quadrante, radice)
 	esigi(box.position.x < -100.0, "arrivando dallo squarcio il nemico non entra da sinistra")
-	await get_tree().create_timer(Squarcio.PEZZI_DOPO + Movimento.durata("entrata") * 0.6).timeout
-	var quanto_box := absf(box.position.x - a_riposo.x)
-	esigi(quadrante.position.y - quadrante_a_riposo.y > 40.0 and quanto_box < 120.0,
-			"il quadrante non arriva per ultimo: il nemico e' a %.0f dal suo posto, il quadrante a %.0f"
-			% [quanto_box, quadrante.position.y - quadrante_a_riposo.y])
+	# CHI ARRIVA QUANDO, fotogramma per fotogramma: con un timer dell'orologio
+	# vero si guardava a un istante fisso, e un fotogramma in ritardo sotto
+	# carico bastava a far fallire la prova una volta su sei
+	var arrivo_box := -1.0
+	var arrivo_quadrante := -1.0
+	var trascorso := 0.0
+	while (arrivo_box < 0.0 or arrivo_quadrante < 0.0) and trascorso < 3.0:
+		await get_tree().process_frame
+		trascorso += get_process_delta_time()
+		if arrivo_box < 0.0 and absf(box.position.x - a_riposo.x) < 1.0:
+			arrivo_box = trascorso
+		if arrivo_quadrante < 0.0 and absf(quadrante.position.y - quadrante_a_riposo.y) < 1.0:
+			arrivo_quadrante = trascorso
+	esigi(arrivo_box >= 0.0 and arrivo_quadrante > arrivo_box,
+			"il quadrante non arriva per ultimo: il nemico e' al suo posto a %.2f s, il quadrante a %.2f s" % [arrivo_box, arrivo_quadrante])
 	await get_tree().create_timer(0.8).timeout
 	esigi(box.position.is_equal_approx(a_riposo), "finito lo squarcio il nemico non e' al suo posto: %s invece di %s" % [box.position, a_riposo])
 	arriva.free()
@@ -22041,30 +22051,31 @@ func prova_la_raffica_col_corpo() -> void:
 	Impostazioni.movimento_ridotto = false
 	vero.free()
 
-func prova_il_riflesso_sui_vetri() -> void:
-	titolo("sui vetri dei cabinati ogni tanto passa la luce, mai su due insieme, e niente col movimento ridotto")
-	var uno := Manifesto.Vetro.new()
-	var due := Manifesto.Vetro.new()
-	var luce_uno: RiflessoVetro = null
-	var luce_due: RiflessoVetro = null
-	for figlio in uno.get_children():
-		luce_uno = figlio as RiflessoVetro if figlio is RiflessoVetro else luce_uno
-	for figlio in due.get_children():
-		luce_due = figlio as RiflessoVetro if figlio is RiflessoVetro else luce_due
-	esigi(luce_uno != null and luce_due != null, "il vetro di un cabinato non ha il riflesso")
-	if luce_uno != null and luce_due != null:
-		esigi(absf(luce_uno.ritardo - luce_due.ritardo) >= RiflessoVetro.PASSA, "due vetri nati insieme si accendono insieme")
-		luce_uno.orologio = luce_uno.ritardo + RiflessoVetro.PASSA * 0.5
-		esigi(luce_uno.passaggio() > 0.4 and luce_uno.passaggio() < 0.6, "a meta' passaggio la luce non e' a meta' vetro")
-		luce_uno.orologio = luce_uno.ritardo + RiflessoVetro.PASSA + 0.5
-		esigi(luce_uno.passaggio() < 0.0, "la luce resta sul vetro oltre il suo passaggio")
-		luce_uno.orologio = luce_uno.ritardo + RiflessoVetro.PERIODO + RiflessoVetro.PASSA * 0.5
-		esigi(luce_uno.passaggio() > 0.0, "la luce passa una volta sola e poi mai piu'")
-		Impostazioni.movimento_ridotto = true
-		esigi(luce_uno.passaggio() < 0.0, "col movimento ridotto la luce passa lo stesso")
-		Impostazioni.movimento_ridotto = false
-	uno.free()
-	due.free()
+func prova_i_vetri_stanno_fermi() -> void:
+	# Bru, giocando: «quei riflessi durante il combattimento e i dialoghi sono
+	# molto fastidiosi». Sul vetro dei cabinati non passa piu' niente: il vetro
+	# e' l'anello e il filo, e nient'altro che si muova
+	titolo("i vetri dei cabinati stanno fermi: niente riflessi nello scontro e nei dialoghi")
+	var vetro := Manifesto.Vetro.new()
+	esigi(vetro.get_child_count() == 0, "sul vetro di un cabinato c'e' di nuovo qualcosa: %d figli" % vetro.get_child_count())
+	vetro.free()
+	var tela := Control.new()
+	tela.size = Vector2(1280, 720)
+	add_child(tela)
+	var schermo := Control.new()
+	tela.add_child(schermo)
+	var retro := Manifesto.cabinato(tela, schermo)
+	var mossi := 0
+	for figlio in tela.get_children():
+		if figlio != schermo and figlio != retro and figlio != retro.davanti:
+			mossi += 1
+		for nipote in figlio.get_children():
+			if nipote.is_processing():
+				mossi += 1
+	esigi(mossi == 0 and retro.davanti.get_child_count() == 0,
+			"il cabinato ha qualcosa in piu' del retro e del vetro, o qualcosa che si muove: %d" % mossi)
+	tela.free()
+	esigi(not ResourceLoader.exists("res://scripts/RiflessoVetro.gd"), "il riflesso sui vetri e' tornato fra gli script")
 
 # --- LA LUCE DEL BOND (docs/vita.md §8) ---------------------------------------
 # Bru, sulla purificazione lettera per lettera: «si dai mettila»

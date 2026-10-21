@@ -27,7 +27,7 @@ Mattanza, il minigioco). Bru:
 | la Mattanza | approvata, con la fascia **più grande** per l'artwork | nel gioco: `scripts/combattimento/TaglioMattanza.gd` |
 | il turno che passa | approvato | nel gioco: `scripts/combattimento/FasciaTurno.gd` |
 | il minigioco col corpo | approvato | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
-| il riflesso sui vetri | approvato | nel gioco: `scripts/RiflessoVetro.gd` |
+| il riflesso sui vetri | approvato, poi **no** giocando (§6) | tolto |
 | il BOND (la purificazione, §8) | approvato dopo tre giri | nel gioco: `scripts/combattimento/LuceBond.gd` |
 | le braci che salgono | **no** | tolte |
 | chi combatte che respira | **no** («le immagini che galleggiano») | tolto |
@@ -111,27 +111,34 @@ dall'altra parte; poi lo scontro sbanda e si comincia a battere.
 - **Movimento ridotto**: niente tacche, niente schegge, niente scossa; le
   parole compaiono ferme.
 
-## 6. Il riflesso sui vetri
+## 6. Il riflesso sui vetri: tolto
 
-Ogni tanto sul vetro di un cabinato passa una lama di luce di traverso: tre
-quarti di secondo ogni quattro secondi e mezzo, un decimo di bianco. Ogni
-vetro ha il suo tempo, mai due insieme. Sta nel vetro di tutti i cabinati
-(`Manifesto.Vetro`), quindi anche nella schermata del racconto. Disegna solo
-mentre passa. **Movimento ridotto**: non passa.
+C'era: ogni tanto sul vetro di un cabinato passava una lama di luce di
+traverso, tre quarti di secondo ogni quattro secondi e mezzo, ogni vetro col
+suo tempo. Stava nel vetro di tutti i cabinati (`Manifesto.Vetro`), quindi
+nello scontro e nella schermata del racconto. Approvato negli esempi, ma
+giocando Bru:
+
+> «quei riflessi durante il combattimento e i dialoghi sono molto fastidiosi»
+
+Tolto del tutto: il vetro è l'anello e il filo, e non si muove.
+`prova_i_vetri_stanno_fermi` controlla che non torni niente sopra i vetri.
+La lezione: una cosa che si ripete da sola mentre leggi o combatti disturba,
+anche se in un film di tre secondi è bella.
 
 ## 7. Le prove
 
 `prova_il_taglio_della_mattanza`, `prova_lo_squarcio_d_entrata`,
-`prova_il_turno_si_vede_col_corpo`, `prova_la_raffica_col_corpo`,
-`prova_il_riflesso_sui_vetri`: la fascia alta metà schermo, l'iniziale e
+`prova_il_turno_si_vede_col_corpo`, `prova_la_raffica_col_corpo`: la fascia
+alta metà schermo, l'iniziale e
 l'artwork dentro la fascia, il mondo fermo sotto il taglio, il tasto che lo
 salta senza colpire, la durata; lo squarcio solo verso lo scontro e mai col
 movimento ridotto, le metà che volano, i pezzi che entrano solo arrivando dallo
 squarcio e il quadrante per ultimo; le fasce del turno, «TOCCA A TE», il
 rosso del nemico, lo slot che non resta alzato; l'anticipo solo nell'ultimo
-mezzo secondo, i timbri nero e rosso dentro il piano, le schegge, la scossa;
-i riflessi sfalsati. Ognuna col suo caso del movimento ridotto. Verificate
-rompendo apposta il codice in 32 modi.
+mezzo secondo, i timbri nero e rosso dentro il piano, le schegge, la scossa.
+Ognuna col suo caso del movimento ridotto. Verificate rompendo apposta il
+codice in 32 modi (con quella del riflesso, che non c'è più).
 
 Per il BOND: `prova_la_luce_del_bond_quando_medi`,
 `prova_la_luce_del_bond_lettera_per_lettera`,

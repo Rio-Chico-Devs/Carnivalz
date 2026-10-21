@@ -19,7 +19,7 @@ fi
 CARTELLA=scatti/proposte_vita
 mkdir -p "$CARTELLA"
 FILM=("$@")
-[ ${#FILM[@]} -gt 0 ] || FILM=(squarcio mattanza turno collisioni riflesso)
+[ ${#FILM[@]} -gt 0 ] || FILM=(squarcio mattanza turno collisioni)
 # lo squarcio cambia scena e porta via chi lo filma: si ferma a fotogrammi
 declare -A QUANTI=([squarcio]=200)
 for nome in "${FILM[@]}"; do

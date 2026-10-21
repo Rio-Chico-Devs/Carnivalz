@@ -428,7 +428,11 @@ class Vetro extends Control:
 	# IL DAVANTI DELLO SCHERMO: un anello del colore della cornice che copre gli
 	# spigoli del disegno (cosi' il vetro ha gli angoli tondi) e il filo nero
 	# che lo separa dalla cornice. Tutto quello che disegna e' FUORI dal vetro,
-	# o proprio sul suo bordo: in mezzo non copre niente
+	# o proprio sul suo bordo: in mezzo non copre niente.
+	#
+	# NIENTE RIFLESSI. Ogni tanto ci passava sopra una lama di luce; Bru,
+	# giocando: «quei riflessi durante il combattimento e i dialoghi sono molto
+	# fastidiosi». Il vetro sta fermo (docs/vita.md, §6)
 	var color := Color.WHITE:
 		set(nuovo):
 			color = nuovo
@@ -438,7 +442,6 @@ class Vetro extends Control:
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		resized.connect(queue_redraw)
-		add_child(RiflessoVetro.new())   # ogni tanto ci passa sopra la luce
 
 	func _draw() -> void:
 		var anello := StyleBoxFlat.new()
