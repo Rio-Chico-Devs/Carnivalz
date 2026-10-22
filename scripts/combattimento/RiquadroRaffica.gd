@@ -46,6 +46,7 @@ const SCRITTE := 4              # quante al massimo insieme: create una volta so
 # vedere e il fatto che si chiuda e' noioso sembra che ti colpisca piano»
 const TIMBRO := 0.14            # quanto ci mette la parola a cadere
 const VICINO := 0.3             # di quanto si gonfia il pugno acceso arrivandoti addosso
+const SCHIANTO := 0.12          # quanto resta il pugno che ti ha preso, schiacciato sul vetro
 const ANELLO_PARATA := 1.6      # di quanti raggi si allarga l'anello della parata
 
 var gioco: MinigiocoCombattimento
@@ -451,13 +452,14 @@ func disegna_scoppio(segno: Dictionary, r: float) -> void:
 	var tinta := tinta_del_segno(String(segno.esito))
 	var centro := centro_di(pugno)
 	if String(segno.esito) == "preso":
-		# preso: il pugno e' arrivato sul vetro, e per un attimo resta li',
-		# gonfio, dietro le crepe; il vetro, il rosso e il resto li disegna
-		# VetroRotto
-		var resta := 1.0 - clampf(float(segno.eta) / 0.2, 0.0, 1.0)
-		if resta > 0.0:
-			piano.draw_circle(centro, r * (1.08 + VICINO), Color(tinta_acceso(), resta), true, -1.0, true)
-			piano.draw_arc(centro, r * (1.08 + VICINO) * 0.93, 0.0, TAU, 48, Color(1, 1, 1, resta), maxf(r * 0.13, 1.5), true)
+		# preso: il pugno si schianta sul vetro - si allarga di colpo e se ne
+		# va in un attimo, dietro le crepe; il vetro, il rosso e il resto li
+		# disegna VetroRotto. Restava un quinto di secondo col bordo bianco, e
+		# il vetro lo scomponeva in un anello arcobaleno
+		var u := clampf(float(segno.eta) / SCHIANTO, 0.0, 1.0)
+		if u < 1.0:
+			piano.draw_circle(centro, r * (1.08 + VICINO) * lerpf(1.0, 1.15, sqrt(u)),
+					Color(tinta_acceso(), (1.0 - u) * (1.0 - u)), true, -1.0, true)
 		return
 	# la parata: un anello che si allarga e sparisce
 	piano.draw_arc(centro, r * (1.0 + quanto * ANELLO_PARATA), 0.0, TAU, 48,

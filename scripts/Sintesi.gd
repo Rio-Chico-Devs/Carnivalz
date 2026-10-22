@@ -135,9 +135,11 @@ static func interfaccia(nome: String) -> AudioStreamWAV:
 			# guardando dall'altra parte del riquadro. Secco e in alto, e sale
 			return tono(900.0, 0.07, "quadra", 60.0, 0.16, 1350.0)
 		"incrinato":
-			# il pugno che ti prende e incrina il vetro dello schermo: un tonfo e
-			# poche schegge, piu' corto dei frantumi della Mattanza
-			return vetro(0.3, 8, 0.9)
+			# il pugno che ti prende e spacca il vetro dello schermo: il tonfo, lo
+			# schianto e le schegge che ricadono finche' i pezzi volano (mezzo
+			# secondo: erano tre decimi, e i pezzi cadevano in silenzio). Resta
+			# piu' corto e piu' povero dei frantumi della Mattanza
+			return vetro(0.5, 13, 1.0)
 		"sfiora":
 			# LA VOCE DI MENU SFIORATA: un tic, non una nota. Si sente decine di
 			# volte di fila, quindi e' il piu' corto e il piu' piano di tutti -

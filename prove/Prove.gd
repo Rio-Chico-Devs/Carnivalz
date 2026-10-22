@@ -22316,8 +22316,57 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 					% [dove, area, rotto.vetro.get_area()])
 			var staccati := rotto.lastre.pezzi.filter(func(pezzo: Dictionary) -> bool: return bool(pezzo["cade"]))
 			esigi(not staccati.is_empty(), "%s nessun pezzo si stacca: il colpo non sfonda" % dove)
-			esigi(staccati.all(func(pezzo: Dictionary) -> bool: return float(pezzo["distanza"]) == 0.0 and bool(pezzo["stretto"])),
-					"%s si stacca un pezzo lontano dall'impatto: porterebbe via mezzo riquadro" % dove)
+			# (attaccato all'impatto, e chiuso dal primo giro o piccolo)
+			var vicini := staccati.filter(func(pezzo: Dictionary) -> bool:
+					return float(pezzo["distanza"]) == 0.0 and (bool(pezzo["stretto"]) or float(pezzo["fin_dove"]) <= rotto.r * 3.0))
+			esigi(vicini.size() == staccati.size(), "%s si stacca un pezzo lontano dall'impatto: porterebbe via mezzo riquadro" % dove)
+			# e se ce ne sono almeno due che possono, ne cadono almeno due: uno
+			# solo, piccolo, era un buco col compasso
+			var possono := rotto.lastre.pezzi.filter(func(pezzo: Dictionary) -> bool: return rotto.lastre.puo_cadere(pezzo))
+			esigi(staccati.size() >= mini(possono.size(), 2), "%s si stacca un pezzo solo, e ne potevano cadere %d" % [dove, possono.size()])
+			# UN PEZZO CHE SALTA SI SPEZZA in due, tre, quattro schegge, che
+			# insieme sono il pezzo: ne' un buco ne' un pezzo di vetro in piu'
+			for pezzo in staccati:
+				var schegge: Array = pezzo["frammenti"]
+				# (una briciola di vetro non si spezza: resta una scheggia sola)
+				var briciola := absf(area_di(pezzo["punti"])) < 150.0
+				var dentro := 0.0
+				var storte := 0
+				for scheggia: Dictionary in schegge:
+					dentro += absf(area_di(scheggia["punti"]))
+					storte += 1 if (scheggia["indici"] as PackedInt32Array).is_empty() else 0
+				esigi((schegge.size() >= 2 or briciola) and schegge.size() <= 4,
+						"%s un pezzo che salta resta in %d schegge: intero gira come la pala di un mulino" % [dove, schegge.size()])
+				esigi(storte == 0 and absf(dentro - absf(area_di(pezzo["punti"]))) <= absf(area_di(pezzo["punti"])) * 0.02,
+						"%s le schegge di un pezzo non fanno il pezzo: %.0f pixel quadri su %.0f, %d storte"
+						% [dove, dentro, absf(area_di(pezzo["punti"])), storte])
+			# I GIRI GIRANO INTORNO AL COLPO, a curve - fra le due crepe dove
+			# attaccano non vanno ne' verso il colpo ne' via - e restano nel vetro
+			for anello in rotto.anelli:
+				var arco: PackedVector2Array = anello["punti"]
+				var da_a := arco[0].distance_to(rotto.impatto)
+				var da_b := arco[arco.size() - 1].distance_to(rotto.impatto)
+				var fuori_giro := 0
+				for p in arco:
+					var lontano := p.distance_to(rotto.impatto)
+					fuori_giro += 0 if rotto.vetro.grow(0.5).has_point(p) else 1
+					fuori_giro += 0 if lontano >= minf(da_a, da_b) * 0.85 and lontano <= maxf(da_a, da_b) * 1.15 else 1
+				esigi(arco.size() >= 4 and fuori_giro == 0,
+						"%s un tratto della ragnatela non gira intorno al colpo: %d punti, %d fuori strada" % [dove, arco.size(), fuori_giro])
+			# e i pezzi si tagliano lungo i giri come sono disegnati: ogni punto
+			# di ogni giro e' un vertice di due pezzi, uno dentro e uno fuori. Lungo
+			# la corda, il pezzo spostato non combacerebbe con la crepa
+			var vertici := {}
+			for pezzo in rotto.lastre.pezzi:
+				for p: Vector2 in pezzo["punti"]:
+					var chiave := Vector2i(roundi(p.x * 100.0), roundi(p.y * 100.0))
+					vertici[chiave] = int(vertici.get(chiave, 0)) + 1
+			var slegati := 0
+			for anello in rotto.anelli:
+				var arco: PackedVector2Array = anello["punti"]
+				for i in range(1, arco.size() - 1):
+					slegati += 0 if int(vertici.get(Vector2i(roundi(arco[i].x * 100.0), roundi(arco[i].y * 100.0)), 0)) >= 2 else 1
+			esigi(slegati == 0, "%s %d punti dei giri non sono sul bordo dei pezzi: i pezzi si tagliano altrove" % [dove, slegati])
 			saltati += staccati.size()
 	# e di solito ne saltano piu' d'uno: uno solo, sempre, e' un buco col
 	# compasso, non un vetro sfondato
@@ -22391,14 +22440,73 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA - 0.01, false).is_empty(), "i pezzi volano via prima di staccarsi")
 	var a_meta := uno.lastre.in_volo(LastreVetro.CADE_DA + LastreVetro.CADUTA * 0.9, false)
 	var fermi := uno.lastre.pezzi.filter(func(pezzo: Dictionary) -> bool: return bool(pezzo["cade"]))
-	esigi(a_meta.size() == fermi.size() and not a_meta.is_empty(), "i pezzi staccati non volano")
-	if a_meta.size() == fermi.size() and not a_meta.is_empty():
-		var partito: PackedVector2Array = fermi[0]["punti"]
-		esigi(estensione(a_meta[0]) > estensione(partito) * 1.4, "il pezzo che vola non ti viene addosso: non si ingrandisce")
-		esigi(centro_di_punti(a_meta[0]).y > centro_di_punti(partito).y, "il pezzo che vola non cade")
-		# e fa la capriola: a meta' volo si e' schiacciato lungo il suo asse
-		var a_mezzo := uno.lastre.posa_in_volo(fermi[0], PI / absf(float(fermi[0]["capriola"])) * 0.5)
-		esigi(absf(area_di(a_mezzo)) < absf(area_di(partito)) * 0.6, "il pezzo che vola non gira in profondita': e' un adesivo")
+	var schegge_in_aria: Array[Dictionary] = []
+	for pezzo in fermi:
+		for scheggia: Dictionary in pezzo["frammenti"]:
+			schegge_in_aria.append(scheggia)
+	esigi(a_meta.size() == schegge_in_aria.size() and not a_meta.is_empty(), "le schegge dei pezzi staccati non volano")
+	if a_meta.size() == schegge_in_aria.size() and not a_meta.is_empty():
+		var prima := 0.0
+		var dopo := 0.0
+		for i in a_meta.size():
+			prima += centro_di_punti(schegge_in_aria[i]["punti"]).y
+			dopo += centro_di_punti(a_meta[i]).y
+		esigi(dopo > prima, "le schegge che volano non cadono")
+		# ti vengono addosso: girata di piatto, una scheggia e' piu' grande di
+		# quando e' partita
+		var prima_scheggia: Dictionary = schegge_in_aria[0]
+		var partito: PackedVector2Array = prima_scheggia["punti"]
+		var di_piatto := uno.lastre.posa_in_volo(prima_scheggia, TAU / absf(float(prima_scheggia["capriola"])))
+		esigi(estensione(di_piatto) > estensione(partito) * 1.3, "la scheggia che vola non ti viene addosso: non si ingrandisce")
+		# e fa la capriola: a meta' giro si e' schiacciata lungo il suo asse
+		var a_mezzo := uno.lastre.posa_in_volo(prima_scheggia, PI / absf(float(prima_scheggia["capriola"])) * 0.5)
+		esigi(absf(area_di(a_mezzo)) < absf(area_di(partito)) * 0.6, "la scheggia che vola non gira in profondita': e' un adesivo")
+		# e non partono tutte nello stesso istante, come un pezzo solo
+		var partenze := {}
+		for scheggia in schegge_in_aria:
+			partenze[snappedf(float(scheggia["parte"]), 0.001)] = true
+		esigi(partenze.size() > 1, "le schegge partono tutte insieme: e' ancora un pezzo intero")
+	# IL BUCO NON COPRE: dove il vetro non c'e' piu' dietro si vede meglio. Era
+	# quasi nero, e i pugni che si accendevano li' sotto sparivano
+	esigi(LastreVetro.BUIO <= 0.35, "il buco del vetro e' scuro %.2f: copre i pugni che si accendono sotto" % LastreVetro.BUIO)
+	# LE CREPE BRUCIANO VICINO AL COLPO e quasi niente lontano: accese uguali
+	# fino al bordo erano laser
+	esigi(uno.vicino_al_colpo(uno.impatto) > 0.95 and uno.vicino_al_colpo(uno.impatto + Vector2(uno.r * 10.0, 0.0)) < 0.25,
+			"le crepe bruciano uguali vicino al colpo e lontano: sono laser")
+	# IL VETRO SCHIACCIATO SCAPPA DAL CENTRO: le crepoline quasi tutte a
+	# raggiera. A caso in tutte le direzioni erano uno scarabocchio
+	var a_raggiera := 0
+	for punti in uno.frantumi:
+		var verso := (punti[punti.size() - 1] - punti[0]).normalized()
+		a_raggiera += 1 if absf(verso.dot((punti[0] - uno.impatto).normalized())) > 0.8 else 0
+	esigi(float(a_raggiera) / float(uno.frantumi.size()) >= 0.65,
+			"solo %d crepoline su %d scappano dal centro: il vetro schiacciato e' uno scarabocchio" % [a_raggiera, uno.frantumi.size()])
+	# E LE RAGGIERE CHE NON ARRIVANO AL BORDO: partono dal colpo e si fermano
+	# dentro la ragnatela. Senza, erano cinque raggi e tre giri
+	var raggiere := 0
+	for ramo in uno.rami:
+		var punti: PackedVector2Array = ramo["punti"]
+		var arriva := punti[punti.size() - 1].distance_to(uno.impatto)
+		raggiere += 1 if punti[0].distance_to(uno.impatto) < uno.r * 0.3 and arriva > uno.r * 1.5 else 0
+	esigi(raggiere >= 2, "ci sono %d raggiere fra le principali: la ragnatela e' vuota" % raggiere)
+	# i giri di due spicchi vicini non si danno la mano: sfalsati, non un cerchio
+	for giro in 3:
+		var distanze: Array[float] = []
+		for anello in uno.anelli:
+			if int(anello["giro"]) == giro:
+				distanze.append(float(anello["distanza"]))
+		if distanze.size() >= 3:
+			esigi(distanze.max() - distanze.min() > (distanze.max() as float) * 0.05,
+					"il giro %d della ragnatela e' un cerchio: i tratti stanno tutti alla stessa distanza" % giro)
+	# GLI AGHI: la polvere che schizza via e' fatta di aghi sottili, non di
+	# triangolini (coriandoli)
+	for ago in uno.schegge_vive(0.1, false):
+		var lungo_ago := maxf(ago[0].distance_to(ago[1]), ago[0].distance_to(ago[2]))
+		esigi(lungo_ago > ago[1].distance_to(ago[2]) * 3.0, "una scheggia minuta e' un triangolino, non un ago")
+	# E IL SUONO DURA QUANTO IL VOLO: i pezzi cadevano in silenzio
+	var suono := Sintesi.interfaccia("incrinato")
+	esigi(float(suono.data.size()) / 2.0 / float(Sintesi.CAMPIONAMENTO) >= LastreVetro.CADE_DA + LastreVetro.CADUTA * 0.7,
+			"il vetro che si spacca suona %.2f secondi: i pezzi cadono in silenzio" % (float(suono.data.size()) / 2.0 / float(Sintesi.CAMPIONAMENTO)))
 	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA + LastreVetro.CADUTA + 0.01, false).is_empty(), "i pezzi volano per sempre")
 	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA + 0.1, true).is_empty(), "col movimento ridotto i pezzi volano lo stesso")
 	esigi(not LastreVetro.staccato(fermi[0], LastreVetro.CADE_DA + 0.1, true) and LastreVetro.staccato(fermi[0], LastreVetro.CADE_DA, false),
@@ -22459,6 +22567,11 @@ func le_tele_del_vetro(riquadro: RiquadroRaffica, tele: TeleVetro) -> void:
 			"lo shader dei pezzi non sa quanto e' grande il piano: sul bordo pesca la cornice")
 	esigi(lastre.get_shader_parameter("impatto") == (riquadro.vetri[0].vetro as VetroRotto).impatto,
 			"l'onda che deforma non parte da dove il pugno ha preso")
+	# il colore si apre appena, anche nel colpo: di piu' era un arcobaleno
+	# intorno al pugno
+	tele.mostra(0.0, false)
+	esigi(float(lastre.get_shader_parameter("scomposta")) <= 0.15,
+			"nel colpo il vetro scompone il colore di %.2f: intorno al pugno c'e' un arcobaleno" % float(lastre.get_shader_parameter("scomposta")))
 
 static func distanza_da_linea(p: Vector2, linea: PackedVector2Array) -> float:
 	var vicina := INF

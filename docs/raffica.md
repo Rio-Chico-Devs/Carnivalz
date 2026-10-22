@@ -272,7 +272,8 @@ almeno 2:1, perché quello giusto si trovi con la coda dell'occhio); acceso
 scatta in avanti e poi si gonfia sempre più in fretta e trema, fino a quando
 ti prende. Col movimento ridotto non scatta e non si gonfia: lo dice la luce.
 I suoni: un tonfo per ogni pugno che compare, un segnale secco quando uno si
-accende, il vetro che si incrina quando ti prende.
+accende, il vetro che si spacca quando ti prende (mezzo secondo: le schegge
+ricadono finché i pezzi volano).
 
 **Il contatore** in alto conta i pugni decisi, parati o presi: «4 / 12».
 
@@ -288,8 +289,14 @@ pausa, il cerchio e non il quadrato, lo spento che non fa niente),
 `prova_il_vetro_rotto_del_colpo_preso` (le linee: tratti lunghi e dritti, il
 filo che non si strozza; i pezzi che coprono il vetro senza buchi né
 sovrapposizioni, lo strappo, i pezzi che volano, l'onda, il vetro che si
-libera). Verificate rompendo apposta il codice in 38 modi, e la seconda
-volta (lo spento che non fa niente, il vetro che si spacca) in altri 33.
+libera; e dal giro «più cura»: i pezzi che saltano si spezzano in schegge che
+insieme fanno il pezzo, partono quasi insieme, cadono, ti vengono addosso e
+fanno la capriola; ne saltano almeno due; i giri della ragnatela sono curve
+sfalsate che restano nel vetro; le raggiere; le crepe che bruciano solo vicino
+al colpo; il vetro schiacciato a raggiera; gli aghi; il buco che non copre; il
+colore che si apre appena; il suono che dura quanto il volo). Verificate
+rompendo apposta il codice in 38 modi, la seconda volta (lo spento che non fa
+niente, il vetro che si spacca) in altri 33, la terza (più cura) in altri 23.
 
 **Approvata.** Bru, visto il film: «bello mi piace!». Poi: «click su spento
 non fa niente, migliora ancora di più l'effetto di quando vieni colpito che

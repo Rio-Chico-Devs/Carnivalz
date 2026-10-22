@@ -26,7 +26,7 @@ Mattanza, il minigioco). Bru:
 | lo squarcio d'entrata | approvato | nel gioco: `scripts/Squarcio.gd` |
 | la Mattanza | approvata, con la fascia **più grande** per l'artwork | nel gioco: `scripts/combattimento/TaglioMattanza.gd` |
 | il turno che passa | approvato | nel gioco: `scripts/combattimento/FasciaTurno.gd` |
-| il minigioco col corpo | approvato, poi **rifatto** giocando: niente cerchio che si chiude (§5); approvato di nuovo («bello mi piace!»); il vetro rifatto da capo («sembra quasi fatto su paint»), poi «già meglio», con la luce fredda | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
+| il minigioco col corpo | approvato, poi **rifatto** giocando: niente cerchio che si chiude (§5); approvato di nuovo («bello mi piace!»); il vetro rifatto da capo («sembra quasi fatto su paint»), poi «già meglio», con la luce fredda; poi un altro giro, con più cura («siamo sulla strada giusta») | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
 | il riflesso sui vetri | approvato, poi **no** giocando (§6) | tolto |
 | il BOND (la purificazione, §8) | approvato dopo tre giri | nel gioco: `scripts/combattimento/LuceBond.gd` |
 | le braci che salgono | **no** | tolte |
@@ -186,7 +186,7 @@ Il cerchio che si stringeva e le tacche che correvano non ci sono più. Adesso
     prende la luce. Da vicino ha i denti: mezzo pixel di qua e di là ogni tre
     pixel;
   - **il vetro schiacciato**: dove il pugno ha preso, una trentina di
-    crepoline storte e quaranta granelli, su un velo appena chiaro;
+    crepoline e quaranta granelli, su un velo appena chiaro;
   - **l'onda**: non più un cerchio bianco, ma una deformazione - un anello
     che si allarga e spinge in fuori quello che c'è dietro - con sopra un velo
     di luce morbido;
@@ -201,8 +201,8 @@ Il cerchio che si stringeva e le tacche che correvano non ci sono più. Adesso
     profondità (si schiacciano fino a rovesciarsi), lampeggiano quando si
     girano verso la luce; hanno lo spessore del vetro di taglio, verdino, e il
     bordo chiaro dove guarda la luce e scuro dove no;
-  - **i buchi**: dove un pezzo è saltato resta il buio, col vetro di taglio
-    tutto intorno;
+  - **i buchi**: dove un pezzo è saltato resta il vetro di taglio tutto
+    intorno;
   - **il rosso**: non più un velo piatto su tutto, ma i bordi del riquadro che
     si arrossano verso dentro, come quando si stringono gli occhi;
   - **COLPITO** cade di fianco al pugno, verso il centro: sopra copriva il
@@ -212,6 +212,46 @@ Il cerchio che si stringeva e le tacche che correvano non ci sono più. Adesso
   proposte erano due, uguali in tutto tranne il colore delle crepe accese:
   calda, l'arancio della crepa dello squarcio, e fredda. Bru: «si già meglio,
   la seconda è quella che mi è piaciuta di più».
+
+  **Più cura.** Bru: «ok siamo sulla strada giusta impegniamoci di più
+  spendici più tempo». Guardato fotogramma per fotogramma, ingrandito, con
+  l'impatto al centro, in un angolo, sul bordo e a destra, restavano cinque
+  difetti, e sono stati tolti così:
+  - **il colpo** era una macchia rosa con un anello arcobaleno: il pugno
+    restava un quinto di secondo col bordo bianco, e il vetro lo scomponeva.
+    Adesso il pugno si schianta - si allarga di colpo e sparisce in poco più
+    di un decimo di secondo, senza bordo - il colore si apre appena, e la luce
+    del colpo è quella di una lente: un nocciolo piccolo e duro, un alone
+    largo e tenue, una riga orizzontale che si allunga e si spegne. (Una
+    stella di raggi, provata, era un asterisco: graffi sopra le crepe);
+  - **le crepe accese** erano uguali fino al bordo, come laser: adesso
+    bruciano vicino al colpo e si spengono andando in fuori; la punta che corre
+    è una scia corta, non un pallino;
+  - **la ragnatela** era un bersaglio di giri tondi e allineati. Prima corde
+    tutte uguali col gomito verso il centro (un poligono regolare), poi archi
+    lisci (un cerchio), poi tratti a gomiti (celle d'alveare). Adesso ogni
+    tratto è una curva dolce che si gonfia in fuori o si incava, sta un poco
+    più in qua o più in là dei vicini e attacca alle due crepe ad altezze
+    diverse; e fra le principali ci sono le **raggiere** che partono dal colpo
+    e si fermano dopo uno o due giri;
+  - **i pezzi che saltano** erano quattro o cinque triangoli grigi grandi e
+    opachi che giravano insieme, come le pale di un mulino. Adesso ne saltano
+    almeno due, e ognuno si spezza in due, tre, quattro **schegge** che
+    partono quasi insieme e vanno ognuna per conto suo. Si vedono appena,
+    come il vetro: quello che c'è dietro, un velo freddo, la luce sui bordi
+    che lampeggia quando si girano verso di lei; fanno un'ombra che resta
+    indietro mentre ti vengono addosso, e lo spessore si vede quando sono di
+    costa. La polvere che schizza via dal colpo è fatta di **aghi** con una
+    scia corta, non di triangolini;
+  - **i buchi** erano quasi neri, e i pugni che si accendevano lì sotto
+    sparivano. Dove il vetro non c'è più, dietro si vede meglio: il buco si
+    riconosce dal bordo vivo intorno e dall'ombra appena dentro;
+  - **il vetro schiacciato** era uno scarabocchio di crepoline in tutte le
+    direzioni: adesso scappano dal centro, e nel mezzo il vetro è polvere
+    chiara.
+
+  E il suono dura quanto il volo dei pezzi (mezzo secondo): prima i pezzi
+  cadevano in silenzio.
 
   Tutto sta in quattro tele per vetro (`TeleVetro.gd`): i pezzi che guardano
   dietro, il vetro, i pezzi che saltano, la luce che si somma. Una per vetro

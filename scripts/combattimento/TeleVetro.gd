@@ -70,6 +70,8 @@ func mostra(adesso: float, meno_movimento: bool) -> void:
 	var materiale := lastre.material as ShaderMaterial
 	materiale.set_shader_parameter("onda_raggio", onda)
 	materiale.set_shader_parameter("onda_forza", FORZA_ONDA * (1.0 - maxf(VetroRotto.onda(eta, ridotto), 0.0)))
-	materiale.set_shader_parameter("scomposta", 0.12 + 0.25 * VetroRotto.calore(eta, ridotto))
+	# il colore si apre appena, e solo nel colpo: di piu' era un arcobaleno
+	# intorno al pugno, non vetro
+	materiale.set_shader_parameter("scomposta", 0.05 + 0.08 * VetroRotto.calore(eta, ridotto))
 	for fatta in [lastre, crepe, schegge, luce]:
 		(fatta as CanvasItem).queue_redraw()
