@@ -281,6 +281,8 @@ pausa, il cerchio e non il quadrato, lo spento che ti prende),
 linee: tratti lunghi e dritti, il filo che non si strozza). Verificate
 rompendo apposta il codice in 38 modi.
 
+**Approvata.** Bru, visto il film: «bello mi piace!».
+
 **Da confermare giocando**: i tempi (soprattutto lo 0,75 s dell'ultimo pugno:
 trovarlo fra quelli rimasti e arrivarci col mouse costa mezzo secondo buono) e
 il clic sullo spento che ti prende.
