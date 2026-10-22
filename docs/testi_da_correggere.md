@@ -727,7 +727,6 @@ combattimento. Non è mai passato sotto i tuoi occhi finora.
 
 **`UI.RiquadroRaffica.001`** · comincia
 > Clicca il pugno che si accende, prima che ti arrivi.
-> Uno spento non toccarlo: ti prende.
 >
 > →
 
@@ -14386,7 +14385,7 @@ carte collezionabili.
 > →
 
 **`CRE.veronica.allenamento7.prima3`** · allenamento, passo 7 (MINIGIOCO) — prima che tu agisca, narrazione
-> Collisioni infinite. Dodici pugni ti si piantano davanti, poi si accendono uno alla volta, a caso: CLICCA quello acceso prima che ti arrivi addosso. Non toccare quelli spenti: andargli incontro vuol dire prenderli.
+> Collisioni infinite. Dodici pugni ti si piantano davanti, poi si accendono uno alla volta, a caso: CLICCA quello acceso prima che ti arrivi addosso. Quelli che lasci arrivare ti colpiscono.
 >
 > →
 

@@ -122,7 +122,7 @@ const CATEGORIE := {
 	},
 	"MOSSE SPECIALI": {
 		"titolo": "Mattanza e Collisioni",
-		"corpo": "La Mattanza dura quanto la barra del dominio che le dai. Nelle Collisioni un pugno parato non ti fa niente; uno spento, se lo tocchi, ti prende.",
+		"corpo": "La Mattanza dura quanto la barra del dominio che le dai. Nelle Collisioni clicca il pugno acceso prima che ti arrivi: parato, non ti fa niente.",
 		"righe": [
 			{"tasti": [["SPAZIO"], ["CLIC"]], "ripeti": true, "azione": "Mattanza: ogni pressione, o clic sul nemico, è un colpo"},
 			{"tasti": [["CLIC"]], "azione": "Collisioni: sul pugno, quando si accende"},

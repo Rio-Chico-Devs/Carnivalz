@@ -46,6 +46,7 @@ const SCRITTE := 4              # quante al massimo insieme: create una volta so
 # vedere e il fatto che si chiuda e' noioso sembra che ti colpisca piano»
 const TIMBRO := 0.14            # quanto ci mette la parola a cadere
 const VICINO := 0.3             # di quanto si gonfia il pugno acceso arrivandoti addosso
+const LASTRE := preload("res://shaders/vetro_lastre.gdshader")
 const ANELLO_PARATA := 1.6      # di quanti raggi si allarga l'anello della parata
 
 var gioco: MinigiocoCombattimento
@@ -53,6 +54,8 @@ var testata: ColorRect
 var titolo: Label
 var contatore: Label
 var piano: Control              # dove vivono i pugni, e taglia quello che esce
+var lastre: Control             # sopra i pugni: i pezzi del vetro rotto, che spostano quello che c'e' dietro
+var crepe: Control              # sopra i pezzi: le crepe, i buchi, l'onda, le schegge
 var avviso: Label               # cosa fare, all'inizio; com'e' andata, alla fine
 var scritte: Array[Label] = []
 var segni: Array[Dictionary] = []   # i riscontri in volo: {indice, esito, eta}
@@ -85,6 +88,18 @@ func _ready() -> void:
 	piano.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	piano.draw.connect(_disegna_piano)
 	add_child(piano)
+	# IL VETRO ROTTO STA IN DUE TELE SOPRA I PUGNI. Quella dei pezzi ha lo
+	# shader che legge lo schermo, quindi deve venire DOPO i pugni (li deve
+	# vedere per spostarli) e prima delle crepe (che le stanno sopra). Si
+	# accende solo mentre c'e' un vetro rotto: lo shader che legge lo schermo
+	# costa una copia dello schermo a ogni fotogramma
+	lastre = tela_del_vetro(_disegna_lastre)
+	var materiale := ShaderMaterial.new()
+	materiale.shader = LASTRE
+	materiale.set_shader_parameter("spinta_massima", LastreVetro.SPINTA_MASSIMA)
+	lastre.material = materiale
+	lastre.visible = false
+	crepe = tela_del_vetro(_disegna_crepe)
 
 	avviso = etichetta(Stile.dimensione("sezione"), Stile.colore("testo"))
 	avviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -113,6 +128,15 @@ func _ready() -> void:
 	disponi()
 
 
+func tela_del_vetro(disegno: Callable) -> Control:
+	var tela := Control.new()
+	tela.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tela.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	tela.draw.connect(disegno)
+	piano.add_child(tela)
+	return tela
+
+
 func etichetta(corpo: int, tinta: Color) -> Label:
 	var fatta := Label.new()
 	fatta.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -139,6 +163,8 @@ func disponi() -> void:
 			maxf(size.y - ALTEZZA_TESTATA - MARGINE * 2.0, 1.0))
 	avviso.position = piano.position
 	avviso.size = piano.size
+	# lo shader dei pezzi del vetro legge solo dentro il piano
+	(lastre.material as ShaderMaterial).set_shader_parameter("misura", piano.size)
 
 
 # --- geometria: dove sta un pugno, e se il clic l'ha preso ------------------
@@ -227,7 +253,7 @@ func comincia(nome: String) -> void:
 	# QUELLO CHE DEVI FARE, DETTO NEL MOMENTO IN CUI SERVE, e dentro il riquadro
 	# dove lo farai: e' la regola di ogni buon tutorial - si insegna al punto
 	# del bisogno, non prima e non altrove
-	avviso.text = "Clicca il pugno che si accende, prima che ti arrivi.\nUno spento non toccarlo: ti prende."
+	avviso.text = "Clicca il pugno che si accende, prima che ti arrivi."
 	avviso.visible = true
 	aggiorna(0.0)
 
@@ -290,6 +316,9 @@ func aggiorna(delta: float) -> void:
 		vetri.pop_front()
 	metti_scritte()
 	piano.queue_redraw()
+	lastre.visible = not vetri.is_empty()
+	lastre.queue_redraw()
+	crepe.queue_redraw()
 
 
 func metti_scritte() -> void:
@@ -367,13 +396,21 @@ func _disegna_piano() -> void:
 			disegna_pugno(pugno, r)
 	if not acceso.is_empty():
 		disegna_pugno(acceso, r)
-	# il vetro rotto sta davanti ai pugni: e' la superficie dello schermo
-	for vetro in vetri:
-		(vetro.vetro as VetroRotto).disegna(piano, float(vetro.eta), Impostazioni.movimento_ridotto)
 	if Impostazioni.movimento_ridotto:
 		return
 	for segno in segni:
 		disegna_scoppio(segno, r)
+
+
+# il vetro rotto sta davanti ai pugni: e' la superficie dello schermo
+func _disegna_lastre() -> void:
+	for vetro in vetri:
+		(vetro.vetro as VetroRotto).disegna_lastre(lastre, float(vetro.eta), Impostazioni.movimento_ridotto)
+
+
+func _disegna_crepe() -> void:
+	for vetro in vetri:
+		(vetro.vetro as VetroRotto).disegna(crepe, float(vetro.eta), Impostazioni.movimento_ridotto)
 
 
 func scala_di(pugno: Dictionary) -> float:

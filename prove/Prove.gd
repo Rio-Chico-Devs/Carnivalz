@@ -10357,8 +10357,8 @@ func prova_il_pugno_si_para_quando_premi() -> void:
 			"parato un pugno, il prossimo non si accende una pausa dopo (%.2fs invece di %.2fs)"
 			% [float(gioco.raffica[dopo].accesa_da) - parato_a if dopo >= 0 else -1.0, Collisioni.PAUSA])
 
-	# l'angolo del quadrato intorno a un pugno spento non e' il pugno; il
-	# pugno spento, cliccato, ti prende
+	# l'angolo del quadrato intorno a un pugno spento non e' il pugno; e il
+	# pugno spento, cliccato, non fa niente (Bru: «click su spento non fa niente»)
 	var spento := Collisioni.prossima(gioco.raffica)
 	esigi(spento >= 0, "dopo due pugni non ne resta nessuno spento")
 	if spento < 0:
@@ -10372,10 +10372,15 @@ func prova_il_pugno_si_para_quando_premi() -> void:
 	riquadro._gui_input(clic_del_mouse(riquadro.piano.position + angolo, true))
 	esigi(String(gioco.raffica[spento].esito) == "", "un clic fuori dal cerchio ha deciso il pugno lo stesso")
 	riquadro._gui_input(clic_del_mouse(riquadro.piano.position + riquadro.centro_di(gioco.raffica[spento]), true))
-	esigi(String(gioco.raffica[spento].esito) == "preso",
-			"cliccato da spento, il pugno non ti prende (esito '%s'): cliccare dappertutto pagherebbe"
+	esigi(String(gioco.raffica[spento].esito) == "" and riquadro.vetri.is_empty() and riquadro.segni.size() == 1,
+			"cliccato da spento, il pugno ha fatto qualcosa (esito '%s'): Bru vuole che non faccia niente"
 			% String(gioco.raffica[spento].esito))
-	esigi(riquadro.vetri.size() == 1, "il pugno spento che ti prende non rompe il vetro")
+	# e non blocca niente: il clic subito dopo sul pugno acceso para
+	var poi := Collisioni.accesa(gioco.raffica)
+	if poi >= 0:
+		riquadro._gui_input(clic_del_mouse(riquadro.piano.position + riquadro.centro_di(gioco.raffica[poi]), true))
+	esigi(poi >= 0 and String(gioco.raffica[poi].esito) == "parata",
+			"dopo un clic su uno spento, il clic sul pugno acceso non para")
 	gioco.concludi()
 	faccia.queue_free()
 
@@ -11733,24 +11738,20 @@ func prova_collisioni() -> void:
 			"il pugno acceso ti prende dopo %.2fs invece che dopo %.2fs"
 			% [float(raffica[primo].scade) - quando, Collisioni.FINESTRA])
 
-	# O PARATO O PRESO. E' la regola intera del minigioco
+	# O PARATO O PRESO, e lo spento non si tocca. E' la regola intera del minigioco
 	var spento := Collisioni.prossima(raffica)   # a schermo, ma non tocca a lui
-	esigi(Collisioni.giudica(raffica, primo, quando - 0.5) == "preso",
-			"cliccato prima che si accenda, il pugno non ti prende: cliccare dappertutto pagherebbe")
-	var dado2 := RandomNumberGenerator.new()
-	dado2.seed = 20260914
-	raffica = Collisioni.calendario(12, dado2, 710.0 / 190.0)
-	Collisioni.accendi(raffica, primo, quando)
+	esigi(Collisioni.giudica(raffica, primo, quando - 0.5) == "" and String(raffica[primo].esito) == "",
+			"cliccato prima che si accenda, il pugno e' stato deciso: Bru vuole che non faccia niente")
 	esigi(Collisioni.giudica(raffica, primo, quando + 0.3) == "parata", "cliccato acceso, il pugno non e' parato")
 	esigi(Collisioni.giudica(raffica, primo, quando + 0.4) == "", "lo stesso pugno si decide due volte")
-	esigi(Collisioni.giudica(raffica, spento, quando + 0.5) == "preso",
-			"un pugno spento cliccato non ti prende: «o viene parato o lo ricevi»")
+	esigi(Collisioni.giudica(raffica, spento, quando + 0.5) == "" and String(raffica[spento].esito) == "",
+			"un pugno spento cliccato e' stato deciso: «click su spento non fa niente»")
 	var tardi := Collisioni.prossima(raffica)
 	Collisioni.accendi(raffica, tardi, 5.0)
 	esigi(Collisioni.scaduti(raffica, 5.0 + Collisioni.FINESTRA * 0.5).is_empty(), "il pugno acceso ti prende prima del tempo")
 	var scaduti := Collisioni.scaduti(raffica, 5.0 + Collisioni.FINESTRA + 0.01)
 	esigi(scaduti.size() == 1 and scaduti[0] == tardi, "passato il suo tempo, il pugno acceso non ti ha preso")
-	esigi(Collisioni.giudica(raffica, tardi, 5.0 + Collisioni.FINESTRA + 0.01) == "preso", "un pugno si para dopo che ti ha gia' preso")
+	esigi(Collisioni.giudica(raffica, tardi, 5.0 + Collisioni.FINESTRA + 0.01) == "", "un pugno si para dopo che ti ha gia' preso")
 	var ultimo := Collisioni.calendario(12, dado, 4.0)
 	esigi(Collisioni.giudica(ultimo, 11, float(ultimo[11].istante) - 0.01) == "" and String(ultimo[11].esito) == "",
 			"un pugno si decide prima di comparire")
@@ -11760,7 +11761,7 @@ func prova_collisioni() -> void:
 	esigi(Collisioni.danno(tutti, 7) == 70, "dieci pugni non parati da 7 dovevano fare 70, fanno %d" % Collisioni.danno(tutti, 7))
 	for i in 5:
 		Collisioni.giudica(tutti, i, 10.0)
-	esigi(Collisioni.danno(tutti, 7) == 70, "cliccati da spenti, i pugni non fanno danno")
+	esigi(Collisioni.danno(tutti, 7) == 70, "cliccati da spenti, i pugni sono stati parati")
 	var pieni := Collisioni.calendario(10, dado, 4.0)
 	for i in pieni.size():
 		Collisioni.accendi(pieni, i, 10.0)
@@ -18114,9 +18115,9 @@ class FintoScontro extends RefCounted:
 func prova_la_raffica_si_para_anche_da_tastiera() -> void:
 	# ERA L'UNICO PEZZO CHE PRETENDEVA UN MOUSE. Adesso il tasto para, e sceglie
 	# da solo - e la scelta e' facile: QUELLO ACCESO, che e' l'unico che si para.
-	# Premuto quando nessuno e' acceso vale come un clic su un pugno spento: ti
-	# prende il prossimo, se e' gia' a schermo. Se no tenere premuto INVIO
-	# pararebbe tutta la raffica senza guardarla.
+	# Premuto quando nessuno e' acceso non fa niente, come il clic su uno spento,
+	# ma per un attimo il tasto non para piu': se no pestando INVIO senza
+	# guardare si parerebbe tutta la raffica.
 	titolo("la raffica si para anche senza mouse, e premere a caso non paga")
 	var dado := RandomNumberGenerator.new()
 	dado.seed = 11
@@ -18137,24 +18138,31 @@ func prova_la_raffica_si_para_anche_da_tastiera() -> void:
 	gioco.collega(faccia)
 	gioco.avvia({"quanti": 4, "danno": 5})
 	gioco.salta()
-	# il primo ad accendersi e' l'ultimo a comparire: cosi' si puo' premere
-	# prima che ci sia
-	var primo_turno := Collisioni.prossima(gioco.raffica)
-	gioco.raffica[primo_turno].turno = gioco.raffica[3].turno
-	gioco.raffica[3].turno = 0
 	esigi(not gioco.para_col_tasto() and Collisioni.conta(gioco.raffica, "") == 4,
-			"il tasto ha preso un pugno che non e' ancora comparso")
-	while gioco.fase == "raffica" and Collisioni.tutti_fuori(gioco.raffica) >= gioco.tempo:
-		gioco.passa(1.0 / 60.0)
-	var prossimo := Collisioni.prossima(gioco.raffica)
-	esigi(gioco.para_col_tasto() and String(gioco.raffica[prossimo].esito) == "preso",
-			"premuto a vuoto, il tasto non ti fa prendere il prossimo pugno: tenerlo premuto parerebbe tutto")
+			"premuto a vuoto, il tasto ha deciso un pugno")
 	var giri := 0
 	while gioco.fase == "raffica" and Collisioni.accesa(gioco.raffica) < 0 and giri < 600:
 		gioco.passa(1.0 / 60.0)
 		giri += 1
 	var acceso := Collisioni.accesa(gioco.raffica)
-	esigi(acceso >= 0 and gioco.para_col_tasto() and String(gioco.raffica[acceso].esito) == "parata",
+	esigi(acceso >= 0, "nessun pugno si accende")
+	if acceso < 0:
+		gioco.concludi()
+		faccia.queue_free()
+		return
+	# PESTARE NON PAGA: premuto a vuoto un attimo prima che si accenda, il
+	# tasto non para; e ogni pressione nell'attimo lo ricomincia
+	gioco.tasto_libero_da = 0.0
+	gioco.tempo = float(gioco.raffica[acceso].accesa_da) - 0.05
+	gioco.para_col_tasto()
+	gioco.tempo = float(gioco.raffica[acceso].accesa_da) + 0.1
+	esigi(not gioco.para_col_tasto() and String(gioco.raffica[acceso].esito) == "",
+			"pestando INVIO a vuoto, il tasto para lo stesso appena il pugno si accende")
+	gioco.tempo += MinigiocoCombattimento.BLOCCO_TASTO * 0.8
+	esigi(not gioco.para_col_tasto(), "pestando, il tasto si sblocca: ogni pressione a vuoto doveva ricominciare l'attimo")
+	# chi aspetta che si accenda e preme una volta, para
+	gioco.tempo += MinigiocoCombattimento.BLOCCO_TASTO + 0.01
+	esigi(gioco.para_col_tasto() and String(gioco.raffica[acceso].esito) == "parata",
 			"col pugno acceso il tasto non lo para")
 	gioco.concludi()
 	faccia.queue_free()
@@ -22139,12 +22147,33 @@ func prova_la_raffica_col_corpo() -> void:
 		rosso = rosso or (scritta.visible and scritta.get_theme_stylebox("normal") == riquadro.stile_rosso)
 	esigi(rosso, "il colpo preso non ha il timbro rosso")
 	esigi(vero.impatto.tween_scossa != null and vero.impatto.tween_scossa.is_valid(), "il colpo preso non fa sbandare lo scontro")
+	# IL FERMO SUL COLPO: per un attimo non avanza niente, poi si riparte
+	var al_colpo := gioco.tempo
+	esigi(gioco.fermo > 0.0, "il colpo preso non ferma niente: arriva come un pugno parato")
+	gioco.passa(1.0 / 60.0)
+	esigi(is_equal_approx(gioco.tempo, al_colpo), "durante il fermo sul colpo l'orologio dei pugni va avanti")
+	for i in 8:
+		gioco.passa(1.0 / 60.0)
+	esigi(gioco.tempo > al_colpo and gioco.fermo <= 0.0, "il fermo sul colpo non finisce: la raffica resta ferma")
 	esigi(riquadro.vetri.size() == 1, "il colpo preso non rompe il vetro: %d vetri rotti" % riquadro.vetri.size())
+	# i pezzi del vetro stanno su una tela loro, con lo shader che sposta quello
+	# che c'e' dietro, e si accende solo finche' c'e' un vetro rotto
+	var materiale := riquadro.lastre.material as ShaderMaterial
+	esigi(riquadro.lastre.visible and materiale != null and materiale.shader == RiquadroRaffica.LASTRE
+			and is_equal_approx(float(materiale.get_shader_parameter("spinta_massima")), LastreVetro.SPINTA_MASSIMA),
+			"i pezzi del vetro non spostano quello che c'e' dietro: manca la tela con lo shader, o la sua scala e' sbagliata")
+	esigi(riquadro.lastre.get_index() < riquadro.crepe.get_index() and riquadro.crepe.get_index() < riquadro.scritte[0].get_index(),
+			"le tele del vetro sono nell'ordine sbagliato: i pezzi sotto le crepe, le crepe sotto i timbri")
+	# e lo shader sa quanto e' grande il piano: legge solo li' dentro, se no i
+	# pezzi sul bordo si portano dentro la cornice nera del riquadro
+	esigi(materiale != null and materiale.get_shader_parameter("misura") == riquadro.piano.size,
+			"lo shader dei pezzi non sa quanto e' grande il piano: sul bordo pesca la cornice")
 	if riquadro.vetri.size() == 1:
 		var rotto: VetroRotto = riquadro.vetri[0].vetro
 		esigi(rotto.impatto.is_equal_approx(riquadro.centro_di(secondo)), "il vetro non si rompe dove il pugno ti ha preso")
 		riquadro.aggiorna(VetroRotto.DURATA + 0.05)
-		esigi(riquadro.vetri.is_empty(), "il vetro rotto resta per sempre sopra i pugni che vengono dopo")
+		esigi(riquadro.vetri.is_empty() and not riquadro.lastre.visible,
+				"il vetro rotto resta per sempre sopra i pugni che vengono dopo")
 	# 6. COL MOVIMENTO RIDOTTO niente scatti, niente gonfiarsi, niente schegge:
 	#    lo dice la luce
 	Impostazioni.movimento_ridotto = true
@@ -22253,9 +22282,42 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 			esigi(punti[0].is_equal_approx(vetro.impatto), "%s una crepa principale non parte dall'impatto" % dove)
 		esigi(fuori == 0, "%s %d punti delle crepe escono dal vetro" % [dove, fuori])
 		esigi(lontane == 0, "%s %d crepe principali si fermano prima del bordo del vetro" % [dove, lontane])
-		esigi(vetro.anelli.size() >= 4 and vetro.facce.size() >= 4,
-				"%s la ragnatela e' povera: %d tratti e %d facce" % [dove, vetro.anelli.size(), vetro.facce.size()])
+		esigi(vetro.anelli.size() >= 4 and vetro.lastre.pezzi.size() > vetro.principali.size(),
+				"%s la ragnatela e' povera: %d tratti e %d pezzi" % [dove, vetro.anelli.size(), vetro.lastre.pezzi.size()])
 		primi.append(vetro.principali[0][vetro.principali[0].size() - 1])
+	# I PEZZI DEL VETRO. Bru: «migliora ancora di più l'effetto di quando vieni
+	# colpito che si spacca il vetro». Ogni pezzo sposta quello che c'e' dietro
+	# per conto suo: perche' combaci con le crepe, i pezzi devono coprire il
+	# vetro TUTTO, senza buchi e senza sovrapporsi - dovunque il pugno prenda,
+	# in mezzo, vicino a un bordo o in un angolo
+	var saltati := 0
+	var vetri_rotti := 0
+	for impatto: Vector2 in [Vector2(420, 120), Vector2(40, 30), Vector2(690, 200), Vector2(350, 6)]:
+		for seme in [7919, 15838, 23757]:
+			var rotto := VetroRotto.new(int(seme), impatto, piano, 30.0)
+			vetri_rotti += 1
+			var dove := "preso in %s col seme %d" % [str(impatto), int(seme)]
+			var area := 0.0
+			var sbagliati := 0
+			for pezzo in rotto.lastre.pezzi:
+				var punti: PackedVector2Array = pezzo["punti"]
+				area += absf(area_di(punti))
+				sbagliati += 1 if Geometry2D.triangulate_polygon(punti).is_empty() else 0
+				esigi((pezzo["spinta"] as Vector2).length() * (1.0 + LastreVetro.STRAPPO) <= LastreVetro.SPINTA_MASSIMA,
+						"%s un pezzo nel colpo si sposta piu' di quanto lo shader sappia leggere" % dove)
+			esigi(sbagliati == 0, "%s %d pezzi del vetro sono storti e non si possono disegnare" % [dove, sbagliati])
+			esigi(absf(area - rotto.vetro.get_area()) <= rotto.vetro.get_area() * 0.02,
+					"%s i pezzi coprono %.0f pixel quadri su %.0f: il vetro ha dei buchi, o i pezzi si sovrappongono"
+					% [dove, area, rotto.vetro.get_area()])
+			var staccati := rotto.lastre.pezzi.filter(func(pezzo: Dictionary) -> bool: return bool(pezzo["cade"]))
+			esigi(not staccati.is_empty(), "%s nessun pezzo si stacca: il colpo non sfonda" % dove)
+			esigi(staccati.all(func(pezzo: Dictionary) -> bool: return float(pezzo["distanza"]) == 0.0 and bool(pezzo["stretto"])),
+					"%s si stacca un pezzo lontano dall'impatto: porterebbe via mezzo riquadro" % dove)
+			saltati += staccati.size()
+	# e di solito ne saltano piu' d'uno: uno solo, sempre, e' un buco col
+	# compasso, non un vetro sfondato
+	esigi(float(saltati) / float(vetri_rotti) >= 1.5,
+			"in media saltano via %.1f pezzi per colpo: il vetro non si sfonda, si buca" % (float(saltati) / float(vetri_rotti)))
 	var diversi := 0
 	for i in range(1, primi.size()):
 		diversi += 0 if primi[i].is_equal_approx(primi[i - 1]) else 1
@@ -22270,6 +22332,35 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 	# col movimento ridotto la crepa c'e' subito, e niente schegge
 	esigi(VetroRotto.corsa(0.0, true) > 0.99, "col movimento ridotto le crepe corrono lo stesso")
 	esigi(uno.schegge_vive(0.1, true).is_empty(), "col movimento ridotto le schegge saltano lo stesso")
+	# NEL COLPO I PEZZI STRAPPANO e poi si assestano; quelli attaccati
+	# all'impatto si staccano e ti volano addosso, piu' grandi, e la gravita' se
+	# li porta giu'
+	# e l'onda dell'impatto parte subito, si allarga in un attimo e sparisce
+	esigi(VetroRotto.onda(0.0, false) >= 0.0 and VetroRotto.onda(VetroRotto.ONDA * 0.5, false) > 0.4
+			and VetroRotto.onda(VetroRotto.ONDA, false) < 0.0, "l'onda dell'impatto non parte, o non finisce")
+	esigi(VetroRotto.onda(0.05, true) < 0.0, "col movimento ridotto l'onda dell'impatto parte lo stesso")
+	esigi(LastreVetro.strappo(0.0, false) > 2.0 and is_equal_approx(LastreVetro.strappo(LastreVetro.SCOSSONE, false), 1.0),
+			"i pezzi non strappano nel colpo, o non si assestano")
+	esigi(is_equal_approx(LastreVetro.strappo(0.0, true), 1.0), "col movimento ridotto i pezzi strappano lo stesso")
+	var codice := LastreVetro.codice(Vector2(4.0, -8.0), 0.0, 1.0)
+	esigi(is_equal_approx(codice.r, 0.5 + 4.0 / (2.0 * LastreVetro.SPINTA_MASSIMA))
+			and is_equal_approx(codice.g, 0.5 - 8.0 / (2.0 * LastreVetro.SPINTA_MASSIMA)) and is_equal_approx(codice.b, 0.5),
+			"lo spostamento dei pezzi e' scritto nel colore in un modo che lo shader non legge")
+	# e finito il vetro se ne va davvero: se i pezzi tenessero il vetro e il
+	# vetro i pezzi, nessuno dei due verrebbe mai liberato
+	esigi(vetro_usa_e_getta().get_ref() == null, "il vetro rotto non si libera mai: lui e i suoi pezzi si tengono a vicenda")
+	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA - 0.01, false).is_empty(), "i pezzi volano via prima di staccarsi")
+	var a_meta := uno.lastre.in_volo(LastreVetro.CADE_DA + LastreVetro.CADUTA * 0.9, false)
+	var fermi := uno.lastre.pezzi.filter(func(pezzo: Dictionary) -> bool: return bool(pezzo["cade"]))
+	esigi(a_meta.size() == fermi.size() and not a_meta.is_empty(), "i pezzi staccati non volano")
+	if a_meta.size() == fermi.size() and not a_meta.is_empty():
+		var partito: PackedVector2Array = fermi[0]["punti"]
+		esigi(absf(area_di(a_meta[0])) > absf(area_di(partito)) * 1.5, "il pezzo che vola non ti viene addosso: non si ingrandisce")
+		esigi(centro_di_punti(a_meta[0]).y > centro_di_punti(partito).y, "il pezzo che vola non cade")
+	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA + LastreVetro.CADUTA + 0.01, false).is_empty(), "i pezzi volano per sempre")
+	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA + 0.1, true).is_empty(), "col movimento ridotto i pezzi volano lo stesso")
+	esigi(not LastreVetro.staccato(fermi[0], LastreVetro.CADE_DA + 0.1, true) and LastreVetro.staccato(fermi[0], LastreVetro.CADE_DA, false),
+			"il buco del pezzo staccato non c'e', o c'e' anche col movimento ridotto")
 	# LE LINEE. Bru: «va fatto ancora meglio sono le linee da migliorare».
 	# Tremavano: passi di cinque pixel ognuno storto di un poco. Un vetro si
 	# rompe a tratti lunghi e dritti, con qualche strappo secco
@@ -22303,6 +22394,24 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 				esigi(dal_tratto >= pieno - 0.01 and sfuma >= 0.99,
 						"largo %.1f, al punto %d il filo si strozza: pieno %.2f invece di %.2f, sfumatura %.2f"
 						% [largo, i, dal_tratto, pieno, sfuma])
+
+static func vetro_usa_e_getta() -> WeakRef:
+	# un vetro che nessuno tiene piu' appena la funzione ritorna: fuori, il
+	# riferimento debole deve restare vuoto
+	var vetro := VetroRotto.new(31, Vector2(420, 120), Rect2(0, 0, 700, 220), 30.0)
+	return weakref(vetro)
+
+static func area_di(punti: PackedVector2Array) -> float:
+	var area := 0.0
+	for i in punti.size():
+		area += punti[i].cross(punti[(i + 1) % punti.size()])
+	return area * 0.5
+
+static func centro_di_punti(punti: PackedVector2Array) -> Vector2:
+	var somma := Vector2.ZERO
+	for p in punti:
+		somma += p
+	return somma / maxf(float(punti.size()), 1.0)
 
 func script_sotto_scripts(cartella: String) -> Array[String]:
 	var trovati: Array[String] = []

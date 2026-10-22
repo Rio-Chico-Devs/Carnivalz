@@ -12,11 +12,12 @@ extends RefCounted
 #     cratere chiaro, con un lampo
 #   - da li' corrono le crepe PRINCIPALI, ad angoli disuguali, fino al bordo
 #     del vetro; qualcuna si biforca; intorno all'impatto, le crepe minute
-#   - fra due principali vicine, gli ANELLI della ragnatela: due giri, a tratti
-#     storti e con qualche buco
-#   - le FACCE fra crepe e anelli prendono la luce ognuna a modo suo (un velo
-#     chiaro o scuro, appena), e un luccichio le attraversa dal centro
-#   - qualche SCHEGGIA salta via e cade
+#   - fra due principali vicine, gli ANELLI della ragnatela: tre giri, a tratti
+#     quasi dritti e con qualche buco
+#   - i PEZZI fra crepe e anelli (LastreVetro.gd) spostano quello che c'e'
+#     dietro ognuno per conto suo, strappano nel colpo, e quelli attaccati
+#     all'impatto si staccano e ti volano addosso lasciando un buco
+#   - un'ONDA bianca parte dall'impatto, e qualche SCHEGGIA salta via e cade
 #
 # LE LINEE, rifatte. Bru: «va fatto ancora meglio sono le linee da migliorare».
 # Erano tre difetti insieme:
@@ -46,6 +47,7 @@ const LAMPO := 0.14
 const VITA_SCHEGGE := 0.55
 const GRAVITA := 900.0
 const RIFLESSO := 0.28       # quanto ci mette il riflesso a percorrere una crepa
+const ONDA := 0.22           # quanto ci mette l'onda dell'impatto ad allargarsi e sparire
 const VETRO_CHIARO := Color(0.94, 0.97, 1.0)
 
 var impatto := Vector2.ZERO
@@ -54,8 +56,8 @@ var r := 30.0                 # il raggio del pugno: la misura di tutto
 var principali: Array[PackedVector2Array] = []
 var lucentezze: Array[float] = []     # ogni principale prende la luce a modo suo
 var rami: Array[Dictionary] = []      # {punti, nasce, pieno}: biforcazioni e crepe minute
-var anelli: Array[Dictionary] = []    # {punti, distanza}
-var facce: Array[Dictionary] = []     # {punti, tinta, distanza}
+var anelli: Array[Dictionary] = []    # {punti (a, gomito, b), distanza, k, giro, ia, ib}
+var lastre: LastreVetro               # i pezzi fra le crepe
 var cratere := PackedVector2Array()
 var schegge: Array[Dictionary] = []   # {velocita, giro, lato, angolo}
 
@@ -73,6 +75,7 @@ func _init(seme: int, dove: Vector2, piano: Rect2, raggio: float) -> void:
 	tira_anelli(d)
 	tira_cratere(d)
 	tira_schegge(d)
+	lastre = LastreVetro.new(self, d)
 
 
 # --- la rete ----------------------------------------------------------------
@@ -147,40 +150,39 @@ func tira_anelli(d: RandomNumberGenerator) -> void:
 	# stessa distanza dall'impatto, che si piega un poco verso il centro
 	var giri: Array[float] = [r * d.randf_range(1.25, 1.6), r * d.randf_range(2.6, 3.3), r * d.randf_range(4.6, 5.6)]
 	for j in giri.size():
-		var dentro := r * 0.22 if j == 0 else giri[j - 1]
 		for k in principali.size():
-			anello_fra(d, principali[k], principali[(k + 1) % principali.size()], giri[j], dentro)
+			anello_fra(d, k, j, giri[j])
 
 
-func anello_fra(d: RandomNumberGenerator, una: PackedVector2Array, altra: PackedVector2Array,
-		distanza: float, dentro: float) -> void:
-	var a := sulla_crepa(una, distanza * d.randf_range(0.92, 1.08))
-	var b := sulla_crepa(altra, distanza * d.randf_range(0.92, 1.08))
-	if a == Vector2.INF or b == Vector2.INF:
+func anello_fra(d: RandomNumberGenerator, k: int, giro: int, distanza: float) -> void:
+	# il tratto del giro fra la crepa k e la successiva. Parte e arriva su un
+	# punto delle crepe, e se ne ricorda quale: i pezzi del vetro si tagliano
+	# lungo questi tratti (LastreVetro)
+	var una := principali[k]
+	var altra := principali[(k + 1) % principali.size()]
+	var ia := sulla_crepa(una, distanza * d.randf_range(0.92, 1.08))
+	var ib := sulla_crepa(altra, distanza * d.randf_range(0.92, 1.08))
+	if ia < 0 or ib < 0:
 		return
-	# la faccia fra questo giro e quello dentro: un velo chiaro o scuro, appena
-	var a0 := sulla_crepa(una, dentro)
-	var b0 := sulla_crepa(altra, dentro)
-	var chiara := d.randf() < 0.55
-	if a0 != Vector2.INF and b0 != Vector2.INF:
-		facce.append({"punti": PackedVector2Array([a0, a, b, b0]), "distanza": distanza,
-				"tinta": Color(Color.WHITE if chiara else Color.BLACK, d.randf_range(0.03, 0.08))})
 	# un buco nella ragnatela, piu' spesso lontano dall'impatto
 	if d.randf() < clampf(distanza / (r * 14.0), 0.15, 0.4):
 		return
 	# il tratto e' una corda quasi dritta, con un solo gomito appena verso
 	# l'impatto: a tre gomiti storti sembrava disegnato a mano
+	var a := una[ia]
+	var b := altra[ib]
 	var gomito := a.lerp(b, d.randf_range(0.4, 0.6))
 	gomito += (impatto - gomito).normalized() * a.distance_to(b) * d.randf_range(0.02, 0.08)
-	anelli.append({"punti": PackedVector2Array([a, gomito, b]), "distanza": distanza})
+	anelli.append({"punti": PackedVector2Array([a, gomito, b]), "distanza": distanza, "k": k, "giro": giro,
+			"ia": ia, "ib": ib})
 
 
-func sulla_crepa(punti: PackedVector2Array, distanza: float) -> Vector2:
-	# il primo punto della crepa a quella distanza dall'impatto; INF se non ci arriva
-	for p in punti:
-		if p.distance_to(impatto) >= distanza:
-			return p
-	return Vector2.INF
+func sulla_crepa(punti: PackedVector2Array, distanza: float) -> int:
+	# il primo punto della crepa a quella distanza dall'impatto; -1 se non ci arriva
+	for i in punti.size():
+		if punti[i].distance_to(impatto) >= distanza:
+			return i
+	return -1
 
 
 func tira_cratere(d: RandomNumberGenerator) -> void:
@@ -231,7 +233,8 @@ func disegna(tela: CanvasItem, eta: float, ridotto: bool) -> void:
 	if quanto <= 0.0:
 		return
 	var fino := corsa(eta, ridotto)
-	disegna_facce(tela, eta, fino, quanto, ridotto)
+	lastre.disegna_buchi(tela, eta, ridotto, quanto)
+	disegna_onda(tela, eta, ridotto)
 	var riflesso := -1.0 if ridotto else (eta - CORSA - 0.03) / RIFLESSO
 	for k in principali.size():
 		var punti := principali[k]
@@ -251,6 +254,31 @@ func disegna(tela: CanvasItem, eta: float, ridotto: bool) -> void:
 	disegna_cratere(tela, eta, quanto, ridotto)
 	for scheggia in schegge_vive(eta, ridotto):
 		Manifesto.poligono(tela, scheggia, Color(VETRO_CHIARO, 0.85 * (1.0 - eta / VITA_SCHEGGE)))
+	lastre.disegna_in_volo(tela, eta, ridotto)
+
+
+func disegna_lastre(tela: CanvasItem, eta: float, ridotto: bool) -> void:
+	# i pezzi del vetro, sulla tela con lo shader che sposta quello che c'e'
+	# dietro (RiquadroRaffica.lastre): sotto le crepe
+	var quanto := luce(eta)
+	if quanto > 0.0:
+		lastre.disegna(tela, eta, ridotto, corsa(eta, ridotto) * lunghezza_tipica(), quanto)
+
+
+static func onda(eta: float, ridotto: bool) -> float:
+	# fin dove e' arrivata l'onda dell'impatto (0..1); -1 se non c'e'
+	if ridotto or eta < 0.0 or eta >= ONDA:
+		return -1.0
+	return eta / ONDA
+
+
+func disegna_onda(tela: CanvasItem, eta: float, ridotto: bool) -> void:
+	# l'onda dell'impatto: un anello bianco che si allarga di colpo e si spegne
+	var u := onda(eta, ridotto)
+	if u < 0.0:
+		return
+	tela.draw_arc(impatto, r * lerpf(0.6, 7.0, 1.0 - pow(1.0 - u, 2.0)), 0.0, TAU, 72,
+			Color(1, 1, 1, 0.7 * (1.0 - u)), maxf(r * 0.16 * (1.0 - u), 1.0), true)
 
 
 func lunghezza_tipica() -> float:
@@ -259,21 +287,6 @@ func lunghezza_tipica() -> float:
 	for punti in principali:
 		totale += punti[punti.size() - 1].distance_to(impatto)
 	return totale / maxf(float(principali.size()), 1.0)
-
-
-func disegna_facce(tela: CanvasItem, eta: float, fino: float, quanto: float, ridotto: bool) -> void:
-	# ogni faccia prende la luce a modo suo; il luccichio corre dal centro
-	for faccia in facce:
-		var distanza := float(faccia["distanza"])
-		if fino * lunghezza_tipica() < distanza:
-			continue
-		var tinta: Color = faccia["tinta"]
-		var luccica := 0.0
-		if not ridotto:
-			var quando := distanza / (r * 18.0)
-			luccica = 0.16 * exp(-pow((eta - quando - 0.04) / 0.05, 2.0))
-		var vista := Color(tinta.lerp(Color(1, 1, 1, tinta.a), luccica * 4.0), (tinta.a + luccica) * quanto)
-		Manifesto.poligono(tela, faccia["punti"], vista)
 
 
 func disegna_cratere(tela: CanvasItem, eta: float, quanto: float, ridotto: bool) -> void:

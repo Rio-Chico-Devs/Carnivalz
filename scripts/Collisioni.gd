@@ -38,10 +38,10 @@ extends RefCounted
 #                  e' PARATO, se no ti PRENDE. Deciso uno, dopo una "pausa" si
 #                  accende il successivo - piu' sei svelto, piu' corre la raffica
 #
-# E IL CLIC DECIDE SEMPRE. Cliccare un pugno spento vuol dire andargli incontro:
-# ti prende. E' il «o viene parato o lo ricevi» di Bru preso alla lettera, e
-# chiude l'unico modo di barare che il gioco avrebbe - cliccare dappertutto
-# sperando di prendere quello giusto quando si accende.
+# CLICCARE UNO SPENTO NON FA NIENTE. Per un giro ti prendeva («o viene parato o
+# lo ricevi» preso alla lettera); Bru, provandolo: «click su spento non fa
+# niente». Col mouse cliccare dappertutto non aiuta comunque: il clic che para
+# deve cadere su quello acceso, e ci devi arrivare.
 #
 # Niente piu' "di striscio": un pugno o lo fermi o ti arriva.
 
@@ -218,20 +218,20 @@ static func scaduti(raffica: Array[Dictionary], adesso: float) -> Array[int]:
 
 
 static func giudica(raffica: Array[Dictionary], indice: int, adesso: float) -> String:
-	# UN CLIC SU UN PUGNO, e cosa vale:
-	#   acceso, in tempo      "parata"
-	#   spento                "preso": gli sei andato incontro
-	#   "" se non conta: non e' ancora comparso, o e' gia' deciso. Un pugno si
-	#   decide UNA volta sola
+	# UN CLIC SU UN PUGNO, e cosa vale: "parata" se e' acceso e in tempo, ""
+	# se non conta - spento, non ancora comparso, gia' deciso. Un pugno si
+	# decide UNA volta sola. Che ti prenda lo decide il tempo, non il clic
+	# (scaduti, qui sotto)
 	if indice < 0 or indice >= raffica.size():
 		return ""
 	var pugno: Dictionary = raffica[indice]
 	if String(pugno.esito) != "" or adesso < float(pugno.istante):
 		return ""
-	var acceso := float(pugno.accesa_da) >= 0.0 and adesso >= float(pugno.accesa_da) and adesso <= float(pugno.scade)
-	pugno.parato = acceso
-	pugno.esito = "parata" if acceso else "preso"
-	return String(pugno.esito)
+	if float(pugno.accesa_da) < 0.0 or adesso < float(pugno.accesa_da) or adesso > float(pugno.scade):
+		return ""
+	pugno.parato = true
+	pugno.esito = "parata"
+	return "parata"
 
 
 static func piu_urgente(raffica: Array[Dictionary], adesso: float) -> int:

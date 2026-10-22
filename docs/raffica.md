@@ -237,20 +237,24 @@ giusto in fretta.
 | clic su | cosa succede |
 |---|---|
 | il pugno acceso, in tempo | **PARATA**: zero danno |
-| un pugno spento | **COLPITO**: gli sei andato incontro, ti prende |
+| un pugno spento | niente |
 | un punto vuoto | niente |
 | (il pugno acceso che nessuno ferma) | **COLPITO** quando arriva |
 
-Il clic sullo spento che ti prende è il «una volta che ci prendi il pugno o
-viene parato o lo ricevi» preso alla lettera, e chiude l'unico modo di barare
-che il gioco avrebbe: cliccare dappertutto sperando di beccare quello giusto
-quando si accende. **È la scelta da confermare**: se Bru preferisce che il
-clic su uno spento non faccia niente, è una riga in `Collisioni.giudica`.
+Per un giro il clic sullo spento ti prendeva (il «una volta che ci prendi il
+pugno o viene parato o lo ricevi» preso alla lettera). Bru, provandolo:
+«click su spento non fa niente». Col mouse barare non conviene comunque: il
+clic che para deve cadere su quello acceso, e ci devi arrivare.
 
-**Tastiera**: INVIO (o SPAZIO) para quello acceso. Premuto quando nessuno è
-acceso vale come un clic su uno spento: ti prende il prossimo, se è già a
-schermo. Se no tenere premuto il tasto parerebbe tutta la raffica senza
-guardarla.
+**Tastiera**: INVIO (o SPAZIO) para quello acceso. Premuto a vuoto non fa
+niente, ma per 0,3 s il tasto non para più, e ogni pressione a vuoto ricomincia
+l'attimo: col tasto non c'è niente da raggiungere, e senza questo pestarlo
+senza guardare parerebbe tutta la raffica. Chi aspetta che si accenda e preme
+una volta non se ne accorge nemmeno.
+
+**Il colpo preso** ferma tutto per 0,07 s (il fermo sul colpo dei
+picchiaduro: l'orologio dei pugni non avanza, lo scontro intanto sbanda) e
+spacca il vetro: `docs/vita.md` §5.
 
 **Dove stanno.** Dodici a schermo insieme non si tirano più a caso: a caso
 nel quadrante largo e basso non c'è posto. Sono una griglia a mattoni (le
@@ -274,15 +278,20 @@ accende, il vetro che si incrina quando ti prende.
 stesso dado dà la stessa raffica, o parato o preso, il danno, la finestra che si
 stringe, nessuno sopra un altro in quattro quadranti e da cinque a sedici
 pugni), `prova_il_pugno_si_para_quando_premi` (la pressione, l'attesa, la
-pausa, il cerchio e non il quadrato, lo spento che ti prende),
-`prova_la_raffica_si_para_anche_da_tastiera`, `prova_minigioco_ai_bordi`,
+pausa, il cerchio e non il quadrato, lo spento che non fa niente),
+`prova_la_raffica_si_para_anche_da_tastiera` (anche il tasto pestato a vuoto),
+`prova_minigioco_ai_bordi`,
 `prova_la_raffica_si_stringe_verso_la_fine` (i numeri del tutorial),
-`prova_la_raffica_col_corpo`, `prova_il_vetro_rotto_del_colpo_preso` (anche le
-linee: tratti lunghi e dritti, il filo che non si strozza). Verificate
-rompendo apposta il codice in 38 modi.
+`prova_la_raffica_col_corpo` (anche il fermo sul colpo e le tele del vetro),
+`prova_il_vetro_rotto_del_colpo_preso` (le linee: tratti lunghi e dritti, il
+filo che non si strozza; i pezzi che coprono il vetro senza buchi né
+sovrapposizioni, lo strappo, i pezzi che volano, l'onda, il vetro che si
+libera). Verificate rompendo apposta il codice in 38 modi, e la seconda
+volta (lo spento che non fa niente, il vetro che si spacca) in altri 33.
 
-**Approvata.** Bru, visto il film: «bello mi piace!».
+**Approvata.** Bru, visto il film: «bello mi piace!». Poi: «click su spento
+non fa niente, migliora ancora di più l'effetto di quando vieni colpito che
+si spacca il vetro».
 
 **Da confermare giocando**: i tempi (soprattutto lo 0,75 s dell'ultimo pugno:
-trovarlo fra quelli rimasti e arrivarci col mouse costa mezzo secondo buono) e
-il clic sullo spento che ti prende.
+trovarlo fra quelli rimasti e arrivarci col mouse costa mezzo secondo buono).

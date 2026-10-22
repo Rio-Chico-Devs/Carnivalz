@@ -125,9 +125,13 @@ func passa_turno() -> void:
 
 
 func passa_collisioni(delta: float) -> void:
-	if gioco.fase != "raffica":
+	# come nello scontro: il minigioco va avanti finche' e' attivo, anche nel
+	# conto finale (li' il vetro dell'ultimo colpo finisce di sfumare)
+	if not gioco.attivo:
 		return
 	gioco.passa(delta)
+	if gioco.fase != "raffica":
+		return
 	var acceso := Collisioni.accesa(gioco.raffica)
 	if acceso >= 0 and int(gioco.raffica[acceso].turno) in PARATE \
 			and gioco.tempo - float(gioco.raffica[acceso].accesa_da) >= REAZIONE:

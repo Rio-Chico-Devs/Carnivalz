@@ -39,6 +39,8 @@ const DISEGNO_PUGNO := "res://art/minigiochi/pugno.png"
 const APERTURA := 1.8   # quanto si legge "clicca il pugno quando si accende"
 const CHIUSURA := 2.2   # quanto resta il conto, se nessuno clicca prima
 const CODA := 0.45      # deciso l'ultimo pugno, quanto resta il suo riscontro
+const FERMO := 0.07     # il colpo preso ferma tutto per un attimo: si sente arrivare
+const BLOCCO_TASTO := 0.3   # premuto a vuoto, il tasto non para per questo tempo
 
 var muto := false
 var plancia: PlanciaCombattimento = null
@@ -52,6 +54,8 @@ var tempo := 0.0          # l'orologio dei pugni: gira solo durante la raffica
 var tempo_fase := 0.0     # quello dell'apertura e della chiusura
 var prossima_luce := 0.0  # quando si accende il prossimo pugno, sull'orologio dei pugni
 var pausa := Collisioni.PAUSA
+var fermo := 0.0          # quanto resta del fermo del colpo preso
+var tasto_libero_da := 0.0
 var attivo := false
 var in_partenza := false   # chiesta, ma il box sta ancora finendo di parlare
 var danno_per_colpo := 0
@@ -91,6 +95,8 @@ func avvia(parametri: Dictionary, bravura := -1.0) -> void:
 	in_partenza = false
 	tempo = 0.0
 	tempo_fase = 0.0
+	fermo = 0.0
+	tasto_libero_da = 0.0
 	danno_per_colpo = int(parametri.get("danno", 0))
 	raffica = Collisioni.calendario(int(parametri.get("quanti", 12)), dado,
 			riquadro.proporzione() if riquadro != null else 1.0,
@@ -135,38 +141,37 @@ func decisi() -> int:
 	return 0 if fase != "raffica" else raffica.size() - Collisioni.conta(raffica, "")
 
 func colpisci(indice: int) -> void:
-	# il clic su un pugno: acceso lo pari, spento ti prende (Collisioni.giudica)
+	# il clic su un pugno: acceso lo pari, spento non fa niente (Collisioni.giudica)
 	if not attivo or fase != "raffica":
 		return
-	var era_acceso := Collisioni.accesa(raffica) == indice
-	var esito := Collisioni.giudica(raffica, indice, tempo)
-	if esito == "":
+	if Collisioni.giudica(raffica, indice, tempo) == "":
 		return
-	if era_acceso:
-		prossima_luce = tempo + pausa
-	if esito == "preso":
-		subisci(indice)
-		return
+	prossima_luce = tempo + pausa
 	if riquadro != null:
-		riquadro.segna(indice, esito)
+		riquadro.segna(indice, "parata")
 	AudioManager.interfaccia("parata")
 
 func subisci(indice: int) -> void:
-	# il pugno ti ha preso: lo si dice una volta sola, nel momento in cui succede
+	# il pugno ti ha preso: lo si dice una volta sola, nel momento in cui
+	# succede. E per un attimo si ferma tutto - il vetro gia' rotto, il pugno
+	# ancora li': e' il fermo sul colpo dei picchiaduro, e dice "ti ha preso"
+	# prima ancora delle crepe
 	if riquadro != null:
 		riquadro.segna(indice, "preso")
 	if impatto != null:
 		impatto.scossa(12.0)   # il colpo preso si sente: lo scontro sbanda forte
+	fermo = FERMO
 	AudioManager.interfaccia("incrinato")
 
 func para_col_tasto() -> bool:
 	# LA RAFFICA SI GIOCA ANCHE SENZA MOUSE: il tasto para il pugno acceso.
-	# Premuto quando nessuno e' acceso vale come un clic su un pugno spento - il
-	# prossimo che si sarebbe acceso, se e' gia' a schermo - e ti prende: se no
-	# tenere premuto a raffica pararebbe tutto. Fuori dalla raffica fa andare
-	# avanti (salta l'apertura, chiude il conto).
+	# Premuto a vuoto non fa niente, come il clic su uno spento - ma per un
+	# attimo il tasto non para piu', e ogni pressione a vuoto ricomincia
+	# l'attimo: se no pestando INVIO senza guardare si parerebbe tutta la
+	# raffica. Fuori dalla raffica fa andare avanti (salta l'apertura, chiude
+	# il conto).
 	#
-	# Torna false se il tasto non ha trovato niente - cosi' chi chiama sa se
+	# Torna false se il tasto non ha parato niente - cosi' chi chiama sa se
 	# l'evento e' stato consumato o deve passare oltre.
 	if not attivo:
 		return false
@@ -174,10 +179,9 @@ func para_col_tasto() -> bool:
 		salta()
 		return true
 	var quale := Collisioni.piu_urgente(raffica, tempo)
-	if quale < 0:
-		quale = Collisioni.prossima(raffica)
-		if quale < 0 or tempo < float(raffica[quale].istante):
-			return false
+	if quale < 0 or tempo < tasto_libero_da:
+		tasto_libero_da = tempo + BLOCCO_TASTO
+		return false
 	colpisci(quale)
 	return true
 
@@ -190,6 +194,10 @@ func salta() -> void:
 func passa(delta: float) -> void:
 	# il minigioco ha un orologio suo: mentre gira, quello dello scontro e' fermo
 	if not attivo:
+		return
+	if fermo > 0.0:
+		# il fermo sul colpo: niente avanza, niente si ridisegna
+		fermo -= delta
 		return
 	match fase:
 		"apertura":
