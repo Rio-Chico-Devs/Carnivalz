@@ -8,8 +8,8 @@ extends RefCounted
 # vetro. Adesso e' la stessa lingua delle crepe dell'orologio che Bru ha
 # approvato (Crepe.gd: impatto, principali quasi dritte con lo strappo secco, il
 # filo che si assottiglia), portata sul vetro dello schermo del cabinato:
-#   - nel punto in cui il pugno ti prende il vetro e' SCHIACCIATO: un piccolo
-#     cratere chiaro, con un lampo
+#   - nel punto in cui il pugno ti prende il vetro e' SCHIACCIATO: una fitta di
+#     crepoline e granelli, e un bagliore
 #   - da li' corrono le crepe PRINCIPALI, ad angoli disuguali, fino al bordo
 #     del vetro; qualcuna si biforca; intorno all'impatto, le crepe minute
 #   - fra due principali vicine, gli ANELLI della ragnatela: tre giri, a tratti
@@ -17,7 +17,17 @@ extends RefCounted
 #   - i PEZZI fra crepe e anelli (LastreVetro.gd) spostano quello che c'e'
 #     dietro ognuno per conto suo, strappano nel colpo, e quelli attaccati
 #     all'impatto si staccano e ti volano addosso lasciando un buco
-#   - un'ONDA bianca parte dall'impatto, e qualche SCHEGGIA salta via e cade
+#   - un'ONDA parte dall'impatto e spinge in fuori quello che c'e' dietro, e
+#     qualche SCHEGGIA salta via luccicando
+#
+# RIFATTO DA CAPO. Bru: «non ci siamo, non è ancora di qualità sembra quasi
+# fatto su paint». Erano disegni sopra lo schermo: un disco bianco per
+# cratere, un cerchio bianco per onda, schegge bianche piatte. Adesso, come la
+# crepa dello squarcio che Bru ha approvato, le crepe appena rotte BRUCIANO
+# (un cuore quasi bianco e un alone del colore della luce, sommati a quello
+# che c'e' sotto) e poi si raffreddano; e sono INCISE: un taglio con una
+# parete in ombra e una in luce, coi denti fini. Il resto lo fanno i pezzi
+# che guardano dietro. Si disegna su quattro tele (TeleVetro.gd).
 #
 # LE LINEE, rifatte. Bru: «va fatto ancora meglio sono le linee da migliorare».
 # Erano tre difetti insieme:
@@ -43,12 +53,17 @@ extends RefCounted
 const DURATA := 1.0          # quanto resta il vetro rotto: poco, i pugni dopo vanno letti
 const SVANISCE := 0.4        # gli ultimi secondi, in cui sfuma
 const CORSA := 0.11          # quanto ci mettono le principali ad arrivare al bordo
-const LAMPO := 0.14
 const VITA_SCHEGGE := 0.55
 const GRAVITA := 900.0
 const RIFLESSO := 0.28       # quanto ci mette il riflesso a percorrere una crepa
 const ONDA := 0.22           # quanto ci mette l'onda dell'impatto ad allargarsi e sparire
+const CALORE := 0.13         # quanto ci mettono le crepe appena rotte a spegnersi
 const VETRO_CHIARO := Color(0.94, 0.97, 1.0)
+const LUCE := Vector2(-0.6, -0.8)        # da dove arriva la luce: dall'alto a sinistra
+const CALDA := Color(1.0, 0.6, 0.18)     # l'accesa dello squarcio approvato
+const FREDDA := Color(0.6, 0.86, 1.0)    # quella di un vetro vero
+# PROVVISORIO: le due proposte per Bru, la crepa che si accende calda o fredda
+static var tinta := CALDA
 
 var impatto := Vector2.ZERO
 var vetro := Rect2()          # fin dove arriva il vetro (il piano della raffica)
@@ -58,7 +73,10 @@ var lucentezze: Array[float] = []     # ogni principale prende la luce a modo su
 var rami: Array[Dictionary] = []      # {punti, nasce, pieno}: biforcazioni e crepe minute
 var anelli: Array[Dictionary] = []    # {punti (a, gomito, b), distanza, k, giro, ia, ib}
 var lastre: LastreVetro               # i pezzi fra le crepe
-var cratere := PackedVector2Array()
+var fini: Array[PackedVector2Array] = []   # le principali come si disegnano: col dente fine
+var frantumi: Array[PackedVector2Array] = []   # le crepoline del vetro schiacciato
+var brina: Array[Vector2] = []        # e i granelli
+var granelli: Array[float] = []
 var schegge: Array[Dictionary] = []   # {velocita, giro, lato, angolo}
 
 
@@ -73,8 +91,12 @@ func _init(seme: int, dove: Vector2, piano: Rect2, raggio: float) -> void:
 		biforca(d, punti)
 	minute(d)
 	tira_anelli(d)
-	tira_cratere(d)
+	tira_frantumi(d)
 	tira_schegge(d)
+	for punti in principali:
+		fini.append(dentellata(d, punti))
+	for ramo in rami:
+		ramo["fini"] = dentellata(d, ramo["punti"])
 	lastre = LastreVetro.new(self, d)
 
 
@@ -185,10 +207,35 @@ func sulla_crepa(punti: PackedVector2Array, distanza: float) -> int:
 	return -1
 
 
-func tira_cratere(d: RandomNumberGenerator) -> void:
-	for k in 9:
-		cratere.append(impatto + Vector2.from_angle(TAU * float(k) / 9.0 + d.randf_range(-0.2, 0.2))
-				* r * d.randf_range(0.14, 0.26))
+func tira_frantumi(d: RandomNumberGenerator) -> void:
+	# DOVE IL PUGNO HA PRESO IL VETRO E' SCHIACCIATO: non un disco chiaro, ma
+	# una fitta di crepoline corte, storte, e granelli che prendono la luce
+	for k in 30:
+		var dove := impatto + Vector2.from_angle(d.randf() * TAU) * r * sqrt(d.randf()) * 0.55
+		var verso := (dove - impatto).angle() + (d.randf_range(-0.5, 0.5) if d.randf() < 0.6 else PI * 0.5)
+		var lungo := r * d.randf_range(0.06, 0.2)
+		var gomito := dove + Vector2.from_angle(verso) * lungo
+		frantumi.append(PackedVector2Array([dove, gomito,
+				gomito + Vector2.from_angle(verso + d.randf_range(-0.6, 0.6)) * lungo * d.randf_range(0.3, 0.8)]))
+	for k in 40:
+		brina.append(impatto + Vector2.from_angle(d.randf() * TAU) * r * sqrt(d.randf()) * 0.6)
+		granelli.append(d.randf_range(0.45, 1.2))
+
+
+func dentellata(d: RandomNumberGenerator, punti: PackedVector2Array) -> PackedVector2Array:
+	# LA CREPA DA VICINO NON E' UNA RIGA: ogni tre pixel un dente di mezzo
+	# pixel, di qua o di la'. A colpo d'occhio resta dritta; da vicino e' vetro
+	var fine := PackedVector2Array()
+	for i in range(1, punti.size()):
+		var a := punti[i - 1]
+		var b := punti[i]
+		var passi := maxi(int(a.distance_to(b) / 3.0), 1)
+		var di_traverso := (b - a).normalized().orthogonal()
+		for k in passi:
+			var dente := 0.0 if k == 0 else d.randf_range(-0.55, 0.55)
+			fine.append(a.lerp(b, float(k) / float(passi)) + di_traverso * dente)
+	fine.append(punti[punti.size() - 1])
+	return fine
 
 
 func tira_schegge(d: RandomNumberGenerator) -> void:
@@ -227,42 +274,174 @@ func schegge_vive(eta: float, ridotto: bool) -> Array[PackedVector2Array]:
 
 
 # --- il disegno -------------------------------------------------------------
+# Quattro tele, una sopra l'altra (TeleVetro): i pezzi che guardano dietro, il
+# vetro (crepe, buchi, il rosso), i pezzi che saltano, e la luce che si somma
+# (le crepe accese, il bagliore, l'onda, le scintille).
+
+static func calore(eta: float, ridotto: bool) -> float:
+	# quanto sono accese le crepe: appena rotte bruciano, poi si raffreddano
+	if ridotto:
+		return 0.0
+	return exp(-maxf(eta, 0.0) / CALORE)
+
+
+func disegna_lastre(tela: CanvasItem, eta: float, ridotto: bool) -> void:
+	var quanto := luce(eta)
+	if quanto > 0.0:
+		lastre.disegna(tela, eta, ridotto, corsa(eta, ridotto), corsa(eta, ridotto) * lunghezza_tipica(), quanto)
+
+
+func disegna_schegge(tela: CanvasItem, eta: float, ridotto: bool) -> void:
+	lastre.disegna_in_volo(tela, eta, ridotto)
+
 
 func disegna(tela: CanvasItem, eta: float, ridotto: bool) -> void:
 	var quanto := luce(eta)
 	if quanto <= 0.0:
 		return
 	var fino := corsa(eta, ridotto)
+	disegna_rosso(tela, eta)
 	lastre.disegna_buchi(tela, eta, ridotto, quanto)
-	disegna_onda(tela, eta, ridotto)
+	disegna_frantumi(tela, quanto)
 	var riflesso := -1.0 if ridotto else (eta - CORSA - 0.03) / RIFLESSO
+	var bollente := calore(eta, ridotto)
 	for k in principali.size():
-		var punti := principali[k]
-		taglio(tela, Crepe.taglia(punti, fino), Crepe.lunghezza(punti), r * 0.075,
-				quanto * lucentezze[k], fino, riflesso)
+		var punti := fini[k]
+		incisa(tela, Crepe.taglia(punti, fino), Crepe.lunghezza(punti), r * 0.07,
+				quanto * lucentezze[k], riflesso, bollente, k)
 	for ramo in rami:
-		var suo := clampf((fino - float(ramo["nasce"])) / maxf(1.0 - float(ramo["nasce"]), 0.2), 0.0, 1.0)
+		var suo := di_ramo(ramo, fino)
 		if suo > 0.0:
-			var punti: PackedVector2Array = ramo["punti"]
-			taglio(tela, Crepe.taglia(punti, suo), Crepe.lunghezza(punti), r * 0.07 * float(ramo["pieno"]),
-					quanto * 0.75, suo, -1.0)
+			var punti: PackedVector2Array = ramo["fini"]
+			incisa(tela, Crepe.taglia(punti, suo), Crepe.lunghezza(punti), r * 0.06 * float(ramo["pieno"]),
+					quanto * 0.75, -1.0, bollente, 7)
 	for anello in anelli:
 		# un giro c'e' quando le principali ci sono arrivate
 		if fino * lunghezza_tipica() >= float(anello["distanza"]):
 			var punti: PackedVector2Array = anello["punti"]
-			taglio(tela, punti, Crepe.lunghezza(punti) * 3.0, r * 0.04, quanto * 0.6, 1.0, -1.0)
-	disegna_cratere(tela, eta, quanto, ridotto)
-	for scheggia in schegge_vive(eta, ridotto):
-		Manifesto.poligono(tela, scheggia, Color(VETRO_CHIARO, 0.85 * (1.0 - eta / VITA_SCHEGGE)))
-	lastre.disegna_in_volo(tela, eta, ridotto)
+			incisa(tela, punti, Crepe.lunghezza(punti) * 3.0, r * 0.04, quanto * 0.6, -1.0, bollente, 3)
 
 
-func disegna_lastre(tela: CanvasItem, eta: float, ridotto: bool) -> void:
-	# i pezzi del vetro, sulla tela con lo shader che sposta quello che c'e'
-	# dietro (RiquadroRaffica.lastre): sotto le crepe
+static func di_ramo(ramo: Dictionary, fino: float) -> float:
+	# fin dove e' arrivato un ramo: parte quando la sua principale gli passa accanto
+	return clampf((fino - float(ramo["nasce"])) / maxf(1.0 - float(ramo["nasce"]), 0.2), 0.0, 1.0)
+
+
+func disegna_rosso(tela: CanvasItem, eta: float) -> void:
+	# IL COLPO SI SENTE AI BORDI: il riquadro si arrossa da fuori verso dentro,
+	# come quando si stringono gli occhi, e torna. Non un velo piatto su tutto
+	var forza := 0.55 * exp(-eta / 0.3)
+	if forza < 0.01:
+		return
+	var rosso := Stile.colore("pericolo")
+	var fuori := vetro.grow(2.0)
+	var dentro := fuori.grow(-minf(fuori.size.x, fuori.size.y) * 0.42)
+	var angoli_fuori := [fuori.position, Vector2(fuori.end.x, fuori.position.y), fuori.end, Vector2(fuori.position.x, fuori.end.y)]
+	var angoli_dentro := [dentro.position, Vector2(dentro.end.x, dentro.position.y), dentro.end, Vector2(dentro.position.x, dentro.end.y)]
+	var vertici := PackedVector2Array()
+	var colori := PackedColorArray()
+	for k in 4:
+		vertici.append(angoli_fuori[k])
+		colori.append(Color(rosso, forza))
+		vertici.append(angoli_dentro[k])
+		colori.append(Color(rosso, 0.0))
+	var indici := PackedInt32Array()
+	for k in 4:
+		var a := k * 2
+		var b := ((k + 1) % 4) * 2
+		indici.append_array([a, b, a + 1, b, b + 1, a + 1])
+	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, vertici, colori)
+
+
+func disegna_frantumi(tela: CanvasItem, quanto: float) -> void:
+	# il vetro schiacciato: un velo appena chiaro, le crepoline, i granelli
+	ventaglio(tela, impatto, r * 0.62, Color(VETRO_CHIARO, 0.16 * quanto), Color(VETRO_CHIARO, 0.0))
+	for punti in frantumi:
+		var larghi := PackedFloat32Array([1.1, 0.9, 0.6])
+		var luci := PackedFloat32Array([1.0, 1.0, 1.0])
+		striscia(tela, scostata(punti, 0.7), larghi, luci, Color(0.02, 0.0, 0.03, 0.45 * quanto))
+		striscia(tela, punti, larghi, luci, Color(VETRO_CHIARO, 0.8 * quanto))
+	Manifesto.puntini(tela, brina, granelli, Color(1, 1, 1, 0.55 * quanto))
+
+
+func incisa(tela: CanvasItem, vivi: PackedVector2Array, totale: float, pieno: float, quanto: float,
+		riflesso: float, bollente: float, seme: int) -> void:
+	# UNA CREPA E' UN TAGLIO NEL VETRO, CON DUE PARETI. La parete girata verso
+	# la luce e' chiara, l'altra fa ombra: un filo scuro da una parte, uno
+	# chiaro dall'altra, e in mezzo il taglio, che si assottiglia andando in
+	# fuori e non e' uguale dappertutto - dove la crepa gira un poco, prende
+	# la luce. Appena rotto il taglio brucia (bollente), poi torna vetro. Il
+	# riflesso - da 0 a 1 mentre percorre la crepa, -1 se non c'e' - la
+	# accende per un tratto
+	if vivi.size() < 2:
+		return
+	var larghi := PackedFloat32Array()
+	var luci := PackedFloat32Array()
+	var piatte := PackedFloat32Array()
+	var corso := 0.0
+	for i in vivi.size():
+		if i > 0:
+			corso += vivi[i].distance_to(vivi[i - 1])
+		var u := corso / maxf(totale, 0.001)
+		larghi.append(lerpf(pieno, pieno * 0.2, u))
+		var chiaro := 0.72 + 0.38 * sin(corso * 0.21 + float(seme) * 1.7) * sin(corso * 0.067 + float(seme))
+		if riflesso >= 0.0 and riflesso <= 1.3:
+			chiaro += 0.7 * exp(-pow((u - riflesso) / 0.1, 2.0))
+		luci.append(chiaro)
+		piatte.append(1.0)
+	var di_lato := (vivi[vivi.size() - 1] - vivi[0]).normalized().orthogonal()
+	var verso := 1.0 if di_lato.dot(-LUCE) > 0.0 else -1.0
+	var parete := PackedFloat32Array()
+	for largo in larghi:
+		parete.append(largo * 0.8 + 0.5)
+	striscia(tela, scostata(vivi, -verso * (pieno * 0.45 + 0.8)), parete, piatte, Color(0.02, 0.0, 0.03, 0.62 * quanto))
+	striscia(tela, scostata(vivi, verso * (pieno * 0.45 + 0.7)), parete, piatte, Color(VETRO_CHIARO, 0.42 * quanto))
+	var cuore := VETRO_CHIARO.lerp(Color(1.0, 0.97, 0.88), bollente)
+	striscia(tela, vivi, larghi, luci, Color(cuore, quanto))
+
+
+func disegna_luce(tela: CanvasItem, eta: float, ridotto: bool) -> void:
+	# la luce che si somma, sulla tela che somma: nel colpo un lampo su tutto,
+	# il bagliore dove il pugno ha preso, le crepe che bruciano mentre corrono,
+	# la punta che corre, l'onda, le scintille
 	var quanto := luce(eta)
-	if quanto > 0.0:
-		lastre.disegna(tela, eta, ridotto, corsa(eta, ridotto) * lunghezza_tipica(), quanto)
+	if quanto <= 0.0 or ridotto:
+		return
+	var bollente := calore(eta, ridotto)
+	if eta < 0.05:
+		tela.draw_rect(vetro.grow(2.0), Color(1, 1, 1, 0.18 * (1.0 - eta / 0.05)))
+	ventaglio(tela, impatto, r * lerpf(1.4, 2.6, 1.0 - bollente),
+			Color(tinta.lerp(Color.WHITE, 0.55), 0.95 * bollente), Color(tinta, 0.0))
+	var fino := corsa(eta, ridotto)
+	for k in principali.size():
+		var punti := Crepe.taglia(fini[k], fino)
+		accesa(tela, punti, r * 0.07, bollente * lucentezze[k])
+		if fino < 1.0 and punti.size() > 0:
+			ventaglio(tela, punti[punti.size() - 1], 5.0, Color(1, 1, 1, 0.9), Color(tinta, 0.0))
+	for ramo in rami:
+		var suo := di_ramo(ramo, fino)
+		if suo > 0.0:
+			accesa(tela, Crepe.taglia(ramo["fini"], suo), r * 0.05, bollente * 0.7)
+	disegna_onda(tela, eta)
+	for scheggia in schegge_vive(eta, ridotto):
+		var luccica := 0.45 + 0.55 * pow(absf(cos(Crepe.lunghezza(scheggia) * 0.5 + eta * 22.0)), 6.0)
+		Manifesto.poligono(tela, scheggia, Color(1, 1, 1, luccica * (1.0 - eta / VITA_SCHEGGE)))
+
+
+func accesa(tela: CanvasItem, punti: PackedVector2Array, pieno: float, quanto: float) -> void:
+	# il bagliore di una crepa che brucia: largo e del colore della luce, e
+	# dentro uno piu' stretto e quasi bianco
+	if quanto < 0.01 or punti.size() < 2:
+		return
+	var largo := PackedFloat32Array()
+	var stretto := PackedFloat32Array()
+	var piatte := PackedFloat32Array()
+	for i in punti.size():
+		largo.append(pieno * 7.0 + 6.0)
+		stretto.append(pieno * 2.5 + 2.0)
+		piatte.append(1.0)
+	striscia_morbida(tela, punti, largo, Color(tinta, 0.5 * quanto))
+	striscia_morbida(tela, punti, stretto, Color(tinta.lerp(Color.WHITE, 0.6), 0.7 * quanto))
 
 
 static func onda(eta: float, ridotto: bool) -> float:
@@ -272,13 +451,33 @@ static func onda(eta: float, ridotto: bool) -> float:
 	return eta / ONDA
 
 
-func disegna_onda(tela: CanvasItem, eta: float, ridotto: bool) -> void:
-	# l'onda dell'impatto: un anello bianco che si allarga di colpo e si spegne
+func raggio_onda(eta: float, ridotto: bool) -> float:
+	# in pixel dall'impatto: per lo shader, che con l'onda spinge in fuori
+	# quello che c'e' dietro. Sotto zero: non c'e'
 	var u := onda(eta, ridotto)
-	if u < 0.0:
+	return -1.0 if u < 0.0 else r * lerpf(0.6, 7.5, 1.0 - pow(1.0 - u, 2.0))
+
+
+func disegna_onda(tela: CanvasItem, eta: float) -> void:
+	# sopra la deformazione, un velo di luce sull'onda: un anello morbido, non
+	# una riga
+	var raggio := raggio_onda(eta, false)
+	if raggio < 0.0:
 		return
-	tela.draw_arc(impatto, r * lerpf(0.6, 7.0, 1.0 - pow(1.0 - u, 2.0)), 0.0, TAU, 72,
-			Color(1, 1, 1, 0.7 * (1.0 - u)), maxf(r * 0.16 * (1.0 - u), 1.0), true)
+	var u := onda(eta, false)
+	var spesso := r * 0.6 * (1.0 - u) + 4.0
+	var punti := PackedVector2Array()
+	var colori := PackedColorArray()
+	var indici := PackedInt32Array()
+	var giri := 72
+	for k in giri:
+		var verso := Vector2.from_angle(TAU * float(k) / float(giri))
+		punti.append_array([impatto + verso * maxf(raggio - spesso, 0.0), impatto + verso * raggio, impatto + verso * (raggio + spesso)])
+		colori.append_array([Color(tinta, 0.0), Color(tinta.lerp(Color.WHITE, 0.4), 0.28 * (1.0 - u)), Color(tinta, 0.0)])
+		var a := k * 3
+		var b := ((k + 1) % giri) * 3
+		indici.append_array([a, b, a + 1, b, b + 1, a + 1, a + 1, b + 1, a + 2, b + 1, b + 2, a + 2])
+	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, punti, colori)
 
 
 func lunghezza_tipica() -> float:
@@ -289,69 +488,68 @@ func lunghezza_tipica() -> float:
 	return totale / maxf(float(principali.size()), 1.0)
 
 
-func disegna_cratere(tela: CanvasItem, eta: float, quanto: float, ridotto: bool) -> void:
-	# dove il pugno ha preso: il vetro schiacciato, chiaro, e il lampo
-	if not ridotto and eta < LAMPO:
-		var u := eta / LAMPO
-		tela.draw_circle(impatto, r * lerpf(0.5, 1.4, u), Color(1, 1, 1, 0.8 * (1.0 - u)), true, -1.0, true)
-	var acceso := 0.0 if ridotto else 1.0 - clampf(eta / 0.3, 0.0, 1.0)
-	Manifesto.poligono(tela, cratere, Color(VETRO_CHIARO, (0.28 + 0.3 * acceso) * quanto))
-	var giro := cratere.duplicate()
-	giro.append(cratere[0])
-	var larghi := PackedFloat32Array()
-	larghi.resize(giro.size())
-	larghi.fill(maxf(r * 0.035, 0.8))
-	var luci := PackedFloat32Array()
-	luci.resize(giro.size())
-	luci.fill(1.0)
-	striscia(tela, giro, larghi, luci, Color(VETRO_CHIARO, 0.75 * quanto))
-
-
-func taglio(tela: CanvasItem, vivi: PackedVector2Array, totale: float, pieno: float, quanto: float,
-		fronte: float, riflesso: float) -> void:
-	# UN TAGLIO NEL VETRO: sotto un alone scuro centrato, che lo stacca da
-	# qualunque cosa ci sia dietro (il pugno rosso, il fondo, il lampo); sopra il
-	# filo chiaro, che si assottiglia andando in fuori. La punta che sta ancora
-	# correndo e' piu' chiara, e il riflesso - da 0 a 1 mentre percorre la
-	# crepa, -1 se non c'e' - la accende per un tratto
-	if vivi.size() < 2:
+static func ventaglio(tela: CanvasItem, centro: Vector2, raggio: float, dentro: Color, fuori: Color) -> void:
+	# un cerchio sfumato dal centro al bordo, liscio: un ventaglio di triangoli
+	# col colore che scivola dal centro al giro
+	if raggio <= 0.5:
 		return
-	var larghi := PackedFloat32Array()
-	var luci := PackedFloat32Array()
-	var corso := 0.0
-	var fatto := Crepe.lunghezza(vivi)
-	for i in vivi.size():
-		if i > 0:
-			corso += vivi[i].distance_to(vivi[i - 1])
-		var u := corso / maxf(totale, 0.001)
-		larghi.append(lerpf(pieno, pieno * 0.18, u))
-		var chiaro := 1.0
-		if fronte < 1.0:
-			chiaro += 0.6 * clampf(1.0 - (fatto - corso) / (r * 1.2), 0.0, 1.0)
-		if riflesso >= 0.0 and riflesso <= 1.3:
-			chiaro += 0.7 * exp(-pow((u - riflesso) / 0.1, 2.0))
-		luci.append(chiaro)
-	var alone := PackedFloat32Array()
+	var punti := PackedVector2Array([centro])
+	var colori := PackedColorArray([dentro])
+	var indici := PackedInt32Array()
+	var giri := 40
+	for k in giri:
+		punti.append(centro + Vector2.from_angle(TAU * float(k) / float(giri)) * raggio)
+		colori.append(fuori)
+		indici.append_array([0, 1 + k, 1 + (k + 1) % giri])
+	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, punti, colori)
+
+
+static func scostata(punti: PackedVector2Array, quanto: float) -> PackedVector2Array:
+	# la stessa linea spostata di traverso di "quanto" pixel (a sinistra del
+	# verso in cui corre se positivo), coi gomiti a spigolo
+	var vertici := traverso(punti, PackedFloat32Array())
+	var spostata := PackedVector2Array()
+	for i in punti.size():
+		var normale := (vertici[i * 4] - vertici[i * 4 + 3]).normalized()
+		spostata.append(punti[i] + normale * quanto)
+	return spostata
+
+
+static func striscia_morbida(tela: CanvasItem, punti: PackedVector2Array, larghi: PackedFloat32Array, tinta_: Color) -> void:
+	# una striscia che sfuma dal centro ai bordi per tutta la sua larghezza: e'
+	# il bagliore, non il filo
+	var n := punti.size()
+	if n < 2:
+		return
+	var vertici := PackedVector2Array()
+	var colori := PackedColorArray()
+	var indici := PackedInt32Array()
+	var meta := PackedFloat32Array()
 	for largo in larghi:
-		alone.append(largo * 2.6 + 1.0)
-	var piatte := PackedFloat32Array()
-	piatte.resize(luci.size())
-	piatte.fill(1.0)
-	striscia(tela, vivi, alone, piatte, Color(0.05, 0.02, 0.04, 0.32 * quanto))
-	striscia(tela, vivi, larghi, luci, Color(VETRO_CHIARO, quanto))
-	if fronte < 1.0:
-		tela.draw_circle(vivi[vivi.size() - 1], maxf(pieno * 0.9, 1.2), Color(1, 1, 1, quanto * (1.0 - fronte)), true, -1.0, true)
+		meta.append(largo)
+	var di_traverso := traverso(punti, meta)
+	for i in n:
+		var fuori_a := di_traverso[i * 4]
+		var fuori_b := di_traverso[i * 4 + 3]
+		vertici.append_array([fuori_a, (fuori_a + fuori_b) * 0.5, fuori_b])
+		colori.append_array([Color(tinta_, 0.0), tinta_, Color(tinta_, 0.0)])
+		if i > 0:
+			var a := (i - 1) * 3
+			var b := i * 3
+			indici.append_array([a, b, a + 1, b, b + 1, a + 1, a + 1, b + 1, a + 2, b + 1, b + 2, a + 2])
+	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, vertici, colori)
 
 
 static func striscia(tela: CanvasItem, punti: PackedVector2Array, larghi: PackedFloat32Array,
-		luci: PackedFloat32Array, tinta: Color) -> void:
+		luci: PackedFloat32Array, tinta_: Color, pieno_uv := false) -> void:
 	# UN FILO LISCIO DI LARGHEZZA VARIABILE, in un disegno solo. Di traverso a
 	# ogni punto quattro vertici: fuori trasparente, dentro pieno, dentro pieno,
 	# fuori trasparente - la sfumatura e' la geometria stessa, quindi non si
 	# rovescia mai, nemmeno sotto il pixel: li' il filo resta largo un pixel e
 	# si fa piu' tenue invece che piu' stretto. Negli angoli i vertici si
 	# allungano (giunto a spigolo), cosi' il filo non si strozza nei gomiti.
-	# "luci" moltiplica la tinta punto per punto
+	# "luci" moltiplica la tinta punto per punto. "pieno_uv": sulla tela con lo
+	# shader del vetro, dice allo shader di non guardare dietro (LastreVetro.PIENO)
 	var n := punti.size()
 	if n < 2:
 		return
@@ -359,15 +557,21 @@ static func striscia(tela: CanvasItem, punti: PackedVector2Array, larghi: Packed
 	var colori := PackedColorArray()
 	var indici := PackedInt32Array()
 	for i in n:
-		var alfa := clampf(tinta.a * minf(larghi[i], 1.0) * luci[i], 0.0, 1.0)
-		var vivo := Color(tinta.lerp(Color.WHITE, clampf(luci[i] - 1.0, 0.0, 1.0)), alfa)
+		var alfa := clampf(tinta_.a * minf(larghi[i], 1.0) * luci[i], 0.0, 1.0)
+		var vivo := Color(tinta_.lerp(Color.WHITE, clampf(luci[i] - 1.0, 0.0, 1.0)), alfa)
 		colori.append_array([Color(vivo, 0.0), vivo, vivo, Color(vivo, 0.0)])
 		if i > 0:
 			var a := (i - 1) * 4
 			var b := i * 4
 			for k in 3:
 				indici.append_array([a + k, a + k + 1, b + k, a + k + 1, b + k + 1, b + k])
-	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, vertici, colori)
+	if pieno_uv:
+		var uv := PackedVector2Array()
+		uv.resize(vertici.size())
+		uv.fill(LastreVetro.PIENO)
+		RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, vertici, colori, uv)
+	else:
+		RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, vertici, colori)
 
 
 static func traverso(punti: PackedVector2Array, larghi: PackedFloat32Array) -> PackedVector2Array:
@@ -385,7 +589,8 @@ static func traverso(punti: PackedVector2Array, larghi: PackedFloat32Array) -> P
 			dopo = prima
 		var normale := (prima + dopo).normalized().orthogonal()
 		var spigolo := 1.0 / maxf(normale.dot(dopo.orthogonal()), 0.5)
-		var pieno := maxf(larghi[i] * 0.5 - 0.5, 0.0) * spigolo
+		var largo := larghi[i] if i < larghi.size() else 1.0
+		var pieno := maxf(largo * 0.5 - 0.5, 0.0) * spigolo
 		var fuori := pieno + spigolo
 		var p := punti[i]
 		vertici.append_array([p + normale * fuori, p + normale * pieno, p - normale * pieno, p - normale * fuori])

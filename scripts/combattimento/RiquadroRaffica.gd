@@ -46,7 +46,6 @@ const SCRITTE := 4              # quante al massimo insieme: create una volta so
 # vedere e il fatto che si chiuda e' noioso sembra che ti colpisca piano»
 const TIMBRO := 0.14            # quanto ci mette la parola a cadere
 const VICINO := 0.3             # di quanto si gonfia il pugno acceso arrivandoti addosso
-const LASTRE := preload("res://shaders/vetro_lastre.gdshader")
 const ANELLO_PARATA := 1.6      # di quanti raggi si allarga l'anello della parata
 
 var gioco: MinigiocoCombattimento
@@ -54,12 +53,10 @@ var testata: ColorRect
 var titolo: Label
 var contatore: Label
 var piano: Control              # dove vivono i pugni, e taglia quello che esce
-var lastre: Control             # sopra i pugni: i pezzi del vetro rotto, che spostano quello che c'e' dietro
-var crepe: Control              # sopra i pezzi: le crepe, i buchi, l'onda, le schegge
 var avviso: Label               # cosa fare, all'inizio; com'e' andata, alla fine
 var scritte: Array[Label] = []
 var segni: Array[Dictionary] = []   # i riscontri in volo: {indice, esito, eta}
-var vetri: Array[Dictionary] = []   # i vetri rotti dai pugni presi: {vetro (VetroRotto), eta}
+var vetri: Array[Dictionary] = []   # i vetri rotti dai pugni presi: {vetro (VetroRotto), tele (TeleVetro), eta}
 var schegge: Schegge                # la parata fa saltare via i ritagli di carta
 var stile_nero: StyleBoxFlat        # il timbro: fascia nera (la parata) o rossa (il colpo preso)
 var stile_rosso: StyleBoxFlat
@@ -88,18 +85,6 @@ func _ready() -> void:
 	piano.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	piano.draw.connect(_disegna_piano)
 	add_child(piano)
-	# IL VETRO ROTTO STA IN DUE TELE SOPRA I PUGNI. Quella dei pezzi ha lo
-	# shader che legge lo schermo, quindi deve venire DOPO i pugni (li deve
-	# vedere per spostarli) e prima delle crepe (che le stanno sopra). Si
-	# accende solo mentre c'e' un vetro rotto: lo shader che legge lo schermo
-	# costa una copia dello schermo a ogni fotogramma
-	lastre = tela_del_vetro(_disegna_lastre)
-	var materiale := ShaderMaterial.new()
-	materiale.shader = LASTRE
-	materiale.set_shader_parameter("spinta_massima", LastreVetro.SPINTA_MASSIMA)
-	lastre.material = materiale
-	lastre.visible = false
-	crepe = tela_del_vetro(_disegna_crepe)
 
 	avviso = etichetta(Stile.dimensione("sezione"), Stile.colore("testo"))
 	avviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -128,15 +113,6 @@ func _ready() -> void:
 	disponi()
 
 
-func tela_del_vetro(disegno: Callable) -> Control:
-	var tela := Control.new()
-	tela.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tela.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	tela.draw.connect(disegno)
-	piano.add_child(tela)
-	return tela
-
-
 func etichetta(corpo: int, tinta: Color) -> Label:
 	var fatta := Label.new()
 	fatta.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -163,8 +139,8 @@ func disponi() -> void:
 			maxf(size.y - ALTEZZA_TESTATA - MARGINE * 2.0, 1.0))
 	avviso.position = piano.position
 	avviso.size = piano.size
-	# lo shader dei pezzi del vetro legge solo dentro il piano
-	(lastre.material as ShaderMaterial).set_shader_parameter("misura", piano.size)
+	for vetro in vetri:
+		(vetro.tele as TeleVetro).misura(piano.size)
 
 
 # --- geometria: dove sta un pugno, e se il clic l'ha preso ------------------
@@ -246,6 +222,8 @@ func clic(punto: Vector2) -> void:
 
 func comincia(nome: String) -> void:
 	segni.clear()
+	for vetro in vetri:
+		(vetro.tele as TeleVetro).queue_free()
 	vetri.clear()
 	for scritta in scritte:
 		scritta.visible = false
@@ -274,12 +252,22 @@ func segna(indice: int, esito: String) -> void:
 	if segni.size() > SCRITTE:
 		segni.pop_front()
 	if esito == "preso" and indice >= 0 and indice < gioco.raffica.size():
-		# il pugno ti ha preso: il vetro dello schermo si rompe da li', ogni volta
-		# in un modo suo
-		vetri.append({"vetro": VetroRotto.new(7919 * (indice + 1), centro_di(gioco.raffica[indice]),
-				Rect2(Vector2.ZERO, piano.size), raggio()), "eta": 0.0})
+		rompi_il_vetro(indice)
 	if esito != "preso" and indice >= 0 and indice < gioco.raffica.size():
 		para_col_corpo(centro_di(gioco.raffica[indice]))
+
+
+func rompi_il_vetro(indice: int) -> void:
+	# il pugno ti ha preso: il vetro dello schermo si rompe da li', ogni volta
+	# in un modo suo. Sopra i pugni e sotto i timbri: COLPITO si deve leggere
+	var vetro := VetroRotto.new(7919 * (indice + 1), centro_di(gioco.raffica[indice]),
+			Rect2(Vector2.ZERO, piano.size), raggio())
+	var tele := TeleVetro.new(vetro)
+	piano.add_child(tele)
+	piano.move_child(tele, scritte[0].get_index())
+	tele.misura(piano.size)
+	tele.mostra(0.0, Impostazioni.movimento_ridotto)
+	vetri.append({"vetro": vetro, "tele": tele, "eta": 0.0})
 
 
 func para_col_corpo(centro: Vector2) -> void:
@@ -312,13 +300,11 @@ func aggiorna(delta: float) -> void:
 		segni.pop_front()
 	for vetro in vetri:
 		vetro.eta = float(vetro.eta) + delta
+		(vetro.tele as TeleVetro).mostra(float(vetro.eta), Impostazioni.movimento_ridotto)
 	while not vetri.is_empty() and float(vetri[0].eta) > VetroRotto.DURATA:
-		vetri.pop_front()
+		(vetri.pop_front().tele as TeleVetro).queue_free()
 	metti_scritte()
 	piano.queue_redraw()
-	lastre.visible = not vetri.is_empty()
-	lastre.queue_redraw()
-	crepe.queue_redraw()
 
 
 func metti_scritte() -> void:
@@ -346,8 +332,14 @@ func metti_scritte() -> void:
 			caduta = Tween.interpolate_value(0.0, 1.0, clampf(float(segno.eta) / TIMBRO, 0.0, 1.0), 1.0,
 					Tween.TRANS_BACK, Tween.EASE_OUT)
 		scritta.scale = Vector2.ONE * lerpf(1.8, 1.0, caduta)
-		# e resta dentro il piano: vicino al bordo un timbro tagliato non si legge
-		var dove := centro_di(pugno) + Vector2(r * 0.4, -r * 1.5) - scritta.size * 0.5
+		# e resta dentro il piano: vicino al bordo un timbro tagliato non si legge.
+		# COLPITO cade di fianco, verso il centro del riquadro: sopra coprirebbe
+		# il punto in cui il vetro si spacca
+		var sopra := Vector2(r * 0.4, -r * 1.5)
+		if String(segno.esito) == "preso":
+			var verso := -1.0 if centro_di(pugno).x > piano.size.x * 0.5 else 1.0
+			sopra = Vector2(verso * (r * 1.7 + scritta.size.x * 0.5), -r * 0.2)
+		var dove := centro_di(pugno) + sopra - scritta.size * 0.5
 		scritta.position = dove.clamp(Vector2.ONE * 4.0, (piano.size - scritta.size - Vector2.ONE * 4.0).max(Vector2.ONE * 4.0))
 		scritta.modulate.a = 1.0 - quanto * quanto
 
@@ -400,17 +392,6 @@ func _disegna_piano() -> void:
 		return
 	for segno in segni:
 		disegna_scoppio(segno, r)
-
-
-# il vetro rotto sta davanti ai pugni: e' la superficie dello schermo
-func _disegna_lastre() -> void:
-	for vetro in vetri:
-		(vetro.vetro as VetroRotto).disegna_lastre(lastre, float(vetro.eta), Impostazioni.movimento_ridotto)
-
-
-func _disegna_crepe() -> void:
-	for vetro in vetri:
-		(vetro.vetro as VetroRotto).disegna(crepe, float(vetro.eta), Impostazioni.movimento_ridotto)
 
 
 func scala_di(pugno: Dictionary) -> float:
@@ -470,10 +451,13 @@ func disegna_scoppio(segno: Dictionary, r: float) -> void:
 	var tinta := tinta_del_segno(String(segno.esito))
 	var centro := centro_di(pugno)
 	if String(segno.esito) == "preso":
-		# preso: il riquadro si accende di rosso e il pugno si accende e sparisce;
-		# il vetro che si rompe lo disegna VetroRotto
-		piano.draw_rect(Rect2(Vector2.ZERO, piano.size), Color(tinta, 0.3 * (1.0 - quanto)))
-		piano.draw_circle(centro, r * (1.0 + quanto * 0.15), Color(tinta, 0.7 * (1.0 - quanto)), true, -1.0, true)
+		# preso: il pugno e' arrivato sul vetro, e per un attimo resta li',
+		# gonfio, dietro le crepe; il vetro, il rosso e il resto li disegna
+		# VetroRotto
+		var resta := 1.0 - clampf(float(segno.eta) / 0.2, 0.0, 1.0)
+		if resta > 0.0:
+			piano.draw_circle(centro, r * (1.08 + VICINO), Color(tinta_acceso(), resta), true, -1.0, true)
+			piano.draw_arc(centro, r * (1.08 + VICINO) * 0.93, 0.0, TAU, 48, Color(1, 1, 1, resta), maxf(r * 0.13, 1.5), true)
 		return
 	# la parata: un anello che si allarga e sparisce
 	piano.draw_arc(centro, r * (1.0 + quanto * ANELLO_PARATA), 0.0, TAU, 48,

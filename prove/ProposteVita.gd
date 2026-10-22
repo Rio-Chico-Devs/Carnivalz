@@ -18,7 +18,7 @@ extends Control
 #   ./prove/film_vita.sh mattanza    uno solo
 #   nell'editor: ProposteVita.tscn, F6 (fa la Mattanza)
 
-const DURATE := {"squarcio": 3.0, "mattanza": 3.6, "turno": 5.6, "collisioni": 15.0}
+const DURATE := {"squarcio": 3.0, "mattanza": 3.6, "turno": 5.6, "collisioni": 15.0, "collisioni_fredda": 15.0}
 const ASSESTAMENTO := 90   # fotogrammi prima di cominciare: lo scontro si dispone
 # la mano del film: para quello acceso dopo REAZIONE secondi, tranne quando
 # si accende per quarto, settimo, decimo e ultimo - quelli ti prendono
@@ -36,6 +36,10 @@ func _ready() -> void:
 	var argomenti := OS.get_cmdline_user_args()
 	if argomenti.size() > 1 and String(argomenti[0]) == "film":
 		nome = String(argomenti[1])
+	# PROVVISORIO: il vetro rotto acceso freddo, l'altra proposta per Bru
+	if nome == "collisioni_fredda":
+		VetroRotto.tinta = VetroRotto.FREDDA
+		nome = "collisioni"
 	GameState.nuova_partita()
 	GameState.party = ["anonimo", "veronica"]
 	GameState.nemici_combattimento = ["marionetta"]

@@ -22137,6 +22137,10 @@ func prova_la_raffica_col_corpo() -> void:
 		gioco.passa(1.0 / 60.0)
 		giri += 1
 	var secondo: Dictionary = gioco.raffica[maxi(Collisioni.accesa(gioco.raffica), 0)]
+	# in alto: e' li' che il timbro, cadendo sopra il pugno, finiva schiacciato
+	# contro il bordo e copriva il vetro rotto
+	secondo["x"] = 0.5
+	secondo["y"] = 0.0
 	giri = 0
 	while String(secondo.esito) == "" and giri < 600:
 		gioco.passa(1.0 / 60.0)
@@ -22156,23 +22160,24 @@ func prova_la_raffica_col_corpo() -> void:
 		gioco.passa(1.0 / 60.0)
 	esigi(gioco.tempo > al_colpo and gioco.fermo <= 0.0, "il fermo sul colpo non finisce: la raffica resta ferma")
 	esigi(riquadro.vetri.size() == 1, "il colpo preso non rompe il vetro: %d vetri rotti" % riquadro.vetri.size())
-	# i pezzi del vetro stanno su una tela loro, con lo shader che sposta quello
-	# che c'e' dietro, e si accende solo finche' c'e' un vetro rotto
-	var materiale := riquadro.lastre.material as ShaderMaterial
-	esigi(riquadro.lastre.visible and materiale != null and materiale.shader == RiquadroRaffica.LASTRE
-			and is_equal_approx(float(materiale.get_shader_parameter("spinta_massima")), LastreVetro.SPINTA_MASSIMA),
-			"i pezzi del vetro non spostano quello che c'e' dietro: manca la tela con lo shader, o la sua scala e' sbagliata")
-	esigi(riquadro.lastre.get_index() < riquadro.crepe.get_index() and riquadro.crepe.get_index() < riquadro.scritte[0].get_index(),
-			"le tele del vetro sono nell'ordine sbagliato: i pezzi sotto le crepe, le crepe sotto i timbri")
-	# e lo shader sa quanto e' grande il piano: legge solo li' dentro, se no i
-	# pezzi sul bordo si portano dentro la cornice nera del riquadro
-	esigi(materiale != null and materiale.get_shader_parameter("misura") == riquadro.piano.size,
-			"lo shader dei pezzi non sa quanto e' grande il piano: sul bordo pesca la cornice")
 	if riquadro.vetri.size() == 1:
 		var rotto: VetroRotto = riquadro.vetri[0].vetro
+		var tele: TeleVetro = riquadro.vetri[0].tele
 		esigi(rotto.impatto.is_equal_approx(riquadro.centro_di(secondo)), "il vetro non si rompe dove il pugno ti ha preso")
+		le_tele_del_vetro(riquadro, tele)
+		# COLPITO cade di fianco: sopra il punto in cui il vetro si spacca lo
+		# coprirebbe
+		var colpito: Label = null
+		for scritta in riquadro.scritte:
+			if scritta.visible and scritta.get_theme_stylebox("normal") == riquadro.stile_rosso:
+				colpito = scritta
+		var timbro_rotto := Rect2(colpito.position, colpito.size) if colpito != null else Rect2()
+		var vicino := rotto.impatto.clamp(timbro_rotto.position, timbro_rotto.end)
+		esigi(colpito != null and vicino.distance_to(rotto.impatto) >= riquadro.raggio() * 1.3,
+				"il timbro COLPITO sta a %.0f pixel dal punto in cui il vetro si spacca: lo copre"
+				% vicino.distance_to(rotto.impatto))
 		riquadro.aggiorna(VetroRotto.DURATA + 0.05)
-		esigi(riquadro.vetri.is_empty() and not riquadro.lastre.visible,
+		esigi(riquadro.vetri.is_empty() and tele.is_queued_for_deletion(),
 				"il vetro rotto resta per sempre sopra i pugni che vengono dopo")
 	# 6. COL MOVIMENTO RIDOTTO niente scatti, niente gonfiarsi, niente schegge:
 	#    lo dice la luce
@@ -22303,8 +22308,8 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 				var punti: PackedVector2Array = pezzo["punti"]
 				area += absf(area_di(punti))
 				sbagliati += 1 if Geometry2D.triangulate_polygon(punti).is_empty() else 0
-				esigi((pezzo["spinta"] as Vector2).length() * (1.0 + LastreVetro.STRAPPO) <= LastreVetro.SPINTA_MASSIMA,
-						"%s un pezzo nel colpo si sposta piu' di quanto lo shader sappia leggere" % dove)
+				esigi((pezzo["spinta"] as Vector2).length() * (1.0 + LastreVetro.STRAPPO) <= 9.0,
+						"%s un pezzo nel colpo si sposta di piu' di nove pixel: i pugni dietro si leggono tagliati" % dove)
 			esigi(sbagliati == 0, "%s %d pezzi del vetro sono storti e non si possono disegnare" % [dove, sbagliati])
 			esigi(absf(area - rotto.vetro.get_area()) <= rotto.vetro.get_area() * 0.02,
 					"%s i pezzi coprono %.0f pixel quadri su %.0f: il vetro ha dei buchi, o i pezzi si sovrappongono"
@@ -22339,13 +22344,43 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 	esigi(VetroRotto.onda(0.0, false) >= 0.0 and VetroRotto.onda(VetroRotto.ONDA * 0.5, false) > 0.4
 			and VetroRotto.onda(VetroRotto.ONDA, false) < 0.0, "l'onda dell'impatto non parte, o non finisce")
 	esigi(VetroRotto.onda(0.05, true) < 0.0, "col movimento ridotto l'onda dell'impatto parte lo stesso")
-	esigi(LastreVetro.strappo(0.0, false) > 2.0 and is_equal_approx(LastreVetro.strappo(LastreVetro.SCOSSONE, false), 1.0),
+	esigi(LastreVetro.strappo(0.0, false) > 1.5 and is_equal_approx(LastreVetro.strappo(LastreVetro.SCOSSONE, false), 1.0),
 			"i pezzi non strappano nel colpo, o non si assestano")
 	esigi(is_equal_approx(LastreVetro.strappo(0.0, true), 1.0), "col movimento ridotto i pezzi strappano lo stesso")
-	var codice := LastreVetro.codice(Vector2(4.0, -8.0), 0.0, 1.0)
-	esigi(is_equal_approx(codice.r, 0.5 + 4.0 / (2.0 * LastreVetro.SPINTA_MASSIMA))
-			and is_equal_approx(codice.g, 0.5 - 8.0 / (2.0 * LastreVetro.SPINTA_MASSIMA)) and is_equal_approx(codice.b, 0.5),
-			"lo spostamento dei pezzi e' scritto nel colore in un modo che lo shader non legge")
+	# UN PEZZO SI SPOSTA SOLO QUANDO LE CREPE L'HANNO TAGLIATO TUTTO: prima, un
+	# pezzo grande spostato tagliava i pugni lungo una crepa che non c'era ancora
+	var al_bordo: Dictionary = {}
+	for pezzo in uno.lastre.pezzi:
+		if float(pezzo["fin_dove"]) > float(al_bordo.get("fin_dove", 0.0)):
+			al_bordo = pezzo
+	esigi(not LastreVetro.tagliato(al_bordo, 0.3, 0.3 * uno.lunghezza_tipica())
+			and LastreVetro.tagliato(al_bordo, 1.0, uno.lunghezza_tipica()),
+			"il pezzo che arriva al bordo si sposta prima che le crepe l'abbiano tagliato, o non si sposta mai")
+	esigi(LastreVetro.grigio(0.0, 1.0).is_equal_approx(Color(0.5, 0.5, 0.5, 1.0)) and LastreVetro.grigio(0.4, 1.0).r > 0.5,
+			"la luce dei pezzi e' scritta in un modo che lo shader non legge: 0.5 e' com'e'")
+	# LE CREPE APPENA ROTTE BRUCIANO, poi si raffreddano: come la crepa dello
+	# squarcio. Col movimento ridotto non si accendono
+	esigi(is_equal_approx(VetroRotto.calore(0.0, false), 1.0) and VetroRotto.calore(VetroRotto.CALORE * 4.0, false) < 0.05,
+			"le crepe non si accendono nel colpo, o non si spengono")
+	esigi(VetroRotto.calore(0.0, true) == 0.0, "col movimento ridotto le crepe si accendono lo stesso")
+	esigi(uno.raggio_onda(VetroRotto.ONDA * 0.2, false) < uno.raggio_onda(VetroRotto.ONDA * 0.8, false)
+			and uno.raggio_onda(VetroRotto.ONDA, false) < 0.0 and uno.raggio_onda(0.05, true) < 0.0,
+			"l'onda che deforma non si allarga, o non finisce, o c'e' col movimento ridotto")
+	# LA CREPA DA VICINO HA I DENTI: mezzo pixel di qua e di la', mai di piu'
+	# (se no torna a tremare)
+	var denti := 0.0
+	for k in uno.principali.size():
+		esigi(uno.fini[k].size() > uno.principali[k].size() * 3, "la crepa %d non ha i denti fini: e' una riga" % k)
+		for p in uno.fini[k]:
+			denti = maxf(denti, distanza_da_linea(p, uno.principali[k]))
+	esigi(denti > 0.2 and denti <= 0.6, "i denti delle crepe sono di %.2f pixel: mezzo pixel, non una riga e non un tremito" % denti)
+	# IL VETRO SCHIACCIATO: le crepoline e i granelli stanno intorno all'impatto
+	var lontani := 0
+	for punti in uno.frantumi:
+		lontani += 0 if punti[0].distance_to(uno.impatto) <= uno.r * 0.6 else 1
+	esigi(uno.frantumi.size() >= 20 and uno.brina.size() >= 20 and lontani == 0,
+			"il vetro schiacciato all'impatto e' povero, o sparso lontano: %d crepoline, %d granelli, %d lontane"
+			% [uno.frantumi.size(), uno.brina.size(), lontani])
 	# e finito il vetro se ne va davvero: se i pezzi tenessero il vetro e il
 	# vetro i pezzi, nessuno dei due verrebbe mai liberato
 	esigi(vetro_usa_e_getta().get_ref() == null, "il vetro rotto non si libera mai: lui e i suoi pezzi si tengono a vicenda")
@@ -22355,8 +22390,11 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 	esigi(a_meta.size() == fermi.size() and not a_meta.is_empty(), "i pezzi staccati non volano")
 	if a_meta.size() == fermi.size() and not a_meta.is_empty():
 		var partito: PackedVector2Array = fermi[0]["punti"]
-		esigi(absf(area_di(a_meta[0])) > absf(area_di(partito)) * 1.5, "il pezzo che vola non ti viene addosso: non si ingrandisce")
+		esigi(estensione(a_meta[0]) > estensione(partito) * 1.4, "il pezzo che vola non ti viene addosso: non si ingrandisce")
 		esigi(centro_di_punti(a_meta[0]).y > centro_di_punti(partito).y, "il pezzo che vola non cade")
+		# e fa la capriola: a meta' volo si e' schiacciato lungo il suo asse
+		var a_mezzo := uno.lastre.posa_in_volo(fermi[0], PI / absf(float(fermi[0]["capriola"])) * 0.5)
+		esigi(absf(area_di(a_mezzo)) < absf(area_di(partito)) * 0.6, "il pezzo che vola non gira in profondita': e' un adesivo")
 	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA + LastreVetro.CADUTA + 0.01, false).is_empty(), "i pezzi volano per sempre")
 	esigi(uno.lastre.in_volo(LastreVetro.CADE_DA + 0.1, true).is_empty(), "col movimento ridotto i pezzi volano lo stesso")
 	esigi(not LastreVetro.staccato(fermi[0], LastreVetro.CADE_DA + 0.1, true) and LastreVetro.staccato(fermi[0], LastreVetro.CADE_DA, false),
@@ -22394,6 +22432,42 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 				esigi(dal_tratto >= pieno - 0.01 and sfuma >= 0.99,
 						"largo %.1f, al punto %d il filo si strozza: pieno %.2f invece di %.2f, sfumatura %.2f"
 						% [largo, i, dal_tratto, pieno, sfuma])
+
+func le_tele_del_vetro(riquadro: RiquadroRaffica, tele: TeleVetro) -> void:
+	# UN VETRO ROTTO SONO QUATTRO TELE (TeleVetro): i pezzi che guardano dietro
+	# (lo shader), il vetro, i pezzi che saltano (lo shader), la luce che si
+	# somma. Sopra i pugni e sotto i timbri, nell'ordine
+	var lastre := tele.lastre.material as ShaderMaterial
+	var schegge := tele.schegge.material as ShaderMaterial
+	var somma := tele.luce.material as CanvasItemMaterial
+	esigi(lastre != null and lastre.shader == TeleVetro.LASTRE and schegge != null and schegge.shader == TeleVetro.LASTRE,
+			"i pezzi del vetro non guardano dietro: manca lo shader")
+	esigi(somma != null and somma.blend_mode == CanvasItemMaterial.BLEND_MODE_ADD,
+			"la luce del vetro non si somma: le crepe accese diventano vernice")
+	esigi(tele.lastre.get_index() < tele.crepe.get_index() and tele.crepe.get_index() < tele.schegge.get_index()
+			and tele.schegge.get_index() < tele.luce.get_index(),
+			"le tele del vetro sono nell'ordine sbagliato: pezzi, vetro, schegge, luce")
+	esigi(tele.get_parent() == riquadro.piano and tele.get_index() < riquadro.scritte[0].get_index(),
+			"il vetro sta sopra i timbri: COLPITO non si legge")
+	# lo shader sa quanto e' grande il piano: legge solo li' dentro, se no i
+	# pezzi sul bordo si portano dentro la cornice nera del riquadro
+	esigi(lastre.get_shader_parameter("misura") == riquadro.piano.size and schegge.get_shader_parameter("misura") == riquadro.piano.size,
+			"lo shader dei pezzi non sa quanto e' grande il piano: sul bordo pesca la cornice")
+	esigi(lastre.get_shader_parameter("impatto") == (riquadro.vetri[0].vetro as VetroRotto).impatto,
+			"l'onda che deforma non parte da dove il pugno ha preso")
+
+static func distanza_da_linea(p: Vector2, linea: PackedVector2Array) -> float:
+	var vicina := INF
+	for i in range(1, linea.size()):
+		vicina = minf(vicina, p.distance_to(Geometry2D.get_closest_point_to_segment(p, linea[i - 1], linea[i])))
+	return vicina
+
+static func estensione(punti: PackedVector2Array) -> float:
+	var centro := centro_di_punti(punti)
+	var fuori := 0.0
+	for p in punti:
+		fuori = maxf(fuori, p.distance_to(centro))
+	return fuori
 
 static func vetro_usa_e_getta() -> WeakRef:
 	# un vetro che nessuno tiene piu' appena la funzione ritorna: fuori, il

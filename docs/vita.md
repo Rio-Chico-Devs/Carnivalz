@@ -26,7 +26,7 @@ Mattanza, il minigioco). Bru:
 | lo squarcio d'entrata | approvato | nel gioco: `scripts/Squarcio.gd` |
 | la Mattanza | approvata, con la fascia **più grande** per l'artwork | nel gioco: `scripts/combattimento/TaglioMattanza.gd` |
 | il turno che passa | approvato | nel gioco: `scripts/combattimento/FasciaTurno.gd` |
-| il minigioco col corpo | approvato, poi **rifatto** giocando: niente cerchio che si chiude (§5); approvato di nuovo («bello mi piace!»), col vetro che si spacca di più | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
+| il minigioco col corpo | approvato, poi **rifatto** giocando: niente cerchio che si chiude (§5); approvato di nuovo («bello mi piace!»); il vetro rifatto da capo («sembra quasi fatto su paint»), due proposte di colore | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
 | il riflesso sui vetri | approvato, poi **no** giocando (§6) | tolto |
 | il BOND (la purificazione, §8) | approvato dopo tre giri | nel gioco: `scripts/combattimento/LuceBond.gd` |
 | le braci che salgono | **no** | tolte |
@@ -156,36 +156,72 @@ Il cerchio che si stringeva e le tacche che correvano non ci sono più. Adesso
   un decimo di secondo, il vetro resta un secondo e sfuma, perché i pugni dopo
   vanno letti.
 
-  **Il vetro si spacca davvero** (Bru: «migliora ancora di più l'effetto di
-  quando vieni colpito che si spacca il vetro»). Le crepe da sole erano un
-  disegno sopra lo schermo; un vetro rotto si riconosce perché quello che c'è
-  dietro non combacia più:
-  - **il fermo sul colpo**: per 0,07 s si ferma tutto, col vetro appena rotto
-    e il pugno ancora lì; lo scontro intanto sbanda;
-  - **l'onda**: un anello bianco parte dall'impatto e si allarga in un attimo;
+  **Il vetro rifatto da capo.** Bru, sul vetro che si spaccava: «non ci
+  siamo, non è ancora di qualità sembra quasi fatto su paint». Era vero, e il
+  perché si vede mettendolo accanto a quello che ha approvato, lo squarcio
+  d'entrata: lì la crepa si accende (un cuore bianco e un alone caldo) e le
+  due metà volano via portandosi dietro l'immagine vera. Il vetro invece era
+  fatto di disegni sopra lo schermo: schegge bianche piatte, un cerchio bianco
+  come onda, un disco bianco come cratere, macchie scure come buchi, una
+  tinta uguale su tutto un pezzo. Le tecniche dei giochi che lo fanno bene
+  dicono la stessa cosa: i pezzi portano con sé l'immagine dello schermo e
+  volano verso la camera girando, con un bordo che prende la luce; la
+  rifrazione e i riflessi diversi da pezzo a pezzo fanno quasi tutto
+  ([Voronoi screen shatter](https://godotshaders.com/shader/simple-glass-broken/),
+  [Impact Glass](https://godotshaders.com/shader/impact-glass-shader/),
+  [broken_glass, col bordo illuminato](https://pub.dev/packages/broken_glass),
+  il finale dell'All-Out Attack di Persona 5). Adesso, nell'ordine in cui
+  succede:
+  - **il fermo sul colpo**: per 0,07 s si ferma tutto, col pugno gonfio
+    arrivato sul vetro; un lampo appena (un battito) e il bagliore morbido
+    dove ha preso;
+  - **le crepe che si accendono**: corrono in un decimo di secondo con la
+    punta che brilla, e appena rotte bruciano - un cuore quasi bianco e un
+    alone del colore della luce, sommati a quello che c'è sotto, come la crepa
+    dello squarcio - poi in un quarto di secondo si raffreddano;
+  - **le crepe incise**: una crepa è un taglio con due pareti, e si disegna
+    così: un filo scuro dalla parte in ombra, uno chiaro dalla parte della
+    luce (che viene dall'alto a sinistra), in mezzo il taglio che si
+    assottiglia e che non è uguale dappertutto, perché dove gira un poco
+    prende la luce. Da vicino ha i denti: mezzo pixel di qua e di là ogni tre
+    pixel;
+  - **il vetro schiacciato**: dove il pugno ha preso, una trentina di
+    crepoline storte e quaranta granelli, su un velo appena chiaro;
+  - **l'onda**: non più un cerchio bianco, ma una deformazione - un anello
+    che si allarga e spinge in fuori quello che c'è dietro - con sopra un velo
+    di luce morbido;
   - **i pezzi** (`scripts/combattimento/LastreVetro.gd`): il vetro si taglia
-    lungo le crepe, uno spicchio fra due crepe principali e dentro lo spicchio
-    un pezzo per ogni giro di ragnatela. Ogni pezzo sposta di qualche pixel
-    quello che c'è dietro, in fuori e di sbieco, di più vicino all'impatto, e
-    ai bordi la luce si scompone in un filo di colore
-    (`shaders/vetro_lastre.gdshader`). I pezzi coprono il vetro tutto, senza
-    buchi e senza sovrapporsi, così lo spostamento combacia con le crepe;
-  - **lo strappo**: nel colpo i pezzi si spostano due volte e mezzo di più, e
-    in un quinto di secondo si assestano;
-  - **i pezzi che saltano**: qualcuno di quelli attaccati all'impatto si
-    stacca, ti vola addosso ingrandendosi, gira e cade; dove c'era resta un
-    buco scuro.
+    lungo le crepe, e ogni pezzo mostra quello che c'è dietro spostato per
+    conto suo (`shaders/vetro_lastre.gdshader`), con un riflesso che gli
+    scivola sopra da un lato all'altro. Un pezzo si sposta solo quando le
+    crepe l'hanno tagliato tutto: prima un pezzo grande tagliava i pugni lungo
+    una crepa che non c'era ancora. Nel colpo strappano, poi si assestano;
+  - **i pezzi che saltano**: quelli attaccati all'impatto si portano dietro il
+    loro pezzo di immagine e ti vengono addosso ingrandendosi, girano anche in
+    profondità (si schiacciano fino a rovesciarsi), lampeggiano quando si
+    girano verso la luce; hanno lo spessore del vetro di taglio, verdino, e il
+    bordo chiaro dove guarda la luce e scuro dove no;
+  - **i buchi**: dove un pezzo è saltato resta il buio, col vetro di taglio
+    tutto intorno;
+  - **il rosso**: non più un velo piatto su tutto, ma i bordi del riquadro che
+    si arrossano verso dentro, come quando si stringono gli occhi;
+  - **COLPITO** cade di fianco al pugno, verso il centro: sopra copriva il
+    punto in cui il vetro si spacca.
 
-  La luce dei pezzi cambia poco, e quasi niente in quelli grandi che arrivano
-  al bordo: uno spicchio è mezzo riquadro, e mezzo riquadro più scuro non è un
-  vetro, è un'ombra. E lo shader legge solo dentro il piano dei pugni: sul
-  bordo un pezzo spostato pescava la cornice nera del riquadro.
+  Le **due proposte** cambiano solo il colore della luce: **calda**, quella
+  dello squarcio, e **fredda**, quella di un vetro vero
+  (`VetroRotto.tinta`). Una va scelta, l'altra se ne va.
+
+  Tutto sta in quattro tele per vetro (`TeleVetro.gd`): i pezzi che guardano
+  dietro, il vetro, i pezzi che saltano, la luce che si somma. Una per vetro
+  perché l'onda è dello shader, e due colpi vicini hanno due onde.
 - I timbri restano dentro il riquadro: vicino al bordo un timbro tagliato non
   si legge.
 - **Movimento ridotto**: i pugni non scattano e non si gonfiano (lo dice la
   luce), niente schegge, niente scossa; le parole compaiono ferme. Il vetro
-  rotto c'è subito, intero, senza lampo né schegge né riflesso né onda; i
-  pezzi sono spostati ma fermi, senza strappo, e non saltano via; poi sfuma.
+  rotto c'è subito, intero, senza lampo né schegge né riflesso né onda, e le
+  crepe non si accendono; i pezzi sono spostati ma fermi, senza strappo, e
+  non saltano via; poi sfuma.
 
 ## 6. Il riflesso sui vetri: tolto
 

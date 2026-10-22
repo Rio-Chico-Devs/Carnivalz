@@ -2,41 +2,49 @@ class_name LastreVetro
 extends RefCounted
 # I PEZZI DEL VETRO ROTTO (VetroRotto.gd), cioe' il vetro fra le crepe.
 #
-# Bru, sul vetro con le linee nuove: «migliora ancora di più l'effetto di
-# quando vieni colpito che si spacca il vetro». Le crepe da sole sono un
-# disegno sopra lo schermo; un vetro rotto si riconosce perche' quello che c'e'
-# DIETRO non combacia piu'. Quindi il vetro si taglia in pezzi lungo le crepe:
-#   - ogni SPICCHIO fra due crepe principali, dall'impatto fino al bordo, e
-#     dentro lo spicchio un pezzo per ogni giro di ragnatela che lo attraversa
-#     (dove il giro ha un buco, i due pezzi sono uno solo: non c'e' crepa che
-#     li separi)
-#   - ogni pezzo sposta di qualche pixel quello che c'e' dietro, in fuori e un
-#     poco di sbieco, di piu' vicino all'impatto; e prende la luce a modo suo.
-#     Lo fa lo shader (shaders/vetro_lastre.gdshader), che scompone anche un
-#     filo la luce ai bordi
+# Bru, sul vetro: «migliora ancora di più l'effetto di quando vieni colpito
+# che si spacca il vetro», e poi, sul primo tentativo: «non ci siamo, non è
+# ancora di qualità sembra quasi fatto su paint». Era vero: le schegge erano
+# poligoni bianchi piatti, i buchi macchie scure, la luce una tinta uguale su
+# tutto il pezzo. Disegni sopra lo schermo, non un vetro.
+#
+# UN VETRO SI RICONOSCE DA QUELLO CHE C'E' DIETRO. Quindi:
+#   - il vetro si taglia in pezzi lungo le crepe: ogni SPICCHIO fra due crepe
+#     principali, dall'impatto fino al bordo, e dentro lo spicchio un pezzo per
+#     ogni giro di ragnatela che lo attraversa (dove il giro ha un buco, i due
+#     pezzi sono uno solo: non c'e' crepa che li separi). I pezzi coprono il
+#     vetro tutto, senza buchi e senza sovrapporsi
+#   - ogni pezzo fermo mostra quello che c'e' dietro spostato di qualche pixel,
+#     per conto suo (lo shader, vetro_lastre.gdshader), e ci passa sopra un
+#     riflesso SFUMATO, non una tinta: ogni pezzo e' inclinato a modo suo e la
+#     luce gli scivola addosso da un lato all'altro
 #   - nel colpo i pezzi STRAPPANO: per un attimo si spostano molto di piu', poi
 #     si assestano
-#   - i pezzi attaccati all'impatto si STACCANO: volano verso di te, girando e
-#     cadendo, e dove c'erano resta un buco scuro
-# I pezzi coprono il vetro tutto, senza buchi e senza sovrapporsi: e' quello
-# che fa combaciare lo spostamento con le crepe disegnate sopra.
+#   - i pezzi attaccati all'impatto SALTANO: si portano dietro il loro pezzo di
+#     immagine, ti vengono addosso ingrandendosi, girano anche in profondita'
+#     (si schiacciano e si rovesciano), e quando si girano verso la luce
+#     lampeggiano. Hanno uno SPESSORE - il vetro di taglio, verdino come il
+#     vetro vero - e il bordo che prende la luce chiaro, quello in ombra scuro
+#   - dove c'erano resta un BUCO: buio, col bordo vivo del vetro intorno
 #
 # Col movimento ridotto i pezzi sono spostati e fermi: niente strappo, niente
-# pezzi che volano, niente buchi.
+# pezzi che saltano, niente buchi.
 
-const SPINTA_MASSIMA := 16.0   # pixel: quanto vale 0 o 1 nel colore (la stessa dello shader)
-const SPINTA := 5.0            # quanto si sposta di serie un pezzo vicino all'impatto
-const STRAPPO := 1.6           # quanto di piu' nel colpo
+const SPINTA := 4.5            # quanto si sposta di serie un pezzo vicino all'impatto
+const STRAPPO := 0.9           # quanto di piu' nel colpo
 const SCOSSONE := 0.2          # quanto ci mette lo strappo ad assestarsi
-const CADE_DA := 0.12          # quando i pezzi dell'impatto si staccano
-const CADUTA := 0.5            # quanto ci mettono a volare via
+const CADE_DA := 0.1           # quando i pezzi dell'impatto si staccano
+const CADUTA := 0.55           # quanto ci mettono a volare via
+const PIENO := Vector2(9999.0, 9999.0)   # per lo shader: questo non guarda dietro, e' un colore
+const TAGLIO := Color(0.72, 0.93, 0.88)  # il vetro visto di taglio: verdino
 
 # del vetro si tengono i numeri, non il vetro: il vetro tiene i suoi pezzi, e
 # se i pezzi tenessero il vetro nessuno dei due verrebbe mai liberato
 var impatto := Vector2.ZERO
 var r := 30.0
 var bordo := Rect2()
-# {punti, spinta, luce, distanza, cade, stretto, centro, vola, rotola}
+# {punti, indici, spinta, luce, inclina, distanza, cade, stretto, centro, lontano,
+#  vola, rotola, asse, capriola}
 var pezzi: Array[Dictionary] = []
 
 
@@ -125,20 +133,27 @@ func aggiungi(d: RandomNumberGenerator, punti: PackedVector2Array, distanza: flo
 	# quelli possono staccarsi: un pezzo che arriva al bordo che vola via
 	# porterebbe mezzo riquadro con se'
 	var centro := Vector2.ZERO
+	var fin_dove := 0.0
 	for p in punti:
 		centro += p
+		fin_dove = maxf(fin_dove, p.distance_to(impatto))
 	centro /= maxf(float(punti.size()), 1.0)
 	var lontano := clampf(centro.distance_to(impatto) / (r * 8.0), 0.0, 1.0)
 	var verso := (centro - impatto).normalized().rotated(d.randf_range(-0.7, 0.7))
 	# la luce cambia poco, e quasi niente nei pezzi grandi lontano
 	# dall'impatto: uno spicchio che arriva al bordo e' mezzo riquadro, e un
 	# mezzo riquadro piu' scuro o piu' chiaro non e' un vetro, e' un'ombra
-	pezzi.append({"punti": punti, "distanza": distanza, "centro": centro, "stretto": stretto, "lontano": lontano,
+	pezzi.append({"punti": punti, "indici": Geometry2D.triangulate_polygon(punti), "distanza": distanza,
+			"fin_dove": fin_dove,
+			"centro": centro, "stretto": stretto, "lontano": lontano,
 			"spinta": verso * SPINTA * lerpf(1.0, 0.3, lontano) * d.randf_range(0.6, 1.0),
-			"luce": d.randf_range(-0.25, 0.25) * (1.0 - lontano),
+			"luce": d.randf_range(-0.2, 0.2) * (1.0 - lontano),
+			"inclina": Vector2.from_angle(d.randf() * TAU) * d.randf_range(0.5, 1.0),
 			"cade": stretto and d.randf() < 0.5,
-			"vola": Vector2(d.randf_range(-1.0, 1.0), d.randf_range(-1.6, -0.6)) * r * 2.5,
-			"rotola": d.randf_range(-6.0, 6.0)})
+			"vola": Vector2(d.randf_range(-1.0, 1.0), d.randf_range(-1.7, -0.7)) * r * 2.6,
+			"rotola": d.randf_range(-4.0, 4.0),
+			"asse": Vector2.from_angle(d.randf() * TAU),
+			"capriola": d.randf_range(5.0, 11.0) * (1.0 if d.randf() < 0.5 else -1.0)})
 
 
 # --- il disegno -------------------------------------------------------------
@@ -150,74 +165,180 @@ static func strappo(eta: float, ridotto: bool) -> float:
 	return 1.0 + STRAPPO * (1.0 - smoothstep(0.0, SCOSSONE, eta))
 
 
-static func codice(spinta: Vector2, luce: float, alfa: float) -> Color:
-	# lo spostamento e la luce, scritti nel colore come li legge lo shader
-	var su := (spinta / (2.0 * SPINTA_MASSIMA)).clamp(Vector2(-0.5, -0.5), Vector2(0.5, 0.5))
-	return Color(0.5 + su.x, 0.5 + su.y, clampf(0.5 + luce * 0.5, 0.0, 1.0), alfa)
+static func grigio(luce: float, alfa: float) -> Color:
+	# la luce come la legge lo shader: 0.5 e' com'e'
+	return Color(0.5 + luce * 0.5, 0.5 + luce * 0.5, 0.5 + luce * 0.5, alfa)
 
 
-func disegna(tela: CanvasItem, eta: float, ridotto: bool, arrivate: float, quanto: float) -> void:
-	# i pezzi, sulla tela che ha lo shader. "arrivate": fin dove sono arrivate
-	# le crepe, in pixel dall'impatto - un pezzo c'e' quando le crepe ci sono
-	# arrivate. Un pezzo che si e' staccato non c'e' piu'
+static func lastra(tela: CanvasItem, punti: PackedVector2Array, indici: PackedInt32Array,
+		spostamenti: PackedVector2Array, colori: PackedColorArray) -> void:
+	# un pezzo sulla tela con lo shader: ogni vertice dice da dove guarda dietro
+	if indici.is_empty() or punti.size() < 3:
+		return
+	RenderingServer.canvas_item_add_triangle_array(tela.get_canvas_item(), indici, punti, colori, spostamenti)
+
+
+func disegna(tela: CanvasItem, eta: float, ridotto: bool, fino: float, arrivate: float, quanto: float) -> void:
+	# i pezzi fermi, sulla tela che ha lo shader. Un pezzo si sposta solo
+	# quando le crepe intorno l'hanno tagliato tutto: "arrivate" e' fin dove
+	# sono arrivate, in pixel dall'impatto, "fino" quanto della loro strada
+	# hanno fatto. Prima, un pezzo grande spostato tagliava i pugni lungo una
+	# crepa che non c'era ancora. Un pezzo saltato via non c'e' piu'
 	var quanto_strappa := strappo(eta, ridotto)
+	var verso_luce := VetroRotto.LUCE
 	for pezzo in pezzi:
-		if arrivate < float(pezzo["distanza"]):
+		if not tagliato(pezzo, fino, arrivate) or staccato(pezzo, eta, ridotto):
 			continue
-		if staccato(pezzo, eta, ridotto):
-			continue
-		# un luccichio attraversa i pezzi dal centro in fuori, appena rotti
-		var luccica := 0.0
+		var punti: PackedVector2Array = pezzo["punti"]
+		var spostamenti := PackedVector2Array()
+		spostamenti.resize(punti.size())
+		spostamenti.fill((pezzo["spinta"] as Vector2) * quanto_strappa)
+		# il riflesso scivola sul pezzo: piu' chiaro dalla parte dove il pezzo,
+		# inclinato, guarda la luce. E appena rotto un lampo lo attraversa
+		var lampo := 0.0
 		if not ridotto:
-			luccica = 0.4 * (1.0 - float(pezzo["lontano"])) \
+			lampo = 0.35 * (1.0 - float(pezzo["lontano"])) \
 					* exp(-pow((eta - float(pezzo["distanza"]) / (r * 18.0) - 0.05) / 0.05, 2.0))
-		Manifesto.poligono(tela, pezzo["punti"], codice((pezzo["spinta"] as Vector2) * quanto_strappa,
-				float(pezzo["luce"]) + luccica, quanto))
+		var inclina: Vector2 = pezzo["inclina"]
+		var colori := PackedColorArray()
+		for p in punti:
+			var di_qua := clampf((p - (pezzo["centro"] as Vector2)).dot(inclina) / (r * 3.0), -1.0, 1.0)
+			var sulla_luce := 0.5 + 0.5 * inclina.dot(-verso_luce)
+			colori.append(grigio(float(pezzo["luce"]) + 0.12 * di_qua * sulla_luce * (1.0 - float(pezzo["lontano"])) + lampo,
+					quanto))
+		lastra(tela, punti, pezzo["indici"], spostamenti, colori)
+
+
+static func tagliato(pezzo: Dictionary, fino: float, arrivate: float) -> bool:
+	# le crepe intorno l'hanno tagliato tutto: sono arrivate al suo punto piu'
+	# lontano, o fino in fondo
+	return fino >= 0.999 or arrivate >= float(pezzo["fin_dove"])
 
 
 static func staccato(pezzo: Dictionary, eta: float, ridotto: bool) -> bool:
 	return bool(pezzo["cade"]) and not ridotto and eta >= CADE_DA
 
 
+func posa_in_volo(pezzo: Dictionary, t: float) -> PackedVector2Array:
+	# dove sono adesso i vertici di un pezzo saltato via, t secondi dopo il
+	# distacco: vola verso di te (si ingrandisce), gira nel piano, fa la
+	# capriola in profondita' (si schiaccia lungo il suo asse, fino a
+	# rovesciarsi) e la gravita' se lo porta giu'
+	var centro: Vector2 = pezzo["centro"]
+	var dove := centro + (pezzo["vola"] as Vector2) * t + Vector2(0.0, VetroRotto.GRAVITA) * t * t * 0.5
+	var giro := float(pezzo["rotola"]) * t
+	var grande := lerpf(1.0, 1.7, t / CADUTA)
+	var asse: Vector2 = pezzo["asse"]
+	var schiaccia := cos(float(pezzo["capriola"]) * t)
+	var punti := PackedVector2Array()
+	for p: Vector2 in pezzo["punti"]:
+		var q := p - centro
+		q += asse * q.dot(asse) * (schiaccia - 1.0)
+		punti.append(dove + q.rotated(giro) * grande)
+	return punti
+
+
 func in_volo(eta: float, ridotto: bool) -> Array[PackedVector2Array]:
-	# i pezzi che si sono staccati, dove sono adesso: volano verso di te (si
-	# ingrandiscono), girano, e la gravita' se li porta giu'
+	# i pezzi saltati via, dove sono adesso
 	var volano: Array[PackedVector2Array] = []
 	var t := eta - CADE_DA
 	if ridotto or t < 0.0 or t >= CADUTA:
 		return volano
 	for pezzo in pezzi:
-		if not bool(pezzo["cade"]):
-			continue
-		var centro: Vector2 = pezzo["centro"]
-		var dove := centro + (pezzo["vola"] as Vector2) * t + Vector2(0.0, VetroRotto.GRAVITA) * t * t * 0.5
-		var giro := float(pezzo["rotola"]) * t
-		var grande := lerpf(1.0, 1.6, t / CADUTA)
-		var punti := PackedVector2Array()
-		for p: Vector2 in pezzo["punti"]:
-			punti.append(dove + (p - centro).rotated(giro) * grande)
-		volano.append(punti)
+		if bool(pezzo["cade"]):
+			volano.append(posa_in_volo(pezzo, t))
 	return volano
 
 
-func disegna_buchi(tela: CanvasItem, eta: float, ridotto: bool, quanto: float) -> void:
-	# dove un pezzo si e' staccato resta un buco: dietro il vetro e' buio
-	for pezzo in pezzi:
-		if staccato(pezzo, eta, ridotto):
-			Manifesto.poligono(tela, pezzo["punti"], Color(0.03, 0.0, 0.02, 0.7 * quanto))
-
-
 func disegna_in_volo(tela: CanvasItem, eta: float, ridotto: bool) -> void:
-	# i pezzi in volo: vetro chiaro col bordo che brilla, e sfumano andando
-	var t := clampf((eta - CADE_DA) / CADUTA, 0.0, 1.0)
-	for punti in in_volo(eta, ridotto):
-		Manifesto.poligono(tela, punti, Color(VetroRotto.VETRO_CHIARO, 0.4 * (1.0 - t)))
-		var giro := punti.duplicate()
-		giro.append(punti[0])
-		var larghi := PackedFloat32Array()
-		larghi.resize(giro.size())
-		larghi.fill(1.6)
-		var luci := PackedFloat32Array()
-		luci.resize(giro.size())
-		luci.fill(1.2)
-		VetroRotto.striscia(tela, giro, larghi, luci, Color(VetroRotto.VETRO_CHIARO, 1.0 - t))
+	# i pezzi in volo, sulla tela con lo shader: lo spessore, il pezzo con la
+	# sua immagine, il bordo che prende la luce
+	var t := eta - CADE_DA
+	if ridotto or t < 0.0 or t >= CADUTA:
+		return
+	var u := t / CADUTA
+	var alfa := 1.0 - u * u
+	for pezzo in pezzi:
+		if not bool(pezzo["cade"]):
+			continue
+		var punti := posa_in_volo(pezzo, t)
+		var origine: PackedVector2Array = pezzo["punti"]
+		var indici: PackedInt32Array = pezzo["indici"]
+		# lo spessore: il vetro di taglio, che spunta dalla parte in ombra
+		var spessore := PackedVector2Array()
+		for p in punti:
+			spessore.append(p + VetroRotto.LUCE * -3.0)
+		lastra(tela, spessore, indici, pieni(punti.size()), tinte(punti.size(), Color(TAGLIO, 0.9 * alfa)))
+		# il pezzo: guarda dietro da dove veniva ogni vertice; la luce ci scivola
+		# sopra da un lato all'altro, e lampeggia quando la capriola lo gira
+		# verso di lei
+		var spostamenti := PackedVector2Array()
+		var colori := PackedColorArray()
+		var lampo := pow(absf(cos(float(pezzo["capriola"]) * t * 0.5 + 0.6)), 8.0)
+		var centro := centro_di(punti)
+		var grande := 1.0
+		for p in punti:
+			grande = maxf(grande, p.distance_to(centro))
+		for i in punti.size():
+			spostamenti.append(origine[i] - punti[i])
+			var di_qua := clampf((punti[i] - centro).dot(-VetroRotto.LUCE) / grande, -1.0, 1.0)
+			colori.append(grigio(0.3 + 0.35 * di_qua + 0.6 * lampo, alfa))
+		lastra(tela, punti, indici, spostamenti, colori)
+		bordo_in_luce(tela, punti, alfa)
+
+
+func bordo_in_luce(tela: CanvasItem, punti: PackedVector2Array, alfa: float) -> void:
+	# il bordo del pezzo: chiaro dove guarda la luce, scuro dove no
+	var area := 0.0
+	for i in punti.size():
+		area += punti[i].cross(punti[(i + 1) % punti.size()])
+	var fuori := 1.0 if area > 0.0 else -1.0
+	for i in punti.size():
+		var a := punti[i]
+		var b := punti[(i + 1) % punti.size()]
+		var normale := (b - a).normalized().orthogonal() * -fuori
+		var verso_luce := normale.dot(-VetroRotto.LUCE)
+		var tinta := Color(1.0, 1.0, 1.0, alfa * clampf(verso_luce + 0.35, 0.0, 1.0)) if verso_luce > -0.2 \
+				else Color(0.0, 0.0, 0.0, alfa * 0.6 * clampf(-verso_luce + 0.2, 0.0, 1.0))
+		VetroRotto.striscia(tela, PackedVector2Array([a, b]), PackedFloat32Array([1.9, 1.9]),
+				PackedFloat32Array([1.0, 1.0]), tinta, true)
+
+
+static func centro_di(punti: PackedVector2Array) -> Vector2:
+	var somma := Vector2.ZERO
+	for p in punti:
+		somma += p
+	return somma / maxf(float(punti.size()), 1.0)
+
+
+static func pieni(quanti: int) -> PackedVector2Array:
+	var tutti := PackedVector2Array()
+	tutti.resize(quanti)
+	tutti.fill(PIENO)
+	return tutti
+
+
+static func tinte(quante: int, tinta: Color) -> PackedColorArray:
+	var tutte := PackedColorArray()
+	tutte.resize(quante)
+	tutte.fill(tinta)
+	return tutte
+
+
+func disegna_buchi(tela: CanvasItem, eta: float, ridotto: bool, quanto: float) -> void:
+	# dove un pezzo e' saltato via resta un buco: dietro il vetro e' buio, e
+	# intorno si vede il vetro di taglio - chiaro dalla parte in ombra, che e'
+	# quella che la luce prende di fronte - e sotto un filo d'ombra
+	for pezzo in pezzi:
+		if not staccato(pezzo, eta, ridotto):
+			continue
+		var punti: PackedVector2Array = pezzo["punti"]
+		Manifesto.poligono(tela, punti, Color(0.03, 0.0, 0.02, 0.82 * quanto))
+		var dentro := Manifesto.scosta(punti, -1.6)
+		for i in dentro.size():
+			var a := dentro[i]
+			var b := dentro[(i + 1) % dentro.size()]
+			var verso := (b - a).normalized().orthogonal()
+			var luce := absf(verso.dot(VetroRotto.LUCE))
+			VetroRotto.striscia(tela, PackedVector2Array([a, b]), PackedFloat32Array([2.2, 2.2]),
+					PackedFloat32Array([1.0, 1.0]), Color(TAGLIO, (0.35 + 0.55 * luce) * quanto))

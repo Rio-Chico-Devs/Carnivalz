@@ -254,7 +254,9 @@ una volta non se ne accorge nemmeno.
 
 **Il colpo preso** ferma tutto per 0,07 s (il fermo sul colpo dei
 picchiaduro: l'orologio dei pugni non avanza, lo scontro intanto sbanda) e
-spacca il vetro: `docs/vita.md` §5.
+spacca il vetro: `docs/vita.md` §5. Il timbro COLPITO cade di fianco al pugno,
+verso il centro del riquadro, per non coprire il punto in cui il vetro si
+spacca.
 
 **Dove stanno.** Dodici a schermo insieme non si tirano più a caso: a caso
 nel quadrante largo e basso non c'è posto. Sono una griglia a mattoni (le
