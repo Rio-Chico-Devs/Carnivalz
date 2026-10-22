@@ -22358,6 +22358,10 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 			"il pezzo che arriva al bordo si sposta prima che le crepe l'abbiano tagliato, o non si sposta mai")
 	esigi(LastreVetro.grigio(0.0, 1.0).is_equal_approx(Color(0.5, 0.5, 0.5, 1.0)) and LastreVetro.grigio(0.4, 1.0).r > 0.5,
 			"la luce dei pezzi e' scritta in un modo che lo shader non legge: 0.5 e' com'e'")
+	# LA LUCE E' FREDDA, quella di un vetro vero: fra le due proposte (l'altra
+	# era l'arancio dello squarcio) Bru ha scelto questa
+	esigi(VetroRotto.TINTA.b > VetroRotto.TINTA.r + 0.2 and VetroRotto.TINTA.g > VetroRotto.TINTA.r,
+			"la luce del vetro non e' piu' quella fredda che Bru ha scelto: %s" % str(VetroRotto.TINTA))
 	# LE CREPE APPENA ROTTE BRUCIANO, poi si raffreddano: come la crepa dello
 	# squarcio. Col movimento ridotto non si accendono
 	esigi(is_equal_approx(VetroRotto.calore(0.0, false), 1.0) and VetroRotto.calore(VetroRotto.CALORE * 4.0, false) < 0.05,

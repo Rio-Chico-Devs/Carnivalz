@@ -60,10 +60,10 @@ const ONDA := 0.22           # quanto ci mette l'onda dell'impatto ad allargarsi
 const CALORE := 0.13         # quanto ci mettono le crepe appena rotte a spegnersi
 const VETRO_CHIARO := Color(0.94, 0.97, 1.0)
 const LUCE := Vector2(-0.6, -0.8)        # da dove arriva la luce: dall'alto a sinistra
-const CALDA := Color(1.0, 0.6, 0.18)     # l'accesa dello squarcio approvato
-const FREDDA := Color(0.6, 0.86, 1.0)    # quella di un vetro vero
-# PROVVISORIO: le due proposte per Bru, la crepa che si accende calda o fredda
-static var tinta := CALDA
+# LA LUCE DEL VETRO: fredda, quella di un vetro vero. Fra le due proposte -
+# l'altra era calda, l'arancio della crepa dello squarcio - Bru: «la seconda e'
+# quella che mi e' piaciuta di piu»
+const TINTA := Color(0.6, 0.86, 1.0)
 
 var impatto := Vector2.ZERO
 var vetro := Rect2()          # fin dove arriva il vetro (il piano della raffica)
@@ -411,13 +411,13 @@ func disegna_luce(tela: CanvasItem, eta: float, ridotto: bool) -> void:
 	if eta < 0.05:
 		tela.draw_rect(vetro.grow(2.0), Color(1, 1, 1, 0.18 * (1.0 - eta / 0.05)))
 	ventaglio(tela, impatto, r * lerpf(1.4, 2.6, 1.0 - bollente),
-			Color(tinta.lerp(Color.WHITE, 0.55), 0.95 * bollente), Color(tinta, 0.0))
+			Color(TINTA.lerp(Color.WHITE, 0.55), 0.95 * bollente), Color(TINTA, 0.0))
 	var fino := corsa(eta, ridotto)
 	for k in principali.size():
 		var punti := Crepe.taglia(fini[k], fino)
 		accesa(tela, punti, r * 0.07, bollente * lucentezze[k])
 		if fino < 1.0 and punti.size() > 0:
-			ventaglio(tela, punti[punti.size() - 1], 5.0, Color(1, 1, 1, 0.9), Color(tinta, 0.0))
+			ventaglio(tela, punti[punti.size() - 1], 5.0, Color(1, 1, 1, 0.9), Color(TINTA, 0.0))
 	for ramo in rami:
 		var suo := di_ramo(ramo, fino)
 		if suo > 0.0:
@@ -440,8 +440,8 @@ func accesa(tela: CanvasItem, punti: PackedVector2Array, pieno: float, quanto: f
 		largo.append(pieno * 7.0 + 6.0)
 		stretto.append(pieno * 2.5 + 2.0)
 		piatte.append(1.0)
-	striscia_morbida(tela, punti, largo, Color(tinta, 0.5 * quanto))
-	striscia_morbida(tela, punti, stretto, Color(tinta.lerp(Color.WHITE, 0.6), 0.7 * quanto))
+	striscia_morbida(tela, punti, largo, Color(TINTA, 0.5 * quanto))
+	striscia_morbida(tela, punti, stretto, Color(TINTA.lerp(Color.WHITE, 0.6), 0.7 * quanto))
 
 
 static func onda(eta: float, ridotto: bool) -> float:
@@ -473,7 +473,7 @@ func disegna_onda(tela: CanvasItem, eta: float) -> void:
 	for k in giri:
 		var verso := Vector2.from_angle(TAU * float(k) / float(giri))
 		punti.append_array([impatto + verso * maxf(raggio - spesso, 0.0), impatto + verso * raggio, impatto + verso * (raggio + spesso)])
-		colori.append_array([Color(tinta, 0.0), Color(tinta.lerp(Color.WHITE, 0.4), 0.28 * (1.0 - u)), Color(tinta, 0.0)])
+		colori.append_array([Color(TINTA, 0.0), Color(TINTA.lerp(Color.WHITE, 0.4), 0.28 * (1.0 - u)), Color(TINTA, 0.0)])
 		var a := k * 3
 		var b := ((k + 1) % giri) * 3
 		indici.append_array([a, b, a + 1, b, b + 1, a + 1, a + 1, b + 1, a + 2, b + 1, b + 2, a + 2])
@@ -515,7 +515,7 @@ static func scostata(punti: PackedVector2Array, quanto: float) -> PackedVector2A
 	return spostata
 
 
-static func striscia_morbida(tela: CanvasItem, punti: PackedVector2Array, larghi: PackedFloat32Array, tinta_: Color) -> void:
+static func striscia_morbida(tela: CanvasItem, punti: PackedVector2Array, larghi: PackedFloat32Array, tinta: Color) -> void:
 	# una striscia che sfuma dal centro ai bordi per tutta la sua larghezza: e'
 	# il bagliore, non il filo
 	var n := punti.size()
@@ -532,7 +532,7 @@ static func striscia_morbida(tela: CanvasItem, punti: PackedVector2Array, larghi
 		var fuori_a := di_traverso[i * 4]
 		var fuori_b := di_traverso[i * 4 + 3]
 		vertici.append_array([fuori_a, (fuori_a + fuori_b) * 0.5, fuori_b])
-		colori.append_array([Color(tinta_, 0.0), tinta_, Color(tinta_, 0.0)])
+		colori.append_array([Color(tinta, 0.0), tinta, Color(tinta, 0.0)])
 		if i > 0:
 			var a := (i - 1) * 3
 			var b := i * 3
@@ -541,7 +541,7 @@ static func striscia_morbida(tela: CanvasItem, punti: PackedVector2Array, larghi
 
 
 static func striscia(tela: CanvasItem, punti: PackedVector2Array, larghi: PackedFloat32Array,
-		luci: PackedFloat32Array, tinta_: Color, pieno_uv := false) -> void:
+		luci: PackedFloat32Array, tinta: Color, pieno_uv := false) -> void:
 	# UN FILO LISCIO DI LARGHEZZA VARIABILE, in un disegno solo. Di traverso a
 	# ogni punto quattro vertici: fuori trasparente, dentro pieno, dentro pieno,
 	# fuori trasparente - la sfumatura e' la geometria stessa, quindi non si
@@ -557,8 +557,8 @@ static func striscia(tela: CanvasItem, punti: PackedVector2Array, larghi: Packed
 	var colori := PackedColorArray()
 	var indici := PackedInt32Array()
 	for i in n:
-		var alfa := clampf(tinta_.a * minf(larghi[i], 1.0) * luci[i], 0.0, 1.0)
-		var vivo := Color(tinta_.lerp(Color.WHITE, clampf(luci[i] - 1.0, 0.0, 1.0)), alfa)
+		var alfa := clampf(tinta.a * minf(larghi[i], 1.0) * luci[i], 0.0, 1.0)
+		var vivo := Color(tinta.lerp(Color.WHITE, clampf(luci[i] - 1.0, 0.0, 1.0)), alfa)
 		colori.append_array([Color(vivo, 0.0), vivo, vivo, Color(vivo, 0.0)])
 		if i > 0:
 			var a := (i - 1) * 4

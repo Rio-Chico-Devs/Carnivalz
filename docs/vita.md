@@ -26,7 +26,7 @@ Mattanza, il minigioco). Bru:
 | lo squarcio d'entrata | approvato | nel gioco: `scripts/Squarcio.gd` |
 | la Mattanza | approvata, con la fascia **più grande** per l'artwork | nel gioco: `scripts/combattimento/TaglioMattanza.gd` |
 | il turno che passa | approvato | nel gioco: `scripts/combattimento/FasciaTurno.gd` |
-| il minigioco col corpo | approvato, poi **rifatto** giocando: niente cerchio che si chiude (§5); approvato di nuovo («bello mi piace!»); il vetro rifatto da capo («sembra quasi fatto su paint»), due proposte di colore | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
+| il minigioco col corpo | approvato, poi **rifatto** giocando: niente cerchio che si chiude (§5); approvato di nuovo («bello mi piace!»); il vetro rifatto da capo («sembra quasi fatto su paint»), poi «già meglio», con la luce fredda | nel gioco: `scripts/combattimento/RiquadroRaffica.gd` |
 | il riflesso sui vetri | approvato, poi **no** giocando (§6) | tolto |
 | il BOND (la purificazione, §8) | approvato dopo tre giri | nel gioco: `scripts/combattimento/LuceBond.gd` |
 | le braci che salgono | **no** | tolte |
@@ -208,9 +208,10 @@ Il cerchio che si stringeva e le tacche che correvano non ci sono più. Adesso
   - **COLPITO** cade di fianco al pugno, verso il centro: sopra copriva il
     punto in cui il vetro si spacca.
 
-  Le **due proposte** cambiano solo il colore della luce: **calda**, quella
-  dello squarcio, e **fredda**, quella di un vetro vero
-  (`VetroRotto.tinta`). Una va scelta, l'altra se ne va.
+  **La luce è fredda**, quella di un vetro vero (`VetroRotto.TINTA`). Le
+  proposte erano due, uguali in tutto tranne il colore delle crepe accese:
+  calda, l'arancio della crepa dello squarcio, e fredda. Bru: «si già meglio,
+  la seconda è quella che mi è piaciuta di più».
 
   Tutto sta in quattro tele per vetro (`TeleVetro.gd`): i pezzi che guardano
   dietro, il vetro, i pezzi che saltano, la luce che si somma. Una per vetro
