@@ -77,6 +77,7 @@ func _ready() -> void:
 	prova_i_vetri_stanno_fermi()
 	prova_le_diagonali_hanno_il_bordo_liscio()
 	prova_il_vetro_rotto_del_colpo_preso()
+	await prova_la_proposta_di_schermata()
 	await prova_la_luce_del_bond_quando_medi()
 	prova_la_luce_del_bond_lettera_per_lettera()
 	prova_la_luce_del_bond_col_movimento_ridotto()
@@ -22544,6 +22545,86 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 				esigi(dal_tratto >= pieno - 0.01 and sfuma >= 0.99,
 						"largo %.1f, al punto %d il filo si strozza: pieno %.2f invece di %.2f, sfumatura %.2f"
 						% [largo, i, dal_tratto, pieno, sfuma])
+
+func prova_la_proposta_di_schermata() -> void:
+	# LA SCHERMATA DI COMBATTIMENTO, UNA PROPOSTA (prove/ProposteScontro.gd,
+	# docs/scontro_proposta.md). Bru: «voglio vederti provare con una tua idea».
+	# E' una proposta e non tocca il gioco, ma le sue regole si misurano lo
+	# stesso: se il film le rompe, Bru giudica una cosa diversa da quella scritta
+	titolo("la proposta di schermata: la diagonale, niente sovrapposti, ogni momento mostra la sua cosa")
+	var Spina: GDScript = load("res://prove/scontro/Spina.gd")
+	var proposta: Control = load("res://prove/ProposteScontro.tscn").instantiate()
+	proposta.size = Vector2(1280, 720)
+	add_child(proposta)
+	await get_tree().process_frame
+	proposta.set_process(false)
+	var visti := {}
+	var storti := 0
+	var sopra := 0
+	var mestieri := []
+	while proposta.tempo < proposta.FINE:
+		proposta.passo(1.0 / 30.0)
+		var momento := String(proposta.momento)
+		var cartellone: PackedVector2Array = proposta.cartellone.fuori()
+		var pezzi: Array = []
+		for scheda in proposta.schede:
+			pezzi.append(Spina.sbieco(scheda.dove))
+		if proposta.programma.su > 0.99:
+			pezzi.append(Spina.sbieco(proposta.programma.dove))
+		if proposta.racconto.su > 0.99:
+			var alto := float(proposta.racconto.ALTO)
+			var basso := float(proposta.racconto.BASSO)
+			pezzi.append(PackedVector2Array([Vector2(16, alto), Vector2(Spina.diagonale(alto), alto),
+					Vector2(Spina.diagonale(basso), basso), Vector2(16, basso)]))
+		# la diagonale: il lato sinistro di ogni scheda sta a GOLA dal cartellone
+		# (chi ha il turno ne fa un passo avanti, non di piu')
+		for scheda in proposta.schede:
+			var y := float(scheda.dove.position.y)
+			var stacco := float(scheda.dove.position.x) - float(Spina.diagonale(y))
+			if proposta.tempo > 1.5 and (stacco < Spina.GOLA - 30.0 or stacco > Spina.GOLA + 8.0):
+				storti += 1
+		# niente si sovrappone: ne' al cartellone, ne' fra loro
+		if proposta.tempo > 1.5:
+			for i in pezzi.size():
+				sopra += 0 if Geometry2D.intersect_polygons(cartellone, pezzi[i]).is_empty() else 1
+				for j in range(i + 1, pezzi.size()):
+					sopra += 0 if Geometry2D.intersect_polygons(pezzi[i], pezzi[j]).is_empty() else 1
+		if not visti.has(momento):
+			visti[momento] = proposta.tempo
+		if proposta.tempo > float(visti[momento]) + 0.8 and not mestieri.has(momento):
+			mestieri.append(momento)
+			match momento:
+				"comandi", "lista":
+					esigi(proposta.programma.su > 0.95 and proposta.attivo == 0 and proposta.programma.modo == momento,
+							"nel momento '%s' il programma non e' su, o non tocca a te" % momento)
+				"studio", "parla_la_creatura":
+					esigi(proposta.racconto.su > 0.95 and proposta.fascia.giu > 0.95,
+							"nel momento '%s' il racconto non ha preso il posto della fascia" % momento)
+				"minigioco":
+					esigi(proposta.gioco.attivo and proposta.programma.su < 0.05 and proposta.cartellone.ritirata > 0.95,
+							"durante la raffica il programma resta su, o la creatura non lascia lo schermo al minigioco")
+				"tocca_a_veronica":
+					esigi(proposta.attivo == 1, "a Veronica non tocca mai")
+	esigi(storti == 0, "%d volte una scheda non stava sulla diagonale" % storti)
+	esigi(sopra == 0, "%d volte due pezzi della proposta stavano uno sopra l'altro" % sopra)
+	esigi(mestieri.size() >= 8, "il film ha mostrato solo %d momenti: %s" % [mestieri.size(), mestieri])
+	esigi(not proposta.gioco.attivo and proposta.gioco.suonate == 1,
+			"il film finisce con la raffica ancora aperta, o senza averla giocata")
+	# il minigioco sta tutto dentro il vetro della creatura
+	var vetro: Rect2 = proposta.cartellone.vetro()
+	var dentro := Manifesto.scosta(proposta.cartellone.fuori(), -proposta.cartellone.CORNICE)
+	for angolo in [vetro.position, Vector2(vetro.end.x, vetro.position.y), vetro.end, Vector2(vetro.position.x, vetro.end.y)]:
+		esigi(Geometry2D.is_point_in_polygon(angolo, dentro), "il minigioco esce dal vetro della creatura in %s" % str(angolo))
+	# e la raffica gioca piu' larga del quadrante di oggi
+	var quadrante := Stile.riquadro("quadrante", Vector2(1280, 720))
+	esigi(vetro.get_area() > quadrante.get_area() * 1.3, "il minigioco della proposta non e' piu' grande del quadrante")
+	# SUL FOGLIO CHIARO IL PIENO E' SCURO: la vita piena si distingue dal vuoto
+	# (si misura la tinta che la scheda usa davvero, contro il vuoto della barra su carta)
+	var vuoto := Stile.colore(String(Spina.VUOTO_SU_CARTA))
+	for riga: Array in proposta.schede[0].righe():
+		esigi(Stile.contrasto(riga[2], vuoto) >= 3.0,
+				"sulle schede il pieno di '%s' e il vuoto si confondono: %.2f" % [riga[0], Stile.contrasto(riga[2], vuoto)])
+	proposta.free()
 
 func le_tele_del_vetro(riquadro: RiquadroRaffica, tele: TeleVetro) -> void:
 	# UN VETRO ROTTO SONO QUATTRO TELE (TeleVetro): i pezzi che guardano dietro
