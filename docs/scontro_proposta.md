@@ -4,8 +4,9 @@
 > migliore? il design era mio ma voglio vederti provare con una tua idea dopo
 > tutto quello che abbiamo studiato»
 
-È una **proposta**, e non tocca il gioco. La schermata vera resta quella di Bru
-(`docs/schermata_combattimento.md`); questa vive in
+È una **proposta**, e del gioco tocca una cosa sola: quanto è grande un pugno
+della raffica in un piano più quadrato del quadrante (§9). La schermata vera
+resta quella di Bru (`docs/schermata_combattimento.md`); questa vive in
 `prove/ProposteScontro.tscn` coi suoi pezzi in `prove/scontro/`, ed è fatta coi
 pezzi veri del gioco dove servono: il minigioco è la raffica vera
 (`MinigiocoCombattimento`, `RiquadroRaffica`, il vetro che si spacca), l'ECG è
@@ -225,6 +226,9 @@ riposo toccavano il bordo (la corona del dominio finiva sul filo); il «-5»
 rosso del costo stava sulla fine della barra dell'aura, adesso sta sul pezzo a
 righe che spenderesti; il programma, abbassato durante la raffica, sbucava in
 fondo allo schermo.
+
+**Approvata.** Bru, vista la tavola «prima e adesso» e il film: «sì mi piace».
+Le domande del §8 restano aperte: si decidono portandola nel gioco (§11).
 
 ## 10. La prova
 
