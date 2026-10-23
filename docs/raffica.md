@@ -266,6 +266,21 @@ suo, mai tanto da toccare un vicino. Nel quadrante del gioco (circa 710×190)
 sono due righe da sei, e ce ne starebbero fino a sedici. I centri stanno 1,45
 raggi dentro il bordo, perché il pugno acceso si gonfia fino a lì.
 
+**Quanto è grande.** Il pugno è una parte del lato corto del piano: 0,36. Nel
+quadrante del gioco va bene, ma in un piano più quadrato il lato corto è il
+doppio, il pugno pure, e dodici non ci stavano più. È successo nella proposta
+di schermata (`docs/scontro_proposta.md`), dove la raffica gioca sullo schermo
+della creatura, 654×358: pugni di 129 pixel che coprivano due terzi del piano
+e si toccavano. Bru: «la distribuzione dei pugni è troppo appiccicata».
+Adesso (`Collisioni.lato_pugno`) il pugno è il più grande che lascia che
+tutti insieme coprano **un terzo del piano**: è la misura della raffica che Bru
+ha approvato (dodici pugni da 0,36 nel quadrante di 710×190 ne coprono il
+33%). Nello schermo della creatura i pugni sono di 91 pixel e coprono il 33%;
+nel quadrante del gioco non cambia niente, il pugno resta 0,36. Lo spazio in
+più resta fra un pugno e l'altro. Coprendo un terzo ci stanno sempre col loro
+respiro; il pugno più grande che appena ci stava (la prima cosa provata) ne
+copriva quasi la metà, ed erano appiccicati lo stesso.
+
 **Il disegno** (`RiquadroRaffica.gd`): spento in penombra, acceso rosso pieno
 col bordo bianco e un alone che pulsa (il contrasto fra i due è controllato,
 almeno 2:1, perché quello giusto si trovi con la coda dell'occhio); acceso
@@ -279,8 +294,9 @@ ricadono finché i pezzi volano).
 
 **Le prove**: `prova_collisioni` (il calendario: di botto, l'ordine a caso, lo
 stesso dado dà la stessa raffica, o parato o preso, il danno, la finestra che si
-stringe, nessuno sopra un altro in quattro quadranti e da cinque a sedici
-pugni), `prova_il_pugno_si_para_quando_premi` (la pressione, l'attesa, la
+stringe, nessuno sopra un altro in sette piani - larghi, quadrati, alti - e da
+cinque a sedici pugni; il pugno che nel quadrante del gioco resta 0,36, che non
+diventa un puntino e che in nessun piano copre più di un terzo), `prova_il_pugno_si_para_quando_premi` (la pressione, l'attesa, la
 pausa, il cerchio e non il quadrato, lo spento che non fa niente),
 `prova_la_raffica_si_para_anche_da_tastiera` (anche il tasto pestato a vuoto),
 `prova_minigioco_ai_bordi`,

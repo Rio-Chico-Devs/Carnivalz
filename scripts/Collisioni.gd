@@ -52,8 +52,14 @@ const PAUSA := 0.2       # deciso un pugno, quanto prima che si accenda il succe
 
 # QUANTO E' GROSSO UN PUGNO, in frazione del lato corto del quadrante. Sta qui
 # e non nel nodo che lo disegna perche' non e' una scelta grafica: e' la misura
-# del bersaglio, cioe' meta' della difficolta'. L'altra meta' e' il tempo.
+# del bersaglio, cioe' meta' della difficolta'. L'altra meta' e' il tempo. E'
+# un tetto: in un piano dove dodici cosi' grandi non ci stanno, il pugno e'
+# quello che ci sta (lato_pugno)
 const LATO_PUGNO := 0.36
+# quanta parte del piano coprono al massimo i pugni: quella della raffica di
+# Veronica nel quadrante del gioco (dodici, un terzo). Li' il tetto e' gia'
+# LATO_PUGNO; in un piano piu' grande e' questo a tenerli radi
+const COPERTURA := 0.33
 # e quanto spazio prende al massimo, in raggi: quando compare si pianta un
 # filo piu' grande, e acceso si gonfia arrivandoti addosso (RiquadroRaffica).
 # I centri stanno almeno cosi' lontani dal bordo, se no il bordo lo taglia
@@ -120,13 +126,11 @@ static func posti(quanti: int, dado: RandomNumberGenerator, proporzione := 1.0) 
 	# Le misure sono in lati corti del piano, cosi' "lontano" vuol dire gli
 	# stessi pixel in orizzontale e in verticale. "campo" e' dove possono stare i
 	# CENTRI: centro_di (RiquadroRaffica) li tiene INGOMBRO raggi dentro il bordo.
-	var largo := maxf(proporzione, 0.001)
-	var corto := minf(largo, 1.0)
-	var bordi := LATO_PUGNO * INGOMBRO
-	var campo := Vector2(largo / corto - bordi, 1.0 / corto - bordi).max(Vector2.ZERO)
+	var lato := lato_pugno(quanti, proporzione)
+	var campo := campo_per(proporzione, lato)
 	var righe := righe_migliori(quanti, campo)
 	var colonne := ceili(float(quanti) / float(maxi(righe, 1)))
-	var scarto := maxf(passo_griglia(righe, colonne, campo) - LATO_PUGNO * RESPIRO, 0.0) * 0.5 * 0.85
+	var scarto := maxf(passo_griglia(righe, colonne, campo) - lato * RESPIRO, 0.0) * 0.5 * 0.85
 	var liberi: Array[Vector2] = []
 	for riga in righe:
 		for colonna in colonne:
@@ -138,6 +142,34 @@ static func posti(quanti: int, dado: RandomNumberGenerator, proporzione := 1.0) 
 		var su_campo := Vector2(spinta.x / campo.x if campo.x > 0.0 else 0.0, spinta.y / campo.y if campo.y > 0.0 else 0.0)
 		scelti.append((liberi[ordine[i]] + su_campo).clamp(Vector2.ZERO, Vector2.ONE))
 	return scelti
+
+
+static func campo_per(proporzione: float, lato: float) -> Vector2:
+	# dove possono stare i centri, in lati corti: il piano meno INGOMBRO pugni
+	# per parte
+	var largo := maxf(proporzione, 0.001)
+	var corto := minf(largo, 1.0)
+	var bordi := lato * INGOMBRO
+	return Vector2(largo / corto - bordi, 1.0 / corto - bordi).max(Vector2.ZERO)
+
+
+static func lato_pugno(quanti: int, proporzione: float) -> float:
+	# QUANTO E' GROSSO UN PUGNO DAVVERO, in lati corti. Il pugno si misura sul
+	# lato corto, e nel quadrante largo e basso del gioco e' LATO_PUGNO; in un
+	# piano piu' quadrato il lato corto e' il doppio, i pugni il doppio, e il
+	# posto per dodici non c'era piu': si sovrapponevano (Bru, sulla proposta di
+	# schermata: «la distribuzione dei pugni e' troppo appiccicata»).
+	# Il pugno e' il piu' grande che li lascia RADI COME NELLA RAFFICA CHE BRU
+	# HA APPROVATO, dove dodici pugni coprono un terzo del piano (COPERTURA): in
+	# un piano piu' grande il pugno non cresce oltre quella parte, e lo spazio
+	# in piu' resta fra un pugno e l'altro. Coprendo un terzo ci stanno sempre
+	# col loro respiro (prova_collisioni lo misura in sette piani, da cinque a
+	# sedici pugni); il pugno piu' grande che appena ci stava ne copriva quasi
+	# la meta', ed erano appiccicati lo stesso
+	var largo := maxf(proporzione, 0.001)
+	var corto := minf(largo, 1.0)
+	var area := (largo / corto) * (1.0 / corto)
+	return minf(LATO_PUGNO, 2.0 * sqrt(COPERTURA * area / (PI * float(maxi(quanti, 1)))))
 
 
 static func posto_in_griglia(riga: int, colonna: int, righe: int, colonne: int) -> Vector2:

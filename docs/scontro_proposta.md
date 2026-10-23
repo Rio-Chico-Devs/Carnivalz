@@ -119,19 +119,23 @@ scatto; e col vuoto grigio l'aura stava a 2,7 di contrasto, l'ha trovato la
 prova - adesso vita 16, aura 4,6, dominio 3,5). La vita è sempre
 scritta; l'aura solo a chi ha il turno, come oggi. Chi ha il turno **fa un
 passo avanti** verso la creatura: la scheda si allarga, il ritratto esce dal
-foglio inclinato, il nome diventa «TOCCA A TE», e sotto compare il suo ECG col
-morale e lo stress - il cuore di chi decide, dove lo stai già guardando. Gli
-status ci sono sempre ma piccoli, in un angolo: l'icona calma quando stanno
-bene, come ha chiesto Bru. Il posto libero è una striscia bassa: lì andrà il
-disegno di Bru.
+foglio inclinato, il nome diventa «TOCCA A TE». Il suo ECG non sta nella
+scheda: sta grande in cima ai suoi comandi (qui sotto). Gli status ci sono
+sempre ma piccoli, in un angolo: l'icona calma quando stanno bene, come ha
+chiesto Bru. La squadra del film è di tre; con un posto libero, il posto è una
+striscia bassa: lì andrà il disegno di Bru.
 
 **Il programma** (`Programma.gd`). I comandi di chi ha il turno, sotto le
 schede, sulla stessa diagonale: chi decide, la sua aura e i suoi comandi sono
 una colonna sola, e l'occhio scende invece di attraversare lo schermo. Fa un
-mestiere solo, scegliere. Le cinque voci a sinistra, e a destra **due righe su
+mestiere solo, scegliere. In cima c'è **il monitor di chi decide**: il suo ECG
+per tutta la larghezza del programma (la linea è di 419×52 pixel) e sotto,
+nello stesso vetro scuro, il morale e lo stress, lo stress in giallo da 50 in
+su. Sta fra la scheda di chi decide e i suoi comandi: l'occhio ci passa sopra
+scendendo. Le cinque voci a sinistra, e a destra **due righe su
 quella che stai guardando**: un nuovo giocatore non sa cos'è SKILL. Nelle
 liste, due colonne col costo di ogni mossa nel segno dell'aura; e sulla scheda
-il pezzo di barra che spenderesti si fa a righe, col «-5» rosso accanto.
+il pezzo di barra che spenderesti si fa a righe, col «-5» rosso sopra.
 MATTANZA e BOND sono sempre in fondo, spenti finché non sono pronti; quando si
 accendono non li copre niente. Quando non tocca a nessuno della squadra il
 programma scende fuori dallo schermo.
@@ -152,20 +156,23 @@ del suo schermo: 678×426 pixel invece del quadrante di 733×257, cioè una volt
 e mezza l'area e alta il 66% in più. E i pugni ti arrivano addosso da dove
 arriva lei: è il suo schermo che si spacca. Ogni colpo preso si vede sulla
 scheda di chi lo prende, che trema, perde la vita e fa saltare fuori il numero.
+Il piano dei pugni è più quadrato del quadrante, e i pugni sono quelli che ci
+stanno radi: coprono un terzo del piano, come nella raffica approvata
+(`docs/raffica.md`, «Quanto è grande»).
 
 ## 6. Il film, momento per momento
 
 | s | momento | cosa si vede |
 |--:|---|---|
-| 0 | ingresso | il cartellone entra da sinistra, le schede da destra, la fila dall'alto |
-| 1,6 | tocca a te | la tua scheda avanti, il programma: ATTACCHI → DIFESA → SKILL, con la spiegazione che cambia |
+| 0 | ingresso | il cartellone entra da sinistra, le tre schede da destra, la fila dall'alto (Yhvina ha già agito) |
+| 1,6 | tocca a te | la tua scheda avanti, il programma col tuo ECG in cima: ATTACCHI → DIFESA → SKILL, con la spiegazione che cambia |
 | 5,4 | la lista | SKILL: Sovraccarico (5), Onda psichica (3): l'aura che spenderesti si fa a righe |
 | 9,2 | studio | il racconto prende il posto della fascia |
 | 11,4 | la scoperta | la fascia torna, il tratteggio della vita se ne va, compaiono «TETRO» e «COLPISCE A RAFFICA» |
 | 13,4 | tocca a lei | la fila passa alla M, lo schermo si accende di rosso due volte, «TOCCA A MARIONETTA» |
 | 14,4 | parla | la sua battuta, nella didascalia |
-| 17,2 | la raffica | Collisioni infinite sul suo schermo, giocata dalla mano del film (otto parate su dodici); i colpi presi sulle schede |
-| 31,8 | tocca a Veronica | la sua scheda avanti, il suo ECG; il suo dominio si riempie e MATTANZA si accende |
+| 17,2 | la raffica | Collisioni infinite sul suo schermo, giocata dalla mano del film (otto parate su dodici); i colpi presi, a turno sulle tre schede |
+| 31,8 | tocca a Veronica | la sua scheda avanti, il suo ECG e il suo stress nel monitor; il suo dominio si riempie e MATTANZA si accende |
 
 Le battute («Ballate con me...», «Studi la marionetta...»), le due righe di
 spiegazione dei comandi e le note dello studio sono **mie, provvisorie**.
@@ -201,7 +208,25 @@ Cambia **dove stanno le cose**, e quanto sono grandi.
 6. **Le spiegazioni sotto i comandi.** Utili all'inizio; forse da spegnere nelle
    opzioni dopo il tutorial.
 
-## 9. La prova
+## 9. Il secondo giro: i tre appunti di Bru
+
+> Bru, visto il film: «non è male se non fosse per il fatto che ci dovrebbero
+> essere 3 personaggi la distribuzione dei pugni è troppo appiccicata e non si
+> vede l'ecg»
+
+| l'appunto | com'era | com'è adesso |
+|---|---|---|
+| tre personaggi | tu, Veronica e un posto libero | tu, Veronica e Yhvina, coi punti vita veri (`data/classes.json`: 100, 160, 130); la fila del giro in ordine di velocità - Yhvina, tu, la marionetta, Veronica; i colpi della raffica presi a turno dai tre. Le schede a riposo sono alte 84, quella di chi decide 118, e il programma comincia a 400 |
+| i pugni appiccicati | sullo schermo della creatura (654×358) i pugni erano di 129 pixel: coprivano due terzi del piano e si toccavano | 91 pixel, un terzo del piano, come nella raffica approvata. La regola è nel gioco vero (`Collisioni.lato_pugno`): nel quadrante di oggi il pugno non cambia |
+| l'ECG che non si vede | una striscia alta una trentina di pixel dentro la scheda di chi decide | un monitor in cima al programma: la linea è di 419×52 pixel, con morale e stress sotto, nello stesso vetro |
+
+E tre cose viste negli scatti mentre si rifaceva: le barre delle schede a
+riposo toccavano il bordo (la corona del dominio finiva sul filo); il «-5»
+rosso del costo stava sulla fine della barra dell'aura, adesso sta sul pezzo a
+righe che spenderesti; il programma, abbassato durante la raffica, sbucava in
+fondo allo schermo.
+
+## 10. La prova
 
 `prova_la_proposta_di_schermata` fa girare tutto il copione a passi fissi e
 misura le regole scritte qui, a ogni passo: le schede sulla diagonale (a GOLA
@@ -211,9 +236,16 @@ sua cosa (il programma su quando scegli e giù nella raffica, il racconto al
 posto della fascia, a Veronica tocca davvero); la raffica giocata e chiusa
 prima della fine; il minigioco tutto dentro il vetro, e più grande del
 quadrante di oggi; il pieno delle barre sulle schede staccato dal vuoto almeno
-3:1. Verificata rompendo apposta la proposta in 7 modi: li prende tutti.
+3:1. Dal secondo giro anche: la squadra di tre; l'ECG grande almeno 380×50,
+acceso e sopra il programma ogni volta che si sceglie; le barre e le loro icone
+dentro il foglio della scheda; il costo rosso sul pezzo che si spende; i pugni
+nel vetro misurati col raggio che il riquadro disegna davvero (nessuno ne tocca
+un altro, e insieme coprono al più un terzo). Verificata rompendo apposta la
+proposta in 7 modi, e al secondo giro in altri 11 (fra cui la squadra di due,
+l'ECG basso, stretto, spento o sotto il programma come prima, i pugni grandi
+come prima): li prende tutti.
 
-## 10. Se piace: come si porta nel gioco
+## 11. Se piace: come si porta nel gioco
 
 La plancia è già fatta per cambiare disposizione senza toccare lo scontro: chi
 ci lavora sopra (il campo, il menu, la voce, i minigiochi) riceve i nodi e non
@@ -222,8 +254,9 @@ sa dove stanno (`Plancia.gd`). Il passaggio sarebbe:
 1. le misure della nuova disposizione in `data/stile.json`, accanto a quelle di
    oggi, e la diagonale come una misura;
 2. `Scheda` al posto di `SlotCompagno` (le barre dentro, il passo avanti col
-   turno, l'ECG di chi decide nella sua scheda);
-3. il quadrante diviso: il programma (comandi e liste) da una parte, il
+   turno);
+3. il quadrante diviso: il programma (il monitor con l'ECG di chi decide, i
+   comandi e le liste) da una parte, il
    minigioco sullo schermo della creatura, il box vero (`BoxTesto`) nella
    didascalia;
 4. la fila del giro dai dati di `Turni.gd`;

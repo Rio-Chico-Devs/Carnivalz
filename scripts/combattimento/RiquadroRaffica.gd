@@ -159,7 +159,9 @@ func proporzione() -> float:
 
 
 func raggio() -> float:
-	return minf(piano.size.x, piano.size.y) * Collisioni.LATO_PUGNO * 0.5
+	# la stessa misura con cui il calendario ha messo i pugni al loro posto
+	var quanti := gioco.raffica.size() if gioco != null and not gioco.raffica.is_empty() else 12
+	return minf(piano.size.x, piano.size.y) * Collisioni.lato_pugno(quanti, proporzione()) * 0.5
 
 
 func centro_di(pugno: Dictionary) -> Vector2:

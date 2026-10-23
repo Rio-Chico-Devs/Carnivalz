@@ -11,15 +11,17 @@ extends Control
 # ritratto piccolo e le barre lunghe e spesse DENTRO il foglio, ognuna col suo
 # segno (il palloncino, il fuoco fatuo, la corona: le icone delle statistiche
 # che Bru ha visto) e la vita sempre scritta. Chi ha il turno fa un passo
-# avanti verso la creatura: la scheda si allarga, il ritratto esce dal foglio
-# inclinato, e sotto compare il suo ECG - il cuore di chi deve decidere, dove
-# lo stai gia' guardando.
+# avanti verso la creatura: la scheda si allarga e il ritratto esce dal foglio
+# inclinato. Il suo ECG e' sotto le schede, in cima ai suoi comandi
+# (Programma.gd): dentro la scheda era una striscia di trenta pixel, e Bru:
+# «non si vede l'ecg».
 #
 # Gli status ci sono sempre, piccoli: «se stanno bene ci stara l'icona
 # normale» (Bru). Si fanno notare quando c'e' qualcosa da leggere.
 
 const Spina := preload("res://prove/scontro/Spina.gd")
 const IS := preload("res://scripts/crescita/IconeStatistiche.gd")
+const CORPO_COSTO := 15    # il cartellino rosso del costo, sulla barra dell'aura
 
 var dove := Rect2()        # il rettangolo della scheda, sullo schermo (il lato sinistro va di sbieco)
 var attiva := 0.0          # 0 a riposo, 1 quando ha il turno (lo anima chi la usa)
@@ -27,7 +29,6 @@ var colpo := 0.0           # 1 quando ha appena preso un colpo
 var libero := false        # il posto di un compagno che non c'e'
 var dati := {}             # nome, iniziale, hp, hp_max, aura, aura_max, dominio (0..1), stati, morale, stress, tu
 var prenota_aura := 0      # l'aura della mossa che stai guardando nella lista
-var ecg: TracciatoEcg = null
 
 
 func _init() -> void:
@@ -38,12 +39,6 @@ func _init() -> void:
 func ritratto() -> Rect2:
 	var lato := lerpf(68.0, 112.0, attiva)
 	return Rect2(dove.position + Vector2(18.0, lerpf(12.0, -20.0, attiva)), Vector2(lato, lato))
-
-
-func casa_ecg() -> Rect2:
-	# dove sta l'ECG di chi ha il turno: in fondo alla scheda, sotto le barre
-	var x := dove.position.x + 22.0 - Spina.PENDENZA * (dove.size.y - 56.0)
-	return Rect2(Vector2(x, dove.end.y - 58.0), Vector2(dove.end.x - 150.0 - x, 42.0))
 
 
 func _draw() -> void:
@@ -60,8 +55,6 @@ func _draw() -> void:
 	disegna_ritratto()
 	disegna_barre()
 	disegna_status()
-	if attiva > 0.5:
-		disegna_sotto()
 
 
 func disegna_ritratto() -> void:
@@ -85,7 +78,7 @@ func righe() -> Array:
 	var aura := float(dati.get("aura", 0))
 	var aura_max := maxf(float(dati.get("aura_max", 1)), 1.0)
 	return [
-		["hp", hp / hp_max, Stile.colore("bordo"), lerpf(15.0, 20.0, attiva), "%d/%d" % [hp, hp_max]],
+		["hp", hp / hp_max, Stile.colore("bordo"), lerpf(14.0, 20.0, attiva), "%d/%d" % [hp, hp_max]],
 		# IL NUMERO DELL'AURA SOLO A CHI HA IL TURNO: e' l'unica barra che si
 		# spende a prezzo fisso (docs/schermata_combattimento.md §8)
 		["aura", aura / aura_max, Stile.colore("accento_su_carta"), lerpf(9.0, 13.0, attiva),
@@ -94,11 +87,36 @@ func righe() -> Array:
 	]
 
 
-func disegna_barre() -> void:
-	var r := ritratto()
-	var x0 := r.end.x + 16.0
+func barre() -> Array:
+	# DOVE STA OGNI BARRA: [riga di righe(), rettangolo della barra]. Le
+	# disegna disegna_barre(), le misura la prova (che stiano nel foglio).
+	# A RIPOSO la scheda e' alta 84: nome, tre barre e nove pixel di carta
+	# sotto. Le barre partivano piu' giu' e la corona finiva sul bordo
+	var x0 := ritratto().end.x + 16.0
 	var x1 := dove.end.x - 16.0
-	var y := dove.position.y + lerpf(40.0, 48.0, attiva)
+	var y := dove.position.y + lerpf(32.0, 46.0, attiva)
+	var fuori := []
+	for riga: Array in righe():
+		var alta := float(riga[3])
+		var dopo_icona := x0 + icona(alta) + 8.0
+		var spazio_numero := 84.0 if String(riga[4]) != "" else 0.0
+		fuori.append([riga, Rect2(Vector2(dopo_icona, y), Vector2(x1 - dopo_icona - spazio_numero, alta))])
+		y += alta + lerpf(7.0, 11.0, attiva)
+	return fuori
+
+
+func icona(alta: float) -> float:
+	return alta + lerpf(6.0, 10.0, attiva)
+
+
+func prenota() -> float:
+	# l'aura che spenderesti, in quota della barra
+	return float(prenota_aura) / maxf(float(dati.get("aura_max", 1)), 1.0)
+
+
+func disegna_barre() -> void:
+	var x0 := ritratto().end.x + 16.0
+	var x1 := dove.end.x - 16.0
 	var font := Caratteri.titolo()
 	var carta := Stile.colore("plancia_pannello").lerp(Stile.colore("box_fondo"), attiva)
 	# IL NOME, e quando ha il turno «TOCCA A TE» al posto del nome: la fascia del
@@ -108,25 +126,31 @@ func disegna_barre() -> void:
 	if attiva > 0.5:
 		nome = "TOCCA A %s" % ("TE" if bool(dati.get("tu", false)) else nome)
 	Spina.etichetta(self, Vector2(x0 + 6.0, dove.position.y + lerpf(8.0, 10.0, attiva)), nome, int(lerpf(16.0, 19.0, attiva)))
-	for riga: Array in righe():
-		var alta := float(riga[3])
-		var icona := alta + 10.0
-		IS.disegna(self, String(riga[0]), Vector2(x0 + icona * 0.5, y + alta * 0.5), icona, Stile.colore("bordo"), carta)
+	for posto: Array in barre():
+		var riga: Array = posto[0]
+		var barra: Rect2 = posto[1]
+		var alta := barra.size.y
+		var lato := icona(alta)
+		IS.disegna(self, String(riga[0]), Vector2(x0 + lato * 0.5, barra.get_center().y), lato, Stile.colore("bordo"), carta)
+		var spende := String(riga[0]) == "aura" and prenota_aura > 0
+		Spina.barra(self, barra, float(riga[1]), riga[2], false, prenota() if spende else 0.0, true)
 		var numero := String(riga[4])
-		var spazio_numero := 84.0 if numero != "" else 0.0
-		var barra := Rect2(Vector2(x0 + icona + 8.0, y), Vector2(x1 - (x0 + icona + 8.0) - spazio_numero, alta))
-		var prenota := 0.0
-		if String(riga[0]) == "aura" and prenota_aura > 0:
-			prenota = float(prenota_aura) / maxf(float(dati.get("aura_max", 1)), 1.0)
-		Spina.barra(self, barra, float(riga[1]), riga[2], false, prenota, true)
 		if numero != "":
-			var largo := Spina.scritta(self, font, Vector2(x1, y + alta * 0.5 + 8.0), numero, int(lerpf(17.0, 20.0, attiva)),
+			Spina.scritta(self, font, Vector2(x1, barra.get_center().y + 8.0), numero, int(lerpf(17.0, 20.0, attiva)),
 					Stile.colore("bordo"), HORIZONTAL_ALIGNMENT_RIGHT)
-			if String(riga[0]) == "aura" and prenota_aura > 0:
-				# quanto ti costa, in rosso accanto a quanto hai
-				Spina.etichetta(self, Vector2(x1 - largo - 44.0, y + alta * 0.5 - 12.0), "-%d" % prenota_aura, 15,
-						Stile.colore("pericolo"), Stile.colore("testo"))
-		y += alta + lerpf(9.0, 12.0, attiva)
+		if spende:
+			Spina.etichetta(self, cartellino(barra, float(riga[1])).position, "-%d" % prenota_aura, CORPO_COSTO,
+					Stile.colore("pericolo"), Stile.colore("testo"))
+
+
+func cartellino(barra: Rect2, quota: float) -> Rect2:
+	# QUANTO TI COSTA, in rosso SUL pezzo a righe che se ne andrebbe: accanto al
+	# numero toccava la fine della barra, e diceva la stessa cosa due volte
+	var testo := "-%d" % prenota_aura
+	var largo := Caratteri.titolo().get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, CORPO_COSTO).x + CORPO_COSTO
+	var alto := CORPO_COSTO * 1.3
+	var mezzo := barra.position.x + barra.size.x * (quota - minf(prenota(), quota) * 0.5)
+	return Rect2(Vector2(mezzo - largo * 0.5, barra.get_center().y - alto * 0.5), Vector2(largo, alto))
 
 
 func disegna_status() -> void:
@@ -141,15 +165,3 @@ func disegna_status() -> void:
 		draw_circle(r.get_center(), lato * 0.5 + 2.0, Stile.colore("bordo"), true, -1.0, true)
 		IconeStato.disegna(self, String(stato), r)
 		x -= lato + 6.0
-
-
-func disegna_sotto() -> void:
-	# il fondale scuro dell'ECG (la linea e' TracciatoEcg, il vero), e il morale e
-	# lo stress di chi decide accanto
-	var casa := casa_ecg()
-	Manifesto.rettangolo(self, casa.grow(3.0), Stile.colore("bordo"))
-	Manifesto.rettangolo(self, casa, Stile.colore("ecg_fondo"))
-	var font := Caratteri.titolo()
-	var x := casa.end.x + 14.0
-	Spina.scritta(self, font, Vector2(x, casa.position.y + 17.0), "MORALE %d" % int(dati.get("morale", 0)), 17, Stile.colore("bordo"))
-	Spina.scritta(self, font, Vector2(x, casa.position.y + 39.0), "STRESS %d" % int(dati.get("stress", 0)), 17, Stile.colore("bordo"))

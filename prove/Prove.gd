@@ -10254,6 +10254,10 @@ func prova_la_raffica_ha_un_riquadro_suo() -> void:
 				"il pugno %d, gonfio, esce dal riquadro" % int(pugno.indice))
 	esigi(sovrapposti(gioco.raffica, riquadro.piano.size) == "",
 			"nel quadrante del gioco %s" % sovrapposti(gioco.raffica, riquadro.piano.size))
+	# e nel quadrante del gioco il pugno e' grande quanto e' sempre stato: la
+	# regola dei piani grandi (Collisioni.lato_pugno) non deve toccarlo
+	esigi(is_equal_approx(riquadro.raggio(), minf(riquadro.piano.size.x, riquadro.piano.size.y) * Collisioni.LATO_PUGNO * 0.5),
+			"nel quadrante del gioco il pugno non e' piu' quello di sempre: %.1f pixel di raggio" % riquadro.raggio())
 
 	# --- E SI VEDE: il pugno sul fondo del riquadro, e la testata ---
 	var fondo: Color = Stile.colore("ecg_fondo")
@@ -11785,8 +11789,14 @@ func prova_collisioni() -> void:
 	# gioco e in quelli delle prove; e da cinque a sedici pugni, che e' quanti ce
 	# ne stanno nel quadrante. Si misura in pixel, coi centri dove li mette
 	# centro_di
+	# E NEI PIANI PIU' QUADRATI, e alti: nella proposta di schermata la raffica
+	# gioca sullo schermo della creatura (654x358), e coi pugni misurati sul
+	# lato corto erano grandi il doppio e si sovrapponevano - Bru: «la
+	# distribuzione dei pugni e' troppo appiccicata». Li' il pugno e' quello
+	# che ci sta; nel quadrante del gioco resta LATO_PUGNO
 	var casi := {Vector2(710, 190): [5, 12, 16], Vector2(1155, 175): [5, 12, 16],
-			Vector2(700, 240): [5, 12], Vector2(900, 300): [5, 12]}
+			Vector2(700, 240): [5, 12], Vector2(900, 300): [5, 12],
+			Vector2(654, 358): [5, 12, 16], Vector2(500, 500): [5, 12, 16], Vector2(360, 560): [5, 12]}
 	for misura: Vector2 in casi:
 		for quanti: int in casi[misura]:
 			for seme in 6:
@@ -11795,10 +11805,26 @@ func prova_collisioni() -> void:
 				var posti := Collisioni.calendario(quanti, d, misura.x / misura.y)
 				esigi(sovrapposti(posti, misura) == "",
 						"in un pannello %dx%d con %d pugni %s" % [int(misura.x), int(misura.y), quanti, sovrapposti(posti, misura)])
+	# nel quadrante del gioco il pugno non cambia: e' quello di sempre
+	esigi(is_equal_approx(Collisioni.lato_pugno(12, 710.0 / 190.0), Collisioni.LATO_PUGNO),
+			"nel quadrante del gioco il pugno si e' rimpicciolito: e' cambiata la difficolta'")
+	# e dove rimpicciolisce resta un bersaglio: mai sotto un decimo del lato corto
+	esigi(Collisioni.lato_pugno(12, 654.0 / 358.0) >= 0.18 and Collisioni.lato_pugno(16, 1.0) >= 0.1,
+			"in un piano quadrato il pugno diventa un puntino: %.2f" % Collisioni.lato_pugno(12, 654.0 / 358.0))
+	# RADI COME QUELLI APPROVATI: in nessun piano dodici pugni coprono piu' di un
+	# terzo del piano (la raffica di Veronica nel quadrante del gioco)
+	for proporzione: float in [710.0 / 190.0, 654.0 / 358.0, 1.0, 360.0 / 560.0, 6.6]:
+		var corto := minf(proporzione, 1.0)
+		var coperto := 12.0 * PI * pow(Collisioni.lato_pugno(12, proporzione) * 0.5, 2.0) / (proporzione / corto / corto)
+		esigi(coperto <= Collisioni.COPERTURA + 0.005,
+				"in un piano largo %.2f volte l'alto dodici pugni ne coprono il %d%%: sono appiccicati" % [proporzione, int(coperto * 100.0)])
 
-func sovrapposti(raffica: Array[Dictionary], misura: Vector2) -> String:
-	# "" se nessun pugno ne tocca un altro e tutti stanno dentro, se no il primo guaio
-	var raggio := minf(misura.x, misura.y) * Collisioni.LATO_PUGNO * 0.5
+func sovrapposti(raffica: Array[Dictionary], misura: Vector2, disegnato := -1.0) -> String:
+	# "" se nessun pugno ne tocca un altro e tutti stanno dentro, se no il primo
+	# guaio. "disegnato": il raggio che un riquadro usa davvero, se non e' quello
+	# della regola
+	var raggio := disegnato if disegnato > 0.0 else \
+			minf(misura.x, misura.y) * Collisioni.lato_pugno(raffica.size(), misura.x / misura.y) * 0.5
 	var bordo := raggio * Collisioni.INGOMBRO
 	var centri: Array[Vector2] = []
 	for pugno in raffica:
@@ -22561,6 +22587,15 @@ func prova_la_proposta_di_schermata() -> void:
 	var visti := {}
 	var storti := 0
 	var sopra := 0
+	var ecg_nascosti := 0
+	var fuori_foglio := 0
+	var costi_visti := 0
+	var costi_storti := 0
+	var pugni := ""
+	# TRE PERSONAGGI: la squadra e' di tre, nessun posto vuoto. Bru: «ci
+	# dovrebbero essere 3 personaggi»
+	esigi(proposta.schede.size() == 3 and proposta.schede.all(func(scheda: Control) -> bool: return not scheda.libero),
+			"nella proposta la squadra non e' di tre")
 	var mestieri := []
 	while proposta.tempo < proposta.FINE:
 		proposta.passo(1.0 / 30.0)
@@ -22589,6 +22624,45 @@ func prova_la_proposta_di_schermata() -> void:
 				sopra += 0 if Geometry2D.intersect_polygons(cartellone, pezzi[i]).is_empty() else 1
 				for j in range(i + 1, pezzi.size()):
 					sopra += 0 if Geometry2D.intersect_polygons(pezzi[i], pezzi[j]).is_empty() else 1
+		# L'ECG SI VEDE: quando si sceglie, il monitor di chi decide e' grande e
+		# sopra il programma. Bru: «non si vede l'ecg» (era una striscia di trenta pixel)
+		if proposta.programma.su > 0.99 and proposta.tempo > 1.5:
+			var linea: Control = proposta.ecg
+			var dove_ecg := Rect2(linea.position, linea.size)
+			if not linea.visible or dove_ecg.size.x < 380.0 or dove_ecg.size.y < 50.0 \
+					or not Geometry2D.is_point_in_polygon(dove_ecg.get_center(), Spina.sbieco(proposta.programma.dove)) \
+					or linea.get_index() < proposta.programma.get_index():
+				ecg_nascosti += 1
+		# LE BARRE STANNO NEL FOGLIO: le tre barre e le loro icone dentro ogni
+		# scheda, anche a riposo (la corona finiva sul bordo); e il costo rosso
+		# sta sul pezzo che si spende, non sopra il numero dell'aura
+		for scheda in proposta.schede:
+			var foglio: Rect2 = scheda.dove
+			for posto: Array in scheda.barre():
+				var barra: Rect2 = posto[1]
+				var fondo := barra.get_center().y + float(scheda.icona(barra.size.y)) * 0.5
+				if barra.end.y > foglio.end.y - 4.0 or fondo > foglio.end.y - 2.0 or barra.end.x > foglio.end.x - 15.5:
+					fuori_foglio += 1
+				if String(posto[0][0]) == "aura" and int(scheda.prenota_aura) > 0:
+					var costo: Rect2 = scheda.cartellino(barra, float(posto[0][1]))
+					costi_visti += 1
+					if costo.position.x < barra.position.x or costo.end.x > barra.end.x:
+						costi_storti += 1
+		# I PUGNI RADI NEL VETRO GRANDE, misurati col raggio che il riquadro
+		# disegna davvero: nessuno ne tocca un altro, e coprono un terzo del
+		# piano come nel quadrante di sempre. Bru: «la distribuzione dei pugni e'
+		# troppo appiccicata»
+		if proposta.gioco.attivo and proposta.gioco.riquadro != null and pugni == "":
+			var riquadro: RiquadroRaffica = proposta.gioco.riquadro
+			var misura: Vector2 = riquadro.piano.size
+			var raggio := riquadro.raggio()
+			var raffica: Array[Dictionary] = proposta.gioco.raffica
+			var coperto := float(raffica.size()) * PI * raggio * raggio / maxf(misura.x * misura.y, 1.0)
+			pugni = sovrapposti(raffica, misura, raggio)
+			if pugni == "" and coperto > Collisioni.COPERTURA + 0.01:
+				pugni = "%d pugni coprono il %d%% del piano" % [raffica.size(), int(coperto * 100.0)]
+			if pugni == "":
+				pugni = "radi"
 		if not visti.has(momento):
 			visti[momento] = proposta.tempo
 		if proposta.tempo > float(visti[momento]) + 0.8 and not mestieri.has(momento):
@@ -22607,6 +22681,12 @@ func prova_la_proposta_di_schermata() -> void:
 					esigi(proposta.attivo == 1, "a Veronica non tocca mai")
 	esigi(storti == 0, "%d volte una scheda non stava sulla diagonale" % storti)
 	esigi(sopra == 0, "%d volte due pezzi della proposta stavano uno sopra l'altro" % sopra)
+	esigi(ecg_nascosti == 0, "%d volte, mentre si sceglieva, l'ECG era piccolo, spento o coperto" % ecg_nascosti)
+	esigi(pugni == "radi", "nel vetro della proposta i pugni stanno appiccicati: %s"
+			% ("la raffica non e' mai partita" if pugni == "" else pugni))
+	esigi(fuori_foglio == 0, "%d volte una barra o la sua icona usciva dal foglio della scheda" % fuori_foglio)
+	esigi(costi_visti > 0 and costi_storti == 0,
+			"il costo rosso dell'aura non sta sul pezzo che si spende (%d su %d fuori; 0 visti = mai mostrato)" % [costi_storti, costi_visti])
 	esigi(mestieri.size() >= 8, "il film ha mostrato solo %d momenti: %s" % [mestieri.size(), mestieri])
 	esigi(not proposta.gioco.attivo and proposta.gioco.suonate == 1,
 			"il film finisce con la raffica ancora aperta, o senza averla giocata")

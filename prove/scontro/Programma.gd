@@ -10,6 +10,12 @@ extends Control
 # aura e i suoi comandi sono una colonna sola, e l'occhio scende invece di
 # attraversare lo schermo a zig-zag.
 #
+# In cima, IL CUORE DI CHI DECIDE: il suo ECG come un monitor, largo quanto il
+# pannello, col morale e lo stress letti sotto la linea. Stava dentro la
+# scheda, una striscia di trenta pixel, e Bru: «non si vede l'ecg». Qui e'
+# grande come quello del quadrante di oggi (piu' largo, appena piu' basso), ed
+# e' sempre sotto la scheda di chi ha il turno, sopra i suoi comandi.
+#
 # Comandi: le cinque voci a sinistra, e a destra due righe su quella che stai
 # guardando - un nuovo giocatore non sa cos'e' SKILL. Liste: due colonne, col
 # costo di ogni mossa nel segno dell'aura (e sulla scheda il pezzo di barra
@@ -35,6 +41,12 @@ var spenti: Array[String] = ["OGGETTI"]
 var mattanza := 0.0         # 0..1: quanto e' accesa
 var bond := 0.0
 var su := 1.0               # 0: sceso fuori dallo schermo (non tocca a nessuno della squadra)
+var morale := 0
+var stress := 0
+const ALTO_ECG := 64.0      # dove corre la linea
+const LETTURE := 22.0       # la riga delle letture, sotto la linea, nello stesso monitor
+const SOTTO_ECG := 110.0    # dove cominciano i comandi, sotto il monitor
+const CALA := 340.0         # quanto scende per andarsene: tutto fuori dallo schermo, anche partendo da 400
 
 
 func _init() -> void:
@@ -45,15 +57,43 @@ func _init() -> void:
 func _draw() -> void:
 	if su <= 0.0 or dove.size.x <= 0.0:
 		return
-	var giu := Vector2(0, 260.0 * (1.0 - su) * (1.0 - su))
-	var r := Rect2(dove.position + giu, dove.size)
+	var r := Rect2(dove.position + calata(), dove.size)
 	Spina.carta(self, Spina.sbieco(r), Stile.colore("box_fondo"), 5.0)
+	disegna_monitor()
 	var sinistra := r.position.x + 26.0
 	if modo == "comandi":
 		disegna_comandi(r, sinistra)
 	else:
 		disegna_lista(r, sinistra)
 	disegna_tasti(r)
+
+
+func calata() -> Vector2:
+	return Vector2(0, CALA * (1.0 - su) * (1.0 - su))
+
+
+func casa_ecg() -> Rect2:
+	# il vetro del monitor, dove corre la linea (TracciatoEcg, messo li' da chi
+	# usa il programma); sotto, le letture
+	var x := dove.position.x + 22.0 - Spina.PENDENZA * 14.0
+	return Rect2(Vector2(x, dove.position.y + 14.0) + calata(), Vector2(dove.end.x - 22.0 - x, ALTO_ECG))
+
+
+func disegna_monitor() -> void:
+	# la linea per tutta la larghezza; sotto, nello stesso vetro scuro, le
+	# letture: chiare, come su un apparecchio
+	var casa := casa_ecg()
+	var tutto := Rect2(casa.position, Vector2(casa.size.x, casa.size.y + LETTURE))
+	Manifesto.rettangolo(self, tutto.grow(3.0), Stile.colore("bordo"))
+	Manifesto.rettangolo(self, tutto, Stile.colore("ecg_fondo"))
+	draw_line(Vector2(casa.position.x + 8.0, casa.end.y), Vector2(casa.end.x - 8.0, casa.end.y), Stile.colore("pannello_chiaro"), 1.0)
+	var font := Caratteri.titolo()
+	var y := casa.end.y + LETTURE - 6.0
+	var x := casa.position.x + 10.0
+	x += Spina.scritta(self, font, Vector2(x, y), "MORALE ", 13, Stile.colore("testo_smorzato"))
+	x += Spina.scritta(self, font, Vector2(x, y), str(morale), 16, Stile.colore("testo")) + 22.0
+	x += Spina.scritta(self, font, Vector2(x, y), "STRESS ", 13, Stile.colore("testo_smorzato"))
+	Spina.scritta(self, font, Vector2(x, y), str(stress), 16, Stile.colore("ecg_giallo") if stress >= 50 else Stile.colore("testo"))
 
 
 func voce(dove_scritta: Vector2, testo: String, corpo: int, accesa: bool, spenta: bool) -> void:
@@ -71,16 +111,16 @@ func voce(dove_scritta: Vector2, testo: String, corpo: int, accesa: bool, spenta
 
 
 func disegna_comandi(r: Rect2, sinistra: float) -> void:
-	var passo := 31.0
+	var passo := 27.0
 	for i in COMANDI.size():
-		var y := r.position.y + 40.0 + passo * i
-		voce(Vector2(sinistra + 12.0 - Spina.PENDENZA * (y - r.position.y), y), COMANDI[i], 27, i == scelta,
+		var y := r.position.y + SOTTO_ECG + 24.0 + passo * i
+		voce(Vector2(sinistra + 12.0 - Spina.PENDENZA * (y - r.position.y), y), COMANDI[i], 24, i == scelta,
 				COMANDI[i] in spenti)
 	# DUE RIGHE SU QUELLO CHE STAI GUARDANDO, scritte col carattere del racconto
 	var testo := String(SPIEGA.get(COMANDI[clampi(scelta, 0, COMANDI.size() - 1)], ""))
-	var x := r.position.x + 230.0
-	Spina.etichetta(self, Vector2(x, r.position.y + 16.0), "COSA FA", 13, Stile.colore("bordo"), Stile.colore("box_fondo"))
-	a_capo(Vector2(x, r.position.y + 62.0), r.end.x - 22.0 - x, testo, 18)
+	var x := r.position.x + 214.0
+	Spina.etichetta(self, Vector2(x, r.position.y + SOTTO_ECG + 4.0), "COSA FA", 13, Stile.colore("bordo"), Stile.colore("box_fondo"))
+	a_capo(Vector2(x, r.position.y + SOTTO_ECG + 46.0), r.end.x - 22.0 - x, testo, 17)
 
 
 func a_capo(da: Vector2, largo: float, testo: String, corpo: int) -> void:
@@ -104,10 +144,10 @@ func disegna_lista(r: Rect2, sinistra: float) -> void:
 	var font := Caratteri.voci_strette()
 	for i in lista.size():
 		var c := floori(float(i) / float(righe))
-		var y := r.position.y + 38.0 + 32.0 * (i % righe)
+		var y := r.position.y + SOTTO_ECG + 22.0 + 29.0 * (i % righe)
 		var x := sinistra + 12.0 + c * colonna - Spina.PENDENZA * (y - r.position.y)
 		var mossa: Array = lista[i]
-		voce(Vector2(x, y), String(mossa[0]), 22, i == scelta, false)
+		voce(Vector2(x, y), String(mossa[0]), 20, i == scelta, false)
 		var costo := int(mossa[1])
 		if costo >= 0:
 			# IL COSTO NEL SEGNO DELL'AURA, a destra della voce: si legge senza
@@ -122,11 +162,11 @@ func disegna_lista(r: Rect2, sinistra: float) -> void:
 
 func disegna_tasti(r: Rect2) -> void:
 	# MATTANZA E BOND, sempre al loro posto in fondo al programma
-	var y := r.end.y - 58.0
-	var x := r.position.x + 22.0 - Spina.PENDENZA * (r.size.y - 58.0)
+	var y := r.end.y - 50.0
+	var x := r.position.x + 22.0 - Spina.PENDENZA * (r.size.y - 50.0)
 	for tasto: Array in [["MATTANZA", mattanza, Stile.colore("mattanza")], ["BOND", bond, Stile.colore("bond")]]:
-		var largo := 168.0
-		var pillola := Rect2(Vector2(x, y), Vector2(largo, 42.0))
+		var largo := 160.0
+		var pillola := Rect2(Vector2(x, y), Vector2(largo, 36.0))
 		var stile := Manifesto.stile_pillola(Stile.colore("bordo"))
 		draw_style_box(stile, pillola)
 		var acceso := float(tasto[1])
@@ -136,8 +176,8 @@ func disegna_tasti(r: Rect2) -> void:
 			alone.shadow_color = Color(tasto[2], 0.55 * acceso)
 			alone.shadow_size = int(10.0 * acceso)
 			draw_style_box(alone, pillola)
-		Spina.scritta(self, Caratteri.titolo(), pillola.get_center() + Vector2(0, 8), String(tasto[0]), 21, tinta,
+		Spina.scritta(self, Caratteri.titolo(), pillola.get_center() + Vector2(0, 7), String(tasto[0]), 19, tinta,
 				HORIZONTAL_ALIGNMENT_CENTER)
-		x += largo + 14.0
-	Spina.scritta(self, Caratteri.dialoghi(), Vector2(r.end.x - 22.0, y + 27.0), "INVIO sceglie", 14,
+		x += largo + 12.0
+	Spina.scritta(self, Caratteri.dialoghi(), Vector2(r.end.x - 22.0, y + 23.0), "INVIO sceglie", 14,
 			Stile.colore("tratto"), HORIZONTAL_ALIGNMENT_RIGHT)

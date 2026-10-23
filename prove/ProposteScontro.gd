@@ -51,8 +51,9 @@ const FINE := 38.0
 # gli scatti: il momento e l'istante in cui fotografarlo
 const SCATTI := {"comandi": 4.4, "lista": 6.9, "studio": 10.6, "scoperta": 13.0, "racconto": 16.4, "minigioco": 23.2,
 		"veronica": 35.8}
-const PARATE := [0, 1, 2, 4, 5, 7, 8, 10]   # la mano del film, come in ProposteVita
-const REAZIONE := 0.42
+const PARATE := [0, 1, 2, 4, 5, 7, 8, 10]
+const ALTO_PROGRAMMA := 400.0   # sotto le tre schede: 78 + 118 + 84 + 84, e gli stacchi
+const REAZIONE := 0.42          # la mano del film, come in ProposteVita
 const SKILL := [["Studia", -1, "scopri"], ["Sovraccarico", 5, ""], ["Onda psichica", 3, ""], ["Concentrazione", 1, ""],
 		["Spezza spazio", 0, ""], ["Mattanza", -1, "tutta la barra"], ["Indietro", -1, ""]]
 
@@ -81,11 +82,16 @@ var in_posa := false
 func _ready() -> void:
 	GameState.nuova_partita()
 	Manifesto.trama_dietro(self, "sfondo_combattimento")
+	# LA SQUADRA E' DI TRE: il protagonista, Veronica e Yhvina, coi punti vita
+	# veri (data/classes.json: anonimo 100, brawler 160, insonne 130). Bru: «ci
+	# dovrebbero essere 3 personaggi»
 	squadra = [
 		{"nome": "Tu", "iniziale": "A", "tu": true, "hp": 100, "hp_max": 100, "aura": 10, "aura_max": 10,
 				"dominio": 0.35, "stati": [], "morale": 20, "stress": 0},
-		{"nome": "Veronica", "iniziale": "V", "hp": 600, "hp_max": 600, "aura": 12, "aura_max": 12,
-				"dominio": 0.55, "stati": ["rapidita"], "morale": 20, "stress": 12},
+		{"nome": "Veronica", "iniziale": "V", "hp": 160, "hp_max": 160, "aura": 10, "aura_max": 10,
+				"dominio": 0.55, "stati": ["rapidita"], "morale": 20, "stress": 34},
+		{"nome": "Yhvina", "iniziale": "Y", "hp": 130, "hp_max": 130, "aura": 10, "aura_max": 10,
+				"dominio": 0.2, "stati": [], "morale": 20, "stress": 61},
 	]
 	cartellone = Cartellone.new()
 	add_child(cartellone)
@@ -105,13 +111,17 @@ func _ready() -> void:
 			scheda.libero = true
 		add_child(scheda)
 		schede.append(scheda)
+	programma = Programma.new()
+	add_child(programma)
+	# l'ECG sopra il programma: e' la linea del suo monitor
 	ecg = TracciatoEcg.new()
 	ecg.dado.seed = 20261023
 	add_child(ecg)
-	programma = Programma.new()
-	add_child(programma)
 	fila = FilaGiro.new()
-	fila.ordine = [["A", false], ["M", true], ["V", false]]
+	# l'ordine del giro, per velocita': Yhvina (5), tu (3), la marionetta, Veronica (2).
+	# Il film comincia quando Yhvina ha gia' agito
+	fila.ordine = [["Y", false], ["A", false], ["M", true], ["V", false]]
+	fila.adesso = 1.0
 	add_child(fila)
 	sopra = Control.new()
 	sopra.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -260,7 +270,7 @@ func passa_il_minigioco(delta: float) -> void:
 	for i in gioco.raffica.size():
 		if String(gioco.raffica[i].esito) == "preso" and not presi_visti.has(i):
 			presi_visti[i] = true
-			var chi := i % 2
+			var chi := i % 3
 			squadra[chi].hp = maxi(int(squadra[chi].hp) - 9, 0)
 			schede[chi].colpo = 1.0
 			scossa = 1.0
@@ -292,8 +302,8 @@ func anima(delta: float) -> void:
 	racconto.su = avvicina(racconto.su, 1.0 if parla else 0.0, delta, 12.0)
 	racconto.da += delta
 	fascia.giu = avvicina(fascia.giu, 1.0 if parla else 0.0, delta, 12.0)
-	fila.adesso = avvicina(fila.adesso, {"tocca_alla_creatura": 1.0, "parla_la_creatura": 1.0, "minigioco": 1.0,
-			"tocca_a_veronica": 2.0, "fine": 2.0}.get(momento, 0.0), delta, 8.0)
+	fila.adesso = avvicina(fila.adesso, {"tocca_alla_creatura": 2.0, "parla_la_creatura": 2.0, "minigioco": 2.0,
+			"tocca_a_veronica": 3.0, "fine": 3.0}.get(momento, 1.0), delta, 8.0)
 	# il programma c'e' quando qualcuno della squadra sta scegliendo; scelto, si
 	# ritira mentre la mossa si compie
 	var squadra_agisce := attivo >= 0 and momento in ["comandi", "lista", "tocca_a_veronica", "fine"]
@@ -304,30 +314,32 @@ func anima(delta: float) -> void:
 
 func disponi_destra(delta: float, e: float) -> void:
 	# LE SCHEDE SULLA SPINA: una sotto l'altra, il lato sinistro sulla diagonale.
-	# Chi ha il turno e' alta 196 e fa un passo avanti verso la creatura; le
-	# altre 92; il posto libero 52. Il totale non cambia col turno: il programma
-	# sotto non si muove mai
-	var y := 80.0
+	# Chi ha il turno e' alta 118 e fa un passo avanti verso la creatura; le
+	# altre 84 (un posto libero 52). Il totale non cambia col turno: il
+	# programma sotto non si muove mai
+	var y := 78.0
 	for i in schede.size():
 		var scheda: Scheda = schede[i]
 		scheda.attiva = avvicina(scheda.attiva, 1.0 if i == attivo else 0.0, delta, 9.0)
 		scheda.colpo = maxf(scheda.colpo - delta * 2.5, 0.0)
-		var alta := 52.0 if scheda.libero else lerpf(92.0, 196.0, scheda.attiva)
+		var alta := 52.0 if scheda.libero else lerpf(84.0, 118.0, scheda.attiva)
 		var avanti := 22.0 * scheda.attiva
 		var x := Spina.diagonale(y, Spina.GOLA) - avanti
 		var trema := Vector2(sin(tempo * 80.0 + i), 0.0) * 7.0 * scheda.colpo * scheda.colpo
 		scheda.dove = Rect2(Vector2(x + 520.0 * (1.0 - e) * (1.0 + 0.3 * i), y) + trema, Vector2(1256.0 - x + avanti, alta))
-		y += alta + 14.0
+		y += alta + 12.0
 	var basso := 704.0
-	var alto := 466.0
+	var alto := ALTO_PROGRAMMA
 	programma.dove = Rect2(Vector2(Spina.diagonale(alto, Spina.GOLA), alto), Vector2(1256.0 - Spina.diagonale(alto, Spina.GOLA), basso - alto))
-	# L'ECG DI CHI DECIDE, nella sua scheda
-	if attivo >= 0 and (schede[attivo] as Scheda).attiva > 0.6:
-		var casa: Rect2 = (schede[attivo] as Scheda).casa_ecg()
-		ecg.position = casa.position + Vector2(6, 4)
-		ecg.size = casa.size - Vector2(12, 8)
+	# L'ECG DI CHI DECIDE, nel monitor in cima ai suoi comandi
+	if attivo >= 0 and programma.su > 0.3:
+		var casa: Rect2 = programma.casa_ecg()
+		ecg.position = casa.position + Vector2(6, 6)
+		ecg.size = casa.size - Vector2(12, 12)
 		ecg.visible = true
 		var dati: Dictionary = squadra[attivo]
+		programma.morale = int(dati.morale)
+		programma.stress = int(dati.stress)
 		ecg.imposta(float(dati.hp) / float(dati.hp_max), int(dati.stress))
 	else:
 		ecg.visible = false
