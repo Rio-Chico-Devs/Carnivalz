@@ -53,6 +53,7 @@ var da_muovere: Array[Dictionary] = []   # chi deve ancora agire in questo giro,
 var di_turno: Dictionary = {}            # chi ha il turno adesso; vuoto = nessuno
 var precedenza := ""                     # chi apre il primo giro: "nemici", "squadra", o la velocita'
 var fermi: Array[Dictionary] = []        # chi in questo giro non ce la fa a muoversi (e' lento)
+var ordine_giro: Array[Dictionary] = []  # tutto il giro com'era all'inizio: la fila a schermo (Plancia)
 
 func _init(nodo_scontro: Combattimento) -> void:
 	scontro = nodo_scontro
@@ -79,6 +80,9 @@ func prossimo() -> Dictionary:
 			var chi: Dictionary = da_muovere.pop_front()
 			if in_gioco(chi):
 				di_turno = chi
+				if scontro.plancia != null:
+					# la fila del giro a schermo: chi tocca, chi ha gia' agito
+					scontro.plancia.mostra_fila(ordine_giro, chi, giro)
 				return chi
 		nuovo_giro()
 	return {}
@@ -94,6 +98,7 @@ func nuovo_giro() -> void:
 		else:
 			fermi.append(combattente)
 			di_la_lentezza(combattente)
+	ordine_giro = da_muovere.duplicate()
 
 func di_la_lentezza(combattente: Dictionary) -> void:
 	# LA PRIMA VOLTA CHE SALTA UN GIRO, SI DICE. Un nemico che non attacca senza

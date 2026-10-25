@@ -1,62 +1,63 @@
 class_name SlotCompagno
 extends Control
 
-# UNO DEI TRE SLOT DELLA SQUADRA, come sta nel disegno di Bru.
+# LA SCHEDA DI UNO DELLA SQUADRA, come nella proposta che Bru ha approvato
+# (docs/scontro_proposta.md).
 #
-#   ┌─────────┐
-#   │ ritratto│   quadrato, bordo nero spesso
-#   └─────────┘
-#    HP   ▬▬▬▬    arancio ambra
-#    AURA ▬▬▬▬    lilla chiaro
-#    ﹇    ▬▬▬▬    rossa, e la sua etichetta e' un ricciolo, non una parola
-#         ▪ ▪     gli status: «quei riquadri vicino alla vita sono gli status»
+#    ╱┌────┐ TOCCA A TE              ●
+#   ╱ │ A  │ ♥ ▬▬▬▬▬▬▬▬▬▬▬▬  100/100
+#  ╱  └────┘ 🜂 ▬▬▬▬▬▬▬▬▬▬▬▬   10/10
+#  ──────────♛ ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 #
-# LE ETICHETTE SONO DUE PAROLE E UN SEGNO. HP e AURA si scrivono; il dominio no,
-# perche' nel disegno di Bru quella riga porta un ricciolo rosso disegnato a
-# mano. Non e' un vezzo: le prime due sono risorse che spendi e hanno un nome
-# che conosci, la terza e' una cosa che si carica addosso e non ha bisogno di
-# essere letta - deve solo riempirsi sotto gli occhi.
+# PRIMA ogni compagno era un ritratto grande quanto una cartolina, nero finche'
+# non ci sono i disegni, e la sua vita una barra di otto pixel che galleggiava
+# nell'arancio li' sotto, con «HP» scritto a dieci pixel: il posto andava a
+# quello che non dice niente, e le cose che contano - quanta vita ti resta, se
+# ti basta l'aura - erano le piu' piccole della schermata.
 #
-# LA SECONDA BARRA DICE "AURA" E NON "HYPE". Nel disegno c'e' scritto HYPE, ma e'
-# piu' vecchio della decisione: «hp è hp, la seconda sarà aura non hype, la
-# terza sarà la barra dominio, e l'hype è l'xp come prima [...] e così è deciso
-# definitivamente». Le parole stanno in data/stile.json.
+# ADESSO la scheda e' un foglio di sbieco sulla diagonale (Spina.gd), col
+# ritratto piccolo e le barre lunghe e spesse DENTRO il foglio, ognuna col suo
+# segno - il palloncino, il fuoco fatuo, la corona: le icone delle statistiche -
+# e la vita sempre scritta. Sul foglio chiaro il pieno e' scuro: la vita nera,
+# l'aura ruggine, il dominio rosso, sul vuoto chiaro. Chi ha il turno fa un
+# passo avanti verso la creatura: la scheda si allarga, il ritratto esce dal
+# foglio inclinato, e al posto del nome c'e' «TOCCA A TE» (FasciaTurno). Il suo
+# ECG sta grande in cima ai comandi (Plancia.gd).
+#
+# Gli status ci sono sempre, piccoli, in un angolo: «se stanno bene ci stara
+# l'icona normale» (Bru).
+#
+# LA SECONDA BARRA E' L'AURA E NON L'HYPE: «hp è hp, la seconda sarà aura non
+# hype, la terza sarà la barra dominio [...] e così è deciso definitivamente».
 
+const IS := preload("res://scripts/crescita/IconeStatistiche.gd")
 const RIGHE := [
-	{"chiave": "hp", "testo": "HP", "colore": "barra_hp"},
-	{"chiave": "aura", "testo": "AURA", "colore": "barra_aura"},
-	{"chiave": "dominio", "testo": "", "colore": "barra_dominio"},
+	{"chiave": "hp", "icona": "hp", "colore": "bordo"},
+	{"chiave": "aura", "icona": "aura", "colore": "accento_su_carta"},
+	{"chiave": "dominio", "icona": "maestria_dominio", "colore": "barra_dominio"},
 ]
-const STATUS_VISIBILI := 3   # quanti riquadri di status stanno sotto le barre
+const STATUS_VISIBILI := 3   # quanti gettoni di status stanno nell'angolo
+const RUOTA_RITRATTO := -3.5 # gradi: il ritratto di chi ha il turno esce dal foglio inclinato
 
-# Le quote misurate sul disegno, in frazione dell'altezza dello slot (593px sul
-# foglio di Bru): le barre dal 415 al 500, gli status dal 528 in giu'.
-const QUOTA_BARRE_DA := 0.658
-const QUOTA_BARRE_A := 0.801
-const QUOTA_STATUS_DA := 0.848
+signal misura_cambiata   # la scheda cresce o cala col turno: chi la dispone la rimette in fila
 
-var cornice: Manifesto.Cabinato   # lo schermo dello slot: la cornice si accende a chi ha il turno
+var cornice: CorniceRitratto     # il bordo del ritratto: si accende a chi ha il turno
 var ritratto: Control
 var barre: Dictionary = {}       # chiave -> Control che si disegna
 var quote: Dictionary = {}       # chiave -> quanto si VEDE adesso, 0..1
 # LA VITA NON SALTA, SCENDE. Bru: «quando ricevi danno la linea che scende deve
 # essere animata, stessa cosa se si recupera hp».
 #
-# Prima imposta_barra scriveva il valore nuovo e ridisegnava: la barra si
-# teleportava. Non e' solo brutto - e' informazione persa, perche' QUANTO hai
-# perso non si vede da nessuna parte, si vede solo dove sei arrivato.
-#
-# Adesso ci sono tre valori per barra: dove si e' arrivati (mete), quanto si
-# vede in questo istante (quote, che insegue), e LA SCIA - quanto c'era prima,
-# che resta indietro e collassa dopo. La scia e' il pezzo che hai appena perso,
-# e si vede come un lampo chiaro dietro la barra: e' il modo standard di
-# raccontare un colpo senza scrivere niente.
+# Ci sono tre valori per barra: dove si e' arrivati (mete), quanto si vede in
+# questo istante (quote, che insegue), e LA SCIA - quanto c'era prima, che resta
+# indietro e collassa dopo. La scia e' il pezzo che hai appena perso: e' il
+# modo standard di raccontare un colpo senza scrivere niente.
 var mete: Dictionary = {}        # chiave -> dove deve arrivare
 var scie: Dictionary = {}        # chiave -> la coda che insegue, 0..1
 var tweens: Dictionary = {}      # chiave -> il tween in volo, da fermare
 var mai_impostate: Dictionary = {}   # chiave -> l'ha gia' ricevuta un valore vero?
 var numero_vita: Label           # quanti HP, in chiaro, sempre
-var etichette: Array[Control] = []
+var etichette: Array[Control] = []   # i segni delle tre barre
 var status: Array[Control] = []
 var simboli: Array[String] = []  # che status ha addosso, in ordine
 var id_dentro := ""              # chi ci sta, o "" se il posto e' libero
@@ -66,7 +67,25 @@ var chiave_faccia := ""          # quale condizione sta gia' mostrando
 var ricerche := 0                # quante volte ha DAVVERO cercato un disegno su disco
 var iniziale: Label              # il ripiego quando non c'e' nessun disegno
 var numero_aura: Label           # quanta aura ha, e si vede solo a chi tocca
+var nome: Label                  # il nome sull'etichetta nera, in alto
+var libero := false              # il posto di un compagno che non c'e'
 var tocca_a_lui := false
+var pendenza_px := 0.0           # di quanto rientra il lato sinistro per pixel d'altezza (lo mette la plancia)
+var scala := 1.0                 # quanto e' grande il foglio della schermata (lo mette la plancia)
+var attiva := 0.0:               # 0 a riposo, 1 col turno: si anima, e la plancia rimette in fila
+	set(valore):
+		attiva = valore
+		ridisponi()
+		misura_cambiata.emit()
+var passo_turno: Tween = null
+var aura_massima := 1
+var prenota_aura := 0:           # l'aura della mossa che stai guardando nella lista (Plancia.prenota_per)
+	set(valore):
+		if valore == prenota_aura:
+			return
+		prenota_aura = valore
+		if barre.has("aura"):
+			(barre["aura"] as Control).queue_redraw()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -75,54 +94,40 @@ func _ready() -> void:
 	ridisponi()
 
 func costruisci() -> void:
-	# LO SLOT E' UNO SCHERMO DEL CABINATO (Manifesto): la cornice chiara e' di
-	# chi ha il turno, quella degli altri e' nera
 	ritratto = Control.new()
 	ritratto.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(ritratto)
-	cornice = Manifesto.cabinato(self, ritratto, "bordo")
-	var fondo_faccia := ColorRect.new()
-	fondo_faccia.color = Stile.colore("quadro_vuoto")
-	fondo_faccia.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	fondo_faccia.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ritratto.add_child(fondo_faccia)
+	cornice = CorniceRitratto.new()
+	cornice.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ritratto.add_child(cornice)
 	faccia = TextureRect.new()
 	faccia.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	faccia.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	faccia.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	faccia.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ritratto.add_child(faccia)
 	iniziale = Label.new()
 	iniziale.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	iniziale.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	iniziale.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	iniziale.add_theme_color_override("font_color", Stile.colore("testo_smorzato"))
+	iniziale.add_theme_color_override("font_color", Stile.colore("tratto"))
 	iniziale.add_theme_font_override("font", Caratteri.titolo())
 	iniziale.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ritratto.add_child(iniziale)
+	nome = Label.new()
+	nome.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	nome.uppercase = true
+	add_child(nome)
 	for riga in RIGHE:
-		# UNA PAROLA, O UN SEGNO. HP e AURA si scrivono; il dominio no - nel
-		# disegno quella riga porta un ricciolo rosso disegnato a mano, e un
-		# ricciolo non e' una Label.
-		var etichetta: Control
-		if String(riga.testo) == "":
-			etichetta = Control.new()
-			etichetta.draw.connect(func() -> void:
-				IconeStato.ricciolo(etichetta, Rect2(Vector2.ZERO, etichetta.size),
-						Stile.colore("barra_dominio")))
-		else:
-			var scritta := Label.new()
-			scritta.text = String(riga.testo)
-			# NERE SUL FONDO, come nel disegno. Erano bianche - il colore del
-			# testo della schermata di dialogo, che ha il fondo nero - e sulla
-			# pagina chiara sparivano del tutto: le barre c'erano e nessuno
-			# sapeva quale fosse quale.
-			scritta.add_theme_color_override("font_color", Stile.colore("box_testo"))
-			scritta.add_theme_font_override("font", Caratteri.titolo())
-			etichetta = scritta
-		etichetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(etichetta)
-		etichette.append(etichetta)
+		# UN SEGNO PER BARRA, non una parola: «HP» e «AURA» a dieci pixel non li
+		# leggeva nessuno, e le icone delle statistiche sono quelle che Bru ha
+		# visto nella crescita
+		var segno := Control.new()
+		segno.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var chiave_icona := String(riga.icona)
+		segno.draw.connect(func() -> void:
+			IS.disegna(segno, chiave_icona, segno.size * 0.5, minf(segno.size.x, segno.size.y),
+					Stile.colore("bordo"), colore_carta()))
+		add_child(segno)
+		etichette.append(segno)
 		var barra := barra_colorata(String(riga.chiave), String(riga.colore))
 		add_child(barra)
 		barre[String(riga.chiave)] = barra
@@ -133,9 +138,6 @@ func costruisci() -> void:
 	# stai. Per l'aura no - una mossa costa CINQUE, e una barra a meta' non ti
 	# dice se cinque ce li hai. E' l'unica delle tre che serve contare, perche'
 	# e' l'unica che si spende a prezzo fisso.
-	#
-	# Su chi ha il turno e basta: tre numeri sarebbero tre cose da leggere quando
-	# ne serve una.
 	numero_aura = Label.new()
 	numero_aura.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	numero_aura.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -155,34 +157,33 @@ func costruisci() -> void:
 		status.append(tassello)
 
 func vesti_numero(etichetta: Label) -> void:
-	# UN NUMERO SOPRA UNA BARRA CHE CAMBIA COLORE HA UN PROBLEMA SOLO: il fondo.
-	# Sulla parte piena e' arancione, su quella vuota e' quasi nero, e un colore
-	# fisso e' illeggibile su uno dei due - visto in uno scatto, "568/600" si
-	# leggeva a meta'. Il contorno risolve senza dover scegliere: chiaro dentro,
-	# scuro intorno, e si stacca da qualunque cosa ci sia sotto.
-	etichetta.add_theme_color_override("font_color", Color.WHITE)
-	Stile.contorno(etichetta, etichetta.get_theme_font_size("font_size"))
+	# NERO SUL FOGLIO CHIARO, accanto alla barra e non sopra: sopra una barra
+	# che cambia colore un numero fisso e' illeggibile su una delle due parti
+	etichetta.add_theme_color_override("font_color", Stile.colore("bordo"))
+	etichetta.add_theme_font_override("font", Caratteri.titolo())
+
+func colore_carta() -> Color:
+	# il foglio di chi ha il turno e' il chiaro del box, quello degli altri il
+	# grigio caldo dei pannelli
+	return Stile.colore("plancia_pannello").lerp(Stile.colore("box_fondo"), attiva)
 
 func barra_colorata(chiave: String, nome_colore: String) -> Control:
-	# Squadrata, in una cornice nera: il colore pieno dentro, il vuoto scuro.
-	# Coi bordi lisci (Manifesto.rettangolo): lo slot si inclina, e la barra con lui
 	var telaio := Control.new()
 	telaio.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	telaio.draw.connect(func() -> void:
 		var pieno := clampf(float(quote.get(chiave, 0.0)), 0.0, 1.0)
 		var coda := clampf(float(scie.get(chiave, pieno)), 0.0, 1.0)
-		Manifesto.rettangolo(telaio, Rect2(Vector2.ZERO, telaio.size), Stile.colore("bordo"))
-		var dentro := Rect2(Vector2.ZERO, telaio.size).grow(-minf(3.0, telaio.size.y * 0.2))
-		Manifesto.rettangolo(telaio, dentro, Stile.colore("barra_vuota"))
-		# LA SCIA STA SOTTO E SI VEDE SOLO SE SPORGE. Perdendo sporge a destra
-		# (quello che hai appena perso), curando sporge la barra e la scia e'
-		# gia' arrivata: in quel caso non si disegna niente in piu'
-		if coda > pieno:
-			Manifesto.rettangolo(telaio, Rect2(dentro.position + Vector2(dentro.size.x * pieno, 0.0),
-					Vector2(dentro.size.x * (coda - pieno), dentro.size.y)), Stile.colore("negativo"))
-		if pieno > 0.0:
-			Manifesto.rettangolo(telaio, Rect2(dentro.position, Vector2(dentro.size.x * pieno, dentro.size.y)),
-					Stile.colore(nome_colore)))
+		var prenota := float(prenota_aura) / maxf(float(aura_massima), 1.0) if chiave == "aura" else 0.0
+		var dove := Rect2(Vector2.ZERO, telaio.size)
+		SpinaPlancia.barra(telaio, dove, pieno, Stile.colore(nome_colore), coda, false, prenota)
+		if prenota > 0.0:
+			# QUANTO TI COSTA, in rosso sul pezzo a righe che se ne andrebbe
+			var testo := "-%d" % prenota_aura
+			var corpo := maxi(int(round(15.0 * scala)), 8)
+			var largo := Caratteri.titolo().get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x + corpo
+			var mezzo := dove.size.x * (pieno - minf(prenota, pieno) * 0.5)
+			Manifesto.etichetta_tinta(telaio, Vector2(mezzo - largo * 0.5, dove.size.y * 0.5 - corpo * 0.65), testo, corpo,
+					Stile.colore("pericolo"), Stile.colore("testo")))
 	return telaio
 
 func tassello_status(indice: int) -> Control:
@@ -204,6 +205,7 @@ func abita(id_personaggio: String) -> void:
 	# CHI CI STA DENTRO. Da qui in poi lo slot si disegna da solo: la faccia la
 	# sceglie la condizione, non chi chiama.
 	id_dentro = id_personaggio
+	libero = false
 	# CHI ARRIVA NON EREDITA IL MOVIMENTO DI CHI C'ERA PRIMA: se lo slot cambia
 	# inquilino, le barre del nuovo non devono animarsi dai valori del vecchio
 	mai_impostate.clear()
@@ -214,25 +216,41 @@ func abita(id_personaggio: String) -> void:
 	banda_adesso = ""
 	chiave_faccia = ""
 	visible = true
+	var scheda: Dictionary = GameState.personaggi.get(id_personaggio, {})
+	nome.text = String(scheda.get("nome_breve", scheda.get("nome", id_personaggio)))
+	if not GameState.party.is_empty() and id_personaggio == String(GameState.party[0]):
+		nome.text = "TU"
 	for riga in RIGHE:
 		(barre[String(riga.chiave)] as Control).visible = true
+	for segno in etichette:
+		segno.visible = true
+	nome.visible = true
+	numero_vita.visible = true
 	aggiorna_faccia(1.0, [])
+	ridisponi()
+	misura_cambiata.emit()
 
 func lascia_vuoto() -> void:
 	# «finché non hai compagni quei riquadri in più per i compagni avranno
-	# un'immagine che ti darò». Uno slot libero non sparisce: mostra il suo
-	# disegno e spegne barre e status, che non misurano nessuno.
+	# un'immagine che ti darò». Un posto libero non sparisce: e' una striscia
+	# bassa col suo disegno, e spegne barre e status, che non misurano nessuno.
 	id_dentro = ""
+	libero = true
 	banda_adesso = ""
 	chiave_faccia = ""
 	visible = true
 	for riga in RIGHE:
 		(barre[String(riga.chiave)] as Control).visible = false
-	for etichetta in etichette:
-		etichetta.visible = false
+	for segno in etichette:
+		segno.visible = false
 	for tassello in status:
 		tassello.visible = false
+	nome.visible = false
+	numero_vita.visible = false
+	numero_aura.visible = false
 	metti_disegno(RitrattiCombattimento.posto_vuoto(), "")
+	ridisponi()
+	misura_cambiata.emit()
 
 func aggiorna_faccia(quota_hp: float, stati: Array[String]) -> void:
 	# SI CERCA UN DISEGNO SOLO QUANDO CAMBIA LA CONDIZIONE.
@@ -256,7 +274,7 @@ func aggiorna_faccia(quota_hp: float, stati: Array[String]) -> void:
 	metti_disegno(RitrattiCombattimento.scegli(id_dentro, quota_hp, stati, prima,
 			String(scheda.get("ritratto", ""))), String(scheda.get("nome", id_dentro)))
 
-func metti_disegno(percorso: String, nome: String) -> void:
+func metti_disegno(percorso: String, chi: String) -> void:
 	if faccia == null:
 		return
 	if percorso != "" and ResourceLoader.exists(percorso):
@@ -269,44 +287,41 @@ func metti_disegno(percorso: String, nome: String) -> void:
 	# IL RIPIEGO DEVE VEDERSI: l'iniziale su fondo scuro, come nella schermata
 	# dei dialoghi. Finche' i disegni non ci sono, uno slot vuoto e uno slot con
 	# dentro qualcuno devono restare distinguibili.
-	iniziale.text = nome.left(1).to_upper() if nome != "" else ""
+	iniziale.text = chi.left(1).to_upper() if chi != "" else ""
 	iniziale.visible = true
 
 func imposta_turno(suo: bool) -> void:
-	# DI CHI E' IL TURNO SI VEDE ACCENDENDO LUI, non spegnendo gli altri.
-	#
-	# Prima gli slot di chi non toccava si sbiadivano. Sul fondo nero della
-	# vecchia schermata voleva dire "piu' scuro"; sul bianco di questa vuol dire
-	# "piu' pallido", e pallido si legge DISATTIVATO - come se quel compagno
-	# fosse fuori combattimento invece che semplicemente in attesa.
-	#
-	# Adesso tutti restano pieni e chi tocca porta la cornice accesa. E' anche
-	# la risposta a "di chi sono l'ECG, il morale e lo stress": di quello con la
-	# cornice accesa.
+	# DI CHI E' IL TURNO SI VEDE ACCENDENDO LUI, non spegnendo gli altri: sul
+	# chiaro, sbiadire si legge "fuori combattimento". Chi tocca fa un passo
+	# avanti verso la creatura e si allarga; la cornice del ritratto si accende;
+	# al posto del nome, «TOCCA A TE». E' anche la risposta a "di chi sono
+	# l'ECG, il morale e lo stress": di quello che ha fatto il passo.
 	if suo == tocca_a_lui:
 		return
 	tocca_a_lui = suo
 	cornice.color = Stile.colore("cornice_turno") if suo else Stile.colore("bordo")
 	if numero_aura != null:
 		numero_aura.visible = suo and id_dentro != ""
-	# E COL CORPO (FasciaTurno.gd): chi tocca si alza, e sotto il suo schermo
-	# una fascia dice di chi e' il turno
-	FasciaTurno.alza(self, suo)
+	if passo_turno != null and passo_turno.is_valid():
+		passo_turno.kill()
+	var verso := 1.0 if suo else 0.0
+	if Movimento.ridotto() or not is_inside_tree():
+		attiva = verso
+	else:
+		passo_turno = create_tween()
+		passo_turno.tween_property(self, "attiva", verso, Movimento.durata("entrata")) \
+				.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	if suo and id_dentro != "":
-		FasciaTurno.metti(self, FasciaTurno.testo_per(id_dentro), "bordo",
-				Vector2(cornice.position.x + 10.0, cornice.position.y + cornice.size.y - 14.0), cornice.size.x - 24.0)
+		FasciaTurno.metti(self, FasciaTurno.testo_per(id_dentro), "bordo", posto_del_nome(1.0), largo_del_nome(1.0))
+		nome.visible = false
 	else:
 		FasciaTurno.togli(self)
+		nome.visible = id_dentro != ""
 
 func mostra_aura(adesso: int, massimo: int) -> void:
-	# IL NUMERO SI SCRIVE SEMPRE, SI VEDE QUANDO TOCCA.
-	#
-	# Prima usciva subito se il numero non era ancora visibile, e l'ordine in cui
-	# arrivano le cose non e' garantito: se il valore passa PRIMA che il turno si
-	# accenda - e succede - la scritta restava vuota, il turno si accendeva su
-	# un'etichetta senza testo, e il numero non compariva affatto finche' non
-	# cambiava qualcos'altro. Chi decide se si vede e' imposta_turno; qui si
-	# tiene solo aggiornato quello che c'e' scritto.
+	# IL NUMERO SI SCRIVE SEMPRE, SI VEDE QUANDO TOCCA: se il valore passa PRIMA
+	# che il turno si accenda - e succede - la scritta non deve restare vuota
+	aura_massima = maxi(massimo, 1)
 	if numero_aura == null:
 		return
 	numero_aura.text = "%d/%d" % [adesso, maxi(massimo, 1)]
@@ -324,17 +339,14 @@ func imposta_barra(chiave: String, valore: float) -> void:
 	var barra: Control = barre[chiave]
 	# LA PRIMA VOLTA NON SI ANIMA. Non c'e' nessun "prima" da raccontare: senza
 	# questo, la barra del dominio parte piena (il valore di costruzione) e si
-	# svuota a vista a ogni inizio di scontro - misurato da una prova che
-	# chiedeva giustamente «a inizio scontro la barra e' gia' piena?»
+	# svuota a vista a ogni inizio di scontro
 	if not mai_impostate.has(chiave):
 		mai_impostate[chiave] = true
 		quote[chiave] = obiettivo
 		scie[chiave] = obiettivo
 		barra.queue_redraw()
 		return
-	# SENZA MOVIMENTO, SUBITO. Chi ha scelto "riduci il movimento" nelle opzioni
-	# non deve vedere niente muoversi: e' una delle voci di accessibilita' che
-	# le linee guida mettono fra quelle da offrire, non fra quelle carine
+	# SENZA MOVIMENTO, SUBITO: "riduci il movimento" nelle opzioni
 	if Impostazioni.movimento_ridotto or is_equal_approx(prima, obiettivo):
 		quote[chiave] = obiettivo
 		scie[chiave] = obiettivo
@@ -358,8 +370,7 @@ func imposta_barra(chiave: String, valore: float) -> void:
 				barra.queue_redraw(),
 				prima, obiettivo, CODA).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	else:
-		# CURANDO: la scia va AVANTI e la barra la raggiunge, cosi' il guadagno
-		# si legge come una luce che arriva invece che come un buco che si chiude
+		# CURANDO: la scia va AVANTI e la barra la raggiunge
 		scie[chiave] = obiettivo
 		barra.queue_redraw()
 
@@ -372,103 +383,146 @@ func mostra_vita(adesso: int, massimo: int) -> void:
 	numero_vita.text = "%d/%d" % [maxi(adesso, 0), maxi(massimo, 1)]
 
 func quanto(chiave: String) -> float:
-	# QUANTO E' PIENA: il valore VERO, non quello che si sta ancora disegnando.
-	# Da quando le barre si animano, "quote" e' dove e' arrivato il disegno in
-	# questo istante e "mete" e' dove deve arrivare: chi chiede quanto e' piena
-	# una barra vuole il secondo, sempre. Il primo e' un dettaglio del movimento
+	# QUANTO E' PIENA: il valore VERO, non quello che si sta ancora disegnando
 	return float(mete.get(chiave, quote.get(chiave, -1.0)))
 
 func imposta_status(elenco: Array[String]) -> void:
-	# UNO SOLO, quando sta bene. Nel disegno di Bru accanto a ogni personaggio
-	# c'e' UN riquadro: «se stanno bene ci stara l'icona normale altrimenti ho
-	# fatto esempi per in fiamme, maledetto e paralisi». Tre riquadri sempre
-	# accesi direbbero che ha tre cose addosso anche quando non ha niente.
-	#
-	# E SI RIMETTE IN RIGA SOLO SE CAMBIA QUANTI SONO. Prima si rifaceva tutta la
-	# disposizione dello slot - ritratto, tre barre, tre riquadri - a ogni
-	# aggiornamento di scheda, cioe' a ogni colpo e a ogni battuta, per tre
-	# compagni. Ma i riquadri si spostano solo quando cambia il LORO NUMERO: se
-	# ne avevi uno addosso e ne hai ancora uno, stanno gia' dove devono.
+	# UNO SOLO, quando sta bene: «se stanno bene ci stara l'icona normale». E
+	# si rimette in riga solo se cambia QUANTI sono
 	var quanti_prima := maxi(simboli.size(), 1)
 	simboli = elenco
 	for i in status.size():
-		status[i].visible = i < maxi(elenco.size(), 1)
+		status[i].visible = not libero and i < maxi(elenco.size(), 1)
 		status[i].queue_redraw()
 	if maxi(elenco.size(), 1) != quanti_prima:
 		ridisponi()
 
-# --- la disposizione, dal disegno --------------------------------------------
+# --- la disposizione -----------------------------------------------------------
 
-func ridisponi() -> void:
-	# LE PROPORZIONI SONO QUELLE MISURATE SUL DISEGNO, non stimate a occhio.
-	#
-	# Sul foglio di Bru uno slot e' alto 593 pixel: il ritratto ne prende 375,
-	# le tre barre stanno fra il 415 e il 500, i riquadri degli status fra il
-	# 528 e il 618. Qui sotto sono le stesse quote in frazione dello slot.
-	#
-	# Al primo tentativo le distribuivo "quello che avanza dopo il ritratto", e
-	# agli status avanzavano venti pixel: tre puntini invece di tre tasselli.
+func alta_per(quanto_attiva: float) -> float:
+	# quanto e' alta la scheda sul foglio della schermata (1280x720)
+	if libero:
+		return SpinaPlancia.numero("schede", "libero", 52.0)
+	return lerpf(SpinaPlancia.numero("schede", "riposo", 84.0), SpinaPlancia.numero("schede", "turno", 118.0),
+			quanto_attiva)
+
+func sinistra_in_alto() -> float:
+	# il lato sinistro, in alto, nelle coordinate dello slot: il nodo e' largo
+	# quanto il foglio di sbieco, e in alto il foglio rientra
+	return pendenza_px * size.y
+
+func foglio() -> PackedVector2Array:
+	return SpinaPlancia.sbieco(Rect2(Vector2(sinistra_in_alto(), 0.0), Vector2(size.x - sinistra_in_alto(), size.y)),
+			pendenza_px)
+
+func dove_ritratto() -> Rect2:
+	var lato := lerpf(68.0, 112.0, attiva) * scala
+	return Rect2(Vector2(sinistra_in_alto() + 18.0 * scala, lerpf(12.0, -20.0, attiva) * scala), Vector2(lato, lato))
+
+func posto_del_nome(quanto_attiva: float) -> Vector2:
+	# dove sta il nome (e la fascia del turno, che ne prende il posto): accanto
+	# al ritratto, in alto. Il punto e' l'angolo in basso a sinistra
+	var lato := lerpf(68.0, 112.0, quanto_attiva) * scala
+	var corpo := lerpf(16.0, 19.0, quanto_attiva) * scala
+	return Vector2(sinistra_in_alto() + (18.0 + 16.0 + 6.0) * scala + lato, lerpf(8.0, 10.0, quanto_attiva) * scala + corpo * 1.3)
+
+func largo_del_nome(quanto_attiva: float) -> float:
+	return size.x - posto_del_nome(quanto_attiva).x - 40.0 * scala - STATUS_VISIBILI * 28.0 * scala
+
+func _draw() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
-	var lato := size.x
-	cornice.position = Vector2.ZERO
-	cornice.size = Vector2(lato, lato * 0.92)
-	ritratto.position = cornice.dentro().position
-	ritratto.size = cornice.dentro().size
-	cornice.davanti.position = ritratto.position
-	cornice.davanti.size = ritratto.size
-	if iniziale != null:
-		iniziale.add_theme_font_size_override("font_size", maxi(int(lato * 0.42), 12))
+	var punti := foglio()
+	if libero:
+		SpinaPlancia.carta(self, punti, Color(Stile.colore("plancia_pannello"), 0.55), 3.0, false)
+		var font := Caratteri.titolo()
+		var corpo := int(round(20.0 * scala))
+		SpinaPlancia.scritta(self, font, Vector2(size.x * 0.5 + 40.0 * scala, size.y * 0.5 + corpo * 0.36),
+				"POSTO LIBERO", corpo, Stile.colore("tratto"), HORIZONTAL_ALIGNMENT_CENTER)
+		return
+	SpinaPlancia.carta(self, punti, colore_carta(), lerpf(4.0, 5.0, attiva))
 
-	var da_barre := size.y * QUOTA_BARRE_DA
-	var a_barre := size.y * QUOTA_BARRE_A
-	var alto_riga := (a_barre - da_barre) / float(RIGHE.size()) * 0.72
-	var passo := (a_barre - da_barre) / float(RIGHE.size())
-	var corpo := maxi(int(alto_riga * 1.05), 8)
-	var largo_etichetta := lato * 0.27
-	var y := da_barre
+func ridisponi() -> void:
+	if size.x <= 0.0 or size.y <= 0.0 or ritratto == null:
+		return
+	queue_redraw()
+	# IL RITRATTO: piccolo a riposo, grande e inclinato quando tocca
+	var r := dove_ritratto()
+	if libero:
+		r = Rect2(Vector2(sinistra_in_alto() + 14.0 * scala, 6.0 * scala), Vector2(size.y - 12.0 * scala, size.y - 12.0 * scala))
+	ritratto.position = r.position
+	ritratto.size = r.size
+	ritratto.pivot_offset = r.size * 0.5
+	ritratto.rotation = deg_to_rad(RUOTA_RITRATTO * attiva)
+	cornice.ombra = attiva
+	var bordo := 6.0 * scala
+	for dentro: Control in [faccia, iniziale]:
+		dentro.position = Vector2(bordo, bordo)
+		dentro.size = r.size - Vector2(bordo, bordo) * 2.0
+	iniziale.add_theme_font_size_override("font_size", maxi(int(r.size.y * 0.7), 10))
+	# IL NOME
+	var corpo_nome := maxi(int(round(lerpf(16.0, 19.0, attiva) * scala)), 8)
+	Manifesto.vesti_etichetta(nome, corpo_nome, "manifesto", "bordo")
+	nome.reset_size()
+	nome.position = posto_del_nome(attiva) - Vector2(0.0, nome.size.y)
+	# LE TRE BARRE, coi loro segni a sinistra e i numeri a destra
+	var x0 := r.end.x + 16.0 * scala
+	var x1 := size.x - 16.0 * scala
+	var y := lerpf(32.0, 46.0, attiva) * scala
+	var altezze := [lerpf(14.0, 20.0, attiva), lerpf(9.0, 13.0, attiva), lerpf(6.0, 8.0, attiva)]
+	var corpo_numero := maxi(int(round(lerpf(17.0, 20.0, attiva) * scala)), 8)
 	for i in RIGHE.size():
-		var etichetta: Control = etichette[i]
-		if etichetta is Label:
-			(etichetta as Label).add_theme_font_size_override("font_size", corpo)
-			etichetta.position = Vector2(0.0, y + alto_riga * 0.5 - corpo * 0.72)
-			etichetta.size = Vector2(largo_etichetta, corpo * 1.4)
-		else:
-			etichetta.position = Vector2(0.0, y - alto_riga * 0.35)
-			etichetta.size = Vector2(largo_etichetta * 0.58, alto_riga * 1.7)
-			etichetta.queue_redraw()
+		var alta: float = float(altezze[i]) * scala
+		var lato_segno := alta + lerpf(6.0, 10.0, attiva) * scala
+		var segno: Control = etichette[i]
+		segno.position = Vector2(x0, y + alta * 0.5 - lato_segno * 0.5)
+		segno.size = Vector2(lato_segno, lato_segno)
+		segno.queue_redraw()
+		# il numero dell'aura c'e' solo per chi ha il turno: agli altri la barra
+		# arriva fino in fondo
+		var spazio_numero := 84.0 * scala if i == 0 or (i == 1 and tocca_a_lui) else 0.0
 		var barra: Control = barre[String(RIGHE[i].chiave)]
-		barra.position = Vector2(largo_etichetta * 1.06, y)
-		barra.size = Vector2(size.x - largo_etichetta * 1.06, alto_riga)
+		barra.position = Vector2(x0 + lato_segno + 8.0 * scala, y)
+		barra.size = Vector2(maxf(x1 - barra.position.x - spazio_numero, 4.0), alta)
 		barra.queue_redraw()
-		y += passo
-
-	if numero_vita != null:
-		# SOPRA LA BARRA DEGLI HP, in fondo a destra: stesso posto del numero
-		# dell'aura ma una riga piu' su, cosi' i due si leggono in colonna
-		var riga_vita := da_barre
-		numero_vita.add_theme_font_size_override("font_size", maxi(int(alto_riga * 0.92), 8))
-		numero_vita.position = Vector2(0.0, riga_vita)
-		numero_vita.size = Vector2(size.x - alto_riga * 0.55, alto_riga)
-	if numero_aura != null:
-		# SOPRA LA BARRA DELL'AURA, in fondo a destra. Al primo tentativo lo
-		# mettevo sopra la riga e finiva addosso a quella degli HP: il numero
-		# c'era e non si vedeva. Sta dentro la sua barra, che e' lilla chiaro e
-		# regge bene una scritta nera.
-		var riga_aura := da_barre + passo
-		numero_aura.add_theme_font_size_override("font_size", maxi(int(alto_riga * 0.92), 8))
-		numero_aura.position = Vector2(0.0, riga_aura)
-		numero_aura.size = Vector2(size.x - alto_riga * 0.55, alto_riga)
-
-	# GLI STATUS, ALLINEATI A DESTRA come nel disegno
-	var da_status := size.y * QUOTA_STATUS_DA
-	var lato_status := size.y * (1.0 - QUOTA_STATUS_DA)
-	var x := size.x
-	for i in range(status.size() - 1, -1, -1):
+		var numero: Label = numero_vita if i == 0 else (numero_aura if i == 1 else null)
+		if numero != null:
+			numero.add_theme_font_size_override("font_size", corpo_numero)
+			numero.position = Vector2(x1 - spazio_numero, y + alta * 0.5 - corpo_numero * 0.75)
+			numero.size = Vector2(spazio_numero, corpo_numero * 1.5)
+		y += alta + lerpf(7.0, 11.0, attiva) * scala
+	# GLI STATUS, piccoli, in alto a destra
+	var lato_status := 22.0 * scala
+	var xs := size.x - 14.0 * scala - lato_status
+	for i in status.size():
 		if not status[i].visible:
 			continue
-		x -= lato_status
-		status[i].position = Vector2(x, da_status)
+		status[i].position = Vector2(xs, 9.0 * scala)
 		status[i].size = Vector2(lato_status, lato_status)
-		x -= lato_status * 0.16
 		status[i].queue_redraw()
+		xs -= lato_status + 6.0 * scala
+
+
+class CorniceRitratto extends Control:
+	# IL BORDO DEL RITRATTO: nero, con dentro un filo che si accende a chi ha il
+	# turno (color), e l'ombra piena quando esce dal foglio
+	var color := Color(0, 0, 0, 1):
+		set(nuovo):
+			color = nuovo
+			queue_redraw()
+	var ombra := 0.0:
+		set(nuova):
+			ombra = nuova
+			queue_redraw()
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		color = Stile.colore("bordo")
+
+	func _draw() -> void:
+		var tutto := Rect2(Vector2.ZERO, size)
+		if ombra > 0.0:
+			Manifesto.rettangolo(self, Rect2(tutto.position + Manifesto.OMBRA * ombra, tutto.size), Stile.colore("bordo"))
+		Manifesto.rettangolo(self, tutto, Stile.colore("bordo"))
+		Manifesto.rettangolo(self, tutto.grow(-3.0), color)
+		Manifesto.rettangolo(self, tutto.grow(-6.0), Stile.colore("quadro_vuoto"))

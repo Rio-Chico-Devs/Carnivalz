@@ -129,9 +129,9 @@ func avanza(delta: float) -> void:
 
 
 static func entra_a_pezzi(plancia: PlanciaCombattimento) -> void:
-	# I PEZZI DELLO SCONTRO ENTRANO, se si arriva da uno squarcio: il nemico e
-	# la sua scheda da sinistra, la squadra dall'alto, il quadrante dal basso e
-	# per ultimo. Le posizioni si leggono al primo fotogramma, quando la plancia
+	# I PEZZI DELLO SCONTRO ENTRANO, se si arriva da uno squarcio: la creatura,
+	# la sua fascia e il racconto da sinistra, la squadra e la fila del giro
+	# dall'alto, il programma dal basso e per ultimo. Le posizioni si leggono al primo fotogramma, quando la plancia
 	# si e' gia' disposta
 	if not in_arrivo or plancia == null:
 		return
@@ -143,9 +143,10 @@ static func entra_a_pezzi(plancia: PlanciaCombattimento) -> void:
 static func fai_entrare(plancia: PlanciaCombattimento) -> void:
 	if not is_instance_valid(plancia.radice):
 		return
-	var dentro: Array[Node] = [plancia.box_nemico, plancia.scheda_nemico]
+	var dentro: Array[Node] = [plancia.box_nemico, plancia.scheda_nemico, plancia.didascalia]
 	for slot in plancia.slot:
 		dentro.append(slot)
+	dentro.append(plancia.fila)
 	dentro.append(plancia.quadrante)
 	var lato_radice := plancia.radice.size
 	var ritardi := Movimento.ritardi_cascata(dentro.size(), dentro.size() - 1)
@@ -155,7 +156,7 @@ static func fai_entrare(plancia: PlanciaCombattimento) -> void:
 			continue
 		var fermo := pezzo.position
 		var da_dove := Vector2(0.0, lato_radice.y * 0.5) if i == dentro.size() - 1 else Vector2(0.0, -lato_radice.y * 0.65)
-		if i < 2:
+		if i < 3:
 			da_dove = Vector2(-lato_radice.x * 0.5, 0.0)
 		pezzo.position = fermo + da_dove
 		var entra := pezzo.create_tween()

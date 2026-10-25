@@ -4,17 +4,13 @@
 > migliore? il design era mio ma voglio vederti provare con una tua idea dopo
 > tutto quello che abbiamo studiato»
 
-È una **proposta**, e del gioco tocca una cosa sola: quanto è grande un pugno
-della raffica in un piano più quadrato del quadrante (§9). La schermata vera
-resta quella di Bru (`docs/schermata_combattimento.md`); questa vive in
-`prove/ProposteScontro.tscn` coi suoi pezzi in `prove/scontro/`, ed è fatta coi
-pezzi veri del gioco dove servono: il minigioco è la raffica vera
-(`MinigiocoCombattimento`, `RiquadroRaffica`, il vetro che si spacca), l'ECG è
-`TracciatoEcg`, le icone sono quelle delle statistiche, i colori e i caratteri
-sono quelli di `data/stile.json`. Se piace, si porta nel gioco (in fondo, come).
+Era una **proposta**; Bru l'ha approvata («sì mi piace») e ha detto di portarla
+nel gioco («sì dai»). **Dal 23 ottobre è la schermata di combattimento vera**
+(`scripts/combattimento/Plancia.gd` e i suoi pezzi, `docs/schermata_combattimento.md`),
+e la scena di prova che la girava come un film è stata tolta (§11). Questo
+documento resta com'era: è il ragionamento, e la storia dei due giri.
 
-    ./prove/film_scontro.sh      il film (38 s) e sette scatti in scatti/proposte_scontro/
-    nell'editor                  prove/ProposteScontro.tscn, F6; TAB salta al momento dopo
+    ./prove/scatto.sh plancia    la schermata vera, coi comandi (anche: lista, collisioni, lezione...)
 
 ---
 
@@ -249,23 +245,39 @@ proposta in 7 modi, e al secondo giro in altri 11 (fra cui la squadra di due,
 l'ECG basso, stretto, spento o sotto il programma come prima, i pugni grandi
 come prima): li prende tutti.
 
-## 11. Se piace: come si porta nel gioco
+## 11. Portata nel gioco
 
-La plancia è già fatta per cambiare disposizione senza toccare lo scontro: chi
-ci lavora sopra (il campo, il menu, la voce, i minigiochi) riceve i nodi e non
-sa dove stanno (`Plancia.gd`). Il passaggio sarebbe:
+Il 23 ottobre, come era scritto qui sopra, a pezzi ma in una volta sola:
 
-1. le misure della nuova disposizione in `data/stile.json`, accanto a quelle di
-   oggi, e la diagonale come una misura;
-2. `Scheda` al posto di `SlotCompagno` (le barre dentro, il passo avanti col
-   turno);
-3. il quadrante diviso: il programma (il monitor con l'ECG di chi decide, i
-   comandi e le liste) da una parte, il
-   minigioco sullo schermo della creatura, il box vero (`BoxTesto`) nella
-   didascalia;
-4. la fila del giro dai dati di `Turni.gd`;
-5. le prove di oggi sulla plancia (che misurano dove stanno le cose) rifatte
-   sulle misure nuove, e gli scatti.
+1. **le misure** in `data/stile.json` (voce `plancia`), su un foglio di
+   1280×720 che la plancia porta alla finestra; la diagonale è una misura
+   (`Spina.gd`);
+2. **le schede**: `SlotCompagno` ha la forma della proposta e tiene tutto
+   quello che faceva (le barre che scendono con la scia, la faccia che cambia
+   con le ferite, i numeri, gli status), più il passo avanti col turno e
+   «TOCCA A TE» al posto del nome;
+3. **il quadrante diviso**: il programma (il monitor con l'ECG, i comandi con
+   «COSA FA», le liste, MATTANZA e BOND), il palco dei minigiochi sullo schermo
+   della creatura (`Cartellone.gd`) — la raffica, la mazzata e il colpo di
+   grazia giocano tutti lì — e il box vero (`BoxTesto`) nella didascalia;
+4. **la fila del giro** dai turni veri (`Turni.ordine_giro`, `FilaGiro.gd`);
+5. **le prove**: `prova_la_schermata_sulla_diagonale` misura sullo scontro
+   vero, con la squadra di tre e a ogni turno, quello che la prova della
+   proposta misurava sul film; e le prove che misuravano la disposizione di
+   prima sono rifatte sulla nuova.
 
-Si può fare a pezzi: le schede da sole, per esempio, migliorano la schermata di
-oggi anche senza il resto.
+Cose che il gioco ha e la proposta no, e che si sono dovute decidere:
+
+- **la lezione di Veronica**. Quando indica un pezzo del programma (l'ECG, il
+  menu, MATTANZA) il programma sale e lei continua a parlare nella didascalia;
+  quando indica la fascia della creatura, che la didascalia copre, il box va su
+  un leggio al posto del programma. Una battuta diceva «Al centro la linea che
+  batte»: adesso dice «In cima ai comandi», dove la linea sta;
+- **i gregari** (gli evocati, i secondi di un'imboscata) stanno nel vetro della
+  creatura, sopra la fascia;
+- **le voci della lista** si stringono finché la più lunga sta nella sua
+  colonna: il programma è più stretto del quadrante di prima.
+
+La scena di prova (`prove/ProposteScontro.tscn`, `prove/scontro/`,
+`prove/film_scontro.sh`) se n'è andata: il film e gli scatti dei due giri sono
+quelli mandati a Bru.

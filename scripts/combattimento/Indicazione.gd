@@ -17,10 +17,12 @@ extends Control
 #
 # Quindi due cose, e la prima non e' una questione di gusto:
 #
-#   1. IL PEZZO SI VEDE. Se sta nel quadrante, il box si sposta a sinistra,
-#      sopra la scheda del nemico, su un leggio suo; il quadrante torna ai
-#      comandi e il pezzo e' li'. Premere non si puo': mentre si legge, il clic
-#      lo prende la zona "vai avanti" che copre lo schermo.
+#   1. IL PEZZO SI VEDE. Il box racconta sotto la creatura, al posto della
+#      sua fascia (Plancia.gd). Se il pezzo sta nel programma, il programma
+#      sale e mostra i comandi mentre il box resta dov'e'; se il pezzo e' la
+#      fascia - che il box copre - il box va su un leggio suo, al posto del
+#      programma. Premere non si puo': mentre si legge, il clic lo prende la
+#      zona "vai avanti" che copre lo schermo.
 #   2. COME LO SI INDICA, e questo lo sceglie Bru (data/stile.json,
 #      "indicazione"):
 #        riflettore   lo schermo si abbassa e resta acceso solo il pezzo (e il
@@ -67,8 +69,11 @@ static func su(con: PlanciaCombattimento, indicati: Array[Control]) -> Indicazio
 	questa.onde = Vector4(dado.randf_range(0.0, TAU), dado.randf_range(0.0, TAU),
 			dado.randf_range(-0.9, -0.6), dado.randf_range(0.0, TAU))
 	for indicato in indicati:
-		if con.quadrante.is_ancestor_of(indicato) and not questa.box_prestato:
-			questa.presta_il_box()
+		if con.didascalia.get_global_rect().intersects(indicato.get_global_rect()):
+			if questa.leggio == null:
+				questa.presta_il_box()   # la fascia, il fondo dello schermo: il box gli starebbe sopra
+		elif con.quadrante.is_ancestor_of(indicato):
+			questa.box_prestato = true   # il programma sale, il box resta a raccontare
 	con.radice.add_child(questa)
 	questa.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if questa.stile == "tratteggio":
@@ -115,19 +120,22 @@ func togli() -> void:
 # --- il box che si sposta ------------------------------------------------------
 
 func presta_il_box() -> void:
-	# IL BOX VA SOPRA LA SCHEDA DEL NEMICO, alto quanto il quadrante: e' l'unico
-	# posto dove non copre niente di quello che la lezione nomina (la terza barra,
-	# quella del Dominio, sta nella squadra in alto; la scheda si spiega col box
-	# ancora al suo posto)
+	# IL BOX VA SU UN LEGGIO AL POSTO DEL PROGRAMMA: si parla della fascia della
+	# creatura, e il box racconta proprio li' sopra. Il programma mentre si
+	# legge e' sceso, e il suo posto e' l'unico che non copre niente di quello
+	# che la lezione nomina
 	var box := plancia.box_testo
 	if box == null:
 		return
 	leggio = plancia.pannello()
 	leggio.name = "Leggio"
-	var sopra := plancia.scheda_nemico.get_rect()
-	var alto := plancia.quadrante.get_rect()
-	leggio.position = Vector2(sopra.position.x, alto.position.y)
-	leggio.size = Vector2(sopra.size.x, alto.size.y)
+	var posto := plancia.in_pixel(plancia.rettangolo_programma())
+	# e non tocca nemmeno il riquadro della creatura, che in alto arriva fin li'
+	var dopo_la_creatura := plancia.box_nemico.get_rect().end.x + 10.0 * plancia.scala.x
+	if posto.position.x < dopo_la_creatura:
+		posto = Rect2(Vector2(dopo_la_creatura, posto.position.y), Vector2(posto.end.x - dopo_la_creatura, posto.size.y))
+	leggio.position = posto.position
+	leggio.size = posto.size
 	box.get_parent().remove_child(box)
 	plancia.interno_di(leggio).add_child(box)
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -142,8 +150,6 @@ func restituisci_il_box() -> void:
 	box_prestato = false
 	var box := plancia.box_testo
 	if box != null:
-		if box.has_method("posto_al_triangolo"):
-			box.posto_al_triangolo(false)
 		plancia.ospita_box(box)
 	if leggio != null:
 		leggio.queue_free()
@@ -159,7 +165,11 @@ func dove_sta(nodo: Control) -> Rect2:
 
 
 func dove_si_legge() -> Rect2:
-	return dove_sta(leggio if leggio != null else plancia.quadrante)
+	# il box com'e' davvero: se il testo e' grande puo' essere piu' alto del posto
+	# che gli e' stato dato, e la luce deve prenderlo tutto
+	if plancia.box_testo != null and plancia.box_testo.is_inside_tree():
+		return dove_sta(plancia.box_testo)
+	return dove_sta(leggio if leggio != null else plancia.didascalia)
 
 
 func _process(_delta: float) -> void:

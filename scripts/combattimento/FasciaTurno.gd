@@ -108,14 +108,18 @@ static func accendi_nemico(schermo: Control) -> void:
 	# lo schermo del nemico si accende di rosso due volte, e sobbalza appena
 	if not is_instance_valid(schermo) or not schermo.is_inside_tree():
 		return
-	var lampo: ColorRect = schermo.get_meta(META_LAMPO) if schermo.has_meta(META_LAMPO) else null
+	# IL LAMPO E' QUELLO CHE LO SCHERMO HA GIA', SE NE HA UNO: lo schermo della
+	# creatura e' tagliato dalla diagonale (CartelloneNemico), e un rettangolo
+	# rosso tirato sopra ne uscirebbe nell'arancio. Qualunque nodo con "color"
+	var lampo: Control = schermo.get_meta(META_LAMPO) if schermo.has_meta(META_LAMPO) else null
 	if lampo == null or not is_instance_valid(lampo):
-		lampo = ColorRect.new()
-		lampo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		lampo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		schermo.add_child(lampo)
-		schermo.set_meta(META_LAMPO, lampo)
-	lampo.color = Color(Stile.colore("pericolo"), 0.0)
+		var rettangolo := ColorRect.new()
+		rettangolo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rettangolo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		schermo.add_child(rettangolo)
+		schermo.set_meta(META_LAMPO, rettangolo)
+		lampo = rettangolo
+	lampo.set("color", Color(Stile.colore("pericolo"), 0.0))
 	var accende := lampo.create_tween()
 	for volta in 2:
 		accende.tween_property(lampo, "color:a", 0.32, 0.07)

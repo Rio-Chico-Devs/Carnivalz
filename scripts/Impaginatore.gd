@@ -89,8 +89,8 @@ static func guarda(testo: String, i: int, tagli: Array) -> int:
 	# il carattere in "i": se li' si puo' tagliare lo segna, e dice da dove
 	# ripartire
 	var c := testo[i]
-	if c == "[" and testo.find("]", i) > i:
-		return testo.find("]", i) + 1   # un tag non si guarda dentro
+	if chiusura_del_tag(testo, i) > i:
+		return chiusura_del_tag(testo, i) + 1   # un tag non si guarda dentro
 	if c == "\n":
 		segna(tagli, i, PARAGRAFO)
 		return dopo_gli_spazi(testo, i)
@@ -137,12 +137,24 @@ static func dopo_i_tag(testo: String, da: int) -> int:
 	# un [/i] subito dopo un punto chiude la frase anche lui: la pagina finisce
 	# dopo il tag, non prima
 	var i := da
-	while i < testo.length() and testo[i] == "[":
-		var chiusa := testo.find("]", i)
-		if chiusa < 0:
-			break
-		i = chiusa + 1
+	while chiusura_del_tag(testo, i) > i:
+		i = chiusura_del_tag(testo, i) + 1
 	return i
+
+static func chiusura_del_tag(testo: String, i: int) -> int:
+	# dove finisce il tag che comincia in "i", o -1 se li' non comincia un tag.
+	# UN TAG VERO HA UN NOME IN MINUSCOLO ([i], [/b], [color=...]): «[Qui
+	# andranno le cinque tavole...]» e' una frase fra parentesi, e trattata da
+	# tag diventava una pagina sola che non si poteva tagliare da nessuna parte
+	if i >= testo.length() or testo[i] != "[":
+		return -1
+	var chiusa := testo.find("]", i)
+	if chiusa < 0:
+		return -1
+	var nome := testo.substr(i + 1, chiusa - i - 1).trim_prefix("/").split("=")[0].split(" ")[0]
+	if nome == "" or nome != nome.to_lower() or not nome.is_valid_ascii_identifier():
+		return -1
+	return chiusa
 
 static func dopo_gli_spazi(testo: String, da: int) -> int:
 	var i := da
@@ -169,12 +181,10 @@ static func tag_aperti(testo: String, fino_a: int) -> Array:
 	var pila: Array = []
 	var i := 0
 	while i < fino_a:
-		if testo[i] != "[":
+		var chiusa := chiusura_del_tag(testo, i)
+		if chiusa < 0:
 			i += 1
 			continue
-		var chiusa := testo.find("]", i)
-		if chiusa < 0:
-			break
 		var dentro := testo.substr(i + 1, chiusa - i - 1)
 		if dentro.begins_with("/"):
 			var nome_chiuso := dentro.substr(1)

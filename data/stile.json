@@ -419,56 +419,60 @@
   },
   "_nota_plancia": "LA DISPOSIZIONE DELLA SCHERMATA DI COMBATTIMENTO, misurata sui disegni di Bru (1920x1080) e tenuta in FRAZIONI: la finestra puo' essere di qualunque misura, il disegno resta quello. Vedi docs/schermata_combattimento.md per lo schema e per cosa significa ogni riga.",
   "plancia": {
-    "box_nemico": [
-      0.021,
-      0.023,
-      0.372,
-      0.695
-    ],
-    "scheda_nemico": [
-      0.021,
-      0.745,
-      0.363,
-      0.218
-    ],
-    "quota_fascia": 0.3,
-    "slot_x": 0.407,
-    "slot_y": 0.023,
-    "slot_largo": 0.191,
-    "slot_alto": 0.347,
-    "slot_stacco": 0.0055,
-    "barre_y": 0.384,
-    "barre_alto": 0.079,
-    "status_y": 0.489,
-    "status_lato": 0.083,
-    "quadrante": [
-      0.409,
-      0.606,
-      0.573,
-      0.357
-    ],
-    "_dentro_il_quadrante": "le righe qui sotto sono frazioni DEL QUADRANTE, non dello schermo",
-    "ecg": [
-      0.032,
-      0.065,
-      0.522,
-      0.338
-    ],
-    "misure_y": 0.47,
-    "mattanza": [
-      0.032,
-      0.61,
-      0.236,
-      0.234
-    ],
-    "bond": [
-      0.305,
-      0.61,
-      0.25,
-      0.234
-    ],
-    "comandi_x": 0.582,
-    "comandi_y": 0.1
+    "_nota": "LA SCHERMATA DI COMBATTIMENTO APPROVATA DA BRU (docs/scontro_proposta.md, «si' mi piace»): il manifesto di un incontro, con una diagonale sola fra la creatura e la squadra. Le misure sono su un foglio di 1280x720 e la plancia le porta alla finestra moltiplicando per una scala (scripts/combattimento/Spina.gd). Le coppie sono punti [x, y], le quaterne rettangoli [x, y, largo, alto].",
+    "spina": {
+      "_nota": "la diagonale: in alto sta a 'destra', rientra di 'pendenza' per ogni pixel che scende; 'gola' e' lo stacco fra il cartellone e quello che sta dall'altra parte",
+      "pendenza": 0.13,
+      "gola": 26,
+      "alto": 24,
+      "destra": 806
+    },
+    "cartellone": {
+      "_nota": "lo schermo della creatura: da 'sinistra' alla diagonale, dall'alto della spina a 'basso'. 'sotto_la_fascia' e' quanto del vetro copre la fascia col nome: li' il minigioco non arriva",
+      "sinistra": 24,
+      "basso": 548,
+      "cornice": 13,
+      "sotto_la_fascia": 52
+    },
+    "fascia": [[8, 514], [612, 488], [624, 562], [18, 590]],
+    "vita_nemico": [44, 610, 520, 20],
+    "studio": [44, 642, 580, 72],
+    "schede": {
+      "_nota": "una sotto l'altra dal punto 'y', il lato sinistro sulla diagonale a una gola dal cartellone; chi ha il turno e' alta 'turno' e fa un 'passo' verso la creatura, le altre sono alte 'riposo', un posto libero 'libero'",
+      "y": 78,
+      "riposo": 84,
+      "turno": 118,
+      "libero": 52,
+      "stacco": 12,
+      "passo": 22,
+      "destra": 1256
+    },
+    "programma": {
+      "_nota": "i comandi di chi decide, sotto le schede. In cima il monitor: la linea alta 'monitor', le letture sotto alte 'letture'; i comandi cominciano a 'sotto_monitor' dal bordo",
+      "alto": 400,
+      "basso": 704,
+      "destra": 1256,
+      "monitor": 64,
+      "letture": 22,
+      "sotto_monitor": 110
+    },
+    "didascalia": {
+      "_nota": "dove si racconta: sotto il cartellone, al posto della fascia (che come lei entra un poco nello schermo), col lato destro sulla diagonale. Alta quanto il box dei dialoghi del combattimento (forme, altezza_box_combattimento)",
+      "alto": 512,
+      "basso": 712,
+      "sinistra": 16
+    },
+    "fila": [842, 24],
+    "_nota_cosa_fa": "le due righe accanto ai comandi, su quello che stai guardando: un nuovo giocatore non sa cos'e' SKILL. Mie (Claude), provvisorie: da correggere",
+    "cosa_fa": {
+      "ATTACCHI": "Il colpo normale e le mosse d'arma. Si sceglie poi chi colpire.",
+      "DIFESA": "Ti pari fino al tuo prossimo turno: il colpo che arriva fa meno male.",
+      "SKILL": "Studiare la creatura, e le tue abilità. Quasi tutte costano aura.",
+      "OGGETTI": "Quello che hai nella sacca e si può usare in combattimento.",
+      "FUGA": "Provi ad andartene. Non sempre riesce.",
+      "Aiutante": "Chi ti accompagna in questo scontro, con le sue mosse.",
+      "Mediazione": "Parlare con la creatura invece di batterla: si apre quando l'hai capita."
+    }
   },
   "interlinee": {
     "_nota": "Quanto e' alta una riga rispetto al corpo del carattere. Non c'era: ogni etichetta usava l'interlinea che capitava al font di sistema, e il font di sistema cambia da macchina a macchina. La regola: 1,4-1,6 per il testo da leggere, 1,5 va bene quasi sempre; e piu' il testo e' GRANDE meno spazio vuole fra le righe, non di piu' - vale doppio per il maiuscolo.",

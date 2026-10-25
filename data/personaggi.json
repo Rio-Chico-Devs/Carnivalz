@@ -3792,7 +3792,8 @@
               },
               {
                 "tipo": "narrazione",
-                "testo": "Al centro la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%.",
+                "testo": "In cima ai comandi, la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%.",
+                "_nota": "«Al centro» corretto in «In cima ai comandi» (Claude): con la schermata nuova approvata da Bru la linea sta li', nel monitor sopra il menu",
                 "evidenzia": "ecg"
               },
               {

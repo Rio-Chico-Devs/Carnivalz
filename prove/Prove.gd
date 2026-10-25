@@ -77,7 +77,7 @@ func _ready() -> void:
 	prova_i_vetri_stanno_fermi()
 	prova_le_diagonali_hanno_il_bordo_liscio()
 	prova_il_vetro_rotto_del_colpo_preso()
-	await prova_la_proposta_di_schermata()
+	await prova_la_schermata_sulla_diagonale()
 	await prova_la_luce_del_bond_quando_medi()
 	prova_la_luce_del_bond_lettera_per_lettera()
 	prova_la_luce_del_bond_col_movimento_ridotto()
@@ -10233,14 +10233,16 @@ func prova_la_raffica_ha_un_riquadro_suo() -> void:
 		esigi(not (sotto[nome] as CanvasItem).is_visible_in_tree(),
 				"%s si vede sotto la raffica: i pugni ci atterrano sopra" % nome)
 
-	# --- IL RIQUADRO STA NEL PANNELLO, E LO RIEMPIE ---
+	# --- IL RIQUADRO STA SULLO SCHERMO DELLA CREATURA, E LO RIEMPIE ---
+	# (il palco: con la schermata della diagonale i minigiochi giocano li', ed
+	# e' lei che attacca)
 	var riquadro := gioco.riquadro
 	esigi(riquadro != null and riquadro.is_visible_in_tree(), "la raffica e' partita senza riquadro")
-	var pannello: Rect2 = plancia.quadrante.get_global_rect()
+	var pannello: Rect2 = plancia.palco.get_global_rect()
 	var suo: Rect2 = riquadro.get_global_rect()
-	esigi(pannello.grow(0.5).encloses(suo), "il riquadro della raffica esce dal pannello")
+	esigi(pannello.grow(0.5).encloses(suo), "il riquadro della raffica esce dal palco sullo schermo della creatura")
 	esigi(suo.get_area() >= pannello.get_area() * 0.8,
-			"il riquadro copre solo il %d%% del pannello: sotto si vede il resto"
+			"il riquadro copre solo il %d%% del palco: sotto si vede il resto"
 			% int(suo.get_area() / maxf(pannello.get_area(), 1.0) * 100.0))
 
 	# --- OGNI PUGNO STA TUTTO DENTRO, ANCHE GONFIO, E NESSUNO SOPRA UN ALTRO ---
@@ -10252,12 +10254,15 @@ func prova_la_raffica_ha_un_riquadro_suo() -> void:
 		var centro: Vector2 = riquadro.piano.global_position + riquadro.centro_di(pugno)
 		esigi(piano.grow(0.5).encloses(Rect2(centro - Vector2(r, r), Vector2(r, r) * 2.0)),
 				"il pugno %d, gonfio, esce dal riquadro" % int(pugno.indice))
-	esigi(sovrapposti(gioco.raffica, riquadro.piano.size) == "",
-			"nel quadrante del gioco %s" % sovrapposti(gioco.raffica, riquadro.piano.size))
-	# e nel quadrante del gioco il pugno e' grande quanto e' sempre stato: la
-	# regola dei piani grandi (Collisioni.lato_pugno) non deve toccarlo
-	esigi(is_equal_approx(riquadro.raggio(), minf(riquadro.piano.size.x, riquadro.piano.size.y) * Collisioni.LATO_PUGNO * 0.5),
-			"nel quadrante del gioco il pugno non e' piu' quello di sempre: %.1f pixel di raggio" % riquadro.raggio())
+	esigi(sovrapposti(gioco.raffica, riquadro.piano.size, riquadro.raggio()) == "",
+			"sullo schermo della creatura %s" % sovrapposti(gioco.raffica, riquadro.piano.size, riquadro.raggio()))
+	# e i pugni sono RADI COME NELLA RAFFICA APPROVATA: tutti insieme coprono al
+	# piu' un terzo del piano (Collisioni.lato_pugno). Bru, sulla proposta: «la
+	# distribuzione dei pugni e' troppo appiccicata»
+	var coperto := float(gioco.raffica.size()) * PI * pow(riquadro.raggio(), 2.0) \
+			/ maxf(riquadro.piano.size.x * riquadro.piano.size.y, 1.0)
+	esigi(coperto <= Collisioni.COPERTURA + 0.01,
+			"sullo schermo della creatura i pugni coprono il %d%% del piano: sono appiccicati" % int(coperto * 100.0))
 
 	# --- E SI VEDE: il pugno sul fondo del riquadro, e la testata ---
 	var fondo: Color = Stile.colore("ecg_fondo")
@@ -11789,11 +11794,12 @@ func prova_collisioni() -> void:
 	# gioco e in quelli delle prove; e da cinque a sedici pugni, che e' quanti ce
 	# ne stanno nel quadrante. Si misura in pixel, coi centri dove li mette
 	# centro_di
-	# E NEI PIANI PIU' QUADRATI, e alti: nella proposta di schermata la raffica
-	# gioca sullo schermo della creatura (654x358), e coi pugni misurati sul
-	# lato corto erano grandi il doppio e si sovrapponevano - Bru: «la
-	# distribuzione dei pugni e' troppo appiccicata». Li' il pugno e' quello
-	# che ci sta; nel quadrante del gioco resta LATO_PUGNO
+	# E NEI PIANI PIU' QUADRATI, e alti: con la schermata della diagonale la
+	# raffica gioca sullo schermo della creatura (654x358), e coi pugni misurati
+	# sul lato corto erano grandi il doppio e si sovrapponevano - Bru, sulla
+	# proposta: «la distribuzione dei pugni e' troppo appiccicata». Li' il pugno
+	# e' quello che li lascia radi; nel quadrante largo di una volta resta
+	# LATO_PUGNO
 	var casi := {Vector2(710, 190): [5, 12, 16], Vector2(1155, 175): [5, 12, 16],
 			Vector2(700, 240): [5, 12], Vector2(900, 300): [5, 12],
 			Vector2(654, 358): [5, 12, 16], Vector2(500, 500): [5, 12, 16], Vector2(360, 560): [5, 12]}
@@ -11805,9 +11811,10 @@ func prova_collisioni() -> void:
 				var posti := Collisioni.calendario(quanti, d, misura.x / misura.y)
 				esigi(sovrapposti(posti, misura) == "",
 						"in un pannello %dx%d con %d pugni %s" % [int(misura.x), int(misura.y), quanti, sovrapposti(posti, misura)])
-	# nel quadrante del gioco il pugno non cambia: e' quello di sempre
+	# nel quadrante largo di una volta il pugno e' quello di sempre: e' la
+	# raffica che Bru ha approvato, e la misura di tutte le altre
 	esigi(is_equal_approx(Collisioni.lato_pugno(12, 710.0 / 190.0), Collisioni.LATO_PUGNO),
-			"nel quadrante del gioco il pugno si e' rimpicciolito: e' cambiata la difficolta'")
+			"nel quadrante largo il pugno si e' rimpicciolito: la raffica approvata non e' piu' la misura")
 	# e dove rimpicciolisce resta un bersaglio: mai sotto un decimo del lato corto
 	esigi(Collisioni.lato_pugno(12, 654.0 / 358.0) >= 0.18 and Collisioni.lato_pugno(16, 1.0) >= 0.1,
 			"in un piano quadrato il pugno diventa un puntino: %.2f" % Collisioni.lato_pugno(12, 654.0 / 358.0))
@@ -15215,13 +15222,6 @@ const FILE_GRANDI := {
 		"(la mettono tutte le schermate) e i primi effetti di una scelta in " +
 		"IngressoNodo.applica_scelta. STRETTA A 1415 quando l'uscita verso " +
 		"la mappa di zona e' andata in IngressoNodo.alla_mappa_di_zona"},
-	"Plancia.gd": {"misura": 715, "perche":
-		"la schermata di combattimento intera, come l'ha disegnata Bru: il " +
-		"riquadro della creatura, i tre della squadra, le tre barre, l'ECG, " +
-		"i due tasti, e le tre facce del quadrante. Ha passato le 700 righe " +
-		"aggiungendo l'evidenziazione dei pezzi, e quella parte NON si stacca: " +
-		"pezzo() esiste proprio perche' e' la plancia a sapere com'e' fatta - " +
-		"portarla fuori darebbe un file che non sa niente e chiede tutto"},
 }
 
 const FUNZIONI_LUNGHE := {
@@ -16236,7 +16236,10 @@ func prova_la_lezione_indica_senza_coprire() -> void:
 	# menu, l'ECG, il morale, MATTANZA e BOND - la battuta nominava un pezzo che
 	# la battuta stessa copriva. Qui si misura che il pezzo si VEDA, che il box
 	# non ci stia sopra e torni al suo posto, e che il velo non copra ne' il pezzo
-	# ne' il testo (IndicazioneCombattimento)
+	# ne' il testo (IndicazioneCombattimento). Con la schermata della diagonale
+	# il box racconta sotto la creatura: un pezzo del programma fa salire il
+	# programma, un pezzo che il box coprirebbe (la fascia, il fondo dello
+	# schermo della creatura) manda il box sul leggio
 	titolo("la lezione indica un pezzo e non lo copre")
 	GameState.nuova_partita()
 	GameState.nemici_combattimento = ["veronica"]
@@ -16248,7 +16251,8 @@ func prova_la_lezione_indica_senza_coprire() -> void:
 	await get_tree().process_frame
 	var plancia: PlanciaCombattimento = scontro.plancia
 	var box: Control = plancia.box_testo
-	esigi(box != null and plancia.faccia_parlato.is_ancestor_of(box), "il box del testo non sta nel quadrante")
+	esigi(box != null and plancia.faccia_parlato.is_ancestor_of(box) and plancia.didascalia.is_ancestor_of(box),
+			"il box del testo non sta nella didascalia")
 	var stile_prima: Variant = Stile.dati.get("indicazione", {})
 	for stile in IndicazioneCombattimento.STILI:
 		Stile.dati["indicazione"] = {"stile": stile}
@@ -16262,10 +16266,13 @@ func prova_la_lezione_indica_senza_coprire() -> void:
 			plancia.mostra_faccia("parlato")   # quello che chiede lo scontro mentre si legge
 			await get_tree().process_frame
 			indicazione.quanto = 1.0
-			var sotto_il_box := false
+			var nel_programma := false
+			var sotto_il_racconto := false
 			for nome in nomi.split(","):
 				var pezzo_vero := plancia.pezzo(nome) as Control
-				sotto_il_box = sotto_il_box or plancia.quadrante.is_ancestor_of(pezzo_vero)
+				nel_programma = nel_programma or plancia.quadrante.is_ancestor_of(pezzo_vero)
+				sotto_il_racconto = sotto_il_racconto \
+						or plancia.didascalia.get_global_rect().intersects(pezzo_vero.get_global_rect())
 				esigi(pezzo_vero.is_visible_in_tree(),
 						"con lo stile '%s' la battuta indica «%s», che non si vede" % [stile, nome])
 				esigi(not box.get_global_rect().intersects(pezzo_vero.get_global_rect()),
@@ -16280,10 +16287,13 @@ func prova_la_lezione_indica_senza_coprire() -> void:
 							esigi(not velato.intersects(dentro),
 									"con lo stile '%s' il velo copre «%s» o il testo che lo spiega" % [stile, nome])
 			esigi(box.is_visible_in_tree(), "indicando «%s» il box del testo non si vede piu'" % nomi)
-			esigi(indicazione.box_prestato == sotto_il_box, "indicando «%s» il box %s"
-					% [nomi, "e' rimasto sopra il pezzo" if sotto_il_box else "si e' spostato per niente"])
-			esigi(plancia.faccia_adesso == ("comandi" if sotto_il_box else "parlato"),
-					"indicando «%s» il quadrante mostra '%s'" % [nomi, plancia.faccia_adesso])
+			esigi(indicazione.box_prestato == (nel_programma or sotto_il_racconto), "indicando «%s» il box %s"
+					% [nomi, "non e' stato prestato alla lezione" if nel_programma or sotto_il_racconto else "e' stato prestato per niente"])
+			esigi((indicazione.leggio != null) == sotto_il_racconto, "indicando «%s» il box %s"
+					% [nomi, "e' rimasto sopra il pezzo" if sotto_il_racconto else "e' andato sul leggio per niente"])
+			esigi(plancia.faccia_adesso == ("comandi" if nel_programma else "parlato") \
+					and plancia.quadrante.visible == nel_programma,
+					"indicando «%s» il programma mostra '%s' (su: %s)" % [nomi, plancia.faccia_adesso, plancia.quadrante.visible])
 			esigi(indicazione.mouse_filter == Control.MOUSE_FILTER_IGNORE,
 					"l'indicazione prende il mouse: si mangerebbe il clic che manda avanti")
 	Stile.dati["indicazione"] = stile_prima
@@ -16310,13 +16320,14 @@ func prova_la_lezione_indica_senza_coprire() -> void:
 	plancia.spegni_evidenza()
 	await get_tree().process_frame
 	esigi(plancia.indicazione == null and plancia.faccia_parlato.is_ancestor_of(box) and not is_instance_valid(leggio),
-			"spenta l'indicazione, il box non e' tornato nel quadrante o il leggio e' rimasto")
+			"spenta l'indicazione, il box non e' tornato nella didascalia o il leggio e' rimasto")
 	plancia.mostra_faccia("parlato")
 	esigi(plancia.faccia_adesso == "parlato", "spenta l'indicazione, il quadrante non torna al testo")
-	# LA STRADA VERA, dalla battuta del tutorial: una battuta lunga sul leggio
-	# stretto si divide in pagine e non scorre sotto il bordo
-	# (quella dell'ECG: sul leggio sono quattro righe, e nello scatto scorreva)
-	var lunga := "Al centro la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%."
+	# LA STRADA VERA, dalla battuta del tutorial: una battuta lunga nella
+	# didascalia stretta si divide in pagine e non scorre sotto il bordo
+	# (quella dell'ECG: sul leggio di una volta erano quattro righe, e nello
+	# scatto scorreva)
+	var lunga := "In cima ai comandi, la linea che batte. Il colore dice come stai: verde sopra il 75%, gialla in mezzo, rossa sotto il 25%."
 	# le battute d'apertura della lezione aspettano il clic: si fanno passare
 	for i in 60:
 		if scontro.voce.niente_da_leggere():
@@ -16328,15 +16339,15 @@ func prova_la_lezione_indica_senza_coprire() -> void:
 	limite = Time.get_ticks_msec() + 5000
 	while plancia.indicazione == null and Time.get_ticks_msec() < limite:
 		await get_tree().process_frame
-	esigi(plancia.indicazione != null and plancia.indicazione.box_prestato,
-			"la battuta del tutorial che indica l'ECG non ha spostato il box")
+	esigi(plancia.indicazione != null and plancia.indicazione.box_prestato and plancia.quadrante.visible,
+			"la battuta del tutorial che indica l'ECG non ha fatto salire il programma")
 	for i in 4:
 		await get_tree().process_frame
 	box.call("completa")
 	await get_tree().process_frame
 	var testo := box.get("testo") as RichTextLabel
 	esigi(testo.get_content_height() <= testo.size.y + 1.0,
-			"sul leggio la battuta e' alta %.0f in un posto di %.0f: scorre sotto il bordo"
+			"nella didascalia la battuta e' alta %.0f in un posto di %.0f: scorre sotto il bordo"
 			% [testo.get_content_height(), testo.size.y])
 	var movimento_prima: bool = Impostazioni.movimento_ridotto
 	Impostazioni.movimento_ridotto = true
@@ -20280,6 +20291,13 @@ func prova_l_impaginatore_taglia_dove_si_legge() -> void:
 	pagine = Impaginatore.dividi("[i]Uno due tre. Quattro cinque sei.[/i]", fino_a.call(20))
 	esigi(pagine == ["[i]Uno due tre.[/i]", "[i]Quattro cinque sei.[/i]"],
 			"il corsivo si perde o resta aperto fra le pagine: %s" % str(pagine))
+	# UNA FRASE FRA PARENTESI QUADRE NON E' UN TAG: «[Qui andranno le cinque
+	# tavole...]» era un tag solo, lungo quanto la frase, e la pagina non si
+	# poteva tagliare da nessuna parte. Nella didascalia stretta scorreva sotto
+	pagine = Impaginatore.dividi("[Uno due tre. Quattro cinque sei.]",
+			func(pezzo: String) -> bool: return pezzo.length() <= 20)
+	esigi(pagine == ["[Uno due tre.", "Quattro cinque sei.]"],
+			"una frase fra parentesi quadre non si taglia, o si chiude come un tag: %s" % str(pagine))
 	# una frase sola troppo lunga si taglia sulle virgole, poi fra le parole
 	var lunga := "Una frase lunga, piena di pezzi, che non finisce mai e continua ancora"
 	pagine = Impaginatore.dividi(lunga, fino_a.call(20))
@@ -22057,7 +22075,7 @@ func prova_lo_squarcio_d_entrata() -> void:
 	arriva.free()
 
 func prova_il_turno_si_vede_col_corpo() -> void:
-	titolo("il turno che passa: lo slot si alza, una fascia dice di chi e', il nemico si accende di rosso")
+	titolo("il turno che passa: la scheda fa un passo avanti, una fascia dice di chi e', il nemico si accende di rosso")
 	var vero := scontro_vivo("marionetta")
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -22070,13 +22088,16 @@ func prova_il_turno_si_vede_col_corpo() -> void:
 	campo.evidenzia(gente, gente[0])
 	campo.evidenzia(gente, gente[1])
 	var sua := FasciaTurno.di(plancia.slot[1])
-	esigi(sua != null and sua.text == FasciaTurno.testo_per("veronica"), "tocca a Veronica e sotto il suo schermo non c'e' la fascia")
+	esigi(sua != null and sua.text == FasciaTurno.testo_per("veronica"), "tocca a Veronica e sulla sua scheda non c'e' la fascia")
 	esigi(FasciaTurno.di(plancia.slot[0]) == null, "tocca a Veronica e la fascia del protagonista resta")
 	if sua != null:
-		esigi(sua.size.x <= plancia.slot[1].cornice.size.x - 23.0, "la fascia «%s» esce dallo schermo dello slot" % sua.text)
-	await get_tree().create_timer(FasciaTurno.SALE + 0.1).timeout
-	esigi(plancia.slot[1].scale.x > 1.02 and is_equal_approx(plancia.slot[0].scale.x, 1.0),
-			"tocca a Veronica e il suo slot non si alza (%.3f), o resta alzato quello di prima" % plancia.slot[1].scale.x)
+		# al posto del nome, accanto al ritratto, e dentro il foglio della scheda
+		esigi(sua.position.x + sua.size.x <= plancia.slot[1].size.x - 10.0 and not plancia.slot[1].nome.visible,
+				"la fascia «%s» esce dalla scheda, o il nome resta sotto di lei" % sua.text)
+	await get_tree().create_timer(Movimento.durata("entrata") + 0.1).timeout
+	# CHI TOCCA FA UN PASSO AVANTI verso la creatura, e si allarga
+	esigi(plancia.slot[1].attiva > 0.99 and plancia.slot[0].attiva < 0.01,
+			"tocca a Veronica e la sua scheda non fa il passo avanti (%.2f), o resta avanti quella di prima" % plancia.slot[1].attiva)
 	# 2. LO STESSO TURNO DI NUOVO non rifa' niente
 	campo.evidenzia(gente, gente[1])
 	esigi(FasciaTurno.di(plancia.slot[1]) == sua, "lo stesso turno ridetto rifa' entrare la fascia")
@@ -22092,9 +22113,11 @@ func prova_il_turno_si_vede_col_corpo() -> void:
 	esigi(FasciaTurno.di(plancia.slot[0]) == null, "tocca al nemico e la fascia del protagonista resta")
 	campo.evidenzia(gente, gente[0])
 	esigi(FasciaTurno.di(plancia.box_nemico) == null, "tornato il turno al protagonista, la fascia rossa resta")
-	# 5. COL MOVIMENTO RIDOTTO niente inclinazione e niente rimbalzo
+	# 5. COL MOVIMENTO RIDOTTO niente inclinazione e niente rimbalzo: il passo
+	#    avanti c'e' subito, senza animazione
 	Impostazioni.movimento_ridotto = true
 	campo.evidenzia(gente, gente[1])
+	esigi(is_equal_approx(plancia.slot[1].attiva, 1.0), "col movimento ridotto il passo avanti si anima lo stesso")
 	await get_tree().create_timer(FasciaTurno.SALE + 0.1).timeout
 	esigi(is_equal_approx(plancia.slot[1].rotation_degrees, 0.0), "col movimento ridotto lo slot si inclina lo stesso")
 	Impostazioni.movimento_ridotto = false
@@ -22572,139 +22595,143 @@ func prova_il_vetro_rotto_del_colpo_preso() -> void:
 						"largo %.1f, al punto %d il filo si strozza: pieno %.2f invece di %.2f, sfumatura %.2f"
 						% [largo, i, dal_tratto, pieno, sfuma])
 
-func prova_la_proposta_di_schermata() -> void:
-	# LA SCHERMATA DI COMBATTIMENTO, UNA PROPOSTA (prove/ProposteScontro.gd,
-	# docs/scontro_proposta.md). Bru: «voglio vederti provare con una tua idea».
-	# E' una proposta e non tocca il gioco, ma le sue regole si misurano lo
-	# stesso: se il film le rompe, Bru giudica una cosa diversa da quella scritta
-	titolo("la proposta di schermata: la diagonale, niente sovrapposti, ogni momento mostra la sua cosa")
-	var Spina: GDScript = load("res://prove/scontro/Spina.gd")
-	var proposta: Control = load("res://prove/ProposteScontro.tscn").instantiate()
-	proposta.size = Vector2(1280, 720)
-	add_child(proposta)
+func prova_la_schermata_sulla_diagonale() -> void:
+	# LA SCHERMATA DI COMBATTIMENTO E' IL MANIFESTO DI UN INCONTRO
+	# (docs/scontro_proposta.md). Bru, sulla proposta: «sì mi piace», e «sì dai»
+	# a portarla nel gioco. Le sue regole si misurano sullo scontro vero, con la
+	# squadra di tre, a ogni turno: se il gioco le rompe, Bru gioca una cosa
+	# diversa da quella che ha approvato
+	titolo("la schermata di combattimento: la diagonale, niente sovrapposti, l'ECG grande, i minigiochi sulla creatura")
+	GameState.nuova_partita()
+	GameState.party = ["anonimo", "veronica", "insonne"]
+	GameState.nemici_combattimento = ["marionetta"]
+	var vero: Node = load("res://scenes/Combattimento.tscn").instantiate()
+	add_child(vero)
 	await get_tree().process_frame
-	proposta.set_process(false)
-	var visti := {}
-	var storti := 0
+	await get_tree().process_frame
+	vero.set_process(false)
+	var plancia: PlanciaCombattimento = vero.plancia
+	var campo: CampoCombattimento = vero.campo
+	var gente: Array[Dictionary] = vero.combattenti
+	var scala: Vector2 = plancia.scala
+	# TRE SCHEDE, nessun posto vuoto: la squadra e' di tre (Bru: «ci dovrebbero
+	# essere 3 personaggi»)
+	var piene := plancia.slot.filter(func(uno: SlotCompagno) -> bool: return uno.visible and not uno.libero)
+	esigi(piene.size() == 3, "con tre in squadra le schede piene sono %d" % piene.size())
+	var storte := 0
 	var sopra := 0
-	var ecg_nascosti := 0
 	var fuori_foglio := 0
-	var costi_visti := 0
-	var costi_storti := 0
-	var pugni := ""
-	# TRE PERSONAGGI: la squadra e' di tre, nessun posto vuoto. Bru: «ci
-	# dovrebbero essere 3 personaggi»
-	esigi(proposta.schede.size() == 3 and proposta.schede.all(func(scheda: Control) -> bool: return not scheda.libero),
-			"nella proposta la squadra non e' di tre")
-	var mestieri := []
-	while proposta.tempo < proposta.FINE:
-		proposta.passo(1.0 / 30.0)
-		var momento := String(proposta.momento)
-		var cartellone: PackedVector2Array = proposta.cartellone.fuori()
-		var pezzi: Array = []
-		for scheda in proposta.schede:
-			pezzi.append(Spina.sbieco(scheda.dove))
-		if proposta.programma.su > 0.99:
-			pezzi.append(Spina.sbieco(proposta.programma.dove))
-		if proposta.racconto.su > 0.99:
-			var alto := float(proposta.racconto.ALTO)
-			var basso := float(proposta.racconto.BASSO)
-			pezzi.append(PackedVector2Array([Vector2(16, alto), Vector2(Spina.diagonale(alto), alto),
-					Vector2(Spina.diagonale(basso), basso), Vector2(16, basso)]))
-		# la diagonale: il lato sinistro di ogni scheda sta a GOLA dal cartellone
-		# (chi ha il turno ne fa un passo avanti, non di piu')
-		for scheda in proposta.schede:
-			var y := float(scheda.dove.position.y)
-			var stacco := float(scheda.dove.position.x) - float(Spina.diagonale(y))
-			if proposta.tempo > 1.5 and (stacco < Spina.GOLA - 30.0 or stacco > Spina.GOLA + 8.0):
-				storti += 1
-		# niente si sovrappone: ne' al cartellone, ne' fra loro
-		if proposta.tempo > 1.5:
-			for i in pezzi.size():
-				sopra += 0 if Geometry2D.intersect_polygons(cartellone, pezzi[i]).is_empty() else 1
-				for j in range(i + 1, pezzi.size()):
-					sopra += 0 if Geometry2D.intersect_polygons(pezzi[i], pezzi[j]).is_empty() else 1
-		# L'ECG SI VEDE: quando si sceglie, il monitor di chi decide e' grande e
-		# sopra il programma. Bru: «non si vede l'ecg» (era una striscia di trenta pixel)
-		if proposta.programma.su > 0.99 and proposta.tempo > 1.5:
-			var linea: Control = proposta.ecg
-			var dove_ecg := Rect2(linea.position, linea.size)
-			if not linea.visible or dove_ecg.size.x < 380.0 or dove_ecg.size.y < 50.0 \
-					or not Geometry2D.is_point_in_polygon(dove_ecg.get_center(), Spina.sbieco(proposta.programma.dove)) \
-					or linea.get_index() < proposta.programma.get_index():
-				ecg_nascosti += 1
-		# LE BARRE STANNO NEL FOGLIO: le tre barre e le loro icone dentro ogni
-		# scheda, anche a riposo (la corona finiva sul bordo); e il costo rosso
-		# sta sul pezzo che si spende, non sopra il numero dell'aura
-		for scheda in proposta.schede:
-			var foglio: Rect2 = scheda.dove
-			for posto: Array in scheda.barre():
-				var barra: Rect2 = posto[1]
-				var fondo := barra.get_center().y + float(scheda.icona(barra.size.y)) * 0.5
-				if barra.end.y > foglio.end.y - 4.0 or fondo > foglio.end.y - 2.0 or barra.end.x > foglio.end.x - 15.5:
+	var ecg_piccolo := 0
+	for chi in [gente[0], gente[1], gente[2], gente[0]]:
+		campo.evidenzia(gente, chi)
+		plancia.mostra_faccia("comandi")
+		await get_tree().create_timer(Movimento.durata("entrata") + 0.15).timeout
+		# LA DIAGONALE: il lato sinistro di ogni scheda, in alto, sta a una gola
+		# dal cartellone (chi ha il turno ne fa un passo avanti, non di piu')
+		for uno: SlotCompagno in piene:
+			var y := uno.position.y / scala.y
+			var x := (uno.position.x + uno.sinistra_in_alto()) / scala.x
+			var stacco := x - SpinaPlancia.diagonale(y)
+			if stacco < SpinaPlancia.gola() - SpinaPlancia.numero("schede", "passo", 22.0) - 2.0 \
+					or stacco > SpinaPlancia.gola() + 2.0:
+				storte += 1
+		# NIENTE SI SOVRAPPONE: il cartellone, la fascia, le schede, il programma
+		var pezzi: Array[PackedVector2Array] = [
+			SpinaPlancia.sposta(plancia.box_nemico.forma, plancia.box_nemico.position),
+			SpinaPlancia.sposta(plancia.scheda_nemico.banda, plancia.scheda_nemico.position)]
+		for uno: SlotCompagno in piene:
+			pezzi.append(SpinaPlancia.sposta(uno.foglio(), uno.position))
+		pezzi.append(SpinaPlancia.sposta(plancia.foglio_programma.punti, plancia.quadrante.position))
+		for i in pezzi.size():
+			for j in range(i + 1, pezzi.size()):
+				# la fascia entra nel cartellone apposta: e' il titolo del manifesto
+				if i == 0 and j == 1:
+					continue
+				sopra += 0 if Geometry2D.intersect_polygons(pezzi[i], pezzi[j]).is_empty() else 1
+		# LE BARRE STANNO NEL FOGLIO, coi loro segni, anche a riposo
+		for uno: SlotCompagno in piene:
+			for k in SlotCompagno.RIGHE.size():
+				var barra: Control = uno.barre[String(SlotCompagno.RIGHE[k].chiave)]
+				var segno: Control = uno.etichette[k]
+				if barra.position.y + barra.size.y > uno.size.y - 3.0 or segno.position.y + segno.size.y > uno.size.y - 1.0 \
+						or barra.position.x + barra.size.x > uno.size.x - 10.0:
 					fuori_foglio += 1
-				if String(posto[0][0]) == "aura" and int(scheda.prenota_aura) > 0:
-					var costo: Rect2 = scheda.cartellino(barra, float(posto[0][1]))
-					costi_visti += 1
-					if costo.position.x < barra.position.x or costo.end.x > barra.end.x:
-						costi_storti += 1
-		# I PUGNI RADI NEL VETRO GRANDE, misurati col raggio che il riquadro
-		# disegna davvero: nessuno ne tocca un altro, e coprono un terzo del
-		# piano come nel quadrante di sempre. Bru: «la distribuzione dei pugni e'
-		# troppo appiccicata»
-		if proposta.gioco.attivo and proposta.gioco.riquadro != null and pugni == "":
-			var riquadro: RiquadroRaffica = proposta.gioco.riquadro
-			var misura: Vector2 = riquadro.piano.size
-			var raggio := riquadro.raggio()
-			var raffica: Array[Dictionary] = proposta.gioco.raffica
-			var coperto := float(raffica.size()) * PI * raggio * raggio / maxf(misura.x * misura.y, 1.0)
-			pugni = sovrapposti(raffica, misura, raggio)
-			if pugni == "" and coperto > Collisioni.COPERTURA + 0.01:
-				pugni = "%d pugni coprono il %d%% del piano" % [raffica.size(), int(coperto * 100.0)]
-			if pugni == "":
-				pugni = "radi"
-		if not visti.has(momento):
-			visti[momento] = proposta.tempo
-		if proposta.tempo > float(visti[momento]) + 0.8 and not mestieri.has(momento):
-			mestieri.append(momento)
-			match momento:
-				"comandi", "lista":
-					esigi(proposta.programma.su > 0.95 and proposta.attivo == 0 and proposta.programma.modo == momento,
-							"nel momento '%s' il programma non e' su, o non tocca a te" % momento)
-				"studio", "parla_la_creatura":
-					esigi(proposta.racconto.su > 0.95 and proposta.fascia.giu > 0.95,
-							"nel momento '%s' il racconto non ha preso il posto della fascia" % momento)
-				"minigioco":
-					esigi(proposta.gioco.attivo and proposta.programma.su < 0.05 and proposta.cartellone.ritirata > 0.95,
-							"durante la raffica il programma resta su, o la creatura non lascia lo schermo al minigioco")
-				"tocca_a_veronica":
-					esigi(proposta.attivo == 1, "a Veronica non tocca mai")
-	esigi(storti == 0, "%d volte una scheda non stava sulla diagonale" % storti)
-	esigi(sopra == 0, "%d volte due pezzi della proposta stavano uno sopra l'altro" % sopra)
-	esigi(ecg_nascosti == 0, "%d volte, mentre si sceglieva, l'ECG era piccolo, spento o coperto" % ecg_nascosti)
-	esigi(pugni == "radi", "nel vetro della proposta i pugni stanno appiccicati: %s"
-			% ("la raffica non e' mai partita" if pugni == "" else pugni))
-	esigi(fuori_foglio == 0, "%d volte una barra o la sua icona usciva dal foglio della scheda" % fuori_foglio)
-	esigi(costi_visti > 0 and costi_storti == 0,
-			"il costo rosso dell'aura non sta sul pezzo che si spende (%d su %d fuori; 0 visti = mai mostrato)" % [costi_storti, costi_visti])
-	esigi(mestieri.size() >= 8, "il film ha mostrato solo %d momenti: %s" % [mestieri.size(), mestieri])
-	esigi(not proposta.gioco.attivo and proposta.gioco.suonate == 1,
-			"il film finisce con la raffica ancora aperta, o senza averla giocata")
-	# il minigioco sta tutto dentro il vetro della creatura
-	var vetro: Rect2 = proposta.cartellone.vetro()
-	var dentro := Manifesto.scosta(proposta.cartellone.fuori(), -proposta.cartellone.CORNICE)
-	for angolo in [vetro.position, Vector2(vetro.end.x, vetro.position.y), vetro.end, Vector2(vetro.position.x, vetro.end.y)]:
-		esigi(Geometry2D.is_point_in_polygon(angolo, dentro), "il minigioco esce dal vetro della creatura in %s" % str(angolo))
-	# e la raffica gioca piu' larga del quadrante di oggi
-	var quadrante := Stile.riquadro("quadrante", Vector2(1280, 720))
-	esigi(vetro.get_area() > quadrante.get_area() * 1.3, "il minigioco della proposta non e' piu' grande del quadrante")
+		# L'ECG SI VEDE: grande, nel suo monitor in cima al programma. Bru: «non
+		# si vede l'ecg» (era una striscia di trenta pixel)
+		var linea: Rect2 = plancia.ecg.get_global_rect()
+		if linea.size.x < 380.0 * scala.x or linea.size.y < 46.0 * scala.y \
+				or not plancia.fondale_ecg.get_global_rect().grow(0.5).encloses(linea) \
+				or not plancia.quadrante.get_global_rect().encloses(linea) or not plancia.ecg.is_visible_in_tree():
+			ecg_piccolo += 1
+	esigi(storte == 0, "%d volte una scheda non stava sulla diagonale" % storte)
+	esigi(sopra == 0, "%d volte due pezzi della schermata stavano uno sopra l'altro" % sopra)
+	esigi(fuori_foglio == 0, "%d volte una barra o il suo segno usciva dal foglio della scheda" % fuori_foglio)
+	esigi(ecg_piccolo == 0, "%d volte, mentre si sceglieva, l'ECG era piccolo, spento o fuori dal suo monitor" % ecg_piccolo)
+	# CHI HA IL TURNO FA UN PASSO AVANTI e il suo ritratto cresce
+	campo.evidenzia(gente, gente[1])
+	await get_tree().create_timer(Movimento.durata("entrata") + 0.15).timeout
+	esigi(plancia.slot[1].attiva > 0.99 and plancia.slot[0].attiva < 0.01 and plancia.slot[1].size.y > plancia.slot[0].size.y + 20.0,
+			"tocca a Veronica e la sua scheda non si allarga, o resta allargata quella di prima")
+	# LA FILA DEL GIRO: un gettone per ognuno, quello di adesso segnato
+	plancia.mostra_fila([gente[0], gente[1], gente[2], gente[3]], gente[1], 1)
+	esigi(plancia.fila.gettoni.size() == 4 and bool(plancia.fila.gettoni[1].adesso) and bool(plancia.fila.gettoni[0].fatto)
+			and bool(plancia.fila.gettoni[3].nemico) and not bool(plancia.fila.gettoni[2].fatto),
+			"la fila del giro non dice chi tocca, chi ha gia' agito e chi e' la creatura: %s" % [plancia.fila.gettoni])
+	# OGNI MOMENTO HA IL SUO POSTO. Il racconto prende il posto della fascia, il
+	# programma scende; nel minigioco la creatura si ritira
+	plancia.mostra_faccia("parlato")
+	esigi(plancia.didascalia.visible and plancia.faccia_parlato.is_ancestor_of(plancia.box_testo)
+			and not plancia.quadrante.visible and not plancia.scheda_nemico.visible,
+			"mentre si racconta il racconto non sta al posto della fascia, o il programma resta su")
+	esigi(not plancia.didascalia.get_global_rect().intersects(plancia.quadrante.get_global_rect().grow(-1.0))
+			and plancia.didascalia.get_global_rect().end.x <= SpinaPlancia.diagonale(plancia.didascalia.get_global_rect().end.y / scala.y) * scala.x + 1.0,
+			"il racconto esce dalla sua parte della diagonale")
+	plancia.mostra_faccia("minigioco")
+	esigi(not plancia.quadrante.visible and plancia.box_nemico.dentro.modulate.a < 0.5,
+			"durante il minigioco il programma resta su, o la creatura non lascia lo schermo")
+	plancia.mostra_faccia("comandi")
+	esigi(plancia.quadrante.visible and not plancia.didascalia.visible and plancia.scheda_nemico.visible
+			and plancia.box_nemico.dentro.modulate.a > 0.99,
+			"tornati ai comandi il programma non sale, o la fascia non torna, o la creatura resta ritirata")
+	# DUE RIGHE SU QUELLO CHE STAI GUARDANDO: un nuovo giocatore non sa cos'e'
+	# SKILL, e «COSA FA» glielo dice accanto alla voce
+	var finta_voce := Button.new()
+	finta_voce.text = "SKILL"
+	plancia.programma.spiega(finta_voce)
+	esigi(plancia.spiegazione.text != "" and plancia.cosa_fa.visible,
+			"accanto ai comandi non c'e' scritto cosa fa SKILL")
+	finta_voce.free()
+	# QUANTO COSTA LA MOSSA CHE GUARDI, a righe sulla barra di chi la farebbe
+	# (tocca a Veronica): «una mossa costa cinque» si legge dove sta l'aura
+	plancia.mostra_faccia("lista")
+	var mossa := Button.new()
+	mossa.set_meta("aura", 5)
+	plancia.griglia_lista.add_child(mossa)
+	plancia.programma.prenota_per(mossa)
+	esigi(plancia.slot[1].prenota_aura == 5 and plancia.slot[0].prenota_aura == 0,
+			"guardando una mossa da 5 aura la barra di chi la farebbe non lo dice, o lo dice quella di un altro")
+	plancia.mostra_faccia("comandi")
+	esigi(plancia.slot[1].prenota_aura == 0, "tornati ai comandi il costo della mossa resta sulla barra")
+	mossa.free()
+	# IL MINIGIOCO STA TUTTO NEL VETRO DELLA CREATURA, sopra la fascia, ed e' piu'
+	# grande del quadrante di una volta (733x257)
+	var vetro := SpinaPlancia.sposta(plancia.box_nemico.vetro(), plancia.box_nemico.global_position)
+	var palco: Rect2 = plancia.palco.get_global_rect()
+	for angolo in [palco.position, Vector2(palco.end.x, palco.position.y), palco.end, Vector2(palco.position.x, palco.end.y)]:
+		esigi(Geometry2D.is_point_in_polygon(angolo, vetro), "il palco dei minigiochi esce dal vetro della creatura in %s" % str(angolo))
+	esigi(Geometry2D.intersect_polygons(SpinaPlancia.sposta(plancia.scheda_nemico.banda, plancia.scheda_nemico.global_position),
+			PackedVector2Array([palco.position, Vector2(palco.end.x, palco.position.y), palco.end, Vector2(palco.position.x, palco.end.y)])).is_empty(),
+			"la fascia col nome copre il palco dei minigiochi")
+	esigi(palco.get_area() > 733.0 * 257.0 * 1.3 * scala.x * scala.y, "il palco dei minigiochi non e' piu' grande del quadrante di una volta")
+	esigi(vero.minigioco.riquadro != null and plancia.palco.is_ancestor_of(vero.minigioco.riquadro),
+			"la raffica non gioca sullo schermo della creatura")
 	# SUL FOGLIO CHIARO IL PIENO E' SCURO: la vita piena si distingue dal vuoto
-	# (si misura la tinta che la scheda usa davvero, contro il vuoto della barra su carta)
-	var vuoto := Stile.colore(String(Spina.VUOTO_SU_CARTA))
-	for riga: Array in proposta.schede[0].righe():
-		esigi(Stile.contrasto(riga[2], vuoto) >= 3.0,
-				"sulle schede il pieno di '%s' e il vuoto si confondono: %.2f" % [riga[0], Stile.contrasto(riga[2], vuoto)])
-	proposta.free()
+	var vuoto := Stile.colore(SpinaPlancia.VUOTO_SU_CARTA)
+	for riga: Dictionary in SlotCompagno.RIGHE:
+		var tinta := Stile.colore(String(riga.colore))
+		esigi(Stile.contrasto(tinta, vuoto) >= 3.0,
+				"sulle schede il pieno di '%s' e il vuoto si confondono: %.2f" % [riga.chiave, Stile.contrasto(tinta, vuoto)])
+	vero.free()
 
 func le_tele_del_vetro(riquadro: RiquadroRaffica, tele: TeleVetro) -> void:
 	# UN VETRO ROTTO SONO QUATTRO TELE (TeleVetro): i pezzi che guardano dietro

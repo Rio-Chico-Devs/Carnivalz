@@ -163,7 +163,9 @@ func scheda_sulla_plancia(id_personaggio: String, giocatore: bool) -> Dictionary
 	extra.add_theme_color_override("font_color", Stile.colore("box_testo"))
 	vita.set_meta("scheda_nemico", true)
 	extra.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	plancia.righe_studio.add_child(vita)
+	# il numero della vita sta accanto alla sua barra, sulla fascia; quello che
+	# sai sulle strisce sotto
+	plancia.posto_vita.add_child(vita)
 	plancia.righe_studio.add_child(extra)
 	# L'IMMAGINE e' il disegno e non il riquadro: e' lei che trema sotto la
 	# Mattanza, mentre la cornice resta ferma dov'e' (Impatto.tremito)
@@ -220,6 +222,10 @@ func aggiorna(combattente: Dictionary) -> void:
 				or not conosciuta(combattente, 1) \
 				else "%d/%d" % [combattente.hp, combattente.hp_max]
 		combattente.etichetta_vita.text = "HP: %s" % quanto
+		if combattente.scheda == plancia.box_nemico:
+			# e sulla fascia la barra: coperta da un tratteggio finche' "???"
+			plancia.vita_nemico(float(combattente.hp) / maxf(float(combattente.get("hp_max", 1)), 1.0),
+					quanto != "???")
 		scrivi_quanti_in_fascia(combattente)
 	elif combattente.get("hp_nascosti", false):
 		# i boss (e i nemici scriptati come la manifestazione) non mostrano il
@@ -435,7 +441,7 @@ func turno_al_nemico(combattente: Dictionary, suo_turno: bool) -> void:
 		return
 	FasciaTurno.accendi_nemico(schermo)
 	FasciaTurno.metti(schermo, "TOCCA A %s" % nome_in_fascia(combattente), "pericolo",
-			Vector2(24.0, schermo.size.y - 24.0), schermo.size.x - 48.0)
+			plancia.posto_turno_nemico(), schermo.size.x * 0.6)
 
 func congeda(scheda: Control) -> void:
 	if muta or scheda == null or not is_instance_valid(scheda):

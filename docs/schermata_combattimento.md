@@ -13,15 +13,62 @@ combattimento, con le sue parole, **prima** di scrivere una riga di codice.
 
 ---
 
-## La disposizione
+## La disposizione: il manifesto di un incontro
 
-> ✅ **fatta** — `scripts/combattimento/Plancia.gd` costruisce tutto da queste misure
+> ✅ **fatta** (23 ottobre) — `scripts/combattimento/Plancia.gd` e i suoi pezzi:
+> `Spina.gd` (la diagonale), `Cartellone.gd`, `FasciaNemico.gd`, `Slot.gd`
+> (la scheda), `FilaGiro.gd`
 
-Misurata sui tre disegni di Bru, che sono 1920×1080. **Tutto è in frazioni** di
-larghezza e altezza, non in pixel: la finestra può essere di qualunque misura e
-il disegno deve restare quello.
+Bru ha chiesto una mia idea per la schermata intera («voglio vederti provare
+con una tua idea dopo tutto quello che abbiamo studiato»); la proposta è in
+`docs/scontro_proposta.md`. Al secondo giro: «sì mi piace», e «sì dai» a
+portarla nel gioco. Da qui in giù, quello che c'è oggi:
 
-I numeri stanno in `data/stile.json` sotto `combattimento`, non nel codice.
+```
+┌───────────────────────╱  GIRO 1  (Y)▸(A)▸(M)▸(V)
+│                      ╱ ╱┌──┐ TOCCA A TE ▬▬▬▬▬▬ 100/100
+│      LA CREATURA    ╱ ╱ └──┘           ▬▬▬▬▬   10/10
+│   (il cartellone)  ╱ ╱─────────────────────────────
+│                   ╱ ╱  ┌─┐ VERONICA  ▬▬▬▬▬▬ 160/160
+│                  ╱ ╱───────────────────────────────
+├──────────────── ╱ ╱  ┌─┐ YHVINA    ▬▬▬▬▬▬ 130/130
+╱ MARIONETTA     ╱ ╱  ───────────────────────────────
+═══════════════╱ ╱ ┌─────────── ECG ──────────────┐
+▬▬▬▬▬▬▬▬▬▬ ???  ╱  │ MORALE 20   STRESS 0       │
+TETRO          ╱    ATTACCHI   COSA FA
+              ╱     DIFESA     Il colpo normale...
+             ╱      SKILL ...
+            ╱      [MATTANZA] [BOND]
+```
+
+| pezzo | dove | cosa fa |
+|---|---|---|
+| **la diagonale** | dall'alto a destra al basso a sinistra | il lato destro del cartellone, il lato sinistro delle schede e del programma corrono paralleli, a una «gola» l'uno dall'altro |
+| **il cartellone** | in alto a sinistra, il riquadro più grande | lo schermo della creatura; si clicca per colpire; quando lei attacca ci gioca il minigioco (il palco) e lei si ritira |
+| **la fascia** | rossa, di traverso, entra nel cartellone | il nome; sotto, la vita (una barra coperta da un tratteggio finché non la studi, poi il pieno e il numero); sotto ancora, le strisce di quello che sai |
+| **le schede** | una sotto l'altra sulla diagonale | ritratto piccolo, barre lunghe dentro il foglio coi loro segni, la vita sempre scritta, gli status nell'angolo; chi ha il turno fa un passo avanti, si allarga, e al posto del nome dice «TOCCA A TE» |
+| **il programma** | sotto le schede | in cima il monitor di chi decide (l'ECG per tutta la larghezza, morale e stress sotto la linea); i comandi con accanto «COSA FA»; le liste; MATTANZA e BOND in fondo |
+| **la didascalia** | sotto il cartellone, al posto della fascia | il racconto: il box dei dialoghi, mentre la fascia esce |
+| **la fila del giro** | in alto a destra | «GIRO n» e un gettone per ognuno nell'ordine di velocità: chi tocca grande e cerchiato, la creatura rossa, chi ha già agito spento |
+
+La schermata si ricompone secondo il momento: **comandi e liste** — il
+programma sale; **racconto** — la didascalia prende il posto della fascia e il
+programma scende; **minigioco** — il programma scende, la creatura si ritira e
+il minigioco si stende sul suo schermo.
+
+Le misure stanno in `data/stile.json`, voce `plancia`, **su un foglio di
+1280×720** che la plancia porta alla finestra moltiplicando per una scala: a
+qualunque misura il disegno resta quello. Le due righe di «COSA FA» sono mie e
+provvisorie (`plancia.cosa_fa`).
+
+La prova è `prova_la_schermata_sulla_diagonale`: lo scontro vero con la squadra
+di tre, a ogni turno.
+
+### Com'era: i tre disegni di Bru
+
+Fino al 23 ottobre la disposizione era quella misurata sui tre disegni di Bru
+(1920×1080), in frazioni di larghezza e altezza. La teniamo qui perché è da lì
+che viene tutto il resto di questo documento.
 
 ```
 ┌─────────────────┐  ┌───────┐ ┌───────┐ ┌───────┐

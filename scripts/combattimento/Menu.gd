@@ -119,6 +119,15 @@ func bottone(testo: String, richiamo: Callable, spento := false, evidenziato := 
 		battito.tween_property(pulsante, "modulate:a", 0.45, 0.5)
 		battito.tween_property(pulsante, "modulate:a", 1.0, 0.5)
 
+func segna_costo(aura: int) -> void:
+	# QUANTO COSTA LA VOCE APPENA MESSA, scritto addosso a lei: la schermata, se
+	# la guardi, ti fa vedere sulla barra dell'aura il pezzo che spenderesti
+	# (Plancia.prenota_per). Il numero sta gia' nel testo, ma il testo e' per
+	# chi legge, non per chi disegna
+	if muta or contenitore == null or contenitore.get_child_count() == 0:
+		return
+	contenitore.get_child(contenitore.get_child_count() - 1).set_meta("aura", aura)
+
 func voce_in_coda(nome: String) -> void:
 	# QUELLO CHE ASPETTA DEVE VEDERSI, O IL BUFFER E' SOLO RITARDO.
 	#
@@ -358,6 +367,7 @@ func abilita() -> void:
 		if costo_arma > 0:
 			etichetta_arma += "  (%d aura)" % costo_arma
 		bottone(etichetta_arma, bersagli_di_attacco.bind(attacco), aura < costo_arma or lezione)
+		segna_costo(costo_arma)
 	# abilita_usabili tiene conto della progressione: di una linea passa un
 	# grado solo, il piu' alto. Terra bruciata prende il posto di Flagello
 	# invece di stargli accanto
@@ -386,6 +396,7 @@ func abilita() -> void:
 		else:
 			bottone(etichetta, scegli.bind({"tipo": "abilita", "id": String(id_abilita)}),
 					spenta, richiesta)
+		segna_costo(costo)
 	bottone("Indietro", principale)
 
 func spenta_dalla_lezione(id_abilita: String, lezione: bool, solo_questa: String) -> bool:
