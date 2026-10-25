@@ -165,10 +165,8 @@ func dove_sta(nodo: Control) -> Rect2:
 
 
 func dove_si_legge() -> Rect2:
-	# il box com'e' davvero: se il testo e' grande puo' essere piu' alto del posto
-	# che gli e' stato dato, e la luce deve prenderlo tutto
-	if plancia.box_testo != null and plancia.box_testo.is_inside_tree():
-		return dove_sta(plancia.box_testo)
+	# la didascalia cresce quanto serve al box (Plancia.disponi_didascalia), e il
+	# leggio e' piu' alto di lui: la luce sul posto prende tutto il testo
 	return dove_sta(leggio if leggio != null else plancia.didascalia)
 
 
