@@ -17,10 +17,14 @@ E prima ancora, quando sono nati i pianeti del Vuoto (`scripts/Vuoto.gd`):
 > acquisire nuove risorse tramite videogiochi, potrei trovarci collezionabili,
 > oggetti, minerali, tazo e risorse per l'organizzazione»
 
-È una **proposta**: nel gioco non cambia niente. Ci sono quattro tavole disegnate
-nella lingua del Vuoto. Nomi, testi e numeri sono miei, d'esempio.
+È una **proposta**: nel gioco non cambia niente. Le tavole sono disegnate nella
+lingua del Vuoto. Nomi, testi e numeri sono miei, d'esempio.
 
-    ./prove/proposte_pianeti.sh     le quattro tavole, in scatti/proposte_pianeti/
+Bru, sul primo giro: «ok ma i giochi devono essere fatti meglio di come sono ora
+e dobbiamo renderli leggermente diversi». Il **secondo giro** è il §8: ogni gioco
+ha una decisione vera e un'idea nostra, e le tavole sono rifatte.
+
+    ./prove/proposte_pianeti.sh     le nove tavole, in scatti/proposte_pianeti/
 
 ---
 
@@ -47,6 +51,8 @@ da lì, come dalla mappa stellare. Solo le pubblicità escono dal tavolo, perch�
 il loro posto è un telefono, e il telefono del gioco è il data pad.
 
 ## 2. La raccolta (tavola 1)
+
+*Il primo giro. Le novità del secondo sono nel §8.*
 
 **Cosa si vede.** La superficie del pianeta come un plastico. Ci sono dei
 **campi** dal contorno storto, alzati da terra come le radure delle Pianure. Fra
@@ -84,6 +90,8 @@ la pausa si ferma): una vena si ricarica mentre giochi, anche altrove. Non conta
 l'orologio vero. Niente «torna fra quattro ore».
 
 ## 3. La resistenza: insediamenti e resistenze (tavola 2)
+
+*Il primo giro. Le novità del secondo sono nel §8.*
 
 **La trama c'è già nel canone** (`docs/storia.md`, «Le unità»). L'Organizzazione
 è divisa in unità, e un'unità è «una struttura da difendere». Ogni unità deve
@@ -144,6 +152,8 @@ toglie quello che hai costruito**: le mura vanno giù e si riparano spendendo.
 - **Storia**: la gente salvata. Qualcuno, più avanti, si ricorda di te.
 
 ## 4. Le pubblicità (tavola 3)
+
+*Il primo giro. Le novità del secondo sono nel §8.*
 
 **La mia lettura.** Le pubblicità dei giochi da telefono mostrano giochini
 furbi: tira il perno, la torre dei numeri, le porte che moltiplicano. Poi scarichi
@@ -234,31 +244,95 @@ La presa in giro resta nella finzione: sono i giochi a essere veri.
   2. **le pubblicità**: giochi chiusi in sé, uno alla volta;
   3. **la resistenza**: è la più grande, e ha bisogno della trama.
 
-## 8. Le domande per Bru
+## 8. Il secondo giro: meglio, e un po' diversi
 
-1. **Pubblicità**: ho capito bene, sono i giochini che le pubblicità mostrano,
+> Bru: «ok ma i giochi devono essere fatti meglio di come sono ora e dobbiamo
+> renderli leggermente diversi»
+
+L'ho letto così: i giochi da telefono a cui somigliano sono fatti male, e i
+nostri non devono esserne la copia. Il difetto è sempre lo stesso: **non c'è
+niente da decidere**. Si tira il perno che si vede, si mangia il più piccolo, si
+sceglie il numero più grande. Ogni gioco adesso ha **una decisione vera**, e
+**un'idea nostra** presa da quello che Carnivalz ha già: lo stress, la speranza,
+gli elementi, lo Studio. Ho cambiato anche i nomi, così si vede che sono un'altra
+cosa.
+
+**Le due cose che valgono per tutte e cinque le pubblicità** (tavola 3):
+
+- **La mano.** La pubblicità vuole vederti sbagliare. In ogni gioco c'è la sua
+  mano, con un anello rosso che si riempie mentre esiti: pieno, gioca lei, e
+  gioca la mossa sbagliata. Più vai avanti, meno aspetta. È il cattivo del
+  pianeta, e dà un po' di fretta a giochi che altrimenti sarebbero solo pazienza.
+- **L'omino ha lo stress e la speranza**, come i personaggi degli scontri. È lo
+  stesso in tutti e cinque. Ogni sbaglio gli dà stress: con lo stress alto trema,
+  un perno gli scivola, il corteo si sparpaglia. Ogni vittoria gli dà speranza:
+  piena, all'ultimo livello esce dalla pubblicità.
+
+**I cinque**, ognuno con la sua tavola (3a-3e): il gioco in grande, a sinistra
+cosa cambia, a destra i tre passi della soluzione.
+
+| di solito | cosa non va | il nostro | la decisione vera |
+|---|---|---|---|
+| tira il perno | un ordine giusto solo, si vede subito | **i perni**: le sostanze si mescolano (acqua sulla lava fa pietra, gelo sull'acqua ghiaccio, lava sul ghiaccio vapore) | quale miscela ti serve, e in che ordine; spesso le strade sono due e una vale più tazo |
+| la torre dei numeri | mangi sempre il più piccolo e vinci | **la torre che cresce**: i mostri crescono di uno a ogni tua mossa, le pozioni moltiplicano, le trappole dimezzano, le stanze al buio si guardano con le occhiate | l'ordine: la pozione presa subito fa perdere, presa per ultima fa vincere |
+| le porte che moltiplicano | scegli il numero più grande | **il corteo**: tre elementi in cerchio (fuoco batte natura, natura acqua, acqua fuoco), e chi batte vale doppio | diventare l'elemento che batte chi ti aspetta in fondo, anche con meno gente |
+| disegna la linea | un muro a caso, decide la fisica | **il tratto**: tre secondi per vedere da dove arrivano, l'inchiostro è poco e quello che avanza diventa tazo, il tratto si crepa a ogni colpo | dove mettere poco inchiostro, nel posto giusto |
+| scegli quello giusto | si tira a indovinare | **la prova**: c'è sempre una ragione nella scena (il mostro ha la chiave al collo), e uno studio per livello dice com'è fatto un oggetto | guardare bene, e spendere lo studio dove serve |
+
+Gli esempi delle tavole tornano coi numeri. Nella torre: 9 mangia il 4 (13, gli
+altri crescono), l'occhiata trova un 8 (21), la pozione per ultima porta a 42
+contro un 33. Se prendi la pozione per prima finisci a 32 contro 33. Nel corteo:
+×2 natura (10), l'acqua diventa natura (18), e 18 che vale doppio fa 36 contro 30.
+Il +10 fuoco che indica la mano porterebbe 22 fuochi contro un muro d'acqua.
+
+**La raccolta** (tavola 1), con due cose nuove:
+
+- **Il polso.** Una vena pronta batte. Cliccata sul battito dà la metà in più
+  (+9 invece di +6). Raccogliere non è più solo cliccare: è cliccare bene.
+- **Il bivio.** Il Cratere costa 100 minerali, oppure 30 col ferro delle Forre.
+  Puoi pagare tanto e subito, o fare prima le Forre e pagare meno.
+
+**La resistenza** (tavola 2), con due cose nuove:
+
+- **I soldati hanno lo stress.** Non hanno il fattore Carnivalz: quando un mostro
+  grosso passa vicino, chi è dentro la postazione si spaventa e spara più piano
+  (l'anello rosso intorno alla torre; a 70 trema). La mossa del dominatore di
+  turno li calma. Le mura che cadono li spaventano tutti.
+- **Gli elementi e le resistenze degli scontri.** Le torri hanno un elemento (il
+  mortaio è fuoco, la rete è gelo) e i mostri sono quelli del bestiario, con le
+  loro immunità. «IN ARRIVO» dice chi viene, e quello che hai **studiato** in
+  scontro c'è scritto: «ABOMINIO: IMMUNE AL FUOCO». Le torri si scelgono
+  sull'ondata, non una volta per tutte.
+
+## 9. Le domande per Bru
+
+1. **Il secondo giro** (§8): le novità di ogni gioco ti piacciono? Ce n'è una
+   che toglieresti, o una che spingeresti di più?
+2. **Pubblicità**: ho capito bene, sono i giochini che le pubblicità mostrano,
    fatti veri? E lo scherzo del match-3 che parte e si rompe, una volta sola, sì
    o no?
-2. **Insediamenti e resistenze**: va bene la mia lettura (l'insediamento lo
+3. **Insediamenti e resistenze**: va bene la mia lettura (l'insediamento lo
    fondi su un pianeta sano, la resistenza la sostieni dove c'è già gente che
    resiste)?
-3. **Tower defense**: tempo reale con la pausa (la mia proposta) o a turni?
-4. **Il dominatore di turno**: un compagno del party sull'avamposto con una
+4. **Tower defense**: tempo reale con la pausa (la mia proposta) o a turni?
+5. **Il dominatore di turno**: un compagno del party sull'avamposto con una
    mossa sola durante l'assedio, ti piace?
-5. **Quando** l'Organizzazione ti affida il primo avamposto: dopo Jerah?
-6. **Raccolta**: va bene tempo di gioco e non orologio vero? E le macchine che
+6. **Quando** l'Organizzazione ti affida il primo avamposto: dopo Jerah?
+7. **Raccolta**: va bene tempo di gioco e non orologio vero? E le macchine che
    migliorano la sonda di quel pianeta?
-7. **Da quale** cominciamo? Io direi la raccolta.
+8. **Da quale** cominciamo? Io direi la raccolta.
 
 ## Le tavole
 
-- `1_raccolta.png`: la Piana di Quarzo aperta, una vena pronta (+6 minerali),
-  la trivella col nastro verso il modulo, il cancello per le Forre di Ferro
-  apribile (arancio) e quello per il Cratere no (mancano 60 minerali).
-- `2_resistenza.png`: l'ondata 3 di 8; la postazione scelta col suo raggio, il
-  mortaio col suo arco, la rete, tre posti liberi; le mura a 14/20, Yhvina sul
-  tetto con la sua mossa pronta, e il messaggio dell'Organizzazione.
-- `3_pubblicita.png`: tira il perno sul data pad in verticale, «IL 90%
-  SBAGLIA!», la mano sul perno sbagliato; a destra gli altri quattro giochi.
+- `1_raccolta.png`: la Piana di Quarzo aperta, la vena che batte (+9 al polso),
+  la trivella col nastro verso il modulo, il cancello per le Forre apribile
+  (arancio) e quello per il Cratere che costa meno col ferro.
+- `2_resistenza.png`: l'ondata 3 di 8; la postazione scelta col suo raggio e lo
+  stress a 70, il mortaio di fuoco che l'abominio non sente, la rete di gelo, tre
+  posti liberi; le mura a 14/20, Yhvina che calma i soldati, e il messaggio
+  dell'Organizzazione.
+- `3_pubblicita.png`: i cinque giochi sul data pad, la mano e l'omino.
+- `3a_perni.png` … `3e_prova.png`: un gioco per tavola, in grande, coi tre passi
+  della soluzione a destra.
 - `4_il_giro.png`: le tre specie intorno alle riserve, cosa entra (pieno) e cosa
   esce (tratteggiato), e cosa torna al gioco grande.

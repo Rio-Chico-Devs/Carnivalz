@@ -11,8 +11,15 @@ extends Control
 #
 #   1_raccolta     un pianeta da scavare, sul tavolo della Sala operativa
 #   2_resistenza   un avamposto sotto assedio
-#   3_pubblicita   il pianeta che promette: i giochi delle pubblicita', veri
+#   3_pubblicita   il pianeta che promette: i cinque giochi, la mano, l'omino
+#   3a..3e         ognuno dei cinque in grande, coi tre passi della soluzione
 #   4_il_giro      come si parlano le tre, attraverso le riserve
+#
+# Il secondo giro. Bru: «i giochi devono essere fatti meglio di come sono ora e
+# dobbiamo renderli leggermente diversi». Ogni gioco ha adesso una decisione
+# vera e un'idea nostra (docs/pianeti_giochi.md, §8): la raccolta il polso e i
+# cancelli che si chiedono a vicenda, la resistenza i soldati che si stressano e
+# gli elementi, le pubblicita' i telefoni di TelefonoPubblicita.gd.
 #
 # Disegnate nella lingua del Vuoto (i quattro inchiostri di stile.json
 # "proiezione", le schede a destra, le etichette): si comandano dalla Sala
@@ -23,19 +30,47 @@ extends Control
 #   ./prove/proposte_pianeti.sh   le fotografa in scatti/proposte_pianeti/
 #   nell'editor, F6: destra e sinistra cambiano tavola
 
-const TAVOLE := ["1_raccolta", "2_resistenza", "3_pubblicita", "4_il_giro"]
+const TAVOLE := ["1_raccolta", "2_resistenza", "3_pubblicita", "3a_perni", "3b_torre", "3c_corteo", "3d_tratto",
+		"3e_prova", "4_il_giro"]
+const Telefono := preload("res://prove/TelefonoPubblicita.gd")
+const GIOCHI := ["perni", "torre", "corteo", "tratto", "prova"]
+# quello che dicono le schede di ogni gioco, nella sua tavola grande
+const SCHEDE := {
+	"perni": {"nome": "I PERNI", "di_solito": "«TIRA IL PERNO»",
+		"solito": "Un ordine giusto solo, e lo vedi al primo sguardo. Lava e acqua sono cose che cadono, e basta.",
+		"nostro": "Le sostanze si mescolano: l'acqua sulla lava fa pietra, il gelo sull'acqua fa ghiaccio, la lava sul ghiaccio fa vapore. Spesso le strade giuste sono due, e una vale più tazo.",
+		"mano": "Se esiti, tira lei: il perno sbagliato. L'anello rosso dice quanto manca. Più vai avanti, meno aspetta.",
+		"passi": ["Il perno della lava: cade sul mostro.", "Il perno dell'acqua: sulla lava diventa pietra.",
+			"Il perno di mezzo: l'omino passa sul ponte di pietra e raccoglie i tazo."]},
+	"torre": {"nome": "LA TORRE CHE CRESCE", "di_solito": "LA TORRE DEI NUMERI",
+		"solito": "Mangi sempre il più piccolo, e vinci. Non c'è niente da decidere.",
+		"nostro": "I mostri crescono di uno a ogni tua mossa, le pozioni moltiplicano, le trappole dimezzano, e alcune stanze sono al buio: con un'occhiata le guardi. Conta l'ordine: la pozione presa subito fa perdere.",
+		"mano": "Se esiti, la mano ti porta verso il numero più grosso, quello che non puoi ancora battere.",
+		"passi": ["Il 4: sali a 13. Gli altri crescono di uno.", "Un'occhiata al buio: è un 8. Lo mangi: 21.",
+			"La pozione per ultima: 42 contro 33. In cima."]},
+	"corteo": {"nome": "IL CORTEO", "di_solito": "LE PORTE CHE MOLTIPLICANO",
+		"solito": "Scegli la porta col numero più grande, ogni volta. Basta saper contare.",
+		"nostro": "Il corteo è di tre elementi: il fuoco batte la natura, la natura l'acqua, l'acqua il fuoco. Guardi chi ti aspetta in fondo, e scegli le porte per diventare quello che lo batte. Chi batte vale doppio.",
+		"mano": "Se esiti, ti spinge verso la porta col numero più grosso: +10 fuoco, contro un muro d'acqua.",
+		"passi": ["×2 natura: i verdi da 5 a 10.", "L'acqua diventa natura: 18 verdi.",
+			"La natura batte l'acqua e vale doppio: 36 contro 30."]},
+	"tratto": {"nome": "IL TRATTO", "di_solito": "DISEGNA LA LINEA",
+		"solito": "Un muro a caso, e speri che regga: decide la fisica, non tu.",
+		"nostro": "Prima vedi da dove arriveranno, per tre secondi. L'inchiostro è poco, e quello che avanza diventa tazo. Il tratto si crepa a ogni colpo: troppo sottile si rompe, troppo lungo costa.",
+		"mano": "Se esiti, disegna lei: uno scarabocchio che non para niente.",
+		"passi": ["Tre secondi per vedere da dove vengono.", "Un arco solo, dal lato giusto.",
+			"Crepato, ma regge. Avanza metà dell'inchiostro: tazo."]},
+	"prova": {"nome": "LA PROVA", "di_solito": "SCEGLI QUELLO GIUSTO",
+		"solito": "Tre oggetti, uno giusto, e lo trovi tirando a indovinare.",
+		"nostro": "C'è sempre una ragione, e chi guarda bene la scena la trova: qui il mostro ha la chiave al collo. Uno studio per livello ti dice com'è fatto un oggetto, come lo Studio negli scontri.",
+		"mano": "Indica sempre quello sbagliato. Fidarsi della pubblicità è il modo più veloce per perdere.",
+		"passi": ["Lo studio sulla chiave: è arrugginita, si spezza.", "L'osso al mostro. La chiave vera è al suo collo.",
+			"La chiave vera apre la porta."]},
+}
 const CARTELLA := "res://scatti/proposte_pianeti"
 const X := SchedaProiezione.X
 const LARGO := SchedaProiezione.LARGO
 const RISERVE := "MINERALI 128     TAZO 2.430     ORG 4"
-# i colori di una pubblicita' da telefono: apposta fuori dalla tavolozza
-const CIELO_ALTO := Color("#6fd3ff")
-const CIELO_BASSO := Color("#2a68d8")
-const LAVA := Color("#ff5a1f")
-const ORO := Color("#ffd23a")
-const MOSTRO := Color("#8c4bd6")
-const VERDE := Color("#37c94a")
-const MURO := Color("#4a3426")
 
 var indice := 0
 var tinte := {}
@@ -48,8 +83,7 @@ func _ready() -> void:
 		return
 	DirAccess.make_dir_recursive_absolute(CARTELLA)
 	for i in TAVOLE.size():
-		indice = i
-		queue_redraw()
+		mostra(i)
 		for k in 6:
 			await get_tree().process_frame
 		await RenderingServer.frame_post_draw
@@ -60,11 +94,36 @@ func _ready() -> void:
 
 func _unhandled_input(evento: InputEvent) -> void:
 	if evento.is_action_pressed("ui_right"):
-		indice = (indice + 1) % TAVOLE.size()
-		queue_redraw()
+		mostra((indice + 1) % TAVOLE.size())
 	elif evento.is_action_pressed("ui_left"):
-		indice = (indice + TAVOLE.size() - 1) % TAVOLE.size()
-		queue_redraw()
+		mostra((indice + TAVOLE.size() - 1) % TAVOLE.size())
+
+
+func mostra(i: int) -> void:
+	# i telefoni sono figli: si tolgono quelli della tavola di prima
+	indice = i
+	for figlio in get_children():
+		remove_child(figlio)
+		figlio.free()
+	var nome := String(TAVOLE[indice])
+	if nome == "3_pubblicita":
+		for k in GIOCHI.size():
+			telefono(String(GIOCHI[k]), 0, Vector2(187.0 + 186.0 * float(k), 76), 0.45)
+	elif nome.begins_with("3"):
+		var gioco := nome.substr(3)
+		telefono(gioco, 0, Vector2(459, 74), 0.95)
+		for f in 3:
+			telefono(gioco, f + 1, Vector2(842, 80.0 + 206.0 * float(f)), 0.28)
+	queue_redraw()
+
+
+func telefono(gioco: String, fase: int, dove: Vector2, quanto: float) -> void:
+	var t: Control = Telefono.new()
+	t.set("gioco", gioco)
+	t.set("fase", fase)
+	t.position = dove
+	t.scale = Vector2(quanto, quanto)
+	add_child(t)
 
 
 func _draw() -> void:
@@ -75,8 +134,10 @@ func _draw() -> void:
 			resistenza()
 		"3_pubblicita":
 			pubblicita()
-		_:
+		"4_il_giro":
 			giro()
+		_:
+			dettaglio(String(TAVOLE[indice]).substr(3), String(TAVOLE[indice]).unicode_at(1) - 96)
 
 
 # ---------------------------------------------------------------- 1 LA RACCOLTA
@@ -101,20 +162,21 @@ func raccolta() -> void:
 	vena(Vector2(655, 330), 0.8)
 	trivella(Vector2(668, 318), 18, 30)
 	nastro(Vector2(660, 342), Vector2(232, 470))
-	scrivi(Vector2(452, 294), "+6 MINERALI", 13, tinte["segnale"], 560, 85, 2)
+	polso(Vector2(545, 318))
+	scrivi(Vector2(444, 294), "+9 AL POLSO", 13, tinte["segnale"], 560, 85, 2)
 	cancello(Vector2(730, 396), true, "40 MINERALI  ·  300 TAZO")
-	cancello(Vector2(495, 242), false, "100 MINERALI  ·  ORG 2")
+	cancello(Vector2(495, 242), false, "100 MINERALI, O 30 + 2 FERRO")
 	cancello(Vector2(595, 160), false, "?")
 	cartellino(Vector2(150, 434), Vector2(-50, -46), "IL CAMPO D'ATTERRAGGIO", "APERTO  ·  2 VENE")
 	cartellino(Vector2(720, 268), Vector2(18, -44), "LA PIANA DI QUARZO", "APERTO  ·  3 VENE  ·  1 MACCHINA")
 	cartellino(Vector2(780, 528), Vector2(-60, 56), "LE FORRE DI FERRO", "CHIUSO  ·  DIETRO UN CANCELLO", false)
-	cartellino(Vector2(290, 136), Vector2(-60, -30), "IL CRATERE", "CHIUSO  ·  MANCANO 60 MINERALI", false)
+	cartellino(Vector2(290, 136), Vector2(-60, -30), "IL CRATERE", "CHIUSO  ·  COL FERRO COSTA MENO", false)
 	cartellino(Vector2(800, 126), Vector2(10, -26), "?", "NON ANCORA RILEVATO", false)
 	cartellino(Vector2(205, 440), Vector2(-40, 90), "IL MODULO", "DA QUI ALLE RISERVE")
 	nome_scheda(Rect2(X, 76, LARGO, 64), "01 / CAMPO", "LA PIANA DI QUARZO", "APERTO  ·  3 VENE  ·  1 MACCHINA")
 	var vene := Rect2(X, 148, LARGO, 96)
 	SchedaProiezione.scatola(self, vene, "02 / VENE", tinte)
-	riga_con_barra(vene.position + Vector2(10, 34), "QUARZO", "PRONTA", 1.0)
+	riga_con_barra(vene.position + Vector2(10, 34), "QUARZO", "PRONTA  ·  BATTE", 1.0)
 	riga_con_barra(vene.position + Vector2(10, 58), "QUARZO", "TRA 3 MIN DI GIOCO", 0.3)
 	riga_con_barra(vene.position + Vector2(10, 82), "QUARZO  ·  TRIVELLA", "18 / 30", 0.6)
 	var macchine := Rect2(X, 252, LARGO, 102)
@@ -126,9 +188,9 @@ func raccolta() -> void:
 	scrivi(porta.position + Vector2(10, 38), "LE FORRE DI FERRO", 15, tinte["carta"], 300, 75, 3)
 	SchedaProiezione.riga(self, porta.position + Vector2(10, 58), "COSTO", "40 MINERALI  ·  300 TAZO", tinte)
 	racconto(Rect2(porta.position + Vector2(14, 70), Vector2(LARGO - 26, 60)),
-			"Dietro: vene di ferro, un relitto da smontare, e qualcosa che la sonda non sa leggere.")
+			"Dietro: il ferro. Il Cratere costa 100 minerali, o 30 col ferro: prima le Forre costa meno, ma ci vuole più tempo.")
 	bottone(Rect2(X, 502, LARGO, 40), "APRI IL CANCELLO")
-	suggerimenti(["CLIC SU UNA VENA PRONTA  ·  RACCOGLI", "CLIC SU UNA VENA  ·  COSTRUISCI",
+	suggerimenti(["CLIC SULLA VENA QUANDO BATTE  ·  DI PIÙ", "CLIC SU UNA VENA  ·  COSTRUISCI",
 			"CLIC SU UN CANCELLO  ·  APRI", "ESC  ·  TORNA AL VUOTO"])
 	titolo("PIANETA D'ESEMPIO  ·  2 CAMPI APERTI SU 5", "LA RACCOLTA")
 
@@ -188,6 +250,13 @@ func cancello(punto: Vector2, apribile: bool, costo: String) -> void:
 		var w := DisegnoProiezione.larghezza(costo, 10, 450, 85, 2)
 		draw_rect(Rect2(punto + Vector2(-w * 0.5 - 4, 18), Vector2(w + 8, 16)), Color(tinte["fondo"], 0.85))
 		scrivi(punto + Vector2(-w * 0.5, 30), costo, 10, tinta, 450, 85, 2)
+
+
+func polso(punto: Vector2) -> void:
+	# IL POLSO: una vena pronta batte. Cliccata sul battito da' la meta' in piu':
+	# la raccolta non e' piu' solo cliccare, e' cliccare bene
+	for k in 2:
+		draw_arc(punto, 30.0 + 9.0 * float(k), 0.0, TAU, 48, Color(tinte["segnale"], 0.55 - 0.25 * float(k)), 2.0, true)
 
 
 func vena(punto: Vector2, quota: float) -> void:
@@ -268,35 +337,52 @@ func resistenza() -> void:
 	torre(postazione, "postazione")
 	torre(mortaio, "mortaio")
 	torre(Vector2(724, 520), "rete")
+	# LO STRESS DEI SOLDATI: l'abominio passa vicino alla postazione, e chi ci sta
+	# dentro non ha il fattore Carnivalz. Trema, e spara piu' piano
+	stress_torre(postazione, 0.7)
+	stress_torre(mortaio, 0.2)
+	stress_torre(Vector2(724, 520), 0.1)
 	for posto: Vector2 in [Vector2(232, 196), Vector2(540, 330), Vector2(780, 506)]:
 		posto_libero(posto)
 	cartellino(Vector2(100, 268), Vector2(10, -70), "LA FRATTURA", "DA QUI ESCONO")
-	cartellino(Vector2(345, 288), Vector2(40, -170), "POSTAZIONE  ·  LIV. 2", "SCELTA")
-	cartellino(Vector2(512, 492), Vector2(-150, 60), "MORTAIO  ·  LIV. 1", "COLPISCE IN UN'AREA")
-	cartellino(Vector2(736, 528), Vector2(14, 44), "RETE", "RALLENTA")
+	cartellino(Vector2(345, 288), Vector2(40, -170), "POSTAZIONE  ·  LIV. 2", "STRESS 70: SPARA PIÙ PIANO")
+	cartellino(Vector2(512, 492), Vector2(-150, 60), "MORTAIO  ·  FUOCO", "L'ABOMINIO NON LO SENTE")
+	cartellino(Vector2(736, 528), Vector2(14, 44), "RETE  ·  GELO", "RALLENTA")
 	cartellino(Vector2(552, 318), Vector2(30, -60), "POSTO LIBERO", "20 MINERALI")
-	cartellino(Vector2(900, 360), Vector2(-120, -150), "IL DOMINATORE DI TURNO", "YHVINA  ·  MOSSA PRONTA")
+	cartellino(Vector2(900, 360), Vector2(-24, -150), "IL DOMINATORE DI TURNO", "YHVINA  ·  CALMA I SOLDATI", true, true)
 	velocita(Vector2(822, 572))
 	nome_scheda(Rect2(X, 76, LARGO, 64), "01 / AVAMPOSTO", "AVAMPOSTO D'ESEMPIO", "2 ASSEDI RESPINTI  ·  0 PERSI")
-	var assedio := Rect2(X, 148, LARGO, 96)
+	var assedio := Rect2(X, 148, LARGO, 112)
 	SchedaProiezione.scatola(self, assedio, "02 / L'ASSEDIO", tinte)
 	SchedaProiezione.riga(self, assedio.position + Vector2(10, 34), "ONDATA", "3 DI 8", tinte)
 	SchedaProiezione.riga(self, assedio.position + Vector2(10, 52), "IN ARRIVO", "9 GHOUL  ·  1 ABOMINIO", tinte)
-	riga_con_barra(assedio.position + Vector2(10, 80), "MURA", "14 / 20", 0.7)
-	var torre_scelta := Rect2(X, 252, LARGO, 102)
+	SchedaProiezione.riga(self, assedio.position + Vector2(10, 70), "STUDIATO", "ABOMINIO: IMMUNE AL FUOCO", tinte)
+	riga_con_barra(assedio.position + Vector2(10, 96), "MURA", "14 / 20", 0.7)
+	var torre_scelta := Rect2(X, 268, LARGO, 102)
 	SchedaProiezione.scatola(self, torre_scelta, "03 / POSTAZIONE  ·  LIV. 2", tinte)
 	SchedaProiezione.riga(self, torre_scelta.position + Vector2(10, 36), "COLPO", "UNO ALLA VOLTA  ·  LONTANO", tinte)
-	SchedaProiezione.riga(self, torre_scelta.position + Vector2(10, 56), "AL LIV. 3", "40 MINERALI  ·  250 TAZO", tinte)
-	SchedaProiezione.riga(self, torre_scelta.position + Vector2(10, 76), "AL LIV. 3 FA", "DUE COLPI, PIÙ LONTANO", tinte)
-	SchedaProiezione.riga(self, torre_scelta.position + Vector2(10, 94), "SMONTALA", "+20 MINERALI", tinte)
-	var data_pad := Rect2(X, 362, LARGO, 132)
+	SchedaProiezione.riga(self, torre_scelta.position + Vector2(10, 54), "STRESS", "70  ·  SPARA PIÙ PIANO", tinte)
+	SchedaProiezione.riga(self, torre_scelta.position + Vector2(10, 72), "AL LIV. 3", "40 MINERALI  ·  250 TAZO", tinte)
+	SchedaProiezione.riga(self, torre_scelta.position + Vector2(10, 90), "SMONTALA", "+20 MINERALI", tinte)
+	var data_pad := Rect2(X, 378, LARGO, 116)
 	SchedaProiezione.scatola(self, data_pad, "04 / DAL DATA PAD", tinte)
-	racconto(Rect2(data_pad.position + Vector2(14, 30), Vector2(LARGO - 26, 100)),
+	racconto(Rect2(data_pad.position + Vector2(14, 30), Vector2(LARGO - 26, 84)),
 			"«A seguito dei risultati ottenuti, le è affidato il comando di un avamposto. Le forze sono nostre. Il dominatore di turno è suo.»")
 	bottone(Rect2(X, 502, LARGO, 40), "MIGLIORA LA POSTAZIONE")
 	suggerimenti(["CLIC SU UN POSTO LIBERO  ·  COSTRUISCI", "CLIC SU UNA POSTAZIONE  ·  MIGLIORA",
 			"CLIC SUL DOMINATORE  ·  LA SUA MOSSA", "SPAZIO  ·  PAUSA     TAB  ·  PIÙ VELOCE"])
 	titolo("PIANETA D'ESEMPIO  ·  L'INFEZIONE PREME", "LA RESISTENZA")
+
+
+func stress_torre(p: Vector2, quota: float) -> void:
+	var rosso := Stile.colore("pericolo")
+	draw_arc(p, 21.0, -PI * 0.5, -PI * 0.5 + TAU * quota, 32, rosso, 3.0, true)
+	if quota < 0.5:
+		return
+	for lato: float in [-1.0, 1.0]:
+		for k in 2:
+			var x := p.x + lato * (27.0 + 5.0 * float(k))
+			draw_line(Vector2(x, p.y - 6.0 + 3.0 * float(k)), Vector2(x, p.y + 6.0 - 3.0 * float(k)), rosso, 2.0)
 
 
 func percorso(punti: Array[Vector2]) -> PackedVector2Array:
@@ -417,231 +503,46 @@ func velocita(dove: Vector2) -> void:
 # --------------------------------------------------- 3 IL PIANETA CHE PROMETTE
 
 func pubblicita() -> void:
+	# i cinque telefoni li mette mostra(): qui i nomi sotto, e le tre schede
 	tavolo("CARNIVALZ  ·  DATA PAD  ·  SEGNALE DAL PIANETA CHE PROMETTE", RISERVE)
-	var fuori := Rect2(450, 70, 380, 610)
-	telefono(fuori)
-	perni(fuori.grow(-14))
-	var colonna := 56.0
-	nome_scheda(Rect2(colonna, 148, LARGO, 64), "01 / IL PIANETA", "IL PIANETA CHE PROMETTE",
-			"UN MONDO FATTO DI PUBBLICITÀ")
-	var fonte := Rect2(colonna, 220, LARGO, 140)
-	SchedaProiezione.scatola(self, fonte, "02 / LA FONTE", tinte)
-	racconto(Rect2(fonte.position + Vector2(14, 30), Vector2(LARGO - 26, 108)),
-			"Qualcuno, qui, ha passato la vita a girare pubblicità di giochi che non esistevano. Il Carnivalz gliele ha fatte vere. Dentro c'è l'omino che sbaglia apposta, ogni volta, da sempre.")
-	var premi := Rect2(colonna, 368, LARGO, 76)
-	SchedaProiezione.scatola(self, premi, "03 / COSA SI VINCE", tinte)
-	SchedaProiezione.riga(self, premi.position + Vector2(10, 34), "OGNI LIVELLO", "TAZO", tinte)
-	SchedaProiezione.riga(self, premi.position + Vector2(10, 50), "OGNI TANTO", "UN COLLEZIONABILE", tinte)
-	SchedaProiezione.riga(self, premi.position + Vector2(10, 66), "ALLA FINE", "L'OMINO, SALVO", tinte)
-	var regole := Rect2(colonna, 452, LARGO, 104)
-	SchedaProiezione.scatola(self, regole, "04 / COSA NON C'È", tinte)
-	racconto(Rect2(regole.position + Vector2(14, 30), Vector2(LARGO - 26, 72)),
-			"Niente vite, niente attese, niente «guarda un video per continuare». Trenta secondi a livello.")
-	miniatura(Rect2(862, 84, 172, 222), "torre", "LA TORRE DEI NUMERI")
-	miniatura(Rect2(1062, 84, 172, 222), "porte", "LE PORTE")
-	miniatura(Rect2(862, 352, 172, 222), "linea", "DISEGNA LA LINEA")
-	miniatura(Rect2(1062, 352, 172, 222), "scegli", "SCEGLI QUELLO GIUSTO")
+	for k in GIOCHI.size():
+		var nome := String((SCHEDE[GIOCHI[k]] as Dictionary)["nome"])
+		var largo := Caratteri.titolo().get_string_size(nome, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 11.0
+		Manifesto.etichetta_tinta(self, Vector2(187.0 + 186.0 * float(k) + 81.0 - largo * 0.5, 374), nome, 11,
+				tinte["carta"], tinte["fondo"])
+	var schede := [["01 / LA MANO", "È la pubblicità, e vuole vederti sbagliare. In ogni gioco aspetta che esiti, poi gioca lei: il perno sbagliato, il numero più grosso, la porta che conviene meno. L'anello rosso dice quanto manca, e più vai avanti meno aspetta."],
+			["02 / L'OMINO", "È lo stesso in tutti e cinque. Ogni sbaglio gli dà stress, e con lo stress alto trema: un perno gli scivola, il corteo si sparpaglia. Ogni vittoria gli dà speranza: piena, all'ultimo livello esce dalla pubblicità."],
+			["03 / PERCHÉ È MEGLIO", "Ognuno ha una decisione vera, che i giochi delle pubblicità non hanno: l'ordine, l'elemento, il lato da coprire, la ragione. Una cosa nuova alla volta, livello dopo livello. E niente vite, niente attese, niente video."]]
+	for k in schede.size():
+		var r := Rect2(60.0 + 404.0 * float(k), 420, 380, 132)
+		SchedaProiezione.scatola(self, r, String(schede[k][0]), tinte)
+		racconto(Rect2(r.position + Vector2(14, 32), Vector2(r.size.x - 26, 96)), String(schede[k][1]))
 	titolo("IL PIANETA CHE PROMETTE  ·  5 GIOCHI", "LE PUBBLICITÀ")
 
 
-func telefono(fuori: Rect2) -> void:
-	# il data pad tenuto in verticale, come un telefono
-	var guscio := StyleBoxFlat.new()
-	guscio.bg_color = Color("#222226")
-	guscio.set_corner_radius_all(30)
-	guscio.border_color = Color("#55555c")
-	guscio.set_border_width_all(2)
-	draw_style_box(guscio, fuori)
-	var schermo := fuori.grow(-14)
-	cielo(schermo)
-	# la pubblicita' ha sempre la sua crocetta finta, e la scritta che urla
-	draw_circle(schermo.position + Vector2(schermo.size.x - 16, 16), 9.0, Color(0, 0, 0, 0.35))
-	draw_line(schermo.position + Vector2(schermo.size.x - 20, 12), schermo.position + Vector2(schermo.size.x - 12, 20),
-			Color(1, 1, 1, 0.7), 1.5)
-	draw_line(schermo.position + Vector2(schermo.size.x - 12, 12), schermo.position + Vector2(schermo.size.x - 20, 20),
-			Color(1, 1, 1, 0.7), 1.5)
-	urla(Vector2(schermo.get_center().x, schermo.position.y + 64), "IL 90% SBAGLIA!", 34)
-	pillola(Rect2(schermo.get_center().x - 46, schermo.position.y + 80, 92, 22), "LIVELLO 3", Color("#ffffff"),
-			Color("#1d3f8f"), 12)
-	pillola(Rect2(schermo.get_center().x - 110, schermo.end.y - 66, 220, 44), "GIOCA ORA", VERDE, Color.WHITE, 22)
-	var nota := "non c'è niente da scaricare: si gioca qui"
-	var f := DisegnoProiezione.fonte(380, 90, 0)
-	var w := f.get_string_size(nota, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
-	draw_string(f, Vector2(schermo.get_center().x - w * 0.5, schermo.end.y - 8), nota, HORIZONTAL_ALIGNMENT_LEFT, -1,
-			10, Color(1, 1, 1, 0.8))
-
-
-func perni(schermo: Rect2) -> void:
-	# TIRA IL PERNO: oro a sinistra, lava a destra, sotto l'omino e il mostro.
-	# Giusto: il perno della lava (cade sul mostro), poi quello dell'oro.
-	# La mano della pubblicita' va dritta a quello sbagliato
-	var o := schermo.position
-	var muro := 9.0
-	var sx := o.x + 40.0
-	var dx := schermo.end.x - 40.0
-	var mezzo := schermo.get_center().x
-	var cima := o.y + 120.0
-	var piano := o.y + 250.0
-	var fondo := o.y + 420.0
-	draw_polyline(PackedVector2Array([Vector2(sx, cima), Vector2(sx, fondo), Vector2(dx, fondo), Vector2(dx, cima)]),
-			MURO, muro)
-	draw_line(Vector2(mezzo, cima), Vector2(mezzo, piano - 8.0), MURO, muro)
-	# l'oro e la lava nelle due camere di sopra
-	for k in 9:
-		var p := Vector2(sx + 22.0 + float(k % 4) * 24.0, piano - 18.0 - floorf(float(k) / 4.0) * 20.0)
-		draw_circle(p, 10.0, ORO)
-		draw_arc(p, 10.0, 0.0, TAU, 20, Color("#d08a10"), 2.0, true)
-	var lava := PackedVector2Array()
-	for i in 13:
-		var x := lerpf(mezzo + 6.0, dx - 6.0, float(i) / 12.0)
-		lava.append(Vector2(x, piano - 58.0 + 6.0 * sin(float(i) * 1.3)))
-	lava.append(Vector2(dx - 6.0, piano - 8.0))
-	lava.append(Vector2(mezzo + 6.0, piano - 8.0))
-	draw_colored_polygon(lava, LAVA)
-	draw_polyline(lava.slice(0, 13), Color("#ffb35a"), 3.0, true)
-	perno(Vector2(sx - 22.0, piano - 2.0), Vector2(mezzo - 4.0, piano - 2.0), "a")
-	perno(Vector2(dx + 22.0, piano - 2.0), Vector2(mezzo + 4.0, piano - 2.0), "b")
-	perno(Vector2(mezzo, fondo + 24.0), Vector2(mezzo, piano + 4.0), "c")
-	omino(Vector2(sx + 60.0, fondo - 44.0))
-	mostriciattolo(Vector2(dx - 62.0, fondo - 38.0))
-	mano(Vector2(mezzo + 10.0, fondo + 28.0))
-
-
-func perno(manico: Vector2, punta: Vector2, _nome: String) -> void:
-	draw_line(manico, punta, Color("#d9dde3"), 7.0, true)
-	draw_line(manico, punta, Color("#8b929c"), 2.0, true)
-	draw_circle(manico, 11.0, Color("#d9dde3"))
-	draw_arc(manico, 11.0, 0.0, TAU, 24, Color("#5b616a"), 2.0, true)
-	draw_circle(manico, 4.0, Color("#5b616a"))
-
-
-func omino(p: Vector2) -> void:
-	draw_rect(Rect2(p + Vector2(-11, 0), Vector2(22, 30)), Color("#2f80ff"))
-	draw_line(p + Vector2(-11, 6), p + Vector2(-22, -8), Color("#ffd7b0"), 5.0, true)
-	draw_line(p + Vector2(11, 6), p + Vector2(22, -8), Color("#ffd7b0"), 5.0, true)
-	draw_line(p + Vector2(-6, 30), p + Vector2(-6, 42), Color("#2a2a2a"), 6.0)
-	draw_line(p + Vector2(6, 30), p + Vector2(6, 42), Color("#2a2a2a"), 6.0)
-	draw_circle(p + Vector2(0, -12), 13.0, Color("#ffd7b0"))
-	draw_circle(p + Vector2(-4, -14), 2.0, Color.BLACK)
-	draw_circle(p + Vector2(4, -14), 2.0, Color.BLACK)
-	draw_arc(p + Vector2(0, -5), 3.5, 0.0, TAU, 12, Color.BLACK, 1.5, true)
-	# il sudore di chi sa come va a finire, ogni volta
-	draw_circle(p + Vector2(14, -20), 3.0, Color("#bfe8ff"))
-
-
-func mostriciattolo(p: Vector2) -> void:
-	draw_circle(p, 26.0, MOSTRO)
-	draw_rect(Rect2(p + Vector2(-26, 0), Vector2(52, 24)), MOSTRO)
-	for k in 2:
-		var occhio := p + Vector2(-10 + 20 * k, -8)
-		draw_circle(occhio, 7.0, Color.WHITE)
-		draw_circle(occhio + Vector2(-2, 1), 3.0, Color.BLACK)
-	for k in 4:
-		var dente := p + Vector2(-15 + 10 * k, 8)
-		draw_colored_polygon(PackedVector2Array([dente, dente + Vector2(8, 0), dente + Vector2(4, 8)]), Color.WHITE)
-
-
-func mano(dove: Vector2) -> void:
-	# il guanto che indica il perno sbagliato, come in ogni pubblicita'
-	draw_set_transform(dove, 0.0, Vector2(0.85, 0.85))
-	var punta := Vector2.ZERO
-	var forma := PackedVector2Array([punta, punta + Vector2(8, -2), punta + Vector2(12, 26), punta + Vector2(30, 24),
-			punta + Vector2(40, 36), punta + Vector2(38, 62), punta + Vector2(10, 66), punta + Vector2(2, 44),
-			punta + Vector2(-4, 6)])
-	draw_colored_polygon(forma, Color.WHITE)
-	forma.append(forma[0])
-	draw_polyline(forma, Color.BLACK, 2.5, true)
-	draw_line(punta + Vector2(20, 26), punta + Vector2(22, 40), Color.BLACK, 1.5, true)
-	draw_line(punta + Vector2(30, 28), punta + Vector2(32, 42), Color.BLACK, 1.5, true)
+func dettaglio(gioco: String, numero: int) -> void:
+	# un gioco in grande (il telefono lo mette mostra()), a sinistra cosa cambia
+	# rispetto alle pubblicita', a destra i tre passi della soluzione
+	var d: Dictionary = SCHEDE[gioco]
+	tavolo("CARNIVALZ  ·  DATA PAD  ·  IL PIANETA CHE PROMETTE  ·  " + String(d["nome"]), RISERVE)
+	var x := 56.0
+	nome_scheda(Rect2(x, 148, LARGO, 64), "01 / IL GIOCO", String(d["nome"]), "DI SOLITO: " + String(d["di_solito"]))
+	var solito := Rect2(x, 220, LARGO, 92)
+	SchedaProiezione.scatola(self, solito, "02 / DI SOLITO", tinte)
+	racconto(Rect2(solito.position + Vector2(14, 30), Vector2(LARGO - 26, 60)), String(d["solito"]))
+	var nostro := Rect2(x, 320, LARGO, 160)
+	SchedaProiezione.scatola(self, nostro, "03 / IL NOSTRO", tinte)
+	racconto(Rect2(nostro.position + Vector2(14, 30), Vector2(LARGO - 26, 128)), String(d["nostro"]))
+	var mano := Rect2(x, 488, LARGO, 100)
+	SchedaProiezione.scatola(self, mano, "04 / LA MANO", tinte)
+	racconto(Rect2(mano.position + Vector2(14, 30), Vector2(LARGO - 26, 68)), String(d["mano"]))
+	var passi: Array = d["passi"]
 	for k in 3:
-		var a := -PI * 0.75 + float(k) * 0.5
-		draw_line(punta + Vector2.from_angle(a) * 12.0, punta + Vector2.from_angle(a) * 22.0, Color.WHITE, 3.0, true)
-	draw_set_transform(Vector2.ZERO)
-
-
-func miniatura(fuori: Rect2, gioco: String, nome: String) -> void:
-	var guscio := StyleBoxFlat.new()
-	guscio.bg_color = Color("#222226")
-	guscio.set_corner_radius_all(16)
-	guscio.border_color = Color("#55555c")
-	guscio.set_border_width_all(1)
-	draw_style_box(guscio, fuori)
-	var s := fuori.grow(-7)
-	match gioco:
-		"torre":
-			cielo(s, Color("#b46cff"), Color("#5a2aa8"))
-			torre_dei_numeri(s)
-			urla(Vector2(s.get_center().x, s.position.y + 28), "MANGIA I PIÙ PICCOLI!", 13)
-		"porte":
-			cielo(s, Color("#8fe36a"), Color("#2f9a3a"))
-			porte(s)
-			urla(Vector2(s.get_center().x, s.position.y + 28), "SCEGLI LA PORTA!", 15)
-		"linea":
-			cielo(s, Color("#fff3a8"), Color("#ffc94a"))
-			linea(s)
-			urla(Vector2(s.get_center().x, s.position.y + 28), "SALVALO IN 10 SECONDI!", 12)
-		_:
-			cielo(s, Color("#ffb070"), Color("#e8532a"))
-			scegli(s)
-			urla(Vector2(s.get_center().x, s.position.y + 28), "SOLO UN GENIO!", 15)
-	Manifesto.etichetta_tinta(self, Vector2(fuori.position.x, fuori.end.y + 6), nome, 12, tinte["carta"],
-			tinte["fondo"])
-
-
-func torre_dei_numeri(s: Rect2) -> void:
-	var piano := s.end.y - 18.0
-	var colonna := Rect2(s.position.x + 88, piano - 132, 62, 132)
-	draw_rect(colonna, Color("#3a1e6e"))
-	var numeri := ["4", "15", "40"]
-	for k in 3:
-		var stanza := Rect2(colonna.position.x + 4, piano - 44.0 * float(k + 1) + 4, 54, 36)
-		draw_rect(stanza, Color("#e9dcff"))
-		draw_circle(stanza.get_center() + Vector2(-12, 4), 9.0, Color("#e2364a"))
-		urla(stanza.get_center() + Vector2(12, 6), String(numeri[k]), 14)
-	var eroe := Rect2(s.position.x + 14, piano - 40, 60, 36)
-	draw_rect(eroe, Color("#e9dcff"))
-	draw_circle(eroe.get_center() + Vector2(-14, 4), 9.0, Color("#2f80ff"))
-	urla(eroe.get_center() + Vector2(12, 6), "9", 14)
-	draw_line(eroe.end + Vector2(-4, -18), Vector2(colonna.position.x + 2, eroe.end.y - 18), Color.WHITE, 3.0)
-
-
-func porte(s: Rect2) -> void:
-	var c := s.get_center()
-	draw_colored_polygon(PackedVector2Array([Vector2(c.x - 22, s.position.y + 50), Vector2(c.x + 22, s.position.y + 50),
-			Vector2(s.end.x - 8, s.end.y), Vector2(s.position.x + 8, s.end.y)]), Color("#c9b48a"))
-	var porta_sx := Rect2(c.x - 52, c.y - 12, 46, 30)
-	var porta_dx := Rect2(c.x + 6, c.y - 12, 46, 30)
-	draw_rect(porta_sx, Color("#2f80ff", 0.85))
-	draw_rect(porta_dx, Color("#e2364a", 0.85))
-	urla(porta_sx.get_center() + Vector2(0, 7), "x2", 17)
-	urla(porta_dx.get_center() + Vector2(0, 7), "-5", 17)
-	for k in 14:
-		draw_circle(Vector2(c.x - 26 + float(k % 7) * 9.0, s.end.y - 30 + floorf(float(k) / 7.0) * 9.0), 3.5, Color("#2f80ff"))
-	for k in 10:
-		draw_circle(Vector2(c.x - 16 + float(k % 5) * 8.0, s.position.y + 58 + floorf(float(k) / 5.0) * 7.0), 3.0,
-				Color("#e2364a"))
-
-
-func linea(s: Rect2) -> void:
-	var c := s.get_center() + Vector2(0, 30)
-	draw_circle(c, 14.0, Color("#c98a4a"))
-	draw_circle(c + Vector2(0, -16), 10.0, Color("#c98a4a"))
-	draw_circle(c + Vector2(-4, -18), 1.8, Color.BLACK)
-	draw_circle(c + Vector2(4, -18), 1.8, Color.BLACK)
-	draw_arc(c + Vector2(0, -6), 36.0, PI * 1.05, PI * 1.95, 24, Color.BLACK, 5.0, true)
-	for k in 9:
-		var ape := s.position + Vector2(118 + float(k % 3) * 12.0 - floorf(float(k) / 3.0) * 14.0, 62 + floorf(float(k) / 3.0) * 14.0)
-		draw_circle(ape, 4.0, Color("#ffd23a"))
-		draw_line(ape + Vector2(-2, -3), ape + Vector2(-2, 3), Color.BLACK, 1.5)
-
-
-func scegli(s: Rect2) -> void:
-	for k in 3:
-		var r := Rect2(s.position.x + 12 + 52.0 * float(k), s.position.y + 64, 42, 42)
-		draw_rect(r, Color.WHITE)
-		draw_rect(r, Color.BLACK, false, 2.0)
-		urla(r.get_center() + Vector2(0, 8), "?", 22)
-	omino(s.get_center() + Vector2(0, 40))
+		var y := 80.0 + 206.0 * float(k)
+		Manifesto.etichetta_tinta(self, Vector2(958, y + 40), "%d" % (k + 1), 20, Stile.colore("manifesto"),
+				Stile.colore("bordo"))
+		racconto(Rect2(962, y + 84, 280, 80), String(passi[k]))
+	titolo("LE PUBBLICITÀ  ·  %d DI 5" % numero, String(d["nome"]))
 
 
 # ----------------------------------------------------------- 4 IL GIRO
@@ -803,46 +704,21 @@ func suggerimenti(righe: Array[String]) -> void:
 		scrivi(Vector2(X, 561 + 13 * k), righe[k], 9, tinte["inchiostro"], 450, 85, 2)
 
 
-func cartellino(punto: Vector2, verso: Vector2, nome: String, stato: String, acceso := true) -> void:
-	# l'etichetta a didascalia del Vuoto: il filo, il nome chiaro, lo stato sotto
+func cartellino(punto: Vector2, verso: Vector2, nome: String, stato: String, acceso := true,
+		a_sinistra := false) -> void:
+	# l'etichetta a didascalia del Vuoto: il filo, il nome chiaro, lo stato sotto.
+	# a_sinistra: la scritta sta a sinistra del gomito, per chi e' gia' a destra
 	var tinta: Color = tinte["carta"] if acceso else tinte["inchiostro"]
-	var b := punto + verso
 	var lungo := maxf(Caratteri.titolo().get_string_size(nome, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 16.0,
 			DisegnoProiezione.larghezza(stato, 10, 420, 85, 2))
+	var gomito := punto + verso
+	var b := gomito - Vector2(lungo + 10.0, 0) if a_sinistra else gomito
 	draw_rect(Rect2(b + Vector2(0, -19), Vector2(lungo + 8.0, 35)), Color(tinte["fondo"], 0.72))
-	draw_polyline(PackedVector2Array([punto, b, b + Vector2(lungo + 10.0, 0)]), Color(tinta, 0.8), 1.0)
+	draw_polyline(PackedVector2Array([punto, gomito, b if a_sinistra else b + Vector2(lungo + 10.0, 0)]),
+			Color(tinta, 0.8), 1.0)
 	draw_circle(punto, 1.8, tinta)
 	Manifesto.etichetta_tinta(self, b + Vector2(0, -20), nome, 12, tinta, tinte["fondo"])
 	scrivi(b + Vector2(4, 12), stato, 10, tinte["inchiostro"] if acceso else Color(tinte["inchiostro"], 0.8), 420, 85, 2)
-
-
-func cielo(r: Rect2, alto := CIELO_ALTO, basso := CIELO_BASSO) -> void:
-	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]),
-			PackedColorArray([alto, alto, basso, basso]))
-
-
-func urla(centro: Vector2, testo: String, corpo: int) -> void:
-	# la scritta delle pubblicita': bianca, grassa, col bordo nero spesso
-	var f := Caratteri.titolo()
-	var w := f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
-	var dove := centro - Vector2(w * 0.5, 0)
-	draw_string_outline(f, dove, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, maxi(4, int(corpo / 5.0)), Color.BLACK)
-	draw_string(f, dove, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, Color.WHITE)
-
-
-func pillola(r: Rect2, testo: String, fondo: Color, inchiostro: Color, corpo: int) -> void:
-	var s := StyleBoxFlat.new()
-	s.bg_color = fondo
-	s.set_corner_radius_all(int(r.size.y * 0.5))
-	s.shadow_color = Color(0, 0, 0, 0.3)
-	s.shadow_offset = Vector2(0, 4)
-	draw_style_box(s, r)
-	var f := Caratteri.titolo()
-	var w := f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x
-	var dove := r.get_center() + Vector2(-w * 0.5, corpo * 0.36)
-	if inchiostro == Color.WHITE:
-		draw_string_outline(f, dove, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, 4, Color("#14581d"))
-	draw_string(f, dove, testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo, inchiostro)
 
 
 func scrivi(dove: Vector2, testo: String, corpo: int, tinta: Color, peso := 420.0, largo := 85.0, spazio := 2) -> void:
