@@ -368,6 +368,47 @@ Vuoto.
 
 Sono le cose da fare quando la portiamo nel gioco, se è questa la strada.
 
+**Più bella.** Bru, sul primo prototipo: «si è carino ma c'è ancora molto
+lavoro da fare per renderlo bello e con grafiche migliori». Il secondo
+prototipo cambia solo come si vede: la meccanica e il giro sono gli stessi.
+
+- **Le isole.** I campi sono isole sospese nel Vuoto. Sopra c'è la terra, sotto
+  la parete di roccia con gli strati, e sotto ancora il fondo con le punte, che
+  si perde nel buio.
+- **La luce.** Viene dall'alto a sinistra per tutto: il lato sinistro delle cose
+  è più chiaro e l'ombra cade in basso a destra. La terra (uno shader) ha
+  macchie larghe e grana fine; l'orlo dalla parte della luce si accende, il lato
+  in ombra si copre di retino come le ombre del manifesto.
+- **Il cielo.** È uno shader: il buio del Vuoto, una nebulosa lenta in due
+  colori, le stelle che respirano. Lontano c'è il Carnivalz di questo Vuoto, a
+  retino con l'anello come nella mappa, e scorre più piano del mondo.
+- **La nebbia.** È uno shader: nuvole lente e retino. Quando un passaggio si
+  apre, si ritira col bordo strappato e acceso d'arancio.
+- **I decori.** Massi, piante del pianeta (steli verdeacqua che dondolano, bulbi
+  accesi), crateri, la terra bruciata sotto il modulo. Stanno sempre negli
+  stessi posti, lontano dalle cose.
+- **Le cose ridisegnate.**
+  - Le vene: un cumulo di roccia e cristalli a due facce, con l'alone quando
+    sono pronte.
+  - Il modulo: la cupola, l'oblò, la luce che lampeggia.
+  - La trivella: il motore, la punta che gira, la tramoggia che si riempie.
+  - Il forziere, che si apre in una pioggia di scintille.
+  - Il cancello: due pilastri con le lanterne, che si accendono quando si apre.
+  - Il ponte: le assi cadono al loro posto una alla volta, con un rimbalzo.
+- **Il personaggio** (ancora un segnaposto). Ha lo zaino, che si riempie di
+  cristalli; le braccia vanno al contrario delle gambe; la sciarpa sventola.
+  Da dietro si vede lo zaino, e ogni tanto sbatte le palpebre. Quando scava,
+  il piccone va su e giù.
+- **Il succo.**
+  - Quello che scavi vola dalla vena al contatore, e il contatore sobbalza
+    quando arriva; quando spendi, il numero scende e lampeggia di rosso.
+  - A ogni colpo di piccone ci sono le schegge, una scintilla e lo schermo che
+    trema appena; ai passi, la polvere.
+  - Il campo nuovo si annuncia col suo nome.
+- **L'HUD.** I contatori hanno l'icona su un disco. L'obiettivo sta su un
+  cartoncino, con i puntini di quanti ne mancano. L'invito ha il tasto E; il
+  prezzo sta sul cartello di legno, in rosso quello che manca.
+
 ## 10. Le domande per Bru
 
 **Sul terzo giro (§9):**
@@ -419,3 +460,5 @@ Sono le cose da fare quando la portiamo nel gioco, se è questa la strada.
 - `inizio.png`, `scavo_q3.png`, `aperto_ponte.png`, `svelata_piana.png`,
   `trivella.png`, `aperto_cancello.png`, `svelata_cratere.png`, `forziere.png`:
   i momenti del giro.
+- Il film e le foto sono quelli del secondo prototipo, il più bello. Il primo
+  sta nella storia del repository (commit «La raccolta da giocare»).

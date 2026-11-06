@@ -4,11 +4,18 @@ extends Node2D
 #
 # Bru, dopo le tavole: «no non ci siamo, a me interessa tipo garden scape che
 # muovi il personaggio accumula risorse e le spendi muovendoti sulla mappa».
+# Poi, sul primo prototipo: «si è carino ma c'è ancora molto lavoro da fare per
+# renderlo bello e con grafiche migliori».
 #
 # Quindi si cammina. Le vene si scavano andandoci, e ricrescono col tempo. Il
 # ponte rotto, la trivella, il cancello si pagano sul posto, e aprono un pezzo
 # di pianeta che prima era nella nebbia. La trivella poi scava da sola: si
 # passa a prendere quello che ha messo da parte.
+#
+# Il disegno sta a strati, dal fondo: il cielo (shader) e il Carnivalz lontano,
+# le pareti e il fondo delle isole, la terra (shader), gli orli e il ponte, le
+# cose in ordine di profondita', la nebbia (shader), le particelle e gli inviti.
+# Sopra tutto la tasca e l'obiettivo (RaccoltaHud.gd).
 #
 #   frecce o WASD          cammina
 #   E, spazio o invio      scava, ripara, costruisci, apri (la cosa piu' vicina)
@@ -18,13 +25,18 @@ extends Node2D
 #   ./prove/raccolta.sh    il film col pilota automatico, in scatti/raccolta/
 
 const Disegno := preload("res://prove/RaccoltaDisegno.gd")
+const Tasca := preload("res://prove/RaccoltaHud.gd")
+const TERRA := preload("res://prove/raccolta_terra.gdshader")
+const NEBBIA := preload("res://prove/raccolta_nebbia.gdshader")
+const VUOTO := preload("res://prove/raccolta_vuoto.gdshader")
 const MONDO := Rect2(0, 0, 2300, 1260)
 const VELOCITA := 250.0
 const PORTATA := 70.0          # quanto vicino devi essere per fare una cosa
-const SI_VEDE := 160.0         # da quanto lontano la cosa ti dice cosa costa
+const SI_VEDE := 160.0         # da quanto lontano la cosa ti dice cosa si fa
 const SCAVO := 0.8
 const LAVORO := 1.3
-const SVELA := 1.6
+const SVELA := 1.8
+const COLPO := 0.4             # un colpo di piccone
 const NOMI := {"quarzo": "QUARZO", "ferro": "FERRO", "cristallo": "CRISTALLI", "tazo": "TAZO"}
 const CATENA := ["atterraggio", "piana", "cratere"]      # i campi in fila, e fra uno e l'altro un passaggio
 const PASSAGGI := ["ponte", "cancello"]
@@ -33,19 +45,31 @@ const OBIETTIVI := [["quarzo", "Raccogli 12 quarzo"], ["ponte", "Ripara il ponte
 
 var zone := {}
 var cose := {}
+var decori: Array[Dictionary] = []
+var pezzi_passerella: Array[PackedVector2Array] = []
 var borsa := {"quarzo": 0, "ferro": 0, "cristallo": 0, "tazo": 0}
 var io := Vector2(420, 930)
 var faccia := 1.0
+var dietro := false
 var passo := 0.0
 var percorso: Array[Vector2] = []
 var bersaglio := ""
 var lavoro := {}
 var scritte: Array[Dictionary] = []
-var annuncio := {}
+var particelle: Array[Dictionary] = []
 var tempo := 0.0
-var stelle := PackedVector2Array()
+var polvere := 0.0
+var scossa := 0.0
+var dado := RandomNumberGenerator.new()
 var camera: Camera2D
-var hud: Control
+var tasca: Control
+var cielo: ShaderMaterial
+var lontano: Control
+var rupi: Node2D
+var suolo: Node2D
+var cose_strato: Node2D
+var sopra: Node2D
+var nebbie := {}
 # il film: il pilota automatico fa il giro, e dice quando fotografare
 var film := false
 var pilota: Array[String] = ["attesa", "q1", "q2", "q3", "ponte", "f1", "f2", "trivella", "aspetta_trivella", "trivella",
@@ -55,24 +79,12 @@ var pausa_pilota := 0.0
 
 func _ready() -> void:
 	film = "film" in OS.get_cmdline_user_args()
+	dado.seed = 11
 	prepara_zone()
 	prepara_cose()
-	camera = Camera2D.new()
-	camera.position = io
-	camera.limit_left = int(MONDO.position.x) - 200
-	camera.limit_top = int(MONDO.position.y) - 120
-	camera.limit_right = int(MONDO.end.x) + 200
-	camera.limit_bottom = int(MONDO.end.y) + 160
-	camera.position_smoothing_enabled = true
-	camera.position_smoothing_speed = 5.0
-	add_child(camera)
-	var strato := CanvasLayer.new()
-	add_child(strato)
-	hud = Control.new()
-	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hud.draw.connect(disegna_hud)
-	strato.add_child(hud)
+	prepara_passerella()
+	prepara_decori()
+	prepara_strati()
 	if film:
 		print("INIZIO_FILM ", Engine.get_frames_drawn())
 
@@ -83,17 +95,12 @@ func prepara_zone() -> void:
 	var dati := {"atterraggio": [Vector2(470, 800), Vector2(400, 280), 0.7, "IL CAMPO D'ATTERRAGGIO"],
 			"piana": [Vector2(1370, 740), Vector2(330, 260), 2.1, "LA PIANA DI FERRO"],
 			"cratere": [Vector2(1900, 330), Vector2(270, 200), 3.7, "IL CRATERE"]}
-	var dado := RandomNumberGenerator.new()
-	dado.seed = 7
 	for id: String in dati:
 		var d: Array = dati[id]
 		var poligono := Disegno.zolla(d[0], d[1], float(d[2]))
-		var nebbia: PackedVector2Array = Geometry2D.offset_polygon(poligono, 34.0)[0]
-		zone[id] = {"nome": d[3], "poligono": poligono, "calpesto": Geometry2D.offset_polygon(poligono, -16.0)[0],
-				"nebbia": nebbia, "aperta": id == "atterraggio", "svela": 1.0 if id == "atterraggio" else 0.0,
-				"da": Vector2.ZERO, "ciottoli": punti_dentro(poligono, 70, dado), "puntini": retino(nebbia)}
-	for k in 260:
-		stelle.append(Vector2(dado.randf_range(-600, MONDO.end.x + 600), dado.randf_range(-400, MONDO.end.y + 400)))
+		zone[id] = {"nome": d[3], "centro": d[0], "raggi": d[1], "seme": float(d[2]), "poligono": poligono,
+				"calpesto": Geometry2D.offset_polygon(poligono, -16.0)[0], "aperta": id == "atterraggio",
+				"svela": 1.0 if id == "atterraggio" else 0.0, "da": Vector2.ZERO}
 
 
 func prepara_cose() -> void:
@@ -107,11 +114,13 @@ func prepara_cose() -> void:
 		"r1": vena(Vector2(1990, 400), "cristallo", 3, 45.0, "cratere"),
 		"r2": vena(Vector2(1790, 390), "cristallo", 3, 45.0, "cratere"),
 		"trivella": {"tipo": "trivella", "dove": Vector2(1330, 910), "zona": "piana", "costruita": false,
-				"costo": {"ferro": 6}, "scorta": 0, "tiene": 12, "ogni": 1.6, "conto": 0.0},
+				"costo": {"ferro": 6}, "scorta": 0, "tiene": 12, "ogni": 1.6, "conto": 0.0, "cartello": Vector2(78, 26)},
 		"forziere": {"tipo": "forziere", "dove": Vector2(1920, 255), "zona": "cratere", "aperto": false},
 		"ponte": passaggio(Vector2(862, 772), Vector2(1084, 752), 66.0, {"quarzo": 12}, "RIPARA IL PONTE", "atterraggio", "piana"),
 		"cancello": passaggio(Vector2(1588, 584), Vector2(1752, 452), 64.0, {"ferro": 6, "quarzo": 5}, "APRI IL CANCELLO",
 				"piana", "cratere")}
+	(cose["ponte"] as Dictionary)["cartello"] = Vector2(-50, 34)
+	(cose["cancello"] as Dictionary)["cartello"] = Vector2(-66, 30)
 
 
 func vena(dove: Vector2, risorsa: String, quanto: int, ricarica: float, zona: String) -> Dictionary:
@@ -130,35 +139,153 @@ func passaggio(da: Vector2, a: Vector2, largo: float, costo: Dictionary, azione:
 			"poligono": PackedVector2Array([inizio - lato, fine - lato, fine + lato, inizio + lato])}
 
 
-func punti_dentro(poligono: PackedVector2Array, quanti: int, dado: RandomNumberGenerator) -> PackedVector2Array:
-	var punti := PackedVector2Array()
-	var ingombro := Rect2(poligono[0], Vector2.ZERO)
-	for p in poligono:
-		ingombro = ingombro.expand(p)
-	var dentro: PackedVector2Array = Geometry2D.offset_polygon(poligono, -20.0)[0]
-	while punti.size() < quanti:
-		var p := Vector2(dado.randf_range(ingombro.position.x, ingombro.end.x), dado.randf_range(ingombro.position.y, ingombro.end.y))
-		if Geometry2D.is_point_in_polygon(p, dentro):
-			punti.append(p)
-	return punti
+func prepara_passerella() -> void:
+	# la lingua di roccia fra la piana e il cratere: il pezzo che sta nel vuoto
+	var pezzi: Array[PackedVector2Array] = [(cose["cancello"] as Dictionary)["poligono"]]
+	for id: String in zone:
+		var restano: Array[PackedVector2Array] = []
+		for pezzo in pezzi:
+			for resto in Geometry2D.clip_polygons(pezzo, (zone[id] as Dictionary)["poligono"]):
+				if not Geometry2D.is_polygon_clockwise(resto):
+					restano.append(resto)
+		pezzi = restano
+	pezzi_passerella = pezzi
 
 
-func retino(poligono: PackedVector2Array) -> PackedVector2Array:
-	var punti := PackedVector2Array()
-	var ingombro := Rect2(poligono[0], Vector2.ZERO)
-	for p in poligono:
-		ingombro = ingombro.expand(p)
-	var riga := 0
-	var y := ingombro.position.y
-	while y < ingombro.end.y:
-		var x := ingombro.position.x + (8.0 if riga % 2 == 1 else 0.0)
-		while x < ingombro.end.x:
-			if Geometry2D.is_point_in_polygon(Vector2(x, y), poligono):
-				punti.append(Vector2(x, y))
-			x += 16.0
-		y += 14.0
-		riga += 1
-	return punti
+func prepara_decori() -> void:
+	# massi, piante e crateri, sempre negli stessi posti: lontano dalle cose,
+	# dai passaggi e fra loro
+	var occupati: Array[Vector2] = []
+	for id: String in cose:
+		occupati.append((cose[id] as Dictionary)["dove"])
+	for id: String in PASSAGGI:
+		occupati.append((cose[id] as Dictionary)["da"])
+		occupati.append((cose[id] as Dictionary)["a"])
+	var quanti := {"atterraggio": [5, 12, 2], "piana": [5, 10, 2], "cratere": [3, 8, 1]}
+	for id: String in zone:
+		var z: Dictionary = zone[id]
+		var n: Array = quanti[id]
+		for k in int(n[2]):
+			var p := posto_libero(z, occupati, 0.15, 0.6, 110.0)
+			decori.append({"tipo": "cratere", "p": p, "r": Vector2(dado.randf_range(34, 52), dado.randf_range(13, 19))})
+		for k in int(n[0]):
+			var p := posto_libero(z, occupati, 0.3, 0.85, 90.0)
+			decori.append({"tipo": "masso", "p": p, "r": dado.randf_range(11, 20), "seme": dado.randf() * 10.0})
+		for k in int(n[1]):
+			var p := posto_libero(z, occupati, 0.62, 0.9, 60.0)
+			decori.append({"tipo": "pianta", "p": p, "r": dado.randf_range(18, 30), "seme": dado.randf() * 10.0})
+	decori.append({"tipo": "bruciatura", "p": (cose["modulo"] as Dictionary)["dove"] + Vector2(0, 4), "r": 0.0})
+
+
+func posto_libero(z: Dictionary, occupati: Array[Vector2], da: float, a: float, distanza: float) -> Vector2:
+	var centro: Vector2 = z["centro"]
+	var raggi: Vector2 = z["raggi"]
+	for tentativo in 400:
+		var angolo := dado.randf() * TAU
+		var p := centro + Vector2(cos(angolo) * raggi.x, sin(angolo) * raggi.y) * dado.randf_range(da, a)
+		if not Geometry2D.is_point_in_polygon(p, z["calpesto"]):
+			continue
+		if occupati.any(func(o: Vector2) -> bool: return o.distance_to(p) < distanza):
+			continue
+		occupati.append(p)
+		return p
+	return centro
+
+
+func prepara_strati() -> void:
+	# il cielo, lontano: lo shader del vuoto e il Carnivalz grande che scorre piano
+	var fondo := CanvasLayer.new()
+	fondo.layer = -5
+	add_child(fondo)
+	var tela := ColorRect.new()
+	tela.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	tela.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cielo = ShaderMaterial.new()
+	cielo.shader = VUOTO
+	tela.material = cielo
+	fondo.add_child(tela)
+	lontano = Control.new()
+	lontano.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	lontano.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	lontano.draw.connect(disegna_lontano)
+	fondo.add_child(lontano)
+	# il mondo, dal fondo in su
+	rupi = strato(disegna_rupi)
+	for id: String in zone:
+		var z: Dictionary = zone[id]
+		terra(z["poligono"], z["centro"], z["raggi"], float(z["seme"]))
+	for pezzo in pezzi_passerella:
+		terra(pezzo, Vector2.ZERO, Vector2(9000, 9000), 0.0)
+	suolo = strato(disegna_suolo)
+	cose_strato = strato(disegna_cose)
+	for id: String in zone:
+		if not bool((zone[id] as Dictionary)["aperta"]):
+			nebbie[id] = nebbia(zone[id])
+	sopra = strato(disegna_sopra)
+	camera = Camera2D.new()
+	camera.position = io
+	camera.limit_left = int(MONDO.position.x) - 200
+	camera.limit_top = int(MONDO.position.y) - 120
+	camera.limit_right = int(MONDO.end.x) + 200
+	camera.limit_bottom = int(MONDO.end.y) + 200
+	camera.position_smoothing_enabled = true
+	camera.position_smoothing_speed = 5.0
+	add_child(camera)
+	# una vignettatura leggera: gli angoli dello schermo scendono nel buio
+	var ombre := CanvasLayer.new()
+	ombre.layer = 1
+	add_child(ombre)
+	var vignetta := ColorRect.new()
+	vignetta.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	vignetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var scuro := ShaderMaterial.new()
+	scuro.shader = Shader.new()
+	scuro.shader.code = "shader_type canvas_item;\nvoid fragment() {\n\tvec2 q = UV - 0.5;\n" + \
+			"\tCOLOR = vec4(0.03, 0.03, 0.06, smoothstep(0.35, 0.85, length(q * vec2(1.0, 0.8))) * 0.55);\n}\n"
+	vignetta.material = scuro
+	ombre.add_child(vignetta)
+	var davanti := CanvasLayer.new()
+	davanti.layer = 2
+	add_child(davanti)
+	tasca = Tasca.new()
+	davanti.add_child(tasca)
+
+
+func strato(disegna: Callable) -> Node2D:
+	var n := Node2D.new()
+	n.draw.connect(disegna.bind(n))
+	add_child(n)
+	return n
+
+
+func terra(poligono: PackedVector2Array, centro: Vector2, raggi: Vector2, seme: float) -> void:
+	var p := Polygon2D.new()
+	p.polygon = poligono
+	p.antialiased = true
+	var m := ShaderMaterial.new()
+	m.shader = TERRA
+	m.set_shader_parameter("centro", centro)
+	m.set_shader_parameter("raggi", raggi)
+	m.set_shader_parameter("seme", seme)
+	p.material = m
+	add_child(p)
+
+
+func nebbia(z: Dictionary) -> Polygon2D:
+	# un rettangolo largo intorno al campo: i bordi morbidi li fa lo shader
+	var centro: Vector2 = z["centro"]
+	var raggi: Vector2 = z["raggi"] * 1.35 + Vector2(40, 40)
+	var p := Polygon2D.new()
+	p.polygon = PackedVector2Array([centro - raggi, centro + Vector2(raggi.x, -raggi.y), centro + raggi,
+			centro + Vector2(-raggi.x, raggi.y)])
+	var m := ShaderMaterial.new()
+	m.shader = NEBBIA
+	m.set_shader_parameter("centro", centro)
+	m.set_shader_parameter("raggi", z["raggi"])
+	m.set_shader_parameter("seme", float(z["seme"]))
+	p.material = m
+	add_child(p)
+	return p
 
 
 # ------------------------------------------------------------- il tempo
@@ -172,9 +299,22 @@ func _process(delta: float) -> void:
 		lavora(delta)
 	if film:
 		pilota_automatico(delta)
+	muovi_particelle(delta)
 	camera.position = io
-	queue_redraw()
-	hud.queue_redraw()
+	scossa = move_toward(scossa, 0.0, delta * 24.0)
+	camera.offset = Vector2(dado.randf_range(-1, 1), dado.randf_range(-1, 1)) * scossa
+	cielo.set_shader_parameter("scorre", camera.get_screen_center_position())
+	cielo.set_shader_parameter("tempo", tempo)
+	for id: String in nebbie:
+		var z: Dictionary = zone[id]
+		var n: Polygon2D = nebbie[id]
+		(n.material as ShaderMaterial).set_shader_parameter("tempo", tempo)
+		(n.material as ShaderMaterial).set_shader_parameter("da", z["da"])
+		(n.material as ShaderMaterial).set_shader_parameter("raggio", pow(float(z["svela"]), 1.6) * 1300.0 if bool(z["aperta"]) else 0.0)
+		n.visible = float(z["svela"]) < 1.0
+	aggiorna_tasca()
+	for n: CanvasItem in [rupi, suolo, cose_strato, sopra, lontano]:
+		n.queue_redraw()
 
 
 func ricresce(delta: float) -> void:
@@ -190,6 +330,7 @@ func ricresce(delta: float) -> void:
 		if float(trivella["conto"]) >= float(trivella["ogni"]):
 			trivella["conto"] = 0.0
 			trivella["scorta"] = int(trivella["scorta"]) + 1
+			soffio(Vector2(trivella["dove"]) + Vector2(0, -4), 2)
 	for id: String in zone:
 		var z: Dictionary = zone[id]
 		if bool(z["aperta"]) and float(z["svela"]) < 1.0:
@@ -202,8 +343,27 @@ func ricresce(delta: float) -> void:
 		if float(s["eta"]) < 1.6:
 			restano.append(s)
 	scritte = restano
-	if not annuncio.is_empty():
-		annuncio["eta"] = float(annuncio["eta"]) + delta
+
+
+func aggiorna_tasca() -> void:
+	var fatti := 0
+	var adesso := ""
+	for obiettivo: Array in OBIETTIVI:
+		if obiettivo_fatto(String(obiettivo[0])):
+			fatti += 1
+		elif adesso == "":
+			adesso = String(obiettivo[1])
+	tasca.set("fatti", fatti)
+	tasca.set("obiettivo", adesso)
+
+
+func obiettivo_fatto(chiave: String) -> bool:
+	match chiave:
+		"quarzo":
+			return int(borsa["quarzo"]) >= 12 or bool((cose["ponte"] as Dictionary)["aperto"])
+		"trivella":
+			return bool((cose["trivella"] as Dictionary)["costruita"])
+	return bool((cose[chiave] as Dictionary)["aperto"])
 
 
 # ------------------------------------------------------------- camminare
@@ -254,9 +414,12 @@ func cammina(delta: float) -> void:
 				return
 		v = (percorso[0] - io).normalized()
 	if v == Vector2.ZERO:
+		passo = 0.0
+		dietro = false
 		return
 	if absf(v.x) > 0.2:
 		faccia = signf(v.x)
+	dietro = v.y < -0.75
 	var nuovo := io + v * VELOCITA * delta
 	if calpestabile(nuovo):
 		io = nuovo
@@ -269,6 +432,11 @@ func cammina(delta: float) -> void:
 		arrivato()
 		return
 	passo += delta * 11.0
+	polvere -= delta
+	if polvere <= 0.0:
+		polvere = 0.16
+		particelle.append({"tipo": "polvere", "p": io + Vector2(dado.randf_range(-6, 6), 0), "v": -v * 18.0 + Vector2(0, -12),
+				"eta": 0.0, "dura": 0.55, "r": dado.randf_range(3.5, 6.0), "g": -10.0})
 
 
 func arrivato_alla_tappa() -> bool:
@@ -284,10 +452,10 @@ func stacco(id: String) -> float:
 		"trivella":
 			return 70.0
 		"forziere":
-			return 52.0
+			return 54.0
 		"passaggio":
 			return 8.0
-	return 42.0
+	return 44.0
 
 
 func arrivato() -> void:
@@ -318,12 +486,10 @@ func strada(meta: Vector2) -> Array[Vector2]:
 	while i != j:
 		var avanti := j > i
 		var p: Dictionary = cose[PASSAGGI[i if avanti else i - 1]]
-		var di_qua: Vector2 = p["da"] if avanti else p["a"]
-		var di_la: Vector2 = p["a"] if avanti else p["da"]
-		tappe.append(di_qua)
+		tappe.append(p["da"] if avanti else p["a"])
 		if not bool(p["aperto"]):
 			return tappe
-		tappe.append(di_la)
+		tappe.append(p["a"] if avanti else p["da"])
 		i += 1 if avanti else -1
 	tappe.append(meta)
 	return tappe
@@ -397,15 +563,13 @@ func invito(id: String) -> Dictionary:
 
 
 func costa(azione: String, costo: Dictionary) -> Dictionary:
-	var prezzo := PackedStringArray()
+	# il prezzo sta sul cartello; l'invito dice cosa si fa, e cosa manca
 	var mancano := PackedStringArray()
 	for risorsa: String in costo:
-		prezzo.append("%d %s" % [int(costo[risorsa]), NOMI[risorsa]])
 		var manca := int(costo[risorsa]) - int(borsa[risorsa])
 		if manca > 0:
 			mancano.append("%d %s" % [manca, NOMI[risorsa]])
-	return {"testo": azione + "  ·  " + "  ".join(prezzo), "puoi": mancano.is_empty(),
-			"manca": "" if mancano.is_empty() else "MANCANO " + " E ".join(mancano)}
+	return {"testo": azione, "puoi": mancano.is_empty(), "manca": "" if mancano.is_empty() else "MANCANO " + " E ".join(mancano)}
 
 
 func agisci(id: String) -> void:
@@ -434,21 +598,62 @@ func agisci(id: String) -> void:
 	var dove: Vector2 = c["dove"]
 	if absf(dove.x - io.x) > 4.0:
 		faccia = signf(dove.x - io.x)
+	dietro = false
 	lavoro = {"cosa": id, "tempo": 0.0, "durata": durata}
 
 
 func paga(costo: Dictionary) -> void:
 	for risorsa: String in costo:
 		borsa[risorsa] = int(borsa[risorsa]) - int(costo[risorsa])
+		tasca.call("spendi", risorsa, int(costo[risorsa]))
 		scrivi(io, "-%d %s" % [int(costo[risorsa]), NOMI[risorsa]], Disegno.CARTA)
 
 
 func lavora(delta: float) -> void:
-	lavoro["tempo"] = float(lavoro["tempo"]) + delta
+	var prima := float(lavoro["tempo"])
+	lavoro["tempo"] = prima + delta
+	var c: Dictionary = cose[String(lavoro["cosa"])]
+	# a ogni colpo: schegge, una scintilla, e lo schermo che trema appena
+	if fmod(prima / COLPO, 1.0) < 0.85 and fmod(float(lavoro["tempo"]) / COLPO, 1.0) >= 0.85:
+		colpo(c)
 	if float(lavoro["tempo"]) >= float(lavoro["durata"]):
 		var id := String(lavoro["cosa"])
 		lavoro = {}
 		fatto(id)
+
+
+func colpo(c: Dictionary) -> void:
+	var dove: Vector2 = c["dove"]
+	if String(c["tipo"]) == "vena":
+		for k in 5:
+			particelle.append({"tipo": "scheggia", "quale": c["risorsa"], "p": dove + Vector2(dado.randf_range(-10, 10), -16),
+					"v": Vector2(dado.randf_range(-120, 120), dado.randf_range(-260, -140)), "eta": 0.0, "dura": 0.7,
+					"r": dado.randf() * 6.0, "g": 700.0})
+		particelle.append({"tipo": "scintilla", "p": dove + Vector2(0, -22), "v": Vector2.ZERO, "eta": 0.0, "dura": 0.25,
+				"r": 14.0, "g": 0.0})
+		scossa = 3.0
+	else:
+		soffio(dove, 3)
+		scossa = 2.0
+
+
+func soffio(dove: Vector2, quanti: int) -> void:
+	for k in quanti:
+		particelle.append({"tipo": "polvere", "p": dove + Vector2(dado.randf_range(-20, 20), dado.randf_range(-6, 6)),
+				"v": Vector2(dado.randf_range(-40, 40), dado.randf_range(-50, -20)), "eta": 0.0, "dura": 0.8,
+				"r": dado.randf_range(6, 10), "g": -20.0})
+
+
+func muovi_particelle(delta: float) -> void:
+	var restano: Array[Dictionary] = []
+	for q in particelle:
+		q["eta"] = float(q["eta"]) + delta
+		if float(q["eta"]) >= float(q["dura"]):
+			continue
+		q["v"] = Vector2(q["v"]) + Vector2(0, float(q["g"]) * delta)
+		q["p"] = Vector2(q["p"]) + Vector2(q["v"]) * delta
+		restano.append(q)
+	particelle = restano
 
 
 func fatto(id: String) -> void:
@@ -458,6 +663,7 @@ func fatto(id: String) -> void:
 			var risorsa := String(c["risorsa"])
 			borsa[risorsa] = int(borsa[risorsa]) + int(c["quanto"])
 			c["carica"] = 0.0
+			tasca.call("vola", risorsa, schermo(Vector2(c["dove"]) + Vector2(0, -24)), int(c["quanto"]))
 			scrivi(c["dove"], "+%d %s" % [int(c["quanto"]), NOMI[risorsa]], Disegno.ARANCIO)
 			scatto("scavo_" + id)
 		"passaggio":
@@ -465,22 +671,37 @@ func fatto(id: String) -> void:
 			var z: Dictionary = zone[c["apre"]]
 			z["aperta"] = true
 			z["da"] = (Vector2(c["da"]) + Vector2(c["a"])) * 0.5
-			annuncio = {"testo": z["nome"], "eta": 0.0}
+			tasca.set("annuncio", {"testo": z["nome"], "sopra": "UN CAMPO NUOVO", "eta": 0.0})
+			particelle.append({"tipo": "onda", "p": z["da"], "v": Vector2.ZERO, "eta": 0.0, "dura": 0.8, "r": 120.0, "g": 0.0})
+			soffio(z["da"], 6)
+			scossa = 5.0
 			scatto("aperto_" + id)
 		"trivella":
 			if not bool(c["costruita"]):
 				c["costruita"] = true
+				soffio(c["dove"], 6)
 				scatto("trivella")
 			else:
 				borsa["quarzo"] = int(borsa["quarzo"]) + int(c["scorta"])
+				tasca.call("vola", "quarzo", schermo(Vector2(c["dove"]) + Vector2(-50, -40)), int(c["scorta"]))
 				scrivi(c["dove"], "+%d QUARZO" % int(c["scorta"]), Disegno.ARANCIO)
 				c["scorta"] = 0
 		"forziere":
 			c["aperto"] = true
 			borsa["tazo"] = int(borsa["tazo"]) + 50
+			tasca.call("vola", "tazo", schermo(Vector2(c["dove"]) + Vector2(0, -40)), 50)
 			scrivi(c["dove"], "+50 TAZO", Color("#ffd23a"))
-			annuncio = {"testo": "UN COLLEZIONABILE", "eta": 0.0}
+			tasca.set("annuncio", {"testo": "UN COLLEZIONABILE", "sopra": "NEL FORZIERE", "eta": 0.0})
+			particelle.append({"tipo": "onda", "p": Vector2(c["dove"]) + Vector2(0, -30), "v": Vector2.ZERO, "eta": 0.0,
+					"dura": 0.7, "r": 90.0, "g": 0.0})
+			for k in 8:
+				particelle.append({"tipo": "scintilla", "p": Vector2(c["dove"]) + Vector2(0, -30),
+						"v": Vector2.from_angle(TAU * float(k) / 8.0) * 160.0, "eta": 0.0, "dura": 0.6, "r": 9.0, "g": 200.0})
 			scatto("forziere")
+
+
+func schermo(p: Vector2) -> Vector2:
+	return get_viewport().get_canvas_transform() * p
 
 
 func scrivi(dove: Vector2, testo: String, tinta: Color) -> void:
@@ -490,7 +711,7 @@ func scrivi(dove: Vector2, testo: String, tinta: Color) -> void:
 func scatto(nome: String) -> void:
 	# nel film: quale fotogramma tenere come foto
 	if film:
-		print("SCATTO %s %d" % [nome, Engine.get_frames_drawn() + 12])
+		print("SCATTO %s %d" % [nome, Engine.get_frames_drawn() + 14])
 
 
 # ------------------------------------------------------------- il pilota
@@ -520,162 +741,151 @@ func pilota_automatico(delta: float) -> void:
 			vai_a(prossimo)
 
 
-# ------------------------------------------------------------- il disegno
+# ------------------------------------------------------------- il disegno, a strati
 
-func _draw() -> void:
-	Disegno.vuoto(self, MONDO.grow(700), stelle)
-	for id: String in zone:
-		Disegno.zona(self, (zone[id] as Dictionary)["poligono"], (zone[id] as Dictionary)["ciottoli"])
-	var cancello: Dictionary = cose["cancello"]
-	var campi: Array = []
-	for id: String in zone:
-		campi.append((zone[id] as Dictionary)["poligono"])
-	Disegno.passerella(self, cancello["poligono"], campi)
-	var ponte: Dictionary = cose["ponte"]
-	Disegno.ponte(self, ponte["da"], ponte["a"], ponte["largo"], quanto_fatto("ponte"))
-	# le cose e il personaggio, dall'alto in basso: chi sta piu' giu' copre chi sta su
-	var ordine: Array = cose.keys().filter(func(id: String) -> bool: return String((cose[id] as Dictionary)["tipo"]) != "passaggio")
-	ordine.append("cancello")
-	ordine.append("")
-	ordine.sort_custom(func(a: String, b: String) -> bool: return y_di(a) < y_di(b))
-	for id: String in ordine:
-		disegna_cosa(id)
+func disegna_lontano() -> void:
+	# il Carnivalz di questo Vuoto, grande e lontano: a retino come nella mappa,
+	# con l'anello. Scorre piu' piano del mondo
+	var c := Vector2(1090, 120) - camera.get_screen_center_position() * 0.03
+	var r := 170.0
+	for k in 5:
+		lontano.draw_circle(c, r + 40.0 - 8.0 * float(k), Color(Disegno.LINEA, 0.03))
+	anello_lontano(c, r, false)
+	lontano.draw_circle(c, r, Color("#151b29"))
+	var luce := c + Vector2(-0.45, -0.55) * r
+	var y := -r
+	var riga := 0
+	while y <= r:
+		var x := -r + (5.0 if riga % 2 == 1 else 0.0)
+		while x <= r:
+			var p := c + Vector2(x, y)
+			if p.distance_to(c) < r - 2.0:
+				var quanto := clampf(1.2 - p.distance_to(luce) / (r * 1.5), 0.0, 1.0)
+				if quanto > 0.04:
+					lontano.draw_circle(p, 3.8 * quanto, Color(Disegno.CARTA, 0.42))
+			x += 10.0
+		y += 8.7
+		riga += 1
+	anello_lontano(c, r, true)
+
+
+func anello_lontano(c: Vector2, r: float, davanti: bool) -> void:
+	for k in 3:
+		var raggi := Vector2(r * (1.45 + 0.12 * float(k)), r * (0.26 + 0.02 * float(k)))
+		var punti := PackedVector2Array()
+		for i in 49:
+			var a := (0.0 if davanti else PI) + PI * float(i) / 48.0
+			punti.append(c + Vector2(cos(a) * raggi.x, sin(a) * raggi.y).rotated(-0.18))
+		lontano.draw_polyline(punti, Color(Disegno.LINEA, 0.5 - 0.14 * float(k)), 2.0, true)
+
+
+func disegna_rupi(n: Node2D) -> void:
 	for id: String in zone:
 		var z: Dictionary = zone[id]
-		if float(z["svela"]) < 1.0:
-			Disegno.nebbia(self, z["nebbia"], z["puntini"], z["da"], float(z["svela"]) * float(z["svela"]) * 1200.0)
-	disegna_cartelli()
-	var vicina := cosa_vicina(SI_VEDE) if lavoro.is_empty() else ""
-	if vicina != "":
-		var detto := invito(vicina)
-		Disegno.invito(self, Vector2((cose[vicina] as Dictionary)["dove"]) + Vector2(0, -96), String(detto["testo"]),
-				bool(detto["puoi"]), String(detto["manca"]))
-	for s in scritte:
-		Disegno.sale(self, s["dove"], String(s["testo"]), float(s["eta"]), s["tinta"])
+		Disegno.isola(n, z["poligono"], float(z["seme"]))
+	for pezzo in pezzi_passerella:
+		Disegno.passerella_sotto(n, pezzo)
 
 
-func y_di(id: String) -> float:
-	if id == "":
-		return io.y
-	if id == "cancello":
-		return (Vector2((cose[id] as Dictionary)["da"]) + Vector2((cose[id] as Dictionary)["a"])).y * 0.5
-	return Vector2((cose[id] as Dictionary)["dove"]).y
+func disegna_suolo(n: Node2D) -> void:
+	for d in decori:
+		match String(d["tipo"]):
+			"cratere":
+				Disegno.cratere(n, d["p"], d["r"])
+			"bruciatura":
+				Disegno.bruciatura(n, d["p"])
+	for id: String in zone:
+		Disegno.orlo(n, (zone[id] as Dictionary)["poligono"])
+	for pezzo in pezzi_passerella:
+		Disegno.orlo(n, pezzo)
+	var ponte: Dictionary = cose["ponte"]
+	Disegno.ponte(n, ponte["da"], ponte["a"], float(ponte["largo"]), quanto_fatto("ponte"))
+
+
+func disegna_cose(n: Node2D) -> void:
+	# le cose e il personaggio, dall'alto in basso: chi sta piu' giu' copre chi sta su
+	var ordine: Array[Dictionary] = []
+	for id: String in cose:
+		var c: Dictionary = cose[id]
+		if String(c["tipo"]) == "passaggio":
+			if id == "cancello":
+				ordine.append({"y": (Vector2(c["da"]) + Vector2(c["a"])).y * 0.5, "cosa": id})
+		else:
+			ordine.append({"y": Vector2(c["dove"]).y, "cosa": id})
+		if c.has("cartello") and si_vede(id) and not bool(c.get("aperto", false)) and not bool(c.get("costruita", false)):
+			ordine.append({"y": Vector2(c["dove"]).y + Vector2(c["cartello"]).y, "cartello": id})
+	for d in decori:
+		if String(d["tipo"]) in ["masso", "pianta"]:
+			ordine.append({"y": Vector2(d["p"]).y, "decoro": d})
+	ordine.append({"y": io.y, "io": true})
+	ordine.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["y"]) < float(b["y"]))
+	for voce in ordine:
+		if voce.has("io"):
+			disegna_me(n)
+		elif voce.has("decoro"):
+			disegna_decoro(n, voce["decoro"])
+		elif voce.has("cartello"):
+			var c: Dictionary = cose[voce["cartello"]]
+			Disegno.cartello(n, Vector2(c["dove"]) + Vector2(c["cartello"]), c["costo"], borsa)
+		else:
+			disegna_cosa(n, String(voce["cosa"]))
+
+
+func disegna_me(n: Node2D) -> void:
+	var colpo_ora := -1.0
+	if not lavoro.is_empty():
+		colpo_ora = fmod(float(lavoro["tempo"]) / COLPO, 1.0)
+	var carico := int(borsa["quarzo"]) + int(borsa["ferro"]) + int(borsa["cristallo"])
+	Disegno.personaggio(n, io, faccia, dietro, passo, colpo_ora, carico, tempo)
+
+
+func disegna_decoro(n: Node2D, d: Dictionary) -> void:
+	match String(d["tipo"]):
+		"masso":
+			Disegno.masso(n, d["p"], float(d["r"]), float(d["seme"]))
+		"pianta":
+			Disegno.pianta(n, d["p"], float(d["r"]), float(d["seme"]), tempo)
+
+
+func disegna_cosa(n: Node2D, id: String) -> void:
+	var c: Dictionary = cose[id]
+	match String(c["tipo"]):
+		"vena":
+			Disegno.vena(n, c["dove"], String(c["risorsa"]), float(c["carica"]), tempo)
+		"modulo":
+			Disegno.modulo(n, c["dove"], tempo)
+		"trivella":
+			var su := 1.0 if bool(c["costruita"]) else quanto_lavoro("trivella")
+			Disegno.trivella(n, c["dove"], su, int(c["scorta"]), int(c["tiene"]), tempo)
+		"forziere":
+			Disegno.forziere(n, c["dove"], bool(c["aperto"]), tempo)
+		"passaggio":
+			var verso := (Vector2(c["a"]) - Vector2(c["da"])).normalized()
+			Disegno.cancello(n, (Vector2(c["da"]) + Vector2(c["a"])) * 0.5, verso, float(c["largo"]), quanto_fatto(id), tempo)
 
 
 func quanto_fatto(id: String) -> float:
 	# un passaggio: 1 aperto, 0 chiuso, in mezzo mentre ci lavori
 	if bool((cose[id] as Dictionary)["aperto"]):
 		return 1.0
+	return quanto_lavoro(id)
+
+
+func quanto_lavoro(id: String) -> float:
 	if not lavoro.is_empty() and String(lavoro["cosa"]) == id:
 		return float(lavoro["tempo"]) / float(lavoro["durata"])
 	return 0.0
 
 
-func disegna_cosa(id: String) -> void:
-	if id == "":
-		var colpo := -1.0
-		if not lavoro.is_empty():
-			colpo = fmod(float(lavoro["tempo"]) / 0.4, 1.0)
-		Disegno.personaggio(self, io, faccia, passo, colpo)
-		return
-	var c: Dictionary = cose[id]
-	match String(c["tipo"]):
-		"vena":
-			Disegno.vena(self, c["dove"], String(c["risorsa"]), float(c["carica"]), tempo)
-		"modulo":
-			Disegno.modulo(self, c["dove"], tempo)
-		"trivella":
-			var su := 1.0 if bool(c["costruita"]) else quanto_trivella()
-			Disegno.trivella(self, c["dove"], su >= 1.0, int(c["scorta"]), int(c["tiene"]), tempo)
-		"forziere":
-			Disegno.forziere(self, c["dove"], bool(c["aperto"]), tempo)
-		"passaggio":
-			var verso := (Vector2(c["a"]) - Vector2(c["da"])).normalized()
-			Disegno.cancello(self, (Vector2(c["da"]) + Vector2(c["a"])) * 0.5, verso, float(c["largo"]), quanto_fatto(id))
-
-
-func quanto_trivella() -> float:
-	if not lavoro.is_empty() and String(lavoro["cosa"]) == "trivella":
-		return float(lavoro["tempo"]) / float(lavoro["durata"])
-	return 0.0
-
-
-func disegna_cartelli() -> void:
-	# il cartello di legno davanti a quello che si paga: si vede da lontano
-	for id: String in ["ponte", "cancello", "trivella"]:
-		var c: Dictionary = cose[id]
-		if not si_vede(id) or bool(c.get("aperto", false)) or bool(c.get("costruita", false)):
-			continue
-		var base: Vector2 = Vector2(c["dove"]) + Vector2(-46, 24)
-		var costo: Dictionary = c["costo"]
-		var largo := 18.0 + 46.0 * float(costo.size())
-		draw_line(base, base + Vector2(0, -30), Disegno.INK, 4.0)
-		var tavola := Rect2(base + Vector2(-largo * 0.5, -58), Vector2(largo, 30))
-		draw_rect(tavola, Disegno.LEGNO_CHIARO)
-		draw_rect(tavola, Disegno.INK, false, 2.0)
-		var x := tavola.position.x + 14.0
-		for risorsa: String in costo:
-			Disegno.risorsa(self, Vector2(x, tavola.get_center().y), risorsa, 7.0)
-			draw_string(Caratteri.titolo(), Vector2(x + 10.0, tavola.get_center().y + 6.0), str(int(costo[risorsa])),
-					HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Disegno.INK)
-			x += 46.0
-
-
-func disegna_hud() -> void:
-	var f := Caratteri.titolo()
-	# quello che hai in tasca, in alto a sinistra
-	var x := 24.0
-	for risorsa: String in ["quarzo", "ferro", "cristallo", "tazo"]:
-		if int(borsa[risorsa]) == 0 and risorsa in ["cristallo", "tazo"]:
-			continue
-		var r := Rect2(x, 22, 112, 42)
-		scatola(r)
-		Disegno.risorsa(hud, r.position + Vector2(24, 21), risorsa, 9.0)
-		hud.draw_string(f, r.position + Vector2(44, 30), str(int(borsa[risorsa])), HORIZONTAL_ALIGNMENT_LEFT, -1, 22,
-				Disegno.CARTA)
-		x += 122.0
-	# l'obiettivo di adesso, sotto la tasca: uno alla volta, come le cose da
-	# fare di un giardino. Quando sono finiti, lo dice
-	var fatti := 0
-	var adesso := ""
-	for obiettivo: Array in OBIETTIVI:
-		if obiettivo_fatto(String(obiettivo[0])):
-			fatti += 1
-		elif adesso == "":
-			adesso = String(obiettivo[1])
-	var riga := Rect2(24, 74, 360, 36)
-	scatola(riga)
-	Manifesto.etichetta_tinta(hud, riga.position + Vector2(-1, -9), "OBIETTIVO  %d / %d" % [mini(fatti + 1, OBIETTIVI.size()),
-			OBIETTIVI.size()], 10, Disegno.ARANCIO, Disegno.INK)
-	hud.draw_string(f, riga.position + Vector2(14, 26), adesso if adesso != "" else "Il pianeta è tuo: torna quando vuoi",
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Disegno.CARTA)
-	# come si gioca, in basso
-	var aiuto := "FRECCE O WASD  ·  CAMMINA        E  ·  SCAVA, RIPARA, COSTRUISCI        CLIC  ·  VAI LÌ"
-	scatola(Rect2(24, 672, 620, 28))
-	DisegnoProiezione.scrivi(hud, Vector2(36, 691), aiuto, 10, Disegno.CARTA, 450, 85, 2)
-	DisegnoProiezione.scrivi(hud, Vector2(1060, 691), "PIANETA D'ESEMPIO  ·  LA RACCOLTA", 10, Color(Disegno.CARTA, 0.7),
-			450, 85, 2)
-	if not annuncio.is_empty() and float(annuncio["eta"]) < 3.0:
-		var a := clampf(minf(float(annuncio["eta"]) * 3.0, (3.0 - float(annuncio["eta"])) * 2.0), 0.0, 1.0)
-		var testo := String(annuncio["testo"])
-		var largo := f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, 34).x + 34.0
-		Manifesto.etichetta_tinta(hud, Vector2(640 - largo * 0.5, 96), testo, 34, Color(Disegno.ARANCIO, a),
-				Color(Disegno.INK, a))
-
-
-func obiettivo_fatto(chiave: String) -> bool:
-	match chiave:
-		"quarzo":
-			return int(borsa["quarzo"]) >= 12 or bool((cose["ponte"] as Dictionary)["aperto"])
-		"trivella":
-			return bool((cose["trivella"] as Dictionary)["costruita"])
-	return bool((cose[chiave] as Dictionary)["aperto"])
-
-
-func scatola(r: Rect2) -> void:
-	var s := StyleBoxFlat.new()
-	s.bg_color = Color(Disegno.INK, 0.88)
-	s.set_corner_radius_all(6)
-	s.border_color = Color(Disegno.CARTA, 0.35)
-	s.set_border_width_all(1)
-	hud.draw_style_box(s, r)
+func disegna_sopra(n: Node2D) -> void:
+	for q in particelle:
+		Disegno.particella(n, q)
+	# l'invito solo per quello che si puo' fare, o che si potra' fare pagando:
+	# che una vena ricresce lo dice gia' il suo giro azzurro
+	var vicina := cosa_vicina(SI_VEDE) if lavoro.is_empty() else ""
+	var detto := invito(vicina) if vicina != "" else {}
+	if not detto.is_empty() and (bool(detto["puoi"]) or String(detto["manca"]) != ""):
+		Disegno.invito(n, Vector2((cose[vicina] as Dictionary)["dove"]) + Vector2(0, -108), String(detto["testo"]),
+				bool(detto["puoi"]), String(detto["manca"]), tempo)
+	for s in scritte:
+		Disegno.sale(n, s["dove"], String(s["testo"]), float(s["eta"]), s["tinta"])
