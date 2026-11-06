@@ -24,7 +24,13 @@ Bru, sul primo giro: «ok ma i giochi devono essere fatti meglio di come sono or
 e dobbiamo renderli leggermente diversi». Il **secondo giro** è il §8: ogni gioco
 ha una decisione vera e un'idea nostra, e le tavole sono rifatte.
 
-    ./prove/proposte_pianeti.sh     le nove tavole, in scatti/proposte_pianeti/
+Bru, sul secondo: «comunque no non ci siamo, a me interessa tipo garden scape che
+muovi il personaggio accumula risorse e le spendi muovendoti sulla mappa». Il
+**terzo giro** è il §9. La raccolta non è più disegnata: **si gioca**.
+
+    ./prove/raccolta.sh             il film della raccolta, in scatti/raccolta/
+    F6 su prove/RaccoltaProva.tscn  la raccolta, da giocare
+    ./prove/proposte_pianeti.sh     le nove tavole dei primi due giri
 
 ---
 
@@ -52,7 +58,7 @@ il loro posto è un telefono, e il telefono del gioco è il data pad.
 
 ## 2. La raccolta (tavola 1)
 
-*Il primo giro. Le novità del secondo sono nel §8.*
+*Il primo giro. Le novità del secondo sono nel §8; la raccolta da giocare, che prende il posto di questa, è nel §9.*
 
 **Cosa si vede.** La superficie del pianeta come un plastico. Ci sono dei
 **campi** dal contorno storto, alzati da terra come le radure delle Pianure. Fra
@@ -304,7 +310,76 @@ Il +10 fuoco che indica la mano porterebbe 22 fuochi contro un muro d'acqua.
   scontro c'è scritto: «ABOMINIO: IMMUNE AL FUOCO». Le torri si scelgono
   sull'ondata, non una volta per tutte.
 
-## 9. Le domande per Bru
+## 9. Il terzo giro: la raccolta da giocare
+
+> Bru: «comunque no non ci siamo, a me interessa tipo garden scape che muovi il
+> personaggio accumula risorse e le spendi muovendoti sulla mappa»
+
+Le tavole guardavano il pianeta dall'alto, dal tavolo della Sala operativa, e si
+cliccava. Qui **ci cammini sopra**. È un prototipo giocabile
+(`prove/RaccoltaProva.gd`), non un disegno: si apre nell'editor con F6.
+
+**Come si gioca.**
+
+- Frecce o WASD per camminare. Un clic per andare in un punto; un clic su una
+  cosa per andarci e farla.
+- **Accumuli camminando.** Arrivi a una vena e la scavi (E, spazio o invio, o il
+  clic). Il personaggio dà due colpi di piccone e sale la scritta «+5 QUARZO».
+  La vena resta a mozziconi e ricresce col tempo: il giro azzurro intorno dice
+  quanto manca.
+- **Spendi sul posto.** Davanti a quello che si paga c'è un cartello di legno
+  col prezzo, che si vede da lontano. Avvicinandoti compare l'invito: arancio se
+  te lo puoi permettere («RIPARA IL PONTE · 12 QUARZO»), scuro con sotto
+  «MANCANO 7 QUARZO» se no. Paghi, e il lavoro si vede: le assi del ponte
+  arrivano una alla volta, le sbarre del cancello rientrano nei pilastri.
+- **La mappa si apre.** Oltre il ponte e oltre il cancello c'è la nebbia del
+  Vuoto, buio e retino. Quando il passaggio si apre la nebbia si ritira in un
+  cerchio che parte da lì, e compare il nome del campo nuovo.
+- **L'automazione.** Nella Piana c'è una piazzola: costruita la trivella (6
+  ferro), scava quarzo da sola, uno ogni secondo e mezzo, fino a 12. Ci passi e
+  prendi quello che ha messo da parte.
+- **Un obiettivo alla volta**, sotto la tasca, come le cose da fare di un
+  giardino: raccogli 12 quarzo, ripara il ponte, costruisci la trivella, apri il
+  cancello, scopri cosa c'è nel cratere.
+
+**Il pianeta d'esempio** ha tre campi:
+
+| campo | cosa c'è | come ci arrivi |
+|---|---|---|
+| il campo d'atterraggio | il modulo, tre vene di quarzo | ci atterri |
+| la piana di ferro | due vene di ferro, una di quarzo, la piazzola della trivella | il ponte rotto: 12 quarzo |
+| il cratere | due vene di cristalli e un forziere (+50 tazo e un collezionabile) | il cancello: 6 ferro e 5 quarzo |
+
+Il giro intero, fatto dritto, dura mezzo minuto: è quello del film. Gli
+obiettivi sono fatti per non dover aspettare. Il cancello vuole due quarzi più
+di quelli che avanzano dal ponte, così si passa dalla trivella prima.
+
+**Cosa resta dei giri di prima.** Il tempo è tempo di gioco, come per le sonde.
+La trivella è la sonda che lavora da sola, e nel gioco vero porterebbe i suoi
+giacimenti nelle riserve anche quando sei altrove (§5). La nebbia è quella del
+Vuoto.
+
+**Cosa non c'è ancora.**
+
+- Il personaggio è un segnaposto a forme, come le Sagome: il disegno vero è tuo.
+- Non si salva.
+- Non si entra dal Vuoto («Esplora il pianeta»).
+- C'è un pianeta solo.
+
+Sono le cose da fare quando la portiamo nel gioco, se è questa la strada.
+
+## 10. Le domande per Bru
+
+**Sul terzo giro (§9):**
+
+1. **Ci siamo adesso?** Il passo del personaggio, la vista dall'alto un po' di
+   sbieco, quanto è grande la mappa rispetto allo schermo.
+2. **Chi cammina**: il protagonista, o un compagno a scelta?
+3. **Le pubblicità e la resistenza** (§3, §4, §8): le teniamo per dopo, o le
+   togliamo?
+4. **Quanto grande** un pianeta: tre campi come qui, o di più?
+
+**Sui giri di prima:**
 
 1. **Il secondo giro** (§8): le novità di ogni gioco ti piacciono? Ce n'è una
    che toglieresti, o una che spingeresti di più?
@@ -336,3 +411,11 @@ Il +10 fuoco che indica la mano porterebbe 22 fuochi contro un muro d'acqua.
   della soluzione a destra.
 - `4_il_giro.png`: le tre specie intorno alle riserve, cosa entra (pieno) e cosa
   esce (tratteggiato), e cosa torna al gioco grande.
+
+## Il film e le foto della raccolta (§9)
+
+- `scatti/raccolta/raccolta.mp4`: il giro intero col pilota automatico, mezzo
+  minuto.
+- `inizio.png`, `scavo_q3.png`, `aperto_ponte.png`, `svelata_piana.png`,
+  `trivella.png`, `aperto_cancello.png`, `svelata_cratere.png`, `forziere.png`:
+  i momenti del giro.
