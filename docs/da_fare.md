@@ -18,12 +18,17 @@ estrai) **e non si spendono**. Da decidere:
   l'Organizzazione con le sue risorse;
 - se le riserve hanno un **tetto** o crescono senza fine.
 
+**Proposta del 6 novembre**, dopo l'idea di Bru dei giochi dei pianeti
+(raccolta, avamposti, pubblicità): `docs/pianeti_giochi.md`, §5. Aspetta la
+sua risposta.
+
 ## I segnaposto del Vuoto
 Esempi miei, da sostituire quando ci sono i contenuti veri:
 
 - **i quattro pianeti d'esempio** del Vuoto Ardente (`mappa.json`, `pianeti`):
   nomi, storie, e il gioco con cui si esplorano (`file_eventi`, per ora vuoto:
-  la scheda dice «esplorazione in arrivo»);
+  la scheda dice «esplorazione in arrivo»). I giochi proposti sono in
+  `docs/pianeti_giochi.md`;
 - **i numeri delle sonde** (`mappa.json`, `sonda` di ogni pianeta): ogni quanti
   minuti trovano, quanti giacimenti tengono, cosa e quanto. Vanno provati
   giocando;
