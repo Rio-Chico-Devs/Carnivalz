@@ -28,6 +28,13 @@ Bru, sul secondo: «comunque no non ci siamo, a me interessa tipo garden scape c
 muovi il personaggio accumula risorse e le spendi muovendoti sulla mappa». Il
 **terzo giro** è il §9. La raccolta non è più disegnata: **si gioca**.
 
+Bru, sulla raccolta stampata: «anche peggio di prima, non mi piace proprio come
+grafica, hai solo aggiunto roba in più»; e la direzione nuova: esplorare come in
+A Link to the Past e The Minish Cap, colonizzando un pianeta regione per regione,
+e «generare le mappe e i mondi da esplorare che siano coerenti con il nostro
+stile». Quel giro sta in **`docs/mondi.md`** (`prove/MondoProva.tscn`): il §9
+resta qui come storia.
+
     ./prove/raccolta.sh             il film della raccolta, in scatti/raccolta/
     F6 su prove/RaccoltaProva.tscn  la raccolta, da giocare
     ./prove/proposte_pianeti.sh     le nove tavole dei primi due giri
