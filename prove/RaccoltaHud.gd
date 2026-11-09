@@ -21,6 +21,11 @@ var fatti := 0
 var totale := 5
 var annuncio := {}
 var tempo := 0.0
+# le parole del mondo, scritte qui sopra la stampa (RaccoltaProva.parole_sopra_la_stampa)
+var inviti: Array[Dictionary] = []
+var scritte: Array[Dictionary] = []
+var cartelli: Array[Dictionary] = []
+var borsa := {}
 
 
 func _ready() -> void:
@@ -79,14 +84,20 @@ func posto(quale: String) -> Vector2:
 
 func _draw() -> void:
 	var f := Caratteri.titolo()
+	for c in cartelli:
+		Disegno.cifre_del_cartello(self, c["p"], c["costo"], borsa)
+	for s in scritte:
+		Disegno.sale(self, s["p"], String(s["testo"]), float(s["eta"]), s["tinta"])
+	for i in inviti:
+		Disegno.invito(self, i["p"], String(i["testo"]), bool(i["puoi"]), String(i["manca"]), tempo)
 	for quale: String in visibili():
 		var c := posto(quale)
 		var r := Rect2(c + Vector2(-26, -22), Vector2(120, 44))
 		ombra_e_scatola(r, Color(Disegno.INK, 0.92), 22)
 		var dopo_arrivo := float(sobbalzi.get(quale, 9.0))
 		var salto := 1.0 + 0.45 * exp(-dopo_arrivo * 9.0)
-		draw_circle(c, 19.0 * salto, Disegno.CARTA)
-		draw_circle(c, 19.0 * salto, Disegno.INK, false, 2.0)
+		draw_circle(c, 19.0 * salto, Color("#2a2433"))
+		draw_circle(c, 19.0 * salto, Color(Disegno.CARTA, 0.5), false, 1.5)
 		Disegno.risorsa(self, c, quale, 8.5 * salto)
 		var rosso := clampf(1.0 - float(spese.get(quale, 9.0)) * 2.5, 0.0, 1.0)
 		var tinta := Disegno.CARTA.lerp(Stile.colore("pericolo"), rosso).lerp(Disegno.ARANCIO, exp(-dopo_arrivo * 6.0))

@@ -1,5 +1,5 @@
-// LA NEBBIA SU QUELLO CHE NON SAI (prove/RaccoltaProva.gd): nuvole lente di
-// buio, il retino del Vuoto, i bordi morbidi intorno al campo. Quando un
+// LA NEBBIA SU QUELLO CHE NON SAI (prove/RaccoltaProva.gd): nuvole lente fra
+// il buio e il blu, i bordi morbidi intorno al campo. Quando un
 // passaggio si apre si ritira da li', col bordo strappato e acceso. Provvisorio.
 shader_type canvas_item;
 #include "res://prove/raccolta_rumore.gdshaderinc"
@@ -32,11 +32,8 @@ void fragment() {
 		bordo = smoothstep(0.0, 30.0, d);
 		scintilla = (1.0 - smoothstep(0.0, 46.0, d)) * smoothstep(-8.0, 0.0, d);
 	}
-	vec3 c = mix(buio.rgb, buio.rgb * 1.9, smoothstep(0.35, 0.8, nuvola));
-	vec2 cella = fract(mondo / 12.0) - 0.5;
-	float r = 0.1 + 0.22 * nuvola;
-	float punto = 1.0 - smoothstep(r - 0.05, r + 0.03, length(cella));
-	c = mix(c, linea.rgb, punto * 0.5);
+	// le nuvole: dal buio al blu. Il retino lo mette la stampa
+	vec3 c = mix(buio.rgb, linea.rgb, smoothstep(0.4, 0.85, nuvola) * 0.8);
 	c = mix(c, acceso.rgb, scintilla * 0.9);
 	COLOR = vec4(c, alfa * max(bordo, scintilla) * 0.97);
 }

@@ -409,6 +409,43 @@ prototipo cambia solo come si vede: la meccanica e il giro sono gli stessi.
   cartoncino, con i puntini di quanti ne mancano. L'invito ha il tasto E; il
   prezzo sta sul cartello di legno, in rosso quello che manca.
 
+**Stampata.** Bru, sul secondo prototipo: «vai lavoriamoci oltre, non basta
+ancora, la grafica è troppo banale». Era banale perché sembrava un gioco da
+telefono qualsiasi. Adesso il pianeta parla la lingua del resto di Carnivalz,
+quella del manifesto e del Vuoto: **è una serigrafia**.
+
+- **La stampa** (`prove/raccolta_stampa.gdshader`). Tutto quello che si
+  disegna passa da lì e diventa tre inchiostri su carta crema: nero, arancio,
+  blu. Ogni inchiostro è un retino a puntini con un angolo suo, ancorato al
+  mondo, così camminando i puntini non scorrono sulle cose. Il nero oltre la
+  metà è pieno, così le linee restano linee. I tre fogli sono un poco fuori
+  registro, la carta ha la sua grana, gli angoli scendono nel buio.
+- **I colori sono dosi d'inchiostro.** Ogni colore delle cose è scritto come
+  quanto nero, arancio e blu ci vuole (`RaccoltaDisegno.gd`, in cima), e ognuno
+  ha un ruolo:
+  - la carta è la luce;
+  - l'arancio sono i toni caldi e quello che si accende;
+  - il blu sono le ombre, le piante e la nebbia;
+  - il nero sono le linee e il buio fondo.
+
+  Le ombre sono blu sulla carta crema. I cristalli rossi sono diventati
+  arancio, le piante blu.
+- **La terra** è quasi carta, con le **curve di livello** blu come una carta
+  topografica. Il lato in ombra scurisce, e la stampa ne fa retino.
+- **Il cielo** è blu con un retino di nero. Sopra ci sono:
+  - le schegge di cristallo lontanissime, che girano piano;
+  - le isole lontane, blu con l'orlo arancio, che ondeggiano;
+  - il Carnivalz di questo Vuoto come una luna stampata, con gli anelli e i
+    raggi.
+
+  Ogni piano scorre a una velocità sua.
+- **Davanti a tutto**, massi neri con l'orlo arancio passano ai bordi dello
+  schermo, più veloci del mondo, e c'è la polvere che galleggia.
+- **Le impronte** del personaggio restano sulla terra e svaniscono piano.
+- **Quello che si legge non passa dalla stampa.** Gli inviti, le scritte che
+  salgono e le cifre dei cartelli le scrive la tasca, nitide, nel punto dello
+  schermo dove sta la cosa: il retino mangerebbe le lettere.
+
 ## 10. Le domande per Bru
 
 **Sul terzo giro (§9):**
@@ -460,5 +497,6 @@ prototipo cambia solo come si vede: la meccanica e il giro sono gli stessi.
 - `inizio.png`, `scavo_q3.png`, `aperto_ponte.png`, `svelata_piana.png`,
   `trivella.png`, `aperto_cancello.png`, `svelata_cratere.png`, `forziere.png`:
   i momenti del giro.
-- Il film e le foto sono quelli del secondo prototipo, il più bello. Il primo
-  sta nella storia del repository (commit «La raccolta da giocare»).
+- Il film e le foto sono quelli del terzo prototipo, stampato. I primi due
+  stanno nella storia del repository (commit «La raccolta da giocare» e «La
+  raccolta più bella»).

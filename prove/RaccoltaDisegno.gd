@@ -12,34 +12,41 @@ extends RefCounted
 #     arrivera' da Bru.
 # La terra, la nebbia e il cielo sono shader (prove/raccolta_*.gdshader).
 
-const INK := Color("#1a1720")
-const CARTA := Color("#efd8b2")
-const ARANCIO := Color("#f29a2e")
-const LINEA := Color("#4a7aa8")
-const RUPE_ALTA := Color("#b9824a")
-const RUPE_BASSA := Color("#6b4223")
-const STRATO := Color("#8a5a30")
-const LEGNO := Color("#8a5a32")
-const LEGNO_CHIARO := Color("#c08a55")
-const LEGNO_SCURO := Color("#5e3a1e")
-const METALLO := Color("#9aa3b0")
-const METALLO_CHIARO := Color("#d9dde3")
-const METALLO_SCURO := Color("#5d6673")
-const PIETRA := Color("#9b968f")
-const PIETRA_CHIARA := Color("#c9c3b8")
-const PIETRA_SCURA := Color("#6b665f")
-const VERDE_ACQUA := Color("#3fb8a6")
-const VERDE_SCURO := Color("#1f7268")
-const PELLE := Color("#f3dcc0")
-const CAPPOTTO := Color("#2b2838")
-const CAPPOTTO_LUCE := Color("#454057")
+# I COLORI SONO DOSI D'INCHIOSTRO. Tutto passa dalla stampa (raccolta_stampa):
+# carta crema e tre inchiostri, nero, arancio e blu. Ogni colore qui sotto e'
+# carta x nero^n x arancio^a x blu^b, scelto per ruolo:
+#   la carta e' la luce; l'arancio i toni caldi e quello che si accende; il blu
+#   le ombre, le piante, la nebbia; il nero le linee e il buio fondo.
+# Fra parentesi le dosi (nero, arancio, blu).
+const INK := Color("#1a1720")                 # (1, 0, 0): pieno
+const CARTA := Color("#efd8b2")               # (0, 0, 0)
+const ARANCIO := Color("#f29a2e")             # (0, 1, 0)
+const LINEA := Color("#2f6aa8")               # (0, 0, 1)
+const OMBRA_TINTA := Color("#57808b")         # (0, 0, .6): le ombre sono blu
+const RUPE_ALTA := Color("#cf8731")           # (.05, .7, 0)
+const RUPE_BASSA := Color("#2a2718")          # (.45, .55, .45)
+const STRATO := Color("#261e15")              # (.7, .4, .2)
+const LEGNO := Color("#6e4319")               # (.35, .75, 0)
+const LEGNO_CHIARO := Color("#bc8239")        # (.1, .55, 0)
+const LEGNO_SCURO := Color("#2a1e10")         # (.65, .6, .2)
+const METALLO := Color("#6b7e7e")             # (.1, 0, .35)
+const METALLO_CHIARO := Color("#c3c2a9")      # (0, 0, .12)
+const METALLO_SCURO := Color("#293541")       # (.4, 0, .55)
+const PIETRA := Color("#6f7765")              # (.12, .12, .3)
+const PIETRA_CHIARA := Color("#bcb998")       # (0, .06, .14)
+const PIETRA_SCURA := Color("#313c3d")        # (.35, .1, .5)
+const VERDE_ACQUA := Color("#385f74")         # (.05, 0, .8): le piante sono blu
+const VERDE_SCURO := Color("#1b2e3f")         # (.35, 0, .85)
+const PELLE := Color("#eecb91")               # (0, .12, 0)
+const CAPPOTTO := Color("#171a22")            # (.75, 0, .45)
+const CAPPOTTO_LUCE := Color("#242c36")       # (.5, 0, .5)
 const ALTEZZA := 34.0            # la parete di roccia sotto un campo
 const FONDO := 170.0             # quanto scende il fondo dell'isola, al centro
-const OMBRA := Vector2(9, 5)     # dove cade l'ombra: in basso a destra
-const TINTE_RISORSA := {"quarzo": [Color("#fbf6ea"), Color("#d6c9ad"), Color("#ffffff")],
-		"ferro": [Color("#8796ab"), Color("#4e5b6e"), Color("#c3cedb")],
-		"cristallo": [Color("#ff5d73"), Color("#a3173a"), Color("#ffc2cb")],
-		"tazo": [Color("#ffd23a"), Color("#c98d10"), Color("#fff3b0")]}
+const OMBRA := Vector2(14, 7)    # dove cade l'ombra: in basso a destra, lunga
+const TINTE_RISORSA := {"quarzo": [Color("#efd8b2"), Color("#7e9b98"), Color("#ffffff")],
+		"ferro": [Color("#3a5765"), Color("#17212d"), Color("#90a69d")],
+		"cristallo": [Color("#e48926"), Color("#734814"), Color("#ebb562")],
+		"tazo": [Color("#e79c3a"), Color("#864c15"), Color("#edc88a")]}
 
 
 static func zolla(centro: Vector2, raggi: Vector2, seme: float) -> PackedVector2Array:
@@ -204,7 +211,7 @@ static func cancello(tela: CanvasItem, dove: Vector2, verso: Vector2, largo: flo
 	var lato := verso.orthogonal() * largo * 0.6
 	for s: float in [-1.0, 1.0]:
 		var base := dove + lato * s
-		ovale(tela, base + OMBRA * 0.6, Vector2(16, 6), Color(0, 0, 0, 0.22), false)
+		ovale(tela, base + OMBRA * 0.6, Vector2(16, 6), Color(OMBRA_TINTA, 0.79), false)
 		var corpo := Rect2(base + Vector2(-11, -46), Vector2(22, 48))
 		tela.draw_rect(corpo, PIETRA)
 		tela.draw_rect(Rect2(corpo.position, Vector2(8, corpo.size.y)), PIETRA_CHIARA)
@@ -243,7 +250,7 @@ static func vena(tela: CanvasItem, p: Vector2, quale: String, carica: float, t: 
 	# scintilla; scavata, restano i mozziconi e il giro che si riempie
 	var tinte: Array = TINTE_RISORSA.get(quale, TINTE_RISORSA["quarzo"])
 	var pronta := carica >= 1.0
-	ovale(tela, p + OMBRA, Vector2(30, 10), Color(0, 0, 0, 0.2), false)
+	ovale(tela, p + OMBRA, Vector2(30, 10), Color(OMBRA_TINTA, 0.72), false)
 	if pronta:
 		alone(tela, p + Vector2(0, -14), 44.0, tinte[2], 0.22 + 0.06 * sin(t * 2.5 + p.x))
 	var cumulo := PackedVector2Array([p + Vector2(-28, 4), p + Vector2(-22, -8), p + Vector2(-6, -13), p + Vector2(12, -11),
@@ -296,7 +303,7 @@ static func anello_a_terra(tela: CanvasItem, c: Vector2, r: Vector2, quota: floa
 
 static func modulo(tela: CanvasItem, p: Vector2, t: float) -> void:
 	# il modulo d'atterraggio: da qui quello che raccogli parte per le riserve
-	ovale(tela, p + OMBRA + Vector2(4, 4), Vector2(56, 15), Color(0, 0, 0, 0.22), false)
+	ovale(tela, p + OMBRA + Vector2(4, 4), Vector2(56, 15), Color(OMBRA_TINTA, 0.79), false)
 	for x: float in [-38.0, 38.0, -16.0, 16.0]:
 		var piede := p + Vector2(x, 6.0 if absf(x) < 20.0 else 2.0)
 		tela.draw_line(p + Vector2(x * 0.55, -26), piede, INK, 6.0, true)
@@ -336,7 +343,7 @@ static func trivella(tela: CanvasItem, p: Vector2, costruita: float, scorta: int
 		tela.draw_line(p + Vector2(0, -5), p + Vector2(0, 5), INK, 3.0)
 		return
 	var su := clampf(costruita, 0.0, 1.0)
-	ovale(tela, p + OMBRA, Vector2(40, 12), Color(0, 0, 0, 0.22), false)
+	ovale(tela, p + OMBRA, Vector2(40, 12), Color(OMBRA_TINTA, 0.79), false)
 	var cima := p + Vector2(0, -80.0 * su)
 	for piede: Vector2 in [Vector2(-32, 4), Vector2(32, 4), Vector2(0, 12)]:
 		tela.draw_line(cima, p + piede, INK, 7.0, true)
@@ -369,7 +376,7 @@ static func trivella(tela: CanvasItem, p: Vector2, costruita: float, scorta: int
 
 
 static func forziere(tela: CanvasItem, p: Vector2, aperto: bool, t: float) -> void:
-	ovale(tela, p + OMBRA, Vector2(32, 9), Color(0, 0, 0, 0.22), false)
+	ovale(tela, p + OMBRA, Vector2(32, 9), Color(OMBRA_TINTA, 0.79), false)
 	if not aperto:
 		alone(tela, p + Vector2(0, -20), 40.0, ARANCIO, 0.15 + 0.08 * sin(t * 2.0))
 	var cassa := Rect2(p + Vector2(-26, -28), Vector2(52, 30))
@@ -382,9 +389,9 @@ static func forziere(tela: CanvasItem, p: Vector2, aperto: bool, t: float) -> vo
 		var dentro := PackedVector2Array([p + Vector2(-26, -28), p + Vector2(26, -28), p + Vector2(32, -58), p + Vector2(-20, -58)])
 		tela.draw_colored_polygon(dentro, LEGNO_SCURO)
 		tela.draw_polyline(chiuso(dentro), INK, 2.5, true)
-		alone(tela, p + Vector2(0, -32), 34.0, Color("#ffd23a"), 0.5)
+		alone(tela, p + Vector2(0, -32), 34.0, TINTE_RISORSA["tazo"][0], 0.5)
 		for k in 4:
-			stella(tela, p + Vector2(-16.0 + 11.0 * float(k), -42.0 - 7.0 * sin(t * 3.0 + float(k))), 6.0, Color("#ffd23a"))
+			stella(tela, p + Vector2(-16.0 + 11.0 * float(k), -42.0 - 7.0 * sin(t * 3.0 + float(k))), 6.0, TINTE_RISORSA["tazo"][0])
 		return
 	var coperchio := PackedVector2Array([p + Vector2(-28, -28), p + Vector2(28, -28), p + Vector2(24, -44), p + Vector2(-24, -44)])
 	tela.draw_polygon(coperchio, PackedColorArray([LEGNO, LEGNO_SCURO, LEGNO_SCURO, LEGNO_CHIARO]))
@@ -393,21 +400,30 @@ static func forziere(tela: CanvasItem, p: Vector2, aperto: bool, t: float) -> vo
 	tela.draw_rect(Rect2(p + Vector2(-6, -34), Vector2(12, 12)), INK, false, 1.5)
 
 
-static func cartello(tela: CanvasItem, base: Vector2, costo: Dictionary, borsa: Dictionary) -> void:
-	# il cartello di legno col prezzo: si vede da lontano. Rosso quello che manca
+static func cartello(tela: CanvasItem, base: Vector2, costo: Dictionary) -> void:
+	# il cartello di legno: si vede da lontano. Le cifre del prezzo le scrive
+	# la tasca sopra la stampa (cifre_del_cartello), perche' restino nitide
 	var largo := 20.0 + 50.0 * float(costo.size())
 	palo(tela, base)
 	var tavola := Rect2(base + Vector2(-largo * 0.5, -60), Vector2(largo, 32))
-	ovale(tela, base + OMBRA, Vector2(12, 4), Color(0, 0, 0, 0.2), false)
-	tela.draw_rect(Rect2(tavola.position + Vector2(4, 4), tavola.size), Color(0, 0, 0, 0.25))
+	ovale(tela, base + OMBRA, Vector2(12, 4), Color(OMBRA_TINTA, 0.72), false)
+	tela.draw_rect(Rect2(tavola.position + Vector2(4, 4), tavola.size), Color(OMBRA_TINTA, 0.90))
 	tela.draw_rect(tavola, LEGNO_CHIARO)
 	tela.draw_rect(Rect2(tavola.position + Vector2(0, tavola.size.y - 7), Vector2(tavola.size.x, 7)), LEGNO)
 	tela.draw_rect(tavola, INK, false, 2.0)
-	var x := tavola.position.x + 16.0
+
+
+static func cifre_del_cartello(tela: CanvasItem, base: Vector2, costo: Dictionary, borsa: Dictionary) -> void:
+	# il prezzo, su una targhetta di carta: in rosso quello che manca
+	var largo := 20.0 + 50.0 * float(costo.size())
+	var targa := Rect2(base + Vector2(-largo * 0.5 + 6, -56), Vector2(largo - 12, 24))
+	tela.draw_rect(targa, CARTA)
+	tela.draw_rect(targa, INK, false, 1.5)
+	var x := targa.position.x + 12.0
 	for quale: String in costo:
-		risorsa(tela, Vector2(x, tavola.get_center().y), quale, 7.5)
+		risorsa(tela, Vector2(x, targa.get_center().y), quale, 7.0)
 		var manca := int(costo[quale]) > int(borsa.get(quale, 0))
-		tela.draw_string(Caratteri.titolo(), Vector2(x + 11.0, tavola.get_center().y + 6.0), str(int(costo[quale])),
+		tela.draw_string(Caratteri.titolo(), Vector2(x + 11.0, targa.get_center().y + 6.0), str(int(costo[quale])),
 				HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Stile.colore("pericolo") if manca else INK)
 		x += 50.0
 
@@ -415,7 +431,7 @@ static func cartello(tela: CanvasItem, base: Vector2, costo: Dictionary, borsa: 
 # ------------------------------------------------------------------ i decori
 
 static func masso(tela: CanvasItem, p: Vector2, r: float, seme: float) -> void:
-	ovale(tela, p + OMBRA * (r / 16.0), Vector2(r * 1.2, r * 0.45), Color(0, 0, 0, 0.2), false)
+	ovale(tela, p + OMBRA * (r / 16.0), Vector2(r * 1.2, r * 0.45), Color(OMBRA_TINTA, 0.72), false)
 	var forma := PackedVector2Array()
 	var tinte := PackedColorArray()
 	for i in 9:
@@ -434,7 +450,7 @@ static func masso(tela: CanvasItem, p: Vector2, r: float, seme: float) -> void:
 
 static func pianta(tela: CanvasItem, p: Vector2, alta: float, seme: float, t: float) -> void:
 	# una pianta del pianeta: steli verdeacqua che dondolano, e i bulbi accesi
-	ovale(tela, p + OMBRA * 0.6, Vector2(12, 4), Color(0, 0, 0, 0.18), false)
+	ovale(tela, p + OMBRA * 0.6, Vector2(12, 4), Color(OMBRA_TINTA, 0.65), false)
 	for k in 3:
 		var piega := sin(t * 1.3 + seme + float(k)) * 0.12 + (float(k) - 1.0) * 0.35
 		var cima := p + Vector2.from_angle(-PI * 0.5 + piega) * alta * (0.75 + 0.25 * float(k % 2))
@@ -449,13 +465,13 @@ static func pianta(tela: CanvasItem, p: Vector2, alta: float, seme: float, t: fl
 
 
 static func cratere(tela: CanvasItem, p: Vector2, r: Vector2) -> void:
-	ovale(tela, p, r, Color("#b88f5a"), false)
-	ovale(tela, p + Vector2(r.x * 0.08, r.y * 0.15), r * 0.82, Color("#9c7646"), false)
+	ovale(tela, p, r, Color("#d9a865"), false)
+	ovale(tela, p + Vector2(r.x * 0.08, r.y * 0.15), r * 0.82, Color("#57808b"), false)
 	var orlo_luce := PackedVector2Array()
 	for i in 13:
 		var a := PI * 0.05 + PI * 0.9 * float(i) / 12.0
 		orlo_luce.append(p + Vector2(cos(a) * r.x, sin(a) * r.y))
-	tela.draw_polyline(orlo_luce, Color("#f3e2bd"), 2.5, true)
+	tela.draw_polyline(orlo_luce, CARTA, 2.5, true)
 
 
 static func bruciatura(tela: CanvasItem, p: Vector2) -> void:
@@ -475,7 +491,7 @@ static func personaggio(tela: CanvasItem, p: Vector2, faccia: float, dietro: boo
 	var muove := absf(sin(passo)) > 0.01
 	var respiro := 0.0 if muove else sin(t * 2.2) * 0.8
 	var dondola := absf(sin(passo)) * 3.0
-	ovale(tela, p + Vector2(3, 2), Vector2(19, 6), Color(0, 0, 0, 0.3), false)
+	ovale(tela, p + Vector2(3, 2), Vector2(19, 6), Color(OMBRA_TINTA, 1.00), false)
 	# le gambe
 	var oscilla := sin(passo) * 5.0
 	for g: float in [-1.0, 1.0]:
@@ -600,7 +616,7 @@ static func invito(tela: CanvasItem, p: Vector2, testo: String, puoi: bool, manc
 	s.set_corner_radius_all(15)
 	s.border_color = INK
 	s.set_border_width_all(2)
-	s.shadow_color = Color(0, 0, 0, 0.3)
+	s.shadow_color = Color(OMBRA_TINTA, 1.00)
 	s.shadow_offset = Vector2(3, 4)
 	s.shadow_size = 1
 	tela.draw_style_box(s, r)

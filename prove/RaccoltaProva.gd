@@ -29,6 +29,10 @@ const Tasca := preload("res://prove/RaccoltaHud.gd")
 const TERRA := preload("res://prove/raccolta_terra.gdshader")
 const NEBBIA := preload("res://prove/raccolta_nebbia.gdshader")
 const VUOTO := preload("res://prove/raccolta_vuoto.gdshader")
+const STAMPA := preload("res://prove/raccolta_stampa.gdshader")
+# la carta e i tre inchiostri della stampa: gli stessi valori stanno nello shader
+const CARTA_STAMPA := Color("#efd8b2")
+const INCHIOSTRI := [Color("#1f1a24"), Color("#f29a2e"), Color("#2f6aa8")]
 const MONDO := Rect2(0, 0, 2300, 1260)
 const VELOCITA := 250.0
 const PORTATA := 70.0          # quanto vicino devi essere per fare una cosa
@@ -57,6 +61,9 @@ var bersaglio := ""
 var lavoro := {}
 var scritte: Array[Dictionary] = []
 var particelle: Array[Dictionary] = []
+var impronte: Array[Dictionary] = []
+var strada_fatta := 0.0
+var primo_piano: Node2D
 var tempo := 0.0
 var polvere := 0.0
 var scossa := 0.0
@@ -64,6 +71,8 @@ var dado := RandomNumberGenerator.new()
 var camera: Camera2D
 var tasca: Control
 var cielo: ShaderMaterial
+var stampa: ShaderMaterial
+var anteprima := -1          # ./prove/raccolta.sh non la usa: la foto di un fotogramma solo, per provare
 var lontano: Control
 var rupi: Node2D
 var suolo: Node2D
@@ -78,7 +87,10 @@ var pausa_pilota := 0.0
 
 
 func _ready() -> void:
-	film = "film" in OS.get_cmdline_user_args()
+	var argomenti := OS.get_cmdline_user_args()
+	film = "film" in argomenti or "anteprima" in argomenti
+	if "anteprima" in argomenti:
+		anteprima = int(argomenti[argomenti.find("anteprima") + 1]) if argomenti.size() > argomenti.find("anteprima") + 1 else 60
 	dado.seed = 11
 	prepara_zone()
 	prepara_cose()
@@ -202,6 +214,10 @@ func prepara_strati() -> void:
 	tela.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cielo = ShaderMaterial.new()
 	cielo.shader = VUOTO
+	# il cielo: blu pieno con un retino di nero, le nuvole piu' chiare o piu' calde
+	cielo.set_shader_parameter("fondo", Color("#142435"))
+	cielo.set_shader_parameter("nebbia_fredda", Color("#2c4a60"))
+	cielo.set_shader_parameter("nebbia_calda", Color("#3a3a22"))
 	tela.material = cielo
 	fondo.add_child(tela)
 	lontano = Control.new()
@@ -221,6 +237,7 @@ func prepara_strati() -> void:
 	for id: String in zone:
 		if not bool((zone[id] as Dictionary)["aperta"]):
 			nebbie[id] = nebbia(zone[id])
+	primo_piano = strato(disegna_primo_piano)
 	sopra = strato(disegna_sopra)
 	camera = Camera2D.new()
 	camera.position = io
@@ -231,24 +248,39 @@ func prepara_strati() -> void:
 	camera.position_smoothing_enabled = true
 	camera.position_smoothing_speed = 5.0
 	add_child(camera)
-	# una vignettatura leggera: gli angoli dello schermo scendono nel buio
-	var ombre := CanvasLayer.new()
-	ombre.layer = 1
-	add_child(ombre)
-	var vignetta := ColorRect.new()
-	vignetta.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	vignetta.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var scuro := ShaderMaterial.new()
-	scuro.shader = Shader.new()
-	scuro.shader.code = "shader_type canvas_item;\nvoid fragment() {\n\tvec2 q = UV - 0.5;\n" + \
-			"\tCOLOR = vec4(0.03, 0.03, 0.06, smoothstep(0.35, 0.85, length(q * vec2(1.0, 0.8))) * 0.55);\n}\n"
-	vignetta.material = scuro
-	ombre.add_child(vignetta)
+	# LA STAMPA: tutto quello che sta sotto diventa una serigrafia a tre
+	# inchiostri (raccolta_stampa.gdshader). La tasca, sopra, resta nitida
+	var torchio := CanvasLayer.new()
+	torchio.layer = 1
+	add_child(torchio)
+	var foglio := ColorRect.new()
+	foglio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	foglio.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stampa = ShaderMaterial.new()
+	stampa.shader = STAMPA
+	stampa.set_shader_parameter("separa", separazione())
+	foglio.material = stampa
+	torchio.add_child(foglio)
 	var davanti := CanvasLayer.new()
 	davanti.layer = 2
 	add_child(davanti)
 	tasca = Tasca.new()
 	davanti.add_child(tasca)
+
+
+func separazione() -> Basis:
+	# quanto di ogni inchiostro serve per ogni colore: la densita' di un
+	# inchiostro e' -log(inchiostro / carta), canale per canale; la matrice che
+	# va dai colori alle quote e' l'inversa di quella delle densita'
+	var colonne: Array[Vector3] = []
+	for inchiostro: Color in INCHIOSTRI:
+		colonne.append(Vector3(densita(inchiostro.r, CARTA_STAMPA.r), densita(inchiostro.g, CARTA_STAMPA.g),
+				densita(inchiostro.b, CARTA_STAMPA.b)))
+	return Basis(colonne[0], colonne[1], colonne[2]).inverse()
+
+
+func densita(inchiostro: float, foglio: float) -> float:
+	return maxf(-log(minf(inchiostro / foglio, 1.0)), 0.0)
 
 
 func strato(disegna: Callable) -> Node2D:
@@ -267,6 +299,10 @@ func terra(poligono: PackedVector2Array, centro: Vector2, raggi: Vector2, seme: 
 	m.set_shader_parameter("centro", centro)
 	m.set_shader_parameter("raggi", raggi)
 	m.set_shader_parameter("seme", seme)
+	# le dosi della terra: quasi carta, un velo d'arancio, l'ombra blu
+	m.set_shader_parameter("terra", Color("#eecb91"))
+	m.set_shader_parameter("chiara", Color("#efd8b2"))
+	m.set_shader_parameter("scura", Color("#748666"))
 	p.material = m
 	add_child(p)
 
@@ -283,6 +319,8 @@ func nebbia(z: Dictionary) -> Polygon2D:
 	m.set_shader_parameter("centro", centro)
 	m.set_shader_parameter("raggi", z["raggi"])
 	m.set_shader_parameter("seme", float(z["seme"]))
+	m.set_shader_parameter("buio", Color("#0d121a"))
+	m.set_shader_parameter("linea", Color("#223a4d"))
 	p.material = m
 	add_child(p)
 	return p
@@ -304,6 +342,7 @@ func _process(delta: float) -> void:
 	scossa = move_toward(scossa, 0.0, delta * 24.0)
 	camera.offset = Vector2(dado.randf_range(-1, 1), dado.randf_range(-1, 1)) * scossa
 	cielo.set_shader_parameter("scorre", camera.get_screen_center_position())
+	stampa.set_shader_parameter("angolo_mondo", camera.get_screen_center_position() - get_viewport_rect().size * 0.5)
 	cielo.set_shader_parameter("tempo", tempo)
 	for id: String in nebbie:
 		var z: Dictionary = zone[id]
@@ -313,8 +352,19 @@ func _process(delta: float) -> void:
 		(n.material as ShaderMaterial).set_shader_parameter("raggio", pow(float(z["svela"]), 1.6) * 1300.0 if bool(z["aperta"]) else 0.0)
 		n.visible = float(z["svela"]) < 1.0
 	aggiorna_tasca()
-	for n: CanvasItem in [rupi, suolo, cose_strato, sopra, lontano]:
+	parole_sopra_la_stampa()
+	for n: CanvasItem in [rupi, suolo, cose_strato, primo_piano, sopra, lontano]:
 		n.queue_redraw()
+	if anteprima >= 0 and Engine.get_process_frames() >= anteprima:
+		anteprima = -1
+		fotografa()
+
+
+func fotografa() -> void:
+	await RenderingServer.frame_post_draw
+	DirAccess.make_dir_recursive_absolute("res://scatti/raccolta")
+	get_viewport().get_texture().get_image().save_png("res://scatti/raccolta/anteprima.png")
+	get_tree().quit()
 
 
 func ricresce(delta: float) -> void:
@@ -337,6 +387,8 @@ func ricresce(delta: float) -> void:
 			z["svela"] = minf(1.0, float(z["svela"]) + delta / SVELA)
 			if float(z["svela"]) >= 1.0:
 				scatto("svelata_" + id)
+	for impronta in impronte:
+		impronta["eta"] = float(impronta["eta"]) + delta
 	var restano: Array[Dictionary] = []
 	for s in scritte:
 		s["eta"] = float(s["eta"]) + delta
@@ -432,6 +484,14 @@ func cammina(delta: float) -> void:
 		arrivato()
 		return
 	passo += delta * 11.0
+	# le impronte: una ogni passo, a destra e a sinistra, solo sulla terra
+	strada_fatta += VELOCITA * delta
+	if strada_fatta >= 24.0 and zona_di(io) != "":
+		strada_fatta = 0.0
+		var lato := v.orthogonal() * (4.0 if impronte.size() % 2 == 0 else -4.0)
+		impronte.append({"p": io + lato, "eta": 0.0, "verso": v})
+		if impronte.size() > 70:
+			impronte.pop_front()
 	polvere -= delta
 	if polvere <= 0.0:
 		polvere = 0.16
@@ -515,6 +575,13 @@ func calpestabile(p: Vector2) -> bool:
 
 
 # ------------------------------------------------------------- le cose
+
+func si_legge(id: String) -> bool:
+	# le cifre sopra la stampa non sanno della nebbia: aspettano che il campo
+	# si sia scoperto quasi tutto
+	var z: Dictionary = zone[(cose[id] as Dictionary)["zona"]]
+	return bool(z["aperta"]) and float(z["svela"]) >= 0.85
+
 
 func si_vede(id: String) -> bool:
 	return bool((zone[(cose[id] as Dictionary)["zona"]] as Dictionary)["aperta"])
@@ -744,28 +811,60 @@ func pilota_automatico(delta: float) -> void:
 # ------------------------------------------------------------- il disegno, a strati
 
 func disegna_lontano() -> void:
-	# il Carnivalz di questo Vuoto, grande e lontano: a retino come nella mappa,
-	# con l'anello. Scorre piu' piano del mondo
-	var c := Vector2(1090, 120) - camera.get_screen_center_position() * 0.03
-	var r := 170.0
-	for k in 5:
-		lontano.draw_circle(c, r + 40.0 - 8.0 * float(k), Color(Disegno.LINEA, 0.03))
+	# IL FONDO, a piani: piu' sono lontani, piu' scorrono piano. Le schegge di
+	# cristallo lontanissime, il Carnivalz di questo Vuoto coi suoi raggi, e
+	# le isole lontane che ondeggiano. Tutto in blu, con l'orlo acceso d'arancio
+	# dalla parte della luce: la stampa ne fa retino
+	var cam := camera.get_screen_center_position()
+	schegge_lontane(cam)
+	var c := Vector2(1080, 130) - cam * 0.03
+	raggi_lontani(c)
+	pianeta_lontano(c, 160.0)
+	isole_lontane(cam, 0.05, 0, 0.55)
+	isole_lontane(cam, 0.1, 1, 0.85)
+
+
+func schegge_lontane(cam: Vector2) -> void:
+	# schegge di cristallo che galleggiano lontanissime e girano piano: blu,
+	# con lo spigolo acceso dalla parte della luce
+	for k in 14:
+		var seme := float(k) * 1.37
+		var x := fposmod(90.0 + 190.0 * float(k) - cam.x * 0.025, 2660.0) - 300.0
+		var y := fposmod(60.0 + 410.0 * absf(sin(seme * 2.1)) * 1.6 - cam.y * 0.025, 860.0) - 70.0
+		var r := 10.0 + 16.0 * absf(sin(seme * 3.3))
+		var giro := tempo * 0.15 * (1.0 if k % 2 == 0 else -1.0) + seme
+		var punte := PackedVector2Array()
+		for i in 4:
+			punte.append(Vector2(x, y) + Vector2.from_angle(giro + PI * 0.5 * float(i)) * r * (1.6 if i % 2 == 0 else 0.6))
+		lontano.draw_colored_polygon(PackedVector2Array([punte[0], punte[1], punte[2]]), Color("#3a5a70"))
+		lontano.draw_colored_polygon(PackedVector2Array([punte[0], punte[2], punte[3]]), Color("#1b2e40"))
+		lontano.draw_line(punte[1], punte[2], Color("#a47c2d"), 1.5, true)
+
+
+func raggi_lontani(c: Vector2) -> void:
+	# i raggi del Carnivalz: larghi, pallidi, verso il basso a sinistra
+	for k in 4:
+		var verso := Vector2.from_angle(PI * 0.68 + 0.13 * float(k))
+		var lato := verso.orthogonal()
+		var lungo := 1500.0
+		var largo_qui := 30.0 + 14.0 * float(k % 2)
+		var largo_la := 150.0 + 90.0 * float(k % 3)
+		var forza := 0.32 - 0.05 * float(k)
+		lontano.draw_polygon(PackedVector2Array([c + lato * largo_qui, c - lato * largo_qui, c + verso * lungo - lato * largo_la,
+				c + verso * lungo + lato * largo_la]), PackedColorArray([Color("#998e51", forza), Color("#998e51", forza),
+				Color("#998e51", 0.0), Color("#998e51", 0.0)]))
+
+
+func pianeta_lontano(c: Vector2, r: float) -> void:
+	# a spicchi dal punto in luce: la stampa trasforma la sfumatura in retino
+	var luce := c + Vector2(-0.42, -0.5) * r
 	anello_lontano(c, r, false)
-	lontano.draw_circle(c, r, Color("#151b29"))
-	var luce := c + Vector2(-0.45, -0.55) * r
-	var y := -r
-	var riga := 0
-	while y <= r:
-		var x := -r + (5.0 if riga % 2 == 1 else 0.0)
-		while x <= r:
-			var p := c + Vector2(x, y)
-			if p.distance_to(c) < r - 2.0:
-				var quanto := clampf(1.2 - p.distance_to(luce) / (r * 1.5), 0.0, 1.0)
-				if quanto > 0.04:
-					lontano.draw_circle(p, 3.8 * quanto, Color(Disegno.CARTA, 0.42))
-			x += 10.0
-		y += 8.7
-		riga += 1
+	for i in 48:
+		var a := c + Vector2.from_angle(TAU * float(i) / 48.0) * r
+		var b := c + Vector2.from_angle(TAU * float(i + 1) / 48.0) * r
+		lontano.draw_polygon(PackedVector2Array([luce, a, b]), PackedColorArray([Color("#d8c39c"), Color("#1f374b"),
+				Color("#1f374b")]))
+	lontano.draw_arc(c, r, PI * 0.95, PI * 1.6, 32, Color("#a47c2d"), 3.0, true)
 	anello_lontano(c, r, true)
 
 
@@ -776,7 +875,23 @@ func anello_lontano(c: Vector2, r: float, davanti: bool) -> void:
 		for i in 49:
 			var a := (0.0 if davanti else PI) + PI * float(i) / 48.0
 			punti.append(c + Vector2(cos(a) * raggi.x, sin(a) * raggi.y).rotated(-0.18))
-		lontano.draw_polyline(punti, Color(Disegno.LINEA, 0.5 - 0.14 * float(k)), 2.0, true)
+		lontano.draw_polyline(punti, Color("#a47c2d", 0.85 - 0.22 * float(k)), 2.0, true)
+
+
+func isole_lontane(cam: Vector2, quanto_scorre: float, strato_n: int, grandezza: float) -> void:
+	# isole come le nostre, piccole e lontane, che ondeggiano piano
+	for k in 5:
+		var seme := float(k) * 3.1 + float(strato_n) * 11.0
+		var x := fposmod(200.0 + 560.0 * float(k) + 230.0 * float(strato_n) - cam.x * quanto_scorre, 2800.0) - 400.0
+		var y := 250.0 + 330.0 * absf(sin(seme * 1.9)) - cam.y * quanto_scorre + sin(tempo * 0.4 + seme) * 6.0
+		var raggi := Vector2(70.0 + 50.0 * absf(sin(seme)), 22.0 + 10.0 * absf(cos(seme))) * grandezza
+		var sopra_isola := Disegno.zolla(Vector2(x, y), raggi, seme)
+		var punta := Vector2(x + raggi.x * 0.1, y + raggi.y * 3.2)
+		lontano.draw_polygon(PackedVector2Array([Vector2(x - raggi.x, y), Vector2(x + raggi.x, y), punta]),
+				PackedColorArray([Color("#111e2d"), Color("#111e2d"), Color("#111e2d", 0.0)]))
+		lontano.draw_colored_polygon(sopra_isola, Color("#2c4a60"))
+		var orlo := sopra_isola.slice(34, 54)
+		lontano.draw_polyline(orlo, Color("#a47c2d"), 2.0, true)
 
 
 func disegna_rupi(n: Node2D) -> void:
@@ -788,6 +903,14 @@ func disegna_rupi(n: Node2D) -> void:
 
 
 func disegna_suolo(n: Node2D) -> void:
+	for impronta in impronte:
+		var svanisce := clampf(1.0 - float(impronta["eta"]) / 9.0, 0.0, 1.0)
+		if svanisce > 0.0:
+			var p: Vector2 = impronta["p"]
+			var verso: Vector2 = impronta["verso"]
+			n.draw_set_transform(p, verso.angle(), Vector2.ONE)
+			Disegno.ovale(n, Vector2.ZERO, Vector2(4.5, 2.6), Color(Disegno.OMBRA_TINTA, 0.85 * svanisce), false)
+			n.draw_set_transform(Vector2.ZERO)
 	for d in decori:
 		match String(d["tipo"]):
 			"cratere":
@@ -826,7 +949,7 @@ func disegna_cose(n: Node2D) -> void:
 			disegna_decoro(n, voce["decoro"])
 		elif voce.has("cartello"):
 			var c: Dictionary = cose[voce["cartello"]]
-			Disegno.cartello(n, Vector2(c["dove"]) + Vector2(c["cartello"]), c["costo"], borsa)
+			Disegno.cartello(n, Vector2(c["dove"]) + Vector2(c["cartello"]), c["costo"])
 		else:
 			disegna_cosa(n, String(voce["cosa"]))
 
@@ -877,15 +1000,55 @@ func quanto_lavoro(id: String) -> float:
 	return 0.0
 
 
+func disegna_primo_piano(n: Node2D) -> void:
+	# DAVANTI A TUTTO: massi neri che passano ai bordi dello schermo, piu'
+	# veloci del mondo (sono piu' vicini), e la polvere che galleggia
+	var cam := camera.get_screen_center_position()
+	var schermo_mondo := cam - get_viewport_rect().size * 0.5
+	for k in 5:
+		var seme := float(k) * 2.9
+		var x := fposmod(120.0 + 700.0 * float(k) - cam.x * 0.35, 3500.0) - 400.0
+		var y := (790.0 if k % 2 == 0 else -60.0) + sin(tempo * 0.3 + seme) * 8.0 - cam.y * 0.08
+		var r := 90.0 + 50.0 * absf(sin(seme))
+		var masso := Disegno.zolla(schermo_mondo + Vector2(x, y), Vector2(r * 1.3, r * 0.8), seme)
+		n.draw_colored_polygon(masso, Color("#141018"))
+		var orlo := masso.slice(36, 52) if k % 2 == 0 else masso.slice(2, 14)
+		n.draw_polyline(orlo, Disegno.ARANCIO, 3.0, true)
+	for k in 36:
+		var seme := float(k) * 1.618
+		var p := Vector2(fposmod(37.0 * float(k) * 13.0 + tempo * (8.0 + float(k % 5) * 3.0) - cam.x * 0.15, 1400.0) - 60.0,
+				fposmod(53.0 * float(k) * 7.0 - tempo * (5.0 + float(k % 3) * 2.0) - cam.y * 0.15, 820.0) - 50.0)
+		var r := 1.6 + float(k % 3) * 0.9
+		n.draw_circle(schermo_mondo + p + Vector2(sin(tempo + seme) * 6.0, 0), r,
+				Color(Disegno.ARANCIO if k % 4 == 0 else Disegno.CARTA, 0.75))
+
+
 func disegna_sopra(n: Node2D) -> void:
 	for q in particelle:
 		Disegno.particella(n, q)
-	# l'invito solo per quello che si puo' fare, o che si potra' fare pagando:
+
+
+func parole_sopra_la_stampa() -> void:
+	# QUELLO CHE SI LEGGE NON PASSA DALLA STAMPA: il retino mangerebbe le
+	# lettere. Gli inviti, le scritte che salgono e le cifre dei cartelli le
+	# scrive la tasca, nitide, nel punto dello schermo dove sta la cosa.
+	# L'invito solo per quello che si puo' fare, o che si potra' fare pagando:
 	# che una vena ricresce lo dice gia' il suo giro azzurro
+	var inviti: Array[Dictionary] = []
 	var vicina := cosa_vicina(SI_VEDE) if lavoro.is_empty() else ""
 	var detto := invito(vicina) if vicina != "" else {}
 	if not detto.is_empty() and (bool(detto["puoi"]) or String(detto["manca"]) != ""):
-		Disegno.invito(n, Vector2((cose[vicina] as Dictionary)["dove"]) + Vector2(0, -108), String(detto["testo"]),
-				bool(detto["puoi"]), String(detto["manca"]), tempo)
+		inviti.append({"p": schermo(Vector2((cose[vicina] as Dictionary)["dove"]) + Vector2(0, -108)), "testo": detto["testo"],
+				"puoi": detto["puoi"], "manca": detto["manca"]})
+	var salgono: Array[Dictionary] = []
 	for s in scritte:
-		Disegno.sale(n, s["dove"], String(s["testo"]), float(s["eta"]), s["tinta"])
+		salgono.append({"p": schermo(s["dove"]), "testo": s["testo"], "eta": s["eta"], "tinta": s["tinta"]})
+	var cifre: Array[Dictionary] = []
+	for id: String in cose:
+		var c: Dictionary = cose[id]
+		if c.has("cartello") and si_legge(id) and not bool(c.get("aperto", false)) and not bool(c.get("costruita", false)):
+			cifre.append({"p": schermo(Vector2(c["dove"]) + Vector2(c["cartello"])), "costo": c["costo"]})
+	tasca.set("inviti", inviti)
+	tasca.set("scritte", salgono)
+	tasca.set("cartelli", cifre)
+	tasca.set("borsa", borsa)
