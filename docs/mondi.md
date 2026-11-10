@@ -135,28 +135,40 @@ Su Steam la grafica fatta con l'AI va dichiarata nella pagina del gioco.
 ## 6. I protagonisti
 
 > Bru: «se ti mando un disegno del personaggio principale riesci a creare
-> l'omino a sua somiglianza?»; e poi i disegni di lui e di lei.
+> l'omino a sua somiglianza?»; poi i disegni di lui e di lei. Sul primo giro
+> (24×32): «bisogna lavorarci meglio»; e: «non disegnare la bocca, fai meglio
+> gli occhi, anche l'anatomia e i frame di animazione devono essere meglio».
 
-`prove/MondoProtagonisti.gd`, PNG in `art/pianeti/protagonista/`. Nel gioco
-**P** passa dall'uno all'altra; dalla riga di comando `protagonista lei`.
+`strumenti/protagonisti/disegna.py` scrive `art/pianeti/protagonista/lui.png`
+e `lei.png`. Nel gioco **P** passa dall'uno all'altra; dalla riga di comando
+`protagonista lei`.
 
-- **24×32**, il doppio dell'altezza di una casella, come i personaggi di
-  Stardew Valley. La testa è più grande che nei disegni: a questa misura un
-  viso con le proporzioni vere è quattro pixel, e non si legge.
-- **I colori sono quelli del foglio in pixel art di Bru**, raggruppati: la
-  pelle, il lavanda dei capelli con l'ombra blu, il nero della giacca e degli
-  stivali, i grigi dei pantaloni, il lavanda del top di lei.
-- Il metodo: dal foglio di Bru si staccano le figure dalla scacchiera, si
-  riducono (la testa meno del corpo) e si riportano alla tavolozza; quella
-  riduzione è solo la traccia, poi ogni vista è ridisegnata a mano.
+- **32×48 a fotogramma, il personaggio alto tre caselle.** Il foglio di Bru è
+  pixel art alta circa 290 pixel: ridotta a 32 perdeva tutto. A 48 le
+  proporzioni restano le sue (gambe lunghe, busto, spalle), con la testa
+  appena più grande perché il viso si legga.
+- **Niente bocca. Gli occhi**: ciglia scure, l'iride col suo colore (azzurro
+  lui, viola lei) e un pixel di luce.
+- **I colori sono quelli del foglio di Bru**, raggruppati: la pelle, il
+  lavanda dei capelli con l'ombra blu, il nero, i grigi delle righe, il top
+  lavanda.
+- **Fatti a pezzi**: testa, busto, braccia e gambe scritti a mano lettera per
+  lettera; di lato braccia e gambe sono arti articolati (anca, ginocchio,
+  caviglia; spalla, gomito, mano). Il foglio di Bru, staccato dalla scacchiera
+  e ridotto, è servito da traccia per le proporzioni.
+- **Il passo ha quattro tempi**: un piede avanti, il passaggio con l'altra
+  gamba piegata, l'altro piede avanti, di nuovo il passaggio. Le braccia vanno
+  al contrario delle gambe; quando i due piedi sono a terra il corpo scende di
+  un pixel. Di spalle il piede che va avanti si alza invece di scendere,
+  perché si allontana.
 - **Lui**: capelli a punte, sciarpa bianca a frecce nere (di lato vola
-  dietro), giacca nera aperta, pantaloni a righe, ginocchiere, stivali con il
-  bianco, e lo spadone sulla schiena: di spalle si vede tutto in diagonale, di
-  fronte e di lato spunta il manico rosso.
-- **Lei**: la coda alta, la fascia rossa con le stelle e l'anello d'oro, le
-  trecce, il top lavanda, i guanti lunghi, la cintura bianca, gli stivali alti.
-- Il passo: di fronte e di spalle un piede che si alza, di lato le gambe che
-  si aprono.
+  dietro), giacca nera aperta sul petto, maniche arrotolate, polsini
+  d'argento, guanti, pantaloni a righe, ginocchiere grandi, stivali col
+  pannello bianco; lo spadone sulla schiena, che di spalle si vede tutto con
+  la riga nera lungo la lama.
+- **Lei**: la coda alta a punte, la fascia rossa con le stelle e l'anello
+  d'oro, le trecce, il top lavanda, i guanti lunghi col bordo grigio, la
+  cintura bianca, gli shorts, gli stivali alti fino alla coscia.
 
 ## 7. Le domande per Bru
 
@@ -169,5 +181,6 @@ Su Steam la grafica fatta con l'AI va dichiarata nella pagina del gioco.
    mondi vengono? Ogni Vuoto potrebbe avere i suoi.
 4. **Il pianeta**: grande così (sei-dieci regioni, quattro o cinque minuti per
    finirlo col pilota, di più a mano) o più grande e più lento?
-5. **I protagonisti** sono quelli dei disegni di Bru (§6): vanno bene a
-   questa misura, o li vuoi più grandi, con le proporzioni dei disegni?
+5. **I protagonisti** (§6) adesso sono alti tre caselle: le case e gli
+   alberi del mondo sono rimasti piccoli. Li ingrandiamo (case da 3-4 caselle,
+   alberi più alti), o teniamo i protagonisti più bassi?

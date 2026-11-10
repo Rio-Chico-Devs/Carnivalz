@@ -109,11 +109,17 @@ Per terra, senza piede (riempiono la casella):
 
 ## I protagonisti
 
-`protagonista/lui.png` e `protagonista/lei.png`, **72×96**: i due protagonisti
-dai disegni di Bru, uguali su ogni pianeta (per questo non stanno nelle
-cartelle dei biomi). Tre righe (giù, su, destra; la sinistra è la destra allo
-specchio) e tre colonne (fermo, passo, altro passo), **24×32** l'una, con
-l'ombra per terra già dentro. I piedi stanno a **12, 30** di ogni fotogramma.
+`protagonista/lui.png` e `protagonista/lei.png`, **160×144**: i due
+protagonisti dai disegni di Bru, uguali su ogni pianeta (per questo non stanno
+nelle cartelle dei biomi). Tre righe (giù, su, destra; la sinistra è la destra
+allo specchio) e cinque colonne: **fermo**, poi i **quattro tempi del passo**
+(un piede avanti, il passaggio, l'altro piede avanti, il passaggio). Ogni
+fotogramma è **32×48**, con l'ombra per terra già dentro; i piedi stanno a
+**16, 45**.
 
-Li disegna `prove/MondoProtagonisti.gd`, pixel per pixel, coi colori presi
-dal foglio in pixel art di Bru. Nel gioco **P** passa da lui a lei.
+Li disegna `strumenti/protagonisti/disegna.py` (`python3
+strumenti/protagonisti/disegna.py`): ogni figura è fatta di pezzi scritti a
+mano lettera per lettera (`lui.py`, `lei.py`), con braccia e gambe di lato
+articolate (`lato.py`), e i colori del foglio in pixel art di Bru
+(`tavolozze.py`). Un PNG ridisegnato a mano si mette al posto di quello; ma
+rilanciando lo strumento si riscrive. Nel gioco **P** passa da lui a lei.

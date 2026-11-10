@@ -28,7 +28,6 @@ extends Node2D
 
 const Genera := preload("res://prove/MondoGenera.gd")
 const Tessere := preload("res://prove/MondoTessere.gd")
-const Protagonisti := preload("res://prove/MondoProtagonisti.gd")
 const Hud := preload("res://prove/MondoHud.gd")
 const CORRUZIONE := preload("res://prove/mondo_corruzione.gdshader")
 const LATO := 16
@@ -151,13 +150,7 @@ func salva_le_tessere() -> void:
 				continue
 			(fogli_nuovi[nome] as Image).save_png(percorso)
 			scritti += 1
-	var cartella_io := "res://art/pianeti/protagonista"
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(cartella_io))
-	for chi: String in ["lui", "lei"]:
-		var percorso := cartella_io.path_join(chi + ".png")
-		if not FileAccess.file_exists(percorso):
-			Protagonisti.foglio(chi).save_png(percorso)
-			scritti += 1
+	# i protagonisti no: li disegna strumenti/protagonisti/disegna.py
 	print("TESSERE: %d file scritti in art/pianeti/" % scritti)
 	get_tree().quit()
 
@@ -532,25 +525,28 @@ func ritira_la_corruzione(delta: float) -> void:
 func prepara_me() -> void:
 	io = Sprite2D.new()
 	io.texture = foglio_di(protagonista)
-	io.hframes = 3
+	io.hframes = 5
 	io.vframes = 3
 	io.centered = false
-	# fotogrammi di 24x32, i piedi a (12, 30)
-	io.offset = Vector2(-12, -30)
+	# fotogrammi di 32x48 (fermo e i quattro tempi del passo), i piedi a (16, 45)
+	io.offset = Vector2(-16, -45)
 	cose_nodo.add_child(io)
 	var da: Vector2i = m.call("partenza")
 	piedi = Vector2(da * LATO) + Vector2(8, 12)
 
 
 func foglio_di(chi: String) -> ImageTexture:
-	# il PNG di art/pianeti/protagonista/ vince; se manca, lo disegna MondoProtagonisti
+	# art/pianeti/protagonista/<chi>.png, disegnato da strumenti/protagonisti/disegna.py
+	# (o ridisegnato a mano: e' un PNG come le tessere)
 	var percorso := "res://art/pianeti/protagonista/%s.png" % chi
-	var img: Image = Protagonisti.foglio(chi)
+	var img := Image.create_empty(160, 144, false, Image.FORMAT_RGBA8)
 	if FileAccess.file_exists(percorso):
 		var letta := Image.load_from_file(percorso)
 		if letta != null and not letta.is_empty():
 			letta.convert(Image.FORMAT_RGBA8)
 			img = letta
+	else:
+		push_warning("manca %s: python3 strumenti/protagonisti/disegna.py" % percorso)
 	return ImageTexture.create_from_image(img)
 
 
@@ -606,9 +602,10 @@ func segui() -> void:
 	elif verso.x != 0:
 		riga = 2
 	io.flip_h = verso.x < 0
-	var fase := floori(passo * 8.0) % 4
-	var colonna := [0, 1, 0, 2][fase] as int if passo > 0.0 else 0
-	io.frame = riga * 3 + colonna
+	# il passo a quattro tempi: colonne 1-4; da fermo la colonna 0
+	var fase := floori(passo * 9.0) % 4
+	var colonna := fase + 1 if passo > 0.0 else 0
+	io.frame = riga * 5 + colonna
 	if not panoramica:
 		camera.position = piedi.round()
 	# quello che si vede diventa noto, per la mappa

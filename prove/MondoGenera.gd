@@ -895,10 +895,10 @@ func raggiunte(da: Vector2i, aperti: Dictionary) -> Dictionary:
 
 
 func partenza() -> Vector2i:
-	# la prima casella libera sotto la capsula, meglio due che una: il
-	# personaggio e' alto due caselle, e non deve partire con la testa dentro
-	for d: Vector2i in [Vector2i(0, 2), Vector2i(1, 2), Vector2i(-1, 2), Vector2i(0, 1), Vector2i(1, 1), Vector2i(-1, 1),
-			Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, -1)]:
+	# la prima casella libera sotto la capsula, meglio tre che una: il
+	# personaggio e' alto tre caselle, e non deve partire con la testa dentro
+	for d: Vector2i in [Vector2i(0, 3), Vector2i(1, 3), Vector2i(-1, 3), Vector2i(0, 2), Vector2i(1, 2), Vector2i(-1, 2),
+			Vector2i(0, 1), Vector2i(1, 1), Vector2i(-1, 1), Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, -1)]:
 		var q := capsula + d
 		if dentro(q) and bloccato[i(q)] == 0:
 			return q
