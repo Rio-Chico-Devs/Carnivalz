@@ -135,7 +135,13 @@ strumenti/protagonisti/ricalca.py`, che ricostruisce i pixel del foglio:
 - cerca la griglia dei quadretti (circa 4,5 pixel dell'immagine per pixel del
   disegno);
 - prende il colore di ogni quadretto e toglie la scacchiera;
-- riduce i colori a 40, presi dal foglio stesso.
+- poi lo **pulisce**: schiarisce un poco i colori e li mette sulle rampe dei
+  materiali (capelli e top, pelle, fascia, ottone, lenti, stivali, shorts);
+  toglie i puntini lasciati dal JPG, fa i toni a macchie piene e chiude la
+  figura con un contorno scuro netto. Il disegno resta quello del foglio.
+
+`ricalca.py fedele` scrive la versione senza pulizia, coi 40 colori del foglio
+com'è.
 
 Dal foglio vengono:
 

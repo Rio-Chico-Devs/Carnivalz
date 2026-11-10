@@ -12,15 +12,26 @@
 #     cadono i bordi dei quadretti.
 #   - Per ogni quadretto si prende il colore piu' rappresentativo dei pixel
 #     interni (il medoide: la media impasterebbe il contorno col fondo).
-#   - Si toglie la scacchiera del fondo, e i colori si riducono a 40 presi dal
-#     foglio stesso, cosi' il JPG non lascia sporco.
+#   - Si toglie la scacchiera del fondo.
+#   - Poi la pulizia (Bru: «possiamo rendere i disegni più chiari e puliti?»):
+#     i colori si schiariscono un poco e vanno sulle rampe dei materiali
+#     (MATERIALI: capelli e top lavanda, pelle, fascia, ottone, lenti,
+#     stivali, shorts), ognuna coi toni del foglio; i puntini isolati del JPG
+#     prendono il materiale dei vicini; dentro ogni materiale i toni si fanno
+#     a macchie piene; il bordo della figura diventa un contorno scuro netto.
+#     Il disegno resta quello del foglio: cambiano solo la luce e lo sporco.
 #   - I fotogrammi si allineano sulla testa, i piedi per terra.
+#
+#   python3 strumenti/protagonisti/ricalca.py fedele   senza la pulizia: i 40
+#                                                        colori del foglio com'e'
+
 # Il dietro: nel foglio il «back frame 1» ha la giacca e i pantaloni di lui,
 # quindi si usa il «back frame 2», e per l'altro passo le sue gambe allo specchio.
 #
 # Il foglio del gioco: 5 colonne (fermo e i quattro tempi del passo) x 3 righe
 # (giu', su, destra; la sinistra e' la destra allo specchio), fotogrammi 32x56,
 # i piedi a (16, 53).
+import colorsys
 import os
 import random
 import sys
@@ -50,6 +61,23 @@ VISTE = {
     "destra": ("lato1", "lato1", "lato2", "lato3", "lato4"),
 }
 GAMBE_DIETRO = 39        # nel dietro, la prima riga delle gambe (sotto gli shorts)
+
+# la pulizia: le rampe dei materiali, dalla luce all'ombra. Sono i colori del
+# foglio, un poco piu' chiari e piu' accesi
+MATERIALI = {
+    'lavanda': ('#f4f0ff', '#dcd4f4', '#bfb3e4', '#9d8fca', '#7a6aa8', '#574880'),
+    'scuro':   ('#3a2c58', '#241a3c', '#120c22'),
+    'pelle':   ('#f2cdb4', '#d9ab92', '#b5867a', '#86626a'),
+    'fascia':  ('#f08cc0', '#b0507e', '#86345e', '#5c2244', '#3c1630'),
+    'ottone':  ('#f0d8a0', '#c09858', '#7a5a34'),
+    'lente':   ('#f0a0f0', '#c050c0', '#7a2a80'),
+    'stivali': ('#3e5a64', '#26383f', '#16222b', '#0a1018'),
+    'shorts':  ('#4a4254', '#2e2838'),
+    'occhi':   ('#4a3a8a',),
+}
+CONTORNO = '#1a1230'
+SCHIARISCI = 0.82        # la luminosita' alla 0.82: i chiari restano, gli scuri salgono
+ACCENDI = 1.25           # la saturazione per 1.25
 
 
 class Foglio:
@@ -232,6 +260,75 @@ def quantizza(g, tavolozza):
     return [[None if c is None else min(tavolozza, key=lambda m: d2(c, m)) for c in r] for r in g]
 
 
+# ---------------------------------------------------------------- la pulizia
+
+def esa(x):
+    x = x.lstrip('#')
+    return tuple(int(x[i:i + 2], 16) for i in (0, 2, 4))
+
+
+TAVOLOZZA = [esa(c) for rampa in MATERIALI.values() for c in rampa]
+MATERIALE = {esa(c): m for m, rampa in MATERIALI.items() for c in rampa}
+NERO = esa(CONTORNO)
+
+
+def luce(c):
+    h, l, s = colorsys.rgb_to_hls(*(v / 255 for v in c))
+    r, g, b = colorsys.hls_to_rgb(h, l ** SCHIARISCI, min(1.0, s * ACCENDI))
+    return tuple(int(round(v * 255)) for v in (r, g, b))
+
+
+def vicini(g, x, y, otto=False):
+    passi = [(dx, dy) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dx or dy] if otto else \
+        [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    return [g[y + dy][x + dx] for dx, dy in passi
+            if 0 <= x + dx < len(g[0]) and 0 <= y + dy < len(g) and g[y + dy][x + dx] is not None]
+
+
+def via_isolati(g):
+    # un pixel senza vicini del suo materiale e' sporco del JPG: prende il
+    # colore piu' frequente intorno. Occhi, lenti e ottone sono piccoli apposta
+    out = [list(r) for r in g]
+    for y, riga in enumerate(g):
+        for x, c in enumerate(riga):
+            if c is None or MATERIALE.get(c) in ('occhi', 'lente', 'ottone'):
+                continue
+            v = vicini(g, x, y)
+            if v and not any(MATERIALE.get(q) == MATERIALE.get(c) for q in v):
+                out[y][x] = max(set(v), key=v.count)
+    return out
+
+
+def macchie(g, minimo=4):
+    # dentro lo stesso materiale ogni pixel prende il tono piu' frequente
+    # intorno: i toni diventano macchie piene, i confini fra materiali restano
+    out = [list(r) for r in g]
+    for y, riga in enumerate(g):
+        for x, c in enumerate(riga):
+            if c is None:
+                continue
+            v = [q for q in vicini(g, x, y, otto=True) if MATERIALE.get(q) == MATERIALE.get(c)] + [c]
+            moda = max(set(v), key=v.count)
+            if moda != c and v.count(moda) >= minimo and v.count(moda) > v.count(c):
+                out[y][x] = moda
+    return out
+
+
+def contorno(g):
+    # il bordo della figura: scuro e continuo
+    out = [list(r) for r in g]
+    for y, riga in enumerate(g):
+        for x, c in enumerate(riga):
+            if c is not None and len(vicini(g, x, y)) < 4 and sum(c) > 160:
+                out[y][x] = NERO
+    return out
+
+
+def pulisci(g):
+    g = quantizza([[None if c is None else luce(c) for c in r] for r in g], TAVOLOZZA)
+    return contorno(macchie(via_isolati(g)))
+
+
 # ---------------------------------------------------------------- il foglio del gioco
 
 def specchia_gambe(g, da):
@@ -300,23 +397,27 @@ def foglio_del_gioco(ricalchi):
     return fw, fh, pix
 
 
-def ricalchi_di_lei(percorso):
+def ricalchi_di_lei(percorso, pulita=True):
     f = Foglio(percorso)
     grezzi = {}
     for nome, quadro in QUADRI.items():
         grezzi[nome] = via_punte_sotto(ritaglia(via_scacchiera(pezzo_grande(ricalca(f, *quadro)))))
-    tutti = [c for g in grezzi.values() for r in g for c in r if c is not None]
-    tavolozza = kmedie(tutti, COLORI)
-    ricalchi = {nome: ritaglia(quantizza(g, tavolozza)) for nome, g in grezzi.items()}
+    if pulita:
+        ricalchi = {nome: ritaglia(pulisci(g)) for nome, g in grezzi.items()}
+    else:
+        tutti = [c for g in grezzi.values() for r in g for c in r if c is not None]
+        tavolozza = kmedie(tutti, COLORI)
+        ricalchi = {nome: ritaglia(quantizza(g, tavolozza)) for nome, g in grezzi.items()}
     ricalchi["dietro2_specchio"] = specchia_gambe(ricalchi["dietro2"], GAMBE_DIETRO)
     return ricalchi
 
 
 if __name__ == '__main__':
-    ricalchi = ricalchi_di_lei(os.path.join(QUI, 'fogli', 'lei.png'))
+    pulita = 'fedele' not in sys.argv[1:]
+    ricalchi = ricalchi_di_lei(os.path.join(QUI, 'fogli', 'lei.png'), pulita)
     for nome, g in sorted(ricalchi.items()):
         assert len(g) <= TERRA + 1 and len(g[0]) <= W, (nome, len(g[0]), len(g))
     w, h, pix = foglio_del_gioco(ricalchi)
     cartella = os.path.join(QUI, '..', '..', 'art', 'pianeti', 'protagonista')
     png.scrivi(os.path.join(cartella, 'lei.png'), w, h, pix)
-    print('scritto lei', w, h)
+    print('scritto lei', w, h, 'pulita' if pulita else 'fedele')

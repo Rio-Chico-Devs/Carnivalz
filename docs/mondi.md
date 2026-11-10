@@ -155,8 +155,22 @@ Non si ridisegna niente: si ricostruiscono i pixel del foglio.
   quadretto di circa 4,5 pixel dell'immagine, sbavato. Per ogni fotogramma lo
   strumento trova dove cadono i bordi dei quadretti, in larghezza e in altezza.
 - **I colori.** Per ogni quadretto si prende il colore più rappresentativo dei
-  pixel interni, non la media, che impasterebbe il contorno col fondo. Si
-  toglie la scacchiera, e i colori si riducono ai 40 del foglio stesso.
+  pixel interni, non la media, che impasterebbe il contorno col fondo. Poi si
+  toglie la scacchiera.
+- **La pulizia.** Bru: «possiamo rendere i disegni più chiari e puliti?». Il
+  ricalco così com'è era scuro e sporco di JPG, e sull'erba del pianeta si
+  perdeva. Il disegno resta quello del foglio; cambiano solo la luce e lo
+  sporco:
+  - i colori si schiariscono un poco (la luminosità alla 0,82) e si accendono
+    (la saturazione per 1,25);
+  - ogni colore va sulla rampa del suo materiale: capelli e top lavanda,
+    pelle, fascia prugna, ottone e lenti rosa degli occhialoni, stivali e
+    guanti, shorts;
+  - un puntino che non ha vicini del suo materiale prende quello dei vicini;
+  - dentro ogni materiale i toni si fanno a macchie piene;
+  - il bordo della figura diventa un contorno scuro netto.
+
+  `ricalca.py fedele` rifà la versione di prima, senza pulizia.
 - **La misura.** Davanti e dietro lei è alta 50 pixel, quindi i fotogrammi
   sono 32×56. Il gioco ricava la misura dal foglio e mette i piedi al centro,
   tre righe sopra il fondo.
@@ -167,10 +181,10 @@ Non si ridisegna niente: si ricostruiscono i pixel del foglio.
     righe di lui;
   - di lato, i quattro tempi così come sono. Il primo fa anche da fermo,
     perché ha le gambe quasi unite.
-- **Cosa resta come nel foglio, anche se si potrebbe cambiare**:
-  - la boccuccia, che sul foglio c'è;
-  - di lato è più piccola che davanti (43 righe contro 50): nel foglio è
-    disegnata così.
+- **Cosa resta come nel foglio, anche se si potrebbe cambiare**: di lato è
+  più piccola che davanti (43 righe contro 50), perché nel foglio è disegnata
+  così. La boccuccia del foglio, invece, la pulizia la toglie: è un puntino
+  solo, e lo prende per sporco.
 
 ### Lui: ridisegnato a mano, per ora
 
