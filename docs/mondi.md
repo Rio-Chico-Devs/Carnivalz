@@ -174,22 +174,35 @@ Non si ridisegna niente: si ricostruiscono i pixel del foglio.
 - **La misura.** Davanti e dietro lei è alta 50 pixel, quindi i fotogrammi
   sono 32×56. Il gioco ricava la misura dal foglio e mette i piedi al centro,
   tre righe sopra il fondo.
-- **I fotogrammi del foglio**:
-  - davanti, i due tempi;
-  - dietro, il «back frame 2» e le sue gambe allo specchio per l'altro passo.
-    Il «back frame 1» non si può usare: ha la giacca nera e i pantaloni a
-    righe di lui;
-  - di lato, i quattro tempi così come sono. Il primo fa anche da fermo,
-    perché ha le gambe quasi unite.
-- **Cosa resta come nel foglio, anche se si potrebbe cambiare**: di lato è
-  più piccola che davanti (43 righe contro 50), perché nel foglio è disegnata
-  così. La boccuccia del foglio, invece, la pulizia la toglie: è un puntino
-  solo, e lo prende per sporco.
+- **Il passo.** Bru: «bisogna migliorare le animazioni di movimento». Davanti
+  il foglio ha due fotogrammi con la stessa posa: in tutti e due la gamba
+  destra è avanti. Dietro ce n'è uno solo buono, perché il «back frame 1» ha
+  la giacca nera e i pantaloni a righe di lui. Così lei non alternava mai le
+  gambe e sembrava strisciare. Adesso `strumenti/protagonisti/passo.py` fa il
+  passo a otto tempi coi pezzi del disegno:
+  - le due gambe si separano e a turno una va avanti (scende di un pixel) e
+    l'altra si alza (sale di uno o due), ripetendo o togliendo una riga a metà
+    dello stivale;
+  - il busto scende di un pixel quando i piedi sono tutti e due a terra, e
+    risale nel passaggio;
+  - le braccia vanno al contrario delle gambe;
+  - il ciuffo segue il busto con un tempo di ritardo.
+- **Di lato** ci sono i quattro tempi del foglio, due volte per ciclo, con la
+  testa del primo, che segue il collo di ogni tempo: così non balla. Sono
+  ingranditi fino all'altezza di davanti, perché nel foglio di lato lei è più
+  piccola (43 righe contro 50) e girandosi si rimpiccioliva.
+- **Nel gioco** il passo va avanti di un tempo ogni 5 pixel di strada fatta, e
+  non più a tempo, così i piedi non pattinano. Da fermi, ogni tanto, c'è il
+  respiro: il busto scende di un pixel e risale. Il foglio ha dieci colonne:
+  fermo, il respiro e gli otto tempi.
+- **Cosa la pulizia toglie**: la boccuccia del foglio, perché è un puntino solo
+  e lo prende per sporco.
 
 ### Lui: ridisegnato a mano, per ora
 
 `strumenti/protagonisti/disegna.py` scrive `art/pianeti/protagonista/lui.png`
-(32×48, i piedi a 16, 45).
+(32×48, i piedi a 16, 45; dieci colonne come lei, con i suoi quattro tempi
+tenuti per due colonne ciascuno).
 
 - **Chibi, dal primo foglio di Bru.** Proporzioni e colori sono presi dal
   ricalco. Ogni pezzo è ridisegnato a mano lettera per lettera (`lui.py`):

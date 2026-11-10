@@ -33,6 +33,9 @@ const CORRUZIONE := preload("res://prove/mondo_corruzione.gdshader")
 const LATO := 16
 const INGRANDIMENTO := 3.0
 const VELOCITA := 74.0
+const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo (otto tempi, due passi)
+const RESPIRO := 1.6             # secondi fra un respiro e l'altro, da fermi
+const LARGO_FOTOGRAMMA := 32
 const PORTATA := 20.0
 const PRODUZIONE := 6.0          # secondi fra un pezzo e l'altro, per ogni regione autonoma
 const RICRESCITA := 25.0
@@ -70,7 +73,8 @@ var sprite_di := {}                     # indice della cosa -> Sprite2D (o Array
 
 var piedi := Vector2.ZERO
 var verso := Vector2i(0, 1)
-var passo := 0.0
+var passo := 0.0                        # la strada fatta camminando, in pixel; 0 da fermi
+var fermo_da := 0.0                     # da quanto si sta fermi, per il respiro
 var borsa := {"quarzo": 0, "ferro": 0, "cristallo": 0, "tazo": 0}
 var tempo := 0.0
 var produzione := 0.0
@@ -524,7 +528,6 @@ func ritira_la_corruzione(delta: float) -> void:
 
 func prepara_me() -> void:
 	io = Sprite2D.new()
-	io.hframes = 5
 	io.vframes = 3
 	io.centered = false
 	metti_foglio(protagonista)
@@ -534,12 +537,13 @@ func prepara_me() -> void:
 
 
 func metti_foglio(chi: String) -> void:
-	# 5 colonne (fermo e i quattro tempi del passo) x 3 righe (giu', su, destra).
-	# I fotogrammi possono essere di misure diverse (lui 32x48, lei 32x56, presa
-	# uguale dal foglio di Bru): i piedi stanno sempre al centro, tre righe sopra
-	# il fondo del fotogramma.
+	# 10 colonne (fermo, il respiro, gli otto tempi del passo) x 3 righe (giu',
+	# su, destra). I fotogrammi sono larghi 32 e alti quanto vuole il foglio
+	# (lui 48, lei 56, presa uguale dal foglio di Bru): i piedi stanno sempre al
+	# centro, tre righe sopra il fondo del fotogramma.
 	io.texture = foglio_di(chi)
-	var fotogramma := Vector2(io.texture.get_width() / 5.0, io.texture.get_height() / 3.0)
+	io.hframes = maxi(1, int(io.texture.get_width() / float(LARGO_FOTOGRAMMA)))
+	var fotogramma := Vector2(LARGO_FOTOGRAMMA, io.texture.get_height() / 3.0)
 	io.offset = -Vector2(fotogramma.x / 2.0, fotogramma.y - 3.0)
 
 
@@ -547,7 +551,7 @@ func foglio_di(chi: String) -> ImageTexture:
 	# art/pianeti/protagonista/<chi>.png, disegnato da strumenti/protagonisti/disegna.py
 	# (o ridisegnato a mano: e' un PNG come le tessere)
 	var percorso := "res://art/pianeti/protagonista/%s.png" % chi
-	var img := Image.create_empty(160, 144, false, Image.FORMAT_RGBA8)
+	var img := Image.create_empty(320, 144, false, Image.FORMAT_RGBA8)
 	if FileAccess.file_exists(percorso):
 		var letta := Image.load_from_file(percorso)
 		if letta != null and not letta.is_empty():
@@ -571,7 +575,9 @@ func libero(p: Vector2) -> bool:
 func cammina(direzione: Vector2, delta: float) -> void:
 	if direzione == Vector2.ZERO:
 		passo = 0.0
+		fermo_da += delta
 		return
+	fermo_da = 0.0
 	direzione = direzione.normalized()
 	var spostamento := direzione * VELOCITA * delta
 	var prima := piedi
@@ -587,8 +593,8 @@ func cammina(direzione: Vector2, delta: float) -> void:
 		verso = Vector2i(int(signf(direzione.x)), 0)
 	else:
 		verso = Vector2i(0, int(signf(direzione.y)))
-	if piedi != prima:
-		passo += delta
+	# il passo va con la strada fatta, non col tempo: i piedi non pattinano
+	passo += piedi.distance_to(prima)
 
 
 func scivola(avanti: Vector2, di_lato: Vector2, passo_max: float) -> float:
@@ -610,10 +616,13 @@ func segui() -> void:
 	elif verso.x != 0:
 		riga = 2
 	io.flip_h = verso.x < 0
-	# il passo a quattro tempi: colonne 1-4; da fermo la colonna 0
-	var fase := floori(passo * 9.0) % 4
-	var colonna := fase + 1 if passo > 0.0 else 0
-	io.frame = riga * 5 + colonna
+	# colonne: 0 fermo, 1 il respiro, 2-9 gli otto tempi del passo
+	var colonna := 0
+	if passo > 0.0:
+		colonna = 2 + floori(passo / PASSO_PX) % 8
+	elif fmod(fermo_da, RESPIRO) > RESPIRO - 0.5:
+		colonna = 1
+	io.frame = riga * io.hframes + colonna
 	if not panoramica:
 		camera.position = piedi.round()
 	# quello che si vede diventa noto, per la mappa

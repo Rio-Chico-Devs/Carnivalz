@@ -22,8 +22,9 @@
 #     tutti e due a terra. Di lato le code della sciarpa di lui ondeggiano.
 #
 # Il foglio: righe giu', su, destra (la sinistra e' la destra allo
-# specchio); colonne fermo, passo, passaggio, altro passo, passaggio. I piedi
-# stanno a (16, 45) di ogni fotogramma.
+# specchio); dieci colonne come lei (fermo, il respiro, otto tempi del passo):
+# i quattro tempi di lui, ognuno per due colonne. I piedi stanno a (16, 45)
+# di ogni fotogramma.
 import os
 import sys
 QUI = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +43,9 @@ TEMPI = {
     "medio2": ("s_passa", "neutro", "neutro", 0),
 }
 ORDINE = ("fermo", "passo1", "medio1", "passo2", "medio2")
+# le dieci colonne del foglio del gioco (fermo, il respiro, otto tempi): lui ha
+# quattro tempi, ognuno tenuto per due colonne, e da fermo non respira
+COLONNE = ("fermo", "fermo") + tuple(t for t in ORDINE[1:] for _ in range(2))
 
 
 def lui_giu(tempo):
@@ -89,11 +93,11 @@ def colore(esadecimale):
 
 
 def foglio(viste, tavolozza):
-    # 5 colonne x 3 righe di 32x48, con l'ombra ovale per terra sotto i piedi
-    fw, fh = W * 5, H * 3
+    # 10 colonne x 3 righe di 32x48, con l'ombra ovale per terra sotto i piedi
+    fw, fh = W * len(COLONNE), H * 3
     pix = [(0, 0, 0, 0)] * (fw * fh)
     for riga, vista in enumerate(viste):
-        for colonna, tempo in enumerate(ORDINE):
+        for colonna, tempo in enumerate(COLONNE):
             griglia = vista(tempo)
             for y in range(H):
                 for x in range(W):

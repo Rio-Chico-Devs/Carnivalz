@@ -115,18 +115,21 @@ su ogni pianeta (per questo non stanno nelle cartelle dei biomi).
 Ogni foglio ha:
 
 - tre righe: giù, su, destra (la sinistra è la destra allo specchio);
-- cinque colonne: **fermo**, poi i **quattro tempi del passo** (un piede
-  avanti, il passaggio, l'altro piede avanti, il passaggio);
+- dieci colonne: **fermo**, il **respiro** (da fermi, ogni tanto, il busto
+  scende di un pixel), poi gli **otto tempi del passo** (due passi);
 - l'ombra per terra già dentro ogni fotogramma.
 
-I fotogrammi possono avere misure diverse. Il gioco le ricava dal foglio
-diviso per 5 × 3, e mette i piedi al centro, tre righe sopra il fondo del
-fotogramma:
+Il gioco va avanti di un tempo ogni 5 pixel di strada fatta, così i piedi non
+pattinano.
+
+I fotogrammi sono larghi 32 e alti quanto vuole il foglio. Il gioco li ricava
+dal foglio diviso per 10 × 3, e mette i piedi al centro, tre righe sopra il
+fondo del fotogramma:
 
 | | foglio | fotogramma | piedi |
 |---|---|---|---|
-| `lui.png` | 160×144 | 32×48 | 16, 45 |
-| `lei.png` | 160×168 | 32×56 | 16, 53 |
+| `lui.png` | 320×144 | 32×48 | 16, 45 |
+| `lei.png` | 320×168 | 32×56 | 16, 53 |
 
 **Lei è presa uguale dal foglio di Bru** (`strumenti/protagonisti/fogli/lei.png`,
 il passo davanti, dietro e di lato). La scrive `python3
@@ -143,14 +146,19 @@ strumenti/protagonisti/ricalca.py`, che ricostruisce i pixel del foglio:
 `ricalca.py fedele` scrive la versione senza pulizia, coi 40 colori del foglio
 com'è.
 
-Dal foglio vengono:
+Il passo (`passo.py`):
 
-- davanti, i due tempi del passo;
-- dietro, il secondo tempo («back frame 1» ha i vestiti di lui), più le sue
-  gambe allo specchio per l'altro passo;
-- di lato, i quattro tempi.
+- **davanti e dietro** si costruisce coi pezzi del disegno, perché il foglio
+  ha due pose davanti uguali e una sola buona dietro («back frame 1» ha i
+  vestiti di lui). Le due gambe si allungano e si accorciano a turno, il busto
+  scende quando i piedi sono a terra, le braccia vanno al contrario delle
+  gambe e il ciuffo segue in ritardo;
+- **di lato** ci sono i quattro tempi del foglio, con la testa del primo,
+  ingranditi fino all'altezza di davanti (nel foglio di lato lei è più
+  piccola).
 
-**Lui**, per ora, è ridisegnato a mano da `strumenti/protagonisti/disegna.py`:
+**Lui**, per ora, è ridisegnato a mano da `strumenti/protagonisti/disegna.py`
+(quattro tempi, ognuno per due colonne; da fermo non respira):
 
 - pezzi scritti lettera per lettera (`lui.py`);
 - arti articolati di lato (`lato.py`, `arti.py`);

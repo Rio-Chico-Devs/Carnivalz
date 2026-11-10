@@ -25,18 +25,23 @@
 #   python3 strumenti/protagonisti/ricalca.py fedele   senza la pulizia: i 40
 #                                                        colori del foglio com'e'
 
-# Il dietro: nel foglio il «back frame 1» ha la giacca e i pantaloni di lui,
-# quindi si usa il «back frame 2», e per l'altro passo le sue gambe allo specchio.
+# Il passo (Bru: «bisogna migliorare le animazioni di movimento»). Nel foglio
+# i due fotogrammi davanti hanno la stessa posa e dietro ce n'e' uno buono
+# solo (il «back frame 1» ha la giacca e i pantaloni di lui): il passo davanti
+# e dietro si costruisce coi pezzi del disegno (passo.py). Di lato ci sono i
+# quattro tempi del foglio, con la testa di uno solo, ingranditi fino
+# all'altezza di davanti: nel foglio di lato lei e' piu' piccola.
 #
-# Il foglio del gioco: 5 colonne (fermo e i quattro tempi del passo) x 3 righe
-# (giu', su, destra; la sinistra e' la destra allo specchio), fotogrammi 32x56,
-# i piedi a (16, 53).
+# Il foglio del gioco: 10 colonne (fermo, il respiro, gli otto tempi del passo)
+# x 3 righe (giu', su, destra; la sinistra e' la destra allo specchio),
+# fotogrammi 32x56, i piedi a (16, 53).
 import colorsys
 import os
 import random
 import sys
 QUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, QUI)
+import passo
 import png
 
 W, H = 32, 56            # un fotogramma
@@ -52,15 +57,20 @@ QUADRI = {  # x, y, larghezza, altezza: dentro i riquadri, senza le scritte
     "lato3": (COLONNE[2], 432, 246, 216),
     "lato4": (COLONNE[3], 432, 244, 216),
 }
-# colonna del foglio -> fotogramma, per ogni direzione. Davanti e dietro il
-# foglio ha due tempi, e ognuno resta per due colonne
-ORDINE = ("fermo", "passo1", "medio1", "passo2", "medio2")
-VISTE = {
-    "giu": ("davanti1", "davanti1", "davanti1", "davanti2", "davanti2"),
-    "su": ("dietro2", "dietro2", "dietro2", "dietro2_specchio", "dietro2_specchio"),
-    "destra": ("lato1", "lato1", "lato2", "lato3", "lato4"),
+# le parti dei due disegni davanti e dietro, per costruire il passo
+# (passo.py): la prima riga delle gambe, la prima colonna della gamba destra,
+# le colonne delle braccia e le loro righe, dove finisce il ciuffo. Sono
+# misurate sui disegni gia' puliti
+PARTI = {
+    "davanti1": dict(anca=40, taglio=13, braccia=((0, 6), (19, 25), (29, 38)), ciuffo=9),
+    "dietro2": dict(anca=42, taglio=13, braccia=((0, 5), (20, 25), (29, 38)), ciuffo=7),
 }
-GAMBE_DIETRO = 39        # nel dietro, la prima riga delle gambe (sotto gli shorts)
+# di lato: i quattro tempi del foglio, due volte per ciclo; la testa e' quella
+# del primo, e la prima riga delle gambe nel primo e' la 32
+LATO = ("lato1", "lato2", "lato3", "lato4")
+ANCA_LATO = 32
+# le colonne del foglio del gioco
+COLONNE = ("fermo", "respiro") + tuple("tempo%d" % i for i in range(1, 9))
 
 # la pulizia: le rampe dei materiali, dalla luce all'ombra. Sono i colori del
 # foglio, un poco piu' chiari e piu' accesi
@@ -331,16 +341,6 @@ def pulisci(g):
 
 # ---------------------------------------------------------------- il foglio del gioco
 
-def specchia_gambe(g, da):
-    centro = (len(g[0]) - 1) / 2
-    out = [list(r) for r in g]
-    for y in range(da, len(g)):
-        for x in range(len(g[0])):
-            sx = int(round(2 * centro - x))
-            out[y][x] = g[y][sx] if 0 <= sx < len(g[0]) else None
-    return out
-
-
 def diversi(a, b, dx, righe):
     # quanto differiscono due teste spostate di dx: le celle piene e vuote
     n = 0
@@ -373,17 +373,83 @@ def fotogramma(g, x0, y0):
     return t
 
 
-def foglio_del_gioco(ricalchi):
-    fw, fh = W * 5, H * 3
+def collo(g, da=16, a=26):
+    # la riga piu' stretta fra la testa e il busto
+    larghe = [sum(1 for c in r if c is not None) for r in g]
+    return min(range(da, min(a, len(g))), key=lambda y: (larghe[y], y))
+
+
+def ingrandisci(g, f):
+    h, w = len(g), len(g[0])
+    H, L = int(round(h * f)), int(round(w * f))
+    return [[g[min(h - 1, int(y / f))][min(w - 1, int(x / f))] for x in range(L)] for y in range(H)]
+
+
+def di_lato(grezzi, altezza):
+    """i quattro tempi di lato sulla stessa tela: la testa (fino al collo) e'
+    quella del primo, e segue il collo di ogni tempo; poi ingranditi fino
+    all'altezza di davanti. Nel foglio di lato lei e' disegnata piu' piccola:
+    cosi' girandosi non si rimpicciolisce"""
+    base = grezzi[LATO[0]]
+    xb, _ = posa(base)
+    cb = collo(base)
+    h = len(base)
+    tele = []
+    for nome in LATO:
+        g = grezzi[nome]
+        x, _ = posa(g, (xb, base))
+        c = collo(g)
+        t = [[None] * (W + 4) for _ in range(h)]
+        for y in range(c + 1, len(g)):
+            for i, v in enumerate(g[y]):
+                if v is not None:
+                    t[y][x + i] = v
+        for y in range(cb + 1):
+            for i, v in enumerate(base[y]):
+                if v is not None and 0 <= y + c - cb < h:
+                    t[y + c - cb][xb + i] = v
+        tele.append(t)
+    f = altezza / h
+    return [ingrandisci(t, f) for t in tele], f
+
+
+def taglia_insieme(tele):
+    # lo stesso ritaglio per tutti i tempi, cosi' restano allineati
+    xs = [x for t in tele for r in t for x, c in enumerate(r) if c is not None]
+    ys = [y for t in tele for y, r in enumerate(t) if any(c is not None for c in r)]
+    return [[r[min(xs):max(xs) + 1] for r in t[min(ys):max(ys) + 1]] for t in tele]
+
+
+def fotogrammi_di_lei(percorso, pulita=True):
+    """-> {vista: [(griglia, riga di terra), ...]} con le dieci colonne"""
+    f = Foglio(percorso)
+    grezzi = {}
+    for nome, quadro in QUADRI.items():
+        grezzi[nome] = via_punte_sotto(ritaglia(via_scacchiera(pezzo_grande(ricalca(f, *quadro)))))
+    if pulita:
+        colori = pulisci
+    else:
+        tavolozza = kmedie([c for g in grezzi.values() for r in g for c in r if c is not None], COLORI)
+        colori = lambda g: quantizza(g, tavolozza)
+    viste = {}
+    for vista, nome in (("giu", "davanti1"), ("su", "dietro2")):
+        viste[vista] = passo.ciclo(ritaglia(colori(grezzi[nome])), PARTI[nome])
+    tele, fattore = di_lato(grezzi, len(grezzi["davanti1"]))
+    tele = taglia_insieme([colori(t) for t in tele])
+    terra = len(tele[0]) - 1
+    anca = int(round(ANCA_LATO * fattore))
+    respiro = passo.tempo(tele[0], dict(anca=anca, taglio=len(tele[0][0])), *passo.RESPIRO)
+    viste["destra"] = [(tele[0], terra), respiro] + [(tele[i % 4], terra) for i in range(8)]
+    return viste
+
+
+def foglio_del_gioco(viste):
+    fw, fh = W * len(COLONNE), H * 3
     pix = [(0, 0, 0, 0)] * (fw * fh)
     for riga, vista in enumerate(("giu", "su", "destra")):
-        nomi = VISTE[vista]
-        prima = ricalchi[nomi[0]]
-        x0, y0 = posa(prima)
-        for colonna, nome in enumerate(nomi):
-            g = ricalchi[nome]
-            x, y = posa(g, (x0, prima)) if nome != nomi[0] else (x0, y0)
-            t = fotogramma(g, x, y)
+        for colonna, (g, terra) in enumerate(viste[vista]):
+            assert len(g[0]) <= W and terra <= TERRA, (vista, colonna, len(g[0]), terra)
+            t = fotogramma(g, (W - len(g[0])) // 2, TERRA - terra)
             for yy in range(H):
                 for xx in range(W):
                     c = t[yy][xx]
@@ -397,27 +463,10 @@ def foglio_del_gioco(ricalchi):
     return fw, fh, pix
 
 
-def ricalchi_di_lei(percorso, pulita=True):
-    f = Foglio(percorso)
-    grezzi = {}
-    for nome, quadro in QUADRI.items():
-        grezzi[nome] = via_punte_sotto(ritaglia(via_scacchiera(pezzo_grande(ricalca(f, *quadro)))))
-    if pulita:
-        ricalchi = {nome: ritaglia(pulisci(g)) for nome, g in grezzi.items()}
-    else:
-        tutti = [c for g in grezzi.values() for r in g for c in r if c is not None]
-        tavolozza = kmedie(tutti, COLORI)
-        ricalchi = {nome: ritaglia(quantizza(g, tavolozza)) for nome, g in grezzi.items()}
-    ricalchi["dietro2_specchio"] = specchia_gambe(ricalchi["dietro2"], GAMBE_DIETRO)
-    return ricalchi
-
-
 if __name__ == '__main__':
     pulita = 'fedele' not in sys.argv[1:]
-    ricalchi = ricalchi_di_lei(os.path.join(QUI, 'fogli', 'lei.png'), pulita)
-    for nome, g in sorted(ricalchi.items()):
-        assert len(g) <= TERRA + 1 and len(g[0]) <= W, (nome, len(g[0]), len(g))
-    w, h, pix = foglio_del_gioco(ricalchi)
+    viste = fotogrammi_di_lei(os.path.join(QUI, 'fogli', 'lei.png'), pulita)
+    w, h, pix = foglio_del_gioco(viste)
     cartella = os.path.join(QUI, '..', '..', 'art', 'pianeti', 'protagonista')
     png.scrivi(os.path.join(cartella, 'lei.png'), w, h, pix)
     print('scritto lei', w, h, 'pulita' if pulita else 'fedele')
