@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-# I DUE PROTAGONISTI SUL PIANETA (prove/MondoProva.gd), dai disegni di Bru:
-# scrive art/pianeti/protagonista/lui.png e lei.png.
+# LUI SUL PIANETA (prove/MondoProva.gd), dai disegni di Bru: scrive
+# art/pianeti/protagonista/lui.png. Lei non si disegna piu' qui: e' presa
+# uguale dal foglio di Bru (ricalca.py).
 #
 #   python3 strumenti/protagonisti/disegna.py
 #
@@ -9,7 +10,7 @@
 # l'ombra blu-viola, gli occhi grandi e scuri sotto la frangia. Bru: «ecco
 # degli esempi, riesci a farli uguali o meglio?». Il foglio e' stato ricalcato
 # alla misura del gioco solo per prendere proporzioni e colori; poi ogni pezzo
-# e' ridisegnato a mano lettera per lettera (lui.py, lei.py), pulito:
+# e' ridisegnato a mano lettera per lettera (lui.py), pulito:
 #   - niente bocca (Bru, sul giro prima); gli occhi con ciglia, iride e luce;
 #   - la luce sempre dall'alto a sinistra, il contorno scuro ma non nero;
 #   - fronte e spalle sono pezzi incollati (gambe, busto, braccia, testa); di
@@ -28,8 +29,8 @@ import sys
 QUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, QUI)
 from pezzi import tela, incolla, righe, W, H
-import lui, lei, lato, png
-from tavolozze import LUI, LEI
+import lui, lato, png
+from tavolozze import LUI
 
 # di fronte e di spalle: le gambe, il braccio a sinistra e quello a destra
 # di chi guarda, quanto scende il corpo
@@ -82,41 +83,6 @@ def lui_destra(tempo):
     return righe(t)
 
 
-def lei_giu(tempo):
-    g, bs, bd, giu = TEMPI[tempo]
-    t = tela()
-    incolla(t, lei.GAMBE_GIU[g], 8, 36 + giu)
-    incolla(t, lei.BUSTO_GIU, 0, 21 + giu)
-    incolla(t, lei.BRACCIO_GIU_S[bs], 5, 24 + giu)
-    incolla(t, lei.BRACCIO_GIU_D[bd], 23, 24 + giu)
-    incolla(t, lei.TESTA_GIU, 4, 1 + giu)
-    return righe(t)
-
-
-def lei_su(tempo):
-    g, bs, bd, giu = TEMPI[tempo]
-    t = tela()
-    incolla(t, lei.GAMBE_SU[g], 8, 36 + giu)
-    incolla(t, lei.BUSTO_SU, 0, 21 + giu)
-    incolla(t, lei.BRACCIO_SU_S[bd], 5, 24 + giu)
-    incolla(t, lei.BRACCIO_SU_D[bs], 23, 24 + giu)
-    incolla(t, lei.TESTA_SU, 4, 1 + giu)
-    return righe(t)
-
-
-def lei_destra(tempo):
-    p = lato.TEMPI_LATO[tempo]
-    giu = p["su"]
-    t = tela()
-    lato.braccio(t, p["b_lon"], False, lei.GUANTO_DESTRA, lato.braccio_lei, 4)
-    lato.gamba(t, p["g_lon"], False, lei.STIVALE_DESTRA, lei.STIVALE_DESTRA_LONTANO, lato.gamba_lei)
-    incolla(t, lei.BUSTO_DESTRA, 10, 21 + giu)
-    lato.gamba(t, p["g_vic"], True, lei.STIVALE_DESTRA, lei.STIVALE_DESTRA_LONTANO, lato.gamba_lei)
-    lato.braccio(t, p["b_vic"], True, lei.GUANTO_DESTRA, lato.braccio_lei, 4)
-    incolla(t, lei.TESTA_DESTRA, 5, 1 + giu)
-    return righe(t)
-
-
 def colore(esadecimale):
     h = esadecimale.lstrip('#')
     return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 255)
@@ -148,7 +114,6 @@ def foglio(viste, tavolozza):
 if __name__ == '__main__':
     cartella = os.path.join(QUI, '..', '..', 'art', 'pianeti', 'protagonista')
     os.makedirs(cartella, exist_ok=True)
-    for nome, viste, tav in (('lui', (lui_giu, lui_su, lui_destra), LUI), ('lei', (lei_giu, lei_su, lei_destra), LEI)):
-        w, h, pix = foglio(viste, tav)
-        png.scrivi(os.path.join(cartella, nome + '.png'), w, h, pix)
-        print('scritto', nome, w, h)
+    w, h, pix = foglio((lui_giu, lui_su, lui_destra), LUI)
+    png.scrivi(os.path.join(cartella, 'lui.png'), w, h, pix)
+    print('scritto lui', w, h)

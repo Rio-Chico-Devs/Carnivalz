@@ -524,15 +524,23 @@ func ritira_la_corruzione(delta: float) -> void:
 
 func prepara_me() -> void:
 	io = Sprite2D.new()
-	io.texture = foglio_di(protagonista)
 	io.hframes = 5
 	io.vframes = 3
 	io.centered = false
-	# fotogrammi di 32x48 (fermo e i quattro tempi del passo), i piedi a (16, 45)
-	io.offset = Vector2(-16, -45)
+	metti_foglio(protagonista)
 	cose_nodo.add_child(io)
 	var da: Vector2i = m.call("partenza")
 	piedi = Vector2(da * LATO) + Vector2(8, 12)
+
+
+func metti_foglio(chi: String) -> void:
+	# 5 colonne (fermo e i quattro tempi del passo) x 3 righe (giu', su, destra).
+	# I fotogrammi possono essere di misure diverse (lui 32x48, lei 32x56, presa
+	# uguale dal foglio di Bru): i piedi stanno sempre al centro, tre righe sopra
+	# il fondo del fotogramma.
+	io.texture = foglio_di(chi)
+	var fotogramma := Vector2(io.texture.get_width() / 5.0, io.texture.get_height() / 3.0)
+	io.offset = -Vector2(fotogramma.x / 2.0, fotogramma.y - 3.0)
 
 
 func foglio_di(chi: String) -> ImageTexture:
@@ -881,7 +889,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 				costruisci()
 			KEY_P:
 				protagonista = "lei" if protagonista == "lui" else "lui"
-				io.texture = foglio_di(protagonista)
+				metti_foglio(protagonista)
 
 
 func scatto(nome: String, fra: int) -> void:

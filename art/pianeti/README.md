@@ -109,24 +109,46 @@ Per terra, senza piede (riempiono la casella):
 
 ## I protagonisti
 
-`protagonista/lui.png` e `protagonista/lei.png`, **160×144**: i due
-protagonisti dai disegni di Bru, uguali su ogni pianeta (per questo non stanno
-nelle cartelle dei biomi). Tre righe (giù, su, destra; la sinistra è la destra
-allo specchio) e cinque colonne: **fermo**, poi i **quattro tempi del passo**
-(un piede avanti, il passaggio, l'altro piede avanti, il passaggio). Ogni
-fotogramma è **32×48**, con l'ombra per terra già dentro; i piedi stanno a
-**16, 45**.
+`protagonista/lui.png` e `protagonista/lei.png`: i due protagonisti, uguali
+su ogni pianeta (per questo non stanno nelle cartelle dei biomi).
 
-Sono **chibi**, come nel «tactical RPG sprite sheet» di Bru: la testa quasi
-metà dell'altezza, gli occhi grandi e scuri sotto la frangia, niente bocca.
+Ogni foglio ha:
 
-Li disegna `strumenti/protagonisti/disegna.py` (`python3
-strumenti/protagonisti/disegna.py`):
+- tre righe: giù, su, destra (la sinistra è la destra allo specchio);
+- cinque colonne: **fermo**, poi i **quattro tempi del passo** (un piede
+  avanti, il passaggio, l'altro piede avanti, il passaggio);
+- l'ombra per terra già dentro ogni fotogramma.
 
-- ogni figura è fatta di pezzi scritti a mano lettera per lettera (`lui.py`,
-  `lei.py`): testa, busto, braccia, gambe per ogni tempo del passo;
-- di lato braccia e gambe sono arti articolati (`lato.py`, `arti.py`);
-- i colori sono quelli del foglio di Bru, raggruppati (`tavolozze.py`).
+I fotogrammi possono avere misure diverse. Il gioco le ricava dal foglio
+diviso per 5 × 3, e mette i piedi al centro, tre righe sopra il fondo del
+fotogramma:
 
-Un PNG ridisegnato a mano si mette al posto di quello; ma rilanciando lo
+| | foglio | fotogramma | piedi |
+|---|---|---|---|
+| `lui.png` | 160×144 | 32×48 | 16, 45 |
+| `lei.png` | 160×168 | 32×56 | 16, 53 |
+
+**Lei è presa uguale dal foglio di Bru** (`strumenti/protagonisti/fogli/lei.png`,
+il passo davanti, dietro e di lato). La scrive `python3
+strumenti/protagonisti/ricalca.py`, che ricostruisce i pixel del foglio:
+
+- cerca la griglia dei quadretti (circa 4,5 pixel dell'immagine per pixel del
+  disegno);
+- prende il colore di ogni quadretto e toglie la scacchiera;
+- riduce i colori a 40, presi dal foglio stesso.
+
+Dal foglio vengono:
+
+- davanti, i due tempi del passo;
+- dietro, il secondo tempo («back frame 1» ha i vestiti di lui), più le sue
+  gambe allo specchio per l'altro passo;
+- di lato, i quattro tempi.
+
+**Lui**, per ora, è ridisegnato a mano da `strumenti/protagonisti/disegna.py`:
+
+- pezzi scritti lettera per lettera (`lui.py`);
+- arti articolati di lato (`lato.py`, `arti.py`);
+- i colori in `tavolozze.py`.
+
+Un PNG ridisegnato a mano si mette al posto di quello, ma rilanciando lo
 strumento si riscrive. Nel gioco **P** passa da lui a lei.

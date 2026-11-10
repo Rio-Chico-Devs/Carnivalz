@@ -26,26 +26,10 @@ def gamba_lui(v, x, sinistra, vicina):
         return 'p' if x in (sinistra + 2, sinistra + 3) else 'b'
     return 'B' if x == sinistra + 1 else 'b'
 
-def gamba_lei(v, x, sinistra, vicina):
-    # la coscia nuda, il bordo dello stivale, lo stivale
-    if v < 0.3:
-        return ('l' if x == sinistra + 1 else 's') if vicina else 'S'
-    if v < 0.4:
-        return 'K' if vicina else 'j'
-    return ('J' if x == sinistra + 1 else 'j') if vicina else 'n'
-
 def braccio_lui(v, x, sinistra, vicino):
     if v < 0.6:
         return ('J' if x == sinistra + 1 else 'j') if vicino else 'n'
     return ('l' if x == sinistra + 1 else 's') if vicino else 'S'
-
-def braccio_lei(v, x, sinistra, vicino):
-    # la spalla nuda, poi il guanto lungo col bordo
-    if v < 0.22:
-        return ('l' if x == sinistra + 1 else 's') if vicino else 'S'
-    if v < 0.3:
-        return 'K' if vicino else 'j'
-    return ('J' if x == sinistra + 1 else 'j') if vicino else 'n'
 
 def gamba(t, punti, vicina, stivale, stivale_lontano, colori=gamba_lui):
     celle = traccia(punti, 6)

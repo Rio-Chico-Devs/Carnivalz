@@ -139,48 +139,60 @@ Su Steam la grafica fatta con l'AI va dichiarata nella pagina del gioco.
 > (24×32): «bisogna lavorarci meglio»; e: «non disegnare la bocca, fai meglio
 > gli occhi, anche l'anatomia e i frame di animazione devono essere meglio».
 > Poi il «tactical RPG sprite sheet» dei due: «ecco degli esempi, riesci a
-> farli uguali o meglio?».
+> farli uguali o meglio?». Sui chibi ridisegnati: «no devi farli uguali»; e
+> col foglio del passo di lei: «cominciamo con la female per ora».
 
-`strumenti/protagonisti/disegna.py` scrive `art/pianeti/protagonista/lui.png`
-e `lei.png`. Nel gioco **P** passa dall'uno all'altra; dalla riga di comando
+Nel gioco **P** passa dall'uno all'altra; dalla riga di comando
 `protagonista lei`.
 
-- **Chibi, come nel foglio di Bru.** 32×48 a fotogramma (alti tre caselle),
-  la testa quasi metà dell'altezza. Il foglio è disegnato quasi alla stessa
-  misura: le figure sono alte 46-52 pixel.
-- **Come sono fatti.** Il foglio è stato staccato dalla scacchiera e ridotto
-  alla misura del gioco solo per prendere proporzioni e colori. Poi ogni
-  pezzo è ridisegnato a mano lettera per lettera, pulito. Il ricalco così
-  com'è non andava: è un JPG, i pixel sono sbavati e ogni fotogramma del
-  foglio è un po' diverso dagli altri.
-- **Cosa è uguale al foglio**: le proporzioni, i capelli lavanda a ciocche
-  con l'ombra blu-viola, gli occhi scuri sotto la frangia, i vestiti e i
-  colori.
-- **Cosa è diverso, apposta**:
-  - niente bocca (lo aveva chiesto Bru);
-  - la luce sempre dall'alto a sinistra;
-  - tutte le direzioni hanno gli stessi pezzi, così lui e lei restano uguali
-    da ogni lato.
+### Lei: uguale al foglio di Bru
+
+`strumenti/protagonisti/ricalca.py` scrive `art/pianeti/protagonista/lei.png`
+dal foglio di Bru, che sta nel progetto (`strumenti/protagonisti/fogli/lei.png`).
+Non si ridisegna niente: si ricostruiscono i pixel del foglio.
+
+- **La griglia.** Il foglio è un JPG ingrandito: ogni pixel del disegno è un
+  quadretto di circa 4,5 pixel dell'immagine, sbavato. Per ogni fotogramma lo
+  strumento trova dove cadono i bordi dei quadretti, in larghezza e in altezza.
+- **I colori.** Per ogni quadretto si prende il colore più rappresentativo dei
+  pixel interni, non la media, che impasterebbe il contorno col fondo. Si
+  toglie la scacchiera, e i colori si riducono ai 40 del foglio stesso.
+- **La misura.** Davanti e dietro lei è alta 50 pixel, quindi i fotogrammi
+  sono 32×56. Il gioco ricava la misura dal foglio e mette i piedi al centro,
+  tre righe sopra il fondo.
+- **I fotogrammi del foglio**:
+  - davanti, i due tempi;
+  - dietro, il «back frame 2» e le sue gambe allo specchio per l'altro passo.
+    Il «back frame 1» non si può usare: ha la giacca nera e i pantaloni a
+    righe di lui;
+  - di lato, i quattro tempi così come sono. Il primo fa anche da fermo,
+    perché ha le gambe quasi unite.
+- **Cosa resta come nel foglio, anche se si potrebbe cambiare**:
+  - la boccuccia, che sul foglio c'è;
+  - di lato è più piccola che davanti (43 righe contro 50): nel foglio è
+    disegnata così.
+
+### Lui: ridisegnato a mano, per ora
+
+`strumenti/protagonisti/disegna.py` scrive `art/pianeti/protagonista/lui.png`
+(32×48, i piedi a 16, 45).
+
+- **Chibi, dal primo foglio di Bru.** Proporzioni e colori sono presi dal
+  ricalco. Ogni pezzo è ridisegnato a mano lettera per lettera (`lui.py`):
+  niente bocca, la luce sempre dall'alto a sinistra.
 - **Il passo ha quattro tempi**: un piede avanti, il passaggio con l'altra
   gamba piegata, l'altro piede avanti, di nuovo il passaggio. Le braccia vanno
   al contrario delle gambe; quando i due piedi sono a terra il corpo scende di
-  un pixel. Di lato braccia e gambe sono arti articolati, con lo stivale e il
-  guanto in fondo.
+  un pixel. Di lato braccia e gambe sono arti articolati (`lato.py`,
+  `arti.py`), con lo stivale e il guanto in fondo.
 - **Lui** ha:
   - i capelli a punte;
-  - la sciarpa bianca arrotolata, con le code che di lato ondeggiano a ogni
-    passo;
+  - la sciarpa bianca arrotolata, con le code che di lato ondeggiano;
   - la giacca nera aperta sugli addominali e le maniche arrotolate;
-  - i guanti senza dita e la cintura con la fibbia;
-  - i jeans scuri strappati e gli stivali coi lacci bianchi;
-  - lo spadone sulla schiena: di fronte se ne vede l'elsa sopra la spalla, di
-    spalle tutto, di lato l'elsa dietro la testa.
-- **Lei** ha:
-  - i capelli raccolti a punte sopra la fascia larga prugna con le stelle;
-  - gli occhialoni d'ottone con le lenti arancio;
-  - la frangia e le ciocche lunghe ai lati;
-  - il top lavanda, la pancia scoperta e i guanti lunghi;
-  - la cintura bianca con le borchie, gli shorts e gli stivali alti.
+  - i guanti senza dita e i jeans scuri strappati;
+  - lo spadone sulla schiena.
+- **Il prossimo passo è farlo uguale come lei.** Serve un foglio del suo passo
+  come quello di lei: nel primo foglio lui è quasi sempre fermo.
 
 ## 7. Le domande per Bru
 
@@ -193,7 +205,7 @@ e `lei.png`. Nel gioco **P** passa dall'uno all'altra; dalla riga di comando
    mondi vengono? Ogni Vuoto potrebbe avere i suoi.
 4. **Il pianeta**: grande così (sei-dieci regioni, quattro o cinque minuti per
    finirlo col pilota, di più a mano) o più grande e più lento?
-5. **I protagonisti** (§6) adesso sono chibi alti tre caselle: le case e gli
+5. **I protagonisti** (§6) adesso sono chibi alti più di tre caselle: le case e gli
    alberi del mondo sono rimasti piccoli. Li ingrandiamo (case da 3-4 caselle,
    alberi più alti), o teniamo i protagonisti più bassi?
 6. **Il resto del foglio di Bru** (le icone delle armi, le pozioni, la moneta,
