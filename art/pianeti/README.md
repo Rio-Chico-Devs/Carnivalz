@@ -107,8 +107,13 @@ Per terra, senza piede (riempiono la casella):
 | `ponte_rotto_v`, `ponte_v` | 16×16 | attraversato da nord a sud |
 | `scala_rotta`, `scala` | 16×32 | la scala nella parete della rupe (le due caselle di parete) |
 
-## Il personaggio
+## I protagonisti
 
-`personaggio.png`, **48×72**: tre righe (giù, su, destra; la sinistra è la
-destra allo specchio) e tre colonne (fermo, passo, altro passo), 16×24 l'una.
-I piedi stanno a 8, 22 di ogni fotogramma.
+`protagonista/lui.png` e `protagonista/lei.png`, **72×96**: i due protagonisti
+dai disegni di Bru, uguali su ogni pianeta (per questo non stanno nelle
+cartelle dei biomi). Tre righe (giù, su, destra; la sinistra è la destra allo
+specchio) e tre colonne (fermo, passo, altro passo), **24×32** l'una, con
+l'ombra per terra già dentro. I piedi stanno a **12, 30** di ogni fotogramma.
+
+Li disegna `prove/MondoProtagonisti.gd`, pixel per pixel, coi colori presi
+dal foglio in pixel art di Bru. Nel gioco **P** passa da lui a lei.

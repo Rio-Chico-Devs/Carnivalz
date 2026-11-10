@@ -31,9 +31,6 @@ const COMUNE := {
 	"inchiostro": ["#1a2c44", "#2c4a6e", "#4a7aa8", "#7fb2d9", "#c8e6f5"],
 	# il contorno degli oggetti, quando la loro rampa non ne ha uno abbastanza scuro
 	"china": ["#120e16"],
-	# il personaggio: cappotto scuro, sciarpa arancio
-	"pelle": ["#7a4a3a", "#c98f6c", "#f1c9a0", "#ffe6c8"],
-	"capelli": ["#1a1218", "#2a1e24", "#4a3238"],
 }
 
 const TAVOLOZZE := {
@@ -901,137 +898,6 @@ func scala(intera: bool) -> Image:
 	return img
 
 
-# ---------------------------------------------------------------- il personaggio
-# 16x24, disegnato a mano pixel per pixel: tre direzioni (giu', su, destra; la
-# sinistra e' la destra allo specchio) e tre pose (fermo, passo, altro passo).
-
-const LETTERE := {
-	"o": ["china", 0], "h": ["capelli", 1], "H": ["capelli", 2], "s": ["pelle", 2],
-	"S": ["pelle", 1], "l": ["pelle", 3], "e": ["china", 0], "c": ["fondo", 2],
-	"C": ["fondo", 3], "L": ["fondo", 4], "r": ["segnale", 3], "R": ["segnale", 2],
-	"y": ["segnale", 4], "b": ["fondo", 1], "w": ["carta", 4],
-}
-
-const TESTA_GIU := [
-	"................",
-	".....oooooo.....",
-	"....ohhhhhho....",
-	"...ohhHHhhhho...",
-	"..ohhHhhhhhhho..",
-	"..ohhhhhhhhhho..",
-	"..ohhsssssshho..",
-	"..ohslsssssSho..",
-	"..oSsesssesSSo..",
-	"..oSsesssesSSo..",
-	"...oSsssssSSo...",
-	"....oSSSSSSo....",
-]
-const TESTA_SU := [
-	"................",
-	".....oooooo.....",
-	"....ohhhhhho....",
-	"...ohhHHhhhho...",
-	"..ohhHhhhhhhho..",
-	"..ohhhhhhhhhho..",
-	"..ohhhhhhhhhho..",
-	"..ohhhhhhhhhho..",
-	"..ohhhhhhhhhho..",
-	"..oShhhhhhhhSo..",
-	"...oShhhhhhSo...",
-	"....oSSSSSSo....",
-]
-const TESTA_DESTRA := [
-	"................",
-	".....oooooo.....",
-	"....ohhhhhhoo...",
-	"...ohhHHhhhhho..",
-	"...ohHhhhhhhhho.",
-	"...ohhhhhhhhhho.",
-	"...ohhhhhsssso..",
-	"...ohhhhslssso..",
-	"...ohhhhsssesso.",
-	"...oShhhssses.o.",
-	"....oShhsssso...",
-	".....oSSSSSo....",
-]
-const CORPO_GIU := [
-	"...oorRrrRroo...",
-	"..ocRrryrrRCco..",
-	"..ocCRrrrRCLco..",
-	".oscCLcRcCLCcso.",
-	".oSccLCCCCLCcSo.",
-	"..ocCLCCCCLCco..",
-	"..occCCCCCCcco..",
-	"...occccccccoo..",
-]
-const CORPO_SU := [
-	"...oorrrrrrroo..",
-	"..ocCRrrrRCCco..",
-	"..ocCCRRRRCLco..",
-	".oscCCCCCCCLcso.",
-	".oSccCCCCCCLcSo.",
-	"..occCCCCCCCco..",
-	"..occCCCCCCcco..",
-	"...occccccccoo..",
-]
-const CORPO_DESTRA := [
-	"....oorrrRRoo...",
-	"....ocRrryRco...",
-	"....ocCCRrLco...",
-	"....occCCLLco...",
-	"....occCsCLco...",
-	"....occCSCLco...",
-	"....occCCCLco...",
-	".....occccco....",
-]
-const GAMBE := {
-	"giu": [
-		["...obbo..obbo...", "...obbo..obbo...", "...oooo..oooo..."],
-		["...obbo..obbo...", "...obbo...ooo...", "...oooo.........."],
-		["...obbo..obbo...", "....ooo..obbo...", ".........oooo..."],
-	],
-	"su": [
-		["...obbo..obbo...", "...obbo..obbo...", "...oooo..oooo..."],
-		["...obbo..obbo...", "...ooo...obbo...", ".........oooo..."],
-		["...obbo..obbo...", "...obbo...ooo...", "...oooo........."],
-	],
-	"destra": [
-		[".....obbbo......", ".....obbbo......", ".....ooooo......"],
-		["....obbo.obbo...", "...obbo...obbo..", "...ooo.....ooo.."],
-		[".....obbbo......", "....obbbbo......", "....oooooo......"],
-	],
-}
-
-
-func personaggio() -> Image:
-	# il foglio: righe giu', su, destra; colonne fermo, passo, altro passo
-	var img := vuota(LATO * 3, 24 * 3)
-	var direzioni := ["giu", "su", "destra"]
-	for r in 3:
-		var dir: String = direzioni[r]
-		var testa: Array = TESTA_GIU if dir == "giu" else (TESTA_SU if dir == "su" else TESTA_DESTRA)
-		var corpo: Array = CORPO_GIU if dir == "giu" else (CORPO_SU if dir == "su" else CORPO_DESTRA)
-		for k in 3:
-			var gambe: Array = (GAMBE[dir] as Array)[k]
-			var righe: Array = []
-			righe.append_array(testa)
-			righe.append_array(corpo)
-			righe.append_array(gambe)
-			# nel passo il corpo sobbalza di un pixel
-			var su := 1 if k > 0 else 0
-			for y in righe.size():
-				var riga: String = righe[y]
-				for x in mini(riga.length(), LATO):
-					var lettera := riga[x]
-					if not LETTERE.has(lettera):
-						continue
-					var dove: Array = LETTERE[lettera]
-					var yy := y - (su if y < 20 else 0) + 1
-					if yy >= 0 and yy < 24:
-						img.set_pixel(k * LATO + x, r * 24 + yy, col(String(dove[0]), int(dove[1])))
-	return img
-
-
 # ---------------------------------------------------------------- tutto, su file
 
 func tutte() -> Dictionary:
@@ -1046,7 +912,6 @@ func tutte() -> Dictionary:
 		"erba_varianti": varianti("erba"),
 		"acqua": acqua(),
 		"rupe": rupe(),
-		"personaggio": personaggio(),
 	}
 	var cose := oggetti()
 	for nome: String in cose:

@@ -28,6 +28,7 @@ extends Node2D
 
 const Genera := preload("res://prove/MondoGenera.gd")
 const Tessere := preload("res://prove/MondoTessere.gd")
+const Protagonisti := preload("res://prove/MondoProtagonisti.gd")
 const Hud := preload("res://prove/MondoHud.gd")
 const CORRUZIONE := preload("res://prove/mondo_corruzione.gdshader")
 const LATO := 16
@@ -84,6 +85,7 @@ var anteprima := -1
 var panoramica := false
 var controllo := false
 var colonizzato := false                # dalla riga di comando: il pianeta gia' tutto tuo
+var protagonista := "lui"               # lui o lei: P cambia
 var fotogrammi := 0
 var strada: Array[Vector2i] = []
 var meta := -1
@@ -124,6 +126,8 @@ func leggi_la_riga_di_comando() -> void:
 				panoramica = true
 			"colonizzato":
 				colonizzato = true
+			"protagonista":
+				protagonista = "lei" if dopo == "lei" else "lui"
 			"controlla":
 				controllo = true
 				controlla(int(dopo))
@@ -146,6 +150,13 @@ func salva_le_tessere() -> void:
 			if FileAccess.file_exists(percorso):
 				continue
 			(fogli_nuovi[nome] as Image).save_png(percorso)
+			scritti += 1
+	var cartella_io := "res://art/pianeti/protagonista"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(cartella_io))
+	for chi: String in ["lui", "lei"]:
+		var percorso := cartella_io.path_join(chi + ".png")
+		if not FileAccess.file_exists(percorso):
+			Protagonisti.foglio(chi).save_png(percorso)
 			scritti += 1
 	print("TESSERE: %d file scritti in art/pianeti/" % scritti)
 	get_tree().quit()
@@ -520,14 +531,27 @@ func ritira_la_corruzione(delta: float) -> void:
 
 func prepara_me() -> void:
 	io = Sprite2D.new()
-	io.texture = trame["personaggio"]
+	io.texture = foglio_di(protagonista)
 	io.hframes = 3
 	io.vframes = 3
 	io.centered = false
-	io.offset = Vector2(-8, -22)
+	# fotogrammi di 24x32, i piedi a (12, 30)
+	io.offset = Vector2(-12, -30)
 	cose_nodo.add_child(io)
 	var da: Vector2i = m.call("partenza")
 	piedi = Vector2(da * LATO) + Vector2(8, 12)
+
+
+func foglio_di(chi: String) -> ImageTexture:
+	# il PNG di art/pianeti/protagonista/ vince; se manca, lo disegna MondoProtagonisti
+	var percorso := "res://art/pianeti/protagonista/%s.png" % chi
+	var img: Image = Protagonisti.foglio(chi)
+	if FileAccess.file_exists(percorso):
+		var letta := Image.load_from_file(percorso)
+		if letta != null and not letta.is_empty():
+			letta.convert(Image.FORMAT_RGBA8)
+			img = letta
+	return ImageTexture.create_from_image(img)
 
 
 func libero(p: Vector2) -> bool:
@@ -858,6 +882,9 @@ func _unhandled_input(evento: InputEvent) -> void:
 			KEY_B:
 				bioma = "ardente" if bioma == "pianure" else "pianure"
 				costruisci()
+			KEY_P:
+				protagonista = "lei" if protagonista == "lui" else "lui"
+				io.texture = foglio_di(protagonista)
 
 
 func scatto(nome: String, fra: int) -> void:

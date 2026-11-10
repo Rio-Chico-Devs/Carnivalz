@@ -132,7 +132,33 @@ In tutti e tre i casi valgono le regole del §2. La più facile da rompere è la
 luce: un pezzo con la luce da destra si vede subito, anche se è bellissimo.
 Su Steam la grafica fatta con l'AI va dichiarata nella pagina del gioco.
 
-## 6. Le domande per Bru
+## 6. I protagonisti
+
+> Bru: «se ti mando un disegno del personaggio principale riesci a creare
+> l'omino a sua somiglianza?»; e poi i disegni di lui e di lei.
+
+`prove/MondoProtagonisti.gd`, PNG in `art/pianeti/protagonista/`. Nel gioco
+**P** passa dall'uno all'altra; dalla riga di comando `protagonista lei`.
+
+- **24×32**, il doppio dell'altezza di una casella, come i personaggi di
+  Stardew Valley. La testa è più grande che nei disegni: a questa misura un
+  viso con le proporzioni vere è quattro pixel, e non si legge.
+- **I colori sono quelli del foglio in pixel art di Bru**, raggruppati: la
+  pelle, il lavanda dei capelli con l'ombra blu, il nero della giacca e degli
+  stivali, i grigi dei pantaloni, il lavanda del top di lei.
+- Il metodo: dal foglio di Bru si staccano le figure dalla scacchiera, si
+  riducono (la testa meno del corpo) e si riportano alla tavolozza; quella
+  riduzione è solo la traccia, poi ogni vista è ridisegnata a mano.
+- **Lui**: capelli a punte, sciarpa bianca a frecce nere (di lato vola
+  dietro), giacca nera aperta, pantaloni a righe, ginocchiere, stivali con il
+  bianco, e lo spadone sulla schiena: di spalle si vede tutto in diagonale, di
+  fronte e di lato spunta il manico rosso.
+- **Lei**: la coda alta, la fascia rossa con le stelle e l'anello d'oro, le
+  trecce, il top lavanda, i guanti lunghi, la cintura bianca, gli stivali alti.
+- Il passo: di fronte e di spalle un piede che si alza, di lato le gambe che
+  si aprono.
+
+## 7. Le domande per Bru
 
 1. **La direzione è questa?** Pixel art a 16 pixel, vista alla Zelda, prima e
    dopo come ricompensa.
@@ -143,5 +169,5 @@ Su Steam la grafica fatta con l'AI va dichiarata nella pagina del gioco.
    mondi vengono? Ogni Vuoto potrebbe avere i suoi.
 4. **Il pianeta**: grande così (sei-dieci regioni, quattro o cinque minuti per
    finirlo col pilota, di più a mano) o più grande e più lento?
-5. **Il personaggio** sul pianeta: l'Anonimo, o una figura dell'Organizzazione
-   (un tecnico, un drone)?
+5. **I protagonisti** sono quelli dei disegni di Bru (§6): vanno bene a
+   questa misura, o li vuoi più grandi, con le proporzioni dei disegni?

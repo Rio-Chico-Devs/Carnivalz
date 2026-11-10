@@ -83,7 +83,7 @@ func _draw() -> void:
 		draw_string(f, p, String(s["testo"]), HORIZONTAL_ALIGNMENT_CENTER, 200, 22, Color(CARTA, a))
 	if not cartello.is_empty() and float(cartello["eta"]) < 3.0:
 		disegna_cartello(f)
-	var aiuto := "FRECCE O WASD  CAMMINA      E  FAI      M  MAPPA      N  ALTRO PIANETA      B  ALTRO BIOMA"
+	var aiuto := "FRECCE O WASD  CAMMINA      E  FAI      M  MAPPA      N  ALTRO PIANETA      B  ALTRO BIOMA      P  LUI / LEI"
 	draw_string(f, Vector2(26, 702), aiuto, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(FONDO, 0.8))
 	draw_string(f, Vector2(24, 700), aiuto, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, CARTA)
 	if bool(scena.get("mappa_aperta")):
