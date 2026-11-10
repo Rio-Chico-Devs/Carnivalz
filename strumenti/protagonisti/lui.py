@@ -1,177 +1,191 @@
-# LUI a 32x48. Il centro della tela e' fra le colonne 15 e 16; i piedi
-# toccano terra alla riga 46 (47 col passo avanti).
-from pezzi import specchia
+# LUI, chibi, dal foglio «tactical RPG sprite sheet» di Bru: 32x48, i piedi a
+# (16, 45). Ogni pezzo dice dove va (x, y); i colori sono in tavolozze.py.
+from pezzi import r, coppia
 
-def metta(meta):
-    # mezza figura (sinistra) -> intera
-    return [r + r[::-1] for r in meta]
+# ---------------------------------------------------------------- di fronte
+TESTA_GIU = r([  # x=4, y=1
+    "..........o....o........",  # 0
+    ".........oHo..oho..o....",  # 1
+    "......o.oHHhoohhhooho...",  # 2
+    ".....oHoHHHhhVhhhhhhvo..",  # 3
+    "....oHHhHHhhhvHhhhvhvvo.",  # 4
+    "...ohHHhHhhhhhvhhhhvvVvo",  # 5
+    ".ohHHhhHhhhhhhhvhhvvvVvo",  # 6
+    "..ohHhhhhhhhhhhhhvvvvVVo",  # 7
+    "...ohhhhvhhhhhvhhhvvVVo.",  # 8
+    "..ohhhvhhhhvhhhhvhhvVVvo",  # 9
+    "oVhvhhvVhvVhhvVhvVvVVVo.",  # 10
+    ".oVhhvVShvShvVShvSvVVXoo",  # 11
+    ".oXvhhvShvShvSShvSvVXo..",  # 12
+    ".oXhvvSsVSshVssVSsSvXo..",  # 13
+    ".oXvVsoeeesVSseeeoSVXo..",  # 14
+    ".oXVssseiElssseiESSVXo..",  # 15
+    "..oVlsseEEsssseEESSVo...",  # 16
+    "...ollssssssSssssSSSo...",  # 17
+    "....olssssssssssSSSo....",  # 18
+    ".....osssssssssSSSo.....",  # 19
+    ".......oSSSSSSSSo.......",  # 20
+    "........oooooooo........",  # 21
+], 24)
 
-TESTA_GIU = [  # x=6, y=1: niente bocca; occhi: ciglia, iride, luce
-    ".........oo.........",
-    ".....o..oHHo..o.....",
-    "....oHooHHhhooho....",
-    "...ohHHhHhhhhhhvo...",
-    "..ohHHhhhhhhhhhhvo..",
-    ".ohHHhhhhhhhhhhhhvo.",
-    "ohHhhhhhhhhhhhhhhvvo",
-    ".ohhhvhhhhhhvhhhvvo.",
-    ".ovhvhhvhhhvhhvhvVo.",
-    "..oVvhvsvhhvsvhvVo..",
-    "..oVsvsssvsssvssVo..",
-    "..oVsooosssssoooVo..",
-    "..oSsEiwssssEiwSSo..",
-    "...oSEiisssEiiSSo...",
-    "....oSssssssssSo....",
-    ".....ooSSssSSoo.....",
-]
+# il busto senza braccia: sciarpa, giacca aperta, petto, cintura; x=0, y=20
+BUSTO_GIU = r([
+    "........oooooooo|oooooooo........",  # 20
+    "........owwwwwww|wwwwwWYo........",  # 21
+    "........owwwWwww|wwwwWwYo........",  # 22
+    "........oWwwYWww|YWwwYWYo........",  # 23
+    "......oooWWWWWWW|WWWWWWYooo......",  # 24
+    "......oJJjjjKSss|ssSKjjnnno......",  # 25
+    ".....oJJjjjjoSls|ssSojnnnnno.....",  # 26
+    ".........oJjKSll|ssSKjno.........",  # 27
+    ".........oJjoSSS|SSSojno.........",  # 28
+    ".........oJjKSls|sSSKjno.........",  # 29
+    ".........oJjoSSS|SSSojno.........",  # 30
+    ".........oJjKSls|sSSKjno.........",  # 31
+    ".........ojnoSss|sSSonno.........",  # 32
+    ".........oncnnnw|Wnnncno.........",  # 33
+    ".........obBpBBb|bBBpBbo.........",  # 34
+    ".........obBpqBb|bBqpBbo.........",  # 35
+], 32)
 
-# il busto: meta' sinistra (8 colonne), poi lo specchio; x=8, y=16
-_BUSTO_META = [
-    "......ow",  # 16 sciarpa
-    "....oowW",  # 17
-    "..ooojwW",  # 18 spalle
-    ".ojJjowW",  # 19
-    ".oJjjoWo",  # 20 bavero
-    ".oJjjosl",  # 21 petto
-    ".ojJjoSS",  # 22
-    "..ojjosl",  # 23 addome
-    "..ojjoSS",  # 24
-    "..ojjosl",  # 25
-    "..oojoss",  # 26
-    "...ogggq",  # 27 cintura e fibbia
-    "...oPPPp",  # 28 fianchi
-]
-BUSTO_GIU = metta(_BUSTO_META)
-# la sciarpa che pende sul petto a sinistra di chi guarda, con la freccia nera
-SCIARPA_GIU = [  # x=11, y=18
-    "oWwo",
-    "owwo",
-    "oowo",
-    "owoo",
-    "owwo",
-    "oWWo",
-    ".oo.",
-]
+# le braccia: la manica, l'avambraccio della manica arrotolata, il guanto.
+# 'avanti' e' piu' lungo di un pixel (viene verso di noi), 'indietro' piu' corto
+def _braccio(maniche, pelle, guanto):
+    return maniche + pelle + guanto
 
-def braccio(posa):
-    # il braccio sinistro (di chi guarda), 4x13; il destro e' lo specchio
-    spalla = [".oo.", "oJjo", "oJjo", "oJjo", "ojjo"]
-    gomito = ["ojjo", "oJjo"]
-    avambraccio = ["osSo", "oqqo"]
-    mano = ["oggo", "oGgo", ".oo."]
-    if posa == "neutro":
-        return spalla + gomito + avambraccio + mano
-    if posa == "avanti":
-        # la mano viene avanti: scende di un pixel e si vede di piu'
-        return spalla + gomito + ["ojjo"] + avambraccio + ["oggo", "oGgo", "oggo", ".oo."]
-    # indietro: la mano va dietro il fianco, il braccio si accorcia
-    return spalla + ["ojjo"] + ["oSSo", "oqqo", "oggo", ".oo."]
-
-def gamba(stinco, fondo_chiaro=True):
-    # la gamba sinistra, 6 di largo: coscia a righe, ginocchiera, stivale
-    coscia = ["oPPPPo", "oppppo", "oPPPPo", "oppppo", "oPPPPo", "oppppo"]
-    # la ginocchiera grande col bordo chiaro, lo stivale nero col pannello bianco sullo stinco
-    ginocchio = ["occcco", "oKcKKo"]
-    stivale = ["onnnno", "onqqno", "onqqno", "onnnno", "onnnno", "onnnno"][:stinco]
-    piede = ["onnnnno", "oqqqqqo" if fondo_chiaro else "onnnnno", ".ooooo."]
-    return coscia + ginocchio + stivale + piede
-
-GAMBA = {
-    "dritta": gamba(6),            # 17 righe: dall'anca a terra
-    "avanti": gamba(6),            # col corpo giu' di uno, il piede scende sotto la linea: viene verso di noi
-    "dietro": gamba(4, False),     # il piede va indietro: si alza, la suola non si vede
-    "piegata": gamba(5),           # il ginocchio sale
+BRACCIO_GIU_S = {  # x=5, y=27 (di chi guarda: a sinistra, nella luce)
+    "neutro":   _braccio(["oJjn"] * 4, ["ollS"], ["oGgg", "oGcg", "oggj", ".ooo"]),
+    "avanti":   _braccio(["oJjn"] * 5, ["ollS"], ["oGgg", "oGcg", "oggj", ".ooo"]),
+    "indietro": _braccio(["oJjn"] * 3, ["ollS"], ["oGgg", "oGcg", "oggj", ".ooo"]),
+}
+BRACCIO_GIU_D = {  # x=23, y=27 (a destra, nell'ombra)
+    "neutro":   _braccio(["jnno"] * 4, ["sSSo"], ["ggjo", "gcjo", "gjjo", "ooo."]),
+    "avanti":   _braccio(["jnno"] * 5, ["sSSo"], ["ggjo", "gcjo", "gjjo", "ooo."]),
+    "indietro": _braccio(["jnno"] * 3, ["sSSo"], ["ggjo", "gcjo", "gjjo", "ooo."]),
 }
 
-# la spada dietro le spalle, di fronte: spunta solo l'elsa sopra la spalla
-ELSA_GIU = [  # x=3, y=10
-    "oo....",
-    "oqo...",
-    ".ory..",
-    "..oRo.",
-    "...oro",
-    "....oY",
-]
+# le gambe, x=8; la riga 0 e' l'anca (y=36, o 37 quando il corpo scende)
+_DRITTA_S = [".obBpqBo", ".obBBpbo", ".obqqBbo", ".obBpBbo", ".ojJJjno", ".ojwJwno", "ojjwwjno", "oJjjjjno", "oooooooo"]
+_DRITTA_D = ["oBqpBbo.", "obpBBbo.", "obBqqbo.", "obBpBbo.", "ojJjnno.", "ojwjwno.", "ojjwwjno", "ojjjjnno", "oooooooo"]
+# il piede dietro, col tallone alzato: due righe piu' corto
+_ALZATA_S = [".obBpqBo", ".obBBpbo", ".obqqBbo", ".ojJJjno", ".ojwJwno", ".ojjjjno", ".ooooooo"]
+_ALZATA_D = ["oBqpBbo.", "obpBBbo.", "obBqqbo.", "ojJjnno.", "ojwjwno.", "ojjjjno.", "ooooooo."]
+# la gamba che passa, piegata: il ginocchio sale e il piede viene avanti
+_PIEGATA_S = [".obBpqBo", ".obqqBbo", ".obBpBbo", ".ojJJjno", ".ojwJwno", "ojjwwjno", "oooooooo"]
+_PIEGATA_D = ["oBqpBbo.", "obBqqbo.", "obBpBbo.", "ojJjnno.", "ojwjwno.", "ojjwwjno", "oooooooo"]
+
+GAMBE_GIU = {
+    "dritte": coppia(_DRITTA_S, _DRITTA_D),
+    "s_avanti": coppia(_DRITTA_S, _ALZATA_D),
+    "d_avanti": coppia(_ALZATA_S, _DRITTA_D),
+    "d_passa": coppia(_DRITTA_S, _PIEGATA_D),
+    "s_passa": coppia(_PIEGATA_S, _DRITTA_D),
+}
 
 # ---------------------------------------------------------------- di spalle
-TESTA_SU = [  # x=6, y=1
-    ".........oo.........",
-    ".....o..oHHo..o.....",
-    "....oHooHHhhooho....",
-    "...ohHHhHhhhhhhvo...",
-    "..ohHHhhhhhhhhhhvo..",
-    ".ohHHhhhhhhhhhhhhvo.",
-    "ohHhhhhhhhhhhhhhhvvo",
-    ".ohhhvhhhhhhvhhhvvo.",
-    ".ohvhhvhhhhvhhvhvvo.",
-    "..ohvhhvhhvhhvhvvo..",
-    "..oVvhvvhvvhvvhvVo..",
-    "..oVvvhvvvvvhvvVVo..",
-    "...oVVvvVvvVvVVVo...",
-    "....oVVoVVoVVoVo....",
-    ".....ooSSssSSoo.....",
-]
-_BUSTO_SU_META = [
-    "......ow",  # 16 la sciarpa da dietro, a righe
-    "....oowo",  # 17
-    "..ooowow",  # 18
-    ".ojJjjjj",  # 19
-    ".oJjjjjj",  # 20
-    ".oJjjjjj",  # 21
-    ".ojJjjjj",  # 22
-    "..ojjjjj",  # 23
-    "..ojjjjj",  # 24
-    "..onnnnn",  # 25 l'orlo della giacca corta
-    "..oslsss",  # 26 la schiena nuda
-    "...ogggg",  # 27 cintura
-    "...oPPPp",  # 28
-]
-BUSTO_SU = metta(_BUSTO_SU_META)
+TESTA_SU = r([  # x=4, y=1
+    "..........o....o........",  # 0
+    ".........oHo..oho..o....",  # 1
+    "......o.oHHhoohhhooho...",  # 2
+    ".....oHoHHHhhVhhhhhhvo..",  # 3
+    "....oHHhHHhhhvHhhhvhvvo.",  # 4
+    "...ohHHhHhhhhhvhhhhvvVvo",  # 5
+    ".ohHHhhHhhhhhhhvhhvvvVvo",  # 6
+    "..ohHhhhhhhhhhhhhvvvvVVo",  # 7
+    "...ohhhhvhhhhhvhhhvvVVo.",  # 8
+    "..ohhhvhhhhvhhhhvhhvVVvo",  # 9
+    "oVhvhhvhhhvhhhhvhhvvVVo.",  # 10
+    ".oVhhvhhvhhhvhhvhhvvVVoo",  # 11
+    ".oVvhhvhvVhhvVhhvhvVVo..",  # 12
+    ".oXvhvVhvVhvVhvVhvVVXo..",  # 13
+    ".oXVvVvVhVvVhVvVhVvVXo..",  # 14
+    "..oXVvVvVVvVVvVVvVVXo...",  # 15
+    "...oXVVoVVVoVVVoVVXo....",  # 16
+    "....oXo.oVVo.oVVo.oXo...",  # 17
+    ".........oo...oo........",  # 18
+], 24)
 
-# ---------------------------------------------------------------- di lato (verso destra)
-TESTA_DESTRA = [  # x=7, y=1
-    ".......oo.........",
-    "...o..oHHo..o.....",
-    "..oHooHHhhoohoo...",
-    ".ohHHhHhhhhhhhho..",
-    "ohHHhhhhhhhhhhhvo.",
-    ".ooHhhhhhhhhhhhhvo",
-    "..ohhhhhhhhhhvhvvo",
-    ".ohvhhhhhhhvhsvhso",
-    "..oVvhhhhhvsssslso",
-    "...oVvhhhvssooosso",
-    "...oVvvhvsssEiwsso",
-    "....oVvvSssssEissS",
-    ".....oVVSssssssSo.",
-    "......oSSsssssSo..",
-    ".......ooSsssoo...",
+BUSTO_SU = r([  # x=0, y=19: il collo, la sciarpa intorno, la schiena della giacca
+    "..............oS|So..............",  # 19
+    "........oooooooo|oooooooo........",  # 20
+    "........owwwwwww|wwwwwWYo........",  # 21
+    "........owWwwwww|wwwwWWYo........",  # 22
+    "........oWWwYWWw|YWWwYWYo........",  # 23
+    "......oooWWWWWWW|WWWWWWYooo......",  # 24
+    "......oJJjjjjjjj|jjjjjnnnno......",  # 25
+    ".....oJJjjjjjjjj|jjjjjjnnnno.....",  # 26
+    ".........oJjjjjj|jjjjjno.........",  # 27
+    ".........oJjjjjj|jjjjjno.........",  # 28
+    ".........ojjjjjj|jjjjjno.........",  # 29
+    ".........ojjjjjj|jjjjnno.........",  # 30
+    ".........ojjjjjj|jjjjnno.........",  # 31
+    ".........onnnnnn|nnnnnno.........",  # 32
+    ".........oncnnnn|nnnncno.........",  # 33
+    ".........obBBBBb|bBBBBbo.........",  # 34
+    ".........obBpBBb|bBBpBbo.........",  # 35
+], 32)
+# di spalle le braccia sono le stesse, scambiate: la luce resta a sinistra
+BRACCIO_SU_S = BRACCIO_GIU_S
+BRACCIO_SU_D = BRACCIO_GIU_D
+
+def _da_dietro(g):
+    # di spalle non si vedono i lacci degli stivali
+    return [x.replace('w', 'j') for x in g]
+
+GAMBE_SU = {k: _da_dietro(v) for k, v in GAMBE_GIU.items()}
+
+# ---------------------------------------------------------------- di lato
+TESTA_DESTRA = r([  # x=5, y=1: guarda a destra
+    ".......o...o..........",  # 0
+    "......oHo.oho...o.....",  # 1
+    "..o..oHHhohhho.oho....",  # 2
+    "..oo.oHHhhhhhhohhvo...",  # 3
+    "...ooHHhHHhhhhhhhhvvo.",  # 4
+    "oooHHhhHhhhhhhhhhhvvo.",  # 5
+    ".ohHhhhhhhhhhhhhhhhvvo",  # 6
+    "..ohhhhhhhhhhhhhhvhhvo",  # 7
+    "ooHhhhvhhhhhhhhhvhhvVo",  # 8
+    ".oVhhhhhhvhhhhvhhvVhVo",  # 9
+    "..ohhvhhhhhvhhVhvSVhVo",  # 10
+    ".ooVhhhvhhhVhSsSvSsVo.",  # 11
+    ".oXVhvhhvhVXSsssSssVo.",  # 12
+    "..oXVhvhvVXSlssssssSo.",  # 13
+    "..oXVvhvVXsSlsssoeeso.",  # 14
+    "...oXVvVXsSllssseiEso.",  # 15
+    "....oXVXosSlsssseEEsso",  # 16
+    ".....oXoosSssssssssSo.",  # 17
+    "......o..oSssssssssSo.",  # 18
+    "..........oSssssssSo..",  # 19
+    "...........oSSSSSSo...",  # 20
+    "............oooooo....",  # 21
+], 22)
+
+BUSTO_DESTRA = r([  # x=10, y=20
+    "....oooooo..",  # 20
+    "...owwwwwWo.",  # 21
+    "..oWwwwwwWYo",  # 22
+    "..oWYwwYwWYo",  # 23
+    "..oooWWWWYoo",  # 24
+    "..oJJjjjjjso",  # 25
+    ".oJJjjjjjjlo",  # 26
+    ".oJjjjjjjjso",  # 27
+    ".oJjjjjjjjSo",  # 28
+    ".oJjjjjjjKso",  # 29
+    ".oJjjjjjjKSo",  # 30
+    ".ojjjjjjjKso",  # 31
+    ".ojjjjjjjnSo",  # 32
+    ".oncnnnnnnno",  # 33
+    ".obBBBBBBbo.",  # 34
+    ".obBpBBBBbo.",  # 35
+], 12)
+
+# lo stivale di lato, la caviglia e' la colonna 2 della prima riga
+STIVALE_DESTRA = [
+    "ojJjo...",
+    "ojwJjo..",
+    "ojjwjjo.",
+    "ojjjjjjo",
+    "oooooooo",
 ]
-BUSTO_DESTRA = [  # x=9, y=16: la schiena curva dietro, il petto aperto davanti
-    "......owwwo..",
-    "...oowwwWWo..",
-    "..ojowWWWWo..",
-    ".ojJjjojjsso.",
-    ".oJjjjojjslo.",
-    ".oJjjjojjsSo.",
-    ".ojJjjojjslo.",
-    ".ojjjjojjsSo.",
-    "..ojjjjojslo.",
-    "..ojjjjojsso.",
-    "..oojjjoosso.",
-    "...ogggggqo..",
-    "...oPPPPPPo..",
-]
-SCIARPA_DESTRA = [  # x=3, y=17: la coda vola dietro
-    "...ooowww",
-    "..owwwWWo",
-    ".owoowwo.",
-    "owo.oo...",
-    ".o.......",
-]
-ELSA_DESTRA = [  # x=4, y=7: dietro la testa
-    "oo...",
-    "oqo..",
-    ".oro.",
-    "..oRo",
-    "...oo",
-]
+STIVALE_DESTRA_LONTANO = [x.replace('J', 'j').replace('w', 'n') for x in STIVALE_DESTRA]
+GUANTO_DESTRA = [".oo.", "oGgo", "ogjo", ".oo."]

@@ -117,9 +117,16 @@ allo specchio) e cinque colonne: **fermo**, poi i **quattro tempi del passo**
 fotogramma è **32×48**, con l'ombra per terra già dentro; i piedi stanno a
 **16, 45**.
 
+Sono **chibi**, come nel «tactical RPG sprite sheet» di Bru: la testa quasi
+metà dell'altezza, gli occhi grandi e scuri sotto la frangia, niente bocca.
+
 Li disegna `strumenti/protagonisti/disegna.py` (`python3
-strumenti/protagonisti/disegna.py`): ogni figura è fatta di pezzi scritti a
-mano lettera per lettera (`lui.py`, `lei.py`), con braccia e gambe di lato
-articolate (`lato.py`), e i colori del foglio in pixel art di Bru
-(`tavolozze.py`). Un PNG ridisegnato a mano si mette al posto di quello; ma
-rilanciando lo strumento si riscrive. Nel gioco **P** passa da lui a lei.
+strumenti/protagonisti/disegna.py`):
+
+- ogni figura è fatta di pezzi scritti a mano lettera per lettera (`lui.py`,
+  `lei.py`): testa, busto, braccia, gambe per ogni tempo del passo;
+- di lato braccia e gambe sono arti articolati (`lato.py`, `arti.py`);
+- i colori sono quelli del foglio di Bru, raggruppati (`tavolozze.py`).
+
+Un PNG ridisegnato a mano si mette al posto di quello; ma rilanciando lo
+strumento si riscrive. Nel gioco **P** passa da lui a lei.

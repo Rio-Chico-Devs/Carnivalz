@@ -1,3 +1,4 @@
+import math
 # Arti articolati per la vista di lato: anca -> ginocchio -> caviglia,
 # spalla -> gomito -> mano. Si tracciano a spessore costante, poi il contorno.
 def traccia(punti, largo):
@@ -18,8 +19,10 @@ def traccia(punti, largo):
             y = a[1] + (b[1] - a[1]) * f
             t = (fatto + l * f) / tot
             for dx in range(largo):
-                cx = int(round(x - (largo - 1) / 2 + dx))
-                cy = int(round(y))
+                # floor(v + 0.5), non round(): round() arrotonda i .5 al pari e
+                # con gli spessori pari lascia dei buchi a righe
+                cx = math.floor(x - (largo - 1) / 2 + dx + 0.5)
+                cy = math.floor(y + 0.5)
                 if (cx, cy) not in celle or celle[(cx, cy)] > t:
                     celle[(cx, cy)] = t
         fatto += l

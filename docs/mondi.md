@@ -138,37 +138,49 @@ Su Steam la grafica fatta con l'AI va dichiarata nella pagina del gioco.
 > l'omino a sua somiglianza?»; poi i disegni di lui e di lei. Sul primo giro
 > (24×32): «bisogna lavorarci meglio»; e: «non disegnare la bocca, fai meglio
 > gli occhi, anche l'anatomia e i frame di animazione devono essere meglio».
+> Poi il «tactical RPG sprite sheet» dei due: «ecco degli esempi, riesci a
+> farli uguali o meglio?».
 
 `strumenti/protagonisti/disegna.py` scrive `art/pianeti/protagonista/lui.png`
 e `lei.png`. Nel gioco **P** passa dall'uno all'altra; dalla riga di comando
 `protagonista lei`.
 
-- **32×48 a fotogramma, il personaggio alto tre caselle.** Il foglio di Bru è
-  pixel art alta circa 290 pixel: ridotta a 32 perdeva tutto. A 48 le
-  proporzioni restano le sue (gambe lunghe, busto, spalle), con la testa
-  appena più grande perché il viso si legga.
-- **Niente bocca. Gli occhi**: ciglia scure, l'iride col suo colore (azzurro
-  lui, viola lei) e un pixel di luce.
-- **I colori sono quelli del foglio di Bru**, raggruppati: la pelle, il
-  lavanda dei capelli con l'ombra blu, il nero, i grigi delle righe, il top
-  lavanda.
-- **Fatti a pezzi**: testa, busto, braccia e gambe scritti a mano lettera per
-  lettera; di lato braccia e gambe sono arti articolati (anca, ginocchio,
-  caviglia; spalla, gomito, mano). Il foglio di Bru, staccato dalla scacchiera
-  e ridotto, è servito da traccia per le proporzioni.
+- **Chibi, come nel foglio di Bru.** 32×48 a fotogramma (alti tre caselle),
+  la testa quasi metà dell'altezza. Il foglio è disegnato quasi alla stessa
+  misura: le figure sono alte 46-52 pixel.
+- **Come sono fatti.** Il foglio è stato staccato dalla scacchiera e ridotto
+  alla misura del gioco solo per prendere proporzioni e colori. Poi ogni
+  pezzo è ridisegnato a mano lettera per lettera, pulito. Il ricalco così
+  com'è non andava: è un JPG, i pixel sono sbavati e ogni fotogramma del
+  foglio è un po' diverso dagli altri.
+- **Cosa è uguale al foglio**: le proporzioni, i capelli lavanda a ciocche
+  con l'ombra blu-viola, gli occhi scuri sotto la frangia, i vestiti e i
+  colori.
+- **Cosa è diverso, apposta**:
+  - niente bocca (lo aveva chiesto Bru);
+  - la luce sempre dall'alto a sinistra;
+  - tutte le direzioni hanno gli stessi pezzi, così lui e lei restano uguali
+    da ogni lato.
 - **Il passo ha quattro tempi**: un piede avanti, il passaggio con l'altra
   gamba piegata, l'altro piede avanti, di nuovo il passaggio. Le braccia vanno
   al contrario delle gambe; quando i due piedi sono a terra il corpo scende di
-  un pixel. Di spalle il piede che va avanti si alza invece di scendere,
-  perché si allontana.
-- **Lui**: capelli a punte, sciarpa bianca a frecce nere (di lato vola
-  dietro), giacca nera aperta sul petto, maniche arrotolate, polsini
-  d'argento, guanti, pantaloni a righe, ginocchiere grandi, stivali col
-  pannello bianco; lo spadone sulla schiena, che di spalle si vede tutto con
-  la riga nera lungo la lama.
-- **Lei**: la coda alta a punte, la fascia rossa con le stelle e l'anello
-  d'oro, le trecce, il top lavanda, i guanti lunghi col bordo grigio, la
-  cintura bianca, gli shorts, gli stivali alti fino alla coscia.
+  un pixel. Di lato braccia e gambe sono arti articolati, con lo stivale e il
+  guanto in fondo.
+- **Lui** ha:
+  - i capelli a punte;
+  - la sciarpa bianca arrotolata, con le code che di lato ondeggiano a ogni
+    passo;
+  - la giacca nera aperta sugli addominali e le maniche arrotolate;
+  - i guanti senza dita e la cintura con la fibbia;
+  - i jeans scuri strappati e gli stivali coi lacci bianchi;
+  - lo spadone sulla schiena: di fronte se ne vede l'elsa sopra la spalla, di
+    spalle tutto, di lato l'elsa dietro la testa.
+- **Lei** ha:
+  - i capelli raccolti a punte sopra la fascia larga prugna con le stelle;
+  - gli occhialoni d'ottone con le lenti arancio;
+  - la frangia e le ciocche lunghe ai lati;
+  - il top lavanda, la pancia scoperta e i guanti lunghi;
+  - la cintura bianca con le borchie, gli shorts e gli stivali alti.
 
 ## 7. Le domande per Bru
 
@@ -181,6 +193,9 @@ e `lei.png`. Nel gioco **P** passa dall'uno all'altra; dalla riga di comando
    mondi vengono? Ogni Vuoto potrebbe avere i suoi.
 4. **Il pianeta**: grande così (sei-dieci regioni, quattro o cinque minuti per
    finirlo col pilota, di più a mano) o più grande e più lento?
-5. **I protagonisti** (§6) adesso sono alti tre caselle: le case e gli
+5. **I protagonisti** (§6) adesso sono chibi alti tre caselle: le case e gli
    alberi del mondo sono rimasti piccoli. Li ingrandiamo (case da 3-4 caselle,
    alberi più alti), o teniamo i protagonisti più bassi?
+6. **Il resto del foglio di Bru** (le icone delle armi, le pozioni, la moneta,
+   gli effetti, le teste per i ritratti): li rifacciamo nello stesso modo, e
+   dove vanno nel gioco?

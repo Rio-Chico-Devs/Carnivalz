@@ -1,118 +1,108 @@
-# Le gambe e le braccia di lato, articolate, e la spada di spalle.
+# La vista di lato: le gambe e le braccia articolate (arti.py), con lo
+# stivale e il guanto attaccati in fondo; e le cose che non stanno in una
+# griglia: lo spadone di lui e le code della sciarpa che ondeggiano.
 from arti import traccia, disegna
+from pezzi import incolla, W, H
 
-# i tempi di lato: anca, ginocchio, caviglia per la gamba vicina e la lontana;
-# spalla, gomito, mano per il braccio vicino e il lontano; sobbalzo
+# anca, ginocchio, caviglia per la gamba vicina e la lontana; spalla, gomito,
+# mano per il braccio vicino e il lontano; quanto scende il corpo
 TEMPI_LATO = {
-    "fermo":  dict(g_vic=[(16, 29), (16, 36), (16, 43)], g_lon=[(14, 29), (14, 36), (14, 43)],
-                   b_vic=[(15, 19), (15, 25), (15, 31)], b_lon=[(13, 19), (13, 25), (13, 30)], su=0),
-    "passo1": dict(g_vic=[(16, 30), (19, 37), (21, 43)], g_lon=[(14, 30), (12, 37), (9, 43)],
-                   b_vic=[(15, 20), (13, 26), (11, 31)], b_lon=[(13, 20), (16, 26), (19, 29)], su=1),
-    "medio1": dict(g_vic=[(16, 29), (16, 36), (16, 43)], g_lon=[(14, 29), (18, 35), (16, 41)],
-                   b_vic=[(15, 19), (15, 25), (15, 31)], b_lon=[(13, 19), (13, 25), (13, 30)], su=0),
-    "passo2": dict(g_vic=[(16, 30), (13, 37), (10, 43)], g_lon=[(14, 30), (17, 37), (19, 43)],
-                   b_vic=[(15, 20), (18, 26), (21, 29)], b_lon=[(13, 20), (11, 26), (9, 30)], su=1),
-    "medio2": dict(g_vic=[(16, 29), (19, 35), (17, 41)], g_lon=[(14, 29), (14, 36), (14, 43)],
-                   b_vic=[(15, 19), (15, 25), (15, 31)], b_lon=[(13, 19), (13, 25), (13, 30)], su=0),
+    "fermo":  dict(g_vic=[(17, 34), (17, 37), (17, 40)], g_lon=[(15, 34), (15, 37), (15, 40)],
+                   b_vic=[(16, 25), (16, 29), (16, 32)], b_lon=[(14, 25), (14, 29), (14, 32)], su=0),
+    "passo1": dict(g_vic=[(17, 35), (19, 38), (21, 40)], g_lon=[(15, 35), (13, 38), (11, 40)],
+                   b_vic=[(16, 26), (14, 29), (12, 31)], b_lon=[(14, 26), (17, 29), (19, 31)], su=1),
+    "medio1": dict(g_vic=[(17, 34), (17, 37), (17, 40)], g_lon=[(15, 34), (18, 36), (16, 38)],
+                   b_vic=[(16, 25), (16, 29), (16, 32)], b_lon=[(14, 25), (14, 29), (14, 32)], su=0),
+    "passo2": dict(g_vic=[(17, 35), (15, 38), (12, 40)], g_lon=[(15, 35), (17, 38), (20, 40)],
+                   b_vic=[(16, 26), (18, 29), (20, 31)], b_lon=[(14, 26), (12, 29), (10, 31)], su=1),
+    "medio2": dict(g_vic=[(17, 34), (20, 36), (18, 38)], g_lon=[(15, 34), (15, 37), (15, 40)],
+                   b_vic=[(16, 25), (16, 29), (16, 32)], b_lon=[(14, 25), (14, 29), (14, 32)], su=0),
 }
 
-def piede(celle, caviglia, avanti=3):
-    ax, ay = caviglia
-    for y in range(ay - 1, ay + 2):
-        for x in range(ax - 2, ax + avanti + 1):
-            celle[(x, y)] = 1.0
-    return celle
+def gamba_lui(v, x, sinistra, vicina):
+    if not vicina:
+        return 'n' if x > sinistra + 1 else 'b'
+    if 0.3 < v < 0.42 or 0.62 < v < 0.72:
+        return 'p' if x in (sinistra + 2, sinistra + 3) else 'b'
+    return 'B' if x == sinistra + 1 else 'b'
 
-def gamba_lui(t, punti, vicina):
-    celle = piede(traccia(punti, 5), punti[-1])
-    suola = punti[-1][1] + 1
-    def colore(v, x, y):
-        if y >= suola - 0 and v >= 0.99:
-            return 'q' if vicina else 'b'
-        if v < 0.42:
-            if vicina:
-                return 'p' if y % 2 == 0 else 'P'
-            return 'P' if y % 2 == 0 else 'b'
-        if v < 0.55:
-            # la ginocchiera: il bordo chiaro in alto
-            return ('c' if v < 0.48 else 'K') if vicina else 'b'
-        if vicina and 0.62 < v < 0.75:
-            # il pannello bianco sullo stinco
-            sinistra = min(c[0] for c in celle if c[1] == y)
-            return 'q' if x in (sinistra + 2, sinistra + 3) else 'n'
-        return 'n' if vicina else 'b'
-    disegna(t, celle, colore)
+def gamba_lei(v, x, sinistra, vicina):
+    # la coscia nuda, il bordo dello stivale, lo stivale
+    if v < 0.3:
+        return ('l' if x == sinistra + 1 else 's') if vicina else 'S'
+    if v < 0.4:
+        return 'K' if vicina else 'j'
+    return ('J' if x == sinistra + 1 else 'j') if vicina else 'n'
 
-def braccio_lui(t, punti, vicino):
-    # la manica arrotolata al gomito: sotto si vede l'avambraccio, poi il
-    # polsino d'argento e il guanto
-    celle = traccia(punti, 4)
-    def colore(v, x, y):
-        sinistra = min(c[0] for c in celle if c[1] == y)
-        if v < 0.5:
-            return ('J' if x == sinistra + 1 else 'j') if vicino else 'n'
-        if v < 0.56:
-            return 'J' if vicino else 'n'
-        if v < 0.76:
-            return ('l' if x == sinistra + 1 else 's') if vicino else 'S'
-        if v < 0.82:
-            return 'q' if vicino else 'b'
-        return ('G' if x == sinistra + 1 else 'g') if vicino else 'b'
-    disegna(t, celle, colore)
-
-def spada_su(t, su):
-    # di spalle, sopra la giacca: l'elsa in alto a destra, la punta al fianco sinistro
-    lama = traccia([(22, 15 + su), (10, 31 + su)], 5)
-    def colore(v, x, y):
-        sinistra = min(c[0] for c in lama if c[1] == y)
-        destra = max(c[0] for c in lama if c[1] == y)
-        if x == sinistra + 1:
-            return 'y'
-        if x == destra - 1:
-            return 'Y'
-        # la riga nera lungo la lama, come nel disegno
-        return 'o' if x == sinistra + 2 and 0.2 < v < 0.8 else 'q'
-    disegna(t, lama, colore)
-    manico = traccia([(26, 9 + su), (23, 14 + su)], 2)
-    disegna(t, manico, lambda v, x, y: 'r' if (x + y) % 2 else 'R')
-    for x, y, ch in [(20, 14, 'o'), (21, 13, 'o'), (22, 14, 'Y'), (23, 15, 'Y'), (24, 15, 'o'), (25, 15, 'o'), (27, 8, 'o'), (27, 9, 'q'), (28, 9, 'o')]:
-        t[y + su][x] = ch
-
-TEMPI_LATO_LEI = {
-    "fermo":  dict(g_vic=[(16, 29), (16, 36), (16, 43)], g_lon=[(14, 29), (14, 36), (14, 43)],
-                   b_vic=[(15, 20), (15, 25), (15, 30)], b_lon=[(13, 20), (13, 25), (13, 29)], su=0),
-    "passo1": dict(g_vic=[(16, 30), (18, 37), (20, 43)], g_lon=[(14, 30), (12, 37), (10, 43)],
-                   b_vic=[(15, 21), (13, 26), (11, 30)], b_lon=[(13, 21), (15, 26), (18, 28)], su=1),
-    "medio1": dict(g_vic=[(16, 29), (16, 36), (16, 43)], g_lon=[(14, 29), (17, 35), (15, 41)],
-                   b_vic=[(15, 20), (15, 25), (15, 30)], b_lon=[(13, 20), (13, 25), (13, 29)], su=0),
-    "passo2": dict(g_vic=[(16, 30), (14, 37), (11, 43)], g_lon=[(14, 30), (16, 37), (18, 43)],
-                   b_vic=[(15, 21), (17, 26), (20, 28)], b_lon=[(13, 21), (11, 26), (9, 29)], su=1),
-    "medio2": dict(g_vic=[(16, 29), (18, 35), (16, 41)], g_lon=[(14, 29), (14, 36), (14, 43)],
-                   b_vic=[(15, 20), (15, 25), (15, 30)], b_lon=[(13, 20), (13, 25), (13, 29)], su=0),
-}
-
-def gamba_lei(t, punti, vicina):
-    celle = piede(traccia(punti, 5), punti[-1], 2)
-    # il tacco: sotto il calcagno
-    ax, ay = punti[-1]
-    celle[(ax - 2, ay + 2)] = 1.0
-    celle[(ax - 1, ay + 2)] = 1.0
-    def colore(v, x, y):
-        if v < 0.22:
-            return ('l' if (x + y) % 5 == 0 else 's') if vicina else 'S'
-        sinistra = min(c[0] for c in celle if c[1] == y)
-        if vicina and x == sinistra + 1:
-            return 'J'
-        return 'j' if vicina else 'n'
-    disegna(t, celle, colore)
-
-def braccio_lei(t, punti, vicino):
-    celle = traccia(punti, 4)
-    def colore(v, x, y):
-        sinistra = min(c[0] for c in celle if c[1] == y)
-        if v < 0.4:
-            return ('l' if x == sinistra + 1 else 's') if vicino else 'S'
-        if v < 0.47:
-            return 'c' if vicino else 'K'
+def braccio_lui(v, x, sinistra, vicino):
+    if v < 0.6:
         return ('J' if x == sinistra + 1 else 'j') if vicino else 'n'
+    return ('l' if x == sinistra + 1 else 's') if vicino else 'S'
+
+def braccio_lei(v, x, sinistra, vicino):
+    # la spalla nuda, poi il guanto lungo col bordo
+    if v < 0.22:
+        return ('l' if x == sinistra + 1 else 's') if vicino else 'S'
+    if v < 0.3:
+        return 'K' if vicino else 'j'
+    return ('J' if x == sinistra + 1 else 'j') if vicino else 'n'
+
+def gamba(t, punti, vicina, stivale, stivale_lontano, colori=gamba_lui):
+    celle = traccia(punti, 6)
+    def colore(v, x, y):
+        return colori(v, x, min(c[0] for c in celle if c[1] == y), vicina)
     disegna(t, celle, colore)
+    ax, ay = punti[-1]
+    incolla(t, stivale if vicina else stivale_lontano, ax - 2, ay)
+
+def braccio(t, punti, vicino, guanto, colori=braccio_lui, largo=5):
+    celle = traccia(punti, largo)
+    def colore(v, x, y):
+        return colori(v, x, min(c[0] for c in celle if c[1] == y), vicino)
+    disegna(t, celle, colore)
+    hx, hy = punti[-1]
+    g = guanto if vicino else [x.replace('G', 'g').replace('J', 'j').replace('j', 'n') for x in guanto]
+    incolla(t, g, hx - 1, hy)
+
+
+def spada(t, cx, cy, verso, giu=0):
+    """Lo spadone a 45 gradi; (cx, cy) e' la guardia. verso=+1: la lama
+    scende verso sinistra (di spalle), -1 verso destra (di fronte)."""
+    cy += giu
+    for y in range(H):
+        for x in range(W):
+            if verso > 0:
+                s, u = (x + y) - (cx + cy), (y - x) - (cy - cx)
+            else:
+                s, u = (x - y) - (cx - cy), (x + y) - (cx + cy)
+            ch = None
+            if 2 <= u <= 28 and abs(s) <= 2:
+                ch = 'o' if abs(s) == 2 else {-1: 'w', 0: 'c', 1: 'p'}[s]
+            elif 29 <= u <= 31 and abs(s) <= 1:
+                ch = 'o' if abs(s) == 1 else 'c'
+            elif u == 32 and s == 0:
+                ch = 'o'
+            elif -1 <= u <= 1 and abs(s) <= 4:
+                ch = 'o' if abs(s) == 4 or u != 0 else ('c' if s <= 0 else 'p')
+            elif -9 <= u <= -2 and abs(s) <= 1:
+                ch = 'o' if abs(s) == 1 else ('r' if u % 4 else 'R')
+            elif -11 <= u <= -10 and abs(s) <= 2:
+                ch = 'o' if abs(s) == 2 or u == -11 else 'c'
+            if ch:
+                t[y][x] = ch
+
+
+def elsa_lato(t, giu):
+    # di lato dello spadone si vede solo l'elsa, dietro la testa: la lama sta
+    # sulla schiena, di taglio, e si confonderebbe con le code della sciarpa
+    elsa = traccia([(5, 11 + giu), (8, 17 + giu)], 3)
+    disegna(t, elsa, lambda v, x, y: 'r' if y % 2 else 'R')
+    pomo = traccia([(4, 10 + giu), (5, 11 + giu)], 3)
+    disegna(t, pomo, lambda v, x, y: 'c')
+
+
+def code_sciarpa(t, onda, giu):
+    # le due code della sciarpa, dietro il collo: pendono e ondeggiano col passo
+    for punti in (([(12, 22), (8, 24), (5, 28 - onda)]), ([(12, 24), (10, 27), (8 - onda, 31)])):
+        c = traccia([(x, y + giu) for x, y in punti], 3)
+        disegna(t, c, lambda v, x, y: 'o' if 0.45 < v < 0.55 else ('W' if v > 0.8 else 'w'))
