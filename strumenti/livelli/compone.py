@@ -379,8 +379,6 @@ PARETI = (
     # la cima, sopra
     [(818, 178, 51), (840, 171, 58), (900, 169, 60), (923, 163, 66), (935, 155, 74), (950, 143, 86),
      (967, 124, 105), (1000, 122, 108)],
-    # il fianco ovest della cima, accanto alla scala alta
-    [(784, 40, 12), (790, 60, 30), (796, 100, 40), (802, 130, 40)],
     # il muro ovest del promontorio di destra
     [(1000, 122, 200), (1012, 112, 260), (1024, 104, 330), (1038, 96, 370)],
     # il ripiano in alto a destra
