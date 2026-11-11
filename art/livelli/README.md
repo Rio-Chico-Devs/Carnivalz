@@ -10,18 +10,32 @@ che dice dove si cammina.
 
 | livello | cos'è |
 |---|---|
-| `pianure` | **Le Pianure di Redenna**, il primo livello. È il disegno di Bru, tenuto uguale e messo in ordine secondo la tabella di marcia del tutorial |
-| `panottico` | **Il Panottico silenzioso**: dietro la porta enorme oltre l'altare della bambola, nella Casa Gigante. È il disegno di Bru («THE SILENT PANOPTICON»), preso uguale |
+| `pianure` | **Le Pianure di Redenna**, il primo livello. È il disegno di Bru, fatto pixel art pulita e messo in ordine secondo la tabella di marcia del tutorial |
+| `panottico` | **Il Panottico silenzioso**: dietro la porta enorme oltre l'altare della bambola, nella Casa Gigante. È il disegno di Bru («THE SILENT PANOPTICON»), pulito |
 
 ## La mappa: `<nome>.png`
 
-- **Un disegno, preso uguale.** I pixel restano quelli di Bru: lo strumento
-  toglie solo quello che non è mappa, o quello che va contro la tabella di
-  marcia.
-- **La misura la dice la pianta** (`scala`). Il Panottico è già alla misura
-  del mondo: lei è alta come le sagome nelle capsule. Le Pianure sono
-  disegnate più piccole, e il gioco le ingrandisce due volte: così lei è alta
-  come la capsula, e gli alberi e le pareti sono più alti di lei.
+- **Il disegno di Bru, fatto pixel art pulita.** Lo strumento toglie quello
+  che non è mappa, o quello che va contro la tabella di marcia, e lo rende
+  nitido. Bru: «bisogna rendere tutto più chiaro e bello da vedere per adesso
+  è tutto blurroso».
+- **Pulita.** Via la grana del JPG (ogni pixel prende la media dei vicini di
+  colore quasi uguale, e i bordi restano), i contorni un poco più netti, e
+  nelle Pianure i colori un poco più vivi.
+- **Ingrandita poco, a blocchi interi.** Sullo schermo ogni pixel del disegno
+  è un blocco di 2×2, nei due livelli:
+  - le Pianure: il gioco le ingrandisce 2 volte (`scala`), e la telecamera 1;
+    lei è alta come la capsula, e si vede un bel pezzo di prato;
+  - il Panottico: il gioco 1 volta, la telecamera 2; lei è alta come le
+    sagome nelle capsule.
+
+  Prima le Pianure erano ingrandite 4 volte, col JPG dentro: era quello lo
+  sfocato.
+- **Provato e scartato: la griglia.** Il disegno delle Pianure ha un salto di
+  colore ogni 2 pixel (è stato ingrandito due volte prima del JPG). Ricalcato
+  un pixel ogni 2 torna di 668×392, ma alla grandezza del gioco viene a
+  blocchi e perde il dettaglio delle chiome. Lo strumento sa ancora farlo
+  (`griglia`, e nella pianta `pixel`).
 - Vista **dall'alto e un po' di fronte**: i muri si vedono di faccia, i
   pavimenti da sopra.
 - **Dove non c'è mappa è trasparente**: il gioco ci mette il buio.
@@ -40,6 +54,22 @@ Cosa toglie `strumenti/livelli/ricalca_livello.py`:
     dell'albero;
   - la scorciatoia dal bivio all'arena: lì c'è una siepe di rovi, fatta coi
     grovigli della zona corrotta.
+
+### Dove si cammina: `<passi>`
+
+Una maschera, un pixel per pixel della mappa. La scrive lo strumento:
+
+- il `pavimento` della pianta;
+- meno gli `ostacoli` (colonne, tronchi, laghetti, il cratere);
+- meno l'acqua e le chiome scure, riconosciute dal colore.
+
+Fanno eccezione:
+
+- dove la pianta dice `si_passa`: le scale e il ponticello;
+- sotto le chiome che le passano davanti, dove lei ci va dietro e bloccano
+  solo i tronchi.
+
+Bru: «gli ostacoli, colonne, acqua etc devono esserci».
 
 ### Le cose alte: `<nome>_sopra.png`
 
@@ -60,7 +90,8 @@ Tutti i numeri sono pixel del disegno (prima della `scala`):
 |---|---|
 | `nome` | il nome del livello, scritto sopra il nome di ogni stanza |
 | `mappa` | il PNG |
-| `scala`, `ingrandimento` | quante volte il gioco ingrandisce il disegno, e quanto la telecamera (se mancano, 1 e 3) |
+| `scala`, `ingrandimento` | quante volte il gioco ingrandisce il disegno, e quanto la telecamera (se mancano, 1 e 3). `pixel`: quanti pixel del disegno fanno un pixel della mappa, se lo strumento l'ha ricalcata più piccola (se manca, 1) |
+| `passi`, `si_passa` | la maschera di dove si cammina, e dove si passa anche se il colore dice acqua o chioma (le scale) |
 | `limiti` | fin dove arriva la telecamera |
 | `partenza`, `verso` | dove si entra, e da che parte si guarda (`[0, 1]` giù) |
 | `stanze` | i nomi delle stanze (o delle tappe) col loro rettangolo (`rett`) o poligono (`poligono`): entrandoci compare il nome |

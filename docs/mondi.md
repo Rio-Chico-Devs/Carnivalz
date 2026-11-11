@@ -284,6 +284,46 @@ del formato sono in `art/livelli/README.md`.
     F6 su prove/LivelloProva.tscn                  le Pianure (P passa da lei a lui)
     prove/LivelloProva.tscn -- livello panottico   il Panottico
 
+### Nitide
+
+Bru, sul primo giro: «come inizio non c'è male, ma bisogna rendere tutto più
+chiaro e bello da vedere per adesso è tutto blurroso, oltre che gli ostacoli,
+colonne, acqua etc devono esserci, quindi concentriamoci a migliorare la pixel
+art per ora per renderla più di qualità».
+
+Lo sfocato veniva da due cose: il JPG, e l'ingrandimento. Le Pianure erano
+ingrandite quattro volte, con dentro la grana e gli sbavi del JPG.
+
+- **Ingrandite poco, a blocchi interi.** Sullo schermo ogni pixel del disegno
+  è un blocco di 2×2, nei due livelli:
+  - le Pianure: la telecamera non ingrandisce. Lei è alta 56, e si vede un bel
+    pezzo di prato;
+  - il Panottico: la telecamera ingrandisce 2 invece di 3, e i pixel del
+    disegno sono grandi come quelli di lei.
+- **Pulite.** Via la grana del JPG: ogni pixel prende la media dei vicini di
+  colore quasi uguale, e i bordi restano. I contorni sono un poco più netti,
+  e nelle Pianure i colori un poco più vivi.
+- **Provate e scartate:**
+  - **la griglia.** Il disegno delle Pianure ha un salto di colore ogni 2
+    pixel, perché è stato ingrandito due volte prima del JPG. Ricalcato un
+    pixel ogni 2 torna di 668×392, ma alla grandezza del gioco viene a
+    blocchi e perde il dettaglio delle chiome, del masso e dei muretti;
+  - **una tavolozza piccola** (64 o 96 colori): spariscono i contorni scuri,
+    il masso perde la forma, e il vetro delle capsule l'azzurro;
+  - **togliere la nebbia del promontorio in automatico**: lascia macchie
+    scure sulle scale e chiazze bianche sulla palude. La nebbia resta, è del
+    disegno.
+
+**Gli ostacoli ci sono.** Nelle Pianure dove si cammina è una maschera, pixel
+per pixel (`art/livelli/pianure_passi.png`): il pavimento della pianta, meno
+gli ostacoli, meno l'acqua e le chiome scure riconosciute dal colore. Le ombre
+sul prato hanno il colore dell'acqua, ma sono più scure: non bloccano. E un
+pixel da solo non conta (i riflessi azzurri dentro i pini): conta se almeno
+quattro dei suoi otto vicini sono come lui. Fanno
+eccezione le scale e il ponticello, e sotto le chiome che le passano davanti
+bloccano solo i tronchi. Nel Panottico bloccano i muri, le capsule, le
+colonne, i cavi della sfera e i sassi.
+
 ### Le Pianure di Redenna
 
 Bru: «ecco come mi piacerebbe che fosse la mappa delle pianure, creiamola
@@ -291,10 +331,9 @@ cosi ma riorganiziamola secondo la nostra tabella di marcia, creiamo anche un
 uscita verso la boss area sia dalla parte della palude dopo l'incontro con
 la tartaruga che dal promontorio, la grafica la voglio esattamente cosi».
 
-**La grafica è quella.** Il disegno si tiene intero, e il gioco lo ingrandisce
-due volte (la telecamera due, non tre). Così lei è alta come la capsula, e gli
-alberi e le pareti sono più alti di lei. Si ritocca in due posti soli
-(`strumenti/livelli/ricalca_livello.py`):
+**La grafica è quella**, fatta pixel art pulita (vedi «Nitide» qui sotto). Lei
+è alta come la capsula, e gli alberi e le pareti sono più alti di lei. Il
+disegno si ritocca in due posti soli (`strumenti/livelli/ricalca_livello.py`):
 
 - il riquadro nero col disegno della caverna, accanto all'albero, era
   un'etichetta e non un posto: al suo posto il prato, il muretto e il bordo
@@ -365,11 +404,12 @@ grande casa, quello bloccato all'accesso». È il livello dietro la porta enorme
 oltre l'altare della Casa Gigante.
 
 - **La misura giusta è uno a uno.** Un pixel del disegno è un pixel del
-  mondo, ingrandito tre volte come i pianeti, e lei è alta come le sagome
-  nelle capsule.
-- **I pixel restano tutti com'erano.** Ridotti a una tavolozza, il vetro delle
-  capsule perdeva l'azzurro e i pavimenti si riempivano di puntini.
-- **Si toglie solo quello che non è mappa:**
+  mondo, e lei è alta come le sagome nelle capsule. La telecamera ingrandisce
+  due volte.
+- **I colori restano tutti.** Si toglie solo la grana del JPG (vedi
+  «Nitide»): ridotti a una tavolozza, il vetro delle capsule perdeva
+  l'azzurro e i pavimenti si riempivano di puntini.
+- **Si toglie quello che non è mappa:**
   - la scacchiera, il titolo, i nomi scritti fuori, la bussola e la legenda
     (fuori dalle stanze è trasparente, e il gioco ci mette il buio);
   - la scritta sul pavimento del corridoio, rifatta con le piastrelle di

@@ -3,6 +3,8 @@
 	"nome": "Il Panottico silenzioso",
 	"_nome": "Bru: «THE SILENT PANOPTICON».",
 	"mappa": "panottico.png",
+	"ingrandimento": 2,
+	"_ingrandimento": "La telecamera ingrandisce due volte: i pixel del disegno restano netti, e sono grandi come quelli di lei.",
 	"limiti": [44, 128, 1010, 946],
 	"partenza": [191, 240],
 	"_partenza": "Si entra dalla porta in alto della camera stagna: e' quella che da' sull'altare. Per adesso non si riapre.",

@@ -4,8 +4,18 @@
 	"mappa": "pianure.png",
 	"sopra_mappa": "pianure_sopra.png",
 	"scala": 2,
-	"ingrandimento": 2,
-	"_scala": "Ingrandito due volte lei e' alta come la capsula, e gli alberi e le pareti sono piu' alti di lei. La telecamera ingrandisce due volte invece di tre: si vede di piu' del prato.",
+	"ingrandimento": 1,
+	"_scala": "I numeri qui sono pixel del disegno di Bru (1336x784). Il gioco lo ingrandisce due volte ('scala': 2): lei e' alta come la capsula, e gli alberi e le pareti sono piu' alti di lei. La telecamera non ingrandisce ('ingrandimento': 1): ogni pixel del disegno e' un blocco netto di 2x2, e si vede un bel pezzo di prato.",
+	"passi": "pianure_passi.png",
+	"_passi": "Dove si cammina pixel per pixel, scritto da ricalca_livello.py: il pavimento qui sotto, meno gli ostacoli, meno l'acqua e le chiome scure riconosciute dal colore, tranne dove 'si_passa' (le scale e il ponticello).",
+	"si_passa": [
+		[661, 684, 686, 728],
+		[805, 428, 832, 458],
+		[742, 224, 758, 272],
+		[[788, 196], [802, 198], [834, 156], [822, 148]],
+		[452, 112, 490, 206],
+		[790, 546, 810, 592]
+	],
 	"limiti": [0, 0, 1336, 784],
 	"partenza": [700, 762],
 	"verso": [0, -1],
@@ -60,23 +70,23 @@
 	],
 	"_ostacoli": "La capsula; i muretti del recinto; i tronchi dei tre alberi sopra il recinto; il cratere col masso; le rovine sulla piattaforma; i tre laghetti del bivio; i tronchi dei pini sotto la sporgenza; la colonna, l'arco e il pino sulla sporgenza; le colonne, i pini e i tronchi caduti sulla cima; due colonne nella zona corrotta.",
 	"sopra": [
-		[754, 570, 858, 636, 632],
-		[695, 236, 736, 294, 290],
-		[768, 242, 817, 304, 300],
-		[838, 238, 882, 292, 288],
-		[918, 256, 969, 320, 316],
-		[604, 326, 748, 505, 492],
-		[760, 118, 794, 168, 165],
-		[900, 36, 960, 100, 97]
+		[750, 566, 862, 636, 632],
+		[691, 232, 740, 294, 290],
+		[764, 238, 821, 304, 300],
+		[834, 234, 886, 292, 288],
+		[914, 252, 973, 320, 316],
+		[600, 322, 752, 505, 492],
+		[756, 114, 798, 168, 165],
+		[896, 32, 964, 100, 97]
 	],
 	"_sopra": "Le cose alte che coprono chi ci passa dietro: [x0, y0, x1, y1, piede]. Dentro il rettangolo si ritagliano dalla mappa i pixel scuri (le chiome), in pianure_sopra.png, e si disegnano sopra di lei quando lei sta piu' su del piede. Sono i tre alberi sopra il recinto, i pini sotto la sporgenza, il grande albero, il pino della sporgenza e i pini della cima.",
 	"giro": [
 		[700, 762], [700, 738], [673, 724], [673, 688], [673, 678], [740, 706], [800, 706], [810, 680],
-		[800, 706], [740, 700], [740, 642], [750, 600], [790, 594], [800, 570], [805, 545], [850, 530],
+		[800, 706], [740, 700], [740, 642], [750, 600], [790, 594], [800, 570], [805, 545], [836, 547], [856, 530],
 		[860, 500], [820, 462], [770, 462], [818, 462], [818, 444], [800, 430], [760, 420], [758, 350],
 		[720, 308], [672, 254], [630, 236], [606, 262], [606, 222], [560, 212], [500, 211], [471, 205],
 		[471, 116], [471, 80], [600, 85], [665, 70], [690, 115], [725, 140], [745, 190], [792, 194],
-		[828, 152], [850, 120], [828, 152], [792, 194], [750, 215], [750, 260], [750, 282], [690, 254]
+		[828, 152], [850, 120], [828, 152], [792, 194], [756, 196], [750, 215], [750, 260], [750, 282], [690, 254]
 	],
 	"_giro": "Il giro del pilota: dalla capsula al pasto del goblin, la pianura, il ponticello, il piede dell'albero, il masso, il bivio, le pozze, la riva nord, la tartaruga e su per la scala della rupe (la prima uscita); di la' verso le urla fino all'arena, poi giu' dalla zona corrotta sulla sporgenza (la seconda uscita, fatta al contrario), la cima, e di nuovo al bivio."
 }

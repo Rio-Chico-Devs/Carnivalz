@@ -51,6 +51,7 @@ var cartello := {}               # {titolo, eta}
 var buio := 0.0
 var tappa := 1                   # il pilota: il prossimo punto del giro
 var bloccato := 0.0
+var vicino := INF                # il pilota: quanto e' arrivato vicino alla tappa
 var fotogrammi := 0
 
 
@@ -88,7 +89,7 @@ func costruisci() -> void:
 	add_child(fondo)
 	var mappa := Sprite2D.new()
 	mappa.centered = false
-	mappa.scale = Vector2.ONE * pianta.scala
+	mappa.scale = Vector2.ONE * pianta.scala * pianta.pixel
 	mappa.texture = trama(pianta.mappa, "python3 strumenti/livelli/ricalca_livello.py")
 	add_child(mappa)
 	# lei e le cose alte stanno insieme, in ordine di piede: chi ha il piede
@@ -106,10 +107,14 @@ func costruisci() -> void:
 			pezzo.texture = alte
 			pezzo.centered = false
 			pezzo.region_enabled = true
-			pezzo.region_rect = Rect2(r.position / pianta.scala, r.size / pianta.scala)
-			pezzo.scale = Vector2.ONE * pianta.scala
-			pezzo.position = Vector2(r.position.x, piede)
-			pezzo.offset = Vector2(0, (r.position.y - piede) / pianta.scala)
+			# in pixel della mappa: il rettangolo allargato ai pixel interi
+			var k := pianta.scala * pianta.pixel
+			var da := (r.position / k).floor()
+			var a := (r.end / k).ceil()
+			pezzo.region_rect = Rect2(da, a - da)
+			pezzo.scale = Vector2.ONE * k
+			pezzo.position = Vector2(da.x * k, piede)
+			pezzo.offset = Vector2(0, da.y - piede / k)
 			mondo.add_child(pezzo)
 	io = Sprite2D.new()
 	io.vframes = 3
@@ -169,6 +174,7 @@ func _process(delta: float) -> void:
 		direzione = pianta.verso_il_giro(piedi, tappa)
 		if direzione == Vector2.ZERO and tappa < pianta.giro.size():
 			tappa += 1
+			vicino = INF
 			direzione = pianta.verso_il_giro(piedi, tappa)
 	else:
 		direzione = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
@@ -176,12 +182,10 @@ func _process(delta: float) -> void:
 			direzione = Vector2(
 				float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)),
 				float(Input.is_physical_key_pressed(KEY_S)) - float(Input.is_physical_key_pressed(KEY_W)))
-	var prima := piedi
 	cammina(direzione, delta)
 	var porta := pianta.porta_a(piedi)
 	if porta >= 0:
 		passa(porta)
-	var mosso := piedi.distance_to(prima) > 0.01
 	buio = maxf(0.0, buio - delta)
 	if not cartello.is_empty():
 		cartello["eta"] = float(cartello["eta"]) + delta
@@ -191,7 +195,7 @@ func _process(delta: float) -> void:
 	if anteprima >= 0 and fotogrammi == anteprima:
 		fotografa("anteprima")
 	if film:
-		controlla_il_pilota(direzione != Vector2.ZERO and not mosso, delta)
+		controlla_il_pilota(delta)
 
 
 func cammina(direzione: Vector2, delta: float) -> void:
@@ -220,6 +224,7 @@ func passa(porta: int) -> void:
 	buio = BUIO
 	if film:
 		tappa += 1
+		vicino = INF
 
 
 func segui() -> void:
@@ -244,14 +249,21 @@ func segui() -> void:
 		cartello = {"titolo": stanza.to_upper(), "eta": 0.0}
 
 
-func controlla_il_pilota(fermo_contro_qualcosa: bool, delta: float) -> void:
+func controlla_il_pilota(delta: float) -> void:
 	if tappa >= pianta.giro.size():
 		print("GIRO FINITO %d" % fotogrammi)
 		get_tree().quit()
 		return
-	bloccato = bloccato + delta if fermo_contro_qualcosa else 0.0
-	if bloccato > 1.0:
-		push_error("il pilota si e' fermato a %s, verso la tappa %d" % [piedi.round(), tappa])
+	# fermo: non si avvicina alla tappa per due secondi (anche se scivola
+	# avanti e indietro contro uno spigolo)
+	var manca := piedi.distance_to(pianta.giro[tappa])
+	if manca < vicino - 0.5:
+		vicino = manca
+		bloccato = 0.0
+	else:
+		bloccato += delta
+	if bloccato > 2.0:
+		push_error("il pilota si e' fermato a %s (nel disegno), verso la tappa %d" % [(piedi / pianta.scala).round(), tappa])
 		get_tree().quit(1)
 
 

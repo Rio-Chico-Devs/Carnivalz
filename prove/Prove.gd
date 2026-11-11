@@ -377,7 +377,7 @@ func prova_i_livelli_disegnati_si_attraversano() -> void:
 		var trama: Texture2D = load(p.mappa) if ResourceLoader.exists(p.mappa) else null
 		esigi(trama != null, "il livello %s: manca la mappa %s" % [nome, p.mappa])
 		if trama != null:
-			esigi(Rect2(Vector2.ZERO, trama.get_size() * p.scala).encloses(p.limiti),
+			esigi(Rect2(Vector2.ZERO, trama.get_size() * p.scala * p.pixel).encloses(p.limiti),
 				"il livello %s: i limiti %s escono dalla mappa (%s)" % [nome, p.limiti, trama.get_size()])
 		for r in p.pavimento:
 			esigi(p.limiti.encloses(r), "il livello %s: il pavimento %s esce dai limiti" % [nome, r])

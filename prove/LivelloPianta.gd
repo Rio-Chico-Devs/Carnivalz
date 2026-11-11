@@ -9,7 +9,11 @@ extends RefCounted
 # I numeri sono pixel del disegno: un rettangolo e' [x0, y0, x1, y1], con x1 e
 # y1 fuori; un poligono e' una lista di punti [[x, y], ...]. "scala" dice
 # quante volte il gioco ingrandisce il disegno (le Pianure: 2): qui dentro,
-# dopo averla letta, tutto e' gia' in pixel del mondo. Dove si cammina conta
+# dopo averla letta, tutto e' gia' in pixel del mondo. "pixel" dice quanti
+# pixel del disegno fanno un pixel della mappa (le Pianure: 2, il disegno era
+# ingrandito due volte). Con "passi" dove si cammina e' una maschera, un
+# pixel per pixel della mappa (la scrive strumenti/livelli/ricalca_livello.py:
+# il pavimento meno gli ostacoli, l'acqua e le chiome). Dove si cammina conta
 # il piede, il punto per terra al centro dei piedi: e' un rettangolo di 10x6,
 # come nei mondi (MondoProva.libero).
 
@@ -23,7 +27,9 @@ var titolo := ""
 var mappa := ""
 var mappa_sopra := ""                    # le cose alte, ritagliate dalla mappa ("" se non ce ne sono)
 var scala := 1.0
+var pixel := 1.0                         # pixel del disegno per pixel della mappa
 var ingrandimento := 3.0                 # quanto ingrandisce la telecamera
+var passi: Image                         # dove si cammina, pixel per pixel della mappa (o null)
 var limiti := Rect2()
 var partenza := Vector2.ZERO
 var verso := Vector2i(0, 1)
@@ -53,7 +59,16 @@ func carica(quale: String) -> bool:
 	mappa = "res://art/livelli/" + String(d.get("mappa", quale + ".png"))
 	mappa_sopra = "res://art/livelli/" + String(d["sopra_mappa"]) if d.has("sopra_mappa") else ""
 	scala = float(d.get("scala", 1.0))
+	pixel = float(d.get("pixel", 1.0))
 	ingrandimento = float(d.get("ingrandimento", 3.0))
+	passi = null
+	if d.has("passi"):
+		var percorso_passi := "res://art/livelli/" + String(d["passi"])
+		passi = Image.new()
+		if not FileAccess.file_exists(percorso_passi) \
+				or passi.load_png_from_buffer(FileAccess.get_file_as_bytes(percorso_passi)) != OK:
+			errore = "manca %s: python3 strumenti/livelli/ricalca_livello.py" % percorso_passi
+			return false
 	limiti = rettangolo(d.get("limiti", [0, 0, 0, 0]))
 	partenza = punto(d.get("partenza", [0, 0]))
 	var v: Array = d.get("verso", [0, 1])
@@ -118,6 +133,14 @@ func poligono(a: Variant) -> PackedVector2Array:
 # ---------------------------------------------------------------- dove si cammina
 
 func calpestabile(q: Vector2) -> bool:
+	if passi != null:
+		for porta in porte:
+			var dentro: Rect2 = porta["zona"]
+			if dentro.has_point(q):
+				return true
+		var m := Vector2i((q / (scala * pixel)).floor())
+		return m.x >= 0 and m.y >= 0 and m.x < passi.get_width() and m.y < passi.get_height() \
+			and passi.get_pixelv(m).a > 0.5
 	for o in ostacoli:
 		if o.has_point(q):
 			return false
@@ -210,21 +233,30 @@ func fai_il_giro() -> String:
 	var p := partenza
 	var tappa := 1
 	var fermo := 0.0
+	var vicino := INF                    # quanto si e' arrivati vicini alla tappa
 	var tempo := 0.0
 	var viste := {}
 	while tappa < giro.size():
 		var direzione := verso_il_giro(p, tappa)
 		if direzione == Vector2.ZERO:
 			tappa += 1
+			vicino = INF
 			continue
 		var dopo := cammina(p, direzione, PASSO_DI_PROVA)
 		var porta := porta_a(dopo)
 		if porta >= 0:
 			dopo = porte[porta]["a"]
 			tappa += 1
-		fermo = fermo + PASSO_DI_PROVA if dopo.distance_to(p) < 0.01 else 0.0
-		if fermo > 1.0:
-			return "il pilota si ferma a %s andando verso %s (tappa %d)" % [p.round(), giro[tappa], tappa]
+			vicino = INF
+		# fermo: non si avvicina alla tappa (anche se scivola avanti e indietro)
+		var manca := dopo.distance_to(giro[mini(tappa, giro.size() - 1)])
+		if manca < vicino - 0.5:
+			vicino = manca
+			fermo = 0.0
+		else:
+			fermo += PASSO_DI_PROVA
+		if fermo > 2.0:
+			return "il pilota si ferma a %s andando verso %s (tappa %d)" % [(p / scala).round(), giro[tappa] / scala, tappa]
 		p = dopo
 		viste[stanza_a(p)] = true
 		tempo += PASSO_DI_PROVA
