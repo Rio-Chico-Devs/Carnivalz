@@ -2,9 +2,9 @@ extends Node2D
 # UN LIVELLO DISEGNATO, DA ATTRAVERSARE A PIEDI. La mappa e' un disegno intero
 # (art/livelli/<nome>.png), non tessere: lo si guarda dall'alto e un po' di
 # fronte come i mondi (prove/MondoProva.gd), con la telecamera che segue.
-# Dove si cammina, le porte, le stanze, quanto si ingrandisce e le cose alte
-# che le passano davanti stanno nella pianta accanto (art/livelli/<nome>.json,
-# prove/LivelloPianta.gd).
+# Dove si cammina, le porte, le stanze, quanto si ingrandisce e i pezzi che
+# stanno in piedi (le cose alte che le passano davanti) stanno nella pianta
+# accanto (art/livelli/<nome>.json, prove/LivelloPianta.gd).
 # Provvisorio come i mondi: e' la prova di come ci si muove dentro un livello
 # disegnato, non ancora un pezzo del gioco.
 #
@@ -90,32 +90,25 @@ func costruisci() -> void:
 	var mappa := Sprite2D.new()
 	mappa.centered = false
 	mappa.scale = Vector2.ONE * pianta.scala * pianta.pixel
-	mappa.texture = trama(pianta.mappa, "python3 strumenti/livelli/ricalca_livello.py")
+	mappa.texture = trama(pianta.mappa, "python3 strumenti/livelli/compone.py (le Pianure) o ricalca_livello.py")
 	add_child(mappa)
-	# lei e le cose alte stanno insieme, in ordine di piede: chi ha il piede
-	# piu' in basso e' davanti. Le cose alte sono pezzi della mappa ritagliati
-	# (le chiome degli alberi), rimessi esattamente al loro posto
+	# lei e i pezzi che stanno in piedi (alberi, rovine, rocce...) stanno
+	# insieme, in ordine di piede: chi ha il piede piu' in basso e' davanti
 	var mondo := Node2D.new()
 	mondo.y_sort_enabled = true
 	add_child(mondo)
-	if not pianta.mappa_sopra.is_empty():
-		var alte := trama(pianta.mappa_sopra, "python3 strumenti/livelli/ricalca_livello.py")
-		for cosa in pianta.sopra:
-			var r: Rect2 = cosa["rett"]
-			var piede: float = cosa["piede"]
-			var pezzo := Sprite2D.new()
-			pezzo.texture = alte
-			pezzo.centered = false
-			pezzo.region_enabled = true
-			# in pixel della mappa: il rettangolo allargato ai pixel interi
-			var k := pianta.scala * pianta.pixel
-			var da := (r.position / k).floor()
-			var a := (r.end / k).ceil()
-			pezzo.region_rect = Rect2(da, a - da)
-			pezzo.scale = Vector2.ONE * k
-			pezzo.position = Vector2(da.x * k, piede)
-			pezzo.offset = Vector2(0, da.y - piede / k)
-			mondo.add_child(pezzo)
+	var disegni := {}
+	for cosa in pianta.pezzi:
+		var file: String = cosa["file"]
+		if not disegni.has(file):
+			disegni[file] = load(file) as Texture2D if ResourceLoader.exists(file) \
+				else trama(file, "python3 strumenti/livelli/oggetti.py")
+		var pezzo := Sprite2D.new()
+		pezzo.texture = disegni[file]
+		pezzo.centered = false
+		pezzo.position = cosa["piede"]
+		pezzo.offset = -(cosa["dentro"] as Vector2)
+		mondo.add_child(pezzo)
 	io = Sprite2D.new()
 	io.vframes = 3
 	io.centered = false

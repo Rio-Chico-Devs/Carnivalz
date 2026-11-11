@@ -1,7 +1,7 @@
 extends RefCounted
 # LA PIANTA DI UN LIVELLO DISEGNATO: dove si cammina, gli ostacoli, le porte,
-# le stanze, le cose alte che coprono chi ci passa dietro e il giro del pilota
-# automatico. La legge prove/LivelloProva.gd per farci camminare, e la usano
+# le stanze, i pezzi che stanno in piedi (le cose alte che coprono chi ci passa
+# dietro) e il giro del pilota automatico. La legge prove/LivelloProva.gd per farci camminare, e la usano
 # le prove (prove/Prove.gd) per far fare al pilota il giro intero senza
 # finestra.
 #
@@ -10,10 +10,12 @@ extends RefCounted
 # y1 fuori; un poligono e' una lista di punti [[x, y], ...]. "scala" dice
 # quante volte il gioco ingrandisce il disegno (le Pianure: 2): qui dentro,
 # dopo averla letta, tutto e' gia' in pixel del mondo. "pixel" dice quanti
-# pixel del disegno fanno un pixel della mappa (le Pianure: 2, il disegno era
-# ingrandito due volte). Con "passi" dove si cammina e' una maschera, un
-# pixel per pixel della mappa (la scrive strumenti/livelli/ricalca_livello.py:
-# il pavimento meno gli ostacoli, l'acqua e le chiome). Dove si cammina conta
+# pixel del disegno fanno un pixel della mappa (le Pianure: 0.5, la mappa e'
+# alla misura del mondo). Con "passi" dove si cammina e' una maschera, un
+# pixel per pixel della mappa (per le Pianure la scrive
+# strumenti/livelli/compone.py: il pavimento meno gli ostacoli, l'acqua, le
+# pareti e i piedi dei pezzi). "pezzi" e' il file dei pezzi: [file, x, y, x e
+# y del piede nel disegno del pezzo], in pixel del mondo. Dove si cammina conta
 # il piede, il punto per terra al centro dei piedi: e' un rettangolo di 10x6,
 # come nei mondi (MondoProva.libero).
 
@@ -25,7 +27,6 @@ const PASSO_DI_PROVA := 1.0 / 60.0
 var nome := ""
 var titolo := ""
 var mappa := ""
-var mappa_sopra := ""                    # le cose alte, ritagliate dalla mappa ("" se non ce ne sono)
 var scala := 1.0
 var pixel := 1.0                         # pixel del disegno per pixel della mappa
 var ingrandimento := 3.0                 # quanto ingrandisce la telecamera
@@ -39,7 +40,7 @@ var ostacoli: Array[Rect2] = []
 var ostacoli_poligoni: Array[PackedVector2Array] = []
 var porte: Array[Dictionary] = []        # {zona: Rect2, a: Vector2, verso: Vector2i}
 var stanze: Array[Dictionary] = []       # {nome: String, rett: Rect2, poligono: PackedVector2Array}
-var sopra: Array[Dictionary] = []        # {rett: Rect2, piede: float}
+var pezzi: Array[Dictionary] = []        # {file: String, piede: Vector2 (nel mondo), dentro: Vector2 (nel disegno)}
 var giro: Array[Vector2] = []
 var errore := ""
 
@@ -57,7 +58,6 @@ func carica(quale: String) -> bool:
 	var d: Dictionary = letto
 	titolo = String(d.get("nome", quale))
 	mappa = "res://art/livelli/" + String(d.get("mappa", quale + ".png"))
-	mappa_sopra = "res://art/livelli/" + String(d["sopra_mappa"]) if d.has("sopra_mappa") else ""
 	scala = float(d.get("scala", 1.0))
 	pixel = float(d.get("pixel", 1.0))
 	ingrandimento = float(d.get("ingrandimento", 3.0))
@@ -67,7 +67,7 @@ func carica(quale: String) -> bool:
 		passi = Image.new()
 		if not FileAccess.file_exists(percorso_passi) \
 				or passi.load_png_from_buffer(FileAccess.get_file_as_bytes(percorso_passi)) != OK:
-			errore = "manca %s: python3 strumenti/livelli/ricalca_livello.py" % percorso_passi
+			errore = "manca %s: python3 strumenti/livelli/compone.py" % percorso_passi
 			return false
 	limiti = rettangolo(d.get("limiti", [0, 0, 0, 0]))
 	partenza = punto(d.get("partenza", [0, 0]))
@@ -93,10 +93,20 @@ func carica(quale: String) -> bool:
 		stanze.append({"nome": String(stanza.get("nome", "")),
 			"rett": rettangolo(stanza["rett"]) if stanza.has("rett") else Rect2(),
 			"poligono": poligono(stanza["poligono"]) if stanza.has("poligono") else PackedVector2Array()})
-	sopra.clear()
-	for s: Variant in d.get("sopra", []):
-		var cosa: Array = s
-		sopra.append({"rett": rettangolo(cosa.slice(0, 4)), "piede": float(cosa[4]) * scala})
+	pezzi.clear()
+	if d.has("pezzi"):
+		var percorso_pezzi := "res://art/livelli/" + String(d["pezzi"])
+		var letti: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso_pezzi)) \
+			if FileAccess.file_exists(percorso_pezzi) else null
+		if not letti is Dictionary:
+			errore = "manca %s: python3 strumenti/livelli/compone.py" % percorso_pezzi
+			return false
+		var lista: Dictionary = letti
+		for p: Variant in lista.get("pezzi", []):
+			var pezzo: Array = p
+			pezzi.append({"file": "res://art/livelli/" + String(pezzo[0]),
+				"piede": Vector2(float(pezzo[1]), float(pezzo[2])),
+				"dentro": Vector2(float(pezzo[3]), float(pezzo[4]))})
 	giro.clear()
 	for p: Variant in d.get("giro", []):
 		giro.append(punto(p))

@@ -366,7 +366,8 @@ func prova_i_livelli_disegnati_si_attraversano() -> void:
 		return
 	var quanti := 0
 	for file in cartella.get_files():
-		if not file.ends_with(".json"):
+		# i pezzi di un livello stanno accanto alla sua pianta: non sono un livello
+		if not file.ends_with(".json") or file.ends_with("_pezzi.json"):
 			continue
 		quanti += 1
 		var nome := file.get_basename()
@@ -386,8 +387,10 @@ func prova_i_livelli_disegnati_si_attraversano() -> void:
 			for q in poli:
 				dentro = dentro and p.limiti.grow(0.01).has_point(q)
 			esigi(dentro, "il livello %s: un pavimento esce dai limiti: %s" % [nome, poli])
-		if not p.mappa_sopra.is_empty():
-			esigi(ResourceLoader.exists(p.mappa_sopra), "il livello %s: manca %s" % [nome, p.mappa_sopra])
+		# i pezzi che stanno in piedi: ognuno ha il suo disegno e il piede nella mappa
+		for cosa in p.pezzi:
+			esigi(ResourceLoader.exists(cosa["file"]), "il livello %s: manca il pezzo %s" % [nome, cosa["file"]])
+			esigi(p.limiti.has_point(cosa["piede"]), "il livello %s: il pezzo %s sta fuori, a %s" % [nome, cosa["file"], cosa["piede"]])
 		esigi(p.libero(p.partenza), "il livello %s: si parte da %s, dove non si sta" % [nome, p.partenza])
 		for porta in p.porte:
 			var a: Vector2 = porta["a"]

@@ -277,9 +277,10 @@ tenuti per due colonne ciascuno).
 
 ## 8. I livelli disegnati
 
-Due livelli non sono fatti di tessere ma da **un disegno intero** di Bru,
-preso uguale. Ci si cammina dentro con `prove/LivelloProva.tscn`; le regole
-del formato sono in `art/livelli/README.md`.
+Due livelli non sono fatti di tessere ma da **una mappa intera**: le Pianure,
+composte coi pezzi disegnati in pixel, e il Panottico, il disegno di Bru
+pulito. Ci si cammina dentro con `prove/LivelloProva.tscn`; le regole del
+formato sono in `art/livelli/README.md`.
 
     F6 su prove/LivelloProva.tscn                  le Pianure (P passa da lei a lui)
     prove/LivelloProva.tscn -- livello panottico   il Panottico
@@ -294,35 +295,60 @@ art per ora per renderla più di qualità».
 Lo sfocato veniva da due cose: il JPG, e l'ingrandimento. Le Pianure erano
 ingrandite quattro volte, con dentro la grana e gli sbavi del JPG.
 
-- **Ingrandite poco, a blocchi interi.** Sullo schermo ogni pixel del disegno
-  è un blocco di 2×2, nei due livelli:
-  - le Pianure: la telecamera non ingrandisce. Lei è alta 56, e si vede un bel
-    pezzo di prato;
-  - il Panottico: la telecamera ingrandisce 2 invece di 3, e i pixel del
-    disegno sono grandi come quelli di lei.
-- **Pulite.** Via la grana del JPG: ogni pixel prende la media dei vicini di
-  colore quasi uguale, e i bordi restano. I contorni sono un poco più netti,
-  e nelle Pianure i colori un poco più vivi.
-- **Provate e scartate:**
-  - **la griglia.** Il disegno delle Pianure ha un salto di colore ogni 2
-    pixel, perché è stato ingrandito due volte prima del JPG. Ricalcato un
-    pixel ogni 2 torna di 668×392, ma alla grandezza del gioco viene a
-    blocchi e perde il dettaglio delle chiome, del masso e dei muretti;
+- **Ingrandite poco, a blocchi interi.** Sullo schermo ogni pixel è un blocco
+  di 2×2, nei due livelli, e lo è anche ogni pixel di lei: la telecamera
+  ingrandisce due volte.
+- **Il Panottico è pulito.** Via la grana del JPG: ogni pixel prende la media
+  dei vicini di colore quasi uguale, e i bordi restano. I contorni sono un
+  poco più netti.
+- **Provate e scartate**, sul disegno delle Pianure:
+  - **la griglia.** Il disegno ha un salto di colore ogni 2 pixel, perché è
+    stato ingrandito due volte prima del JPG. Ricalcato un pixel ogni 2 torna
+    di 668×392, ma alla grandezza del gioco viene a blocchi e perde il
+    dettaglio delle chiome, del masso e dei muretti;
   - **una tavolozza piccola** (64 o 96 colori): spariscono i contorni scuri,
     il masso perde la forma, e il vetro delle capsule l'azzurro;
   - **togliere la nebbia del promontorio in automatico**: lascia macchie
-    scure sulle scale e chiazze bianche sulla palude. La nebbia resta, è del
-    disegno.
+    scure sulle scale e chiazze bianche sulla palude.
+
+### I pezzi
+
+Bru, sul secondo giro, coi cinque fogli dei pezzi: «ti passo dei disegni cosi
+vedi più nel particolare come distribuire i pixel, siccome il problema attuale
+è che i pixel sembrano frastagliati e sembra proprio ai, invece vorrei che i
+disegni fossero creati pixel per pixel non usando un immagine ma proprio
+oggetti disegnati in pixel che poi vengono riutilizzati nelle mappe».
+
+- **La libreria** (`art/livelli/oggetti/`, `strumenti/livelli/oggetti.py`):
+  265 pezzi dai fogli di Bru, uno per file. Alberi, pini, cespugli, rovi,
+  rocce, il cratere, le canne, le cascate, le rupi, le scale, le colonne, gli
+  archi, e le trame del terreno. Ricalcati pixel per pixel (un pixel ogni 2,5
+  del foglio, il colore che somiglia di più agli altri del quadretto: niente
+  medie), su una tavolozza sola di 64 colori, col contorno scuro della loro
+  tinta. Le crepe grigie delle rupi restano crepe: il grigio del fondo dentro
+  un pezzo non diventa un buco.
+- **Le Pianure composte coi pezzi** (`strumenti/livelli/compone.py`). Il
+  disegno di Bru dice dove stanno le cose, ma nella mappa non ne entra un
+  pixel: il terreno è fatto con le trame della libreria e coi bordi disegnati
+  pixel per pixel, le pareti con la faccia delle rupi, e sopra ci sono i
+  pezzi.
+- **Alla misura del mondo.** Un pixel della mappa e di un pezzo è un pixel del
+  mondo, come lei. Un albero è alto una volta e mezza lei, un pino due, una
+  colonna come lei.
+- **Chi sta davanti.** Le cose che stanno in piedi sono pezzi a parte: il
+  gioco le mette insieme a lei in ordine di piede. Passa dietro ai pini e
+  davanti alle rovine, e la ferma solo il tronco o la base.
 
 **Gli ostacoli ci sono.** Nelle Pianure dove si cammina è una maschera, pixel
-per pixel (`art/livelli/pianure_passi.png`): il pavimento della pianta, meno
-gli ostacoli, meno l'acqua e le chiome scure riconosciute dal colore. Le ombre
-sul prato hanno il colore dell'acqua, ma sono più scure: non bloccano. E un
-pixel da solo non conta (i riflessi azzurri dentro i pini): conta se almeno
-quattro dei suoi otto vicini sono come lui. Fanno
-eccezione le scale e il ponticello, e sotto le chiome che le passano davanti
-bloccano solo i tronchi. Nel Panottico bloccano i muri, le capsule, le
-colonne, i cavi della sfera e i sassi.
+per pixel (`art/livelli/pianure_passi.png`):
+
+- il pavimento della pianta;
+- meno gli ostacoli;
+- meno l'acqua e le pareti;
+- meno i piedi dei pezzi.
+
+Fanno eccezione le scale e il ponticello. Nel Panottico bloccano i muri, le
+capsule, le colonne, i cavi della sfera e i sassi.
 
 ### Le Pianure di Redenna
 
@@ -331,22 +357,28 @@ cosi ma riorganiziamola secondo la nostra tabella di marcia, creiamo anche un
 uscita verso la boss area sia dalla parte della palude dopo l'incontro con
 la tartaruga che dal promontorio, la grafica la voglio esattamente cosi».
 
-**La grafica è quella**, fatta pixel art pulita (vedi «Nitide» qui sotto). Lei
-è alta come la capsula, e gli alberi e le pareti sono più alti di lei. Il
-disegno si ritocca in due posti soli (`strumenti/livelli/ricalca_livello.py`):
+**La mappa è quella di Bru, rifatta coi pezzi** (vedi «I pezzi» qui sopra).
+Ci sono le stesse cose:
+
+- il fiume con le rive di sabbia e le terrazze in basso;
+- la palude con le canne;
+- la zona corrotta coi rovi e gli alberi secchi, e l'arena lastricata;
+- il grande albero e il masso nel cratere;
+- il promontorio a ripiani, con le scale e le rovine;
+- i boschi;
+- i due recinti.
+
+Rispetto al disegno:
 
 - il riquadro nero col disegno della caverna, accanto all'albero, era
-  un'etichetta e non un posto: al suo posto il prato, il muretto e il bordo
-  dell'albero;
-- una siepe di rovi, fatta coi grovigli della zona corrotta, chiude la
-  scorciatoia (vedi sotto).
+  un'etichetta e non un posto: lì c'è il prato con una pozza;
+- una siepe di rovi chiude la scorciatoia (vedi sotto).
 
 **La tabella di marcia.** Il disegno la seguiva già quasi tutta. Le tappe hanno
 i nomi del tutorial (`data/events_tutorial.json`) e compaiono entrandoci:
 
 1. il **punto d'atterraggio**, la capsula in basso;
-2. **il pasto del goblin**, nel recinto di pietre a nord-est, coi resti e il
-   bastone per terra;
+2. **il pasto del goblin**, nel recinto di pietre a nord-est;
 3. **la pianura aperta**, fino al ponticello sul ruscello;
 4. **l'albero**: il suo piede, accanto alla cascatella;
 5. **il masso gigante**, nel cratere sulla piattaforma (ci si sale dalla
@@ -371,11 +403,11 @@ i nomi del tutorial (`data/events_tutorial.json`) e compaiono entrandoci:
 **La scorciatoia chiusa.** Nel disegno il sentiero dal bivio saliva dritto alla
 piazzetta, e la zona corrotta si apriva anche sulla riva della palude prima
 della tartaruga. La siepe di rovi va dalla rupe della palude alla sporgenza
-del promontorio. Al boss si arriva solo dalle due uscite.
+del promontorio: il sentiero finisce contro i cespugli di rovi. Al boss si
+arriva solo dalle due uscite.
 
-**Gli alberi coprono chi ci passa dietro.** Le chiome vicino ai sentieri sono
-ritagliate dalla mappa (`art/livelli/pianure_sopra.png`) e il gioco le
-disegna davanti a lei quando lei ci sta dietro.
+**Gli alberi coprono chi ci passa dietro.** Sono pezzi, e il gioco li mette in
+ordine di piede insieme a lei.
 
 Il pilota automatico fa tutto il giro, e lo fanno anche le prove senza
 finestra:
@@ -391,9 +423,14 @@ Cosa manca:
 - **La caverna segreta.** Il disegno ha il buco alla base dell'albero, ma non
   l'interno (il riquadro nero era un abbozzo delle due stanze). Serve una
   mappa sua.
-- **Il resto del disegno si guarda e basta**: il prato grande a est, le
+- **Il resto della mappa si guarda e basta**: il prato grande a est, le
   terrazze in basso a sinistra, la palude all'interno, le rupi a destra. Ci
   si cammina solo lungo la tabella di marcia.
+- **La capsula** è quella dei mondi (32×32): accanto a lei è piccola. Una
+  capsula più grande, disegnata come i pezzi, starebbe meglio.
+- **Le pareti** sono la faccia di due rupi ripetuta: da vicino si vede che si
+  ripete. Con altre facce nei fogli (una parete lunga, una alta) verrebbero
+  più varie.
 - **La mappa di zona del gioco** (il plastico delle Pianure) è ancora quella
   di prima.
 

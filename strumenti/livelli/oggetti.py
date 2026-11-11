@@ -202,7 +202,8 @@ def ricalca(foglio, fondo, scatola):
             if not pieni or len(pieni) * 2 < len(quad):
                 # fondo, per ora: se poi e' un buchino chiuso dentro il pezzo
                 # (una crepa grigia come il fondo) riprende il suo colore
-                riga.append(('fondo', min(quad, key=lambda c: sum(d2(c, e) for e in quad))[:3] if quad else None))
+                medio = min(quad, key=lambda c: sum(d2(c, e) for e in quad))[:3] if quad else None
+                riga.append(('fondo', medio))
                 continue
             riga.append(min(pieni, key=lambda c: sum(d2(c, e) for e in pieni))[:3])
         out.append(riga)
@@ -213,7 +214,9 @@ def chiudi_i_buchi(g):
     """trasparente e' solo il fondo che tocca il fuori del pezzo, o i buchi
     grandi (la luce di un arco); i buchini chiusi tornano colore"""
     h, w = len(g), len(g[0])
-    fondo = lambda y, x: isinstance(g[y][x], tuple) and len(g[y][x]) == 2 and g[y][x][0] == 'fondo'
+
+    def fondo(y, x):
+        return isinstance(g[y][x], tuple) and len(g[y][x]) == 2 and g[y][x][0] == 'fondo'
     gruppo = [[-1] * w for _ in range(h)]
     gruppi = []
     for y in range(h):
