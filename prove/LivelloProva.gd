@@ -298,7 +298,10 @@ func disegna_cartello() -> void:
 	var testo := String(cartello["titolo"])
 	var corpo := 34
 	var largo := f.get_string_size(testo, HORIZONTAL_ALIGNMENT_LEFT, -1, corpo).x + corpo
-	var dove := Vector2(640 - largo * 0.5 + (1.0 - entra_x) * 50.0, 118)
+	# in alto, se non c'e' lei: in cima alla mappa la telecamera si ferma e
+	# lei sale verso il bordo, e allora il nome va in basso
+	var lei_sullo_schermo := get_viewport().get_canvas_transform() * piedi
+	var dove := Vector2(640 - largo * 0.5 + (1.0 - entra_x) * 50.0, 118 if lei_sullo_schermo.y > 260 else 600)
 	Manifesto.etichetta_tinta(hud, dove + Vector2(6, 6), testo, corpo, Color(0, 0, 0, 0.4 * a), Color(0, 0, 0, 0))
 	Manifesto.etichetta_tinta(hud, dove, testo, corpo, Color(SEGNALE, a), Color(FONDO, a))
 	Manifesto.etichetta_tinta(hud, dove + Vector2(10, -22), pianta.titolo.to_upper(), 12, Color(FONDO, a), Color(CARTA, a))
