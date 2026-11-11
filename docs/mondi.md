@@ -206,6 +206,21 @@ Non si ridisegna niente: si ricostruiscono i pixel del foglio.
   (10 pixel). Da fermi, ogni tanto, c'è il respiro: il busto scende di un
   pixel e risale. Il foglio ha dieci colonne: fermo, il respiro e gli otto
   tempi.
+- **L'aspetto.** Bru ha mandato il suo disegno di lei: «miglioriamo l'aspetto
+  del personaggio, sopra la testa non ha degli occhiali ma un cerchio d'oro».
+  Il foglio del passo, fatto con l'AI, le metteva degli occhialoni e la pelle
+  chiara. `strumenti/protagonisti/aspetto.py` la veste come nel disegno,
+  sopra il ricalco pulito:
+  - la fascia cremisi, con la luce sopra, l'ombra sotto e le stelle chiare,
+    che segue la testa in ogni vista;
+  - il cerchio d'oro sul lato destro della testa: davanti a sinistra di chi
+    guarda, di lato tondo, da dietro di taglio sul bordo;
+  - le lenti e l'ottone degli occhialoni diventano fascia;
+  - la pelle abbronzata, gli occhi viola-magenta, e guanti, stivali e shorts
+    di nero lucido.
+
+  Per riconoscere i materiali del ricalco si usano sempre i colori del foglio
+  (`MATERIALI`); poi ogni tono si dipinge col colore del disegno (`ASPETTO`).
 - **Cosa la pulizia toglie**: la boccuccia del foglio, perché è un puntino solo
   e lo prende per sporco.
 

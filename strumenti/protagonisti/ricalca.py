@@ -42,6 +42,7 @@ import random
 import sys
 QUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, QUI)
+import aspetto
 import passo
 import png
 
@@ -76,8 +77,9 @@ PARTI_LATO = dict(anca=39, anche=(19, 17), terra=51, braccio=((30, 38), 16))
 # le colonne del foglio del gioco
 COLONNE = ("fermo", "respiro") + tuple("tempo%d" % i for i in range(1, 9))
 
-# la pulizia: le rampe dei materiali, dalla luce all'ombra. Sono i colori del
-# foglio, un poco piu' chiari e piu' accesi
+# la pulizia: le rampe dei materiali, dalla luce all'ombra, coi colori del
+# foglio (un poco piu' chiari e piu' accesi): servono a riconoscere di che
+# materiale e' ogni pixel del ricalco
 MATERIALI = {
     'lavanda': ('#f4f0ff', '#dcd4f4', '#bfb3e4', '#9d8fca', '#7a6aa8', '#574880'),
     'scuro':   ('#3a2c58', '#241a3c', '#120c22'),
@@ -88,6 +90,19 @@ MATERIALI = {
     'stivali': ('#3e5a64', '#26383f', '#16222b', '#0a1018'),
     'shorts':  ('#4a4254', '#2e2838'),
     'occhi':   ('#4a3a8a',),
+}
+# e i colori con cui si dipinge, tono per tono: capelli e top restano quelli
+# del foglio; pelle, fascia, oro, guanti, stivali e shorts sono quelli del
+# disegno di lei che ha mandato Bru (la pelle abbronzata, la fascia cremisi,
+# il nero lucido). Gli occhialoni del foglio non ci sono: le lenti e l'ottone
+# diventano fascia, e il cerchio d'oro lo mette aspetto.py
+ASPETTO = {
+    'pelle':   ('#e8b48c', '#c98d66', '#9c6448', '#6c4034'),
+    'fascia':  ('#f06a86', '#c8304e', '#922038', '#5e1226', '#3c0a18'),
+    'ottone':  ('#922038', '#5e1226', '#3c0a18'),
+    'lente':   ('#c8304e', '#922038', '#5e1226'),
+    'stivali': ('#4a5470', '#262c3e', '#141826', '#080a12'),
+    'shorts':  ('#3a3448', '#1e1a28'),
 }
 CONTORNO = '#1a1230'
 SCHIARISCI = 0.82        # la luminosita' alla 0.82: i chiari restano, gli scuri salgono
@@ -284,6 +299,7 @@ def esa(x):
 TAVOLOZZA = [esa(c) for rampa in MATERIALI.values() for c in rampa]
 MATERIALE = {esa(c): m for m, rampa in MATERIALI.items() for c in rampa}
 NERO = esa(CONTORNO)
+DIPINTO = {esa(MATERIALI[m][i]): esa(c) for m, rampa in ASPETTO.items() for i, c in enumerate(rampa)}
 
 
 def luce(c):
@@ -341,6 +357,11 @@ def contorno(g):
 def pulisci(g):
     g = quantizza([[None if c is None else luce(c) for c in r] for r in g], TAVOLOZZA)
     return contorno(macchie(via_isolati(g)))
+
+
+def ridipingi(g):
+    # dai colori del foglio a quelli del disegno, tono per tono
+    return [[None if c is None else DIPINTO.get(c, c) for c in r] for r in g]
 
 
 # ---------------------------------------------------------------- il foglio del gioco
@@ -435,14 +456,19 @@ def fotogrammi_di_lei(percorso, pulita=True):
     else:
         tavolozza = kmedie([c for g in grezzi.values() for r in g for c in r if c is not None], COLORI)
         colori = lambda g: quantizza(g, tavolozza)
+    def vesti(g, vista):
+        # la fascia col cerchio d'oro e i colori del disegno (non nel fedele)
+        return aspetto.vesti(ridipingi(g), vista, NERO) if pulita else g
+
     viste = {}
-    for vista, nome in (("giu", "davanti1"), ("su", "dietro2")):
-        viste[vista] = passo.ciclo(ritaglia(colori(grezzi[nome])), PARTI[nome])
+    for vista, nome, quale in (("giu", "davanti1", "davanti"), ("su", "dietro2", "dietro")):
+        viste[vista] = passo.ciclo(vesti(ritaglia(colori(grezzi[nome])), quale), PARTI[nome])
     tele, _ = di_lato(grezzi, len(grezzi["davanti1"]))
     lato = [[None, None] + r + [None, None] for r in taglia_insieme([colori(t) for t in tele])[0]]
-    colori_lato = dict(pelle=[esa(c) for c in MATERIALI["pelle"]],
-                       stivali=[esa(c) for c in MATERIALI["stivali"]], contorno=NERO,
-                       guanto=lambda c: MATERIALE.get(c) == "stivali")
+    lato = vesti(lato, "lato")
+    stivali = [esa(c) for c in ASPETTO["stivali"]]
+    colori_lato = dict(pelle=[esa(c) for c in ASPETTO["pelle"]], stivali=stivali, contorno=NERO,
+                       guanto=lambda c: c in stivali or MATERIALE.get(c) == "stivali")
     viste["destra"] = passo.ciclo_di_lato(lato, PARTI_LATO, colori_lato)
     return viste
 

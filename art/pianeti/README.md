@@ -143,8 +143,13 @@ strumenti/protagonisti/ricalca.py`, che ricostruisce i pixel del foglio:
   toglie i puntini lasciati dal JPG, fa i toni a macchie piene e chiude la
   figura con un contorno scuro netto. Il disegno resta quello del foglio.
 
-`ricalca.py fedele` scrive la versione senza pulizia, coi 40 colori del foglio
-com'è.
+- poi la **veste come nel disegno di lei** (`aspetto.py`). Al posto degli
+  occhialoni del foglio c'è la fascia cremisi con le stelle e il cerchio d'oro
+  sul lato destro della testa. In più la pelle abbronzata, gli occhi
+  viola-magenta, e guanti, stivali e shorts di nero lucido.
+
+`ricalca.py fedele` scrive la versione senza pulizia e senza vestito, coi 40
+colori del foglio com'è.
 
 Il passo (`passo.py`) ha il ritmo a tre pose, come il passo di Samarie in
 *Fear and Hunger: Termina* che ha mandato Bru: un passo, in piedi, l'altro
