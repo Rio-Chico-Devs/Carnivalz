@@ -1,27 +1,29 @@
 extends Node2D
 # UN LIVELLO DISEGNATO, DA ATTRAVERSARE A PIEDI. La mappa e' un disegno intero
 # (art/livelli/<nome>.png), non tessere: lo si guarda dall'alto e un po' di
-# fronte come i mondi (prove/MondoProva.gd), ingrandito tre volte, con la
-# telecamera che segue. Dove si cammina, le porte e le stanze stanno nella
-# pianta accanto (art/livelli/<nome>.json, prove/LivelloPianta.gd).
+# fronte come i mondi (prove/MondoProva.gd), con la telecamera che segue.
+# Dove si cammina, le porte, le stanze, quanto si ingrandisce e le cose alte
+# che le passano davanti stanno nella pianta accanto (art/livelli/<nome>.json,
+# prove/LivelloPianta.gd).
 # Provvisorio come i mondi: e' la prova di come ci si muove dentro un livello
 # disegnato, non ancora un pezzo del gioco.
 #
-# Adesso c'e' un livello solo: il Panottico silenzioso, dietro la porta
-# enorme oltre l'altare della Casa Gigante. Bru: «riesci a replicare questa
-# mappa? questo è il livello sottostante nella grande casa, quello bloccato
-# all'accesso».
+# I livelli: le Pianure di Redenna, il primo («ecco come mi piacerebbe che
+# fosse la mappa delle pianure»), e il Panottico silenzioso, dietro la porta
+# enorme oltre l'altare della Casa Gigante («riesci a replicare questa mappa?
+# questo è il livello sottostante nella grande casa, quello bloccato
+# all'accesso»).
 #
 #   frecce o WASD   cammina          P   lui / lei
 #
 #   nell'editor: F6 su prove/LivelloProva.tscn
 #
-# Dalla riga di comando (dopo --): livello <nome>, protagonista lui|lei, film
+# Dalla riga di comando (dopo --): livello pianure|panottico (se manca, le
+# Pianure), protagonista lui|lei, film
 # (il pilota automatico fa il giro della pianta e chiude), anteprima N (la
 # foto del fotogramma N, in scatti/livelli/).
 
 const Pianta := preload("res://prove/LivelloPianta.gd")
-const INGRANDIMENTO := 3.0
 const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo, come nei mondi
 const RESPIRO := 1.6
 const LARGO_FOTOGRAMMA := 32
@@ -30,7 +32,7 @@ const CARTA := Color("#efd8b2")
 const SEGNALE := Color("#f29a2e")
 const FONDO := Color("#0b0e14")
 
-var livello := "panottico"
+var livello := "pianure"
 var protagonista := "lei"
 var film := false
 var anteprima := -1
@@ -86,17 +88,38 @@ func costruisci() -> void:
 	add_child(fondo)
 	var mappa := Sprite2D.new()
 	mappa.centered = false
+	mappa.scale = Vector2.ONE * pianta.scala
 	mappa.texture = trama(pianta.mappa, "python3 strumenti/livelli/ricalca_livello.py")
 	add_child(mappa)
+	# lei e le cose alte stanno insieme, in ordine di piede: chi ha il piede
+	# piu' in basso e' davanti. Le cose alte sono pezzi della mappa ritagliati
+	# (le chiome degli alberi), rimessi esattamente al loro posto
+	var mondo := Node2D.new()
+	mondo.y_sort_enabled = true
+	add_child(mondo)
+	if not pianta.mappa_sopra.is_empty():
+		var alte := trama(pianta.mappa_sopra, "python3 strumenti/livelli/ricalca_livello.py")
+		for cosa in pianta.sopra:
+			var r: Rect2 = cosa["rett"]
+			var piede: float = cosa["piede"]
+			var pezzo := Sprite2D.new()
+			pezzo.texture = alte
+			pezzo.centered = false
+			pezzo.region_enabled = true
+			pezzo.region_rect = Rect2(r.position / pianta.scala, r.size / pianta.scala)
+			pezzo.scale = Vector2.ONE * pianta.scala
+			pezzo.position = Vector2(r.position.x, piede)
+			pezzo.offset = Vector2(0, (r.position.y - piede) / pianta.scala)
+			mondo.add_child(pezzo)
 	io = Sprite2D.new()
 	io.vframes = 3
 	io.centered = false
-	add_child(io)
+	mondo.add_child(io)
 	metti_foglio(protagonista)
 	piedi = pianta.partenza
 	verso = pianta.verso
 	camera = Camera2D.new()
-	camera.zoom = Vector2.ONE * INGRANDIMENTO
+	camera.zoom = Vector2.ONE * pianta.ingrandimento
 	camera.limit_left = int(pianta.limiti.position.x)
 	camera.limit_top = int(pianta.limiti.position.y)
 	camera.limit_right = int(pianta.limiti.end.x)

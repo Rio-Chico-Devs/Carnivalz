@@ -270,15 +270,99 @@ tenuti per due colonne ciascuno).
 7. **Il Panottico** (§8): le porte chiuse si passano come negli Zelda, ci
    entri e sei dall'altra parte. Va bene, o le vuoi che si aprono? E nella
    sala centrale, chi c'è: la sfera è il boss?
+8. **Le Pianure** (§8): la caverna segreta ha bisogno di una mappa sua, le due
+   stanze. La disegni come le altre? E il resto del disegno (il prato grande
+   a est, le terrazze, la palude, le rupi a destra) lo apriamo all'esplorazione
+   o resta da guardare?
 
 ## 8. I livelli disegnati
 
-Bru: «riesci a replicare questa mappa? questo è il livello sottostante nella
-grande casa, quello bloccato all'accesso». È la mappa del **Panottico
-silenzioso**, il livello dietro la porta enorme oltre l'altare della Casa
-Gigante, fatta da Bru con l'AI.
+Due livelli non sono fatti di tessere ma da **un disegno intero** di Bru,
+preso uguale. Ci si cammina dentro con `prove/LivelloProva.tscn`; le regole
+del formato sono in `art/livelli/README.md`.
 
-Non è fatta di tessere: è **un disegno intero**, e la si prende uguale.
+    F6 su prove/LivelloProva.tscn                  le Pianure (P passa da lei a lui)
+    prove/LivelloProva.tscn -- livello panottico   il Panottico
+
+### Le Pianure di Redenna
+
+Bru: «ecco come mi piacerebbe che fosse la mappa delle pianure, creiamola
+cosi ma riorganiziamola secondo la nostra tabella di marcia, creiamo anche un
+uscita verso la boss area sia dalla parte della palude dopo l'incontro con
+la tartaruga che dal promontorio, la grafica la voglio esattamente cosi».
+
+**La grafica è quella.** Il disegno si tiene intero, e il gioco lo ingrandisce
+due volte (la telecamera due, non tre). Così lei è alta come la capsula, e gli
+alberi e le pareti sono più alti di lei. Si ritocca in due posti soli
+(`strumenti/livelli/ricalca_livello.py`):
+
+- il riquadro nero col disegno della caverna, accanto all'albero, era
+  un'etichetta e non un posto: al suo posto il prato, il muretto e il bordo
+  dell'albero;
+- una siepe di rovi, fatta coi grovigli della zona corrotta, chiude la
+  scorciatoia (vedi sotto).
+
+**La tabella di marcia.** Il disegno la seguiva già quasi tutta. Le tappe hanno
+i nomi del tutorial (`data/events_tutorial.json`) e compaiono entrandoci:
+
+1. il **punto d'atterraggio**, la capsula in basso;
+2. **il pasto del goblin**, nel recinto di pietre a nord-est, coi resti e il
+   bastone per terra;
+3. **la pianura aperta**, fino al ponticello sul ruscello;
+4. **l'albero**: il suo piede, accanto alla cascatella;
+5. **il masso gigante**, nel cratere sulla piattaforma (ci si sale dalla
+   scaletta);
+6. **il bivio**, sopra il masso. Da qui:
+   - a sinistra **le pozze**, fra i laghetti della riva est, poi lungo la riva
+     nord della palude fino alla **tartaruga gigante**, ai piedi della scala
+     che sale sulla rupe;
+   - in alto la scala del **promontorio**: la sporgenza con l'arco, e la cima
+     con le rovine;
+7. **verso le urla**: la zona corrotta, con la piazzetta lastricata in alto
+   che è l'arena del boss.
+
+**Le due uscite verso la zona del boss**, come le ha chieste Bru:
+
+- **dalla palude, dopo la tartaruga**: la scala nella rupe, ai piedi della
+  quale c'è la tartaruga;
+- **dal promontorio**: dalla sporgenza, accanto all'arco, si passa nella zona
+  corrotta. Nel disegno c'era già: lì la sporgenza sfuma nel viola senza
+  parete.
+
+**La scorciatoia chiusa.** Nel disegno il sentiero dal bivio saliva dritto alla
+piazzetta, e la zona corrotta si apriva anche sulla riva della palude prima
+della tartaruga. La siepe di rovi va dalla rupe della palude alla sporgenza
+del promontorio. Al boss si arriva solo dalle due uscite.
+
+**Gli alberi coprono chi ci passa dietro.** Le chiome vicino ai sentieri sono
+ritagliate dalla mappa (`art/livelli/pianure_sopra.png`) e il gioco le
+disegna davanti a lei quando lei ci sta dietro.
+
+Il pilota automatico fa tutto il giro, e lo fanno anche le prove senza
+finestra:
+
+- dalla capsula al goblin, la pianura, il ponticello, l'albero, il masso, il
+  bivio, le pozze, la tartaruga;
+- su per la scala della rupe fino all'arena;
+- poi giù dalla zona corrotta sulla sporgenza (l'altra uscita, al contrario),
+  la cima, e di nuovo al bivio.
+
+Cosa manca:
+
+- **La caverna segreta.** Il disegno ha il buco alla base dell'albero, ma non
+  l'interno (il riquadro nero era un abbozzo delle due stanze). Serve una
+  mappa sua.
+- **Il resto del disegno si guarda e basta**: il prato grande a est, le
+  terrazze in basso a sinistra, la palude all'interno, le rupi a destra. Ci
+  si cammina solo lungo la tabella di marcia.
+- **La mappa di zona del gioco** (il plastico delle Pianure) è ancora quella
+  di prima.
+
+### Il Panottico silenzioso
+
+Bru: «riesci a replicare questa mappa? questo è il livello sottostante nella
+grande casa, quello bloccato all'accesso». È il livello dietro la porta enorme
+oltre l'altare della Casa Gigante.
 
 - **La misura giusta è uno a uno.** Un pixel del disegno è un pixel del
   mondo, ingrandito tre volte come i pianeti, e lei è alta come le sagome
@@ -291,8 +375,6 @@ Non è fatta di tessere: è **un disegno intero**, e la si prende uguale.
   - la scritta sul pavimento del corridoio, rifatta con le piastrelle di
     sopra.
 
-Lo fa `strumenti/livelli/ricalca_livello.py`.
-
 Dove si cammina lo dice la **pianta** (`art/livelli/panottico.json`):
 
 - i pavimenti e gli ostacoli (le capsule, le colonne, i cavi della sfera);
@@ -303,17 +385,14 @@ Dove si cammina lo dice la **pianta** (`art/livelli/panottico.json`):
 
 Si entra dalla porta in alto della camera stagna, quella che dà sull'altare.
 
-    F6 su prove/LivelloProva.tscn    ci si cammina (P passa da lei a lui)
-
-Le prove fanno fare al pilota il giro intero, senza finestra: dalla camera
-stagna giù nel laboratorio, il corridoio di sotto, la sala, l'arco, il
-corridoio in alto e di nuovo nella camera stagna. Le regole del formato sono
-in `art/livelli/README.md`.
+Il pilota fa il giro intero: dalla camera stagna giù nel laboratorio, il
+corridoio di sotto, la sala, l'arco, il corridoio in alto e di nuovo nella
+camera stagna.
 
 Cosa non fa ancora:
 
-- **Non c'è niente davanti a lei.** Lei è sempre disegnata sopra la mappa;
-  per questo dove si cammina sta davanti alle cose alte, e non si va dietro
-  le colonne o le capsule.
+- **Niente le passa davanti.** Qui le cose alte non sono ancora ritagliate
+  come gli alberi delle Pianure: dove si cammina sta davanti a loro, e non si
+  va dietro le colonne o le capsule.
 - **Le porte non si aprono**: il disegno le ha chiuse, e non c'è un disegno
   aperte.
