@@ -267,3 +267,53 @@ tenuti per due colonne ciascuno).
 6. **Il resto del foglio di Bru** (le icone delle armi, le pozioni, la moneta,
    gli effetti, le teste per i ritratti): li rifacciamo nello stesso modo, e
    dove vanno nel gioco?
+7. **Il Panottico** (§8): le porte chiuse si passano come negli Zelda, ci
+   entri e sei dall'altra parte. Va bene, o le vuoi che si aprono? E nella
+   sala centrale, chi c'è: la sfera è il boss?
+
+## 8. I livelli disegnati
+
+Bru: «riesci a replicare questa mappa? questo è il livello sottostante nella
+grande casa, quello bloccato all'accesso». È la mappa del **Panottico
+silenzioso**, il livello dietro la porta enorme oltre l'altare della Casa
+Gigante, fatta da Bru con l'AI.
+
+Non è fatta di tessere: è **un disegno intero**, e la si prende uguale.
+
+- **La misura giusta è uno a uno.** Un pixel del disegno è un pixel del
+  mondo, ingrandito tre volte come i pianeti, e lei è alta come le sagome
+  nelle capsule.
+- **I pixel restano tutti com'erano.** Ridotti a una tavolozza, il vetro delle
+  capsule perdeva l'azzurro e i pavimenti si riempivano di puntini.
+- **Si toglie solo quello che non è mappa:**
+  - la scacchiera, il titolo, i nomi scritti fuori, la bussola e la legenda
+    (fuori dalle stanze è trasparente, e il gioco ci mette il buio);
+  - la scritta sul pavimento del corridoio, rifatta con le piastrelle di
+    sopra.
+
+Lo fa `strumenti/livelli/ricalca_livello.py`.
+
+Dove si cammina lo dice la **pianta** (`art/livelli/panottico.json`):
+
+- i pavimenti e gli ostacoli (le capsule, le colonne, i cavi della sfera);
+- le quattro stanze, il cui nome compare entrandoci;
+- le porte. Le due porte chiuse del disegno (quella in basso della camera
+  stagna, e l'arco dietro la sfera che porta al passaggio dal corridoio) si
+  passano come negli Zelda, con un attimo di buio.
+
+Si entra dalla porta in alto della camera stagna, quella che dà sull'altare.
+
+    F6 su prove/LivelloProva.tscn    ci si cammina (P passa da lei a lui)
+
+Le prove fanno fare al pilota il giro intero, senza finestra: dalla camera
+stagna giù nel laboratorio, il corridoio di sotto, la sala, l'arco, il
+corridoio in alto e di nuovo nella camera stagna. Le regole del formato sono
+in `art/livelli/README.md`.
+
+Cosa non fa ancora:
+
+- **Non c'è niente davanti a lei.** Lei è sempre disegnata sopra la mappa;
+  per questo dove si cammina sta davanti alle cose alte, e non si va dietro
+  le colonne o le capsule.
+- **Le porte non si aprono**: il disegno le ha chiuse, e non c'è un disegno
+  aperte.

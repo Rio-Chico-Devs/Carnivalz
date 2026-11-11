@@ -334,6 +334,7 @@ func _ready() -> void:
 	prova_le_sonde_si_salvano()
 	await prova_nel_vuoto_la_sonda_chiama_e_si_estrae()
 	prova_le_sonde_di_mappa_json_sono_scritte_bene()
+	prova_i_livelli_disegnati_si_attraversano()
 	await prova_le_fratture_stanno_ferme_e_i_pianeti_girano()
 	await prova_le_didascalie_non_coprono_i_corpi()
 	await prova_le_didascalie_stanno_ferme_mentre_la_mappa_gira()
@@ -348,6 +349,50 @@ func esigi(condizione: bool, messaggio: String) -> void:
 
 func titolo(testo: String) -> void:
 	print("--- %s" % testo)
+
+# --- i livelli disegnati (prove/LivelloProva.gd) ---
+
+func prova_i_livelli_disegnati_si_attraversano() -> void:
+	# Un livello fatto da un disegno intero, come il Panottico di Bru: la mappa
+	# c'e' e la pianta ci sta dentro, si parte da un posto dove si sta in piedi,
+	# ogni porta porta in un posto dove si sta (e non dentro un'altra porta,
+	# se no si rimbalza), e il pilota fa il giro intero passando da ogni stanza.
+	# Il giro si fa qui senza finestra, con le stesse regole di quando si gioca.
+	titolo("i livelli disegnati si attraversano")
+	const Pianta := preload("res://prove/LivelloPianta.gd")
+	var cartella := DirAccess.open("res://art/livelli")
+	esigi(cartella != null, "manca art/livelli/")
+	if cartella == null:
+		return
+	var quanti := 0
+	for file in cartella.get_files():
+		if not file.ends_with(".json"):
+			continue
+		quanti += 1
+		var nome := file.get_basename()
+		var p := Pianta.new()
+		esigi(p.carica(nome), "il livello %s non si legge: %s" % [nome, p.errore])
+		if not p.errore.is_empty():
+			continue
+		var trama: Texture2D = load(p.mappa) if ResourceLoader.exists(p.mappa) else null
+		esigi(trama != null, "il livello %s: manca la mappa %s" % [nome, p.mappa])
+		if trama != null:
+			esigi(Rect2(Vector2.ZERO, trama.get_size()).encloses(p.limiti),
+				"il livello %s: i limiti %s escono dalla mappa (%s)" % [nome, p.limiti, trama.get_size()])
+		for r in p.pavimento:
+			esigi(p.limiti.encloses(r), "il livello %s: il pavimento %s esce dai limiti" % [nome, r])
+		esigi(p.libero(p.partenza), "il livello %s: si parte da %s, dove non si sta" % [nome, p.partenza])
+		for porta in p.porte:
+			var a: Vector2 = porta["a"]
+			esigi(p.libero(a), "il livello %s: una porta porta a %s, dove non si sta" % [nome, a])
+			esigi(p.porta_a(a) < 0, "il livello %s: una porta porta a %s, dentro un'altra porta" % [nome, a])
+		var nomi := {}
+		for s in p.stanze:
+			esigi(not nomi.has(s["nome"]), "il livello %s: due stanze si chiamano %s" % [nome, s["nome"]])
+			nomi[s["nome"]] = true
+		var esito := p.fai_il_giro()
+		esigi(esito.is_empty(), "il livello %s: %s" % [nome, esito])
+	esigi(quanti > 0, "in art/livelli/ non c'e' nessun livello")
 
 # --- i dati ci sono e non sono vuoti ---
 

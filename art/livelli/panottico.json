@@ -1,0 +1,55 @@
+{
+	"_nota": "Il livello dietro la porta enorme oltre l'altare della bambola, nella Casa Gigante (docs/storia.md, «Il Padiglione E e la porta enorme»). La mappa e' il disegno di Bru (strumenti/livelli/fogli/panottico.png), ripulito da strumenti/livelli/ricalca_livello.py in panottico.png. Tutti i numeri sono pixel del disegno, uno a uno: un rettangolo e' [x0, y0, x1, y1], con x1 e y1 fuori. Dove si cammina conta il piede (il punto per terra, al centro dei piedi): il corpo sta sopra, e copre il muro dietro come negli Zelda.",
+	"nome": "Il Panottico silenzioso",
+	"_nome": "Bru: «THE SILENT PANOPTICON».",
+	"mappa": "panottico.png",
+	"limiti": [44, 128, 1010, 946],
+	"partenza": [191, 240],
+	"_partenza": "Si entra dalla porta in alto della camera stagna: e' quella che da' sull'altare. Per adesso non si riapre.",
+	"verso": [0, 1],
+	"stanze": [
+		{"nome": "La camera stagna", "rett": [44, 128, 358, 400], "_bru": "ENTRANCE AIRLOCK"},
+		{"nome": "Il corridoio stretto", "rett": [352, 141, 1010, 326], "_bru": "NARROW GOTHIC-CYBERPUNK CORRIDOR"},
+		{"nome": "Il laboratorio dei cloni", "rett": [44, 494, 356, 946], "_bru": "DARK CLONING LAB"},
+		{"nome": "La sala centrale", "rett": [562, 420, 1010, 946], "_bru": "CENTRAL BOSS CHAMBER"}
+	],
+	"pavimento": [
+		[88, 218, 330, 352],
+		[325, 264, 362, 312],
+		[356, 264, 992, 314],
+		[754, 310, 844, 404],
+		[164, 404, 222, 600],
+		[160, 560, 240, 600],
+		[108, 598, 292, 893],
+		[292, 778, 352, 893],
+		[340, 784, 572, 872],
+		[565, 790, 600, 900],
+		[570, 840, 995, 922],
+		[662, 650, 878, 845],
+		[945, 780, 995, 845]
+	],
+	"_pavimento": "La grata della camera stagna; il passaggio verso il corridoio; il corridoio in alto; il passaggio che scende verso la sala; dalla camera stagna al laboratorio; il laboratorio (fra i due terminali, il pavimento, verso l'uscita a destra); il corridoio di sotto; la sala centrale (a sinistra delle colonne, davanti, fra le colonne, a destra).",
+	"ostacoli": [
+		[140, 832, 192, 900],
+		[738, 650, 838, 690],
+		[748, 690, 828, 852],
+		[560, 876, 608, 925],
+		[636, 896, 676, 925],
+		[884, 862, 1000, 925]
+	],
+	"_ostacoli": "La capsula in basso nel laboratorio; sotto la sfera; i cavi e la console; i sassi, il terminale e i rottami davanti nella sala.",
+	"porte": [
+		{"zona": [170, 352, 212, 360], "a": [191, 414], "verso": [0, 1], "_nota": "la porta in basso della camera stagna, verso il laboratorio"},
+		{"zona": [170, 404, 212, 410], "a": [191, 342], "verso": [0, -1], "_nota": "la stessa, dall'altra parte"},
+		{"zona": [700, 644, 736, 652], "a": [800, 392], "verso": [0, -1], "_nota": "la porta ad arco dietro la sfera, verso il passaggio che sale al corridoio"},
+		{"zona": [770, 402, 830, 410], "a": [718, 664], "verso": [0, 1], "_nota": "il fondo del passaggio, verso la sala"}
+	],
+	"_porte": "Le porte chiuse del disegno si passano come negli Zelda: ci entri e sei dall'altra parte. Una zona e' anche pavimento.",
+	"giro": [
+		[191, 240], [191, 300], [191, 357],
+		[191, 620], [200, 760], [320, 830],
+		[450, 830], [620, 870], [700, 870], [720, 760], [718, 649],
+		[800, 290], [400, 290], [340, 290], [250, 290], [191, 240]
+	],
+	"_giro": "Il giro del pilota automatico (il film, e la prova che il livello si attraversa tutto): da dove si entra, giu' nel laboratorio, il corridoio di sotto, la sala centrale, la porta dietro la sfera, il corridoio in alto, e di nuovo nella camera stagna. Un punto dentro una porta si raggiunge passandola."
+}

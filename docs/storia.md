@@ -214,6 +214,14 @@ prima che la si sconfigga lei stessa blocca il passaggio; dopo, la porta resta
 comunque sigillata, in attesa di un **meccanismo** che esisterà solo in una
 frattura futura del gioco. Due promesse lasciate aperte di proposito.
 
+Dietro la porta della Casa Gigante c'è il **Panottico silenzioso**: Bru ne ha
+disegnato la mappa («questo è il livello sottostante nella grande casa,
+quello bloccato all'accesso»). Una camera stagna, un corridoio stretto con gli
+occhi alle pareti, un laboratorio di cloni nelle capsule, e la sala centrale
+con la sfera appesa ai cavi. Ci si cammina dentro, per ora come prova
+(`art/livelli/README.md`); cosa succede lì dentro, e chi c'è nella sala, è
+ancora da scrivere.
+
 ### La Rocca di Ossidiana e Jongo Dongo
 Una frattura più grande delle altre, con un boss proprio — di entità minore
 rispetto a Jerah, e interamente **opzionale**. Dungeon oscuro di ossidiana
