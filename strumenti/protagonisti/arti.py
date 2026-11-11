@@ -31,7 +31,7 @@ def traccia(punti, largo):
 def disegna(t, celle, colore_di, contorno='o'):
     # colore_di(t, x, y, bordo) -> lettera
     for (x, y), v in celle.items():
-        if not (0 <= x < 32 and 0 <= y < 48):
+        if not (0 <= x < len(t[0]) and 0 <= y < len(t)):
             continue
         bordo = any((x + dx, y + dy) not in celle for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
         t[y][x] = contorno if bordo else colore_di(v, x, y)

@@ -178,23 +178,34 @@ Non si ridisegna niente: si ricostruiscono i pixel del foglio.
   il foglio ha due fotogrammi con la stessa posa: in tutti e due la gamba
   destra è avanti. Dietro ce n'è uno solo buono, perché il «back frame 1» ha
   la giacca nera e i pantaloni a righe di lui. Così lei non alternava mai le
-  gambe e sembrava strisciare. Adesso `strumenti/protagonisti/passo.py` fa il
-  passo a otto tempi coi pezzi del disegno:
-  - le due gambe si separano e a turno una va avanti (scende di un pixel) e
-    l'altra si alza (sale di uno o due), ripetendo o togliendo una riga a metà
-    dello stivale;
-  - il busto scende di un pixel quando i piedi sono tutti e due a terra, e
-    risale nel passaggio;
-  - le braccia vanno al contrario delle gambe;
-  - il ciuffo segue il busto con un tempo di ritardo.
-- **Di lato** ci sono i quattro tempi del foglio, due volte per ciclo, con la
-  testa del primo, che segue il collo di ogni tempo: così non balla. Sono
-  ingranditi fino all'altezza di davanti, perché nel foglio di lato lei è più
-  piccola (43 righe contro 50) e girandosi si rimpiccioliva.
+  gambe e sembrava strisciare.
+
+  Il primo giro (gambe che cambiavano di uno o due pixel su otto tempi) era
+  «già meglio ma bisogna ancora lavorarci un pochino». Bru ha mandato come
+  esempio il passo di Samarie (*Fear and Hunger: Termina*). Lì quello che
+  conta è:
+  - il ritmo a tre pose: un passo, in piedi, l'altro passo, in piedi;
+  - le pose grandi e chiare.
+
+  Adesso `strumenti/protagonisti/passo.py` fa così:
+  - **davanti e dietro**, con le gambe del foglio separate:
+    - il piede che va avanti scende di due pixel e va un poco in fuori;
+    - quello dietro si alza di tre;
+    - nei passi il busto è un pixel più giù che in piedi;
+    - le braccia vanno al contrario delle gambe;
+  - **di lato** le gambe del foglio erano corte e tutte e due dello stesso
+    scuro: non si leggevano. Si tengono testa, busto e braccio del foglio (la
+    testa del primo tempo, ingranditi fino all'altezza di davanti), e le gambe
+    le disegna lo strumento, articolate:
+    - coscia, risvolto e stivale, coi colori di lei;
+    - la gamba lontana più scura;
+    - nei passi un piede lontano davanti e uno dietro, in punta;
+    - il braccio vicino va al contrario.
 - **Nel gioco** il passo va avanti di un tempo ogni 5 pixel di strada fatta, e
-  non più a tempo, così i piedi non pattinano. Da fermi, ogni tanto, c'è il
-  respiro: il busto scende di un pixel e risale. Il foglio ha dieci colonne:
-  fermo, il respiro e gli otto tempi.
+  non più a tempo, così i piedi non pattinano. Ogni posa tiene due tempi
+  (10 pixel). Da fermi, ogni tanto, c'è il respiro: il busto scende di un
+  pixel e risale. Il foglio ha dieci colonne: fermo, il respiro e gli otto
+  tempi.
 - **Cosa la pulizia toglie**: la boccuccia del foglio, perché è un puntino solo
   e lo prende per sporco.
 

@@ -146,16 +146,25 @@ strumenti/protagonisti/ricalca.py`, che ricostruisce i pixel del foglio:
 `ricalca.py fedele` scrive la versione senza pulizia, coi 40 colori del foglio
 com'è.
 
-Il passo (`passo.py`):
+Il passo (`passo.py`) ha il ritmo a tre pose, come il passo di Samarie in
+*Fear and Hunger: Termina* che ha mandato Bru: un passo, in piedi, l'altro
+passo, in piedi. Ogni posa tiene due degli otto tempi.
 
-- **davanti e dietro** si costruisce coi pezzi del disegno, perché il foglio
-  ha due pose davanti uguali e una sola buona dietro («back frame 1» ha i
-  vestiti di lui). Le due gambe si allungano e si accorciano a turno, il busto
-  scende quando i piedi sono a terra, le braccia vanno al contrario delle
-  gambe e il ciuffo segue in ritardo;
-- **di lato** ci sono i quattro tempi del foglio, con la testa del primo,
-  ingranditi fino all'altezza di davanti (nel foglio di lato lei è più
-  piccola).
+- **Davanti e dietro** si usano le gambe del foglio, separate:
+  - il piede che va avanti scende di due pixel e va un poco in fuori;
+  - quello dietro si alza di tre;
+  - nei passi il busto è un pixel più giù che in piedi, e le braccia vanno al
+    contrario delle gambe.
+  Il foglio ha due pose davanti uguali e una sola buona dietro («back frame
+  1» ha i vestiti di lui).
+- **Di lato** dal foglio si tengono testa, busto e braccio (la testa del primo
+  tempo, ingranditi fino all'altezza di davanti). Le gambe le disegna lo
+  strumento, articolate (anca, ginocchio, caviglia):
+  - coscia, risvolto e stivale, coi colori di lei;
+  - la gamba lontana più scura;
+  - nei passi un piede lontano davanti e uno dietro, in punta;
+  - il braccio vicino va al contrario.
+  Nel foglio le gambe di lato sono corte e tutte e due dello stesso scuro.
 
 **Lui**, per ora, è ridisegnato a mano da `strumenti/protagonisti/disegna.py`
 (quattro tempi, ognuno per due colonne; da fermo non respira):

@@ -25,12 +25,13 @@
 #   python3 strumenti/protagonisti/ricalca.py fedele   senza la pulizia: i 40
 #                                                        colori del foglio com'e'
 
-# Il passo (Bru: «bisogna migliorare le animazioni di movimento»). Nel foglio
-# i due fotogrammi davanti hanno la stessa posa e dietro ce n'e' uno buono
-# solo (il «back frame 1» ha la giacca e i pantaloni di lui): il passo davanti
-# e dietro si costruisce coi pezzi del disegno (passo.py). Di lato ci sono i
-# quattro tempi del foglio, con la testa di uno solo, ingranditi fino
-# all'altezza di davanti: nel foglio di lato lei e' piu' piccola.
+# Il passo (Bru: «bisogna migliorare le animazioni di movimento», e poi
+# l'esempio del passo di Samarie in Fear and Hunger: Termina) si fa coi pezzi
+# del disegno, in passo.py. Nel foglio i due fotogrammi davanti hanno la
+# stessa posa e dietro ce n'e' uno buono solo (il «back frame 1» ha la giacca
+# e i pantaloni di lui); di lato le gambe sono corte e tutte e due scure. Di
+# lato la figura e' ingrandita fino all'altezza di davanti: nel foglio e'
+# piu' piccola.
 #
 # Il foglio del gioco: 10 colonne (fermo, il respiro, gli otto tempi del passo)
 # x 3 righe (giu', su, destra; la sinistra e' la destra allo specchio),
@@ -65,10 +66,13 @@ PARTI = {
     "davanti1": dict(anca=40, taglio=13, braccia=((0, 6), (19, 25), (29, 38)), ciuffo=9),
     "dietro2": dict(anca=42, taglio=13, braccia=((0, 5), (20, 25), (29, 38)), ciuffo=7),
 }
-# di lato: i quattro tempi del foglio, due volte per ciclo; la testa e' quella
-# del primo, e la prima riga delle gambe nel primo e' la 32
+# di lato: dal foglio la testa, il busto e il braccio (la testa del primo
+# tempo sui quattro, ingranditi fino all'altezza di davanti); le gambe le
+# disegna passo.py. Le misure sono sul primo tempo, gia' pulito e allargato a
+# 32: la prima riga sotto gli shorts, la x dell'anca vicina e della lontana,
+# la riga della suola, le righe e l'ultima colonna del braccio vicino
 LATO = ("lato1", "lato2", "lato3", "lato4")
-ANCA_LATO = 32
+PARTI_LATO = dict(anca=39, anche=(19, 17), terra=51, braccio=((30, 38), 16))
 # le colonne del foglio del gioco
 COLONNE = ("fermo", "respiro") + tuple("tempo%d" % i for i in range(1, 9))
 
@@ -434,12 +438,12 @@ def fotogrammi_di_lei(percorso, pulita=True):
     viste = {}
     for vista, nome in (("giu", "davanti1"), ("su", "dietro2")):
         viste[vista] = passo.ciclo(ritaglia(colori(grezzi[nome])), PARTI[nome])
-    tele, fattore = di_lato(grezzi, len(grezzi["davanti1"]))
-    tele = taglia_insieme([colori(t) for t in tele])
-    terra = len(tele[0]) - 1
-    anca = int(round(ANCA_LATO * fattore))
-    respiro = passo.tempo(tele[0], dict(anca=anca, taglio=len(tele[0][0])), *passo.RESPIRO)
-    viste["destra"] = [(tele[0], terra), respiro] + [(tele[i % 4], terra) for i in range(8)]
+    tele, _ = di_lato(grezzi, len(grezzi["davanti1"]))
+    lato = [[None, None] + r + [None, None] for r in taglia_insieme([colori(t) for t in tele])[0]]
+    colori_lato = dict(pelle=[esa(c) for c in MATERIALI["pelle"]],
+                       stivali=[esa(c) for c in MATERIALI["stivali"]], contorno=NERO,
+                       guanto=lambda c: MATERIALE.get(c) == "stivali")
+    viste["destra"] = passo.ciclo_di_lato(lato, PARTI_LATO, colori_lato)
     return viste
 
 
