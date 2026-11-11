@@ -1,0 +1,3781 @@
+{
+ "_nota": "Scritto da strumenti/livelli/oggetti.py: non toccare a mano.",
+ "oggetti": {
+  "acqua": {
+   "categoria": "terreno",
+   "file": "terreno/acqua.png",
+   "foglio": "terreno",
+   "misura": [
+    56,
+    56
+   ],
+   "pezzo": 5,
+   "piede": [
+    28,
+    54
+   ]
+  },
+  "albero_1": {
+   "categoria": "alberi",
+   "file": "alberi/albero_1.png",
+   "foglio": "alberi",
+   "misura": [
+    56,
+    72
+   ],
+   "pezzo": 0,
+   "piede": [
+    28,
+    70
+   ]
+  },
+  "albero_2": {
+   "categoria": "alberi",
+   "file": "alberi/albero_2.png",
+   "foglio": "alberi",
+   "misura": [
+    59,
+    73
+   ],
+   "pezzo": 1,
+   "piede": [
+    29,
+    71
+   ]
+  },
+  "albero_3": {
+   "categoria": "alberi",
+   "file": "alberi/albero_3.png",
+   "foglio": "alberi",
+   "misura": [
+    63,
+    73
+   ],
+   "pezzo": 2,
+   "piede": [
+    31,
+    71
+   ]
+  },
+  "albero_4": {
+   "categoria": "alberi",
+   "file": "alberi/albero_4.png",
+   "foglio": "alberi",
+   "misura": [
+    72,
+    79
+   ],
+   "pezzo": 3,
+   "piede": [
+    36,
+    77
+   ]
+  },
+  "albero_grande_1": {
+   "categoria": "alberi",
+   "file": "alberi/albero_grande_1.png",
+   "foglio": "alberi",
+   "misura": [
+    121,
+    156
+   ],
+   "pezzo": 4,
+   "piede": [
+    60,
+    154
+   ]
+  },
+  "albero_grande_2": {
+   "categoria": "alberi",
+   "file": "alberi/albero_grande_2.png",
+   "foglio": "alberi",
+   "misura": [
+    121,
+    150
+   ],
+   "pezzo": 5,
+   "piede": [
+    60,
+    148
+   ]
+  },
+  "albero_secco_1": {
+   "categoria": "alberi",
+   "file": "alberi/albero_secco_1.png",
+   "foglio": "palude",
+   "misura": [
+    41,
+    39
+   ],
+   "pezzo": 5,
+   "piede": [
+    20,
+    37
+   ]
+  },
+  "albero_secco_2": {
+   "categoria": "alberi",
+   "file": "alberi/albero_secco_2.png",
+   "foglio": "palude",
+   "misura": [
+    43,
+    55
+   ],
+   "pezzo": 6,
+   "piede": [
+    21,
+    53
+   ]
+  },
+  "albero_secco_3": {
+   "categoria": "alberi",
+   "file": "alberi/albero_secco_3.png",
+   "foglio": "palude",
+   "misura": [
+    41,
+    50
+   ],
+   "pezzo": 7,
+   "piede": [
+    20,
+    48
+   ]
+  },
+  "albero_secco_4": {
+   "categoria": "alberi",
+   "file": "alberi/albero_secco_4.png",
+   "foglio": "palude",
+   "misura": [
+    33,
+    38
+   ],
+   "pezzo": 15,
+   "piede": [
+    16,
+    36
+   ]
+  },
+  "albero_secco_5": {
+   "categoria": "alberi",
+   "file": "alberi/albero_secco_5.png",
+   "foglio": "palude",
+   "misura": [
+    36,
+    43
+   ],
+   "pezzo": 16,
+   "piede": [
+    18,
+    41
+   ]
+  },
+  "albero_secco_6": {
+   "categoria": "alberi",
+   "file": "alberi/albero_secco_6.png",
+   "foglio": "palude",
+   "misura": [
+    34,
+    50
+   ],
+   "pezzo": 17,
+   "piede": [
+    17,
+    48
+   ]
+  },
+  "arco": {
+   "categoria": "rovine",
+   "file": "rovine/arco.png",
+   "foglio": "rovine",
+   "misura": [
+    49,
+    55
+   ],
+   "pezzo": 25,
+   "piede": [
+    24,
+    53
+   ]
+  },
+  "blocco": {
+   "categoria": "rovine",
+   "file": "rovine/blocco.png",
+   "foglio": "rovine",
+   "misura": [
+    35,
+    25
+   ],
+   "pezzo": 28,
+   "piede": [
+    17,
+    23
+   ]
+  },
+  "canne_1": {
+   "categoria": "acqua",
+   "file": "acqua/canne_1.png",
+   "foglio": "palude",
+   "misura": [
+    79,
+    95
+   ],
+   "pezzo": 23,
+   "piede": [
+    39,
+    93
+   ]
+  },
+  "canne_2": {
+   "categoria": "acqua",
+   "file": "acqua/canne_2.png",
+   "foglio": "palude",
+   "misura": [
+    56,
+    53
+   ],
+   "pezzo": 24,
+   "piede": [
+    28,
+    51
+   ]
+  },
+  "canne_3": {
+   "categoria": "acqua",
+   "file": "acqua/canne_3.png",
+   "foglio": "palude",
+   "misura": [
+    47,
+    50
+   ],
+   "pezzo": 32,
+   "piede": [
+    23,
+    48
+   ]
+  },
+  "canne_4": {
+   "categoria": "acqua",
+   "file": "acqua/canne_4.png",
+   "foglio": "palude",
+   "misura": [
+    46,
+    47
+   ],
+   "pezzo": 33,
+   "piede": [
+    23,
+    45
+   ]
+  },
+  "canne_5": {
+   "categoria": "acqua",
+   "file": "acqua/canne_5.png",
+   "foglio": "palude",
+   "misura": [
+    27,
+    42
+   ],
+   "pezzo": 35,
+   "piede": [
+    13,
+    40
+   ]
+  },
+  "cascata_1": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_1.png",
+   "foglio": "terreno",
+   "misura": [
+    41,
+    43
+   ],
+   "pezzo": 87,
+   "piede": [
+    20,
+    41
+   ]
+  },
+  "cascata_2": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_2.png",
+   "foglio": "terreno",
+   "misura": [
+    41,
+    43
+   ],
+   "pezzo": 88,
+   "piede": [
+    20,
+    41
+   ]
+  },
+  "cascata_3": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_3.png",
+   "foglio": "terreno",
+   "misura": [
+    41,
+    43
+   ],
+   "pezzo": 89,
+   "piede": [
+    20,
+    41
+   ]
+  },
+  "cascata_4": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_4.png",
+   "foglio": "rovine",
+   "misura": [
+    36,
+    68
+   ],
+   "pezzo": 29,
+   "piede": [
+    18,
+    66
+   ]
+  },
+  "cascata_5": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_5.png",
+   "foglio": "rovine",
+   "misura": [
+    31,
+    68
+   ],
+   "pezzo": 30,
+   "piede": [
+    15,
+    66
+   ]
+  },
+  "cascata_6": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_6.png",
+   "foglio": "rovine",
+   "misura": [
+    31,
+    68
+   ],
+   "pezzo": 31,
+   "piede": [
+    15,
+    66
+   ]
+  },
+  "cascata_7": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_7.png",
+   "foglio": "rovine",
+   "misura": [
+    30,
+    68
+   ],
+   "pezzo": 32,
+   "piede": [
+    15,
+    66
+   ]
+  },
+  "cascata_8": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_8.png",
+   "foglio": "rovine",
+   "misura": [
+    39,
+    68
+   ],
+   "pezzo": 33,
+   "piede": [
+    19,
+    66
+   ]
+  },
+  "cascata_larga": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_larga.png",
+   "foglio": "rovine",
+   "misura": [
+    59,
+    70
+   ],
+   "pezzo": 34,
+   "piede": [
+    29,
+    68
+   ]
+  },
+  "cascata_rupe_1": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_rupe_1.png",
+   "foglio": "rovine",
+   "misura": [
+    67,
+    71
+   ],
+   "pezzo": 35,
+   "piede": [
+    33,
+    69
+   ]
+  },
+  "cascata_rupe_2": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_rupe_2.png",
+   "foglio": "rovine",
+   "misura": [
+    67,
+    71
+   ],
+   "pezzo": 36,
+   "piede": [
+    33,
+    69
+   ]
+  },
+  "cascata_rupe_3": {
+   "categoria": "acqua",
+   "file": "acqua/cascata_rupe_3.png",
+   "foglio": "rovine",
+   "misura": [
+    76,
+    71
+   ],
+   "pezzo": 37,
+   "piede": [
+    38,
+    69
+   ]
+  },
+  "caverna_0": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_0.png",
+   "foglio": "caverna",
+   "misura": [
+    45,
+    50
+   ],
+   "pezzo": 0,
+   "piede": [
+    22,
+    48
+   ]
+  },
+  "caverna_1": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_1.png",
+   "foglio": "caverna",
+   "misura": [
+    74,
+    49
+   ],
+   "pezzo": 1,
+   "piede": [
+    37,
+    47
+   ]
+  },
+  "caverna_10": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_10.png",
+   "foglio": "caverna",
+   "misura": [
+    46,
+    45
+   ],
+   "pezzo": 10,
+   "piede": [
+    23,
+    43
+   ]
+  },
+  "caverna_11": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_11.png",
+   "foglio": "caverna",
+   "misura": [
+    45,
+    45
+   ],
+   "pezzo": 11,
+   "piede": [
+    22,
+    43
+   ]
+  },
+  "caverna_12": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_12.png",
+   "foglio": "caverna",
+   "misura": [
+    30,
+    19
+   ],
+   "pezzo": 12,
+   "piede": [
+    15,
+    17
+   ]
+  },
+  "caverna_13": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_13.png",
+   "foglio": "caverna",
+   "misura": [
+    27,
+    14
+   ],
+   "pezzo": 13,
+   "piede": [
+    13,
+    12
+   ]
+  },
+  "caverna_14": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_14.png",
+   "foglio": "caverna",
+   "misura": [
+    44,
+    28
+   ],
+   "pezzo": 14,
+   "piede": [
+    22,
+    26
+   ]
+  },
+  "caverna_15": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_15.png",
+   "foglio": "caverna",
+   "misura": [
+    66,
+    42
+   ],
+   "pezzo": 15,
+   "piede": [
+    33,
+    40
+   ]
+  },
+  "caverna_16": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_16.png",
+   "foglio": "caverna",
+   "misura": [
+    66,
+    41
+   ],
+   "pezzo": 16,
+   "piede": [
+    33,
+    39
+   ]
+  },
+  "caverna_17": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_17.png",
+   "foglio": "caverna",
+   "misura": [
+    14,
+    8
+   ],
+   "pezzo": 17,
+   "piede": [
+    7,
+    6
+   ]
+  },
+  "caverna_18": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_18.png",
+   "foglio": "caverna",
+   "misura": [
+    7,
+    6
+   ],
+   "pezzo": 18,
+   "piede": [
+    3,
+    4
+   ]
+  },
+  "caverna_19": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_19.png",
+   "foglio": "caverna",
+   "misura": [
+    14,
+    10
+   ],
+   "pezzo": 19,
+   "piede": [
+    7,
+    8
+   ]
+  },
+  "caverna_2": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_2.png",
+   "foglio": "caverna",
+   "misura": [
+    70,
+    62
+   ],
+   "pezzo": 2,
+   "piede": [
+    35,
+    60
+   ]
+  },
+  "caverna_20": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_20.png",
+   "foglio": "caverna",
+   "misura": [
+    11,
+    7
+   ],
+   "pezzo": 20,
+   "piede": [
+    5,
+    5
+   ]
+  },
+  "caverna_21": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_21.png",
+   "foglio": "caverna",
+   "misura": [
+    14,
+    10
+   ],
+   "pezzo": 21,
+   "piede": [
+    7,
+    8
+   ]
+  },
+  "caverna_22": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_22.png",
+   "foglio": "caverna",
+   "misura": [
+    38,
+    43
+   ],
+   "pezzo": 22,
+   "piede": [
+    19,
+    41
+   ]
+  },
+  "caverna_23": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_23.png",
+   "foglio": "caverna",
+   "misura": [
+    44,
+    59
+   ],
+   "pezzo": 23,
+   "piede": [
+    22,
+    57
+   ]
+  },
+  "caverna_24": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_24.png",
+   "foglio": "caverna",
+   "misura": [
+    43,
+    47
+   ],
+   "pezzo": 24,
+   "piede": [
+    21,
+    45
+   ]
+  },
+  "caverna_25": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_25.png",
+   "foglio": "caverna",
+   "misura": [
+    45,
+    42
+   ],
+   "pezzo": 25,
+   "piede": [
+    22,
+    40
+   ]
+  },
+  "caverna_26": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_26.png",
+   "foglio": "caverna",
+   "misura": [
+    45,
+    40
+   ],
+   "pezzo": 26,
+   "piede": [
+    22,
+    38
+   ]
+  },
+  "caverna_27": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_27.png",
+   "foglio": "caverna",
+   "misura": [
+    40,
+    39
+   ],
+   "pezzo": 27,
+   "piede": [
+    20,
+    37
+   ]
+  },
+  "caverna_28": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_28.png",
+   "foglio": "caverna",
+   "misura": [
+    27,
+    58
+   ],
+   "pezzo": 28,
+   "piede": [
+    13,
+    56
+   ]
+  },
+  "caverna_29": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_29.png",
+   "foglio": "caverna",
+   "misura": [
+    47,
+    54
+   ],
+   "pezzo": 29,
+   "piede": [
+    23,
+    52
+   ]
+  },
+  "caverna_3": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_3.png",
+   "foglio": "caverna",
+   "misura": [
+    70,
+    62
+   ],
+   "pezzo": 3,
+   "piede": [
+    35,
+    60
+   ]
+  },
+  "caverna_30": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_30.png",
+   "foglio": "caverna",
+   "misura": [
+    28,
+    30
+   ],
+   "pezzo": 30,
+   "piede": [
+    14,
+    28
+   ]
+  },
+  "caverna_31": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_31.png",
+   "foglio": "caverna",
+   "misura": [
+    34,
+    39
+   ],
+   "pezzo": 31,
+   "piede": [
+    17,
+    37
+   ]
+  },
+  "caverna_32": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_32.png",
+   "foglio": "caverna",
+   "misura": [
+    19,
+    23
+   ],
+   "pezzo": 32,
+   "piede": [
+    9,
+    21
+   ]
+  },
+  "caverna_33": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_33.png",
+   "foglio": "caverna",
+   "misura": [
+    20,
+    36
+   ],
+   "pezzo": 33,
+   "piede": [
+    10,
+    34
+   ]
+  },
+  "caverna_34": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_34.png",
+   "foglio": "caverna",
+   "misura": [
+    15,
+    29
+   ],
+   "pezzo": 34,
+   "piede": [
+    7,
+    27
+   ]
+  },
+  "caverna_35": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_35.png",
+   "foglio": "caverna",
+   "misura": [
+    21,
+    19
+   ],
+   "pezzo": 35,
+   "piede": [
+    10,
+    17
+   ]
+  },
+  "caverna_36": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_36.png",
+   "foglio": "caverna",
+   "misura": [
+    13,
+    18
+   ],
+   "pezzo": 36,
+   "piede": [
+    6,
+    16
+   ]
+  },
+  "caverna_37": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_37.png",
+   "foglio": "caverna",
+   "misura": [
+    35,
+    33
+   ],
+   "pezzo": 37,
+   "piede": [
+    17,
+    31
+   ]
+  },
+  "caverna_38": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_38.png",
+   "foglio": "caverna",
+   "misura": [
+    28,
+    23
+   ],
+   "pezzo": 38,
+   "piede": [
+    14,
+    21
+   ]
+  },
+  "caverna_39": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_39.png",
+   "foglio": "caverna",
+   "misura": [
+    23,
+    25
+   ],
+   "pezzo": 39,
+   "piede": [
+    11,
+    23
+   ]
+  },
+  "caverna_4": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_4.png",
+   "foglio": "caverna",
+   "misura": [
+    88,
+    65
+   ],
+   "pezzo": 4,
+   "piede": [
+    44,
+    63
+   ]
+  },
+  "caverna_40": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_40.png",
+   "foglio": "caverna",
+   "misura": [
+    18,
+    13
+   ],
+   "pezzo": 40,
+   "piede": [
+    9,
+    11
+   ]
+  },
+  "caverna_41": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_41.png",
+   "foglio": "caverna",
+   "misura": [
+    35,
+    26
+   ],
+   "pezzo": 41,
+   "piede": [
+    17,
+    24
+   ]
+  },
+  "caverna_42": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_42.png",
+   "foglio": "caverna",
+   "misura": [
+    26,
+    18
+   ],
+   "pezzo": 42,
+   "piede": [
+    13,
+    16
+   ]
+  },
+  "caverna_43": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_43.png",
+   "foglio": "caverna",
+   "misura": [
+    19,
+    13
+   ],
+   "pezzo": 43,
+   "piede": [
+    9,
+    11
+   ]
+  },
+  "caverna_44": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_44.png",
+   "foglio": "caverna",
+   "misura": [
+    43,
+    33
+   ],
+   "pezzo": 44,
+   "piede": [
+    21,
+    31
+   ]
+  },
+  "caverna_45": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_45.png",
+   "foglio": "caverna",
+   "misura": [
+    42,
+    42
+   ],
+   "pezzo": 45,
+   "piede": [
+    21,
+    40
+   ]
+  },
+  "caverna_46": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_46.png",
+   "foglio": "caverna",
+   "misura": [
+    28,
+    38
+   ],
+   "pezzo": 46,
+   "piede": [
+    14,
+    36
+   ]
+  },
+  "caverna_47": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_47.png",
+   "foglio": "caverna",
+   "misura": [
+    28,
+    37
+   ],
+   "pezzo": 47,
+   "piede": [
+    14,
+    35
+   ]
+  },
+  "caverna_48": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_48.png",
+   "foglio": "caverna",
+   "misura": [
+    29,
+    37
+   ],
+   "pezzo": 48,
+   "piede": [
+    14,
+    35
+   ]
+  },
+  "caverna_49": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_49.png",
+   "foglio": "caverna",
+   "misura": [
+    10,
+    21
+   ],
+   "pezzo": 49,
+   "piede": [
+    5,
+    19
+   ]
+  },
+  "caverna_5": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_5.png",
+   "foglio": "caverna",
+   "misura": [
+    50,
+    47
+   ],
+   "pezzo": 5,
+   "piede": [
+    25,
+    45
+   ]
+  },
+  "caverna_50": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_50.png",
+   "foglio": "caverna",
+   "misura": [
+    14,
+    16
+   ],
+   "pezzo": 50,
+   "piede": [
+    7,
+    14
+   ]
+  },
+  "caverna_51": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_51.png",
+   "foglio": "caverna",
+   "misura": [
+    14,
+    12
+   ],
+   "pezzo": 51,
+   "piede": [
+    7,
+    10
+   ]
+  },
+  "caverna_52": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_52.png",
+   "foglio": "caverna",
+   "misura": [
+    6,
+    8
+   ],
+   "pezzo": 52,
+   "piede": [
+    3,
+    6
+   ]
+  },
+  "caverna_53": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_53.png",
+   "foglio": "caverna",
+   "misura": [
+    12,
+    8
+   ],
+   "pezzo": 53,
+   "piede": [
+    6,
+    6
+   ]
+  },
+  "caverna_54": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_54.png",
+   "foglio": "caverna",
+   "misura": [
+    11,
+    8
+   ],
+   "pezzo": 54,
+   "piede": [
+    5,
+    6
+   ]
+  },
+  "caverna_55": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_55.png",
+   "foglio": "caverna",
+   "misura": [
+    20,
+    13
+   ],
+   "pezzo": 55,
+   "piede": [
+    10,
+    11
+   ]
+  },
+  "caverna_56": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_56.png",
+   "foglio": "caverna",
+   "misura": [
+    7,
+    6
+   ],
+   "pezzo": 56,
+   "piede": [
+    3,
+    4
+   ]
+  },
+  "caverna_57": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_57.png",
+   "foglio": "caverna",
+   "misura": [
+    13,
+    7
+   ],
+   "pezzo": 57,
+   "piede": [
+    6,
+    5
+   ]
+  },
+  "caverna_58": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_58.png",
+   "foglio": "caverna",
+   "misura": [
+    24,
+    12
+   ],
+   "pezzo": 58,
+   "piede": [
+    12,
+    10
+   ]
+  },
+  "caverna_59": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_59.png",
+   "foglio": "caverna",
+   "misura": [
+    30,
+    21
+   ],
+   "pezzo": 59,
+   "piede": [
+    15,
+    19
+   ]
+  },
+  "caverna_6": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_6.png",
+   "foglio": "caverna",
+   "misura": [
+    62,
+    53
+   ],
+   "pezzo": 6,
+   "piede": [
+    31,
+    51
+   ]
+  },
+  "caverna_60": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_60.png",
+   "foglio": "caverna",
+   "misura": [
+    45,
+    32
+   ],
+   "pezzo": 60,
+   "piede": [
+    22,
+    30
+   ]
+  },
+  "caverna_61": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_61.png",
+   "foglio": "caverna",
+   "misura": [
+    43,
+    38
+   ],
+   "pezzo": 61,
+   "piede": [
+    21,
+    36
+   ]
+  },
+  "caverna_62": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_62.png",
+   "foglio": "caverna",
+   "misura": [
+    41,
+    34
+   ],
+   "pezzo": 62,
+   "piede": [
+    20,
+    32
+   ]
+  },
+  "caverna_63": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_63.png",
+   "foglio": "caverna",
+   "misura": [
+    42,
+    29
+   ],
+   "pezzo": 63,
+   "piede": [
+    21,
+    27
+   ]
+  },
+  "caverna_64": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_64.png",
+   "foglio": "caverna",
+   "misura": [
+    28,
+    38
+   ],
+   "pezzo": 64,
+   "piede": [
+    14,
+    36
+   ]
+  },
+  "caverna_65": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_65.png",
+   "foglio": "caverna",
+   "misura": [
+    29,
+    38
+   ],
+   "pezzo": 65,
+   "piede": [
+    14,
+    36
+   ]
+  },
+  "caverna_66": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_66.png",
+   "foglio": "caverna",
+   "misura": [
+    30,
+    20
+   ],
+   "pezzo": 66,
+   "piede": [
+    15,
+    18
+   ]
+  },
+  "caverna_67": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_67.png",
+   "foglio": "caverna",
+   "misura": [
+    6,
+    13
+   ],
+   "pezzo": 67,
+   "piede": [
+    3,
+    11
+   ]
+  },
+  "caverna_68": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_68.png",
+   "foglio": "caverna",
+   "misura": [
+    7,
+    17
+   ],
+   "pezzo": 68,
+   "piede": [
+    3,
+    15
+   ]
+  },
+  "caverna_69": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_69.png",
+   "foglio": "caverna",
+   "misura": [
+    38,
+    16
+   ],
+   "pezzo": 69,
+   "piede": [
+    19,
+    14
+   ]
+  },
+  "caverna_7": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_7.png",
+   "foglio": "caverna",
+   "misura": [
+    45,
+    45
+   ],
+   "pezzo": 7,
+   "piede": [
+    22,
+    43
+   ]
+  },
+  "caverna_8": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_8.png",
+   "foglio": "caverna",
+   "misura": [
+    45,
+    45
+   ],
+   "pezzo": 8,
+   "piede": [
+    22,
+    43
+   ]
+  },
+  "caverna_9": {
+   "categoria": "caverna",
+   "file": "caverna/caverna_9.png",
+   "foglio": "caverna",
+   "misura": [
+    46,
+    45
+   ],
+   "pezzo": 9,
+   "piede": [
+    23,
+    43
+   ]
+  },
+  "ceppo_1": {
+   "categoria": "alberi",
+   "file": "alberi/ceppo_1.png",
+   "foglio": "alberi",
+   "misura": [
+    42,
+    49
+   ],
+   "pezzo": 14,
+   "piede": [
+    21,
+    47
+   ]
+  },
+  "ceppo_2": {
+   "categoria": "alberi",
+   "file": "alberi/ceppo_2.png",
+   "foglio": "alberi",
+   "misura": [
+    41,
+    38
+   ],
+   "pezzo": 17,
+   "piede": [
+    20,
+    36
+   ]
+  },
+  "cespuglio_1": {
+   "categoria": "cespugli",
+   "file": "cespugli/cespuglio_1.png",
+   "foglio": "alberi",
+   "misura": [
+    30,
+    26
+   ],
+   "pezzo": 9,
+   "piede": [
+    15,
+    24
+   ]
+  },
+  "cespuglio_2": {
+   "categoria": "cespugli",
+   "file": "cespugli/cespuglio_2.png",
+   "foglio": "alberi",
+   "misura": [
+    35,
+    35
+   ],
+   "pezzo": 10,
+   "piede": [
+    17,
+    33
+   ]
+  },
+  "cespuglio_3": {
+   "categoria": "cespugli",
+   "file": "cespugli/cespuglio_3.png",
+   "foglio": "alberi",
+   "misura": [
+    34,
+    28
+   ],
+   "pezzo": 19,
+   "piede": [
+    17,
+    26
+   ]
+  },
+  "cespuglio_4": {
+   "categoria": "cespugli",
+   "file": "cespugli/cespuglio_4.png",
+   "foglio": "alberi",
+   "misura": [
+    40,
+    35
+   ],
+   "pezzo": 20,
+   "piede": [
+    20,
+    33
+   ]
+  },
+  "cippo_1": {
+   "categoria": "rovine",
+   "file": "rovine/cippo_1.png",
+   "foglio": "palude",
+   "misura": [
+    23,
+    34
+   ],
+   "pezzo": 41,
+   "piede": [
+    11,
+    32
+   ]
+  },
+  "cippo_2": {
+   "categoria": "rovine",
+   "file": "rovine/cippo_2.png",
+   "foglio": "palude",
+   "misura": [
+    22,
+    39
+   ],
+   "pezzo": 42,
+   "piede": [
+    11,
+    37
+   ]
+  },
+  "colonna": {
+   "categoria": "rovine",
+   "file": "rovine/colonna.png",
+   "foglio": "rovine",
+   "misura": [
+    22,
+    47
+   ],
+   "pezzo": 20,
+   "piede": [
+    11,
+    45
+   ]
+  },
+  "colonna_caduta": {
+   "categoria": "rovine",
+   "file": "rovine/colonna_caduta.png",
+   "foglio": "rovine",
+   "misura": [
+    46,
+    37
+   ],
+   "pezzo": 22,
+   "piede": [
+    23,
+    35
+   ]
+  },
+  "colonna_rotta_1": {
+   "categoria": "rovine",
+   "file": "rovine/colonna_rotta_1.png",
+   "foglio": "rovine",
+   "misura": [
+    22,
+    36
+   ],
+   "pezzo": 21,
+   "piede": [
+    11,
+    34
+   ]
+  },
+  "colonna_rotta_2": {
+   "categoria": "rovine",
+   "file": "rovine/colonna_rotta_2.png",
+   "foglio": "rovine",
+   "misura": [
+    22,
+    33
+   ],
+   "pezzo": 24,
+   "piede": [
+    11,
+    31
+   ]
+  },
+  "colonnato": {
+   "categoria": "rovine",
+   "file": "rovine/colonnato.png",
+   "foglio": "rovine",
+   "misura": [
+    126,
+    62
+   ],
+   "pezzo": 19,
+   "piede": [
+    63,
+    60
+   ]
+  },
+  "cratere": {
+   "categoria": "rocce",
+   "file": "rocce/cratere.png",
+   "foglio": "palude",
+   "misura": [
+    184,
+    112
+   ],
+   "pezzo": 0,
+   "piede": [
+    92,
+    110
+   ]
+  },
+  "erba_alta": {
+   "categoria": "cespugli",
+   "file": "cespugli/erba_alta.png",
+   "foglio": "alberi",
+   "misura": [
+    42,
+    25
+   ],
+   "pezzo": 21,
+   "piede": [
+    21,
+    23
+   ]
+  },
+  "erba_fiorellini": {
+   "categoria": "terreno",
+   "file": "terreno/erba_fiorellini.png",
+   "foglio": "terreno",
+   "misura": [
+    58,
+    58
+   ],
+   "pezzo": 3,
+   "piede": [
+    29,
+    56
+   ]
+  },
+  "erba_fiori": {
+   "categoria": "terreno",
+   "file": "terreno/erba_fiori.png",
+   "foglio": "terreno",
+   "misura": [
+    57,
+    58
+   ],
+   "pezzo": 2,
+   "piede": [
+    28,
+    56
+   ]
+  },
+  "erba_fitta": {
+   "categoria": "terreno",
+   "file": "terreno/erba_fitta.png",
+   "foglio": "terreno",
+   "misura": [
+    57,
+    58
+   ],
+   "pezzo": 1,
+   "piede": [
+    28,
+    56
+   ]
+  },
+  "erba_liscia": {
+   "categoria": "terreno",
+   "file": "terreno/erba_liscia.png",
+   "foglio": "terreno",
+   "misura": [
+    56,
+    58
+   ],
+   "pezzo": 0,
+   "piede": [
+    28,
+    56
+   ]
+  },
+  "felce_1": {
+   "categoria": "cespugli",
+   "file": "cespugli/felce_1.png",
+   "foglio": "alberi",
+   "misura": [
+    34,
+    30
+   ],
+   "pezzo": 11,
+   "piede": [
+    17,
+    28
+   ]
+  },
+  "felce_2": {
+   "categoria": "cespugli",
+   "file": "cespugli/felce_2.png",
+   "foglio": "alberi",
+   "misura": [
+    28,
+    28
+   ],
+   "pezzo": 12,
+   "piede": [
+    14,
+    26
+   ]
+  },
+  "guglia": {
+   "categoria": "rocce",
+   "file": "rocce/guglia.png",
+   "foglio": "terreno",
+   "misura": [
+    31,
+    41
+   ],
+   "pezzo": 76,
+   "piede": [
+    15,
+    39
+   ]
+  },
+  "masso_bruciato_1": {
+   "categoria": "rocce",
+   "file": "rocce/masso_bruciato_1.png",
+   "foglio": "palude",
+   "misura": [
+    45,
+    26
+   ],
+   "pezzo": 1,
+   "piede": [
+    22,
+    24
+   ]
+  },
+  "masso_bruciato_2": {
+   "categoria": "rocce",
+   "file": "rocce/masso_bruciato_2.png",
+   "foglio": "palude",
+   "misura": [
+    37,
+    25
+   ],
+   "pezzo": 4,
+   "piede": [
+    18,
+    23
+   ]
+  },
+  "muro_rotto": {
+   "categoria": "rovine",
+   "file": "rovine/muro_rotto.png",
+   "foglio": "rovine",
+   "misura": [
+    35,
+    37
+   ],
+   "pezzo": 23,
+   "piede": [
+    17,
+    35
+   ]
+  },
+  "ninfee_fiori": {
+   "categoria": "acqua",
+   "file": "acqua/ninfee_fiori.png",
+   "foglio": "palude",
+   "misura": [
+    38,
+    31
+   ],
+   "pezzo": 25,
+   "piede": [
+    19,
+    29
+   ]
+  },
+  "palo_1": {
+   "categoria": "rovine",
+   "file": "rovine/palo_1.png",
+   "foglio": "palude",
+   "misura": [
+    12,
+    35
+   ],
+   "pezzo": 39,
+   "piede": [
+    6,
+    33
+   ]
+  },
+  "palo_2": {
+   "categoria": "rovine",
+   "file": "rovine/palo_2.png",
+   "foglio": "palude",
+   "misura": [
+    12,
+    31
+   ],
+   "pezzo": 40,
+   "piede": [
+    6,
+    29
+   ]
+  },
+  "palude_2": {
+   "categoria": "altro",
+   "file": "altro/palude_2.png",
+   "foglio": "palude",
+   "misura": [
+    10,
+    6
+   ],
+   "pezzo": 2,
+   "piede": [
+    5,
+    4
+   ]
+  },
+  "palude_3": {
+   "categoria": "altro",
+   "file": "altro/palude_3.png",
+   "foglio": "palude",
+   "misura": [
+    10,
+    6
+   ],
+   "pezzo": 3,
+   "piede": [
+    5,
+    4
+   ]
+  },
+  "pino_1": {
+   "categoria": "alberi",
+   "file": "alberi/pino_1.png",
+   "foglio": "alberi",
+   "misura": [
+    51,
+    91
+   ],
+   "pezzo": 6,
+   "piede": [
+    25,
+    89
+   ]
+  },
+  "pino_2": {
+   "categoria": "alberi",
+   "file": "alberi/pino_2.png",
+   "foglio": "alberi",
+   "misura": [
+    54,
+    93
+   ],
+   "pezzo": 7,
+   "piede": [
+    27,
+    91
+   ]
+  },
+  "pino_3": {
+   "categoria": "alberi",
+   "file": "alberi/pino_3.png",
+   "foglio": "alberi",
+   "misura": [
+    47,
+    99
+   ],
+   "pezzo": 8,
+   "piede": [
+    23,
+    97
+   ]
+  },
+  "pozza_foglie_1": {
+   "categoria": "acqua",
+   "file": "acqua/pozza_foglie_1.png",
+   "foglio": "palude",
+   "misura": [
+    53,
+    30
+   ],
+   "pezzo": 36,
+   "piede": [
+    26,
+    28
+   ]
+  },
+  "pozza_foglie_2": {
+   "categoria": "acqua",
+   "file": "acqua/pozza_foglie_2.png",
+   "foglio": "palude",
+   "misura": [
+    56,
+    34
+   ],
+   "pezzo": 37,
+   "piede": [
+    28,
+    32
+   ]
+  },
+  "pozza_ninfea_1": {
+   "categoria": "acqua",
+   "file": "acqua/pozza_ninfea_1.png",
+   "foglio": "palude",
+   "misura": [
+    42,
+    34
+   ],
+   "pezzo": 26,
+   "piede": [
+    21,
+    32
+   ]
+  },
+  "pozza_ninfea_2": {
+   "categoria": "acqua",
+   "file": "acqua/pozza_ninfea_2.png",
+   "foglio": "palude",
+   "misura": [
+    56,
+    42
+   ],
+   "pezzo": 27,
+   "piede": [
+    28,
+    40
+   ]
+  },
+  "radici_1": {
+   "categoria": "alberi",
+   "file": "alberi/radici_1.png",
+   "foglio": "alberi",
+   "misura": [
+    39,
+    43
+   ],
+   "pezzo": 15,
+   "piede": [
+    19,
+    41
+   ]
+  },
+  "radici_2": {
+   "categoria": "alberi",
+   "file": "alberi/radici_2.png",
+   "foglio": "alberi",
+   "misura": [
+    48,
+    49
+   ],
+   "pezzo": 16,
+   "piede": [
+    24,
+    47
+   ]
+  },
+  "radici_3": {
+   "categoria": "alberi",
+   "file": "alberi/radici_3.png",
+   "foglio": "alberi",
+   "misura": [
+    43,
+    35
+   ],
+   "pezzo": 18,
+   "piede": [
+    21,
+    33
+   ]
+  },
+  "ricciolo_1": {
+   "categoria": "rovi",
+   "file": "rovi/ricciolo_1.png",
+   "foglio": "palude",
+   "misura": [
+    27,
+    25
+   ],
+   "pezzo": 18,
+   "piede": [
+    13,
+    23
+   ]
+  },
+  "ricciolo_2": {
+   "categoria": "rovi",
+   "file": "rovi/ricciolo_2.png",
+   "foglio": "palude",
+   "misura": [
+    19,
+    19
+   ],
+   "pezzo": 19,
+   "piede": [
+    9,
+    17
+   ]
+  },
+  "ricciolo_3": {
+   "categoria": "rovi",
+   "file": "rovi/ricciolo_3.png",
+   "foglio": "palude",
+   "misura": [
+    23,
+    25
+   ],
+   "pezzo": 20,
+   "piede": [
+    11,
+    23
+   ]
+  },
+  "rilievo_1": {
+   "categoria": "rovine",
+   "file": "rovine/rilievo_1.png",
+   "foglio": "rovine",
+   "misura": [
+    34,
+    42
+   ],
+   "pezzo": 26,
+   "piede": [
+    17,
+    40
+   ]
+  },
+  "rilievo_2": {
+   "categoria": "rovine",
+   "file": "rovine/rilievo_2.png",
+   "foglio": "rovine",
+   "misura": [
+    34,
+    42
+   ],
+   "pezzo": 27,
+   "piede": [
+    17,
+    40
+   ]
+  },
+  "riva_1": {
+   "categoria": "terreno",
+   "file": "terreno/riva_1.png",
+   "foglio": "palude",
+   "misura": [
+    50,
+    40
+   ],
+   "pezzo": 30,
+   "piede": [
+    25,
+    38
+   ]
+  },
+  "riva_2": {
+   "categoria": "terreno",
+   "file": "terreno/riva_2.png",
+   "foglio": "palude",
+   "misura": [
+    49,
+    40
+   ],
+   "pezzo": 31,
+   "piede": [
+    24,
+    38
+   ]
+  },
+  "rovi_fitti": {
+   "categoria": "terreno",
+   "file": "terreno/rovi_fitti.png",
+   "foglio": "terreno",
+   "misura": [
+    57,
+    57
+   ],
+   "pezzo": 6,
+   "piede": [
+    28,
+    55
+   ]
+  },
+  "rovi_fitti_2": {
+   "categoria": "terreno",
+   "file": "terreno/rovi_fitti_2.png",
+   "foglio": "terreno",
+   "misura": [
+    57,
+    57
+   ],
+   "pezzo": 7,
+   "piede": [
+    28,
+    55
+   ]
+  },
+  "rovine_38": {
+   "categoria": "altro",
+   "file": "altro/rovine_38.png",
+   "foglio": "rovine",
+   "misura": [
+    6,
+    6
+   ],
+   "pezzo": 38,
+   "piede": [
+    3,
+    4
+   ]
+  },
+  "rovo_1": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_1.png",
+   "foglio": "palude",
+   "misura": [
+    39,
+    32
+   ],
+   "pezzo": 10,
+   "piede": [
+    19,
+    30
+   ]
+  },
+  "rovo_2": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_2.png",
+   "foglio": "palude",
+   "misura": [
+    47,
+    41
+   ],
+   "pezzo": 11,
+   "piede": [
+    23,
+    39
+   ]
+  },
+  "rovo_3": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_3.png",
+   "foglio": "palude",
+   "misura": [
+    40,
+    34
+   ],
+   "pezzo": 12,
+   "piede": [
+    20,
+    32
+   ]
+  },
+  "rovo_anello_1": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_anello_1.png",
+   "foglio": "palude",
+   "misura": [
+    46,
+    37
+   ],
+   "pezzo": 9,
+   "piede": [
+    23,
+    35
+   ]
+  },
+  "rovo_anello_2": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_anello_2.png",
+   "foglio": "palude",
+   "misura": [
+    51,
+    35
+   ],
+   "pezzo": 14,
+   "piede": [
+    25,
+    33
+   ]
+  },
+  "rovo_basso_1": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_basso_1.png",
+   "foglio": "palude",
+   "misura": [
+    49,
+    29
+   ],
+   "pezzo": 13,
+   "piede": [
+    24,
+    27
+   ]
+  },
+  "rovo_basso_2": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_basso_2.png",
+   "foglio": "palude",
+   "misura": [
+    46,
+    27
+   ],
+   "pezzo": 21,
+   "piede": [
+    23,
+    25
+   ]
+  },
+  "rovo_basso_3": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_basso_3.png",
+   "foglio": "palude",
+   "misura": [
+    49,
+    29
+   ],
+   "pezzo": 22,
+   "piede": [
+    24,
+    27
+   ]
+  },
+  "rovo_grande": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_grande.png",
+   "foglio": "palude",
+   "misura": [
+    90,
+    77
+   ],
+   "pezzo": 8,
+   "piede": [
+    45,
+    75
+   ]
+  },
+  "rovo_secco_1": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_secco_1.png",
+   "foglio": "alberi",
+   "misura": [
+    39,
+    32
+   ],
+   "pezzo": 13,
+   "piede": [
+    19,
+    30
+   ]
+  },
+  "rovo_secco_2": {
+   "categoria": "rovi",
+   "file": "rovi/rovo_secco_2.png",
+   "foglio": "alberi",
+   "misura": [
+    39,
+    34
+   ],
+   "pezzo": 22,
+   "piede": [
+    19,
+    32
+   ]
+  },
+  "rupe_1": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_1.png",
+   "foglio": "rovine",
+   "misura": [
+    80,
+    66
+   ],
+   "pezzo": 0,
+   "piede": [
+    40,
+    64
+   ]
+  },
+  "rupe_2": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_2.png",
+   "foglio": "rovine",
+   "misura": [
+    78,
+    66
+   ],
+   "pezzo": 1,
+   "piede": [
+    39,
+    64
+   ]
+  },
+  "rupe_3": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_3.png",
+   "foglio": "rovine",
+   "misura": [
+    50,
+    66
+   ],
+   "pezzo": 2,
+   "piede": [
+    25,
+    64
+   ]
+  },
+  "rupe_curva_1": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_curva_1.png",
+   "foglio": "terreno",
+   "misura": [
+    45,
+    44
+   ],
+   "pezzo": 70,
+   "piede": [
+    22,
+    42
+   ]
+  },
+  "rupe_curva_2": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_curva_2.png",
+   "foglio": "terreno",
+   "misura": [
+    46,
+    43
+   ],
+   "pezzo": 71,
+   "piede": [
+    23,
+    41
+   ]
+  },
+  "rupe_curva_3": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_curva_3.png",
+   "foglio": "rovine",
+   "misura": [
+    46,
+    50
+   ],
+   "pezzo": 6,
+   "piede": [
+    23,
+    48
+   ]
+  },
+  "rupe_curva_4": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_curva_4.png",
+   "foglio": "rovine",
+   "misura": [
+    46,
+    50
+   ],
+   "pezzo": 7,
+   "piede": [
+    23,
+    48
+   ]
+  },
+  "rupe_gradino": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_gradino.png",
+   "foglio": "rovine",
+   "misura": [
+    79,
+    66
+   ],
+   "pezzo": 5,
+   "piede": [
+    39,
+    64
+   ]
+  },
+  "rupe_grande": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_grande.png",
+   "foglio": "rovine",
+   "misura": [
+    125,
+    66
+   ],
+   "pezzo": 4,
+   "piede": [
+    62,
+    64
+   ]
+  },
+  "rupe_lunga": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_lunga.png",
+   "foglio": "terreno",
+   "misura": [
+    119,
+    44
+   ],
+   "pezzo": 75,
+   "piede": [
+    59,
+    42
+   ]
+  },
+  "rupe_pilastro": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_pilastro.png",
+   "foglio": "terreno",
+   "misura": [
+    46,
+    44
+   ],
+   "pezzo": 73,
+   "piede": [
+    23,
+    42
+   ]
+  },
+  "rupe_tonda_1": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_tonda_1.png",
+   "foglio": "terreno",
+   "misura": [
+    87,
+    43
+   ],
+   "pezzo": 74,
+   "piede": [
+    43,
+    41
+   ]
+  },
+  "rupe_tonda_2": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_tonda_2.png",
+   "foglio": "terreno",
+   "misura": [
+    63,
+    43
+   ],
+   "pezzo": 86,
+   "piede": [
+    31,
+    41
+   ]
+  },
+  "rupe_tonda_3": {
+   "categoria": "rupi",
+   "file": "rupi/rupe_tonda_3.png",
+   "foglio": "rovine",
+   "misura": [
+    85,
+    66
+   ],
+   "pezzo": 3,
+   "piede": [
+    42,
+    64
+   ]
+  },
+  "ruscello_1": {
+   "categoria": "terreno",
+   "file": "terreno/ruscello_1.png",
+   "foglio": "terreno",
+   "misura": [
+    42,
+    39
+   ],
+   "pezzo": 82,
+   "piede": [
+    21,
+    37
+   ]
+  },
+  "ruscello_2": {
+   "categoria": "terreno",
+   "file": "terreno/ruscello_2.png",
+   "foglio": "terreno",
+   "misura": [
+    42,
+    40
+   ],
+   "pezzo": 83,
+   "piede": [
+    21,
+    38
+   ]
+  },
+  "sabbia": {
+   "categoria": "terreno",
+   "file": "terreno/sabbia.png",
+   "foglio": "terreno",
+   "misura": [
+    57,
+    58
+   ],
+   "pezzo": 4,
+   "piede": [
+    28,
+    56
+   ]
+  },
+  "sassi_1": {
+   "categoria": "rocce",
+   "file": "rocce/sassi_1.png",
+   "foglio": "terreno",
+   "misura": [
+    24,
+    21
+   ],
+   "pezzo": 77,
+   "piede": [
+    12,
+    19
+   ]
+  },
+  "sassi_muschio": {
+   "categoria": "rocce",
+   "file": "rocce/sassi_muschio.png",
+   "foglio": "palude",
+   "misura": [
+    44,
+    31
+   ],
+   "pezzo": 38,
+   "piede": [
+    22,
+    29
+   ]
+  },
+  "sasso_1": {
+   "categoria": "rocce",
+   "file": "rocce/sasso_1.png",
+   "foglio": "terreno",
+   "misura": [
+    19,
+    16
+   ],
+   "pezzo": 78,
+   "piede": [
+    9,
+    14
+   ]
+  },
+  "sasso_2": {
+   "categoria": "rocce",
+   "file": "rocce/sasso_2.png",
+   "foglio": "terreno",
+   "misura": [
+    15,
+    12
+   ],
+   "pezzo": 79,
+   "piede": [
+    7,
+    10
+   ]
+  },
+  "sasso_muschio_1": {
+   "categoria": "rocce",
+   "file": "rocce/sasso_muschio_1.png",
+   "foglio": "palude",
+   "misura": [
+    30,
+    19
+   ],
+   "pezzo": 28,
+   "piede": [
+    15,
+    17
+   ]
+  },
+  "sasso_muschio_2": {
+   "categoria": "rocce",
+   "file": "rocce/sasso_muschio_2.png",
+   "foglio": "palude",
+   "misura": [
+    25,
+    18
+   ],
+   "pezzo": 29,
+   "piede": [
+    12,
+    16
+   ]
+  },
+  "sasso_muschio_3": {
+   "categoria": "rocce",
+   "file": "rocce/sasso_muschio_3.png",
+   "foglio": "palude",
+   "misura": [
+    29,
+    17
+   ],
+   "pezzo": 34,
+   "piede": [
+    14,
+    15
+   ]
+  },
+  "scala_1": {
+   "categoria": "rupi",
+   "file": "rupi/scala_1.png",
+   "foglio": "terreno",
+   "misura": [
+    46,
+    43
+   ],
+   "pezzo": 84,
+   "piede": [
+    23,
+    41
+   ]
+  },
+  "scala_2": {
+   "categoria": "rupi",
+   "file": "rupi/scala_2.png",
+   "foglio": "terreno",
+   "misura": [
+    46,
+    43
+   ],
+   "pezzo": 85,
+   "piede": [
+    23,
+    41
+   ]
+  },
+  "scala_3": {
+   "categoria": "rupi",
+   "file": "rupi/scala_3.png",
+   "foglio": "rovine",
+   "misura": [
+    33,
+    31
+   ],
+   "pezzo": 14,
+   "piede": [
+    16,
+    29
+   ]
+  },
+  "scala_4": {
+   "categoria": "rupi",
+   "file": "rupi/scala_4.png",
+   "foglio": "rovine",
+   "misura": [
+    31,
+    31
+   ],
+   "pezzo": 15,
+   "piede": [
+    15,
+    29
+   ]
+  },
+  "scala_5": {
+   "categoria": "rupi",
+   "file": "rupi/scala_5.png",
+   "foglio": "rovine",
+   "misura": [
+    39,
+    31
+   ],
+   "pezzo": 16,
+   "piede": [
+    19,
+    29
+   ]
+  },
+  "scala_6": {
+   "categoria": "rupi",
+   "file": "rupi/scala_6.png",
+   "foglio": "rovine",
+   "misura": [
+    38,
+    32
+   ],
+   "pezzo": 17,
+   "piede": [
+    19,
+    30
+   ]
+  },
+  "scala_a_pioli": {
+   "categoria": "rovine",
+   "file": "rovine/scala_a_pioli.png",
+   "foglio": "rovine",
+   "misura": [
+    20,
+    33
+   ],
+   "pezzo": 18,
+   "piede": [
+    10,
+    31
+   ]
+  },
+  "scala_dritta": {
+   "categoria": "rupi",
+   "file": "rupi/scala_dritta.png",
+   "foglio": "rovine",
+   "misura": [
+    32,
+    30
+   ],
+   "pezzo": 13,
+   "piede": [
+    16,
+    28
+   ]
+  },
+  "sentiero_rupe_1": {
+   "categoria": "terreno",
+   "file": "terreno/sentiero_rupe_1.png",
+   "foglio": "terreno",
+   "misura": [
+    41,
+    40
+   ],
+   "pezzo": 80,
+   "piede": [
+    20,
+    38
+   ]
+  },
+  "sentiero_rupe_2": {
+   "categoria": "terreno",
+   "file": "terreno/sentiero_rupe_2.png",
+   "foglio": "terreno",
+   "misura": [
+    42,
+    40
+   ],
+   "pezzo": 81,
+   "piede": [
+    21,
+    38
+   ]
+  },
+  "sporgenza_1": {
+   "categoria": "rupi",
+   "file": "rupi/sporgenza_1.png",
+   "foglio": "rovine",
+   "misura": [
+    54,
+    47
+   ],
+   "pezzo": 10,
+   "piede": [
+    27,
+    45
+   ]
+  },
+  "sporgenza_2": {
+   "categoria": "rupi",
+   "file": "rupi/sporgenza_2.png",
+   "foglio": "rovine",
+   "misura": [
+    56,
+    46
+   ],
+   "pezzo": 11,
+   "piede": [
+    28,
+    44
+   ]
+  },
+  "sporgenza_3": {
+   "categoria": "rupi",
+   "file": "rupi/sporgenza_3.png",
+   "foglio": "rovine",
+   "misura": [
+    63,
+    48
+   ],
+   "pezzo": 12,
+   "piede": [
+    31,
+    46
+   ]
+  },
+  "terrazze_1": {
+   "categoria": "rupi",
+   "file": "rupi/terrazze_1.png",
+   "foglio": "terreno",
+   "misura": [
+    45,
+    44
+   ],
+   "pezzo": 72,
+   "piede": [
+    22,
+    42
+   ]
+  },
+  "terrazze_2": {
+   "categoria": "rupi",
+   "file": "rupi/terrazze_2.png",
+   "foglio": "rovine",
+   "misura": [
+    67,
+    50
+   ],
+   "pezzo": 8,
+   "piede": [
+    33,
+    48
+   ]
+  },
+  "terrazze_3": {
+   "categoria": "rupi",
+   "file": "rupi/terrazze_3.png",
+   "foglio": "rovine",
+   "misura": [
+    114,
+    50
+   ],
+   "pezzo": 9,
+   "piede": [
+    57,
+    48
+   ]
+  },
+  "terreno_10": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_10.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 10,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_11": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_11.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 11,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_12": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_12.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 12,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_13": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_13.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 13,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_14": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_14.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 14,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_15": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_15.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 15,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_16": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_16.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 16,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_17": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_17.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 17,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_18": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_18.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 18,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_19": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_19.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 19,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_20": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_20.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 20,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_21": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_21.png",
+   "foglio": "terreno",
+   "misura": [
+    28,
+    27
+   ],
+   "pezzo": 21,
+   "piede": [
+    14,
+    25
+   ]
+  },
+  "terreno_22": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_22.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 22,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_23": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_23.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 23,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_24": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_24.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 24,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_25": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_25.png",
+   "foglio": "terreno",
+   "misura": [
+    25,
+    26
+   ],
+   "pezzo": 25,
+   "piede": [
+    12,
+    24
+   ]
+  },
+  "terreno_26": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_26.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 26,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_27": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_27.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 27,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_28": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_28.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 28,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_29": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_29.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 29,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_30": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_30.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 30,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_31": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_31.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 31,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_32": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_32.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 32,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_33": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_33.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 33,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_34": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_34.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 34,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_35": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_35.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 35,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_36": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_36.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 36,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_37": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_37.png",
+   "foglio": "terreno",
+   "misura": [
+    58,
+    27
+   ],
+   "pezzo": 37,
+   "piede": [
+    29,
+    25
+   ]
+  },
+  "terreno_38": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_38.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 38,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_39": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_39.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 39,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_40": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_40.png",
+   "foglio": "terreno",
+   "misura": [
+    25,
+    26
+   ],
+   "pezzo": 40,
+   "piede": [
+    12,
+    24
+   ]
+  },
+  "terreno_41": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_41.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 41,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_42": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_42.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 42,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_43": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_43.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 43,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_44": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_44.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 44,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_45": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_45.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 45,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_46": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_46.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 46,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_47": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_47.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 47,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_48": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_48.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 48,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_49": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_49.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 49,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_50": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_50.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 50,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_51": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_51.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 51,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_52": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_52.png",
+   "foglio": "terreno",
+   "misura": [
+    28,
+    27
+   ],
+   "pezzo": 52,
+   "piede": [
+    14,
+    25
+   ]
+  },
+  "terreno_53": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_53.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 53,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_54": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_54.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 54,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_55": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_55.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 55,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_56": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_56.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 56,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_57": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_57.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 57,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_58": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_58.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 58,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_59": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_59.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 59,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_60": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_60.png",
+   "foglio": "terreno",
+   "misura": [
+    28,
+    26
+   ],
+   "pezzo": 60,
+   "piede": [
+    14,
+    24
+   ]
+  },
+  "terreno_61": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_61.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    26
+   ],
+   "pezzo": 61,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_62": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_62.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 62,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_63": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_63.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 63,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_64": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_64.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 64,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_65": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_65.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    26
+   ],
+   "pezzo": 65,
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "terreno_66": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_66.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 66,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_67": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_67.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 67,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_68": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_68.png",
+   "foglio": "terreno",
+   "misura": [
+    27,
+    27
+   ],
+   "pezzo": 68,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_69": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_69.png",
+   "foglio": "terreno",
+   "misura": [
+    59,
+    27
+   ],
+   "pezzo": 69,
+   "piede": [
+    29,
+    25
+   ]
+  },
+  "terreno_8": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_8.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 8,
+   "piede": [
+    13,
+    25
+   ]
+  },
+  "terreno_9": {
+   "categoria": "tessere",
+   "file": "tessere/terreno_9.png",
+   "foglio": "terreno",
+   "misura": [
+    26,
+    27
+   ],
+   "pezzo": 9,
+   "piede": [
+    13,
+    25
+   ]
+  }
+ },
+ "tavolozza": [
+  "#78986e",
+  "#100314",
+  "#28172b",
+  "#e9e6c9",
+  "#6b6559",
+  "#586063",
+  "#3d393a",
+  "#afaf9a",
+  "#37424d",
+  "#4c724c",
+  "#495159",
+  "#d9d3b2",
+  "#a1a292",
+  "#362f30",
+  "#504a46",
+  "#567587",
+  "#0b0b11",
+  "#93978a",
+  "#919ace",
+  "#bab8a2",
+  "#5f564c",
+  "#84a8af",
+  "#6a8b63",
+  "#341f35",
+  "#42273f",
+  "#100e1b",
+  "#4d6a7c",
+  "#586c58",
+  "#030105",
+  "#06050b",
+  "#1f242c",
+  "#2c343d",
+  "#273b37",
+  "#2e453e",
+  "#6f7764",
+  "#e1dfc1",
+  "#1e0d21",
+  "#7094a0",
+  "#141416",
+  "#4f595e",
+  "#666e70",
+  "#354f43",
+  "#151623",
+  "#673f5b",
+  "#b1d1dd",
+  "#474241",
+  "#7d848a",
+  "#44634a",
+  "#415d70",
+  "#28282f",
+  "#52324c",
+  "#9abcc9",
+  "#c5c6b0",
+  "#3e4a54",
+  "#3f5846",
+  "#72797a",
+  "#2e3b47",
+  "#5a7f56",
+  "#618494",
+  "#242f35",
+  "#5d676c",
+  "#c6e9eb",
+  "#1c1d24",
+  "#868c82"
+ ]
+}
