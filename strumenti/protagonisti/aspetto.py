@@ -7,7 +7,10 @@
 #     l'ombra sotto) che segue la testa in ogni vista, con le stelle;
 #   - il cerchio d'oro: davanti a sinistra di chi guarda, di lato tondo (e'
 #     il lato che si vede), da dietro di taglio sul bordo destro;
-#   - gli occhi col viola-magenta del disegno.
+#   - gli occhi scuri e senza espressione (Bru: «da aggiustare solo gli
+#     occhi, li voglio emotionless e dark»): la palpebra di sopra e' una riga
+#     dritta di contorno, sotto l'iride e' di un viola quasi nero, e non c'e'
+#     il punto di luce che li faceva vivi.
 # Le misure sono sui tre disegni puliti (davanti1, dietro2 e il lato) che
 # escono da ricalca.py.
 
@@ -19,8 +22,9 @@ def esa(x):
 FASCIA = [esa(c) for c in ('#f06a86', '#c8304e', '#c8304e', '#922038')]
 STELLA = esa('#f4ecff')
 ORO = {'y': esa('#ffe49a'), 'Y': esa('#e8b040'), 'z': esa('#a8701c'), 'R': esa('#5e1226')}
-IRIDE = esa('#c048b0')
-LUCE_OCCHIO = esa('#f8c0f0')
+# un viola scuro, appena piu' chiaro del contorno: sotto la palpebra nera si
+# legge ancora come iride (lo sguardo a mezze palpebre), non come un buco
+IRIDE = esa('#4a3060')
 
 # il cerchio d'oro: y chiaro, Y oro, z scuro, R la fascia che si vede nel buco
 CERCHIO = {
@@ -40,28 +44,31 @@ CERCHIO = {
 
 # per ogni vista: la riga dove comincia la fascia, colonna per colonna; dove
 # sono le stelle; dove va il cerchio (l'angolo in alto a sinistra) e com'e';
-# gli occhi (dove va l'iride, due pixel, e la luce)
+# gli occhi: la palpebra (tre pixel in fila) e sotto l'iride (due pixel)
 VISTE = {
     "davanti": dict(
         fascia=(4, 21, lambda x: 9),
         stelle=((12, 10), (17, 10), (14, 11), (19, 11)),
         cerchio=((3, 8), "tondo"),
-        iridi=((8, 19), (9, 19), (16, 19), (17, 19)), luci=((8, 18), (16, 18))),
+        palpebre=((7, 18), (8, 18), (9, 18), (15, 18), (16, 18), (17, 18)),
+        iridi=((8, 19), (9, 19), (16, 19), (17, 19))),
     "dietro": dict(
         fascia=(3, 21, lambda x: 14 + round(2 * (1 - ((x - 12.5) / 9.0) ** 2))),
         stelle=((8, 16), (16, 17)),
         cerchio=((20, 13), "taglio"),
-        iridi=(), luci=()),
+        palpebre=(), iridi=()),
     "lato": dict(
         fascia=(9, 27, lambda x: round(16 - (x - 9) * 8 / 18.0)),
         stelle=((12, 16), (15, 15), (18, 13)),
         cerchio=((20, 8), "tondo"),
-        iridi=((21, 19), (22, 19)), luci=((21, 18),)),
+        palpebre=((20, 18), (21, 18), (22, 18)),
+        iridi=((21, 19), (22, 19))),
 }
 
 
 def vesti(g, vista, nero):
-    """la fascia, le stelle, il cerchio d'oro e gli occhi su un disegno pulito"""
+    """la fascia, le stelle, il cerchio d'oro e gli occhi su un disegno pulito
+    (il contorno e' nero)"""
     g = [list(r) for r in g]
     h, w = len(g), len(g[0])
     v = VISTE[vista]
@@ -82,10 +89,10 @@ def vesti(g, vista, nero):
         for i, ch in enumerate(r):
             if ch != "." and 0 <= cx + i < w and 0 <= cy + j < h:
                 g[cy + j][cx + i] = nero if ch == "o" else ORO[ch]
+    for x, y in v["palpebre"]:
+        if dentro(x, y):
+            g[y][x] = nero
     for x, y in v["iridi"]:
         if dentro(x, y):
             g[y][x] = IRIDE
-    for x, y in v["luci"]:
-        if dentro(x, y):
-            g[y][x] = LUCE_OCCHIO
     return g

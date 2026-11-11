@@ -216,8 +216,11 @@ Non si ridisegna niente: si ricostruiscono i pixel del foglio.
   - il cerchio d'oro sul lato destro della testa: davanti a sinistra di chi
     guarda, di lato tondo, da dietro di taglio sul bordo;
   - le lenti e l'ottone degli occhialoni diventano fascia;
-  - la pelle abbronzata, gli occhi viola-magenta, e guanti, stivali e shorts
-    di nero lucido.
+  - la pelle abbronzata, e guanti, stivali e shorts di nero lucido;
+  - gli occhi scuri e senza espressione. Bru: «da aggiustare solo gli occhi,
+    li voglio emotionless e dark». La palpebra di sopra è una riga dritta di
+    contorno, sotto c'è l'iride di un viola quasi nero (`#4a3060`), e non c'è
+    il punto di luce. Così lo sguardo è a mezze palpebre, fermo.
 
   Per riconoscere i materiali del ricalco si usano sempre i colori del foglio
   (`MATERIALI`); poi ogni tono si dipinge col colore del disegno (`ASPETTO`).

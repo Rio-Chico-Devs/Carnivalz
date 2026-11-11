@@ -145,8 +145,9 @@ strumenti/protagonisti/ricalca.py`, che ricostruisce i pixel del foglio:
 
 - poi la **veste come nel disegno di lei** (`aspetto.py`). Al posto degli
   occhialoni del foglio c'è la fascia cremisi con le stelle e il cerchio d'oro
-  sul lato destro della testa. In più la pelle abbronzata, gli occhi
-  viola-magenta, e guanti, stivali e shorts di nero lucido.
+  sul lato destro della testa. In più la pelle abbronzata, gli occhi scuri e
+  senza espressione (la palpebra una riga dritta, l'iride viola quasi nero,
+  nessun punto di luce), e guanti, stivali e shorts di nero lucido.
 
 `ricalca.py fedele` scrive la versione senza pulizia e senza vestito, coi 40
 colori del foglio com'è.
