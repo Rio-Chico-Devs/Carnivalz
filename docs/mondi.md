@@ -339,6 +339,20 @@ oggetti disegnati in pixel che poi vengono riutilizzati nelle mappe».
   gioco le mette insieme a lei in ordine di piede. Passa dietro ai pini e
   davanti alle rovine, e la ferma solo il tronco o la base.
 
+**Uno per uno, disegnati.** Bru, sulla prima mappa composta: «va bene solo
+la grandezza, i disegni e le posizioni fanno pietà, concentriamoci prima sui
+singoli elementi poi sulla messa in scena, migliora lo sprite degli alberi per
+cominciare». I pezzi ricalcati dai fogli si rifanno uno per uno, disegnati
+pixel per pixel (`art/livelli/pezzi/`). I primi sono gli alberi
+(`strumenti/livelli/alberi.py`):
+
+- quattro tondi, con la chioma fatta di foglie a timbro;
+- tre pini a palchi.
+
+Hanno poche rampe di colore, spente come il prato, la luce da in alto a
+sinistra e il contorno scuro. Le posizioni sono ancora quelle di prima: la
+messa in scena viene dopo.
+
 **Gli ostacoli ci sono.** Nelle Pianure dove si cammina è una maschera, pixel
 per pixel (`art/livelli/pianure_passi.png`):
 

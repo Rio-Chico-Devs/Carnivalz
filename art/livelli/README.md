@@ -6,6 +6,7 @@ che dice dove si cammina.
 
     F6 su prove/LivelloProva.tscn                  le Pianure (P passa da lei a lui)
     prove/LivelloProva.tscn -- livello panottico   il Panottico
+    python3 strumenti/livelli/alberi.py            ridisegna gli alberi, pixel per pixel
     python3 strumenti/livelli/oggetti.py           rifà la libreria dei pezzi dai fogli di Bru
     python3 strumenti/livelli/compone.py           rifà le Pianure coi pezzi
     python3 strumenti/livelli/ricalca_livello.py   rifà il Panottico dal disegno di Bru
@@ -15,7 +16,33 @@ che dice dove si cammina.
 | `pianure` | **Le Pianure di Redenna**, il primo livello. È **composto coi pezzi** della libreria (`oggetti/`), sul disegno di Bru e secondo la tabella di marcia del tutorial |
 | `panottico` | **Il Panottico silenzioso**: dietro la porta enorme oltre l'altare della bambola, nella Casa Gigante. È il disegno di Bru («THE SILENT PANOPTICON»), pulito |
 
-## La libreria dei pezzi: `oggetti/`
+## I pezzi disegnati: `pezzi/`
+
+Bru, sulla prima mappa composta: «va bene solo la grandezza, i disegni e le
+posizioni fanno pietà, concentriamoci prima sui singoli elementi poi sulla
+messa in scena, migliora lo sprite degli alberi per cominciare».
+
+Quindi i pezzi si rifanno uno per uno, **disegnati pixel per pixel**: niente
+si ricalca dai fogli (era quello a dare l'aria da AI). Ogni pezzo è costruito
+con poche forme e poche regole, come lo farebbe uno a mano. Per ora gli
+alberi (`strumenti/livelli/alberi.py`):
+
+- **quattro alberi tondi**: la chioma è una cupola riempita di **foglie a
+  timbro** (una forma di 5×4 col bordo chiaro, il corpo e la punta in ombra),
+  timbrate fitte dall'alto in basso; il tono di ogni foglia viene dalla luce
+  della cupola e del suo ciuffo, e nell'ombra la foglia è di un tono solo.
+  Sotto, il tronco con le radici;
+- **tre pini**: una pila di palchi, ognuno col fondo a punte, chiaro a
+  sinistra e scuro a destra, con la fascia d'ombra del palco di sopra;
+- **le regole di tutti**: poche rampe di colore (le ombre virano al blu, le
+  luci al giallo, spente come il prato), la luce da in alto a sinistra, il
+  contorno scuro e mai nero, niente pixel soli, un'ombra ovale per terra.
+
+`pezzi/catalogo.json` ha la misura e il piede di ognuno. Un pezzo disegnato
+**vince** su quello ricalcato con lo stesso nome: `compone.py` lo prende da
+qui.
+
+## La libreria dei pezzi ricalcati: `oggetti/`
 
 Bru: «vorrei che i disegni fossero creati pixel per pixel non usando un
 immagine ma proprio oggetti disegnati in pixel che poi vengono riutilizzati

@@ -1,0 +1,82 @@
+{
+ "_nota": "Scritto da strumenti/livelli/alberi.py: non toccare a mano.",
+ "pezzi": {
+  "albero_1": {
+   "file": "alberi/albero_1.png",
+   "misura": [
+    56,
+    72
+   ],
+   "piede": [
+    28,
+    69
+   ]
+  },
+  "albero_2": {
+   "file": "alberi/albero_2.png",
+   "misura": [
+    60,
+    74
+   ],
+   "piede": [
+    30,
+    71
+   ]
+  },
+  "albero_3": {
+   "file": "alberi/albero_3.png",
+   "misura": [
+    52,
+    70
+   ],
+   "piede": [
+    26,
+    67
+   ]
+  },
+  "albero_4": {
+   "file": "alberi/albero_4.png",
+   "misura": [
+    64,
+    76
+   ],
+   "piede": [
+    32,
+    73
+   ]
+  },
+  "pino_1": {
+   "file": "alberi/pino_1.png",
+   "misura": [
+    48,
+    96
+   ],
+   "piede": [
+    24,
+    93
+   ]
+  },
+  "pino_2": {
+   "file": "alberi/pino_2.png",
+   "misura": [
+    44,
+    100
+   ],
+   "piede": [
+    22,
+    97
+   ]
+  },
+  "pino_3": {
+   "file": "alberi/pino_3.png",
+   "misura": [
+    52,
+    90
+   ],
+   "piede": [
+    26,
+    87
+   ]
+  }
+ }
+}

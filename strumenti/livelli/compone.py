@@ -1,5 +1,7 @@
-# Le Pianure di Redenna composte coi pezzi della libreria
-# (art/livelli/oggetti/, scritta da strumenti/livelli/oggetti.py).
+# Le Pianure di Redenna composte coi pezzi: quelli disegnati pixel per pixel
+# (art/livelli/pezzi/, per ora gli alberi: strumenti/livelli/alberi.py) e,
+# dove non ce ne sono ancora, quelli ricalcati dai fogli di Bru
+# (art/livelli/oggetti/, strumenti/livelli/oggetti.py).
 #
 #   python3 strumenti/livelli/compone.py
 #
@@ -864,12 +866,17 @@ def impronte(nome, larga):
     return []
 
 
-def le_cose(c, w, h, cammina, pianta, catalogo, scala):
+def le_cose(c, w, h, cammina, pianta, catalogo, disegnati, scala):
     """-> (pezzi: [file, x, y, piede x, piede y] in pixel del mondo, in ordine
     di piede; dipinti: lo stesso per quelli piatti)"""
     def pezzo(nome, x, y):
         if nome == 'capsula':
             return ['../pianeti/pianure/capsula.png', int(round(x * scala)), int(round(y * scala)), 16, 30]
+        # un pezzo disegnato (art/livelli/pezzi/) vince su quello ricalcato
+        # dai fogli (art/livelli/oggetti/) con lo stesso nome
+        if nome in disegnati["pezzi"]:
+            o = disegnati["pezzi"][nome]
+            return ['pezzi/' + o["file"], int(round(x * scala)), int(round(y * scala))] + o["piede"]
         o = catalogo["oggetti"][nome]
         return ['oggetti/' + o["file"], int(round(x * scala)), int(round(y * scala))] + o["piede"]
     semi = [t for t in seminate(c, w, h, cammina, pianta) if 0 <= t[1] < w and 0 <= t[2] < h - 1]
@@ -964,6 +971,8 @@ def main():
         pianta = json.load(f)
     with open(os.path.join(OGGETTI, 'catalogo.json')) as f:
         catalogo = json.load(f)
+    with open(os.path.join(ARTE, 'pezzi', 'catalogo.json')) as f:
+        disegnati = json.load(f)
     scala = 2
     w, h, c, cammina = classi(pianta, os.path.join(QUI, 'fogli', 'pianure.png'))
     if len(sys.argv) > 1:
@@ -976,7 +985,7 @@ def main():
     ponti = [f for f in pianta["si_passa"] if f == [790, 546, 810, 592]]
     scale = [f for f in pianta["si_passa"] if f not in ponti] + list(SCALE_DECORO)
     pareti(K, W, H, out, scale, ponti)
-    pezzi, dipinti = le_cose(c, w, h, cammina, pianta, catalogo, scala)
+    pezzi, dipinti = le_cose(c, w, h, cammina, pianta, catalogo, disegnati, scala)
     for p in dipinti:
         incolla(out, W, H, p)
     scrivi_png(os.path.join(ARTE, 'pianure.png'), W, H, rgb=out)
