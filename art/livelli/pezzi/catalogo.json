@@ -78,6 +78,17 @@
     90
    ]
   },
+  "albero_fiore": {
+   "file": "alberi/albero_fiore.png",
+   "misura": [
+    83,
+    87
+   ],
+   "piede": [
+    38,
+    85
+   ]
+  },
   "albero_funghi": {
    "file": "alberi/albero_funghi.png",
    "misura": [
@@ -133,6 +144,28 @@
     126
    ]
   },
+  "albero_vortice": {
+   "file": "alberi/albero_vortice.png",
+   "misura": [
+    103,
+    99
+   ],
+   "piede": [
+    52,
+    97
+   ]
+  },
+  "albero_vortici": {
+   "file": "alberi/albero_vortici.png",
+   "misura": [
+    81,
+    85
+   ],
+   "piede": [
+    40,
+    83
+   ]
+  },
   "baccelli_luminosi": {
    "file": "alberi/baccelli_luminosi.png",
    "misura": [
@@ -142,6 +175,28 @@
    "piede": [
     33,
     96
+   ]
+  },
+  "baccelli_luminosi_2": {
+   "file": "alberi/baccelli_luminosi_2.png",
+   "misura": [
+    77,
+    100
+   ],
+   "piede": [
+    41,
+    98
+   ]
+  },
+  "cespuglio_sfere": {
+   "file": "alberi/cespuglio_sfere.png",
+   "misura": [
+    90,
+    94
+   ],
+   "piede": [
+    50,
+    92
    ]
   },
   "cespuglione": {
@@ -208,6 +263,17 @@
    "piede": [
     48,
     79
+   ]
+  },
+  "felce_nera_2": {
+   "file": "alberi/felce_nera_2.png",
+   "misura": [
+    80,
+    82
+   ],
+   "piede": [
+    35,
+    80
    ]
   },
   "guglia_1": {
@@ -791,6 +857,17 @@
    "piede": [
     26,
     87
+   ]
+  },
+  "radici_sfere": {
+   "file": "alberi/radici_sfere.png",
+   "misura": [
+    89,
+    85
+   ],
+   "piede": [
+    43,
+    83
    ]
   },
   "ramo_storto": {

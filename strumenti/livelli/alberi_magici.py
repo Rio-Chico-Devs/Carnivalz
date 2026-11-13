@@ -1,5 +1,6 @@
 # Gli alberi dei biomi dai fogli di Bru (strumenti/livelli/fogli/
-# alberi_magici.jpg, albero_magenta.jpg, bioma_viola.jpg), uno per file, puliti pixel per pixel.
+# alberi_magici.jpg, albero_magenta.jpg, bioma_viola.jpg, bioma_viola_2.jpg),
+# uno per file, puliti pixel per pixel.
 #
 #   python3 strumenti/livelli/alberi_magici.py        (serve numpy e Pillow)
 #
@@ -43,9 +44,18 @@ ALBERI = (
     ('bioma_viola', 'albero_contorto_2', (380, 448, 680, 718), 2.93),
     ('bioma_viola', 'baccelli_luminosi', (780, 425, 985, 712), 2.93),
     ('bioma_viola', 'sfere_luminose', (1120, 507, 1343, 659), 2.93),
+    # il secondo foglio del bioma viola (il terzo e' l'albero magenta: c'e'
+    # gia'; baccelli, sfere e felce sono altri disegni: varianti)
+    ('bioma_viola_2', 'albero_vortice', (29, 32, 331, 322), 2.93),
+    ('bioma_viola_2', 'albero_vortici', (407, 58, 645, 307), 2.93),
+    ('bioma_viola_2', 'albero_fiore', (1112, 58, 1355, 313), 2.93),
+    ('bioma_viola_2', 'cespuglio_sfere', (44, 445, 308, 721), 2.93),
+    ('bioma_viola_2', 'baccelli_luminosi_2', (419, 422, 645, 715), 2.93),
+    ('bioma_viola_2', 'radici_sfere', (751, 457, 1012, 706), 2.93),
+    ('bioma_viola_2', 'felce_nera_2', (1110, 431, 1343, 670), 2.93),
 )
 # i fogli coi colori ravvivati (5.)
-RAVVIVATI = {'albero_magenta', 'bioma_viola'}
+RAVVIVATI = {'albero_magenta', 'bioma_viola', 'bioma_viola_2'}
 
 
 # ---- i colori in OKLab (la luce e la tinta come le vede l'occhio)
