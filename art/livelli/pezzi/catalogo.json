@@ -56,6 +56,28 @@
     125
    ]
   },
+  "albero_contorto": {
+   "file": "alberi/albero_contorto.png",
+   "misura": [
+    97,
+    100
+   ],
+   "piede": [
+    54,
+    98
+   ]
+  },
+  "albero_contorto_2": {
+   "file": "alberi/albero_contorto_2.png",
+   "misura": [
+    104,
+    92
+   ],
+   "piede": [
+    52,
+    90
+   ]
+  },
   "albero_funghi": {
    "file": "alberi/albero_funghi.png",
    "misura": [
@@ -89,6 +111,17 @@
     125
    ]
   },
+  "albero_spirale": {
+   "file": "alberi/albero_spirale.png",
+   "misura": [
+    59,
+    80
+   ],
+   "piede": [
+    28,
+    78
+   ]
+  },
   "albero_viola": {
    "file": "alberi/albero_viola.png",
    "misura": [
@@ -98,6 +131,17 @@
    "piede": [
     78,
     126
+   ]
+  },
+  "baccelli_luminosi": {
+   "file": "alberi/baccelli_luminosi.png",
+   "misura": [
+    70,
+    98
+   ],
+   "piede": [
+    33,
+    96
    ]
   },
   "cespuglione": {
@@ -153,6 +197,17 @@
    "piede": [
     13,
     22
+   ]
+  },
+  "felce_nera": {
+   "file": "alberi/felce_nera.png",
+   "misura": [
+    82,
+    81
+   ],
+   "piede": [
+    48,
+    79
    ]
   },
   "guglia_1": {
@@ -738,6 +793,17 @@
     87
    ]
   },
+  "ramo_storto": {
+   "file": "alberi/ramo_storto.png",
+   "misura": [
+    70,
+    80
+   ],
+   "piede": [
+    12,
+    78
+   ]
+  },
   "roccione_1": {
    "file": "rocce/roccione_1.png",
    "misura": [
@@ -1088,6 +1154,17 @@
    "piede": [
     6,
     10
+   ]
+  },
+  "sfere_luminose": {
+   "file": "alberi/sfere_luminose.png",
+   "misura": [
+    76,
+    52
+   ],
+   "piede": [
+    40,
+    50
    ]
   }
  }

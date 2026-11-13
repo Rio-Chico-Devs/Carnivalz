@@ -1,5 +1,5 @@
 # Gli alberi dei biomi dai fogli di Bru (strumenti/livelli/fogli/
-# alberi_magici.jpg, albero_magenta.jpg), uno per file, puliti pixel per pixel.
+# alberi_magici.jpg, albero_magenta.jpg, bioma_viola.jpg), uno per file, puliti pixel per pixel.
 #
 #   python3 strumenti/livelli/alberi_magici.py        (serve numpy e Pillow)
 #
@@ -31,6 +31,15 @@ ALBERI = (
     ('alberi_magici', 'albero_blu', (939, 390, 1387, 762), 2.93),       # il sesto
     ('albero_magenta', 'albero_magenta', (299, 8, 1097, 750), 2.93),
     ('albero_magenta', 'albero_magenta_piccolo', (299, 8, 1097, 750), 5.87),
+    # il foglio del bioma viola (il primo e' l'albero magenta rimpicciolito:
+    # c'e' gia')
+    ('bioma_viola', 'albero_spirale', (443, 73, 615, 307), 2.93),
+    ('bioma_viola', 'felce_nera', (760, 76, 1000, 313), 2.93),
+    ('bioma_viola', 'ramo_storto', (1129, 73, 1334, 307), 2.93),
+    ('bioma_viola', 'albero_contorto', (31, 428, 316, 721), 2.93),
+    ('bioma_viola', 'albero_contorto_2', (380, 448, 680, 718), 2.93),
+    ('bioma_viola', 'baccelli_luminosi', (780, 425, 985, 712), 2.93),
+    ('bioma_viola', 'sfere_luminose', (1120, 507, 1343, 659), 2.93),
 )
 
 
