@@ -11,7 +11,10 @@
 #   2. i buchi di 1-2 pixel chiusi dentro si riempiono;
 #   3. l'alone del JPG sul bordo (pixel schiariti dal bianco) prende il colore
 #      del vicino dentro;
-#   4. una tavolozza di 32 colori per albero, via i pixel soli.
+#   4. una tavolozza di 32 colori per albero, via i pixel soli;
+#   5. (il bioma viola) i colori ravvivati: le scale del disegno restano, ma
+#      i toni medi e chiari salgono, piu' saturi, le ombre un poco verso il
+#      blu e le luci verso il caldo; i colori quasi uguali diventano uno.
 # Scrive art/livelli/pezzi/alberi/<nome>.png e le loro voci nel catalogo.
 import json
 import os
@@ -41,6 +44,79 @@ ALBERI = (
     ('bioma_viola', 'baccelli_luminosi', (780, 425, 985, 712), 2.93),
     ('bioma_viola', 'sfere_luminose', (1120, 507, 1343, 659), 2.93),
 )
+# i fogli coi colori ravvivati (5.)
+RAVVIVATI = {'albero_magenta', 'bioma_viola'}
+
+
+# ---- i colori in OKLab (la luce e la tinta come le vede l'occhio)
+_M1 = np.array([[0.4122214708, 0.5363325363, 0.0514459929], [0.2119034982, 0.6806995451, 0.1073969566],
+                [0.0883024619, 0.2817188376, 0.6299787005]])
+_M2 = np.array([[0.2104542553, 0.7936177850, -0.0040720468], [1.9779984951, -2.4285922050, 0.4505937099],
+                [0.0259040371, 0.7827717662, -0.8086757660]])
+_M1i, _M2i = np.linalg.inv(_M1), np.linalg.inv(_M2)
+BLU, GIALLO = np.deg2rad(264.0), np.deg2rad(100.0)
+
+
+def in_lab(rgb):
+    c = rgb / 255.0
+    lin = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    return np.cbrt(lin @ _M1.T) @ _M2.T
+
+
+def da_lch(L, C, h):
+    # il colore sullo schermo; se esce dai colori possibili, meno saturo
+    for _ in range(40):
+        lin = ((np.array([L, C * np.cos(h), C * np.sin(h)]) @ _M2i.T) ** 3) @ _M1i.T
+        if (lin >= -1e-4).all() and (lin <= 1 + 1e-4).all():
+            break
+        C *= 0.93
+    lin = np.clip(lin, 0, 1)
+    return np.round(np.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055) * 255.0)
+
+
+def verso(h, meta, quanto):
+    # gira la tinta h verso meta, al massimo di `quanto`, per la via corta
+    d = (meta - h + np.pi) % (2 * np.pi) - np.pi
+    return h + np.sign(d) * min(abs(d), quanto)
+
+
+def ravviva(a):
+    m = a[..., 3] > 0
+    cols, inv = np.unique(a[m][:, :3], axis=0, return_inverse=True)
+    inv = inv.ravel()
+    cnt = np.bincount(inv)
+    lab = in_lab(cols.astype(float))
+    L, C, H = lab[:, 0], np.hypot(lab[:, 1], lab[:, 2]), np.arctan2(lab[:, 2], lab[:, 1])
+    tutti = np.repeat(L, cnt)
+    lmin, lmax = np.percentile(tutti, 1), np.percentile(tutti, 99.5)
+    # il piu' chiaro sale (di piu' se il pezzo e' scuro), il contorno resta
+    lmax2 = min(0.92, lmax + 0.22 * (1 - lmax) + 0.06)
+    nuovi = []
+    for i in range(len(cols)):
+        t = np.clip((L[i] - lmin) / max(1e-3, lmax - lmin), 0, 1.2)
+        L2 = L[i] if L[i] < lmin else min(0.98, lmin + t ** 0.85 * (lmax2 - lmin))
+        t = min(1.0, t)
+        C2 = C[i] * max(1.0, 1.25 * (1 - 0.6 * max(0.0, (L2 - 0.8) / 0.2)))   # i quasi bianchi meno
+        if t < 0.5:
+            h2 = verso(H[i], BLU, np.deg2rad(10) * (1 - 2 * t))
+        else:
+            h2 = verso(H[i], GIALLO, np.deg2rad(12) * (2 * t - 1) * min(1.0, C[i] / 0.04))
+        nuovi.append(da_lch(L2, C2, h2))
+    nuovi = np.array(nuovi)
+    # i colori nuovi quasi uguali: uno solo, quello con piu' pixel
+    lab2 = in_lab(nuovi)
+    tiene = []
+    dove = np.arange(len(cols))
+    for i in np.argsort(-cnt):
+        for j in tiene:
+            if np.linalg.norm(lab2[i] - lab2[j]) < 0.03:
+                dove[i] = j
+                break
+        else:
+            tiene.append(i)
+    o = a.copy()
+    o[m, :3] = nuovi[dove][inv].astype(np.uint8)
+    return o
 
 
 def griglia(prof, passo):
@@ -146,6 +222,9 @@ for foglio, nome, (x0, y0, x1, y1), passo in ALBERI:
                 r[y, x] = piu
     fatto = np.zeros((h, w, 4), np.uint8)
     fatto[m, :3] = TAV[r[m]]; fatto[m, 3] = 255
+    # 5. i colori ravvivati
+    if foglio in RAVVIVATI:
+        fatto = ravviva(fatto)
     Image.fromarray(fatto).save(os.path.join(cartella, nome + '.png'))
     # il piede: in fondo, al centro delle radici
     giu = np.nonzero(m[h - 6:])[1]
