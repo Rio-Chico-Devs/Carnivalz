@@ -45,6 +45,600 @@
     73
    ]
   },
+  "disco_1": {
+   "file": "rocce/disco_1.png",
+   "misura": [
+    26,
+    25
+   ],
+   "piede": [
+    13,
+    23
+   ]
+  },
+  "disco_2": {
+   "file": "rocce/disco_2.png",
+   "misura": [
+    29,
+    24
+   ],
+   "piede": [
+    14,
+    22
+   ]
+  },
+  "disco_3": {
+   "file": "rocce/disco_3.png",
+   "misura": [
+    25,
+    27
+   ],
+   "piede": [
+    12,
+    25
+   ]
+  },
+  "disco_4": {
+   "file": "rocce/disco_4.png",
+   "misura": [
+    26,
+    24
+   ],
+   "piede": [
+    13,
+    22
+   ]
+  },
+  "guglia_1": {
+   "file": "rocce/guglia_1.png",
+   "misura": [
+    25,
+    26
+   ],
+   "piede": [
+    12,
+    24
+   ]
+  },
+  "guglia_2": {
+   "file": "rocce/guglia_2.png",
+   "misura": [
+    27,
+    24
+   ],
+   "piede": [
+    13,
+    22
+   ]
+  },
+  "guglia_3": {
+   "file": "rocce/guglia_3.png",
+   "misura": [
+    26,
+    26
+   ],
+   "piede": [
+    13,
+    24
+   ]
+  },
+  "guglia_4": {
+   "file": "rocce/guglia_4.png",
+   "misura": [
+    29,
+    27
+   ],
+   "piede": [
+    14,
+    25
+   ]
+  },
+  "lastrone_1": {
+   "file": "rocce/lastrone_1.png",
+   "misura": [
+    34,
+    28
+   ],
+   "piede": [
+    17,
+    26
+   ]
+  },
+  "lastrone_10": {
+   "file": "rocce/lastrone_10.png",
+   "misura": [
+    31,
+    23
+   ],
+   "piede": [
+    15,
+    21
+   ]
+  },
+  "lastrone_2": {
+   "file": "rocce/lastrone_2.png",
+   "misura": [
+    34,
+    28
+   ],
+   "piede": [
+    17,
+    26
+   ]
+  },
+  "lastrone_3": {
+   "file": "rocce/lastrone_3.png",
+   "misura": [
+    36,
+    28
+   ],
+   "piede": [
+    18,
+    26
+   ]
+  },
+  "lastrone_4": {
+   "file": "rocce/lastrone_4.png",
+   "misura": [
+    36,
+    25
+   ],
+   "piede": [
+    18,
+    23
+   ]
+  },
+  "lastrone_5": {
+   "file": "rocce/lastrone_5.png",
+   "misura": [
+    39,
+    27
+   ],
+   "piede": [
+    19,
+    25
+   ]
+  },
+  "lastrone_6": {
+   "file": "rocce/lastrone_6.png",
+   "misura": [
+    34,
+    20
+   ],
+   "piede": [
+    17,
+    18
+   ]
+  },
+  "lastrone_7": {
+   "file": "rocce/lastrone_7.png",
+   "misura": [
+    32,
+    19
+   ],
+   "piede": [
+    16,
+    17
+   ]
+  },
+  "lastrone_8": {
+   "file": "rocce/lastrone_8.png",
+   "misura": [
+    33,
+    19
+   ],
+   "piede": [
+    16,
+    17
+   ]
+  },
+  "lastrone_9": {
+   "file": "rocce/lastrone_9.png",
+   "misura": [
+    30,
+    23
+   ],
+   "piede": [
+    15,
+    21
+   ]
+  },
+  "masso_1": {
+   "file": "rocce/masso_1.png",
+   "misura": [
+    25,
+    22
+   ],
+   "piede": [
+    12,
+    20
+   ]
+  },
+  "masso_10": {
+   "file": "rocce/masso_10.png",
+   "misura": [
+    33,
+    20
+   ],
+   "piede": [
+    16,
+    18
+   ]
+  },
+  "masso_2": {
+   "file": "rocce/masso_2.png",
+   "misura": [
+    28,
+    22
+   ],
+   "piede": [
+    14,
+    20
+   ]
+  },
+  "masso_3": {
+   "file": "rocce/masso_3.png",
+   "misura": [
+    29,
+    21
+   ],
+   "piede": [
+    14,
+    19
+   ]
+  },
+  "masso_4": {
+   "file": "rocce/masso_4.png",
+   "misura": [
+    30,
+    21
+   ],
+   "piede": [
+    15,
+    19
+   ]
+  },
+  "masso_5": {
+   "file": "rocce/masso_5.png",
+   "misura": [
+    27,
+    19
+   ],
+   "piede": [
+    13,
+    17
+   ]
+  },
+  "masso_6": {
+   "file": "rocce/masso_6.png",
+   "misura": [
+    27,
+    22
+   ],
+   "piede": [
+    13,
+    20
+   ]
+  },
+  "masso_7": {
+   "file": "rocce/masso_7.png",
+   "misura": [
+    32,
+    21
+   ],
+   "piede": [
+    16,
+    19
+   ]
+  },
+  "masso_8": {
+   "file": "rocce/masso_8.png",
+   "misura": [
+    31,
+    19
+   ],
+   "piede": [
+    15,
+    17
+   ]
+  },
+  "masso_9": {
+   "file": "rocce/masso_9.png",
+   "misura": [
+    32,
+    20
+   ],
+   "piede": [
+    16,
+    18
+   ]
+  },
+  "masso_basso_1": {
+   "file": "rocce/masso_basso_1.png",
+   "misura": [
+    27,
+    20
+   ],
+   "piede": [
+    13,
+    18
+   ]
+  },
+  "masso_basso_10": {
+   "file": "rocce/masso_basso_10.png",
+   "misura": [
+    27,
+    15
+   ],
+   "piede": [
+    13,
+    13
+   ]
+  },
+  "masso_basso_2": {
+   "file": "rocce/masso_basso_2.png",
+   "misura": [
+    29,
+    21
+   ],
+   "piede": [
+    14,
+    19
+   ]
+  },
+  "masso_basso_3": {
+   "file": "rocce/masso_basso_3.png",
+   "misura": [
+    29,
+    18
+   ],
+   "piede": [
+    14,
+    16
+   ]
+  },
+  "masso_basso_4": {
+   "file": "rocce/masso_basso_4.png",
+   "misura": [
+    31,
+    17
+   ],
+   "piede": [
+    15,
+    15
+   ]
+  },
+  "masso_basso_5": {
+   "file": "rocce/masso_basso_5.png",
+   "misura": [
+    27,
+    18
+   ],
+   "piede": [
+    13,
+    16
+   ]
+  },
+  "masso_basso_6": {
+   "file": "rocce/masso_basso_6.png",
+   "misura": [
+    31,
+    18
+   ],
+   "piede": [
+    15,
+    16
+   ]
+  },
+  "masso_basso_7": {
+   "file": "rocce/masso_basso_7.png",
+   "misura": [
+    29,
+    19
+   ],
+   "piede": [
+    14,
+    17
+   ]
+  },
+  "masso_basso_8": {
+   "file": "rocce/masso_basso_8.png",
+   "misura": [
+    27,
+    16
+   ],
+   "piede": [
+    13,
+    14
+   ]
+  },
+  "masso_basso_9": {
+   "file": "rocce/masso_basso_9.png",
+   "misura": [
+    27,
+    15
+   ],
+   "piede": [
+    13,
+    13
+   ]
+  },
+  "masso_muschio_1": {
+   "file": "rocce/masso_muschio_1.png",
+   "misura": [
+    27,
+    21
+   ],
+   "piede": [
+    13,
+    19
+   ]
+  },
+  "masso_muschio_10": {
+   "file": "rocce/masso_muschio_10.png",
+   "misura": [
+    31,
+    22
+   ],
+   "piede": [
+    15,
+    20
+   ]
+  },
+  "masso_muschio_2": {
+   "file": "rocce/masso_muschio_2.png",
+   "misura": [
+    26,
+    21
+   ],
+   "piede": [
+    13,
+    19
+   ]
+  },
+  "masso_muschio_3": {
+   "file": "rocce/masso_muschio_3.png",
+   "misura": [
+    28,
+    22
+   ],
+   "piede": [
+    14,
+    20
+   ]
+  },
+  "masso_muschio_4": {
+   "file": "rocce/masso_muschio_4.png",
+   "misura": [
+    30,
+    21
+   ],
+   "piede": [
+    15,
+    19
+   ]
+  },
+  "masso_muschio_5": {
+   "file": "rocce/masso_muschio_5.png",
+   "misura": [
+    28,
+    23
+   ],
+   "piede": [
+    14,
+    21
+   ]
+  },
+  "masso_muschio_6": {
+   "file": "rocce/masso_muschio_6.png",
+   "misura": [
+    29,
+    28
+   ],
+   "piede": [
+    14,
+    26
+   ]
+  },
+  "masso_muschio_7": {
+   "file": "rocce/masso_muschio_7.png",
+   "misura": [
+    33,
+    24
+   ],
+   "piede": [
+    16,
+    22
+   ]
+  },
+  "masso_muschio_8": {
+   "file": "rocce/masso_muschio_8.png",
+   "misura": [
+    33,
+    23
+   ],
+   "piede": [
+    16,
+    21
+   ]
+  },
+  "masso_muschio_9": {
+   "file": "rocce/masso_muschio_9.png",
+   "misura": [
+    35,
+    22
+   ],
+   "piede": [
+    17,
+    20
+   ]
+  },
+  "mucchietto_1": {
+   "file": "rocce/mucchietto_1.png",
+   "misura": [
+    15,
+    11
+   ],
+   "piede": [
+    7,
+    9
+   ]
+  },
+  "mucchietto_2": {
+   "file": "rocce/mucchietto_2.png",
+   "misura": [
+    19,
+    15
+   ],
+   "piede": [
+    9,
+    13
+   ]
+  },
+  "mucchietto_3": {
+   "file": "rocce/mucchietto_3.png",
+   "misura": [
+    18,
+    15
+   ],
+   "piede": [
+    9,
+    13
+   ]
+  },
+  "mucchietto_4": {
+   "file": "rocce/mucchietto_4.png",
+   "misura": [
+    19,
+    15
+   ],
+   "piede": [
+    9,
+    13
+   ]
+  },
+  "mucchietto_5": {
+   "file": "rocce/mucchietto_5.png",
+   "misura": [
+    19,
+    14
+   ],
+   "piede": [
+    9,
+    12
+   ]
+  },
+  "mucchietto_6": {
+   "file": "rocce/mucchietto_6.png",
+   "misura": [
+    20,
+    14
+   ],
+   "piede": [
+    10,
+    12
+   ]
+  },
   "pino_1": {
    "file": "alberi/pino_1.png",
    "misura": [
@@ -76,6 +670,358 @@
    "piede": [
     26,
     87
+   ]
+  },
+  "roccione_1": {
+   "file": "rocce/roccione_1.png",
+   "misura": [
+    35,
+    31
+   ],
+   "piede": [
+    17,
+    29
+   ]
+  },
+  "roccione_2": {
+   "file": "rocce/roccione_2.png",
+   "misura": [
+    34,
+    30
+   ],
+   "piede": [
+    17,
+    28
+   ]
+  },
+  "roccione_3": {
+   "file": "rocce/roccione_3.png",
+   "misura": [
+    35,
+    30
+   ],
+   "piede": [
+    17,
+    28
+   ]
+  },
+  "roccione_4": {
+   "file": "rocce/roccione_4.png",
+   "misura": [
+    35,
+    30
+   ],
+   "piede": [
+    17,
+    28
+   ]
+  },
+  "roccione_5": {
+   "file": "rocce/roccione_5.png",
+   "misura": [
+    35,
+    32
+   ],
+   "piede": [
+    17,
+    30
+   ]
+  },
+  "roccione_6": {
+   "file": "rocce/roccione_6.png",
+   "misura": [
+    38,
+    30
+   ],
+   "piede": [
+    19,
+    28
+   ]
+  },
+  "roccione_7": {
+   "file": "rocce/roccione_7.png",
+   "misura": [
+    35,
+    36
+   ],
+   "piede": [
+    17,
+    34
+   ]
+  },
+  "roccione_8": {
+   "file": "rocce/roccione_8.png",
+   "misura": [
+    39,
+    32
+   ],
+   "piede": [
+    19,
+    30
+   ]
+  },
+  "sasso_1": {
+   "file": "rocce/sasso_1.png",
+   "misura": [
+    16,
+    13
+   ],
+   "piede": [
+    8,
+    11
+   ]
+  },
+  "sasso_10": {
+   "file": "rocce/sasso_10.png",
+   "misura": [
+    16,
+    16
+   ],
+   "piede": [
+    8,
+    14
+   ]
+  },
+  "sasso_2": {
+   "file": "rocce/sasso_2.png",
+   "misura": [
+    18,
+    14
+   ],
+   "piede": [
+    9,
+    12
+   ]
+  },
+  "sasso_3": {
+   "file": "rocce/sasso_3.png",
+   "misura": [
+    17,
+    14
+   ],
+   "piede": [
+    8,
+    12
+   ]
+  },
+  "sasso_4": {
+   "file": "rocce/sasso_4.png",
+   "misura": [
+    18,
+    17
+   ],
+   "piede": [
+    9,
+    15
+   ]
+  },
+  "sasso_5": {
+   "file": "rocce/sasso_5.png",
+   "misura": [
+    18,
+    17
+   ],
+   "piede": [
+    9,
+    15
+   ]
+  },
+  "sasso_6": {
+   "file": "rocce/sasso_6.png",
+   "misura": [
+    18,
+    17
+   ],
+   "piede": [
+    9,
+    15
+   ]
+  },
+  "sasso_7": {
+   "file": "rocce/sasso_7.png",
+   "misura": [
+    18,
+    16
+   ],
+   "piede": [
+    9,
+    14
+   ]
+  },
+  "sasso_8": {
+   "file": "rocce/sasso_8.png",
+   "misura": [
+    17,
+    14
+   ],
+   "piede": [
+    8,
+    12
+   ]
+  },
+  "sasso_9": {
+   "file": "rocce/sasso_9.png",
+   "misura": [
+    16,
+    14
+   ],
+   "piede": [
+    8,
+    12
+   ]
+  },
+  "sasso_spigoloso_1": {
+   "file": "rocce/sasso_spigoloso_1.png",
+   "misura": [
+    15,
+    13
+   ],
+   "piede": [
+    7,
+    11
+   ]
+  },
+  "sasso_spigoloso_10": {
+   "file": "rocce/sasso_spigoloso_10.png",
+   "misura": [
+    14,
+    14
+   ],
+   "piede": [
+    7,
+    12
+   ]
+  },
+  "sasso_spigoloso_2": {
+   "file": "rocce/sasso_spigoloso_2.png",
+   "misura": [
+    16,
+    14
+   ],
+   "piede": [
+    8,
+    12
+   ]
+  },
+  "sasso_spigoloso_3": {
+   "file": "rocce/sasso_spigoloso_3.png",
+   "misura": [
+    17,
+    15
+   ],
+   "piede": [
+    8,
+    13
+   ]
+  },
+  "sasso_spigoloso_4": {
+   "file": "rocce/sasso_spigoloso_4.png",
+   "misura": [
+    13,
+    13
+   ],
+   "piede": [
+    6,
+    11
+   ]
+  },
+  "sasso_spigoloso_5": {
+   "file": "rocce/sasso_spigoloso_5.png",
+   "misura": [
+    14,
+    13
+   ],
+   "piede": [
+    7,
+    11
+   ]
+  },
+  "sasso_spigoloso_6": {
+   "file": "rocce/sasso_spigoloso_6.png",
+   "misura": [
+    15,
+    14
+   ],
+   "piede": [
+    7,
+    12
+   ]
+  },
+  "sasso_spigoloso_7": {
+   "file": "rocce/sasso_spigoloso_7.png",
+   "misura": [
+    13,
+    14
+   ],
+   "piede": [
+    6,
+    12
+   ]
+  },
+  "sasso_spigoloso_8": {
+   "file": "rocce/sasso_spigoloso_8.png",
+   "misura": [
+    15,
+    12
+   ],
+   "piede": [
+    7,
+    10
+   ]
+  },
+  "sasso_spigoloso_9": {
+   "file": "rocce/sasso_spigoloso_9.png",
+   "misura": [
+    14,
+    14
+   ],
+   "piede": [
+    7,
+    12
+   ]
+  },
+  "sassolino_1": {
+   "file": "rocce/sassolino_1.png",
+   "misura": [
+    11,
+    10
+   ],
+   "piede": [
+    5,
+    8
+   ]
+  },
+  "sassolino_2": {
+   "file": "rocce/sassolino_2.png",
+   "misura": [
+    15,
+    12
+   ],
+   "piede": [
+    7,
+    10
+   ]
+  },
+  "sassolino_3": {
+   "file": "rocce/sassolino_3.png",
+   "misura": [
+    13,
+    13
+   ],
+   "piede": [
+    6,
+    11
+   ]
+  },
+  "sassolino_4": {
+   "file": "rocce/sassolino_4.png",
+   "misura": [
+    13,
+    12
+   ],
+   "piede": [
+    6,
+    10
    ]
   }
  }
