@@ -59,7 +59,7 @@
   "disco_2": {
    "file": "rocce/disco_2.png",
    "misura": [
-    29,
+    28,
     24
    ],
    "piede": [
@@ -136,7 +136,7 @@
   "lastrone_1": {
    "file": "rocce/lastrone_1.png",
    "misura": [
-    34,
+    35,
     28
    ],
    "piede": [
@@ -159,17 +159,17 @@
    "file": "rocce/lastrone_2.png",
    "misura": [
     34,
-    28
+    29
    ],
    "piede": [
     17,
-    26
+    27
    ]
   },
   "lastrone_3": {
    "file": "rocce/lastrone_3.png",
    "misura": [
-    36,
+    37,
     28
    ],
    "piede": [
@@ -202,12 +202,12 @@
   "lastrone_6": {
    "file": "rocce/lastrone_6.png",
    "misura": [
-    34,
-    20
+    33,
+    19
    ],
    "piede": [
-    17,
-    18
+    16,
+    17
    ]
   },
   "lastrone_7": {
@@ -279,7 +279,7 @@
   "masso_3": {
    "file": "rocce/masso_3.png",
    "misura": [
-    29,
+    28,
     21
    ],
    "piede": [
@@ -356,7 +356,7 @@
   "masso_basso_1": {
    "file": "rocce/masso_basso_1.png",
    "misura": [
-    27,
+    26,
     20
    ],
    "piede": [
@@ -378,7 +378,7 @@
   "masso_basso_2": {
    "file": "rocce/masso_basso_2.png",
    "misura": [
-    29,
+    28,
     21
    ],
    "piede": [
@@ -511,21 +511,21 @@
    "file": "rocce/masso_muschio_4.png",
    "misura": [
     30,
-    21
+    20
    ],
    "piede": [
     15,
-    19
+    18
    ]
   },
   "masso_muschio_5": {
    "file": "rocce/masso_muschio_5.png",
    "misura": [
-    28,
+    27,
     23
    ],
    "piede": [
-    14,
+    13,
     21
    ]
   },
@@ -533,26 +533,15 @@
    "file": "rocce/masso_muschio_6.png",
    "misura": [
     29,
-    28
+    27
    ],
    "piede": [
     14,
-    26
+    25
    ]
   },
   "masso_muschio_7": {
    "file": "rocce/masso_muschio_7.png",
-   "misura": [
-    33,
-    24
-   ],
-   "piede": [
-    16,
-    22
-   ]
-  },
-  "masso_muschio_8": {
-   "file": "rocce/masso_muschio_8.png",
    "misura": [
     33,
     23
@@ -560,6 +549,17 @@
    "piede": [
     16,
     21
+   ]
+  },
+  "masso_muschio_8": {
+   "file": "rocce/masso_muschio_8.png",
+   "misura": [
+    33,
+    24
+   ],
+   "piede": [
+    16,
+    22
    ]
   },
   "masso_muschio_9": {
@@ -576,11 +576,11 @@
   "mucchietto_1": {
    "file": "rocce/mucchietto_1.png",
    "misura": [
-    15,
+    16,
     11
    ],
    "piede": [
-    7,
+    8,
     9
    ]
   },
@@ -621,21 +621,21 @@
    "file": "rocce/mucchietto_5.png",
    "misura": [
     19,
-    14
+    11
    ],
    "piede": [
     9,
-    12
+    9
    ]
   },
   "mucchietto_6": {
    "file": "rocce/mucchietto_6.png",
    "misura": [
-    20,
+    19,
     14
    ],
    "piede": [
-    10,
+    9,
     12
    ]
   },
@@ -741,11 +741,11 @@
   "roccione_7": {
    "file": "rocce/roccione_7.png",
    "misura": [
-    35,
+    36,
     36
    ],
    "piede": [
-    17,
+    18,
     34
    ]
   },
@@ -753,11 +753,11 @@
    "file": "rocce/roccione_8.png",
    "misura": [
     39,
-    32
+    33
    ],
    "piede": [
     19,
-    30
+    31
    ]
   },
   "sasso_1": {
@@ -785,11 +785,11 @@
   "sasso_2": {
    "file": "rocce/sasso_2.png",
    "misura": [
-    18,
+    17,
     14
    ],
    "piede": [
-    9,
+    8,
     12
    ]
   },
@@ -862,7 +862,7 @@
   "sasso_9": {
    "file": "rocce/sasso_9.png",
    "misura": [
-    16,
+    17,
     14
    ],
    "piede": [
@@ -895,11 +895,11 @@
   "sasso_spigoloso_2": {
    "file": "rocce/sasso_spigoloso_2.png",
    "misura": [
-    16,
+    15,
     14
    ],
    "piede": [
-    8,
+    7,
     12
    ]
   },

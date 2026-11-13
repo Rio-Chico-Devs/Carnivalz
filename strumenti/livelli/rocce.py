@@ -11,7 +11,8 @@
 #   2. si cerca la sua griglia (il passo fra 2,7 e 3,3, e dove comincia) e si
 #      riporta ai suoi pixel veri: ogni quadretto prende il colore mediano;
 #   3. tutti su una tavolozza comune di 48 colori, via i pixel soli;
-#   4. via l'alone chiaro del JPG sul bordo (i sassi hanno il contorno scuro).
+#   4. il contorno: via l'alone chiaro del JPG, e il bordo ripassato col
+#      colore di contorno del sasso (un filo scuro continuo).
 # Scrive art/livelli/pezzi/rocce/<nome>.png e le loro voci nel catalogo dei
 # pezzi (art/livelli/pezzi/catalogo.json).
 import json
@@ -129,12 +130,66 @@ for riga, col, a in pezzi:
                     r[y, x] = piu
     o = np.zeros((h, w, 4), np.uint8)
     o[r >= 0, :3] = TAV[r[r >= 0]]; o[r >= 0, 3] = 255
-    # 4. via l'alone chiaro sul bordo
-    for _ in range(2):
-        m = o[..., 3] > 0
+    # 4. il contorno: un filo scuro continuo. Il colore di contorno del sasso
+    # e' quello dei suoi pixel di bordo piu' scuri; i pixel di bordo chiari
+    # che hanno dentro un vicino gia' scuro sono alone (via), gli altri pixel
+    # di bordo si ripassano col colore di contorno
+    def bordo(m):
         pad = np.pad(m, 1)
-        fuori = ~pad[:-2, 1:-1] | ~pad[2:, 1:-1] | ~pad[1:-1, :-2] | ~pad[1:-1, 2:]
-        o[m & fuori & (o[..., :3].astype(int).mean(2) > 150)] = 0
+        return m & (~pad[:-2, 1:-1] | ~pad[2:, 1:-1] | ~pad[1:-1, :-2] | ~pad[1:-1, 2:])
+    # solo i pezzi di almeno 20 pixel: i sassolini piccoli (nei mucchietti)
+    # restano coi loro colori, se no il contorno li coprirebbe tutti
+    piccoli = np.zeros(o.shape[:2], bool)
+    vis_ = np.zeros(o.shape[:2], bool)
+    for yy, xx in zip(*np.nonzero(o[..., 3] > 0)):
+        if vis_[yy, xx]:
+            continue
+        coda = deque([(yy, xx)]); vis_[yy, xx] = True; celle = []
+        while coda:
+            cy, cx = coda.popleft(); celle.append((cy, cx))
+            for ny, nx in ((cy - 1, cx), (cy + 1, cx), (cy, cx - 1), (cy, cx + 1)):
+                if 0 <= ny < h and 0 <= nx < w and o[ny, nx, 3] > 0 and not vis_[ny, nx]:
+                    vis_[ny, nx] = True; coda.append((ny, nx))
+        if len(celle) < 20:
+            for cy, cx in celle:
+                piccoli[cy, cx] = True
+    salva = o[piccoli].copy()
+    lum = o[..., :3].astype(int).mean(2)
+    m = (o[..., 3] > 0) & ~piccoli
+    if not m.any():
+        m = o[..., 3] > 0
+    b = bordo(m)
+    soglia = np.percentile(lum[b], 35)
+    scuri = b & (lum <= soglia)
+    contorno = np.median(o[scuri][:, :3], 0)
+    contorno = TAV[((TAV - contorno) ** 2).sum(1).argmin()]
+    for _ in range(3):
+        m = (o[..., 3] > 0) & ~piccoli
+        b = bordo(m)
+        lum = o[..., :3].astype(int).mean(2)
+        scuro = m & (lum <= soglia + 12)
+        pad = np.pad(scuro, 1)
+        dentro_scuro = pad[:-2, 1:-1] | pad[2:, 1:-1] | pad[1:-1, :-2] | pad[1:-1, 2:]
+        via = b & (lum > soglia + 30) & dentro_scuro
+        if not via.any():
+            break
+        o[via] = 0
+    # il bordo liscio: via le spine (pixel con un solo vicino pieno), piene
+    # le tacche (pixel vuoti con tre vicini pieni)
+    for _ in range(3):
+        m = (o[..., 3] > 0) & ~piccoli
+        pad = np.pad(m, 1).astype(int)
+        vicini = pad[:-2, 1:-1] + pad[2:, 1:-1] + pad[1:-1, :-2] + pad[1:-1, 2:]
+        spine = m & (vicini <= 1)
+        tacche = ~m & ~piccoli & (vicini >= 3)
+        if not spine.any() and not tacche.any():
+            break
+        o[spine] = 0
+        o[tacche, :3] = contorno
+        o[tacche, 3] = 255
+    m = (o[..., 3] > 0) & ~piccoli
+    o[bordo(m), :3] = contorno
+    o[piccoli] = salva
     ys, xs = np.nonzero(o[..., 3]); o = o[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
     Image.fromarray(o).save(os.path.join(cartella, nome + '.png'))
     voci[nome] = {"file": "rocce/%s.png" % nome, "misura": [o.shape[1], o.shape[0]], "piede": [o.shape[1] // 2, o.shape[0] - 2]}
