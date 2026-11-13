@@ -188,6 +188,28 @@
     98
    ]
   },
+  "canne_luminose": {
+   "file": "radenna/canne_luminose.png",
+   "misura": [
+    85,
+    100
+   ],
+   "piede": [
+    48,
+    98
+   ]
+  },
+  "cascatella": {
+   "file": "radenna/cascatella.png",
+   "misura": [
+    97,
+    106
+   ],
+   "piede": [
+    30,
+    104
+   ]
+  },
   "cespuglio_sfere": {
    "file": "alberi/cespuglio_sfere.png",
    "misura": [
@@ -208,6 +230,17 @@
    "piede": [
     64,
     124
+   ]
+  },
+  "colonna_rovina": {
+   "file": "radenna/colonna_rovina.png",
+   "misura": [
+    75,
+    103
+   ],
+   "piede": [
+    45,
+    101
    ]
   },
   "disco_1": {
@@ -826,6 +859,28 @@
     12
    ]
   },
+  "ninfee_fiori": {
+   "file": "radenna/ninfee_fiori.png",
+   "misura": [
+    97,
+    87
+   ],
+   "piede": [
+    29,
+    85
+   ]
+  },
+  "ninfee_loto": {
+   "file": "radenna/ninfee_loto.png",
+   "misura": [
+    102,
+    84
+   ],
+   "piede": [
+    52,
+    82
+   ]
+  },
   "pino_1": {
    "file": "alberi/pino_1.png",
    "misura": [
@@ -967,6 +1022,17 @@
    "piede": [
     19,
     31
+   ]
+  },
+  "sassi_pozza": {
+   "file": "radenna/sassi_pozza.png",
+   "misura": [
+    108,
+    84
+   ],
+   "piede": [
+    83,
+    82
    ]
   },
   "sasso_1": {
@@ -1242,6 +1308,28 @@
    "piede": [
     40,
     50
+   ]
+  },
+  "vasca_pietra": {
+   "file": "radenna/vasca_pietra.png",
+   "misura": [
+    103,
+    90
+   ],
+   "piede": [
+    53,
+    88
+   ]
+  },
+  "vasche_gradini": {
+   "file": "radenna/vasche_gradini.png",
+   "misura": [
+    95,
+    101
+   ],
+   "piede": [
+    36,
+    99
    ]
   }
  }

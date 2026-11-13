@@ -53,7 +53,21 @@ ALBERI = (
     ('bioma_viola_2', 'baccelli_luminosi_2', (419, 422, 645, 715), 2.93),
     ('bioma_viola_2', 'radici_sfere', (751, 457, 1012, 706), 2.93),
     ('bioma_viola_2', 'felce_nera_2', (1110, 431, 1343, 670), 2.93),
+    # le Pianure di Radenna (in art/livelli/pezzi/radenna/)
+    ('pianure_radenna', 'vasca_pietra', (27, 61, 328, 325), 2.93),
+    ('pianure_radenna', 'vasche_gradini', (392, 46, 671, 342), 2.93),
+    ('pianure_radenna', 'ninfee_loto', (732, 67, 1037, 328), 2.93),
+    ('pianure_radenna', 'canne_luminose', (1109, 46, 1357, 340), 2.93),
+    ('pianure_radenna', 'sassi_pozza', (24, 448, 340, 694), 2.93),
+    ('pianure_radenna', 'colonna_rovina', (423, 419, 642, 721), 2.93),
+    ('pianure_radenna', 'ninfee_fiori', (737, 439, 1026, 702), 2.93),
+    ('pianure_radenna', 'cascatella', (1092, 413, 1374, 724), 2.93),
 )
+# la cartella dei pezzi di ogni foglio (se no: alberi)
+CARTELLE = {'pianure_radenna': 'radenna'}
+# i pezzi con l'alone di luce dell'acqua attorno (1b.: via, la luce si fara'
+# nel gioco)
+SENZA_ALONE = {'ninfee_loto', 'ninfee_fiori'}
 # i fogli coi colori ravvivati (5.)
 RAVVIVATI = {'albero_magenta', 'bioma_viola', 'bioma_viola_2'}
 
@@ -171,10 +185,11 @@ def vicini4(y, x, h, w):
     return [(yy, xx) for yy, xx in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)) if 0 <= yy < h and 0 <= xx < w]
 
 
-cartella = os.path.join(PEZZI, 'alberi'); os.makedirs(cartella, exist_ok=True)
 voci = {}
 fogli = {}
 for foglio, nome, (x0, y0, x1, y1), passo in ALBERI:
+    sotto = CARTELLE.get(foglio, 'alberi')
+    cartella = os.path.join(PEZZI, sotto); os.makedirs(cartella, exist_ok=True)
     if foglio not in fogli:
         fogli[foglio] = np.array(Image.open(os.path.join(QUI, 'fogli', foglio + '.jpg')).convert('RGB')).astype(float)
     im = fogli[foglio]
@@ -199,6 +214,33 @@ for foglio, nome, (x0, y0, x1, y1), passo in ALBERI:
             o[j, i, :3] = np.median(q[~bq], 0); o[j, i, 3] = 255
     ys, xs = np.nonzero(o[..., 3]); o = o[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
     h, w = o.shape[:2]
+    # 1b. l'alone di luce: dal vuoto di fuori si mangiano i pixel chiari
+    # turchesi o bianchi (le foglie hanno il contorno scuro e lo fermano);
+    # poi via i pezzetti rimasti soli
+    if nome in SENZA_ALONE:
+        lab = in_lab(o[..., :3].reshape(-1, 3)).reshape(h, w, 3)
+        Lk, Ck = lab[..., 0], np.hypot(lab[..., 1], lab[..., 2])
+        tk = np.degrees(np.arctan2(lab[..., 2], lab[..., 1])) % 360
+        luce = (o[..., 3] > 0) & (Lk > 0.80) & (((tk > 150) & (tk < 200)) | (Ck < 0.06))
+        vuoto = o[..., 3] == 0
+        via = np.zeros((h, w), bool)
+        coda = deque((y, x) for y, x in zip(*np.nonzero(vuoto)) if y in (0, h - 1) or x in (0, w - 1))
+        visto = np.zeros((h, w), bool)
+        for y, x in coda:
+            visto[y, x] = True
+        while coda:
+            y, x = coda.popleft()
+            for yy, xx in vicini4(y, x, h, w):
+                if not visto[yy, xx] and (vuoto[yy, xx] or luce[yy, xx]):
+                    visto[yy, xx] = True; coda.append((yy, xx))
+                    via[yy, xx] = luce[yy, xx]
+        o[via] = 0
+        for cel in macchie(o[..., 3] > 0):
+            if len(cel) < 4:
+                for y, x in cel:
+                    o[y, x] = 0
+        ys, xs = np.nonzero(o[..., 3]); o = o[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+        h, w = o.shape[:2]
     # 2. i buchi piccoli
     m = o[..., 3] > 0
     for cel in macchie(~m):
@@ -238,7 +280,7 @@ for foglio, nome, (x0, y0, x1, y1), passo in ALBERI:
     Image.fromarray(fatto).save(os.path.join(cartella, nome + '.png'))
     # il piede: in fondo, al centro delle radici
     giu = np.nonzero(m[h - 6:])[1]
-    voci[nome] = {"file": "alberi/%s.png" % nome, "misura": [w, h], "piede": [int(round(giu.mean())), h - 2]}
+    voci[nome] = {"file": "%s/%s.png" % (sotto, nome), "misura": [w, h], "piede": [int(round(giu.mean())), h - 2]}
 
 percorso = os.path.join(PEZZI, 'catalogo.json')
 catalogo = json.load(open(percorso)) if os.path.exists(percorso) else {"pezzi": {}}
