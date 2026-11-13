@@ -1,9 +1,11 @@
-# Gli alberi dal foglio di Bru (strumenti/livelli/fogli/alberi_magici.jpg),
-# uno per file, puliti pixel per pixel.
+# Gli alberi dei biomi dai fogli di Bru (strumenti/livelli/fogli/
+# alberi_magici.jpg, albero_magenta.jpg), uno per file, puliti pixel per pixel.
 #
 #   python3 strumenti/livelli/alberi_magici.py        (serve numpy e Pillow)
 #
-# Il foglio e' pixel art ingrandita circa 2,93 volte. Per ogni albero:
+# I fogli sono pixel art ingrandita circa 2,93 volte. L'albero magenta e'
+# disegnato grande il doppio degli altri: c'e' anche piccolo, preso con un
+# passo doppio (5,87), alto come gli altri. Per ogni albero:
 #   1. si cerca la sua griglia e si riporta ai suoi pixel veri (ogni
 #      quadretto prende il colore mediano, il bianco del foglio e' vuoto);
 #   2. i buchi di 1-2 pixel chiusi dentro si riempiono;
@@ -21,24 +23,20 @@ from PIL import Image
 QUI = os.path.dirname(os.path.abspath(__file__))
 PEZZI = os.path.join(QUI, '..', '..', 'art', 'livelli', 'pezzi')
 LUMA = np.array([0.3, 0.55, 0.15])
-# il numero nel foglio (da sinistra a destra, dall'alto in basso), il nome,
-# la scatola nel foglio
+# il foglio, il nome, la scatola nel foglio, il passo (piu' o meno)
 ALBERI = (
-    (1, 'albero_viola', (26, 8, 474, 383)),
-    (3, 'albero_funghi', (947, 12, 1375, 380)),
-    (5, 'cespuglione', (522, 392, 886, 762)),
-    (6, 'albero_blu', (939, 390, 1387, 762)),
+    ('alberi_magici', 'albero_viola', (26, 8, 474, 383), 2.93),         # il primo del foglio
+    ('alberi_magici', 'albero_funghi', (947, 12, 1375, 380), 2.93),     # il terzo
+    ('alberi_magici', 'cespuglione', (522, 392, 886, 762), 2.93),       # il quinto
+    ('alberi_magici', 'albero_blu', (939, 390, 1387, 762), 2.93),       # il sesto
+    ('albero_magenta', 'albero_magenta', (299, 8, 1097, 750), 2.93),
+    ('albero_magenta', 'albero_magenta_piccolo', (299, 8, 1097, 750), 5.87),
 )
 
-im = np.array(Image.open(os.path.join(QUI, 'fogli', 'alberi_magici.jpg')).convert('RGB')).astype(float)
-H, W, _ = im.shape
-bianco = im.min(2) >= 222
-L = im.mean(2)
 
-
-def griglia(prof):
+def griglia(prof, passo):
     n = len(prof); best = None
-    for p in np.arange(2.85, 3.01, 0.005):
+    for p in np.arange(round(passo * 0.973, 2), round(passo * 1.027, 2), 0.005):
         for f in np.arange(0, p, 0.1):
             i = np.round(np.arange(f, n - 1, p)).astype(int); i = i[(i >= 0) & (i < n)]
             sc = prof[i].mean()
@@ -80,16 +78,25 @@ def vicini4(y, x, h, w):
 
 cartella = os.path.join(PEZZI, 'alberi'); os.makedirs(cartella, exist_ok=True)
 voci = {}
-for numero, nome, (x0, y0, x1, y1) in ALBERI:
+fogli = {}
+for foglio, nome, (x0, y0, x1, y1), passo in ALBERI:
+    if foglio not in fogli:
+        fogli[foglio] = np.array(Image.open(os.path.join(QUI, 'fogli', foglio + '.jpg')).convert('RGB')).astype(float)
+    im = fogli[foglio]
+    H, W, _ = im.shape
+    bianco = im.min(2) >= 222
+    L = im.mean(2)
     # 1. i pixel veri
     a, b, c, d = max(0, y0 - 6), max(0, x0 - 6), min(H, y1 + 7), min(W, x1 + 7)
     C = im[a:c, b:d]; B = bianco[a:c, b:d]; Lc = L[a:c, b:d]
-    px, fx = griglia(np.abs(np.diff(Lc, axis=1)).mean(0)); py, fy = griglia(np.abs(np.diff(Lc, axis=0)).mean(1))
+    px, fx = griglia(np.abs(np.diff(Lc, axis=1)).mean(0), passo)
+    py, fy = griglia(np.abs(np.diff(Lc, axis=0)).mean(1), passo)
+    mg = 0.7 if passo < 4 else 1.2      # il bordo del quadretto che non si guarda
     bx = np.arange(fx + 1 - px, d - b, px); by = np.arange(fy + 1 - py, c - a, py)
     o = np.zeros((len(by), len(bx), 4))
     for j in range(len(by)):
         for i in range(len(bx)):
-            xa, xb = int(round(bx[i] + 0.7)), int(round(bx[i] + px - 0.7)); ya, yb = int(round(by[j] + 0.7)), int(round(by[j] + py - 0.7))
+            xa, xb = int(round(bx[i] + mg)), int(round(bx[i] + px - mg)); ya, yb = int(round(by[j] + mg)), int(round(by[j] + py - mg))
             xa, ya = max(0, xa), max(0, ya); xb, yb = min(d - b, max(xa + 1, xb)), min(c - a, max(ya + 1, yb))
             q = C[ya:yb, xa:xb].reshape(-1, 3); bq = B[ya:yb, xa:xb].reshape(-1)
             if len(q) == 0 or bq.mean() >= 0.5:

@@ -67,6 +67,28 @@
     124
    ]
   },
+  "albero_magenta": {
+   "file": "alberi/albero_magenta.png",
+   "misura": [
+    272,
+    253
+   ],
+   "piede": [
+    134,
+    251
+   ]
+  },
+  "albero_magenta_piccolo": {
+   "file": "alberi/albero_magenta_piccolo.png",
+   "misura": [
+    136,
+    127
+   ],
+   "piede": [
+    68,
+    125
+   ]
+  },
   "albero_viola": {
    "file": "alberi/albero_viola.png",
    "misura": [
