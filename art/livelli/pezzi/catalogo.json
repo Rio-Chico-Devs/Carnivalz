@@ -45,6 +45,50 @@
     73
    ]
   },
+  "albero_blu": {
+   "file": "alberi/albero_blu.png",
+   "misura": [
+    153,
+    127
+   ],
+   "piede": [
+    74,
+    125
+   ]
+  },
+  "albero_funghi": {
+   "file": "alberi/albero_funghi.png",
+   "misura": [
+    146,
+    126
+   ],
+   "piede": [
+    69,
+    124
+   ]
+  },
+  "albero_viola": {
+   "file": "alberi/albero_viola.png",
+   "misura": [
+    153,
+    128
+   ],
+   "piede": [
+    78,
+    126
+   ]
+  },
+  "cespuglione": {
+   "file": "alberi/cespuglione.png",
+   "misura": [
+    124,
+    126
+   ],
+   "piede": [
+    64,
+    124
+   ]
+  },
   "disco_1": {
    "file": "rocce/disco_1.png",
    "misura": [
