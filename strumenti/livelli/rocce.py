@@ -12,11 +12,13 @@
 #      riporta ai suoi pixel veri: ogni quadretto prende il colore mediano;
 #   3. tutti su una tavolozza comune di 48 colori, via i pixel soli;
 #   4. il contorno: via l'alone chiaro del JPG, e il bordo ripassato col
-#      colore di contorno del sasso (un filo scuro continuo).
+#      colore di contorno del sasso (un filo scuro continuo);
+#   5. dentro: pochi toni ben staccati, crepe nette, luce dall'alto.
 # Scrive art/livelli/pezzi/rocce/<nome>.png e le loro voci nel catalogo dei
 # pezzi (art/livelli/pezzi/catalogo.json).
 import json
 import os
+import warnings
 from collections import deque
 
 import numpy as np
@@ -104,7 +106,141 @@ for _ in range(40):
     cen = np.array([X[l == q].mean(0) if (l == q).any() else cen[q] for q in range(K)])
 TAV = np.round(cen)
 
-FAMIGLIE = {1: 'sasso', 2: 'sasso_spigoloso', 3: 'masso', 4: 'masso_basso', 5: 'masso_muschio', 6: 'lastrone',
+def bordo(m):
+    pad = np.pad(m, 1)
+    return m & (~pad[:-2, 1:-1] | ~pad[2:, 1:-1] | ~pad[1:-1, :-2] | ~pad[1:-1, 2:])
+
+
+def macchie(m, h, w):
+    # le macchie 8-connesse di una maschera
+    vis = np.zeros((h, w), bool)
+    for y0, x0 in zip(*np.nonzero(m)):
+        if vis[y0, x0]:
+            continue
+        q = deque([(y0, x0)]); vis[y0, x0] = True; cel = []
+        while q:
+            y, x = q.popleft(); cel.append((y, x))
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    yy, xx = y + dy, x + dx
+                    if 0 <= yy < h and 0 <= xx < w and m[yy, xx] and not vis[yy, xx]:
+                        vis[yy, xx] = True; q.append((yy, xx))
+        yield cel
+
+
+def pulisci(lab, m, minimo=3):
+    # le macchie di un tono piu' piccole di `minimo` prendono il tono piu'
+    # comune attorno
+    h, w = lab.shape
+    for _ in range(4):
+        cambiato = False
+        for t in np.unique(lab[m]):
+            for cel in macchie(m & (lab == t), h, w):
+                if len(cel) >= minimo:
+                    continue
+                attorno = {}
+                for y, x in cel:
+                    for yy, xx in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)):
+                        if 0 <= yy < h and 0 <= xx < w and m[yy, xx] and lab[yy, xx] != t:
+                            attorno[lab[yy, xx]] = attorno.get(lab[yy, xx], 0) + 1
+                if attorno:
+                    nuovo = max(attorno, key=attorno.get)
+                    for y, x in cel:
+                        lab[y, x] = nuovo
+                    cambiato = True
+        if not cambiato:
+            break
+    return lab
+
+
+def toni(v, k):
+    # k-medie su una dimensione
+    c = np.percentile(v, np.linspace(8, 94, k))
+    for _ in range(30):
+        l = np.abs(v[:, None] - c[None]).argmin(1)
+        c = np.array([v[l == q].mean() if (l == q).any() else c[q] for q in range(k)])
+    return np.sort(c)
+
+
+LUMA = np.array([0.3, 0.55, 0.15])
+
+
+def migliora(a):
+    # 5. dentro il contorno: la pietra su 5 toni, il muschio e la ruggine su
+    # 3; via le macchioline sotto i 3 pixel; i toni della pietra piu'
+    # staccati; le crepe (linee molto piu' scure attorno) col tono piu' scuro;
+    # la luce dall'alto: in cima il pixel sotto il contorno un tono piu'
+    # chiaro, in fondo quello sopra il contorno un tono piu' scuro
+    h, w = a.shape[:2]
+    pieno = a[..., 3] > 0
+    if pieno.sum() < 40:
+        return a
+    fuori = bordo(pieno)
+    dentro = pieno & ~fuori
+    rgb = a[..., :3].astype(float)
+    lum = rgb @ LUMA
+    d = rgb - rgb.mean(2, keepdims=True)
+    d = d - np.median(d[dentro], 0)
+    fam = np.zeros((h, w), int)
+    verde = (d[..., 1] - (d[..., 0] + d[..., 2]) / 2) > 9
+    rosso = (d[..., 0] - d[..., 2]) > 14
+    fam[dentro & verde] = 1
+    fam[dentro & rosso & ~verde] = 2
+    for k in (1, 2):
+        if (fam == k).sum() < 6:
+            fam[fam == k] = 0
+    fam = pulisci(fam, dentro)
+    lab = np.full((h, w), -1)
+    colori = []
+    for k, n in ((0, 5), (1, 3), (2, 3)):
+        mk = dentro & (fam == k)
+        if not mk.any():
+            continue
+        n = min(n, len(np.unique(lum[mk])))
+        l = np.abs(lum[mk][:, None] - toni(lum[mk], n)[None]).argmin(1)
+        yy, xx = np.nonzero(mk)
+        for q in range(n):
+            if (l == q).any():
+                lab[yy[l == q], xx[l == q]] = len(colori)
+                colori.append(np.median(rgb[mk][l == q], 0))
+    lab = pulisci(lab, dentro)
+    pietra = sorted({i for i in np.unique(lab[dentro & (fam == 0)]) if i >= 0}, key=lambda i: colori[i] @ LUMA)
+    if len(pietra) >= 3:
+        L = [colori[i] @ LUMA for i in pietra]
+        lo, hi = L[0] - 8, L[-1] + 10
+        for j, i in enumerate(pietra):
+            colori[i] = np.clip(colori[i] * (lo + (hi - lo) * j / (len(pietra) - 1)) / max(1, L[j]), 0, 255)
+    pad = np.pad(np.where(dentro, lum, np.nan), 2, constant_values=np.nan)
+    with np.errstate(all='ignore'), warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        locale = np.nanmedian(np.lib.stride_tricks.sliding_window_view(pad, (5, 5)).reshape(h, w, 25), 2)
+    crepa = dentro & (fam == 0) & (lum < locale - 24)
+    for cel in macchie(crepa.copy(), h, w):
+        if len(cel) < 4:
+            for y, x in cel:
+                crepa[y, x] = False
+    if pietra:
+        lab[crepa] = pietra[0]
+    if len(pietra) >= 3:
+        rango = {i: j for j, i in enumerate(pietra)}
+        ys = np.nonzero(pieno)[0]; meta = ys.min() + (ys.max() - ys.min()) * 0.45
+        nuovo = lab.copy()
+        for y, x in zip(*np.nonzero(dentro & (fam == 0) & ~crepa)):
+            j = rango.get(lab[y, x])
+            if j is None:
+                continue
+            if fuori[y - 1, x] and y < meta:
+                nuovo[y, x] = pietra[min(len(pietra) - 1, j + 1)]
+            elif fuori[y + 1, x] and y > meta:
+                nuovo[y, x] = pietra[max(0, j - 1)]
+        lab = nuovo
+    o = a.copy()
+    for i, c in enumerate(colori):
+        o[lab == i, :3] = np.round(c)
+    return o
+
+
+FAMIGLIE = {1:'sasso', 2: 'sasso_spigoloso', 3: 'masso', 4: 'masso_basso', 5: 'masso_muschio', 6: 'lastrone',
             8: 'roccione'}
 cartella = os.path.join(PEZZI, 'rocce'); os.makedirs(cartella, exist_ok=True)
 conta = {}
@@ -134,9 +270,6 @@ for riga, col, a in pezzi:
     # e' quello dei suoi pixel di bordo piu' scuri; i pixel di bordo chiari
     # che hanno dentro un vicino gia' scuro sono alone (via), gli altri pixel
     # di bordo si ripassano col colore di contorno
-    def bordo(m):
-        pad = np.pad(m, 1)
-        return m & (~pad[:-2, 1:-1] | ~pad[2:, 1:-1] | ~pad[1:-1, :-2] | ~pad[1:-1, 2:])
     # solo i pezzi di almeno 20 pixel: i sassolini piccoli (nei mucchietti)
     # restano coi loro colori, se no il contorno li coprirebbe tutti
     piccoli = np.zeros(o.shape[:2], bool)
@@ -191,6 +324,7 @@ for riga, col, a in pezzi:
     o[bordo(m), :3] = contorno
     o[piccoli] = salva
     ys, xs = np.nonzero(o[..., 3]); o = o[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    o = migliora(o)
     Image.fromarray(o).save(os.path.join(cartella, nome + '.png'))
     voci[nome] = {"file": "rocce/%s.png" % nome, "misura": [o.shape[1], o.shape[0]], "piede": [o.shape[1] // 2, o.shape[0] - 2]}
 
