@@ -1,42 +1,79 @@
 # Il passo di lei, fatto coi pezzi del suo disegno (ricalca.py).
 #
-# Bru: «bisogna migliorare le animazioni di movimento»; e, sul primo giro:
-# «già meglio ma bisogna ancora lavorarci un pochino», con l'esempio del passo
-# di Samarie (Fear and Hunger: Termina). Quello che lo fa leggere bene:
-#   - il ritmo a tre pose: un passo, in piedi, l'altro passo, in piedi;
-#   - pose grandi e chiare. Davanti il piede che va avanti scende di due pixel
-#     e va un poco in fuori, quello dietro si alza di tre; di lato il passo e'
-#     largo, un piede lontano davanti e uno dietro;
-#   - nei passi il corpo e' un pixel piu' giu' che in piedi;
-#   - le braccia vanno al contrario delle gambe;
+# Bru: «bisogna migliorare le animazioni di movimento», l'esempio del passo di
+# Samarie (Fear and Hunger: Termina), e sul passo a tre pose: «sembra troppo
+# un tronco di legno». Il tronco era il corpo tutto d'un pezzo: testa, busto e
+# braccia scendevano insieme di un pixel e si muovevano solo le gambe. Ora:
+#   - gli otto tempi sono tutti diversi, quelli del passo vero: contatto (il
+#     piede davanti tocca terra, il passo e' largo), giu' (il peso ci va
+#     sopra: il corpo al punto piu' basso), passaggio (l'altra gamba passa
+#     sotto, alzata), su (la spinta sulla punta: il corpo al punto piu' alto);
+#     poi lo stesso con l'altra gamba;
+#   - la testa segue il busto con un tempo di ritardo, e il ciuffo (davanti e
+#     dietro la cresta, di lato la crocchia) segue la testa con un altro: il
+#     collo e i capelli si allungano o si schiacciano di un pixel (si ripete o
+#     si toglie una riga a meta'), cosi' il disegno resta quello del foglio;
+#   - davanti e dietro i fianchi (gli shorts e la cima delle gambe) ondeggiano
+#     di un pixel verso la gamba che porta il peso, la testa e le spalle no;
+#     di lato si piega un pixel in avanti;
+#   - le braccia vanno al contrario delle gambe: davanti e dietro la mano che
+#     va avanti scende di due pixel e quella che va indietro sale (l'avambraccio
+#     si allunga o si accorcia), di lato il braccio dondola di tre;
 #   - di lato la gamba lontana e' piu' scura di quella vicina.
 # Davanti e dietro le gambe sono quelle del foglio, separate e allungate o
 # accorciate. Di lato il foglio ha gambe corte e tutte e due dello stesso
 # scuro: si tengono testa, busto e braccio del foglio, e le gambe si
-# disegnano articolate (anca, ginocchio, caviglia; arti.py) coi colori di lei.
-from arti import traccia
+# disegnano articolate (anca, ginocchio, caviglia; arti.capsula, a spessore
+# vero, che regge anche la gamba alzata) coi colori di lei.
+from arti import capsula
 
-# davanti e dietro: quanto scende il busto; dove finisce il piede sinistro e
-# il destro (+ piu' giu', - alzato); quanto scendono il braccio sinistro e il
-# destro; quanto va in fuori il piede sinistro e il destro
-POSE = {
-    "fermo":   (0, 0, 0, 0, 0, 0, 0),
-    "respiro": (1, 0, 0, 0, 0, 0, 0),
-    "passo_s": (1, 2, -3, -1, 1, 1, 0),
-    "passo_d": (1, -3, 2, 1, -1, 0, 1),
-}
-# gli otto tempi del foglio del gioco: ogni posa per due tempi
-RITMO = ("passo_s", "passo_s", "fermo", "fermo", "passo_d", "passo_d", "fermo", "fermo")
+SOPRA = 1          # una riga vuota in cima al fotogramma: la cresta che salta non si taglia
+FIANCO = 2         # colonne vuote ai lati: i fianchi che ondeggiano non si tagliano
+COLLO = 3          # le righe del collo, che si allungano o si schiacciano
 
 
-def ridimensiona(righe, n):
-    """un pezzo di gamba (lista di righe) lungo n: si ripete o si toglie la
-    riga a meta', dove c'e' solo il gambale dello stivale"""
+def ritardo(serie, rispetto=None):
+    """la serie un tempo dopo (il ciclo gira), ma mai piu' di un pixel lontana
+    da `rispetto` (il pezzo a cui e' attaccata)"""
+    rispetto = rispetto or serie
+    return tuple(max(r - 1, min(r + 1, serie[t - 1])) for t, r in enumerate(rispetto))
+
+
+# gli otto tempi: contatto, giu', passaggio, su, e di nuovo con l'altra gamba.
+# Il busto scende di un pixel quando il piede tocca terra e prende il peso, e
+# risale nel passaggio; la testa fa lo stesso un tempo dopo, il ciuffo un
+# tempo dopo ancora: un'onda che sale dal busto ai capelli, mai piu' di un
+# pixel fra un pezzo e l'altro
+CORPO = (1, 1, 0, 0) * 2                    # quanto scende il busto (+ giu')
+TESTA = ritardo(CORPO)                      # un tempo dopo il busto
+CIUFFO = ritardo(TESTA)                     # un tempo dopo la testa
+
+# davanti e dietro. Il piede: dove finisce (+ piu' giu', cioe' piu' avanti;
+# - alzato); il piede a terra va indietro un pixel a tempo, quello alzato passa
+# sotto e torna avanti. L'avambraccio: + piu' lungo (la mano scende, va
+# avanti), - piu' corto (va indietro); il braccio va col piede dell'altra parte
+PIEDE_S = (2, 1, 0, -1, -1, -2, -3, 0)
+PIEDE_D = PIEDE_S[4:] + PIEDE_S[:4]
+BRACCIO_S = (-2, -1, 0, 1, 2, 1, 0, -1)
+BRACCIO_D = tuple(-b for b in BRACCIO_S)
+ONDEGGIA = (0, -1, -1, 0, 0, 1, 1, 0)       # i fianchi verso la gamba che porta il peso
+TEMPI = [dict(busto=CORPO[t], testa=TESTA[t], ciuffo=CIUFFO[t], ondeggia=ONDEGGIA[t],
+              piedi=(PIEDE_S[t], PIEDE_D[t]), braccia=(BRACCIO_S[t], BRACCIO_D[t]),
+              fuori=(1 if PIEDE_S[t] >= 1 else 0, 1 if PIEDE_D[t] >= 1 else 0))
+         for t in range(8)]
+FERMO = dict(busto=0, testa=0, ciuffo=0, ondeggia=0, piedi=(0, 0), braccia=(0, 0), fuori=(0, 0))
+RESPIRO = dict(FERMO, busto=1, testa=1, ciuffo=1)
+
+
+def ridimensiona(righe, n, minimo=1):
+    """una striscia di righe lunga n: si ripete o si toglie la riga a meta'
+    (nelle gambe e' il gambale dello stivale, nei capelli e nel collo una riga
+    uguale alle vicine)"""
     righe = [list(r) for r in righe]
     while len(righe) < n:
         m = len(righe) // 2
         righe.insert(m, list(righe[m]))
-    while len(righe) > max(n, 2):
+    while len(righe) > max(n, minimo):
         del righe[len(righe) // 2]
     return righe
 
@@ -49,149 +86,198 @@ def ultima_riga(g, c0, c1, da):
     return ult
 
 
-def tempo(g, parti, busto, piede_s, piede_d, braccio_s, braccio_d, fuori_s=0, fuori_d=0):
-    """davanti o dietro -> (fotogramma, riga di terra). parti: anca (la prima
-    riga delle gambe), taglio (la prima colonna della gamba destra), braccia
-    ((col, col) sinistro, (col, col) destro, (riga, riga)). In piedi le gambe
-    finiscono tutte e due sulla riga di terra."""
+def impila(righe, parti, busto, testa, ciuffo):
+    """il corpo dalla cima all'anca, coi pezzi spostati: (righe, di che pezzo
+    e' ogni riga, la riga dove comincia). Il ciuffo si allunga o si schiaccia
+    a meta', il collo pure; la testa e il busto restano come nel foglio. Le
+    righe del busto sono (nome, riga del foglio)"""
+    c, n, anca = parti["ciuffo"], parti["collo"], parti["anca"]
+    pezzi = [(ridimensiona(righe(0, c), c + testa - ciuffo), "ciuffo"),
+             (righe(c, n), "testa"),
+             (ridimensiona(righe(n, n + COLLO), COLLO + busto - testa), "collo"),
+             (righe(n + COLLO, anca), "busto")]
+    tutte = [r for p, _ in pezzi for r in p]
+    nomi = [nome for p, nome in pezzi for _ in p]
+    nomi[len(nomi) - (anca - n - COLLO):] = [("busto", y) for y in range(n + COLLO, anca)]
+    return tutte, nomi, anca + busto - len(tutte)
+
+
+def tempo(g, parti, p):
+    """davanti o dietro -> (fotogramma, riga di terra). parti: ciuffo (la
+    prima riga sotto la cresta), collo (la prima riga del collo), vita (la
+    prima riga degli shorts), anca (la prima riga delle gambe), taglio (la
+    prima colonna della gamba destra),
+    braccia ((col, col) sinistro, (col, col) destro, (riga, riga) degli
+    avambracci). In piedi le gambe finiscono tutte e due sulla riga di terra."""
     w = len(g[0])
     anca, taglio = parti["anca"], parti["taglio"]
-    gambe = [(0, taglio, ultima_riga(g, 0, taglio, anca), piede_s, -fuori_s),
-             (taglio, w, ultima_riga(g, taglio, w, anca), piede_d, fuori_d)]
+    gambe = [(0, taglio, ultima_riga(g, 0, taglio, anca), p["piedi"][0], -p["fuori"][0]),
+             (taglio, w, ultima_riga(g, taglio, w, anca), p["piedi"][1], p["fuori"][1])]
     terra = sum(g_[2] for g_ in gambe) // 2
-    h = terra + 3
-    out = [[None] * w for _ in range(h)]
+    h = SOPRA + terra + 3
+    out = [[None] * (w + 2 * FIANCO) for _ in range(h)]
     (bs0, bs1), (bd0, bd1), (br0, br1) = parti["braccia"]
+    busto, dx = p["busto"], p["ondeggia"]
 
     def metti(x, y, c):
-        if c is not None and 0 <= x < w and 0 <= y < h:
+        x, y = x + FIANCO, y + SOPRA
+        if c is not None and 0 <= x < len(out[0]) and 0 <= y < h:
             out[y][x] = c
 
-    # il busto e la testa, senza le braccia
-    for y in range(anca):
-        for x in range(w):
-            if not (br0 <= y <= br1 and (bs0 <= x <= bs1 or bd0 <= x <= bd1)):
-                metti(x, y + busto, g[y][x])
-    # le braccia, su o giu'; se scendono, sopra si ripete la prima riga
-    for (c0, c1), dy in (((bs0, bs1), braccio_s), ((bd0, bd1), braccio_d)):
-        for y in range(br0, br1 + 1):
-            for x in range(c0, c1 + 1):
-                metti(x, y + busto + dy, g[y][x])
-        for k in range(max(0, dy)):
-            for x in range(c0, c1 + 1):
-                metti(x, br0 + busto + k, g[br0][x])
-    # le gambe, dall'anca (che scende col busto) fino al piede; la meta' di
-    # sotto della gamba che va avanti si sposta un poco in fuori
-    for c0, c1, fine, piede, fuori in gambe:
+    def braccio(x, y):
+        return br0 <= y <= br1 and (bs0 <= x <= bs1 or bd0 <= x <= bd1)
+
+    # le gambe, dall'anca (che scende e ondeggia col busto) fino al piede;
+    # prima quella dietro, poi quella davanti; la meta' di sotto della gamba
+    # che va avanti va un poco in fuori
+    for c0, c1, fine, piede, fuori in sorted(gambe, key=lambda g_: g_[3]):
         righe = ridimensiona([g[y][c0:c1] for y in range(anca, fine + 1)],
-                             (terra + piede) - (anca + busto) + 1)
+                             (terra + piede) - (anca + busto) + 1, 2)
         for j, riga in enumerate(righe):
-            dx = fuori if j >= len(righe) // 2 else 0
+            spost = fuori if j >= len(righe) // 2 else dx
             for i, c in enumerate(riga):
-                metti(c0 + i + dx, anca + busto + j, c)
-    return out, terra
+                metti(c0 + i + spost, anca + busto + j, c)
+    # il busto e la testa, senza gli avambracci; dalla vita in giu' ondeggia
+    righe, nomi, y0 = impila(lambda a, b: [[None if braccio(x, y) else g[y][x] for x in range(w)]
+                                           for y in range(a, b)], parti, busto, p["testa"], p["ciuffo"])
+    for j, (riga, nome) in enumerate(zip(righe, nomi)):
+        spost = dx if nome[0] == "busto" and nome[1] >= parti["vita"] else 0
+        for x, c in enumerate(riga):
+            metti(x + spost, y0 + j, c)
+    # gli avambracci, piu' lunghi o piu' corti (la riga a meta' del guanto)
+    for (c0, c1), allunga in (((bs0, bs1), p["braccia"][0]), ((bd0, bd1), p["braccia"][1])):
+        pezzo = ridimensiona([g[y][c0:c1 + 1] for y in range(br0, br1 + 1)], br1 - br0 + 1 + allunga)
+        for j, riga in enumerate(pezzo):
+            for i, c in enumerate(riga):
+                metti(c0 + i, br0 + busto + j, c)
+    return out, SOPRA + terra
 
 
 def ciclo(g, parti):
     """fermo, il respiro e gli otto tempi del passo"""
-    return [tempo(g, parti, *POSE[p]) for p in ("fermo", "respiro") + RITMO]
+    return [tempo(g, parti, p) for p in [FERMO, RESPIRO] + TEMPI]
 
 
 # ---------------------------------------------------------------- di lato
 
-# le gambe: (dx, dy) del ginocchio e della caviglia dall'anca, per la vicina e
-# la lontana; il piede (piatto o in punta, col tallone alzato); quanto scende
-# il busto; quanto va avanti (+) o indietro (-) la mano del braccio vicino
-POSE_LATO = {
-    "fermo":   dict(busto=0, vicina=((0, 5), (0, 10)), lontana=((0, 5), (0, 10)),
-                    piedi=("piatto", "piatto"), mano=0),
-    "respiro": dict(busto=1, vicina=((0, 5), (0, 10)), lontana=((0, 5), (0, 10)),
-                    piedi=("piatto", "piatto"), mano=0),
-    "passo_v": dict(busto=1, vicina=((3, 5), (6, 9)), lontana=((-2, 5), (-6, 8)),
-                    piedi=("piatto", "punta"), mano=-2),
-    "passo_l": dict(busto=1, vicina=((-2, 5), (-6, 8)), lontana=((3, 5), (6, 9)),
-                    piedi=("punta", "piatto"), mano=2),
+# le gambe nelle quattro pose del passo: per la gamba che va avanti (prima) e
+# per l'altra, il ginocchio e la caviglia (dx, dy) dall'anca, e il piede:
+# piatto o in punta (col tallone alzato) per terra, appeso (dietro, la punta
+# in giu') o alzato (davanti) in aria. Il piede per terra ha la caviglia sulla
+# sua riga; quello in aria dove dice la posa
+GAMBE_LATO = {
+    "fermo":     (((0, 5), (0, 11), "piatto"), ((0, 5), (0, 11), "piatto")),
+    "contatto":  (((2, 5), (5, 11), "piatto"), ((-2, 5), (-5, 11), "punta")),
+    "giu":       (((3, 5), (3, 10), "piatto"), ((-1, 5), (-4, 9), "appeso")),
+    "passaggio": (((0, 5), (0, 11), "piatto"), ((2, 4), (0, 9), "appeso")),
+    "su":        (((-1, 6), (-3, 12), "punta"), ((3, 5), (4, 10), "alzato")),
 }
-RITMO_LATO = ("passo_v", "passo_v", "fermo", "fermo", "passo_l", "passo_l", "fermo", "fermo")
+POSE = ("contatto", "giu", "passaggio", "su")
+# il braccio vicino: quanto va avanti (+) o indietro (-) la mano; va al
+# contrario della gamba vicina, che va avanti nei primi quattro tempi
+MANO = (-3, -2, 0, 2, 3, 2, 0, -2)
+TEMPI_LATO = [dict(busto=CORPO[t], testa=TESTA[t], ciuffo=CIUFFO[t], piega=1, mano=MANO[t],
+                   gambe=GAMBE_LATO[POSE[t % 4]], vicina_avanti=t < 4)
+              for t in range(8)]
+FERMO_LATO = dict(busto=0, testa=0, ciuffo=0, piega=0, mano=0, gambe=GAMBE_LATO["fermo"], vicina_avanti=True)
+RESPIRO_LATO = dict(FERMO_LATO, busto=1, testa=1, ciuffo=1)
 # il piede, guardando a destra; la caviglia e' la colonna 2 della prima riga.
 # a chiaro, b base, c scuro, o contorno
 PIEDI = {
     "piatto": ["obbbo...", "oabbbbbo", "oooooooo"],
+    "alzato": ["obbbo...", "oabbbbbo", "oooooooo"],
     "punta": [".obbo...", ".oabbo..", "..oooo.."],
+    "appeso": [".obbo...", ".oabbo..", "..oooo.."],
 }
 
 
-def lato(g, parti, posa, colori):
-    """di lato -> (fotogramma, riga di terra). parti: anca (la prima riga
+def lato(g, parti, p, colori):
+    """di lato -> (fotogramma, riga di terra). parti: ciuffo (la prima riga
+    sotto la crocchia), collo (la prima riga del collo), anca (la prima riga
     sotto gli shorts), anche (la x dell'anca vicina e della lontana), terra
     (la riga della suola), braccio (righe e ultima colonna del braccio
     vicino). colori: pelle e stivali, dal chiaro allo scuro, il contorno, e
     guanto(c) che dice se un colore e' del guanto."""
-    w, p = len(g[0]), POSE_LATO[posa]
+    w = len(g[0])
     anca, terra, busto = parti["anca"], parti["terra"], p["busto"]
-    h = terra + 1
+    h = SOPRA + terra + 1
     out = [[None] * w for _ in range(h)]
     pelle, stivali, nero = colori["pelle"], colori["stivali"], colori["contorno"]
 
+    def metti(x, y, c):
+        y += SOPRA
+        if c is not None and 0 <= x < w and 0 <= y < h:
+            out[y][x] = c
+
     def gamba(hx, ginocchio, caviglia, piede, vicina):
         hy = anca - 1 + busto
-        ay = terra - 2 if piede == "piatto" else terra - 2
-        punti = [(hx, hy), (hx + ginocchio[0], hy + (ay - hy) // 2), (hx + caviglia[0], ay)]
-        celle = traccia(punti, 6)
+        ay = terra - 2 if piede in ("piatto", "punta") else hy + caviglia[1]
+        punti = [(hx, hy), (hx + ginocchio[0], hy + ginocchio[1]), (hx + caviglia[0], ay)]
+        celle = capsula(punti, 2.6)
         sk = pelle[1:3] if vicina else pelle[2:4]
         st = stivali[0:3] if vicina else stivali[2:4] + stivali[3:4]
         for (x, y), v in celle.items():
-            if not (0 <= x < w and 0 <= y < h):
-                continue
             riga = [c[0] for c in celle if c[1] == y]
             sx, dx_ = min(riga), max(riga)
             if any((x + a, y + b) not in celle for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                out[y][x] = nero
+                metti(x, y, nero)
             elif v < 0.28:
-                out[y][x] = sk[0] if x == sx + 1 else sk[1]
+                metti(x, y, sk[0] if x == sx + 1 else sk[1])
             elif v < 0.36:
-                out[y][x] = st[0]
+                metti(x, y, st[0])
             else:
-                out[y][x] = st[0] if x == sx + 1 else (st[2] if x == dx_ - 1 else st[1])
+                metti(x, y, st[0] if x == sx + 1 else (st[2] if x == dx_ - 1 else st[1]))
         ax = hx + caviglia[0]
         for j, riga in enumerate(PIEDI[piede]):
             for i, ch in enumerate(riga):
-                x, y = ax - 2 + i, ay + j
-                if ch != "." and 0 <= x < w and 0 <= y < h:
-                    out[y][x] = {"o": nero, "a": st[0], "b": st[1], "c": st[2]}[ch]
+                if ch != ".":
+                    metti(ax - 2 + i, ay + j, {"o": nero, "a": st[0], "b": st[1], "c": st[2]}[ch])
 
     # prima la gamba lontana, poi la vicina
-    lx, vx = parti["anche"][1], parti["anche"][0]
-    gamba(lx, *p["lontana"], p["piedi"][1], False)
-    gamba(vx, *p["vicina"], p["piedi"][0], True)
+    avanti, dietro = p["gambe"]
+    vicina, lontana = (avanti, dietro) if p["vicina_avanti"] else (dietro, avanti)
+    gamba(parti["anche"][1], *lontana, False)
+    gamba(parti["anche"][0], *vicina, True)
     # il busto e la testa sopra le gambe (la cima delle gambe sta sotto gli
-    # shorts); il braccio vicino si piega in avanti o indietro verso la mano
+    # shorts); dove c'e' il braccio vicino, il fianco che ha dietro
     (r0, r1), ultima = parti["braccio"]
     braccio = {(x, y): g[y][x] for y in range(r0, r1 + 1) for x in range(min(ultima + 1, w))
                if g[y][x] is not None and colori["guanto"](g[y][x])}
-    for y in range(anca):
-        for x in range(w):
-            c = g[y][x]
-            if (x, y) in braccio:
-                # dietro il braccio c'e' il fianco: il primo colore a destra
-                c = next((g[y][k] for k in range(x + 1, w) if (k, y) not in braccio), None)
-            if c is not None and 0 <= y + busto < h:
-                out[y + busto][x] = c
+
+    def righe(a, b):
+        fuori = []
+        for y in range(a, b):
+            riga = []
+            for x in range(w):
+                c = g[y][x]
+                if (x, y) in braccio:
+                    c = next((g[y][k] for k in range(x + 1, w) if (k, y) not in braccio), None)
+                riga.append(c)
+            fuori.append(riga)
+        return fuori
+
+    tutte, nomi, y0 = impila(righe, parti, busto, p["testa"], p["ciuffo"])
+    for j, (riga, nome) in enumerate(zip(tutte, nomi)):
+        spost = p["piega"] if nome[0] != "busto" else 0
+        for x, c in enumerate(riga):
+            metti(x + spost, y0 + j, c)
+    # il braccio dondola dalla spalla: la mano va avanti o indietro di `mano`
+    # e, in fondo all'arco, sale di un pixel
+    su = 1 if abs(p["mano"]) >= 3 else 0
     for (x, y), c in braccio.items():
-        dx = round(p["mano"] * (y - r0) / max(1, r1 - r0))
-        if 0 <= x + dx < w and 0 <= y + busto < h:
-            out[y + busto][x + dx] = c
+        f = (y - r0) / max(1, r1 - r0)
+        metti(x + round(p["mano"] * f), y + busto - round(su * f), c)
     # dietro il braccio il foglio lascia un baffo di contorno, una riga sola
     # che sporge orizzontale: si toglie
     for _ in range(4):
-        for y in range(r0 + busto, anca + busto):
+        for y in range(SOPRA + r0 + busto - 1, SOPRA + anca + busto):
             for x in range(w):
                 if out[y][x] != nero or out[y - 1][x] is not None or out[y + 1][x] is not None:
                     continue
                 if sum(1 for k in (x - 1, x + 1) if 0 <= k < w and out[y][k] is not None) <= 1:
                     out[y][x] = None
-    return out, terra
+    return out, SOPRA + terra
 
 
 def ciclo_di_lato(g, parti, colori):
-    return [lato(g, parti, p, colori) for p in ("fermo", "respiro") + RITMO_LATO]
+    return [lato(g, parti, p, colori) for p in [FERMO_LATO, RESPIRO_LATO] + TEMPI_LATO]

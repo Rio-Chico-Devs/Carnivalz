@@ -64,8 +64,8 @@ QUADRI = {  # x, y, larghezza, altezza: dentro i riquadri, senza le scritte
 # le colonne delle braccia e le loro righe, dove finisce il ciuffo. Sono
 # misurate sui disegni gia' puliti
 PARTI = {
-    "davanti1": dict(anca=40, taglio=13, braccia=((0, 6), (19, 25), (29, 38)), ciuffo=9),
-    "dietro2": dict(anca=42, taglio=13, braccia=((0, 5), (20, 25), (29, 38)), ciuffo=7),
+    "davanti1": dict(anca=40, taglio=13, braccia=((0, 6), (19, 25), (29, 38)), ciuffo=9, collo=23, vita=34),
+    "dietro2": dict(anca=42, taglio=13, braccia=((0, 5), (20, 25), (29, 38)), ciuffo=7, collo=22, vita=35),
 }
 # di lato: dal foglio la testa, il busto e il braccio (la testa del primo
 # tempo sui quattro, ingranditi fino all'altezza di davanti); le gambe le
@@ -73,7 +73,7 @@ PARTI = {
 # 32: la prima riga sotto gli shorts, la x dell'anca vicina e della lontana,
 # la riga della suola, le righe e l'ultima colonna del braccio vicino
 LATO = ("lato1", "lato2", "lato3", "lato4")
-PARTI_LATO = dict(anca=39, anche=(19, 17), terra=51, braccio=((30, 38), 16))
+PARTI_LATO = dict(anca=39, anche=(19, 17), terra=51, braccio=((30, 38), 16), ciuffo=5, collo=23)
 # le colonne del foglio del gioco
 COLONNE = ("fermo", "respiro") + tuple("tempo%d" % i for i in range(1, 9))
 
