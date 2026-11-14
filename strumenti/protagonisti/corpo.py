@@ -34,7 +34,7 @@ COLORI = {
     'k': '#4e4560', 'm': '#3a3448', 'n': '#1e1a28',
     'F': '#f06a86', 'G': '#c8304e', 'H': '#922038', 'I': '#3c0a18',
     '1': '#ffe49a', '2': '#e8b040', '3': '#a8701c', '4': '#5e1226',
-    'i': '#4a3060',
+    'i': '#4a3060', 'x': '#3a2c58', 'y': '#241a3c', 'z': '#120c22',
 }
 COLORI = {k: esa(v) for k, v in COLORI.items()}
 
@@ -42,20 +42,20 @@ COLORI = {k: esa(v) for k, v in COLORI.items()}
 # meta' sinistra e la destra (la luce da sinistra: la destra e' piu' scura)
 DA = 25
 DAVANTI = [
-    ("....oPQQbbQQR", "RQQccQQRo...."),   # 25 le spalle, lo scollo a V fra le spalline
-    ("...oPQQobbbQR", "RQcccoQRRo..."),   # 26 il braccio nudo, l'ascella, il top
-    ("...oPQQoabbbR", "RcccdoQRRo..."),   # 27
-    ("...oPQQoabbbc", "ccccdoQRSo..."),   # 28
-    ("...oQQRobbbcc", "cccddoRRSo..."),   # 29
-    ("..ossttoccddd", "ddddeosstuo.."),   # 30 il bordo largo del guanto, l'orlo del top
-    ("..osttuo.oPQQ", "QQRo.osttuo.."),   # 31 la vita stretta: fra braccio e pancia c'e' aria
-    ("..ostuo..oPQQ", "QQRo..ostuo.."),   # 32 l'avambraccio
-    ("..ostuo..obbb", "QQRo..ostuo.."),   # 33 la cintura, di traverso
-    ("..ostuo.occcc", "bbbbo.ostuo.."),   # 34 i fianchi
-    (".osttuo.okmmm", "cccco.osttuo."),   # 35 la mano, gli shorts
-    (".osttuo.okmmm", "mmmno.osttuo."),   # 36
-    (".ostuuo.okmmo", "ommno.ostuuo."),   # 37
-    ("..oooo..onnno", "onnno..oooo.."),   # 38
+    ("....oPQQccQQR", "RQQddQQRo...."),   # 25 le spalle, lo scollo a V fra le spalline
+    ("...oPQQScccQR", "RQdddSQRRo..."),   # 26 il braccio nudo, l'ascella, il top
+    ("...oPQQSbcccR", "RdddeSQRRo..."),   # 27
+    ("...oPQQSbcccd", "ddddeSQRSo..."),   # 28
+    ("...oQQRScccdd", "dddeeSRRSo..."),   # 29
+    (".osstttoddeee", "eeeefossttuo."),   # 30 il bordo largo del guanto, l'orlo del top
+    (".ostttuo.oPQQ", "QQRo.ostttuo."),   # 31 la vita stretta: fra braccio e pancia c'e' aria
+    (".osttuo..oPQQ", "QQRo..osttuo."),   # 32 l'avambraccio
+    (".osttuo..obbb", "QQRo..osttuo."),   # 33 la cintura, di traverso
+    (".osttuo.occcc", "bbbbo.osttuo."),   # 34 i fianchi
+    ("ostttuo.okmmm", "cccco.ostttuo"),   # 35 la mano, gli shorts
+    ("ostttuo.okmmm", "mmmno.ostttuo"),   # 36
+    ("osttuuo.okmmo", "ommno.osttuuo"),   # 37
+    (".ooooo..onnno", "onnno..ooooo."),   # 38
     (".........oPQR", "RQRo........."),   # 39 le cosce
     (".........oQQR", "RRSo........."),   # 40
     ("........ossto", "ossto........"),   # 41 il bordo degli stivali
@@ -70,19 +70,19 @@ DAVANTI = [
 ]
 DIETRO = [
     ("....oPQQQQQQQ", "QQQQQQQRo...."),   # 25 le spalle e la schiena nude
-    ("...oPQQobbbbb", "bbbbcoQRRo..."),   # 26 la fascia del top sulla schiena
-    ("...oPQQoQQQQQ", "QQQQRoQRRo..."),   # 27
-    ("...oPQQoabbbb", "bbbccoQRSo..."),   # 28 il top
-    ("...oQQRobbbbb", "bbcccoRRSo..."),   # 29
-    ("..ossttoccccd", "ddddeosstuo.."),   # 30
-    ("..osttuo.oPQQ", "QQRo.osttuo.."),   # 31 la schiena nuda, la vita stretta
-    ("..ostuo..oQQQ", "QQRo..ostuo.."),   # 32
-    ("..ostuo..oQQQ", "bbbo..ostuo.."),   # 33 la cintura (da dietro scende a sinistra)
-    ("..ostuo.obbbb", "cccco.ostuo.."),   # 34
-    (".osttuo.occcc", "mmmno.osttuo."),   # 35
-    (".osttuo.okmmm", "mmmno.osttuo."),   # 36 gli shorts
-    (".ostuuo.okmmo", "ommno.ostuuo."),   # 37
-    ("..oooo..onnno", "onnno..oooo.."),   # 38
+    ("...oPQQSccccc", "ccccdSQRRo..."),   # 26 la fascia del top sulla schiena
+    ("...oPQQSQQQQQ", "QQQQRSQRRo..."),   # 27
+    ("...oPQQSbcccc", "cccddSQRSo..."),   # 28 il top
+    ("...oQQRSccccc", "ccdddSRRSo..."),   # 29
+    (".osstttodddde", "eeeefossttuo."),   # 30
+    (".ostttuo.oPQQ", "QQRo.ostttuo."),   # 31 la schiena nuda, la vita stretta
+    (".osttuo..oQQQ", "QQRo..osttuo."),   # 32
+    (".osttuo..oQQQ", "bbbo..osttuo."),   # 33 la cintura (da dietro scende a sinistra)
+    (".osttuo.obbbb", "cccco.osttuo."),   # 34
+    ("ostttuo.occcc", "mmmno.ostttuo"),   # 35
+    ("ostttuo.okmmm", "mmmno.ostttuo"),   # 36 gli shorts
+    ("osttuuo.okmmo", "ommno.osttuuo"),   # 37
+    (".ooooo..onnno", "onnno..ooooo."),   # 38
     (".........oQQR", "RQRo........."),   # 39 le cosce
     (".........oQRR", "RRSo........."),   # 40
     ("........ossto", "ossto........"),   # 41
@@ -96,7 +96,7 @@ DIETRO = [
     ("........ooooo", "ooooo........"),   # 49
 ]
 
-# le teste, ripassate a mano sul ricalco (stessa silhouette, stesse ciocche,
+# le teste ripassate a mano (ricalca.py mano), sul ricalco: stessa silhouette, stesse ciocche,
 # la fascia, il cerchio d'oro, gli occhi scuri a mezze palpebre): Bru, «quei
 # puntini sulla bandana fanno solo noise». Tolti i puntini del JPG (pixel
 # color shorts nella cresta, pelle nella frangia, contorni doppi), ogni ciocca
@@ -184,18 +184,18 @@ TESTA_LATO = [   # righe 0-24, larga 32, guarda a destra
 ]
 
 # le misure per il passo (passo.tempo): come nel ricalco, ma sul corpo nuovo
-PARTI = dict(anca=39, taglio=13, braccia=((1, 6), (19, 24), (30, 38)), vita=33)
+PARTI = dict(anca=39, taglio=13, braccia=((0, 6), (19, 25), (30, 38)), vita=33)
 
 # di lato, guardando a destra: il busto dalla riga 25 all'anca (38), largo 32;
 # il braccio vicino a parte (passo.lato lo fa dondolare). Le gambe le disegna
 # passo.lato, dall'anca alla riga di terra
 LATO_BUSTO = [
     "...............oRQQQQRo.........",   # 25 la base del collo
-    ".............oPPQQQQbbbo........",   # 26 la spalla, il top
-    "............obbbbbbbbbbbo.......",   # 27 il top, dalla schiena al seno
-    "............oabbbbbbbbbcco......",   # 28
-    "............oabbbbbbbbccdo......",   # 29
-    ".............ocddddddddeo.......",   # 30 l'orlo del top
+    ".............oPPQQQQccco........",   # 26 la spalla, il top
+    "............occccccccccco.......",   # 27 il top, dalla schiena al seno
+    "............obcccccccccddo......",   # 28
+    "............obccccccccddeo......",   # 29
+    ".............odeeeeeeeefo.......",   # 30 l'orlo del top
     ".............oPQQQQQQQRo........",   # 31 la pancia e la schiena nude
     ".............oPQQQQQQQRo........",   # 32
     ".............oQQQQQQQRRo........",   # 33
@@ -208,18 +208,18 @@ LATO_BUSTO = [
 LATO_BRACCIO = [
     "................................",   # 25
     "................................",   # 26
-    "...............oPQQRo...........",   # 27 il braccio nudo, dalla spalla
-    "...............oPQQRo...........",   # 28
-    "...............oPQRRo...........",   # 29
+    "...............SPQQRS...........",   # 27 il braccio nudo, dalla spalla
+    "...............SPQQRS...........",   # 28
+    "...............SPQRRS...........",   # 29
     "..............ostttuo...........",   # 30 il bordo del guanto
-    "...............ostuo............",   # 31 l'avambraccio
-    "...............ostuo............",   # 32
-    "...............ostuo............",   # 33
-    "...............ostuo............",   # 34
-    "..............osttuo............",   # 35 la mano
-    "..............osttuo............",   # 36
-    "..............ostuuo............",   # 37
-    "...............oooo.............",   # 38
+    "...............osttuo...........",   # 31 l'avambraccio
+    "...............osttuo...........",   # 32
+    "...............osttuo...........",   # 33
+    "...............osttuo...........",   # 34
+    "..............ostttuo...........",   # 35 la mano
+    "..............ostttuo...........",   # 36
+    "..............osttuuo...........",   # 37
+    "...............ooooo............",   # 38
 ]
 PARTI_LATO = dict(anca=39, anche=(19, 17), terra=49, ciuffo=5, collo=23)
 
@@ -233,9 +233,51 @@ def griglia(righe, larghe):
     return out
 
 
-def rivesti(g, vista, testa=True):
-    """il corpo disegnato qui (dalla riga DA in giu') e, se testa, la testa
-    ripassata a mano; senza, la testa del ricalco (g)"""
+def pulisci_testa(g, fino, occhi=()):
+    """la testa del ricalco com'e', con la sua trama, senza lo sporco del JPG:
+    il colore degli shorts finito nei capelli torna viola scuro, la pelle
+    sola in mezzo ai capelli, quello che resta dentro la fascia e i toni
+    senza nessun vicino uguale prendono il colore piu' frequente intorno. Gli
+    occhi restano"""
+    capelli = {COLORI[k] for k in 'abcdefxyzi'}
+    fascia = {COLORI[k] for k in 'FGHI4'}
+    pelle = {COLORI[k] for k in 'PQRS'}
+    cambia = {COLORI['m']: COLORI['x'], COLORI['n']: COLORI['y']}
+    h, w = len(g), len(g[0])
+    g = [[cambia.get(c, c) if y < fino else c for c in r] for y, r in enumerate(g)]
+
+    def c(x, y):
+        return g[y][x] if 0 <= x < w and 0 <= y < h else None
+
+    for _ in range(2):
+        nuovo = [list(r) for r in g]
+        for y in range(fino):
+            for x in range(w):
+                v = g[y][x]
+                if v is None or (x, y) in occhi:
+                    continue
+                q4 = [c(x + a, y + b) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+                q8 = q4 + [c(x + a, y + b) for a, b in ((1, 1), (-1, -1), (1, -1), (-1, 1))]
+                vicini = [q for q in q8 if q in capelli]
+                nastro = [q for q in q8 if q in fascia]
+                if sum(1 for q in q4 if q in fascia) >= 3 and v not in fascia:
+                    # pelle o capelli rimasti in mezzo alla fascia
+                    nuovo[y][x] = max(set(nastro), key=nastro.count)
+                elif not vicini:
+                    continue
+                elif v in pelle and sum(1 for q in q4 if q in pelle) <= 1 \
+                        and sum(1 for q in q4 if q in capelli | fascia) >= 3:
+                    nuovo[y][x] = max(set(vicini), key=vicini.count)
+                elif v in capelli and None not in q4 and v not in q8:
+                    nuovo[y][x] = max(set(vicini), key=vicini.count)
+        g = nuovo
+    return g
+
+
+def rivesti(g, vista, testa="pulita", occhi=()):
+    """il corpo disegnato qui (dalla riga DA in giu') sotto la testa: "pulita"
+    quella del ricalco (g) senza lo sporco, "fedele" quella del ricalco com'e',
+    "mano" quella ripassata a mano"""
     w = len(g[0])
     if vista == "lato":
         corpo, sopra = griglia(LATO_BUSTO, w), TESTA_LATO
@@ -243,7 +285,10 @@ def rivesti(g, vista, testa=True):
         assert w == 26, w
         corpo = griglia(DAVANTI if vista == "davanti" else DIETRO, 26)
         sopra = TESTA_DAVANTI if vista == "davanti" else TESTA_DIETRO
-    return (griglia(sopra, w) if testa else [list(r) for r in g[:DA]]) + corpo
+    if testa == "mano":
+        return griglia(sopra, w) + corpo
+    g = [list(r) for r in g[:DA]]
+    return (pulisci_testa(g, DA, occhi) if testa == "pulita" else g) + corpo
 
 
 def braccio_di_lato(w):

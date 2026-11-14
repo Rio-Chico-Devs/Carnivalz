@@ -22,6 +22,8 @@
 #     Il disegno resta quello del foglio: cambiano solo la luce e lo sporco.
 #   - I fotogrammi si allineano sulla testa, i piedi per terra.
 #
+#   python3 strumenti/protagonisti/ricalca.py mano     le teste ripassate a mano
+#                                                        (corpo.py), piu' semplici
 #   python3 strumenti/protagonisti/ricalca.py fedele   la testa del ricalco senza
 #                                                        pulizia (i 40 colori del
 #                                                        foglio com'e'), sul corpo
@@ -448,7 +450,7 @@ def taglia_insieme(tele):
     return [[r[min(xs):max(xs) + 1] for r in t[min(ys):max(ys) + 1]] for t in tele]
 
 
-def fotogrammi_di_lei(percorso, pulita=True):
+def fotogrammi_di_lei(percorso, pulita=True, testa="pulita"):
     """-> {vista: [(griglia, riga di terra), ...]} con le dieci colonne"""
     f = Foglio(percorso)
     grezzi = {}
@@ -464,13 +466,15 @@ def fotogrammi_di_lei(percorso, pulita=True):
         return aspetto.vesti(ridipingi(g), vista, NERO) if pulita else g
 
     # sotto la testa del foglio il corpo ridisegnato (corpo.py)
+    testa = testa if pulita else "fedele"
+    occhi = {v: set(aspetto.VISTE[v]["palpebre"]) | set(aspetto.VISTE[v]["iridi"]) for v in aspetto.VISTE}
     viste = {}
     for vista, nome, quale in (("giu", "davanti1", "davanti"), ("su", "dietro2", "dietro")):
-        g = corpo.rivesti(vesti(ritaglia(colori(grezzi[nome])), quale), quale, pulita)
+        g = corpo.rivesti(vesti(ritaglia(colori(grezzi[nome])), quale), quale, testa, occhi[quale])
         viste[vista] = passo.ciclo(g, dict(PARTI[nome], **corpo.PARTI))
     tele, _ = di_lato(grezzi, len(grezzi["davanti1"]))
     lato = [[None, None] + r + [None, None] for r in taglia_insieme([colori(t) for t in tele])[0]]
-    lato = corpo.rivesti(vesti(lato, "lato"), "lato", pulita)
+    lato = corpo.rivesti(vesti(lato, "lato"), "lato", testa, occhi["lato"])
     colori_lato = dict(pelle=[esa(c) for c in ASPETTO["pelle"]],
                        stivali=[esa(c) for c in ASPETTO["stivali"]], contorno=NERO)
     viste["destra"] = passo.ciclo_di_lato(
@@ -500,8 +504,9 @@ def foglio_del_gioco(viste):
 
 if __name__ == '__main__':
     pulita = 'fedele' not in sys.argv[1:]
-    viste = fotogrammi_di_lei(os.path.join(QUI, 'fogli', 'lei.png'), pulita)
+    testa = "mano" if 'mano' in sys.argv[1:] else "pulita"
+    viste = fotogrammi_di_lei(os.path.join(QUI, 'fogli', 'lei.png'), pulita, testa)
     w, h, pix = foglio_del_gioco(viste)
     cartella = os.path.join(QUI, '..', '..', 'art', 'pianeti', 'protagonista')
     png.scrivi(os.path.join(cartella, 'lei.png'), w, h, pix)
-    print('scritto lei', w, h, 'pulita' if pulita else 'fedele')
+    print('scritto lei', w, h, testa if pulita else 'fedele')
