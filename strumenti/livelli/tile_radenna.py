@@ -14,8 +14,13 @@
 #      disegno, su un toro (il bordo destro tocca il sinistro, quello di sotto
 #      quello di sopra): ogni pezzo si attacca agli altri tagliando dove si
 #      somigliano di piu' (nei ciottoli tagliare un sasso costa di piu', cosi'
-#      i tagli passano sul muschio). Niente sfumature: solo pixel del disegno.
-# Scrive art/livelli/terreni/erba_radenna.png e ciottoli_radenna.png.
+#      i tagli passano sul muschio). Niente sfumature: solo pixel del disegno;
+#   5. tre varianti dell'erba con lo stesso bordo della prima (6 pixel per
+#      lato, identici) e l'interno cucito di nuovo: si mescolano a caso in
+#      qualunque ordine, senza giunture, e il prato non mostra piu' lo stesso
+#      quadrato ripetuto.
+# Scrive art/livelli/terreni/erba_radenna.png (e _2, _3, _4) e
+# ciottoli_radenna.png.
 import os
 
 import numpy as np
@@ -174,6 +179,54 @@ def cuci(src, ok, N, S, O, seme, tolleranza=0.6, distanza=10, peso=None, forza_p
     return out.astype(np.uint8)
 
 
+def variante(base, src, ok, seme, Bd=6, P=22, passi=(0, 14, 28, 42), tolleranza=0.6, distanza=10):
+    # la tile `base` con l'interno cucito di nuovo: il bordo (Bd pixel per
+    # lato) resta identico, i pezzi nuovi ci si attaccano tagliando dove si
+    # somigliano di piu'
+    N = base.shape[0]; O = P - 14
+    h, w = ok.shape
+    cattivo = np.pad((~ok).astype(int), ((1, 0), (1, 0))).cumsum(0).cumsum(1)
+    cand = [(y, x) for y in range(h - P + 1) for x in range(w - P + 1)
+            if cattivo[y + P, x + P] - cattivo[y, x + P] - cattivo[y + P, x] + cattivo[y, x] == 0]
+    pz = np.stack([src[y:y + P, x:x + P] for y, x in cand]).astype(float)
+    pos = np.array(cand)
+    rng = np.random.default_rng(seme)
+    out = base.astype(float).copy()
+    fisso = np.zeros((N, N), bool); fisso[:Bd] = fisso[-Bd:] = True; fisso[:, :Bd] = fisso[:, -Bd:] = True
+    pieno = fisso.copy()
+    usati = []
+    for y0 in passi:
+        for x0 in passi:
+            ex = out[y0:y0 + P, x0:x0 + P]; kn = pieno[y0:y0 + P, x0:x0 + P]
+            libero = np.ones(len(cand), bool)
+            for u in usati:
+                libero &= np.abs(pos - pos[u]).max(1) >= distanza
+            if not libero.any():
+                libero[:] = True
+            err = (((pz - ex[None]) ** 2).sum(-1) * kn[None]).sum((1, 2)) / max(1, kn.sum())
+            err[~libero] = np.inf
+            k = rng.choice(np.nonzero(err <= err.min() * (1 + tolleranza) + 1e-6)[0]); usati.append(k)
+            nuovo = pz[k]; prendi = np.ones((P, P), bool)
+            e = ((nuovo - ex) ** 2).sum(-1)
+            if kn[:, :O].all():
+                cam = taglio(e[:, :O])
+                for y in range(P): prendi[y, :cam[y] + 1] = False
+            if kn[:O, :].all():
+                cam = taglio(e[:O, :].T)
+                for x in range(P): prendi[:cam[x] + 1, x] = False
+            if kn[:, P - O:].all():
+                cam = taglio(e[:, P - O:])
+                for y in range(P): prendi[y, P - O + cam[y]:] = False
+            if kn[P - O:, :].all():
+                cam = taglio(e[P - O:, :].T)
+                for x in range(P): prendi[P - O + cam[x]:, x] = False
+            prendi |= ~kn
+            prendi &= ~fisso[y0:y0 + P, x0:x0 + P]
+            out[y0:y0 + P, x0:x0 + P] = np.where(prendi[..., None], nuovo, ex)
+            pieno[y0:y0 + P, x0:x0 + P] = True
+    return out.astype(np.uint8)
+
+
 os.makedirs(TERRENI, exist_ok=True)
 
 # l'erba: il blocco grande, 3x3 quadrati
@@ -187,8 +240,11 @@ for c0, c1 in ((0, 6), (46, 57), (95, 106), (145, 153)):        # le linee fra i
     ok[:, c0:c1] = False
 for r0, r1 in ((0, 6), (46, 58), (96, 108), (144, 170)):        # e la fascia scura in fondo
     ok[r0:r1, :] = False
-erba = cuci(spiana(rgb, ok, 6.0, 0.7), ok, 64, 16, 6, seme=2)
+piano_erba = spiana(rgb, ok, 6.0, 0.7)
+erba = cuci(piano_erba, ok, 64, 16, 6, seme=2)
 Image.fromarray(erba).save(os.path.join(TERRENI, 'erba_radenna.png'))
+for k, seme in ((2, 11), (3, 12), (4, 13)):
+    Image.fromarray(variante(erba, piano_erba, ok, seme)).save(os.path.join(TERRENI, 'erba_radenna_%d.png' % k))
 
 # i ciottoli: la tile piccola, senza il bordino
 o = rettangolo_pieno(pixel_veri(964, 574, 1138, 744))
@@ -211,4 +267,4 @@ for _ in range(3):
     dentro = stringi(dentro); peso += dentro
 ciottoli = cuci(piano, ok, 64, 16, 6, seme=2, distanza=6, peso=peso, forza_peso=3000.0)
 Image.fromarray(ciottoli).save(os.path.join(TERRENI, 'ciottoli_radenna.png'))
-print('terreni: erba_radenna 64x64, ciottoli_radenna 64x64')
+print('terreni: erba_radenna (e _2, _3, _4) 64x64, ciottoli_radenna 64x64')
