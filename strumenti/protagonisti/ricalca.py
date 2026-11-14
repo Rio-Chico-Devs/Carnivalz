@@ -22,8 +22,10 @@
 #     Il disegno resta quello del foglio: cambiano solo la luce e lo sporco.
 #   - I fotogrammi si allineano sulla testa, i piedi per terra.
 #
-#   python3 strumenti/protagonisti/ricalca.py fedele   senza la pulizia: i 40
-#                                                        colori del foglio com'e'
+#   python3 strumenti/protagonisti/ricalca.py fedele   la testa del ricalco senza
+#                                                        pulizia (i 40 colori del
+#                                                        foglio com'e'), sul corpo
+#                                                        di corpo.py
 
 # Il passo (Bru: «bisogna migliorare le animazioni di movimento», e poi
 # l'esempio del passo di Samarie in Fear and Hunger: Termina) si fa coi pezzi
@@ -43,6 +45,7 @@ import sys
 QUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, QUI)
 import aspetto
+import corpo
 import passo
 import png
 
@@ -460,16 +463,18 @@ def fotogrammi_di_lei(percorso, pulita=True):
         # la fascia col cerchio d'oro e i colori del disegno (non nel fedele)
         return aspetto.vesti(ridipingi(g), vista, NERO) if pulita else g
 
+    # sotto la testa del foglio il corpo ridisegnato (corpo.py)
     viste = {}
     for vista, nome, quale in (("giu", "davanti1", "davanti"), ("su", "dietro2", "dietro")):
-        viste[vista] = passo.ciclo(vesti(ritaglia(colori(grezzi[nome])), quale), PARTI[nome])
+        g = corpo.rivesti(vesti(ritaglia(colori(grezzi[nome])), quale), quale, pulita)
+        viste[vista] = passo.ciclo(g, dict(PARTI[nome], **corpo.PARTI))
     tele, _ = di_lato(grezzi, len(grezzi["davanti1"]))
     lato = [[None, None] + r + [None, None] for r in taglia_insieme([colori(t) for t in tele])[0]]
-    lato = vesti(lato, "lato")
-    stivali = [esa(c) for c in ASPETTO["stivali"]]
-    colori_lato = dict(pelle=[esa(c) for c in ASPETTO["pelle"]], stivali=stivali, contorno=NERO,
-                       guanto=lambda c: c in stivali or MATERIALE.get(c) == "stivali")
-    viste["destra"] = passo.ciclo_di_lato(lato, PARTI_LATO, colori_lato)
+    lato = corpo.rivesti(vesti(lato, "lato"), "lato", pulita)
+    colori_lato = dict(pelle=[esa(c) for c in ASPETTO["pelle"]],
+                       stivali=[esa(c) for c in ASPETTO["stivali"]], contorno=NERO)
+    viste["destra"] = passo.ciclo_di_lato(
+        lato, dict(corpo.PARTI_LATO, braccio=corpo.braccio_di_lato(len(lato[0]))), colori_lato)
     return viste
 
 

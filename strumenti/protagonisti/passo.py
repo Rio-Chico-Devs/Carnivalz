@@ -165,18 +165,21 @@ def ciclo(g, parti):
 # piatto o in punta (col tallone alzato) per terra, appeso (dietro, la punta
 # in giu') o alzato (davanti) in aria. Il piede per terra ha la caviglia sulla
 # sua riga; quello in aria dove dice la posa
+# (Bru: «le gambe quando di lato sono troppo lunghe e rigide»: sono lunghe
+# nove pixel dall'anca alla caviglia, come davanti, e il ginocchio e' sempre
+# un poco piegato, tranne da ferma)
 GAMBE_LATO = {
-    "fermo":     (((0, 5), (0, 11), "piatto"), ((0, 5), (0, 11), "piatto")),
-    "contatto":  (((2, 5), (5, 11), "piatto"), ((-2, 5), (-5, 11), "punta")),
-    "giu":       (((3, 5), (3, 10), "piatto"), ((-1, 5), (-4, 9), "appeso")),
-    "passaggio": (((0, 5), (0, 11), "piatto"), ((2, 4), (0, 9), "appeso")),
-    "su":        (((-1, 6), (-3, 12), "punta"), ((3, 5), (4, 10), "alzato")),
+    "fermo":     (((0, 4), (0, 9), "piatto"), ((0, 4), (0, 9), "piatto")),
+    "contatto":  (((2, 4), (4, 9), "piatto"), ((-1, 5), (-4, 9), "punta")),
+    "giu":       (((3, 4), (2, 9), "piatto"), ((0, 5), (-3, 7), "appeso")),
+    "passaggio": (((1, 4), (0, 9), "piatto"), ((3, 3), (1, 7), "appeso")),
+    "su":        (((0, 5), (-2, 9), "punta"), ((3, 4), (4, 8), "alzato")),
 }
 POSE = ("contatto", "giu", "passaggio", "su")
 # il braccio vicino: quanto va avanti (+) o indietro (-) la mano; va al
 # contrario della gamba vicina, che va avanti nei primi quattro tempi
 MANO = (-3, -2, 0, 2, 3, 2, 0, -2)
-TEMPI_LATO = [dict(busto=CORPO[t], testa=TESTA[t], ciuffo=CIUFFO[t], piega=1, mano=MANO[t],
+TEMPI_LATO = [dict(busto=CORPO[t], testa=TESTA[t], ciuffo=CIUFFO[t], piega=0, mano=MANO[t],
                    gambe=GAMBE_LATO[POSE[t % 4]], vicina_avanti=t < 4)
               for t in range(8)]
 FERMO_LATO = dict(busto=0, testa=0, ciuffo=0, piega=0, mano=0, gambe=GAMBE_LATO["fermo"], vicina_avanti=True)
@@ -195,9 +198,9 @@ def lato(g, parti, p, colori):
     """di lato -> (fotogramma, riga di terra). parti: ciuffo (la prima riga
     sotto la crocchia), collo (la prima riga del collo), anca (la prima riga
     sotto gli shorts), anche (la x dell'anca vicina e della lontana), terra
-    (la riga della suola), braccio (righe e ultima colonna del braccio
-    vicino). colori: pelle e stivali, dal chiaro allo scuro, il contorno, e
-    guanto(c) che dice se un colore e' del guanto."""
+    (la riga della suola), braccio (il braccio vicino, {(x, y): colore}: e'
+    disegnato a parte, corpo.py). colori: pelle e stivali, dal chiaro allo
+    scuro, e il contorno."""
     w = len(g[0])
     anca, terra, busto = parti["anca"], parti["terra"], p["busto"]
     h = SOPRA + terra + 1
@@ -239,24 +242,11 @@ def lato(g, parti, p, colori):
     gamba(parti["anche"][1], *lontana, False)
     gamba(parti["anche"][0], *vicina, True)
     # il busto e la testa sopra le gambe (la cima delle gambe sta sotto gli
-    # shorts); dove c'e' il braccio vicino, il fianco che ha dietro
-    (r0, r1), ultima = parti["braccio"]
-    braccio = {(x, y): g[y][x] for y in range(r0, r1 + 1) for x in range(min(ultima + 1, w))
-               if g[y][x] is not None and colori["guanto"](g[y][x])}
-
-    def righe(a, b):
-        fuori = []
-        for y in range(a, b):
-            riga = []
-            for x in range(w):
-                c = g[y][x]
-                if (x, y) in braccio:
-                    c = next((g[y][k] for k in range(x + 1, w) if (k, y) not in braccio), None)
-                riga.append(c)
-            fuori.append(riga)
-        return fuori
-
-    tutte, nomi, y0 = impila(righe, parti, busto, p["testa"], p["ciuffo"])
+    # shorts), poi il braccio vicino
+    braccio = parti["braccio"]
+    r0, r1 = min(y for _, y in braccio), max(y for _, y in braccio)
+    tutte, nomi, y0 = impila(lambda a, b: [list(g[y]) for y in range(a, b)],
+                             parti, busto, p["testa"], p["ciuffo"])
     for j, (riga, nome) in enumerate(zip(tutte, nomi)):
         spost = p["piega"] if nome[0] != "busto" else 0
         for x, c in enumerate(riga):
@@ -267,15 +257,6 @@ def lato(g, parti, p, colori):
     for (x, y), c in braccio.items():
         f = (y - r0) / max(1, r1 - r0)
         metti(x + round(p["mano"] * f), y + busto - round(su * f), c)
-    # dietro il braccio il foglio lascia un baffo di contorno, una riga sola
-    # che sporge orizzontale: si toglie
-    for _ in range(4):
-        for y in range(SOPRA + r0 + busto - 1, SOPRA + anca + busto):
-            for x in range(w):
-                if out[y][x] != nero or out[y - 1][x] is not None or out[y + 1][x] is not None:
-                    continue
-                if sum(1 for k in (x - 1, x + 1) if 0 <= k < w and out[y][k] is not None) <= 1:
-                    out[y][x] = None
     return out, SOPRA + terra
 
 

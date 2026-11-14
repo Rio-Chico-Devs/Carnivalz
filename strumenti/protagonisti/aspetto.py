@@ -4,7 +4,8 @@
 # disegno di Bru la fascia e' cremisi con le stelle chiare, e sul lato destro
 # della testa c'e' un cerchio d'oro. Qui, sopra il ricalco gia' pulito:
 #   - la fascia ridipinta, una striscia di quattro righe (la luce sopra,
-#     l'ombra sotto) che segue la testa in ogni vista, con le stelle;
+#     l'ombra sotto) che segue la testa in ogni vista, liscia (Bru: «quei
+#     puntini sulla bandana fanno solo noise»);
 #   - il cerchio d'oro: davanti a sinistra di chi guarda, di lato tondo (e'
 #     il lato che si vede), da dietro di taglio sul bordo destro;
 #   - gli occhi scuri e senza espressione (Bru: «da aggiustare solo gli
@@ -48,18 +49,18 @@ CERCHIO = {
 VISTE = {
     "davanti": dict(
         fascia=(4, 21, lambda x: 9),
-        stelle=((12, 10), (17, 10), (14, 11), (19, 11)),
+        stelle=(),
         cerchio=((3, 8), "tondo"),
         palpebre=((7, 18), (8, 18), (9, 18), (15, 18), (16, 18), (17, 18)),
         iridi=((8, 19), (9, 19), (16, 19), (17, 19))),
     "dietro": dict(
         fascia=(3, 21, lambda x: 14 + round(2 * (1 - ((x - 12.5) / 9.0) ** 2))),
-        stelle=((8, 16), (16, 17)),
+        stelle=(),
         cerchio=((20, 13), "taglio"),
         palpebre=(), iridi=()),
     "lato": dict(
         fascia=(9, 27, lambda x: round(16 - (x - 9) * 8 / 18.0)),
-        stelle=((12, 16), (15, 15), (18, 13)),
+        stelle=(),
         cerchio=((20, 8), "tondo"),
         palpebre=((20, 18), (21, 18), (22, 18)),
         iridi=((21, 19), (22, 19))),
