@@ -135,15 +135,17 @@ def toni(rgb):
     return np.abs((rgb @ LUMA)[..., None] - CENTRI).argmin(-1)
 
 
-def tavolozza(motivo, stira=1.6):
+def tavolozza(motivo, stira=1.35, alza=0.04):
     # il colore di ogni tono: mediana dei pixel del motivo con quella luce,
-    # poi piu' staccati attorno alla luce media
+    # poi un poco piu' staccati attorno alla luce media e un poco piu' chiari:
+    # la luce della pietra e' quella del foglio (mediana 0,49 in OKLab), le fughe
+    # un poco piu' nette
     idx = toni(motivo)
     base = np.array([np.median(motivo[idx == k], 0) for k in range(len(CENTRI))])
     lab = in_lab(base.astype(float))
     Lk, Ck, hk = lab[:, 0], np.hypot(lab[:, 1], lab[:, 2]), np.arctan2(lab[:, 2], lab[:, 1])
     m = Lk[1:5].mean()
-    return np.array([da_lch(m + (Lk[k] - m) * stira, Ck[k], hk[k]) for k in range(len(CENTRI))], float)
+    return np.array([da_lch(m + (Lk[k] - m) * stira + alza, Ck[k], hk[k]) for k in range(len(CENTRI))], float)
 
 
 def pulisci8(lab, mask=None, ciclico_x=False):

@@ -15,10 +15,15 @@
 #      quello di sopra): ogni pezzo si attacca agli altri tagliando dove si
 #      somigliano di piu' (nei ciottoli tagliare un sasso costa di piu', cosi'
 #      i tagli passano sul muschio). Niente sfumature: solo pixel del disegno;
-#   5. tre varianti dell'erba con lo stesso bordo della prima (6 pixel per
+#   5. tre varianti dell'erba con lo stesso bordo della prima (3 pixel per
 #      lato, identici) e l'interno cucito di nuovo: si mescolano a caso in
 #      qualunque ordine, senza giunture, e il prato non mostra piu' lo stesso
-#      quadrato ripetuto.
+#      quadrato ripetuto;
+#   6. i colori dell'erba sono quelli dell'erba del foglio delle strade: i suoi
+#      verdi, messi in fila per luce, divisi in 11 fasce (le ombre verde-azzurre,
+#      le punte giallo-verdi), un poco piu' saturi; ogni colore dell'erba
+#      cucita prende la fascia della sua luce (stesso ordine, stesso disegno).
+#      L'erba e' spianata poco (i cespi chiari e scuri del disegno restano).
 # Scrive art/livelli/terreni/erba_radenna.png (e _2, _3, _4) e
 # ciottoli_radenna.png.
 import os
@@ -240,11 +245,28 @@ for c0, c1 in ((0, 6), (46, 57), (95, 106), (145, 153)):        # le linee fra i
     ok[:, c0:c1] = False
 for r0, r1 in ((0, 6), (46, 58), (96, 108), (144, 170)):        # e la fascia scura in fondo
     ok[r0:r1, :] = False
-piano_erba = spiana(rgb, ok, 6.0, 0.7)
-erba = cuci(piano_erba, ok, 64, 16, 6, seme=2)
-Image.fromarray(erba).save(os.path.join(TERRENI, 'erba_radenna.png'))
-for k, seme in ((2, 11), (3, 12), (4, 13)):
-    Image.fromarray(variante(erba, piano_erba, ok, seme)).save(os.path.join(TERRENI, 'erba_radenna_%d.png' % k))
+piano_erba = spiana(rgb, ok, 6.0, 0.35)
+erba = cuci(piano_erba, ok, 64, 16, 6, seme=19)    # il seme col bordo piu' uniforme
+erbe = [erba] + [variante(erba, piano_erba, ok, seme, Bd=3) for seme in (11, 12, 13)]
+# i verdi dell'erba del foglio delle strade (strade_radenna.jpg, ai pixel veri),
+# in fila per luce: fasce fino al 10, 20, ... 90, 95 e 98 per cento (i pochi
+# piu' chiari ancora, sbiaditi vicino alle pietre, no); saturazione +15%
+VERDI = np.array([(3, 47, 32), (5, 56, 34), (6, 62, 35), (8, 67, 35), (12, 72, 35), (14, 78, 35), (20, 83, 35),
+                  (25, 89, 35), (34, 97, 38), (44, 106, 42), (64, 112, 60)], np.uint8)
+QUOTE = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98], float) / 98.0
+tutti = np.concatenate([e.reshape(-1, 3) for e in erbe])
+colori, quale, quanti = np.unique(tutti, axis=0, return_inverse=True, return_counts=True)
+quale = quale.ravel()
+c = colori / 255.0
+luce = (np.cbrt(np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4) @ np.array(
+    [[0.4122214708, 0.5363325363, 0.0514459929], [0.2119034982, 0.6806995451, 0.1073969566],
+     [0.0883024619, 0.2817188376, 0.6299787005]]).T) @ np.array([0.2104542553, 0.7936177850, -0.0040720468]))
+ordine = np.argsort(luce, kind='stable')
+mezzo = np.cumsum(quanti[ordine]) / quanti.sum() - quanti[ordine] / quanti.sum() / 2
+fascia = np.empty(len(colori), int); fascia[ordine] = np.searchsorted(QUOTE, mezzo, side='right').clip(0, len(VERDI) - 1)
+for k, e in enumerate(erbe):
+    nuova = VERDI[fascia[quale[k * 4096:(k + 1) * 4096]]].reshape(64, 64, 3)
+    Image.fromarray(nuova).save(os.path.join(TERRENI, 'erba_radenna%s.png' % ('' if k == 0 else '_%d' % (k + 1))))
 
 # i ciottoli: la tile piccola, senza il bordino
 o = rettangolo_pieno(pixel_veri(964, 574, 1138, 744))
