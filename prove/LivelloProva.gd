@@ -18,12 +18,18 @@ extends Node2D
 #
 #   nell'editor: F6 su prove/LivelloProva.tscn
 #
-# Dalla riga di comando (dopo --): livello pianure|panottico (se manca, le
-# Pianure), protagonista lui|lei, film
-# (il pilota automatico fa il giro della pianta e chiude), anteprima N (la
-# foto del fotogramma N, in scatti/livelli/).
+# Dalla riga di comando (dopo --): livello pianure|panottico|radenna (se
+# manca, le Pianure; radenna e' il prato di prova del kit delle strade),
+# protagonista lui|lei, film (il pilota automatico fa il giro della pianta e
+# chiude), anteprima N (la foto del fotogramma N, in scatti/livelli/),
+# sequenza N K (dal fotogramma N, K foto una ogni due, in
+# scatti/livelli/sequenza/, per farne un'animazione).
+#
+# Sull'erba (dove la pianta dice cos'e' erba) l'erba le copre le scarpe e a
+# ogni passo saltano dei fili: scripts/ErbaAiPiedi.gd.
 
 const Pianta := preload("res://prove/LivelloPianta.gd")
+const ErbaAiPiedi := preload("res://scripts/ErbaAiPiedi.gd")
 const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo, come nei mondi
 const RESPIRO := 1.6
 const LARGO_FOTOGRAMMA := 32
@@ -36,9 +42,12 @@ var livello := "pianure"
 var protagonista := "lei"
 var film := false
 var anteprima := -1
+var sequenza := Vector2i(-1, 0)  # sequenza N K: dal fotogramma N, K foto (una ogni due) in scatti/livelli/sequenza/
 
 var pianta: Pianta
 var io: Sprite2D
+var erba: ErbaAiPiedi            # l'erba che le copre le scarpe e i fili che saltano
+var immagine_mappa: Image
 var camera: Camera2D
 var hud: Control
 
@@ -78,6 +87,8 @@ func leggi_la_riga_di_comando() -> void:
 				film = true
 			"anteprima":
 				anteprima = int(dopo)
+			"sequenza":
+				sequenza = Vector2i(int(dopo), int(argomenti[j + 2]) if j + 2 < argomenti.size() else 30)
 
 
 func costruisci() -> void:
@@ -91,6 +102,7 @@ func costruisci() -> void:
 	mappa.centered = false
 	mappa.scale = Vector2.ONE * pianta.scala * pianta.pixel
 	mappa.texture = trama(pianta.mappa, "python3 strumenti/livelli/compone.py (le Pianure) o ricalca_livello.py")
+	immagine_mappa = mappa.texture.get_image()
 	add_child(mappa)
 	# lei e i pezzi che stanno in piedi (alberi, rovine, rocce...) stanno
 	# insieme, in ordine di piede: chi ha il piede piu' in basso e' davanti
@@ -114,6 +126,9 @@ func costruisci() -> void:
 	io.centered = false
 	mondo.add_child(io)
 	metti_foglio(protagonista)
+	erba = ErbaAiPiedi.new()
+	mondo.add_child(erba)
+	erba.prepara(immagine_mappa, pianta.scala * pianta.pixel, pianta.erba)
 	piedi = pianta.partenza
 	verso = pianta.verso
 	camera = Camera2D.new()
@@ -183,10 +198,17 @@ func _process(delta: float) -> void:
 	if not cartello.is_empty():
 		cartello["eta"] = float(cartello["eta"]) + delta
 	segui()
+	erba.aggiorna(piedi, verso, passo, delta, io)
 	hud.queue_redraw()
 	fotogrammi += 1
 	if anteprima >= 0 and fotogrammi == anteprima:
 		fotografa("anteprima")
+	if sequenza.x >= 0 and fotogrammi >= sequenza.x:
+		var k := floori((fotogrammi - sequenza.x) / 2.0)
+		if k >= sequenza.y:
+			get_tree().quit()
+		elif (fotogrammi - sequenza.x) % 2 == 0:
+			fotografa_in_sequenza(k)
 	if film:
 		controlla_il_pilota(delta)
 
@@ -298,6 +320,13 @@ func disegna_cartello() -> void:
 	Manifesto.etichetta_tinta(hud, dove + Vector2(6, 6), testo, corpo, Color(0, 0, 0, 0.4 * a), Color(0, 0, 0, 0))
 	Manifesto.etichetta_tinta(hud, dove, testo, corpo, Color(SEGNALE, a), Color(FONDO, a))
 	Manifesto.etichetta_tinta(hud, dove + Vector2(10, -22), pianta.titolo.to_upper(), 12, Color(FONDO, a), Color(CARTA, a))
+
+
+func fotografa_in_sequenza(k: int) -> void:
+	await RenderingServer.frame_post_draw
+	var cartella := "res://scatti/livelli/sequenza"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(cartella))
+	get_viewport().get_texture().get_image().save_png(cartella.path_join("%03d.png" % k))
 
 
 func fotografa(nome: String) -> void:

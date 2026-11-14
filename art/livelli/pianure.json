@@ -10,6 +10,8 @@
 	"_pezzi": "Le cose che stanno in piedi (alberi, pini, rovine, rocce, canne, rovi, la capsula), scritte da compone.py: il gioco le mette insieme a lei in ordine di piede, e chi ha il piede piu' in basso sta davanti.",
 	"passi": "pianure_passi.png",
 	"_passi": "Dove si cammina pixel per pixel, scritto da compone.py: il pavimento qui sotto, meno gli ostacoli, l'acqua, le pareti e i piedi delle cose, tranne dove 'si_passa' (le scale e il ponticello).",
+	"erba": {"tinta": [0.2, 0.47], "saturazione": 0.22, "luce": [0.3, 0.8]},
+	"_erba": "Cos'e' erba sotto i piedi (scripts/ErbaAiPiedi.gd): il prato delle Pianure e' un verde chiaro poco saturo (0,28-0,32), la sabbia e la pietra meno (fino a 0,18).",
 	"si_passa": [
 		[661, 684, 686, 728],
 		[805, 428, 832, 458],

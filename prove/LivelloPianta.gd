@@ -42,6 +42,7 @@ var porte: Array[Dictionary] = []        # {zona: Rect2, a: Vector2, verso: Vect
 var stanze: Array[Dictionary] = []       # {nome: String, rett: Rect2, poligono: PackedVector2Array}
 var pezzi: Array[Dictionary] = []        # {file: String, piede: Vector2 (nel mondo), dentro: Vector2 (nel disegno)}
 var giro: Array[Vector2] = []
+var erba := {}                           # cos'e' erba nella mappa: {tinta: [da, a], saturazione, luce: [da, a]} (scripts/ErbaAiPiedi.gd)
 var errore := ""
 
 
@@ -61,6 +62,7 @@ func carica(quale: String) -> bool:
 	scala = float(d.get("scala", 1.0))
 	pixel = float(d.get("pixel", 1.0))
 	ingrandimento = float(d.get("ingrandimento", 3.0))
+	erba = d.get("erba", {})
 	passi = null
 	if d.has("passi"):
 		var percorso_passi := "res://art/livelli/" + String(d["passi"])

@@ -1,0 +1,86 @@
+{
+ "_nota": "Il prato di prova di Radenna, fatto col kit delle strade da strumenti/livelli/radenna_prova.py: per camminare sull'erba e sulle strade di Radenna. Non e' ancora un livello del gioco.",
+ "nome": "Prato di Radenna",
+ "mappa": "radenna.png",
+ "scala": 1,
+ "pixel": 1,
+ "ingrandimento": 2,
+ "_scala": "La mappa e' alla misura del mondo (un pixel, un pixel del mondo, come lei); la telecamera ingrandisce due volte.",
+ "passi": "radenna_passi.png",
+ "erba": {
+  "tinta": [
+   0.2,
+   0.47
+  ],
+  "saturazione": 0.42,
+  "luce": [
+   0.1,
+   0.85
+  ]
+ },
+ "_erba": "Cos'e' erba sotto i piedi (scripts/ErbaAiPiedi.gd): i verdi del prato di Radenna sono saturi (da 0,46 in su), il bordo scuro delle strade no (0,38).",
+ "limiti": [
+  0,
+  0,
+  640,
+  480
+ ],
+ "partenza": [
+  150,
+  250
+ ],
+ "verso": [
+  1,
+  0
+ ],
+ "stanze": [
+  {
+   "nome": "Prato di Radenna",
+   "rett": [
+    0,
+    0,
+    640,
+    480
+   ]
+  }
+ ],
+ "giro": [
+  [
+   150,
+   250
+  ],
+  [
+   240,
+   250
+  ],
+  [
+   240,
+   110
+  ],
+  [
+   320,
+   110
+  ],
+  [
+   320,
+   228
+  ],
+  [
+   420,
+   228
+  ],
+  [
+   420,
+   400
+  ],
+  [
+   200,
+   400
+  ],
+  [
+   200,
+   300
+  ]
+ ],
+ "_giro": "Dall'erba alla strada, lungo la strada fino al nodo, giu' verso l'anello, di nuovo sull'erba."
+}
