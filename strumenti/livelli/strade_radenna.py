@@ -37,7 +37,9 @@
 # L'ANELLO. Una piazza tonda (76x76) attorno a un buco di 35 pixel (per un
 # albero, una fontana): i quarti del foglio hanno tutti il centro nell'angolo e
 # il buco di raggio 17,6; quelli disegnati uguali, sovrapposti, danno un quarto
-# pulito che si ruota nei quattro angoli.
+# pulito che si ruota nei quattro angoli. Le strade ci arrivano sugli assi
+# (sulle fughe fra i blocchi), centrate, e finiscono sotto l'anello a 31
+# pixel dal centro: si posa prima la strada, poi l'anello.
 #
 # LE FOGLIE. Le quattro lastre a foglia negli angoli dell'incrocio del foglio
 # sono la stessa, specchiata: sovrapposte danno una foglia pulita, da mettere
@@ -361,13 +363,15 @@ def anello(Q=38):
     t[(r >= 34.6) & (r < 35.5)] = 0
     N = 2 * Q; a = np.full((N, N), -1)
     a[:Q, :Q] = t; a[:Q, Q:] = np.rot90(t, -1); a[Q:, Q:] = np.rot90(t, 2); a[Q:, :Q] = np.rot90(t, 1)
-    # i ciuffi sul bordo di fuori (la posizione lungo il bordo e' l'angolo)
+    # i ciuffi sul bordo di fuori (la posizione lungo il bordo e' l'angolo),
+    # ma non attorno agli assi, dove possono arrivare le strade (larghe 29)
     y, x = np.mgrid[0:N, 0:N]; px, py = x + 0.5 - Q, y + 0.5 - Q
     r = np.hypot(px, py); d = np.floor(35.5 - r).astype(int)
     luce = (px + py) < 0
     pos = ((np.arctan2(py, px) + np.pi) * 35.5).astype(int) % P
     erba = CIUFFI[np.where(luce, d, 28 - d).clip(0, 28), pos]
-    a[(a >= 0) & (d >= 0) & (d <= 3) & erba] = -1
+    lontano = (np.abs(px) > 16) & (np.abs(py) > 16)
+    a[(a >= 0) & (d >= 0) & (d <= 3) & erba & lontano] = -1
     return a
 
 
