@@ -25,13 +25,19 @@
 #     spinta, in aria il piede passa piegato. Il corpo scende quanto serve
 #     perche' la gamba arrivi a terra (al contatto), e risale. La gamba lontana
 #     e' piu' scura e un poco piu' in la' (lei e' vista un poco dall'alto).
+# Poi Bru: «le spalle sono troppo indietro nella vista di lato» (il braccio va
+# avanti di LATO_BRACCIO_AVANTI: la spalla sotto il collo) e «nel camminare
+# avanti e indietro il movimento delle gambe non e' affatto completo, non fa
+# passi completi»: davanti e dietro il piede va avanti e indietro di 5 righe
+# (non 2), si alza di 6 (non 4), il ginocchio si piega di piu', le mani
+# dondolano di 2.
 import math
 
 import corpo
 import gambe
 
-W, H = 64, 112            # un fotogramma
-TERRA = 109               # l'origine del nodo, tre righe sopra il fondo: i piedi stanno li'
+W, H = 64, 120            # un fotogramma (sotto i piedi lo spazio per il piede che va avanti)
+TERRA = 109               # l'origine del nodo: i piedi stanno li' (lei.json lo dice al gioco)
 
 N = 16                    # i tempi del passo: due passi da otto
 CICLO = 60.0              # la strada di un ciclo (due passi), in pixel del mondo
@@ -269,9 +275,9 @@ def dietro():
                  dx=10, dy=4)
 
 
-FONDO = 2.0          # davanti e dietro: il piede avanti e dietro, in righe (avanti e' giu' davanti, su dietro)
-ALZA = 4.0           # quanto si alza il piede in aria
-CODA_G = 2.5         # quanto si accorcia la coscia col ginocchio in alto
+FONDO = 5.0          # davanti e dietro: il piede avanti e dietro, in righe (avanti e' giu' davanti, su dietro)
+ALZA = 6.0           # quanto si alza il piede in aria
+CODA_G = 4.0         # quanto si accorcia la coscia col ginocchio in alto
 DENTRO = 2           # i piedi verso la linea di mezzo, camminando
 FIANCHI = 2.0        # di quanto vanno di lato i fianchi
 SPALLE = 0.7         # e le spalle (poco)
@@ -292,15 +298,15 @@ def tempo_davanti_dietro(t, verso):
         gambe_[nome] = dict(
             anca=(fianchi, giu),
             piede=(piede_dx, int(round(FONDO * avanti * verso - ALZA * alzata))),
-            ginocchio=(fianchi + piede_dx) / 2.0 + 1.5 * alzata * centro,
+            ginocchio=(fianchi + piede_dx) / 2.0 + 2.0 * alzata * centro,
             coscia=int(round(CODA_G * alzata)),
             dietro=-avanti * verso)
     # le braccia al contrario delle gambe: la mano a sinistra va avanti con la
     # gamba a destra; avanti la mano scende (davanti) o sale (dietro) e va verso
     # il centro
     a = math.cos(2 * math.pi * phi)
-    braccia = {'bs': (int(round(1.5 * a * verso)), int(round(1.5 * a))),
-               'bd': (int(round(-1.5 * a * verso)), int(round(1.5 * a)))}
+    braccia = {'bs': (int(round(2.0 * a * verso)), int(round(2.0 * a))),
+               'bd': (int(round(-2.0 * a * verso)), int(round(2.0 * a)))}
     return dict(giu=giu, fianchi=fianchi, spalle=spalle, coda=(coda_dx, coda_giu), gambe=gambe_, braccia=braccia)
 
 
@@ -317,6 +323,10 @@ LATO_BRACCIO = righe_da([(41, 41, 19, 22), (42, 44, 18, 24), (45, 45, 17, 25), (
                          (55, 61, 15, 23), (62, 62, 17, 19), (63, 63, 17, 22), (64, 64, 16, 24),
                          (65, 66, 15, 24), (67, 76, 17, 25)])
 LATO_DX, LATO_DY = 5, 7
+# il braccio va avanti di tanto rispetto al disegno: nel giro di Bru pende
+# dietro la schiena, e la spalla sta troppo indietro (Bru: «le spalle sono
+# troppo indietro»): cosi' la spalla sta sotto il collo, il braccio lungo il fianco
+LATO_BRACCIO_AVANTI = 6
 ANCA_V = (27.5 + LATO_DX, 66.5 + LATO_DY)       # l'anca della gamba vicina
 ANCA_L = (29.5 + LATO_DX, 64.5 + LATO_DY)       # e della lontana (piu' in la' e piu' avanti)
 TERRA_V = 103 + LATO_DY                         # la suola vicina
@@ -385,7 +395,7 @@ class Lato:
             k = y - self.spalla
             s = 0 if k <= 0 else int(round(mano * min(1.0, k / n)))
             su = -1 if abs(mano) >= 4 and y >= self.polso else 0
-            out[(x + s + LATO_DX, y + giu + respiro + su + LATO_DY)] = ch
+            out[(x + s + LATO_BRACCIO_AVANTI + LATO_DX, y + giu + respiro + su + LATO_DY)] = ch
         return chiudi(out)
 
 

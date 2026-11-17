@@ -549,15 +549,17 @@ func metti_foglio(chi: String) -> void:
 	passo_px = float(misure["passo_px"])
 	velocita = float(misure["velocita"])
 	var fotogramma := Vector2(io.texture.get_width() / float(io.hframes), io.texture.get_height() / 3.0)
-	io.offset = -Vector2(floorf(fotogramma.x / 2.0), fotogramma.y - 3.0)
+	var terra := float(misure["terra"])
+	io.offset = -Vector2(floorf(fotogramma.x / 2.0), terra if terra >= 0.0 else fotogramma.y - 3.0)
 
 
 func misure_del_foglio(chi: String) -> Dictionary:
 	# accanto al foglio, <chi>.json (lo scrive strumenti/protagonisti/lei.py):
 	# quante colonne ha il foglio (il fermo, il respiro e i tempi del passo),
-	# quanta strada per tempo, quanto va veloce. Senza: dieci colonne, 5 pixel
-	# per tempo, la velocita' di sempre (lui)
-	var misure := {"colonne": COLONNE, "passo_px": PASSO_PX, "velocita": VELOCITA}
+	# quanta strada per tempo, quanto va veloce, la riga dei piedi nel
+	# fotogramma. Senza: dieci colonne, 5 pixel per tempo, la velocita' di
+	# sempre, i piedi tre righe sopra il fondo (lui)
+	var misure := {"colonne": COLONNE, "passo_px": PASSO_PX, "velocita": VELOCITA, "terra": -1.0}
 	var percorso := "res://art/pianeti/protagonista/%s.json" % chi
 	if FileAccess.file_exists(percorso):
 		var dati: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
