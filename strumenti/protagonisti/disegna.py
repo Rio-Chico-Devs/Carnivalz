@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # LUI SUL PIANETA (prove/MondoProva.gd), dai disegni di Bru: scrive
-# art/pianeti/protagonista/lui.png. Lei non si disegna piu' qui: e' presa
-# uguale dal foglio di Bru (ricalca.py).
+# art/pianeti/protagonista/lui.png. Lei non si disegna piu' qui: la fa lei.py
+# (grande, dai disegni di Bru).
 #
 #   python3 strumenti/protagonisti/disegna.py
 #

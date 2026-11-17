@@ -1,32 +1,27 @@
-# IL DISEGNO DI LEI: le tre viste da ferma, pixel per pixel, in lei/*.txt
-# (davanti, dietro, lato e il braccio vicino di lato, a parte perche' dondola).
-# ricalca.py le passa a passo.py, che ne fa il passo, e scrive il foglio del
-# gioco (art/pianeti/protagonista/lei.png).
+# IL DISEGNO DI LEI, grande come i disegni di Bru (100 pixel): le tre viste da
+# ferma in lei/*.txt, una lettera per pixel. passo.py ne fa il passo, lei.py
+# scrive il foglio del gioco (art/pianeti/protagonista/lei.png).
 #
-# Bru: prima «no devi farli uguali» (al foglio fogli/lei.png), poi «le braccia
-# sembrano fuse», «le spalle sono troppo indietro», «le gambe quando di lato
-# sono troppo lunghe e rigide», «quei puntini sulla bandana fanno solo noise»,
-# «un compromesso tra prima e adesso» e «lo sprite deve essere perfetto».
-# Quindi: la testa e' quella del foglio (il ciuffo a punte, la frangia con la
-# ciocca chiara al centro e quella scura fra gli occhi, i capelli larghi ai
-# lati, gli occhi scuri a mezze palpebre), ripassata pixel per pixel senza lo
-# sporco del JPG; il corpo segue il disegno di lei che ha mandato Bru (la
-# fascia cremisi col cerchio d'oro sul lato destro, il girocollo, il top
-# lavanda con lo scollo, i guanti lunghi neri lucidi sopra il gomito col bordo
-# d'argento, la cintura chiara di traverso con la fibbia, shorts e stivali neri
-# lucidi). Le regole della pixel art leggibile:
-#   - la silhouette si legge anche tutta nera: fra braccio e vita c'e' aria;
-#   - un valore per materiale, la luce da sinistra in alto, il nero lucido con
-#     una riga di luce e un riflesso (w);
-#   - contorno di un pixel, senza grumi agli angoli, niente pixel isolati
-#     tranne i riflessi;
-#   - di lato la spalla e' sotto il collo e il braccio a meta' busto, le gambe
-#     (le disegna passo.py) lunghe come davanti.
+# Bru ha mandato tre disegni in pixel (il giro davanti, dietro e di lato, lei
+# grande di tre quarti, lei in posa) e ha scelto la misura dei disegni. Le
+# viste sono ricostruite pixel per pixel dai disegni (ricostruisci.py: i JPG
+# sono ingranditi, ogni pixel del disegno e' un quadretto) e poi ripulite a
+# mano:
+#   - davanti: dal disegno grande (22.jpg), il piu' nitido, com'e';
+#   - dietro e di lato: dal giro (21.jpg), piu' piccolo e sporco dal JPG: la
+#     fascia ridisegnata (curva dietro, con quattro stelle; di lato col cerchio
+#     d'oro sul davanti), il viso di profilo, la spallina, la cintura a catena;
+#     dietro gli stivali allungati di 7 righe (nel giro erano piu' corti che
+#     davanti e di lato: girandosi lei cambiava altezza);
+#   - di lato le gambe non ci sono: le disegna gambe.py, articolate.
+# Le stesse misure in tutte e tre: la cintura a 41 pixel da terra, le spalle a 62.
 #
-# Le lettere: o contorno; a b c d e f lavanda (capelli, top, cintura), y viola
-# quasi nero (sotto gli occhi); P Q R S pelle dalla luce all'ombra; F G H la
-# fascia; 1 2 3 4 il cerchio d'oro; i l'iride; w s t u v il nero lucido dal
-# riflesso all'ombra; g h l'argento.
+# Le lettere (i colori sono quelli del disegno grande):
+#   o contorno; A B C D E F lavanda (capelli, top) dalla luce all'ombra;
+#   P Q R S T pelle; a b c d e la fascia cremisi; x il bianco degli occhi,
+#   z le stelle, y il bianco in ombra, v la stella in ombra; g h j l'oro;
+#   r s q gli occhi rossi; w k m n il nero lucido (riflesso, luce, base, scuro);
+#   G H I l'argento (cintura, bracciali, ciondolo).
 import os
 
 QUI = os.path.dirname(os.path.abspath(__file__))
@@ -38,53 +33,25 @@ def esa(x):
 
 
 COLORI = {k: esa(v) for k, v in {
-    'o': '#1a1230',
-    'a': '#f4f0ff', 'b': '#dcd4f4', 'c': '#bfb3e4', 'd': '#9d8fca', 'e': '#7a6aa8', 'f': '#574880',
-    'y': '#241a3c',
-    'P': '#e8b48c', 'Q': '#c98d66', 'R': '#9c6448', 'S': '#6c4034',
-    'F': '#f06a86', 'G': '#c8304e', 'H': '#922038',
-    '1': '#ffe49a', '2': '#e8b040', '3': '#a8701c', '4': '#5e1226',
-    'i': '#4a3060',
-    'w': '#8a96b8', 's': '#4a5470', 't': '#262c3e', 'u': '#141826', 'v': '#0a0d16',
-    'g': '#c4c8dc', 'h': '#7c829c',
+    'o': '#0c0a14',
+    'A': '#ecd4ee', 'B': '#c0afe2', 'C': '#9f8ec8', 'D': '#7e6ca3', 'E': '#614f86', 'F': '#423258',
+    'P': '#c48a64', 'Q': '#ab7152', 'R': '#915a48', 'S': '#78453e', 'T': '#542f2f',
+    'a': '#b52f5a', 'b': '#991d43', 'c': '#631735', 'd': '#3a1418', 'e': '#1f040b',
+    'x': '#fbf6f3', 'z': '#f0cee6', 'y': '#c4b2b4', 'v': '#9a7890',
+    'g': '#e9c375', 'h': '#a8703c', 'j': '#6c3a1c',
+    'r': '#d02a40', 's': '#ab1d37', 'q': '#690f1a',
+    'w': '#84878c', 'k': '#4a505e', 'm': '#252d36', 'n': '#1a1924',
+    'G': '#e0e2e4', 'H': '#a8acb2', 'I': '#5c606c',
 }.items()}
-
-DA = 25          # la prima riga del corpo (sotto c'e' la testa)
-
-# le misure per il passo (passo.tempo e passo.lato): la prima riga sotto il
-# ciuffo, la prima del collo (la riga a meta' del collo si ripete o si toglie:
-# e' quella delle spalle, non quella del girocollo), la vita, l'anca, la prima
-# colonna della gamba destra, gli avambracci (colonne e righe)
-PARTI = {
-    "davanti": dict(ciuffo=9, collo=24, vita=33, anca=39, taglio=13, braccia=((0, 6), (19, 25), (30, 38))),
-    "dietro": dict(ciuffo=7, collo=22, vita=33, anca=39, taglio=13, braccia=((0, 6), (19, 25), (30, 38))),
-}
-# di lato: la x dell'anca vicina e della lontana, la riga della suola
-PARTI_LATO = dict(ciuffo=5, collo=22, anca=39, anche=(19, 17), terra=49)
 
 
 def leggi(nome):
+    """lei/<nome>.txt -> righe di lettere, tutte larghe uguali ('.' e' vuoto)"""
     with open(os.path.join(QUI, 'lei', nome + '.txt')) as f:
-        return [r.rstrip('\n') for r in f if r.strip('\n')]
-
-
-def griglia(righe):
+        righe = [r.rstrip('\n') for r in f if r.strip('\n')]
     larga = len(righe[0])
     for j, r in enumerate(righe):
-        assert len(r) == larga, (j, len(r))
-    return [[None if ch == '.' else COLORI[ch] for ch in r] for r in righe]
-
-
-def figura(vista, ricalco=None):
-    """la vista da ferma ("davanti", "dietro", "lato"); con ricalco (la griglia
-    ricalcata dal foglio) la testa del ricalco sul corpo disegnato"""
-    g = griglia(leggi(vista))
-    if ricalco is not None:
-        g = [list(r) for r in ricalco[:DA]] + g[DA:]
-    return g
-
-
-def braccio_di_lato():
-    """il braccio vicino, di lato: {(x, y): colore}"""
-    return {(x, DA + j): COLORI[ch] for j, r in enumerate(leggi('lato_braccio'))
-            for x, ch in enumerate(r) if ch != '.'}
+        assert len(r) == larga, (nome, j, len(r))
+        for ch in r:
+            assert ch == '.' or ch in COLORI, (nome, j, ch)
+    return righe

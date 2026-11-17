@@ -22,8 +22,8 @@ extends Node2D
 # Chi lo usa: un nodo nel mondo ordinato per piede (y_sort), accanto a lei;
 # prepara() una volta, aggiorna() a ogni fotogramma con lo sprite di lei.
 
-const LARGO := 18                # i ciuffi: larghi 18 pixel del mondo,
-const MEZZO := 9                 # (meta' a sinistra dei piedi)
+const LARGO := 30                # i ciuffi: larghi 30 pixel del mondo (lei grande
+const MEZZO := 15                # ha i piedi larghi), meta' a sinistra dei piedi
 const ALTO := 7                  # alti 7, fino a 2 sotto la linea dei piedi
 const SOTTO := 2
 const ALTEZZE := [2, 4, 3, 5, 2, 3, 4, 2, 4, 3, 5, 2, 3, 4, 2, 5, 3, 2]   # le punte, colonna per colonna
@@ -103,7 +103,7 @@ func aggiorna(piedi: Vector2, verso: Vector2i, passo: float, delta: float, lei: 
 		if appoggio != ultimo_appoggio:
 			ultimo_appoggio = appoggio
 			if su_erba:
-				fai_saltare(qui, verso, appoggio)
+				fai_saltare(qui, verso, appoggio, largo_di(lei) / 32.0)
 	# i ciuffi davanti ai piedi (a ogni fotogramma: lei cambia posa)
 	if su_erba:
 		prendi_i_ciuffi(Vector2i(int(qui.x) - MEZZO, int(qui.y) - (ALTO - SOTTO)), lei)
@@ -155,10 +155,17 @@ func prendi_i_ciuffi(da: Vector2i, lei: Sprite2D) -> void:
 	trama.update(foto)
 
 
-func fai_saltare(qui: Vector2, verso: Vector2i, appoggio: int) -> void:
-	# il piede che si appoggia: uno e l'altro a turno
+func largo_di(lei: Sprite2D) -> float:
+	# quanto e' largo un fotogramma di lei (lui 32, lei grande 64)
+	if lei == null or lei.texture == null or lei.hframes <= 0:
+		return 32.0
+	return lei.texture.get_width() / float(lei.hframes)
+
+
+func fai_saltare(qui: Vector2, verso: Vector2i, appoggio: int, scala_piedi := 1.0) -> void:
+	# il piede che si appoggia: uno e l'altro a turno (piu' larghi per chi e' piu' grande)
 	var lato := -1.0 if appoggio % 2 == 0 else 1.0
-	var piede := qui + (Vector2(lato * 3.0, 0.0) if verso.x == 0 else Vector2(float(verso.x) * (2.0 if appoggio % 2 == 0 else -1.0), lato))
+	var piede := qui + (Vector2(lato * 3.0, 0.0) if verso.x == 0 else Vector2(float(verso.x) * (2.0 if appoggio % 2 == 0 else -1.0), lato)) * scala_piedi
 	var chiaro := colore_chiaro(qui)
 	for k in FILI_PER_PASSO:
 		var v := Vector2(caso.randf_range(-22.0, 22.0), caso.randf_range(-70.0, -48.0))

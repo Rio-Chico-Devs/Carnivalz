@@ -32,7 +32,7 @@ const Pianta := preload("res://prove/LivelloPianta.gd")
 const ErbaAiPiedi := preload("res://scripts/ErbaAiPiedi.gd")
 const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo, come nei mondi
 const RESPIRO := 1.6
-const LARGO_FOTOGRAMMA := 32
+const COLONNE := 10              # fermo, il respiro, gli otto tempi del passo
 const BUIO := 0.3                # quanto dura il buio quando si passa una porta
 const CARTA := Color("#efd8b2")
 const SEGNALE := Color("#f29a2e")
@@ -166,10 +166,11 @@ func metti_foglio(chi: String) -> void:
 	# lo stesso foglio dei mondi (MondoProva.metti_foglio): 10 colonne (fermo,
 	# il respiro, gli otto tempi del passo) x 3 righe (giu', su, destra), i
 	# piedi al centro tre righe sopra il fondo del fotogramma
-	io.texture = trama("res://art/pianeti/protagonista/%s.png" % chi, "python3 strumenti/protagonisti/disegna.py")
-	io.hframes = maxi(1, int(io.texture.get_width() / float(LARGO_FOTOGRAMMA)))
-	var fotogramma := Vector2(LARGO_FOTOGRAMMA, io.texture.get_height() / 3.0)
-	io.offset = -Vector2(fotogramma.x / 2.0, fotogramma.y - 3.0)
+	io.texture = trama("res://art/pianeti/protagonista/%s.png" % chi,
+		"python3 strumenti/protagonisti/%s.py" % ("lei" if chi == "lei" else "disegna"))
+	io.hframes = COLONNE
+	var fotogramma := Vector2(io.texture.get_width() / float(COLONNE), io.texture.get_height() / 3.0)
+	io.offset = -Vector2(floorf(fotogramma.x / 2.0), fotogramma.y - 3.0)
 
 
 # ---------------------------------------------------------------- il giro

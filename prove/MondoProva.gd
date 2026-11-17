@@ -35,7 +35,7 @@ const INGRANDIMENTO := 3.0
 const VELOCITA := 74.0
 const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo (otto tempi, due passi)
 const RESPIRO := 1.6             # secondi fra un respiro e l'altro, da fermi
-const LARGO_FOTOGRAMMA := 32
+const COLONNE := 10              # fermo, il respiro, gli otto tempi del passo
 const PORTATA := 20.0
 const PRODUZIONE := 6.0          # secondi fra un pezzo e l'altro, per ogni regione autonoma
 const RICRESCITA := 25.0
@@ -538,18 +538,18 @@ func prepara_me() -> void:
 
 func metti_foglio(chi: String) -> void:
 	# 10 colonne (fermo, il respiro, gli otto tempi del passo) x 3 righe (giu',
-	# su, destra). I fotogrammi sono larghi 32 e alti quanto vuole il foglio
-	# (lui 48, lei 56, presa uguale dal foglio di Bru): i piedi stanno sempre al
+	# su, destra). I fotogrammi sono grandi quanto vuole il foglio (lui 32x48,
+	# lei 64x112, grande come nei disegni di Bru): i piedi stanno sempre al
 	# centro, tre righe sopra il fondo del fotogramma.
 	io.texture = foglio_di(chi)
-	io.hframes = maxi(1, int(io.texture.get_width() / float(LARGO_FOTOGRAMMA)))
-	var fotogramma := Vector2(LARGO_FOTOGRAMMA, io.texture.get_height() / 3.0)
-	io.offset = -Vector2(fotogramma.x / 2.0, fotogramma.y - 3.0)
+	io.hframes = COLONNE
+	var fotogramma := Vector2(io.texture.get_width() / float(COLONNE), io.texture.get_height() / 3.0)
+	io.offset = -Vector2(floorf(fotogramma.x / 2.0), fotogramma.y - 3.0)
 
 
 func foglio_di(chi: String) -> ImageTexture:
 	# art/pianeti/protagonista/<chi>.png, disegnato da strumenti/protagonisti/disegna.py
-	# (o ridisegnato a mano: e' un PNG come le tessere)
+	# (lui) e lei.py (lei)
 	var percorso := "res://art/pianeti/protagonista/%s.png" % chi
 	var img := Image.create_empty(320, 144, false, Image.FORMAT_RGBA8)
 	if FileAccess.file_exists(percorso):
@@ -558,7 +558,7 @@ func foglio_di(chi: String) -> ImageTexture:
 			letta.convert(Image.FORMAT_RGBA8)
 			img = letta
 	else:
-		push_warning("manca %s: python3 strumenti/protagonisti/disegna.py" % percorso)
+		push_warning("manca %s: python3 strumenti/protagonisti/%s.py" % [percorso, "lei" if chi == "lei" else "disegna"])
 	return ImageTexture.create_from_image(img)
 
 
