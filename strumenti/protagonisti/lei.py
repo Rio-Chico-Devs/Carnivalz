@@ -20,6 +20,19 @@ import png
 OMBRA = (18, 12, 24, 80)
 
 
+def un_pezzo(f):
+    """il fotogramma e' tutto attaccato (niente pezzi rimasti indietro)"""
+    resto = set(f)
+    q = [resto.pop()]
+    while q:
+        x, y = q.pop()
+        for v in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if v in resto:
+                resto.remove(v)
+                q.append(v)
+    return not resto
+
+
 def foglio_del_gioco():
     W, H = passo.W, passo.H
     righe = passo.foglio()
@@ -29,6 +42,7 @@ def foglio_del_gioco():
         for colonna, f in enumerate(fotogrammi):
             for (x, y), ch in f.items():
                 assert 0 <= x < W and 0 <= y < H, (riga, colonna, x, y)
+            assert un_pezzo(f), ('un pezzo staccato', riga, colonna)
             for y in range(H):
                 for x in range(W):
                     ch = f.get((x, y))

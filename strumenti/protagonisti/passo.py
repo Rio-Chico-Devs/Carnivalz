@@ -157,16 +157,18 @@ class Vista:
 
 
 def davanti():
-    bs = righe_da([(47, 49, 8, 10), (50, 50, 8, 11), (51, 51, 8, 12), (52, 52, 7, 13), (53, 53, 7, 14),
-                   (54, 54, 7, 13), (55, 55, 6, 13), (56, 56, 4, 12), (57, 57, 3, 13), (58, 58, 3, 12),
-                   (59, 59, 4, 11), (60, 60, 4, 12), (61, 61, 3, 12), (62, 62, 3, 11), (63, 63, 2, 10),
-                   (64, 65, 2, 9), (66, 67, 2, 10), (68, 68, 3, 10), (69, 69, 3, 9), (70, 70, 4, 7)])
-    bd = righe_da([(37, 44, 26, 36), (45, 46, 28, 37), (47, 49, 29, 39), (50, 52, 30, 40), (53, 54, 32, 41),
-                   (55, 56, 33, 42), (57, 57, 34, 43), (58, 72, 34, 44)])
-    return Vista('davanti', coda=10, taglio=50, vita=58,
-                 braccia=[('bs', bs, 48, 56), ('bd', bd, 41, 58)],
-                 gambe_=[('gs', 11, 21, 64, (78, 87)), ('gd', 22, 36, 64, (80, 90))],
-                 dx=11, dy=10)
+    # lei di fronte (il disegno di Bru col cerchio d'oro spostato a sinistra)
+    bs = righe_da([(40, 43, 8, 11), (44, 46, 7, 11), (47, 50, 6, 11), (51, 51, 6, 9), (52, 54, 5, 11),
+                   (55, 56, 4, 12), (57, 57, 1, 12), (58, 59, 0, 9), (60, 60, 2, 8), (61, 61, 2, 9),
+                   (62, 63, 1, 8), (64, 68, 0, 8), (69, 69, 2, 7), (70, 70, 3, 6)])
+    bd = righe_da([(39, 39, 29, 31), (40, 40, 29, 32), (41, 42, 29, 33), (43, 44, 28, 33), (45, 46, 29, 34),
+                   (47, 49, 29, 35), (50, 51, 29, 36), (52, 53, 30, 37), (54, 54, 31, 37), (55, 55, 31, 38),
+                   (56, 57, 32, 38), (58, 58, 33, 41), (59, 59, 33, 42), (60, 62, 33, 41), (63, 68, 33, 41),
+                   (69, 69, 34, 40), (70, 70, 35, 39), (71, 71, 35, 38)])
+    return Vista('davanti', coda=10, taglio=50, vita=59,
+                 braccia=[('bs', bs, 47, 57), ('bd', bd, 41, 58)],
+                 gambe_=[('gs', 3, 20, 64, (78, 91)), ('gd', 21, 39, 64, (78, 91))],
+                 dx=11, dy=7)
 
 
 def dietro():
@@ -180,14 +182,13 @@ def dietro():
                    (72, 72, 36, 44), (73, 73, 37, 42), (74, 74, 39, 41)])
     return Vista('dietro', coda=11, taglio=52, vita=61,
                  braccia=[('bs', bs, 48, 61), ('bd', bd, 48, 61)],
-                 gambe_=[('gs', 10, 21, 70, (82, 92)), ('gd', 24, 36, 70, (82, 92))],
+                 gambe_=[('gs', 5, 21, 70, (82, 92)), ('gd', 24, 40, 70, (82, 92))],
                  dx=10, dy=4)
 
 
-# Davanti e dietro, il piede: dove finisce (+ giu', - su) rispetto al disegno.
-# Davanti (lei viene verso di noi) il piede che va avanti scende; nel disegno la
-# gamba destra e' gia' avanti e la sinistra dietro, e il passo parte da li'.
-# Dietro i piedi sono pari, e quello che va avanti sale.
+# Davanti e dietro, il piede: dove finisce (+ giu', - su) rispetto al disegno,
+# dove i piedi sono pari. Davanti (lei viene verso di noi) il piede che va
+# avanti scende, dietro sale.
 FONDO = 2.5                                     # mezzo passo in profondita', in righe
 PROF = (1, 0.5, 0, -0.5, -1, -0.5, 0, 0.5)      # la gamba destra: avanti (+) o dietro (-)
 ALZA = (0, 0, 0, 0, 0, 2, 3, 1)                 # e quanto e' in aria
@@ -203,11 +204,10 @@ def tempi_davanti_dietro(vista):
         dentro_d = -1 if ALZA[t] >= 2 else 0          # la gamba destra in aria va verso il centro
         dentro_s = 1 if ALZA[tl] >= 2 else 0
         if vista == 'davanti':
-            # di tre quarti, avanti e' anche un poco a sinistra
-            gd = (round(FONDO * (PROF[t] - 1) - ALZA[t]), -1 if PROF[t] > 0.6 else dentro_d)
-            gs = (round(FONDO * (PROF[tl] + 1) - ALZA[tl]), -1 if PROF[tl] > 0.6 else dentro_s)
+            gd = (round(FONDO * PROF[t] - ALZA[t]), dentro_d)
+            gs = (round(FONDO * PROF[tl] - ALZA[tl]), dentro_s)
             # la mano va avanti (scende e va verso il centro) con la gamba dell'altra parte
-            braccia = {'bs': (round(1.5 * PROF[t]), round(-PROF[t])), 'bd': (round(1.5 * PROF[tl]), round(-PROF[tl]))}
+            braccia = {'bs': (round(1.5 * PROF[t]), round(PROF[t])), 'bd': (round(1.5 * PROF[tl]), round(-PROF[tl]))}
         else:
             gd = (round(-FONDO * PROF[t] - ALZA[t]), dentro_d)
             gs = (round(-FONDO * PROF[tl] - ALZA[tl]), dentro_s)

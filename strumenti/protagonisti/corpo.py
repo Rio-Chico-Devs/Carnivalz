@@ -2,17 +2,20 @@
 # ferma in lei/*.txt, una lettera per pixel. passo.py ne fa il passo, lei.py
 # scrive il foglio del gioco (art/pianeti/protagonista/lei.png).
 #
-# Bru ha mandato tre disegni in pixel (il giro davanti, dietro e di lato, lei
-# grande di tre quarti, lei in posa) e ha scelto la misura dei disegni. Le
-# viste sono ricostruite pixel per pixel dai disegni (ricostruisci.py: i JPG
-# sono ingranditi, ogni pixel del disegno e' un quadretto) e poi ripulite a
-# mano:
-#   - davanti: dal disegno grande (22.jpg), il piu' nitido, com'e';
+# Bru ha mandato i disegni in pixel (il giro davanti, dietro e di lato, lei
+# grande di tre quarti, lei in posa, poi lei di fronte) e ha scelto la misura
+# dei disegni. Le viste sono ricostruite pixel per pixel dai disegni
+# (ricostruisci.py: i JPG sono ingranditi, ogni pixel del disegno e' un
+# quadretto; le griglie sono in fogli/) e poi ripulite a mano:
+#   - davanti: lei di fronte, com'e', col cerchio d'oro spostato dal centro
+#     della fascia alla sinistra (Bru: «puoi spostare il cerchio d'oro che ha
+#     in centro sul lato sinistro?»; al centro ora c'e' una stella come le
+#     altre) e gli stivali allungati di 5 righe;
 #   - dietro e di lato: dal giro (21.jpg), piu' piccolo e sporco dal JPG: la
 #     fascia ridisegnata (curva dietro, con quattro stelle; di lato col cerchio
 #     d'oro sul davanti), il viso di profilo, la spallina, la cintura a catena;
-#     dietro gli stivali allungati di 7 righe (nel giro erano piu' corti che
-#     davanti e di lato: girandosi lei cambiava altezza);
+#     dietro gli stivali allungati di 7 righe (nei disegni erano piu' corti
+#     che di lato: girandosi lei cambiava altezza);
 #   - di lato le gambe non ci sono: le disegna gambe.py, articolate.
 # Le stesse misure in tutte e tre: la cintura a 41 pixel da terra, le spalle a 62.
 #
