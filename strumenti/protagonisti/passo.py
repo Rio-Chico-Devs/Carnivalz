@@ -23,9 +23,8 @@
 # Davanti e dietro le gambe sono quelle del foglio, separate e allungate o
 # accorciate. Di lato il foglio ha gambe corte e tutte e due dello stesso
 # scuro: si tengono testa, busto e braccio del foglio, e le gambe si
-# disegnano articolate (anca, ginocchio, caviglia; arti.capsula, a spessore
-# vero, che regge anche la gamba alzata) coi colori di lei.
-from arti import capsula
+# disegnano articolate (anca, ginocchio, caviglia; arto(), a spessore vero, che
+# regge anche la gamba alzata) coi colori di lei.
 
 SOPRA = 1          # una riga vuota in cima al fotogramma: la cresta che salta non si taglia
 FIANCO = 2         # colonne vuote ai lati: i fianchi che ondeggiano non si tagliano
@@ -184,14 +183,43 @@ TEMPI_LATO = [dict(busto=CORPO[t], testa=TESTA[t], ciuffo=CIUFFO[t], piega=0, ma
               for t in range(8)]
 FERMO_LATO = dict(busto=0, testa=0, ciuffo=0, piega=0, mano=0, gambe=GAMBE_LATO["fermo"], vicina_avanti=True)
 RESPIRO_LATO = dict(FERMO_LATO, busto=1, testa=1, ciuffo=1)
-# il piede, guardando a destra; la caviglia e' la colonna 2 della prima riga.
-# a chiaro, b base, c scuro, o contorno
+# il piede, guardando a destra: le celle (dx, dy) dalla caviglia. Il contorno
+# e' quello di tutta la gamba col piede, uno solo
 PIEDI = {
-    "piatto": ["obbbo...", "oabbbbbo", "oooooooo"],
-    "alzato": ["obbbo...", "oabbbbbo", "oooooooo"],
-    "punta": [".obbo...", ".oabbo..", "..oooo.."],
-    "appeso": [".obbo...", ".oabbo..", "..oooo.."],
+    "piatto": [(dx, 0) for dx in range(-2, 3)] + [(dx, dy) for dy in (1, 2) for dx in range(-2, 5)],
+    "alzato": [(dx, 0) for dx in range(-2, 3)] + [(dx, dy) for dy in (1, 2) for dx in range(-2, 5)],
+    "punta": [(dx, 0) for dx in range(-2, 3)] + [(dx, 1) for dx in range(-1, 4)] + [(dx, 2) for dx in range(0, 4)],
+    "appeso": [(dx, 0) for dx in range(-2, 3)] + [(dx, 1) for dx in range(-1, 3)] + [(dx, 2) for dx in range(0, 3)],
 }
+RAGGIO = 2.2         # le gambe di lato: larghe cinque pixel col contorno, come davanti
+STIVALE = 0.27       # dove finisce la coscia nuda e comincia lo stivale (lungo la gamba)
+
+
+def arto(punti, r):
+    """{(x, y): (t, lato)}: i pixel entro r dalla spezzata; t da 0 a 1 lungo
+    l'arto, lato la distanza dall'asse (+ a sinistra di chi scende: dietro)"""
+    import math
+    segmenti, tot = [], 0.0
+    for (ax, ay), (bx, by) in zip(punti, punti[1:]):
+        l = math.hypot(bx - ax, by - ay)
+        segmenti.append((ax, ay, bx, by, l, tot))
+        tot += l
+    xs = [q[0] for q in punti]
+    ys = [q[1] for q in punti]
+    celle = {}
+    for y in range(int(min(ys) - r - 1), int(max(ys) + r + 2)):
+        for x in range(int(min(xs) - r - 1), int(max(xs) + r + 2)):
+            meglio = None
+            for ax, ay, bx, by, l, t0 in segmenti:
+                f = 0.0 if l == 0 else max(0.0, min(1.0, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / (l * l)))
+                px, py = ax + f * (bx - ax), ay + f * (by - ay)
+                d = math.hypot(x - px, y - py)
+                if meglio is None or d < meglio[0]:
+                    dx, dy = ((bx - ax) / l, (by - ay) / l) if l else (0.0, 1.0)
+                    meglio = (d, (t0 + f * l) / max(tot, 1e-6), dx * (y - ay) - dy * (x - ax))
+            if meglio[0] <= r:
+                celle[(x, y)] = (meglio[1], meglio[2])
+    return celle
 
 
 def lato(g, parti, p, colori):
@@ -199,8 +227,9 @@ def lato(g, parti, p, colori):
     sotto la crocchia), collo (la prima riga del collo), anca (la prima riga
     sotto gli shorts), anche (la x dell'anca vicina e della lontana), terra
     (la riga della suola), braccio (il braccio vicino, {(x, y): colore}: e'
-    disegnato a parte, corpo.py). colori: pelle e stivali, dal chiaro allo
-    scuro, e il contorno."""
+    disegnato a parte, corpo.py). colori: pelle (4 toni) e stivali (5: il
+    riflesso, la luce, la base, l'ombra, il nero), dal chiaro allo scuro, e
+    il contorno."""
     w = len(g[0])
     anca, terra, busto = parti["anca"], parti["terra"], p["busto"]
     h = SOPRA + terra + 1
@@ -213,28 +242,37 @@ def lato(g, parti, p, colori):
             out[y][x] = c
 
     def gamba(hx, ginocchio, caviglia, piede, vicina):
+        # la coscia nuda e lo stivale nero lucido: la luce sul lato di dietro
+        # (da sinistra), l'ombra davanti, il bordo dello stivale e il ginocchio
+        # lucidi; un contorno solo attorno a gamba e piede. La gamba lontana
+        # ha i toni un gradino piu' scuri
         hy = anca - 1 + busto
         ay = terra - 2 if piede in ("piatto", "punta") else hy + caviglia[1]
-        punti = [(hx, hy), (hx + ginocchio[0], hy + ginocchio[1]), (hx + caviglia[0], ay)]
-        celle = capsula(punti, 2.6)
-        sk = pelle[1:3] if vicina else pelle[2:4]
-        st = stivali[0:3] if vicina else stivali[2:4] + stivali[3:4]
-        for (x, y), v in celle.items():
-            riga = [c[0] for c in celle if c[1] == y]
-            sx, dx_ = min(riga), max(riga)
-            if any((x + a, y + b) not in celle for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                metti(x, y, nero)
-            elif v < 0.28:
-                metti(x, y, sk[0] if x == sx + 1 else sk[1])
-            elif v < 0.36:
-                metti(x, y, st[0])
-            else:
-                metti(x, y, st[0] if x == sx + 1 else (st[2] if x == dx_ - 1 else st[1]))
+        kx, ky = hx + ginocchio[0], hy + ginocchio[1]
         ax = hx + caviglia[0]
-        for j, riga in enumerate(PIEDI[piede]):
-            for i, ch in enumerate(riga):
-                if ch != ".":
-                    metti(ax - 2 + i, ay + j, {"o": nero, "a": st[0], "b": st[1], "c": st[2]}[ch])
+        celle = arto([(hx, hy), (kx, ky), (ax, ay)], RAGGIO)
+        sk = pelle[0:3] if vicina else pelle[1:4]
+        st = stivali[0:4] if vicina else stivali[1:5]
+        colore = {}
+        for (x, y), (t, d) in celle.items():
+            luce = 0 if d > 0.7 else (2 if d < -0.7 else 1)
+            if t < STIVALE:
+                colore[(x, y)] = sk[luce]
+            elif t < STIVALE + 0.08:
+                colore[(x, y)] = st[0] if luce == 0 else st[1]
+            else:
+                colore[(x, y)] = st[1 + luce]
+        for dx, dy in PIEDI[piede]:
+            q = (ax + dx, ay + dy)
+            if q not in colore:
+                colore[q] = st[1] if dy == 1 and dx <= 0 else st[2]
+        # il ginocchio lucido: un pixel sul lato della luce
+        lucido = [q for q, (t, d) in celle.items() if t >= STIVALE + 0.08 and d > 0.7]
+        if lucido:
+            colore[min(lucido, key=lambda q: abs(q[0] - kx) + abs(q[1] - ky - 1))] = st[0]
+        for (x, y), c in colore.items():
+            bordo = any((x + a, y + b) not in colore for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            metti(x, y, nero if bordo else c)
 
     # prima la gamba lontana, poi la vicina
     avanti, dietro = p["gambe"]

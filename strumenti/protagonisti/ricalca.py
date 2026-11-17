@@ -1,52 +1,26 @@
 #!/usr/bin/env python3
-# LEI SUL PIANETA, uguale al foglio di Bru: scrive art/pianeti/protagonista/lei.png
+# LEI SUL PIANETA: scrive art/pianeti/protagonista/lei.png
 #
-#   python3 strumenti/protagonisti/ricalca.py
+#   python3 strumenti/protagonisti/ricalca.py           il disegno (corpo.py)
+#   python3 strumenti/protagonisti/ricalca.py fedele    la testa ricalcata dal
+#                                                         foglio di Bru, com'e'
 #
-# Bru ha mandato il foglio del passo di lei (fogli/lei.png: davanti, dietro, i
-# quattro tempi di lato): «no devi farli uguali». Quindi niente disegno nuovo:
-# si ricostruiscono i pixel del foglio.
-#   - Il foglio e' un JPG ingrandito: ogni pixel del disegno e' un quadretto
-#     di circa 4,5 pixel dell'immagine, non un numero intero, e sbavato. Per
-#     ogni fotogramma si cerca la griglia (passo e fase in x e in y) dove
-#     cadono i bordi dei quadretti.
-#   - Per ogni quadretto si prende il colore piu' rappresentativo dei pixel
-#     interni (il medoide: la media impasterebbe il contorno col fondo).
-#   - Si toglie la scacchiera del fondo.
-#   - Poi la pulizia (Bru: «possiamo rendere i disegni più chiari e puliti?»):
-#     i colori si schiariscono un poco e vanno sulle rampe dei materiali
-#     (MATERIALI: capelli e top lavanda, pelle, fascia, ottone, lenti,
-#     stivali, shorts), ognuna coi toni del foglio; i puntini isolati del JPG
-#     prendono il materiale dei vicini; dentro ogni materiale i toni si fanno
-#     a macchie piene; il bordo della figura diventa un contorno scuro netto.
-#     Il disegno resta quello del foglio: cambiano solo la luce e lo sporco.
-#   - I fotogrammi si allineano sulla testa, i piedi per terra.
-#
-#   python3 strumenti/protagonisti/ricalca.py mano     le teste ripassate a mano
-#                                                        (corpo.py), piu' semplici
-#   python3 strumenti/protagonisti/ricalca.py fedele   la testa del ricalco senza
-#                                                        pulizia (i 40 colori del
-#                                                        foglio com'e'), sul corpo
-#                                                        di corpo.py
+# Lei e' disegnata pixel per pixel in lei/*.txt (corpo.py): la testa ripassata
+# sul ricalco del foglio di Bru (fogli/lei.png), il corpo sul disegno di lei.
+# Questo file ricalca il foglio (per il modo fedele, e da riferimento): il
+# foglio e' un JPG ingrandito, ogni pixel del disegno e' un quadretto di circa
+# 4,5 pixel dell'immagine; per ogni fotogramma si cerca la griglia dove cadono
+# i bordi dei quadretti, si prende il colore piu' rappresentativo di ogni
+# quadretto (il medoide), si toglie la scacchiera del fondo.
 
-# Il passo (Bru: «bisogna migliorare le animazioni di movimento», e poi
-# l'esempio del passo di Samarie in Fear and Hunger: Termina) si fa coi pezzi
-# del disegno, in passo.py. Nel foglio i due fotogrammi davanti hanno la
-# stessa posa e dietro ce n'e' uno buono solo (il «back frame 1» ha la giacca
-# e i pantaloni di lui); di lato le gambe sono corte e tutte e due scure. Di
-# lato la figura e' ingrandita fino all'altezza di davanti: nel foglio e'
-# piu' piccola.
-#
-# Il foglio del gioco: 10 colonne (fermo, il respiro, gli otto tempi del passo)
-# x 3 righe (giu', su, destra; la sinistra e' la destra allo specchio),
-# fotogrammi 32x56, i piedi a (16, 53).
-import colorsys
+# Il foglio del gioco: 10 colonne (fermo, il respiro, gli otto tempi del passo,
+# fatti da passo.py) x 3 righe (giu', su, destra; la sinistra e' la destra allo
+# specchio), fotogrammi 32x56, i piedi a (16, 53).
 import os
 import random
 import sys
 QUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, QUI)
-import aspetto
 import corpo
 import passo
 import png
@@ -64,55 +38,9 @@ QUADRI = {  # x, y, larghezza, altezza: dentro i riquadri, senza le scritte
     "lato3": (COLONNE[2], 432, 246, 216),
     "lato4": (COLONNE[3], 432, 244, 216),
 }
-# le parti dei due disegni davanti e dietro, per costruire il passo
-# (passo.py): la prima riga delle gambe, la prima colonna della gamba destra,
-# le colonne delle braccia e le loro righe, dove finisce il ciuffo. Sono
-# misurate sui disegni gia' puliti
-PARTI = {
-    "davanti1": dict(anca=40, taglio=13, braccia=((0, 6), (19, 25), (29, 38)), ciuffo=9, collo=23, vita=34),
-    "dietro2": dict(anca=42, taglio=13, braccia=((0, 5), (20, 25), (29, 38)), ciuffo=7, collo=22, vita=35),
-}
-# di lato: dal foglio la testa, il busto e il braccio (la testa del primo
-# tempo sui quattro, ingranditi fino all'altezza di davanti); le gambe le
-# disegna passo.py. Le misure sono sul primo tempo, gia' pulito e allargato a
-# 32: la prima riga sotto gli shorts, la x dell'anca vicina e della lontana,
-# la riga della suola, le righe e l'ultima colonna del braccio vicino
 LATO = ("lato1", "lato2", "lato3", "lato4")
-PARTI_LATO = dict(anca=39, anche=(19, 17), terra=51, braccio=((30, 38), 16), ciuffo=5, collo=23)
 # le colonne del foglio del gioco
 COLONNE = ("fermo", "respiro") + tuple("tempo%d" % i for i in range(1, 9))
-
-# la pulizia: le rampe dei materiali, dalla luce all'ombra, coi colori del
-# foglio (un poco piu' chiari e piu' accesi): servono a riconoscere di che
-# materiale e' ogni pixel del ricalco
-MATERIALI = {
-    'lavanda': ('#f4f0ff', '#dcd4f4', '#bfb3e4', '#9d8fca', '#7a6aa8', '#574880'),
-    'scuro':   ('#3a2c58', '#241a3c', '#120c22'),
-    'pelle':   ('#f2cdb4', '#d9ab92', '#b5867a', '#86626a'),
-    'fascia':  ('#f08cc0', '#b0507e', '#86345e', '#5c2244', '#3c1630'),
-    'ottone':  ('#f0d8a0', '#c09858', '#7a5a34'),
-    'lente':   ('#f0a0f0', '#c050c0', '#7a2a80'),
-    'stivali': ('#3e5a64', '#26383f', '#16222b', '#0a1018'),
-    'shorts':  ('#4a4254', '#2e2838'),
-    'occhi':   ('#4a3a8a',),
-}
-# e i colori con cui si dipinge, tono per tono: capelli e top restano quelli
-# del foglio; pelle, fascia, oro, guanti, stivali e shorts sono quelli del
-# disegno di lei che ha mandato Bru (la pelle abbronzata, la fascia cremisi,
-# il nero lucido). Gli occhialoni del foglio non ci sono: le lenti e l'ottone
-# diventano fascia, e il cerchio d'oro lo mette aspetto.py
-ASPETTO = {
-    'pelle':   ('#e8b48c', '#c98d66', '#9c6448', '#6c4034'),
-    'fascia':  ('#f06a86', '#c8304e', '#922038', '#5e1226', '#3c0a18'),
-    'ottone':  ('#922038', '#5e1226', '#3c0a18'),
-    'lente':   ('#c8304e', '#922038', '#5e1226'),
-    'stivali': ('#4a5470', '#262c3e', '#141826', '#080a12'),
-    'shorts':  ('#3a3448', '#1e1a28'),
-}
-CONTORNO = '#1a1230'
-SCHIARISCI = 0.82        # la luminosita' alla 0.82: i chiari restano, gli scuri salgono
-ACCENDI = 1.25           # la saturazione per 1.25
-
 
 class Foglio:
     def __init__(self, percorso):
@@ -294,81 +222,6 @@ def quantizza(g, tavolozza):
     return [[None if c is None else min(tavolozza, key=lambda m: d2(c, m)) for c in r] for r in g]
 
 
-# ---------------------------------------------------------------- la pulizia
-
-def esa(x):
-    x = x.lstrip('#')
-    return tuple(int(x[i:i + 2], 16) for i in (0, 2, 4))
-
-
-TAVOLOZZA = [esa(c) for rampa in MATERIALI.values() for c in rampa]
-MATERIALE = {esa(c): m for m, rampa in MATERIALI.items() for c in rampa}
-NERO = esa(CONTORNO)
-DIPINTO = {esa(MATERIALI[m][i]): esa(c) for m, rampa in ASPETTO.items() for i, c in enumerate(rampa)}
-
-
-def luce(c):
-    h, l, s = colorsys.rgb_to_hls(*(v / 255 for v in c))
-    r, g, b = colorsys.hls_to_rgb(h, l ** SCHIARISCI, min(1.0, s * ACCENDI))
-    return tuple(int(round(v * 255)) for v in (r, g, b))
-
-
-def vicini(g, x, y, otto=False):
-    passi = [(dx, dy) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dx or dy] if otto else \
-        [(1, 0), (-1, 0), (0, 1), (0, -1)]
-    return [g[y + dy][x + dx] for dx, dy in passi
-            if 0 <= x + dx < len(g[0]) and 0 <= y + dy < len(g) and g[y + dy][x + dx] is not None]
-
-
-def via_isolati(g):
-    # un pixel senza vicini del suo materiale e' sporco del JPG: prende il
-    # colore piu' frequente intorno. Occhi, lenti e ottone sono piccoli apposta
-    out = [list(r) for r in g]
-    for y, riga in enumerate(g):
-        for x, c in enumerate(riga):
-            if c is None or MATERIALE.get(c) in ('occhi', 'lente', 'ottone'):
-                continue
-            v = vicini(g, x, y)
-            if v and not any(MATERIALE.get(q) == MATERIALE.get(c) for q in v):
-                out[y][x] = max(set(v), key=v.count)
-    return out
-
-
-def macchie(g, minimo=4):
-    # dentro lo stesso materiale ogni pixel prende il tono piu' frequente
-    # intorno: i toni diventano macchie piene, i confini fra materiali restano
-    out = [list(r) for r in g]
-    for y, riga in enumerate(g):
-        for x, c in enumerate(riga):
-            if c is None:
-                continue
-            v = [q for q in vicini(g, x, y, otto=True) if MATERIALE.get(q) == MATERIALE.get(c)] + [c]
-            moda = max(set(v), key=v.count)
-            if moda != c and v.count(moda) >= minimo and v.count(moda) > v.count(c):
-                out[y][x] = moda
-    return out
-
-
-def contorno(g):
-    # il bordo della figura: scuro e continuo
-    out = [list(r) for r in g]
-    for y, riga in enumerate(g):
-        for x, c in enumerate(riga):
-            if c is not None and len(vicini(g, x, y)) < 4 and sum(c) > 160:
-                out[y][x] = NERO
-    return out
-
-
-def pulisci(g):
-    g = quantizza([[None if c is None else luce(c) for c in r] for r in g], TAVOLOZZA)
-    return contorno(macchie(via_isolati(g)))
-
-
-def ridipingi(g):
-    # dai colori del foglio a quelli del disegno, tono per tono
-    return [[None if c is None else DIPINTO.get(c, c) for c in r] for r in g]
-
-
 # ---------------------------------------------------------------- il foglio del gioco
 
 def diversi(a, b, dx, righe):
@@ -450,35 +303,29 @@ def taglia_insieme(tele):
     return [[r[min(xs):max(xs) + 1] for r in t[min(ys):max(ys) + 1]] for t in tele]
 
 
-def fotogrammi_di_lei(percorso, pulita=True, testa="pulita"):
-    """-> {vista: [(griglia, riga di terra), ...]} con le dieci colonne"""
-    f = Foglio(percorso)
-    grezzi = {}
-    for nome, quadro in QUADRI.items():
-        grezzi[nome] = via_punte_sotto(ritaglia(via_scacchiera(pezzo_grande(ricalca(f, *quadro)))))
-    if pulita:
-        colori = pulisci
-    else:
+def fotogrammi_di_lei(percorso=None):
+    """-> {vista: [(griglia, riga di terra), ...]} con le dieci colonne: il
+    disegno di corpo.py (lei/*.txt); col percorso del foglio, la testa del
+    ricalco (i 40 colori del foglio com'e') sul corpo disegnato"""
+    teste = {}
+    if percorso:
+        f = Foglio(percorso)
+        grezzi = {}
+        for nome, quadro in QUADRI.items():
+            grezzi[nome] = via_punte_sotto(ritaglia(via_scacchiera(pezzo_grande(ricalca(f, *quadro)))))
         tavolozza = kmedie([c for g in grezzi.values() for r in g for c in r if c is not None], COLORI)
         colori = lambda g: quantizza(g, tavolozza)
-    def vesti(g, vista):
-        # la fascia col cerchio d'oro e i colori del disegno (non nel fedele)
-        return aspetto.vesti(ridipingi(g), vista, NERO) if pulita else g
-
-    # sotto la testa del foglio il corpo ridisegnato (corpo.py)
-    testa = testa if pulita else "fedele"
-    occhi = {v: set(aspetto.VISTE[v]["palpebre"]) | set(aspetto.VISTE[v]["iridi"]) for v in aspetto.VISTE}
+        teste["davanti"] = ritaglia(colori(grezzi["davanti1"]))
+        teste["dietro"] = ritaglia(colori(grezzi["dietro2"]))
+        tele, _ = di_lato(grezzi, len(grezzi["davanti1"]))
+        teste["lato"] = [[None, None] + r + [None, None] for r in taglia_insieme([colori(t) for t in tele])[0]]
     viste = {}
-    for vista, nome, quale in (("giu", "davanti1", "davanti"), ("su", "dietro2", "dietro")):
-        g = corpo.rivesti(vesti(ritaglia(colori(grezzi[nome])), quale), quale, testa, occhi[quale])
-        viste[vista] = passo.ciclo(g, dict(PARTI[nome], **corpo.PARTI))
-    tele, _ = di_lato(grezzi, len(grezzi["davanti1"]))
-    lato = [[None, None] + r + [None, None] for r in taglia_insieme([colori(t) for t in tele])[0]]
-    lato = corpo.rivesti(vesti(lato, "lato"), "lato", testa, occhi["lato"])
-    colori_lato = dict(pelle=[esa(c) for c in ASPETTO["pelle"]],
-                       stivali=[esa(c) for c in ASPETTO["stivali"]], contorno=NERO)
-    viste["destra"] = passo.ciclo_di_lato(
-        lato, dict(corpo.PARTI_LATO, braccio=corpo.braccio_di_lato(len(lato[0]))), colori_lato)
+    for vista, quale in (("giu", "davanti"), ("su", "dietro")):
+        viste[vista] = passo.ciclo(corpo.figura(quale, teste.get(quale)), corpo.PARTI[quale])
+    colori_lato = dict(pelle=[corpo.COLORI[k] for k in 'PQRS'], stivali=[corpo.COLORI[k] for k in 'wstuv'],
+                       contorno=corpo.COLORI['o'])
+    viste["destra"] = passo.ciclo_di_lato(corpo.figura("lato", teste.get("lato")),
+                                          dict(corpo.PARTI_LATO, braccio=corpo.braccio_di_lato()), colori_lato)
     return viste
 
 
@@ -503,10 +350,9 @@ def foglio_del_gioco(viste):
 
 
 if __name__ == '__main__':
-    pulita = 'fedele' not in sys.argv[1:]
-    testa = "mano" if 'mano' in sys.argv[1:] else "pulita"
-    viste = fotogrammi_di_lei(os.path.join(QUI, 'fogli', 'lei.png'), pulita, testa)
+    fedele = 'fedele' in sys.argv[1:]
+    viste = fotogrammi_di_lei(os.path.join(QUI, 'fogli', 'lei.png') if fedele else None)
     w, h, pix = foglio_del_gioco(viste)
     cartella = os.path.join(QUI, '..', '..', 'art', 'pianeti', 'protagonista')
     png.scrivi(os.path.join(cartella, 'lei.png'), w, h, pix)
-    print('scritto lei', w, h, testa if pulita else 'fedele')
+    print('scritto lei', w, h, 'fedele' if fedele else 'disegno')
