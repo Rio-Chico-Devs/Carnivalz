@@ -179,22 +179,22 @@ func libero(p: Vector2) -> bool:
 	return true
 
 
-func cammina(piedi: Vector2, direzione: Vector2, delta: float) -> Vector2:
+func cammina(piedi: Vector2, direzione: Vector2, delta: float, velocita := VELOCITA) -> Vector2:
 	# come nei mondi: prima di lato, poi in su o in giu', e contro uno spigolo
 	# si scivola da soli se un poco piu' in la' si passa
 	if direzione == Vector2.ZERO:
 		return piedi
 	direzione = direzione.normalized()
-	var spostamento := direzione * VELOCITA * delta
+	var spostamento := direzione * velocita * delta
 	var p := piedi
 	if libero(p + Vector2(spostamento.x, 0)):
 		p.x += spostamento.x
 	elif absf(direzione.y) < 0.3:
-		p.y += scivola(p, Vector2(spostamento.x, 0), Vector2(0, 1), VELOCITA * delta)
+		p.y += scivola(p, Vector2(spostamento.x, 0), Vector2(0, 1), velocita * delta)
 	if libero(p + Vector2(0, spostamento.y)):
 		p.y += spostamento.y
 	elif absf(direzione.x) < 0.3:
-		p.x += scivola(p, Vector2(0, spostamento.y), Vector2(1, 0), VELOCITA * delta)
+		p.x += scivola(p, Vector2(0, spostamento.y), Vector2(1, 0), velocita * delta)
 	return p
 
 

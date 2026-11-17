@@ -33,7 +33,7 @@ const CORRUZIONE := preload("res://prove/mondo_corruzione.gdshader")
 const LATO := 16
 const INGRANDIMENTO := 3.0
 const VELOCITA := 74.0
-const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo (otto tempi, due passi)
+const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo (lui; lei dice il suo in lei.json)
 const RESPIRO := 1.6             # secondi fra un respiro e l'altro, da fermi
 const COLONNE := 10              # fermo, il respiro, gli otto tempi del passo
 const PORTATA := 20.0
@@ -75,6 +75,8 @@ var piedi := Vector2.ZERO
 var verso := Vector2i(0, 1)
 var passo := 0.0                        # la strada fatta camminando, in pixel; 0 da fermi
 var fermo_da := 0.0                     # da quanto si sta fermi, per il respiro
+var passo_px := PASSO_PX                # la strada per ogni tempo del passo, e la velocita': dal foglio
+var velocita := VELOCITA
 var borsa := {"quarzo": 0, "ferro": 0, "cristallo": 0, "tazo": 0}
 var tempo := 0.0
 var produzione := 0.0
@@ -537,14 +539,33 @@ func prepara_me() -> void:
 
 
 func metti_foglio(chi: String) -> void:
-	# 10 colonne (fermo, il respiro, gli otto tempi del passo) x 3 righe (giu',
-	# su, destra). I fotogrammi sono grandi quanto vuole il foglio (lui 32x48,
-	# lei 64x112, grande come nei disegni di Bru): i piedi stanno sempre al
-	# centro, tre righe sopra il fondo del fotogramma.
+	# le colonne (fermo, il respiro, i tempi del passo: lui otto, lei sedici) x
+	# 3 righe (giu', su, destra). I fotogrammi sono grandi quanto vuole il
+	# foglio (lui 32x48, lei 64x112, grande come nei disegni di Bru): i piedi
+	# stanno sempre al centro, tre righe sopra il fondo del fotogramma.
 	io.texture = foglio_di(chi)
-	io.hframes = COLONNE
-	var fotogramma := Vector2(io.texture.get_width() / float(COLONNE), io.texture.get_height() / 3.0)
+	var misure := misure_del_foglio(chi)
+	io.hframes = int(misure["colonne"])
+	passo_px = float(misure["passo_px"])
+	velocita = float(misure["velocita"])
+	var fotogramma := Vector2(io.texture.get_width() / float(io.hframes), io.texture.get_height() / 3.0)
 	io.offset = -Vector2(floorf(fotogramma.x / 2.0), fotogramma.y - 3.0)
+
+
+func misure_del_foglio(chi: String) -> Dictionary:
+	# accanto al foglio, <chi>.json (lo scrive strumenti/protagonisti/lei.py):
+	# quante colonne ha il foglio (il fermo, il respiro e i tempi del passo),
+	# quanta strada per tempo, quanto va veloce. Senza: dieci colonne, 5 pixel
+	# per tempo, la velocita' di sempre (lui)
+	var misure := {"colonne": COLONNE, "passo_px": PASSO_PX, "velocita": VELOCITA}
+	var percorso := "res://art/pianeti/protagonista/%s.json" % chi
+	if FileAccess.file_exists(percorso):
+		var dati: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
+		if dati is Dictionary:
+			for chiave: String in misure:
+				if (dati as Dictionary).has(chiave):
+					misure[chiave] = float(dati[chiave])
+	return misure
 
 
 func foglio_di(chi: String) -> ImageTexture:
@@ -579,16 +600,16 @@ func cammina(direzione: Vector2, delta: float) -> void:
 		return
 	fermo_da = 0.0
 	direzione = direzione.normalized()
-	var spostamento := direzione * VELOCITA * delta
+	var spostamento := direzione * velocita * delta
 	var prima := piedi
 	if libero(piedi + Vector2(spostamento.x, 0)):
 		piedi.x += spostamento.x
 	elif absf(direzione.y) < 0.3:
-		piedi.y += scivola(Vector2(spostamento.x, 0), Vector2(0, 1), VELOCITA * delta)
+		piedi.y += scivola(Vector2(spostamento.x, 0), Vector2(0, 1), velocita * delta)
 	if libero(piedi + Vector2(0, spostamento.y)):
 		piedi.y += spostamento.y
 	elif absf(direzione.x) < 0.3:
-		piedi.x += scivola(Vector2(0, spostamento.y), Vector2(1, 0), VELOCITA * delta)
+		piedi.x += scivola(Vector2(0, spostamento.y), Vector2(1, 0), velocita * delta)
 	if absf(direzione.x) > absf(direzione.y):
 		verso = Vector2i(int(signf(direzione.x)), 0)
 	else:
@@ -619,7 +640,7 @@ func segui() -> void:
 	# colonne: 0 fermo, 1 il respiro, 2-9 gli otto tempi del passo
 	var colonna := 0
 	if passo > 0.0:
-		colonna = 2 + floori(passo / PASSO_PX) % 8
+		colonna = 2 + floori(passo / passo_px) % maxi(1, io.hframes - 2)
 	elif fmod(fermo_da, RESPIRO) > RESPIRO - 0.5:
 		colonna = 1
 	io.frame = riga * io.hframes + colonna

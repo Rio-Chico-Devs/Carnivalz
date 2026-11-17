@@ -30,7 +30,7 @@ extends Node2D
 
 const Pianta := preload("res://prove/LivelloPianta.gd")
 const ErbaAiPiedi := preload("res://scripts/ErbaAiPiedi.gd")
-const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo, come nei mondi
+const PASSO_PX := 5.0            # i pixel di strada per ogni tempo del passo (lui; lei dice il suo in lei.json)
 const RESPIRO := 1.6
 const COLONNE := 10              # fermo, il respiro, gli otto tempi del passo
 const BUIO := 0.3                # quanto dura il buio quando si passa una porta
@@ -47,6 +47,8 @@ var sequenza := Vector2i(-1, 0)  # sequenza N K: dal fotogramma N, K foto (una o
 var pianta: Pianta
 var io: Sprite2D
 var erba: ErbaAiPiedi            # l'erba che le copre le scarpe e i fili che saltano
+var passo_px := PASSO_PX         # la strada per ogni tempo del passo, e la velocita': dal foglio
+var velocita := Pianta.VELOCITA
 var immagine_mappa: Image
 var camera: Camera2D
 var hud: Control
@@ -125,10 +127,10 @@ func costruisci() -> void:
 	io.vframes = 3
 	io.centered = false
 	mondo.add_child(io)
-	metti_foglio(protagonista)
 	erba = ErbaAiPiedi.new()
 	mondo.add_child(erba)
 	erba.prepara(immagine_mappa, pianta.scala * pianta.pixel, pianta.erba)
+	metti_foglio(protagonista)
 	piedi = pianta.partenza
 	verso = pianta.verso
 	camera = Camera2D.new()
@@ -163,14 +165,36 @@ func trama(percorso: String, come_rifarla: String) -> ImageTexture:
 
 
 func metti_foglio(chi: String) -> void:
-	# lo stesso foglio dei mondi (MondoProva.metti_foglio): 10 colonne (fermo,
-	# il respiro, gli otto tempi del passo) x 3 righe (giu', su, destra), i
-	# piedi al centro tre righe sopra il fondo del fotogramma
+	# lo stesso foglio dei mondi (MondoProva.metti_foglio): le colonne (fermo,
+	# il respiro, i tempi del passo) x 3 righe (giu', su, destra), i piedi al
+	# centro tre righe sopra il fondo del fotogramma
 	io.texture = trama("res://art/pianeti/protagonista/%s.png" % chi,
 		"python3 strumenti/protagonisti/%s.py" % ("lei" if chi == "lei" else "disegna"))
-	io.hframes = COLONNE
-	var fotogramma := Vector2(io.texture.get_width() / float(COLONNE), io.texture.get_height() / 3.0)
+	var misure := misure_del_foglio(chi)
+	io.hframes = int(misure["colonne"])
+	passo_px = float(misure["passo_px"])
+	velocita = float(misure["velocita"])
+	if erba != null:
+		# il piede tocca terra due volte per ciclo
+		erba.passo_piede = (io.hframes - 2) * 0.5 * passo_px
+	var fotogramma := Vector2(io.texture.get_width() / float(io.hframes), io.texture.get_height() / 3.0)
 	io.offset = -Vector2(floorf(fotogramma.x / 2.0), fotogramma.y - 3.0)
+
+
+func misure_del_foglio(chi: String) -> Dictionary:
+	# accanto al foglio, <chi>.json (lo scrive strumenti/protagonisti/lei.py):
+	# quante colonne ha il foglio (il fermo, il respiro e i tempi del passo),
+	# quanta strada per tempo, quanto va veloce. Senza: dieci colonne, 5 pixel
+	# per tempo, la velocita' di sempre (lui)
+	var misure := {"colonne": COLONNE, "passo_px": PASSO_PX, "velocita": Pianta.VELOCITA}
+	var percorso := "res://art/pianeti/protagonista/%s.json" % chi
+	if FileAccess.file_exists(percorso):
+		var dati: Variant = JSON.parse_string(FileAccess.get_file_as_string(percorso))
+		if dati is Dictionary:
+			for chiave: String in misure:
+				if (dati as Dictionary).has(chiave):
+					misure[chiave] = float(dati[chiave])
+	return misure
 
 
 # ---------------------------------------------------------------- il giro
@@ -221,7 +245,7 @@ func cammina(direzione: Vector2, delta: float) -> void:
 		return
 	fermo_da = 0.0
 	var prima := piedi
-	piedi = pianta.cammina(piedi, direzione, delta)
+	piedi = pianta.cammina(piedi, direzione, delta, velocita)
 	if absf(direzione.x) > absf(direzione.y):
 		verso = Vector2i(int(signf(direzione.x)), 0)
 	else:
@@ -254,7 +278,7 @@ func segui() -> void:
 	# colonne: 0 fermo, 1 il respiro, 2-9 gli otto tempi del passo
 	var colonna := 0
 	if passo > 0.0:
-		colonna = 2 + floori(passo / PASSO_PX) % 8
+		colonna = 2 + floori(passo / passo_px) % maxi(1, io.hframes - 2)
 	elif fmod(fermo_da, RESPIRO) > RESPIRO - 0.5:
 		colonna = 1
 	io.frame = riga * io.hframes + colonna

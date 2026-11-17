@@ -4,10 +4,12 @@
 #   python3 strumenti/protagonisti/lei.py
 #
 # Il disegno e' in lei/*.txt (corpo.py), il passo in passo.py e gambe.py.
-# Il foglio: 10 colonne (fermo, il respiro, gli otto tempi del passo) x 3 righe
+# Il foglio: 18 colonne (fermo, il respiro, i sedici tempi del passo) x 3 righe
 # (giu', su, destra; la sinistra e' la destra allo specchio); fotogrammi 64x112
 # (lei e' alta 100 pixel, come nei disegni di Bru), i piedi al centro, tre
 # righe sopra il fondo (dove li mette il gioco), con l'ombra ovale per terra.
+# Accanto, lei.json: le colonne, la strada per tempo e la velocita' per il gioco.
+import json
 import os
 import sys
 
@@ -59,4 +61,9 @@ if __name__ == '__main__':
     w, h, pix = foglio_del_gioco()
     cartella = os.path.join(QUI, '..', '..', 'art', 'pianeti', 'protagonista')
     png.scrivi(os.path.join(cartella, 'lei.png'), w, h, pix)
+    # accanto, le misure che il gioco deve sapere (prove/LivelloProva.gd e
+    # MondoProva.gd, misure_del_foglio): le colonne, la strada per tempo, la velocita'
+    with open(os.path.join(cartella, 'lei.json'), 'w') as f:
+        json.dump({'colonne': 2 + passo.N, 'passo_px': passo.PASSO_PX, 'velocita': passo.VELOCITA}, f)
+        f.write('\n')
     print('scritto lei', w, h)

@@ -9,9 +9,9 @@ extends Node2D
 # suo fotogramma), cosi' attorno ai piedi non resta nessun alone. Camminando
 # ondeggiano (le punte si spostano di un pixel a ogni mezzo passo); da ferma,
 # piano, ogni tanto.
-# I fili che saltano nascono a ogni appoggio del piede (ogni 20 pixel di
-# strada: il passo ha otto tempi da 5 pixel, il piede tocca terra al primo e al
-# quinto): giallo-verdi, piu' chiari dell'erba piu' chiara li' attorno, saltano
+# I fili che saltano nascono a ogni appoggio del piede (passo_piede: mezzo
+# ciclo del passo, lo dice il foglio di chi cammina; lui 20 pixel di strada,
+# lei 30): giallo-verdi, piu' chiari dell'erba piu' chiara li' attorno, saltano
 # all'indietro e ricadono sparendo.
 #
 # Cos'e' erba lo dice la regola del livello (nella pianta, "erba"): tinta,
@@ -28,7 +28,6 @@ const ALTO := 7                  # alti 7, fino a 2 sotto la linea dei piedi
 const SOTTO := 2
 const ALTEZZE := [2, 4, 3, 5, 2, 3, 4, 2, 4, 3, 5, 2, 3, 4, 2, 5, 3, 2]   # le punte, colonna per colonna
 const PUNTA := 0.28              # quanto e' piu' chiara la punta di ogni filo
-const PASSO_PIEDE := 20.0        # la strada fra un appoggio e l'altro
 const FILI_PER_PASSO := 4
 const GRAVITA := 190.0
 const RESPIRO_ERBA := 0.9        # da ferma, ogni quanto ondeggia
@@ -39,6 +38,7 @@ var tinta := Vector2(0.2, 0.47)
 var saturazione := 0.42
 var luce := Vector2(0.1, 0.85)
 var attiva := false
+var passo_piede := 20.0          # la strada fra un appoggio e l'altro
 
 var su_erba := false
 var trama: ImageTexture
@@ -98,8 +98,8 @@ func aggiorna(piedi: Vector2, verso: Vector2i, passo: float, delta: float, lei: 
 		oscilla = int(fermo / RESPIRO_ERBA) % 2
 	else:
 		fermo = 0.0
-		oscilla = floori(passo / (PASSO_PIEDE * 0.5)) % 2
-		var appoggio := floori(passo / PASSO_PIEDE)
+		oscilla = floori(passo / (passo_piede * 0.5)) % 2
+		var appoggio := floori(passo / passo_piede)
 		if appoggio != ultimo_appoggio:
 			ultimo_appoggio = appoggio
 			if su_erba:
