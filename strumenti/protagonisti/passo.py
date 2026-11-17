@@ -63,10 +63,11 @@ def righe_da(tab):
     return {y: (x0, x1) for y0, y1, x0, x1 in tab for y in range(y0, y1 + 1)}
 
 
-def corpo_a_righe(out, g, fuori, coda, taglio, vita, anche, spalle, coda_giu, dx, dy):
+def corpo_a_righe(out, g, fuori, coda, taglio, vita, anche, spalle, coda_giu, dx, dy, ondeggia=0):
     """il corpo senza i pezzi `fuori`, a strisce: la coda di cavallo (righe
     0..coda), la testa e il busto fino al taglio, il resto del busto, i
-    fianchi; ognuna allungata o schiacciata quanto serve"""
+    fianchi (spostati di lato di `ondeggia`); ognuna allungata o schiacciata
+    quanto serve"""
     def riga(y):
         return [None if (x, y) in fuori or ch == '.' else ch for x, ch in enumerate(g[y])]
     sopra = (ridimensiona([riga(y) for y in range(0, coda)], coda + spalle - coda_giu)
@@ -74,9 +75,10 @@ def corpo_a_righe(out, g, fuori, coda, taglio, vita, anche, spalle, coda_giu, dx
              + ridimensiona([riga(y) for y in range(taglio, vita)], vita - taglio + anche - spalle))
     y0 = vita + anche - len(sopra)
     for j, r in enumerate(sopra + [riga(y) for y in range(vita, len(g))]):
+        s = ondeggia if j >= len(sopra) else 0
         for x, ch in enumerate(r):
             if ch is not None:
-                out[(x + dx, y0 + j + dy)] = ch
+                out[(x + s + dx, y0 + j + dy)] = ch
 
 
 def per_righe(pix):
@@ -118,7 +120,7 @@ class Vista:
         si allunga, di quanto va di lato il piede)}; braccia {nome: (di quanto
         si allunga l'avambraccio, di quanto va di lato la mano)}"""
         out = {}
-        anche = p['anche']
+        anche, ondeggia = p['anche'], p.get('ondeggia', 0)
         for nome, x0, x1, _, (g0, g1) in self.gambe:
             allunga, sposta = p['gambe'][nome]
             righe = self.pezzo(nome)
@@ -130,11 +132,11 @@ class Vista:
             nuove = sopra + [{x0 + i: c for i, c in enumerate(r) if c is not None} for r in gambale] \
                 + [righe[y] for y in ys if y > g1]
             for j, r in enumerate(nuove):
-                s = sposta if j >= len(sopra) + len(gambale) // 2 else 0
+                s = ondeggia + (sposta if j >= len(sopra) + len(gambale) // 2 else 0)
                 for x, ch in r.items():
                     out[(x + s + self.dx, ys[0] + anche + j + self.dy)] = ch
         corpo_a_righe(out, self.g, self.pezzi, self.coda, self.taglio, self.vita, anche, p['spalle'], p['coda'],
-                      self.dx, self.dy)
+                      self.dx, self.dy, ondeggia)
         for nome, _, spalla, polso in self.braccia:
             allunga, sposta = p['braccia'][nome]
             righe = self.pezzo(nome)
@@ -189,23 +191,29 @@ def dietro():
 FONDO = 2.5                                     # mezzo passo in profondita', in righe
 PROF = (1, 0.5, 0, -0.5, -1, -0.5, 0, 0.5)      # la gamba destra: avanti (+) o dietro (-)
 ALZA = (0, 0, 0, 0, 0, 2, 3, 1)                 # e quanto e' in aria
+# i fianchi vanno di un pixel verso la gamba che porta il peso (la destra nei
+# primi quattro tempi); il piede in aria passa vicino all'altro (verso il centro)
+ONDEGGIA = (0, 1, 1, 0, 0, -1, -1, 0)
 
 
 def tempi_davanti_dietro(vista):
     tempi = []
     for t in range(8):
         tl = (t + 4) % 8                         # la gamba sinistra, mezzo passo dopo
+        dentro_d = -1 if ALZA[t] >= 2 else 0          # la gamba destra in aria va verso il centro
+        dentro_s = 1 if ALZA[tl] >= 2 else 0
         if vista == 'davanti':
-            gd = (round(FONDO * (PROF[t] - 1) - ALZA[t]), -1 if PROF[t] > 0.6 else 0)
-            gs = (round(FONDO * (PROF[tl] + 1) - ALZA[tl]), -1 if PROF[tl] > 0.6 else 0)
+            # di tre quarti, avanti e' anche un poco a sinistra
+            gd = (round(FONDO * (PROF[t] - 1) - ALZA[t]), -1 if PROF[t] > 0.6 else dentro_d)
+            gs = (round(FONDO * (PROF[tl] + 1) - ALZA[tl]), -1 if PROF[tl] > 0.6 else dentro_s)
             # la mano va avanti (scende e va verso il centro) con la gamba dell'altra parte
             braccia = {'bs': (round(1.5 * PROF[t]), round(-PROF[t])), 'bd': (round(1.5 * PROF[tl]), round(-PROF[tl]))}
         else:
-            gd = (round(-FONDO * PROF[t] - ALZA[t]), 0)
-            gs = (round(-FONDO * PROF[tl] - ALZA[tl]), 0)
+            gd = (round(-FONDO * PROF[t] - ALZA[t]), dentro_d)
+            gs = (round(-FONDO * PROF[tl] - ALZA[tl]), dentro_s)
             braccia = {'bs': (round(-1.5 * PROF[t]), 0), 'bd': (round(-1.5 * PROF[tl]), 0)}
-        tempi.append(dict(anche=ANCHE[t], spalle=SPALLE[t], coda=CODA[t], gambe={'gs': gs, 'gd': gd},
-                          braccia=braccia))
+        tempi.append(dict(anche=ANCHE[t], spalle=SPALLE[t], coda=CODA[t], ondeggia=ONDEGGIA[t],
+                          gambe={'gs': gs, 'gd': gd}, braccia=braccia))
     return tempi
 
 
