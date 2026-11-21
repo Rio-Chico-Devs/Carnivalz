@@ -665,7 +665,24 @@ def disegna(t, seme=3):
         yy, xx = int(rng.integers(0, H)), int(rng.integers(0, W))
         if acq[yy, xx] and sotto[yy, xx] > 6:
             img[yy, xx] = AQ[9]
-    # le cimase di pietra lungo i cigli, le sponde di qua e quelle di lato
+    # nel ruscello stretto la corrente: increspature allungate che seguono il filo dell'acqua verso ovest
+    centro = np.full(W, np.nan)
+    for x in range(0, 412):
+        r = np.nonzero(acq[200:340, x])[0]
+        if len(r) > 8:
+            centro[x] = 200 + r.mean()
+    for k in range(26):
+        x0 = int(rng.integers(6, 408))
+        if np.isnan(centro[x0]):
+            continue
+        y0 = int(round(centro[x0] + rng.uniform(-9, 9))); L = int(rng.integers(4, 9))
+        for i in range(L):
+            x = x0 + i
+            if x >= W or np.isnan(centro[x]):
+                break
+            y = int(round(y0 + centro[x] - centro[x0]))
+            if acq[y, x] and du[y, x] >= 7 and dd[y, x] >= 5 and min(dl[y, x], dr[y, x]) >= 4:
+                img[y, x] = AQ[7] if 0 < i < L - 1 else AQ[6]
     terra = (tipo == 1) & (Mb == ERBA)
     cigli = []
     for x in range(W):
