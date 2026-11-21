@@ -15,7 +15,7 @@
 #
 # Materiali e pezzi dai fogli di Bru: l'erba di Radenna, i ciottoli muschiosi (tile_radenna) per le sponde, la
 # piazza a nove lastre (tile_radenna), l'acqua della vasca col filo chiaro lungo i bordi, il bordo della vasca
-# per le spallette del ponte, i pezzi delle pianure di Radenna (vasca, vasche a gradini, ninfee, canne, pozza
+# per le spallette del ponte, i pezzi delle pianure di Radenna (vasca, vasche a gradini, ninfee, pozza
 # coi sassi, colonna). L'acqua e le piante luminose bagnano di turchese l'erba vicina.
 #
 # Scrive art/livelli/ruscello.png (il terreno, con le cose piatte), ruscello_pezzi.json (le cose in piedi, che il
@@ -219,10 +219,6 @@ def prepara():
     _salva(verde[:, ::-1], os.path.join(NUOVI, 'cespuglione_verde_s.png'))
     f = np.asarray(Image.open(os.path.join(PEZ, 'alberi', 'albero_funghi.png')).convert('RGBA'))
     _salva(f[:, ::-1].astype(float), os.path.join(NUOVI, 'albero_funghi_s.png'))
-    # le canne: gli steli in piedi (pezzo), il piede d'acqua e muschio va dipinto sull'acqua
-    c = np.asarray(Image.open(os.path.join(PEZ, 'radenna', 'canne_luminose.png')).convert('RGBA')).astype(float)
-    _salva(c[:-28], os.path.join(NUOVI, 'canne_steli.png'))
-    _salva(c[:-28, ::-1], os.path.join(NUOVI, 'canne_steli_s.png'))
 
 
 # ================================================================ forme e rumore
@@ -290,11 +286,6 @@ def _posa(out, a, x0, y0):
             y, x = y0 + j, x0 + i
             if 0 <= y < H and 0 <= x < W and a[j, i, 3] > 0:
                 out[y, x] = a[j, i, :3]
-
-
-def _e_acqua_del_pezzo(c):
-    r, g, b = c[0], c[1], c[2]
-    return g > r + 40 and b > 0.72 * g and b < g + 10 and b > 90
 
 
 def _sfoca(a, r):
@@ -430,14 +421,14 @@ def _chiudi(m, k):
 # ================================================================ la pianta
 
 # il ruscello: entra in alto a destra, scende a S e se ne va a sinistra; mezza larghezza nei punti
-FIUME = [(1062, -70), (1034, 26), (972, 116), (866, 188), (744, 226), (622, 244), (522, 280), (452, 350),
-         (414, 438), (334, 514), (208, 556), (82, 572), (-80, 578)]
-LARGHI = [23, 23, 25, 27, 28, 28, 30, 32, 31, 29, 28, 27, 27]
-STAGNO = (416, 320, 72, 46)          # lo stagno sulla curva di fuori: centro e raggi (si fonde col ruscello)
+FIUME = [(1070, -80), (1046, 20), (984, 112), (872, 182), (748, 222), (626, 240), (526, 276), (450, 346),
+         (408, 430), (326, 500), (200, 538), (74, 552), (-90, 556)]
+LARGHI = [38, 38, 40, 42, 44, 44, 46, 48, 46, 44, 42, 42, 42]
+STAGNO = (392, 318, 96, 58)          # lo stagno sulla curva di fuori: centro e raggi (si fonde col ruscello)
 # la strada: arriva dal basso (dall'atterraggio), attraversa la piazza dritta nel mezzo, passa il ponte (dritta
-# sull'acqua) e sale in alto
-VIA = [(604, 800), (612, 700), (646, 622), (650, 600), (650, 505), (650, 410), (654, 388), (684, 346),
-       (700, 300), (700, 260), (700, 220), (700, 180), (694, 128), (662, 70), (612, 10), (590, -80)]
+# sull'acqua e sulle sponde) e sale in alto
+VIA = [(604, 800), (612, 700), (646, 622), (650, 600), (650, 505), (650, 410), (656, 380), (688, 334),
+       (700, 300), (700, 260), (700, 220), (700, 180), (700, 140), (690, 98), (656, 48), (612, 0), (590, -80)]
 RX = 686                              # il ponte: la strada dritta sull'acqua, x 686..714
 PIAZZA = (650, 505)                   # il centro della piazza antica (nove lastre del foglio di Bru)
 
@@ -482,7 +473,8 @@ def pianta():
         t.Z[g0 - 3:g1 + 3, x0:x0 + 5] = 7; t.M[g0 - 3:g1 + 3, x0:x0 + 5] = SPALLA
         for a in (g0 - 9, g1 + 3):
             t.Z[a:a + 6, x0:x0 + 5] = 10; t.M[a:a + 6, x0:x0 + 5] = PALO
-    return t, dict(S=S, V=V, D=D, w=w, SV=SV, VV=VV, dist=dist, largo=largo, acqua=acqua, lin=lin, u=u)
+    return t, dict(S=S, V=V, D=D, w=w, SV=SV, VV=VV, dist=dist, largo=largo, acqua=acqua, lin=lin, u=u,
+                   wl=np.interp(u, uc, LARGHI))
 
 
 # ================================================================ i colori
@@ -599,11 +591,11 @@ def disegna(t, F, seme=3):
     # la corrente: increspature allungate lungo il filo del ruscello (non nello stagno)
     lin, u = F['lin'], F['u']
     tg = np.gradient(lin, axis=0); tg /= np.linalg.norm(tg, axis=1)[:, None] + 1e-9
-    for k in range(70):
-        i = int(rng.integers(20, len(lin) - 20)); off = rng.uniform(-0.5, 0.5)
+    for k in range(130):
+        i = int(rng.integers(20, len(lin) - 20)); off = rng.uniform(-0.7, 0.7)
         px, py = lin[i]; nx, ny = -tg[i, 1], tg[i, 0]
-        wid = np.interp(i, [0, len(lin)], [20, 20])
-        L = int(rng.integers(5, 11))
+        wid = F['wl'][i]
+        L = int(rng.integers(5, 13))
         for j in range(L):
             q = min(len(lin) - 1, i + j)
             x = int(round(lin[q, 0] + nx * off * wid)); y = int(round(lin[q, 1] + ny * off * wid)) - FONDO
@@ -657,8 +649,7 @@ def impronta(nome, w, h):
         return (9, 4)
     if 'cespuglione' in nome:
         return (int(w * 0.36), 7)
-    for chiave, imp in (('colonna', (22, 7)), ('vasca_pietra', (42, 10)), ('vasche_gradini', (40, 12)),
-                        ('felce', (14, 4)), ('canne', (0, 0))):
+    for chiave, imp in (('colonna', (22, 7)), ('vasca_pietra', (42, 10)), ('vasche_gradini', (40, 12))):
         if chiave in nome:
             return imp
     if 'masso' in nome or 'sass' in nome:
@@ -688,7 +679,7 @@ ALBERI = [
     ('cespuglione_verde', 1052, 716), ('albero_funghi_s', 1150, 714), ('albero_2', 1198, 670), ('pino_1', 1242, 642),
     ('pino_2_s', 1266, 716),
     # il bordo a sinistra
-    ('pino_2', 14, 304), ('albero_4', 34, 352), ('cespuglione_verde', 22, 428), ('pino_1_s', 10, 508),
+    ('pino_2', 14, 304), ('albero_4', 34, 352), ('cespuglione_verde', 22, 428), ('pino_1_s', 10, 470),
     # l'albero solo, nel prato grande
     ('albero_funghi_s', 962, 470),
 ]
@@ -698,19 +689,17 @@ COSE = [
     # le vasche a gradini sopra lo stagno: l'acqua scende verso lo stagno
     ('vasche_gradini', 292, 246),
     # i sassi: sulle curve di fuori del ruscello, ai piedi degli alberi, nel prato a gruppetti
-    ('masso_muschio_8', 474, 268), ('sasso_5', 492, 272), ('masso_muschio_3', 1006, 152), ('sassolino_2', 1020, 156),
-    ('masso_muschio_9', 314, 528), ('sasso_2', 332, 532), ('masso_basso_4', 936, 494), ('sassolino_1', 990, 488),
+    ('masso_muschio_8', 470, 239), ('sasso_5', 488, 232), ('masso_muschio_3', 1008, 166), ('sassolino_2', 1024, 172),
+    ('masso_muschio_9', 318, 566), ('sasso_2', 336, 570), ('masso_basso_4', 936, 494), ('sassolino_1', 990, 488),
     ('masso_muschio_1', 1106, 420), ('sasso_4', 1124, 426), ('masso_muschio_8', 140, 214), ('sassolino_3', 156, 218),
     ('masso_muschio_3', 560, 640), ('sassolino_2', 576, 644), ('masso_basso_4', 846, 330),
     # le piante luminose: vicino all'acqua e sotto gli alberi
-    ('bulbi', 334, 386), ('bulbi', 350, 394), ('bulbi', 488, 436), ('bulbi', 214, 454), ('bulbi', 1084, 254),
-    ('bulbi', 902, 476), ('baccelli', 566, 322), ('baccelli_s', 884, 266), ('baccelli', 1154, 526),
-    ('bulbi', 1004, 606), ('bulbi', 1020, 614), ('bulbi', 72, 304), ('baccelli_s', 1078, 168), ('bulbi', 520, 318),
+    ('bulbi', 330, 396), ('bulbi', 346, 404), ('bulbi', 496, 440), ('bulbi', 214, 454), ('bulbi', 1084, 254),
+    ('bulbi', 902, 476), ('baccelli', 566, 340), ('baccelli_s', 884, 266), ('baccelli', 1154, 526),
+    ('bulbi', 1004, 606), ('bulbi', 1020, 614), ('bulbi', 72, 304), ('baccelli_s', 1078, 168), ('bulbi', 536, 356),
 ]
-# le canne: il piede nell'acqua bassa vicino alla riva (gli steli stanno in piedi, il piede e' dipinto sull'acqua)
-CANNE = [(360, 352, False), (448, 410, True), (962, 126, False)]
 # le cose piatte: ninfee (solo sull'acqua ferma), la pozza coi sassi (una sorgente), i resti del lastricato
-NINFEE = [('ninfee_loto', 426, 338), ('ninfee_fiori', 374, 320), ('ninfee_fiori', 140, 588)]
+NINFEE = [('ninfee_loto', 444, 346), ('ninfee_fiori', 340, 354), ('ninfee_fiori', 140, 588)]
 POZZE = [('sassi_pozza', 180, 436)]
 RUDERI = [('rovina_1', 548, 452), ('rovina_3', 728, 470), ('rovina_2', 556, 572)]
 # i sassi nella corrente, con la schiuma attorno: (pezzo, x, y del piede sullo schermo)
@@ -726,10 +715,6 @@ def _impiedi():
     for (n, x, y) in ALBERI + COSE:
         f, piede, (w, h) = pezzo(n)
         tutte.append((n, f, x, y, piede, impronta(n, w, h)))
-    for (x, y, s) in CANNE:
-        n = 'canne_steli_s' if s else 'canne_steli'
-        f, piede, _ = pezzo(n)
-        tutte.append((n, f, x, y - 27, (piede[0], 71), (0, 0)))
     return tutte
 
 
@@ -768,13 +753,6 @@ def decora(out, G):
                         out[y, x] = AQ[9] if e < 1 else AQ[8]
         a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
         _posa_su(out, a, fx - px, fy - py, acq)
-    c = np.asarray(Image.open(os.path.join(PEZ, 'radenna', 'canne_luminose.png')).convert('RGBA')).astype(float)
-    for (fx, fy, specchio) in CANNE:
-        a = c[:, ::-1] if specchio else c
-        px = a.shape[1] - 1 - 48 if specchio else 48
-        base = a.copy(); base[:72, :, 3] = 0
-        # sulla riva il piede delle canne e' una pozzetta di fango e muschio: sull'acqua, sui ciottoli e sull'erba
-        _posa_su(out, base, fx - px, fy - 98, (tipo == 1) & np.isin(Mb, [ACQUA, RIVA, ERBA]))
     return out
 
 
@@ -790,9 +768,7 @@ def _posa_su(out, a, x0, y0, dove):
 def _sorgenti():
     s = []
     for (n, f, x, y, piede, imp) in _impiedi():
-        if 'canne' in n:
-            s.append((x, y + 20, 0.7, 22))
-        elif 'bulbi' in n:
+        if 'bulbi' in n:
             s.append((x, y - 4, 0.5, 11))
         elif 'baccelli' in n or 'sfere' in n:
             s.append((x, y - 4, 0.55, 14))
@@ -831,8 +807,6 @@ def ombre(out, G):
     tipo, Mb = G['tipo'], G['m']
     bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
     for (n, f, fx, fy, piede, imp) in _impiedi():
-        if 'canne' in n:
-            continue
         w = Image.open(os.path.join(LIV, f)).size[0]
         if 'albero' in n or 'cespuglione' in n or 'pino' in n:
             rx = 0.56 * w; ry = 0.24 * w; cx, cy = fx + 5, fy - 3
@@ -883,8 +857,8 @@ STANZE = [
     {"nome": "Lo stagno", "rett": [250, 200, 520, 420]},
     {"nome": "La pianura", "rett": [0, 0, W, H]},
 ]
-GIRO = [[612, 700], [650, 610], [650, 505], [650, 420], [688, 352], [700, 300], [700, 200], [694, 140],
-        [600, 196], [420, 250], [600, 196], [690, 120], [650, 62], [606, 12]]
+GIRO = [[612, 700], [650, 610], [650, 505], [650, 420], [672, 356], [700, 300], [700, 200], [700, 150],
+        [600, 170], [430, 230], [600, 170], [690, 110], [656, 52], [608, 8]]
 
 
 def main():

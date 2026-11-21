@@ -100,13 +100,6 @@
    71
   ],
   [
-   "pezzi/ruscello/canne_steli.png",
-   962,
-   99,
-   42,
-   71
-  ],
-  [
    "pezzi/alberi/albero_funghi.png",
    160,
    130,
@@ -122,17 +115,10 @@
   ],
   [
    "pezzi/rocce/masso_muschio_3.png",
-   1006,
-   152,
+   1008,
+   166,
    14,
    20
-  ],
-  [
-   "pezzi/rocce/sassolino_2.png",
-   1020,
-   156,
-   7,
-   10
   ],
   [
    "pezzi/ruscello/baccelli_s.png",
@@ -147,6 +133,13 @@
    170,
    26,
    87
+  ],
+  [
+   "pezzi/rocce/sassolino_2.png",
+   1024,
+   172,
+   7,
+   10
   ],
   [
    "pezzi/alberi/albero_2.png",
@@ -170,11 +163,25 @@
    11
   ],
   [
+   "pezzi/rocce/sasso_5.png",
+   488,
+   232,
+   9,
+   15
+  ],
+  [
    "pezzi/alberi/albero_4.png",
    52,
    238,
    32,
    73
+  ],
+  [
+   "pezzi/rocce/masso_muschio_8.png",
+   470,
+   239,
+   16,
+   22
   ],
   [
    "pezzi/radenna/vasche_gradini.png",
@@ -205,20 +212,6 @@
    56
   ],
   [
-   "pezzi/rocce/masso_muschio_8.png",
-   474,
-   268,
-   16,
-   22
-  ],
-  [
-   "pezzi/rocce/sasso_5.png",
-   492,
-   272,
-   9,
-   15
-  ],
-  [
    "pezzi/alberi/pino_2.png",
    14,
    304,
@@ -233,32 +226,18 @@
    29
   ],
   [
-   "pezzi/ruscello/bulbi.png",
-   520,
-   318,
-   14,
-   29
-  ],
-  [
-   "pezzi/ruscello/baccelli.png",
-   566,
-   322,
-   32,
-   56
-  ],
-  [
-   "pezzi/ruscello/canne_steli.png",
-   360,
-   325,
-   42,
-   71
-  ],
-  [
    "pezzi/rocce/masso_basso_4.png",
    846,
    330,
    15,
    15
+  ],
+  [
+   "pezzi/ruscello/baccelli.png",
+   566,
+   340,
+   32,
+   56
   ],
   [
    "pezzi/alberi/albero_4.png",
@@ -268,6 +247,13 @@
    73
   ],
   [
+   "pezzi/ruscello/bulbi.png",
+   536,
+   356,
+   14,
+   29
+  ],
+  [
    "pezzi/alberi/pino_3.png",
    1264,
    360,
@@ -275,23 +261,9 @@
    87
   ],
   [
-   "pezzi/ruscello/canne_steli_s.png",
-   448,
-   383,
-   42,
-   71
-  ],
-  [
    "pezzi/ruscello/bulbi.png",
-   334,
-   386,
-   14,
-   29
-  ],
-  [
-   "pezzi/ruscello/bulbi.png",
-   350,
-   394,
+   330,
+   396,
    14,
    29
   ],
@@ -301,6 +273,13 @@
    402,
    32,
    73
+  ],
+  [
+   "pezzi/ruscello/bulbi.png",
+   346,
+   404,
+   14,
+   29
   ],
   [
    "pezzi/rocce/masso_muschio_1.png",
@@ -325,8 +304,8 @@
   ],
   [
    "pezzi/ruscello/bulbi.png",
-   488,
-   436,
+   496,
+   440,
    14,
    29
   ],
@@ -343,6 +322,13 @@
    454,
    14,
    29
+  ],
+  [
+   "pezzi/ruscello/pino_1_s.png",
+   10,
+   470,
+   22,
+   95
   ],
   [
    "pezzi/ruscello/albero_funghi_s.png",
@@ -373,13 +359,6 @@
    15
   ],
   [
-   "pezzi/ruscello/pino_1_s.png",
-   10,
-   508,
-   22,
-   95
-  ],
-  [
    "pezzi/radenna/vasca_pietra.png",
    794,
    522,
@@ -394,25 +373,25 @@
    56
   ],
   [
-   "pezzi/rocce/masso_muschio_9.png",
-   314,
-   528,
-   17,
-   20
-  ],
-  [
-   "pezzi/rocce/sasso_2.png",
-   332,
-   532,
-   8,
-   12
-  ],
-  [
    "pezzi/alberi/pino_1.png",
    1268,
    536,
    24,
    93
+  ],
+  [
+   "pezzi/rocce/masso_muschio_9.png",
+   318,
+   566,
+   17,
+   20
+  ],
+  [
+   "pezzi/rocce/sasso_2.png",
+   336,
+   570,
+   8,
+   12
   ],
   [
    "pezzi/ruscello/colonna_rovina_s.png",
