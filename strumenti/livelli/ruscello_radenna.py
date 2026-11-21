@@ -1,29 +1,26 @@
-# La sezione del ruscello di Radenna: un pezzo di livello a piani, fatto coi pezzi di Radenna.
+# Il ruscello di Radenna: una pianura aperta, col ruscello, la strada, il ponte e le rovine.
 #
 #   python3 strumenti/livelli/ruscello_radenna.py [anteprima.png]      (serve numpy e Pillow)
 #   poi: godot prove/LivelloProva.tscn -- livello ruscello
 #
-# Prima il TERRENO, poi gli OGGETTI sopra.
+# Bru: «dovrebbe essere una pianura, la scena un po' piu' ampia, ci vuole piu' spazio». Quindi 1280x720 (due
+# schermate per due), quasi tutta prato come nel suo disegno delle pianure: macchie d'erba piu' chiare e piu'
+# scure, un ruscello che serpeggia a S con le sponde di ciottoli, una strada che curva e lo passa su un ponte,
+# una piazza antica, uno stagno, alberi a gruppi sui bordi, grandi spazi aperti in mezzo.
 #
-# Il terreno nasce da una pianta delle altezze (coordinate di terreno, viste da sopra): ogni zona ha la sua z in
-# pixel (la terrazza 50, il prato 0, l'acqua -19, il piano di sotto -50). Il motore la proietta in vista 3/4
-# riga per riga da nord a sud: una zona alta z si vede z pixel piu' su, e dove la z scende verso sud c'e' una
-# parete alta quanto il salto (chi sta piu' a sud copre chi sta dietro). Cosi' pareti, scale, cascata e ombre
-# vengono dalla pianta e tornano sempre.
+# Prima il TERRENO, poi gli OGGETTI. Il terreno e' una pianta delle altezze proiettata in vista 3/4 (il prato a 0,
+# l'acqua a -10: la sponda di la' si vede di faccia, quella di qua e' un ciglio). Le forme sono curve morbide:
+# il ruscello e la strada sono linee (spline) con la loro larghezza; la strada e' il motivo del kit di Bru
+# piegato lungo la curva, col cordolo in luce sempre dalla parte della luce (in alto a sinistra).
 #
-# I materiali sono quelli dei fogli di Bru (strumenti/livelli/fogli/tile_radenna.jpg): l'erba di Radenna, la
-# vasca (la sua cornice di pietra fa i cigli, il fregio a greca le pareti, il suo bordo le sponde e le spallette
-# del ponte, la sua acqua coi riccioli l'acqua, col filo chiaro e la fascia scura lungo i bordi come nella vasca),
-# il kit delle strade (strada, anello, il "tratto corto" che fa da lastra sul canale), le luci turchesi dell'erba.
-# L'acqua e le piante luminose bagnano di turchese l'erba e la pietra vicine.
-#
-# Gli oggetti stanno dove c'e' un motivo: le ninfee dove l'acqua e' ferma, le canne dove e' bassa, i sassi ai
-# piedi delle pareti e sotto la cascata, gli alberi a gruppi che chiudono i bordi (quelli del piano di sotto
-# coprono il muro), la colonna in cima alla scala, la vasca dove finisce il ramo della piazzetta.
+# Materiali e pezzi dai fogli di Bru: l'erba di Radenna, i ciottoli muschiosi (tile_radenna) per le sponde, la
+# piazza a nove lastre (tile_radenna), l'acqua della vasca col filo chiaro lungo i bordi, il bordo della vasca
+# per le spallette del ponte, i pezzi delle pianure di Radenna (vasca, vasche a gradini, ninfee, canne, pozza
+# coi sassi, colonna). L'acqua e le piante luminose bagnano di turchese l'erba vicina.
 #
 # Scrive art/livelli/ruscello.png (il terreno, con le cose piatte), ruscello_pezzi.json (le cose in piedi, che il
 # gioco mette insieme a lei in ordine di piede), ruscello_passi.png (dove si cammina) e ruscello.json; e i pezzi
-# nuovi in art/livelli/pezzi/ruscello/ e i terreni acqua_radenna.png e vasca_radenna.png.
+# nuovi in art/livelli/pezzi/ruscello/, i terreni in art/livelli/terreni/.
 import json
 import os
 import sys
@@ -38,14 +35,15 @@ TER = os.path.join(LIV, 'terreni')
 PEZ = os.path.join(LIV, 'pezzi')
 NUOVI = os.path.join(PEZ, 'ruscello')
 FOGLIO = os.path.join(QUI, 'fogli', 'tile_radenna.jpg')
-W, H = 640, 480
-ERBA, ACQUA, STRADA, SCALA, PONTE, SPALLA, PILASTRO, PALO, PILONE, LASTRA = 1, 2, 3, 4, 5, 6, 8, 9, 10, 11
+W, H = 1280, 720
+ERBA, ACQUA, STRADA, RIVA, PONTE, SPALLA, SCALA, PALO = 1, 2, 3, 4, 5, 6, 7, 9
 VERDI = np.array([(3, 47, 32), (5, 56, 34), (6, 62, 35), (8, 67, 35), (12, 72, 35), (14, 78, 35), (20, 83, 35),
                   (25, 89, 35), (34, 97, 38), (44, 106, 42), (64, 112, 60)], float)
 P = np.array([(30, 40, 33), (44, 71, 50), (66, 84, 69), (84, 103, 85), (108, 122, 105), (120, 135, 117),
               (141, 155, 135), (163, 176, 155)], float)
 AQ = np.array([(1, 119, 127), (2, 133, 136), (2, 156, 149), (1, 182, 168), (2, 213, 192), (2, 231, 204),
                (18, 242, 218), (79, 253, 237), (117, 255, 252), (210, 255, 250)], float)
+FONDO = -10          # l'acqua del ruscello: 10 pixel sotto il prato
 
 
 # ================================================================ dal foglio di Bru, ai pixel veri
@@ -229,21 +227,6 @@ def prepara():
 
 # ================================================================ forme e rumore
 
-def arrotonda(punti, raggio=6, passi=6):
-    # ogni vertice diventa un arco: i lati restano dritti, gli angoli morbidi tutti uguali
-    p = np.array(punti, float); n = len(p); out = []
-    for i in range(n):
-        a, b, c = p[i - 1], p[i], p[(i + 1) % n]
-        u = a - b; v = c - b; lu, lv = np.linalg.norm(u), np.linalg.norm(v)
-        if lu < 1e-6 or lv < 1e-6:
-            out.append(tuple(b)); continue
-        r = min(raggio, lu / 2, lv / 2); p0 = b + u / lu * r; p2 = b + v / lv * r
-        for k in range(passi + 1):
-            t = k / passi; q = (1 - t) ** 2 * p0 + 2 * (1 - t) * t * b + t ** 2 * p2
-            out.append((round(q[0], 2), round(q[1], 2)))
-    return out
-
-
 def liscio(hh, ww, scala, seme):
     g = np.random.default_rng(seme).random((hh // scala + 3, ww // scala + 3))
     big = Image.fromarray((g * 255).astype(np.uint8)).resize(((ww // scala + 3) * scala, (hh // scala + 3) * scala),
@@ -293,227 +276,6 @@ class Terreno:
         return dict(tipo=tipo[sl], gy=gy[sl], z=zb[sl], m=mb[sl], fd=fd[sl], fh=fh[sl])
 
 
-# ================================================================ la pianta della sezione
-
-RX = 232             # la strada: x 232..260 (29, come il kit)
-FX0, FX1 = 452, 488  # il canale della terrazza e la cascata
-CXA, CYA = 246, 345  # l'anello della piazzetta
-PILONI = [(446, 196, 50), (494, 196, 50)]   # i due piloni che chiudono la cascata
-LX, LG = 443, 72     # la lastra che passa il canale (il "tratto corto" del kit, 55x29): x e riga di terreno
-
-
-def pianta():
-    t = Terreno()
-    t.zona([(-10, -110), (W + 10, -110), (W + 10, H + 100), (-10, H + 100)], 0, ERBA)            # il prato
-    t.zona(arrotonda([(-10, -110), (W + 10, -110), (W + 10, 164), (592, 164), (560, 196), (362, 196), (330, 164),
-                      (136, 164), (112, 140), (-10, 140)], 4), 50, ERBA)                          # la terrazza
-    t.zona([(FX0, -110), (FX1, -110), (FX1, 196), (FX0, 196)], 42, ACQUA)                         # il canale
-    t.zona([(LX, LG), (LX + 55, LG), (LX + 55, LG + 29), (LX, LG + 29)], 50, LASTRA)  # la lastra sul canale
-    t.zona(arrotonda([(414, 197), (558, 197), (576, 215), (576, 234), (558, 252), (420, 252), (404, 258),
-                      (300, 258), (276, 266), (180, 266), (150, 284), (100, 292), (60, 312), (-10, 312),
-                      (-10, 268), (60, 268), (100, 248), (150, 240), (180, 222), (276, 222), (300, 214),
-                      (380, 214), (396, 206)], 8), -19, ACQUA)                                    # pozza e ruscello
-    t.zona(arrotonda([(-10, 390), (180, 390), (196, 406), (420, 406), (452, 374), (W + 10, 374),
-                      (W + 10, H + 100), (-10, H + 100)], 4), -50, ERBA)                          # il piano di sotto
-    # i piloni ai lati della cascata: larghi 11, sporgono dal muro, alti 4 in piu'
-    for (x, g, z) in PILONI:
-        ult = []                               # l'ultima riga del piano alto in ogni colonna (anche sullo smusso)
-        for xx in range(x - 5, x + 6):
-            r = np.nonzero(t.Z[g - 12 + t.B:g + 13 + t.B, xx] == z)[0]
-            ult.append(g - 12 + r.max() if len(r) else g)
-        a, b = min(ult) - 3, max(ult) + 4
-        t.Z[a + t.B:b + t.B, x - 5:x + 6] = z + 4; t.M[a + t.B:b + t.B, x - 5:x + 6] = PILONE
-    t.gradini(RX, RX + 29, 407, 437, 0, -50, 10)                                                 # scala di sotto
-    t.gradini(RX, RX + 29, 135, 165, 50, 0, 10)                                                  # scala della terrazza
-    for (r0, r1, z) in ((407, 437, 2), (135, 165, 52)):                                          # i fianchi
-        for x0 in (RX - 4, RX + 29):
-            t.Z[r0 + t.B:r1 + t.B, x0:x0 + 4] = z; t.M[r0 + t.B:r1 + t.B, x0:x0 + 4] = PILASTRO
-    ZT = t.Z.copy()
-    for g in range(t.HG):                      # la strada (non dentro l'anello)
-        for x in range(RX, RX + 29):
-            if t.M[g, x] == ERBA and not (314 <= g - t.B < 376):
-                t.M[g, x] = STRADA
-    # il ponte: il piano al livello del prato; ai lati le spallette (larghe 5, alte 7) che poggiano 4 righe sulle
-    # sponde, coi pilastrini alle quattro teste (alti 10)
-    righe = [g for g in range(t.HG) if (ZT[g, RX:RX + 29] == -19).any()]
-    g0, g1 = min(righe), max(righe) + 1
-    for g in range(g0, g1):
-        for x in range(RX, RX + 29):
-            if ZT[g, x] == -19:
-                t.Z[g, x] = 0; t.M[g, x] = PONTE
-    for x0 in (RX - 5, RX + 29):
-        t.Z[g0 - 4:g1 + 4, x0:x0 + 5] = 7; t.M[g0 - 4:g1 + 4, x0:x0 + 5] = SPALLA
-        for a in (g0 - 6, g1):
-            t.Z[a:a + 6, x0:x0 + 5] = 10; t.M[a:a + 6, x0:x0 + 5] = PALO
-    return t
-
-
-# ================================================================ i materiali
-
-class Muratura:
-    # la cornice della vasca di Bru: cimasa (il ciglio), fregio a greca (le pareti, 19 pixel), bordo delle sponde;
-    # sotto il fregio corsi di blocchi da 10; qualche blocco del fregio liscio o col muschio, rampicanti
-    PER = 49
-
-    def __init__(self, vasca, seme):
-        self.V = vasca.astype(float)
-        rng = np.random.default_rng(seme)
-        self.tipo = rng.choice([0, 0, 0, 1, 2], size=200)
-        self.ramp = np.where(rng.random(2000) < 0.10, rng.integers(6, 26, 2000), 0)
-        self.ciuffo = np.where(rng.random(W) < 0.45, rng.integers(1, 4, W), 0)
-        self.file = []
-        for r in range(8):
-            fila = np.zeros(W + 40, int); sx = np.zeros(W + 40, int); x = -int(rng.integers(0, 24)); k = 0
-            crepe = []   # una crepa storta per blocco (dove c'e'): la colonna della crepa riga per riga
-            while x < W + 40:
-                w = int(rng.integers(16, 31)); a, b = max(0, x), min(W + 40, x + w)
-                fila[a:b] = k; sx[a:b] = x; x += w; k += 1
-                c = int(rng.integers(4, w - 4)); cam = []
-                for j in range(10):
-                    cam.append(c); c = int(np.clip(c + rng.choice([-1, 0, 0, 1]), 2, w - 3))
-                crepe.append(cam)
-            self.file.append((fila, sx, rng.integers(-1, 2, k + 1), rng.random(k + 1) < 0.22, rng.random(k + 1) < 0.2,
-                              crepe, rng.integers(1, 4, k + 1)))
-
-    def cx(self, x):
-        return 53 + x % self.PER
-
-    def cimasa_nord(self, x, k):
-        return self.V[4 + k, self.cx(x), :3]
-
-    def cimasa_sud(self, x, k):
-        return self.V[151 + k, self.cx(x), :3]
-
-    def cimasa_lato(self, sinistra, k, g):
-        r = 53 + g % 51
-        return self.V[r, 13 - k, :3] if sinistra else self.V[r, 141 + k, :3]
-
-    def fregio(self, x, d):
-        t = self.tipo[(x // self.PER) % 200]
-        c = self.V[10 + d, self.cx(x), :3]
-        i = self.cx(x) - 53
-        if t == 1 and 2 <= d <= 16 and 2 <= i <= self.PER - 3:
-            c = P[4] if d < 6 else (P[3] if d < 13 else P[2])
-            if i == 17 + d // 3:
-                c = P[1]
-        elif t == 2 and d <= 7 and (x * 7 + d * 3) % 5 < 3:
-            c = VERDI[5 + (x + d) % 3]
-        return c
-
-    def blocchi(self, x, d):
-        r = d // 10; j = d % 10
-        fila, sx, tono, crepa, muschio, crepe, inizio = self.file[r % 8]
-        k = fila[x]; i = x - sx[x]
-        if j == 9 or i == 0:
-            return P[1]
-        b = 5 if j == 0 else (4 if j < 7 else 3)
-        if i == 1:
-            b += 1
-        b += tono[k]
-        if crepa[k] and inizio[k] <= j <= 8:
-            if i == crepe[k][j]:
-                b = 1
-            elif i == crepe[k][j] + 1 and j % 3:
-                b += 1
-        if muschio[k] and j < 3 and (i * 3 + j) % 4:
-            return VERDI[5 + (i + j) % 3]
-        return P[int(np.clip(b, 0, 7))]
-
-    def pilone(self, x, d, h, tipo, Mb, y):
-        # la faccia di un pilone: il cappello chiaro con l'ombra sotto, poi blocchi alti 16 con la grana del bordo
-        # della vasca di Bru, il filo chiaro a sinistra e lo smusso scuro a destra, contorno scuro
-        i = 0
-        while i < 11 and tipo[y, x - i - 1] == 2 and Mb[y, x - i - 1] == PILONE:
-            i += 1
-        if d >= h - 1 or i == 0 or i == 10:
-            return P[0]
-        if d == 0:
-            return P[7]
-        if d <= 2:
-            return P[6]
-        if d == 3:
-            return P[5] if i < 9 else P[3]
-        if d == 4:
-            return P[1]
-        if i == 1:
-            return P[6]
-        if i == 9:
-            return P[2]
-        if i == 8:
-            return P[3]
-        j = (d - 5) % 16
-        if j == 15:
-            return P[1]
-        if j == 0:
-            return P[6]
-        return self.V[53 + (d * 3 + x) % 51, 147 + (i - 2) % 5, :3]
-
-    def parete(self, x, d, h, erba_sopra):
-        if d >= h - 1:
-            c = P[0]
-        elif d < 19:
-            c = self.fregio(x, d)
-        else:
-            c = self.blocchi(x, d - 19)
-        if erba_sopra and d < h - 2:
-            L = self.ramp[x % 2000]
-            if L and d < L:
-                c = VERDI[3] if (d + x) % 4 == 0 else (VERDI[6] if (d // 3 + x) % 2 else VERDI[8])
-            if d < self.ciuffo[x] and d < 3:
-                c = VERDI[2] if d == self.ciuffo[x] - 1 else VERDI[7]
-        return c
-
-
-class Erba:
-    def __init__(self, hg, seme):
-        rng = np.random.default_rng(seme)
-        tiles = [np.asarray(Image.open(os.path.join(TER, 'erba_radenna%s.png' % s)).convert('RGB')).astype(float)
-                 for s in ('', '_2', '_3', '_4')]
-        self.k = [((VERDI[None, None] - a[..., None, :]) ** 2).sum(-1).argmin(-1) for a in tiles]
-        self.mappa = rng.integers(4, size=(hg // 64 + 2, W // 64 + 2))
-        self.macro = liscio(hg, W, 52, seme + 1)
-
-    def colore(self, x, g, luce):
-        k = self.k[self.mappa[g // 64, x // 64]][g % 64, x % 64]
-        m = self.macro[g, x]
-        s = (2 if m > 0.80 else 1) if m > 0.64 else (-1 if m < 0.32 else 0)
-        return VERDI[int(np.clip(k + s + luce, 0, 10))]
-
-
-class Cascata:
-    # la cortina d'acqua: filetti verticali di toni diversi (a gruppi di 1-3 colonne), trattini chiari che scendono
-    # a passi diversi, il labbro chiaro in cima con la piega piu' scura sotto, i bordi scuri, la schiuma ai piedi
-    def __init__(self, seme):
-        rng = np.random.default_rng(seme)
-        self.tono = np.zeros(W, int); x = 0
-        while x < W:
-            n = int(rng.integers(1, 4)); self.tono[x:x + n] = rng.choice([4, 5, 6, 6, 7, 7]); x += n
-        self.passo = rng.integers(9, 19, W); self.fase = rng.integers(0, 19, W)
-        self.piede = rng.integers(2, 6, W)
-
-    def colore(self, x, d, h):
-        if x in (FX0, FX1 - 1):
-            return AQ[1] if d > 1 else AQ[7]
-        if x in (FX0 + 1, FX1 - 2):
-            return AQ[3] if d > 1 else AQ[8]
-        if d == 0:
-            return AQ[9]
-        if d == 1:
-            return AQ[8]
-        if d <= 3:
-            return AQ[4] if (x + d) % 2 else AQ[5]
-        if d >= h - self.piede[x]:
-            return AQ[9] if (x * 3 + d) % 4 else AQ[8]
-        s = (d + self.fase[x]) % self.passo[x]
-        if s == 0:
-            return AQ[9]
-        if s <= 2:
-            return AQ[8]
-        return AQ[self.tono[x]]
-
-
-# ================================================================ il disegno del terreno
-
 def _corsa(m):
     # per ogni pixel vero, quanti veri di fila ci sono sopra di lui, lui compreso (fuori dall'immagine conta vero)
     d = np.zeros(m.shape, int); run = np.full(m.shape[1], 99)
@@ -530,331 +292,9 @@ def _posa(out, a, x0, y0):
                 out[y, x] = a[j, i, :3]
 
 
-def disegna(t, seme=3):
-    G = t.proietta()
-    tipo, GY, Zb, Mb, FD, FH = G['tipo'], G['gy'], G['z'], G['m'], G['fd'], G['fh']
-    rng = np.random.default_rng(seme)
-    vasca = np.asarray(Image.open(os.path.join(TER, 'vasca_radenna.png')).convert('RGBA'))
-    mur = Muratura(vasca, seme + 8); erba = Erba(t.HG, seme)
-    acqua = np.asarray(Image.open(os.path.join(TER, 'acqua_radenna.png')).convert('RGB')).astype(float)
-    st = np.asarray(Image.open(os.path.join(TER, 'strade_radenna', 'strada_verticale.png')).convert('RGBA')).astype(float)
-    cas = Cascata(seme + 5)
-    img = np.zeros((H, W, 3), float)
-    for y in range(H):
-        for x in range(W):
-            k = tipo[y, x]; m = Mb[y, x]; g = GY[y, x]; z = Zb[y, x]
-            luce = 1 if z >= 30 else (-1 if z <= -30 else 0)
-            if k == 1:
-                if m == ERBA:
-                    c = erba.colore(x, g, luce)
-                elif m in (STRADA, PONTE):
-                    s = st[g % 55, x - RX]
-                    c = s[:3] if s[3] > 0 else (erba.colore(x, g, luce) if m == STRADA else P[3])
-                elif m == SCALA:                # la pedata: in fondo all'ombra dell'alzata, chiara sul filo
-                    c = (P[5], P[6], P[7])[(g - t.B - (135 if g - t.B < 300 else 407)) % 3]
-                elif m == PILASTRO:
-                    c = P[7] if x in (RX - 3, RX + 30) else P[6]
-                elif m == LASTRA:
-                    c = P[5]
-                elif m == SPALLA:
-                    # il bordo di lato della vasca di Bru, visto da sopra: pietra coi giunti, il lato esterno a filo
-                    i = x - (RX - 5) if x < RX else RX + 33 - x
-                    c = mur.V[53 + g % 51, 4 + i, :3]
-                elif m in (PALO, PILONE):
-                    su = y == 0 or not (tipo[y - 1, x] == 1 and Mb[y - 1, x] == m)
-                    sx = not (tipo[y, x - 1] == 1 and Mb[y, x - 1] == m)
-                    dx = not (tipo[y, x + 1] == 1 and Mb[y, x + 1] == m)
-                    c = P[7] if (su or sx) else (P[4] if dx else P[6])
-                    if m == PILONE:
-                        sx2 = not (tipo[y, x - 2] == 1 and Mb[y, x - 2] == m)
-                        dx2 = not (tipo[y, x + 2] == 1 and Mb[y, x + 2] == m)
-                        c = P[0] if (sx or dx) else (P[7] if (su or sx2) else (P[4] if dx2 else P[6]))
-                else:
-                    c = AQ[4]
-            elif k == 2:
-                d, h = FD[y, x], FH[y, x]
-                if m == ACQUA:
-                    c = cas.colore(x, d, h)
-                elif m in (SCALA, STRADA, LASTRA):      # le alzate (anche la prima, sotto la strada), la lastra
-                    c = P[3] if d == 0 else (P[2] if d < h - 1 else P[1])
-                elif m == PILASTRO:
-                    c = P[0] if (d >= h - 1 or x in (RX - 4, RX + 32)) else (P[6] if x in (RX - 3, RX + 30) else P[4])
-                elif m == PALO:
-                    sx = not (tipo[y, x - 1] == 2 and Mb[y, x - 1] == PALO)
-                    dx = not (tipo[y, x + 1] == 2 and Mb[y, x + 1] == PALO)
-                    c = P[5] if d == 0 else (P[0] if d >= h - 1 else (P[6] if sx else (P[2] if dx else P[4])))
-                elif m == PILONE:
-                    c = mur.pilone(x, d, h, tipo, Mb, y)
-                elif m in (SPALLA, PONTE):
-                    c = P[5] if d == 0 else (P[3] if d < h - 1 else P[1])
-                else:
-                    c = mur.parete(x, d, h, m == ERBA)
-            else:
-                c = (255, 0, 255)
-            img[y, x] = c
-    # l'ombra che il pilone getta sulla parete alla sua destra
-    for y in range(H):
-        for x in range(W - 4):
-            if tipo[y, x] == 2 and Mb[y, x] == PILONE and tipo[y, x + 1] == 2 and Mb[y, x + 1] != PILONE:
-                for k, f in enumerate((0.6, 0.72, 0.86)):
-                    if tipo[y, x + 1 + k] == 2 and Mb[y, x + 1 + k] not in (PILONE, ACQUA):
-                        img[y, x + 1 + k] *= f
-    # l'acqua come nella vasca di Bru: sotto le pareti e lungo le sponde di lato una riga scura e il filo chiaro,
-    # poi una fascia scura che sfuma nella trama; verso la sponda di qua si scurisce (e' piu' fonda) fino al ciglio
-    acq = (tipo == 1) & (Mb == ACQUA)
-    du = _corsa(acq); dd = _corsa((acq | ((tipo == 2) & (Mb == ACQUA)))[::-1])[::-1]   # sopra la cascata non si scurisce
-    dl = _corsa(acq.T).T; dr = _corsa(acq.T[::-1])[::-1].T
-
-    def scurisci(c, n):
-        return AQ[max(0, int(((AQ - c) ** 2).sum(1).argmin()) - n)]
-    for y, x in zip(*np.nonzero(acq)):
-        c = acqua[y % 192, x % 192]
-        a, b, s = du[y, x], dd[y, x], min(dl[y, x], dr[y, x])
-        if a == 1:
-            c = (7, 55, 59)
-        elif s == 1:
-            c = (18, 58, 57)
-        elif a == 2:
-            c = (97, 235, 222)
-        elif s == 2:
-            c = (126, 250, 248)
-        elif a == 3:
-            c = AQ[2]
-        elif a <= 5 or s <= 4 or b == 1:
-            c = AQ[0]
-        else:
-            n = max(3 if a <= 9 else (2 if a <= 13 else (1 if a <= 16 else 0)),
-                    3 if s <= 6 else (2 if s <= 8 else (1 if s <= 10 else 0)),
-                    4 if b <= 3 else (3 if b <= 5 else (2 if b <= 8 else (1 if b <= 11 else 0))))
-            # l'ombra del ponte sull'acqua, verso valle (la luce viene da sinistra)
-            if dl[y, x] <= 7 and Mb[y, x - dl[y, x]] in (SPALLA, PALO, PONTE):
-                n = max(n, 3 if dl[y, x] <= 5 else 2)
-            if n:
-                c = scurisci(c, n)
-        img[y, x] = c
-    sotto = du
-    # dove cade l'acqua: due cerchi che si allargano, poi la schiuma a nuvola (dischi uniti, chiari sopra e piu'
-    # azzurri sotto) un poco piu' larga della cascata, e qualche bolla staccata
-    fondo = [y for y in range(H) if tipo[y, (FX0 + FX1) // 2] == 2 and Mb[y, (FX0 + FX1) // 2] == ACQUA][-1] + 1
-    cx, cy = (FX0 + FX1 - 1) / 2, fondo
-    for (rx, ry, col) in ((31, 11, AQ[7]), (40, 16, AQ[6])):
-        for yy in range(int(cy), int(cy + ry + 2)):
-            for xx in range(int(cx - rx - 2), int(cx + rx + 3)):
-                e = ((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2
-                if acq[yy, xx] and 0.88 <= e <= 1.0 and (xx // 3 + yy) % 4:
-                    img[yy, xx] = col
-    nuvola = np.zeros((H, W), int)
-    for k in range(16):
-        bx = cx + rng.uniform(-19, 19); by = cy + abs(rng.normal(0, 1)) * 3; rad = rng.uniform(2.2, 4.2)
-        for yy in range(int(by - rad) - 1, int(by + rad) + 2):
-            for xx in range(int(bx - rad) - 1, int(bx + rad) + 2):
-                q = (xx - bx) ** 2 + (yy - by) ** 2
-                if q <= rad * rad:
-                    nuvola[yy, xx] = max(nuvola[yy, xx], 2 if (yy - by) < rad * 0.45 else 1)
-    for yy, xx in zip(*np.nonzero(nuvola)):
-        if acq[yy, xx]:
-            img[yy, xx] = AQ[9] if nuvola[yy, xx] == 2 else AQ[8]
-    for k in range(26):
-        a = rng.uniform(0.15, np.pi - 0.15); rr = rng.uniform(0.9, 1.7)
-        bx, by = int(cx + np.cos(a) * rr * 24), int(cy + np.sin(a) * rr * 8)
-        if acq[by, bx] and not nuvola[by, bx]:
-            img[by, bx] = AQ[9]
-            if rng.random() < 0.4 and acq[by, bx + 1]:
-                img[by, bx + 1] = AQ[8]
-    for k in range(30):
-        yy, xx = int(rng.integers(0, H)), int(rng.integers(0, W))
-        if acq[yy, xx] and sotto[yy, xx] > 6:
-            img[yy, xx] = AQ[9]
-    # nel ruscello stretto la corrente: increspature allungate che seguono il filo dell'acqua verso ovest
-    centro = np.full(W, np.nan)
-    for x in range(0, 412):
-        r = np.nonzero(acq[200:340, x])[0]
-        if len(r) > 8:
-            centro[x] = 200 + r.mean()
-    for k in range(26):
-        x0 = int(rng.integers(6, 408))
-        if np.isnan(centro[x0]):
-            continue
-        y0 = int(round(centro[x0] + rng.uniform(-9, 9))); L = int(rng.integers(4, 9))
-        for i in range(L):
-            x = x0 + i
-            if x >= W or np.isnan(centro[x]):
-                break
-            y = int(round(y0 + centro[x] - centro[x0]))
-            if acq[y, x] and du[y, x] >= 7 and dd[y, x] >= 5 and min(dl[y, x], dr[y, x]) >= 4:
-                img[y, x] = AQ[7] if 0 < i < L - 1 else AQ[6]
-    terra = (tipo == 1) & (Mb == ERBA)
-    cigli = []
-    for x in range(W):
-        for y in range(H):
-            if not terra[y, x]:
-                continue
-            for k in range(1, 7):
-                if y + k < H and tipo[y + k, x] == 2 and Zb[y + k, x] == Zb[y, x]:
-                    img[y, x] = mur.cimasa_nord(x, 6 - k)
-                    if k == 6:
-                        cigli.append((y, x))
-                    break
-                if y + k >= H or tipo[y + k, x] != 1 or Zb[y + k, x] != Zb[y, x]:
-                    break
-            for k in range(1, 8):
-                if y - k >= 0 and acq[y - k, x]:
-                    img[y, x] = mur.cimasa_sud(x, k - 1); break
-                if y - k < 0 or tipo[y - k, x] != 1 or acq[y - k, x] or Zb[y - k, x] != Zb[y, x]:
-                    break
-            for k in range(1, 8):
-                if x + k < W and acq[y, x + k]:
-                    img[y, x] = mur.cimasa_lato(True, k - 1, GY[y, x]); break
-                if x - k >= 0 and acq[y, x - k]:
-                    img[y, x] = mur.cimasa_lato(False, k - 1, GY[y, x]); break
-    # l'erba che ricade sulla cimasa a ciuffi: il ciglio non e' piu' una riga dritta
-    ricade = np.zeros(W + 8, int); x = int(rng.integers(0, 6))
-    while x < W:
-        n = int(rng.integers(2, 7)); alto = int(rng.integers(1, 4))
-        for i in range(n):
-            ricade[x + i] = max(1, alto - abs(i - n // 2) + (1 if rng.random() < 0.3 else 0))
-        x += n + int(rng.integers(3, 14))
-    for (y, x) in cigli:
-        luce = 1 if Zb[y, x] >= 30 else (-1 if Zb[y, x] <= -30 else 0)
-        for j in range(ricade[x]):
-            if y + j < H and terra[y + j, x]:
-                img[y + j, x] = VERDI[2] if j == ricade[x] - 1 else erba.colore(x, GY[y + j, x], luce)
-    # l'ombra ai piedi delle pareti e i contorni dove un pavimento alto confina di lato con uno basso
-    for x in range(W):
-        for y in range(1, H):
-            if tipo[y - 1, x] == 2 and tipo[y, x] == 1 and Mb[y, x] != ACQUA:
-                for k, f in enumerate((0.58, 0.72, 0.86)):
-                    if y + k < H and tipo[y + k, x] == 1 and Mb[y + k, x] != ACQUA:
-                        img[y + k, x] *= f
-    # l'erba del piano di sotto che sale a ciuffi sul piede della parete (nell'ombra della parete)
-    sale = np.zeros(W + 8, int); x = int(rng.integers(0, 9))
-    while x < W:
-        n = int(rng.integers(2, 6)); alto = int(rng.integers(2, 5))
-        for i in range(n):
-            sale[x + i] = max(1, alto - abs(i - n // 2) - (1 if rng.random() < 0.35 else 0))
-        x += n + int(rng.integers(4, 18))
-    for x in range(W):
-        if not sale[x]:
-            continue
-        for y in range(1, H):
-            if (tipo[y - 1, x] == 2 and Mb[y - 1, x] == ERBA and tipo[y, x] == 1 and Mb[y, x] == ERBA):
-                for j in range(1, sale[x] + 1):
-                    if tipo[y - j, x] == 2 and Mb[y - j, x] == ERBA:
-                        img[y - j, x] = (VERDI[2] if j == sale[x] else VERDI[4 + (x + j) % 2]) * 0.8
-    out = img.copy()
-    for y in range(H):
-        for x in range(W):
-            if tipo[y, x] != 1:
-                continue
-            for (a, b) in ((y, x - 1), (y, x + 1), (y - 1, x)):
-                if 0 <= a < H and 0 <= b < W and tipo[a, b] == 1 and Zb[a, b] < Zb[y, x] - 2:
-                    out[y, x] = P[0] if Mb[y, x] in (PILASTRO, SPALLA) else img[y, x] * 0.45
-                    break
-    # la piazzetta: l'anello del kit e il ramo verso la vasca
-    K = os.path.join(TER, 'strade_radenna')
-
-    def kit(n):
-        return np.asarray(Image.open(os.path.join(K, n + '.png')).convert('RGBA')).astype(float)
-    x = CXA + 31
-    while x < 440:
-        _posa(out, kit('strada_orizzontale')[:, :min(55, 440 - x)], x, CYA - 14); x += 55
-    _posa(out, kit('fine_strada_dx'), 440, CYA - 14)
-    _posa(out, kit('anello'), CXA - 38, CYA - 38)
-    _posa(out, kit('tratto_corto'), LX, LG - 50)
-    return out, G
-
-
-# ================================================================ gli oggetti
-
-# le cose piatte, dipinte nel terreno: luci nell'erba, ninfee (solo sull'acqua), sassi nella pozza, piede delle canne
-LUCI = [(0, 266, 16), (2, 290, 30), (3, 252, 38), (1, 520, 56), (3, 540, 70), (0, 344, 300), (2, 366, 290),
-        (1, 150, 344), (3, 172, 358), (2, 136, 362), (1, 420, 352), (3, 440, 330), (0, 30, 186), (2, 52, 200)]
-NINFEE = [('radenna/ninfee_loto.png', 404, 272, (52, 82)), ('radenna/ninfee_fiori.png', 40, 318, (29, 85))]
-# i resti del lastricato attorno alla colonna (i pezzi rotti del kit delle strade): li' c'era una piazzetta
-RUDERI = [('rovina_1', 262, 76), ('rovina_2', 352, 66), ('rovina_3', 404, 46)]
-SASSI_ACQUA = [('rocce/sasso_4.png', 448, 240, (9, 15)), ('rocce/sassolino_1.png', 476, 243, (5, 8))]
-CANNE = [(562, 262, False), (132, 302, True)]           # piede (x, y) e se e' specchiata
-# le cose in piedi: file (da art/livelli/), piede nel mondo, piede nel disegno, impronta (dove non si passa)
-#   l'impronta e' (mezza larghezza, mezza altezza) dell'ovale ai piedi: il tronco, la base
-CESP = 'pezzi/ruscello/cespuglione_verde.png'
-IN_PIEDI = [
-    ('pezzi/alberi/albero_funghi.png', 70, 82, (69, 124), (10, 5)),
-    ('pezzi/ruscello/albero_funghi_s.png', 168, 60, (76, 124), (10, 5)),
-    ('pezzi/radenna/colonna_rovina.png', 322, 100, (45, 101), (22, 6)),
-    (CESP, 590, 88, (64, 124), (30, 7)),
-    ('pezzi/rocce/masso_muschio_8.png', 382, 106, (16, 22), (14, 4)),
-    ('pezzi/rocce/sasso_5.png', 400, 110, (9, 15), (7, 3)),
-    ('pezzi/rocce/masso_muschio_3.png', 112, 152, (14, 20), (12, 4)),
-    ('pezzi/rocce/sassolino_2.png', 128, 156, (7, 10), (6, 3)),
-    ('pezzi/rocce/masso_basso_4.png', 352, 180, (15, 15), (13, 4)),
-    ('pezzi/ruscello/canne_steli.png', 562, 262 - 27, (48, 71), (0, 0)),       # attaccati al piede dipinto
-    ('pezzi/ruscello/canne_steli_s.png', 132, 302 - 27, (36, 71), (0, 0)),
-    ('pezzi/radenna/vasca_pietra.png', 506, 366, (53, 88), (40, 9)),
-    ('pezzi/alberi/albero_funghi.png', 64, 478, (69, 124), (10, 5)),
-    ('pezzi/ruscello/cespuglione_verde_s.png', 600, 476, (59, 124), (30, 7)),
-    ('pezzi/rocce/masso_muschio_9.png', 156, 382, (17, 20), (14, 4)),
-    ('pezzi/rocce/sasso_2.png', 174, 386, (8, 12), (6, 3)),
-    ('pezzi/ruscello/baccelli.png', 528, 96, (26, 54), (8, 4)),
-    ('pezzi/ruscello/baccelli_s.png', 404, 398, (25, 54), (8, 4)),
-    ('pezzi/ruscello/bulbi.png', 118, 352, (15, 28), (6, 3)),
-    ('pezzi/ruscello/bulbi.png', 134, 360, (15, 28), (6, 3)),
-    ('pezzi/ruscello/bulbi.png', 372, 296, (15, 28), (6, 3)),
-    ('pezzi/ruscello/bulbi.png', 58, 184, (15, 28), (6, 3)),
-    ('pezzi/ruscello/bulbi.png', 600, 228, (15, 28), (6, 3)),
-    ('pezzi/rocce/masso_muschio_1.png', 360, 398, (13, 19), (12, 4)),
-    ('pezzi/rocce/sassolino_3.png', 376, 402, (6, 11), (5, 3)),
-]
-
-
 def _e_acqua_del_pezzo(c):
     r, g, b = c[0], c[1], c[2]
     return g > r + 40 and b > 0.72 * g and b < g + 10 and b > 90
-
-
-def decora(out, G):
-    tipo, Mb = G['tipo'], G['m']
-    acq = (tipo == 1) & (Mb == ACQUA)
-    for (n, x0, y0) in RUDERI:          # prima i resti del lastricato: le luci ci possono stare sopra
-        a = np.asarray(Image.open(os.path.join(TER, 'strade_radenna', n + '.png')).convert('RGBA')).astype(float)
-        for j in range(a.shape[0]):
-            for i in range(a.shape[1]):
-                y, x = y0 + j, x0 + i
-                if 0 <= y < H and 0 <= x < W and a[j, i, 3] > 0 and tipo[y, x] == 1 and Mb[y, x] == ERBA:
-                    out[y, x] = a[j, i, :3]
-    for (k, x0, y0) in LUCI:
-        l = np.asarray(Image.open(os.path.join(NUOVI, 'luce_%d.png' % k)).convert('RGBA')).astype(float)
-        for j in range(l.shape[0]):
-            for i in range(l.shape[1]):
-                y, x = y0 + j, x0 + i
-                if 0 <= y < H and 0 <= x < W and l[j, i, 3] > 0 and tipo[y, x] == 1 and Mb[y, x] == ERBA:
-                    out[y, x] = l[j, i, :3]
-    for (cx, cy, rx, ry) in ((448, 238, 9, 3), (476, 242, 6, 2)):          # la schiuma attorno ai sassi
-        for y in range(int(cy - ry - 2), int(cy + ry + 3)):
-            for x in range(int(cx - rx - 2), int(cx + rx + 3)):
-                if acq[y, x]:
-                    e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
-                    if 0.75 <= e <= 1.15 and (x + y) % 3:
-                        out[y, x] = AQ[9] if e < 1 else AQ[8]
-    for (f, fx, fy, piede) in NINFEE + SASSI_ACQUA:
-        a = np.asarray(Image.open(os.path.join(PEZ, f)).convert('RGBA')).astype(float)
-        sull_acqua = f.startswith('radenna')
-        for j in range(a.shape[0]):
-            for i in range(a.shape[1]):
-                y, x = fy - piede[1] + j, fx - piede[0] + i
-                if 0 <= y < H and 0 <= x < W and a[j, i, 3] > 0:
-                    if sull_acqua and (not acq[y, x] or _e_acqua_del_pezzo(a[j, i])):
-                        continue
-                    out[y, x] = a[j, i, :3]
-    c = np.asarray(Image.open(os.path.join(PEZ, 'radenna', 'canne_luminose.png')).convert('RGBA')).astype(float)
-    for (fx, fy, specchio) in CANNE:
-        a = c[:, ::-1] if specchio else c
-        px = a.shape[1] - 1 - 48 if specchio else 48
-        for j in range(a.shape[0] - 28, a.shape[0]):
-            for i in range(a.shape[1]):
-                y, x = fy - 98 + j, fx - px + i
-                if 0 <= y < H and 0 <= x < W and a[j, i, 3] > 0 and acq[y, x]:
-                    out[y, x] = a[j, i, :3]
-    return out
 
 
 def _sfoca(a, r):
@@ -873,17 +313,510 @@ SORGENTI = ([(470, 205, 1.0, 26), (562, 256, 0.75, 22), (132, 296, 0.75, 22), (5
             [(x, y - 4, 0.5, 11) for (x, y) in ((118, 352), (134, 360), (372, 296), (58, 184), (600, 228))])
 
 
+# ================================================================ i materiali nuovi della pianura
+
+def _pezzi(m):
+    # i pezzi connessi di una maschera: per ognuno i pixel (y, x)
+    hh, ww = m.shape; ide = np.zeros((hh, ww), int); tutti = []
+    for y in range(hh):
+        for x in range(ww):
+            if m[y, x] and ide[y, x] == 0:
+                ide[y, x] = len(tutti) + 1; q = deque([(y, x)]); pix = []
+                while q:
+                    cy, cx = q.popleft(); pix.append((cy, cx))
+                    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        ny, nx = cy + dy, cx + dx
+                        if 0 <= ny < hh and 0 <= nx < ww and m[ny, nx] and ide[ny, nx] == 0:
+                            ide[ny, nx] = len(tutti) + 1; q.append((ny, nx))
+                tutti.append(np.array(pix))
+    return tutti
+
+
+def _senza_erba(o):
+    # un pezzo del foglio senza l'erba intorno (e fra le lastre): restano pietra e sassi; via anche il bordo
+    # scuro del riquadro del foglio (pezzi sottili lungo i lati) e i puntini bianchi del fondo
+    lab = _oklab(o[..., :3])
+    h = np.degrees(np.arctan2(lab[..., 2], lab[..., 1])); C = np.hypot(lab[..., 1], lab[..., 2])
+    erba = (h > 105) & (h < 175) & (C > 0.045)
+    out = o.copy(); out[erba | (o[..., 3] == 0) | (o[..., :3].min(2) > 200)] = 0
+    ys, xs = np.nonzero(out[..., 3] > 0)
+    out = out[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    hh, ww = out.shape[:2]
+    # il bordo del riquadro del foglio: i pixel scuri lungo i lati e la fascia d'erba scura in fondo
+    scuro = out[..., :3].max(2) < 62
+    Y, X = np.mgrid[0:hh, 0:ww]
+    out[scuro & ((Y >= hh - 16) | (X <= 3) | (X >= ww - 4) | (Y <= 3))] = 0
+    for pix in _pezzi(out[..., 3] > 0):
+        ys, xs = pix[:, 0], pix[:, 1]
+        sottile = min(ys.max() - ys.min(), xs.max() - xs.min()) <= 3
+        bordo = ys.min() <= 4 or xs.min() <= 4 or ys.max() >= hh - 5 or xs.max() >= ww - 5
+        if (sottile and bordo) or len(pix) < 4:
+            out[ys, xs] = 0
+    ys, xs = np.nonzero(out[..., 3] > 0)
+    return out[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+
+
+def prepara_pianura():
+    # i ciottoli delle sponde ci sono gia': terreni/ciottoli_radenna.png, di strumenti/livelli/tile_radenna.py
+    prepara()
+    _salva(_senza_erba(pixel_veri(470, 15, 925, 515)), os.path.join(TER, 'piazza_radenna.png'))   # la piazza
+
+
+# ================================================================ curve
+
+def curva(punti, passo=1.0):
+    # una spline che passa per i punti (Catmull-Rom), ricampionata a un pixel: i punti e la strada fatta
+    p = np.array(punti, float)
+    p = np.vstack([2 * p[0] - p[1], p, 2 * p[-1] - p[-2]])
+    fitti = []
+    for i in range(1, len(p) - 2):
+        p0, p1, p2, p3 = p[i - 1], p[i], p[i + 1], p[i + 2]
+        n = int(np.linalg.norm(p2 - p1) * 3) + 2
+        t = np.linspace(0, 1, n, endpoint=False)[:, None]
+        fitti.append(0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t ** 2
+                            + (3 * p1 - p0 - 3 * p2 + p3) * t ** 3))
+    fitti.append(p[-2][None])
+    f = np.vstack(fitti)
+    s = np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(f, axis=0), axis=1))])
+    u = np.arange(0, s[-1], passo)
+    return np.stack([np.interp(u, s, f[:, 0]), np.interp(u, s, f[:, 1])], 1), u
+
+
+def campo(linea, u, raggio, hg, b):
+    # per ogni pixel del terreno vicino alla linea: la distanza, la strada fatta lungo la linea fin li', e da che
+    # parte sta (positivo a destra di chi la percorre)
+    D = np.full((hg, W), np.inf); S = np.zeros((hg, W)); V = np.zeros((hg, W))
+    tg = np.gradient(linea, axis=0); tg /= np.linalg.norm(tg, axis=1)[:, None] + 1e-9
+    for k in range(len(linea)):
+        px, py = linea[k, 0], linea[k, 1] + b
+        x0, x1 = max(0, int(px - raggio)), min(W, int(px + raggio) + 2)
+        y0, y1 = max(0, int(py - raggio)), min(hg, int(py + raggio) + 2)
+        if x0 >= x1 or y0 >= y1:
+            continue
+        dx = np.arange(x0, x1)[None, :] - px; dy = np.arange(y0, y1)[:, None] - py
+        d2 = dx * dx + dy * dy
+        sub = D[y0:y1, x0:x1]; m = d2 < sub
+        if m.any():
+            sub[m] = d2[m]
+            S[y0:y1, x0:x1][m] = u[k]
+            V[y0:y1, x0:x1][m] = (tg[k, 0] * dy - tg[k, 1] * dx)[m]
+    return np.sqrt(D), S, V
+
+
+def rumore1(n, scala, seme):
+    v = np.random.default_rng(seme).random(int(n / scala) + 3)
+    x = np.arange(n) / scala; i = x.astype(int); f = x - i; f = f * f * (3 - 2 * f)
+    return v[i] * (1 - f) + v[i + 1] * f
+
+
+def _distanza(m, kmax):
+    # quanti passi dalla maschera (a croce e in diagonale a passi alterni: quasi tondo), fino a kmax
+    d = np.full(m.shape, kmax + 1, int); d[m] = 0; f = m.copy()
+    for k in range(1, kmax + 1):
+        g = f.copy()
+        g[1:] |= f[:-1]; g[:-1] |= f[1:]; g[:, 1:] |= f[:, :-1]; g[:, :-1] |= f[:, 1:]
+        if k % 2 == 0:
+            g[1:, 1:] |= f[:-1, :-1]; g[1:, :-1] |= f[:-1, 1:]; g[:-1, 1:] |= f[1:, :-1]; g[:-1, :-1] |= f[1:, 1:]
+        d[g & ~f] = k; f = g
+    return d
+
+
+def _chiudi(m, k):
+    # chiusura: allarga di k e poi stringe di k (riempie le fughe fra le lastre)
+    d = _distanza(m, k) <= k
+    return ~(_distanza(~d, k) <= k)
+
+
+# ================================================================ la pianta
+
+# il ruscello: entra in alto a destra, scende a S e se ne va a sinistra; mezza larghezza nei punti
+FIUME = [(1062, -70), (1034, 26), (972, 116), (866, 188), (744, 226), (622, 244), (522, 280), (452, 350),
+         (414, 438), (334, 514), (208, 556), (82, 572), (-80, 578)]
+LARGHI = [23, 23, 25, 27, 28, 28, 30, 32, 31, 29, 28, 27, 27]
+STAGNO = (416, 320, 72, 46)          # lo stagno sulla curva di fuori: centro e raggi (si fonde col ruscello)
+# la strada: arriva dal basso (dall'atterraggio), attraversa la piazza dritta nel mezzo, passa il ponte (dritta
+# sull'acqua) e sale in alto
+VIA = [(604, 800), (612, 700), (646, 622), (650, 600), (650, 505), (650, 410), (654, 388), (684, 346),
+       (700, 300), (700, 260), (700, 220), (700, 180), (694, 128), (662, 70), (612, 10), (590, -80)]
+RX = 686                              # il ponte: la strada dritta sull'acqua, x 686..714
+PIAZZA = (650, 505)                   # il centro della piazza antica (nove lastre del foglio di Bru)
+
+
+def pianta():
+    t = Terreno(base=40, sotto=40)
+    hg, b = t.HG, t.B
+    t.Z[:] = 0; t.M[:] = ERBA
+    lin, u = curva(FIUME)
+    D, S, V = campo(lin, u, 70, hg, b)
+    uc = [u[np.argmin(((lin - np.array(p, float)) ** 2).sum(1))] for p in FIUME]
+    w = np.interp(S, uc, LARGHI) + (rumore1(int(u[-1]) + 2, 23, 5)[S.astype(int)] - 0.5) * 3
+    # lo stagno: un'ellisse un po' storta, fusa col ruscello con un raccordo morbido (unione liscia delle distanze)
+    cx, cy, rx, ry = STAGNO
+    Y, X = np.mgrid[0:hg, 0:W]; gy = Y - b
+    ang = np.arctan2((gy - cy) / ry, (X - cx) / rx)
+    r = 1 + (rumore1(400, 37, 9)[((ang + np.pi) / (2 * np.pi) * 359).astype(int)] - 0.5) * 0.12
+    f1 = np.where(np.isfinite(D), D, 1e4) - w
+    f2 =(np.sqrt(((X - cx) / rx) ** 2 + ((gy - cy) / ry) ** 2) - r) * min(rx, ry)
+    k = 34.0
+    hh_ = np.clip(0.5 + 0.5 * (f2 - f1) / k, 0, 1)
+    acqua = (f2 * (1 - hh_) + f1 * hh_ - k * hh_ * (1 - hh_)) < 0
+    dist = _distanza(acqua, 9)
+    largo = 3 + 5 * liscio(hg, W, 29, 11)
+    riva = (~acqua) & (dist <= largo)
+    t.Z[acqua] = FONDO; t.M[acqua] = ACQUA; t.M[riva] = RIVA
+    vl, vu = curva(VIA)
+    DV, SV, VV = campo(vl, vu, 22, hg, b)
+    strada = DV < 14.5
+    t.M[strada & ~acqua] = STRADA
+    # sotto la piazza niente strada: fra le lastre c'e' l'erba
+    pz = np.asarray(Image.open(os.path.join(TER, 'piazza_radenna.png')).convert('RGBA'))[..., 3] > 0
+    ph, pw = pz.shape; x0, y0 = PIAZZA[0] - pw // 2, PIAZZA[1] - ph // 2
+    sub = t.M[y0 + b:y0 + b + ph, x0:x0 + pw]
+    sub[_chiudi(pz, 4) & (sub == STRADA)] = ERBA
+    # il ponte: il piano al livello del prato sopra l'acqua e le sponde; le spallette (larghe 5, alte 7) col bordo
+    # della vasca di Bru, che poggiano 3 righe oltre le sponde; i pilastrini alle quattro teste (alti 10)
+    righe = [g for g in range(hg) if (acqua | riva)[g, RX:RX + 29].any()]
+    g0, g1 = min(righe), max(righe) + 1
+    t.Z[g0:g1, RX:RX + 29] = 0; t.M[g0:g1, RX:RX + 29] = PONTE
+    for x0 in (RX - 5, RX + 29):
+        t.Z[g0 - 3:g1 + 3, x0:x0 + 5] = 7; t.M[g0 - 3:g1 + 3, x0:x0 + 5] = SPALLA
+        for a in (g0 - 9, g1 + 3):
+            t.Z[a:a + 6, x0:x0 + 5] = 10; t.M[a:a + 6, x0:x0 + 5] = PALO
+    return t, dict(S=S, V=V, D=D, w=w, SV=SV, VV=VV, dist=dist, largo=largo, acqua=acqua, lin=lin, u=u)
+
+
+# ================================================================ i colori
+
+class Erba:
+    # i quattro quadrati d'erba di Bru mescolati a caso, e sopra le macchie larghe della pianura (piu' scure,
+    # piu' chiare) come nel suo disegno
+    def __init__(self, hg, seme):
+        rng = np.random.default_rng(seme)
+        tiles = [np.asarray(Image.open(os.path.join(TER, 'erba_radenna%s.png' % s)).convert('RGB')).astype(float)
+                 for s in ('', '_2', '_3', '_4')]
+        self.k = np.stack([((VERDI[None, None] - a[..., None, :]) ** 2).sum(-1).argmin(-1) for a in tiles])
+        self.mappa = rng.integers(4, size=(hg // 64 + 2, W // 64 + 2))
+        m = liscio(hg, W, 120, seme + 1) * 0.6 + liscio(hg, W, 41, seme + 2) * 0.4
+        self.macchia = np.array([-2, 0, 1, 2])[np.digitize(m, np.quantile(m, [0.22, 0.55, 0.8]))]
+
+    def colori(self, X, G):
+        k = self.k[self.mappa[G // 64, X // 64], G % 64, X % 64]
+        return VERDI[np.clip(k + self.macchia[G, X], 0, 10)]
+
+
+def _verde(t):
+    lab = _oklab(t[..., :3])
+    h = np.degrees(np.arctan2(lab[..., 2], lab[..., 1])); C = np.hypot(lab[..., 1], lab[..., 2])
+    return (h > 105) & (h < 175) & (C > 0.05)
+
+
+def disegna(t, F, seme=3):
+    G = t.proietta()
+    tipo, GY, Zb, Mb, FD, FH = G['tipo'], G['gy'], G['z'], G['m'], G['fd'], G['fh']
+    rng = np.random.default_rng(seme)
+    V_ = np.asarray(Image.open(os.path.join(TER, 'vasca_radenna.png')).convert('RGBA')).astype(float)
+    acqua_t = np.asarray(Image.open(os.path.join(TER, 'acqua_radenna.png')).convert('RGB')).astype(float)
+    sassi_t = np.asarray(Image.open(os.path.join(TER, 'ciottoli_radenna.png')).convert('RGB')).astype(float)
+    muschio_t = _verde(sassi_t)
+    st = np.asarray(Image.open(os.path.join(TER, 'strade_radenna', 'strada_verticale.png')).convert('RGBA')).astype(float)
+    erba = Erba(t.HG, seme)
+    gyc = np.clip(GY, 0, t.HG - 1)
+    X = np.repeat(np.arange(W)[None, :], H, 0)
+    pav = tipo == 1; fac = tipo == 2
+    img = np.zeros((H, W, 3))
+    prato = erba.colori(X, gyc)
+    img[pav & (Mb == ERBA)] = prato[pav & (Mb == ERBA)]
+    # la strada e il piano del ponte: il motivo del kit piegato lungo la curva
+    col = np.clip((F['VV'][gyc, X] + 14.5).astype(int), 0, 28); row = F['SV'][gyc, X].astype(int) % 55
+    tex = st[row, col]
+    m = pav & np.isin(Mb, [STRADA, PONTE]); pieno = tex[..., 3] > 0
+    img[m & pieno] = tex[m & pieno][:, :3]
+    img[m & ~pieno & (Mb == STRADA)] = prato[m & ~pieno & (Mb == STRADA)]
+    img[m & ~pieno & (Mb == PONTE)] = P[3]
+    # le sponde: i ciottoli di Bru; verso il prato il muschio lascia il posto all'erba
+    sh, sw = sassi_t.shape[:2]
+    sas = sassi_t[gyc % sh, X % sw]; mus = muschio_t[gyc % sh, X % sw]
+    fuori = F['dist'][gyc, X] > F['largo'][gyc, X] * 0.55
+    m = pav & (Mb == RIVA)
+    img[m] = sas[m]
+    img[m & mus & fuori] = prato[m & mus & fuori]
+    # la sponda di la' vista di faccia: gli stessi ciottoli nell'ombra, piu' scuri giu' verso l'acqua
+    f = fac & np.isin(Mb, [RIVA, ERBA, STRADA])
+    fd = FD.astype(float); fh = np.maximum(FH, 1).astype(float)
+    sas_f = sassi_t[(gyc + FD) % sh, X % sw]
+    scuro = (0.74 - 0.26 * fd / fh)[..., None]
+    img[f] = (sas_f * scuro)[f]
+    img[f & (FD >= FH - 1)] = P[0] * 0.8
+    # le spallette, i pilastrini
+    for y, x in zip(*np.nonzero(pav & (Mb == SPALLA))):
+        i = x - (RX - 5) if x < RX else RX + 33 - x
+        img[y, x] = V_[53 + gyc[y, x] % 51, 4 + i, :3]
+    for y, x in zip(*np.nonzero(pav & (Mb == PALO))):
+        su = y == 0 or not (tipo[y - 1, x] == 1 and Mb[y - 1, x] == PALO)
+        sx = not (tipo[y, x - 1] == 1 and Mb[y, x - 1] == PALO)
+        dx = not (tipo[y, x + 1] == 1 and Mb[y, x + 1] == PALO)
+        img[y, x] = P[7] if (su or sx) else (P[4] if dx else P[6])
+    for y, x in zip(*np.nonzero(fac & np.isin(Mb, [PALO, SPALLA, PONTE]))):
+        d, h, mm = FD[y, x], FH[y, x], Mb[y, x]
+        if mm == PALO:
+            sx = not (tipo[y, x - 1] == 2 and Mb[y, x - 1] == PALO)
+            dx = not (tipo[y, x + 1] == 2 and Mb[y, x + 1] == PALO)
+            img[y, x] = P[5] if d == 0 else (P[0] if d >= h - 1 else (P[6] if sx else (P[2] if dx else P[4])))
+        else:
+            img[y, x] = P[5] if d == 0 else (P[3] if d < h - 1 else P[1])
+    # l'acqua come nella vasca di Bru: sotto la sponda di la' la riga scura e il filo chiaro, poi una fascia scura;
+    # lungo le sponde di lato lo stesso; verso la sponda di qua piu' fonda e scura
+    acq = pav & (Mb == ACQUA)
+    du = _corsa(acq); dd = _corsa(acq[::-1])[::-1]
+    dl = _corsa(acq.T).T; dr = _corsa(acq.T[::-1])[::-1].T
+
+    def scurisci(c, n):
+        return AQ[max(0, int(((AQ - c) ** 2).sum(1).argmin()) - n)]
+    for y, x in zip(*np.nonzero(acq)):
+        c = acqua_t[y % 192, x % 192]
+        a, bb, s = du[y, x], dd[y, x], min(dl[y, x], dr[y, x])
+        if a == 1:
+            c = (7, 55, 59)
+        elif s == 1:
+            c = (18, 58, 57)
+        elif a == 2:
+            c = (97, 235, 222)
+        elif s == 2:
+            c = (126, 250, 248)
+        elif a == 3:
+            c = AQ[2]
+        elif a <= 5 or s <= 3 or bb == 1:
+            c = AQ[0]
+        else:
+            n = max(3 if a <= 8 else (2 if a <= 12 else (1 if a <= 15 else 0)),
+                    3 if s <= 5 else (2 if s <= 7 else (1 if s <= 9 else 0)),
+                    4 if bb <= 3 else (3 if bb <= 5 else (2 if bb <= 8 else (1 if bb <= 11 else 0))))
+            if dl[y, x] <= 7 and Mb[y, x - dl[y, x]] in (SPALLA, PALO, PONTE):     # l'ombra del ponte
+                n = max(n, 3 if dl[y, x] <= 5 else 2)
+            if n:
+                c = scurisci(c, n)
+        img[y, x] = c
+    # la corrente: increspature allungate lungo il filo del ruscello (non nello stagno)
+    lin, u = F['lin'], F['u']
+    tg = np.gradient(lin, axis=0); tg /= np.linalg.norm(tg, axis=1)[:, None] + 1e-9
+    for k in range(70):
+        i = int(rng.integers(20, len(lin) - 20)); off = rng.uniform(-0.5, 0.5)
+        px, py = lin[i]; nx, ny = -tg[i, 1], tg[i, 0]
+        wid = np.interp(i, [0, len(lin)], [20, 20])
+        L = int(rng.integers(5, 11))
+        for j in range(L):
+            q = min(len(lin) - 1, i + j)
+            x = int(round(lin[q, 0] + nx * off * wid)); y = int(round(lin[q, 1] + ny * off * wid)) - FONDO
+            if 0 <= y < H and 0 <= x < W and acq[y, x] and du[y, x] >= 6 and dd[y, x] >= 5 and \
+                    min(dl[y, x], dr[y, x]) >= 5:
+                img[y, x] = AQ[7] if 0 < j < L - 1 else AQ[6]
+    for k in range(60):
+        yy, xx = int(rng.integers(0, H)), int(rng.integers(0, W))
+        if acq[yy, xx] and du[yy, xx] > 6 and dd[yy, xx] > 3:
+            img[yy, xx] = AQ[9]
+    # l'ombra ai piedi della sponda di la' sull'acqua e' gia' nella fascia scura; sul prato sotto le spallette:
+    for x in range(W):
+        for y in range(1, H):
+            if fac[y - 1, x] and pav[y, x] and Mb[y, x] != ACQUA and Mb[y - 1, x] in (PALO, SPALLA):
+                for k, ff in enumerate((0.6, 0.78)):
+                    if y + k < H and pav[y + k, x] and Mb[y + k, x] != ACQUA:
+                        img[y + k, x] *= ff
+    # la piazza antica: le nove lastre di Bru posate sul prato (la strada ci passa sotto)
+    pz = np.asarray(Image.open(os.path.join(TER, 'piazza_radenna.png')).convert('RGBA')).astype(float)
+    _posa(img, pz, PIAZZA[0] - pz.shape[1] // 2, PIAZZA[1] - pz.shape[0] // 2)
+    return img, G
+
+
+# ================================================================ gli oggetti
+
+_CAT = json.load(open(os.path.join(PEZ, 'catalogo.json')))['pezzi']
+SPECCHIATI = ['colonna_rovina', 'pino_1', 'pino_2']   # copie girate (nome_s)
+
+
+def pezzo(nome):
+    # file (da art/livelli/), piede nel disegno e misura di un pezzo: dal catalogo, o tra i pezzi nuovi
+    if nome in _CAT:
+        return 'pezzi/' + _CAT[nome]['file'], tuple(_CAT[nome]['piede']), tuple(_CAT[nome]['misura'])
+    f = os.path.join(NUOVI, nome + '.png')
+    a = np.asarray(Image.open(f).convert('RGBA'))[..., 3] > 0
+    ys, xs = np.nonzero(a)
+    giu = ys >= ys.max() - 3
+    return 'pezzi/ruscello/' + nome + '.png', (int(round(xs[giu].mean())), int(ys.max())), (a.shape[1], a.shape[0])
+
+
+def prepara_specchiati():
+    for n in SPECCHIATI:
+        f, (px, py), (w, h) = pezzo(n)
+        a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
+        _salva(a[:, ::-1], os.path.join(NUOVI, n + '_s.png'))
+
+
+def impronta(nome, w, h):
+    # dove non si passa, attorno al piede: (mezza larghezza, mezza altezza) dell'ovale
+    if 'albero' in nome or 'pino' in nome:
+        return (9, 4)
+    if 'cespuglione' in nome:
+        return (int(w * 0.36), 7)
+    for chiave, imp in (('colonna', (22, 7)), ('vasca_pietra', (42, 10)), ('vasche_gradini', (40, 12)),
+                        ('felce', (14, 4)), ('canne', (0, 0))):
+        if chiave in nome:
+            return imp
+    if 'masso' in nome or 'sass' in nome:
+        return (max(4, int(w * 0.42)), max(2, int(h * 0.2)))
+    return (max(4, int(w * 0.28)), 3)
+
+
+# le cose in piedi, a gruppi e con un motivo: (nome, x, y del piede)
+ALBERI = [
+    # il bosco in alto a sinistra: pini, un albero a funghi, alberelli e cespuglioni, fitto nell'angolo
+    ('pino_2', 34, 96), ('pino_1', 84, 64), ('pino_3', 10, 170), ('albero_funghi', 160, 130), ('albero_2', 116, 186),
+    ('cespuglione_verde', 250, 72), ('pino_2_s', 320, 34), ('albero_4', 52, 238),
+    # il bordo in alto, a gruppetti, coi varchi della strada e del ruscello
+    ('pino_1', 402, 26), ('albero_1', 446, 42), ('cespuglione_verde_s', 490, 14),
+    ('pino_1_s', 704, 28), ('albero_3', 744, 46), ('albero_funghi_s', 820, 40), ('pino_3', 902, 22),
+    # in alto a destra, oltre il ruscello
+    ('pino_1', 1132, 46), ('albero_2', 1160, 98), ('albero_funghi', 1198, 140), ('pino_2', 1252, 66),
+    ('cespuglione_verde_s', 1250, 250),
+    # il bordo a destra
+    ('pino_3', 1264, 360), ('albero_4', 1238, 402), ('pino_1', 1268, 536), ('albero_1', 1236, 584),
+    # il bordo in basso, a gruppi, col varco della strada
+    ('pino_1_s', 20, 656), ('albero_funghi', 64, 712), ('albero_2', 120, 676), ('cespuglione_verde_s', 176, 718),
+    ('pino_2', 262, 708), ('pino_3', 300, 686),
+    ('albero_3', 424, 702), ('cespuglione_verde', 478, 716),
+    ('pino_2_s', 716, 718), ('albero_1', 760, 698),
+    ('albero_funghi', 880, 716), ('pino_3', 944, 704), ('albero_4', 978, 684),
+    ('cespuglione_verde', 1052, 716), ('albero_funghi_s', 1150, 714), ('albero_2', 1198, 670), ('pino_1', 1242, 642),
+    ('pino_2_s', 1266, 716),
+    # il bordo a sinistra
+    ('pino_2', 14, 304), ('albero_4', 34, 352), ('cespuglione_verde', 22, 428), ('pino_1_s', 10, 508),
+    # l'albero solo, nel prato grande
+    ('albero_funghi_s', 962, 470),
+]
+COSE = [
+    # la piazza antica: due colonne in diagonale, la vasca di pietra accanto
+    ('colonna_rovina', 600, 452), ('colonna_rovina_s', 702, 576), ('vasca_pietra', 794, 522),
+    # le vasche a gradini sopra lo stagno: l'acqua scende verso lo stagno
+    ('vasche_gradini', 292, 246),
+    # i sassi: sulle curve di fuori del ruscello, ai piedi degli alberi, nel prato a gruppetti
+    ('masso_muschio_8', 474, 268), ('sasso_5', 492, 272), ('masso_muschio_3', 1006, 152), ('sassolino_2', 1020, 156),
+    ('masso_muschio_9', 314, 528), ('sasso_2', 332, 532), ('masso_basso_4', 936, 494), ('sassolino_1', 990, 488),
+    ('masso_muschio_1', 1106, 420), ('sasso_4', 1124, 426), ('masso_muschio_8', 140, 214), ('sassolino_3', 156, 218),
+    ('masso_muschio_3', 560, 640), ('sassolino_2', 576, 644), ('masso_basso_4', 846, 330),
+    # le piante luminose: vicino all'acqua e sotto gli alberi
+    ('bulbi', 334, 386), ('bulbi', 350, 394), ('bulbi', 488, 436), ('bulbi', 214, 454), ('bulbi', 1084, 254),
+    ('bulbi', 902, 476), ('baccelli', 566, 322), ('baccelli_s', 884, 266), ('baccelli', 1154, 526),
+    ('bulbi', 1004, 606), ('bulbi', 1020, 614), ('bulbi', 72, 304), ('baccelli_s', 1078, 168), ('bulbi', 520, 318),
+]
+# le canne: il piede nell'acqua bassa vicino alla riva (gli steli stanno in piedi, il piede e' dipinto sull'acqua)
+CANNE = [(360, 352, False), (448, 410, True), (962, 126, False)]
+# le cose piatte: ninfee (solo sull'acqua ferma), la pozza coi sassi (una sorgente), i resti del lastricato
+NINFEE = [('ninfee_loto', 426, 338), ('ninfee_fiori', 374, 320), ('ninfee_fiori', 140, 588)]
+POZZE = [('sassi_pozza', 180, 436)]
+RUDERI = [('rovina_1', 548, 452), ('rovina_3', 728, 470), ('rovina_2', 556, 572)]
+# i sassi nella corrente, con la schiuma attorno: (pezzo, x, y del piede sullo schermo)
+SASSI_ACQUA = [('sasso_4', 578, 264), ('sassolino_1', 596, 270), ('sasso_5', 186, 568), ('sasso_4', 1004, 92)]
+LUCI = [(0, 420, 120), (2, 444, 136), (3, 404, 146), (1, 880, 60), (3, 900, 74), (0, 760, 380), (2, 782, 396),
+        (1, 236, 360), (3, 256, 372), (2, 222, 380), (1, 1000, 400), (3, 1020, 380), (0, 40, 400), (2, 62, 414),
+        (0, 1160, 330), (2, 1180, 346), (1, 860, 620), (3, 880, 640), (0, 480, 620), (2, 500, 636), (1, 1220, 470),
+        (3, 1236, 486), (0, 600, 160), (3, 620, 172)]
+
+
+def _impiedi():
+    tutte = []
+    for (n, x, y) in ALBERI + COSE:
+        f, piede, (w, h) = pezzo(n)
+        tutte.append((n, f, x, y, piede, impronta(n, w, h)))
+    for (x, y, s) in CANNE:
+        n = 'canne_steli_s' if s else 'canne_steli'
+        f, piede, _ = pezzo(n)
+        tutte.append((n, f, x, y - 27, (piede[0], 71), (0, 0)))
+    return tutte
+
+
+def _e_acqua_del_pezzo_v(a):
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    return (g > r + 40) & (b > 0.72 * g) & (b < g + 10) & (b > 90)
+
+
+def decora(out, G):
+    tipo, Mb = G['tipo'], G['m']
+    acq = (tipo == 1) & (Mb == ACQUA)
+    erba = (tipo == 1) & (Mb == ERBA)
+    for (n, x0, y0) in RUDERI:
+        a = np.asarray(Image.open(os.path.join(TER, 'strade_radenna', n + '.png')).convert('RGBA')).astype(float)
+        _posa_su(out, a, x0, y0, erba)
+    for (n, fx, fy) in POZZE:
+        f, (px, py), _ = pezzo(n)
+        a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
+        _posa_su(out, a, fx - px, fy - py, (tipo == 1) & np.isin(Mb, [ERBA, RIVA]))
+    for (k, x0, y0) in LUCI:
+        a = np.asarray(Image.open(os.path.join(NUOVI, 'luce_%d.png' % k)).convert('RGBA')).astype(float)
+        _posa_su(out, a, x0, y0, erba)
+    for (n, fx, fy) in NINFEE:
+        f, (px, py), _ = pezzo(n)
+        a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
+        a[_e_acqua_del_pezzo_v(a), 3] = 0
+        _posa_su(out, a, fx - px, fy - py, acq)
+    for (n, fx, fy) in SASSI_ACQUA:
+        f, (px, py), (w, h) = pezzo(n)
+        rx, ry = w * 0.62, max(2.5, h * 0.3)
+        for y in range(int(fy - ry - 3), int(fy + ry + 4)):          # la schiuma: un anello a puntini
+            for x in range(int(fx - rx - 3), int(fx + rx + 4)):
+                if 0 <= y < H and 0 <= x < W and acq[y, x]:
+                    e = ((x - fx) / rx) ** 2 + ((y - fy) / ry) ** 2
+                    if 0.7 <= e <= 1.25 and (x + 2 * y) % 3:
+                        out[y, x] = AQ[9] if e < 1 else AQ[8]
+        a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
+        _posa_su(out, a, fx - px, fy - py, acq)
+    c = np.asarray(Image.open(os.path.join(PEZ, 'radenna', 'canne_luminose.png')).convert('RGBA')).astype(float)
+    for (fx, fy, specchio) in CANNE:
+        a = c[:, ::-1] if specchio else c
+        px = a.shape[1] - 1 - 48 if specchio else 48
+        base = a.copy(); base[:72, :, 3] = 0
+        # sulla riva il piede delle canne e' una pozzetta di fango e muschio: sull'acqua, sui ciottoli e sull'erba
+        _posa_su(out, base, fx - px, fy - 98, (tipo == 1) & np.isin(Mb, [ACQUA, RIVA, ERBA]))
+    return out
+
+
+def _posa_su(out, a, x0, y0, dove):
+    for j in range(a.shape[0]):
+        for i in range(a.shape[1]):
+            y, x = y0 + j, x0 + i
+            if 0 <= y < H and 0 <= x < W and a[j, i, 3] > 0 and dove[y, x]:
+                out[y, x] = a[j, i, :3]
+
+
+# le luci che bagnano il terreno di turchese: (x, y, forza, raggio)
+def _sorgenti():
+    s = []
+    for (n, f, x, y, piede, imp) in _impiedi():
+        if 'canne' in n:
+            s.append((x, y + 20, 0.7, 22))
+        elif 'bulbi' in n:
+            s.append((x, y - 4, 0.5, 11))
+        elif 'baccelli' in n or 'sfere' in n:
+            s.append((x, y - 4, 0.55, 14))
+        elif 'albero_blu' in n:
+            s.append((x, y - 10, 0.45, 40))
+        elif 'vasca' in n:
+            s.append((x, y - 8, 0.5, 28))
+    for (n, fx, fy) in POZZE:
+        s.append((fx - 30, fy - 30, 0.4, 26))
+    return s
+
+
 def luce_turchese(out, G):
-    # la luce dell'acqua e delle piante luminose sul prato, sulla pietra e sulla strada (non sull'acqua): a tre
-    # gradini, con un retino 4x4 dove un gradino passa nell'altro
     tipo, Mb = G['tipo'], G['m']
     acque = (Mb == ACQUA)
     L = _sfoca(acque.astype(float), 7) * 0.9
     Y, X = np.mgrid[:H, :W]
-    for (x, y, f, r) in SORGENTI:
-        L += f * np.exp(-((X - x) ** 2 + (Y - y) ** 2) / (2.0 * r * r))
+    for (x, y, f, r) in _sorgenti():
+        x0, x1, y0, y1 = max(0, x - 3 * r), min(W, x + 3 * r), max(0, y - 3 * r), min(H, y + 3 * r)
+        L[y0:y1, x0:x1] += f * np.exp(-((X[y0:y1, x0:x1] - x) ** 2 + (Y[y0:y1, x0:x1] - y) ** 2) / (2.0 * r * r))
     for (k, x0, y0) in LUCI:
-        L += 0.3 * np.exp(-((X - x0 - 6) ** 2 + (Y - y0 - 6) ** 2) / (2.0 * 7 * 7))
+        L[max(0, y0 - 15):y0 + 28, max(0, x0 - 15):x0 + 28] += 0.3 * np.exp(
+            -((X[max(0, y0 - 15):y0 + 28, max(0, x0 - 15):x0 + 28] - x0 - 6) ** 2
+              + (Y[max(0, y0 - 15):y0 + 28, max(0, x0 - 15):x0 + 28] - y0 - 6) ** 2) / 98.0)
     bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
     q = np.clip(np.floor(np.clip(L, 0, 1) * 3.2 + bayer[Y % 4, X % 4] - 0.35), 0, 3).astype(int)
     k = np.array([0.0, 0.07, 0.14, 0.24])[q]
@@ -893,23 +826,22 @@ def luce_turchese(out, G):
 
 
 def ombre(out, G):
-    # l'ombra ovale per terra di ogni cosa in piedi (luce da in alto a sinistra: l'ombra va un poco a destra)
+    # l'ombra ovale di ogni cosa in piedi (luce da in alto a sinistra: va un poco a destra); sotto le chiome il
+    # prato e' all'ombra, una macchia larga a due gradini col retino
     tipo, Mb = G['tipo'], G['m']
     bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
-    for (f, fx, fy, piede, impronta) in IN_PIEDI:
-        if impronta == (0, 0):
+    for (n, f, fx, fy, piede, imp) in _impiedi():
+        if 'canne' in n:
             continue
         w = Image.open(os.path.join(LIV, f)).size[0]
-        if 'albero' in f or 'cespuglione' in f:
-            # sotto le chiome il prato e' all'ombra: una macchia larga, a due gradini col retino in mezzo
+        if 'albero' in n or 'cespuglione' in n or 'pino' in n:
             rx = 0.56 * w; ry = 0.24 * w; cx, cy = fx + 5, fy - 3
             for y in range(int(cy - ry - 1), int(cy + ry + 2)):
                 for x in range(int(cx - rx - 1), int(cx + rx + 2)):
                     if 0 <= y < H and 0 <= x < W and tipo[y, x] == 1 and Mb[y, x] != ACQUA:
                         e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
                         if e <= 1:
-                            gr = 2 if e + bayer[y % 4, x % 4] * 0.3 < 0.55 else 1
-                            out[y, x] *= 0.8 if gr == 2 else 0.9
+                            out[y, x] *= 0.8 if e + bayer[y % 4, x % 4] * 0.3 < 0.55 else 0.9
         rx = max(5.0, 0.32 * w); ry = max(2.5, rx * 0.32); cx, cy = fx + 3, fy - 1
         for y in range(int(cy - ry - 1), int(cy + ry + 2)):
             for x in range(int(cx - rx - 1), int(cx + rx + 2)):
@@ -921,33 +853,45 @@ def ombre(out, G):
 
 
 def anteprima(terreno):
-    # il terreno con tutte le cose in piedi, in ordine di piede (come le mette il gioco)
     out = terreno.astype(float).copy()
-    for (f, fx, fy, piede, _) in sorted(IN_PIEDI, key=lambda c: c[2]):
+    for (n, f, fx, fy, piede, imp) in sorted(_impiedi(), key=lambda c: c[3]):
         a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
         _posa(out, a, fx - piede[0], fy - piede[1])
     return out
 
 
 def passi(G):
-    # dove si cammina: i pavimenti d'erba, strada e ponte, tutta la scala (pedate e alzate); non l'acqua, non le
-    # pareti, non le spallette e i fianchi della scala, non le impronte delle cose in piedi
+    # dove si cammina: prato, strada, piano del ponte, sponde di ciottoli (in cima); non l'acqua, non la sponda di
+    # faccia, non le spallette; non i piedi delle cose in piedi e la pozza coi sassi
     tipo, Mb = G['tipo'], G['m']
-    ok = (((tipo == 1) & np.isin(Mb, [ERBA, STRADA, PONTE, SCALA, LASTRA]))
-          | ((tipo == 2) & np.isin(Mb, [SCALA, STRADA])))
-    for (f, fx, fy, piede, (rx, ry)) in IN_PIEDI:
-        if rx == 0:
-            continue
-        yy, xx = np.ogrid[:H, :W]
-        ok &= ((xx - fx) / rx) ** 2 + ((yy - fy) / ry) ** 2 > 1
+    ok = (tipo == 1) & np.isin(Mb, [ERBA, STRADA, PONTE, RIVA])
+    yy, xx = np.ogrid[:H, :W]
+    for (n, f, fx, fy, piede, (rx, ry)) in _impiedi():
+        if rx:
+            ok &= ((xx - fx) / rx) ** 2 + ((yy - fy) / ry) ** 2 > 1
+    for (n, fx, fy) in POZZE:
+        ok &= ((xx - (fx - 30)) / 40.0) ** 2 + ((yy - (fy - 34)) / 22.0) ** 2 > 1
     m = np.zeros((H, W, 4), np.uint8); m[ok] = (255, 255, 255, 255)
     return m
 
 
+PARTENZA = [612, 700]
+STANZE = [
+    {"nome": "L'arrivo", "rett": [480, 600, 800, 720]},
+    {"nome": "La piazza antica", "rett": [540, 400, 860, 600]},
+    {"nome": "Il ponte", "rett": [620, 140, 780, 340]},
+    {"nome": "Lo stagno", "rett": [250, 200, 520, 420]},
+    {"nome": "La pianura", "rett": [0, 0, W, H]},
+]
+GIRO = [[612, 700], [650, 610], [650, 505], [650, 420], [688, 352], [700, 300], [700, 200], [694, 140],
+        [600, 196], [420, 250], [600, 196], [690, 120], [650, 62], [606, 12]]
+
+
 def main():
-    prepara()
-    t = pianta()
-    terreno, G = disegna(t)
+    prepara_pianura()
+    prepara_specchiati()
+    t, F = pianta()
+    terreno, G = disegna(t, F)
     terreno = decora(terreno, G)
     terreno = luce_turchese(terreno, G)
     terreno = ombre(terreno, G)
@@ -956,13 +900,13 @@ def main():
     with open(os.path.join(LIV, 'ruscello_pezzi.json'), 'w') as f:
         json.dump({"_nota": "Scritto da strumenti/livelli/ruscello_radenna.py: non toccare a mano. Ogni pezzo e' "
                             "[file (da art/livelli/), x, y del piede nel mondo, x, y del piede nel disegno].",
-                   "pezzi": [[p[0], p[1], p[2], p[3][0], p[3][1]] for p in sorted(IN_PIEDI, key=lambda c: c[2])]},
+                   "pezzi": [[c[1], c[2], c[3], c[4][0], c[4][1]] for c in sorted(_impiedi(), key=lambda c: c[3])]},
                   f, indent=1, ensure_ascii=False)
         f.write('\n')
     pianta_json = {
-        "_nota": "La sezione del ruscello di Radenna, fatta a piani da strumenti/livelli/ruscello_radenna.py: la "
-                 "terrazza col canale e la cascata, la pozza e il ruscello col ponte, la piazzetta, la scala verso "
-                 "l'atterraggio. Non e' ancora un livello del gioco: per provarla.",
+        "_nota": "Il ruscello di Radenna, una pianura aperta fatta da strumenti/livelli/ruscello_radenna.py: il "
+                 "ruscello a S con lo stagno, la strada che passa la piazza antica e il ponte, i boschetti sui bordi. "
+                 "Non e' ancora un livello del gioco: per provarla.",
         "nome": "Il ruscello di Radenna",
         "mappa": "ruscello.png", "scala": 1, "pixel": 1, "ingrandimento": 2,
         "_scala": "La mappa e' alla misura del mondo (un pixel, un pixel del mondo, come lei); la telecamera "
@@ -971,25 +915,18 @@ def main():
         "passi": "ruscello_passi.png",
         "erba": {"tinta": [0.2, 0.47], "saturazione": 0.42, "luce": [0.1, 0.85]},
         "limiti": [0, 0, W, H],
-        "partenza": [246, 470], "verso": [0, -1],
-        "stanze": [
-            {"nome": "La scala dell'atterraggio", "rett": [0, 410, W, H]},
-            {"nome": "La piazzetta", "rett": [0, 300, W, 410]},
-            {"nome": "Il ponte sul ruscello", "rett": [0, 168, W, 300]},
-            {"nome": "La terrazza della cascata", "rett": [0, 0, W, 168]},
-        ],
-        "giro": [[246, 470], [246, 440], [246, 400], [246, 360], [300, 345], [420, 345], [300, 345], [246, 320],
-                 [246, 280], [246, 240], [246, 200], [246, 170], [246, 140], [246, 110], [420, 36], [520, 36],
-                 [420, 36], [246, 40]],
-        "_giro": "Dalla scala dell'atterraggio alla piazzetta, fino alla vasca e indietro, sul ponte, su per la scala "
-                 "della terrazza, di la' dal canale sulla lastra e indietro.",
+        "partenza": PARTENZA, "verso": [0, -1],
+        "stanze": STANZE,
+        "giro": GIRO,
+        "_giro": "Dalla strada che arriva dal basso, attraverso la piazza antica, sul ponte, fino allo stagno e "
+                 "indietro, poi su per la strada.",
     }
     with open(os.path.join(LIV, 'ruscello.json'), 'w') as f:
         json.dump(pianta_json, f, indent=1, ensure_ascii=False)
         f.write('\n')
     if len(sys.argv) > 1:
         _salva(anteprima(terreno), sys.argv[1])
-    print('ruscello: mappa %dx%d, %d cose in piedi' % (W, H, len(IN_PIEDI)))
+    print('ruscello: mappa %dx%d, %d cose in piedi' % (W, H, len(_impiedi())))
 
 
 if __name__ == '__main__':

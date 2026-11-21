@@ -1,5 +1,5 @@
 {
- "_nota": "La sezione del ruscello di Radenna, fatta a piani da strumenti/livelli/ruscello_radenna.py: la terrazza col canale e la cascata, la pozza e il ruscello col ponte, la piazzetta, la scala verso l'atterraggio. Non e' ancora un livello del gioco: per provarla.",
+ "_nota": "Il ruscello di Radenna, una pianura aperta fatta da strumenti/livelli/ruscello_radenna.py: il ruscello a S con lo stagno, la strada che passa la piazza antica e il ponte, i boschetti sui bordi. Non e' ancora un livello del gioco: per provarla.",
  "nome": "Il ruscello di Radenna",
  "mappa": "ruscello.png",
  "scala": 1,
@@ -22,12 +22,12 @@
  "limiti": [
   0,
   0,
-  640,
-  480
+  1280,
+  720
  ],
  "partenza": [
-  246,
-  470
+  612,
+  700
  ],
  "verso": [
   0,
@@ -35,115 +35,108 @@
  ],
  "stanze": [
   {
-   "nome": "La scala dell'atterraggio",
+   "nome": "L'arrivo",
    "rett": [
-    0,
-    410,
-    640,
-    480
+    480,
+    600,
+    800,
+    720
    ]
   },
   {
-   "nome": "La piazzetta",
+   "nome": "La piazza antica",
    "rett": [
-    0,
-    300,
-    640,
-    410
+    540,
+    400,
+    860,
+    600
    ]
   },
   {
-   "nome": "Il ponte sul ruscello",
+   "nome": "Il ponte",
    "rett": [
-    0,
-    168,
-    640,
-    300
+    620,
+    140,
+    780,
+    340
    ]
   },
   {
-   "nome": "La terrazza della cascata",
+   "nome": "Lo stagno",
+   "rett": [
+    250,
+    200,
+    520,
+    420
+   ]
+  },
+  {
+   "nome": "La pianura",
    "rett": [
     0,
     0,
-    640,
-    168
+    1280,
+    720
    ]
   }
  ],
  "giro": [
   [
-   246,
-   470
+   612,
+   700
   ],
   [
-   246,
-   440
+   650,
+   610
   ],
   [
-   246,
-   400
+   650,
+   505
   ],
   [
-   246,
-   360
+   650,
+   420
   ],
   [
-   300,
-   345
+   688,
+   352
   ],
   [
-   420,
-   345
+   700,
+   300
   ],
   [
-   300,
-   345
-  ],
-  [
-   246,
-   320
-  ],
-  [
-   246,
-   280
-  ],
-  [
-   246,
-   240
-  ],
-  [
-   246,
+   700,
    200
   ],
   [
-   246,
-   170
-  ],
-  [
-   246,
+   694,
    140
   ],
   [
-   246,
-   110
+   600,
+   196
   ],
   [
    420,
-   36
+   250
   ],
   [
-   520,
-   36
+   600,
+   196
   ],
   [
-   420,
-   36
+   690,
+   120
   ],
   [
-   246,
-   40
+   650,
+   62
+  ],
+  [
+   606,
+   12
   ]
  ],
- "_giro": "Dalla scala dell'atterraggio alla piazzetta, fino alla vasca e indietro, sul ponte, su per la scala della terrazza, di la' dal canale sulla lastra e indietro."
+ "_giro": "Dalla strada che arriva dal basso, attraverso la piazza antica, sul ponte, fino allo stagno e indietro, poi su per la strada."
 }
