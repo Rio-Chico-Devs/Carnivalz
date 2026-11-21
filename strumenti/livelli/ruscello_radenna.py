@@ -364,10 +364,16 @@ class Muratura:
         self.file = []
         for r in range(8):
             fila = np.zeros(W + 40, int); sx = np.zeros(W + 40, int); x = -int(rng.integers(0, 24)); k = 0
+            crepe = []   # una crepa storta per blocco (dove c'e'): la colonna della crepa riga per riga
             while x < W + 40:
                 w = int(rng.integers(16, 31)); a, b = max(0, x), min(W + 40, x + w)
                 fila[a:b] = k; sx[a:b] = x; x += w; k += 1
-            self.file.append((fila, sx, rng.integers(-1, 2, k + 1), rng.random(k + 1) < 0.18, rng.random(k + 1) < 0.2))
+                c = int(rng.integers(4, w - 4)); cam = []
+                for j in range(10):
+                    cam.append(c); c = int(np.clip(c + rng.choice([-1, 0, 0, 1]), 2, w - 3))
+                crepe.append(cam)
+            self.file.append((fila, sx, rng.integers(-1, 2, k + 1), rng.random(k + 1) < 0.22, rng.random(k + 1) < 0.2,
+                              crepe, rng.integers(1, 4, k + 1)))
 
     def cx(self, x):
         return 53 + x % self.PER
@@ -396,7 +402,7 @@ class Muratura:
 
     def blocchi(self, x, d):
         r = d // 10; j = d % 10
-        fila, sx, tono, crepa, muschio = self.file[r % 8]
+        fila, sx, tono, crepa, muschio, crepe, inizio = self.file[r % 8]
         k = fila[x]; i = x - sx[x]
         if j == 9 or i == 0:
             return P[1]
@@ -404,8 +410,11 @@ class Muratura:
         if i == 1:
             b += 1
         b += tono[k]
-        if crepa[k] and j > 1 and (i - j) % 9 == 4:
-            b = 1
+        if crepa[k] and inizio[k] <= j <= 8:
+            if i == crepe[k][j]:
+                b = 1
+            elif i == crepe[k][j] + 1 and j % 3:
+                b += 1
         if muschio[k] and j < 3 and (i * 3 + j) % 4:
             return VERDI[5 + (i + j) % 3]
         return P[int(np.clip(b, 0, 7))]
@@ -700,6 +709,21 @@ def disegna(t, seme=3):
                 for k, f in enumerate((0.58, 0.72, 0.86)):
                     if y + k < H and tipo[y + k, x] == 1 and Mb[y + k, x] != ACQUA:
                         img[y + k, x] *= f
+    # l'erba del piano di sotto che sale a ciuffi sul piede della parete (nell'ombra della parete)
+    sale = np.zeros(W + 8, int); x = int(rng.integers(0, 9))
+    while x < W:
+        n = int(rng.integers(2, 6)); alto = int(rng.integers(2, 5))
+        for i in range(n):
+            sale[x + i] = max(1, alto - abs(i - n // 2) - (1 if rng.random() < 0.35 else 0))
+        x += n + int(rng.integers(4, 18))
+    for x in range(W):
+        if not sale[x]:
+            continue
+        for y in range(1, H):
+            if (tipo[y - 1, x] == 2 and Mb[y - 1, x] == ERBA and tipo[y, x] == 1 and Mb[y, x] == ERBA):
+                for j in range(1, sale[x] + 1):
+                    if tipo[y - j, x] == 2 and Mb[y - j, x] == ERBA:
+                        img[y - j, x] = (VERDI[2] if j == sale[x] else VERDI[4 + (x + j) % 2]) * 0.8
     out = img.copy()
     for y in range(H):
         for x in range(W):
@@ -729,6 +753,8 @@ def disegna(t, seme=3):
 LUCI = [(0, 266, 16), (2, 290, 30), (3, 252, 38), (1, 520, 56), (3, 540, 70), (0, 344, 300), (2, 366, 290),
         (1, 150, 344), (3, 172, 358), (2, 136, 362), (1, 420, 352), (3, 440, 330), (0, 30, 186), (2, 52, 200)]
 NINFEE = [('radenna/ninfee_loto.png', 404, 272, (52, 82)), ('radenna/ninfee_fiori.png', 40, 318, (29, 85))]
+# i resti del lastricato attorno alla colonna (i pezzi rotti del kit delle strade): li' c'era una piazzetta
+RUDERI = [('rovina_1', 262, 76), ('rovina_2', 352, 66), ('rovina_3', 404, 46)]
 SASSI_ACQUA = [('rocce/sasso_4.png', 448, 240, (9, 15)), ('rocce/sassolino_1.png', 476, 243, (5, 8))]
 CANNE = [(562, 262, False), (132, 302, True)]           # piede (x, y) e se e' specchiata
 # le cose in piedi: file (da art/livelli/), piede nel mondo, piede nel disegno, impronta (dove non si passa)
@@ -744,8 +770,8 @@ IN_PIEDI = [
     ('pezzi/rocce/masso_muschio_3.png', 112, 152, (14, 20), (12, 4)),
     ('pezzi/rocce/sassolino_2.png', 128, 156, (7, 10), (6, 3)),
     ('pezzi/rocce/masso_basso_4.png', 352, 180, (15, 15), (13, 4)),
-    ('pezzi/ruscello/canne_steli.png', 562, 262 - 28, (48, 71), (0, 0)),
-    ('pezzi/ruscello/canne_steli_s.png', 132, 302 - 28, (36, 71), (0, 0)),
+    ('pezzi/ruscello/canne_steli.png', 562, 262 - 27, (48, 71), (0, 0)),       # attaccati al piede dipinto
+    ('pezzi/ruscello/canne_steli_s.png', 132, 302 - 27, (36, 71), (0, 0)),
     ('pezzi/radenna/vasca_pietra.png', 506, 366, (53, 88), (40, 9)),
     ('pezzi/alberi/albero_funghi.png', 64, 478, (69, 124), (10, 5)),
     ('pezzi/ruscello/cespuglione_verde_s.png', 600, 476, (59, 124), (30, 7)),
@@ -771,6 +797,13 @@ def _e_acqua_del_pezzo(c):
 def decora(out, G):
     tipo, Mb = G['tipo'], G['m']
     acq = (tipo == 1) & (Mb == ACQUA)
+    for (n, x0, y0) in RUDERI:          # prima i resti del lastricato: le luci ci possono stare sopra
+        a = np.asarray(Image.open(os.path.join(TER, 'strade_radenna', n + '.png')).convert('RGBA')).astype(float)
+        for j in range(a.shape[0]):
+            for i in range(a.shape[1]):
+                y, x = y0 + j, x0 + i
+                if 0 <= y < H and 0 <= x < W and a[j, i, 3] > 0 and tipo[y, x] == 1 and Mb[y, x] == ERBA:
+                    out[y, x] = a[j, i, :3]
     for (k, x0, y0) in LUCI:
         l = np.asarray(Image.open(os.path.join(NUOVI, 'luce_%d.png' % k)).convert('RGBA')).astype(float)
         for j in range(l.shape[0]):
@@ -845,10 +878,21 @@ def luce_turchese(out, G):
 def ombre(out, G):
     # l'ombra ovale per terra di ogni cosa in piedi (luce da in alto a sinistra: l'ombra va un poco a destra)
     tipo, Mb = G['tipo'], G['m']
+    bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16.0
     for (f, fx, fy, piede, impronta) in IN_PIEDI:
         if impronta == (0, 0):
             continue
         w = Image.open(os.path.join(LIV, f)).size[0]
+        if 'albero' in f or 'cespuglione' in f:
+            # sotto le chiome il prato e' all'ombra: una macchia larga, a due gradini col retino in mezzo
+            rx = 0.56 * w; ry = 0.24 * w; cx, cy = fx + 5, fy - 3
+            for y in range(int(cy - ry - 1), int(cy + ry + 2)):
+                for x in range(int(cx - rx - 1), int(cx + rx + 2)):
+                    if 0 <= y < H and 0 <= x < W and tipo[y, x] == 1 and Mb[y, x] != ACQUA:
+                        e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
+                        if e <= 1:
+                            gr = 2 if e + bayer[y % 4, x % 4] * 0.3 < 0.55 else 1
+                            out[y, x] *= 0.8 if gr == 2 else 0.9
         rx = max(5.0, 0.32 * w); ry = max(2.5, rx * 0.32); cx, cy = fx + 3, fy - 1
         for y in range(int(cy - ry - 1), int(cy + ry + 2)):
             for x in range(int(cx - rx - 1), int(cx + rx + 2)):
