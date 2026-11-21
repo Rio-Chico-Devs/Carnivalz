@@ -18,8 +18,9 @@ extends Node2D
 #
 #   nell'editor: F6 su prove/LivelloProva.tscn
 #
-# Dalla riga di comando (dopo --): livello pianure|panottico|radenna (se
-# manca, le Pianure; radenna e' il prato di prova del kit delle strade),
+# Dalla riga di comando (dopo --): livello pianure|panottico|radenna|ruscello
+# (se manca, le Pianure; radenna e' il prato di prova del kit delle strade,
+# ruscello la sezione del ruscello di Radenna fatta a piani),
 # protagonista lui|lei, film (il pilota automatico fa il giro della pianta e
 # chiude), anteprima N (la foto del fotogramma N, in scatti/livelli/),
 # sequenza N K (dal fotogramma N, K foto una ogni due, in

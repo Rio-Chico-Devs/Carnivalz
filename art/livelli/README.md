@@ -6,6 +6,8 @@ che dice dove si cammina.
 
     F6 su prove/LivelloProva.tscn                  le Pianure (P passa da lei a lui)
     prove/LivelloProva.tscn -- livello panottico   il Panottico
+    prove/LivelloProva.tscn -- livello ruscello    il ruscello di Radenna
+    python3 strumenti/livelli/ruscello_radenna.py  rifà il ruscello: la pianta delle altezze, poi gli oggetti
     python3 strumenti/livelli/alberi.py            ridisegna gli alberi, pixel per pixel
     python3 strumenti/livelli/oggetti.py           rifà la libreria dei pezzi dai fogli di Bru
     python3 strumenti/livelli/compone.py           rifà le Pianure coi pezzi
@@ -15,6 +17,7 @@ che dice dove si cammina.
 |---|---|
 | `pianure` | **Le Pianure di Redenna**, il primo livello. È **composto coi pezzi** della libreria (`oggetti/`), sul disegno di Bru e secondo la tabella di marcia del tutorial |
 | `panottico` | **Il Panottico silenzioso**: dietro la porta enorme oltre l'altare della bambola, nella Casa Gigante. È il disegno di Bru («THE SILENT PANOPTICON»), pulito |
+| `ruscello` | **Il ruscello di Radenna**, una sezione di prova: prima il terreno (una pianta delle altezze proiettata in vista 3/4: terrazza, canale e cascata, ruscello col ponte, piazzetta, scala), poi gli oggetti sopra. Materiali e pezzi dai fogli di Bru, a misura della lei chibi (74 px) |
 
 ## I pezzi disegnati: `pezzi/`
 

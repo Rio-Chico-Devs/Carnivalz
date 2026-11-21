@@ -1,0 +1,149 @@
+{
+ "_nota": "La sezione del ruscello di Radenna, fatta a piani da strumenti/livelli/ruscello_radenna.py: la terrazza col canale e la cascata, la pozza e il ruscello col ponte, la piazzetta, la scala verso l'atterraggio. Non e' ancora un livello del gioco: per provarla.",
+ "nome": "Il ruscello di Radenna",
+ "mappa": "ruscello.png",
+ "scala": 1,
+ "pixel": 1,
+ "ingrandimento": 2,
+ "_scala": "La mappa e' alla misura del mondo (un pixel, un pixel del mondo, come lei); la telecamera ingrandisce due volte.",
+ "pezzi": "ruscello_pezzi.json",
+ "passi": "ruscello_passi.png",
+ "erba": {
+  "tinta": [
+   0.2,
+   0.47
+  ],
+  "saturazione": 0.42,
+  "luce": [
+   0.1,
+   0.85
+  ]
+ },
+ "limiti": [
+  0,
+  0,
+  640,
+  480
+ ],
+ "partenza": [
+  246,
+  470
+ ],
+ "verso": [
+  0,
+  -1
+ ],
+ "stanze": [
+  {
+   "nome": "La scala dell'atterraggio",
+   "rett": [
+    0,
+    410,
+    640,
+    480
+   ]
+  },
+  {
+   "nome": "La piazzetta",
+   "rett": [
+    0,
+    300,
+    640,
+    410
+   ]
+  },
+  {
+   "nome": "Il ponte sul ruscello",
+   "rett": [
+    0,
+    168,
+    640,
+    300
+   ]
+  },
+  {
+   "nome": "La terrazza della cascata",
+   "rett": [
+    0,
+    0,
+    640,
+    168
+   ]
+  }
+ ],
+ "giro": [
+  [
+   246,
+   470
+  ],
+  [
+   246,
+   440
+  ],
+  [
+   246,
+   400
+  ],
+  [
+   246,
+   360
+  ],
+  [
+   300,
+   345
+  ],
+  [
+   420,
+   345
+  ],
+  [
+   300,
+   345
+  ],
+  [
+   246,
+   320
+  ],
+  [
+   246,
+   280
+  ],
+  [
+   246,
+   240
+  ],
+  [
+   246,
+   200
+  ],
+  [
+   246,
+   170
+  ],
+  [
+   246,
+   140
+  ],
+  [
+   246,
+   110
+  ],
+  [
+   420,
+   36
+  ],
+  [
+   520,
+   36
+  ],
+  [
+   420,
+   36
+  ],
+  [
+   246,
+   40
+  ]
+ ],
+ "_giro": "Dalla scala dell'atterraggio alla piazzetta, fino alla vasca e indietro, sul ponte, su per la scala della terrazza, di la' dal canale sulla lastra e indietro."
+}
