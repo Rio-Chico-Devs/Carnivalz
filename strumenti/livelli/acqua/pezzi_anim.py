@@ -6,11 +6,12 @@ import numpy as np
 from PIL import Image
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
 NPZ, OUT = sys.argv[1:3]
-RAD = os.path.join(REPO, 'art/livelli/pezzi/radenna')
+LIV = os.path.join(REPO, 'art/livelli')
+FUSI = 'pezzi/ruscello/fusi/'          # i pezzi della mappa del ruscello, col contorno fuso nel terreno
 
 
-def carica(nome):
-    return np.asarray(Image.open(os.path.join(RAD, nome + '.png')).convert('RGBA')).astype(int)
+def carica(nome, cartella=FUSI):
+    return np.asarray(Image.open(os.path.join(LIV, cartella + nome + '.png')).convert('RGBA')).astype(int)
 
 
 def erodi(m):
@@ -71,7 +72,7 @@ for f in range(N):
                         o[y, x] = a[y, xs]
     fot.append(o.astype(np.uint8))
 Image.fromarray(striscia(fot), 'RGBA').save(os.path.join(OUT, 'vasche_gradini_anim.png'), optimize=True)
-info['pezzi/radenna/vasche_gradini.png'] = {'file': 'vasche_gradini_anim.png', 'n': N, 'ms': 70}
+info[FUSI + 'vasche_gradini.png'] = {'file': 'vasche_gradini_anim.png', 'n': N, 'ms': 70}
 # ------------------------------------------------------------ la vasca di pietra
 a = carica('vasca_pietra')
 r, g, b, al = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
@@ -84,11 +85,11 @@ for f in range(N):
     ondeggia(a, o, dentro, f, N, lam=6, cicli=1)
     fot.append(o.astype(np.uint8))
 Image.fromarray(striscia(fot), 'RGBA').save(os.path.join(OUT, 'vasca_pietra_anim.png'), optimize=True)
-info['pezzi/radenna/vasca_pietra.png'] = {'file': 'vasca_pietra_anim.png', 'n': N, 'ms': 100}
+info[FUSI + 'vasca_pietra.png'] = {'file': 'vasca_pietra_anim.png', 'n': N, 'ms': 100}
 # ------------------------------------------------------------ la pozza coi sassi (e' dentro la mappa)
 d = np.load(NPZ)
 mappa = d['mappa'].astype(int)
-p = carica('sassi_pozza')
+p = carica('sassi_pozza', 'pezzi/radenna/')
 r, g, b, al = p[..., 0], p[..., 1], p[..., 2], p[..., 3]
 acqua_p = (al > 0) & (b - r >= 20) & (g - r >= 35)
 px, py = 83, 82

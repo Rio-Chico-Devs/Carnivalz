@@ -16,7 +16,9 @@
 # Materiali e pezzi dai fogli di Bru: l'erba di Radenna, i ciottoli muschiosi (tile_radenna) per le sponde, la
 # piazza a nove lastre (tile_radenna), l'acqua della vasca col filo chiaro lungo i bordi, il bordo della vasca
 # per le spallette del ponte, i pezzi delle pianure di Radenna (vasca, vasche a gradini, ninfee, pozza
-# coi sassi, colonna). L'acqua e le piante luminose bagnano di turchese l'erba vicina.
+# coi sassi, colonna). L'acqua, la vasca e le luci bagnano di turchese l'erba vicina. Bulbi, baccelli e alberi a
+# funghi sono di altri biomi (Bru, 24 novembre): qui non ci sono. Il contorno di fuori dei pezzi e' fuso nel terreno
+# (fondi): scuro e mezzo trasparente, e alberi, cespugli e sassi hanno la base piantata nell'erba.
 #
 # Scrive art/livelli/ruscello.png (il terreno, con le cose piatte), ruscello_pezzi.json (le cose in piedi, che il
 # gioco mette insieme a lei in ordine di piede), ruscello_passi.png (dove si cammina) e ruscello.json; e i pezzi
@@ -659,29 +661,29 @@ def impronta(nome, w, h):
 
 # le cose in piedi, a gruppi e con un motivo: (nome, x, y del piede)
 ALBERI = [
-    # il bosco in alto a sinistra: pini, un albero a funghi, alberelli e cespuglioni, fitto nell'angolo
-    ('pino_2', 34, 96), ('pino_1', 84, 64), ('pino_3', 10, 170), ('albero_funghi', 160, 130), ('albero_2', 116, 186),
+    # il bosco in alto a sinistra: pini, alberelli e cespuglioni, fitto nell'angolo
+    ('pino_2', 34, 96), ('pino_1', 84, 64), ('pino_3', 10, 170), ('albero_3', 160, 130), ('albero_2', 116, 186),
     ('cespuglione_verde', 250, 72), ('pino_2_s', 320, 34), ('albero_4', 52, 238),
     # il bordo in alto, a gruppetti, coi varchi della strada e del ruscello
     ('pino_1', 402, 26), ('albero_1', 446, 42), ('cespuglione_verde_s', 490, 14),
-    ('pino_1_s', 704, 28), ('albero_3', 744, 46), ('albero_funghi_s', 820, 40), ('pino_3', 902, 22),
+    ('pino_1_s', 704, 28), ('albero_3', 744, 46), ('albero_1', 820, 40), ('pino_3', 902, 22),
     # in alto a destra, oltre il ruscello
-    ('pino_1', 1132, 46), ('albero_2', 1160, 98), ('albero_funghi', 1198, 140), ('pino_2', 1252, 66),
+    ('pino_1', 1132, 46), ('albero_2', 1160, 98), ('pino_3', 1198, 140), ('pino_2', 1252, 66),
     ('cespuglione_verde_s', 1250, 250),
     # il bordo a destra
     ('pino_3', 1264, 360), ('albero_4', 1238, 402), ('pino_1', 1268, 536), ('albero_1', 1236, 584),
     # il bordo in basso, a gruppi, col varco della strada
-    ('pino_1_s', 20, 656), ('albero_funghi', 64, 712), ('albero_2', 120, 676), ('cespuglione_verde_s', 176, 718),
+    ('pino_1_s', 20, 656), ('albero_1', 64, 712), ('albero_2', 120, 676), ('cespuglione_verde_s', 176, 718),
     ('pino_2', 262, 708), ('pino_3', 300, 686),
     ('albero_3', 424, 702), ('cespuglione_verde', 478, 716),
     ('pino_2_s', 716, 718), ('albero_1', 760, 698),
-    ('albero_funghi', 880, 716), ('pino_3', 944, 704), ('albero_4', 978, 684),
-    ('cespuglione_verde', 1052, 716), ('albero_funghi_s', 1150, 714), ('albero_2', 1198, 670), ('pino_1', 1242, 642),
+    ('albero_3', 880, 716), ('pino_3', 944, 704), ('albero_4', 978, 684),
+    ('cespuglione_verde', 1052, 716), ('pino_2_s', 1150, 714), ('albero_2', 1198, 670), ('pino_1', 1242, 642),
     ('pino_2_s', 1266, 716),
     # il bordo a sinistra
     ('pino_2', 14, 304), ('albero_4', 34, 352), ('cespuglione_verde', 22, 428), ('pino_1_s', 10, 470),
     # l'albero solo, nel prato grande
-    ('albero_funghi_s', 962, 470),
+    ('albero_2', 962, 470),
 ]
 COSE = [
     # la piazza antica: due colonne in diagonale, la vasca di pietra accanto
@@ -693,10 +695,6 @@ COSE = [
     ('masso_muschio_9', 318, 566), ('sasso_2', 336, 570), ('masso_basso_4', 936, 494), ('sassolino_1', 990, 488),
     ('masso_muschio_1', 1106, 420), ('sasso_4', 1124, 426), ('masso_muschio_8', 140, 214), ('sassolino_3', 156, 218),
     ('masso_muschio_3', 560, 640), ('sassolino_2', 576, 644), ('masso_basso_4', 846, 330),
-    # le piante luminose: vicino all'acqua e sotto gli alberi
-    ('bulbi', 330, 396), ('bulbi', 346, 404), ('bulbi', 496, 440), ('bulbi', 214, 454), ('bulbi', 1084, 254),
-    ('bulbi', 902, 476), ('baccelli', 566, 340), ('baccelli_s', 884, 266), ('baccelli', 1154, 526),
-    ('bulbi', 1004, 606), ('bulbi', 1020, 614), ('bulbi', 72, 304), ('baccelli_s', 1078, 168), ('bulbi', 536, 356),
 ]
 # le cose piatte: ninfee (solo sull'acqua ferma), la pozza coi sassi (una sorgente), i resti del lastricato
 NINFEE = [('ninfee_loto', 444, 346), ('ninfee_fiori', 340, 354), ('ninfee_fiori', 140, 588)]
@@ -710,11 +708,58 @@ LUCI = [(0, 420, 120), (2, 444, 136), (3, 404, 146), (1, 880, 60), (3, 900, 74),
         (3, 1236, 486), (0, 600, 160), (3, 620, 172)]
 
 
+FUSI = 'pezzi/ruscello/fusi/'                 # i pezzi di questa mappa col contorno fuso (da art/livelli/)
+NATURA = ('pino', 'albero', 'cespuglione', 'masso', 'sasso')
+SCURO = np.array([6.0, 24.0, 16.0])             # l'ombra del prato di Radenna, per il contorno di fuori
+ALFA_CONTORNO = 0.6
+
+
+def _h(x, s):
+    v = (x * 374761393 + s * 668265263) & 0xFFFFFFFF
+    v = ((v ^ (v >> 13)) * 1274126177) & 0xFFFFFFFF
+    return (v ^ (v >> 16)) / 4294967296.0
+
+
+def fondi(a, natura):
+    # Il contorno di fuori (i pixel scuri sul bordo) diventa l'ombra del prato mezza trasparente: sul prato e' prato
+    # scuro, sulla pietra pietra scura, sull'acqua acqua scura; le linee di dentro restano quelle di Bru. Per le cose
+    # della natura (alberi, cespugli, sassi) la base e' piantata: in fondo a ogni colonna, a caso, l'erba passa
+    # davanti (uno o due pixel).
+    a = a.astype(float).copy()
+    op = a[..., 3] >= 255
+    pad = np.pad(op, 1)
+    anello = op & (~pad[:-2, 1:-1] | ~pad[2:, 1:-1] | ~pad[1:-1, :-2] | ~pad[1:-1, 2:])
+    scuri = anello & (a[..., :3] @ np.array([0.3, 0.55, 0.15]) < 70)
+    a[scuri, :3] = SCURO
+    a[scuri, 3] = 255 * ALFA_CONTORNO
+    if natura:
+        for x in range(a.shape[1]):
+            ys = np.nonzero(a[:, x, 3] > 0)[0]
+            if len(ys) == 0:
+                continue
+            yb = ys.max()
+            if 0 < a[yb, x, 3] < 255 * ALFA_CONTORNO - 1:
+                continue                          # un'ombra morbida del disegno: si lascia
+            if _h(x, 1) < 0.55:
+                a[yb, x, 3] = 0
+                if yb >= 1 and _h(x, 2) < 0.25:
+                    a[yb - 1, x, 3] = 0
+    return a
+
+
+def prepara_fusi():
+    # le copie fuse dei pezzi in piedi di questa mappa (gli originali restano per le altre mappe)
+    for n in sorted(set(n for (n, x, y) in ALBERI + COSE)):
+        f, piede, misura = pezzo(n)
+        a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
+        _salva(fondi(a, any(k in n for k in NATURA)), os.path.join(LIV, FUSI + os.path.basename(f)))
+
+
 def _impiedi():
     tutte = []
     for (n, x, y) in ALBERI + COSE:
         f, piede, (w, h) = pezzo(n)
-        tutte.append((n, f, x, y, piede, impronta(n, w, h)))
+        tutte.append((n, FUSI + os.path.basename(f), x, y, piede, impronta(n, w, h)))
     return tutte
 
 
@@ -729,11 +774,11 @@ def decora(out, G):
     erba = (tipo == 1) & (Mb == ERBA)
     for (n, x0, y0) in RUDERI:
         a = np.asarray(Image.open(os.path.join(TER, 'strade_radenna', n + '.png')).convert('RGBA')).astype(float)
-        _posa_su(out, a, x0, y0, erba)
+        _posa_su(out, fondi(a, False), x0, y0, erba)
     for (n, fx, fy) in POZZE:
         f, (px, py), _ = pezzo(n)
         a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
-        _posa_su(out, a, fx - px, fy - py, (tipo == 1) & np.isin(Mb, [ERBA, RIVA]))
+        _posa_su(out, fondi(a, False), fx - px, fy - py, (tipo == 1) & np.isin(Mb, [ERBA, RIVA]))
     for (k, x0, y0) in LUCI:
         a = np.asarray(Image.open(os.path.join(NUOVI, 'luce_%d.png' % k)).convert('RGBA')).astype(float)
         _posa_su(out, a, x0, y0, erba)
@@ -741,7 +786,7 @@ def decora(out, G):
         f, (px, py), _ = pezzo(n)
         a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
         a[_e_acqua_del_pezzo_v(a), 3] = 0
-        _posa_su(out, a, fx - px, fy - py, acq)
+        _posa_su(out, fondi(a, False), fx - px, fy - py, acq)
     for (n, fx, fy) in SASSI_ACQUA:
         f, (px, py), (w, h) = pezzo(n)
         rx, ry = w * 0.62, max(2.5, h * 0.3)
@@ -752,7 +797,7 @@ def decora(out, G):
                     if 0.7 <= e <= 1.25 and (x + 2 * y) % 3:
                         out[y, x] = AQ[9] if e < 1 else AQ[8]
         a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
-        _posa_su(out, a, fx - px, fy - py, acq)
+        _posa_su(out, fondi(a, True), fx - px, fy - py, acq)
     return out
 
 
@@ -761,7 +806,8 @@ def _posa_su(out, a, x0, y0, dove):
         for i in range(a.shape[1]):
             y, x = y0 + j, x0 + i
             if 0 <= y < H and 0 <= x < W and a[j, i, 3] > 0 and dove[y, x]:
-                out[y, x] = a[j, i, :3]
+                al = a[j, i, 3] / 255.0              # il contorno fuso e' mezzo trasparente
+                out[y, x] = out[y, x] * (1 - al) + a[j, i, :3] * al
 
 
 # le luci che bagnano il terreno di turchese: (x, y, forza, raggio)
@@ -864,6 +910,7 @@ GIRO = [[612, 700], [650, 610], [650, 505], [650, 420], [672, 356], [700, 300], 
 def main():
     prepara_pianura()
     prepara_specchiati()
+    prepara_fusi()
     t, F = pianta()
     terreno, G = disegna(t, F)
     terreno = decora(terreno, G)

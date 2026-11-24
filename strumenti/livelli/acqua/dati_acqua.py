@@ -68,7 +68,7 @@ for (n, fx, fy) in R.SASSI_ACQUA:
                 e = ((xx - fx) / rx) ** 2 + ((yy - fy) / ry) ** 2
                 if 0.7 <= e <= 1.25:
                     schiuma[yy, xx] = 1 if e < 1 else 2
-    a = np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float)
+    a = R.fondi(np.asarray(Image.open(os.path.join(LIV, f)).convert('RGBA')).astype(float), True)   # come in mappa
     for j in range(a.shape[0]):
         for i in range(a.shape[1]):
             yy, xx = fy - py + j, fx - px + i
