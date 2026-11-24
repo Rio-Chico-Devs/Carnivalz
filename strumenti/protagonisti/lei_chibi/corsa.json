@@ -1,0 +1,9 @@
+{
+  "_nota": "La corsa scelta da Bru nella demo (24 novembre): velocita' in pixel del mondo al secondo; le durate sono quelle delle anteprime, da dividere per il ritmo (davanti e dietro: un giro ogni 0,47 s).",
+  "velocita": 185,
+  "ritmo": 1.15,
+  "durate_ms": {
+    "davanti_corsa": [40, 50, 40, 50, 40, 50, 40, 50, 40, 50, 40, 50],
+    "dietro_corsa": [60, 60, 60, 60, 60, 60, 60, 60, 60]
+  }
+}
