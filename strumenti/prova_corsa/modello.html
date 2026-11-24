@@ -504,7 +504,7 @@ kbd {
   // schiuma che gira attorno ai sassi e se ne stacca, i cerchi delle gocce nello stagno. Sponde, ninfee e sassi
   // restano quelli della mappa. I dati (dove sta ogni pixel nella tessera, quanto e' scuro, che cosa ci puo' passare) li fa lo script
   // dell'acqua dalla mappa del ruscello; la stessa logica in Python fa le anteprime.
-  const ACQ = { ok: false, on: true, vel: 20, t: 0, tick: -1, S: 0, chiave: "" };
+  const ACQ = { ok: false, on: true, vel: 20, t: 0, tick: -1, S: 0, chiave: "", G: null, dtMedio: 1 / 60 };
   const PASSO_ACQUA = 0.05;                          // 20 passi al secondo
   const QS = new URLSearchParams(location.search);
   let ACQUA_FISSA = QS.has("acqua_t") ? +QS.get("acqua_t") : null;     // per le prove: l'acqua ferma a quel tempo
@@ -533,19 +533,19 @@ kbd {
     if (!A) return;
     const dati = await immagine(A.dati), fraz = await immagine(A.frazioni), tess = await immagine(A.tessera);
     const W = dati.width, H = dati.height, px = pixelDi(dati), pf = pixelDi(fraz), tp = pixelDi(tess);
-    // dati: R, G = il punto della tessera (le frazioni in 256esimi nell'altra immagine); B = bit (0-2 scuro,
+    // dati: R, G = il punto della tessera (la fase, quarti di pixel, nell'altra immagine); B = bit (0-2 scuro,
     // 3 stagno delle ninfee, 4 increspature, 5 scintille, 6-7 schiuma); A = 255 dove l'acqua si muove
     let n = 0;
     for (let i = 3; i < px.length; i += 4) if (px[i] === 255) n++;
     const X = new Uint16Array(n), TX = new Uint8Array(n), TY = new Uint8Array(n), FL = new Uint8Array(n);
-    const FX = new Uint16Array(n), FY = new Uint16Array(n);
+    const BASE = new Uint32Array(n);          // dove comincia la riga del pixel nella tavola (fase e riga)
     const riga = new Uint32Array(H + 1), mk = new Int32Array(W * H).fill(-1);
     const scint = [], schiuma = [], anelli = A.gocce;
     const wc = document.createElement("canvas");
     wc.width = W;
     wc.height = H;
     const wg = wc.getContext("2d");
-    const wi = wg.createImageData(W, H);
+    const wiA = wg.createImageData(W, H), wiB = wg.createImageData(W, H);
     let k = 0;
     for (let y = 0; y < H; y++) {
       riga[y] = k;
@@ -554,20 +554,52 @@ kbd {
         if (px[q + 3] !== 255) continue;
         const f = px[q + 2];
         X[k] = x; TX[k] = px[q]; TY[k] = px[q + 1]; FL[k] = f; mk[i] = k;
-        FX[k] = pf[q]; FY[k] = pf[q + 1];
-        wi.data[q + 3] = 255;
+        BASE[k] = pf[q] * 36864 + px[q + 1] * 192;
+        wiA.data[q + 3] = 255; wiB.data[q + 3] = 255;
         if (f & 32) scint.push(i);
         if (f >> 6) schiuma.push(i);
         k++;
       }
     }
     riga[H] = k;
+    // per ogni striscia di 32 righe, da dove a dove c'e' acqua: si copia sullo schermo solo quella parte
+    const fx0 = new Int32Array(Math.ceil(H / 32)).fill(W), fx1 = new Int32Array(Math.ceil(H / 32)).fill(-1);
+    for (let y = 0; y < H; y++) {
+      if (riga[y + 1] > riga[y]) {
+        const b = y >> 5;
+        fx0[b] = Math.min(fx0[b], X[riga[y]]);
+        fx1[b] = Math.max(fx1[b], X[riga[y + 1] - 1]);
+      }
+    }
     // la tessera di Bru, e la scala dell'acqua (per scurire a gradini verso le sponde)
     const AQ = A.AQ, T2 = 192 * 192;
     const tR = new Uint8Array(T2), tG = new Uint8Array(T2), tB = new Uint8Array(T2);
     for (let i = 0; i < T2; i++) { tR[i] = tp[i * 4]; tG[i] = tp[i * 4 + 1]; tB[i] = tp[i * 4 + 2]; }
-    const AQf = new Int32Array(AQ.length * 3);
-    AQ.forEach((c, j) => { AQf[j * 3] = c[0]; AQf[j * 3 + 1] = c[1]; AQf[j * 3 + 2] = c[2]; });
+    // i colori interi (RGBA in un numero solo) stanno in Int32Array: cosi' il browser non passa per i decimali
+    const AQf = new Int32Array(AQ.length * 3), AQ32 = new Int32Array(AQ.length);
+    AQ.forEach((c, j) => {
+      AQf[j * 3] = c[0]; AQf[j * 3 + 1] = c[1]; AQf[j * 3 + 2] = c[2];
+      AQ32[j] = (255 << 24) | (c[2] << 16) | (c[1] << 8) | c[0];
+    });
+    // la tavola, fatta una volta sola: per ognuna delle 16 fasi (quarti di pixel in x e in y) la tessera gia'
+    // mescolata coi quattro pixel vicini (pesi interi, somma 65536) e il suo colore piu' vicino della scala
+    const COL32 = new Int32Array(16 * T2), IDX = new Uint8Array(16 * T2);
+    for (let p = 0; p < 16; p++) {
+      const fx = (p >> 2) * 64, fy = (p & 3) * 64;
+      const w00 = (256 - fx) * (256 - fy), w10 = fx * (256 - fy), w01 = (256 - fx) * fy, w11 = fx * fy;
+      for (let ty = 0; ty < 192; ty++) {
+        const y1 = ty === 191 ? 0 : ty + 1;
+        for (let tx = 0; tx < 192; tx++) {
+          const x1 = tx === 191 ? 0 : tx + 1;
+          const a = ty * 192 + tx, b = ty * 192 + x1, c = y1 * 192 + tx, e = y1 * 192 + x1;
+          const r = (tR[a] * w00 + tR[b] * w10 + tR[c] * w01 + tR[e] * w11 + 32768) >> 16;
+          const g = (tG[a] * w00 + tG[b] * w10 + tG[c] * w01 + tG[e] * w11 + 32768) >> 16;
+          const bl = (tB[a] * w00 + tB[b] * w10 + tB[c] * w01 + tB[e] * w11 + 32768) >> 16;
+          COL32[p * T2 + a] = (255 << 24) | (bl << 16) | (g << 8) | r;
+          IDX[p * T2 + a] = vicino(AQf, r, g, bl);
+        }
+      }
+    }
     // il filo del ruscello (un punto per pixel di strada) e la sua direzione
     const L = A.lin, N = L.length / 2, tg = new Float64Array(N * 2);
     for (let i = 0; i < N; i++) {
@@ -576,13 +608,24 @@ kbd {
       const l = Math.hypot(gx, gy) + 1e-9;
       tg[i * 2] = gx / l; tg[i * 2 + 1] = gy / l;
     }
-    Object.assign(ACQ, { W, H, X, TX, TY, FX, FY, FL, riga, mk, scint, anelli, schiuma, AQ, AQf, tR, tG, tB, L, N, tg,
-      wl: A.wl, sassi: A.sassi, fondo: A.fondo, wc, wg, wi, vel: A.vel,
+    Object.assign(ACQ, { W, H, X, TX, BASE, FL, riga, mk, scint, anelli, schiuma, AQ, AQ32, COL32, IDX, L, N, tg,
+      wl: A.wl, sassi: A.sassi, fondo: A.fondo, wc, wg, vel: A.vel, fx0, fx1, mostrato: -1,
+      // due fogli: quello del passo di adesso, e quello del passo dopo, che si prepara a pezzi
+      cur: { wi: wiA, o32: new Int32Array(wiA.data.buffer), sh: -1, riga: 0, rett: null },
+      pre: { wi: wiB, o32: new Int32Array(wiB.data.buffer), sh: -1, riga: 0, rett: null },
       S0: new Float64Array(INCRESPATURE), M0: new Int32Array(INCRESPATURE).fill(-1), ok: true });
+    if (QS.has("gl")) {
+      try {
+        ACQ.G = preparaGL(px, pf);
+      } catch (e) {
+        ACQ.G = null;        // senza WebGL2 l'acqua la fa il processore
+      }
+    }
     avanzaAcqua(0);          // l'orologio dell'acqua parte subito: il primo disegno e' gia' al passo giusto
     if (QS.has("prova")) window.provaAcqua = { ACQ, dipingi: dipingiAcqua, lei, fissa: (t) => { ACQUA_FISSA = t; } };
   }
   function avanzaAcqua(dt) {
+    if (dt > 0) ACQ.dtMedio = ACQ.dtMedio * 0.9 + Math.min(dt, 0.1) * 0.1;     // quanto dura un fotogramma
     ACQ.t = ACQUA_FISSA !== null ? ACQUA_FISSA : ACQ.t + Math.min(dt, 0.1);
     const tick = Math.floor(ACQ.t / PASSO_ACQUA + 1e-6);
     if (tick === ACQ.tick) return;
@@ -598,24 +641,27 @@ kbd {
     const f = ACQ.FL[k];
     if (dove === 1 && !(f & 16)) return;
     if (dove === 2 && !(f & 8)) return;
-    const q = i * 4, col = ACQ.AQ[c], d = ACQ.wi.data;
-    d[q] = col[0]; d[q + 1] = col[1]; d[q + 2] = col[2];
+    segna(i, c);
   }
-  const TINTA = new Int32Array(3);
-  function tinta(k, sh) {
-    // la tessera nel punto esatto: i quattro pixel vicini pesati (pesi interi, somma 65536), in TINTA
-    const x0 = (ACQ.TX[k] + sh) % 192, x1 = (x0 + 1) % 192;
-    const y0 = ACQ.TY[k], y1 = (y0 + 1) % 192, fx = ACQ.FX[k], fy = ACQ.FY[k];
-    const w00 = (256 - fx) * (256 - fy), w10 = fx * (256 - fy), w01 = (256 - fx) * fy, w11 = fx * fy;
-    const a = y0 * 192 + x0, b = y0 * 192 + x1, c = y1 * 192 + x0, e = y1 * 192 + x1;
-    const { tR, tG, tB } = ACQ;
-    TINTA[0] = (tR[a] * w00 + tR[b] * w10 + tR[c] * w01 + tR[e] * w11 + 32768) >> 16;
-    TINTA[1] = (tG[a] * w00 + tG[b] * w10 + tG[c] * w01 + tG[e] * w11 + 32768) >> 16;
-    TINTA[2] = (tB[a] * w00 + tB[b] * w10 + tB[c] * w01 + tB[e] * w11 + 32768) >> 16;
+  function segna(i, c) {
+    // un pixel degli effetti col colore c della scala: per la scheda grafica un punto, se no nell'immagine
+    const G = ACQ.G;
+    if (G) {
+      if (G.n * 3 + 3 > G.pts.length) {
+        const p = new Float32Array(G.pts.length * 2);
+        p.set(G.pts);
+        G.pts = p;
+      }
+      const x = i % ACQ.W;
+      G.pts[G.n * 3] = x; G.pts[G.n * 3 + 1] = (i - x) / ACQ.W; G.pts[G.n * 3 + 2] = c;
+      G.n++;
+    } else {
+      const q = i * 4, col = ACQ.AQ[c], d = ACQ.cur.wi.data;
+      d[q] = col[0]; d[q + 1] = col[1]; d[q + 2] = col[2];
+    }
   }
-  function vicino(r, g, b) {
-    // il colore piu' vicino della scala dell'acqua (il primo, a parita')
-    const A = ACQ.AQf;
+  function vicino(A, r, g, b) {
+    // il colore piu' vicino della scala dell'acqua A (r, g, b in fila; il primo, a parita')
     let m = 0, dm = Infinity;
     for (let j = 0; j < A.length; j += 3) {
       const dd = (A[j] - r) ** 2 + (A[j + 1] - g) ** 2 + (A[j + 2] - b) ** 2;
@@ -623,28 +669,27 @@ kbd {
     }
     return m;
   }
-  function dipingiAcqua(x0, y0, x1, y1) {
-    const chiave = ACQ.tick + "," + x0 + "," + y0 + "," + x1 + "," + y1;
-    if (chiave === ACQ.chiave) return;
-    ACQ.chiave = chiave;
-    const { W, X, FL, riga, AQ, L, N, tg, wl } = ACQ;
-    const d = ACQ.wi.data, tq = ACQ.tick * PASSO_ACQUA, sh = Math.floor(ACQ.S) % 192;
-    // il fondo: la tessera che scorre, scurita a gradini verso le sponde
-    for (let y = y0; y < y1; y++) {
+  function fondoRighe(o32, sh, ya, yb, xa, xb) {
+    // il fondo dell'acqua nelle righe ya..yb, colonne xa..xb: la tessera che scorre (dalla tavola),
+    // scurita a gradini verso le sponde
+    const { W, X, TX, BASE, FL, riga, AQ32, COL32, IDX } = ACQ;
+    for (let y = ya; y < yb; y++) {
+      const rw = y * W;
       for (let k = riga[y], e = riga[y + 1]; k < e; k++) {
         const x = X[k];
-        if (x < x0) continue;
-        if (x >= x1) break;
-        tinta(k, sh);
-        const nn = FL[k] & 7, q = (y * W + x) * 4;
-        if (nn) {
-          const c = AQ[Math.max(0, vicino(TINTA[0], TINTA[1], TINTA[2]) - nn)];
-          d[q] = c[0]; d[q + 1] = c[1]; d[q + 2] = c[2];
-        } else {
-          d[q] = TINTA[0]; d[q + 1] = TINTA[1]; d[q + 2] = TINTA[2];
-        }
+        if (x < xa) continue;
+        if (x >= xb) break;
+        let tx = TX[k] + sh;
+        if (tx >= 192) tx -= 192;
+        const lk = BASE[k] + tx, nn = FL[k] & 7;
+        o32[rw + x] = nn ? AQ32[nn >= IDX[lk] ? 0 : IDX[lk] - nn] : COL32[lk];
       }
     }
+  }
+  function effetti() {
+    // sopra il fondo del passo di adesso: increspature, scintille, schiuma, scia, gocce (con segna)
+    const { W, TX, BASE, FL, IDX, L, N, tg, wl } = ACQ;
+    const tq = ACQ.tick * PASSO_ACQUA, sh = Math.floor(ACQ.S) % 192;
     // le increspature della corrente: nascono, si allungano, vanno a valle con l'acqua, si accorciano, spariscono
     for (let k = 0; k < INCRESPATURE; k++) {
       const T = 2.6 + 2.4 * rnd(k, 0, 1), ph = rnd(k, 0, 2) * T;
@@ -670,20 +715,17 @@ kbd {
       const T = 1.4 + 1.8 * rnd(k, 0, 11), ph = rnd(k, 0, 12) * T;
       const m = Math.floor((tq + ph) / T), s = (tq + ph) % T;
       if (s >= 0.35) continue;
-      const i = ACQ.scint[Math.floor(rnd(k, m, 13) * ACQ.scint.length)];
-      tinta(ACQ.mk[i], sh);
-      if (vicino(TINTA[0], TINTA[1], TINTA[2]) < 5) continue;
-      const col = AQ[(s >= 0.1 && s < 0.25) ? 9 : 8];
-      d[i * 4] = col[0]; d[i * 4 + 1] = col[1]; d[i * 4 + 2] = col[2];
+      const i = ACQ.scint[Math.floor(rnd(k, m, 13) * ACQ.scint.length)], kk = ACQ.mk[i];
+      let tx = TX[kk] + sh;
+      if (tx >= 192) tx -= 192;
+      if (IDX[BASE[kk] + tx] < 5) continue;
+      segna(i, (s >= 0.1 && s < 0.25) ? 9 : 8);
     }
     // la schiuma attorno ai sassi: l'anello a puntini che gira
     const fase = Math.floor(tq / 0.15) % 3;
     for (const i of ACQ.schiuma) {
       const x = i % W, y = (i - x) / W;
-      if ((x + 2 * y + fase) % 3) {
-        const col = AQ[(FL[ACQ.mk[i]] >> 6) === 1 ? 9 : 8];
-        d[i * 4] = col[0]; d[i * 4 + 1] = col[1]; d[i * 4 + 2] = col[2];
-      }
+      if ((x + 2 * y + fase) % 3) segna(i, (FL[ACQ.mk[i]] >> 6) === 1 ? 9 : 8);
     }
     // e la scia: puntini di schiuma che si staccano a valle del sasso
     ACQ.sassi.forEach(([fx, fy, rx, ry, ii], si) => {
@@ -713,10 +755,253 @@ kbd {
         }
       }
     }
-    ACQ.wg.putImageData(ACQ.wi, 0, 0, x0, y0, x1 - x0, y1 - y0);
+  }
+  function mostra(x0, y0, x1, y1) {
+    // sullo schermo solo le strisce con l'acqua, e in ognuna solo il tratto che ha acqua
+    for (let b = y0 >> 5; b * 32 < y1; b++) {
+      const ya = Math.max(y0, b * 32), yb = Math.min(y1, b * 32 + 32);
+      const xa = Math.max(x0, ACQ.fx0[b]), xb = Math.min(x1, ACQ.fx1[b] + 1);
+      if (xb > xa && yb > ya) ACQ.wg.putImageData(ACQ.cur.wi, 0, 0, xa, ya, xb - xa, yb - ya);
+    }
+  }
+  function rigaDopo(r, quanti) {
+    // la riga dove finiscono altri "quanti" pixel d'acqua, contando da r
+    const voluti = ACQ.riga[r] + Math.ceil(quanti);
+    let a = r + 1, b = ACQ.H;
+    while (a < b) {
+      const m = (a + b) >> 1;
+      if (ACQ.riga[m] >= voluti) b = m; else a = m + 1;
+    }
+    return a;
+  }
+  function largo(x0, y0, x1, y1) {
+    // il riquadro che si prepara: quello che si vede (col suo margine) e altri 32 pixel per parte
+    return [Math.max(0, x0 - 32), Math.max(0, y0 - 32), Math.min(ACQ.W, x1 + 32), Math.min(ACQ.H, y1 + 32)];
+  }
+  function dentro(r, x0, y0, x1, y1) {
+    return r && x0 >= r[0] && y0 >= r[1] && x1 <= r[2] && y1 <= r[3];
+  }
+  function lavoraAcqua(x0, y0, x1, y1) {
+    // Il lavoro spalmato sui fotogrammi: fra un passo dell'acqua e l'altro ci sono tre fotogrammi (sei a 120 Hz), e
+    // in ognuno si prepara un pezzo del fondo del passo dopo (nell'altro foglio), in parti uguali per i fotogrammi
+    // che restano, solo nel riquadro che si vede e un po' attorno. Quando il passo arriva si scambiano i fogli, si
+    // mettono sopra gli effetti e si mostra.
+    const sh = Math.floor(ACQ.S) % 192, P = ACQ.pre;
+    if (ACQ.mostrato !== ACQ.tick) {
+      if (P.sh !== sh || !dentro(P.rett, x0, y0, x1, y1)) {
+        P.sh = sh;
+        P.rett = largo(x0, y0, x1, y1);
+        P.riga = P.rett[1];
+      }
+      if (P.riga < P.rett[3]) fondoRighe(P.o32, sh, P.riga, P.rett[3], P.rett[0], P.rett[2]);
+      P.riga = P.rett[3];
+      ACQ.pre = ACQ.cur;
+      ACQ.cur = P;
+      effetti();
+      ACQ.mostrato = ACQ.tick;
+      ACQ.chiave = "";
+      const Q = ACQ.pre;
+      Q.sh = Math.floor(ACQ.S + ACQ.vel * PASSO_ACQUA) % 192;
+      Q.rett = largo(x0, y0, x1, y1);
+      Q.riga = Q.rett[1];
+    } else {
+      if (!dentro(ACQ.cur.rett, x0, y0, x1, y1)) {
+        // la vista e' saltata fuori dal riquadro pronto (ingrandimento, finestra): si rifa' subito
+        const C = ACQ.cur;
+        C.rett = largo(x0, y0, x1, y1);
+        fondoRighe(C.o32, sh, C.rett[1], C.rett[3], C.rett[0], C.rett[2]);
+        effetti();
+        ACQ.chiave = "";
+      }
+      if (P.riga < P.rett[3]) {
+        const resta = (ACQ.tick + 1) * PASSO_ACQUA - ACQ.t;
+        const fotogrammi = Math.max(1, Math.ceil(resta / Math.max(0.004, ACQ.dtMedio) - 0.25));
+        const fine = Math.min(P.rett[3], rigaDopo(P.riga, (ACQ.riga[P.rett[3]] - ACQ.riga[P.riga]) / fotogrammi));
+        fondoRighe(P.o32, P.sh, P.riga, fine, P.rett[0], P.rett[2]);
+        P.riga = fine;
+      }
+    }
+    const chiave = x0 + "," + y0 + "," + x1 + "," + y1;
+    if (chiave !== ACQ.chiave) {
+      ACQ.chiave = chiave;
+      ACQ.rett = [x0, y0, x1, y1];
+      mostra(x0, y0, x1, y1);
+    }
+  }
+  function dipingiGL(x0, y0, x1, y1) {
+    // la stessa acqua con la scheda grafica (?gl nell'indirizzo, per prova)
+    const chiave = ACQ.tick + "," + x0 + "," + y0 + "," + x1 + "," + y1;
+    if (chiave === ACQ.chiave) return;
+    ACQ.chiave = chiave;
+    const G = ACQ.G, gl = G.gl;
+    gl.enable(gl.SCISSOR_TEST);
+    gl.scissor(x0, ACQ.H - y1, x1 - x0, y1 - y0);
+    gl.useProgram(G.fondo);
+    gl.bindVertexArray(G.vaoF);
+    gl.uniform1i(G.uSh, Math.floor(ACQ.S) % 192);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    G.n = 0;
+    effetti();
+    if (G) {
+      // gli effetti, tutti in una volta: punti di un pixel
+      const gl = G.gl;
+      if (G.n) {
+        gl.useProgram(G.punti);
+        gl.bindVertexArray(G.vaoP);
+        gl.bindBuffer(gl.ARRAY_BUFFER, G.bp);
+        gl.bufferData(gl.ARRAY_BUFFER, G.pts.subarray(0, G.n * 3), gl.DYNAMIC_DRAW);
+        gl.drawArrays(gl.POINTS, 0, G.n);
+      }
+      gl.bindVertexArray(null);
+    }
+  }
+  function dipingiAcqua(x0, y0, x1, y1) {
+    // tutta l'acqua del passo di adesso, subito (per le prove)
+    if (ACQ.G) {
+      ACQ.chiave = "";
+      dipingiGL(x0, y0, x1, y1);
+      return;
+    }
+    fondoRighe(ACQ.cur.o32, Math.floor(ACQ.S) % 192, 0, ACQ.H, 0, ACQ.W);
+    effetti();
+    ACQ.cur.rett = [0, 0, ACQ.W, ACQ.H];
+    ACQ.mostrato = ACQ.tick;
+    ACQ.pre.sh = -1;
+    mostra(x0, y0, x1, y1);
   }
   function fotogramma(a) {
     return Math.floor(ACQ.t * 1000 / a.ms) % a.n;
+  }
+
+  // ---------------------------------------------------------------- l'acqua sulla scheda grafica
+  // Il fondo dell'acqua lo fa la scheda grafica (WebGL2), come farebbe uno shader nel gioco: per ogni pixel
+  // un'occhiata ai dati e alla tavola, niente lavoro per il processore. Le increspature, le scintille, la schiuma e
+  // i cerchi sono punti di un pixel disegnati sopra. Senza WebGL2 (o con ?cpu nell'indirizzo) fa il processore.
+  const GL_FONDO_V = `#version 300 es
+in vec2 aPos;
+void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+  const GL_FONDO_F = `#version 300 es
+precision highp float;
+precision highp int;
+precision highp usampler2D;
+uniform usampler2D uDati, uTavola, uAQ;
+uniform int uSh, uH;
+out vec4 colore;
+void main() {
+  ivec2 p = ivec2(gl_FragCoord.xy);
+  p.y = uH - 1 - p.y;
+  uvec4 d = texelFetch(uDati, p, 0);
+  if (d.a == 0u) { colore = vec4(0.0); return; }
+  int tx = int(d.r) + uSh;
+  if (tx >= 192) tx -= 192;
+  int fase = int(d.b) >> 3, n = int(d.b) & 7;
+  uvec4 t = texelFetch(uTavola, ivec2((fase & 3) * 192 + tx, (fase >> 2) * 192 + int(d.g)), 0);
+  if (n > 0) t = texelFetch(uAQ, ivec2(max(0, int(t.a) - n), 0), 0);
+  colore = vec4(vec3(t.rgb) / 255.0, 1.0);
+}`;
+  const GL_PUNTI_V = `#version 300 es
+in vec3 aPunto;
+uniform vec2 uDim;
+flat out int vCol;
+void main() {
+  gl_Position = vec4((aPunto.x + 0.5) / uDim.x * 2.0 - 1.0, 1.0 - (aPunto.y + 0.5) / uDim.y * 2.0, 0.0, 1.0);
+  gl_PointSize = 1.0;
+  vCol = int(aPunto.z);
+}`;
+  const GL_PUNTI_F = `#version 300 es
+precision highp float;
+precision highp int;
+precision highp usampler2D;
+uniform usampler2D uAQ;
+flat in int vCol;
+out vec4 colore;
+void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0, 1.0); }`;
+  function preparaGL(px, pf) {
+    const { W, H } = ACQ;
+    const can = document.createElement("canvas");
+    can.width = W;
+    can.height = H;
+    const gl = can.getContext("webgl2", { alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true,
+      antialias: false, depth: false, stencil: false });
+    if (!gl) return null;
+    const programma = (v, f) => {
+      const p = gl.createProgram();
+      for (const [tipo, src] of [[gl.VERTEX_SHADER, v], [gl.FRAGMENT_SHADER, f]]) {
+        const sh = gl.createShader(tipo);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh));
+        gl.attachShader(p, sh);
+      }
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+      return p;
+    };
+    const fondo = programma(GL_FONDO_V, GL_FONDO_F), punti = programma(GL_PUNTI_V, GL_PUNTI_F);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    const tessitura = (unita, w, h, dati) => {
+      gl.activeTexture(gl.TEXTURE0 + unita);
+      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8UI, w, h, 0, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, dati);
+    };
+    // i dati: R, G il punto della tessera; B fase * 8 + gradi di scuro; A 255 dove l'acqua si muove
+    const dati = new Uint8Array(W * H * 4);
+    for (let i = 0; i < W * H; i++) {
+      const q = i * 4;
+      if (px[q + 3] !== 255) continue;
+      dati[q] = px[q]; dati[q + 1] = px[q + 1]; dati[q + 2] = (pf[q] << 3) | (px[q + 2] & 7); dati[q + 3] = 255;
+    }
+    // la tavola: le 16 fasi in una griglia 4 x 4 di tessere 192 x 192; A = il colore piu' vicino della scala
+    const tav = new Uint8Array(768 * 768 * 4);
+    for (let p = 0; p < 16; p++) {
+      const ox = (p & 3) * 192, oy = (p >> 2) * 192;
+      for (let ty = 0; ty < 192; ty++) {
+        for (let tx = 0; tx < 192; tx++) {
+          const l = p * 36864 + ty * 192 + tx, v = ACQ.COL32[l], q = ((oy + ty) * 768 + ox + tx) * 4;
+          tav[q] = v & 255; tav[q + 1] = (v >> 8) & 255; tav[q + 2] = (v >> 16) & 255; tav[q + 3] = ACQ.IDX[l];
+        }
+      }
+    }
+    const aq = new Uint8Array(ACQ.AQ.length * 4);
+    ACQ.AQ.forEach((c, j) => { aq[j * 4] = c[0]; aq[j * 4 + 1] = c[1]; aq[j * 4 + 2] = c[2]; aq[j * 4 + 3] = 255; });
+    tessitura(0, W, H, dati);
+    tessitura(1, 768, 768, tav);
+    tessitura(2, ACQ.AQ.length, 1, aq);
+    gl.useProgram(fondo);
+    gl.uniform1i(gl.getUniformLocation(fondo, "uDati"), 0);
+    gl.uniform1i(gl.getUniformLocation(fondo, "uTavola"), 1);
+    gl.uniform1i(gl.getUniformLocation(fondo, "uAQ"), 2);
+    gl.uniform1i(gl.getUniformLocation(fondo, "uH"), H);
+    const uSh = gl.getUniformLocation(fondo, "uSh");
+    gl.useProgram(punti);
+    gl.uniform1i(gl.getUniformLocation(punti, "uAQ"), 2);
+    gl.uniform2f(gl.getUniformLocation(punti, "uDim"), W, H);
+    // il triangolo grande che copre tutto, per il fondo; il buffer dei punti, per gli effetti
+    const vaoF = gl.createVertexArray();
+    gl.bindVertexArray(vaoF);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(fondo, "aPos");
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+    const vaoP = gl.createVertexArray();
+    gl.bindVertexArray(vaoP);
+    const bp = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bp);
+    const aPunto = gl.getAttribLocation(punti, "aPunto");
+    gl.enableVertexAttribArray(aPunto);
+    gl.vertexAttribPointer(aPunto, 3, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DITHER);
+    gl.viewport(0, 0, W, H);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    return { can, gl, fondo, punti, uSh, vaoF, vaoP, bp, pts: new Float32Array(3 * 4096), n: 0 };
   }
 
   // ---------------------------------------------------------------- disegno
@@ -771,8 +1056,8 @@ kbd {
       const x1 = Math.min(ACQ.W, Math.ceil((cx - LX0 + gw + M) / Q) * Q);
       const y1 = Math.min(ACQ.H, Math.ceil((cy - LY0 + gh + M) / Q) * Q);
       if (x1 > x0 && y1 > y0) {
-        dipingiAcqua(x0, y0, x1, y1);
-        g.drawImage(ACQ.wc, LX0 - cx, LY0 - cy);
+        if (ACQ.G) dipingiGL(x0, y0, x1, y1); else lavoraAcqua(x0, y0, x1, y1);
+        g.drawImage(ACQ.G ? ACQ.G.can : ACQ.wc, LX0 - cx, LY0 - cy);
       }
     }
     if (acqua && IM.pozza) {

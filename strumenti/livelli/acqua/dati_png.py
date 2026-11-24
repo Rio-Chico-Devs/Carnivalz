@@ -28,10 +28,9 @@ B |= (A.schiuma[ys, xs].astype(int) & 3) << 6
 img[ys, xs, 2] = B
 img[ys, xs, 3] = 255
 Image.fromarray(img, 'RGBA').save(USCITA, optimize=True)
-# le frazioni (in 256esimi) del punto della tessera, per prenderla nel punto esatto
+# la fase del punto della tessera (quarti di pixel in x e in y: 4 * qx + qy), per prenderla nel punto esatto
 fr = np.zeros((H, W, 4), np.uint8)
-fr[ys, xs, 0] = A.fx
-fr[ys, xs, 1] = A.fy
+fr[ys, xs, 0] = A.fase
 fr[ys, xs, 3] = 255
 Image.fromarray(fr, 'RGBA').save(USCITA.replace('.png', '_frazioni.png'), optimize=True)
 N = len(A.lin)

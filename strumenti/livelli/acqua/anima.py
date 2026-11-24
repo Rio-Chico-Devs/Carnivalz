@@ -40,10 +40,13 @@ class Acqua:
         kk = np.clip(U.astype(int), 0, len(lin0) - 1)
         uf = kk + tg0[kk, 0] * (xs - lin0[kk, 0]) + tg0[kk, 1] * ((ys + FONDO) - lin0[kk, 1])
         txf, tyf = -uf + ox, -V + oy
-        fx = np.floor((txf - np.floor(txf)) * 256 + 0.5).astype(int); ix = np.floor(txf).astype(int) + (fx >> 8)
-        fy = np.floor((tyf - np.floor(tyf)) * 256 + 0.5).astype(int); iy = np.floor(tyf).astype(int) + (fy >> 8)
-        self.tx0, self.fx = ix % 192, fx & 255
-        self.ty, self.fy = iy % 192, fy & 255
+        Q = 4                     # la frazione in quarti di pixel: 16 fasi (nella pagina, una tavola per fase)
+        qx = np.floor((txf - np.floor(txf)) * Q + 0.5).astype(int); ix = np.floor(txf).astype(int) + qx // Q
+        qy = np.floor((tyf - np.floor(tyf)) * Q + 0.5).astype(int); iy = np.floor(tyf).astype(int) + qy // Q
+        self.tx0, self.ty = ix % 192, iy % 192
+        qx, qy = qx % Q, qy % Q
+        self.fase = qx * Q + qy
+        self.fx, self.fy = qx * (256 // Q), qy * (256 // Q)
         self.n = cl[ys, xs].astype(int)
         e = np.abs(V) - Wd
         self.scorre = np.ones(len(xs), bool)          # tutta l'acqua scorre (le ninfee restano ferme, radicate)
