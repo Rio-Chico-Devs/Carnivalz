@@ -1,9 +1,11 @@
 {
-  "_nota": "La corsa scelta da Bru nella demo (24 novembre): velocita' in pixel del mondo al secondo; le durate sono quelle delle anteprime, da dividere per il ritmo (davanti e dietro: un giro ogni 0,47 s).",
+  "_nota": "La corsa scelta da Bru nella demo (24 novembre): velocita' in pixel del mondo al secondo; le durate sono quelle delle anteprime, da dividere per il ritmo (davanti, dietro e di lato: un giro ogni 0,47 s).",
   "velocita": 185,
   "ritmo": 1.15,
   "durate_ms": {
     "davanti_corsa": [40, 50, 40, 50, 40, 50, 40, 50, 40, 50, 40, 50],
-    "dietro_corsa": [60, 60, 60, 60, 60, 60, 60, 60, 60]
-  }
+    "dietro_corsa": [60, 60, 60, 60, 60, 60, 60, 60, 60],
+    "lato_corsa": [40, 50, 40, 50, 40, 50, 40, 50, 40, 50, 40, 50]
+  },
+  "_lato": "La corsa di lato (verso destra; a sinistra si specchia): 12 pose dai disegni di Bru in due passi, nell'ordine 72, 78, 84, 79, 73, 85, 80, 86, 81, 75, 82, 74; la testa e' quella del 72 in tutte."
 }
