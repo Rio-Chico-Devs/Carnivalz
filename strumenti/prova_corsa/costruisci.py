@@ -44,7 +44,8 @@ dati = {
     'verso': pianta['verso'],
     'stanze': [{'nome': s['nome'], 'rett': s['rett']} for s in pianta['stanze']],
 }
-# Lei ferma: l'attesa appena si ferma (nelle quattro direzioni), il salto della corda se resta ferma a lungo.
+# Lei ferma: l'attesa appena si ferma (nelle quattro direzioni); se resta ferma a lungo, una delle animazioni da
+# ferma scelta a caso (il salto della corda, il sonno in piedi).
 # Il punto per terra sta due righe sopra le suole, come nelle corse (suole alla riga 80, punto alla 78)
 with open(os.path.join(LEI, 'corsa.json'), encoding='utf-8') as f:
     durate = json.load(f)['durate_ms']
@@ -63,7 +64,8 @@ def ferma(foglio, nome, w):
 dati['ferme'] = {'attese': {'giu': ferma('attesa', 'davanti_attesa', 40), 'su': ferma('attesaSu', 'dietro_attesa', 40),
                             'destra': ferma('attesaDx', 'lato_attesa', 40),
                             'sinistra': ferma('attesaSx', 'lato_sinistro_attesa', 40)},
-                 'corda': ferma('corda', 'davanti_corda', 64)}
+                 'corda': ferma('corda', 'davanti_corda', 64),
+                 'dorme': ferma('dorme', 'davanti_dorme', 40)}
 # l'acqua: i dati per pixel, la tessera, il filo del ruscello; i pezzi con l'acqua a fotogrammi e la pozza
 with open(os.path.join(ACQUA, 'dati', 'acqua_info.json'), encoding='utf-8') as f:
     acqua = json.load(f)

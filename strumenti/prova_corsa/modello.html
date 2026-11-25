@@ -226,7 +226,7 @@ kbd {
 <body>
 <main class="pagina">
   <h1>Prova corsa</h1>
-  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e salta la corda. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
+  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e fa una cosa a caso: salta la corda o si addormenta in piedi, con la bolla al naso. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
     <span class="solo-tastiera"><kbd>frecce</kbd> o <kbd>WASD</kbd> per correre.</span>
     <span class="solo-tocco">Tieni premuti i tasti sul prato per correre.</span></p>
 
@@ -251,7 +251,7 @@ kbd {
       <label>Ritmo delle gambe <output id="vRit">115%</output>
         <input type="range" id="rit" min="20" max="150" step="5" value="115">
       </label>
-      <label>Salta la corda dopo <output id="vCor">5 s</output>
+      <label>Si annoia dopo <output id="vCor">5 s</output>
         <input type="range" id="cor" min="1" max="30" step="1" value="5">
       </label>
       <label>Corrente del ruscello <output id="vAcq">20 px/s</output>
@@ -318,10 +318,11 @@ kbd {
   const tastiera = matchMedia("(pointer: fine)").matches;
 
   const VERSI = { "0,1": "giu", "0,-1": "su", "1,0": "destra", "-1,0": "sinistra" };
-  // quieta: da quanti millisecondi e' ferma senza che si tocchino i tasti (l'attesa, poi il salto della corda)
+  // quieta: da quanti millisecondi e' ferma senza che si tocchino i tasti (l'attesa, poi un'animazione a caso);
+  // speciale: l'animazione da ferma pescata, finche' non riparte
   const lei = { x: D.partenza[0], y: D.partenza[1], verso: VERSI[D.verso.join(",")] || "su", tempo: 0, corre: false,
-    quieta: 0 };
-  let velocita = 185, ritmo = 1.15, zoom = 2, dopoCorda = 5000;
+    quieta: 0, speciale: null };
+  let velocita = 185, ritmo = 1.15, zoom = 2, dopoNoia = 5000;
   let IM = null, passi = null, PW = 0, pronto = false;
   let gw = 1, gh = 1, sc = 1;
 
@@ -449,7 +450,7 @@ kbd {
 
   vel.addEventListener("input", () => { velocita = +vel.value; vVel.textContent = velocita + " px/s"; });
   rit.addEventListener("input", () => { ritmo = rit.value / 100; vRit.textContent = rit.value + "%"; });
-  cor.addEventListener("input", () => { dopoCorda = cor.value * 1000; vCor.textContent = cor.value + " s"; });
+  cor.addEventListener("input", () => { dopoNoia = cor.value * 1000; vCor.textContent = cor.value + " s"; });
   const acq = document.getElementById("acq"), vAcq = document.getElementById("vAcq");
   acq.addEventListener("input", () => { ACQ.vel = +acq.value; vAcq.textContent = acq.value + " px/s"; });
   for (const el of [vel, rit, acq]) el.addEventListener("pointerup", () => el.blur());
@@ -472,6 +473,7 @@ kbd {
   document.getElementById("inizio").addEventListener("click", (e) => {
     lei.x = D.partenza[0]; lei.y = D.partenza[1];
     lei.verso = VERSI[D.verso.join(",")] || "su"; lei.tempo = 0; lei.corre = false; lei.quieta = 0;
+    lei.speciale = null;
     e.currentTarget.blur();
   });
   campo.addEventListener("pointerdown", () => campo.focus());
@@ -487,11 +489,24 @@ kbd {
     }
     return v.n - 1;
   }
-  // da ferma: l'attesa (respira) nella direzione in cui guarda; dopo un po' senza tasti si gira verso di noi e
-  // salta la corda
+  // da ferma: l'attesa (respira) nella direzione in cui guarda; dopo un po' senza tasti si gira verso di noi e fa
+  // una delle animazioni da ferma, a caso: salta la corda o si addormenta. Le pesca da un sacchetto mescolato:
+  // l'ordine e' a caso, ma prima di ripeterne una le fa vedere tutte
+  const SPECIALI = [["corda", "salta la corda"], ["dorme", "dorme in piedi"]].filter((s) => D.ferme[s[0]]);
+  let sacchetto = [];
+  function pesca() {
+    if (!sacchetto.length) {
+      sacchetto = SPECIALI.slice();
+      for (let i = sacchetto.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [sacchetto[i], sacchetto[j]] = [sacchetto[j], sacchetto[i]];
+      }
+    }
+    return sacchetto.pop();
+  }
   function ferma() {
     if (lei.corre) return null;
-    if (lei.quieta >= dopoCorda) return { a: D.ferme.corda, t: lei.quieta - dopoCorda, nome: "salta la corda" };
+    if (lei.speciale) return { a: D.ferme[lei.speciale[0]], t: lei.quieta - dopoNoia, nome: lei.speciale[1] };
     const a = D.ferme.attese[lei.verso];
     return a ? { a, t: lei.quieta, nome: "attesa" } : null;
   }
@@ -499,10 +514,11 @@ kbd {
     const [dx, dy] = direzione();
     if (!dx && !dy) {
       lei.corre = false; lei.tempo = 0; lei.quieta += dt * 1000;
-      if (lei.quieta >= dopoCorda) lei.verso = "giu";
+      if (lei.quieta < dopoNoia) lei.speciale = null;            // il cursore e' stato spostato piu' avanti
+      else if (!lei.speciale && SPECIALI.length) { lei.speciale = pesca(); lei.verso = "giu"; }
       return;
     }
-    lei.quieta = 0;
+    lei.quieta = 0; lei.speciale = null;
     const verso = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "destra" : "sinistra") : (dy > 0 ? "giu" : "su");
     if (verso !== lei.verso) {
       // girandosi resta nello stesso punto del passo
