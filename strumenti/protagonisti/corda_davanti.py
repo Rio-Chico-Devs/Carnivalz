@@ -30,8 +30,30 @@ ciocche = op & (Y >= 36) & (Y <= 45) & ((X <= 9) | (X >= 29))
 braccia = op & (Y >= 46) & (Y <= 61) & ((X <= 11) | (X >= 28))
 gambe = op & (Y >= 59) & ~braccia
 corpo = op & ~coda & ~ciocche & ~braccia & ~gambe
-#        0  1  2  3  4  5  6   7        (la corda: 0 sopra la testa, 2 davanti, 4 sotto i piedi, 6 dietro)
-SALTO = [0, 0, 1, 3, 4, 3, 1, -1]      # -1: atterra e si piega sulle gambe
+# ---- le gambe: pose fatte riga per riga dalle gambe di Lei ferma (righe 59-72: l'anca, le cosce, gli stivali).
+# per ogni posa le righe di partenza dalla 60 in giu' (con quanto il ginocchio va in fuori), poi il piede se cambia
+COL = {'l': (6, 7, 15), 'h': (22, 37, 52), 'n': (49, 59, 70), 'm': (69, 79, 85)}
+PIEDI = {   # (piede sinistro da x 12, piede destro da x 20), sotto la caviglia (riga 70)
+    'punta_terra': (['.lhhl..', 'lhnl...', 'lll....'], ['....lnnl', '....lhnl', '....llll']),   # tallone su, punta a terra
+    'punta':       (['.lhhl..', '.lhl...', '.ll....'], ['....lnhl', '.....lnl', '.....ll.']),   # in aria, punta in giu'
+}
+R = lambda a, b: [(r, 0) for r in range(a, b)]
+POSE = {
+    # le ginocchia piegate vanno verso il centro (-1) e si toccano; raccolte in aria, i piedi si aprono a V (+)
+    'piegata':    dict(righe=R(60, 63) + [(63, -1), (64, -1), (65, -1)] + R(66, 68) + R(69, 73)),
+    'accosciata': dict(righe=R(60, 62) + [(62, -1), (63, -1), (65, -1), (66, -1)] + R(67, 68) + R(69, 73), lucido={63}),
+    'punte':      dict(righe=R(60, 71), piede='punta_terra'),
+    'tesa':       dict(righe=R(60, 71), piede='punta'),
+    'mezza':      dict(righe=R(60, 66) + [(67, 0), (69, 1), (70, 1)], piede='punta', piede_fuori=1),
+    'raccolta':   dict(righe=R(60, 62) + [(62, -1), (63, -1), (64, -1), (66, 0), (70, 1)], piede='punta',
+                       piede_fuori=2, lucido={63}),
+}
+LUNGA = lambda p: 1 + len(POSE[p]['righe']) + (len(PIEDI[POSE[p]['piede']][0]) if 'piede' in POSE[p] else 0)
+#        0          1        2       3        4           5        6        7     (la corda: 0 sopra la testa,
+GAMBE = ['piegata', 'punte', 'tesa', 'mezza', 'raccolta', 'mezza', 'punte', 'accosciata']   # 2 davanti, 4 sotto i
+PIEDI_SU = [0, 0, 1, 4, 7, 4, 0, 0]                                                       # piedi, 6 dietro)
+SALTO = [LUNGA(GAMBE[k]) - 14 + PIEDI_SU[k] for k in range(8)]     # quanto sale il corpo: gambe + salto
+BUSTO = [0, 0, 1, 0, 0, 0, 0, -1]      # il busto si allunga quando stacca e si schiaccia quando atterra (la pancia)
 POLSI = [round(math.cos(math.radians(45 * k))) for k in range(8)]
 DUR = 50
 MS, MD, MA, MB = 12, 12, 10, 8           # margini della tela: sinistra, destra, sopra, sotto
@@ -83,6 +105,29 @@ def arco(theta, mani_y):
     return puliti
 
 
+def disegna_gambe(out, p, j):
+    y = 59 - j + MA
+    for x in range(12, 28):                                              # l'anca resta col corpo
+        if gambe[59, x]:
+            out[y, x + MS] = src[59, x]
+    for lato, xs, verso in ((0, range(12, 19), -1), (1, range(20, 28), 1)):
+        yy = y + 1
+        for r, fuori in p['righe']:
+            for x in xs:
+                if gambe[r, x]:
+                    c = src[r, x].copy()
+                    if r in p.get('lucido', ()) and tuple(c[:3]) == COL['n']:
+                        c[:3] = COL['m']                                 # il ginocchio piegato prende la luce
+                    out[yy, x + MS + verso * fuori] = c
+            yy += 1
+        for riga in (PIEDI[p['piede']][lato] if 'piede' in p else ()):
+            for i, ch in enumerate(riga):
+                if ch != '.':
+                    xx = xs[0] + i + MS + verso * p.get('piede_fuori', 0)
+                    out[yy, xx, :3] = COL[ch]; out[yy, xx, 3] = 255
+            yy += 1
+
+
 def disegna_corda(out, punti, col, solo_vuoto=False):
     for x, y in punti:
         if 0 <= x < CW and 0 <= y < CH and (not solo_vuoto or out[y, x, 3] == 0):
@@ -93,16 +138,14 @@ fot = []
 for k in range(8):
     th = 45 * k
     j, pl, jp = SALTO[k], POLSI[k], SALTO[k - 1]
+    s, sp = BUSTO[k], BUSTO[k - 1]
     lei = np.zeros((CH, CW, 4), np.uint8)
-    if j >= 0:
-        posa(lei, gambe, lambda r: j)                                   # in aria: anche i piedi
-    else:
-        posa(lei, gambe, lambda r: lineare(r, 58, j, 62, 0))            # atterra: le cosce si piegano
-    posa(lei, corpo, lambda r: j)
-    posa(lei, ciocche, lambda r: lineare(r, 36, j, 45, jp))
-    posa(lei, coda, lambda r: lineare(r, 13, j, 0, jp))
-    posa(lei, braccia, lambda r: lineare(r, 46, j, 60, j + pl))
-    mani_y = 61 + MA - (j + pl)
+    disegna_gambe(lei, POSE[GAMBE[k]], j)
+    posa(lei, corpo, lambda r: j + s if r <= 52 else j)                 # la riga 52 e' la pancia
+    posa(lei, ciocche, lambda r: lineare(r, 36, j + s, 45, jp + sp))
+    posa(lei, coda, lambda r: lineare(r, 13, j + s, 0, jp + sp))
+    posa(lei, braccia, lambda r: lineare(r, 46, j + s, 60, j + s + pl))
+    mani_y = 61 + MA - (j + s + pl)
     dietro = 180 < th % 360 or th % 360 == 0                             # sopra la testa e dietro: dietro a lei
     out = np.zeros((CH, CW, 4), np.uint8)
     scia = arco(th - 20, mani_y)
