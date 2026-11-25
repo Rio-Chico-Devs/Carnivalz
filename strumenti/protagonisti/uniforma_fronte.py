@@ -1,7 +1,8 @@
 """Lei di fronte uguale in tutti i fogli: via la croce piu' a destra della fascia (Bru: "al front devi togliere la
-stella piu' a destra"), nella ferma e nei 12 fotogrammi della corsa di fronte. Al suo posto il colore della fascia
-che ha intorno. Si puo' rilanciare: se le croci sono gia' tre non cambia niente.
-Poi vanno rifatte l'attesa (attesa_davanti.py) e il salto della corda (corda_davanti.py), che partono dalla ferma.
+stella piu' a destra"), nella ferma, nei 12 fotogrammi della corsa di fronte e nella posa del sonno. Al suo posto il
+colore della fascia che ha intorno. Si puo' rilanciare: se le croci sono gia' tre non cambia niente.
+Poi vanno rifatte l'attesa (attesa_davanti.py) e il salto della corda (corda_davanti.py), che partono dalla ferma, e
+il sonno (dorme_davanti.py), che parte dalla sua posa.
 uso: uniforma_fronte.py cartella_lei_chibi"""
 import os
 import sys
@@ -52,3 +53,14 @@ for k in range(n):
         rattoppa(a, [(x, y), (x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)])
         print('corsa', k, ': tolta la croce a', (x - k * 40, y))
 Image.fromarray(a, 'RGBA').save(p)
+
+# il sonno (davanti_dorme_posa.png: il disegno 106 di Bru, fatto sulla ferma quando le croci erano ancora quattro):
+# con la testa piegata la quarta croce ha il centro in (30, 21), appena sotto l'orlo scuro in alto a destra della
+# fascia; al suo posto il rosso della fascia (coi vicini una parte diventerebbe orlo, e l'orlo si ingrosserebbe)
+p = os.path.join(LEI, 'davanti_dorme_posa.png')
+a = np.asarray(Image.open(p).convert('RGBA')).copy()
+if tuple(a[21, 30, :3]) == (228, 215, 241):
+    for x, y in [(30, 20), (29, 21), (30, 21), (31, 21), (30, 22)]:
+        a[y, x, :3] = (126, 33, 64)
+    Image.fromarray(a, 'RGBA').save(p)
+    print('sonno: tolta la quarta croce')
