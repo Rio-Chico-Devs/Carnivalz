@@ -32,28 +32,36 @@ gambe = op & (Y >= 59) & ~braccia
 corpo = op & ~coda & ~ciocche & ~braccia & ~gambe
 # ---- le gambe: pose fatte riga per riga dalle gambe di Lei ferma (righe 59-72: l'anca, le cosce, gli stivali).
 # per ogni posa le righe di partenza dalla 60 in giu' (con quanto il ginocchio va in fuori), poi il piede se cambia
-COL = {'l': (6, 7, 15), 'h': (22, 37, 52), 'n': (49, 59, 70), 'm': (69, 79, 85)}
+COL = {'l': (6, 7, 15), 'h': (22, 37, 52), 'n': (49, 59, 70), 'm': (69, 79, 85),     # stivali
+       'e': (156, 116, 82), 'c': (130, 85, 80), 'd': (97, 58, 63)}                     # pelle
 PIEDI = {   # (piede sinistro da x 12, piede destro da x 20), sotto la caviglia (riga 70)
     'punta_terra': (['.lhhl..', 'lhnl...', 'lll....'], ['....lnnl', '....lhnl', '....llll']),   # tallone su, punta a terra
     'punta':       (['.lhhl..', '.lhl...', '.ll....'], ['....lnhl', '.....lnl', '.....ll.']),   # in aria, punta in giu'
 }
 R = lambda a, b: [(r, 0) for r in range(a, b)]
 POSE = {
-    # le ginocchia piegate vanno verso il centro (-1) e si toccano; raccolte in aria, i piedi si aprono a V (+)
+    # a terra le ginocchia piegate vanno verso il centro (-1) e si toccano
     'piegata':    dict(righe=R(60, 63) + [(63, -1), (64, -1), (65, -1)] + R(66, 68) + R(69, 73)),
     'accosciata': dict(righe=R(60, 62) + [(62, -1), (63, -1), (65, -1), (66, -1)] + R(67, 68) + R(69, 73), lucido={63}),
     'punte':      dict(righe=R(60, 71), piede='punta_terra'),
     'tesa':       dict(righe=R(60, 71), piede='punta'),
-    'mezza':      dict(righe=R(60, 66) + [(67, 0), (69, 1), (70, 1)], piede='punta', piede_fuori=1),
-    'raccolta':   dict(righe=R(60, 62) + [(62, -1), (63, -1), (64, -1), (66, 0), (70, 1)], piede='punta',
-                       piede_fuori=2, lucido={63}),
+    'mezza':      dict(righe=R(60, 66) + [(67, 0), (69, 0), (70, 0)], piede='punta', lucido={63}),
+    # ginocchia su: le cosce si alzano verso di noi (si vede piu' pelle sopra lo stivale, il bordo dritto),
+    # il ginocchio prende la luce, lo stinco pende sotto corto, la punta in giu'. Disegnata dalla riga 60
+    'su':         dict(disegno=(['deeeecd', 'deeeecd', 'lllllll', 'lnmmnhl', 'lhnmhhl', 'lhhhhhl',
+                                 '.lhnhl.', '.lhhl..', '..lhl..', '..ll...'],
+                                ['dceeeecd', 'dceeeecd', 'llllllll', '.lnmmnhl', '.lhnmhhl', '.lhhhhhl',
+                                 '..lhnhl.', '..lhhl..', '...lhl..', '...ll...'])),
 }
-LUNGA = lambda p: 1 + len(POSE[p]['righe']) + (len(PIEDI[POSE[p]['piede']][0]) if 'piede' in POSE[p] else 0)
+LUNGA = lambda p: 1 + (len(POSE[p]['disegno'][0]) if 'disegno' in POSE[p] else
+                       len(POSE[p]['righe']) + (len(PIEDI[POSE[p]['piede']][0]) if 'piede' in POSE[p] else 0))
 #        0          1        2       3        4           5        6        7     (la corda: 0 sopra la testa,
-GAMBE = ['piegata', 'punte', 'tesa', 'mezza', 'raccolta', 'mezza', 'punte', 'accosciata']   # 2 davanti, 4 sotto i
+GAMBE = ['piegata', 'punte', 'tesa', 'mezza', 'su', 'mezza', 'punte', 'accosciata']         # 2 davanti, 4 sotto i
 PIEDI_SU = [0, 0, 1, 4, 7, 4, 0, 0]                                                       # piedi, 6 dietro)
 SALTO = [LUNGA(GAMBE[k]) - 14 + PIEDI_SU[k] for k in range(8)]     # quanto sale il corpo: gambe + salto
 BUSTO = [0, 0, 1, 0, 0, 0, 0, -1]      # il busto si allunga quando stacca e si schiaccia quando atterra (la pancia)
+SENO = [0, 0, -1, -1, 1, 1, 0, -1]     # rimbalza di un pixel: resta indietro quando stacca, sale in cima, scende all'atterraggio
+SENO_RIGHE, SENO_X = (44, 48), (12, 23)
 POLSI = [round(math.cos(math.radians(45 * k))) for k in range(8)]
 DUR = 50
 MS, MD, MA, MB = 12, 12, 10, 8           # margini della tela: sinistra, destra, sopra, sotto
@@ -65,12 +73,12 @@ def lineare(r, r0, d0, r1, d1):
     return d0 + (d1 - d0) * t
 
 
-def posa(out, parte, dy_di, dx=0):
+def posa(out, parte, dy_di, dx=0, per_x=False):
     for x in range(W):
         rr = np.nonzero(parte[:, x])[0]
         prima = None
         for r in rr:
-            dest = r - int(np.floor(dy_di(r) + 0.5))
+            dest = r - int(np.floor((dy_di(r, x) if per_x else dy_di(r)) + 0.5))
             if prima is not None and prima[0] == r - 1 and dest - prima[1] == 2:
                 out[dest - 1 + MA, x + MS + dx] = src[r - 1, x]
             if 0 <= dest + MA < CH:
@@ -112,7 +120,12 @@ def disegna_gambe(out, p, j):
             out[y, x + MS] = src[59, x]
     for lato, xs, verso in ((0, range(12, 19), -1), (1, range(20, 28), 1)):
         yy = y + 1
-        for r, fuori in p['righe']:
+        for riga in (p['disegno'][lato] if 'disegno' in p else ()):
+            for i, ch in enumerate(riga):
+                if ch != '.':
+                    out[yy, xs[0] + i + MS, :3] = COL[ch]; out[yy, xs[0] + i + MS, 3] = 255
+            yy += 1
+        for r, fuori in p.get('righe', ()):
             for x in xs:
                 if gambe[r, x]:
                     c = src[r, x].copy()
@@ -123,8 +136,7 @@ def disegna_gambe(out, p, j):
         for riga in (PIEDI[p['piede']][lato] if 'piede' in p else ()):
             for i, ch in enumerate(riga):
                 if ch != '.':
-                    xx = xs[0] + i + MS + verso * p.get('piede_fuori', 0)
-                    out[yy, xx, :3] = COL[ch]; out[yy, xx, 3] = 255
+                    out[yy, xs[0] + i + MS, :3] = COL[ch]; out[yy, xs[0] + i + MS, 3] = 255
             yy += 1
 
 
@@ -138,10 +150,11 @@ fot = []
 for k in range(8):
     th = 45 * k
     j, pl, jp = SALTO[k], POLSI[k], SALTO[k - 1]
-    s, sp = BUSTO[k], BUSTO[k - 1]
+    s, sp, b = BUSTO[k], BUSTO[k - 1], SENO[k]
     lei = np.zeros((CH, CW, 4), np.uint8)
     disegna_gambe(lei, POSE[GAMBE[k]], j)
-    posa(lei, corpo, lambda r: j + s if r <= 52 else j)                 # la riga 52 e' la pancia
+    seno = lambda r, x: b if SENO_RIGHE[0] <= r <= SENO_RIGHE[1] and SENO_X[0] <= x <= SENO_X[1] else 0
+    posa(lei, corpo, lambda r, x: (j + s + seno(r, x)) if r <= 52 else j, per_x=True)   # la riga 52 e' la pancia
     posa(lei, ciocche, lambda r: lineare(r, 36, j + s, 45, jp + sp))
     posa(lei, coda, lambda r: lineare(r, 13, j + s, 0, jp + sp))
     posa(lei, braccia, lambda r: lineare(r, 46, j + s, 60, j + s + pl))
