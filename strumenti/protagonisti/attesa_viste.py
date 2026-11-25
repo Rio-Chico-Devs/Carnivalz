@@ -1,7 +1,8 @@
 """Lei ferma di spalle e di lato: l'attesa come quella di fronte (attesa_davanti.py), 6 fotogrammi da ~0,1 s.
 Piedi fermi; il corpo sale di 1 pixel (fotogrammi 2-4) e torna giu'; le braccia salgono con lui e poi di un altro
 pixel, e scendono in ritardo; i capelli in alto (e di spalle la parte bassa dei capelli, di lato le punte dietro) seguono
-la testa con un fotogramma di ritardo; un tallone si alza, la punta resta a terra.
+la testa con un fotogramma di ritardo, interi (non si allungano ne' si accorciano: l'attacco resta sotto i
+capelli della testa); un tallone si alza, la punta resta a terra.
 - di spalle: dietro_ferma.png -> dietro_attesa.png (il tallone che si alza e' quello del piede sinistro di Lei,
   come di fronte; l'altra gamba si allunga sotto il ginocchio)
 - di lato: le ferme fatte da ferma_lato.py (testa della corsa di lato, stivali come di fronte), 40x81:
@@ -40,14 +41,27 @@ def posa(out, src, parte, dy):
             prima = (r, dest)
 
 
+def sposta(out, src, parte, dy):
+    # la parte intera, sollevata di dy pixel: non si allunga e non si accorcia
+    ys, xs = np.nonzero(parte)
+    d = ys - dy
+    ok = (d >= 0) & (d < out.shape[0])
+    out[d[ok], xs[ok]] = src[ys[ok], xs[ok]]
+
+
 def anima(src, parti):
-    # parti: (maschera, f(b, a, p) -> dy(riga, colonna)), nell'ordine in cui si disegnano (l'ultima sta sopra)
+    # parti: (maschera, f(b, a, p) -> dy(riga, colonna)) oppure (maschera, f(b, a, p) -> dy, 'intera') per i
+    # capelli, che si spostano interi; nell'ordine in cui si disegnano (l'ultima sta sopra)
     fot = []
     for k in range(6):
         b, a, p = CORPO[k], BRACCIA[k], PUNTE[k]
         out = np.zeros_like(src)
-        for m, f in parti:
-            posa(out, src, m, f(b, a, p))
+        for parte in parti:
+            m, f = parte[0], parte[1]
+            if len(parte) > 2:
+                sposta(out, src, m, f(b, a, p))
+            else:
+                posa(out, src, m, f(b, a, p))
         fot.append(out)
     return fot
 
@@ -75,13 +89,19 @@ def dietro(src):
     capelli = op & (Y >= 34) & (Y <= 48) & ~braccia & ~((Y >= 46) & (X >= 10) & (X <= 28))
     gambe = op & (Y >= 63) & ~braccia
     corpo = op & ~coda & ~capelli & ~braccia & ~gambe
+    # i capelli si spostano interi, con l'attacco (qualche riga sopra) che la testa copre; la parte bassa dei
+    # capelli sta sopra la schiena, quindi si disegna dopo il busto e prima della testa
+    coda_attacco = op & (Y <= 22) & ~braccia
+    capelli_attacco = capelli | (op & (Y >= 30) & (Y <= 33))
+    testa, busto = corpo & (Y <= 33), corpo & (Y >= 34)
     return anima(src, [
         (gambe & (X <= 19), lambda b, a, p: lambda r, x: lineare(r, 77, b, 80, 0)),   # il tallone si alza
         (gambe & (X >= 20), lambda b, a, p: lambda r, x: lineare(r, 71, b, 76, 0)),   # si allunga sotto il ginocchio
-        (corpo, lambda b, a, p: lambda r, x: b),
-        (capelli, lambda b, a, p: lambda r, x: lineare(r, 34, b, 48, p)),
-        (coda, lambda b, a, p: lambda r, x: lineare(r, 19, b, 4, p)),
+        (busto, lambda b, a, p: lambda r, x: b),
         (braccia, lambda b, a, p: lambda r, x: lineare(r, 52, b, 65, a)),
+        (coda_attacco, lambda b, a, p: p, 'intera'),
+        (capelli_attacco, lambda b, a, p: p, 'intera'),
+        (testa, lambda b, a, p: lambda r, x: b),
     ])
 
 
@@ -101,13 +121,16 @@ def lato(src, a_sinistra):
     dietro = op & (Y >= 42) & (Y <= 46) & (Xs >= 20)              # le punte dei capelli dietro la nuca
     gambe = op & (Y >= 65) & ~braccia
     corpo = op & ~coda & ~dietro & ~braccia & ~gambe
+    # i capelli si spostano interi, dietro la testa: l'attacco (qualche riga sopra) resta coperto
+    coda_attacco = op & (Y <= 24)
+    dietro_attacco = op & (Y >= 38) & (Y <= 46) & (Xs >= 20)
     return anima(src, [
         # la gamba sale col corpo; nel piede la punta (davanti, x <= 17 guardando a sinistra) resta a terra:
         # i talloni (x 18-22) si alzano
         (gambe, lambda b, a, p: lambda r, x: b if (r < 78 or (x if a_sinistra else W - 1 - x) >= 18) else 0),
+        (coda_attacco, lambda b, a, p: p, 'intera'),
+        (dietro_attacco, lambda b, a, p: p, 'intera'),
         (corpo, lambda b, a, p: lambda r, x: b),
-        (dietro, lambda b, a, p: lambda r, x: lineare(r, 42, b, 46, p)),
-        (coda, lambda b, a, p: lambda r, x: lineare(r, 21, b, 6, p)),
         (braccia, lambda b, a, p: lambda r, x: lineare(r, 51, b, 66, a)),
     ])
 
