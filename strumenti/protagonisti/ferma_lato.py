@@ -41,7 +41,7 @@ VICINA = ['.lllllll....',
           '.lll..ll....']
 # la coscia intera sotto i pantaloncini (righe 65-67, da x 11) fino al bordo dello stivale: la mano ora finisce
 # all'altezza dei pantaloncini, come di fronte, e la coscia non resta mezza coperta
-COSCE = ['dceeeeecd', '.dceeeecd', '.dceeeeed']
+COSCE = ['.dceeeecd', '.dceeeecd', '.dceeeeed']
 PELLI = {'d': (97, 58, 63), 'c': (130, 85, 80), 'e': (156, 116, 82)}
 # la treccia: quella della corsa, che scende davanti al collo fino al petto (Bru: "hai rimosso le trecce?")
 CAPELLI_CORSA = {(86, 69, 107), (110, 91, 132), (124, 105, 147), (168, 148, 189), (191, 172, 209), (206, 185, 223)}
@@ -121,6 +121,13 @@ def sinistra(testa_sx, cima):
         for x in range(0, 17):
             if base[y, x, 3] and tuple(base[y, x, :3]) in CAPELLI_CORSA:
                 out[y - 2, x] = base[y, x]
+    # Bru: via la colonna davanti a vita, pantaloncini e coscia (righe 60-65), che la faceva sembrare grassa; il
+    # contorno nero dei pantaloncini passa al pixel dopo
+    out[60, 11] = 0
+    for y in range(61, 65):
+        out[y, 10] = 0
+        out[y, 11, :3] = (6, 7, 15); out[y, 11, 3] = 255
+    out[65:68, :12] = 0                             # anche la coscia vecchia davanti (x 10-11)
     # i buchi fra treccia e collo e fra pantaloncini e mano
     for y, x, c in ((47, 14, (86, 69, 107)), (49, 15, PELLE_OMBRA), (50, 15, PELLE_OMBRA), (64, 14, (6, 7, 15))):
         if out[y, x, 3] == 0:

@@ -134,9 +134,9 @@ def lato(src, a_sinistra):
     coda_attacco = op & (Y <= 24)
     dietro_attacco = op & (Y >= 38) & (Y <= 46) & (Xs >= 20)
     return anima(src, [
-        # la gamba sale col corpo; nel piede la punta (davanti, x <= 17 guardando a sinistra) resta a terra:
-        # i talloni (x 18-22) si alzano
-        (gambe, lambda b, a, p: lambda r, x: b if (r < 78 or (x if a_sinistra else W - 1 - x) >= 18) else 0),
+        # il piede resta tutto a terra, tacco compreso (Bru: il tacco deve stare li'); il corpo sale e la gamba si
+        # allunga fra la coscia e il ginocchio
+        (gambe, lambda b, a, p: lambda r, x: lineare(r, 65, b, 70, 0)),
         (coda_attacco, lambda b, a, p: p, 'intera'),
         (dietro_attacco, lambda b, a, p: p, 'intera'),
         (corpo, lambda b, a, p: lambda r, x: b, 'da', fondo),
