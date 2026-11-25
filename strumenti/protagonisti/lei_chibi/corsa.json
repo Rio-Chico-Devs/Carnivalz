@@ -99,18 +99,16 @@
       110
     ],
     "davanti_dorme": [
+      260,
+      240,
       200,
-      200,
-      200,
-      200,
-      200,
-      200,
-      200,
-      200,
-      200,
-      200,
-      200,
-      200
+      240,
+      260,
+      460,
+      180,
+      170,
+      180,
+      320
     ]
   },
   "_lato": "La corsa verso destra: la corsa verso sinistra specchiata (Bru: «quella giusta e' la corsa verso sinistra, quella verso destra sembra che cammini»), con la fascia del lato destro presa dalla testa del 72 approvata: il cerchio d'oro, due croci dietro e la mezza croce davanti. Stesso ordine: 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99.",
@@ -121,5 +119,5 @@
   "_ferme_lato": "Lei ferma di lato (lato_destro_ferma.png, lato_sinistro_ferma.png, 40x81 come le corse, suole alla riga 80): la testa con la fascia e le stelle e la treccia davanti al collo vengono dalla corsa di lato (fotogramma 1), cosi' fermandosi e ripartendo non cambia; il corpo e' quello della ferma approvata (lato_ferma.png: collo, seno, braccio lungo il fianco, pantaloncini), col braccio accorciato perche' la mano finisca coi pantaloncini e la coscia si veda intera; una gamba sola, stivale come di fronte sotto il baricentro, col tacco sotto la caviglia. Fatte da ferma_lato.py.",
   "_uniforme": "Lei uguale in tutte le direzioni, partendo da quella di fronte (Bru, 25 novembre): stivali, guanti e pantaloncini coi colori di fronte in tutti i fogli (uniforma_colori.py); di fronte tre stelle sulla fascia, non quattro (uniforma_fronte.py).",
   "_ciuffo": "Il ciuffo di spalle e di lato ridotto a 12/14 come quello di fronte (alto 12 sopra il laccio): uniforma_ciuffo.py, una volta sola.",
-  "_dorme": "Lei dorme in piedi, di fronte (davanti_dorme.png, 12 fotogrammi 40x76 come l'attesa): occhi chiusi a mezzaluna, guanciotte rosa, bocca aperta con la lingua, filo di bava; dal naso la bolla di moccio che si gonfia mentre espira e si sgonfia mentre inspira (bordo azzurro, dentro trasparente, riflesso bianco); respiro lento, il corpo intero sale di 1 pixel inspirando, i piedi a terra. Fatta da strumenti/protagonisti/dorme_davanti.py sulla posa davanti_ferma.png."
+  "_dorme": "Lei dorme in piedi, di fronte, dal disegno 106 di Bru (davanti_dorme.png, 10 fotogrammi 40x76 come l'attesa; la posa ferma e' davanti_dorme_posa.png, 40x74): testa piegata da un lato, occhi chiusi, bocca aperta con la lingua, braccia giu' lungo i fianchi, stivale destro un po' in fuori. Dalla narice la bolla di moccio azzurra col riflesso bianco: si gonfia mentre espira fino a quella disegnata da Bru, resta un attimo e si sgonfia mentre inspira; inspirando il corpo sale di 1 pixel (i piedi a terra, si allunga la coscia) e le punte del ciuffo seguono un fotogramma dopo. Fatta da strumenti/protagonisti/dorme_davanti.py."
 }
