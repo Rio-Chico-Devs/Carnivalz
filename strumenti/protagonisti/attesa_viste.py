@@ -1,10 +1,9 @@
 """Lei ferma di spalle e di lato: l'attesa come quella di fronte (attesa_davanti.py), 6 fotogrammi da ~0,1 s.
-Piedi fermi; il corpo sale di 1 pixel (fotogrammi 2-4) e torna giu'; le braccia salgono con lui e poi di un altro
-pixel, e scendono in ritardo; i capelli in alto (e di spalle la parte bassa dei capelli, di lato le punte dietro) seguono
-la testa con un fotogramma di ritardo, interi (non si allungano ne' si accorciano: l'attacco resta sotto i
-capelli della testa); un tallone si alza, la punta resta a terra.
-- di spalle: dietro_ferma.png -> dietro_attesa.png (il tallone che si alza e' quello del piede sinistro di Lei,
-  come di fronte; l'altra gamba si allunga sotto il ginocchio)
+Piedi fermi a terra; il corpo sale di 1 pixel (fotogrammi 2-4) e torna giu', con la testa, i capelli, la fascia
+e le braccia tutti insieme, e la gamba che si allunga sotto la coscia. Le punte del ciuffo (e di spalle quelle delle
+ciocche ai lati) si piegano con un fotogramma di ritardo: il confine fra punta e resto segue la forma di ogni ciocca
+(la distanza dal laccio camminando dentro i capelli), non una riga dritta (Bru).
+- di spalle: dietro_ferma.png -> dietro_attesa.png
 - di lato: le ferme fatte da ferma_lato.py (testa della corsa di lato, stivali come di fronte), 40x81:
   lato_destro_ferma.png -> lato_attesa.png, lato_sinistro_ferma.png -> lato_sinistro_attesa.png
 uso: attesa_viste.py cartella_lei_chibi cartella_anteprime"""
@@ -75,72 +74,83 @@ def righe(H, W, intervalli):
     return m
 
 
+# ---------------------------------------------------------------- le punte che si piegano
+LATTICE = {(6, 7, 15), (22, 37, 52), (49, 59, 70), (69, 79, 85)}
+FASCIA = (114, 38, 63)
+
+
+def laccio(src):
+    # la riga del laccio dei capelli: la prima (dall'alto) con 3 o piu' pixel di lattice; se non c'e', 4 righe sopra
+    # la cima della fascia
+    op = src[..., 3] > 0
+    cima = int(np.nonzero(op.any(axis=1))[0].min())
+    for y in range(cima, cima + 30):
+        if sum(1 for x in range(src.shape[1]) if op[y, x] and tuple(src[y, x, :3]) in LATTICE) >= 3:
+            return y
+    m = np.all(src[..., :3] == FASCIA, axis=-1) & op
+    return int(np.nonzero(m.any(axis=1))[0].min()) - 4
+
+
+def punte(regione, origine, frazione):
+    # la distanza di ogni pixel della regione dall'origine, camminando dentro la regione (anche in diagonale):
+    # le punte sono i pixel piu' lontani. Il confine fra punta e resto segue cosi' la forma di ogni ciocca, non
+    # una riga dritta (Bru)
+    H, W = regione.shape
+    d = np.full((H, W), -1, int)
+    coda = [tuple(q) for q in np.argwhere(origine & regione)]
+    for q in coda:
+        d[q] = 0
+    i = 0
+    while i < len(coda):
+        y, x = coda[i]; i += 1
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                yy, xx = y + dy, x + dx
+                if 0 <= yy < H and 0 <= xx < W and regione[yy, xx] and d[yy, xx] < 0:
+                    d[yy, xx] = d[y, x] + 1
+                    coda.append((yy, xx))
+    return regione & (d >= frazione * d.max())
+
+
+def con_punte(punta):
+    # tutto si muove col corpo (b); le punte con un fotogramma di ritardo (p): dove si staccano la ciocca si
+    # allunga di un pixel, dove si avvicinano si accorcia, sempre dentro la ciocca
+    return lambda b, a, p: lambda r, x: p if punta[r, x] else b
+
+
 # ---------------------------------------------------------------- di spalle (40x81)
 def dietro(src):
     H, W = src.shape[:2]
     op = src[..., 3] > 0
     Y, X = np.mgrid[0:H, 0:W]
-    # le braccia (guanti) dalla riga 52 alle mani: a sinistra fino a x, a destra da x (letti dal disegno)
-    sx = {52: 11, 53: 13, 54: 13, 55: 13, 56: 12, 57: 11, 58: 11, 59: 10, 60: 10, 61: 9, 62: 9, 63: 9, 64: 8, 65: 6}
-    dx = {52: 27, 53: 25, 54: 25, 55: 25, 56: 26, 57: 27, 58: 28, 59: 28, 60: 28, 61: 28, 62: 28, 63: 29, 64: 30,
-          65: 32}
-    braccia = op & righe(H, W, {r: [(0, sx[r]), (dx[r], W - 1)] for r in sx})
-    coda = op & (Y <= 19)                                             # le punte e il laccio
-    capelli = op & (Y >= 34) & (Y <= 48) & ~braccia & ~((Y >= 46) & (X >= 10) & (X <= 28))
-    gambe = op & (Y >= 63) & ~braccia
-    corpo = op & ~coda & ~capelli & ~braccia & ~gambe
-    # i capelli si spostano interi, con l'attacco (qualche riga sopra) che la testa copre; la parte bassa dei
-    # capelli sta sopra la schiena, quindi si disegna dopo il busto e prima della testa
-    coda_attacco = op & (Y <= 22) & ~braccia
-    capelli_attacco = capelli | (op & (Y >= 30) & (Y <= 33))
-    testa, busto = corpo & (Y <= 33), corpo & (Y >= 34)
+    T = laccio(src)
+    ciuffo = op & (Y < T)
+    punta = punte(ciuffo, ciuffo & (Y == T - 1), 0.5)
+    punta |= op & (Y >= 43) & (Y <= 48) & ((X <= 9) | (X >= 29))      # le punte delle ciocche ai lati
+    gambe = op & (Y >= 63) & (X >= 11) & (X <= 28)
+    resto = op & ~gambe
     return anima(src, [
-        (gambe & (X <= 19), lambda b, a, p: lambda r, x: lineare(r, 77, b, 80, 0)),   # il tallone si alza
-        (gambe & (X >= 20), lambda b, a, p: lambda r, x: lineare(r, 71, b, 76, 0)),   # si allunga sotto il ginocchio
-        (busto, lambda b, a, p: lambda r, x: b),
-        (braccia, lambda b, a, p: lambda r, x: lineare(r, 52, b, 65, a)),
-        (coda_attacco, lambda b, a, p: p, 'intera'),
-        (capelli_attacco, lambda b, a, p: p, 'intera'),
-        (testa, lambda b, a, p: lambda r, x: b),
+        (gambe, lambda b, a, p: lambda r, x: lineare(r, 63, b, 68, 0)),   # i piedi restano a terra
+        (resto, con_punte(punta)),
     ])
 
 
 # ---------------------------------------------------------------- di lato (40x81, ferma_lato.py)
 def lato(src, a_sinistra):
-    # le parti della ferma verso sinistra (viso a sinistra); verso destra le stesse colonne specchiate
+    # testa, capelli, fascia (col cerchio d'oro), treccia, busto e braccio si muovono insieme col corpo; solo le
+    # punte del ciuffo si piegano in ritardo. Il piede resta tutto a terra, tacco compreso; quando il corpo sale la
+    # gamba si allunga fra la coscia e il ginocchio
     H, W = src.shape[:2]
     op = src[..., 3] > 0
     Y, X = np.mgrid[0:H, 0:W]
-    Xs = X if a_sinistra else (W - 1) - X                       # la colonna come se guardasse a sinistra
-    braccio = {**{r: (16, 20) for r in range(51, 58)}, **{r: (14, 20) for r in range(58, 64)}, 64: (14, 19)}
-    braccia = np.zeros((H, W), bool)
-    for r, (x0, x1) in braccio.items():
-        braccia[r] = op[r] & (Xs[r] >= x0) & (Xs[r] <= x1)
-    coda = op & (Y <= 21)                                         # le punte e il laccio dei capelli
-    dietro = op & (Y >= 42) & (Y <= 46) & (Xs >= 20)              # le punte dei capelli dietro la nuca
-    gambe = op & (Y >= 65) & ~braccia
-    corpo = op & ~coda & ~dietro & ~braccia & ~gambe
-    # dietro la mano e il braccio: il corpo che c'e' sotto (pantaloncini, cintura, busto), preso dal pixel piu' vicino
-    # verso il viso, cosi' quando la mano sale non resta un buco trasparente (Bru)
-    fondo = src.copy()
-    passo = -1 if a_sinistra else 1
-    for r, x in zip(*np.nonzero(braccia)):
-        xx = x
-        while 0 <= xx < W and braccia[r, xx]:
-            xx += passo
-        fondo[r, x] = src[r, xx] if 0 <= xx < W and op[r, xx] else 0
-    corpo = corpo | (braccia & (fondo[..., 3] > 0))
-    # i capelli si spostano interi, dietro la testa: l'attacco (qualche riga sopra) resta coperto
-    coda_attacco = op & (Y <= 24)
-    dietro_attacco = op & (Y >= 38) & (Y <= 46) & (Xs >= 20)
+    T = laccio(src)
+    ciuffo = op & (Y < T)
+    punta = punte(ciuffo, ciuffo & (Y == T - 1), 0.5)
+    gambe = op & (Y >= 65)
+    resto = op & ~gambe
     return anima(src, [
-        # il piede resta tutto a terra, tacco compreso (Bru: il tacco deve stare li'); il corpo sale e la gamba si
-        # allunga fra la coscia e il ginocchio
         (gambe, lambda b, a, p: lambda r, x: lineare(r, 65, b, 70, 0)),
-        (coda_attacco, lambda b, a, p: p, 'intera'),
-        (dietro_attacco, lambda b, a, p: p, 'intera'),
-        (corpo, lambda b, a, p: lambda r, x: b, 'da', fondo),
-        (braccia, lambda b, a, p: lambda r, x: lineare(r, 51, b, 63, a)),
+        (resto, con_punte(punta)),
     ])
 
 
