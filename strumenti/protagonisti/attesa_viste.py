@@ -58,10 +58,10 @@ def anima(src, parti):
         out = np.zeros_like(src)
         for parte in parti:
             m, f = parte[0], parte[1]
-            if len(parte) > 2:
+            if len(parte) > 2 and parte[2] == 'intera':
                 sposta(out, src, m, f(b, a, p))
             else:
-                posa(out, src, m, f(b, a, p))
+                posa(out, parte[3] if len(parte) > 3 else src, m, f(b, a, p))
         fot.append(out)
     return fot
 
@@ -120,6 +120,16 @@ def lato(src, a_sinistra):
     dietro = op & (Y >= 42) & (Y <= 46) & (Xs >= 20)              # le punte dei capelli dietro la nuca
     gambe = op & (Y >= 65) & ~braccia
     corpo = op & ~coda & ~dietro & ~braccia & ~gambe
+    # dietro la mano e il braccio: il corpo che c'e' sotto (pantaloncini, cintura, busto), preso dal pixel piu' vicino
+    # verso il viso, cosi' quando la mano sale non resta un buco trasparente (Bru)
+    fondo = src.copy()
+    passo = -1 if a_sinistra else 1
+    for r, x in zip(*np.nonzero(braccia)):
+        xx = x
+        while 0 <= xx < W and braccia[r, xx]:
+            xx += passo
+        fondo[r, x] = src[r, xx] if 0 <= xx < W and op[r, xx] else 0
+    corpo = corpo | (braccia & (fondo[..., 3] > 0))
     # i capelli si spostano interi, dietro la testa: l'attacco (qualche riga sopra) resta coperto
     coda_attacco = op & (Y <= 24)
     dietro_attacco = op & (Y >= 38) & (Y <= 46) & (Xs >= 20)
@@ -129,7 +139,7 @@ def lato(src, a_sinistra):
         (gambe, lambda b, a, p: lambda r, x: b if (r < 78 or (x if a_sinistra else W - 1 - x) >= 18) else 0),
         (coda_attacco, lambda b, a, p: p, 'intera'),
         (dietro_attacco, lambda b, a, p: p, 'intera'),
-        (corpo, lambda b, a, p: lambda r, x: b),
+        (corpo, lambda b, a, p: lambda r, x: b, 'da', fondo),
         (braccia, lambda b, a, p: lambda r, x: lineare(r, 51, b, 63, a)),
     ])
 

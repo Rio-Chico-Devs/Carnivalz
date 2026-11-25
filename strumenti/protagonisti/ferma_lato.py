@@ -25,7 +25,7 @@ PELLE, PELLE_OMBRA, PELLE_SCURA = (128, 93, 75), (105, 75, 64), (85, 55, 39)   #
 # le gambe verso sinistra, dalla riga 68 (bordo dello stivale) alla 80 (suole), da x 11. Bru: niente polpaccio
 # grosso e niente gambe inclinate in avanti: le gambe scendono verso il baricentro (x 18 circa: testa e corpo) e i
 # piedi ci stanno sotto. Una gamba sola (Bru: "se togli la gamba di dietro e' perfetta"): luce sul davanti,
-# ginocchio lucido, caviglia sottile, piede col tacco
+# ginocchio lucido, caviglia sottile, piede col tacco; il tacco sta sotto la caviglia, non sporge dietro (Bru)
 VICINA = ['.lllllll....',
           '.lnhhhhl....',
           '.lmnhhhl....',
@@ -36,10 +36,10 @@ VICINA = ['.lllllll....',
           '...lnhhl....',
           '....lnhl....',
           '....lnhl....',
-          '...lnhhhl...',
-          '..lnhhl.ll..',
-          '..lll...ll..']
-# la coscia intera sotto i pantaloncini (righe 65-67, da x 10) fino al bordo dello stivale: la mano ora finisce
+          '...lnhhl....',
+          '..lnhlll....',
+          '.lll..ll....']
+# la coscia intera sotto i pantaloncini (righe 65-67, da x 11) fino al bordo dello stivale: la mano ora finisce
 # all'altezza dei pantaloncini, come di fronte, e la coscia non resta mezza coperta
 COSCE = ['dceeeeecd', '.dceeeecd', '.dceeeeed']
 PELLI = {'d': (97, 58, 63), 'c': (130, 85, 80), 'e': (156, 116, 82)}
@@ -108,10 +108,10 @@ def sinistra(testa_sx, cima):
                 out[d, x] = pezzi[y, x]
     for i, r in enumerate(COSCE):
         for j, ch in enumerate(r):
-            y, x = 65 + i, 10 + j
+            y, x = 65 + i, 11 + j
             if ch != '.':
                 out[y, x, :3] = PELLI[ch]; out[y, x, 3] = 255
-    gambe(out, VICINA, 11, 68)
+    gambe(out, VICINA, 12, 68)
     # la testa sopra il collo (i capelli dietro cadono sulla schiena)
     m = testa_sx[..., 3] > 0
     out[m] = testa_sx[m]
@@ -122,7 +122,7 @@ def sinistra(testa_sx, cima):
             if base[y, x, 3] and tuple(base[y, x, :3]) in CAPELLI_CORSA:
                 out[y - 2, x] = base[y, x]
     # i buchi fra treccia e collo e fra pantaloncini e mano
-    for y, x, c in ((47, 14, (86, 69, 107)), (49, 15, PELLE_OMBRA), (64, 14, (6, 7, 15))):
+    for y, x, c in ((47, 14, (86, 69, 107)), (49, 15, PELLE_OMBRA), (50, 15, PELLE_OMBRA), (64, 14, (6, 7, 15))):
         if out[y, x, 3] == 0:
             out[y, x, :3] = c; out[y, x, 3] = 255
     return out
