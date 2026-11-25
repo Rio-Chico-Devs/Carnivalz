@@ -1,6 +1,6 @@
 """Lei ferma di lato, uguale alla corsa di lato: la testa (con la fascia e le stelle) e' quella della corsa, cosi'
 fermandosi e ripartendo non cambia niente sopra il collo; il corpo e' quello della ferma approvata (lato_ferma.png:
-collo, busto, braccio lungo il fianco, pantaloncini) e le gambe sono stivali disegnati come quelli di fronte:
+collo, busto, braccio lungo il fianco, pantaloncini) e la gamba e' uno stivale disegnato come quelli di fronte:
 contorno nero, luce sul davanti, ginocchio lucido, caviglia sottile, piede piccolo col tacco.
 Verso sinistra: testa della corsa verso sinistra (fotogramma 1, alzata perche' la fascia stia alla riga 24, come la
 ferma di fronte rispetto ai piedi). Verso destra: la stessa specchiata, con la testa della corsa verso destra (la fascia
@@ -22,8 +22,8 @@ PELLE, PELLE_OMBRA, PELLE_SCURA = (128, 93, 75), (105, 75, 64), (85, 55, 39)   #
 
 # le gambe verso sinistra, dalla riga 68 (bordo dello stivale) alla 80 (suole), da x 11. Bru: niente polpaccio
 # grosso e niente gambe inclinate in avanti: le gambe scendono verso il baricentro (x 18 circa: testa e corpo) e i
-# piedi ci stanno sotto. La gamba vicina: luce sul davanti, ginocchio lucido, caviglia sottile, piede col tacco;
-# quella lontana due pixel piu' indietro, scura (se ne vedono il retro e il tacco)
+# piedi ci stanno sotto. Una gamba sola (Bru: "se togli la gamba di dietro e' perfetta"): luce sul davanti,
+# ginocchio lucido, caviglia sottile, piede col tacco
 VICINA = ['.lllllll....',
           '.lnhhhhl....',
           '.lmnhhhl....',
@@ -37,7 +37,6 @@ VICINA = ['.lllllll....',
           '...lnhhhl...',
           '..lnhhl.ll..',
           '..lll...ll..']
-LONTANA = [r.replace('n', 'h').replace('m', 'h') for r in VICINA]
 # le cosce sotto i pantaloncini (righe 65-67, da x 10), che scendono verso lo stivale; la mano ci sta davanti
 COSCE = ['dceee', '.dceee', '.dceee']
 PELLI = {'d': (97, 58, 63), 'c': (130, 85, 80), 'e': (156, 116, 82)}
@@ -91,7 +90,6 @@ def sinistra(testa_sx, cima):
             y, x = 65 + i, 10 + j
             if ch != '.' and (out[y, x, 3] == 0 or tuple(out[y, x, :3]) in PELLI.values()):
                 out[y, x, :3] = PELLI[ch]; out[y, x, 3] = 255
-    gambe(out, LONTANA, 13, 68)
     gambe(out, VICINA, 11, 68)
     # la testa sopra il collo (i capelli dietro cadono sulla schiena)
     m = testa_sx[..., 3] > 0
