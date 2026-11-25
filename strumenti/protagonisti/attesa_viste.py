@@ -112,26 +112,25 @@ def lato(src, a_sinistra):
     op = src[..., 3] > 0
     Y, X = np.mgrid[0:H, 0:W]
     Xs = X if a_sinistra else (W - 1) - X                       # la colonna come se guardasse a sinistra
-    braccio = {**{r: (16, 20) for r in range(51, 63)}, 63: (15, 20), 64: (14, 20), 65: (14, 20), 66: (14, 20),
-               67: (15, 19)}
+    braccio = {**{r: (17, 22) for r in range(54, 63)}, 63: (17, 23), 64: (17, 23), 65: (17, 23), 66: (18, 23)}
     braccia = np.zeros((H, W), bool)
     for r, (x0, x1) in braccio.items():
         braccia[r] = op[r] & (Xs[r] >= x0) & (Xs[r] <= x1)
     coda = op & (Y <= 21)                                         # le punte e il laccio dei capelli
-    dietro = op & (Y >= 42) & (Y <= 46) & (Xs >= 20)              # le punte dei capelli dietro la nuca
-    gambe = op & (Y >= 65) & ~braccia
+    dietro = op & (Y >= 42) & (Y <= 49) & (Xs >= 24)              # le punte dei capelli dietro la nuca
+    gambe = op & (Y >= 66) & ~braccia
     corpo = op & ~coda & ~dietro & ~braccia & ~gambe
     # i capelli si spostano interi, dietro la testa: l'attacco (qualche riga sopra) resta coperto
     coda_attacco = op & (Y <= 24)
-    dietro_attacco = op & (Y >= 38) & (Y <= 46) & (Xs >= 20)
+    dietro_attacco = op & (Y >= 38) & (Y <= 49) & (Xs >= 24)
     return anima(src, [
-        # la gamba sale col corpo; nel piede la punta (davanti, x <= 17 guardando a sinistra) resta a terra:
-        # i talloni (x 18-22) si alzano
-        (gambe, lambda b, a, p: lambda r, x: b if (r < 78 or (x if a_sinistra else W - 1 - x) >= 18) else 0),
+        # la gamba sale col corpo; nel piede la punta (davanti, x <= 18 guardando a sinistra) resta a terra:
+        # il tallone (x 19-21) si alza
+        (gambe, lambda b, a, p: lambda r, x: b if (r < 78 or (x if a_sinistra else W - 1 - x) >= 19) else 0),
         (coda_attacco, lambda b, a, p: p, 'intera'),
         (dietro_attacco, lambda b, a, p: p, 'intera'),
         (corpo, lambda b, a, p: lambda r, x: b),
-        (braccia, lambda b, a, p: lambda r, x: lineare(r, 51, b, 66, a)),
+        (braccia, lambda b, a, p: lambda r, x: lineare(r, 54, b, 66, a)),
     ])
 
 
