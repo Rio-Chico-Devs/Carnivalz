@@ -63,9 +63,20 @@
       100,
       100,
       110
+    ],
+    "davanti_corda": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50
     ]
   },
   "_lato": "La corsa verso destra: la corsa verso sinistra specchiata (Bru: «quella giusta e' la corsa verso sinistra, quella verso destra sembra che cammini»), con la fascia del lato destro presa dalla testa del 72 approvata: il cerchio d'oro, due croci dietro e la mezza croce davanti. Stesso ordine: 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99.",
   "_lato_sinistro": "La corsa verso sinistra (disegni suoi, non specchiati): 12 pose in due passi, nell'ordine 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99; la testa e' quella dell'87 in tutte; nelle pose in volo i piedi restano staccati da terra come nei disegni.",
-  "_attesa": "L'attesa di fronte (davanti_attesa.png, 6 fotogrammi 40x74) come la GIF di Bru: piedi fermi, il corpo sale di 1 pixel e torna giu', braccia, coda e ciocche in ritardo. Fatta da strumenti/protagonisti/attesa_davanti.py sulla posa davanti_ferma.png."
+  "_attesa": "L'attesa di fronte (davanti_attesa.png, 6 fotogrammi 40x74) come la GIF di Bru: piedi fermi, il corpo sale di 1 pixel e torna giu', braccia, coda e ciocche in ritardo. Fatta da strumenti/protagonisti/attesa_davanti.py sulla posa davanti_ferma.png.",
+  "_corda": "Lei salta la corda, di fronte (davanti_corda.png, 8 fotogrammi 64x92: la tela e' piu' grande per la corda; i piedi a terra stanno alla riga 82, x 32). Un giro di corda per salto: sopra la testa (0), davanti (2), sotto i piedi (4, lei e' 4 pixel in alto), dietro (6); atterra piegandosi (7). Pugni guantati con le maniglie d'oro. Fatta da strumenti/protagonisti/corda_davanti.py."
 }
