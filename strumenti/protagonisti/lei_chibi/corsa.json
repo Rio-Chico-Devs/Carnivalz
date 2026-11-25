@@ -97,6 +97,20 @@
       100,
       100,
       110
+    ],
+    "davanti_dorme": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
     ]
   },
   "_lato": "La corsa verso destra: la corsa verso sinistra specchiata (Bru: «quella giusta e' la corsa verso sinistra, quella verso destra sembra che cammini»), con la fascia del lato destro presa dalla testa del 72 approvata: il cerchio d'oro, due croci dietro e la mezza croce davanti. Stesso ordine: 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99.",
@@ -106,5 +120,6 @@
   "_attese_viste": "L'attesa anche di spalle (dietro_attesa.png, 6 fotogrammi 40x81) e di lato (lato_attesa.png verso destra, lato_sinistro_attesa.png verso sinistra, 40x81, dalle ferme di lato): piedi fermi a terra, il corpo sale di 1 pixel e torna giu' con testa, capelli, fascia (e cerchio d'oro) e braccia tutti insieme, la gamba si allunga sotto la coscia; le punte del ciuffo (e di spalle quelle delle ciocche ai lati) si piegano con un fotogramma di ritardo, col confine che segue la forma di ogni ciocca (distanza dal laccio dentro i capelli), non una riga dritta. Fatte da strumenti/protagonisti/attesa_viste.py.",
   "_ferme_lato": "Lei ferma di lato (lato_destro_ferma.png, lato_sinistro_ferma.png, 40x81 come le corse, suole alla riga 80): la testa con la fascia e le stelle e la treccia davanti al collo vengono dalla corsa di lato (fotogramma 1), cosi' fermandosi e ripartendo non cambia; il corpo e' quello della ferma approvata (lato_ferma.png: collo, seno, braccio lungo il fianco, pantaloncini), col braccio accorciato perche' la mano finisca coi pantaloncini e la coscia si veda intera; una gamba sola, stivale come di fronte sotto il baricentro, col tacco sotto la caviglia. Fatte da ferma_lato.py.",
   "_uniforme": "Lei uguale in tutte le direzioni, partendo da quella di fronte (Bru, 25 novembre): stivali, guanti e pantaloncini coi colori di fronte in tutti i fogli (uniforma_colori.py); di fronte tre stelle sulla fascia, non quattro (uniforma_fronte.py).",
-  "_ciuffo": "Il ciuffo di spalle e di lato ridotto a 12/14 come quello di fronte (alto 12 sopra il laccio): uniforma_ciuffo.py, una volta sola."
+  "_ciuffo": "Il ciuffo di spalle e di lato ridotto a 12/14 come quello di fronte (alto 12 sopra il laccio): uniforma_ciuffo.py, una volta sola.",
+  "_dorme": "Lei dorme in piedi, di fronte (davanti_dorme.png, 12 fotogrammi 40x76 come l'attesa): occhi chiusi a mezzaluna, guanciotte rosa, bocca aperta con la lingua, filo di bava; dal naso la bolla di moccio che si gonfia mentre espira e si sgonfia mentre inspira (bordo azzurro, dentro trasparente, riflesso bianco); respiro lento, il corpo intero sale di 1 pixel inspirando, i piedi a terra. Fatta da strumenti/protagonisti/dorme_davanti.py sulla posa davanti_ferma.png."
 }
