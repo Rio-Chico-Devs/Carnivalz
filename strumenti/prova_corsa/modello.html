@@ -226,7 +226,7 @@ kbd {
 <body>
 <main class="pagina">
   <h1>Prova corsa</h1>
-  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
+  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma di fronte respira; se resta ferma per un po' si gira verso di te e salta la corda. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
     <span class="solo-tastiera"><kbd>frecce</kbd> o <kbd>WASD</kbd> per correre.</span>
     <span class="solo-tocco">Tieni premuti i tasti sul prato per correre.</span></p>
 
@@ -250,6 +250,9 @@ kbd {
       </label>
       <label>Ritmo delle gambe <output id="vRit">115%</output>
         <input type="range" id="rit" min="20" max="150" step="5" value="115">
+      </label>
+      <label>Salta la corda dopo <output id="vCor">5 s</output>
+        <input type="range" id="cor" min="1" max="30" step="1" value="5">
       </label>
       <label>Corrente del ruscello <output id="vAcq">20 px/s</output>
         <input type="range" id="acq" min="0" max="60" step="2" value="20">
@@ -311,11 +314,14 @@ kbd {
   const croce = document.getElementById("croce");
   const vel = document.getElementById("vel"), vVel = document.getElementById("vVel");
   const rit = document.getElementById("rit"), vRit = document.getElementById("vRit");
+  const cor = document.getElementById("cor"), vCor = document.getElementById("vCor");
   const tastiera = matchMedia("(pointer: fine)").matches;
 
   const VERSI = { "0,1": "giu", "0,-1": "su", "1,0": "destra", "-1,0": "sinistra" };
-  const lei = { x: D.partenza[0], y: D.partenza[1], verso: VERSI[D.verso.join(",")] || "su", tempo: 0, corre: false };
-  let velocita = 185, ritmo = 1.15, zoom = 2;
+  // quieta: da quanti millisecondi e' ferma senza che si tocchino i tasti (l'attesa, poi il salto della corda)
+  const lei = { x: D.partenza[0], y: D.partenza[1], verso: VERSI[D.verso.join(",")] || "su", tempo: 0, corre: false,
+    quieta: 0 };
+  let velocita = 185, ritmo = 1.15, zoom = 2, dopoCorda = 5000;
   let IM = null, passi = null, PW = 0, pronto = false;
   let gw = 1, gh = 1, sc = 1;
 
@@ -443,6 +449,7 @@ kbd {
 
   vel.addEventListener("input", () => { velocita = +vel.value; vVel.textContent = velocita + " px/s"; });
   rit.addEventListener("input", () => { ritmo = rit.value / 100; vRit.textContent = rit.value + "%"; });
+  cor.addEventListener("input", () => { dopoCorda = cor.value * 1000; vCor.textContent = cor.value + " s"; });
   const acq = document.getElementById("acq"), vAcq = document.getElementById("vAcq");
   acq.addEventListener("input", () => { ACQ.vel = +acq.value; vAcq.textContent = acq.value + " px/s"; });
   for (const el of [vel, rit, acq]) el.addEventListener("pointerup", () => el.blur());
@@ -464,7 +471,7 @@ kbd {
   }
   document.getElementById("inizio").addEventListener("click", (e) => {
     lei.x = D.partenza[0]; lei.y = D.partenza[1];
-    lei.verso = VERSI[D.verso.join(",")] || "su"; lei.tempo = 0; lei.corre = false;
+    lei.verso = VERSI[D.verso.join(",")] || "su"; lei.tempo = 0; lei.corre = false; lei.quieta = 0;
     e.currentTarget.blur();
   });
   campo.addEventListener("pointerdown", () => campo.focus());
@@ -480,9 +487,21 @@ kbd {
     }
     return v.n - 1;
   }
+  // da ferma: di fronte l'attesa (respira); dopo un po' senza tasti si gira verso di noi e salta la corda
+  function ferma() {
+    if (lei.corre) return null;
+    if (lei.quieta >= dopoCorda) return { a: D.ferme.corda, t: lei.quieta - dopoCorda, nome: "salta la corda" };
+    if (lei.verso === "giu") return { a: D.ferme.attesa, t: lei.quieta, nome: "attesa" };
+    return null;
+  }
   function aggiorna(dt) {
     const [dx, dy] = direzione();
-    if (!dx && !dy) { lei.corre = false; lei.tempo = 0; return; }
+    if (!dx && !dy) {
+      lei.corre = false; lei.tempo = 0; lei.quieta += dt * 1000;
+      if (lei.quieta >= dopoCorda) lei.verso = "giu";
+      return;
+    }
+    lei.quieta = 0;
     const verso = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "destra" : "sinistra") : (dy > 0 ? "giu" : "su");
     if (verso !== lei.verso) {
       // girandosi resta nello stesso punto del passo
@@ -1024,6 +1043,12 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
     return Math.max(inizio, Math.min(inizio + lato - vista, p - Math.floor(vista / 2)));
   }
   function disegnaLei(g, x, y) {
+    const f = ferma();
+    if (f) {
+      const a = f.a;
+      g.drawImage(IM[a.foglio], posa(a, f.t) * a.w, 0, a.w, a.h, x - a.px, y - a.py, a.w, a.h);
+      return;
+    }
     const v = VISTE[lei.verso];
     let foglio, i, h;
     if (lei.corre) { foglio = IM[v.foglio]; i = posa(v, lei.tempo); h = v.h; }
@@ -1095,7 +1120,9 @@ void main() { colore = vec4(vec3(texelFetch(uAQ, ivec2(vCol, 0), 0).rgb) / 255.0
   function scriviStato() {
     const v = VISTE[lei.verso];
     let p = "ferma";
-    if (lei.corre) {
+    const f = ferma();
+    if (f) p = f.nome + ", posa " + (posa(f.a, f.t) + 1) + " di " + f.a.n;
+    else if (lei.corre) {
       const i = posa(v, lei.tempo);
       p = "posa " + (i + 1) + " di " + v.n + (v.disegni ? " (disegno " + v.disegni[i] + ")" : "");
     }

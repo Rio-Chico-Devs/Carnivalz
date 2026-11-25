@@ -8,6 +8,9 @@ import json
 import os
 import sys
 
+import numpy as np
+from PIL import Image
+
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 MODELLO, USCITA, ACQUA = sys.argv[1:4]
 LEI = os.path.join(REPO, 'strumenti/protagonisti/lei_chibi')
@@ -41,6 +44,23 @@ dati = {
     'verso': pianta['verso'],
     'stanze': [{'nome': s['nome'], 'rett': s['rett']} for s in pianta['stanze']],
 }
+# Lei ferma di fronte: l'attesa appena si ferma, il salto della corda se resta ferma a lungo. Il punto per terra
+# sta due righe sopra le suole, come nelle corse (suole alla riga 80, punto alla 78)
+with open(os.path.join(LEI, 'corsa.json'), encoding='utf-8') as f:
+    durate = json.load(f)['durate_ms']
+
+
+def ferma(foglio, nome, w):
+    a = np.asarray(Image.open(os.path.join(LEI, nome + '.png')).convert('RGBA'))[..., 3] > 0
+    n = a.shape[1] // w
+    assert a.shape[1] == n * w and len(durate[nome]) == n, nome
+    suole = int(np.nonzero(a.any(axis=1))[0].max())
+    dati['fogli'][foglio] = uri(os.path.join(LEI, nome + '.png'))
+    return {'foglio': foglio, 'n': n, 'w': w, 'h': int(a.shape[0]), 'px': w // 2, 'py': suole - 2,
+            'durate': durate[nome]}
+
+
+dati['ferme'] = {'attesa': ferma('attesa', 'davanti_attesa', 40), 'corda': ferma('corda', 'davanti_corda', 64)}
 # l'acqua: i dati per pixel, la tessera, il filo del ruscello; i pezzi con l'acqua a fotogrammi e la pozza
 with open(os.path.join(ACQUA, 'dati', 'acqua_info.json'), encoding='utf-8') as f:
     acqua = json.load(f)
