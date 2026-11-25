@@ -1,13 +1,11 @@
 """Lei ferma di spalle e di lato: l'attesa come quella di fronte (attesa_davanti.py), 6 fotogrammi da ~0,1 s.
 Piedi fermi; il corpo sale di 1 pixel (fotogrammi 2-4) e torna giu'; le braccia salgono con lui e poi di un altro
-pixel, e scendono in ritardo; i capelli in alto (e di spalle la parte bassa dei capelli, di lato la treccia) seguono
+pixel, e scendono in ritardo; i capelli in alto (e di spalle la parte bassa dei capelli, di lato le punte dietro) seguono
 la testa con un fotogramma di ritardo; un tallone si alza, la punta resta a terra.
 - di spalle: dietro_ferma.png -> dietro_attesa.png (il tallone che si alza e' quello del piede sinistro di Lei,
   come di fronte; l'altra gamba si allunga sotto il ginocchio)
-- di lato verso destra: lato_ferma.png (la ferma approvata) -> lato_attesa.png
-- di lato verso sinistra: la stessa ferma specchiata, ma con la fascia del lato sinistro: il cerchio d'oro sta
-  dall'altra parte della testa, quindi li' la fascia continua, con una terza croce come nella corsa verso
-  sinistra -> lato_sinistro_attesa.png
+- di lato: le ferme fatte da ferma_lato.py (testa della corsa di lato, stivali come di fronte), 40x81:
+  lato_destro_ferma.png -> lato_attesa.png, lato_sinistro_ferma.png -> lato_sinistro_attesa.png
 uso: attesa_viste.py cartella_lei_chibi cartella_anteprime"""
 import os
 import sys
@@ -87,58 +85,31 @@ def dietro(src):
     ])
 
 
-# ---------------------------------------------------------------- di lato, verso destra (40x74)
-CAPELLI_LATO = [(87, 66, 125), (114, 91, 145), (148, 136, 190), (196, 185, 225), (228, 215, 241)]
-
-
-def lato(src):
+# ---------------------------------------------------------------- di lato (40x81, ferma_lato.py)
+def lato(src, a_sinistra):
+    # le parti della ferma verso sinistra (viso a sinistra); verso destra le stesse colonne specchiate
     H, W = src.shape[:2]
     op = src[..., 3] > 0
     Y, X = np.mgrid[0:H, 0:W]
-    capello = np.zeros((H, W), bool)
-    for c in CAPELLI_LATO:
-        capello |= np.all(src[..., :3] == c, axis=-1)
-    braccia = op & righe(H, W, {**{r: [(18, 22)] for r in range(45, 57)},
-                                57: [(18, 23)], 58: [(18, 24)], 59: [(18, 24)], 60: [(18, 24)], 61: [(18, 23)]})
-    coda = op & (Y <= 14)
-    treccia = op & capello & (Y >= 41) & (Y <= 44) & (X >= 23) & (X <= 26)
-    gambe = op & (Y >= 59) & ~braccia
-    corpo = op & ~coda & ~treccia & ~braccia & ~gambe
+    Xs = X if a_sinistra else (W - 1) - X                       # la colonna come se guardasse a sinistra
+    braccio = {**{r: (16, 20) for r in range(51, 63)}, 63: (15, 20), 64: (14, 20), 65: (14, 20), 66: (14, 20),
+               67: (15, 19)}
+    braccia = np.zeros((H, W), bool)
+    for r, (x0, x1) in braccio.items():
+        braccia[r] = op[r] & (Xs[r] >= x0) & (Xs[r] <= x1)
+    coda = op & (Y <= 21)                                         # le punte e il laccio dei capelli
+    dietro = op & (Y >= 42) & (Y <= 46) & (Xs >= 20)              # le punte dei capelli dietro la nuca
+    gambe = op & (Y >= 65) & ~braccia
+    corpo = op & ~coda & ~dietro & ~braccia & ~gambe
     return anima(src, [
-        # la gamba sale col corpo; sotto la caviglia la punta (davanti, x >= 21) resta a terra: il tallone si alza
-        (gambe, lambda b, a, p: lambda r, x: b if (r < 70 or x <= 20) else 0),
+        # la gamba sale col corpo; nel piede la punta (davanti, x <= 10 guardando a sinistra) resta a terra:
+        # il tallone si alza
+        (gambe, lambda b, a, p: lambda r, x: b if (r < 77 or (x if a_sinistra else W - 1 - x) >= 11) else 0),
         (corpo, lambda b, a, p: lambda r, x: b),
-        (treccia, lambda b, a, p: lambda r, x: p),
-        (coda, lambda b, a, p: lambda r, x: lineare(r, 14, b, 0, p)),
-        (braccia, lambda b, a, p: lambda r, x: lineare(r, 45, b, 60, a)),
+        (dietro, lambda b, a, p: lambda r, x: lineare(r, 42, b, 46, p)),
+        (coda, lambda b, a, p: lambda r, x: lineare(r, 21, b, 6, p)),
+        (braccia, lambda b, a, p: lambda r, x: lineare(r, 51, b, 66, a)),
     ])
-
-
-# la fascia senza il cerchio d'oro (righe 16-24, x 23-36 della ferma verso destra): sopra, i capelli chiudono la
-# testa; la fascia passa dritta col bordo scuro, l'ombra in basso e una terza croce come le altre due
-PEZZA = ['BBBBA.........',
-         'DCCCBAA.......',
-         'DDCCCBBAAKKKK.',
-         'DCCCKKKKKLLLLK',
-         'KKKKLLLLLLLLLK',
-         'LLOLLLLLLLLLLK',
-         'LOODLLLLNNNNNK',
-         'LLDNNNNNKCBKKK',
-         'NNNKKKKKBCDCBA']
-TINTE = {'A': (87, 66, 125), 'B': (114, 91, 145), 'C': (148, 136, 190), 'D': (196, 185, 225),
-         'K': (74, 26, 52), 'L': (126, 33, 64), 'N': (98, 34, 62), 'O': (228, 215, 241)}
-
-
-def senza_cerchio(src):
-    out = src.copy()
-    for i, riga in enumerate(PEZZA):
-        for j, ch in enumerate(riga):
-            y, x = 16 + i, 23 + j
-            if ch == '.':
-                out[y, x] = 0
-            else:
-                out[y, x, :3] = TINTE[ch]; out[y, x, 3] = 255
-    return out
 
 
 def salva(fot, nome):
@@ -147,8 +118,8 @@ def salva(fot, nome):
 
 carica = lambda n: np.asarray(Image.open(os.path.join(LEI, n)).convert('RGBA')).copy()
 spalle = dietro(carica('dietro_ferma.png'))
-destra = lato(carica('lato_ferma.png'))
-sinistra = [f[:, ::-1].copy() for f in lato(senza_cerchio(carica('lato_ferma.png')))]
+destra = lato(carica('lato_destro_ferma.png'), False)
+sinistra = lato(carica('lato_sinistro_ferma.png'), True)
 salva(spalle, 'dietro_attesa.png')
 salva(destra, 'lato_attesa.png')
 salva(sinistra, 'lato_sinistro_attesa.png')
