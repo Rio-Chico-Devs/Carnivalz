@@ -226,7 +226,7 @@ kbd {
 <body>
 <main class="pagina">
   <h1>Prova corsa</h1>
-  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma di fronte respira; se resta ferma per un po' si gira verso di te e salta la corda. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
+  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e salta la corda. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
     <span class="solo-tastiera"><kbd>frecce</kbd> o <kbd>WASD</kbd> per correre.</span>
     <span class="solo-tocco">Tieni premuti i tasti sul prato per correre.</span></p>
 
@@ -487,12 +487,13 @@ kbd {
     }
     return v.n - 1;
   }
-  // da ferma: di fronte l'attesa (respira); dopo un po' senza tasti si gira verso di noi e salta la corda
+  // da ferma: l'attesa (respira) nella direzione in cui guarda; dopo un po' senza tasti si gira verso di noi e
+  // salta la corda
   function ferma() {
     if (lei.corre) return null;
     if (lei.quieta >= dopoCorda) return { a: D.ferme.corda, t: lei.quieta - dopoCorda, nome: "salta la corda" };
-    if (lei.verso === "giu") return { a: D.ferme.attesa, t: lei.quieta, nome: "attesa" };
-    return null;
+    const a = D.ferme.attese[lei.verso];
+    return a ? { a, t: lei.quieta, nome: "attesa" } : null;
   }
   function aggiorna(dt) {
     const [dx, dy] = direzione();
