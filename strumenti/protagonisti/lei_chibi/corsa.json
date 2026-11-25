@@ -3,11 +3,69 @@
   "velocita": 185,
   "ritmo": 1.15,
   "durate_ms": {
-    "davanti_corsa": [40, 50, 40, 50, 40, 50, 40, 50, 40, 50, 40, 50],
-    "dietro_corsa": [60, 60, 60, 60, 60, 60, 60, 60, 60],
-    "lato_corsa": [40, 50, 40, 50, 40, 50, 40, 50, 40, 50, 40, 50],
-    "lato_sinistro_corsa": [40, 50, 40, 50, 40, 50, 40, 50, 40, 50, 40, 50]
+    "davanti_corsa": [
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50
+    ],
+    "dietro_corsa": [
+      60,
+      60,
+      60,
+      60,
+      60,
+      60,
+      60,
+      60,
+      60
+    ],
+    "lato_corsa": [
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50
+    ],
+    "lato_sinistro_corsa": [
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50,
+      40,
+      50
+    ],
+    "davanti_attesa": [
+      110,
+      100,
+      110,
+      100,
+      100,
+      110
+    ]
   },
   "_lato": "La corsa verso destra: la corsa verso sinistra specchiata (Bru: «quella giusta e' la corsa verso sinistra, quella verso destra sembra che cammini»), con la fascia del lato destro presa dalla testa del 72 approvata: il cerchio d'oro, due croci dietro e la mezza croce davanti. Stesso ordine: 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99.",
-  "_lato_sinistro": "La corsa verso sinistra (disegni suoi, non specchiati): 12 pose in due passi, nell'ordine 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99; la testa e' quella dell'87 in tutte; nelle pose in volo i piedi restano staccati da terra come nei disegni."
+  "_lato_sinistro": "La corsa verso sinistra (disegni suoi, non specchiati): 12 pose in due passi, nell'ordine 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99; la testa e' quella dell'87 in tutte; nelle pose in volo i piedi restano staccati da terra come nei disegni.",
+  "_attesa": "L'attesa di fronte (davanti_attesa.png, 6 fotogrammi 40x74) come la GIF di Bru: piedi fermi, il corpo sale di 1 pixel e torna giu', braccia, coda e ciocche in ritardo. Fatta da strumenti/protagonisti/attesa_davanti.py sulla posa davanti_ferma.png."
 }
