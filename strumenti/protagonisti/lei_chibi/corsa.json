@@ -109,6 +109,24 @@
       170,
       180,
       320
+    ],
+    "davanti_jojo": [
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90,
+      90
     ]
   },
   "_lato": "La corsa verso destra: la corsa verso sinistra specchiata (Bru: «quella giusta e' la corsa verso sinistra, quella verso destra sembra che cammini»), con la fascia del lato destro presa dalla testa del 72 approvata: il cerchio d'oro, due croci dietro e la mezza croce davanti. Stesso ordine: 88, 90, 100, 87, 91, 97, 92, 94, 101, 89, 93, 99.",
@@ -120,5 +138,6 @@
   "_uniforme": "Lei uguale in tutte le direzioni, partendo da quella di fronte (Bru, 25 novembre): stivali, guanti e pantaloncini coi colori di fronte in tutti i fogli (uniforma_colori.py); di fronte tre stelle sulla fascia, non quattro (uniforma_fronte.py).",
   "_ciuffo": "Il ciuffo di spalle e di lato ridotto a 12/14 come quello di fronte (alto 12 sopra il laccio): uniforma_ciuffo.py, una volta sola.",
   "_dorme": "Lei dorme in piedi, di fronte, dal disegno 106 di Bru (davanti_dorme.png, 10 fotogrammi 40x76 come l'attesa; la posa ferma e' davanti_dorme_posa.png, 40x74): testa piegata da un lato, occhi chiusi, bocca aperta con la lingua, braccia giu' lungo i fianchi, stivale destro un po' in fuori. Dalla narice la bolla di moccio azzurra col riflesso bianco: si gonfia mentre espira fino a quella disegnata da Bru, resta un attimo e si sgonfia mentre inspira; inspirando il corpo sale di 1 pixel (i piedi a terra, si allunga la coscia) e le punte del ciuffo seguono un fotogramma dopo. Fatta da strumenti/protagonisti/dorme_davanti.py.",
-  "_viso_corsa": "La corsa di fronte col viso della ferma (Bru: occhi troppo grandi, mancava il naso): in tutti i 12 fotogrammi gli occhi della ferma (iride di 4 pixel, stesse ciglia e angolo in basso, colori della corsa) attaccati ai capelli ai lati, e il naso della ferma (luce e ombra sotto). Fatta da strumenti/protagonisti/viso_corsa.py."
+  "_viso_corsa": "La corsa di fronte col viso della ferma (Bru: occhi troppo grandi, mancava il naso): in tutti i 12 fotogrammi gli occhi della ferma (iride di 4 pixel, stesse ciglia e angolo in basso, colori della corsa) attaccati ai capelli ai lati, e il naso della ferma (luce e ombra sotto). Fatta da strumenti/protagonisti/viso_corsa.py.",
+  "_jojo": "Lei in posa JoJo, di fronte, dal disegno 107 di Bru (davanti_jojo.png, 16 fotogrammi 72x84: lei a x 16, y 10, le suole alla riga 82; la posa ferma e' davanti_jojo_posa.png, 40x74, con tre stelle e il braccio alzato piu' corto di 4 righe). Un'aura viola intorno al corpo con lingue di fiamma che salgono, quattro ゴ viola ai lati che compaiono una dopo l'altra, salgono piano e tremano, il ciuffo che sventola, il respiro coi piedi a terra. Fatta da strumenti/protagonisti/jojo_davanti.py."
 }

@@ -226,7 +226,7 @@ kbd {
 <body>
 <main class="pagina">
   <h1>Prova corsa</h1>
-  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e fa una cosa a caso: salta la corda o si addormenta in piedi, con la bolla al naso. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
+  <p class="sotto">Lei sul ruscello di Radenna, con le corse di fronte, di spalle e di lato. Quando si ferma respira, guardando dove andava; se resta ferma per un po' si gira verso di te e fa una cosa a caso: salta la corda, si addormenta in piedi con la bolla al naso, o si mette in posa JoJo con l'aura e le ゴゴゴ. L'acqua scorre: il ruscello va a valle, nello stagno delle ninfee cadono gocce, le vasche hanno le cascatelle.<br>
     <span class="solo-tastiera"><kbd>frecce</kbd> o <kbd>WASD</kbd> per correre.</span>
     <span class="solo-tocco">Tieni premuti i tasti sul prato per correre.</span></p>
 
@@ -490,9 +490,10 @@ kbd {
     return v.n - 1;
   }
   // da ferma: l'attesa (respira) nella direzione in cui guarda; dopo un po' senza tasti si gira verso di noi e fa
-  // una delle animazioni da ferma, a caso: salta la corda o si addormenta. Le pesca da un sacchetto mescolato:
-  // l'ordine e' a caso, ma prima di ripeterne una le fa vedere tutte
-  const SPECIALI = [["corda", "salta la corda"], ["dorme", "dorme in piedi"]].filter((s) => D.ferme[s[0]]);
+  // una delle animazioni da ferma, a caso: salta la corda, si addormenta, la posa JoJo. Le pesca da un sacchetto
+  // mescolato: l'ordine e' a caso, ma prima di ripeterne una le fa vedere tutte
+  const SPECIALI = [["corda", "salta la corda"], ["dorme", "dorme in piedi"], ["jojo", "posa JoJo"]]
+    .filter((s) => D.ferme[s[0]]);
   let sacchetto = [];
   function pesca() {
     if (!sacchetto.length) {
